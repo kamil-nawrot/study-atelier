@@ -14,3 +14,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0008](0008-supabase-database-and-auth.md) | Use Supabase for the database and authentication | accepted |
 | [0009](0009-linear-for-tracking.md) | Track work in Linear | accepted |
 | [0010](0010-design-tokens-figma-sync.md) | Keep the design system in code and sync design tokens with Figma through Tokens Studio | accepted |
+| [0011](0011-deploy-from-github-actions.md) | Deploy to Cloudflare Pages from GitHub Actions | accepted |
