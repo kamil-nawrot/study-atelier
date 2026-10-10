@@ -21,7 +21,7 @@ build/
 coverage/
 *.log
 
-# Go / backend
+# Go (possible future backend)
 bin/
 *.test
 *.out
