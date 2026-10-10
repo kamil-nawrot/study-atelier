@@ -33,7 +33,8 @@ Free Tokens Studio limits, checked on 2026-10-10 against the plugin's [Pro licen
 
 - Git sync is free, but only as a single file.
 - Creating and switching Git branches is Pro, so the plugin is pinned to one branch (`design/tokens`).
-- Creating and editing themes is Pro; applying and toggling existing themes is free. Themes can be defined in the JSON file in the repository instead.
+- Themes are Pro: the Themes feature, including switching themes and [exporting styles by theme](https://docs.tokens.studio/figma/export/themes), needs a Pro licence ([source](https://docs.tokens.studio/manage-themes/simple-switch-guide)). Themes are still defined in `$themes` in the JSON file, so the code and a future Pro licence can use them.
+- On the free plan the plugin uses the active token sets instead, and the set lowest in the list wins. To switch between dark and light, activate `core` + `dark` or `core` + `light` and export styles from those sets.
 
 ### Consequences
 
@@ -41,4 +42,4 @@ Free Tokens Studio limits, checked on 2026-10-10 against the plugin's [Pro licen
 - Bad: only tokens sync. Components in Figma are sketches and are not kept in sync with the Svelte components automatically.
 - Bad: the plugin writes to its own branch, so token changes reach `develop` through an extra pull request.
 - Verified on 2026-10-10: the plugin works in a Figma draft on the free plan and pushes token changes to `design/tokens`.
-- Still to verify: that themes defined in JSON can be toggled in the free plugin.
+- Bad: switching between dark and light in Figma means toggling token sets by hand and exporting styles again (checked against the Tokens Studio docs on 2026-10-10).
