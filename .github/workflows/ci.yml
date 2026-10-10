@@ -7,7 +7,7 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   web:
@@ -71,6 +71,9 @@ jobs:
     if: github.event_name == 'push' && github.ref_name == 'develop'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    concurrency:
+      group: supabase-migrations
+      cancel-in-progress: false
     env:
       SUPABASE_CONFIGURED: ${{ secrets.SUPABASE_URL != '' && secrets.SUPABASE_ACCESS_TOKEN != '' && secrets.SUPABASE_DB_PASSWORD != '' }}
     steps:
