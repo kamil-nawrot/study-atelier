@@ -24,13 +24,13 @@ Chosen option: 1, apply migrations from GitHub Actions.
 
 - The `database` job in [`ci.yml`](../../.github/workflows/ci.yml) runs after the web checks on every push to `develop`. It links the project and runs `supabase db push` with the Supabase CLI.
 - `main` uses the same database, so a release to `main` applies no migrations of its own.
-- Credentials are repository secrets: `SUPABASE_URL` (the project reference is read from it), `SUPABASE_ACCESS_TOKEN` (a personal access token of the owner's Supabase account) and `SUPABASE_DB_PASSWORD`. The job is skipped while any of them is missing.
+- Credentials are repository secrets: `SUPABASE_URL` (the project reference is read from it), `SUPABASE_ACCESS_TOKEN` (a personal access token scoped to this project with read access to Project Settings, API Keys and API Key Secrets, which `supabase link` needs) and `SUPABASE_DB_PASSWORD`. The job is skipped while any of them is missing.
 - Migrations must stay compatible with the app version on `main`, because both use the same database.
 
 ### Consequences
 
 - Good: the database always matches the migrations on `develop`; every change is reviewed in a pull request.
-- Bad: a Supabase access token with access to the whole account is stored in GitHub and has to be rotated by hand if it leaks or expires.
+- Bad: a Supabase access token that can read the project's secret API keys is stored in GitHub, together with the database password; both have to be rotated by hand if they leak, and the token expires after at most a year.
 - Bad: a migration that breaks the app on `main` reaches the shared database before the release.
 
 ## More information
