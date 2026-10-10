@@ -64,3 +64,29 @@ jobs:
           pnpm exec wrangler pages deploy --project-name study-atelier --branch "$DEPLOY_BRANCH" --commit-hash "$DEPLOY_COMMIT" | tee deploy.log
           url=$(grep -oE 'https://[^ ]+\.pages\.dev' deploy.log | tail -n 1 || true)
           echo "Deployed \`$DEPLOY_BRANCH\` to $url" >> "$GITHUB_STEP_SUMMARY"
+
+  database:
+    name: Database migrations
+    needs: web
+    if: github.event_name == 'push' && github.ref_name == 'develop'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SUPABASE_CONFIGURED: ${{ secrets.SUPABASE_URL != '' && secrets.SUPABASE_ACCESS_TOKEN != '' && secrets.SUPABASE_DB_PASSWORD != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        if: env.SUPABASE_CONFIGURED == 'true'
+      - uses: supabase/setup-cli@v1
+        if: env.SUPABASE_CONFIGURED == 'true'
+        with:
+          version: 2.120.0
+      - name: Apply migrations
+        if: env.SUPABASE_CONFIGURED == 'true'
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          project_ref=$(echo "$SUPABASE_URL" | sed -E 's#^https://([^.]+)\.supabase\.co.*$#\1#')
+          supabase link --project-ref "$project_ref"
+          supabase db push

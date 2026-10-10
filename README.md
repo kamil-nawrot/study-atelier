@@ -19,6 +19,8 @@ pnpm build    # production build
 
 Deployment to Cloudflare Pages runs in GitHub Actions; see [ADR-0011](docs/decisions/0011-deploy-from-github-actions.md).
 
+Database migrations in [`supabase/migrations`](supabase/migrations) are applied to Supabase from GitHub Actions after a push to `develop`; see [ADR-0012](docs/decisions/0012-database-migrations-from-github-actions.md).
+
 CI runs the same checks on every pull request ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)).
 
 ## Documentation

@@ -38,6 +38,9 @@ Not yet described.
 | Push to `develop` | Preview at `develop.study-atelier.pages.dev` |
 | Pull request | Checks only, no deployment |
 
+- The database is one Supabase project shared by `develop` and `main`. Migrations in [`supabase/migrations`](../../supabase/migrations) are applied by the `database` job in `ci.yml` after a push to `develop` ([ADR-0012](../decisions/0012-database-migrations-from-github-actions.md)).
+- The scheduled workflow [`supabase-keep-alive.yml`](../../.github/workflows/supabase-keep-alive.yml) calls the `keep_alive()` database function daily so the free project is not paused.
+
 ## 8. Crosscutting concepts
 
 Not yet described.
@@ -52,7 +55,8 @@ Not yet described.
 
 ## 11. Risks and technical debt
 
-- The free Supabase project is paused after one week without activity ([ADR-0008](../decisions/0008-supabase-database-and-auth.md)).
+- The free Supabase project is paused after one week without database activity ([ADR-0008](../decisions/0008-supabase-database-and-auth.md)); the daily keep-alive runs only from the default branch.
+- `develop` and `main` share one database, so a migration reaches it before the release ([ADR-0012](../decisions/0012-database-migrations-from-github-actions.md)).
 
 ## 12. Glossary
 

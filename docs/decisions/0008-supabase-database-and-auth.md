@@ -21,4 +21,4 @@ Free tier limits checked on 2026-10-10 (https://supabase.com/pricing): 2 active 
 ### Consequences
 
 - Good: database, auth and storage from one free service; plain Postgres, so a custom backend could be added later without migrating data (see [0005](0005-no-custom-backend.md)).
-- Bad: inactive projects are paused; mitigated with a scheduled weekly request from GitHub Actions.
+- Bad: inactive projects are paused; mitigated with a scheduled daily database request from GitHub Actions (Supabase counts database queries and suggests a few a day, https://supabase.com/docs/guides/platform/free-project-pausing).
