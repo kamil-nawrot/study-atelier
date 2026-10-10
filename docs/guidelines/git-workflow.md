@@ -27,7 +27,7 @@ Commit messages follow [Conventional Commits 1.0](https://www.conventionalcommit
 ```
 
 - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
-- Scopes follow the monorepo layout once it exists, for example `web`, `api`, `docs`.
+- Scopes follow the monorepo layout, for example `web`, `design`, `db`, `docs`, `ci`.
 - The description is imperative, lowercase, without a trailing period.
 - Breaking changes are marked with `!` after the type or a `BREAKING CHANGE:` footer.
 - Reference the Linear issue in the footer, for example `Refs: ATL-1`.
@@ -41,3 +41,11 @@ Commit messages follow [Conventional Commits 1.0](https://www.conventionalcommit
 - Claude creates pull requests with the [`study-atelier-pr-create`](../../.claude/skills/study-atelier-pr-create/SKILL.md) skill.
 - Before asking the owner for review, Claude reviews the pull request with the [`study-atelier-pr-review`](../../.claude/skills/study-atelier-pr-review/SKILL.md) skill and fixes blocking findings.
 - The owner reviews and merges. Claude keeps the pull request green and answers review comments.
+
+## Before pushing
+
+Run the same checks as CI from the repository root and push only when they pass:
+
+```sh
+pnpm lint && pnpm check && pnpm test && pnpm build
+```
