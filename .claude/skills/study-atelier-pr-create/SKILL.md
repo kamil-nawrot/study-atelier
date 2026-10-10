@@ -50,9 +50,9 @@ Use exactly these sections, in this order, as in [`.github/pull_request_template
 - Bullets over paragraphs; short sentences; code identifiers in backticks.
 - No personal data: refer to people by role ("the owner").
 
-## Text the environment requires
+## No attribution
 
-If the environment requires extra text in the pull request body (for example an attribution block at the top or a generated-by footer at the bottom), keep it exactly where it is required, outside the four sections, and do not add anything else.
+Add no tool attribution to the title, description or commits: no "Requested by" line, no "Generated with Claude Code" footer, no `Co-Authored-By` or `Claude-Session` trailers (see the git workflow guideline).
 
 ## After creating
 
