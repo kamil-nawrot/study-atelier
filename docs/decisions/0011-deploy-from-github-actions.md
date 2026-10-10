@@ -23,7 +23,7 @@ The web app is hosted on Cloudflare Pages ([0006](0006-zero-cost-hosting.md)). C
 Chosen option: 1, deploy from GitHub Actions.
 
 - The CI job builds the app once and, when the checks pass, uploads `.svelte-kit/cloudflare` with `wrangler pages deploy`.
-- A push to `main` is a production deployment. A push to `develop` and every pull request get a preview deployment named after the branch.
+- A push to `main` is a production deployment at `study-atelier.pages.dev`. A push to `develop` is a preview deployment at `develop.study-atelier.pages.dev`. Pull requests and other branches are not deployed; the owner sees no need for per-branch previews.
 - Credentials are repository secrets `CLOUDFLARE_API_TOKEN` (permission: Account, Cloudflare Pages, Edit) and `CLOUDFLARE_ACCOUNT_ID`. The deploy steps are skipped while the secrets are missing.
 - The workflow creates the Pages project `study-atelier` on its first run if it does not exist.
 

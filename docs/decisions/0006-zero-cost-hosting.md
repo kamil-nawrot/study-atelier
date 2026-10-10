@@ -21,5 +21,5 @@ The app has a single user for now, so running costs should be zero. The project 
 
 ### Consequences
 
-- Good: no cost; preview deployments per pull request.
+- Good: no cost; a separate preview deployment for `develop` ([0011](0011-deploy-from-github-actions.md)).
 - Bad: free-tier limits and policies can change; to be reviewed if the app gains more users.

@@ -34,9 +34,9 @@ Not yet described.
 
 | Trigger | Deployment |
 | --- | --- |
-| Push to `main` | Production |
-| Push to `develop` | Preview for `develop` |
-| Pull request | Preview for the pull request's branch |
+| Push to `main` | Production at `study-atelier.pages.dev` |
+| Push to `develop` | Preview at `develop.study-atelier.pages.dev` |
+| Pull request | Checks only, no deployment |
 
 ## 8. Crosscutting concepts
 

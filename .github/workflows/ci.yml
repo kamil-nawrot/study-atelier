@@ -42,7 +42,7 @@ jobs:
         run: pnpm --filter @study-atelier/web build
 
       - name: Create Cloudflare Pages project
-        if: env.CLOUDFLARE_CONFIGURED == 'true'
+        if: github.event_name == 'push' && env.CLOUDFLARE_CONFIGURED == 'true'
         working-directory: apps/web
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -53,13 +53,13 @@ jobs:
           fi
 
       - name: Deploy to Cloudflare Pages
-        if: env.CLOUDFLARE_CONFIGURED == 'true'
+        if: github.event_name == 'push' && env.CLOUDFLARE_CONFIGURED == 'true'
         working-directory: apps/web
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          DEPLOY_BRANCH: ${{ github.head_ref || github.ref_name }}
-          DEPLOY_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          DEPLOY_BRANCH: ${{ github.ref_name }}
+          DEPLOY_COMMIT: ${{ github.sha }}
         run: |
           pnpm exec wrangler pages deploy --project-name study-atelier --branch "$DEPLOY_BRANCH" --commit-hash "$DEPLOY_COMMIT" | tee deploy.log
           url=$(grep -oE 'https://[^ ]+\.pages\.dev' deploy.log | tail -n 1 || true)
