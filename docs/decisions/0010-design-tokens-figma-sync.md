@@ -2,11 +2,10 @@
 
 - Status: accepted
 - Date: 2026-10-10
-- Deciders: Kamil
 
 ## Context and problem statement
 
-Kamil wants a design system that both he and Claude can edit and that Claude can read reliably. Kamil would prefer to work visually in Figma, but the project must stay free.
+The owner wants a design system that both the owner and Claude can edit and that Claude can read reliably. The owner would prefer to work visually in Figma, but the project must stay free.
 
 On the free Figma Starter plan the Figma MCP server allows only 6 read calls per month, so Claude cannot read a Figma file directly in practice. Full MCP access needs a paid Dev or Full seat.
 
@@ -14,7 +13,7 @@ On the free Figma Starter plan the Figma MCP server allows only 6 read calls per
 
 - Zero cost.
 - Claude must be able to read and change the design system without limits.
-- Kamil wants to design visually.
+- The owner wants to design visually.
 
 ## Considered options
 
@@ -27,7 +26,7 @@ On the free Figma Starter plan the Figma MCP server allows only 6 read calls per
 Chosen option: 2.
 
 - The source of truth for the design system is the code: design tokens in `design/tokens.json` and Svelte components documented in Storybook.
-- Kamil works in a Figma draft (not one of the three Starter team files) with the free Tokens Studio plugin, which syncs the token file with GitHub.
+- The owner works in a Figma draft (not one of the three Starter team files) with the free Tokens Studio plugin, which syncs the token file with GitHub.
 - Details of the workflow: [design tokens guideline](../guidelines/design-tokens.md).
 
 Free Tokens Studio limits, checked on 2026-10-10 against the plugin's [Pro licence documentation](https://github.com/tokens-studio/tokens-studio-for-figma-plugin-docs/blob/main/get-started/pro-licence.md):
@@ -38,7 +37,7 @@ Free Tokens Studio limits, checked on 2026-10-10 against the plugin's [Pro licen
 
 ### Consequences
 
-- Good: no cost; Claude reads tokens from the repository; Kamil keeps a visual tool.
+- Good: no cost; Claude reads tokens from the repository; the owner keeps a visual tool.
 - Bad: only tokens sync. Components in Figma are sketches and are not kept in sync with the Svelte components automatically.
 - Bad: the plugin writes to its own branch, so token changes reach `develop` through an extra pull request.
 - Verified on 2026-10-10: the plugin works in a Figma draft on the free plan and pushes token changes to `design/tokens`.

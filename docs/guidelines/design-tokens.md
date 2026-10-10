@@ -15,7 +15,7 @@ Design tokens (colours, typography, spacing, radii and similar values) are the s
 - Token changes made in code also go to `design/tokens` first, so the plugin can pull them; then they follow the same pull request into `develop`.
 - After a token pull request is merged, `develop` is merged back into `design/tokens` so the branch stays current.
 
-## Kamil's flow in Figma
+## The owner's flow in Figma
 
 1. Make changes in Tokens Studio.
 2. Push them to GitHub from the plugin, with a Conventional Commits message, for example `feat(design): add accent colour scale`.

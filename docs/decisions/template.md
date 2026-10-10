@@ -2,7 +2,6 @@
 
 - Status: proposed | accepted | rejected | deprecated | superseded by [NNNN](NNNN-title.md)
 - Date: YYYY-MM-DD
-- Deciders: Kamil
 
 ## Context and problem statement
 

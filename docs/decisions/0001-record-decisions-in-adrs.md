@@ -2,11 +2,10 @@
 
 - Status: accepted
 - Date: 2026-10-10
-- Deciders: Kamil
 
 ## Context and problem statement
 
-The project is built by Claude with Kamil making every decision. Decisions, the app description and the rules Claude must follow need to live somewhere durable, reviewable and close to the code.
+The project is built by Claude with the owner making every decision. Decisions, the app description and the rules Claude must follow need to live somewhere durable, reviewable and close to the code.
 
 ## Decision drivers
 
