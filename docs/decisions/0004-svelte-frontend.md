@@ -2,11 +2,10 @@
 
 - Status: accepted
 - Date: 2026-10-10
-- Deciders: Kamil
 
 ## Context and problem statement
 
-The frontend should use a lightweight TypeScript framework. Kamil knows Angular, which is likely more than this project needs, and treats the project as a chance to learn something new.
+The frontend should use a lightweight TypeScript framework. The owner knows Angular, which is likely more than this project needs, and treats the project as a chance to learn something new.
 
 ## Considered options
 
@@ -16,7 +15,7 @@ The frontend should use a lightweight TypeScript framework. Kamil knows Angular,
 
 ## Decision outcome
 
-Chosen option: Svelte 5 with Vite, in TypeScript, because it needs the least code, has little framework "magic", and is the newest of the three for Kamil.
+Chosen option: Svelte 5 with Vite, in TypeScript, because it needs the least code, has little framework "magic", and is the newest of the three for the owner.
 
 Whether to use SvelteKit or a plain Vite single-page app will be decided together with the hosting setup.
 

@@ -2,11 +2,10 @@
 
 - Status: accepted
 - Date: 2026-10-10
-- Deciders: Kamil
 
 ## Context and problem statement
 
-Claude works autonomously, but Kamil must stay in control of what lands in the codebase. A branching model and commit convention are needed.
+Claude works autonomously, but the owner must stay in control of what lands in the codebase. A branching model and commit convention are needed.
 
 ## Considered options
 
@@ -15,10 +14,10 @@ Claude works autonomously, but Kamil must stay in control of what lands in the c
 
 ## Decision outcome
 
-Chosen option: gitflow, because Kamil prefers it and it gives a clear separation between released and in-progress work.
+Chosen option: gitflow, because the owner prefers it and it gives a clear separation between released and in-progress work.
 
 - Commit messages follow Conventional Commits 1.0.
-- All changes reach `develop` and `main` through pull requests that Kamil approves.
+- All changes reach `develop` and `main` through pull requests that the owner approves.
 
 Details: [git workflow](../guidelines/git-workflow.md).
 
