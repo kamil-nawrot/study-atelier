@@ -31,3 +31,7 @@ Chosen option: 1, deploy from GitHub Actions.
 
 - Good: a failing check blocks the deployment; builds and deployments are visible in one GitHub Actions run.
 - Bad: a Cloudflare API token is stored in GitHub and has to be rotated by hand if it leaks or expires.
+
+## More information
+
+This narrows the "preview deployments per pull request" consequence of [0006](0006-zero-cost-hosting.md): only `develop` gets a preview. The hosting choice in 0006 is unchanged.
