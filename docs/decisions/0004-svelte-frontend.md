@@ -1,4 +1,4 @@
-# 0004. Build the frontend with Svelte 5 and Vite in TypeScript
+# 0004. Build the frontend with SvelteKit (Svelte 5) in TypeScript
 
 - Status: accepted
 - Date: 2026-10-10
@@ -18,7 +18,7 @@ The frontend should use a lightweight TypeScript framework. Kamil knows Angular,
 
 Chosen option: Svelte 5 with Vite, in TypeScript, because it needs the least code, has little framework "magic", and is the newest of the three for Kamil.
 
-Whether to use SvelteKit or a plain Vite single-page app will be decided together with the hosting setup.
+Kamil chose SvelteKit over a plain Vite single-page app on 2026-10-10: it brings routing, a standard project structure and an official Cloudflare adapter, and leaves room for server-side code later without a rewrite. The app uses `@sveltejs/adapter-cloudflare` targeting Cloudflare Pages.
 
 ### Consequences
 

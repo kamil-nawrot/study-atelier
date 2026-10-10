@@ -17,7 +17,12 @@ The app has a web frontend and server-side parts (at first Supabase migrations a
 
 Chosen option: monorepo (`kamil-nawrot/study-atelier`, private), because the project is small, has one developer, and changes often span frontend, database and docs at once.
 
-The exact folder layout will be decided when application code is introduced.
+Layout, managed as a pnpm workspace:
+
+- `apps/web`: the SvelteKit app
+- `design/`: design tokens ([0010](0010-design-tokens-figma-sync.md))
+- `docs/`: documentation
+- `supabase/`: database migrations and Edge Functions, once they exist
 
 ### Consequences
 
