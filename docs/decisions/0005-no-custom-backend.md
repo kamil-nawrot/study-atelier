@@ -2,11 +2,10 @@
 
 - Status: accepted
 - Date: 2026-10-10
-- Deciders: Kamil
 
 ## Context and problem statement
 
-The app needs server-side data access and some server logic. Kamil initially preferred a Go backend, but asked what would be lost by skipping a custom backend entirely.
+The app needs server-side data access and some server logic. The owner initially preferred a Go backend, but asked what would be lost by skipping a custom backend entirely.
 
 ## Decision drivers
 

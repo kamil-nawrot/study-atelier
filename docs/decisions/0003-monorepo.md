@@ -2,7 +2,6 @@
 
 - Status: accepted
 - Date: 2026-10-10
-- Deciders: Kamil
 
 ## Context and problem statement
 

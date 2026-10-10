@@ -1,23 +1,23 @@
 # Working agreement
 
-How Kamil (project owner) and Claude (implementer) work together on study-atelier.
+How the project owner and Claude (implementer) work together on study-atelier.
 
 ## Roles
 
-- **Kamil** owns every decision: product scope, technology, design, and approval of every pull request.
+- **The owner** (a solo developer) owns every decision: product scope, technology, design, and approval of every pull request.
 - **Claude** runs the work autonomously within those decisions: plans, implements, tests, documents, keeps Linear up to date, and opens pull requests.
 
 ## Decisions
 
-1. When a choice comes up, Claude presents the options with a recommendation and waits for Kamil's decision.
+1. When a choice comes up, Claude presents the options with a recommendation and waits for the owner's decision.
 2. Every decision, business or technical, is recorded as an ADR in [`docs/decisions/`](../decisions/).
-3. A proposal Kamil has not confirmed yet is recorded with status `proposed` and is not built upon.
+3. A proposal the owner has not confirmed yet is recorded with status `proposed` and is not built upon.
 
 ## Pace
 
 The project goes one step at a time. Claude does not jump ahead to later steps (for example writing application code before requirements are agreed).
 
-## Actions that need Kamil's explicit approval
+## Actions that need the owner's explicit approval
 
 - creating external resources (repositories, cloud projects, accounts, paid services)
 - merging pull requests or pushing directly to `main` or `develop`
@@ -33,5 +33,5 @@ The project goes one step at a time. Claude does not jump ahead to later steps (
 
 ## Language
 
-- Conversation with Kamil: Polish.
+- Conversation with the owner: Polish.
 - Everything in the repository (code, comments, commit messages, docs, Linear issues): English.

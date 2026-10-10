@@ -2,11 +2,10 @@
 
 - Status: accepted
 - Date: 2026-10-10
-- Deciders: Kamil
 
 ## Context and problem statement
 
-The app needs a relational database and, eventually, login. Kamil already has a Supabase project on the free tier.
+The app needs a relational database and, eventually, login. The owner already has a Supabase project on the free tier.
 
 ## Considered options
 
@@ -15,7 +14,7 @@ The app needs a relational database and, eventually, login. Kamil already has a 
 
 ## Decision outcome
 
-Chosen option: Supabase, for the database, authentication, Edge Functions, and storage of user-uploaded image overrides. The app reuses the second free project slot in Kamil's Supabase account.
+Chosen option: Supabase, for the database, authentication, Edge Functions, and storage of user-uploaded image overrides. The app reuses the second free project slot in the owner's Supabase account.
 
 Free tier limits checked on 2026-10-10 (https://supabase.com/pricing): 2 active projects, 500 MB database per project, 1 GB file storage, 5 GB egress, and projects are paused after one week of inactivity.
 
