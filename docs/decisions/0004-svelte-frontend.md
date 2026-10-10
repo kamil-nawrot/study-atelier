@@ -18,7 +18,7 @@ The frontend should use a lightweight TypeScript framework. Kamil knows Angular,
 
 Chosen option: Svelte 5 with Vite, in TypeScript, because it needs the least code, has little framework "magic", and is the newest of the three for Kamil.
 
-Whether to use SvelteKit or a plain Vite single-page app will be decided together with the backend and hosting setup.
+Whether to use SvelteKit or a plain Vite single-page app will be decided together with the hosting setup.
 
 ### Consequences
 

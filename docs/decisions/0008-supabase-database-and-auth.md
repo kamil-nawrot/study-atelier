@@ -1,6 +1,6 @@
 # 0008. Use Supabase for the database and authentication
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-10-10
 - Deciders: Kamil
 
@@ -15,13 +15,11 @@ The app needs a relational database and, eventually, login. Kamil already has a 
 
 ## Decision outcome
 
-Proposed option: Supabase, for the database, authentication, and storage of user-uploaded image overrides.
+Chosen option: Supabase, for the database, authentication, Edge Functions, and storage of user-uploaded image overrides. The app reuses the second free project slot in Kamil's Supabase account.
 
 Free tier limits checked on 2026-10-10 (https://supabase.com/pricing): 2 active projects, 500 MB database per project, 1 GB file storage, 5 GB egress, and projects are paused after one week of inactivity.
 
-Awaiting Kamil's confirmation.
-
 ### Consequences
 
-- Good: database, auth and storage from one free service; plain Postgres, so the Go backend can connect directly.
+- Good: database, auth and storage from one free service; plain Postgres, so a custom backend could be added later without migrating data (see [0005](0005-no-custom-backend.md)).
 - Bad: inactive projects are paused; mitigated with a scheduled weekly request from GitHub Actions.

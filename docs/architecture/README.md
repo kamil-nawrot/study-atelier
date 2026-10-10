@@ -9,7 +9,7 @@ See [product vision](../product/vision.md).
 ## 2. Constraints
 
 - Single user for now; running costs must stay at zero ([ADR-0006](../decisions/0006-zero-cost-hosting.md)).
-- Monorepo with a TypeScript frontend and a Go backend ([ADR-0003](../decisions/0003-monorepo.md)).
+- Monorepo ([ADR-0003](../decisions/0003-monorepo.md)) with a Svelte frontend ([ADR-0004](../decisions/0004-svelte-frontend.md)) and no custom backend: Supabase provides the database, auth and server functions ([ADR-0005](../decisions/0005-no-custom-backend.md), [ADR-0008](../decisions/0008-supabase-database-and-auth.md)).
 
 ## 3. Context and scope
 

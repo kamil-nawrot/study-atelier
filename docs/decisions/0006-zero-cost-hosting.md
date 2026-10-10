@@ -18,7 +18,7 @@ The app has a single user for now, so running costs should be zero. The project 
 
 - Frontend: Cloudflare Pages.
 - CI/CD: GitHub Actions (free minutes for private repositories).
-- Backend and database hosting are covered by [0005](0005-go-backend.md) and [0008](0008-supabase-database-and-auth.md).
+- Database, auth and server functions run on Supabase; see [0005](0005-no-custom-backend.md) and [0008](0008-supabase-database-and-auth.md).
 
 ### Consequences
 
