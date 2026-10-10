@@ -41,4 +41,5 @@ Free Tokens Studio limits, checked on 2026-10-10 against the plugin's [Pro licen
 - Good: no cost; Claude reads tokens from the repository; Kamil keeps a visual tool.
 - Bad: only tokens sync. Components in Figma are sketches and are not kept in sync with the Svelte components automatically.
 - Bad: the plugin writes to its own branch, so token changes reach `develop` through an extra pull request.
-- To verify: that the plugin works in a Figma draft on the free plan, and that themes defined in JSON can be toggled in the free plugin.
+- Verified on 2026-10-10: the plugin works in a Figma draft on the free plan and pushes token changes to `design/tokens`.
+- Still to verify: that themes defined in JSON can be toggled in the free plugin.
