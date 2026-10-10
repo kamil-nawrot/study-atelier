@@ -22,6 +22,7 @@
 - File name: `NNNN-short-title.md`, numbered sequentially and never renumbered.
 - Status is one of `proposed`, `accepted`, `rejected`, `deprecated`, `superseded by NNNN`.
 - Accepted ADRs are not rewritten. A changed decision gets a new ADR that supersedes the old one, and the old one's status is updated.
+- Corrections that leave the decision unchanged are allowed in an accepted ADR: typos, broken links, facts found to be wrong, and removal of personal data.
 - Every new ADR is added to the index in [`decisions/README.md`](../decisions/README.md).
 
 ## Architecture
