@@ -22,4 +22,4 @@ For now a single user: the project owner, learning art history.
 
 ## Scope
 
-Detailed requirements are not defined yet. They will be collected in [requirements.md](requirements.md) once the project setup is complete.
+The first version covers building and browsing the atelier; learning tools come later. See [requirements.md](requirements.md).
