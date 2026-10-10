@@ -23,6 +23,8 @@ Design tokens (colours, typography, spacing, radii and similar values) are the s
 
 To get Claude's changes: pull from GitHub in the plugin.
 
+To preview dark or light in Figma on the free plan: activate the `core` set plus either `dark` or `light`, deactivate the other, and export styles again. Theme switching is a Pro feature.
+
 ## Claude's rules
 
 - Never hand-edit `$themes` or `$metadata` without checking the Tokens Studio format; the plugin owns them.
