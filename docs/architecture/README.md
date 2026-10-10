@@ -55,7 +55,7 @@ Not yet described.
 
 ## 11. Risks and technical debt
 
-- The free Supabase project is paused after one week without database activity ([ADR-0008](../decisions/0008-supabase-database-and-auth.md)); the daily keep-alive runs only from the default branch.
+- The free Supabase project is paused after one week without database activity ([ADR-0008](../decisions/0008-supabase-database-and-auth.md)); the daily keep-alive runs only from the default branch (`develop`).
 - `develop` and `main` share one database, so a migration reaches it before the release ([ADR-0012](../decisions/0012-database-migrations-from-github-actions.md)).
 
 ## 12. Glossary

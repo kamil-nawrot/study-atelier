@@ -35,4 +35,4 @@ Chosen option: 1, apply migrations from GitHub Actions.
 
 ## More information
 
-The free project is paused after a week without database activity. The scheduled [`supabase-keep-alive.yml`](../../.github/workflows/supabase-keep-alive.yml) workflow calls the `keep_alive()` database function once a day with the publishable key (secret `SUPABASE_PUBLISHABLE_KEY`). Scheduled workflows run only from the repository's default branch.
+The free project is paused after a week without database activity. The scheduled [`supabase-keep-alive.yml`](../../.github/workflows/supabase-keep-alive.yml) workflow calls the `keep_alive()` database function once a day with the publishable key (secret `SUPABASE_PUBLISHABLE_KEY`). Scheduled workflows run only from the repository's default branch, which is `develop`.
