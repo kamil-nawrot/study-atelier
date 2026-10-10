@@ -1,4 +1,5 @@
 <script lang="ts">
+	import '@study-atelier/ui/styles.css';
 	import favicon from '#lib/assets/favicon.svg';
 	import type { LayoutProps } from './$types';
 

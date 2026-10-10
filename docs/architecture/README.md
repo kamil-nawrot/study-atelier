@@ -23,6 +23,9 @@ To be described once the stack decisions are accepted.
 
 To be described with C4 container and component diagrams.
 
+- `apps/web`: the SvelteKit app.
+- `packages/ui`: shared Svelte components, token CSS, fonts and base styles, documented in Storybook ([ADR-0013](../decisions/0013-component-library-with-storybook.md)).
+
 ## 6. Runtime view
 
 Not yet described.
@@ -31,6 +34,7 @@ Not yet described.
 
 - The web app is a SvelteKit build for Cloudflare Pages, project `study-atelier`.
 - GitHub Actions ([`ci.yml`](../../.github/workflows/ci.yml)) runs lint, type check, unit tests and the build, then deploys with Wrangler ([ADR-0011](../decisions/0011-deploy-from-github-actions.md)).
+- The same workflow checks `packages/ui` and builds its Storybook without deploying it ([ADR-0013](../decisions/0013-component-library-with-storybook.md)).
 
 | Trigger | Deployment |
 | --- | --- |

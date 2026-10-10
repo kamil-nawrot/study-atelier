@@ -11,6 +11,7 @@ Requirements: Node.js 22 (see `.nvmrc`) and pnpm 10.
 ```sh
 pnpm install
 pnpm dev      # start the web app
+pnpm storybook # browse the UI components
 pnpm lint     # Prettier and ESLint
 pnpm check    # type check
 pnpm test     # unit tests

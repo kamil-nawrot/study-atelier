@@ -8,6 +8,8 @@
 	},
 	"scripts": {
 		"dev": "pnpm --filter @study-atelier/web dev",
+		"storybook": "pnpm --filter @study-atelier/ui storybook",
+		"tokens": "pnpm --filter @study-atelier/ui tokens",
 		"build": "pnpm -r build",
 		"check": "pnpm -r check",
 		"lint": "pnpm -r lint",

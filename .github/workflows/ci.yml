@@ -10,6 +10,35 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  ui:
+    name: UI library
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --filter @study-atelier/ui lint
+
+      - name: Type check and token CSS check
+        run: pnpm --filter @study-atelier/ui check
+
+      - name: Unit tests
+        run: pnpm --filter @study-atelier/ui test
+
+      - name: Build Storybook
+        run: pnpm --filter @study-atelier/ui build
+
   web:
     name: Web app
     runs-on: ubuntu-latest
