@@ -17,3 +17,5 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0011](0011-deploy-from-github-actions.md) | Deploy to Cloudflare Pages from GitHub Actions | accepted |
 | [0012](0012-database-migrations-from-github-actions.md) | Apply database migrations from GitHub Actions | accepted |
 | [0013](0013-component-library-with-storybook.md) | Build Svelte components in a workspace package documented in Storybook | accepted |
+| [0015](0015-typed-message-dictionaries-for-i18n.md) | Keep UI text in typed message dictionaries, one file per language | proposed |
+| [0016](0016-supabase-auth-in-the-browser.md) | Sign in with Supabase Auth from the browser, email and password only | proposed |

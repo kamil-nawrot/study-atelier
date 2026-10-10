@@ -24,6 +24,7 @@ Shared Svelte components and styles for study-atelier, documented in Storybook (
 | `TextField` | Labelled input with hint, error and password reveal                          |
 | `Checkbox`  | Labelled checkbox                                                            |
 | `Frame`     | Passe-partout frame for artworks: `list` or `view` size                      |
+| `Message`   | Status message with a coloured spine: `danger`, `success` or `warning`       |
 | `Section`   | Text section with a heavy left edge (spine)                                  |
 
 ## Commands

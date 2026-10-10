@@ -14,6 +14,17 @@ Run commands from the repository root with pnpm, or from this folder:
 | `pnpm build`  | Production build for Cloudflare Pages                                  |
 | `pnpm gen`    | Regenerate `worker-configuration.d.ts` after changing `wrangler.jsonc` |
 
+## Environment variables
+
+The app needs the Supabase project URL and publishable key at build time ([ADR-0016](../../docs/decisions/0016-supabase-auth-in-the-browser.md)). Export them in the shell before `pnpm dev`, `pnpm check` or `pnpm build`. Do not put them in a `.env` file: `wrangler types` would add them to the generated types and `pnpm check` would fail.
+
+| Variable                   | Value                                               |
+| -------------------------- | --------------------------------------------------- |
+| `SUPABASE_URL`             | Project URL, for example `https://abcd.supabase.co` |
+| `SUPABASE_PUBLISHABLE_KEY` | Publishable key from Project Settings, API Keys     |
+
+In CI the web job reads them from the repository secrets of the same names.
+
 The project was scaffolded with:
 
 ```sh
