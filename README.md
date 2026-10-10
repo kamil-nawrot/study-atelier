@@ -17,6 +17,8 @@ pnpm test     # unit tests
 pnpm build    # production build
 ```
 
+Deployment to Cloudflare Pages runs in GitHub Actions; see [ADR-0011](docs/decisions/0011-deploy-from-github-actions.md).
+
 CI runs the same checks on every pull request ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)).
 
 ## Documentation

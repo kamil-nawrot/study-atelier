@@ -29,7 +29,14 @@ Not yet described.
 
 ## 7. Deployment view
 
-Not yet described.
+- The web app is a SvelteKit build for Cloudflare Pages, project `study-atelier`.
+- GitHub Actions ([`ci.yml`](../../.github/workflows/ci.yml)) runs lint, type check, unit tests and the build, then deploys with Wrangler ([ADR-0011](../decisions/0011-deploy-from-github-actions.md)).
+
+| Trigger | Deployment |
+| --- | --- |
+| Push to `main` | Production at `study-atelier.pages.dev` |
+| Push to `develop` | Preview at `develop.study-atelier.pages.dev` |
+| Pull request | Checks only, no deployment |
 
 ## 8. Crosscutting concepts
 
