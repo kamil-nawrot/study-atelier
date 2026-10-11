@@ -21,7 +21,5 @@ build/
 coverage/
 *.log
 
-# Go / backend
-bin/
-*.test
-*.out
+# Cloudflare
+.wrangler/

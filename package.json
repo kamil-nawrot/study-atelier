@@ -1,0 +1,29 @@
+{
+	"name": "study-atelier",
+	"private": true,
+	"type": "module",
+	"packageManager": "pnpm@10.28.0",
+	"engines": {
+		"node": ">=22"
+	},
+	"scripts": {
+		"dev": "pnpm --filter @study-atelier/web dev",
+		"storybook": "pnpm --filter @study-atelier/ui storybook",
+		"tokens": "pnpm --filter @study-atelier/ui tokens",
+		"build": "pnpm -r build",
+		"check": "pnpm -r check",
+		"lint": "pnpm -r lint",
+		"format": "pnpm -r format",
+		"test": "pnpm -r test"
+	},
+	"devDependencies": {
+		"@eslint/js": "^10.0.1",
+		"eslint": "^10.12.0",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-svelte": "^3.23.1",
+		"globals": "^17.13.0",
+		"prettier": "^3.9.10",
+		"prettier-plugin-svelte": "^4.1.1",
+		"typescript-eslint": "^8.71.1"
+	}
+}
