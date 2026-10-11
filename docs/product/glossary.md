@@ -9,3 +9,4 @@
 | Category value | A reusable value of a category field of an artwork, such as an author, a period, a style or a material. Values already used are suggested when filling in other artworks. |
 | Record number | The artwork's sequential number in the atelier, shown as `#0001`. Never reused. |
 | Candidate | An artwork found in the image source that may match the artwork being added; the learner picks one or none. |
+| Trash | Where deleted artworks go. An artwork in the trash can be restored or deleted permanently. |

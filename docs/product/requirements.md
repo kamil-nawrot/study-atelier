@@ -1,9 +1,12 @@
 # Requirements
 
-Requirements for the first version (MVP) of study-atelier, gathered with the owner.
-Identifiers (`R-n`) are stable so that issues and pull requests can refer to them.
+What study-atelier should do, gathered with the owner. This is a living document for the whole app: it grows with each version instead of being replaced.
 
-## Goal of the first version
+- Every requirement has an identifier `R-n`. Identifiers are never renumbered or reused, so issues and pull requests can refer to them; a dropped requirement is struck through, not deleted.
+- The Version column says in which version a requirement is delivered: `MVP` for the first version, later versions are named when they are planned.
+- What is planned for each version is tracked as a milestone in Linear.
+
+## Goal of the first version (MVP)
 
 The MVP is the simplest useful form of the [atelier](glossary.md): a personal store of artworks that is quick to fill in and easy to search.
 Entering an artwork is itself part of learning, so the learner writes the data in their own words and adds to an entry as their knowledge grows.
@@ -17,14 +20,15 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 
 ## Artworks
 
-| ID | Requirement |
-| --- | --- |
-| R-1 | The learner can add, view, edit and delete an artwork. |
-| R-2 | Every artwork gets a record number shown as `#0001`, `#0002`, ... in order of creation. A number is never reused: deleting an artwork leaves a gap. |
-| R-3 | An artwork has the fields listed in [Artwork fields](#artwork-fields). |
-| R-4 | Only the title and the author are required. Instead of an author, the learner can mark the author as unknown. |
-| R-5 | The set of fields and categories is fixed in code for the MVP, and the data model makes adding a new field or category a small code change. |
-| R-6 | The learner writes every value in their own words. The app never forces a particular spelling and never overwrites what the learner entered. |
+| ID | Requirement | Version |
+| --- | --- | --- |
+| R-1 | The learner can add, view, edit and delete an artwork. | MVP |
+| R-23 | Deleting an artwork moves it to the trash. From the trash the learner can restore it or delete it permanently. Artworks in the trash are hidden from the collection and from suggestions. | MVP |
+| R-2 | Every artwork gets a record number shown as `#0001`, `#0002`, ... in order of creation. A number is never reused: a permanently deleted artwork leaves a gap, and a restored one keeps its number. | MVP |
+| R-3 | An artwork has the fields listed in [Artwork fields](#artwork-fields). | MVP |
+| R-4 | Only the title and the author are required. Instead of an author, the learner can mark the author as unknown. | MVP |
+| R-5 | The set of fields and categories is fixed in code for the MVP, and the data model makes adding a new field or category a small code change. | MVP |
+| R-6 | The learner writes every value in their own words. The app never forces a particular spelling and never overwrites what the learner entered. | MVP |
 
 ### Artwork fields
 
@@ -43,41 +47,45 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 
 ## Category values
 
-| ID | Requirement |
-| --- | --- |
-| R-7 | Authors, period, style, material and location are [category values](glossary.md): when filling them in, the app suggests values the learner has already used in other artworks. |
-| R-8 | The same value used in several artworks is one value, so artworks can be grouped and filtered by it (for example all works by one author). |
-| R-9 | A new value is created simply by typing it; there is no separate place to manage values in the MVP. |
+| ID | Requirement | Version |
+| --- | --- | --- |
+| R-7 | Authors, period, style, material and location are [category values](glossary.md): when filling them in, the app suggests values the learner has already used in other artworks. | MVP |
+| R-8 | The same value used in several artworks is one value, so artworks can be grouped and filtered by it (for example all works by one author). | MVP |
+| R-9 | A new value is created by typing it, but never by accident: while typing, a value that does not exist yet is clearly marked as new (for example "(new)"), and it is created only when the learner explicitly picks that option. There is no separate place to manage values in the MVP. | MVP |
+| R-24 | Period, style and material come with a starting list of common values defined in code (for example main periods, styles and materials of Western art), offered as suggestions before the learner has used any. The learner can still add a value that is not on the list (R-9). | MVP |
+| R-25 | When the learner is about to create a new value that is very similar to an existing one (different letter case, missing diacritics, a small typo), the app points to the existing value and suggests using it instead. | MVP |
 
 ## Images
 
-| ID | Requirement |
-| --- | --- |
-| R-10 | Each artwork has at most one image in the MVP. |
-| R-11 | After entering the title and author, the learner confirms them (for example with a "Search" button). Only then does the app search the [image source](glossary.md) and show a short list of candidate artworks, each with a thumbnail, title, author and date. Nothing is searched while the learner is typing. |
-| R-12 | The learner picks the matching candidate, or "none of these". Picking a candidate links the artwork to that item in the image source and uses its image. |
-| R-13 | After a candidate is picked, the app shows the title and author from the image source next to the learner's own values for comparison, without changing them. |
-| R-14 | When no candidate matches or the source has no free image, the artwork shows an empty image placeholder with an easy way to add the learner's own image. |
-| R-15 | The learner can replace the image at any time with their own image ([image override](glossary.md)), uploaded as a file or given as a URL. |
-| R-16 | Images from the image source are shown with their licence and attribution ([ADR-0007](../decisions/0007-images-from-open-sources.md)). |
+| ID | Requirement | Version |
+| --- | --- | --- |
+| R-10 | Each artwork has at most one image in the MVP. | MVP |
+| R-11 | The image search is started from the image field: its "Find image" button becomes available once the title and the author (or "author unknown") are filled in. Only then does the app search the [image source](glossary.md) and show a short list of candidate artworks, each with a thumbnail, title, author and date. Nothing is searched while the learner is typing. | MVP |
+| R-12 | The learner picks the matching candidate, or "none of these". Picking a candidate links the artwork to that item in the image source and uses its image. | MVP |
+| R-13 | After a candidate is picked, the app shows the title and author from the image source next to the learner's own values for comparison, without changing them. | MVP |
+| R-14 | When no candidate matches or the source has no free image, the artwork shows an empty image placeholder with an easy way to add the learner's own image. | MVP |
+| R-15 | The learner can replace the image at any time with their own image ([image override](glossary.md)), uploaded as a file or given as a URL. | MVP |
+| R-16 | Images from the image source are shown with their licence and attribution ([ADR-0007](../decisions/0007-images-from-open-sources.md)). | MVP |
 
 ## Browsing and search
 
-| ID | Requirement |
-| --- | --- |
-| R-17 | The collection is shown as a list of cards, each with the image, title, authors, date and record number. |
-| R-18 | The learner can search the collection by text. |
-| R-19 | The learner can filter the collection by several fields at once: type, authors, period, style, material, location. |
+| ID | Requirement | Version |
+| --- | --- | --- |
+| R-17 | The collection is shown as a list of cards, each with the image, title, authors, date and record number. | MVP |
+| R-18 | The learner can search the collection by text. | MVP |
+| R-19 | The learner can filter the collection by several fields at once: type, authors, period, style, material, location. | MVP |
 
 ## General
 
-| ID | Requirement |
-| --- | --- |
-| R-20 | The app has a responsive layout that works well on a phone as well as on a larger screen. |
-| R-21 | The interface is in Polish. Texts are kept in a simple i18n setup so that more languages can be added later. |
-| R-22 | Each learner sees and changes only their own atelier. |
+| ID | Requirement | Version |
+| --- | --- | --- |
+| R-20 | The app has a responsive layout that works well on a phone as well as on a larger screen. | MVP |
+| R-21 | The interface is in Polish. Texts are kept in a simple i18n setup so that more languages can be added later. | MVP |
+| R-22 | Each learner sees and changes only their own atelier. | MVP |
 
 ## Not in the MVP
+
+Ideas for later versions are collected in Linear as issues with the `idea` label and no milestone, not in this file. The main ones so far:
 
 - Learning modes such as flashcards or quizzes.
 - Pages for people, places, periods or styles with their own content.

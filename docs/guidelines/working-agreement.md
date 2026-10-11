@@ -28,7 +28,8 @@ The project goes one step at a time. Claude does not jump ahead to later steps (
 
 - Work is tracked in the Linear project **study-atelier** (team "Study Atelier", key `ATL`).
 - Each piece of work has an issue; Claude moves it through the workflow as work progresses.
-- Ideas for later go to Linear with the `idea` label rather than into the current scope.
+- Work for the first version belongs to the `MVP` milestone of the Linear project; its scope is [docs/product/requirements.md](../product/requirements.md).
+- Ideas for later go to Linear with the `idea` label and no milestone rather than into the current scope.
 - Labels: `Feature`, `Bug`, `Improvement`, `Docs`, `Chore`, `idea`.
 
 ## Language
