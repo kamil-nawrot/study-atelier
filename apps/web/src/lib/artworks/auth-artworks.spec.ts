@@ -36,7 +36,11 @@ describe('authArtworks', () => {
 	});
 
 	it('writes years before the common era with the era suffix', () => {
-		expect(authArtworks.some((artwork) => artwork.date.endsWith('p.n.e.'))).toBe(true);
+		expect(
+			authArtworks.some(
+				(artwork) => artwork.date === m.artwork.yearBce(Number.parseInt(artwork.date))
+			)
+		).toBe(true);
 	});
 
 	it('uses the unknown-author label when the artist is not known', () => {
