@@ -26,3 +26,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0020](0020-logo-passe-partout-mark-and-wordmark.md) | Draw the logo as a passe-partout mark with a one-font wordmark | accepted |
 | [0021](0021-collection-view-as-a-wall-of-framed-artworks.md) | Show the atelier as a wall of framed artworks | accepted |
 | [0022](0022-add-and-edit-an-artwork-in-one-full-form.md) | Add and edit an artwork in one full form on its own page | accepted |
+| [0023](0023-atelier-routes-and-commons-thumbnails.md) | Address artworks by record number and load Commons thumbnails through the API | accepted |
