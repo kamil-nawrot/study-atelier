@@ -1,42 +1,119 @@
 <script lang="ts">
+	import Plus from '@lucide/svelte/icons/plus';
+	import { Alert, Button, Icon, SearchField, Section } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
-	import { goto } from '$app/navigation';
-	import { Button, Section } from '@study-atelier/ui';
-	import { signOut } from '#lib/auth/account.ts';
+	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
+	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import { filterByTitle } from '#lib/collection/search.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import type { PageProps } from './$types';
+	import type { PageProps, Snapshot } from './$types';
 
 	let { data }: PageProps = $props();
 
-	let signingOut = $state(false);
+	let query = $state('');
 
-	async function submitSignOut(): Promise<void> {
-		signingOut = true;
-		await signOut();
-		await goto(resolve('/(auth)/sign-in'), { invalidateAll: true });
-	}
+	export const snapshot: Snapshot<string> = {
+		capture: () => query,
+		restore: (value) => (query = value)
+	};
+
+	const addPath = resolve('/(app)/atelier/new');
+
+	let shown = $derived(filterByTitle(data.artworks, query));
+	let total = $derived(data.artworks.length);
+	let searching = $derived(query.trim() !== '');
 </script>
 
-<svelte:head>
-	<title>{m.app.pageTitle(m.home.title)}</title>
-</svelte:head>
+<AtelierLayout email={data.session.user.email ?? ''} title={m.atelier.title}>
+	{#snippet bar()}
+		<div class="search">
+			<SearchField
+				disabled={total === 0}
+				label={m.atelier.search}
+				placeholder={m.atelier.search}
+				bind:value={query}
+			/>
+		</div>
+		<Button aria-label={m.atelier.add} href={addPath} variant="primary">
+			<Icon icon={Plus} />
+			<span class="add-label">
+				{m.atelier.add}
+			</span>
+		</Button>
+	{/snippet}
 
-<main>
-	<Section>
-		<h1>{m.home.title}</h1>
-		<p>{m.home.placeholder}</p>
-		<p class="caption">{m.home.signedInAs(data.session.user.email ?? '')}</p>
-	</Section>
-	<Button disabled={signingOut} onclick={submitSignOut}>{m.home.signOut}</Button>
-</main>
+	<header>
+		<h1>{m.atelier.title}</h1>
+		{#if total > 0}
+			<span class="caption">
+				{searching ? m.atelier.filteredCount(shown.length, total) : m.atelier.count(total)}
+			</span>
+		{/if}
+	</header>
+
+	{#if data.error}
+		<Alert title={m.atelier.loadErrorTitle} tone="danger">
+			{data.error}
+		</Alert>
+	{:else if total === 0}
+		<div class="state">
+			<Section>
+				<h2>{m.atelier.emptyTitle}</h2>
+				<p class="lead">{m.atelier.empty}</p>
+				<div>
+					<Button href={addPath}>
+						<Icon icon={Plus} />
+						{m.atelier.addFirst}
+					</Button>
+				</div>
+			</Section>
+		</div>
+	{:else if shown.length === 0}
+		<div class="state">
+			<Section>
+				<h2>{m.atelier.noResultsTitle}</h2>
+				<p class="lead">{m.atelier.noResults(query.trim())}</p>
+				<div>
+					<Button onclick={() => (query = '')}>
+						{m.atelier.clearSearch}
+					</Button>
+				</div>
+			</Section>
+		</div>
+	{:else}
+		<ArtworkWall artworks={shown} />
+	{/if}
+</AtelierLayout>
 
 <style>
-	main {
-		display: grid;
-		justify-items: start;
-		gap: var(--spacing-8);
+	.search {
+		flex: 1;
+		min-width: 0;
+	}
+
+	header {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: var(--spacing-4);
+	}
+
+	.caption {
+		font-variant-numeric: tabular-nums;
+	}
+
+	.state {
 		max-width: var(--size-content-default);
-		margin: 0 auto;
-		padding: var(--spacing-12) var(--spacing-4);
+	}
+
+	.add-label {
+		display: none;
+	}
+
+	@media (min-width: 768px) {
+		.add-label {
+			display: inline;
+		}
 	}
 </style>
