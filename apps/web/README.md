@@ -10,7 +10,7 @@ Run commands from the repository root with pnpm, or from this folder:
 | `pnpm check`  | Type check (svelte-check) and verify generated Cloudflare types        |
 | `pnpm lint`   | Prettier check and ESLint                                              |
 | `pnpm format` | Format all files with Prettier                                         |
-| `pnpm test`   | Run unit tests once (Vitest)                                           |
+| `pnpm test`   | Run unit and component tests once (Vitest)                             |
 | `pnpm build`  | Production build for Cloudflare Pages                                  |
 | `pnpm gen`    | Regenerate `worker-configuration.d.ts` after changing `wrangler.jsonc` |
 
@@ -24,6 +24,14 @@ The app needs the Supabase project URL and publishable key at build time ([ADR-0
 | `SUPABASE_PUBLISHABLE_KEY` | Publishable key from Project Settings, API Keys     |
 
 In CI the web job reads them from the repository secrets of the same names.
+
+## Tests
+
+Vitest runs two projects. `*.spec.ts` files are unit tests in Node. `*.svelte.spec.ts` files are component tests that render Svelte components in headless Chromium through Playwright ([ADR-0018](../../docs/decisions/0018-component-tests-in-vitest-browser-mode.md)). Install the browser once before running them:
+
+```sh
+pnpm --filter @study-atelier/web exec playwright install --only-shell chromium
+```
 
 The project was scaffolded with:
 
