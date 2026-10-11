@@ -5,7 +5,7 @@ It is maintained alongside the code: a change that alters behaviour, architectur
 
 | Folder | Contents | Style |
 | --- | --- | --- |
-| [product/](product/) | Vision, requirements, glossary | Explanation and reference |
+| [product/](product/) | Vision, requirements, glossary, voice and tone | Explanation and reference |
 | [architecture/](architecture/) | System description following a lightweight [arc42](https://arc42.org) outline, with [C4](https://c4model.com) diagrams | Explanation |
 | [decisions/](decisions/) | Architecture Decision Records in [MADR](https://adr.github.io/madr/) format, covering business and technical decisions | Reference |
 | [guidelines/](guidelines/) | Rules for working in this repository, for humans and Claude | Reference and how-to |
