@@ -27,7 +27,6 @@
 		"@lucide/svelte": "^1.55.0"
 	},
 	"devDependencies": {
-		"@eslint/js": "^10.0.1",
 		"@storybook/addon-docs": "^10.6.1",
 		"@storybook/addon-svelte-csf": "^5.1.5",
 		"@storybook/addon-themes": "^10.6.1",
@@ -35,17 +34,12 @@
 		"@sveltejs/vite-plugin-svelte": "^7.3.1",
 		"@types/node": "^22.20.5",
 		"eslint": "^10.12.0",
-		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-storybook": "^10.6.1",
-		"eslint-plugin-svelte": "^3.23.1",
-		"globals": "^17.13.0",
 		"prettier": "^3.9.10",
-		"prettier-plugin-svelte": "^4.1.1",
 		"storybook": "^10.6.1",
 		"svelte": "^5.57.2",
 		"svelte-check": "^4.7.6",
 		"typescript": "^6.0.3",
-		"typescript-eslint": "^8.71.1",
 		"vite": "^8.3.4",
 		"vitest": "^4.1.11"
 	}
