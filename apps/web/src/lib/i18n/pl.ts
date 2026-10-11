@@ -39,7 +39,7 @@ export const pl = {
 	},
 	signIn: {
 		title: 'Zaloguj się',
-		lead: 'Wróć do swojej kolekcji i powtórek.',
+		lead: 'Wróć do swojego atelier.',
 		forgotPassword: 'Nie pamiętasz hasła?',
 		submit: 'Zaloguj się',
 		submitting: 'Logowanie…',
@@ -49,7 +49,7 @@ export const pl = {
 	},
 	signUp: {
 		title: 'Załóż konto',
-		lead: 'Zacznij budować własną bazę dzieł sztuki.',
+		lead: 'Zacznij budować własne atelier dzieł sztuki.',
 		submit: 'Załóż konto',
 		submitting: 'Zakładanie konta…',
 		errorTitle: 'Nie udało się założyć konta',
@@ -58,7 +58,7 @@ export const pl = {
 	},
 	checkEmail: {
 		title: 'Sprawdź skrzynkę',
-		lead: 'Ostatni krok przed pierwszym dziełem w kolekcji.',
+		lead: 'Ostatni krok przed pierwszym dziełem w atelier.',
 		sentTitle: 'Wysłaliśmy link',
 		sent: (email: string) => `Na adres ${email}. Kliknij go, żeby potwierdzić konto.`,
 		sentNoEmail: 'Kliknij link z wiadomości, żeby potwierdzić konto.',
@@ -89,9 +89,9 @@ export const pl = {
 		requestNew: 'Wyślij nowy link'
 	},
 	home: {
-		title: 'Moja kolekcja',
+		title: 'Moje atelier',
 		signedInAs: (email: string) => `Zalogowano jako ${email}.`,
-		placeholder: 'Tu pojawi się Twoja kolekcja dzieł sztuki.',
+		placeholder: 'Tu pojawią się dzieła z Twojego atelier.',
 		signOut: 'Wyloguj się'
 	}
 };
