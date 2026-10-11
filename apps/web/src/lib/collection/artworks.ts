@@ -3,7 +3,9 @@ import {
 	COMMONS_THUMBNAIL_WIDTHS,
 	commonsFileUrl,
 	commonsSrcset,
-	fetchCommonsSizes,
+	commonsThumbnailSrcset,
+	fetchCommonsImages,
+	type CommonsImage,
 	type ImageSize
 } from '#lib/images/commons.ts';
 import { supabase } from '#lib/supabase.ts';
@@ -80,12 +82,21 @@ async function signedUrls(paths: string[]): Promise<Map<string, string>> {
 	);
 }
 
-function commonsImage(file: string, size: ImageSize | undefined): ArtworkTileImage {
+function commonsImage(file: string, image: CommonsImage | undefined): ArtworkTileImage {
+	if (!image) {
+		return {
+			src: commonsFileUrl(file, TILE_WIDTH),
+			srcset: commonsSrcset(file, COMMONS_THUMBNAIL_WIDTHS),
+			sizes: TILE_SIZES,
+			...DEFAULT_IMAGE_SIZE
+		};
+	}
 	return {
-		src: commonsFileUrl(file, TILE_WIDTH),
-		srcset: commonsSrcset(file, COMMONS_THUMBNAIL_WIDTHS),
+		src: image.thumbnailUrl,
+		srcset: commonsThumbnailSrcset(image, TILE_WIDTH, COMMONS_THUMBNAIL_WIDTHS),
 		sizes: TILE_SIZES,
-		...(size ?? DEFAULT_IMAGE_SIZE)
+		width: image.width,
+		height: image.height
 	};
 }
 
@@ -102,8 +113,11 @@ export async function loadAtelier(): Promise<AtelierResult> {
 	if (error) return { artworks: [], error: collectionErrorMessage(error) };
 
 	const rows = (data ?? []) as unknown as ArtworkRow[];
-	const [commonsSizes, storageUrls] = await Promise.all([
-		fetchCommonsSizes(rows.flatMap((row) => row.source_image_file ?? [])),
+	const [commonsImages, storageUrls] = await Promise.all([
+		fetchCommonsImages(
+			rows.flatMap((row) => row.source_image_file ?? []),
+			TILE_WIDTH
+		),
 		signedUrls(rows.flatMap((row) => row.own_image_path ?? []))
 	]);
 
@@ -115,7 +129,7 @@ export async function loadAtelier(): Promise<AtelierResult> {
 			row.own_image_path || row.own_image_url
 				? ownImage(ownSource)
 				: row.source_image_file
-					? commonsImage(row.source_image_file, commonsSizes.get(row.source_image_file))
+					? commonsImage(row.source_image_file, commonsImages.get(row.source_image_file))
 					: undefined;
 		return {
 			id: row.id,
