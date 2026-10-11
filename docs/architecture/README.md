@@ -42,7 +42,7 @@ Every learner-owned row is protected by Row Level Security on `owner_id`.
 ### Opening the atelier
 
 1. The `/atelier` page load asks Supabase for the learner's artworks outside the trash, newest first, with their authors (`#lib/collection/artworks.ts`).
-2. In parallel it asks the Wikimedia Commons API for the size of every Commons image (up to 50 files per request) and Supabase Storage for signed URLs of uploaded images.
+2. In parallel it asks the Wikimedia Commons API for the size of every Commons image (up to 50 files per request, identified by an `Api-User-Agent` header, one retry after `Retry-After` on 429; sizes are kept for the rest of the browser session) and Supabase Storage for signed URLs of uploaded images.
 3. The wall places each tile into the shortest column by its image proportions. Without a known size a tile counts as 4:5, and if Commons does not answer the wall still shows every image.
 4. Search by title runs in the browser on the loaded list.
 

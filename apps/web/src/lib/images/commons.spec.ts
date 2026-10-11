@@ -23,6 +23,7 @@ describe('commons image urls', () => {
 
 describe('fetchCommonsSizes', () => {
 	afterEach(() => {
+		vi.useRealTimers();
 		vi.unstubAllGlobals();
 		fetchMock.mockReset();
 	});
@@ -45,28 +46,79 @@ describe('fetchCommonsSizes', () => {
 
 		expect(sizes).toEqual(new Map([['Starry_Night.jpg', { width: 1200, height: 950 }]]));
 		expect(fetchMock).toHaveBeenCalledOnce();
-		const url = new URL(String(fetchMock.mock.calls[0][0]));
-		expect(url.searchParams.get('titles')).toBe('File:Starry_Night.jpg|File:Missing.jpg');
-		expect(url.searchParams.get('origin')).toBe('*');
+		const [url, init] = fetchMock.mock.calls[0];
+		const params = new URL(String(url)).searchParams;
+		expect(params.get('titles')).toBe('File:Starry_Night.jpg|File:Missing.jpg');
+		expect(params.get('origin')).toBe('*');
+		expect(init?.headers).toMatchObject({
+			'Api-User-Agent': expect.stringContaining('study-atelier')
+		});
+	});
+
+	it('remembers sizes for the rest of the session', async () => {
+		vi.stubGlobal('fetch', fetchMock);
+		fetchMock.mockImplementation(async () =>
+			jsonResponse({
+				query: { pages: [{ title: 'File:Remembered.jpg', imageinfo: [{ width: 4, height: 3 }] }] }
+			})
+		);
+
+		await fetchCommonsSizes(['Remembered.jpg']);
+		const sizes = await fetchCommonsSizes(['Remembered.jpg']);
+
+		expect(sizes.get('Remembered.jpg')).toEqual({ width: 4, height: 3 });
+		expect(fetchMock).toHaveBeenCalledOnce();
 	});
 
 	it('asks for at most fifty files at once', async () => {
 		vi.stubGlobal('fetch', fetchMock);
 		fetchMock.mockImplementation(async () => jsonResponse({ query: { pages: [] } }));
 
-		await fetchCommonsSizes(Array.from({ length: 51 }, (_, index) => `${index}.jpg`));
+		await fetchCommonsSizes(Array.from({ length: 51 }, (_, index) => `batch-${index}.jpg`));
 
 		expect(fetchMock).toHaveBeenCalledTimes(2);
 	});
 
-	it('returns no sizes when the service fails', async () => {
+	it('retries once after the time the service asks for', async () => {
+		vi.useFakeTimers();
 		vi.stubGlobal('fetch', fetchMock);
-		fetchMock.mockResolvedValueOnce(jsonResponse({}, 429));
-		fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+		fetchMock.mockResolvedValueOnce(
+			new Response('', { status: 429, headers: { 'Retry-After': '2' } })
+		);
+		fetchMock.mockResolvedValueOnce(
+			jsonResponse({
+				query: { pages: [{ title: 'File:Retried.jpg', imageinfo: [{ width: 2, height: 1 }] }] }
+			})
+		);
 
-		await expect(
-			fetchCommonsSizes(Array.from({ length: 51 }, (_, index) => `${index}.jpg`))
-		).resolves.toEqual(new Map());
+		const result = fetchCommonsSizes(['Retried.jpg']);
+		await vi.advanceTimersByTimeAsync(1999);
+		expect(fetchMock).toHaveBeenCalledOnce();
+		await vi.advanceTimersByTimeAsync(1);
+
+		await expect(result).resolves.toEqual(new Map([['Retried.jpg', { width: 2, height: 1 }]]));
+		expect(fetchMock).toHaveBeenCalledTimes(2);
+	});
+
+	it('returns no sizes and asks again later when the service keeps failing', async () => {
+		vi.useFakeTimers();
+		vi.stubGlobal('fetch', fetchMock);
+		fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
+
+		const result = fetchCommonsSizes(['Failing.jpg']);
+		await vi.runAllTimersAsync();
+
+		await expect(result).resolves.toEqual(new Map());
+		expect(fetchMock).toHaveBeenCalledTimes(2);
+
+		fetchMock.mockResolvedValue(
+			jsonResponse({
+				query: { pages: [{ title: 'File:Failing.jpg', imageinfo: [{ width: 1, height: 1 }] }] }
+			})
+		);
+		await expect(fetchCommonsSizes(['Failing.jpg'])).resolves.toEqual(
+			new Map([['Failing.jpg', { width: 1, height: 1 }]])
+		);
 	});
 
 	it('does not call the service without files', async () => {
