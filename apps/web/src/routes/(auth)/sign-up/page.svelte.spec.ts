@@ -75,7 +75,7 @@ describe('sign-up page', () => {
 
 		await submit(TEST_EMAIL, 'correct-password');
 
-		await vi.waitFor(() => expect(goto).toHaveBeenCalledWith('/', { invalidateAll: true }));
+		await vi.waitFor(() => expect(goto).toHaveBeenCalledWith('/atelier', { invalidateAll: true }));
 		expect(goto).toHaveBeenCalledTimes(1);
 	});
 
