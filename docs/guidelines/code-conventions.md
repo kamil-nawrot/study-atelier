@@ -59,7 +59,7 @@ The SvelteKit app in `apps/web/src`:
 
 ## Routes and navigation
 
-- Pages that need a signed-in learner are in the `(app)` group; sign-in, sign-up and password reset are in `(auth)`. Each group's `+layout.ts` redirects by session. A page reachable in both states (for example `update-password`, opened from an email) stays outside the groups.
+- Pages that need a signed-in learner are in the `(app)` group; the start page, sign-in, sign-up and password reset are in `(auth)`. The atelier lives at `/atelier`; `/` is the start page. Each group's `+layout.ts` redirects by session. A page reachable in both states (for example `update-password`, opened from an email) stays outside the groups.
 - Paths in code are built with `resolve()` from `$app/paths`, for example `resolve('/(auth)/sign-in')`, in views and in `redirect()` alike, so a renamed route fails the type check.
 - Internal navigation follows [ui-patterns.md](ui-patterns.md#links-and-buttons): links for going somewhere, `goto` only after an action.
 

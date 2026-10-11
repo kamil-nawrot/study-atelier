@@ -26,7 +26,7 @@
 			submitting = false;
 			return;
 		}
-		await goto(resolve('/(app)'), { invalidateAll: true });
+		await goto(resolve('/(app)/atelier'), { invalidateAll: true });
 	}
 </script>
 
