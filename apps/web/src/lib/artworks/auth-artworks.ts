@@ -34,10 +34,6 @@ function toAuthArtwork(entry: ArtworkEntry): AuthArtwork {
 
 export const authArtworks: AuthArtwork[] = data.map(toAuthArtwork);
 
-export function commonsImageUrl(file: string, width: number): string {
-	return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=${width}`;
-}
-
 export function pickArtwork(random: () => number = Math.random): AuthArtwork {
 	return authArtworks[Math.floor(random() * authArtworks.length)];
 }

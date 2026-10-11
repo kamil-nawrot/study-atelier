@@ -17,6 +17,7 @@
 		"gen": "wrangler types --env-file /dev/null"
 	},
 	"devDependencies": {
+		"@lucide/svelte": "^1.55.0",
 		"@study-atelier/ui": "workspace:*",
 		"@sveltejs/adapter-cloudflare": "^8.0.0",
 		"@sveltejs/kit": "^3.0.0",

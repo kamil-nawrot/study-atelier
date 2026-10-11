@@ -1,14 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
-import { authArtworks, commonsImageUrl, pickArtwork } from './auth-artworks';
-
-describe('commonsImageUrl', () => {
-	it('builds a Wikimedia Commons thumbnail URL', () => {
-		expect(commonsImageUrl('Tsunami_by_hokusai_19th_century.jpg', 1280)).toBe(
-			'https://commons.wikimedia.org/wiki/Special:FilePath/Tsunami_by_hokusai_19th_century.jpg?width=1280'
-		);
-	});
-});
+import { authArtworks, pickArtwork } from './auth-artworks';
 
 describe('pickArtwork', () => {
 	it('picks the first and last artwork at the ends of the range', () => {

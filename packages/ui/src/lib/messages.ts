@@ -9,6 +9,7 @@ export type UiMessages = {
 	removeTag: string;
 	unknownAuthor: string;
 	noImage: string;
+	clearSearch: string;
 };
 
 export const defaultUiMessages: UiMessages = {
@@ -21,7 +22,8 @@ export const defaultUiMessages: UiMessages = {
 	hidePassword: 'Hide',
 	removeTag: 'Remove tag',
 	unknownAuthor: 'Unknown author',
-	noImage: 'No image'
+	noImage: 'No image',
+	clearSearch: 'Clear search'
 };
 
 const contextKey = Symbol('ui-messages');

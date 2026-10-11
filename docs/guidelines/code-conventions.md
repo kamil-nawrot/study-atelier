@@ -59,7 +59,7 @@ The SvelteKit app in `apps/web/src`:
 
 ## Routes and navigation
 
-- Pages that need a signed-in learner are in the `(app)` group; the start page, sign-in, sign-up and password reset are in `(auth)`. The atelier lives at `/atelier`; `/` is the start page. Each group's `+layout.ts` redirects by session. A page reachable in both states (for example `update-password`, opened from an email) stays outside the groups.
+- Pages that need a signed-in learner are in the `(app)` group; the start page, sign-in, sign-up and password reset are in `(auth)`. The atelier lives at `/atelier`, one artwork at `/atelier/<record number>`, the add form at `/atelier/new` and the trash at `/atelier/trash` ([ADR-0023](../decisions/0023-atelier-routes-and-commons-thumbnails.md)); `/` is the start page. Each group's `+layout.ts` redirects by session. A page reachable in both states (for example `update-password`, opened from an email) stays outside the groups.
 - Paths in code are built with `resolve()` from `$app/paths`, for example `resolve('/(auth)/sign-in')`, in views and in `redirect()` alike, so a renamed route fails the type check.
 - Internal navigation follows [ui-patterns.md](ui-patterns.md#links-and-buttons): links for going somewhere, `goto` only after an action.
 
@@ -78,6 +78,12 @@ The SvelteKit app in `apps/web/src`:
 
 - Every error from Supabase or another service goes through a mapping function in `lib/<domain>/errors.ts`, which picks a dictionary message by error code and falls back to a general message. `error.message` is never shown to the learner.
 - Domain functions return the mapped message, so views only show it.
+
+## External services
+
+- URLs of one image source are built in one module, `lib/images/<source>.ts` (for example `commons.ts`). Views and other domains call it instead of writing the URL themselves.
+- A request to a service that asks clients to identify themselves (for example the Wikimedia `Api-User-Agent` header) names the app and the repository URL. It never carries personal data such as an email address.
+- Requests to a rate-limited service are batched where the API allows it, and a 429 is retried at most once, after `Retry-After` ([ADR-0023](../decisions/0023-atelier-routes-and-commons-thumbnails.md)).
 
 ## Tests
 

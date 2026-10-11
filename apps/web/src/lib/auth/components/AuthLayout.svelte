@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { Frame, Logo, Section } from '@study-atelier/ui';
-	import { commonsImageUrl, pickArtwork } from '#lib/artworks/auth-artworks.ts';
+	import { pickArtwork } from '#lib/artworks/auth-artworks.ts';
+	import { commonsFileUrl } from '#lib/images/commons.ts';
 	import { m } from '#lib/i18n/index.ts';
 
 	type Props = {
@@ -14,7 +15,7 @@
 	let { title, lead, children, footer }: Props = $props();
 
 	const artwork = pickArtwork();
-	const imageUrl = commonsImageUrl(artwork.file, 1280);
+	const imageUrl = commonsFileUrl(artwork.file, 1280);
 </script>
 
 <svelte:head>

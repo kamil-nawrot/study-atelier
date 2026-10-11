@@ -15,7 +15,8 @@ export const pl = {
 		hidePassword: 'Ukryj',
 		removeTag: 'Usuń tag',
 		unknownAuthor: 'Autor nieznany',
-		noImage: 'Brak obrazu'
+		noImage: 'Brak obrazu',
+		clearSearch: 'Wyczyść wyszukiwanie'
 	},
 	common: {
 		email: 'E-mail',
@@ -111,11 +112,45 @@ export const pl = {
 		signIn: 'Zaloguj się',
 		signUp: 'Załóż konto'
 	},
-	home: {
-		title: 'Moje atelier',
-		signedInAs: (email: string): string => `Zalogowano jako ${email}.`,
-		placeholder: 'Na razie pusto. Wkrótce zawisną tu dzieła z Twojego atelier.',
+	menu: {
+		label: 'Menu',
+		open: 'Otwórz menu',
+		close: 'Zamknij menu',
+		expand: 'Rozwiń menu',
+		collapse: 'Zwiń menu',
+		atelier: 'Atelier',
+		trash: 'Kosz',
 		signOut: 'Wyloguj się'
+	},
+	atelier: {
+		title: 'Atelier',
+		count: (count: number): string =>
+			`${count} ${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })}`,
+		filteredCount: (shown: number, total: number): string =>
+			`${shown} z ${total} ${plural(total, { one: 'dzieła', few: 'dzieł', many: 'dzieł' })}`,
+		search: 'Szukaj po tytule',
+		add: 'Dodaj dzieło',
+		emptyTitle: 'Twoje atelier jest jeszcze puste',
+		empty:
+			'Dodaj pierwsze dzieło, które poznajesz w książce albo na wykładzie. Na początek wystarczą tytuł i autor.',
+		addFirst: 'Dodaj pierwsze dzieło',
+		noResultsTitle: 'Nie ma tu dzieła o takim tytule',
+		noResults: (query: string): string =>
+			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu.`,
+		clearSearch: 'Wyczyść wyszukiwanie',
+		loadErrorTitle: 'Nie udało się wczytać atelier',
+		year: (year: number, approximate: boolean): string =>
+			`${approximate ? 'ok. ' : ''}${year < 0 ? `${-year} p.n.e.` : year}`
+	},
+	collectionErrors: {
+		network: 'Nie udało się połączyć z serwerem. Sprawdź internet i odśwież stronę.'
+	},
+	comingSoon: {
+		lead: 'Ten widok jest jeszcze w przygotowaniu.',
+		backToAtelier: 'Wróć do atelier',
+		addArtwork: 'Dodaj dzieło',
+		artwork: (number: string): string => `Dzieło ${number}`,
+		trash: 'Kosz'
 	}
 };
 

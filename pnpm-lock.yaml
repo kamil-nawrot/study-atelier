@@ -39,6 +39,9 @@ importers:
         specifier: 2.117.2
         version: 2.117.2
     devDependencies:
+      '@lucide/svelte':
+        specifier: ^1.55.0
+        version: 1.55.0(svelte@5.57.2(@typescript-eslint/types@8.71.1))
       '@study-atelier/ui':
         specifier: workspace:*
         version: link:../../packages/ui
