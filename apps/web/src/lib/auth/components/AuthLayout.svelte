@@ -18,7 +18,7 @@
 </script>
 
 <svelte:head>
-	<title>{title} · {m.app.name}</title>
+	<title>{m.app.pageTitle(title)}</title>
 </svelte:head>
 
 <div class="auth">
@@ -30,7 +30,7 @@
 			</Frame>
 		</div>
 		<figcaption>
-			<cite>{artwork.title}</cite>
+			<cite class="artwork-title">{artwork.title}</cite>
 			<span>{artwork.artist}, {artwork.date}</span>
 			<span class="credit">{m.artwork.credit}</span>
 		</figcaption>
@@ -63,10 +63,9 @@
 		justify-items: center;
 		align-content: start;
 		height: 400px;
-		margin: 0;
 		padding-top: var(--spacing-6);
 		overflow: hidden;
-		background: var(--color-neutral-950);
+		background: var(--color-stage-bg);
 	}
 
 	.backdrop {
@@ -101,20 +100,13 @@
 		bottom: var(--spacing-4);
 		left: var(--spacing-4);
 		display: grid;
-		color: var(--color-neutral-100);
+		color: var(--color-stage-fg);
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
 	}
 
-	cite {
-		font-family: var(--font-family-title), Georgia, serif;
-		font-size: var(--font-size-lg);
-		font-style: italic;
-		line-height: var(--line-height-lg);
-	}
-
 	figcaption span {
-		color: var(--color-neutral-400);
+		color: var(--color-stage-fg-muted);
 	}
 
 	.credit {
@@ -127,7 +119,7 @@
 		align-content: center;
 		gap: var(--spacing-8);
 		width: 100%;
-		max-width: calc(400px + 2 * var(--spacing-4));
+		max-width: calc(var(--size-content-narrow) + 2 * var(--spacing-4));
 		margin: 0 auto;
 		padding: var(--spacing-8) var(--spacing-4) var(--spacing-12);
 	}
@@ -148,18 +140,6 @@
 		height: var(--spacing-4);
 		border: var(--border-width-base) solid var(--color-line);
 		border-bottom-width: var(--border-width-button);
-	}
-
-	h1 {
-		margin: 0;
-		font-size: var(--font-size-xl);
-		line-height: var(--line-height-xl);
-		font-weight: var(--font-weight-bold);
-	}
-
-	.lead {
-		margin: 0;
-		color: var(--color-fg-muted);
 	}
 
 	footer {
@@ -194,7 +174,7 @@
 		}
 
 		.panel {
-			max-width: calc(400px + 2 * var(--spacing-12));
+			max-width: calc(var(--size-content-narrow) + 2 * var(--spacing-12));
 			padding: var(--spacing-12);
 		}
 	}
