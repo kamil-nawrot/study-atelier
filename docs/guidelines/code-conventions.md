@@ -20,3 +20,10 @@
 - Attributes of Svelte elements and components are kept in a fixed order by ESLint `svelte/sort-attributes`: identity (`this`, `id`, `name`) first, then `style` and `class`, then all other attributes and props alphabetically (event handlers such as `onclick` included), then `bind:` directives, then directives such as `use:` and `transition:`. `pnpm exec eslint --fix` sorts them.
 - Markup has no wrapper elements without a purpose. Prefer a semantic element (`footer`, `section`, `nav`) to a `div` when one fits.
 - `pnpm lint` runs Prettier and ESLint inside each pnpm package, so code outside them (for example a future Go backend) is not touched and uses its own language tooling.
+
+## Tests
+
+- A test file sits next to the file it tests. Unit tests of TypeScript modules are `<name>.spec.ts` and run in Node; component and page tests are `<Name>.svelte.spec.ts` (for a route, `page.svelte.spec.ts` next to `+page.svelte`) and run in Chromium with Vitest browser mode ([ADR-0018](../decisions/0018-component-tests-in-vitest-browser-mode.md)).
+- Component tests find elements the way a user does: by role, label and visible text, taken from the message dictionary (`m`) rather than copied strings. They do not reach into component internals, so a refactor that keeps the behaviour keeps the tests green.
+- Supabase is never called from tests. A test mocks `#lib/supabase.ts` with `vi.mock` and returns results built with the helpers in `src/lib/testing/`, which use the real Supabase error classes. Navigation (`$app/navigation`) is mocked the same way.
+- Test data uses made-up addresses such as `anna@przyklad.pl`, never real personal data.

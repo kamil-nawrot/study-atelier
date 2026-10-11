@@ -44,7 +44,7 @@ Not yet described.
 ## 7. Deployment view
 
 - The web app is a SvelteKit build for Cloudflare Pages, project `study-atelier`.
-- GitHub Actions ([`ci.yml`](../../.github/workflows/ci.yml)) runs lint, type check, unit tests and the build, then deploys with Wrangler ([ADR-0011](../decisions/0011-deploy-from-github-actions.md)).
+- GitHub Actions ([`ci.yml`](../../.github/workflows/ci.yml)) runs lint, type check, unit and component tests and the build, then deploys with Wrangler ([ADR-0011](../decisions/0011-deploy-from-github-actions.md)).
 - The same workflow checks `packages/ui` and builds its Storybook without deploying it ([ADR-0013](../decisions/0013-component-library-with-storybook.md)).
 
 | Trigger | Deployment |
