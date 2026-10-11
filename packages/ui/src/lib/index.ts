@@ -1,3 +1,4 @@
+export { default as Alert } from './components/Alert.svelte';
 export { default as Button } from './components/Button.svelte';
 export { default as Checkbox } from './components/Checkbox.svelte';
 export { default as Frame } from './components/Frame.svelte';
