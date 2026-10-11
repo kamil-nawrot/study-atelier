@@ -1,6 +1,6 @@
 # 0014. Store the atelier in shared category-value tables with per-learner record numbers
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-10-10
 
 ## Context and problem statement
