@@ -1,6 +1,6 @@
 # 0020. Draw the logo as a passe-partout mark with a one-font wordmark
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-10-11
 
 ## Context and problem statement
