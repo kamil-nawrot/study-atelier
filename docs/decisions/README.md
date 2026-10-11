@@ -21,4 +21,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0015](0015-typed-message-dictionaries-for-i18n.md) | Keep UI text in typed message dictionaries, one file per language | accepted |
 | [0016](0016-supabase-auth-in-the-browser.md) | Sign in with Supabase Auth from the browser, email and password only | accepted |
 | [0017](0017-ui-icons-from-lucide.md) | Use Lucide icons through a shared Icon component | accepted |
-| [0018](0018-component-tests-in-vitest-browser-mode.md) | Test Svelte components and pages in Vitest browser mode | proposed |
+| [0018](0018-component-tests-in-vitest-browser-mode.md) | Test Svelte components and pages in Vitest browser mode | accepted |

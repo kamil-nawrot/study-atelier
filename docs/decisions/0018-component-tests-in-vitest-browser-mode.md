@@ -1,6 +1,6 @@
 # 0018. Test Svelte components and pages in Vitest browser mode
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-10-11
 
 ## Context and problem statement
