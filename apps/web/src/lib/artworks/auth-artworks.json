@@ -1,0 +1,940 @@
+[
+	{
+		"id": "Q1025704",
+		"title": "Taras kawiarni w nocy",
+		"artist": "Vincent van Gogh",
+		"year": 1888,
+		"file": "Van_Gogh_-_Terrace_of_a_Café_at_Night_(Place_du_Forum)_1888.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q1044742",
+		"title": "Niedzielne popołudnie na wyspie Grande Jatte",
+		"artist": "Georges Seurat",
+		"year": 1884,
+		"file": "A_Sunday_on_La_Grande_Jatte,_Georges_Seurat,_1884.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q1065493",
+		"title": "Ofelia",
+		"artist": "John Everett Millais",
+		"year": 1851,
+		"file": "John_Everett_Millais_-_Ophelia_-_Google_Art_Project.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q1070896",
+		"title": "Dziewiąta fala",
+		"artist": "Iwan Ajwazowski",
+		"year": 1850,
+		"file": "Hovhannes_Aivazovsky_-_The_Ninth_Wave_-_Google_Art_Project.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q1091086",
+		"title": "Trzeci maja 1808",
+		"artist": "Francisco Goya",
+		"year": 1814,
+		"file": "Francisco_de_Goya_y_Lucientes_-_Los_fusilamientos_del_tres_de_mayo_-_1814.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q1133420",
+		"title": "Poddanie Bredy",
+		"artist": "Diego Velázquez",
+		"year": 1634,
+		"file": "Velazquez-The_Surrender_of_Breda.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q1142058",
+		"title": "Madonna Benois",
+		"artist": "Leonardo da Vinci",
+		"year": 1480,
+		"file": "Leonardo,_Madonna_Benois.JPG",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q1150997",
+		"title": "Saturn pożerający własne dzieci",
+		"artist": "Francisco Goya",
+		"year": 1820,
+		"file": "Francisco_de_Goya,_Saturno_devorando_a_su_hijo_(1819-1823).jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q1170315",
+		"title": "Czarny kwadrat na białym tle",
+		"artist": "Kazimierz Malewicz",
+		"year": 1915,
+		"file": "Чёрный_супрематический_квадрат._1915._ГТГ.png",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q1212937",
+		"title": "Ambasadorowie",
+		"artist": "Hans Holbein Młodszy",
+		"year": 1533,
+		"file": "Hans_Holbein_the_Younger_-_The_Ambassadors_-_Google_Art_Project.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q1213917",
+		"title": "Kościół w Auvers",
+		"artist": "Vincent van Gogh",
+		"year": 1890,
+		"file": "Vincent_van_Gogh_-_The_Church_in_Auvers-sur-Oise,_View_from_the_Chevet_-_Google_Art_Project.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q1231009",
+		"title": "Koronacja Napoleona",
+		"artist": "Jacques-Louis David",
+		"year": 1807,
+		"file": "Le_Sacre_de_Napoléon_-_Jacques-Louis_David_-_Musée_du_Louvre_Peintures_INV_3699_;_MR_1437.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q12418",
+		"title": "Mona Lisa",
+		"artist": "Leonardo da Vinci",
+		"year": 1503,
+		"file": "Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q1267893",
+		"title": "Portret Ginevry Benci",
+		"artist": "Leonardo da Vinci",
+		"year": 1476,
+		"file": "Ginevra_de'_Benci_-_National_Gallery_of_Art.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q1283024",
+		"title": "Narodziny Wenus",
+		"artist": "William-Adolphe Bouguereau",
+		"year": 1879,
+		"file": "William-Adolphe_Bouguereau_(1825-1905)_-_The_Birth_of_Venus_(1879).jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q128910",
+		"title": "Ostatnia Wieczerza",
+		"artist": "Leonardo da Vinci",
+		"year": 1490,
+		"file": "Leonardo_da_Vinci_(1452-1519)_-_The_Last_Supper_(1495-1498).jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q1303856",
+		"title": "Katedra w Monreale",
+		"artist": null,
+		"year": 1172,
+		"file": "Monreale_Cathedral_009_6388.jpg",
+		"kind": "architecture",
+		"license": "CC BY-SA 4.0",
+		"photographer": "Ludvig14"
+	},
+	{
+		"id": "Q1333433",
+		"title": "Ekstaza świętej Teresy",
+		"artist": "Giovanni Lorenzo Bernini",
+		"year": 1647,
+		"file": "Ecstasy_of_Saint_Teresa_September_2015-2a.jpg",
+		"kind": "sculpture",
+		"license": "CC BY-SA 4.0",
+		"photographer": "Gian Lorenzo Bernini"
+	},
+	{
+		"id": "Q1464531",
+		"title": "Gwiaździsta noc nad Rodanem",
+		"artist": "Vincent van Gogh",
+		"year": 1888,
+		"file": "Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q151047",
+		"title": "Narodziny Wenus",
+		"artist": "Sandro Botticelli",
+		"year": 1485,
+		"file": "Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q151330",
+		"title": "Sanssouci",
+		"artist": null,
+		"year": 1745,
+		"file": ".00_2522_Schloss_Sanssouci_in_Potsdam.jpg",
+		"kind": "architecture",
+		"license": "CC BY-SA 4.0",
+		"photographer": "W. Bulach"
+	},
+	{
+		"id": "Q151952",
+		"title": "Wenus z Milo",
+		"artist": null,
+		"year": -140,
+		"file": "Vénus_de_Milo_-_Musée_du_Louvre_AGER_LL_299_;_N_527_;_Ma_399.jpg",
+		"kind": "sculpture",
+		"license": "CC0"
+	},
+	{
+		"id": "Q152509",
+		"title": "Śniadanie na trawie",
+		"artist": "Édouard Manet",
+		"year": 1863,
+		"file": "Edouard_Manet_-_Luncheon_on_the_Grass_-_Google_Art_Project.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q152867",
+		"title": "Maja naga",
+		"artist": "Francisco Goya",
+		"year": 1795,
+		"file": "Maja_desnuda_(museo_del_Prado).jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q154469",
+		"title": "Jedzący kartofle",
+		"artist": "Vincent van Gogh",
+		"year": 1885,
+		"file": "De_aardappeleters_-_s0005V1962_-_Van_Gogh_Museum.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q167605",
+		"title": "Mleczarka",
+		"artist": "Jan Vermeer",
+		"year": 1660,
+		"file": "Johannes_Vermeer_-_Het_melkmeisje_-_Google_Art_Project.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q1752990",
+		"title": "Śmierć Sokratesa",
+		"artist": "Jacques-Louis David",
+		"year": 1787,
+		"file": "The_Death_of_Socrates_MET_DP-13139-001.jpg",
+		"kind": "painting",
+		"license": "CC0"
+	},
+	{
+		"id": "Q175628",
+		"title": "Burłacy na Wołdze",
+		"artist": "Ilja Riepin",
+		"year": 1870,
+		"file": "Ilya_Repin_-_Barge_Haulers_on_the_Volga_-_Google_Art_Project.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q179900",
+		"title": "Dawid",
+		"artist": "Michał Anioł",
+		"year": 1500,
+		"file": "'David'_by_Michelangelo_Fir_JBU004.jpg",
+		"kind": "sculpture",
+		"license": "CC BY 3.0",
+		"photographer": "Jörg Bittner Unna"
+	},
+	{
+		"id": "Q182147",
+		"title": "Pałac Zimowy",
+		"artist": null,
+		"year": 1754,
+		"file": "00_2038_Winter_Palace_-_Hermitage_Museum_(St._Petersburg).jpg",
+		"kind": "architecture",
+		"license": "CC BY-SA 4.0",
+		"photographer": "W. Bulach"
+	},
+	{
+		"id": "Q185255",
+		"title": "Gody w Kanie Galilejskiej",
+		"artist": "Paolo Veronese",
+		"year": 1562,
+		"file": "Les_Noces_de_Cana_-_Paolo_Veronese_-_Musée_du_Louvre_Peintures_INV_142_;_MR_384.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q185372",
+		"title": "Dziewczyna z perłą",
+		"artist": "Jan Vermeer",
+		"year": 1665,
+		"file": "1665_Girl_with_a_Pearl_Earring.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q185382",
+		"title": "Fontanna di Trevi",
+		"artist": "Nicola Salvi",
+		"year": 1732,
+		"file": "Trevi_Fountain_-_Roma.jpg",
+		"kind": "sculpture",
+		"license": "CC BY-SA 4.0",
+		"photographer": "NikonZ7II"
+	},
+	{
+		"id": "Q1892745",
+		"title": "Zbawiciel świata",
+		"artist": "Leonardianie, Leonardo da Vinci",
+		"year": 1500,
+		"file": "Leonardo_da_Vinci,_Salvator_Mundi,_c.1500,_oil_on_walnut,_45.4_×_65.6_cm.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q189883",
+		"title": "Pałac Dożów",
+		"artist": null,
+		"year": 1340,
+		"file": "(Venice)_Doge's_Palace_facing_the_sea.jpg",
+		"kind": "architecture",
+		"license": "CC BY-SA 4.0",
+		"photographer": "Didier Descouens"
+	},
+	{
+		"id": "Q191739",
+		"title": "Katedra Santa Maria del Fiore",
+		"artist": null,
+		"year": 1296,
+		"file": "Florence_Duomo_from_Michelangelo_hill.jpg",
+		"kind": "architecture",
+		"license": "CC BY-SA 4.0",
+		"photographer": "Petar Milošević"
+	},
+	{
+		"id": "Q1926628",
+		"title": "Czerwona winnica",
+		"artist": "Vincent van Gogh",
+		"year": 1888,
+		"file": "Vincent_van_Gogh_-_Red_Vineyard_at_Arles_(1888).jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q1978815",
+		"title": "Wielka odaliska",
+		"artist": "Jean-Auguste-Dominique Ingres",
+		"year": 1814,
+		"file": "La_grande_odalisque_-_Jean-Auguste_Dominique_Ingres_-_Musée_du_Louvre_Peintures_RF_1158.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q1989744",
+		"title": "Mojżesz",
+		"artist": "Michał Anioł",
+		"year": 1510,
+		"file": "Michelangelo's_Moses_(Rome).jpg",
+		"kind": "sculpture",
+		"license": "CC BY-SA 4.0",
+		"photographer": "Livioandronico2013"
+	},
+	{
+		"id": "Q202902",
+		"title": "Kryształowy Pałac",
+		"artist": null,
+		"year": 1851,
+		"file": "Crystal_Palace_from_the_northeast_from_Dickinson's_Comprehensive_Pictures_of_the_Great_Exhibition_of_1851._1854.jpg",
+		"kind": "architecture",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q205666",
+		"title": "Hampton Court",
+		"artist": null,
+		"year": 1515,
+		"file": "Hampton_Court_Palace_(3).jpg",
+		"kind": "architecture",
+		"license": "CC BY-SA 4.0",
+		"photographer": "Ricardalovesmonuments"
+	},
+	{
+		"id": "Q208758",
+		"title": "Panny dworskie",
+		"artist": "Diego Velázquez",
+		"year": 1656,
+		"file": "Las_Meninas,_by_Diego_Velázquez,_from_Prado_in_Google_Earth.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q212616",
+		"title": "Tratwa Meduzy",
+		"artist": "Théodore Géricault",
+		"year": 1819,
+		"file": "JEAN_LOUIS_THÉODORE_GÉRICAULT_-_La_Balsa_de_la_Medusa_(Museo_del_Louvre,_1818-19).jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q215486",
+		"title": "Człowiek witruwiański",
+		"artist": "Leonardo da Vinci",
+		"year": 1490,
+		"file": "Da_Vinci_Vitruve_Luc_Viatour.jpg",
+		"kind": "drawing",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q216402",
+		"title": "Nike z Samotraki",
+		"artist": null,
+		"year": -175,
+		"file": "Victoire_de_Samothrace_-_Musee_du_Louvre_-_20190812.jpg",
+		"kind": "sculpture",
+		"license": "CC0"
+	},
+	{
+		"id": "Q219831",
+		"title": "Kompania Fransa Banninga Cocqa i Willema van Ruytenburcha",
+		"artist": "Rembrandt",
+		"year": 1642,
+		"file": "La_ronda_de_noche,_por_Rembrandt_van_Rijn.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q2200610",
+		"title": "Żółty dom",
+		"artist": "Vincent van Gogh",
+		"year": 1888,
+		"file": "Vincent_van_Gogh_-_The_yellow_house_('The_street').jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q220859",
+		"title": "Portret małżonków Arnolfinich",
+		"artist": "Jan van Eyck",
+		"year": 1434,
+		"file": "Van_Eyck_-_Arnolfini_Portrait.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q2282256",
+		"title": "Irysy",
+		"artist": "Vincent van Gogh",
+		"year": 1889,
+		"file": "Irises-Vincent_van_Gogh.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q2352789",
+		"title": "Pluton i Prozerpina",
+		"artist": "Giovanni Lorenzo Bernini",
+		"year": 1624,
+		"file": "The_Rape_of_Proserpina_(Rome).jpg",
+		"kind": "sculpture",
+		"license": "CC BY-SA 4.0",
+		"photographer": "Gian Lorenzo Bernini"
+	},
+	{
+		"id": "Q2629559",
+		"title": "Huśtawka",
+		"artist": "Jean-Honoré Fragonard",
+		"year": 1767,
+		"file": "Fragonard,_The_Swing.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q2946",
+		"title": "Pałac wersalski",
+		"artist": null,
+		"year": 1661,
+		"file": "Vue_aérienne_du_domaine_de_Versailles_par_ToucanWings_-_Creative_Commons_By_Sa_3.0_-_083.jpg",
+		"kind": "architecture",
+		"license": "CC BY-SA 3.0",
+		"photographer": "ToucanWings"
+	},
+	{
+		"id": "Q29530",
+		"title": "Wolność wiodąca lud na barykady",
+		"artist": "Eugène Delacroix",
+		"year": 1830,
+		"file": "La_Liberté_guidant_le_peuple_-_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_RF_129_-_après_restauration_2024.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q311243",
+		"title": "Wędrowiec nad morzem mgły",
+		"artist": "Caspar David Friedrich",
+		"year": 1818,
+		"file": "Friedrich,_Caspar_David_-_Wanderer_über_dem_Nebelmeer.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q321303",
+		"title": "Ogród ziemskich rozkoszy",
+		"artist": "Hieronim Bosch",
+		"year": 1490,
+		"file": "The_Garden_of_Earthly_Delights_by_Bosch_High_Resolution_2.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q326503",
+		"title": "Śpiące",
+		"artist": "Gustave Courbet",
+		"year": 1866,
+		"file": "Gustave_Courbet_-_Le_Sommeil_(1866),_Paris,_Petit_Palais.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q328079",
+		"title": "Madonna Sykstyńska",
+		"artist": "Rafael Santi",
+		"year": 1512,
+		"file": "Raphael_-_The_Sistine_Madonna_-_Google_Arts_&_Culture.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q328523",
+		"title": "Impresja, wschód słońca",
+		"artist": "Claude Monet",
+		"year": 1872,
+		"file": "Monet_-_Impression,_Sunrise.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q334138",
+		"title": "Pochodzenie świata",
+		"artist": "Gustave Courbet",
+		"year": 1866,
+		"file": "Origin-of-the-World.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q354396",
+		"title": "Adele Bloch-Bauer I",
+		"artist": "Gustav Klimt",
+		"year": 1907,
+		"file": "Gustav_Klimt,_1907,_Adele_Bloch-Bauer_I,_Neue_Galerie_New_York.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q408623",
+		"title": "Wilczyca kapitolińska",
+		"artist": null,
+		"year": -500,
+		"file": "Lupa_Capitolina,_Rome.jpg",
+		"kind": "sculpture",
+		"license": "CC0"
+	},
+	{
+		"id": "Q4152",
+		"title": "Neuschwanstein",
+		"artist": null,
+		"year": 1869,
+		"file": "Neuschwanstein_Castle_2024-02.jpg",
+		"kind": "architecture",
+		"license": "CC0"
+	},
+	{
+		"id": "Q4195595",
+		"title": "Car Iwan Groźny i jego syn Iwan 16 listopada 1581 roku",
+		"artist": "Ilja Riepin",
+		"year": 1883,
+		"file": "Iván_el_Terrible_y_su_hijo,_por_Iliá_Repin.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q45585",
+		"title": "Gwiaździsta noc",
+		"artist": "Vincent van Gogh",
+		"year": 1889,
+		"file": "Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q464782",
+		"title": "American Gothic",
+		"artist": "Grant Wood",
+		"year": 1930,
+		"file": "Grant_Wood_-_American_Gothic_(1930).jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q474338",
+		"title": "Dama z gronostajem",
+		"artist": "Leonardo da Vinci",
+		"year": 1490,
+		"file": "Lady_with_an_Ermine_-_Leonardo_da_Vinci_-_Google_Art_Project.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q47476",
+		"title": "Alhambra",
+		"artist": null,
+		"year": 1239,
+		"file": "Alhambra_detail.jpg",
+		"kind": "architecture",
+		"license": "CC0"
+	},
+	{
+		"id": "Q476458",
+		"title": "Przysięga Horacjuszy",
+		"artist": "Jacques-Louis David",
+		"year": 1784,
+		"file": "Le_Serment_des_Horaces_-_Jacques-Louis_David_-_Musée_du_Louvre_Peintures_INV_3692_;_MR_1432.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q478271",
+		"title": "Kozacy piszą list do sułtana",
+		"artist": "Ilja Riepin",
+		"year": 1890,
+		"file": "Ilja_Jefimowitsch_Repin_-_Reply_of_the_Zaporozhian_Cossacks_-_Yorck.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q500812",
+		"title": "Śpiąca Wenus",
+		"artist": "Giorgione, Tycjan",
+		"year": 1509,
+		"file": "Giorgione_-_Sleeping_Venus_-_Google_Art_Project_2.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q500951",
+		"title": "Żółty Chrystus",
+		"artist": "Paul Gauguin",
+		"year": 1889,
+		"file": "Paul_Gauguin_-_The_Yellow_Christ_(Le_Christ_jaune)_1889.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q500985",
+		"title": "Myśliwi na śniegu",
+		"artist": "Pieter Bruegel Starszy",
+		"year": 1565,
+		"file": "Pieter_Bruegel_the_Elder_-_Hunters_in_the_Snow_(Winter)_-_Google_Art_Project.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q522862",
+		"title": "Kompleks świątynny w Karnaku",
+		"artist": null,
+		"year": -1899,
+		"file": "Luxor,_Egypt,_Karnak.jpg",
+		"kind": "architecture",
+		"license": "CC BY 4.0",
+		"photographer": "Vyacheslav Argenberg"
+	},
+	{
+		"id": "Q523974",
+		"title": "Widok Delftu",
+		"artist": "Jan Vermeer",
+		"year": 1661,
+		"file": "Johannes_Vermeer_-_View_of_Delft_-_92_-_Mauritshuis.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q533619",
+		"title": "Przysłowia niderlandzkie",
+		"artist": "Pieter Bruegel Starszy",
+		"year": 1559,
+		"file": "Pieter_Bruegel_(der_Ältere)_(ca._1525_-_1569)_-_Die_niederländischen_Sprichwörter_-_1720_-_Gemäldegalerie.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q544315",
+		"title": "Astronom",
+		"artist": "Jan Vermeer",
+		"year": 1664,
+		"file": "Johannes_Vermeer_-_The_Astronomer_-_1668.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q549847",
+		"title": "Wiosna",
+		"artist": "Sandro Botticelli",
+		"year": 1480,
+		"file": "Sandro_Botticelli_-_La_Primavera_-_Google_Art_Project.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q563727",
+		"title": "Święta Anna Samotrzeć (obraz Leonarda da Vinci)",
+		"artist": "Leonardo da Vinci",
+		"year": 1511,
+		"file": "Sainte_Anne_Leonard.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q604761",
+		"title": "Błękitny chłopiec",
+		"artist": "Thomas Gainsborough",
+		"year": 1770,
+		"file": "Thomas_Gainsborough_-_The_Blue_Boy_(c._1770).jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q634122",
+		"title": "Pole pszenicy z krukami",
+		"artist": "Vincent van Gogh",
+		"year": 1890,
+		"file": "Korenveld_met_kraaien_-_s0149V1962_-_Van_Gogh_Museum.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q636537",
+		"title": "Śmierć Marata",
+		"artist": "Jacques-Louis David",
+		"year": 1793,
+		"file": "Jacques-Louis_David_-_Marat_assassinated_-_Google_Art_Project_2.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q636751",
+		"title": "Sarkofag Aleksandra",
+		"artist": null,
+		"year": -380,
+		"file": "Alexander_Sarcophagus,_Istanbul_Archaeological_Museums_2024_(1).jpg",
+		"kind": "sculpture",
+		"license": "CC BY-SA 4.0",
+		"photographer": "Bjelica"
+	},
+	{
+		"id": "Q656434",
+		"title": "La Belle Ferronière",
+		"artist": "Leonardo da Vinci",
+		"year": 1495,
+		"file": "La_Belle_Ferronière_-_Google_Arts.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q661378",
+		"title": "Lekcja anatomii doktora Tulpa",
+		"artist": "Rembrandt",
+		"year": 1632,
+		"file": "Rembrandt_-_The_Anatomy_Lesson_of_Dr_Nicolaes_Tulp.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q674846",
+		"title": "Nocna kawiarnia",
+		"artist": "Vincent van Gogh",
+		"year": 1888,
+		"file": "Vincent_Willem_van_Gogh_076.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q683274",
+		"title": "Bal w Moulin de la Galette",
+		"artist": "Auguste Renoir",
+		"year": 1876,
+		"file": "Renoir,_Pierre-Auguste_-_Dance_at_Le_Moulin_de_la_Galette,_1876.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q684072",
+		"title": "Świątynia w Garni",
+		"artist": null,
+		"year": 50,
+		"file": "Ancient_temple_in_Garni.jpg",
+		"kind": "architecture",
+		"license": "CC BY-SA 4.0",
+		"photographer": "Katsiaryna Naliuka"
+	},
+	{
+		"id": "Q698487",
+		"title": "Pocałunek",
+		"artist": "Gustav Klimt",
+		"year": 1907,
+		"file": "The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q702658",
+		"title": "Człowiek-Lew",
+		"artist": null,
+		"year": -3500,
+		"file": "Loewenmensch1.jpg",
+		"kind": "sculpture",
+		"license": "CC BY-SA 4.0",
+		"photographer": "Dagmar Hollmann"
+	},
+	{
+		"id": "Q727875",
+		"title": "Wenus z Urbino",
+		"artist": "Tycjan",
+		"year": 1538,
+		"file": "Tiziano's_Venere_di_Urbino_(from_The_History_BLog).jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q734834",
+		"title": "Ołtarz Gandawski",
+		"artist": "Hubert van Eyck, Jan van Eyck",
+		"year": 1432,
+		"file": "Ghent_Altarpiece_by_Jan_van_Eyck_ALL.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q737062",
+		"title": "Olimpia",
+		"artist": "Édouard Manet",
+		"year": 1863,
+		"file": "Edouard_Manet_-_Olympia_-_Google_Art_Project_3.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q766782",
+		"title": "Żydowska narzeczona",
+		"artist": "Rembrandt",
+		"year": 1667,
+		"file": "Rembrandt_Harmensz._van_Rijn_-_Portret_van_een_paar_als_oudtestamentische_figuren,_genaamd_'Het_Joodse_bruidje'_-_Google_Art_Project.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q774021",
+		"title": "Templo Mayor w Tenochtitlán",
+		"artist": null,
+		"year": 1325,
+		"file": "Templo_Mayor_50.jpg",
+		"kind": "architecture",
+		"license": "CC BY-SA 3.0",
+		"photographer": "GAED"
+	},
+	{
+		"id": "Q783215",
+		"title": "Jan Chrzciciel",
+		"artist": "Leonardo da Vinci",
+		"year": 1514,
+		"file": "Leonardo_da_Vinci_-_Saint_John_the_Baptist_C2RMF_retouched.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q848790",
+		"title": "Grupa Galów",
+		"artist": null,
+		"year": -220,
+		"file": "0_Galata_Morente_-_Musei_Capitolini_(1).jpg",
+		"kind": "sculpture",
+		"license": "CC BY-SA 3.0",
+		"photographer": "User:Jean-Pol GRANDMONT\n\n\n\n\n\nThis illustration was made by Jean-Pol GRANDMONT\nPlease credit this : Jean-Pol GRANDMONT\nAn email to \nJean-Pol GRANDMONT would be appreciated."
+	},
+	{
+		"id": "Q849063",
+		"title": "Wenus z Brassempouy",
+		"artist": null,
+		"year": -2500,
+		"file": "Venus_de_Brassempouy.jpg",
+		"kind": "sculpture",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q890678",
+		"title": "Skąd przyszliśmy? Kim jesteśmy? Dokąd idziemy?",
+		"artist": "Paul Gauguin",
+		"year": 1897,
+		"file": "Gauguin_-_Where_Do_We_Come_From?_What_Are_We?_Where_Are_We_Going?_(1897-98).jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q9202",
+		"title": "Statua Wolności",
+		"artist": "Frédéric-Auguste Bartholdi, Gustave Eiffel, Richard Morris Hunt",
+		"year": 1886,
+		"file": "Statue_of_Liberty_and_a_sightseeing_boat,_Liberty_Island,_New_York.jpg",
+		"kind": "sculpture",
+		"license": "CC BY-SA 4.0",
+		"photographer": "Christian David"
+	},
+	{
+		"id": "Q930137",
+		"title": "Burza",
+		"artist": "Giorgione",
+		"year": 1506,
+		"file": "Giorgione_-_Das_Gewitter.jpg",
+		"kind": "painting",
+		"license": "Public domain"
+	},
+	{
+		"id": "Q945850",
+		"title": "Apollo i Dafne (rzeźba)",
+		"artist": "Giovanni Lorenzo Bernini",
+		"year": 1622,
+		"file": "Apollo_and_Daphne_(Bernini)_(cropped).jpg",
+		"kind": "sculpture",
+		"license": "CC BY-SA 4.0",
+		"photographer": "Architas"
+	},
+	{
+		"id": "Q969377",
+		"title": "Powołanie świętego Mateusza",
+		"artist": "Caravaggio",
+		"year": 1609,
+		"file": "Caravaggio_—_The_Calling_of_Saint_Matthew.jpg",
+		"kind": "painting",
+		"license": "CC0"
+	}
+]
