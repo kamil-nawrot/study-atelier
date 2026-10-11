@@ -20,3 +20,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0014](0014-artwork-collection-data-model.md) | Store the atelier in shared category-value tables with per-learner record numbers | accepted |
 | [0015](0015-typed-message-dictionaries-for-i18n.md) | Keep UI text in typed message dictionaries, one file per language | accepted |
 | [0016](0016-supabase-auth-in-the-browser.md) | Sign in with Supabase Auth from the browser, email and password only | accepted |
+| [0017](0017-ui-icons-from-lucide.md) | Use Lucide icons through a shared Icon component | accepted |

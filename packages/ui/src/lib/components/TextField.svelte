@@ -2,6 +2,7 @@
 	import Eye from '@lucide/svelte/icons/eye';
 	import EyeOff from '@lucide/svelte/icons/eye-off';
 	import type { Snippet } from 'svelte';
+	import Icon from './Icon.svelte';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 
 	type Props = Omit<HTMLInputAttributes, 'type' | 'value'> & {
@@ -61,9 +62,9 @@
 				onclick={() => (passwordVisible = !passwordVisible)}
 			>
 				{#if passwordVisible}
-					<EyeOff aria-hidden="true" />
+					<Icon icon={EyeOff} size="sm" />
 				{:else}
-					<Eye aria-hidden="true" />
+					<Icon icon={Eye} size="sm" />
 				{/if}
 			</button>
 		{/if}
@@ -134,11 +135,6 @@
 		background: transparent;
 		color: var(--color-fg-muted);
 		cursor: pointer;
-	}
-
-	.reveal :global(svg) {
-		width: var(--font-size-lg);
-		height: var(--font-size-lg);
 	}
 
 	.reveal:hover {
