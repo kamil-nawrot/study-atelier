@@ -13,6 +13,7 @@
 | A decision (business or technical) and why it was made | a new ADR in `docs/decisions/` |
 | What the app should do | `docs/product/requirements.md` |
 | A domain term | `docs/product/glossary.md` |
+| How the app speaks to the learner | `docs/product/voice-and-tone.md` |
 | How the system is structured | `docs/architecture/` |
 | A rule for working in the repository | `docs/guidelines/` |
 

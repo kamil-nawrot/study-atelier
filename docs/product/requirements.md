@@ -75,6 +75,14 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-18 | The learner can search the collection by text. | MVP |
 | R-19 | The learner can filter the collection by several fields at once: type, authors, period, style, material, location. | MVP |
 
+## Account
+
+| ID | Requirement | Version |
+| --- | --- | --- |
+| R-26 | A learner creates an account with an email address and a password. The account becomes active after the learner confirms the email address through a link sent by email. | MVP |
+| R-27 | The learner signs in with their email address and password and stays signed in on that device until they sign out. | MVP |
+| R-28 | A learner who forgot their password can set a new one through a link sent by email. | MVP |
+
 ## General
 
 | ID | Requirement | Version |

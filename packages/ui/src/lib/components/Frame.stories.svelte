@@ -1,4 +1,4 @@
-<script module lang="ts">
+<script lang="ts" module>
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import { html } from '../../stories/snippets';
 	import Frame from './Frame.svelte';

@@ -13,11 +13,11 @@
 </script>
 
 <Glyph
+	aria-hidden={label ? undefined : 'true'}
+	aria-label={label}
+	role={label ? 'img' : undefined}
 	size={pixels[size]}
-	strokeWidth={2}
 	stroke-linecap="square"
 	stroke-linejoin="miter"
-	role={label ? 'img' : undefined}
-	aria-label={label}
-	aria-hidden={label ? undefined : 'true'}
+	strokeWidth={2}
 />

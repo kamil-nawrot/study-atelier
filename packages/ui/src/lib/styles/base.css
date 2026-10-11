@@ -18,6 +18,12 @@ body {
 	margin: 0;
 }
 
+a {
+	color: var(--color-fg);
+	text-decoration-thickness: var(--border-width-hairline);
+	text-underline-offset: 0.2em;
+}
+
 :focus-visible {
 	outline: var(--border-width-base) dashed var(--color-fg);
 	outline-offset: calc(var(--border-width-base) + var(--border-width-hairline));

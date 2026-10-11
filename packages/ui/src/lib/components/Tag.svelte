@@ -13,7 +13,7 @@
 <span class="tag">
 	<span class="label">{@render children()}</span>
 	{#if onremove}
-		<button class="remove" type="button" aria-label={removeLabel} onclick={onremove}>×</button>
+		<button class="remove" aria-label={removeLabel} onclick={onremove} type="button">×</button>
 	{/if}
 </span>
 
