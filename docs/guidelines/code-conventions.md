@@ -12,4 +12,4 @@
 - Prettier has one config for the whole repository: [`prettier.config.js`](../../prettier.config.js) at the root. Packages do not add their own.
 - ESLint rules shared by all packages live in [`eslint.config.base.js`](../../eslint.config.base.js) at the root. Each package has a short `eslint.config.js` that imports the base and adds only what is specific to it, for example the Storybook rules in `packages/ui`.
 - The lint dependencies used by the shared configs are root dev dependencies.
-- Code that is not JavaScript or TypeScript uses its own language tooling. Prettier skips files it has no parser for; a folder whose files Prettier should not touch is added to the root `.prettierignore`.
+- `pnpm lint` runs Prettier and ESLint inside each pnpm package, so code outside them (for example a future Go backend) is not touched and uses its own language tooling.
