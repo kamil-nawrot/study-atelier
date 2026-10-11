@@ -1,17 +1,23 @@
+const appName = 'Study Atelier';
+
 export const pl = {
 	app: {
-		name: 'Study Atelier'
+		name: appName,
+		pageTitle: (title: string): string => `${title} · ${appName}`
 	},
-	alert: {
-		danger: 'Błąd',
-		warning: 'Uwaga',
-		success: 'Gotowe'
+	ui: {
+		alert: {
+			danger: 'Błąd',
+			warning: 'Uwaga',
+			success: 'Gotowe'
+		},
+		showPassword: 'Pokaż',
+		hidePassword: 'Ukryj',
+		removeTag: 'Usuń tag'
 	},
 	common: {
 		email: 'E-mail',
 		password: 'Hasło',
-		showPassword: 'Pokaż',
-		hidePassword: 'Ukryj',
 		backToSignIn: 'Wróć do logowania',
 		unexpectedError: 'Coś poszło nie tak. Spróbuj jeszcze raz za chwilę.'
 	},

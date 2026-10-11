@@ -1,26 +1,21 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-
-	type Tone = 'danger' | 'warning' | 'success';
+	import { type AlertTone, uiMessages } from '../messages';
 
 	type Props = {
-		tone: Tone;
+		tone: AlertTone;
 		label?: string;
 		title?: string;
 		children?: Snippet;
 	};
 
-	const defaultLabels: Record<Tone, string> = {
-		danger: 'Error',
-		warning: 'Warning',
-		success: 'Done'
-	};
+	const messages = uiMessages();
 
 	let { tone, label, title, children }: Props = $props();
 </script>
 
 <div class="alert {tone}" role={tone === 'danger' ? 'alert' : 'status'}>
-	<div class="label">{label ?? defaultLabels[tone]}</div>
+	<div class="label">{label ?? messages.alert[tone]}</div>
 	<div class="body">
 		{#if title}
 			<strong class="title">{title}</strong>

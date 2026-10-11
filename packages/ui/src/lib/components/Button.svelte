@@ -1,25 +1,36 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import type { HTMLButtonAttributes } from 'svelte/elements';
+	import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
 
-	type Props = HTMLButtonAttributes & {
+	type CommonProps = {
 		variant?: 'primary' | 'secondary';
 		fullWidth?: boolean;
 		children: Snippet;
 	};
 
-	let {
-		variant = 'secondary',
-		fullWidth = false,
-		type = 'button',
-		children,
-		...rest
-	}: Props = $props();
+	type ButtonProps = CommonProps & HTMLButtonAttributes & { href?: undefined };
+
+	type LinkProps = CommonProps & HTMLAnchorAttributes & { href: string };
+
+	type Props = ButtonProps | LinkProps;
+
+	let { variant = 'secondary', fullWidth = false, children, ...rest }: Props = $props();
 </script>
 
-<button class="button {variant}" class:full-width={fullWidth} {type} {...rest}>
-	{@render children()}
-</button>
+{#if rest.href === undefined}
+	<button
+		class="button {variant}"
+		class:full-width={fullWidth}
+		type="button"
+		{...rest as HTMLButtonAttributes}
+	>
+		{@render children()}
+	</button>
+{:else}
+	<a class="button {variant}" class:full-width={fullWidth} {...rest as HTMLAnchorAttributes}>
+		{@render children()}
+	</a>
+{/if}
 
 <style>
 	.button {
@@ -37,6 +48,7 @@
 		font-size: var(--font-size-sm);
 		font-weight: var(--font-weight-medium);
 		line-height: var(--line-height-sm);
+		text-decoration: none;
 		cursor: pointer;
 	}
 

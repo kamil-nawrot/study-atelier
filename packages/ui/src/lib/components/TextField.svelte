@@ -2,8 +2,9 @@
 	import Eye from '@lucide/svelte/icons/eye';
 	import EyeOff from '@lucide/svelte/icons/eye-off';
 	import type { Snippet } from 'svelte';
-	import Icon from './Icon.svelte';
 	import type { HTMLInputAttributes } from 'svelte/elements';
+	import { uiMessages } from '../messages';
+	import Icon from './Icon.svelte';
 
 	type Props = Omit<HTMLInputAttributes, 'type' | 'value'> & {
 		label: string;
@@ -22,8 +23,8 @@
 		type = 'text',
 		hint,
 		error,
-		showPasswordLabel = 'Show',
-		hidePasswordLabel = 'Hide',
+		showPasswordLabel = uiMessages().showPassword,
+		hidePasswordLabel = uiMessages().hidePassword,
 		labelAside,
 		id,
 		...rest

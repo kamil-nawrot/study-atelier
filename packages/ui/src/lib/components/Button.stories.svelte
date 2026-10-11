@@ -26,6 +26,8 @@
 	args={{ variant: 'primary', fullWidth: true, children: text('Sign in') }}
 />
 
+<Story name="Link" args={{ href: '#', children: text('Create account') }} />
+
 <Story name="Primary with secondary actions">
 	{#snippet template()}
 		<div style="display: flex; gap: var(--spacing-3)">
