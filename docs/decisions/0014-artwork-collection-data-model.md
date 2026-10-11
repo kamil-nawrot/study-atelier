@@ -78,7 +78,6 @@ erDiagram
         uuid artwork_id PK
         uuid value_id PK
         uuid owner_id
-        text category_code
         smallint position
     }
     categories {

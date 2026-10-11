@@ -81,7 +81,7 @@ create table public.category_values (
   category_code text not null references public.categories (code),
   name text not null check (name <> '' and name = btrim(name)),
   created_at timestamptz not null default now(),
-  unique (id, owner_id, category_code)
+  unique (id, owner_id)
 );
 
 create unique index category_values_name_key
@@ -91,12 +91,10 @@ create table public.artwork_values (
   artwork_id uuid not null,
   value_id uuid not null,
   owner_id uuid not null default auth.uid(),
-  category_code text not null,
   position smallint not null default 0,
   primary key (artwork_id, value_id),
   foreign key (artwork_id, owner_id) references public.artworks (id, owner_id) on delete cascade,
-  foreign key (value_id, owner_id, category_code)
-    references public.category_values (id, owner_id, category_code) on delete cascade
+  foreign key (value_id, owner_id) references public.category_values (id, owner_id) on delete cascade
 );
 
 create index artwork_values_value_id_idx on public.artwork_values (value_id);
@@ -131,10 +129,11 @@ language plpgsql
 set search_path = ''
 as $$
 declare
+  value_category text;
   allows_multiple boolean;
 begin
   select value.category_code, category.multiple
-    into new.category_code, allows_multiple
+    into value_category, allows_multiple
     from public.category_values as value
     join public.categories as category on category.code = value.category_code
     where value.id = new.value_id;
@@ -142,11 +141,12 @@ begin
   if not allows_multiple and exists (
     select 1
       from public.artwork_values as existing
+      join public.category_values as existing_value on existing_value.id = existing.value_id
       where existing.artwork_id = new.artwork_id
-        and existing.category_code = new.category_code
+        and existing_value.category_code = value_category
         and existing.value_id <> new.value_id
   ) then
-    raise exception 'category % allows only one value per artwork', new.category_code
+    raise exception 'category % allows only one value per artwork', value_category
       using errcode = 'check_violation';
   end if;
 
