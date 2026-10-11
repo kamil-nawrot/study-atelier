@@ -29,7 +29,7 @@
 			return;
 		}
 		if (result.signedIn) {
-			await goto(resolve('/(app)'), { invalidateAll: true });
+			await goto(resolve('/(app)/atelier'), { invalidateAll: true });
 			return;
 		}
 		await goto(resolve('/(auth)/sign-up/check-email'), { state: { email: address } });

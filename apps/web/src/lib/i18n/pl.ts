@@ -95,6 +95,16 @@ export const pl = {
 		expired: 'Ten link już nie działa: wygasł albo został użyty. Poproś o nowy.',
 		requestNew: 'Wyślij nowy link'
 	},
+	landing: {
+		title: 'Atelier do nauki historii sztuki',
+		lead: 'Twoja własna kolekcja dzieł, budowana w trakcie nauki.',
+		description: [
+			'Każde dzieło opisujesz sam: tytuł, autora, datę, styl i swoje notatki. Samo wpisywanie jest częścią nauki.',
+			'Z czasem powstaje z tego Twoja baza wiedzy, do której łatwo wrócić i którą łatwo przeszukać.'
+		],
+		signIn: 'Zaloguj się',
+		signUp: 'Załóż konto'
+	},
 	home: {
 		title: 'Moje atelier',
 		signedInAs: (email: string): string => `Zalogowano jako ${email}.`,
