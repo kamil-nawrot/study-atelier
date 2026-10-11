@@ -17,7 +17,7 @@ vi.mock('#lib/supabase.ts', () => ({
 const signOut = vi.mocked(supabase.auth.signOut);
 
 const artworks = [
-	testArtwork(3, 'Łąka o świcie'),
+	testArtwork(3, 'Déjeuner sur l’herbe'),
 	testArtwork(2, 'Starry Night', { authors: [], date: undefined }),
 	testArtwork(1, 'Night Watch', { image: undefined })
 ];
@@ -44,7 +44,7 @@ describe('atelier page', () => {
 			.toHaveTextContent(m.atelier.title);
 		await expect.element(page.getByText(m.atelier.count(3))).toBeVisible();
 		await expect
-			.element(page.getByRole('link', { name: /Łąka o świcie/ }))
+			.element(page.getByRole('link', { name: /Déjeuner sur l’herbe/ }))
 			.toHaveAttribute('href', '/atelier/3');
 		await expect.element(page.getByText('Starry Night')).toBeVisible();
 		await expect.element(page.getByText('Night Watch')).toBeVisible();
@@ -56,9 +56,9 @@ describe('atelier page', () => {
 	it('filters by title ignoring case and diacritics', async () => {
 		renderAtelier();
 
-		await searchField().fill('LAKA');
+		await searchField().fill('DEJEUNER');
 
-		await expect.element(page.getByText('Łąka o świcie')).toBeVisible();
+		await expect.element(page.getByText('Déjeuner sur l’herbe')).toBeVisible();
 		await expect.element(page.getByText('Starry Night')).not.toBeInTheDocument();
 		await expect.element(page.getByText(m.atelier.filteredCount(1, 3))).toBeVisible();
 	});

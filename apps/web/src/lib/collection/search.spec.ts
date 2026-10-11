@@ -8,18 +8,22 @@ describe('normalizeForSearch', () => {
 });
 
 describe('filterByTitle', () => {
-	const items = [{ title: 'Dama z gronostajem' }, { title: 'Łąka' }, { title: 'Starry Night' }];
+	const items = [
+		{ title: 'Lady with an Ermine' },
+		{ title: 'Łódź Harbour' },
+		{ title: 'Starry Night' }
+	];
 
 	it('returns every item for an empty query', () => {
 		expect(filterByTitle(items, '  ')).toEqual(items);
 	});
 
 	it('matches a fragment of the title without diacritics', () => {
-		expect(filterByTitle(items, 'laka')).toEqual([{ title: 'Łąka' }]);
+		expect(filterByTitle(items, 'lodz')).toEqual([{ title: 'Łódź Harbour' }]);
 	});
 
 	it('matches a fragment in another case', () => {
-		expect(filterByTitle(items, 'GRONO')).toEqual([{ title: 'Dama z gronostajem' }]);
+		expect(filterByTitle(items, 'ERMINE')).toEqual([{ title: 'Lady with an Ermine' }]);
 	});
 
 	it('returns nothing when no title matches', () => {

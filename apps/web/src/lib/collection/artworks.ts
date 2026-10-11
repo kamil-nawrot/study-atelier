@@ -45,7 +45,7 @@ export const IMAGES_BUCKET = 'artwork-images';
 export const SIGNED_URL_SECONDS = 60 * 60;
 export const DEFAULT_IMAGE_SIZE: ImageSize = { width: 4, height: 5 };
 
-const TILE_SIZES = '(min-width: 768px) 25vw, 100vw';
+const TILE_SIZES = '(min-width: 768px) 33vw, 100vw';
 const TILE_WIDTH = 500;
 
 const ARTWORK_COLUMNS = [
