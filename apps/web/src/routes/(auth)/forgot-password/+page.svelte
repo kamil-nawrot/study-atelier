@@ -15,7 +15,7 @@
 	let sentTo = $state<string>();
 	let submitting = $state(false);
 
-	async function sendLink() {
+	async function sendLink(): Promise<void> {
 		emailError = validateEmail(email);
 		formError = undefined;
 		if (emailError) return;
@@ -34,26 +34,26 @@
 	}
 </script>
 
-<AuthLayout title={m.forgotPassword.title} lead={m.forgotPassword.lead}>
+<AuthLayout lead={m.forgotPassword.lead} title={m.forgotPassword.title}>
 	{#if sentTo}
-		<Alert tone="success" label={m.alert.success} title={m.forgotPassword.sentTitle}>
+		<Alert label={m.alert.success} title={m.forgotPassword.sentTitle} tone="success">
 			{m.forgotPassword.sent(sentTo)}
 		</Alert>
 	{:else}
 		<AuthForm onsubmit={sendLink}>
 			{#if formError}
-				<Alert tone="danger" label={m.alert.danger} title={m.forgotPassword.errorTitle}
-					>{formError}</Alert
-				>
+				<Alert label={m.alert.danger} title={m.forgotPassword.errorTitle} tone="danger">
+					{formError}
+				</Alert>
 			{/if}
 			<TextField
+				autocomplete="email"
+				error={emailError}
 				label={m.common.email}
 				type="email"
-				autocomplete="email"
 				bind:value={email}
-				error={emailError}
 			/>
-			<Button type="submit" variant="primary" fullWidth disabled={submitting}>
+			<Button disabled={submitting} fullWidth type="submit" variant="primary">
 				{submitting ? m.forgotPassword.submitting : m.forgotPassword.submit}
 			</Button>
 		</AuthForm>
@@ -63,9 +63,3 @@
 		<a href={resolve('/(auth)/sign-in')}>{m.common.backToSignIn}</a>
 	{/snippet}
 </AuthLayout>
-
-<style>
-	a {
-		color: var(--color-fg);
-	}
-</style>

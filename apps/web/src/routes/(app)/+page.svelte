@@ -10,7 +10,7 @@
 
 	let signingOut = $state(false);
 
-	async function signOut() {
+	async function signOut(): Promise<void> {
 		signingOut = true;
 		await supabase.auth.signOut();
 		await goto(resolve('/(auth)/sign-in'), { invalidateAll: true });
@@ -27,14 +27,13 @@
 		<p>{m.home.placeholder}</p>
 		<p class="muted">{m.home.signedInAs(data.session.user.email ?? '')}</p>
 	</Section>
-	<div>
-		<Button onclick={signOut} disabled={signingOut}>{m.home.signOut}</Button>
-	</div>
+	<Button disabled={signingOut} onclick={signOut}>{m.home.signOut}</Button>
 </main>
 
 <style>
 	main {
 		display: grid;
+		justify-items: start;
 		gap: var(--spacing-8);
 		max-width: 720px;
 		margin: 0 auto;

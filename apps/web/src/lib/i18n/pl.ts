@@ -13,33 +13,34 @@ export const pl = {
 		showPassword: 'Pokaż',
 		hidePassword: 'Ukryj',
 		backToSignIn: 'Wróć do logowania',
-		unexpectedError: 'Coś poszło nie tak. Spróbuj ponownie za chwilę.'
+		unexpectedError: 'Coś poszło nie tak. Spróbuj jeszcze raz za chwilę.'
 	},
 	validation: {
 		emailRequired: 'Wpisz adres e-mail.',
-		emailInvalid: 'Wpisz pełny adres e-mail, np. anna@przyklad.pl.',
+		emailInvalid: 'To nie wygląda na pełny adres e-mail. Przykład: anna@przyklad.pl.',
 		passwordRequired: 'Wpisz hasło.',
-		passwordTooShort: (min: number, length: number) =>
-			`Hasło ma ${length} ${plural(length, 'znak', 'znaki', 'znaków')}. Potrzeba co najmniej ${min}.`,
-		passwordHint: (min: number) => `Co najmniej ${min} znaków.`
+		passwordTooShort: (min: number, length: number): string =>
+			`Hasło ma ${length} ${plural(length, { one: 'znak', few: 'znaki', many: 'znaków' })}. Potrzeba co najmniej ${min}.`,
+		passwordHint: (min: number): string => `Co najmniej ${min} znaków.`
 	},
 	authErrors: {
-		invalidCredentials: 'Nieprawidłowy e-mail lub hasło. Sprawdź oba pola albo zresetuj hasło.',
+		invalidCredentials:
+			'E-mail albo hasło się nie zgadzają. Sprawdź oba pola albo ustaw nowe hasło.',
 		emailNotConfirmed:
-			'Adres e-mail nie jest jeszcze potwierdzony. Kliknij link z wiadomości, którą wysłaliśmy po rejestracji.',
-		weakPassword: 'Hasło jest za słabe. Użyj dłuższego hasła, najlepiej z cyframi i znakami.',
+			'Ten adres nie jest jeszcze potwierdzony. Kliknij link z wiadomości, którą wysłaliśmy po rejestracji.',
+		weakPassword: 'To hasło łatwo odgadnąć. Wybierz dłuższe, najlepiej z cyframi i znakami.',
 		samePassword: 'Nowe hasło musi być inne niż obecne.',
-		rateLimited: 'Za dużo prób w krótkim czasie. Odczekaj chwilę i spróbuj ponownie.',
+		rateLimited: 'Sporo prób w krótkim czasie. Odczekaj chwilę i spróbuj jeszcze raz.',
 		emailRateLimited:
-			'Wysłaliśmy już kilka wiadomości. Odczekaj chwilę, zanim poprosisz o kolejną.',
-		network: 'Brak połączenia z serwerem. Sprawdź internet i spróbuj ponownie.'
+			'Kilka wiadomości jest już w drodze. Daj im chwilę, zanim poprosisz o kolejną.',
+		network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.'
 	},
 	artwork: {
 		credit: 'Wikimedia Commons, domena publiczna'
 	},
 	signIn: {
 		title: 'Zaloguj się',
-		lead: 'Wróć do swojego atelier.',
+		lead: 'Witaj ponownie. Twoje atelier czeka.',
 		forgotPassword: 'Nie pamiętasz hasła?',
 		submit: 'Zaloguj się',
 		submitting: 'Logowanie…',
@@ -49,7 +50,7 @@ export const pl = {
 	},
 	signUp: {
 		title: 'Załóż konto',
-		lead: 'Zacznij budować własne atelier dzieł sztuki.',
+		lead: 'Załóż konto i zbieraj dzieła, które poznajesz, we własnym atelier.',
 		submit: 'Załóż konto',
 		submitting: 'Zakładanie konta…',
 		errorTitle: 'Nie udało się założyć konta',
@@ -58,48 +59,49 @@ export const pl = {
 	},
 	checkEmail: {
 		title: 'Sprawdź skrzynkę',
-		lead: 'Ostatni krok przed pierwszym dziełem w atelier.',
+		lead: 'Jeszcze tylko potwierdzenie adresu i możemy zaczynać.',
 		sentTitle: 'Wysłaliśmy link',
-		sent: (email: string) => `Na adres ${email}. Kliknij go, żeby potwierdzić konto.`,
+		sent: (email: string): string => `Na adres ${email}. Kliknij go, żeby potwierdzić konto.`,
 		sentNoEmail: 'Kliknij link z wiadomości, żeby potwierdzić konto.',
-		notReceived: 'Nic nie przyszło? Zajrzyj do spamu albo wyślij link ponownie.',
+		notReceived: 'Nic nie dotarło? Zajrzyj do spamu albo poproś o nowy link.',
 		resend: 'Wyślij link ponownie',
 		resending: 'Wysyłanie…',
 		resent: 'Wysłaliśmy nowy link.'
 	},
 	forgotPassword: {
 		title: 'Nie pamiętasz hasła?',
-		lead: 'Podaj e-mail konta. Wyślemy link do ustawienia nowego hasła.',
+		lead: 'Zdarza się. Podaj e-mail konta, a wyślemy link do ustawienia nowego hasła.',
 		submit: 'Wyślij link',
 		submitting: 'Wysyłanie…',
 		sentTitle: 'Sprawdź skrzynkę',
-		sent: (email: string) =>
+		sent: (email: string): string =>
 			`Jeśli konto ${email} istnieje, wysłaliśmy na nie link do ustawienia nowego hasła.`,
 		errorTitle: 'Nie udało się wysłać linku'
 	},
 	updatePassword: {
 		title: 'Ustaw nowe hasło',
-		lead: 'Wpisz nowe hasło do swojego konta.',
+		lead: 'Wybierz nowe hasło do swojego konta.',
 		newPassword: 'Nowe hasło',
 		submit: 'Zapisz hasło',
 		submitting: 'Zapisywanie…',
 		errorTitle: 'Nie udało się zapisać hasła',
 		expiredTitle: 'Link wygasł',
-		expired: 'Ten link do zmiany hasła jest nieważny albo został już użyty. Poproś o nowy.',
+		expired: 'Ten link już nie działa: wygasł albo został użyty. Poproś o nowy.',
 		requestNew: 'Wyślij nowy link'
 	},
 	home: {
 		title: 'Moje atelier',
-		signedInAs: (email: string) => `Zalogowano jako ${email}.`,
-		placeholder: 'Tu pojawią się dzieła z Twojego atelier.',
+		signedInAs: (email: string): string => `Zalogowano jako ${email}.`,
+		placeholder: 'Na razie pusto. Wkrótce zawisną tu dzieła z Twojego atelier.',
 		signOut: 'Wyloguj się'
 	}
 };
 
-function plural(count: number, one: string, few: string, many: string) {
-	if (count === 1) return one;
-	const lastDigit = count % 10;
-	const lastTwo = count % 100;
-	if (lastDigit >= 2 && lastDigit <= 4 && (lastTwo < 12 || lastTwo > 14)) return few;
-	return many;
+type PluralForms = Record<'one' | 'few' | 'many', string>;
+
+const pluralRules = new Intl.PluralRules('pl');
+
+function plural(count: number, forms: PluralForms): string {
+	const category = pluralRules.select(count);
+	return category === 'one' || category === 'few' ? forms[category] : forms.many;
 }

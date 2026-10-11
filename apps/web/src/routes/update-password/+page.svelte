@@ -17,7 +17,7 @@
 	let formError = $state<string>();
 	let submitting = $state(false);
 
-	async function save() {
+	async function save(): Promise<void> {
 		passwordError = validateNewPassword(password);
 		formError = undefined;
 		if (passwordError) return;
@@ -33,33 +33,33 @@
 	}
 </script>
 
-<AuthLayout title={m.updatePassword.title} lead={m.updatePassword.lead}>
+<AuthLayout lead={m.updatePassword.lead} title={m.updatePassword.title}>
 	{#if data.session}
 		<AuthForm onsubmit={save}>
 			{#if formError}
-				<Alert tone="danger" label={m.alert.danger} title={m.updatePassword.errorTitle}
-					>{formError}</Alert
-				>
+				<Alert label={m.alert.danger} title={m.updatePassword.errorTitle} tone="danger">
+					{formError}
+				</Alert>
 			{/if}
 			<TextField
-				label={m.updatePassword.newPassword}
-				type="password"
 				autocomplete="new-password"
-				showPasswordLabel={m.common.showPassword}
+				error={passwordError}
 				hidePasswordLabel={m.common.hidePassword}
 				hint={m.validation.passwordHint(MIN_PASSWORD_LENGTH)}
+				label={m.updatePassword.newPassword}
+				showPasswordLabel={m.common.showPassword}
+				type="password"
 				bind:value={password}
-				error={passwordError}
 			/>
-			<Button type="submit" variant="primary" fullWidth disabled={submitting}>
+			<Button disabled={submitting} fullWidth type="submit" variant="primary">
 				{submitting ? m.updatePassword.submitting : m.updatePassword.submit}
 			</Button>
 		</AuthForm>
 	{:else}
-		<Alert tone="warning" label={m.alert.warning} title={m.updatePassword.expiredTitle}>
+		<Alert label={m.alert.warning} title={m.updatePassword.expiredTitle} tone="warning">
 			{m.updatePassword.expired}
 		</Alert>
-		<Button variant="primary" fullWidth onclick={() => goto(resolve('/(auth)/forgot-password'))}>
+		<Button fullWidth onclick={() => goto(resolve('/(auth)/forgot-password'))} variant="primary">
 			{m.updatePassword.requestNew}
 		</Button>
 	{/if}
@@ -68,9 +68,3 @@
 		<a href={resolve('/(auth)/sign-in')}>{m.common.backToSignIn}</a>
 	{/snippet}
 </AuthLayout>
-
-<style>
-	a {
-		color: var(--color-fg);
-	}
-</style>

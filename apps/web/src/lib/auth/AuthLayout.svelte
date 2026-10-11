@@ -23,10 +23,10 @@
 
 <div class="auth">
 	<figure class="stage">
-		<img class="backdrop" src={imageUrl} alt="" aria-hidden="true" />
+		<img class="backdrop" alt="" aria-hidden="true" src={imageUrl} />
 		<div class="artwork">
 			<Frame size="view">
-				<img src={imageUrl} alt="{artwork.title}, {artwork.artist}" />
+				<img alt="{artwork.title}, {artwork.artist}" src={imageUrl} />
 			</Frame>
 		</div>
 		<figcaption>
@@ -44,9 +44,9 @@
 		</Section>
 		{@render children()}
 		{#if footer}
-			<div class="footer">
+			<footer>
 				{@render footer()}
-			</div>
+			</footer>
 		{/if}
 	</main>
 </div>
@@ -162,7 +162,7 @@
 		color: var(--color-fg-muted);
 	}
 
-	.footer {
+	footer {
 		display: grid;
 		gap: var(--spacing-3);
 		padding-top: var(--spacing-6);

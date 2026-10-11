@@ -17,6 +17,21 @@ export default [
 		}
 	},
 	{
+		files: ['**/*.ts', '**/*.svelte'],
+		rules: {
+			'@typescript-eslint/explicit-function-return-type': [
+				'error',
+				{ allowExpressions: true, allowTypedFunctionExpressions: true }
+			]
+		}
+	},
+	{
+		files: ['**/*.svelte'],
+		rules: {
+			'svelte/sort-attributes': 'error'
+		}
+	},
+	{
 		files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
 		languageOptions: {
 			parserOptions: {

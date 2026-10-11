@@ -19,7 +19,7 @@ body {
 }
 
 a {
-	color: inherit;
+	color: var(--color-fg);
 	text-decoration-thickness: var(--border-width-hairline);
 	text-underline-offset: 0.2em;
 }

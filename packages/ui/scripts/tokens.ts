@@ -84,7 +84,7 @@ export function buildCss(document: TokenDocument): string {
 	const sourceSets = [...new Set(themes.flatMap((theme) => themeSets(theme, 'source')))];
 	const [defaultTheme, ...otherThemes] = themes;
 
-	const tokensOf = (setNames: string[]) =>
+	const tokensOf = (setNames: string[]): Token[] =>
 		setNames.flatMap((name) => {
 			const set = document[name];
 			if (!isNode(set)) throw new Error(`Token set "${name}" is missing`);

@@ -17,7 +17,7 @@
 	let formError = $state<string>();
 	let submitting = $state(false);
 
-	async function signUp() {
+	async function signUp(): Promise<void> {
 		emailError = validateEmail(email);
 		passwordError = validateNewPassword(password);
 		formError = undefined;
@@ -43,29 +43,29 @@
 	}
 </script>
 
-<AuthLayout title={m.signUp.title} lead={m.signUp.lead}>
+<AuthLayout lead={m.signUp.lead} title={m.signUp.title}>
 	<AuthForm onsubmit={signUp}>
 		{#if formError}
-			<Alert tone="danger" label={m.alert.danger} title={m.signUp.errorTitle}>{formError}</Alert>
+			<Alert label={m.alert.danger} title={m.signUp.errorTitle} tone="danger">{formError}</Alert>
 		{/if}
 		<TextField
+			autocomplete="email"
+			error={emailError}
 			label={m.common.email}
 			type="email"
-			autocomplete="email"
 			bind:value={email}
-			error={emailError}
 		/>
 		<TextField
-			label={m.common.password}
-			type="password"
 			autocomplete="new-password"
-			showPasswordLabel={m.common.showPassword}
+			error={passwordError}
 			hidePasswordLabel={m.common.hidePassword}
 			hint={m.validation.passwordHint(MIN_PASSWORD_LENGTH)}
+			label={m.common.password}
+			showPasswordLabel={m.common.showPassword}
+			type="password"
 			bind:value={password}
-			error={passwordError}
 		/>
-		<Button type="submit" variant="primary" fullWidth disabled={submitting}>
+		<Button disabled={submitting} fullWidth type="submit" variant="primary">
 			{submitting ? m.signUp.submitting : m.signUp.submit}
 		</Button>
 	</AuthForm>

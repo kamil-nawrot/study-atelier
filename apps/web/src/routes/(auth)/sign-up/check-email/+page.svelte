@@ -14,7 +14,7 @@
 	let resent = $state(false);
 	let resendError = $state<string>();
 
-	async function resend() {
+	async function resend(): Promise<void> {
 		resending = true;
 		resent = false;
 		resendError = undefined;
@@ -32,8 +32,8 @@
 	}
 </script>
 
-<AuthLayout title={m.checkEmail.title} lead={m.checkEmail.lead}>
-	<Alert tone="success" label={m.alert.success} title={m.checkEmail.sentTitle}>
+<AuthLayout lead={m.checkEmail.lead} title={m.checkEmail.title}>
+	<Alert label={m.alert.success} title={m.checkEmail.sentTitle} tone="success">
 		{email ? m.checkEmail.sent(email) : m.checkEmail.sentNoEmail}
 	</Alert>
 
@@ -41,12 +41,12 @@
 		{#if email}
 			<p>{m.checkEmail.notReceived}</p>
 			{#if resent}
-				<Alert tone="success" label={m.alert.success}>{m.checkEmail.resent}</Alert>
+				<Alert label={m.alert.success} tone="success">{m.checkEmail.resent}</Alert>
 			{/if}
 			{#if resendError}
-				<Alert tone="danger" label={m.alert.danger}>{resendError}</Alert>
+				<Alert label={m.alert.danger} tone="danger">{resendError}</Alert>
 			{/if}
-			<Button fullWidth onclick={resend} disabled={resending}>
+			<Button disabled={resending} fullWidth onclick={resend}>
 				{resending ? m.checkEmail.resending : m.checkEmail.resend}
 			</Button>
 		{/if}
@@ -57,9 +57,5 @@
 <style>
 	p {
 		margin: 0;
-	}
-
-	a {
-		color: var(--color-fg);
 	}
 </style>

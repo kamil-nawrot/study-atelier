@@ -8,7 +8,7 @@
 
 	let { onsubmit, children }: Props = $props();
 
-	function handleSubmit(event: SubmitEvent) {
+	function handleSubmit(event: SubmitEvent): void {
 		event.preventDefault();
 		onsubmit();
 	}

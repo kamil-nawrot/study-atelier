@@ -46,20 +46,20 @@
 	<div class="control" class:invalid={!!error}>
 		<input
 			id={inputId}
+			aria-describedby={message ? messageId : undefined}
+			aria-invalid={error ? true : undefined}
 			type={inputType}
 			bind:value
-			aria-invalid={error ? true : undefined}
-			aria-describedby={message ? messageId : undefined}
 			{...rest}
 		/>
 		{#if type === 'password'}
 			<button
 				class="reveal"
-				type="button"
 				aria-controls={inputId}
 				aria-label={passwordVisible ? hidePasswordLabel : showPasswordLabel}
-				title={passwordVisible ? hidePasswordLabel : showPasswordLabel}
 				onclick={() => (passwordVisible = !passwordVisible)}
+				title={passwordVisible ? hidePasswordLabel : showPasswordLabel}
+				type="button"
 			>
 				{#if passwordVisible}
 					<Icon icon={EyeOff} size="sm" />
