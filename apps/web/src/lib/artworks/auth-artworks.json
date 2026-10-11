@@ -154,16 +154,6 @@
 		"photographer": "Ludvig14"
 	},
 	{
-		"id": "Q1333433",
-		"title": "Ekstaza świętej Teresy",
-		"artist": "Giovanni Lorenzo Bernini",
-		"year": 1647,
-		"file": "Ecstasy_of_Saint_Teresa_September_2015-2a.jpg",
-		"kind": "sculpture",
-		"license": "CC BY-SA 4.0",
-		"photographer": "Gian Lorenzo Bernini"
-	},
-	{
 		"id": "Q1464531",
 		"title": "Gwiaździsta noc nad Rodanem",
 		"artist": "Vincent van Gogh",
@@ -449,16 +439,6 @@
 		"file": "Irises-Vincent_van_Gogh.jpg",
 		"kind": "painting",
 		"license": "Public domain"
-	},
-	{
-		"id": "Q2352789",
-		"title": "Pluton i Prozerpina",
-		"artist": "Giovanni Lorenzo Bernini",
-		"year": 1624,
-		"file": "The_Rape_of_Proserpina_(Rome).jpg",
-		"kind": "sculpture",
-		"license": "CC BY-SA 4.0",
-		"photographer": "Gian Lorenzo Bernini"
 	},
 	{
 		"id": "Q2629559",
@@ -879,7 +859,7 @@
 		"file": "0_Galata_Morente_-_Musei_Capitolini_(1).jpg",
 		"kind": "sculpture",
 		"license": "CC BY-SA 3.0",
-		"photographer": "User:Jean-Pol GRANDMONT\n\n\n\n\n\nThis illustration was made by Jean-Pol GRANDMONT\nPlease credit this : Jean-Pol GRANDMONT\nAn email to \nJean-Pol GRANDMONT would be appreciated."
+		"photographer": "Jean-Pol GRANDMONT"
 	},
 	{
 		"id": "Q849063",
