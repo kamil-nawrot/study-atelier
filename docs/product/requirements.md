@@ -23,6 +23,9 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | ID | Requirement | Version |
 | --- | --- | --- |
 | R-1 | The learner can add, view, edit and delete an artwork. | MVP |
+| R-30 | The learner adds and edits an artwork in the same form, which shows every field; they can fill in all of them or only the required ones ([ADR-0022](../decisions/0022-add-and-edit-an-artwork-in-one-full-form.md)). | MVP |
+| R-31 | When adding, the learner can save the artwork and start the next one straight away. | MVP |
+| R-32 | Leaving the form with unsaved changes asks the learner to confirm that the changes are discarded. | MVP |
 | R-23 | Deleting an artwork moves it to the trash. From the trash the learner can restore it or delete it permanently. Artworks in the trash are hidden from the collection and from suggestions. | MVP |
 | R-2 | Every artwork gets a record number shown as `#0001`, `#0002`, ... in order of creation. A number is never reused: a permanently deleted artwork leaves a gap, and a restored one keeps its number. | MVP |
 | R-3 | An artwork has the fields listed in [Artwork fields](#artwork-fields). | MVP |
@@ -53,7 +56,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-8 | The same value used in several artworks is one value, so artworks can be grouped and filtered by it (for example all works by one author). | MVP |
 | R-9 | A new value is created by typing it, but never by accident: while typing, a value that does not exist yet is clearly marked as new (for example "(new)"), and it is created only when the learner explicitly picks that option. There is no separate place to manage values in the MVP. | MVP |
 | R-24 | Period, style and material come with a starting list of common values defined in code (for example main periods, styles and materials of Western art), offered as suggestions before the learner has used any. The learner can still add a value that is not on the list (R-9). | MVP |
-| R-25 | When the learner is about to create a new value that is very similar to an existing one (different letter case, missing diacritics, a small typo), the app points to the existing value and suggests using it instead. | MVP |
+| R-25 | A new value that differs from an existing one only in letter case or diacritics cannot be created; the app offers the existing value instead. When a new value looks like a small typo of an existing one, the app points to the existing value and suggests using it, and the learner can still create the new one. | MVP |
 
 ## Images
 
@@ -62,7 +65,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-10 | Each artwork has at most one image in the MVP. | MVP |
 | R-11 | The image search is started from the image field: its "Find image" button becomes available once the title and the author (or "author unknown") are filled in. Only then does the app search the [image source](glossary.md) and show a short list of candidate artworks, each with a thumbnail, title, author and date. Nothing is searched while the learner is typing. | MVP |
 | R-12 | The learner picks the matching candidate, or "none of these". Picking a candidate links the artwork to that item in the image source and uses its image. | MVP |
-| R-13 | After a candidate is picked, the app shows the title and author from the image source next to the learner's own values for comparison, without changing them. | MVP |
+| R-13 | After a candidate is picked, the app shows the title and author from the image source next to the learner's own values for comparison, without changing them. | later |
 | R-14 | When no candidate matches or the source has no free image, the artwork shows an empty image placeholder with an easy way to add the learner's own image. | MVP |
 | R-15 | The learner can replace the image at any time with their own image ([image override](glossary.md)), uploaded as a file or given as a URL. | MVP |
 | R-16 | Images from the image source are shown with their licence and attribution ([ADR-0007](../decisions/0007-images-from-open-sources.md)). | MVP |
