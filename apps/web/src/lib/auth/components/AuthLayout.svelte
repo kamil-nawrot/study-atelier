@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { Frame, Section } from '@study-atelier/ui';
+	import { Frame, Logo, Section } from '@study-atelier/ui';
 	import { commonsImageUrl, pickArtwork } from '#lib/artworks/auth-artworks.ts';
 	import { m } from '#lib/i18n/index.ts';
 
@@ -37,7 +37,7 @@
 	</figure>
 
 	<main class="panel">
-		<div class="brand">{m.app.name}</div>
+		<Logo label={m.app.name} size="sm" />
 		<Section>
 			<h1>{title}</h1>
 			<p class="lead">{lead}</p>
@@ -122,24 +122,6 @@
 		max-width: calc(var(--size-content-narrow) + 2 * var(--spacing-4));
 		margin: 0 auto;
 		padding: var(--spacing-8) var(--spacing-4) var(--spacing-12);
-	}
-
-	.brand {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-bold);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
-	}
-
-	.brand::before {
-		content: '';
-		width: var(--spacing-4);
-		height: var(--spacing-4);
-		border: var(--border-width-base) solid var(--color-line);
-		border-bottom-width: var(--border-width-button);
 	}
 
 	footer {

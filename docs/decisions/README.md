@@ -22,3 +22,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0016](0016-supabase-auth-in-the-browser.md) | Sign in with Supabase Auth from the browser, email and password only | accepted |
 | [0017](0017-ui-icons-from-lucide.md) | Use Lucide icons through a shared Icon component | accepted |
 | [0019](0019-encode-ui-standards-in-tokens-and-the-library.md) | Encode UI standards in design tokens and the component library | accepted |
+| [0020](0020-logo-passe-partout-mark-and-wordmark.md) | Draw the logo as a passe-partout mark with a one-font wordmark | proposed |
