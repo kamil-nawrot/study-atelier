@@ -18,3 +18,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0012](0012-database-migrations-from-github-actions.md) | Apply database migrations from GitHub Actions | accepted |
 | [0013](0013-component-library-with-storybook.md) | Build Svelte components in a workspace package documented in Storybook | accepted |
 | [0014](0014-artwork-collection-data-model.md) | Store the atelier in shared category-value tables with per-learner record numbers | accepted |
+| [0017](0017-ui-icons-from-lucide.md) | Use Lucide icons through a shared Icon component | accepted |
