@@ -16,6 +16,8 @@
 
 <Story name="Default" />
 
+<Story name="Small" args={{ size: 'sm' }} />
+
 <Story name="Large" args={{ size: 'lg' }} />
 
 <Story name="With label" args={{ label: 'Study Atelier' }} />
