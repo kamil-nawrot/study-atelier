@@ -74,6 +74,12 @@ How views and components look and behave, so every new screen stays consistent w
 - A caption uses `figure`, `figcaption` and `cite.artwork-title`, with author and date as a caption and the image credit below.
 - A featured artwork sits on the stage: `--color-stage-bg` behind it and `--color-stage-fg` and `--color-stage-fg-muted` for its caption. The stage is dark in both themes.
 
+## Logo
+
+- The brand is the library `Logo` (mark and wordmark) or `LogoMark` (mark only), never text styled to look like a logo. Both follow the text colour. Why it looks this way: [ADR-0020](../decisions/0020-logo-passe-partout-mark-and-wordmark.md).
+- `Logo` takes its accessible name from `m.app.name`. `LogoMark` is decorative unless it gets a `label`.
+- Content or animation inside the mark (for example a loader) is passed as SVG children of `LogoMark`.
+
 ## Library texts
 
 The library has English defaults for its own words (alert labels, show and hide password, remove tag). The app sets the Polish texts once in the root layout with `setUiMessages(m.ui)`. A view passes a text prop such as `label` only when one place needs different wording.

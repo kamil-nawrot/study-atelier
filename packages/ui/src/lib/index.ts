@@ -4,6 +4,8 @@ export { default as Checkbox } from './components/Checkbox.svelte';
 export { default as Form } from './components/Form.svelte';
 export { default as Frame } from './components/Frame.svelte';
 export { default as Icon } from './components/Icon.svelte';
+export { default as Logo } from './components/Logo.svelte';
+export { default as LogoMark } from './components/LogoMark.svelte';
 export { default as Section } from './components/Section.svelte';
 export { default as Tag } from './components/Tag.svelte';
 export { default as TextField } from './components/TextField.svelte';
