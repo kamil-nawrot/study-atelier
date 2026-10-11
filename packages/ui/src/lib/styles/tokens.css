@@ -17,6 +17,12 @@
 	--color-stage-bg: var(--color-neutral-950);
 	--color-stage-fg: var(--color-neutral-100);
 	--color-stage-fg-muted: var(--color-neutral-400);
+	--color-mat-bg: var(--color-neutral-100);
+	--color-mat-fg: var(--color-neutral-950);
+	--color-mat-fg-muted: var(--color-neutral-600);
+	--color-mat-window: var(--color-neutral-150);
+	--color-mat-badge-bg: rgba(28, 26, 24, 0.45);
+	--color-mat-badge-fg: rgba(226, 223, 215, 0.8);
 	--font-family-ui: 'Schibsted Grotesk';
 	--font-family-title: 'Newsreader';
 	--font-weight-regular: 400;
