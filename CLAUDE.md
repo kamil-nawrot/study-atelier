@@ -9,6 +9,7 @@ Before doing any work in this repository, read and follow:
 - [docs/guidelines/documentation.md](docs/guidelines/documentation.md): how and when to update `docs/`
 - [docs/guidelines/design-tokens.md](docs/guidelines/design-tokens.md): design tokens and the Figma sync
 - [docs/guidelines/code-conventions.md](docs/guidelines/code-conventions.md): conventions for writing code
+- [docs/guidelines/ui-patterns.md](docs/guidelines/ui-patterns.md): how views and components look and behave
 
 Key rules in short:
 

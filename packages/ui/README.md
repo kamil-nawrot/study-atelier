@@ -24,20 +24,34 @@ Icons come from Lucide and are always drawn through `Icon` ([ADR-0017](../../doc
 <Icon icon={Search} size="sm" />
 ```
 
-`styles.css` loads the token variables, fonts and base styles once, in the root layout. Set `data-theme="light"` on the root element for the light theme; dark is the default.
+`styles.css` loads the token variables, fonts and base styles (margin reset and text roles) once, in the root layout. Set `data-theme="light"` on the root element for the light theme; dark is the default.
+
+Components have English default texts. The app sets its own once, in the root layout:
+
+```svelte
+<script lang="ts">
+	import { setUiMessages } from '@study-atelier/ui';
+	import { m } from '#lib/i18n/index.ts';
+
+	setUiMessages(m.ui);
+</script>
+```
+
+Patterns for using the components are in [ui-patterns.md](../../docs/guidelines/ui-patterns.md).
 
 ## Components
 
-| Component   | Purpose                                                                      |
-| ----------- | ---------------------------------------------------------------------------- |
-| `Alert`     | Status message with a coloured label bar: `danger`, `warning`, `success`     |
-| `Button`    | Outline button with a heavier bottom edge; `primary` is filled, one per view |
-| `Tag`       | Flat tag with `#` prefix; optional remove button                             |
-| `TextField` | Labelled input with hint, error and password reveal                          |
-| `Checkbox`  | Labelled checkbox                                                            |
-| `Frame`     | Passe-partout frame for artworks: `list` or `view` size                      |
-| `Icon`      | Lucide icon in the shared style: `sm` (20 px) or `md` (24 px)                |
-| `Section`   | Text section with a heavy left edge (spine)                                  |
+| Component   | Purpose                                                                                          |
+| ----------- | ------------------------------------------------------------------------------------------------ |
+| `Alert`     | Status message with a coloured label bar: `danger`, `warning`, `success`                         |
+| `Button`    | Outline button with a heavier bottom edge; `primary` is filled, one per view; a link with `href` |
+| `Form`      | Form without browser validation; focuses the first invalid field on submit                       |
+| `Tag`       | Flat tag with `#` prefix; optional remove button                                                 |
+| `TextField` | Labelled input with hint, error and password reveal                                              |
+| `Checkbox`  | Labelled checkbox                                                                                |
+| `Frame`     | Passe-partout frame for artworks: `list` or `view` size                                          |
+| `Icon`      | Lucide icon in the shared style: `sm` (20 px) or `md` (24 px)                                    |
+| `Section`   | Text section with a heavy left edge (spine)                                                      |
 
 ## Commands
 
