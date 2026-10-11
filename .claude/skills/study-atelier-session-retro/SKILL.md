@@ -5,7 +5,7 @@ description: At the end of a study-atelier session, find what the conversation a
 
 # study-atelier session retrospective
 
-Use this at the end of every session, before reporting the work as finished: when the session's pull request is merged or handed over for review, when its thread is about to be resolved, or when the owner asks for a retrospective. The goal is that a fresh session never has to ask the owner again what this one already learned.
+Use this at the end of every session, before the work is merged: when the session's pull request has the owner's review comments addressed and waits only for the merge, so that confirmed findings ride in the same pull request. In a session without a pull request, use it before its thread is resolved. Also use it whenever the owner asks for a retrospective. The goal is that a fresh session never has to ask the owner again what this one already learned.
 
 Read [`docs/guidelines/documentation.md`](../../../docs/guidelines/documentation.md) first: its "Where things go" table decides where each finding belongs.
 
@@ -70,7 +70,7 @@ If nothing is worth recording, say so in one line and stop.
 
 ## 6. Apply what the owner confirmed
 
-- **Repository changes**: if the session's pull request is still open and the finding came from it, commit the change to that pull request. Otherwise create a Linear issue for it and open a new pull request from `develop` with the [`study-atelier-pr-create`](../study-atelier-pr-create/SKILL.md) skill, `docs` type, then review it with [`study-atelier-pr-review`](../study-atelier-pr-review/SKILL.md).
+- **Repository changes**: commit them to the session's pull request, then tell the owner it is ready to merge. Only when there is no open pull request for the session (it was already merged, or the session had none), create a Linear issue for it and open a new pull request from `develop` with the [`study-atelier-pr-create`](../study-atelier-pr-create/SKILL.md) skill, `docs` type, then review it with [`study-atelier-pr-review`](../study-atelier-pr-review/SKILL.md).
 - **Memory**: update the existing entry rather than adding a near-duplicate; delete entries the session proved wrong; convert relative dates to absolute ones.
 - Everything written to the repository is in English and has no personal data: people are referred to by role ("the owner").
 - Report back in one line per destination with links to the pull request, the issue or the memory entry.
