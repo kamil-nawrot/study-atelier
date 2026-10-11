@@ -57,6 +57,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 - A form is the library `Form`: it turns off browser validation, prevents the page reload and, after submit, moves focus to the first field marked invalid.
 - Fields are `TextField`, `Checkbox` and future library inputs, each with a visible label and the right `autocomplete` value.
+- On a phone, form fields take the full content width, and so do an image that belongs to the form and the buttons under it.
 - The flow on submit:
   1. Validate every field and clear the form error.
   2. If a field is invalid, stop. Its error shows under it and focus moves to the first invalid field.
