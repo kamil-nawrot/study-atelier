@@ -3,21 +3,17 @@
 	import { onMount } from 'svelte';
 	import { invalidate } from '$app/navigation';
 	import favicon from '#lib/assets/favicon.svg';
-	import { supabase } from '#lib/supabase.ts';
+	import { SESSION_DEPENDENCY, watchSession } from '#lib/auth/session.ts';
 	import type { LayoutProps } from './$types';
 
 	let { data, children }: LayoutProps = $props();
 
-	onMount(() => {
-		const {
-			data: { subscription }
-		} = supabase.auth.onAuthStateChange((_event, session) => {
-			if (session?.access_token !== data.session?.access_token) {
-				invalidate('supabase:auth');
-			}
-		});
-		return () => subscription.unsubscribe();
-	});
+	onMount(() =>
+		watchSession(
+			() => data.session,
+			() => invalidate(SESSION_DEPENDENCY)
+		)
+	);
 </script>
 
 <svelte:head>
