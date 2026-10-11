@@ -64,6 +64,7 @@ create table public.artworks (
   own_image_path text,
   own_image_url text check (own_image_url ~ '^https://'),
   own_image_source_url text,
+  deleted_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (owner_id, record_number),
@@ -206,7 +207,7 @@ grant insert (
 grant update (
   title, author_unknown, year, year_approximate, type_code, notes,
   source_wikidata_id, source_image_file, source_image_licence, source_image_licence_url,
-  source_image_attribution, own_image_path, own_image_url, own_image_source_url
+  source_image_attribution, own_image_path, own_image_url, own_image_source_url, deleted_at
 ) on public.artworks to authenticated;
 
 grant select, delete on public.category_values to authenticated;

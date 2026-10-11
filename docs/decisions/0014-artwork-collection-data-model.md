@@ -5,7 +5,7 @@
 
 ## Context and problem statement
 
-The MVP needs a database for the [atelier](../product/glossary.md): artworks with a title, authors, a date, a type, periods, styles, materials, a location, notes and one image ([requirements](../product/requirements.md)). Authors, periods, styles, materials and locations are category values that are suggested, shared between artworks and used for filtering (R-7, R-8). Every artwork has a record number `#0001` that is never reused (R-2). The set of fields and categories must be easy to extend in code (R-5). Each learner sees only their own atelier (R-22). The frontend talks to Supabase directly, without a custom backend ([0005](0005-no-custom-backend.md)), so Row Level Security is the only access control.
+The MVP needs a database for the [atelier](../product/glossary.md): artworks with a title, authors, a date, a type, periods, styles, materials, a location, notes and one image ([requirements](../product/requirements.md)). Authors, periods, styles, materials and locations are category values that are suggested, shared between artworks and used for filtering (R-7, R-8). Every artwork has a record number `#0001` that is never reused (R-2). Deleted artworks go to a trash first, from which they can be restored with the same number (R-23). The set of fields and categories must be easy to extend in code (R-5). Each learner sees only their own atelier (R-22). The frontend talks to Supabase directly, without a custom backend ([0005](0005-no-custom-backend.md)), so Row Level Security is the only access control.
 
 ## Decision drivers
 
@@ -90,10 +90,13 @@ erDiagram
 - Migration: [`20261010234500_artwork_collection.sql`](../../supabase/migrations/20261010234500_artwork_collection.sql).
 - `categories`: `author`, `period`, `style`, `material` (many values per artwork) and `location` (one value per artwork, checked by a trigger).
 - `artwork_types`: `architecture`, `painting`, `sculpture`, `drawing`, `printmaking`, `applied_arts`, `photography`, `other`. Codes are stored; the Polish labels live in the app's i18n texts.
-- Category value names are unique per learner and category, ignoring letter case, and stored as typed (trimmed). Typing a new name creates the value (R-9).
+- Category value names are unique per learner and category, ignoring letter case, and stored as typed (trimmed). The app creates a value only when the learner explicitly picks the new name (R-9).
+- The starting lists of periods, styles and materials (R-24) live in the app, next to the i18n texts, not in the database: they are suggestions in the interface language, and a value is stored only once the learner picks it.
+- Near-duplicate hints (R-25) are computed in the app over the learner's own values, which are few. The database only rejects a name that differs from an existing one by letter case.
 - `artwork_values.position` keeps the order of authors and other values on an artwork.
 - Dates: `year` is a signed integer, negative for years before the common era, with no year 0; `year_approximate` needs a year.
 - Images ([0007](0007-images-from-open-sources.md)): the source image is a reference (`source_wikidata_id`, `source_image_file` on Commons, licence, licence URL and attribution). The learner's own image is either a file in the private storage bucket (`own_image_path`) or an `https` URL (`own_image_url`), optionally with `own_image_source_url` pointing to where it was found. The own image overrides the source image.
+- Trash (R-23): `deleted_at` on `artworks`. Moving to the trash and restoring set and clear it; deleting from the trash removes the row and its links. The app hides trashed artworks from the collection and suggests only values linked to at least one artwork outside the trash.
 - Record numbers: `private.record_counters` holds the last number per learner; a `before insert` trigger on `artworks` assigns the next one. The app shows it as `#` plus the number padded to four digits.
 
 ### Access control
