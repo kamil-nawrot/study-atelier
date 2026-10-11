@@ -1,4 +1,5 @@
 export { default as Alert } from './components/Alert.svelte';
+export { default as ArtworkTile } from './components/ArtworkTile.svelte';
 export { default as Button } from './components/Button.svelte';
 export { default as Checkbox } from './components/Checkbox.svelte';
 export { default as Form } from './components/Form.svelte';

@@ -7,6 +7,8 @@ export type UiMessages = {
 	showPassword: string;
 	hidePassword: string;
 	removeTag: string;
+	unknownAuthor: string;
+	noImage: string;
 };
 
 export const defaultUiMessages: UiMessages = {
@@ -17,7 +19,9 @@ export const defaultUiMessages: UiMessages = {
 	},
 	showPassword: 'Show',
 	hidePassword: 'Hide',
-	removeTag: 'Remove tag'
+	removeTag: 'Remove tag',
+	unknownAuthor: 'Unknown author',
+	noImage: 'No image'
 };
 
 const contextKey = Symbol('ui-messages');

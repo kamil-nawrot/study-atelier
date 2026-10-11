@@ -13,7 +13,9 @@ export const pl = {
 		},
 		showPassword: 'Pokaż',
 		hidePassword: 'Ukryj',
-		removeTag: 'Usuń tag'
+		removeTag: 'Usuń tag',
+		unknownAuthor: 'Autor nieznany',
+		noImage: 'Brak obrazu'
 	},
 	common: {
 		email: 'E-mail',
