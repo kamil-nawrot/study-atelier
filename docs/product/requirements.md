@@ -79,6 +79,8 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 
 ## Not in the MVP
 
+Ideas for later versions are collected in Linear as issues with the `idea` label and no milestone, not in this file. The main ones so far:
+
 - Learning modes such as flashcards or quizzes.
 - Pages for people, places, periods or styles with their own content.
 - More than one image per artwork.
