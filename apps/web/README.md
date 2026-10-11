@@ -16,7 +16,7 @@ Run commands from the repository root with pnpm, or from this folder:
 
 ## Environment variables
 
-The app needs the Supabase project URL and publishable key at build time ([ADR-0016](../../docs/decisions/0016-supabase-auth-in-the-browser.md)). Export them in the shell before `pnpm dev`, `pnpm check` or `pnpm build`. Do not put them in a `.env` file: `wrangler types` would add them to the generated types and `pnpm check` would fail.
+The app needs the Supabase project URL and publishable key at build time ([ADR-0016](../../docs/decisions/0016-supabase-auth-in-the-browser.md)). Put them in `apps/web/.env` (ignored by git) or export them in the shell. The `wrangler types` scripts run with `--env-file /dev/null`, so the `.env` file does not leak into the generated Worker types.
 
 | Variable                   | Value                                               |
 | -------------------------- | --------------------------------------------------- |
