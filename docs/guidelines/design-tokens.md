@@ -38,5 +38,5 @@ To preview dark or light in Figma on the free plan: activate the `core` set plus
 
 - Never hand-edit `$themes` or `$metadata` without checking the Tokens Studio format; the plugin owns them.
 - Keep tokens in DTCG format and validate the JSON before pushing.
-- Components consume tokens through generated CSS custom properties, never hard-coded values.
+- Components consume tokens through generated CSS custom properties, never hard-coded values. Views and components use semantic tokens only; palette tokens are referenced only inside `design/tokens.json` ([ui-patterns.md](ui-patterns.md#tokens)).
 - After any change to `design/tokens.json`, run `pnpm tokens` and commit the regenerated `packages/ui/src/lib/styles/tokens.css`. `pnpm check` fails when it is out of date.
