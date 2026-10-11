@@ -8,6 +8,15 @@ Design tokens (colours, typography, spacing, radii and similar values) are the s
 - Format: [W3C Design Tokens Community Group](https://www.designtokens.org/) format (`$value`, `$type`, `$description`).
 - Top-level keys are token sets (for example `core`). `$themes` and `$metadata` are managed by Tokens Studio.
 
+## From tokens to CSS
+
+`pnpm tokens` turns `design/tokens.json` into CSS custom properties in `packages/ui/src/lib/styles/tokens.css` ([ADR-0013](../decisions/0013-component-library-with-storybook.md)):
+
+- A token path becomes a variable name: `color.neutral.100` is `--color-neutral-100`, `spacing.4` is `--spacing-4`.
+- References stay references: `{color.neutral.950}` becomes `var(--color-neutral-950)`.
+- The `dark` theme is the default on `:root`; the `light` theme applies under `[data-theme='light']`.
+- Percentage line heights become unitless numbers and percentage letter spacing becomes `em`.
+
 ## Branches
 
 - `design/tokens` is a long-lived branch used only by the Tokens Studio plugin.
@@ -29,4 +38,5 @@ To preview dark or light in Figma on the free plan: activate the `core` set plus
 
 - Never hand-edit `$themes` or `$metadata` without checking the Tokens Studio format; the plugin owns them.
 - Keep tokens in DTCG format and validate the JSON before pushing.
-- Components consume tokens through generated CSS custom properties, never hard-coded values. The build step that generates them will be set up together with the frontend.
+- Components consume tokens through generated CSS custom properties, never hard-coded values.
+- After any change to `design/tokens.json`, run `pnpm tokens` and commit the regenerated `packages/ui/src/lib/styles/tokens.css`. `pnpm check` fails when it is out of date.

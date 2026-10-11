@@ -1,0 +1,52 @@
+{
+	"name": "@study-atelier/ui",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/lib/index.ts",
+			"svelte": "./src/lib/index.ts",
+			"default": "./src/lib/index.ts"
+		},
+		"./styles.css": "./src/lib/styles/index.css"
+	},
+	"svelte": "./src/lib/index.ts",
+	"scripts": {
+		"tokens": "node scripts/build-tokens.ts",
+		"storybook": "storybook dev -p 6006",
+		"build": "storybook build --quiet -o storybook-static",
+		"check": "node scripts/build-tokens.ts --check && svelte-check --tsconfig ./tsconfig.json",
+		"lint": "prettier --check . && eslint .",
+		"format": "prettier --write .",
+		"test": "vitest --run"
+	},
+	"dependencies": {
+		"@fontsource/newsreader": "^5.3.0",
+		"@fontsource/schibsted-grotesk": "^5.3.0",
+		"@lucide/svelte": "^1.55.0"
+	},
+	"devDependencies": {
+		"@eslint/js": "^10.0.1",
+		"@storybook/addon-docs": "^10.6.1",
+		"@storybook/addon-svelte-csf": "^5.1.5",
+		"@storybook/addon-themes": "^10.6.1",
+		"@storybook/svelte-vite": "^10.6.1",
+		"@sveltejs/vite-plugin-svelte": "^7.3.1",
+		"@types/node": "^22.20.5",
+		"eslint": "^10.12.0",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-storybook": "^10.6.1",
+		"eslint-plugin-svelte": "^3.23.1",
+		"globals": "^17.13.0",
+		"prettier": "^3.9.10",
+		"prettier-plugin-svelte": "^4.1.1",
+		"storybook": "^10.6.1",
+		"svelte": "^5.57.2",
+		"svelte-check": "^4.7.6",
+		"typescript": "^6.0.3",
+		"typescript-eslint": "^8.71.1",
+		"vite": "^8.3.4",
+		"vitest": "^4.1.11"
+	}
+}
