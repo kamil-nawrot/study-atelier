@@ -20,7 +20,8 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | ID | Requirement |
 | --- | --- |
 | R-1 | The learner can add, view, edit and delete an artwork. |
-| R-2 | Every artwork gets a record number shown as `#0001`, `#0002`, ... in order of creation. A number is never reused: deleting an artwork leaves a gap. |
+| R-1a | Deleting an artwork moves it to the trash. From the trash the learner can restore it or delete it permanently. Artworks in the trash are hidden from the collection and from suggestions. |
+| R-2 | Every artwork gets a record number shown as `#0001`, `#0002`, ... in order of creation. A number is never reused: a permanently deleted artwork leaves a gap, and a restored one keeps its number. |
 | R-3 | An artwork has the fields listed in [Artwork fields](#artwork-fields). |
 | R-4 | Only the title and the author are required. Instead of an author, the learner can mark the author as unknown. |
 | R-5 | The set of fields and categories is fixed in code for the MVP, and the data model makes adding a new field or category a small code change. |
@@ -47,14 +48,14 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | --- | --- |
 | R-7 | Authors, period, style, material and location are [category values](glossary.md): when filling them in, the app suggests values the learner has already used in other artworks. |
 | R-8 | The same value used in several artworks is one value, so artworks can be grouped and filtered by it (for example all works by one author). |
-| R-9 | A new value is created simply by typing it; there is no separate place to manage values in the MVP. |
+| R-9 | A new value is created by typing it, but never by accident: while typing, a value that does not exist yet is clearly marked as new (for example "(new)"), and it is created only when the learner explicitly picks that option. There is no separate place to manage values in the MVP. |
 
 ## Images
 
 | ID | Requirement |
 | --- | --- |
 | R-10 | Each artwork has at most one image in the MVP. |
-| R-11 | After entering the title and author, the learner confirms them (for example with a "Search" button). Only then does the app search the [image source](glossary.md) and show a short list of candidate artworks, each with a thumbnail, title, author and date. Nothing is searched while the learner is typing. |
+| R-11 | The image search is started from the image field: its "Find image" button becomes available once the title and the author (or "author unknown") are filled in. Only then does the app search the [image source](glossary.md) and show a short list of candidate artworks, each with a thumbnail, title, author and date. Nothing is searched while the learner is typing. |
 | R-12 | The learner picks the matching candidate, or "none of these". Picking a candidate links the artwork to that item in the image source and uses its image. |
 | R-13 | After a candidate is picked, the app shows the title and author from the image source next to the learner's own values for comparison, without changing them. |
 | R-14 | When no candidate matches or the source has no free image, the artwork shows an empty image placeholder with an easy way to add the learner's own image. |
