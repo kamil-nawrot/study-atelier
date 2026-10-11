@@ -20,7 +20,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | ID | Requirement |
 | --- | --- |
 | R-1 | The learner can add, view, edit and delete an artwork. |
-| R-1a | Deleting an artwork moves it to the trash. From the trash the learner can restore it or delete it permanently. Artworks in the trash are hidden from the collection and from suggestions. |
+| R-23 | Deleting an artwork moves it to the trash. From the trash the learner can restore it or delete it permanently. Artworks in the trash are hidden from the collection and from suggestions. |
 | R-2 | Every artwork gets a record number shown as `#0001`, `#0002`, ... in order of creation. A number is never reused: a permanently deleted artwork leaves a gap, and a restored one keeps its number. |
 | R-3 | An artwork has the fields listed in [Artwork fields](#artwork-fields). |
 | R-4 | Only the title and the author are required. Instead of an author, the learner can mark the author as unknown. |
