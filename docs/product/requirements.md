@@ -52,6 +52,8 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-7 | Authors, period, style, material and location are [category values](glossary.md): when filling them in, the app suggests values the learner has already used in other artworks. | MVP |
 | R-8 | The same value used in several artworks is one value, so artworks can be grouped and filtered by it (for example all works by one author). | MVP |
 | R-9 | A new value is created by typing it, but never by accident: while typing, a value that does not exist yet is clearly marked as new (for example "(new)"), and it is created only when the learner explicitly picks that option. There is no separate place to manage values in the MVP. | MVP |
+| R-24 | Period, style and material come with a starting list of common values defined in code (for example main periods, styles and materials of Western art), offered as suggestions before the learner has used any. The learner can still add a value that is not on the list (R-9). | MVP |
+| R-25 | When the learner is about to create a new value that is very similar to an existing one (different letter case, missing diacritics, a small typo), the app points to the existing value and suggests using it instead. | MVP |
 
 ## Images
 
