@@ -17,6 +17,10 @@ How the project owner and Claude (implementer) work together on study-atelier.
 
 The project goes one step at a time. Claude does not jump ahead to later steps (for example writing application code before requirements are agreed).
 
+## End of a session
+
+Before a session's pull request is merged, once the owner's review comments are addressed, Claude runs the [`study-atelier-session-retro`](../../.claude/skills/study-atelier-session-retro/SKILL.md) skill: it proposes what the conversation and the session's pull request taught that is worth recording in the docs, the guidelines or the project memory, and records what the owner confirms in that same pull request.
+
 ## Actions that need the owner's explicit approval
 
 - creating external resources (repositories, cloud projects, accounts, paid services)
