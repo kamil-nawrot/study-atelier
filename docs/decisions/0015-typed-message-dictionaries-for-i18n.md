@@ -1,6 +1,6 @@
 # 0015. Keep UI text in typed message dictionaries, one file per language
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-10-11
 
 ## Context and problem statement

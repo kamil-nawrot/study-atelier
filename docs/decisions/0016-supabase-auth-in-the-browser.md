@@ -1,6 +1,6 @@
 # 0016. Sign in with Supabase Auth from the browser, email and password only
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-10-11
 
 ## Context and problem statement
