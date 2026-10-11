@@ -44,7 +44,11 @@ export const pl = {
 		network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.'
 	},
 	artwork: {
-		credit: 'Wikimedia Commons, domena publiczna'
+		credit: 'Wikimedia Commons, domena publiczna',
+		photoCredit: (photographer: string, license: string): string =>
+			`Wikimedia Commons, zdjęcie: ${photographer}, ${license}`,
+		unknownArtist: 'autor nieznany',
+		yearBce: (year: number): string => `${year} p.n.e.`
 	},
 	signIn: {
 		title: 'Zaloguj się',
