@@ -27,6 +27,10 @@ Use exactly this template, in English, even when the owner spoke in Polish:
 
 <What the idea is and what it gives the learner, in 1-3 sentences. Include the owner's examples.>
 
+## Scenario
+
+<A concrete situation in which the learner uses the idea, in 1-3 sentences. Leave this section out when it does not apply.>
+
 ## Today
 
 <How the app handles this now, or in the MVP, in one sentence. Write `Not covered.` when nothing does.>
@@ -36,6 +40,7 @@ Use exactly this template, in English, even when the owner spoke in Polish:
 <Where the idea came from: the owner, a thread, a document or a related issue, with a link when there is one.>
 ```
 
+- Keep `Scenario` when the owner described a use case or one follows clearly from the idea; do not invent one.
 - Keep it short: record the idea, do not design it. No requirements, estimates or solutions the owner did not mention.
 - Link related issues (`relatedTo`) when the idea builds on or competes with another one.
 
