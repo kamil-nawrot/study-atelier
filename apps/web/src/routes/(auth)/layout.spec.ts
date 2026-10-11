@@ -11,10 +11,10 @@ function loadWith(session: Session | null): ReturnType<typeof load> {
 }
 
 describe('(auth) layout load', () => {
-	it('sends a signed-in user to the home page', async () => {
+	it('sends a signed-in user to the atelier', async () => {
 		const error = await Promise.resolve(loadWith(testSession())).catch((thrown: unknown) => thrown);
 
-		expect(isRedirect(error) && error).toMatchObject({ status: 307, location: '/' });
+		expect(isRedirect(error) && error).toMatchObject({ status: 307, location: '/atelier' });
 	});
 
 	it('lets a signed-out visitor through', async () => {
