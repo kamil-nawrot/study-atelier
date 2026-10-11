@@ -41,7 +41,8 @@
 	}
 
 	.secondary:hover:not(:disabled) {
-		background: var(--color-surface);
+		border-bottom-width: var(--border-width-heavy);
+		padding-bottom: calc(var(--spacing-2) - var(--border-width-heavy) + var(--border-width-button));
 	}
 
 	.primary {

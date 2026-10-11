@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
-	import { Button, Message, TextField } from '@study-atelier/ui';
+	import { Alert, Button, TextField } from '@study-atelier/ui';
 	import AuthForm from '#lib/auth/AuthForm.svelte';
 	import AuthLayout from '#lib/auth/AuthLayout.svelte';
 	import { authErrorMessage } from '#lib/auth/errors.ts';
@@ -37,7 +37,9 @@
 	{#if data.session}
 		<AuthForm onsubmit={save}>
 			{#if formError}
-				<Message title={m.updatePassword.errorTitle}>{formError}</Message>
+				<Alert tone="danger" label={m.alert.danger} title={m.updatePassword.errorTitle}
+					>{formError}</Alert
+				>
 			{/if}
 			<TextField
 				label={m.updatePassword.newPassword}
@@ -54,9 +56,9 @@
 			</Button>
 		</AuthForm>
 	{:else}
-		<Message tone="warning" title={m.updatePassword.expiredTitle}>
+		<Alert tone="warning" label={m.alert.warning} title={m.updatePassword.expiredTitle}>
 			{m.updatePassword.expired}
-		</Message>
+		</Alert>
 		<Button variant="primary" fullWidth onclick={() => goto(resolve('/(auth)/forgot-password'))}>
 			{m.updatePassword.requestNew}
 		</Button>

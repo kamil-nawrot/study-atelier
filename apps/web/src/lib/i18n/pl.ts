@@ -2,6 +2,11 @@ export const pl = {
 	app: {
 		name: 'Study Atelier'
 	},
+	alert: {
+		danger: 'Błąd',
+		warning: 'Uwaga',
+		success: 'Gotowe'
+	},
 	common: {
 		email: 'E-mail',
 		password: 'Hasło',

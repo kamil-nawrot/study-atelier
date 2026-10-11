@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Eye from '@lucide/svelte/icons/eye';
+	import EyeOff from '@lucide/svelte/icons/eye-off';
 	import type { Snippet } from 'svelte';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 
@@ -54,10 +56,15 @@
 				class="reveal"
 				type="button"
 				aria-controls={inputId}
-				aria-pressed={passwordVisible}
+				aria-label={passwordVisible ? hidePasswordLabel : showPasswordLabel}
+				title={passwordVisible ? hidePasswordLabel : showPasswordLabel}
 				onclick={() => (passwordVisible = !passwordVisible)}
 			>
-				{passwordVisible ? hidePasswordLabel : showPasswordLabel}
+				{#if passwordVisible}
+					<EyeOff aria-hidden="true" />
+				{:else}
+					<Eye aria-hidden="true" />
+				{/if}
 			</button>
 		{/if}
 	</div>
@@ -119,15 +126,19 @@
 	}
 
 	.reveal {
+		display: grid;
+		place-content: center;
 		padding: 0 var(--spacing-3);
 		border: none;
 		border-left: var(--border-width-hairline) solid var(--color-fg-muted);
 		background: transparent;
 		color: var(--color-fg-muted);
-		font-family: inherit;
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-medium);
 		cursor: pointer;
+	}
+
+	.reveal :global(svg) {
+		width: var(--font-size-lg);
+		height: var(--font-size-lg);
 	}
 
 	.reveal:hover {

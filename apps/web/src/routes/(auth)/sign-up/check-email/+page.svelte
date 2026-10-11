@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { Button, Message } from '@study-atelier/ui';
+	import { Alert, Button } from '@study-atelier/ui';
 	import AuthLayout from '#lib/auth/AuthLayout.svelte';
 	import { authErrorMessage } from '#lib/auth/errors.ts';
 	import { authRedirectUrl } from '#lib/auth/redirects.ts';
@@ -33,18 +33,18 @@
 </script>
 
 <AuthLayout title={m.checkEmail.title} lead={m.checkEmail.lead}>
-	<Message tone="success" title={m.checkEmail.sentTitle}>
+	<Alert tone="success" label={m.alert.success} title={m.checkEmail.sentTitle}>
 		{email ? m.checkEmail.sent(email) : m.checkEmail.sentNoEmail}
-	</Message>
+	</Alert>
 
 	{#snippet footer()}
 		{#if email}
 			<p>{m.checkEmail.notReceived}</p>
 			{#if resent}
-				<Message tone="success">{m.checkEmail.resent}</Message>
+				<Alert tone="success" label={m.alert.success}>{m.checkEmail.resent}</Alert>
 			{/if}
 			{#if resendError}
-				<Message>{resendError}</Message>
+				<Alert tone="danger" label={m.alert.danger}>{resendError}</Alert>
 			{/if}
 			<Button fullWidth onclick={resend} disabled={resending}>
 				{resending ? m.checkEmail.resending : m.checkEmail.resend}

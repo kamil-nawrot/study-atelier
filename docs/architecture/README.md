@@ -26,6 +26,17 @@ To be described with C4 container and component diagrams.
 - `apps/web`: the SvelteKit app.
 - `packages/ui`: shared Svelte components, token CSS, fonts and base styles, documented in Storybook ([ADR-0013](../decisions/0013-component-library-with-storybook.md)).
 
+### Data model
+
+The atelier lives in Supabase Postgres ([ADR-0014](../decisions/0014-artwork-collection-data-model.md)):
+
+- `artworks`: one row per artwork, with its per-learner record number and image references.
+- `category_values` and `artwork_values`: authors, periods, styles, materials and locations, shared between a learner's artworks.
+- `categories` and `artwork_types`: fixed lists, extended by migrations.
+- Storage bucket `artwork-images`: the learner's own images, private, one folder per learner.
+
+Every learner-owned row is protected by Row Level Security on `owner_id`.
+
 ## 6. Runtime view
 
 Not yet described.

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
-	import { Button, Message, TextField } from '@study-atelier/ui';
+	import { Alert, Button, TextField } from '@study-atelier/ui';
 	import AuthForm from '#lib/auth/AuthForm.svelte';
 	import AuthLayout from '#lib/auth/AuthLayout.svelte';
 	import { authErrorMessage } from '#lib/auth/errors.ts';
@@ -46,7 +46,7 @@
 <AuthLayout title={m.signUp.title} lead={m.signUp.lead}>
 	<AuthForm onsubmit={signUp}>
 		{#if formError}
-			<Message title={m.signUp.errorTitle}>{formError}</Message>
+			<Alert tone="danger" label={m.alert.danger} title={m.signUp.errorTitle}>{formError}</Alert>
 		{/if}
 		<TextField
 			label={m.common.email}

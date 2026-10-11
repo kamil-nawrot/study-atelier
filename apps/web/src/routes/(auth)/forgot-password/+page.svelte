@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { Button, Message, TextField } from '@study-atelier/ui';
+	import { Alert, Button, TextField } from '@study-atelier/ui';
 	import AuthForm from '#lib/auth/AuthForm.svelte';
 	import AuthLayout from '#lib/auth/AuthLayout.svelte';
 	import { authErrorMessage } from '#lib/auth/errors.ts';
@@ -36,13 +36,15 @@
 
 <AuthLayout title={m.forgotPassword.title} lead={m.forgotPassword.lead}>
 	{#if sentTo}
-		<Message tone="success" title={m.forgotPassword.sentTitle}>
+		<Alert tone="success" label={m.alert.success} title={m.forgotPassword.sentTitle}>
 			{m.forgotPassword.sent(sentTo)}
-		</Message>
+		</Alert>
 	{:else}
 		<AuthForm onsubmit={sendLink}>
 			{#if formError}
-				<Message title={m.forgotPassword.errorTitle}>{formError}</Message>
+				<Alert tone="danger" label={m.alert.danger} title={m.forgotPassword.errorTitle}
+					>{formError}</Alert
+				>
 			{/if}
 			<TextField
 				label={m.common.email}

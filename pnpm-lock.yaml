@@ -80,6 +80,9 @@ importers:
       '@fontsource/schibsted-grotesk':
         specifier: ^5.3.0
         version: 5.3.0
+      '@lucide/svelte':
+        specifier: ^1.55.0
+        version: 1.55.0(svelte@5.57.2(@typescript-eslint/types@8.71.1))
     devDependencies:
       '@eslint/js':
         specifier: ^10.0.1
@@ -633,6 +636,11 @@ packages:
 
   '@keyv/serialize@1.1.1':
     resolution: {integrity: sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA==}
+
+  '@lucide/svelte@1.55.0':
+    resolution: {integrity: sha512-CTxJ3qbkDK2oCW1VJYKhqAUfOongRJqc9YWmJZn8E06QpCU7i5yAnUny4h/zMNy/iYpMtGiJDRSb6AVIornuXg==}
+    peerDependencies:
+      svelte: ^5
 
   '@mdx-js/react@3.1.1':
     resolution: {integrity: sha512-f++rKLQgUVYDAtECQ6fn/is15GkEH9+nZPM3MS0RcxVqoTfawHvDlSCH7JbMhAM6uJ32v3eXLvLmLvjGu7PTQw==}
@@ -2698,6 +2706,10 @@ snapshots:
       keyv: 5.6.0
 
   '@keyv/serialize@1.1.1': {}
+
+  '@lucide/svelte@1.55.0(svelte@5.57.2(@typescript-eslint/types@8.71.1))':
+    dependencies:
+      svelte: 5.57.2(@typescript-eslint/types@8.71.1)
 
   '@mdx-js/react@3.1.1(@types/react@19.3.0)(react@19.3.0)':
     dependencies:
