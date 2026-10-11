@@ -64,6 +64,9 @@ erDiagram
         text source_image_file
         text own_image_path
         text own_image_url
+        timestamptz deleted_at
+        timestamptz created_at
+        timestamptz updated_at
     }
     category_values {
         uuid id PK
