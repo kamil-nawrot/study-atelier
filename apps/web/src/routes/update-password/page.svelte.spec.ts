@@ -74,7 +74,9 @@ describe('update-password page', () => {
 
 			await submit('new-password-123');
 
-			await vi.waitFor(() => expect(goto).toHaveBeenCalledWith('/', { invalidateAll: true }));
+			await vi.waitFor(() =>
+				expect(goto).toHaveBeenCalledWith('/atelier', { invalidateAll: true })
+			);
 			expect(updateUser).toHaveBeenCalledWith({ password: 'new-password-123' });
 		});
 

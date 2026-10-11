@@ -63,7 +63,7 @@ describe('sign-in page', () => {
 
 		await submit(TEST_EMAIL, 'correct-password');
 
-		await vi.waitFor(() => expect(goto).toHaveBeenCalledWith('/', { invalidateAll: true }));
+		await vi.waitFor(() => expect(goto).toHaveBeenCalledWith('/atelier', { invalidateAll: true }));
 		expect(signInWithPassword).toHaveBeenCalledWith({
 			email: TEST_EMAIL,
 			password: 'correct-password'
