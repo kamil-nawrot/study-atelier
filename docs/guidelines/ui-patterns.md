@@ -71,7 +71,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 - An artwork image sits in `Frame`: `list` in lists, `view` in a detail view or on a stage. The image keeps its proportions and never fills a thumbnail slot at the side.
 - The `alt` text of an artwork is "Title, Author". A decorative copy of the same image (for example a blurred backdrop) has `alt=""` and `aria-hidden="true"`.
-- A caption uses `figure`, `figcaption` and `cite.artwork-title`, with author and date as a caption and the image credit below.
+- A caption uses `figure`, `figcaption` and `cite.artwork-title`, with author and date as a caption and the image credit below. The credit names Wikimedia Commons; when the image is not public domain or CC0 (a CC BY or CC BY-SA photo of an old work), it also names the photographer and the licence.
 - A featured artwork sits on the stage: `--color-stage-bg` behind it and `--color-stage-fg` and `--color-stage-fg-muted` for its caption. The stage is dark in both themes.
 
 ## Logo
