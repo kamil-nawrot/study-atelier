@@ -13,6 +13,17 @@ Shared Svelte components and styles for study-atelier, documented in Storybook (
 <Button variant="primary">Save</Button>
 ```
 
+Icons come from Lucide and are always drawn through `Icon` ([ADR-0017](../../docs/decisions/0017-ui-icons-from-lucide.md)):
+
+```svelte
+<script lang="ts">
+	import Search from '@lucide/svelte/icons/search';
+	import { Icon } from '@study-atelier/ui';
+</script>
+
+<Icon icon={Search} size="sm" />
+```
+
 `styles.css` loads the token variables, fonts and base styles once, in the root layout. Set `data-theme="light"` on the root element for the light theme; dark is the default.
 
 ## Components
@@ -25,6 +36,7 @@ Shared Svelte components and styles for study-atelier, documented in Storybook (
 | `TextField` | Labelled input with hint, error and password reveal                          |
 | `Checkbox`  | Labelled checkbox                                                            |
 | `Frame`     | Passe-partout frame for artworks: `list` or `view` size                      |
+| `Icon`      | Lucide icon in the shared style: `sm` (20 px) or `md` (24 px)                |
 | `Section`   | Text section with a heavy left edge (spine)                                  |
 
 ## Commands
