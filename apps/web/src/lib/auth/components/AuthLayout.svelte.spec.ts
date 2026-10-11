@@ -42,7 +42,7 @@ describe('AuthLayout', () => {
 		const caption = page.getByRole('figure');
 		await expect.element(caption).toHaveTextContent(artwork.title);
 		await expect.element(caption).toHaveTextContent(`${artwork.artist}, ${artwork.date}`);
-		await expect.element(caption).toHaveTextContent(m.artwork.credit);
+		await expect.element(caption).toHaveTextContent(artwork.credit);
 		await expect.element(page.getByRole('img', { name: m.app.name })).toBeVisible();
 		expect(page.getByRole('img').elements()).toHaveLength(2);
 	});

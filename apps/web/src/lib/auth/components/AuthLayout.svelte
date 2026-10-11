@@ -32,7 +32,7 @@
 		<figcaption>
 			<cite class="artwork-title">{artwork.title}</cite>
 			<span>{artwork.artist}, {artwork.date}</span>
-			<span class="credit">{m.artwork.credit}</span>
+			<span class="credit">{artwork.credit}</span>
 		</figcaption>
 	</figure>
 
