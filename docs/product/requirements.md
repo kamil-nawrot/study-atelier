@@ -71,9 +71,9 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 
 | ID | Requirement | Version |
 | --- | --- | --- |
-| R-17 | The collection is shown as a list of cards, each with the image, title, authors, date and record number. | MVP |
-| R-18 | The learner can search the collection by text. | MVP |
-| R-19 | The learner can filter the collection by several fields at once: type, authors, period, style, material, location. | MVP |
+| R-17 | The collection is shown as a wall of artwork tiles, each with the image, title, authors, date and record number, ordered from the most recently added ([ADR-0021](../decisions/0021-collection-view-as-a-wall-of-framed-artworks.md)). | MVP |
+| R-18 | The learner can search the collection by title. | MVP |
+| R-19 | The learner can filter the collection by several fields at once: type, authors, period, style, material, location. | later |
 
 ## Account
 
