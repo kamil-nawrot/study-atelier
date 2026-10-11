@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fetchCommonsImages } from '#lib/images/commons.ts';
+import { fetchCommonsThumbnails } from '#lib/images/commons.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
 import { DEFAULT_IMAGE_SIZE, IMAGES_BUCKET, loadAtelier } from './artworks.ts';
 
 vi.mock('#lib/images/commons.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/images/commons.ts')>()),
-	fetchCommonsImages: vi.fn()
+	fetchCommonsThumbnails: vi.fn()
 }));
 vi.mock('#lib/supabase.ts', () => ({
 	supabase: { from: vi.fn(), storage: { from: vi.fn() } }
@@ -29,6 +29,8 @@ function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 		source_image_file: null,
 		own_image_path: null,
 		own_image_url: null,
+		image_width: null,
+		image_height: null,
 		artwork_values: [],
 		...overrides
 	};
@@ -45,7 +47,7 @@ describe('loadAtelier', () => {
 		vi.mocked(supabase.storage.from).mockReturnValue({ createSignedUrls } as never);
 		query.select.mockReturnValue(query);
 		query.is.mockReturnValue(query);
-		vi.mocked(fetchCommonsImages).mockResolvedValue(new Map());
+		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map());
 	});
 
 	it('asks for artworks outside the trash, newest first', async () => {
@@ -53,6 +55,7 @@ describe('loadAtelier', () => {
 
 		await expect(loadAtelier()).resolves.toEqual({ artworks: [] });
 		expect(supabase.from).toHaveBeenCalledWith('artworks');
+		expect(query.select).toHaveBeenCalledWith(expect.stringContaining('image_width, image_height'));
 		expect(query.is).toHaveBeenCalledWith('deleted_at', null);
 		expect(query.order).toHaveBeenCalledWith('created_at', { ascending: false });
 	});
@@ -85,27 +88,55 @@ describe('loadAtelier', () => {
 		]);
 	});
 
-	it('uses the size and thumbnail from Commons for a Commons image', async () => {
+	it('uses the stored size and the thumbnail from Commons for a Commons image', async () => {
 		const thumbnailUrl = 'https://upload.wikimedia.org/thumb/a/ab/Test.jpg/500px-Test.jpg';
-		query.order.mockResolvedValue({ data: [row({ source_image_file: 'Test.jpg' })], error: null });
-		vi.mocked(fetchCommonsImages).mockResolvedValue(
-			new Map([['Test.jpg', { width: 800, height: 600, thumbnailUrl }]])
-		);
+		query.order.mockResolvedValue({
+			data: [row({ source_image_file: 'Test.jpg', image_width: 1000, image_height: 750 })],
+			error: null
+		});
+		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map([['Test.jpg', thumbnailUrl]]));
 
 		const { artworks } = await loadAtelier();
 
-		expect(fetchCommonsImages).toHaveBeenCalledWith(['Test.jpg'], 500);
-		expect(artworks[0].image).toMatchObject({ src: thumbnailUrl, width: 800, height: 600 });
-		expect(artworks[0].image?.srcset).toContain('330px-Test.jpg 330w');
+		expect(fetchCommonsThumbnails).toHaveBeenCalledWith(['Test.jpg'], 500);
+		expect(artworks[0].image).toMatchObject({ src: thumbnailUrl, width: 1000, height: 750 });
+		expect(artworks[0].image?.srcset).toContain('960px-Test.jpg 960w');
+		expect(artworks[0].image?.srcset).not.toContain('1280px-');
 	});
 
-	it('falls back to the redirecting url and a portrait size without Commons', async () => {
+	it('keeps a portrait size and small thumbnails for an image without a stored size', async () => {
+		const thumbnailUrl = 'https://upload.wikimedia.org/thumb/a/ab/Test.jpg/500px-Test.jpg';
 		query.order.mockResolvedValue({ data: [row({ source_image_file: 'Test.jpg' })], error: null });
+		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map([['Test.jpg', thumbnailUrl]]));
 
 		const { artworks } = await loadAtelier();
 
-		expect(artworks[0].image).toMatchObject(DEFAULT_IMAGE_SIZE);
+		expect(artworks[0].image).toMatchObject({ src: thumbnailUrl, ...DEFAULT_IMAGE_SIZE });
+		expect(artworks[0].image?.srcset).toContain('500px-Test.jpg 500w');
+		expect(artworks[0].image?.srcset).not.toContain('960px-');
+	});
+
+	it('falls back to the redirecting url without Commons and keeps the stored size', async () => {
+		query.order.mockResolvedValue({
+			data: [row({ source_image_file: 'Test.jpg', image_width: 600, image_height: 900 })],
+			error: null
+		});
+
+		const { artworks } = await loadAtelier();
+
+		expect(artworks[0].image).toMatchObject({ width: 600, height: 900 });
 		expect(artworks[0].image?.src).toContain('Special:FilePath/Test.jpg');
+	});
+
+	it('has no srcset for an image narrower than every thumbnail', async () => {
+		query.order.mockResolvedValue({
+			data: [row({ source_image_file: 'Tiny.jpg', image_width: 200, image_height: 300 })],
+			error: null
+		});
+
+		const { artworks } = await loadAtelier();
+
+		expect(artworks[0].image?.srcset).toBeUndefined();
 	});
 
 	it('prefers an uploaded image and signs its url', async () => {
@@ -124,16 +155,22 @@ describe('loadAtelier', () => {
 		expect(artworks[0].image).toEqual({ src: 'https://example.com/signed', ...DEFAULT_IMAGE_SIZE });
 	});
 
-	it('uses a linked image as it is', async () => {
+	it('uses a linked image as it is, with its stored size', async () => {
 		query.order.mockResolvedValue({
-			data: [row({ own_image_url: 'https://example.com/image.jpg' })],
+			data: [
+				row({ own_image_url: 'https://example.com/image.jpg', image_width: 640, image_height: 480 })
+			],
 			error: null
 		});
 
 		const { artworks } = await loadAtelier();
 
 		expect(createSignedUrls).not.toHaveBeenCalled();
-		expect(artworks[0].image?.src).toBe('https://example.com/image.jpg');
+		expect(artworks[0].image).toEqual({
+			src: 'https://example.com/image.jpg',
+			width: 640,
+			height: 480
+		});
 	});
 
 	it('returns a mapped message when loading fails', async () => {

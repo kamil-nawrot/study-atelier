@@ -1,12 +1,3 @@
-export type ImageSize = {
-	width: number;
-	height: number;
-};
-
-export type CommonsImage = ImageSize & {
-	thumbnailUrl: string;
-};
-
 export const COMMONS_THUMBNAIL_WIDTHS = [250, 330, 500, 960, 1280, 1920] as const;
 
 const COMMONS_API = 'https://commons.wikimedia.org/w/api.php';
@@ -17,7 +8,7 @@ const MAX_RETRY_SECONDS = 5;
 type ImageInfoResponse = {
 	query?: {
 		normalized?: { from: string; to: string }[];
-		pages?: { title: string; imageinfo?: (ImageSize & { thumburl?: string })[] }[];
+		pages?: { title: string; imageinfo?: { thumburl?: string }[] }[];
 	};
 };
 
@@ -30,15 +21,14 @@ export function commonsSrcset(file: string, widths: readonly number[]): string {
 }
 
 export function commonsThumbnailSrcset(
-	image: CommonsImage,
+	thumbnailUrl: string,
 	thumbnailWidth: number,
 	widths: readonly number[]
 ): string | undefined {
 	const segment = `/${thumbnailWidth}px-`;
-	if (!image.thumbnailUrl.includes(segment)) return undefined;
+	if (!thumbnailUrl.includes(segment)) return undefined;
 	return widths
-		.filter((width) => width <= image.width)
-		.map((width) => `${image.thumbnailUrl.replace(segment, `/${width}px-`)} ${width}w`)
+		.map((width) => `${thumbnailUrl.replace(segment, `/${width}px-`)} ${width}w`)
 		.join(', ');
 }
 
@@ -59,60 +49,54 @@ async function fetchWithRetry(url: string): Promise<Response> {
 	return fetch(url, init);
 }
 
-async function fetchImageBatch(
+async function fetchThumbnailBatch(
 	files: string[],
 	thumbnailWidth: number
-): Promise<Map<string, CommonsImage>> {
+): Promise<Map<string, string>> {
 	const params = new URLSearchParams({
 		action: 'query',
 		format: 'json',
 		formatversion: '2',
 		origin: '*',
 		prop: 'imageinfo',
-		iiprop: 'size|url',
+		iiprop: 'url',
 		iiurlwidth: String(thumbnailWidth),
 		titles: files.map(fileTitle).join('|')
 	});
 	const response = await fetchWithRetry(`${COMMONS_API}?${params}`);
 	if (!response.ok) throw new Error(`Commons API answered ${response.status}`);
 	const { query }: ImageInfoResponse = await response.json();
-	const imagesByTitle = new Map<string, CommonsImage>();
+	const thumbnailsByTitle = new Map<string, string>();
 	for (const page of query?.pages ?? []) {
-		const info = page.imageinfo?.[0];
-		if (info?.thumburl) {
-			imagesByTitle.set(page.title, {
-				width: info.width,
-				height: info.height,
-				thumbnailUrl: info.thumburl
-			});
-		}
+		const thumbnailUrl = page.imageinfo?.[0]?.thumburl;
+		if (thumbnailUrl) thumbnailsByTitle.set(page.title, thumbnailUrl);
 	}
 	const normalized = new Map((query?.normalized ?? []).map(({ from, to }) => [from, to]));
-	const images = new Map<string, CommonsImage>();
+	const thumbnails = new Map<string, string>();
 	for (const file of files) {
 		const title = fileTitle(file);
-		const image = imagesByTitle.get(normalized.get(title) ?? title);
-		if (image) images.set(file, image);
+		const thumbnailUrl = thumbnailsByTitle.get(normalized.get(title) ?? title);
+		if (thumbnailUrl) thumbnails.set(file, thumbnailUrl);
 	}
-	return images;
+	return thumbnails;
 }
 
-export async function fetchCommonsImages(
+export async function fetchCommonsThumbnails(
 	files: string[],
 	thumbnailWidth: number
-): Promise<Map<string, CommonsImage>> {
+): Promise<Map<string, string>> {
 	const unique = [...new Set(files)];
-	const images = new Map<string, CommonsImage>();
+	const thumbnails = new Map<string, string>();
 	for (let start = 0; start < unique.length; start += TITLES_PER_REQUEST) {
 		try {
-			const batch = await fetchImageBatch(
+			const batch = await fetchThumbnailBatch(
 				unique.slice(start, start + TITLES_PER_REQUEST),
 				thumbnailWidth
 			);
-			batch.forEach((image, file) => images.set(file, image));
+			batch.forEach((thumbnailUrl, file) => thumbnails.set(file, thumbnailUrl));
 		} catch {
 			break;
 		}
 	}
-	return images;
+	return thumbnails;
 }
