@@ -36,7 +36,7 @@ describe('forgot-password page', () => {
 		await page.getByRole('button', { name: m.forgotPassword.submit }).click();
 		await expect.element(page.getByText(m.validation.emailRequired)).toBeVisible();
 
-		await submit('anna');
+		await submit('learner');
 		await expect.element(page.getByText(m.validation.emailInvalid)).toBeVisible();
 
 		expect(resetPasswordForEmail).not.toHaveBeenCalled();

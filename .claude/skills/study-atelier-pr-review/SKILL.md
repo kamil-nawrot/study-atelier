@@ -59,6 +59,10 @@ Turn the docs into concrete checks. Typical areas (verify each against the curre
 - Security for the actual stack in the ADRs: e.g. no secrets or service-role keys in frontend code, data access protected server-side (row-level security policies for every new table), safe handling of external API data.
 - Fits the documented architecture and folder layout; no dead code or leftover debug output.
 
+**UI and texts** (when the PR changes views, components or messages)
+- Follows `docs/guidelines/ui-patterns.md` for what a linter cannot check: links for navigation and buttons for actions, the form flow, message placement, text roles instead of restyled headings, semantic tokens only, no literal values where a token exists.
+- New or changed UI texts follow `docs/product/voice-and-tone.md` and live in the message dictionary.
+
 ## 4. Report
 
 - Classify each finding: **blocking** (breaks a documented rule, an accepted ADR, or correctness/security), **should fix**, **nit**.

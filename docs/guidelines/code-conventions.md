@@ -21,9 +21,70 @@
 - Markup has no wrapper elements without a purpose. Prefer a semantic element (`footer`, `section`, `nav`) to a `div` when one fits.
 - `pnpm lint` runs Prettier and ESLint inside each pnpm package, so code outside them (for example a future Go backend) is not touched and uses its own language tooling.
 
+## Svelte markup
+
+- When a component tag spans several lines, its text content goes on its own line. Text directly after `>` makes Prettier break the tag in odd places.
+
+```svelte
+<Alert title={m.signIn.errorTitle} tone="danger">
+	{formError}
+</Alert>
+```
+
+## Web app layout
+
+The SvelteKit app in `apps/web/src`:
+
+| Path | Holds |
+| --- | --- |
+| `routes/` | Pages and layouts only (`+page.svelte`, `+layout.ts` and other SvelteKit files) |
+| `lib/<domain>/` | Code of one domain, for example `auth`, `i18n` or later `collection`: TypeScript modules at the top of the folder |
+| `lib/<domain>/components/` | Svelte components that belong to that domain, for example `AuthLayout.svelte` |
+| `lib/supabase.ts` | The one Supabase client |
+
+- Components used in more than one domain, or that know nothing about the app's data and routes, belong in `packages/ui` instead.
+- Files in `routes/` connect pieces: they read data, call domain functions and render components. Logic (Supabase calls, validation, mapping, formatting) lives in `lib/<domain>`.
+
+## Naming
+
+- Svelte components: `PascalCase.svelte`, the same name they are imported under.
+- Other files and folders: `kebab-case`, for example `auth-artworks.ts`. Route folders are kebab-case because they become URLs (`/forgot-password`).
+- SvelteKit files keep the framework's names (`+page.svelte`, `+layout.ts`).
+- Tests: the tested file's name plus `.spec.ts`, next to the tested file.
+
+## Imports
+
+- Code in `apps/web` imports from another folder through `#lib/...` with the file extension, for example `#lib/auth/validation.ts`. The alias comes from `imports` in `package.json`.
+- Files in the same folder import each other with a relative path (`./errors.ts`).
+
+## Routes and navigation
+
+- Pages that need a signed-in learner are in the `(app)` group; sign-in, sign-up and password reset are in `(auth)`. Each group's `+layout.ts` redirects by session. A page reachable in both states (for example `update-password`, opened from an email) stays outside the groups.
+- Paths in code are built with `resolve()` from `$app/paths`, for example `resolve('/(auth)/sign-in')`, in views and in `redirect()` alike, so a renamed route fails the type check.
+- Internal navigation follows [ui-patterns.md](ui-patterns.md#links-and-buttons): links for going somewhere, `goto` only after an action.
+
+## UI text
+
+- All UI text comes from the message dictionary in `lib/i18n` ([ADR-0015](../decisions/0015-typed-message-dictionaries-for-i18n.md)). Learner data and artwork titles are not UI text.
+- Keys are grouped by screen or domain in camelCase (`signIn`, `forgotPassword`, `authErrors`); text shared by several screens goes in `common`; texts for `packages/ui` go in `ui`.
+- A running state pairs with its action: `submit` and `submitting`, `resend` and `resending`. Alert titles end in `Title` (`errorTitle`, `sentTitle`).
+- A message with values is a function (`sent(email)`). Plural forms use `plural()` with `Intl.PluralRules`.
+- Adding a language takes three steps:
+  1. Add a dictionary file of type `Messages` (for example `en.ts`).
+  2. Choose the dictionary and `locale` in `lib/i18n/index.ts` from the learner's setting or `navigator.language`.
+  3. Set `document.documentElement.lang` in the root layout and pass `locale` to `Intl.PluralRules` and date formatting.
+
+## Errors from services
+
+- Every error from Supabase or another service goes through a mapping function in `lib/<domain>/errors.ts`, which picks a dictionary message by error code and falls back to a general message. `error.message` is never shown to the learner.
+- Domain functions return the mapped message, so views only show it.
+
 ## Tests
 
-- A test file sits next to the file it tests. Unit tests of TypeScript modules are `<name>.spec.ts` and run in Node; component and page tests are `<Name>.svelte.spec.ts` (for a route, `page.svelte.spec.ts` next to `+page.svelte`) and run in Chromium with Vitest browser mode ([ADR-0018](../decisions/0018-component-tests-in-vitest-browser-mode.md)).
-- Component tests find elements the way a user does: by role, label and visible text, taken from the message dictionary (`m`) rather than copied strings. They do not reach into component internals, so a refactor that keeps the behaviour keeps the tests green.
+- Unit tests (Vitest) cover every module with logic: validation, mapping, formatting and the domain functions that wrap Supabase (with the client mocked).
+- Components and pages have component tests named `<Name>.svelte.spec.ts` next to the component (for a route, `page.svelte.spec.ts` next to `+page.svelte`). They run in Chromium with Vitest browser mode; other tests run in Node ([ADR-0018](../decisions/0018-component-tests-in-vitest-browser-mode.md)).
+- Test names describe behaviour in a sentence ("rejects a short password and says how long it is").
+- Expected texts are read from `m`. A literal string is used only when the text itself is under test, for example a plural form.
+- Component tests find elements the way a learner does: by role, label and visible text from `m`, not by component internals, so a refactor that keeps the behaviour keeps the tests green.
 - Supabase is never called from tests. A test mocks `#lib/supabase.ts` with `vi.mock` and returns results built with the helpers in `src/lib/testing/`, which use the real Supabase error classes. Navigation (`$app/navigation`) is mocked the same way.
-- Test data uses made-up addresses such as `anna@przyklad.pl`, never real personal data.
+- Test data that is not UI text (addresses, passwords, sample titles) is made up, in English, and never real personal data, for example `learner@example.com`.

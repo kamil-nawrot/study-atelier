@@ -17,23 +17,23 @@ describe('AuthLayout', () => {
 
 	it('shows the title, lead and content and sets the document title', async () => {
 		render(AuthLayout, {
-			title: 'Tytuł strony',
-			lead: 'Krótki wstęp.',
-			children: textSnippet('p', 'Treść formularza')
+			title: 'Page title',
+			lead: 'Short lead.',
+			children: textSnippet('p', 'Form content')
 		});
 
-		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Tytuł strony');
-		await expect.element(page.getByText('Krótki wstęp.')).toBeVisible();
-		await expect.element(page.getByText('Treść formularza')).toBeVisible();
+		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Page title');
+		await expect.element(page.getByText('Short lead.')).toBeVisible();
+		await expect.element(page.getByText('Form content')).toBeVisible();
 		await expect.element(page.getByRole('main')).toHaveTextContent(m.app.name);
-		await vi.waitFor(() => expect(document.title).toBe(`Tytuł strony · ${m.app.name}`));
+		await vi.waitFor(() => expect(document.title).toBe(m.app.pageTitle('Page title')));
 	});
 
 	it('presents an artwork with its caption and credit', async () => {
 		vi.spyOn(Math, 'random').mockReturnValue(0);
 		const [artwork] = authArtworks;
 
-		render(AuthLayout, { title: 'Tytuł', lead: 'Wstęp', children: textSnippet('p', 'Treść') });
+		render(AuthLayout, { title: 'Title', lead: 'Lead', children: textSnippet('p', 'Content') });
 
 		const image = page.getByRole('img', { name: `${artwork.title}, ${artwork.artist}` });
 		await expect.element(image).toHaveAttribute('src', expect.stringContaining('width=1280'));
@@ -45,7 +45,7 @@ describe('AuthLayout', () => {
 	});
 
 	it('leaves out the footer when none is given', async () => {
-		render(AuthLayout, { title: 'Tytuł', lead: 'Wstęp', children: textSnippet('p', 'Treść') });
+		render(AuthLayout, { title: 'Title', lead: 'Lead', children: textSnippet('p', 'Content') });
 
 		await expect.element(page.getByRole('main')).toBeVisible();
 		expect(page.getByRole('main').element().querySelector('footer')).toBeNull();
@@ -53,13 +53,13 @@ describe('AuthLayout', () => {
 
 	it('renders the footer when given', async () => {
 		render(AuthLayout, {
-			title: 'Tytuł',
-			lead: 'Wstęp',
-			children: textSnippet('p', 'Treść'),
-			footer: textSnippet('a', 'Stopka')
+			title: 'Title',
+			lead: 'Lead',
+			children: textSnippet('p', 'Content'),
+			footer: textSnippet('a', 'Footer')
 		});
 
 		const footer = page.getByRole('main').element().querySelector('footer');
-		expect(footer).toHaveTextContent('Stopka');
+		expect(footer).toHaveTextContent('Footer');
 	});
 });

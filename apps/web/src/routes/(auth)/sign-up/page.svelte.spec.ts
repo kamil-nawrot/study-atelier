@@ -30,9 +30,9 @@ describe('sign-up page', () => {
 		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent(m.signUp.title);
 		await expect.element(page.getByText(m.validation.passwordHint(8))).toBeVisible();
 
-		await page.getByRole('button', { name: m.signUp.toSignIn }).click();
-
-		expect(goto).toHaveBeenCalledWith('/sign-in');
+		await expect
+			.element(page.getByRole('link', { name: m.signUp.toSignIn }))
+			.toHaveAttribute('href', '/sign-in');
 	});
 
 	it('requires an email and a password', async () => {
@@ -48,20 +48,21 @@ describe('sign-up page', () => {
 
 		await expect.element(page.getByText(m.validation.passwordTooShort(8, 3))).toBeVisible();
 		await expect.element(page.getByText(m.validation.passwordHint(8))).not.toBeInTheDocument();
+		await expect.element(page.getByLabelText(m.common.password)).toHaveFocus();
 		expect(signUp).not.toHaveBeenCalled();
 	});
 
 	it('asks the user to confirm the email when no session is returned', async () => {
 		signUp.mockResolvedValue({ data: { user: testSession().user, session: null }, error: null });
 
-		await submit(TEST_EMAIL, 'sekretne-haslo');
+		await submit(TEST_EMAIL, 'correct-password');
 
 		await vi.waitFor(() =>
 			expect(goto).toHaveBeenCalledWith('/sign-up/check-email', { state: { email: TEST_EMAIL } })
 		);
 		expect(signUp).toHaveBeenCalledWith({
 			email: TEST_EMAIL,
-			password: 'sekretne-haslo',
+			password: 'correct-password',
 			options: { emailRedirectTo: `${window.location.origin}/` }
 		});
 	});
@@ -72,7 +73,7 @@ describe('sign-up page', () => {
 			error: null
 		});
 
-		await submit(TEST_EMAIL, 'sekretne-haslo');
+		await submit(TEST_EMAIL, 'correct-password');
 
 		await vi.waitFor(() => expect(goto).toHaveBeenCalledWith('/', { invalidateAll: true }));
 		expect(goto).toHaveBeenCalledTimes(1);
@@ -81,7 +82,7 @@ describe('sign-up page', () => {
 	it('disables the button while creating the account', async () => {
 		signUp.mockReturnValue(pending());
 
-		await submit(TEST_EMAIL, 'sekretne-haslo');
+		await submit(TEST_EMAIL, 'correct-password');
 
 		await expect.element(page.getByRole('button', { name: m.signUp.submitting })).toBeDisabled();
 	});
@@ -104,7 +105,7 @@ describe('sign-up page', () => {
 	it('reports a network failure', async () => {
 		signUp.mockResolvedValue({ data: { user: null, session: null }, error: networkError() });
 
-		await submit(TEST_EMAIL, 'sekretne-haslo');
+		await submit(TEST_EMAIL, 'correct-password');
 
 		await expect.element(page.getByRole('alert')).toHaveTextContent(m.authErrors.network);
 	});

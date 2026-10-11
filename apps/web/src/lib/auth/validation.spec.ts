@@ -4,7 +4,7 @@ import { validateEmail, validateNewPassword, validateRequiredPassword } from './
 
 describe('validateEmail', () => {
 	it('accepts a full address and ignores surrounding spaces', () => {
-		expect(validateEmail(' anna@przyklad.pl ')).toBeUndefined();
+		expect(validateEmail(' learner@example.com ')).toBeUndefined();
 	});
 
 	it('asks for an address when empty', () => {
@@ -12,7 +12,7 @@ describe('validateEmail', () => {
 	});
 
 	it('rejects an address without a domain suffix', () => {
-		expect(validateEmail('anna@przyklad')).toBe(m.validation.emailInvalid);
+		expect(validateEmail('learner@example')).toBe(m.validation.emailInvalid);
 	});
 });
 

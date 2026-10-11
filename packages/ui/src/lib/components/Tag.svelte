@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { uiMessages } from '../messages';
 
 	type Props = {
 		children: Snippet;
@@ -7,7 +8,7 @@
 		removeLabel?: string;
 	};
 
-	let { children, onremove, removeLabel = 'Remove tag' }: Props = $props();
+	let { children, onremove, removeLabel = uiMessages().removeTag }: Props = $props();
 </script>
 
 <span class="tag">

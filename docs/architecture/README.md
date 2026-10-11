@@ -60,6 +60,7 @@ Not yet described.
 
 - Authentication: Supabase Auth from the browser with email and password; the session lives in `localStorage` and server-side rendering is off ([ADR-0016](../decisions/0016-supabase-auth-in-the-browser.md)).
 - UI text: typed message dictionaries in `apps/web/src/lib/i18n`, Polish only for now ([ADR-0015](../decisions/0015-typed-message-dictionaries-for-i18n.md)).
+- UI patterns: tokens, the component library and base styles carry the shared look and behaviour; the remaining rules are in [ui-patterns.md](../guidelines/ui-patterns.md) ([ADR-0019](../decisions/0019-encode-ui-standards-in-tokens-and-the-library.md)).
 
 ## 9. Architecture decisions
 

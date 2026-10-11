@@ -42,9 +42,9 @@ describe('update-password page', () => {
 				.element(page.getByLabelText(m.updatePassword.newPassword))
 				.not.toBeInTheDocument();
 
-			await page.getByRole('button', { name: m.updatePassword.requestNew }).click();
-
-			expect(goto).toHaveBeenCalledWith('/forgot-password');
+			await expect
+				.element(page.getByRole('link', { name: m.updatePassword.requestNew }))
+				.toHaveAttribute('href', '/forgot-password');
 		});
 
 		it('links back to sign-in', async () => {
@@ -63,7 +63,7 @@ describe('update-password page', () => {
 			await page.getByRole('button', { name: m.updatePassword.submit }).click();
 			await expect.element(page.getByText(m.validation.passwordRequired)).toBeVisible();
 
-			await submit('krotkie');
+			await submit('short12');
 			await expect.element(page.getByText(m.validation.passwordTooShort(8, 7))).toBeVisible();
 
 			expect(updateUser).not.toHaveBeenCalled();
@@ -72,16 +72,16 @@ describe('update-password page', () => {
 		it('saves the password and opens the home page', async () => {
 			updateUser.mockResolvedValue({ data: { user: testSession().user }, error: null });
 
-			await submit('nowe-haslo-123');
+			await submit('new-password-123');
 
 			await vi.waitFor(() => expect(goto).toHaveBeenCalledWith('/', { invalidateAll: true }));
-			expect(updateUser).toHaveBeenCalledWith({ password: 'nowe-haslo-123' });
+			expect(updateUser).toHaveBeenCalledWith({ password: 'new-password-123' });
 		});
 
 		it('disables the button while saving', async () => {
 			updateUser.mockReturnValue(pending());
 
-			await submit('nowe-haslo-123');
+			await submit('new-password-123');
 
 			await expect
 				.element(page.getByRole('button', { name: m.updatePassword.submitting }))
@@ -94,7 +94,7 @@ describe('update-password page', () => {
 				error: apiError('same_password', 422)
 			});
 
-			await submit('stare-haslo-123');
+			await submit('old-password-123');
 
 			const alert = page.getByRole('alert');
 			await expect.element(alert).toHaveTextContent(m.updatePassword.errorTitle);
@@ -108,7 +108,7 @@ describe('update-password page', () => {
 		it('reports a network failure', async () => {
 			updateUser.mockResolvedValue({ data: { user: null }, error: networkError() });
 
-			await submit('nowe-haslo-123');
+			await submit('new-password-123');
 
 			await expect.element(page.getByRole('alert')).toHaveTextContent(m.authErrors.network);
 		});

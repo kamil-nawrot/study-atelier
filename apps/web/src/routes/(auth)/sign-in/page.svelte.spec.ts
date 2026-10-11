@@ -31,10 +31,9 @@ describe('sign-in page', () => {
 		await expect
 			.element(page.getByRole('link', { name: m.signIn.forgotPassword }))
 			.toHaveAttribute('href', '/forgot-password');
-
-		await page.getByRole('button', { name: m.signIn.toSignUp }).click();
-
-		expect(goto).toHaveBeenCalledWith('/sign-up');
+		await expect
+			.element(page.getByRole('link', { name: m.signIn.toSignUp }))
+			.toHaveAttribute('href', '/sign-up');
 	});
 
 	it('requires an email and a password', async () => {
@@ -49,9 +48,10 @@ describe('sign-in page', () => {
 	});
 
 	it('rejects an incomplete email address', async () => {
-		await submit('anna@przyklad', 'sekretne-haslo');
+		await submit('learner@example', 'correct-password');
 
 		await expect.element(page.getByText(m.validation.emailInvalid)).toBeVisible();
+		await expect.element(page.getByLabelText(m.common.email)).toHaveFocus();
 		expect(signInWithPassword).not.toHaveBeenCalled();
 	});
 
@@ -61,19 +61,19 @@ describe('sign-in page', () => {
 			error: null
 		});
 
-		await submit(TEST_EMAIL, 'sekretne-haslo');
+		await submit(TEST_EMAIL, 'correct-password');
 
 		await vi.waitFor(() => expect(goto).toHaveBeenCalledWith('/', { invalidateAll: true }));
 		expect(signInWithPassword).toHaveBeenCalledWith({
 			email: TEST_EMAIL,
-			password: 'sekretne-haslo'
+			password: 'correct-password'
 		});
 	});
 
 	it('disables the button while signing in', async () => {
 		signInWithPassword.mockReturnValue(pending());
 
-		await submit(TEST_EMAIL, 'sekretne-haslo');
+		await submit(TEST_EMAIL, 'correct-password');
 
 		await expect.element(page.getByRole('button', { name: m.signIn.submitting })).toBeDisabled();
 	});
@@ -84,7 +84,7 @@ describe('sign-in page', () => {
 			error: apiError('invalid_credentials')
 		});
 
-		await submit(TEST_EMAIL, 'zle-haslo');
+		await submit(TEST_EMAIL, 'wrong-password');
 
 		const alert = page.getByRole('alert');
 		await expect.element(alert).toHaveTextContent(m.signIn.errorTitle);
@@ -99,7 +99,7 @@ describe('sign-in page', () => {
 			error: networkError()
 		});
 
-		await submit(TEST_EMAIL, 'sekretne-haslo');
+		await submit(TEST_EMAIL, 'correct-password');
 
 		await expect.element(page.getByRole('alert')).toHaveTextContent(m.authErrors.network);
 	});
@@ -109,7 +109,7 @@ describe('sign-in page', () => {
 			data: { user: null, session: null },
 			error: apiError('invalid_credentials')
 		});
-		await submit(TEST_EMAIL, 'zle-haslo');
+		await submit(TEST_EMAIL, 'wrong-password');
 		await expect.element(page.getByRole('alert')).toBeVisible();
 
 		await page.getByLabelText(m.common.password).fill('');

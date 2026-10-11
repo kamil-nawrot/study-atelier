@@ -1,6 +1,6 @@
 import { AuthApiError, AuthRetryableFetchError, type Session } from '@supabase/supabase-js';
 
-export const TEST_EMAIL = 'anna@przyklad.pl';
+export const TEST_EMAIL = 'learner@example.com';
 
 export function testSession(accessToken = 'access-token'): Session {
 	return {
