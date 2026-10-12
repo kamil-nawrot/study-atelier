@@ -94,7 +94,7 @@
 	.dialog {
 		flex-direction: column;
 		width: 100%;
-		max-width: 880px;
+		max-width: var(--size-content-default);
 		max-height: calc(100% - 2 * var(--spacing-4));
 		padding: 0;
 		border: var(--border-width-base) solid var(--color-line);
@@ -112,7 +112,7 @@
 	}
 
 	.small {
-		max-width: min(420px, calc(100% - 2 * var(--spacing-4)));
+		max-width: min(var(--size-content-narrow), calc(100% - 2 * var(--spacing-4)));
 	}
 
 	.default {
@@ -152,9 +152,7 @@
 		display: grid;
 		place-content: center;
 		flex: none;
-		width: 44px;
-		height: 44px;
-		padding: 0;
+		padding: var(--spacing-2);
 		border: none;
 		background: transparent;
 		color: var(--color-fg);
@@ -193,10 +191,14 @@
 		padding-bottom: var(--spacing-6);
 	}
 
+	.small header + footer {
+		padding-top: var(--spacing-6);
+	}
+
 	@media (min-width: 768px) {
 		.default {
 			height: fit-content;
-			max-width: 880px;
+			max-width: var(--size-content-default);
 			max-height: calc(100% - 2 * var(--spacing-12));
 			border: var(--border-width-base) solid var(--color-line);
 		}
