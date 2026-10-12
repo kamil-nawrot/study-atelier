@@ -1,3 +1,5 @@
+alter table public.artworks drop column own_image_source_url;
+
 create function public.save_artwork(
   artwork jsonb,
   values_by_category jsonb,
@@ -33,7 +35,7 @@ begin
     insert into public.artworks (
       title, author_unknown, year, year_approximate, type_code, notes,
       source_wikidata_id, source_image_file, source_image_licence, source_image_licence_url,
-      source_image_attribution, own_image_path, own_image_url, own_image_source_url,
+      source_image_attribution, own_image_path, own_image_url,
       image_width, image_height
     )
     values (
@@ -41,7 +43,7 @@ begin
       coalesce(input.year_approximate, false), input.type_code, input.notes,
       input.source_wikidata_id, input.source_image_file, input.source_image_licence,
       input.source_image_licence_url, input.source_image_attribution, input.own_image_path,
-      input.own_image_url, input.own_image_source_url, input.image_width, input.image_height
+      input.own_image_url, input.image_width, input.image_height
     )
     returning * into saved;
   else
@@ -59,7 +61,6 @@ begin
         source_image_attribution = input.source_image_attribution,
         own_image_path = input.own_image_path,
         own_image_url = input.own_image_url,
-        own_image_source_url = input.own_image_source_url,
         image_width = input.image_width,
         image_height = input.image_height
       where public.artworks.id = existing_id

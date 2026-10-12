@@ -28,6 +28,7 @@ Chosen option: 1, because only a database transaction makes the save all or noth
 - `artwork` carries the artwork's own columns; `values_by_category` maps a category code to the value names in order, for example `{"author": ["…"], "location": ["…"]}`. A name the learner already has in that category, ignoring letter case, is reused; any other name becomes a new value. The app decides which names may be new (R-9, R-25) before it calls the function.
 - The function raises `check_violation` unless the artwork has either at least one author or "author unknown", and `no_data_found` when `existing_id` is not one of the learner's artworks.
 - It runs as the caller (`security invoker`), so Row Level Security and the column grants of ADR-0014 apply as for direct requests; `owner_id` and the record number still come from their defaults and the trigger. Only `authenticated` may execute it.
+- The same migration drops `artworks.own_image_source_url`: the form has no field for where an own image comes from ([ADR-0022](0022-add-and-edit-an-artwork-in-one-full-form.md)), nothing ever wrote it, and the function would otherwise clear it on every edit. This changes the schema of ADR-0014.
 - The app calls it from `#lib/collection/artwork-record.ts`, which also validates the fields first and maps errors to dictionary messages.
 
 ### Consequences
