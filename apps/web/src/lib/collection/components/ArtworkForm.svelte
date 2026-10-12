@@ -19,12 +19,17 @@
 	import { beforeNavigate, goto } from '$app/navigation';
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
+	import { COMMONS_THUMBNAIL_WIDTHS, commonsFileUrl, commonsSrcset } from '#lib/images/commons.ts';
+	import ImageSearchDialog from '#lib/images/components/ImageSearchDialog.svelte';
+	import { commonsCredit } from '#lib/images/credit.ts';
+	import type { ImageCandidate } from '#lib/images/types.ts';
 	import {
 		artworkInputFromForm,
 		artworkTypeOptions,
 		canSearchImage,
 		emptyArtworkForm,
-		formHasChanges
+		formHasChanges,
+		imageFromCandidate
 	} from '../artwork-form.ts';
 	import { saveArtwork, validateArtwork } from '../artwork-record.ts';
 	import { startingValues, takesOneValue } from '../category-values.ts';
@@ -47,6 +52,7 @@
 	let { categoryValues, cancelHref, oncancel, onsaved }: Props = $props();
 
 	const titleId = 'artwork-title';
+	const PREVIEW_WIDTH = 500;
 	const typeOptions = artworkTypeOptions();
 	const describedCategories: { code: Exclude<CategoryCode, 'author'>; label: string }[] = [
 		{ code: 'period', label: m.artworkForm.period },
@@ -62,12 +68,22 @@
 	let saving = $state<'save' | 'next' | null>(null);
 	let next = false;
 	let discardOpen = $state(false);
+	let imageSearchOpen = $state(false);
 	let barHeight = $state(0);
 	let toast: Toast;
 	let leaving = false;
 	let answerDiscard: ((discard: boolean) => void) | null = null;
 
 	let imageSearchReady = $derived(canSearchImage(form));
+	let commonsImage = $derived(form.image?.kind === 'commons' ? form.image : null);
+	let imageAlt = $derived(
+		[
+			form.title.trim(),
+			form.authorUnknown ? m.artworkForm.authorUnknown : form.values.author.join(', ')
+		]
+			.filter((part) => part !== '')
+			.join(', ')
+	);
 
 	export function confirmLeave(): Promise<boolean> {
 		if (leaving || !formHasChanges(form, saved)) return Promise.resolve(true);
@@ -107,6 +123,15 @@
 			starting: startingValues(code),
 			selected: form.values[code]
 		});
+	}
+
+	function pickImage(candidate: ImageCandidate): void {
+		form.image = imageFromCandidate(candidate);
+	}
+
+	function previewSrcset(file: string, width: number | null): string {
+		const widths = COMMONS_THUMBNAIL_WIDTHS.filter((size) => width === null || size <= width);
+		return commonsSrcset(file, widths);
 	}
 
 	function setAuthorUnknown(): void {
@@ -160,20 +185,39 @@
 
 	<div class="columns">
 		<section class="image" aria-label={m.artworkForm.image}>
-			<div class="mat">
-				<div class="window">
-					<Icon icon={ImageIcon} />
-				</div>
-			</div>
+			<figure class="mat">
+				{#if commonsImage}
+					<img
+						alt={imageAlt}
+						height={commonsImage.height}
+						sizes="(min-width: 768px) 40vw, 100vw"
+						src={commonsFileUrl(commonsImage.file, PREVIEW_WIDTH)}
+						srcset={previewSrcset(commonsImage.file, commonsImage.width)}
+						width={commonsImage.width}
+					/>
+				{:else}
+					<div class="window">
+						<Icon icon={ImageIcon} />
+					</div>
+				{/if}
+			</figure>
+			{#if commonsImage}
+				<p class="caption">{commonsCredit(commonsImage.licence, commonsImage.attribution)}</p>
+			{/if}
 			<div class="image-actions">
-				<Button disabled={!imageSearchReady}>
+				<Button disabled={!imageSearchReady} onclick={() => (imageSearchOpen = true)}>
 					<Icon icon={Search} size="sm" />
-					{m.artworkForm.findImage}
+					{commonsImage ? m.artworkForm.chooseOtherImage : m.artworkForm.findImage}
 				</Button>
 				<Button>
 					<Icon icon={ImagePlus} size="sm" />
 					{m.artworkForm.ownImage}
 				</Button>
+				{#if commonsImage}
+					<Button onclick={() => (form.image = null)}>
+						{m.artworkForm.removeImage}
+					</Button>
+				{/if}
 			</div>
 			{#if !imageSearchReady}
 				<p class="caption">{m.artworkForm.findImageHint}</p>
@@ -260,6 +304,13 @@
 
 <Toast bind:this={toast} offset={barHeight} />
 
+<ImageSearchDialog
+	authors={form.authorUnknown ? [] : form.values.author}
+	onpick={pickImage}
+	title={form.title}
+	bind:open={imageSearchOpen}
+/>
+
 <Dialog
 	description={m.artworkForm.discardDescription}
 	onclose={() => answerDiscard?.(false)}
@@ -292,6 +343,13 @@
 	.mat {
 		padding: var(--spacing-2);
 		background: var(--color-mat-bg);
+	}
+
+	.mat img {
+		display: block;
+		width: 100%;
+		height: auto;
+		background: var(--color-mat-window);
 	}
 
 	.window {

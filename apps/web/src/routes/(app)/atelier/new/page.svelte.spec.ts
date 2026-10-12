@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { beforeNavigate, goto, invalidateAll } from '$app/navigation';
@@ -282,5 +282,189 @@ describe('add artwork page', () => {
 		await dialog.getByRole('button', { name: m.artworkForm.discard, exact: true }).click();
 
 		await vi.waitFor(() => expect(supabase.auth.signOut).toHaveBeenCalled());
+	});
+});
+
+describe('image search on the add artwork page', () => {
+	const fetchMock = vi.fn<typeof fetch>();
+	const thumbnail = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+
+	function binding(id: string, file: string | null): Record<string, { value: string }> {
+		return {
+			item: { value: `http://www.wikidata.org/entity/${id}` },
+			title: { value: 'The Milkmaid' },
+			...(file && {
+				file: { value: `http://commons.wikimedia.org/wiki/Special:FilePath/${file}` }
+			}),
+			date: { value: '1658-01-01T00:00:00Z/9' },
+			creators: { value: 'Johannes Vermeer' },
+			creatorNames: { value: 'Johannes Vermeer' },
+			creatorCount: { value: '1' }
+		};
+	}
+
+	function answerSearch(): void {
+		fetchMock.mockImplementation(async (input) => {
+			const url = new URL(String(input));
+			if (url.hostname === 'query.wikidata.org') {
+				return new Response(
+					JSON.stringify({
+						results: {
+							bindings: [binding('Q167605', 'The%20Milkmaid.jpg'), binding('Q99', null)]
+						}
+					})
+				);
+			}
+			return new Response(
+				JSON.stringify({
+					query: {
+						pages: [
+							{
+								title: 'File:The Milkmaid.jpg',
+								imageinfo: [
+									{
+										thumburl: thumbnail,
+										width: 2000,
+										height: 2250,
+										extmetadata: {
+											LicenseShortName: { value: 'CC BY-SA 4.0' },
+											Artist: { value: 'Jane Doe' }
+										}
+									}
+								]
+							}
+						]
+					}
+				})
+			);
+		});
+	}
+
+	function searchDialog(): ReturnType<typeof page.getByRole> {
+		return page.getByRole('dialog', { name: m.imageSearch.title });
+	}
+
+	async function openSearch(): Promise<void> {
+		renderPage();
+		await fillRequired();
+		await page.getByRole('button', { name: m.artworkForm.findImage }).click();
+	}
+
+	beforeEach(async () => {
+		vi.clearAllMocks();
+		fetchMock.mockReset();
+		vi.stubGlobal('fetch', fetchMock);
+		vi.mocked(supabase.rpc).mockReturnValue(rpcCall as never);
+		rpcCall.single.mockResolvedValue({
+			data: { id: 'artwork-12', record_number: 12 },
+			error: null
+		});
+		await page.viewport(1280, 800);
+	});
+
+	afterEach(() => {
+		vi.unstubAllGlobals();
+	});
+
+	it('lists the candidates and says which one has no free image', async () => {
+		answerSearch();
+		await openSearch();
+
+		await expect
+			.element(searchDialog())
+			.toHaveAccessibleDescription(m.imageSearch.description('The Milkmaid', 'Johannes Vermeer'));
+		await expect
+			.element(searchDialog().getByRole('button', { name: /The Milkmaid/ }))
+			.toHaveAccessibleName('The Milkmaid Johannes Vermeer 1658');
+		await expect.element(searchDialog().getByText(m.imageSearch.noImage)).toBeVisible();
+		const sparql = new URL(String(fetchMock.mock.calls[0][0]));
+		expect(sparql.searchParams.get('query')).toContain('"The Milkmaid"');
+	});
+
+	it('shows the picked image with its credit and saves it with the artwork', async () => {
+		answerSearch();
+		await openSearch();
+
+		await searchDialog()
+			.getByRole('button', { name: /The Milkmaid/ })
+			.click();
+
+		await expect.element(searchDialog()).not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('img', { name: 'The Milkmaid, Johannes Vermeer' }))
+			.toBeVisible();
+		await expect
+			.element(page.getByText(m.artwork.photoCredit('Jane Doe', 'CC BY-SA 4.0')))
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.chooseOtherImage }))
+			.toBeEnabled();
+
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+		expect(supabase.rpc).toHaveBeenCalledWith(
+			'save_artwork',
+			expect.objectContaining({
+				artwork: expect.objectContaining({
+					source_wikidata_id: 'Q167605',
+					source_image_file: 'The Milkmaid.jpg',
+					source_image_licence: 'CC BY-SA 4.0',
+					source_image_attribution: 'Jane Doe',
+					image_width: 2000,
+					image_height: 2250
+				})
+			})
+		);
+	});
+
+	it('closes without an image after "none of these"', async () => {
+		answerSearch();
+		await openSearch();
+
+		await searchDialog().getByRole('button', { name: m.imageSearch.none }).click();
+
+		await expect.element(searchDialog()).not.toBeInTheDocument();
+		await expect.element(page.getByRole('button', { name: m.artworkForm.findImage })).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.removeImage }))
+			.not.toBeInTheDocument();
+	});
+
+	it('removes the picked image', async () => {
+		answerSearch();
+		await openSearch();
+		await searchDialog()
+			.getByRole('button', { name: /The Milkmaid/ })
+			.click();
+
+		await page.getByRole('button', { name: m.artworkForm.removeImage }).click();
+
+		await expect
+			.element(page.getByRole('img', { name: 'The Milkmaid, Johannes Vermeer' }))
+			.not.toBeInTheDocument();
+		await expect.element(page.getByRole('button', { name: m.artworkForm.findImage })).toBeVisible();
+	});
+
+	it('says when the search failed and lets the learner search again', async () => {
+		fetchMock.mockResolvedValueOnce(new Response('', { status: 503 }));
+		await openSearch();
+
+		await expect.element(searchDialog().getByText(m.imageSearch.errorTitle)).toBeVisible();
+		await expect.element(searchDialog().getByText(m.imageSearchErrors.failed)).toBeVisible();
+
+		answerSearch();
+		await searchDialog().getByRole('button', { name: m.imageSearch.retry }).click();
+
+		await expect
+			.element(searchDialog().getByRole('button', { name: /The Milkmaid/ }))
+			.toBeVisible();
+	});
+
+	it('says when Wikidata does not know the title', async () => {
+		fetchMock.mockResolvedValue(new Response(JSON.stringify({ results: { bindings: [] } })));
+		await openSearch();
+
+		await expect.element(searchDialog().getByText(m.imageSearch.empty)).toBeVisible();
 	});
 });

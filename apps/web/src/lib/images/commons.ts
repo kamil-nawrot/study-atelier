@@ -1,15 +1,44 @@
+import { fetchJson } from './wikimedia.ts';
+
 export const COMMONS_THUMBNAIL_WIDTHS = [250, 330, 500, 960, 1280, 1920] as const;
 
 const COMMONS_API = 'https://commons.wikimedia.org/w/api.php';
 const TITLES_PER_REQUEST = 50;
-const API_USER_AGENT = 'study-atelier (https://github.com/kamil-nawrot/study-atelier)';
-const MAX_RETRY_SECONDS = 5;
+
+type ExtMetadata = Partial<
+	Record<'LicenseShortName' | 'LicenseUrl' | 'Artist', { value?: string }>
+>;
+
+type ImageInfo = {
+	thumburl?: string;
+	width?: number;
+	height?: number;
+	extmetadata?: ExtMetadata;
+};
 
 type ImageInfoResponse = {
 	query?: {
 		normalized?: { from: string; to: string }[];
-		pages?: { title: string; imageinfo?: { thumburl?: string }[] }[];
+		pages?: { title: string; imageinfo?: ImageInfo[] }[];
 	};
+};
+
+export type CommonsFile = {
+	thumbnailUrl: string;
+	width: number;
+	height: number;
+	licence: string | null;
+	licenceUrl: string | null;
+	attribution: string | null;
+};
+
+const HTML_ENTITIES: Record<string, string> = {
+	amp: '&',
+	lt: '<',
+	gt: '>',
+	quot: '"',
+	apos: "'",
+	nbsp: ' '
 };
 
 export function commonsFileUrl(file: string, width: number): string {
@@ -36,49 +65,49 @@ function fileTitle(file: string): string {
 	return `File:${file}`;
 }
 
-function retryDelaySeconds(response: Response | undefined): number {
-	const seconds = Number(response?.headers.get('Retry-After'));
-	return Number.isFinite(seconds) && seconds > 0 ? Math.min(seconds, MAX_RETRY_SECONDS) : 1;
+export function plainText(html: string): string {
+	return html
+		.replace(/<[^>]*>/g, ' ')
+		.replace(/&(#\d+|#x[\da-f]+|[a-z]+);/gi, (entity, code: string) => {
+			if (code.startsWith('#x') || code.startsWith('#X'))
+				return String.fromCodePoint(parseInt(code.slice(2), 16));
+			if (code.startsWith('#')) return String.fromCodePoint(Number(code.slice(1)));
+			return HTML_ENTITIES[code.toLowerCase()] ?? entity;
+		})
+		.replace(/\s+/g, ' ')
+		.trim();
 }
 
-async function fetchWithRetry(url: string): Promise<Response> {
-	const init = { headers: { 'Api-User-Agent': API_USER_AGENT } };
-	const response = await fetch(url, init).catch(() => undefined);
-	if (response && response.status !== 429) return response;
-	await new Promise((resolve) => setTimeout(resolve, retryDelaySeconds(response) * 1000));
-	return fetch(url, init);
-}
-
-async function fetchThumbnailBatch(
+async function fetchImageInfoBatch(
 	files: string[],
-	thumbnailWidth: number
-): Promise<Map<string, string>> {
+	thumbnailWidth: number,
+	details: boolean
+): Promise<Map<string, ImageInfo>> {
 	const params = new URLSearchParams({
 		action: 'query',
 		format: 'json',
 		formatversion: '2',
 		origin: '*',
 		prop: 'imageinfo',
-		iiprop: 'url',
+		iiprop: details ? 'url|size|extmetadata' : 'url',
 		iiurlwidth: String(thumbnailWidth),
 		titles: files.map(fileTitle).join('|')
 	});
-	const response = await fetchWithRetry(`${COMMONS_API}?${params}`);
-	if (!response.ok) throw new Error(`Commons API answered ${response.status}`);
-	const { query }: ImageInfoResponse = await response.json();
-	const thumbnailsByTitle = new Map<string, string>();
+	if (details) params.set('iiextmetadatafilter', 'LicenseShortName|LicenseUrl|Artist');
+	const { query } = await fetchJson<ImageInfoResponse>(`${COMMONS_API}?${params}`);
+	const infoByTitle = new Map<string, ImageInfo>();
 	for (const page of query?.pages ?? []) {
-		const thumbnailUrl = page.imageinfo?.[0]?.thumburl;
-		if (thumbnailUrl) thumbnailsByTitle.set(page.title, thumbnailUrl);
+		const info = page.imageinfo?.[0];
+		if (info) infoByTitle.set(page.title, info);
 	}
 	const normalized = new Map((query?.normalized ?? []).map(({ from, to }) => [from, to]));
-	const thumbnails = new Map<string, string>();
+	const infoByFile = new Map<string, ImageInfo>();
 	for (const file of files) {
 		const title = fileTitle(file);
-		const thumbnailUrl = thumbnailsByTitle.get(normalized.get(title) ?? title);
-		if (thumbnailUrl) thumbnails.set(file, thumbnailUrl);
+		const info = infoByTitle.get(normalized.get(title) ?? title);
+		if (info) infoByFile.set(file, info);
 	}
-	return thumbnails;
+	return infoByFile;
 }
 
 export async function fetchCommonsThumbnails(
@@ -89,14 +118,45 @@ export async function fetchCommonsThumbnails(
 	const thumbnails = new Map<string, string>();
 	for (let start = 0; start < unique.length; start += TITLES_PER_REQUEST) {
 		try {
-			const batch = await fetchThumbnailBatch(
+			const batch = await fetchImageInfoBatch(
 				unique.slice(start, start + TITLES_PER_REQUEST),
-				thumbnailWidth
+				thumbnailWidth,
+				false
 			);
-			batch.forEach((thumbnailUrl, file) => thumbnails.set(file, thumbnailUrl));
+			batch.forEach(({ thumburl }, file) => {
+				if (thumburl) thumbnails.set(file, thumburl);
+			});
 		} catch {
 			break;
 		}
 	}
 	return thumbnails;
+}
+
+function metadata(info: ImageInfo, key: keyof ExtMetadata): string | null {
+	const value = info.extmetadata?.[key]?.value;
+	const text = value ? plainText(value) : '';
+	return text === '' ? null : text;
+}
+
+export async function fetchCommonsFiles(
+	files: string[],
+	thumbnailWidth: number
+): Promise<Map<string, CommonsFile>> {
+	const unique = [...new Set(files)].slice(0, TITLES_PER_REQUEST);
+	const result = new Map<string, CommonsFile>();
+	if (unique.length === 0) return result;
+	const batch = await fetchImageInfoBatch(unique, thumbnailWidth, true);
+	batch.forEach((info, file) => {
+		if (!info.thumburl || !info.width || !info.height) return;
+		result.set(file, {
+			thumbnailUrl: info.thumburl,
+			width: info.width,
+			height: info.height,
+			licence: metadata(info, 'LicenseShortName'),
+			licenceUrl: metadata(info, 'LicenseUrl'),
+			attribution: metadata(info, 'Artist')
+		});
+	});
+	return result;
 }
