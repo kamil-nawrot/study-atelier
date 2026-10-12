@@ -13,6 +13,15 @@
 
 	let { artworks, highlight }: Props = $props();
 
+	function fade(node: HTMLElement) {
+		const observer = new IntersectionObserver(
+			([entry]) => node.classList.toggle('shown', entry.intersectionRatio >= 0.6),
+			{ threshold: [0, 0.59, 0.6, 1] }
+		);
+		observer.observe(node);
+		return { destroy: () => observer.disconnect() };
+	}
+
 	const wide = new MediaQuery('min-width: 768px');
 
 	let columns = $derived(
@@ -26,7 +35,7 @@
 	{#each columns as column, index (index)}
 		<ul class="column">
 			{#each column as artwork (artwork.id)}
-				<li class:highlight={artwork.number === highlight}>
+				<li use:fade class:highlight={artwork.number === highlight}>
 					<ArtworkTile
 						authors={artwork.authors}
 						date={artwork.date}
@@ -55,6 +64,15 @@
 		min-width: 0;
 		padding: 0;
 		list-style: none;
+	}
+
+	li {
+		opacity: 0;
+		transition: opacity 0.5s ease;
+	}
+
+	li:global(.shown) {
+		opacity: 1;
 	}
 
 	li {
