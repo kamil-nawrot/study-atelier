@@ -16,7 +16,7 @@
 		width?: number;
 		height?: number;
 		loading?: 'lazy' | 'eager';
-		surface?: 'mat' | 'frame';
+		surface?: 'mat' | 'frame' | 'stage';
 		failedLabel?: string;
 	};
 
@@ -121,6 +121,10 @@
 
 	.frame {
 		color: var(--color-fg-muted);
+	}
+
+	.stage {
+		color: var(--color-stage-fg-muted);
 	}
 
 	img {

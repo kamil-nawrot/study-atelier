@@ -174,7 +174,15 @@
 
 <dialog bind:this={viewer} class="viewer" aria-label={alt}>
 	{#if viewerUsed && fullImage}
-		<img {alt} sizes="100vw" src={fullImage.src} srcset={fullImage.srcset} />
+		<ArtworkImage
+			{alt}
+			height={fullImage.height}
+			sizes="100vw"
+			src={fullImage.src}
+			srcset={fullImage.srcset}
+			surface="stage"
+			width={fullImage.width}
+		/>
 	{/if}
 	<button
 		class="icon-button close"
@@ -366,7 +374,7 @@
 		place-items: center;
 	}
 
-	.viewer img {
+	.viewer :global(img) {
 		display: block;
 		max-width: 100vw;
 		max-height: 100dvh;

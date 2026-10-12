@@ -17,7 +17,7 @@
 			height: 400
 		},
 		argTypes: {
-			surface: { control: 'inline-radio', options: ['mat', 'frame'] },
+			surface: { control: 'inline-radio', options: ['mat', 'frame', 'stage'] },
 			loading: { control: 'inline-radio', options: ['lazy', 'eager'] }
 		}
 	});
