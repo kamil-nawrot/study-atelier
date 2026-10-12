@@ -42,6 +42,7 @@ Commit messages follow [Conventional Commits 1.0](https://www.conventionalcommit
 - Claude creates pull requests with the [`study-atelier-pr-create`](../../.claude/skills/study-atelier-pr-create/SKILL.md) skill.
 - Before asking the owner for review, Claude reviews the pull request with the [`study-atelier-pr-review`](../../.claude/skills/study-atelier-pr-review/SKILL.md) skill and fixes blocking findings.
 - The owner reviews and merges. Claude keeps the pull request green and answers review comments.
+- After a pull request is merged, further work goes on a new branch from `develop` and into a new pull request. Nobody pushes to the branch of a merged pull request; check that the pull request is still open before pushing to it.
 
 ## Before pushing
 
