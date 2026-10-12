@@ -41,25 +41,26 @@ Patterns for using the components are in [ui-patterns.md](../../docs/guidelines/
 
 ## Components
 
-| Component   | Purpose                                                                                          |
-| ----------- | ------------------------------------------------------------------------------------------------ |
-| `Alert`     | Status message with a coloured label bar: `danger`, `warning`, `success`                         |
-| `Button`    | Outline button with a heavier bottom edge; `primary` is filled, one per view; a link with `href` |
-| `Form`      | Form without browser validation; focuses the first invalid field on submit                       |
-| `Tag`       | Flat tag with `#` prefix; optional remove button                                                 |
-| `TextField` | Labelled input with hint, error and password reveal                                              |
-| `Checkbox`  | Labelled checkbox                                                                                |
-| `Frame`     | Passe-partout frame for artworks: `list` or `view` size                                          |
-| `Icon`      | Lucide icon in the shared style: `sm` (20 px) or `md` (24 px)                                    |
-| `Section`   | Text section with a heavy left edge (spine)                                                      |
+| Component    | Purpose                                                                                          |
+| ------------ | ------------------------------------------------------------------------------------------------ |
+| `Alert`      | Status message with a coloured label bar: `danger`, `warning`, `success`                         |
+| `Button`     | Outline button with a heavier bottom edge; `primary` is filled, one per view; a link with `href` |
+| `Form`       | Form without browser validation; focuses the first invalid field on submit                       |
+| `Tag`        | Flat tag with `#` prefix; optional remove button                                                 |
+| `TextField`  | Labelled input with hint, error and password reveal                                              |
+| `ValueField` | Category values as removable tags with a suggestion list (combobox); one value with `single`     |
+| `Checkbox`   | Labelled checkbox                                                                                |
+| `Frame`      | Passe-partout frame for artworks: `list` or `view` size                                          |
+| `Icon`       | Lucide icon in the shared style: `sm` (20 px) or `md` (24 px)                                    |
+| `Section`    | Text section with a heavy left edge (spine)                                                      |
 
 ## Commands
 
-| Command          | What it does                                                     |
-| ---------------- | ---------------------------------------------------------------- |
-| `pnpm storybook` | Start Storybook at http://localhost:6006                         |
-| `pnpm tokens`    | Regenerate `src/lib/styles/tokens.css` from `design/tokens.json` |
-| `pnpm check`     | Check that `tokens.css` is current and type check                |
-| `pnpm lint`      | Prettier check and ESLint                                        |
-| `pnpm test`      | Run unit tests once (Vitest)                                     |
-| `pnpm build`     | Build the static Storybook into `storybook-static`               |
+| Command          | What it does                                                          |
+| ---------------- | --------------------------------------------------------------------- |
+| `pnpm storybook` | Start Storybook at http://localhost:6006                              |
+| `pnpm tokens`    | Regenerate `src/lib/styles/tokens.css` from `design/tokens.json`      |
+| `pnpm check`     | Check that `tokens.css` is current and type check                     |
+| `pnpm lint`      | Prettier check and ESLint                                             |
+| `pnpm test`      | Run unit tests (Node) and component tests (Chromium) once with Vitest |
+| `pnpm build`     | Build the static Storybook into `storybook-static`                    |

@@ -16,7 +16,16 @@ export const pl = {
 		removeTag: 'Usuń tag',
 		unknownAuthor: 'Autor nieznany',
 		noImage: 'Brak obrazu',
-		clearSearch: 'Wyczyść wyszukiwanie'
+		clearSearch: 'Wyczyść wyszukiwanie',
+		valueField: {
+			existing: 'Już używane',
+			starting: 'Lista startowa',
+			similar: (name: string): string => `Masz już „${name}”`,
+			useSimilar: 'Użyj tej wartości',
+			add: (name: string): string => `+ Dodaj „${name}”`,
+			addAnyway: (name: string): string => `+ Dodaj „${name}” mimo to`,
+			remove: (name: string): string => `Usuń ${name}`
+		}
 	},
 	common: {
 		email: 'E-mail',
