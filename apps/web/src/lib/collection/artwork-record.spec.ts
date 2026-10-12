@@ -1,11 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
+import { removeOwnImage, uploadOwnImage } from '#lib/images/own-image.ts';
 import { supabase } from '#lib/supabase.ts';
 import { emptyArtworkInput, loadArtwork, saveArtwork, validateArtwork } from './artwork-record.ts';
-import type { ArtworkInput } from './types.ts';
+import type { ArtworkImageInput, ArtworkInput } from './types.ts';
 
 vi.mock('#lib/supabase.ts', () => ({
 	supabase: { from: vi.fn(), rpc: vi.fn() }
+}));
+vi.mock('#lib/images/own-image.ts', () => ({
+	uploadOwnImage: vi.fn(),
+	removeOwnImage: vi.fn()
 }));
 
 const rpcCall = { single: vi.fn() };
@@ -23,6 +28,22 @@ function input(overrides: Partial<ArtworkInput> = {}): ArtworkInput {
 		authors: ['Test Painter'],
 		...overrides
 	};
+}
+
+function pickedFile(
+	file = new File(['image'], 'photo.png', { type: 'image/png' })
+): ArtworkImageInput {
+	return {
+		kind: 'file',
+		file,
+		previewUrl: 'blob:http://localhost/preview',
+		width: 30,
+		height: 20
+	};
+}
+
+function uploaded(path: string): ArtworkImageInput {
+	return { kind: 'upload', path, width: 30, height: 20 };
 }
 
 function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
@@ -146,7 +167,7 @@ describe('saveArtwork', () => {
 	});
 
 	it('updates an existing artwork by its id', async () => {
-		await saveArtwork(input(), 'artwork-1');
+		await saveArtwork(input(), { id: 'artwork-1', image: null });
 
 		expect(supabase.rpc).toHaveBeenCalledWith(
 			'save_artwork',
@@ -206,6 +227,94 @@ describe('saveArtwork', () => {
 		});
 	});
 
+	it('uploads a picked file first and stores its path with the image size', async () => {
+		vi.mocked(uploadOwnImage).mockResolvedValue({ path: 'user-id/new.png' });
+		const file = new File(['image'], 'photo.png', { type: 'image/png' });
+
+		await expect(saveArtwork(input({ image: pickedFile(file) }))).resolves.toEqual({
+			saved: true,
+			id: 'artwork-1',
+			number: 7
+		});
+
+		expect(uploadOwnImage).toHaveBeenCalledWith(file);
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
+		expect(args.artwork).toMatchObject({
+			source_wikidata_id: null,
+			own_image_path: 'user-id/new.png',
+			own_image_url: null,
+			image_width: 30,
+			image_height: 20
+		});
+		expect(removeOwnImage).not.toHaveBeenCalled();
+	});
+
+	it('does not save the artwork when the file upload fails', async () => {
+		vi.mocked(uploadOwnImage).mockResolvedValue({ error: m.ownImageErrors.uploadNetwork });
+
+		await expect(saveArtwork(input({ image: pickedFile() }))).resolves.toEqual({
+			saved: false,
+			error: m.ownImageErrors.uploadNetwork,
+			fieldErrors: {}
+		});
+		expect(supabase.rpc).not.toHaveBeenCalled();
+	});
+
+	it('removes the uploaded file when the artwork could not be saved', async () => {
+		vi.mocked(uploadOwnImage).mockResolvedValue({ path: 'user-id/new.png' });
+		rpcCall.single.mockResolvedValue({
+			data: null,
+			error: { code: '', message: 'Failed to fetch' }
+		});
+
+		await expect(saveArtwork(input({ image: pickedFile() }))).resolves.toMatchObject({
+			saved: false,
+			error: m.artworkErrors.network
+		});
+		expect(removeOwnImage).toHaveBeenCalledWith('user-id/new.png');
+	});
+
+	it('removes the previous file once another image replaced it', async () => {
+		await saveArtwork(
+			input({ image: { kind: 'url', url: 'https://example.com/a.jpg', width: 3, height: 2 } }),
+			{ id: 'artwork-1', image: uploaded('user-id/old.png') }
+		);
+
+		expect(removeOwnImage).toHaveBeenCalledWith('user-id/old.png');
+	});
+
+	it('removes the previous file when the image was removed', async () => {
+		await saveArtwork(input({ image: null }), {
+			id: 'artwork-1',
+			image: uploaded('user-id/old.png')
+		});
+
+		expect(removeOwnImage).toHaveBeenCalledWith('user-id/old.png');
+	});
+
+	it('keeps the previous file when the artwork still uses it', async () => {
+		await saveArtwork(input({ image: uploaded('user-id/old.png') }), {
+			id: 'artwork-1',
+			image: uploaded('user-id/old.png')
+		});
+
+		expect(removeOwnImage).not.toHaveBeenCalled();
+	});
+
+	it('keeps the previous file when saving the artwork failed', async () => {
+		rpcCall.single.mockResolvedValue({
+			data: null,
+			error: { code: '', message: 'Failed to fetch' }
+		});
+
+		await saveArtwork(input({ image: null }), {
+			id: 'artwork-1',
+			image: uploaded('user-id/old.png')
+		});
+
+		expect(removeOwnImage).not.toHaveBeenCalled();
+	});
+
 	it('does not call the database when a required field is missing', async () => {
 		await expect(saveArtwork(input({ title: '' }))).resolves.toEqual({
 			saved: false,
@@ -220,7 +329,7 @@ describe('saveArtwork', () => {
 			error: { code: 'P0002', message: 'artwork not found' }
 		});
 
-		await expect(saveArtwork(input(), 'artwork-1')).resolves.toEqual({
+		await expect(saveArtwork(input(), { id: 'artwork-1', image: null })).resolves.toEqual({
 			saved: false,
 			error: m.artworkErrors.notFound,
 			fieldErrors: {}

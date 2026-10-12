@@ -1,4 +1,5 @@
 import { m } from '#lib/i18n/index.ts';
+import { removeOwnImage, uploadOwnImage } from '#lib/images/own-image.ts';
 import { supabase } from '#lib/supabase.ts';
 import { artworkErrorMessage } from './errors.ts';
 import type {
@@ -8,6 +9,7 @@ import type {
 	ArtworkRecord,
 	ArtworkTypeCode,
 	CategoryCode,
+	ExistingArtwork,
 	LoadArtworkResult,
 	SaveArtworkResult
 } from './types.ts';
@@ -37,6 +39,10 @@ type ArtworkRecordRow = {
 	image_height: number | null;
 	artwork_values: { position: number; category_values: CategoryValueRow | null }[];
 };
+
+type StoredImage = Exclude<ArtworkImageInput, { kind: 'file' }>;
+
+type StoredInput = Omit<ArtworkInput, 'image'> & { image: StoredImage | null };
 
 type SavedRow = {
 	id: string;
@@ -105,7 +111,7 @@ function storedYear(input: ArtworkInput): number | null {
 	return input.beforeCommonEra ? -input.year : input.year;
 }
 
-function imageColumns(image: ArtworkImageInput | null): Record<string, string | number | null> {
+function imageColumns(image: StoredImage | null): Record<string, string | number | null> {
 	return {
 		source_wikidata_id: image?.kind === 'commons' ? image.wikidataId : null,
 		source_image_file: image?.kind === 'commons' ? image.file : null,
@@ -119,7 +125,7 @@ function imageColumns(image: ArtworkImageInput | null): Record<string, string | 
 	};
 }
 
-function artworkColumns(input: ArtworkInput): Record<string, unknown> {
+function artworkColumns(input: StoredInput): Record<string, unknown> {
 	return {
 		title: input.title.trim(),
 		author_unknown: input.authorUnknown,
@@ -141,21 +147,48 @@ function valuesByCategory(input: ArtworkInput): Record<CategoryCode, string[]> {
 	};
 }
 
+async function storedImage(
+	image: ArtworkImageInput | null
+): Promise<{ image: StoredImage | null; error?: undefined } | { error: string }> {
+	if (image?.kind !== 'file') return { image };
+	const upload = await uploadOwnImage(image.file);
+	if (upload.error !== undefined) return { error: upload.error };
+	return {
+		image: { kind: 'upload', path: upload.path, width: image.width, height: image.height }
+	};
+}
+
+function uploadPath(image: ArtworkImageInput | null): string | null {
+	return image?.kind === 'upload' ? image.path : null;
+}
+
 export async function saveArtwork(
 	input: ArtworkInput,
-	existingId?: string
+	existing?: ExistingArtwork
 ): Promise<SaveArtworkResult> {
 	const fieldErrors = validateArtwork(input);
 	if (Object.keys(fieldErrors).length > 0) return { saved: false, fieldErrors };
 
+	const stored = await storedImage(input.image);
+	if (stored.error !== undefined) return { saved: false, error: stored.error, fieldErrors };
+	const newUpload = input.image?.kind === 'file' ? uploadPath(stored.image) : null;
+
 	const { data, error } = await supabase
 		.rpc('save_artwork', {
-			artwork: artworkColumns(input),
+			artwork: artworkColumns({ ...input, image: stored.image }),
 			values_by_category: valuesByCategory(input),
-			existing_id: existingId ?? null
+			existing_id: existing?.id ?? null
 		})
 		.single();
-	if (error) return { saved: false, error: artworkErrorMessage(error), fieldErrors };
+	if (error) {
+		if (newUpload) await removeOwnImage(newUpload);
+		return { saved: false, error: artworkErrorMessage(error), fieldErrors };
+	}
+
+	const previousUpload = uploadPath(existing?.image ?? null);
+	if (previousUpload && previousUpload !== uploadPath(stored.image)) {
+		await removeOwnImage(previousUpload);
+	}
 
 	const row = data as SavedRow;
 	return { saved: true, id: row.id, number: row.record_number };

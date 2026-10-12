@@ -49,6 +49,7 @@ export type ArtworkImageInput =
 			width: number | null;
 			height: number | null;
 	  }
+	| { kind: 'file'; file: File; previewUrl: string; width: number; height: number }
 	| { kind: 'upload'; path: string; width: number | null; height: number | null }
 	| { kind: 'url'; url: string; width: number | null; height: number | null };
 
@@ -71,6 +72,11 @@ export type ArtworkInput = {
 export type ArtworkRecord = ArtworkInput & {
 	id: string;
 	number: number;
+};
+
+export type ExistingArtwork = {
+	id: string;
+	image: ArtworkImageInput | null;
 };
 
 export type ArtworkFieldErrors = Partial<Record<'title' | 'authors' | 'year', string>>;
