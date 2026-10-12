@@ -62,6 +62,7 @@
 	const added = $derived(ordered.find((option) => option.kind === 'new'));
 	const full = $derived(single && values.length > 0);
 
+	let control: HTMLDivElement | undefined = $state();
 	let input: HTMLInputElement | undefined = $state();
 	let open = $state(false);
 	let active = $state(0);
@@ -78,11 +79,13 @@
 		active = 0;
 	}
 
-	function pick(option: ValueOption): void {
+	async function pick(option: ValueOption): Promise<void> {
 		values = single ? [option.name] : [...values, option.name];
 		query = '';
 		open = false;
-		if (!single) input?.focus();
+		await tick();
+		if (single) control?.querySelector<HTMLButtonElement>('.remove')?.focus();
+		else input?.focus();
 	}
 
 	async function remove(index: number): Promise<void> {
@@ -146,6 +149,7 @@
 <div class="field">
 	<label for={inputId}>{label}</label>
 	<div
+		bind:this={control}
 		class="control"
 		class:disabled
 		class:invalid={!!error}

@@ -138,6 +138,7 @@ describe('ValueField', () => {
 		await userEvent.click(page.getByRole('option', { name: 'Louvre' }));
 
 		await expect.element(page.getByRole('combobox')).not.toBeInTheDocument();
+		await expect.element(page.getByRole('button', { name: texts.remove('Louvre') })).toHaveFocus();
 		await userEvent.click(page.getByRole('button', { name: texts.remove('Louvre') }));
 		await expect.element(page.getByRole('combobox', { name: 'Location' })).toHaveFocus();
 	});
