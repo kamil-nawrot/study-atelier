@@ -34,11 +34,6 @@
 		max-width: 100%;
 	}
 
-	.label::before {
-		content: '#';
-		color: var(--color-fg-muted);
-	}
-
 	.remove {
 		padding: 0;
 		border: none;
