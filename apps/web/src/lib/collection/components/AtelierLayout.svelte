@@ -133,8 +133,10 @@
 		top: 0;
 		z-index: 1;
 		display: flex;
+		box-sizing: content-box;
 		align-items: stretch;
 		gap: var(--spacing-2);
+		height: var(--size-control);
 		padding: var(--spacing-3) var(--page-inline);
 		border-bottom: var(--border-width-hairline) solid var(--color-tag);
 		background: var(--color-bg);

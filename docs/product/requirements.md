@@ -80,8 +80,11 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 
 | ID | Requirement | Version |
 | --- | --- | --- |
-| R-17 | The collection is shown as a wall of artwork tiles, each with the image, title, authors, date and record number, ordered from the most recently added ([ADR-0021](../decisions/0021-collection-view-as-a-wall-of-framed-artworks.md)). | MVP |
+| R-17 | The collection is shown as a wall of artwork tiles, each with the image, title, authors, date and record number, ordered by default from the most recently added ([ADR-0021](../decisions/0021-collection-view-as-a-wall-of-framed-artworks.md)). | MVP |
 | R-18 | The learner can search the collection by title. | MVP |
+| R-39 | The learner can order the wall by period instead of from the most recently added. Each artwork belongs to its first period, periods follow each other by their earliest year and artworks follow by year within their period; artworks without a period are not shown in this order ([ADR-0033](../decisions/0033-order-the-wall-by-period-with-a-period-rail.md)). | MVP |
+| R-40 | While the wall is ordered by period, the app shows which period the learner is looking at: a [period rail](glossary.md) at the right edge on a wide screen, a strip under the top bar on a narrower screen. | MVP |
+| R-41 | The order the learner chose for the wall is remembered on the device. | MVP |
 | R-19 | The learner can filter the collection by several fields at once: type, authors, period, style, material, location. | later |
 
 ## Account

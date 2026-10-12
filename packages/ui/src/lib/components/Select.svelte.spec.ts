@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import { controlHeight, outlinedHeight } from '../testing/control-height';
 import Select, { type SelectOption } from './Select.svelte';
 
 const types: SelectOption[] = [
@@ -64,5 +65,12 @@ describe('Select', () => {
 		render(Select, { label: 'Type', options: types, disabled: true });
 
 		await expect.element(page.getByRole('combobox', { name: 'Type' })).toBeDisabled();
+	});
+
+	it('is as high as every other control', async () => {
+		render(Select, { label: 'Type', options: types });
+
+		const select = page.getByRole('combobox', { name: 'Type' }).element();
+		expect(outlinedHeight(select, '.control')).toBe(controlHeight());
 	});
 });

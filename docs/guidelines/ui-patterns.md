@@ -16,7 +16,7 @@ How views and components look and behave, so every new screen stays consistent w
 - Spacing between elements comes from the parent (`display: grid` or `flex` with `gap`). Elements do not set their own outer margins; `base.css` resets them.
 - Each route group has a layout component in its domain folder, for example `AuthLayout` for the sign-in screens. A view passes its content through snippets (`children`, `footer`).
 - `AuthLayout` (the start page and the sign-in screens) shows the artwork twice from 768 px: as the background under `--color-scrim` and in a `Frame` on top. On a phone the stage shows only the background with the caption, because a framed image that small is hard to see.
-- Views of the signed-in learner use `AtelierLayout`: the menu as an icon rail from 768 px and as a drawer opened from the top bar on a phone, and a sticky top bar whose content the view passes as the `bar` snippet. The top bar runs across the full width of the page beside the menu in every view ([ADR-0031](../decisions/0031-full-width-top-bar-in-every-atelier-view.md)): the way back, the view title or both on the left, the actions on the right. A title in the bar is small (`--font-size-sm`, medium weight), like the way back.
+- Views of the signed-in learner use `AtelierLayout`: the menu as an icon rail from 768 px and as a drawer opened from the top bar on a phone, and a sticky top bar whose content the view passes as the `bar` snippet. The top bar runs across the full width of the page beside the menu in every view ([ADR-0031](../decisions/0031-full-width-top-bar-in-every-atelier-view.md)): the way back, the view title or both on the left, the actions on the right. A title in the bar is small (`--font-size-sm`, medium weight), like the way back. The bar has the same height in every view, `--size-control` plus its padding, whatever the view puts in it.
 - Motion is short and functional: a panel that opens or closes, such as the side menu, or a toast that appears and fades, transitions over `--duration-short`. Every transition sits inside `@media (prefers-reduced-motion: no-preference)`.
 
 ## Loading
@@ -27,7 +27,8 @@ How views and components look and behave, so every new screen stays consistent w
 - A form's running state stays in its submit label ("Zapisywanie…"); it does not get a loading indicator.
 - A search over a list is the library `SearchField` in the top bar. It filters as the learner types, and its accessible name comes from `label` because the bar has no room for a visible label. It is at most `--size-content-default` wide. On the wall its left edge stays in line with the wall and "Dodaj dzieło" stays right next to it, so the field sets a start margin of half the space left beside `--size-content-wide`; this is the one element allowed its own outer margin.
 - An icon button inside a field (show password, clear search) fills the field's height and is separated from the text by a hairline vertical divider.
-- A button that acts on what was typed in one field (for example "Użyj" next to an image URL) is passed to `TextField` as its `action`. It stands next to the field, takes the field's height and keeps it when an error shows under the field.
+- Every single-line control (`Button`, `TextField`, `Select`, `SearchField`, and `ValueField` while its values fit on one line) is `--size-control` high, so a button next to a field lines up without extra styling. A new control sets `min-height: var(--size-control)` on its outlined box and no vertical padding of its own.
+- A button that acts on what was typed in one field (for example "Użyj" next to an image URL) is passed to `TextField` as its `action`, so it stands next to the input under the label and stays there when an error shows under the field.
 
 ## Text roles
 
@@ -51,6 +52,7 @@ How views and components look and behave, so every new screen stays consistent w
 - The default look of HTML elements (links, headings, paragraphs, focus outline) lives only in `packages/ui/src/lib/styles/base.css`.
 - A style that two or more views repeat moves into a library component or `base.css`.
 - Library controls build on native HTML elements (`dialog`, `select`, `input`), which bring their behaviour, accessibility and the phone's own pickers. Their look comes from tokens. Styling that only some browsers support (for example `appearance: base-select`) sits inside `@supports`, so the other browsers keep the plain native look.
+- The one exception is `NotesEditor`: a `contenteditable` region driven by TipTap, because formatted notes cannot be edited in a native element ([ADR-0029](../decisions/0029-format-notes-with-a-visual-markdown-editor.md)). It keeps the `TextArea` look and exposes `role="textbox"` and a labelled `role="toolbar"`.
 
 ## Links and buttons
 
@@ -75,7 +77,7 @@ How views and components look and behave, so every new screen stays consistent w
 ## Forms
 
 - A form is the library `Form`: it turns off browser validation, prevents the page reload and, after submit, moves focus to the first field marked invalid and scrolls it to the middle of the screen, so a sticky bar never hides it.
-- Fields are `TextField`, `TextArea` (longer text such as notes), `Checkbox` and future library inputs, each with a visible label and the right `autocomplete` value.
+- Fields are `TextField`, `TextArea` (longer plain text), `NotesEditor` (formatted notes, [ADR-0029](../decisions/0029-format-notes-with-a-visual-markdown-editor.md)), `Checkbox` and future library inputs, each with a visible label and the right `autocomplete` value.
 - A single choice from a fixed list (for example the artwork type) is a `Select`, with an empty first option such as "Nie wybrano" passed as `placeholder` when the field is optional.
 - A category value (authors, period, style, material, location) is a `ValueField`: the chosen values are tags inside the field, and the suggestion list under it shows what the app passes as `options`. Which values to suggest, and whether a new value may be created, is decided in the app, not in the component.
 - A disabled field looks the same in every library input: a flat `--color-tag` fill instead of the outline, with the label and the text in `--color-fg-muted`.

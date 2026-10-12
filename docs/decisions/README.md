@@ -36,3 +36,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0030](0030-loading-states-for-the-first-load-and-images.md) | Show loading as a primed canvas, for the first app load and for artwork images | accepted |
 | [0031](0031-full-width-top-bar-in-every-atelier-view.md) | Run the top bar of every atelier view across the full width of the page | accepted |
 | [0032](0032-paste-the-own-image-from-the-clipboard.md) | Paste the learner's own image from the clipboard | accepted |
+| [0033](0033-order-the-wall-by-period-with-a-period-rail.md) | Order the wall by period, with a period rail that follows the scroll | accepted |

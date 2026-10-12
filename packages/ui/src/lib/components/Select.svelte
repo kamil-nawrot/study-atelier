@@ -77,6 +77,7 @@
 	.control {
 		position: relative;
 		display: flex;
+		min-height: var(--size-control);
 		border: var(--border-width-base) solid var(--color-line);
 		border-radius: var(--border-radius-none);
 		background: var(--color-surface);
@@ -99,7 +100,7 @@
 		appearance: none;
 		flex: 1;
 		min-width: 0;
-		padding: var(--spacing-3) var(--spacing-12) var(--spacing-3) var(--spacing-3);
+		padding: 0 var(--spacing-12) 0 var(--spacing-3);
 		border: none;
 		border-radius: var(--border-radius-none);
 		background: transparent;

@@ -252,8 +252,9 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: var(--spacing-2);
-		padding: var(--spacing-2);
+		gap: var(--spacing-1) var(--spacing-2);
+		min-height: var(--size-control);
+		padding: var(--spacing-1) var(--spacing-2);
 		border: var(--border-width-base) solid var(--color-line);
 		border-radius: var(--border-radius-none);
 		background: var(--color-surface);
@@ -317,7 +318,7 @@
 	input {
 		flex: 1;
 		min-width: 120px;
-		padding: var(--spacing-1);
+		padding: 0 var(--spacing-1);
 		border: none;
 		outline: none;
 		background: transparent;

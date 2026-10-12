@@ -11,6 +11,20 @@ export default defineConfig({
 			}
 		})
 	],
+	optimizeDeps: {
+		include: [
+			'@lucide/svelte/icons/bold',
+			'@lucide/svelte/icons/heading',
+			'@lucide/svelte/icons/italic',
+			'@lucide/svelte/icons/list',
+			'@lucide/svelte/icons/list-ordered',
+			'@tiptap/core',
+			'@tiptap/markdown',
+			'@tiptap/starter-kit',
+			'dompurify',
+			'marked'
+		]
+	},
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
