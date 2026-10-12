@@ -62,9 +62,7 @@
 		position: relative;
 		display: grid;
 		justify-items: center;
-		align-content: start;
 		height: 400px;
-		padding-top: var(--spacing-6);
 		overflow: hidden;
 		background: var(--color-stage-bg);
 	}
@@ -85,13 +83,9 @@
 	}
 
 	.artwork {
+		display: none;
 		position: relative;
 		z-index: 1;
-	}
-
-	.stage .artwork :global(img) {
-		width: auto;
-		max-height: 180px;
 	}
 
 	figcaption {
@@ -144,14 +138,15 @@
 			top: 0;
 			align-content: center;
 			height: 100dvh;
-			padding-top: 0;
 		}
 
 		.artwork {
+			display: block;
 			margin-bottom: var(--spacing-16);
 		}
 
 		.stage .artwork :global(img) {
+			width: auto;
 			max-height: min(64dvh, 720px);
 			max-width: min(36vw, 560px);
 		}

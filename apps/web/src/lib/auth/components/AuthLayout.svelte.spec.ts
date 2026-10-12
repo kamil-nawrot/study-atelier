@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
@@ -11,6 +11,10 @@ function textSnippet(tag: string, text: string): ReturnType<typeof createRawSnip
 }
 
 describe('AuthLayout', () => {
+	beforeEach(async () => {
+		await page.viewport(1280, 800);
+	});
+
 	afterEach(() => {
 		vi.restoreAllMocks();
 	});
@@ -45,6 +49,19 @@ describe('AuthLayout', () => {
 		await expect.element(caption).toHaveTextContent(artwork.credit);
 		await expect.element(page.getByRole('img', { name: m.app.name })).toBeVisible();
 		expect(page.getByRole('img').elements()).toHaveLength(2);
+	});
+
+	it('shows only the background behind the caption on a phone', async () => {
+		await page.viewport(390, 844);
+		vi.spyOn(Math, 'random').mockReturnValue(0);
+		const [artwork] = authArtworks;
+
+		render(AuthLayout, { title: 'Title', lead: 'Lead', children: textSnippet('p', 'Content') });
+
+		await expect.element(page.getByRole('figure')).toHaveTextContent(artwork.title);
+		await expect
+			.element(page.getByAltText(`${artwork.title}, ${artwork.artist}`))
+			.not.toBeVisible();
 	});
 
 	it('leaves out the footer when none is given', async () => {
