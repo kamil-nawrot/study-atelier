@@ -103,7 +103,8 @@ How views and components look and behave, so every new screen stays consistent w
 - A caption uses `figure`, `figcaption` and `cite.artwork-title`, with author and date as a caption and the image credit below. The credit names Wikimedia Commons; when the image is not public domain or CC0 (a CC BY or CC BY-SA photo of an old work), it also names the photographer and the licence.
 - A featured artwork sits on the stage: `--color-stage-bg` behind it and `--color-stage-fg` and `--color-stage-fg-muted` for its caption. The stage is dark in both themes.
 - The artwork view ([ADR-0026](../decisions/0026-artwork-view-as-a-stage-with-an-information-panel.md)) puts the image on the stage, over a blurred copy of the same image under `--color-scrim`, with the information panel beside it. The panel lists every field in the order of the form; an empty field shows a muted dash, with "Nie wpisano" for screen readers. A view that fills the screen below the top bar, like this one, passes `fill` to `AtelierLayout`.
-- A panel that the learner can close leaves a narrow strip with a chevron and an icon that open it again, like the side menu. Icons, not vertical text.
+- A panel that the learner can close leaves a narrow strip with a chevron and the panel name written vertically, which open it again. The panel opens and closes with the same width animation as the side menu, off under `prefers-reduced-motion`.
+- A view that fills the screen (`fill` on `AtelierLayout`) runs its top bar across the full width of the page; the wall keeps the bar aligned with its content.
 - Clicking an artwork image in a detail view opens it full screen on the stage background; Escape or the close button returns.
 
 ## Logo

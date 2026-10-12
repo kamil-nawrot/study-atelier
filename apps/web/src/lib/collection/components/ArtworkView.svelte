@@ -2,7 +2,6 @@
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
-	import Info from '@lucide/svelte/icons/info';
 	import X from '@lucide/svelte/icons/x';
 	import { Button, Icon, Tag } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
@@ -106,69 +105,71 @@
 		{/if}
 	</figure>
 
-	<aside class="panel" aria-label={m.artworkView.information}>
-		<div class="panel-top">
-			<span class="caption">{m.artworkView.information}</span>
+	<div class="side">
+		<aside class="panel" aria-label={m.artworkView.information}>
+			<div class="panel-top">
+				<span class="caption">{m.artworkView.information}</span>
+				<button
+					class="icon-button"
+					aria-label={m.artworkView.hideInformation}
+					onclick={() => setPanel(false)}
+					type="button"
+				>
+					<Icon icon={X} />
+				</button>
+			</div>
+
+			<header class="heading">
+				<span class="number">{formatRecordNumber(artwork.number)}</span>
+				<h1><cite class="artwork-title">{artwork.title}</cite></h1>
+				<p class="meta">
+					<span>{authors}</span>
+					{#if date}
+						<span aria-hidden="true">·</span>
+						<span class="date">{date}</span>
+					{/if}
+				</p>
+			</header>
+
+			<dl>
+				{#each fields as field (field.label)}
+					<dt class="caption">{field.label}</dt>
+					<dd>
+						{#if field.values.length === 0}
+							{@render empty()}
+						{:else if field.tags}
+							{#each field.values as value (value)}
+								<Tag>{value}</Tag>
+							{/each}
+						{:else}
+							{field.values.join(', ')}
+						{/if}
+					</dd>
+				{/each}
+			</dl>
+
+			<section class="notes" aria-labelledby="artwork-notes">
+				<h2 id="artwork-notes" class="caption">{m.artworkForm.notes}</h2>
+				{#if artwork.notes.trim()}
+					<p>{artwork.notes}</p>
+				{:else}
+					{@render empty()}
+				{/if}
+			</section>
+		</aside>
+
+		<div class="strip">
 			<button
 				class="icon-button"
-				aria-label={m.artworkView.hideInformation}
-				onclick={() => setPanel(false)}
+				aria-expanded="false"
+				aria-label={m.artworkView.showInformation}
+				onclick={() => setPanel(true)}
 				type="button"
 			>
-				<Icon icon={X} />
+				<Icon icon={ChevronLeft} />
+				<span class="strip-label">{m.artworkView.information}</span>
 			</button>
 		</div>
-
-		<header class="heading">
-			<span class="number">{formatRecordNumber(artwork.number)}</span>
-			<h1><cite class="artwork-title">{artwork.title}</cite></h1>
-			<p class="meta">
-				<span>{authors}</span>
-				{#if date}
-					<span aria-hidden="true">·</span>
-					<span class="date">{date}</span>
-				{/if}
-			</p>
-		</header>
-
-		<dl>
-			{#each fields as field (field.label)}
-				<dt class="caption">{field.label}</dt>
-				<dd>
-					{#if field.values.length === 0}
-						{@render empty()}
-					{:else if field.tags}
-						{#each field.values as value (value)}
-							<Tag>{value}</Tag>
-						{/each}
-					{:else}
-						{field.values.join(', ')}
-					{/if}
-				</dd>
-			{/each}
-		</dl>
-
-		<section class="notes" aria-labelledby="artwork-notes">
-			<h2 id="artwork-notes" class="caption">{m.artworkForm.notes}</h2>
-			{#if artwork.notes.trim()}
-				<p>{artwork.notes}</p>
-			{:else}
-				{@render empty()}
-			{/if}
-		</section>
-	</aside>
-
-	<div class="strip">
-		<button
-			class="icon-button"
-			aria-expanded="false"
-			aria-label={m.artworkView.showInformation}
-			onclick={() => setPanel(true)}
-			type="button"
-		>
-			<Icon icon={ChevronLeft} />
-			<Icon icon={Info} />
-		</button>
 	</div>
 </div>
 
@@ -381,12 +382,8 @@
 
 	@media (min-width: 768px) {
 		.view {
-			grid-template-columns: minmax(0, 1fr) 380px;
-			height: 100%;
-		}
-
-		.view.closed {
 			grid-template-columns: minmax(0, 1fr) auto;
+			height: 100%;
 		}
 
 		.stage {
@@ -408,10 +405,23 @@
 			height: calc(100cqh - var(--spacing-24) - var(--spacing-12));
 		}
 
+		.side {
+			position: relative;
+			box-sizing: content-box;
+			width: 380px;
+			overflow: hidden;
+			border-left: var(--border-width-hairline) solid var(--color-tag);
+		}
+
+		.closed .side {
+			width: 48px;
+		}
+
 		.panel {
+			width: 380px;
+			height: 100%;
 			overflow-y: auto;
 			padding: var(--spacing-4) var(--spacing-6) var(--spacing-12);
-			border-left: var(--border-width-hairline) solid var(--color-tag);
 		}
 
 		.panel-top {
@@ -422,19 +432,50 @@
 		}
 
 		.closed .panel {
-			display: none;
+			visibility: hidden;
 		}
 
-		.closed .strip {
+		.strip {
+			position: absolute;
+			inset: 0 auto 0 0;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			padding: var(--spacing-4) var(--spacing-1);
-			border-left: var(--border-width-hairline) solid var(--color-tag);
+			width: 48px;
+			padding: var(--spacing-4) 0;
+			background: var(--color-bg);
+			visibility: hidden;
+			opacity: 0;
+		}
+
+		.closed .strip {
+			visibility: visible;
+			opacity: 1;
 		}
 
 		.strip .icon-button {
 			flex-direction: column;
+			gap: var(--spacing-3);
+		}
+
+		.strip-label {
+			writing-mode: vertical-rl;
+			font-size: var(--font-size-sm);
+			font-weight: var(--font-weight-medium);
+			line-height: var(--line-height-sm);
+		}
+	}
+
+	@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+		.side {
+			transition: width var(--duration-short) ease-out;
+		}
+
+		.panel,
+		.strip {
+			transition:
+				visibility var(--duration-short),
+				opacity var(--duration-short) ease-out;
 		}
 	}
 </style>

@@ -165,6 +165,10 @@
 		padding: var(--spacing-6) var(--wall-inline) var(--spacing-12);
 	}
 
+	.fill .bar {
+		padding-inline: var(--page-inline);
+	}
+
 	.fill .content {
 		gap: 0;
 		padding: 0;
