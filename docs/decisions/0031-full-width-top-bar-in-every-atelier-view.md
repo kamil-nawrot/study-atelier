@@ -23,14 +23,14 @@ Chosen option: 2, the owner's direction in ATL-70.
 
 - `AtelierLayout` gives its top bar the page gutter in every view, not only in views that fill the screen.
 - The way back and the view title sit on the left, the actions on the right. The title in the bar is small, like the way back on the artwork view, instead of a page heading.
-- On the wall, the search field keeps its left edge in line with the wall and "Dodaj" moves to the right edge of the bar.
+- On the wall, the search field keeps its left edge in line with the wall and "Dodaj dzieło" stays right next to it, so the search and its button follow the wall.
 
 This replaces the part of ADR-0027 that kept the bar of the wall aligned with the wall.
 
 ### Consequences
 
 - Good: the bar looks and behaves the same in every view; the menu button, the way back and the actions keep their places.
-- Bad: on a wide screen the wall's search field and its "Dodaj" button stand far apart.
+- Bad: the wall is the one view whose action does not sit at the right edge of the bar.
 - Bad: the forms lose their large heading; the title is only in the bar and in the browser tab.
 
 ## More information

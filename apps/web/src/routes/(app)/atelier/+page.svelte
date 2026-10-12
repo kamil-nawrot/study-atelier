@@ -117,7 +117,6 @@
 		min-width: 0;
 		max-width: var(--size-content-default);
 		margin-inline-start: max(0px, calc((100% - var(--size-content-wide)) / 2));
-		margin-inline-end: auto;
 	}
 
 	header {
