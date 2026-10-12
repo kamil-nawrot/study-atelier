@@ -13,5 +13,6 @@ export { default as Section } from './components/Section.svelte';
 export { default as Select, type SelectOption } from './components/Select.svelte';
 export { default as Tag } from './components/Tag.svelte';
 export { default as TextField } from './components/TextField.svelte';
+export { default as Toast } from './components/Toast.svelte';
 export { default as ValueField, type ValueOption } from './components/ValueField.svelte';
 export { defaultUiMessages, setUiMessages, type AlertTone, type UiMessages } from './messages';

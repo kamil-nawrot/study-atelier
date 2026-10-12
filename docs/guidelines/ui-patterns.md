@@ -16,7 +16,7 @@ How views and components look and behave, so every new screen stays consistent w
 - Spacing between elements comes from the parent (`display: grid` or `flex` with `gap`). Elements do not set their own outer margins; `base.css` resets them.
 - Each route group has a layout component in its domain folder, for example `AuthLayout` for the sign-in screens. A view passes its content through snippets (`children`, `footer`).
 - Views of the signed-in learner use `AtelierLayout`: the menu as an icon rail from 768 px and as a drawer opened from the top bar on a phone, and a sticky top bar whose content the view passes as the `bar` snippet.
-- Motion is short and functional: a panel that opens or closes, such as the side menu, transitions over `--duration-short`. Every transition sits inside `@media (prefers-reduced-motion: no-preference)`.
+- Motion is short and functional: a panel that opens or closes, such as the side menu, or a toast that appears and fades, transitions over `--duration-short`. Every transition sits inside `@media (prefers-reduced-motion: no-preference)`.
 - A search over a list is the library `SearchField` in the top bar. It filters as the learner types, and its accessible name comes from `label` because the bar has no room for a visible label. It is at most `--size-content-default` wide.
 - An icon button inside a field (show password, clear search) fills the field's height and is separated from the text by a hairline vertical divider.
 
@@ -56,6 +56,9 @@ How views and components look and behave, so every new screen stays consistent w
 - An error that belongs to one field is shown under the field (`TextField` `error`).
 - An error that belongs to the whole form is an `Alert` at the top of the form, with a title that names what failed ("Nie udało się zalogować").
 - A success that ends the task replaces the form with an `Alert`. A success that keeps the user on the same task stands above the action it confirms.
+- A short confirmation that must not move the layout is a `Toast`, for example "Zapisano dzieło 0012." after "Zapisz i dodaj kolejne" empties the form for the next artwork. It floats above the content, centred, at most `--size-content-narrow` wide from 768 px and full width with side gutters on a phone. It disappears after 5 seconds, waits while the pointer is over it and has no close button. A new message replaces the one on screen.
+- A view places one `Toast` and calls its `show(text)`. On a page with an action bar fixed to the bottom, the view passes the bar's height as `offset`, so the toast stands 16 px above the bar.
+- Errors and warnings are never toasts: they stay in an `Alert` or under the field until the learner acts on them, because a toast can disappear before it is read.
 - Raw errors from Supabase or other services are never shown; they are mapped to dictionary messages (see [code-conventions.md](code-conventions.md#errors-from-services)).
 
 ## Forms
