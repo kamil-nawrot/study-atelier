@@ -167,21 +167,22 @@
 					{fileError || fileHint}
 				</span>
 			</div>
-			<div class="url">
-				<TextField
-					autocomplete="off"
-					error={urlError || undefined}
-					inputmode="url"
-					label={m.artworkForm.imageUrl}
-					onkeydown={useUrlOnEnter}
-					placeholder={m.artworkForm.imageUrlPlaceholder}
-					type="url"
-					bind:value={urlText}
-				/>
-				<Button disabled={loadingUrl} onclick={useUrl}>
-					{loadingUrl ? m.artworkForm.usingImageUrl : m.artworkForm.useImageUrl}
-				</Button>
-			</div>
+			<TextField
+				autocomplete="off"
+				error={urlError || undefined}
+				inputmode="url"
+				label={m.artworkForm.imageUrl}
+				onkeydown={useUrlOnEnter}
+				placeholder={m.artworkForm.imageUrlPlaceholder}
+				type="url"
+				bind:value={urlText}
+			>
+				{#snippet action()}
+					<Button disabled={loadingUrl} onclick={useUrl}>
+						{loadingUrl ? m.artworkForm.usingImageUrl : m.artworkForm.useImageUrl}
+					</Button>
+				{/snippet}
+			</TextField>
 		</div>
 	{/if}
 </section>
@@ -250,17 +251,6 @@
 
 	.message.error {
 		color: var(--color-danger);
-	}
-
-	.url {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) auto;
-		align-items: start;
-		gap: var(--spacing-2);
-	}
-
-	.url > :global(:last-child) {
-		margin-top: calc(var(--font-size-sm) * var(--line-height-sm) + var(--spacing-2));
 	}
 
 	@media (min-width: 768px) {
