@@ -11,6 +11,7 @@
 <script lang="ts">
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import { uiMessages } from '../messages';
+	import ArtworkImage from './ArtworkImage.svelte';
 	import Icon from './Icon.svelte';
 
 	type Props = {
@@ -45,7 +46,7 @@
 	<figure>
 		<div class="window">
 			{#if image}
-				<img
+				<ArtworkImage
 					alt="{title}, {authorText}"
 					height={image.height}
 					loading="lazy"
@@ -96,10 +97,11 @@
 		position: relative;
 	}
 
-	img {
+	.window :global(img) {
 		display: block;
 		width: 100%;
 		height: auto;
+		background: var(--color-mat-window);
 	}
 
 	.empty {
