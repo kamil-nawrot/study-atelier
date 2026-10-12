@@ -76,6 +76,16 @@ describe('Dialog', () => {
 		}
 	});
 
+	it('stops the page behind it from scrolling until it closes', async () => {
+		render(Dialog, { open: true, title: 'Which artwork is it?' });
+
+		await expect.element(page.getByRole('dialog')).toBeVisible();
+		expect(getComputedStyle(document.documentElement).overflow).toBe('hidden');
+		await userEvent.keyboard('{Escape}');
+		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+		expect(getComputedStyle(document.documentElement).overflow).toBe('visible');
+	});
+
 	it('opens and closes when the open prop changes', async () => {
 		const { rerender } = await render(Dialog, { title: 'Which artwork is it?' });
 

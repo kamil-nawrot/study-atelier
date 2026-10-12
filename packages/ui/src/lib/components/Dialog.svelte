@@ -38,12 +38,16 @@
 		if (open && !dialog.open) {
 			opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 			dialog.showModal();
+			document.documentElement.style.overflow = 'hidden';
 		} else if (!open && dialog.open) {
 			dialog.close();
 		}
 	});
 
+	$effect(() => () => document.documentElement.style.removeProperty('overflow'));
+
 	function onclosed(): void {
+		document.documentElement.style.removeProperty('overflow');
 		open = false;
 		opener?.focus();
 		opener = null;
