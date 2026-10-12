@@ -71,6 +71,7 @@
 	}
 
 	li.current {
+		padding-right: 0;
 		color: var(--color-fg);
 		font-weight: var(--font-weight-medium);
 	}
@@ -90,6 +91,6 @@
 	}
 
 	.current .line {
-		width: var(--spacing-6);
+		width: var(--spacing-8);
 	}
 </style>

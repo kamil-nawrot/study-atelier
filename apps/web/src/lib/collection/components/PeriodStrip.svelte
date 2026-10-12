@@ -36,9 +36,11 @@
 		position: sticky;
 		top: var(--bar-height);
 		z-index: 1;
-		display: grid;
-		gap: var(--spacing-2);
-		padding: var(--spacing-2) var(--page-inline) var(--spacing-3);
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--spacing-4);
+		padding: var(--spacing-3) var(--page-inline);
 		border-bottom: var(--border-width-hairline) solid var(--color-tag);
 		background: var(--color-bg);
 	}
@@ -59,6 +61,7 @@
 
 	ol {
 		display: flex;
+		flex: none;
 		gap: var(--spacing-1);
 		margin: 0;
 		padding: 0;
@@ -66,15 +69,14 @@
 	}
 
 	li {
-		flex: 1;
-		max-width: var(--spacing-6);
-		height: var(--border-width-button);
-		background: var(--color-line);
+		flex: none;
+		width: var(--spacing-4);
+		height: var(--border-width-base);
+		background: var(--color-fg-muted);
 	}
 
 	li.current {
-		flex: 3;
-		max-width: var(--spacing-12);
+		width: var(--spacing-8);
 		background: var(--color-fg);
 	}
 </style>
