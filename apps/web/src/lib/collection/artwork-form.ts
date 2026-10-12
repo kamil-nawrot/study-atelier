@@ -1,5 +1,22 @@
 import { emptyCategoryValues } from './category-values.ts';
-import type { ArtworkFormState, ArtworkInput } from './types.ts';
+import type { SelectOption } from '@study-atelier/ui';
+import { m } from '#lib/i18n/index.ts';
+import type { ArtworkFormState, ArtworkInput, ArtworkTypeCode } from './types.ts';
+
+export const ARTWORK_TYPE_CODES: readonly ArtworkTypeCode[] = [
+	'architecture',
+	'painting',
+	'sculpture',
+	'drawing',
+	'printmaking',
+	'applied_arts',
+	'photography',
+	'other'
+];
+
+export function artworkTypeOptions(): SelectOption[] {
+	return ARTWORK_TYPE_CODES.map((code) => ({ value: code, label: m.artworkTypes[code] }));
+}
 
 export function emptyArtworkForm(): ArtworkFormState {
 	return {
@@ -10,7 +27,7 @@ export function emptyArtworkForm(): ArtworkFormState {
 		year: '',
 		beforeCommonEra: false,
 		yearApproximate: false,
-		typeCode: null,
+		typeCode: '',
 		notes: '',
 		image: null
 	};
@@ -30,7 +47,7 @@ export function artworkInputFromForm(form: ArtworkFormState): ArtworkInput {
 		year: parseYear(form.year),
 		beforeCommonEra: form.beforeCommonEra,
 		yearApproximate: form.yearApproximate,
-		typeCode: form.typeCode,
+		typeCode: form.typeCode || null,
 		periods: [...form.values.period],
 		styles: [...form.values.style],
 		materials: [...form.values.material],

@@ -92,7 +92,7 @@ export type ArtworkFormState = {
 	year: string;
 	beforeCommonEra: boolean;
 	yearApproximate: boolean;
-	typeCode: ArtworkTypeCode | null;
+	typeCode: ArtworkTypeCode | '';
 	notes: string;
 	image: ArtworkImageInput | null;
 };

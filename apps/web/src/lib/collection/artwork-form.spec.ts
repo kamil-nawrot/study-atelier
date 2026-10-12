@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { m } from '#lib/i18n/index.ts';
 import {
 	artworkInputFromForm,
+	artworkTypeOptions,
 	canSearchImage,
 	emptyArtworkForm,
 	formHasChanges,
@@ -32,6 +34,7 @@ describe('artworkInputFromForm', () => {
 		form.values.location = ['Mauritshuis'];
 		form.year = '1665';
 		form.yearApproximate = true;
+		form.typeCode = 'painting';
 		form.notes = 'Seen in The Hague.';
 
 		expect(artworkInputFromForm(form)).toEqual({
@@ -41,7 +44,7 @@ describe('artworkInputFromForm', () => {
 			year: 1665,
 			beforeCommonEra: false,
 			yearApproximate: true,
-			typeCode: null,
+			typeCode: 'painting',
 			periods: [],
 			styles: ['baroque'],
 			materials: [],
@@ -59,8 +62,11 @@ describe('artworkInputFromForm', () => {
 		expect(artworkInputFromForm(form).authors).toEqual([]);
 	});
 
-	it('leaves the location empty when none is chosen', () => {
-		expect(artworkInputFromForm(emptyArtworkForm()).location).toBeNull();
+	it('leaves the location and the type empty when none is chosen', () => {
+		const input = artworkInputFromForm(emptyArtworkForm());
+
+		expect(input.location).toBeNull();
+		expect(input.typeCode).toBeNull();
 	});
 });
 
@@ -101,5 +107,14 @@ describe('canSearchImage', () => {
 		form.authorUnknown = true;
 
 		expect(canSearchImage(form)).toBe(false);
+	});
+});
+
+describe('artworkTypeOptions', () => {
+	it('lists every artwork type with its label', () => {
+		const options = artworkTypeOptions();
+
+		expect(options).toHaveLength(8);
+		expect(options[1]).toEqual({ value: 'painting', label: m.artworkTypes.painting });
 	});
 });

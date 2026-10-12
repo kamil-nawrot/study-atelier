@@ -7,16 +7,20 @@
 		Alert,
 		Button,
 		Checkbox,
+		Dialog,
 		Form,
 		Icon,
+		Select,
 		TextArea,
 		TextField,
 		ValueField
 	} from '@study-atelier/ui';
-	import { beforeNavigate } from '$app/navigation';
+	import { beforeNavigate, goto } from '$app/navigation';
+	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
 	import {
 		artworkInputFromForm,
+		artworkTypeOptions,
 		canSearchImage,
 		emptyArtworkForm,
 		formHasChanges
@@ -41,6 +45,7 @@
 	let { categoryValues, cancelHref, oncancel, onsaved }: Props = $props();
 
 	const titleId = 'artwork-title';
+	const typeOptions = artworkTypeOptions();
 	const describedCategories: { code: Exclude<CategoryCode, 'author'>; label: string }[] = [
 		{ code: 'period', label: m.artworkForm.period },
 		{ code: 'style', label: m.artworkForm.style },
@@ -54,12 +59,28 @@
 	let formError = $state('');
 	let saving = $state<'save' | 'next' | null>(null);
 	let next = false;
+	let discardOpen = $state(false);
+	let leaving = false;
+	let continueLeaving: (() => void) | null = null;
 
 	let imageSearchReady = $derived(canSearchImage(form));
 
-	beforeNavigate(({ type, cancel }) => {
-		if (type === 'leave' && formHasChanges(form, saved)) cancel();
+	beforeNavigate((navigation) => {
+		if (leaving || !formHasChanges(form, saved)) return;
+		navigation.cancel();
+		const url = navigation.to?.url;
+		if (navigation.type === 'leave' || !url) return;
+		const target = `${url.pathname}${url.search}${url.hash}` as ResolvedPathname;
+		continueLeaving =
+			navigation.type === 'popstate' ? () => history.go(navigation.delta) : () => goto(target);
+		discardOpen = true;
 	});
+
+	function discardChanges(): void {
+		leaving = true;
+		discardOpen = false;
+		continueLeaving?.();
+	}
 
 	function options(code: CategoryCode): ValueSuggestion[] {
 		return suggestValues({
@@ -179,6 +200,13 @@
 				</div>
 			</div>
 
+			<Select
+				label={m.artworkForm.type}
+				options={typeOptions}
+				placeholder={m.artworkForm.typeNone}
+				bind:value={form.typeCode}
+			/>
+
 			{#each describedCategories as category (category.code)}
 				<ValueField
 					hint={category.code === 'location' ? m.artworkForm.locationHint : undefined}
@@ -210,6 +238,22 @@
 		</Button>
 	</footer>
 </Form>
+
+<Dialog
+	description={m.artworkForm.discardDescription}
+	size="small"
+	title={m.artworkForm.discardTitle}
+	bind:open={discardOpen}
+>
+	{#snippet footer()}
+		<Button onclick={() => (discardOpen = false)}>
+			{m.artworkForm.keepEditing}
+		</Button>
+		<Button onclick={discardChanges} variant="primary">
+			{m.artworkForm.discard}
+		</Button>
+	{/snippet}
+</Dialog>
 
 <style>
 	.columns {

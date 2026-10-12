@@ -60,8 +60,8 @@ How views and components look and behave, so every new screen stays consistent w
 
 ## Forms
 
-- A form is the library `Form`: it turns off browser validation, prevents the page reload and, after submit, moves focus to the first field marked invalid.
-- Fields are `TextField`, `Checkbox` and future library inputs, each with a visible label and the right `autocomplete` value.
+- A form is the library `Form`: it turns off browser validation, prevents the page reload and, after submit, moves focus to the first field marked invalid and scrolls it to the middle of the screen, so a sticky bar never hides it.
+- Fields are `TextField`, `TextArea` (longer text such as notes), `Checkbox` and future library inputs, each with a visible label and the right `autocomplete` value.
 - A single choice from a fixed list (for example the artwork type) is a `Select`, with an empty first option such as "Nie wybrano" passed as `placeholder` when the field is optional.
 - A category value (authors, period, style, material, location) is a `ValueField`: the chosen values are tags inside the field, and the suggestion list under it shows what the app passes as `options`. Which values to suggest, and whether a new value may be created, is decided in the app, not in the component.
 - On a phone, form fields take the full content width, and so do an image that belongs to the form and the buttons under it.
@@ -73,6 +73,8 @@ How views and components look and behave, so every new screen stays consistent w
   5. On failure, show the mapped message in the form `Alert` and enable the button again.
   6. On success, navigate with `goto` or replace the form with a success `Alert`.
 - Fields are validated on submit, not while typing.
+- A long form keeps its actions in a bar fixed to the bottom of the screen. The action that leaves without saving ("Anuluj") is a link back to where the learner came from.
+- A form that holds work the learner could lose asks before any navigation inside the app: a small `Dialog` "Odrzucić zmiany?" with "Wróć do formularza" and "Odrzuć". Without changes it lets the learner leave without asking. Closing the tab shows the browser's own warning, whose text the app cannot set.
 - Limits used by a validator (for example `MIN_PASSWORD_LENGTH`) are exported constants, and the field hint uses the same constant.
 
 ## Dialogs
@@ -86,6 +88,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 - An artwork image sits in `Frame`: `list` in lists, `view` in a detail view or on a stage. The image keeps its proportions and never fills a thumbnail slot at the side.
 - In the collection each artwork is an `ArtworkTile`: the image on a solid paper passe-partout, 8 px on the top and sides, with the title, authors and date on the wider bottom edge and the record number on the image. The passe-partout stays paper in both themes (`--color-mat-*`).
+- After an artwork is saved, the wall opens at the top and its tile carries an outline in `--color-fg` for about two seconds, which then fades over `--duration-short`.
 - The `alt` text of an artwork is "Title, Author". A decorative copy of the same image (for example a blurred backdrop) has `alt=""` and `aria-hidden="true"`.
 - A caption uses `figure`, `figcaption` and `cite.artwork-title`, with author and date as a caption and the image credit below. The credit names Wikimedia Commons; when the image is not public domain or CC0 (a CC BY or CC BY-SA photo of an old work), it also names the photographer and the licence.
 - A featured artwork sits on the stage: `--color-stage-bg` behind it and `--color-stage-fg` and `--color-stage-fg-muted` for its caption. The stage is dark in both themes.

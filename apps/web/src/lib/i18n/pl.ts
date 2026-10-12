@@ -165,6 +165,8 @@ export const pl = {
 		year: 'Rok powstania',
 		beforeCommonEra: 'p.n.e.',
 		yearApproximate: 'ok.',
+		type: 'Typ',
+		typeNone: 'Nie wybrano',
 		period: 'Epoka',
 		style: 'Styl',
 		material: 'Materiał',
@@ -176,7 +178,21 @@ export const pl = {
 		saveAndNext: 'Zapisz i dodaj kolejne',
 		save: 'Zapisz',
 		saving: 'Zapisywanie…',
-		errorTitle: 'Nie udało się zapisać dzieła'
+		errorTitle: 'Nie udało się zapisać dzieła',
+		discardTitle: 'Odrzucić zmiany?',
+		discardDescription: 'Masz niezapisane zmiany w tym dziele. Jeśli wyjdziesz, znikną.',
+		keepEditing: 'Wróć do formularza',
+		discard: 'Odrzuć'
+	},
+	artworkTypes: {
+		architecture: 'Architektura',
+		painting: 'Malarstwo',
+		sculpture: 'Rzeźba',
+		drawing: 'Rysunek',
+		printmaking: 'Grafika',
+		applied_arts: 'Rzemiosło artystyczne',
+		photography: 'Fotografia',
+		other: 'Inne'
 	},
 	collectionErrors: {
 		network: 'Nie udało się połączyć z serwerem. Sprawdź internet i odśwież stronę.'

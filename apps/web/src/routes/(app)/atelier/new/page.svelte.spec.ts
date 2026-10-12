@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { goto, invalidateAll } from '$app/navigation';
+import { beforeNavigate, goto, invalidateAll } from '$app/navigation';
 import { emptyCategoryValues } from '#lib/collection/category-values.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
@@ -36,6 +36,20 @@ function authorsField(): ReturnType<typeof page.getByRole> {
 
 function saveButton(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('button', { name: m.artworkForm.save, exact: true });
+}
+
+type Leave = Parameters<Parameters<typeof beforeNavigate>[0]>[0];
+
+function leave(type: 'link' | 'popstate' | 'leave' = 'link'): Leave {
+	const navigation = {
+		type,
+		to: type === 'leave' ? null : { url: new URL('http://localhost/atelier/trash') },
+		delta: type === 'popstate' ? -1 : undefined,
+		cancel: vi.fn()
+	};
+	const guard = vi.mocked(beforeNavigate).mock.calls[0][0];
+	guard(navigation as unknown as Leave);
+	return navigation as unknown as Leave;
 }
 
 async function fillRequired(): Promise<void> {
@@ -124,7 +138,7 @@ describe('add artwork page', () => {
 
 		await userEvent.click(page.getByRole('combobox', { name: m.artworkForm.style }));
 
-		const options = page.getByRole('option');
+		const options = page.getByRole('listbox').getByRole('option');
 		await expect.element(options.first()).toHaveTextContent('Delft school');
 		await expect
 			.element(page.getByRole('option', { name: m.startingValues.style[0] }))
@@ -136,6 +150,9 @@ describe('add artwork page', () => {
 		await fillRequired();
 		await page.getByRole('textbox', { name: m.artworkForm.year }).fill('1658');
 		await page.getByText(m.artworkForm.yearApproximate, { exact: true }).click();
+		await page
+			.getByRole('combobox', { name: m.artworkForm.type })
+			.selectOptions(m.artworkTypes.painting);
 		await page.getByRole('textbox', { name: m.artworkForm.notes }).fill('Seen in Amsterdam.');
 
 		await saveButton().click();
@@ -149,6 +166,7 @@ describe('add artwork page', () => {
 				author_unknown: false,
 				year: 1658,
 				year_approximate: true,
+				type_code: 'painting',
 				notes: 'Seen in Amsterdam.'
 			}),
 			values_by_category: {
@@ -202,5 +220,50 @@ describe('add artwork page', () => {
 		await expect.element(saveButton()).toBeEnabled();
 		await expect.element(titleField()).toHaveValue('The Milkmaid');
 		expect(goto).not.toHaveBeenCalled();
+	});
+
+	it('leaves without asking when nothing was changed', async () => {
+		renderPage();
+
+		const navigation = leave();
+
+		expect(navigation.cancel).not.toHaveBeenCalled();
+		await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
+	});
+
+	it('asks before discarding changes and stays on the form', async () => {
+		renderPage();
+		await titleField().fill('The Milkmaid');
+
+		const navigation = leave();
+
+		expect(navigation.cancel).toHaveBeenCalled();
+		const dialog = page.getByRole('alertdialog', { name: m.artworkForm.discardTitle });
+		await expect.element(dialog).toBeVisible();
+		await dialog.getByRole('button', { name: m.artworkForm.keepEditing }).click();
+
+		await expect.element(dialog).not.toBeInTheDocument();
+		await expect.element(titleField()).toHaveValue('The Milkmaid');
+		expect(goto).not.toHaveBeenCalled();
+	});
+
+	it('continues to the chosen page after the learner discards the changes', async () => {
+		renderPage();
+		await titleField().fill('The Milkmaid');
+
+		leave();
+		await page.getByRole('button', { name: m.artworkForm.discard, exact: true }).click();
+
+		expect(goto).toHaveBeenCalledWith('/atelier/trash');
+	});
+
+	it('leaves the warning to the browser when the tab is closed', async () => {
+		renderPage();
+		await titleField().fill('The Milkmaid');
+
+		const navigation = leave('leave');
+
+		expect(navigation.cancel).toHaveBeenCalled();
+		await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
 	});
 });
