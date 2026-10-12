@@ -83,3 +83,16 @@ export type LoadArtworkResult = {
 	artwork?: ArtworkRecord;
 	error?: string;
 };
+
+export type ArtworkFormState = {
+	title: string;
+	values: CategoryValues;
+	queries: Record<CategoryCode, string>;
+	authorUnknown: boolean;
+	year: string;
+	beforeCommonEra: boolean;
+	yearApproximate: boolean;
+	typeCode: ArtworkTypeCode | null;
+	notes: string;
+	image: ArtworkImageInput | null;
+};

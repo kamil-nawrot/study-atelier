@@ -8,9 +8,10 @@
 
 	type Props = {
 		artworks: WallArtwork[];
+		highlight?: number;
 	};
 
-	let { artworks }: Props = $props();
+	let { artworks, highlight }: Props = $props();
 
 	const wide = new MediaQuery('min-width: 768px');
 
@@ -25,7 +26,7 @@
 	{#each columns as column, index (index)}
 		<ul class="column">
 			{#each column as artwork (artwork.id)}
-				<li>
+				<li class:highlight={artwork.number === highlight}>
 					<ArtworkTile
 						authors={artwork.authors}
 						date={artwork.date}
@@ -54,5 +55,20 @@
 		min-width: 0;
 		padding: 0;
 		list-style: none;
+	}
+
+	li {
+		outline: var(--border-width-button) solid transparent;
+		outline-offset: var(--spacing-2);
+	}
+
+	li.highlight {
+		outline-color: var(--color-fg);
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		li {
+			transition: outline-color var(--duration-short) ease-out;
+		}
 	}
 </style>
