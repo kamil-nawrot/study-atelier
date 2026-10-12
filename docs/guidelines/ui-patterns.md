@@ -78,7 +78,7 @@ How views and components look and behave, so every new screen stays consistent w
   6. On success, navigate with `goto` or replace the form with a success `Alert`.
 - Fields are validated on submit, not while typing.
 - A long form keeps its actions in a bar fixed to the bottom of the screen. The action that leaves without saving ("Anuluj") is a link back to where the learner came from.
-- A form that holds work the learner could lose asks before any navigation inside the app: a small `Dialog` "Odrzucić zmiany?" with "Wróć do formularza" and "Odrzuć". Without changes it lets the learner leave without asking. Closing the tab shows the browser's own warning, whose text the app cannot set.
+- A form that holds work the learner could lose asks before the learner leaves it, by any navigation inside the app or by signing out: a small `Dialog` "Odrzucić zmiany?" with "Wróć do formularza" and "Odrzuć". Without changes it lets the learner leave without asking. Closing the tab shows the browser's own warning, whose text the app cannot set.
 - Limits used by a validator (for example `MIN_PASSWORD_LENGTH`) are exported constants, and the field hint uses the same constant.
 
 ## Dialogs
