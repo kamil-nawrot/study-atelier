@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { Alert, Button, Dialog, Icon, Section, Toast } from '@study-atelier/ui';
@@ -64,7 +65,14 @@
 	}
 </script>
 
-<AtelierLayout email={data.session.user.email ?? ''} title={m.trash.title}>
+<AtelierLayout email={data.session.user.email ?? ''} title={m.trash.title} wideBar>
+	{#snippet bar()}
+		<a class="back" href={resolve('/(app)/atelier')}>
+			<Icon icon={ArrowLeft} />
+			{m.artworkView.back}
+		</a>
+	{/snippet}
+
 	<header>
 		<h1>{m.trash.title}</h1>
 		{#if shown.length > 0}
@@ -169,6 +177,17 @@
 <Toast bind:this={toast} />
 
 <style>
+	.back {
+		display: flex;
+		flex: 1;
+		align-items: center;
+		gap: var(--spacing-2);
+		color: var(--color-fg);
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-medium);
+		text-decoration: none;
+	}
+
 	header {
 		display: flex;
 		flex-wrap: wrap;

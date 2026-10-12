@@ -61,6 +61,9 @@ describe('trash page', () => {
 			)
 			.toBeVisible();
 		await expect.element(row('Night Watch').getByText('Test Painter · 1900')).toBeVisible();
+		await expect
+			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
+			.toHaveAttribute('href', '/atelier');
 	});
 
 	it('restores an artwork without asking and confirms it', async () => {
