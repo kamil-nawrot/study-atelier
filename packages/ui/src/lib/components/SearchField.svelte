@@ -86,6 +86,16 @@
 		color: var(--color-fg-muted);
 	}
 
+	.search:has(input:disabled) {
+		border-color: var(--color-tag);
+		background: var(--color-tag);
+	}
+
+	input:disabled {
+		color: var(--color-fg-muted);
+		cursor: not-allowed;
+	}
+
 	.clear {
 		display: grid;
 		align-self: stretch;

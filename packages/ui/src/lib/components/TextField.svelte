@@ -106,6 +106,15 @@
 		border-color: var(--color-danger);
 	}
 
+	.field:has(input:disabled) label {
+		color: var(--color-fg-muted);
+	}
+
+	.control:has(input:disabled) {
+		border-color: var(--color-tag);
+		background: var(--color-tag);
+	}
+
 	input {
 		flex: 1;
 		min-width: 0;
