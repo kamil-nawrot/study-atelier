@@ -1,4 +1,4 @@
-# 0029. Run the top bar of every atelier view across the full width of the page
+# 0031. Run the top bar of every atelier view across the full width of the page
 
 - Status: accepted
 - Date: 2026-10-12
