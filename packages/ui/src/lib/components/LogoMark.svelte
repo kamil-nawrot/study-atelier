@@ -2,7 +2,7 @@
 	import type { Snippet } from 'svelte';
 
 	type Props = {
-		size?: 'sm' | 'md' | 'lg';
+		size?: 'sm' | 'md' | 'lg' | 'xl';
 		label?: string;
 		children?: Snippet;
 	};
@@ -45,5 +45,10 @@
 	.lg {
 		width: var(--spacing-16);
 		height: var(--spacing-16);
+	}
+
+	.xl {
+		width: var(--spacing-24);
+		height: var(--spacing-24);
 	}
 </style>

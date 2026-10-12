@@ -8,7 +8,7 @@
 		tags: ['autodocs'],
 		args: { size: 'md' },
 		argTypes: {
-			size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] },
+			size: { control: 'inline-radio', options: ['sm', 'md', 'lg', 'xl'] },
 			children: { control: false }
 		}
 	});
@@ -19,6 +19,8 @@
 <Story name="Small" args={{ size: 'sm' }} />
 
 <Story name="Large" args={{ size: 'lg' }} />
+
+<Story name="Extra large" args={{ size: 'xl' }} />
 
 <Story name="With label" args={{ label: 'Study Atelier' }} />
 

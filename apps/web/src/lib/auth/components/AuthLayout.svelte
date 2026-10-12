@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { Frame, Logo, Section } from '@study-atelier/ui';
+	import { ArtworkImage, Frame, Logo, Section } from '@study-atelier/ui';
 	import { pickArtwork } from '#lib/artworks/auth-artworks.ts';
 	import { commonsFileUrl } from '#lib/images/commons.ts';
 	import { m } from '#lib/i18n/index.ts';
@@ -27,7 +27,7 @@
 		<img class="backdrop" alt="" aria-hidden="true" src={imageUrl} />
 		<div class="artwork">
 			<Frame size="view">
-				<img alt="{artwork.title}, {artwork.artist}" src={imageUrl} />
+				<ArtworkImage alt="{artwork.title}, {artwork.artist}" src={imageUrl} surface="frame" />
 			</Frame>
 		</div>
 		<figcaption>
