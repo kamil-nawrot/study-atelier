@@ -19,6 +19,7 @@ How views and components look and behave, so every new screen stays consistent w
 - Motion is short and functional: a panel that opens or closes, such as the side menu, or a toast that appears and fades, transitions over `--duration-short`. Every transition sits inside `@media (prefers-reduced-motion: no-preference)`.
 - A search over a list is the library `SearchField` in the top bar. It filters as the learner types, and its accessible name comes from `label` because the bar has no room for a visible label. It is at most `--size-content-default` wide.
 - An icon button inside a field (show password, clear search) fills the field's height and is separated from the text by a hairline vertical divider.
+- A button that acts on what was typed in one field (for example "Użyj" next to an image URL) is passed to `TextField` as its `action`. It stands next to the field, takes the field's height and keeps it when an error shows under the field.
 
 ## Text roles
 
