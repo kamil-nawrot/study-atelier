@@ -36,6 +36,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-4 | Only the title and the author are required. Instead of an author, the learner can mark the author as unknown. | MVP |
 | R-5 | The set of fields and categories is fixed in code for the MVP, and the data model makes adding a new field or category a small code change. | MVP |
 | R-6 | The learner writes every value in their own words. The app never forces a particular spelling and never overwrites what the learner entered. | MVP |
+| R-37 | The learner formats notes while writing them: bold, italic, headings, bulleted and numbered lists, from a toolbar above the field, without typing Markdown; the artwork page shows the notes formatted ([ADR-0029](../decisions/0029-format-notes-with-a-visual-markdown-editor.md)). | MVP |
 
 ### Artwork fields
 
@@ -50,7 +51,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | Style | one or more values | |
 | Material | one or more values | |
 | Location | text | Where the artwork is now. |
-| Notes | long text | The learner's own notes. |
+| Notes | long text with basic formatting | The learner's own notes. See R-37. |
 
 ## Category values
 
