@@ -164,6 +164,7 @@ export const pl = {
 		fileHint: (formats: string, maxMegabytes: number): string =>
 			`${formats}, do ${maxMegabytes} MB.`,
 		imageUrl: 'albo wklej adres obrazka',
+		imageUrlPlaceholder: 'https://…',
 		useImageUrl: 'Użyj',
 		usingImageUrl: 'Wczytywanie…',
 		ownImageCredit: 'Twoje zdjęcie, widoczne tylko dla Ciebie.',

@@ -152,11 +152,7 @@
 	{#if panelOpen}
 		<div id={panelId} class="own-image">
 			<div class="file">
-				<Button
-					aria-describedby={fileMessageId}
-					aria-invalid={fileError ? true : undefined}
-					onclick={() => fileInput?.click()}
-				>
+				<Button aria-describedby={fileMessageId} onclick={() => fileInput?.click()}>
 					<Icon icon={Upload} size="sm" />
 					{m.artworkForm.chooseFile}
 				</Button>
@@ -178,7 +174,7 @@
 					inputmode="url"
 					label={m.artworkForm.imageUrl}
 					onkeydown={useUrlOnEnter}
-					placeholder="https://…"
+					placeholder={m.artworkForm.imageUrlPlaceholder}
 					type="url"
 					bind:value={urlText}
 				/>
