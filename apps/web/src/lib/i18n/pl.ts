@@ -17,6 +17,7 @@ export const pl = {
 		unknownAuthor: 'Autor nieznany',
 		noImage: 'Brak obrazu',
 		clearSearch: 'Wyczyść wyszukiwanie',
+		closeDialog: 'Zamknij',
 		valueField: {
 			existing: 'Już używane',
 			starting: 'Lista startowa',

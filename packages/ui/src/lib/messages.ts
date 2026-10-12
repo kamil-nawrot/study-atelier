@@ -10,6 +10,7 @@ export type UiMessages = {
 	unknownAuthor: string;
 	noImage: string;
 	clearSearch: string;
+	closeDialog: string;
 	valueField: {
 		existing: string;
 		starting: string;
@@ -33,6 +34,7 @@ export const defaultUiMessages: UiMessages = {
 	unknownAuthor: 'Unknown author',
 	noImage: 'No image',
 	clearSearch: 'Clear search',
+	closeDialog: 'Close',
 	valueField: {
 		existing: 'Already used',
 		starting: 'Starting list',
