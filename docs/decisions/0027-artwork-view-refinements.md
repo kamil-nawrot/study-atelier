@@ -36,3 +36,4 @@ Chosen option: 2, the owner's refinements after reviewing the built view.
 ## More information
 
 - Requested in the project thread "ATL-63 Widok szczegółów dzieła", 2026-10-12. Implementation: ATL-63.
+- [ADR-0031](0031-full-width-top-bar-in-every-atelier-view.md) replaces the part that kept the bar of the wall aligned with the wall: every view now has the full-width bar.
