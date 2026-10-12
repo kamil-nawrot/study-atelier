@@ -6,6 +6,7 @@ import type {
 	ArtworkFormState,
 	ArtworkImageInput,
 	ArtworkInput,
+	ArtworkRecord,
 	ArtworkTypeCode
 } from './types.ts';
 
@@ -36,6 +37,27 @@ export function emptyArtworkForm(): ArtworkFormState {
 		typeCode: '',
 		notes: '',
 		image: null
+	};
+}
+
+export function artworkFormFromRecord(record: ArtworkRecord): ArtworkFormState {
+	return {
+		...emptyArtworkForm(),
+		title: record.title,
+		values: {
+			author: record.authorUnknown ? [] : [...record.authors],
+			period: [...record.periods],
+			style: [...record.styles],
+			material: [...record.materials],
+			location: record.location === null ? [] : [record.location]
+		},
+		authorUnknown: record.authorUnknown,
+		year: record.year === null ? '' : String(record.year),
+		beforeCommonEra: record.beforeCommonEra,
+		yearApproximate: record.yearApproximate,
+		typeCode: record.typeCode ?? '',
+		notes: record.notes,
+		image: record.image
 	};
 }
 

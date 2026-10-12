@@ -1,5 +1,5 @@
 import type { ArtworkTileImage } from '@study-atelier/ui';
-import { IMAGES_BUCKET } from '#lib/images/bucket.ts';
+import { IMAGES_BUCKET, SIGNED_URL_SECONDS } from '#lib/images/bucket.ts';
 import {
 	COMMONS_THUMBNAIL_WIDTHS,
 	commonsFileUrl,
@@ -36,7 +36,6 @@ type ArtworkRow = {
 	artwork_values: { position: number; category_values: CategoryValueRow | null }[];
 };
 
-export const SIGNED_URL_SECONDS = 60 * 60;
 export const DEFAULT_IMAGE_SIZE: ImageSize = { width: 4, height: 5 };
 
 const TILE_SIZES = '(min-width: 768px) 33vw, 100vw';

@@ -74,7 +74,13 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 3. It calls the `save_artwork` RPC once with the artwork's columns and its value names by category; the year is stored negative before the common era ([ADR-0014](../decisions/0014-artwork-collection-data-model.md)).
 4. The function inserts or updates the artwork, creates the names the learner does not have yet, replaces the artwork's value links and returns the record number, all in one transaction ([ADR-0024](../decisions/0024-save-an-artwork-in-one-database-function.md)).
 5. If the save failed, the file uploaded in step 2 is removed. If it succeeded and the artwork's previous uploaded file was replaced or removed, that file is removed.
-6. Loading an artwork for editing reads it by record number with its values, outside the trash.
+
+### Editing an artwork
+
+1. `/atelier/<record number>/edit` reads the artwork by record number with its values, outside the trash, together with the category values (`loadArtwork` in `#lib/collection/artwork-record.ts`). A record number that is not a positive whole number, an unknown one or one in the trash shows a not-found state.
+2. For an uploaded image it asks Supabase Storage for a signed URL, used only for the preview; the form keeps the storage path.
+3. The same form as adding starts from the loaded values, so "Odrzucić zmiany?" compares against them. There is no "Zapisz i dodaj kolejne".
+4. Saving passes the artwork's id and its loaded image to the save above, then replaces the edit page in the history with the artwork page, which confirms the save with a toast.
 
 ## 7. Deployment view
 

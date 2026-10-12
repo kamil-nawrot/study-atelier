@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
 import {
+	artworkFormFromRecord,
 	artworkImageAlt,
 	artworkInputFromForm,
 	artworkTypeOptions,
@@ -10,6 +11,7 @@ import {
 	imageFromCandidate,
 	parseYear
 } from './artwork-form.ts';
+import type { ArtworkRecord } from './types.ts';
 
 describe('parseYear', () => {
 	it('reads an empty field as no year', () => {
@@ -69,6 +71,69 @@ describe('artworkInputFromForm', () => {
 
 		expect(input.location).toBeNull();
 		expect(input.typeCode).toBeNull();
+	});
+});
+
+describe('artworkFormFromRecord', () => {
+	const record: ArtworkRecord = {
+		id: 'artwork-1',
+		number: 7,
+		title: 'The Thinker',
+		authors: ['Auguste Rodin'],
+		authorUnknown: false,
+		year: 1904,
+		beforeCommonEra: false,
+		yearApproximate: true,
+		typeCode: 'sculpture',
+		periods: ['19th century'],
+		styles: ['Impressionism', 'Symbolism'],
+		materials: ['Bronze'],
+		location: 'Musée Rodin',
+		notes: 'Seen in Paris.',
+		image: { kind: 'upload', path: 'user-id/thinker.jpg', width: 3, height: 4 }
+	};
+
+	it('fills every field from the saved artwork with empty queries', () => {
+		expect(artworkFormFromRecord(record)).toEqual({
+			title: 'The Thinker',
+			values: {
+				author: ['Auguste Rodin'],
+				period: ['19th century'],
+				style: ['Impressionism', 'Symbolism'],
+				material: ['Bronze'],
+				location: ['Musée Rodin']
+			},
+			queries: { author: '', period: '', style: '', material: '', location: '' },
+			authorUnknown: false,
+			year: '1904',
+			beforeCommonEra: false,
+			yearApproximate: true,
+			typeCode: 'sculpture',
+			notes: 'Seen in Paris.',
+			image: { kind: 'upload', path: 'user-id/thinker.jpg', width: 3, height: 4 }
+		});
+	});
+
+	it('leaves the year, type and location empty when the artwork has none', () => {
+		const form = artworkFormFromRecord({
+			...record,
+			year: null,
+			typeCode: null,
+			location: null,
+			authors: [],
+			authorUnknown: true
+		});
+
+		expect(form.year).toBe('');
+		expect(form.typeCode).toBe('');
+		expect(form.values.location).toEqual([]);
+		expect(form.authorUnknown).toBe(true);
+	});
+
+	it('gives back the same artwork input when nothing changes', () => {
+		const input = artworkInputFromForm(artworkFormFromRecord(record));
+
+		expect({ ...record, ...input }).toEqual(record);
 	});
 });
 

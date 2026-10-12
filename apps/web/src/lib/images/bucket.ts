@@ -3,6 +3,7 @@ import { locale } from '#lib/i18n/index.ts';
 export const IMAGES_BUCKET = 'artwork-images';
 export const OWN_IMAGE_MAX_MEGABYTES = 5;
 export const OWN_IMAGE_MAX_BYTES = OWN_IMAGE_MAX_MEGABYTES * 1024 * 1024;
+export const SIGNED_URL_SECONDS = 60 * 60;
 
 export const OWN_IMAGE_EXTENSIONS = {
 	'image/jpeg': 'jpg',

@@ -16,6 +16,7 @@
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
 	import {
+		artworkFormFromRecord,
 		artworkImageAlt,
 		artworkInputFromForm,
 		artworkTypeOptions,
@@ -30,19 +31,22 @@
 	import ArtworkImageField from './ArtworkImageField.svelte';
 	import type {
 		ArtworkFieldErrors,
+		ArtworkFormState,
+		ArtworkRecord,
 		CategoryCode,
 		CategoryValues,
 		ValueSuggestion
 	} from '../types.ts';
 
 	type Props = {
+		artwork?: ArtworkRecord;
 		categoryValues: CategoryValues;
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
 		onsaved: (number: number, next: boolean) => void | Promise<void>;
 	};
 
-	let { categoryValues, cancelHref, oncancel, onsaved }: Props = $props();
+	let { artwork, categoryValues, cancelHref, oncancel, onsaved }: Props = $props();
 
 	const titleId = 'artwork-title';
 	const typeOptions = artworkTypeOptions();
@@ -53,8 +57,8 @@
 		{ code: 'location', label: m.artworkForm.location }
 	];
 
-	let form = $state(emptyArtworkForm());
-	let saved = $state(emptyArtworkForm());
+	let form = $state(initialForm());
+	let saved = $state(initialForm());
 	let fieldErrors = $state<ArtworkFieldErrors>({});
 	let formError = $state('');
 	let saving = $state<'save' | 'next' | null>(null);
@@ -67,6 +71,10 @@
 
 	let imageSearchReady = $derived(canSearchImage(form));
 	let imageAlt = $derived(artworkImageAlt(form));
+
+	function initialForm(): ArtworkFormState {
+		return artwork ? artworkFormFromRecord(artwork) : emptyArtworkForm();
+	}
 
 	export function confirmLeave(): Promise<boolean> {
 		if (leaving || !formHasChanges(form, saved)) return Promise.resolve(true);
@@ -128,7 +136,10 @@
 		if (Object.keys(fieldErrors).length > 0) return;
 
 		saving = andNext ? 'next' : 'save';
-		const result = await saveArtwork(input);
+		const result = await saveArtwork(
+			input,
+			artwork ? { id: artwork.id, image: artwork.image } : undefined
+		);
 		if (!result.saved) {
 			fieldErrors = result.fieldErrors;
 			formError = result.error ?? '';
@@ -235,9 +246,11 @@
 		<Button href={cancelHref} onclick={oncancel}>
 			{m.artworkForm.cancel}
 		</Button>
-		<Button disabled={saving !== null} onclick={saveAndAddNext}>
-			{saving === 'next' ? m.artworkForm.saving : m.artworkForm.saveAndNext}
-		</Button>
+		{#if !artwork}
+			<Button disabled={saving !== null} onclick={saveAndAddNext}>
+				{saving === 'next' ? m.artworkForm.saving : m.artworkForm.saveAndNext}
+			</Button>
+		{/if}
 		<Button disabled={saving !== null} type="submit" variant="primary">
 			{saving === 'save' ? m.artworkForm.saving : m.artworkForm.save}
 		</Button>

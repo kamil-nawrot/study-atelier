@@ -3,10 +3,16 @@ import { StorageApiError } from '@supabase/supabase-js';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
 import { testSession } from '#lib/testing/auth.ts';
-import { IMAGES_BUCKET, OWN_IMAGE_MAX_BYTES, OWN_IMAGE_MAX_MEGABYTES } from './bucket.ts';
+import {
+	IMAGES_BUCKET,
+	OWN_IMAGE_MAX_BYTES,
+	OWN_IMAGE_MAX_MEGABYTES,
+	SIGNED_URL_SECONDS
+} from './bucket.ts';
 import {
 	ownImageFileError,
 	ownImagePath,
+	ownImageUrl,
 	parseImageUrl,
 	readImageSize,
 	removeOwnImage,
@@ -17,7 +23,7 @@ vi.mock('#lib/supabase.ts', () => ({
 	supabase: { auth: { getSession: vi.fn() }, storage: { from: vi.fn() } }
 }));
 
-const bucket = { upload: vi.fn(), remove: vi.fn() };
+const bucket = { upload: vi.fn(), remove: vi.fn(), createSignedUrl: vi.fn() };
 
 function file(type: string, size = 100, name = 'photo'): File {
 	return new File([new Uint8Array(size)], name, { type });
@@ -195,5 +201,31 @@ describe('uploadOwnImage', () => {
 
 		expect(supabase.storage.from).toHaveBeenCalledWith(IMAGES_BUCKET);
 		expect(bucket.remove).toHaveBeenCalledWith(['user-id/old.png']);
+	});
+});
+
+describe('ownImageUrl', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		vi.mocked(supabase.storage.from).mockReturnValue(bucket as never);
+	});
+
+	it('signs the uploaded file for an hour', async () => {
+		bucket.createSignedUrl.mockResolvedValue({
+			data: { signedUrl: 'https://storage.example.com/signed/old.png' },
+			error: null
+		});
+
+		await expect(ownImageUrl('user-id/old.png')).resolves.toBe(
+			'https://storage.example.com/signed/old.png'
+		);
+		expect(supabase.storage.from).toHaveBeenCalledWith(IMAGES_BUCKET);
+		expect(bucket.createSignedUrl).toHaveBeenCalledWith('user-id/old.png', SIGNED_URL_SECONDS);
+	});
+
+	it('returns nothing when the file cannot be signed', async () => {
+		bucket.createSignedUrl.mockResolvedValue({ data: null, error: new Error('Object not found') });
+
+		await expect(ownImageUrl('user-id/missing.png')).resolves.toBeUndefined();
 	});
 });
