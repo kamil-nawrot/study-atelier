@@ -92,7 +92,7 @@ The SvelteKit app in `apps/web/src`:
 - Unit tests (Vitest) cover every module with logic: validation, mapping, formatting and the domain functions that wrap Supabase (with the client mocked).
 - Components and pages have component tests named `<Name>.svelte.spec.ts` next to the component (for a route, `page.svelte.spec.ts` next to `+page.svelte`). They run in Chromium with Vitest browser mode; other tests run in Node ([ADR-0018](../decisions/0018-component-tests-in-vitest-browser-mode.md)).
 - Test names describe behaviour in a sentence ("rejects a short password and says how long it is").
-- Expected texts are read from `m`. A literal string is used only when the text itself is under test, for example a plural form.
+- Expected texts are read from `m`, and in `packages/ui` from `defaultUiMessages`. A literal string is used only when the text itself is under test, for example a plural form.
 - Component tests find elements the way a learner does: by role, label and visible text from `m`, not by component internals, so a refactor that keeps the behaviour keeps the tests green.
 - Supabase is never called from tests. A test mocks `#lib/supabase.ts` with `vi.mock` and returns results built with the helpers in `src/lib/testing/`, which use the real Supabase error classes. Navigation (`$app/navigation`) is mocked the same way.
 - Test data that is not UI text (addresses, passwords, sample titles) is made up, in English, and never real personal data, for example `learner@example.com`.
