@@ -78,6 +78,8 @@ export const pl = {
 		submit: 'Załóż konto',
 		submitting: 'Zakładanie konta…',
 		errorTitle: 'Nie udało się założyć konta',
+		accountExists: 'Konto z tym adresem już istnieje. Zaloguj się albo ustaw nowe hasło.',
+		forgotPassword: 'Ustaw nowe hasło',
 		haveAccount: 'Masz już konto?',
 		toSignIn: 'Zaloguj się'
 	},

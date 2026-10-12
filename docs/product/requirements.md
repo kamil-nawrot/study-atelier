@@ -84,7 +84,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 
 | ID | Requirement | Version |
 | --- | --- | --- |
-| R-26 | A learner creates an account with an email address and a password. The account becomes active after the learner confirms the email address through a link sent by email. | MVP |
+| R-26 | A learner creates an account with an email address and a password. The account becomes active after the learner confirms the email address through a link sent by email. Signing up with an address that already has an account says so and leads to sign-in or to setting a new password. | MVP |
 | R-27 | The learner signs in with their email address and password and stays signed in on that device until they sign out. | MVP |
 | R-28 | A learner who forgot their password can set a new one through a link sent by email. | MVP |
 | R-29 | A visitor who is not signed in first sees a short start page that says what the app is for and leads to sign-in and sign-up. A signed-in learner goes straight to their atelier. | MVP |

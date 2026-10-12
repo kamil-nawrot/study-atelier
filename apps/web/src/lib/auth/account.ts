@@ -4,6 +4,7 @@ import { authRedirectUrl } from './redirects.ts';
 
 export type SignUpResult = {
 	error?: string;
+	accountExists?: boolean;
 	signedIn: boolean;
 };
 
@@ -18,6 +19,9 @@ export async function signUp(email: string, password: string): Promise<SignUpRes
 		password,
 		options: { emailRedirectTo: authRedirectUrl('/') }
 	});
+	if (error?.code === 'user_already_exists' || data.user?.identities?.length === 0) {
+		return { accountExists: true, signedIn: false };
+	}
 	if (error) return { error: authErrorMessage(error), signedIn: false };
 	return { signedIn: data.session !== null };
 }
