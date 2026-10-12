@@ -94,5 +94,6 @@ The SvelteKit app in `apps/web/src`:
 - Test names describe behaviour in a sentence ("rejects a short password and says how long it is").
 - Expected texts are read from `m`, and in `packages/ui` from `defaultUiMessages`. A literal string is used only when the text itself is under test, for example a plural form.
 - Component tests find elements the way a learner does: by role, label and visible text from `m`, not by component internals, so a refactor that keeps the behaviour keeps the tests green.
+- A test of behaviour that depends on time (a message that disappears, a delay) uses fake timers and advances them with `vi.advanceTimersByTime`; it never waits for real time, which makes tests slow and unstable in CI. In browser mode fake only what the code uses, for example `vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] })`, so `expect.element` can still poll.
 - Supabase is never called from tests. A test mocks `#lib/supabase.ts` with `vi.mock` and returns results built with the helpers in `src/lib/testing/`, which use the real Supabase error classes. Navigation (`$app/navigation`) is mocked the same way.
 - Test data that is not UI text (addresses, passwords, sample titles) is made up, in English, and never real personal data, for example `learner@example.com`.
