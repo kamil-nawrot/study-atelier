@@ -1,13 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
-import {
-	emptyArtworkInput,
-	loadArtwork,
-	saveArtwork,
-	validateArtwork,
-	type ArtworkInput
-} from './artwork-record.ts';
+import { emptyArtworkInput, loadArtwork, saveArtwork, validateArtwork } from './artwork-record.ts';
+import type { ArtworkInput } from './types.ts';
 
 vi.mock('#lib/supabase.ts', () => ({
 	supabase: { from: vi.fn(), rpc: vi.fn() }

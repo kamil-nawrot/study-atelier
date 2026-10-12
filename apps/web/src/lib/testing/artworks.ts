@@ -1,4 +1,4 @@
-import type { WallArtwork } from '#lib/collection/artworks.ts';
+import type { WallArtwork } from '#lib/collection/types.ts';
 
 export function testArtwork(
 	number: number,

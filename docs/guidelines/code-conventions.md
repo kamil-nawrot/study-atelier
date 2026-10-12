@@ -39,9 +39,11 @@ The SvelteKit app in `apps/web/src`:
 | --- | --- |
 | `routes/` | Pages and layouts only (`+page.svelte`, `+layout.ts` and other SvelteKit files) |
 | `lib/<domain>/` | Code of one domain, for example `auth`, `i18n` or later `collection`: TypeScript modules at the top of the folder |
+| `lib/<domain>/types.ts` | Types the domain exports, for example `ArtworkInput` in `collection` |
 | `lib/<domain>/components/` | Svelte components that belong to that domain, for example `AuthLayout.svelte` |
 | `lib/supabase.ts` | The one Supabase client |
 
+- A type used by more than one module, or by views, lives in the domain's `types.ts`. A type used by one module only, such as the shape of rows a query returns, stays in that module.
 - Components used in more than one domain, or that know nothing about the app's data and routes, belong in `packages/ui` instead.
 - Files in `routes/` connect pieces: they read data, call domain functions and render components. Logic (Supabase calls, validation, mapping, formatting) lives in `lib/<domain>`.
 

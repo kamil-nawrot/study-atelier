@@ -9,22 +9,9 @@ import {
 import { supabase } from '#lib/supabase.ts';
 import { collectionErrorMessage } from './errors.ts';
 import { formatYear } from './format.ts';
+import type { AtelierResult, WallArtwork } from './types.ts';
 
-export type WallArtwork = {
-	id: string;
-	number: number;
-	title: string;
-	authors: string[];
-	date?: string;
-	image?: ArtworkTileImage;
-};
-
-export type AtelierResult = {
-	artworks: WallArtwork[];
-	error?: string;
-};
-
-export type ImageSize = {
+type ImageSize = {
 	width: number;
 	height: number;
 };
