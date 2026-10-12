@@ -4,7 +4,7 @@
 	import { innerWidth } from 'svelte/reactivity/window';
 	import { resolve } from '$app/paths';
 	import { columnCount, distribute, NO_IMAGE_RATIO } from '../masonry.ts';
-	import type { WallArtwork } from '../artworks.ts';
+	import type { WallArtwork } from '../types.ts';
 
 	type Props = {
 		artworks: WallArtwork[];
