@@ -135,7 +135,7 @@
 		display: flex;
 		align-items: stretch;
 		gap: var(--spacing-2);
-		padding: var(--spacing-3) var(--wall-inline);
+		padding: var(--spacing-3) var(--page-inline);
 		border-bottom: var(--border-width-hairline) solid var(--color-tag);
 		background: var(--color-bg);
 	}
@@ -163,10 +163,6 @@
 		display: grid;
 		gap: var(--spacing-6);
 		padding: var(--spacing-6) var(--wall-inline) var(--spacing-12);
-	}
-
-	.fill .bar {
-		padding-inline: var(--page-inline);
 	}
 
 	.fill .content {
@@ -289,7 +285,7 @@
 
 		.bar {
 			gap: var(--spacing-3);
-			padding: var(--spacing-4) var(--wall-inline);
+			padding: var(--spacing-4) var(--page-inline);
 		}
 
 		.content {

@@ -31,3 +31,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0025](0025-upload-the-own-image-when-the-artwork-is-saved.md) | Upload the learner's own image when the artwork is saved | accepted |
 | [0026](0026-artwork-view-as-a-stage-with-an-information-panel.md) | Show one artwork on a stage with an information panel beside it | accepted |
 | [0027](0027-artwork-view-refinements.md) | Label the closed artwork panel with vertical text, animate it and widen the top bar | accepted |
+| [0029](0029-full-width-top-bar-in-every-atelier-view.md) | Run the top bar of every atelier view across the full width of the page | accepted |

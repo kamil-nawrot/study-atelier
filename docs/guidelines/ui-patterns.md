@@ -12,12 +12,12 @@ How views and components look and behave, so every new screen stays consistent w
 ## Layout
 
 - Mobile first. There is one breakpoint, `@media (min-width: 768px)`. CSS variables cannot be used in media queries, so the number is written out and only this one is allowed.
-- Content width: forms and single-column panels use `--size-content-narrow` (400 px); text and lists use `--size-content-default` (720 px); the artwork wall and its top bar use `--size-content-wide` (1280 px) and are centred.
+- Content width: forms and single-column panels use `--size-content-narrow` (400 px); text and lists use `--size-content-default` (720 px); the artwork wall uses `--size-content-wide` (1280 px) and is centred.
 - Spacing between elements comes from the parent (`display: grid` or `flex` with `gap`). Elements do not set their own outer margins; `base.css` resets them.
 - Each route group has a layout component in its domain folder, for example `AuthLayout` for the sign-in screens. A view passes its content through snippets (`children`, `footer`).
-- Views of the signed-in learner use `AtelierLayout`: the menu as an icon rail from 768 px and as a drawer opened from the top bar on a phone, and a sticky top bar whose content the view passes as the `bar` snippet.
+- Views of the signed-in learner use `AtelierLayout`: the menu as an icon rail from 768 px and as a drawer opened from the top bar on a phone, and a sticky top bar whose content the view passes as the `bar` snippet. The top bar runs across the full width of the page beside the menu in every view ([ADR-0029](../decisions/0029-full-width-top-bar-in-every-atelier-view.md)): the way back and the view title on the left, the actions on the right. The title in the bar is small (`--font-size-sm`, medium weight), like the way back.
 - Motion is short and functional: a panel that opens or closes, such as the side menu, or a toast that appears and fades, transitions over `--duration-short`. Every transition sits inside `@media (prefers-reduced-motion: no-preference)`.
-- A search over a list is the library `SearchField` in the top bar. It filters as the learner types, and its accessible name comes from `label` because the bar has no room for a visible label. It is at most `--size-content-default` wide.
+- A search over a list is the library `SearchField` in the top bar. It filters as the learner types, and its accessible name comes from `label` because the bar has no room for a visible label. It is at most `--size-content-default` wide. On the wall its left edge stays in line with the wall, so it sets a start margin of half the space left beside `--size-content-wide`; this is the one element allowed its own outer margin.
 - An icon button inside a field (show password, clear search) fills the field's height and is separated from the text by a hairline vertical divider.
 - A button that acts on what was typed in one field (for example "Użyj" next to an image URL) is passed to `TextField` as its `action`. It stands next to the field, takes the field's height and keeps it when an error shows under the field.
 
@@ -104,7 +104,6 @@ How views and components look and behave, so every new screen stays consistent w
 - A featured artwork sits on the stage: `--color-stage-bg` behind it and `--color-stage-fg` and `--color-stage-fg-muted` for its caption. The stage is dark in both themes.
 - The artwork view ([ADR-0026](../decisions/0026-artwork-view-as-a-stage-with-an-information-panel.md)) puts the image on the stage, over a blurred copy of the same image under `--color-scrim`, with the information panel beside it. The panel lists every field in the order of the form; an empty field shows a muted dash, with "Nie wpisano" for screen readers. A view that fills the screen below the top bar, like this one, passes `fill` to `AtelierLayout`.
 - A panel that the learner can close leaves a narrow strip with a chevron and the panel name written vertically, which open it again. The panel opens and closes with the same width animation as the side menu, off under `prefers-reduced-motion`.
-- A view that fills the screen (`fill` on `AtelierLayout`) runs its top bar across the full width of the page; the wall keeps the bar aligned with its content.
 - Clicking an artwork image in a detail view opens it full screen on the stage background; Escape or the close button returns.
 
 ## Logo
