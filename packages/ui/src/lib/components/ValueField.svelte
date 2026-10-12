@@ -66,6 +66,7 @@
 	let input: HTMLInputElement | undefined = $state();
 	let open = $state(false);
 	let active = $state(0);
+	let quiet = false;
 
 	const expanded = $derived(open && !disabled && !full && ordered.length > 0);
 	const activeIndex = $derived(Math.min(active, ordered.length - 1));
@@ -82,16 +83,33 @@
 	async function pick(option: ValueOption): Promise<void> {
 		values = single ? [option.name] : [...values, option.name];
 		query = '';
-		open = false;
-		await tick();
-		if (single) control?.querySelector<HTMLButtonElement>('.remove')?.focus();
-		else input?.focus();
+		if (single) {
+			open = false;
+			await tick();
+			control?.querySelector<HTMLButtonElement>('.remove')?.focus();
+		} else {
+			show();
+			input?.focus();
+		}
 	}
 
-	async function remove(index: number): Promise<void> {
+	async function remove(index: number, event: MouseEvent): Promise<void> {
 		values = values.filter((_, i) => i !== index);
+		if (event.detail > 0) return;
 		await tick();
-		input?.focus();
+		const buttons = control?.querySelectorAll<HTMLButtonElement>('.remove') ?? [];
+		const next = buttons[Math.min(index, buttons.length - 1)];
+		if (next) {
+			next.focus();
+		} else {
+			quiet = true;
+			input?.focus();
+		}
+	}
+
+	function onfocus(): void {
+		if (quiet) quiet = false;
+		else show();
 	}
 
 	function onkeydown(event: KeyboardEvent): void {
@@ -163,7 +181,7 @@
 					<button
 						class="remove"
 						aria-label={texts.remove(value)}
-						onclick={() => remove(index)}
+						onclick={(event) => remove(index, event)}
 						title={texts.remove(value)}
 						type="button"
 					>
@@ -185,7 +203,7 @@
 			{disabled}
 			hidden={full}
 			onblur={() => (open = false)}
-			onfocus={show}
+			{onfocus}
 			oninput={show}
 			{onkeydown}
 			placeholder={values.length === 0 ? placeholder : undefined}
@@ -251,8 +269,13 @@
 		border-color: var(--color-danger);
 	}
 
+	.field:has(.control.disabled) label {
+		color: var(--color-fg-muted);
+	}
+
 	.control.disabled {
-		border-color: var(--color-fg-muted);
+		border-color: var(--color-tag);
+		background: var(--color-tag);
 		cursor: not-allowed;
 	}
 
@@ -287,6 +310,10 @@
 		color: var(--color-fg);
 	}
 
+	.remove:focus-visible {
+		outline-offset: calc(-1 * var(--border-width-base));
+	}
+
 	input {
 		flex: 1;
 		min-width: 120px;
@@ -309,6 +336,7 @@
 	}
 
 	input:disabled {
+		color: var(--color-fg-muted);
 		cursor: not-allowed;
 	}
 
