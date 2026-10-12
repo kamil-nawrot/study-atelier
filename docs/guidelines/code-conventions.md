@@ -86,6 +86,7 @@ The SvelteKit app in `apps/web/src`:
 - URLs of one image source are built in one module, `lib/images/<source>.ts` (for example `commons.ts`). Views and other domains call it instead of writing the URL themselves.
 - A request to a service that asks clients to identify themselves (for example the Wikimedia `Api-User-Agent` header) names the app and the repository URL. It never carries personal data such as an email address.
 - Requests to a rate-limited service are batched where the API allows it, and a 429 is retried at most once, after `Retry-After` ([ADR-0023](../decisions/0023-atelier-routes-and-commons-thumbnails.md)).
+- A SPARQL query to the Wikidata Query Service never follows a subclass path such as `wdt:P31/wdt:P279*`: it runs for tens of seconds and times out. Narrow the results with `FILTER EXISTS` and `FILTER NOT EXISTS` on specific properties and classes instead.
 
 ## Tests
 
