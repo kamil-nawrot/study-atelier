@@ -4,6 +4,7 @@ declare global {
 			email?: string;
 			highlight?: number;
 			saved?: number;
+			trashed?: number;
 		}
 
 		interface Platform {

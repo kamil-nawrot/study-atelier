@@ -9,7 +9,7 @@
 		tags: ['autodocs'],
 		args: { variant: 'secondary', disabled: false, fullWidth: false, children: text('Edit') },
 		argTypes: {
-			variant: { control: 'inline-radio', options: ['primary', 'secondary'] },
+			variant: { control: 'inline-radio', options: ['primary', 'secondary', 'danger'] },
 			children: { control: false }
 		}
 	});
@@ -18,6 +18,8 @@
 <Story name="Primary" args={{ variant: 'primary', children: text('Save') }} />
 
 <Story name="Secondary" />
+
+<Story name="Danger" args={{ variant: 'danger', children: text('Delete') }} />
 
 <Story name="Disabled" args={{ disabled: true }} />
 

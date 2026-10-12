@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { afterNavigate, goto } from '$app/navigation';
+import { moveToTrash } from '#lib/collection/trash.ts';
 import type { ArtworkRecord, LoadArtworkResult } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testSession } from '#lib/testing/auth.ts';
@@ -14,6 +15,7 @@ const navigation = vi.hoisted(() => ({
 
 vi.mock('$app/state', () => ({ page: navigation }));
 vi.mock('$app/navigation', () => ({ afterNavigate: vi.fn(), goto: vi.fn() }));
+vi.mock('#lib/collection/trash.ts', () => ({ moveToTrash: vi.fn() }));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
 const PIXEL = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
@@ -65,7 +67,7 @@ describe('artwork page', () => {
 		await expect
 			.element(page.getByRole('heading', { level: 1 }))
 			.toHaveTextContent('Girl with a Pearl Earring');
-		await expect.element(page.getByText('#0042')).toBeVisible();
+		await expect.element(page.getByText('#0042', { exact: true })).toBeVisible();
 		await expect.element(page.getByText('Johannes Vermeer', { exact: true })).toBeVisible();
 		await expect.element(page.getByText('ok. 1665', { exact: true })).toBeVisible();
 		await expect.element(page.getByText(m.artworkTypes.painting)).toBeVisible();
@@ -196,6 +198,9 @@ describe('artwork page', () => {
 		await expect
 			.element(page.getByRole('link', { name: m.artworkView.edit }))
 			.not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: m.artworkView.delete }))
+			.not.toBeInTheDocument();
 	});
 
 	it('names a record number that is not a number as it was typed', async () => {
@@ -233,6 +238,42 @@ describe('artwork page', () => {
 		await expect
 			.element(page.getByText(m.artworkForm.changesSaved('#0042')))
 			.not.toBeInTheDocument();
+		expect(goto).not.toHaveBeenCalled();
+	});
+	it('moves the artwork to the trash after the learner confirms', async () => {
+		vi.mocked(moveToTrash).mockResolvedValue({});
+		renderPage();
+
+		await page.getByRole('button', { name: m.artworkView.delete }).click();
+		const dialog = page.getByRole('alertdialog', { name: m.trash.moveTitle('#0042') });
+		await expect.element(dialog).toBeVisible();
+		await expect.element(dialog.getByText(m.trash.moveDescription)).toBeVisible();
+		await dialog.getByRole('button', { name: m.trash.move }).click();
+
+		expect(moveToTrash).toHaveBeenCalledWith('artwork-42');
+		expect(goto).toHaveBeenCalledWith('/atelier', { state: { trashed: 42 } });
+	});
+
+	it('keeps the artwork when the learner cancels', async () => {
+		renderPage();
+
+		await page.getByRole('button', { name: m.artworkView.delete }).click();
+		await page.getByRole('button', { name: m.trash.cancel }).click();
+
+		await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
+		expect(moveToTrash).not.toHaveBeenCalled();
+		expect(goto).not.toHaveBeenCalled();
+	});
+
+	it('shows an error in the dialog when moving to the trash fails', async () => {
+		vi.mocked(moveToTrash).mockResolvedValue({ error: m.artworkErrors.network });
+		renderPage();
+
+		await page.getByRole('button', { name: m.artworkView.delete }).click();
+		await page.getByRole('button', { name: m.trash.move }).click();
+
+		const dialog = page.getByRole('alertdialog');
+		await expect.element(dialog.getByText(m.artworkErrors.network)).toBeVisible();
 		expect(goto).not.toHaveBeenCalled();
 	});
 });
