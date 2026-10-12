@@ -23,10 +23,10 @@
 	let railExpanded = $state(false);
 	let signingOut = $state(false);
 	let drawer: HTMLDialogElement;
-	let drawerOpen = $state(false);
+	let drawerUsed = $state(false);
 
 	function openDrawer(): void {
-		drawerOpen = true;
+		drawerUsed = true;
 		drawer.showModal();
 	}
 
@@ -85,14 +85,8 @@
 		</main>
 	</div>
 
-	<dialog
-		bind:this={drawer}
-		class="drawer"
-		aria-label={m.menu.label}
-		onclick={closeDrawerOnLink}
-		onclose={() => (drawerOpen = false)}
-	>
-		{#if drawerOpen}
+	<dialog bind:this={drawer} class="drawer" aria-label={m.menu.label} onclick={closeDrawerOnLink}>
+		{#if drawerUsed}
 			<nav aria-label={m.menu.label}>
 				<div class="drawer-top">
 					<Logo label={m.app.name} size="sm" />
@@ -115,6 +109,7 @@
 
 <style>
 	.atelier {
+		--page-inline: var(--spacing-4);
 		display: flex;
 		min-height: 100dvh;
 	}
@@ -124,6 +119,7 @@
 	}
 
 	.main {
+		--wall-inline: max(var(--page-inline), calc((100% - var(--size-content-wide)) / 2));
 		flex: 1;
 		min-width: 0;
 	}
@@ -135,7 +131,7 @@
 		display: flex;
 		align-items: stretch;
 		gap: var(--spacing-2);
-		padding: var(--spacing-3) var(--spacing-4);
+		padding: var(--spacing-3) var(--wall-inline);
 		border-bottom: var(--border-width-hairline) solid var(--color-tag);
 		background: var(--color-bg);
 	}
@@ -162,7 +158,7 @@
 	.content {
 		display: grid;
 		gap: var(--spacing-6);
-		padding: var(--spacing-6) var(--spacing-4) var(--spacing-12);
+		padding: var(--spacing-6) var(--wall-inline) var(--spacing-12);
 	}
 
 	.menu {
@@ -190,6 +186,39 @@
 		background: var(--color-scrim);
 	}
 
+	@media (prefers-reduced-motion: no-preference) {
+		.rail {
+			transition: width var(--duration-short) ease-out;
+		}
+
+		.drawer,
+		.drawer::backdrop {
+			transition:
+				translate var(--duration-short) ease-out,
+				opacity var(--duration-short) ease-out,
+				overlay var(--duration-short) allow-discrete,
+				display var(--duration-short) allow-discrete;
+		}
+
+		.drawer:not([open]) {
+			translate: -100% 0;
+		}
+
+		.drawer:not([open])::backdrop {
+			opacity: 0;
+		}
+
+		@starting-style {
+			.drawer[open] {
+				translate: -100% 0;
+			}
+
+			.drawer[open]::backdrop {
+				opacity: 0;
+			}
+		}
+	}
+
 	.drawer nav {
 		display: flex;
 		flex-direction: column;
@@ -205,6 +234,10 @@
 	}
 
 	@media (min-width: 768px) {
+		.atelier {
+			--page-inline: var(--spacing-6);
+		}
+
 		.rail {
 			position: sticky;
 			top: 0;
@@ -243,11 +276,11 @@
 
 		.bar {
 			gap: var(--spacing-3);
-			padding: var(--spacing-4) var(--spacing-6);
+			padding: var(--spacing-4) var(--wall-inline);
 		}
 
 		.content {
-			padding: var(--spacing-8) var(--spacing-6) var(--spacing-12);
+			padding: var(--spacing-8) var(--wall-inline) var(--spacing-12);
 		}
 	}
 </style>

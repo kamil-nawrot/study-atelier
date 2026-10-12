@@ -89,6 +89,7 @@
 	.search {
 		flex: 1;
 		min-width: 0;
+		max-width: var(--size-content-default);
 	}
 
 	header {

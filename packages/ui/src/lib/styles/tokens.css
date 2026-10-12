@@ -56,12 +56,14 @@
 	--spacing-24: 96px;
 	--size-content-narrow: 400px;
 	--size-content-default: 720px;
+	--size-content-wide: 1280px;
 	--border-width-hairline: 1px;
 	--border-width-base: 2px;
 	--border-width-button: 4px;
 	--border-width-heavy: 8px;
 	--border-width-mat: 16px;
 	--border-radius-none: 0px;
+	--duration-short: 160ms;
 	--color-bg: var(--color-neutral-950);
 	--color-surface: var(--color-neutral-900);
 	--color-tag: var(--color-neutral-850);
