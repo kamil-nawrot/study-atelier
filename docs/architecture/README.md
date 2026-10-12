@@ -41,8 +41,8 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 
 ### Starting the app
 
-1. The page arrives with the library styles linked in its head, so it is dark from the first paint ([ADR-0028](../decisions/0028-loading-states-for-the-first-load-and-images.md)).
-2. The client `init` hook in `hooks.client.ts` mounts `LoadingScreen`; its logo mark appears after 300 ms.
+1. The Cloudflare worker renders the page shell. The server `handle` hook (`hooks.server.ts`) puts `LoadingScreen` into it, and the library styles are linked in its head, so the loading screen shows from the first paint; its logo mark appears after 300 ms ([ADR-0028](../decisions/0028-loading-states-for-the-first-load-and-images.md)).
+2. The client `init` hook in `hooks.client.ts` hydrates the loading screen.
 3. The root layout load reads the session from Supabase Auth; the route groups redirect by session, and the first view loads its data ([ADR-0016](../decisions/0016-supabase-auth-in-the-browser.md)).
 4. The root layout mounts and removes the loading screen.
 
