@@ -18,6 +18,7 @@ The app talks to the learner the way a museum curator talks to a visitor: it kno
 - Confirmations are brief and name what was done.
 - An artwork is named in a message by its record number written as everywhere else in the app, with `#` and four digits ("Zapisano dzieło #0012."), see the [glossary](glossary.md).
 - Buttons name the action ("Wyślij link"), not a generic "OK".
+- A hint may talk to the learner like a person ("Masz obraz w schowku? Po prostu naciśnij Ctrl+V.", "Jeśli wolisz, podaj po prostu adres obrazka"), as long as it stays short and says what to do.
 
 ## Examples
 
@@ -26,3 +27,5 @@ The app talks to the learner the way a museum curator talks to a visitor: it kno
 | Nieprawidłowy e-mail lub hasło. | E-mail albo hasło się nie zgadzają. Sprawdź oba pola albo ustaw nowe hasło. |
 | Za dużo prób w krótkim czasie. | Sporo prób w krótkim czasie. Odczekaj chwilę i spróbuj jeszcze raz. |
 | Wpisz nowe hasło do swojego konta. | Wybierz nowe hasło do swojego konta. |
+| Alternatywnie wprowadź adres URL obrazka. | Jeśli wolisz, podaj po prostu adres obrazka. |
+| Wklej obraz ze schowka skrótem Ctrl+V. | Masz obraz w schowku? Po prostu naciśnij Ctrl+V. |
