@@ -25,9 +25,10 @@ export function emptyCategoryValues(): CategoryValues {
 export function startingValues(category: CategoryCode): readonly string[] {
 	switch (category) {
 		case 'period':
+			return m.startingValues.period;
 		case 'style':
 		case 'material':
-			return m.startingValues[category];
+			return [...m.startingValues[category]].sort((a, b) => a.localeCompare(b, locale));
 		default:
 			return [];
 	}
