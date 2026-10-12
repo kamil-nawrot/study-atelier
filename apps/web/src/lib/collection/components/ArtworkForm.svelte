@@ -52,6 +52,7 @@
 	let { categoryValues, cancelHref, oncancel, onsaved }: Props = $props();
 
 	const titleId = 'artwork-title';
+	const findImageId = 'artwork-find-image';
 	const PREVIEW_WIDTH = 500;
 	const typeOptions = artworkTypeOptions();
 	const describedCategories: { code: Exclude<CategoryCode, 'author'>; label: string }[] = [
@@ -127,6 +128,12 @@
 
 	function pickImage(candidate: ImageCandidate): void {
 		form.image = imageFromCandidate(candidate);
+	}
+
+	async function removeImage(): Promise<void> {
+		form.image = null;
+		await tick();
+		document.getElementById(findImageId)?.focus();
 	}
 
 	function previewSrcset(file: string, width: number | null): string {
@@ -205,7 +212,11 @@
 				<p class="caption">{commonsCredit(commonsImage.licence, commonsImage.attribution)}</p>
 			{/if}
 			<div class="image-actions">
-				<Button disabled={!imageSearchReady} onclick={() => (imageSearchOpen = true)}>
+				<Button
+					id={findImageId}
+					disabled={!imageSearchReady}
+					onclick={() => (imageSearchOpen = true)}
+				>
 					<Icon icon={Search} size="sm" />
 					{commonsImage ? m.artworkForm.chooseOtherImage : m.artworkForm.findImage}
 				</Button>
@@ -214,7 +225,7 @@
 					{m.artworkForm.ownImage}
 				</Button>
 				{#if commonsImage}
-					<Button onclick={() => (form.image = null)}>
+					<Button onclick={removeImage}>
 						{m.artworkForm.removeImage}
 					</Button>
 				{/if}

@@ -443,7 +443,7 @@ describe('image search on the add artwork page', () => {
 		await expect
 			.element(page.getByRole('img', { name: 'The Milkmaid, Johannes Vermeer' }))
 			.not.toBeInTheDocument();
-		await expect.element(page.getByRole('button', { name: m.artworkForm.findImage })).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.artworkForm.findImage })).toHaveFocus();
 	});
 
 	it('says when the search failed and lets the learner search again', async () => {
