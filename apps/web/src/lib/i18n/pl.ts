@@ -211,6 +211,7 @@ export const pl = {
 	artworkView: {
 		back: 'Atelier',
 		edit: 'Edytuj',
+		delete: 'Usuń',
 		addImage: 'Dodaj zdjęcie',
 		information: 'Informacje',
 		showInformation: 'Pokaż informacje',
@@ -332,10 +333,29 @@ export const pl = {
 			'żelbet'
 		]
 	},
-	comingSoon: {
-		lead: 'Ten widok jest jeszcze w przygotowaniu.',
-		backToAtelier: 'Wróć do atelier',
-		trash: 'Kosz'
+	trash: {
+		title: 'Kosz',
+		emptyTitle: 'Kosz jest pusty.',
+		back: 'Wróć do atelier',
+		loadErrorTitle: 'Nie udało się wczytać kosza',
+		actionErrorTitle: 'Nie udało się zmienić kosza',
+		deletedOn: (date: string): string => `w koszu od ${date}`,
+		today: 'dziś',
+		restore: 'Przywróć',
+		restoring: 'Przywracanie…',
+		deleteForever: 'Usuń na zawsze',
+		cancel: 'Anuluj',
+		moveTitle: (number: string): string => `Przenieść ${number} do kosza?`,
+		moveDescription: 'Dzieło zniknie z atelier. Przywrócisz je z kosza.',
+		move: 'Przenieś do kosza',
+		moving: 'Przenoszenie…',
+		moved: (number: string): string => `Przeniesiono ${number} do kosza.`,
+		restored: (number: string): string => `Przywrócono ${number}.`,
+		deleteTitle: (number: string): string => `Usunąć ${number} na zawsze?`,
+		deleteDescription: (number: string): string =>
+			`Dzieło i Twoje zdjęcie znikną bezpowrotnie. Numer ${number} nie wróci do użycia.`,
+		deleting: 'Usuwanie…',
+		deleted: (number: string): string => `Usunięto ${number} na zawsze.`
 	}
 };
 

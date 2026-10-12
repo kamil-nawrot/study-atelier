@@ -1,11 +1,13 @@
 <script lang="ts">
 	import Plus from '@lucide/svelte/icons/plus';
-	import { Alert, Button, Icon, SearchField, Section } from '@study-atelier/ui';
+	import { onMount } from 'svelte';
+	import { Alert, Button, Icon, SearchField, Section, Toast } from '@study-atelier/ui';
 	import { replaceState } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import { formatRecordNumber } from '#lib/collection/format.ts';
 	import { filterByTitle } from '#lib/collection/search.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps, Snapshot } from './$types';
@@ -23,6 +25,14 @@
 	const HIGHLIGHT_MS = 2000;
 
 	let highlight = $state(page.state.highlight);
+	let toast: Toast;
+
+	onMount(() => {
+		const trashed = page.state.trashed;
+		if (trashed === undefined) return;
+		toast.show(m.trash.moved(formatRecordNumber(trashed)));
+		replaceState('', {});
+	});
 
 	$effect(() => {
 		if (highlight === undefined) return;
@@ -98,6 +108,8 @@
 		<ArtworkWall artworks={shown} {highlight} />
 	{/if}
 </AtelierLayout>
+
+<Toast bind:this={toast} />
 
 <style>
 	.search {

@@ -41,7 +41,7 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 
 ### Starting the app
 
-1. The Cloudflare worker renders the page shell. The server `handle` hook (`hooks.server.ts`) puts `LoadingScreen` into it, and the library styles are linked in its head, so the loading screen shows from the first paint; its logo mark appears after 300 ms ([ADR-0028](../decisions/0028-loading-states-for-the-first-load-and-images.md)).
+1. The Cloudflare worker renders the page shell. The server `handle` hook (`hooks.server.ts`) puts `LoadingScreen` into it, and the library styles are linked in its head, so the loading screen shows from the first paint; its logo mark appears after 300 ms ([ADR-0029](../decisions/0029-loading-states-for-the-first-load-and-images.md)).
 2. The client `init` hook in `hooks.client.ts` hydrates the loading screen.
 3. The root layout load reads the session from Supabase Auth; the route groups redirect by session, and the first view loads its data ([ADR-0016](../decisions/0016-supabase-auth-in-the-browser.md)).
 4. The root layout mounts and removes the loading screen.
@@ -94,6 +94,12 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 2. For an uploaded image it asks Supabase Storage for a signed URL, used only for the preview; the form keeps the storage path.
 3. The same form as adding starts from the loaded values, so "Odrzucić zmiany?" compares against them. There is no "Zapisz i dodaj kolejne".
 4. Saving passes the artwork's id and its loaded image to the save above, then replaces the edit page in the history with the artwork page, which confirms the save with a toast.
+
+### Deleting and restoring an artwork
+
+1. "Usuń" in the artwork view asks first, then sets `deleted_at` on the artwork (`moveToTrash` in `#lib/collection/trash.ts`) and returns to the wall, which confirms with a toast. Every other query filters on `deleted_at is null`, so the artwork disappears from the wall, the suggestions and its own pages ([ADR-0028](../decisions/0028-trash-as-a-list-with-confirmed-deletes.md)).
+2. `/atelier/trash` reads the artworks with `deleted_at` set, most recently deleted first, with the same images as the wall (`loadTrash` in `#lib/collection/artworks.ts`).
+3. "Przywróć" clears `deleted_at`; the record number stays. "Usuń na zawsze" asks first, deletes the row, whose values go with it, then removes the uploaded image from Storage. A failed storage removal leaves an orphaned file but no broken artwork. The record number counter never goes back, so the number is not reused ([R-2](../product/requirements.md#artworks)).
 
 ## 7. Deployment view
 

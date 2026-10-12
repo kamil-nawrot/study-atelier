@@ -43,6 +43,14 @@ describe('atelier page', () => {
 		await page.viewport(1280, 800);
 	});
 
+	it('confirms an artwork moved to the trash and clears the state', async () => {
+		navigation.state = { trashed: 42 };
+		renderAtelier();
+
+		await expect.element(page.getByText(m.trash.moved('#0042'))).toBeVisible();
+		expect(replaceState).toHaveBeenCalledWith('', {});
+	});
+
 	it('highlights the artwork just saved for a moment', async () => {
 		vi.useFakeTimers();
 		navigation.state = { highlight: 2 };

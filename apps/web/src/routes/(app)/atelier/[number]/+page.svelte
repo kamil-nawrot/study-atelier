@@ -1,14 +1,16 @@
 <script lang="ts">
 	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 	import Pencil from '@lucide/svelte/icons/pencil';
+	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
-	import { Alert, Button, Icon, Section, Toast } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, Icon, Section, Toast } from '@study-atelier/ui';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import ArtworkView from '#lib/collection/components/ArtworkView.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import { formatRecordNumber, parseRecordNumber } from '#lib/collection/format.ts';
+	import { moveToTrash } from '#lib/collection/trash.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps } from './$types';
 
@@ -18,6 +20,9 @@
 
 	let toast: Toast;
 	let cameFromWall = false;
+	let trashOpen = $state(false);
+	let moving = $state(false);
+	let trashError = $state<string>();
 
 	let number = $derived(parseRecordNumber(params.number));
 	let label = $derived(number === null ? params.number : formatRecordNumber(number));
@@ -42,6 +47,25 @@
 		void goto(artworkPath, { state: {}, shallow: true, replace: true });
 	});
 
+	function askToTrash(): void {
+		trashError = undefined;
+		trashOpen = true;
+	}
+
+	async function trash(): Promise<void> {
+		if (!data.artwork || moving) return;
+		moving = true;
+		trashError = undefined;
+		const { error } = await moveToTrash(data.artwork.id);
+		moving = false;
+		if (error) {
+			trashError = error;
+			return;
+		}
+		trashOpen = false;
+		await goto(atelierPath, { state: { trashed: data.artwork.number } });
+	}
+
 	function goBack(event: MouseEvent): void {
 		if (!cameFromWall) return;
 		event.preventDefault();
@@ -60,6 +84,12 @@
 				<Icon icon={Pencil} size="sm" />
 				<span class="label">
 					{m.artworkView.edit}
+				</span>
+			</Button>
+			<Button aria-label={m.artworkView.delete} onclick={askToTrash} variant="danger">
+				<Icon icon={Trash} size="sm" />
+				<span class="label">
+					{m.artworkView.delete}
 				</span>
 			</Button>
 		{/if}
@@ -87,6 +117,29 @@
 		</div>
 	{/if}
 </AtelierLayout>
+
+{#snippet trashErrorAlert()}
+	<Alert tone="danger">
+		{trashError}
+	</Alert>
+{/snippet}
+
+<Dialog
+	children={trashError ? trashErrorAlert : undefined}
+	description={m.trash.moveDescription}
+	size="small"
+	title={m.trash.moveTitle(label)}
+	bind:open={trashOpen}
+>
+	{#snippet footer()}
+		<Button onclick={() => (trashOpen = false)}>
+			{m.trash.cancel}
+		</Button>
+		<Button disabled={moving} onclick={trash} variant="primary">
+			{moving ? m.trash.moving : m.trash.move}
+		</Button>
+	{/snippet}
+</Dialog>
 
 <Toast bind:this={toast} />
 

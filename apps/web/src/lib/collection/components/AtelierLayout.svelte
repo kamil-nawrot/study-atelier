@@ -18,9 +18,10 @@
 		children: Snippet;
 		confirmLeave?: () => Promise<boolean>;
 		fill?: boolean;
+		wideBar?: boolean;
 	};
 
-	let { title, email, bar, children, confirmLeave, fill = false }: Props = $props();
+	let { title, email, bar, children, confirmLeave, fill = false, wideBar = fill }: Props = $props();
 
 	let railExpanded = $state(false);
 	let signingOut = $state(false);
@@ -50,7 +51,7 @@
 	<title>{m.app.pageTitle(title)}</title>
 </svelte:head>
 
-<div class="atelier" class:fill>
+<div class="atelier" class:fill class:wide-bar={wideBar}>
 	<nav class="rail" class:expanded={railExpanded} aria-label={m.menu.label}>
 		<button
 			class="toggle"
@@ -165,7 +166,7 @@
 		padding: var(--spacing-6) var(--wall-inline) var(--spacing-12);
 	}
 
-	.fill .bar {
+	.wide-bar .bar {
 		padding-inline: var(--page-inline);
 	}
 

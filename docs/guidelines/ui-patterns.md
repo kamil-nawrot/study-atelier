@@ -20,7 +20,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 ## Loading
 
-- Something that loads shows it only after `--duration-loading-delay` (300 ms), so a fast load shows nothing. With reduced motion a loading indicator stands still. Why it looks this way: [ADR-0028](../decisions/0028-loading-states-for-the-first-load-and-images.md).
+- Something that loads shows it only after `--duration-loading-delay` (300 ms), so a fast load shows nothing. With reduced motion a loading indicator stands still. Why it looks this way: [ADR-0029](../decisions/0029-loading-states-for-the-first-load-and-images.md).
 - The first app load is the full-screen `LoadingScreen`: the logo mark on the stage background, with one horizontal and one vertical stroke in its window. `hooks.server.ts` renders it into the page shell, `hooks.client.ts` takes it over, and the root layout removes it on its first mount.
 - An image that loads is primed: `Primer` lays two coats of faint strokes across its window, horizontal then vertical, in the muted text colour of the surface.
 - A form's running state stays in its submit label ("Zapisywanie…"); it does not get a loading indicator.
@@ -58,6 +58,7 @@ How views and components look and behave, so every new screen stays consistent w
 - `goto` is for navigation from code after an action, for example after a successful sign-in.
 - Each view has at most one `primary` button.
 - Sign out is shown in `--color-danger`, so it stands apart from the menu items that navigate.
+- A button that deletes is `variant="danger"`: an outline and text in `--color-danger`. The button that confirms the delete in its dialog stays `primary`.
 
 ## Messages
 
@@ -100,8 +101,8 @@ How views and components look and behave, so every new screen stays consistent w
 
 ## Artwork images
 
-- An artwork image sits in `Frame`: `list` in lists, `view` in a detail view or on a stage. The image keeps its proportions and never fills a thumbnail slot at the side.
-- Every artwork image is the library `ArtworkImage`, with the image's stored width and height. It holds the image's place until it loads, primes the window while it loads, tries once more after 3 seconds when it fails, and then shows "Nie udało się wczytać obrazu" with the `image-off` icon. Pass `surface="frame"` inside a `Frame` and `surface="stage"` directly on the stage, such as the full-screen view; the default is the paper passe-partout. A view styles the image through `:global(img)` inside its own container. A decorative copy of an image (a blurred backdrop) stays a plain `img`.
+- An artwork image sits in `Frame`: `list` in lists, `view` in a detail view or on a stage. The image keeps its proportions and never fills a thumbnail slot at the side. The exception is the trash list, where the thumbnail is cropped to 4:5 on the paper passe-partout, so every row has the same height ([ADR-0028](../decisions/0028-trash-as-a-list-with-confirmed-deletes.md)).
+- Every artwork image is the library `ArtworkImage`, with the image's stored width and height. It holds the image's place until it loads, primes the window while it loads, tries once more after 3 seconds when it fails, and then shows "Nie udało się wczytać obrazu" with the `image-off` icon. Pass `surface="frame"` inside a `Frame` and `surface="stage"` directly on the stage, such as the full-screen view; the default is the paper passe-partout. A view styles the image through `:global(img)` inside its own container. A decorative copy of an image (a blurred backdrop) and the small cropped thumbnails of the trash list stay a plain `img`.
 - In the collection each artwork is an `ArtworkTile`: the image on a solid paper passe-partout, 8 px on the top and sides, with the title, authors and date on the wider bottom edge and the record number on the image. The passe-partout stays paper in both themes (`--color-mat-*`).
 - After an artwork is saved, the wall opens at the top and its tile carries an outline in `--color-fg` for about two seconds, which then fades over `--duration-short`.
 - After an edited artwork is saved, its page opens in place of the edit form in the browser history, so going back never returns to the form, and a `Toast` confirms "Zapisano zmiany w #0012.".
@@ -112,7 +113,8 @@ How views and components look and behave, so every new screen stays consistent w
 - A featured artwork sits on the stage: `--color-stage-bg` behind it and `--color-stage-fg` and `--color-stage-fg-muted` for its caption. The stage is dark in both themes.
 - The artwork view ([ADR-0026](../decisions/0026-artwork-view-as-a-stage-with-an-information-panel.md)) puts the image on the stage, over a blurred copy of the same image under `--color-scrim`, with the information panel beside it. The panel lists every field in the order of the form; an empty field shows a muted dash, with "Nie wpisano" for screen readers. A view that fills the screen below the top bar, like this one, passes `fill` to `AtelierLayout`.
 - A panel that the learner can close leaves a narrow strip with a chevron and the panel name written vertically, which open it again. The panel opens and closes with the same width animation as the side menu, off under `prefers-reduced-motion`.
-- A view that fills the screen (`fill` on `AtelierLayout`) runs its top bar across the full width of the page; the wall keeps the bar aligned with its content.
+- A view that fills the screen (`fill` on `AtelierLayout`) runs its top bar across the full width of the page; the wall keeps the bar aligned with its content. The trash also has the full-width bar (`wideBar`), with "Atelier" and a back arrow on the left and its title as the page heading below the bar (ATL-70 moves the remaining views to the same bar).
+- Moving an artwork to the trash and deleting it permanently each ask first with a small `Dialog` ("Przenieść #0012 do kosza?", "Usunąć #0012 na zawsze?"); restoring does not. A `Toast` confirms each of the three ("Przeniesiono #0012 do kosza.", "Przywrócono #0012.", "Usunięto #0012 na zawsze."). An error stays in an `Alert` in the dialog, or above the list for restoring.
 - Clicking an artwork image in a detail view opens it full screen on the stage background; Escape or the close button returns.
 
 ## Logo
