@@ -31,7 +31,7 @@
 		font-size: var(--font-size-sm);
 		font-weight: var(--font-weight-regular);
 		line-height: var(--line-height-xs);
-		white-space: nowrap;
+		max-width: 100%;
 	}
 
 	.label::before {

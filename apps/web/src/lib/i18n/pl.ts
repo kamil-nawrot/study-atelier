@@ -206,6 +206,17 @@ export const pl = {
 		keepEditing: 'Wróć do formularza',
 		discard: 'Odrzuć'
 	},
+	artworkView: {
+		back: 'Atelier',
+		edit: 'Edytuj',
+		addImage: 'Dodaj zdjęcie',
+		information: 'Informacje',
+		showInformation: 'Pokaż informacje',
+		hideInformation: 'Zamknij informacje',
+		openImage: 'Powiększ zdjęcie',
+		closeImage: 'Zamknij powiększenie',
+		empty: 'Nie wpisano'
+	},
 	imageSearch: {
 		title: 'Które to dzieło?',
 		description: (title: string, authors: string): string =>
@@ -322,8 +333,6 @@ export const pl = {
 	comingSoon: {
 		lead: 'Ten widok jest jeszcze w przygotowaniu.',
 		backToAtelier: 'Wróć do atelier',
-		artwork: (number: string): string => `Dzieło ${number}`,
-		edit: 'Edytuj',
 		trash: 'Kosz'
 	}
 };
