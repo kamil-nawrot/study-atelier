@@ -12,12 +12,11 @@
 		OWN_IMAGE_MAX_MEGABYTES,
 		ownImageFormats
 	} from '#lib/images/bucket.ts';
-	import { COMMONS_THUMBNAIL_WIDTHS, commonsFileUrl, commonsSrcset } from '#lib/images/commons.ts';
 	import ImageSearchDialog from '#lib/images/components/ImageSearchDialog.svelte';
-	import { commonsCredit } from '#lib/images/credit.ts';
 	import { ownImageFileError, parseImageUrl, readImageSize } from '#lib/images/own-image.ts';
 	import type { ImageCandidate } from '#lib/images/types.ts';
 	import { imageFromCandidate } from '../artwork-form.ts';
+	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
 	import type { ArtworkImageInput } from '../types.ts';
 
 	type Props = {
@@ -44,27 +43,8 @@
 	let loadingUrl = $state(false);
 	let fileInput = $state<HTMLInputElement>();
 
-	let preview = $derived(
-		image?.kind === 'commons'
-			? {
-					src: commonsFileUrl(image.file, COMMONS_PREVIEW_WIDTH),
-					srcset: commonsPreviewSrcset(image.file, image.width),
-					sizes: '(min-width: 768px) 40vw, 100vw',
-					width: image.width ?? undefined,
-					height: image.height ?? undefined
-				}
-			: image?.kind === 'file'
-				? { src: image.previewUrl, width: image.width, height: image.height }
-				: image?.kind === 'url'
-					? { src: image.url, width: image.width ?? undefined, height: image.height ?? undefined }
-					: image?.kind === 'upload' && image.previewUrl
-						? {
-								src: image.previewUrl,
-								width: image.width ?? undefined,
-								height: image.height ?? undefined
-							}
-						: undefined
-	);
+	let preview = $derived(artworkImageSource(image, COMMONS_PREVIEW_WIDTH));
+	let credit = $derived(artworkImageCredit(image));
 	let ownImage = $derived(image !== null && image.kind !== 'commons');
 
 	$effect(() => {
@@ -73,13 +53,6 @@
 			if (previewUrl) URL.revokeObjectURL(previewUrl);
 		};
 	});
-
-	function commonsPreviewSrcset(file: string, width: number | null): string {
-		return commonsSrcset(
-			file,
-			COMMONS_THUMBNAIL_WIDTHS.filter((size) => width === null || size <= width)
-		);
-	}
 
 	function pickCandidate(candidate: ImageCandidate): void {
 		image = imageFromCandidate(candidate);
@@ -151,7 +124,7 @@
 				<img
 					{alt}
 					height={preview.height}
-					sizes={preview.sizes}
+					sizes="(min-width: 768px) 40vw, 100vw"
 					src={preview.src}
 					srcset={preview.srcset}
 					width={preview.width}
@@ -162,14 +135,8 @@
 				</div>
 			{/if}
 		</div>
-		{#if image?.kind === 'commons'}
-			<figcaption class="caption">{commonsCredit(image.licence, image.attribution)}</figcaption>
-		{:else if image?.kind === 'url'}
-			<figcaption class="caption">
-				{m.artworkForm.ownImageUrlCredit(new URL(image.url).hostname)}
-			</figcaption>
-		{:else if ownImage}
-			<figcaption class="caption">{m.artworkForm.ownImageCredit}</figcaption>
+		{#if credit}
+			<figcaption class="caption">{credit}</figcaption>
 		{/if}
 	</figure>
 

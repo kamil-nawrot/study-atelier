@@ -75,6 +75,12 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 4. The function inserts or updates the artwork, creates the names the learner does not have yet, replaces the artwork's value links and returns the record number, all in one transaction ([ADR-0024](../decisions/0024-save-an-artwork-in-one-database-function.md)).
 5. If the save failed, the file uploaded in step 2 is removed. If it succeeded and the artwork's previous uploaded file was replaced or removed, that file is removed.
 
+### Viewing an artwork
+
+1. `/atelier/<record number>` reads the artwork the same way as the edit page, without the category values (`loadArtwork`), and shows the same not-found state ([ADR-0026](../decisions/0026-artwork-view-as-a-stage-with-an-information-panel.md)).
+2. The stage and the full-screen view take the image from `#lib/collection/artwork-image.ts`: Commons widths up to the stored width, or the image URL, or the signed URL of an uploaded image.
+3. Whether the information panel is closed is kept in the browser's `localStorage` (`#lib/collection/artwork-panel.ts`); without storage the panel is always open.
+
 ### Editing an artwork
 
 1. `/atelier/<record number>/edit` reads the artwork by record number with its values, outside the trash, together with the category values (`loadArtwork` in `#lib/collection/artwork-record.ts`). A record number that is not a positive whole number, an unknown one or one in the trash shows a not-found state.
