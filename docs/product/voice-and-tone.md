@@ -16,6 +16,7 @@ The app talks to the learner the way a museum curator talks to a visitor: it kno
 
 - Errors say what went wrong in plain words and what the learner can do about it. They never blame the learner.
 - Confirmations are brief and name what was done.
+- An artwork is named in a message by its record number written as everywhere else in the app, with `#` and four digits ("Zapisano dzieło #0012."), see the [glossary](glossary.md).
 - Buttons name the action ("Wyślij link"), not a generic "OK".
 
 ## Examples
