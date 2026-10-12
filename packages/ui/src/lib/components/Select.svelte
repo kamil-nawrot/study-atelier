@@ -6,6 +6,7 @@
 </script>
 
 <script lang="ts">
+	import type { LucideIcon } from '@lucide/svelte';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import type { HTMLSelectAttributes } from 'svelte/elements';
 	import Icon from './Icon.svelte';
@@ -17,6 +18,8 @@
 		placeholder?: string;
 		hint?: string;
 		error?: string;
+		icon?: LucideIcon;
+		compact?: boolean;
 	};
 
 	let {
@@ -26,6 +29,8 @@
 		placeholder,
 		hint,
 		error,
+		icon,
+		compact = false,
 		id,
 		...rest
 	}: Props = $props();
@@ -36,9 +41,14 @@
 	const message = $derived(error ?? hint);
 </script>
 
-<div class="field">
+<div class="field" class:compact>
 	<label for={selectId}>{label}</label>
 	<div class="control" class:invalid={!!error}>
+		{#if icon}
+			<span class="glyph">
+				<Icon {icon} />
+			</span>
+		{/if}
 		<select
 			id={selectId}
 			aria-describedby={message ? messageId : undefined}
@@ -131,6 +141,43 @@
 		padding: 0 var(--spacing-3);
 		color: var(--color-fg-muted);
 		pointer-events: none;
+	}
+
+	.glyph {
+		display: none;
+	}
+
+	.compact label {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+
+	@media (max-width: 767.98px) {
+		.compact .control {
+			width: var(--size-control);
+		}
+
+		.compact .glyph {
+			position: absolute;
+			inset: 0;
+			display: grid;
+			place-content: center;
+			color: var(--color-fg);
+			pointer-events: none;
+		}
+
+		.compact select {
+			padding: 0;
+			color: transparent;
+		}
+
+		.compact .chevron {
+			display: none;
+		}
 	}
 
 	.message {

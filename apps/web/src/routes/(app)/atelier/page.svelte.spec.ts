@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { page } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto, replaceState } from '$app/navigation';
 import type { WallArtwork } from '#lib/collection/types.ts';
@@ -8,6 +8,7 @@ import { supabase } from '#lib/supabase.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { pending, TEST_EMAIL, testSession } from '#lib/testing/auth.ts';
 import AtelierPage from './+page.svelte';
+import '@study-atelier/ui/styles.css';
 
 const navigation = vi.hoisted(() => ({
 	state: {} as App.PageState,
@@ -32,6 +33,44 @@ function renderAtelier(list: WallArtwork[] = artworks, error?: string): void {
 	render(AtelierPage, { data: { session: testSession(), artworks: list, error }, params: {} });
 }
 
+const dated = [
+	testArtwork(1, 'Mona Lisa', { year: 1503, periods: ['Renesans'] }),
+	testArtwork(2, 'Water Lilies', { year: 1906, periods: ['Impresjonizm'] }),
+	testArtwork(3, 'Impression, Sunrise', { year: 1872, periods: ['Impresjonizm'] }),
+	testArtwork(4, 'Untitled study', { year: 1800, periods: [] })
+];
+
+function manyPeriods(): WallArtwork[] {
+	return [
+		['Renesans', 1500],
+		['Barok', 1650],
+		['Impresjonizm', 1870]
+	].flatMap(([period, year], block) =>
+		[0, 1, 2, 3].map((position) =>
+			testArtwork(block * 4 + position + 1, `${period} ${position + 1}`, {
+				year: (year as number) + position,
+				periods: [period as string]
+			})
+		)
+	);
+}
+
+function orderSelect(): ReturnType<typeof page.getByRole> {
+	return page.getByRole('combobox', { name: m.atelier.sort.label });
+}
+
+function titlesOnTheWall(list: WallArtwork[]): string[] {
+	return page
+		.getByRole('link')
+		.elements()
+		.flatMap((link) => list.find((artwork) => link.textContent?.includes(artwork.title)) ?? [])
+		.map((artwork) => artwork.title);
+}
+
+function scrollToTheEnd(): void {
+	window.scrollTo({ top: document.documentElement.scrollHeight });
+}
+
 function searchField(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('searchbox', { name: m.atelier.search });
 }
@@ -40,6 +79,8 @@ describe('atelier page', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
 		navigation.state = {};
+		localStorage.clear();
+		window.scrollTo({ top: 0 });
 		await page.viewport(1280, 800);
 	});
 
@@ -212,6 +253,163 @@ describe('atelier page', () => {
 
 			await expect.element(page.getByRole('link', { name: m.atelier.add })).toBeVisible();
 			await expect.element(page.getByText(m.atelier.add, { exact: true })).not.toBeVisible();
+		});
+	});
+
+	describe('ordered by period', () => {
+		it('offers the order next to the search, most recently added first', async () => {
+			renderAtelier(dated);
+
+			await expect.element(orderSelect()).toHaveDisplayValue(m.atelier.sort.recent);
+			expect(titlesOnTheWall(dated)).toEqual([
+				'Mona Lisa',
+				'Water Lilies',
+				'Impression, Sunrise',
+				'Untitled study'
+			]);
+		});
+
+		it('shows periods by their earliest year with artworks by year and hides those without a period', async () => {
+			renderAtelier(dated);
+
+			await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
+
+			await expect.element(page.getByText(m.atelier.filteredCount(3, 4))).toBeVisible();
+			expect(titlesOnTheWall(dated)).toEqual(['Mona Lisa', 'Impression, Sunrise', 'Water Lilies']);
+		});
+
+		it('puts an artwork with several periods under the first one', async () => {
+			const both = [
+				testArtwork(1, 'Late Work', { year: 1700, periods: ['Barok', 'Renesans'] }),
+				testArtwork(2, 'Early Work', { year: 1500, periods: ['Renesans'] })
+			];
+			renderAtelier(both);
+
+			await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
+
+			expect(titlesOnTheWall(both)).toEqual(['Early Work', 'Late Work']);
+			await expect.element(page.getByText(m.atelier.count(2))).toBeVisible();
+		});
+
+		it('searches inside the order', async () => {
+			renderAtelier(dated);
+			await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
+
+			await searchField().fill('water');
+
+			expect(titlesOnTheWall(dated)).toEqual(['Water Lilies']);
+			await expect.element(page.getByText(m.atelier.filteredCount(1, 4))).toBeVisible();
+		});
+
+		it('remembers the order on the device', async () => {
+			const view = await render(AtelierPage, {
+				data: { session: testSession(), artworks: dated },
+				params: {}
+			});
+			await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
+			await view.unmount();
+
+			renderAtelier(dated);
+
+			await expect.element(orderSelect()).toHaveDisplayValue(m.atelier.sort.period);
+			expect(titlesOnTheWall(dated)).toEqual(['Mona Lisa', 'Impression, Sunrise', 'Water Lilies']);
+		});
+
+		it('says no artwork has a period yet and goes back to the recent order', async () => {
+			renderAtelier(artworks);
+			await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
+
+			await expect
+				.element(page.getByRole('heading', { level: 2 }))
+				.toHaveTextContent(m.atelier.periods.emptyTitle);
+
+			await page.getByRole('button', { name: m.atelier.periods.showRecent }).click();
+
+			await expect.element(orderSelect()).toHaveDisplayValue(m.atelier.sort.recent);
+			await expect.element(page.getByText('Starry Night')).toBeVisible();
+		});
+
+		it('keeps the order select enabled only when there are artworks', async () => {
+			renderAtelier([]);
+
+			await expect.element(orderSelect()).toBeDisabled();
+		});
+
+		describe('on a phone', () => {
+			beforeEach(async () => {
+				await page.viewport(390, 800);
+			});
+
+			it('shows the order select as an icon and keeps its name', async () => {
+				renderAtelier(dated);
+
+				await expect.element(orderSelect()).toBeVisible();
+				expect(orderSelect().element().getBoundingClientRect().width).toBeLessThanOrEqual(48);
+			});
+
+			it('follows the scroll in a strip under the top bar', async () => {
+				renderAtelier(manyPeriods());
+				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
+
+				const strip = page.getByRole('complementary', { name: m.atelier.periods.label });
+				await expect.element(strip).toHaveTextContent('Renesans');
+				await expect.element(strip).toHaveTextContent('1500 – 1503');
+
+				scrollToTheEnd();
+
+				await expect.element(strip).toHaveTextContent('Impresjonizm');
+				await expect.element(strip).toHaveTextContent('1870 – 1873');
+			});
+
+			it('has no strip in the recent order', async () => {
+				renderAtelier(manyPeriods());
+
+				await expect
+					.element(page.getByRole('complementary', { name: m.atelier.periods.label }))
+					.not.toBeInTheDocument();
+			});
+		});
+
+		describe('on a wide screen', () => {
+			beforeEach(async () => {
+				await page.viewport(1900, 900);
+			});
+
+			it('shows the rail at the right edge instead of the strip', async () => {
+				renderAtelier(manyPeriods());
+				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
+
+				const rail = page.getByRole('complementary', { name: m.atelier.periods.label });
+				await expect.element(rail).toBeVisible();
+				await expect.element(rail).toHaveTextContent('Barok');
+				expect(rail.element().getBoundingClientRect().right).toBe(
+					document.documentElement.clientWidth
+				);
+				expect(page.getByRole('complementary').elements()).toHaveLength(1);
+			});
+
+			it('highlights the first period at the top and the last one at the end', async () => {
+				renderAtelier(manyPeriods());
+				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
+				const rail = page.getByRole('complementary', { name: m.atelier.periods.label });
+				const current = rail.getByRole('listitem').filter({ hasText: /./ });
+
+				await expect
+					.element(current.filter({ hasText: 'Renesans' }))
+					.toHaveAttribute('aria-current', 'true');
+				expect(rail.getByRole('listitem').elements()[0].getBoundingClientRect().top).toBe(
+					rail.element().getBoundingClientRect().top
+				);
+
+				scrollToTheEnd();
+
+				await expect
+					.element(current.filter({ hasText: 'Impresjonizm' }))
+					.toHaveAttribute('aria-current', 'true');
+				await expect
+					.element(current.filter({ hasText: 'Renesans' }))
+					.not.toHaveAttribute('aria-current');
+			});
 		});
 	});
 });

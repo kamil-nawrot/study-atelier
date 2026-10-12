@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { controlHeight, outlinedHeight } from '../testing/control-height';
+import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
 import Select, { type SelectOption } from './Select.svelte';
 
 const types: SelectOption[] = [
@@ -72,5 +73,28 @@ describe('Select', () => {
 
 		const select = page.getByRole('combobox', { name: 'Type' }).element();
 		expect(outlinedHeight(select, '.control')).toBe(controlHeight());
+	});
+
+	it('keeps its name for assistive technology when compact', async () => {
+		render(Select, { label: 'Order', options: types, icon: ArrowUpDown, compact: true });
+
+		await expect.element(page.getByRole('combobox', { name: 'Order' })).toBeInTheDocument();
+	});
+
+	it('shrinks to the icon on a phone and shows the chosen text on a larger screen', async () => {
+		render(Select, {
+			label: 'Order',
+			options: types,
+			icon: ArrowUpDown,
+			compact: true,
+			value: 'painting'
+		});
+		const control = page.getByRole('combobox', { name: 'Order' }).element().closest('.control');
+
+		await page.viewport(400, 800);
+		expect(control?.getBoundingClientRect().width).toBe(controlHeight());
+
+		await page.viewport(1280, 800);
+		expect(control?.getBoundingClientRect().width).toBeGreaterThan(controlHeight());
 	});
 });
