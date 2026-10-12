@@ -3,7 +3,7 @@
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
 	import X from '@lucide/svelte/icons/x';
-	import { Button, Icon, Tag } from '@study-atelier/ui';
+	import { ArtworkImage, Button, Icon, Tag } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
 	import { formatRecordNumber, formatYear } from '../format.ts';
@@ -77,7 +77,7 @@
 			<img class="backdrop" alt="" aria-hidden="true" src={image.src} />
 			<button class="open" aria-label={m.artworkView.openImage} onclick={openViewer} type="button">
 				<span class="mat">
-					<img
+					<ArtworkImage
 						{alt}
 						height={image.height}
 						sizes="(min-width: 768px) 60vw, 100vw"
@@ -175,7 +175,15 @@
 
 <dialog bind:this={viewer} class="viewer" aria-label={alt}>
 	{#if viewerUsed && fullImage}
-		<img {alt} sizes="100vw" src={fullImage.src} srcset={fullImage.srcset} />
+		<ArtworkImage
+			{alt}
+			height={fullImage.height}
+			sizes="100vw"
+			src={fullImage.src}
+			srcset={fullImage.srcset}
+			surface="stage"
+			width={fullImage.width}
+		/>
 	{/if}
 	<button
 		class="icon-button close"
@@ -241,7 +249,7 @@
 		background: var(--color-mat-bg);
 	}
 
-	.mat img {
+	.mat :global(img) {
 		display: block;
 		width: auto;
 		max-width: 100%;
@@ -367,7 +375,7 @@
 		place-items: center;
 	}
 
-	.viewer img {
+	.viewer :global(img) {
 		display: block;
 		max-width: 100vw;
 		max-height: 100dvh;
@@ -395,7 +403,7 @@
 			padding: var(--spacing-4) var(--spacing-4) var(--spacing-6);
 		}
 
-		.mat img {
+		.mat :global(img) {
 			max-width: calc(100cqw - 2 * var(--spacing-4));
 			max-height: calc(100cqh - var(--spacing-12) - var(--spacing-8));
 		}

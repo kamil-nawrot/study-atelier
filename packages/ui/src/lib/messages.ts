@@ -9,6 +9,8 @@ export type UiMessages = {
 	removeTag: string;
 	unknownAuthor: string;
 	noImage: string;
+	imageFailed: string;
+	loading: string;
 	clearSearch: string;
 	closeDialog: string;
 	valueField: {
@@ -33,6 +35,8 @@ export const defaultUiMessages: UiMessages = {
 	removeTag: 'Remove tag',
 	unknownAuthor: 'Unknown author',
 	noImage: 'No image',
+	imageFailed: 'The image did not load',
+	loading: 'Loading',
 	clearSearch: 'Clear search',
 	closeDialog: 'Close',
 	valueField: {

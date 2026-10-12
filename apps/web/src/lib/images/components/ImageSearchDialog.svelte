@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import { tick, untrack } from 'svelte';
-	import { Alert, Button, Dialog, Icon } from '@study-atelier/ui';
+	import { Alert, ArtworkImage, Button, Dialog, Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { findImageCandidates } from '../image-search.ts';
 	import type { ImageCandidate, ImageSearchResult } from '../types.ts';
@@ -96,7 +96,7 @@
 				<li>
 					{#if candidate.image}
 						<button class="candidate" onclick={() => pick(candidate)} type="button">
-							<img
+							<ArtworkImage
 								alt=""
 								height={candidate.image.height}
 								sizes="(min-width: 768px) 220px, 50vw"
@@ -164,7 +164,7 @@
 		cursor: pointer;
 	}
 
-	img {
+	.candidate :global(img) {
 		display: block;
 		width: 100%;
 		height: auto;

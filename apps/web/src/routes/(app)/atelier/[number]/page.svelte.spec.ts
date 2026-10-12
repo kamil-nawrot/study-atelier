@@ -18,7 +18,7 @@ vi.mock('$app/navigation', () => ({ afterNavigate: vi.fn(), goto: vi.fn() }));
 vi.mock('#lib/collection/trash.ts', () => ({ moveToTrash: vi.fn() }));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
-const PIXEL = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+const IMAGE = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50"/>')}`;
 
 function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 	return {
@@ -36,7 +36,7 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 		materials: ['Oil', 'Canvas'],
 		location: 'Mauritshuis',
 		notes: 'A tronie, not a portrait.',
-		image: { kind: 'url', url: PIXEL, width: 4, height: 5 },
+		image: { kind: 'url', url: IMAGE, width: 40, height: 50 },
 		...overrides
 	};
 }
@@ -137,7 +137,7 @@ describe('artwork page', () => {
 		await page.getByRole('button', { name: m.artworkView.openImage }).click();
 		const viewer = page.getByRole('dialog');
 		await expect.element(viewer).toBeVisible();
-		await expect.element(viewer.getByRole('img')).toHaveAttribute('src', PIXEL);
+		await expect.element(viewer.getByRole('img')).toHaveAttribute('src', IMAGE);
 
 		await page.getByRole('button', { name: m.artworkView.closeImage }).click();
 		await expect.element(viewer).not.toBeInTheDocument();

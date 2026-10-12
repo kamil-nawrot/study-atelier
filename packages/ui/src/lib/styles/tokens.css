@@ -64,6 +64,7 @@
 	--border-width-mat: 16px;
 	--border-radius-none: 0px;
 	--duration-short: 160ms;
+	--duration-loading-delay: 300ms;
 	--color-bg: var(--color-neutral-950);
 	--color-surface: var(--color-neutral-900);
 	--color-tag: var(--color-neutral-850);

@@ -16,6 +16,8 @@ export const pl = {
 		removeTag: 'Usuń tag',
 		unknownAuthor: 'Autor nieznany',
 		noImage: 'Brak obrazu',
+		imageFailed: 'Nie udało się wczytać obrazu',
+		loading: 'Wczytywanie',
 		clearSearch: 'Wyczyść wyszukiwanie',
 		closeDialog: 'Zamknij',
 		valueField: {

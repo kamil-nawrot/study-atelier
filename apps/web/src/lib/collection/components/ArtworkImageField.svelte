@@ -5,7 +5,7 @@
 	import Trash from '@lucide/svelte/icons/trash';
 	import Upload from '@lucide/svelte/icons/upload';
 	import { tick } from 'svelte';
-	import { Button, Dialog, Icon, TextField } from '@study-atelier/ui';
+	import { ArtworkImage, Button, Dialog, Icon, TextField } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import {
 		OWN_IMAGE_ACCEPT,
@@ -121,7 +121,7 @@
 	<figure class="picture">
 		<div class="mat">
 			{#if preview}
-				<img
+				<ArtworkImage
 					{alt}
 					height={preview.height}
 					sizes="(min-width: 768px) 40vw, 100vw"
@@ -226,7 +226,7 @@
 		background: var(--color-mat-bg);
 	}
 
-	img {
+	.mat :global(img) {
 		display: block;
 		width: 100%;
 		height: auto;
