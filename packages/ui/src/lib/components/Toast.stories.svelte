@@ -20,7 +20,7 @@
 	let next = $state(12);
 
 	function save(target: Toast | undefined): void {
-		target?.show(`Artwork ${String(next).padStart(4, '0')} saved.`);
+		target?.show(`Artwork #${String(next).padStart(4, '0')} saved.`);
 		next += 1;
 	}
 </script>
@@ -53,7 +53,7 @@
 			<Button
 				onclick={() =>
 					longToast?.show(
-						'Artwork 0012 saved. The form is empty again, so you can add the next artwork right away.'
+						'Artwork #0012 saved. The form is empty again, so you can add the next artwork right away.'
 					)}
 			>
 				Show

@@ -21,34 +21,34 @@ describe('Toast', () => {
 	it('shows the message in the status region and hides it after the duration', async () => {
 		const { component } = await render(Toast, { duration: 5000 });
 
-		component.show('Artwork 0012 saved.');
+		component.show('Artwork #0012 saved.');
 
-		await expect.element(page.getByRole('status')).toHaveTextContent('Artwork 0012 saved.');
+		await expect.element(page.getByRole('status')).toHaveTextContent('Artwork #0012 saved.');
 		vi.advanceTimersByTime(4900);
-		await expect.element(page.getByText('Artwork 0012 saved.')).toBeVisible();
+		await expect.element(page.getByText('Artwork #0012 saved.')).toBeVisible();
 		vi.advanceTimersByTime(100);
-		await expect.element(page.getByText('Artwork 0012 saved.')).not.toBeInTheDocument();
+		await expect.element(page.getByText('Artwork #0012 saved.')).not.toBeInTheDocument();
 	});
 
 	it('replaces the visible message and counts the duration again', async () => {
 		const { component } = await render(Toast, { duration: 5000 });
 
-		component.show('Artwork 0012 saved.');
+		component.show('Artwork #0012 saved.');
 		vi.advanceTimersByTime(3000);
-		component.show('Artwork 0013 saved.');
+		component.show('Artwork #0013 saved.');
 
-		await expect.element(page.getByText('Artwork 0012 saved.')).not.toBeInTheDocument();
+		await expect.element(page.getByText('Artwork #0012 saved.')).not.toBeInTheDocument();
 		vi.advanceTimersByTime(4900);
-		await expect.element(page.getByText('Artwork 0013 saved.')).toBeVisible();
+		await expect.element(page.getByText('Artwork #0013 saved.')).toBeVisible();
 		vi.advanceTimersByTime(100);
-		await expect.element(page.getByText('Artwork 0013 saved.')).not.toBeInTheDocument();
+		await expect.element(page.getByText('Artwork #0013 saved.')).not.toBeInTheDocument();
 	});
 
 	it('stays while the pointer is over it', async () => {
 		const { component } = await render(Toast, { duration: 5000 });
 
-		component.show('Artwork 0012 saved.');
-		const toast = page.getByText('Artwork 0012 saved.');
+		component.show('Artwork #0012 saved.');
+		const toast = page.getByText('Artwork #0012 saved.');
 		await userEvent.hover(toast);
 		vi.advanceTimersByTime(10000);
 		await expect.element(toast).toBeVisible();
