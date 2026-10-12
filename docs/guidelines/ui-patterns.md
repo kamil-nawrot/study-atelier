@@ -4,7 +4,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 ## Tokens
 
-- Views and components use only semantic tokens: `--color-bg`, `--color-fg`, `--color-fg-muted`, `--color-line`, `--color-surface`, `--color-stage-*`, `--size-content-*` and the scales for spacing, type and borders. Palette tokens such as `--color-neutral-950` are used only inside `design/tokens.json`.
+- Views and components use only semantic tokens: `--color-bg`, `--color-fg`, `--color-fg-muted`, `--color-line`, `--color-surface`, `--color-stage-*`, `--size-content-*`, `--duration-*` and the scales for spacing, type and borders. Palette tokens such as `--color-neutral-950` are used only inside `design/tokens.json`.
 - When a view needs a colour or size with a new role, add a semantic token for that role instead of reaching for the palette or a literal value.
 - Spacing is a multiple of 4 from the `--spacing-*` scale. Border widths come from `--border-width-*`; corners are square (`--border-radius-none`); there are no shadows.
 - A literal value is fine only for something that belongs to one component and has no shared role, for example the height of the artwork stage on a phone.
@@ -12,11 +12,13 @@ How views and components look and behave, so every new screen stays consistent w
 ## Layout
 
 - Mobile first. There is one breakpoint, `@media (min-width: 768px)`. CSS variables cannot be used in media queries, so the number is written out and only this one is allowed.
-- Content width: forms and single-column panels use `--size-content-narrow` (400 px); text and lists use `--size-content-default` (720 px).
+- Content width: forms and single-column panels use `--size-content-narrow` (400 px); text and lists use `--size-content-default` (720 px); the artwork wall and its top bar use `--size-content-wide` (1280 px) and are centred.
 - Spacing between elements comes from the parent (`display: grid` or `flex` with `gap`). Elements do not set their own outer margins; `base.css` resets them.
 - Each route group has a layout component in its domain folder, for example `AuthLayout` for the sign-in screens. A view passes its content through snippets (`children`, `footer`).
 - Views of the signed-in learner use `AtelierLayout`: the menu as an icon rail from 768 px and as a drawer opened from the top bar on a phone, and a sticky top bar whose content the view passes as the `bar` snippet.
-- A search over a list is the library `SearchField` in the top bar. It filters as the learner types, and its accessible name comes from `label` because the bar has no room for a visible label.
+- Motion is short and functional: a panel that opens or closes, such as the side menu, transitions over `--duration-short`. Every transition sits inside `@media (prefers-reduced-motion: no-preference)`.
+- A search over a list is the library `SearchField` in the top bar. It filters as the learner types, and its accessible name comes from `label` because the bar has no room for a visible label. It is at most `--size-content-default` wide.
+- An icon button inside a field (show password, clear search) fills the field's height and is separated from the text by a hairline vertical divider.
 
 ## Text roles
 
@@ -46,6 +48,7 @@ How views and components look and behave, so every new screen stays consistent w
 - `Button` without `href` is for actions on the current page: submit a form, sign out, resend a message.
 - `goto` is for navigation from code after an action, for example after a successful sign-in.
 - Each view has at most one `primary` button.
+- Sign out is shown in `--color-danger`, so it stands apart from the menu items that navigate.
 
 ## Messages
 

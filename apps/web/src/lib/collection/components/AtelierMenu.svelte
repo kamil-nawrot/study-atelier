@@ -50,7 +50,7 @@
 			{m.menu.trash}
 		</span>
 	</a>
-	<button class="item muted" disabled={signingOut} onclick={onsignout} type="button">
+	<button class="item danger" disabled={signingOut} onclick={onsignout} type="button">
 		<Icon icon={LogOut} />
 		<span class="label">
 			{m.menu.signOut}
@@ -96,6 +96,10 @@
 
 	.muted {
 		color: var(--color-fg-muted);
+	}
+
+	.danger {
+		color: var(--color-danger);
 	}
 
 	button.item:disabled {
