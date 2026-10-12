@@ -1,53 +1,60 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import Toast from './Toast.svelte';
 
-function wait(ms: number): Promise<void> {
-	return new Promise((resolve) => setTimeout(resolve, ms));
-}
+beforeEach(() => {
+	vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+});
+
+afterEach(() => {
+	vi.useRealTimers();
+});
 
 describe('Toast', () => {
 	it('keeps an empty status region on the page until a message is shown', async () => {
-		render(Toast);
+		await render(Toast);
 
-		await expect.element(page.getByRole('status')).toBeInTheDocument();
-		await expect.element(page.getByRole('status')).toHaveTextContent('');
+		await expect.element(page.getByRole('status')).toHaveTextContent(/^$/);
 	});
 
 	it('shows the message in the status region and hides it after the duration', async () => {
-		const { component } = await render(Toast, { duration: 300 });
+		const { component } = await render(Toast, { duration: 5000 });
 
 		component.show('Artwork 0012 saved.');
 
 		await expect.element(page.getByRole('status')).toHaveTextContent('Artwork 0012 saved.');
+		vi.advanceTimersByTime(4900);
 		await expect.element(page.getByText('Artwork 0012 saved.')).toBeVisible();
+		vi.advanceTimersByTime(100);
 		await expect.element(page.getByText('Artwork 0012 saved.')).not.toBeInTheDocument();
 	});
 
 	it('replaces the visible message and counts the duration again', async () => {
-		const { component } = await render(Toast, { duration: 400 });
+		const { component } = await render(Toast, { duration: 5000 });
 
 		component.show('Artwork 0012 saved.');
-		await wait(250);
+		vi.advanceTimersByTime(3000);
 		component.show('Artwork 0013 saved.');
-		await wait(250);
 
-		await expect.element(page.getByText('Artwork 0013 saved.')).toBeVisible();
 		await expect.element(page.getByText('Artwork 0012 saved.')).not.toBeInTheDocument();
+		vi.advanceTimersByTime(4900);
+		await expect.element(page.getByText('Artwork 0013 saved.')).toBeVisible();
+		vi.advanceTimersByTime(100);
+		await expect.element(page.getByText('Artwork 0013 saved.')).not.toBeInTheDocument();
 	});
 
 	it('stays while the pointer is over it', async () => {
-		const { component } = await render(Toast, { duration: 600 });
+		const { component } = await render(Toast, { duration: 5000 });
 
 		component.show('Artwork 0012 saved.');
 		const toast = page.getByText('Artwork 0012 saved.');
 		await userEvent.hover(toast);
-		await wait(800);
-
+		vi.advanceTimersByTime(10000);
 		await expect.element(toast).toBeVisible();
 
 		await userEvent.unhover(toast);
+		vi.advanceTimersByTime(5000);
 		await expect.element(toast).not.toBeInTheDocument();
 	});
 
