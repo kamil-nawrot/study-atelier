@@ -33,7 +33,10 @@ jobs:
       - name: Type check and token CSS check
         run: pnpm --filter @study-atelier/ui check
 
-      - name: Unit tests
+      - name: Install Playwright Chromium
+        run: pnpm --filter @study-atelier/ui exec playwright install --with-deps --only-shell chromium
+
+      - name: Unit and component tests
         run: pnpm --filter @study-atelier/ui test
 
       - name: Build Storybook

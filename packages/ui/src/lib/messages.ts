@@ -10,6 +10,15 @@ export type UiMessages = {
 	unknownAuthor: string;
 	noImage: string;
 	clearSearch: string;
+	valueField: {
+		existing: string;
+		starting: string;
+		similar: (name: string) => string;
+		useSimilar: string;
+		add: (name: string) => string;
+		addAnyway: (name: string) => string;
+		remove: (name: string) => string;
+	};
 };
 
 export const defaultUiMessages: UiMessages = {
@@ -23,7 +32,16 @@ export const defaultUiMessages: UiMessages = {
 	removeTag: 'Remove tag',
 	unknownAuthor: 'Unknown author',
 	noImage: 'No image',
-	clearSearch: 'Clear search'
+	clearSearch: 'Clear search',
+	valueField: {
+		existing: 'Already used',
+		starting: 'Starting list',
+		similar: (name) => `You already have “${name}”`,
+		useSimilar: 'Use this value',
+		add: (name) => `+ Add “${name}”`,
+		addAnyway: (name) => `+ Add “${name}” anyway`,
+		remove: (name) => `Remove ${name}`
+	}
 };
 
 const contextKey = Symbol('ui-messages');
