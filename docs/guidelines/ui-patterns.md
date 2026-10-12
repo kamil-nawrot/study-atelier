@@ -68,6 +68,8 @@ How views and components look and behave, so every new screen stays consistent w
 - Fields are `TextField`, `TextArea` (longer text such as notes), `Checkbox` and future library inputs, each with a visible label and the right `autocomplete` value.
 - A single choice from a fixed list (for example the artwork type) is a `Select`, with an empty first option such as "Nie wybrano" passed as `placeholder` when the field is optional.
 - A category value (authors, period, style, material, location) is a `ValueField`: the chosen values are tags inside the field, and the suggestion list under it shows what the app passes as `options`. Which values to suggest, and whether a new value may be created, is decided in the app, not in the component.
+- A disabled field looks the same in every library input: a flat `--color-tag` fill instead of the outline, with the label and the text in `--color-fg-muted`.
+- After a value is picked in a `ValueField` that takes many values, the suggestion list stays open for the next one. Removing a value with the mouse leaves focus where it was; with the keyboard, focus moves to the next remove button, or to the field without opening the list.
 - On a phone, form fields take the full content width, and so do an image that belongs to the form and the buttons under it.
 - The flow on submit:
   1. Validate every field and clear the form error.
