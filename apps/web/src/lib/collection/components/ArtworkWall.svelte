@@ -68,7 +68,6 @@
 
 	li {
 		opacity: 0;
-		transition: opacity 1s ease;
 	}
 
 	li:global(.shown) {
@@ -86,7 +85,9 @@
 
 	@media (prefers-reduced-motion: no-preference) {
 		li {
-			transition: outline-color var(--duration-short) ease-out;
+			transition:
+				opacity 1s ease,
+				outline-color var(--duration-short) ease-out;
 		}
 	}
 </style>
