@@ -88,6 +88,12 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 3. The same form as adding starts from the loaded values, so "Odrzucić zmiany?" compares against them. There is no "Zapisz i dodaj kolejne".
 4. Saving passes the artwork's id and its loaded image to the save above, then replaces the edit page in the history with the artwork page, which confirms the save with a toast.
 
+### Deleting and restoring an artwork
+
+1. "Usuń" in the artwork view asks first, then sets `deleted_at` on the artwork (`moveToTrash` in `#lib/collection/trash.ts`) and returns to the wall, which confirms with a toast. Every other query filters on `deleted_at is null`, so the artwork disappears from the wall, the suggestions and its own pages ([ADR-0028](../decisions/0028-trash-as-a-list-with-confirmed-deletes.md)).
+2. `/atelier/trash` reads the artworks with `deleted_at` set, most recently deleted first, with the same images as the wall (`loadTrash` in `#lib/collection/artworks.ts`).
+3. "Przywróć" clears `deleted_at`; the record number stays. "Usuń na zawsze" asks first, deletes the row, whose values go with it, then removes the uploaded image from Storage. A failed storage removal leaves an orphaned file but no broken artwork. The record number counter never goes back, so the number is not reused ([R-2](../product/requirements.md#artworks)).
+
 ## 7. Deployment view
 
 - The web app is a SvelteKit build for Cloudflare Pages, project `study-atelier`.

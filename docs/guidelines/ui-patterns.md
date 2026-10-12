@@ -15,7 +15,7 @@ How views and components look and behave, so every new screen stays consistent w
 - Content width: forms and single-column panels use `--size-content-narrow` (400 px); text and lists use `--size-content-default` (720 px); the artwork wall uses `--size-content-wide` (1280 px) and is centred.
 - Spacing between elements comes from the parent (`display: grid` or `flex` with `gap`). Elements do not set their own outer margins; `base.css` resets them.
 - Each route group has a layout component in its domain folder, for example `AuthLayout` for the sign-in screens. A view passes its content through snippets (`children`, `footer`).
-- Views of the signed-in learner use `AtelierLayout`: the menu as an icon rail from 768 px and as a drawer opened from the top bar on a phone, and a sticky top bar whose content the view passes as the `bar` snippet. The top bar runs across the full width of the page beside the menu in every view ([ADR-0029](../decisions/0029-full-width-top-bar-in-every-atelier-view.md)): the way back and the view title on the left, the actions on the right. The title in the bar is small (`--font-size-sm`, medium weight), like the way back.
+- Views of the signed-in learner use `AtelierLayout`: the menu as an icon rail from 768 px and as a drawer opened from the top bar on a phone, and a sticky top bar whose content the view passes as the `bar` snippet. The top bar runs across the full width of the page beside the menu in every view ([ADR-0029](../decisions/0029-full-width-top-bar-in-every-atelier-view.md)): the way back, the view title or both on the left, the actions on the right. A title in the bar is small (`--font-size-sm`, medium weight), like the way back.
 - Motion is short and functional: a panel that opens or closes, such as the side menu, or a toast that appears and fades, transitions over `--duration-short`. Every transition sits inside `@media (prefers-reduced-motion: no-preference)`.
 - A search over a list is the library `SearchField` in the top bar. It filters as the learner types, and its accessible name comes from `label` because the bar has no room for a visible label. It is at most `--size-content-default` wide. On the wall its left edge stays in line with the wall, so it sets a start margin of half the space left beside `--size-content-wide`; this is the one element allowed its own outer margin.
 - An icon button inside a field (show password, clear search) fills the field's height and is separated from the text by a hairline vertical divider.
@@ -51,6 +51,7 @@ How views and components look and behave, so every new screen stays consistent w
 - `goto` is for navigation from code after an action, for example after a successful sign-in.
 - Each view has at most one `primary` button.
 - Sign out is shown in `--color-danger`, so it stands apart from the menu items that navigate.
+- A button that deletes is `variant="danger"`: an outline and text in `--color-danger`. The button that confirms the delete in its dialog stays `primary`.
 
 ## Messages
 
@@ -93,7 +94,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 ## Artwork images
 
-- An artwork image sits in `Frame`: `list` in lists, `view` in a detail view or on a stage. The image keeps its proportions and never fills a thumbnail slot at the side.
+- An artwork image sits in `Frame`: `list` in lists, `view` in a detail view or on a stage. The image keeps its proportions and never fills a thumbnail slot at the side. The exception is the trash list, where the thumbnail is cropped to 4:5 on the paper passe-partout, so every row has the same height ([ADR-0028](../decisions/0028-trash-as-a-list-with-confirmed-deletes.md)).
 - In the collection each artwork is an `ArtworkTile`: the image on a solid paper passe-partout, 8 px on the top and sides, with the title, authors and date on the wider bottom edge and the record number on the image. The passe-partout stays paper in both themes (`--color-mat-*`).
 - After an artwork is saved, the wall opens at the top and its tile carries an outline in `--color-fg` for about two seconds, which then fades over `--duration-short`.
 - After an edited artwork is saved, its page opens in place of the edit form in the browser history, so going back never returns to the form, and a `Toast` confirms "Zapisano zmiany w #0012.".
@@ -104,6 +105,7 @@ How views and components look and behave, so every new screen stays consistent w
 - A featured artwork sits on the stage: `--color-stage-bg` behind it and `--color-stage-fg` and `--color-stage-fg-muted` for its caption. The stage is dark in both themes.
 - The artwork view ([ADR-0026](../decisions/0026-artwork-view-as-a-stage-with-an-information-panel.md)) puts the image on the stage, over a blurred copy of the same image under `--color-scrim`, with the information panel beside it. The panel lists every field in the order of the form; an empty field shows a muted dash, with "Nie wpisano" for screen readers. A view that fills the screen below the top bar, like this one, passes `fill` to `AtelierLayout`.
 - A panel that the learner can close leaves a narrow strip with a chevron and the panel name written vertically, which open it again. The panel opens and closes with the same width animation as the side menu, off under `prefers-reduced-motion`.
+- Moving an artwork to the trash and deleting it permanently each ask first with a small `Dialog` ("Przenieść #0012 do kosza?", "Usunąć #0012 na zawsze?"); restoring does not. A `Toast` confirms each of the three ("Przeniesiono #0012 do kosza.", "Przywrócono #0012.", "Usunięto #0012 na zawsze."). An error stays in an `Alert` in the dialog, or above the list for restoring.
 - Clicking an artwork image in a detail view opens it full screen on the stage background; Escape or the close button returns.
 
 ## Logo

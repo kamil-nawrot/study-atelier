@@ -3,7 +3,7 @@ import { IMAGES_BUCKET } from '#lib/images/bucket.ts';
 import { fetchCommonsThumbnails } from '#lib/images/commons.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
-import { DEFAULT_IMAGE_SIZE, loadAtelier } from './artworks.ts';
+import { DEFAULT_IMAGE_SIZE, loadAtelier, loadTrash } from './artworks.ts';
 
 vi.mock('#lib/images/commons.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/images/commons.ts')>()),
@@ -16,6 +16,7 @@ vi.mock('#lib/supabase.ts', () => ({
 const query = {
 	select: vi.fn(),
 	is: vi.fn(),
+	not: vi.fn(),
 	order: vi.fn()
 };
 const createSignedUrls = vi.fn();
@@ -32,6 +33,7 @@ function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 		own_image_url: null,
 		image_width: null,
 		image_height: null,
+		deleted_at: null,
 		artwork_values: [],
 		...overrides
 	};
@@ -181,6 +183,67 @@ describe('loadAtelier', () => {
 		});
 
 		await expect(loadAtelier()).resolves.toEqual({
+			artworks: [],
+			error: m.collectionErrors.network
+		});
+	});
+});
+
+describe('loadTrash', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		vi.mocked(supabase.from).mockReturnValue(query as never);
+		vi.mocked(supabase.storage.from).mockReturnValue({ createSignedUrls } as never);
+		query.select.mockReturnValue(query);
+		query.not.mockReturnValue(query);
+		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map());
+	});
+
+	it('asks for artworks in the trash, most recently deleted first', async () => {
+		query.order.mockResolvedValue({ data: [], error: null });
+
+		await expect(loadTrash()).resolves.toEqual({ artworks: [] });
+		expect(query.not).toHaveBeenCalledWith('deleted_at', 'is', null);
+		expect(query.order).toHaveBeenCalledWith('deleted_at', { ascending: false });
+	});
+
+	it('adds when each artwork was deleted and the path of its uploaded image', async () => {
+		createSignedUrls.mockResolvedValue({
+			data: [{ path: 'owner/image.jpg', signedUrl: 'https://signed.example/image.jpg' }],
+			error: null
+		});
+		query.order.mockResolvedValue({
+			data: [
+				row({
+					own_image_path: 'owner/image.jpg',
+					deleted_at: '2026-10-12T14:00:00+00:00',
+					artwork_values: [author('First Author', 0)]
+				})
+			],
+			error: null
+		});
+
+		const { artworks } = await loadTrash();
+
+		expect(artworks).toEqual([
+			expect.objectContaining({
+				number: 1,
+				authors: ['First Author'],
+				deletedAt: '2026-10-12T14:00:00+00:00',
+				ownImagePath: 'owner/image.jpg',
+				image: expect.objectContaining({ src: 'https://signed.example/image.jpg' })
+			})
+		]);
+		expect(supabase.storage.from).toHaveBeenCalledWith(IMAGES_BUCKET);
+	});
+
+	it('returns a mapped message when loading fails', async () => {
+		query.order.mockResolvedValue({
+			data: null,
+			error: { code: '', message: 'TypeError: Failed to fetch' }
+		});
+
+		await expect(loadTrash()).resolves.toEqual({
 			artworks: [],
 			error: m.collectionErrors.network
 		});

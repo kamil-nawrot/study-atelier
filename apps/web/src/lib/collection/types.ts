@@ -14,6 +14,16 @@ export type AtelierResult = {
 	error?: string;
 };
 
+export type TrashArtwork = WallArtwork & {
+	deletedAt: string;
+	ownImagePath: string | null;
+};
+
+export type TrashResult = {
+	artworks: TrashArtwork[];
+	error?: string;
+};
+
 export type ArtworkTypeCode =
 	| 'architecture'
 	| 'painting'

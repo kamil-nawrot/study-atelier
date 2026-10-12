@@ -29,6 +29,8 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-33 | The learner views an artwork on its own page with its image and every field; a field that is not filled in is shown as empty, so the learner sees what is still missing ([ADR-0026](../decisions/0026-artwork-view-as-a-stage-with-an-information-panel.md)). | MVP |
 | R-34 | From the artwork page the learner can open the image full screen. | MVP |
 | R-23 | Deleting an artwork moves it to the trash. From the trash the learner can restore it or delete it permanently. Artworks in the trash are hidden from the collection and from suggestions. | MVP |
+| R-35 | Moving an artwork to the trash and deleting it permanently each ask the learner to confirm first ([ADR-0028](../decisions/0028-trash-as-a-list-with-confirmed-deletes.md)). | MVP |
+| R-36 | The trash lists the deleted artworks, newest first, with the date each was deleted; the learner restores or permanently deletes them one at a time. | MVP |
 | R-2 | Every artwork gets a record number shown as `#0001`, `#0002`, ... in order of creation. A number is never reused: a permanently deleted artwork leaves a gap, and a restored one keeps its number. | MVP |
 | R-3 | An artwork has the fields listed in [Artwork fields](#artwork-fields). | MVP |
 | R-4 | Only the title and the author are required. Instead of an author, the learner can mark the author as unknown. | MVP |
@@ -84,7 +86,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 
 | ID | Requirement | Version |
 | --- | --- | --- |
-| R-26 | A learner creates an account with an email address and a password. The account becomes active after the learner confirms the email address through a link sent by email. | MVP |
+| R-26 | A learner creates an account with an email address and a password. The account becomes active after the learner confirms the email address through a link sent by email. Signing up with an address that already has an account says so and leads to sign-in or to setting a new password. | MVP |
 | R-27 | The learner signs in with their email address and password and stays signed in on that device until they sign out. | MVP |
 | R-28 | A learner who forgot their password can set a new one through a link sent by email. | MVP |
 | R-29 | A visitor who is not signed in first sees a short start page that says what the app is for and leads to sign-in and sign-up. A signed-in learner goes straight to their atelier. | MVP |
