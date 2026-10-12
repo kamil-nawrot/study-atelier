@@ -16,7 +16,7 @@ How views and components look and behave, so every new screen stays consistent w
 - Spacing between elements comes from the parent (`display: grid` or `flex` with `gap`). Elements do not set their own outer margins; `base.css` resets them.
 - Each route group has a layout component in its domain folder, for example `AuthLayout` for the sign-in screens. A view passes its content through snippets (`children`, `footer`).
 - `AuthLayout` (the start page and the sign-in screens) shows the artwork twice from 768 px: as the background under `--color-scrim` and in a `Frame` on top. On a phone the stage shows only the background with the caption, because a framed image that small is hard to see.
-- Views of the signed-in learner use `AtelierLayout`: the menu as an icon rail from 768 px and as a drawer opened from the top bar on a phone, and a sticky top bar whose content the view passes as the `bar` snippet. The top bar runs across the full width of the page beside the menu in every view ([ADR-0031](../decisions/0031-full-width-top-bar-in-every-atelier-view.md)): the way back, the view title or both on the left, the actions on the right. A title in the bar is small (`--font-size-sm`, medium weight), like the way back.
+- Views of the signed-in learner use `AtelierLayout`: the menu as an icon rail from 768 px and as a drawer opened from the top bar on a phone, and a sticky top bar whose content the view passes as the `bar` snippet. The top bar runs across the full width of the page beside the menu in every view ([ADR-0031](../decisions/0031-full-width-top-bar-in-every-atelier-view.md)): the way back, the view title or both on the left, the actions on the right. A title in the bar is small (`--font-size-sm`, medium weight), like the way back. The bar has the same height in every view, `--size-control` plus its padding, whatever the view puts in it.
 - Motion is short and functional: a panel that opens or closes, such as the side menu, or a toast that appears and fades, transitions over `--duration-short`. Every transition sits inside `@media (prefers-reduced-motion: no-preference)`.
 
 ## Loading
@@ -27,7 +27,8 @@ How views and components look and behave, so every new screen stays consistent w
 - A form's running state stays in its submit label ("Zapisywanie…"); it does not get a loading indicator.
 - A search over a list is the library `SearchField` in the top bar. It filters as the learner types, and its accessible name comes from `label` because the bar has no room for a visible label. It is at most `--size-content-default` wide. On the wall its left edge stays in line with the wall and "Dodaj dzieło" stays right next to it, so the field sets a start margin of half the space left beside `--size-content-wide`; this is the one element allowed its own outer margin.
 - An icon button inside a field (show password, clear search) fills the field's height and is separated from the text by a hairline vertical divider.
-- A button that acts on what was typed in one field (for example "Użyj" next to an image URL) is passed to `TextField` as its `action`. It stands next to the field, takes the field's height and keeps it when an error shows under the field.
+- Every single-line control (`Button`, `TextField`, `Select`, `SearchField`, and `ValueField` while its values fit on one line) is `--size-control` high, so a button next to a field lines up without extra styling. A new control sets `min-height: var(--size-control)` on its outlined box and no vertical padding of its own.
+- A button that acts on what was typed in one field (for example "Użyj" next to an image URL) is passed to `TextField` as its `action`, so it stands next to the input under the label and stays there when an error shows under the field.
 
 ## Text roles
 

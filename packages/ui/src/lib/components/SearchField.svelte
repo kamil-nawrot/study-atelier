@@ -52,6 +52,7 @@
 		display: flex;
 		align-items: center;
 		gap: var(--spacing-2);
+		min-height: var(--size-control);
 		padding-left: var(--spacing-3);
 		border: var(--border-width-base) solid var(--color-line);
 		border-radius: var(--border-radius-none);
@@ -66,8 +67,9 @@
 
 	input {
 		flex: 1;
+		align-self: stretch;
 		min-width: 0;
-		padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) 0;
+		padding: 0 var(--spacing-3) 0 0;
 		border: none;
 		outline: none;
 		background: transparent;
@@ -114,7 +116,6 @@
 
 	@media (min-width: 768px) {
 		input {
-			padding: var(--spacing-3) var(--spacing-3) var(--spacing-3) 0;
 			font-size: var(--font-size-lg);
 			line-height: var(--line-height-lg);
 		}

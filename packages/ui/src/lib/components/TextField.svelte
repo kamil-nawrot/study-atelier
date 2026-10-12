@@ -109,6 +109,7 @@
 		display: flex;
 		flex: 1;
 		min-width: 0;
+		min-height: var(--size-control);
 		border: var(--border-width-base) solid var(--color-line);
 		border-radius: var(--border-radius-none);
 		background: var(--color-surface);
@@ -130,7 +131,7 @@
 	input {
 		flex: 1;
 		min-width: 0;
-		padding: var(--spacing-3);
+		padding: 0 var(--spacing-3);
 		border: none;
 		background: transparent;
 		color: var(--color-fg);

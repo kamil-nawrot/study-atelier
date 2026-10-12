@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { defaultUiMessages } from '../messages';
+import { controlHeight, outlinedHeight } from '../testing/control-height';
 import ValueField, { type ValueOption } from './ValueField.svelte';
 
 const texts = defaultUiMessages.valueField;
@@ -207,5 +208,19 @@ describe('ValueField', () => {
 		const field = page.getByRole('combobox', { name: 'Location' });
 		await expect.element(field).toHaveAccessibleDescription('Where the artwork is now.');
 		await expect.element(field).not.toHaveAttribute('aria-invalid');
+	});
+
+	it('is as high as every other control while empty', async () => {
+		render(ValueField, { label: 'Authors' });
+
+		const input = page.getByRole('combobox', { name: 'Authors' }).element();
+		expect(outlinedHeight(input, '.control')).toBe(controlHeight());
+	});
+
+	it('stays as high as every other control with one value', async () => {
+		render(ValueField, { label: 'Authors', values: ['Rembrandt'] });
+
+		const input = page.getByRole('combobox', { name: 'Authors' }).element();
+		expect(outlinedHeight(input, '.control')).toBe(controlHeight());
 	});
 });

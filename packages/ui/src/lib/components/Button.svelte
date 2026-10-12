@@ -38,7 +38,8 @@
 		align-items: center;
 		justify-content: center;
 		gap: var(--spacing-2);
-		padding: var(--spacing-2) var(--spacing-4);
+		min-height: var(--size-control);
+		padding: 0 var(--spacing-4);
 		border: var(--border-width-base) solid var(--color-line);
 		border-bottom-width: var(--border-width-button);
 		border-radius: var(--border-radius-none);
@@ -60,7 +61,7 @@
 	.secondary:hover:not(:disabled),
 	.danger:hover:not(:disabled) {
 		border-bottom-width: var(--border-width-heavy);
-		padding-bottom: calc(var(--spacing-2) - var(--border-width-heavy) + var(--border-width-button));
+		padding-top: calc(var(--border-width-heavy) - var(--border-width-button));
 	}
 
 	.primary {
