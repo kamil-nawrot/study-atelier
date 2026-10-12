@@ -13,6 +13,7 @@
 		Select,
 		TextArea,
 		TextField,
+		Toast,
 		ValueField
 	} from '@study-atelier/ui';
 	import { beforeNavigate, goto } from '$app/navigation';
@@ -27,6 +28,7 @@
 	} from '../artwork-form.ts';
 	import { saveArtwork, validateArtwork } from '../artwork-record.ts';
 	import { startingValues, takesOneValue } from '../category-values.ts';
+	import { formatRecordNumber } from '../format.ts';
 	import { suggestValues } from '../value-suggestions.ts';
 	import type {
 		ArtworkFieldErrors,
@@ -60,6 +62,8 @@
 	let saving = $state<'save' | 'next' | null>(null);
 	let next = false;
 	let discardOpen = $state(false);
+	let barHeight = $state(0);
+	let toast: Toast;
 	let leaving = false;
 	let answerDiscard: ((discard: boolean) => void) | null = null;
 
@@ -140,6 +144,7 @@
 
 		form = emptyArtworkForm();
 		saved = emptyArtworkForm();
+		toast.show(m.artworkForm.saved(formatRecordNumber(result.number)));
 		window.scrollTo({ top: 0 });
 		await tick();
 		document.getElementById(titleId)?.focus();
@@ -240,7 +245,7 @@
 		</div>
 	</div>
 
-	<footer class="actions">
+	<footer class="actions" bind:offsetHeight={barHeight}>
 		<Button href={cancelHref} onclick={oncancel}>
 			{m.artworkForm.cancel}
 		</Button>
@@ -252,6 +257,8 @@
 		</Button>
 	</footer>
 </Form>
+
+<Toast bind:this={toast} offset={barHeight} />
 
 <Dialog
 	description={m.artworkForm.discardDescription}

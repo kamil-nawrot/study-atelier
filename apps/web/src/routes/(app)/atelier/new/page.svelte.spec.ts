@@ -193,7 +193,7 @@ describe('add artwork page', () => {
 			.toBeDisabled();
 	});
 
-	it('saves and opens an empty form for the next artwork', async () => {
+	it('saves, confirms the record number and opens an empty form for the next artwork', async () => {
 		renderPage();
 		await fillRequired();
 
@@ -201,6 +201,7 @@ describe('add artwork page', () => {
 
 		await expect.element(titleField()).toHaveValue('');
 		await expect.element(titleField()).toHaveFocus();
+		await expect.element(page.getByRole('status')).toHaveTextContent(m.artworkForm.saved('#0012'));
 		await expect.element(page.getByText('Johannes Vermeer')).not.toBeInTheDocument();
 		expect(invalidateAll).toHaveBeenCalled();
 		expect(goto).not.toHaveBeenCalled();

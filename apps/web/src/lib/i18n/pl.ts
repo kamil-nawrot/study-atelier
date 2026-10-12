@@ -179,6 +179,7 @@ export const pl = {
 		save: 'Zapisz',
 		saving: 'Zapisywanie…',
 		errorTitle: 'Nie udało się zapisać dzieła',
+		saved: (number: string): string => `Zapisano dzieło ${number}.`,
 		discardTitle: 'Odrzucić zmiany?',
 		discardDescription: 'Masz niezapisane zmiany w tym dziele. Jeśli wyjdziesz, znikną.',
 		keepEditing: 'Wróć do formularza',
