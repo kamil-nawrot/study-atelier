@@ -145,6 +145,15 @@ export const pl = {
 	collectionErrors: {
 		network: 'Nie udało się połączyć z serwerem. Sprawdź internet i odśwież stronę.'
 	},
+	artworkErrors: {
+		titleRequired: 'Wpisz tytuł dzieła.',
+		authorRequired: 'Dodaj autora albo zaznacz „Autor nieznany”.',
+		yearRequired: 'Wpisz rok, żeby zaznaczyć „p.n.e.” albo „ok.”.',
+		yearInvalid: 'Rok to liczba całkowita od 1 w górę. Dla lat przed naszą erą zaznacz „p.n.e.”.',
+		invalid: 'Niektóre pola się nie zgadzają. Sprawdź je i zapisz jeszcze raz.',
+		notFound: 'Nie ma takiego dzieła w Twoim atelier. Mogło trafić do kosza.',
+		network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.'
+	},
 	comingSoon: {
 		lead: 'Ten widok jest jeszcze w przygotowaniu.',
 		backToAtelier: 'Wróć do atelier',

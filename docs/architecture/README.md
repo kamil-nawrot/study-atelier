@@ -35,7 +35,7 @@ The atelier lives in Supabase Postgres ([ADR-0014](../decisions/0014-artwork-col
 - `categories` and `artwork_types`: fixed lists, extended by migrations.
 - Storage bucket `artwork-images`: the learner's own images, private, one folder per learner.
 
-Every learner-owned row is protected by Row Level Security on `owner_id`.
+Every learner-owned row is protected by Row Level Security on `owner_id`. An artwork and its category values are saved together by the database function `save_artwork` in one transaction ([ADR-0024](../decisions/0024-save-an-artwork-in-one-database-function.md)).
 
 ## 6. Runtime view
 
@@ -45,6 +45,13 @@ Every learner-owned row is protected by Row Level Security on `owner_id`.
 2. In parallel it asks the Wikimedia Commons API for the direct thumbnail URL of every Commons image (up to 50 files per request, identified by an `Api-User-Agent` header, one retry after `Retry-After` on 429) and Supabase Storage for signed URLs of uploaded images. Tiles load thumbnails straight from `upload.wikimedia.org`; only when the API does not answer they fall back to `Special:FilePath`, which redirects ([ADR-0023](../decisions/0023-atelier-routes-and-commons-thumbnails.md)).
 3. The wall places each tile into the shortest column by the image size stored with the artwork ([ADR-0022](../decisions/0022-add-and-edit-an-artwork-in-one-full-form.md)), and offers thumbnails up to that width. An artwork without a stored size counts as 4:5 and gets thumbnails up to the tile width; if Commons does not answer the wall still shows every image.
 4. Search by title runs in the browser on the loaded list.
+
+### Saving an artwork
+
+1. `#lib/collection/artwork-record.ts` checks the required fields (title, an author or "author unknown", a valid year) and returns field errors without calling Supabase.
+2. It calls the `save_artwork` RPC once with the artwork's columns and its value names by category; the year is stored negative before the common era ([ADR-0014](../decisions/0014-artwork-collection-data-model.md)).
+3. The function inserts or updates the artwork, creates the names the learner does not have yet, replaces the artwork's value links and returns the record number, all in one transaction ([ADR-0024](../decisions/0024-save-an-artwork-in-one-database-function.md)).
+4. Loading an artwork for editing reads it by record number with its values, outside the trash.
 
 ## 7. Deployment view
 
