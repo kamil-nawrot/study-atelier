@@ -4,7 +4,12 @@ import { render } from 'vitest-browser-svelte';
 import { beforeNavigate, goto, invalidateAll } from '$app/navigation';
 import { emptyCategoryValues } from '#lib/collection/category-values.ts';
 import { m } from '#lib/i18n/index.ts';
-import { IMAGES_BUCKET, OWN_IMAGE_MAX_BYTES, OWN_IMAGE_MAX_MEGABYTES } from '#lib/images/bucket.ts';
+import {
+	IMAGES_BUCKET,
+	OWN_IMAGE_ACCEPT,
+	OWN_IMAGE_MAX_BYTES,
+	OWN_IMAGE_MAX_MEGABYTES
+} from '#lib/images/bucket.ts';
 import { supabase } from '#lib/supabase.ts';
 import { pending, testSession } from '#lib/testing/auth.ts';
 import AddArtworkPage from './+page.svelte';
@@ -87,6 +92,23 @@ function stubRemoteImage(size: { width: number; height: number } | 'error'): voi
 			}
 		}
 	);
+}
+
+function stubSlowRemoteImage(): () => void {
+	let finish = (): void => {};
+	vi.stubGlobal(
+		'Image',
+		class {
+			naturalWidth = 1200;
+			naturalHeight = 900;
+			onload: (() => void) | null = null;
+
+			set src(_value: string) {
+				finish = () => this.onload?.();
+			}
+		}
+	);
+	return () => finish();
 }
 
 async function openOwnImage(): Promise<void> {
@@ -302,8 +324,11 @@ describe('add artwork page', () => {
 		await expect.element(image).toHaveAttribute('height', '20');
 		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).toBeVisible();
 		await expect
+			.element(page.getByRole('dialog', { name: m.artworkForm.ownImageTitle }))
+			.not.toBeInTheDocument();
+		await expect
 			.element(page.getByRole('button', { name: m.artworkForm.changeOwnImage }))
-			.toHaveAttribute('aria-expanded', 'false');
+			.toBeVisible();
 		expect(bucket.upload).not.toHaveBeenCalled();
 
 		await saveButton().click();
@@ -319,6 +344,40 @@ describe('add artwork page', () => {
 			image_width: 30,
 			image_height: 20
 		});
+	});
+
+	it('opens the own image dialog with a file picker for the allowed formats', async () => {
+		renderPage();
+
+		await openOwnImage();
+
+		await expect
+			.element(page.getByRole('dialog', { name: m.artworkForm.ownImageTitle }))
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.chooseFile }))
+			.toHaveAccessibleDescription(
+				m.artworkForm.fileHint('JPG, PNG, WebP, GIF lub AVIF', OWN_IMAGE_MAX_MEGABYTES)
+			);
+		expect(document.querySelector('input[type="file"]')?.getAttribute('accept')).toBe(
+			OWN_IMAGE_ACCEPT
+		);
+	});
+
+	it('clears the dialog when it is closed without an image', async () => {
+		renderPage();
+		await openOwnImage();
+		await urlField().fill('http://example.com/milkmaid.jpg');
+		await page.getByRole('button', { name: m.artworkForm.useImageUrl }).click();
+		await expect.element(page.getByText(m.ownImageErrors.urlInvalid)).toBeVisible();
+
+		await userEvent.keyboard('{Escape}');
+
+		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+		await expect.element(page.getByRole('button', { name: m.artworkForm.ownImage })).toHaveFocus();
+		await openOwnImage();
+		await expect.element(urlField()).toHaveValue('');
+		await expect.element(page.getByText(m.ownImageErrors.urlInvalid)).not.toBeInTheDocument();
 	});
 
 	it('explains under the button why a file cannot be added', async () => {
@@ -384,6 +443,24 @@ describe('add artwork page', () => {
 
 		await expect.element(page.getByText(m.ownImageErrors.urlUnreadable)).toBeVisible();
 		await expect.element(urlField()).toHaveValue('https://example.com/milkmaid.html');
+	});
+
+	it('does not use an address that loads after the dialog was closed', async () => {
+		const finishLoading = stubSlowRemoteImage();
+		renderPage();
+		await openOwnImage();
+		await urlField().fill('https://example.com/milkmaid.jpg');
+		await page.getByRole('button', { name: m.artworkForm.useImageUrl }).click();
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.usingImageUrl }))
+			.toBeDisabled();
+
+		await userEvent.keyboard('{Escape}');
+		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+		finishLoading();
+
+		await expect.element(page.getByRole('img')).not.toBeInTheDocument();
+		await expect.element(page.getByRole('button', { name: m.artworkForm.ownImage })).toBeVisible();
 	});
 
 	it('removes the image and saves the artwork without one', async () => {

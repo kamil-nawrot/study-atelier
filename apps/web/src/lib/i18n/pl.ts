@@ -159,6 +159,8 @@ export const pl = {
 		findImage: 'Znajdź zdjęcie',
 		ownImage: 'Dodaj własne',
 		changeOwnImage: 'Zmień własne',
+		ownImageTitle: 'Dodaj własne zdjęcie',
+		changeOwnImageTitle: 'Zmień własne zdjęcie',
 		removeImage: 'Usuń zdjęcie',
 		chooseFile: 'Wybierz plik z dysku',
 		fileHint: (formats: string, maxMegabytes: number): string =>

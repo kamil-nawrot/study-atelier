@@ -4,9 +4,13 @@
 	import Search from '@lucide/svelte/icons/search';
 	import Trash from '@lucide/svelte/icons/trash';
 	import Upload from '@lucide/svelte/icons/upload';
-	import { Button, Icon, TextField } from '@study-atelier/ui';
+	import { Button, Dialog, Icon, TextField } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
-	import { OWN_IMAGE_MAX_MEGABYTES, OWN_IMAGE_TYPES, ownImageFormats } from '#lib/images/bucket.ts';
+	import {
+		OWN_IMAGE_ACCEPT,
+		OWN_IMAGE_MAX_MEGABYTES,
+		ownImageFormats
+	} from '#lib/images/bucket.ts';
 	import { ownImageFileError, parseImageUrl, readImageSize } from '#lib/images/own-image.ts';
 	import type { ArtworkImageInput } from '../types.ts';
 
@@ -18,11 +22,11 @@
 
 	let { alt, searchReady, image = $bindable() }: Props = $props();
 
-	const panelId = $props.id();
-	const fileMessageId = `${panelId}-file`;
+	const id = $props.id();
+	const fileMessageId = `${id}-file`;
 	const fileHint = m.artworkForm.fileHint(ownImageFormats(), OWN_IMAGE_MAX_MEGABYTES);
 
-	let panelOpen = $state(false);
+	let dialogOpen = $state(false);
 	let fileError = $state('');
 	let urlText = $state('');
 	let urlError = $state('');
@@ -45,26 +49,15 @@
 		};
 	});
 
-	export function closeOwnImage(): void {
-		panelOpen = false;
+	function resetOwnImage(): void {
 		fileError = '';
 		urlText = '';
 		urlError = '';
 	}
 
-	function toggleOwnImage(): void {
-		if (panelOpen) closeOwnImage();
-		else panelOpen = true;
-	}
-
 	function useImage(next: ArtworkImageInput): void {
 		image = next;
-		closeOwnImage();
-	}
-
-	function removeImage(): void {
-		image = null;
-		closeOwnImage();
+		dialogOpen = false;
 	}
 
 	async function pickFile(event: Event & { currentTarget: HTMLInputElement }): Promise<void> {
@@ -94,7 +87,7 @@
 		loadingUrl = true;
 		try {
 			const size = await readImageSize(parsed.url);
-			useImage({ kind: 'url', url: parsed.url, ...size });
+			if (dialogOpen) useImage({ kind: 'url', url: parsed.url, ...size });
 		} catch {
 			urlError = m.ownImageErrors.urlUnreadable;
 		} finally {
@@ -134,12 +127,12 @@
 			<Icon icon={Search} size="sm" />
 			{m.artworkForm.findImage}
 		</Button>
-		<Button aria-controls={panelId} aria-expanded={panelOpen} onclick={toggleOwnImage}>
+		<Button aria-haspopup="dialog" onclick={() => (dialogOpen = true)}>
 			<Icon icon={ImagePlus} size="sm" />
 			{ownImage ? m.artworkForm.changeOwnImage : m.artworkForm.ownImage}
 		</Button>
 		{#if image}
-			<Button onclick={removeImage}>
+			<Button onclick={() => (image = null)}>
 				<Icon icon={Trash} size="sm" />
 				{m.artworkForm.removeImage}
 			</Button>
@@ -148,44 +141,48 @@
 	{#if !searchReady}
 		<p class="caption">{m.artworkForm.findImageHint}</p>
 	{/if}
-
-	{#if panelOpen}
-		<div id={panelId} class="own-image">
-			<div class="file">
-				<Button aria-describedby={fileMessageId} onclick={() => fileInput?.click()}>
-					<Icon icon={Upload} size="sm" />
-					{m.artworkForm.chooseFile}
-				</Button>
-				<input
-					bind:this={fileInput}
-					accept={OWN_IMAGE_TYPES.join(',')}
-					hidden
-					onchange={pickFile}
-					type="file"
-				/>
-				<span id={fileMessageId} class="message" class:error={!!fileError}>
-					{fileError || fileHint}
-				</span>
-			</div>
-			<TextField
-				autocomplete="off"
-				error={urlError || undefined}
-				inputmode="url"
-				label={m.artworkForm.imageUrl}
-				onkeydown={useUrlOnEnter}
-				placeholder={m.artworkForm.imageUrlPlaceholder}
-				type="url"
-				bind:value={urlText}
-			>
-				{#snippet action()}
-					<Button disabled={loadingUrl} onclick={useUrl}>
-						{loadingUrl ? m.artworkForm.usingImageUrl : m.artworkForm.useImageUrl}
-					</Button>
-				{/snippet}
-			</TextField>
-		</div>
-	{/if}
 </section>
+
+<Dialog
+	onclose={resetOwnImage}
+	title={ownImage ? m.artworkForm.changeOwnImageTitle : m.artworkForm.ownImageTitle}
+	bind:open={dialogOpen}
+>
+	<div class="own-image">
+		<div class="file">
+			<Button aria-describedby={fileMessageId} onclick={() => fileInput?.click()}>
+				<Icon icon={Upload} size="sm" />
+				{m.artworkForm.chooseFile}
+			</Button>
+			<input
+				bind:this={fileInput}
+				accept={OWN_IMAGE_ACCEPT}
+				hidden
+				onchange={pickFile}
+				type="file"
+			/>
+			<span id={fileMessageId} class="message" class:error={!!fileError}>
+				{fileError || fileHint}
+			</span>
+		</div>
+		<TextField
+			autocomplete="off"
+			error={urlError || undefined}
+			inputmode="url"
+			label={m.artworkForm.imageUrl}
+			onkeydown={useUrlOnEnter}
+			placeholder={m.artworkForm.imageUrlPlaceholder}
+			type="url"
+			bind:value={urlText}
+		>
+			{#snippet action()}
+				<Button disabled={loadingUrl} onclick={useUrl}>
+					{loadingUrl ? m.artworkForm.usingImageUrl : m.artworkForm.useImageUrl}
+				</Button>
+			{/snippet}
+		</TextField>
+	</div>
+</Dialog>
 
 <style>
 	.image {
@@ -231,10 +228,7 @@
 
 	.own-image {
 		display: grid;
-		gap: var(--spacing-4);
-		padding: var(--spacing-3);
-		border: var(--border-width-base) solid var(--color-line);
-		background: var(--color-surface);
+		gap: var(--spacing-6);
 	}
 
 	.file {

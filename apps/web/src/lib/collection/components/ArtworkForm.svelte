@@ -62,7 +62,6 @@
 	let discardOpen = $state(false);
 	let barHeight = $state(0);
 	let toast: Toast;
-	let imageField: ArtworkImageField;
 	let leaving = false;
 	let answerDiscard: ((discard: boolean) => void) | null = null;
 
@@ -124,7 +123,6 @@
 		const andNext = next;
 		next = false;
 		formError = '';
-		imageField.closeOwnImage();
 		const input = artworkInputFromForm(form);
 		fieldErrors = validateArtwork(input);
 		if (Object.keys(fieldErrors).length > 0) return;
@@ -160,12 +158,7 @@
 	{/if}
 
 	<div class="columns">
-		<ArtworkImageField
-			bind:this={imageField}
-			alt={imageAlt}
-			searchReady={imageSearchReady}
-			bind:image={form.image}
-		/>
+		<ArtworkImageField alt={imageAlt} searchReady={imageSearchReady} bind:image={form.image} />
 
 		<div class="fields">
 			<TextField

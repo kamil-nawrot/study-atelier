@@ -54,7 +54,7 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 
 ### Adding the learner's own image
 
-1. "Dodaj własne" opens a panel under the image with "Wybierz plik z dysku" and a field for an image URL.
+1. "Dodaj własne" opens a dialog with "Wybierz plik z dysku" and a field for an image URL.
 2. A picked file is checked against the bucket's types and size limit and shown from a local object URL; its width and height are read from that preview. Nothing is uploaded yet.
 3. A URL must be a full `https` address. The browser loads its image to read the width and height; an address whose image does not load is rejected under the field ([ADR-0025](../decisions/0025-upload-the-own-image-when-the-artwork-is-saved.md)).
 4. An own image replaces an image from the image source and the other way round, because the form holds one image at a time.

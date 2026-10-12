@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
 	IMAGES_BUCKET,
+	OWN_IMAGE_ACCEPT,
 	OWN_IMAGE_MAX_BYTES,
 	OWN_IMAGE_TYPES,
 	isOwnImageType,
@@ -41,6 +42,22 @@ describe('artwork images bucket', () => {
 		expect(isOwnImageType('image/png')).toBe(true);
 		expect(isOwnImageType('image/heic')).toBe(false);
 		expect(isOwnImageType('toString')).toBe(false);
+	});
+
+	it('lets the file picker filter by every allowed type and its extensions', () => {
+		expect(OWN_IMAGE_ACCEPT.split(',')).toEqual([
+			'image/jpeg',
+			'image/png',
+			'image/webp',
+			'image/gif',
+			'image/avif',
+			'.jpg',
+			'.png',
+			'.webp',
+			'.gif',
+			'.avif',
+			'.jpeg'
+		]);
 	});
 
 	it('lists the allowed formats by their common names', () => {

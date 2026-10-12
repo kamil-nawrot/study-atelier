@@ -16,6 +16,12 @@ export type OwnImageType = keyof typeof OWN_IMAGE_EXTENSIONS;
 
 export const OWN_IMAGE_TYPES = Object.keys(OWN_IMAGE_EXTENSIONS) as OwnImageType[];
 
+export const OWN_IMAGE_ACCEPT = [
+	...OWN_IMAGE_TYPES,
+	...Object.values(OWN_IMAGE_EXTENSIONS).map((extension) => `.${extension}`),
+	'.jpeg'
+].join(',');
+
 export function isOwnImageType(type: string): type is OwnImageType {
 	return Object.hasOwn(OWN_IMAGE_EXTENSIONS, type);
 }
