@@ -12,7 +12,7 @@ The learner's own image comes from a file on the device or from an image URL ([A
 - A screenshot reaches the form in as few steps as possible.
 - Pasting also works on a phone, where there is no keyboard shortcut.
 - A pasted image follows the same checks, preview and upload as a picked file, so the database, the bucket and its policies stay unchanged.
-- A stray Ctrl+V does not throw away an image the learner already chose.
+- A stray Ctrl+V does not throw away an image the learner already chose, and Ctrl+V in a text field always pastes into that field.
 - No custom backend ([ADR-0005](0005-no-custom-backend.md)).
 
 ## Considered options
@@ -43,7 +43,7 @@ Chosen options: the button in the dialog plus Ctrl+V anywhere in the form, rejec
 - What the clipboard holds is read in this order: an image file (a screenshot, "Copy image" in a browser, an image file copied in the file manager), then an `https` address as text, then the `src` of an `<img>` in copied HTML. An address is used like one typed into the URL field. When none is found, the dialog says "W schowku nie ma obrazu.".
 - A pasted image becomes a `File` and goes through the picked-file path of [ADR-0025](0025-upload-the-own-image-when-the-artwork-is-saved.md): the type and size check, a local preview, and the upload on "Zapisz". Its name is generated, because a clipboard image has none.
 - The dialog shows "Wklej ze schowka" above "Wybierz plik z dysku", with the hint "Albo naciśnij Ctrl+V." (⌘V on a Mac). Pasting in the dialog sets the image and closes it, without a question: opening "Zmień własne" already means changing the image.
-- In the form, Ctrl+V takes only an image file. When the focus is in a text field and the clipboard holds text, the text is pasted as usual. A hint under the image actions says "Masz obraz w schowku? Naciśnij Ctrl+V, żeby go tu wkleić."; it is shown only on devices with a fine pointer, where a keyboard is likely.
+- In the form, Ctrl+V takes an image file only when the focus is not in a field the learner types in (a text field, the notes editor, any `input`, `textarea` or editable element). There the paste is left to the field, even when the clipboard holds only an image, because the learner may be pasting a title or a note. A hint under the image actions tells the learner about the shortcut; it is shown only on devices with a fine pointer, where a keyboard is likely.
 - When the form already has an image, Ctrl+V in the form first asks "Zastąpić obecne zdjęcie?" in a small `Dialog` with "Zastąp" and "Anuluj".
 - An image over 5 MB or of a type the bucket does not take is rejected with the same message as a picked file; in the form it shows under the image actions.
 - When the browser refuses clipboard access to the button, the dialog says so and points to Ctrl+V and "Wybierz plik z dysku".
