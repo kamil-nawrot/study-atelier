@@ -17,6 +17,13 @@ How views and components look and behave, so every new screen stays consistent w
 - Each route group has a layout component in its domain folder, for example `AuthLayout` for the sign-in screens. A view passes its content through snippets (`children`, `footer`).
 - Views of the signed-in learner use `AtelierLayout`: the menu as an icon rail from 768 px and as a drawer opened from the top bar on a phone, and a sticky top bar whose content the view passes as the `bar` snippet.
 - Motion is short and functional: a panel that opens or closes, such as the side menu, or a toast that appears and fades, transitions over `--duration-short`. Every transition sits inside `@media (prefers-reduced-motion: no-preference)`.
+
+## Loading
+
+- Something that loads shows it only after `--duration-loading-delay` (300 ms), so a fast load shows nothing. With reduced motion a loading indicator stands still. Why it looks this way: [ADR-0027](../decisions/0027-loading-states-for-the-first-load-and-images.md).
+- The first app load is the full-screen `LoadingScreen`: the logo mark on the stage background, with one horizontal and one vertical stroke in its window. `hooks.client.ts` shows it when the app starts and the root layout hides it on its first mount.
+- An image that loads is primed: `Primer` lays two coats of faint strokes across its window, horizontal then vertical, in the muted text colour of the surface.
+- A form's running state stays in its submit label ("Zapisywanie…"); it does not get a loading indicator.
 - A search over a list is the library `SearchField` in the top bar. It filters as the learner types, and its accessible name comes from `label` because the bar has no room for a visible label. It is at most `--size-content-default` wide.
 - An icon button inside a field (show password, clear search) fills the field's height and is separated from the text by a hairline vertical divider.
 - A button that acts on what was typed in one field (for example "Użyj" next to an image URL) is passed to `TextField` as its `action`. It stands next to the field, takes the field's height and keeps it when an error shows under the field.
@@ -94,6 +101,7 @@ How views and components look and behave, so every new screen stays consistent w
 ## Artwork images
 
 - An artwork image sits in `Frame`: `list` in lists, `view` in a detail view or on a stage. The image keeps its proportions and never fills a thumbnail slot at the side.
+- Every artwork image is the library `ArtworkImage`, with the image's stored width and height. It holds the image's place until it loads, primes the window while it loads, tries once more after 3 seconds when it fails, and then shows "Nie udało się wczytać obrazu" with the `image-off` icon. Pass `surface="frame"` inside a `Frame`; the default is the paper passe-partout. A view styles the image through `:global(img)` inside its own container. A decorative copy of an image (a blurred backdrop) stays a plain `img`.
 - In the collection each artwork is an `ArtworkTile`: the image on a solid paper passe-partout, 8 px on the top and sides, with the title, authors and date on the wider bottom edge and the record number on the image. The passe-partout stays paper in both themes (`--color-mat-*`).
 - After an artwork is saved, the wall opens at the top and its tile carries an outline in `--color-fg` for about two seconds, which then fades over `--duration-short`.
 - After an edited artwork is saved, its page opens in place of the edit form in the browser history, so going back never returns to the form, and a `Toast` confirms "Zapisano zmiany w #0012.".
@@ -110,7 +118,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 - The brand is the library `Logo` (mark and wordmark) or `LogoMark` (mark only), never text styled to look like a logo. Both follow the text colour. Why it looks this way: [ADR-0020](../decisions/0020-logo-passe-partout-mark-and-wordmark.md).
 - `Logo` takes its accessible name from `m.app.name`. `LogoMark` is decorative unless it gets a `label`.
-- Content or animation inside the mark (for example a loader) is passed as SVG children of `LogoMark`.
+- Content or animation inside the mark (for example the strokes of `LoadingScreen`) is passed as SVG children of `LogoMark`.
 
 ## Library texts
 

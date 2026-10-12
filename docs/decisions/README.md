@@ -30,3 +30,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0024](0024-save-an-artwork-in-one-database-function.md) | Save an artwork with its values in one database function | accepted |
 | [0025](0025-upload-the-own-image-when-the-artwork-is-saved.md) | Upload the learner's own image when the artwork is saved | accepted |
 | [0026](0026-artwork-view-as-a-stage-with-an-information-panel.md) | Show one artwork on a stage with an information panel beside it | accepted |
+| [0027](0027-loading-states-for-the-first-load-and-images.md) | Show loading as a primed canvas, for the first app load and for artwork images | accepted |

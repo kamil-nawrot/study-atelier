@@ -39,6 +39,13 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 
 ## 6. Runtime view
 
+### Starting the app
+
+1. The page arrives with the library styles linked in its head, so it is dark from the first paint ([ADR-0027](../decisions/0027-loading-states-for-the-first-load-and-images.md)).
+2. The client `init` hook in `hooks.client.ts` mounts `LoadingScreen`; its logo mark appears after 300 ms.
+3. The root layout load reads the session from Supabase Auth; the route groups redirect by session, and the first view loads its data ([ADR-0016](../decisions/0016-supabase-auth-in-the-browser.md)).
+4. The root layout mounts and removes the loading screen.
+
 ### Opening the atelier
 
 1. The `/atelier` page load asks Supabase for the learner's artworks outside the trash, newest first, with their authors (`#lib/collection/artworks.ts`).
