@@ -20,7 +20,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 ## Loading
 
-- Something that loads shows it only after `--duration-loading-delay` (300 ms), so a fast load shows nothing. With reduced motion a loading indicator stands still. Why it looks this way: [ADR-0029](../decisions/0029-loading-states-for-the-first-load-and-images.md).
+- Something that loads shows it only after `--duration-loading-delay` (300 ms), so a fast load shows nothing. With reduced motion a loading indicator stands still. Why it looks this way: [ADR-0030](../decisions/0030-loading-states-for-the-first-load-and-images.md).
 - The first app load is the full-screen `LoadingScreen`: the logo mark on the stage background, with one horizontal and one vertical stroke in its window. `hooks.server.ts` renders it into the page shell, `hooks.client.ts` takes it over, and the root layout removes it on its first mount.
 - An image that loads is primed: `Primer` lays two coats of faint strokes across its window, horizontal then vertical, in the muted text colour of the surface.
 - A form's running state stays in its submit label ("Zapisywanie…"); it does not get a loading indicator.

@@ -1,4 +1,4 @@
-# 0029. Show loading as a primed canvas, for the first app load and for artwork images
+# 0030. Show loading as a primed canvas, for the first app load and for artwork images
 
 - Status: accepted
 - Date: 2026-10-12
