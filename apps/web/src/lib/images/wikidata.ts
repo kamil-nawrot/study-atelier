@@ -36,15 +36,27 @@ function sparqlString(text: string): string {
 export function artworkSearchQuery(title: string): string {
 	const languages = LABEL_LANGUAGES.map((language) => `"${language}"`).join(', ');
 	const excluded = EXCLUDED_CLASSES.map((id) => `wd:${id}`).join(' ');
-	return `SELECT ?item ?title ?ordinal (SAMPLE(?image) AS ?file) (SAMPLE(CONCAT(STR(?inception), "/", STR(?precision))) AS ?date)
+	const search = sparqlString(title);
+	return `SELECT ?item ?title (MIN(?searchRank) AS ?order) (SAMPLE(?image) AS ?file) (SAMPLE(CONCAT(STR(?inception), "/", STR(?precision))) AS ?date)
 (GROUP_CONCAT(DISTINCT ?creatorLabel; separator="|") AS ?creators)
 (GROUP_CONCAT(DISTINCT ?creatorName; separator="|") AS ?creatorNames)
 (COUNT(DISTINCT ?creatorStatement) AS ?creatorCount) WHERE {
-  SERVICE wikibase:mwapi {
-    bd:serviceParam wikibase:endpoint "www.wikidata.org"; wikibase:api "EntitySearch";
-      mwapi:search ${sparqlString(title)}; mwapi:language "${LABEL_LANGUAGES[0]}"; mwapi:limit "${SEARCH_LIMIT}".
-    ?item wikibase:apiOutputItem mwapi:item.
-    ?ordinal wikibase:apiOrdinal true.
+  {
+    SERVICE wikibase:mwapi {
+      bd:serviceParam wikibase:endpoint "www.wikidata.org"; wikibase:api "EntitySearch";
+        mwapi:search ${search}; mwapi:language "${LABEL_LANGUAGES[0]}"; mwapi:limit "${SEARCH_LIMIT}".
+      ?item wikibase:apiOutputItem mwapi:item.
+      ?ordinal wikibase:apiOrdinal true.
+    }
+    BIND(?ordinal AS ?searchRank)
+  } UNION {
+    SERVICE wikibase:mwapi {
+      bd:serviceParam wikibase:endpoint "www.wikidata.org"; wikibase:api "Search";
+        mwapi:srsearch ${search}; mwapi:srlimit "${SEARCH_LIMIT}"; wikibase:limit "${SEARCH_LIMIT}".
+      ?item wikibase:apiOutputItem mwapi:title.
+      ?ordinal wikibase:apiOrdinal true.
+    }
+    BIND(?ordinal + ${SEARCH_LIMIT} AS ?searchRank)
   }
   FILTER EXISTS { ?item p:P170|p:P84|wdt:P18 [] }
   FILTER NOT EXISTS { VALUES ?excluded { ${excluded} } ?item wdt:P31 ?excluded }
@@ -70,8 +82,8 @@ export function artworkSearchQuery(title: string): string {
     ?creator rdfs:label ?creatorLabel.
   }
 }
-GROUP BY ?item ?title ?ordinal
-ORDER BY ?ordinal`;
+GROUP BY ?item ?title
+ORDER BY ?order`;
 }
 
 export function sourceDate(value: string | undefined): SourceDate | null {

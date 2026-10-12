@@ -19,6 +19,15 @@ describe('artworkSearchQuery', () => {
 		expect(query).toContain('mwapi:language "pl"');
 	});
 
+	it('also searches the full text, so words in any order match, and lists prefix matches first', () => {
+		const query = artworkSearchQuery('Bust of Nefertiti');
+
+		expect(query).toContain('wikibase:api "Search"');
+		expect(query).toContain('mwapi:srsearch "Bust of Nefertiti"');
+		expect(query).toContain('BIND(?ordinal + 30 AS ?searchRank)');
+		expect(query).toContain('ORDER BY ?order');
+	});
+
 	it('asks only for items with a creator, an architect or an image, and no people', () => {
 		const query = artworkSearchQuery('David');
 
