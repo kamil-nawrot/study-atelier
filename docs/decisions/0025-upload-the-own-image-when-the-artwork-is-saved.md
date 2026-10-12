@@ -34,6 +34,7 @@ Chosen options: upload when the artwork is saved, and reject a URL whose image d
 - "Zapisz" uploads the file first, to `<learner id>/<random uuid>.<extension>`, and then calls `save_artwork` with its path. If the save fails, the uploaded file is removed again. If the upload fails, nothing is saved and the form shows why.
 - When a saved artwork's uploaded file is replaced or removed, the old file is removed after the save succeeds.
 - The original file name is not kept: no column holds it and it may carry personal details.
+- This changes the object name of [ADR-0014](0014-artwork-collection-data-model.md), `<user id>/<artwork id>/<file name>`: a new artwork has no id before it is saved, and the file name is not kept. The storage policies check only the learner's folder, so they stay as they are.
 - A URL must be a full `https` address and its image must load in the browser, which also gives its width and height. Otherwise "Użyj" shows an error under the field.
 - The bucket's name, size limit and image types are mirrored in `#lib/images/bucket.ts`, because a learner's key cannot read bucket settings. A unit test compares them with the migration, so they cannot drift apart.
 
