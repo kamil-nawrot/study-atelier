@@ -10,7 +10,7 @@ import {
 import { supabase } from '#lib/supabase.ts';
 import { collectionErrorMessage } from './errors.ts';
 import { formatYear } from './format.ts';
-import type { AtelierResult, WallArtwork } from './types.ts';
+import type { AtelierResult, TrashArtwork, TrashResult, WallArtwork } from './types.ts';
 
 type ImageSize = {
 	width: number;
@@ -33,6 +33,7 @@ type ArtworkRow = {
 	own_image_url: string | null;
 	image_width: number | null;
 	image_height: number | null;
+	deleted_at: string | null;
 	artwork_values: { position: number; category_values: CategoryValueRow | null }[];
 };
 
@@ -52,6 +53,7 @@ const ARTWORK_COLUMNS = [
 	'own_image_url',
 	'image_width',
 	'image_height',
+	'deleted_at',
 	'artwork_values(position, category_values(category_code, name))'
 ].join(', ');
 
@@ -110,15 +112,7 @@ function ownImage(
 	return src ? { src, ...(size ?? DEFAULT_IMAGE_SIZE) } : undefined;
 }
 
-export async function loadAtelier(): Promise<AtelierResult> {
-	const { data, error } = await supabase
-		.from('artworks')
-		.select(ARTWORK_COLUMNS)
-		.is('deleted_at', null)
-		.order('created_at', { ascending: false });
-	if (error) return { artworks: [], error: collectionErrorMessage(error) };
-
-	const rows = (data ?? []) as unknown as ArtworkRow[];
+async function wallArtworks(rows: ArtworkRow[]): Promise<WallArtwork[]> {
 	const [commonsThumbnails, storageUrls] = await Promise.all([
 		fetchCommonsThumbnails(
 			rows.flatMap((row) => row.source_image_file ?? []),
@@ -127,7 +121,7 @@ export async function loadAtelier(): Promise<AtelierResult> {
 		signedUrls(rows.flatMap((row) => row.own_image_path ?? []))
 	]);
 
-	const artworks = rows.map((row): WallArtwork => {
+	return rows.map((row): WallArtwork => {
 		const ownSource = row.own_image_path
 			? storageUrls.get(row.own_image_path)
 			: (row.own_image_url ?? undefined);
@@ -147,5 +141,34 @@ export async function loadAtelier(): Promise<AtelierResult> {
 			image
 		};
 	});
-	return { artworks };
+}
+
+export async function loadAtelier(): Promise<AtelierResult> {
+	const { data, error } = await supabase
+		.from('artworks')
+		.select(ARTWORK_COLUMNS)
+		.is('deleted_at', null)
+		.order('created_at', { ascending: false });
+	if (error) return { artworks: [], error: collectionErrorMessage(error) };
+
+	return { artworks: await wallArtworks((data ?? []) as unknown as ArtworkRow[]) };
+}
+
+export async function loadTrash(): Promise<TrashResult> {
+	const { data, error } = await supabase
+		.from('artworks')
+		.select(ARTWORK_COLUMNS)
+		.not('deleted_at', 'is', null)
+		.order('deleted_at', { ascending: false });
+	if (error) return { artworks: [], error: collectionErrorMessage(error) };
+
+	const rows = (data ?? []) as unknown as ArtworkRow[];
+	const artworks = await wallArtworks(rows);
+	return {
+		artworks: artworks.map((artwork, index): TrashArtwork => ({
+			...artwork,
+			deletedAt: rows[index].deleted_at as string,
+			ownImagePath: rows[index].own_image_path
+		}))
+	};
 }

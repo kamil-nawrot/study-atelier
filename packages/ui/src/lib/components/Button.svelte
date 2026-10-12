@@ -3,7 +3,7 @@
 	import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
 
 	type CommonProps = {
-		variant?: 'primary' | 'secondary';
+		variant?: 'primary' | 'secondary' | 'danger';
 		fullWidth?: boolean;
 		children: Snippet;
 	};
@@ -52,7 +52,13 @@
 		cursor: pointer;
 	}
 
-	.secondary:hover:not(:disabled) {
+	.danger {
+		border-color: var(--color-danger);
+		color: var(--color-danger);
+	}
+
+	.secondary:hover:not(:disabled),
+	.danger:hover:not(:disabled) {
 		border-bottom-width: var(--border-width-heavy);
 		padding-bottom: calc(var(--spacing-2) - var(--border-width-heavy) + var(--border-width-button));
 	}

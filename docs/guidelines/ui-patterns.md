@@ -51,6 +51,7 @@ How views and components look and behave, so every new screen stays consistent w
 - `goto` is for navigation from code after an action, for example after a successful sign-in.
 - Each view has at most one `primary` button.
 - Sign out is shown in `--color-danger`, so it stands apart from the menu items that navigate.
+- A button that deletes is `variant="danger"`: an outline and text in `--color-danger`. The button that confirms the delete in its dialog stays `primary`.
 
 ## Messages
 
@@ -93,7 +94,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 ## Artwork images
 
-- An artwork image sits in `Frame`: `list` in lists, `view` in a detail view or on a stage. The image keeps its proportions and never fills a thumbnail slot at the side.
+- An artwork image sits in `Frame`: `list` in lists, `view` in a detail view or on a stage. The image keeps its proportions and never fills a thumbnail slot at the side. The exception is the trash list, where the thumbnail is cropped to 4:5 on the paper passe-partout, so every row has the same height ([ADR-0028](../decisions/0028-trash-as-a-list-with-confirmed-deletes.md)).
 - In the collection each artwork is an `ArtworkTile`: the image on a solid paper passe-partout, 8 px on the top and sides, with the title, authors and date on the wider bottom edge and the record number on the image. The passe-partout stays paper in both themes (`--color-mat-*`).
 - After an artwork is saved, the wall opens at the top and its tile carries an outline in `--color-fg` for about two seconds, which then fades over `--duration-short`.
 - After an edited artwork is saved, its page opens in place of the edit form in the browser history, so going back never returns to the form, and a `Toast` confirms "Zapisano zmiany w #0012.".
@@ -105,6 +106,7 @@ How views and components look and behave, so every new screen stays consistent w
 - The artwork view ([ADR-0026](../decisions/0026-artwork-view-as-a-stage-with-an-information-panel.md)) puts the image on the stage, over a blurred copy of the same image under `--color-scrim`, with the information panel beside it. The panel lists every field in the order of the form; an empty field shows a muted dash, with "Nie wpisano" for screen readers. A view that fills the screen below the top bar, like this one, passes `fill` to `AtelierLayout`.
 - A panel that the learner can close leaves a narrow strip with a chevron and the panel name written vertically, which open it again. The panel opens and closes with the same width animation as the side menu, off under `prefers-reduced-motion`.
 - A view that fills the screen (`fill` on `AtelierLayout`) runs its top bar across the full width of the page; the wall keeps the bar aligned with its content.
+- Moving an artwork to the trash and deleting it permanently each ask first with a small `Dialog` ("Przenieść #0012 do kosza?", "Usunąć #0012 na zawsze?"); restoring does not. A `Toast` confirms each of the three ("Przeniesiono #0012 do kosza.", "Przywrócono #0012.", "Usunięto #0012 na zawsze."). An error stays in an `Alert` in the dialog, or above the list for restoring.
 - Clicking an artwork image in a detail view opens it full screen on the stage background; Escape or the close button returns.
 
 ## Logo
