@@ -1,7 +1,13 @@
 import { emptyCategoryValues } from './category-values.ts';
 import type { SelectOption } from '@study-atelier/ui';
 import { m } from '#lib/i18n/index.ts';
-import type { ArtworkFormState, ArtworkInput, ArtworkTypeCode } from './types.ts';
+import type { ImageCandidate } from '#lib/images/types.ts';
+import type {
+	ArtworkFormState,
+	ArtworkImageInput,
+	ArtworkInput,
+	ArtworkTypeCode
+} from './types.ts';
 
 export const ARTWORK_TYPE_CODES: readonly ArtworkTypeCode[] = [
 	'architecture',
@@ -68,4 +74,18 @@ export function canSearchImage(form: ArtworkFormState): boolean {
 export function artworkImageAlt(form: ArtworkFormState): string {
 	const authors = form.authorUnknown ? [] : form.values.author;
 	return [form.title.trim(), ...authors].filter((part) => part !== '').join(', ');
+}
+
+export function imageFromCandidate(candidate: ImageCandidate): ArtworkImageInput | null {
+	if (!candidate.image) return null;
+	return {
+		kind: 'commons',
+		wikidataId: candidate.wikidataId,
+		file: candidate.image.file,
+		licence: candidate.image.licence,
+		licenceUrl: candidate.image.licenceUrl,
+		attribution: candidate.image.attribution,
+		width: candidate.image.width,
+		height: candidate.image.height
+	};
 }

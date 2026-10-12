@@ -52,6 +52,14 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 2. While the learner types, `#lib/collection/value-suggestions.ts` builds the list in the browser: a likely typo of a used value first ("Masz już „…”"), then used values, then the starting list, then the new value. Values starting with the typed text come before values containing it; chosen values are left out.
 3. Values are compared by a key that ignores letter case, diacritics and repeated spaces. A new value with the same key as a used one is not offered; the used one is. A starting-list value can still be created in the learner's own spelling, because only used values count as existing. A likely typo is a different key within one edit (letters added, removed, changed or swapped) for keys of 4 to 8 characters, or two edits from 9 characters on, and is checked only when the typed text is not already part of that value ([R-25](../product/requirements.md#category-values)).
 
+### Finding the artwork image
+
+1. "Znajdź zdjęcie" opens the candidate dialog and sends one SPARQL query to the Wikidata Query Service (`#lib/images/wikidata.ts`). It searches item labels and aliases for the title in Polish with the usual fallbacks, keeps items that have a creator, an architect or an image and are not people, taxa or disambiguation pages, and reads each item's image file, inception date with its precision and the names of its creators. Nothing is searched while the learner types ([R-11](../product/requirements.md#images)).
+2. `#lib/images/image-search.ts` ranks the items in the browser. When some creators match the learner's authors (ignoring letter case and diacritics, or sharing a surname), only those items are shown; otherwise items with a creator come first. The list is cut to 8.
+3. One Commons API request (`#lib/images/commons.ts`) reads the 330 px thumbnail, the original size, the licence and the photographer of every candidate file. An item whose file Commons does not return is shown as having no free image.
+4. Both requests send the `Api-User-Agent` header and are retried once after `Retry-After` on a 429 (`#lib/images/wikimedia.ts`); a second failure shows a message in the dialog with a button to search again.
+5. Picking a candidate stores the Wikidata id, the file, its licence, its attribution and its size with the form ([ADR-0022](../decisions/0022-add-and-edit-an-artwork-in-one-full-form.md)); the form shows the image with its credit and changes no other field.
+
 ### Adding the learner's own image
 
 1. "Dodaj własne" opens a dialog with "Wybierz plik z dysku" and a field for an image URL.

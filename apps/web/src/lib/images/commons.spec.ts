@@ -3,7 +3,9 @@ import {
 	commonsFileUrl,
 	commonsSrcset,
 	commonsThumbnailSrcset,
-	fetchCommonsThumbnails
+	fetchCommonsFiles,
+	fetchCommonsThumbnails,
+	plainText
 } from './commons.ts';
 
 const fetchMock = vi.fn<typeof fetch>();
@@ -133,6 +135,84 @@ describe('fetchCommonsThumbnails', () => {
 		vi.stubGlobal('fetch', fetchMock);
 
 		await expect(fetchCommonsThumbnails([], 500)).resolves.toEqual(new Map());
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+});
+
+describe('plainText', () => {
+	it('drops tags, decodes entities and collapses spaces', () => {
+		expect(
+			plainText('<a href="x">Jane&nbsp;Doe</a>\n &amp; <b>J&#246;rg</b> &#x2014; &unknown;')
+		).toBe('Jane Doe & Jörg — &unknown;');
+	});
+});
+
+describe('fetchCommonsFiles', () => {
+	afterEach(() => {
+		vi.unstubAllGlobals();
+		fetchMock.mockReset();
+	});
+
+	it('reads the thumbnail, the original size, the licence and the photographer', async () => {
+		vi.stubGlobal('fetch', fetchMock);
+		fetchMock.mockResolvedValue(
+			jsonResponse({
+				query: {
+					pages: [
+						{
+							title: 'File:David.jpg',
+							imageinfo: [
+								{
+									thumburl: THUMB,
+									width: 3000,
+									height: 4000,
+									extmetadata: {
+										LicenseShortName: { value: 'CC BY-SA 4.0' },
+										LicenseUrl: { value: 'https://creativecommons.org/licenses/by-sa/4.0' },
+										Artist: { value: '<span>Jane Doe</span>' }
+									}
+								}
+							]
+						},
+						{ title: 'File:No size.jpg', imageinfo: [{ thumburl: THUMB }] }
+					]
+				}
+			})
+		);
+
+		const files = await fetchCommonsFiles(['David.jpg', 'No size.jpg'], 330);
+
+		expect(files).toEqual(
+			new Map([
+				[
+					'David.jpg',
+					{
+						thumbnailUrl: THUMB,
+						width: 3000,
+						height: 4000,
+						licence: 'CC BY-SA 4.0',
+						licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+						attribution: 'Jane Doe'
+					}
+				]
+			])
+		);
+		const params = new URL(String(fetchMock.mock.calls[0][0])).searchParams;
+		expect(params.get('iiprop')).toBe('url|size|extmetadata');
+		expect(params.get('iiextmetadatafilter')).toBe('LicenseShortName|LicenseUrl|Artist');
+	});
+
+	it('fails when Commons does not answer', async () => {
+		vi.stubGlobal('fetch', fetchMock);
+		fetchMock.mockResolvedValue(new Response('', { status: 500 }));
+
+		await expect(fetchCommonsFiles(['David.jpg'], 330)).rejects.toThrow();
+	});
+
+	it('does not call the service without files', async () => {
+		vi.stubGlobal('fetch', fetchMock);
+
+		await expect(fetchCommonsFiles([], 330)).resolves.toEqual(new Map());
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
 });

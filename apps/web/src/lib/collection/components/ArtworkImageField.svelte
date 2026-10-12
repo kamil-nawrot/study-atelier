@@ -4,6 +4,7 @@
 	import Search from '@lucide/svelte/icons/search';
 	import Trash from '@lucide/svelte/icons/trash';
 	import Upload from '@lucide/svelte/icons/upload';
+	import { tick } from 'svelte';
 	import { Button, Dialog, Icon, TextField } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import {
@@ -11,22 +12,32 @@
 		OWN_IMAGE_MAX_MEGABYTES,
 		ownImageFormats
 	} from '#lib/images/bucket.ts';
+	import { COMMONS_THUMBNAIL_WIDTHS, commonsFileUrl, commonsSrcset } from '#lib/images/commons.ts';
+	import ImageSearchDialog from '#lib/images/components/ImageSearchDialog.svelte';
+	import { commonsCredit } from '#lib/images/credit.ts';
 	import { ownImageFileError, parseImageUrl, readImageSize } from '#lib/images/own-image.ts';
+	import type { ImageCandidate } from '#lib/images/types.ts';
+	import { imageFromCandidate } from '../artwork-form.ts';
 	import type { ArtworkImageInput } from '../types.ts';
 
 	type Props = {
 		alt: string;
 		searchReady: boolean;
+		searchTitle: string;
+		searchAuthors: string[];
 		image: ArtworkImageInput | null;
 	};
 
-	let { alt, searchReady, image = $bindable() }: Props = $props();
+	let { alt, searchReady, searchTitle, searchAuthors, image = $bindable() }: Props = $props();
 
 	const id = $props.id();
 	const fileMessageId = `${id}-file`;
+	const findImageId = `${id}-find`;
+	const COMMONS_PREVIEW_WIDTH = 500;
 	const fileHint = m.artworkForm.fileHint(ownImageFormats(), OWN_IMAGE_MAX_MEGABYTES);
 
 	let dialogOpen = $state(false);
+	let searchOpen = $state(false);
 	let fileError = $state('');
 	let urlText = $state('');
 	let urlError = $state('');
@@ -34,11 +45,19 @@
 	let fileInput = $state<HTMLInputElement>();
 
 	let preview = $derived(
-		image?.kind === 'file'
-			? { src: image.previewUrl, width: image.width, height: image.height }
-			: image?.kind === 'url'
-				? { src: image.url, width: image.width ?? undefined, height: image.height ?? undefined }
-				: undefined
+		image?.kind === 'commons'
+			? {
+					src: commonsFileUrl(image.file, COMMONS_PREVIEW_WIDTH),
+					srcset: commonsPreviewSrcset(image.file, image.width),
+					sizes: '(min-width: 768px) 40vw, 100vw',
+					width: image.width ?? undefined,
+					height: image.height ?? undefined
+				}
+			: image?.kind === 'file'
+				? { src: image.previewUrl, width: image.width, height: image.height }
+				: image?.kind === 'url'
+					? { src: image.url, width: image.width ?? undefined, height: image.height ?? undefined }
+					: undefined
 	);
 	let ownImage = $derived(image !== null && image.kind !== 'commons');
 
@@ -48,6 +67,23 @@
 			if (previewUrl) URL.revokeObjectURL(previewUrl);
 		};
 	});
+
+	function commonsPreviewSrcset(file: string, width: number | null): string {
+		return commonsSrcset(
+			file,
+			COMMONS_THUMBNAIL_WIDTHS.filter((size) => width === null || size <= width)
+		);
+	}
+
+	function pickCandidate(candidate: ImageCandidate): void {
+		image = imageFromCandidate(candidate);
+	}
+
+	async function removeImage(): Promise<void> {
+		image = null;
+		await tick();
+		document.getElementById(findImageId)?.focus();
+	}
 
 	function resetOwnImage(): void {
 		fileError = '';
@@ -106,14 +142,23 @@
 	<figure class="picture">
 		<div class="mat">
 			{#if preview}
-				<img {alt} height={preview.height} src={preview.src} width={preview.width} />
+				<img
+					{alt}
+					height={preview.height}
+					sizes={preview.sizes}
+					src={preview.src}
+					srcset={preview.srcset}
+					width={preview.width}
+				/>
 			{:else}
 				<div class="window">
 					<Icon icon={ImageIcon} />
 				</div>
 			{/if}
 		</div>
-		{#if image?.kind === 'url'}
+		{#if image?.kind === 'commons'}
+			<figcaption class="caption">{commonsCredit(image.licence, image.attribution)}</figcaption>
+		{:else if image?.kind === 'url'}
 			<figcaption class="caption">
 				{m.artworkForm.ownImageUrlCredit(new URL(image.url).hostname)}
 			</figcaption>
@@ -123,16 +168,16 @@
 	</figure>
 
 	<div class="image-actions">
-		<Button disabled={!searchReady}>
+		<Button id={findImageId} disabled={!searchReady} onclick={() => (searchOpen = true)}>
 			<Icon icon={Search} size="sm" />
-			{m.artworkForm.findImage}
+			{image?.kind === 'commons' ? m.artworkForm.chooseOtherImage : m.artworkForm.findImage}
 		</Button>
 		<Button aria-haspopup="dialog" onclick={() => (dialogOpen = true)}>
 			<Icon icon={ImagePlus} size="sm" />
 			{ownImage ? m.artworkForm.changeOwnImage : m.artworkForm.ownImage}
 		</Button>
 		{#if image}
-			<Button onclick={() => (image = null)}>
+			<Button onclick={removeImage}>
 				<Icon icon={Trash} size="sm" />
 				{m.artworkForm.removeImage}
 			</Button>
@@ -142,6 +187,13 @@
 		<p class="caption">{m.artworkForm.findImageHint}</p>
 	{/if}
 </section>
+
+<ImageSearchDialog
+	authors={searchAuthors}
+	onpick={pickCandidate}
+	title={searchTitle}
+	bind:open={searchOpen}
+/>
 
 <Dialog
 	onclose={resetOwnImage}
@@ -223,7 +275,7 @@
 	}
 
 	.image-actions > :global(*) {
-		flex: 1 1 0;
+		flex: 1 1 auto;
 	}
 
 	.own-image {

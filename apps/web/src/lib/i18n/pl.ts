@@ -58,6 +58,7 @@ export const pl = {
 		credit: 'Wikimedia Commons, domena publiczna',
 		photoCredit: (photographer: string, license: string): string =>
 			`Wikimedia Commons, zdjęcie: ${photographer}, ${license}`,
+		licenceCredit: (license: string): string => `Wikimedia Commons, ${license}`,
 		unknownArtist: 'autor nieznany',
 		yearBce: (year: number): string => `${year} p.n.e.`
 	},
@@ -173,6 +174,7 @@ export const pl = {
 		ownImageUrlCredit: (host: string): string =>
 			`Twoje zdjęcie z adresu ${host}, widoczne tylko dla Ciebie.`,
 		findImageHint: 'Wpisz tytuł i autora, żeby znaleźć zdjęcie.',
+		chooseOtherImage: 'Wybierz inne',
 		title: 'Tytuł',
 		authors: 'Autorzy',
 		authorUnknown: 'Autor nieznany',
@@ -198,6 +200,24 @@ export const pl = {
 		discardDescription: 'Masz niezapisane zmiany w tym dziele. Jeśli wyjdziesz, znikną.',
 		keepEditing: 'Wróć do formularza',
 		discard: 'Odrzuć'
+	},
+	imageSearch: {
+		title: 'Które to dzieło?',
+		description: (title: string, authors: string): string =>
+			`Wyniki z Wikidata dla „${title}”${authors ? `, ${authors}` : ''}. Kliknij to, które dodajesz.`,
+		searching: 'Szukamy w Wikidata…',
+		noImage: 'W Wikimedia nie ma wolnego zdjęcia tego dzieła',
+		empty: 'Wikidata nie zna dzieła o takim tytule. Sprawdź pisownię albo dodaj własne zdjęcie.',
+		none: 'Żadne z tych',
+		errorTitle: 'Nie udało się przeszukać Wikidata',
+		retry: 'Szukaj jeszcze raz',
+		century: (century: string, beforeCommonEra: boolean): string =>
+			`${century} w.${beforeCommonEra ? ' p.n.e.' : ''}`
+	},
+	imageSearchErrors: {
+		rateLimited: 'Wikidata dostaje teraz sporo zapytań. Odczekaj chwilę i spróbuj jeszcze raz.',
+		network: 'Nie udało się połączyć z Wikidata. Sprawdź internet i spróbuj jeszcze raz.',
+		failed: 'Wikidata nie odpowiedziała jak trzeba. Spróbuj jeszcze raz za chwilę.'
 	},
 	artworkTypes: {
 		architecture: 'Architektura',

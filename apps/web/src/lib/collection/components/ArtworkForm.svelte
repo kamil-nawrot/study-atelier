@@ -158,7 +158,13 @@
 	{/if}
 
 	<div class="columns">
-		<ArtworkImageField alt={imageAlt} searchReady={imageSearchReady} bind:image={form.image} />
+		<ArtworkImageField
+			alt={imageAlt}
+			searchAuthors={form.authorUnknown ? [] : form.values.author}
+			searchReady={imageSearchReady}
+			searchTitle={form.title}
+			bind:image={form.image}
+		/>
 
 		<div class="fields">
 			<TextField
