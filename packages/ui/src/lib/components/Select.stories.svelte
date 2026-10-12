@@ -1,5 +1,6 @@
 <script lang="ts" module>
 	import { defineMeta } from '@storybook/addon-svelte-csf';
+	import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
 	import Select, { type SelectOption } from './Select.svelte';
 
 	const types: SelectOption[] = [
@@ -31,3 +32,14 @@
 <Story name="With error" args={{ error: 'Choose a type.' }} />
 
 <Story name="Disabled" args={{ value: 'sculpture', disabled: true }} />
+
+<Story
+	name="Compact"
+	args={{
+		label: 'Order',
+		icon: ArrowUpDown,
+		compact: true,
+		placeholder: undefined,
+		value: 'painting'
+	}}
+/>

@@ -6,6 +6,8 @@ export type WallArtwork = {
 	title: string;
 	authors: string[];
 	date?: string;
+	year: number | null;
+	periods: string[];
 	image?: ArtworkTileImage;
 };
 

@@ -152,6 +152,18 @@ export const pl = {
 		filteredCount: (shown: number, total: number): string =>
 			`${shown} z ${total} ${plural(total, { one: 'dzieła', few: 'dzieł', many: 'dzieł' })}`,
 		search: 'Szukaj po tytule',
+		sort: {
+			label: 'Kolejność',
+			recent: 'Ostatnio dodane',
+			period: 'Według epok'
+		},
+		periods: {
+			label: 'Epoki',
+			emptyTitle: 'Żadne dzieło nie ma jeszcze epoki',
+			empty:
+				'W tej kolejności widać tylko dzieła z wpisaną epoką. Dopisz epokę w dziele albo wróć do ostatnio dodanych.',
+			showRecent: 'Pokaż ostatnio dodane'
+		},
 		add: 'Dodaj dzieło',
 		emptyTitle: 'Twoje atelier jest jeszcze puste',
 		empty:
@@ -163,7 +175,8 @@ export const pl = {
 		clearSearch: 'Wyczyść wyszukiwanie',
 		loadErrorTitle: 'Nie udało się wczytać atelier',
 		year: (year: number, approximate: boolean): string =>
-			`${approximate ? 'ok. ' : ''}${year < 0 ? `${-year} p.n.e.` : year}`
+			`${approximate ? 'ok. ' : ''}${year < 0 ? `${-year} p.n.e.` : year}`,
+		yearRange: (from: string, to: string): string => `${from} – ${to}`
 	},
 	artworkForm: {
 		newTitle: 'Nowe dzieło',
