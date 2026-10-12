@@ -112,7 +112,7 @@ describe('edit artwork page', () => {
 			.toHaveValue('painting');
 		await expect
 			.element(page.getByRole('textbox', { name: m.artworkForm.notes }))
-			.toHaveValue('Seen in Amsterdam.');
+			.toHaveTextContent('Seen in Amsterdam.');
 		await expect.element(page.getByRole('button', { name: m.artworkForm.findImage })).toBeEnabled();
 		await expect
 			.element(page.getByRole('button', { name: m.artworkForm.saveAndNext }))

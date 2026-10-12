@@ -13,6 +13,14 @@ export type UiMessages = {
 	loading: string;
 	clearSearch: string;
 	closeDialog: string;
+	notesEditor: {
+		toolbar: string;
+		bold: string;
+		italic: string;
+		heading: string;
+		bulletedList: string;
+		numberedList: string;
+	};
 	valueField: {
 		existing: string;
 		starting: string;
@@ -39,6 +47,14 @@ export const defaultUiMessages: UiMessages = {
 	loading: 'Loading',
 	clearSearch: 'Clear search',
 	closeDialog: 'Close',
+	notesEditor: {
+		toolbar: 'Formatting',
+		bold: 'Bold',
+		italic: 'Italic',
+		heading: 'Heading',
+		bulletedList: 'Bulleted list',
+		numberedList: 'Numbered list'
+	},
 	valueField: {
 		existing: 'Already used',
 		starting: 'Starting list',

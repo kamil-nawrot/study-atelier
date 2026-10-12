@@ -3,7 +3,7 @@
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
 	import X from '@lucide/svelte/icons/x';
-	import { ArtworkImage, Button, Icon, Tag } from '@study-atelier/ui';
+	import { ArtworkImage, Button, Icon, Notes, Tag } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
 	import { formatRecordNumber, formatYear } from '../format.ts';
@@ -151,7 +151,7 @@
 			<section class="notes" aria-labelledby="artwork-notes">
 				<h2 id="artwork-notes" class="caption">{m.artworkForm.notes}</h2>
 				{#if artwork.notes.trim()}
-					<p>{artwork.notes}</p>
+					<Notes value={artwork.notes} />
 				{:else}
 					{@render empty()}
 				{/if}
@@ -340,10 +340,6 @@
 
 	.notes h2 {
 		font-weight: var(--font-weight-regular);
-	}
-
-	.notes p {
-		white-space: pre-line;
 	}
 
 	.empty {
