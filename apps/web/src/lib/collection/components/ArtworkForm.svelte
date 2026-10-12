@@ -367,7 +367,7 @@
 	}
 
 	.image-actions > :global(*) {
-		flex: 1 1 0;
+		flex: 1 1 auto;
 	}
 
 	.fields {
