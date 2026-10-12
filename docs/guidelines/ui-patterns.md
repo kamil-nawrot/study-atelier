@@ -41,6 +41,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 - The default look of HTML elements (links, headings, paragraphs, focus outline) lives only in `packages/ui/src/lib/styles/base.css`.
 - A style that two or more views repeat moves into a library component or `base.css`.
+- Library controls build on native HTML elements (`dialog`, `select`, `input`), which bring their behaviour, accessibility and the phone's own pickers. Their look comes from tokens. Styling that only some browsers support (for example `appearance: base-select`) sits inside `@supports`, so the other browsers keep the plain native look.
 
 ## Links and buttons
 
