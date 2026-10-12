@@ -16,7 +16,7 @@ How views and components look and behave, so every new screen stays consistent w
 - Spacing between elements comes from the parent (`display: grid` or `flex` with `gap`). Elements do not set their own outer margins; `base.css` resets them.
 - Each route group has a layout component in its domain folder, for example `AuthLayout` for the sign-in screens. A view passes its content through snippets (`children`, `footer`).
 - Views of the signed-in learner use `AtelierLayout`: the menu as an icon rail from 768 px and as a drawer opened from the top bar on a phone, and a sticky top bar whose content the view passes as the `bar` snippet.
-- Motion is short and functional: a panel that opens or closes, such as the side menu, transitions over `--duration-short`. Every transition sits inside `@media (prefers-reduced-motion: no-preference)`.
+- Motion is short and functional: a panel that opens or closes, such as the side menu, or a toast that appears and fades, transitions over `--duration-short`. Every transition sits inside `@media (prefers-reduced-motion: no-preference)`.
 - A search over a list is the library `SearchField` in the top bar. It filters as the learner types, and its accessible name comes from `label` because the bar has no room for a visible label. It is at most `--size-content-default` wide.
 - An icon button inside a field (show password, clear search) fills the field's height and is separated from the text by a hairline vertical divider.
 
@@ -57,6 +57,9 @@ How views and components look and behave, so every new screen stays consistent w
 - An error that belongs to one field is shown under the field (`TextField` `error`).
 - An error that belongs to the whole form is an `Alert` at the top of the form, with a title that names what failed ("Nie udało się zalogować").
 - A success that ends the task replaces the form with an `Alert`. A success that keeps the user on the same task stands above the action it confirms.
+- A short confirmation that must not move the layout is a `Toast`, for example "Zapisano dzieło #0012." after "Zapisz i dodaj kolejne" empties the form for the next artwork. It floats above the content, centred, at most `--size-content-narrow` wide from 768 px and full width with side gutters on a phone. It disappears after 5 seconds, waits while the pointer is over it and has no close button. A new message replaces the one on screen.
+- A view places one `Toast` and calls its `show(text)`. On a page with an action bar fixed to the bottom, the view passes the bar's height as `offset`, so the toast stands 16 px above the bar.
+- Errors and warnings are never toasts: they stay in an `Alert` or under the field until the learner acts on them, because a toast can disappear before it is read.
 - Raw errors from Supabase or other services are never shown; they are mapped to dictionary messages (see [code-conventions.md](code-conventions.md#errors-from-services)).
 
 ## Forms
@@ -87,6 +90,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 - An artwork image sits in `Frame`: `list` in lists, `view` in a detail view or on a stage. The image keeps its proportions and never fills a thumbnail slot at the side.
 - In the collection each artwork is an `ArtworkTile`: the image on a solid paper passe-partout, 8 px on the top and sides, with the title, authors and date on the wider bottom edge and the record number on the image. The passe-partout stays paper in both themes (`--color-mat-*`).
+- A record number is always shown as `#` and at least four digits, padded with zeros: `#0012`, and `#12345` past 9999. This holds for tiles, page titles and messages. The app builds it with `formatRecordNumber` from `#lib/collection/format.ts`, and `ArtworkTile` formats its own `number`. Only the URL uses the bare number, `/atelier/12` ([ADR-0023](../decisions/0023-atelier-routes-and-commons-thumbnails.md)).
 - The `alt` text of an artwork is "Title, Author". A decorative copy of the same image (for example a blurred backdrop) has `alt=""` and `aria-hidden="true"`.
 - A caption uses `figure`, `figcaption` and `cite.artwork-title`, with author and date as a caption and the image credit below. The credit names Wikimedia Commons; when the image is not public domain or CC0 (a CC BY or CC BY-SA photo of an old work), it also names the photographer and the licence.
 - A featured artwork sits on the stage: `--color-stage-bg` behind it and `--color-stage-fg` and `--color-stage-fg-muted` for its caption. The stage is dark in both themes.
