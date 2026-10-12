@@ -62,6 +62,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 - A form is the library `Form`: it turns off browser validation, prevents the page reload and, after submit, moves focus to the first field marked invalid.
 - Fields are `TextField`, `Checkbox` and future library inputs, each with a visible label and the right `autocomplete` value.
+- A single choice from a fixed list (for example the artwork type) is a `Select`, with an empty first option such as "Nie wybrano" passed as `placeholder` when the field is optional.
 - A category value (authors, period, style, material, location) is a `ValueField`: the chosen values are tags inside the field, and the suggestion list under it shows what the app passes as `options`. Which values to suggest, and whether a new value may be created, is decided in the app, not in the component.
 - On a phone, form fields take the full content width, and so do an image that belongs to the form and the buttons under it.
 - The flow on submit:
@@ -73,6 +74,13 @@ How views and components look and behave, so every new screen stays consistent w
   6. On success, navigate with `goto` or replace the form with a success `Alert`.
 - Fields are validated on submit, not while typing.
 - Limits used by a validator (for example `MIN_PASSWORD_LENGTH`) are exported constants, and the field hint uses the same constant.
+
+## Dialogs
+
+- A dialog is the library `Dialog`: a modal over `--color-scrim` that keeps focus inside, closes with Escape and returns focus to the element that opened it. The view controls it with `bind:open`.
+- The default size is for a task inside the dialog, such as picking an image candidate. It has a close button, takes the full screen on a phone and is at most 880 px wide from 768 px. Its actions sit in the `footer` snippet.
+- `size="small"` is for a confirmation such as "Odrzucić zmiany?": a short question as the title, the consequence as the `description`, and two buttons in the footer, the safe one first and the one that confirms as `primary`. It has no close button; Escape answers with the safe choice.
+- A dialog does not close when the learner clicks the scrim, so a choice is never lost by a stray click.
 
 ## Artwork images
 
