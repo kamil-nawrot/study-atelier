@@ -65,7 +65,7 @@
 	}
 </script>
 
-<AtelierLayout email={data.session.user.email ?? ''} title={m.trash.title} wideBar>
+<AtelierLayout email={data.session.user.email ?? ''} title={m.trash.title}>
 	{#snippet bar()}
 		<a class="back" href={resolve('/(app)/atelier')}>
 			<Icon icon={ArrowLeft} />

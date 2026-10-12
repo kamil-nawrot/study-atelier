@@ -18,10 +18,9 @@
 		children: Snippet;
 		confirmLeave?: () => Promise<boolean>;
 		fill?: boolean;
-		wideBar?: boolean;
 	};
 
-	let { title, email, bar, children, confirmLeave, fill = false, wideBar = fill }: Props = $props();
+	let { title, email, bar, children, confirmLeave, fill = false }: Props = $props();
 
 	let railExpanded = $state(false);
 	let signingOut = $state(false);
@@ -51,7 +50,7 @@
 	<title>{m.app.pageTitle(title)}</title>
 </svelte:head>
 
-<div class="atelier" class:fill class:wide-bar={wideBar}>
+<div class="atelier" class:fill>
 	<nav class="rail" class:expanded={railExpanded} aria-label={m.menu.label}>
 		<button
 			class="toggle"
@@ -136,7 +135,7 @@
 		display: flex;
 		align-items: stretch;
 		gap: var(--spacing-2);
-		padding: var(--spacing-3) var(--wall-inline);
+		padding: var(--spacing-3) var(--page-inline);
 		border-bottom: var(--border-width-hairline) solid var(--color-tag);
 		background: var(--color-bg);
 	}
@@ -164,10 +163,6 @@
 		display: grid;
 		gap: var(--spacing-6);
 		padding: var(--spacing-6) var(--wall-inline) var(--spacing-12);
-	}
-
-	.wide-bar .bar {
-		padding-inline: var(--page-inline);
 	}
 
 	.fill .content {
@@ -290,7 +285,7 @@
 
 		.bar {
 			gap: var(--spacing-3);
-			padding: var(--spacing-4) var(--wall-inline);
+			padding: var(--spacing-4) var(--page-inline);
 		}
 
 		.content {

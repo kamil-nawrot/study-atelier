@@ -40,10 +40,12 @@
 	title={m.artworkForm.newTitle}
 >
 	{#snippet bar()}
-		<a class="back" aria-label={m.artworkForm.back} href={atelierPath} onclick={backToAtelier}>
-			<Icon icon={ArrowLeft} />
-		</a>
-		<h1>{m.artworkForm.newTitle}</h1>
+		<div class="heading">
+			<a class="back" aria-label={m.artworkForm.back} href={atelierPath} onclick={backToAtelier}>
+				<Icon icon={ArrowLeft} />
+			</a>
+			<h1>{m.artworkForm.newTitle}</h1>
+		</div>
 	{/snippet}
 
 	<ArtworkForm
@@ -56,15 +58,24 @@
 </AtelierLayout>
 
 <style>
+	.heading {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		min-width: 0;
+	}
+
 	.back {
 		display: grid;
 		place-items: center;
 		flex: none;
-		padding: var(--spacing-2);
+		padding-block: var(--spacing-2);
 		color: var(--color-fg);
 	}
 
 	h1 {
-		align-self: center;
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-medium);
+		line-height: var(--line-height-sm);
 	}
 </style>

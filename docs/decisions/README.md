@@ -34,3 +34,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0028](0028-trash-as-a-list-with-confirmed-deletes.md) | Move artworks to a trash shown as a list, and confirm every delete | accepted |
 | [0029](0029-format-notes-with-a-visual-markdown-editor.md) | Format artwork notes with a visual editor that stores Markdown | accepted |
 | [0030](0030-loading-states-for-the-first-load-and-images.md) | Show loading as a primed canvas, for the first app load and for artwork images | accepted |
+| [0031](0031-full-width-top-bar-in-every-atelier-view.md) | Run the top bar of every atelier view across the full width of the page | accepted |
