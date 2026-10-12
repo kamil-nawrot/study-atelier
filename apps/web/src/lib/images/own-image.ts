@@ -5,6 +5,7 @@ import {
 	OWN_IMAGE_EXTENSIONS,
 	OWN_IMAGE_MAX_BYTES,
 	OWN_IMAGE_MAX_MEGABYTES,
+	SIGNED_URL_SECONDS,
 	isOwnImageType,
 	ownImageFormats
 } from './bucket.ts';
@@ -78,4 +79,12 @@ export async function uploadOwnImage(file: File): Promise<OwnImageUpload> {
 
 export async function removeOwnImage(path: string): Promise<void> {
 	await supabase.storage.from(IMAGES_BUCKET).remove([path]);
+}
+
+export async function ownImageUrl(path: string): Promise<string | undefined> {
+	const { data, error } = await supabase.storage
+		.from(IMAGES_BUCKET)
+		.createSignedUrl(path, SIGNED_URL_SECONDS);
+	if (error || !data) return undefined;
+	return data.signedUrl;
 }

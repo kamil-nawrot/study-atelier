@@ -3,6 +3,7 @@ declare global {
 		interface PageState {
 			email?: string;
 			highlight?: number;
+			saved?: number;
 		}
 
 		interface Platform {

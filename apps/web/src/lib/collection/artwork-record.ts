@@ -1,5 +1,5 @@
 import { m } from '#lib/i18n/index.ts';
-import { removeOwnImage, uploadOwnImage } from '#lib/images/own-image.ts';
+import { ownImageUrl, removeOwnImage, uploadOwnImage } from '#lib/images/own-image.ts';
 import { supabase } from '#lib/supabase.ts';
 import { artworkErrorMessage } from './errors.ts';
 import type {
@@ -247,6 +247,10 @@ export async function loadArtwork(number: number): Promise<LoadArtworkResult> {
 		.is('deleted_at', null)
 		.maybeSingle();
 	if (error) return { error: artworkErrorMessage(error) };
-	if (!data) return { error: m.artworkErrors.notFound };
-	return { artwork: artworkRecordFromRow(data as unknown as ArtworkRecordRow) };
+	if (!data) return { error: m.artworkErrors.notFound, notFound: true };
+	const artwork = artworkRecordFromRow(data as unknown as ArtworkRecordRow);
+	if (artwork.image?.kind === 'upload') {
+		artwork.image.previewUrl = await ownImageUrl(artwork.image.path);
+	}
+	return { artwork };
 }

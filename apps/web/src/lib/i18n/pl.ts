@@ -155,7 +155,11 @@ export const pl = {
 	},
 	artworkForm: {
 		newTitle: 'Nowe dzieło',
+		editTitle: (number: string): string => `Edytuj dzieło ${number}`,
 		back: 'Wróć do atelier',
+		goBack: 'Wróć',
+		notFoundTitle: (number: string): string => `Nie ma dzieła ${number}`,
+		loadErrorTitle: 'Nie udało się wczytać dzieła',
 		image: 'Zdjęcie',
 		findImage: 'Znajdź zdjęcie',
 		ownImage: 'Dodaj własne',
@@ -196,6 +200,7 @@ export const pl = {
 		saving: 'Zapisywanie…',
 		errorTitle: 'Nie udało się zapisać dzieła',
 		saved: (number: string): string => `Zapisano dzieło ${number}.`,
+		changesSaved: (number: string): string => `Zapisano zmiany w ${number}.`,
 		discardTitle: 'Odrzucić zmiany?',
 		discardDescription: 'Masz niezapisane zmiany w tym dziele. Jeśli wyjdziesz, znikną.',
 		keepEditing: 'Wróć do formularza',
@@ -318,6 +323,7 @@ export const pl = {
 		lead: 'Ten widok jest jeszcze w przygotowaniu.',
 		backToAtelier: 'Wróć do atelier',
 		artwork: (number: string): string => `Dzieło ${number}`,
+		edit: 'Edytuj',
 		trash: 'Kosz'
 	}
 };

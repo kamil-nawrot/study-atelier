@@ -57,7 +57,13 @@
 				? { src: image.previewUrl, width: image.width, height: image.height }
 				: image?.kind === 'url'
 					? { src: image.url, width: image.width ?? undefined, height: image.height ?? undefined }
-					: undefined
+					: image?.kind === 'upload' && image.previewUrl
+						? {
+								src: image.previewUrl,
+								width: image.width ?? undefined,
+								height: image.height ?? undefined
+							}
+						: undefined
 	);
 	let ownImage = $derived(image !== null && image.kind !== 'commons');
 

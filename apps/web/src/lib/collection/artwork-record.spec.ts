@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
-import { removeOwnImage, uploadOwnImage } from '#lib/images/own-image.ts';
+import { ownImageUrl, removeOwnImage, uploadOwnImage } from '#lib/images/own-image.ts';
 import { supabase } from '#lib/supabase.ts';
 import { emptyArtworkInput, loadArtwork, saveArtwork, validateArtwork } from './artwork-record.ts';
 import type { ArtworkImageInput, ArtworkInput } from './types.ts';
@@ -9,6 +9,7 @@ vi.mock('#lib/supabase.ts', () => ({
 	supabase: { from: vi.fn(), rpc: vi.fn() }
 }));
 vi.mock('#lib/images/own-image.ts', () => ({
+	ownImageUrl: vi.fn(),
 	uploadOwnImage: vi.fn(),
 	removeOwnImage: vi.fn()
 }));
@@ -396,7 +397,8 @@ describe('loadArtwork', () => {
 		});
 	});
 
-	it('reads an uploaded image before a Commons image', async () => {
+	it('reads an uploaded image before a Commons image, with a signed preview URL', async () => {
+		vi.mocked(ownImageUrl).mockResolvedValue('https://storage.example.com/signed/photo.jpg');
 		query.maybeSingle.mockResolvedValue({
 			data: row({
 				source_wikidata_id: 'Q1',
@@ -413,9 +415,11 @@ describe('loadArtwork', () => {
 		expect(artwork?.image).toEqual({
 			kind: 'upload',
 			path: 'user-id/artwork-1/photo.jpg',
+			previewUrl: 'https://storage.example.com/signed/photo.jpg',
 			width: 4,
 			height: 3
 		});
+		expect(ownImageUrl).toHaveBeenCalledWith('user-id/artwork-1/photo.jpg');
 	});
 
 	it('reads a Commons image with its licence', async () => {
@@ -447,7 +451,10 @@ describe('loadArtwork', () => {
 	it('says the artwork is missing when no row matches', async () => {
 		query.maybeSingle.mockResolvedValue({ data: null, error: null });
 
-		await expect(loadArtwork(99)).resolves.toEqual({ error: m.artworkErrors.notFound });
+		await expect(loadArtwork(99)).resolves.toEqual({
+			error: m.artworkErrors.notFound,
+			notFound: true
+		});
 	});
 
 	it('returns the dictionary message for a failed request', async () => {
