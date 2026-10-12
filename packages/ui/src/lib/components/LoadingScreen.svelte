@@ -96,16 +96,12 @@
 			animation: fade 2.6s linear infinite;
 		}
 
-		.stroke {
-			animation: 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-		}
-
 		.horizontal {
-			animation-name: horizontal-stroke;
+			animation: horizontal-stroke 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 		}
 
 		.vertical {
-			animation-name: vertical-stroke;
+			animation: vertical-stroke 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 		}
 	}
 

@@ -68,16 +68,12 @@
 			animation: fade 5.6s linear infinite;
 		}
 
-		.coat {
-			animation: 5.6s linear infinite;
-		}
-
 		.horizontal {
-			animation-name: horizontal-coat;
+			animation: horizontal-coat 5.6s linear infinite;
 		}
 
 		.vertical {
-			animation-name: vertical-coat;
+			animation: vertical-coat 5.6s linear infinite;
 		}
 	}
 
