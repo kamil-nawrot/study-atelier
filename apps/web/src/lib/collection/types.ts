@@ -26,6 +26,18 @@ export type ArtworkTypeCode =
 
 export type CategoryCode = 'author' | 'period' | 'style' | 'material' | 'location';
 
+export type CategoryValues = Record<CategoryCode, string[]>;
+
+export type CategoryValuesResult = {
+	values: CategoryValues;
+	error?: string;
+};
+
+export type ValueSuggestion = {
+	kind: 'similar' | 'existing' | 'starting' | 'new';
+	name: string;
+};
+
 export type ArtworkImageInput =
 	| {
 			kind: 'commons';

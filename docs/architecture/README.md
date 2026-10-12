@@ -46,6 +46,12 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 3. The wall places each tile into the shortest column by the image size stored with the artwork ([ADR-0022](../decisions/0022-add-and-edit-an-artwork-in-one-full-form.md)), and offers thumbnails up to that width. An artwork without a stored size counts as 4:5 and gets thumbnails up to the tile width; if Commons does not answer the wall still shows every image.
 4. Search by title runs in the browser on the loaded list.
 
+### Suggesting category values
+
+1. The form loads the learner's category values once, through their artworks outside the trash, so values used only by trashed artworks are not suggested ([R-23](../product/requirements.md#artworks), `#lib/collection/category-values.ts`). The starting lists of periods, styles and materials ([R-24](../product/requirements.md#category-values)) live in the message dictionary, in the interface language.
+2. While the learner types, `#lib/collection/value-suggestions.ts` builds the list in the browser: a likely typo of a used value first ("Masz już „…”"), then used values, then the starting list, then the new value. Values starting with the typed text come before values containing it; chosen values are left out.
+3. Values are compared by a key that ignores letter case, diacritics and repeated spaces. A new value with the same key as a used one is not offered; the used one is. A starting-list value can still be created in the learner's own spelling, because only used values count as existing. A likely typo is a different key within one edit (letters added, removed, changed or swapped) for keys of 4 to 8 characters, or two edits from 9 characters on, and is checked only when the typed text is not already part of that value ([R-25](../product/requirements.md#category-values)).
+
 ### Saving an artwork
 
 1. `#lib/collection/artwork-record.ts` checks the required fields (title, an author or "author unknown", a valid year) and returns field errors without calling Supabase.
