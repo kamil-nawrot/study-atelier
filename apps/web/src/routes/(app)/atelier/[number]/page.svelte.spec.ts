@@ -87,6 +87,21 @@ describe('artwork page', () => {
 		await expect.element(backLink()).toHaveAttribute('href', '/atelier');
 	});
 
+	it('shows formatted notes and no raw Markdown or HTML', async () => {
+		renderPage({
+			artwork: artwork({
+				notes:
+					'### Light\n\nFrom the **left** window.\n\n- Delft\n- Oil\n\n<img src=x onerror=alert(1)>'
+			})
+		});
+
+		await expect.element(page.getByRole('heading', { name: 'Light', level: 3 })).toBeVisible();
+		await expect.element(page.getByText('left', { exact: true })).toBeVisible();
+		await expect.element(page.getByRole('listitem').filter({ hasText: 'Delft' })).toBeVisible();
+		await expect.element(page.getByText('<img src=x onerror=alert(1)>')).toBeVisible();
+		expect(document.querySelector('.notes img')).toBeNull();
+	});
+
 	it('marks the fields the learner has not filled in', async () => {
 		renderPage({
 			artwork: artwork({

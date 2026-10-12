@@ -20,6 +20,14 @@ export const pl = {
 		loading: 'Wczytywanie',
 		clearSearch: 'Wyczyść wyszukiwanie',
 		closeDialog: 'Zamknij',
+		notesEditor: {
+			toolbar: 'Formatowanie',
+			bold: 'Pogrubienie',
+			italic: 'Kursywa',
+			heading: 'Nagłówek',
+			bulletedList: 'Lista punktowana',
+			numberedList: 'Lista numerowana'
+		},
 		valueField: {
 			existing: 'Już używane',
 			starting: 'Lista startowa',

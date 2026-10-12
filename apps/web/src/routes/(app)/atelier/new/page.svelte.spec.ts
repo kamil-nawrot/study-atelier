@@ -235,6 +235,27 @@ describe('add artwork page', () => {
 			.toBeVisible();
 	});
 
+	it('saves formatted notes as Markdown', async () => {
+		renderPage();
+		await fillRequired();
+		await page.getByRole('textbox', { name: m.artworkForm.notes }).click();
+		await userEvent.keyboard('{Control>}b{/Control}');
+		await userEvent.keyboard('Light');
+		await userEvent.keyboard('{Control>}b{/Control}');
+		await userEvent.keyboard(' from the left');
+
+		await saveButton().click();
+
+		await vi.waitFor(() =>
+			expect(supabase.rpc).toHaveBeenCalledWith(
+				'save_artwork',
+				expect.objectContaining({
+					artwork: expect.objectContaining({ notes: '**Light** from the left' })
+				})
+			)
+		);
+	});
+
 	it('saves the artwork and opens the atelier with the new tile highlighted', async () => {
 		renderPage();
 		await fillRequired();

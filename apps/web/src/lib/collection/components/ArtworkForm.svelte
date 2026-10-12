@@ -7,7 +7,7 @@
 		Dialog,
 		Form,
 		Select,
-		TextArea,
+		NotesEditor,
 		TextField,
 		Toast,
 		ValueField
@@ -234,7 +234,7 @@
 				/>
 			{/each}
 
-			<TextArea
+			<NotesEditor
 				label={m.artworkForm.notes}
 				placeholder={m.artworkForm.notesPlaceholder}
 				bind:value={form.notes}
