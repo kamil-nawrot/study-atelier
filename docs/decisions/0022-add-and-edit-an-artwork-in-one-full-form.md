@@ -54,4 +54,4 @@ Chosen option: 2, one full form on its own page, because it keeps adding and edi
 
 - Mockup: https://claude.ai/artifact/JUynL7GJmoEHJCb1XFGXGn
 - R-13 (comparing title and author with the image source) moves to a later version.
-- Implementation: ATL-40. The artwork detail view and the exact edit route are settled there.
+- Implementation: ATL-40. The artwork view is decided in [ADR-0026](0026-artwork-view-as-a-stage-with-an-information-panel.md).
