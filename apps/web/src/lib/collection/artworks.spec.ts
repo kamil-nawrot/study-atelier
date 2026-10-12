@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { IMAGES_BUCKET } from '#lib/images/bucket.ts';
 import { fetchCommonsThumbnails } from '#lib/images/commons.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
-import { DEFAULT_IMAGE_SIZE, IMAGES_BUCKET, loadAtelier } from './artworks.ts';
+import { DEFAULT_IMAGE_SIZE, loadAtelier } from './artworks.ts';
 
 vi.mock('#lib/images/commons.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/images/commons.ts')>()),

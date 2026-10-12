@@ -1,7 +1,4 @@
 <script lang="ts">
-	import ImageIcon from '@lucide/svelte/icons/image';
-	import ImagePlus from '@lucide/svelte/icons/image-plus';
-	import Search from '@lucide/svelte/icons/search';
 	import { tick } from 'svelte';
 	import {
 		Alert,
@@ -9,7 +6,6 @@
 		Checkbox,
 		Dialog,
 		Form,
-		Icon,
 		Select,
 		TextArea,
 		TextField,
@@ -20,6 +16,7 @@
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
 	import {
+		artworkImageAlt,
 		artworkInputFromForm,
 		artworkTypeOptions,
 		canSearchImage,
@@ -30,6 +27,7 @@
 	import { startingValues, takesOneValue } from '../category-values.ts';
 	import { formatRecordNumber } from '../format.ts';
 	import { suggestValues } from '../value-suggestions.ts';
+	import ArtworkImageField from './ArtworkImageField.svelte';
 	import type {
 		ArtworkFieldErrors,
 		CategoryCode,
@@ -68,6 +66,7 @@
 	let answerDiscard: ((discard: boolean) => void) | null = null;
 
 	let imageSearchReady = $derived(canSearchImage(form));
+	let imageAlt = $derived(artworkImageAlt(form));
 
 	export function confirmLeave(): Promise<boolean> {
 		if (leaving || !formHasChanges(form, saved)) return Promise.resolve(true);
@@ -159,26 +158,7 @@
 	{/if}
 
 	<div class="columns">
-		<section class="image" aria-label={m.artworkForm.image}>
-			<div class="mat">
-				<div class="window">
-					<Icon icon={ImageIcon} />
-				</div>
-			</div>
-			<div class="image-actions">
-				<Button disabled={!imageSearchReady}>
-					<Icon icon={Search} size="sm" />
-					{m.artworkForm.findImage}
-				</Button>
-				<Button>
-					<Icon icon={ImagePlus} size="sm" />
-					{m.artworkForm.ownImage}
-				</Button>
-			</div>
-			{#if !imageSearchReady}
-				<p class="caption">{m.artworkForm.findImageHint}</p>
-			{/if}
-		</section>
+		<ArtworkImageField alt={imageAlt} searchReady={imageSearchReady} bind:image={form.image} />
 
 		<div class="fields">
 			<TextField
@@ -283,35 +263,6 @@
 		gap: var(--spacing-8);
 	}
 
-	.image {
-		display: grid;
-		align-content: start;
-		gap: var(--spacing-3);
-	}
-
-	.mat {
-		padding: var(--spacing-2);
-		background: var(--color-mat-bg);
-	}
-
-	.window {
-		display: grid;
-		place-items: center;
-		aspect-ratio: 4 / 5;
-		background: var(--color-mat-window);
-		color: var(--color-mat-fg-muted);
-	}
-
-	.image-actions {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--spacing-2);
-	}
-
-	.image-actions > :global(*) {
-		flex: 1 1 0;
-	}
-
 	.fields {
 		display: grid;
 		align-content: start;
@@ -354,15 +305,6 @@
 		.columns {
 			grid-template-columns: minmax(220px, 1fr) minmax(0, 1.25fr);
 			gap: var(--spacing-12);
-		}
-
-		.image {
-			position: sticky;
-			top: var(--spacing-24);
-		}
-
-		.image-actions > :global(*) {
-			flex: none;
 		}
 
 		.fields {

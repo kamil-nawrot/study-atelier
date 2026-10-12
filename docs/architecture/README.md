@@ -33,7 +33,7 @@ The atelier lives in Supabase Postgres ([ADR-0014](../decisions/0014-artwork-col
 - `artworks`: one row per artwork, with its per-learner record number, image references and the width and height of its current image ([ADR-0022](../decisions/0022-add-and-edit-an-artwork-in-one-full-form.md)).
 - `category_values` and `artwork_values`: authors, periods, styles, materials and locations, shared between a learner's artworks.
 - `categories` and `artwork_types`: fixed lists, extended by migrations.
-- Storage bucket `artwork-images`: the learner's own images, private, one folder per learner.
+- Storage bucket `artwork-images`: the learner's own images, private, one folder per learner, at most 5 MB each in JPG, PNG, WebP, GIF or AVIF. The app mirrors these settings in `#lib/images/bucket.ts` ([ADR-0025](../decisions/0025-upload-the-own-image-when-the-artwork-is-saved.md)).
 
 Every learner-owned row is protected by Row Level Security on `owner_id`. An artwork and its category values are saved together by the database function `save_artwork` in one transaction ([ADR-0024](../decisions/0024-save-an-artwork-in-one-database-function.md)).
 
@@ -52,12 +52,21 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 2. While the learner types, `#lib/collection/value-suggestions.ts` builds the list in the browser: a likely typo of a used value first ("Masz już „…”"), then used values, then the starting list, then the new value. Values starting with the typed text come before values containing it; chosen values are left out.
 3. Values are compared by a key that ignores letter case, diacritics and repeated spaces. A new value with the same key as a used one is not offered; the used one is. A starting-list value can still be created in the learner's own spelling, because only used values count as existing. A likely typo is a different key within one edit (letters added, removed, changed or swapped) for keys of 4 to 8 characters, or two edits from 9 characters on, and is checked only when the typed text is not already part of that value ([R-25](../product/requirements.md#category-values)).
 
+### Adding the learner's own image
+
+1. "Dodaj własne" opens a dialog with "Wybierz plik z dysku" and a field for an image URL.
+2. A picked file is checked against the bucket's types and size limit and shown from a local object URL; its width and height are read from that preview. Nothing is uploaded yet.
+3. A URL must be a full `https` address. The browser loads its image to read the width and height; an address whose image does not load is rejected under the field ([ADR-0025](../decisions/0025-upload-the-own-image-when-the-artwork-is-saved.md)).
+4. An own image replaces an image from the image source and the other way round, because the form holds one image at a time.
+
 ### Saving an artwork
 
 1. `#lib/collection/artwork-record.ts` checks the required fields (title, an author or "author unknown", a valid year) and returns field errors without calling Supabase.
-2. It calls the `save_artwork` RPC once with the artwork's columns and its value names by category; the year is stored negative before the common era ([ADR-0014](../decisions/0014-artwork-collection-data-model.md)).
-3. The function inserts or updates the artwork, creates the names the learner does not have yet, replaces the artwork's value links and returns the record number, all in one transaction ([ADR-0024](../decisions/0024-save-an-artwork-in-one-database-function.md)).
-4. Loading an artwork for editing reads it by record number with its values, outside the trash.
+2. If the learner picked their own file, it uploads it to `artwork-images` at `<learner id>/<random uuid>.<extension>` (`#lib/images/own-image.ts`). A failed upload stops the save ([ADR-0025](../decisions/0025-upload-the-own-image-when-the-artwork-is-saved.md)).
+3. It calls the `save_artwork` RPC once with the artwork's columns and its value names by category; the year is stored negative before the common era ([ADR-0014](../decisions/0014-artwork-collection-data-model.md)).
+4. The function inserts or updates the artwork, creates the names the learner does not have yet, replaces the artwork's value links and returns the record number, all in one transaction ([ADR-0024](../decisions/0024-save-an-artwork-in-one-database-function.md)).
+5. If the save failed, the file uploaded in step 2 is removed. If it succeeded and the artwork's previous uploaded file was replaced or removed, that file is removed.
+6. Loading an artwork for editing reads it by record number with its values, outside the trash.
 
 ## 7. Deployment view
 
