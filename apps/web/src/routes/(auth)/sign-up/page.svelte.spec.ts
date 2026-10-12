@@ -79,6 +79,38 @@ describe('sign-up page', () => {
 		expect(goto).toHaveBeenCalledTimes(1);
 	});
 
+	it('points to sign-in and a new password when the account already exists', async () => {
+		signUp.mockResolvedValue({
+			data: { user: { ...testSession().user, identities: [] }, session: null },
+			error: null
+		});
+
+		await submit(TEST_EMAIL, 'correct-password');
+
+		const alert = page.getByRole('alert');
+		await expect.element(alert).toHaveTextContent(m.signUp.errorTitle);
+		await expect.element(alert).toHaveTextContent(m.signUp.accountExists);
+		await expect
+			.element(alert.getByRole('link', { name: m.signUp.toSignIn }))
+			.toHaveAttribute('href', '/sign-in');
+		await expect
+			.element(alert.getByRole('link', { name: m.signUp.forgotPassword }))
+			.toHaveAttribute('href', '/forgot-password');
+		await expect.element(page.getByRole('button', { name: m.signUp.submit })).toBeEnabled();
+		expect(goto).not.toHaveBeenCalled();
+	});
+
+	it('reports an existing account when Supabase returns user_already_exists', async () => {
+		signUp.mockResolvedValue({
+			data: { user: null, session: null },
+			error: apiError('user_already_exists', 422)
+		});
+
+		await submit(TEST_EMAIL, 'correct-password');
+
+		await expect.element(page.getByRole('alert')).toHaveTextContent(m.signUp.accountExists);
+	});
+
 	it('disables the button while creating the account', async () => {
 		signUp.mockReturnValue(pending());
 
