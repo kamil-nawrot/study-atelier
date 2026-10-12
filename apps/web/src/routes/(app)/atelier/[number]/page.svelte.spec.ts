@@ -34,7 +34,7 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 		materials: ['Oil', 'Canvas'],
 		location: 'Mauritshuis',
 		notes: 'A tronie, not a portrait.',
-		image: { kind: 'url', url: PIXEL, width: 4, height: 5 },
+		image: { kind: 'url', url: PIXEL, width: 400, height: 500 },
 		...overrides
 	};
 }
