@@ -59,6 +59,6 @@ Chosen options: the button in the dialog plus Ctrl+V anywhere in the form, rejec
 
 ## More information
 
-- Design: ATL-76. Implementation: a build issue in Linear.
+- Design: ATL-76. Implementation: ATL-77.
 - Making large images smaller in the browser stays the idea ATL-59.
 - Other layouts considered for the dialog: the two buttons in a row without a highlighted area, and a list of three rows (clipboard, disk, address). The highlighted area was chosen because it puts pasting first.
