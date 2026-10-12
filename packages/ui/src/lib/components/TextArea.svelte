@@ -64,7 +64,13 @@
 		color: var(--color-fg-muted);
 	}
 
+	.field:has(textarea:disabled) label {
+		color: var(--color-fg-muted);
+	}
+
 	textarea:disabled {
+		border-color: var(--color-tag);
+		background: var(--color-tag);
 		color: var(--color-fg-muted);
 		cursor: not-allowed;
 	}

@@ -43,8 +43,24 @@ describe('ValueField', () => {
 		await userEvent.keyboard('{ArrowUp}{Enter}');
 
 		await expect.element(page.getByRole('button', { name: texts.remove('rococo') })).toBeVisible();
-		await expect.element(field).toHaveAttribute('aria-expanded', 'false');
 		await expect.element(field).toHaveFocus();
+	});
+
+	it('keeps the suggestions open after a pick so the learner can add the next value', async () => {
+		render(ValueField, { label: 'Style', options });
+
+		const field = page.getByRole('combobox', { name: 'Style' });
+		await userEvent.click(field);
+		await userEvent.click(page.getByRole('option', { name: 'gothic' }));
+
+		await expect.element(field).toHaveFocus();
+		await expect.element(field).toHaveAttribute('aria-expanded', 'true');
+		await expect
+			.element(page.getByRole('option', { name: 'baroque' }))
+			.toHaveAttribute('aria-selected', 'true');
+		await userEvent.keyboard('{Enter}');
+		await expect.element(page.getByRole('button', { name: texts.remove('baroque') })).toBeVisible();
+		await expect.element(field).toHaveAttribute('aria-expanded', 'true');
 	});
 
 	it('picks an option on click and clears the typed text', async () => {
@@ -78,14 +94,33 @@ describe('ValueField', () => {
 		await expect.element(page.getByText('Vermeer')).not.toBeInTheDocument();
 	});
 
-	it('removes a value with its button and returns focus to the field', async () => {
-		render(ValueField, { label: 'Authors', values: ['Rembrandt', 'Vermeer'] });
+	it('removes a value on click without focusing the field or opening the suggestions', async () => {
+		render(ValueField, { label: 'Authors', values: ['Rembrandt', 'Vermeer'], options });
 
 		await userEvent.click(page.getByRole('button', { name: texts.remove('Rembrandt') }));
 
+		const field = page.getByRole('combobox', { name: 'Authors' });
 		await expect.element(page.getByText('Rembrandt')).not.toBeInTheDocument();
 		await expect.element(page.getByText('Vermeer')).toBeVisible();
-		await expect.element(page.getByRole('combobox', { name: 'Authors' })).toHaveFocus();
+		await expect.element(field).not.toHaveFocus();
+		await expect.element(field).toHaveAttribute('aria-expanded', 'false');
+	});
+
+	it('moves keyboard focus to the next remove button, then to the closed field', async () => {
+		render(ValueField, { label: 'Authors', values: ['Rembrandt', 'Vermeer'], options });
+
+		page
+			.getByRole('button', { name: texts.remove('Rembrandt') })
+			.element()
+			.focus();
+		await userEvent.keyboard('{Enter}');
+		const vermeer = page.getByRole('button', { name: texts.remove('Vermeer') });
+		await expect.element(vermeer).toHaveFocus();
+		await userEvent.keyboard('{Enter}');
+
+		const field = page.getByRole('combobox', { name: 'Authors' });
+		await expect.element(field).toHaveFocus();
+		await expect.element(field).toHaveAttribute('aria-expanded', 'false');
 	});
 
 	it('offers a new value to add', async () => {
@@ -140,7 +175,7 @@ describe('ValueField', () => {
 		await expect.element(page.getByRole('combobox')).not.toBeInTheDocument();
 		await expect.element(page.getByRole('button', { name: texts.remove('Louvre') })).toHaveFocus();
 		await userEvent.click(page.getByRole('button', { name: texts.remove('Louvre') }));
-		await expect.element(page.getByRole('combobox', { name: 'Location' })).toHaveFocus();
+		await expect.element(page.getByRole('combobox', { name: 'Location' })).toBeVisible();
 	});
 
 	it('is disabled without remove buttons or suggestions', async () => {

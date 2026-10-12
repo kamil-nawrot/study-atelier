@@ -86,8 +86,13 @@
 		border-color: var(--color-danger);
 	}
 
+	.field:has(select:disabled) label {
+		color: var(--color-fg-muted);
+	}
+
 	.control:has(select:disabled) {
-		border-color: var(--color-fg-muted);
+		border-color: var(--color-tag);
+		background: var(--color-tag);
 	}
 
 	select {
