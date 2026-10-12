@@ -115,6 +115,48 @@
 		color: var(--color-fg);
 	}
 
+	@supports (appearance: base-select) {
+		select,
+		select::picker(select) {
+			appearance: base-select;
+		}
+
+		select::picker-icon {
+			display: none;
+		}
+
+		select::picker(select) {
+			width: calc(anchor-size(width) + 2 * var(--border-width-base));
+			margin: var(--border-width-base) 0 0 calc(-1 * var(--border-width-base));
+			padding: var(--spacing-1) 0;
+			border: var(--border-width-base) solid var(--color-line);
+			border-radius: var(--border-radius-none);
+			background: var(--color-bg);
+			color: var(--color-fg);
+		}
+
+		option {
+			padding: var(--spacing-2) var(--spacing-3);
+			font-size: var(--font-size-md);
+			line-height: var(--line-height-md);
+			cursor: pointer;
+		}
+
+		option::checkmark {
+			display: none;
+		}
+
+		option:checked {
+			font-weight: var(--font-weight-medium);
+		}
+
+		option:hover,
+		option:focus-visible {
+			outline: none;
+			background: var(--color-tag);
+		}
+	}
+
 	.chevron {
 		position: absolute;
 		top: 0;

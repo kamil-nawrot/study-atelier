@@ -62,7 +62,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 - A form is the library `Form`: it turns off browser validation, prevents the page reload and, after submit, moves focus to the first field marked invalid.
 - Fields are `TextField`, `Checkbox` and future library inputs, each with a visible label and the right `autocomplete` value.
-- A single choice from a fixed list (for example the artwork type) is a `Select`, with an empty first option such as "Nie wybrano" passed as `placeholder` when the field is optional.
+- A single choice from a fixed list (for example the artwork type) is a `Select`, with an empty first option such as "Nie wybrano" passed as `placeholder` when the field is optional. The open list is the browser's own (the system picker on a phone); where the browser supports `appearance: base-select` (Chrome), the list is styled like the `ValueField` suggestions.
 - A category value (authors, period, style, material, location) is a `ValueField`: the chosen values are tags inside the field, and the suggestion list under it shows what the app passes as `options`. Which values to suggest, and whether a new value may be created, is decided in the app, not in the component.
 - On a phone, form fields take the full content width, and so do an image that belongs to the form and the buttons under it.
 - The flow on submit:
