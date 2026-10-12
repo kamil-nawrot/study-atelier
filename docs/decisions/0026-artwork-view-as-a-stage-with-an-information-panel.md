@@ -50,4 +50,5 @@ Chosen option: 3, a stage with a side panel, because the artwork gets the most r
 ## More information
 
 - Design: thread "ATL-63 Widok szczegółów dzieła", 2026-10-12; screenshots were shown in the thread and are not kept in the repository.
+- The closed panel strip, the panel animation and the top bar width are refined in [ADR-0027](0027-artwork-view-refinements.md).
 - Implementation: ATL-63. Deleting and restoring an artwork ("Usuń"): ATL-64. The empty image window: ATL-62.
