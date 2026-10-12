@@ -152,6 +152,49 @@ export const pl = {
 		year: (year: number, approximate: boolean): string =>
 			`${approximate ? 'ok. ' : ''}${year < 0 ? `${-year} p.n.e.` : year}`
 	},
+	artworkForm: {
+		newTitle: 'Nowe dzieło',
+		back: 'Wróć do atelier',
+		image: 'Zdjęcie',
+		findImage: 'Znajdź zdjęcie',
+		ownImage: 'Dodaj własne',
+		findImageHint: 'Wpisz tytuł i autora, żeby znaleźć zdjęcie.',
+		title: 'Tytuł',
+		authors: 'Autorzy',
+		authorUnknown: 'Autor nieznany',
+		year: 'Rok powstania',
+		beforeCommonEra: 'p.n.e.',
+		yearApproximate: 'ok.',
+		type: 'Typ',
+		typeNone: 'Nie wybrano',
+		period: 'Epoka',
+		style: 'Styl',
+		material: 'Materiał',
+		location: 'Miejsce',
+		locationHint: 'Gdzie dzieło jest teraz. Jedna wartość.',
+		notes: 'Notatki',
+		notesPlaceholder: 'Co warto zapamiętać, skąd znasz to dzieło',
+		cancel: 'Anuluj',
+		saveAndNext: 'Zapisz i dodaj kolejne',
+		save: 'Zapisz',
+		saving: 'Zapisywanie…',
+		errorTitle: 'Nie udało się zapisać dzieła',
+		saved: (number: string): string => `Zapisano dzieło ${number}.`,
+		discardTitle: 'Odrzucić zmiany?',
+		discardDescription: 'Masz niezapisane zmiany w tym dziele. Jeśli wyjdziesz, znikną.',
+		keepEditing: 'Wróć do formularza',
+		discard: 'Odrzuć'
+	},
+	artworkTypes: {
+		architecture: 'Architektura',
+		painting: 'Malarstwo',
+		sculpture: 'Rzeźba',
+		drawing: 'Rysunek',
+		printmaking: 'Grafika',
+		applied_arts: 'Rzemiosło artystyczne',
+		photography: 'Fotografia',
+		other: 'Inne'
+	},
 	collectionErrors: {
 		network: 'Nie udało się połączyć z serwerem. Sprawdź internet i odśwież stronę.'
 	},
@@ -227,7 +270,6 @@ export const pl = {
 	comingSoon: {
 		lead: 'Ten widok jest jeszcze w przygotowaniu.',
 		backToAtelier: 'Wróć do atelier',
-		addArtwork: 'Dodaj dzieło',
 		artwork: (number: string): string => `Dzieło ${number}`,
 		trash: 'Kosz'
 	}

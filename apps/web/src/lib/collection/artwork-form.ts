@@ -1,0 +1,66 @@
+import { emptyCategoryValues } from './category-values.ts';
+import type { SelectOption } from '@study-atelier/ui';
+import { m } from '#lib/i18n/index.ts';
+import type { ArtworkFormState, ArtworkInput, ArtworkTypeCode } from './types.ts';
+
+export const ARTWORK_TYPE_CODES: readonly ArtworkTypeCode[] = [
+	'architecture',
+	'painting',
+	'sculpture',
+	'drawing',
+	'printmaking',
+	'applied_arts',
+	'photography',
+	'other'
+];
+
+export function artworkTypeOptions(): SelectOption[] {
+	return ARTWORK_TYPE_CODES.map((code) => ({ value: code, label: m.artworkTypes[code] }));
+}
+
+export function emptyArtworkForm(): ArtworkFormState {
+	return {
+		title: '',
+		values: emptyCategoryValues(),
+		queries: { author: '', period: '', style: '', material: '', location: '' },
+		authorUnknown: false,
+		year: '',
+		beforeCommonEra: false,
+		yearApproximate: false,
+		typeCode: '',
+		notes: '',
+		image: null
+	};
+}
+
+export function parseYear(text: string): number | null {
+	const year = text.trim();
+	if (year === '') return null;
+	return /^\d+$/.test(year) ? Number(year) : Number.NaN;
+}
+
+export function artworkInputFromForm(form: ArtworkFormState): ArtworkInput {
+	return {
+		title: form.title,
+		authors: form.authorUnknown ? [] : [...form.values.author],
+		authorUnknown: form.authorUnknown,
+		year: parseYear(form.year),
+		beforeCommonEra: form.beforeCommonEra,
+		yearApproximate: form.yearApproximate,
+		typeCode: form.typeCode || null,
+		periods: [...form.values.period],
+		styles: [...form.values.style],
+		materials: [...form.values.material],
+		location: form.values.location[0] ?? null,
+		notes: form.notes,
+		image: form.image
+	};
+}
+
+export function formHasChanges(form: ArtworkFormState, saved: ArtworkFormState): boolean {
+	return JSON.stringify(form) !== JSON.stringify(saved);
+}
+
+export function canSearchImage(form: ArtworkFormState): boolean {
+	return form.title.trim() !== '' && (form.authorUnknown || form.values.author.length > 0);
+}

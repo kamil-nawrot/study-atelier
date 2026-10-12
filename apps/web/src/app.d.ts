@@ -2,6 +2,7 @@ declare global {
 	namespace App {
 		interface PageState {
 			email?: string;
+			highlight?: number;
 		}
 
 		interface Platform {

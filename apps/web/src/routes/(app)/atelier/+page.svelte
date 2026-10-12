@@ -1,7 +1,9 @@
 <script lang="ts">
 	import Plus from '@lucide/svelte/icons/plus';
 	import { Alert, Button, Icon, SearchField, Section } from '@study-atelier/ui';
+	import { replaceState } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import { filterByTitle } from '#lib/collection/search.ts';
@@ -18,6 +20,18 @@
 	};
 
 	const addPath = resolve('/(app)/atelier/new');
+	const HIGHLIGHT_MS = 2000;
+
+	let highlight = $state(page.state.highlight);
+
+	$effect(() => {
+		if (highlight === undefined) return;
+		const timer = setTimeout(() => {
+			highlight = undefined;
+			replaceState('', {});
+		}, HIGHLIGHT_MS);
+		return () => clearTimeout(timer);
+	});
 
 	let shown = $derived(filterByTitle(data.artworks, query));
 	let total = $derived(data.artworks.length);
@@ -81,7 +95,7 @@
 			</Section>
 		</div>
 	{:else}
-		<ArtworkWall artworks={shown} />
+		<ArtworkWall artworks={shown} {highlight} />
 	{/if}
 </AtelierLayout>
 

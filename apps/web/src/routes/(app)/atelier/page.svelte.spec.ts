@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { goto } from '$app/navigation';
+import { goto, replaceState } from '$app/navigation';
 import type { WallArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
@@ -9,7 +9,13 @@ import { testArtwork } from '#lib/testing/artworks.ts';
 import { pending, TEST_EMAIL, testSession } from '#lib/testing/auth.ts';
 import AtelierPage from './+page.svelte';
 
-vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
+const navigation = vi.hoisted(() => ({
+	state: {} as App.PageState,
+	url: new URL('http://localhost/atelier')
+}));
+
+vi.mock('$app/state', () => ({ page: navigation }));
+vi.mock('$app/navigation', () => ({ goto: vi.fn(), replaceState: vi.fn() }));
 vi.mock('#lib/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
@@ -33,7 +39,26 @@ function searchField(): ReturnType<typeof page.getByRole> {
 describe('atelier page', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
+		navigation.state = {};
 		await page.viewport(1280, 800);
+	});
+
+	it('highlights the artwork just saved for a moment', async () => {
+		vi.useFakeTimers();
+		navigation.state = { highlight: 2 };
+		renderAtelier();
+
+		const saved = page.getByRole('listitem').filter({ hasText: 'Starry Night' });
+		await expect.element(saved).toHaveClass('highlight');
+		await expect
+			.element(page.getByRole('listitem').filter({ hasText: 'Night Watch' }))
+			.not.toHaveClass('highlight');
+
+		vi.advanceTimersByTime(2000);
+		vi.useRealTimers();
+
+		await expect.element(saved).not.toHaveClass('highlight');
+		expect(replaceState).toHaveBeenCalledWith('', {});
 	});
 
 	it('shows every artwork with the count', async () => {

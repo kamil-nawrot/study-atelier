@@ -16,9 +16,10 @@
 		email: string;
 		bar?: Snippet;
 		children: Snippet;
+		confirmLeave?: () => Promise<boolean>;
 	};
 
-	let { title, email, bar, children }: Props = $props();
+	let { title, email, bar, children, confirmLeave }: Props = $props();
 
 	let railExpanded = $state(false);
 	let signingOut = $state(false);
@@ -36,6 +37,8 @@
 	}
 
 	async function submitSignOut(): Promise<void> {
+		if (drawer.open) drawer.close();
+		if (confirmLeave && !(await confirmLeave())) return;
 		signingOut = true;
 		await signOut();
 		await goto(resolve('/(auth)/sign-in'), { invalidateAll: true });
