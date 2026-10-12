@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
 import {
+	artworkImageAlt,
 	artworkInputFromForm,
 	artworkTypeOptions,
 	canSearchImage,
@@ -108,6 +109,26 @@ describe('canSearchImage', () => {
 		form.authorUnknown = true;
 
 		expect(canSearchImage(form)).toBe(false);
+	});
+});
+
+describe('artworkImageAlt', () => {
+	it('names the image by title and authors', () => {
+		const form = emptyArtworkForm();
+		form.title = ' The Milkmaid ';
+		form.values.author = ['Johannes Vermeer', 'Test Painter'];
+
+		expect(artworkImageAlt(form)).toBe('The Milkmaid, Johannes Vermeer, Test Painter');
+	});
+
+	it('leaves out what is not filled in yet', () => {
+		const form = emptyArtworkForm();
+		expect(artworkImageAlt(form)).toBe('');
+
+		form.title = 'The Milkmaid';
+		form.authorUnknown = true;
+		form.values.author = ['Leftover Author'];
+		expect(artworkImageAlt(form)).toBe('The Milkmaid');
 	});
 });
 

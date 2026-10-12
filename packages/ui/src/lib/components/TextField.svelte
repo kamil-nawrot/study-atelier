@@ -15,6 +15,7 @@
 		showPasswordLabel?: string;
 		hidePasswordLabel?: string;
 		labelAside?: Snippet;
+		action?: Snippet;
 	};
 
 	let {
@@ -26,6 +27,7 @@
 		showPasswordLabel = uiMessages().showPassword,
 		hidePasswordLabel = uiMessages().hidePassword,
 		labelAside,
+		action,
 		id,
 		...rest
 	}: Props = $props();
@@ -44,31 +46,34 @@
 		<label for={inputId}>{label}</label>
 		{@render labelAside?.()}
 	</div>
-	<div class="control" class:invalid={!!error}>
-		<input
-			id={inputId}
-			aria-describedby={message ? messageId : undefined}
-			aria-invalid={error ? true : undefined}
-			type={inputType}
-			bind:value
-			{...rest}
-		/>
-		{#if type === 'password'}
-			<button
-				class="reveal"
-				aria-controls={inputId}
-				aria-label={passwordVisible ? hidePasswordLabel : showPasswordLabel}
-				onclick={() => (passwordVisible = !passwordVisible)}
-				title={passwordVisible ? hidePasswordLabel : showPasswordLabel}
-				type="button"
-			>
-				{#if passwordVisible}
-					<Icon icon={EyeOff} size="sm" />
-				{:else}
-					<Icon icon={Eye} size="sm" />
-				{/if}
-			</button>
-		{/if}
+	<div class="input-row">
+		<div class="control" class:invalid={!!error}>
+			<input
+				id={inputId}
+				aria-describedby={message ? messageId : undefined}
+				aria-invalid={error ? true : undefined}
+				type={inputType}
+				bind:value
+				{...rest}
+			/>
+			{#if type === 'password'}
+				<button
+					class="reveal"
+					aria-controls={inputId}
+					aria-label={passwordVisible ? hidePasswordLabel : showPasswordLabel}
+					onclick={() => (passwordVisible = !passwordVisible)}
+					title={passwordVisible ? hidePasswordLabel : showPasswordLabel}
+					type="button"
+				>
+					{#if passwordVisible}
+						<Icon icon={EyeOff} size="sm" />
+					{:else}
+						<Icon icon={Eye} size="sm" />
+					{/if}
+				</button>
+			{/if}
+		</div>
+		{@render action?.()}
 	</div>
 	{#if message}
 		<span id={messageId} class="message" class:error={!!error}>{message}</span>
@@ -95,8 +100,15 @@
 		line-height: var(--line-height-sm);
 	}
 
+	.input-row {
+		display: flex;
+		gap: var(--spacing-2);
+	}
+
 	.control {
 		display: flex;
+		flex: 1;
+		min-width: 0;
 		border: var(--border-width-base) solid var(--color-line);
 		border-radius: var(--border-radius-none);
 		background: var(--color-surface);

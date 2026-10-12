@@ -71,6 +71,11 @@ export function canSearchImage(form: ArtworkFormState): boolean {
 	return form.title.trim() !== '' && (form.authorUnknown || form.values.author.length > 0);
 }
 
+export function artworkImageAlt(form: ArtworkFormState): string {
+	const authors = form.authorUnknown ? [] : form.values.author;
+	return [form.title.trim(), ...authors].filter((part) => part !== '').join(', ');
+}
+
 export function imageFromCandidate(candidate: ImageCandidate): ArtworkImageInput | null {
 	if (!candidate.image) return null;
 	return {

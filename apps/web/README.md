@@ -33,6 +33,12 @@ Vitest runs two projects. `*.spec.ts` files are unit tests in Node. `*.svelte.sp
 pnpm --filter @study-atelier/web exec playwright install --only-shell chromium
 ```
 
+The tests also need `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` to be set, or Vitest does not start. Any values work, because tests never call Supabase:
+
+```sh
+SUPABASE_URL=https://test.supabase.co SUPABASE_PUBLISHABLE_KEY=test-key pnpm test
+```
+
 The project was scaffolded with:
 
 ```sh

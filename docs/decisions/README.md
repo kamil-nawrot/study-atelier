@@ -28,3 +28,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0022](0022-add-and-edit-an-artwork-in-one-full-form.md) | Add and edit an artwork in one full form on its own page | accepted |
 | [0023](0023-atelier-routes-and-commons-thumbnails.md) | Address artworks by record number and load Commons thumbnails through the API | accepted |
 | [0024](0024-save-an-artwork-in-one-database-function.md) | Save an artwork with its values in one database function | accepted |
+| [0025](0025-upload-the-own-image-when-the-artwork-is-saved.md) | Upload the learner's own image when the artwork is saved | accepted |

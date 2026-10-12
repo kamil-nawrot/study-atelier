@@ -107,7 +107,7 @@ erDiagram
 - `artwork_values` references both its artwork and its value together with `owner_id`, so a link between two learners' data cannot exist even if a policy were wrong.
 - Grants are explicit, because new Supabase projects give the Data API no default access. Insert and update grants are per column: `owner_id`, `record_number` and timestamps cannot be written by the client.
 - The counter table and trigger functions live in a `private` schema that the Data API does not expose.
-- Storage bucket `artwork-images` is private, accepts images up to 5 MB, and its policies allow access only to objects under a folder named after the learner's id: `<user id>/<artwork id>/<file name>`. The app shows those images through signed URLs.
+- Storage bucket `artwork-images` is private, accepts images up to 5 MB, and its policies allow access only to objects under a folder named after the learner's id: `<user id>/<artwork id>/<file name>`. The app shows those images through signed URLs. [ADR-0025](0025-upload-the-own-image-when-the-artwork-is-saved.md) changed the object name to `<user id>/<random uuid>.<extension>`.
 
 ### Consequences
 

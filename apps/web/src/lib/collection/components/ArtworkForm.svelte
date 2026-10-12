@@ -1,7 +1,4 @@
 <script lang="ts">
-	import ImageIcon from '@lucide/svelte/icons/image';
-	import ImagePlus from '@lucide/svelte/icons/image-plus';
-	import Search from '@lucide/svelte/icons/search';
 	import { tick } from 'svelte';
 	import {
 		Alert,
@@ -9,7 +6,6 @@
 		Checkbox,
 		Dialog,
 		Form,
-		Icon,
 		Select,
 		TextArea,
 		TextField,
@@ -19,22 +15,19 @@
 	import { beforeNavigate, goto } from '$app/navigation';
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
-	import { COMMONS_THUMBNAIL_WIDTHS, commonsFileUrl, commonsSrcset } from '#lib/images/commons.ts';
-	import ImageSearchDialog from '#lib/images/components/ImageSearchDialog.svelte';
-	import { commonsCredit } from '#lib/images/credit.ts';
-	import type { ImageCandidate } from '#lib/images/types.ts';
 	import {
+		artworkImageAlt,
 		artworkInputFromForm,
 		artworkTypeOptions,
 		canSearchImage,
 		emptyArtworkForm,
-		formHasChanges,
-		imageFromCandidate
+		formHasChanges
 	} from '../artwork-form.ts';
 	import { saveArtwork, validateArtwork } from '../artwork-record.ts';
 	import { startingValues, takesOneValue } from '../category-values.ts';
 	import { formatRecordNumber } from '../format.ts';
 	import { suggestValues } from '../value-suggestions.ts';
+	import ArtworkImageField from './ArtworkImageField.svelte';
 	import type {
 		ArtworkFieldErrors,
 		CategoryCode,
@@ -52,8 +45,6 @@
 	let { categoryValues, cancelHref, oncancel, onsaved }: Props = $props();
 
 	const titleId = 'artwork-title';
-	const findImageId = 'artwork-find-image';
-	const PREVIEW_WIDTH = 500;
 	const typeOptions = artworkTypeOptions();
 	const describedCategories: { code: Exclude<CategoryCode, 'author'>; label: string }[] = [
 		{ code: 'period', label: m.artworkForm.period },
@@ -69,22 +60,13 @@
 	let saving = $state<'save' | 'next' | null>(null);
 	let next = false;
 	let discardOpen = $state(false);
-	let imageSearchOpen = $state(false);
 	let barHeight = $state(0);
 	let toast: Toast;
 	let leaving = false;
 	let answerDiscard: ((discard: boolean) => void) | null = null;
 
 	let imageSearchReady = $derived(canSearchImage(form));
-	let commonsImage = $derived(form.image?.kind === 'commons' ? form.image : null);
-	let imageAlt = $derived(
-		[
-			form.title.trim(),
-			form.authorUnknown ? m.artworkForm.authorUnknown : form.values.author.join(', ')
-		]
-			.filter((part) => part !== '')
-			.join(', ')
-	);
+	let imageAlt = $derived(artworkImageAlt(form));
 
 	export function confirmLeave(): Promise<boolean> {
 		if (leaving || !formHasChanges(form, saved)) return Promise.resolve(true);
@@ -124,21 +106,6 @@
 			starting: startingValues(code),
 			selected: form.values[code]
 		});
-	}
-
-	function pickImage(candidate: ImageCandidate): void {
-		form.image = imageFromCandidate(candidate);
-	}
-
-	async function removeImage(): Promise<void> {
-		form.image = null;
-		await tick();
-		document.getElementById(findImageId)?.focus();
-	}
-
-	function previewSrcset(file: string, width: number | null): string {
-		const widths = COMMONS_THUMBNAIL_WIDTHS.filter((size) => width === null || size <= width);
-		return commonsSrcset(file, widths);
 	}
 
 	function setAuthorUnknown(): void {
@@ -191,49 +158,13 @@
 	{/if}
 
 	<div class="columns">
-		<section class="image" aria-label={m.artworkForm.image}>
-			<figure class="mat">
-				{#if commonsImage}
-					<img
-						alt={imageAlt}
-						height={commonsImage.height}
-						sizes="(min-width: 768px) 40vw, 100vw"
-						src={commonsFileUrl(commonsImage.file, PREVIEW_WIDTH)}
-						srcset={previewSrcset(commonsImage.file, commonsImage.width)}
-						width={commonsImage.width}
-					/>
-				{:else}
-					<div class="window">
-						<Icon icon={ImageIcon} />
-					</div>
-				{/if}
-			</figure>
-			{#if commonsImage}
-				<p class="caption">{commonsCredit(commonsImage.licence, commonsImage.attribution)}</p>
-			{/if}
-			<div class="image-actions">
-				<Button
-					id={findImageId}
-					disabled={!imageSearchReady}
-					onclick={() => (imageSearchOpen = true)}
-				>
-					<Icon icon={Search} size="sm" />
-					{commonsImage ? m.artworkForm.chooseOtherImage : m.artworkForm.findImage}
-				</Button>
-				<Button>
-					<Icon icon={ImagePlus} size="sm" />
-					{m.artworkForm.ownImage}
-				</Button>
-				{#if commonsImage}
-					<Button onclick={removeImage}>
-						{m.artworkForm.removeImage}
-					</Button>
-				{/if}
-			</div>
-			{#if !imageSearchReady}
-				<p class="caption">{m.artworkForm.findImageHint}</p>
-			{/if}
-		</section>
+		<ArtworkImageField
+			alt={imageAlt}
+			searchAuthors={form.authorUnknown ? [] : form.values.author}
+			searchReady={imageSearchReady}
+			searchTitle={form.title}
+			bind:image={form.image}
+		/>
 
 		<div class="fields">
 			<TextField
@@ -315,13 +246,6 @@
 
 <Toast bind:this={toast} offset={barHeight} />
 
-<ImageSearchDialog
-	authors={form.authorUnknown ? [] : form.values.author}
-	onpick={pickImage}
-	title={form.title}
-	bind:open={imageSearchOpen}
-/>
-
 <Dialog
 	description={m.artworkForm.discardDescription}
 	onclose={() => answerDiscard?.(false)}
@@ -343,42 +267,6 @@
 	.columns {
 		display: grid;
 		gap: var(--spacing-8);
-	}
-
-	.image {
-		display: grid;
-		align-content: start;
-		gap: var(--spacing-3);
-	}
-
-	.mat {
-		padding: var(--spacing-2);
-		background: var(--color-mat-bg);
-	}
-
-	.mat img {
-		display: block;
-		width: 100%;
-		height: auto;
-		background: var(--color-mat-window);
-	}
-
-	.window {
-		display: grid;
-		place-items: center;
-		aspect-ratio: 4 / 5;
-		background: var(--color-mat-window);
-		color: var(--color-mat-fg-muted);
-	}
-
-	.image-actions {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--spacing-2);
-	}
-
-	.image-actions > :global(*) {
-		flex: 1 1 auto;
 	}
 
 	.fields {
@@ -423,15 +311,6 @@
 		.columns {
 			grid-template-columns: minmax(220px, 1fr) minmax(0, 1.25fr);
 			gap: var(--spacing-12);
-		}
-
-		.image {
-			position: sticky;
-			top: var(--spacing-24);
-		}
-
-		.image-actions > :global(*) {
-			flex: none;
 		}
 
 		.fields {

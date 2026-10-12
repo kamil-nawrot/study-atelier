@@ -4,6 +4,12 @@ import { render } from 'vitest-browser-svelte';
 import { beforeNavigate, goto, invalidateAll } from '$app/navigation';
 import { emptyCategoryValues } from '#lib/collection/category-values.ts';
 import { m } from '#lib/i18n/index.ts';
+import {
+	IMAGES_BUCKET,
+	OWN_IMAGE_ACCEPT,
+	OWN_IMAGE_MAX_BYTES,
+	OWN_IMAGE_MAX_MEGABYTES
+} from '#lib/images/bucket.ts';
 import { supabase } from '#lib/supabase.ts';
 import { pending, testSession } from '#lib/testing/auth.ts';
 import AddArtworkPage from './+page.svelte';
@@ -15,10 +21,15 @@ vi.mock('$app/navigation', () => ({
 	invalidateAll: vi.fn()
 }));
 vi.mock('#lib/supabase.ts', () => ({
-	supabase: { auth: { signOut: vi.fn() }, rpc: vi.fn() }
+	supabase: {
+		auth: { getSession: vi.fn(), signOut: vi.fn() },
+		rpc: vi.fn(),
+		storage: { from: vi.fn() }
+	}
 }));
 
 const rpcCall = { single: vi.fn() };
+const bucket = { upload: vi.fn(), remove: vi.fn() };
 
 function renderPage(): void {
 	const values = emptyCategoryValues();
@@ -52,6 +63,74 @@ function leave(type: 'link' | 'popstate' | 'leave' = 'link'): Leave {
 	return navigation as unknown as Leave;
 }
 
+async function imageFile(width: number, height: number): Promise<File> {
+	const canvas = new OffscreenCanvas(width, height);
+	canvas.getContext('2d')?.fillRect(0, 0, width, height);
+	const blob = await canvas.convertToBlob({ type: 'image/png' });
+	return new File([blob], 'photo.png', { type: 'image/png' });
+}
+
+function stubRemoteImage(size: { width: number; height: number } | 'error'): void {
+	vi.stubGlobal(
+		'Image',
+		class {
+			naturalWidth = 0;
+			naturalHeight = 0;
+			onload: (() => void) | null = null;
+			onerror: (() => void) | null = null;
+
+			set src(_value: string) {
+				setTimeout(() => {
+					if (size === 'error') {
+						this.onerror?.();
+						return;
+					}
+					this.naturalWidth = size.width;
+					this.naturalHeight = size.height;
+					this.onload?.();
+				});
+			}
+		}
+	);
+}
+
+function stubSlowRemoteImage(): () => void {
+	let finish = (): void => {};
+	vi.stubGlobal(
+		'Image',
+		class {
+			naturalWidth = 1200;
+			naturalHeight = 900;
+			onload: (() => void) | null = null;
+
+			set src(_value: string) {
+				finish = () => this.onload?.();
+			}
+		}
+	);
+	return () => finish();
+}
+
+async function openOwnImage(): Promise<void> {
+	await page.getByRole('button', { name: m.artworkForm.ownImage }).click();
+}
+
+async function chooseFile(file: File): Promise<void> {
+	await openOwnImage();
+	const input = document.querySelector<HTMLInputElement>('input[type="file"]');
+	if (!input) throw new Error('The file input is missing');
+	await userEvent.upload(input, file);
+}
+
+function urlField(): ReturnType<typeof page.getByRole> {
+	return page.getByRole('textbox', { name: m.artworkForm.imageUrl });
+}
+
+function savedArtwork(): Record<string, unknown> {
+	const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
+	return args.artwork;
+}
+
 async function fillRequired(): Promise<void> {
 	await titleField().fill('The Milkmaid');
 	await userEvent.click(authorsField());
@@ -66,7 +145,18 @@ describe('add artwork page', () => {
 			data: { id: 'artwork-12', record_number: 12 },
 			error: null
 		});
+		vi.mocked(supabase.auth.getSession).mockResolvedValue({
+			data: { session: testSession() },
+			error: null
+		});
+		vi.mocked(supabase.storage.from).mockReturnValue(bucket as never);
+		bucket.upload.mockResolvedValue({ data: { path: 'ignored' }, error: null });
+		bucket.remove.mockResolvedValue({ data: [], error: null });
 		await page.viewport(1280, 800);
+	});
+
+	afterEach(() => {
+		vi.unstubAllGlobals();
 	});
 
 	it('shows the empty form with the image window and the actions', async () => {
@@ -220,6 +310,197 @@ describe('add artwork page', () => {
 		await expect.element(page.getByText(m.artworkForm.errorTitle)).toBeVisible();
 		await expect.element(saveButton()).toBeEnabled();
 		await expect.element(titleField()).toHaveValue('The Milkmaid');
+		expect(goto).not.toHaveBeenCalled();
+	});
+
+	it('shows a picked file with its size and uploads it to the learner folder on save', async () => {
+		renderPage();
+		await fillRequired();
+
+		await chooseFile(await imageFile(30, 20));
+
+		const image = page.getByRole('img', { name: 'The Milkmaid, Johannes Vermeer' });
+		await expect.element(image).toHaveAttribute('width', '30');
+		await expect.element(image).toHaveAttribute('height', '20');
+		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).toBeVisible();
+		await expect
+			.element(page.getByRole('dialog', { name: m.artworkForm.ownImageTitle }))
+			.not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.changeOwnImage }))
+			.toBeVisible();
+		expect(bucket.upload).not.toHaveBeenCalled();
+
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
+		expect(supabase.storage.from).toHaveBeenCalledWith(IMAGES_BUCKET);
+		const [path, file] = bucket.upload.mock.calls[0] as [string, File];
+		expect(path).toMatch(/^user-id\/[0-9a-f-]{36}\.png$/);
+		expect(file.name).toBe('photo.png');
+		expect(savedArtwork()).toMatchObject({
+			own_image_path: path,
+			own_image_url: null,
+			image_width: 30,
+			image_height: 20
+		});
+	});
+
+	it('opens the own image dialog with a file picker for the allowed formats', async () => {
+		renderPage();
+
+		await openOwnImage();
+
+		await expect
+			.element(page.getByRole('dialog', { name: m.artworkForm.ownImageTitle }))
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.chooseFile }))
+			.toHaveAccessibleDescription(
+				m.artworkForm.fileHint('JPG, PNG, WebP, GIF lub AVIF', OWN_IMAGE_MAX_MEGABYTES)
+			);
+		expect(document.querySelector('input[type="file"]')?.getAttribute('accept')).toBe(
+			OWN_IMAGE_ACCEPT
+		);
+	});
+
+	it('clears the dialog when it is closed without an image', async () => {
+		renderPage();
+		await openOwnImage();
+		await urlField().fill('http://example.com/milkmaid.jpg');
+		await page.getByRole('button', { name: m.artworkForm.useImageUrl }).click();
+		await expect.element(page.getByText(m.ownImageErrors.urlInvalid)).toBeVisible();
+
+		await userEvent.keyboard('{Escape}');
+
+		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+		await expect.element(page.getByRole('button', { name: m.artworkForm.ownImage })).toHaveFocus();
+		await openOwnImage();
+		await expect.element(urlField()).toHaveValue('');
+		await expect.element(page.getByText(m.ownImageErrors.urlInvalid)).not.toBeInTheDocument();
+	});
+
+	it('explains under the button why a file cannot be added', async () => {
+		renderPage();
+
+		await chooseFile(new File(['image'], 'photo.heic', { type: 'image/heic' }));
+
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.chooseFile }))
+			.toHaveAccessibleDescription(m.ownImageErrors.fileType('JPG, PNG, WebP, GIF lub AVIF'));
+
+		const input = document.querySelector<HTMLInputElement>('input[type="file"]');
+		await userEvent.upload(
+			input as HTMLInputElement,
+			new File([new Uint8Array(OWN_IMAGE_MAX_BYTES + 1)], 'large.png', { type: 'image/png' })
+		);
+
+		await expect
+			.element(page.getByText(m.ownImageErrors.fileTooLarge(OWN_IMAGE_MAX_MEGABYTES)))
+			.toBeVisible();
+		await expect.element(page.getByRole('img')).not.toBeInTheDocument();
+	});
+
+	it('adds an image from an https address after reading its size', async () => {
+		stubRemoteImage({ width: 1200, height: 900 });
+		renderPage();
+		await fillRequired();
+		await openOwnImage();
+
+		await urlField().fill(' https://example.com/milkmaid.jpg ');
+		await userEvent.keyboard('{Enter}');
+
+		await expect
+			.element(page.getByText(m.artworkForm.ownImageUrlCredit('example.com')))
+			.toBeVisible();
+		await expect.element(urlField()).not.toBeInTheDocument();
+		expect(supabase.rpc).not.toHaveBeenCalled();
+
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
+		expect(bucket.upload).not.toHaveBeenCalled();
+		expect(savedArtwork()).toMatchObject({
+			own_image_path: null,
+			own_image_url: 'https://example.com/milkmaid.jpg',
+			image_width: 1200,
+			image_height: 900
+		});
+	});
+
+	it('rejects an address that is not https or does not lead to an image', async () => {
+		stubRemoteImage('error');
+		renderPage();
+		await openOwnImage();
+
+		await urlField().fill('http://example.com/milkmaid.jpg');
+		await page.getByRole('button', { name: m.artworkForm.useImageUrl }).click();
+
+		await expect.element(page.getByText(m.ownImageErrors.urlInvalid)).toBeVisible();
+
+		await urlField().fill('https://example.com/milkmaid.html');
+		await page.getByRole('button', { name: m.artworkForm.useImageUrl }).click();
+
+		await expect.element(page.getByText(m.ownImageErrors.urlUnreadable)).toBeVisible();
+		await expect.element(urlField()).toHaveValue('https://example.com/milkmaid.html');
+	});
+
+	it('does not use an address that loads after the dialog was closed', async () => {
+		const finishLoading = stubSlowRemoteImage();
+		renderPage();
+		await openOwnImage();
+		await urlField().fill('https://example.com/milkmaid.jpg');
+		await page.getByRole('button', { name: m.artworkForm.useImageUrl }).click();
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.usingImageUrl }))
+			.toBeDisabled();
+
+		await userEvent.keyboard('{Escape}');
+		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+		finishLoading();
+
+		await expect.element(page.getByRole('img')).not.toBeInTheDocument();
+		await expect.element(page.getByRole('button', { name: m.artworkForm.ownImage })).toBeVisible();
+	});
+
+	it('removes the image and saves the artwork without one', async () => {
+		stubRemoteImage({ width: 1200, height: 900 });
+		renderPage();
+		await fillRequired();
+		await openOwnImage();
+		await urlField().fill('https://example.com/milkmaid.jpg');
+		await page.getByRole('button', { name: m.artworkForm.useImageUrl }).click();
+
+		await page.getByRole('button', { name: m.artworkForm.removeImage }).click();
+
+		await expect.element(page.getByRole('img')).not.toBeInTheDocument();
+		await expect.element(page.getByRole('button', { name: m.artworkForm.ownImage })).toBeVisible();
+
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
+		expect(savedArtwork()).toMatchObject({
+			own_image_path: null,
+			own_image_url: null,
+			image_width: null,
+			image_height: null
+		});
+	});
+
+	it('says when the image could not be uploaded and keeps the form', async () => {
+		bucket.upload.mockResolvedValue({
+			data: null,
+			error: { message: 'Failed to fetch', status: undefined }
+		});
+		renderPage();
+		await fillRequired();
+		await chooseFile(await imageFile(30, 20));
+
+		await saveButton().click();
+
+		await expect.element(page.getByText(m.ownImageErrors.uploadNetwork)).toBeVisible();
+		await expect.element(page.getByRole('img')).toBeVisible();
+		expect(supabase.rpc).not.toHaveBeenCalled();
 		expect(goto).not.toHaveBeenCalled();
 	});
 

@@ -159,9 +159,22 @@ export const pl = {
 		image: 'Zdjęcie',
 		findImage: 'Znajdź zdjęcie',
 		ownImage: 'Dodaj własne',
+		changeOwnImage: 'Zmień własne',
+		ownImageTitle: 'Dodaj własne zdjęcie',
+		changeOwnImageTitle: 'Zmień własne zdjęcie',
+		removeImage: 'Usuń zdjęcie',
+		chooseFile: 'Wybierz plik z dysku',
+		fileHint: (formats: string, maxMegabytes: number): string =>
+			`${formats}, do ${maxMegabytes} MB.`,
+		imageUrl: 'albo wklej adres obrazka',
+		imageUrlPlaceholder: 'https://…',
+		useImageUrl: 'Użyj',
+		usingImageUrl: 'Wczytywanie…',
+		ownImageCredit: 'Twoje zdjęcie, widoczne tylko dla Ciebie.',
+		ownImageUrlCredit: (host: string): string =>
+			`Twoje zdjęcie z adresu ${host}, widoczne tylko dla Ciebie.`,
 		findImageHint: 'Wpisz tytuł i autora, żeby znaleźć zdjęcie.',
 		chooseOtherImage: 'Wybierz inne',
-		removeImage: 'Usuń zdjęcie',
 		title: 'Tytuł',
 		authors: 'Autorzy',
 		authorUnknown: 'Autor nieznany',
@@ -227,6 +240,19 @@ export const pl = {
 		invalid: 'Niektóre pola się nie zgadzają. Sprawdź je i zapisz jeszcze raz.',
 		notFound: 'Nie ma takiego dzieła w Twoim atelier. Mogło trafić do kosza.',
 		network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.'
+	},
+	ownImageErrors: {
+		fileType: (formats: string): string =>
+			`Tego pliku nie da się dodać jako zdjęcia. Wybierz ${formats}.`,
+		fileTooLarge: (maxMegabytes: number): string =>
+			`Ten plik ma więcej niż ${maxMegabytes} MB. Wybierz mniejszy albo zmniejsz zdjęcie.`,
+		fileUnreadable: 'Nie udało się otworzyć tego zdjęcia. Wybierz inny plik.',
+		urlRequired: 'Wklej adres obrazka.',
+		urlInvalid: 'Wklej pełny adres obrazka, zaczynający się od https://.',
+		urlUnreadable:
+			'Nie udało się wczytać obrazka z tego adresu. Sprawdź, czy prowadzi wprost do obrazka.',
+		uploadNetwork: 'Nie udało się wysłać zdjęcia. Sprawdź internet i spróbuj jeszcze raz.',
+		uploadFailed: 'Nie udało się wysłać zdjęcia. Spróbuj jeszcze raz za chwilę.'
 	},
 	startingValues: {
 		period: [
