@@ -61,9 +61,26 @@
 	let next = false;
 	let discardOpen = $state(false);
 	let leaving = false;
-	let continueLeaving: (() => void) | null = null;
+	let answerDiscard: ((discard: boolean) => void) | null = null;
 
 	let imageSearchReady = $derived(canSearchImage(form));
+
+	export function confirmLeave(): Promise<boolean> {
+		if (leaving || !formHasChanges(form, saved)) return Promise.resolve(true);
+		discardOpen = true;
+		return new Promise((resolve) => {
+			answerDiscard = (discard) => {
+				answerDiscard = null;
+				leaving = discard;
+				resolve(discard);
+			};
+		});
+	}
+
+	function answer(discard: boolean): void {
+		answerDiscard?.(discard);
+		discardOpen = false;
+	}
 
 	beforeNavigate((navigation) => {
 		if (leaving || !formHasChanges(form, saved)) return;
@@ -71,16 +88,13 @@
 		const url = navigation.to?.url;
 		if (navigation.type === 'leave' || !url) return;
 		const target = `${url.pathname}${url.search}${url.hash}` as ResolvedPathname;
-		continueLeaving =
-			navigation.type === 'popstate' ? () => history.go(navigation.delta) : () => goto(target);
-		discardOpen = true;
+		const popstate = navigation.type === 'popstate' ? navigation.delta : null;
+		void confirmLeave().then((discard) => {
+			if (!discard) return;
+			if (popstate === null) void goto(target);
+			else history.go(popstate);
+		});
 	});
-
-	function discardChanges(): void {
-		leaving = true;
-		discardOpen = false;
-		continueLeaving?.();
-	}
 
 	function options(code: CategoryCode): ValueSuggestion[] {
 		return suggestValues({
@@ -241,15 +255,16 @@
 
 <Dialog
 	description={m.artworkForm.discardDescription}
+	onclose={() => answerDiscard?.(false)}
 	size="small"
 	title={m.artworkForm.discardTitle}
 	bind:open={discardOpen}
 >
 	{#snippet footer()}
-		<Button onclick={() => (discardOpen = false)}>
+		<Button onclick={() => answer(false)}>
 			{m.artworkForm.keepEditing}
 		</Button>
-		<Button onclick={discardChanges} variant="primary">
+		<Button onclick={() => answer(true)} variant="primary">
 			{m.artworkForm.discard}
 		</Button>
 	{/snippet}

@@ -12,6 +12,7 @@
 
 	const atelierPath = resolve('/(app)/atelier');
 
+	let form: ArtworkForm;
 	let cameFromAtelier = false;
 
 	afterNavigate(({ from }) => {
@@ -33,7 +34,11 @@
 	}
 </script>
 
-<AtelierLayout email={data.session.user.email ?? ''} title={m.artworkForm.newTitle}>
+<AtelierLayout
+	confirmLeave={() => form.confirmLeave()}
+	email={data.session.user.email ?? ''}
+	title={m.artworkForm.newTitle}
+>
 	{#snippet bar()}
 		<a class="back" aria-label={m.artworkForm.back} href={atelierPath} onclick={backToAtelier}>
 			<Icon icon={ArrowLeft} />
@@ -42,6 +47,7 @@
 	{/snippet}
 
 	<ArtworkForm
+		bind:this={form}
 		cancelHref={atelierPath}
 		categoryValues={data.values}
 		oncancel={backToAtelier}

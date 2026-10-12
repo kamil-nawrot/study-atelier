@@ -266,4 +266,20 @@ describe('add artwork page', () => {
 		expect(navigation.cancel).toHaveBeenCalled();
 		await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
 	});
+
+	it('asks about unsaved changes before signing out', async () => {
+		renderPage();
+		await titleField().fill('The Milkmaid');
+
+		await page.getByRole('button', { name: m.menu.signOut }).click();
+		const dialog = page.getByRole('alertdialog', { name: m.artworkForm.discardTitle });
+		await dialog.getByRole('button', { name: m.artworkForm.keepEditing }).click();
+
+		expect(supabase.auth.signOut).not.toHaveBeenCalled();
+
+		await page.getByRole('button', { name: m.menu.signOut }).click();
+		await dialog.getByRole('button', { name: m.artworkForm.discard, exact: true }).click();
+
+		await vi.waitFor(() => expect(supabase.auth.signOut).toHaveBeenCalled());
+	});
 });
