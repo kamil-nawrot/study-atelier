@@ -1,6 +1,6 @@
 # 0024. Save an artwork with its values in one database function
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-10-12
 
 ## Context and problem statement
