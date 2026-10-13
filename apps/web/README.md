@@ -44,7 +44,7 @@ Copy `API_URL` to `SUPABASE_URL` and the publishable key (`PUBLISHABLE_KEY`, or 
 | `pnpm db:status` | Show URLs and keys                                |
 | `pnpm db:env`    | Print URLs and keys as `NAME=value` lines         |
 
-To try a new migration, add it to `supabase/migrations` and run `pnpm db:reset`; it must apply cleanly on an empty database. The hosted database is still shared by `develop` and `main`, so every migration has to stay compatible with the app on `main` ([ADR-0012](../../docs/decisions/0012-database-migrations-from-github-actions.md)). Switch back to the hosted project by restoring its values in `apps/web/.env`.
+To try a new migration, add it to `supabase/migrations` and run `pnpm db:reset`; it must apply cleanly on an empty database. CI does the same on every pull request (the `migrations` job), and the `database` job waits for it. The hosted database is still shared by `develop` and `main`, so every migration has to stay compatible with the app on `main` ([ADR-0012](../../docs/decisions/0012-database-migrations-from-github-actions.md)). Switch back to the hosted project by restoring its values in `apps/web/.env`.
 
 ## Tests
 
