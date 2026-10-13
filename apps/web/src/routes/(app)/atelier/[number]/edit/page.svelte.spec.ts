@@ -16,9 +16,12 @@ vi.mock('$app/navigation', () => ({
 	beforeNavigate: vi.fn(),
 	goto: vi.fn()
 }));
+const artworks = vi.hoisted(() => ({ select: vi.fn(), is: vi.fn() }));
+
 vi.mock('#lib/supabase.ts', () => ({
 	supabase: {
 		auth: { getSession: vi.fn(), signOut: vi.fn() },
+		from: vi.fn(() => artworks),
 		rpc: vi.fn(),
 		storage: { from: vi.fn() }
 	}
@@ -69,6 +72,22 @@ function saveButton(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('button', { name: m.artworkForm.save, exact: true });
 }
 
+function savedArtworks(...titles: [number, string][]): void {
+	artworks.is.mockResolvedValue({
+		data: titles.map(([number, title]) => ({
+			id: `artwork-${number}`,
+			record_number: number,
+			title,
+			artwork_values: [{ category_values: { category_code: 'author', name: 'Johannes Vermeer' } }]
+		})),
+		error: null
+	});
+}
+
+function duplicateDialog(): ReturnType<typeof page.getByRole> {
+	return page.getByRole('alertdialog', { name: m.artworkForm.duplicateTitle });
+}
+
 type Leave = Parameters<Parameters<typeof beforeNavigate>[0]>[0];
 
 function leave(): Leave {
@@ -98,6 +117,8 @@ describe('edit artwork page', () => {
 		rpcCall.single.mockResolvedValue({ data: { id: 'artwork-7', record_number: 7 }, error: null });
 		vi.mocked(supabase.storage.from).mockReturnValue(bucket as never);
 		bucket.remove.mockResolvedValue({ data: [], error: null });
+		artworks.select.mockReturnValue(artworks);
+		artworks.is.mockResolvedValue({ data: [], error: null });
 		await page.viewport(1280, 800);
 	});
 
@@ -220,6 +241,43 @@ describe('edit artwork page', () => {
 			},
 			existing_id: 'artwork-7'
 		});
+	});
+
+	it('does not look for duplicates when the title and authors stay the same', async () => {
+		savedArtworks([7, 'The Milkmaid'], [12, 'The Milkmaid']);
+		renderPage();
+
+		await page.getByRole('textbox', { name: m.artworkForm.year }).fill('1660');
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+		expect(supabase.from).not.toHaveBeenCalled();
+	});
+
+	it('asks when the changed title matches another artwork, never itself', async () => {
+		savedArtworks([7, 'The Milkmaid'], [12, 'The Kitchen Maid'], [3, 'The Kitchen Maid']);
+		renderPage();
+
+		await titleField().fill('the kitchen maid');
+		await saveButton().click();
+
+		await expect
+			.element(duplicateDialog())
+			.toHaveAccessibleDescription(m.artworkForm.duplicateDescription('#0003 i #0012', 2));
+		await page.getByRole('button', { name: m.artworkForm.saveAnyway }).click();
+
+		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+	});
+
+	it('does not ask when only the artwork itself has the changed title', async () => {
+		savedArtworks([7, 'The Milkmaid']);
+		renderPage();
+
+		await titleField().fill('the milkmaid ');
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+		expect(duplicateDialog().query()).toBeNull();
 	});
 
 	it('removes the uploaded file after the image is removed and saved', async () => {
