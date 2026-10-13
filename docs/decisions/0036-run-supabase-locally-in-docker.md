@@ -26,7 +26,7 @@ Chosen option: 1, the Supabase CLI local stack.
 
 - The CLI is a root dev dependency pinned to the version CI uses (2.120.0), so `pnpm exec supabase` behaves the same locally and in the `database` job.
 - [`supabase/config.toml`](../../supabase/config.toml) starts only what the app uses: database, API, auth, storage, Studio and the local mail catcher. Realtime, edge functions and analytics are off. Email confirmation is on, as in the hosted project, and the confirmation mails are read in the mail catcher.
-- The `migrations` job in [`ci.yml`](../../.github/workflows/ci.yml) starts the same stack on every pull request and replays all migrations with `supabase db reset`. The `database` job waits for it, so a migration that does not apply from scratch never reaches the shared database.
+- The [`migrations`](../../.github/workflows/migrations.yml) workflow starts the same stack on every pull request that touches `supabase/` and on every push to `develop` and `main`, and replays all migrations with `supabase db reset`. The `database` job waits for it, so a migration that does not apply from scratch never reaches the shared database.
 - The local stack replays `supabase/migrations` on `supabase db reset`, so a new migration is tried there first.
 - There is no seed file: test accounts and artworks are made in the running app.
 - The web app reads `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` from `apps/web/.env`; for the local stack they come from `pnpm db:env`.
@@ -35,7 +35,7 @@ Chosen option: 1, the Supabase CLI local stack.
 
 - Good: a migration is applied from scratch on a clean database before it can reach the shared one.
 - Good: no test data in the shared database.
-- Bad: the `migrations` job adds a few minutes to every pull request for pulling the images.
+- Bad: the migrations check adds a few minutes to every pull request that touches `supabase/` for pulling the images.
 - Bad: Docker must be installed and running, and the first start downloads several images.
 - Bad: the local stack is a different Postgres setup than the hosted project, so it catches SQL and policy errors but not every hosted difference.
 
