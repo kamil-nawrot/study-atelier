@@ -26,7 +26,7 @@ Chosen option: 1, two Supabase projects.
 
 - The existing project is production. The new project is the `develop` database, filled with sample artworks by hand.
 - GitHub environments `develop` and `production` hold the same secret names: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_ACCESS_TOKEN` and `SUPABASE_DB_PASSWORD`. Jobs select the environment by branch: `main` uses `production`, every other ref uses `develop`. The Supabase secrets are no longer repository secrets; the Cloudflare ones stay repository secrets.
-- A push to `develop` applies migrations to the develop database and deploys the preview built against it. A push to `main`, which is the release, applies the same migrations to the production database and deploys the production build against it. Pull requests build against the develop environment and deploy nothing.
+- A push to `develop` applies migrations to the develop database and deploys the preview built against it. A push to `main`, which is the release, applies the same migrations to the production database and deploys the production build against it. Pull requests use no environment: they build and test with placeholder Supabase values and deploy nothing.
 - The keep-alive workflow pings both databases.
 - Migrations still have to stay backward compatible with the app on `main`, because production runs the older code until the release. A column or function is removed only in a migration that follows a release which no longer uses it.
 - Setup of the environments and the develop project is described in [hosted environments](../architecture/hosted-environments.md).

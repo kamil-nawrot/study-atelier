@@ -46,11 +46,11 @@ jobs:
     name: Web app
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: ${{ github.ref_name == 'main' && 'production' || 'develop' }}
+    environment: ${{ github.event_name == 'push' && (github.ref_name == 'main' && 'production' || 'develop') || '' }}
     env:
       CLOUDFLARE_CONFIGURED: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_URL: ${{ github.event_name == 'pull_request' && 'https://test.supabase.co' || secrets.SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ github.event_name == 'pull_request' && 'test-key' || secrets.SUPABASE_PUBLISHABLE_KEY }}
     steps:
       - uses: actions/checkout@v4
 
