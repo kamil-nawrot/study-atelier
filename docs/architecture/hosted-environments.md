@@ -18,6 +18,8 @@ Settings, Environments: `develop` and `production`, each with these secrets:
 | `SUPABASE_ACCESS_TOKEN` | Personal access token with read access to Project Settings, API Keys and API Key Secrets for that project; it can be one token for both projects |
 | `SUPABASE_DB_PASSWORD` | Database password of that project |
 
+Deployment branches: `production` allows `main` and `develop`, `develop` allows `develop`. The scheduled keep-alive runs from the default branch, `develop`, so it needs access to `production`; the consequence is that code merged to `develop` can read the production secrets, and only the owner merges.
+
 The same four names must not remain as repository secrets: an environment secret overrides a repository secret, but a missing one would silently fall back to it and point `develop` at production.
 
 ## New Supabase project
