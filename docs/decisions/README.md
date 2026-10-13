@@ -41,3 +41,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0035](0035-wide-artworks-span-two-wall-columns.md) | Let wide artworks span two wall columns, with a fixed-height tile caption | accepted |
 | [0036](0036-run-supabase-locally-in-docker.md) | Run Supabase locally in Docker for development and migration testing | accepted |
 | [0037](0037-separate-databases-for-develop-and-production.md) | Use a separate Supabase database for `develop` and for production | accepted |
+| [0038](0038-chain-era-period-and-style.md) | Chain era, period and style, with the era from a fixed list | accepted |
