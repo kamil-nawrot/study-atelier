@@ -1,12 +1,11 @@
 <script lang="ts">
-	import ImageIcon from '@lucide/svelte/icons/image';
 	import Clipboard from '@lucide/svelte/icons/clipboard';
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
 	import Search from '@lucide/svelte/icons/search';
 	import Trash from '@lucide/svelte/icons/trash';
 	import Upload from '@lucide/svelte/icons/upload';
 	import { tick } from 'svelte';
-	import { ArtworkImage, Button, Dialog, Icon, TextField } from '@study-atelier/ui';
+	import { ArtworkImage, Button, Dialog, Icon, NoImage, TextField } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import {
 		OWN_IMAGE_ACCEPT,
@@ -226,9 +225,7 @@
 					width={preview.width}
 				/>
 			{:else}
-				<div class="window">
-					<Icon icon={ImageIcon} />
-				</div>
+				<NoImage label={m.ui.noImage} />
 			{/if}
 		</div>
 		{#if credit}
@@ -362,14 +359,6 @@
 		width: 100%;
 		height: auto;
 		background: var(--color-mat-window);
-	}
-
-	.window {
-		display: grid;
-		place-items: center;
-		aspect-ratio: 4 / 5;
-		background: var(--color-mat-window);
-		color: var(--color-mat-fg-muted);
 	}
 
 	.image-actions {
