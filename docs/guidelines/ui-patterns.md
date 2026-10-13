@@ -11,7 +11,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 ## Layout
 
-- Mobile first. There is one breakpoint, `@media (min-width: 768px)`. CSS variables cannot be used in media queries, so the number is written out and only this one is allowed.
+- Mobile first. There is one breakpoint, `@media (min-width: 768px)`. CSS variables cannot be used in media queries, so the number is written out and only this one is allowed. Where a phone-only counterpart is needed, it is `@media (max-width: 767.98px)`, so the two ranges neither overlap at 768 px nor leave a gap for fractional widths.
 - Content width: forms and single-column panels use `--size-content-narrow` (400 px); text and lists use `--size-content-default` (720 px); the artwork wall uses `--size-content-wide` (1280 px) and is centred.
 - Spacing between elements comes from the parent (`display: grid` or `flex` with `gap`). Elements do not set their own outer margins; `base.css` resets them.
 - Each route group has a layout component in its domain folder, for example `AuthLayout` for the sign-in screens. A view passes its content through snippets (`children`, `footer`).
