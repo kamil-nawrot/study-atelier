@@ -142,9 +142,8 @@
 		}
 	}
 
-	function onoptionpointerdown(event: PointerEvent, option: ValueOption): void {
+	function onoptionpointerdown(event: PointerEvent): void {
 		event.preventDefault();
-		pick(option);
 	}
 </script>
 
@@ -154,7 +153,8 @@
 		class={option.kind}
 		class:active={ordered.indexOf(option) === activeIndex}
 		aria-selected={ordered.indexOf(option) === activeIndex}
-		onpointerdown={(event) => onoptionpointerdown(event, option)}
+		onpointerdown={onoptionpointerdown}
+		onpointerup={() => pick(option)}
 		role="option"
 	>
 		<span>{text}</span>
