@@ -13,7 +13,7 @@
 - ESLint rules shared by all packages live in [`eslint.config.base.js`](../../eslint.config.base.js) at the root. Each package has a short `eslint.config.js` that imports the base and adds only what is specific to it, for example the Storybook rules in `packages/ui`.
 - Stylelint has one config for the whole repository: [`stylelint.config.js`](../../stylelint.config.js) at the root. It checks `.css` files and `<style>` blocks in `.svelte` files from each package's `lint` script.
 - Stylelint requires a design token (`var(--…)`) for colours, margins, paddings, gaps, font sizes, weights, line heights, letter spacing, border widths and radii, and forbids literal colours and lengths in the `background`, `border*`, `outline` and `box-shadow` shorthands. `0`, `auto`, `none`, `transparent`, `currentColor`, inherited keywords and a unitless line height of `1` are allowed, and so is any value that contains a `var(--…)`, such as a `calc()` over tokens.
-- Stylelint also forbids `!important`, duplicate properties and selectors, unknown properties and units, named colours, `box-shadow` and `text-shadow`, and any media query other than `min-width: 768px`.
+- Stylelint also forbids `!important`, duplicate properties and selectors, unknown properties and units, named colours, `box-shadow` and `text-shadow`, and a `min-width` media query with any value other than `768px`.
 - Palette tokens (`--color-neutral-*`, `--color-red-*`, `--color-amber-*`, `--color-green-*`) may appear only in `packages/ui/src/lib/styles`; everywhere else Stylelint reports them.
 - A literal that belongs to one component and has no shared role (see [ui-patterns.md](ui-patterns.md#tokens)) is the only reason to disable a rule, and it needs the owner's agreement.
 - The lint dependencies used by the shared configs are root dev dependencies.
@@ -41,13 +41,13 @@
 
 The SvelteKit app in `apps/web/src`:
 
-| Path | Holds |
-| --- | --- |
-| `routes/` | Pages and layouts only (`+page.svelte`, `+layout.ts` and other SvelteKit files) |
-| `lib/<domain>/` | Code of one domain, for example `auth`, `i18n` or later `collection`: TypeScript modules at the top of the folder |
-| `lib/<domain>/types.ts` | Types the domain exports, for example `ArtworkInput` in `collection` |
-| `lib/<domain>/components/` | Svelte components that belong to that domain, for example `AuthLayout.svelte` |
-| `lib/supabase.ts` | The one Supabase client |
+| Path                       | Holds                                                                                                             |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `routes/`                  | Pages and layouts only (`+page.svelte`, `+layout.ts` and other SvelteKit files)                                   |
+| `lib/<domain>/`            | Code of one domain, for example `auth`, `i18n` or later `collection`: TypeScript modules at the top of the folder |
+| `lib/<domain>/types.ts`    | Types the domain exports, for example `ArtworkInput` in `collection`                                              |
+| `lib/<domain>/components/` | Svelte components that belong to that domain, for example `AuthLayout.svelte`                                     |
+| `lib/supabase.ts`          | The one Supabase client                                                                                           |
 
 - A type used by more than one module, or by views, lives in the domain's `types.ts`. A type used by one module only, such as the shape of rows a query returns, stays in that module.
 - Components used in more than one domain, or that know nothing about the app's data and routes, belong in `packages/ui` instead.

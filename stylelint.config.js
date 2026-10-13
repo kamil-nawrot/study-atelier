@@ -19,7 +19,7 @@ const config = {
 		],
 		'media-feature-name-value-allowed-list': [
 			{ 'min-width': ['768px'] },
-			{ message: 'The only breakpoint is min-width: 768px' }
+			{ message: 'The only min-width breakpoint is 768px' }
 		],
 		'scale-unlimited/declaration-strict-value': [
 			[
