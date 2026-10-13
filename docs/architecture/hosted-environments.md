@@ -5,7 +5,7 @@ Two environments, each with its own Supabase project ([ADR-0037](../decisions/00
 | Environment | Branch | App | Supabase project |
 | --- | --- | --- | --- |
 | `production` | `main` | `study-atelier.pages.dev` | the original project, holds the real collection |
-| `develop` | `develop` and pull requests | `develop.study-atelier.pages.dev` | the second project, holds sample data |
+| `develop` | `develop` | `develop.study-atelier.pages.dev` | the second project, holds sample data |
 
 ## GitHub environments
 
