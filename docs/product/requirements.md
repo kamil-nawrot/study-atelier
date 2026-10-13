@@ -71,6 +71,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-49 | The learner renames a value. A new name that matches another value of the same kind (R-25) merges the two after the learner confirms: the artworks and links of the merged value pass to the remaining one, and the merged value is deleted. | later |
 | R-50 | The learner adds and removes the eras of a period and the periods of a style. Adding a link changes no artwork. Removing an era from a period moves the artworks that have the period with that era to an era the period keeps, or leaves them without an era, after the learner confirms with the number of artworks. A period can be removed from a style only while no artwork has both. | later |
 | R-51 | The learner can delete a value only when no artwork uses it, artworks in the trash included, after confirming. | later |
+| R-52 | Every artwork tile on the wall shows the icon of the artwork's era, small and muted. While the wall is ordered by era, the period rail shows the icon only for the current era. | later |
 
 ## Images
 
