@@ -1,5 +1,6 @@
 <script lang="ts" module>
 	import { defineMeta } from '@storybook/addon-svelte-csf';
+	import Landmark from '@lucide/svelte/icons/landmark';
 	import ArtworkTile, { type ArtworkTileImage } from './ArtworkTile.svelte';
 
 	function placeholder(width: number, height: number, stops: string[]): ArtworkTileImage {
@@ -28,7 +29,8 @@
 			image: portrait
 		},
 		argTypes: {
-			image: { control: false }
+			image: { control: false },
+			mark: { control: false }
 		},
 		parameters: { layout: 'padded' }
 	});
@@ -97,6 +99,14 @@
 		image: landscape
 	}}
 >
+	{#snippet template(args)}
+		<div style="max-width: 280px">
+			<ArtworkTile {...args} />
+		</div>
+	{/snippet}
+</Story>
+
+<Story name="With mark" args={{ mark: Landmark, markLabel: 'Antiquity' }}>
 	{#snippet template(args)}
 		<div style="max-width: 280px">
 			<ArtworkTile {...args} />

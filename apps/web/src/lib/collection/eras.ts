@@ -1,3 +1,4 @@
+import type { LucideIcon } from '@lucide/svelte';
 import Church from '@lucide/svelte/icons/church';
 import Compass from '@lucide/svelte/icons/compass';
 import Flame from '@lucide/svelte/icons/flame';
@@ -17,7 +18,7 @@ export const ERA_CODES: readonly EraCode[] = [
 	'contemporary'
 ];
 
-const ERA_ICONS: Record<EraCode, ChoiceTile['icon']> = {
+const ERA_ICONS: Record<EraCode, LucideIcon> = {
 	prehistory: Flame,
 	antiquity: Landmark,
 	middle_ages: Church,
@@ -28,6 +29,10 @@ const ERA_ICONS: Record<EraCode, ChoiceTile['icon']> = {
 
 export function isEraCode(value: unknown): value is EraCode {
 	return ERA_CODES.includes(value as EraCode);
+}
+
+export function eraIcon(code: EraCode): LucideIcon {
+	return ERA_ICONS[code];
 }
 
 export function eraName(code: EraCode): string {

@@ -456,6 +456,23 @@ describe('atelier page', () => {
 					.element(current.filter({ hasText: m.eras.early_modern.name }))
 					.not.toHaveAttribute('aria-current');
 			});
+
+			it('shows the era icon only on the current era', async () => {
+				renderAtelier(manyPeriods());
+				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
+				const rail = page.getByRole('complementary', { name: m.atelier.periods.label });
+
+				expect(rail.element().querySelectorAll('svg')).toHaveLength(1);
+
+				scrollToTheEnd();
+
+				await vi.waitFor(() =>
+					expect(
+						rail.getByRole('listitem').filter({ hasText: m.eras.contemporary.name }).element()
+					).toContainElement(rail.element().querySelector('svg'))
+				);
+				expect(rail.element().querySelectorAll('svg')).toHaveLength(1);
+			});
 		});
 	});
 });
