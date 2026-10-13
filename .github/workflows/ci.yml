@@ -102,9 +102,30 @@ jobs:
           url=$(grep -oE 'https://[^ ]+\.pages\.dev' deploy.log | tail -n 1 || true)
           echo "Deployed \`$DEPLOY_BRANCH\` to $url" >> "$GITHUB_STEP_SUMMARY"
 
+  migrations:
+    name: Migrations on local Supabase
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.120.0
+
+      - name: Start local Supabase and apply migrations
+        run: supabase start
+
+      - name: Replay migrations from scratch
+        run: supabase db reset
+
+      - name: Stop local Supabase
+        if: always()
+        run: supabase stop --no-backup
+
   database:
     name: Database migrations
-    needs: web
+    needs: [web, migrations]
     if: github.event_name == 'push' && github.ref_name == 'develop'
     runs-on: ubuntu-latest
     timeout-minutes: 10

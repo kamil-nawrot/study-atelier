@@ -4,4 +4,5 @@ packages:
 
 onlyBuiltDependencies:
   - esbuild
+  - supabase
   - workerd
