@@ -43,6 +43,10 @@ function author(name: string, position: number): Record<string, unknown> {
 	return { position, category_values: { category_code: 'author', name } };
 }
 
+function period(name: string, position: number): Record<string, unknown> {
+	return { position, category_values: { category_code: 'period', name } };
+}
+
 describe('loadAtelier', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -63,13 +67,15 @@ describe('loadAtelier', () => {
 		expect(query.order).toHaveBeenCalledWith('created_at', { ascending: false });
 	});
 
-	it('lists authors in their order and formats the date', async () => {
+	it('lists authors and periods in their order, formats the date and keeps the year', async () => {
 		query.order.mockResolvedValue({
 			data: [
 				row({
 					artwork_values: [
 						author('Second Author', 1),
+						period('Mannerism', 1),
 						{ position: 0, category_values: { category_code: 'style', name: 'Baroque' } },
+						period('Renaissance', 0),
 						author('First Author', 0)
 					]
 				})
@@ -86,6 +92,8 @@ describe('loadAtelier', () => {
 				title: 'The Test Painting',
 				authors: ['First Author', 'Second Author'],
 				date: m.atelier.year(1490, true),
+				year: 1490,
+				periods: ['Renaissance', 'Mannerism'],
 				image: undefined
 			}
 		]);

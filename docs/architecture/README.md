@@ -48,10 +48,12 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 
 ### Opening the atelier
 
-1. The `/atelier` page load asks Supabase for the learner's artworks outside the trash, newest first, with their authors (`#lib/collection/artworks.ts`).
+1. The `/atelier` page load asks Supabase for the learner's artworks outside the trash, newest first, with their authors and periods (`#lib/collection/artworks.ts`).
 2. In parallel it asks the Wikimedia Commons API for the direct thumbnail URL of every Commons image (up to 50 files per request, identified by an `Api-User-Agent` header, one retry after `Retry-After` on 429) and Supabase Storage for signed URLs of uploaded images. Tiles load thumbnails straight from `upload.wikimedia.org`; only when the API does not answer they fall back to `Special:FilePath`, which redirects ([ADR-0023](../decisions/0023-atelier-routes-and-commons-thumbnails.md)).
 3. The wall places each tile into the shortest column by the image size stored with the artwork ([ADR-0022](../decisions/0022-add-and-edit-an-artwork-in-one-full-form.md)), and offers thumbnails up to that width. An artwork without a stored size counts as 4:5 and gets thumbnails up to the tile width; if Commons does not answer the wall still shows every image.
 4. Search by title runs in the browser on the loaded list.
+5. The order of the wall is chosen in the top bar and remembered in `localStorage` (`#lib/collection/wall-order.ts`). By period, `groupByPeriod` in `#lib/collection/periods.ts` puts each artwork under its first period, orders the periods by their lowest year and the artworks by year inside them, and leaves out artworks without a period ([ADR-0033](../decisions/0033-order-the-wall-by-period-with-a-period-rail.md)).
+6. In that order `PeriodTracker` (`#lib/collection/period-tracker.svelte.ts`) measures where each period starts on the wall and follows the scroll with a reference line that moves from the bottom of the top bar to the bottom of the screen, so the first and the last period are both reached. `PeriodRail` shows the result at the right edge when the margin beside the wall is at least `MIN_RAIL_MARGIN` wide, `PeriodStrip` under the top bar otherwise.
 
 ### Suggesting category values
 
@@ -73,6 +75,7 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 2. A picked file is checked against the bucket's types and size limit and shown from a local object URL; its width and height are read from that preview. Nothing is uploaded yet.
 3. A URL must be a full `https` address. The browser loads its image to read the width and height; an address whose image does not load is rejected under the field ([ADR-0025](../decisions/0025-upload-the-own-image-when-the-artwork-is-saved.md)).
 4. An own image replaces an image from the image source and the other way round, because the form holds one image at a time.
+5. An image can also be pasted ([ADR-0032](../decisions/0032-paste-the-own-image-from-the-clipboard.md), `#lib/images/clipboard.ts`). Ctrl+V uses the browser's `paste` event and needs no permission; "Wklej ze schowka" reads `navigator.clipboard.read()`, which asks the browser for access. Both look in the clipboard for an image file, then an `https` address as text, then the `src` of an `<img>` in copied HTML. A pasted image becomes a `File` and follows step 2; an address follows step 3. Ctrl+V is ignored when the focus is in a field the learner types in, and asks before replacing an image already in the form.
 
 ### Saving an artwork
 

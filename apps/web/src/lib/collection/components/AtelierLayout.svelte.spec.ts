@@ -1,8 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createRawSnippet } from 'svelte';
-import { page } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import '@study-atelier/ui/styles.css';
+import { m } from '#lib/i18n/index.ts';
 import AtelierLayout from './AtelierLayout.svelte';
 
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
@@ -46,4 +47,16 @@ describe('AtelierLayout', () => {
 			expect(heights[0]).toBeGreaterThan(0);
 		});
 	}
+
+	it('fits the opened menu to the phone viewport and locks the page behind it', async () => {
+		await page.viewport(390, 844);
+		renderLayout(views.empty);
+
+		await userEvent.click(page.getByRole('button', { name: m.menu.open }));
+		const drawer = page.getByRole('dialog').element();
+
+		expect(drawer.getBoundingClientRect().height).toBe(window.innerHeight);
+		expect(drawer.scrollHeight).toBe(drawer.clientHeight);
+		expect(getComputedStyle(document.documentElement).overflow).toBe('hidden');
+	});
 });

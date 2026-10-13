@@ -1,20 +1,57 @@
 <script lang="ts">
+	import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
 	import Plus from '@lucide/svelte/icons/plus';
 	import { onMount } from 'svelte';
-	import { Alert, Button, Icon, SearchField, Section, Toast } from '@study-atelier/ui';
+	import {
+		Alert,
+		Button,
+		Icon,
+		SearchField,
+		Section,
+		Select,
+		type SelectOption,
+		Toast
+	} from '@study-atelier/ui';
 	import { replaceState } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import { formatRecordNumber } from '#lib/collection/format.ts';
+	import PeriodRail from '#lib/collection/components/PeriodRail.svelte';
+	import PeriodStrip from '#lib/collection/components/PeriodStrip.svelte';
+	import { groupByPeriod } from '#lib/collection/periods.ts';
+	import { MIN_RAIL_MARGIN, PeriodTracker } from '#lib/collection/period-tracker.svelte.ts';
 	import { filterByTitle } from '#lib/collection/search.ts';
+	import type { WallOrder } from '#lib/collection/types.ts';
+	import {
+		isWallOrder,
+		rememberedWallOrder,
+		rememberWallOrder
+	} from '#lib/collection/wall-order.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps, Snapshot } from './$types';
 
 	let { data }: PageProps = $props();
 
 	let query = $state('');
+	let order = $state<WallOrder>(rememberedWallOrder());
+	let barHeight = $state(0);
+	let wall = $state<HTMLElement>();
+
+	const tracker = new PeriodTracker();
+
+	const orders: SelectOption[] = [
+		{ value: 'recent', label: m.atelier.sort.recent },
+		{ value: 'period', label: m.atelier.sort.period }
+	];
+
+	function chooseOrder(value: string): void {
+		if (!isWallOrder(value)) return;
+		order = value;
+		rememberWallOrder(value);
+		window.scrollTo({ top: 0 });
+	}
 
 	export const snapshot: Snapshot<string> = {
 		capture: () => query,
@@ -43,12 +80,24 @@
 		return () => clearTimeout(timer);
 	});
 
-	let shown = $derived(filterByTitle(data.artworks, query));
+	let matching = $derived(filterByTitle(data.artworks, query));
+	let groups = $derived(order === 'period' ? groupByPeriod(matching) : []);
+	let shown = $derived(order === 'period' ? groups.flatMap((group) => group.artworks) : matching);
+	let periodIndexes = $derived(
+		new Map(groups.flatMap((group, index) => group.artworks.map((artwork) => [artwork.id, index])))
+	);
 	let total = $derived(data.artworks.length);
 	let searching = $derived(query.trim() !== '');
+	let showPeriods = $derived(groups.length > 0);
+	let railFits = $derived(tracker.margin >= MIN_RAIL_MARGIN);
+
+	$effect(() => {
+		if (!wall || !showPeriods) return;
+		return tracker.track(wall, barHeight);
+	});
 </script>
 
-<AtelierLayout email={data.session.user.email ?? ''} title={m.atelier.title}>
+<AtelierLayout email={data.session.user.email ?? ''} title={m.atelier.title} bind:barHeight>
 	{#snippet bar()}
 		<div class="search">
 			<SearchField
@@ -56,6 +105,16 @@
 				label={m.atelier.search}
 				placeholder={m.atelier.search}
 				bind:value={query}
+			/>
+		</div>
+		<div class="sort">
+			<Select
+				compact
+				disabled={total === 0}
+				icon={ArrowUpDown}
+				label={m.atelier.sort.label}
+				options={orders}
+				bind:value={() => order, chooseOrder}
 			/>
 		</div>
 		<Button aria-label={m.atelier.add} href={addPath} variant="primary">
@@ -66,11 +125,19 @@
 		</Button>
 	{/snippet}
 
+	{#snippet strip()}
+		{#if showPeriods && !railFits}
+			<PeriodStrip current={tracker.current} {groups} />
+		{/if}
+	{/snippet}
+
 	<header>
 		<h1>{m.atelier.title}</h1>
 		{#if total > 0}
 			<span class="caption">
-				{searching ? m.atelier.filteredCount(shown.length, total) : m.atelier.count(total)}
+				{searching || shown.length < total
+					? m.atelier.filteredCount(shown.length, total)
+					: m.atelier.count(total)}
 			</span>
 		{/if}
 	</header>
@@ -92,6 +159,18 @@
 				</div>
 			</Section>
 		</div>
+	{:else if shown.length === 0 && !searching}
+		<div class="state">
+			<Section>
+				<h2>{m.atelier.periods.emptyTitle}</h2>
+				<p class="lead">{m.atelier.periods.empty}</p>
+				<div>
+					<Button onclick={() => chooseOrder('recent')}>
+						{m.atelier.periods.showRecent}
+					</Button>
+				</div>
+			</Section>
+		</div>
 	{:else if shown.length === 0}
 		<div class="state">
 			<Section>
@@ -105,7 +184,10 @@
 			</Section>
 		</div>
 	{:else}
-		<ArtworkWall artworks={shown} {highlight} />
+		<ArtworkWall artworks={shown} {highlight} {periodIndexes} bind:element={wall} />
+		{#if showPeriods && railFits}
+			<PeriodRail current={tracker.current} {groups} width={tracker.margin} />
+		{/if}
 	{/if}
 </AtelierLayout>
 
@@ -117,6 +199,10 @@
 		min-width: 0;
 		max-width: var(--size-content-default);
 		margin-inline-start: max(0px, calc((100% - var(--size-content-wide)) / 2));
+	}
+
+	.sort {
+		flex: none;
 	}
 
 	header {

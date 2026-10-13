@@ -10,7 +10,13 @@ import {
 import { supabase } from '#lib/supabase.ts';
 import { collectionErrorMessage } from './errors.ts';
 import { formatYear } from './format.ts';
-import type { AtelierResult, TrashArtwork, TrashResult, WallArtwork } from './types.ts';
+import type {
+	AtelierResult,
+	CategoryCode,
+	TrashArtwork,
+	TrashResult,
+	WallArtwork
+} from './types.ts';
 
 type ImageSize = {
 	width: number;
@@ -57,9 +63,9 @@ const ARTWORK_COLUMNS = [
 	'artwork_values(position, category_values(category_code, name))'
 ].join(', ');
 
-function authorsOf(row: ArtworkRow): string[] {
+function valuesOf(row: ArtworkRow, category: CategoryCode): string[] {
 	return row.artwork_values
-		.filter((value) => value.category_values?.category_code === 'author')
+		.filter((value) => value.category_values?.category_code === category)
 		.sort((a, b) => a.position - b.position)
 		.map((value) => (value.category_values as CategoryValueRow).name);
 }
@@ -136,8 +142,10 @@ async function wallArtworks(rows: ArtworkRow[]): Promise<WallArtwork[]> {
 			id: row.id,
 			number: row.record_number,
 			title: row.title,
-			authors: authorsOf(row),
+			authors: valuesOf(row, 'author'),
 			date: formatYear(row.year, row.year_approximate),
+			year: row.year,
+			periods: valuesOf(row, 'period'),
 			image
 		};
 	});

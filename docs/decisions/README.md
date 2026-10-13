@@ -35,4 +35,7 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0029](0029-format-notes-with-a-visual-markdown-editor.md) | Format artwork notes with a visual editor that stores Markdown | accepted |
 | [0030](0030-loading-states-for-the-first-load-and-images.md) | Show loading as a primed canvas, for the first app load and for artwork images | accepted |
 | [0031](0031-full-width-top-bar-in-every-atelier-view.md) | Run the top bar of every atelier view across the full width of the page | accepted |
+| [0032](0032-paste-the-own-image-from-the-clipboard.md) | Paste the learner's own image from the clipboard | accepted |
 | [0033](0033-order-the-wall-by-period-with-a-period-rail.md) | Order the wall by period, with a period rail that follows the scroll | accepted |
+| [0034](0034-catalogue-cross-for-artworks-without-an-image.md) | Show an artwork without an image as a catalogue cross in a hairline frame | accepted |
+| [0035](0035-wide-artworks-span-two-wall-columns.md) | Let wide artworks span two wall columns, with a fixed-height tile caption | accepted |

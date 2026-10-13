@@ -73,6 +73,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-13 | After a candidate is picked, the app shows the title and author from the image source next to the learner's own values for comparison, without changing them. | later |
 | R-14 | When no candidate matches or the source has no free image, the artwork shows an empty image placeholder with an easy way to add the learner's own image. | MVP |
 | R-15 | The learner can replace the image at any time with their own image ([image override](glossary.md)), uploaded as a file or given as a URL. | MVP |
+| R-38 | The learner can paste an image straight from the system clipboard as their own image: with a button in the own image dialog, or with Ctrl+V anywhere in the add and edit form, which asks before replacing an image already there ([ADR-0032](../decisions/0032-paste-the-own-image-from-the-clipboard.md)). | MVP |
 | R-16 | Images from the image source are shown with their licence and attribution ([ADR-0007](../decisions/0007-images-from-open-sources.md)). | MVP |
 
 ## Browsing and search
@@ -84,6 +85,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-39 | The learner can order the wall by period instead of from the most recently added. Each artwork belongs to its first period, periods follow each other by their earliest year and artworks follow by year within their period; artworks without a period are not shown in this order ([ADR-0033](../decisions/0033-order-the-wall-by-period-with-a-period-rail.md)). | MVP |
 | R-40 | While the wall is ordered by period, the app shows which period the learner is looking at: a [period rail](glossary.md) at the right edge on a wide screen, a strip under the top bar on a narrower screen. | MVP |
 | R-41 | The order the learner chose for the wall is remembered on the device. | MVP |
+| R-42 | An artwork whose image is at least twice as wide as it is high takes two columns of the wall when the wall has three columns or more ([ADR-0035](../decisions/0035-wide-artworks-span-two-wall-columns.md)). | later |
 | R-19 | The learner can filter the collection by several fields at once: type, authors, period, style, material, location. | later |
 
 ## Account

@@ -10,6 +10,7 @@ import {
 	OWN_IMAGE_MAX_BYTES,
 	OWN_IMAGE_MAX_MEGABYTES
 } from '#lib/images/bucket.ts';
+import { pasteShortcut } from '#lib/images/clipboard.ts';
 import { supabase } from '#lib/supabase.ts';
 import { pending, testSession } from '#lib/testing/auth.ts';
 import AddArtworkPage from './+page.svelte';
@@ -768,5 +769,223 @@ describe('image search on the add artwork page', () => {
 		await openSearch();
 
 		await expect.element(searchDialog().getByText(m.imageSearch.empty)).toBeVisible();
+	});
+});
+
+describe('pasting an own image on the add artwork page', () => {
+	beforeEach(async () => {
+		vi.clearAllMocks();
+		vi.mocked(supabase.auth.getSession).mockResolvedValue({
+			data: { session: testSession() },
+			error: null
+		});
+		await page.viewport(1280, 800);
+	});
+
+	afterEach(() => {
+		vi.unstubAllGlobals();
+		Reflect.deleteProperty(navigator, 'clipboard');
+	});
+
+	function paste(target: EventTarget, parts: { file?: File; text?: string }): ClipboardEvent {
+		const data = new DataTransfer();
+		if (parts.file) data.items.add(parts.file);
+		if (parts.text) data.setData('text/plain', parts.text);
+		const event = new ClipboardEvent('paste', {
+			clipboardData: data,
+			bubbles: true,
+			cancelable: true
+		});
+		target.dispatchEvent(event);
+		return event;
+	}
+
+	function stubClipboard(read: () => Promise<ClipboardItem[]>): void {
+		Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { read } });
+	}
+
+	async function clipboardImage(): Promise<ClipboardItem> {
+		const file = await imageFile(40, 30);
+		return new ClipboardItem({ 'image/png': file });
+	}
+
+	it('adds an image pasted with the keyboard while nothing is being typed', async () => {
+		renderPage();
+
+		const event = paste(document.body, { file: await imageFile(40, 30) });
+
+		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).toBeVisible();
+		expect(event.defaultPrevented).toBe(true);
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.changeOwnImage }))
+			.toBeVisible();
+	});
+
+	it('leaves a paste in a text field to the field', async () => {
+		renderPage();
+		await titleField().click();
+
+		const event = paste(document.activeElement as Element, { file: await imageFile(40, 30) });
+
+		expect(event.defaultPrevented).toBe(false);
+		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).not.toBeInTheDocument();
+	});
+
+	it('leaves a paste in the notes editor to the editor', async () => {
+		renderPage();
+		await page.getByRole('textbox', { name: m.artworkForm.notes }).click();
+
+		const event = paste(document.activeElement as Element, { file: await imageFile(40, 30) });
+
+		expect(event.defaultPrevented).toBe(false);
+		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).not.toBeInTheDocument();
+	});
+
+	it('ignores a paste that holds neither an image nor an address', () => {
+		renderPage();
+
+		const event = paste(document.body, { text: 'The Milkmaid' });
+
+		expect(event.defaultPrevented).toBe(false);
+	});
+
+	it('uses a pasted https address like a typed one', async () => {
+		stubRemoteImage({ width: 1200, height: 900 });
+		renderPage();
+
+		paste(document.body, { text: 'https://example.com/milkmaid.jpg' });
+
+		await expect
+			.element(page.getByText(m.artworkForm.ownImageUrlCredit('example.com')))
+			.toBeVisible();
+	});
+
+	it('rejects a pasted image over the limit under the image actions', async () => {
+		renderPage();
+
+		paste(document.body, {
+			file: new File([new Uint8Array(OWN_IMAGE_MAX_BYTES + 1)], 'large.png', { type: 'image/png' })
+		});
+
+		await expect
+			.element(
+				page.getByRole('alert').getByText(m.ownImageErrors.fileTooLarge(OWN_IMAGE_MAX_MEGABYTES))
+			)
+			.toBeVisible();
+		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).not.toBeInTheDocument();
+	});
+
+	it('asks before a pasted image replaces the current one and keeps it on request', async () => {
+		stubRemoteImage({ width: 1200, height: 900 });
+		renderPage();
+		await openOwnImage();
+		await urlField().fill('https://example.com/milkmaid.jpg');
+		await userEvent.keyboard('{Enter}');
+		await expect
+			.element(page.getByText(m.artworkForm.ownImageUrlCredit('example.com')))
+			.toBeVisible();
+
+		paste(document.body, { file: await imageFile(40, 30) });
+
+		const dialog = page.getByRole('alertdialog', { name: m.artworkForm.replaceImageTitle });
+		await expect.element(dialog).toBeVisible();
+		await expect.element(dialog.getByText(m.artworkForm.replaceImageDescription)).toBeVisible();
+		await dialog.getByRole('button', { name: m.artworkForm.keepImage }).click();
+
+		await expect.element(dialog).not.toBeInTheDocument();
+		await expect
+			.element(page.getByText(m.artworkForm.ownImageUrlCredit('example.com')))
+			.toBeVisible();
+	});
+
+	it('replaces the current image after the learner agrees', async () => {
+		stubRemoteImage({ width: 1200, height: 900 });
+		renderPage();
+		await openOwnImage();
+		await urlField().fill('https://example.com/milkmaid.jpg');
+		await userEvent.keyboard('{Enter}');
+		await expect
+			.element(page.getByText(m.artworkForm.ownImageUrlCredit('example.com')))
+			.toBeVisible();
+		vi.unstubAllGlobals();
+
+		paste(document.body, { file: await imageFile(40, 30) });
+		await page
+			.getByRole('alertdialog', { name: m.artworkForm.replaceImageTitle })
+			.getByRole('button', { name: m.artworkForm.replaceImage })
+			.click();
+
+		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).toBeVisible();
+		await expect
+			.element(page.getByText(m.artworkForm.ownImageUrlCredit('example.com')))
+			.not.toBeInTheDocument();
+	});
+
+	it('does not ask when the pasted image is rejected', async () => {
+		renderPage();
+		await chooseFile(await imageFile(40, 30));
+		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).toBeVisible();
+
+		paste(document.body, { file: new File(['x'], 'photo.heic', { type: 'image/heic' }) });
+
+		await expect.element(page.getByRole('alert')).toBeVisible();
+		await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
+	});
+
+	it('pastes into the open dialog without asking and closes it', async () => {
+		renderPage();
+		await chooseFile(await imageFile(40, 30));
+		await page.getByRole('button', { name: m.artworkForm.changeOwnImage }).click();
+
+		paste(document.activeElement as Element, { file: await imageFile(50, 40) });
+
+		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+		await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
+		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).toBeVisible();
+	});
+
+	it('reads the clipboard from the button and uses the image', async () => {
+		const item = await clipboardImage();
+		stubClipboard(async () => [item]);
+		renderPage();
+		await openOwnImage();
+
+		await page.getByRole('button', { name: m.artworkForm.pasteFromClipboard }).click();
+
+		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).toBeVisible();
+	});
+
+	it('says when the clipboard holds no image', async () => {
+		stubClipboard(async () => [new ClipboardItem({ 'text/plain': new Blob(['Vermeer']) })]);
+		renderPage();
+		await openOwnImage();
+
+		await page.getByRole('button', { name: m.artworkForm.pasteFromClipboard }).click();
+
+		await expect.element(page.getByText(m.ownImageErrors.clipboardEmpty)).toBeVisible();
+		await expect.element(page.getByRole('dialog')).toBeVisible();
+	});
+
+	it('says when the browser does not allow reading the clipboard', async () => {
+		stubClipboard(async () => {
+			throw new DOMException('Denied', 'NotAllowedError');
+		});
+		renderPage();
+		await openOwnImage();
+
+		await page.getByRole('button', { name: m.artworkForm.pasteFromClipboard }).click();
+
+		await expect.element(page.getByText(m.ownImageErrors.clipboardDenied)).toBeVisible();
+	});
+
+	it('shows the keyboard hint in the dialog and under the image actions', async () => {
+		renderPage();
+
+		await expect
+			.element(page.getByText(m.artworkForm.pasteHintForm(pasteShortcut().label)))
+			.toBeInTheDocument();
+		await openOwnImage();
+		await expect.element(page.getByText(m.artworkForm.pasteHintLead)).toBeVisible();
 	});
 });

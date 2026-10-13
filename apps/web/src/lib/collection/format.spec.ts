@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
-import { formatDeletedOn, formatRecordNumber, formatYear, parseRecordNumber } from './format.ts';
+import {
+	formatDeletedOn,
+	formatRecordNumber,
+	formatYear,
+	formatYearRange,
+	parseRecordNumber
+} from './format.ts';
 
 describe('formatRecordNumber', () => {
 	it('pads the number to four digits', () => {
@@ -22,6 +28,20 @@ describe('parseRecordNumber', () => {
 		for (const text of ['', '0', '-1', '4.2', '42a', 'new', '99999999999999999999']) {
 			expect(parseRecordNumber(text)).toBeNull();
 		}
+	});
+});
+
+describe('formatYearRange', () => {
+	it('has no years when a period has no dated artwork', () => {
+		expect(formatYearRange(null, null)).toBeUndefined();
+	});
+
+	it('shows one year when the bounds are equal', () => {
+		expect(formatYearRange(1503, 1503)).toBe('1503');
+	});
+
+	it('shows both bounds, also across the common era', () => {
+		expect(formatYearRange(-450, 120)).toBe(m.atelier.yearRange('450 p.n.e.', '120'));
 	});
 });
 
