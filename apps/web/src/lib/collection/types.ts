@@ -1,5 +1,19 @@
 import type { ArtworkTileImage } from '@study-atelier/ui';
 
+export type WallOrder = 'recent' | 'period';
+
+export type PeriodGroup = {
+	name: string;
+	from: number | null;
+	to: number | null;
+	artworks: WallArtwork[];
+};
+
+export type CurrentPeriod = {
+	index: number;
+	progress: number;
+};
+
 export type WallArtwork = {
 	id: string;
 	number: number;

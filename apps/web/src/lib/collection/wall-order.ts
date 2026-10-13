@@ -1,4 +1,4 @@
-export type WallOrder = 'recent' | 'period';
+import type { WallOrder } from './types.ts';
 
 export const DEFAULT_WALL_ORDER: WallOrder = 'recent';
 

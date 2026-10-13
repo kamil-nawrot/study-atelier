@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { m } from '#lib/i18n/index.ts';
-	import { railLayout, railRow, type CurrentPeriod } from '../period-rail.ts';
-	import type { PeriodGroup } from '../periods.ts';
+	import { railLayout, railRow } from '../period-rail.ts';
+	import type { CurrentPeriod, PeriodGroup } from '../types.ts';
 
 	type Props = {
 		groups: PeriodGroup[];

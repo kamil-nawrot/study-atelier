@@ -23,11 +23,11 @@
 	import { groupByPeriod } from '#lib/collection/periods.ts';
 	import { MIN_RAIL_MARGIN, PeriodTracker } from '#lib/collection/period-tracker.svelte.ts';
 	import { filterByTitle } from '#lib/collection/search.ts';
+	import type { WallOrder } from '#lib/collection/types.ts';
 	import {
 		isWallOrder,
 		rememberedWallOrder,
-		rememberWallOrder,
-		type WallOrder
+		rememberWallOrder
 	} from '#lib/collection/wall-order.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps, Snapshot } from './$types';

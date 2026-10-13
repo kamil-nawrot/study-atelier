@@ -1,13 +1,10 @@
+import type { CurrentPeriod } from './types.ts';
+
 export type RailState = 'past' | 'current' | 'upcoming';
 
 export type RailEntry = {
 	state: RailState;
 	offset: number;
-};
-
-export type CurrentPeriod = {
-	index: number;
-	progress: number;
 };
 
 export const MAX_RAIL_ROW = 28;

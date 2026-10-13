@@ -1,11 +1,4 @@
-import type { WallArtwork } from './types.ts';
-
-export type PeriodGroup = {
-	name: string;
-	from: number | null;
-	to: number | null;
-	artworks: WallArtwork[];
-};
+import type { PeriodGroup, WallArtwork } from './types.ts';
 
 function byYear(a: WallArtwork, b: WallArtwork): number {
 	if (a.year === null && b.year === null) return a.number - b.number;

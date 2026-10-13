@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { m } from '#lib/i18n/index.ts';
 	import { formatYearRange } from '../format.ts';
-	import type { CurrentPeriod } from '../period-rail.ts';
-	import type { PeriodGroup } from '../periods.ts';
+	import type { CurrentPeriod, PeriodGroup } from '../types.ts';
 
 	type Props = {
 		groups: PeriodGroup[];
