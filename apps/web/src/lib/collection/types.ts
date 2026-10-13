@@ -2,7 +2,11 @@ import type { ArtworkTileImage } from '@study-atelier/ui';
 
 export type WallOrder = 'recent' | 'period';
 
+export type EraCode =
+	'prehistory' | 'antiquity' | 'middle_ages' | 'early_modern' | 'modern' | 'contemporary';
+
 export type PeriodGroup = {
+	code: EraCode;
 	name: string;
 	from: number | null;
 	to: number | null;
@@ -21,7 +25,7 @@ export type WallArtwork = {
 	authors: string[];
 	date?: string;
 	year: number | null;
-	periods: string[];
+	eraCode: EraCode | null;
 	image?: ArtworkTileImage;
 };
 
@@ -59,8 +63,18 @@ export type CategoryValuesResult = {
 	error?: string;
 };
 
+export type ValueLinks = {
+	periodsByEra: Record<EraCode, string[]>;
+	stylesByPeriod: Record<string, string[]>;
+};
+
+export type ValueLinksResult = {
+	links: ValueLinks;
+	error?: string;
+};
+
 export type ValueSuggestion = {
-	kind: 'similar' | 'existing' | 'starting' | 'new';
+	kind: 'similar' | 'existing' | 'new';
 	name: string;
 };
 
@@ -93,7 +107,8 @@ export type ArtworkInput = {
 	beforeCommonEra: boolean;
 	yearApproximate: boolean;
 	typeCode: ArtworkTypeCode | null;
-	periods: string[];
+	eraCode: EraCode | null;
+	period: string | null;
 	styles: string[];
 	materials: string[];
 	location: string | null;
@@ -132,6 +147,7 @@ export type ArtworkFormState = {
 	beforeCommonEra: boolean;
 	yearApproximate: boolean;
 	typeCode: ArtworkTypeCode | '';
+	eraCode: EraCode | null;
 	notes: string;
 	image: ArtworkImageInput | null;
 };

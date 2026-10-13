@@ -13,6 +13,7 @@ import { formatYear } from './format.ts';
 import type {
 	AtelierResult,
 	CategoryCode,
+	EraCode,
 	TrashArtwork,
 	TrashResult,
 	WallArtwork
@@ -34,6 +35,7 @@ type ArtworkRow = {
 	title: string;
 	year: number | null;
 	year_approximate: boolean;
+	era_code: EraCode | null;
 	source_image_file: string | null;
 	own_image_path: string | null;
 	own_image_url: string | null;
@@ -54,6 +56,7 @@ const ARTWORK_COLUMNS = [
 	'title',
 	'year',
 	'year_approximate',
+	'era_code',
 	'source_image_file',
 	'own_image_path',
 	'own_image_url',
@@ -145,7 +148,7 @@ async function wallArtworks(rows: ArtworkRow[]): Promise<WallArtwork[]> {
 			authors: valuesOf(row, 'author'),
 			date: formatYear(row.year, row.year_approximate),
 			year: row.year,
-			periods: valuesOf(row, 'period'),
+			eraCode: row.era_code,
 			image
 		};
 	});

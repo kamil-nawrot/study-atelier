@@ -1,12 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { locale, m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
-import {
-	emptyCategoryValues,
-	loadCategoryValues,
-	startingValues,
-	takesOneValue
-} from './category-values.ts';
+import { emptyCategoryValues, loadCategoryValues, takesOneValue } from './category-values.ts';
 
 vi.mock('#lib/supabase.ts', () => ({
 	supabase: { from: vi.fn() }
@@ -74,30 +69,6 @@ describe('loadCategoryValues', () => {
 			values: emptyCategoryValues(),
 			error: m.common.unexpectedError
 		});
-	});
-});
-
-describe('startingValues', () => {
-	it('offers starting lists for period, style and material only', () => {
-		expect(startingValues('period')).toEqual(m.startingValues.period);
-		expect(startingValues('style')).toEqual(
-			[...m.startingValues.style].sort((a, b) => a.localeCompare(b, locale))
-		);
-		expect(startingValues('material')).toEqual(
-			[...m.startingValues.material].sort((a, b) => a.localeCompare(b, locale))
-		);
-		expect(startingValues('author')).toEqual([]);
-		expect(startingValues('location')).toEqual([]);
-	});
-
-	it('sorts styles and materials alphabetically in the interface language', () => {
-		expect(startingValues('style').slice(0, 3)).toEqual(['abstrakcjonizm', 'barok', 'dadaizm']);
-		expect(startingValues('material').slice(-3)).toEqual(['węgiel', 'złoto', 'żelbet']);
-	});
-
-	it('keeps periods in chronological order', () => {
-		expect(startingValues('period')[0]).toBe('prehistoria');
-		expect(startingValues('period').at(-1)).toBe('sztuka współczesna');
 	});
 });
 

@@ -65,6 +65,7 @@
 				categoryValues={data.values}
 				oncancel={goBack}
 				onsaved={showSaved}
+				valueLinks={data.links}
 			/>
 		{/key}
 	{:else}
