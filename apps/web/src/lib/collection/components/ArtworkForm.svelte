@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { tick } from 'svelte';
+	import { onDestroy, tick } from 'svelte';
 	import {
 		Alert,
 		Button,
@@ -30,6 +30,7 @@
 	import { findDuplicates, formatRecordNumbers, sameTitleAndAuthors } from '../duplicates.ts';
 	import { eraTiles, isEraCode } from '../eras.ts';
 	import { formatRecordNumber } from '../format.ts';
+	import { pendingAnswer } from '../pending-answer.ts';
 	import { suggestValues, valueKey } from '../value-suggestions.ts';
 	import ArtworkImageField from './ArtworkImageField.svelte';
 	import type {
@@ -55,7 +56,7 @@
 
 	let { artwork, categoryValues, valueLinks, cancelHref, oncancel, onsaved }: Props = $props();
 
-	const titleId = 'artwork-title';
+	const titleId = $props.id();
 	const typeOptions = artworkTypeOptions();
 	const eraOptions = eraTiles();
 	const describedCategories: { code: 'material' | 'location'; label: string }[] = [
@@ -72,11 +73,11 @@
 	let discardOpen = $state(false);
 	let barHeight = $state(0);
 	let toast: Toast;
-	let leaving = false;
-	let answerDiscard: ((discard: boolean) => void) | null = null;
+	let discarded: ArtworkFormState | null = null;
+	const discardQuestion = pendingAnswer();
 	let duplicateOpen = $state(false);
 	let duplicates = $state<number[]>([]);
-	let answerDuplicate: ((save: boolean) => void) | null = null;
+	const duplicateQuestion = pendingAnswer();
 
 	let imageSearchReady = $derived(canSearchImage(form));
 	let imageAlt = $derived(artworkImageAlt(form));
@@ -85,20 +86,22 @@
 		return artwork ? artworkFormFromRecord(artwork) : emptyArtworkForm();
 	}
 
+	function leaveAllowed(): boolean {
+		return discarded !== null && !formHasChanges(form, discarded);
+	}
+
 	export function confirmLeave(): Promise<boolean> {
-		if (leaving || !formHasChanges(form, saved)) return Promise.resolve(true);
-		discardOpen = true;
-		return new Promise((resolve) => {
-			answerDiscard = (discard) => {
-				answerDiscard = null;
-				leaving = discard;
-				resolve(discard);
-			};
-		});
+		if (leaveAllowed() || !formHasChanges(form, saved)) return Promise.resolve(true);
+		return discardQuestion
+			.ask(() => (discardOpen = true))
+			.then((discard) => {
+				if (discard) discarded = $state.snapshot(form);
+				return discard;
+			});
 	}
 
 	function answer(discard: boolean): void {
-		answerDiscard?.(discard);
+		discardQuestion.answer(discard);
 		discardOpen = false;
 	}
 
@@ -107,25 +110,23 @@
 		const numbers = await findDuplicates(input, artwork?.id);
 		if (numbers.length === 0) return true;
 		duplicates = numbers;
-		duplicateOpen = true;
-		return new Promise((resolve) => {
-			answerDuplicate = (save) => {
-				answerDuplicate = null;
-				resolve(save);
-			};
-		});
+		return duplicateQuestion.ask(() => (duplicateOpen = true));
 	}
 
 	function answerDuplicateDialog(save: boolean): void {
-		answerDuplicate?.(save);
+		duplicateQuestion.answer(save);
 		duplicateOpen = false;
 	}
 
 	beforeNavigate((navigation) => {
-		if (leaving || !formHasChanges(form, saved)) return;
+		if (leaveAllowed()) {
+			discarded = null;
+			return;
+		}
+		if (!formHasChanges(form, saved)) return;
 		navigation.cancel();
 		const url = navigation.to?.url;
-		if (navigation.type === 'leave' || !url) return;
+		if (navigation.type === 'leave' || !url || discardQuestion.pending) return;
 		const target = `${url.pathname}${url.search}${url.hash}` as ResolvedPathname;
 		const popstate = navigation.type === 'popstate' ? navigation.delta : null;
 		void confirmLeave().then((discard) => {
@@ -133,6 +134,11 @@
 			if (popstate === null) void goto(target);
 			else history.go(popstate);
 		});
+	});
+
+	onDestroy(() => {
+		discardQuestion.answer(false);
+		duplicateQuestion.answer(false);
 	});
 
 	let periodLocked = $derived(form.eraCode === null);
@@ -196,38 +202,44 @@
 	async function submit(): Promise<void> {
 		const andNext = next;
 		next = false;
+		if (saving !== null) return;
 		formError = '';
-		const input = artworkInputFromForm(form);
+		const snapshot = $state.snapshot(form);
+		const input = artworkInputFromForm(snapshot);
 		fieldErrors = validateArtwork(input);
 		if (Object.keys(fieldErrors).length > 0) return;
 
 		saving = andNext ? 'next' : 'save';
-		if (!(await confirmDuplicate(input))) {
-			saving = null;
-			return;
-		}
-		const result = await saveArtwork(
-			input,
-			artwork ? { id: artwork.id, image: artwork.image } : undefined
-		);
-		if (!result.saved) {
-			fieldErrors = result.fieldErrors;
-			formError = result.error ?? '';
-			saving = null;
-			return;
-		}
+		try {
+			if (!(await confirmDuplicate(input))) return;
+			const result = await saveArtwork(
+				input,
+				artwork ? { id: artwork.id, image: artwork.image } : undefined
+			);
+			if (!result.saved) {
+				fieldErrors = result.fieldErrors;
+				formError = result.error ?? '';
+				return;
+			}
 
-		saved = $state.snapshot(form);
-		await onsaved(result.number, andNext);
-		saving = null;
-		if (!andNext) return;
+			saved = snapshot;
+			try {
+				await onsaved(result.number, andNext);
+			} catch {
+				toast.show(m.artworkForm.saved(formatRecordNumber(result.number)));
+				return;
+			}
+			if (!andNext) return;
 
-		form = emptyArtworkForm();
-		saved = emptyArtworkForm();
-		toast.show(m.artworkForm.saved(formatRecordNumber(result.number)));
-		window.scrollTo({ top: 0 });
-		await tick();
-		document.getElementById(titleId)?.focus();
+			form = emptyArtworkForm();
+			saved = emptyArtworkForm();
+			toast.show(m.artworkForm.saved(formatRecordNumber(result.number)));
+			window.scrollTo({ top: 0 });
+			await tick();
+			document.getElementById(titleId)?.focus();
+		} finally {
+			saving = null;
+		}
 	}
 </script>
 
@@ -358,7 +370,7 @@
 
 <Dialog
 	description={m.artworkForm.discardDescription}
-	onclose={() => answerDiscard?.(false)}
+	onclose={() => discardQuestion.answer(false)}
 	size="small"
 	title={m.artworkForm.discardTitle}
 	bind:open={discardOpen}
@@ -378,7 +390,7 @@
 		formatRecordNumbers(duplicates),
 		duplicates.length
 	)}
-	onclose={() => answerDuplicate?.(false)}
+	onclose={() => duplicateQuestion.answer(false)}
 	size="small"
 	title={m.artworkForm.duplicateTitle}
 	bind:open={duplicateOpen}
