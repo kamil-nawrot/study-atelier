@@ -243,6 +243,19 @@ describe('edit artwork page', () => {
 		});
 	});
 
+	it('says the changes are saved when opening the artwork fails', async () => {
+		vi.mocked(goto).mockRejectedValueOnce(new Error('Navigation failed'));
+		renderPage();
+
+		await titleField().fill('The Kitchen Maid');
+		await saveButton().click();
+
+		await expect.element(saveButton()).toBeEnabled();
+		await expect
+			.element(page.getByRole('status'))
+			.toHaveTextContent(m.artworkForm.changesSaved('#0007'));
+	});
+
 	it('does not look for duplicates when the title and authors stay the same', async () => {
 		savedArtworks([7, 'The Milkmaid'], [12, 'The Milkmaid']);
 		renderPage();

@@ -44,8 +44,10 @@ function linkedValues(): ValueLinks {
 	return links;
 }
 
+let screen: ReturnType<typeof render>;
+
 function renderPage(links: ValueLinks = emptyValueLinks()): void {
-	render(AddArtworkPage, {
+	screen = render(AddArtworkPage, {
 		data: { session: testSession(), values: emptyCategoryValues(), links },
 		params: {}
 	});
@@ -185,6 +187,14 @@ async function fillRequired(): Promise<void> {
 	await titleField().fill('The Milkmaid');
 	await userEvent.click(authorsField());
 	await userEvent.keyboard('Johannes Vermeer{Enter}');
+}
+
+function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
+	let resolve: (value: T) => void = () => {};
+	const promise = new Promise<T>((done) => {
+		resolve = done;
+	});
+	return { promise, resolve };
 }
 
 describe('add artwork page', () => {
@@ -550,6 +560,50 @@ describe('add artwork page', () => {
 		expect(goto).not.toHaveBeenCalled();
 	});
 
+	it('keeps a change made while saving as unsaved', async () => {
+		const response = deferred<{ data: unknown; error: null }>();
+		rpcCall.single.mockReturnValue(response.promise);
+		renderPage();
+		await fillRequired();
+
+		await saveButton().click();
+		await titleField().fill('The Milkmaid (second version)');
+		response.resolve({ data: { id: 'artwork-12', record_number: 12 }, error: null });
+		await expect.element(saveButton()).toBeEnabled();
+
+		const navigation = leave();
+
+		expect(navigation.cancel).toHaveBeenCalled();
+		await expect
+			.element(page.getByRole('alertdialog', { name: m.artworkForm.discardTitle }))
+			.toBeVisible();
+	});
+
+	it('saves once when the form is submitted again while saving', async () => {
+		rpcCall.single.mockReturnValue(pending());
+		renderPage();
+		await fillRequired();
+
+		await saveButton().click();
+		document.querySelector('form')?.requestSubmit();
+		document.querySelector('form')?.requestSubmit();
+
+		await expect.element(page.getByRole('button', { name: m.artworkForm.saving })).toBeDisabled();
+		expect(supabase.rpc).toHaveBeenCalledTimes(1);
+	});
+
+	it('enables the buttons again and says the artwork is saved when opening the next page fails', async () => {
+		vi.mocked(goto).mockRejectedValueOnce(new Error('Navigation failed'));
+		renderPage();
+		await fillRequired();
+
+		await saveButton().click();
+
+		await expect.element(saveButton()).toBeEnabled();
+		await expect.element(page.getByRole('status')).toHaveTextContent(m.artworkForm.saved('#0012'));
+		await expect.element(page.getByText(m.artworkForm.errorTitle)).not.toBeInTheDocument();
+	});
+
 	it('shows a picked file with its size and uploads it to the learner folder on save', async () => {
 		renderPage();
 		await fillRequired();
@@ -784,6 +838,47 @@ describe('add artwork page', () => {
 
 		expect(navigation.cancel).toHaveBeenCalled();
 		await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
+	});
+
+	it('opens one question when the learner tries to leave twice', async () => {
+		renderPage();
+		await titleField().fill('The Milkmaid');
+
+		const first = leave();
+		const second = leave();
+		await page.getByRole('button', { name: m.artworkForm.discard, exact: true }).click();
+
+		expect(first.cancel).toHaveBeenCalled();
+		expect(second.cancel).toHaveBeenCalled();
+		await vi.waitFor(() => expect(goto).toHaveBeenCalledTimes(1));
+	});
+
+	it('guards the form again when it is changed after the learner chose to discard', async () => {
+		renderPage();
+		await titleField().fill('The Milkmaid');
+
+		leave();
+		await page.getByRole('button', { name: m.artworkForm.discard, exact: true }).click();
+		await titleField().fill('The Milkmaid, second thoughts');
+		const navigation = leave();
+
+		expect(navigation.cancel).toHaveBeenCalled();
+		await expect
+			.element(page.getByRole('alertdialog', { name: m.artworkForm.discardTitle }))
+			.toBeVisible();
+	});
+
+	it('does not sign out when the form is closed while the question is open', async () => {
+		renderPage();
+		await titleField().fill('The Milkmaid');
+
+		await page.getByRole('button', { name: m.menu.signOut }).click();
+		await expect
+			.element(page.getByRole('alertdialog', { name: m.artworkForm.discardTitle }))
+			.toBeVisible();
+		await (await screen).unmount();
+
+		expect(supabase.auth.signOut).not.toHaveBeenCalled();
 	});
 
 	it('asks about unsaved changes before signing out', async () => {
