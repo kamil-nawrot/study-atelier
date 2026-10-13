@@ -37,3 +37,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0031](0031-full-width-top-bar-in-every-atelier-view.md) | Run the top bar of every atelier view across the full width of the page | accepted |
 | [0033](0033-order-the-wall-by-period-with-a-period-rail.md) | Order the wall by period, with a period rail that follows the scroll | accepted |
 | [0034](0034-catalogue-cross-for-artworks-without-an-image.md) | Show an artwork without an image as a catalogue cross in a hairline frame | accepted |
+| [0035](0035-wide-artworks-span-two-wall-columns.md) | Let wide artworks span two wall columns, with a fixed-height tile caption | accepted |
