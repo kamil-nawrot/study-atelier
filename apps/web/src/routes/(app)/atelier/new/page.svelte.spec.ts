@@ -3,6 +3,8 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { beforeNavigate, goto, invalidateAll } from '$app/navigation';
 import { emptyCategoryValues } from '#lib/collection/category-values.ts';
+import { emptyValueLinks } from '#lib/collection/value-links.ts';
+import type { ValueLinks } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import {
 	IMAGES_BUCKET,
@@ -31,10 +33,37 @@ vi.mock('#lib/supabase.ts', () => ({
 const rpcCall = { single: vi.fn() };
 const bucket = { upload: vi.fn(), remove: vi.fn() };
 
-function renderPage(): void {
-	const values = emptyCategoryValues();
-	values.style = ['Delft school'];
-	render(AddArtworkPage, { data: { session: testSession(), values }, params: {} });
+function linkedValues(): ValueLinks {
+	const links = emptyValueLinks();
+	links.periodsByEra.early_modern = ['Dutch Golden Age', 'Mannerism'];
+	links.periodsByEra.modern = ['Realism'];
+	links.stylesByPeriod['dutch golden age'] = ['Delft school', 'Leiden fijnschilders'];
+	return links;
+}
+
+function renderPage(links: ValueLinks = emptyValueLinks()): void {
+	render(AddArtworkPage, {
+		data: { session: testSession(), values: emptyCategoryValues(), links },
+		params: {}
+	});
+}
+
+function eraTile(code: keyof typeof m.eras): ReturnType<typeof page.getByRole> {
+	return page.getByRole('radio', { name: `${m.eras[code].name} ${m.eras[code].years}` });
+}
+
+function periodField(): ReturnType<typeof page.getByRole> {
+	return page.getByRole('combobox', { name: m.artworkForm.period });
+}
+
+function styleField(): ReturnType<typeof page.getByRole> {
+	return page.getByRole('combobox', { name: m.artworkForm.style });
+}
+
+async function chooseEraAndPeriod(): Promise<void> {
+	await userEvent.click(eraTile('early_modern'));
+	await userEvent.click(periodField());
+	await userEvent.click(page.getByRole('option', { name: 'Dutch Golden Age' }));
 }
 
 function titleField(): ReturnType<typeof page.getByRole> {
@@ -223,16 +252,122 @@ describe('add artwork page', () => {
 		await expect.element(page.getByText(m.artworkForm.findImageHint)).not.toBeInTheDocument();
 	});
 
-	it('suggests the values already used and the starting list', async () => {
+	it('shows the six eras in order and locks the period and the style until they are chosen', async () => {
+		renderPage(linkedValues());
+
+		await expect.element(page.getByRole('group', { name: m.artworkForm.era })).toBeVisible();
+		await expect.element(eraTile('prehistory')).toBeVisible();
+		await expect.element(eraTile('contemporary')).toBeVisible();
+		expect(page.getByRole('radio').elements()).toHaveLength(6);
+		await expect.element(periodField()).toBeDisabled();
+		await expect.element(periodField()).toHaveAttribute('placeholder', m.artworkForm.periodLocked);
+		await expect.element(styleField()).toBeDisabled();
+		await expect.element(styleField()).toHaveAttribute('placeholder', m.artworkForm.styleLocked);
+	});
+
+	it('unlocks the period with the periods of the chosen era only', async () => {
+		renderPage(linkedValues());
+
+		await userEvent.click(eraTile('early_modern'));
+		await expect.element(periodField()).toBeEnabled();
+		await userEvent.click(periodField());
+
+		const options = page.getByRole('listbox', { name: m.artworkForm.period }).getByRole('option');
+		await expect.element(options.first()).toHaveTextContent('Dutch Golden Age');
+		await expect.element(page.getByRole('option', { name: 'Mannerism' })).toBeVisible();
+		await expect.element(page.getByRole('option', { name: 'Realism' })).not.toBeInTheDocument();
+		await expect.element(styleField()).toBeDisabled();
+	});
+
+	it('unlocks the style with the styles of the chosen period only', async () => {
+		renderPage(linkedValues());
+
+		await chooseEraAndPeriod();
+		await expect.element(styleField()).toBeEnabled();
+		await userEvent.click(styleField());
+
+		await expect.element(page.getByRole('option', { name: 'Delft school' })).toBeVisible();
+		await expect.element(page.getByRole('option', { name: 'Leiden fijnschilders' })).toBeVisible();
+	});
+
+	it('allows a new period and a new style when the era has none yet', async () => {
 		renderPage();
 
-		await userEvent.click(page.getByRole('combobox', { name: m.artworkForm.style }));
+		await userEvent.click(eraTile('modern'));
+		await userEvent.click(periodField());
+		await userEvent.keyboard('Pointillism{Enter}');
+		await userEvent.click(styleField());
+		await userEvent.keyboard('Neo-impressionism{Enter}');
 
-		const options = page.getByRole('listbox').getByRole('option');
-		await expect.element(options.first()).toHaveTextContent('Delft school');
-		await expect
-			.element(page.getByRole('option', { name: m.startingValues.style[0] }))
-			.toBeVisible();
+		await expect.element(page.getByText('Pointillism', { exact: true })).toBeVisible();
+		await expect.element(page.getByText('Neo-impressionism', { exact: true })).toBeVisible();
+	});
+
+	it('clears the period and the style when another era is chosen', async () => {
+		renderPage(linkedValues());
+		await chooseEraAndPeriod();
+		await userEvent.click(styleField());
+		await userEvent.click(page.getByRole('option', { name: 'Delft school' }));
+
+		await userEvent.click(eraTile('modern'));
+
+		await expect.element(page.getByText('Dutch Golden Age')).not.toBeInTheDocument();
+		await expect.element(page.getByText('Delft school')).not.toBeInTheDocument();
+		await expect.element(periodField()).toBeEnabled();
+		await expect.element(styleField()).toBeDisabled();
+	});
+
+	it('clears the period and the style when the era is cleared', async () => {
+		renderPage(linkedValues());
+		await chooseEraAndPeriod();
+
+		await userEvent.click(eraTile('early_modern'));
+
+		await expect.element(eraTile('early_modern')).not.toBeChecked();
+		await expect.element(page.getByText('Dutch Golden Age')).not.toBeInTheDocument();
+		await expect.element(periodField()).toBeDisabled();
+		await expect.element(styleField()).toBeDisabled();
+	});
+
+	it('clears the style when the period is removed', async () => {
+		renderPage(linkedValues());
+		await chooseEraAndPeriod();
+		await userEvent.click(styleField());
+		await userEvent.click(page.getByRole('option', { name: 'Delft school' }));
+
+		await page.getByRole('button', { name: /Dutch Golden Age/ }).click();
+
+		await expect.element(page.getByText('Delft school')).not.toBeInTheDocument();
+		await expect.element(styleField()).toBeDisabled();
+		await expect.element(periodField()).toBeEnabled();
+	});
+
+	it('saves the era, the period and the style with the artwork', async () => {
+		renderPage(linkedValues());
+		await fillRequired();
+		await chooseEraAndPeriod();
+		await userEvent.click(styleField());
+		await userEvent.click(page.getByRole('option', { name: 'Delft school' }));
+
+		await saveButton().click();
+
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, unknown>];
+		expect(args.artwork).toMatchObject({ era_code: 'early_modern' });
+		expect(args.values_by_category).toMatchObject({
+			period: ['Dutch Golden Age'],
+			style: ['Delft school']
+		});
+	});
+
+	it('saves an artwork without an era with no era code and no period', async () => {
+		renderPage();
+		await fillRequired();
+
+		await saveButton().click();
+
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, unknown>];
+		expect(args.artwork).toMatchObject({ era_code: null });
+		expect(args.values_by_category).toMatchObject({ period: [], style: [] });
 	});
 
 	it('saves formatted notes as Markdown', async () => {

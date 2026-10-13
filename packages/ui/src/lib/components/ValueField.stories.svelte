@@ -5,9 +5,9 @@
 	const styles: ValueOption[] = [
 		{ kind: 'existing', name: 'baroque' },
 		{ kind: 'existing', name: 'tenebrism' },
-		{ kind: 'starting', name: 'gothic' },
-		{ kind: 'starting', name: 'renaissance' },
-		{ kind: 'starting', name: 'rococo' }
+		{ kind: 'existing', name: 'gothic' },
+		{ kind: 'existing', name: 'renaissance' },
+		{ kind: 'existing', name: 'rococo' }
 	];
 
 	const { Story } = defineMeta({
@@ -51,6 +51,11 @@
 		single: true,
 		hint: 'Where the artwork is now. One value.'
 	}}
+/>
+
+<Story
+	name="Locked"
+	args={{ label: 'Style', options: [], locked: true, placeholder: 'Choose a period first.' }}
 />
 
 <Story

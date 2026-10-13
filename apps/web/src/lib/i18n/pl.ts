@@ -30,7 +30,6 @@ export const pl = {
 		},
 		valueField: {
 			existing: 'Już używane',
-			starting: 'Lista startowa',
 			similar: (name: string): string => `Masz już „${name}”`,
 			useSimilar: 'Użyj tej wartości',
 			add: (name: string): string => `+ Dodaj „${name}”`,
@@ -219,8 +218,11 @@ export const pl = {
 		yearApproximate: 'ok.',
 		type: 'Typ',
 		typeNone: 'Nie wybrano',
-		period: 'Epoka',
+		era: 'Epoka',
+		period: 'Okres',
+		periodLocked: 'Najpierw wybierz epokę.',
 		style: 'Styl',
+		styleLocked: 'Najpierw wybierz okres.',
 		material: 'Materiał',
 		location: 'Miejsce',
 		locationHint: 'Gdzie dzieło jest teraz. Jedna wartość.',
@@ -278,6 +280,14 @@ export const pl = {
 		photography: 'Fotografia',
 		other: 'Inne'
 	},
+	eras: {
+		prehistory: { name: 'prehistoria', years: 'do 3000 p.n.e.' },
+		antiquity: { name: 'starożytność', years: 'do 476' },
+		middle_ages: { name: 'średniowiecze', years: '476–1492' },
+		early_modern: { name: 'nowożytność', years: '1492–1789' },
+		modern: { name: 'nowoczesność', years: '1789–1945' },
+		contemporary: { name: 'współczesność', years: 'od 1945' }
+	},
 	collectionErrors: {
 		network: 'Nie udało się połączyć z serwerem. Sprawdź internet i odśwież stronę.'
 	},
@@ -306,66 +316,6 @@ export const pl = {
 			'Nie udało się wczytać obrazka z tego adresu. Sprawdź, czy prowadzi wprost do obrazka.',
 		uploadNetwork: 'Nie udało się wysłać zdjęcia. Sprawdź internet i spróbuj jeszcze raz.',
 		uploadFailed: 'Nie udało się wysłać zdjęcia. Spróbuj jeszcze raz za chwilę.'
-	},
-	startingValues: {
-		period: [
-			'prehistoria',
-			'starożytność',
-			'średniowiecze',
-			'renesans',
-			'barok',
-			'oświecenie',
-			'XIX wiek',
-			'modernizm',
-			'sztuka współczesna'
-		],
-		style: [
-			'sztuka egipska',
-			'sztuka grecka',
-			'sztuka rzymska',
-			'sztuka bizantyjska',
-			'romanizm',
-			'gotyk',
-			'renesans',
-			'manieryzm',
-			'barok',
-			'rokoko',
-			'klasycyzm',
-			'romantyzm',
-			'realizm',
-			'impresjonizm',
-			'postimpresjonizm',
-			'secesja',
-			'ekspresjonizm',
-			'kubizm',
-			'futuryzm',
-			'dadaizm',
-			'surrealizm',
-			'abstrakcjonizm',
-			'pop-art',
-			'minimalizm'
-		],
-		material: [
-			'olej na płótnie',
-			'olej na desce',
-			'tempera',
-			'fresk',
-			'akwarela',
-			'pastel',
-			'tusz',
-			'węgiel',
-			'marmur',
-			'kamień',
-			'brąz',
-			'drewno',
-			'terakota',
-			'złoto',
-			'szkło',
-			'ceramika',
-			'mozaika',
-			'cegła',
-			'żelbet'
-		]
 	},
 	trash: {
 		title: 'Kosz',

@@ -1,4 +1,4 @@
-import { locale, m } from '#lib/i18n/index.ts';
+import { locale } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
 import { collectionErrorMessage } from './errors.ts';
 import type { CategoryCode, CategoryValues, CategoryValuesResult } from './types.ts';
@@ -20,18 +20,6 @@ export function takesOneValue(category: CategoryCode): boolean {
 
 export function emptyCategoryValues(): CategoryValues {
 	return { author: [], period: [], style: [], material: [], location: [] };
-}
-
-export function startingValues(category: CategoryCode): readonly string[] {
-	switch (category) {
-		case 'period':
-			return m.startingValues.period;
-		case 'style':
-		case 'material':
-			return [...m.startingValues[category]].sort((a, b) => a.localeCompare(b, locale));
-		default:
-			return [];
-	}
 }
 
 export async function loadCategoryValues(): Promise<CategoryValuesResult> {
