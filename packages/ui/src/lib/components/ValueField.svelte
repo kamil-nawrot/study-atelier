@@ -75,11 +75,12 @@
 		active = 0;
 	}
 
-	async function pick(option: ValueOption): Promise<void> {
+	async function pick(option: ValueOption, keyboard = false): Promise<void> {
 		values = single ? [option.name] : [...values, option.name];
 		query = '';
 		if (single) {
 			open = false;
+			if (!keyboard) return;
 			await tick();
 			control?.querySelector<HTMLButtonElement>('.remove')?.focus();
 		} else {
@@ -119,7 +120,7 @@
 		} else if (event.key === 'Enter') {
 			if (!expanded) return;
 			event.preventDefault();
-			pick(ordered[activeIndex]);
+			pick(ordered[activeIndex], true);
 		} else if (event.key === 'Escape') {
 			if (!expanded) return;
 			event.preventDefault();

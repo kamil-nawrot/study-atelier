@@ -191,9 +191,36 @@ describe('ValueField', () => {
 		await userEvent.click(page.getByRole('option', { name: 'Louvre' }));
 
 		await expect.element(page.getByRole('combobox')).not.toBeInTheDocument();
-		await expect.element(page.getByRole('button', { name: texts.remove('Louvre') })).toHaveFocus();
 		await userEvent.click(page.getByRole('button', { name: texts.remove('Louvre') }));
 		await expect.element(page.getByRole('combobox', { name: 'Location' })).toBeVisible();
+	});
+
+	it('leaves the remove button unfocused after a pointer pick in single mode', async () => {
+		render(ValueField, {
+			label: 'Location',
+			options: [{ kind: 'existing', name: 'Louvre' }],
+			single: true
+		});
+
+		await userEvent.click(page.getByRole('combobox', { name: 'Location' }));
+		await userEvent.click(page.getByRole('option', { name: 'Louvre' }));
+
+		const remove = page.getByRole('button', { name: texts.remove('Louvre') });
+		await expect.element(remove).toBeVisible();
+		expect(document.activeElement).not.toBe(remove.element());
+	});
+
+	it('moves focus to the remove button after a keyboard pick in single mode', async () => {
+		render(ValueField, {
+			label: 'Location',
+			options: [{ kind: 'existing', name: 'Louvre' }],
+			single: true
+		});
+
+		await userEvent.click(page.getByRole('combobox', { name: 'Location' }));
+		await userEvent.keyboard('{Enter}');
+
+		await expect.element(page.getByRole('button', { name: texts.remove('Louvre') })).toHaveFocus();
 	});
 
 	it('is disabled without remove buttons or suggestions', async () => {
