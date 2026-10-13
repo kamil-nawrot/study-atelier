@@ -20,9 +20,12 @@ vi.mock('$app/navigation', () => ({
 	goto: vi.fn(),
 	invalidateAll: vi.fn()
 }));
+const artworks = vi.hoisted(() => ({ select: vi.fn(), is: vi.fn() }));
+
 vi.mock('#lib/supabase.ts', () => ({
 	supabase: {
 		auth: { getSession: vi.fn(), signOut: vi.fn() },
+		from: vi.fn(() => artworks),
 		rpc: vi.fn(),
 		storage: { from: vi.fn() }
 	}
@@ -131,6 +134,24 @@ function savedArtwork(): Record<string, unknown> {
 	return args.artwork;
 }
 
+function savedBefore(title: string, author: string, number = 5): void {
+	artworks.is.mockResolvedValue({
+		data: [
+			{
+				id: `artwork-${number}`,
+				record_number: number,
+				title,
+				artwork_values: [{ category_values: { category_code: 'author', name: author } }]
+			}
+		],
+		error: null
+	});
+}
+
+function duplicateDialog(): ReturnType<typeof page.getByRole> {
+	return page.getByRole('alertdialog', { name: m.artworkForm.duplicateTitle });
+}
+
 async function fillRequired(): Promise<void> {
 	await titleField().fill('The Milkmaid');
 	await userEvent.click(authorsField());
@@ -152,6 +173,8 @@ describe('add artwork page', () => {
 		vi.mocked(supabase.storage.from).mockReturnValue(bucket as never);
 		bucket.upload.mockResolvedValue({ data: { path: 'ignored' }, error: null });
 		bucket.remove.mockResolvedValue({ data: [], error: null });
+		artworks.select.mockReturnValue(artworks);
+		artworks.is.mockResolvedValue({ data: [], error: null });
 		await page.viewport(1280, 800);
 	});
 
@@ -316,6 +339,64 @@ describe('add artwork page', () => {
 		await expect.element(page.getByText('Johannes Vermeer')).not.toBeInTheDocument();
 		expect(invalidateAll).toHaveBeenCalled();
 		expect(goto).not.toHaveBeenCalled();
+	});
+
+	it('asks before saving an artwork with the same title and authors and goes back on request', async () => {
+		savedBefore('the  milkmaid', 'johannes vermeer');
+		renderPage();
+		await fillRequired();
+
+		await saveButton().click();
+
+		await expect.element(duplicateDialog()).toBeVisible();
+		await expect
+			.element(duplicateDialog())
+			.toHaveAccessibleDescription(m.artworkForm.duplicateDescription('#0005', 1));
+		await page.getByRole('button', { name: m.artworkForm.keepEditing }).click();
+
+		await expect.element(duplicateDialog()).not.toBeInTheDocument();
+		await expect.element(titleField()).toHaveValue('The Milkmaid');
+		await expect.element(saveButton()).toBeEnabled();
+		expect(supabase.rpc).not.toHaveBeenCalled();
+		expect(goto).not.toHaveBeenCalled();
+	});
+
+	it('saves the matching artwork after the learner confirms', async () => {
+		savedBefore('The Milkmaid', 'Johannes Vermeer');
+		renderPage();
+		await fillRequired();
+
+		await saveButton().click();
+		await page.getByRole('button', { name: m.artworkForm.saveAnyway }).click();
+
+		await vi.waitFor(() =>
+			expect(goto).toHaveBeenCalledWith('/atelier', { state: { highlight: 12 } })
+		);
+		expect(supabase.rpc).toHaveBeenCalledTimes(1);
+	});
+
+	it('asks the same way before saving and starting the next artwork', async () => {
+		savedBefore('The Milkmaid', 'Johannes Vermeer');
+		renderPage();
+		await fillRequired();
+
+		await page.getByRole('button', { name: m.artworkForm.saveAndNext }).click();
+		await page.getByRole('button', { name: m.artworkForm.saveAnyway }).click();
+
+		await expect.element(page.getByRole('status')).toHaveTextContent(m.artworkForm.saved('#0012'));
+		await expect.element(titleField()).toHaveValue('');
+	});
+
+	it('does not ask when another artwork has the same title but other authors', async () => {
+		savedBefore('The Milkmaid', 'Jan Steen');
+		renderPage();
+		await fillRequired();
+
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
+		expect(supabase.from).toHaveBeenCalledWith('artworks');
+		expect(artworks.is).toHaveBeenCalledWith('deleted_at', null);
 	});
 
 	it('says when saving failed and lets the learner try again', async () => {
@@ -657,6 +738,8 @@ describe('image search on the add artwork page', () => {
 		fetchMock.mockReset();
 		vi.stubGlobal('fetch', fetchMock);
 		vi.mocked(supabase.rpc).mockReturnValue(rpcCall as never);
+		artworks.select.mockReturnValue(artworks);
+		artworks.is.mockResolvedValue({ data: [], error: null });
 		rpcCall.single.mockResolvedValue({
 			data: { id: 'artwork-12', record_number: 12 },
 			error: null

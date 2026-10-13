@@ -25,6 +25,7 @@
 		formHasChanges
 	} from '../artwork-form.ts';
 	import { saveArtwork, validateArtwork } from '../artwork-record.ts';
+	import { findDuplicates, formatRecordNumbers, sameTitleAndAuthors } from '../duplicates.ts';
 	import { startingValues, takesOneValue } from '../category-values.ts';
 	import { formatRecordNumber } from '../format.ts';
 	import { suggestValues } from '../value-suggestions.ts';
@@ -32,6 +33,7 @@
 	import type {
 		ArtworkFieldErrors,
 		ArtworkFormState,
+		ArtworkInput,
 		ArtworkRecord,
 		CategoryCode,
 		CategoryValues,
@@ -68,6 +70,9 @@
 	let toast: Toast;
 	let leaving = false;
 	let answerDiscard: ((discard: boolean) => void) | null = null;
+	let duplicateOpen = $state(false);
+	let duplicates = $state<number[]>([]);
+	let answerDuplicate: ((save: boolean) => void) | null = null;
 
 	let imageSearchReady = $derived(canSearchImage(form));
 	let imageAlt = $derived(artworkImageAlt(form));
@@ -91,6 +96,25 @@
 	function answer(discard: boolean): void {
 		answerDiscard?.(discard);
 		discardOpen = false;
+	}
+
+	async function confirmDuplicate(input: ArtworkInput): Promise<boolean> {
+		if (artwork && sameTitleAndAuthors(input, artwork)) return true;
+		const numbers = await findDuplicates(input, artwork?.id);
+		if (numbers.length === 0) return true;
+		duplicates = numbers;
+		duplicateOpen = true;
+		return new Promise((resolve) => {
+			answerDuplicate = (save) => {
+				answerDuplicate = null;
+				resolve(save);
+			};
+		});
+	}
+
+	function answerDuplicateDialog(save: boolean): void {
+		answerDuplicate?.(save);
+		duplicateOpen = false;
 	}
 
 	beforeNavigate((navigation) => {
@@ -136,6 +160,10 @@
 		if (Object.keys(fieldErrors).length > 0) return;
 
 		saving = andNext ? 'next' : 'save';
+		if (!(await confirmDuplicate(input))) {
+			saving = null;
+			return;
+		}
 		const result = await saveArtwork(
 			input,
 			artwork ? { id: artwork.id, image: artwork.image } : undefined
@@ -272,6 +300,26 @@
 		</Button>
 		<Button onclick={() => answer(true)} variant="primary">
 			{m.artworkForm.discard}
+		</Button>
+	{/snippet}
+</Dialog>
+
+<Dialog
+	description={m.artworkForm.duplicateDescription(
+		formatRecordNumbers(duplicates),
+		duplicates.length
+	)}
+	onclose={() => answerDuplicate?.(false)}
+	size="small"
+	title={m.artworkForm.duplicateTitle}
+	bind:open={duplicateOpen}
+>
+	{#snippet footer()}
+		<Button onclick={() => answerDuplicateDialog(false)}>
+			{m.artworkForm.keepEditing}
+		</Button>
+		<Button onclick={() => answerDuplicateDialog(true)} variant="primary">
+			{m.artworkForm.saveAnyway}
 		</Button>
 	{/snippet}
 </Dialog>
