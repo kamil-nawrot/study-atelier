@@ -197,6 +197,12 @@
 		background: var(--color-scrim);
 	}
 
+	@supports (backdrop-filter: blur(1px)) {
+		.drawer::backdrop {
+			backdrop-filter: blur(var(--blur-scrim));
+		}
+	}
+
 	@media (prefers-reduced-motion: no-preference) {
 		.rail {
 			transition: width var(--duration-short) ease-out;

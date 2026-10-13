@@ -115,6 +115,12 @@
 		background: var(--color-scrim);
 	}
 
+	@supports (backdrop-filter: blur(1px)) {
+		.dialog::backdrop {
+			backdrop-filter: blur(var(--blur-scrim));
+		}
+	}
+
 	.small {
 		max-width: min(var(--size-content-narrow), calc(100% - 2 * var(--spacing-4)));
 	}
