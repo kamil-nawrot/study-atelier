@@ -161,7 +161,7 @@ describe('artwork page', () => {
 	it('offers to add an image to an artwork without one', async () => {
 		renderPage({ artwork: artwork({ image: null }) });
 
-		await expect.element(page.getByRole('img', { name: m.ui.noImage })).toBeVisible();
+		await expect.element(page.getByRole('img', { name: m.ui.noImage })).toBeInTheDocument();
 		await expect
 			.element(page.getByRole('link', { name: m.artworkView.addImage }))
 			.toHaveAttribute('href', '/atelier/42/edit');

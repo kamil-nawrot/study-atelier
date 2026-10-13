@@ -1,9 +1,8 @@
 <script lang="ts">
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
-	import ImageIcon from '@lucide/svelte/icons/image';
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
 	import X from '@lucide/svelte/icons/x';
-	import { ArtworkImage, Button, Icon, Notes, Tag } from '@study-atelier/ui';
+	import { ArtworkImage, Button, Icon, NoImage, Notes, Tag } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
 	import { formatRecordNumber, formatYear } from '../format.ts';
@@ -92,8 +91,8 @@
 			{/if}
 		{:else}
 			<span class="mat">
-				<span class="window" aria-label={m.ui.noImage} role="img">
-					<Icon icon={ImageIcon} />
+				<span class="window">
+					<NoImage label={m.ui.noImage} />
 				</span>
 			</span>
 			<div>
@@ -260,11 +259,8 @@
 
 	.window {
 		display: grid;
-		place-items: center;
 		width: min(320px, calc(100vw - 2 * var(--spacing-6)));
 		aspect-ratio: 4 / 5;
-		background: var(--color-mat-window);
-		color: var(--color-mat-fg-muted);
 	}
 
 	.stage .caption {
