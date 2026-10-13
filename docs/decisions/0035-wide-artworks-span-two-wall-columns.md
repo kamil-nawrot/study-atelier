@@ -31,12 +31,14 @@ Where the fixed caption applies: everywhere, or only where wide artworks can spa
 
 How many title lines the caption holds: up to 2, or 1.
 
+Where the gap above a wide artwork goes: left above it, moved above the last tile of the shorter column, or spread over the gaps between the tiles of that column.
+
 ## Decision outcome
 
 The owner's choices in ATL-83:
 
 - **Wide artworks.** An artwork whose image is at least twice as wide as it is high spans two adjacent columns when the wall has three columns or more. At 1.75:1 triptychs and wide paintings also span, and in the mockup they stacked into a lane through the middle of the wall.
-- **Placement.** An ordinary artwork goes to the shortest column, as today. A wide artwork goes to the pair of adjacent columns whose top is lowest and most even. When the two columns differ a lot, up to three of the following artworks may be placed first to level the pair, never across a period block. When that does not level them, a gap stays above the shorter column.
+- **Placement.** An ordinary artwork goes to the shortest column, as today. A wide artwork goes to the pair of adjacent columns whose top is lowest and most even. When the two columns differ a lot, up to three of the following artworks may be placed first to level the pair, never across a period block. When that does not level them, the last tile of the shorter column moves down to rest on the wide artwork, so the gap sits above that tile instead of above the wide artwork. A tile at the top of the wall never moves, so the top edge stays straight; the gap then stays above the wide artwork.
 - **Layout.** The wall becomes one list whose tile positions are computed from the stored image sizes, the column width and the fixed caption height, before the page is drawn. Every change of the list (order, search, filter) lays the wall out again from the start, as today.
 - **Caption.** From three columns up, the tile caption has a fixed height: the title takes up to two lines and ends with an ellipsis when it is longer; authors and date take one line, in which the authors are cut and the date stays visible. A short title leaves the second line empty, so the bottom edge of the passe-partout is the same on every tile.
 - **Phone.** In one column nothing spans, so the caption stays full, as today.
@@ -51,7 +53,7 @@ The owner's choices in ATL-83:
 - Good: the library gains a `Tooltip` that other components can use instead of the native `title`.
 - Bad: long titles are cut on the wall; the full title needs the tooltip or the artwork view.
 - Bad: tiles with short titles carry an empty line under the title.
-- Bad: a wide artwork can sit a few places later than its position in the order, and a gap can stay above it.
+- Bad: a wide artwork can sit a few places later than its position in the order, and a column can show one larger gap between two tiles.
 - Bad: the wall component and the tile caption are rewritten; the change waits for the build of the period order (ATL-79), which changes the same component.
 
 ## More information
