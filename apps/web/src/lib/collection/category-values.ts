@@ -1,6 +1,6 @@
 import { locale } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
-import { collectionErrorMessage } from './errors.ts';
+import { fetchAllRows } from './paged-rows.ts';
 import type { CategoryCode, CategoryValues, CategoryValuesResult } from './types.ts';
 
 type CategoryValueRow = {
@@ -23,14 +23,18 @@ export function emptyCategoryValues(): CategoryValues {
 }
 
 export async function loadCategoryValues(): Promise<CategoryValuesResult> {
-	const { data, error } = await supabase
-		.from('artworks')
-		.select('artwork_values(category_values(category_code, name))')
-		.is('deleted_at', null);
-	if (error) return { values: emptyCategoryValues(), error: collectionErrorMessage(error) };
+	const { rows, error } = await fetchAllRows<ArtworkValuesRow>((from, to) =>
+		supabase
+			.from('artworks')
+			.select('artwork_values(category_values(category_code, name))')
+			.is('deleted_at', null)
+			.order('id')
+			.range(from, to)
+	);
+	if (error) return { values: emptyCategoryValues(), error };
 
 	const names = new Map<CategoryCode, Set<string>>();
-	for (const row of (data ?? []) as unknown as ArtworkValuesRow[]) {
+	for (const row of rows) {
 		for (const { category_values: value } of row.artwork_values) {
 			if (!value) continue;
 			const set = names.get(value.category_code) ?? new Set<string>();

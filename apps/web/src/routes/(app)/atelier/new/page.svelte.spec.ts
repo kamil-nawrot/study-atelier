@@ -22,7 +22,12 @@ vi.mock('$app/navigation', () => ({
 	goto: vi.fn(),
 	invalidateAll: vi.fn()
 }));
-const artworks = vi.hoisted(() => ({ select: vi.fn(), is: vi.fn() }));
+const artworks = vi.hoisted(() => ({
+	select: vi.fn(),
+	is: vi.fn(),
+	order: vi.fn(),
+	range: vi.fn()
+}));
 
 vi.mock('#lib/supabase.ts', () => ({
 	supabase: {
@@ -166,7 +171,7 @@ function savedArtwork(): Record<string, unknown> {
 }
 
 function savedBefore(title: string, author: string, number = 5): void {
-	artworks.is.mockResolvedValue({
+	artworks.range.mockResolvedValue({
 		data: [
 			{
 				id: `artwork-${number}`,
@@ -213,7 +218,9 @@ describe('add artwork page', () => {
 		bucket.upload.mockResolvedValue({ data: { path: 'ignored' }, error: null });
 		bucket.remove.mockResolvedValue({ data: [], error: null });
 		artworks.select.mockReturnValue(artworks);
-		artworks.is.mockResolvedValue({ data: [], error: null });
+		artworks.is.mockReturnValue(artworks);
+		artworks.order.mockReturnValue(artworks);
+		artworks.range.mockResolvedValue({ data: [], error: null });
 		await page.viewport(1280, 800);
 	});
 
@@ -969,7 +976,9 @@ describe('image search on the add artwork page', () => {
 		vi.stubGlobal('fetch', fetchMock);
 		vi.mocked(supabase.rpc).mockReturnValue(rpcCall as never);
 		artworks.select.mockReturnValue(artworks);
-		artworks.is.mockResolvedValue({ data: [], error: null });
+		artworks.is.mockReturnValue(artworks);
+		artworks.order.mockReturnValue(artworks);
+		artworks.range.mockResolvedValue({ data: [], error: null });
 		rpcCall.single.mockResolvedValue({
 			data: { id: 'artwork-12', record_number: 12 },
 			error: null

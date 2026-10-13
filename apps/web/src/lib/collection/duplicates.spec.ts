@@ -14,7 +14,9 @@ vi.mock('#lib/supabase.ts', () => ({
 
 const query = {
 	select: vi.fn(),
-	is: vi.fn()
+	is: vi.fn(),
+	order: vi.fn(),
+	range: vi.fn()
 };
 
 function candidate(
@@ -105,10 +107,12 @@ describe('findDuplicates', () => {
 		vi.clearAllMocks();
 		vi.mocked(supabase.from).mockReturnValue(query as never);
 		query.select.mockReturnValue(query);
+		query.is.mockReturnValue(query);
+		query.order.mockReturnValue(query);
 	});
 
 	it('compares with artworks outside the trash', async () => {
-		query.is.mockResolvedValue({
+		query.range.mockResolvedValue({
 			data: [
 				{
 					id: 'artwork-5',
@@ -128,10 +132,43 @@ describe('findDuplicates', () => {
 		).resolves.toEqual([5]);
 		expect(supabase.from).toHaveBeenCalledWith('artworks');
 		expect(query.is).toHaveBeenCalledWith('deleted_at', null);
+		expect(query.order).toHaveBeenCalledWith('id');
+		expect(query.range).toHaveBeenCalledWith(0, 999);
+	});
+
+	it('finds a duplicate among the artworks beyond the first 1000', async () => {
+		const other = (index: number): Record<string, unknown> => ({
+			id: `artwork-${index}`,
+			record_number: index,
+			title: `Other ${index}`,
+			artwork_values: []
+		});
+		query.range
+			.mockResolvedValueOnce({
+				data: Array.from({ length: 1000 }, (_, index) => other(index + 1)),
+				error: null
+			})
+			.mockResolvedValueOnce({
+				data: [
+					{
+						id: 'artwork-1001',
+						record_number: 1001,
+						title: 'Sunflowers',
+						artwork_values: [
+							{ category_values: { category_code: 'author', name: 'Vincent van Gogh' } }
+						]
+					}
+				],
+				error: null
+			});
+
+		await expect(
+			findDuplicates({ title: 'Sunflowers', authors: ['Vincent van Gogh'] })
+		).resolves.toEqual([1001]);
 	});
 
 	it('finds nothing when the artworks cannot be read', async () => {
-		query.is.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } });
+		query.range.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } });
 
 		await expect(
 			findDuplicates({ title: 'Sunflowers', authors: ['Vincent van Gogh'] })

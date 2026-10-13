@@ -1,6 +1,7 @@
 import { locale } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
 import { formatRecordNumber } from './format.ts';
+import { fetchAllRows } from './paged-rows.ts';
 import type { ArtworkInput } from './types.ts';
 import { valueKey } from './value-suggestions.ts';
 
@@ -61,11 +62,15 @@ export async function findDuplicates(
 	artwork: TitleAndAuthors,
 	excludeId?: string
 ): Promise<number[]> {
-	const { data, error } = await supabase
-		.from('artworks')
-		.select('id, record_number, title, artwork_values(category_values(category_code, name))')
-		.is('deleted_at', null);
+	const { rows, error } = await fetchAllRows<CandidateRow>((from, to) =>
+		supabase
+			.from('artworks')
+			.select('id, record_number, title, artwork_values(category_values(category_code, name))')
+			.is('deleted_at', null)
+			.order('id')
+			.range(from, to)
+	);
 	if (error) return [];
-	const candidates = ((data ?? []) as unknown as CandidateRow[]).map(candidateFromRow);
+	const candidates = rows.map(candidateFromRow);
 	return duplicateNumbers(artwork, candidates, excludeId);
 }

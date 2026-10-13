@@ -9,7 +9,9 @@ vi.mock('#lib/supabase.ts', () => ({
 
 const query = {
 	select: vi.fn(),
-	is: vi.fn()
+	is: vi.fn(),
+	order: vi.fn(),
+	range: vi.fn()
 };
 
 function value(category_code: string, name: string): Record<string, unknown> {
@@ -21,10 +23,12 @@ describe('loadCategoryValues', () => {
 		vi.clearAllMocks();
 		vi.mocked(supabase.from).mockReturnValue(query as never);
 		query.select.mockReturnValue(query);
+		query.is.mockReturnValue(query);
+		query.order.mockReturnValue(query);
 	});
 
 	it('reads values only through artworks outside the trash', async () => {
-		query.is.mockResolvedValue({ data: [], error: null });
+		query.range.mockResolvedValue({ data: [], error: null });
 
 		await expect(loadCategoryValues()).resolves.toEqual({ values: emptyCategoryValues() });
 		expect(supabase.from).toHaveBeenCalledWith('artworks');
@@ -32,10 +36,28 @@ describe('loadCategoryValues', () => {
 			'artwork_values(category_values(category_code, name))'
 		);
 		expect(query.is).toHaveBeenCalledWith('deleted_at', null);
+		expect(query.order).toHaveBeenCalledWith('id');
+		expect(query.range).toHaveBeenCalledWith(0, 999);
+	});
+
+	it('reads the values of artworks beyond the first 1000', async () => {
+		const full = Array.from({ length: 1000 }, () => ({
+			artwork_values: [value('author', 'Zoe Painter')]
+		}));
+		query.range.mockResolvedValueOnce({ data: full, error: null }).mockResolvedValueOnce({
+			data: [{ artwork_values: [value('material', 'oil on canvas')] }],
+			error: null
+		});
+
+		const { values } = await loadCategoryValues();
+
+		expect(values.author).toEqual(['Zoe Painter']);
+		expect(values.material).toEqual(['oil on canvas']);
+		expect(query.range).toHaveBeenNthCalledWith(2, 1000, 1999);
 	});
 
 	it('groups values by category once each, in alphabetical order', async () => {
-		query.is.mockResolvedValue({
+		query.range.mockResolvedValue({
 			data: [
 				{ artwork_values: [value('author', 'Zoe Painter'), value('style', 'gotyk')] },
 				{
@@ -63,7 +85,7 @@ describe('loadCategoryValues', () => {
 	});
 
 	it('returns no values and a message when the request fails', async () => {
-		query.is.mockResolvedValue({ data: null, error: { code: 'XX000', message: 'boom' } });
+		query.range.mockResolvedValue({ data: null, error: { code: 'XX000', message: 'boom' } });
 
 		await expect(loadCategoryValues()).resolves.toEqual({
 			values: emptyCategoryValues(),

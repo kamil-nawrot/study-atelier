@@ -9,9 +9,9 @@ import {
 } from '#lib/images/commons.ts';
 import { supabase } from '#lib/supabase.ts';
 import { valuesOf } from './artwork-values.ts';
-import { collectionErrorMessage } from './errors.ts';
 import { formatYear } from './format.ts';
 import { tileSizes } from './masonry.ts';
+import { fetchAllRows } from './paged-rows.ts';
 import type {
 	ArtworkValueRow,
 	AtelierResult,
@@ -44,7 +44,6 @@ type ArtworkRow = {
 
 export const DEFAULT_IMAGE_SIZE: ImageSize = { width: 4, height: 5 };
 
-const PAGE_SIZE = 1000;
 const TILE_SIZES = tileSizes();
 const TILE_WIDTH = 500;
 
@@ -110,24 +109,6 @@ function ownImage(
 	size: ImageSize | undefined
 ): ArtworkTileImage | undefined {
 	return src ? { src, ...(size ?? DEFAULT_IMAGE_SIZE) } : undefined;
-}
-
-type RowsPage = {
-	data: unknown;
-	error: { code?: string; message?: string } | null;
-};
-
-async function fetchAllRows(
-	page: (from: number, to: number) => PromiseLike<RowsPage>
-): Promise<{ rows: ArtworkRow[]; error?: string }> {
-	const rows: ArtworkRow[] = [];
-	for (let from = 0; ; from += PAGE_SIZE) {
-		const { data, error } = await page(from, from + PAGE_SIZE - 1);
-		if (error) return { rows: [], error: collectionErrorMessage(error) };
-		const received = (data ?? []) as ArtworkRow[];
-		rows.push(...received);
-		if (received.length < PAGE_SIZE) return { rows };
-	}
 }
 
 async function wallArtworks(rows: ArtworkRow[]): Promise<WallArtwork[]> {
@@ -198,7 +179,7 @@ export async function refreshExpiredImages(
 }
 
 export async function loadAtelier(): Promise<AtelierResult> {
-	const { rows, error } = await fetchAllRows((from, to) =>
+	const { rows, error } = await fetchAllRows<ArtworkRow>((from, to) =>
 		supabase
 			.from('artworks')
 			.select(ARTWORK_COLUMNS)
@@ -213,7 +194,7 @@ export async function loadAtelier(): Promise<AtelierResult> {
 }
 
 export async function loadTrash(): Promise<TrashResult> {
-	const { rows, error } = await fetchAllRows((from, to) =>
+	const { rows, error } = await fetchAllRows<ArtworkRow>((from, to) =>
 		supabase
 			.from('artworks')
 			.select(ARTWORK_COLUMNS)

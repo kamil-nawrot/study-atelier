@@ -16,7 +16,12 @@ vi.mock('$app/navigation', () => ({
 	beforeNavigate: vi.fn(),
 	goto: vi.fn()
 }));
-const artworks = vi.hoisted(() => ({ select: vi.fn(), is: vi.fn() }));
+const artworks = vi.hoisted(() => ({
+	select: vi.fn(),
+	is: vi.fn(),
+	order: vi.fn(),
+	range: vi.fn()
+}));
 
 vi.mock('#lib/supabase.ts', () => ({
 	supabase: {
@@ -73,7 +78,7 @@ function saveButton(): ReturnType<typeof page.getByRole> {
 }
 
 function savedArtworks(...titles: [number, string][]): void {
-	artworks.is.mockResolvedValue({
+	artworks.range.mockResolvedValue({
 		data: titles.map(([number, title]) => ({
 			id: `artwork-${number}`,
 			record_number: number,
@@ -118,7 +123,9 @@ describe('edit artwork page', () => {
 		vi.mocked(supabase.storage.from).mockReturnValue(bucket as never);
 		bucket.remove.mockResolvedValue({ data: [], error: null });
 		artworks.select.mockReturnValue(artworks);
-		artworks.is.mockResolvedValue({ data: [], error: null });
+		artworks.is.mockReturnValue(artworks);
+		artworks.order.mockReturnValue(artworks);
+		artworks.range.mockResolvedValue({ data: [], error: null });
 		await page.viewport(1280, 800);
 	});
 
