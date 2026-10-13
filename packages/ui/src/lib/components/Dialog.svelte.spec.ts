@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import '../styles/index.css';
 import { html } from '../../stories/snippets';
 import { defaultUiMessages } from '../messages';
 import Dialog from './Dialog.svelte';
@@ -23,6 +24,17 @@ afterEach(() => {
 });
 
 describe('Dialog', () => {
+	it('blurs the page under the scrim where the browser supports it', async () => {
+		render(Dialog, { open: true, title: 'Which artwork is it?', children: html('<p>Body</p>') });
+
+		const dialog = page.getByRole('dialog', { name: 'Which artwork is it?' }).element();
+		const backdrop = getComputedStyle(dialog, '::backdrop');
+		expect(backdrop.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+		if (CSS.supports('backdrop-filter', 'blur(1px)')) {
+			expect(backdrop.backdropFilter).toMatch(/^blur\(/);
+		}
+	});
+
 	it('opens as a modal named by its title and described by its description', async () => {
 		render(Dialog, {
 			open: true,

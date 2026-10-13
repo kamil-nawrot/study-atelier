@@ -210,6 +210,12 @@
 		background: var(--color-scrim);
 	}
 
+	@supports (backdrop-filter: blur(1px)) {
+		.drawer::backdrop {
+			backdrop-filter: blur(var(--blur-scrim));
+		}
+	}
+
 	:global(html:has(.drawer[open])) {
 		overflow: hidden;
 	}
