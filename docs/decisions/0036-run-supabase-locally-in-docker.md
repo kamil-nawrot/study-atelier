@@ -1,6 +1,6 @@
 # 0036. Run Supabase locally in Docker for development and migration testing
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-10-13
 
 ## Context and problem statement
