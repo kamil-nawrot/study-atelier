@@ -203,6 +203,8 @@ delete from public.category_values as value
 
 drop table period_plan;
 
+update public.categories set multiple = false where code = 'period';
+
 create or replace function public.save_artwork(
   artwork jsonb,
   values_by_category jsonb,
@@ -256,7 +258,7 @@ begin
         year = input.year,
         year_approximate = coalesce(input.year_approximate, false),
         type_code = input.type_code,
-        era_code = case when artwork ? 'era_code' then input.era_code else public.artworks.era_code end,
+        era_code = input.era_code,
         notes = input.notes,
         source_wikidata_id = input.source_wikidata_id,
         source_image_file = input.source_image_file,

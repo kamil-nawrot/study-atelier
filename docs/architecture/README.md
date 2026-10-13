@@ -84,7 +84,7 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 1. `#lib/collection/artwork-record.ts` checks the required fields (title, an author or "author unknown", a valid year) and returns field errors without calling Supabase.
 2. If the learner picked their own file, it uploads it to `artwork-images` at `<learner id>/<random uuid>.<extension>` (`#lib/images/own-image.ts`). A failed upload stops the save ([ADR-0025](../decisions/0025-upload-the-own-image-when-the-artwork-is-saved.md)).
 3. It calls the `save_artwork` RPC once with the artwork's columns and its value names by category; the year is stored negative before the common era ([ADR-0014](../decisions/0014-artwork-collection-data-model.md)).
-4. The function inserts or updates the artwork (an update that sends no `era_code` keeps the stored era, so code from before the era existed does not erase it), creates the names the learner does not have yet, replaces the artwork's value links, links its period to its era and its styles to its period, and returns the record number, all in one transaction ([ADR-0024](../decisions/0024-save-an-artwork-in-one-database-function.md)).
+4. The function inserts or updates the artwork, creates the names the learner does not have yet, replaces the artwork's value links, links its period to its era and its styles to its period, and returns the record number, all in one transaction ([ADR-0024](../decisions/0024-save-an-artwork-in-one-database-function.md)).
 5. If the save failed, the file uploaded in step 2 is removed. If it succeeded and the artwork's previous uploaded file was replaced or removed, that file is removed.
 
 ### Viewing an artwork
