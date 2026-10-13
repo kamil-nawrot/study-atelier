@@ -6,6 +6,21 @@ const config = {
 	extends: ['stylelint-config-html/svelte'],
 	plugins: ['stylelint-declaration-strict-value'],
 	rules: {
+		'declaration-no-important': true,
+		'declaration-block-no-duplicate-properties': true,
+		'no-duplicate-selectors': true,
+		'property-no-unknown': true,
+		'unit-no-unknown': true,
+		'color-no-invalid-hex': true,
+		'color-named': 'never',
+		'property-disallowed-list': [
+			['box-shadow', 'text-shadow'],
+			{ message: 'There are no shadows in this design' }
+		],
+		'media-feature-name-value-allowed-list': [
+			{ 'min-width': ['768px'] },
+			{ message: 'The only breakpoint is min-width: 768px' }
+		],
 		'scale-unlimited/declaration-strict-value': [
 			[
 				'/^(?!--).*color$/',
