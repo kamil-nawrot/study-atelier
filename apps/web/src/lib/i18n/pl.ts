@@ -141,6 +141,7 @@ export const pl = {
 		expand: 'Rozwiń menu',
 		collapse: 'Zwiń menu',
 		atelier: 'Atelier',
+		cardIndex: 'Kartoteka',
 		trash: 'Kosz',
 		signOut: 'Wyloguj się'
 	},
@@ -323,6 +324,132 @@ export const pl = {
 			'Nie udało się wczytać obrazka z tego adresu. Sprawdź, czy prowadzi wprost do obrazka.',
 		uploadNetwork: 'Nie udało się wysłać zdjęcia. Sprawdź internet i spróbuj jeszcze raz.',
 		uploadFailed: 'Nie udało się wysłać zdjęcia. Spróbuj jeszcze raz za chwilę.'
+	},
+	cardIndex: {
+		title: 'Kartoteka',
+		lead: 'Tu porządkujesz swoje epoki, okresy, style i inne wartości, które wpisujesz przy dziełach.',
+		loadErrorTitle: 'Nie udało się wczytać Kartoteki',
+		actionErrorTitle: 'Nie udało się zapisać zmian',
+		tabsLabel: 'Rodzaje wartości',
+		tabs: {
+			timeline: 'Okresy i style',
+			material: 'Materiały',
+			author: 'Autorzy',
+			location: 'Miejsca'
+		},
+		emptyEra: 'W tej epoce nie ma jeszcze okresów.',
+		periodsWithoutEra: 'Okresy bez epoki',
+		stylesWithoutPeriod: 'Style bez okresu',
+		emptyTimeline:
+			'Nie ma tu jeszcze okresów ani stylów. Pojawią się, gdy wpiszesz je przy dziele.',
+		emptyList: {
+			material: 'Nie ma tu jeszcze materiałów. Pojawią się, gdy wpiszesz je przy dziele.',
+			author: 'Nie ma tu jeszcze autorów. Pojawią się, gdy wpiszesz ich przy dziele.',
+			location: 'Nie ma tu jeszcze miejsc. Pojawią się, gdy wpiszesz je przy dziele.'
+		},
+		openValue: (name: string, count: string): string => `${name}, ${count}`,
+		kinds: {
+			period: {
+				name: 'Okres',
+				accusative: 'okres',
+				demonstrative: 'Ten okres',
+				other: 'innym okresem'
+			},
+			style: {
+				name: 'Styl',
+				accusative: 'styl',
+				demonstrative: 'Ten styl',
+				other: 'innym stylem'
+			},
+			material: {
+				name: 'Materiał',
+				accusative: 'materiał',
+				demonstrative: 'Ten materiał',
+				other: 'innym materiałem'
+			},
+			author: {
+				name: 'Autor',
+				accusative: 'autora',
+				demonstrative: 'Ten autor',
+				other: 'innym autorem'
+			},
+			location: {
+				name: 'Miejsce',
+				accusative: 'miejsce',
+				demonstrative: 'To miejsce',
+				other: 'innym miejscem'
+			}
+		},
+		dialog: {
+			description: (kind: string, count: string): string => `${kind} · ${count}`,
+			name: 'Nazwa',
+			nameRequired: 'Wpisz nazwę.',
+			mergeHint: (kind: string, name: string, count: string): string =>
+				`Masz już ${kind} „${name}” (${count}). Zapisz, a połączę je w jeden.`,
+			eras: 'Epoki',
+			periods: 'Okresy',
+			noEras: 'Ten okres nie ma jeszcze epoki.',
+			noPeriods: 'Ten styl nie ma jeszcze okresu.',
+			addEra: 'Dodaj epokę',
+			addPeriod: 'Dodaj okres',
+			chooseEra: 'Wybierz epokę',
+			choosePeriod: 'Wybierz okres',
+			removeEra: (name: string): string => `Usuń epokę ${name}`,
+			removePeriod: (name: string): string => `Usuń okres ${name}`,
+			periodLocked: (period: string, count: string): string =>
+				`Okres „${period}” zostaje, bo ${count} ma ten styl właśnie z tym okresem.`,
+			delete: 'Usuń',
+			deleteBlocked: (demonstrative: string, count: string, other: string): string =>
+				`${demonstrative} ma jeszcze ${count}, więc nie da się go usunąć. Możesz go połączyć z ${other}.`,
+			cancel: 'Anuluj',
+			save: 'Zapisz',
+			saving: 'Zapisywanie…',
+			merge: 'Połącz'
+		},
+		mergeConfirm: {
+			title: (name: string): string => `Połączyć z „${name}”?`,
+			artworks: (merged: string, kept: string, count: number): string =>
+				count === 0
+					? `Żadne dzieło nie ma teraz „${merged}”.`
+					: `Wszystkie dzieła z „${merged}” (${count}) dostaną „${kept}”.`,
+			periodLinks: (merged: string, kept: string): string =>
+				`Epoki i style okresu „${merged}” przejdą do „${kept}”.`,
+			styleLinks: (merged: string, kept: string): string =>
+				`Okresy stylu „${merged}” przejdą do „${kept}”.`,
+			irreversible: 'Tego nie da się cofnąć.',
+			back: 'Wróć',
+			confirm: 'Połącz',
+			merging: 'Łączenie…'
+		},
+		moveConfirm: {
+			title: 'Przenieść dzieła do innej epoki?',
+			toEra: (period: string, from: string, count: number, to: string): string =>
+				`Dzieł z okresem „${period}” w epoce ${from}: ${count}. Po zapisie przejdą do epoki ${to}.`,
+			toNone: (period: string, from: string, count: number): string =>
+				`Dzieł z okresem „${period}” w epoce ${from}: ${count}. Po zapisie stracą epokę, a okres i style zostaną.`,
+			toPicked: (period: string, from: string, count: number): string =>
+				`Dzieł z okresem „${period}” w epoce ${from}: ${count}. Wybierz epokę, do której mają przejść po zapisie.`,
+			pick: 'Do której epoki mają trafić?',
+			pickRequired: 'Wybierz epokę.',
+			back: 'Wróć',
+			confirm: 'Zapisz i przenieś'
+		},
+		deleteConfirm: {
+			title: (kind: string, name: string): string => `Usunąć ${kind} „${name}”?`,
+			description: 'Żadne dzieło go nie używa, więc zniknie z Kartoteki razem z powiązaniami.',
+			back: 'Wróć',
+			confirm: 'Usuń',
+			deleting: 'Usuwanie…'
+		},
+		saved: (name: string): string => `Zapisano „${name}”.`,
+		merged: (name: string): string => `Połączono z „${name}”.`,
+		deleted: (name: string): string => `Usunięto „${name}”.`,
+		errors: {
+			network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.',
+			notFound: 'Nie ma już takiej wartości. Odśwież stronę.',
+			changed:
+				'Coś zmieniło się w międzyczasie. Zamknij okno, sprawdź Kartotekę i spróbuj jeszcze raz.'
+		}
 	},
 	trash: {
 		title: 'Kosz',

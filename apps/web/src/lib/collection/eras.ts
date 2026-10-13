@@ -5,6 +5,7 @@ import Flame from '@lucide/svelte/icons/flame';
 import Landmark from '@lucide/svelte/icons/landmark';
 import Smartphone from '@lucide/svelte/icons/smartphone';
 import TrainFront from '@lucide/svelte/icons/train-front';
+import type { LucideIcon } from '@lucide/svelte';
 import type { ChoiceTile } from '@study-atelier/ui';
 import { m } from '#lib/i18n/index.ts';
 import type { EraCode } from './types.ts';
@@ -26,6 +27,10 @@ const ERA_ICONS: Record<EraCode, LucideIcon> = {
 	modern: TrainFront,
 	contemporary: Smartphone
 };
+
+export function eraIcon(code: EraCode): LucideIcon {
+	return ERA_ICONS[code];
+}
 
 export function isEraCode(value: unknown): value is EraCode {
 	return ERA_CODES.includes(value as EraCode);

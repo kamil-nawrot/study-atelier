@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ImagesIcon from '@lucide/svelte/icons/images';
+	import ListTree from '@lucide/svelte/icons/list-tree';
 	import LogOut from '@lucide/svelte/icons/log-out';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { Icon } from '@study-atelier/ui';
@@ -16,6 +17,7 @@
 	let { email, signingOut, onsignout }: Props = $props();
 
 	const atelierPath = resolve('/(app)/atelier');
+	const cardIndexPath = resolve('/(app)/atelier/values');
 	const trashPath = resolve('/(app)/atelier/trash');
 </script>
 
@@ -36,6 +38,16 @@
 		<Icon icon={ImagesIcon} />
 		<span class="label">
 			{m.menu.atelier}
+		</span>
+	</a>
+	<a
+		class="item"
+		aria-current={page.url.pathname === cardIndexPath ? 'page' : undefined}
+		href={cardIndexPath}
+	>
+		<Icon icon={ListTree} />
+		<span class="label">
+			{m.menu.cardIndex}
 		</span>
 	</a>
 </div>

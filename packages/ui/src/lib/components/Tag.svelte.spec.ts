@@ -38,6 +38,16 @@ describe('Tag', () => {
 		expect(onremove).toHaveBeenCalledOnce();
 	});
 
+	it('disables the remove button and does not call onremove', async () => {
+		const onremove = vi.fn();
+		render(Tag, { children: label, onremove, removeDisabled: true });
+
+		await expect
+			.element(page.getByRole('button', { name: defaultUiMessages.removeTag }))
+			.toBeDisabled();
+		expect(onremove).not.toHaveBeenCalled();
+	});
+
 	it('names the remove button with its own label', async () => {
 		render(Tag, { children: label, onremove: () => {}, removeLabel: 'Remove Baroque' });
 
