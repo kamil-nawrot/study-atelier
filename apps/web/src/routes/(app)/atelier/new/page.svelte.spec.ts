@@ -10,7 +10,6 @@ import {
 	OWN_IMAGE_MAX_BYTES,
 	OWN_IMAGE_MAX_MEGABYTES
 } from '#lib/images/bucket.ts';
-import { pasteShortcut } from '#lib/images/clipboard.ts';
 import { supabase } from '#lib/supabase.ts';
 import { pending, testSession } from '#lib/testing/auth.ts';
 import AddArtworkPage from './+page.svelte';
@@ -982,9 +981,7 @@ describe('pasting an own image on the add artwork page', () => {
 	it('shows the keyboard hint in the dialog and under the image actions', async () => {
 		renderPage();
 
-		await expect
-			.element(page.getByText(m.artworkForm.pasteHintForm(pasteShortcut().label)))
-			.toBeInTheDocument();
+		await expect.element(page.getByText(m.artworkForm.pasteHintForm)).toBeInTheDocument();
 		await openOwnImage();
 		await expect.element(page.getByText(m.artworkForm.pasteHintLead)).toBeVisible();
 	});
