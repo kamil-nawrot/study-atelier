@@ -20,7 +20,7 @@
 	import { formatRecordNumber } from '#lib/collection/format.ts';
 	import PeriodRail from '#lib/collection/components/PeriodRail.svelte';
 	import PeriodStrip from '#lib/collection/components/PeriodStrip.svelte';
-	import { groupByPeriod } from '#lib/collection/periods.ts';
+	import { groupByEra } from '#lib/collection/periods.ts';
 	import { MIN_RAIL_MARGIN, PeriodTracker } from '#lib/collection/period-tracker.svelte.ts';
 	import { filterByTitle } from '#lib/collection/search.ts';
 	import type { WallOrder } from '#lib/collection/types.ts';
@@ -81,7 +81,7 @@
 	});
 
 	let matching = $derived(filterByTitle(data.artworks, query));
-	let groups = $derived(order === 'period' ? groupByPeriod(matching) : []);
+	let groups = $derived(order === 'period' ? groupByEra(matching) : []);
 	let shown = $derived(order === 'period' ? groups.flatMap((group) => group.artworks) : matching);
 	let periodIndexes = $derived(
 		new Map(groups.flatMap((group, index) => group.artworks.map((artwork) => [artwork.id, index])))

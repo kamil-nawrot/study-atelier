@@ -34,22 +34,24 @@ function renderAtelier(list: WallArtwork[] = artworks, error?: string): void {
 }
 
 const dated = [
-	testArtwork(1, 'Mona Lisa', { year: 1503, periods: ['Renesans'] }),
-	testArtwork(2, 'Water Lilies', { year: 1906, periods: ['Impresjonizm'] }),
-	testArtwork(3, 'Impression, Sunrise', { year: 1872, periods: ['Impresjonizm'] }),
-	testArtwork(4, 'Untitled study', { year: 1800, periods: [] })
+	testArtwork(1, 'Mona Lisa', { year: 1503, eraCode: 'early_modern' }),
+	testArtwork(2, 'Water Lilies', { year: 1906, eraCode: 'modern' }),
+	testArtwork(3, 'Impression, Sunrise', { year: 1872, eraCode: 'modern' }),
+	testArtwork(4, 'Untitled study', { year: 1800, eraCode: null })
 ];
 
 function manyPeriods(): WallArtwork[] {
-	return [
-		['Renesans', 1500],
-		['Barok', 1650],
-		['Impresjonizm', 1870]
-	].flatMap(([period, year], block) =>
+	return (
+		[
+			['early_modern', 1500],
+			['modern', 1850],
+			['contemporary', 1960]
+		] as const
+	).flatMap(([eraCode, year], block) =>
 		[0, 1, 2, 3].map((position) =>
-			testArtwork(block * 4 + position + 1, `${period} ${position + 1}`, {
-				year: (year as number) + position,
-				periods: [period as string]
+			testArtwork(block * 4 + position + 1, `${m.eras[eraCode].name} ${position + 1}`, {
+				year: year + position,
+				eraCode
 			})
 		)
 	);
@@ -269,7 +271,7 @@ describe('atelier page', () => {
 			]);
 		});
 
-		it('shows periods by their earliest year with artworks by year and hides those without a period', async () => {
+		it('shows eras in their fixed order with artworks by year and hides those without an era', async () => {
 			renderAtelier(dated);
 
 			await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
@@ -278,16 +280,16 @@ describe('atelier page', () => {
 			expect(titlesOnTheWall(dated)).toEqual(['Mona Lisa', 'Impression, Sunrise', 'Water Lilies']);
 		});
 
-		it('puts an artwork with several periods under the first one', async () => {
+		it('puts the eras in their fixed order even when the years disagree', async () => {
 			const both = [
-				testArtwork(1, 'Late Work', { year: 1700, periods: ['Barok', 'Renesans'] }),
-				testArtwork(2, 'Early Work', { year: 1500, periods: ['Renesans'] })
+				testArtwork(1, 'Dated Late', { year: 1700, eraCode: 'antiquity' }),
+				testArtwork(2, 'Dated Early', { year: 1500, eraCode: 'modern' })
 			];
 			renderAtelier(both);
 
 			await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
 
-			expect(titlesOnTheWall(both)).toEqual(['Early Work', 'Late Work']);
+			expect(titlesOnTheWall(both)).toEqual(['Dated Late', 'Dated Early']);
 			await expect.element(page.getByText(m.atelier.count(2))).toBeVisible();
 		});
 
@@ -352,13 +354,13 @@ describe('atelier page', () => {
 				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
 
 				const strip = page.getByRole('complementary', { name: m.atelier.periods.label });
-				await expect.element(strip).toHaveTextContent('Renesans');
+				await expect.element(strip).toHaveTextContent(m.eras.early_modern.name);
 				await expect.element(strip).toHaveTextContent('1500 – 1503');
 
 				scrollToTheEnd();
 
-				await expect.element(strip).toHaveTextContent('Impresjonizm');
-				await expect.element(strip).toHaveTextContent('1870 – 1873');
+				await expect.element(strip).toHaveTextContent(m.eras.contemporary.name);
+				await expect.element(strip).toHaveTextContent('1960 – 1963');
 			});
 
 			it('has no strip in the recent order', async () => {
@@ -381,21 +383,21 @@ describe('atelier page', () => {
 
 				const rail = page.getByRole('complementary', { name: m.atelier.periods.label });
 				await expect.element(rail).toBeVisible();
-				await expect.element(rail).toHaveTextContent('Barok');
+				await expect.element(rail).toHaveTextContent(m.eras.modern.name);
 				expect(rail.element().getBoundingClientRect().right).toBe(
 					document.documentElement.clientWidth
 				);
 				expect(page.getByRole('complementary').elements()).toHaveLength(1);
 			});
 
-			it('highlights the first period at the top and the last one at the end', async () => {
+			it('highlights the first era at the top and the last one at the end', async () => {
 				renderAtelier(manyPeriods());
 				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
 				const rail = page.getByRole('complementary', { name: m.atelier.periods.label });
 				const current = rail.getByRole('listitem').filter({ hasText: /./ });
 
 				await expect
-					.element(current.filter({ hasText: 'Renesans' }))
+					.element(current.filter({ hasText: m.eras.early_modern.name }))
 					.toHaveAttribute('aria-current', 'true');
 				expect(rail.getByRole('listitem').elements()[0].getBoundingClientRect().top).toBe(
 					rail.element().getBoundingClientRect().top
@@ -404,10 +406,10 @@ describe('atelier page', () => {
 				scrollToTheEnd();
 
 				await expect
-					.element(current.filter({ hasText: 'Impresjonizm' }))
+					.element(current.filter({ hasText: m.eras.contemporary.name }))
 					.toHaveAttribute('aria-current', 'true');
 				await expect
-					.element(current.filter({ hasText: 'Renesans' }))
+					.element(current.filter({ hasText: m.eras.early_modern.name }))
 					.not.toHaveAttribute('aria-current');
 			});
 		});

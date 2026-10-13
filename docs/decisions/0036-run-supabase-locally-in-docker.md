@@ -27,7 +27,7 @@ Chosen option: 1, the Supabase CLI local stack.
 - The CLI is a root dev dependency pinned to the version CI uses (2.120.0), so `pnpm exec supabase` behaves the same locally and in the `database` job.
 - [`supabase/config.toml`](../../supabase/config.toml) starts only what the app uses: database, API, auth, storage, Studio and the local mail catcher. Realtime, edge functions and analytics are off. Email confirmation is on, as in the hosted project, and the confirmation mails are read in the mail catcher.
 - The `migrations` job in [`ci.yml`](../../.github/workflows/ci.yml) starts the same stack on every pull request and replays all migrations with `supabase db reset`. The `database` job waits for it, so a migration that does not apply from scratch never reaches the shared database.
-- The local stack replays `supabase/migrations` on `supabase db reset`, so a new migration is tried there first. Migrations stay backward compatible with the app on `main`, because the hosted database is still shared.
+- The local stack replays `supabase/migrations` on `supabase db reset`, so a new migration is tried there first.
 - There is no seed file: test accounts and artworks are made in the running app.
 - The web app reads `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` from `apps/web/.env`; for the local stack they come from `pnpm db:env`.
 

@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { page } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
 import { emptyCategoryValues } from '#lib/collection/category-values.ts';
+import { emptyValueLinks } from '#lib/collection/value-links.ts';
 import type { ArtworkRecord, LoadArtworkResult } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import { IMAGES_BUCKET } from '#lib/images/bucket.ts';
@@ -37,7 +38,8 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 		beforeCommonEra: false,
 		yearApproximate: true,
 		typeCode: 'painting',
-		periods: [],
+		eraCode: null,
+		period: null,
 		styles: ['Delft school'],
 		materials: [],
 		location: 'Rijksmuseum',
@@ -49,7 +51,12 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 
 function renderPage(result: LoadArtworkResult = { artwork: artwork() }, number = '7'): void {
 	render(EditArtworkPage, {
-		data: { session: testSession(), values: emptyCategoryValues(), ...result },
+		data: {
+			session: testSession(),
+			values: emptyCategoryValues(),
+			links: emptyValueLinks(),
+			...result
+		},
 		params: { number }
 	});
 }
@@ -92,6 +99,46 @@ describe('edit artwork page', () => {
 		vi.mocked(supabase.storage.from).mockReturnValue(bucket as never);
 		bucket.remove.mockResolvedValue({ data: [], error: null });
 		await page.viewport(1280, 800);
+	});
+
+	it('shows the saved era chosen and the period and the style unlocked', async () => {
+		renderPage({
+			artwork: artwork({
+				eraCode: 'early_modern',
+				period: 'Dutch Golden Age',
+				styles: ['Delft school']
+			})
+		});
+
+		const era = m.eras.early_modern;
+		await expect
+			.element(page.getByRole('radio', { name: `${era.name} ${era.years}` }))
+			.toBeChecked();
+		await expect.element(page.getByText('Dutch Golden Age', { exact: true })).toBeVisible();
+		await expect.element(page.getByText('Delft school', { exact: true })).toBeVisible();
+		await expect.element(page.getByRole('button', { name: /Delft school/ })).toBeVisible();
+	});
+
+	it('keeps the style of an artwork without a period locked but removable', async () => {
+		renderPage({ artwork: artwork({ eraCode: null, period: null, styles: ['Delft school'] }) });
+
+		await expect.element(page.getByRole('combobox', { name: m.artworkForm.style })).toBeDisabled();
+		await expect.element(page.getByText('Delft school', { exact: true })).toBeVisible();
+
+		await page.getByRole('button', { name: /Delft school/ }).click();
+
+		await expect.element(page.getByText('Delft school', { exact: true })).not.toBeInTheDocument();
+	});
+
+	it('keeps the period of an artwork without an era when an era is chosen', async () => {
+		renderPage({ artwork: artwork({ eraCode: null, period: 'Pointillism', styles: [] }) });
+		await expect.element(page.getByText('Pointillism', { exact: true })).toBeVisible();
+
+		await userEvent.click(
+			page.getByRole('radio', { name: `${m.eras.modern.name} ${m.eras.modern.years}` })
+		);
+
+		await expect.element(page.getByText('Pointillism', { exact: true })).toBeVisible();
 	});
 
 	it('fills the form with the saved artwork and has no "save and add next"', async () => {

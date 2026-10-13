@@ -4,6 +4,7 @@
 		Alert,
 		Button,
 		Checkbox,
+		ChoiceTiles,
 		Dialog,
 		Form,
 		Select,
@@ -25,9 +26,10 @@
 		formHasChanges
 	} from '../artwork-form.ts';
 	import { saveArtwork, validateArtwork } from '../artwork-record.ts';
-	import { startingValues, takesOneValue } from '../category-values.ts';
+	import { takesOneValue } from '../category-values.ts';
+	import { eraTiles, isEraCode } from '../eras.ts';
 	import { formatRecordNumber } from '../format.ts';
-	import { suggestValues } from '../value-suggestions.ts';
+	import { suggestValues, valueKey } from '../value-suggestions.ts';
 	import ArtworkImageField from './ArtworkImageField.svelte';
 	import type {
 		ArtworkFieldErrors,
@@ -35,24 +37,26 @@
 		ArtworkRecord,
 		CategoryCode,
 		CategoryValues,
+		EraCode,
+		ValueLinks,
 		ValueSuggestion
 	} from '../types.ts';
 
 	type Props = {
 		artwork?: ArtworkRecord;
 		categoryValues: CategoryValues;
+		valueLinks: ValueLinks;
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
 		onsaved: (number: number, next: boolean) => void | Promise<void>;
 	};
 
-	let { artwork, categoryValues, cancelHref, oncancel, onsaved }: Props = $props();
+	let { artwork, categoryValues, valueLinks, cancelHref, oncancel, onsaved }: Props = $props();
 
 	const titleId = 'artwork-title';
 	const typeOptions = artworkTypeOptions();
-	const describedCategories: { code: Exclude<CategoryCode, 'author'>; label: string }[] = [
-		{ code: 'period', label: m.artworkForm.period },
-		{ code: 'style', label: m.artworkForm.style },
+	const eraOptions = eraTiles();
+	const describedCategories: { code: 'material' | 'location'; label: string }[] = [
 		{ code: 'material', label: m.artworkForm.material },
 		{ code: 'location', label: m.artworkForm.location }
 	];
@@ -107,13 +111,51 @@
 		});
 	});
 
-	function options(code: CategoryCode): ValueSuggestion[] {
+	let periodLocked = $derived(form.eraCode === null);
+	let styleLocked = $derived(form.values.period.length === 0);
+
+	function suggestions(code: CategoryCode, existing: readonly string[]): ValueSuggestion[] {
 		return suggestValues({
 			query: form.queries[code],
-			existing: categoryValues[code],
-			starting: startingValues(code),
+			existing,
 			selected: form.values[code]
 		});
+	}
+
+	function options(code: CategoryCode): ValueSuggestion[] {
+		return suggestions(code, categoryValues[code]);
+	}
+
+	function periodOptions(): ValueSuggestion[] {
+		return suggestions('period', form.eraCode ? valueLinks.periodsByEra[form.eraCode] : []);
+	}
+
+	function styleOptions(): ValueSuggestion[] {
+		const period = form.values.period[0];
+		return suggestions('style', period ? (valueLinks.stylesByPeriod[valueKey(period)] ?? []) : []);
+	}
+
+	function clearStyles(): void {
+		form.values.style = [];
+		form.queries.style = '';
+	}
+
+	function clearPeriod(): void {
+		form.values.period = [];
+		form.queries.period = '';
+		clearStyles();
+	}
+
+	function chooseEra(code: string | null): void {
+		const next: EraCode | null = isEraCode(code) ? code : null;
+		if (form.eraCode !== null && next !== form.eraCode) clearPeriod();
+		form.eraCode = next;
+	}
+
+	function choosePeriod(values: string[]): void {
+		const previous = form.values.period[0];
+		form.values.period = values;
+		if (previous !== undefined && previous !== values[0]) clearStyles();
 	}
 
 	function setAuthorUnknown(): void {
@@ -221,6 +263,33 @@
 				options={typeOptions}
 				placeholder={m.artworkForm.typeNone}
 				bind:value={form.typeCode}
+			/>
+
+			<ChoiceTiles
+				clearable
+				label={m.artworkForm.era}
+				onchange={chooseEra}
+				options={eraOptions}
+				value={form.eraCode}
+			/>
+
+			<ValueField
+				label={m.artworkForm.period}
+				locked={periodLocked}
+				options={periodOptions()}
+				placeholder={periodLocked ? m.artworkForm.periodLocked : undefined}
+				single
+				bind:query={form.queries.period}
+				bind:values={() => form.values.period, choosePeriod}
+			/>
+
+			<ValueField
+				label={m.artworkForm.style}
+				locked={styleLocked}
+				options={styleOptions()}
+				placeholder={styleLocked ? m.artworkForm.styleLocked : undefined}
+				bind:query={form.queries.style}
+				bind:values={form.values.style}
 			/>
 
 			{#each describedCategories as category (category.code)}

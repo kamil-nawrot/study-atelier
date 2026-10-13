@@ -54,6 +54,7 @@
 		categoryValues={data.values}
 		oncancel={backToAtelier}
 		onsaved={showSaved}
+		valueLinks={data.links}
 	/>
 </AtelierLayout>
 

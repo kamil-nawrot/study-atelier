@@ -9,6 +9,7 @@ import type {
 	ArtworkRecord,
 	ArtworkTypeCode,
 	CategoryCode,
+	EraCode,
 	ExistingArtwork,
 	LoadArtworkResult,
 	SaveArtworkResult
@@ -27,6 +28,7 @@ type ArtworkRecordRow = {
 	year: number | null;
 	year_approximate: boolean;
 	type_code: ArtworkTypeCode | null;
+	era_code: EraCode | null;
 	notes: string | null;
 	source_wikidata_id: string | null;
 	source_image_file: string | null;
@@ -57,6 +59,7 @@ const RECORD_COLUMNS = [
 	'year',
 	'year_approximate',
 	'type_code',
+	'era_code',
 	'notes',
 	'source_wikidata_id',
 	'source_image_file',
@@ -79,7 +82,8 @@ export function emptyArtworkInput(): ArtworkInput {
 		beforeCommonEra: false,
 		yearApproximate: false,
 		typeCode: null,
-		periods: [],
+		eraCode: null,
+		period: null,
 		styles: [],
 		materials: [],
 		location: null,
@@ -132,6 +136,7 @@ function artworkColumns(input: StoredInput): Record<string, unknown> {
 		year: storedYear(input),
 		year_approximate: input.year !== null && input.yearApproximate,
 		type_code: input.typeCode,
+		era_code: input.eraCode,
 		notes: input.notes.trim() || null,
 		...imageColumns(input.image)
 	};
@@ -140,7 +145,7 @@ function artworkColumns(input: StoredInput): Record<string, unknown> {
 function valuesByCategory(input: ArtworkInput): Record<CategoryCode, string[]> {
 	return {
 		author: input.authorUnknown ? [] : names(input.authors),
-		period: names(input.periods),
+		period: names(input.period === null ? [] : [input.period]),
 		style: names(input.styles),
 		material: names(input.materials),
 		location: names(input.location === null ? [] : [input.location])
@@ -230,7 +235,8 @@ function artworkRecordFromRow(row: ArtworkRecordRow): ArtworkRecord {
 		beforeCommonEra: row.year !== null && row.year < 0,
 		yearApproximate: row.year_approximate,
 		typeCode: row.type_code,
-		periods: valuesOf(row, 'period'),
+		eraCode: row.era_code,
+		period: valuesOf(row, 'period')[0] ?? null,
 		styles: valuesOf(row, 'style'),
 		materials: valuesOf(row, 'material'),
 		location: valuesOf(row, 'location')[0] ?? null,

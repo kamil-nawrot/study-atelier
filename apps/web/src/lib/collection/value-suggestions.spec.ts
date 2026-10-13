@@ -68,18 +68,14 @@ describe('suggestValues', () => {
 	const source = {
 		query: '',
 		existing: ['Gotyk', 'barok', 'Neogotyk'],
-		starting: ['romanizm', 'gotyk', 'renesans', 'barok wenecki'],
 		selected: []
 	};
 
-	it('shows used values alphabetically, then the starting list in its order, for an empty query', () => {
+	it('shows used values alphabetically for an empty query', () => {
 		expect(suggestValues(source)).toEqual([
 			{ kind: 'existing', name: 'barok' },
 			{ kind: 'existing', name: 'Gotyk' },
-			{ kind: 'existing', name: 'Neogotyk' },
-			{ kind: 'starting', name: 'romanizm' },
-			{ kind: 'starting', name: 'renesans' },
-			{ kind: 'starting', name: 'barok wenecki' }
+			{ kind: 'existing', name: 'Neogotyk' }
 		]);
 	});
 
@@ -91,34 +87,40 @@ describe('suggestValues', () => {
 		]);
 	});
 
-	it('matches without diacritics and keeps the starting list after used values', () => {
+	it('matches without diacritics', () => {
 		expect(suggestValues({ ...source, query: 'BAROK' })).toEqual([
-			{ kind: 'existing', name: 'barok' },
-			{ kind: 'starting', name: 'barok wenecki' }
+			{ kind: 'existing', name: 'barok' }
 		]);
+	});
+
+	it('offers only a new value when nothing is used yet', () => {
+		expect(suggestValues({ ...source, existing: [], query: 'Barok' })).toEqual([
+			{ kind: 'new', name: 'Barok' }
+		]);
+	});
+
+	it('offers nothing for an empty query when nothing is used yet', () => {
+		expect(suggestValues({ ...source, existing: [] })).toEqual([]);
 	});
 
 	it('offers the existing value instead of creating one that differs only in case or diacritics', () => {
 		const suggestions = suggestValues({
 			...source,
 			existing: ['Łódź'],
-			starting: [],
 			query: 'lodz'
 		});
 		expect(suggestions).toEqual([{ kind: 'existing', name: 'Łódź' }]);
 	});
 
 	it('puts a likely typo of an existing value first and still offers the new value', () => {
-		expect(
-			suggestValues({ ...source, existing: ['Rembrandt'], starting: [], query: 'Rembrnadt' })
-		).toEqual([
+		expect(suggestValues({ ...source, existing: ['Rembrandt'], query: 'Rembrnadt' })).toEqual([
 			{ kind: 'similar', name: 'Rembrandt' },
 			{ kind: 'new', name: 'Rembrnadt' }
 		]);
 	});
 
 	it('does not call a value a typo while the query is still part of it', () => {
-		expect(suggestValues({ ...source, existing: ['Monet'], starting: [], query: 'Mone' })).toEqual([
+		expect(suggestValues({ ...source, existing: ['Monet'], query: 'Mone' })).toEqual([
 			{ kind: 'existing', name: 'Monet' },
 			{ kind: 'new', name: 'Mone' }
 		]);
@@ -131,20 +133,13 @@ describe('suggestValues', () => {
 	});
 
 	it('does not offer a new value that is exactly a suggestion already', () => {
-		expect(suggestValues({ ...source, query: 'renesans' })).toEqual([
-			{ kind: 'starting', name: 'renesans' }
-		]);
-	});
-
-	it('lets the learner create their own spelling of a starting value', () => {
-		expect(suggestValues({ ...source, existing: [], query: 'Renesans' })).toEqual([
-			{ kind: 'starting', name: 'renesans' },
-			{ kind: 'new', name: 'Renesans' }
+		expect(suggestValues({ ...source, query: 'barok' })).toEqual([
+			{ kind: 'existing', name: 'barok' }
 		]);
 	});
 
 	it('trims the new value', () => {
-		expect(suggestValues({ ...source, existing: [], starting: [], query: '  Fauvism ' })).toEqual([
+		expect(suggestValues({ ...source, existing: [], query: '  Fauvism ' })).toEqual([
 			{ kind: 'new', name: 'Fauvism' }
 		]);
 	});
