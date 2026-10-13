@@ -15,12 +15,23 @@
 		title: string;
 		email: string;
 		bar?: Snippet;
+		strip?: Snippet;
 		children: Snippet;
 		confirmLeave?: () => Promise<boolean>;
 		fill?: boolean;
+		barHeight?: number;
 	};
 
-	let { title, email, bar, children, confirmLeave, fill = false }: Props = $props();
+	let {
+		title,
+		email,
+		bar,
+		strip,
+		children,
+		confirmLeave,
+		fill = false,
+		barHeight = $bindable(0)
+	}: Props = $props();
 
 	let railExpanded = $state(false);
 	let signingOut = $state(false);
@@ -50,7 +61,7 @@
 	<title>{m.app.pageTitle(title)}</title>
 </svelte:head>
 
-<div class="atelier" class:fill>
+<div style:--bar-height="{barHeight}px" class="atelier" class:fill>
 	<nav class="rail" class:expanded={railExpanded} aria-label={m.menu.label}>
 		<button
 			class="toggle"
@@ -72,7 +83,7 @@
 	</nav>
 
 	<div class="main">
-		<header class="bar">
+		<header class="bar" bind:offsetHeight={barHeight}>
 			<button
 				class="burger"
 				aria-haspopup="dialog"
@@ -84,6 +95,7 @@
 			</button>
 			{@render bar?.()}
 		</header>
+		{@render strip?.()}
 		<main class="content">
 			{@render children()}
 		</main>

@@ -9,9 +9,11 @@
 	type Props = {
 		artworks: WallArtwork[];
 		highlight?: number;
+		periodIndexes?: ReadonlyMap<string, number>;
+		element?: HTMLElement;
 	};
 
-	let { artworks, highlight }: Props = $props();
+	let { artworks, highlight, periodIndexes, element = $bindable() }: Props = $props();
 
 	const wide = new MediaQuery('min-width: 768px');
 
@@ -22,11 +24,14 @@
 	);
 </script>
 
-<div class="wall">
+<div bind:this={element} class="wall">
 	{#each columns as column, index (index)}
 		<ul class="column">
 			{#each column as artwork (artwork.id)}
-				<li class:highlight={artwork.number === highlight}>
+				<li
+					class:highlight={artwork.number === highlight}
+					data-period={periodIndexes?.get(artwork.id)}
+				>
 					<ArtworkTile
 						authors={artwork.authors}
 						date={artwork.date}

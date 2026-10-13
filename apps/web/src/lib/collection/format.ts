@@ -16,6 +16,12 @@ export function formatYear(year: number | null, approximate: boolean): string | 
 	return year === null ? undefined : m.atelier.year(year, approximate);
 }
 
+export function formatYearRange(from: number | null, to: number | null): string | undefined {
+	if (from === null || to === null) return undefined;
+	const start = m.atelier.year(from, false);
+	return from === to ? start : m.atelier.yearRange(start, m.atelier.year(to, false));
+}
+
 export function formatDeletedOn(deletedAt: string, now = new Date()): string {
 	const date = new Date(deletedAt);
 	if (date.toDateString() === now.toDateString()) return m.trash.deletedOn(m.trash.today);
