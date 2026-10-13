@@ -419,7 +419,7 @@ describe('add artwork page', () => {
 		await expect
 			.element(page.getByText(m.ownImageErrors.fileTooLarge(OWN_IMAGE_MAX_MEGABYTES)))
 			.toBeVisible();
-		await expect.element(page.getByRole('img')).not.toBeInTheDocument();
+		await expect.element(page.getByRole('img', { name: m.ui.noImage })).toBeInTheDocument();
 	});
 
 	it('adds an image from an https address after reading its size', async () => {
@@ -480,7 +480,7 @@ describe('add artwork page', () => {
 		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
 		finishLoading();
 
-		await expect.element(page.getByRole('img')).not.toBeInTheDocument();
+		await expect.element(page.getByRole('img', { name: m.ui.noImage })).toBeInTheDocument();
 		await expect.element(page.getByRole('button', { name: m.artworkForm.ownImage })).toBeVisible();
 	});
 
@@ -494,7 +494,7 @@ describe('add artwork page', () => {
 
 		await page.getByRole('button', { name: m.artworkForm.removeImage }).click();
 
-		await expect.element(page.getByRole('img')).not.toBeInTheDocument();
+		await expect.element(page.getByRole('img', { name: m.ui.noImage })).toBeInTheDocument();
 		await expect.element(page.getByRole('button', { name: m.artworkForm.ownImage })).toBeVisible();
 
 		await saveButton().click();

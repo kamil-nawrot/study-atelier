@@ -9,10 +9,9 @@
 </script>
 
 <script lang="ts">
-	import ImageIcon from '@lucide/svelte/icons/image';
 	import { uiMessages } from '../messages';
 	import ArtworkImage from './ArtworkImage.svelte';
-	import Icon from './Icon.svelte';
+	import NoImage from './NoImage.svelte';
 
 	type Props = {
 		href: string;
@@ -56,9 +55,7 @@
 					width={image.width}
 				/>
 			{:else}
-				<div class="empty" aria-label={noImageLabel} role="img">
-					<Icon icon={ImageIcon} />
-				</div>
+				<NoImage label={noImageLabel} />
 			{/if}
 			<span class="number">
 				{recordNumber}
@@ -102,14 +99,6 @@
 		width: 100%;
 		height: auto;
 		background: var(--color-mat-window);
-	}
-
-	.empty {
-		display: grid;
-		place-items: center;
-		aspect-ratio: 4 / 5;
-		background: var(--color-mat-window);
-		color: var(--color-mat-fg-muted);
 	}
 
 	.number {

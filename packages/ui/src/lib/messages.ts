@@ -42,7 +42,7 @@ export const defaultUiMessages: UiMessages = {
 	hidePassword: 'Hide',
 	removeTag: 'Remove tag',
 	unknownAuthor: 'Unknown author',
-	noImage: 'No image',
+	noImage: 'No photo',
 	imageFailed: 'The image did not load',
 	loading: 'Loading',
 	clearSearch: 'Clear search',

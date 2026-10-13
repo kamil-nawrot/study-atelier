@@ -15,7 +15,7 @@ export const pl = {
 		hidePassword: 'Ukryj',
 		removeTag: 'Usuń tag',
 		unknownAuthor: 'Autor nieznany',
-		noImage: 'Brak obrazu',
+		noImage: 'Brak zdjęcia',
 		imageFailed: 'Nie udało się wczytać obrazu',
 		loading: 'Wczytywanie',
 		clearSearch: 'Wyczyść wyszukiwanie',
