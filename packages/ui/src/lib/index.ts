@@ -10,6 +10,7 @@ export { default as Icon } from './components/Icon.svelte';
 export { default as LoadingScreen } from './components/LoadingScreen.svelte';
 export { default as Logo } from './components/Logo.svelte';
 export { default as LogoMark } from './components/LogoMark.svelte';
+export { default as NoImage } from './components/NoImage.svelte';
 export { default as Notes } from './components/Notes.svelte';
 export { default as NotesEditor } from './components/NotesEditor.svelte';
 export { default as Primer } from './components/Primer.svelte';
