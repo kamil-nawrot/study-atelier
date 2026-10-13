@@ -108,6 +108,11 @@ How views and components look and behave, so every new screen stays consistent w
 - A dialog that edits one item of a list (a value in the card index) is the default size: the item's name as the title, its kind and use as the `description`, its fields in the body, and in the footer the danger action on the left with the safe and the primary action on the right. A change that touches other records, such as merging two values, asks again in a small `Dialog` that names how many records change ([ADR-0040](../decisions/0040-manage-category-values-in-a-card-index.md)).
 - A dialog does not close when the learner clicks the scrim, so a choice is never lost by a stray click.
 
+## Tabs
+
+- Kinds of one list that share a view are shown with the library `Tabs`: a row of text tabs under a hairline, the selected one underlined, with `tablist` roles, the arrow keys, Home and End. A tab changes only what the view lists; it does not change the address.
+- A tag whose removal is not allowed is a `Tag` with `removeDisabled`, and the reason is written under the tags.
+
 ## Global shortcuts
 
 - A keyboard shortcut that works anywhere in a view never takes over a text field. When the focus is in an `input`, a `textarea`, a `select` or an editable element such as the notes editor, the browser's own behaviour wins, even when the shortcut would otherwise apply to what the learner is doing.

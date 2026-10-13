@@ -159,3 +159,54 @@ export type ArtworkFormState = {
 	notes: string;
 	image: ArtworkImageInput | null;
 };
+
+export type CardIndexRecord = {
+	id: string;
+	category: CategoryCode;
+	name: string;
+	count: number;
+};
+
+export type CardIndexData = {
+	values: CardIndexRecord[];
+	periodEras: { periodId: string; eraCode: EraCode; count: number }[];
+	stylePeriods: { styleId: string; periodId: string; count: number }[];
+};
+
+export type CardIndexResult = {
+	index: CardIndexData;
+	error?: string;
+};
+
+export type CardIndexEntry = {
+	id: string;
+	name: string;
+	count: number;
+};
+
+export type CardIndexPeriod = CardIndexEntry & {
+	styles: CardIndexEntry[];
+};
+
+export type CardIndexEra = {
+	code: EraCode;
+	periods: CardIndexPeriod[];
+};
+
+export type CardIndexTimeline = {
+	eras: CardIndexEra[];
+	periodsWithoutEra: CardIndexPeriod[];
+	stylesWithoutPeriod: CardIndexEntry[];
+};
+
+export type NameChange =
+	| { kind: 'unchanged' }
+	| { kind: 'empty' }
+	| { kind: 'rename'; name: string }
+	| { kind: 'merge'; target: CardIndexRecord };
+
+export type EraMove = {
+	count: number;
+	removed: EraCode[];
+	remaining: EraCode[];
+};

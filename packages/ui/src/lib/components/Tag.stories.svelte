@@ -17,6 +17,8 @@
 
 <Story name="Removable" args={{ onremove: fn() }} />
 
+<Story name="Remove disabled" args={{ onremove: fn(), removeDisabled: true }} />
+
 <Story name="List">
 	{#snippet template()}
 		<div style="display: flex; flex-wrap: wrap; gap: var(--spacing-2)">
