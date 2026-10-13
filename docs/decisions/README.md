@@ -42,3 +42,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0036](0036-run-supabase-locally-in-docker.md) | Run Supabase locally in Docker for development and migration testing | accepted |
 | [0037](0037-separate-databases-for-develop-and-production.md) | Use a separate Supabase database for `develop` and for production | accepted |
 | [0038](0038-chain-era-period-and-style.md) | Chain era, period and style, with the era from a fixed list | accepted |
+| [0039](0039-confirm-saving-a-duplicate-artwork.md) | Confirm saving an artwork whose title and authors match another one | accepted |
