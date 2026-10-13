@@ -1,3 +1,4 @@
+import type { CardIndexRecord } from './types.ts';
 import { describe, expect, it } from 'vitest';
 import { testCardIndex } from '#lib/testing/card-index.ts';
 import {
@@ -15,7 +16,7 @@ import {
 
 const index = testCardIndex();
 
-function record(id: string) {
+function record(id: string): CardIndexRecord {
 	const found = findRecord(index, id);
 	if (!found) throw new Error(`missing ${id}`);
 	return found;

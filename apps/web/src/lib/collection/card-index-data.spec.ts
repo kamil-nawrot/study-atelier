@@ -50,7 +50,7 @@ describe('loadCardIndex', () => {
 	});
 
 	it('reads every page of 1000 rows', async () => {
-		const row = (n: number) => ({
+		const row = (n: number): Record<string, unknown> => ({
 			id: `v${n}`,
 			category_code: 'author',
 			name: `Author ${n}`,
