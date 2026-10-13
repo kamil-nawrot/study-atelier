@@ -11,6 +11,10 @@
 
 - Prettier has one config for the whole repository: [`prettier.config.js`](../../prettier.config.js) at the root. Packages do not add their own.
 - ESLint rules shared by all packages live in [`eslint.config.base.js`](../../eslint.config.base.js) at the root. Each package has a short `eslint.config.js` that imports the base and adds only what is specific to it, for example the Storybook rules in `packages/ui`.
+- Stylelint has one config for the whole repository: [`stylelint.config.js`](../../stylelint.config.js) at the root. It checks `.css` files and `<style>` blocks in `.svelte` files from each package's `lint` script.
+- Stylelint requires a design token (`var(--…)`) for colours, margins, paddings, gaps, font sizes, weights, line heights, letter spacing, border widths and radii, and forbids literal colours and lengths in the `background`, `border*`, `outline` and `box-shadow` shorthands. `0`, `auto`, `none`, `transparent`, `currentColor`, inherited keywords and a unitless line height of `1` are allowed, and so is any value that contains a `var(--…)`, such as a `calc()` over tokens.
+- Palette tokens (`--color-neutral-*`, `--color-red-*`, `--color-amber-*`, `--color-green-*`) may appear only in `packages/ui/src/lib/styles`; everywhere else Stylelint reports them.
+- A literal that belongs to one component and has no shared role (see [ui-patterns.md](ui-patterns.md#tokens)) is the only reason to disable a rule, and it needs the owner's agreement.
 - The lint dependencies used by the shared configs are root dev dependencies.
 
 ## TypeScript and Svelte
@@ -20,7 +24,7 @@
 - Attributes of Svelte elements and components are kept in a fixed order by ESLint `svelte/sort-attributes`: identity (`this`, `id`, `name`) first, then `style` and `class`, then all other attributes and props alphabetically (event handlers such as `onclick` included), then `bind:` directives, then directives such as `use:` and `transition:`. `pnpm exec eslint --fix` sorts them.
 - A CSS animation is one full `animation` shorthand that names its keyframes, for example `animation: fade 5.6s linear infinite`. The production CSS minifier turns a shorthand without a name into `animation: none`, so a name set by another rule runs for 0 s and only the build shows it. `packages/ui/src/lib/components/animations.test.ts` checks the library components.
 - Markup has no wrapper elements without a purpose. Prefer a semantic element (`footer`, `section`, `nav`) to a `div` when one fits.
-- `pnpm lint` runs Prettier and ESLint inside each pnpm package, so code outside them (for example a future Go backend) is not touched and uses its own language tooling.
+- `pnpm lint` runs Prettier, ESLint and Stylelint inside each pnpm package, so code outside them (for example a future Go backend) is not touched and uses its own language tooling.
 
 ## Svelte markup
 
