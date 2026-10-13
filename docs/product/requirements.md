@@ -47,8 +47,9 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | Authors | one or more values | Required unless marked unknown. More than one author is possible, for example in architecture. |
 | Date of creation | year with an "approximate" flag | Years before the common era must be possible. |
 | Type | single choice from a fixed list | Architecture, painting, sculpture, applied arts, ... |
-| Period | one or more values | |
-| Style | one or more values | |
+| Era | single choice from a fixed list | Six eras with approximate years. See R-44. |
+| Period | one value | Belongs to the era. Shown as "Okres". See R-45. |
+| Style | one or more values | Belongs to the period. See R-45. |
 | Material | one or more values | |
 | Location | text | Where the artwork is now. |
 | Notes | long text with basic formatting | The learner's own notes. See R-37. |
@@ -60,8 +61,11 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-7 | Authors, period, style, material and location are [category values](glossary.md): when filling them in, the app suggests values the learner has already used in other artworks. | MVP |
 | R-8 | The same value used in several artworks is one value, so artworks can be grouped and filtered by it (for example all works by one author). | MVP |
 | R-9 | A new value is created by typing it, but never by accident: while typing, a value that does not exist yet is clearly marked as new (for example "(new)"), and it is created only when the learner explicitly picks that option. There is no separate place to manage values in the MVP. | MVP |
-| R-24 | Period, style and material come with a starting list of common values defined in code (for example main periods, styles and materials of Western art), offered as suggestions before the learner has used any. The learner can still add a value that is not on the list (R-9). | MVP |
+| R-24 | ~~Period, style and material come with a starting list of common values defined in code (for example main periods, styles and materials of Western art), offered as suggestions before the learner has used any. The learner can still add a value that is not on the list (R-9).~~ Dropped: the learner builds every list ([ADR-0038](../decisions/0038-chain-era-period-and-style.md)). | MVP |
 | R-25 | A new value that differs from an existing one only in letter case or diacritics cannot be created; the app offers the existing value instead. When a new value looks like a small typo of an existing one, the app points to the existing value and suggests using it, and the learner can still create the new one. | MVP |
+| R-44 | Every artwork can have one [era](glossary.md), chosen from six fixed eras shown with approximate years: prehistoria (do 3000 p.n.e.), starożytność (do 476), średniowiecze (476–1492), nowożytność (1492–1789), nowoczesność (1789–1945), współczesność (od 1945) ([ADR-0038](../decisions/0038-chain-era-period-and-style.md)). | later |
+| R-45 | Era, period and style form a chain: the period can be filled in only after the era, and the style only after the period. The period suggests only periods already used with the chosen era, and the style only styles already used with the chosen period. Clearing or changing a level clears the levels below it. | later |
+| R-46 | A period or style is one value even when it belongs to several eras or periods (R-8); saving an artwork links its period to its era and each of its styles to its period. | later |
 
 ## Images
 
@@ -82,11 +86,12 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | --- | --- | --- |
 | R-17 | The collection is shown as a wall of artwork tiles, each with the image, title, authors, date and record number, ordered by default from the most recently added ([ADR-0021](../decisions/0021-collection-view-as-a-wall-of-framed-artworks.md)). | MVP |
 | R-18 | The learner can search the collection by title. | MVP |
-| R-39 | The learner can order the wall by period instead of from the most recently added. Each artwork belongs to its first period, periods follow each other by their earliest year and artworks follow by year within their period; artworks without a period are not shown in this order ([ADR-0033](../decisions/0033-order-the-wall-by-period-with-a-period-rail.md)). | MVP |
+| R-39 | ~~The learner can order the wall by period instead of from the most recently added. Each artwork belongs to its first period, periods follow each other by their earliest year and artworks follow by year within their period; artworks without a period are not shown in this order ([ADR-0033](../decisions/0033-order-the-wall-by-period-with-a-period-rail.md)).~~ Replaced by R-47. | MVP |
 | R-40 | While the wall is ordered by period, the app shows which period the learner is looking at: a [period rail](glossary.md) at the right edge on a wide screen, a strip under the top bar on a narrower screen. | MVP |
 | R-41 | The order the learner chose for the wall is remembered on the device. | MVP |
 | R-42 | An artwork whose image is at least twice as wide as it is high takes two columns of the wall when the wall has three columns or more ([ADR-0035](../decisions/0035-wide-artworks-span-two-wall-columns.md)). | later |
-| R-19 | The learner can filter the collection by several fields at once: type, authors, period, style, material, location. | later |
+| R-47 | The learner can order the wall by era instead of from the most recently added. Eras follow their fixed order and artworks follow by year within their era; artworks without an era are not shown in this order. The period rail shows the eras, with bounds taken from the years of their artworks ([ADR-0038](../decisions/0038-chain-era-period-and-style.md)). | later |
+| R-19 | The learner can filter the collection by several fields at once: type, authors, era, period, style, material, location. | later |
 
 ## Account
 
