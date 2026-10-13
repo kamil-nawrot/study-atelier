@@ -14,7 +14,8 @@
 		"format": "prettier --write .",
 		"test:unit": "vitest",
 		"test": "vitest --run",
-		"gen": "wrangler types --env-file /dev/null"
+		"gen": "wrangler types --env-file /dev/null",
+		"screenshot": "node scripts/screenshot/screenshot.mjs"
 	},
 	"devDependencies": {
 		"@lucide/svelte": "^1.55.0",
