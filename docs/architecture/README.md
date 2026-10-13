@@ -138,7 +138,7 @@ Not yet described.
 ## 11. Risks and technical debt
 
 - The free Supabase project is paused after one week without database activity ([ADR-0008](../decisions/0008-supabase-database-and-auth.md)); the daily keep-alive runs only from the default branch (`develop`).
-- Production runs the older code from `main` until a release, so migrations must stay backward compatible; the production deployment is uploaded just before its migrations are applied ([ADR-0037](../decisions/0037-separate-databases-for-develop-and-production.md)).
+- Development and production have separate databases. A migration reaches the development database from `develop` and the production database only with a release, together with the code that needs it, so a migration does not have to keep the previous code working; the production deployment is uploaded just before its migrations are applied ([ADR-0037](../decisions/0037-separate-databases-for-develop-and-production.md)).
 
 ## 12. Glossary
 
