@@ -2,8 +2,14 @@ name: CI
 
 on:
   pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
   push:
     branches: [develop, main]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -12,35 +18,13 @@ concurrency:
 jobs:
   ui:
     name: UI library
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/ui.yml
 
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        run: pnpm --filter @study-atelier/ui lint
-
-      - name: Type check and token CSS check
-        run: pnpm --filter @study-atelier/ui check
-
-      - name: Install Playwright Chromium
-        run: pnpm --filter @study-atelier/ui exec playwright install --with-deps --only-shell chromium
-
-      - name: Unit and component tests
-        run: pnpm --filter @study-atelier/ui test
-
-      - name: Build Storybook
-        run: pnpm --filter @study-atelier/ui build
+  migrations:
+    name: Migrations on local Supabase
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/migrations.yml
 
   web:
     name: Web app
@@ -102,27 +86,6 @@ jobs:
           pnpm exec wrangler pages deploy --project-name study-atelier --branch "$DEPLOY_BRANCH" --commit-hash "$DEPLOY_COMMIT" | tee deploy.log
           url=$(grep -oE 'https://[^ ]+\.pages\.dev' deploy.log | tail -n 1 || true)
           echo "Deployed \`$DEPLOY_BRANCH\` to $url" >> "$GITHUB_STEP_SUMMARY"
-
-  migrations:
-    name: Migrations on local Supabase
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: supabase/setup-cli@v1
-        with:
-          version: 2.120.0
-
-      - name: Start local Supabase and apply migrations
-        run: supabase start
-
-      - name: Replay migrations from scratch
-        run: supabase db reset
-
-      - name: Stop local Supabase
-        if: always()
-        run: supabase stop --no-backup
 
   database:
     name: Database migrations
