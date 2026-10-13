@@ -26,6 +26,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-30 | The learner adds and edits an artwork in the same form, which shows every field; they can fill in all of them or only the required ones ([ADR-0022](../decisions/0022-add-and-edit-an-artwork-in-one-full-form.md)). | MVP |
 | R-31 | When adding, the learner can save the artwork and start the next one straight away. | MVP |
 | R-32 | Leaving the form with unsaved changes asks the learner to confirm that the changes are discarded. | MVP |
+| R-43 | When the learner saves an artwork whose title and authors match another artwork outside the trash, ignoring letter case, diacritics, whitespace and the order of authors, the app names the matching record and asks to confirm; saving stays possible. When editing, it asks only if the title or the authors changed ([ADR-0039](../decisions/0039-confirm-saving-a-duplicate-artwork.md)). | later |
 | R-33 | The learner views an artwork on its own page with its image and every field; a field that is not filled in is shown as empty, so the learner sees what is still missing ([ADR-0026](../decisions/0026-artwork-view-as-a-stage-with-an-information-panel.md)). | MVP |
 | R-34 | From the artwork page the learner can open the image full screen. | MVP |
 | R-23 | Deleting an artwork moves it to the trash. From the trash the learner can restore it or delete it permanently. Artworks in the trash are hidden from the collection and from suggestions. | MVP |
