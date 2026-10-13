@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { testArtwork } from '#lib/testing/artworks.ts';
+import { m } from '#lib/i18n/index.ts';
 import { distribute } from '../masonry.ts';
 import ArtworkWall from './ArtworkWall.svelte';
 
@@ -40,5 +41,21 @@ describe('ArtworkWall', () => {
 
 		expect(container.querySelectorAll('ul.column')).toHaveLength(3);
 		expect(vi.mocked(distribute)).toHaveBeenCalledTimes(calls);
+	});
+
+	it('marks an artwork with the icon of its era and leaves the others unmarked', async () => {
+		await page.viewport(1000, 800);
+
+		render(ArtworkWall, {
+			artworks: [
+				testArtwork(1, 'Dated', { eraCode: 'antiquity' }),
+				testArtwork(2, 'Undated', { eraCode: null })
+			]
+		});
+
+		await expect.element(page.getByRole('img', { name: m.eras.antiquity.name })).toBeVisible();
+		await expect
+			.element(page.getByRole('img', { name: m.eras.modern.name }))
+			.not.toBeInTheDocument();
 	});
 });

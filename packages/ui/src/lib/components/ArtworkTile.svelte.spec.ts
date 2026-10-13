@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
+import Landmark from '@lucide/svelte/icons/landmark';
 import { render } from 'vitest-browser-svelte';
 import { defaultUiMessages } from '../messages';
 import MessagesHost from '../testing/MessagesHost.svelte';
@@ -101,6 +102,18 @@ describe('ArtworkTile', () => {
 		});
 
 		await expect.element(page.getByText('Brak połączenia')).toBeVisible();
+	});
+
+	it('shows the mark with its label in the corner of the image', async () => {
+		render(ArtworkTile, { ...base, mark: Landmark, markLabel: 'Antiquity' });
+
+		await expect.element(page.getByRole('img', { name: 'Antiquity' })).toBeVisible();
+	});
+
+	it('shows no mark when there is none', async () => {
+		const { container } = await render(ArtworkTile, base);
+
+		expect(container.querySelector('.mark')).toBeNull();
 	});
 
 	it('uses the library texts set with setUiMessages', async () => {

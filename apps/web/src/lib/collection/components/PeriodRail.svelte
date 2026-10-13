@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
+	import { eraIcon } from '../eras.ts';
 	import { railLayout, railRow } from '../period-rail.ts';
 	import type { CurrentPeriod, PeriodGroup } from '../types.ts';
 
@@ -32,6 +34,11 @@
 				aria-current={entries[index].state === 'current' ? 'true' : undefined}
 				title={group.name}
 			>
+				{#if entries[index].state === 'current'}
+					<span class="icon">
+						<Icon icon={eraIcon(group.code)} size="sm" />
+					</span>
+				{/if}
 				<span class="name">{group.name}</span>
 				<span class="line"></span>
 			</li>
@@ -81,6 +88,16 @@
 		text-align: right;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+	}
+
+	.icon {
+		display: flex;
+		flex: none;
+	}
+
+	.icon :global(svg) {
+		width: var(--font-size-sm);
+		height: var(--font-size-sm);
 	}
 
 	.line {

@@ -3,6 +3,7 @@
 	import { MediaQuery } from 'svelte/reactivity';
 	import { innerWidth } from 'svelte/reactivity/window';
 	import { resolve } from '$app/paths';
+	import { eraIcon, eraName } from '../eras.ts';
 	import { columnCount, distribute, NO_IMAGE_RATIO, WIDE_MIN_WIDTH } from '../masonry.ts';
 	import type { WallArtwork } from '../types.ts';
 
@@ -46,6 +47,8 @@
 						href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
 						image={artwork.image}
 						imageUnavailable={artwork.imageUnavailable}
+						mark={artwork.eraCode ? eraIcon(artwork.eraCode) : undefined}
+						markLabel={artwork.eraCode ? eraName(artwork.eraCode) : undefined}
 						number={artwork.number}
 						onimagefailed={() => onimagefailed?.(artwork)}
 						title={artwork.title}
