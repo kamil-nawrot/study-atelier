@@ -197,8 +197,7 @@ export const pl = {
 			`${formats}, do ${maxMegabytes} MB.`,
 		pasteFromClipboard: 'Wklej ze schowka',
 		pasteHintLead: 'Masz obraz w schowku? Po prostu naciśnij',
-		pasteHintForm: (shortcut: string): string =>
-			`Obraz ze schowka możesz też wkleić tutaj: ${shortcut}.`,
+		pasteHintForm: 'Obraz ze schowka możesz też wkleić tutaj:',
 		replaceImageTitle: 'Zastąpić obecne zdjęcie?',
 		replaceImageDescription: 'Wklejony obraz zajmie jego miejsce.',
 		replaceImage: 'Zastąp',

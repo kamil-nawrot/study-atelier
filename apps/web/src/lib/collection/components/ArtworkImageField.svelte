@@ -205,6 +205,12 @@
 	}
 </script>
 
+{#snippet shortcutKeys()}
+	{#each shortcut.keys as key, index (key)}{#if index > 0 && shortcut.keys[0] !== '⌘'}+{/if}<kbd
+			>{key}</kbd
+		>{/each}.
+{/snippet}
+
 <svelte:window onpaste={handlePaste} />
 
 <section class="image" aria-label={m.artworkForm.image}>
@@ -253,7 +259,8 @@
 		<p class="paste-error" role="alert">{pasteError}</p>
 	{/if}
 	<p class="caption paste-hint">
-		{m.artworkForm.pasteHintForm(shortcut.label)}
+		{m.artworkForm.pasteHintForm}
+		{@render shortcutKeys()}
 	</p>
 </section>
 
@@ -274,9 +281,7 @@
 			<Icon icon={Clipboard} />
 			<p class="paste-lead">
 				{m.artworkForm.pasteHintLead}
-				{#each shortcut.keys as key, index (key)}{#if index > 0 && shortcut.keys[0] !== '⌘'}+{/if}<kbd
-						>{key}</kbd
-					>{/each}.
+				{@render shortcutKeys()}
 			</p>
 			<div class="paste-actions">
 				<Button aria-describedby={fileMessageId} disabled={pasting} onclick={pasteFromClipboard}>
@@ -397,7 +402,8 @@
 		margin: 0;
 	}
 
-	.paste-lead kbd {
+	.paste-lead kbd,
+	.paste-hint kbd {
 		padding: 0 var(--spacing-1);
 		border: var(--border-width-base) solid var(--color-fg-muted);
 		color: var(--color-fg);
