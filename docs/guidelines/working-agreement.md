@@ -12,6 +12,7 @@ How the project owner and Claude (implementer) work together on study-atelier.
 1. When a choice comes up, Claude presents the options with a recommendation and waits for the owner's decision.
 2. Every decision, business or technical, is recorded as an ADR in [`docs/decisions/`](../decisions/).
 3. A proposal the owner has not confirmed yet is recorded with status `proposed` and is not built upon.
+4. When a design changes how existing data is stored or interpreted, Claude first checks the owner's real data: it writes a read-only SQL query, the owner runs it in the Supabase SQL Editor and shares the result, and the options are weighed against what the data actually contains.
 
 ## Pace
 
