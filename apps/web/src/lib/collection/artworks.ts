@@ -48,6 +48,7 @@ type ArtworkRow = {
 
 export const DEFAULT_IMAGE_SIZE: ImageSize = { width: 4, height: 5 };
 
+const PAGE_SIZE = 1000;
 const TILE_SIZES = tileSizes();
 const TILE_WIDTH = 500;
 
@@ -122,6 +123,24 @@ function ownImage(
 	return src ? { src, ...(size ?? DEFAULT_IMAGE_SIZE) } : undefined;
 }
 
+type RowsPage = {
+	data: unknown;
+	error: { code?: string; message?: string } | null;
+};
+
+async function fetchAllRows(
+	page: (from: number, to: number) => PromiseLike<RowsPage>
+): Promise<{ rows: ArtworkRow[]; error?: string }> {
+	const rows: ArtworkRow[] = [];
+	for (let from = 0; ; from += PAGE_SIZE) {
+		const { data, error } = await page(from, from + PAGE_SIZE - 1);
+		if (error) return { rows: [], error: collectionErrorMessage(error) };
+		const received = (data ?? []) as ArtworkRow[];
+		rows.push(...received);
+		if (received.length < PAGE_SIZE) return { rows };
+	}
+}
+
 async function wallArtworks(rows: ArtworkRow[]): Promise<WallArtwork[]> {
 	const [commonsThumbnails, storageUrls] = await Promise.all([
 		fetchCommonsThumbnails(
@@ -190,25 +209,32 @@ export async function refreshExpiredImages(
 }
 
 export async function loadAtelier(): Promise<AtelierResult> {
-	const { data, error } = await supabase
-		.from('artworks')
-		.select(ARTWORK_COLUMNS)
-		.is('deleted_at', null)
-		.order('created_at', { ascending: false });
-	if (error) return { artworks: [], error: collectionErrorMessage(error) };
+	const { rows, error } = await fetchAllRows((from, to) =>
+		supabase
+			.from('artworks')
+			.select(ARTWORK_COLUMNS)
+			.is('deleted_at', null)
+			.order('created_at', { ascending: false })
+			.order('id', { ascending: false })
+			.range(from, to)
+	);
+	if (error) return { artworks: [], error };
 
-	return { artworks: await wallArtworks((data ?? []) as unknown as ArtworkRow[]) };
+	return { artworks: await wallArtworks(rows) };
 }
 
 export async function loadTrash(): Promise<TrashResult> {
-	const { data, error } = await supabase
-		.from('artworks')
-		.select(ARTWORK_COLUMNS)
-		.not('deleted_at', 'is', null)
-		.order('deleted_at', { ascending: false });
-	if (error) return { artworks: [], error: collectionErrorMessage(error) };
+	const { rows, error } = await fetchAllRows((from, to) =>
+		supabase
+			.from('artworks')
+			.select(ARTWORK_COLUMNS)
+			.not('deleted_at', 'is', null)
+			.order('deleted_at', { ascending: false })
+			.order('id', { ascending: false })
+			.range(from, to)
+	);
+	if (error) return { artworks: [], error };
 
-	const rows = (data ?? []) as unknown as ArtworkRow[];
 	const artworks = await wallArtworks(rows);
 	return {
 		artworks: artworks.map((artwork, index): TrashArtwork => ({
