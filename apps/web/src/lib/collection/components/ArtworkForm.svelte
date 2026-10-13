@@ -226,7 +226,8 @@
 			try {
 				await onsaved(result.number, andNext);
 			} catch {
-				toast.show(m.artworkForm.saved(formatRecordNumber(result.number)));
+				const number = formatRecordNumber(result.number);
+				toast.show(artwork ? m.artworkForm.changesSaved(number) : m.artworkForm.saved(number));
 				return;
 			}
 			if (!andNext) return;
