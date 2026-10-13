@@ -173,6 +173,9 @@ export const pl = {
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu.`,
 		clearSearch: 'Wyczyść wyszukiwanie',
 		loadErrorTitle: 'Nie udało się wczytać atelier',
+		imagesUnavailableTitle: 'Nie wszystkie zdjęcia się wczytały',
+		imagesUnavailable: 'Część zdjęć nie jest teraz dostępna. Spróbuj jeszcze raz za chwilę.',
+		retryImages: 'Spróbuj ponownie',
 		year: (year: number, approximate: boolean): string =>
 			`${approximate ? 'ok. ' : ''}${year < 0 ? `${-year} p.n.e.` : year}`,
 		yearRange: (from: string, to: string): string => `${from} – ${to}`

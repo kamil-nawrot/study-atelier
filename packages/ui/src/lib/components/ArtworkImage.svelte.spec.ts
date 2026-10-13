@@ -73,4 +73,30 @@ describe('ArtworkImage', () => {
 			.toBeVisible();
 		await expect.element(page.getByText(defaultUiMessages.imageFailed)).not.toBeInTheDocument();
 	});
+
+	it('reports once that the image did not load after the second attempt', async () => {
+		const onfailed = vi.fn();
+		await render(ArtworkImage, { src: broken, alt: 'Lady with an Ermine', onfailed });
+
+		await expect.poll(busy).toBe(true);
+		expect(onfailed).not.toHaveBeenCalled();
+		vi.advanceTimersByTime(IMAGE_RETRY_DELAY);
+
+		await expect.element(page.getByText(defaultUiMessages.imageFailed)).toBeVisible();
+		expect(onfailed).toHaveBeenCalledTimes(1);
+	});
+
+	it('shows the failed state at once without a request when it is unavailable', async () => {
+		const onfailed = vi.fn();
+		const { container } = await render(ArtworkImage, {
+			alt: 'Lady with an Ermine',
+			unavailable: true,
+			onfailed
+		});
+
+		await expect.element(page.getByText(defaultUiMessages.imageFailed)).toBeVisible();
+		expect(busy()).toBe(false);
+		expect(container.querySelector('img[alt="Lady with an Ermine"]')).toBeNull();
+		expect(onfailed).not.toHaveBeenCalled();
+	});
 });

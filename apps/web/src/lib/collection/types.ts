@@ -27,6 +27,9 @@ export type WallArtwork = {
 	year: number | null;
 	eraCode: EraCode | null;
 	image?: ArtworkTileImage;
+	imageUnavailable?: boolean;
+	ownImagePath?: string | null;
+	imageSignedAt?: number;
 };
 
 export type AtelierResult = {

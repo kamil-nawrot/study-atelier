@@ -10,6 +10,7 @@ import {
 import { supabase } from '#lib/supabase.ts';
 import { collectionErrorMessage } from './errors.ts';
 import { formatYear } from './format.ts';
+import { tileSizes } from './masonry.ts';
 import type {
 	AtelierResult,
 	CategoryCode,
@@ -47,7 +48,7 @@ type ArtworkRow = {
 
 export const DEFAULT_IMAGE_SIZE: ImageSize = { width: 4, height: 5 };
 
-const TILE_SIZES = '(min-width: 768px) 33vw, 100vw';
+const TILE_SIZES = tileSizes();
 const TILE_WIDTH = 500;
 
 const ARTWORK_COLUMNS = [
@@ -81,7 +82,7 @@ async function signedUrls(paths: string[]): Promise<Map<string, string>> {
 	if (error || !data) return new Map();
 	return new Map(
 		data
-			.filter((entry) => entry.path && entry.signedUrl)
+			.filter((entry) => entry.path && entry.signedUrl && !entry.error)
 			.map((entry) => [entry.path as string, entry.signedUrl as string])
 	);
 }
@@ -130,6 +131,7 @@ async function wallArtworks(rows: ArtworkRow[]): Promise<WallArtwork[]> {
 		signedUrls(rows.flatMap((row) => row.own_image_path ?? []))
 	]);
 
+	const signedAt = Date.now();
 	return rows.map((row): WallArtwork => {
 		const ownSource = row.own_image_path
 			? storageUrls.get(row.own_image_path)
@@ -149,7 +151,40 @@ async function wallArtworks(rows: ArtworkRow[]): Promise<WallArtwork[]> {
 			date: formatYear(row.year, row.year_approximate),
 			year: row.year,
 			eraCode: row.era_code,
-			image
+			image,
+			...(row.own_image_path
+				? {
+						ownImagePath: row.own_image_path,
+						imageSignedAt: signedAt,
+						...(image ? {} : { imageUnavailable: true })
+					}
+				: {})
+		};
+	});
+}
+
+export async function refreshExpiredImages(
+	artworks: WallArtwork[],
+	now: number = Date.now()
+): Promise<WallArtwork[]> {
+	const expired = artworks.filter(
+		(artwork) =>
+			artwork.ownImagePath &&
+			artwork.imageSignedAt !== undefined &&
+			now - artwork.imageSignedAt >= SIGNED_URL_SECONDS * 1000
+	);
+	if (expired.length === 0) return [];
+
+	const urls = await signedUrls(expired.flatMap((artwork) => artwork.ownImagePath ?? []));
+	return expired.map((artwork): WallArtwork => {
+		const src = urls.get(artwork.ownImagePath as string);
+		if (!src) return { ...artwork, image: undefined, imageUnavailable: true, imageSignedAt: now };
+		const size = artwork.image ?? DEFAULT_IMAGE_SIZE;
+		return {
+			...artwork,
+			image: { src, width: size.width, height: size.height },
+			imageUnavailable: false,
+			imageSignedAt: now
 		};
 	});
 }

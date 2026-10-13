@@ -163,3 +163,11 @@
 		</div>
 	{/snippet}
 </Story>
+
+<Story name="Image unavailable" args={{ image: undefined, imageUnavailable: true }}>
+	{#snippet template(args)}
+		<div style="max-width: 280px">
+			<ArtworkTile {...args} />
+		</div>
+	{/snippet}
+</Story>

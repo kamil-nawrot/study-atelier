@@ -9,7 +9,7 @@
 	import Primer from './Primer.svelte';
 
 	type Props = {
-		src: string;
+		src?: string;
 		alt: string;
 		srcset?: string;
 		sizes?: string;
@@ -18,6 +18,8 @@
 		loading?: 'lazy' | 'eager';
 		surface?: 'mat' | 'frame' | 'stage';
 		failedLabel?: string;
+		unavailable?: boolean;
+		onfailed?: () => void;
 	};
 
 	let {
@@ -29,14 +31,16 @@
 		height,
 		loading,
 		surface = 'mat',
-		failedLabel = uiMessages().imageFailed
+		failedLabel = uiMessages().imageFailed,
+		unavailable = false,
+		onfailed
 	}: Props = $props();
 
 	const FALLBACK_SIZE = { width: 800, height: 1000 };
 
 	let status = $derived.by<'loading' | 'loaded' | 'failed'>(() => {
 		void src;
-		return 'loading';
+		return unavailable ? 'failed' : 'loading';
 	});
 	let attempt = $derived.by<'first' | 'waiting' | 'second'>(() => {
 		void src;
@@ -64,7 +68,10 @@
 
 	function failed(): void {
 		if (attempt === 'first') attempt = 'waiting';
-		else if (attempt === 'second') status = 'failed';
+		else if (attempt === 'second') {
+			status = 'failed';
+			onfailed?.();
+		}
 	}
 
 	function settleCached(image: HTMLImageElement): void {
@@ -82,7 +89,7 @@
 	{#if status !== 'loaded'}
 		<img alt="" aria-hidden="true" src={placeholder} />
 	{/if}
-	{#if status !== 'failed' && attempt !== 'waiting'}
+	{#if src && status !== 'failed' && attempt !== 'waiting'}
 		{#key attempt}
 			<img
 				class:pending={status === 'loading'}

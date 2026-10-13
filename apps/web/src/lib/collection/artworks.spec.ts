@@ -3,7 +3,9 @@ import { IMAGES_BUCKET } from '#lib/images/bucket.ts';
 import { fetchCommonsThumbnails } from '#lib/images/commons.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
-import { DEFAULT_IMAGE_SIZE, loadAtelier, loadTrash } from './artworks.ts';
+import { SIGNED_URL_SECONDS } from '#lib/images/bucket.ts';
+import { DEFAULT_IMAGE_SIZE, loadAtelier, loadTrash, refreshExpiredImages } from './artworks.ts';
+import type { WallArtwork } from './types.ts';
 
 vi.mock('#lib/images/commons.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/images/commons.ts')>()),
@@ -168,6 +170,61 @@ describe('loadAtelier', () => {
 		expect(artworks[0].image).toEqual({ src: 'https://example.com/signed', ...DEFAULT_IMAGE_SIZE });
 	});
 
+	it('marks an uploaded image as unavailable when signing fails, and keeps the other artworks', async () => {
+		query.order.mockResolvedValue({
+			data: [
+				row({ own_image_path: 'user-id/artwork-1/image.jpg' }),
+				row({
+					id: 'artwork-2',
+					record_number: 2,
+					own_image_url: 'https://example.com/image.jpg'
+				})
+			],
+			error: null
+		});
+		createSignedUrls.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } });
+
+		const { artworks } = await loadAtelier();
+
+		expect(artworks[0].image).toBeUndefined();
+		expect(artworks[0].imageUnavailable).toBe(true);
+		expect(artworks[1].image?.src).toBe('https://example.com/image.jpg');
+		expect(artworks[1].imageUnavailable).toBeUndefined();
+	});
+
+	it('marks an uploaded image as unavailable when only its url could not be signed', async () => {
+		query.order.mockResolvedValue({
+			data: [row({ own_image_path: 'user-id/artwork-1/image.jpg' })],
+			error: null
+		});
+		createSignedUrls.mockResolvedValue({
+			data: [{ path: 'user-id/artwork-1/image.jpg', signedUrl: null, error: 'Object not found' }],
+			error: null
+		});
+
+		const { artworks } = await loadAtelier();
+
+		expect(artworks[0].imageUnavailable).toBe(true);
+	});
+
+	it('keeps the path and the time of signing of an uploaded image', async () => {
+		vi.useFakeTimers({ now: 1_000_000, toFake: ['Date'] });
+		query.order.mockResolvedValue({
+			data: [row({ own_image_path: 'user-id/artwork-1/image.jpg' })],
+			error: null
+		});
+		createSignedUrls.mockResolvedValue({
+			data: [{ path: 'user-id/artwork-1/image.jpg', signedUrl: 'https://example.com/signed' }],
+			error: null
+		});
+
+		const { artworks } = await loadAtelier();
+		vi.useRealTimers();
+
+		expect(artworks[0].ownImagePath).toBe('user-id/artwork-1/image.jpg');
+		expect(artworks[0].imageSignedAt).toBe(1_000_000);
+	});
+
 	it('uses a linked image as it is, with its stored size', async () => {
 		query.order.mockResolvedValue({
 			data: [
@@ -257,5 +314,73 @@ describe('loadTrash', () => {
 			artworks: [],
 			error: m.collectionErrors.network
 		});
+	});
+});
+
+describe('refreshExpiredImages', () => {
+	const lifetime = SIGNED_URL_SECONDS * 1000;
+
+	function uploaded(id: string, signedAt: number): WallArtwork {
+		return {
+			id,
+			number: 1,
+			title: 'The Test Painting',
+			authors: [],
+			year: null,
+			eraCode: null,
+			image: { src: `https://example.com/old-${id}`, width: 4, height: 5 },
+			ownImagePath: `user-id/${id}/image.jpg`,
+			imageSignedAt: signedAt
+		};
+	}
+
+	beforeEach(() => {
+		vi.clearAllMocks();
+		vi.mocked(supabase.storage.from).mockReturnValue({ createSignedUrls } as never);
+	});
+
+	it('signs again, in one request, only the images whose url has expired', async () => {
+		createSignedUrls.mockResolvedValue({
+			data: [
+				{ path: 'user-id/a/image.jpg', signedUrl: 'https://example.com/new-a' },
+				{ path: 'user-id/b/image.jpg', signedUrl: 'https://example.com/new-b' }
+			],
+			error: null
+		});
+		const now = 10 * lifetime;
+
+		const refreshed = await refreshExpiredImages(
+			[uploaded('a', now - lifetime), uploaded('b', now - lifetime - 1), uploaded('c', now - 1)],
+			now
+		);
+
+		expect(createSignedUrls).toHaveBeenCalledTimes(1);
+		expect(createSignedUrls).toHaveBeenCalledWith(
+			['user-id/a/image.jpg', 'user-id/b/image.jpg'],
+			SIGNED_URL_SECONDS
+		);
+		expect(refreshed.map((artwork) => artwork.id)).toEqual(['a', 'b']);
+		expect(refreshed[0].image?.src).toBe('https://example.com/new-a');
+		expect(refreshed[0].imageSignedAt).toBe(now);
+	});
+
+	it('does not sign again an image that failed before its url expired', async () => {
+		const now = 10 * lifetime;
+
+		const refreshed = await refreshExpiredImages([uploaded('a', now - lifetime + 1)], now);
+
+		expect(createSignedUrls).not.toHaveBeenCalled();
+		expect(refreshed).toEqual([]);
+	});
+
+	it('marks the image as unavailable when signing fails again', async () => {
+		createSignedUrls.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } });
+		const now = 10 * lifetime;
+
+		const [refreshed] = await refreshExpiredImages([uploaded('a', now - lifetime)], now);
+
+		expect(refreshed.image).toBeUndefined();
+		expect(refreshed.imageUnavailable).toBe(true);
+		expect(refreshed.imageSignedAt).toBe(now);
 	});
 });

@@ -186,7 +186,7 @@ export async function saveArtwork(
 		})
 		.single();
 	if (error) {
-		if (newUpload) await removeOwnImage(newUpload);
+		if (newUpload && error.code) await removeOwnImage(newUpload);
 		return { saved: false, error: artworkErrorMessage(error), fieldErrors };
 	}
 

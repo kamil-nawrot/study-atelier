@@ -264,7 +264,21 @@ describe('saveArtwork', () => {
 		expect(supabase.rpc).not.toHaveBeenCalled();
 	});
 
-	it('removes the uploaded file when the artwork could not be saved', async () => {
+	it('removes the uploaded file when the database rejected the artwork', async () => {
+		vi.mocked(uploadOwnImage).mockResolvedValue({ path: 'user-id/new.png' });
+		rpcCall.single.mockResolvedValue({
+			data: null,
+			error: { code: '23514', message: 'an artwork has authors or an unknown author' }
+		});
+
+		await expect(saveArtwork(input({ image: pickedFile() }))).resolves.toMatchObject({
+			saved: false,
+			error: m.artworkErrors.invalid
+		});
+		expect(removeOwnImage).toHaveBeenCalledWith('user-id/new.png');
+	});
+
+	it('keeps the uploaded file when no answer came back, because the artwork may be saved', async () => {
 		vi.mocked(uploadOwnImage).mockResolvedValue({ path: 'user-id/new.png' });
 		rpcCall.single.mockResolvedValue({
 			data: null,
@@ -275,7 +289,7 @@ describe('saveArtwork', () => {
 			saved: false,
 			error: m.artworkErrors.network
 		});
-		expect(removeOwnImage).toHaveBeenCalledWith('user-id/new.png');
+		expect(removeOwnImage).not.toHaveBeenCalled();
 	});
 
 	it('removes the previous file once another image replaced it', async () => {
