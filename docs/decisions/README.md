@@ -39,3 +39,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0033](0033-order-the-wall-by-period-with-a-period-rail.md) | Order the wall by period, with a period rail that follows the scroll | accepted |
 | [0034](0034-catalogue-cross-for-artworks-without-an-image.md) | Show an artwork without an image as a catalogue cross in a hairline frame | accepted |
 | [0035](0035-wide-artworks-span-two-wall-columns.md) | Let wide artworks span two wall columns, with a fixed-height tile caption | accepted |
+| [0036](0036-run-supabase-locally-in-docker.md) | Run Supabase locally in Docker for development and migration testing | accepted |
