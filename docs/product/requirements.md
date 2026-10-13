@@ -73,6 +73,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-13 | After a candidate is picked, the app shows the title and author from the image source next to the learner's own values for comparison, without changing them. | later |
 | R-14 | When no candidate matches or the source has no free image, the artwork shows an empty image placeholder with an easy way to add the learner's own image. | MVP |
 | R-15 | The learner can replace the image at any time with their own image ([image override](glossary.md)), uploaded as a file or given as a URL. | MVP |
+| R-38 | The learner can paste an image straight from the system clipboard as their own image: with a button in the own image dialog, or with Ctrl+V anywhere in the add and edit form, which asks before replacing an image already there ([ADR-0032](../decisions/0032-paste-the-own-image-from-the-clipboard.md)). | MVP |
 | R-16 | Images from the image source are shown with their licence and attribution ([ADR-0007](../decisions/0007-images-from-open-sources.md)). | MVP |
 
 ## Browsing and search

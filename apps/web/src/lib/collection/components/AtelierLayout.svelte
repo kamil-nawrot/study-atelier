@@ -193,9 +193,10 @@
 	}
 
 	.drawer {
+		inset: 0 auto 0 0;
 		width: min(260px, 85vw);
 		max-width: none;
-		height: 100dvh;
+		height: auto;
 		max-height: none;
 		margin: 0;
 		padding: var(--spacing-3) 0;
@@ -207,6 +208,10 @@
 
 	.drawer::backdrop {
 		background: var(--color-scrim);
+	}
+
+	:global(html:has(.drawer[open])) {
+		overflow: hidden;
 	}
 
 	@media (prefers-reduced-motion: no-preference) {

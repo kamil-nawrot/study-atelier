@@ -74,6 +74,24 @@ describe('ValueField', () => {
 		await expect.element(page.getByRole('combobox', { name: 'Style' })).toHaveValue('');
 	});
 
+	it('does not pick an option when a touch only starts scrolling the list', async () => {
+		render(ValueField, { label: 'Style', options });
+
+		await userEvent.click(page.getByRole('combobox', { name: 'Style' }));
+		const option = page.getByRole('option', { name: 'baroque' }).element();
+		option.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'touch' }));
+		option.dispatchEvent(
+			new PointerEvent('pointercancel', { bubbles: true, pointerType: 'touch' })
+		);
+
+		await expect
+			.element(page.getByRole('button', { name: texts.remove('baroque') }))
+			.not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('combobox', { name: 'Style' }))
+			.toHaveAttribute('aria-expanded', 'true');
+	});
+
 	it('closes the suggestions with Escape', async () => {
 		render(ValueField, { label: 'Style', options });
 
