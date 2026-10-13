@@ -396,8 +396,8 @@ export const pl = {
 			choosePeriod: 'Wybierz okres',
 			removeEra: (name: string): string => `Usuń epokę ${name}`,
 			removePeriod: (name: string): string => `Usuń okres ${name}`,
-			periodLocked: (period: string, count: string): string =>
-				`Okres „${period}” zostaje, bo ${count} ma ten styl właśnie z tym okresem.`,
+			periodLocked: (period: string, count: number): string =>
+				`Okres „${period}” zostaje, bo dzieła z tym stylem i tym okresem: ${count}.`,
 			delete: 'Usuń',
 			deleteBlocked: (demonstrative: string, count: string, other: string): string =>
 				`${demonstrative} ma jeszcze ${count}, więc nie da się go usunąć. Możesz go połączyć z ${other}.`,

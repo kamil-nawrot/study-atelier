@@ -36,6 +36,8 @@ The atelier lives in Supabase Postgres ([ADR-0014](../decisions/0014-artwork-col
 - `categories`, `artwork_types` and `eras`: fixed lists, extended by migrations. The six eras have a code and a position; their names and years are app texts (`m.eras`).
 - Storage bucket `artwork-images`: the learner's own images, private, one folder per learner, at most 5 MB each in JPG, PNG, WebP, GIF or AVIF. The app mirrors these settings in `#lib/images/bucket.ts` ([ADR-0025](../decisions/0025-upload-the-own-image-when-the-artwork-is-saved.md)).
 
+The card index changes values through database functions that run as the learner (`security invoker`, so Row Level Security applies), each in one transaction ([ADR-0040](../decisions/0040-manage-category-values-in-a-card-index.md)): `merge_category_values` moves the artwork values and links of one value to another and deletes it, `set_period_eras` and `set_style_periods` set the links of a period and a style (the first moves the era of the artworks that lose theirs, the second refuses to drop a period an artwork still uses with the style), and `delete_unused_value` deletes a value no artwork uses. `value_usage`, `period_era_usage` and `style_period_usage` return the number of artworks per value and per link, artworks in the trash included.
+
 Every learner-owned row is protected by Row Level Security on `owner_id`. An artwork and its category values are saved together by the database function `save_artwork` in one transaction ([ADR-0024](../decisions/0024-save-an-artwork-in-one-database-function.md)).
 
 ## 6. Runtime view
@@ -100,6 +102,12 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 2. For an uploaded image it asks Supabase Storage for a signed URL, used only for the preview; the form keeps the storage path.
 3. The same form as adding starts from the loaded values, so "Odrzucić zmiany?" compares against them. There is no "Zapisz i dodaj kolejne".
 4. Saving passes the artwork's id and its loaded image to the save above, then replaces the edit page in the history with the artwork page, which confirms the save with a toast.
+
+### Managing category values
+
+1. `/atelier/values` ("Kartoteka", opened from the menu) reads the three usage functions in pages of 1000 rows (`loadCardIndex` in `#lib/collection/card-index-data.ts`), then `#lib/collection/card-index.ts` builds the timeline of the six eras with their periods and styles, and the alphabetical lists of materials, authors and locations.
+2. A click on a value opens one dialog. Saving applies the links first (`set_period_eras` or `set_style_periods`), then renames the value or merges it into the value whose name it now matches by the comparison key of R-25. Removing an era from a period that artworks use, and merging, ask first.
+3. After a change the view reads the three functions again and confirms with a toast. The suggestions in the artwork form read the same tables, so a merge or a delete shows there at once.
 
 ### Deleting and restoring an artwork
 

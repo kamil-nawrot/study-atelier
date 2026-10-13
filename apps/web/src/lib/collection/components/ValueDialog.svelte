@@ -273,10 +273,7 @@
 					</div>
 					{#each selectedPeriods.filter((period) => locked.has(period.id)) as period (period.id)}
 						<p class="muted">
-							{m.cardIndex.dialog.periodLocked(
-								period.name,
-								m.atelier.count(locked.get(period.id) ?? 0)
-							)}
+							{m.cardIndex.dialog.periodLocked(period.name, locked.get(period.id) ?? 0)}
 						</p>
 					{/each}
 				{/if}
