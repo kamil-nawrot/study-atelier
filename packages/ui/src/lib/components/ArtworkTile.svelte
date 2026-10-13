@@ -141,7 +141,7 @@
 		left: var(--spacing-2);
 		display: flex;
 		align-items: center;
-		padding: 0 var(--spacing-2);
+		padding: var(--spacing-1) var(--spacing-2);
 		background: var(--color-mat-badge-bg);
 		color: var(--color-mat-badge-fg);
 		line-height: var(--line-height-xs);
