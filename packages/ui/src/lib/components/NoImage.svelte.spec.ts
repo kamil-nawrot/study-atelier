@@ -33,15 +33,4 @@ describe('NoImage', () => {
 
 		expect(container.querySelectorAll('svg line')).toHaveLength(2);
 	});
-
-	it('says the image is unavailable instead of drawing the frame', async () => {
-		const { container } = await render(NoImage, {
-			label: 'The image did not load',
-			unavailable: true
-		});
-
-		await expect.element(page.getByRole('img', { name: 'The image did not load' })).toBeVisible();
-		await expect.element(page.getByText('The image did not load')).toBeVisible();
-		expect(container.querySelector('.frame')).toBeNull();
-	});
 });

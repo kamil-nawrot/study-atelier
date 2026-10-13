@@ -9,7 +9,7 @@
 	import Primer from './Primer.svelte';
 
 	type Props = {
-		src: string;
+		src?: string;
 		alt: string;
 		srcset?: string;
 		sizes?: string;
@@ -18,6 +18,7 @@
 		loading?: 'lazy' | 'eager';
 		surface?: 'mat' | 'frame' | 'stage';
 		failedLabel?: string;
+		unavailable?: boolean;
 		onfailed?: () => void;
 	};
 
@@ -31,6 +32,7 @@
 		loading,
 		surface = 'mat',
 		failedLabel = uiMessages().imageFailed,
+		unavailable = false,
 		onfailed
 	}: Props = $props();
 
@@ -38,7 +40,7 @@
 
 	let status = $derived.by<'loading' | 'loaded' | 'failed'>(() => {
 		void src;
-		return 'loading';
+		return unavailable ? 'failed' : 'loading';
 	});
 	let attempt = $derived.by<'first' | 'waiting' | 'second'>(() => {
 		void src;
@@ -87,7 +89,7 @@
 	{#if status !== 'loaded'}
 		<img alt="" aria-hidden="true" src={placeholder} />
 	{/if}
-	{#if status !== 'failed' && attempt !== 'waiting'}
+	{#if src && status !== 'failed' && attempt !== 'waiting'}
 		{#key attempt}
 			<img
 				class:pending={status === 'loading'}

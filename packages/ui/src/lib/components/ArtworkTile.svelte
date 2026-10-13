@@ -62,7 +62,7 @@
 					width={image.width}
 				/>
 			{:else if imageUnavailable}
-				<NoImage label={imageUnavailableLabel} unavailable />
+				<ArtworkImage alt="{title}, {authorText}" failedLabel={imageUnavailableLabel} unavailable />
 			{:else}
 				<NoImage label={noImageLabel} />
 			{/if}
