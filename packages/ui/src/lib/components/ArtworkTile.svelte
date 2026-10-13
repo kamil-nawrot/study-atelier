@@ -22,6 +22,9 @@
 		image?: ArtworkTileImage;
 		unknownAuthorLabel?: string;
 		noImageLabel?: string;
+		imageUnavailable?: boolean;
+		imageUnavailableLabel?: string;
+		onimagefailed?: () => void;
 	};
 
 	let {
@@ -32,7 +35,10 @@
 		date,
 		image,
 		unknownAuthorLabel = uiMessages().unknownAuthor,
-		noImageLabel = uiMessages().noImage
+		noImageLabel = uiMessages().noImage,
+		imageUnavailable = false,
+		imageUnavailableLabel = uiMessages().imageFailed,
+		onimagefailed
 	}: Props = $props();
 
 	const RECORD_NUMBER_DIGITS = 4;
@@ -49,11 +55,14 @@
 					alt="{title}, {authorText}"
 					height={image.height}
 					loading="lazy"
+					onfailed={onimagefailed}
 					sizes={image.sizes}
 					src={image.src}
 					srcset={image.srcset}
 					width={image.width}
 				/>
+			{:else if imageUnavailable}
+				<NoImage label={imageUnavailableLabel} unavailable />
 			{:else}
 				<NoImage label={noImageLabel} />
 			{/if}

@@ -84,6 +84,27 @@ describe('ArtworkTile', () => {
 		await expect.element(page.getByRole('img', { name: 'Brak zdjęcia' })).toBeVisible();
 	});
 
+	it('says the image did not load when it is unavailable, not that there is none', async () => {
+		render(ArtworkTile, { ...base, imageUnavailable: true });
+
+		await expect
+			.element(page.getByRole('img', { name: defaultUiMessages.imageFailed }))
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('img', { name: defaultUiMessages.noImage }))
+			.not.toBeInTheDocument();
+	});
+
+	it('uses its own text for an unavailable image', async () => {
+		render(ArtworkTile, {
+			...base,
+			imageUnavailable: true,
+			imageUnavailableLabel: 'Brak połączenia'
+		});
+
+		await expect.element(page.getByRole('img', { name: 'Brak połączenia' })).toBeVisible();
+	});
+
 	it('uses the library texts set with setUiMessages', async () => {
 		render(MessagesHost, {
 			props: {

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
 	import Plus from '@lucide/svelte/icons/plus';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import {
 		Alert,
 		Button,
@@ -12,9 +12,10 @@
 		type SelectOption,
 		Toast
 	} from '@study-atelier/ui';
-	import { replaceState } from '$app/navigation';
+	import { invalidateAll, replaceState } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import { refreshExpiredImages } from '#lib/collection/artworks.ts';
 	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import { formatRecordNumber } from '#lib/collection/format.ts';
@@ -23,7 +24,7 @@
 	import { groupByEra } from '#lib/collection/periods.ts';
 	import { MIN_RAIL_MARGIN, PeriodTracker } from '#lib/collection/period-tracker.svelte.ts';
 	import { filterByTitle } from '#lib/collection/search.ts';
-	import type { WallOrder } from '#lib/collection/types.ts';
+	import type { WallArtwork, WallOrder } from '#lib/collection/types.ts';
 	import {
 		isWallOrder,
 		rememberedWallOrder,
@@ -60,6 +61,7 @@
 
 	const addPath = resolve('/(app)/atelier/new');
 	const HIGHLIGHT_MS = 2000;
+	const REFRESH_DELAY_MS = 100;
 
 	let highlight = $state(page.state.highlight);
 	let toast: Toast;
@@ -80,13 +82,38 @@
 		return () => clearTimeout(timer);
 	});
 
-	let matching = $derived(filterByTitle(data.artworks, query));
+	let refreshed = $state<Record<string, WallArtwork>>({});
+	let failedImages: WallArtwork[] = [];
+	let refreshTimer: ReturnType<typeof setTimeout> | undefined;
+
+	$effect.pre(() => {
+		void data.artworks;
+		refreshed = {};
+	});
+
+	onDestroy(() => clearTimeout(refreshTimer));
+
+	function imageFailed(artwork: WallArtwork): void {
+		failedImages.push(artwork);
+		clearTimeout(refreshTimer);
+		refreshTimer = setTimeout(refreshImages, REFRESH_DELAY_MS);
+	}
+
+	async function refreshImages(): Promise<void> {
+		const batch = failedImages;
+		failedImages = [];
+		for (const artwork of await refreshExpiredImages(batch)) refreshed[artwork.id] = artwork;
+	}
+
+	let artworks = $derived(data.artworks.map((artwork) => refreshed[artwork.id] ?? artwork));
+	let imagesUnavailable = $derived(artworks.some((artwork) => artwork.imageUnavailable));
+	let matching = $derived(filterByTitle(artworks, query));
 	let groups = $derived(order === 'period' ? groupByEra(matching) : []);
 	let shown = $derived(order === 'period' ? groups.flatMap((group) => group.artworks) : matching);
 	let periodIndexes = $derived(
 		new Map(groups.flatMap((group, index) => group.artworks.map((artwork) => [artwork.id, index])))
 	);
-	let total = $derived(data.artworks.length);
+	let total = $derived(artworks.length);
 	let searching = $derived(query.trim() !== '');
 	let showPeriods = $derived(groups.length > 0);
 	let railFits = $derived(tracker.margin >= MIN_RAIL_MARGIN);
@@ -184,7 +211,21 @@
 			</Section>
 		</div>
 	{:else}
-		<ArtworkWall artworks={shown} {highlight} {periodIndexes} bind:element={wall} />
+		{#if imagesUnavailable}
+			<Alert title={m.atelier.imagesUnavailableTitle} tone="warning">
+				{m.atelier.imagesUnavailable}
+				<Button onclick={() => invalidateAll()}>
+					{m.atelier.retryImages}
+				</Button>
+			</Alert>
+		{/if}
+		<ArtworkWall
+			artworks={shown}
+			{highlight}
+			onimagefailed={imageFailed}
+			{periodIndexes}
+			bind:element={wall}
+		/>
 		{#if showPeriods && railFits}
 			<PeriodRail current={tracker.current} {groups} width={tracker.margin} />
 		{/if}

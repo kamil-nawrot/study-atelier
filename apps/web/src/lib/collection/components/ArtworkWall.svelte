@@ -3,7 +3,7 @@
 	import { MediaQuery } from 'svelte/reactivity';
 	import { innerWidth } from 'svelte/reactivity/window';
 	import { resolve } from '$app/paths';
-	import { columnCount, distribute, NO_IMAGE_RATIO } from '../masonry.ts';
+	import { columnCount, distribute, NO_IMAGE_RATIO, WIDE_MIN_WIDTH } from '../masonry.ts';
 	import type { WallArtwork } from '../types.ts';
 
 	type Props = {
@@ -11,11 +11,18 @@
 		highlight?: number;
 		periodIndexes?: ReadonlyMap<string, number>;
 		element?: HTMLElement;
+		onimagefailed?: (artwork: WallArtwork) => void;
 	};
 
-	let { artworks, highlight, periodIndexes, element = $bindable() }: Props = $props();
+	let {
+		artworks,
+		highlight,
+		periodIndexes,
+		element = $bindable(),
+		onimagefailed
+	}: Props = $props();
 
-	const wide = new MediaQuery('min-width: 768px');
+	const wide = new MediaQuery(`min-width: ${WIDE_MIN_WIDTH}px`);
 
 	let columns = $derived(
 		distribute(artworks, columnCount(wide.current, innerWidth.current ?? 0), (artwork) =>
@@ -37,7 +44,9 @@
 						date={artwork.date}
 						href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
 						image={artwork.image}
+						imageUnavailable={artwork.imageUnavailable}
 						number={artwork.number}
+						onimagefailed={() => onimagefailed?.(artwork)}
 						title={artwork.title}
 					/>
 				</li>

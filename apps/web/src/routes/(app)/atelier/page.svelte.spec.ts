@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { goto, replaceState } from '$app/navigation';
+import { goto, invalidateAll, replaceState } from '$app/navigation';
+import { refreshExpiredImages } from '#lib/collection/artworks.ts';
 import type { WallArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
@@ -16,7 +17,12 @@ const navigation = vi.hoisted(() => ({
 }));
 
 vi.mock('$app/state', () => ({ page: navigation }));
-vi.mock('$app/navigation', () => ({ goto: vi.fn(), replaceState: vi.fn() }));
+vi.mock('$app/navigation', () => ({
+	goto: vi.fn(),
+	invalidateAll: vi.fn(),
+	replaceState: vi.fn()
+}));
+vi.mock('#lib/collection/artworks.ts', () => ({ refreshExpiredImages: vi.fn() }));
 vi.mock('#lib/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
@@ -166,6 +172,44 @@ describe('atelier page', () => {
 			.toHaveAttribute('href', '/atelier/new');
 		await expect.element(searchField()).toBeDisabled();
 		await expect.element(page.getByText(m.atelier.count(0))).not.toBeInTheDocument();
+	});
+
+	it('says when some images are unavailable and loads them again on request', async () => {
+		renderAtelier([
+			testArtwork(1, 'Night Watch', { image: undefined, imageUnavailable: true }),
+			testArtwork(2, 'Starry Night')
+		]);
+
+		await expect.element(page.getByText(m.atelier.imagesUnavailableTitle)).toBeVisible();
+		await page.getByRole('button', { name: m.atelier.retryImages }).click();
+
+		expect(invalidateAll).toHaveBeenCalled();
+	});
+
+	it('does not warn about images when all of them are available', async () => {
+		renderAtelier();
+
+		await expect.element(page.getByText(m.atelier.imagesUnavailableTitle)).not.toBeInTheDocument();
+	});
+
+	it('shows an image again after its expired url was signed anew', async () => {
+		const pixel = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+		const expired = testArtwork(1, 'Night Watch', {
+			image: { src: 'data:image/png;base64,broken', width: 4, height: 5 },
+			ownImagePath: 'user-id/artwork-1/image.jpg',
+			imageSignedAt: 0
+		});
+		vi.mocked(refreshExpiredImages).mockResolvedValue([
+			{ ...expired, image: { src: pixel, width: 4, height: 5 }, imageSignedAt: Date.now() }
+		]);
+		renderAtelier([expired]);
+
+		await vi.waitFor(() => expect(refreshExpiredImages).toHaveBeenCalledWith([expired]), {
+			timeout: 8000
+		});
+		await expect
+			.element(page.getByRole('img', { name: 'Night Watch, Test Painter' }))
+			.toBeVisible();
 	});
 
 	it('shows why the atelier did not load', async () => {

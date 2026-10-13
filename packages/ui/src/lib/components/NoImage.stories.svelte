@@ -17,3 +17,11 @@
 		</div>
 	{/snippet}
 </Story>
+
+<Story name="Unavailable" args={{ unavailable: true, label: 'The image did not load' }}>
+	{#snippet template(args)}
+		<div style="max-width: 280px; padding: var(--spacing-2); background: var(--color-mat-bg)">
+			<NoImage {...args} />
+		</div>
+	{/snippet}
+</Story>

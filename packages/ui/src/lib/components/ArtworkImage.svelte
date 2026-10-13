@@ -18,6 +18,7 @@
 		loading?: 'lazy' | 'eager';
 		surface?: 'mat' | 'frame' | 'stage';
 		failedLabel?: string;
+		onfailed?: () => void;
 	};
 
 	let {
@@ -29,7 +30,8 @@
 		height,
 		loading,
 		surface = 'mat',
-		failedLabel = uiMessages().imageFailed
+		failedLabel = uiMessages().imageFailed,
+		onfailed
 	}: Props = $props();
 
 	const FALLBACK_SIZE = { width: 800, height: 1000 };
@@ -64,7 +66,10 @@
 
 	function failed(): void {
 		if (attempt === 'first') attempt = 'waiting';
-		else if (attempt === 'second') status = 'failed';
+		else if (attempt === 'second') {
+			status = 'failed';
+			onfailed?.();
+		}
 	}
 
 	function settleCached(image: HTMLImageElement): void {
