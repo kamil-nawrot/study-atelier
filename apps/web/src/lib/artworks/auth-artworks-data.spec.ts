@@ -5,7 +5,7 @@ const publicDomain = ['Public domain', 'CC0'];
 
 describe('auth-artworks.json', () => {
 	it('lists around one hundred works', () => {
-		expect(data.length).toBeGreaterThanOrEqual(95);
+		expect(data.length).toBeGreaterThanOrEqual(100);
 	});
 
 	it('has unique Wikidata ids and Commons files', () => {
