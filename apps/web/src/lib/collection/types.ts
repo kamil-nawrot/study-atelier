@@ -18,6 +18,11 @@ export type CurrentPeriod = {
 	progress: number;
 };
 
+export type ArtworkValueRow = {
+	position: number;
+	category_values: { category_code: string; name: string } | null;
+};
+
 export type WallArtwork = {
 	id: string;
 	number: number;

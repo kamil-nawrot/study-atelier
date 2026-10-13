@@ -1,11 +1,13 @@
 import { m } from '#lib/i18n/index.ts';
 import { ownImageUrl, removeOwnImage, uploadOwnImage } from '#lib/images/own-image.ts';
 import { supabase } from '#lib/supabase.ts';
+import { valuesOf } from './artwork-values.ts';
 import { artworkErrorMessage } from './errors.ts';
 import type {
 	ArtworkFieldErrors,
 	ArtworkImageInput,
 	ArtworkInput,
+	ArtworkValueRow,
 	ArtworkRecord,
 	ArtworkTypeCode,
 	CategoryCode,
@@ -14,11 +16,6 @@ import type {
 	LoadArtworkResult,
 	SaveArtworkResult
 } from './types.ts';
-
-type CategoryValueRow = {
-	category_code: string;
-	name: string;
-};
 
 type ArtworkRecordRow = {
 	id: string;
@@ -39,7 +36,7 @@ type ArtworkRecordRow = {
 	own_image_url: string | null;
 	image_width: number | null;
 	image_height: number | null;
-	artwork_values: { position: number; category_values: CategoryValueRow | null }[];
+	artwork_values: ArtworkValueRow[];
 };
 
 type StoredImage = Exclude<ArtworkImageInput, { kind: 'file' }>;
@@ -199,13 +196,6 @@ export async function saveArtwork(
 	return { saved: true, id: row.id, number: row.record_number };
 }
 
-function valuesOf(row: ArtworkRecordRow, category: CategoryCode): string[] {
-	return row.artwork_values
-		.filter((value) => value.category_values?.category_code === category)
-		.sort((a, b) => a.position - b.position)
-		.map((value) => (value.category_values as CategoryValueRow).name);
-}
-
 function imageOf(row: ArtworkRecordRow): ArtworkImageInput | null {
 	const size = { width: row.image_width, height: row.image_height };
 	if (row.own_image_path) return { kind: 'upload', path: row.own_image_path, ...size };
@@ -229,17 +219,17 @@ function artworkRecordFromRow(row: ArtworkRecordRow): ArtworkRecord {
 		id: row.id,
 		number: row.record_number,
 		title: row.title,
-		authors: valuesOf(row, 'author'),
+		authors: valuesOf(row.artwork_values, 'author'),
 		authorUnknown: row.author_unknown,
 		year: row.year === null ? null : Math.abs(row.year),
 		beforeCommonEra: row.year !== null && row.year < 0,
 		yearApproximate: row.year_approximate,
 		typeCode: row.type_code,
 		eraCode: row.era_code,
-		period: valuesOf(row, 'period')[0] ?? null,
-		styles: valuesOf(row, 'style'),
-		materials: valuesOf(row, 'material'),
-		location: valuesOf(row, 'location')[0] ?? null,
+		period: valuesOf(row.artwork_values, 'period')[0] ?? null,
+		styles: valuesOf(row.artwork_values, 'style'),
+		materials: valuesOf(row.artwork_values, 'material'),
+		location: valuesOf(row.artwork_values, 'location')[0] ?? null,
 		notes: row.notes ?? '',
 		image: imageOf(row)
 	};

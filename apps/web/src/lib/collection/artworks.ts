@@ -8,12 +8,13 @@ import {
 	fetchCommonsThumbnails
 } from '#lib/images/commons.ts';
 import { supabase } from '#lib/supabase.ts';
+import { valuesOf } from './artwork-values.ts';
 import { collectionErrorMessage } from './errors.ts';
 import { formatYear } from './format.ts';
 import { tileSizes } from './masonry.ts';
 import type {
+	ArtworkValueRow,
 	AtelierResult,
-	CategoryCode,
 	EraCode,
 	TrashArtwork,
 	TrashResult,
@@ -23,11 +24,6 @@ import type {
 type ImageSize = {
 	width: number;
 	height: number;
-};
-
-type CategoryValueRow = {
-	category_code: string;
-	name: string;
 };
 
 type ArtworkRow = {
@@ -43,7 +39,7 @@ type ArtworkRow = {
 	image_width: number | null;
 	image_height: number | null;
 	deleted_at: string | null;
-	artwork_values: { position: number; category_values: CategoryValueRow | null }[];
+	artwork_values: ArtworkValueRow[];
 };
 
 export const DEFAULT_IMAGE_SIZE: ImageSize = { width: 4, height: 5 };
@@ -67,13 +63,6 @@ const ARTWORK_COLUMNS = [
 	'deleted_at',
 	'artwork_values(position, category_values(category_code, name))'
 ].join(', ');
-
-function valuesOf(row: ArtworkRow, category: CategoryCode): string[] {
-	return row.artwork_values
-		.filter((value) => value.category_values?.category_code === category)
-		.sort((a, b) => a.position - b.position)
-		.map((value) => (value.category_values as CategoryValueRow).name);
-}
 
 async function signedUrls(paths: string[]): Promise<Map<string, string>> {
 	if (paths.length === 0) return new Map();
@@ -166,7 +155,7 @@ async function wallArtworks(rows: ArtworkRow[]): Promise<WallArtwork[]> {
 			id: row.id,
 			number: row.record_number,
 			title: row.title,
-			authors: valuesOf(row, 'author'),
+			authors: valuesOf(row.artwork_values, 'author'),
 			date: formatYear(row.year, row.year_approximate),
 			year: row.year,
 			eraCode: row.era_code,
