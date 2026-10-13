@@ -352,30 +352,35 @@ export const pl = {
 			period: {
 				name: 'Okres',
 				accusative: 'okres',
+				genitive: 'okresu',
 				demonstrative: 'Ten okres',
 				other: 'innym okresem'
 			},
 			style: {
 				name: 'Styl',
 				accusative: 'styl',
+				genitive: 'stylu',
 				demonstrative: 'Ten styl',
 				other: 'innym stylem'
 			},
 			material: {
 				name: 'Materiał',
 				accusative: 'materiał',
+				genitive: 'materiału',
 				demonstrative: 'Ten materiał',
 				other: 'innym materiałem'
 			},
 			author: {
 				name: 'Autor',
 				accusative: 'autora',
+				genitive: 'autora',
 				demonstrative: 'Ten autor',
 				other: 'innym autorem'
 			},
 			location: {
 				name: 'Miejsce',
 				accusative: 'miejsce',
+				genitive: 'miejsca',
 				demonstrative: 'To miejsce',
 				other: 'innym miejscem'
 			}
@@ -397,7 +402,7 @@ export const pl = {
 			removeEra: (name: string): string => `Usuń epokę ${name}`,
 			removePeriod: (name: string): string => `Usuń okres ${name}`,
 			periodLocked: (period: string, count: number): string =>
-				`Okres „${period}” zostaje, bo dzieła z tym stylem i tym okresem: ${count}.`,
+				`Nie uda się odpiąć okresu „${period}” od tego stylu, bo ${workCount(count)} w tym stylu ${count === 1 ? 'ma' : 'mają'} przypisany taki okres.`,
 			delete: 'Usuń',
 			deleteBlocked: (demonstrative: string, count: string, other: string): string =>
 				`${demonstrative} ma jeszcze ${count}, więc nie da się go usunąć. Możesz go połączyć z ${other}.`,
@@ -407,16 +412,16 @@ export const pl = {
 			merge: 'Połącz'
 		},
 		mergeConfirm: {
-			title: (name: string): string => `Połączyć z „${name}”?`,
-			artworks: (merged: string, kept: string, count: number): string =>
-				count === 0
-					? `Żadne dzieło nie ma teraz „${merged}”.`
-					: `Wszystkie dzieła z „${merged}” (${count}) dostaną „${kept}”.`,
+			title: (merged: string, kept: string): string => `Połączyć „${merged}” z „${kept}”?`,
+			unused: (merged: string): string =>
+				`Żadne dzieło nie ma teraz „${merged}”, więc zmieni się tylko Kartoteka: „${merged}” z niej zniknie.`,
+			assigned: (merged: string, kept: string, count: number, kind: string): string =>
+				`Wszystkie dzieła z „${merged}” (${count}) przypiszą się do ${kind} „${kept}”.`,
+			periodAssigned: (merged: string, kept: string, count: number): string =>
+				`${workCount(count)} z „${merged}” ${count === 1 ? 'dostanie' : 'dostaną'} „${kept}”, a „${merged}” zniknie z Kartoteki.`,
 			periodLinks: (merged: string, kept: string): string =>
-				`Epoki i style okresu „${merged}” przejdą do „${kept}”.`,
-			styleLinks: (merged: string, kept: string): string =>
-				`Okresy stylu „${merged}” przejdą do „${kept}”.`,
-			irreversible: 'Tego nie da się cofnąć.',
+				`Epoki i style okresu „${merged}” dołączą do „${kept}”.`,
+			irreversible: 'Tej akcji nie będzie można cofnąć!',
 			back: 'Wróć',
 			confirm: 'Połącz',
 			merging: 'Łączenie…'
@@ -424,11 +429,11 @@ export const pl = {
 		moveConfirm: {
 			title: 'Przenieść dzieła do innej epoki?',
 			toEra: (period: string, from: string, count: number, to: string): string =>
-				`Dzieł z okresem „${period}” w epoce ${from}: ${count}. Po zapisie przejdą do epoki ${to}.`,
+				`${workCount(count)} z okresem „${period}” ${count === 1 ? 'jest' : 'są'} teraz w epoce ${from}. Po zapisie ${count === 1 ? 'przeniesie się' : 'przeniosą się'} do epoki ${to}.`,
 			toNone: (period: string, from: string, count: number): string =>
-				`Dzieł z okresem „${period}” w epoce ${from}: ${count}. Po zapisie stracą epokę, a okres i style zostaną.`,
+				`${workCount(count)} z okresem „${period}” ${count === 1 ? 'jest' : 'są'} teraz w epoce ${from}. Po zapisie ${count === 1 ? 'zostanie' : 'zostaną'} bez epoki. Okres i style się nie zmienią.`,
 			toPicked: (period: string, from: string, count: number): string =>
-				`Dzieł z okresem „${period}” w epoce ${from}: ${count}. Wybierz epokę, do której mają przejść po zapisie.`,
+				`${workCount(count)} z okresem „${period}” ${count === 1 ? 'jest' : 'są'} teraz w epoce ${from}. Wybierz epokę, do której ${count === 1 ? 'ma' : 'mają'} trafić po zapisie.`,
 			pick: 'Do której epoki mają trafić?',
 			pickRequired: 'Wybierz epokę.',
 			back: 'Wróć',
@@ -480,6 +485,10 @@ export const pl = {
 type PluralForms = Record<'one' | 'few' | 'many', string>;
 
 const pluralRules = new Intl.PluralRules('pl');
+
+function workCount(count: number): string {
+	return `${count} ${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })}`;
+}
 
 function plural(count: number, forms: PluralForms): string {
 	const category = pluralRules.select(count);

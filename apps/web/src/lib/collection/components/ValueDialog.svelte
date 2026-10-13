@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import { Alert, Button, Dialog, Select, Tag, TextField } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, Select, Tag, TextField, Tooltip } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { deleteValue, saveValue } from '../card-index-data.ts';
 	import {
@@ -87,22 +87,25 @@
 		}
 		return moveConfirm.toPicked(record.name, removedEraNames, eraMove.count);
 	});
-	let mergeDescription = $derived(
-		mergeTarget
-			? [
-					m.cardIndex.mergeConfirm.artworks(record.name, mergeTarget.name, record.count),
-					record.category === 'period'
-						? m.cardIndex.mergeConfirm.periodLinks(record.name, mergeTarget.name)
-						: record.category === 'style'
-							? m.cardIndex.mergeConfirm.styleLinks(record.name, mergeTarget.name)
-							: '',
-					m.cardIndex.mergeConfirm.irreversible
-				]
-					.filter(Boolean)
-					.join(' ')
-			: ''
-	);
-
+	let mergeDescription = $derived.by(() => {
+		if (!mergeTarget) return '';
+		const { mergeConfirm } = m.cardIndex;
+		const merged = record.name;
+		const kept = mergeTarget.name;
+		if (record.count === 0)
+			return [mergeConfirm.unused(merged), mergeConfirm.irreversible].join(' ');
+		if (record.category === 'period') {
+			return [
+				mergeConfirm.periodAssigned(merged, kept, record.count),
+				mergeConfirm.periodLinks(merged, kept),
+				mergeConfirm.irreversible
+			].join(' ');
+		}
+		return [
+			mergeConfirm.assigned(merged, kept, record.count, kind.genitive),
+			mergeConfirm.irreversible
+		].join(' ');
+	});
 	function sameItems(a: readonly string[], b: readonly string[]): boolean {
 		return a.length === b.length && a.every((item) => b.includes(item));
 	}
@@ -290,27 +293,29 @@
 				{/if}
 			</fieldset>
 		{/if}
-
-		{#if !canDelete(record)}
-			<p class="muted">
-				{m.cardIndex.dialog.deleteBlocked(
-					kind.demonstrative,
-					m.atelier.count(record.count),
-					kind.other
-				)}
-			</p>
-		{/if}
 	</form>
 
 	{#snippet footer()}
 		<span class="delete">
-			<Button
-				disabled={!canDelete(record) || busy}
-				onclick={() => (deleteOpen = true)}
-				variant="danger"
-			>
-				{m.cardIndex.dialog.delete}
-			</Button>
+			{#if canDelete(record)}
+				<Button disabled={busy} onclick={() => (deleteOpen = true)} variant="danger">
+					{m.cardIndex.dialog.delete}
+				</Button>
+			{:else}
+				<Tooltip
+					text={m.cardIndex.dialog.deleteBlocked(
+						kind.demonstrative,
+						m.atelier.count(record.count),
+						kind.other
+					)}
+				>
+					{#snippet children(describedby)}
+						<Button aria-describedby={describedby} aria-disabled="true" variant="danger">
+							{m.cardIndex.dialog.delete}
+						</Button>
+					{/snippet}
+				</Tooltip>
+			{/if}
 		</span>
 		<Button onclick={() => (open = false)}>
 			{m.cardIndex.dialog.cancel}
@@ -353,7 +358,7 @@
 <Dialog
 	description={mergeDescription}
 	size="small"
-	title={mergeTarget ? m.cardIndex.mergeConfirm.title(mergeTarget.name) : ''}
+	title={mergeTarget ? m.cardIndex.mergeConfirm.title(record.name, mergeTarget.name) : ''}
 	bind:open={mergeOpen}
 >
 	{#snippet footer()}

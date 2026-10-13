@@ -193,13 +193,19 @@ describe('card index page', () => {
 			await dialog.getByRole('button', { name: m.cardIndex.dialog.merge }).click();
 
 			const confirm = page.getByRole('alertdialog', {
-				name: m.cardIndex.mergeConfirm.title('Ionic')
+				name: m.cardIndex.mergeConfirm.title('Doric', 'Ionic')
 			});
 			await expect
 				.element(
-					confirm.getByText(m.cardIndex.mergeConfirm.artworks('Doric', 'Ionic', 2), {
-						exact: false
-					})
+					confirm.getByText(
+						m.cardIndex.mergeConfirm.assigned(
+							'Doric',
+							'Ionic',
+							2,
+							m.cardIndex.kinds.style.genitive
+						),
+						{ exact: false }
+					)
 				)
 				.toBeVisible();
 			await expect
@@ -382,24 +388,61 @@ describe('card index page', () => {
 			);
 		});
 
-		it('explains why a used value cannot be deleted', async () => {
+		it('explains why a used value cannot be deleted in a tooltip on the button', async () => {
 			renderValues();
 
 			await openValue('Doric', 2).click();
 			const dialog = valueDialog('Doric');
+			const blocked = m.cardIndex.dialog.deleteBlocked(
+				m.cardIndex.kinds.style.demonstrative,
+				m.atelier.count(2),
+				m.cardIndex.kinds.style.other
+			);
 
-			await expect
-				.element(dialog.getByRole('button', { name: m.cardIndex.dialog.delete, exact: true }))
-				.toBeDisabled();
+			await expect.element(dialog.getByText(blocked)).not.toBeVisible();
+			await dialog.getByRole('button', { name: m.cardIndex.dialog.delete, exact: true }).hover();
+			await expect.element(dialog.getByRole('tooltip')).toHaveTextContent(blocked);
+			await expect.element(dialog.getByRole('tooltip')).toBeVisible();
+		});
+
+		it('describes the merge of a period with the artworks it gets and the links it adds', async () => {
+			renderValues();
+
+			await openValue('Gothic', 2).click();
+			await valueDialog('Gothic').getByLabelText(m.cardIndex.dialog.name).fill('classical');
+			await valueDialog('Gothic').getByRole('button', { name: m.cardIndex.dialog.merge }).click();
+
+			const confirm = page.getByRole('alertdialog', {
+				name: m.cardIndex.mergeConfirm.title('Gothic', 'Classical')
+			});
 			await expect
 				.element(
-					dialog.getByText(
-						m.cardIndex.dialog.deleteBlocked(
-							m.cardIndex.kinds.style.demonstrative,
-							m.atelier.count(2),
-							m.cardIndex.kinds.style.other
-						)
-					)
+					confirm.getByText(m.cardIndex.mergeConfirm.periodAssigned('Gothic', 'Classical', 2), {
+						exact: false
+					})
+				)
+				.toBeVisible();
+			await expect
+				.element(
+					confirm.getByText(m.cardIndex.mergeConfirm.periodLinks('Gothic', 'Classical'), {
+						exact: false
+					})
+				)
+				.toBeVisible();
+		});
+
+		it('says only the card index changes when nobody uses the merged value', async () => {
+			renderValues();
+
+			await openValue('Loose', 0).click();
+			await valueDialog('Loose').getByLabelText(m.cardIndex.dialog.name).fill('Ionic');
+			await valueDialog('Loose').getByRole('button', { name: m.cardIndex.dialog.merge }).click();
+
+			await expect
+				.element(
+					page
+						.getByRole('alertdialog')
+						.getByText(m.cardIndex.mergeConfirm.unused('Loose'), { exact: false })
 				)
 				.toBeVisible();
 		});

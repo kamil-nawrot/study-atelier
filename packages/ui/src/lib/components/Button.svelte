@@ -58,8 +58,8 @@
 		color: var(--color-danger);
 	}
 
-	.secondary:hover:not(:disabled),
-	.danger:hover:not(:disabled) {
+	.secondary:hover:not(:disabled, [aria-disabled='true']),
+	.danger:hover:not(:disabled, [aria-disabled='true']) {
 		border-bottom-width: var(--border-width-heavy);
 		padding-top: calc(var(--border-width-heavy) - var(--border-width-button));
 	}
@@ -69,18 +69,20 @@
 		color: var(--color-on-fg);
 	}
 
-	.primary:hover:not(:disabled) {
+	.primary:hover:not(:disabled, [aria-disabled='true']) {
 		border-color: var(--color-fg-muted);
 		background: var(--color-fg-muted);
 	}
 
-	.button:disabled {
+	.button:disabled,
+	.button[aria-disabled='true'] {
 		border-color: var(--color-fg-muted);
 		color: var(--color-fg-muted);
 		cursor: not-allowed;
 	}
 
-	.primary:disabled {
+	.primary:disabled,
+	.primary[aria-disabled='true'] {
 		background: transparent;
 	}
 
