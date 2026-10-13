@@ -117,4 +117,16 @@ describe('NotesEditor', () => {
 		await userEvent.keyboard('x');
 		await expect.element(page.getByText('What to remember')).not.toBeInTheDocument();
 	});
+
+	it.each(['Bulleted list', 'Numbered list'])(
+		'hides the placeholder when %s is the only content',
+		async (name) => {
+			render(NotesEditor, { label: 'Notes', placeholder: 'What to remember' });
+
+			await userEvent.click(page.getByRole('textbox', { name: 'Notes' }));
+			await userEvent.click(page.getByRole('button', { name }));
+
+			await expect.element(page.getByText('What to remember')).not.toBeInTheDocument();
+		}
+	);
 });
