@@ -24,8 +24,9 @@
 
 	const wide = new MediaQuery(`min-width: ${WIDE_MIN_WIDTH}px`);
 
+	let count = $derived(columnCount(wide.current, innerWidth.current ?? 0));
 	let columns = $derived(
-		distribute(artworks, columnCount(wide.current, innerWidth.current ?? 0), (artwork) =>
+		distribute(artworks, count, (artwork) =>
 			artwork.image ? artwork.image.height / artwork.image.width : NO_IMAGE_RATIO
 		)
 	);
