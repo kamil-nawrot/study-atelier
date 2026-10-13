@@ -35,6 +35,7 @@ export function emptyArtworkForm(): ArtworkFormState {
 		beforeCommonEra: false,
 		yearApproximate: false,
 		typeCode: '',
+		eraCode: null,
 		notes: '',
 		image: null
 	};
@@ -46,7 +47,7 @@ export function artworkFormFromRecord(record: ArtworkRecord): ArtworkFormState {
 		title: record.title,
 		values: {
 			author: record.authorUnknown ? [] : [...record.authors],
-			period: [...record.periods],
+			period: record.period === null ? [] : [record.period],
 			style: [...record.styles],
 			material: [...record.materials],
 			location: record.location === null ? [] : [record.location]
@@ -56,6 +57,7 @@ export function artworkFormFromRecord(record: ArtworkRecord): ArtworkFormState {
 		beforeCommonEra: record.beforeCommonEra,
 		yearApproximate: record.yearApproximate,
 		typeCode: record.typeCode ?? '',
+		eraCode: record.eraCode,
 		notes: record.notes,
 		image: record.image
 	};
@@ -76,7 +78,8 @@ export function artworkInputFromForm(form: ArtworkFormState): ArtworkInput {
 		beforeCommonEra: form.beforeCommonEra,
 		yearApproximate: form.yearApproximate,
 		typeCode: form.typeCode || null,
-		periods: [...form.values.period],
+		eraCode: form.eraCode,
+		period: form.values.period[0] ?? null,
 		styles: [...form.values.style],
 		materials: [...form.values.material],
 		location: form.values.location[0] ?? null,

@@ -28,6 +28,7 @@ function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 		title: 'The Test Painting',
 		year: 1490,
 		year_approximate: true,
+		era_code: null,
 		source_image_file: null,
 		own_image_path: null,
 		own_image_url: null,
@@ -67,10 +68,11 @@ describe('loadAtelier', () => {
 		expect(query.order).toHaveBeenCalledWith('created_at', { ascending: false });
 	});
 
-	it('lists authors and periods in their order, formats the date and keeps the year', async () => {
+	it('lists authors in their order, keeps the era, formats the date and keeps the year', async () => {
 		query.order.mockResolvedValue({
 			data: [
 				row({
+					era_code: 'early_modern',
 					artwork_values: [
 						author('Second Author', 1),
 						period('Mannerism', 1),
@@ -93,7 +95,7 @@ describe('loadAtelier', () => {
 				authors: ['First Author', 'Second Author'],
 				date: m.atelier.year(1490, true),
 				year: 1490,
-				periods: ['Renaissance', 'Mannerism'],
+				eraCode: 'early_modern',
 				image: undefined
 			}
 		]);

@@ -10,7 +10,7 @@ const texts = defaultUiMessages.valueField;
 const options: ValueOption[] = [
 	{ kind: 'existing', name: 'baroque' },
 	{ kind: 'existing', name: 'rococo' },
-	{ kind: 'starting', name: 'gothic' }
+	{ kind: 'existing', name: 'gothic' }
 ];
 
 describe('ValueField', () => {
@@ -25,8 +25,7 @@ describe('ValueField', () => {
 		const used = page.getByRole('group', { name: texts.existing });
 		await expect.element(used.getByRole('option', { name: 'baroque' })).toBeVisible();
 		await expect.element(used.getByRole('option', { name: 'rococo' })).toBeVisible();
-		const starting = page.getByRole('group', { name: texts.starting });
-		await expect.element(starting.getByRole('option', { name: 'gothic' })).toBeVisible();
+		await expect.element(used.getByRole('option', { name: 'gothic' })).toBeVisible();
 	});
 
 	it('moves through the options with the arrow keys and picks one with Enter', async () => {
@@ -205,6 +204,24 @@ describe('ValueField', () => {
 		await expect.element(page.getByText('Rembrandt')).toBeVisible();
 		await expect.element(page.getByRole('button')).not.toBeInTheDocument();
 		await expect.element(field).toHaveAttribute('aria-expanded', 'false');
+	});
+
+	it('is locked without suggestions but lets the learner remove a value', async () => {
+		render(ValueField, {
+			label: 'Style',
+			values: ['gothic'],
+			options: [],
+			locked: true,
+			placeholder: 'Choose a period first.'
+		});
+
+		const field = page.getByRole('combobox', { name: 'Style' });
+		await expect.element(field).toBeDisabled();
+		await userEvent.click(page.getByRole('button', { name: texts.remove('gothic') }));
+
+		await expect.element(page.getByText('gothic')).not.toBeInTheDocument();
+		await expect.element(field).toHaveAttribute('placeholder', 'Choose a period first.');
+		await expect.element(field).toBeDisabled();
 	});
 
 	it('shows an error under the field instead of the hint', async () => {

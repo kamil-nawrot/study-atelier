@@ -54,7 +54,7 @@ Commit messages follow [Conventional Commits 1.0](https://www.conventionalcommit
 6. Smoke-test production: the start page and the sign-in page load, then the owner checks the signed-in flows.
 7. Merge `main` back into `develop` with a pull request (merge commit), so the version and changelog are on `develop` too.
 
-Migrations are applied to the development database from `develop` and to the production database from `main`, so every migration must stay compatible with the version currently in production.
+Migrations are applied to the development database from `develop` and to the production database from `main`, so a migration only has to work with the code of its own release. The two databases are separate instances; a migration is tried on the development database and on the local stack before it reaches production.
 
 ## Hotfixes
 

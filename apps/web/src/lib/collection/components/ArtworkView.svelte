@@ -42,7 +42,12 @@
 			values: artwork.typeCode ? [m.artworkTypes[artwork.typeCode]] : [],
 			tags: false
 		},
-		{ label: m.artworkForm.period, values: artwork.periods, tags: true },
+		{
+			label: m.artworkForm.era,
+			values: artwork.eraCode ? [m.eras[artwork.eraCode].name] : [],
+			tags: true
+		},
+		{ label: m.artworkForm.period, values: artwork.period ? [artwork.period] : [], tags: true },
 		{ label: m.artworkForm.style, values: artwork.styles, tags: true },
 		{ label: m.artworkForm.material, values: artwork.materials, tags: true },
 		{
