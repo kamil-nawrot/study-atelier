@@ -1,6 +1,6 @@
 # 0012. Apply database migrations from GitHub Actions
 
-- Status: accepted
+- Status: superseded by [0037](0037-separate-databases-for-develop-and-production.md)
 - Date: 2026-10-10
 
 ## Context and problem statement

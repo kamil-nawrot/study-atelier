@@ -15,7 +15,7 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0009](0009-linear-for-tracking.md) | Track work in Linear | accepted |
 | [0010](0010-design-tokens-figma-sync.md) | Keep the design system in code and sync design tokens with Figma through Tokens Studio | accepted |
 | [0011](0011-deploy-from-github-actions.md) | Deploy to Cloudflare Pages from GitHub Actions | accepted |
-| [0012](0012-database-migrations-from-github-actions.md) | Apply database migrations from GitHub Actions | accepted |
+| [0012](0012-database-migrations-from-github-actions.md) | Apply database migrations from GitHub Actions | superseded by 0037 |
 | [0013](0013-component-library-with-storybook.md) | Build Svelte components in a workspace package documented in Storybook | accepted |
 | [0014](0014-artwork-collection-data-model.md) | Store the atelier in shared category-value tables with per-learner record numbers | accepted |
 | [0015](0015-typed-message-dictionaries-for-i18n.md) | Keep UI text in typed message dictionaries, one file per language | accepted |
@@ -40,3 +40,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0034](0034-catalogue-cross-for-artworks-without-an-image.md) | Show an artwork without an image as a catalogue cross in a hairline frame | accepted |
 | [0035](0035-wide-artworks-span-two-wall-columns.md) | Let wide artworks span two wall columns, with a fixed-height tile caption | accepted |
 | [0036](0036-run-supabase-locally-in-docker.md) | Run Supabase locally in Docker for development and migration testing | accepted |
+| [0037](0037-separate-databases-for-develop-and-production.md) | Use a separate Supabase database for `develop` and for production | accepted |
