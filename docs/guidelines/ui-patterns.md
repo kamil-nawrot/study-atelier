@@ -109,6 +109,12 @@ How views and components look and behave, so every new screen stays consistent w
 - A dialog that edits one item of a list (a value in the card index) is the default size: the item's name as the title, its kind and use as the `description`, its fields in the body, and in the footer the danger action on the left with the safe and the primary action on the right. A change that touches other records, such as merging two values, asks again in a small `Dialog` that names how many records change ([ADR-0040](../decisions/0040-manage-category-values-in-a-card-index.md)).
 - A dialog does not close when the learner clicks the scrim, so a choice is never lost by a stray click.
 
+## Filters
+
+- The wall's filters follow [ADR-0042](../decisions/0042-filter-the-collection-in-the-browser.md). A choice of several values from a fixed list (the eras) is `ToggleTiles`: the tiles of `ChoiceTiles` as native checkboxes, each with an optional count. A choice of several values from a list that grows with the learner's data is a row of `ToggleTag` buttons: a tag that is pressed (`aria-pressed`) when chosen and shows the number of artworks next to it.
+- On a larger screen the filters open in a side panel at the right edge, under the top bar, that narrows the wall and changes it at once. On a phone the order and the filters share a full-screen `Dialog` ("Widok") that closes with a button naming the number of artworks left.
+- Active filters sit above the wall as `Tag`s with a remove button, followed by a text button that clears them all.
+
 ## Tabs
 
 - Kinds of one list that share a view are shown with the library `Tabs`: a row of text tabs under a hairline, the selected one underlined, with `tablist` roles, the arrow keys, Home and End. A tab changes only what the view lists; it does not change the address.

@@ -1,25 +1,11 @@
+import { ARTWORK_TYPE_CODES } from './artwork-types.ts';
 import { emptyCategoryValues } from './category-values.ts';
 import type { SelectOption } from '@study-atelier/ui';
 import { m } from '#lib/i18n/index.ts';
 import type { ImageCandidate } from '#lib/images/types.ts';
-import type {
-	ArtworkFormState,
-	ArtworkImageInput,
-	ArtworkInput,
-	ArtworkRecord,
-	ArtworkTypeCode
-} from './types.ts';
+import type { ArtworkFormState, ArtworkImageInput, ArtworkInput, ArtworkRecord } from './types.ts';
 
-export const ARTWORK_TYPE_CODES: readonly ArtworkTypeCode[] = [
-	'architecture',
-	'painting',
-	'sculpture',
-	'drawing',
-	'printmaking',
-	'applied_arts',
-	'photography',
-	'other'
-];
+export { ARTWORK_TYPE_CODES };
 
 export function artworkTypeOptions(): SelectOption[] {
 	return ARTWORK_TYPE_CODES.map((code) => ({ value: code, label: m.artworkTypes[code] }));

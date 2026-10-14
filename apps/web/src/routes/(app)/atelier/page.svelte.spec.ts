@@ -69,6 +69,39 @@ function orderSelect(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('combobox', { name: m.atelier.sort.label });
 }
 
+const styled = [
+	testArtwork(1, 'Mona Lisa', {
+		year: 1503,
+		eraCode: 'early_modern',
+		typeCode: 'painting',
+		styles: ['Renaissance']
+	}),
+	testArtwork(2, 'Water Lilies', {
+		year: 1906,
+		eraCode: 'modern',
+		typeCode: 'painting',
+		styles: ['Impressionism'],
+		authors: ['Monet']
+	}),
+	testArtwork(3, 'Impression, Sunrise', {
+		year: 1872,
+		eraCode: 'modern',
+		typeCode: 'painting',
+		styles: ['Impressionism'],
+		authors: ['Monet'],
+		hasImage: false
+	}),
+	testArtwork(4, 'The Thinker', { year: 1904, eraCode: 'modern', typeCode: 'sculpture' })
+];
+
+function filtersButton(): ReturnType<typeof page.getByRole> {
+	return page.getByRole('button', { name: new RegExp(`^${m.atelier.filters.button}`) });
+}
+
+function eraTile(code: keyof typeof m.eras): ReturnType<typeof page.getByRole> {
+	return page.getByRole('checkbox', { name: new RegExp(`^${m.eras[code].name}`) });
+}
+
 function titlesOnTheWall(list: WallArtwork[]): string[] {
 	return page
 		.getByRole('link')
@@ -388,16 +421,21 @@ describe('atelier page', () => {
 				await page.viewport(390, 800);
 			});
 
-			it('shows the order select as an icon and keeps its name', async () => {
+			it('keeps the order select in the view dialog, not in the top bar', async () => {
 				renderAtelier(dated);
 
+				await expect.element(orderSelect()).not.toBeInTheDocument();
+
+				await page.getByRole('button', { name: m.atelier.filters.viewButton }).click();
+
 				await expect.element(orderSelect()).toBeVisible();
-				expect(orderSelect().element().getBoundingClientRect().width).toBeLessThanOrEqual(48);
 			});
 
 			it('follows the scroll in a strip under the top bar', async () => {
 				renderAtelier(manyPeriods());
+				await page.getByRole('button', { name: m.atelier.filters.viewButton }).click();
 				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
+				await page.getByRole('button', { name: m.atelier.filters.showResults(12) }).click();
 
 				const strip = page.getByRole('complementary', { name: m.atelier.periods.label });
 				await expect.element(strip).toHaveTextContent(m.eras.early_modern.name);
@@ -474,6 +512,212 @@ describe('atelier page', () => {
 					).toContainElement(rail.element().querySelector('svg'))
 				);
 				expect(rail.element().querySelectorAll('svg')).toHaveLength(1);
+			});
+		});
+	});
+
+	describe('filters', () => {
+		beforeEach(() => {
+			navigation.url = new URL('http://localhost/atelier');
+		});
+
+		it('starts with the filter panel closed', async () => {
+			renderAtelier(styled);
+
+			await expect
+				.element(page.getByRole('complementary', { name: m.atelier.filters.title }))
+				.not.toBeInTheDocument();
+			await expect.element(filtersButton()).toHaveAttribute('aria-expanded', 'false');
+		});
+
+		it('opens a side panel with the filters and closes it again', async () => {
+			renderAtelier(styled);
+
+			await filtersButton().click();
+
+			await expect
+				.element(page.getByRole('complementary', { name: m.atelier.filters.title }))
+				.toBeVisible();
+
+			await page.getByRole('button', { name: m.atelier.filters.closePanel }).click();
+
+			await expect
+				.element(page.getByRole('complementary', { name: m.atelier.filters.title }))
+				.not.toBeInTheDocument();
+		});
+
+		it('narrows the wall as soon as a value is chosen and counts the result', async () => {
+			renderAtelier(styled);
+			await filtersButton().click();
+
+			await eraTile('modern').click();
+
+			expect(titlesOnTheWall(styled)).toEqual([
+				'Water Lilies',
+				'Impression, Sunrise',
+				'The Thinker'
+			]);
+			await expect.element(page.getByText(m.atelier.filteredCount(3, 4)).first()).toBeVisible();
+		});
+
+		it('combines any of the values of a field and every field', async () => {
+			renderAtelier(styled);
+			await filtersButton().click();
+
+			await eraTile('modern').click();
+			await page.getByRole('button', { name: /^Impressionism/ }).click();
+
+			expect(titlesOnTheWall(styled)).toEqual(['Water Lilies', 'Impression, Sunrise']);
+
+			await eraTile('early_modern').click();
+
+			expect(titlesOnTheWall(styled)).toEqual(['Water Lilies', 'Impression, Sunrise']);
+		});
+
+		it('shows the chosen filters as tags and removes one of them', async () => {
+			renderAtelier(styled);
+			await filtersButton().click();
+			await eraTile('modern').click();
+			await page.getByRole('button', { name: /^Impressionism/ }).click();
+
+			const tags = page.getByRole('list', { name: m.atelier.filters.activeLabel });
+			await expect
+				.element(tags)
+				.toHaveTextContent(`${m.atelier.filters.tagFields.styles} Impressionism`);
+
+			await page
+				.getByRole('button', {
+					name: m.atelier.filters.removeTag(`${m.atelier.filters.tagFields.styles} Impressionism`)
+				})
+				.click();
+
+			expect(titlesOnTheWall(styled)).toEqual([
+				'Water Lilies',
+				'Impression, Sunrise',
+				'The Thinker'
+			]);
+		});
+
+		it('filters by a year range with p.n.e. and finds what is missing', async () => {
+			renderAtelier(styled);
+			await filtersButton().click();
+
+			await page.getByRole('textbox', { name: m.atelier.filters.yearFrom }).fill('1800');
+			await page.getByRole('textbox', { name: m.atelier.filters.yearTo }).fill('1905');
+
+			expect(titlesOnTheWall(styled)).toEqual(['Impression, Sunrise', 'The Thinker']);
+
+			await page
+				.getByRole('button', { name: new RegExp(`^${m.atelier.filters.missing.image}`) })
+				.click();
+
+			expect(titlesOnTheWall(styled)).toEqual(['Impression, Sunrise']);
+		});
+
+		it('clears every filter', async () => {
+			renderAtelier(styled);
+			await filtersButton().click();
+			await eraTile('modern').click();
+
+			await page.getByRole('button', { name: m.atelier.filters.clear }).first().click();
+
+			expect(titlesOnTheWall(styled)).toHaveLength(4);
+			await expect.element(page.getByText(m.atelier.count(4))).toBeVisible();
+		});
+
+		it('says nothing matches and clears the filters from there', async () => {
+			renderAtelier(styled);
+			await filtersButton().click();
+			await page.getByRole('textbox', { name: m.atelier.filters.yearFrom }).fill('1');
+			await page.getByRole('textbox', { name: m.atelier.filters.yearTo }).fill('10');
+
+			await expect.element(page.getByText(m.atelier.filters.noResults)).toBeVisible();
+
+			await page
+				.getByRole('main')
+				.getByRole('button', { name: m.atelier.filters.clear })
+				.first()
+				.click();
+
+			expect(titlesOnTheWall(styled)).toHaveLength(4);
+		});
+
+		it('searches by title inside the filter', async () => {
+			renderAtelier(styled);
+			await filtersButton().click();
+			await eraTile('modern').click();
+
+			await searchField().fill('water');
+
+			expect(titlesOnTheWall(styled)).toEqual(['Water Lilies']);
+		});
+
+		it('keeps the filter in the address', async () => {
+			renderAtelier(styled);
+			await filtersButton().click();
+
+			await eraTile('modern').click();
+
+			expect(goto).toHaveBeenLastCalledWith('/atelier?epoka=modern', {
+				replace: true,
+				reset: false
+			});
+		});
+
+		it('reads the filter from the address', async () => {
+			navigation.url = new URL('http://localhost/atelier?epoka=modern&styl=Impressionism');
+			renderAtelier(styled);
+
+			expect(titlesOnTheWall(styled)).toEqual(['Water Lilies', 'Impression, Sunrise']);
+			await expect.element(filtersButton()).toHaveTextContent(m.atelier.filters.buttonWithCount(2));
+		});
+
+		it('ignores values in the address that no artwork has', async () => {
+			navigation.url = new URL('http://localhost/atelier?styl=Gone&epoka=nope');
+			renderAtelier(styled);
+
+			expect(titlesOnTheWall(styled)).toHaveLength(4);
+			await expect.element(page.getByText(m.atelier.count(4))).toBeVisible();
+		});
+
+		it('has no filter button when the atelier is empty', async () => {
+			renderAtelier([]);
+
+			await expect.element(filtersButton()).toBeDisabled();
+		});
+
+		describe('on a phone', () => {
+			beforeEach(async () => {
+				await page.viewport(390, 800);
+			});
+
+			it('opens a view dialog with the order and the filters', async () => {
+				renderAtelier(styled);
+
+				await page.getByRole('button', { name: m.atelier.filters.viewButton }).click();
+
+				await expect
+					.element(page.getByRole('dialog', { name: m.atelier.filters.viewTitle }))
+					.toBeVisible();
+				await expect.element(orderSelect()).toBeVisible();
+				await expect.element(eraTile('modern')).toBeVisible();
+			});
+
+			it('shows how many artworks the filters leave and closes with that button', async () => {
+				renderAtelier(styled);
+				await page.getByRole('button', { name: m.atelier.filters.viewButton }).click();
+
+				await eraTile('modern').click();
+				await page.getByRole('button', { name: m.atelier.filters.showResults(3) }).click();
+
+				await expect
+					.element(page.getByRole('dialog', { name: m.atelier.filters.viewTitle }))
+					.not.toBeInTheDocument();
+				expect(titlesOnTheWall(styled)).toEqual([
+					'Water Lilies',
+					'Impression, Sunrise',
+					'The Thinker'
+				]);
 			});
 		});
 	});
