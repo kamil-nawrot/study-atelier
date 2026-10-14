@@ -42,6 +42,15 @@ describe('commonsThumbnailSrcset', () => {
 		);
 	});
 
+	it('keeps the host and the query of a thumbnail url from thumb.wikimedia.org', () => {
+		const thumbnail =
+			'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa.jpg/500px-Mona_Lisa.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail';
+
+		expect(commonsThumbnailSrcset(thumbnail, 500, [330, 960])).toBe(
+			`${thumbnail.replace('/500px-', '/330px-')} 330w, ${thumbnail.replace('/500px-', '/960px-')} 960w`
+		);
+	});
+
 	it('has no srcset when the image is smaller than the thumbnail', () => {
 		expect(
 			commonsThumbnailSrcset('https://upload.wikimedia.org/a/ab/Small.jpg', 500, [330, 500])
@@ -83,6 +92,8 @@ describe('fetchCommonsThumbnails', () => {
 		expect(params.get('iiprop')).toBe('url');
 		expect(params.get('iiurlwidth')).toBe('500');
 		expect(params.get('origin')).toBe('*');
+		expect(params.get('maxage')).toBe('86400');
+		expect(params.get('smaxage')).toBe('86400');
 		expect(init?.headers).toMatchObject({
 			'Api-User-Agent': expect.stringContaining('study-atelier')
 		});

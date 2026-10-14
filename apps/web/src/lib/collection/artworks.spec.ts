@@ -11,6 +11,7 @@ import {
 	refreshExpiredImages,
 	resolveImages
 } from './artworks.ts';
+import { resolvedImages } from './resolved-images.ts';
 import type { WallArtwork } from './types.ts';
 
 vi.mock('#lib/images/commons.ts', async (importOriginal) => ({
@@ -67,6 +68,7 @@ async function loadResolved(): Promise<WallArtwork[]> {
 describe('loadAtelier', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		resolvedImages.clear();
 		vi.mocked(supabase.from).mockReturnValue(query as never);
 		vi.mocked(supabase.storage.from).mockReturnValue({ createSignedUrls } as never);
 		query.select.mockReturnValue(query);
@@ -276,6 +278,72 @@ describe('loadAtelier', () => {
 		expect(artworks[0].image?.srcset).toBeUndefined();
 	});
 
+	it('offers wall thumbnails up to 960 px even for a much larger image', async () => {
+		const thumbnailUrl = 'https://upload.wikimedia.org/thumb/a/ab/Test.jpg/500px-Test.jpg';
+		query.range.mockResolvedValue({
+			data: [row({ source_image_file: 'Test.jpg', image_width: 6000, image_height: 8000 })],
+			error: null
+		});
+		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map([['Test.jpg', thumbnailUrl]]));
+
+		const artworks = await loadResolved();
+
+		expect(artworks[0].image?.srcset).toContain('960px-Test.jpg 960w');
+		expect(artworks[0].image?.srcset).not.toContain('1280px-');
+		expect(artworks[0].image?.srcset).not.toContain('1920px-');
+	});
+
+	it('shows a Commons image found on an earlier visit at once, without asking Commons again', async () => {
+		const thumbnailUrl = 'https://upload.wikimedia.org/thumb/a/ab/Test.jpg/500px-Test.jpg';
+		query.range.mockResolvedValue({
+			data: [row({ source_image_file: 'Test.jpg', image_width: 1000, image_height: 750 })],
+			error: null
+		});
+		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map([['Test.jpg', thumbnailUrl]]));
+		await loadResolved();
+
+		const { artworks } = await loadAtelier();
+
+		expect(artworks[0].pendingImage).toBeUndefined();
+		expect(artworks[0].image).toMatchObject({ src: thumbnailUrl, width: 1000, height: 750 });
+		expect(await resolveImages(artworks)).toEqual([]);
+		expect(fetchCommonsThumbnails).toHaveBeenCalledOnce();
+	});
+
+	it('asks Commons again on the next visit for a file it did not answer', async () => {
+		query.range.mockResolvedValue({ data: [row({ source_image_file: 'Test.jpg' })], error: null });
+		await loadResolved();
+
+		const { artworks } = await loadAtelier();
+
+		expect(artworks[0].pendingImage).toEqual({ sourceFile: 'Test.jpg' });
+	});
+
+	it('reuses the signed url of an uploaded image on the next visit until it expires', async () => {
+		vi.useFakeTimers({ now: 1_000_000, toFake: ['Date'] });
+		query.range.mockResolvedValue({
+			data: [row({ own_image_path: 'user-id/artwork-1/image.jpg' })],
+			error: null
+		});
+		createSignedUrls.mockResolvedValue({
+			data: [{ path: 'user-id/artwork-1/image.jpg', signedUrl: 'https://example.com/signed' }],
+			error: null
+		});
+		await loadResolved();
+
+		vi.setSystemTime(1_000_000 + SIGNED_URL_SECONDS * 1000 - 1);
+		const before = (await loadAtelier()).artworks[0];
+		vi.setSystemTime(1_000_000 + SIGNED_URL_SECONDS * 1000);
+		const after = (await loadAtelier()).artworks[0];
+		vi.useRealTimers();
+
+		expect(before.image?.src).toBe('https://example.com/signed');
+		expect(before.imageSignedAt).toBe(1_000_000);
+		expect(before.pendingImage).toBeUndefined();
+		expect(after.pendingImage).toEqual({ ownPath: 'user-id/artwork-1/image.jpg' });
+		expect(createSignedUrls).toHaveBeenCalledOnce();
+	});
+
 	it('prefers an uploaded image and signs its url', async () => {
 		query.range.mockResolvedValue({
 			data: [row({ source_image_file: 'Test.jpg', own_image_path: 'user-id/artwork-1/image.jpg' })],
@@ -381,6 +449,7 @@ describe('loadAtelier', () => {
 describe('resolveImages', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		resolvedImages.clear();
 		vi.mocked(supabase.storage.from).mockReturnValue({ createSignedUrls } as never);
 		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map());
 	});
@@ -433,11 +502,42 @@ describe('resolveImages', () => {
 		expect(resolved[1].image?.src).toBe('https://example.com/signed');
 		expect(resolved[1].imageSignedAt).toEqual(expect.any(Number));
 	});
+	it('looks up only the files and uploads it does not know yet', async () => {
+		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(
+			new Map([['A.jpg', 'https://upload.wikimedia.org/thumb/a/ab/A.jpg/500px-A.jpg']])
+		);
+		createSignedUrls.mockResolvedValue({
+			data: [{ path: 'owner/own.jpg', signedUrl: 'https://example.com/signed' }],
+			error: null
+		});
+		await resolveImages([
+			pending('a', { sourceFile: 'A.jpg' }),
+			pending('b', { ownPath: 'owner/own.jpg' })
+		]);
+		vi.clearAllMocks();
+		vi.mocked(supabase.storage.from).mockReturnValue({ createSignedUrls } as never);
+		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map());
+
+		const resolved = await resolveImages([
+			pending('a', { sourceFile: 'A.jpg' }),
+			pending('b', { ownPath: 'owner/own.jpg' }),
+			pending('c', { sourceFile: 'C.jpg' })
+		]);
+
+		expect(fetchCommonsThumbnails).toHaveBeenCalledWith(['C.jpg'], 500);
+		expect(createSignedUrls).not.toHaveBeenCalled();
+		expect(resolved.map((artwork) => artwork.image?.src)).toEqual([
+			'https://upload.wikimedia.org/thumb/a/ab/A.jpg/500px-A.jpg',
+			'https://example.com/signed',
+			expect.stringContaining('Special:FilePath/C.jpg')
+		]);
+	});
 });
 
 describe('loadTrash', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		resolvedImages.clear();
 		vi.mocked(supabase.from).mockReturnValue(query as never);
 		vi.mocked(supabase.storage.from).mockReturnValue({ createSignedUrls } as never);
 		query.select.mockReturnValue(query);
@@ -556,6 +656,7 @@ describe('refreshExpiredImages', () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		resolvedImages.clear();
 		vi.mocked(supabase.storage.from).mockReturnValue({ createSignedUrls } as never);
 	});
 
@@ -582,6 +683,21 @@ describe('refreshExpiredImages', () => {
 		expect(refreshed.map((artwork) => artwork.id)).toEqual(['a', 'b']);
 		expect(refreshed[0].image?.src).toBe('https://example.com/new-a');
 		expect(refreshed[0].imageSignedAt).toBe(now);
+	});
+
+	it('remembers the new url for the next visit to the wall', async () => {
+		createSignedUrls.mockResolvedValue({
+			data: [{ path: 'user-id/a/image.jpg', signedUrl: 'https://example.com/new-a' }],
+			error: null
+		});
+		const now = Date.now();
+
+		await refreshExpiredImages([uploaded('a', now - lifetime)], now);
+
+		expect(resolvedImages.signedUrl('user-id/a/image.jpg', now)).toEqual({
+			url: 'https://example.com/new-a',
+			signedAt: now
+		});
 	});
 
 	it('does not sign again an image that failed before its url expired', async () => {

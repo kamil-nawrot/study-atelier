@@ -4,6 +4,7 @@ export const COMMONS_THUMBNAIL_WIDTHS = [250, 330, 500, 960, 1280, 1920] as cons
 
 const COMMONS_API = 'https://commons.wikimedia.org/w/api.php';
 const TITLES_PER_REQUEST = 50;
+const RESPONSE_CACHE_SECONDS = 24 * 60 * 60;
 
 type ExtMetadata = Partial<
 	Record<'LicenseShortName' | 'LicenseUrl' | 'Artist', { value?: string }>
@@ -91,6 +92,8 @@ async function fetchImageInfoBatch(
 		prop: 'imageinfo',
 		iiprop: details ? 'url|size|extmetadata' : 'url',
 		iiurlwidth: String(thumbnailWidth),
+		maxage: String(RESPONSE_CACHE_SECONDS),
+		smaxage: String(RESPONSE_CACHE_SECONDS),
 		titles: files.map(fileTitle).join('|')
 	});
 	if (details) params.set('iiextmetadatafilter', 'LicenseShortName|LicenseUrl|Artist');

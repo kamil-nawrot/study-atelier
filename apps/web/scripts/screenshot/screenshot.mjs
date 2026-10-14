@@ -144,7 +144,7 @@ async function mockImages(context) {
 		return route.fulfill(svg(imageSvg(name, Number(size?.[1] ?? 4), Number(size?.[2] ?? 5))));
 	});
 
-	await context.route(/^https:\/\/upload\.wikimedia\.org\//, (route) => {
+	await context.route(/^https:\/\/(upload|thumb)\.wikimedia\.org\//, (route) => {
 		const name = decodeURIComponent(new URL(route.request().url()).pathname);
 		const file = name.split('/').at(-2) ?? name;
 		const [width, height] = commonsSize(file);
@@ -169,7 +169,7 @@ async function mockImages(context) {
 				title,
 				imageinfo: [
 					{
-						thumburl: `https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/${encoded}/500px-${encoded}`,
+						thumburl: `https://thumb.wikimedia.org/wikipedia/commons/thumb/0/00/${encoded}/500px-${encoded}?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail`,
 						width: width * 200,
 						height: height * 200,
 						extmetadata: {

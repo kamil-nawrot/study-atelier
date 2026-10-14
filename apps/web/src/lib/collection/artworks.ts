@@ -12,6 +12,7 @@ import { valuesOf } from './artwork-values.ts';
 import { collectionErrorMessage } from './errors.ts';
 import { formatYear } from './format.ts';
 import { tileSizes } from './masonry.ts';
+import { resolvedImages } from './resolved-images.ts';
 import type {
 	ArtworkValueRow,
 	ArtworkTypeCode,
@@ -46,6 +47,7 @@ export const DEFAULT_IMAGE_SIZE: ImageSize = { width: 4, height: 5 };
 const PAGE_SIZE = 1000;
 const TILE_SIZES = tileSizes();
 const TILE_WIDTH = 500;
+const TILE_MAX_IMAGE_WIDTH = 960;
 
 const ARTWORK_COLUMNS = [
 	'id',
@@ -84,7 +86,7 @@ function storedSize(row: ArtworkRow): ImageSize | undefined {
 }
 
 function thumbnailWidths(size: ImageSize | undefined): number[] {
-	const largest = size?.width ?? TILE_WIDTH;
+	const largest = Math.min(size?.width ?? TILE_WIDTH, TILE_MAX_IMAGE_WIDTH);
 	return COMMONS_THUMBNAIL_WIDTHS.filter((width) => width <= largest);
 }
 
@@ -162,36 +164,49 @@ function wallArtwork(row: ArtworkRow): WallArtwork {
 	};
 }
 
+function rememberedArtwork(artwork: WallArtwork): WallArtwork | undefined {
+	const { pendingImage, ...resolved } = artwork;
+	if (!pendingImage) return undefined;
+	const { sourceFile, ownPath, size } = pendingImage;
+	if (sourceFile) {
+		const thumbnail = resolvedImages.thumbnail(sourceFile);
+		return thumbnail
+			? { ...resolved, image: commonsImage(sourceFile, thumbnail, size) }
+			: undefined;
+	}
+	const signed = ownPath ? resolvedImages.signedUrl(ownPath) : undefined;
+	return signed
+		? { ...resolved, image: ownImage(signed.url, size), imageSignedAt: signed.signedAt }
+		: undefined;
+}
+
+function unresolvedArtwork(artwork: WallArtwork, signedAt: number): WallArtwork {
+	const { pendingImage, ...resolved } = artwork;
+	const { sourceFile, size } = pendingImage as PendingImage;
+	if (sourceFile) return { ...resolved, image: commonsImage(sourceFile, undefined, size) };
+	return { ...resolved, image: undefined, imageSignedAt: signedAt, imageUnavailable: true };
+}
+
 export async function resolveImages(artworks: WallArtwork[]): Promise<WallArtwork[]> {
 	const pending = artworks.filter((artwork) => artwork.pendingImage);
 	if (pending.length === 0) return [];
 
-	const [commonsThumbnails, storageUrls] = await Promise.all([
-		fetchCommonsThumbnails(
-			pending.flatMap((artwork) => artwork.pendingImage?.sourceFile ?? []),
-			TILE_WIDTH
-		),
-		signedUrls(pending.flatMap((artwork) => artwork.pendingImage?.ownPath ?? []))
+	const missing = pending.filter((artwork) => !rememberedArtwork(artwork));
+	const files = missing.flatMap((artwork) => artwork.pendingImage?.sourceFile ?? []);
+	const paths = missing.flatMap((artwork) => artwork.pendingImage?.ownPath ?? []);
+	const [thumbnails, urls] = await Promise.all([
+		files.length > 0
+			? fetchCommonsThumbnails(files, TILE_WIDTH)
+			: Promise.resolve(new Map<string, string>()),
+		signedUrls(paths)
 	]);
 
 	const signedAt = Date.now();
-	return pending.map((artwork): WallArtwork => {
-		const { pendingImage, ...resolved } = artwork;
-		const { sourceFile, ownPath, size } = pendingImage as PendingImage;
-		if (sourceFile) {
-			return {
-				...resolved,
-				image: commonsImage(sourceFile, commonsThumbnails.get(sourceFile), size)
-			};
-		}
-		const image = ownImage(storageUrls.get(ownPath as string), size);
-		return {
-			...resolved,
-			image,
-			imageSignedAt: signedAt,
-			...(image ? {} : { imageUnavailable: true })
-		};
-	});
+	resolvedImages.rememberThumbnails(thumbnails);
+	resolvedImages.rememberSignedUrls(urls, signedAt);
+	return pending.map(
+		(artwork) => rememberedArtwork(artwork) ?? unresolvedArtwork(artwork, signedAt)
+	);
 }
 
 export async function refreshExpiredImages(
@@ -207,6 +222,7 @@ export async function refreshExpiredImages(
 	if (expired.length === 0) return [];
 
 	const urls = await signedUrls(expired.flatMap((artwork) => artwork.ownImagePath ?? []));
+	resolvedImages.rememberSignedUrls(urls, now);
 	return expired.map((artwork): WallArtwork => {
 		const src = urls.get(artwork.ownImagePath as string);
 		if (!src) return { ...artwork, image: undefined, imageUnavailable: true, imageSignedAt: now };
@@ -232,7 +248,9 @@ export async function loadAtelier(): Promise<AtelierResult> {
 	);
 	if (error) return { artworks: [], error };
 
-	return { artworks: rows.map(wallArtwork) };
+	return {
+		artworks: rows.map(wallArtwork).map((artwork) => rememberedArtwork(artwork) ?? artwork)
+	};
 }
 
 export async function loadTrash(): Promise<TrashResult> {
