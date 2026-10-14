@@ -28,7 +28,7 @@ Chosen option: 2, because it makes the first view independent of the collection 
 - `resolveImages` looks up the Commons thumbnails and signs the uploads of the artworks it is given. If Commons does not answer, the tile falls back to the redirecting file address as before.
 - The wall reports an artwork when its tile comes within 1.5 screens of the viewport. `ImageQueue` collects such artworks for 100 ms and resolves them in batches of 50, one batch after another, each artwork once per load.
 - The wall renders the first 60 artworks and another 60 each time its end comes within 1.5 screens. Columns are assigned in order, so tiles already shown never move when more are added. The wall keeps the number of rendered tiles in the page snapshot, so going back from an artwork restores the scroll position.
-- The trash keeps loading its thumbnails before it appears: its rows are small 64 px thumbnails in a list that is normally short.
+- The trash loads thumbnails only for Commons images, before it appears. An uploaded or linked image has no small copy yet, so its row shows the empty window instead of downloading the full file (smaller copies are ATL-113).
 
 ### Consequences
 

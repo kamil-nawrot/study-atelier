@@ -433,10 +433,6 @@ describe('loadTrash', () => {
 	});
 
 	it('adds when each artwork was deleted and the path of its uploaded image', async () => {
-		createSignedUrls.mockResolvedValue({
-			data: [{ path: 'owner/image.jpg', signedUrl: 'https://signed.example/image.jpg' }],
-			error: null
-		});
 		query.range.mockResolvedValue({
 			data: [
 				row({
@@ -455,11 +451,32 @@ describe('loadTrash', () => {
 				number: 1,
 				authors: ['First Author'],
 				deletedAt: '2026-10-12T14:00:00+00:00',
-				ownImagePath: 'owner/image.jpg',
-				image: expect.objectContaining({ src: 'https://signed.example/image.jpg' })
+				ownImagePath: 'owner/image.jpg'
 			})
 		]);
-		expect(supabase.storage.from).toHaveBeenCalledWith(IMAGES_BUCKET);
+	});
+
+	it('shows a thumbnail only for a Commons image and never fetches an uploaded or linked one', async () => {
+		const thumbnailUrl = 'https://upload.wikimedia.org/thumb/a/ab/Test.jpg/500px-Test.jpg';
+		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map([['Test.jpg', thumbnailUrl]]));
+		const deleted_at = '2026-10-12T14:00:00+00:00';
+		query.range.mockResolvedValue({
+			data: [
+				row({ source_image_file: 'Test.jpg', deleted_at }),
+				row({ id: 'artwork-2', own_image_path: 'owner/image.jpg', deleted_at }),
+				row({ id: 'artwork-3', own_image_url: 'https://example.com/image.jpg', deleted_at })
+			],
+			error: null
+		});
+
+		const { artworks } = await loadTrash();
+
+		expect(artworks[0].image?.src).toBe(thumbnailUrl);
+		expect(artworks[1].image).toBeUndefined();
+		expect(artworks[2].image).toBeUndefined();
+		expect(artworks[1].pendingImage).toBeUndefined();
+		expect(fetchCommonsThumbnails).toHaveBeenCalledWith(['Test.jpg'], 500);
+		expect(createSignedUrls).not.toHaveBeenCalled();
 	});
 
 	it('returns a mapped message when loading fails', async () => {

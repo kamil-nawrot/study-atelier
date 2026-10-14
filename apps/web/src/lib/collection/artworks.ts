@@ -239,10 +239,11 @@ export async function loadTrash(): Promise<TrashResult> {
 	if (error) return { artworks: [], error };
 
 	const artworks = rows.map(wallArtwork);
-	const resolved = new Map((await resolveImages(artworks)).map((artwork) => [artwork.id, artwork]));
+	const commons = artworks.filter((artwork) => artwork.pendingImage?.sourceFile);
+	const resolved = new Map((await resolveImages(commons)).map((artwork) => [artwork.id, artwork]));
 	return {
 		artworks: artworks.map((artwork, index): TrashArtwork => ({
-			...(resolved.get(artwork.id) ?? artwork),
+			...(resolved.get(artwork.id) ?? { ...artwork, image: undefined, pendingImage: undefined }),
 			deletedAt: rows[index].deleted_at as string,
 			ownImagePath: rows[index].own_image_path
 		}))
