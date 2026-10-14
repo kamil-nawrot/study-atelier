@@ -176,7 +176,7 @@
 		untrack(() => writtenQueries.add(written));
 		const target =
 			`${resolve('/(app)/atelier')}${written ? `?${written}` : ''}` as ResolvedPathname;
-		void goto(target, { replace: true, shallow: true, state: {} });
+		void goto(target, { replace: true, reset: false });
 	});
 
 	$effect(() => {
