@@ -1,4 +1,4 @@
-# Decisions
+ # Decisions
 
 Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New records start from [template.md](template.md). Rules: [documentation guidelines](../guidelines/documentation.md#architecture-decision-records).
 
