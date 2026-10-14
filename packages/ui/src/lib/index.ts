@@ -3,6 +3,7 @@ export { default as ArtworkImage } from './components/ArtworkImage.svelte';
 export { default as ArtworkTile, type ArtworkTileImage } from './components/ArtworkTile.svelte';
 export { default as Button } from './components/Button.svelte';
 export { default as Checkbox } from './components/Checkbox.svelte';
+export { default as Switch } from './components/Switch.svelte';
 export { default as ChoiceTiles, type ChoiceTile } from './components/ChoiceTiles.svelte';
 export { default as Dialog } from './components/Dialog.svelte';
 export { default as Form } from './components/Form.svelte';
