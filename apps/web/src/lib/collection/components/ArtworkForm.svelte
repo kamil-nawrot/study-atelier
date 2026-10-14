@@ -27,12 +27,14 @@
 	} from '../artwork-form.ts';
 	import { saveArtwork, validateArtwork } from '../artwork-record.ts';
 	import { takesOneValue } from '../category-values.ts';
-	import { findDuplicates, formatRecordNumbers, sameTitleAndAuthors } from '../duplicates.ts';
+	import { DuplicateCheck } from '../duplicate-check.svelte.ts';
+	import { sameTitleAndAuthors } from '../duplicates.ts';
 	import { eraTiles, isEraCode } from '../eras.ts';
 	import { formatRecordNumber } from '../format.ts';
 	import { pendingAnswer } from '../pending-answer.ts';
 	import { suggestValues, valueKey } from '../value-suggestions.ts';
 	import ArtworkImageField from './ArtworkImageField.svelte';
+	import DuplicateDialog from './DuplicateDialog.svelte';
 	import type {
 		ArtworkFieldErrors,
 		ArtworkFormState,
@@ -75,9 +77,7 @@
 	let toast: Toast;
 	let discarded: ArtworkFormState | null = null;
 	const discardQuestion = pendingAnswer();
-	let duplicateOpen = $state(false);
-	let duplicates = $state<number[]>([]);
-	const duplicateQuestion = pendingAnswer();
+	const duplicateCheck = new DuplicateCheck();
 
 	let imageSearchReady = $derived(canSearchImage(form));
 	let imageAlt = $derived(artworkImageAlt(form));
@@ -107,15 +107,7 @@
 
 	async function confirmDuplicate(input: ArtworkInput): Promise<boolean> {
 		if (artwork && sameTitleAndAuthors(input, artwork)) return true;
-		const numbers = await findDuplicates(input, artwork?.id);
-		if (numbers.length === 0) return true;
-		duplicates = numbers;
-		return duplicateQuestion.ask(() => (duplicateOpen = true));
-	}
-
-	function answerDuplicateDialog(save: boolean): void {
-		duplicateQuestion.answer(save);
-		duplicateOpen = false;
+		return duplicateCheck.confirm(input, artwork?.id);
 	}
 
 	beforeNavigate((navigation) => {
@@ -138,7 +130,7 @@
 
 	onDestroy(() => {
 		discardQuestion.answer(false);
-		duplicateQuestion.answer(false);
+		duplicateCheck.answer(false);
 	});
 
 	let periodLocked = $derived(form.eraCode === null);
@@ -386,25 +378,7 @@
 	{/snippet}
 </Dialog>
 
-<Dialog
-	description={m.artworkForm.duplicateDescription(
-		formatRecordNumbers(duplicates),
-		duplicates.length
-	)}
-	onclose={() => duplicateQuestion.answer(false)}
-	size="small"
-	title={m.artworkForm.duplicateTitle}
-	bind:open={duplicateOpen}
->
-	{#snippet footer()}
-		<Button onclick={() => answerDuplicateDialog(false)}>
-			{m.artworkForm.keepEditing}
-		</Button>
-		<Button onclick={() => answerDuplicateDialog(true)} variant="primary">
-			{m.artworkForm.saveAnyway}
-		</Button>
-	{/snippet}
-</Dialog>
+<DuplicateDialog action="save" check={duplicateCheck} />
 
 <style>
 	.columns {

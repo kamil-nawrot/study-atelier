@@ -36,6 +36,8 @@ jobs:
             | npx --yes prettier@3.9.10 --no-config --parser typescript > "$RUNNER_TEMP/database.types.ts"
           diff --unified apps/web/src/lib/database.types.ts "$RUNNER_TEMP/database.types.ts" \
             || { echo "::error::apps/web/src/lib/database.types.ts is stale. Run pnpm db:types and commit the result."; exit 1; }
+      - name: Check row level security and grants
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/security.sql
 
       - name: Stop local Supabase
         if: always()

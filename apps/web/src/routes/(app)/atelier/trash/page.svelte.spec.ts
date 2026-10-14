@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import { findDuplicates } from '#lib/collection/duplicates.ts';
 import { deletePermanently, restoreArtwork } from '#lib/collection/trash.ts';
 import type { TrashArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
@@ -12,6 +13,10 @@ vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 vi.mock('#lib/collection/trash.ts', () => ({
 	restoreArtwork: vi.fn(),
 	deletePermanently: vi.fn()
+}));
+vi.mock('#lib/collection/duplicates.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/collection/duplicates.ts')>()),
+	findDuplicates: vi.fn()
 }));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
@@ -46,6 +51,7 @@ function row(title: string): ReturnType<typeof page.getByRole> {
 describe('trash page', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
+		vi.mocked(findDuplicates).mockResolvedValue([]);
 		await page.viewport(1280, 800);
 	});
 
@@ -66,12 +72,13 @@ describe('trash page', () => {
 			.toHaveAttribute('href', '/atelier');
 	});
 
-	it('restores an artwork without asking and confirms it', async () => {
+	it('restores an artwork without asking when no other artwork matches', async () => {
 		vi.mocked(restoreArtwork).mockResolvedValue({});
 		renderTrash();
 
 		await row('Night Watch').getByRole('button', { name: m.trash.restore }).click();
 
+		expect(findDuplicates).toHaveBeenCalledWith(artworks[1], 'artwork-7');
 		expect(restoreArtwork).toHaveBeenCalledWith('artwork-7');
 		await expect.element(page.getByText(m.trash.restored('#0007'))).toBeVisible();
 		await expect.element(row('Night Watch')).not.toBeInTheDocument();

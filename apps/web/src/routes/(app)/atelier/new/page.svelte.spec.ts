@@ -180,7 +180,7 @@ function savedBefore(title: string, author: string, number = 5): void {
 }
 
 function duplicateDialog(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('alertdialog', { name: m.artworkForm.duplicateTitle });
+	return page.getByRole('alertdialog', { name: m.duplicateDialog.title });
 }
 
 async function fillRequired(): Promise<void> {
@@ -502,7 +502,9 @@ describe('add artwork page', () => {
 		await expect.element(duplicateDialog()).toBeVisible();
 		await expect
 			.element(duplicateDialog())
-			.toHaveAccessibleDescription(m.artworkForm.duplicateDescription('#0005', 1));
+			.toHaveAccessibleDescription(
+				m.duplicateDialog.description('#0005', 1, m.duplicateDialog.save.advice)
+			);
 		await page.getByRole('button', { name: m.artworkForm.keepEditing }).click();
 
 		await expect.element(duplicateDialog()).not.toBeInTheDocument();
@@ -518,7 +520,7 @@ describe('add artwork page', () => {
 		await fillRequired();
 
 		await saveButton().click();
-		await page.getByRole('button', { name: m.artworkForm.saveAnyway }).click();
+		await page.getByRole('button', { name: m.duplicateDialog.save.confirm }).click();
 
 		await vi.waitFor(() =>
 			expect(goto).toHaveBeenCalledWith('/atelier', { state: { highlight: 12 } })
@@ -532,7 +534,7 @@ describe('add artwork page', () => {
 		await fillRequired();
 
 		await page.getByRole('button', { name: m.artworkForm.saveAndNext }).click();
-		await page.getByRole('button', { name: m.artworkForm.saveAnyway }).click();
+		await page.getByRole('button', { name: m.duplicateDialog.save.confirm }).click();
 
 		await expect.element(page.getByRole('status')).toHaveTextContent(m.artworkForm.saved('#0012'));
 		await expect.element(titleField()).toHaveValue('');

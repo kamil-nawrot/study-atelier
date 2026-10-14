@@ -49,6 +49,7 @@ When the app asks:
 - After the form passes validation and before it saves, both with "Zapisz" and with "Zapisz i dodaj kolejne".
 - When editing, the artwork being edited never matches itself, and the app asks only when the title or the authors differ from what was saved. Saving other changes to an artwork that already matched never asks.
 - One question per save: after "Zapisz mimo to" the artwork is saved without a second check.
+- Restoring an artwork from the trash asks the same question, because the restored artwork joins the collection again. The restored artwork never matches itself, and restoring is one artwork at a time, so there is one question per restore. The dialog is the same component with its own wording: the description ends "Jeśli to inne dzieło, po prostu je przywróć." and the buttons are "Zostaw w koszu" (the safe choice, first, Escape) and "Przywróć mimo to" (`primary`). Added in ATL-120.
 
 The dialog:
 
@@ -64,10 +65,10 @@ The dialog:
 - Good: adding and editing behave the same, and an unchanged artwork never asks.
 - Bad: the learner compares by record number only; to see the other artwork they go back and open it from the wall.
 - Bad: the check needs the titles and authors of every artwork outside the trash before saving, one more read of the collection per save.
-- Bad: a duplicate kept in the trash is not reported, so restoring it can bring back a second record.
+- Bad: a duplicate kept in the trash is not reported when adding or editing; the question comes when it is restored.
 
 ## More information
 
 - Requirement: [R-43](../product/requirements.md#artworks).
 - Near-duplicate category values, which this decision does not change: [R-25](../product/requirements.md#category-values).
-- Implementation: ATL-88.
+- Implementation: ATL-88; restoring from the trash: ATL-120.
