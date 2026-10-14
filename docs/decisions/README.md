@@ -48,3 +48,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0042](0042-filter-the-collection-in-the-browser.md) | Filter the collection in the browser, from a panel, with the filter in the URL | accepted |
 | [0043](0043-generate-database-types-from-the-migrations.md) | Generate database types from the migrations | proposed |
 | [0044](0044-load-wall-images-near-the-screen.md) | Show the wall first and load its images near the screen | accepted |
+| [0045](0045-seed-the-local-database.md) | Seed the local database with a test account and artworks | accepted |

@@ -34,18 +34,20 @@ pnpm db:start   # start the stack and apply supabase/migrations (first start dow
 pnpm db:env     # print API_URL and the keys
 ```
 
-Copy `API_URL` to `SUPABASE_URL` and the publishable key (`PUBLISHABLE_KEY`, or `ANON_KEY` on older output) to `SUPABASE_PUBLISHABLE_KEY` in `apps/web/.env`, then run `pnpm dev`. Sign up in the app with any email address; the confirmation mail arrives in the mail catcher at http://127.0.0.1:54324 and the database can be browsed in Studio at http://127.0.0.1:54323.
+Copy `API_URL` to `SUPABASE_URL` and the publishable key (`PUBLISHABLE_KEY`, or `ANON_KEY` on older output) to `SUPABASE_PUBLISHABLE_KEY` in `apps/web/.env`, then run `pnpm dev`. Sign in with the seeded account `test@example.com` and password `password123`; it already owns a few sample artworks. Other accounts can be signed up with any email address; the confirmation mail arrives in the mail catcher at http://127.0.0.1:54324. The database can be browsed in Studio at http://127.0.0.1:54323.
 
-| Command          | What it does                                      |
-| ---------------- | ------------------------------------------------- |
-| `pnpm db:start`  | Start the stack                                   |
-| `pnpm db:stop`   | Stop the stack and keep its data                  |
-| `pnpm db:reset`  | Drop the local database and replay all migrations |
-| `pnpm db:status` | Show URLs and keys                                |
-| `pnpm db:env`    | Print URLs and keys as `NAME=value` lines         |
-| `pnpm db:types`  | Regenerate `src/lib/database.types.ts`            |
+[`supabase/seed.sql`](../../supabase/seed.sql) creates the account and the artworks. It runs when the local database is created, that is on the first `pnpm db:start` and on every `pnpm db:reset`, but not on a later `pnpm db:start` of a database that already exists. Hosted databases never get it. To load it into an existing local database, run `pnpm db:reset`.
 
-To try a new migration, add it to `supabase/migrations` and run `pnpm db:reset`; it must apply cleanly on an empty database. CI does the same on every pull request (the `migrations` job), and the `database` job waits for it. After a migration changes tables, columns or functions, run `pnpm db:types` with the stack running and commit `src/lib/database.types.ts`; the Supabase client in `lib/supabase.ts` is typed with it, so a query that no longer matches the schema fails `pnpm check`. CI regenerates the file from the replayed migrations and fails when the committed one differs. A migration only has to work with the code of its own release ([ADR-0037](../../docs/decisions/0037-separate-databases-for-develop-and-production.md)), so the local database matches the code of the branch it was last reset on. After switching to a branch whose `supabase/migrations` differ, run `pnpm db:reset`; the reset drops local accounts and artworks, so sign up again. Switch back to the hosted project by restoring its values in `apps/web/.env`.
+| Command          | What it does                                                 |
+| ---------------- | ------------------------------------------------------------ |
+| `pnpm db:start`  | Start the stack                                              |
+| `pnpm db:stop`   | Stop the stack and keep its data                             |
+| `pnpm db:reset`  | Drop the local database, replay all migrations, run the seed |
+| `pnpm db:status` | Show URLs and keys                                           |
+| `pnpm db:env`    | Print URLs and keys as `NAME=value` lines                    |
+| `pnpm db:types`  | Regenerate `src/lib/database.types.ts`                       |
+
+To try a new migration, add it to `supabase/migrations` and run `pnpm db:reset`; it must apply cleanly on an empty database. CI does the same on every pull request (the `migrations` job), and the `database` job waits for it. After a migration changes tables, columns or functions, run `pnpm db:types` with the stack running and commit `src/lib/database.types.ts`; the Supabase client in `lib/supabase.ts` is typed with it, so a query that no longer matches the schema fails `pnpm check`. CI regenerates the file from the replayed migrations and fails when the committed one differs. A migration only has to work with the code of its own release ([ADR-0037](../../docs/decisions/0037-separate-databases-for-develop-and-production.md)), so the local database matches the code of the branch it was last reset on. After switching to a branch whose `supabase/migrations` differ, run `pnpm db:reset`; the reset drops everything you added locally and restores the seeded account and artworks. Switch back to the hosted project by restoring its values in `apps/web/.env`.
 
 ### Docker on WSL 2
 
