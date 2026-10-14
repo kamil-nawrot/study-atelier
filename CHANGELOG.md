@@ -33,6 +33,7 @@ Eras, periods and styles become organised knowledge: every artwork sits in a cha
 - Cloud sessions prepare themselves and produce screenshots with `pnpm screenshot`.
 - Documentation: bugfix branches, checking the owner's data before data changes.
 - Collection modules share one mapping of artwork values.
+- GitHub Actions workflows use Node 24 versions of the actions (checkout, setup-node, pnpm and Supabase CLI setup).
 
 ### Migration note
 
