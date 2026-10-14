@@ -42,7 +42,7 @@ Chosen options: 1, 960 px and 1 day. The owner chose them from the measurements 
 - `loadAtelier` gives an artwork whose image is remembered its image at once, so the tile has a `src` without waiting for `ImageQueue`. A signed URL is remembered only until it expires (`SIGNED_URL_SECONDS`); after that the tile resolves it again.
 - `resolveImages` looks up only the files and paths it does not remember and remembers what it gets. A file Commons did not answer is not remembered, so the next visit asks again. `refreshExpiredImages` remembers the new URLs.
 - The artwork rows are read on every visit, as before.
-- The Commons `imageinfo` request sends `maxage=86400` and `smaxage=86400`, so the browser reuses the answer for a day. A file replaced on Commons shows at the latest a day later.
+- The Commons `imageinfo` request sends `maxage=86400` and `smaxage=86400`, so the browser reuses the answer for a day. The same request serves the image search dialog, so its licences and attributions may also be a day old. A file replaced on Commons shows at the latest a day later.
 - The wall offers Commons thumbnails up to 960 px, and never wider than the stored width.
 
 ### Consequences
@@ -56,5 +56,5 @@ Chosen options: 1, 960 px and 1 day. The owner chose them from the measurements 
 ## More information
 
 - Implementation: ATL-126.
-- Supersedes the "no cache between page loads" point of ADR-0023 and the "each artwork once per load" point of ADR-0044; the rest of both stands.
+- Supersedes the "no cache between page loads" point of ADR-0023; the rest of ADR-0023 and ADR-0044 stands. `ImageQueue` still resolves each artwork once per load, and a remembered image simply needs no resolving.
 - The Commons API now returns thumbnail URLs on `thumb.wikimedia.org` with `utm_*` query parameters; the `srcset` replaces only the width segment, so it works with both hosts.
