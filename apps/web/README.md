@@ -43,8 +43,9 @@ Copy `API_URL` to `SUPABASE_URL` and the publishable key (`PUBLISHABLE_KEY`, or 
 | `pnpm db:reset`  | Drop the local database and replay all migrations |
 | `pnpm db:status` | Show URLs and keys                                |
 | `pnpm db:env`    | Print URLs and keys as `NAME=value` lines         |
+| `pnpm db:types`  | Regenerate `src/lib/database.types.ts`            |
 
-To try a new migration, add it to `supabase/migrations` and run `pnpm db:reset`; it must apply cleanly on an empty database. CI does the same on every pull request (the `migrations` job), and the `database` job waits for it. Production runs the older code from `main` until the release, so every migration has to stay compatible with it ([ADR-0037](../../docs/decisions/0037-separate-databases-for-develop-and-production.md)). Switch back to the hosted project by restoring its values in `apps/web/.env`.
+To try a new migration, add it to `supabase/migrations` and run `pnpm db:reset`; it must apply cleanly on an empty database. CI does the same on every pull request (the `migrations` job), and the `database` job waits for it. After a migration changes tables, columns or functions, run `pnpm db:types` with the stack running and commit `src/lib/database.types.ts`; the Supabase client in `lib/supabase.ts` is typed with it, so a query that no longer matches the schema fails `pnpm check`. CI regenerates the file from the replayed migrations and fails when the committed one differs. Production runs the older code from `main` until the release, so every migration has to stay compatible with it ([ADR-0037](../../docs/decisions/0037-separate-databases-for-develop-and-production.md)). Switch back to the hosted project by restoring its values in `apps/web/.env`.
 
 ## Tests
 

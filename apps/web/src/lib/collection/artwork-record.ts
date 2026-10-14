@@ -1,5 +1,6 @@
 import { m } from '#lib/i18n/index.ts';
 import { ownImageUrl, removeOwnImage, uploadOwnImage } from '#lib/images/own-image.ts';
+import type { Json } from '#lib/database.types.ts';
 import { supabase } from '#lib/supabase.ts';
 import { valuesOf } from './artwork-values.ts';
 import { artworkErrorMessage } from './errors.ts';
@@ -42,11 +43,6 @@ type ArtworkRecordRow = {
 type StoredImage = Exclude<ArtworkImageInput, { kind: 'file' }>;
 
 type StoredInput = Omit<ArtworkInput, 'image'> & { image: StoredImage | null };
-
-type SavedRow = {
-	id: string;
-	record_number: number;
-};
 
 const RECORD_COLUMNS = [
 	'id',
@@ -126,7 +122,7 @@ function imageColumns(image: StoredImage | null): Record<string, string | number
 	};
 }
 
-function artworkColumns(input: StoredInput): Record<string, unknown> {
+function artworkColumns(input: StoredInput): Record<string, Json> {
 	return {
 		title: input.title.trim(),
 		author_unknown: input.authorUnknown,
@@ -179,7 +175,7 @@ export async function saveArtwork(
 		.rpc('save_artwork', {
 			artwork: artworkColumns({ ...input, image: stored.image }),
 			values_by_category: valuesByCategory(input),
-			existing_id: existing?.id ?? null
+			existing_id: existing?.id
 		})
 		.single();
 	if (error) {
@@ -192,8 +188,7 @@ export async function saveArtwork(
 		await removeOwnImage(previousUpload);
 	}
 
-	const row = data as SavedRow;
-	return { saved: true, id: row.id, number: row.record_number };
+	return { saved: true, id: data.id, number: data.record_number };
 }
 
 function imageOf(row: ArtworkRecordRow): ArtworkImageInput | null {
