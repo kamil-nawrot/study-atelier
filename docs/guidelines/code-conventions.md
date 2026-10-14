@@ -9,6 +9,7 @@
 
 ## Formatting and linting
 
+- Text files use `LF` line endings on every operating system. [`.gitattributes`](../../.gitattributes) makes Git store and check them out with `LF` (Windows scripts such as `.bat`, `.cmd` and `.ps1` keep `CRLF`) and marks images, fonts and archives as binary, [`.editorconfig`](../../.editorconfig) sets `end_of_line = lf` for editors, and Prettier uses `endOfLine: 'lf'`. A new binary file type gets a `binary` line in `.gitattributes`.
 - Prettier has one config for the whole repository: [`prettier.config.js`](../../prettier.config.js) at the root. Packages do not add their own.
 - ESLint rules shared by all packages live in [`eslint.config.base.js`](../../eslint.config.base.js) at the root. Each package has a short `eslint.config.js` that imports the base and adds only what is specific to it, for example the Storybook rules in `packages/ui`.
 - Stylelint has one config for the whole repository: [`stylelint.config.js`](../../stylelint.config.js) at the root. It checks `.css` files and `<style>` blocks in `.svelte` files from each package's `lint` script.

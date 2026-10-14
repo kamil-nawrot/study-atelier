@@ -1,20 +1,25 @@
 <script lang="ts">
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
+	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
 	import X from '@lucide/svelte/icons/x';
 	import { ArtworkImage, Button, Icon, NoImage, Notes, Tag } from '@study-atelier/ui';
+	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
 	import { formatDate, formatRecordNumber, signedYear } from '../format.ts';
 	import { artworkPanelOpen, rememberArtworkPanel } from '../artwork-panel.ts';
-	import type { ArtworkRecord } from '../types.ts';
+	import { FLIP_DIRECTIONS, swipe } from '../flip.ts';
+	import type { ArtworkRecord, FlipDirection } from '../types.ts';
 
 	type Props = {
 		artwork: ArtworkRecord;
 		editHref: string;
+		flipLinks?: Record<FlipDirection, ResolvedPathname | null>;
+		onflip?: (direction: FlipDirection) => void;
 	};
 
-	let { artwork, editHref }: Props = $props();
+	let { artwork, editHref, flipLinks, onflip }: Props = $props();
 
 	const STAGE_WIDTH = 960;
 	const VIEWER_WIDTH = 1920;
@@ -77,7 +82,33 @@
 {/snippet}
 
 <div class="view" class:closed={!panelOpen}>
-	<figure class="stage" class:dimmed={image !== undefined}>
+	<figure
+		class="stage"
+		class:dimmed={image !== undefined}
+		class:flipping={flipLinks !== undefined}
+		{@attach swipe((direction) => onflip?.(direction))}
+	>
+		{#if flipLinks}
+			{#each FLIP_DIRECTIONS as direction (direction)}
+				{@const href = flipLinks[direction]}
+				{@const icon = direction === 'previous' ? ChevronLeft : ChevronRight}
+				{#if href}
+					<a
+						class="flip {direction}"
+						aria-label={m.artworkView[direction]}
+						data-sveltekit-replacestate
+						data-sveltekit-reset="false"
+						{href}
+					>
+						<Icon {icon} />
+					</a>
+				{:else}
+					<span class="flip {direction} end" aria-hidden="true">
+						<Icon {icon} />
+					</span>
+				{/if}
+			{/each}
+		{/if}
 		{#if image}
 			<img class="backdrop" alt="" aria-hidden="true" src={image.src} />
 			<button class="open" aria-label={m.artworkView.openImage} onclick={openViewer} type="button">
@@ -239,6 +270,39 @@
 		z-index: 1;
 	}
 
+	.stage.flipping {
+		padding-inline: var(--spacing-8);
+		touch-action: pan-y pinch-zoom;
+	}
+
+	.stage > .flip {
+		position: absolute;
+		top: 50%;
+		z-index: 2;
+		display: flex;
+		padding: var(--spacing-3) var(--spacing-1);
+		color: var(--color-stage-fg);
+		opacity: 0.6;
+		translate: 0 -50%;
+	}
+
+	.stage > .previous {
+		left: 0;
+	}
+
+	.stage > .next {
+		right: 0;
+	}
+
+	.stage > a.flip:hover,
+	.stage > a.flip:focus-visible {
+		opacity: 1;
+	}
+
+	.stage > .end {
+		opacity: 0.2;
+	}
+
 	.open {
 		display: block;
 		max-width: 100%;
@@ -395,6 +459,14 @@
 		.stage {
 			container-type: size;
 			padding: var(--spacing-6);
+		}
+
+		.stage.flipping {
+			padding-inline: var(--spacing-12);
+		}
+
+		.stage > .flip {
+			padding: var(--spacing-3);
 		}
 
 		.mat {

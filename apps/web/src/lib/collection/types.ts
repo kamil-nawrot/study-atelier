@@ -43,6 +43,12 @@ export type WallArtwork = {
 	yearFrom: number | null;
 	yearTo: number | null;
 	eraCode: EraCode | null;
+	typeCode: ArtworkTypeCode | null;
+	period: string | null;
+	styles: string[];
+	materials: string[];
+	location: string | null;
+	hasImage: boolean;
 	image?: ArtworkTileImage;
 	imageUnavailable?: boolean;
 	pendingImage?: PendingImage;
@@ -230,3 +236,50 @@ export type EraMove = {
 	removed: EraCode[];
 	remaining: EraCode[];
 };
+
+export type MissingData = 'image' | 'year' | 'era' | 'period' | 'type';
+
+export type FilterField =
+	| 'eras'
+	| 'types'
+	| 'years'
+	| 'authors'
+	| 'periods'
+	| 'styles'
+	| 'materials'
+	| 'locations'
+	| 'missing';
+
+export type CollectionFilter = {
+	eras: EraCode[];
+	types: ArtworkTypeCode[];
+	yearFrom: number | null;
+	yearTo: number | null;
+	authors: string[];
+	unknownAuthor: boolean;
+	periods: string[];
+	styles: string[];
+	materials: string[];
+	locations: string[];
+	missing: MissingData[];
+};
+
+export type FilterTag = {
+	id: string;
+	field: FilterField;
+	value: string;
+};
+
+export type FilterOption = {
+	value: string;
+	count: number;
+};
+
+export type FlipDirection = 'previous' | 'next';
+
+export type WallSequence = {
+	query: string;
+	numbers: number[];
+};
+
+export type Neighbours = Record<FlipDirection, number | null>;

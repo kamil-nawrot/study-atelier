@@ -110,6 +110,12 @@ How views and components look and behave, so every new screen stays consistent w
 - A dialog that edits one item of a list (a value in the card index) is the default size: the item's name as the title, its kind and use as the `description`, its fields in the body, and in the footer the danger action on the left with the safe and the primary action on the right. A change that touches other records, such as merging two values, asks again in a small `Dialog` that names how many records change ([ADR-0040](../decisions/0040-manage-category-values-in-a-card-index.md)).
 - A dialog does not close when the learner clicks the scrim, so a choice is never lost by a stray click.
 
+## Filters
+
+- The wall's filters follow [ADR-0042](../decisions/0042-filter-the-collection-in-the-browser.md). A choice of several values from a fixed list (the eras) is `ToggleTiles`: the tiles of `ChoiceTiles` as native checkboxes, each with an optional count. A choice of several values from a list that grows with the learner's data is a row of `ToggleTag` buttons: a tag that is pressed (`aria-pressed`) when chosen and shows the number of artworks next to it.
+- On a larger screen the filters open in a side panel at the right edge, under the top bar, that narrows the wall and changes it at once. On a phone the order and the filters share a full-screen `Dialog` ("Widok") that closes with a button naming the number of artworks left.
+- Active filters sit above the wall as `Tag`s with a remove button, followed by a text button that clears them all.
+
 ## Tabs
 
 - Kinds of one list that share a view are shown with the library `Tabs`: a row of text tabs under a hairline, the selected one underlined, with `tablist` roles, the arrow keys, Home and End. A tab changes only what the view lists; it does not change the address.
@@ -142,6 +148,7 @@ How views and components look and behave, so every new screen stays consistent w
 - A panel that the learner can close leaves a narrow strip with a chevron and the panel name written vertically, which open it again. The panel opens and closes with the same width animation as the side menu, off under `prefers-reduced-motion`.
 - Moving an artwork to the trash and deleting it permanently each ask first with a small `Dialog` ("Przenieść #0012 do kosza?", "Usunąć #0012 na zawsze?"); restoring does not. A `Toast` confirms each of the three ("Przeniesiono #0012 do kosza.", "Przywrócono #0012.", "Usunięto #0012 na zawsze."). An error stays in an `Alert` in the dialog, or above the list for restoring.
 - Clicking an artwork image in a detail view opens it full screen on the stage background; Escape or the close button returns.
+- The artwork view flips through the artworks the wall showed last in this tab, in its order ([ADR-0048](../decisions/0048-flip-through-the-wall-from-the-artwork-view.md)): chevrons in `--color-stage-fg` at the edges of the stage, without a frame and semi-transparent until hover or focus, the one at either end of the list dimmed and inert; the arrow keys when the focus is not in a field or a dialog; a horizontal swipe on the stage. Flipping replaces the history entry, so the back arrow returns to the wall in one step. An artwork the wall did not show has no arrows.
 
 ## Logo
 
