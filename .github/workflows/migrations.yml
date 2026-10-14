@@ -29,6 +29,9 @@ jobs:
       - name: Replay migrations from scratch
         run: supabase db reset
 
+      - name: Check row level security and grants
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/security.sql
+
       - name: Stop local Supabase
         if: always()
         run: supabase stop --no-backup
