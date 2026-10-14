@@ -1,4 +1,4 @@
-# 0045. Enter the date of creation as a year span, as an alternative to a single year
+# 0046. Enter the date of creation as a year span, as an alternative to a single year
 
 - Status: accepted
 - Date: 2026-10-14
