@@ -1,6 +1,6 @@
 # 0042. Filter the collection in the browser, from a panel, with the filter in the URL
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-10-14
 
 ## Context and problem statement
@@ -9,7 +9,7 @@ The wall can be searched by title and ordered by era ([ADR-0033](0033-order-the-
 
 Today `loadAtelier` loads every artwork in pages of 1000 rows ([ADR-0041](0041-load-the-whole-collection-in-pages-of-1000.md)) and the search, the grouping by era, the counts and the period rail are computed in the browser. Before the wall appears, the Commons thumbnails of all artworks are looked up in batches of 50, one batch after another, and the uploaded images are signed.
 
-This ADR is a proposal from the spike ATL-116. The owner decides in ATL-37.
+The spike ATL-116 proposed an answer; the owner decided the details in ATL-37.
 
 ## Decision drivers
 
@@ -45,9 +45,9 @@ New orders: by author (blocks per first author, A to Z), by title, or none.
 
 Other ways into a filter: values in the artwork view as links, a "show artworks" action in the card index ([ADR-0040](0040-manage-category-values-in-a-card-index.md)), saved filter sets.
 
-## Proposed outcome
+## Decision outcome
 
-Filtering in the browser with a database-ready filter (option 3), every field with "any of" within a field, the panel, the filter in the URL, a new order by author, and links from the artwork view.
+Filtering in the browser with a database-ready filter (option 3), every field with "any of" within a field, the panel, the filter in the URL, a new order by author, links from the artwork view and the card index, and previous and next artwork that follow the filtered wall.
 
 ### Where filtering runs
 
@@ -73,9 +73,9 @@ Each database query also costs a round trip to the hosted project, estimated at 
 | Era                     | the six era tiles of the form, several at once | fixed list                                                                                         |
 | Type                    | tags                                           | the types present in the collection                                                                |
 | Year                    | "od" and "do", each with "p.n.e."              | an approximate year counts as that year; artworks without a year are left out while a range is set |
-| Authors                 | search and tags                                | "unknown author" is one of the values                                                              |
+| Authors                 | search and the most frequent values as tags    | "unknown author" is one of the values                                                              |
 | Period, style, material | tags                                           | values used by artworks on the wall                                                                |
-| Location                | search and tags                                | values used by artworks on the wall                                                                |
+| Location                | search and the most frequent values as tags    | values used by artworks on the wall                                                                |
 | Missing data            | check boxes                                    | no image, no year, no era, no period, no type                                                      |
 
 - Within a field an artwork matches when it has any of the chosen values; it is shown when it matches every field that has a choice.
@@ -83,6 +83,7 @@ Each database query also costs a round trip to the hosted project, estimated at 
 - Choosing an era therefore leaves only the periods and styles of that era, without a separate rule; the counts come from the artworks, not from the links of ADR-0038.
 - The title search stays in the top bar and also matches authors ("Szukaj po tytule lub autorze").
 - Notes are not filtered in this version: it would need every note in the browser or a new column.
+- The search fields of authors and location show the 8 most frequent values with "Pokaż więcej".
 - Requiring all chosen values of a field (option 2) is left out: rarely needed, and every control would need a switch.
 
 ### The panel
@@ -90,16 +91,18 @@ Each database query also costs a round trip to the hosted project, estimated at 
 - Larger screen: a "Filtry" button with the number of active filters sits after the order select. It opens a panel at the right edge, under the top bar, that narrows the wall instead of covering it; the wall changes as soon as a value is chosen. The period rail is hidden while the panel is open. The panel ends with "Wyczyść" and the count "3 z 10 dzieł".
 - Phone: the order button in the top bar becomes "Widok" (the Lucide icon `sliders-horizontal`, with the number of active filters). It opens a full-screen library `Dialog` with the order first and the filters under it, and "Wyczyść" and "Pokaż 3 dzieła" at the bottom.
 - Above the wall, the active filters are tags with a remove button ("Epoka nowożytność ×") followed by "Wyczyść filtry". The count reads "3 z 10 dzieł", as during a search.
-- When nothing matches, the message names a filter whose removal shows artworks: "Żadne dzieło nie spełnia wszystkich trzech filtrów naraz. Bez filtra „Rok: 1600–1700” zobaczysz 2 dzieła.", with a button that removes that filter and "Wyczyść filtry".
-- The row of buttons (option 2) shows the filters without a click but takes a row above the wall for good and leaves most fields out of sight on a phone. The sentence (option 3) reads best but becomes hard to read with many values and is hard to make accessible; it may later describe the active filters in place of the tags.
+- When nothing matches, the message says "Żadne dzieło nie pasuje do tych filtrów." with a "Wyczyść filtry" button. Naming a filter whose removal shows artworks was considered and left out.
+- The row of buttons (option 2) shows the filters without a click but takes a row above the wall for good and leaves most fields out of sight on a phone. The sentence (option 3) reads best but becomes hard to read with many values and is hard to make accessible.
 
 ### State, order and entries
 
 - The filter is kept in the URL query (`?epoka=early_modern&typ=painting&rok=1400..1700&styl=barok`): it survives the way back from an artwork, a reload and a bookmark, and ends when the learner opens the atelier anew. Eras and types are codes, other values are names (unique per category); a name that no longer exists is ignored without an error.
 - The order stays remembered on the device (R-41). Filters apply before the order; "Według epok" shows only the eras with results and the rail takes its bounds from the filtered artworks.
 - A new order "Według autorów" groups the wall in blocks per first author, A to Z, by year inside a block, with the period rail showing the authors. An order by title is left out, because the search finds a title.
-- In the artwork view, the era, period, styles, materials, location and authors become links to the wall filtered by that value.
-- A "show artworks" action in the card index waits for ATL-97. Saved filter sets are an idea for later.
+- In the artwork view, the era, period, styles, materials, location and authors become links to the wall filtered by that value. In the card index every value has "Pokaż dzieła (n)" that opens the wall filtered by it.
+- The search in the top bar also matches authors ("Szukaj po tytule lub autorze").
+- Previous and next artwork in the artwork view follow the filtered and ordered wall (ATL-65): subtle arrows at the edges of the stage, the arrow keys on a larger screen and a horizontal swipe on a phone; the arrow is dimmed at either end of the list. Saved filter sets are an idea for later.
+- The texts are conversational, in the voice of [voice-and-tone](../product/voice-and-tone.md).
 
 ### Consequences
 
@@ -113,5 +116,6 @@ Each database query also costs a round trip to the hosted project, estimated at 
 ## More information
 
 - Spike ATL-116; design ATL-37 (owner's decisions). Proposed split: one build issue for the filters (model, panel, URL, every field, missing data, empty state), one for the entries and the order by author with search by author, and a chore for lazy Commons thumbnails and rendering the wall in parts.
-- Requirements R-53 onwards replace R-19 once this ADR is accepted.
+- Requirements R-53 to R-61 replace R-19 and R-18.
 - Mockups (rendered on the app with `pnpm screenshot --script`), the measuring script and the full analysis in Polish are in the project files under `filtering-0.3/`.
+- Decided one question at a time by the owner in ATL-37 (2026-10-14).
