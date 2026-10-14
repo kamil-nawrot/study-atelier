@@ -85,7 +85,7 @@ function savedArtworks(...titles: [number, string][]): void {
 }
 
 function duplicateDialog(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('alertdialog', { name: m.artworkForm.duplicateTitle });
+	return page.getByRole('alertdialog', { name: m.duplicateDialog.title });
 }
 
 type Leave = Parameters<Parameters<typeof beforeNavigate>[0]>[0];
@@ -276,8 +276,10 @@ describe('edit artwork page', () => {
 
 		await expect
 			.element(duplicateDialog())
-			.toHaveAccessibleDescription(m.artworkForm.duplicateDescription('#0003 i #0012', 2));
-		await page.getByRole('button', { name: m.artworkForm.saveAnyway }).click();
+			.toHaveAccessibleDescription(
+				m.duplicateDialog.description('#0003 i #0012', 2, m.duplicateDialog.save.advice)
+			);
+		await page.getByRole('button', { name: m.duplicateDialog.save.confirm }).click();
 
 		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
 	});
