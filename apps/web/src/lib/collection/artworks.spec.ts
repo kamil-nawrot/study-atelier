@@ -4,7 +4,13 @@ import { fetchCommonsThumbnails } from '#lib/images/commons.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
 import { SIGNED_URL_SECONDS } from '#lib/images/bucket.ts';
-import { DEFAULT_IMAGE_SIZE, loadAtelier, loadTrash, refreshExpiredImages } from './artworks.ts';
+import {
+	DEFAULT_IMAGE_SIZE,
+	loadAtelier,
+	loadTrash,
+	refreshExpiredImages,
+	resolveImages
+} from './artworks.ts';
 import type { WallArtwork } from './types.ts';
 
 vi.mock('#lib/images/commons.ts', async (importOriginal) => ({
@@ -49,6 +55,12 @@ function author(name: string, position: number): Record<string, unknown> {
 
 function period(name: string, position: number): Record<string, unknown> {
 	return { position, category_values: { category_code: 'period', name } };
+}
+
+async function loadResolved(): Promise<WallArtwork[]> {
+	const { artworks } = await loadAtelier();
+	const resolved = new Map((await resolveImages(artworks)).map((artwork) => [artwork.id, artwork]));
+	return artworks.map((artwork) => resolved.get(artwork.id) ?? artwork);
 }
 
 describe('loadAtelier', () => {
@@ -156,6 +168,30 @@ describe('loadAtelier', () => {
 		]);
 	});
 
+	it('returns the artworks without waiting for any image and keeps what is needed to find it later', async () => {
+		query.range.mockResolvedValue({
+			data: [
+				row({ source_image_file: 'Test.jpg', image_width: 1000, image_height: 750 }),
+				row({ id: 'artwork-2', record_number: 2, own_image_path: 'user-id/artwork-2/image.jpg' }),
+				row({ id: 'artwork-3', record_number: 3 })
+			],
+			error: null
+		});
+
+		const { artworks } = await loadAtelier();
+
+		expect(fetchCommonsThumbnails).not.toHaveBeenCalled();
+		expect(createSignedUrls).not.toHaveBeenCalled();
+		expect(artworks[0].image).toEqual({ width: 1000, height: 750 });
+		expect(artworks[0].pendingImage).toEqual({
+			sourceFile: 'Test.jpg',
+			size: { width: 1000, height: 750 }
+		});
+		expect(artworks[1].image).toEqual(DEFAULT_IMAGE_SIZE);
+		expect(artworks[1].pendingImage).toEqual({ ownPath: 'user-id/artwork-2/image.jpg' });
+		expect(artworks[2].pendingImage).toBeUndefined();
+	});
+
 	it('uses the stored size and the thumbnail from Commons for a Commons image', async () => {
 		const thumbnailUrl = 'https://upload.wikimedia.org/thumb/a/ab/Test.jpg/500px-Test.jpg';
 		query.range.mockResolvedValue({
@@ -164,7 +200,7 @@ describe('loadAtelier', () => {
 		});
 		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map([['Test.jpg', thumbnailUrl]]));
 
-		const { artworks } = await loadAtelier();
+		const artworks = await loadResolved();
 
 		expect(fetchCommonsThumbnails).toHaveBeenCalledWith(['Test.jpg'], 500);
 		expect(artworks[0].image).toMatchObject({ src: thumbnailUrl, width: 1000, height: 750 });
@@ -177,7 +213,7 @@ describe('loadAtelier', () => {
 		query.range.mockResolvedValue({ data: [row({ source_image_file: 'Test.jpg' })], error: null });
 		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map([['Test.jpg', thumbnailUrl]]));
 
-		const { artworks } = await loadAtelier();
+		const artworks = await loadResolved();
 
 		expect(artworks[0].image).toMatchObject({ src: thumbnailUrl, ...DEFAULT_IMAGE_SIZE });
 		expect(artworks[0].image?.srcset).toContain('500px-Test.jpg 500w');
@@ -190,7 +226,7 @@ describe('loadAtelier', () => {
 			error: null
 		});
 
-		const { artworks } = await loadAtelier();
+		const artworks = await loadResolved();
 
 		expect(artworks[0].image).toMatchObject({ width: 600, height: 900 });
 		expect(artworks[0].image?.src).toContain('Special:FilePath/Test.jpg');
@@ -202,7 +238,7 @@ describe('loadAtelier', () => {
 			error: null
 		});
 
-		const { artworks } = await loadAtelier();
+		const artworks = await loadResolved();
 
 		expect(artworks[0].image?.srcset).toBeUndefined();
 	});
@@ -217,7 +253,7 @@ describe('loadAtelier', () => {
 			error: null
 		});
 
-		const { artworks } = await loadAtelier();
+		const artworks = await loadResolved();
 
 		expect(supabase.storage.from).toHaveBeenCalledWith(IMAGES_BUCKET);
 		expect(artworks[0].image).toEqual({ src: 'https://example.com/signed', ...DEFAULT_IMAGE_SIZE });
@@ -237,7 +273,7 @@ describe('loadAtelier', () => {
 		});
 		createSignedUrls.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } });
 
-		const { artworks } = await loadAtelier();
+		const artworks = await loadResolved();
 
 		expect(artworks[0].image).toBeUndefined();
 		expect(artworks[0].imageUnavailable).toBe(true);
@@ -255,7 +291,7 @@ describe('loadAtelier', () => {
 			error: null
 		});
 
-		const { artworks } = await loadAtelier();
+		const artworks = await loadResolved();
 
 		expect(artworks[0].imageUnavailable).toBe(true);
 	});
@@ -271,7 +307,7 @@ describe('loadAtelier', () => {
 			error: null
 		});
 
-		const { artworks } = await loadAtelier();
+		const artworks = await loadResolved();
 		vi.useRealTimers();
 
 		expect(artworks[0].ownImagePath).toBe('user-id/artwork-1/image.jpg');
@@ -306,6 +342,57 @@ describe('loadAtelier', () => {
 			artworks: [],
 			error: m.collectionErrors.network
 		});
+	});
+});
+
+describe('resolveImages', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		vi.mocked(supabase.storage.from).mockReturnValue({ createSignedUrls } as never);
+		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map());
+	});
+
+	function pending(
+		id: string,
+		pendingImage: NonNullable<WallArtwork['pendingImage']>
+	): WallArtwork {
+		return {
+			id,
+			number: 1,
+			title: 'Pending',
+			authors: [],
+			year: null,
+			eraCode: null,
+			image: { ...DEFAULT_IMAGE_SIZE },
+			pendingImage
+		};
+	}
+
+	it('returns nothing and asks no one when no artwork waits for its image', async () => {
+		await expect(
+			resolveImages([{ ...pending('a', { sourceFile: 'A.jpg' }), pendingImage: undefined }])
+		).resolves.toEqual([]);
+		expect(fetchCommonsThumbnails).not.toHaveBeenCalled();
+		expect(createSignedUrls).not.toHaveBeenCalled();
+	});
+
+	it('looks up the Commons files and signs the uploads of the given artworks together', async () => {
+		createSignedUrls.mockResolvedValue({
+			data: [{ path: 'owner/own.jpg', signedUrl: 'https://example.com/signed' }],
+			error: null
+		});
+
+		const resolved = await resolveImages([
+			pending('a', { sourceFile: 'A.jpg' }),
+			pending('b', { ownPath: 'owner/own.jpg' })
+		]);
+
+		expect(fetchCommonsThumbnails).toHaveBeenCalledWith(['A.jpg'], 500);
+		expect(createSignedUrls).toHaveBeenCalledWith(['owner/own.jpg'], expect.any(Number));
+		expect(resolved[0].pendingImage).toBeUndefined();
+		expect(resolved[0].image?.src).toContain('Special:FilePath/A.jpg');
+		expect(resolved[1].image?.src).toBe('https://example.com/signed');
+		expect(resolved[1].imageSignedAt).toEqual(expect.any(Number));
 	});
 });
 

@@ -22,7 +22,10 @@ vi.mock('$app/navigation', () => ({
 	invalidateAll: vi.fn(),
 	replaceState: vi.fn()
 }));
-vi.mock('#lib/collection/artworks.ts', () => ({ refreshExpiredImages: vi.fn() }));
+vi.mock('#lib/collection/artworks.ts', () => ({
+	refreshExpiredImages: vi.fn(),
+	resolveImages: vi.fn()
+}));
 vi.mock('#lib/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
