@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { goto, replaceState } from '$app/navigation';
+import { goto, invalidateAll, replaceState } from '$app/navigation';
+import { refreshExpiredImages } from '#lib/collection/artworks.ts';
 import type { WallArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
@@ -16,7 +17,12 @@ const navigation = vi.hoisted(() => ({
 }));
 
 vi.mock('$app/state', () => ({ page: navigation }));
-vi.mock('$app/navigation', () => ({ goto: vi.fn(), replaceState: vi.fn() }));
+vi.mock('$app/navigation', () => ({
+	goto: vi.fn(),
+	invalidateAll: vi.fn(),
+	replaceState: vi.fn()
+}));
+vi.mock('#lib/collection/artworks.ts', () => ({ refreshExpiredImages: vi.fn() }));
 vi.mock('#lib/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
@@ -34,22 +40,24 @@ function renderAtelier(list: WallArtwork[] = artworks, error?: string): void {
 }
 
 const dated = [
-	testArtwork(1, 'Mona Lisa', { year: 1503, periods: ['Renesans'] }),
-	testArtwork(2, 'Water Lilies', { year: 1906, periods: ['Impresjonizm'] }),
-	testArtwork(3, 'Impression, Sunrise', { year: 1872, periods: ['Impresjonizm'] }),
-	testArtwork(4, 'Untitled study', { year: 1800, periods: [] })
+	testArtwork(1, 'Mona Lisa', { year: 1503, eraCode: 'early_modern' }),
+	testArtwork(2, 'Water Lilies', { year: 1906, eraCode: 'modern' }),
+	testArtwork(3, 'Impression, Sunrise', { year: 1872, eraCode: 'modern' }),
+	testArtwork(4, 'Untitled study', { year: 1800, eraCode: null })
 ];
 
 function manyPeriods(): WallArtwork[] {
-	return [
-		['Renesans', 1500],
-		['Barok', 1650],
-		['Impresjonizm', 1870]
-	].flatMap(([period, year], block) =>
+	return (
+		[
+			['early_modern', 1500],
+			['modern', 1850],
+			['contemporary', 1960]
+		] as const
+	).flatMap(([eraCode, year], block) =>
 		[0, 1, 2, 3].map((position) =>
-			testArtwork(block * 4 + position + 1, `${period} ${position + 1}`, {
-				year: (year as number) + position,
-				periods: [period as string]
+			testArtwork(block * 4 + position + 1, `${m.eras[eraCode].name} ${position + 1}`, {
+				year: year + position,
+				eraCode
 			})
 		)
 	);
@@ -166,6 +174,44 @@ describe('atelier page', () => {
 		await expect.element(page.getByText(m.atelier.count(0))).not.toBeInTheDocument();
 	});
 
+	it('says when some images are unavailable and loads them again on request', async () => {
+		renderAtelier([
+			testArtwork(1, 'Night Watch', { image: undefined, imageUnavailable: true }),
+			testArtwork(2, 'Starry Night')
+		]);
+
+		await expect.element(page.getByText(m.atelier.imagesUnavailableTitle)).toBeVisible();
+		await page.getByRole('button', { name: m.atelier.retryImages }).click();
+
+		expect(invalidateAll).toHaveBeenCalled();
+	});
+
+	it('does not warn about images when all of them are available', async () => {
+		renderAtelier();
+
+		await expect.element(page.getByText(m.atelier.imagesUnavailableTitle)).not.toBeInTheDocument();
+	});
+
+	it('shows an image again after its expired url was signed anew', async () => {
+		const pixel = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+		const expired = testArtwork(1, 'Night Watch', {
+			image: { src: 'data:image/png;base64,broken', width: 4, height: 5 },
+			ownImagePath: 'user-id/artwork-1/image.jpg',
+			imageSignedAt: 0
+		});
+		vi.mocked(refreshExpiredImages).mockResolvedValue([
+			{ ...expired, image: { src: pixel, width: 4, height: 5 }, imageSignedAt: Date.now() }
+		]);
+		renderAtelier([expired]);
+
+		await vi.waitFor(() => expect(refreshExpiredImages).toHaveBeenCalledWith([expired]), {
+			timeout: 8000
+		});
+		await expect
+			.element(page.getByRole('img', { name: 'Night Watch, Test Painter' }))
+			.toBeVisible();
+	});
+
 	it('shows why the atelier did not load', async () => {
 		renderAtelier([], m.collectionErrors.network);
 
@@ -269,7 +315,7 @@ describe('atelier page', () => {
 			]);
 		});
 
-		it('shows periods by their earliest year with artworks by year and hides those without a period', async () => {
+		it('shows eras in their fixed order with artworks by year and hides those without an era', async () => {
 			renderAtelier(dated);
 
 			await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
@@ -278,16 +324,16 @@ describe('atelier page', () => {
 			expect(titlesOnTheWall(dated)).toEqual(['Mona Lisa', 'Impression, Sunrise', 'Water Lilies']);
 		});
 
-		it('puts an artwork with several periods under the first one', async () => {
+		it('puts the eras in their fixed order even when the years disagree', async () => {
 			const both = [
-				testArtwork(1, 'Late Work', { year: 1700, periods: ['Barok', 'Renesans'] }),
-				testArtwork(2, 'Early Work', { year: 1500, periods: ['Renesans'] })
+				testArtwork(1, 'Dated Late', { year: 1700, eraCode: 'antiquity' }),
+				testArtwork(2, 'Dated Early', { year: 1500, eraCode: 'modern' })
 			];
 			renderAtelier(both);
 
 			await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
 
-			expect(titlesOnTheWall(both)).toEqual(['Early Work', 'Late Work']);
+			expect(titlesOnTheWall(both)).toEqual(['Dated Late', 'Dated Early']);
 			await expect.element(page.getByText(m.atelier.count(2))).toBeVisible();
 		});
 
@@ -352,13 +398,13 @@ describe('atelier page', () => {
 				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
 
 				const strip = page.getByRole('complementary', { name: m.atelier.periods.label });
-				await expect.element(strip).toHaveTextContent('Renesans');
+				await expect.element(strip).toHaveTextContent(m.eras.early_modern.name);
 				await expect.element(strip).toHaveTextContent('1500 – 1503');
 
 				scrollToTheEnd();
 
-				await expect.element(strip).toHaveTextContent('Impresjonizm');
-				await expect.element(strip).toHaveTextContent('1870 – 1873');
+				await expect.element(strip).toHaveTextContent(m.eras.contemporary.name);
+				await expect.element(strip).toHaveTextContent('1960 – 1963');
 			});
 
 			it('has no strip in the recent order', async () => {
@@ -381,21 +427,21 @@ describe('atelier page', () => {
 
 				const rail = page.getByRole('complementary', { name: m.atelier.periods.label });
 				await expect.element(rail).toBeVisible();
-				await expect.element(rail).toHaveTextContent('Barok');
+				await expect.element(rail).toHaveTextContent(m.eras.modern.name);
 				expect(rail.element().getBoundingClientRect().right).toBe(
 					document.documentElement.clientWidth
 				);
 				expect(page.getByRole('complementary').elements()).toHaveLength(1);
 			});
 
-			it('highlights the first period at the top and the last one at the end', async () => {
+			it('highlights the first era at the top and the last one at the end', async () => {
 				renderAtelier(manyPeriods());
 				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
 				const rail = page.getByRole('complementary', { name: m.atelier.periods.label });
 				const current = rail.getByRole('listitem').filter({ hasText: /./ });
 
 				await expect
-					.element(current.filter({ hasText: 'Renesans' }))
+					.element(current.filter({ hasText: m.eras.early_modern.name }))
 					.toHaveAttribute('aria-current', 'true');
 				expect(rail.getByRole('listitem').elements()[0].getBoundingClientRect().top).toBe(
 					rail.element().getBoundingClientRect().top
@@ -404,11 +450,28 @@ describe('atelier page', () => {
 				scrollToTheEnd();
 
 				await expect
-					.element(current.filter({ hasText: 'Impresjonizm' }))
+					.element(current.filter({ hasText: m.eras.contemporary.name }))
 					.toHaveAttribute('aria-current', 'true');
 				await expect
-					.element(current.filter({ hasText: 'Renesans' }))
+					.element(current.filter({ hasText: m.eras.early_modern.name }))
 					.not.toHaveAttribute('aria-current');
+			});
+
+			it('shows the era icon only on the current era', async () => {
+				renderAtelier(manyPeriods());
+				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
+				const rail = page.getByRole('complementary', { name: m.atelier.periods.label });
+
+				expect(rail.element().querySelectorAll('svg')).toHaveLength(1);
+
+				scrollToTheEnd();
+
+				await vi.waitFor(() =>
+					expect(
+						rail.getByRole('listitem').filter({ hasText: m.eras.contemporary.name }).element()
+					).toContainElement(rail.element().querySelector('svg'))
+				);
+				expect(rail.element().querySelectorAll('svg')).toHaveLength(1);
 			});
 		});
 	});

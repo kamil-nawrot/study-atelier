@@ -5,7 +5,6 @@ import type { ValueSuggestion } from './types.ts';
 export type SuggestionSource = {
 	query: string;
 	existing: readonly string[];
-	starting: readonly string[];
 	selected: readonly string[];
 };
 
@@ -53,9 +52,10 @@ export function findSimilarValue(name: string, existing: readonly string[]): str
 	return closest?.value;
 }
 
-function matching(values: readonly string[], key: string, sorted: boolean): string[] {
-	const found = values.filter((value) => valueKey(value).includes(key));
-	const ordered = sorted ? found.sort((a, b) => a.localeCompare(b, locale)) : found;
+function matching(values: readonly string[], key: string): string[] {
+	const ordered = values
+		.filter((value) => valueKey(value).includes(key))
+		.sort((a, b) => a.localeCompare(b, locale));
 	return [
 		...ordered.filter((value) => valueKey(value).startsWith(key)),
 		...ordered.filter((value) => !valueKey(value).startsWith(key))
@@ -69,16 +69,13 @@ export function suggestValues(source: SuggestionSource): ValueSuggestion[] {
 	const isFree = (value: string): boolean => !taken.has(valueKey(value));
 
 	const existing = source.existing.filter(isFree);
-	const known = new Set(source.existing.map(valueKey));
-	const starting = source.starting.filter((value) => isFree(value) && !known.has(valueKey(value)));
 
-	const existingMatches = matching(existing, key, true);
-	const startingMatches = matching(starting, key, false);
+	const existingMatches = matching(existing, key);
 	const canCreate =
 		key !== '' &&
 		!taken.has(key) &&
 		!findSameValue(name, source.existing) &&
-		![...existingMatches, ...startingMatches].includes(name);
+		!existingMatches.includes(name);
 	const similar = canCreate
 		? findSimilarValue(
 				name,
@@ -89,7 +86,6 @@ export function suggestValues(source: SuggestionSource): ValueSuggestion[] {
 	return [
 		...(similar ? [{ kind: 'similar' as const, name: similar }] : []),
 		...existingMatches.map((value) => ({ kind: 'existing' as const, name: value })),
-		...startingMatches.map((value) => ({ kind: 'starting' as const, name: value })),
 		...(canCreate ? [{ kind: 'new' as const, name }] : [])
 	];
 }

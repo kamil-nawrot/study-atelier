@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { tick } from 'svelte';
+	import { onDestroy, tick } from 'svelte';
 	import {
 		Alert,
 		Button,
 		Checkbox,
+		ChoiceTiles,
 		Dialog,
 		Form,
 		Select,
@@ -25,34 +26,40 @@
 		formHasChanges
 	} from '../artwork-form.ts';
 	import { saveArtwork, validateArtwork } from '../artwork-record.ts';
-	import { startingValues, takesOneValue } from '../category-values.ts';
+	import { takesOneValue } from '../category-values.ts';
+	import { findDuplicates, formatRecordNumbers, sameTitleAndAuthors } from '../duplicates.ts';
+	import { eraTiles, isEraCode } from '../eras.ts';
 	import { formatRecordNumber } from '../format.ts';
-	import { suggestValues } from '../value-suggestions.ts';
+	import { pendingAnswer } from '../pending-answer.ts';
+	import { suggestValues, valueKey } from '../value-suggestions.ts';
 	import ArtworkImageField from './ArtworkImageField.svelte';
 	import type {
 		ArtworkFieldErrors,
 		ArtworkFormState,
+		ArtworkInput,
 		ArtworkRecord,
 		CategoryCode,
 		CategoryValues,
+		EraCode,
+		ValueLinks,
 		ValueSuggestion
 	} from '../types.ts';
 
 	type Props = {
 		artwork?: ArtworkRecord;
 		categoryValues: CategoryValues;
+		valueLinks: ValueLinks;
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
 		onsaved: (number: number, next: boolean) => void | Promise<void>;
 	};
 
-	let { artwork, categoryValues, cancelHref, oncancel, onsaved }: Props = $props();
+	let { artwork, categoryValues, valueLinks, cancelHref, oncancel, onsaved }: Props = $props();
 
-	const titleId = 'artwork-title';
+	const titleId = $props.id();
 	const typeOptions = artworkTypeOptions();
-	const describedCategories: { code: Exclude<CategoryCode, 'author'>; label: string }[] = [
-		{ code: 'period', label: m.artworkForm.period },
-		{ code: 'style', label: m.artworkForm.style },
+	const eraOptions = eraTiles();
+	const describedCategories: { code: 'material' | 'location'; label: string }[] = [
 		{ code: 'material', label: m.artworkForm.material },
 		{ code: 'location', label: m.artworkForm.location }
 	];
@@ -66,8 +73,11 @@
 	let discardOpen = $state(false);
 	let barHeight = $state(0);
 	let toast: Toast;
-	let leaving = false;
-	let answerDiscard: ((discard: boolean) => void) | null = null;
+	let discarded: ArtworkFormState | null = null;
+	const discardQuestion = pendingAnswer();
+	let duplicateOpen = $state(false);
+	let duplicates = $state<number[]>([]);
+	const duplicateQuestion = pendingAnswer();
 
 	let imageSearchReady = $derived(canSearchImage(form));
 	let imageAlt = $derived(artworkImageAlt(form));
@@ -76,28 +86,47 @@
 		return artwork ? artworkFormFromRecord(artwork) : emptyArtworkForm();
 	}
 
+	function leaveAllowed(): boolean {
+		return discarded !== null && !formHasChanges(form, discarded);
+	}
+
 	export function confirmLeave(): Promise<boolean> {
-		if (leaving || !formHasChanges(form, saved)) return Promise.resolve(true);
-		discardOpen = true;
-		return new Promise((resolve) => {
-			answerDiscard = (discard) => {
-				answerDiscard = null;
-				leaving = discard;
-				resolve(discard);
-			};
-		});
+		if (leaveAllowed() || !formHasChanges(form, saved)) return Promise.resolve(true);
+		return discardQuestion
+			.ask(() => (discardOpen = true))
+			.then((discard) => {
+				if (discard) discarded = $state.snapshot(form);
+				return discard;
+			});
 	}
 
 	function answer(discard: boolean): void {
-		answerDiscard?.(discard);
+		discardQuestion.answer(discard);
 		discardOpen = false;
 	}
 
+	async function confirmDuplicate(input: ArtworkInput): Promise<boolean> {
+		if (artwork && sameTitleAndAuthors(input, artwork)) return true;
+		const numbers = await findDuplicates(input, artwork?.id);
+		if (numbers.length === 0) return true;
+		duplicates = numbers;
+		return duplicateQuestion.ask(() => (duplicateOpen = true));
+	}
+
+	function answerDuplicateDialog(save: boolean): void {
+		duplicateQuestion.answer(save);
+		duplicateOpen = false;
+	}
+
 	beforeNavigate((navigation) => {
-		if (leaving || !formHasChanges(form, saved)) return;
+		if (leaveAllowed()) {
+			discarded = null;
+			return;
+		}
+		if (!formHasChanges(form, saved)) return;
 		navigation.cancel();
 		const url = navigation.to?.url;
-		if (navigation.type === 'leave' || !url) return;
+		if (navigation.type === 'leave' || !url || discardQuestion.pending) return;
 		const target = `${url.pathname}${url.search}${url.hash}` as ResolvedPathname;
 		const popstate = navigation.type === 'popstate' ? navigation.delta : null;
 		void confirmLeave().then((discard) => {
@@ -107,13 +136,56 @@
 		});
 	});
 
-	function options(code: CategoryCode): ValueSuggestion[] {
+	onDestroy(() => {
+		discardQuestion.answer(false);
+		duplicateQuestion.answer(false);
+	});
+
+	let periodLocked = $derived(form.eraCode === null);
+	let styleLocked = $derived(form.values.period.length === 0);
+
+	function suggestions(code: CategoryCode, existing: readonly string[]): ValueSuggestion[] {
 		return suggestValues({
 			query: form.queries[code],
-			existing: categoryValues[code],
-			starting: startingValues(code),
+			existing,
 			selected: form.values[code]
 		});
+	}
+
+	function options(code: CategoryCode): ValueSuggestion[] {
+		return suggestions(code, categoryValues[code]);
+	}
+
+	function periodOptions(): ValueSuggestion[] {
+		return suggestions('period', form.eraCode ? valueLinks.periodsByEra[form.eraCode] : []);
+	}
+
+	function styleOptions(): ValueSuggestion[] {
+		const period = form.values.period[0];
+		return suggestions('style', period ? (valueLinks.stylesByPeriod[valueKey(period)] ?? []) : []);
+	}
+
+	function clearStyles(): void {
+		form.values.style = [];
+		form.queries.style = '';
+	}
+
+	function clearPeriod(): void {
+		form.values.period = [];
+		form.queries.period = '';
+		clearStyles();
+	}
+
+	function chooseEra(code: string | null): void {
+		const next: EraCode | null = isEraCode(code) ? code : null;
+		if (form.eraCode !== null && next !== form.eraCode) clearPeriod();
+		form.eraCode = next;
+	}
+
+	function choosePeriod(values: string[]): void {
+		const previous = form.values.period[0];
+		form.values.period = values;
+		if (previous !== undefined && previous !== values[0]) clearStyles();
 	}
 
 	function setAuthorUnknown(): void {
@@ -130,34 +202,45 @@
 	async function submit(): Promise<void> {
 		const andNext = next;
 		next = false;
+		if (saving !== null) return;
 		formError = '';
-		const input = artworkInputFromForm(form);
+		const snapshot = $state.snapshot(form);
+		const input = artworkInputFromForm(snapshot);
 		fieldErrors = validateArtwork(input);
 		if (Object.keys(fieldErrors).length > 0) return;
 
 		saving = andNext ? 'next' : 'save';
-		const result = await saveArtwork(
-			input,
-			artwork ? { id: artwork.id, image: artwork.image } : undefined
-		);
-		if (!result.saved) {
-			fieldErrors = result.fieldErrors;
-			formError = result.error ?? '';
+		try {
+			if (!(await confirmDuplicate(input))) return;
+			const result = await saveArtwork(
+				input,
+				artwork ? { id: artwork.id, image: artwork.image } : undefined
+			);
+			if (!result.saved) {
+				fieldErrors = result.fieldErrors;
+				formError = result.error ?? '';
+				return;
+			}
+
+			saved = snapshot;
+			try {
+				await onsaved(result.number, andNext);
+			} catch {
+				const number = formatRecordNumber(result.number);
+				toast.show(artwork ? m.artworkForm.changesSaved(number) : m.artworkForm.saved(number));
+				return;
+			}
+			if (!andNext) return;
+
+			form = emptyArtworkForm();
+			saved = emptyArtworkForm();
+			toast.show(m.artworkForm.saved(formatRecordNumber(result.number)));
+			window.scrollTo({ top: 0 });
+			await tick();
+			document.getElementById(titleId)?.focus();
+		} finally {
 			saving = null;
-			return;
 		}
-
-		saved = $state.snapshot(form);
-		await onsaved(result.number, andNext);
-		saving = null;
-		if (!andNext) return;
-
-		form = emptyArtworkForm();
-		saved = emptyArtworkForm();
-		toast.show(m.artworkForm.saved(formatRecordNumber(result.number)));
-		window.scrollTo({ top: 0 });
-		await tick();
-		document.getElementById(titleId)?.focus();
 	}
 </script>
 
@@ -223,6 +306,33 @@
 				bind:value={form.typeCode}
 			/>
 
+			<ChoiceTiles
+				clearable
+				label={m.artworkForm.era}
+				onchange={chooseEra}
+				options={eraOptions}
+				value={form.eraCode}
+			/>
+
+			<ValueField
+				label={m.artworkForm.period}
+				locked={periodLocked}
+				options={periodOptions()}
+				placeholder={periodLocked ? m.artworkForm.periodLocked : undefined}
+				single
+				bind:query={form.queries.period}
+				bind:values={() => form.values.period, choosePeriod}
+			/>
+
+			<ValueField
+				label={m.artworkForm.style}
+				locked={styleLocked}
+				options={styleOptions()}
+				placeholder={styleLocked ? m.artworkForm.styleLocked : undefined}
+				bind:query={form.queries.style}
+				bind:values={form.values.style}
+			/>
+
 			{#each describedCategories as category (category.code)}
 				<ValueField
 					hint={category.code === 'location' ? m.artworkForm.locationHint : undefined}
@@ -261,7 +371,7 @@
 
 <Dialog
 	description={m.artworkForm.discardDescription}
-	onclose={() => answerDiscard?.(false)}
+	onclose={() => discardQuestion.answer(false)}
 	size="small"
 	title={m.artworkForm.discardTitle}
 	bind:open={discardOpen}
@@ -272,6 +382,26 @@
 		</Button>
 		<Button onclick={() => answer(true)} variant="primary">
 			{m.artworkForm.discard}
+		</Button>
+	{/snippet}
+</Dialog>
+
+<Dialog
+	description={m.artworkForm.duplicateDescription(
+		formatRecordNumbers(duplicates),
+		duplicates.length
+	)}
+	onclose={() => duplicateQuestion.answer(false)}
+	size="small"
+	title={m.artworkForm.duplicateTitle}
+	bind:open={duplicateOpen}
+>
+	{#snippet footer()}
+		<Button onclick={() => answerDuplicateDialog(false)}>
+			{m.artworkForm.keepEditing}
+		</Button>
+		<Button onclick={() => answerDuplicateDialog(true)} variant="primary">
+			{m.artworkForm.saveAnyway}
 		</Button>
 	{/snippet}
 </Dialog>

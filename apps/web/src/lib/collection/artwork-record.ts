@@ -1,23 +1,21 @@
 import { m } from '#lib/i18n/index.ts';
 import { ownImageUrl, removeOwnImage, uploadOwnImage } from '#lib/images/own-image.ts';
 import { supabase } from '#lib/supabase.ts';
+import { valuesOf } from './artwork-values.ts';
 import { artworkErrorMessage } from './errors.ts';
 import type {
 	ArtworkFieldErrors,
 	ArtworkImageInput,
 	ArtworkInput,
+	ArtworkValueRow,
 	ArtworkRecord,
 	ArtworkTypeCode,
 	CategoryCode,
+	EraCode,
 	ExistingArtwork,
 	LoadArtworkResult,
 	SaveArtworkResult
 } from './types.ts';
-
-type CategoryValueRow = {
-	category_code: string;
-	name: string;
-};
 
 type ArtworkRecordRow = {
 	id: string;
@@ -27,6 +25,7 @@ type ArtworkRecordRow = {
 	year: number | null;
 	year_approximate: boolean;
 	type_code: ArtworkTypeCode | null;
+	era_code: EraCode | null;
 	notes: string | null;
 	source_wikidata_id: string | null;
 	source_image_file: string | null;
@@ -37,7 +36,7 @@ type ArtworkRecordRow = {
 	own_image_url: string | null;
 	image_width: number | null;
 	image_height: number | null;
-	artwork_values: { position: number; category_values: CategoryValueRow | null }[];
+	artwork_values: ArtworkValueRow[];
 };
 
 type StoredImage = Exclude<ArtworkImageInput, { kind: 'file' }>;
@@ -57,6 +56,7 @@ const RECORD_COLUMNS = [
 	'year',
 	'year_approximate',
 	'type_code',
+	'era_code',
 	'notes',
 	'source_wikidata_id',
 	'source_image_file',
@@ -79,7 +79,8 @@ export function emptyArtworkInput(): ArtworkInput {
 		beforeCommonEra: false,
 		yearApproximate: false,
 		typeCode: null,
-		periods: [],
+		eraCode: null,
+		period: null,
 		styles: [],
 		materials: [],
 		location: null,
@@ -132,6 +133,7 @@ function artworkColumns(input: StoredInput): Record<string, unknown> {
 		year: storedYear(input),
 		year_approximate: input.year !== null && input.yearApproximate,
 		type_code: input.typeCode,
+		era_code: input.eraCode,
 		notes: input.notes.trim() || null,
 		...imageColumns(input.image)
 	};
@@ -140,7 +142,7 @@ function artworkColumns(input: StoredInput): Record<string, unknown> {
 function valuesByCategory(input: ArtworkInput): Record<CategoryCode, string[]> {
 	return {
 		author: input.authorUnknown ? [] : names(input.authors),
-		period: names(input.periods),
+		period: names(input.period === null ? [] : [input.period]),
 		style: names(input.styles),
 		material: names(input.materials),
 		location: names(input.location === null ? [] : [input.location])
@@ -181,7 +183,7 @@ export async function saveArtwork(
 		})
 		.single();
 	if (error) {
-		if (newUpload) await removeOwnImage(newUpload);
+		if (newUpload && error.code) await removeOwnImage(newUpload);
 		return { saved: false, error: artworkErrorMessage(error), fieldErrors };
 	}
 
@@ -192,13 +194,6 @@ export async function saveArtwork(
 
 	const row = data as SavedRow;
 	return { saved: true, id: row.id, number: row.record_number };
-}
-
-function valuesOf(row: ArtworkRecordRow, category: CategoryCode): string[] {
-	return row.artwork_values
-		.filter((value) => value.category_values?.category_code === category)
-		.sort((a, b) => a.position - b.position)
-		.map((value) => (value.category_values as CategoryValueRow).name);
 }
 
 function imageOf(row: ArtworkRecordRow): ArtworkImageInput | null {
@@ -224,16 +219,17 @@ function artworkRecordFromRow(row: ArtworkRecordRow): ArtworkRecord {
 		id: row.id,
 		number: row.record_number,
 		title: row.title,
-		authors: valuesOf(row, 'author'),
+		authors: valuesOf(row.artwork_values, 'author'),
 		authorUnknown: row.author_unknown,
 		year: row.year === null ? null : Math.abs(row.year),
 		beforeCommonEra: row.year !== null && row.year < 0,
 		yearApproximate: row.year_approximate,
 		typeCode: row.type_code,
-		periods: valuesOf(row, 'period'),
-		styles: valuesOf(row, 'style'),
-		materials: valuesOf(row, 'material'),
-		location: valuesOf(row, 'location')[0] ?? null,
+		eraCode: row.era_code,
+		period: valuesOf(row.artwork_values, 'period')[0] ?? null,
+		styles: valuesOf(row.artwork_values, 'style'),
+		materials: valuesOf(row.artwork_values, 'material'),
+		location: valuesOf(row.artwork_values, 'location')[0] ?? null,
 		notes: row.notes ?? '',
 		image: imageOf(row)
 	};

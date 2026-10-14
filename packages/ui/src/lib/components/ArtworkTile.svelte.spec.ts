@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
+import Landmark from '@lucide/svelte/icons/landmark';
 import { render } from 'vitest-browser-svelte';
 import { defaultUiMessages } from '../messages';
 import MessagesHost from '../testing/MessagesHost.svelte';
@@ -82,6 +83,37 @@ describe('ArtworkTile', () => {
 		render(ArtworkTile, { ...base, noImageLabel: 'Brak zdjęcia' });
 
 		await expect.element(page.getByRole('img', { name: 'Brak zdjęcia' })).toBeVisible();
+	});
+
+	it('says the image did not load when it is unavailable, not that there is none', async () => {
+		render(ArtworkTile, { ...base, imageUnavailable: true });
+
+		await expect.element(page.getByText(defaultUiMessages.imageFailed)).toBeVisible();
+		await expect
+			.element(page.getByRole('img', { name: defaultUiMessages.noImage }))
+			.not.toBeInTheDocument();
+	});
+
+	it('uses its own text for an unavailable image', async () => {
+		render(ArtworkTile, {
+			...base,
+			imageUnavailable: true,
+			imageUnavailableLabel: 'Brak połączenia'
+		});
+
+		await expect.element(page.getByText('Brak połączenia')).toBeVisible();
+	});
+
+	it('shows the mark with its label in the corner of the image', async () => {
+		render(ArtworkTile, { ...base, mark: Landmark, markLabel: 'Antiquity' });
+
+		await expect.element(page.getByRole('img', { name: 'Antiquity' })).toBeVisible();
+	});
+
+	it('shows no mark when there is none', async () => {
+		const { container } = await render(ArtworkTile, base);
+
+		expect(container.querySelector('.mark')).toBeNull();
 	});
 
 	it('uses the library texts set with setUiMessages', async () => {

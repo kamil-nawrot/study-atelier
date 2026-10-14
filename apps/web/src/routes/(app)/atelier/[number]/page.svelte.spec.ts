@@ -31,7 +31,8 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 		beforeCommonEra: false,
 		yearApproximate: true,
 		typeCode: 'painting',
-		periods: ['Baroque'],
+		eraCode: 'early_modern',
+		period: 'Baroque',
 		styles: [],
 		materials: ['Oil', 'Canvas'],
 		location: 'Mauritshuis',
@@ -71,6 +72,7 @@ describe('artwork page', () => {
 		await expect.element(page.getByText('Johannes Vermeer', { exact: true })).toBeVisible();
 		await expect.element(page.getByText('ok. 1665', { exact: true })).toBeVisible();
 		await expect.element(page.getByText(m.artworkTypes.painting)).toBeVisible();
+		await expect.element(details(m.eras.early_modern.name)).toBeVisible();
 		await expect.element(details('Baroque')).toBeVisible();
 		await expect.element(page.getByText('Canvas', { exact: true })).toBeVisible();
 		await expect.element(page.getByText('Mauritshuis', { exact: true })).toBeVisible();
@@ -110,7 +112,8 @@ describe('artwork page', () => {
 				year: null,
 				yearApproximate: false,
 				typeCode: null,
-				periods: [],
+				eraCode: null,
+				period: null,
 				materials: [],
 				location: null,
 				notes: ''
@@ -118,7 +121,7 @@ describe('artwork page', () => {
 		});
 
 		await expect.element(page.getByText(m.ui.unknownAuthor, { exact: true })).toBeVisible();
-		expect(page.getByText(m.artworkView.empty).elements()).toHaveLength(6);
+		expect(page.getByText(m.artworkView.empty).elements()).toHaveLength(7);
 	});
 
 	it('writes years before the common era', async () => {

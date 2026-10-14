@@ -1,7 +1,7 @@
 {
 	"name": "@study-atelier/web",
 	"private": true,
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -14,7 +14,8 @@
 		"format": "prettier --write .",
 		"test:unit": "vitest",
 		"test": "vitest --run",
-		"gen": "wrangler types --env-file /dev/null"
+		"gen": "wrangler types --env-file /dev/null",
+		"screenshot": "node scripts/screenshot/screenshot.mjs"
 	},
 	"devDependencies": {
 		"@lucide/svelte": "^1.55.0",

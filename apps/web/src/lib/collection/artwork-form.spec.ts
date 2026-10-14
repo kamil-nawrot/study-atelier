@@ -49,7 +49,8 @@ describe('artworkInputFromForm', () => {
 			beforeCommonEra: false,
 			yearApproximate: true,
 			typeCode: 'painting',
-			periods: [],
+			eraCode: null,
+			period: null,
 			styles: ['baroque'],
 			materials: [],
 			location: 'Mauritshuis',
@@ -85,7 +86,8 @@ describe('artworkFormFromRecord', () => {
 		beforeCommonEra: false,
 		yearApproximate: true,
 		typeCode: 'sculpture',
-		periods: ['19th century'],
+		eraCode: 'modern',
+		period: '19th century',
 		styles: ['Impressionism', 'Symbolism'],
 		materials: ['Bronze'],
 		location: 'Musée Rodin',
@@ -109,6 +111,7 @@ describe('artworkFormFromRecord', () => {
 			beforeCommonEra: false,
 			yearApproximate: true,
 			typeCode: 'sculpture',
+			eraCode: 'modern',
 			notes: 'Seen in Paris.',
 			image: { kind: 'upload', path: 'user-id/thinker.jpg', width: 3, height: 4 }
 		});

@@ -3,6 +3,8 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { beforeNavigate, goto, invalidateAll } from '$app/navigation';
 import { emptyCategoryValues } from '#lib/collection/category-values.ts';
+import { emptyValueLinks } from '#lib/collection/value-links.ts';
+import type { ValueLinks } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import {
 	IMAGES_BUCKET,
@@ -20,9 +22,12 @@ vi.mock('$app/navigation', () => ({
 	goto: vi.fn(),
 	invalidateAll: vi.fn()
 }));
+const artworks = vi.hoisted(() => ({ select: vi.fn(), is: vi.fn() }));
+
 vi.mock('#lib/supabase.ts', () => ({
 	supabase: {
 		auth: { getSession: vi.fn(), signOut: vi.fn() },
+		from: vi.fn(() => artworks),
 		rpc: vi.fn(),
 		storage: { from: vi.fn() }
 	}
@@ -31,10 +36,39 @@ vi.mock('#lib/supabase.ts', () => ({
 const rpcCall = { single: vi.fn() };
 const bucket = { upload: vi.fn(), remove: vi.fn() };
 
-function renderPage(): void {
-	const values = emptyCategoryValues();
-	values.style = ['Delft school'];
-	render(AddArtworkPage, { data: { session: testSession(), values }, params: {} });
+function linkedValues(): ValueLinks {
+	const links = emptyValueLinks();
+	links.periodsByEra.early_modern = ['Dutch Golden Age', 'Mannerism'];
+	links.periodsByEra.modern = ['Realism'];
+	links.stylesByPeriod['dutch golden age'] = ['Delft school', 'Leiden fijnschilders'];
+	return links;
+}
+
+let screen: ReturnType<typeof render>;
+
+function renderPage(links: ValueLinks = emptyValueLinks()): void {
+	screen = render(AddArtworkPage, {
+		data: { session: testSession(), values: emptyCategoryValues(), links },
+		params: {}
+	});
+}
+
+function eraTile(code: keyof typeof m.eras): ReturnType<typeof page.getByRole> {
+	return page.getByRole('radio', { name: `${m.eras[code].name} ${m.eras[code].years}` });
+}
+
+function periodField(): ReturnType<typeof page.getByRole> {
+	return page.getByRole('combobox', { name: m.artworkForm.period });
+}
+
+function styleField(): ReturnType<typeof page.getByRole> {
+	return page.getByRole('combobox', { name: m.artworkForm.style });
+}
+
+async function chooseEraAndPeriod(): Promise<void> {
+	await userEvent.click(eraTile('early_modern'));
+	await userEvent.click(periodField());
+	await userEvent.click(page.getByRole('option', { name: 'Dutch Golden Age' }));
 }
 
 function titleField(): ReturnType<typeof page.getByRole> {
@@ -131,10 +165,36 @@ function savedArtwork(): Record<string, unknown> {
 	return args.artwork;
 }
 
+function savedBefore(title: string, author: string, number = 5): void {
+	artworks.is.mockResolvedValue({
+		data: [
+			{
+				id: `artwork-${number}`,
+				record_number: number,
+				title,
+				artwork_values: [{ category_values: { category_code: 'author', name: author } }]
+			}
+		],
+		error: null
+	});
+}
+
+function duplicateDialog(): ReturnType<typeof page.getByRole> {
+	return page.getByRole('alertdialog', { name: m.artworkForm.duplicateTitle });
+}
+
 async function fillRequired(): Promise<void> {
 	await titleField().fill('The Milkmaid');
 	await userEvent.click(authorsField());
 	await userEvent.keyboard('Johannes Vermeer{Enter}');
+}
+
+function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
+	let resolve: (value: T) => void = () => {};
+	const promise = new Promise<T>((done) => {
+		resolve = done;
+	});
+	return { promise, resolve };
 }
 
 describe('add artwork page', () => {
@@ -152,6 +212,8 @@ describe('add artwork page', () => {
 		vi.mocked(supabase.storage.from).mockReturnValue(bucket as never);
 		bucket.upload.mockResolvedValue({ data: { path: 'ignored' }, error: null });
 		bucket.remove.mockResolvedValue({ data: [], error: null });
+		artworks.select.mockReturnValue(artworks);
+		artworks.is.mockResolvedValue({ data: [], error: null });
 		await page.viewport(1280, 800);
 	});
 
@@ -223,16 +285,122 @@ describe('add artwork page', () => {
 		await expect.element(page.getByText(m.artworkForm.findImageHint)).not.toBeInTheDocument();
 	});
 
-	it('suggests the values already used and the starting list', async () => {
+	it('shows the six eras in order and locks the period and the style until they are chosen', async () => {
+		renderPage(linkedValues());
+
+		await expect.element(page.getByRole('group', { name: m.artworkForm.era })).toBeVisible();
+		await expect.element(eraTile('prehistory')).toBeVisible();
+		await expect.element(eraTile('contemporary')).toBeVisible();
+		expect(page.getByRole('radio').elements()).toHaveLength(6);
+		await expect.element(periodField()).toBeDisabled();
+		await expect.element(periodField()).toHaveAttribute('placeholder', m.artworkForm.periodLocked);
+		await expect.element(styleField()).toBeDisabled();
+		await expect.element(styleField()).toHaveAttribute('placeholder', m.artworkForm.styleLocked);
+	});
+
+	it('unlocks the period with the periods of the chosen era only', async () => {
+		renderPage(linkedValues());
+
+		await userEvent.click(eraTile('early_modern'));
+		await expect.element(periodField()).toBeEnabled();
+		await userEvent.click(periodField());
+
+		const options = page.getByRole('listbox', { name: m.artworkForm.period }).getByRole('option');
+		await expect.element(options.first()).toHaveTextContent('Dutch Golden Age');
+		await expect.element(page.getByRole('option', { name: 'Mannerism' })).toBeVisible();
+		await expect.element(page.getByRole('option', { name: 'Realism' })).not.toBeInTheDocument();
+		await expect.element(styleField()).toBeDisabled();
+	});
+
+	it('unlocks the style with the styles of the chosen period only', async () => {
+		renderPage(linkedValues());
+
+		await chooseEraAndPeriod();
+		await expect.element(styleField()).toBeEnabled();
+		await userEvent.click(styleField());
+
+		await expect.element(page.getByRole('option', { name: 'Delft school' })).toBeVisible();
+		await expect.element(page.getByRole('option', { name: 'Leiden fijnschilders' })).toBeVisible();
+	});
+
+	it('allows a new period and a new style when the era has none yet', async () => {
 		renderPage();
 
-		await userEvent.click(page.getByRole('combobox', { name: m.artworkForm.style }));
+		await userEvent.click(eraTile('modern'));
+		await userEvent.click(periodField());
+		await userEvent.keyboard('Pointillism{Enter}');
+		await userEvent.click(styleField());
+		await userEvent.keyboard('Neo-impressionism{Enter}');
 
-		const options = page.getByRole('listbox').getByRole('option');
-		await expect.element(options.first()).toHaveTextContent('Delft school');
-		await expect
-			.element(page.getByRole('option', { name: m.startingValues.style[0] }))
-			.toBeVisible();
+		await expect.element(page.getByText('Pointillism', { exact: true })).toBeVisible();
+		await expect.element(page.getByText('Neo-impressionism', { exact: true })).toBeVisible();
+	});
+
+	it('clears the period and the style when another era is chosen', async () => {
+		renderPage(linkedValues());
+		await chooseEraAndPeriod();
+		await userEvent.click(styleField());
+		await userEvent.click(page.getByRole('option', { name: 'Delft school' }));
+
+		await userEvent.click(eraTile('modern'));
+
+		await expect.element(page.getByText('Dutch Golden Age')).not.toBeInTheDocument();
+		await expect.element(page.getByText('Delft school')).not.toBeInTheDocument();
+		await expect.element(periodField()).toBeEnabled();
+		await expect.element(styleField()).toBeDisabled();
+	});
+
+	it('clears the period and the style when the era is cleared', async () => {
+		renderPage(linkedValues());
+		await chooseEraAndPeriod();
+
+		await userEvent.click(eraTile('early_modern'));
+
+		await expect.element(eraTile('early_modern')).not.toBeChecked();
+		await expect.element(page.getByText('Dutch Golden Age')).not.toBeInTheDocument();
+		await expect.element(periodField()).toBeDisabled();
+		await expect.element(styleField()).toBeDisabled();
+	});
+
+	it('clears the style when the period is removed', async () => {
+		renderPage(linkedValues());
+		await chooseEraAndPeriod();
+		await userEvent.click(styleField());
+		await userEvent.click(page.getByRole('option', { name: 'Delft school' }));
+
+		await page.getByRole('button', { name: /Dutch Golden Age/ }).click();
+
+		await expect.element(page.getByText('Delft school')).not.toBeInTheDocument();
+		await expect.element(styleField()).toBeDisabled();
+		await expect.element(periodField()).toBeEnabled();
+	});
+
+	it('saves the era, the period and the style with the artwork', async () => {
+		renderPage(linkedValues());
+		await fillRequired();
+		await chooseEraAndPeriod();
+		await userEvent.click(styleField());
+		await userEvent.click(page.getByRole('option', { name: 'Delft school' }));
+
+		await saveButton().click();
+
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, unknown>];
+		expect(args.artwork).toMatchObject({ era_code: 'early_modern' });
+		expect(args.values_by_category).toMatchObject({
+			period: ['Dutch Golden Age'],
+			style: ['Delft school']
+		});
+	});
+
+	it('saves an artwork without an era with no era code and no period', async () => {
+		renderPage();
+		await fillRequired();
+
+		await saveButton().click();
+
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, unknown>];
+		expect(args.artwork).toMatchObject({ era_code: null });
+		expect(args.values_by_category).toMatchObject({ period: [], style: [] });
 	});
 
 	it('saves formatted notes as Markdown', async () => {
@@ -318,6 +486,64 @@ describe('add artwork page', () => {
 		expect(goto).not.toHaveBeenCalled();
 	});
 
+	it('asks before saving an artwork with the same title and authors and goes back on request', async () => {
+		savedBefore('the  milkmaid', 'johannes vermeer');
+		renderPage();
+		await fillRequired();
+
+		await saveButton().click();
+
+		await expect.element(duplicateDialog()).toBeVisible();
+		await expect
+			.element(duplicateDialog())
+			.toHaveAccessibleDescription(m.artworkForm.duplicateDescription('#0005', 1));
+		await page.getByRole('button', { name: m.artworkForm.keepEditing }).click();
+
+		await expect.element(duplicateDialog()).not.toBeInTheDocument();
+		await expect.element(titleField()).toHaveValue('The Milkmaid');
+		await expect.element(saveButton()).toBeEnabled();
+		expect(supabase.rpc).not.toHaveBeenCalled();
+		expect(goto).not.toHaveBeenCalled();
+	});
+
+	it('saves the matching artwork after the learner confirms', async () => {
+		savedBefore('The Milkmaid', 'Johannes Vermeer');
+		renderPage();
+		await fillRequired();
+
+		await saveButton().click();
+		await page.getByRole('button', { name: m.artworkForm.saveAnyway }).click();
+
+		await vi.waitFor(() =>
+			expect(goto).toHaveBeenCalledWith('/atelier', { state: { highlight: 12 } })
+		);
+		expect(supabase.rpc).toHaveBeenCalledTimes(1);
+	});
+
+	it('asks the same way before saving and starting the next artwork', async () => {
+		savedBefore('The Milkmaid', 'Johannes Vermeer');
+		renderPage();
+		await fillRequired();
+
+		await page.getByRole('button', { name: m.artworkForm.saveAndNext }).click();
+		await page.getByRole('button', { name: m.artworkForm.saveAnyway }).click();
+
+		await expect.element(page.getByRole('status')).toHaveTextContent(m.artworkForm.saved('#0012'));
+		await expect.element(titleField()).toHaveValue('');
+	});
+
+	it('does not ask when another artwork has the same title but other authors', async () => {
+		savedBefore('The Milkmaid', 'Jan Steen');
+		renderPage();
+		await fillRequired();
+
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
+		expect(supabase.from).toHaveBeenCalledWith('artworks');
+		expect(artworks.is).toHaveBeenCalledWith('deleted_at', null);
+	});
+
 	it('says when saving failed and lets the learner try again', async () => {
 		rpcCall.single.mockResolvedValue({
 			data: null,
@@ -332,6 +558,50 @@ describe('add artwork page', () => {
 		await expect.element(saveButton()).toBeEnabled();
 		await expect.element(titleField()).toHaveValue('The Milkmaid');
 		expect(goto).not.toHaveBeenCalled();
+	});
+
+	it('keeps a change made while saving as unsaved', async () => {
+		const response = deferred<{ data: unknown; error: null }>();
+		rpcCall.single.mockReturnValue(response.promise);
+		renderPage();
+		await fillRequired();
+
+		await saveButton().click();
+		await titleField().fill('The Milkmaid (second version)');
+		response.resolve({ data: { id: 'artwork-12', record_number: 12 }, error: null });
+		await expect.element(saveButton()).toBeEnabled();
+
+		const navigation = leave();
+
+		expect(navigation.cancel).toHaveBeenCalled();
+		await expect
+			.element(page.getByRole('alertdialog', { name: m.artworkForm.discardTitle }))
+			.toBeVisible();
+	});
+
+	it('saves once when the form is submitted again while saving', async () => {
+		rpcCall.single.mockReturnValue(pending());
+		renderPage();
+		await fillRequired();
+
+		await saveButton().click();
+		document.querySelector('form')?.requestSubmit();
+		document.querySelector('form')?.requestSubmit();
+
+		await expect.element(page.getByRole('button', { name: m.artworkForm.saving })).toBeDisabled();
+		expect(supabase.rpc).toHaveBeenCalledTimes(1);
+	});
+
+	it('enables the buttons again and says the artwork is saved when opening the next page fails', async () => {
+		vi.mocked(goto).mockRejectedValueOnce(new Error('Navigation failed'));
+		renderPage();
+		await fillRequired();
+
+		await saveButton().click();
+
+		await expect.element(saveButton()).toBeEnabled();
+		await expect.element(page.getByRole('status')).toHaveTextContent(m.artworkForm.saved('#0012'));
+		await expect.element(page.getByText(m.artworkForm.errorTitle)).not.toBeInTheDocument();
 	});
 
 	it('shows a picked file with its size and uploads it to the learner folder on save', async () => {
@@ -570,6 +840,47 @@ describe('add artwork page', () => {
 		await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
 	});
 
+	it('opens one question when the learner tries to leave twice', async () => {
+		renderPage();
+		await titleField().fill('The Milkmaid');
+
+		const first = leave();
+		const second = leave();
+		await page.getByRole('button', { name: m.artworkForm.discard, exact: true }).click();
+
+		expect(first.cancel).toHaveBeenCalled();
+		expect(second.cancel).toHaveBeenCalled();
+		await vi.waitFor(() => expect(goto).toHaveBeenCalledTimes(1));
+	});
+
+	it('guards the form again when it is changed after the learner chose to discard', async () => {
+		renderPage();
+		await titleField().fill('The Milkmaid');
+
+		leave();
+		await page.getByRole('button', { name: m.artworkForm.discard, exact: true }).click();
+		await titleField().fill('The Milkmaid, second thoughts');
+		const navigation = leave();
+
+		expect(navigation.cancel).toHaveBeenCalled();
+		await expect
+			.element(page.getByRole('alertdialog', { name: m.artworkForm.discardTitle }))
+			.toBeVisible();
+	});
+
+	it('does not sign out when the form is closed while the question is open', async () => {
+		renderPage();
+		await titleField().fill('The Milkmaid');
+
+		await page.getByRole('button', { name: m.menu.signOut }).click();
+		await expect
+			.element(page.getByRole('alertdialog', { name: m.artworkForm.discardTitle }))
+			.toBeVisible();
+		await (await screen).unmount();
+
+		expect(supabase.auth.signOut).not.toHaveBeenCalled();
+	});
+
 	it('asks about unsaved changes before signing out', async () => {
 		renderPage();
 		await titleField().fill('The Milkmaid');
@@ -657,6 +968,8 @@ describe('image search on the add artwork page', () => {
 		fetchMock.mockReset();
 		vi.stubGlobal('fetch', fetchMock);
 		vi.mocked(supabase.rpc).mockReturnValue(rpcCall as never);
+		artworks.select.mockReturnValue(artworks);
+		artworks.is.mockResolvedValue({ data: [], error: null });
 		rpcCall.single.mockResolvedValue({
 			data: { id: 'artwork-12', record_number: 12 },
 			error: null

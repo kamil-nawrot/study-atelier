@@ -1,0 +1,53 @@
+name: UI library
+
+on:
+  pull_request:
+    paths:
+      - 'packages/ui/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'package.json'
+      - '.nvmrc'
+      - 'stylelint.config.js'
+      - 'eslint.config.base.js'
+      - 'prettier.config.js'
+      - 'design/**'
+      - '.github/workflows/ui.yml'
+  workflow_call:
+
+concurrency:
+  group: ui-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  ui:
+    name: UI library
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --filter @study-atelier/ui lint
+
+      - name: Type check and token CSS check
+        run: pnpm --filter @study-atelier/ui check
+
+      - name: Install Playwright Chromium
+        run: pnpm --filter @study-atelier/ui exec playwright install --with-deps --only-shell chromium
+
+      - name: Unit and component tests
+        run: pnpm --filter @study-atelier/ui test
+
+      - name: Build Storybook
+        run: pnpm --filter @study-atelier/ui build

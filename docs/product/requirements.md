@@ -26,6 +26,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-30 | The learner adds and edits an artwork in the same form, which shows every field; they can fill in all of them or only the required ones ([ADR-0022](../decisions/0022-add-and-edit-an-artwork-in-one-full-form.md)). | MVP |
 | R-31 | When adding, the learner can save the artwork and start the next one straight away. | MVP |
 | R-32 | Leaving the form with unsaved changes asks the learner to confirm that the changes are discarded. | MVP |
+| R-43 | When the learner saves an artwork whose title and authors match another artwork outside the trash, ignoring letter case, diacritics, whitespace and the order of authors, the app names the matching record and asks to confirm; saving stays possible. When editing, it asks only if the title or the authors changed ([ADR-0039](../decisions/0039-confirm-saving-a-duplicate-artwork.md)). | later |
 | R-33 | The learner views an artwork on its own page with its image and every field; a field that is not filled in is shown as empty, so the learner sees what is still missing ([ADR-0026](../decisions/0026-artwork-view-as-a-stage-with-an-information-panel.md)). | MVP |
 | R-34 | From the artwork page the learner can open the image full screen. | MVP |
 | R-23 | Deleting an artwork moves it to the trash. From the trash the learner can restore it or delete it permanently. Artworks in the trash are hidden from the collection and from suggestions. | MVP |
@@ -66,6 +67,11 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-44 | Every artwork can have one [era](glossary.md), chosen from six fixed eras shown with approximate years: prehistoria (do 3000 p.n.e.), starożytność (do 476), średniowiecze (476–1492), nowożytność (1492–1789), nowoczesność (1789–1945), współczesność (od 1945) ([ADR-0038](../decisions/0038-chain-era-period-and-style.md)). | later |
 | R-45 | Era, period and style form a chain: the period can be filled in only after the era, and the style only after the period. The period suggests only periods already used with the chosen era, and the style only styles already used with the chosen period. Clearing or changing a level clears the levels below it. | later |
 | R-46 | A period or style is one value even when it belongs to several eras or periods (R-8); saving an artwork links its period to its era and each of its styles to its period. | later |
+| R-48 | The learner manages their category values in a card index view ("Kartoteka") opened from the menu: periods and styles as a timeline of the six eras, materials, authors and locations as alphabetical lists, each value with the number of artworks that use it, artworks in the trash included ([ADR-0040](../decisions/0040-manage-category-values-in-a-card-index.md)). | later |
+| R-49 | The learner renames a value. A new name that matches another value of the same kind (R-25) merges the two after the learner confirms: the artworks and links of the merged value pass to the remaining one, and the merged value is deleted. | later |
+| R-50 | The learner adds and removes the eras of a period and the periods of a style. Adding a link changes no artwork. Removing an era from a period moves the artworks that have the period with that era to an era the period keeps, or leaves them without an era, after the learner confirms with the number of artworks. A period can be removed from a style only while no artwork has both. | later |
+| R-51 | The learner can delete a value only when no artwork uses it, artworks in the trash included, after confirming. | later |
+| R-52 | Every artwork tile on the wall shows the icon of the artwork's era, small and muted. While the wall is ordered by era, the period rail shows the icon only for the current era. | later |
 
 ## Images
 

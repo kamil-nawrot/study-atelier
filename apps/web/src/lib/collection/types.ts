@@ -2,7 +2,11 @@ import type { ArtworkTileImage } from '@study-atelier/ui';
 
 export type WallOrder = 'recent' | 'period';
 
+export type EraCode =
+	'prehistory' | 'antiquity' | 'middle_ages' | 'early_modern' | 'modern' | 'contemporary';
+
 export type PeriodGroup = {
+	code: EraCode;
 	name: string;
 	from: number | null;
 	to: number | null;
@@ -14,6 +18,11 @@ export type CurrentPeriod = {
 	progress: number;
 };
 
+export type ArtworkValueRow = {
+	position: number;
+	category_values: { category_code: string; name: string } | null;
+};
+
 export type WallArtwork = {
 	id: string;
 	number: number;
@@ -21,8 +30,11 @@ export type WallArtwork = {
 	authors: string[];
 	date?: string;
 	year: number | null;
-	periods: string[];
+	eraCode: EraCode | null;
 	image?: ArtworkTileImage;
+	imageUnavailable?: boolean;
+	ownImagePath?: string | null;
+	imageSignedAt?: number;
 };
 
 export type AtelierResult = {
@@ -59,8 +71,18 @@ export type CategoryValuesResult = {
 	error?: string;
 };
 
+export type ValueLinks = {
+	periodsByEra: Record<EraCode, string[]>;
+	stylesByPeriod: Record<string, string[]>;
+};
+
+export type ValueLinksResult = {
+	links: ValueLinks;
+	error?: string;
+};
+
 export type ValueSuggestion = {
-	kind: 'similar' | 'existing' | 'starting' | 'new';
+	kind: 'similar' | 'existing' | 'new';
 	name: string;
 };
 
@@ -93,7 +115,8 @@ export type ArtworkInput = {
 	beforeCommonEra: boolean;
 	yearApproximate: boolean;
 	typeCode: ArtworkTypeCode | null;
-	periods: string[];
+	eraCode: EraCode | null;
+	period: string | null;
 	styles: string[];
 	materials: string[];
 	location: string | null;
@@ -132,6 +155,58 @@ export type ArtworkFormState = {
 	beforeCommonEra: boolean;
 	yearApproximate: boolean;
 	typeCode: ArtworkTypeCode | '';
+	eraCode: EraCode | null;
 	notes: string;
 	image: ArtworkImageInput | null;
+};
+
+export type CardIndexRecord = {
+	id: string;
+	category: CategoryCode;
+	name: string;
+	count: number;
+};
+
+export type CardIndexData = {
+	values: CardIndexRecord[];
+	periodEras: { periodId: string; eraCode: EraCode; count: number }[];
+	stylePeriods: { styleId: string; periodId: string; count: number }[];
+};
+
+export type CardIndexResult = {
+	index: CardIndexData;
+	error?: string;
+};
+
+export type CardIndexEntry = {
+	id: string;
+	name: string;
+	count: number;
+};
+
+export type CardIndexPeriod = CardIndexEntry & {
+	styles: CardIndexEntry[];
+};
+
+export type CardIndexEra = {
+	code: EraCode;
+	periods: CardIndexPeriod[];
+};
+
+export type CardIndexTimeline = {
+	eras: CardIndexEra[];
+	periodsWithoutEra: CardIndexPeriod[];
+	stylesWithoutPeriod: CardIndexEntry[];
+};
+
+export type NameChange =
+	| { kind: 'unchanged' }
+	| { kind: 'empty' }
+	| { kind: 'rename'; name: string }
+	| { kind: 'merge'; target: CardIndexRecord };
+
+export type EraMove = {
+	count: number;
+	removed: EraCode[];
+	remaining: EraCode[];
 };

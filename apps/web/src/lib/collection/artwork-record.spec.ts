@@ -56,6 +56,7 @@ function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 		year: null,
 		year_approximate: false,
 		type_code: null,
+		era_code: null,
 		notes: null,
 		source_wikidata_id: null,
 		source_image_file: null,
@@ -129,7 +130,8 @@ describe('saveArtwork', () => {
 					beforeCommonEra: true,
 					yearApproximate: true,
 					typeCode: 'sculpture',
-					periods: ['Classical'],
+					eraCode: 'antiquity',
+					period: 'Classical',
 					styles: [],
 					materials: ['Marble', ''],
 					location: 'Test Museum',
@@ -145,6 +147,7 @@ describe('saveArtwork', () => {
 				year: -480,
 				year_approximate: true,
 				type_code: 'sculpture',
+				era_code: 'antiquity',
 				notes: 'Seen in class.',
 				source_wikidata_id: null,
 				source_image_file: null,
@@ -261,7 +264,21 @@ describe('saveArtwork', () => {
 		expect(supabase.rpc).not.toHaveBeenCalled();
 	});
 
-	it('removes the uploaded file when the artwork could not be saved', async () => {
+	it('removes the uploaded file when the database rejected the artwork', async () => {
+		vi.mocked(uploadOwnImage).mockResolvedValue({ path: 'user-id/new.png' });
+		rpcCall.single.mockResolvedValue({
+			data: null,
+			error: { code: '23514', message: 'an artwork has authors or an unknown author' }
+		});
+
+		await expect(saveArtwork(input({ image: pickedFile() }))).resolves.toMatchObject({
+			saved: false,
+			error: m.artworkErrors.invalid
+		});
+		expect(removeOwnImage).toHaveBeenCalledWith('user-id/new.png');
+	});
+
+	it('keeps the uploaded file when no answer came back, because the artwork may be saved', async () => {
 		vi.mocked(uploadOwnImage).mockResolvedValue({ path: 'user-id/new.png' });
 		rpcCall.single.mockResolvedValue({
 			data: null,
@@ -272,7 +289,7 @@ describe('saveArtwork', () => {
 			saved: false,
 			error: m.artworkErrors.network
 		});
-		expect(removeOwnImage).toHaveBeenCalledWith('user-id/new.png');
+		expect(removeOwnImage).not.toHaveBeenCalled();
 	});
 
 	it('removes the previous file once another image replaced it', async () => {
@@ -363,10 +380,12 @@ describe('loadArtwork', () => {
 				year: -480,
 				year_approximate: true,
 				type_code: 'sculpture',
+				era_code: 'antiquity',
 				notes: 'Seen in class.',
 				artwork_values: [
 					value('author', 'Second Author', 1),
 					value('style', 'Classical', 0),
+					value('period', 'Hellenistic', 0),
 					value('author', 'First Author', 0),
 					value('location', 'Test Museum', 0),
 					value('material', 'Bronze', 1),
@@ -387,7 +406,8 @@ describe('loadArtwork', () => {
 				beforeCommonEra: true,
 				yearApproximate: true,
 				typeCode: 'sculpture',
-				periods: [],
+				eraCode: 'antiquity',
+				period: 'Hellenistic',
 				styles: ['Classical'],
 				materials: ['Marble', 'Bronze'],
 				location: 'Test Museum',

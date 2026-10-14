@@ -1,6 +1,6 @@
 <script lang="ts" module>
 	export type ValueOption = {
-		kind: 'similar' | 'existing' | 'starting' | 'new';
+		kind: 'similar' | 'existing' | 'new';
 		name: string;
 	};
 </script>
@@ -18,6 +18,7 @@
 		options?: readonly ValueOption[];
 		single?: boolean;
 		disabled?: boolean;
+		locked?: boolean;
 		hint?: string;
 		error?: string;
 		placeholder?: string;
@@ -31,6 +32,7 @@
 		options = [],
 		single = false,
 		disabled = false,
+		locked = false,
 		hint,
 		error,
 		placeholder,
@@ -38,7 +40,7 @@
 	}: Props = $props();
 
 	const texts = uiMessages().valueField;
-	const kinds: ValueOption['kind'][] = ['similar', 'existing', 'starting', 'new'];
+	const kinds: ValueOption['kind'][] = ['similar', 'existing', 'new'];
 
 	const generatedId = $props.id();
 	const inputId = $derived(id ?? generatedId);
@@ -49,15 +51,7 @@
 	const ordered = $derived(
 		kinds.flatMap((kind) => options.filter((option) => option.kind === kind))
 	);
-	const groups = $derived(
-		(['existing', 'starting'] as const)
-			.map((kind) => ({
-				kind,
-				title: texts[kind],
-				items: ordered.filter((option) => option.kind === kind)
-			}))
-			.filter((group) => group.items.length > 0)
-	);
+	const existing = $derived(ordered.filter((option) => option.kind === 'existing'));
 	const similar = $derived(ordered.find((option) => option.kind === 'similar'));
 	const added = $derived(ordered.find((option) => option.kind === 'new'));
 	const full = $derived(single && values.length > 0);
@@ -68,7 +62,8 @@
 	let active = $state(0);
 	let quiet = false;
 
-	const expanded = $derived(open && !disabled && !full && ordered.length > 0);
+	const inactive = $derived(disabled || locked);
+	const expanded = $derived(open && !inactive && !full && ordered.length > 0);
 	const activeIndex = $derived(Math.min(active, ordered.length - 1));
 
 	function optionId(option: ValueOption): string {
@@ -80,11 +75,12 @@
 		active = 0;
 	}
 
-	async function pick(option: ValueOption): Promise<void> {
+	async function pick(option: ValueOption, keyboard = false): Promise<void> {
 		values = single ? [option.name] : [...values, option.name];
 		query = '';
 		if (single) {
 			open = false;
+			if (!keyboard) return;
 			await tick();
 			control?.querySelector<HTMLButtonElement>('.remove')?.focus();
 		} else {
@@ -124,7 +120,7 @@
 		} else if (event.key === 'Enter') {
 			if (!expanded) return;
 			event.preventDefault();
-			pick(ordered[activeIndex]);
+			pick(ordered[activeIndex], true);
 		} else if (event.key === 'Escape') {
 			if (!expanded) return;
 			event.preventDefault();
@@ -136,7 +132,7 @@
 	}
 
 	function onfieldpointerdown(event: PointerEvent): void {
-		if (event.target === event.currentTarget && !disabled) {
+		if (event.target === event.currentTarget && !inactive) {
 			event.preventDefault();
 			input?.focus();
 		}
@@ -169,7 +165,7 @@
 	<div
 		bind:this={control}
 		class="control"
-		class:disabled
+		class:disabled={inactive}
 		class:invalid={!!error}
 		onpointerdown={onfieldpointerdown}
 		role="presentation"
@@ -200,7 +196,7 @@
 			aria-expanded={expanded}
 			aria-invalid={error ? true : undefined}
 			autocomplete="off"
-			{disabled}
+			disabled={inactive}
 			hidden={full}
 			onblur={() => (open = false)}
 			{onfocus}
@@ -215,16 +211,16 @@
 			{#if similar}
 				{@render item(similar, texts.similar(similar.name), texts.useSimilar)}
 			{/if}
-			{#each groups as group (group.kind)}
+			{#if existing.length > 0}
 				<li role="presentation">
-					<ul aria-labelledby={`${listId}-${group.kind}`} role="group">
-						<li id={`${listId}-${group.kind}`} class="group" role="presentation">{group.title}</li>
-						{#each group.items as option (option.name)}
+					<ul aria-labelledby={`${listId}-existing`} role="group">
+						<li id={`${listId}-existing`} class="group" role="presentation">{texts.existing}</li>
+						{#each existing as option (option.name)}
 							{@render item(option, option.name)}
 						{/each}
 					</ul>
 				</li>
-			{/each}
+			{/if}
 			{#if added}
 				{@render item(added, similar ? texts.addAnyway(added.name) : texts.add(added.name))}
 			{/if}

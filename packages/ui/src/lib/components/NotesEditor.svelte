@@ -90,14 +90,21 @@
 	let toolbar: HTMLDivElement;
 	let editor = $state.raw<Editor>();
 	let pressed = $state<Record<string, boolean>>({});
-	let empty = $state(!value.trim());
+	let blank = $state(!value.trim());
 	let focusedButton = $state(0);
 
 	function refresh(current: Editor): void {
 		pressed = Object.fromEntries(
 			commands.map((command) => [command.name, command.active(current)])
 		);
-		empty = current.isEmpty;
+		blank = isBlank(current);
+	}
+
+	function isBlank(current: Editor): boolean {
+		const { doc } = current.state;
+		return (
+			doc.childCount === 1 && doc.firstChild?.type.name === 'paragraph' && doc.textContent === ''
+		);
 	}
 
 	function describe(): Record<string, string> {
@@ -206,7 +213,7 @@
 			{/each}
 		</div>
 		<div class="surface">
-			{#if empty && placeholder}
+			{#if blank && placeholder}
 				<span class="placeholder" aria-hidden="true">{placeholder}</span>
 			{/if}
 			<div bind:this={host} class="editor"></div>

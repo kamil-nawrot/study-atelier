@@ -9,8 +9,10 @@
 </script>
 
 <script lang="ts">
+	import type { LucideIcon } from '@lucide/svelte';
 	import { uiMessages } from '../messages';
 	import ArtworkImage from './ArtworkImage.svelte';
+	import Icon from './Icon.svelte';
 	import NoImage from './NoImage.svelte';
 
 	type Props = {
@@ -20,8 +22,13 @@
 		authors: string[];
 		date?: string;
 		image?: ArtworkTileImage;
+		mark?: LucideIcon;
+		markLabel?: string;
 		unknownAuthorLabel?: string;
 		noImageLabel?: string;
+		imageUnavailable?: boolean;
+		imageUnavailableLabel?: string;
+		onimagefailed?: () => void;
 	};
 
 	let {
@@ -31,8 +38,13 @@
 		authors,
 		date,
 		image,
+		mark,
+		markLabel,
 		unknownAuthorLabel = uiMessages().unknownAuthor,
-		noImageLabel = uiMessages().noImage
+		noImageLabel = uiMessages().noImage,
+		imageUnavailable = false,
+		imageUnavailableLabel = uiMessages().imageFailed,
+		onimagefailed
 	}: Props = $props();
 
 	const RECORD_NUMBER_DIGITS = 4;
@@ -49,13 +61,21 @@
 					alt="{title}, {authorText}"
 					height={image.height}
 					loading="lazy"
+					onfailed={onimagefailed}
 					sizes={image.sizes}
 					src={image.src}
 					srcset={image.srcset}
 					width={image.width}
 				/>
+			{:else if imageUnavailable}
+				<ArtworkImage alt="{title}, {authorText}" failedLabel={imageUnavailableLabel} unavailable />
 			{:else}
 				<NoImage label={noImageLabel} />
+			{/if}
+			{#if mark}
+				<span class="mark">
+					<Icon icon={mark} label={markLabel} size="sm" />
+				</span>
 			{/if}
 			<span class="number">
 				{recordNumber}
@@ -113,6 +133,23 @@
 		line-height: var(--line-height-xs);
 		letter-spacing: var(--letter-spacing-wide);
 		font-variant-numeric: tabular-nums;
+	}
+
+	.mark {
+		position: absolute;
+		top: var(--spacing-2);
+		left: var(--spacing-2);
+		display: flex;
+		align-items: center;
+		padding: var(--spacing-1) var(--spacing-2);
+		background: var(--color-mat-badge-bg);
+		color: var(--color-mat-badge-fg);
+		line-height: var(--line-height-xs);
+	}
+
+	.mark :global(svg) {
+		width: var(--font-size-sm);
+		height: var(--font-size-sm);
 	}
 
 	figcaption {

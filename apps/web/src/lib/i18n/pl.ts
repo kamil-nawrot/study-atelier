@@ -30,7 +30,6 @@ export const pl = {
 		},
 		valueField: {
 			existing: 'Już używane',
-			starting: 'Lista startowa',
 			similar: (name: string): string => `Masz już „${name}”`,
 			useSimilar: 'Użyj tej wartości',
 			add: (name: string): string => `+ Dodaj „${name}”`,
@@ -142,6 +141,7 @@ export const pl = {
 		expand: 'Rozwiń menu',
 		collapse: 'Zwiń menu',
 		atelier: 'Atelier',
+		cardIndex: 'Kartoteka',
 		trash: 'Kosz',
 		signOut: 'Wyloguj się'
 	},
@@ -174,6 +174,9 @@ export const pl = {
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu.`,
 		clearSearch: 'Wyczyść wyszukiwanie',
 		loadErrorTitle: 'Nie udało się wczytać atelier',
+		imagesUnavailableTitle: 'Nie wszystkie zdjęcia się wczytały',
+		imagesUnavailable: 'Część zdjęć nie jest teraz dostępna. Spróbuj jeszcze raz za chwilę.',
+		retryImages: 'Spróbuj ponownie',
 		year: (year: number, approximate: boolean): string =>
 			`${approximate ? 'ok. ' : ''}${year < 0 ? `${-year} p.n.e.` : year}`,
 		yearRange: (from: string, to: string): string => `${from} – ${to}`
@@ -219,8 +222,11 @@ export const pl = {
 		yearApproximate: 'ok.',
 		type: 'Typ',
 		typeNone: 'Nie wybrano',
-		period: 'Epoka',
+		era: 'Epoka',
+		period: 'Okres',
+		periodLocked: 'Najpierw wybierz epokę.',
 		style: 'Styl',
+		styleLocked: 'Najpierw wybierz okres.',
 		material: 'Materiał',
 		location: 'Miejsce',
 		locationHint: 'Gdzie dzieło jest teraz. Jedna wartość.',
@@ -236,7 +242,11 @@ export const pl = {
 		discardTitle: 'Odrzucić zmiany?',
 		discardDescription: 'Masz niezapisane zmiany w tym dziele. Jeśli wyjdziesz, znikną.',
 		keepEditing: 'Wróć do formularza',
-		discard: 'Odrzuć'
+		discard: 'Odrzuć',
+		duplicateTitle: 'Masz już takie dzieło',
+		duplicateDescription: (numbers: string, count: number): string =>
+			`W atelier ${count === 1 ? 'jest' : 'są'} już ${numbers} o tym samym tytule i autorach. Jeśli to inne dzieło, po prostu je zapisz.`,
+		saveAnyway: 'Zapisz mimo to'
 	},
 	artworkView: {
 		back: 'Atelier',
@@ -278,6 +288,14 @@ export const pl = {
 		photography: 'Fotografia',
 		other: 'Inne'
 	},
+	eras: {
+		prehistory: { name: 'prehistoria', years: 'do 3000 p.n.e.' },
+		antiquity: { name: 'starożytność', years: 'do 476' },
+		middle_ages: { name: 'średniowiecze', years: '476–1492' },
+		early_modern: { name: 'nowożytność', years: '1492–1789' },
+		modern: { name: 'nowoczesność', years: '1789–1945' },
+		contemporary: { name: 'współczesność', years: 'od 1945' }
+	},
 	collectionErrors: {
 		network: 'Nie udało się połączyć z serwerem. Sprawdź internet i odśwież stronę.'
 	},
@@ -307,65 +325,136 @@ export const pl = {
 		uploadNetwork: 'Nie udało się wysłać zdjęcia. Sprawdź internet i spróbuj jeszcze raz.',
 		uploadFailed: 'Nie udało się wysłać zdjęcia. Spróbuj jeszcze raz za chwilę.'
 	},
-	startingValues: {
-		period: [
-			'prehistoria',
-			'starożytność',
-			'średniowiecze',
-			'renesans',
-			'barok',
-			'oświecenie',
-			'XIX wiek',
-			'modernizm',
-			'sztuka współczesna'
-		],
-		style: [
-			'sztuka egipska',
-			'sztuka grecka',
-			'sztuka rzymska',
-			'sztuka bizantyjska',
-			'romanizm',
-			'gotyk',
-			'renesans',
-			'manieryzm',
-			'barok',
-			'rokoko',
-			'klasycyzm',
-			'romantyzm',
-			'realizm',
-			'impresjonizm',
-			'postimpresjonizm',
-			'secesja',
-			'ekspresjonizm',
-			'kubizm',
-			'futuryzm',
-			'dadaizm',
-			'surrealizm',
-			'abstrakcjonizm',
-			'pop-art',
-			'minimalizm'
-		],
-		material: [
-			'olej na płótnie',
-			'olej na desce',
-			'tempera',
-			'fresk',
-			'akwarela',
-			'pastel',
-			'tusz',
-			'węgiel',
-			'marmur',
-			'kamień',
-			'brąz',
-			'drewno',
-			'terakota',
-			'złoto',
-			'szkło',
-			'ceramika',
-			'mozaika',
-			'cegła',
-			'żelbet'
-		]
+	cardIndex: {
+		title: 'Kartoteka',
+		lead: 'Tu porządkujesz swoje epoki, okresy, style i inne wartości, które wpisujesz przy dziełach.',
+		loadErrorTitle: 'Nie udało się wczytać Kartoteki',
+		actionErrorTitle: 'Nie udało się zapisać zmian',
+		tabsLabel: 'Rodzaje wartości',
+		tabs: {
+			timeline: 'Okresy i style',
+			material: 'Materiały',
+			author: 'Autorzy',
+			location: 'Miejsca'
+		},
+		emptyEra: 'W tej epoce nie ma jeszcze okresów.',
+		periodsWithoutEra: 'Okresy bez epoki',
+		stylesWithoutPeriod: 'Style bez okresu',
+		emptyTimeline:
+			'Nie ma tu jeszcze okresów ani stylów. Pojawią się, gdy wpiszesz je przy dziele.',
+		emptyList: {
+			material: 'Nie ma tu jeszcze materiałów. Pojawią się, gdy wpiszesz je przy dziele.',
+			author: 'Nie ma tu jeszcze autorów. Pojawią się, gdy wpiszesz ich przy dziele.',
+			location: 'Nie ma tu jeszcze miejsc. Pojawią się, gdy wpiszesz je przy dziele.'
+		},
+		openValue: (name: string, count: string): string => `${name}, ${count}`,
+		kinds: {
+			period: {
+				name: 'Okres',
+				accusative: 'okres',
+				genitive: 'okresu',
+				demonstrative: 'Ten okres',
+				other: 'innym okresem'
+			},
+			style: {
+				name: 'Styl',
+				accusative: 'styl',
+				genitive: 'stylu',
+				demonstrative: 'Ten styl',
+				other: 'innym stylem'
+			},
+			material: {
+				name: 'Materiał',
+				accusative: 'materiał',
+				genitive: 'materiału',
+				demonstrative: 'Ten materiał',
+				other: 'innym materiałem'
+			},
+			author: {
+				name: 'Autor',
+				accusative: 'autora',
+				genitive: 'autora',
+				demonstrative: 'Ten autor',
+				other: 'innym autorem'
+			},
+			location: {
+				name: 'Miejsce',
+				accusative: 'miejsce',
+				genitive: 'miejsca',
+				demonstrative: 'To miejsce',
+				other: 'innym miejscem'
+			}
+		},
+		dialog: {
+			description: (kind: string, count: string): string => `${kind} · ${count}`,
+			name: 'Nazwa',
+			nameRequired: 'Wpisz nazwę.',
+			mergeHint: (kind: string, name: string, count: string): string =>
+				`Masz już ${kind} „${name}” (${count}). Zapisz, a połączę je w jeden.`,
+			eras: 'Epoki',
+			periods: 'Okresy',
+			noEras: 'Ten okres nie ma jeszcze epoki.',
+			noPeriods: 'Ten styl nie ma jeszcze okresu.',
+			addEra: 'Dodaj epokę',
+			addPeriod: 'Dodaj okres',
+			chooseEra: 'Wybierz epokę',
+			choosePeriod: 'Wybierz okres',
+			removeEra: (name: string): string => `Usuń epokę ${name}`,
+			removePeriod: (name: string): string => `Usuń okres ${name}`,
+			periodLocked: (period: string, count: number): string =>
+				`Nie uda się odpiąć okresu „${period}” od tego stylu, bo ${workCount(count)} w tym stylu ${count === 1 ? 'ma' : 'mają'} przypisany taki okres.`,
+			delete: 'Usuń',
+			deleteBlocked: (demonstrative: string, count: string, other: string): string =>
+				`${demonstrative} ma jeszcze ${count}, więc nie da się go usunąć. Możesz go połączyć z ${other}.`,
+			cancel: 'Anuluj',
+			save: 'Zapisz',
+			saving: 'Zapisywanie…',
+			merge: 'Połącz'
+		},
+		mergeConfirm: {
+			title: (merged: string, kept: string): string => `Połączyć „${merged}” z „${kept}”?`,
+			unused: (merged: string): string =>
+				`Żadne dzieło nie ma teraz „${merged}”, więc zmieni się tylko Kartoteka: „${merged}” z niej zniknie.`,
+			assigned: (merged: string, kept: string, count: number, kind: string): string =>
+				`Wszystkie dzieła z „${merged}” (${count}) przypiszą się do ${kind} „${kept}”.`,
+			periodAssigned: (merged: string, kept: string, count: number): string =>
+				`${workCount(count)} z „${merged}” ${count === 1 ? 'dostanie' : 'dostaną'} „${kept}”, a „${merged}” zniknie z Kartoteki.`,
+			periodLinks: (merged: string, kept: string): string =>
+				`Epoki i style okresu „${merged}” dołączą do „${kept}”.`,
+			irreversible: 'Tej akcji nie będzie można cofnąć!',
+			back: 'Wróć',
+			confirm: 'Połącz',
+			merging: 'Łączenie…'
+		},
+		moveConfirm: {
+			title: 'Przenieść dzieła do innej epoki?',
+			toEra: (period: string, from: string, count: number, to: string): string =>
+				`${workCount(count)} z okresem „${period}” ${count === 1 ? 'jest' : 'są'} teraz w epoce ${from}. Po zapisie ${count === 1 ? 'przeniesie się' : 'przeniosą się'} do epoki ${to}.`,
+			toNone: (period: string, from: string, count: number): string =>
+				`${workCount(count)} z okresem „${period}” ${count === 1 ? 'jest' : 'są'} teraz w epoce ${from}. Po zapisie ${count === 1 ? 'zostanie' : 'zostaną'} bez epoki. Okres i style się nie zmienią.`,
+			toPicked: (period: string, from: string, count: number): string =>
+				`${workCount(count)} z okresem „${period}” ${count === 1 ? 'jest' : 'są'} teraz w epoce ${from}. Wybierz epokę, do której ${count === 1 ? 'ma' : 'mają'} trafić po zapisie.`,
+			pick: 'Do której epoki mają trafić?',
+			pickRequired: 'Wybierz epokę.',
+			back: 'Wróć',
+			confirm: 'Zapisz i przenieś'
+		},
+		deleteConfirm: {
+			title: (kind: string, name: string): string => `Usunąć ${kind} „${name}”?`,
+			description: 'Żadne dzieło go nie używa, więc zniknie z Kartoteki razem z powiązaniami.',
+			back: 'Wróć',
+			confirm: 'Usuń',
+			deleting: 'Usuwanie…'
+		},
+		saved: (name: string): string => `Zapisano „${name}”.`,
+		merged: (name: string): string => `Połączono z „${name}”.`,
+		deleted: (name: string): string => `Usunięto „${name}”.`,
+		errors: {
+			network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.',
+			notFound: 'Nie ma już takiej wartości. Odśwież stronę.',
+			changed:
+				'Coś zmieniło się w międzyczasie. Zamknij okno, sprawdź Kartotekę i spróbuj jeszcze raz.'
+		}
 	},
 	trash: {
 		title: 'Kosz',
@@ -396,6 +485,10 @@ export const pl = {
 type PluralForms = Record<'one' | 'few' | 'many', string>;
 
 const pluralRules = new Intl.PluralRules('pl');
+
+function workCount(count: number): string {
+	return `${count} ${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })}`;
+}
 
 function plural(count: number, forms: PluralForms): string {
 	const category = pluralRules.select(count);

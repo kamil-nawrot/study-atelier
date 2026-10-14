@@ -1,6 +1,6 @@
 {
 	"name": "study-atelier",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"private": true,
 	"type": "module",
 	"packageManager": "pnpm@10.28.0",
@@ -16,6 +16,7 @@
 		"lint": "pnpm -r lint",
 		"format": "pnpm -r format",
 		"test": "pnpm -r test",
+		"screenshot": "pnpm --filter @study-atelier/web screenshot",
 		"db:start": "supabase start",
 		"db:stop": "supabase stop",
 		"db:reset": "supabase db reset",

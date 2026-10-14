@@ -30,10 +30,13 @@ To be described with C4 container and component diagrams.
 
 The atelier lives in Supabase Postgres ([ADR-0014](../decisions/0014-artwork-collection-data-model.md)):
 
-- `artworks`: one row per artwork, with its per-learner record number, image references and the width and height of its current image ([ADR-0022](../decisions/0022-add-and-edit-an-artwork-in-one-full-form.md)).
+- `artworks`: one row per artwork, with its per-learner record number, its era (`era_code`), image references and the width and height of its current image ([ADR-0022](../decisions/0022-add-and-edit-an-artwork-in-one-full-form.md), [ADR-0038](../decisions/0038-chain-era-period-and-style.md)).
 - `category_values` and `artwork_values`: authors, periods, styles, materials and locations, shared between a learner's artworks.
-- `categories` and `artwork_types`: fixed lists, extended by migrations.
+- `period_eras` and `style_periods`: the links of the chain era, period, style ([ADR-0038](../decisions/0038-chain-era-period-and-style.md)). A period is linked to each era it was saved under and a style to each period it was saved under, so one value can have several parents. Both tables have a composite key of the child and the parent, a trigger that checks the categories of the linked values, and cascade on delete of a value.
+- `categories`, `artwork_types` and `eras`: fixed lists, extended by migrations. The six eras have a code and a position; their names and years are app texts (`m.eras`).
 - Storage bucket `artwork-images`: the learner's own images, private, one folder per learner, at most 5 MB each in JPG, PNG, WebP, GIF or AVIF. The app mirrors these settings in `#lib/images/bucket.ts` ([ADR-0025](../decisions/0025-upload-the-own-image-when-the-artwork-is-saved.md)).
+
+The card index changes values through database functions that run as the learner (`security invoker`, so Row Level Security applies), each in one transaction ([ADR-0040](../decisions/0040-manage-category-values-in-a-card-index.md)): `merge_category_values` moves the artwork values and links of one value to another and deletes it, `set_period_eras` and `set_style_periods` set the links of a period and a style (the first moves the era of the artworks that lose theirs, the second refuses to drop a period an artwork still uses with the style), and `delete_unused_value` deletes a value no artwork uses. `value_usage`, `period_era_usage` and `style_period_usage` return the number of artworks per value and per link, artworks in the trash included.
 
 Every learner-owned row is protected by Row Level Security on `owner_id`. An artwork and its category values are saved together by the database function `save_artwork` in one transaction ([ADR-0024](../decisions/0024-save-an-artwork-in-one-database-function.md)).
 
@@ -48,18 +51,20 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 
 ### Opening the atelier
 
-1. The `/atelier` page load asks Supabase for the learner's artworks outside the trash, newest first, with their authors and periods (`#lib/collection/artworks.ts`).
+1. The `/atelier` page load asks Supabase for the learner's artworks outside the trash, newest first, with their authors and eras (`#lib/collection/artworks.ts`). Supabase returns at most 1000 rows per request, so the load asks for pages of 1000 rows, ordered by creation time and `id`, until a page is not full; the trash does the same ([ADR-0041](../decisions/0041-load-the-whole-collection-in-pages-of-1000.md)).
 2. In parallel it asks the Wikimedia Commons API for the direct thumbnail URL of every Commons image (up to 50 files per request, identified by an `Api-User-Agent` header, one retry after `Retry-After` on 429) and Supabase Storage for signed URLs of uploaded images. Tiles load thumbnails straight from `upload.wikimedia.org`; only when the API does not answer they fall back to `Special:FilePath`, which redirects ([ADR-0023](../decisions/0023-atelier-routes-and-commons-thumbnails.md)).
+   An uploaded image whose URL could not be signed is shown as unavailable, not as missing, with one "Spróbuj ponownie" action above the wall. A signed URL lives for an hour (`SIGNED_URL_SECONDS`); when a tile reports that its image did not load and its URL is older than that, the wall signs it again (`refreshExpiredImages`, one request for all failed tiles) and the tile loads the new URL.
 3. The wall places each tile into the shortest column by the image size stored with the artwork ([ADR-0022](../decisions/0022-add-and-edit-an-artwork-in-one-full-form.md)), and offers thumbnails up to that width. An artwork without a stored size counts as 4:5 and gets thumbnails up to the tile width; if Commons does not answer the wall still shows every image.
 4. Search by title runs in the browser on the loaded list.
-5. The order of the wall is chosen in the top bar and remembered in `localStorage` (`#lib/collection/wall-order.ts`). By period, `groupByPeriod` in `#lib/collection/periods.ts` puts each artwork under its first period, orders the periods by their lowest year and the artworks by year inside them, and leaves out artworks without a period ([ADR-0033](../decisions/0033-order-the-wall-by-period-with-a-period-rail.md)).
-6. In that order `PeriodTracker` (`#lib/collection/period-tracker.svelte.ts`) measures where each period starts on the wall and follows the scroll with a reference line that moves from the bottom of the top bar to the bottom of the screen, so the first and the last period are both reached. `PeriodRail` shows the result at the right edge when the margin beside the wall is at least `MIN_RAIL_MARGIN` wide, `PeriodStrip` under the top bar otherwise.
+5. The order of the wall is chosen in the top bar and remembered in `localStorage` (`#lib/collection/wall-order.ts`). By era, `groupByEra` in `#lib/collection/periods.ts` puts each artwork under its era, keeps the eras in their fixed order, orders the artworks by year inside them, and leaves out artworks without an era ([ADR-0033](../decisions/0033-order-the-wall-by-period-with-a-period-rail.md), [ADR-0038](../decisions/0038-chain-era-period-and-style.md)). The bounds of an era come from the years of its artworks.
+6. In that order `PeriodTracker` (`#lib/collection/period-tracker.svelte.ts`) measures where each era starts on the wall and follows the scroll with a reference line that moves from the bottom of the top bar to the bottom of the screen, so the first and the last era are both reached. `PeriodRail` shows the result at the right edge when the margin beside the wall is at least `MIN_RAIL_MARGIN` wide, `PeriodStrip` under the top bar otherwise.
 
 ### Suggesting category values
 
-1. The form loads the learner's category values once, through their artworks outside the trash, so values used only by trashed artworks are not suggested ([R-23](../product/requirements.md#artworks), `#lib/collection/category-values.ts`). The starting lists of periods, styles and materials ([R-24](../product/requirements.md#category-values)) live in the message dictionary, in the interface language; styles and materials are offered in alphabetical order of that language, periods in chronological order.
-2. While the learner types, `#lib/collection/value-suggestions.ts` builds the list in the browser: a likely typo of a used value first ("Masz już „…”"), then used values, then the starting list, then the new value. Values starting with the typed text come before values containing it; chosen values are left out.
-3. Values are compared by a key that ignores letter case, diacritics and repeated spaces. A new value with the same key as a used one is not offered; the used one is. A starting-list value can still be created in the learner's own spelling, because only used values count as existing. A likely typo is a different key within one edit (letters added, removed, changed or swapped) for keys of 4 to 8 characters, or two edits from 9 characters on, and is checked only when the typed text is not already part of that value ([R-25](../product/requirements.md#category-values)).
+1. The form loads the learner's authors, materials and locations once, through their artworks outside the trash, so values used only by trashed artworks are not suggested ([R-23](../product/requirements.md#artworks), `#lib/collection/category-values.ts`). There are no starting lists: the learner builds every list ([ADR-0038](../decisions/0038-chain-era-period-and-style.md)).
+2. The periods and styles come from the chain instead: `#lib/collection/value-links.ts` reads the names of the period and style values and both link tables, and builds the periods of each era and the styles of each period (keyed by the period name's comparison key). The Okres field suggests the periods of the chosen era and the Styl field the styles of the chosen period; both are locked until the level above is chosen, and changing or clearing a level clears the levels below it. A value left on an artwork without a parent (an old period, or a style without a period) stays visible in its locked field and can be removed.
+3. While the learner types, `#lib/collection/value-suggestions.ts` builds the list in the browser: a likely typo of a used value first ("Masz już „…”"), then used values, then the new value. Values starting with the typed text come before values containing it; chosen values are left out.
+4. Values are compared by a key that ignores letter case, diacritics and repeated spaces. A new value with the same key as a used one is not offered; the used one is. A likely typo is a different key within one edit (letters added, removed, changed or swapped) for keys of 4 to 8 characters, or two edits from 9 characters on, and is checked only when the typed text is not already part of that value ([R-25](../product/requirements.md#category-values)).
 
 ### Finding the artwork image
 
@@ -79,11 +84,11 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 
 ### Saving an artwork
 
-1. `#lib/collection/artwork-record.ts` checks the required fields (title, an author or "author unknown", a valid year) and returns field errors without calling Supabase.
+1. `#lib/collection/artwork-record.ts` checks the required fields (title, an author or "author unknown", a valid year) and returns field errors without calling Supabase. When they pass, `ArtworkForm` reads the titles and authors of the learner's artworks outside the trash and compares them with `#lib/collection/duplicates.ts` (the value key for titles, the set of author keys for authors). A match opens the dialog "Masz już takie dzieło", and the save continues only after "Zapisz mimo to". When editing, the check runs only if the title or the authors changed, and the artwork never matches itself; if the artworks cannot be read, the save continues without the check ([ADR-0039](../decisions/0039-confirm-saving-a-duplicate-artwork.md)).
 2. If the learner picked their own file, it uploads it to `artwork-images` at `<learner id>/<random uuid>.<extension>` (`#lib/images/own-image.ts`). A failed upload stops the save ([ADR-0025](../decisions/0025-upload-the-own-image-when-the-artwork-is-saved.md)).
 3. It calls the `save_artwork` RPC once with the artwork's columns and its value names by category; the year is stored negative before the common era ([ADR-0014](../decisions/0014-artwork-collection-data-model.md)).
-4. The function inserts or updates the artwork, creates the names the learner does not have yet, replaces the artwork's value links and returns the record number, all in one transaction ([ADR-0024](../decisions/0024-save-an-artwork-in-one-database-function.md)).
-5. If the save failed, the file uploaded in step 2 is removed. If it succeeded and the artwork's previous uploaded file was replaced or removed, that file is removed.
+4. The function inserts or updates the artwork, creates the names the learner does not have yet, replaces the artwork's value links, links its period to its era and its styles to its period, and returns the record number, all in one transaction ([ADR-0024](../decisions/0024-save-an-artwork-in-one-database-function.md)).
+5. If the database rejected the save (the error carries a code), the file uploaded in step 2 is removed. If no answer came back (a network error), the file stays, because the artwork may have been saved and would point to a deleted file; at worst it is an orphaned file. If it succeeded and the artwork's previous uploaded file was replaced or removed, that file is removed.
 
 ### Viewing an artwork
 
@@ -98,6 +103,12 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 3. The same form as adding starts from the loaded values, so "Odrzucić zmiany?" compares against them. There is no "Zapisz i dodaj kolejne".
 4. Saving passes the artwork's id and its loaded image to the save above, then replaces the edit page in the history with the artwork page, which confirms the save with a toast.
 
+### Managing category values
+
+1. `/atelier/values` ("Kartoteka", opened from the menu) reads the three usage functions in pages of 1000 rows (`loadCardIndex` in `#lib/collection/card-index-data.ts`), then `#lib/collection/card-index.ts` builds the timeline of the six eras with their periods and styles, and the alphabetical lists of materials, authors and locations.
+2. A click on a value opens one dialog. Saving applies the links first (`set_period_eras` or `set_style_periods`), then renames the value or merges it into the value whose name it now matches by the comparison key of R-25. Removing an era from a period that artworks use, and merging, ask first.
+3. After a change the view reads the three functions again and confirms with a toast. The suggestions in the artwork form read the same tables, so a merge or a delete shows there at once.
+
 ### Deleting and restoring an artwork
 
 1. "Usuń" in the artwork view asks first, then sets `deleted_at` on the artwork (`moveToTrash` in `#lib/collection/trash.ts`) and returns to the wall, which confirms with a toast. Every other query filters on `deleted_at is null`, so the artwork disappears from the wall, the suggestions and its own pages ([ADR-0028](../decisions/0028-trash-as-a-list-with-confirmed-deletes.md)).
@@ -107,7 +118,7 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 ## 7. Deployment view
 
 - The web app is a SvelteKit build for Cloudflare Pages, project `study-atelier`.
-- GitHub Actions ([`ci.yml`](../../.github/workflows/ci.yml)) runs lint, type check, unit and component tests and the build, then deploys with Wrangler ([ADR-0011](../decisions/0011-deploy-from-github-actions.md)).
+- GitHub Actions ([`ci.yml`](../../.github/workflows/ci.yml)) runs lint, type check, unit and component tests and the build, then deploys with Wrangler ([ADR-0011](../decisions/0011-deploy-from-github-actions.md)). To save free runner minutes, the [UI library](../../.github/workflows/ui.yml) and [migrations](../../.github/workflows/migrations.yml) checks run on a pull request only when it touches their files, and a change to documentation alone starts no CI; every push to `develop` and `main` runs all checks.
 - The same workflow checks `packages/ui` and builds its Storybook without deploying it ([ADR-0013](../decisions/0013-component-library-with-storybook.md)).
 
 | Trigger | Deployment |
@@ -136,7 +147,7 @@ Not yet described.
 ## 11. Risks and technical debt
 
 - The free Supabase project is paused after one week without database activity ([ADR-0008](../decisions/0008-supabase-database-and-auth.md)); the daily keep-alive runs only from the default branch (`develop`).
-- Production runs the older code from `main` until a release, so migrations must stay backward compatible; the production deployment is uploaded just before its migrations are applied ([ADR-0037](../decisions/0037-separate-databases-for-develop-and-production.md)).
+- Development and production have separate databases. A migration reaches the development database from `develop` and the production database only with a release, together with the code that needs it, so a migration does not have to keep the previous code working; the production deployment is uploaded just before its migrations are applied ([ADR-0037](../decisions/0037-separate-databases-for-develop-and-production.md)).
 
 ## 12. Glossary
 
