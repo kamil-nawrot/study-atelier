@@ -16,6 +16,7 @@ import {
 	removeTag,
 	setYears,
 	tagLabel,
+	tagParts,
 	toggleValue
 } from './filter.ts';
 import type { CollectionFilter, WallArtwork } from './types.ts';
@@ -265,6 +266,21 @@ describe('filter tags', () => {
 			`${m.atelier.filters.tagFields.locations} Louvre`,
 			`${m.atelier.filters.tagFields.missing} ${m.atelier.filters.missing.year}`
 		]);
+	});
+
+	it('names the field and the value of a tag apart', () => {
+		const [painting, years] = filterTags(
+			filterWith({ types: ['painting'], yearFrom: 1400, yearTo: 1700 })
+		);
+
+		expect(tagParts(painting)).toEqual({
+			field: m.atelier.filters.tagFields.types,
+			value: m.artworkTypes.painting
+		});
+		expect(tagParts(years)).toEqual({
+			field: m.atelier.filters.tagFields.years,
+			value: m.atelier.filters.yearsBetween(1400, 1700)
+		});
 	});
 
 	it('removes the value of a tag', () => {
