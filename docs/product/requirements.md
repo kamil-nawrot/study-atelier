@@ -105,7 +105,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-57 | The filter is kept in the URL, so it survives a reload, a bookmark and the way back from an artwork, and ends when the learner opens the atelier anew. A value that no longer exists in the URL is ignored. | 0.3 |
 | R-58 | The learner can order the wall "Według autorów": blocks per first author, A to Z, by year inside a block, unknown author last; the period rail shows the authors. | 0.3 |
 | R-59 | The search in the top bar finds artworks by title or author. | 0.3 |
-| R-60 | In the artwork view the era, period, styles, materials, location and authors are links to the wall filtered by that value, and in the card index every value has "Pokaż dzieła (n)" that does the same. | 0.3 |
+| R-60 | ~~In the artwork view the era, period, styles, materials, location and authors are links to the wall filtered by that value, and in the card index every value has "Pokaż dzieła (n)" that does the same.~~ Dropped: the wall is filtered from the panel, and the card index is kept for later detail pages of its values ([ADR-0047](../decisions/0047-no-links-from-values-into-a-filtered-wall.md)). | 0.3 |
 | R-61 | In the artwork view the learner goes to the previous and next artwork of the filtered and ordered wall with subtle arrows at the edges of the stage, the arrow keys on a larger screen and a horizontal swipe on a phone; the arrow is dimmed at either end of the list. | 0.3 |
 
 ## Account
