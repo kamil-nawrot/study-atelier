@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'supabase/**'
+      - 'apps/web/src/lib/database.types.ts'
       - '.github/workflows/migrations.yml'
   workflow_call:
 
@@ -28,6 +29,12 @@ jobs:
 
       - name: Replay migrations from scratch
         run: supabase db reset
+
+      - name: Check generated database types
+        run: |
+          supabase gen types --lang typescript --local --schema public > "$RUNNER_TEMP/database.types.ts"
+          diff --unified apps/web/src/lib/database.types.ts "$RUNNER_TEMP/database.types.ts" \
+            || { echo "::error::apps/web/src/lib/database.types.ts is stale. Run pnpm db:types and commit the result."; exit 1; }
 
       - name: Stop local Supabase
         if: always()

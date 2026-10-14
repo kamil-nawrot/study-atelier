@@ -384,7 +384,10 @@ describe('add artwork page', () => {
 
 		await saveButton().click();
 
-		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, unknown>];
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as unknown as [
+			string,
+			Record<string, unknown>
+		];
 		expect(args.artwork).toMatchObject({ era_code: 'early_modern' });
 		expect(args.values_by_category).toMatchObject({
 			period: ['Dutch Golden Age'],
@@ -398,7 +401,10 @@ describe('add artwork page', () => {
 
 		await saveButton().click();
 
-		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, unknown>];
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as unknown as [
+			string,
+			Record<string, unknown>
+		];
 		expect(args.artwork).toMatchObject({ era_code: null });
 		expect(args.values_by_category).toMatchObject({ period: [], style: [] });
 	});
@@ -455,7 +461,7 @@ describe('add artwork page', () => {
 				material: [],
 				location: []
 			},
-			existing_id: null
+			existing_id: undefined
 		});
 	});
 
