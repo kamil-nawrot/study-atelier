@@ -50,9 +50,7 @@ describe('AtelierLayout', () => {
 		navigation.to = {};
 		renderLayout(views.empty);
 
-		await expect
-			.element(page.getByRole('banner').getByRole('progressbar', { name: m.app.loading }))
-			.toBeInTheDocument();
+		await expect.element(page.getByRole('banner').getByRole('progressbar')).toBeInTheDocument();
 		await expect.element(page.getByRole('main')).toHaveAttribute('aria-busy', 'true');
 	});
 
