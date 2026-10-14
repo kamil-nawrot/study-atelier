@@ -283,28 +283,28 @@
 			<div class="date" aria-labelledby={dateTitleId} role="group">
 				<div class="date-head">
 					<svelte:element
-						this={form.periodMode ? 'span' : 'label'}
+						this={form.spanMode ? 'span' : 'label'}
 						id={dateTitleId}
 						class="date-title"
-						for={form.periodMode ? undefined : yearToId}
+						for={form.spanMode ? undefined : yearToId}
 					>
-						{form.periodMode ? m.artworkForm.periodDate : m.artworkForm.year}
+						{form.spanMode ? m.artworkForm.spanTitle : m.artworkForm.year}
 					</svelte:element>
 					<div class="date-aside">
 						<Checkbox label={m.artworkForm.yearApproximate} bind:checked={form.yearApproximate} />
-						<Switch label={m.artworkForm.periodSwitch} bind:checked={form.periodMode} />
+						<Switch label={m.artworkForm.spanSwitch} bind:checked={form.spanMode} />
 					</div>
 				</div>
-				<div class="date-inputs" class:period={form.periodMode}>
-					{#if form.periodMode}
+				<div class="date-inputs" class:year-span={form.spanMode}>
+					{#if form.spanMode}
 						<div class="date-end">
 							<TextField
 								autocomplete="off"
 								error={fieldErrors.yearFrom}
 								hideLabel
 								inputmode="numeric"
-								label={m.artworkForm.periodFrom}
-								placeholder={m.artworkForm.periodFrom}
+								label={m.artworkForm.spanFrom}
+								placeholder={m.artworkForm.spanFrom}
 								bind:value={form.yearFrom}
 							/>
 							<Checkbox
@@ -321,12 +321,12 @@
 							error={fieldErrors.yearTo}
 							hideLabel
 							inputmode="numeric"
-							label={form.periodMode ? m.artworkForm.periodTo : m.artworkForm.year}
-							placeholder={form.periodMode ? m.artworkForm.periodTo : undefined}
+							label={form.spanMode ? m.artworkForm.spanTo : m.artworkForm.year}
+							placeholder={form.spanMode ? m.artworkForm.spanTo : undefined}
 							bind:value={form.yearTo}
 						/>
 						<Checkbox
-							aria-label={form.periodMode ? m.artworkForm.beforeCommonEraTo : undefined}
+							aria-label={form.spanMode ? m.artworkForm.beforeCommonEraTo : undefined}
 							label={m.artworkForm.beforeCommonEra}
 							bind:checked={form.toBeforeCommonEra}
 						/>
@@ -471,7 +471,7 @@
 		gap: var(--spacing-3);
 	}
 
-	.date-inputs.period {
+	.date-inputs.year-span {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: var(--spacing-4);
 	}

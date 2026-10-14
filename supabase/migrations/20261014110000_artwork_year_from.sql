@@ -1,5 +1,5 @@
 alter table public.artworks add column year_from integer check (year_from <> 0);
-alter table public.artworks add constraint artworks_period_check
+alter table public.artworks add constraint artworks_year_span_check
   check (year_from is null or (year_to is not null and year_from <= year_to));
 
 grant insert (year_from) on public.artworks to authenticated;

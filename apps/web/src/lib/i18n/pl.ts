@@ -180,7 +180,7 @@ export const pl = {
 		year: (year: number, approximate: boolean): string =>
 			`${approximate ? 'ok. ' : ''}${year < 0 ? `${-year} p.n.e.` : year}`,
 		yearRange: (from: string, to: string): string => `${from} – ${to}`,
-		period: (from: number, to: number, approximate: boolean): string => {
+		span: (from: number, to: number, approximate: boolean): string => {
 			const prefix = approximate ? 'ok. ' : '';
 			if (from < 0 && to < 0) return `${prefix}${-from}–${-to} p.n.e.`;
 			if (from > 0 && to > 0) return `${prefix}${from}–${to}`;
@@ -225,10 +225,10 @@ export const pl = {
 		authors: 'Autorzy',
 		authorUnknown: 'Autor nieznany',
 		year: 'Rok powstania',
-		periodDate: 'Okres powstania',
-		periodSwitch: 'Okres',
-		periodFrom: 'Od',
-		periodTo: 'Do',
+		spanTitle: 'Lata powstania',
+		spanSwitch: 'Od – do',
+		spanFrom: 'Od',
+		spanTo: 'Do',
 		beforeCommonEraFrom: 'p.n.e. (od)',
 		beforeCommonEraTo: 'p.n.e. (do)',
 		beforeCommonEra: 'p.n.e.',
@@ -327,8 +327,8 @@ export const pl = {
 		titleRequired: 'Wpisz tytuł dzieła.',
 		authorRequired: 'Dodaj autora albo zaznacz „Autor nieznany”.',
 		yearRequired: 'Wpisz rok, żeby zaznaczyć „p.n.e.” albo „ok.”.',
-		periodEndRequired: 'Wpisz koniec okresu.',
-		periodOrder: 'Koniec okresu nie może być wcześniejszy niż początek.',
+		spanEndRequired: 'Wpisz rok końcowy.',
+		spanOrder: 'Rok końcowy nie może być wcześniejszy niż początkowy.',
 		yearInvalid: 'Rok to liczba całkowita od 1 w górę. Dla lat przed naszą erą zaznacz „p.n.e.”.',
 		invalid: 'Niektóre pola się nie zgadzają. Sprawdź je i zapisz jeszcze raz.',
 		notFound: 'Nie ma takiego dzieła w Twoim atelier. Mogło trafić do kosza.',

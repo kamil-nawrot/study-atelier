@@ -28,7 +28,7 @@ export function formatDate(
 ): string | undefined {
 	if (yearTo === null) return undefined;
 	if (yearFrom === null || yearFrom === yearTo) return m.atelier.year(yearTo, approximate);
-	return m.atelier.period(yearFrom, yearTo, approximate);
+	return m.atelier.span(yearFrom, yearTo, approximate);
 }
 
 export function formatYearRange(from: number | null, to: number | null): string | undefined {

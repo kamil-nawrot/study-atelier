@@ -100,7 +100,7 @@ describe('groupByEra', () => {
 		expect(groupByEra([])).toEqual([]);
 	});
 
-	it('takes the bounds of an era from the full extent of its periods', () => {
+	it('takes the bounds of an era from the full extent of its year spans', () => {
 		const [group] = groupByEra([
 			artwork(1, 1519, 'early_modern', 1503),
 			artwork(2, 1600, 'early_modern'),
@@ -116,7 +116,7 @@ describe('groupByEra', () => {
 		expect(wide.from).toBe(1400);
 	});
 
-	it('orders a period by its end', () => {
+	it('orders a year span by its end', () => {
 		const groups = groupByEra([
 			artwork(1, 1600, 'early_modern', 1400),
 			artwork(2, 1550, 'early_modern')

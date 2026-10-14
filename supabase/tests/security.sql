@@ -174,14 +174,14 @@ begin
   assert security_test.denied('insert into public.artworks (record_number, title, author_unknown) values (99, ''x'', true)'),
     'A chooses a record number';
   assert security_test.denied(
-    'select public.save_artwork(''{"title": "Period", "author_unknown": true, "year_from": 1503}'', ''{}'')'),
-    'A saves a period without an end year';
+    'select public.save_artwork(''{"title": "Span", "author_unknown": true, "year_from": 1503}'', ''{}'')'),
+    'A saves a year span without an end year';
   assert security_test.denied(
-    'select public.save_artwork(''{"title": "Period", "author_unknown": true, "year_from": 1519, "year_to": 1503}'', ''{}'')'),
-    'A saves a period that ends before it starts';
+    'select public.save_artwork(''{"title": "Span", "author_unknown": true, "year_from": 1519, "year_to": 1503}'', ''{}'')'),
+    'A saves a year span that ends before it starts';
   assert not security_test.denied(
-    'select public.save_artwork(''{"title": "Period", "author_unknown": true, "year_from": -50, "year_to": 20}'', ''{}'')'),
-    'A cannot save a period across the turn of the eras';
+    'select public.save_artwork(''{"title": "Span", "author_unknown": true, "year_from": -50, "year_to": 20}'', ''{}'')'),
+    'A cannot save a year span across the turn of the eras';
   assert security_test.denied('insert into public.categories (code, multiple, position) values (''forged'', true, 99)'),
     'A adds a category';
   assert security_test.denied('update public.eras set position = 99'), 'A changes an era';

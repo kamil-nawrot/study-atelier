@@ -168,7 +168,7 @@ export type ArtworkFormState = {
 	values: CategoryValues;
 	queries: Record<CategoryCode, string>;
 	authorUnknown: boolean;
-	periodMode: boolean;
+	spanMode: boolean;
 	yearFrom: string;
 	fromBeforeCommonEra: boolean;
 	yearTo: string;

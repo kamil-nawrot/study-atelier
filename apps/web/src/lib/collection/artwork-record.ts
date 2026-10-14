@@ -111,7 +111,7 @@ export function validateArtwork(input: ArtworkInput): ArtworkFieldErrors {
 		errors.authors = m.artworkErrors.authorRequired;
 	}
 	if (input.yearTo === null) {
-		if (input.yearFrom !== null) errors.yearTo = m.artworkErrors.periodEndRequired;
+		if (input.yearFrom !== null) errors.yearTo = m.artworkErrors.spanEndRequired;
 		else if (input.toBeforeCommonEra || input.yearApproximate)
 			errors.yearTo = m.artworkErrors.yearRequired;
 	} else if (!isYear(input.yearTo)) {
@@ -122,7 +122,7 @@ export function validateArtwork(input: ArtworkInput): ArtworkFieldErrors {
 	} else if (!isYear(input.yearFrom)) {
 		errors.yearFrom = m.artworkErrors.yearInvalid;
 	} else if (input.yearTo !== null && !errors.yearTo && !endsInOrder(input)) {
-		errors.yearTo = m.artworkErrors.periodOrder;
+		errors.yearTo = m.artworkErrors.spanOrder;
 	}
 	return errors;
 }

@@ -132,7 +132,7 @@ describe('artwork page', () => {
 		await expect.element(page.getByText('ok. 150 p.n.e.', { exact: true })).toBeVisible();
 	});
 
-	it('writes a period', async () => {
+	it('writes a year span', async () => {
 		renderPage({ artwork: artwork({ yearFrom: 1503, yearTo: 1519 }) });
 
 		await expect.element(page.getByText('ok. 1503–1519', { exact: true })).toBeVisible();

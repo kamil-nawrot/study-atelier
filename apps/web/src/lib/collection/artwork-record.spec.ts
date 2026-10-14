@@ -104,7 +104,7 @@ describe('validateArtwork', () => {
 		});
 	});
 
-	it('accepts a period inside one era and across the turn of the eras', () => {
+	it('accepts a year span inside one era and across the turn of the eras', () => {
 		expect(validateArtwork(input({ yearFrom: 1503, yearTo: 1519 }))).toEqual({});
 		expect(
 			validateArtwork(
@@ -116,8 +116,8 @@ describe('validateArtwork', () => {
 		);
 	});
 
-	it('rejects a period whose end is earlier than its start', () => {
-		const order = { yearTo: m.artworkErrors.periodOrder };
+	it('rejects a year span whose end is earlier than its start', () => {
+		const order = { yearTo: m.artworkErrors.spanOrder };
 		expect(validateArtwork(input({ yearFrom: 1519, yearTo: 1503 }))).toEqual(order);
 		expect(validateArtwork(input({ yearFrom: 20, yearTo: 50, toBeforeCommonEra: true }))).toEqual(
 			order
@@ -129,9 +129,9 @@ describe('validateArtwork', () => {
 		).toEqual(order);
 	});
 
-	it('asks for the end of a period and rejects a start that is not a year', () => {
+	it('asks for the end of a year span and rejects a start that is not a year', () => {
 		expect(validateArtwork(input({ yearFrom: 1503 }))).toEqual({
-			yearTo: m.artworkErrors.periodEndRequired
+			yearTo: m.artworkErrors.spanEndRequired
 		});
 		expect(validateArtwork(input({ fromBeforeCommonEra: true, yearTo: 1519 }))).toEqual({
 			yearFrom: m.artworkErrors.yearRequired
@@ -211,7 +211,7 @@ describe('saveArtwork', () => {
 		});
 	});
 
-	it('stores a period as signed years and a period of one year as a single year', async () => {
+	it('stores a year span as signed years and a span of one year as a single year', async () => {
 		await saveArtwork(
 			input({ yearFrom: 50, fromBeforeCommonEra: true, yearTo: 20, yearApproximate: true })
 		);
@@ -235,10 +235,10 @@ describe('saveArtwork', () => {
 		);
 	});
 
-	it('does not call Supabase when the period is not in order', async () => {
+	it('does not call Supabase when the year span is not in order', async () => {
 		await expect(saveArtwork(input({ yearFrom: 1519, yearTo: 1503 }))).resolves.toEqual({
 			saved: false,
-			fieldErrors: { yearTo: m.artworkErrors.periodOrder }
+			fieldErrors: { yearTo: m.artworkErrors.spanOrder }
 		});
 		expect(supabase.rpc).not.toHaveBeenCalled();
 	});

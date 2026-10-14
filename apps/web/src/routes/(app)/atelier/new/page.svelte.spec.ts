@@ -57,8 +57,8 @@ function eraTile(code: keyof typeof m.eras): ReturnType<typeof page.getByRole> {
 	return page.getByRole('radio', { name: `${m.eras[code].name} ${m.eras[code].years}` });
 }
 
-async function togglePeriod(): Promise<void> {
-	await page.getByText(m.artworkForm.periodSwitch, { exact: true }).first().click();
+async function toggleSpan(): Promise<void> {
+	await page.getByText(m.artworkForm.spanSwitch, { exact: true }).click();
 }
 
 function periodField(): ReturnType<typeof page.getByRole> {
@@ -269,20 +269,18 @@ describe('add artwork page', () => {
 		expect(supabase.rpc).not.toHaveBeenCalled();
 	});
 
-	it('switches the date to a period and saves both of its years', async () => {
+	it('switches the date to a year span and saves both of its years', async () => {
 		renderPage();
 		await fillRequired();
 
-		await togglePeriod();
+		await toggleSpan();
 
-		await expect
-			.element(page.getByRole('textbox', { name: m.artworkForm.periodFrom }))
-			.toBeVisible();
+		await expect.element(page.getByRole('textbox', { name: m.artworkForm.spanFrom })).toBeVisible();
 		expect(page.getByRole('textbox', { name: m.artworkForm.year }).elements()).toHaveLength(0);
 
-		await page.getByRole('textbox', { name: m.artworkForm.periodFrom }).fill('50');
+		await page.getByRole('textbox', { name: m.artworkForm.spanFrom }).fill('50');
 		await page.getByText(m.artworkForm.beforeCommonEra, { exact: true }).first().click();
-		await page.getByRole('textbox', { name: m.artworkForm.periodTo }).fill('20');
+		await page.getByRole('textbox', { name: m.artworkForm.spanTo }).fill('20');
 		await saveButton().click();
 
 		await vi.waitFor(() =>
@@ -295,26 +293,26 @@ describe('add artwork page', () => {
 		);
 	});
 
-	it('rejects a period whose end is earlier than its start', async () => {
+	it('rejects a year span whose end is earlier than its start', async () => {
 		renderPage();
 		await fillRequired();
-		await togglePeriod();
+		await toggleSpan();
 
-		await page.getByRole('textbox', { name: m.artworkForm.periodFrom }).fill('1519');
-		await page.getByRole('textbox', { name: m.artworkForm.periodTo }).fill('1503');
+		await page.getByRole('textbox', { name: m.artworkForm.spanFrom }).fill('1519');
+		await page.getByRole('textbox', { name: m.artworkForm.spanTo }).fill('1503');
 		await saveButton().click();
 
-		await expect.element(page.getByText(m.artworkErrors.periodOrder)).toBeVisible();
+		await expect.element(page.getByText(m.artworkErrors.spanOrder)).toBeVisible();
 		expect(supabase.rpc).not.toHaveBeenCalled();
 	});
 
-	it('keeps the end of the period as the year when the period is switched off', async () => {
+	it('keeps the end year as the year when the year span is switched off', async () => {
 		renderPage();
-		await togglePeriod();
-		await page.getByRole('textbox', { name: m.artworkForm.periodFrom }).fill('1503');
-		await page.getByRole('textbox', { name: m.artworkForm.periodTo }).fill('1519');
+		await toggleSpan();
+		await page.getByRole('textbox', { name: m.artworkForm.spanFrom }).fill('1503');
+		await page.getByRole('textbox', { name: m.artworkForm.spanTo }).fill('1519');
 
-		await togglePeriod();
+		await toggleSpan();
 
 		await expect
 			.element(page.getByRole('textbox', { name: m.artworkForm.year }))

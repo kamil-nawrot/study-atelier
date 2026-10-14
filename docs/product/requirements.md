@@ -46,7 +46,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | Image | one image | See [Images](#images). |
 | Title | text | Required. |
 | Authors | one or more values | Required unless marked unknown. More than one author is possible, for example in architecture. |
-| Date of creation | a year, or a period from – to, with an "approximate" flag | Years before the common era must be possible, also across the turn of the eras. See R-62. |
+| Date of creation | a year, or a year span from – to, with an "approximate" flag | Years before the common era must be possible, also across the turn of the eras. See R-62. |
 | Type | single choice from a fixed list | Architecture, painting, sculpture, applied arts, ... |
 | Era | single choice from a fixed list | Six eras with approximate years. See R-44. |
 | Period | one value | Belongs to the era. Shown as "Okres". See R-45. |
@@ -107,7 +107,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-59 | The search in the top bar finds artworks by title or author. | 0.3 |
 | R-60 | In the artwork view the era, period, styles, materials, location and authors are links to the wall filtered by that value, and in the card index every value has "Pokaż dzieła (n)" that does the same. | 0.3 |
 | R-61 | In the artwork view the learner goes to the previous and next artwork of the filtered and ordered wall with subtle arrows at the edges of the stage, the arrow keys on a larger screen and a horizontal swipe on a phone; the arrow is dimmed at either end of the list. | 0.3 |
-| R-62 | The date of creation is either a single year or a period with a start and an end year. A switch "Okres" above the date inputs sets the mode; each year has its own "p.n.e.", so a period can cross the turn of the eras, and "ok." marks the whole date as approximate. A start later than the end is rejected, and equal years are saved as a single year. A period is written `1503–1519`, `450–420 p.n.e.` or `50 p.n.e. – 20 n.e.`, the wall orders it by its end year and the era bounds on the period rail take its whole extent ([ADR-0045](../decisions/0045-enter-the-date-of-creation-as-a-period.md)). | 0.3 |
+| R-62 | The date of creation is either a single year or a [year span](glossary.md) with a start and an end year. A switch "Od – do" above the date inputs sets the mode; each year has its own "p.n.e.", so a year span can cross the turn of the eras, and "ok." marks the whole date as approximate. A start later than the end is rejected, and equal years are saved as a single year. A year span is written `1503–1519`, `450–420 p.n.e.` or `50 p.n.e. – 20 n.e.`, the wall orders it by its end year and the era bounds on the period rail take its whole extent ([ADR-0045](../decisions/0045-enter-the-date-of-creation-as-a-year-span.md)). | 0.3 |
 
 ## Account
 

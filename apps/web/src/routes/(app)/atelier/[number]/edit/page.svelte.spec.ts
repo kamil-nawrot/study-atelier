@@ -367,17 +367,17 @@ describe('edit artwork page', () => {
 		await expect.element(titleField()).not.toBeInTheDocument();
 	});
 
-	it('opens a record with a period in the period mode', async () => {
+	it('opens a record with a year span in the span mode', async () => {
 		renderPage({ artwork: artwork({ yearFrom: 1503, yearTo: 1519 }) });
 
 		await expect
-			.element(page.getByRole('switch', { name: m.artworkForm.periodSwitch }))
+			.element(page.getByRole('switch', { name: m.artworkForm.spanSwitch }))
 			.toBeChecked();
 		await expect
-			.element(page.getByRole('textbox', { name: m.artworkForm.periodFrom }))
+			.element(page.getByRole('textbox', { name: m.artworkForm.spanFrom }))
 			.toHaveValue('1503');
 		await expect
-			.element(page.getByRole('textbox', { name: m.artworkForm.periodTo }))
+			.element(page.getByRole('textbox', { name: m.artworkForm.spanTo }))
 			.toHaveValue('1519');
 	});
 });

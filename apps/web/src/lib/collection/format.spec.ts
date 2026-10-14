@@ -79,13 +79,13 @@ describe('formatDate', () => {
 		expect(formatDate(1503, 1503, false)).toBe('1503');
 	});
 
-	it('writes a period compactly on one side of the turn of the eras', () => {
+	it('writes a year span compactly on one side of the turn of the eras', () => {
 		expect(formatDate(1503, 1519, false)).toBe('1503–1519');
 		expect(formatDate(1503, 1519, true)).toBe('ok. 1503–1519');
 		expect(formatDate(-450, -420, false)).toBe('450–420 p.n.e.');
 	});
 
-	it('names both eras when the period crosses the turn of the eras', () => {
+	it('names both eras when the year span crosses the turn of the eras', () => {
 		expect(formatDate(-50, 20, false)).toBe('50 p.n.e. – 20 n.e.');
 		expect(formatDate(-50, 20, true)).toBe('ok. 50 p.n.e. – 20 n.e.');
 	});

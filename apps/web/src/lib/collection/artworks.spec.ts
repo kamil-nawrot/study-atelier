@@ -170,7 +170,7 @@ describe('loadAtelier', () => {
 		]);
 	});
 
-	it('formats a period and keeps both of its years', async () => {
+	it('formats a year span and keeps both of its years', async () => {
 		query.range.mockResolvedValue({
 			data: [row({ year_from: -50, year_to: 20, year_approximate: false })],
 			error: null
@@ -178,7 +178,7 @@ describe('loadAtelier', () => {
 
 		const { artworks } = await loadAtelier();
 
-		expect(artworks[0].date).toBe(m.atelier.period(-50, 20, false));
+		expect(artworks[0].date).toBe(m.atelier.span(-50, 20, false));
 		expect(artworks[0].yearFrom).toBe(-50);
 		expect(artworks[0].yearTo).toBe(20);
 	});

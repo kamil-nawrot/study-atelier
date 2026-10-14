@@ -111,7 +111,7 @@ describe('artworkFormFromRecord', () => {
 			},
 			queries: { author: '', period: '', style: '', material: '', location: '' },
 			authorUnknown: false,
-			periodMode: false,
+			spanMode: false,
 			yearFrom: '',
 			fromBeforeCommonEra: false,
 			yearTo: '1904',
@@ -249,7 +249,7 @@ describe('imageFromCandidate', () => {
 	});
 });
 
-describe('period date in the form', () => {
+describe('year span in the form', () => {
 	const record: ArtworkRecord = {
 		id: 'artwork-1',
 		number: 7,
@@ -271,17 +271,17 @@ describe('period date in the form', () => {
 		image: null
 	};
 
-	it('opens a record with a period in the period mode', () => {
+	it('opens a record with a year span in the span mode', () => {
 		const form = artworkFormFromRecord(record);
 
-		expect(form.periodMode).toBe(true);
+		expect(form.spanMode).toBe(true);
 		expect(form.yearFrom).toBe('50');
 		expect(form.fromBeforeCommonEra).toBe(true);
 		expect(form.yearTo).toBe('20');
-		expect(artworkFormFromRecord({ ...record, yearFrom: null }).periodMode).toBe(false);
+		expect(artworkFormFromRecord({ ...record, yearFrom: null }).spanMode).toBe(false);
 	});
 
-	it('reads the start of the period only in the period mode', () => {
+	it('reads the start of the year span only in the span mode', () => {
 		const form = artworkFormFromRecord(record);
 
 		expect(artworkInputFromForm(form)).toEqual(
@@ -293,7 +293,7 @@ describe('period date in the form', () => {
 			})
 		);
 
-		form.periodMode = false;
+		form.spanMode = false;
 		expect(artworkInputFromForm(form)).toEqual(
 			expect.objectContaining({ yearFrom: null, fromBeforeCommonEra: false, yearTo: 20 })
 		);
