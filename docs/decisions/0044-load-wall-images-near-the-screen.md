@@ -1,4 +1,4 @@
-# 0043. Show the wall first and load its images near the screen
+# 0044. Show the wall first and load its images near the screen
 
 - Status: accepted
 - Date: 2026-10-14
