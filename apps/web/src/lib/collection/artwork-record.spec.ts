@@ -166,7 +166,7 @@ describe('saveArtwork', () => {
 				material: ['Marble'],
 				location: ['Test Museum']
 			},
-			existing_id: null
+			existing_id: undefined
 		});
 	});
 

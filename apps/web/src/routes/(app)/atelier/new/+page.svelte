@@ -5,6 +5,7 @@
 	import { resolve } from '$app/paths';
 	import ArtworkForm from '#lib/collection/components/ArtworkForm.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import { goBackThroughHistory } from '#lib/collection/history.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps } from './$types';
 
@@ -20,9 +21,7 @@
 	});
 
 	function backToAtelier(event: MouseEvent): void {
-		if (!cameFromAtelier) return;
-		event.preventDefault();
-		history.back();
+		goBackThroughHistory(event, cameFromAtelier);
 	}
 
 	async function showSaved(number: number, next: boolean): Promise<void> {

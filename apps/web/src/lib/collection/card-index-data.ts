@@ -93,7 +93,7 @@ export async function saveValue(changes: ValueChanges): Promise<CardIndexActionR
 			supabase.rpc('set_period_eras', {
 				target_period: record.id,
 				era_codes: changes.eraCodes,
-				move_to: changes.moveTo ?? null
+				move_to: changes.moveTo ?? undefined
 			})
 		);
 		if (result.error) return result;

@@ -9,6 +9,7 @@
 	import { page } from '$app/state';
 	import ArtworkView from '#lib/collection/components/ArtworkView.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import { goBackThroughHistory } from '#lib/collection/history.ts';
 	import { formatRecordNumber, parseRecordNumber } from '#lib/collection/format.ts';
 	import { moveToTrash } from '#lib/collection/trash.ts';
 	import { m } from '#lib/i18n/index.ts';
@@ -67,9 +68,7 @@
 	}
 
 	function goBack(event: MouseEvent): void {
-		if (!cameFromWall) return;
-		event.preventDefault();
-		history.back();
+		goBackThroughHistory(event, cameFromWall);
 	}
 </script>
 
