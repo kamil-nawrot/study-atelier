@@ -103,7 +103,7 @@
 		</header>
 		{@render strip?.()}
 		<div class="body">
-			<main class="content">
+			<main class="content" aria-busy={navigating.to !== null}>
 				{@render children()}
 			</main>
 			{@render panel?.()}

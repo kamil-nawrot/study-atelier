@@ -20,7 +20,7 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
-	import { refreshExpiredImages } from '#lib/collection/artworks.ts';
+	import { refreshExpiredImages, resolveImages } from '#lib/collection/artworks.ts';
 	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import FilterPanel from '#lib/collection/components/FilterPanel.svelte';
@@ -36,6 +36,8 @@
 		removeTag
 	} from '#lib/collection/filter.ts';
 	import { formatRecordNumber } from '#lib/collection/format.ts';
+	import { ImageQueue } from '#lib/collection/image-queue.ts';
+	import { WALL_PART } from '#lib/collection/masonry.ts';
 	import PeriodRail from '#lib/collection/components/PeriodRail.svelte';
 	import PeriodStrip from '#lib/collection/components/PeriodStrip.svelte';
 	import { groupByEra } from '#lib/collection/periods.ts';
@@ -59,6 +61,7 @@
 	let viewOpen = $state(false);
 	let barHeight = $state(0);
 	let wall = $state<HTMLElement>();
+	let rendered = $state(WALL_PART);
 
 	const tracker = new PeriodTracker();
 	const wide = new MediaQuery('min-width: 768px');
@@ -75,9 +78,12 @@
 		window.scrollTo({ top: 0 });
 	}
 
-	export const snapshot: Snapshot<string> = {
-		capture: () => query,
-		restore: (value) => (query = value)
+	export const snapshot: Snapshot<{ query: string; rendered: number }> = {
+		capture: () => ({ query, rendered }),
+		restore: (value) => {
+			query = value.query;
+			rendered = value.rendered;
+		}
 	};
 
 	const addPath = resolve('/(app)/atelier/new');
@@ -104,13 +110,12 @@
 		return () => clearTimeout(timer);
 	});
 
-	let refreshed = $state<Record<string, WallArtwork>>({});
+	let updated = $state<Record<string, WallArtwork>>({});
 	let failedImages: WallArtwork[] = [];
 	let refreshTimer: ReturnType<typeof setTimeout> | undefined;
 
-	$effect.pre(() => {
-		void data.artworks;
-		refreshed = {};
+	const imageQueue = new ImageQueue(resolveImages, (resolved) => {
+		for (const artwork of resolved) updated[artwork.id] = artwork;
 	});
 
 	$effect.pre(() => {
@@ -122,7 +127,16 @@
 			filter = pruned;
 	});
 
-	onDestroy(() => clearTimeout(refreshTimer));
+	$effect.pre(() => {
+		void data.artworks;
+		updated = {};
+		imageQueue.reset();
+	});
+
+	onDestroy(() => {
+		clearTimeout(refreshTimer);
+		imageQueue.reset();
+	});
 
 	function imageFailed(artwork: WallArtwork): void {
 		failedImages.push(artwork);
@@ -133,10 +147,10 @@
 	async function refreshImages(): Promise<void> {
 		const batch = failedImages;
 		failedImages = [];
-		for (const artwork of await refreshExpiredImages(batch)) refreshed[artwork.id] = artwork;
+		for (const artwork of await refreshExpiredImages(batch)) updated[artwork.id] = artwork;
 	}
 
-	let artworks = $derived(data.artworks.map((artwork) => refreshed[artwork.id] ?? artwork));
+	let artworks = $derived(data.artworks.map((artwork) => updated[artwork.id] ?? artwork));
 	let imagesUnavailable = $derived(artworks.some((artwork) => artwork.imageUnavailable));
 	let filtered = $derived(applyFilter(artworks, filter));
 	let tags = $derived(filterTags(filter));
@@ -341,8 +355,10 @@
 			artworks={shown}
 			{highlight}
 			onimagefailed={imageFailed}
+			onnearscreen={(artwork) => imageQueue.request(artwork)}
 			{periodIndexes}
 			bind:element={wall}
+			bind:rendered
 		/>
 		{#if showPeriods && railFits}
 			<PeriodRail current={tracker.current} {groups} width={tracker.margin} />

@@ -17,15 +17,12 @@ import type {
 	ArtworkTypeCode,
 	AtelierResult,
 	EraCode,
+	ImageSize,
+	PendingImage,
 	TrashArtwork,
 	TrashResult,
 	WallArtwork
 } from './types.ts';
-
-type ImageSize = {
-	width: number;
-	height: number;
-};
 
 type ArtworkRow = {
 	id: string;
@@ -133,49 +130,66 @@ async function fetchAllRows(
 	}
 }
 
-async function wallArtworks(rows: ArtworkRow[]): Promise<WallArtwork[]> {
+function wallArtwork(row: ArtworkRow): WallArtwork {
+	const size = storedSize(row);
+	const pendingImage: PendingImage | undefined = row.own_image_path
+		? { ownPath: row.own_image_path, size }
+		: row.own_image_url
+			? undefined
+			: row.source_image_file
+				? { sourceFile: row.source_image_file, size }
+				: undefined;
+	const image = pendingImage
+		? { ...(size ?? DEFAULT_IMAGE_SIZE) }
+		: ownImage(row.own_image_url ?? undefined, size);
+	return {
+		id: row.id,
+		number: row.record_number,
+		title: row.title,
+		authors: valuesOf(row.artwork_values, 'author'),
+		date: formatYear(row.year, row.year_approximate),
+		year: row.year,
+		eraCode: row.era_code,
+		typeCode: row.type_code,
+		period: valuesOf(row.artwork_values, 'period')[0] ?? null,
+		styles: valuesOf(row.artwork_values, 'style'),
+		materials: valuesOf(row.artwork_values, 'material'),
+		location: valuesOf(row.artwork_values, 'location')[0] ?? null,
+		hasImage: Boolean(row.source_image_file || row.own_image_path || row.own_image_url),
+		image,
+		...(pendingImage ? { pendingImage } : {}),
+		...(row.own_image_path ? { ownImagePath: row.own_image_path } : {})
+	};
+}
+
+export async function resolveImages(artworks: WallArtwork[]): Promise<WallArtwork[]> {
+	const pending = artworks.filter((artwork) => artwork.pendingImage);
+	if (pending.length === 0) return [];
+
 	const [commonsThumbnails, storageUrls] = await Promise.all([
 		fetchCommonsThumbnails(
-			rows.flatMap((row) => row.source_image_file ?? []),
+			pending.flatMap((artwork) => artwork.pendingImage?.sourceFile ?? []),
 			TILE_WIDTH
 		),
-		signedUrls(rows.flatMap((row) => row.own_image_path ?? []))
+		signedUrls(pending.flatMap((artwork) => artwork.pendingImage?.ownPath ?? []))
 	]);
 
 	const signedAt = Date.now();
-	return rows.map((row): WallArtwork => {
-		const ownSource = row.own_image_path
-			? storageUrls.get(row.own_image_path)
-			: (row.own_image_url ?? undefined);
-		const size = storedSize(row);
-		const image =
-			row.own_image_path || row.own_image_url
-				? ownImage(ownSource, size)
-				: row.source_image_file
-					? commonsImage(row.source_image_file, commonsThumbnails.get(row.source_image_file), size)
-					: undefined;
+	return pending.map((artwork): WallArtwork => {
+		const { pendingImage, ...resolved } = artwork;
+		const { sourceFile, ownPath, size } = pendingImage as PendingImage;
+		if (sourceFile) {
+			return {
+				...resolved,
+				image: commonsImage(sourceFile, commonsThumbnails.get(sourceFile), size)
+			};
+		}
+		const image = ownImage(storageUrls.get(ownPath as string), size);
 		return {
-			id: row.id,
-			number: row.record_number,
-			title: row.title,
-			authors: valuesOf(row.artwork_values, 'author'),
-			date: formatYear(row.year, row.year_approximate),
-			year: row.year,
-			eraCode: row.era_code,
-			typeCode: row.type_code,
-			period: valuesOf(row.artwork_values, 'period')[0] ?? null,
-			styles: valuesOf(row.artwork_values, 'style'),
-			materials: valuesOf(row.artwork_values, 'material'),
-			location: valuesOf(row.artwork_values, 'location')[0] ?? null,
-			hasImage: Boolean(row.source_image_file || row.own_image_path || row.own_image_url),
+			...resolved,
 			image,
-			...(row.own_image_path
-				? {
-						ownImagePath: row.own_image_path,
-						imageSignedAt: signedAt,
-						...(image ? {} : { imageUnavailable: true })
-					}
-				: {})
+			imageSignedAt: signedAt,
+			...(image ? {} : { imageUnavailable: true })
 		};
 	});
 }
@@ -218,7 +232,7 @@ export async function loadAtelier(): Promise<AtelierResult> {
 	);
 	if (error) return { artworks: [], error };
 
-	return { artworks: await wallArtworks(rows) };
+	return { artworks: rows.map(wallArtwork) };
 }
 
 export async function loadTrash(): Promise<TrashResult> {
@@ -233,10 +247,12 @@ export async function loadTrash(): Promise<TrashResult> {
 	);
 	if (error) return { artworks: [], error };
 
-	const artworks = await wallArtworks(rows);
+	const artworks = rows.map(wallArtwork);
+	const commons = artworks.filter((artwork) => artwork.pendingImage?.sourceFile);
+	const resolved = new Map((await resolveImages(commons)).map((artwork) => [artwork.id, artwork]));
 	return {
 		artworks: artworks.map((artwork, index): TrashArtwork => ({
-			...artwork,
+			...(resolved.get(artwork.id) ?? { ...artwork, image: undefined, pendingImage: undefined }),
 			deletedAt: rows[index].deleted_at as string,
 			ownImagePath: rows[index].own_image_path
 		}))

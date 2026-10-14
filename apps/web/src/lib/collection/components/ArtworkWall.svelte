@@ -4,7 +4,14 @@
 	import { innerWidth } from 'svelte/reactivity/window';
 	import { resolve } from '$app/paths';
 	import { eraIcon, eraName } from '../eras.ts';
-	import { columnCount, distribute, NO_IMAGE_RATIO, WIDE_MIN_WIDTH } from '../masonry.ts';
+	import {
+		columnCount,
+		distribute,
+		NO_IMAGE_RATIO,
+		WALL_MARGIN,
+		WALL_PART,
+		WIDE_MIN_WIDTH
+	} from '../masonry.ts';
 	import type { WallArtwork } from '../types.ts';
 
 	type Props = {
@@ -12,7 +19,9 @@
 		highlight?: number;
 		periodIndexes?: ReadonlyMap<string, number>;
 		element?: HTMLElement;
+		rendered?: number;
 		onimagefailed?: (artwork: WallArtwork) => void;
+		onnearscreen?: (artwork: WallArtwork) => void;
 	};
 
 	let {
@@ -20,17 +29,46 @@
 		highlight,
 		periodIndexes,
 		element = $bindable(),
-		onimagefailed
+		rendered = $bindable(WALL_PART),
+		onimagefailed,
+		onnearscreen
 	}: Props = $props();
 
 	const wide = new MediaQuery(`min-width: ${WIDE_MIN_WIDTH}px`);
 
 	let count = $derived(columnCount(wide.current, innerWidth.current ?? 0));
 	let columns = $derived(
-		distribute(artworks, count, (artwork) =>
+		distribute(artworks.slice(0, rendered), count, (artwork) =>
 			artwork.image ? artwork.image.height / artwork.image.width : NO_IMAGE_RATIO
 		)
 	);
+
+	function watchScreen(artwork: WallArtwork): (element: HTMLElement) => (() => void) | void {
+		return (element) => {
+			if (!artwork.pendingImage) return;
+			const observer = new IntersectionObserver(
+				([entry]) => {
+					if (!entry.isIntersecting) return;
+					observer.disconnect();
+					onnearscreen?.(artwork);
+				},
+				{ rootMargin: WALL_MARGIN }
+			);
+			observer.observe(element);
+			return () => observer.disconnect();
+		};
+	}
+
+	function watchEnd(element: HTMLElement): () => void {
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				if (entry.isIntersecting) rendered += WALL_PART;
+			},
+			{ rootMargin: WALL_MARGIN }
+		);
+		observer.observe(element);
+		return () => observer.disconnect();
+	}
 </script>
 
 <div bind:this={element} class="wall">
@@ -39,6 +77,7 @@
 			{#each column as artwork (artwork.id)}
 				<li
 					class:highlight={artwork.number === highlight}
+					{@attach watchScreen(artwork)}
 					data-period={periodIndexes?.get(artwork.id)}
 				>
 					<ArtworkTile
@@ -58,6 +97,11 @@
 		</ul>
 	{/each}
 </div>
+{#if rendered < artworks.length}
+	{#key rendered}
+		<div {@attach watchEnd}></div>
+	{/key}
+{/if}
 
 <style>
 	.wall {

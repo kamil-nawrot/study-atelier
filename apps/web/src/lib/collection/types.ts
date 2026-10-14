@@ -23,6 +23,17 @@ export type ArtworkValueRow = {
 	category_values: { category_code: string; name: string } | null;
 };
 
+export type ImageSize = {
+	width: number;
+	height: number;
+};
+
+export type PendingImage = {
+	sourceFile?: string;
+	ownPath?: string;
+	size?: ImageSize;
+};
+
 export type WallArtwork = {
 	id: string;
 	number: number;
@@ -39,6 +50,7 @@ export type WallArtwork = {
 	hasImage: boolean;
 	image?: ArtworkTileImage;
 	imageUnavailable?: boolean;
+	pendingImage?: PendingImage;
 	ownImagePath?: string | null;
 	imageSignedAt?: number;
 };
