@@ -94,6 +94,13 @@ The SvelteKit app in `apps/web/src`:
 - Requests to a rate-limited service are batched where the API allows it, and a 429 is retried at most once, after `Retry-After` ([ADR-0023](../decisions/0023-atelier-routes-and-commons-thumbnails.md)).
 - A SPARQL query to the Wikidata Query Service never follows a subclass path such as `wdt:P31/wdt:P279*`: it runs for tens of seconds and times out. Narrow the results with `FILTER EXISTS` and `FILTER NOT EXISTS` on specific properties and classes instead.
 
+## Database
+
+- Every table in `public` has Row Level Security on, policies for `authenticated` only, and an explicit `revoke all ... from anon, authenticated` followed by the narrowest `grant` (columns, not whole tables, for writes). Supabase grants new objects to the API roles by default, so a migration that skips the `revoke` exposes the table.
+- Functions are `security invoker` with `set search_path = ''` and, when callable from the app, `revoke all ... from public, anon` plus `grant execute ... to authenticated`. A `security definer` function lives in the `private` schema and is not granted to the API roles.
+- Uploaded files sit under a folder named after the owner's id, and the Storage policies compare that folder with `auth.uid()`.
+- `supabase/tests/security.sql` runs in the `migrations` job against the replayed migrations. It checks the rules above for every table and function, and that one learner cannot read or change another's rows or images. A new table, function or policy extends it.
+
 ## Tests
 
 - Unit tests (Vitest) cover every module with logic: validation, mapping, formatting and the domain functions that wrap Supabase (with the client mocked).

@@ -4,9 +4,10 @@
 	import Menu from '@lucide/svelte/icons/menu';
 	import X from '@lucide/svelte/icons/x';
 	import type { Snippet } from 'svelte';
-	import { Icon, Logo } from '@study-atelier/ui';
+	import { Icon, Logo, ProgressLine } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { navigating } from '$app/state';
 	import { signOut } from '#lib/auth/account.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import AtelierMenu from './AtelierMenu.svelte';
@@ -96,6 +97,9 @@
 				<Icon icon={Menu} />
 			</button>
 			{@render bar?.()}
+			{#if navigating.to}
+				<ProgressLine />
+			{/if}
 		</header>
 		{@render strip?.()}
 		<div class="body">

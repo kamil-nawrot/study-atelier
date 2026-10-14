@@ -81,6 +81,7 @@
 	};
 
 	const addPath = resolve('/(app)/atelier/new');
+	const atelierPath = resolve('/(app)/atelier');
 	const HIGHLIGHT_MS = 2000;
 	const REFRESH_DELAY_MS = 100;
 
@@ -91,14 +92,14 @@
 		const trashed = page.state.trashed;
 		if (trashed === undefined) return;
 		toast.show(m.trash.moved(formatRecordNumber(trashed)));
-		replaceState('', {});
+		void goto(atelierPath, { state: {}, shallow: true, replace: true });
 	});
 
 	$effect(() => {
 		if (highlight === undefined) return;
 		const timer = setTimeout(() => {
 			highlight = undefined;
-			replaceState('', {});
+			void goto(atelierPath, { state: {}, shallow: true, replace: true });
 		}, HIGHLIGHT_MS);
 		return () => clearTimeout(timer);
 	});

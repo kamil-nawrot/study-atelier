@@ -5,6 +5,8 @@
 	import { Alert, Button, Dialog, Icon, Section, Toast } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import DuplicateDialog from '#lib/collection/components/DuplicateDialog.svelte';
+	import { DuplicateCheck } from '#lib/collection/duplicate-check.svelte.ts';
 	import { formatDeletedOn, formatRecordNumber } from '#lib/collection/format.ts';
 	import { deletePermanently, restoreArtwork } from '#lib/collection/trash.ts';
 	import type { TrashArtwork } from '#lib/collection/types.ts';
@@ -14,6 +16,7 @@
 	let { data }: PageProps = $props();
 
 	let toast: Toast;
+	const duplicateCheck = new DuplicateCheck();
 	let removed = $state<string[]>([]);
 	let busy = $state<string>();
 	let actionError = $state<string>();
@@ -32,6 +35,10 @@
 		if (busy) return;
 		busy = artwork.id;
 		actionError = undefined;
+		if (!(await duplicateCheck.confirm(artwork, artwork.id))) {
+			busy = undefined;
+			return;
+		}
 		const { error } = await restoreArtwork(artwork.id);
 		busy = undefined;
 		if (error) {
@@ -173,6 +180,8 @@
 		</Button>
 	{/snippet}
 </Dialog>
+
+<DuplicateDialog action="restore" check={duplicateCheck} />
 
 <Toast bind:this={toast} />
 
