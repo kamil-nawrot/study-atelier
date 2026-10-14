@@ -1,9 +1,9 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { m } from '#lib/i18n/index.ts';
-import { distribute } from '../masonry.ts';
+import { distribute, WALL_PART } from '../masonry.ts';
 import ArtworkWall from './ArtworkWall.svelte';
 
 vi.mock('../masonry.ts', async (importOriginal) => {
@@ -57,5 +57,100 @@ describe('ArtworkWall', () => {
 		await expect
 			.element(page.getByRole('img', { name: m.eras.modern.name }))
 			.not.toBeInTheDocument();
+	});
+
+	describe('with a long list', () => {
+		type Watcher = { callback: IntersectionObserverCallback; targets: Element[] };
+		const watchers: Watcher[] = [];
+
+		function reveal(matches: (element: Element) => boolean): void {
+			for (const { callback, targets } of watchers) {
+				for (const target of targets.filter(matches)) {
+					callback([{ isIntersecting: true, target } as IntersectionObserverEntry], {} as never);
+				}
+			}
+		}
+
+		const long = Array.from({ length: WALL_PART * 3 }, (_, index) =>
+			testArtwork(index + 1, `Artwork ${index + 1}`, {
+				pendingImage: { sourceFile: `${index + 1}.jpg` }
+			})
+		);
+
+		beforeEach(async () => {
+			watchers.length = 0;
+			vi.stubGlobal(
+				'IntersectionObserver',
+				class {
+					watcher: Watcher;
+					constructor(callback: IntersectionObserverCallback) {
+						this.watcher = { callback, targets: [] };
+						watchers.push(this.watcher);
+					}
+					observe(target: Element): void {
+						this.watcher.targets.push(target);
+					}
+					disconnect(): void {
+						this.watcher.targets = [];
+					}
+				}
+			);
+			await page.viewport(1000, 800);
+		});
+
+		afterEach(() => {
+			vi.unstubAllGlobals();
+		});
+
+		it('renders the first part only and more when the end comes into view', async () => {
+			const { container } = await render(ArtworkWall, { artworks: long });
+			expect(container.querySelectorAll('li')).toHaveLength(WALL_PART);
+
+			reveal((element) => element.matches('div:not(.wall)'));
+
+			await expect.poll(() => container.querySelectorAll('li').length).toBe(WALL_PART * 2);
+		});
+
+		it('keeps the columns of the artworks already shown when more are added', async () => {
+			const { container } = await render(ArtworkWall, { artworks: long });
+			const firstColumn = (): string[] =>
+				Array.from(container.querySelectorAll('ul.column:first-child li')).map(
+					(item) => item.textContent ?? ''
+				);
+			const before = firstColumn();
+
+			reveal((element) => element.matches('div:not(.wall)'));
+			await expect.poll(() => container.querySelectorAll('li').length).toBe(WALL_PART * 2);
+
+			expect(firstColumn().slice(0, before.length)).toEqual(before);
+		});
+
+		it('stops adding parts when every artwork is shown', async () => {
+			const { container } = await render(ArtworkWall, { artworks: long.slice(0, WALL_PART + 5) });
+
+			reveal((element) => element.matches('div:not(.wall)'));
+
+			await expect.poll(() => container.querySelectorAll('li').length).toBe(WALL_PART + 5);
+			expect(container.querySelector('.wall + div')).toBeNull();
+		});
+
+		it('reports an artwork that comes near the screen while it still waits for an image', async () => {
+			const onnearscreen = vi.fn();
+			const { container } = await render(ArtworkWall, { artworks: long, onnearscreen });
+
+			reveal((element) => element === container.querySelector('li'));
+
+			expect(onnearscreen).toHaveBeenCalledTimes(1);
+			expect(onnearscreen).toHaveBeenCalledWith(expect.objectContaining({ number: 1 }));
+		});
+
+		it('does not watch an artwork that has its image already', async () => {
+			const onnearscreen = vi.fn();
+			await render(ArtworkWall, { artworks: [testArtwork(1, 'Ready')], onnearscreen });
+
+			reveal((element) => element.tagName === 'LI');
+
+			expect(onnearscreen).not.toHaveBeenCalled();
+		});
 	});
 });
