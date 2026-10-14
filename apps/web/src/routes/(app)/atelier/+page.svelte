@@ -16,7 +16,7 @@
 		type SelectOption,
 		Toast
 	} from '@study-atelier/ui';
-	import { goto, invalidateAll, replaceState } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
