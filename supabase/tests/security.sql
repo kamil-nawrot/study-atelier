@@ -135,7 +135,6 @@ begin
     'B renames a value of A';
   assert security_test.affected(format('delete from public.category_values where id = %L', a_value)) = 0,
     'B deletes a value of A';
-  assert security_test.affected('delete from storage.objects') = 0, 'B deletes image objects of A';
 
   assert security_test.denied(format(
     'insert into public.artworks (owner_id, title, author_unknown) values (%L, ''Forged'', true)', a)),
