@@ -40,7 +40,7 @@ Combine desktop and phone shots into one image when attaching to a thread: a thr
 All of it lives in [`apps/web/scripts/screenshot/`](../../apps/web/scripts/screenshot/).
 
 - **Supabase** (`https://abcd.supabase.co/**`): a fake session in the `sb-abcd-auth-token` localStorage entry; `/rest/v1/artworks` answers from the sample artworks in `fixtures.mjs` (filters on `deleted_at`, `record_number` and `id`, and the single-object `Accept` header); other tables and storage answer with empty lists; RPCs answer with the first sample artwork.
-- **Images**: own image URLs on `https://images.mock.test`, Wikimedia Commons (`api.php`, `upload.wikimedia.org`, `Special:FilePath`) and Wikidata are all answered locally with generated SVG gradients, so nothing depends on the network and Commons rate limits do not matter.
+- **Images**: own image URLs on `https://images.mock.test`, Wikimedia Commons (`api.php`, `upload.wikimedia.org`, `thumb.wikimedia.org`, `Special:FilePath`) and Wikidata are all answered locally with generated SVG gradients, so nothing depends on the network and Commons rate limits do not matter.
 - **Data**: ten sample artworks (plus one in the trash) with English titles and no personal data. Add or change rows in `fixtures.mjs` to show another state, for example an artwork with a long title or a very wide image.
 
 When a view needs data the mock does not return yet, extend `mockSupabase` in `screenshot.mjs` rather than writing a one-off script in the session. If the app's queries change shape (for example a new column), update the sample rows in the same pull request.
