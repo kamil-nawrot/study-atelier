@@ -5,6 +5,7 @@
 	import { resolve } from '$app/paths';
 	import ArtworkForm from '#lib/collection/components/ArtworkForm.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import { goBackThroughHistory } from '#lib/collection/history.ts';
 	import { formatRecordNumber, parseRecordNumber } from '#lib/collection/format.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps } from './$types';
@@ -32,9 +33,7 @@
 	});
 
 	function goBack(event: MouseEvent): void {
-		if (!cameFromApp) return;
-		event.preventDefault();
-		history.back();
+		goBackThroughHistory(event, cameFromApp);
 	}
 
 	async function showSaved(saved: number): Promise<void> {

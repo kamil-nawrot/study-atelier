@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
@@ -6,7 +6,13 @@ import '@study-atelier/ui/styles.css';
 import { m } from '#lib/i18n/index.ts';
 import AtelierLayout from './AtelierLayout.svelte';
 
+const navigation = vi.hoisted(() => ({ to: null as object | null }));
+
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
+vi.mock('$app/state', () => ({
+	navigating: navigation,
+	page: { url: new URL('http://localhost/atelier') }
+}));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
 function snippet(html: string): ReturnType<typeof createRawSnippet> {
@@ -29,6 +35,27 @@ function renderLayout(bar: ReturnType<typeof createRawSnippet> | undefined): voi
 }
 
 describe('AtelierLayout', () => {
+	beforeEach(() => {
+		navigation.to = null;
+	});
+
+	it('shows no loading indicator while no navigation is in progress', async () => {
+		renderLayout(views.empty);
+
+		await expect.element(page.getByRole('progressbar')).not.toBeInTheDocument();
+		await expect.element(page.getByRole('main')).toHaveAttribute('aria-busy', 'false');
+	});
+
+	it('shows a loading indicator under the top bar while a navigation is in progress', async () => {
+		navigation.to = {};
+		renderLayout(views.empty);
+
+		await expect
+			.element(page.getByRole('banner').getByRole('progressbar', { name: m.app.loading }))
+			.toBeInTheDocument();
+		await expect.element(page.getByRole('main')).toHaveAttribute('aria-busy', 'true');
+	});
+
 	for (const [name, width, height] of [
 		['a computer', 1280, 800],
 		['a phone', 390, 844]

@@ -3,6 +3,7 @@ const appName = 'Study Atelier';
 export const pl = {
 	app: {
 		name: appName,
+		loading: 'Wczytywanie',
 		pageTitle: (title: string): string => `${title} · ${appName}`
 	},
 	ui: {

@@ -13,7 +13,7 @@ const navigation = vi.hoisted(() => ({
 	state: {} as App.PageState
 }));
 
-vi.mock('$app/state', () => ({ page: navigation }));
+vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
 vi.mock('$app/navigation', () => ({ afterNavigate: vi.fn(), goto: vi.fn() }));
 vi.mock('#lib/collection/trash.ts', () => ({ moveToTrash: vi.fn() }));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
