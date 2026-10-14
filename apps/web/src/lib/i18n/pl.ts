@@ -231,7 +231,6 @@ export const pl = {
 		periodTo: 'Do',
 		beforeCommonEraFrom: 'p.n.e. (od)',
 		beforeCommonEraTo: 'p.n.e. (do)',
-		yearApproximateAria: 'ok. (data przybliżona)',
 		beforeCommonEra: 'p.n.e.',
 		yearApproximate: 'ok.',
 		type: 'Typ',

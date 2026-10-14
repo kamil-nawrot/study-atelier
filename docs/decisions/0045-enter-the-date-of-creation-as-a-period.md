@@ -50,5 +50,5 @@ Chosen: option 1, a "p.n.e." checkbox per end, and a switch above the inputs.
 ## More information
 
 - Issue: ATL-123, milestone 0.3.
-- Updates [ADR-0014](0014-artwork-collection-data-model.md) (the date columns) and [ADR-0022](0022-add-and-edit-an-artwork-in-one-full-form.md) (the date field), and R-53 in `docs/product/requirements.md` (the filter treats a period as an overlap).
+- Updates [ADR-0014](0014-artwork-collection-data-model.md) (the date columns) and [ADR-0022](0022-add-and-edit-an-artwork-in-one-full-form.md) (the date field), and adds R-62 to `docs/product/requirements.md`. R-53 (the year filter) is not changed here: the filter is built in ATL-117 and applies the overlap rule above when it lands.
 - Mockups of the form states, the wall tile and the artwork view were rendered on the app with `pnpm screenshot --script` in the design session.
