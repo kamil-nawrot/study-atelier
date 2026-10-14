@@ -1,6 +1,6 @@
 # 0045. Enter the date of creation as a period, as an alternative to a single year
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-10-14
 
 ## Context and problem statement
