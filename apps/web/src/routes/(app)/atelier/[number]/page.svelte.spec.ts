@@ -336,6 +336,13 @@ describe('artwork page', () => {
 			.not.toBeInTheDocument();
 	});
 
+	it('keeps the filter of the wall on the way back from an artwork that is gone', async () => {
+		rememberWall([7, 42, 30], 'epoka=early_modern');
+		renderPage({ error: m.artworkErrors.notFound, notFound: true });
+
+		await expect.element(backLink()).toHaveAttribute('href', '/atelier?epoka=early_modern');
+	});
+
 	it('names a record number that is not a number as it was typed', async () => {
 		renderPage({ error: m.artworkErrors.notFound, notFound: true }, 'abc');
 

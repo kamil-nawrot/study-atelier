@@ -35,7 +35,7 @@
 	let label = $derived(number === null ? params.number : formatRecordNumber(number));
 	let artworkPath = $derived(resolve('/(app)/atelier/[number]', { number: params.number }));
 	let editPath = $derived(resolve('/(app)/atelier/[number]/edit', { number: params.number }));
-	let neighbours = $derived(data.artwork ? neighboursIn(sequence, number) : undefined);
+	let neighbours = $derived(neighboursIn(sequence, number));
 	let flipLinks = $derived(
 		neighbours && {
 			previous: artworkHref(neighbours.previous),
