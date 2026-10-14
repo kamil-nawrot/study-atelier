@@ -65,6 +65,23 @@ function manyPeriods(): WallArtwork[] {
 	);
 }
 
+const byAuthors = [
+	testArtwork(1, 'Water Lilies', { year: 1906, authors: ['Claude Monet'] }),
+	testArtwork(2, 'Untitled study', { year: 1800, authors: [] }),
+	testArtwork(3, 'Melancholia', { year: 1514, authors: ['Albrecht Dürer', 'Claude Monet'] }),
+	testArtwork(4, 'Impression, Sunrise', { year: 1872, authors: ['Claude Monet'] }),
+	testArtwork(5, 'Self-portrait', { year: 1500, authors: ['Albrecht Dürer'] })
+];
+
+function manyAuthors(count: number): WallArtwork[] {
+	return Array.from({ length: count }, (_, index) =>
+		testArtwork(index + 1, `Study ${index + 1}`, {
+			year: 1800 + index,
+			authors: [`Author ${String(index + 1).padStart(2, '0')}`]
+		})
+	);
+}
+
 function orderSelect(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('combobox', { name: m.atelier.sort.label });
 }
@@ -179,6 +196,15 @@ describe('atelier page', () => {
 		await expect.element(page.getByText('Déjeuner sur l’herbe')).toBeVisible();
 		await expect.element(page.getByText('Starry Night')).not.toBeInTheDocument();
 		await expect.element(page.getByText(m.atelier.filteredCount(1, 3))).toBeVisible();
+	});
+
+	it('finds an artwork by any of its authors', async () => {
+		renderAtelier(byAuthors);
+
+		await searchField().fill('durer');
+
+		expect(titlesOnTheWall(byAuthors)).toEqual(['Melancholia', 'Self-portrait']);
+		await expect.element(page.getByText(m.atelier.filteredCount(2, 5))).toBeVisible();
 	});
 
 	it('says when nothing matches and clears the search', async () => {
@@ -513,6 +539,83 @@ describe('atelier page', () => {
 					).toContainElement(rail.element().querySelector('svg'))
 				);
 				expect(rail.element().querySelectorAll('svg')).toHaveLength(1);
+			});
+		});
+	});
+
+	describe('ordered by author', () => {
+		it('makes a block per first author, A to Z, by year inside, unknown author last', async () => {
+			renderAtelier(byAuthors);
+
+			await userEvent.selectOptions(orderSelect(), m.atelier.sort.author);
+
+			await expect.element(page.getByText(m.atelier.count(5))).toBeVisible();
+			expect(JSON.parse(sessionStorage.getItem('study-atelier:wall-sequence') ?? 'null')).toEqual({
+				query: '',
+				numbers: [5, 3, 4, 1, 2]
+			});
+		});
+
+		it('remembers the order on the device', async () => {
+			const view = await render(AtelierPage, {
+				data: { session: testSession(), artworks: byAuthors },
+				params: {}
+			});
+			await userEvent.selectOptions(orderSelect(), m.atelier.sort.author);
+			await view.unmount();
+
+			renderAtelier(byAuthors);
+
+			await expect.element(orderSelect()).toHaveDisplayValue(m.atelier.sort.author);
+		});
+
+		describe('on a phone', () => {
+			beforeEach(async () => {
+				await page.viewport(390, 800);
+				localStorage.setItem('study-atelier:wall-order', 'author');
+			});
+
+			it('names the current author and their years in the strip', async () => {
+				renderAtelier(byAuthors);
+
+				const strip = page.getByRole('complementary', { name: m.atelier.authors.label });
+				await expect.element(strip).toHaveTextContent('Albrecht Dürer');
+				await expect.element(strip).toHaveTextContent('1500 – 1514');
+				expect(strip.element().querySelectorAll('li')).toHaveLength(3);
+			});
+
+			it('leaves out the marks of the strip when there are too many authors to fit', async () => {
+				renderAtelier(manyAuthors(20));
+
+				const strip = page.getByRole('complementary', { name: m.atelier.authors.label });
+				await expect.element(strip).toHaveTextContent('Author 01');
+				expect(strip.element().querySelectorAll('li')).toHaveLength(0);
+			});
+		});
+
+		describe('on a wide screen', () => {
+			beforeEach(async () => {
+				await page.viewport(1900, 900);
+				localStorage.setItem('study-atelier:wall-order', 'author');
+			});
+
+			it('shows the authors on the rail without an era icon', async () => {
+				renderAtelier(byAuthors);
+
+				const rail = page.getByRole('complementary', { name: m.atelier.authors.label });
+				await expect
+					.element(rail.getByRole('listitem').filter({ hasText: 'Albrecht Dürer' }))
+					.toHaveAttribute('aria-current', 'true');
+				await expect.element(rail).toHaveTextContent(m.atelier.filters.unknownAuthor);
+				expect(rail.element().querySelectorAll('svg')).toHaveLength(0);
+			});
+
+			it('names only the current author when the rail is too short for every name', async () => {
+				renderAtelier(manyAuthors(80));
+
+				const rail = page.getByRole('complementary', { name: m.atelier.authors.label });
+				await expect.element(rail.getByText('Author 01')).toBeVisible();
+				await expect.element(rail.getByText('Author 02')).not.toBeVisible();
 			});
 		});
 	});

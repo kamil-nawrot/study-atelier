@@ -1,4 +1,6 @@
+import { locale, m } from '#lib/i18n/index.ts';
 import { ERA_CODES, eraName } from './eras.ts';
+import { UNKNOWN_AUTHOR } from './filter.ts';
 import type { EraCode, PeriodGroup, WallArtwork } from './types.ts';
 
 function byYear(a: WallArtwork, b: WallArtwork): number {
@@ -8,25 +10,62 @@ function byYear(a: WallArtwork, b: WallArtwork): number {
 	return a.year - b.year || a.number - b.number;
 }
 
-export function groupByEra(artworks: WallArtwork[]): PeriodGroup[] {
-	const groups = new Map<EraCode, WallArtwork[]>();
+function collect<K>(
+	artworks: WallArtwork[],
+	keyOf: (artwork: WallArtwork) => K | null
+): Map<K, WallArtwork[]> {
+	const groups = new Map<K, WallArtwork[]>();
 	for (const artwork of artworks) {
-		if (artwork.eraCode === null) continue;
-		groups.set(artwork.eraCode, [...(groups.get(artwork.eraCode) ?? []), artwork]);
+		const key = keyOf(artwork);
+		if (key === null) continue;
+		const members = groups.get(key);
+		if (members) members.push(artwork);
+		else groups.set(key, [artwork]);
 	}
+	return groups;
+}
 
+function group(
+	key: string,
+	code: EraCode | null,
+	name: string,
+	members: WallArtwork[]
+): PeriodGroup {
+	const years = members.flatMap((artwork) => artwork.year ?? []);
+	return {
+		key,
+		code,
+		name,
+		from: years.length > 0 ? Math.min(...years) : null,
+		to: years.length > 0 ? Math.max(...years) : null,
+		artworks: members.sort(byYear)
+	};
+}
+
+export function groupByEra(artworks: WallArtwork[]): PeriodGroup[] {
+	const groups = collect(artworks, (artwork) => artwork.eraCode);
 	return ERA_CODES.flatMap((code): PeriodGroup[] => {
 		const members = groups.get(code);
-		if (!members) return [];
-		const years = members.flatMap((artwork) => artwork.year ?? []);
-		return [
-			{
-				code,
-				name: eraName(code),
-				from: years.length > 0 ? Math.min(...years) : null,
-				to: years.length > 0 ? Math.max(...years) : null,
-				artworks: members.sort(byYear)
-			}
-		];
+		return members ? [group(code, code, eraName(code), members)] : [];
 	});
+}
+
+function byAuthorName(a: string, b: string): number {
+	if (a === UNKNOWN_AUTHOR) return 1;
+	if (b === UNKNOWN_AUTHOR) return -1;
+	return a.localeCompare(b, locale);
+}
+
+export function groupByAuthor(artworks: WallArtwork[]): PeriodGroup[] {
+	const groups = collect(artworks, (artwork) => artwork.authors[0] ?? UNKNOWN_AUTHOR);
+	return [...groups.keys()]
+		.sort(byAuthorName)
+		.map((author) =>
+			group(
+				author,
+				null,
+				author === UNKNOWN_AUTHOR ? m.atelier.filters.unknownAuthor : author,
+				groups.get(author) ?? []
+			)
+		);
 }

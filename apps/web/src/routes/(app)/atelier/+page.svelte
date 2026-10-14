@@ -40,9 +40,9 @@
 	import { WALL_PART } from '#lib/collection/masonry.ts';
 	import PeriodRail from '#lib/collection/components/PeriodRail.svelte';
 	import PeriodStrip from '#lib/collection/components/PeriodStrip.svelte';
-	import { groupByEra } from '#lib/collection/periods.ts';
+	import { groupByAuthor, groupByEra } from '#lib/collection/periods.ts';
 	import { MIN_RAIL_MARGIN, PeriodTracker } from '#lib/collection/period-tracker.svelte.ts';
-	import { filterByTitle } from '#lib/collection/search.ts';
+	import { filterByTitleOrAuthor } from '#lib/collection/search.ts';
 	import type { WallArtwork, WallOrder } from '#lib/collection/types.ts';
 	import {
 		isWallOrder,
@@ -69,7 +69,8 @@
 
 	const orders: SelectOption[] = [
 		{ value: 'recent', label: m.atelier.sort.recent },
-		{ value: 'period', label: m.atelier.sort.period }
+		{ value: 'period', label: m.atelier.sort.period },
+		{ value: 'author', label: m.atelier.sort.author }
 	];
 
 	function chooseOrder(value: string): void {
@@ -156,9 +157,12 @@
 	let filtered = $derived(applyFilter(artworks, filter));
 	let tags = $derived(filterTags(filter));
 	let filtering = $derived(!isEmptyFilter(filter));
-	let matching = $derived(filterByTitle(filtered, query));
-	let groups = $derived(order === 'period' ? groupByEra(matching) : []);
-	let shown = $derived(order === 'period' ? groups.flatMap((group) => group.artworks) : matching);
+	let matching = $derived(filterByTitleOrAuthor(filtered, query));
+	let groups = $derived(
+		order === 'period' ? groupByEra(matching) : order === 'author' ? groupByAuthor(matching) : []
+	);
+	let shown = $derived(order === 'recent' ? matching : groups.flatMap((group) => group.artworks));
+	let railLabel = $derived(order === 'author' ? m.atelier.authors.label : m.atelier.periods.label);
 	let periodIndexes = $derived(
 		new Map(groups.flatMap((group, index) => group.artworks.map((artwork) => [artwork.id, index])))
 	);
@@ -272,7 +276,7 @@
 
 	{#snippet strip()}
 		{#if showPeriods && !railFits}
-			<PeriodStrip current={tracker.current} {groups} />
+			<PeriodStrip current={tracker.current} {groups} label={railLabel} />
 		{/if}
 	{/snippet}
 
@@ -369,7 +373,7 @@
 			bind:rendered
 		/>
 		{#if showPeriods && railFits}
-			<PeriodRail current={tracker.current} {groups} width={tracker.margin} />
+			<PeriodRail current={tracker.current} {groups} label={railLabel} width={tracker.margin} />
 		{/if}
 	{/if}
 </AtelierLayout>

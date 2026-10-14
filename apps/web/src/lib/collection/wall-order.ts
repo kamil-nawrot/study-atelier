@@ -5,7 +5,7 @@ export const DEFAULT_WALL_ORDER: WallOrder = 'recent';
 const ORDER_KEY = 'study-atelier:wall-order';
 
 export function isWallOrder(value: unknown): value is WallOrder {
-	return value === 'recent' || value === 'period';
+	return value === 'recent' || value === 'period' || value === 'author';
 }
 
 export function rememberedWallOrder(): WallOrder {

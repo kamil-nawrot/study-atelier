@@ -1,17 +1,17 @@
 <script lang="ts">
 	import { Icon } from '@study-atelier/ui';
-	import { m } from '#lib/i18n/index.ts';
 	import { eraIcon } from '../eras.ts';
-	import { railLayout, railRow } from '../period-rail.ts';
+	import { MIN_LABELLED_ROW, railLayout, railRow } from '../period-rail.ts';
 	import type { CurrentPeriod, PeriodGroup } from '../types.ts';
 
 	type Props = {
 		groups: PeriodGroup[];
 		current: CurrentPeriod;
+		label: string;
 		width: number;
 	};
 
-	let { groups, current, width }: Props = $props();
+	let { groups, current, label, width }: Props = $props();
 
 	let height = $state(0);
 
@@ -19,14 +19,9 @@
 	let entries = $derived(railLayout(groups.length, current, height));
 </script>
 
-<aside
-	style:width="{width}px"
-	class="rail"
-	aria-label={m.atelier.periods.label}
-	bind:clientHeight={height}
->
-	<ol>
-		{#each groups as group, index (group.name)}
+<aside style:width="{width}px" class="rail" aria-label={label} bind:clientHeight={height}>
+	<ol class:dense={row < MIN_LABELLED_ROW}>
+		{#each groups as group, index (group.key)}
 			<li
 				style:height="{row}px"
 				style:translate="0 {entries[index].offset}px"
@@ -34,7 +29,7 @@
 				aria-current={entries[index].state === 'current' ? 'true' : undefined}
 				title={group.name}
 			>
-				{#if entries[index].state === 'current'}
+				{#if entries[index].state === 'current' && group.code}
 					<span class="icon">
 						<Icon icon={eraIcon(group.code)} size="sm" />
 					</span>
@@ -88,6 +83,10 @@
 		text-align: right;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+	}
+
+	.dense li:not(.current) .name {
+		display: none;
 	}
 
 	.icon {
