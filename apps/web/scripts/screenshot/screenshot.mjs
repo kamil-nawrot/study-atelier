@@ -33,6 +33,7 @@ const USAGE = `Usage: pnpm screenshot <path> [options]
   --signed-out       do not inject the fake session (default for the auth routes)
   --storage k=v      set a localStorage entry before the page loads (repeatable)
   --wait <selector>  wait for this selector before capturing
+  --script <file>    run this JavaScript file in the page before capturing, for example to mock a variant
   --url <base>       use a running dev server instead of starting one
 `;
 
@@ -46,7 +47,7 @@ function parseArgs(argv) {
 		else if (arg === '--combine') options.combine = true;
 		else if (arg === '--full-page') options.fullPage = true;
 		else if (arg === '--signed-out') options.signedOut = true;
-		else if (['--out', '--name', '--viewport', '--wait', '--url'].includes(arg)) {
+		else if (['--out', '--name', '--viewport', '--wait', '--url', '--script'].includes(arg)) {
 			options[arg.slice(2)] = rest.shift();
 		} else if (arg === '--storage') {
 			const [key, ...value] = (rest.shift() ?? '').split('=');
@@ -250,6 +251,7 @@ async function capture(browser, base, options, name) {
 	const page = await context.newPage();
 	await page.goto(new URL(options.route, base).href, { waitUntil: 'networkidle' });
 	if (options.wait) await page.waitForSelector(options.wait);
+	if (options.script) await page.evaluate(readFileSync(path.resolve(options.script), 'utf8'));
 	await page.evaluate(() => document.fonts.ready);
 	await page.waitForTimeout(400);
 	const file = path.join(options.out, `${options.name}-${name}.png`);
