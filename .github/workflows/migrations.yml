@@ -32,7 +32,8 @@ jobs:
 
       - name: Check generated database types
         run: |
-          supabase gen types --lang typescript --local --schema public > "$RUNNER_TEMP/database.types.ts"
+          supabase gen types --lang typescript --local --schema public \
+            | npx --yes prettier@3.9.10 --no-config --parser typescript > "$RUNNER_TEMP/database.types.ts"
           diff --unified apps/web/src/lib/database.types.ts "$RUNNER_TEMP/database.types.ts" \
             || { echo "::error::apps/web/src/lib/database.types.ts is stale. Run pnpm db:types and commit the result."; exit 1; }
 

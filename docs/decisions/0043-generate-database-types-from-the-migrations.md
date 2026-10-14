@@ -33,4 +33,4 @@ Chosen option: 1, because `pnpm check` and the editor keep working without Docke
 - Good: a query on a missing column or an RPC with wrong arguments fails the type check.
 - Good: the diff of the generated file shows what a migration changed in the schema.
 - Bad: every migration that changes the schema needs `pnpm db:types` and a second file in the pull request.
-- Bad: the generator output depends on the Supabase CLI version, so a CLI upgrade may rewrite the file.
+- Bad: the generator output depends on the Supabase CLI version, so a CLI upgrade may rewrite the file. The output is formatted with Prettier without the repo config, so that the check does not depend on the CLI's own formatting.
