@@ -16,6 +16,21 @@ export function formatYear(year: number | null, approximate: boolean): string | 
 	return year === null ? undefined : m.atelier.year(year, approximate);
 }
 
+export function signedYear(year: number | null, beforeCommonEra: boolean): number | null {
+	if (year === null) return null;
+	return beforeCommonEra ? -year : year;
+}
+
+export function formatDate(
+	yearFrom: number | null,
+	yearTo: number | null,
+	approximate: boolean
+): string | undefined {
+	if (yearTo === null) return undefined;
+	if (yearFrom === null || yearFrom === yearTo) return m.atelier.year(yearTo, approximate);
+	return m.atelier.period(yearFrom, yearTo, approximate);
+}
+
 export function formatYearRange(from: number | null, to: number | null): string | undefined {
 	if (from === null || to === null) return undefined;
 	const start = m.atelier.year(from, false);

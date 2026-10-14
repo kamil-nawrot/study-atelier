@@ -7,9 +7,10 @@ import type { EraCode } from './types.ts';
 function artwork(
 	number: number,
 	year: number | null,
-	eraCode: EraCode | null
+	eraCode: EraCode | null,
+	yearFrom: number | null = null
 ): ReturnType<typeof testArtwork> {
-	return testArtwork(number, `Artwork ${number}`, { yearTo: year, eraCode });
+	return testArtwork(number, `Artwork ${number}`, { yearFrom, yearTo: year, eraCode });
 }
 
 function numbers(groups: ReturnType<typeof groupByEra>): number[][] {
@@ -97,5 +98,30 @@ describe('groupByEra', () => {
 
 	it('returns nothing for an empty list', () => {
 		expect(groupByEra([])).toEqual([]);
+	});
+
+	it('takes the bounds of an era from the full extent of its periods', () => {
+		const [group] = groupByEra([
+			artwork(1, 1519, 'early_modern', 1503),
+			artwork(2, 1600, 'early_modern'),
+			artwork(3, 1480, 'early_modern')
+		]);
+
+		expect(group.from).toBe(1480);
+		expect(group.to).toBe(1600);
+		const [wide] = groupByEra([
+			artwork(1, 1600, 'early_modern', 1400),
+			artwork(2, 1500, 'early_modern')
+		]);
+		expect(wide.from).toBe(1400);
+	});
+
+	it('orders a period by its end', () => {
+		const groups = groupByEra([
+			artwork(1, 1600, 'early_modern', 1400),
+			artwork(2, 1550, 'early_modern')
+		]);
+
+		expect(numbers(groups)).toEqual([[2, 1]]);
 	});
 });

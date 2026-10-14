@@ -35,6 +35,7 @@ function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 		id: 'artwork-1',
 		record_number: 1,
 		title: 'The Test Painting',
+		year_from: null,
 		year_to: 1490,
 		year_approximate: true,
 		era_code: null,
@@ -161,11 +162,25 @@ describe('loadAtelier', () => {
 				title: 'The Test Painting',
 				authors: ['First Author', 'Second Author'],
 				date: m.atelier.year(1490, true),
+				yearFrom: null,
 				yearTo: 1490,
 				eraCode: 'early_modern',
 				image: undefined
 			}
 		]);
+	});
+
+	it('formats a period and keeps both of its years', async () => {
+		query.range.mockResolvedValue({
+			data: [row({ year_from: -50, year_to: 20, year_approximate: false })],
+			error: null
+		});
+
+		const { artworks } = await loadAtelier();
+
+		expect(artworks[0].date).toBe(m.atelier.period(-50, 20, false));
+		expect(artworks[0].yearFrom).toBe(-50);
+		expect(artworks[0].yearTo).toBe(20);
 	});
 
 	it('returns the artworks without waiting for any image and keeps what is needed to find it later', async () => {
@@ -361,6 +376,7 @@ describe('resolveImages', () => {
 			number: 1,
 			title: 'Pending',
 			authors: [],
+			yearFrom: null,
 			yearTo: null,
 			eraCode: null,
 			image: { ...DEFAULT_IMAGE_SIZE },
@@ -501,6 +517,7 @@ describe('refreshExpiredImages', () => {
 			number: 1,
 			title: 'The Test Painting',
 			authors: [],
+			yearFrom: null,
 			yearTo: null,
 			eraCode: null,
 			image: { src: `https://example.com/old-${id}`, width: 4, height: 5 },

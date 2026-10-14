@@ -9,6 +9,7 @@
 		Form,
 		Select,
 		NotesEditor,
+		Switch,
 		TextField,
 		Toast,
 		ValueField
@@ -59,6 +60,8 @@
 	let { artwork, categoryValues, valueLinks, cancelHref, oncancel, onsaved }: Props = $props();
 
 	const titleId = $props.id();
+	const dateTitleId = `${titleId}-date`;
+	const yearToId = `${titleId}-year-to`;
 	const typeOptions = artworkTypeOptions();
 	const eraOptions = eraTiles();
 	const describedCategories: { code: 'material' | 'location'; label: string }[] = [
@@ -277,17 +280,57 @@
 				/>
 			</div>
 
-			<div class="group">
-				<TextField
-					autocomplete="off"
-					error={fieldErrors.yearTo}
-					inputmode="numeric"
-					label={m.artworkForm.year}
-					bind:value={form.yearTo}
-				/>
-				<div class="checks">
-					<Checkbox label={m.artworkForm.beforeCommonEra} bind:checked={form.toBeforeCommonEra} />
-					<Checkbox label={m.artworkForm.yearApproximate} bind:checked={form.yearApproximate} />
+			<div class="date" aria-labelledby={dateTitleId} role="group">
+				<div class="date-head">
+					<svelte:element
+						this={form.periodMode ? 'span' : 'label'}
+						id={dateTitleId}
+						class="date-title"
+						for={form.periodMode ? undefined : yearToId}
+					>
+						{form.periodMode ? m.artworkForm.periodDate : m.artworkForm.year}
+					</svelte:element>
+					<div class="date-aside">
+						<Checkbox label={m.artworkForm.yearApproximate} bind:checked={form.yearApproximate} />
+						<Switch label={m.artworkForm.periodSwitch} bind:checked={form.periodMode} />
+					</div>
+				</div>
+				<div class="date-inputs" class:period={form.periodMode}>
+					{#if form.periodMode}
+						<div class="date-end">
+							<TextField
+								autocomplete="off"
+								error={fieldErrors.yearFrom}
+								hideLabel
+								inputmode="numeric"
+								label={m.artworkForm.periodFrom}
+								placeholder={m.artworkForm.periodFrom}
+								bind:value={form.yearFrom}
+							/>
+							<Checkbox
+								aria-label={m.artworkForm.beforeCommonEraFrom}
+								label={m.artworkForm.beforeCommonEra}
+								bind:checked={form.fromBeforeCommonEra}
+							/>
+						</div>
+					{/if}
+					<div class="date-end">
+						<TextField
+							id={yearToId}
+							autocomplete="off"
+							error={fieldErrors.yearTo}
+							hideLabel
+							inputmode="numeric"
+							label={form.periodMode ? m.artworkForm.periodTo : m.artworkForm.year}
+							placeholder={form.periodMode ? m.artworkForm.periodTo : undefined}
+							bind:value={form.yearTo}
+						/>
+						<Checkbox
+							aria-label={form.periodMode ? m.artworkForm.beforeCommonEraTo : undefined}
+							label={m.artworkForm.beforeCommonEra}
+							bind:checked={form.toBeforeCommonEra}
+						/>
+					</div>
 				</div>
 			</div>
 
@@ -398,10 +441,47 @@
 		gap: var(--spacing-3);
 	}
 
-	.checks {
+	.date {
+		display: grid;
+		gap: var(--spacing-2);
+	}
+
+	.date-head {
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: var(--spacing-3);
+	}
+
+	.date-title {
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-medium);
+		line-height: var(--line-height-sm);
+	}
+
+	.date-aside {
+		display: flex;
+		align-items: center;
 		gap: var(--spacing-4);
+	}
+
+	.date-inputs {
+		display: grid;
+		gap: var(--spacing-3);
+	}
+
+	.date-inputs.period {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: var(--spacing-4);
+	}
+
+	.date-end {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		align-content: start;
+		gap: var(--spacing-3);
+		min-width: 0;
 	}
 
 	.actions {

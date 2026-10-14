@@ -45,6 +45,8 @@ describe('artworkInputFromForm', () => {
 			title: 'Girl with a Pearl Earring',
 			authors: ['Johannes Vermeer'],
 			authorUnknown: false,
+			yearFrom: null,
+			fromBeforeCommonEra: false,
 			yearTo: 1665,
 			toBeforeCommonEra: false,
 			yearApproximate: true,
@@ -82,6 +84,8 @@ describe('artworkFormFromRecord', () => {
 		title: 'The Thinker',
 		authors: ['Auguste Rodin'],
 		authorUnknown: false,
+		yearFrom: null,
+		fromBeforeCommonEra: false,
 		yearTo: 1904,
 		toBeforeCommonEra: false,
 		yearApproximate: true,
@@ -107,6 +111,9 @@ describe('artworkFormFromRecord', () => {
 			},
 			queries: { author: '', period: '', style: '', material: '', location: '' },
 			authorUnknown: false,
+			periodMode: false,
+			yearFrom: '',
+			fromBeforeCommonEra: false,
 			yearTo: '1904',
 			toBeforeCommonEra: false,
 			yearApproximate: true,
@@ -239,5 +246,56 @@ describe('imageFromCandidate', () => {
 		expect(
 			imageFromCandidate({ wikidataId: 'Q1', title: 'Lost', authors: [], image: null })
 		).toBeNull();
+	});
+});
+
+describe('period date in the form', () => {
+	const record: ArtworkRecord = {
+		id: 'artwork-1',
+		number: 7,
+		title: 'The Test Painting',
+		authors: [],
+		authorUnknown: true,
+		yearFrom: 50,
+		fromBeforeCommonEra: true,
+		yearTo: 20,
+		toBeforeCommonEra: false,
+		yearApproximate: false,
+		typeCode: null,
+		eraCode: null,
+		period: null,
+		styles: [],
+		materials: [],
+		location: null,
+		notes: '',
+		image: null
+	};
+
+	it('opens a record with a period in the period mode', () => {
+		const form = artworkFormFromRecord(record);
+
+		expect(form.periodMode).toBe(true);
+		expect(form.yearFrom).toBe('50');
+		expect(form.fromBeforeCommonEra).toBe(true);
+		expect(form.yearTo).toBe('20');
+		expect(artworkFormFromRecord({ ...record, yearFrom: null }).periodMode).toBe(false);
+	});
+
+	it('reads the start of the period only in the period mode', () => {
+		const form = artworkFormFromRecord(record);
+
+		expect(artworkInputFromForm(form)).toEqual(
+			expect.objectContaining({
+				yearFrom: 50,
+				fromBeforeCommonEra: true,
+				yearTo: 20,
+				toBeforeCommonEra: false
+			})
+		);
+
+		form.periodMode = false;
+		expect(artworkInputFromForm(form)).toEqual(
+			expect.objectContaining({ yearFrom: null, fromBeforeCommonEra: false, yearTo: 20 })
+		);
 	});
 });

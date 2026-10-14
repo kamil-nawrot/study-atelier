@@ -34,7 +34,7 @@ Chosen option: 2, one full form on its own page, because it keeps adding and edi
 - After a candidate is picked, the app does not fill in or compare any field: the learner writes everything by hand. Only the licence and attribution show under the image ([R-16](../product/requirements.md#images)).
 - Image size: when an image is picked or added, the form stores its width and height with the artwork, so the wall knows each image's proportions before it loads and does not ask the image source for them.
 - Own image: "Dodaj własne" takes a file from the device or an image URL. There is no field for where the image comes from. An own image is visible only to the learner.
-- Date: one year with "p.n.e." and "ok." checkboxes, as in the data model ([ADR-0014](0014-artwork-collection-data-model.md)). Ranges and centuries are not part of the MVP.
+- Date: one year with "p.n.e." and "ok." checkboxes, as in the data model ([ADR-0014](0014-artwork-collection-data-model.md)). Version 0.3 adds a period as an alternative ([ADR-0045](0045-enter-the-date-of-creation-as-a-period.md)); centuries are still not covered.
 - Type: a single-choice dropdown.
 - Category values (authors, period, style, material, location): the chosen values are tags with a remove button inside the field. While typing, a list shows values the learner already used, then the starting list (R-24), then "+ Dodaj „…”" for a new value. Location takes one value.
 - Near-duplicates (R-25): a new value that differs from an existing one only in letter case or diacritics cannot be created; the list offers the existing value. A value that looks like a typo of an existing one puts "Masz już „…”" first, and creating the new value stays possible below it.

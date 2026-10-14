@@ -37,6 +37,8 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 		title: 'The Milkmaid',
 		authors: ['Johannes Vermeer'],
 		authorUnknown: false,
+		yearFrom: null,
+		fromBeforeCommonEra: false,
 		yearTo: 1658,
 		toBeforeCommonEra: false,
 		yearApproximate: true,
@@ -363,5 +365,19 @@ describe('edit artwork page', () => {
 			.toHaveTextContent(m.artworkForm.loadErrorTitle);
 		await expect.element(page.getByRole('alert')).toHaveTextContent(m.artworkErrors.network);
 		await expect.element(titleField()).not.toBeInTheDocument();
+	});
+
+	it('opens a record with a period in the period mode', async () => {
+		renderPage({ artwork: artwork({ yearFrom: 1503, yearTo: 1519 }) });
+
+		await expect
+			.element(page.getByRole('switch', { name: m.artworkForm.periodSwitch }))
+			.toBeChecked();
+		await expect
+			.element(page.getByRole('textbox', { name: m.artworkForm.periodFrom }))
+			.toHaveValue('1503');
+		await expect
+			.element(page.getByRole('textbox', { name: m.artworkForm.periodTo }))
+			.toHaveValue('1519');
 	});
 });

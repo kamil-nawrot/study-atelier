@@ -18,13 +18,14 @@ export function groupByEra(artworks: WallArtwork[]): PeriodGroup[] {
 	return ERA_CODES.flatMap((code): PeriodGroup[] => {
 		const members = groups.get(code);
 		if (!members) return [];
-		const years = members.flatMap((artwork) => artwork.yearTo ?? []);
+		const starts = members.flatMap((artwork) => artwork.yearFrom ?? artwork.yearTo ?? []);
+		const ends = members.flatMap((artwork) => artwork.yearTo ?? []);
 		return [
 			{
 				code,
 				name: eraName(code),
-				from: years.length > 0 ? Math.min(...years) : null,
-				to: years.length > 0 ? Math.max(...years) : null,
+				from: starts.length > 0 ? Math.min(...starts) : null,
+				to: ends.length > 0 ? Math.max(...ends) : null,
 				artworks: members.sort(byYear)
 			}
 		];

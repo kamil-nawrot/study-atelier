@@ -3,6 +3,7 @@ import { ownImageUrl, removeOwnImage, uploadOwnImage } from '#lib/images/own-ima
 import type { Json } from '#lib/database.types.ts';
 import { supabase } from '#lib/supabase.ts';
 import { valuesOf } from './artwork-values.ts';
+import { signedYear } from './format.ts';
 import { artworkErrorMessage } from './errors.ts';
 import type {
 	ArtworkFieldErrors,
@@ -23,6 +24,7 @@ type ArtworkRecordRow = {
 	record_number: number;
 	title: string;
 	author_unknown: boolean;
+	year_from: number | null;
 	year_to: number | null;
 	year_approximate: boolean;
 	type_code: ArtworkTypeCode | null;
@@ -49,6 +51,7 @@ const RECORD_COLUMNS = [
 	'record_number',
 	'title',
 	'author_unknown',
+	'year_from',
 	'year_to',
 	'year_approximate',
 	'type_code',
@@ -71,6 +74,8 @@ export function emptyArtworkInput(): ArtworkInput {
 		title: '',
 		authors: [],
 		authorUnknown: false,
+		yearFrom: null,
+		fromBeforeCommonEra: false,
 		yearTo: null,
 		toBeforeCommonEra: false,
 		yearApproximate: false,
@@ -89,6 +94,16 @@ function names(values: string[]): string[] {
 	return values.map((value) => value.trim()).filter((value) => value !== '');
 }
 
+function isYear(year: number): boolean {
+	return Number.isInteger(year) && year >= 1;
+}
+
+function endsInOrder(input: ArtworkInput): boolean {
+	const from = signedYear(input.yearFrom, input.fromBeforeCommonEra);
+	const to = signedYear(input.yearTo, input.toBeforeCommonEra);
+	return from === null || to === null || from <= to;
+}
+
 export function validateArtwork(input: ArtworkInput): ArtworkFieldErrors {
 	const errors: ArtworkFieldErrors = {};
 	if (!input.title.trim()) errors.title = m.artworkErrors.titleRequired;
@@ -96,17 +111,25 @@ export function validateArtwork(input: ArtworkInput): ArtworkFieldErrors {
 		errors.authors = m.artworkErrors.authorRequired;
 	}
 	if (input.yearTo === null) {
-		if (input.toBeforeCommonEra || input.yearApproximate)
+		if (input.yearFrom !== null) errors.yearTo = m.artworkErrors.periodEndRequired;
+		else if (input.toBeforeCommonEra || input.yearApproximate)
 			errors.yearTo = m.artworkErrors.yearRequired;
-	} else if (!Number.isInteger(input.yearTo) || input.yearTo < 1) {
+	} else if (!isYear(input.yearTo)) {
 		errors.yearTo = m.artworkErrors.yearInvalid;
+	}
+	if (input.yearFrom === null) {
+		if (input.fromBeforeCommonEra) errors.yearFrom = m.artworkErrors.yearRequired;
+	} else if (!isYear(input.yearFrom)) {
+		errors.yearFrom = m.artworkErrors.yearInvalid;
+	} else if (input.yearTo !== null && !errors.yearTo && !endsInOrder(input)) {
+		errors.yearTo = m.artworkErrors.periodOrder;
 	}
 	return errors;
 }
 
-function storedYear(input: ArtworkInput): number | null {
-	if (input.yearTo === null) return null;
-	return input.toBeforeCommonEra ? -input.yearTo : input.yearTo;
+function storedYearFrom(input: ArtworkInput): number | null {
+	const from = signedYear(input.yearFrom, input.fromBeforeCommonEra);
+	return from === signedYear(input.yearTo, input.toBeforeCommonEra) ? null : from;
 }
 
 function imageColumns(image: StoredImage | null): Record<string, string | number | null> {
@@ -127,7 +150,8 @@ function artworkColumns(input: StoredInput): Record<string, Json> {
 	return {
 		title: input.title.trim(),
 		author_unknown: input.authorUnknown,
-		year_to: storedYear(input),
+		year_from: storedYearFrom(input),
+		year_to: signedYear(input.yearTo, input.toBeforeCommonEra),
 		year_approximate: input.yearTo !== null && input.yearApproximate,
 		type_code: input.typeCode,
 		era_code: input.eraCode,
@@ -217,6 +241,8 @@ function artworkRecordFromRow(row: ArtworkRecordRow): ArtworkRecord {
 		title: row.title,
 		authors: valuesOf(row.artwork_values, 'author'),
 		authorUnknown: row.author_unknown,
+		yearFrom: row.year_from === null ? null : Math.abs(row.year_from),
+		fromBeforeCommonEra: row.year_from !== null && row.year_from < 0,
 		yearTo: row.year_to === null ? null : Math.abs(row.year_to),
 		toBeforeCommonEra: row.year_to !== null && row.year_to < 0,
 		yearApproximate: row.year_approximate,

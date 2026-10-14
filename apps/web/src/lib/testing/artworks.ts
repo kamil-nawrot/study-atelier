@@ -11,6 +11,7 @@ export function testArtwork(
 		title,
 		authors: ['Test Painter'],
 		date: '1900',
+		yearFrom: null,
 		yearTo: 1900,
 		eraCode: null,
 		image: { src: `data:image/gif;base64,R0lGODlhAQABAAAAACw=`, width: 4, height: 5 },

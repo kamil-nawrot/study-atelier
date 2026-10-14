@@ -53,6 +53,7 @@ function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 		record_number: 7,
 		title: 'The Test Painting',
 		author_unknown: false,
+		year_from: null,
 		year_to: null,
 		year_approximate: false,
 		type_code: null,
@@ -103,6 +104,43 @@ describe('validateArtwork', () => {
 		});
 	});
 
+	it('accepts a period inside one era and across the turn of the eras', () => {
+		expect(validateArtwork(input({ yearFrom: 1503, yearTo: 1519 }))).toEqual({});
+		expect(
+			validateArtwork(
+				input({ yearFrom: 450, fromBeforeCommonEra: true, yearTo: 420, toBeforeCommonEra: true })
+			)
+		).toEqual({});
+		expect(validateArtwork(input({ yearFrom: 50, fromBeforeCommonEra: true, yearTo: 20 }))).toEqual(
+			{}
+		);
+	});
+
+	it('rejects a period whose end is earlier than its start', () => {
+		const order = { yearTo: m.artworkErrors.periodOrder };
+		expect(validateArtwork(input({ yearFrom: 1519, yearTo: 1503 }))).toEqual(order);
+		expect(validateArtwork(input({ yearFrom: 20, yearTo: 50, toBeforeCommonEra: true }))).toEqual(
+			order
+		);
+		expect(
+			validateArtwork(
+				input({ yearFrom: 420, fromBeforeCommonEra: true, yearTo: 450, toBeforeCommonEra: true })
+			)
+		).toEqual(order);
+	});
+
+	it('asks for the end of a period and rejects a start that is not a year', () => {
+		expect(validateArtwork(input({ yearFrom: 1503 }))).toEqual({
+			yearTo: m.artworkErrors.periodEndRequired
+		});
+		expect(validateArtwork(input({ fromBeforeCommonEra: true, yearTo: 1519 }))).toEqual({
+			yearFrom: m.artworkErrors.yearRequired
+		});
+		expect(validateArtwork(input({ yearFrom: Number.NaN, yearTo: 1519 }))).toEqual({
+			yearFrom: m.artworkErrors.yearInvalid
+		});
+	});
+
 	it('rejects a year that is not a whole number from 1', () => {
 		for (const year of [0, -5, 1.5]) {
 			expect(validateArtwork(input({ yearTo: year }))).toEqual({
@@ -146,6 +184,7 @@ describe('saveArtwork', () => {
 			artwork: {
 				title: 'The Test Painting',
 				author_unknown: false,
+				year_from: null,
 				year_to: -480,
 				year_approximate: true,
 				type_code: 'sculpture',
@@ -170,6 +209,38 @@ describe('saveArtwork', () => {
 			},
 			existing_id: undefined
 		});
+	});
+
+	it('stores a period as signed years and a period of one year as a single year', async () => {
+		await saveArtwork(
+			input({ yearFrom: 50, fromBeforeCommonEra: true, yearTo: 20, yearApproximate: true })
+		);
+		expect(supabase.rpc).toHaveBeenLastCalledWith(
+			'save_artwork',
+			expect.objectContaining({
+				artwork: expect.objectContaining({
+					year_from: -50,
+					year_to: 20,
+					year_approximate: true
+				})
+			})
+		);
+
+		await saveArtwork(input({ yearFrom: 1503, yearTo: 1503 }));
+		expect(supabase.rpc).toHaveBeenLastCalledWith(
+			'save_artwork',
+			expect.objectContaining({
+				artwork: expect.objectContaining({ year_from: null, year_to: 1503 })
+			})
+		);
+	});
+
+	it('does not call Supabase when the period is not in order', async () => {
+		await expect(saveArtwork(input({ yearFrom: 1519, yearTo: 1503 }))).resolves.toEqual({
+			saved: false,
+			fieldErrors: { yearTo: m.artworkErrors.periodOrder }
+		});
+		expect(supabase.rpc).not.toHaveBeenCalled();
 	});
 
 	it('updates an existing artwork by its id', async () => {
@@ -379,6 +450,7 @@ describe('loadArtwork', () => {
 	it('returns every field with values grouped by category in their order', async () => {
 		query.maybeSingle.mockResolvedValue({
 			data: row({
+				year_from: -500,
 				year_to: -480,
 				year_approximate: true,
 				type_code: 'sculpture',
@@ -404,6 +476,8 @@ describe('loadArtwork', () => {
 				title: 'The Test Painting',
 				authors: ['First Author', 'Second Author'],
 				authorUnknown: false,
+				yearFrom: 500,
+				fromBeforeCommonEra: true,
 				yearTo: 480,
 				toBeforeCommonEra: true,
 				yearApproximate: true,

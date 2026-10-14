@@ -85,6 +85,7 @@ export type Database = {
           type_code: string | null;
           updated_at: string;
           year_approximate: boolean;
+          year_from: number | null;
           year_to: number | null;
         };
         ComputedFields: never;
@@ -110,6 +111,7 @@ export type Database = {
           type_code?: string | null;
           updated_at?: string;
           year_approximate?: boolean;
+          year_from?: number | null;
           year_to?: number | null;
         };
         Update: {
@@ -134,6 +136,7 @@ export type Database = {
           type_code?: string | null;
           updated_at?: string;
           year_approximate?: boolean;
+          year_from?: number | null;
           year_to?: number | null;
         };
         Relationships: [

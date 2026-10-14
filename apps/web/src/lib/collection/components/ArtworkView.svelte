@@ -5,7 +5,7 @@
 	import { ArtworkImage, Button, Icon, NoImage, Notes, Tag } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
-	import { formatRecordNumber, formatYear } from '../format.ts';
+	import { formatDate, formatRecordNumber, signedYear } from '../format.ts';
 	import { artworkPanelOpen, rememberArtworkPanel } from '../artwork-panel.ts';
 	import type { ArtworkRecord } from '../types.ts';
 
@@ -30,8 +30,9 @@
 		artwork.authors.length > 0 ? artwork.authors.join(', ') : m.ui.unknownAuthor
 	);
 	let date = $derived(
-		formatYear(
-			artwork.yearTo === null || !artwork.toBeforeCommonEra ? artwork.yearTo : -artwork.yearTo,
+		formatDate(
+			signedYear(artwork.yearFrom, artwork.fromBeforeCommonEra),
+			signedYear(artwork.yearTo, artwork.toBeforeCommonEra),
 			artwork.yearApproximate
 		)
 	);

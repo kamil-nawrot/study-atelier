@@ -57,6 +57,10 @@ function eraTile(code: keyof typeof m.eras): ReturnType<typeof page.getByRole> {
 	return page.getByRole('radio', { name: `${m.eras[code].name} ${m.eras[code].years}` });
 }
 
+async function togglePeriod(): Promise<void> {
+	await page.getByText(m.artworkForm.periodSwitch, { exact: true }).first().click();
+}
+
 function periodField(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('combobox', { name: m.artworkForm.period });
 }
@@ -263,6 +267,58 @@ describe('add artwork page', () => {
 
 		await expect.element(page.getByText(m.artworkErrors.yearInvalid)).toBeVisible();
 		expect(supabase.rpc).not.toHaveBeenCalled();
+	});
+
+	it('switches the date to a period and saves both of its years', async () => {
+		renderPage();
+		await fillRequired();
+
+		await togglePeriod();
+
+		await expect
+			.element(page.getByRole('textbox', { name: m.artworkForm.periodFrom }))
+			.toBeVisible();
+		expect(page.getByRole('textbox', { name: m.artworkForm.year }).elements()).toHaveLength(0);
+
+		await page.getByRole('textbox', { name: m.artworkForm.periodFrom }).fill('50');
+		await page.getByText(m.artworkForm.beforeCommonEra, { exact: true }).first().click();
+		await page.getByRole('textbox', { name: m.artworkForm.periodTo }).fill('20');
+		await saveButton().click();
+
+		await vi.waitFor(() =>
+			expect(supabase.rpc).toHaveBeenCalledWith(
+				'save_artwork',
+				expect.objectContaining({
+					artwork: expect.objectContaining({ year_from: -50, year_to: 20 })
+				})
+			)
+		);
+	});
+
+	it('rejects a period whose end is earlier than its start', async () => {
+		renderPage();
+		await fillRequired();
+		await togglePeriod();
+
+		await page.getByRole('textbox', { name: m.artworkForm.periodFrom }).fill('1519');
+		await page.getByRole('textbox', { name: m.artworkForm.periodTo }).fill('1503');
+		await saveButton().click();
+
+		await expect.element(page.getByText(m.artworkErrors.periodOrder)).toBeVisible();
+		expect(supabase.rpc).not.toHaveBeenCalled();
+	});
+
+	it('keeps the end of the period as the year when the period is switched off', async () => {
+		renderPage();
+		await togglePeriod();
+		await page.getByRole('textbox', { name: m.artworkForm.periodFrom }).fill('1503');
+		await page.getByRole('textbox', { name: m.artworkForm.periodTo }).fill('1519');
+
+		await togglePeriod();
+
+		await expect
+			.element(page.getByRole('textbox', { name: m.artworkForm.year }))
+			.toHaveValue('1519');
 	});
 
 	it('clears and disables the authors when the author is unknown', async () => {

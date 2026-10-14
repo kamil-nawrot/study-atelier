@@ -27,6 +27,8 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 		title: 'Girl with a Pearl Earring',
 		authors: ['Johannes Vermeer'],
 		authorUnknown: false,
+		yearFrom: null,
+		fromBeforeCommonEra: false,
 		yearTo: 1665,
 		toBeforeCommonEra: false,
 		yearApproximate: true,
@@ -128,6 +130,12 @@ describe('artwork page', () => {
 		renderPage({ artwork: artwork({ yearTo: 150, toBeforeCommonEra: true }) });
 
 		await expect.element(page.getByText('ok. 150 p.n.e.', { exact: true })).toBeVisible();
+	});
+
+	it('writes a period', async () => {
+		renderPage({ artwork: artwork({ yearFrom: 1503, yearTo: 1519 }) });
+
+		await expect.element(page.getByText('ok. 1503–1519', { exact: true })).toBeVisible();
 	});
 
 	it('shows the credit of a Commons image', async () => {
