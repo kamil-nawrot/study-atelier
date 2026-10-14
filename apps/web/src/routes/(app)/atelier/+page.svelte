@@ -1,10 +1,14 @@
 <script lang="ts">
 	import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
 	import Plus from '@lucide/svelte/icons/plus';
-	import { onDestroy, onMount } from 'svelte';
+	import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
+	import X from '@lucide/svelte/icons/x';
+	import { onDestroy, onMount, untrack } from 'svelte';
+	import { MediaQuery, SvelteSet } from 'svelte/reactivity';
 	import {
 		Alert,
 		Button,
+		Dialog,
 		Icon,
 		SearchField,
 		Section,
@@ -12,12 +16,25 @@
 		type SelectOption,
 		Toast
 	} from '@study-atelier/ui';
-	import { invalidateAll, replaceState } from '$app/navigation';
+	import { goto, invalidateAll, replaceState } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import type { ResolvedPathname } from '$app/types';
 	import { refreshExpiredImages } from '#lib/collection/artworks.ts';
 	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import FilterPanel from '#lib/collection/components/FilterPanel.svelte';
+	import FilterTags from '#lib/collection/components/FilterTags.svelte';
+	import {
+		applyFilter,
+		emptyFilter,
+		filterFromParams,
+		filterTags,
+		filterToParams,
+		isEmptyFilter,
+		pruneFilter,
+		removeTag
+	} from '#lib/collection/filter.ts';
 	import { formatRecordNumber } from '#lib/collection/format.ts';
 	import PeriodRail from '#lib/collection/components/PeriodRail.svelte';
 	import PeriodStrip from '#lib/collection/components/PeriodStrip.svelte';
@@ -37,10 +54,14 @@
 
 	let query = $state('');
 	let order = $state<WallOrder>(rememberedWallOrder());
+	let filter = $state(filterFromParams(page.url.searchParams));
+	let panelOpen = $state(false);
+	let viewOpen = $state(false);
 	let barHeight = $state(0);
 	let wall = $state<HTMLElement>();
 
 	const tracker = new PeriodTracker();
+	const wide = new MediaQuery('min-width: 768px');
 
 	const orders: SelectOption[] = [
 		{ value: 'recent', label: m.atelier.sort.recent },
@@ -91,6 +112,15 @@
 		refreshed = {};
 	});
 
+	$effect.pre(() => {
+		const pruned = pruneFilter(
+			untrack(() => filter),
+			data.artworks
+		);
+		if (filterToParams(pruned).toString() !== untrack(() => filterToParams(filter).toString()))
+			filter = pruned;
+	});
+
 	onDestroy(() => clearTimeout(refreshTimer));
 
 	function imageFailed(artwork: WallArtwork): void {
@@ -107,7 +137,10 @@
 
 	let artworks = $derived(data.artworks.map((artwork) => refreshed[artwork.id] ?? artwork));
 	let imagesUnavailable = $derived(artworks.some((artwork) => artwork.imageUnavailable));
-	let matching = $derived(filterByTitle(artworks, query));
+	let filtered = $derived(applyFilter(artworks, filter));
+	let tags = $derived(filterTags(filter));
+	let filtering = $derived(!isEmptyFilter(filter));
+	let matching = $derived(filterByTitle(filtered, query));
 	let groups = $derived(order === 'period' ? groupByEra(matching) : []);
 	let shown = $derived(order === 'period' ? groups.flatMap((group) => group.artworks) : matching);
 	let periodIndexes = $derived(
@@ -116,7 +149,29 @@
 	let total = $derived(artworks.length);
 	let searching = $derived(query.trim() !== '');
 	let showPeriods = $derived(groups.length > 0);
-	let railFits = $derived(tracker.margin >= MIN_RAIL_MARGIN);
+	let panelShown = $derived(wide.current && panelOpen);
+	let railFits = $derived(tracker.margin >= MIN_RAIL_MARGIN && !panelShown);
+
+	const writtenQueries = new SvelteSet<string>();
+
+	$effect(() => {
+		const written = filterToParams(filter).toString();
+		if (written === untrack(() => page.url.searchParams.toString())) return;
+		untrack(() => writtenQueries.add(written));
+		const target =
+			`${resolve('/(app)/atelier')}${written ? `?${written}` : ''}` as ResolvedPathname;
+		void goto(target, { replace: true, shallow: true, state: {} });
+	});
+
+	$effect(() => {
+		const current = page.url.searchParams.toString();
+		if (untrack(() => writtenQueries.delete(current))) return;
+		if (current === untrack(() => filterToParams(filter).toString())) return;
+		filter = pruneFilter(
+			filterFromParams(page.url.searchParams),
+			untrack(() => artworks)
+		);
+	});
 
 	$effect(() => {
 		if (!wall || !showPeriods) return;
@@ -134,22 +189,62 @@
 				bind:value={query}
 			/>
 		</div>
-		<div class="sort">
-			<Select
-				compact
-				disabled={total === 0}
-				icon={ArrowUpDown}
-				label={m.atelier.sort.label}
-				options={orders}
-				bind:value={() => order, chooseOrder}
-			/>
-		</div>
+		{#if wide.current}
+			<div class="sort">
+				<Select
+					compact
+					disabled={total === 0}
+					icon={ArrowUpDown}
+					label={m.atelier.sort.label}
+					options={orders}
+					bind:value={() => order, chooseOrder}
+				/>
+			</div>
+		{/if}
+		<Button
+			aria-expanded={wide.current ? panelOpen : undefined}
+			aria-haspopup={wide.current ? undefined : 'dialog'}
+			aria-label={wide.current ? undefined : m.atelier.filters.viewButton}
+			disabled={total === 0}
+			onclick={() => (wide.current ? (panelOpen = !panelOpen) : (viewOpen = true))}
+			variant={!wide.current && filtering ? 'primary' : 'secondary'}
+		>
+			<Icon icon={SlidersHorizontal} />
+			<span class="filters-label">
+				{filtering ? m.atelier.filters.buttonWithCount(tags.length) : m.atelier.filters.button}
+			</span>
+		</Button>
 		<Button aria-label={m.atelier.add} href={addPath} variant="primary">
 			<Icon icon={Plus} />
 			<span class="add-label">
 				{m.atelier.add}
 			</span>
 		</Button>
+	{/snippet}
+
+	{#snippet panel()}
+		{#if panelShown}
+			<aside class="filters" aria-label={m.atelier.filters.title}>
+				<div class="filters-top">
+					<h2>{m.atelier.filters.title}</h2>
+					<button
+						class="icon-button"
+						aria-label={m.atelier.filters.closePanel}
+						onclick={() => (panelOpen = false)}
+						type="button"
+					>
+						<Icon icon={X} />
+					</button>
+				</div>
+				<FilterPanel {artworks} bind:filter />
+				<div class="filters-bottom">
+					<span class="caption">{m.atelier.filteredCount(shown.length, total)}</span>
+					<Button disabled={!filtering} onclick={() => (filter = emptyFilter())}>
+						{m.atelier.filters.clear}
+					</Button>
+				</div>
+			</aside>
+		{/if}
 	{/snippet}
 
 	{#snippet strip()}
@@ -162,7 +257,7 @@
 		<h1>{m.atelier.title}</h1>
 		{#if total > 0}
 			<span class="caption">
-				{searching || shown.length < total
+				{searching || filtering || shown.length < total
 					? m.atelier.filteredCount(shown.length, total)
 					: m.atelier.count(total)}
 			</span>
@@ -182,6 +277,23 @@
 					<Button href={addPath}>
 						<Icon icon={Plus} />
 						{m.atelier.addFirst}
+					</Button>
+				</div>
+			</Section>
+		</div>
+	{:else if shown.length === 0 && filtering}
+		<FilterTags
+			onclear={() => (filter = emptyFilter())}
+			onremove={(tag) => (filter = removeTag(filter, tag))}
+			{tags}
+		/>
+		<div class="state">
+			<Section>
+				<h2>{m.atelier.filters.noResultsTitle}</h2>
+				<p class="lead">{m.atelier.filters.noResults}</p>
+				<div>
+					<Button onclick={() => (filter = emptyFilter())}>
+						{m.atelier.filters.clear}
 					</Button>
 				</div>
 			</Section>
@@ -211,6 +323,11 @@
 			</Section>
 		</div>
 	{:else}
+		<FilterTags
+			onclear={() => (filter = emptyFilter())}
+			onremove={(tag) => (filter = removeTag(filter, tag))}
+			{tags}
+		/>
 		{#if imagesUnavailable}
 			<Alert title={m.atelier.imagesUnavailableTitle} tone="warning">
 				{m.atelier.imagesUnavailable}
@@ -231,6 +348,29 @@
 		{/if}
 	{/if}
 </AtelierLayout>
+
+{#if !wide.current}
+	<Dialog title={m.atelier.filters.viewTitle} bind:open={viewOpen}>
+		<div class="view">
+			<Select
+				disabled={total === 0}
+				icon={ArrowUpDown}
+				label={m.atelier.sort.label}
+				options={orders}
+				bind:value={() => order, chooseOrder}
+			/>
+			<FilterPanel {artworks} bind:filter />
+		</div>
+		{#snippet footer()}
+			<Button disabled={!filtering} onclick={() => (filter = emptyFilter())}>
+				{m.atelier.filters.clear}
+			</Button>
+			<Button onclick={() => (viewOpen = false)} variant="primary">
+				{m.atelier.filters.showResults(shown.length)}
+			</Button>
+		{/snippet}
+	</Dialog>
+{/if}
 
 <Toast bind:this={toast} />
 
@@ -262,12 +402,56 @@
 		max-width: var(--size-content-default);
 	}
 
-	.add-label {
+	.add-label,
+	.filters-label {
 		display: none;
 	}
 
+	.view {
+		display: grid;
+		gap: var(--spacing-8);
+	}
+
+	.filters {
+		position: sticky;
+		top: var(--bar-height);
+		display: grid;
+		flex: none;
+		align-content: start;
+		gap: var(--spacing-8);
+		width: 380px;
+		max-height: calc(100dvh - var(--bar-height));
+		padding: var(--spacing-4) var(--spacing-6) var(--spacing-12);
+		overflow-y: auto;
+		border-left: var(--border-width-base) solid var(--color-line);
+	}
+
+	.filters-top,
+	.filters-bottom {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--spacing-3);
+	}
+
+	.filters-top h2 {
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-medium);
+		line-height: var(--line-height-sm);
+	}
+
+	.icon-button {
+		display: flex;
+		padding: var(--spacing-2);
+		border: none;
+		background: transparent;
+		color: var(--color-fg);
+		cursor: pointer;
+	}
+
 	@media (min-width: 768px) {
-		.add-label {
+		.add-label,
+		.filters-label {
 			display: inline;
 		}
 	}

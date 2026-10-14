@@ -185,6 +185,7 @@ export const pl = {
 			button: 'Filtry',
 			buttonWithCount: (count: number): string => `Filtry (${count})`,
 			viewButton: 'Widok',
+			viewTitle: 'Widok',
 			closePanel: 'Zamknij filtry',
 			activeLabel: 'Włączone filtry',
 			clear: 'Wyczyść filtry',

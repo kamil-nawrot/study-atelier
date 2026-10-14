@@ -16,6 +16,7 @@
 		email: string;
 		bar?: Snippet;
 		strip?: Snippet;
+		panel?: Snippet;
 		children: Snippet;
 		confirmLeave?: () => Promise<boolean>;
 		fill?: boolean;
@@ -27,6 +28,7 @@
 		email,
 		bar,
 		strip,
+		panel,
 		children,
 		confirmLeave,
 		fill = false,
@@ -96,9 +98,12 @@
 			{@render bar?.()}
 		</header>
 		{@render strip?.()}
-		<main class="content">
-			{@render children()}
-		</main>
+		<div class="body">
+			<main class="content">
+				{@render children()}
+			</main>
+			{@render panel?.()}
+		</div>
 	</div>
 
 	<dialog bind:this={drawer} class="drawer" aria-label={m.menu.label} onclick={closeDrawerOnLink}>
@@ -173,8 +178,15 @@
 		padding: var(--spacing-2);
 	}
 
+	.body {
+		display: flex;
+		align-items: flex-start;
+	}
+
 	.content {
 		display: grid;
+		flex: 1;
+		min-width: 0;
 		gap: var(--spacing-6);
 		padding: var(--spacing-6) var(--wall-inline) var(--spacing-12);
 	}
@@ -323,8 +335,13 @@
 			height: 100dvh;
 		}
 
-		.fill .content {
+		.fill .body {
 			flex: 1;
+			min-height: 0;
+		}
+
+		.fill .content {
+			align-self: stretch;
 			min-height: 0;
 			padding: 0;
 		}

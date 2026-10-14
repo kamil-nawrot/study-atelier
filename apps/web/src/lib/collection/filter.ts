@@ -1,4 +1,4 @@
-import { ARTWORK_TYPE_CODES } from './artwork-form.ts';
+import { ARTWORK_TYPE_CODES } from './artwork-types.ts';
 import { ERA_CODES, eraName, isEraCode } from './eras.ts';
 import { m } from '#lib/i18n/index.ts';
 import type {
@@ -43,6 +43,8 @@ const PARAMS: Record<FilterField, string> = {
 	locations: 'miejsce',
 	missing: 'braki'
 };
+
+type Params = Pick<URLSearchParams, 'get' | 'getAll' | 'has'>;
 
 const UNKNOWN_AUTHOR_PARAM = 'bez-autora';
 const RANGE_SEPARATOR = '..';
@@ -257,11 +259,11 @@ export function filterToParams(filter: CollectionFilter): URLSearchParams {
 	return params;
 }
 
-function uniqueValues(params: URLSearchParams, name: string): string[] {
+function uniqueValues(params: Params, name: string): string[] {
 	return [...new Set(params.getAll(name).filter((value) => value !== ''))];
 }
 
-export function filterFromParams(params: URLSearchParams): CollectionFilter {
+export function filterFromParams(params: Params): CollectionFilter {
 	const years = params.get(PARAMS.years);
 	return {
 		...emptyFilter(),
