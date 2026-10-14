@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: supabase/setup-cli@v1
+      - uses: supabase/setup-cli@v3
         with:
           version: 2.120.0
 
@@ -28,6 +28,9 @@ jobs:
 
       - name: Replay migrations from scratch
         run: supabase db reset
+
+      - name: Check row level security and grants
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/security.sql
 
       - name: Stop local Supabase
         if: always()

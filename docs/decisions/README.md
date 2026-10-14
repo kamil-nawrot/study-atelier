@@ -45,4 +45,5 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0039](0039-confirm-saving-a-duplicate-artwork.md) | Confirm saving an artwork whose title and authors match another one | accepted |
 | [0040](0040-manage-category-values-in-a-card-index.md) | Manage category values in a card index view | accepted |
 | [0041](0041-load-the-whole-collection-in-pages-of-1000.md) | Load the whole collection in pages of 1000 rows | accepted |
+| [0042](0042-filter-the-collection-in-the-browser.md) | Filter the collection in the browser, from a panel, with the filter in the URL | accepted |
 | [0044](0044-load-wall-images-near-the-screen.md) | Show the wall first and load its images near the screen | accepted |

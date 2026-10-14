@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { goto, invalidateAll, replaceState } from '$app/navigation';
+import { goto, invalidateAll } from '$app/navigation';
 import { refreshExpiredImages } from '#lib/collection/artworks.ts';
 import type { WallArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
@@ -19,8 +19,7 @@ const navigation = vi.hoisted(() => ({
 vi.mock('$app/state', () => ({ page: navigation }));
 vi.mock('$app/navigation', () => ({
 	goto: vi.fn(),
-	invalidateAll: vi.fn(),
-	replaceState: vi.fn()
+	invalidateAll: vi.fn()
 }));
 vi.mock('#lib/collection/artworks.ts', () => ({
 	refreshExpiredImages: vi.fn(),
@@ -100,7 +99,7 @@ describe('atelier page', () => {
 		renderAtelier();
 
 		await expect.element(page.getByText(m.trash.moved('#0042'))).toBeVisible();
-		expect(replaceState).toHaveBeenCalledWith('', {});
+		expect(goto).toHaveBeenCalledWith('/atelier', { state: {}, shallow: true, replace: true });
 	});
 
 	it('highlights the artwork just saved for a moment', async () => {
@@ -118,7 +117,7 @@ describe('atelier page', () => {
 		vi.useRealTimers();
 
 		await expect.element(saved).not.toHaveClass('highlight');
-		expect(replaceState).toHaveBeenCalledWith('', {});
+		expect(goto).toHaveBeenCalledWith('/atelier', { state: {}, shallow: true, replace: true });
 	});
 
 	it('shows every artwork with the count', async () => {
