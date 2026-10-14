@@ -123,6 +123,7 @@ describe('atelier page', () => {
 		vi.clearAllMocks();
 		navigation.state = {};
 		localStorage.clear();
+		sessionStorage.clear();
 		window.scrollTo({ top: 0 });
 		await page.viewport(1280, 800);
 	});
@@ -678,6 +679,25 @@ describe('atelier page', () => {
 
 			expect(titlesOnTheWall(styled)).toHaveLength(4);
 			await expect.element(page.getByText(m.atelier.count(4))).toBeVisible();
+		});
+
+		it('remembers the artworks it shows, in their order, for the artwork view', async () => {
+			navigation.url = new URL('http://localhost/atelier?epoka=modern');
+			renderAtelier(styled);
+			const shownNumbers = (): number[] =>
+				titlesOnTheWall(styled).map(
+					(title) => styled.find((artwork) => artwork.title === title)?.number ?? 0
+				);
+			const remembered = (): unknown =>
+				JSON.parse(sessionStorage.getItem('study-atelier:wall-sequence') ?? 'null');
+
+			await expect.element(page.getByText(m.atelier.filteredCount(3, 4))).toBeVisible();
+			expect(remembered()).toEqual({ query: 'epoka=modern', numbers: shownNumbers() });
+
+			await searchField().fill('impression');
+
+			await expect.element(page.getByText(m.atelier.filteredCount(1, 4))).toBeVisible();
+			expect(remembered()).toEqual({ query: 'epoka=modern', numbers: [3] });
 		});
 
 		it('has no filter button when the atelier is empty', async () => {

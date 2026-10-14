@@ -32,13 +32,19 @@ const USAGE = `Usage: pnpm screenshot <path> [options]
   --full-page        capture the whole page, not only the first screen
   --signed-out       do not inject the fake session (default for the auth routes)
   --storage k=v      set a localStorage entry before the page loads (repeatable)
+  --session k=v      set a sessionStorage entry before the page loads (repeatable)
   --wait <selector>  wait for this selector before capturing
   --script <file>    run this JavaScript file in the page before capturing, for example to mock a variant
   --url <base>       use a running dev server instead of starting one
 `;
 
 function parseArgs(argv) {
-	const options = { storage: {}, viewport: 'both', out: path.join(REPO_DIR, 'tmp/screenshots') };
+	const options = {
+		storage: {},
+		session: {},
+		viewport: 'both',
+		out: path.join(REPO_DIR, 'tmp/screenshots')
+	};
 	const rest = [...argv];
 	while (rest.length > 0) {
 		const arg = rest.shift();
@@ -49,9 +55,9 @@ function parseArgs(argv) {
 		else if (arg === '--signed-out') options.signedOut = true;
 		else if (['--out', '--name', '--viewport', '--wait', '--url', '--script'].includes(arg)) {
 			options[arg.slice(2)] = rest.shift();
-		} else if (arg === '--storage') {
+		} else if (arg === '--storage' || arg === '--session') {
 			const [key, ...value] = (rest.shift() ?? '').split('=');
-			options.storage[key] = value.join('=');
+			options[arg.slice(2)][key] = value.join('=');
 		} else if (arg.startsWith('--')) throw new Error(`Unknown option ${arg}`);
 		else options.route = arg;
 	}
@@ -236,16 +242,20 @@ async function capture(browser, base, options, name) {
 	await mockImages(context);
 	const signedOut = options.signedOut || AUTH_PATHS.some((p) => options.route.startsWith(p));
 	await context.addInitScript(
-		({ key, session, entries }) => {
+		({ key, session, entries, sessionEntries }) => {
 			if (session) localStorage.setItem(key, JSON.stringify(session));
 			for (const [entryKey, value] of Object.entries(entries)) {
 				localStorage.setItem(entryKey, value);
+			}
+			for (const [entryKey, value] of Object.entries(sessionEntries)) {
+				sessionStorage.setItem(entryKey, value);
 			}
 		},
 		{
 			key: `sb-${new URL(SUPABASE_URL).hostname.split('.')[0]}-auth-token`,
 			session: signedOut ? null : fakeSession(),
-			entries: options.storage
+			entries: options.storage,
+			sessionEntries: options.session
 		}
 	);
 	const page = await context.newPage();

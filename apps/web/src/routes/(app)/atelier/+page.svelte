@@ -49,6 +49,7 @@
 		rememberedWallOrder,
 		rememberWallOrder
 	} from '#lib/collection/wall-order.ts';
+	import { rememberWallSequence } from '#lib/collection/wall-sequence.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps, Snapshot } from './$types';
 
@@ -186,6 +187,13 @@
 			filterFromParams(page.url.searchParams),
 			untrack(() => artworks)
 		);
+	});
+
+	$effect(() => {
+		rememberWallSequence({
+			query: filterToParams(filter).toString(),
+			numbers: shown.map((artwork) => artwork.number)
+		});
 	});
 
 	$effect(() => {
