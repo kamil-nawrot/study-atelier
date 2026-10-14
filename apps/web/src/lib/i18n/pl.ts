@@ -186,8 +186,7 @@ export const pl = {
 			if (from > 0 && to > 0) return `${prefix}${from}–${to}`;
 			const year = (value: number): string => (value < 0 ? `${-value} p.n.e.` : `${value} n.e.`);
 			return `${prefix}${year(from)} – ${year(to)}`;
-		}
-		yearRange: (from: string, to: string): string => `${from} – ${to}`,
+		},
 		filters: {
 			title: 'Filtry',
 			button: 'Filtry',
