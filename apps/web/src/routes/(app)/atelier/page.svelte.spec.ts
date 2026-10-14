@@ -658,10 +658,10 @@ describe('atelier page', () => {
 
 			await eraTile('modern').click();
 
-			expect(goto).toHaveBeenLastCalledWith(
-				'/atelier?epoka=modern',
-				expect.objectContaining({ replace: true, shallow: true })
-			);
+			expect(goto).toHaveBeenLastCalledWith('/atelier?epoka=modern', {
+				replace: true,
+				reset: false
+			});
 		});
 
 		it('reads the filter from the address', async () => {
