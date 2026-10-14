@@ -10,7 +10,7 @@ import '@study-atelier/ui/styles.css';
 
 const artworks = [
 	testArtwork(1, 'Mona Lisa', {
-		year: 1503,
+		yearTo: 1503,
 		eraCode: 'early_modern',
 		typeCode: 'painting',
 		authors: ['Leonardo'],
@@ -21,7 +21,7 @@ const artworks = [
 	}),
 	testArtwork(2, 'Venus of Willendorf', {
 		authors: [],
-		year: -25000,
+		yearTo: -25000,
 		eraCode: 'prehistory',
 		hasImage: false
 	})

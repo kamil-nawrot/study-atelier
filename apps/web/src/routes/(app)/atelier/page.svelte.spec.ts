@@ -71,27 +71,27 @@ function orderSelect(): ReturnType<typeof page.getByRole> {
 
 const styled = [
 	testArtwork(1, 'Mona Lisa', {
-		year: 1503,
+		yearTo: 1503,
 		eraCode: 'early_modern',
 		typeCode: 'painting',
 		styles: ['Renaissance']
 	}),
 	testArtwork(2, 'Water Lilies', {
-		year: 1906,
+		yearTo: 1906,
 		eraCode: 'modern',
 		typeCode: 'painting',
 		styles: ['Impressionism'],
 		authors: ['Monet']
 	}),
 	testArtwork(3, 'Impression, Sunrise', {
-		year: 1872,
+		yearTo: 1872,
 		eraCode: 'modern',
 		typeCode: 'painting',
 		styles: ['Impressionism'],
 		authors: ['Monet'],
 		hasImage: false
 	}),
-	testArtwork(4, 'The Thinker', { year: 1904, eraCode: 'modern', typeCode: 'sculpture' })
+	testArtwork(4, 'The Thinker', { yearTo: 1904, eraCode: 'modern', typeCode: 'sculpture' })
 ];
 
 function filtersButton(): ReturnType<typeof page.getByRole> {

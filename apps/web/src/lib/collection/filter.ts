@@ -82,7 +82,7 @@ export function isEmptyFilter(filter: CollectionFilter): boolean {
 function missingOf(artwork: WallArtwork): MissingData[] {
 	return MISSING_DATA.filter((kind) => {
 		if (kind === 'image') return !artwork.hasImage;
-		if (kind === 'year') return artwork.year === null;
+		if (kind === 'year') return artwork.yearTo === null;
 		if (kind === 'era') return artwork.eraCode === null;
 		if (kind === 'period') return artwork.period === null;
 		return artwork.typeCode === null;
@@ -108,9 +108,9 @@ function chosenValues(filter: CollectionFilter, field: ValueField): string[] {
 
 function fieldMatches(artwork: WallArtwork, filter: CollectionFilter, field: FilterField): boolean {
 	if (field === 'years') {
-		if (artwork.year === null) return false;
-		if (filter.yearFrom !== null && artwork.year < filter.yearFrom) return false;
-		return filter.yearTo === null || artwork.year <= filter.yearTo;
+		if (artwork.yearTo === null) return false;
+		if (filter.yearFrom !== null && artwork.yearTo < filter.yearFrom) return false;
+		return filter.yearTo === null || (artwork.yearFrom ?? artwork.yearTo) <= filter.yearTo;
 	}
 	const chosen = chosenValues(filter, field);
 	return valuesOf(artwork, field).some((value) => chosen.includes(value));
