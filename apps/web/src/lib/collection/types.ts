@@ -1,12 +1,13 @@
 import type { ArtworkTileImage } from '@study-atelier/ui';
 
-export type WallOrder = 'recent' | 'period';
+export type WallOrder = 'recent' | 'period' | 'author';
 
 export type EraCode =
 	'prehistory' | 'antiquity' | 'middle_ages' | 'early_modern' | 'modern' | 'contemporary';
 
 export type PeriodGroup = {
-	code: EraCode;
+	key: string;
+	code: EraCode | null;
 	name: string;
 	from: number | null;
 	to: number | null;

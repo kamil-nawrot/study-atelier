@@ -33,6 +33,9 @@ describe('wall order', () => {
 		rememberWallOrder('period');
 		expect(rememberedWallOrder()).toBe('period');
 
+		rememberWallOrder('author');
+		expect(rememberedWallOrder()).toBe('author');
+
 		rememberWallOrder('recent');
 		expect(rememberedWallOrder()).toBe('recent');
 	});
@@ -53,6 +56,7 @@ describe('wall order', () => {
 	it('recognises only the known orders', () => {
 		expect(isWallOrder('recent')).toBe(true);
 		expect(isWallOrder('period')).toBe(true);
+		expect(isWallOrder('author')).toBe(true);
 		expect(isWallOrder('oldest')).toBe(false);
 		expect(isWallOrder(null)).toBe(false);
 	});

@@ -151,11 +151,12 @@ export const pl = {
 			`${count} ${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })}`,
 		filteredCount: (shown: number, total: number): string =>
 			`${shown} z ${total} ${plural(total, { one: 'dzieła', few: 'dzieł', many: 'dzieł' })}`,
-		search: 'Szukaj po tytule',
+		search: 'Szukaj po tytule lub autorze',
 		sort: {
 			label: 'Kolejność',
 			recent: 'Ostatnio dodane',
-			period: 'Według epok'
+			period: 'Według epok',
+			author: 'Według autorów'
 		},
 		periods: {
 			label: 'Epoki',
@@ -164,14 +165,17 @@ export const pl = {
 				'W tej kolejności widać tylko dzieła z wpisaną epoką. Dopisz epokę w dziele albo wróć do ostatnio dodanych.',
 			showRecent: 'Pokaż ostatnio dodane'
 		},
+		authors: {
+			label: 'Autorzy'
+		},
 		add: 'Dodaj dzieło',
 		emptyTitle: 'Twoje atelier jest jeszcze puste',
 		empty:
 			'Dodaj pierwsze dzieło, które poznajesz w książce albo na wykładzie. Na początek wystarczą tytuł i autor.',
 		addFirst: 'Dodaj pierwsze dzieło',
-		noResultsTitle: 'Nie ma tu dzieła o takim tytule',
+		noResultsTitle: 'Nie ma tu takiego dzieła',
 		noResults: (query: string): string =>
-			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu.`,
+			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu lub nazwiska.`,
 		clearSearch: 'Wyczyść wyszukiwanie',
 		loadErrorTitle: 'Nie udało się wczytać atelier',
 		imagesUnavailableTitle: 'Nie wszystkie zdjęcia się wczytały',

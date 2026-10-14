@@ -9,8 +9,13 @@ export function normalizeForSearch(text: string): string {
 		.trim();
 }
 
-export function filterByTitle<T extends { title: string }>(items: T[], query: string): T[] {
+export function filterByTitleOrAuthor<T extends { title: string; authors: string[] }>(
+	items: T[],
+	query: string
+): T[] {
 	const term = normalizeForSearch(query);
 	if (!term) return items;
-	return items.filter((item) => normalizeForSearch(item.title).includes(term));
+	return items.filter((item) =>
+		[item.title, ...item.authors].some((text) => normalizeForSearch(text).includes(term))
+	);
 }

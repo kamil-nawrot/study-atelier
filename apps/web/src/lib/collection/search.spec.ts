@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterByTitle, normalizeForSearch } from './search.ts';
+import { filterByTitleOrAuthor, normalizeForSearch } from './search.ts';
 
 describe('normalizeForSearch', () => {
 	it('ignores case, diacritics and surrounding spaces', () => {
@@ -7,26 +7,30 @@ describe('normalizeForSearch', () => {
 	});
 });
 
-describe('filterByTitle', () => {
-	const items = [
-		{ title: 'Lady with an Ermine' },
-		{ title: 'Łódź Harbour' },
-		{ title: 'Starry Night' }
-	];
+describe('filterByTitleOrAuthor', () => {
+	const ermine = { title: 'Lady with an Ermine', authors: ['Anna Painter'] };
+	const harbour = { title: 'Łódź Harbour', authors: ['Józef Sketcher', 'Clara Etcher'] };
+	const night = { title: 'Starry Night', authors: [] };
+	const items = [ermine, harbour, night];
 
 	it('returns every item for an empty query', () => {
-		expect(filterByTitle(items, '  ')).toEqual(items);
+		expect(filterByTitleOrAuthor(items, '  ')).toEqual(items);
 	});
 
 	it('matches a fragment of the title without diacritics', () => {
-		expect(filterByTitle(items, 'lodz')).toEqual([{ title: 'Łódź Harbour' }]);
+		expect(filterByTitleOrAuthor(items, 'lodz')).toEqual([harbour]);
 	});
 
 	it('matches a fragment in another case', () => {
-		expect(filterByTitle(items, 'ERMINE')).toEqual([{ title: 'Lady with an Ermine' }]);
+		expect(filterByTitleOrAuthor(items, 'ERMINE')).toEqual([ermine]);
 	});
 
-	it('returns nothing when no title matches', () => {
-		expect(filterByTitle(items, 'sunflowers')).toEqual([]);
+	it('matches a fragment of any author without diacritics', () => {
+		expect(filterByTitleOrAuthor(items, 'jozef')).toEqual([harbour]);
+		expect(filterByTitleOrAuthor(items, 'etcher')).toEqual([harbour]);
+	});
+
+	it('returns nothing when no title or author matches', () => {
+		expect(filterByTitleOrAuthor(items, 'sunflowers')).toEqual([]);
 	});
 });

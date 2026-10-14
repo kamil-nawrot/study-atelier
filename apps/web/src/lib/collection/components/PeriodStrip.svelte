@@ -1,32 +1,35 @@
 <script lang="ts">
-	import { m } from '#lib/i18n/index.ts';
 	import { formatYearRange } from '../format.ts';
+	import { MAX_STRIP_MARKS } from '../period-rail.ts';
 	import type { CurrentPeriod, PeriodGroup } from '../types.ts';
 
 	type Props = {
 		groups: PeriodGroup[];
 		current: CurrentPeriod;
+		label: string;
 	};
 
-	let { groups, current }: Props = $props();
+	let { groups, current, label }: Props = $props();
 
 	let period = $derived(groups[current.index]);
 	let years = $derived(period ? formatYearRange(period.from, period.to) : undefined);
 </script>
 
 {#if period}
-	<aside class="strip" aria-label={m.atelier.periods.label}>
+	<aside class="strip" aria-label={label}>
 		<p class="current">
 			<span class="name">{period.name}</span>
 			{#if years}
 				<span class="caption">{years}</span>
 			{/if}
 		</p>
-		<ol aria-hidden="true">
-			{#each groups as group, index (group.name)}
-				<li class:current={index === current.index}></li>
-			{/each}
-		</ol>
+		{#if groups.length <= MAX_STRIP_MARKS}
+			<ol aria-hidden="true">
+				{#each groups as group, index (group.key)}
+					<li class:current={index === current.index}></li>
+				{/each}
+			</ol>
+		{/if}
 	</aside>
 {/if}
 
