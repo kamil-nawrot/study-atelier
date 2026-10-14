@@ -91,13 +91,22 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | ID | Requirement | Version |
 | --- | --- | --- |
 | R-17 | The collection is shown as a wall of artwork tiles, each with the image, title, authors, date and record number, ordered by default from the most recently added ([ADR-0021](../decisions/0021-collection-view-as-a-wall-of-framed-artworks.md)). | MVP |
-| R-18 | The learner can search the collection by title. | MVP |
+| R-18 | ~~The learner can search the collection by title.~~ Replaced by R-59. | MVP |
 | R-39 | ~~The learner can order the wall by period instead of from the most recently added. Each artwork belongs to its first period, periods follow each other by their earliest year and artworks follow by year within their period; artworks without a period are not shown in this order ([ADR-0033](../decisions/0033-order-the-wall-by-period-with-a-period-rail.md)).~~ Replaced by R-47. | MVP |
 | R-40 | While the wall is ordered by period, the app shows which period the learner is looking at: a [period rail](glossary.md) at the right edge on a wide screen, a strip under the top bar on a narrower screen. | MVP |
 | R-41 | The order the learner chose for the wall is remembered on the device. | MVP |
 | R-42 | An artwork whose image is at least twice as wide as it is high takes two columns of the wall when the wall has three columns or more ([ADR-0035](../decisions/0035-wide-artworks-span-two-wall-columns.md)). | later |
 | R-47 | The learner can order the wall by era instead of from the most recently added. Eras follow their fixed order and artworks follow by year within their era; artworks without an era are not shown in this order. The period rail shows the eras, with bounds taken from the years of their artworks ([ADR-0038](../decisions/0038-chain-era-period-and-style.md)). | later |
-| R-19 | The learner can filter the collection by several fields at once: type, authors, era, period, style, material, location. | later |
+| R-19 | ~~The learner can filter the collection by several fields at once: type, authors, era, period, style, material, location.~~ Replaced by R-53. | later |
+| R-53 | The learner can filter the wall by every field of an artwork except the notes: era (several at once), type, year (from and to, each with "p.n.e."; an approximate year counts as that year and artworks without a year are left out while a range is set), authors, period, style, material and location, and by what is missing: no image, no year, no era, no period, no type ("Do uzupełnienia") ([ADR-0042](../decisions/0042-filter-the-collection-in-the-browser.md)). | 0.3 |
+| R-54 | Within a field an artwork matches when it has any of the chosen values; it is shown when it matches every field that has a choice. Next to every value is the number of artworks the wall would show with it, counted with the other fields' filters but not its own field's; values with no artworks are hidden and chosen values stay. | 0.3 |
+| R-55 | Filters live in a "Filtry" panel: on a larger screen a side panel that changes the wall as soon as a value is chosen, on a phone a full-screen "Widok" dialog with the order and the filters, closed with "Pokaż n dzieł". Fields with many values (authors, location) offer search and the 8 most frequent values with "Pokaż więcej". | 0.3 |
+| R-56 | Active filters are shown above the wall as tags with a remove button, followed by "Wyczyść filtry", and the count reads "n z m dzieł". When no artwork matches, the wall says so and offers "Wyczyść filtry". | 0.3 |
+| R-57 | The filter is kept in the URL, so it survives a reload, a bookmark and the way back from an artwork, and ends when the learner opens the atelier anew. A value that no longer exists in the URL is ignored. | 0.3 |
+| R-58 | The learner can order the wall "Według autorów": blocks per first author, A to Z, by year inside a block, unknown author last; the period rail shows the authors. | 0.3 |
+| R-59 | The search in the top bar finds artworks by title or author. | 0.3 |
+| R-60 | In the artwork view the era, period, styles, materials, location and authors are links to the wall filtered by that value, and in the card index every value has "Pokaż dzieła (n)" that does the same. | 0.3 |
+| R-61 | In the artwork view the learner goes to the previous and next artwork of the filtered and ordered wall with subtle arrows at the edges of the stage, the arrow keys on a larger screen and a horizontal swipe on a phone; the arrow is dimmed at either end of the list. | 0.3 |
 
 ## Account
 

@@ -30,6 +30,7 @@ Starts the dev server on port 5199, opens the route in Chromium at a desktop (14
 | `--signed-out`      | No fake session (automatic for sign-in, sign-up and password pages) |
 | `--storage k=v`     | Set a localStorage entry first, for example `study-atelier:wall-order=period` |
 | `--wait <selector>` | Wait for a selector before capturing                                |
+| `--script <file>`   | Run a JavaScript file in the page first, for example to mock an option |
 | `--url <base>`      | Use a dev server that is already running                            |
 
 Combine desktop and phone shots into one image when attaching to a thread: a thread accepts at most 24 attachments.
