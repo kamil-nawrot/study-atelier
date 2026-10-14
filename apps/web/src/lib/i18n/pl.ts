@@ -242,11 +242,22 @@ export const pl = {
 		discardTitle: 'Odrzucić zmiany?',
 		discardDescription: 'Masz niezapisane zmiany w tym dziele. Jeśli wyjdziesz, znikną.',
 		keepEditing: 'Wróć do formularza',
-		discard: 'Odrzuć',
-		duplicateTitle: 'Masz już takie dzieło',
-		duplicateDescription: (numbers: string, count: number): string =>
-			`W atelier ${count === 1 ? 'jest' : 'są'} już ${numbers} o tym samym tytule i autorach. Jeśli to inne dzieło, po prostu je zapisz.`,
-		saveAnyway: 'Zapisz mimo to'
+		discard: 'Odrzuć'
+	},
+	duplicateDialog: {
+		title: 'Masz już takie dzieło',
+		description: (numbers: string, count: number, advice: string): string =>
+			`W atelier ${count === 1 ? 'jest' : 'są'} już ${numbers} o tym samym tytule i autorach. ${advice}`,
+		save: {
+			advice: 'Jeśli to inne dzieło, po prostu je zapisz.',
+			back: 'Wróć do formularza',
+			confirm: 'Zapisz mimo to'
+		},
+		restore: {
+			advice: 'Jeśli to inne dzieło, po prostu je przywróć.',
+			back: 'Zostaw w koszu',
+			confirm: 'Przywróć mimo to'
+		}
 	},
 	artworkView: {
 		back: 'Atelier',
