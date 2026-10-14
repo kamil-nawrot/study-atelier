@@ -179,7 +179,63 @@ export const pl = {
 		retryImages: 'Spróbuj ponownie',
 		year: (year: number, approximate: boolean): string =>
 			`${approximate ? 'ok. ' : ''}${year < 0 ? `${-year} p.n.e.` : year}`,
-		yearRange: (from: string, to: string): string => `${from} – ${to}`
+		yearRange: (from: string, to: string): string => `${from} – ${to}`,
+		filters: {
+			title: 'Filtry',
+			button: 'Filtry',
+			buttonWithCount: (count: number): string => `Filtry (${count})`,
+			viewButton: 'Widok',
+			closePanel: 'Zamknij filtry',
+			activeLabel: 'Włączone filtry',
+			clear: 'Wyczyść filtry',
+			removeTag: (label: string): string => `Usuń filtr: ${label}`,
+			noResultsTitle: 'Nic tu nie pasuje',
+			noResults: 'Żadne dzieło nie pasuje do tych filtrów.',
+			showResults: (count: number): string =>
+				`Pokaż ${count} ${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })}`,
+			fields: {
+				eras: 'Epoka',
+				types: 'Typ',
+				years: 'Rok powstania',
+				authors: 'Autorzy',
+				periods: 'Okres',
+				styles: 'Styl',
+				materials: 'Materiał',
+				locations: 'Miejsce',
+				missing: 'Do uzupełnienia'
+			},
+			tagFields: {
+				eras: 'Epoka',
+				types: 'Typ',
+				years: 'Rok',
+				authors: 'Autor',
+				periods: 'Okres',
+				styles: 'Styl',
+				materials: 'Materiał',
+				locations: 'Miejsce',
+				missing: 'Do uzupełnienia'
+			},
+			tag: (field: string, value: string): string => `${field} ${value}`,
+			unknownAuthor: 'Autor nieznany',
+			missing: {
+				image: 'bez zdjęcia',
+				year: 'bez roku',
+				era: 'bez epoki',
+				period: 'bez okresu',
+				type: 'bez typu'
+			},
+			yearFrom: 'Od',
+			yearTo: 'Do',
+			beforeCommonEra: 'p.n.e.',
+			yearsBetween: (from: number, to: number): string =>
+				`${from < 0 ? `${-from} p.n.e.` : from}–${to < 0 ? `${-to} p.n.e.` : to}`,
+			yearsFrom: (from: number): string => `od ${from < 0 ? `${-from} p.n.e.` : from}`,
+			yearsTo: (to: number): string => `do ${to < 0 ? `${-to} p.n.e.` : to}`,
+			searchValues: (field: string): string => `Szukaj: ${field.toLocaleLowerCase('pl')}`,
+			showMore: 'Pokaż więcej',
+			showLess: 'Pokaż mniej',
+			valueCount: (name: string, count: number): string => `${name}, ${count}`
+		}
 	},
 	artworkForm: {
 		newTitle: 'Nowe dzieło',

@@ -32,6 +32,7 @@ function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 		year: 1490,
 		year_approximate: true,
 		era_code: null,
+		type_code: null,
 		source_image_file: null,
 		own_image_path: null,
 		own_image_url: null,
@@ -151,9 +152,41 @@ describe('loadAtelier', () => {
 				date: m.atelier.year(1490, true),
 				year: 1490,
 				eraCode: 'early_modern',
+				typeCode: null,
+				period: 'Renaissance',
+				styles: ['Baroque'],
+				materials: [],
+				location: null,
+				hasImage: false,
 				image: undefined
 			}
 		]);
+	});
+
+	it('reads the type, materials, location and whether the artwork has an image', async () => {
+		query.range.mockResolvedValue({
+			data: [
+				row({
+					type_code: 'painting',
+					source_image_file: 'Test.jpg',
+					artwork_values: [
+						{ position: 0, category_values: { category_code: 'material', name: 'Oil' } },
+						{ position: 1, category_values: { category_code: 'material', name: 'Canvas' } },
+						{ position: 0, category_values: { category_code: 'location', name: 'Louvre' } }
+					]
+				})
+			],
+			error: null
+		});
+
+		const { artworks } = await loadAtelier();
+
+		expect(artworks[0]).toMatchObject({
+			typeCode: 'painting',
+			materials: ['Oil', 'Canvas'],
+			location: 'Louvre',
+			hasImage: true
+		});
 	});
 
 	it('uses the stored size and the thumbnail from Commons for a Commons image', async () => {
@@ -399,6 +432,12 @@ describe('refreshExpiredImages', () => {
 			authors: [],
 			year: null,
 			eraCode: null,
+			typeCode: null,
+			period: null,
+			styles: [],
+			materials: [],
+			location: null,
+			hasImage: true,
 			image: { src: `https://example.com/old-${id}`, width: 4, height: 5 },
 			ownImagePath: `user-id/${id}/image.jpg`,
 			imageSignedAt: signedAt

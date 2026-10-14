@@ -14,6 +14,7 @@ import { formatYear } from './format.ts';
 import { tileSizes } from './masonry.ts';
 import type {
 	ArtworkValueRow,
+	ArtworkTypeCode,
 	AtelierResult,
 	EraCode,
 	TrashArtwork,
@@ -33,6 +34,7 @@ type ArtworkRow = {
 	year: number | null;
 	year_approximate: boolean;
 	era_code: EraCode | null;
+	type_code: ArtworkTypeCode | null;
 	source_image_file: string | null;
 	own_image_path: string | null;
 	own_image_url: string | null;
@@ -55,6 +57,7 @@ const ARTWORK_COLUMNS = [
 	'year',
 	'year_approximate',
 	'era_code',
+	'type_code',
 	'source_image_file',
 	'own_image_path',
 	'own_image_url',
@@ -159,6 +162,12 @@ async function wallArtworks(rows: ArtworkRow[]): Promise<WallArtwork[]> {
 			date: formatYear(row.year, row.year_approximate),
 			year: row.year,
 			eraCode: row.era_code,
+			typeCode: row.type_code,
+			period: valuesOf(row.artwork_values, 'period')[0] ?? null,
+			styles: valuesOf(row.artwork_values, 'style'),
+			materials: valuesOf(row.artwork_values, 'material'),
+			location: valuesOf(row.artwork_values, 'location')[0] ?? null,
+			hasImage: Boolean(row.source_image_file || row.own_image_path || row.own_image_url),
 			image,
 			...(row.own_image_path
 				? {
