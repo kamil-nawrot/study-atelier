@@ -266,3 +266,12 @@ export type FilterOption = {
 	value: string;
 	count: number;
 };
+
+export type FlipDirection = 'previous' | 'next';
+
+export type WallSequence = {
+	query: string;
+	numbers: number[];
+};
+
+export type Neighbours = Record<FlipDirection, number | null>;

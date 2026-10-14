@@ -326,7 +326,9 @@ export const pl = {
 		hideInformation: 'Zamknij informacje',
 		openImage: 'Powiększ zdjęcie',
 		closeImage: 'Zamknij powiększenie',
-		empty: 'Nie wpisano'
+		empty: 'Nie wpisano',
+		previous: 'Poprzednie dzieło',
+		next: 'Następne dzieło'
 	},
 	imageSearch: {
 		title: 'Które to dzieło?',

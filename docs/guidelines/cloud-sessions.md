@@ -29,6 +29,7 @@ Starts the dev server on port 5199, opens the route in Chromium at a desktop (14
 | `--full-page`       | Capture the whole page instead of the first screen                  |
 | `--signed-out`      | No fake session (automatic for sign-in, sign-up and password pages) |
 | `--storage k=v`     | Set a localStorage entry first, for example `study-atelier:wall-order=period` |
+| `--session k=v`     | Set a sessionStorage entry first, for example the wall sequence that gives the artwork view its arrows: `'study-atelier:wall-sequence={"query":"","numbers":[9,3,1]}'` |
 | `--wait <selector>` | Wait for a selector before capturing                                |
 | `--script <file>`   | Run a JavaScript file in the page first, for example to mock an option |
 | `--url <base>`      | Use a dev server that is already running                            |

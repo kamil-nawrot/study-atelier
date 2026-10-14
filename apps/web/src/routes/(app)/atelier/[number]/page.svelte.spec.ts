@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { page } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { afterNavigate, goto } from '$app/navigation';
+import { afterNavigate, goto, preloadData } from '$app/navigation';
 import { moveToTrash } from '#lib/collection/trash.ts';
 import type { ArtworkRecord, LoadArtworkResult } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
@@ -14,7 +14,11 @@ const navigation = vi.hoisted(() => ({
 }));
 
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
-vi.mock('$app/navigation', () => ({ afterNavigate: vi.fn(), goto: vi.fn() }));
+vi.mock('$app/navigation', () => ({
+	afterNavigate: vi.fn(),
+	goto: vi.fn(),
+	preloadData: vi.fn()
+}));
 vi.mock('#lib/collection/trash.ts', () => ({ moveToTrash: vi.fn() }));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
@@ -50,6 +54,19 @@ function backLink(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('banner').getByRole('link', { name: m.artworkView.back });
 }
 
+function rememberWall(numbers: number[], query = ''): void {
+	sessionStorage.setItem('study-atelier:wall-sequence', JSON.stringify({ query, numbers }));
+}
+
+function arrow(name: string): ReturnType<typeof page.getByRole> {
+	return page.getByRole('link', { name });
+}
+
+function arrivedFrom(route: string): void {
+	for (const [callback] of vi.mocked(afterNavigate).mock.calls)
+		callback({ from: { route: { id: route } } } as never);
+}
+
 function details(label: string): ReturnType<typeof page.getByRole> {
 	return page.getByRole('definition').filter({ has: page.getByText(label) });
 }
@@ -59,6 +76,7 @@ describe('artwork page', () => {
 		vi.clearAllMocks();
 		navigation.state = {};
 		localStorage.clear();
+		sessionStorage.clear();
 		await page.viewport(1280, 800);
 	});
 
@@ -203,6 +221,103 @@ describe('artwork page', () => {
 		back.mockRestore();
 	});
 
+	it('links to the previous and next artwork of the wall the learner came from', async () => {
+		rememberWall([7, 42, 30], 'epoka=early_modern');
+		renderPage();
+
+		await expect.element(arrow(m.artworkView.previous)).toHaveAttribute('href', '/atelier/7');
+		await expect.element(arrow(m.artworkView.next)).toHaveAttribute('href', '/atelier/30');
+		await expect.element(arrow(m.artworkView.next)).toHaveAttribute('data-sveltekit-replacestate');
+		await expect.element(backLink()).toHaveAttribute('href', '/atelier?epoka=early_modern');
+		expect(preloadData).toHaveBeenCalledWith('/atelier/30');
+	});
+
+	it('dims the arrow at either end of the wall', async () => {
+		rememberWall([42, 30]);
+		renderPage();
+
+		await expect.element(arrow(m.artworkView.next)).toBeVisible();
+		await expect.element(arrow(m.artworkView.previous)).not.toBeInTheDocument();
+		expect(document.querySelectorAll('.flip.end')).toHaveLength(1);
+	});
+
+	it('has no arrows for an artwork the wall did not show', async () => {
+		rememberWall([7, 30], 'epoka=early_modern');
+		renderPage();
+
+		await expect.element(page.getByRole('heading', { level: 1 })).toBeVisible();
+		await expect.element(arrow(m.artworkView.next)).not.toBeInTheDocument();
+		await expect.element(backLink()).toHaveAttribute('href', '/atelier');
+		expect(document.querySelectorAll('.flip')).toHaveLength(0);
+	});
+
+	it('has no arrows when the wall was not shown in this tab', async () => {
+		renderPage();
+
+		await expect.element(page.getByRole('heading', { level: 1 })).toBeVisible();
+		await expect.element(arrow(m.artworkView.previous)).not.toBeInTheDocument();
+		expect(preloadData).not.toHaveBeenCalled();
+	});
+
+	it('goes to the neighbours with the arrow keys in place of the current artwork', async () => {
+		rememberWall([7, 42, 30]);
+		renderPage();
+		await expect.element(arrow(m.artworkView.next)).toBeVisible();
+
+		await userEvent.keyboard('{ArrowRight}');
+		expect(goto).toHaveBeenLastCalledWith('/atelier/30', { replace: true, reset: false });
+
+		await userEvent.keyboard('{ArrowLeft}');
+		expect(goto).toHaveBeenLastCalledWith('/atelier/7', { replace: true, reset: false });
+	});
+
+	it('does not go past the end of the wall with the arrow keys', async () => {
+		rememberWall([42, 30]);
+		renderPage();
+		await expect.element(arrow(m.artworkView.next)).toBeVisible();
+
+		await userEvent.keyboard('{ArrowLeft}');
+
+		expect(goto).not.toHaveBeenCalled();
+	});
+
+	it('leaves the arrow keys alone while a dialog is open', async () => {
+		rememberWall([7, 42, 30]);
+		renderPage();
+
+		await page.getByRole('button', { name: m.artworkView.delete }).click();
+		await expect.element(page.getByRole('alertdialog')).toBeVisible();
+		await userEvent.keyboard('{ArrowRight}');
+
+		expect(goto).not.toHaveBeenCalled();
+	});
+
+	it('goes to the next artwork with a swipe to the left on the stage', async () => {
+		rememberWall([7, 42, 30]);
+		renderPage();
+		await expect.element(arrow(m.artworkView.next)).toBeVisible();
+		const stage = document.querySelector('figure') as HTMLElement;
+		const touch = { isPrimary: true, pointerId: 1, pointerType: 'touch' };
+
+		stage.dispatchEvent(new PointerEvent('pointerdown', { ...touch, clientX: 300, clientY: 200 }));
+		stage.dispatchEvent(new PointerEvent('pointerup', { ...touch, clientX: 150, clientY: 210 }));
+
+		expect(goto).toHaveBeenCalledWith('/atelier/30', { replace: true, reset: false });
+	});
+
+	it('still goes back to the wall through history after flipping through artworks', async () => {
+		const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
+		rememberWall([7, 42, 30]);
+		renderPage();
+		arrivedFrom('/(app)/atelier');
+		arrivedFrom('/(app)/atelier/[number]');
+
+		await backLink().click();
+
+		expect(back).toHaveBeenCalled();
+		back.mockRestore();
+	});
+
 	it('shows a not-found state for an unknown record number', async () => {
 		renderPage({ error: m.artworkErrors.notFound, notFound: true });
 
@@ -219,6 +334,13 @@ describe('artwork page', () => {
 		await expect
 			.element(page.getByRole('button', { name: m.artworkView.delete }))
 			.not.toBeInTheDocument();
+	});
+
+	it('keeps the filter of the wall on the way back from an artwork that is gone', async () => {
+		rememberWall([7, 42, 30], 'epoka=early_modern');
+		renderPage({ error: m.artworkErrors.notFound, notFound: true });
+
+		await expect.element(backLink()).toHaveAttribute('href', '/atelier?epoka=early_modern');
 	});
 
 	it('names a record number that is not a number as it was typed', async () => {

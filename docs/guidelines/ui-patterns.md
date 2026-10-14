@@ -147,6 +147,7 @@ How views and components look and behave, so every new screen stays consistent w
 - A panel that the learner can close leaves a narrow strip with a chevron and the panel name written vertically, which open it again. The panel opens and closes with the same width animation as the side menu, off under `prefers-reduced-motion`.
 - Moving an artwork to the trash and deleting it permanently each ask first with a small `Dialog` ("Przenieść #0012 do kosza?", "Usunąć #0012 na zawsze?"); restoring does not. A `Toast` confirms each of the three ("Przeniesiono #0012 do kosza.", "Przywrócono #0012.", "Usunięto #0012 na zawsze."). An error stays in an `Alert` in the dialog, or above the list for restoring.
 - Clicking an artwork image in a detail view opens it full screen on the stage background; Escape or the close button returns.
+- The artwork view flips through the artworks the wall showed last in this tab, in its order ([ADR-0048](../decisions/0048-flip-through-the-wall-from-the-artwork-view.md)): chevrons in `--color-stage-fg` at the edges of the stage, without a frame and semi-transparent until hover or focus, the one at either end of the list dimmed and inert; the arrow keys when the focus is not in a field or a dialog; a horizontal swipe on the stage. Flipping replaces the history entry, so the back arrow returns to the wall in one step. An artwork the wall did not show has no arrows.
 
 ## Logo
 

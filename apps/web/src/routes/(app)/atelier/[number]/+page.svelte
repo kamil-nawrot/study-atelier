@@ -4,20 +4,26 @@
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
 	import { Alert, Button, Dialog, Icon, Section, Toast } from '@study-atelier/ui';
-	import { afterNavigate, goto } from '$app/navigation';
+	import { afterNavigate, goto, preloadData } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import type { ResolvedPathname } from '$app/types';
 	import ArtworkView from '#lib/collection/components/ArtworkView.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import { keyDirection } from '#lib/collection/flip.ts';
 	import { goBackThroughHistory } from '#lib/collection/history.ts';
 	import { formatRecordNumber, parseRecordNumber } from '#lib/collection/format.ts';
 	import { moveToTrash } from '#lib/collection/trash.ts';
+	import type { FlipDirection } from '#lib/collection/types.ts';
+	import { neighboursIn, rememberedWallSequence } from '#lib/collection/wall-sequence.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps } from './$types';
 
 	let { data, params }: PageProps = $props();
 
 	const atelierPath = resolve('/(app)/atelier');
+	const artworkRoute = '/(app)/atelier/[number]';
+	const sequence = rememberedWallSequence();
 
 	let toast: Toast;
 	let cameFromWall = false;
@@ -29,6 +35,18 @@
 	let label = $derived(number === null ? params.number : formatRecordNumber(number));
 	let artworkPath = $derived(resolve('/(app)/atelier/[number]', { number: params.number }));
 	let editPath = $derived(resolve('/(app)/atelier/[number]/edit', { number: params.number }));
+	let neighbours = $derived(neighboursIn(sequence, number));
+	let flipLinks = $derived(
+		neighbours && {
+			previous: artworkHref(neighbours.previous),
+			next: artworkHref(neighbours.next)
+		}
+	);
+	let wallPath = $derived<ResolvedPathname>(
+		neighbours && sequence?.query
+			? (`${atelierPath}?${sequence.query}` as ResolvedPathname)
+			: atelierPath
+	);
 	let title = $derived(
 		data.artwork
 			? data.artwork.title
@@ -38,8 +56,33 @@
 	);
 
 	afterNavigate(({ from }) => {
+		if (from?.route.id === artworkRoute) return;
 		cameFromWall = from?.route.id === '/(app)/atelier';
 	});
+
+	$effect(() => {
+		if (flipLinks?.next) void preloadData(flipLinks.next);
+	});
+
+	function artworkHref(neighbour: number | null): ResolvedPathname | null {
+		return neighbour === null ? null : resolve(artworkRoute, { number: String(neighbour) });
+	}
+
+	function flip(direction: FlipDirection): void {
+		const neighbour = neighbours?.[direction];
+		if (neighbour === null || neighbour === undefined || trashOpen) return;
+		void goto(resolve(artworkRoute, { number: String(neighbour) }), {
+			replace: true,
+			reset: false
+		});
+	}
+
+	function flipWithKey(event: KeyboardEvent): void {
+		const direction = keyDirection(event);
+		if (!direction || !neighbours) return;
+		event.preventDefault();
+		flip(direction);
+	}
 
 	onMount(() => {
 		const saved = page.state.saved;
@@ -72,9 +115,11 @@
 	}
 </script>
 
+<svelte:window onkeydown={flipWithKey} />
+
 <AtelierLayout email={data.session.user.email ?? ''} fill={data.artwork !== undefined} {title}>
 	{#snippet bar()}
-		<a class="back" href={atelierPath} onclick={goBack}>
+		<a class="back" href={wallPath} onclick={goBack}>
 			<Icon icon={ArrowLeft} />
 			{m.artworkView.back}
 		</a>
@@ -95,9 +140,7 @@
 	{/snippet}
 
 	{#if data.artwork}
-		{#key data.artwork.id}
-			<ArtworkView artwork={data.artwork} editHref={editPath} />
-		{/key}
+		<ArtworkView artwork={data.artwork} editHref={editPath} {flipLinks} onflip={flip} />
 	{:else}
 		<Section>
 			<h1>{title}</h1>
