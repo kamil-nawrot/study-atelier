@@ -42,10 +42,10 @@ function renderAtelier(list: WallArtwork[] = artworks, error?: string): void {
 }
 
 const dated = [
-	testArtwork(1, 'Mona Lisa', { year: 1503, eraCode: 'early_modern' }),
-	testArtwork(2, 'Water Lilies', { year: 1906, eraCode: 'modern' }),
-	testArtwork(3, 'Impression, Sunrise', { year: 1872, eraCode: 'modern' }),
-	testArtwork(4, 'Untitled study', { year: 1800, eraCode: null })
+	testArtwork(1, 'Mona Lisa', { yearTo: 1503, eraCode: 'early_modern' }),
+	testArtwork(2, 'Water Lilies', { yearTo: 1906, eraCode: 'modern' }),
+	testArtwork(3, 'Impression, Sunrise', { yearTo: 1872, eraCode: 'modern' }),
+	testArtwork(4, 'Untitled study', { yearTo: 1800, eraCode: null })
 ];
 
 function manyPeriods(): WallArtwork[] {
@@ -58,7 +58,7 @@ function manyPeriods(): WallArtwork[] {
 	).flatMap(([eraCode, year], block) =>
 		[0, 1, 2, 3].map((position) =>
 			testArtwork(block * 4 + position + 1, `${m.eras[eraCode].name} ${position + 1}`, {
-				year: year + position,
+				yearTo: year + position,
 				eraCode
 			})
 		)
@@ -328,8 +328,8 @@ describe('atelier page', () => {
 
 		it('puts the eras in their fixed order even when the years disagree', async () => {
 			const both = [
-				testArtwork(1, 'Dated Late', { year: 1700, eraCode: 'antiquity' }),
-				testArtwork(2, 'Dated Early', { year: 1500, eraCode: 'modern' })
+				testArtwork(1, 'Dated Late', { yearTo: 1700, eraCode: 'antiquity' }),
+				testArtwork(2, 'Dated Early', { yearTo: 1500, eraCode: 'modern' })
 			];
 			renderAtelier(both);
 

@@ -53,7 +53,7 @@ function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 		record_number: 7,
 		title: 'The Test Painting',
 		author_unknown: false,
-		year: null,
+		year_to: null,
 		year_approximate: false,
 		type_code: null,
 		era_code: null,
@@ -95,17 +95,19 @@ describe('validateArtwork', () => {
 	});
 
 	it('asks for a year when it is marked as before the common era or approximate', () => {
-		expect(validateArtwork(input({ beforeCommonEra: true }))).toEqual({
-			year: m.artworkErrors.yearRequired
+		expect(validateArtwork(input({ toBeforeCommonEra: true }))).toEqual({
+			yearTo: m.artworkErrors.yearRequired
 		});
 		expect(validateArtwork(input({ yearApproximate: true }))).toEqual({
-			year: m.artworkErrors.yearRequired
+			yearTo: m.artworkErrors.yearRequired
 		});
 	});
 
 	it('rejects a year that is not a whole number from 1', () => {
 		for (const year of [0, -5, 1.5]) {
-			expect(validateArtwork(input({ year }))).toEqual({ year: m.artworkErrors.yearInvalid });
+			expect(validateArtwork(input({ yearTo: year }))).toEqual({
+				yearTo: m.artworkErrors.yearInvalid
+			});
 		}
 	});
 });
@@ -126,8 +128,8 @@ describe('saveArtwork', () => {
 				input({
 					title: '  The Test Painting ',
 					authors: ['First Author', ' Second Author '],
-					year: 480,
-					beforeCommonEra: true,
+					yearTo: 480,
+					toBeforeCommonEra: true,
 					yearApproximate: true,
 					typeCode: 'sculpture',
 					eraCode: 'antiquity',
@@ -144,7 +146,7 @@ describe('saveArtwork', () => {
 			artwork: {
 				title: 'The Test Painting',
 				author_unknown: false,
-				year: -480,
+				year_to: -480,
 				year_approximate: true,
 				type_code: 'sculpture',
 				era_code: 'antiquity',
@@ -377,7 +379,7 @@ describe('loadArtwork', () => {
 	it('returns every field with values grouped by category in their order', async () => {
 		query.maybeSingle.mockResolvedValue({
 			data: row({
-				year: -480,
+				year_to: -480,
 				year_approximate: true,
 				type_code: 'sculpture',
 				era_code: 'antiquity',
@@ -402,8 +404,8 @@ describe('loadArtwork', () => {
 				title: 'The Test Painting',
 				authors: ['First Author', 'Second Author'],
 				authorUnknown: false,
-				year: 480,
-				beforeCommonEra: true,
+				yearTo: 480,
+				toBeforeCommonEra: true,
 				yearApproximate: true,
 				typeCode: 'sculpture',
 				eraCode: 'antiquity',

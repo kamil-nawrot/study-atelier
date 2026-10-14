@@ -23,7 +23,7 @@ type ArtworkRecordRow = {
 	record_number: number;
 	title: string;
 	author_unknown: boolean;
-	year: number | null;
+	year_to: number | null;
 	year_approximate: boolean;
 	type_code: ArtworkTypeCode | null;
 	era_code: EraCode | null;
@@ -49,7 +49,7 @@ const RECORD_COLUMNS = [
 	'record_number',
 	'title',
 	'author_unknown',
-	'year',
+	'year_to',
 	'year_approximate',
 	'type_code',
 	'era_code',
@@ -71,8 +71,8 @@ export function emptyArtworkInput(): ArtworkInput {
 		title: '',
 		authors: [],
 		authorUnknown: false,
-		year: null,
-		beforeCommonEra: false,
+		yearTo: null,
+		toBeforeCommonEra: false,
 		yearApproximate: false,
 		typeCode: null,
 		eraCode: null,
@@ -95,17 +95,18 @@ export function validateArtwork(input: ArtworkInput): ArtworkFieldErrors {
 	if (!input.authorUnknown && names(input.authors).length === 0) {
 		errors.authors = m.artworkErrors.authorRequired;
 	}
-	if (input.year === null) {
-		if (input.beforeCommonEra || input.yearApproximate) errors.year = m.artworkErrors.yearRequired;
-	} else if (!Number.isInteger(input.year) || input.year < 1) {
-		errors.year = m.artworkErrors.yearInvalid;
+	if (input.yearTo === null) {
+		if (input.toBeforeCommonEra || input.yearApproximate)
+			errors.yearTo = m.artworkErrors.yearRequired;
+	} else if (!Number.isInteger(input.yearTo) || input.yearTo < 1) {
+		errors.yearTo = m.artworkErrors.yearInvalid;
 	}
 	return errors;
 }
 
 function storedYear(input: ArtworkInput): number | null {
-	if (input.year === null) return null;
-	return input.beforeCommonEra ? -input.year : input.year;
+	if (input.yearTo === null) return null;
+	return input.toBeforeCommonEra ? -input.yearTo : input.yearTo;
 }
 
 function imageColumns(image: StoredImage | null): Record<string, string | number | null> {
@@ -126,8 +127,8 @@ function artworkColumns(input: StoredInput): Record<string, Json> {
 	return {
 		title: input.title.trim(),
 		author_unknown: input.authorUnknown,
-		year: storedYear(input),
-		year_approximate: input.year !== null && input.yearApproximate,
+		year_to: storedYear(input),
+		year_approximate: input.yearTo !== null && input.yearApproximate,
 		type_code: input.typeCode,
 		era_code: input.eraCode,
 		notes: input.notes.trim() || null,
@@ -216,8 +217,8 @@ function artworkRecordFromRow(row: ArtworkRecordRow): ArtworkRecord {
 		title: row.title,
 		authors: valuesOf(row.artwork_values, 'author'),
 		authorUnknown: row.author_unknown,
-		year: row.year === null ? null : Math.abs(row.year),
-		beforeCommonEra: row.year !== null && row.year < 0,
+		yearTo: row.year_to === null ? null : Math.abs(row.year_to),
+		toBeforeCommonEra: row.year_to !== null && row.year_to < 0,
 		yearApproximate: row.year_approximate,
 		typeCode: row.type_code,
 		eraCode: row.era_code,

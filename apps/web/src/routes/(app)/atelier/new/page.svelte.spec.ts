@@ -449,7 +449,7 @@ describe('add artwork page', () => {
 			artwork: expect.objectContaining({
 				title: 'The Milkmaid',
 				author_unknown: false,
-				year: 1658,
+				year_to: 1658,
 				year_approximate: true,
 				type_code: 'painting',
 				notes: 'Seen in Amsterdam.'

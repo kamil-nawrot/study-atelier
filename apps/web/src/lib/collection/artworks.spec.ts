@@ -35,7 +35,7 @@ function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 		id: 'artwork-1',
 		record_number: 1,
 		title: 'The Test Painting',
-		year: 1490,
+		year_to: 1490,
 		year_approximate: true,
 		era_code: null,
 		source_image_file: null,
@@ -161,7 +161,7 @@ describe('loadAtelier', () => {
 				title: 'The Test Painting',
 				authors: ['First Author', 'Second Author'],
 				date: m.atelier.year(1490, true),
-				year: 1490,
+				yearTo: 1490,
 				eraCode: 'early_modern',
 				image: undefined
 			}
@@ -361,7 +361,7 @@ describe('resolveImages', () => {
 			number: 1,
 			title: 'Pending',
 			authors: [],
-			year: null,
+			yearTo: null,
 			eraCode: null,
 			image: { ...DEFAULT_IMAGE_SIZE },
 			pendingImage
@@ -501,7 +501,7 @@ describe('refreshExpiredImages', () => {
 			number: 1,
 			title: 'The Test Painting',
 			authors: [],
-			year: null,
+			yearTo: null,
 			eraCode: null,
 			image: { src: `https://example.com/old-${id}`, width: 4, height: 5 },
 			ownImagePath: `user-id/${id}/image.jpg`,

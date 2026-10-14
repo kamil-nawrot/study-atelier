@@ -36,7 +36,7 @@ describe('artworkInputFromForm', () => {
 		form.values.author = ['Johannes Vermeer'];
 		form.values.style = ['baroque'];
 		form.values.location = ['Mauritshuis'];
-		form.year = '1665';
+		form.yearTo = '1665';
 		form.yearApproximate = true;
 		form.typeCode = 'painting';
 		form.notes = 'Seen in The Hague.';
@@ -45,8 +45,8 @@ describe('artworkInputFromForm', () => {
 			title: 'Girl with a Pearl Earring',
 			authors: ['Johannes Vermeer'],
 			authorUnknown: false,
-			year: 1665,
-			beforeCommonEra: false,
+			yearTo: 1665,
+			toBeforeCommonEra: false,
 			yearApproximate: true,
 			typeCode: 'painting',
 			eraCode: null,
@@ -82,8 +82,8 @@ describe('artworkFormFromRecord', () => {
 		title: 'The Thinker',
 		authors: ['Auguste Rodin'],
 		authorUnknown: false,
-		year: 1904,
-		beforeCommonEra: false,
+		yearTo: 1904,
+		toBeforeCommonEra: false,
 		yearApproximate: true,
 		typeCode: 'sculpture',
 		eraCode: 'modern',
@@ -107,8 +107,8 @@ describe('artworkFormFromRecord', () => {
 			},
 			queries: { author: '', period: '', style: '', material: '', location: '' },
 			authorUnknown: false,
-			year: '1904',
-			beforeCommonEra: false,
+			yearTo: '1904',
+			toBeforeCommonEra: false,
 			yearApproximate: true,
 			typeCode: 'sculpture',
 			eraCode: 'modern',
@@ -120,14 +120,14 @@ describe('artworkFormFromRecord', () => {
 	it('leaves the year, type and location empty when the artwork has none', () => {
 		const form = artworkFormFromRecord({
 			...record,
-			year: null,
+			yearTo: null,
 			typeCode: null,
 			location: null,
 			authors: [],
 			authorUnknown: true
 		});
 
-		expect(form.year).toBe('');
+		expect(form.yearTo).toBe('');
 		expect(form.typeCode).toBe('');
 		expect(form.values.location).toEqual([]);
 		expect(form.authorUnknown).toBe(true);

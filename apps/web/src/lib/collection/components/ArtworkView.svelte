@@ -31,7 +31,7 @@
 	);
 	let date = $derived(
 		formatYear(
-			artwork.year === null || !artwork.beforeCommonEra ? artwork.year : -artwork.year,
+			artwork.yearTo === null || !artwork.toBeforeCommonEra ? artwork.yearTo : -artwork.yearTo,
 			artwork.yearApproximate
 		)
 	);

@@ -37,8 +37,8 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 		title: 'The Milkmaid',
 		authors: ['Johannes Vermeer'],
 		authorUnknown: false,
-		year: 1658,
-		beforeCommonEra: false,
+		yearTo: 1658,
+		toBeforeCommonEra: false,
 		yearApproximate: true,
 		typeCode: 'painting',
 		eraCode: null,
@@ -227,7 +227,7 @@ describe('edit artwork page', () => {
 		expect(supabase.rpc).toHaveBeenCalledWith('save_artwork', {
 			artwork: expect.objectContaining({
 				title: 'The Kitchen Maid',
-				year: 1658,
+				year_to: 1658,
 				year_approximate: true,
 				type_code: 'painting',
 				notes: 'Seen in Amsterdam.'

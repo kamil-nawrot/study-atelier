@@ -56,7 +56,7 @@ erDiagram
         int record_number
         text title
         bool author_unknown
-        int year
+        int year_to
         bool year_approximate
         text type_code FK
         text notes
@@ -96,7 +96,7 @@ erDiagram
 - The starting lists of periods, styles and materials (R-24) live in the app, next to the i18n texts, not in the database: they are suggestions in the interface language, and a value is stored only once the learner picks it.
 - Near-duplicate hints (R-25) are computed in the app over the learner's own values, which are few. The database only rejects a name that differs from an existing one by letter case.
 - `artwork_values.position` keeps the order of authors and other values on an artwork.
-- Dates: `year` is a signed integer, negative for years before the common era, with no year 0; `year_approximate` needs a year.
+- Dates: `year_to` (renamed from `year` by [ADR-0045](0045-enter-the-date-of-creation-as-a-period.md)) is a signed integer, negative for years before the common era, with no year 0; `year_approximate` needs a year.
 - Images ([0007](0007-images-from-open-sources.md)): the source image is a reference (`source_wikidata_id`, `source_image_file` on Commons, licence, licence URL and attribution). The learner's own image is either a file in the private storage bucket (`own_image_path`) or an `https` URL (`own_image_url`), optionally with `own_image_source_url` pointing to where it was found. The own image overrides the source image. `own_image_source_url` was never used and was dropped by [ADR-0024](0024-save-an-artwork-in-one-database-function.md).
 - Trash (R-23): `deleted_at` on `artworks`. Moving to the trash and restoring set and clear it; deleting from the trash removes the row and its links. The app hides trashed artworks from the collection and suggests only values linked to at least one artwork outside the trash.
 - Record numbers: `private.record_counters` holds the last number per learner; a `before insert` trigger on `artworks` assigns the next one. The app shows it as `#` plus the number padded to four digits.

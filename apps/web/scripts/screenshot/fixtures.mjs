@@ -55,7 +55,7 @@ function artwork(number, title, authors, year, era, extra = {}) {
 		id: `00000000-0000-4000-8000-${String(number).padStart(12, '0')}`,
 		record_number: number,
 		title,
-		year,
+		year_to: year,
 		year_approximate: false,
 		era_code: era,
 		author_unknown: false,

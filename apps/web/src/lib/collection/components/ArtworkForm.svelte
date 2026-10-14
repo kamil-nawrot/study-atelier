@@ -280,13 +280,13 @@
 			<div class="group">
 				<TextField
 					autocomplete="off"
-					error={fieldErrors.year}
+					error={fieldErrors.yearTo}
 					inputmode="numeric"
 					label={m.artworkForm.year}
-					bind:value={form.year}
+					bind:value={form.yearTo}
 				/>
 				<div class="checks">
-					<Checkbox label={m.artworkForm.beforeCommonEra} bind:checked={form.beforeCommonEra} />
+					<Checkbox label={m.artworkForm.beforeCommonEra} bind:checked={form.toBeforeCommonEra} />
 					<Checkbox label={m.artworkForm.yearApproximate} bind:checked={form.yearApproximate} />
 				</div>
 			</div>

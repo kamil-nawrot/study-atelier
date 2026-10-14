@@ -9,7 +9,7 @@ function artwork(
 	year: number | null,
 	eraCode: EraCode | null
 ): ReturnType<typeof testArtwork> {
-	return testArtwork(number, `Artwork ${number}`, { year, eraCode });
+	return testArtwork(number, `Artwork ${number}`, { yearTo: year, eraCode });
 }
 
 function numbers(groups: ReturnType<typeof groupByEra>): number[][] {
