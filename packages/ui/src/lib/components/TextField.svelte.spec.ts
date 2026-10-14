@@ -24,4 +24,11 @@ describe('TextField', () => {
 		expect(button.getBoundingClientRect().top).toBe(field.top);
 		expect(button.getBoundingClientRect().height).toBe(field.height);
 	});
+
+	it('names the input without a visible label when the label is hidden', async () => {
+		render(TextField, { label: 'From', hideLabel: true, placeholder: 'From' });
+
+		await expect.element(page.getByRole('textbox', { name: 'From' })).toBeVisible();
+		expect(document.querySelector('label')).toBeNull();
+	});
 });

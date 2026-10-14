@@ -84,8 +84,9 @@ export type Database = {
           title: string;
           type_code: string | null;
           updated_at: string;
-          year: number | null;
           year_approximate: boolean;
+          year_from: number | null;
+          year_to: number | null;
         };
         ComputedFields: never;
         Insert: {
@@ -109,8 +110,9 @@ export type Database = {
           title: string;
           type_code?: string | null;
           updated_at?: string;
-          year?: number | null;
           year_approximate?: boolean;
+          year_from?: number | null;
+          year_to?: number | null;
         };
         Update: {
           author_unknown?: boolean;
@@ -133,8 +135,9 @@ export type Database = {
           title?: string;
           type_code?: string | null;
           updated_at?: string;
-          year?: number | null;
           year_approximate?: boolean;
+          year_from?: number | null;
+          year_to?: number | null;
         };
         Relationships: [
           {

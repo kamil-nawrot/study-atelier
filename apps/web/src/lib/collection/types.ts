@@ -41,7 +41,8 @@ export type WallArtwork = {
 	title: string;
 	authors: string[];
 	date?: string;
-	year: number | null;
+	yearFrom: number | null;
+	yearTo: number | null;
 	eraCode: EraCode | null;
 	typeCode: ArtworkTypeCode | null;
 	period: string | null;
@@ -130,8 +131,10 @@ export type ArtworkInput = {
 	title: string;
 	authors: string[];
 	authorUnknown: boolean;
-	year: number | null;
-	beforeCommonEra: boolean;
+	yearFrom: number | null;
+	fromBeforeCommonEra: boolean;
+	yearTo: number | null;
+	toBeforeCommonEra: boolean;
 	yearApproximate: boolean;
 	typeCode: ArtworkTypeCode | null;
 	eraCode: EraCode | null;
@@ -153,7 +156,9 @@ export type ExistingArtwork = {
 	image: ArtworkImageInput | null;
 };
 
-export type ArtworkFieldErrors = Partial<Record<'title' | 'authors' | 'year', string>>;
+export type ArtworkFieldErrors = Partial<
+	Record<'title' | 'authors' | 'yearFrom' | 'yearTo', string>
+>;
 
 export type SaveArtworkResult =
 	| { saved: true; id: string; number: number }
@@ -170,8 +175,11 @@ export type ArtworkFormState = {
 	values: CategoryValues;
 	queries: Record<CategoryCode, string>;
 	authorUnknown: boolean;
-	year: string;
-	beforeCommonEra: boolean;
+	spanMode: boolean;
+	yearFrom: string;
+	fromBeforeCommonEra: boolean;
+	yearTo: string;
+	toBeforeCommonEra: boolean;
 	yearApproximate: boolean;
 	typeCode: ArtworkTypeCode | '';
 	eraCode: EraCode | null;

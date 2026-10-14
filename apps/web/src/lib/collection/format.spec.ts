@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
 import {
+	formatDate,
 	formatDeletedOn,
 	formatRecordNumber,
 	formatYear,
 	formatYearRange,
-	parseRecordNumber
+	parseRecordNumber,
+	signedYear
 } from './format.ts';
 
 describe('formatRecordNumber', () => {
@@ -56,6 +58,36 @@ describe('formatYear', () => {
 
 	it('marks an approximate year before the common era', () => {
 		expect(formatYear(-150, true)).toBe('ok. 150 p.n.e.');
+	});
+});
+
+describe('signedYear', () => {
+	it('keeps no year as no year and signs a year before the common era', () => {
+		expect(signedYear(null, true)).toBeNull();
+		expect(signedYear(150, true)).toBe(-150);
+		expect(signedYear(150, false)).toBe(150);
+	});
+});
+
+describe('formatDate', () => {
+	it('has no date without an end year', () => {
+		expect(formatDate(null, null, false)).toBeUndefined();
+	});
+
+	it('shows a single year, also when both ends are equal', () => {
+		expect(formatDate(null, 1503, true)).toBe('ok. 1503');
+		expect(formatDate(1503, 1503, false)).toBe('1503');
+	});
+
+	it('writes a year span compactly on one side of the turn of the eras', () => {
+		expect(formatDate(1503, 1519, false)).toBe('1503–1519');
+		expect(formatDate(1503, 1519, true)).toBe('ok. 1503–1519');
+		expect(formatDate(-450, -420, false)).toBe('450–420 p.n.e.');
+	});
+
+	it('names both eras when the year span crosses the turn of the eras', () => {
+		expect(formatDate(-50, 20, false)).toBe('50 p.n.e. – 20 n.e.');
+		expect(formatDate(-50, 20, true)).toBe('ok. 50 p.n.e. – 20 n.e.');
 	});
 });
 

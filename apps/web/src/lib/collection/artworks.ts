@@ -10,7 +10,7 @@ import {
 import { supabase } from '#lib/supabase.ts';
 import { valuesOf } from './artwork-values.ts';
 import { collectionErrorMessage } from './errors.ts';
-import { formatYear } from './format.ts';
+import { formatDate } from './format.ts';
 import { tileSizes } from './masonry.ts';
 import { resolvedImages } from './resolved-images.ts';
 import type {
@@ -29,7 +29,8 @@ type ArtworkRow = {
 	id: string;
 	record_number: number;
 	title: string;
-	year: number | null;
+	year_from: number | null;
+	year_to: number | null;
 	year_approximate: boolean;
 	era_code: EraCode | null;
 	type_code: ArtworkTypeCode | null;
@@ -53,7 +54,8 @@ const ARTWORK_COLUMNS = [
 	'id',
 	'record_number',
 	'title',
-	'year',
+	'year_from',
+	'year_to',
 	'year_approximate',
 	'era_code',
 	'type_code',
@@ -149,8 +151,9 @@ function wallArtwork(row: ArtworkRow): WallArtwork {
 		number: row.record_number,
 		title: row.title,
 		authors: valuesOf(row.artwork_values, 'author'),
-		date: formatYear(row.year, row.year_approximate),
-		year: row.year,
+		date: formatDate(row.year_from, row.year_to, row.year_approximate),
+		yearFrom: row.year_from,
+		yearTo: row.year_to,
 		eraCode: row.era_code,
 		typeCode: row.type_code,
 		period: valuesOf(row.artwork_values, 'period')[0] ?? null,

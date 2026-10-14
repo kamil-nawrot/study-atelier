@@ -24,7 +24,7 @@ begin
   );
 
   insert into public.artworks (
-    id, owner_id, title, author_unknown, year, year_approximate, type_code, era_code, notes,
+    id, owner_id, title, author_unknown, year_to, year_approximate, type_code, era_code, notes,
     source_wikidata_id, source_image_file, source_image_licence, source_image_licence_url,
     source_image_attribution, image_width, image_height, deleted_at
   )

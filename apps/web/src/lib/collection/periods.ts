@@ -4,10 +4,10 @@ import { UNKNOWN_AUTHOR } from './filter.ts';
 import type { EraCode, PeriodGroup, WallArtwork } from './types.ts';
 
 function byYear(a: WallArtwork, b: WallArtwork): number {
-	if (a.year === null && b.year === null) return a.number - b.number;
-	if (a.year === null) return 1;
-	if (b.year === null) return -1;
-	return a.year - b.year || a.number - b.number;
+	if (a.yearTo === null && b.yearTo === null) return a.number - b.number;
+	if (a.yearTo === null) return 1;
+	if (b.yearTo === null) return -1;
+	return a.yearTo - b.yearTo || a.number - b.number;
 }
 
 function collect<K>(
@@ -31,13 +31,14 @@ function group(
 	name: string,
 	members: WallArtwork[]
 ): PeriodGroup {
-	const years = members.flatMap((artwork) => artwork.year ?? []);
+	const starts = members.flatMap((artwork) => artwork.yearFrom ?? artwork.yearTo ?? []);
+	const ends = members.flatMap((artwork) => artwork.yearTo ?? []);
 	return {
 		key,
 		code,
 		name,
-		from: years.length > 0 ? Math.min(...years) : null,
-		to: years.length > 0 ? Math.max(...years) : null,
+		from: starts.length > 0 ? Math.min(...starts) : null,
+		to: ends.length > 0 ? Math.max(...ends) : null,
 		artworks: members.sort(byYear)
 	};
 }

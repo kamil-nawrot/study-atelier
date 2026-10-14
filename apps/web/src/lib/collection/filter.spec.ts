@@ -24,7 +24,7 @@ import type { CollectionFilter, WallArtwork } from './types.ts';
 const artworks: WallArtwork[] = [
 	testArtwork(1, 'Girl with a Pearl Earring', {
 		authors: ['Vermeer'],
-		year: 1665,
+		yearTo: 1665,
 		eraCode: 'early_modern',
 		typeCode: 'painting',
 		period: 'Dutch Golden Age',
@@ -34,7 +34,7 @@ const artworks: WallArtwork[] = [
 	}),
 	testArtwork(2, 'Mona Lisa', {
 		authors: ['Leonardo'],
-		year: 1503,
+		yearTo: 1503,
 		eraCode: 'early_modern',
 		typeCode: 'painting',
 		period: 'Renaissance',
@@ -44,14 +44,14 @@ const artworks: WallArtwork[] = [
 	}),
 	testArtwork(3, 'Venus of Willendorf', {
 		authors: [],
-		year: -25000,
+		yearTo: -25000,
 		eraCode: 'prehistory',
 		typeCode: 'sculpture',
 		hasImage: false
 	}),
 	testArtwork(4, 'Untitled', {
 		authors: ['Vermeer', 'Leonardo'],
-		year: null,
+		yearTo: null,
 		eraCode: null
 	})
 ];
@@ -100,6 +100,22 @@ describe('applyFilter', () => {
 		expect(numbers(filterWith({ yearFrom: 1500, yearTo: 1700 }))).toEqual([1, 2]);
 		expect(numbers(filterWith({ yearFrom: 1600 }))).toEqual([1]);
 		expect(numbers(filterWith({ yearTo: 0 }))).toEqual([3]);
+	});
+
+	it('keeps a year span that overlaps the year range', () => {
+		const spans = [
+			testArtwork(5, 'Sistine Chapel ceiling', { yearFrom: 1508, yearTo: 1512 }),
+			testArtwork(6, 'Augustus of Prima Porta', { yearFrom: -20, yearTo: 20 }),
+			testArtwork(7, 'Night Watch', { yearFrom: null, yearTo: 1642 })
+		];
+		const kept = (range: Partial<CollectionFilter>): number[] =>
+			applyFilter(spans, filterWith(range)).map((artwork) => artwork.number);
+
+		expect(kept({ yearFrom: 1510, yearTo: 1600 })).toEqual([5]);
+		expect(kept({ yearFrom: 1400, yearTo: 1508 })).toEqual([5]);
+		expect(kept({ yearFrom: 1513 })).toEqual([7]);
+		expect(kept({ yearTo: -1 })).toEqual([6]);
+		expect(kept({ yearFrom: 1, yearTo: 1000 })).toEqual([6]);
 	});
 
 	it('finds what is missing', () => {

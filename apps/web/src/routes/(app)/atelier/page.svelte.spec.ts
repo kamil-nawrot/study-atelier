@@ -42,10 +42,10 @@ function renderAtelier(list: WallArtwork[] = artworks, error?: string): void {
 }
 
 const dated = [
-	testArtwork(1, 'Mona Lisa', { year: 1503, eraCode: 'early_modern' }),
-	testArtwork(2, 'Water Lilies', { year: 1906, eraCode: 'modern' }),
-	testArtwork(3, 'Impression, Sunrise', { year: 1872, eraCode: 'modern' }),
-	testArtwork(4, 'Untitled study', { year: 1800, eraCode: null })
+	testArtwork(1, 'Mona Lisa', { yearTo: 1503, eraCode: 'early_modern' }),
+	testArtwork(2, 'Water Lilies', { yearTo: 1906, eraCode: 'modern' }),
+	testArtwork(3, 'Impression, Sunrise', { yearTo: 1872, eraCode: 'modern' }),
+	testArtwork(4, 'Untitled study', { yearTo: 1800, eraCode: null })
 ];
 
 function manyPeriods(): WallArtwork[] {
@@ -58,7 +58,7 @@ function manyPeriods(): WallArtwork[] {
 	).flatMap(([eraCode, year], block) =>
 		[0, 1, 2, 3].map((position) =>
 			testArtwork(block * 4 + position + 1, `${m.eras[eraCode].name} ${position + 1}`, {
-				year: year + position,
+				yearTo: year + position,
 				eraCode
 			})
 		)
@@ -66,17 +66,17 @@ function manyPeriods(): WallArtwork[] {
 }
 
 const byAuthors = [
-	testArtwork(1, 'Water Lilies', { year: 1906, authors: ['Claude Monet'] }),
-	testArtwork(2, 'Untitled study', { year: 1800, authors: [] }),
-	testArtwork(3, 'Melancholia', { year: 1514, authors: ['Albrecht Dürer', 'Claude Monet'] }),
-	testArtwork(4, 'Impression, Sunrise', { year: 1872, authors: ['Claude Monet'] }),
-	testArtwork(5, 'Self-portrait', { year: 1500, authors: ['Albrecht Dürer'] })
+	testArtwork(1, 'Water Lilies', { yearTo: 1906, authors: ['Claude Monet'] }),
+	testArtwork(2, 'Untitled study', { yearTo: 1800, authors: [] }),
+	testArtwork(3, 'Melancholia', { yearTo: 1514, authors: ['Albrecht Dürer', 'Claude Monet'] }),
+	testArtwork(4, 'Impression, Sunrise', { yearTo: 1872, authors: ['Claude Monet'] }),
+	testArtwork(5, 'Self-portrait', { yearTo: 1500, authors: ['Albrecht Dürer'] })
 ];
 
 function manyAuthors(count: number): WallArtwork[] {
 	return Array.from({ length: count }, (_, index) =>
 		testArtwork(index + 1, `Study ${index + 1}`, {
-			year: 1800 + index,
+			yearTo: 1800 + index,
 			authors: [`Author ${String(index + 1).padStart(2, '0')}`]
 		})
 	);
@@ -88,27 +88,27 @@ function orderSelect(): ReturnType<typeof page.getByRole> {
 
 const styled = [
 	testArtwork(1, 'Mona Lisa', {
-		year: 1503,
+		yearTo: 1503,
 		eraCode: 'early_modern',
 		typeCode: 'painting',
 		styles: ['Renaissance']
 	}),
 	testArtwork(2, 'Water Lilies', {
-		year: 1906,
+		yearTo: 1906,
 		eraCode: 'modern',
 		typeCode: 'painting',
 		styles: ['Impressionism'],
 		authors: ['Monet']
 	}),
 	testArtwork(3, 'Impression, Sunrise', {
-		year: 1872,
+		yearTo: 1872,
 		eraCode: 'modern',
 		typeCode: 'painting',
 		styles: ['Impressionism'],
 		authors: ['Monet'],
 		hasImage: false
 	}),
-	testArtwork(4, 'The Thinker', { year: 1904, eraCode: 'modern', typeCode: 'sculpture' })
+	testArtwork(4, 'The Thinker', { yearTo: 1904, eraCode: 'modern', typeCode: 'sculpture' })
 ];
 
 function filtersButton(): ReturnType<typeof page.getByRole> {
@@ -388,8 +388,8 @@ describe('atelier page', () => {
 
 		it('puts the eras in their fixed order even when the years disagree', async () => {
 			const both = [
-				testArtwork(1, 'Dated Late', { year: 1700, eraCode: 'antiquity' }),
-				testArtwork(2, 'Dated Early', { year: 1500, eraCode: 'modern' })
+				testArtwork(1, 'Dated Late', { yearTo: 1700, eraCode: 'antiquity' }),
+				testArtwork(2, 'Dated Early', { yearTo: 1500, eraCode: 'modern' })
 			];
 			renderAtelier(both);
 

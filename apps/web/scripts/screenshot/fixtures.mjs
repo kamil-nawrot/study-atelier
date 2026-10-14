@@ -55,7 +55,8 @@ function artwork(number, title, authors, year, era, extra = {}) {
 		id: `00000000-0000-4000-8000-${String(number).padStart(12, '0')}`,
 		record_number: number,
 		title,
-		year,
+		year_from: null,
+		year_to: year,
 		year_approximate: false,
 		era_code: era,
 		author_unknown: false,
@@ -114,8 +115,9 @@ export const ARTWORKS = [
 		...ownImage(5, 4, 5),
 		type_code: 'sculpture'
 	}),
-	artwork(6, 'Notre-Dame de Paris', ['Maurice de Sully', 'Jean de Chelles'], 1163, 'middle_ages', {
+	artwork(6, 'Notre-Dame de Paris', ['Maurice de Sully', 'Jean de Chelles'], 1345, 'middle_ages', {
 		...ownImage(6, 5, 4),
+		year_from: 1163,
 		type_code: 'architecture'
 	}),
 	artwork(7, 'The Kiss', ['Gustav Klimt'], 1908, 'modern', { ...ownImage(7, 1, 1) }),

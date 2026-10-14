@@ -37,8 +37,10 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 		title: 'The Milkmaid',
 		authors: ['Johannes Vermeer'],
 		authorUnknown: false,
-		year: 1658,
-		beforeCommonEra: false,
+		yearFrom: null,
+		fromBeforeCommonEra: false,
+		yearTo: 1658,
+		toBeforeCommonEra: false,
 		yearApproximate: true,
 		typeCode: 'painting',
 		eraCode: null,
@@ -227,7 +229,7 @@ describe('edit artwork page', () => {
 		expect(supabase.rpc).toHaveBeenCalledWith('save_artwork', {
 			artwork: expect.objectContaining({
 				title: 'The Kitchen Maid',
-				year: 1658,
+				year_to: 1658,
 				year_approximate: true,
 				type_code: 'painting',
 				notes: 'Seen in Amsterdam.'
@@ -363,5 +365,19 @@ describe('edit artwork page', () => {
 			.toHaveTextContent(m.artworkForm.loadErrorTitle);
 		await expect.element(page.getByRole('alert')).toHaveTextContent(m.artworkErrors.network);
 		await expect.element(titleField()).not.toBeInTheDocument();
+	});
+
+	it('opens a record with a year span in the span mode', async () => {
+		renderPage({ artwork: artwork({ yearFrom: 1503, yearTo: 1519 }) });
+
+		await expect
+			.element(page.getByRole('switch', { name: m.artworkForm.spanSwitch }))
+			.toBeChecked();
+		await expect
+			.element(page.getByRole('textbox', { name: m.artworkForm.spanFrom }))
+			.toHaveValue('1503');
+		await expect
+			.element(page.getByRole('textbox', { name: m.artworkForm.spanTo }))
+			.toHaveValue('1519');
 	});
 });

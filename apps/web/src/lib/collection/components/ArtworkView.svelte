@@ -7,7 +7,7 @@
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
-	import { formatRecordNumber, formatYear } from '../format.ts';
+	import { formatDate, formatRecordNumber, signedYear } from '../format.ts';
 	import { artworkPanelOpen, rememberArtworkPanel } from '../artwork-panel.ts';
 	import { FLIP_DIRECTIONS, swipe } from '../flip.ts';
 	import type { ArtworkRecord, FlipDirection } from '../types.ts';
@@ -35,8 +35,9 @@
 		artwork.authors.length > 0 ? artwork.authors.join(', ') : m.ui.unknownAuthor
 	);
 	let date = $derived(
-		formatYear(
-			artwork.year === null || !artwork.beforeCommonEra ? artwork.year : -artwork.year,
+		formatDate(
+			signedYear(artwork.yearFrom, artwork.fromBeforeCommonEra),
+			signedYear(artwork.yearTo, artwork.toBeforeCommonEra),
 			artwork.yearApproximate
 		)
 	);

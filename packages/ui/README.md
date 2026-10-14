@@ -53,6 +53,7 @@ Patterns for using the components are in [ui-patterns.md](../../docs/guidelines/
 | `ValueField` | Category values as removable tags with a suggestion list (combobox); one value with `single`                 |
 | `Select`     | Labelled single choice from a fixed list, styled like `TextField`, with hint and error                       |
 | `Checkbox`   | Labelled checkbox                                                                                            |
+| `Switch`     | Labelled on/off switch (a native checkbox with `role="switch"`), for a setting that governs other fields     |
 | `Frame`      | Passe-partout frame for artworks: `list` or `view` size                                                      |
 | `Icon`       | Lucide icon in the shared style: `sm` (20 px) or `md` (24 px)                                                |
 | `Section`    | Text section with a heavy left edge (spine)                                                                  |

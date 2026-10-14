@@ -47,6 +47,11 @@
 	}}
 />
 
+<Story
+	name="Hidden label"
+	args={{ label: 'From', hideLabel: true, type: 'text', placeholder: 'From' }}
+/>
+
 <Story name="Disabled" args={{ value: 'name@example.com', disabled: true }} />
 
 <Story
