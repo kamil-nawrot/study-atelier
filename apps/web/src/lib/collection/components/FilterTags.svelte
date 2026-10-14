@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Tag } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
-	import { tagLabel } from '../filter.ts';
+	import { tagLabel, tagParts } from '../filter.ts';
 	import type { FilterTag } from '../types.ts';
 
 	type Props = {
@@ -21,7 +21,9 @@
 					onremove={() => onremove(tag)}
 					removeLabel={m.atelier.filters.removeTag(tagLabel(tag))}
 				>
-					{tagLabel(tag)}
+					{@const parts = tagParts(tag)}
+					<span class="field">{parts.field}</span>
+					<span class="value">{parts.value}</span>
 				</Tag>
 			</li>
 		{/each}
@@ -42,6 +44,14 @@
 		margin: 0;
 		padding: 0;
 		list-style: none;
+	}
+
+	.field {
+		color: var(--color-fg-muted);
+	}
+
+	.value {
+		font-weight: var(--font-weight-medium);
 	}
 
 	.clear {

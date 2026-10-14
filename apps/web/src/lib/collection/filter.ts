@@ -9,6 +9,7 @@ import type {
 	FilterOption,
 	FilterTag,
 	MissingData,
+	TagParts,
 	WallArtwork
 } from './types.ts';
 
@@ -219,11 +220,16 @@ export function optionLabel(field: ValueField, value: string): string {
 	return value === UNKNOWN_AUTHOR ? m.atelier.filters.unknownAuthor : value;
 }
 
-export function tagLabel(tag: FilterTag): string {
+export function tagParts(tag: FilterTag): TagParts {
 	const field = m.atelier.filters.tagFields[tag.field];
-	if (tag.field !== 'years') return m.atelier.filters.tag(field, optionLabel(tag.field, tag.value));
+	if (tag.field !== 'years') return { field, value: optionLabel(tag.field, tag.value) };
 	const [from, to] = tag.value.split(RANGE_SEPARATOR).map((part) => (part ? Number(part) : null));
-	return m.atelier.filters.tag(field, yearsLabel(from, to));
+	return { field, value: yearsLabel(from, to) };
+}
+
+export function tagLabel(tag: FilterTag): string {
+	const { field, value } = tagParts(tag);
+	return m.atelier.filters.tag(field, value);
 }
 
 function yearsLabel(from: number | null, to: number | null): string {

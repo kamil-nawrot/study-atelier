@@ -263,6 +263,11 @@ export type FilterTag = {
 	value: string;
 };
 
+export type TagParts = {
+	field: string;
+	value: string;
+};
+
 export type FilterOption = {
 	value: string;
 	count: number;
