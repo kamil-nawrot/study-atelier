@@ -24,14 +24,14 @@ Storage:
 
 Era of the years: one shared "p.n.e." checkbox, or one per end.
 
-Form: a checkbox "Okres (od – do)", or two tiles "Rok" and "Okres".
+Form: a checkbox under the inputs, a switch above them, or two tiles "Rok" and "Okres" (`ChoiceTiles`, no new component).
 
 ## Decision outcome
 
-Chosen: option 1, a "p.n.e." checkbox per end, and a checkbox as the switch.
+Chosen: option 1, a "p.n.e." checkbox per end, and a switch above the inputs.
 
 - **Storage.** `year` is renamed to `year_to`: the end of the period, or the single year when `year_from` is empty. `year_from` is a new nullable integer. Checks: `year_from` requires `year_to`, `year_from <= year_to`, and `year_approximate` still requires `year_to`. One migration renames the column, adds the new one and recreates `save_artwork`; existing records keep `year_from` empty, so they stay valid single years. Years stay signed integers, so ordering and the checks need no special case.
-- **Form.** A checkbox "Okres (od – do)" under the year field switches the mode. In period mode "Od" and "Do" stand side by side, also on a phone, each with its own "p.n.e."; one "ok." applies to the whole period. Turning the checkbox off keeps what was typed in "Od" in the form but saves only the single year.
+- **Form.** A switch "Okres" on the right of the label row, above the inputs, sets the mode, because it governs the fields below it; the "p.n.e." and "ok." checkboxes stay under the inputs as parameters of the values. The label reads "Rok powstania" and, in period mode, "Okres powstania". The switch is a new library component, `Switch`: a native checkbox with `role="switch"`, square like the other controls, with stories for each state. In period mode "Od" and "Do" stand side by side, also on a phone, each with its own "p.n.e."; one "ok." applies to the whole period. Turning the checkbox off keeps what was typed in "Od" in the form but saves only the single year.
 - **Validation.** Both ends are converted to signed years first. "Od" later than "Do" shows "Koniec okresu nie może być wcześniejszy niż początek." under the fields. "Od" equal to "Do" is saved as a single year.
 - **Display.** Compact when both ends are on the same side of the turn of the eras (`1503–1519`, `450–420 p.n.e.`, `ok. 1503–1519`), with "n.e." when the period crosses it (`50 p.n.e. – 20 n.e.`). It is used in the wall tile caption and in the line under the title in the artwork view.
 - **Wall order.** By `year_to`, which keeps the order of existing records unchanged.
