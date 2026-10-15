@@ -48,7 +48,7 @@ let screen: ReturnType<typeof render>;
 
 function renderPage(links: ValueLinks = emptyValueLinks()): void {
 	screen = render(AddArtworkPage, {
-		data: { session: testSession(), values: emptyCategoryValues(), links },
+		data: { session: testSession(), values: emptyCategoryValues(), links, noteLinks: undefined },
 		params: {}
 	});
 }

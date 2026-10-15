@@ -1,11 +1,12 @@
 <script lang="ts">
+	import type { NoteLinks } from '../note-links';
 	import { renderNotes } from '../notes-markdown';
 
-	type Props = { value: string };
+	type Props = { value: string; links?: Pick<NoteLinks, 'resolve'> };
 
-	let { value }: Props = $props();
+	let { value, links }: Props = $props();
 
-	const html = $derived(renderNotes(value));
+	const html = $derived(renderNotes(value, links));
 </script>
 
 <div
@@ -24,6 +25,10 @@
 
 	.notes :global(h3) {
 		font-weight: var(--font-weight-medium);
+	}
+
+	.notes :global(a) {
+		text-decoration-color: var(--color-fg-muted);
 	}
 
 	.notes :global(ul),

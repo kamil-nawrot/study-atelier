@@ -2,6 +2,7 @@ import { m } from '#lib/i18n/index.ts';
 import { loadAtelier } from './artworks.ts';
 import { loadCardIndex } from './card-index-data.ts';
 import { emptyCardIndex } from './card-index.ts';
+import { loadNoteLinks, noteLinksFrom } from './note-link-data.ts';
 import { emptyValueDetails, loadValueDetails } from './value-details.ts';
 import { findSubject, isValueKind } from './value-pages.ts';
 import type { ValuePageResult } from './types.ts';
@@ -23,9 +24,10 @@ export async function loadValuePage(
 ): Promise<ValuePageResult> {
 	if (!isValueKind(kind)) return failed(m.valuePage.notFound, true);
 
-	const [cardIndex, atelier] = await Promise.all([
+	const [cardIndex, atelier, editorLinks] = await Promise.all([
 		loadCardIndex(),
-		withArtworks ? loadAtelier() : Promise.resolve({ artworks: [] })
+		withArtworks ? loadAtelier() : Promise.resolve({ artworks: [] }),
+		withArtworks ? Promise.resolve(undefined) : loadNoteLinks()
 	]);
 	const loadError = cardIndex.error ?? ('error' in atelier ? atelier.error : undefined);
 	if (loadError) return failed(loadError);
@@ -36,5 +38,7 @@ export async function loadValuePage(
 	const { details, error } = await loadValueDetails(subject);
 	if (error) return failed(error);
 
-	return { subject, index: cardIndex.index, artworks: atelier.artworks, details };
+	const noteLinks =
+		editorLinks ?? (withArtworks ? noteLinksFrom(cardIndex.index, atelier.artworks) : undefined);
+	return { subject, index: cardIndex.index, artworks: atelier.artworks, details, noteLinks };
 }

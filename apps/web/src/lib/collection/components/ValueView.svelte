@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ArtworkImage, Icon, Notes, Section } from '@study-atelier/ui';
+	import { ArtworkImage, Icon, Notes, type NoteLinks, Section } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
 	import { eraIcon } from '../eras.ts';
@@ -12,9 +12,10 @@
 		parents: ValueParent[];
 		count: number;
 		details: ValueDetails;
+		noteLinks?: NoteLinks;
 	};
 
-	let { subject, parents, count, details }: Props = $props();
+	let { subject, parents, count, details, noteLinks }: Props = $props();
 
 	const PORTRAIT_WIDTH = 500;
 
@@ -91,7 +92,7 @@
 			{#if details.notes}
 				<section class="notes" aria-labelledby="value-notes">
 					<h2 id="value-notes" class="label">{m.valuePage.notes}</h2>
-					<Notes value={details.notes} />
+					<Notes links={noteLinks} value={details.notes} />
 				</section>
 			{/if}
 		{/if}

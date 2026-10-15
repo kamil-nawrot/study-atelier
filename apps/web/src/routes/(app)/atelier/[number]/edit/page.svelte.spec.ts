@@ -60,6 +60,7 @@ function renderPage(result: LoadArtworkResult = { artwork: artwork() }, number =
 			session: testSession(),
 			values: emptyCategoryValues(),
 			links: emptyValueLinks(),
+			noteLinks: undefined,
 			...result
 		},
 		params: { number }

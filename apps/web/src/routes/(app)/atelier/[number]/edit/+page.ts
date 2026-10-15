@@ -1,5 +1,6 @@
 import { loadArtwork } from '#lib/collection/artwork-record.ts';
 import { emptyCategoryValues, loadCategoryValues } from '#lib/collection/category-values.ts';
+import { loadNoteLinks } from '#lib/collection/note-link-data.ts';
 import { emptyValueLinks, loadValueLinks } from '#lib/collection/value-links.ts';
 import { parseRecordNumber } from '#lib/collection/format.ts';
 import { m } from '#lib/i18n/index.ts';
@@ -10,12 +11,18 @@ export const load: PageLoad = async ({ params }) => {
 	const number = parseRecordNumber(params.number);
 	if (number === null) {
 		const missing: LoadArtworkResult = { error: m.artworkErrors.notFound, notFound: true };
-		return { ...missing, values: emptyCategoryValues(), links: emptyValueLinks() };
+		return {
+			...missing,
+			values: emptyCategoryValues(),
+			links: emptyValueLinks(),
+			noteLinks: undefined
+		};
 	}
-	const [result, categories, linked] = await Promise.all([
+	const [result, categories, linked, noteLinks] = await Promise.all([
 		loadArtwork(number),
 		loadCategoryValues(),
-		loadValueLinks()
+		loadValueLinks(),
+		loadNoteLinks()
 	]);
-	return { ...result, values: categories.values, links: linked.links };
+	return { ...result, values: categories.values, links: linked.links, noteLinks };
 };

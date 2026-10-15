@@ -26,7 +26,12 @@ export const pl = {
 			italic: 'Kursywa',
 			heading: 'Nagłówek',
 			bulletedList: 'Lista punktowana',
-			numberedList: 'Lista numerowana'
+			numberedList: 'Lista numerowana',
+			linkValue: 'Dodaj odnośnik do autora, epoki, miejsca…',
+			linkArtwork: 'Dodaj odnośnik do dzieła',
+			linkSuggestions: 'Podpowiedzi odnośników',
+			noValueFound: 'Nie masz jeszcze takiej wartości w Kartotece.',
+			noArtworkFound: 'Nie masz w kolekcji dzieła o takim numerze ani tytule.'
 		},
 		valueField: {
 			existing: 'Już używane',
@@ -309,6 +314,8 @@ export const pl = {
 		locationHint: 'Gdzie dzieło jest teraz. Jedna wartość.',
 		notes: 'Notatki',
 		notesPlaceholder: 'Co warto zapamiętać, skąd znasz to dzieło',
+		notesLinkHint:
+			'Wpisz @, żeby dodać odnośnik do autora, epoki albo miejsca, albo #, żeby dodać odnośnik do dzieła.',
 		cancel: 'Anuluj',
 		saveAndNext: 'Zapisz i dodaj kolejne',
 		save: 'Zapisz',
@@ -603,6 +610,8 @@ export const pl = {
 		summaryPlaceholder: 'Krótki opis do szybkiego podejrzenia przy oglądaniu dzieła.',
 		notes: 'Notatki',
 		notesPlaceholder: 'Wszystko, co warto zapamiętać',
+		notesLinkHint:
+			'Wpisz @, żeby dodać odnośnik do autora, epoki albo miejsca, albo #, żeby dodać odnośnik do dzieła.',
 		errorTitle: 'Nie udało się zapisać zmian',
 		discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.',
 		portrait: {
