@@ -4,16 +4,15 @@
 	import { Alert, ArtworkImage, Button, Dialog, Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { findImageCandidates } from '../image-search.ts';
-	import type { ImageCandidate, ImageSearchResult } from '../types.ts';
+	import type { ImageCandidate, ImageSearchQuery, ImageSearchResult } from '../types.ts';
 
 	type Props = {
-		title: string;
-		authors: string[];
+		query: ImageSearchQuery;
 		open?: boolean;
 		onpick: (candidate: ImageCandidate) => void;
 	};
 
-	let { title, authors, open = $bindable(false), onpick }: Props = $props();
+	let { query, open = $bindable(false), onpick }: Props = $props();
 
 	let searching = $state(true);
 	let result = $state<ImageSearchResult>({ candidates: [] });
@@ -23,7 +22,7 @@
 	async function run(): Promise<void> {
 		const current = ++search;
 		searching = true;
-		const found = await findImageCandidates({ title: title.trim(), authors });
+		const found = await findImageCandidates(query);
 		if (current !== search) return;
 		result = found;
 		searching = false;
@@ -47,27 +46,40 @@
 
 {#snippet caption(candidate: ImageCandidate)}
 	<span class="caption">
-		<cite class="artwork-title">
-			{candidate.title}
-		</cite>
-		<span class="meta">
-			<span>
-				{authorText(candidate)}
+		{#if query.kind === 'person'}
+			<span class="name">
+				{candidate.title}
 			</span>
 			{#if candidate.date}
-				<span aria-hidden="true">·</span>
-				<span class="date">
+				<span class="meta date">
 					{candidate.date}
 				</span>
 			{/if}
-		</span>
+		{:else}
+			<cite class="artwork-title">
+				{candidate.title}
+			</cite>
+			<span class="meta">
+				<span>
+					{authorText(candidate)}
+				</span>
+				{#if candidate.date}
+					<span aria-hidden="true">·</span>
+					<span class="date">
+						{candidate.date}
+					</span>
+				{/if}
+			</span>
+		{/if}
 	</span>
 {/snippet}
 
 <Dialog
-	description={m.imageSearch.description(title.trim(), authors.join(', '))}
+	description={query.kind === 'person'
+		? m.imageSearch.personDescription(query.name.trim())
+		: m.imageSearch.description(query.title.trim(), query.authors.join(', '))}
 	onclose={() => search++}
-	title={m.imageSearch.title}
+	title={query.kind === 'person' ? m.imageSearch.personTitle : m.imageSearch.title}
 	bind:open
 >
 	{#if searching}
@@ -88,7 +100,7 @@
 		</div>
 	{:else if result.candidates.length === 0}
 		<p class="status" role="status">
-			{m.imageSearch.empty}
+			{query.kind === 'person' ? m.imageSearch.personEmpty : m.imageSearch.empty}
 		</p>
 	{:else}
 		<ul bind:this={list} class="candidates">
@@ -112,7 +124,7 @@
 
 	{#snippet footer()}
 		<Button onclick={() => (open = false)}>
-			{m.imageSearch.none}
+			{query.kind === 'person' ? m.imageSearch.personNone : m.imageSearch.none}
 		</Button>
 	{/snippet}
 </Dialog>
@@ -165,7 +177,8 @@
 		padding: var(--spacing-2) 0 var(--spacing-3);
 	}
 
-	.artwork-title {
+	.artwork-title,
+	.name {
 		color: var(--color-mat-fg);
 		text-wrap: balance;
 	}
@@ -183,7 +196,8 @@
 		white-space: nowrap;
 	}
 
-	.candidate:hover .artwork-title {
+	.candidate:hover .artwork-title,
+	.candidate:hover .name {
 		text-decoration: underline;
 		text-decoration-thickness: var(--border-width-hairline);
 		text-underline-offset: 0.2em;

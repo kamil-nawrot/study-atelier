@@ -1,16 +1,27 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
+import { ownImageUrl, removeOwnImage, uploadOwnImage } from '#lib/images/own-image.ts';
 import { supabase } from '#lib/supabase.ts';
+import { emptyAuthorDetails } from './author-form.ts';
 import type { ValueSubject } from './types.ts';
 import { loadValueDetails, saveValueDetails, valueDetailsChanged } from './value-details.ts';
 
 vi.mock('#lib/supabase.ts', () => ({ supabase: { rpc: vi.fn(), from: vi.fn() } }));
+vi.mock('#lib/images/own-image.ts', () => ({
+	uploadOwnImage: vi.fn(),
+	removeOwnImage: vi.fn(),
+	ownImageUrl: vi.fn()
+}));
 
 const style: ValueSubject = {
 	kind: 'style',
 	record: { id: 's1', category: 'style', name: 'Doric', count: 1 }
 };
 const era: ValueSubject = { kind: 'era', code: 'antiquity' };
+const author: ValueSubject = {
+	kind: 'author',
+	record: { id: 'a1', category: 'author', name: 'Leonardo da Vinci', count: 1 }
+};
 
 function detailsTable(row: unknown, error: unknown = null): { eq: ReturnType<typeof vi.fn> } {
 	const query = {
@@ -98,5 +109,130 @@ describe('valueDetailsChanged', () => {
 		expect(valueDetailsChanged({ summary: 'A', notes: 'x' }, { summary: 'A', notes: '' })).toBe(
 			true
 		);
+	});
+});
+
+describe('author details', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		vi.mocked(supabase.rpc).mockResolvedValue({ error: null } as never);
+	});
+
+	it('reads the portrait, the years of life and the sort name', async () => {
+		vi.mocked(ownImageUrl).mockResolvedValue('https://signed.example/portrait.jpg');
+		detailsTable({
+			summary: null,
+			notes: null,
+			birth_year: 1452,
+			death_year: 1519,
+			years_approximate: false,
+			sort_name: 'Vinci, Leonardo da',
+			own_image_path: 'owner/portrait.jpg',
+			image_width: 400,
+			image_height: 500
+		});
+
+		const { details } = await loadValueDetails(author);
+
+		expect(supabase.from).toHaveBeenCalledWith('author_details');
+		expect(details.author).toEqual({
+			image: {
+				kind: 'upload',
+				path: 'owner/portrait.jpg',
+				width: 400,
+				height: 500,
+				previewUrl: 'https://signed.example/portrait.jpg'
+			},
+			birthYear: 1452,
+			deathYear: 1519,
+			yearsApproximate: false,
+			sortName: 'Vinci, Leonardo da'
+		});
+	});
+
+	it('gives an author without a row empty details', async () => {
+		detailsTable(null);
+
+		const { details } = await loadValueDetails(author);
+
+		expect(details.author).toEqual(emptyAuthorDetails());
+	});
+
+	it('uploads a new portrait, saves its path and removes the previous upload', async () => {
+		vi.mocked(uploadOwnImage).mockResolvedValue({ path: 'owner/new.jpg' });
+		const file = new File(['x'], 'new.jpg', { type: 'image/jpeg' });
+
+		await saveValueDetails(
+			author,
+			{
+				summary: '',
+				notes: '',
+				author: {
+					...emptyAuthorDetails(),
+					image: { kind: 'file', file, previewUrl: 'blob:x', width: 4, height: 5 },
+					birthYear: 1452
+				}
+			},
+			{
+				summary: '',
+				notes: '',
+				author: {
+					...emptyAuthorDetails(),
+					image: { kind: 'upload', path: 'owner/old.jpg', width: 4, height: 5 }
+				}
+			}
+		);
+
+		expect(supabase.rpc).toHaveBeenCalledWith('save_value_details', {
+			target_value: 'a1',
+			details: expect.objectContaining({
+				birth_year: 1452,
+				death_year: null,
+				own_image_path: 'owner/new.jpg',
+				source_image_file: null,
+				image_width: 4
+			})
+		});
+		expect(removeOwnImage).toHaveBeenCalledWith('owner/old.jpg');
+		expect(removeOwnImage).not.toHaveBeenCalledWith('owner/new.jpg');
+	});
+
+	it('removes the new upload when saving fails and keeps the previous one', async () => {
+		vi.mocked(uploadOwnImage).mockResolvedValue({ path: 'owner/new.jpg' });
+		vi.mocked(supabase.rpc).mockResolvedValue({ error: { code: '23514' } } as never);
+		const file = new File(['x'], 'new.jpg', { type: 'image/jpeg' });
+
+		const result = await saveValueDetails(
+			author,
+			{
+				summary: '',
+				notes: '',
+				author: {
+					...emptyAuthorDetails(),
+					image: { kind: 'file', file, previewUrl: 'blob:x', width: 4, height: 5 }
+				}
+			},
+			{
+				summary: '',
+				notes: '',
+				author: {
+					...emptyAuthorDetails(),
+					image: { kind: 'upload', path: 'owner/old.jpg', width: 4, height: 5 }
+				}
+			}
+		);
+
+		expect(result.error).toBe(m.cardIndex.errors.changed);
+		expect(removeOwnImage).toHaveBeenCalledWith('owner/new.jpg');
+		expect(removeOwnImage).not.toHaveBeenCalledWith('owner/old.jpg');
+	});
+
+	it('sends only the text for a value that is not an author', async () => {
+		await saveValueDetails(style, { summary: 'x', notes: '' });
+
+		expect(supabase.rpc).toHaveBeenCalledWith('save_value_details', {
+			target_value: 's1',
+			details: { summary: 'x', notes: '' }
+		});
 	});
 });

@@ -6,6 +6,7 @@ import { refreshExpiredImages, resolveImages } from '#lib/collection/artworks.ts
 import { deleteValue } from '#lib/collection/card-index-data.ts';
 import { findRecord } from '#lib/collection/card-index.ts';
 import type { ValueDetails, ValueSubject, WallArtwork } from '#lib/collection/types.ts';
+import { emptyAuthorDetails } from '#lib/collection/author-form.ts';
 import { emptyValueDetails } from '#lib/collection/value-details.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
@@ -212,6 +213,38 @@ describe('value page', () => {
 		renderValue(undefined, emptyValueDetails(), { error: m.collectionErrors.network });
 
 		await expect.element(page.getByText(m.collectionErrors.network)).toBeVisible();
+	});
+
+	it('shows the portrait of an author and the years of life under the name', async () => {
+		renderValue(subjectOf('author-phidias'), {
+			summary: '',
+			notes: '',
+			author: {
+				...emptyAuthorDetails(),
+				image: { kind: 'url', url: 'https://images.example/phidias.jpg', width: 4, height: 5 },
+				birthYear: -480,
+				deathYear: -430,
+				yearsApproximate: true
+			}
+		});
+
+		await expect
+			.element(page.getByRole('article').getByRole('img', { name: 'Phidias' }))
+			.toHaveAttribute('src', 'https://images.example/phidias.jpg');
+		await expect.element(page.getByText('ok. 480–430 p.n.e.')).toBeVisible();
+	});
+
+	it('shows no portrait for an author without one', async () => {
+		renderValue(subjectOf('author-phidias'), {
+			summary: '',
+			notes: '',
+			author: emptyAuthorDetails()
+		});
+
+		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Phidias');
+		expect(page.getByRole('article').getByRole('img', { name: 'Phidias' }).elements()).toHaveLength(
+			0
+		);
 	});
 
 	describe('deleting', () => {

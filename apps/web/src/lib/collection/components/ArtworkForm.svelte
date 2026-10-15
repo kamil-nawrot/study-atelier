@@ -33,8 +33,10 @@
 	import { formatRecordNumber } from '../format.ts';
 	import { UnsavedChanges } from '../unsaved-changes.svelte.ts';
 	import { suggestValues, valueKey } from '../value-suggestions.ts';
-	import ArtworkImageField from './ArtworkImageField.svelte';
 	import DiscardDialog from './DiscardDialog.svelte';
+	import ImageField from './ImageField.svelte';
+	import YearGroup from './YearGroup.svelte';
+	import YearInput from './YearInput.svelte';
 	import DuplicateDialog from './DuplicateDialog.svelte';
 	import type {
 		ArtworkFieldErrors,
@@ -44,6 +46,7 @@
 		CategoryCode,
 		CategoryValues,
 		EraCode,
+		ImageFieldTexts,
 		ValueLinks,
 		ValueSuggestion
 	} from '../types.ts';
@@ -63,9 +66,19 @@
 
 	const titleId = $props.id();
 	const formErrorId = `${titleId}-error`;
-	const dateTitleId = `${titleId}-date`;
 	const yearToId = `${titleId}-year-to`;
 	const typeOptions = artworkTypeOptions();
+	const imageTexts: ImageFieldTexts = {
+		label: m.artworkForm.image,
+		find: m.artworkForm.findImage,
+		findOther: m.artworkForm.chooseOtherImage,
+		findHint: m.artworkForm.findImageHint,
+		own: m.artworkForm.ownImage,
+		changeOwn: m.artworkForm.changeOwnImage,
+		ownTitle: m.artworkForm.ownImageTitle,
+		changeOwnTitle: m.artworkForm.changeOwnImageTitle,
+		remove: m.artworkForm.removeImage
+	};
 	const eraOptions = eraTiles();
 	const describedCategories: { code: 'material' | 'location'; label: string }[] = [
 		{ code: 'material', label: m.artworkForm.material },
@@ -220,11 +233,15 @@
 	{/if}
 
 	<div class="columns">
-		<ArtworkImageField
+		<ImageField
 			alt={imageAlt}
-			searchAuthors={form.authorUnknown ? [] : form.values.author}
+			query={{
+				kind: 'artwork',
+				title: form.title,
+				authors: form.authorUnknown ? [] : form.values.author
+			}}
 			searchReady={imageSearchReady}
-			searchTitle={form.title}
+			texts={imageTexts}
 			bind:image={form.image}
 		/>
 
@@ -253,59 +270,35 @@
 				/>
 			</div>
 
-			<div class="date" aria-labelledby={dateTitleId} role="group">
-				<div class="date-head">
-					<svelte:element
-						this={form.spanMode ? 'span' : 'label'}
-						id={dateTitleId}
-						class="date-title"
-						for={form.spanMode ? undefined : yearToId}
-					>
-						{form.spanMode ? m.artworkForm.spanTitle : m.artworkForm.year}
-					</svelte:element>
-					<div class="date-aside">
-						<Checkbox label={m.artworkForm.yearApproximate} bind:checked={form.yearApproximate} />
-						<Switch label={m.artworkForm.spanSwitch} bind:checked={form.spanMode} />
-					</div>
-				</div>
-				<div class="date-inputs" class:year-span={form.spanMode}>
-					{#if form.spanMode}
-						<div class="date-end">
-							<TextField
-								autocomplete="off"
-								error={fieldErrors.yearFrom}
-								hideLabel
-								inputmode="numeric"
-								label={m.artworkForm.spanFrom}
-								placeholder={m.artworkForm.spanFrom}
-								bind:value={form.yearFrom}
-							/>
-							<Checkbox
-								aria-label={m.artworkForm.beforeCommonEraFrom}
-								label={m.artworkForm.beforeCommonEra}
-								bind:checked={form.fromBeforeCommonEra}
-							/>
-						</div>
-					{/if}
-					<div class="date-end">
-						<TextField
-							id={yearToId}
-							autocomplete="off"
-							error={fieldErrors.yearTo}
-							hideLabel
-							inputmode="numeric"
-							label={form.spanMode ? m.artworkForm.spanTo : m.artworkForm.year}
-							placeholder={form.spanMode ? m.artworkForm.spanTo : undefined}
-							bind:value={form.yearTo}
-						/>
-						<Checkbox
-							aria-label={form.spanMode ? m.artworkForm.beforeCommonEraTo : undefined}
-							label={m.artworkForm.beforeCommonEra}
-							bind:checked={form.toBeforeCommonEra}
-						/>
-					</div>
-				</div>
-			</div>
+			<YearGroup
+				columns={form.spanMode}
+				labelFor={form.spanMode ? undefined : yearToId}
+				title={form.spanMode ? m.artworkForm.spanTitle : m.artworkForm.year}
+			>
+				{#snippet aside()}
+					<Checkbox label={m.artworkForm.yearApproximate} bind:checked={form.yearApproximate} />
+					<Switch label={m.artworkForm.spanSwitch} bind:checked={form.spanMode} />
+				{/snippet}
+				{#if form.spanMode}
+					<YearInput
+						beforeCommonEraLabel={m.artworkForm.beforeCommonEraFrom}
+						error={fieldErrors.yearFrom}
+						label={m.artworkForm.spanFrom}
+						placeholder={m.artworkForm.spanFrom}
+						bind:value={form.yearFrom}
+						bind:beforeCommonEra={form.fromBeforeCommonEra}
+					/>
+				{/if}
+				<YearInput
+					id={yearToId}
+					beforeCommonEraLabel={form.spanMode ? m.artworkForm.beforeCommonEraTo : undefined}
+					error={fieldErrors.yearTo}
+					label={form.spanMode ? m.artworkForm.spanTo : m.artworkForm.year}
+					placeholder={form.spanMode ? m.artworkForm.spanTo : undefined}
+					bind:value={form.yearTo}
+					bind:beforeCommonEra={form.toBeforeCommonEra}
+				/>
+			</YearGroup>
 
 			<Select
 				label={m.artworkForm.type}
@@ -399,49 +392,6 @@
 	.group {
 		display: grid;
 		gap: var(--spacing-3);
-	}
-
-	.date {
-		display: grid;
-		gap: var(--spacing-2);
-	}
-
-	.date-head {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-		align-items: baseline;
-		gap: var(--spacing-3);
-	}
-
-	.date-title {
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-medium);
-		line-height: var(--line-height-sm);
-	}
-
-	.date-aside {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-4);
-	}
-
-	.date-inputs {
-		display: grid;
-		gap: var(--spacing-3);
-	}
-
-	.date-inputs.year-span {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: var(--spacing-4);
-	}
-
-	.date-end {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr);
-		align-content: start;
-		gap: var(--spacing-3);
-		min-width: 0;
 	}
 
 	@media (min-width: 768px) {

@@ -192,11 +192,15 @@ begin
     from public.category_values as value
     where value.owner_id = tester and value.category_code = 'material' and value.name = 'olej na płótnie';
 
-  insert into public.author_details (value_id, owner_id, summary, notes, birth_year, death_year, sort_name)
+  insert into public.author_details (
+    value_id, owner_id, summary, notes, birth_year, death_year, sort_name,
+    source_wikidata_id, source_image_file, source_image_licence
+  )
   select value.id, tester,
     'Malarz, rzeźbiarz, inżynier i badacz natury; mistrz sfumato.',
     E'**Najważniejsze dzieła:** Mona Lisa, Ostatnia Wieczerza, Dama z gronostajem.',
-    1452, 1519, 'Vinci, Leonardo da'
+    1452, 1519, 'Vinci, Leonardo da',
+    'Q762', 'Francesco Melzi - Portrait of Leonardo.png', 'Public domain'
     from public.category_values as value
     where value.owner_id = tester and value.category_code = 'author' and value.name = 'Leonardo da Vinci';
 

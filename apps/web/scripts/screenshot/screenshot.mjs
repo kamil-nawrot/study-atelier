@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import {
 	ARTWORKS,
+	PEOPLE,
 	PERIOD_ERA_USAGE,
 	STYLE_PERIOD_USAGE,
 	VALUE_DETAILS,
@@ -202,9 +203,15 @@ async function mockImages(context) {
 		return json(route, { query: { pages } });
 	});
 
-	await context.route(/^https:\/\/(query\.wikidata|www\.wikidata)\.org\//, (route) =>
-		json(route, { results: { bindings: [] }, search: [], entities: {} })
-	);
+	await context.route(/^https:\/\/(query\.wikidata|www\.wikidata)\.org\//, (route) => {
+		const query = new URL(route.request().url()).searchParams.get('query') ?? '';
+		const bindings = query.includes('wd:Q5;')
+			? PEOPLE.map((person) =>
+					Object.fromEntries(Object.entries(person).map(([key, value]) => [key, { value }]))
+				)
+			: [];
+		return json(route, { results: { bindings }, search: [], entities: {} });
+	});
 }
 
 async function waitForServer(base, attempts = 120) {

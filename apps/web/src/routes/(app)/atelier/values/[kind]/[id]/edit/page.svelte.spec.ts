@@ -5,6 +5,7 @@ import { beforeNavigate, goto } from '$app/navigation';
 import { loadValuePageContent, saveValue } from '#lib/collection/card-index-data.ts';
 import { findRecord } from '#lib/collection/card-index.ts';
 import type { ValueDetails, ValueSubject } from '#lib/collection/types.ts';
+import { emptyAuthorDetails } from '#lib/collection/author-form.ts';
 import { emptyValueDetails, saveValueDetails } from '#lib/collection/value-details.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testCardIndex } from '#lib/testing/card-index.ts';
@@ -98,10 +99,11 @@ describe('edit value page', () => {
 		await page.getByLabelText(m.valueForm.summary).fill('Plain capitals.');
 		await saveButton().click();
 
-		expect(saveValueDetails).toHaveBeenCalledWith(subjectOf('style-doric'), {
-			summary: 'Plain capitals.',
-			notes: ''
-		});
+		expect(saveValueDetails).toHaveBeenCalledWith(
+			subjectOf('style-doric'),
+			{ summary: 'Plain capitals.', notes: '' },
+			emptyValueDetails()
+		);
 		expect(goto).toHaveBeenCalledWith('/atelier/values/style/style-doric', {
 			replace: true,
 			state: { valueMessage: m.valuePage.saved }
@@ -209,7 +211,8 @@ describe('edit value page', () => {
 
 		expect(saveValueDetails).toHaveBeenCalledWith(
 			{ kind: 'era', code: 'antiquity' },
-			{ summary: 'Greece and Rome.', notes: '' }
+			{ summary: 'Greece and Rome.', notes: '' },
+			emptyValueDetails()
 		);
 		expect(saveValue).not.toHaveBeenCalled();
 		expect(goto).toHaveBeenCalledWith('/atelier/values/era/antiquity', {
@@ -480,6 +483,85 @@ describe('edit value page', () => {
 			await expect.element(nameField()).toBeVisible();
 			expect(page.getByRole('group', { name: m.valueForm.eras }).elements()).toHaveLength(0);
 			expect(page.getByRole('group', { name: m.valueForm.periods }).elements()).toHaveLength(0);
+		});
+	});
+
+	describe('author', () => {
+		it('shows the portrait actions, the years of life and the sort name box', async () => {
+			renderEdit(subjectOf('author-phidias'));
+
+			await expect
+				.element(page.getByRole('button', { name: m.valueForm.portrait.find }))
+				.toBeEnabled();
+			await expect
+				.element(page.getByRole('button', { name: m.valueForm.portrait.own }))
+				.toBeVisible();
+			await expect.element(page.getByRole('group', { name: m.valueForm.lifeYears })).toBeVisible();
+			await expect.element(page.getByLabelText(m.valueForm.birthYear)).toBeVisible();
+			await expect.element(page.getByLabelText(m.valueForm.deathYear)).toBeVisible();
+			expect(page.getByLabelText(m.valueForm.sortName, { exact: true }).elements()).toHaveLength(0);
+
+			await page.getByText(m.valueForm.sortByOther).click();
+
+			await expect
+				.element(page.getByLabelText(m.valueForm.sortName, { exact: true }))
+				.toBeVisible();
+			await expect.element(page.getByText(m.valueForm.sortNameHint)).toBeVisible();
+		});
+
+		it('fills the form from the saved details', async () => {
+			renderEdit(subjectOf('author-phidias'), {
+				summary: '',
+				notes: '',
+				author: { ...emptyAuthorDetails(), birthYear: -480, deathYear: -430, sortName: 'Fidiasz' }
+			});
+
+			await expect.element(page.getByLabelText(m.valueForm.birthYear)).toHaveValue('480');
+			await expect
+				.element(page.getByRole('checkbox', { name: m.valueForm.birthBeforeCommonEra }))
+				.toBeChecked();
+			await expect
+				.element(page.getByLabelText(m.valueForm.sortName, { exact: true }))
+				.toHaveValue('Fidiasz');
+		});
+
+		it('rejects a death before the birth and saves nothing', async () => {
+			renderEdit(subjectOf('author-phidias'));
+
+			await page.getByLabelText(m.valueForm.birthYear).fill('1519');
+			await page.getByLabelText(m.valueForm.deathYear).fill('1452');
+			await saveButton().click();
+
+			await expect.element(page.getByText(m.valueForm.lifeYearsOrder)).toBeVisible();
+			expect(saveValueDetails).not.toHaveBeenCalled();
+			expect(saveValue).not.toHaveBeenCalled();
+		});
+
+		it('saves the years of life and the sort name with the loaded details as the previous ones', async () => {
+			const loaded = { summary: '', notes: '', author: emptyAuthorDetails() };
+			renderEdit(subjectOf('author-phidias'), loaded);
+
+			await page.getByLabelText(m.valueForm.birthYear).fill('480');
+			await page.getByText(m.artworkForm.beforeCommonEra).first().click();
+			await page.getByText(m.valueForm.sortByOther).click();
+			await page.getByLabelText(m.valueForm.sortName, { exact: true }).fill('Fidiasz');
+			await saveButton().click();
+
+			expect(saveValueDetails).toHaveBeenCalledWith(
+				subjectOf('author-phidias'),
+				{
+					summary: '',
+					notes: '',
+					author: {
+						image: null,
+						birthYear: -480,
+						deathYear: null,
+						yearsApproximate: false,
+						sortName: 'Fidiasz'
+					}
+				},
+				loaded
+			);
 		});
 	});
 });
