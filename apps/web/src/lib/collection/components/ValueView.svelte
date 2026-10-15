@@ -1,7 +1,9 @@
 <script lang="ts">
-	import { Icon, Notes, Section } from '@study-atelier/ui';
+	import { ArtworkImage, Icon, Notes, Section } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
+	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
 	import { eraIcon } from '../eras.ts';
+	import { formatLifeYears } from '../format.ts';
 	import { subjectName, valueKindName, valuePath, type ValueParent } from '../value-pages.ts';
 	import type { ValueDetails, ValueSubject } from '../types.ts';
 
@@ -14,56 +16,86 @@
 
 	let { subject, parents, count, details }: Props = $props();
 
+	const PORTRAIT_WIDTH = 500;
+
 	let empty = $derived(details.summary === '' && details.notes === '');
 	let name = $derived(subjectName(subject));
+	let author = $derived(details.author);
+	let portrait = $derived(artworkImageSource(author?.image ?? null, PORTRAIT_WIDTH));
+	let credit = $derived(artworkImageCredit(author?.image ?? null));
+	let lifeYears = $derived(
+		author && formatLifeYears(author.birthYear, author.deathYear, author.yearsApproximate)
+	);
 	let title = $derived(
 		subject.kind === 'era' ? `${name.charAt(0).toLocaleUpperCase()}${name.slice(1)}` : name
 	);
 </script>
 
-<article>
-	<header>
-		<p class="kind">
-			{#if subject.kind === 'era'}
-				<span class="mark" aria-hidden="true">
-					<Icon icon={eraIcon(subject.code)} size="sm" />
-				</span>
+<article class:with-portrait={portrait}>
+	{#if portrait}
+		<figure class="portrait">
+			<div class="mat">
+				<ArtworkImage
+					alt={name}
+					height={portrait.height}
+					sizes="(min-width: 768px) 320px, 100vw"
+					src={portrait.src}
+					srcset={portrait.srcset}
+					width={portrait.width}
+				/>
+			</div>
+			{#if credit}
+				<figcaption class="caption">{credit}</figcaption>
 			{/if}
-			{m.valuePage.header(valueKindName(subject.kind), m.atelier.count(count))}
-		</p>
-		<h1>{title}</h1>
-		{#if subject.kind === 'era'}
-			<p class="caption">{m.eras[subject.code].years}</p>
-		{/if}
-		{#if parents.length > 0}
-			<p class="caption parents">
-				{#each parents as parent (parent.id)}
-					<a href={valuePath(parent.kind, parent.id)}>
-						{#if parent.era}
-							<Icon icon={eraIcon(parent.era)} size="sm" />
-						{/if}
-						{parent.name}
-					</a>
-				{/each}
-			</p>
-		{/if}
-	</header>
-
-	{#if empty}
-		<p class="empty">{m.valuePage.kinds[subject.kind].noNotes}</p>
-	{:else}
-		{#if details.summary}
-			<Section>
-				<p class="summary">{details.summary}</p>
-			</Section>
-		{/if}
-		{#if details.notes}
-			<section class="notes" aria-labelledby="value-notes">
-				<h2 id="value-notes" class="label">{m.valuePage.notes}</h2>
-				<Notes value={details.notes} />
-			</section>
-		{/if}
+		</figure>
 	{/if}
+	<div class="text">
+		<header>
+			<p class="kind">
+				{#if subject.kind === 'era'}
+					<span class="mark" aria-hidden="true">
+						<Icon icon={eraIcon(subject.code)} size="sm" />
+					</span>
+				{/if}
+				{m.valuePage.header(valueKindName(subject.kind), m.atelier.count(count))}
+			</p>
+			<h1>{title}</h1>
+			{#if subject.kind === 'era'}
+				<p class="caption">{m.eras[subject.code].years}</p>
+			{/if}
+			{#if lifeYears}
+				<p class="caption">{lifeYears}</p>
+			{/if}
+			{#if parents.length > 0}
+				<p class="caption parents">
+					{#each parents as parent (parent.id)}
+						<a href={valuePath(parent.kind, parent.id)}>
+							{#if parent.era}
+								<Icon icon={eraIcon(parent.era)} size="sm" />
+							{/if}
+							{parent.name}
+						</a>
+					{/each}
+				</p>
+			{/if}
+		</header>
+
+		{#if empty}
+			<p class="empty">{m.valuePage.kinds[subject.kind].noNotes}</p>
+		{:else}
+			{#if details.summary}
+				<Section>
+					<p class="summary">{details.summary}</p>
+				</Section>
+			{/if}
+			{#if details.notes}
+				<section class="notes" aria-labelledby="value-notes">
+					<h2 id="value-notes" class="label">{m.valuePage.notes}</h2>
+					<Notes value={details.notes} />
+				</section>
+			{/if}
+		{/if}
+	</div>
 </article>
 
 <style>
@@ -75,12 +107,37 @@
 	}
 
 	article {
+		gap: var(--spacing-8);
+	}
+
+	.text {
+		display: grid;
+		align-content: start;
 		gap: var(--spacing-6);
 		max-width: var(--size-content-default);
 	}
 
 	header {
 		gap: var(--spacing-2);
+	}
+
+	.portrait {
+		display: grid;
+		align-self: start;
+		gap: var(--spacing-2);
+		margin: 0;
+	}
+
+	.mat {
+		padding: var(--spacing-2);
+		background: var(--color-mat-bg);
+	}
+
+	.mat :global(img) {
+		display: block;
+		width: 100%;
+		height: auto;
+		background: var(--color-mat-window);
 	}
 
 	.kind,
@@ -142,5 +199,12 @@
 
 	.empty {
 		color: var(--color-fg-muted);
+	}
+
+	@media (min-width: 768px) {
+		article.with-portrait {
+			grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+			gap: var(--spacing-12);
+		}
 	}
 </style>

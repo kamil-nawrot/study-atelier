@@ -4,7 +4,9 @@ export const IMAGE_HOST = 'https://images.mock.test';
 const COMMONS_SIZES = {
 	'Mona_Lisa.jpg': [4, 6],
 	'The_Starry_Night.jpg': [5, 4],
-	'Girl_with_a_Pearl_Earring.jpg': [4, 5]
+	'Girl_with_a_Pearl_Earring.jpg': [4, 5],
+	'Portrait_of_Leonardo.jpg': [3, 4],
+	'Self-portrait_in_red_chalk.jpg': [2, 3]
 };
 
 const PALETTE = [
@@ -222,6 +224,18 @@ export const VALUE_DETAILS = {
 			notes: '### What to look for\n\nLinear perspective, chiaroscuro and bodies built on anatomy.'
 		}
 	],
+	author_details: [
+		{
+			value_id: valueId('author', 'Leonardo da Vinci'),
+			summary: 'Painter, sculptor, engineer and student of nature; the master of sfumato.',
+			notes: '**Key works:** Mona Lisa, The Last Supper, Lady with an Ermine.',
+			birth_year: 1452,
+			death_year: 1519,
+			years_approximate: false,
+			sort_name: 'Vinci, Leonardo da',
+			...commonsImage('Portrait_of_Leonardo.jpg')
+		}
+	],
 	period_details: [
 		{
 			value_id: valueId('period', 'Renaissance'),
@@ -230,6 +244,23 @@ export const VALUE_DETAILS = {
 		}
 	]
 };
+
+export const PEOPLE = [
+	{
+		item: 'http://www.wikidata.org/entity/Q762',
+		name: 'Leonardo da Vinci',
+		file: 'http://commons.wikimedia.org/wiki/Special:FilePath/Portrait_of_Leonardo.jpg',
+		born: '1452-04-15T00:00:00Z/11',
+		died: '1519-05-02T00:00:00Z/11'
+	},
+	{
+		item: 'http://www.wikidata.org/entity/Q2',
+		name: 'Leonardo da Vinci (self-portrait)',
+		file: 'http://commons.wikimedia.org/wiki/Special:FilePath/Self-portrait_in_red_chalk.jpg',
+		born: '1452-01-01T00:00:00Z/9',
+		died: '1519-01-01T00:00:00Z/9'
+	}
+];
 
 export const USER = {
 	id: '11111111-1111-4111-8111-111111111111',
