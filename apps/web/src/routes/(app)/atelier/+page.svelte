@@ -59,6 +59,7 @@
 	let order = $state<WallOrder>(rememberedWallOrder());
 	let filter = $state(filterFromParams(page.url.searchParams));
 	let panelOpen = $state(false);
+	let panelMounted = $state(false);
 	let viewOpen = $state(false);
 	let barHeight = $state(0);
 	let wall = $state<HTMLElement>();
@@ -66,6 +67,7 @@
 
 	const tracker = new PeriodTracker();
 	const wide = new MediaQuery('min-width: 768px');
+	const motion = new MediaQuery('prefers-reduced-motion: no-preference');
 
 	const orders: SelectOption[] = [
 		{ value: 'recent', label: m.atelier.sort.recent },
@@ -170,6 +172,15 @@
 	let searching = $derived(query.trim() !== '');
 	let showPeriods = $derived(groups.length > 0);
 	let panelShown = $derived(wide.current && panelOpen);
+
+	$effect(() => {
+		if (panelOpen) panelMounted = true;
+		else if (!motion.current) panelMounted = false;
+	});
+
+	function unmountPanel(event: TransitionEvent): void {
+		if (event.propertyName === 'width' && !panelOpen) panelMounted = false;
+	}
 	let railFits = $derived(tracker.margin >= MIN_RAIL_MARGIN && !panelShown);
 
 	const writtenQueries = new SvelteSet<string>();
@@ -250,27 +261,31 @@
 	{/snippet}
 
 	{#snippet panel()}
-		{#if panelShown}
-			<aside class="filters" aria-label={m.atelier.filters.title}>
-				<div class="filters-top">
-					<h2>{m.atelier.filters.title}</h2>
-					<button
-						class="icon-button"
-						aria-label={m.atelier.filters.closePanel}
-						onclick={() => (panelOpen = false)}
-						type="button"
-					>
-						<Icon icon={X} />
-					</button>
-				</div>
-				<FilterPanel {artworks} bind:filter />
-				<div class="filters-bottom">
-					<span class="caption">{m.atelier.filteredCount(shown.length, total)}</span>
-					<Button disabled={!filtering} onclick={() => (filter = emptyFilter())}>
-						{m.atelier.filters.clear}
-					</Button>
-				</div>
-			</aside>
+		{#if wide.current}
+			<div class="filters-slot" class:open={panelOpen} ontransitionend={unmountPanel}>
+				{#if panelMounted}
+					<aside class="filters" aria-label={m.atelier.filters.title}>
+						<div class="filters-top">
+							<h2>{m.atelier.filters.title}</h2>
+							<button
+								class="icon-button"
+								aria-label={m.atelier.filters.closePanel}
+								onclick={() => (panelOpen = false)}
+								type="button"
+							>
+								<Icon icon={X} />
+							</button>
+						</div>
+						<FilterPanel {artworks} bind:filter />
+						<div class="filters-bottom">
+							<span class="caption">{m.atelier.filteredCount(shown.length, total)}</span>
+							<Button disabled={!filtering} onclick={() => (filter = emptyFilter())}>
+								{m.atelier.filters.clear}
+							</Button>
+						</div>
+					</aside>
+				{/if}
+			</div>
 		{/if}
 	{/snippet}
 
@@ -441,19 +456,39 @@
 		gap: var(--spacing-8);
 	}
 
-	.filters {
+	.filters-slot {
 		position: sticky;
 		top: var(--bar-height);
-		display: grid;
 		flex: none;
+		width: 0;
+		overflow: hidden;
+		visibility: hidden;
+	}
+
+	.filters-slot.open {
+		width: 380px;
+		visibility: visible;
+	}
+
+	.filters {
+		display: grid;
 		align-content: start;
 		gap: var(--spacing-8);
+		box-sizing: border-box;
 		width: 380px;
 		max-height: calc(100dvh - var(--bar-height));
 		padding: var(--spacing-4) var(--spacing-6) var(--spacing-12);
 		overflow-y: auto;
 		scrollbar-gutter: stable;
 		border-left: var(--border-width-base) solid var(--color-line);
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.filters-slot {
+			transition:
+				width var(--duration-short) ease-out,
+				visibility var(--duration-short);
+		}
 	}
 
 	.filters-top,
