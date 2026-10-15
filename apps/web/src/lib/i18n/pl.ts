@@ -355,7 +355,6 @@ export const pl = {
 		description: (title: string, authors: string): string =>
 			`Wyniki z Wikidata dla „${title}”${authors ? `, ${authors}` : ''}. Kliknij to, które dodajesz.`,
 		searching: 'Szukamy w Wikidata…',
-		noImage: 'W Wikimedia nie ma wolnego zdjęcia tego dzieła',
 		empty: 'Wikidata nie zna dzieła o takim tytule. Sprawdź pisownię albo dodaj własne zdjęcie.',
 		none: 'Żadne z tych',
 		errorTitle: 'Nie udało się przeszukać Wikidata',

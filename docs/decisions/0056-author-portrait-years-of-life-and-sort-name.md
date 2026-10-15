@@ -22,7 +22,7 @@ Chosen, decided by the owner in ATL-142.
 - The image search takes a query of one of two kinds: an artwork (title and authors, as before) or a person (a name). The dialog, the Commons step and the picked image are the same; the title, the description, the empty text and the caption follow the kind.
 - A person query asks Wikidata for humans (`wdt:P31 wd:Q5`, without a subclass path) found by the name that have an image (`P18`), with their dates of birth (`P569`) and death (`P570`). Only people whose file Commons returns are shown, at most eight, each with the name and the years of life, so namesakes can be told apart.
 - Texts: "Który to autor?", "Wyniki z Wikidata dla „{nazwa}”. Kliknij portret, który chcesz dodać.", "Wikidata nie zna portretu osoby o takiej nazwie. Sprawdź pisownię albo dodaj własny portret.", "Żaden z tych".
-- Whether the artwork search also drops candidates without an image is ATL-150.
+- The artwork search lists only candidates with an image as well ([ADR-0055](0055-list-only-image-candidates-that-have-an-image.md)).
 
 ### Form
 

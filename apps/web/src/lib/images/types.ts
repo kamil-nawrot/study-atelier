@@ -14,7 +14,7 @@ export type ImageCandidate = {
 	title: string;
 	authors: string[];
 	date?: string;
-	image: CandidateImage | null;
+	image: CandidateImage;
 };
 
 export type ImageSearchResult = {

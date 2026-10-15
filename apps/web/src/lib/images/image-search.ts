@@ -103,9 +103,9 @@ export function formatSourceDate(date: SourceDate | null): string | undefined {
 
 type CommonsFiles = Awaited<ReturnType<typeof fetchCommonsFiles>>;
 
-function candidateImage(file: string | null, files: CommonsFiles): CandidateImage | null {
-	const details = file ? files.get(file) : undefined;
-	if (!file || !details) return null;
+function candidateImage(file: string, files: CommonsFiles): CandidateImage | null {
+	const details = files.get(file);
+	if (!details) return null;
 	return {
 		file,
 		src: details.thumbnailUrl,
@@ -136,16 +136,23 @@ function lifeYears(person: WikidataPerson): string | undefined {
 async function findArtworkCandidates(title: string, authors: string[]): Promise<ImageCandidate[]> {
 	const artworks = rankArtworks(await searchWikidataArtworks(title), authors);
 	const files = await fetchCommonsFiles(
-		artworks.flatMap((artwork) => artwork.file ?? []),
+		artworks.map((artwork) => artwork.file),
 		CANDIDATE_THUMBNAIL_WIDTH
 	);
-	return artworks.map((artwork): ImageCandidate => ({
-		wikidataId: artwork.wikidataId,
-		title: artwork.title,
-		authors: artwork.creators,
-		date: formatSourceDate(artwork.date),
-		image: candidateImage(artwork.file, files)
-	}));
+	return artworks.flatMap((artwork): ImageCandidate[] => {
+		const image = candidateImage(artwork.file, files);
+		return image
+			? [
+					{
+						wikidataId: artwork.wikidataId,
+						title: artwork.title,
+						authors: artwork.creators,
+						date: formatSourceDate(artwork.date),
+						image
+					}
+				]
+			: [];
+	});
 }
 
 async function findPortraitCandidates(name: string): Promise<ImageCandidate[]> {

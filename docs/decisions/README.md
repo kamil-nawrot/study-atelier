@@ -58,4 +58,5 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0052](0052-remember-wall-images-and-cap-their-width.md) | Remember the wall images for the session and cap their width | accepted |
 | [0053](0053-link-values-and-artworks-from-notes.md) | Link values and artworks from notes with @ and # | accepted |
 | [0054](0054-switch-to-the-light-theme-from-the-menu.md) | Switch to the light theme from the menu | accepted |
+| [0055](0055-list-only-image-candidates-that-have-an-image.md) | List only image candidates that have an image | accepted |
 | [0056](0056-author-portrait-years-of-life-and-sort-name.md) | Give an author a portrait from a people search, two years of life and a sort name | accepted |

@@ -34,10 +34,11 @@ describe('artworkSearchQuery', () => {
 		expect(query).toContain('ORDER BY ?order');
 	});
 
-	it('asks only for items with a creator, an architect or an image, and no people', () => {
+	it('asks only for items with an image, and no people', () => {
 		const query = artworkSearchQuery('David');
 
-		expect(query).toContain('p:P170|p:P84|wdt:P18');
+		expect(query).toContain('?item wdt:P18 ?image.');
+		expect(query).not.toContain('OPTIONAL { ?item wdt:P18');
 		expect(query).toContain('wd:Q5');
 	});
 });
@@ -64,7 +65,7 @@ describe('searchWikidataArtworks', () => {
 		fetchMock.mockReset();
 	});
 
-	it('maps each result to an artwork with its file name and creators', async () => {
+	it('maps each result to an artwork with its file name and creators and drops a result without a file', async () => {
 		vi.stubGlobal('fetch', fetchMock);
 		fetchMock.mockResolvedValue(
 			sparqlResponse([
@@ -92,15 +93,6 @@ describe('searchWikidataArtworks', () => {
 				hasCreator: true,
 				date: { year: 1658, precision: 9 },
 				file: 'The Milkmaid.jpg'
-			},
-			{
-				wikidataId: 'Q42',
-				title: 'Q42',
-				creators: [],
-				creatorNames: [],
-				hasCreator: false,
-				date: null,
-				file: null
 			}
 		]);
 		const [url, init] = fetchMock.mock.calls[0];

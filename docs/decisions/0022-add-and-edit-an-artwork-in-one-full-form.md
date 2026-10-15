@@ -1,6 +1,6 @@
 # 0022. Add and edit an artwork in one full form on its own page
 
-- Status: accepted
+- Status: accepted; the rule that a candidate without a free image says so is superseded by [0055](0055-list-only-image-candidates-that-have-an-image.md)
 - Date: 2026-10-11
 
 ## Context and problem statement
@@ -30,7 +30,7 @@ Chosen option: 2, one full form on its own page, because it keeps adding and edi
 - Actions: a bar fixed to the bottom with "Anuluj", "Zapisz i dodaj kolejne" (secondary) and "Zapisz" (primary). Field errors show under the fields after "Zapisz", as in [ui-patterns.md](../guidelines/ui-patterns.md#forms).
 - After "Zapisz" the wall opens at the top, where the new artwork is, and the new tile is briefly highlighted. "Zapisz i dodaj kolejne" saves and opens an empty form. "Anuluj" returns to the wall at the scroll position it had before.
 - Leaving with unsaved changes ("Anuluj", back, the menu) asks "Odrzucić zmiany?" with "Wróć do formularza" and "Odrzuć". There are no drafts. Without changes the form closes without asking.
-- Image search: "Znajdź zdjęcie" is enabled once the title and an author (or "Autor nieznany") are filled in. It opens a dialog (full screen on a phone) with a grid of candidates from the image source, each with an image, title, authors and date. Clicking one picks it and closes the dialog; "Żadne z tych" closes it without an image. A candidate without a free image says so.
+- Image search: "Znajdź zdjęcie" is enabled once the title and an author (or "Autor nieznany") are filled in. It opens a dialog (full screen on a phone) with a grid of candidates from the image source, each with an image, title, authors and date. Clicking one picks it and closes the dialog; "Żadne z tych" closes it without an image. A candidate without a free image says so ([ADR-0055](0055-list-only-image-candidates-that-have-an-image.md) lists only candidates that have an image).
 - After a candidate is picked, the app does not fill in or compare any field: the learner writes everything by hand. Only the licence and attribution show under the image ([R-16](../product/requirements.md#images)).
 - Image size: when an image is picked or added, the form stores its width and height with the artwork, so the wall knows each image's proportions before it loads and does not ask the image source for them.
 - Own image: "Dodaj własne" takes a file from the device or an image URL. There is no field for where the image comes from. An own image is visible only to the learner.
