@@ -183,6 +183,12 @@
 		gap: var(--spacing-8);
 	}
 
+	.favourites :global(.label) {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--spacing-2);
+	}
+
 	.favourites :global(svg) {
 		width: var(--font-size-md);
 		height: var(--font-size-md);
