@@ -894,4 +894,23 @@ describe('atelier page', () => {
 			.element(page.getByRole('button', { name: m.favourite.remove }))
 			.not.toBeInTheDocument();
 	});
+
+	it('keeps loaded images loaded when a heart is toggled', async () => {
+		vi.mocked(setFavourite).mockResolvedValue({});
+		await page.viewport(1000, 800);
+		const loaded = testArtwork(1, 'Loaded', {
+			image: {
+				src: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+				width: 4,
+				height: 5
+			}
+		});
+		renderAtelier([loaded]);
+		await expect.poll(() => document.querySelectorAll('[aria-busy="true"]').length).toBe(0);
+
+		await page.getByRole('button', { name: m.favourite.add }).click();
+		await expect.element(page.getByRole('button', { name: m.favourite.remove })).toBeVisible();
+
+		await expect.poll(() => document.querySelectorAll('[aria-busy="true"]').length).toBe(0);
+	});
 });
