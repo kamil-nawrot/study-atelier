@@ -2,6 +2,25 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.3.1] - 2026-10-15
+
+Polish after 0.3: the filter panel animates, a failed save is visible, and the artwork view and wall images behave on every screen.
+
+### Added
+
+- The filter panel on the wall opens and closes with a width animation, like the side menu and the information panel (off with reduced motion).
+
+### Changed
+
+- The field name in an active filter tag is muted and its value stronger, and the filter panel no longer jumps when a scrollbar appears.
+- On phones a single image on the wall is at most as tall as the screen minus the top bar, so a whole artwork is always visible.
+
+### Fixed
+
+- A failed save shows its error: the message scrolls into view, integrity errors have their own text, and an expired session signs the learner out with a note on the sign-in page.
+- The full-screen image preview keeps the proportions of tall images instead of stretching them.
+- In the artwork view only the information panel scrolls when the description is long; the image stays fixed.
+
 ## [0.3.0] - 2026-10-15
 
 The learner organises the collection by author and time: artworks can be sorted and searched by author, filtered from a side panel, and their creation date can be a year span.

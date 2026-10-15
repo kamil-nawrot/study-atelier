@@ -47,11 +47,11 @@
 	}
 
 	.field {
+		margin-inline-end: var(--spacing-2);
 		color: var(--color-fg-muted);
-	}
-
-	.value {
-		font-weight: var(--font-weight-medium);
+		font-size: var(--font-size-xs);
+		letter-spacing: var(--letter-spacing-wide);
+		text-transform: uppercase;
 	}
 
 	.clear {

@@ -32,6 +32,12 @@ describe('artworkErrorMessage', () => {
 		);
 	});
 
+	it('says the data changed when the database reports a conflict', () => {
+		for (const code of ['23001', '23503', '23505']) {
+			expect(artworkErrorMessage({ code, message: 'conflict' })).toBe(m.artworkErrors.conflict);
+		}
+	});
+
 	it('explains a failed connection', () => {
 		expect(artworkErrorMessage({ code: '', message: 'TypeError: Failed to fetch' })).toBe(
 			m.artworkErrors.network

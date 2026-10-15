@@ -1,6 +1,7 @@
 import { m } from '#lib/i18n/index.ts';
 import { ownImageUrl, removeOwnImage, uploadOwnImage } from '#lib/images/own-image.ts';
 import type { Json } from '#lib/database.types.ts';
+import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { supabase } from '#lib/supabase.ts';
 import { valuesOf } from './artwork-values.ts';
 import { signedYear } from './format.ts';
@@ -196,7 +197,7 @@ export async function saveArtwork(
 	if (stored.error !== undefined) return { saved: false, error: stored.error, fieldErrors };
 	const newUpload = input.image?.kind === 'file' ? uploadPath(stored.image) : null;
 
-	const { data, error } = await supabase
+	const { data, error, status } = await supabase
 		.rpc('save_artwork', {
 			artwork: artworkColumns({ ...input, image: stored.image }),
 			values_by_category: valuesByCategory(input),
@@ -205,7 +206,14 @@ export async function saveArtwork(
 		.single();
 	if (error) {
 		if (newUpload && error.code) await removeOwnImage(newUpload);
-		return { saved: false, error: artworkErrorMessage(error), fieldErrors };
+		return {
+			saved: false,
+			error: await failureMessage(
+				{ code: error.code, message: error.message, status },
+				artworkErrorMessage
+			),
+			fieldErrors
+		};
 	}
 
 	const previousUpload = uploadPath(existing?.image ?? null);

@@ -1,3 +1,4 @@
+import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { removeOwnImage } from '#lib/images/own-image.ts';
 import { supabase } from '#lib/supabase.ts';
 import { artworkErrorMessage } from './errors.ts';
@@ -8,7 +9,7 @@ export type TrashActionResult = {
 
 async function setDeletedAt(id: string, deletedAt: string | null): Promise<TrashActionResult> {
 	const { error } = await supabase.from('artworks').update({ deleted_at: deletedAt }).eq('id', id);
-	return error ? { error: artworkErrorMessage(error) } : {};
+	return error ? { error: await failureMessage(error, artworkErrorMessage) } : {};
 }
 
 export function moveToTrash(id: string, now = new Date()): Promise<TrashActionResult> {
@@ -24,7 +25,7 @@ export async function deletePermanently(
 	ownImagePath: string | null
 ): Promise<TrashActionResult> {
 	const { error } = await supabase.from('artworks').delete().eq('id', id);
-	if (error) return { error: artworkErrorMessage(error) };
+	if (error) return { error: await failureMessage(error, artworkErrorMessage) };
 	if (ownImagePath) await removeOwnImage(ownImagePath);
 	return {};
 }
