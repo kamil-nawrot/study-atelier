@@ -57,3 +57,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0051](0051-load-and-save-a-value-page.md)                        | Load a value page from the collection and save its form in steps | accepted |
 | [0052](0052-remember-wall-images-and-cap-their-width.md) | Remember the wall images for the session and cap their width | accepted |
 | [0053](0053-link-values-and-artworks-from-notes.md) | Link values and artworks from notes with @ and # | accepted |
+| [0054](0054-switch-to-the-light-theme-from-the-menu.md) | Switch to the light theme from the menu | accepted |

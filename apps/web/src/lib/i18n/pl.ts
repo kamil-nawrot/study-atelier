@@ -144,6 +144,8 @@ export const pl = {
 		atelier: 'Atelier',
 		cardIndex: 'Kartoteka',
 		trash: 'Kosz',
+		lightTheme: 'Jasny motyw',
+		darkTheme: 'Ciemny motyw',
 		signOut: 'Wyloguj się'
 	},
 	atelier: {
