@@ -144,7 +144,7 @@
 	);
 	let total = $derived(artworks.length);
 	let searching = $derived(query.trim() !== '');
-	let showPeriods = $derived(groups.length > 0);
+	let showPeriods = $derived(groups.length > 1);
 	let panelShown = $derived(wide.current && panelOpen);
 
 	$effect(() => {
