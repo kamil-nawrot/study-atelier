@@ -503,7 +503,7 @@
 			width: 380px;
 			height: 100%;
 			overflow-y: auto;
-			padding: var(--spacing-4) var(--spacing-6) var(--spacing-12);
+			padding: var(--spacing-8) var(--spacing-6) var(--spacing-12);
 		}
 
 		.panel-top {
@@ -524,7 +524,7 @@
 			flex-direction: column;
 			align-items: center;
 			width: 48px;
-			padding: var(--spacing-4) 0;
+			padding: var(--spacing-8) 0 var(--spacing-4);
 			background: var(--color-bg);
 			visibility: hidden;
 			opacity: 0;
