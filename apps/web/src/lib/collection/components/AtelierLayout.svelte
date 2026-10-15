@@ -135,6 +135,7 @@
 <style>
 	.atelier {
 		--page-inline: var(--spacing-4);
+		--artwork-max-height: calc(100dvh - var(--bar-height));
 		display: flex;
 		min-height: 100dvh;
 	}
@@ -286,6 +287,7 @@
 	@media (min-width: 768px) {
 		.atelier {
 			--page-inline: var(--spacing-6);
+			--artwork-max-height: 100000px;
 		}
 
 		.rail {
