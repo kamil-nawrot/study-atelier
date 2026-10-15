@@ -159,7 +159,20 @@ async function mockSupabase(context) {
 			);
 		}
 		if (url.pathname === '/rest/v1/artworks') {
-			const rows = filteredRows(url);
+			const rows = filteredRows(url).map((row) => ({
+				...row,
+				artwork_values: row.artwork_values.map((link) => ({
+					...link,
+					category_values: {
+						...link.category_values,
+						author_details: VALUE_DETAILS.author_details.filter(
+							(details) =>
+								details.value_id ===
+								valueId(link.category_values.category_code, link.category_values.name)
+						)
+					}
+				}))
+			}));
 			const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
 			if (!wantsObject) return json(route, rows);
 			if (rows.length === 1) return json(route, rows[0]);

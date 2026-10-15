@@ -10,6 +10,17 @@ vi.mock('#lib/images/own-image.ts', () => ({ removeOwnImage: vi.fn() }));
 
 const rpc = vi.mocked(supabase.rpc);
 
+function sortNames(rows: unknown[] = [], error: unknown = null): void {
+	const query = {
+		select: vi.fn(),
+		not: vi.fn(),
+		range: vi.fn().mockResolvedValue({ data: rows, error })
+	};
+	query.select.mockReturnValue(query);
+	query.not.mockReturnValue(query);
+	vi.mocked(supabase.from).mockReturnValue(query as never);
+}
+
 function rpcResult(rows: unknown[], error: unknown = null): never {
 	return { range: vi.fn().mockResolvedValue({ data: rows, error }) } as never;
 }
@@ -42,6 +53,34 @@ function authorCalls(portrait: string | null, actionError: unknown = null): void
 describe('loadCardIndex', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		sortNames();
+	});
+
+	it('gives authors their sort names', async () => {
+		sortNames([{ value_id: 'a1', sort_name: 'Vinci, Leonardo da' }]);
+		rpc.mockImplementation(((name: string) =>
+			rpcResult(
+				name === 'value_usage'
+					? [
+							{ id: 'a1', category_code: 'author', name: 'Leonardo da Vinci', artwork_count: 1 },
+							{ id: 'a2', category_code: 'author', name: 'Andy Warhol', artwork_count: 1 }
+						]
+					: []
+			)) as never);
+
+		const { index } = await loadCardIndex();
+
+		expect(index.values).toEqual([
+			{
+				id: 'a1',
+				category: 'author',
+				name: 'Leonardo da Vinci',
+				count: 1,
+				sortName: 'Vinci, Leonardo da'
+			},
+			{ id: 'a2', category: 'author', name: 'Andy Warhol', count: 1 }
+		]);
+		expect(supabase.from).toHaveBeenCalledWith('author_details');
 	});
 
 	it('maps the usage rows to the card index', async () => {

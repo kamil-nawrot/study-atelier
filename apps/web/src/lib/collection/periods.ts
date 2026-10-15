@@ -1,4 +1,5 @@
-import { locale, m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/index.ts';
+import { authorSortKeys, compareSortKeys, sortKeyOf } from './author-sort.ts';
 import { ERA_CODES, eraName } from './eras.ts';
 import { UNKNOWN_AUTHOR } from './filter.ts';
 import type { EraCode, PeriodGroup, WallArtwork } from './types.ts';
@@ -51,14 +52,14 @@ export function groupByEra(artworks: WallArtwork[]): PeriodGroup[] {
 	});
 }
 
-function byAuthorName(a: string, b: string): number {
-	if (a === UNKNOWN_AUTHOR) return 1;
-	if (b === UNKNOWN_AUTHOR) return -1;
-	return a.localeCompare(b, locale);
-}
-
 export function groupByAuthor(artworks: WallArtwork[]): PeriodGroup[] {
 	const groups = collect(artworks, (artwork) => artwork.authors[0] ?? UNKNOWN_AUTHOR);
+	const keys = authorSortKeys(artworks);
+	const byAuthorName = (a: string, b: string): number => {
+		if (a === UNKNOWN_AUTHOR) return 1;
+		if (b === UNKNOWN_AUTHOR) return -1;
+		return compareSortKeys(sortKeyOf(a, keys), sortKeyOf(b, keys));
+	};
 	return [...groups.keys()]
 		.sort(byAuthorName)
 		.map((author) =>
