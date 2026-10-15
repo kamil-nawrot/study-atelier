@@ -38,12 +38,15 @@
 
 	const FALLBACK_SIZE = { width: 800, height: 1000 };
 
+	let source = $derived(src);
+	let missing = $derived(unavailable);
+
 	let status = $derived.by<'loading' | 'loaded' | 'failed'>(() => {
-		void src;
-		return unavailable ? 'failed' : 'loading';
+		void source;
+		return missing ? 'failed' : 'loading';
 	});
 	let attempt = $derived.by<'first' | 'waiting' | 'second'>(() => {
-		void src;
+		void source;
 		return 'first';
 	});
 

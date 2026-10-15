@@ -2,6 +2,15 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.4.1] - 2026-10-15
+
+Hotfix for the wall: an image no longer loads forever after an artwork is marked as a favourite.
+
+### Fixed
+
+- Marking an artwork as a favourite from the wall no longer makes its image reload without end until the page is refreshed.
+- The heart and the label of the favourites tag in the filter panel are aligned on one line with a gap between them.
+
 ## [0.4.0] - 2026-10-15
 
 The card index becomes the learner's own knowledge: every era, period, style, material, author and location has a page of its own with a summary and notes, notes can link to values and artworks, and artworks can be marked as favourites.
