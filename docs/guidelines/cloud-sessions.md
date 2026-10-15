@@ -40,7 +40,7 @@ Combine desktop and phone shots into one image when attaching to a thread: a thr
 
 All of it lives in [`apps/web/scripts/screenshot/`](../../apps/web/scripts/screenshot/).
 
-- **Supabase** (`https://abcd.supabase.co/**`): a fake session in the `sb-abcd-auth-token` localStorage entry; `/rest/v1/artworks` answers from the sample artworks in `fixtures.mjs` (filters on `deleted_at`, `record_number` and `id`, and the single-object `Accept` header); other tables and storage answer with empty lists; RPCs answer with the first sample artwork.
+- **Supabase** (`https://abcd.supabase.co/**`): a fake session in the `sb-abcd-auth-token` localStorage entry; `/rest/v1/artworks` answers from the sample artworks in `fixtures.mjs` (filters on `deleted_at`, `record_number` and `id`, and the single-object `Accept` header); `value_usage`, `period_era_usage` and `style_period_usage` answer from the values of the sample artworks, and the details tables from `VALUE_DETAILS` (a value's id is its kind and its name in lowercase, for example `/atelier/values/period/period-renaissance`); other tables and storage answer with empty lists; other RPCs answer with the first sample artwork.
 - **Images**: own image URLs on `https://images.mock.test`, Wikimedia Commons (`api.php`, `upload.wikimedia.org`, `thumb.wikimedia.org`, `Special:FilePath`) and Wikidata are all answered locally with generated SVG gradients, so nothing depends on the network and Commons rate limits do not matter.
 - **Data**: ten sample artworks (plus one in the trash) with English titles and no personal data. Add or change rows in `fixtures.mjs` to show another state, for example an artwork with a long title or a very wide image.
 

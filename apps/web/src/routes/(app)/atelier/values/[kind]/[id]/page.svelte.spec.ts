@@ -1,0 +1,206 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { page } from 'vitest/browser';
+import { render } from 'vitest-browser-svelte';
+import { goto } from '$app/navigation';
+import { findRecord } from '#lib/collection/card-index.ts';
+import type { ValueDetails, ValueSubject, WallArtwork } from '#lib/collection/types.ts';
+import { emptyValueDetails } from '#lib/collection/value-details.ts';
+import { m } from '#lib/i18n/index.ts';
+import { testArtwork } from '#lib/testing/artworks.ts';
+import { testCardIndex } from '#lib/testing/card-index.ts';
+import { testSession } from '#lib/testing/auth.ts';
+import ValuePage from './+page.svelte';
+
+const navigation = vi.hoisted(() => ({
+	url: new URL('http://localhost/atelier/values/style/style-doric'),
+	state: {} as App.PageState
+}));
+
+vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
+vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
+vi.mock('#lib/collection/artworks.ts', () => ({
+	refreshExpiredImages: vi.fn(),
+	resolveImages: vi.fn()
+}));
+vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+
+const artworks: WallArtwork[] = [
+	testArtwork(1, 'Parthenon', {
+		yearTo: -432,
+		eraCode: 'antiquity',
+		period: 'Classical',
+		styles: ['Doric'],
+		materials: ['Marble'],
+		authors: ['Phidias'],
+		location: 'Athens'
+	}),
+	testArtwork(2, 'Temple of Hera', {
+		yearTo: -550,
+		eraCode: 'antiquity',
+		period: 'Classical',
+		styles: ['Doric']
+	}),
+	testArtwork(3, 'Undated column', {
+		yearTo: null,
+		date: undefined,
+		eraCode: 'antiquity',
+		period: 'Classical',
+		styles: ['Doric']
+	}),
+	testArtwork(4, 'Erechtheion', { yearTo: -406, eraCode: 'antiquity', styles: ['Ionic'] })
+];
+
+function subjectOf(id: string): ValueSubject {
+	const record = findRecord(testCardIndex(), id);
+	if (!record) throw new Error(`no test value ${id}`);
+	return { kind: record.category, record };
+}
+
+function renderValue(
+	subject: ValueSubject | undefined,
+	details: ValueDetails = emptyValueDetails(),
+	failure: { error?: string; notFound?: boolean } = {}
+): void {
+	render(ValuePage, {
+		data: {
+			session: testSession(),
+			subject,
+			index: testCardIndex(),
+			artworks,
+			details,
+			...failure
+		},
+		params: { kind: subject?.kind ?? 'style', id: 'unknown' }
+	});
+}
+
+function tileLinks(): string[] {
+	return page
+		.getByRole('region', { name: m.valuePage.kinds.style.artworks })
+		.getByRole('link')
+		.elements()
+		.map((link) => link.getAttribute('href') ?? '');
+}
+
+describe('value page', () => {
+	beforeEach(async () => {
+		vi.clearAllMocks();
+		navigation.state = {};
+		await page.viewport(1280, 800);
+	});
+
+	it('shows the kind, the number of artworks, the name and its periods', async () => {
+		renderValue(subjectOf('style-doric'));
+
+		await expect
+			.element(page.getByText(m.valuePage.header('Styl', m.atelier.count(3))))
+			.toBeVisible();
+		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Doric');
+		await expect
+			.element(page.getByRole('link', { name: 'Classical' }))
+			.toHaveAttribute('href', '/atelier/values/period/period-classical');
+	});
+
+	it('links the eras of a period to their pages', async () => {
+		renderValue(subjectOf('period-classical'));
+
+		await expect
+			.element(page.getByRole('link', { name: m.eras.antiquity.name }))
+			.toHaveAttribute('href', '/atelier/values/era/antiquity');
+		await expect
+			.element(page.getByRole('link', { name: m.eras.early_modern.name }))
+			.toHaveAttribute('href', '/atelier/values/era/early_modern');
+	});
+
+	it('shows the summary and the notes', async () => {
+		renderValue(subjectOf('style-doric'), {
+			summary: 'Plain capitals, no base.',
+			notes: '**Fluted** shafts.'
+		});
+
+		await expect.element(page.getByText('Plain capitals, no base.')).toBeVisible();
+		await expect.element(page.getByText('Fluted')).toBeVisible();
+		expect(page.getByText(m.valuePage.kinds.style.noNotes).elements()).toHaveLength(0);
+	});
+
+	it('says there are no notes yet and offers to edit', async () => {
+		renderValue(subjectOf('style-doric'));
+
+		await expect.element(page.getByText(m.valuePage.kinds.style.noNotes)).toBeVisible();
+		const editLinks = page.getByRole('link', { name: m.valuePage.edit });
+		expect(editLinks.elements()).toHaveLength(2);
+		for (const link of editLinks.elements()) {
+			expect(link.getAttribute('href')).toBe('/atelier/values/style/style-doric/edit');
+		}
+	});
+
+	it('shows the artworks that use the value and no others', async () => {
+		renderValue(subjectOf('style-doric'));
+
+		await expect
+			.element(page.getByRole('heading', { name: m.valuePage.kinds.style.artworks }))
+			.toBeVisible();
+		await expect.element(page.getByRole('link', { name: /Temple of Hera/ })).toBeVisible();
+		expect(page.getByRole('link', { name: /Erechtheion/ }).elements()).toHaveLength(0);
+		expect(
+			tileLinks()
+				.filter((href) => href.startsWith('/atelier/'))
+				.sort()
+		).toEqual(['/atelier/1', '/atelier/2', '/atelier/3'].sort());
+	});
+
+	it('says no artwork uses the value', async () => {
+		renderValue(subjectOf('material-bronze'));
+
+		await expect.element(page.getByText(m.valuePage.kinds.material.noArtworks)).toBeVisible();
+		await expect
+			.element(page.getByText(m.valuePage.header('Materiał', m.atelier.count(0))))
+			.toBeVisible();
+	});
+
+	it('shows an era with its years and the artworks from it', async () => {
+		renderValue({ kind: 'era', code: 'antiquity' });
+
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent('Starożytność');
+		await expect.element(page.getByText(m.eras.antiquity.years)).toBeVisible();
+		await expect
+			.element(page.getByText(m.valuePage.header(m.valuePage.eraKind, m.atelier.count(4))))
+			.toBeVisible();
+		await expect.element(page.getByText(m.valuePage.kinds.era.artworks)).toBeVisible();
+	});
+
+	it('links back to the card index', async () => {
+		renderValue(subjectOf('author-phidias'));
+
+		await expect
+			.element(page.getByRole('banner').getByRole('link', { name: m.valuePage.back }))
+			.toHaveAttribute('href', '/atelier/values');
+	});
+
+	it('shows the message the form left behind', async () => {
+		navigation.state = { valueMessage: m.valuePage.saved };
+		renderValue(subjectOf('style-doric'));
+
+		await expect.element(page.getByText(m.valuePage.saved)).toBeVisible();
+		expect(goto).toHaveBeenCalledWith('/atelier/values/style/style-doric', {
+			state: {},
+			shallow: true,
+			replace: true
+		});
+	});
+
+	it('says the value does not exist', async () => {
+		renderValue(undefined, emptyValueDetails(), { error: m.valuePage.notFound, notFound: true });
+
+		await expect.element(page.getByText(m.valuePage.notFound)).toBeVisible();
+		expect(page.getByRole('link', { name: m.valuePage.edit }).elements()).toHaveLength(0);
+	});
+
+	it('shows a loading error', async () => {
+		renderValue(undefined, emptyValueDetails(), { error: m.collectionErrors.network });
+
+		await expect.element(page.getByText(m.collectionErrors.network)).toBeVisible();
+	});
+});

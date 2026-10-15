@@ -1,0 +1,529 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { page } from 'vitest/browser';
+import { render } from 'vitest-browser-svelte';
+import { beforeNavigate, goto } from '$app/navigation';
+import { deleteValue, loadValuePageContent, saveValue } from '#lib/collection/card-index-data.ts';
+import { findRecord } from '#lib/collection/card-index.ts';
+import type { ValueDetails, ValueSubject } from '#lib/collection/types.ts';
+import { emptyValueDetails, saveValueDetails } from '#lib/collection/value-details.ts';
+import { m } from '#lib/i18n/index.ts';
+import { testCardIndex } from '#lib/testing/card-index.ts';
+import { testSession } from '#lib/testing/auth.ts';
+import EditValuePage from './+page.svelte';
+
+vi.mock('$app/navigation', () => ({
+	afterNavigate: vi.fn(),
+	beforeNavigate: vi.fn(),
+	goto: vi.fn()
+}));
+vi.mock('#lib/collection/card-index-data.ts', () => ({
+	saveValue: vi.fn(),
+	deleteValue: vi.fn(),
+	loadValuePageContent: vi.fn()
+}));
+vi.mock('#lib/collection/value-details.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/collection/value-details.ts')>()),
+	saveValueDetails: vi.fn()
+}));
+vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+
+function subjectOf(id: string): ValueSubject {
+	const record = findRecord(testCardIndex(), id);
+	if (!record) throw new Error(`no test value ${id}`);
+	return { kind: record.category, record };
+}
+
+function renderEdit(
+	subject: ValueSubject | undefined,
+	details: ValueDetails = emptyValueDetails(),
+	failure: { error?: string; notFound?: boolean } = {}
+): void {
+	render(EditValuePage, {
+		data: {
+			session: testSession(),
+			subject,
+			index: testCardIndex(),
+			artworks: [],
+			details,
+			...failure
+		},
+		params: { kind: subject?.kind ?? 'style', id: 'unknown' }
+	});
+}
+
+function saveButton(): ReturnType<typeof page.getByRole> {
+	return page.getByRole('button', { name: m.valueForm.save, exact: true });
+}
+
+function nameField(): ReturnType<typeof page.getByRole> {
+	return page.getByLabelText(m.valueForm.name);
+}
+
+type Leave = Parameters<Parameters<typeof beforeNavigate>[0]>[0];
+
+function leave(): Leave {
+	const navigation = {
+		type: 'link',
+		to: { url: new URL('http://localhost/atelier/values') },
+		cancel: vi.fn()
+	};
+	const guard = vi.mocked(beforeNavigate).mock.calls[0][0];
+	guard(navigation as unknown as Leave);
+	return navigation as unknown as Leave;
+}
+
+describe('edit value page', () => {
+	beforeEach(async () => {
+		vi.clearAllMocks();
+		await page.viewport(1280, 800);
+		vi.mocked(saveValue).mockResolvedValue({});
+		vi.mocked(deleteValue).mockResolvedValue({});
+		vi.mocked(saveValueDetails).mockResolvedValue({});
+		vi.mocked(loadValuePageContent).mockResolvedValue({ content: { hasContent: false } });
+	});
+
+	it('names the value in the title and fills the form', async () => {
+		renderEdit(subjectOf('style-doric'), { summary: 'Plain capitals.', notes: '' });
+
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent(m.valueForm.editTitle('styl', 'Doric'));
+		await expect.element(nameField()).toHaveValue('Doric');
+		await expect.element(page.getByText('Classical', { exact: true })).toBeVisible();
+		await expect.element(page.getByLabelText(m.valueForm.summary)).toHaveValue('Plain capitals.');
+		await expect
+			.element(page.getByText(m.valueForm.summaryLength(15, 300), { exact: false }))
+			.toBeVisible();
+	});
+
+	it('saves the summary and notes, then shows the page with a toast', async () => {
+		renderEdit(subjectOf('style-doric'));
+
+		await page.getByLabelText(m.valueForm.summary).fill('Plain capitals.');
+		await saveButton().click();
+
+		expect(saveValueDetails).toHaveBeenCalledWith(subjectOf('style-doric'), {
+			summary: 'Plain capitals.',
+			notes: ''
+		});
+		expect(goto).toHaveBeenCalledWith('/atelier/values/style/style-doric', {
+			replace: true,
+			state: { valueMessage: m.valuePage.saved }
+		});
+	});
+
+	it('does not save the details when only the name changed', async () => {
+		renderEdit(subjectOf('style-doric'));
+
+		await nameField().fill('Doric order');
+		await saveButton().click();
+
+		expect(saveValueDetails).not.toHaveBeenCalled();
+		expect(saveValue).toHaveBeenCalledWith(
+			expect.objectContaining({
+				record: expect.objectContaining({ id: 'style-doric' }),
+				name: 'Doric order'
+			})
+		);
+	});
+
+	it('requires a name', async () => {
+		renderEdit(subjectOf('style-doric'));
+
+		await nameField().fill('');
+		await saveButton().click();
+
+		await expect.element(page.getByText(m.valueForm.nameRequired)).toBeVisible();
+		expect(saveValue).not.toHaveBeenCalled();
+	});
+
+	it('shows an error at the top when saving fails and stays on the form', async () => {
+		vi.mocked(saveValue).mockResolvedValue({ error: m.cardIndex.errors.network });
+		renderEdit(subjectOf('style-doric'));
+
+		await nameField().fill('Doric order');
+		await saveButton().click();
+
+		await expect.element(page.getByText(m.valueForm.errorTitle)).toBeVisible();
+		await expect.element(page.getByText(m.cardIndex.errors.network)).toBeVisible();
+		expect(goto).not.toHaveBeenCalled();
+	});
+
+	it('does not change the name when saving the details fails', async () => {
+		vi.mocked(saveValueDetails).mockResolvedValue({ error: m.cardIndex.errors.network });
+		renderEdit(subjectOf('style-doric'));
+
+		await nameField().fill('Doric order');
+		await page.getByLabelText(m.valueForm.summary).fill('Plain capitals.');
+		await saveButton().click();
+
+		await expect.element(page.getByText(m.cardIndex.errors.network)).toBeVisible();
+		expect(saveValue).not.toHaveBeenCalled();
+	});
+
+	it('asks before discarding changes', async () => {
+		renderEdit(subjectOf('style-doric'));
+		await page.getByLabelText(m.valueForm.summary).fill('Plain capitals.');
+
+		const navigation = leave();
+
+		expect(navigation.cancel).toHaveBeenCalled();
+		await expect
+			.element(page.getByRole('alertdialog', { name: m.artworkForm.discardTitle }))
+			.toBeVisible();
+		await expect.element(page.getByText(m.valueForm.discardDescription)).toBeVisible();
+	});
+
+	it('leaves without asking when nothing changed', async () => {
+		renderEdit(subjectOf('style-doric'));
+
+		const navigation = leave();
+
+		expect(navigation.cancel).not.toHaveBeenCalled();
+	});
+
+	it('links Anuluj back to the value page', async () => {
+		renderEdit(subjectOf('material-marble'));
+
+		await expect
+			.element(page.getByRole('link', { name: m.valueForm.cancel }))
+			.toHaveAttribute('href', '/atelier/values/material/material-marble');
+	});
+
+	it('gives an era only a summary and notes', async () => {
+		renderEdit({ kind: 'era', code: 'antiquity' });
+
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent(m.valueForm.editTitle('epokę', m.eras.antiquity.name));
+		await expect.element(page.getByLabelText(m.valueForm.summary)).toBeVisible();
+		expect(nameField().elements()).toHaveLength(0);
+		expect(
+			page.getByRole('button', { name: m.valueForm.delete, exact: true }).elements()
+		).toHaveLength(0);
+
+		await page.getByLabelText(m.valueForm.summary).fill('Greece and Rome.');
+		await saveButton().click();
+
+		expect(saveValueDetails).toHaveBeenCalledWith(
+			{ kind: 'era', code: 'antiquity' },
+			{ summary: 'Greece and Rome.', notes: '' }
+		);
+		expect(saveValue).not.toHaveBeenCalled();
+		expect(goto).toHaveBeenCalledWith('/atelier/values/era/antiquity', {
+			replace: true,
+			state: { valueMessage: m.valuePage.saved }
+		});
+	});
+
+	it('says the value does not exist', async () => {
+		renderEdit(undefined, emptyValueDetails(), {
+			error: m.valuePage.notFound,
+			notFound: true
+		});
+
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent(m.valuePage.notFoundTitle);
+		await expect.element(page.getByText(m.valuePage.notFound)).toBeVisible();
+		expect(saveButton().elements()).toHaveLength(0);
+	});
+
+	describe('merging', () => {
+		async function renameTo(id: string, name: string): Promise<void> {
+			renderEdit(subjectOf(id), { summary: 'Typed here.', notes: '' });
+			await nameField().fill(name);
+			await saveButton().click();
+		}
+
+		it('offers to merge when the name matches another value, and asks first', async () => {
+			renderEdit(subjectOf('style-doric'));
+			await nameField().fill('ionic');
+
+			await expect
+				.element(page.getByText(m.valueForm.mergeHint('styl', 'Ionic', m.atelier.count(1))))
+				.toBeVisible();
+			await saveButton().click();
+
+			const confirm = page.getByRole('alertdialog', {
+				name: m.cardIndex.mergeConfirm.title('Doric', 'Ionic')
+			});
+			await expect
+				.element(
+					confirm.getByText(
+						m.cardIndex.mergeConfirm.assigned(
+							'Doric',
+							'Ionic',
+							2,
+							m.cardIndex.kinds.style.genitive
+						),
+						{ exact: false }
+					)
+				)
+				.toBeVisible();
+			expect(saveValue).not.toHaveBeenCalled();
+			await confirm.getByRole('button', { name: m.cardIndex.mergeConfirm.confirm }).click();
+
+			expect(saveValue).toHaveBeenCalledWith(
+				expect.objectContaining({
+					record: expect.objectContaining({ id: 'style-doric' }),
+					mergeInto: expect.objectContaining({ id: 'style-ionic' })
+				})
+			);
+			expect(goto).toHaveBeenCalledWith('/atelier/values/style/style-ionic', {
+				replace: true,
+				state: { valueMessage: m.cardIndex.merged('Ionic') }
+			});
+		});
+
+		it('does not save the summary and notes typed in a form that merges', async () => {
+			renderEdit(subjectOf('style-doric'));
+			await page.getByLabelText(m.valueForm.summary).fill('Typed here.');
+			await nameField().fill('Ionic');
+			await saveButton().click();
+			await page
+				.getByRole('alertdialog')
+				.getByRole('button', { name: m.cardIndex.mergeConfirm.confirm })
+				.click();
+
+			expect(saveValue).toHaveBeenCalled();
+			expect(saveValueDetails).not.toHaveBeenCalled();
+		});
+
+		it('warns that the page content of the merged value will be deleted', async () => {
+			vi.mocked(loadValuePageContent).mockResolvedValue({ content: { hasContent: true } });
+			await renameTo('style-doric', 'Ionic');
+
+			await expect
+				.element(
+					page
+						.getByRole('alertdialog')
+						.getByText(m.cardIndex.mergeConfirm.pageContent('Doric'), { exact: false })
+				)
+				.toBeVisible();
+			expect(loadValuePageContent).toHaveBeenCalledWith('style-doric');
+		});
+
+		it('says nothing about page content when the merged value has none', async () => {
+			await renameTo('style-doric', 'Ionic');
+
+			const confirm = page.getByRole('alertdialog');
+			await expect
+				.element(confirm.getByText(m.cardIndex.mergeConfirm.irreversible, { exact: false }))
+				.toBeVisible();
+			await expect
+				.element(confirm.getByText(m.cardIndex.mergeConfirm.pageContent('Doric'), { exact: false }))
+				.not.toBeInTheDocument();
+		});
+
+		it('shows an error and does not ask to merge when the page content cannot be read', async () => {
+			vi.mocked(loadValuePageContent).mockResolvedValue({ error: m.cardIndex.errors.network });
+			await renameTo('style-doric', 'Ionic');
+
+			await expect.element(page.getByText(m.cardIndex.errors.network)).toBeVisible();
+			await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
+			expect(saveValue).not.toHaveBeenCalled();
+		});
+
+		it('keeps the form when the learner backs out of a merge', async () => {
+			await renameTo('style-doric', 'Ionic');
+			await page.getByRole('button', { name: m.cardIndex.mergeConfirm.back }).click();
+
+			expect(saveValue).not.toHaveBeenCalled();
+			await expect.element(nameField()).toHaveValue('Ionic');
+		});
+
+		it('describes the merge of a period with the artworks it gets and the links it adds', async () => {
+			await renameTo('period-gothic', 'classical');
+
+			const confirm = page.getByRole('alertdialog', {
+				name: m.cardIndex.mergeConfirm.title('Gothic', 'Classical')
+			});
+			await expect
+				.element(
+					confirm.getByText(m.cardIndex.mergeConfirm.periodAssigned('Gothic', 'Classical', 2), {
+						exact: false
+					})
+				)
+				.toBeVisible();
+			await expect
+				.element(
+					confirm.getByText(m.cardIndex.mergeConfirm.periodLinks('Gothic', 'Classical'), {
+						exact: false
+					})
+				)
+				.toBeVisible();
+		});
+
+		it('says only the card index changes when nobody uses the merged value', async () => {
+			await renameTo('style-loose', 'Ionic');
+
+			await expect
+				.element(
+					page
+						.getByRole('alertdialog')
+						.getByText(m.cardIndex.mergeConfirm.unused('Loose'), { exact: false })
+				)
+				.toBeVisible();
+		});
+	});
+
+	describe('links', () => {
+		it('adds an era to a period without asking', async () => {
+			renderEdit(subjectOf('period-classical'));
+
+			await page.getByLabelText(m.valueForm.addEra).selectOptions(m.eras.middle_ages.name);
+			await saveButton().click();
+
+			expect(saveValue).toHaveBeenCalledWith(
+				expect.objectContaining({ eraCodes: ['antiquity', 'middle_ages', 'early_modern'] })
+			);
+		});
+
+		it('asks where the artworks go when an era is removed from a period', async () => {
+			renderEdit(subjectOf('period-classical'));
+
+			await page
+				.getByRole('button', { name: m.valueForm.removeEra(m.eras.antiquity.name) })
+				.click();
+			await saveButton().click();
+
+			const confirm = page.getByRole('alertdialog', { name: m.cardIndex.moveConfirm.title });
+			await expect
+				.element(
+					confirm.getByText(
+						m.cardIndex.moveConfirm.toEra(
+							'Classical',
+							m.eras.antiquity.name,
+							2,
+							m.eras.early_modern.name
+						)
+					)
+				)
+				.toBeVisible();
+			expect(saveValue).not.toHaveBeenCalled();
+			await confirm.getByRole('button', { name: m.cardIndex.moveConfirm.confirm }).click();
+
+			expect(saveValue).toHaveBeenCalledWith(
+				expect.objectContaining({ eraCodes: ['early_modern'] })
+			);
+		});
+
+		it('lets the learner pick the era when the period keeps several', async () => {
+			renderEdit(subjectOf('period-classical'));
+
+			await page.getByLabelText(m.valueForm.addEra).selectOptions(m.eras.middle_ages.name);
+			await page
+				.getByRole('button', { name: m.valueForm.removeEra(m.eras.antiquity.name) })
+				.click();
+			await saveButton().click();
+
+			const confirm = page.getByRole('alertdialog', { name: m.cardIndex.moveConfirm.title });
+			await confirm.getByRole('button', { name: m.cardIndex.moveConfirm.confirm }).click();
+			await expect.element(confirm.getByText(m.cardIndex.moveConfirm.pickRequired)).toBeVisible();
+			expect(saveValue).not.toHaveBeenCalled();
+			await confirm
+				.getByLabelText(m.cardIndex.moveConfirm.pick)
+				.selectOptions(m.eras.middle_ages.name);
+			await confirm.getByRole('button', { name: m.cardIndex.moveConfirm.confirm }).click();
+
+			expect(saveValue).toHaveBeenCalledWith(
+				expect.objectContaining({
+					eraCodes: ['middle_ages', 'early_modern'],
+					moveTo: 'middle_ages'
+				})
+			);
+		});
+
+		it('says the artworks lose their era when the period keeps none', async () => {
+			renderEdit(subjectOf('period-gothic'));
+
+			await page
+				.getByRole('button', { name: m.valueForm.removeEra(m.eras.middle_ages.name) })
+				.click();
+			await saveButton().click();
+
+			await expect
+				.element(
+					page
+						.getByRole('alertdialog')
+						.getByText(m.cardIndex.moveConfirm.toNone('Gothic', m.eras.middle_ages.name, 2))
+				)
+				.toBeVisible();
+		});
+
+		it('keeps a period of a style that an artwork still uses together with it', async () => {
+			renderEdit(subjectOf('style-doric'));
+
+			await expect
+				.element(page.getByRole('button', { name: m.valueForm.removePeriod('Classical') }))
+				.toBeDisabled();
+			await expect.element(page.getByText(m.valueForm.periodLocked('Classical', 2))).toBeVisible();
+		});
+
+		it('removes and adds periods of a style', async () => {
+			renderEdit(subjectOf('style-ionic'));
+
+			await page.getByRole('button', { name: m.valueForm.removePeriod('Gothic') }).click();
+			await saveButton().click();
+
+			expect(saveValue).toHaveBeenCalledWith(
+				expect.objectContaining({ periodIds: ['period-classical'] })
+			);
+		});
+
+		it('shows no links for a material', async () => {
+			renderEdit(subjectOf('material-bronze'));
+
+			await expect.element(nameField()).toBeVisible();
+			expect(page.getByRole('group', { name: m.valueForm.eras }).elements()).toHaveLength(0);
+			expect(page.getByRole('group', { name: m.valueForm.periods }).elements()).toHaveLength(0);
+		});
+	});
+
+	describe('deleting', () => {
+		it('explains why a used value cannot be deleted in a tooltip on the button', async () => {
+			renderEdit(subjectOf('style-doric'));
+			const blocked = m.valueForm.deleteBlocked(
+				m.cardIndex.kinds.style.demonstrative,
+				m.atelier.count(2),
+				m.cardIndex.kinds.style.other
+			);
+
+			await page.getByRole('button', { name: m.valueForm.delete, exact: true }).hover();
+			await expect.element(page.getByRole('tooltip')).toHaveTextContent(blocked);
+		});
+
+		it('deletes an unused value after the learner confirms and returns to the card index', async () => {
+			renderEdit(subjectOf('style-loose'));
+
+			await page.getByRole('button', { name: m.valueForm.delete, exact: true }).click();
+			const confirm = page.getByRole('alertdialog', {
+				name: m.cardIndex.deleteConfirm.title('styl', 'Loose')
+			});
+			await expect.element(confirm.getByText(m.cardIndex.deleteConfirm.description)).toBeVisible();
+			expect(deleteValue).not.toHaveBeenCalled();
+			await confirm.getByRole('button', { name: m.cardIndex.deleteConfirm.confirm }).click();
+
+			expect(deleteValue).toHaveBeenCalledWith(expect.objectContaining({ id: 'style-loose' }));
+			expect(goto).toHaveBeenCalledWith('/atelier/values', {
+				replace: true,
+				state: { valueMessage: m.cardIndex.deleted('Loose') }
+			});
+		});
+
+		it('shows an error when deleting fails', async () => {
+			vi.mocked(deleteValue).mockResolvedValue({ error: m.cardIndex.errors.changed });
+			renderEdit(subjectOf('style-loose'));
+
+			await page.getByRole('button', { name: m.valueForm.delete, exact: true }).click();
+			await page
+				.getByRole('alertdialog')
+				.getByRole('button', { name: m.cardIndex.deleteConfirm.confirm })
+				.click();
+
+			await expect.element(page.getByText(m.cardIndex.errors.changed)).toBeVisible();
+			expect(goto).not.toHaveBeenCalled();
+		});
+	});
+});

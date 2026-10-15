@@ -582,6 +582,14 @@ export type Database = {
           record_number: number;
         }[];
       };
+      save_era_details: {
+        Args: { details: Json; target_era: string };
+        Returns: undefined;
+      };
+      save_value_details: {
+        Args: { details: Json; target_value: string };
+        Returns: undefined;
+      };
       set_period_eras: {
         Args: { era_codes: string[]; move_to?: string; target_period: string };
         Returns: number;

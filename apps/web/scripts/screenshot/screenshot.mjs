@@ -5,6 +5,10 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import {
 	ARTWORKS,
+	PERIOD_ERA_USAGE,
+	STYLE_PERIOD_USAGE,
+	VALUE_DETAILS,
+	VALUE_USAGE,
 	IMAGE_HOST,
 	SUPABASE_URL,
 	TRASHED,
@@ -112,8 +116,19 @@ async function mockSupabase(context) {
 			return json(route, { ...fakeSession(), user: USER });
 		}
 		if (url.pathname.startsWith('/storage/v1/')) return json(route, []);
+		if (url.pathname === '/rest/v1/rpc/value_usage') return json(route, VALUE_USAGE);
+		if (url.pathname === '/rest/v1/rpc/period_era_usage') return json(route, PERIOD_ERA_USAGE);
+		if (url.pathname === '/rest/v1/rpc/style_period_usage') return json(route, STYLE_PERIOD_USAGE);
 		if (url.pathname.startsWith('/rest/v1/rpc/')) {
 			return json(route, { id: ARTWORKS[0].id, record_number: ARTWORKS[0].record_number });
+		}
+		const detailsTable = url.pathname.replace('/rest/v1/', '');
+		if (detailsTable in VALUE_DETAILS) {
+			const [column, filter] = [...url.searchParams].find(([key]) => key !== 'select') ?? [];
+			return json(
+				route,
+				VALUE_DETAILS[detailsTable].filter((row) => `eq.${row[column]}` === filter)
+			);
 		}
 		if (url.pathname === '/rest/v1/artworks') {
 			const rows = filteredRows(url);

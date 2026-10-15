@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { m } from '#lib/i18n/index.ts';
+	import { valuePath } from '../value-pages.ts';
 	import type { CardIndexRecord } from '../types.ts';
 
 	type Props = {
 		records: CardIndexRecord[];
 		empty: string;
-		onopen: (id: string) => void;
 	};
 
-	let { records, empty, onopen }: Props = $props();
+	let { records, empty }: Props = $props();
 </script>
 
 {#if records.length === 0}
@@ -17,14 +17,13 @@
 	<ul>
 		{#each records as record (record.id)}
 			<li>
-				<button
+				<a
 					aria-label={m.cardIndex.openValue(record.name, m.atelier.count(record.count))}
-					onclick={() => onopen(record.id)}
-					type="button"
+					href={valuePath(record.category, record.id)}
 				>
 					<span class="name">{record.name}</span>
 					<span class="count">{record.count}</span>
-				</button>
+				</a>
 			</li>
 		{/each}
 	</ul>
@@ -39,23 +38,18 @@
 		list-style: none;
 	}
 
-	button {
+	a {
 		display: inline-flex;
 		align-items: baseline;
 		gap: var(--spacing-3);
-		padding: 0;
-		border: none;
-		background: none;
 		color: var(--color-fg);
-		font-family: inherit;
 		font-size: var(--font-size-xl);
 		font-weight: var(--font-weight-bold);
 		line-height: var(--line-height-xl);
-		text-align: left;
-		cursor: pointer;
+		text-decoration: none;
 	}
 
-	button:hover .name {
+	a:hover .name {
 		text-decoration: underline;
 		text-decoration-thickness: var(--border-width-hairline);
 		text-underline-offset: 0.2em;
