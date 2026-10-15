@@ -448,4 +448,55 @@ describe('artwork page', () => {
 		await expect.element(dialog.getByText(m.artworkErrors.network)).toBeVisible();
 		expect(goto).not.toHaveBeenCalled();
 	});
+
+	describe('value summaries', () => {
+		const summaries = {
+			eras: { early_modern: { summary: 'From the discovery of America to the Revolution.' } },
+			values: {
+				'period:Baroque': { summary: 'Movement, diagonals and strong light.' },
+				'author:Johannes Vermeer': { summary: 'Painter of quiet rooms.', lifeYears: '1632–1675' }
+			}
+		};
+
+		it('shows the summary of a period with its era when the badge is clicked', async () => {
+			renderPage({ artwork: artwork(), summaries });
+
+			await page.getByRole('button', { name: 'Baroque' }).click();
+
+			const card = page.getByRole('tooltip');
+			await expect.element(card).toHaveTextContent('Movement, diagonals and strong light.');
+			await expect
+				.element(card)
+				.toHaveTextContent(
+					m.valuePage.header(m.cardIndex.kinds.period.name, m.eras.early_modern.name)
+				);
+		});
+
+		it('shows an author card with the years of life from the name under the title', async () => {
+			renderPage({ artwork: artwork(), summaries });
+
+			await page.getByRole('button', { name: 'Johannes Vermeer' }).click();
+
+			await expect.element(page.getByRole('tooltip')).toHaveTextContent('1632–1675');
+			await expect.element(page.getByRole('tooltip')).toHaveTextContent('Painter of quiet rooms.');
+		});
+
+		it('shows the summary of the era', async () => {
+			renderPage({ artwork: artwork(), summaries });
+
+			await page.getByRole('button', { name: m.eras.early_modern.name, exact: true }).click();
+
+			await expect
+				.element(page.getByRole('tooltip'))
+				.toHaveTextContent('From the discovery of America to the Revolution.');
+		});
+
+		it('leaves a value without a summary as a plain badge', async () => {
+			renderPage({ artwork: artwork(), summaries });
+
+			await expect.element(page.getByText('Mauritshuis')).toBeVisible();
+			expect(page.getByRole('button', { name: 'Mauritshuis' }).elements()).toHaveLength(0);
+			expect(page.getByRole('button', { name: 'Oil' }).elements()).toHaveLength(0);
+		});
+	});
 });

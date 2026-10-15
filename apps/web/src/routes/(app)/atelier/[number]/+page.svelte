@@ -147,6 +147,7 @@
 			mentions={data.mentions}
 			noteLinks={data.noteLinks}
 			onflip={flip}
+			summaries={data.summaries}
 		/>
 	{:else}
 		<Section>

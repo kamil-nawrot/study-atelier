@@ -67,6 +67,7 @@ How views and components look and behave, so every new screen stays consistent w
 - `goto` is for navigation from code after an action, for example after a successful sign-in.
 - Each view has at most one `primary` button.
 - Text cut with an ellipsis shows its full content in the library `Tooltip`, on hover and on keyboard focus, and only when it is actually cut.
+- A short note about something on the screen with more than one line of text (a value's summary in the artwork view) is a `Popover`: its trigger is a button that looks like the text or tag it wraps, the card opens on a click or a tap and, on a computer, also on hover and keyboard focus, and closes on a second click, a click elsewhere or Escape ([ADR-0059](../decisions/0059-value-summary-card-in-the-artwork-view.md)). A plain `Tooltip` stays for one short line.
 - A `Tooltip` opens above its control and grows from the control's start. A control at the top or right edge of the screen, such as a button at the end of the top bar, uses `placement="bottom"` and `align="end"` so the bubble stays inside the viewport.
 - Sign out is shown in `--color-danger`, so it stands apart from the menu items that navigate.
 - A button that deletes is `variant="danger"`: an outline and text in `--color-danger`. The button that confirms the delete in its dialog stays `primary`.

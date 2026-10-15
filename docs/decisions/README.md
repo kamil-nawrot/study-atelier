@@ -62,3 +62,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0056](0056-author-portrait-years-of-life-and-sort-name.md) | Give an author a portrait from a people search, two years of life and a sort name | accepted |
 | [0057](0057-location-country-and-type-of-place.md) | Give a location a country from a searchable list and a type of place as tiles | accepted |
 | [0058](0058-mark-artworks-as-favourites-with-a-heart.md) | Mark artworks as favourites with a heart | accepted |
+| [0059](0059-value-summary-card-in-the-artwork-view.md) | Show a value's summary in a card that opens from the artwork view | accepted |
