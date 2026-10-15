@@ -3,6 +3,7 @@
 	import {
 		Alert,
 		Button,
+		Checkbox,
 		Dialog,
 		Form,
 		FormActions,
@@ -24,12 +25,28 @@
 		planNameChange,
 		valuesOf
 	} from '../card-index.ts';
+	import {
+		authorDetailsFromForm,
+		authorFormFromDetails,
+		emptyAuthorDetails,
+		validateAuthorForm
+	} from '../author-form.ts';
 	import { ERA_CODES, eraName } from '../eras.ts';
 	import { UnsavedChanges } from '../unsaved-changes.svelte.ts';
 	import { saveValueDetails, valueDetailsChanged } from '../value-details.ts';
 	import { SUMMARY_MAX_LENGTH, subjectPath, valuePath } from '../value-pages.ts';
-	import type { CardIndexData, EraCode, ValueDetails, ValueSubject } from '../types.ts';
+	import type {
+		AuthorFieldErrors,
+		AuthorFormState,
+		CardIndexData,
+		EraCode,
+		ValueDetails,
+		ValueSubject
+	} from '../types.ts';
 	import DiscardDialog from './DiscardDialog.svelte';
+	import ImageField from './ImageField.svelte';
+	import YearGroup from './YearGroup.svelte';
+	import YearInput from './YearInput.svelte';
 
 	type Props = {
 		subject: ValueSubject;
@@ -47,6 +64,7 @@
 		eraCodes: EraCode[];
 		periodIds: string[];
 		details: ValueDetails;
+		author: AuthorFormState | null;
 	};
 
 	const formId = $props.id();
@@ -57,6 +75,7 @@
 	let saved = $state<FormState>(initialForm());
 	let formError = $state('');
 	let nameError = $state<string>();
+	let authorErrors = $state<AuthorFieldErrors>({});
 	let moveTo = $state('');
 	let moveOpen = $state(false);
 	let moveError = $state<string>();
@@ -141,7 +160,22 @@
 				record?.category === 'style'
 					? periodsOfStyle(index, record.id).map((period) => period.id)
 					: [],
-			details: { ...details }
+			details: { summary: details.summary, notes: details.notes },
+			author:
+				record?.category === 'author'
+					? authorFormFromDetails(details.author ?? emptyAuthorDetails())
+					: null
+		};
+	}
+
+	function setYearsApproximate(value: boolean): void {
+		if (form.author) form.author.yearsApproximate = value;
+	}
+
+	function detailsOf(state: FormState): ValueDetails {
+		return {
+			...state.details,
+			author: state.author ? authorDetailsFromForm(state.author) : undefined
 		};
 	}
 
@@ -154,7 +188,8 @@
 			current.name.trim() !== reference.name.trim() ||
 			!sameItems(current.eraCodes, reference.eraCodes) ||
 			!sameItems(current.periodIds, reference.periodIds) ||
-			valueDetailsChanged(current.details, reference.details)
+			valueDetailsChanged(current.details, reference.details) ||
+			JSON.stringify(current.author) !== JSON.stringify(reference.author)
 		);
 	}
 
@@ -189,7 +224,8 @@
 		if (busy) return;
 		formError = '';
 		nameError = change?.kind === 'empty' ? m.valueForm.nameRequired : undefined;
-		if (nameError) return;
+		authorErrors = form.author ? validateAuthorForm(form.author) : {};
+		if (nameError || Object.keys(authorErrors).length > 0) return;
 		if (needsMove) {
 			moveError = undefined;
 			moveOpen = true;
@@ -230,8 +266,8 @@
 		const snapshot = $state.snapshot(form);
 		const target = mergeTarget;
 		try {
-			if (!target && valueDetailsChanged(snapshot.details, saved.details)) {
-				const result = await saveValueDetails(subject, snapshot.details);
+			if (!target && valueDetailsChanged(detailsOf(snapshot), detailsOf(saved))) {
+				const result = await saveValueDetails(subject, detailsOf(snapshot), details);
 				if (result.error) {
 					mergeOpen = false;
 					await showError(result.error);
@@ -274,105 +310,156 @@
 			</Alert>
 		{/if}
 
-		<div class="fields">
-			{#if record && kind}
-				<TextField
-					autocomplete="off"
-					error={nameError}
-					hint={mergeTarget
-						? m.valueForm.mergeHint(
-								kind.accusative,
-								mergeTarget.name,
-								m.atelier.count(mergeTarget.count)
-							)
-						: undefined}
-					label={m.valueForm.name}
-					bind:value={form.name}
+		<div class="columns" class:author={form.author}>
+			{#if form.author && record}
+				<ImageField
+					alt={record.name}
+					query={{ kind: 'person', name: form.name }}
+					searchReady={form.name.trim() !== ''}
+					texts={m.valueForm.portrait}
+					bind:image={form.author.image}
 				/>
 			{/if}
+			<div class="fields">
+				{#if record && kind}
+					<TextField
+						autocomplete="off"
+						error={nameError}
+						hint={mergeTarget
+							? m.valueForm.mergeHint(
+									kind.accusative,
+									mergeTarget.name,
+									m.atelier.count(mergeTarget.count)
+								)
+							: undefined}
+						label={m.valueForm.name}
+						bind:value={form.name}
+					/>
+				{/if}
 
-			{#if record?.category === 'period'}
-				<fieldset>
-					<legend>{m.valueForm.eras}</legend>
-					{#if form.eraCodes.length === 0}
-						<p class="muted">{m.valueForm.noEras}</p>
-					{:else}
-						<div class="tags">
-							{#each form.eraCodes as code (code)}
-								<Tag
-									onremove={() => removeEra(code)}
-									removeLabel={m.valueForm.removeEra(eraName(code))}
-								>
-									{eraName(code)}
-								</Tag>
-							{/each}
-						</div>
-					{/if}
-					{#if eraOptions.length > 0}
-						<Select
-							label={m.valueForm.addEra}
-							onchange={(event) => {
-								addEra(event.currentTarget.value);
-								event.currentTarget.value = '';
-							}}
-							options={eraOptions}
-							placeholder={m.valueForm.chooseEra}
+				{#if form.author}
+					<YearGroup columns title={m.valueForm.lifeYears}>
+						{#snippet aside()}
+							<Checkbox
+								label={m.artworkForm.yearApproximate}
+								bind:checked={() => form.author?.yearsApproximate ?? false, setYearsApproximate}
+							/>
+						{/snippet}
+						<YearInput
+							beforeCommonEraLabel={m.valueForm.birthBeforeCommonEra}
+							error={authorErrors.birthYear}
+							label={m.valueForm.birthYear}
+							placeholder={m.valueForm.birthYear}
+							bind:value={form.author.birthYear}
+							bind:beforeCommonEra={form.author.birthBeforeCommonEra}
 						/>
-					{/if}
-				</fieldset>
-			{/if}
-
-			{#if record?.category === 'style'}
-				<fieldset>
-					<legend>{m.valueForm.periods}</legend>
-					{#if selectedPeriods.length === 0}
-						<p class="muted">{m.valueForm.noPeriods}</p>
-					{:else}
-						<div class="tags">
-							{#each selectedPeriods as period (period.id)}
-								<Tag
-									onremove={() => removePeriod(period.id)}
-									removeDisabled={locked.has(period.id)}
-									removeLabel={m.valueForm.removePeriod(period.name)}
-								>
-									{period.name}
-								</Tag>
-							{/each}
-						</div>
-						{#each selectedPeriods.filter((period) => locked.has(period.id)) as period (period.id)}
-							<p class="muted">
-								{m.valueForm.periodLocked(period.name, locked.get(period.id) ?? 0)}
-							</p>
-						{/each}
-					{/if}
-					{#if periodOptions.length > 0}
-						<Select
-							label={m.valueForm.addPeriod}
-							onchange={(event) => {
-								addPeriod(event.currentTarget.value);
-								event.currentTarget.value = '';
-							}}
-							options={periodOptions}
-							placeholder={m.valueForm.choosePeriod}
+						<YearInput
+							beforeCommonEraLabel={m.valueForm.deathBeforeCommonEra}
+							error={authorErrors.deathYear}
+							label={m.valueForm.deathYear}
+							placeholder={m.valueForm.deathYear}
+							bind:value={form.author.deathYear}
+							bind:beforeCommonEra={form.author.deathBeforeCommonEra}
 						/>
-					{/if}
-				</fieldset>
-			{/if}
+					</YearGroup>
 
-			<TextArea
-				counter
-				label={m.valueForm.summary}
-				maxlength={SUMMARY_MAX_LENGTH}
-				placeholder={m.valueForm.summaryPlaceholder}
-				rows={3}
-				bind:value={form.details.summary}
-			/>
+					<div class="sort">
+						<Checkbox label={m.valueForm.sortByOther} bind:checked={form.author.sortByOther} />
+						{#if form.author.sortByOther}
+							<TextField
+								autocomplete="off"
+								hint={m.valueForm.sortNameHint}
+								label={m.valueForm.sortName}
+								placeholder={m.valueForm.sortNamePlaceholder}
+								bind:value={form.author.sortName}
+							/>
+						{/if}
+					</div>
+				{/if}
 
-			<NotesEditor
-				label={m.valueForm.notes}
-				placeholder={m.valueForm.notesPlaceholder}
-				bind:value={form.details.notes}
-			/>
+				{#if record?.category === 'period'}
+					<fieldset>
+						<legend>{m.valueForm.eras}</legend>
+						{#if form.eraCodes.length === 0}
+							<p class="muted">{m.valueForm.noEras}</p>
+						{:else}
+							<div class="tags">
+								{#each form.eraCodes as code (code)}
+									<Tag
+										onremove={() => removeEra(code)}
+										removeLabel={m.valueForm.removeEra(eraName(code))}
+									>
+										{eraName(code)}
+									</Tag>
+								{/each}
+							</div>
+						{/if}
+						{#if eraOptions.length > 0}
+							<Select
+								label={m.valueForm.addEra}
+								onchange={(event) => {
+									addEra(event.currentTarget.value);
+									event.currentTarget.value = '';
+								}}
+								options={eraOptions}
+								placeholder={m.valueForm.chooseEra}
+							/>
+						{/if}
+					</fieldset>
+				{/if}
+
+				{#if record?.category === 'style'}
+					<fieldset>
+						<legend>{m.valueForm.periods}</legend>
+						{#if selectedPeriods.length === 0}
+							<p class="muted">{m.valueForm.noPeriods}</p>
+						{:else}
+							<div class="tags">
+								{#each selectedPeriods as period (period.id)}
+									<Tag
+										onremove={() => removePeriod(period.id)}
+										removeDisabled={locked.has(period.id)}
+										removeLabel={m.valueForm.removePeriod(period.name)}
+									>
+										{period.name}
+									</Tag>
+								{/each}
+							</div>
+							{#each selectedPeriods.filter( (period) => locked.has(period.id) ) as period (period.id)}
+								<p class="muted">
+									{m.valueForm.periodLocked(period.name, locked.get(period.id) ?? 0)}
+								</p>
+							{/each}
+						{/if}
+						{#if periodOptions.length > 0}
+							<Select
+								label={m.valueForm.addPeriod}
+								onchange={(event) => {
+									addPeriod(event.currentTarget.value);
+									event.currentTarget.value = '';
+								}}
+								options={periodOptions}
+								placeholder={m.valueForm.choosePeriod}
+							/>
+						{/if}
+					</fieldset>
+				{/if}
+
+				<TextArea
+					counter
+					label={m.valueForm.summary}
+					maxlength={SUMMARY_MAX_LENGTH}
+					placeholder={m.valueForm.summaryPlaceholder}
+					rows={3}
+					bind:value={form.details.summary}
+				/>
+
+				<NotesEditor
+					label={m.valueForm.notes}
+					placeholder={m.valueForm.notesPlaceholder}
+					bind:value={form.details.notes}
+				/>
+			</div>
 		</div>
 
 		<FormActions>
@@ -441,6 +528,16 @@
 		flex-direction: column;
 	}
 
+	.columns {
+		display: grid;
+		gap: var(--spacing-8);
+	}
+
+	.sort {
+		display: grid;
+		gap: var(--spacing-3);
+	}
+
 	.fields {
 		display: grid;
 		align-content: start;
@@ -482,6 +579,11 @@
 
 		.fields {
 			max-width: var(--size-content-default);
+		}
+
+		.columns.author {
+			grid-template-columns: minmax(220px, 1fr) minmax(0, 1.25fr);
+			gap: var(--spacing-12);
 		}
 	}
 </style>

@@ -295,10 +295,32 @@ export type ValueKind = 'era' | CategoryCode;
 export type ValueSubject =
 	{ kind: 'era'; code: EraCode } | { kind: CategoryCode; record: CardIndexRecord };
 
+export type AuthorDetails = {
+	image: ArtworkImageInput | null;
+	birthYear: number | null;
+	deathYear: number | null;
+	yearsApproximate: boolean;
+	sortName: string | null;
+};
+
 export type ValueDetails = {
 	summary: string;
 	notes: string;
+	author?: AuthorDetails;
 };
+
+export type AuthorFormState = {
+	image: ArtworkImageInput | null;
+	birthYear: string;
+	birthBeforeCommonEra: boolean;
+	deathYear: string;
+	deathBeforeCommonEra: boolean;
+	yearsApproximate: boolean;
+	sortByOther: boolean;
+	sortName: string;
+};
+
+export type AuthorFieldErrors = Partial<Record<'birthYear' | 'deathYear', string>>;
 
 export type ValueDetailsResult = {
 	details: ValueDetails;
@@ -312,4 +334,16 @@ export type ValuePageResult = {
 	details: ValueDetails;
 	notFound?: boolean;
 	error?: string;
+};
+
+export type ImageFieldTexts = {
+	label: string;
+	find: string;
+	findOther: string;
+	findHint: string;
+	own: string;
+	changeOwn: string;
+	ownTitle: string;
+	changeOwnTitle: string;
+	remove: string;
 };

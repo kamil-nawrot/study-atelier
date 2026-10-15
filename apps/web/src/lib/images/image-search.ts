@@ -1,10 +1,21 @@
-import { formatYear } from '#lib/collection/format.ts';
+import { formatLifeYears, formatYear } from '#lib/collection/format.ts';
 import { normalizeForSearch } from '#lib/collection/search.ts';
 import { m } from '#lib/i18n/index.ts';
 import { commonsThumbnailSrcset, fetchCommonsFiles } from './commons.ts';
 import { imageSearchErrorMessage } from './errors.ts';
-import type { ImageCandidate, ImageSearchResult } from './types.ts';
-import { searchWikidataArtworks, type SourceDate, type WikidataArtwork } from './wikidata.ts';
+import type {
+	CandidateImage,
+	ImageCandidate,
+	ImageSearchQuery,
+	ImageSearchResult
+} from './types.ts';
+import {
+	searchWikidataArtworks,
+	searchWikidataPeople,
+	type SourceDate,
+	type WikidataArtwork,
+	type WikidataPerson
+} from './wikidata.ts';
 
 export const CANDIDATE_LIMIT = 8;
 export const CANDIDATE_THUMBNAIL_WIDTH = 330;
@@ -29,11 +40,6 @@ const ROMAN_NUMERALS: [number, string][] = [
 	[4, 'IV'],
 	[1, 'I']
 ];
-
-export type ImageSearchQuery = {
-	title: string;
-	authors: string[];
-};
 
 function normalizeName(name: string): string {
 	return normalizeForSearch(name)
@@ -95,39 +101,81 @@ export function formatSourceDate(date: SourceDate | null): string | undefined {
 	return undefined;
 }
 
+type CommonsFiles = Awaited<ReturnType<typeof fetchCommonsFiles>>;
+
+function candidateImage(file: string | null, files: CommonsFiles): CandidateImage | null {
+	const details = file ? files.get(file) : undefined;
+	if (!file || !details) return null;
+	return {
+		file,
+		src: details.thumbnailUrl,
+		srcset: commonsThumbnailSrcset(
+			details.thumbnailUrl,
+			CANDIDATE_THUMBNAIL_WIDTH,
+			CANDIDATE_WIDTHS.filter((width) => width <= details.width)
+		),
+		width: details.width,
+		height: details.height,
+		licence: details.licence,
+		licenceUrl: details.licenceUrl,
+		attribution: details.attribution
+	};
+}
+
+function lifeYear(date: SourceDate | null): number | null {
+	return date && date.precision >= DECADE_PRECISION ? date.year : null;
+}
+
+function lifeYears(person: WikidataPerson): string | undefined {
+	const approximate = [person.born, person.died].some(
+		(date) => date !== null && date.precision < YEAR_PRECISION
+	);
+	return formatLifeYears(lifeYear(person.born), lifeYear(person.died), approximate);
+}
+
+async function findArtworkCandidates(title: string, authors: string[]): Promise<ImageCandidate[]> {
+	const artworks = rankArtworks(await searchWikidataArtworks(title), authors);
+	const files = await fetchCommonsFiles(
+		artworks.flatMap((artwork) => artwork.file ?? []),
+		CANDIDATE_THUMBNAIL_WIDTH
+	);
+	return artworks.map((artwork): ImageCandidate => ({
+		wikidataId: artwork.wikidataId,
+		title: artwork.title,
+		authors: artwork.creators,
+		date: formatSourceDate(artwork.date),
+		image: candidateImage(artwork.file, files)
+	}));
+}
+
+async function findPortraitCandidates(name: string): Promise<ImageCandidate[]> {
+	const people = (await searchWikidataPeople(name)).slice(0, CANDIDATE_LIMIT);
+	const files = await fetchCommonsFiles(
+		people.map((person) => person.file),
+		CANDIDATE_THUMBNAIL_WIDTH
+	);
+	return people.flatMap((person): ImageCandidate[] => {
+		const image = candidateImage(person.file, files);
+		return image
+			? [
+					{
+						wikidataId: person.wikidataId,
+						title: person.name,
+						authors: [],
+						date: lifeYears(person),
+						image
+					}
+				]
+			: [];
+	});
+}
+
 export async function findImageCandidates(query: ImageSearchQuery): Promise<ImageSearchResult> {
 	try {
-		const artworks = rankArtworks(await searchWikidataArtworks(query.title), query.authors);
-		const files = await fetchCommonsFiles(
-			artworks.flatMap((artwork) => artwork.file ?? []),
-			CANDIDATE_THUMBNAIL_WIDTH
-		);
-		const candidates = artworks.map((artwork): ImageCandidate => {
-			const details = artwork.file ? files.get(artwork.file) : undefined;
-			return {
-				wikidataId: artwork.wikidataId,
-				title: artwork.title,
-				authors: artwork.creators,
-				date: formatSourceDate(artwork.date),
-				image:
-					artwork.file && details
-						? {
-								file: artwork.file,
-								src: details.thumbnailUrl,
-								srcset: commonsThumbnailSrcset(
-									details.thumbnailUrl,
-									CANDIDATE_THUMBNAIL_WIDTH,
-									CANDIDATE_WIDTHS.filter((width) => width <= details.width)
-								),
-								width: details.width,
-								height: details.height,
-								licence: details.licence,
-								licenceUrl: details.licenceUrl,
-								attribution: details.attribution
-							}
-						: null
-			};
-		});
+		const candidates =
+			query.kind === 'person'
+				? await findPortraitCandidates(query.name.trim())
+				: await findArtworkCandidates(query.title.trim(), query.authors);
 		return { candidates };
 	} catch (error) {
 		return { candidates: [], error: imageSearchErrorMessage(error) };

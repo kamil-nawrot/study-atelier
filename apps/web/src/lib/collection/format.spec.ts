@@ -3,6 +3,7 @@ import { m } from '#lib/i18n/index.ts';
 import {
 	formatDate,
 	formatDeletedOn,
+	formatLifeYears,
 	formatRecordNumber,
 	formatYear,
 	formatYearRange,
@@ -110,5 +111,21 @@ describe('formatDeletedOn', () => {
 		expect(formatDeletedOn(new Date(2025, 11, 24, 12, 0).toISOString(), now)).toBe(
 			m.trash.deletedOn('24 grudnia 2025')
 		);
+	});
+});
+
+describe('formatLifeYears', () => {
+	it('writes both years as a span, approximate when marked', () => {
+		expect(formatLifeYears(1452, 1519, false)).toBe('1452–1519');
+		expect(formatLifeYears(-480, -430, true)).toBe('ok. 480–430 p.n.e.');
+	});
+
+	it('writes a single year as born or died', () => {
+		expect(formatLifeYears(1760, null, false)).toBe(m.valuePage.born('1760'));
+		expect(formatLifeYears(null, 1519, true)).toBe(m.valuePage.died('ok. 1519'));
+	});
+
+	it('writes nothing without years', () => {
+		expect(formatLifeYears(null, null, false)).toBeUndefined();
 	});
 });

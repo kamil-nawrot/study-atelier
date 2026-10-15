@@ -21,3 +21,6 @@ export type ImageSearchResult = {
 	candidates: ImageCandidate[];
 	error?: string;
 };
+
+export type ImageSearchQuery =
+	{ kind: 'artwork'; title: string; authors: string[] } | { kind: 'person'; name: string };

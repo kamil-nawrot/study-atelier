@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { artworkSearchQuery, searchWikidataArtworks, sourceDate } from './wikidata.ts';
+import {
+	artworkSearchQuery,
+	personSearchQuery,
+	searchWikidataArtworks,
+	searchWikidataPeople,
+	sourceDate
+} from './wikidata.ts';
 import { WikimediaError } from './wikimedia.ts';
 
 const fetchMock = vi.fn<typeof fetch>();
@@ -110,5 +116,50 @@ describe('searchWikidataArtworks', () => {
 		fetchMock.mockResolvedValue(new Response('', { status: 500 }));
 
 		await expect(searchWikidataArtworks('The Milkmaid')).rejects.toEqual(new WikimediaError(500));
+	});
+});
+
+describe('personSearchQuery', () => {
+	it('asks only for people with an image, with their dates of birth and death', () => {
+		const query = personSearchQuery('Leonardo "da" Vinci');
+
+		expect(query).toContain('mwapi:search "Leonardo \\"da\\" Vinci"');
+		expect(query).toContain('?item wdt:P31 wd:Q5; wdt:P18 ?image.');
+		expect(query).toContain('p:P569');
+		expect(query).toContain('p:P570');
+		expect(query).not.toContain('P279');
+	});
+});
+
+describe('searchWikidataPeople', () => {
+	afterEach(() => {
+		vi.unstubAllGlobals();
+		fetchMock.mockReset();
+	});
+
+	it('maps each person to a name, an image file and dates, and skips results without a file', async () => {
+		vi.stubGlobal('fetch', fetchMock);
+		fetchMock.mockResolvedValue(
+			sparqlResponse([
+				{
+					item: 'http://www.wikidata.org/entity/Q762',
+					name: 'Leonardo da Vinci',
+					file: 'http://commons.wikimedia.org/wiki/Special:FilePath/Leonardo%20self.jpg',
+					born: '1452-04-15T00:00:00Z/11',
+					died: '1519-05-02T00:00:00Z/11'
+				},
+				{ item: 'http://www.wikidata.org/entity/Q1', name: 'No file' }
+			])
+		);
+
+		await expect(searchWikidataPeople('Leonardo')).resolves.toEqual([
+			{
+				wikidataId: 'Q762',
+				name: 'Leonardo da Vinci',
+				born: { year: 1452, precision: 11 },
+				died: { year: 1519, precision: 11 },
+				file: 'Leonardo self.jpg'
+			}
+		]);
 	});
 });

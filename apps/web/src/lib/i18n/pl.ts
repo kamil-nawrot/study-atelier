@@ -359,7 +359,13 @@ export const pl = {
 		errorTitle: 'Nie udało się przeszukać Wikidata',
 		retry: 'Szukaj jeszcze raz',
 		century: (century: string, beforeCommonEra: boolean): string =>
-			`${century} w.${beforeCommonEra ? ' p.n.e.' : ''}`
+			`${century} w.${beforeCommonEra ? ' p.n.e.' : ''}`,
+		personTitle: 'Który to autor?',
+		personDescription: (name: string): string =>
+			`Wyniki z Wikidata dla „${name}”. Kliknij portret, który chcesz dodać.`,
+		personEmpty:
+			'Wikidata nie zna portretu osoby o takiej nazwie. Sprawdź pisownię albo dodaj własny portret.',
+		personNone: 'Żaden z tych'
 	},
 	imageSearchErrors: {
 		rateLimited: 'Wikidata dostaje teraz sporo zapytań. Odczekaj chwilę i spróbuj jeszcze raz.',
@@ -529,6 +535,8 @@ export const pl = {
 		deleteBlocked: (demonstrative: string, count: string, other: string): string =>
 			`${demonstrative} ma jeszcze ${count}, więc nie da się go usunąć. Możesz go połączyć z ${other}.`,
 		header: (kind: string, count: string): string => `${kind} · ${count}`,
+		born: (year: string): string => `ur. ${year}`,
+		died: (year: string): string => `zm. ${year}`,
 		eraKind: 'Epoka',
 		notFoundTitle: 'Nie ma takiej wartości',
 		notFound: 'Nie ma takiej wartości w Kartotece. Może została usunięta albo połączona z inną.',
@@ -595,7 +603,28 @@ export const pl = {
 		notes: 'Notatki',
 		notesPlaceholder: 'Wszystko, co warto zapamiętać',
 		errorTitle: 'Nie udało się zapisać zmian',
-		discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.'
+		discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.',
+		portrait: {
+			label: 'Portret',
+			find: 'Znajdź portret',
+			findOther: 'Wybierz inny',
+			findHint: 'Wpisz nazwę, żeby znaleźć portret.',
+			own: 'Własny portret',
+			changeOwn: 'Zmień własny',
+			ownTitle: 'Dodaj własny portret',
+			changeOwnTitle: 'Zmień własny portret',
+			remove: 'Usuń portret'
+		},
+		lifeYears: 'Lata życia',
+		birthYear: 'Rok urodzenia',
+		deathYear: 'Rok śmierci',
+		birthBeforeCommonEra: 'p.n.e. (urodzenie)',
+		deathBeforeCommonEra: 'p.n.e. (śmierć)',
+		lifeYearsOrder: 'Rok śmierci nie może być wcześniejszy niż rok urodzenia.',
+		sortByOther: 'Sortuj inaczej niż po nazwie',
+		sortName: 'Sortuj jako',
+		sortNamePlaceholder: 'np. Vinci, Leonardo da',
+		sortNameHint: 'Po tej wartości będą sortowani autorzy.'
 	},
 	trash: {
 		title: 'Kosz',

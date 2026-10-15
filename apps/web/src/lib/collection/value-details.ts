@@ -1,11 +1,39 @@
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
+import { removeOwnImage } from '#lib/images/own-image.ts';
 import { supabase } from '#lib/supabase.ts';
+import { emptyAuthorDetails } from './author-form.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from './errors.ts';
-import type { ValueDetails, ValueDetailsResult, ValueSubject } from './types.ts';
+import {
+	IMAGE_COLUMNS,
+	imageColumns,
+	imageOf,
+	storedImage,
+	uploadPath,
+	withPreview,
+	type ImageRow
+} from './image-record.ts';
+import type { AuthorDetails, ValueDetails, ValueDetailsResult, ValueSubject } from './types.ts';
 
 type ErrorLike = { code?: string; message?: string };
 
-type DetailsRow = { summary: string | null; notes: string | null };
+type AuthorRow = ImageRow & {
+	birth_year: number | null;
+	death_year: number | null;
+	years_approximate: boolean;
+	sort_name: string | null;
+};
+
+type DetailsRow = { summary: string | null; notes: string | null } & Partial<AuthorRow>;
+
+const AUTHOR_COLUMNS = [
+	'summary',
+	'notes',
+	'birth_year',
+	'death_year',
+	'years_approximate',
+	'sort_name',
+	...IMAGE_COLUMNS
+].join(', ');
 
 type DetailsQuery = PromiseLike<{ data: DetailsRow | null; error: ErrorLike | null }>;
 
@@ -47,7 +75,7 @@ function detailsQuery(subject: ValueSubject): DetailsQuery {
 		case 'author':
 			return supabase
 				.from('author_details')
-				.select(columns)
+				.select(AUTHOR_COLUMNS)
 				.eq('value_id', subject.record.id)
 				.maybeSingle();
 		case 'location':
@@ -59,27 +87,75 @@ function detailsQuery(subject: ValueSubject): DetailsQuery {
 	}
 }
 
+async function authorOf(row: DetailsRow | null): Promise<AuthorDetails> {
+	if (!row) return emptyAuthorDetails();
+	return {
+		image: await withPreview(imageOf(row as AuthorRow)),
+		birthYear: row.birth_year ?? null,
+		deathYear: row.death_year ?? null,
+		yearsApproximate: row.years_approximate ?? false,
+		sortName: row.sort_name ?? null
+	};
+}
+
 export async function loadValueDetails(subject: ValueSubject): Promise<ValueDetailsResult> {
 	const { data, error } = await detailsQuery(subject);
 	if (error) return { details: emptyValueDetails(), error: collectionErrorMessage(error) };
-	return { details: { summary: data?.summary ?? '', notes: data?.notes ?? '' } };
+	const details: ValueDetails = { summary: data?.summary ?? '', notes: data?.notes ?? '' };
+	if (subject.kind === 'author') details.author = await authorOf(data);
+	return { details };
 }
 
 export function valueDetailsChanged(a: ValueDetails, b: ValueDetails): boolean {
-	return a.summary.trim() !== b.summary.trim() || a.notes !== b.notes;
+	return (
+		a.summary.trim() !== b.summary.trim() ||
+		a.notes !== b.notes ||
+		JSON.stringify(a.author ?? null) !== JSON.stringify(b.author ?? null)
+	);
+}
+
+function authorColumns(author: AuthorDetails, image: ReturnType<typeof imageColumns>): object {
+	return {
+		birth_year: author.birthYear,
+		death_year: author.deathYear,
+		years_approximate: author.yearsApproximate,
+		sort_name: author.sortName,
+		...image
+	};
 }
 
 export async function saveValueDetails(
 	subject: ValueSubject,
-	details: ValueDetails
+	details: ValueDetails,
+	previous?: ValueDetails
 ): Promise<SaveDetailsResult> {
-	const payload = { summary: details.summary.trim(), notes: details.notes.trim() };
-	const { error } =
-		subject.kind === 'era'
-			? await supabase.rpc('save_era_details', { target_era: subject.code, details: payload })
-			: await supabase.rpc('save_value_details', {
-					target_value: subject.record.id,
-					details: payload
-				});
-	return error ? { error: await failureMessage(error, cardIndexErrorMessage) } : {};
+	const text = { summary: details.summary.trim(), notes: details.notes.trim() };
+	if (subject.kind === 'era') {
+		const { error } = await supabase.rpc('save_era_details', {
+			target_era: subject.code,
+			details: text
+		});
+		return error ? { error: await failureMessage(error, cardIndexErrorMessage) } : {};
+	}
+
+	const author = details.author;
+	const stored = author ? await storedImage(author.image) : { image: null };
+	if (stored.error !== undefined) return { error: stored.error };
+	const newUpload = author?.image?.kind === 'file' ? uploadPath(stored.image) : null;
+	const payload = author ? { ...text, ...authorColumns(author, imageColumns(stored.image)) } : text;
+
+	const { error } = await supabase.rpc('save_value_details', {
+		target_value: subject.record.id,
+		details: payload
+	});
+	if (error) {
+		if (newUpload) await removeOwnImage(newUpload);
+		return { error: await failureMessage(error, cardIndexErrorMessage) };
+	}
+
+	const previousUpload = uploadPath(previous?.author?.image ?? null);
+	if (author && previousUpload && previousUpload !== uploadPath(stored.image)) {
+		await removeOwnImage(previousUpload);
+	}
+	return {};
 }

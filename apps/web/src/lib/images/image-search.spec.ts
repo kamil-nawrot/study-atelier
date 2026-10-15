@@ -182,6 +182,7 @@ describe('findImageCandidates', () => {
 		respond();
 
 		const result = await findImageCandidates({
+			kind: 'artwork',
 			title: 'The Milkmaid',
 			authors: ['Johannes Vermeer']
 		});
@@ -223,7 +224,9 @@ describe('findImageCandidates', () => {
 		vi.stubGlobal('fetch', fetchMock);
 		fetchMock.mockResolvedValue(new Response(JSON.stringify({ results: { bindings: [] } })));
 
-		await expect(findImageCandidates({ title: 'Nothing', authors: [] })).resolves.toEqual({
+		await expect(
+			findImageCandidates({ kind: 'artwork', title: 'Nothing', authors: [] })
+		).resolves.toEqual({
 			candidates: []
 		});
 		expect(fetchMock).toHaveBeenCalledOnce();
@@ -234,7 +237,7 @@ describe('findImageCandidates', () => {
 		vi.stubGlobal('fetch', fetchMock);
 		fetchMock.mockResolvedValue(new Response('', { status: 429 }));
 
-		const result = findImageCandidates({ title: 'The Milkmaid', authors: [] });
+		const result = findImageCandidates({ kind: 'artwork', title: 'The Milkmaid', authors: [] });
 		await vi.runAllTimersAsync();
 
 		await expect(result).resolves.toEqual({
@@ -242,5 +245,71 @@ describe('findImageCandidates', () => {
 			error: m.imageSearchErrors.rateLimited
 		});
 		expect(fetchMock).toHaveBeenCalledTimes(2);
+	});
+
+	it('finds portraits of people and leaves out those whose file Commons does not have', async () => {
+		vi.stubGlobal('fetch', fetchMock);
+		fetchMock.mockImplementation(async (input) => {
+			const url = new URL(String(input));
+			if (url.hostname === 'query.wikidata.org') {
+				expect(url.searchParams.get('query')).toContain('wd:Q5');
+				return new Response(
+					JSON.stringify({
+						results: {
+							bindings: [
+								{
+									item: { value: 'http://www.wikidata.org/entity/Q41264' },
+									name: { value: 'Johannes Vermeer' },
+									file: {
+										value: 'http://commons.wikimedia.org/wiki/Special:FilePath/The%20Milkmaid.jpg'
+									},
+									born: { value: '1632-10-31T00:00:00Z/11' },
+									died: { value: '1675-12-15T00:00:00Z/11' }
+								},
+								{
+									item: { value: 'http://www.wikidata.org/entity/Q99' },
+									name: { value: 'Jan Vermeer' },
+									file: {
+										value: 'http://commons.wikimedia.org/wiki/Special:FilePath/Missing.jpg'
+									},
+									born: { value: '1600-01-01T00:00:00Z/8' }
+								}
+							]
+						}
+					})
+				);
+			}
+			return new Response(
+				JSON.stringify({
+					query: {
+						pages: [
+							{
+								title: 'File:The Milkmaid.jpg',
+								imageinfo: [
+									{
+										thumburl: thumb,
+										width: 2000,
+										height: 2250,
+										extmetadata: { LicenseShortName: { value: 'Public domain' } }
+									}
+								]
+							},
+							{ title: 'File:Missing.jpg', missing: true }
+						]
+					}
+				})
+			);
+		});
+
+		const result = await findImageCandidates({ kind: 'person', name: ' Vermeer ' });
+
+		expect(result.candidates).toHaveLength(1);
+		expect(result.candidates[0]).toMatchObject({
+			wikidataId: 'Q41264',
+			title: 'Johannes Vermeer',
+			authors: [],
+			date: '1632–1675',
+			image: { file: 'The Milkmaid.jpg', width: 2000, height: 2250 }
+		});
 	});
 });
