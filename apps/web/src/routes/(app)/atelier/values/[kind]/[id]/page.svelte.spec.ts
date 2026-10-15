@@ -161,9 +161,7 @@ describe('value page', () => {
 	it('shows an era with its years and the artworks from it', async () => {
 		renderValue({ kind: 'era', code: 'antiquity' });
 
-		await expect
-			.element(page.getByRole('heading', { level: 1 }))
-			.toHaveTextContent('Starożytność');
+		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Starożytność');
 		await expect.element(page.getByText(m.eras.antiquity.years)).toBeVisible();
 		await expect
 			.element(page.getByText(m.valuePage.header(m.valuePage.eraKind, m.atelier.count(4))))
