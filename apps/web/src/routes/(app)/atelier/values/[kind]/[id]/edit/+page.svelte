@@ -44,10 +44,6 @@
 	async function showSaved(path: ResolvedPathname, message: string): Promise<void> {
 		await goto(path, { replace: true, state: { valueMessage: message } });
 	}
-
-	async function showDeleted(message: string): Promise<void> {
-		await goto(cardIndexPath, { replace: true, state: { valueMessage: message } });
-	}
 </script>
 
 <AtelierLayout
@@ -72,7 +68,6 @@
 				details={data.details}
 				index={data.index}
 				oncancel={goBack}
-				ondeleted={showDeleted}
 				onsaved={showSaved}
 				{subject}
 			/>

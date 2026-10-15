@@ -9,15 +9,13 @@
 		Select,
 		Tag,
 		TextArea,
-		TextField,
-		Tooltip
+		TextField
 	} from '@study-atelier/ui';
 	import { beforeNavigate, goto } from '$app/navigation';
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
-	import { deleteValue, loadValuePageContent, saveValue } from '../card-index-data.ts';
+	import { loadValuePageContent, saveValue } from '../card-index-data.ts';
 	import {
-		canDelete,
 		erasOfPeriod,
 		findRecord,
 		lockedPeriodIds,
@@ -39,10 +37,9 @@
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
 		onsaved: (path: ResolvedPathname, message: string) => void | Promise<void>;
-		ondeleted: (message: string) => void | Promise<void>;
 	};
 
-	let { subject, index, details, cancelHref, oncancel, onsaved, ondeleted }: Props = $props();
+	let { subject, index, details, cancelHref, oncancel, onsaved }: Props = $props();
 
 	type FormState = {
 		name: string;
@@ -64,7 +61,6 @@
 	let moveError = $state<string>();
 	let mergeOpen = $state(false);
 	let mergedHasContent = $state(false);
-	let deleteOpen = $state(false);
 	let discardOpen = $state(false);
 	let busy = $state(false);
 	let discarded: FormState | null = null;
@@ -101,9 +97,6 @@
 			const period = findRecord(index, id);
 			return period ? [period] : [];
 		})
-	);
-	let summaryHint = $derived(
-		`${m.valueForm.summaryHint} ${m.valueForm.summaryLength(form.details.summary.length, SUMMARY_MAX_LENGTH)}`
 	);
 	let moveDescription = $derived.by(() => {
 		if (!record) return '';
@@ -305,162 +298,127 @@
 			busy = false;
 		}
 	}
-
-	async function remove(): Promise<void> {
-		if (!record) return;
-		busy = true;
-		const result = await deleteValue(record);
-		busy = false;
-		deleteOpen = false;
-		if (result.error) {
-			await showError(result.error);
-			return;
-		}
-		saved = $state.snapshot(form);
-		await ondeleted(m.cardIndex.deleted(record.name));
-	}
 </script>
 
-<Form onsubmit={submit}>
-	{#if formError}
-		<Alert id={formErrorId} title={m.valueForm.errorTitle} tone="danger">
-			{formError}
-		</Alert>
-	{/if}
+<div class="page">
+	<Form onsubmit={submit}>
+		{#if formError}
+			<Alert id={formErrorId} title={m.valueForm.errorTitle} tone="danger">
+				{formError}
+			</Alert>
+		{/if}
 
-	<div class="fields">
-		{#if record && kind}
-			<TextField
-				autocomplete="off"
-				error={nameError}
-				hint={mergeTarget
-					? m.valueForm.mergeHint(
-							kind.accusative,
-							mergeTarget.name,
-							m.atelier.count(mergeTarget.count)
-						)
-					: undefined}
-				label={m.valueForm.name}
-				bind:value={form.name}
+		<div class="fields">
+			{#if record && kind}
+				<TextField
+					autocomplete="off"
+					error={nameError}
+					hint={mergeTarget
+						? m.valueForm.mergeHint(
+								kind.accusative,
+								mergeTarget.name,
+								m.atelier.count(mergeTarget.count)
+							)
+						: undefined}
+					label={m.valueForm.name}
+					bind:value={form.name}
+				/>
+			{/if}
+
+			{#if record?.category === 'period'}
+				<fieldset>
+					<legend>{m.valueForm.eras}</legend>
+					{#if form.eraCodes.length === 0}
+						<p class="muted">{m.valueForm.noEras}</p>
+					{:else}
+						<div class="tags">
+							{#each form.eraCodes as code (code)}
+								<Tag
+									onremove={() => removeEra(code)}
+									removeLabel={m.valueForm.removeEra(eraName(code))}
+								>
+									{eraName(code)}
+								</Tag>
+							{/each}
+						</div>
+					{/if}
+					{#if eraOptions.length > 0}
+						<Select
+							label={m.valueForm.addEra}
+							onchange={(event) => {
+								addEra(event.currentTarget.value);
+								event.currentTarget.value = '';
+							}}
+							options={eraOptions}
+							placeholder={m.valueForm.chooseEra}
+						/>
+					{/if}
+				</fieldset>
+			{/if}
+
+			{#if record?.category === 'style'}
+				<fieldset>
+					<legend>{m.valueForm.periods}</legend>
+					{#if selectedPeriods.length === 0}
+						<p class="muted">{m.valueForm.noPeriods}</p>
+					{:else}
+						<div class="tags">
+							{#each selectedPeriods as period (period.id)}
+								<Tag
+									onremove={() => removePeriod(period.id)}
+									removeDisabled={locked.has(period.id)}
+									removeLabel={m.valueForm.removePeriod(period.name)}
+								>
+									{period.name}
+								</Tag>
+							{/each}
+						</div>
+						{#each selectedPeriods.filter((period) => locked.has(period.id)) as period (period.id)}
+							<p class="muted">
+								{m.valueForm.periodLocked(period.name, locked.get(period.id) ?? 0)}
+							</p>
+						{/each}
+					{/if}
+					{#if periodOptions.length > 0}
+						<Select
+							label={m.valueForm.addPeriod}
+							onchange={(event) => {
+								addPeriod(event.currentTarget.value);
+								event.currentTarget.value = '';
+							}}
+							options={periodOptions}
+							placeholder={m.valueForm.choosePeriod}
+						/>
+					{/if}
+				</fieldset>
+			{/if}
+
+			<TextArea
+				counter
+				label={m.valueForm.summary}
+				maxlength={SUMMARY_MAX_LENGTH}
+				placeholder={m.valueForm.summaryPlaceholder}
+				rows={3}
+				bind:value={form.details.summary}
 			/>
-		{/if}
 
-		{#if record?.category === 'period'}
-			<fieldset>
-				<legend>{m.valueForm.eras}</legend>
-				{#if form.eraCodes.length === 0}
-					<p class="muted">{m.valueForm.noEras}</p>
-				{:else}
-					<div class="tags">
-						{#each form.eraCodes as code (code)}
-							<Tag
-								onremove={() => removeEra(code)}
-								removeLabel={m.valueForm.removeEra(eraName(code))}
-							>
-								{eraName(code)}
-							</Tag>
-						{/each}
-					</div>
-				{/if}
-				{#if eraOptions.length > 0}
-					<Select
-						label={m.valueForm.addEra}
-						onchange={(event) => {
-							addEra(event.currentTarget.value);
-							event.currentTarget.value = '';
-						}}
-						options={eraOptions}
-						placeholder={m.valueForm.chooseEra}
-					/>
-				{/if}
-			</fieldset>
-		{/if}
+			<NotesEditor
+				label={m.valueForm.notes}
+				placeholder={m.valueForm.notesPlaceholder}
+				bind:value={form.details.notes}
+			/>
+		</div>
 
-		{#if record?.category === 'style'}
-			<fieldset>
-				<legend>{m.valueForm.periods}</legend>
-				{#if selectedPeriods.length === 0}
-					<p class="muted">{m.valueForm.noPeriods}</p>
-				{:else}
-					<div class="tags">
-						{#each selectedPeriods as period (period.id)}
-							<Tag
-								onremove={() => removePeriod(period.id)}
-								removeDisabled={locked.has(period.id)}
-								removeLabel={m.valueForm.removePeriod(period.name)}
-							>
-								{period.name}
-							</Tag>
-						{/each}
-					</div>
-					{#each selectedPeriods.filter((period) => locked.has(period.id)) as period (period.id)}
-						<p class="muted">
-							{m.valueForm.periodLocked(period.name, locked.get(period.id) ?? 0)}
-						</p>
-					{/each}
-				{/if}
-				{#if periodOptions.length > 0}
-					<Select
-						label={m.valueForm.addPeriod}
-						onchange={(event) => {
-							addPeriod(event.currentTarget.value);
-							event.currentTarget.value = '';
-						}}
-						options={periodOptions}
-						placeholder={m.valueForm.choosePeriod}
-					/>
-				{/if}
-			</fieldset>
-		{/if}
-
-		<TextArea
-			hint={summaryHint}
-			label={m.valueForm.summary}
-			maxlength={SUMMARY_MAX_LENGTH}
-			rows={3}
-			bind:value={form.details.summary}
-		/>
-
-		<NotesEditor
-			label={m.valueForm.notes}
-			placeholder={m.valueForm.notesPlaceholder}
-			bind:value={form.details.notes}
-		/>
-
-		{#if record && kind}
-			<div class="delete">
-				{#if canDelete(record)}
-					<Button disabled={busy} onclick={() => (deleteOpen = true)} variant="danger">
-						{m.valueForm.delete}
-					</Button>
-				{:else}
-					<Tooltip
-						text={m.valueForm.deleteBlocked(
-							kind.demonstrative,
-							m.atelier.count(record.count),
-							kind.other
-						)}
-					>
-						{#snippet children(describedby)}
-							<Button aria-describedby={describedby} aria-disabled="true" variant="danger">
-								{m.valueForm.delete}
-							</Button>
-						{/snippet}
-					</Tooltip>
-				{/if}
-			</div>
-		{/if}
-	</div>
-
-	<footer class="actions">
-		<Button href={cancelHref} onclick={oncancel}>
-			{m.valueForm.cancel}
-		</Button>
-		<Button disabled={busy} type="submit" variant="primary">
-			{busy ? m.valueForm.saving : m.valueForm.save}
-		</Button>
-	</footer>
-</Form>
+		<footer class="actions">
+			<Button href={cancelHref} onclick={oncancel}>
+				{m.valueForm.cancel}
+			</Button>
+			<Button disabled={busy} type="submit" variant="primary">
+				{busy ? m.valueForm.saving : m.valueForm.save}
+			</Button>
+		</footer>
+	</Form>
+</div>
 
 <Dialog
 	description={m.valueForm.discardDescription}
@@ -520,25 +478,18 @@
 	{/snippet}
 </Dialog>
 
-{#if record && kind}
-	<Dialog
-		description={m.cardIndex.deleteConfirm.description}
-		size="small"
-		title={m.cardIndex.deleteConfirm.title(kind.accusative, record.name)}
-		bind:open={deleteOpen}
-	>
-		{#snippet footer()}
-			<Button onclick={() => (deleteOpen = false)}>
-				{m.cardIndex.deleteConfirm.back}
-			</Button>
-			<Button disabled={busy} onclick={remove} variant="primary">
-				{busy ? m.cardIndex.deleteConfirm.deleting : m.cardIndex.deleteConfirm.confirm}
-			</Button>
-		{/snippet}
-	</Dialog>
-{/if}
-
 <style>
+	.page {
+		display: grid;
+		min-height: calc(100dvh - var(--bar-height) - var(--spacing-6));
+		margin-bottom: calc(-1 * var(--spacing-12));
+	}
+
+	.page > :global(form) {
+		display: flex;
+		flex-direction: column;
+	}
+
 	.fields {
 		display: grid;
 		align-content: start;
@@ -576,6 +527,7 @@
 	.actions {
 		position: sticky;
 		bottom: 0;
+		margin-top: auto;
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--spacing-2) var(--spacing-3);
@@ -594,6 +546,10 @@
 	}
 
 	@media (min-width: 768px) {
+		.page {
+			min-height: calc(100dvh - var(--bar-height) - var(--spacing-8));
+		}
+
 		.fields {
 			max-width: var(--size-content-default);
 		}

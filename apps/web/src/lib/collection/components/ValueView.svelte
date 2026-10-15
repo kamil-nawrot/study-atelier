@@ -1,6 +1,5 @@
 <script lang="ts">
-	import Pencil from '@lucide/svelte/icons/pencil';
-	import { Button, Icon, Notes } from '@study-atelier/ui';
+	import { Icon, Notes, Section } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { eraIcon } from '../eras.ts';
 	import { subjectName, valueKindName, valuePath, type ValueParent } from '../value-pages.ts';
@@ -11,10 +10,9 @@
 		parents: ValueParent[];
 		count: number;
 		details: ValueDetails;
-		editHref: string;
 	};
 
-	let { subject, parents, count, details, editHref }: Props = $props();
+	let { subject, parents, count, details }: Props = $props();
 
 	let empty = $derived(details.summary === '' && details.notes === '');
 	let name = $derived(subjectName(subject));
@@ -52,21 +50,18 @@
 	</header>
 
 	{#if empty}
-		<div class="empty">
-			<p>{m.valuePage.kinds[subject.kind].noNotes}</p>
-			<div>
-				<Button href={editHref}>
-					<Icon icon={Pencil} size="sm" />
-					{m.valuePage.edit}
-				</Button>
-			</div>
-		</div>
+		<p class="empty">{m.valuePage.kinds[subject.kind].noNotes}</p>
 	{:else}
 		{#if details.summary}
-			<p class="summary">{details.summary}</p>
+			<Section>
+				<p class="summary">{details.summary}</p>
+			</Section>
 		{/if}
 		{#if details.notes}
-			<Notes value={details.notes} />
+			<section class="notes" aria-labelledby="value-notes">
+				<h2 id="value-notes" class="label">{m.valuePage.notes}</h2>
+				<Notes value={details.notes} />
+			</section>
 		{/if}
 	{/if}
 </article>
@@ -74,7 +69,7 @@
 <style>
 	article,
 	header,
-	.empty {
+	.notes {
 		display: grid;
 		gap: var(--spacing-3);
 	}
@@ -88,7 +83,8 @@
 		gap: var(--spacing-2);
 	}
 
-	.kind {
+	.kind,
+	.label {
 		display: flex;
 		align-items: center;
 		gap: var(--spacing-2);
@@ -142,7 +138,11 @@
 		line-height: var(--line-height-xl);
 	}
 
-	.empty p {
+	.label {
+		font-weight: var(--font-weight-regular);
+	}
+
+	.empty {
 		color: var(--color-fg-muted);
 	}
 </style>

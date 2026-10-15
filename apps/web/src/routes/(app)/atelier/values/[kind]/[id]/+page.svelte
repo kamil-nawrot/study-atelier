@@ -1,12 +1,15 @@
 <script lang="ts">
 	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 	import Pencil from '@lucide/svelte/icons/pencil';
+	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onDestroy, onMount } from 'svelte';
-	import { Alert, Button, Icon, Section, Toast } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, Icon, Section, Toast, Tooltip } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { refreshExpiredImages, resolveImages } from '#lib/collection/artworks.ts';
+	import { deleteValue } from '#lib/collection/card-index-data.ts';
+	import { canDelete } from '#lib/collection/card-index.ts';
 	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import ValueView from '#lib/collection/components/ValueView.svelte';
@@ -29,6 +32,9 @@
 	const cardIndexPath = resolve('/(app)/atelier/values');
 
 	let toast: Toast;
+	let deleteOpen = $state(false);
+	let deleting = $state(false);
+	let deleteError = $state<string>();
 	let updated = $state<Record<string, WallArtwork>>({});
 	let failedImages: WallArtwork[] = [];
 	let refreshTimer: ReturnType<typeof setTimeout> | undefined;
@@ -52,6 +58,8 @@
 			: []
 	);
 	let parents = $derived(subject ? valueParents(data.index, subject) : []);
+	let record = $derived(subject && subject.kind !== 'era' ? subject.record : undefined);
+	let kind = $derived(record ? m.cardIndex.kinds[record.category] : undefined);
 
 	$effect.pre(() => {
 		void data.artworks;
@@ -77,6 +85,25 @@
 		refreshTimer = setTimeout(refreshImages, REFRESH_DELAY_MS);
 	}
 
+	function askToDelete(): void {
+		deleteError = undefined;
+		deleteOpen = true;
+	}
+
+	async function remove(): Promise<void> {
+		if (!record || deleting) return;
+		deleting = true;
+		deleteError = undefined;
+		const result = await deleteValue(record);
+		deleting = false;
+		if (result.error) {
+			deleteError = result.error;
+			return;
+		}
+		deleteOpen = false;
+		await goto(cardIndexPath, { state: { valueMessage: m.cardIndex.deleted(record.name) } });
+	}
+
 	async function refreshImages(): Promise<void> {
 		const batch = failedImages;
 		failedImages = [];
@@ -98,10 +125,42 @@
 				</span>
 			</Button>
 		{/if}
+		{#if record && kind}
+			{#if canDelete(record)}
+				<Button aria-label={m.valuePage.delete} onclick={askToDelete} variant="danger">
+					<Icon icon={Trash} size="sm" />
+					<span class="label">
+						{m.valuePage.delete}
+					</span>
+				</Button>
+			{:else}
+				<Tooltip
+					text={m.valuePage.deleteBlocked(
+						kind.demonstrative,
+						m.atelier.count(record.count),
+						kind.other
+					)}
+				>
+					{#snippet children(describedby)}
+						<Button
+							aria-describedby={describedby}
+							aria-disabled="true"
+							aria-label={m.valuePage.delete}
+							variant="danger"
+						>
+							<Icon icon={Trash} size="sm" />
+							<span class="label">
+								{m.valuePage.delete}
+							</span>
+						</Button>
+					{/snippet}
+				</Tooltip>
+			{/if}
+		{/if}
 	{/snippet}
 
 	{#if subject && editHref}
-		<ValueView count={artworks.length} details={data.details} {editHref} {parents} {subject} />
+		<ValueView count={artworks.length} details={data.details} {parents} {subject} />
 
 		<section class="artworks" aria-labelledby="value-artworks">
 			<header>
@@ -137,6 +196,31 @@
 </AtelierLayout>
 
 <Toast bind:this={toast} />
+
+{#snippet deleteErrorAlert()}
+	<Alert tone="danger">
+		{deleteError}
+	</Alert>
+{/snippet}
+
+{#if record && kind}
+	<Dialog
+		children={deleteError ? deleteErrorAlert : undefined}
+		description={m.cardIndex.deleteConfirm.description}
+		size="small"
+		title={m.cardIndex.deleteConfirm.title(kind.accusative, record.name)}
+		bind:open={deleteOpen}
+	>
+		{#snippet footer()}
+			<Button onclick={() => (deleteOpen = false)}>
+				{m.cardIndex.deleteConfirm.back}
+			</Button>
+			<Button disabled={deleting} onclick={remove} variant="primary">
+				{deleting ? m.cardIndex.deleteConfirm.deleting : m.cardIndex.deleteConfirm.confirm}
+			</Button>
+		{/snippet}
+	</Dialog>
+{/if}
 
 <style>
 	.back {

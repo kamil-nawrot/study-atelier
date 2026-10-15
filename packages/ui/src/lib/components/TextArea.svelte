@@ -6,14 +6,31 @@
 		value?: string;
 		hint?: string;
 		error?: string;
+		counter?: boolean;
 	};
 
-	let { label, value = $bindable(''), hint, error, id, rows = 5, ...rest }: Props = $props();
+	let {
+		label,
+		value = $bindable(''),
+		hint,
+		error,
+		counter = false,
+		id,
+		rows = 5,
+		maxlength,
+		...rest
+	}: Props = $props();
 
 	const generatedId = $props.id();
 	const inputId = $derived(id ?? generatedId);
 	const messageId = $derived(`${inputId}-message`);
+	const counterId = $derived(`${inputId}-counter`);
 	const message = $derived(error ?? hint);
+	const counted = $derived(counter && typeof maxlength === 'number');
+	const full = $derived(counted && value.length >= (maxlength ?? 0));
+	const describedBy = $derived(
+		[message ? messageId : '', counted ? counterId : ''].filter(Boolean).join(' ') || undefined
+	);
 </script>
 
 <div class="field">
@@ -21,13 +38,23 @@
 	<textarea
 		id={inputId}
 		class:invalid={!!error}
-		aria-describedby={message ? messageId : undefined}
+		aria-describedby={describedBy}
 		aria-invalid={error ? true : undefined}
+		{maxlength}
 		{rows}
 		bind:value
 		{...rest}></textarea>
-	{#if message}
-		<span id={messageId} class="message" class:error={!!error}>{message}</span>
+	{#if message || counted}
+		<div class="messages">
+			{#if message}
+				<span id={messageId} class="message" class:error={!!error}>{message}</span>
+			{/if}
+			{#if counted}
+				<span id={counterId} class="message counter" class:error={full}>
+					{value.length}/{maxlength}
+				</span>
+			{/if}
+		</div>
 	{/if}
 </div>
 
@@ -79,6 +106,16 @@
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-xs);
 		line-height: var(--line-height-xs);
+	}
+
+	.messages {
+		display: flex;
+		gap: var(--spacing-3);
+	}
+
+	.counter {
+		margin-left: auto;
+		font-variant-numeric: tabular-nums;
 	}
 
 	.message.error {

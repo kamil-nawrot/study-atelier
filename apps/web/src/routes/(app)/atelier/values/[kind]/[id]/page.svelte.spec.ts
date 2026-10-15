@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
+import { refreshExpiredImages, resolveImages } from '#lib/collection/artworks.ts';
+import { deleteValue } from '#lib/collection/card-index-data.ts';
 import { findRecord } from '#lib/collection/card-index.ts';
 import type { ValueDetails, ValueSubject, WallArtwork } from '#lib/collection/types.ts';
 import { emptyValueDetails } from '#lib/collection/value-details.ts';
@@ -22,6 +24,7 @@ vi.mock('#lib/collection/artworks.ts', () => ({
 	refreshExpiredImages: vi.fn(),
 	resolveImages: vi.fn()
 }));
+vi.mock('#lib/collection/card-index-data.ts', () => ({ deleteValue: vi.fn() }));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
 const artworks: WallArtwork[] = [
@@ -86,6 +89,9 @@ describe('value page', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
 		navigation.state = {};
+		vi.mocked(deleteValue).mockResolvedValue({});
+		vi.mocked(resolveImages).mockResolvedValue([]);
+		vi.mocked(refreshExpiredImages).mockResolvedValue([]);
 		await page.viewport(1280, 800);
 	});
 
@@ -123,15 +129,21 @@ describe('value page', () => {
 		expect(page.getByText(m.valuePage.kinds.style.noNotes).elements()).toHaveLength(0);
 	});
 
-	it('says there are no notes yet and offers to edit', async () => {
+	it('says there are no notes yet, with Edytuj only in the top bar', async () => {
 		renderValue(subjectOf('style-doric'));
 
 		await expect.element(page.getByText(m.valuePage.kinds.style.noNotes)).toBeVisible();
 		const editLinks = page.getByRole('link', { name: m.valuePage.edit });
-		expect(editLinks.elements()).toHaveLength(2);
-		for (const link of editLinks.elements()) {
-			expect(link.getAttribute('href')).toBe('/atelier/values/style/style-doric/edit');
-		}
+		expect(editLinks.elements()).toHaveLength(1);
+		await expect
+			.element(page.getByRole('banner').getByRole('link', { name: m.valuePage.edit }))
+			.toHaveAttribute('href', '/atelier/values/style/style-doric/edit');
+	});
+
+	it('labels the notes', async () => {
+		renderValue(subjectOf('style-doric'), { summary: '', notes: 'Fluted shafts.' });
+
+		await expect.element(page.getByRole('heading', { name: m.valuePage.notes })).toBeVisible();
 	});
 
 	it('shows the artworks that use the value and no others', async () => {
@@ -200,5 +212,59 @@ describe('value page', () => {
 		renderValue(undefined, emptyValueDetails(), { error: m.collectionErrors.network });
 
 		await expect.element(page.getByText(m.collectionErrors.network)).toBeVisible();
+	});
+
+	describe('deleting', () => {
+		it('explains why a used value cannot be deleted in a tooltip on the button', async () => {
+			renderValue(subjectOf('style-doric'));
+			const blocked = m.valuePage.deleteBlocked(
+				m.cardIndex.kinds.style.demonstrative,
+				m.atelier.count(2),
+				m.cardIndex.kinds.style.other
+			);
+
+			await page.getByRole('button', { name: m.valuePage.delete }).hover();
+			await expect.element(page.getByRole('tooltip')).toHaveTextContent(blocked);
+		});
+
+		it('deletes an unused value from the top bar after the learner confirms', async () => {
+			renderValue(subjectOf('style-loose'));
+
+			await page.getByRole('banner').getByRole('button', { name: m.valuePage.delete }).click();
+			const confirm = page.getByRole('alertdialog', {
+				name: m.cardIndex.deleteConfirm.title('styl', 'Loose')
+			});
+			await expect.element(confirm.getByText(m.cardIndex.deleteConfirm.description)).toBeVisible();
+			expect(deleteValue).not.toHaveBeenCalled();
+			await confirm.getByRole('button', { name: m.cardIndex.deleteConfirm.confirm }).click();
+
+			expect(deleteValue).toHaveBeenCalledWith(expect.objectContaining({ id: 'style-loose' }));
+			expect(goto).toHaveBeenCalledWith('/atelier/values', {
+				state: { valueMessage: m.cardIndex.deleted('Loose') }
+			});
+		});
+
+		it('shows an error in the dialog when deleting fails', async () => {
+			vi.mocked(deleteValue).mockResolvedValue({ error: m.cardIndex.errors.changed });
+			renderValue(subjectOf('style-loose'));
+
+			await page.getByRole('banner').getByRole('button', { name: m.valuePage.delete }).click();
+			await page
+				.getByRole('alertdialog')
+				.getByRole('button', { name: m.cardIndex.deleteConfirm.confirm })
+				.click();
+
+			await expect
+				.element(page.getByRole('alertdialog').getByText(m.cardIndex.errors.changed))
+				.toBeVisible();
+			expect(goto).not.toHaveBeenCalled();
+		});
+
+		it('offers no delete for an era', async () => {
+			renderValue({ kind: 'era', code: 'antiquity' });
+
+			await expect.element(page.getByRole('heading', { level: 1 })).toBeVisible();
+			expect(page.getByRole('button', { name: m.valuePage.delete }).elements()).toHaveLength(0);
+		});
 	});
 });

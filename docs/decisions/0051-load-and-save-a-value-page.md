@@ -29,6 +29,12 @@ Chosen, decided by the owner in ATL-141: option 1, and the rules below.
 - **Parent.** The eras of a period and the periods of a style under the name are links to their own value pages. Values in the artwork view stay without links ([ADR-0047](0047-no-links-from-values-into-a-filtered-wall.md)).
 - **Merge.** When the new name matches another value and the form ends in a merge, the summary and notes typed in the form are not saved; the remaining value keeps its own (R-69), and the merge confirmation already says the merged value's page content is deleted. After the merge the app opens the page of the remaining value.
 - **Saving.** `save_value_details(target_value, details)` inserts or updates the details row of a category value and `save_era_details(target_era, details)` that of an era; `details` is a JSON object with the fields of the kind, so ATL-142 and ATL-143 add fields without a new function. Both run as the learner (`security invoker`). The form saves the details first, then the links (`set_period_eras`, `set_style_periods`), then the name or the merge. Each step can be repeated, so after an error the learner saves again.
+- **Page and form after review.** Decided by the owner in the review of ATL-141, changing the page and form of [ADR-0049](0049-give-every-category-value-a-page-of-its-own.md):
+  - "Edytuj" and "Usuń" are only in the top bar of the value page, as in the artwork view; a page without notes says so without a second "Edytuj". "Usuń" deletes from the page (with the confirmation and the blocked state of [ADR-0040](0040-manage-category-values-in-a-card-index.md)), and the form has no "Usuń". An era has "Edytuj" only.
+  - The summary stands in a `Section` (the library's bordered block) and the notes have a small-capitals label "Notatki", like the kind and count above the name.
+  - The summary field shows its hint as a placeholder, as the notes do, and a counter on the right under the field that turns red at 300 characters (`counter` of the library's `TextArea`).
+  - The form's action bar stays at the bottom of the screen even when the form is short, as in the artwork form.
+  - The card index remembers its tab for the session.
 
 ### Consequences
 

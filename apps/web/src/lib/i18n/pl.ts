@@ -524,6 +524,10 @@ export const pl = {
 	valuePage: {
 		back: 'Kartoteka',
 		edit: 'Edytuj',
+		notes: 'Notatki',
+		delete: 'Usuń',
+		deleteBlocked: (demonstrative: string, count: string, other: string): string =>
+			`${demonstrative} ma jeszcze ${count}, więc nie da się go usunąć. Możesz go połączyć z ${other}.`,
 		header: (kind: string, count: string): string => `${kind} · ${count}`,
 		eraKind: 'Epoka',
 		notFoundTitle: 'Nie ma takiej wartości',
@@ -580,9 +584,6 @@ export const pl = {
 		removePeriod: (name: string): string => `Usuń okres ${name}`,
 		periodLocked: (period: string, count: number): string =>
 			`Nie uda się odpiąć okresu „${period}” od tego stylu, bo ${workCount(count)} w tym stylu ${count === 1 ? 'ma' : 'mają'} przypisany taki okres.`,
-		delete: 'Usuń',
-		deleteBlocked: (demonstrative: string, count: string, other: string): string =>
-			`${demonstrative} ma jeszcze ${count}, więc nie da się go usunąć. Możesz go połączyć z ${other}.`,
 		cancel: 'Anuluj',
 		save: 'Zapisz',
 		saving: 'Zapisywanie…',
@@ -590,8 +591,7 @@ export const pl = {
 		eraAccusative: 'epokę',
 		goBack: 'Wróć do strony',
 		summary: 'Podsumowanie',
-		summaryHint: 'Krótki opis do szybkiego podejrzenia przy oglądaniu dzieła.',
-		summaryLength: (length: number, max: number): string => `${length}/${max}`,
+		summaryPlaceholder: 'Krótki opis do szybkiego podejrzenia przy oglądaniu dzieła.',
 		notes: 'Notatki',
 		notesPlaceholder: 'Wszystko, co warto zapamiętać',
 		errorTitle: 'Nie udało się zapisać zmian',

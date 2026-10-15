@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { beforeNavigate, goto } from '$app/navigation';
-import { deleteValue, loadValuePageContent, saveValue } from '#lib/collection/card-index-data.ts';
+import { loadValuePageContent, saveValue } from '#lib/collection/card-index-data.ts';
 import { findRecord } from '#lib/collection/card-index.ts';
 import type { ValueDetails, ValueSubject } from '#lib/collection/types.ts';
 import { emptyValueDetails, saveValueDetails } from '#lib/collection/value-details.ts';
@@ -18,7 +18,6 @@ vi.mock('$app/navigation', () => ({
 }));
 vi.mock('#lib/collection/card-index-data.ts', () => ({
 	saveValue: vi.fn(),
-	deleteValue: vi.fn(),
 	loadValuePageContent: vi.fn()
 }));
 vi.mock('#lib/collection/value-details.ts', async (importOriginal) => ({
@@ -77,7 +76,6 @@ describe('edit value page', () => {
 		vi.clearAllMocks();
 		await page.viewport(1280, 800);
 		vi.mocked(saveValue).mockResolvedValue({});
-		vi.mocked(deleteValue).mockResolvedValue({});
 		vi.mocked(saveValueDetails).mockResolvedValue({});
 		vi.mocked(loadValuePageContent).mockResolvedValue({ content: { hasContent: false } });
 	});
@@ -91,9 +89,7 @@ describe('edit value page', () => {
 		await expect.element(nameField()).toHaveValue('Doric');
 		await expect.element(page.getByText('Classical', { exact: true })).toBeVisible();
 		await expect.element(page.getByLabelText(m.valueForm.summary)).toHaveValue('Plain capitals.');
-		await expect
-			.element(page.getByText(m.valueForm.summaryLength(15, 300), { exact: false }))
-			.toBeVisible();
+		await expect.element(page.getByText('15/300', { exact: false })).toBeVisible();
 	});
 
 	it('saves the summary and notes, then shows the page with a toast', async () => {
@@ -182,6 +178,15 @@ describe('edit value page', () => {
 		expect(navigation.cancel).not.toHaveBeenCalled();
 	});
 
+	it('shows the summary hint as a placeholder and no delete button', async () => {
+		renderEdit(subjectOf('style-loose'));
+
+		await expect
+			.element(page.getByLabelText(m.valueForm.summary))
+			.toHaveAttribute('placeholder', m.valueForm.summaryPlaceholder);
+		expect(page.getByRole('button', { name: m.valuePage.delete }).elements()).toHaveLength(0);
+	});
+
 	it('links Anuluj back to the value page', async () => {
 		renderEdit(subjectOf('material-marble'));
 
@@ -198,9 +203,6 @@ describe('edit value page', () => {
 			.toHaveTextContent(m.valueForm.editTitle('epokę', m.eras.antiquity.name));
 		await expect.element(page.getByLabelText(m.valueForm.summary)).toBeVisible();
 		expect(nameField().elements()).toHaveLength(0);
-		expect(
-			page.getByRole('button', { name: m.valueForm.delete, exact: true }).elements()
-		).toHaveLength(0);
 
 		await page.getByLabelText(m.valueForm.summary).fill('Greece and Rome.');
 		await saveButton().click();
@@ -478,52 +480,6 @@ describe('edit value page', () => {
 			await expect.element(nameField()).toBeVisible();
 			expect(page.getByRole('group', { name: m.valueForm.eras }).elements()).toHaveLength(0);
 			expect(page.getByRole('group', { name: m.valueForm.periods }).elements()).toHaveLength(0);
-		});
-	});
-
-	describe('deleting', () => {
-		it('explains why a used value cannot be deleted in a tooltip on the button', async () => {
-			renderEdit(subjectOf('style-doric'));
-			const blocked = m.valueForm.deleteBlocked(
-				m.cardIndex.kinds.style.demonstrative,
-				m.atelier.count(2),
-				m.cardIndex.kinds.style.other
-			);
-
-			await page.getByRole('button', { name: m.valueForm.delete, exact: true }).hover();
-			await expect.element(page.getByRole('tooltip')).toHaveTextContent(blocked);
-		});
-
-		it('deletes an unused value after the learner confirms and returns to the card index', async () => {
-			renderEdit(subjectOf('style-loose'));
-
-			await page.getByRole('button', { name: m.valueForm.delete, exact: true }).click();
-			const confirm = page.getByRole('alertdialog', {
-				name: m.cardIndex.deleteConfirm.title('styl', 'Loose')
-			});
-			await expect.element(confirm.getByText(m.cardIndex.deleteConfirm.description)).toBeVisible();
-			expect(deleteValue).not.toHaveBeenCalled();
-			await confirm.getByRole('button', { name: m.cardIndex.deleteConfirm.confirm }).click();
-
-			expect(deleteValue).toHaveBeenCalledWith(expect.objectContaining({ id: 'style-loose' }));
-			expect(goto).toHaveBeenCalledWith('/atelier/values', {
-				replace: true,
-				state: { valueMessage: m.cardIndex.deleted('Loose') }
-			});
-		});
-
-		it('shows an error when deleting fails', async () => {
-			vi.mocked(deleteValue).mockResolvedValue({ error: m.cardIndex.errors.changed });
-			renderEdit(subjectOf('style-loose'));
-
-			await page.getByRole('button', { name: m.valueForm.delete, exact: true }).click();
-			await page
-				.getByRole('alertdialog')
-				.getByRole('button', { name: m.cardIndex.deleteConfirm.confirm })
-				.click();
-
-			await expect.element(page.getByText(m.cardIndex.errors.changed)).toBeVisible();
-			expect(goto).not.toHaveBeenCalled();
 		});
 	});
 });
