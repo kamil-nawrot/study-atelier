@@ -22,6 +22,8 @@ Mockups (for example from a design session in Claude Projects) show layout and p
 
 The project goes one step at a time. Claude does not jump ahead to later steps (for example writing application code before requirements are agreed).
 
+Several Claude sessions may work at the same time. Before starting an issue, Claude checks that no other session is on it: its status in Linear, the remote branches and the open pull requests. When one is, Claude tells the owner before doing anything.
+
 ## End of a session
 
 Before a session's pull request is merged, once the owner's review comments are addressed, Claude runs the [`study-atelier-session-retro`](../../.claude/skills/study-atelier-session-retro/SKILL.md) skill: it proposes what the conversation and the session's pull request taught that is worth recording in the docs, the guidelines or the project memory, and records what the owner confirms in that same pull request.
