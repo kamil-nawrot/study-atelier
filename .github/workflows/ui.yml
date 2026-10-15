@@ -13,6 +13,7 @@ on:
       - 'prettier.config.js'
       - 'design/**'
       - '.github/workflows/ui.yml'
+      - '.github/scripts/coverage-summary.mjs'
   workflow_call:
 
 concurrency:
@@ -46,8 +47,12 @@ jobs:
       - name: Install Playwright Chromium
         run: pnpm --filter @study-atelier/ui exec playwright install --with-deps --only-shell chromium
 
-      - name: Unit and component tests
-        run: pnpm --filter @study-atelier/ui test
+      - name: Unit and component tests with coverage
+        run: pnpm --filter @study-atelier/ui test:coverage
+
+      - name: Coverage summary
+        if: ${{ !cancelled() && hashFiles('packages/ui/coverage/coverage-summary.json') != '' }}
+        run: node .github/scripts/coverage-summary.mjs "UI library" packages/ui/coverage/coverage-summary.json >> "$GITHUB_STEP_SUMMARY"
 
       - name: Build Storybook
         run: pnpm --filter @study-atelier/ui build
