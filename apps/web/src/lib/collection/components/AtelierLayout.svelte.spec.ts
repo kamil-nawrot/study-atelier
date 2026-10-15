@@ -1,9 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import '@study-atelier/ui/styles.css';
 import { m } from '#lib/i18n/index.ts';
+import { setTheme } from '#lib/theme/theme.svelte.ts';
 import AtelierLayout from './AtelierLayout.svelte';
 
 const navigation = vi.hoisted(() => ({ to: null as object | null }));
@@ -37,6 +38,10 @@ function renderLayout(bar: ReturnType<typeof createRawSnippet> | undefined): voi
 describe('AtelierLayout', () => {
 	beforeEach(() => {
 		navigation.to = null;
+	});
+
+	afterEach(() => {
+		setTheme('dark');
 	});
 
 	it('shows no loading indicator while no navigation is in progress', async () => {
@@ -83,5 +88,27 @@ describe('AtelierLayout', () => {
 		expect(drawer.getBoundingClientRect().height).toBe(window.innerHeight);
 		expect(drawer.scrollHeight).toBe(drawer.clientHeight);
 		expect(getComputedStyle(document.documentElement).overflow).toBe('hidden');
+	});
+
+	it('switches between the dark and the light theme from the menu, between the trash and signing out', async () => {
+		await page.viewport(1280, 800);
+		renderLayout(views.empty);
+
+		const items = page
+			.getByRole('navigation', { name: m.menu.label })
+			.element()
+			.querySelectorAll('a, button');
+		const names = [...items].map((item) => item.textContent?.trim());
+		expect(names.slice(-3)).toEqual([m.menu.trash, m.menu.lightTheme, m.menu.signOut]);
+
+		await userEvent.click(page.getByRole('button', { name: m.menu.lightTheme }));
+
+		expect(document.documentElement.dataset.theme).toBe('light');
+		await expect.element(page.getByRole('button', { name: m.menu.darkTheme })).toBeInTheDocument();
+
+		await userEvent.click(page.getByRole('button', { name: m.menu.darkTheme }));
+
+		expect(document.documentElement.dataset.theme).toBeUndefined();
+		await expect.element(page.getByRole('button', { name: m.menu.lightTheme })).toBeInTheDocument();
 	});
 });

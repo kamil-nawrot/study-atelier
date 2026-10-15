@@ -2,11 +2,14 @@
 	import ImagesIcon from '@lucide/svelte/icons/images';
 	import ListTree from '@lucide/svelte/icons/list-tree';
 	import LogOut from '@lucide/svelte/icons/log-out';
+	import Moon from '@lucide/svelte/icons/moon';
+	import Sun from '@lucide/svelte/icons/sun';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { Icon } from '@study-atelier/ui';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/index.ts';
+	import { currentTheme, setTheme } from '#lib/theme/theme.svelte.ts';
 
 	type Props = {
 		email: string;
@@ -19,6 +22,8 @@
 	const atelierPath = resolve('/(app)/atelier');
 	const cardIndexPath = resolve('/(app)/atelier/values');
 	const trashPath = resolve('/(app)/atelier/trash');
+
+	const light = $derived(currentTheme() === 'light');
 </script>
 
 <div class="group">
@@ -62,6 +67,12 @@
 			{m.menu.trash}
 		</span>
 	</a>
+	<button class="item muted" onclick={() => setTheme(light ? 'dark' : 'light')} type="button">
+		<Icon icon={light ? Moon : Sun} />
+		<span class="label">
+			{light ? m.menu.darkTheme : m.menu.lightTheme}
+		</span>
+	</button>
 	<button class="item danger" disabled={signingOut} onclick={onsignout} type="button">
 		<Icon icon={LogOut} />
 		<span class="label">
