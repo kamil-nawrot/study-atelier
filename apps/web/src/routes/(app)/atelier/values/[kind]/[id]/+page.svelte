@@ -76,7 +76,10 @@
 			return;
 		}
 		deleteOpen = false;
-		await goto(cardIndexPath, { state: { valueMessage: m.cardIndex.deleted(record.name) } });
+		await goto(cardIndexPath, {
+			refreshAll: true,
+			state: { valueMessage: m.cardIndex.deleted(record.name) }
+		});
 	}
 </script>
 

@@ -106,6 +106,7 @@ describe('edit value page', () => {
 		);
 		expect(goto).toHaveBeenCalledWith('/atelier/values/style/style-doric', {
 			replace: true,
+			refreshAll: true,
 			state: { valueMessage: m.valuePage.saved }
 		});
 	});
@@ -217,6 +218,7 @@ describe('edit value page', () => {
 		expect(saveValue).not.toHaveBeenCalled();
 		expect(goto).toHaveBeenCalledWith('/atelier/values/era/antiquity', {
 			replace: true,
+			refreshAll: true,
 			state: { valueMessage: m.valuePage.saved }
 		});
 	});
@@ -277,6 +279,7 @@ describe('edit value page', () => {
 			);
 			expect(goto).toHaveBeenCalledWith('/atelier/values/style/style-ionic', {
 				replace: true,
+				refreshAll: true,
 				state: { valueMessage: m.cardIndex.merged('Ionic') }
 			});
 		});

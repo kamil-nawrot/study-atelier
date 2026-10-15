@@ -423,7 +423,7 @@ describe('artwork page', () => {
 		await dialog.getByRole('button', { name: m.trash.move }).click();
 
 		expect(moveToTrash).toHaveBeenCalledWith('artwork-42');
-		expect(goto).toHaveBeenCalledWith('/atelier', { state: { trashed: 42 } });
+		expect(goto).toHaveBeenCalledWith('/atelier', { refreshAll: true, state: { trashed: 42 } });
 	});
 
 	it('keeps the artwork when the learner cancels', async () => {

@@ -224,6 +224,7 @@ describe('edit artwork page', () => {
 		await vi.waitFor(() =>
 			expect(goto).toHaveBeenCalledWith('/atelier/7', {
 				replace: true,
+				refreshAll: true,
 				state: { saved: 7 }
 			})
 		);
