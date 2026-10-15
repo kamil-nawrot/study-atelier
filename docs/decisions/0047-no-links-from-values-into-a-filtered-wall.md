@@ -37,3 +37,4 @@ Chosen option: 2, decided by the owner in ATL-118.
 
 - Supersedes the links from the artwork view and the card index in ADR-0042 and drops R-60; the rest of ADR-0042 stands.
 - Owner's decision in ATL-118 (2026-10-14).
+- The detail pages came with [ADR-0049](0049-give-every-category-value-a-page-of-its-own.md): a value in the card index leads to its page, which shows its artworks. Values in the artwork view stay without links.

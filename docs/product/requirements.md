@@ -72,6 +72,13 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-50 | The learner adds and removes the eras of a period and the periods of a style. Adding a link changes no artwork. Removing an era from a period moves the artworks that have the period with that era to an era the period keeps, or leaves them without an era, after the learner confirms with the number of artworks. A period can be removed from a style only while no artwork has both. | later |
 | R-51 | The learner can delete a value only when no artwork uses it, artworks in the trash included, after confirming. | later |
 | R-52 | Every artwork tile on the wall shows the icon of the artwork's era, small and muted. While the wall is ordered by era, the period rail shows the icon only for the current era. | later |
+| R-63 | Every category value has a page, opened by clicking it in the card index (era names on the timeline included): the kind and the number of artworks, the name, its parent (the era of a period, the periods of a style), the kind's own fields, the summary and the notes, then the artworks that use it as wall tiles. A page without a summary or notes, and a value no artwork uses, say so ([ADR-0049](../decisions/0049-give-every-category-value-a-page-of-its-own.md)). | 0.4 |
+| R-64 | The learner edits a value in a form on its own page with the layout of the artwork form and "Zapisz" in the panel at the bottom: the name (not for an era), the links of R-50, the kind's own fields, a short plain-text summary ("Podsumowanie") and Markdown notes ("Notatki"). Renaming, merging and deleting follow R-49 to R-51. Eras, which are not the learner's own values, get a summary and notes too. | 0.4 |
+| R-65 | An author has a portrait, found in Wikimedia Commons by the author's name or the learner's own image, and years of life as a year span with "p.n.e." and "ok." like the date of creation (R-62). | 0.4 |
+| R-66 | An author can be given a sort name ("Sortuj jako") after ticking a checkbox; authors are put in A to Z order by it, or by their name when it is not set. | 0.4 |
+| R-67 | A location has a country chosen from a fixed list and a type: museum, private collection or on site. Both are optional. | 0.4 |
+| R-68 | In the artwork view a value with a summary shows a card with its kind, parent, name and summary (for an author also the years of life) when the pointer rests on it or it gets focus, and on a phone after a tap. The card has no link; a value without a summary shows nothing. | 0.4 |
+| R-69 | Merging two values keeps only the remaining value's summary, fields and notes; the merged value's page content is deleted, and the merge confirmation says so when there is any. Deleting a value deletes its page content. | 0.4 |
 
 ## Images
 
