@@ -17,7 +17,7 @@ export type WikidataArtwork = {
 	creatorNames: string[];
 	hasCreator: boolean;
 	date: SourceDate | null;
-	file: string | null;
+	file: string;
 };
 
 type Binding = Partial<
@@ -58,9 +58,8 @@ export function artworkSearchQuery(title: string): string {
     }
     BIND(?ordinal + ${SEARCH_LIMIT} AS ?searchRank)
   }
-  FILTER EXISTS { ?item p:P170|p:P84|wdt:P18 [] }
+  ?item wdt:P18 ?image.
   FILTER NOT EXISTS { VALUES ?excluded { ${excluded} } ?item wdt:P31 ?excluded }
-  OPTIONAL { ?item wdt:P18 ?image }
   OPTIONAL {
     ?item p:P571 ?dateStatement.
     ?dateStatement wikibase:rank ?rank; psv:P571 ?dateValue.
@@ -107,7 +106,8 @@ function names(value: { value: string } | undefined): string[] {
 
 function toArtwork(binding: Binding): WikidataArtwork | null {
 	const wikidataId = binding.item?.value.match(/(Q\d+)$/)?.[1];
-	if (!wikidataId) return null;
+	const file = fileFromUrl(binding.file?.value);
+	if (!wikidataId || !file) return null;
 	return {
 		wikidataId,
 		title: binding.title?.value ?? wikidataId,
@@ -115,7 +115,7 @@ function toArtwork(binding: Binding): WikidataArtwork | null {
 		creatorNames: names(binding.creatorNames),
 		hasCreator: Number(binding.creatorCount?.value ?? 0) > 0,
 		date: sourceDate(binding.date?.value),
-		file: fileFromUrl(binding.file?.value)
+		file
 	};
 }
 
