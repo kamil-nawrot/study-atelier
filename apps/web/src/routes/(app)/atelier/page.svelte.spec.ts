@@ -493,6 +493,16 @@ describe('atelier page', () => {
 				await page.viewport(1900, 900);
 			});
 
+			it('has no rail when every artwork falls into one era', async () => {
+				renderAtelier(manyPeriods().slice(0, 4));
+				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
+
+				await expect.element(orderSelect()).toHaveValue('period');
+				await expect
+					.element(page.getByRole('complementary', { name: m.atelier.periods.label }))
+					.not.toBeInTheDocument();
+			});
+
 			it('shows the rail at the right edge instead of the strip', async () => {
 				renderAtelier(manyPeriods());
 				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
@@ -613,6 +623,14 @@ describe('atelier page', () => {
 					.toHaveAttribute('aria-current', 'true');
 				await expect.element(rail).toHaveTextContent(m.atelier.filters.unknownAuthor);
 				expect(rail.element().querySelectorAll('svg')).toHaveLength(0);
+			});
+
+			it('has no rail when every artwork has the same author', async () => {
+				renderAtelier(manyAuthors(1));
+
+				await expect
+					.element(page.getByRole('complementary', { name: m.atelier.authors.label }))
+					.not.toBeInTheDocument();
 			});
 
 			it('names only the current author when the rail is too short for every name', async () => {
