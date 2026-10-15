@@ -50,10 +50,6 @@ Use exactly these sections, in this order, as in [`.github/pull_request_template
 - Bullets over paragraphs; short sentences; code identifiers in backticks.
 - No personal data: refer to people by role ("the owner").
 
-## No attribution
-
-Add no tool attribution to the title, description or commits: no "Requested by" line, no "Generated with Claude Code" footer, no `Co-Authored-By` or `Claude-Session` trailers (see the git workflow guideline).
-
 ## After creating
 
 - Target `develop` (or `main` for releases and hotfixes); branch name per the git workflow guideline.

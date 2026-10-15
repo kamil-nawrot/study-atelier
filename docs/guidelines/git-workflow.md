@@ -40,7 +40,6 @@ Commit messages follow [Conventional Commits 1.0](https://www.conventionalcommit
 - One pull request per Linear issue, targeting `develop` (or `main` for releases and hotfixes).
 - The title has the form `<type>(<scope>): ATL-<n> - <short description>`, for example `feat(web): ATL-12 - add artwork list view`.
 - The description follows [`.github/pull_request_template.md`](../../.github/pull_request_template.md): Context, Changes, Review focus, Decisions. It is short and lists any docs or ADRs updated.
-- Pull requests and commits carry no tool attribution: no "Requested by" line, no "Generated with Claude Code" footer, no `Co-Authored-By` or `Claude-Session` trailers.
 - Claude creates pull requests with the [`study-atelier-pr-create`](../../.claude/skills/study-atelier-pr-create/SKILL.md) skill.
 - Before asking the owner for review, Claude reviews the pull request with the [`study-atelier-pr-review`](../../.claude/skills/study-atelier-pr-review/SKILL.md) skill and fixes blocking findings.
 - The owner reviews and merges. Claude keeps the pull request green and answers review comments.
