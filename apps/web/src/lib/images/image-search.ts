@@ -99,34 +99,34 @@ export async function findImageCandidates(query: ImageSearchQuery): Promise<Imag
 	try {
 		const artworks = rankArtworks(await searchWikidataArtworks(query.title), query.authors);
 		const files = await fetchCommonsFiles(
-			artworks.flatMap((artwork) => artwork.file ?? []),
+			artworks.map((artwork) => artwork.file),
 			CANDIDATE_THUMBNAIL_WIDTH
 		);
-		const candidates = artworks.map((artwork): ImageCandidate => {
-			const details = artwork.file ? files.get(artwork.file) : undefined;
-			return {
-				wikidataId: artwork.wikidataId,
-				title: artwork.title,
-				authors: artwork.creators,
-				date: formatSourceDate(artwork.date),
-				image:
-					artwork.file && details
-						? {
-								file: artwork.file,
-								src: details.thumbnailUrl,
-								srcset: commonsThumbnailSrcset(
-									details.thumbnailUrl,
-									CANDIDATE_THUMBNAIL_WIDTH,
-									CANDIDATE_WIDTHS.filter((width) => width <= details.width)
-								),
-								width: details.width,
-								height: details.height,
-								licence: details.licence,
-								licenceUrl: details.licenceUrl,
-								attribution: details.attribution
-							}
-						: null
-			};
+		const candidates = artworks.flatMap((artwork): ImageCandidate[] => {
+			const details = files.get(artwork.file);
+			if (!details) return [];
+			return [
+				{
+					wikidataId: artwork.wikidataId,
+					title: artwork.title,
+					authors: artwork.creators,
+					date: formatSourceDate(artwork.date),
+					image: {
+						file: artwork.file,
+						src: details.thumbnailUrl,
+						srcset: commonsThumbnailSrcset(
+							details.thumbnailUrl,
+							CANDIDATE_THUMBNAIL_WIDTH,
+							CANDIDATE_WIDTHS.filter((width) => width <= details.width)
+						),
+						width: details.width,
+						height: details.height,
+						licence: details.licence,
+						licenceUrl: details.licenceUrl,
+						attribution: details.attribution
+					}
+				}
+			];
 		});
 		return { candidates };
 	} catch (error) {
