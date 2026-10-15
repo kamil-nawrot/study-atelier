@@ -2,7 +2,7 @@
 	import { untrack } from 'svelte';
 	import { Alert, Button, Dialog, Select, Tag, TextField, Tooltip } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
-	import { deleteValue, saveValue } from '../card-index-data.ts';
+	import { deleteValue, loadValuePageContent, saveValue } from '../card-index-data.ts';
 	import {
 		canDelete,
 		erasOfPeriod,
@@ -38,6 +38,7 @@
 	let moveOpen = $state(false);
 	let moveError = $state<string>();
 	let mergeOpen = $state(false);
+	let mergedHasContent = $state(false);
 	let deleteOpen = $state(false);
 	let busy = $state(false);
 	let error = $state<string>();
@@ -92,19 +93,19 @@
 		const { mergeConfirm } = m.cardIndex;
 		const merged = record.name;
 		const kept = mergeTarget.name;
-		if (record.count === 0)
-			return [mergeConfirm.unused(merged), mergeConfirm.irreversible].join(' ');
+		const ending = [
+			...(mergedHasContent ? [mergeConfirm.pageContent(merged)] : []),
+			mergeConfirm.irreversible
+		];
+		if (record.count === 0) return [mergeConfirm.unused(merged), ...ending].join(' ');
 		if (record.category === 'period') {
 			return [
 				mergeConfirm.periodAssigned(merged, kept, record.count),
 				mergeConfirm.periodLinks(merged, kept),
-				mergeConfirm.irreversible
+				...ending
 			].join(' ');
 		}
-		return [
-			mergeConfirm.assigned(merged, kept, record.count, kind.genitive),
-			mergeConfirm.irreversible
-		].join(' ');
+		return [mergeConfirm.assigned(merged, kept, record.count, kind.genitive), ...ending].join(' ');
 	});
 	function sameItems(a: readonly string[], b: readonly string[]): boolean {
 		return a.length === b.length && a.every((item) => b.includes(item));
@@ -148,8 +149,20 @@
 	}
 
 	function proceed(): void {
-		if (mergeTarget) mergeOpen = true;
+		if (mergeTarget) void confirmMerge();
 		else void run();
+	}
+
+	async function confirmMerge(): Promise<void> {
+		busy = true;
+		const result = await loadValuePageContent(record.id);
+		busy = false;
+		if (result.error) {
+			error = result.error;
+			return;
+		}
+		mergedHasContent = result.content?.hasContent ?? false;
+		mergeOpen = true;
 	}
 
 	async function run(): Promise<void> {
@@ -181,7 +194,7 @@
 	async function remove(): Promise<void> {
 		busy = true;
 		error = undefined;
-		const result = await deleteValue(record.id);
+		const result = await deleteValue(record);
 		busy = false;
 		if (result.error) {
 			error = result.error;

@@ -156,6 +156,84 @@ export type Database = {
           },
         ];
       };
+      author_details: {
+        Row: {
+          birth_year: number | null;
+          category_code: string;
+          death_year: number | null;
+          image_height: number | null;
+          image_width: number | null;
+          notes: string | null;
+          own_image_path: string | null;
+          own_image_source_url: string | null;
+          own_image_url: string | null;
+          owner_id: string;
+          sort_name: string | null;
+          source_image_attribution: string | null;
+          source_image_file: string | null;
+          source_image_licence: string | null;
+          source_image_licence_url: string | null;
+          source_wikidata_id: string | null;
+          summary: string | null;
+          updated_at: string;
+          value_id: string;
+          years_approximate: boolean;
+        };
+        ComputedFields: never;
+        Insert: {
+          birth_year?: number | null;
+          category_code?: string;
+          death_year?: number | null;
+          image_height?: number | null;
+          image_width?: number | null;
+          notes?: string | null;
+          own_image_path?: string | null;
+          own_image_source_url?: string | null;
+          own_image_url?: string | null;
+          owner_id?: string;
+          sort_name?: string | null;
+          source_image_attribution?: string | null;
+          source_image_file?: string | null;
+          source_image_licence?: string | null;
+          source_image_licence_url?: string | null;
+          source_wikidata_id?: string | null;
+          summary?: string | null;
+          updated_at?: string;
+          value_id: string;
+          years_approximate?: boolean;
+        };
+        Update: {
+          birth_year?: number | null;
+          category_code?: string;
+          death_year?: number | null;
+          image_height?: number | null;
+          image_width?: number | null;
+          notes?: string | null;
+          own_image_path?: string | null;
+          own_image_source_url?: string | null;
+          own_image_url?: string | null;
+          owner_id?: string;
+          sort_name?: string | null;
+          source_image_attribution?: string | null;
+          source_image_file?: string | null;
+          source_image_licence?: string | null;
+          source_image_licence_url?: string | null;
+          source_wikidata_id?: string | null;
+          summary?: string | null;
+          updated_at?: string;
+          value_id?: string;
+          years_approximate?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "author_details_value_id_owner_id_category_code_fkey";
+            columns: ["value_id", "owner_id", "category_code"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id", "category_code"];
+          },
+        ];
+      };
       categories: {
         Row: {
           code: string;
@@ -208,6 +286,39 @@ export type Database = {
           },
         ];
       };
+      era_details: {
+        Row: {
+          era_code: string;
+          notes: string | null;
+          owner_id: string;
+          summary: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          era_code: string;
+          notes?: string | null;
+          owner_id?: string;
+          summary?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          era_code?: string;
+          notes?: string | null;
+          owner_id?: string;
+          summary?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "era_details_era_code_fkey";
+            columns: ["era_code"];
+            isOneToOne: false;
+            referencedRelation: "eras";
+            referencedColumns: ["code"];
+          },
+        ];
+      };
       eras: {
         Row: {
           code: string;
@@ -223,6 +334,120 @@ export type Database = {
           position?: number;
         };
         Relationships: [];
+      };
+      location_details: {
+        Row: {
+          category_code: string;
+          country_code: string | null;
+          notes: string | null;
+          owner_id: string;
+          place_type: string | null;
+          summary: string | null;
+          updated_at: string;
+          value_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          category_code?: string;
+          country_code?: string | null;
+          notes?: string | null;
+          owner_id?: string;
+          place_type?: string | null;
+          summary?: string | null;
+          updated_at?: string;
+          value_id: string;
+        };
+        Update: {
+          category_code?: string;
+          country_code?: string | null;
+          notes?: string | null;
+          owner_id?: string;
+          place_type?: string | null;
+          summary?: string | null;
+          updated_at?: string;
+          value_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "location_details_value_id_owner_id_category_code_fkey";
+            columns: ["value_id", "owner_id", "category_code"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id", "category_code"];
+          },
+        ];
+      };
+      material_details: {
+        Row: {
+          category_code: string;
+          notes: string | null;
+          owner_id: string;
+          summary: string | null;
+          updated_at: string;
+          value_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          category_code?: string;
+          notes?: string | null;
+          owner_id?: string;
+          summary?: string | null;
+          updated_at?: string;
+          value_id: string;
+        };
+        Update: {
+          category_code?: string;
+          notes?: string | null;
+          owner_id?: string;
+          summary?: string | null;
+          updated_at?: string;
+          value_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "material_details_value_id_owner_id_category_code_fkey";
+            columns: ["value_id", "owner_id", "category_code"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id", "category_code"];
+          },
+        ];
+      };
+      period_details: {
+        Row: {
+          category_code: string;
+          notes: string | null;
+          owner_id: string;
+          summary: string | null;
+          updated_at: string;
+          value_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          category_code?: string;
+          notes?: string | null;
+          owner_id?: string;
+          summary?: string | null;
+          updated_at?: string;
+          value_id: string;
+        };
+        Update: {
+          category_code?: string;
+          notes?: string | null;
+          owner_id?: string;
+          summary?: string | null;
+          updated_at?: string;
+          value_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "period_details_value_id_owner_id_category_code_fkey";
+            columns: ["value_id", "owner_id", "category_code"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id", "category_code"];
+          },
+        ];
       };
       period_eras: {
         Row: {
@@ -255,6 +480,42 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "category_values";
             referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
+      style_details: {
+        Row: {
+          category_code: string;
+          notes: string | null;
+          owner_id: string;
+          summary: string | null;
+          updated_at: string;
+          value_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          category_code?: string;
+          notes?: string | null;
+          owner_id?: string;
+          summary?: string | null;
+          updated_at?: string;
+          value_id: string;
+        };
+        Update: {
+          category_code?: string;
+          notes?: string | null;
+          owner_id?: string;
+          summary?: string | null;
+          updated_at?: string;
+          value_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "style_details_value_id_owner_id_category_code_fkey";
+            columns: ["value_id", "owner_id", "category_code"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id", "category_code"];
           },
         ];
       };
@@ -335,6 +596,13 @@ export type Database = {
           artwork_count: number;
           period_id: string;
           style_id: string;
+        }[];
+      };
+      value_page_content: {
+        Args: { target_value: string };
+        Returns: {
+          has_content: boolean;
+          own_image_path: string;
         }[];
       };
       value_usage: {
