@@ -1,12 +1,13 @@
 import type { ArtworkTileImage } from '@study-atelier/ui';
 
-export type WallOrder = 'recent' | 'period';
+export type WallOrder = 'recent' | 'period' | 'author';
 
 export type EraCode =
 	'prehistory' | 'antiquity' | 'middle_ages' | 'early_modern' | 'modern' | 'contemporary';
 
 export type PeriodGroup = {
-	code: EraCode;
+	key: string;
+	code: EraCode | null;
 	name: string;
 	from: number | null;
 	to: number | null;
@@ -23,16 +24,35 @@ export type ArtworkValueRow = {
 	category_values: { category_code: string; name: string } | null;
 };
 
+export type ImageSize = {
+	width: number;
+	height: number;
+};
+
+export type PendingImage = {
+	sourceFile?: string;
+	ownPath?: string;
+	size?: ImageSize;
+};
+
 export type WallArtwork = {
 	id: string;
 	number: number;
 	title: string;
 	authors: string[];
 	date?: string;
-	year: number | null;
+	yearFrom: number | null;
+	yearTo: number | null;
 	eraCode: EraCode | null;
+	typeCode: ArtworkTypeCode | null;
+	period: string | null;
+	styles: string[];
+	materials: string[];
+	location: string | null;
+	hasImage: boolean;
 	image?: ArtworkTileImage;
 	imageUnavailable?: boolean;
+	pendingImage?: PendingImage;
 	ownImagePath?: string | null;
 	imageSignedAt?: number;
 };
@@ -111,8 +131,10 @@ export type ArtworkInput = {
 	title: string;
 	authors: string[];
 	authorUnknown: boolean;
-	year: number | null;
-	beforeCommonEra: boolean;
+	yearFrom: number | null;
+	fromBeforeCommonEra: boolean;
+	yearTo: number | null;
+	toBeforeCommonEra: boolean;
 	yearApproximate: boolean;
 	typeCode: ArtworkTypeCode | null;
 	eraCode: EraCode | null;
@@ -134,7 +156,9 @@ export type ExistingArtwork = {
 	image: ArtworkImageInput | null;
 };
 
-export type ArtworkFieldErrors = Partial<Record<'title' | 'authors' | 'year', string>>;
+export type ArtworkFieldErrors = Partial<
+	Record<'title' | 'authors' | 'yearFrom' | 'yearTo', string>
+>;
 
 export type SaveArtworkResult =
 	| { saved: true; id: string; number: number }
@@ -151,8 +175,11 @@ export type ArtworkFormState = {
 	values: CategoryValues;
 	queries: Record<CategoryCode, string>;
 	authorUnknown: boolean;
-	year: string;
-	beforeCommonEra: boolean;
+	spanMode: boolean;
+	yearFrom: string;
+	fromBeforeCommonEra: boolean;
+	yearTo: string;
+	toBeforeCommonEra: boolean;
 	yearApproximate: boolean;
 	typeCode: ArtworkTypeCode | '';
 	eraCode: EraCode | null;
@@ -210,3 +237,55 @@ export type EraMove = {
 	removed: EraCode[];
 	remaining: EraCode[];
 };
+
+export type MissingData = 'image' | 'year' | 'era' | 'period' | 'type';
+
+export type FilterField =
+	| 'eras'
+	| 'types'
+	| 'years'
+	| 'authors'
+	| 'periods'
+	| 'styles'
+	| 'materials'
+	| 'locations'
+	| 'missing';
+
+export type CollectionFilter = {
+	eras: EraCode[];
+	types: ArtworkTypeCode[];
+	yearFrom: number | null;
+	yearTo: number | null;
+	authors: string[];
+	unknownAuthor: boolean;
+	periods: string[];
+	styles: string[];
+	materials: string[];
+	locations: string[];
+	missing: MissingData[];
+};
+
+export type FilterTag = {
+	id: string;
+	field: FilterField;
+	value: string;
+};
+
+export type TagParts = {
+	field: string;
+	value: string;
+};
+
+export type FilterOption = {
+	value: string;
+	count: number;
+};
+
+export type FlipDirection = 'previous' | 'next';
+
+export type WallSequence = {
+	query: string;
+	numbers: number[];
+};
+
+export type Neighbours = Record<FlipDirection, number | null>;

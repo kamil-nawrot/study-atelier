@@ -57,6 +57,10 @@ function eraTile(code: keyof typeof m.eras): ReturnType<typeof page.getByRole> {
 	return page.getByRole('radio', { name: `${m.eras[code].name} ${m.eras[code].years}` });
 }
 
+async function toggleSpan(): Promise<void> {
+	await page.getByText(m.artworkForm.spanSwitch, { exact: true }).click();
+}
+
 function periodField(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('combobox', { name: m.artworkForm.period });
 }
@@ -180,7 +184,7 @@ function savedBefore(title: string, author: string, number = 5): void {
 }
 
 function duplicateDialog(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('alertdialog', { name: m.artworkForm.duplicateTitle });
+	return page.getByRole('alertdialog', { name: m.duplicateDialog.title });
 }
 
 async function fillRequired(): Promise<void> {
@@ -263,6 +267,56 @@ describe('add artwork page', () => {
 
 		await expect.element(page.getByText(m.artworkErrors.yearInvalid)).toBeVisible();
 		expect(supabase.rpc).not.toHaveBeenCalled();
+	});
+
+	it('switches the date to a year span and saves both of its years', async () => {
+		renderPage();
+		await fillRequired();
+
+		await toggleSpan();
+
+		await expect.element(page.getByRole('textbox', { name: m.artworkForm.spanFrom })).toBeVisible();
+		expect(page.getByRole('textbox', { name: m.artworkForm.year }).elements()).toHaveLength(0);
+
+		await page.getByRole('textbox', { name: m.artworkForm.spanFrom }).fill('50');
+		await page.getByText(m.artworkForm.beforeCommonEra, { exact: true }).first().click();
+		await page.getByRole('textbox', { name: m.artworkForm.spanTo }).fill('20');
+		await saveButton().click();
+
+		await vi.waitFor(() =>
+			expect(supabase.rpc).toHaveBeenCalledWith(
+				'save_artwork',
+				expect.objectContaining({
+					artwork: expect.objectContaining({ year_from: -50, year_to: 20 })
+				})
+			)
+		);
+	});
+
+	it('rejects a year span whose end is earlier than its start', async () => {
+		renderPage();
+		await fillRequired();
+		await toggleSpan();
+
+		await page.getByRole('textbox', { name: m.artworkForm.spanFrom }).fill('1519');
+		await page.getByRole('textbox', { name: m.artworkForm.spanTo }).fill('1503');
+		await saveButton().click();
+
+		await expect.element(page.getByText(m.artworkErrors.spanOrder)).toBeVisible();
+		expect(supabase.rpc).not.toHaveBeenCalled();
+	});
+
+	it('keeps the end year as the year when the year span is switched off', async () => {
+		renderPage();
+		await toggleSpan();
+		await page.getByRole('textbox', { name: m.artworkForm.spanFrom }).fill('1503');
+		await page.getByRole('textbox', { name: m.artworkForm.spanTo }).fill('1519');
+
+		await toggleSpan();
+
+		await expect
+			.element(page.getByRole('textbox', { name: m.artworkForm.year }))
+			.toHaveValue('1519');
 	});
 
 	it('clears and disables the authors when the author is unknown', async () => {
@@ -384,7 +438,10 @@ describe('add artwork page', () => {
 
 		await saveButton().click();
 
-		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, unknown>];
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as unknown as [
+			string,
+			Record<string, unknown>
+		];
 		expect(args.artwork).toMatchObject({ era_code: 'early_modern' });
 		expect(args.values_by_category).toMatchObject({
 			period: ['Dutch Golden Age'],
@@ -398,7 +455,10 @@ describe('add artwork page', () => {
 
 		await saveButton().click();
 
-		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, unknown>];
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as unknown as [
+			string,
+			Record<string, unknown>
+		];
 		expect(args.artwork).toMatchObject({ era_code: null });
 		expect(args.values_by_category).toMatchObject({ period: [], style: [] });
 	});
@@ -443,7 +503,7 @@ describe('add artwork page', () => {
 			artwork: expect.objectContaining({
 				title: 'The Milkmaid',
 				author_unknown: false,
-				year: 1658,
+				year_to: 1658,
 				year_approximate: true,
 				type_code: 'painting',
 				notes: 'Seen in Amsterdam.'
@@ -455,7 +515,7 @@ describe('add artwork page', () => {
 				material: [],
 				location: []
 			},
-			existing_id: null
+			existing_id: undefined
 		});
 	});
 
@@ -496,7 +556,9 @@ describe('add artwork page', () => {
 		await expect.element(duplicateDialog()).toBeVisible();
 		await expect
 			.element(duplicateDialog())
-			.toHaveAccessibleDescription(m.artworkForm.duplicateDescription('#0005', 1));
+			.toHaveAccessibleDescription(
+				m.duplicateDialog.description('#0005', 1, m.duplicateDialog.save.advice)
+			);
 		await page.getByRole('button', { name: m.artworkForm.keepEditing }).click();
 
 		await expect.element(duplicateDialog()).not.toBeInTheDocument();
@@ -512,7 +574,7 @@ describe('add artwork page', () => {
 		await fillRequired();
 
 		await saveButton().click();
-		await page.getByRole('button', { name: m.artworkForm.saveAnyway }).click();
+		await page.getByRole('button', { name: m.duplicateDialog.save.confirm }).click();
 
 		await vi.waitFor(() =>
 			expect(goto).toHaveBeenCalledWith('/atelier', { state: { highlight: 12 } })
@@ -526,7 +588,7 @@ describe('add artwork page', () => {
 		await fillRequired();
 
 		await page.getByRole('button', { name: m.artworkForm.saveAndNext }).click();
-		await page.getByRole('button', { name: m.artworkForm.saveAnyway }).click();
+		await page.getByRole('button', { name: m.duplicateDialog.save.confirm }).click();
 
 		await expect.element(page.getByRole('status')).toHaveTextContent(m.artworkForm.saved('#0012'));
 		await expect.element(titleField()).toHaveValue('');

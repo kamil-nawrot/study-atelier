@@ -151,11 +151,12 @@ export const pl = {
 			`${count} ${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })}`,
 		filteredCount: (shown: number, total: number): string =>
 			`${shown} z ${total} ${plural(total, { one: 'dzieła', few: 'dzieł', many: 'dzieł' })}`,
-		search: 'Szukaj po tytule',
+		search: 'Szukaj po tytule lub autorze',
 		sort: {
 			label: 'Kolejność',
 			recent: 'Ostatnio dodane',
-			period: 'Według epok'
+			period: 'Według epok',
+			author: 'Według autorów'
 		},
 		periods: {
 			label: 'Epoki',
@@ -164,14 +165,17 @@ export const pl = {
 				'W tej kolejności widać tylko dzieła z wpisaną epoką. Dopisz epokę w dziele albo wróć do ostatnio dodanych.',
 			showRecent: 'Pokaż ostatnio dodane'
 		},
+		authors: {
+			label: 'Autorzy'
+		},
 		add: 'Dodaj dzieło',
 		emptyTitle: 'Twoje atelier jest jeszcze puste',
 		empty:
 			'Dodaj pierwsze dzieło, które poznajesz w książce albo na wykładzie. Na początek wystarczą tytuł i autor.',
 		addFirst: 'Dodaj pierwsze dzieło',
-		noResultsTitle: 'Nie ma tu dzieła o takim tytule',
+		noResultsTitle: 'Nie ma tu takiego dzieła',
 		noResults: (query: string): string =>
-			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu.`,
+			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu lub nazwiska.`,
 		clearSearch: 'Wyczyść wyszukiwanie',
 		loadErrorTitle: 'Nie udało się wczytać atelier',
 		imagesUnavailableTitle: 'Nie wszystkie zdjęcia się wczytały',
@@ -179,7 +183,71 @@ export const pl = {
 		retryImages: 'Spróbuj ponownie',
 		year: (year: number, approximate: boolean): string =>
 			`${approximate ? 'ok. ' : ''}${year < 0 ? `${-year} p.n.e.` : year}`,
-		yearRange: (from: string, to: string): string => `${from} – ${to}`
+		yearRange: (from: string, to: string): string => `${from} – ${to}`,
+		span: (from: number, to: number, approximate: boolean): string => {
+			const prefix = approximate ? 'ok. ' : '';
+			if (from < 0 && to < 0) return `${prefix}${-from}–${-to} p.n.e.`;
+			if (from > 0 && to > 0) return `${prefix}${from}–${to}`;
+			const year = (value: number): string => (value < 0 ? `${-value} p.n.e.` : `${value} n.e.`);
+			return `${prefix}${year(from)} – ${year(to)}`;
+		},
+		filters: {
+			title: 'Filtry',
+			button: 'Filtry',
+			buttonWithCount: (count: number): string => `Filtry (${count})`,
+			viewButton: 'Widok',
+			viewTitle: 'Widok',
+			closePanel: 'Zamknij filtry',
+			activeLabel: 'Włączone filtry',
+			clear: 'Wyczyść filtry',
+			removeTag: (label: string): string => `Usuń filtr: ${label}`,
+			noResultsTitle: 'Nic tu nie pasuje',
+			noResults: 'Żadne dzieło nie pasuje do tych filtrów.',
+			showResults: (count: number): string =>
+				`Pokaż ${count} ${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })}`,
+			fields: {
+				eras: 'Epoka',
+				types: 'Typ',
+				years: 'Rok powstania',
+				authors: 'Autorzy',
+				periods: 'Okres',
+				styles: 'Styl',
+				materials: 'Materiał',
+				locations: 'Miejsce',
+				missing: 'Do uzupełnienia'
+			},
+			tagFields: {
+				eras: 'Epoka',
+				types: 'Typ',
+				years: 'Rok',
+				authors: 'Autor',
+				periods: 'Okres',
+				styles: 'Styl',
+				materials: 'Materiał',
+				locations: 'Miejsce',
+				missing: 'Do uzupełnienia'
+			},
+			tag: (field: string, value: string): string => `${field} ${value}`,
+			unknownAuthor: 'Autor nieznany',
+			missing: {
+				image: 'bez zdjęcia',
+				year: 'bez roku',
+				era: 'bez epoki',
+				period: 'bez okresu',
+				type: 'bez typu'
+			},
+			yearFrom: 'Od',
+			yearTo: 'Do',
+			beforeCommonEra: 'p.n.e.',
+			yearsBetween: (from: number, to: number): string =>
+				`${from < 0 ? `${-from} p.n.e.` : from}–${to < 0 ? `${-to} p.n.e.` : to}`,
+			yearsFrom: (from: number): string => `od ${from < 0 ? `${-from} p.n.e.` : from}`,
+			yearsTo: (to: number): string => `do ${to < 0 ? `${-to} p.n.e.` : to}`,
+			searchValues: (field: string): string => `Szukaj: ${field.toLocaleLowerCase('pl')}`,
+			showMore: 'Pokaż więcej',
+			showLess: 'Pokaż mniej',
+			valueCount: (name: string, count: number): string => `${name}, ${count}`
+		}
 	},
 	artworkForm: {
 		newTitle: 'Nowe dzieło',
@@ -218,6 +286,12 @@ export const pl = {
 		authors: 'Autorzy',
 		authorUnknown: 'Autor nieznany',
 		year: 'Rok powstania',
+		spanTitle: 'Lata powstania',
+		spanSwitch: 'Od – do',
+		spanFrom: 'Od',
+		spanTo: 'Do',
+		beforeCommonEraFrom: 'p.n.e. (od)',
+		beforeCommonEraTo: 'p.n.e. (do)',
 		beforeCommonEra: 'p.n.e.',
 		yearApproximate: 'ok.',
 		type: 'Typ',
@@ -242,11 +316,22 @@ export const pl = {
 		discardTitle: 'Odrzucić zmiany?',
 		discardDescription: 'Masz niezapisane zmiany w tym dziele. Jeśli wyjdziesz, znikną.',
 		keepEditing: 'Wróć do formularza',
-		discard: 'Odrzuć',
-		duplicateTitle: 'Masz już takie dzieło',
-		duplicateDescription: (numbers: string, count: number): string =>
-			`W atelier ${count === 1 ? 'jest' : 'są'} już ${numbers} o tym samym tytule i autorach. Jeśli to inne dzieło, po prostu je zapisz.`,
-		saveAnyway: 'Zapisz mimo to'
+		discard: 'Odrzuć'
+	},
+	duplicateDialog: {
+		title: 'Masz już takie dzieło',
+		description: (numbers: string, count: number, advice: string): string =>
+			`W atelier ${count === 1 ? 'jest' : 'są'} już ${numbers} o tym samym tytule i autorach. ${advice}`,
+		save: {
+			advice: 'Jeśli to inne dzieło, po prostu je zapisz.',
+			back: 'Wróć do formularza',
+			confirm: 'Zapisz mimo to'
+		},
+		restore: {
+			advice: 'Jeśli to inne dzieło, po prostu je przywróć.',
+			back: 'Zostaw w koszu',
+			confirm: 'Przywróć mimo to'
+		}
 	},
 	artworkView: {
 		back: 'Atelier',
@@ -258,7 +343,9 @@ export const pl = {
 		hideInformation: 'Zamknij informacje',
 		openImage: 'Powiększ zdjęcie',
 		closeImage: 'Zamknij powiększenie',
-		empty: 'Nie wpisano'
+		empty: 'Nie wpisano',
+		previous: 'Poprzednie dzieło',
+		next: 'Następne dzieło'
 	},
 	imageSearch: {
 		title: 'Które to dzieło?',
@@ -303,6 +390,8 @@ export const pl = {
 		titleRequired: 'Wpisz tytuł dzieła.',
 		authorRequired: 'Dodaj autora albo zaznacz „Autor nieznany”.',
 		yearRequired: 'Wpisz rok, żeby zaznaczyć „p.n.e.” albo „ok.”.',
+		spanEndRequired: 'Wpisz rok końcowy.',
+		spanOrder: 'Rok końcowy nie może być wcześniejszy niż początkowy.',
 		yearInvalid: 'Rok to liczba całkowita od 1 w górę. Dla lat przed naszą erą zaznacz „p.n.e.”.',
 		invalid: 'Niektóre pola się nie zgadzają. Sprawdź je i zapisz jeszcze raz.',
 		notFound: 'Nie ma takiego dzieła w Twoim atelier. Mogło trafić do kosza.',

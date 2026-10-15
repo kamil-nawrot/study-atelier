@@ -1,6 +1,6 @@
 {
 	"name": "study-atelier",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"private": true,
 	"type": "module",
 	"packageManager": "pnpm@10.28.0",
@@ -21,7 +21,8 @@
 		"db:stop": "supabase stop",
 		"db:reset": "supabase db reset",
 		"db:status": "supabase status",
-		"db:env": "supabase status -o env"
+		"db:env": "supabase status -o env",
+		"db:types": "supabase gen types --lang typescript --local --schema public | prettier --no-config --parser typescript > apps/web/src/lib/database.types.ts"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",

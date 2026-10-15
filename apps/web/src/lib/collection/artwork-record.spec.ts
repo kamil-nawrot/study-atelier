@@ -53,7 +53,8 @@ function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 		record_number: 7,
 		title: 'The Test Painting',
 		author_unknown: false,
-		year: null,
+		year_from: null,
+		year_to: null,
 		year_approximate: false,
 		type_code: null,
 		era_code: null,
@@ -95,17 +96,56 @@ describe('validateArtwork', () => {
 	});
 
 	it('asks for a year when it is marked as before the common era or approximate', () => {
-		expect(validateArtwork(input({ beforeCommonEra: true }))).toEqual({
-			year: m.artworkErrors.yearRequired
+		expect(validateArtwork(input({ toBeforeCommonEra: true }))).toEqual({
+			yearTo: m.artworkErrors.yearRequired
 		});
 		expect(validateArtwork(input({ yearApproximate: true }))).toEqual({
-			year: m.artworkErrors.yearRequired
+			yearTo: m.artworkErrors.yearRequired
+		});
+	});
+
+	it('accepts a year span inside one era and across the turn of the eras', () => {
+		expect(validateArtwork(input({ yearFrom: 1503, yearTo: 1519 }))).toEqual({});
+		expect(
+			validateArtwork(
+				input({ yearFrom: 450, fromBeforeCommonEra: true, yearTo: 420, toBeforeCommonEra: true })
+			)
+		).toEqual({});
+		expect(validateArtwork(input({ yearFrom: 50, fromBeforeCommonEra: true, yearTo: 20 }))).toEqual(
+			{}
+		);
+	});
+
+	it('rejects a year span whose end is earlier than its start', () => {
+		const order = { yearTo: m.artworkErrors.spanOrder };
+		expect(validateArtwork(input({ yearFrom: 1519, yearTo: 1503 }))).toEqual(order);
+		expect(validateArtwork(input({ yearFrom: 20, yearTo: 50, toBeforeCommonEra: true }))).toEqual(
+			order
+		);
+		expect(
+			validateArtwork(
+				input({ yearFrom: 420, fromBeforeCommonEra: true, yearTo: 450, toBeforeCommonEra: true })
+			)
+		).toEqual(order);
+	});
+
+	it('asks for the end of a year span and rejects a start that is not a year', () => {
+		expect(validateArtwork(input({ yearFrom: 1503 }))).toEqual({
+			yearTo: m.artworkErrors.spanEndRequired
+		});
+		expect(validateArtwork(input({ fromBeforeCommonEra: true, yearTo: 1519 }))).toEqual({
+			yearFrom: m.artworkErrors.yearRequired
+		});
+		expect(validateArtwork(input({ yearFrom: Number.NaN, yearTo: 1519 }))).toEqual({
+			yearFrom: m.artworkErrors.yearInvalid
 		});
 	});
 
 	it('rejects a year that is not a whole number from 1', () => {
 		for (const year of [0, -5, 1.5]) {
-			expect(validateArtwork(input({ year }))).toEqual({ year: m.artworkErrors.yearInvalid });
+			expect(validateArtwork(input({ yearTo: year }))).toEqual({
+				yearTo: m.artworkErrors.yearInvalid
+			});
 		}
 	});
 });
@@ -126,8 +166,8 @@ describe('saveArtwork', () => {
 				input({
 					title: '  The Test Painting ',
 					authors: ['First Author', ' Second Author '],
-					year: 480,
-					beforeCommonEra: true,
+					yearTo: 480,
+					toBeforeCommonEra: true,
 					yearApproximate: true,
 					typeCode: 'sculpture',
 					eraCode: 'antiquity',
@@ -144,7 +184,8 @@ describe('saveArtwork', () => {
 			artwork: {
 				title: 'The Test Painting',
 				author_unknown: false,
-				year: -480,
+				year_from: null,
+				year_to: -480,
 				year_approximate: true,
 				type_code: 'sculpture',
 				era_code: 'antiquity',
@@ -166,8 +207,40 @@ describe('saveArtwork', () => {
 				material: ['Marble'],
 				location: ['Test Museum']
 			},
-			existing_id: null
+			existing_id: undefined
 		});
+	});
+
+	it('stores a year span as signed years and a span of one year as a single year', async () => {
+		await saveArtwork(
+			input({ yearFrom: 50, fromBeforeCommonEra: true, yearTo: 20, yearApproximate: true })
+		);
+		expect(supabase.rpc).toHaveBeenLastCalledWith(
+			'save_artwork',
+			expect.objectContaining({
+				artwork: expect.objectContaining({
+					year_from: -50,
+					year_to: 20,
+					year_approximate: true
+				})
+			})
+		);
+
+		await saveArtwork(input({ yearFrom: 1503, yearTo: 1503 }));
+		expect(supabase.rpc).toHaveBeenLastCalledWith(
+			'save_artwork',
+			expect.objectContaining({
+				artwork: expect.objectContaining({ year_from: null, year_to: 1503 })
+			})
+		);
+	});
+
+	it('does not call Supabase when the year span is not in order', async () => {
+		await expect(saveArtwork(input({ yearFrom: 1519, yearTo: 1503 }))).resolves.toEqual({
+			saved: false,
+			fieldErrors: { yearTo: m.artworkErrors.spanOrder }
+		});
+		expect(supabase.rpc).not.toHaveBeenCalled();
 	});
 
 	it('updates an existing artwork by its id', async () => {
@@ -377,7 +450,8 @@ describe('loadArtwork', () => {
 	it('returns every field with values grouped by category in their order', async () => {
 		query.maybeSingle.mockResolvedValue({
 			data: row({
-				year: -480,
+				year_from: -500,
+				year_to: -480,
 				year_approximate: true,
 				type_code: 'sculpture',
 				era_code: 'antiquity',
@@ -402,8 +476,10 @@ describe('loadArtwork', () => {
 				title: 'The Test Painting',
 				authors: ['First Author', 'Second Author'],
 				authorUnknown: false,
-				year: 480,
-				beforeCommonEra: true,
+				yearFrom: 500,
+				fromBeforeCommonEra: true,
+				yearTo: 480,
+				toBeforeCommonEra: true,
 				yearApproximate: true,
 				typeCode: 'sculpture',
 				eraCode: 'antiquity',

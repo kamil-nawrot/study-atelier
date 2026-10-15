@@ -8,6 +8,8 @@ export type RailEntry = {
 };
 
 export const MAX_RAIL_ROW = 28;
+export const MIN_LABELLED_ROW = 18;
+export const MAX_STRIP_MARKS = 12;
 
 function clamp(value: number, low: number, high: number): number {
 	return Math.min(high, Math.max(low, value));

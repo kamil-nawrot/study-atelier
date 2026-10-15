@@ -32,12 +32,19 @@ const USAGE = `Usage: pnpm screenshot <path> [options]
   --full-page        capture the whole page, not only the first screen
   --signed-out       do not inject the fake session (default for the auth routes)
   --storage k=v      set a localStorage entry before the page loads (repeatable)
+  --session k=v      set a sessionStorage entry before the page loads (repeatable)
   --wait <selector>  wait for this selector before capturing
+  --script <file>    run this JavaScript file in the page before capturing, for example to mock a variant
   --url <base>       use a running dev server instead of starting one
 `;
 
 function parseArgs(argv) {
-	const options = { storage: {}, viewport: 'both', out: path.join(REPO_DIR, 'tmp/screenshots') };
+	const options = {
+		storage: {},
+		session: {},
+		viewport: 'both',
+		out: path.join(REPO_DIR, 'tmp/screenshots')
+	};
 	const rest = [...argv];
 	while (rest.length > 0) {
 		const arg = rest.shift();
@@ -46,11 +53,11 @@ function parseArgs(argv) {
 		else if (arg === '--combine') options.combine = true;
 		else if (arg === '--full-page') options.fullPage = true;
 		else if (arg === '--signed-out') options.signedOut = true;
-		else if (['--out', '--name', '--viewport', '--wait', '--url'].includes(arg)) {
+		else if (['--out', '--name', '--viewport', '--wait', '--url', '--script'].includes(arg)) {
 			options[arg.slice(2)] = rest.shift();
-		} else if (arg === '--storage') {
+		} else if (arg === '--storage' || arg === '--session') {
 			const [key, ...value] = (rest.shift() ?? '').split('=');
-			options.storage[key] = value.join('=');
+			options[arg.slice(2)][key] = value.join('=');
 		} else if (arg.startsWith('--')) throw new Error(`Unknown option ${arg}`);
 		else options.route = arg;
 	}
@@ -137,7 +144,7 @@ async function mockImages(context) {
 		return route.fulfill(svg(imageSvg(name, Number(size?.[1] ?? 4), Number(size?.[2] ?? 5))));
 	});
 
-	await context.route(/^https:\/\/upload\.wikimedia\.org\//, (route) => {
+	await context.route(/^https:\/\/(upload|thumb)\.wikimedia\.org\//, (route) => {
 		const name = decodeURIComponent(new URL(route.request().url()).pathname);
 		const file = name.split('/').at(-2) ?? name;
 		const [width, height] = commonsSize(file);
@@ -162,7 +169,7 @@ async function mockImages(context) {
 				title,
 				imageinfo: [
 					{
-						thumburl: `https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/${encoded}/500px-${encoded}`,
+						thumburl: `https://thumb.wikimedia.org/wikipedia/commons/thumb/0/00/${encoded}/500px-${encoded}?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail`,
 						width: width * 200,
 						height: height * 200,
 						extmetadata: {
@@ -235,21 +242,26 @@ async function capture(browser, base, options, name) {
 	await mockImages(context);
 	const signedOut = options.signedOut || AUTH_PATHS.some((p) => options.route.startsWith(p));
 	await context.addInitScript(
-		({ key, session, entries }) => {
+		({ key, session, entries, sessionEntries }) => {
 			if (session) localStorage.setItem(key, JSON.stringify(session));
 			for (const [entryKey, value] of Object.entries(entries)) {
 				localStorage.setItem(entryKey, value);
+			}
+			for (const [entryKey, value] of Object.entries(sessionEntries)) {
+				sessionStorage.setItem(entryKey, value);
 			}
 		},
 		{
 			key: `sb-${new URL(SUPABASE_URL).hostname.split('.')[0]}-auth-token`,
 			session: signedOut ? null : fakeSession(),
-			entries: options.storage
+			entries: options.storage,
+			sessionEntries: options.session
 		}
 	);
 	const page = await context.newPage();
 	await page.goto(new URL(options.route, base).href, { waitUntil: 'networkidle' });
 	if (options.wait) await page.waitForSelector(options.wait);
+	if (options.script) await page.evaluate(readFileSync(path.resolve(options.script), 'utf8'));
 	await page.evaluate(() => document.fonts.ready);
 	await page.waitForTimeout(400);
 	const file = path.join(options.out, `${options.name}-${name}.png`);

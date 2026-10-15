@@ -128,4 +128,14 @@ describe('ArtworkTile', () => {
 		await expect.element(page.getByRole('link')).toHaveTextContent('Nieznany autor');
 		await expect.element(page.getByRole('img', { name: 'Brak zdjęcia' })).toBeVisible();
 	});
+
+	it('waits for an image whose address is not known yet instead of saying there is none', async () => {
+		const { container } = await render(ArtworkTile, {
+			...base,
+			image: { width: 400, height: 300 }
+		});
+
+		await expect.element(page.getByText(defaultUiMessages.noImage)).not.toBeInTheDocument();
+		expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+	});
 });

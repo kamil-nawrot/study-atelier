@@ -29,7 +29,9 @@ Starts the dev server on port 5199, opens the route in Chromium at a desktop (14
 | `--full-page`       | Capture the whole page instead of the first screen                  |
 | `--signed-out`      | No fake session (automatic for sign-in, sign-up and password pages) |
 | `--storage k=v`     | Set a localStorage entry first, for example `study-atelier:wall-order=period` |
+| `--session k=v`     | Set a sessionStorage entry first, for example the wall sequence that gives the artwork view its arrows: `'study-atelier:wall-sequence={"query":"","numbers":[9,3,1]}'` |
 | `--wait <selector>` | Wait for a selector before capturing                                |
+| `--script <file>`   | Run a JavaScript file in the page first, for example to mock an option |
 | `--url <base>`      | Use a dev server that is already running                            |
 
 Combine desktop and phone shots into one image when attaching to a thread: a thread accepts at most 24 attachments.
@@ -39,7 +41,7 @@ Combine desktop and phone shots into one image when attaching to a thread: a thr
 All of it lives in [`apps/web/scripts/screenshot/`](../../apps/web/scripts/screenshot/).
 
 - **Supabase** (`https://abcd.supabase.co/**`): a fake session in the `sb-abcd-auth-token` localStorage entry; `/rest/v1/artworks` answers from the sample artworks in `fixtures.mjs` (filters on `deleted_at`, `record_number` and `id`, and the single-object `Accept` header); other tables and storage answer with empty lists; RPCs answer with the first sample artwork.
-- **Images**: own image URLs on `https://images.mock.test`, Wikimedia Commons (`api.php`, `upload.wikimedia.org`, `Special:FilePath`) and Wikidata are all answered locally with generated SVG gradients, so nothing depends on the network and Commons rate limits do not matter.
+- **Images**: own image URLs on `https://images.mock.test`, Wikimedia Commons (`api.php`, `upload.wikimedia.org`, `thumb.wikimedia.org`, `Special:FilePath`) and Wikidata are all answered locally with generated SVG gradients, so nothing depends on the network and Commons rate limits do not matter.
 - **Data**: ten sample artworks (plus one in the trash) with English titles and no personal data. Add or change rows in `fixtures.mjs` to show another state, for example an artwork with a long title or a very wide image.
 
 When a view needs data the mock does not return yet, extend `mockSupabase` in `screenshot.mjs` rather than writing a one-off script in the session. If the app's queries change shape (for example a new column), update the sample rows in the same pull request.

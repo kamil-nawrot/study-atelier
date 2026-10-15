@@ -4,6 +4,8 @@ export const WIDE_MIN_WIDTH = 768;
 export const MIN_WIDE_COLUMN_WIDTH = 320;
 export const MIN_WIDE_COLUMNS = 3;
 export const MAX_WIDE_COLUMNS = 4;
+export const WALL_PART = 60;
+export const WALL_MARGIN = '150% 0px';
 
 export function columnCount(wide: boolean, viewportWidth: number): number {
 	if (!wide) return 1;

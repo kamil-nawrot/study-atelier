@@ -37,8 +37,10 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 		title: 'The Milkmaid',
 		authors: ['Johannes Vermeer'],
 		authorUnknown: false,
-		year: 1658,
-		beforeCommonEra: false,
+		yearFrom: null,
+		fromBeforeCommonEra: false,
+		yearTo: 1658,
+		toBeforeCommonEra: false,
 		yearApproximate: true,
 		typeCode: 'painting',
 		eraCode: null,
@@ -85,7 +87,7 @@ function savedArtworks(...titles: [number, string][]): void {
 }
 
 function duplicateDialog(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('alertdialog', { name: m.artworkForm.duplicateTitle });
+	return page.getByRole('alertdialog', { name: m.duplicateDialog.title });
 }
 
 type Leave = Parameters<Parameters<typeof beforeNavigate>[0]>[0];
@@ -227,7 +229,7 @@ describe('edit artwork page', () => {
 		expect(supabase.rpc).toHaveBeenCalledWith('save_artwork', {
 			artwork: expect.objectContaining({
 				title: 'The Kitchen Maid',
-				year: 1658,
+				year_to: 1658,
 				year_approximate: true,
 				type_code: 'painting',
 				notes: 'Seen in Amsterdam.'
@@ -276,8 +278,10 @@ describe('edit artwork page', () => {
 
 		await expect
 			.element(duplicateDialog())
-			.toHaveAccessibleDescription(m.artworkForm.duplicateDescription('#0003 i #0012', 2));
-		await page.getByRole('button', { name: m.artworkForm.saveAnyway }).click();
+			.toHaveAccessibleDescription(
+				m.duplicateDialog.description('#0003 i #0012', 2, m.duplicateDialog.save.advice)
+			);
+		await page.getByRole('button', { name: m.duplicateDialog.save.confirm }).click();
 
 		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
 	});
@@ -361,5 +365,19 @@ describe('edit artwork page', () => {
 			.toHaveTextContent(m.artworkForm.loadErrorTitle);
 		await expect.element(page.getByRole('alert')).toHaveTextContent(m.artworkErrors.network);
 		await expect.element(titleField()).not.toBeInTheDocument();
+	});
+
+	it('opens a record with a year span in the span mode', async () => {
+		renderPage({ artwork: artwork({ yearFrom: 1503, yearTo: 1519 }) });
+
+		await expect
+			.element(page.getByRole('switch', { name: m.artworkForm.spanSwitch }))
+			.toBeChecked();
+		await expect
+			.element(page.getByRole('textbox', { name: m.artworkForm.spanFrom }))
+			.toHaveValue('1503');
+		await expect
+			.element(page.getByRole('textbox', { name: m.artworkForm.spanTo }))
+			.toHaveValue('1519');
 	});
 });

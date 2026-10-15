@@ -1,25 +1,11 @@
+import { ARTWORK_TYPE_CODES } from './artwork-types.ts';
 import { emptyCategoryValues } from './category-values.ts';
 import type { SelectOption } from '@study-atelier/ui';
 import { m } from '#lib/i18n/index.ts';
 import type { ImageCandidate } from '#lib/images/types.ts';
-import type {
-	ArtworkFormState,
-	ArtworkImageInput,
-	ArtworkInput,
-	ArtworkRecord,
-	ArtworkTypeCode
-} from './types.ts';
+import type { ArtworkFormState, ArtworkImageInput, ArtworkInput, ArtworkRecord } from './types.ts';
 
-export const ARTWORK_TYPE_CODES: readonly ArtworkTypeCode[] = [
-	'architecture',
-	'painting',
-	'sculpture',
-	'drawing',
-	'printmaking',
-	'applied_arts',
-	'photography',
-	'other'
-];
+export { ARTWORK_TYPE_CODES };
 
 export function artworkTypeOptions(): SelectOption[] {
 	return ARTWORK_TYPE_CODES.map((code) => ({ value: code, label: m.artworkTypes[code] }));
@@ -31,8 +17,11 @@ export function emptyArtworkForm(): ArtworkFormState {
 		values: emptyCategoryValues(),
 		queries: { author: '', period: '', style: '', material: '', location: '' },
 		authorUnknown: false,
-		year: '',
-		beforeCommonEra: false,
+		spanMode: false,
+		yearFrom: '',
+		fromBeforeCommonEra: false,
+		yearTo: '',
+		toBeforeCommonEra: false,
 		yearApproximate: false,
 		typeCode: '',
 		eraCode: null,
@@ -53,8 +42,11 @@ export function artworkFormFromRecord(record: ArtworkRecord): ArtworkFormState {
 			location: record.location === null ? [] : [record.location]
 		},
 		authorUnknown: record.authorUnknown,
-		year: record.year === null ? '' : String(record.year),
-		beforeCommonEra: record.beforeCommonEra,
+		spanMode: record.yearFrom !== null,
+		yearFrom: record.yearFrom === null ? '' : String(record.yearFrom),
+		fromBeforeCommonEra: record.fromBeforeCommonEra,
+		yearTo: record.yearTo === null ? '' : String(record.yearTo),
+		toBeforeCommonEra: record.toBeforeCommonEra,
 		yearApproximate: record.yearApproximate,
 		typeCode: record.typeCode ?? '',
 		eraCode: record.eraCode,
@@ -74,8 +66,10 @@ export function artworkInputFromForm(form: ArtworkFormState): ArtworkInput {
 		title: form.title,
 		authors: form.authorUnknown ? [] : [...form.values.author],
 		authorUnknown: form.authorUnknown,
-		year: parseYear(form.year),
-		beforeCommonEra: form.beforeCommonEra,
+		yearFrom: form.spanMode ? parseYear(form.yearFrom) : null,
+		fromBeforeCommonEra: form.spanMode && form.fromBeforeCommonEra,
+		yearTo: parseYear(form.yearTo),
+		toBeforeCommonEra: form.toBeforeCommonEra,
 		yearApproximate: form.yearApproximate,
 		typeCode: form.typeCode || null,
 		eraCode: form.eraCode,

@@ -8,6 +8,7 @@
 
 	type Props = Omit<HTMLInputAttributes, 'type' | 'value'> & {
 		label: string;
+		hideLabel?: boolean;
 		value?: string;
 		type?: 'text' | 'email' | 'password' | 'search' | 'url' | 'tel';
 		hint?: string;
@@ -20,6 +21,7 @@
 
 	let {
 		label,
+		hideLabel = false,
 		value = $bindable(''),
 		type = 'text',
 		hint,
@@ -42,16 +44,19 @@
 </script>
 
 <div class="field">
-	<div class="label-row">
-		<label for={inputId}>{label}</label>
-		{@render labelAside?.()}
-	</div>
+	{#if !hideLabel}
+		<div class="label-row">
+			<label for={inputId}>{label}</label>
+			{@render labelAside?.()}
+		</div>
+	{/if}
 	<div class="input-row">
 		<div class="control" class:invalid={!!error}>
 			<input
 				id={inputId}
 				aria-describedby={message ? messageId : undefined}
 				aria-invalid={error ? true : undefined}
+				aria-label={hideLabel ? label : undefined}
 				type={inputType}
 				bind:value
 				{...rest}
@@ -83,6 +88,7 @@
 <style>
 	.field {
 		display: grid;
+		grid-template-columns: minmax(0, 1fr);
 		gap: var(--spacing-2);
 	}
 

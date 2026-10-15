@@ -1,6 +1,6 @@
 <script lang="ts" module>
 	export type ArtworkTileImage = {
-		src: string;
+		src?: string;
 		srcset?: string;
 		sizes?: string;
 		width: number;

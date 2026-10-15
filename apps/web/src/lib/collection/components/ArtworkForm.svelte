@@ -9,6 +9,7 @@
 		Form,
 		Select,
 		NotesEditor,
+		Switch,
 		TextField,
 		Toast,
 		ValueField
@@ -27,12 +28,14 @@
 	} from '../artwork-form.ts';
 	import { saveArtwork, validateArtwork } from '../artwork-record.ts';
 	import { takesOneValue } from '../category-values.ts';
-	import { findDuplicates, formatRecordNumbers, sameTitleAndAuthors } from '../duplicates.ts';
+	import { DuplicateCheck } from '../duplicate-check.svelte.ts';
+	import { sameTitleAndAuthors } from '../duplicates.ts';
 	import { eraTiles, isEraCode } from '../eras.ts';
 	import { formatRecordNumber } from '../format.ts';
 	import { pendingAnswer } from '../pending-answer.ts';
 	import { suggestValues, valueKey } from '../value-suggestions.ts';
 	import ArtworkImageField from './ArtworkImageField.svelte';
+	import DuplicateDialog from './DuplicateDialog.svelte';
 	import type {
 		ArtworkFieldErrors,
 		ArtworkFormState,
@@ -57,6 +60,8 @@
 	let { artwork, categoryValues, valueLinks, cancelHref, oncancel, onsaved }: Props = $props();
 
 	const titleId = $props.id();
+	const dateTitleId = `${titleId}-date`;
+	const yearToId = `${titleId}-year-to`;
 	const typeOptions = artworkTypeOptions();
 	const eraOptions = eraTiles();
 	const describedCategories: { code: 'material' | 'location'; label: string }[] = [
@@ -75,9 +80,7 @@
 	let toast: Toast;
 	let discarded: ArtworkFormState | null = null;
 	const discardQuestion = pendingAnswer();
-	let duplicateOpen = $state(false);
-	let duplicates = $state<number[]>([]);
-	const duplicateQuestion = pendingAnswer();
+	const duplicateCheck = new DuplicateCheck();
 
 	let imageSearchReady = $derived(canSearchImage(form));
 	let imageAlt = $derived(artworkImageAlt(form));
@@ -107,15 +110,7 @@
 
 	async function confirmDuplicate(input: ArtworkInput): Promise<boolean> {
 		if (artwork && sameTitleAndAuthors(input, artwork)) return true;
-		const numbers = await findDuplicates(input, artwork?.id);
-		if (numbers.length === 0) return true;
-		duplicates = numbers;
-		return duplicateQuestion.ask(() => (duplicateOpen = true));
-	}
-
-	function answerDuplicateDialog(save: boolean): void {
-		duplicateQuestion.answer(save);
-		duplicateOpen = false;
+		return duplicateCheck.confirm(input, artwork?.id);
 	}
 
 	beforeNavigate((navigation) => {
@@ -138,7 +133,7 @@
 
 	onDestroy(() => {
 		discardQuestion.answer(false);
-		duplicateQuestion.answer(false);
+		duplicateCheck.answer(false);
 	});
 
 	let periodLocked = $derived(form.eraCode === null);
@@ -285,17 +280,57 @@
 				/>
 			</div>
 
-			<div class="group">
-				<TextField
-					autocomplete="off"
-					error={fieldErrors.year}
-					inputmode="numeric"
-					label={m.artworkForm.year}
-					bind:value={form.year}
-				/>
-				<div class="checks">
-					<Checkbox label={m.artworkForm.beforeCommonEra} bind:checked={form.beforeCommonEra} />
-					<Checkbox label={m.artworkForm.yearApproximate} bind:checked={form.yearApproximate} />
+			<div class="date" aria-labelledby={dateTitleId} role="group">
+				<div class="date-head">
+					<svelte:element
+						this={form.spanMode ? 'span' : 'label'}
+						id={dateTitleId}
+						class="date-title"
+						for={form.spanMode ? undefined : yearToId}
+					>
+						{form.spanMode ? m.artworkForm.spanTitle : m.artworkForm.year}
+					</svelte:element>
+					<div class="date-aside">
+						<Checkbox label={m.artworkForm.yearApproximate} bind:checked={form.yearApproximate} />
+						<Switch label={m.artworkForm.spanSwitch} bind:checked={form.spanMode} />
+					</div>
+				</div>
+				<div class="date-inputs" class:year-span={form.spanMode}>
+					{#if form.spanMode}
+						<div class="date-end">
+							<TextField
+								autocomplete="off"
+								error={fieldErrors.yearFrom}
+								hideLabel
+								inputmode="numeric"
+								label={m.artworkForm.spanFrom}
+								placeholder={m.artworkForm.spanFrom}
+								bind:value={form.yearFrom}
+							/>
+							<Checkbox
+								aria-label={m.artworkForm.beforeCommonEraFrom}
+								label={m.artworkForm.beforeCommonEra}
+								bind:checked={form.fromBeforeCommonEra}
+							/>
+						</div>
+					{/if}
+					<div class="date-end">
+						<TextField
+							id={yearToId}
+							autocomplete="off"
+							error={fieldErrors.yearTo}
+							hideLabel
+							inputmode="numeric"
+							label={form.spanMode ? m.artworkForm.spanTo : m.artworkForm.year}
+							placeholder={form.spanMode ? m.artworkForm.spanTo : undefined}
+							bind:value={form.yearTo}
+						/>
+						<Checkbox
+							aria-label={form.spanMode ? m.artworkForm.beforeCommonEraTo : undefined}
+							label={m.artworkForm.beforeCommonEra}
+							bind:checked={form.toBeforeCommonEra}
+						/>
+					</div>
 				</div>
 			</div>
 
@@ -386,25 +421,7 @@
 	{/snippet}
 </Dialog>
 
-<Dialog
-	description={m.artworkForm.duplicateDescription(
-		formatRecordNumbers(duplicates),
-		duplicates.length
-	)}
-	onclose={() => duplicateQuestion.answer(false)}
-	size="small"
-	title={m.artworkForm.duplicateTitle}
-	bind:open={duplicateOpen}
->
-	{#snippet footer()}
-		<Button onclick={() => answerDuplicateDialog(false)}>
-			{m.artworkForm.keepEditing}
-		</Button>
-		<Button onclick={() => answerDuplicateDialog(true)} variant="primary">
-			{m.artworkForm.saveAnyway}
-		</Button>
-	{/snippet}
-</Dialog>
+<DuplicateDialog action="save" check={duplicateCheck} />
 
 <style>
 	.columns {
@@ -424,10 +441,47 @@
 		gap: var(--spacing-3);
 	}
 
-	.checks {
+	.date {
+		display: grid;
+		gap: var(--spacing-2);
+	}
+
+	.date-head {
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: var(--spacing-3);
+	}
+
+	.date-title {
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-medium);
+		line-height: var(--line-height-sm);
+	}
+
+	.date-aside {
+		display: flex;
+		align-items: center;
 		gap: var(--spacing-4);
+	}
+
+	.date-inputs {
+		display: grid;
+		gap: var(--spacing-3);
+	}
+
+	.date-inputs.year-span {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: var(--spacing-4);
+	}
+
+	.date-end {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		align-content: start;
+		gap: var(--spacing-3);
+		min-width: 0;
 	}
 
 	.actions {
