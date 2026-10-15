@@ -3,3 +3,4 @@ storybook-static
 *storybook.log
 .DS_Store
 vite.config.ts.timestamp-*
+coverage
