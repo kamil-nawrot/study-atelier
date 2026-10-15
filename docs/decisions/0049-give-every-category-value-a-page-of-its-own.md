@@ -54,7 +54,7 @@ Chosen, decided by the owner in ATL-19: data model option 1, the one-column page
 ### The value page
 
 - Opened by clicking a value in the card index: a period's name, a style tag, a material, author or location, and now also an era's name on the timeline. The dialog of ADR-0040 no longer opens there.
-- One column. At the top the kind and the number of artworks ("Okres · 2 dzieła"), the name in the title font (Newsreader italic) and large, and under it the parent: the era of a period with its icon, the periods of a style. An author shows the portrait in a mat beside the name and the years of life under it; a location shows its type and country.
+- One column. At the top the kind and the number of artworks ("Okres · 2 dzieła"), the name in the title font (Newsreader italic) and large, and under it the parent: the era of a period with its icon, the periods of a style. An era shows its icon and years. An author shows the portrait in a mat beside the name and the years of life under it; a location shows its type and country.
 - Then the summary as a lead paragraph and the notes. A page without either says "Nie masz jeszcze notatek o tym okresie." followed by an "Edytuj" button.
 - Below a rule, "Dzieła z tego okresu" (from this era, of this author, in this style and so on) with the number of artworks, and the artworks as wall tiles; a tile opens the artwork. Every kind has this part. A value no artwork uses says "Nie posiadasz w swojej kolekcji żadnego dzieła z tego okresu." in the matching form for its kind.
 - The top bar has "← Kartoteka" on the left and "Edytuj" on the right.
@@ -62,7 +62,7 @@ Chosen, decided by the owner in ATL-19: data model option 1, the one-column page
 ### The form
 
 - "Edytuj" opens a form on its own page with the layout of the artwork form: for an author the portrait in the left column with "Znajdź portret" and "Własny portret", the fields on the right; the other kinds have one column. "Anuluj" and "Zapisz" sit in the panel fixed to the bottom, as in the artwork form. Leaving with unsaved changes asks "Odrzucić zmiany?".
-- Fields: "Nazwa" (not for an era), "Epoki" for a period and "Okresy" for a style, the fields of the kind, "Podsumowanie" and "Notatki". "Usuń" is at the end of the form. Renaming, merging, the links and deleting follow ADR-0040 unchanged; only their place moves from the dialog to the form.
+- Fields: "Nazwa" (not for an era), "Epoki" for a period and "Okresy" for a style, the fields of the kind, "Podsumowanie" and "Notatki". "Usuń" is at the end of the form. An era, which is not the learner's own value, has only "Podsumowanie" and "Notatki": no name, links or "Usuń". Renaming, merging, the links and deleting follow ADR-0040 unchanged; only their place moves from the dialog to the form.
 - "Znajdź portret" searches Wikidata for people with the author's name and shows the candidates with their image (P18), as the artwork image search does ([ADR-0007](0007-images-from-open-sources.md)); "Własny portret" opens the own image dialog.
 - "Kraj" is a select with search over the list of countries. "Typ miejsca" is three tiles like the era tiles: "Muzeum", "Kolekcja prywatna", "Na miejscu".
 - Saving returns to the page with the toast "Zapisano zmiany.".
