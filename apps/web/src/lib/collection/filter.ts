@@ -1,4 +1,5 @@
 import { ARTWORK_TYPE_CODES } from './artwork-types.ts';
+import { authorSortKeys, sortKeyOf } from './author-sort.ts';
 import { ERA_CODES, eraName, isEraCode } from './eras.ts';
 import { m } from '#lib/i18n/index.ts';
 import type {
@@ -157,10 +158,13 @@ export function filterOptions(
 	const options = [...counts].map(([value, count]) => ({ value, count }));
 	const order = fixedOrder(field);
 	if (order) return options.sort((a, b) => order.indexOf(a.value) - order.indexOf(b.value));
+	const keys = field === 'authors' ? authorSortKeys(artworks) : new Map<string, string>();
 	return options.sort((a, b) => {
 		if (a.value === UNKNOWN_AUTHOR) return 1;
 		if (b.value === UNKNOWN_AUTHOR) return -1;
-		return b.count - a.count || NAME_COLLATOR.compare(a.value, b.value);
+		return (
+			b.count - a.count || NAME_COLLATOR.compare(sortKeyOf(a.value, keys), sortKeyOf(b.value, keys))
+		);
 	});
 }
 

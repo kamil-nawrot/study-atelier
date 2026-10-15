@@ -138,6 +138,17 @@ describe('matchesFilter', () => {
 });
 
 describe('filterOptions', () => {
+	it('orders authors with the same count by their sort name', () => {
+		const artworks = [
+			testArtwork(1, 'Soup Cans', { authors: ['Andy Warhol'], authorSortNames: ['Warhol, Andy'] }),
+			testArtwork(2, 'The Kiss', { authors: ['Gustav Klimt'], authorSortNames: ['Klimt, Gustav'] })
+		];
+
+		expect(filterOptions(artworks, emptyFilter(), 'authors').map((option) => option.value)).toEqual(
+			['Gustav Klimt', 'Andy Warhol']
+		);
+	});
+
 	it('counts the artworks the wall would show with each value of a field', () => {
 		expect(filterOptions(artworks, emptyFilter(), 'materials')).toEqual([
 			{ value: 'Oil', count: 2 },

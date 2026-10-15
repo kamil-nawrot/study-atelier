@@ -23,7 +23,11 @@ export type CurrentPeriod = {
 
 export type ArtworkValueRow = {
 	position: number;
-	category_values: { category_code: string; name: string } | null;
+	category_values: {
+		category_code: string;
+		name: string;
+		author_details?: { sort_name: string | null }[];
+	} | null;
 };
 
 export type ImageSize = {
@@ -42,6 +46,7 @@ export type WallArtwork = {
 	number: number;
 	title: string;
 	authors: string[];
+	authorSortNames?: (string | null)[];
 	date?: string;
 	yearFrom: number | null;
 	yearTo: number | null;
@@ -197,6 +202,7 @@ export type CardIndexRecord = {
 	category: CategoryCode;
 	name: string;
 	count: number;
+	sortName?: string;
 };
 
 export type CardIndexData = {

@@ -64,6 +64,7 @@ The SvelteKit app in `apps/web/src`:
 ## Naming
 
 - Svelte components: `PascalCase.svelte`, the same name they are imported under.
+- A component is named for what it is, not for one way it opens or one interaction: `Popover`, not `HoverCard`, because it also opens on a click.
 - Other files and folders: `kebab-case`, for example `auth-artworks.ts`. Route folders are kebab-case because they become URLs (`/forgot-password`).
 - SvelteKit files keep the framework's names (`+page.svelte`, `+layout.ts`).
 - Tests: the tested file's name plus `.spec.ts`, next to the tested file.

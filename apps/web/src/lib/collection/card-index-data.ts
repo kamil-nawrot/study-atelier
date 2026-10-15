@@ -19,6 +19,8 @@ type UsageRow = {
 	artwork_count: number;
 };
 
+type SortNameRow = { value_id: string; sort_name: string };
+
 type PeriodEraRow = { period_id: string; era_code: string; artwork_count: number };
 
 type StylePeriodRow = { style_id: string; period_id: string; artwork_count: number };
@@ -51,12 +53,20 @@ export async function fetchAll<T>(
 }
 
 export async function loadCardIndex(): Promise<CardIndexResult> {
-	const [values, periodEras, stylePeriods] = await Promise.all([
+	const [values, periodEras, stylePeriods, sortNames] = await Promise.all([
 		fetchAll<UsageRow>((from, to) => supabase.rpc('value_usage').range(from, to)),
 		fetchAll<PeriodEraRow>((from, to) => supabase.rpc('period_era_usage').range(from, to)),
-		fetchAll<StylePeriodRow>((from, to) => supabase.rpc('style_period_usage').range(from, to))
+		fetchAll<StylePeriodRow>((from, to) => supabase.rpc('style_period_usage').range(from, to)),
+		fetchAll<SortNameRow>((from, to) =>
+			supabase
+				.from('author_details')
+				.select('value_id, sort_name')
+				.not('sort_name', 'is', null)
+				.range(from, to)
+		)
 	]);
-	const error = values.error ?? periodEras.error ?? stylePeriods.error;
+	const error = values.error ?? periodEras.error ?? stylePeriods.error ?? sortNames.error;
+	const sortNameOf = new Map(sortNames.rows.map((row) => [row.value_id, row.sort_name]));
 	if (error) return { index: emptyCardIndex(), error: collectionErrorMessage(error) };
 
 	return {
@@ -65,7 +75,8 @@ export async function loadCardIndex(): Promise<CardIndexResult> {
 				id: row.id,
 				category: row.category_code,
 				name: row.name,
-				count: row.artwork_count
+				count: row.artwork_count,
+				...(sortNameOf.get(row.id) ? { sortName: sortNameOf.get(row.id) } : {})
 			})),
 			periodEras: periodEras.rows
 				.filter((row) => isEraCode(row.era_code))
