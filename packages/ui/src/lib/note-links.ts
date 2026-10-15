@@ -9,6 +9,7 @@ export type NoteLinkOption = {
 export type NoteLinks = {
 	suggest: (trigger: NoteLinkTrigger, query: string) => NoteLinkOption[];
 	resolve: (href: string) => string | undefined;
+	minQueryLength?: number;
 };
 
 const NOTE_LINK_PATH =

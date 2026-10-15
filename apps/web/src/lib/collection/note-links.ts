@@ -13,6 +13,7 @@ import {
 } from './value-pages.ts';
 
 const SUGGESTION_LIMIT = 8;
+const MIN_QUERY_LENGTH = 2;
 
 export type NoteLinkArtwork = {
 	number: number;
@@ -112,6 +113,7 @@ export function buildNoteLinks(sources: NoteLinkSources): NoteLinks {
 	);
 
 	return {
+		minQueryLength: MIN_QUERY_LENGTH,
 		suggest: (trigger: NoteLinkTrigger, query: string): NoteLinkOption[] =>
 			trigger === '@' ? matchValues(values, query) : matchArtworks(artworks, query),
 		resolve: (href: string): string | undefined => {

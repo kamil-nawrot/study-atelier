@@ -60,6 +60,7 @@ export const NoteLink = Node.create({
 
 export type SuggestionState = {
 	trigger: NoteLinkTrigger;
+	query: string;
 	items: NoteLinkOption[];
 	loading: boolean;
 	choose: (option: NoteLinkOption) => void;
@@ -117,7 +118,7 @@ export const NoteLinkSuggestion = Extension.create<NoteLinkSuggestionOptions>({
 							exitSuggestion(view, pluginKey);
 							return;
 						}
-						options.onChange(trigger, { trigger, items, loading, choose });
+						options.onChange(trigger, { trigger, query, items, loading, choose });
 					};
 					return {
 						onStart: (props) =>

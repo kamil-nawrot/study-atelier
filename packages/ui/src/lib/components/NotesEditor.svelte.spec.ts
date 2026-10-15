@@ -179,6 +179,16 @@ describe('NotesEditor', () => {
 			await expect.element(page.getByRole('listbox')).not.toBeInTheDocument();
 		});
 
+		it('waits for the minimum query length before listing', async () => {
+			render(NotesEditorValue, { links: { ...links, minQueryLength: 2 } });
+
+			await userEvent.click(page.getByRole('textbox', { name: 'Notes' }));
+			await userEvent.keyboard('@b');
+			await expect.element(page.getByRole('option').first()).not.toBeInTheDocument();
+			await userEvent.keyboard('a');
+			await expect.element(page.getByRole('option', { name: /barok/ })).toBeInTheDocument();
+		});
+
 		it('lists artworks after # and picks one by a click', async () => {
 			render(NotesEditorValue, { links });
 

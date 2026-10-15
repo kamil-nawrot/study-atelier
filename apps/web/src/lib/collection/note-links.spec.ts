@@ -13,6 +13,10 @@ const links = buildNoteLinks({
 });
 
 describe('suggesting values', () => {
+	it('asks for two characters before listing', () => {
+		expect(links.minQueryLength).toBe(2);
+	});
+
 	it('lists values of every kind with their kind and parents', () => {
 		const options = links.suggest('@', 'dor');
 		expect(options).toEqual([

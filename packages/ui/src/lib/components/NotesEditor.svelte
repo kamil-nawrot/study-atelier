@@ -134,6 +134,10 @@
 			if (suggestion?.trigger === trigger) suggestion = null;
 			return;
 		}
+		if (next.query.trim().length < (links?.minQueryLength ?? 0)) {
+			if (suggestion?.trigger === trigger) suggestion = null;
+			return;
+		}
 		if (suggestion?.trigger !== trigger || suggestion.items.length !== next.items.length)
 			selected = 0;
 		suggestion = next;
