@@ -56,6 +56,35 @@ describe('FilterPanel', () => {
 			await expect.element(page.getByText(title, { exact: true }).first()).toBeVisible();
 	});
 
+	it('searches the values of every field that lists values', async () => {
+		renderPanel();
+
+		for (const field of [
+			m.atelier.filters.fields.types,
+			m.atelier.filters.fields.authors,
+			m.atelier.filters.fields.periods,
+			m.atelier.filters.fields.styles,
+			m.atelier.filters.fields.materials,
+			m.atelier.filters.fields.locations
+		])
+			await expect
+				.element(page.getByRole('searchbox', { name: m.atelier.filters.searchValues(field) }))
+				.toBeVisible();
+	});
+
+	it('narrows the values of a field by the search', async () => {
+		renderPanel();
+
+		await userEvent.fill(
+			page.getByRole('searchbox', {
+				name: m.atelier.filters.searchValues(m.atelier.filters.fields.materials)
+			}),
+			'zzz'
+		);
+
+		await expect.element(page.getByText('Oil')).not.toBeInTheDocument();
+	});
+
 	it('counts the artworks of each era and shows eras without artworks as empty', async () => {
 		renderPanel();
 

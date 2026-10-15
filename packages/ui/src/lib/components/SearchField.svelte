@@ -7,6 +7,7 @@
 
 	type Props = Omit<HTMLInputAttributes, 'type' | 'value'> & {
 		label: string;
+		compact?: boolean;
 		value?: string;
 		clearLabel?: string;
 		onclear?: () => void;
@@ -14,6 +15,7 @@
 
 	let {
 		label,
+		compact = false,
 		value = $bindable(''),
 		clearLabel = uiMessages().clearSearch,
 		onclear,
@@ -29,7 +31,7 @@
 	}
 </script>
 
-<div class="search">
+<div class="search" class:compact>
 	<Icon icon={Search} />
 	<input
 		bind:this={input}
@@ -118,6 +120,11 @@
 		input {
 			font-size: var(--font-size-lg);
 			line-height: var(--line-height-lg);
+		}
+
+		.compact input {
+			font-size: var(--font-size-sm);
+			line-height: var(--line-height-sm);
 		}
 	}
 </style>
