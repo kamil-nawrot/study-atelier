@@ -241,12 +241,6 @@ describe('imageFromCandidate', () => {
 			height: 2250
 		});
 	});
-
-	it('stores nothing for a candidate without an image', () => {
-		expect(
-			imageFromCandidate({ wikidataId: 'Q1', title: 'Lost', authors: [], image: null })
-		).toBeNull();
-	});
 });
 
 describe('year span in the form', () => {

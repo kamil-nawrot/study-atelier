@@ -20,7 +20,7 @@ function artwork(overrides: Partial<WikidataArtwork>): WikidataArtwork {
 		creatorNames: [],
 		hasCreator: false,
 		date: null,
-		file: null,
+		file: 'The Milkmaid.jpg',
 		...overrides
 	};
 }
@@ -177,7 +177,7 @@ describe('findImageCandidates', () => {
 		});
 	}
 
-	it('returns candidates with Commons thumbnails, sizes and licences', async () => {
+	it('returns candidates with Commons thumbnails, sizes and licences and leaves out a file Commons does not return', async () => {
 		vi.stubGlobal('fetch', fetchMock);
 		respond();
 
@@ -203,13 +203,6 @@ describe('findImageCandidates', () => {
 						licenceUrl: null,
 						attribution: 'Johannes Vermeer'
 					}
-				},
-				{
-					wikidataId: 'Q99',
-					title: 'The Milkmaid',
-					authors: ['Johannes Vermeer'],
-					date: undefined,
-					image: null
 				}
 			]
 		});

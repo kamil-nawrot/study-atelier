@@ -1076,7 +1076,7 @@ describe('image search on the add artwork page', () => {
 		vi.unstubAllGlobals();
 	});
 
-	it('lists the candidates and says which one has no free image', async () => {
+	it('lists only the candidates that have an image', async () => {
 		answerSearch();
 		await openSearch();
 
@@ -1086,7 +1086,7 @@ describe('image search on the add artwork page', () => {
 		await expect
 			.element(searchDialog().getByRole('button', { name: /The Milkmaid/ }))
 			.toHaveAccessibleName('The Milkmaid Johannes Vermeer 1658');
-		await expect.element(searchDialog().getByText(m.imageSearch.noImage)).toBeVisible();
+		expect(searchDialog().getByRole('listitem').elements()).toHaveLength(1);
 		const sparql = new URL(String(fetchMock.mock.calls[0][0]));
 		expect(sparql.searchParams.get('query')).toContain('"The Milkmaid"');
 	});

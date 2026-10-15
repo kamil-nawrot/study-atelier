@@ -94,26 +94,17 @@
 		<ul bind:this={list} class="candidates">
 			{#each result.candidates as candidate (candidate.wikidataId)}
 				<li>
-					{#if candidate.image}
-						<button class="candidate" onclick={() => pick(candidate)} type="button">
-							<ArtworkImage
-								alt=""
-								height={candidate.image.height}
-								sizes="(min-width: 768px) 220px, 50vw"
-								src={candidate.image.src}
-								srcset={candidate.image.srcset}
-								width={candidate.image.width}
-							/>
-							{@render caption(candidate)}
-						</button>
-					{:else}
-						<div class="candidate">
-							<span class="no-image">
-								{m.imageSearch.noImage}
-							</span>
-							{@render caption(candidate)}
-						</div>
-					{/if}
+					<button class="candidate" onclick={() => pick(candidate)} type="button">
+						<ArtworkImage
+							alt=""
+							height={candidate.image.height}
+							sizes="(min-width: 768px) 220px, 50vw"
+							src={candidate.image.src}
+							srcset={candidate.image.srcset}
+							width={candidate.image.width}
+						/>
+						{@render caption(candidate)}
+					</button>
 				</li>
 			{/each}
 		</ul>
@@ -149,6 +140,7 @@
 	}
 
 	.candidate {
+		cursor: pointer;
 		display: grid;
 		width: 100%;
 		padding: var(--spacing-2) var(--spacing-2) 0;
@@ -160,27 +152,11 @@
 		text-align: left;
 	}
 
-	button.candidate {
-		cursor: pointer;
-	}
-
 	.candidate :global(img) {
 		display: block;
 		width: 100%;
 		height: auto;
 		background: var(--color-mat-window);
-	}
-
-	.no-image {
-		display: grid;
-		place-items: center;
-		aspect-ratio: 4 / 5;
-		padding: var(--spacing-3);
-		background: var(--color-mat-window);
-		color: var(--color-mat-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-		text-align: center;
 	}
 
 	.caption {
@@ -207,7 +183,7 @@
 		white-space: nowrap;
 	}
 
-	button.candidate:hover .artwork-title {
+	.candidate:hover .artwork-title {
 		text-decoration: underline;
 		text-decoration-thickness: var(--border-width-hairline);
 		text-underline-offset: 0.2em;
