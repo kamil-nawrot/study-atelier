@@ -55,3 +55,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0049](0049-give-every-category-value-a-page-of-its-own.md) | Give every category value a page of its own with the learner's notes | accepted |
 | [0050](0050-store-value-pages-in-details-tables.md)              | Store value pages in details tables and settle the details of the build | accepted |
 | [0052](0052-remember-wall-images-and-cap-their-width.md) | Remember the wall images for the session and cap their width | accepted |
+| [0053](0053-link-values-and-artworks-from-notes.md) | Link values and artworks from notes with @ and # | accepted |
