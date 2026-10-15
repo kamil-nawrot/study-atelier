@@ -439,6 +439,8 @@
 
 	.viewer :global(img) {
 		display: block;
+		width: auto;
+		height: auto;
 		max-width: 100vw;
 		max-height: 100dvh;
 	}
