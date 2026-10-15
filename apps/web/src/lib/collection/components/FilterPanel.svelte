@@ -83,6 +83,7 @@
 		chosen={filter.types}
 		onchoose={(value) => choose('types', value)}
 		options={filterOptions(artworks, filter, 'types')}
+		searchLabel={m.atelier.filters.searchValues(m.atelier.filters.fields.types)}
 		title={m.atelier.filters.fields.types}
 	/>
 
@@ -115,6 +116,7 @@
 		chosen={filter.periods}
 		onchoose={(value) => choose('periods', value)}
 		options={filterOptions(artworks, filter, 'periods')}
+		searchLabel={m.atelier.filters.searchValues(m.atelier.filters.fields.periods)}
 		title={m.atelier.filters.fields.periods}
 	/>
 
@@ -123,6 +125,7 @@
 		chosen={filter.styles}
 		onchoose={(value) => choose('styles', value)}
 		options={filterOptions(artworks, filter, 'styles')}
+		searchLabel={m.atelier.filters.searchValues(m.atelier.filters.fields.styles)}
 		title={m.atelier.filters.fields.styles}
 	/>
 
@@ -131,6 +134,7 @@
 		chosen={filter.materials}
 		onchoose={(value) => choose('materials', value)}
 		options={filterOptions(artworks, filter, 'materials')}
+		searchLabel={m.atelier.filters.searchValues(m.atelier.filters.fields.materials)}
 		title={m.atelier.filters.fields.materials}
 	/>
 

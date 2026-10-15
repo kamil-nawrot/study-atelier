@@ -37,7 +37,7 @@
 	<section>
 		<h3>{title}</h3>
 		{#if searchLabel}
-			<SearchField label={searchLabel} placeholder={searchLabel} bind:value={query} />
+			<SearchField compact label={searchLabel} placeholder={searchLabel} bind:value={query} />
 		{/if}
 		<ul>
 			{#each shown as option (option.value)}

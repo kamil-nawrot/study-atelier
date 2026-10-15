@@ -1,9 +1,10 @@
 :root {
+	--color-neutral-50: #EEECE6;
 	--color-neutral-100: #E2DFD7;
 	--color-neutral-150: #D4D1CA;
 	--color-neutral-200: #C6C3BC;
 	--color-neutral-400: #A39E95;
-	--color-neutral-600: #5E5952;
+	--color-neutral-600: #544F49;
 	--color-neutral-850: #2D2A26;
 	--color-neutral-900: #201E1B;
 	--color-neutral-950: #1C1A18;
@@ -91,5 +92,6 @@
 	--color-success: var(--color-green-700);
 	--color-warning: var(--color-amber-700);
 	--color-danger: var(--color-red-700);
+	--color-mat-bg: var(--color-neutral-50);
 	color-scheme: light;
 }

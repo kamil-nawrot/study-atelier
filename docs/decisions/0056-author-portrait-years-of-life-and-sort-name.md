@@ -1,4 +1,4 @@
-# 0053. Give an author a portrait from a people search, two years of life and a sort name
+# 0056. Give an author a portrait from a people search, two years of life and a sort name
 
 - Status: accepted
 - Date: 2026-10-15
