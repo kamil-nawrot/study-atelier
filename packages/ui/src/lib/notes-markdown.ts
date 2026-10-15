@@ -1,7 +1,9 @@
 import DOMPurify from 'dompurify';
 import { Marked, type Tokens } from 'marked';
+import { isNoteLinkPath, type NoteLinks } from './note-links';
 
-const allowedTags = ['p', 'br', 'strong', 'em', 'h3', 'ul', 'ol', 'li'];
+const allowedTags = ['p', 'br', 'strong', 'em', 'h3', 'ul', 'ol', 'li', 'a', 'span'];
+const allowedAttributes = ['href', 'data-note-link', 'data-missing', 'data-href'];
 
 function escapeHtml(text: string): string {
 	return text
@@ -19,6 +21,10 @@ function asParagraph(token: { raw: string }): string {
 	return `<p>${escapeHtml(token.raw.trim())}</p>\n`;
 }
 
+type LinkResolver = Pick<NoteLinks, 'resolve'>;
+
+let resolver: LinkResolver | undefined;
+
 const markdown = new Marked({
 	breaks: true,
 	gfm: true,
@@ -26,7 +32,20 @@ const markdown = new Marked({
 		html: asText,
 		del: asText,
 		checkbox: asText,
-		link: asText,
+		link(
+			this: { parser: { parseInline: (tokens: Tokens.Generic[]) => string } },
+			token: Tokens.Link
+		): string {
+			if (!isNoteLinkPath(token.href)) return asText(token);
+			const href = escapeHtml(token.href);
+			const stored = this.parser.parseInline(token.tokens);
+			if (!resolver) return `<a href="${href}" data-note-link>${stored}</a>`;
+			const name = resolver.resolve(token.href);
+			if (name === undefined) {
+				return `<span data-note-link data-missing data-href="${href}">${stored}</span>`;
+			}
+			return `<a href="${href}" data-note-link>${escapeHtml(name)}</a>`;
+		},
 		image: asText,
 		codespan: asText,
 		code: asParagraph,
@@ -40,7 +59,12 @@ const markdown = new Marked({
 	}
 });
 
-export function renderNotes(source: string): string {
-	const html = markdown.parse(source, { async: false });
-	return DOMPurify.sanitize(html, { ALLOWED_TAGS: allowedTags, ALLOWED_ATTR: [] });
+export function renderNotes(source: string, links?: LinkResolver): string {
+	resolver = links;
+	try {
+		const html = markdown.parse(source, { async: false });
+		return DOMPurify.sanitize(html, { ALLOWED_TAGS: allowedTags, ALLOWED_ATTR: allowedAttributes });
+	} finally {
+		resolver = undefined;
+	}
 }

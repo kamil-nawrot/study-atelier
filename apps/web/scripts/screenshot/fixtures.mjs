@@ -99,7 +99,8 @@ export const ARTWORKS = [
 					artwork(1, 'Mona Lisa', ['Leonardo da Vinci'], 1503, 'early_modern', {
 						...commonsImage('Mona_Lisa.jpg'),
 						year_approximate: true,
-						notes: 'Sample note about the sfumato technique.'
+						notes:
+							'Sample note about the sfumato technique, see [Leonardo da Vinci](/atelier/values/author/author-leonardo-da-vinci) and compare [#0009 The Birth of Venus](/atelier/9).'
 					}),
 					'period',
 					['Renaissance']

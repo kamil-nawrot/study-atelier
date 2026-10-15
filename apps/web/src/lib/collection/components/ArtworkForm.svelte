@@ -9,6 +9,7 @@
 		FormActions,
 		Select,
 		NotesEditor,
+		type NoteLinks,
 		Switch,
 		TextField,
 		Toast,
@@ -51,12 +52,14 @@
 		artwork?: ArtworkRecord;
 		categoryValues: CategoryValues;
 		valueLinks: ValueLinks;
+		noteLinks?: NoteLinks;
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
 		onsaved: (number: number, next: boolean) => void | Promise<void>;
 	};
 
-	let { artwork, categoryValues, valueLinks, cancelHref, oncancel, onsaved }: Props = $props();
+	let { artwork, categoryValues, valueLinks, noteLinks, cancelHref, oncancel, onsaved }: Props =
+		$props();
 
 	const titleId = $props.id();
 	const formErrorId = `${titleId}-error`;
@@ -350,7 +353,9 @@
 			{/each}
 
 			<NotesEditor
+				hint={noteLinks ? m.artworkForm.notesLinkHint : undefined}
 				label={m.artworkForm.notes}
+				links={noteLinks}
 				placeholder={m.artworkForm.notesPlaceholder}
 				bind:value={form.notes}
 			/>

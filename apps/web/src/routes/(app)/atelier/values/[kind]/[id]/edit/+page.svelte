@@ -67,6 +67,7 @@
 				cancelHref={backPath}
 				details={data.details}
 				index={data.index}
+				noteLinks={data.noteLinks}
 				oncancel={goBack}
 				onsaved={showSaved}
 				{subject}

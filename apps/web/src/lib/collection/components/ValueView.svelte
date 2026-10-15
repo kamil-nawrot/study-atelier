@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Icon, Notes, Section } from '@study-atelier/ui';
+	import { Icon, Notes, type NoteLinks, Section } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { eraIcon } from '../eras.ts';
 	import { subjectName, valueKindName, valuePath, type ValueParent } from '../value-pages.ts';
@@ -10,9 +10,10 @@
 		parents: ValueParent[];
 		count: number;
 		details: ValueDetails;
+		noteLinks?: NoteLinks;
 	};
 
-	let { subject, parents, count, details }: Props = $props();
+	let { subject, parents, count, details, noteLinks }: Props = $props();
 
 	let empty = $derived(details.summary === '' && details.notes === '');
 	let name = $derived(subjectName(subject));
@@ -60,7 +61,7 @@
 		{#if details.notes}
 			<section class="notes" aria-labelledby="value-notes">
 				<h2 id="value-notes" class="label">{m.valuePage.notes}</h2>
-				<Notes value={details.notes} />
+				<Notes links={noteLinks} value={details.notes} />
 			</section>
 		{/if}
 	{/if}

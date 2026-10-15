@@ -1,4 +1,4 @@
-import type { ArtworkTileImage } from '@study-atelier/ui';
+import type { ArtworkTileImage, NoteLinks } from '@study-atelier/ui';
 
 export type WallOrder = 'recent' | 'period' | 'author';
 
@@ -166,6 +166,7 @@ export type SaveArtworkResult =
 
 export type LoadArtworkResult = {
 	artwork?: ArtworkRecord;
+	noteLinks?: NoteLinks;
 	error?: string;
 	notFound?: boolean;
 };
@@ -310,6 +311,7 @@ export type ValuePageResult = {
 	index: CardIndexData;
 	artworks: WallArtwork[];
 	details: ValueDetails;
+	noteLinks?: NoteLinks;
 	notFound?: boolean;
 	error?: string;
 };

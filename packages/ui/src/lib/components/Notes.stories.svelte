@@ -26,3 +26,18 @@
 	name="Unsupported Markdown"
 	args={{ value: '[A link](https://example.com)\n\n> A quote\n\n<b>Raw HTML</b>' }}
 />
+
+<Story
+	name="With links"
+	args={{
+		value:
+			'Painted by [old name](/atelier/values/author/vermeer), compare [#0007](/atelier/7).\n\nA missing one is plain text: [Lost](/atelier/values/style/gone).',
+		links: {
+			resolve: (href: string) =>
+				({
+					'/atelier/values/author/vermeer': 'Johannes Vermeer',
+					'/atelier/7': '#0007 Girl with a Pearl Earring'
+				})[href]
+		}
+	}}
+/>

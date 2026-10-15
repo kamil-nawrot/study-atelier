@@ -20,6 +20,11 @@ export type UiMessages = {
 		heading: string;
 		bulletedList: string;
 		numberedList: string;
+		linkValue: string;
+		linkArtwork: string;
+		linkSuggestions: string;
+		noValueFound: string;
+		noArtworkFound: string;
 	};
 	valueField: {
 		existing: string;
@@ -52,7 +57,12 @@ export const defaultUiMessages: UiMessages = {
 		italic: 'Italic',
 		heading: 'Heading',
 		bulletedList: 'Bulleted list',
-		numberedList: 'Numbered list'
+		numberedList: 'Numbered list',
+		linkValue: 'Link a value',
+		linkArtwork: 'Link an artwork',
+		linkSuggestions: 'Link suggestions',
+		noValueFound: 'No matching value.',
+		noArtworkFound: 'No matching artwork.'
 	},
 	valueField: {
 		existing: 'Already used',
