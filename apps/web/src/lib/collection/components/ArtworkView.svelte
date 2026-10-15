@@ -18,17 +18,20 @@
 	import { formatDate, formatRecordNumber, signedYear } from '../format.ts';
 	import { artworkPanelOpen, rememberArtworkPanel } from '../artwork-panel.ts';
 	import { FLIP_DIRECTIONS, swipe } from '../flip.ts';
+	import type { Mention } from '../mentions.ts';
 	import type { ArtworkRecord, FlipDirection } from '../types.ts';
+	import MentionedIn from './MentionedIn.svelte';
 
 	type Props = {
 		artwork: ArtworkRecord;
 		editHref: string;
 		noteLinks?: NoteLinks;
+		mentions?: Mention[];
 		flipLinks?: Record<FlipDirection, ResolvedPathname | null>;
 		onflip?: (direction: FlipDirection) => void;
 	};
 
-	let { artwork, editHref, flipLinks, noteLinks, onflip }: Props = $props();
+	let { artwork, editHref, flipLinks, noteLinks, mentions = [], onflip }: Props = $props();
 
 	const STAGE_WIDTH = 960;
 	const VIEWER_WIDTH = 1920;
@@ -201,6 +204,8 @@
 					{@render empty()}
 				{/if}
 			</section>
+
+			<MentionedIn {mentions} />
 		</aside>
 
 		<div class="strip">

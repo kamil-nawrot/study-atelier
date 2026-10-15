@@ -535,6 +535,10 @@ export const pl = {
 			changed: 'Coś zmieniło się w międzyczasie. Odśwież stronę i spróbuj jeszcze raz.'
 		}
 	},
+	mentions: {
+		heading: 'Wspominasz o tym w notatkach',
+		artwork: 'Dzieło'
+	},
 	valuePage: {
 		back: 'Kartoteka',
 		edit: 'Edytuj',

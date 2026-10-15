@@ -134,6 +134,7 @@
 		<ValueView
 			count={artworks.length}
 			details={data.details}
+			mentions={data.mentions}
 			noteLinks={data.noteLinks}
 			{parents}
 			{subject}

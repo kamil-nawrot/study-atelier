@@ -129,6 +129,13 @@ async function mockSupabase(context) {
 		const detailsTable = url.pathname.replace('/rest/v1/', '');
 		if (detailsTable in VALUE_DETAILS) {
 			const [column, filter] = [...url.searchParams].find(([key]) => key !== 'select') ?? [];
+			if (column === 'notes' && filter?.startsWith('like.')) {
+				const needle = filter.slice('like.'.length).replaceAll('%', '');
+				return json(
+					route,
+					VALUE_DETAILS[detailsTable].filter((row) => row.notes?.includes(needle))
+				);
+			}
 			return json(
 				route,
 				VALUE_DETAILS[detailsTable].filter((row) => `eq.${row[column]}` === filter)

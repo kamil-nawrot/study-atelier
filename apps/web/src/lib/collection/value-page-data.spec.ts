@@ -4,12 +4,14 @@ import { testArtwork } from '#lib/testing/artworks.ts';
 import { testCardIndex } from '#lib/testing/card-index.ts';
 import { loadAtelier } from './artworks.ts';
 import { loadCardIndex } from './card-index-data.ts';
+import { loadMentions } from './mentions.ts';
 import { loadNoteLinks } from './note-link-data.ts';
 import { loadValueDetails } from './value-details.ts';
 import { loadValuePage } from './value-page-data.ts';
 
 vi.mock('./artworks.ts', () => ({ loadAtelier: vi.fn() }));
 vi.mock('./card-index-data.ts', () => ({ loadCardIndex: vi.fn() }));
+vi.mock('./mentions.ts', () => ({ loadMentions: vi.fn() }));
 vi.mock('./note-link-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('./note-link-data.ts')>()),
 	loadNoteLinks: vi.fn()
@@ -27,6 +29,7 @@ describe('loadValuePage', () => {
 		vi.mocked(loadCardIndex).mockResolvedValue({ index: testCardIndex() });
 		vi.mocked(loadAtelier).mockResolvedValue({ artworks });
 		vi.mocked(loadNoteLinks).mockResolvedValue(undefined);
+		vi.mocked(loadMentions).mockResolvedValue([]);
 		vi.mocked(loadValueDetails).mockResolvedValue({
 			details: { summary: 'Plain capitals.', notes: '' }
 		});
@@ -57,6 +60,18 @@ describe('loadValuePage', () => {
 		expect(loadNoteLinks).not.toHaveBeenCalled();
 		expect(result.noteLinks?.resolve('/atelier/1')).toBe('#0001 Parthenon');
 		expect(result.noteLinks?.resolve('/atelier/values/style/style-doric')).toBe('Doric');
+	});
+
+	it('loads the mentions of the value on the page only', async () => {
+		const mention = { href: '/atelier/1', name: '#0001 Parthenon', kind: 'Dzieło' } as never;
+		vi.mocked(loadMentions).mockResolvedValue([mention]);
+
+		const page = await loadValuePage('style', 'style-doric', true);
+		const form = await loadValuePage('style', 'style-doric', false);
+
+		expect(page.mentions).toEqual([mention]);
+		expect(loadMentions).toHaveBeenCalledTimes(1);
+		expect(form.mentions).toBeUndefined();
 	});
 
 	it('loads the sources of note links for the form', async () => {

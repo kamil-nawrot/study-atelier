@@ -144,6 +144,7 @@
 			artwork={data.artwork}
 			editHref={editPath}
 			{flipLinks}
+			mentions={data.mentions}
 			noteLinks={data.noteLinks}
 			onflip={flip}
 		/>
