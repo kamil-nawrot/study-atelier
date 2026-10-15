@@ -1,11 +1,14 @@
+import motionNeedsNoPreference from './stylelint/motion-needs-no-preference.js';
+
 const literalColor =
 	'/(#[0-9a-fA-F]{3,8}\\b|\\b(rgb|rgba|hsl|hsla|hwb|lab|lch|oklab|oklch|color)\\()/';
 const literalLength = '/(^|[\\s(,*/+-])-?\\d*\\.?\\d+(px|rem|em|ch|vh|vw)\\b/';
 
 const config = {
 	extends: ['stylelint-config-html/svelte'],
-	plugins: ['stylelint-declaration-strict-value'],
+	plugins: ['stylelint-declaration-strict-value', motionNeedsNoPreference],
 	rules: {
+		'study-atelier/motion-needs-no-preference': true,
 		'declaration-no-important': true,
 		'declaration-block-no-duplicate-properties': true,
 		'no-duplicate-selectors': true,

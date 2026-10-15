@@ -9,6 +9,7 @@ on:
       - 'package.json'
       - '.nvmrc'
       - 'stylelint.config.js'
+      - 'stylelint/**'
       - 'eslint.config.base.js'
       - 'prettier.config.js'
       - 'design/**'
