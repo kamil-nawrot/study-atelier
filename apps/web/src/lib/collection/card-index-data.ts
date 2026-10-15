@@ -1,3 +1,4 @@
+import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { supabase } from '#lib/supabase.ts';
 import { emptyCardIndex } from './card-index.ts';
 import { isEraCode } from './eras.ts';
@@ -82,7 +83,7 @@ export type ValueChanges = {
 
 async function run(call: PromiseLike<{ error: ErrorLike | null }>): Promise<CardIndexActionResult> {
 	const { error } = await call;
-	return error ? { error: cardIndexErrorMessage(error) } : {};
+	return error ? { error: await failureMessage(error, cardIndexErrorMessage) } : {};
 }
 
 export async function saveValue(changes: ValueChanges): Promise<CardIndexActionResult> {

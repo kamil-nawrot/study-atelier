@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
+import { sessionEnded } from '#lib/auth/expired-session.svelte.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
 import { apiError, networkError, pending, TEST_EMAIL, testSession } from '#lib/testing/auth.ts';
@@ -117,5 +118,16 @@ describe('sign-in page', () => {
 
 		await expect.element(page.getByRole('alert')).not.toBeInTheDocument();
 		await expect.element(page.getByText(m.validation.passwordRequired)).toBeVisible();
+	});
+});
+
+describe('sign-in page after the session ended', () => {
+	it('says why the learner was signed out', async () => {
+		sessionEnded.value = true;
+		render(SignInPage);
+
+		await expect.element(page.getByText(m.authErrors.sessionEnded)).toBeVisible();
+
+		sessionEnded.value = false;
 	});
 });

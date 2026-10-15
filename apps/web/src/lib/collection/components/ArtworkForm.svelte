@@ -60,6 +60,7 @@
 	let { artwork, categoryValues, valueLinks, cancelHref, oncancel, onsaved }: Props = $props();
 
 	const titleId = $props.id();
+	const formErrorId = `${titleId}-error`;
 	const dateTitleId = `${titleId}-date`;
 	const yearToId = `${titleId}-year-to`;
 	const typeOptions = artworkTypeOptions();
@@ -214,6 +215,8 @@
 			if (!result.saved) {
 				fieldErrors = result.fieldErrors;
 				formError = result.error ?? '';
+				await tick();
+				document.getElementById(formErrorId)?.scrollIntoView({ block: 'center' });
 				return;
 			}
 
@@ -241,7 +244,7 @@
 
 <Form onsubmit={submit}>
 	{#if formError}
-		<Alert title={m.artworkForm.errorTitle} tone="danger">
+		<Alert id={formErrorId} title={m.artworkForm.errorTitle} tone="danger">
 			{formError}
 		</Alert>
 	{/if}

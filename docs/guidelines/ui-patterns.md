@@ -72,7 +72,8 @@ How views and components look and behave, so every new screen stays consistent w
 
 - `Alert` shows status: `danger` for errors, `warning` for something to check, `success` for a finished action. Its label (`BŁĄD`, `UWAGA`, `GOTOWE`) comes from the shared library texts, so views do not pass it.
 - An error that belongs to one field is shown under the field (`TextField` `error`).
-- An error that belongs to the whole form is an `Alert` at the top of the form, with a title that names what failed ("Nie udało się zalogować").
+- An error that belongs to the whole form is an `Alert` at the top of the form, with a title that names what failed ("Nie udało się zalogować"). When a save fails, the form scrolls the `Alert` into view, because the learner pressed Save further down.
+- When a write fails because the session is no longer valid, the learner is signed out and the sign-in page opens with a warning `Alert` ("Twoja sesja wygasła").
 - A success that ends the task replaces the form with an `Alert`. A success that keeps the user on the same task stands above the action it confirms.
 - A short confirmation that must not move the layout is a `Toast`, for example "Zapisano dzieło #0012." after "Zapisz i dodaj kolejne" empties the form for the next artwork. It floats above the content, centred, at most `--size-content-narrow` wide from 768 px and full width with side gutters on a phone. It disappears after 5 seconds, waits while the pointer is over it and has no close button. A new message replaces the one on screen.
 - A view places one `Toast` and calls its `show(text)`. On a page with an action bar fixed to the bottom, the view passes the bar's height as `offset`, so the toast stands 16 px above the bar.
