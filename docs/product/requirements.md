@@ -78,7 +78,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-66 | An author can be given a sort name ("Sortuj jako") after ticking a checkbox; authors are put in A to Z order by it, or by their name when it is not set. | 0.4 |
 | R-67 | A location has a country chosen from a fixed list and a type: museum, private collection or on site. Both are optional. | 0.4 |
 | R-68 | In the artwork view a value with a summary shows a card with its kind, parent, name and summary (for an author also the years of life) when the pointer rests on it or it gets focus, and on a phone after a tap. The card has no link; a value without a summary shows nothing. | 0.4 |
-| R-69 | Merging two values keeps the remaining value's summary, fields and notes, fills its empty fields from the merged value and adds the merged value's notes below its own. Deleting a value deletes its page content. | 0.4 |
+| R-69 | Merging two values keeps only the remaining value's summary, fields and notes; the merged value's page content is deleted, and the merge confirmation says so when there is any. Deleting a value deletes its page content. | 0.4 |
 
 ## Images
 

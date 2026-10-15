@@ -49,7 +49,7 @@ Chosen, decided by the owner in ATL-19: data model option 1, the one-column page
   - The years of life are a year span with "p.n.e." on each year and "ok." for the whole span, as the date of creation ([ADR-0046](0046-enter-the-date-of-creation-as-a-year-span.md)); a single year is allowed when only one is known.
   - The sort name ("Sortuj jako", for example "Vinci, Leonardo da") is used only when the learner ticks it on; otherwise authors sort by their name. The name stays one field, so "Fidiasz" needs nothing more and existing authors need no migration. "Autor nieznany" is a flag of the artwork, not a value, and has no page.
 - Location: a country from a fixed list of today's countries, stored as its ISO 3166-1 code with Polish names in the app's texts, and a type: museum, private collection or on site. Both are optional.
-- Merging two values ([ADR-0040](0040-manage-category-values-in-a-card-index.md)) keeps the details of the remaining value; a field it leaves empty is taken from the merged value, and the merged value's notes are added below its own. Deleting a value deletes its details, and an uploaded portrait with them.
+- Merging two values ([ADR-0040](0040-manage-category-values-in-a-card-index.md)) keeps only the details of the remaining value; the merged value's summary, notes and fields are deleted with it, and the merge confirmation says so when it has any. Deleting a value deletes its details, and an uploaded portrait with them.
 
 ### The value page
 
