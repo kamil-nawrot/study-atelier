@@ -296,10 +296,9 @@
 			display: flex;
 			flex: none;
 			flex-direction: column;
-			gap: var(--spacing-1);
 			width: 56px;
 			height: 100dvh;
-			padding: var(--spacing-3) 0;
+			padding: 0 0 var(--spacing-3);
 			overflow: hidden;
 			border-right: var(--border-width-base) solid var(--color-line);
 		}
@@ -318,8 +317,16 @@
 		}
 
 		.toggle {
+			box-sizing: border-box;
+			flex: none;
 			width: 100%;
-			padding: var(--spacing-2) var(--spacing-4);
+			height: calc(var(--size-control) + 2 * var(--spacing-4) + var(--border-width-hairline));
+			padding: 0 var(--spacing-4);
+			border-bottom: var(--border-width-hairline) solid var(--color-tag);
+		}
+
+		.rail .menu {
+			padding-top: var(--spacing-8);
 		}
 
 		.burger {
