@@ -34,6 +34,7 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 	return {
 		id: 'artwork-7',
 		number: 7,
+		favourite: false,
 		title: 'The Milkmaid',
 		authors: ['Johannes Vermeer'],
 		authorUnknown: false,

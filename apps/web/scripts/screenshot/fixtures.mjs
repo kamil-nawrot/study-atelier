@@ -73,6 +73,7 @@ function artwork(number, title, authors, year, era, extra = {}) {
 		own_image_url: null,
 		image_width: null,
 		image_height: null,
+		favourite: false,
 		deleted_at: null,
 		artwork_values: authors.map((name, position) => ({
 			position,
@@ -152,6 +153,9 @@ export const ARTWORKS = [
 	),
 	artwork(10, 'Untitled study', ['Learner Example'], null, null, {})
 ];
+
+for (const number of [1, 3, 4, 7])
+	ARTWORKS.find((row) => row.record_number === number).favourite = true;
 
 export const TRASHED = [
 	artwork(11, 'Discarded sketch', ['Learner Example'], 2020, 'contemporary', {

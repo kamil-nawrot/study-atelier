@@ -51,6 +51,7 @@ export type WallArtwork = {
 	materials: string[];
 	location: string | null;
 	hasImage: boolean;
+	favourite: boolean;
 	image?: ArtworkTileImage;
 	imageUnavailable?: boolean;
 	pendingImage?: PendingImage;
@@ -150,6 +151,7 @@ export type ArtworkInput = {
 export type ArtworkRecord = ArtworkInput & {
 	id: string;
 	number: number;
+	favourite: boolean;
 };
 
 export type ExistingArtwork = {
@@ -252,9 +254,11 @@ export type FilterField =
 	| 'styles'
 	| 'materials'
 	| 'locations'
-	| 'missing';
+	| 'missing'
+	| 'favourites';
 
 export type CollectionFilter = {
+	favourites: boolean;
 	eras: EraCode[];
 	types: ArtworkTypeCode[];
 	yearFrom: number | null;

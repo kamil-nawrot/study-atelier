@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import Landmark from '@lucide/svelte/icons/landmark';
 import { render } from 'vitest-browser-svelte';
@@ -171,5 +171,36 @@ describe('ArtworkTile', () => {
 				.closest('.window');
 			expect(box.width).toBeCloseTo(window!.getBoundingClientRect().width, 0);
 		});
+	});
+
+	it('shows no heart without a handler', async () => {
+		render(ArtworkTile, base);
+
+		await expect.element(page.getByRole('button')).not.toBeInTheDocument();
+	});
+
+	it('shows the heart as a button beside the link, not inside it', async () => {
+		const onfavourite = vi.fn();
+		render(ArtworkTile, { ...base, favouriteLabel: 'Add to favourites', onfavourite });
+
+		const heart = page.getByRole('button', { name: 'Add to favourites' });
+		await expect.element(heart).toHaveAttribute('aria-pressed', 'false');
+		await heart.click();
+
+		expect(onfavourite).toHaveBeenCalledOnce();
+		await expect.element(page.getByRole('link').getByRole('button')).not.toBeInTheDocument();
+	});
+
+	it('marks the heart as pressed for a favourite', async () => {
+		render(ArtworkTile, {
+			...base,
+			favourite: true,
+			favouriteLabel: 'Remove from favourites',
+			onfavourite: vi.fn()
+		});
+
+		await expect
+			.element(page.getByRole('button', { name: 'Remove from favourites' }))
+			.toHaveAttribute('aria-pressed', 'true');
 	});
 });

@@ -16,6 +16,7 @@ import type {
 export const UNKNOWN_AUTHOR = '';
 
 export const FILTER_FIELDS: readonly FilterField[] = [
+	'favourites',
 	'eras',
 	'types',
 	'years',
@@ -29,7 +30,7 @@ export const FILTER_FIELDS: readonly FilterField[] = [
 
 export const MISSING_DATA: readonly MissingData[] = ['image', 'year', 'era', 'period', 'type'];
 
-type ValueField = Exclude<FilterField, 'years'>;
+type ValueField = Exclude<FilterField, 'years' | 'favourites'>;
 
 const NAME_FIELDS = ['authors', 'periods', 'styles', 'materials', 'locations'] as const;
 
@@ -42,7 +43,8 @@ const PARAMS: Record<FilterField, string> = {
 	styles: 'styl',
 	materials: 'material',
 	locations: 'miejsce',
-	missing: 'braki'
+	missing: 'braki',
+	favourites: 'ulubione'
 };
 
 type Params = Pick<URLSearchParams, 'get' | 'getAll' | 'has'>;
@@ -52,6 +54,7 @@ const RANGE_SEPARATOR = '..';
 
 export function emptyFilter(): CollectionFilter {
 	return {
+		favourites: false,
 		eras: [],
 		types: [],
 		yearFrom: null,
@@ -72,6 +75,7 @@ function hasYears(filter: CollectionFilter): boolean {
 
 function hasChoice(filter: CollectionFilter, field: FilterField): boolean {
 	if (field === 'years') return hasYears(filter);
+	if (field === 'favourites') return filter.favourites;
 	if (field === 'authors') return filter.authors.length > 0 || filter.unknownAuthor;
 	return filter[field].length > 0;
 }
@@ -108,6 +112,7 @@ function chosenValues(filter: CollectionFilter, field: ValueField): string[] {
 }
 
 function fieldMatches(artwork: WallArtwork, filter: CollectionFilter, field: FilterField): boolean {
+	if (field === 'favourites') return artwork.favourite;
 	if (field === 'years') {
 		if (artwork.yearTo === null) return false;
 		if (filter.yearFrom !== null && artwork.yearTo < filter.yearFrom) return false;
@@ -164,6 +169,23 @@ export function filterOptions(
 	});
 }
 
+export function favouriteCount(artworks: WallArtwork[], filter: CollectionFilter): number {
+	return artworks.filter(
+		(artwork) => artwork.favourite && matchesFilter(artwork, filter, 'favourites')
+	).length;
+}
+
+export function toggleFavourites(filter: CollectionFilter): CollectionFilter {
+	return { ...filter, favourites: !filter.favourites };
+}
+
+export function onlyFavourites(filter: CollectionFilter): boolean {
+	return (
+		filter.favourites &&
+		FILTER_FIELDS.every((field) => field === 'favourites' || !hasChoice(filter, field))
+	);
+}
+
 export function toggleValue(
 	filter: CollectionFilter,
 	field: ValueField,
@@ -190,6 +212,7 @@ export function clearField(filter: CollectionFilter, field: FilterField): Collec
 	const empty = emptyFilter();
 	if (field === 'years') return { ...filter, yearFrom: null, yearTo: null };
 	if (field === 'authors') return { ...filter, authors: [], unknownAuthor: false };
+	if (field === 'favourites') return { ...filter, favourites: false };
 	return { ...filter, [field]: empty[field] };
 }
 
@@ -201,6 +224,10 @@ export function filterTags(filter: CollectionFilter): FilterTag[] {
 				tags.push({ id: 'years', field, value: yearsParam(filter.yearFrom, filter.yearTo) });
 			continue;
 		}
+		if (field === 'favourites') {
+			if (filter.favourites) tags.push({ id: 'favourites', field, value: '' });
+			continue;
+		}
 		for (const value of chosenValues(filter, field))
 			tags.push({ id: `${field}:${value}`, field, value });
 	}
@@ -208,9 +235,8 @@ export function filterTags(filter: CollectionFilter): FilterTag[] {
 }
 
 export function removeTag(filter: CollectionFilter, tag: FilterTag): CollectionFilter {
-	return tag.field === 'years'
-		? clearField(filter, 'years')
-		: toggleValue(filter, tag.field, tag.value);
+	if (tag.field === 'years' || tag.field === 'favourites') return clearField(filter, tag.field);
+	return toggleValue(filter, tag.field, tag.value);
 }
 
 export function optionLabel(field: ValueField, value: string): string {
@@ -222,6 +248,7 @@ export function optionLabel(field: ValueField, value: string): string {
 
 export function tagParts(tag: FilterTag): TagParts {
 	const field = m.atelier.filters.tagFields[tag.field];
+	if (tag.field === 'favourites') return { field, value: '' };
 	if (tag.field !== 'years') return { field, value: optionLabel(tag.field, tag.value) };
 	const [from, to] = tag.value.split(RANGE_SEPARATOR).map((part) => (part ? Number(part) : null));
 	return { field, value: yearsLabel(from, to) };
@@ -229,7 +256,7 @@ export function tagParts(tag: FilterTag): TagParts {
 
 export function tagLabel(tag: FilterTag): string {
 	const { field, value } = tagParts(tag);
-	return m.atelier.filters.tag(field, value);
+	return value ? m.atelier.filters.tag(field, value) : field;
 }
 
 function yearsLabel(from: number | null, to: number | null): string {
@@ -259,6 +286,10 @@ export function filterToParams(filter: CollectionFilter): URLSearchParams {
 			if (hasYears(filter)) params.set(PARAMS.years, yearsParam(filter.yearFrom, filter.yearTo));
 			continue;
 		}
+		if (field === 'favourites') {
+			if (filter.favourites) params.set(PARAMS.favourites, '1');
+			continue;
+		}
 		for (const value of filter[field]) params.append(PARAMS[field], value);
 	}
 	if (filter.unknownAuthor) params.set(UNKNOWN_AUTHOR_PARAM, '1');
@@ -273,6 +304,7 @@ export function filterFromParams(params: Params): CollectionFilter {
 	const years = params.get(PARAMS.years);
 	return {
 		...emptyFilter(),
+		favourites: params.has(PARAMS.favourites),
 		eras: uniqueValues(params, PARAMS.eras).filter(isEraCode),
 		types: uniqueValues(params, PARAMS.types).filter((value): value is ArtworkTypeCode =>
 			ARTWORK_TYPE_CODES.includes(value as ArtworkTypeCode)

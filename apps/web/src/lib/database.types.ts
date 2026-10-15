@@ -68,6 +68,7 @@ export type Database = {
           created_at: string;
           deleted_at: string | null;
           era_code: string | null;
+          favourite: boolean;
           id: string;
           image_height: number | null;
           image_width: number | null;
@@ -94,6 +95,7 @@ export type Database = {
           created_at?: string;
           deleted_at?: string | null;
           era_code?: string | null;
+          favourite?: boolean;
           id?: string;
           image_height?: number | null;
           image_width?: number | null;
@@ -119,6 +121,7 @@ export type Database = {
           created_at?: string;
           deleted_at?: string | null;
           era_code?: string | null;
+          favourite?: boolean;
           id?: string;
           image_height?: number | null;
           image_width?: number | null;

@@ -39,6 +39,7 @@ type ArtworkRow = {
 	own_image_url: string | null;
 	image_width: number | null;
 	image_height: number | null;
+	favourite: boolean;
 	deleted_at: string | null;
 	artwork_values: ArtworkValueRow[];
 };
@@ -64,6 +65,7 @@ const ARTWORK_COLUMNS = [
 	'own_image_url',
 	'image_width',
 	'image_height',
+	'favourite',
 	'deleted_at',
 	'artwork_values(position, category_values(category_code, name))'
 ].join(', ');
@@ -161,6 +163,7 @@ function wallArtwork(row: ArtworkRow): WallArtwork {
 		materials: valuesOf(row.artwork_values, 'material'),
 		location: valuesOf(row.artwork_values, 'location')[0] ?? null,
 		hasImage: Boolean(row.source_image_file || row.own_image_path || row.own_image_url),
+		favourite: row.favourite,
 		image,
 		...(pendingImage ? { pendingImage } : {}),
 		...(row.own_image_path ? { ownImagePath: row.own_image_path } : {})

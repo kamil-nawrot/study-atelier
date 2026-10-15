@@ -183,4 +183,21 @@ describe('FilterPanel', () => {
 
 		expect(state.current.missing).toEqual(['image']);
 	});
+
+	it('starts with the favourites tag and counts the favourites', async () => {
+		render(FilterPanelHost, {
+			artworks: [...artworks, testArtwork(3, 'The Kiss', { favourite: true })],
+			initial: emptyFilter(),
+			report: (next: CollectionFilter) => (state.current = next)
+		});
+
+		const tag = page.getByRole('button', {
+			name: new RegExp(`^${m.atelier.filters.fields.favourites}.* 1$`)
+		});
+		await expect.element(tag).toHaveAttribute('aria-pressed', 'false');
+		await tag.click();
+
+		expect(state.current.favourites).toBe(true);
+		await expect.element(tag).toHaveAttribute('aria-pressed', 'true');
+	});
 });

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
+	import Heart from '@lucide/svelte/icons/heart';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
@@ -10,6 +11,7 @@
 	import type { ResolvedPathname } from '$app/types';
 	import ArtworkView from '#lib/collection/components/ArtworkView.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import { favouriteLabel, favouriteToast, setFavourite } from '#lib/collection/favourite.ts';
 	import { keyDirection } from '#lib/collection/flip.ts';
 	import { goBackThroughHistory } from '#lib/collection/history.ts';
 	import { formatRecordNumber, parseRecordNumber } from '#lib/collection/format.ts';
@@ -30,7 +32,12 @@
 	let trashOpen = $state(false);
 	let moving = $state(false);
 	let trashError = $state<string>();
+	let favourites = $state<Record<string, boolean>>({});
+	let favouriteError = $state<string>();
 
+	let favourite = $derived(
+		data.artwork ? (favourites[data.artwork.id] ?? data.artwork.favourite) : false
+	);
 	let number = $derived(parseRecordNumber(params.number));
 	let label = $derived(number === null ? params.number : formatRecordNumber(number));
 	let artworkPath = $derived(resolve('/(app)/atelier/[number]', { number: params.number }));
@@ -110,6 +117,21 @@
 		await goto(atelierPath, { state: { trashed: data.artwork.number } });
 	}
 
+	async function toggleFavourite(): Promise<void> {
+		if (!data.artwork) return;
+		const { id } = data.artwork;
+		const next = !favourite;
+		favouriteError = undefined;
+		favourites[id] = next;
+		const { error } = await setFavourite(id, next);
+		if (error) {
+			favourites[id] = !next;
+			favouriteError = error;
+			return;
+		}
+		toast.show(favouriteToast(next));
+	}
+
 	function goBack(event: MouseEvent): void {
 		goBackThroughHistory(event, cameFromWall);
 	}
@@ -124,6 +146,15 @@
 			{m.artworkView.back}
 		</a>
 		{#if data.artwork}
+			<Button
+				aria-label={favouriteLabel(favourite)}
+				aria-pressed={favourite}
+				onclick={toggleFavourite}
+			>
+				<span class="heart" class:filled={favourite}>
+					<Icon icon={Heart} size="sm" />
+				</span>
+			</Button>
 			<Button aria-label={m.artworkView.edit} href={editPath}>
 				<Icon icon={Pencil} size="sm" />
 				<span class="label">
@@ -140,6 +171,11 @@
 	{/snippet}
 
 	{#if data.artwork}
+		{#if favouriteError}
+			<Alert tone="danger">
+				{favouriteError}
+			</Alert>
+		{/if}
 		<ArtworkView
 			artwork={data.artwork}
 			editHref={editPath}
@@ -206,6 +242,14 @@
 
 	.label {
 		display: none;
+	}
+
+	.heart {
+		display: flex;
+	}
+
+	.heart.filled :global(svg) {
+		fill: currentColor;
 	}
 
 	@media (min-width: 768px) {

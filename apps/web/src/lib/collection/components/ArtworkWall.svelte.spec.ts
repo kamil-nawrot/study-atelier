@@ -153,4 +153,27 @@ describe('ArtworkWall', () => {
 			expect(onnearscreen).not.toHaveBeenCalled();
 		});
 	});
+
+	it('shows a heart on every tile that names the action and reports the artwork', async () => {
+		await page.viewport(1000, 800);
+		const onfavourite = vi.fn();
+		const loved = testArtwork(2, 'Loved', { favourite: true });
+
+		render(ArtworkWall, { artworks: [testArtwork(1, 'Plain'), loved], onfavourite });
+
+		await expect
+			.element(page.getByRole('button', { name: m.favourite.add }))
+			.toHaveAttribute('aria-pressed', 'false');
+		await page.getByRole('button', { name: m.favourite.remove }).click();
+
+		expect(onfavourite).toHaveBeenCalledWith(loved);
+	});
+
+	it('shows no heart without a handler', async () => {
+		await page.viewport(1000, 800);
+
+		render(ArtworkWall, { artworks: [testArtwork(1, 'Plain')] });
+
+		await expect.element(page.getByRole('button')).not.toBeInTheDocument();
+	});
 });

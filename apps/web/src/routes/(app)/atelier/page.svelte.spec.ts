@@ -3,6 +3,7 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto, invalidateAll } from '$app/navigation';
 import { refreshExpiredImages } from '#lib/collection/artworks.ts';
+import { setFavourite } from '#lib/collection/favourite.ts';
 import type { WallArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
@@ -24,6 +25,10 @@ vi.mock('$app/navigation', () => ({
 vi.mock('#lib/collection/artworks.ts', () => ({
 	refreshExpiredImages: vi.fn(),
 	resolveImages: vi.fn()
+}));
+vi.mock('#lib/collection/favourite.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/collection/favourite.ts')>()),
+	setFavourite: vi.fn()
 }));
 vi.mock('#lib/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
@@ -843,5 +848,32 @@ describe('atelier page', () => {
 				]);
 			});
 		});
+	});
+
+	it('marks a tile as a favourite with its heart and confirms it', async () => {
+		vi.mocked(setFavourite).mockResolvedValue({});
+		await page.viewport(1000, 800);
+		renderAtelier();
+
+		await page.getByRole('button', { name: m.favourite.add }).first().click();
+
+		expect(setFavourite).toHaveBeenCalledWith('artwork-3', true);
+		await expect
+			.element(page.getByRole('button', { name: m.favourite.remove }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect.element(page.getByText(m.favourite.added)).toBeVisible();
+	});
+
+	it('puts the heart back and shows an alert when the save fails', async () => {
+		vi.mocked(setFavourite).mockResolvedValue({ error: m.favourite.failed });
+		await page.viewport(1000, 800);
+		renderAtelier();
+
+		await page.getByRole('button', { name: m.favourite.add }).first().click();
+
+		await expect.element(page.getByRole('alert')).toHaveTextContent(m.favourite.failed);
+		await expect
+			.element(page.getByRole('button', { name: m.favourite.remove }))
+			.not.toBeInTheDocument();
 	});
 });

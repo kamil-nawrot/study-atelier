@@ -31,9 +31,11 @@
 		filterTags,
 		filterToParams,
 		isEmptyFilter,
+		onlyFavourites,
 		pruneFilter,
 		removeTag
 	} from '#lib/collection/filter.ts';
+	import { favouriteToast, setFavourite } from '#lib/collection/favourite.ts';
 	import { formatRecordNumber } from '#lib/collection/format.ts';
 	import { WALL_PART } from '#lib/collection/masonry.ts';
 	import PeriodRail from '#lib/collection/components/PeriodRail.svelte';
@@ -41,7 +43,7 @@
 	import { groupByAuthor, groupByEra } from '#lib/collection/periods.ts';
 	import { MIN_RAIL_MARGIN, PeriodTracker } from '#lib/collection/period-tracker.svelte.ts';
 	import { filterByTitleOrAuthor } from '#lib/collection/search.ts';
-	import type { WallOrder } from '#lib/collection/types.ts';
+	import type { WallArtwork, WallOrder } from '#lib/collection/types.ts';
 	import {
 		isWallOrder,
 		rememberedWallOrder,
@@ -114,6 +116,19 @@
 
 	const images = new WallImages();
 
+	async function toggleFavourite(artwork: WallArtwork): Promise<void> {
+		const next = !artwork.favourite;
+		favouriteError = undefined;
+		favourites[artwork.id] = next;
+		const { error } = await setFavourite(artwork.id, next);
+		if (error) {
+			favourites[artwork.id] = !next;
+			favouriteError = error;
+			return;
+		}
+		toast.show(favouriteToast(next));
+	}
+
 	$effect.pre(() => {
 		const pruned = pruneFilter(
 			untrack(() => filter),
@@ -128,7 +143,21 @@
 		images.reset();
 	});
 
-	let artworks = $derived(images.apply(data.artworks));
+	let favourites = $state<Record<string, boolean>>({});
+	let favouriteError = $state<string>();
+
+	$effect.pre(() => {
+		void data.artworks;
+		favourites = {};
+	});
+
+	let artworks = $derived(
+		images
+			.apply(data.artworks)
+			.map((artwork) =>
+				artwork.id in favourites ? { ...artwork, favourite: favourites[artwork.id] } : artwork
+			)
+	);
 	let imagesUnavailable = $derived(artworks.some((artwork) => artwork.imageUnavailable));
 	let filtered = $derived(applyFilter(artworks, filter));
 	let tags = $derived(filterTags(filter));
@@ -306,7 +335,9 @@
 		<div class="state">
 			<Section>
 				<h2>{m.atelier.filters.noResultsTitle}</h2>
-				<p class="lead">{m.atelier.filters.noResults}</p>
+				<p class="lead">
+					{onlyFavourites(filter) ? m.atelier.filters.noFavourites : m.atelier.filters.noResults}
+				</p>
 				<div>
 					<Button onclick={() => (filter = emptyFilter())}>
 						{m.atelier.filters.clear}
@@ -344,6 +375,11 @@
 			onremove={(tag) => (filter = removeTag(filter, tag))}
 			{tags}
 		/>
+		{#if favouriteError}
+			<Alert tone="danger">
+				{favouriteError}
+			</Alert>
+		{/if}
 		{#if imagesUnavailable}
 			<Alert title={m.atelier.imagesUnavailableTitle} tone="warning">
 				{m.atelier.imagesUnavailable}
@@ -355,6 +391,7 @@
 		<ArtworkWall
 			artworks={shown}
 			{highlight}
+			onfavourite={toggleFavourite}
 			onimagefailed={(artwork) => images.failed(artwork)}
 			onnearscreen={(artwork) => images.request(artwork)}
 			{periodIndexes}
