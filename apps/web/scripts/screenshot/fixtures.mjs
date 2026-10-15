@@ -164,7 +164,7 @@ export const TRASHED = [
 	})
 ];
 
-function valueId(category, name) {
+export function valueId(category, name) {
 	return `${category}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 }
 
@@ -230,6 +230,9 @@ export const VALUE_DETAILS = {
 		}
 	],
 	author_details: [
+		{ value_id: valueId('author', 'Andy Warhol'), sort_name: 'Warhol, Andy' },
+		{ value_id: valueId('author', 'Gustav Klimt'), sort_name: 'Klimt, Gustav' },
+		{ value_id: valueId('author', 'Vincent van Gogh'), sort_name: 'Gogh, Vincent van' },
 		{
 			value_id: valueId('author', 'Leonardo da Vinci'),
 			summary: 'Painter, sculptor, engineer and student of nature; the master of sfumato.',

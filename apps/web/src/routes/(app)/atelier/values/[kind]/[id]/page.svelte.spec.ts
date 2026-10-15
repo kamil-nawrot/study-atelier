@@ -285,6 +285,7 @@ describe('value page', () => {
 
 			expect(deleteValue).toHaveBeenCalledWith(expect.objectContaining({ id: 'style-loose' }));
 			expect(goto).toHaveBeenCalledWith('/atelier/values', {
+				refreshAll: true,
 				state: { valueMessage: m.cardIndex.deleted('Loose') }
 			});
 		});

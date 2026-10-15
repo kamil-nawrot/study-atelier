@@ -64,6 +64,7 @@ The SvelteKit app in `apps/web/src`:
 ## Naming
 
 - Svelte components: `PascalCase.svelte`, the same name they are imported under.
+- A component is named for what it is, not for one way it opens or one interaction: `Popover`, not `HoverCard`, because it also opens on a click.
 - Other files and folders: `kebab-case`, for example `auth-artworks.ts`. Route folders are kebab-case because they become URLs (`/forgot-password`).
 - SvelteKit files keep the framework's names (`+page.svelte`, `+layout.ts`).
 - Tests: the tested file's name plus `.spec.ts`, next to the tested file.
@@ -78,6 +79,7 @@ The SvelteKit app in `apps/web/src`:
 - Pages that need a signed-in learner are in the `(app)` group; the start page, sign-in, sign-up and password reset are in `(auth)`. The atelier lives at `/atelier`, one artwork at `/atelier/<record number>`, its edit form at `/atelier/<record number>/edit`, the add form at `/atelier/new`, the trash at `/atelier/trash` ([ADR-0023](../decisions/0023-atelier-routes-and-commons-thumbnails.md)), the card index at `/atelier/values`, a value page at `/atelier/values/<kind>/<id>` and its form at `/atelier/values/<kind>/<id>/edit` ([ADR-0050](../decisions/0050-store-value-pages-in-details-tables.md)); `/` is the start page. Each group's `+layout.ts` redirects by session. A page reachable in both states (for example `update-password`, opened from an email) stays outside the groups.
 - Paths in code are built with `resolve()` from `$app/paths`, for example `resolve('/(auth)/sign-in')`, in views and in `redirect()` alike, so a renamed route fails the type check.
 - Internal navigation follows [ui-patterns.md](ui-patterns.md#links-and-buttons): links for going somewhere, `goto` only after an action.
+- A `goto` after an action that changed data (a save, a delete, moving to the trash) passes `refreshAll: true`. Links preload their page's data on hover, and without it the navigation reuses data loaded before the change, so the page shows the old content until a reload.
 
 ## UI text
 

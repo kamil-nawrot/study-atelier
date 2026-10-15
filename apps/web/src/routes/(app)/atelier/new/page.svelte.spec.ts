@@ -497,7 +497,7 @@ describe('add artwork page', () => {
 		await saveButton().click();
 
 		await vi.waitFor(() =>
-			expect(goto).toHaveBeenCalledWith('/atelier', { state: { highlight: 12 } })
+			expect(goto).toHaveBeenCalledWith('/atelier', { refreshAll: true, state: { highlight: 12 } })
 		);
 		expect(supabase.rpc).toHaveBeenCalledWith('save_artwork', {
 			artwork: expect.objectContaining({
@@ -577,7 +577,7 @@ describe('add artwork page', () => {
 		await page.getByRole('button', { name: m.duplicateDialog.save.confirm }).click();
 
 		await vi.waitFor(() =>
-			expect(goto).toHaveBeenCalledWith('/atelier', { state: { highlight: 12 } })
+			expect(goto).toHaveBeenCalledWith('/atelier', { refreshAll: true, state: { highlight: 12 } })
 		);
 		expect(supabase.rpc).toHaveBeenCalledTimes(1);
 	});

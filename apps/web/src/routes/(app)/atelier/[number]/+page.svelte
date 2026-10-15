@@ -114,7 +114,7 @@
 			return;
 		}
 		trashOpen = false;
-		await goto(atelierPath, { state: { trashed: data.artwork.number } });
+		await goto(atelierPath, { refreshAll: true, state: { trashed: data.artwork.number } });
 	}
 
 	async function toggleFavourite(): Promise<void> {
@@ -183,6 +183,7 @@
 			mentions={data.mentions}
 			noteLinks={data.noteLinks}
 			onflip={flip}
+			summaries={data.summaries}
 		/>
 	{:else}
 		<Section>

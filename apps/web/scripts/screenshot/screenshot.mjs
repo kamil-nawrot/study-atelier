@@ -10,6 +10,7 @@ import {
 	STYLE_PERIOD_USAGE,
 	VALUE_DETAILS,
 	VALUE_USAGE,
+	valueId,
 	IMAGE_HOST,
 	SUPABASE_URL,
 	TRASHED,
@@ -126,6 +127,22 @@ async function mockSupabase(context) {
 		if (url.pathname.startsWith('/rest/v1/rpc/')) {
 			return json(route, { id: ARTWORKS[0].id, record_number: ARTWORKS[0].record_number });
 		}
+		if (url.pathname === '/rest/v1/artwork_values') {
+			const number = Number(url.searchParams.get('artworks.record_number')?.slice(3));
+			const artwork = ARTWORKS.find((row) => row.record_number === number);
+			const values = (artwork?.artwork_values ?? []).map(({ category_values: value }) => {
+				const table = `${value.category_code}_details`;
+				const id = valueId(value.category_code, value.name);
+				return {
+					artworks: { record_number: number },
+					category_values: {
+						...value,
+						[table]: (VALUE_DETAILS[table] ?? []).filter((row) => row.value_id === id)
+					}
+				};
+			});
+			return json(route, values);
+		}
 		const detailsTable = url.pathname.replace('/rest/v1/', '');
 		if (detailsTable in VALUE_DETAILS) {
 			const [column, filter] = [...url.searchParams].find(([key]) => key !== 'select') ?? [];
@@ -142,7 +159,20 @@ async function mockSupabase(context) {
 			);
 		}
 		if (url.pathname === '/rest/v1/artworks') {
-			const rows = filteredRows(url);
+			const rows = filteredRows(url).map((row) => ({
+				...row,
+				artwork_values: row.artwork_values.map((link) => ({
+					...link,
+					category_values: {
+						...link.category_values,
+						author_details: VALUE_DETAILS.author_details.filter(
+							(details) =>
+								details.value_id ===
+								valueId(link.category_values.category_code, link.category_values.name)
+						)
+					}
+				}))
+			}));
 			const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
 			if (!wantsObject) return json(route, rows);
 			if (rows.length === 1) return json(route, rows[0]);
