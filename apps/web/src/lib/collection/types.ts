@@ -1,5 +1,6 @@
 import type { ArtworkTileImage, NoteLinks } from '@study-atelier/ui';
 import type { Mention } from './mentions.ts';
+import type { ValueSummaries } from './value-summaries.ts';
 
 export type WallOrder = 'recent' | 'period' | 'author';
 
@@ -169,6 +170,7 @@ export type LoadArtworkResult = {
 	artwork?: ArtworkRecord;
 	noteLinks?: NoteLinks;
 	mentions?: Mention[];
+	summaries?: ValueSummaries;
 	error?: string;
 	notFound?: boolean;
 };

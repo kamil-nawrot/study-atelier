@@ -10,6 +10,7 @@ import {
 	STYLE_PERIOD_USAGE,
 	VALUE_DETAILS,
 	VALUE_USAGE,
+	valueId,
 	IMAGE_HOST,
 	SUPABASE_URL,
 	TRASHED,
@@ -125,6 +126,22 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/rpc/style_period_usage') return json(route, STYLE_PERIOD_USAGE);
 		if (url.pathname.startsWith('/rest/v1/rpc/')) {
 			return json(route, { id: ARTWORKS[0].id, record_number: ARTWORKS[0].record_number });
+		}
+		if (url.pathname === '/rest/v1/artwork_values') {
+			const number = Number(url.searchParams.get('artworks.record_number')?.slice(3));
+			const artwork = ARTWORKS.find((row) => row.record_number === number);
+			const values = (artwork?.artwork_values ?? []).map(({ category_values: value }) => {
+				const table = `${value.category_code}_details`;
+				const id = valueId(value.category_code, value.name);
+				return {
+					artworks: { record_number: number },
+					category_values: {
+						...value,
+						[table]: (VALUE_DETAILS[table] ?? []).filter((row) => row.value_id === id)
+					}
+				};
+			});
+			return json(route, values);
 		}
 		const detailsTable = url.pathname.replace('/rest/v1/', '');
 		if (detailsTable in VALUE_DETAILS) {

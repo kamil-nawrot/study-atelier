@@ -16,6 +16,7 @@ export { default as LogoMark } from './components/LogoMark.svelte';
 export { default as NoImage } from './components/NoImage.svelte';
 export { default as Notes } from './components/Notes.svelte';
 export { default as NotesEditor } from './components/NotesEditor.svelte';
+export { default as Popover } from './components/Popover.svelte';
 export { default as Primer } from './components/Primer.svelte';
 export { default as ProgressLine } from './components/ProgressLine.svelte';
 export { default as SearchField } from './components/SearchField.svelte';

@@ -97,6 +97,7 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 1. `/atelier/<record number>` reads the artwork the same way as the edit page, without the category values (`loadArtwork`), and shows the same not-found state ([ADR-0026](../decisions/0026-artwork-view-as-a-stage-with-an-information-panel.md)).
 2. The stage and the full-screen view take the image from `#lib/collection/artwork-image.ts`: Commons widths up to the stored width, or the image URL, or the signed URL of an uploaded image.
 3. Whether the information panel is closed is kept in the browser's `localStorage` (`#lib/collection/artwork-panel.ts`); without storage the panel is always open.
+4. Next to the artwork, the page loads the summaries of its values (`loadValueSummaries` in `#lib/collection/value-summaries.ts`): one request for the artwork's values with their details tables embedded, found by the record number, and one for the learner's era summaries. A value with a summary opens a `Popover` card in the panel ([ADR-0058](../decisions/0058-value-summary-card-in-the-artwork-view.md)).
 
 ### Editing an artwork
 

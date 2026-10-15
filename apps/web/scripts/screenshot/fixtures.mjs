@@ -160,7 +160,7 @@ export const TRASHED = [
 	})
 ];
 
-function valueId(category, name) {
+export function valueId(category, name) {
 	return `${category}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 }
 
