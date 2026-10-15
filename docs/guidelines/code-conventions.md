@@ -38,6 +38,12 @@
 </Alert>
 ```
 
+## Reuse
+
+- Before writing a mechanism, look for one that already exists in `#lib` or `packages/ui` and use or extend it, for example an option on a library component instead of a new component.
+- When a change needs logic or markup that already lives elsewhere (a guard against leaving a form, a bar, image loading), it moves that code into a shared module or component in the same pull request and switches the existing callers to it; it does not copy it.
+- Duplication found that the change did not introduce gets its own `Chore` issue in Linear instead of widening the pull request.
+
 ## Web app layout
 
 The SvelteKit app in `apps/web/src`:
