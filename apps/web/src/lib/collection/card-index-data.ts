@@ -1,4 +1,5 @@
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
+import { removeOwnImage } from '#lib/images/own-image.ts';
 import { supabase } from '#lib/supabase.ts';
 import { emptyCardIndex } from './card-index.ts';
 import { isEraCode } from './eras.ts';
@@ -23,6 +24,16 @@ type PeriodEraRow = { period_id: string; era_code: string; artwork_count: number
 type StylePeriodRow = { style_id: string; period_id: string; artwork_count: number };
 
 export type CardIndexActionResult = {
+	error?: string;
+};
+
+export type ValuePageContent = {
+	hasContent: boolean;
+	ownImagePath?: string;
+};
+
+export type ValuePageContentResult = {
+	content?: ValuePageContent;
 	error?: string;
 };
 
@@ -111,11 +122,14 @@ export async function saveValue(changes: ValueChanges): Promise<CardIndexActionR
 	}
 
 	if (changes.mergeInto) {
-		return run(
-			supabase.rpc('merge_category_values', {
-				merged_id: record.id,
-				kept_id: changes.mergeInto.id
-			})
+		const mergeInto = changes.mergeInto;
+		return withPortraitRemoved(record, () =>
+			run(
+				supabase.rpc('merge_category_values', {
+					merged_id: record.id,
+					kept_id: mergeInto.id
+				})
+			)
 		);
 	}
 
@@ -126,6 +140,33 @@ export async function saveValue(changes: ValueChanges): Promise<CardIndexActionR
 	return {};
 }
 
-export function deleteValue(id: string): Promise<CardIndexActionResult> {
-	return run(supabase.rpc('delete_unused_value', { target_value: id }));
+export function deleteValue(record: CardIndexRecord): Promise<CardIndexActionResult> {
+	return withPortraitRemoved(record, () =>
+		run(supabase.rpc('delete_unused_value', { target_value: record.id }))
+	);
+}
+
+export async function loadValuePageContent(id: string): Promise<ValuePageContentResult> {
+	const { data, error } = await supabase.rpc('value_page_content', { target_value: id });
+	if (error) return { error: await failureMessage(error, cardIndexErrorMessage) };
+	const row = data?.[0];
+	return {
+		content: {
+			hasContent: row?.has_content ?? false,
+			ownImagePath: row?.own_image_path ?? undefined
+		}
+	};
+}
+
+async function withPortraitRemoved(
+	record: CardIndexRecord,
+	action: () => Promise<CardIndexActionResult>
+): Promise<CardIndexActionResult> {
+	if (record.category !== 'author') return action();
+	const loaded = await loadValuePageContent(record.id);
+	if (loaded.error) return { error: loaded.error };
+	const result = await action();
+	const path = loaded.content?.ownImagePath;
+	if (!result.error && path) await removeOwnImage(path);
+	return result;
 }

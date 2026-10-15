@@ -513,6 +513,8 @@ export const pl = {
 				`${workCount(count)} z „${merged}” ${count === 1 ? 'dostanie' : 'dostaną'} „${kept}”, a „${merged}” zniknie z Kartoteki.`,
 			periodLinks: (merged: string, kept: string): string =>
 				`Epoki i style okresu „${merged}” dołączą do „${kept}”.`,
+			pageContent: (merged: string): string =>
+				`Podsumowanie, notatki i pozostałe informacje o „${merged}” zostaną usunięte.`,
 			irreversible: 'Tej akcji nie będzie można cofnąć!',
 			back: 'Wróć',
 			confirm: 'Połącz',

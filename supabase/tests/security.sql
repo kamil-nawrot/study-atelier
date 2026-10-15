@@ -96,6 +96,11 @@ select id, record_number from public.save_artwork(
 );
 
 insert into public.category_values (category_code, name) values ('style', 'Unlinked');
+insert into public.category_values (category_code, name) values ('author', 'Painter');
+
+insert into public.period_details (value_id, summary)
+  select id, 'Period summary' from public.category_values where category_code = 'period';
+insert into public.era_details (era_code, summary) values ('early_modern', 'Era summary');
 
 insert into storage.objects (bucket_id, name)
   values ('artwork-images', '00000000-0000-0000-0000-00000000000a/work.jpg');
@@ -109,10 +114,13 @@ declare
   a_artwork uuid;
   a_value uuid;
   a_unlinked uuid;
+  a_author uuid;
+  a_merged uuid;
 begin
   select id into a_artwork from public.artworks where owner_id = a;
   select id into a_value from public.category_values where owner_id = a and category_code = 'period';
   select id into a_unlinked from public.category_values where owner_id = a and name = 'Unlinked';
+  select id into a_author from public.category_values where owner_id = a and name = 'Painter';
   assert a_artwork is not null and a_value is not null, 'fixture for owner A was not created';
 
   set local role authenticated;
@@ -123,8 +131,12 @@ begin
   assert (select count(*) from public.artwork_values) = 0, 'B reads artwork values of A';
   assert (select count(*) from public.period_eras) = 0, 'B reads period eras of A';
   assert (select count(*) from public.style_periods) = 0, 'B reads style periods of A';
+  assert (select count(*) from public.period_details) = 0, 'B reads period details of A';
+  assert (select count(*) from public.era_details) = 0, 'B reads era details of A';
   assert (select count(*) from storage.objects) = 0, 'B reads image objects of A';
   assert (select count(*) from public.value_usage()) = 0, 'B sees value usage of A';
+  assert not (select has_content from public.value_page_content(a_value)),
+    'B sees the page content of a value of A';
   assert (select count(*) from public.eras) = 6, 'B cannot read the shared eras';
 
   assert security_test.affected(format('update public.artworks set title = ''x'' where id = %L', a_artwork)) = 0,
@@ -135,6 +147,11 @@ begin
     'B renames a value of A';
   assert security_test.affected(format('delete from public.category_values where id = %L', a_value)) = 0,
     'B deletes a value of A';
+  assert security_test.affected(format(
+    'update public.period_details set summary = ''x'' where value_id = %L', a_value)) = 0,
+    'B updates period details of A';
+  assert security_test.affected('update public.era_details set summary = ''x''') = 0,
+    'B updates era details of A';
 
   assert security_test.denied(format(
     'insert into public.artworks (owner_id, title, author_unknown) values (%L, ''Forged'', true)', a)),
@@ -145,6 +162,9 @@ begin
   assert security_test.denied(format(
     'insert into public.period_eras (value_id, era_code) values (%L, ''modern'')', a_value)),
     'B adds an era to a period of A';
+  assert security_test.denied(format(
+    'insert into public.style_details (value_id, summary) values (%L, ''Forged'')', a_unlinked)),
+    'B adds details to a value of A';
   assert security_test.denied(format(
     'select public.save_artwork(''{"title": "Overwrite", "author_unknown": true}'', ''{}'', %L)', a_artwork)),
     'B overwrites an artwork of A through save_artwork';
@@ -182,6 +202,49 @@ begin
   assert not security_test.denied(
     'select public.save_artwork(''{"title": "Span", "author_unknown": true, "year_from": -50, "year_to": 20}'', ''{}'')'),
     'A cannot save a year span across the turn of the eras';
+  assert security_test.denied(format(
+    'insert into public.style_details (value_id, summary) values (%L, ''Wrong kind'')', a_value)),
+    'A adds style details to a period';
+  assert security_test.denied(format(
+    'insert into public.period_details (value_id, category_code) values (%L, ''style'')', a_unlinked)),
+    'A sets the kind of a details row';
+  assert security_test.denied(format(
+    'update public.period_details set summary = repeat(''x'', 301) where value_id = %L', a_value)),
+    'A saves a summary longer than 300 characters';
+  assert security_test.denied(format(
+    'update public.period_details set summary = '''' where value_id = %L', a_value)),
+    'A saves an empty summary';
+  assert security_test.denied(format(
+    'insert into public.author_details (value_id, birth_year, death_year) values (%L, 1519, 1452)', a_author)),
+    'A saves an author who dies before being born';
+  assert security_test.denied(format(
+    'insert into public.author_details (value_id, own_image_path) values (%L, ''%s/portrait.jpg'')', a_author, b)),
+    'A points a portrait at the folder of B';
+  assert security_test.denied(format(
+    'insert into public.location_details (value_id, place_type) values (%L, ''garden'')', a_author)),
+    'A saves location details for an author';
+  assert security_test.denied('insert into public.era_details (era_code) values (''forged'')'),
+    'A saves details of an era that does not exist';
+  assert not security_test.denied(format(
+    'insert into public.author_details (value_id, birth_year, death_year, years_approximate) values (%L, -480, -430, true)', a_author)),
+    'A cannot save the years of life of an author';
+
+  perform security_test.affected(format(
+    'insert into public.style_details (value_id, summary) values (%L, ''Style summary'')', a_unlinked));
+  perform public.delete_unused_value(a_unlinked);
+  assert (select count(*) from public.style_details) = 0, 'deleting a value keeps its details';
+
+  assert (select has_content from public.value_page_content(a_value)), 'A does not see their page content';
+  assert security_test.denied(format(
+    'update public.period_details set notes = '''' where value_id = %L', a_value)),
+    'A saves empty notes';
+
+  insert into public.category_values (category_code, name) values ('period', 'Merged') returning id into a_merged;
+  insert into public.period_details (value_id, summary) values (a_merged, 'Merged summary');
+  perform public.merge_category_values(a_merged, a_value);
+  assert (select array_agg(summary) from public.period_details) = array['Period summary'],
+    'merging keeps the details of the merged value or drops those of the kept one';
+
   assert security_test.denied('insert into public.categories (code, multiple, position) values (''forged'', true, 99)'),
     'A adds a category';
   assert security_test.denied('update public.eras set position = 99'), 'A changes an era';
@@ -195,8 +258,12 @@ begin
 
   assert security_test.denied('select * from public.artworks'), 'anon reads artworks';
   assert security_test.denied('select * from public.eras'), 'anon reads eras';
+  assert security_test.denied('select * from public.era_details'), 'anon reads era details';
+  assert security_test.denied('select * from public.author_details'), 'anon reads author details';
   assert (select count(*) from storage.objects) = 0, 'anon reads image objects';
   assert security_test.denied('select public.value_usage()'), 'anon executes value_usage';
+  assert security_test.denied(format('select public.value_page_content(%L)', gen_random_uuid())),
+    'anon executes value_page_content';
   assert security_test.denied('select public.save_artwork(''{}'', ''{}'')'), 'anon executes save_artwork';
   assert (select public.keep_alive()) is not null, 'anon cannot execute keep_alive';
 

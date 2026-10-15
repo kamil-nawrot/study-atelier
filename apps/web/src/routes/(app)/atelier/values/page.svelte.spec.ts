@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { deleteValue, loadCardIndex, saveValue } from '#lib/collection/card-index-data.ts';
+import {
+	deleteValue,
+	loadCardIndex,
+	loadValuePageContent,
+	saveValue
+} from '#lib/collection/card-index-data.ts';
 import type { CardIndexData } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testCardIndex } from '#lib/testing/card-index.ts';
@@ -12,7 +17,8 @@ vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 vi.mock('#lib/collection/card-index-data.ts', () => ({
 	loadCardIndex: vi.fn(),
 	saveValue: vi.fn(),
-	deleteValue: vi.fn()
+	deleteValue: vi.fn(),
+	loadValuePageContent: vi.fn()
 }));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
@@ -38,6 +44,7 @@ describe('card index page', () => {
 		await page.viewport(1280, 800);
 		vi.mocked(saveValue).mockResolvedValue({});
 		vi.mocked(deleteValue).mockResolvedValue({});
+		vi.mocked(loadValuePageContent).mockResolvedValue({ content: { hasContent: false } });
 		vi.mocked(loadCardIndex).mockResolvedValue({ index: testCardIndex() });
 	});
 
@@ -221,6 +228,55 @@ describe('card index page', () => {
 				})
 			);
 			await expect.element(page.getByText(m.cardIndex.merged('Ionic'))).toBeVisible();
+		});
+
+		it('warns that the page content of the merged value will be deleted', async () => {
+			vi.mocked(loadValuePageContent).mockResolvedValue({ content: { hasContent: true } });
+			renderValues();
+
+			await openValue('Doric', 2).click();
+			await valueDialog('Doric').getByLabelText(m.cardIndex.dialog.name).fill('Ionic');
+			await valueDialog('Doric').getByRole('button', { name: m.cardIndex.dialog.merge }).click();
+
+			const confirm = page.getByRole('alertdialog', {
+				name: m.cardIndex.mergeConfirm.title('Doric', 'Ionic')
+			});
+			await expect
+				.element(confirm.getByText(m.cardIndex.mergeConfirm.pageContent('Doric'), { exact: false }))
+				.toBeVisible();
+			expect(loadValuePageContent).toHaveBeenCalledWith('style-doric');
+		});
+
+		it('says nothing about page content when the merged value has none', async () => {
+			renderValues();
+
+			await openValue('Doric', 2).click();
+			await valueDialog('Doric').getByLabelText(m.cardIndex.dialog.name).fill('Ionic');
+			await valueDialog('Doric').getByRole('button', { name: m.cardIndex.dialog.merge }).click();
+
+			const confirm = page.getByRole('alertdialog', {
+				name: m.cardIndex.mergeConfirm.title('Doric', 'Ionic')
+			});
+			await expect
+				.element(confirm.getByText(m.cardIndex.mergeConfirm.irreversible, { exact: false }))
+				.toBeVisible();
+			await expect
+				.element(confirm.getByText(m.cardIndex.mergeConfirm.pageContent('Doric'), { exact: false }))
+				.not.toBeInTheDocument();
+		});
+
+		it('shows an error and does not ask to merge when the page content cannot be read', async () => {
+			vi.mocked(loadValuePageContent).mockResolvedValue({ error: m.cardIndex.errors.network });
+			renderValues();
+
+			await openValue('Doric', 2).click();
+			const dialog = valueDialog('Doric');
+			await dialog.getByLabelText(m.cardIndex.dialog.name).fill('Ionic');
+			await dialog.getByRole('button', { name: m.cardIndex.dialog.merge }).click();
+
+			await expect.element(dialog.getByText(m.cardIndex.errors.network)).toBeVisible();
+			await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
+			expect(saveValue).not.toHaveBeenCalled();
 		});
 
 		it('keeps the values when the learner backs out of a merge', async () => {
@@ -461,7 +517,7 @@ describe('card index page', () => {
 			expect(deleteValue).not.toHaveBeenCalled();
 			await confirm.getByRole('button', { name: m.cardIndex.deleteConfirm.confirm }).click();
 
-			expect(deleteValue).toHaveBeenCalledWith('style-loose');
+			expect(deleteValue).toHaveBeenCalledWith(expect.objectContaining({ id: 'style-loose' }));
 			await expect.element(page.getByText(m.cardIndex.deleted('Loose'))).toBeVisible();
 		});
 
