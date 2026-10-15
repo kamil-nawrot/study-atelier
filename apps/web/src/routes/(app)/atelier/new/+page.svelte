@@ -29,7 +29,7 @@
 			await invalidateAll();
 			return;
 		}
-		await goto(atelierPath, { state: { highlight: number } });
+		await goto(atelierPath, { refreshAll: true, state: { highlight: number } });
 	}
 </script>
 

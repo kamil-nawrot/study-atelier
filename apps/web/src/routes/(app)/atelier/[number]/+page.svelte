@@ -107,7 +107,7 @@
 			return;
 		}
 		trashOpen = false;
-		await goto(atelierPath, { state: { trashed: data.artwork.number } });
+		await goto(atelierPath, { refreshAll: true, state: { trashed: data.artwork.number } });
 	}
 
 	function goBack(event: MouseEvent): void {

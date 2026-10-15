@@ -42,7 +42,7 @@
 	}
 
 	async function showSaved(path: ResolvedPathname, message: string): Promise<void> {
-		await goto(path, { replace: true, state: { valueMessage: message } });
+		await goto(path, { replace: true, refreshAll: true, state: { valueMessage: message } });
 	}
 </script>
 
