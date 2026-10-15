@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import NotesEditor from '../components/NotesEditor.svelte';
 	import type { NoteLinks } from '../note-links';
 
@@ -6,8 +7,7 @@
 
 	let { links, initial = '' }: Props = $props();
 
-	// svelte-ignore state_referenced_locally
-	let value = $state(initial);
+	let value = $state(untrack(() => initial));
 </script>
 
 <NotesEditor label="Notes" {links} bind:value />
