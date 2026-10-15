@@ -2,6 +2,40 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-10-15
+
+The learner organises the collection by author and time: artworks can be sorted and searched by author, filtered from a side panel, and their creation date can be a year span.
+
+### Added
+
+- A year span for the date of creation (e.g., 1490–1510) in the artwork form and view.
+- Sorting the wall by author and searching by authors.
+- A filtering panel to narrow down the wall by era, period, style, author, material and location.
+- Navigation between artworks: buttons to go to the previous and next work from the artwork view.
+- A confirmation when restoring an artwork from the trash if its title and authors match an active one.
+
+### Fixed
+
+- A loading indicator is shown when switching artworks and the back button is ignored during transitions.
+- The wall state is preserved correctly when navigating back (replaced deprecated `replaceState`).
+
+### Performance
+
+- Images on the wall are loaded only when they approach the viewport.
+- The browser remembers wall image dimensions and caps their width to speed up layout and rendering.
+
+### Infrastructure
+
+- Database types are automatically generated from migrations.
+- The local database is seeded with a test account and example artworks.
+- Repository-wide enforcement of LF line endings.
+- Security review and hardening of RLS policies, database grants and storage paths.
+- Documentation: architecture decisions for browser-side filtering and value links, WSL setup guide, and updated migration notes.
+
+### Migration note
+
+The `year` column is renamed to `year_to`, and the new `year_from` field is empty.
+
 ## [0.2.0] - 2026-10-14
 
 Eras, periods and styles become organised knowledge: every artwork sits in a chain of era, period and style, and the learner tidies all category values in one place.
@@ -81,3 +115,5 @@ First release: the learner signs in, builds a personal database of artworks and 
 - Architecture decision records, product requirements and guidelines under `docs/`.
 
 [0.1.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.1.0
+[0.2.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.2.0
+[0.3.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.3.0
