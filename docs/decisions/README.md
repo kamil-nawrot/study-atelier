@@ -53,3 +53,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0047](0047-remember-wall-images-and-cap-their-width.md)          | Remember the wall images for the session and cap their width | accepted |
 | [0047](0047-no-links-from-values-into-a-filtered-wall.md) | Leave values in the artwork view and the card index without links into a filtered wall | accepted |
 | [0048](0048-flip-through-the-wall-from-the-artwork-view.md) | Flip through the wall from the artwork view in place of the history entry | accepted |
+| [0049](0049-give-every-category-value-a-page-of-its-own.md) | Give every category value a page of its own with the learner's notes | accepted |

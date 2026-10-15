@@ -93,3 +93,4 @@ The texts are conversational, as in [voice and tone](../product/voice-and-tone.m
 - Design issue ATL-95; build issue ATL-97. Requirements R-48 to R-51.
 - Mockups of the chosen options are kept with the project files under `atl-95/`.
 - Work for ATL-97 in the database: a function that merges two values of one kind atomically (artwork values, links, then delete); a function that removes an era from a period and moves the affected artworks; deletes on `period_eras` and `style_periods` limited by the rules above; and a query for the number of artworks per value, trash included. The links from [ADR-0038](0038-chain-era-period-and-style.md) stay as they are; saving an artwork keeps adding them.
+- The value dialog was later replaced by a value page and a form on its own page ([ADR-0049](0049-give-every-category-value-a-page-of-its-own.md)); the rules for renaming, merging, links and deleting stand.
