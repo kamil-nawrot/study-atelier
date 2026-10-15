@@ -257,8 +257,8 @@ describe('location details', () => {
 		expect(details.location).toEqual({ countryCode: 'FR', placeType: 'museum' });
 	});
 
-	it('ignores a type it does not know and gives a place without a row empty fields', async () => {
-		detailsTable({ summary: null, notes: null, country_code: null, place_type: 'garden' });
+	it('ignores a country and a type it does not know', async () => {
+		detailsTable({ summary: null, notes: null, country_code: 'ZZ', place_type: 'garden' });
 		expect((await loadValueDetails(location)).details.location).toEqual({
 			countryCode: null,
 			placeType: null

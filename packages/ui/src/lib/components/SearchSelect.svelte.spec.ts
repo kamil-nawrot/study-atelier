@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import { defaultUiMessages } from '../messages';
 import SearchSelect, { searchKey } from './SearchSelect.svelte';
+
+const texts = defaultUiMessages.searchSelect;
 
 const options = [
 	{ value: 'FR', label: 'Francja' },
@@ -58,7 +61,7 @@ describe('SearchSelect', () => {
 
 		await field().click();
 		await userEvent.type(field(), 'xyz');
-		await expect.element(page.getByText('Nothing matches')).toBeVisible();
+		await expect.element(page.getByText(texts.empty)).toBeVisible();
 		await userEvent.keyboard('{Escape}');
 
 		await expect.element(field()).toHaveValue('Francja');
@@ -67,10 +70,10 @@ describe('SearchSelect', () => {
 	it('clears the chosen value', async () => {
 		render(SearchSelect, { label: 'Kraj', options, value: 'FR' });
 
-		await page.getByRole('button', { name: 'Clear Francja' }).click();
+		await page.getByRole('button', { name: texts.clear('Francja') }).click();
 
 		await expect.element(field()).toHaveValue('');
-		expect(page.getByRole('button', { name: 'Clear Francja' }).elements()).toHaveLength(0);
+		expect(page.getByRole('button', { name: texts.clear('Francja') }).elements()).toHaveLength(0);
 	});
 
 	it('describes the field with its hint', async () => {

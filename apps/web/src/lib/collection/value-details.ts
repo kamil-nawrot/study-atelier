@@ -12,6 +12,7 @@ import {
 	withPreview,
 	type ImageRow
 } from './image-record.ts';
+import { isCountryCode } from './countries.ts';
 import { isPlaceType } from './place-types.ts';
 import type {
 	AuthorDetails,
@@ -113,7 +114,7 @@ async function authorOf(row: DetailsRow | null): Promise<AuthorDetails> {
 function locationOf(row: DetailsRow | null): LocationDetails {
 	const placeType = row?.place_type;
 	return {
-		countryCode: row?.country_code ?? null,
+		countryCode: isCountryCode(row?.country_code) ? row.country_code : null,
 		placeType: isPlaceType(placeType) ? placeType : null
 	};
 }
