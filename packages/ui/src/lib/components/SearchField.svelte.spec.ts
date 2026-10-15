@@ -15,4 +15,15 @@ describe('SearchField', () => {
 		await page.viewport(1280, 800);
 		expect(outlinedHeight(search, '.search')).toBe(controlHeight());
 	});
+
+	it('uses a smaller font than the default on a computer when compact', async () => {
+		await page.viewport(1280, 800);
+		render(SearchField, { label: 'Default' });
+		render(SearchField, { label: 'Compact', compact: true });
+
+		const fontSize = (name: string): number =>
+			parseFloat(getComputedStyle(page.getByRole('searchbox', { name }).element()).fontSize);
+
+		expect(fontSize('Compact')).toBeLessThan(fontSize('Default'));
+	});
 });
