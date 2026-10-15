@@ -43,6 +43,7 @@
 - Before writing a mechanism, look for one that already exists in `#lib` or `packages/ui` and use or extend it, for example an option on a library component instead of a new component.
 - When a change needs logic or markup that already lives elsewhere (a guard against leaving a form, a bar, image loading), it moves that code into a shared module or component in the same pull request and switches the existing callers to it; it does not copy it.
 - Duplication found that the change did not introduce gets its own `Chore` issue in Linear instead of widening the pull request.
+- Long reference data, such as the list of country codes, is not typed by hand: it is generated once from a trusted source (the ICU data behind `Intl.DisplayNames`, for example) by a short script, the source and the left-out entries are written in the ADR, and a test checks the number of entries and the exclusions ([ADR-0057](../decisions/0057-location-country-and-type-of-place.md)).
 
 ## Web app layout
 

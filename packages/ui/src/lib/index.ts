@@ -19,6 +19,7 @@ export { default as NotesEditor } from './components/NotesEditor.svelte';
 export { default as Primer } from './components/Primer.svelte';
 export { default as ProgressLine } from './components/ProgressLine.svelte';
 export { default as SearchField } from './components/SearchField.svelte';
+export { default as SearchSelect, type SearchSelectOption } from './components/SearchSelect.svelte';
 export { default as Section } from './components/Section.svelte';
 export { default as Select, type SelectOption } from './components/Select.svelte';
 export { default as Tabs, type TabOption } from './components/Tabs.svelte';

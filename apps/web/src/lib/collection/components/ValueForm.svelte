@@ -4,10 +4,12 @@
 		Alert,
 		Button,
 		Checkbox,
+		ChoiceTiles,
 		Dialog,
 		Form,
 		FormActions,
 		NotesEditor,
+		SearchSelect,
 		type NoteLinks,
 		Select,
 		Tag,
@@ -32,7 +34,9 @@
 		emptyAuthorDetails,
 		validateAuthorForm
 	} from '../author-form.ts';
+	import { countryOptions } from '../countries.ts';
 	import { ERA_CODES, eraName } from '../eras.ts';
+	import { isPlaceType, placeTiles } from '../place-types.ts';
 	import { UnsavedChanges } from '../unsaved-changes.svelte.ts';
 	import { saveValueDetails, valueDetailsChanged } from '../value-details.ts';
 	import { SUMMARY_MAX_LENGTH, subjectPath, valuePath } from '../value-pages.ts';
@@ -41,6 +45,7 @@
 		AuthorFormState,
 		CardIndexData,
 		EraCode,
+		LocationDetails,
 		ValueDetails,
 		ValueSubject
 	} from '../types.ts';
@@ -67,8 +72,11 @@
 		periodIds: string[];
 		details: ValueDetails;
 		author: AuthorFormState | null;
+		location: LocationDetails | null;
 	};
 
+	const countries = countryOptions();
+	const placeOptions = placeTiles();
 	const formId = $props.id();
 	const formErrorId = `${formId}-error`;
 	const record = untrack(() => (subject.kind === 'era' ? undefined : subject.record));
@@ -166,8 +174,16 @@
 			author:
 				record?.category === 'author'
 					? authorFormFromDetails(details.author ?? emptyAuthorDetails())
+					: null,
+			location:
+				record?.category === 'location'
+					? { ...(details.location ?? { countryCode: null, placeType: null }) }
 					: null
 		};
+	}
+
+	function choosePlaceType(value: string | null): void {
+		if (form.location) form.location.placeType = isPlaceType(value) ? value : null;
 	}
 
 	function setYearsApproximate(value: boolean): void {
@@ -177,7 +193,8 @@
 	function detailsOf(state: FormState): ValueDetails {
 		return {
 			...state.details,
-			author: state.author ? authorDetailsFromForm(state.author) : undefined
+			author: state.author ? authorDetailsFromForm(state.author) : undefined,
+			location: state.location ? { ...state.location } : undefined
 		};
 	}
 
@@ -191,7 +208,8 @@
 			!sameItems(current.eraCodes, reference.eraCodes) ||
 			!sameItems(current.periodIds, reference.periodIds) ||
 			valueDetailsChanged(current.details, reference.details) ||
-			JSON.stringify(current.author) !== JSON.stringify(reference.author)
+			JSON.stringify(current.author) !== JSON.stringify(reference.author) ||
+			JSON.stringify(current.location) !== JSON.stringify(reference.location)
 		);
 	}
 
@@ -336,6 +354,23 @@
 							: undefined}
 						label={m.valueForm.name}
 						bind:value={form.name}
+					/>
+				{/if}
+
+				{#if form.location}
+					<SearchSelect
+						hint={m.valueForm.countryHint}
+						label={m.valueForm.country}
+						options={countries}
+						placeholder={m.valueForm.countryPlaceholder}
+						bind:value={form.location.countryCode}
+					/>
+					<ChoiceTiles
+						clearable
+						label={m.valueForm.placeType}
+						onchange={choosePlaceType}
+						options={placeOptions}
+						value={form.location.placeType}
 					/>
 				{/if}
 

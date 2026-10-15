@@ -40,6 +40,10 @@ export const pl = {
 			add: (name: string): string => `+ Dodaj „${name}”`,
 			addAnyway: (name: string): string => `+ Dodaj „${name}” mimo to`,
 			remove: (name: string): string => `Usuń ${name}`
+		},
+		searchSelect: {
+			empty: 'Nic nie pasuje',
+			clear: (label: string): string => `Wyczyść: ${label}`
 		}
 	},
 	common: {
@@ -638,7 +642,16 @@ export const pl = {
 		sortByOther: 'Sortuj inaczej niż po nazwie',
 		sortName: 'Sortuj jako',
 		sortNamePlaceholder: 'np. Vinci, Leonardo da',
-		sortNameHint: 'Po tej wartości będą sortowani autorzy.'
+		sortNameHint: 'Po tej wartości będą sortowani autorzy.',
+		country: 'Kraj',
+		countryPlaceholder: 'Zacznij pisać nazwę kraju',
+		countryHint: 'Wybierz kraj z listy.',
+		placeType: 'Typ miejsca',
+		placeTypes: {
+			museum: 'Muzeum',
+			private_collection: 'Kolekcja prywatna',
+			on_site: 'Na miejscu'
+		}
 	},
 	trash: {
 		title: 'Kosz',

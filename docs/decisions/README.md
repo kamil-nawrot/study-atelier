@@ -60,3 +60,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0054](0054-switch-to-the-light-theme-from-the-menu.md) | Switch to the light theme from the menu | accepted |
 | [0055](0055-list-only-image-candidates-that-have-an-image.md) | List only image candidates that have an image | accepted |
 | [0056](0056-author-portrait-years-of-life-and-sort-name.md) | Give an author a portrait from a people search, two years of life and a sort name | accepted |
+| [0057](0057-location-country-and-type-of-place.md) | Give a location a country from a searchable list and a type of place as tiles | accepted |
