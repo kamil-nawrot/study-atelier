@@ -1,14 +1,23 @@
 import { m } from '#lib/i18n/index.ts';
-import { ownImageUrl, removeOwnImage, uploadOwnImage } from '#lib/images/own-image.ts';
+import { removeOwnImage } from '#lib/images/own-image.ts';
 import type { Json } from '#lib/database.types.ts';
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { supabase } from '#lib/supabase.ts';
 import { valuesOf } from './artwork-values.ts';
 import { signedYear } from './format.ts';
 import { artworkErrorMessage } from './errors.ts';
+import {
+	IMAGE_COLUMNS,
+	imageColumns,
+	imageOf,
+	storedImage,
+	uploadPath,
+	withPreview,
+	type ImageRow,
+	type StoredImage
+} from './image-record.ts';
 import type {
 	ArtworkFieldErrors,
-	ArtworkImageInput,
 	ArtworkInput,
 	ArtworkValueRow,
 	ArtworkRecord,
@@ -31,19 +40,9 @@ type ArtworkRecordRow = {
 	type_code: ArtworkTypeCode | null;
 	era_code: EraCode | null;
 	notes: string | null;
-	source_wikidata_id: string | null;
-	source_image_file: string | null;
-	source_image_licence: string | null;
-	source_image_licence_url: string | null;
-	source_image_attribution: string | null;
-	own_image_path: string | null;
-	own_image_url: string | null;
-	image_width: number | null;
-	image_height: number | null;
+	favourite: boolean;
 	artwork_values: ArtworkValueRow[];
-};
-
-type StoredImage = Exclude<ArtworkImageInput, { kind: 'file' }>;
+} & ImageRow;
 
 type StoredInput = Omit<ArtworkInput, 'image'> & { image: StoredImage | null };
 
@@ -58,15 +57,8 @@ const RECORD_COLUMNS = [
 	'type_code',
 	'era_code',
 	'notes',
-	'source_wikidata_id',
-	'source_image_file',
-	'source_image_licence',
-	'source_image_licence_url',
-	'source_image_attribution',
-	'own_image_path',
-	'own_image_url',
-	'image_width',
-	'image_height',
+	'favourite',
+	...IMAGE_COLUMNS,
 	'artwork_values(position, category_values(category_code, name))'
 ].join(', ');
 
@@ -133,20 +125,6 @@ function storedYearFrom(input: ArtworkInput): number | null {
 	return from === signedYear(input.yearTo, input.toBeforeCommonEra) ? null : from;
 }
 
-function imageColumns(image: StoredImage | null): Record<string, string | number | null> {
-	return {
-		source_wikidata_id: image?.kind === 'commons' ? image.wikidataId : null,
-		source_image_file: image?.kind === 'commons' ? image.file : null,
-		source_image_licence: image?.kind === 'commons' ? image.licence : null,
-		source_image_licence_url: image?.kind === 'commons' ? image.licenceUrl : null,
-		source_image_attribution: image?.kind === 'commons' ? image.attribution : null,
-		own_image_path: image?.kind === 'upload' ? image.path : null,
-		own_image_url: image?.kind === 'url' ? image.url : null,
-		image_width: image?.width ?? null,
-		image_height: image?.height ?? null
-	};
-}
-
 function artworkColumns(input: StoredInput): Record<string, Json> {
 	return {
 		title: input.title.trim(),
@@ -169,21 +147,6 @@ function valuesByCategory(input: ArtworkInput): Record<CategoryCode, string[]> {
 		material: names(input.materials),
 		location: names(input.location === null ? [] : [input.location])
 	};
-}
-
-async function storedImage(
-	image: ArtworkImageInput | null
-): Promise<{ image: StoredImage | null; error?: undefined } | { error: string }> {
-	if (image?.kind !== 'file') return { image };
-	const upload = await uploadOwnImage(image.file);
-	if (upload.error !== undefined) return { error: upload.error };
-	return {
-		image: { kind: 'upload', path: upload.path, width: image.width, height: image.height }
-	};
-}
-
-function uploadPath(image: ArtworkImageInput | null): string | null {
-	return image?.kind === 'upload' ? image.path : null;
 }
 
 export async function saveArtwork(
@@ -224,28 +187,11 @@ export async function saveArtwork(
 	return { saved: true, id: data.id, number: data.record_number };
 }
 
-function imageOf(row: ArtworkRecordRow): ArtworkImageInput | null {
-	const size = { width: row.image_width, height: row.image_height };
-	if (row.own_image_path) return { kind: 'upload', path: row.own_image_path, ...size };
-	if (row.own_image_url) return { kind: 'url', url: row.own_image_url, ...size };
-	if (row.source_wikidata_id && row.source_image_file) {
-		return {
-			kind: 'commons',
-			wikidataId: row.source_wikidata_id,
-			file: row.source_image_file,
-			licence: row.source_image_licence,
-			licenceUrl: row.source_image_licence_url,
-			attribution: row.source_image_attribution,
-			...size
-		};
-	}
-	return null;
-}
-
 function artworkRecordFromRow(row: ArtworkRecordRow): ArtworkRecord {
 	return {
 		id: row.id,
 		number: row.record_number,
+		favourite: row.favourite,
 		title: row.title,
 		authors: valuesOf(row.artwork_values, 'author'),
 		authorUnknown: row.author_unknown,
@@ -275,8 +221,5 @@ export async function loadArtwork(number: number): Promise<LoadArtworkResult> {
 	if (error) return { error: artworkErrorMessage(error) };
 	if (!data) return { error: m.artworkErrors.notFound, notFound: true };
 	const artwork = artworkRecordFromRow(data as unknown as ArtworkRecordRow);
-	if (artwork.image?.kind === 'upload') {
-		artwork.image.previewUrl = await ownImageUrl(artwork.image.path);
-	}
-	return { artwork };
+	return { artwork: { ...artwork, image: await withPreview(artwork.image) } };
 }

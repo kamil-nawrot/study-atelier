@@ -3,23 +3,53 @@
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
 	import X from '@lucide/svelte/icons/x';
-	import { ArtworkImage, Button, Icon, NoImage, Notes, Tag } from '@study-atelier/ui';
+	import {
+		ArtworkImage,
+		Button,
+		Icon,
+		NoImage,
+		Notes,
+		type NoteLinks,
+		Popover,
+		Tag
+	} from '@study-atelier/ui';
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
 	import { formatDate, formatRecordNumber, signedYear } from '../format.ts';
 	import { artworkPanelOpen, rememberArtworkPanel } from '../artwork-panel.ts';
 	import { FLIP_DIRECTIONS, swipe } from '../flip.ts';
-	import type { ArtworkRecord, FlipDirection } from '../types.ts';
+	import type { Mention } from '../mentions.ts';
+	import type { ArtworkRecord, FlipDirection, ValueKind } from '../types.ts';
+	import { valueKindName } from '../value-pages.ts';
+	import {
+		emptyValueSummaries,
+		summaryKey,
+		type ValueSummaries,
+		type ValueSummary
+	} from '../value-summaries.ts';
+	import MentionedIn from './MentionedIn.svelte';
+	import ValueSummaryCard from './ValueSummaryCard.svelte';
 
 	type Props = {
 		artwork: ArtworkRecord;
 		editHref: string;
+		noteLinks?: NoteLinks;
+		mentions?: Mention[];
+		summaries?: ValueSummaries;
 		flipLinks?: Record<FlipDirection, ResolvedPathname | null>;
 		onflip?: (direction: FlipDirection) => void;
 	};
 
-	let { artwork, editHref, flipLinks, onflip }: Props = $props();
+	let {
+		artwork,
+		editHref,
+		flipLinks,
+		noteLinks,
+		mentions = [],
+		summaries = emptyValueSummaries(),
+		onflip
+	}: Props = $props();
 
 	const STAGE_WIDTH = 960;
 	const VIEWER_WIDTH = 1920;
@@ -51,17 +81,35 @@
 		{
 			label: m.artworkForm.era,
 			values: artwork.eraCode ? [m.eras[artwork.eraCode].name] : [],
-			tags: true
+			tags: true,
+			kind: 'era'
 		},
-		{ label: m.artworkForm.period, values: artwork.period ? [artwork.period] : [], tags: true },
-		{ label: m.artworkForm.style, values: artwork.styles, tags: true },
-		{ label: m.artworkForm.material, values: artwork.materials, tags: true },
+		{
+			label: m.artworkForm.period,
+			values: artwork.period ? [artwork.period] : [],
+			tags: true,
+			kind: 'period'
+		},
+		{ label: m.artworkForm.style, values: artwork.styles, tags: true, kind: 'style' },
+		{ label: m.artworkForm.material, values: artwork.materials, tags: true, kind: 'material' },
 		{
 			label: m.artworkForm.location,
 			values: artwork.location ? [artwork.location] : [],
-			tags: true
+			tags: true,
+			kind: 'location'
 		}
-	]);
+	] satisfies { label: string; values: string[]; tags: boolean; kind?: ValueKind }[]);
+
+	function summaryOf(kind: ValueKind, name: string): ValueSummary | undefined {
+		if (kind === 'era') return artwork.eraCode ? summaries.eras[artwork.eraCode] : undefined;
+		return summaries.values[summaryKey(kind, name)];
+	}
+
+	function parentOf(kind: ValueKind): string | undefined {
+		if (kind === 'period' && artwork.eraCode) return m.eras[artwork.eraCode].name;
+		if (kind === 'style' && artwork.period) return artwork.period;
+		return undefined;
+	}
 
 	function setPanel(open: boolean): void {
 		panelOpen = open;
@@ -73,6 +121,34 @@
 		viewer.showModal();
 	}
 </script>
+
+{#snippet valueName(kind: ValueKind, name: string)}
+	{@const summary = summaryOf(kind, name)}
+	{#if summary}
+		<Popover>
+			{name}
+			{#snippet content()}
+				<ValueSummaryCard {name} kind={valueKindName(kind)} parent={parentOf(kind)} {summary} />
+			{/snippet}
+		</Popover>
+	{:else}
+		{name}
+	{/if}
+{/snippet}
+
+{#snippet valueTag(kind: ValueKind | undefined, name: string)}
+	{@const summary = kind ? summaryOf(kind, name) : undefined}
+	{#if kind && summary}
+		<Popover>
+			<Tag>{name}</Tag>
+			{#snippet content()}
+				<ValueSummaryCard {name} kind={valueKindName(kind)} parent={parentOf(kind)} {summary} />
+			{/snippet}
+		</Popover>
+	{:else}
+		<Tag>{name}</Tag>
+	{/if}
+{/snippet}
 
 {#snippet empty()}
 	<span class="empty">
@@ -159,7 +235,16 @@
 				<span class="number">{formatRecordNumber(artwork.number)}</span>
 				<h1><cite class="artwork-title">{artwork.title}</cite></h1>
 				<p class="meta">
-					<span>{authors}</span>
+					<span>
+						{#if artwork.authors.length === 0}
+							{authors}
+						{:else}
+							{#each artwork.authors as author, index (author)}
+								{#if index > 0},
+								{/if}{@render valueName('author', author)}
+							{/each}
+						{/if}
+					</span>
 					{#if date}
 						<span aria-hidden="true">·</span>
 						<span class="date">{date}</span>
@@ -175,7 +260,7 @@
 							{@render empty()}
 						{:else if field.tags}
 							{#each field.values as value (value)}
-								<Tag>{value}</Tag>
+								{@render valueTag(field.kind, value)}
 							{/each}
 						{:else}
 							{field.values.join(', ')}
@@ -187,11 +272,13 @@
 			<section class="notes" aria-labelledby="artwork-notes">
 				<h2 id="artwork-notes" class="caption">{m.artworkForm.notes}</h2>
 				{#if artwork.notes.trim()}
-					<Notes value={artwork.notes} />
+					<Notes links={noteLinks} value={artwork.notes} />
 				{:else}
 					{@render empty()}
 				{/if}
 			</section>
+
+			<MentionedIn {mentions} />
 		</aside>
 
 		<div class="strip">
@@ -503,7 +590,7 @@
 			width: 380px;
 			height: 100%;
 			overflow-y: auto;
-			padding: var(--spacing-4) var(--spacing-6) var(--spacing-12);
+			padding: var(--spacing-8) var(--spacing-6) var(--spacing-12);
 		}
 
 		.panel-top {
@@ -524,7 +611,7 @@
 			flex-direction: column;
 			align-items: center;
 			width: 48px;
-			padding: var(--spacing-4) 0;
+			padding: var(--spacing-8) 0 var(--spacing-4);
 			background: var(--color-bg);
 			visibility: hidden;
 			opacity: 0;

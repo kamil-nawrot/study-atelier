@@ -14,10 +14,13 @@ export type ImageCandidate = {
 	title: string;
 	authors: string[];
 	date?: string;
-	image: CandidateImage | null;
+	image: CandidateImage;
 };
 
 export type ImageSearchResult = {
 	candidates: ImageCandidate[];
 	error?: string;
 };
+
+export type ImageSearchQuery =
+	{ kind: 'artwork'; title: string; authors: string[] } | { kind: 'person'; name: string };

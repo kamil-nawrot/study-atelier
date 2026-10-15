@@ -5,6 +5,12 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import {
 	ARTWORKS,
+	PEOPLE,
+	PERIOD_ERA_USAGE,
+	STYLE_PERIOD_USAGE,
+	VALUE_DETAILS,
+	VALUE_USAGE,
+	valueId,
 	IMAGE_HOST,
 	SUPABASE_URL,
 	TRASHED,
@@ -34,6 +40,7 @@ const USAGE = `Usage: pnpm screenshot <path> [options]
   --storage k=v      set a localStorage entry before the page loads (repeatable)
   --session k=v      set a sessionStorage entry before the page loads (repeatable)
   --wait <selector>  wait for this selector before capturing
+  --type <text>      click the notes editor and type this text before capturing
   --script <file>    run this JavaScript file in the page before capturing, for example to mock a variant
   --url <base>       use a running dev server instead of starting one
 `;
@@ -53,7 +60,9 @@ function parseArgs(argv) {
 		else if (arg === '--combine') options.combine = true;
 		else if (arg === '--full-page') options.fullPage = true;
 		else if (arg === '--signed-out') options.signedOut = true;
-		else if (['--out', '--name', '--viewport', '--wait', '--url', '--script'].includes(arg)) {
+		else if (
+			['--out', '--name', '--viewport', '--wait', '--url', '--script', '--type'].includes(arg)
+		) {
 			options[arg.slice(2)] = rest.shift();
 		} else if (arg === '--storage' || arg === '--session') {
 			const [key, ...value] = (rest.shift() ?? '').split('=');
@@ -112,11 +121,58 @@ async function mockSupabase(context) {
 			return json(route, { ...fakeSession(), user: USER });
 		}
 		if (url.pathname.startsWith('/storage/v1/')) return json(route, []);
+		if (url.pathname === '/rest/v1/rpc/value_usage') return json(route, VALUE_USAGE);
+		if (url.pathname === '/rest/v1/rpc/period_era_usage') return json(route, PERIOD_ERA_USAGE);
+		if (url.pathname === '/rest/v1/rpc/style_period_usage') return json(route, STYLE_PERIOD_USAGE);
 		if (url.pathname.startsWith('/rest/v1/rpc/')) {
 			return json(route, { id: ARTWORKS[0].id, record_number: ARTWORKS[0].record_number });
 		}
+		if (url.pathname === '/rest/v1/artwork_values') {
+			const number = Number(url.searchParams.get('artworks.record_number')?.slice(3));
+			const artwork = ARTWORKS.find((row) => row.record_number === number);
+			const values = (artwork?.artwork_values ?? []).map(({ category_values: value }) => {
+				const table = `${value.category_code}_details`;
+				const id = valueId(value.category_code, value.name);
+				return {
+					artworks: { record_number: number },
+					category_values: {
+						...value,
+						[table]: (VALUE_DETAILS[table] ?? []).filter((row) => row.value_id === id)
+					}
+				};
+			});
+			return json(route, values);
+		}
+		const detailsTable = url.pathname.replace('/rest/v1/', '');
+		if (detailsTable in VALUE_DETAILS) {
+			const [column, filter] = [...url.searchParams].find(([key]) => key !== 'select') ?? [];
+			if (column === 'notes' && filter?.startsWith('like.')) {
+				const needle = filter.slice('like.'.length).replaceAll('%', '');
+				return json(
+					route,
+					VALUE_DETAILS[detailsTable].filter((row) => row.notes?.includes(needle))
+				);
+			}
+			return json(
+				route,
+				VALUE_DETAILS[detailsTable].filter((row) => `eq.${row[column]}` === filter)
+			);
+		}
 		if (url.pathname === '/rest/v1/artworks') {
-			const rows = filteredRows(url);
+			const rows = filteredRows(url).map((row) => ({
+				...row,
+				artwork_values: row.artwork_values.map((link) => ({
+					...link,
+					category_values: {
+						...link.category_values,
+						author_details: VALUE_DETAILS.author_details.filter(
+							(details) =>
+								details.value_id ===
+								valueId(link.category_values.category_code, link.category_values.name)
+						)
+					}
+				}))
+			}));
 			const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
 			if (!wantsObject) return json(route, rows);
 			if (rows.length === 1) return json(route, rows[0]);
@@ -184,9 +240,15 @@ async function mockImages(context) {
 		return json(route, { query: { pages } });
 	});
 
-	await context.route(/^https:\/\/(query\.wikidata|www\.wikidata)\.org\//, (route) =>
-		json(route, { results: { bindings: [] }, search: [], entities: {} })
-	);
+	await context.route(/^https:\/\/(query\.wikidata|www\.wikidata)\.org\//, (route) => {
+		const query = new URL(route.request().url()).searchParams.get('query') ?? '';
+		const bindings = query.includes('wd:Q5;')
+			? PEOPLE.map((person) =>
+					Object.fromEntries(Object.entries(person).map(([key, value]) => [key, { value }]))
+				)
+			: [];
+		return json(route, { results: { bindings }, search: [], entities: {} });
+	});
 }
 
 async function waitForServer(base, attempts = 120) {
@@ -262,6 +324,13 @@ async function capture(browser, base, options, name) {
 	await page.goto(new URL(options.route, base).href, { waitUntil: 'networkidle' });
 	if (options.wait) await page.waitForSelector(options.wait);
 	if (options.script) await page.evaluate(readFileSync(path.resolve(options.script), 'utf8'));
+	if (options.type) {
+		const editor = page.locator('.ProseMirror').first();
+		await editor.scrollIntoViewIfNeeded();
+		await editor.click();
+		await page.keyboard.press('Control+End');
+		await page.keyboard.type(options.type);
+	}
 	await page.evaluate(() => document.fonts.ready);
 	await page.waitForTimeout(400);
 	const file = path.join(options.out, `${options.name}-${name}.png`);

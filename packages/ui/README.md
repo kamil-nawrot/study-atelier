@@ -60,11 +60,12 @@ Patterns for using the components are in [ui-patterns.md](../../docs/guidelines/
 
 ## Commands
 
-| Command          | What it does                                                          |
-| ---------------- | --------------------------------------------------------------------- |
-| `pnpm storybook` | Start Storybook at http://localhost:6006                              |
-| `pnpm tokens`    | Regenerate `src/lib/styles/tokens.css` from `design/tokens.json`      |
-| `pnpm check`     | Check that `tokens.css` is current and type check                     |
-| `pnpm lint`      | Prettier check and ESLint                                             |
-| `pnpm test`      | Run unit tests (Node) and component tests (Chromium) once with Vitest |
-| `pnpm build`     | Build the static Storybook into `storybook-static`                    |
+| Command              | What it does                                                                                         |
+| -------------------- | ---------------------------------------------------------------------------------------------------- |
+| `pnpm storybook`     | Start Storybook at http://localhost:6006                                                             |
+| `pnpm tokens`        | Regenerate `src/lib/styles/tokens.css` from `design/tokens.json`                                     |
+| `pnpm check`         | Check that `tokens.css` is current and type check                                                    |
+| `pnpm lint`          | Prettier check and ESLint                                                                            |
+| `pnpm test`          | Run unit tests (Node) and component tests (Chromium) once with Vitest                                |
+| `pnpm test:coverage` | Run the tests once and measure coverage of `src/` into `coverage/` (report in `coverage/index.html`) |
+| `pnpm build`         | Build the static Storybook into `storybook-static`                                                   |

@@ -50,6 +50,17 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0044](0044-load-wall-images-near-the-screen.md)                  | Show the wall first and load its images near the screen | accepted |
 | [0045](0045-seed-the-local-database.md)                           | Seed the local database with a test account and artworks | accepted |
 | [0046](0046-enter-the-date-of-creation-as-a-year-span.md)         | Enter the date of creation as a year span, as an alternative to a single year | accepted |
-| [0047](0047-remember-wall-images-and-cap-their-width.md)          | Remember the wall images for the session and cap their width | accepted |
 | [0047](0047-no-links-from-values-into-a-filtered-wall.md) | Leave values in the artwork view and the card index without links into a filtered wall | accepted |
 | [0048](0048-flip-through-the-wall-from-the-artwork-view.md) | Flip through the wall from the artwork view in place of the history entry | accepted |
+| [0049](0049-give-every-category-value-a-page-of-its-own.md) | Give every category value a page of its own with the learner's notes | accepted |
+| [0050](0050-store-value-pages-in-details-tables.md)              | Store value pages in details tables and settle the details of the build | accepted |
+| [0051](0051-load-and-save-a-value-page.md)                        | Load a value page from the collection and save its form in steps | accepted |
+| [0052](0052-remember-wall-images-and-cap-their-width.md) | Remember the wall images for the session and cap their width | accepted |
+| [0053](0053-link-values-and-artworks-from-notes.md) | Link values and artworks from notes with @ and # | accepted |
+| [0054](0054-switch-to-the-light-theme-from-the-menu.md) | Switch to the light theme from the menu | accepted |
+| [0055](0055-list-only-image-candidates-that-have-an-image.md) | List only image candidates that have an image | accepted |
+| [0056](0056-author-portrait-years-of-life-and-sort-name.md) | Give an author a portrait from a people search, two years of life and a sort name | accepted |
+| [0057](0057-location-country-and-type-of-place.md) | Give a location a country from a searchable list and a type of place as tiles | accepted |
+| [0058](0058-mark-artworks-as-favourites-with-a-heart.md) | Mark artworks as favourites with a heart | accepted |
+| [0059](0059-value-summary-card-in-the-artwork-view.md) | Show a value's summary in a card that opens from the artwork view | accepted |
+| [0060](0060-order-authors-by-their-sort-name.md) | Order authors by their sort name on the wall, in the filters and in the card index | accepted |

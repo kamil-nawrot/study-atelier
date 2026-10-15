@@ -8,7 +8,7 @@ import {
 	fetchCommonsThumbnails
 } from '#lib/images/commons.ts';
 import { supabase } from '#lib/supabase.ts';
-import { valuesOf } from './artwork-values.ts';
+import { authorSortNamesOf, valuesOf } from './artwork-values.ts';
 import { collectionErrorMessage } from './errors.ts';
 import { formatDate } from './format.ts';
 import { tileSizes } from './masonry.ts';
@@ -39,6 +39,7 @@ type ArtworkRow = {
 	own_image_url: string | null;
 	image_width: number | null;
 	image_height: number | null;
+	favourite: boolean;
 	deleted_at: string | null;
 	artwork_values: ArtworkValueRow[];
 };
@@ -64,8 +65,9 @@ const ARTWORK_COLUMNS = [
 	'own_image_url',
 	'image_width',
 	'image_height',
+	'favourite',
 	'deleted_at',
-	'artwork_values(position, category_values(category_code, name))'
+	'artwork_values(position, category_values(category_code, name, author_details(sort_name)))'
 ].join(', ');
 
 async function signedUrls(paths: string[]): Promise<Map<string, string>> {
@@ -151,6 +153,7 @@ function wallArtwork(row: ArtworkRow): WallArtwork {
 		number: row.record_number,
 		title: row.title,
 		authors: valuesOf(row.artwork_values, 'author'),
+		authorSortNames: authorSortNamesOf(row.artwork_values),
 		date: formatDate(row.year_from, row.year_to, row.year_approximate),
 		yearFrom: row.year_from,
 		yearTo: row.year_to,
@@ -161,6 +164,7 @@ function wallArtwork(row: ArtworkRow): WallArtwork {
 		materials: valuesOf(row.artwork_values, 'material'),
 		location: valuesOf(row.artwork_values, 'location')[0] ?? null,
 		hasImage: Boolean(row.source_image_file || row.own_image_path || row.own_image_url),
+		favourite: row.favourite,
 		image,
 		...(pendingImage ? { pendingImage } : {}),
 		...(row.own_image_path ? { ownImagePath: row.own_image_path } : {})

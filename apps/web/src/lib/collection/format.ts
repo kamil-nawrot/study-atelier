@@ -47,3 +47,14 @@ export function formatDeletedOn(deletedAt: string, now = new Date()): string {
 	});
 	return m.trash.deletedOn(format.format(date));
 }
+
+export function formatLifeYears(
+	born: number | null,
+	died: number | null,
+	approximate: boolean
+): string | undefined {
+	if (born !== null && died !== null) return m.atelier.span(born, died, approximate);
+	if (born !== null) return m.valuePage.born(m.atelier.year(born, approximate));
+	if (died !== null) return m.valuePage.died(m.atelier.year(died, approximate));
+	return undefined;
+}

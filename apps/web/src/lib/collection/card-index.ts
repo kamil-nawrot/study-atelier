@@ -1,4 +1,4 @@
-import { locale } from '#lib/i18n/index.ts';
+import { compareSortKeys } from './author-sort.ts';
 import { ERA_CODES } from './eras.ts';
 import { valueKey } from './value-suggestions.ts';
 import type {
@@ -19,8 +19,8 @@ export function emptyCardIndex(): CardIndexData {
 	return { values: [], periodEras: [], stylePeriods: [] };
 }
 
-function byName<T extends { name: string }>(a: T, b: T): number {
-	return a.name.localeCompare(b.name, locale);
+function byName<T extends { name: string; sortName?: string }>(a: T, b: T): number {
+	return compareSortKeys(a.sortName ?? a.name, b.sortName ?? b.name);
 }
 
 function entry(record: CardIndexRecord): CardIndexEntry {

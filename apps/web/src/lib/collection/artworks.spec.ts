@@ -163,6 +163,7 @@ describe('loadAtelier', () => {
 				id: 'artwork-1',
 				number: 1,
 				title: 'The Test Painting',
+				authorSortNames: [null, null],
 				authors: ['First Author', 'Second Author'],
 				date: m.atelier.year(1490, true),
 				yearFrom: null,
@@ -476,6 +477,7 @@ describe('resolveImages', () => {
 		return {
 			id,
 			number: 1,
+			favourite: false,
 			title: 'Pending',
 			authors: [],
 			yearFrom: null,
@@ -654,6 +656,7 @@ describe('refreshExpiredImages', () => {
 		return {
 			id,
 			number: 1,
+			favourite: false,
 			title: 'The Test Painting',
 			authors: [],
 			yearFrom: null,

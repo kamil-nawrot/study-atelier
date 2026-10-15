@@ -131,6 +131,23 @@ describe('groupByAuthor', () => {
 		return testArtwork(number, `Artwork ${number}`, { authors, yearTo: year });
 	}
 
+	it('orders authors by their sort name when they have one', () => {
+		const groups = groupByAuthor([
+			testArtwork(1, 'Mona Lisa', {
+				authors: ['Leonardo da Vinci'],
+				authorSortNames: ['Vinci, Leonardo da']
+			}),
+			testArtwork(2, 'Soup Cans', { authors: ['Andy Warhol'], authorSortNames: ['Warhol, Andy'] }),
+			testArtwork(3, 'The Kiss', { authors: ['Gustav Klimt'], authorSortNames: ['Klimt, Gustav'] })
+		]);
+
+		expect(groups.map((group) => group.name)).toEqual([
+			'Gustav Klimt',
+			'Leonardo da Vinci',
+			'Andy Warhol'
+		]);
+	});
+
 	it('makes one block per first author, A to Z with Polish letters in place', () => {
 		const groups = groupByAuthor([
 			byAuthors(1, ['Zofia Stryjeńska']),

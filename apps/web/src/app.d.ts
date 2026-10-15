@@ -5,6 +5,7 @@ declare global {
 			highlight?: number;
 			saved?: number;
 			trashed?: number;
+			valueMessage?: string;
 		}
 
 		interface Platform {

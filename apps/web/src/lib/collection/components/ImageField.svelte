@@ -21,20 +21,20 @@
 	} from '#lib/images/clipboard.ts';
 	import ImageSearchDialog from '#lib/images/components/ImageSearchDialog.svelte';
 	import { ownImageFileError, parseImageUrl, readImageSize } from '#lib/images/own-image.ts';
-	import type { ImageCandidate } from '#lib/images/types.ts';
+	import type { ImageCandidate, ImageSearchQuery } from '#lib/images/types.ts';
 	import { imageFromCandidate } from '../artwork-form.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
-	import type { ArtworkImageInput } from '../types.ts';
+	import type { ArtworkImageInput, ImageFieldTexts } from '../types.ts';
 
 	type Props = {
 		alt: string;
 		searchReady: boolean;
-		searchTitle: string;
-		searchAuthors: string[];
+		query: ImageSearchQuery;
+		texts: ImageFieldTexts;
 		image: ArtworkImageInput | null;
 	};
 
-	let { alt, searchReady, searchTitle, searchAuthors, image = $bindable() }: Props = $props();
+	let { alt, searchReady, query, texts, image = $bindable() }: Props = $props();
 
 	const id = $props.id();
 	const fileMessageId = `${id}-file`;
@@ -212,7 +212,7 @@
 
 <svelte:window onpaste={handlePaste} />
 
-<section class="image" aria-label={m.artworkForm.image}>
+<section class="image" aria-label={texts.label}>
 	<figure class="picture">
 		<div class="mat">
 			{#if preview}
@@ -236,21 +236,21 @@
 	<div class="image-actions">
 		<Button id={findImageId} disabled={!searchReady} onclick={() => (searchOpen = true)}>
 			<Icon icon={Search} size="sm" />
-			{image?.kind === 'commons' ? m.artworkForm.chooseOtherImage : m.artworkForm.findImage}
+			{image?.kind === 'commons' ? texts.findOther : texts.find}
 		</Button>
 		<Button aria-haspopup="dialog" onclick={() => (dialogOpen = true)}>
 			<Icon icon={ImagePlus} size="sm" />
-			{ownImage ? m.artworkForm.changeOwnImage : m.artworkForm.ownImage}
+			{ownImage ? texts.changeOwn : texts.own}
 		</Button>
 		{#if image}
 			<Button onclick={removeImage}>
 				<Icon icon={Trash} size="sm" />
-				{m.artworkForm.removeImage}
+				{texts.remove}
 			</Button>
 		{/if}
 	</div>
 	{#if !searchReady}
-		<p class="caption">{m.artworkForm.findImageHint}</p>
+		<p class="caption">{texts.findHint}</p>
 	{/if}
 	{#if pasteError}
 		<p class="paste-error" role="alert">{pasteError}</p>
@@ -261,16 +261,11 @@
 	</p>
 </section>
 
-<ImageSearchDialog
-	authors={searchAuthors}
-	onpick={pickCandidate}
-	title={searchTitle}
-	bind:open={searchOpen}
-/>
+<ImageSearchDialog onpick={pickCandidate} {query} bind:open={searchOpen} />
 
 <Dialog
 	onclose={resetOwnImage}
-	title={ownImage ? m.artworkForm.changeOwnImageTitle : m.artworkForm.ownImageTitle}
+	title={ownImage ? texts.changeOwnTitle : texts.ownTitle}
 	bind:open={dialogOpen}
 >
 	<div class="own-image">

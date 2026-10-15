@@ -1,7 +1,7 @@
 {
 	"name": "@study-atelier/ui",
 	"private": true,
-	"version": "0.3.1",
+	"version": "0.4.0",
 	"type": "module",
 	"exports": {
 		".": {
@@ -19,7 +19,8 @@
 		"check": "node scripts/build-tokens.ts --check && svelte-check --tsconfig ./tsconfig.json",
 		"lint": "prettier --check . && eslint . && stylelint --config ../../stylelint.config.js \"src/**/*.{css,svelte}\"",
 		"format": "prettier --write .",
-		"test": "vitest --run"
+		"test": "vitest --run",
+		"test:coverage": "vitest --run --coverage"
 	},
 	"dependencies": {
 		"@fontsource/newsreader": "^5.3.0",
@@ -29,6 +30,7 @@
 		"@tiptap/markdown": "^3.31.4",
 		"@tiptap/pm": "^3.31.4",
 		"@tiptap/starter-kit": "^3.31.4",
+		"@tiptap/suggestion": "^3.31.4",
 		"dompurify": "^3.4.17",
 		"marked": "^18.1.1"
 	},
@@ -40,6 +42,7 @@
 		"@sveltejs/vite-plugin-svelte": "^7.3.1",
 		"@types/node": "^22.20.5",
 		"@vitest/browser-playwright": "^4.1.11",
+		"@vitest/coverage-v8": "^4.1.11",
 		"eslint": "^10.12.0",
 		"eslint-plugin-storybook": "^10.6.1",
 		"playwright": "^1.64.0",

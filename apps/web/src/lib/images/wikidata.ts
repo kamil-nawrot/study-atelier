@@ -17,7 +17,7 @@ export type WikidataArtwork = {
 	creatorNames: string[];
 	hasCreator: boolean;
 	date: SourceDate | null;
-	file: string | null;
+	file: string;
 };
 
 type Binding = Partial<
@@ -27,7 +27,17 @@ type Binding = Partial<
 	>
 >;
 
-type SparqlResponse = { results?: { bindings?: Binding[] } };
+export type WikidataPerson = {
+	wikidataId: string;
+	name: string;
+	born: SourceDate | null;
+	died: SourceDate | null;
+	file: string;
+};
+
+type PersonBinding = Partial<Record<'item' | 'name' | 'file' | 'born' | 'died', { value: string }>>;
+
+type SparqlResponse<T = Binding> = { results?: { bindings?: T[] } };
 
 function sparqlString(text: string): string {
 	return JSON.stringify(text.replace(/\s+/g, ' ').trim());
@@ -58,9 +68,8 @@ export function artworkSearchQuery(title: string): string {
     }
     BIND(?ordinal + ${SEARCH_LIMIT} AS ?searchRank)
   }
-  FILTER EXISTS { ?item p:P170|p:P84|wdt:P18 [] }
+  ?item wdt:P18 ?image.
   FILTER NOT EXISTS { VALUES ?excluded { ${excluded} } ?item wdt:P31 ?excluded }
-  OPTIONAL { ?item wdt:P18 ?image }
   OPTIONAL {
     ?item p:P571 ?dateStatement.
     ?dateStatement wikibase:rank ?rank; psv:P571 ?dateValue.
@@ -86,6 +95,37 @@ GROUP BY ?item ?title
 ORDER BY ?order`;
 }
 
+function lifeDate(property: string, name: string): string {
+	return `OPTIONAL {
+    ?item p:${property} ?${name}Statement.
+    ?${name}Statement wikibase:rank ?${name}Rank; psv:${property} ?${name}Value.
+    ?${name}Value wikibase:timeValue ?${name}Time; wikibase:timePrecision ?${name}Precision.
+    FILTER(?${name}Rank != wikibase:DeprecatedRank)
+  }`;
+}
+
+export function personSearchQuery(name: string): string {
+	return `SELECT ?item ?name (MIN(?ordinal) AS ?order) (SAMPLE(?image) AS ?file)
+(SAMPLE(CONCAT(STR(?bornTime), "/", STR(?bornPrecision))) AS ?born)
+(SAMPLE(CONCAT(STR(?diedTime), "/", STR(?diedPrecision))) AS ?died) WHERE {
+  SERVICE wikibase:mwapi {
+    bd:serviceParam wikibase:endpoint "www.wikidata.org"; wikibase:api "EntitySearch";
+      mwapi:search ${sparqlString(name)}; mwapi:language "${LABEL_LANGUAGES[0]}"; mwapi:limit "${SEARCH_LIMIT}".
+    ?item wikibase:apiOutputItem mwapi:item.
+    ?ordinal wikibase:apiOrdinal true.
+  }
+  ?item wdt:P31 wd:Q5; wdt:P18 ?image.
+  ${lifeDate('P569', 'born')}
+  ${lifeDate('P570', 'died')}
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "${LABEL_LANGUAGES.join(',')},mul".
+    ?item rdfs:label ?name.
+  }
+}
+GROUP BY ?item ?name
+ORDER BY ?order`;
+}
+
 export function sourceDate(value: string | undefined): SourceDate | null {
 	const match = value?.match(/^(-?)(\d+)-.*\/(\d+)$/);
 	if (!match) return null;
@@ -107,7 +147,8 @@ function names(value: { value: string } | undefined): string[] {
 
 function toArtwork(binding: Binding): WikidataArtwork | null {
 	const wikidataId = binding.item?.value.match(/(Q\d+)$/)?.[1];
-	if (!wikidataId) return null;
+	const file = fileFromUrl(binding.file?.value);
+	if (!wikidataId || !file) return null;
 	return {
 		wikidataId,
 		title: binding.title?.value ?? wikidataId,
@@ -115,7 +156,7 @@ function toArtwork(binding: Binding): WikidataArtwork | null {
 		creatorNames: names(binding.creatorNames),
 		hasCreator: Number(binding.creatorCount?.value ?? 0) > 0,
 		date: sourceDate(binding.date?.value),
-		file: fileFromUrl(binding.file?.value)
+		file
 	};
 }
 
@@ -125,4 +166,25 @@ export async function searchWikidataArtworks(title: string): Promise<WikidataArt
 		Accept: 'application/sparql-results+json'
 	});
 	return (response.results?.bindings ?? []).flatMap((binding) => toArtwork(binding) ?? []);
+}
+
+function toPerson(binding: PersonBinding): WikidataPerson | null {
+	const wikidataId = binding.item?.value.match(/(Q\d+)$/)?.[1];
+	const file = fileFromUrl(binding.file?.value);
+	if (!wikidataId || !file) return null;
+	return {
+		wikidataId,
+		name: binding.name?.value ?? wikidataId,
+		born: sourceDate(binding.born?.value),
+		died: sourceDate(binding.died?.value),
+		file
+	};
+}
+
+export async function searchWikidataPeople(name: string): Promise<WikidataPerson[]> {
+	const params = new URLSearchParams({ query: personSearchQuery(name), format: 'json' });
+	const response = await fetchJson<SparqlResponse<PersonBinding>>(`${SPARQL_ENDPOINT}?${params}`, {
+		Accept: 'application/sparql-results+json'
+	});
+	return (response.results?.bindings ?? []).flatMap((binding) => toPerson(binding) ?? []);
 }

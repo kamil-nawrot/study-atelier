@@ -9,14 +9,17 @@ import {
 	filterFromParams,
 	filterOptions,
 	filterTags,
+	favouriteCount,
 	filterToParams,
 	isEmptyFilter,
 	matchesFilter,
+	onlyFavourites,
 	pruneFilter,
 	removeTag,
 	setYears,
 	tagLabel,
 	tagParts,
+	toggleFavourites,
 	toggleValue
 } from './filter.ts';
 import type { CollectionFilter, WallArtwork } from './types.ts';
@@ -138,6 +141,17 @@ describe('matchesFilter', () => {
 });
 
 describe('filterOptions', () => {
+	it('orders authors with the same count by their sort name', () => {
+		const artworks = [
+			testArtwork(1, 'Soup Cans', { authors: ['Andy Warhol'], authorSortNames: ['Warhol, Andy'] }),
+			testArtwork(2, 'The Kiss', { authors: ['Gustav Klimt'], authorSortNames: ['Klimt, Gustav'] })
+		];
+
+		expect(filterOptions(artworks, emptyFilter(), 'authors').map((option) => option.value)).toEqual(
+			['Gustav Klimt', 'Andy Warhol']
+		);
+	});
+
 	it('counts the artworks the wall would show with each value of a field', () => {
 		expect(filterOptions(artworks, emptyFilter(), 'materials')).toEqual([
 			{ value: 'Oil', count: 2 },
@@ -344,5 +358,60 @@ describe('the filter in the address', () => {
 		);
 
 		expect(pruned).toEqual(filterWith({ styles: ['Baroque'], eras: ['modern'] }));
+	});
+});
+
+describe('favourites', () => {
+	const marked = [
+		testArtwork(1, 'Mona Lisa', { favourite: true, eraCode: 'early_modern' }),
+		testArtwork(2, 'The Kiss', { favourite: true, eraCode: 'modern' }),
+		testArtwork(3, 'Sunflowers', { eraCode: 'modern' })
+	];
+
+	it('shows only the favourites', () => {
+		const result = applyFilter(marked, filterWith({ favourites: true }));
+
+		expect(result.map((artwork) => artwork.title)).toEqual(['Mona Lisa', 'The Kiss']);
+	});
+
+	it('combines with the other fields', () => {
+		const result = applyFilter(marked, filterWith({ favourites: true, eras: ['modern'] }));
+
+		expect(result.map((artwork) => artwork.title)).toEqual(['The Kiss']);
+	});
+
+	it('counts the favourites the wall would show with the other filters', () => {
+		expect(favouriteCount(marked, emptyFilter())).toBe(2);
+		expect(favouriteCount(marked, filterWith({ eras: ['modern'] }))).toBe(1);
+		expect(favouriteCount(marked, filterWith({ favourites: true, eras: ['modern'] }))).toBe(1);
+	});
+
+	it('toggles, clears and knows when it is the only choice', () => {
+		const on = toggleFavourites(emptyFilter());
+
+		expect(on.favourites).toBe(true);
+		expect(isEmptyFilter(on)).toBe(false);
+		expect(onlyFavourites(on)).toBe(true);
+		expect(onlyFavourites({ ...on, eras: ['modern'] })).toBe(false);
+		expect(clearField(on, 'favourites').favourites).toBe(false);
+		expect(toggleFavourites(on)).toEqual(emptyFilter());
+	});
+
+	it('has a tag that names the field only and removes the choice', () => {
+		const [tag] = filterTags(filterWith({ favourites: true }));
+
+		expect(tag).toEqual({ id: 'favourites', field: 'favourites', value: '' });
+		expect(tagParts(tag)).toEqual({ field: m.atelier.filters.tagFields.favourites, value: '' });
+		expect(tagLabel(tag)).toBe(m.atelier.filters.tagFields.favourites);
+		expect(removeTag(filterWith({ favourites: true }), tag)).toEqual(emptyFilter());
+	});
+
+	it('is kept in the address', () => {
+		const filter = filterWith({ favourites: true });
+		const params = filterToParams(filter);
+
+		expect(params.get('ulubione')).toBe('1');
+		expect(filterFromParams(params)).toEqual(filter);
+		expect(filterToParams(emptyFilter()).has('ulubione')).toBe(false);
 	});
 });

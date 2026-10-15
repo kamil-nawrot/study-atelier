@@ -26,7 +26,12 @@ export const pl = {
 			italic: 'Kursywa',
 			heading: 'Nagłówek',
 			bulletedList: 'Lista punktowana',
-			numberedList: 'Lista numerowana'
+			numberedList: 'Lista numerowana',
+			linkValue: 'Dodaj odnośnik do autora, epoki, miejsca…',
+			linkArtwork: 'Dodaj odnośnik do dzieła',
+			linkSuggestions: 'Podpowiedzi odnośników',
+			noValueFound: 'Nie masz jeszcze takiej wartości w Kartotece.',
+			noArtworkFound: 'Nie masz w kolekcji dzieła o takim numerze ani tytule.'
 		},
 		valueField: {
 			existing: 'Już używane',
@@ -35,6 +40,10 @@ export const pl = {
 			add: (name: string): string => `+ Dodaj „${name}”`,
 			addAnyway: (name: string): string => `+ Dodaj „${name}” mimo to`,
 			remove: (name: string): string => `Usuń ${name}`
+		},
+		searchSelect: {
+			empty: 'Nic nie pasuje',
+			clear: (label: string): string => `Wyczyść: ${label}`
 		}
 	},
 	common: {
@@ -144,6 +153,8 @@ export const pl = {
 		atelier: 'Atelier',
 		cardIndex: 'Kartoteka',
 		trash: 'Kosz',
+		lightTheme: 'Jasny motyw',
+		darkTheme: 'Ciemny motyw',
 		signOut: 'Wyloguj się'
 	},
 	atelier: {
@@ -204,6 +215,7 @@ export const pl = {
 			removeTag: (label: string): string => `Usuń filtr: ${label}`,
 			noResultsTitle: 'Nic tu nie pasuje',
 			noResults: 'Żadne dzieło nie pasuje do tych filtrów.',
+			noFavourites: 'Nie ma jeszcze ulubionych dzieł.',
 			showResults: (count: number): string =>
 				`Pokaż ${count} ${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })}`,
 			fields: {
@@ -215,7 +227,8 @@ export const pl = {
 				styles: 'Styl',
 				materials: 'Materiał',
 				locations: 'Miejsce',
-				missing: 'Do uzupełnienia'
+				missing: 'Do uzupełnienia',
+				favourites: 'Ulubione'
 			},
 			tagFields: {
 				eras: 'Epoka',
@@ -226,7 +239,8 @@ export const pl = {
 				styles: 'Styl',
 				materials: 'Materiał',
 				locations: 'Miejsce',
-				missing: 'Do uzupełnienia'
+				missing: 'Do uzupełnienia',
+				favourites: 'Ulubione'
 			},
 			tag: (field: string, value: string): string => `${field} ${value}`,
 			unknownAuthor: 'Autor nieznany',
@@ -307,6 +321,8 @@ export const pl = {
 		locationHint: 'Gdzie dzieło jest teraz. Jedna wartość.',
 		notes: 'Notatki',
 		notesPlaceholder: 'Co warto zapamiętać, skąd znasz to dzieło',
+		notesLinkHint:
+			'Wpisz @, żeby dodać odnośnik do autora, epoki albo miejsca, albo #, żeby dodać odnośnik do dzieła.',
 		cancel: 'Anuluj',
 		saveAndNext: 'Zapisz i dodaj kolejne',
 		save: 'Zapisz',
@@ -348,18 +364,30 @@ export const pl = {
 		previous: 'Poprzednie dzieło',
 		next: 'Następne dzieło'
 	},
+	favourite: {
+		add: 'Dodaj do ulubionych',
+		remove: 'Usuń z ulubionych',
+		added: 'Dodano do ulubionych.',
+		removed: 'Usunięto z ulubionych.',
+		failed: 'Nie udało się zapisać zmiany. Spróbuj jeszcze raz.'
+	},
 	imageSearch: {
 		title: 'Które to dzieło?',
 		description: (title: string, authors: string): string =>
 			`Wyniki z Wikidata dla „${title}”${authors ? `, ${authors}` : ''}. Kliknij to, które dodajesz.`,
 		searching: 'Szukamy w Wikidata…',
-		noImage: 'W Wikimedia nie ma wolnego zdjęcia tego dzieła',
 		empty: 'Wikidata nie zna dzieła o takim tytule. Sprawdź pisownię albo dodaj własne zdjęcie.',
 		none: 'Żadne z tych',
 		errorTitle: 'Nie udało się przeszukać Wikidata',
 		retry: 'Szukaj jeszcze raz',
 		century: (century: string, beforeCommonEra: boolean): string =>
-			`${century} w.${beforeCommonEra ? ' p.n.e.' : ''}`
+			`${century} w.${beforeCommonEra ? ' p.n.e.' : ''}`,
+		personTitle: 'Który to autor?',
+		personDescription: (name: string): string =>
+			`Wyniki z Wikidata dla „${name}”. Kliknij portret, który chcesz dodać.`,
+		personEmpty:
+			'Wikidata nie zna portretu osoby o takiej nazwie. Sprawdź pisownię albo dodaj własny portret.',
+		personNone: 'Żaden z tych'
 	},
 	imageSearchErrors: {
 		rateLimited: 'Wikidata dostaje teraz sporo zapytań. Odczekaj chwilę i spróbuj jeszcze raz.',
@@ -419,9 +447,8 @@ export const pl = {
 	},
 	cardIndex: {
 		title: 'Kartoteka',
-		lead: 'Tu porządkujesz swoje epoki, okresy, style i inne wartości, które wpisujesz przy dziełach.',
+		lead: 'Tu opisujesz i porządkujesz swoje epoki, okresy, style, autorów i miejsca. Kliknij nazwę, która cię interesuje, żeby zobaczyć szczegóły.',
 		loadErrorTitle: 'Nie udało się wczytać Kartoteki',
-		actionErrorTitle: 'Nie udało się zapisać zmian',
 		tabsLabel: 'Rodzaje wartości',
 		tabs: {
 			timeline: 'Okresy i style',
@@ -477,32 +504,6 @@ export const pl = {
 				other: 'innym miejscem'
 			}
 		},
-		dialog: {
-			description: (kind: string, count: string): string => `${kind} · ${count}`,
-			name: 'Nazwa',
-			nameRequired: 'Wpisz nazwę.',
-			mergeHint: (kind: string, name: string, count: string): string =>
-				`Masz już ${kind} „${name}” (${count}). Zapisz, a połączę je w jeden.`,
-			eras: 'Epoki',
-			periods: 'Okresy',
-			noEras: 'Ten okres nie ma jeszcze epoki.',
-			noPeriods: 'Ten styl nie ma jeszcze okresu.',
-			addEra: 'Dodaj epokę',
-			addPeriod: 'Dodaj okres',
-			chooseEra: 'Wybierz epokę',
-			choosePeriod: 'Wybierz okres',
-			removeEra: (name: string): string => `Usuń epokę ${name}`,
-			removePeriod: (name: string): string => `Usuń okres ${name}`,
-			periodLocked: (period: string, count: number): string =>
-				`Nie uda się odpiąć okresu „${period}” od tego stylu, bo ${workCount(count)} w tym stylu ${count === 1 ? 'ma' : 'mają'} przypisany taki okres.`,
-			delete: 'Usuń',
-			deleteBlocked: (demonstrative: string, count: string, other: string): string =>
-				`${demonstrative} ma jeszcze ${count}, więc nie da się go usunąć. Możesz go połączyć z ${other}.`,
-			cancel: 'Anuluj',
-			save: 'Zapisz',
-			saving: 'Zapisywanie…',
-			merge: 'Połącz'
-		},
 		mergeConfirm: {
 			title: (merged: string, kept: string): string => `Połączyć „${merged}” z „${kept}”?`,
 			unused: (merged: string): string =>
@@ -513,6 +514,8 @@ export const pl = {
 				`${workCount(count)} z „${merged}” ${count === 1 ? 'dostanie' : 'dostaną'} „${kept}”, a „${merged}” zniknie z Kartoteki.`,
 			periodLinks: (merged: string, kept: string): string =>
 				`Epoki i style okresu „${merged}” dołączą do „${kept}”.`,
+			pageContent: (merged: string): string =>
+				`Podsumowanie, notatki i pozostałe informacje o „${merged}” zostaną usunięte.`,
 			irreversible: 'Tej akcji nie będzie można cofnąć!',
 			back: 'Wróć',
 			confirm: 'Połącz',
@@ -538,14 +541,126 @@ export const pl = {
 			confirm: 'Usuń',
 			deleting: 'Usuwanie…'
 		},
-		saved: (name: string): string => `Zapisano „${name}”.`,
 		merged: (name: string): string => `Połączono z „${name}”.`,
 		deleted: (name: string): string => `Usunięto „${name}”.`,
 		errors: {
 			network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.',
 			notFound: 'Nie ma już takiej wartości. Odśwież stronę.',
-			changed:
-				'Coś zmieniło się w międzyczasie. Zamknij okno, sprawdź Kartotekę i spróbuj jeszcze raz.'
+			changed: 'Coś zmieniło się w międzyczasie. Odśwież stronę i spróbuj jeszcze raz.'
+		}
+	},
+	mentions: {
+		heading: 'Wspominasz o tym w notatkach',
+		artwork: 'Dzieło'
+	},
+	valuePage: {
+		back: 'Kartoteka',
+		edit: 'Edytuj',
+		notes: 'Notatki',
+		delete: 'Usuń',
+		deleteBlocked: (demonstrative: string, count: string, other: string): string =>
+			`${demonstrative} ma jeszcze ${count}, więc nie da się go usunąć. Możesz go połączyć z ${other}.`,
+		header: (kind: string, count: string): string => `${kind} · ${count}`,
+		born: (year: string): string => `ur. ${year}`,
+		died: (year: string): string => `zm. ${year}`,
+		eraKind: 'Epoka',
+		notFoundTitle: 'Nie ma takiej wartości',
+		notFound: 'Nie ma takiej wartości w Kartotece. Może została usunięta albo połączona z inną.',
+		loadErrorTitle: 'Nie udało się wczytać tej strony',
+		saved: 'Zapisano zmiany.',
+		kinds: {
+			era: {
+				artworks: 'Dzieła z tej epoki',
+				noNotes: 'Nie masz jeszcze notatek o tej epoce.',
+				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tej epoki.'
+			},
+			period: {
+				artworks: 'Dzieła z tego okresu',
+				noNotes: 'Nie masz jeszcze notatek o tym okresie.',
+				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tego okresu.'
+			},
+			style: {
+				artworks: 'Dzieła w tym stylu',
+				noNotes: 'Nie masz jeszcze notatek o tym stylu.',
+				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła w tym stylu.'
+			},
+			material: {
+				artworks: 'Dzieła z tego materiału',
+				noNotes: 'Nie masz jeszcze notatek o tym materiale.',
+				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tego materiału.'
+			},
+			author: {
+				artworks: 'Dzieła tego autora',
+				noNotes: 'Nie masz jeszcze notatek o tym autorze.',
+				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła tego autora.'
+			},
+			location: {
+				artworks: 'Dzieła z tego miejsca',
+				noNotes: 'Nie masz jeszcze notatek o tym miejscu.',
+				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tego miejsca.'
+			}
+		}
+	},
+	valueForm: {
+		name: 'Nazwa',
+		nameRequired: 'Wpisz nazwę.',
+		mergeHint: (kind: string, name: string, count: string): string =>
+			`Masz już ${kind} „${name}” (${count}). Zapisz, a połączę je w jeden.`,
+		eras: 'Epoki',
+		periods: 'Okresy',
+		noEras: 'Ten okres nie ma jeszcze epoki.',
+		noPeriods: 'Ten styl nie ma jeszcze okresu.',
+		addEra: 'Dodaj epokę',
+		addPeriod: 'Dodaj okres',
+		chooseEra: 'Wybierz epokę',
+		choosePeriod: 'Wybierz okres',
+		removeEra: (name: string): string => `Usuń epokę ${name}`,
+		removePeriod: (name: string): string => `Usuń okres ${name}`,
+		periodLocked: (period: string, count: number): string =>
+			`Nie uda się odpiąć okresu „${period}” od tego stylu, bo ${workCount(count)} w tym stylu ${count === 1 ? 'ma' : 'mają'} przypisany taki okres.`,
+		cancel: 'Anuluj',
+		save: 'Zapisz',
+		saving: 'Zapisywanie…',
+		editTitle: (kind: string, name: string): string => `Edytuj ${kind} „${name}”`,
+		eraAccusative: 'epokę',
+		goBack: 'Wróć do strony',
+		summary: 'Podsumowanie',
+		summaryPlaceholder: 'Krótki opis do szybkiego podejrzenia przy oglądaniu dzieła.',
+		notes: 'Notatki',
+		notesPlaceholder: 'Wszystko, co warto zapamiętać',
+		notesLinkHint:
+			'Wpisz @, żeby dodać odnośnik do autora, epoki albo miejsca, albo #, żeby dodać odnośnik do dzieła.',
+		errorTitle: 'Nie udało się zapisać zmian',
+		discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.',
+		portrait: {
+			label: 'Portret',
+			find: 'Znajdź portret',
+			findOther: 'Wybierz inny',
+			findHint: 'Wpisz nazwę, żeby znaleźć portret.',
+			own: 'Własny portret',
+			changeOwn: 'Zmień własny',
+			ownTitle: 'Dodaj własny portret',
+			changeOwnTitle: 'Zmień własny portret',
+			remove: 'Usuń portret'
+		},
+		lifeYears: 'Lata życia',
+		birthYear: 'Rok urodzenia',
+		deathYear: 'Rok śmierci',
+		birthBeforeCommonEra: 'p.n.e. (urodzenie)',
+		deathBeforeCommonEra: 'p.n.e. (śmierć)',
+		lifeYearsOrder: 'Rok śmierci nie może być wcześniejszy niż rok urodzenia.',
+		sortByOther: 'Sortuj inaczej niż po nazwie',
+		sortName: 'Sortuj jako',
+		sortNamePlaceholder: 'np. Vinci, Leonardo da',
+		sortNameHint: 'Po tej wartości będą sortowani autorzy.',
+		country: 'Kraj',
+		countryPlaceholder: 'Zacznij pisać nazwę kraju',
+		countryHint: 'Wybierz kraj z listy.',
+		placeType: 'Typ miejsca',
+		placeTypes: {
+			museum: 'Muzeum',
+			private_collection: 'Kolekcja prywatna',
+			on_site: 'Na miejscu'
 		}
 	},
 	trash: {

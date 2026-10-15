@@ -23,7 +23,9 @@
 				>
 					{@const parts = tagParts(tag)}
 					<span class="field">{parts.field}</span>
-					<span class="value">{parts.value}</span>
+					{#if parts.value}
+						<span class="value">{parts.value}</span>
+					{/if}
 				</Tag>
 			</li>
 		{/each}

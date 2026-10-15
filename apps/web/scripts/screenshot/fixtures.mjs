@@ -4,7 +4,9 @@ export const IMAGE_HOST = 'https://images.mock.test';
 const COMMONS_SIZES = {
 	'Mona_Lisa.jpg': [4, 6],
 	'The_Starry_Night.jpg': [5, 4],
-	'Girl_with_a_Pearl_Earring.jpg': [4, 5]
+	'Girl_with_a_Pearl_Earring.jpg': [4, 5],
+	'Portrait_of_Leonardo.jpg': [3, 4],
+	'Self-portrait_in_red_chalk.jpg': [2, 3]
 };
 
 const PALETTE = [
@@ -71,6 +73,7 @@ function artwork(number, title, authors, year, era, extra = {}) {
 		own_image_url: null,
 		image_width: null,
 		image_height: null,
+		favourite: false,
 		deleted_at: null,
 		artwork_values: authors.map((name, position) => ({
 			position,
@@ -93,20 +96,37 @@ function withValues(row, category, names) {
 
 export const ARTWORKS = [
 	withValues(
-		artwork(1, 'Mona Lisa', ['Leonardo da Vinci'], 1503, 'early_modern', {
-			...commonsImage('Mona_Lisa.jpg'),
-			year_approximate: true,
-			notes: 'Sample note about the sfumato technique.'
-		}),
-		'period',
-		['Renaissance']
+		withValues(
+			withValues(
+				withValues(
+					artwork(1, 'Mona Lisa', ['Leonardo da Vinci'], 1503, 'early_modern', {
+						...commonsImage('Mona_Lisa.jpg'),
+						year_approximate: true,
+						notes:
+							'Sample note about the sfumato technique, see [Leonardo da Vinci](/atelier/values/author/author-leonardo-da-vinci) and compare [#0009 The Birth of Venus](/atelier/9).'
+					}),
+					'period',
+					['Renaissance']
+				),
+				'style',
+				['High Renaissance']
+			),
+			'material',
+			['Oil on poplar']
+		),
+		'location',
+		['Louvre']
 	),
 	artwork(2, 'The Starry Night', ['Vincent van Gogh'], 1889, 'modern', {
 		...commonsImage('The_Starry_Night.jpg')
 	}),
-	artwork(3, 'Girl with a Pearl Earring', ['Johannes Vermeer'], 1665, 'early_modern', {
-		...commonsImage('Girl_with_a_Pearl_Earring.jpg')
-	}),
+	withValues(
+		artwork(3, 'Girl with a Pearl Earring', ['Johannes Vermeer'], 1665, 'early_modern', {
+			...commonsImage('Girl_with_a_Pearl_Earring.jpg')
+		}),
+		'period',
+		['Baroque']
+	),
 	artwork(4, 'Venus of Willendorf', ['Unknown'], -28000, 'prehistory', {
 		...ownImage(4, 3, 4),
 		type_code: 'sculpture'
@@ -124,17 +144,140 @@ export const ARTWORKS = [
 	artwork(8, 'Campbell’s Soup Cans', ['Andy Warhol'], 1962, 'contemporary', {
 		...ownImage(8, 4, 3)
 	}),
-	artwork(9, 'The Birth of Venus', ['Sandro Botticelli'], 1485, 'early_modern', {
-		...ownImage(9, 3, 2)
-	}),
+	withValues(
+		artwork(9, 'The Birth of Venus', ['Sandro Botticelli'], 1485, 'early_modern', {
+			...ownImage(9, 3, 2)
+		}),
+		'period',
+		['Renaissance']
+	),
 	artwork(10, 'Untitled study', ['Learner Example'], null, null, {})
 ];
+
+for (const number of [1, 3, 4, 7])
+	ARTWORKS.find((row) => row.record_number === number).favourite = true;
 
 export const TRASHED = [
 	artwork(11, 'Discarded sketch', ['Learner Example'], 2020, 'contemporary', {
 		...ownImage(11, 4, 5),
 		deleted_at: '2026-01-01T10:00:00Z'
 	})
+];
+
+export function valueId(category, name) {
+	return `${category}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+}
+
+export const VALUE_USAGE = [
+	...new Map(
+		ARTWORKS.flatMap((row) =>
+			row.artwork_values.map(({ category_values: value }) => [
+				valueId(value.category_code, value.name),
+				{ id: valueId(value.category_code, value.name), ...value }
+			])
+		)
+	).values()
+].map((value) => ({
+	...value,
+	artwork_count: ARTWORKS.filter((row) =>
+		row.artwork_values.some(
+			({ category_values: used }) =>
+				used.category_code === value.category_code && used.name === value.name
+		)
+	).length
+}));
+
+function firstValue(row, category) {
+	return row.artwork_values.find(({ category_values: value }) => value.category_code === category)
+		?.category_values;
+}
+
+function usage(pairs) {
+	const counts = new Map();
+	for (const pair of pairs) {
+		const key = JSON.stringify(pair);
+		counts.set(key, (counts.get(key) ?? 0) + 1);
+	}
+	return [...counts].map(([key, artwork_count]) => ({ ...JSON.parse(key), artwork_count }));
+}
+
+export const PERIOD_ERA_USAGE = usage(
+	ARTWORKS.flatMap((row) => {
+		const period = firstValue(row, 'period');
+		return period && row.era_code
+			? [{ period_id: valueId('period', period.name), era_code: row.era_code }]
+			: [];
+	})
+);
+
+export const STYLE_PERIOD_USAGE = usage(
+	ARTWORKS.flatMap((row) => {
+		const period = firstValue(row, 'period');
+		const style = firstValue(row, 'style');
+		return period && style
+			? [{ style_id: valueId('style', style.name), period_id: valueId('period', period.name) }]
+			: [];
+	})
+);
+
+export const VALUE_DETAILS = {
+	era_details: [
+		{
+			era_code: 'early_modern',
+			summary:
+				'From the discovery of America to the French Revolution: the Renaissance, the Baroque and the Rococo.',
+			notes: '### What to look for\n\nLinear perspective, chiaroscuro and bodies built on anatomy.'
+		}
+	],
+	author_details: [
+		{ value_id: valueId('author', 'Andy Warhol'), sort_name: 'Warhol, Andy' },
+		{ value_id: valueId('author', 'Gustav Klimt'), sort_name: 'Klimt, Gustav' },
+		{ value_id: valueId('author', 'Vincent van Gogh'), sort_name: 'Gogh, Vincent van' },
+		{
+			value_id: valueId('author', 'Leonardo da Vinci'),
+			summary: 'Painter, sculptor, engineer and student of nature; the master of sfumato.',
+			notes: '**Key works:** Mona Lisa, The Last Supper, Lady with an Ermine.',
+			birth_year: 1452,
+			death_year: 1519,
+			years_approximate: false,
+			sort_name: 'Vinci, Leonardo da',
+			...commonsImage('Portrait_of_Leonardo.jpg')
+		}
+	],
+	location_details: [
+		{
+			value_id: valueId('location', 'Louvre'),
+			summary: 'A former royal palace in Paris, a museum since 1793.',
+			notes: null,
+			country_code: 'FR',
+			place_type: 'museum'
+		}
+	],
+	period_details: [
+		{
+			value_id: valueId('period', 'Renaissance'),
+			summary: 'The revival of antiquity in Italy: harmony, proportion and perspective.',
+			notes:
+				'To check: where does **Mannerism** end and the Baroque begin? Start with [#0009 The Birth of Venus](/atelier/9).'
+		}
+	]
+};
+
+export const PEOPLE = [
+	{
+		item: 'http://www.wikidata.org/entity/Q762',
+		name: 'Leonardo da Vinci',
+		file: 'http://commons.wikimedia.org/wiki/Special:FilePath/Portrait_of_Leonardo.jpg',
+		born: '1452-04-15T00:00:00Z/11',
+		died: '1519-05-02T00:00:00Z/11'
+	},
+	{
+		item: 'http://www.wikidata.org/entity/Q2',
+		name: 'Leonardo da Vinci (self-portrait)',
+		file: 'http://commons.wikimedia.org/wiki/Special:FilePath/Self-portrait_in_red_chalk.jpg',
+		born: '1452-01-01T00:00:00Z/9',
+		died: '1519-01-01T00:00:00Z/9'
+	}
 ];
 
 export const USER = {

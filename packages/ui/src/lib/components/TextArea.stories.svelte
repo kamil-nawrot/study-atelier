@@ -27,4 +27,20 @@
 	args={{ value: 'Too long', error: 'Notes can be at most 2000 characters.' }}
 />
 
+<Story
+	name="With counter"
+	args={{
+		label: 'Summary',
+		counter: true,
+		maxlength: 120,
+		placeholder: 'A short description shown next to the artwork',
+		value: 'The revival of antiquity in Italy: harmony, proportion and perspective.'
+	}}
+/>
+
+<Story
+	name="Counter at the limit"
+	args={{ label: 'Summary', counter: true, maxlength: 24, value: 'Exactly twenty-four char' }}
+/>
+
 <Story name="Disabled" args={{ value: 'Seen in Delft in 2024.', disabled: true }} />

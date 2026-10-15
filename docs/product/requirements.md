@@ -54,6 +54,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | Material | one or more values | |
 | Location | text | Where the artwork is now. |
 | Notes | long text with basic formatting | The learner's own notes. See R-37. |
+| Favourite | yes or no | Set with a heart, not in the form. See R-74. |
 
 ## Category values
 
@@ -72,6 +73,16 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-50 | The learner adds and removes the eras of a period and the periods of a style. Adding a link changes no artwork. Removing an era from a period moves the artworks that have the period with that era to an era the period keeps, or leaves them without an era, after the learner confirms with the number of artworks. A period can be removed from a style only while no artwork has both. | later |
 | R-51 | The learner can delete a value only when no artwork uses it, artworks in the trash included, after confirming. | later |
 | R-52 | Every artwork tile on the wall shows the icon of the artwork's era, small and muted. While the wall is ordered by era, the period rail shows the icon only for the current era. | later |
+| R-63 | Every category value has a page, opened by clicking it in the card index (era names on the timeline included): the kind and the number of artworks, the name, its parent (the era of a period, the periods of a style), the kind's own fields, the summary and the notes, then the artworks that use it as wall tiles. A page without a summary or notes, and a value no artwork uses, say so ([ADR-0049](../decisions/0049-give-every-category-value-a-page-of-its-own.md)). | 0.4 |
+| R-64 | The learner edits a value in a form on its own page with the layout of the artwork form and "Zapisz" in the panel at the bottom: the name (not for an era), the links of R-50, the kind's own fields, a short plain-text summary ("Podsumowanie", at most 300 characters) and Markdown notes ("Notatki"). Renaming, merging and deleting follow R-49 to R-51. Eras, which are not the learner's own values, get a summary and notes too. | 0.4 |
+| R-65 | An author has a portrait, found in Wikimedia Commons by the author's name or the learner's own image, and years of life: a year of birth and a year of death, both optional, each with "p.n.e.", and one "ok." for both ([ADR-0050](../decisions/0050-store-value-pages-in-details-tables.md)). | 0.4 |
+| R-66 | An author can be given a sort name ("Sortuj jako") after ticking a checkbox; authors are put in A to Z order by it, or by their name when it is not set. | 0.4 |
+| R-67 | A location has a country chosen from a fixed list and a type: museum, private collection or on site. Both are optional. | 0.4 |
+| R-68 | In the artwork view a value with a summary shows a card with its kind, parent, name and summary (for an author also the years of life) when the pointer rests on it or it gets focus, and on a phone after a tap. The card has no link; a value without a summary shows nothing. | 0.4 |
+| R-69 | Merging two values keeps only the remaining value's summary, fields and notes; the merged value's page content is deleted, and the merge confirmation says so when there is any. Deleting a value deletes its page content. | 0.4 |
+| R-70 | In the notes of an artwork or a value, typing `@` (or the `@` toolbar button) and then at least two characters lists the learner's values of every kind, and typing `#` (or the `#` button) and then at least two characters lists their artworks by record number or title; picking one inserts a link that shows the current name and opens the value page or the artwork ([ADR-0053](../decisions/0053-link-values-and-artworks-from-notes.md)). Summaries have no links. | 0.4 |
+| R-71 | A link in a note survives renaming the value, and merging two values turns links to the merged value into links to the remaining one. A link to a deleted value, to an artwork deleted for good or to an artwork in the trash shows as plain text, and comes back when the artwork is restored. | 0.4 |
+| R-72 | A value page and the artwork view list the notes that link to them ("Wspominasz o tym w notatkach"); the list is left out when nothing links there. | 0.4 |
 
 ## Images
 
@@ -79,7 +90,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | --- | --- | --- |
 | R-10 | Each artwork has at most one image in the MVP. | MVP |
 | R-11 | The image search is started from the image field: its "Find image" button becomes available once the title and the author (or "author unknown") are filled in. Only then does the app search the [image source](glossary.md) and show a short list of candidate artworks, each with a thumbnail, title, author and date. Nothing is searched while the learner is typing. | MVP |
-| R-12 | The learner picks the matching candidate, or "none of these". Picking a candidate links the artwork to that item in the image source and uses its image. A candidate without a free image stays in the list, says so, and cannot be picked. | MVP |
+| R-12 | The learner picks the matching candidate, or "none of these". Picking a candidate links the artwork to that item in the image source and uses its image. Only candidates that have an image are listed ([ADR-0055](../decisions/0055-list-only-image-candidates-that-have-an-image.md)). | MVP |
 | R-13 | After a candidate is picked, the app shows the title and author from the image source next to the learner's own values for comparison, without changing them. | later |
 | R-14 | When no candidate matches or the source has no free image, the artwork shows an empty image placeholder with an easy way to add the learner's own image. | MVP |
 | R-15 | The learner can replace the image at any time with their own image ([image override](glossary.md)), uploaded as a file or given as a URL. | MVP |
@@ -108,6 +119,8 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-60 | ~~In the artwork view the era, period, styles, materials, location and authors are links to the wall filtered by that value, and in the card index every value has "Pokaż dzieła (n)" that does the same.~~ Dropped: the wall is filtered from the panel, and the card index is kept for later detail pages of its values ([ADR-0047](../decisions/0047-no-links-from-values-into-a-filtered-wall.md)). | 0.3 |
 | R-61 | In the artwork view the learner goes to the previous and next artwork of the filtered and ordered wall with subtle arrows at the edges of the stage, the arrow keys on a larger screen and a horizontal swipe on a phone; the arrow is dimmed at either end of the list. | 0.3 |
 | R-62 | The date of creation is either a single year or a [year span](glossary.md) with a start and an end year. A switch "Od – do" above the date inputs sets the mode; each year has its own "p.n.e.", so a year span can cross the turn of the eras, and "ok." marks the whole date as approximate. A start later than the end is rejected, and equal years are saved as a single year. A year span is written `1503–1519`, `450–420 p.n.e.` or `50 p.n.e. – 20 n.e.`, the wall orders it by its end year and the era bounds on the period rail take its whole extent ([ADR-0046](../decisions/0046-enter-the-date-of-creation-as-a-year-span.md)). | 0.3 |
+| R-74 | The learner marks an artwork as a favourite with a heart: on its tile on the wall, at the right end of the caption, and in the top bar of the artwork view, before "Edytuj". The heart is an outline when the artwork is not a favourite and filled when it is; each change shows a toast, and a failed save puts the heart back and says so ([ADR-0058](../decisions/0058-mark-artworks-as-favourites-with-a-heart.md)). | 0.4 |
+| R-75 | The "Filtry" panel starts with an "Ulubione" tag with the number of favourites; pressed, the wall shows only favourites, together with the other filters, and the tag is kept in the URL and shown among the active filters. The favourite marker is stored with the artwork, is not part of the form and stays through the trash and a restore. | 0.4 |
 
 ## Account
 
@@ -125,6 +138,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-20 | The app has a responsive layout that works well on a phone as well as on a larger screen. | MVP |
 | R-21 | The interface is in Polish. Texts are kept in a simple i18n setup so that more languages can be added later. | MVP |
 | R-22 | Each learner sees and changes only their own atelier. | MVP |
+| R-73 | The app is dark by default. The learner switches to the light theme and back from the menu, between the trash and signing out; the choice is remembered on the device. In the light theme the passe-partout of the wall is a card lighter than the wall, and the stage behind a featured artwork stays dark ([ADR-0054](../decisions/0054-switch-to-the-light-theme-from-the-menu.md)). | 0.4 |
 
 ## Not in the MVP
 

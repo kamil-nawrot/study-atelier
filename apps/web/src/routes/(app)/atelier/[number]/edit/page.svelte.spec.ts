@@ -34,6 +34,7 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 	return {
 		id: 'artwork-7',
 		number: 7,
+		favourite: false,
 		title: 'The Milkmaid',
 		authors: ['Johannes Vermeer'],
 		authorUnknown: false,
@@ -60,6 +61,7 @@ function renderPage(result: LoadArtworkResult = { artwork: artwork() }, number =
 			session: testSession(),
 			values: emptyCategoryValues(),
 			links: emptyValueLinks(),
+			noteLinks: undefined,
 			...result
 		},
 		params: { number }
@@ -223,6 +225,7 @@ describe('edit artwork page', () => {
 		await vi.waitFor(() =>
 			expect(goto).toHaveBeenCalledWith('/atelier/7', {
 				replace: true,
+				refreshAll: true,
 				state: { saved: 7 }
 			})
 		);

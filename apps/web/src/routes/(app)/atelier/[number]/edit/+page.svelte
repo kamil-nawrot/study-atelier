@@ -37,7 +37,7 @@
 	}
 
 	async function showSaved(saved: number): Promise<void> {
-		await goto(artworkPath, { replace: true, state: { saved } });
+		await goto(artworkPath, { replace: true, refreshAll: true, state: { saved } });
 	}
 </script>
 
@@ -62,6 +62,7 @@
 				artwork={data.artwork}
 				cancelHref={artworkPath}
 				categoryValues={data.values}
+				noteLinks={data.noteLinks}
 				oncancel={goBack}
 				onsaved={showSaved}
 				valueLinks={data.links}

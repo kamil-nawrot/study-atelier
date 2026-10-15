@@ -15,4 +15,6 @@
 
 <Story name="With a query" args={{ value: 'Venus' }} />
 
+<Story name="Compact" args={{ compact: true }} />
+
 <Story name="Disabled" args={{ disabled: true }} />

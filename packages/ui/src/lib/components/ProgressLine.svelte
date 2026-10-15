@@ -17,10 +17,7 @@
 		bottom: calc(var(--border-width-hairline) * -1);
 		height: var(--border-width-base);
 		background: linear-gradient(90deg, transparent, var(--color-fg), transparent) no-repeat;
-		background-size: 40% 100%;
-		animation:
-			appear 0s var(--duration-loading-delay) both,
-			travel 1.4s ease-in-out var(--duration-loading-delay) infinite;
+		animation: appear 0s var(--duration-loading-delay) both;
 	}
 
 	@keyframes appear {
@@ -43,10 +40,12 @@
 		}
 	}
 
-	@media (prefers-reduced-motion: reduce) {
+	@media (prefers-reduced-motion: no-preference) {
 		.progress {
-			background-size: 100% 100%;
-			animation: appear 0s var(--duration-loading-delay) both;
+			background-size: 40% 100%;
+			animation:
+				appear 0s var(--duration-loading-delay) both,
+				travel 1.4s ease-in-out var(--duration-loading-delay) infinite;
 		}
 	}
 </style>

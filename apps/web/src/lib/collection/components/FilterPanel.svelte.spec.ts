@@ -56,6 +56,35 @@ describe('FilterPanel', () => {
 			await expect.element(page.getByText(title, { exact: true }).first()).toBeVisible();
 	});
 
+	it('searches the values of every field that lists values', async () => {
+		renderPanel();
+
+		for (const field of [
+			m.atelier.filters.fields.types,
+			m.atelier.filters.fields.authors,
+			m.atelier.filters.fields.periods,
+			m.atelier.filters.fields.styles,
+			m.atelier.filters.fields.materials,
+			m.atelier.filters.fields.locations
+		])
+			await expect
+				.element(page.getByRole('searchbox', { name: m.atelier.filters.searchValues(field) }))
+				.toBeVisible();
+	});
+
+	it('narrows the values of a field by the search', async () => {
+		renderPanel();
+
+		await userEvent.fill(
+			page.getByRole('searchbox', {
+				name: m.atelier.filters.searchValues(m.atelier.filters.fields.materials)
+			}),
+			'zzz'
+		);
+
+		await expect.element(page.getByText('Oil')).not.toBeInTheDocument();
+	});
+
 	it('counts the artworks of each era and shows eras without artworks as empty', async () => {
 		renderPanel();
 
@@ -153,5 +182,22 @@ describe('FilterPanel', () => {
 			.click();
 
 		expect(state.current.missing).toEqual(['image']);
+	});
+
+	it('starts with the favourites tag and counts the favourites', async () => {
+		render(FilterPanelHost, {
+			artworks: [...artworks, testArtwork(3, 'The Kiss', { favourite: true })],
+			initial: emptyFilter(),
+			report: (next: CollectionFilter) => (state.current = next)
+		});
+
+		const tag = page.getByRole('button', {
+			name: new RegExp(`^${m.atelier.filters.fields.favourites}.* 1$`)
+		});
+		await expect.element(tag).toHaveAttribute('aria-pressed', 'false');
+		await tag.click();
+
+		expect(state.current.favourites).toBe(true);
+		await expect.element(tag).toHaveAttribute('aria-pressed', 'true');
 	});
 });

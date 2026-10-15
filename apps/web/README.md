@@ -4,15 +4,16 @@ The study-atelier web app, built with SvelteKit (Svelte 5, TypeScript) and deplo
 
 Run commands from the repository root with pnpm, or from this folder:
 
-| Command       | What it does                                                           |
-| ------------- | ---------------------------------------------------------------------- |
-| `pnpm dev`    | Start the development server                                           |
-| `pnpm check`  | Type check (svelte-check) and verify generated Cloudflare types        |
-| `pnpm lint`   | Prettier check and ESLint                                              |
-| `pnpm format` | Format all files with Prettier                                         |
-| `pnpm test`   | Run unit and component tests once (Vitest)                             |
-| `pnpm build`  | Production build for Cloudflare Pages                                  |
-| `pnpm gen`    | Regenerate `worker-configuration.d.ts` after changing `wrangler.jsonc` |
+| Command              | What it does                                                           |
+| -------------------- | ---------------------------------------------------------------------- |
+| `pnpm dev`           | Start the development server                                           |
+| `pnpm check`         | Type check (svelte-check) and verify generated Cloudflare types        |
+| `pnpm lint`          | Prettier check and ESLint                                              |
+| `pnpm format`        | Format all files with Prettier                                         |
+| `pnpm test`          | Run unit and component tests once (Vitest)                             |
+| `pnpm test:coverage` | Run the tests once and measure coverage into `coverage/`               |
+| `pnpm build`         | Production build for Cloudflare Pages                                  |
+| `pnpm gen`           | Regenerate `worker-configuration.d.ts` after changing `wrangler.jsonc` |
 
 ## Environment variables
 
@@ -79,6 +80,8 @@ The tests also need `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` to be set, or 
 ```sh
 SUPABASE_URL=https://test.supabase.co SUPABASE_PUBLISHABLE_KEY=test-key pnpm test
 ```
+
+`pnpm test:coverage` runs the same tests and measures coverage of `src/` with V8: a summary in the terminal and a browsable report in `coverage/index.html`. CI shows the summary in the job summary of the Web app job; there is no minimum yet.
 
 The project was scaffolded with:
 

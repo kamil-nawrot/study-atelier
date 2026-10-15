@@ -1,12 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
+import { removeOwnImage } from '#lib/images/own-image.ts';
 import { supabase } from '#lib/supabase.ts';
-import { deleteValue, loadCardIndex, saveValue } from './card-index-data.ts';
+import { deleteValue, loadCardIndex, loadValuePageContent, saveValue } from './card-index-data.ts';
 import type { CardIndexRecord } from './types.ts';
 
 vi.mock('#lib/supabase.ts', () => ({ supabase: { rpc: vi.fn(), from: vi.fn() } }));
+vi.mock('#lib/images/own-image.ts', () => ({ removeOwnImage: vi.fn() }));
 
 const rpc = vi.mocked(supabase.rpc);
+
+function sortNames(rows: unknown[] = [], error: unknown = null): void {
+	const query = {
+		select: vi.fn(),
+		not: vi.fn(),
+		range: vi.fn().mockResolvedValue({ data: rows, error })
+	};
+	query.select.mockReturnValue(query);
+	query.not.mockReturnValue(query);
+	vi.mocked(supabase.from).mockReturnValue(query as never);
+}
 
 function rpcResult(rows: unknown[], error: unknown = null): never {
 	return { range: vi.fn().mockResolvedValue({ data: rows, error }) } as never;
@@ -18,10 +31,56 @@ function rpcCall(error: unknown = null): never {
 
 const period: CardIndexRecord = { id: 'p1', category: 'period', name: 'Classical', count: 2 };
 const style: CardIndexRecord = { id: 's1', category: 'style', name: 'Doric', count: 1 };
+const author: CardIndexRecord = { id: 'a1', category: 'author', name: 'Leonardo', count: 1 };
+const keptAuthor: CardIndexRecord = {
+	id: 'a2',
+	category: 'author',
+	name: 'Leonardo da Vinci',
+	count: 2
+};
+
+function pageContent(row: { has_content: boolean; own_image_path: string | null }): never {
+	return Promise.resolve({ data: [row], error: null }) as never;
+}
+
+function authorCalls(portrait: string | null, actionError: unknown = null): void {
+	rpc.mockImplementation(((name: string) =>
+		name === 'value_page_content'
+			? pageContent({ has_content: portrait !== null, own_image_path: portrait })
+			: rpcCall(actionError)) as never);
+}
 
 describe('loadCardIndex', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		sortNames();
+	});
+
+	it('gives authors their sort names', async () => {
+		sortNames([{ value_id: 'a1', sort_name: 'Vinci, Leonardo da' }]);
+		rpc.mockImplementation(((name: string) =>
+			rpcResult(
+				name === 'value_usage'
+					? [
+							{ id: 'a1', category_code: 'author', name: 'Leonardo da Vinci', artwork_count: 1 },
+							{ id: 'a2', category_code: 'author', name: 'Andy Warhol', artwork_count: 1 }
+						]
+					: []
+			)) as never);
+
+		const { index } = await loadCardIndex();
+
+		expect(index.values).toEqual([
+			{
+				id: 'a1',
+				category: 'author',
+				name: 'Leonardo da Vinci',
+				count: 1,
+				sortName: 'Vinci, Leonardo da'
+			},
+			{ id: 'a2', category: 'author', name: 'Andy Warhol', count: 1 }
+		]);
+		expect(supabase.from).toHaveBeenCalledWith('author_details');
 	});
 
 	it('maps the usage rows to the card index', async () => {
@@ -176,13 +235,87 @@ describe('deleteValue', () => {
 	it('deletes an unused value', async () => {
 		rpc.mockReturnValue(rpcCall());
 
-		await expect(deleteValue('s1')).resolves.toEqual({});
+		await expect(deleteValue(style)).resolves.toEqual({});
 		expect(rpc).toHaveBeenCalledWith('delete_unused_value', { target_value: 's1' });
+		expect(rpc).not.toHaveBeenCalledWith('value_page_content', expect.anything());
 	});
 
 	it('explains that a value is still used', async () => {
 		rpc.mockReturnValue(rpcCall({ code: '23001' }));
 
-		await expect(deleteValue('s1')).resolves.toEqual({ error: m.cardIndex.errors.changed });
+		await expect(deleteValue(style)).resolves.toEqual({ error: m.cardIndex.errors.changed });
+	});
+
+	it('removes the uploaded portrait of a deleted author', async () => {
+		authorCalls('owner/portrait.jpg');
+
+		await expect(deleteValue(author)).resolves.toEqual({});
+		expect(removeOwnImage).toHaveBeenCalledWith('owner/portrait.jpg');
+	});
+
+	it('keeps the portrait when deleting the author fails', async () => {
+		authorCalls('owner/portrait.jpg', { code: '23001' });
+
+		await expect(deleteValue(author)).resolves.toEqual({ error: m.cardIndex.errors.changed });
+		expect(removeOwnImage).not.toHaveBeenCalled();
+	});
+
+	it('removes nothing from storage for an author without an uploaded portrait', async () => {
+		authorCalls(null);
+
+		await deleteValue(author);
+		expect(removeOwnImage).not.toHaveBeenCalled();
+	});
+});
+
+describe('merging authors', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it('removes the uploaded portrait of the merged author', async () => {
+		authorCalls('owner/portrait.jpg');
+
+		await expect(
+			saveValue({ record: author, name: keptAuthor.name, mergeInto: keptAuthor })
+		).resolves.toEqual({});
+		expect(rpc).toHaveBeenCalledWith('value_page_content', { target_value: 'a1' });
+		expect(rpc).toHaveBeenCalledWith('merge_category_values', { merged_id: 'a1', kept_id: 'a2' });
+		expect(removeOwnImage).toHaveBeenCalledWith('owner/portrait.jpg');
+	});
+
+	it('does not merge when the page content cannot be read', async () => {
+		rpc.mockReturnValue(Promise.resolve({ data: null, error: { code: 'XX000' } }) as never);
+
+		const result = await saveValue({
+			record: author,
+			name: keptAuthor.name,
+			mergeInto: keptAuthor
+		});
+
+		expect(result.error).toBeDefined();
+		expect(rpc).not.toHaveBeenCalledWith('merge_category_values', expect.anything());
+	});
+});
+
+describe('loadValuePageContent', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it('says whether the value has page content and where its uploaded portrait is', async () => {
+		rpc.mockReturnValue(pageContent({ has_content: true, own_image_path: 'owner/portrait.jpg' }));
+
+		await expect(loadValuePageContent('a1')).resolves.toEqual({
+			content: { hasContent: true, ownImagePath: 'owner/portrait.jpg' }
+		});
+	});
+
+	it('reports a value without page content', async () => {
+		rpc.mockReturnValue(pageContent({ has_content: false, own_image_path: null }));
+
+		await expect(loadValuePageContent('p1')).resolves.toEqual({
+			content: { hasContent: false, ownImagePath: undefined }
+		});
 	});
 });

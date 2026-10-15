@@ -95,8 +95,7 @@ export function artworkImageAlt(form: ArtworkFormState): string {
 	return [form.title.trim(), ...authors].filter((part) => part !== '').join(', ');
 }
 
-export function imageFromCandidate(candidate: ImageCandidate): ArtworkImageInput | null {
-	if (!candidate.image) return null;
+export function imageFromCandidate(candidate: ImageCandidate): ArtworkImageInput {
 	return {
 		kind: 'commons',
 		wikidataId: candidate.wikidataId,

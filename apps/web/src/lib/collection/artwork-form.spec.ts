@@ -81,6 +81,7 @@ describe('artworkFormFromRecord', () => {
 	const record: ArtworkRecord = {
 		id: 'artwork-1',
 		number: 7,
+		favourite: false,
 		title: 'The Thinker',
 		authors: ['Auguste Rodin'],
 		authorUnknown: false,
@@ -241,18 +242,13 @@ describe('imageFromCandidate', () => {
 			height: 2250
 		});
 	});
-
-	it('stores nothing for a candidate without an image', () => {
-		expect(
-			imageFromCandidate({ wikidataId: 'Q1', title: 'Lost', authors: [], image: null })
-		).toBeNull();
-	});
 });
 
 describe('year span in the form', () => {
 	const record: ArtworkRecord = {
 		id: 'artwork-1',
 		number: 7,
+		favourite: false,
 		title: 'The Test Painting',
 		authors: [],
 		authorUnknown: true,

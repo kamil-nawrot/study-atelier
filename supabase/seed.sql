@@ -167,5 +167,53 @@ begin
       on style.owner_id = tester and style.category_code = 'style' and style.name = link.style_name
     join public.category_values as period
       on period.owner_id = tester and period.category_code = 'period' and period.name = link.period_name;
+
+  insert into public.era_details (owner_id, era_code, summary, notes)
+  values (
+    tester, 'early_modern',
+    'Od odkrycia Ameryki do rewolucji francuskiej: renesans, barok i rokoko.',
+    E'### Co rozpoznać\n\nPerspektywa linearna, światłocień, ciało ludzkie zbudowane na anatomii.'
+  );
+
+  insert into public.period_details (value_id, owner_id, summary, notes)
+  select value.id, tester,
+    'Odrodzenie antyku we Włoszech XV–XVI wieku: harmonia, proporcja, perspektywa.',
+    E'Do sprawdzenia: gdzie kończy się **manieryzm**, a zaczyna barok?'
+    from public.category_values as value
+    where value.owner_id = tester and value.category_code = 'period' and value.name = 'renesans';
+
+  insert into public.style_details (value_id, owner_id, summary)
+  select value.id, tester, 'Szczyt renesansu we Florencji i Rzymie, około 1490–1527.'
+    from public.category_values as value
+    where value.owner_id = tester and value.category_code = 'style' and value.name = 'wysoki renesans';
+
+  insert into public.material_details (value_id, owner_id, summary)
+  select value.id, tester, 'Farba olejna na lnianym płótnie, od XVI wieku główne podobrazie malarstwa sztalugowego.'
+    from public.category_values as value
+    where value.owner_id = tester and value.category_code = 'material' and value.name = 'olej na płótnie';
+
+  insert into public.author_details (
+    value_id, owner_id, summary, notes, birth_year, death_year, sort_name,
+    source_wikidata_id, source_image_file, source_image_licence
+  )
+  select value.id, tester,
+    'Malarz, rzeźbiarz, inżynier i badacz natury; mistrz sfumato.',
+    E'**Najważniejsze dzieła:** Mona Lisa, Ostatnia Wieczerza, Dama z gronostajem.',
+    1452, 1519, 'Vinci, Leonardo da',
+    'Q762', 'Francesco Melzi - Portrait of Leonardo.png', 'Public domain'
+    from public.category_values as value
+    where value.owner_id = tester and value.category_code = 'author' and value.name = 'Leonardo da Vinci';
+
+  insert into public.author_details (value_id, owner_id, birth_year)
+  select value.id, tester, 1760
+    from public.category_values as value
+    where value.owner_id = tester and value.category_code = 'author' and value.name = 'Katsushika Hokusai';
+
+  insert into public.location_details (value_id, owner_id, summary, country_code, place_type)
+  select value.id, tester,
+    'Dawny pałac królewski w Paryżu, muzeum od 1793 roku.',
+    'FR', 'museum'
+    from public.category_values as value
+    where value.owner_id = tester and value.category_code = 'location' and value.name = 'Luwr, Paryż';
 end;
 $$;

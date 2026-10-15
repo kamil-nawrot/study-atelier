@@ -1,46 +1,42 @@
 <script lang="ts">
 	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
+	import { onMount } from 'svelte';
 	import { Alert, Icon, Tabs, Toast } from '@study-atelier/ui';
+	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { loadCardIndex } from '#lib/collection/card-index-data.ts';
-	import { buildTimeline, findRecord, valuesOf } from '#lib/collection/card-index.ts';
+	import { page } from '$app/state';
+	import {
+		CARD_INDEX_TABS,
+		rememberCardIndexTab,
+		rememberedCardIndexTab
+	} from '#lib/collection/card-index-tab.ts';
+	import { buildTimeline, valuesOf } from '#lib/collection/card-index.ts';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import CardIndexList from '#lib/collection/components/CardIndexList.svelte';
 	import CardIndexTimeline from '#lib/collection/components/CardIndexTimeline.svelte';
-	import ValueDialog from '#lib/collection/components/ValueDialog.svelte';
-	import type { CardIndexData } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
-	const tabs = (['timeline', 'material', 'author', 'location'] as const).map((value) => ({
-		value,
-		label: m.cardIndex.tabs[value]
-	}));
+	const cardIndexPath = resolve('/(app)/atelier/values');
+	const tabs = CARD_INDEX_TABS.map((value) => ({ value, label: m.cardIndex.tabs[value] }));
 
 	let toast: Toast;
-	let tab = $state<string>('timeline');
-	let refreshed = $state<CardIndexData>();
-	let refreshError = $state<string>();
-	let selectedId = $state<string>();
+	let tab = $state<string>(rememberedCardIndexTab());
 
-	let index = $derived(refreshed ?? data.index);
-	let error = $derived(refreshError ?? data.error);
-	let selected = $derived(selectedId ? findRecord(index, selectedId) : undefined);
-	let timeline = $derived(buildTimeline(index));
+	let timeline = $derived(buildTimeline(data.index));
 
-	async function changed(message: string): Promise<void> {
-		selectedId = undefined;
-		const result = await loadCardIndex();
-		if (result.error) {
-			refreshError = result.error;
-			return;
-		}
-		refreshError = undefined;
-		refreshed = result.index;
+	$effect(() => {
+		rememberCardIndexTab(tab);
+	});
+
+	onMount(() => {
+		const message = page.state.valueMessage;
+		if (message === undefined) return;
 		toast.show(message);
-	}
+		void goto(cardIndexPath, { state: {}, shallow: true, replace: true });
+	});
 </script>
 
 <AtelierLayout email={data.session.user.email ?? ''} title={m.cardIndex.title}>
@@ -56,35 +52,20 @@
 		<p class="lead">{m.cardIndex.lead}</p>
 	</header>
 
-	{#if error}
+	{#if data.error}
 		<Alert title={m.cardIndex.loadErrorTitle} tone="danger">
-			{error}
+			{data.error}
 		</Alert>
 	{:else}
 		<Tabs label={m.cardIndex.tabsLabel} {tabs} bind:value={tab}>
 			{#if tab === 'timeline'}
-				<CardIndexTimeline onopen={(id) => (selectedId = id)} {timeline} />
+				<CardIndexTimeline {timeline} />
 			{:else if tab === 'material' || tab === 'author' || tab === 'location'}
-				<CardIndexList
-					empty={m.cardIndex.emptyList[tab]}
-					onopen={(id) => (selectedId = id)}
-					records={valuesOf(index, tab)}
-				/>
+				<CardIndexList empty={m.cardIndex.emptyList[tab]} records={valuesOf(data.index, tab)} />
 			{/if}
 		</Tabs>
 	{/if}
 </AtelierLayout>
-
-{#if selected}
-	{#key selected.id}
-		<ValueDialog
-			{index}
-			onchanged={changed}
-			onclose={() => (selectedId = undefined)}
-			record={selected}
-		/>
-	{/key}
-{/if}
 
 <Toast bind:this={toast} />
 

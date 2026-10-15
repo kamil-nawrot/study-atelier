@@ -3,7 +3,7 @@
 	import Plus from '@lucide/svelte/icons/plus';
 	import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
 	import X from '@lucide/svelte/icons/x';
-	import { onDestroy, onMount, untrack } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { MediaQuery, SvelteSet } from 'svelte/reactivity';
 	import {
 		Alert,
@@ -20,7 +20,6 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
-	import { refreshExpiredImages, resolveImages } from '#lib/collection/artworks.ts';
 	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import FilterPanel from '#lib/collection/components/FilterPanel.svelte';
@@ -32,11 +31,12 @@
 		filterTags,
 		filterToParams,
 		isEmptyFilter,
+		onlyFavourites,
 		pruneFilter,
 		removeTag
 	} from '#lib/collection/filter.ts';
+	import { favouriteToast, setFavourite } from '#lib/collection/favourite.ts';
 	import { formatRecordNumber } from '#lib/collection/format.ts';
-	import { ImageQueue } from '#lib/collection/image-queue.ts';
 	import { WALL_PART } from '#lib/collection/masonry.ts';
 	import PeriodRail from '#lib/collection/components/PeriodRail.svelte';
 	import PeriodStrip from '#lib/collection/components/PeriodStrip.svelte';
@@ -49,6 +49,7 @@
 		rememberedWallOrder,
 		rememberWallOrder
 	} from '#lib/collection/wall-order.ts';
+	import { WallImages } from '#lib/collection/wall-images.svelte.ts';
 	import { rememberWallSequence } from '#lib/collection/wall-sequence.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps, Snapshot } from './$types';
@@ -93,7 +94,6 @@
 	const addPath = resolve('/(app)/atelier/new');
 	const atelierPath = resolve('/(app)/atelier');
 	const HIGHLIGHT_MS = 2000;
-	const REFRESH_DELAY_MS = 100;
 
 	let highlight = $state(page.state.highlight);
 	let toast: Toast;
@@ -114,13 +114,20 @@
 		return () => clearTimeout(timer);
 	});
 
-	let updated = $state<Record<string, WallArtwork>>({});
-	let failedImages: WallArtwork[] = [];
-	let refreshTimer: ReturnType<typeof setTimeout> | undefined;
+	const images = new WallImages();
 
-	const imageQueue = new ImageQueue(resolveImages, (resolved) => {
-		for (const artwork of resolved) updated[artwork.id] = artwork;
-	});
+	async function toggleFavourite(artwork: WallArtwork): Promise<void> {
+		const next = !artwork.favourite;
+		favouriteError = undefined;
+		favourites[artwork.id] = next;
+		const { error } = await setFavourite(artwork.id, next);
+		if (error) {
+			favourites[artwork.id] = !next;
+			favouriteError = error;
+			return;
+		}
+		toast.show(favouriteToast(next));
+	}
 
 	$effect.pre(() => {
 		const pruned = pruneFilter(
@@ -133,28 +140,24 @@
 
 	$effect.pre(() => {
 		void data.artworks;
-		updated = {};
-		imageQueue.reset();
+		images.reset();
 	});
 
-	onDestroy(() => {
-		clearTimeout(refreshTimer);
-		imageQueue.reset();
+	let favourites = $state<Record<string, boolean>>({});
+	let favouriteError = $state<string>();
+
+	$effect.pre(() => {
+		void data.artworks;
+		favourites = {};
 	});
 
-	function imageFailed(artwork: WallArtwork): void {
-		failedImages.push(artwork);
-		clearTimeout(refreshTimer);
-		refreshTimer = setTimeout(refreshImages, REFRESH_DELAY_MS);
-	}
-
-	async function refreshImages(): Promise<void> {
-		const batch = failedImages;
-		failedImages = [];
-		for (const artwork of await refreshExpiredImages(batch)) updated[artwork.id] = artwork;
-	}
-
-	let artworks = $derived(data.artworks.map((artwork) => updated[artwork.id] ?? artwork));
+	let artworks = $derived(
+		images
+			.apply(data.artworks)
+			.map((artwork) =>
+				artwork.id in favourites ? { ...artwork, favourite: favourites[artwork.id] } : artwork
+			)
+	);
 	let imagesUnavailable = $derived(artworks.some((artwork) => artwork.imageUnavailable));
 	let filtered = $derived(applyFilter(artworks, filter));
 	let tags = $derived(filterTags(filter));
@@ -170,7 +173,7 @@
 	);
 	let total = $derived(artworks.length);
 	let searching = $derived(query.trim() !== '');
-	let showPeriods = $derived(groups.length > 0);
+	let showPeriods = $derived(groups.length > 1);
 	let panelShown = $derived(wide.current && panelOpen);
 
 	$effect(() => {
@@ -332,7 +335,9 @@
 		<div class="state">
 			<Section>
 				<h2>{m.atelier.filters.noResultsTitle}</h2>
-				<p class="lead">{m.atelier.filters.noResults}</p>
+				<p class="lead">
+					{onlyFavourites(filter) ? m.atelier.filters.noFavourites : m.atelier.filters.noResults}
+				</p>
 				<div>
 					<Button onclick={() => (filter = emptyFilter())}>
 						{m.atelier.filters.clear}
@@ -370,6 +375,11 @@
 			onremove={(tag) => (filter = removeTag(filter, tag))}
 			{tags}
 		/>
+		{#if favouriteError}
+			<Alert tone="danger">
+				{favouriteError}
+			</Alert>
+		{/if}
 		{#if imagesUnavailable}
 			<Alert title={m.atelier.imagesUnavailableTitle} tone="warning">
 				{m.atelier.imagesUnavailable}
@@ -381,8 +391,9 @@
 		<ArtworkWall
 			artworks={shown}
 			{highlight}
-			onimagefailed={imageFailed}
-			onnearscreen={(artwork) => imageQueue.request(artwork)}
+			onfavourite={toggleFavourite}
+			onimagefailed={(artwork) => images.failed(artwork)}
+			onnearscreen={(artwork) => images.request(artwork)}
 			{periodIndexes}
 			bind:element={wall}
 			bind:rendered

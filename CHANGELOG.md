@@ -2,6 +2,43 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] - 2026-10-15
+
+The card index becomes the learner's own knowledge: every era, period, style, material, author and location has a page of its own with a summary and notes, notes can link to values and artworks, and artworks can be marked as favourites.
+
+### Added
+
+- A page for every category value in the card index with a summary, notes and the wall of its artworks; each value is edited in a form page.
+- Authors have a portrait (found through Wikidata or uploaded), years of life and a sort name; locations have a country and a type of place.
+- The artwork view shows a card with the summary of a value from its badge.
+- Links in notes: `@` links a value and `#` links an artwork, with a suggestion list and toolbar buttons; links keep the current name and fall back to plain text when the target is gone.
+- A "Wspominasz o tym w notatkach" section on value pages and in the artwork view lists the notes that mention them.
+- Favourite artworks: a heart on every tile and in the artwork view, and a "Favourites" filter.
+- A light theme next to the dark one, switched from the side menu.
+- Search fields for every value group in the filter panel.
+
+### Changed
+
+- Authors are ordered by their sort name (surname first).
+- The image search lists only candidates that have an image.
+- The left bar aligns with the page header and content in every view.
+- The period rail is hidden when only one value remains.
+- Merging two category values rewrites note links to the merged value so they point to the kept one.
+
+### Fixed
+
+- A value page shows fresh data after saving or deleting instead of stale content.
+
+### Infrastructure
+
+- Test coverage is measured in CI and shown in the job summary.
+- Stylelint enforces that transitions and animations sit inside the reduced-motion media query.
+- Restored the ADR numbering (two ADRs numbered 0047) and recorded what the value page sessions taught in the guidelines.
+
+### Migration note
+
+Four migrations run on production with this release, all additive: `value_details` creates the details tables, the value page function and their policies; `save_value_details` adds the functions that save them; `merge_rewrites_note_links` replaces `merge_category_values` so note links follow a merge; `artwork_favourite` adds `artworks.favourite` (default `false`). No existing data is changed.
+
 ## [0.3.1] - 2026-10-15
 
 Polish after 0.3: the filter panel animates, a failed save is visible, and the artwork view and wall images behave on every screen.

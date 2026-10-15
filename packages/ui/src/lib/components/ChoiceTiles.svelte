@@ -109,7 +109,7 @@
 		justify-items: center;
 		align-content: start;
 		gap: var(--spacing-1);
-		padding: var(--spacing-3) 0;
+		padding: var(--spacing-3) var(--spacing-2);
 		background: var(--color-bg);
 		color: var(--color-fg);
 		text-align: center;
@@ -147,7 +147,7 @@
 	.label {
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
-		white-space: nowrap;
+		text-wrap: balance;
 	}
 
 	.note {

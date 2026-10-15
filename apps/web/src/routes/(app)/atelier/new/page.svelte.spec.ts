@@ -48,7 +48,7 @@ let screen: ReturnType<typeof render>;
 
 function renderPage(links: ValueLinks = emptyValueLinks()): void {
 	screen = render(AddArtworkPage, {
-		data: { session: testSession(), values: emptyCategoryValues(), links },
+		data: { session: testSession(), values: emptyCategoryValues(), links, noteLinks: undefined },
 		params: {}
 	});
 }
@@ -497,7 +497,7 @@ describe('add artwork page', () => {
 		await saveButton().click();
 
 		await vi.waitFor(() =>
-			expect(goto).toHaveBeenCalledWith('/atelier', { state: { highlight: 12 } })
+			expect(goto).toHaveBeenCalledWith('/atelier', { refreshAll: true, state: { highlight: 12 } })
 		);
 		expect(supabase.rpc).toHaveBeenCalledWith('save_artwork', {
 			artwork: expect.objectContaining({
@@ -577,7 +577,7 @@ describe('add artwork page', () => {
 		await page.getByRole('button', { name: m.duplicateDialog.save.confirm }).click();
 
 		await vi.waitFor(() =>
-			expect(goto).toHaveBeenCalledWith('/atelier', { state: { highlight: 12 } })
+			expect(goto).toHaveBeenCalledWith('/atelier', { refreshAll: true, state: { highlight: 12 } })
 		);
 		expect(supabase.rpc).toHaveBeenCalledTimes(1);
 	});
@@ -1076,7 +1076,7 @@ describe('image search on the add artwork page', () => {
 		vi.unstubAllGlobals();
 	});
 
-	it('lists the candidates and says which one has no free image', async () => {
+	it('lists only the candidates that have an image', async () => {
 		answerSearch();
 		await openSearch();
 
@@ -1086,7 +1086,7 @@ describe('image search on the add artwork page', () => {
 		await expect
 			.element(searchDialog().getByRole('button', { name: /The Milkmaid/ }))
 			.toHaveAccessibleName('The Milkmaid Johannes Vermeer 1658');
-		await expect.element(searchDialog().getByText(m.imageSearch.noImage)).toBeVisible();
+		expect(searchDialog().getByRole('listitem').elements()).toHaveLength(1);
 		const sparql = new URL(String(fetchMock.mock.calls[0][0]));
 		expect(sparql.searchParams.get('query')).toContain('"The Milkmaid"');
 	});

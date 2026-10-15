@@ -2,10 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { afterNavigate, goto, preloadData } from '$app/navigation';
+import { setFavourite } from '#lib/collection/favourite.ts';
 import { moveToTrash } from '#lib/collection/trash.ts';
 import type { ArtworkRecord, LoadArtworkResult } from '#lib/collection/types.ts';
+import { buildNoteLinks } from '#lib/collection/note-links.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testSession } from '#lib/testing/auth.ts';
+import { testCardIndex } from '#lib/testing/card-index.ts';
 import ArtworkPage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -20,6 +23,10 @@ vi.mock('$app/navigation', () => ({
 	preloadData: vi.fn()
 }));
 vi.mock('#lib/collection/trash.ts', () => ({ moveToTrash: vi.fn() }));
+vi.mock('#lib/collection/favourite.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/collection/favourite.ts')>()),
+	setFavourite: vi.fn()
+}));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
 const IMAGE = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50"/>')}`;
@@ -28,6 +35,7 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 	return {
 		id: 'artwork-42',
 		number: 42,
+		favourite: false,
 		title: 'Girl with a Pearl Earring',
 		authors: ['Johannes Vermeer'],
 		authorUnknown: false,
@@ -122,6 +130,28 @@ describe('artwork page', () => {
 		await expect.element(page.getByRole('listitem').filter({ hasText: 'Delft' })).toBeVisible();
 		await expect.element(page.getByText('<img src=x onerror=alert(1)>')).toBeVisible();
 		expect(document.querySelector('.notes img')).toBeNull();
+	});
+
+	it('links notes to values and artworks and shows the current names', async () => {
+		renderPage({
+			artwork: artwork({
+				notes:
+					'Like [old name](/atelier/values/author/author-phidias), see [x](/atelier/12) and [gone](/atelier/99).'
+			}),
+			noteLinks: buildNoteLinks({
+				index: testCardIndex(),
+				artworks: [{ number: 12, title: 'Calling of Saint Matthew', authors: [] }]
+			})
+		});
+
+		await expect
+			.element(page.getByRole('link', { name: 'Phidias' }))
+			.toHaveAttribute('href', '/atelier/values/author/author-phidias');
+		await expect
+			.element(page.getByRole('link', { name: '#0012 Calling of Saint Matthew' }))
+			.toHaveAttribute('href', '/atelier/12');
+		await expect.element(page.getByText('gone')).toBeVisible();
+		await expect.element(page.getByRole('link', { name: 'gone' })).not.toBeInTheDocument();
 	});
 
 	it('marks the fields the learner has not filled in', async () => {
@@ -399,7 +429,7 @@ describe('artwork page', () => {
 		await dialog.getByRole('button', { name: m.trash.move }).click();
 
 		expect(moveToTrash).toHaveBeenCalledWith('artwork-42');
-		expect(goto).toHaveBeenCalledWith('/atelier', { state: { trashed: 42 } });
+		expect(goto).toHaveBeenCalledWith('/atelier', { refreshAll: true, state: { trashed: 42 } });
 	});
 
 	it('keeps the artwork when the learner cancels', async () => {
@@ -423,5 +453,94 @@ describe('artwork page', () => {
 		const dialog = page.getByRole('alertdialog');
 		await expect.element(dialog.getByText(m.artworkErrors.network)).toBeVisible();
 		expect(goto).not.toHaveBeenCalled();
+	});
+
+	it('marks the artwork as a favourite from the top bar and confirms it', async () => {
+		vi.mocked(setFavourite).mockResolvedValue({});
+		renderPage();
+
+		const heart = page.getByRole('banner').getByRole('button', { name: m.favourite.add });
+		await expect.element(heart).toHaveAttribute('aria-pressed', 'false');
+		await heart.click();
+
+		expect(setFavourite).toHaveBeenCalledWith('artwork-42', true);
+		await expect
+			.element(page.getByRole('banner').getByRole('button', { name: m.favourite.remove }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect.element(page.getByText(m.favourite.added)).toBeVisible();
+	});
+
+	it('shows a favourite artwork with a filled heart and clears it', async () => {
+		vi.mocked(setFavourite).mockResolvedValue({});
+		renderPage({ artwork: artwork({ favourite: true }) });
+
+		await page.getByRole('button', { name: m.favourite.remove }).click();
+
+		expect(setFavourite).toHaveBeenCalledWith('artwork-42', false);
+		await expect.element(page.getByText(m.favourite.removed)).toBeVisible();
+	});
+
+	it('puts the heart back and says so when the save fails', async () => {
+		vi.mocked(setFavourite).mockResolvedValue({ error: m.favourite.failed });
+		renderPage();
+
+		await page.getByRole('button', { name: m.favourite.add }).click();
+
+		await expect.element(page.getByRole('alert')).toHaveTextContent(m.favourite.failed);
+		await expect
+			.element(page.getByRole('button', { name: m.favourite.add }))
+			.toHaveAttribute('aria-pressed', 'false');
+		await expect.element(page.getByText(m.favourite.added)).not.toBeInTheDocument();
+	});
+
+	describe('value summaries', () => {
+		const summaries = {
+			eras: { early_modern: { summary: 'From the discovery of America to the Revolution.' } },
+			values: {
+				'period:Baroque': { summary: 'Movement, diagonals and strong light.' },
+				'author:Johannes Vermeer': { summary: 'Painter of quiet rooms.', lifeYears: '1632–1675' }
+			}
+		};
+
+		it('shows the summary of a period with its era when the badge is clicked', async () => {
+			renderPage({ artwork: artwork(), summaries });
+
+			await page.getByRole('button', { name: 'Baroque' }).click();
+
+			const card = page.getByRole('tooltip');
+			await expect.element(card).toHaveTextContent('Movement, diagonals and strong light.');
+			await expect
+				.element(card)
+				.toHaveTextContent(
+					m.valuePage.header(m.cardIndex.kinds.period.name, m.eras.early_modern.name)
+				);
+		});
+
+		it('shows an author card with the years of life from the name under the title', async () => {
+			renderPage({ artwork: artwork(), summaries });
+
+			await page.getByRole('button', { name: 'Johannes Vermeer' }).click();
+
+			await expect.element(page.getByRole('tooltip')).toHaveTextContent('1632–1675');
+			await expect.element(page.getByRole('tooltip')).toHaveTextContent('Painter of quiet rooms.');
+		});
+
+		it('shows the summary of the era', async () => {
+			renderPage({ artwork: artwork(), summaries });
+
+			await page.getByRole('button', { name: m.eras.early_modern.name, exact: true }).click();
+
+			await expect
+				.element(page.getByRole('tooltip'))
+				.toHaveTextContent('From the discovery of America to the Revolution.');
+		});
+
+		it('leaves a value without a summary as a plain badge', async () => {
+			renderPage({ artwork: artwork(), summaries });
+
+			await expect.element(page.getByText('Mauritshuis')).toBeVisible();
+			expect(page.getByRole('button', { name: 'Mauritshuis' }).elements()).toHaveLength(0);
+			expect(page.getByRole('button', { name: 'Oil' }).elements()).toHaveLength(0);
+		});
 	});
 });

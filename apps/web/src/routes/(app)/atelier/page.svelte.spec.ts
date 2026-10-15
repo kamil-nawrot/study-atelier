@@ -3,6 +3,7 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto, invalidateAll } from '$app/navigation';
 import { refreshExpiredImages } from '#lib/collection/artworks.ts';
+import { setFavourite } from '#lib/collection/favourite.ts';
 import type { WallArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
@@ -24,6 +25,10 @@ vi.mock('$app/navigation', () => ({
 vi.mock('#lib/collection/artworks.ts', () => ({
 	refreshExpiredImages: vi.fn(),
 	resolveImages: vi.fn()
+}));
+vi.mock('#lib/collection/favourite.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/collection/favourite.ts')>()),
+	setFavourite: vi.fn()
 }));
 vi.mock('#lib/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
@@ -488,6 +493,16 @@ describe('atelier page', () => {
 				await page.viewport(1900, 900);
 			});
 
+			it('has no rail when every artwork falls into one era', async () => {
+				renderAtelier(manyPeriods().slice(0, 4));
+				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
+
+				await expect.element(orderSelect()).toHaveValue('period');
+				await expect
+					.element(page.getByRole('complementary', { name: m.atelier.periods.label }))
+					.not.toBeInTheDocument();
+			});
+
 			it('shows the rail at the right edge instead of the strip', async () => {
 				renderAtelier(manyPeriods());
 				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
@@ -608,6 +623,14 @@ describe('atelier page', () => {
 					.toHaveAttribute('aria-current', 'true');
 				await expect.element(rail).toHaveTextContent(m.atelier.filters.unknownAuthor);
 				expect(rail.element().querySelectorAll('svg')).toHaveLength(0);
+			});
+
+			it('has no rail when every artwork has the same author', async () => {
+				renderAtelier(manyAuthors(1));
+
+				await expect
+					.element(page.getByRole('complementary', { name: m.atelier.authors.label }))
+					.not.toBeInTheDocument();
 			});
 
 			it('names only the current author when the rail is too short for every name', async () => {
@@ -843,5 +866,32 @@ describe('atelier page', () => {
 				]);
 			});
 		});
+	});
+
+	it('marks a tile as a favourite with its heart and confirms it', async () => {
+		vi.mocked(setFavourite).mockResolvedValue({});
+		await page.viewport(1000, 800);
+		renderAtelier();
+
+		await page.getByRole('button', { name: m.favourite.add }).first().click();
+
+		expect(setFavourite).toHaveBeenCalledWith('artwork-3', true);
+		await expect
+			.element(page.getByRole('button', { name: m.favourite.remove }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect.element(page.getByText(m.favourite.added)).toBeVisible();
+	});
+
+	it('puts the heart back and shows an alert when the save fails', async () => {
+		vi.mocked(setFavourite).mockResolvedValue({ error: m.favourite.failed });
+		await page.viewport(1000, 800);
+		renderAtelier();
+
+		await page.getByRole('button', { name: m.favourite.add }).first().click();
+
+		await expect.element(page.getByRole('alert')).toHaveTextContent(m.favourite.failed);
+		await expect
+			.element(page.getByRole('button', { name: m.favourite.remove }))
+			.not.toBeInTheDocument();
 	});
 });

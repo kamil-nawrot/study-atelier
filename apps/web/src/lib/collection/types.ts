@@ -1,4 +1,6 @@
-import type { ArtworkTileImage } from '@study-atelier/ui';
+import type { ArtworkTileImage, NoteLinks } from '@study-atelier/ui';
+import type { Mention } from './mentions.ts';
+import type { ValueSummaries } from './value-summaries.ts';
 
 export type WallOrder = 'recent' | 'period' | 'author';
 
@@ -21,7 +23,11 @@ export type CurrentPeriod = {
 
 export type ArtworkValueRow = {
 	position: number;
-	category_values: { category_code: string; name: string } | null;
+	category_values: {
+		category_code: string;
+		name: string;
+		author_details?: { sort_name: string | null }[];
+	} | null;
 };
 
 export type ImageSize = {
@@ -40,6 +46,7 @@ export type WallArtwork = {
 	number: number;
 	title: string;
 	authors: string[];
+	authorSortNames?: (string | null)[];
 	date?: string;
 	yearFrom: number | null;
 	yearTo: number | null;
@@ -50,6 +57,7 @@ export type WallArtwork = {
 	materials: string[];
 	location: string | null;
 	hasImage: boolean;
+	favourite: boolean;
 	image?: ArtworkTileImage;
 	imageUnavailable?: boolean;
 	pendingImage?: PendingImage;
@@ -149,6 +157,7 @@ export type ArtworkInput = {
 export type ArtworkRecord = ArtworkInput & {
 	id: string;
 	number: number;
+	favourite: boolean;
 };
 
 export type ExistingArtwork = {
@@ -166,6 +175,9 @@ export type SaveArtworkResult =
 
 export type LoadArtworkResult = {
 	artwork?: ArtworkRecord;
+	noteLinks?: NoteLinks;
+	mentions?: Mention[];
+	summaries?: ValueSummaries;
 	error?: string;
 	notFound?: boolean;
 };
@@ -192,6 +204,7 @@ export type CardIndexRecord = {
 	category: CategoryCode;
 	name: string;
 	count: number;
+	sortName?: string;
 };
 
 export type CardIndexData = {
@@ -249,9 +262,11 @@ export type FilterField =
 	| 'styles'
 	| 'materials'
 	| 'locations'
-	| 'missing';
+	| 'missing'
+	| 'favourites';
 
 export type CollectionFilter = {
+	favourites: boolean;
 	eras: EraCode[];
 	types: ArtworkTypeCode[];
 	yearFrom: number | null;
@@ -289,3 +304,71 @@ export type WallSequence = {
 };
 
 export type Neighbours = Record<FlipDirection, number | null>;
+
+export type ValueKind = 'era' | CategoryCode;
+
+export type ValueSubject =
+	{ kind: 'era'; code: EraCode } | { kind: CategoryCode; record: CardIndexRecord };
+
+export type AuthorDetails = {
+	image: ArtworkImageInput | null;
+	birthYear: number | null;
+	deathYear: number | null;
+	yearsApproximate: boolean;
+	sortName: string | null;
+};
+
+export type PlaceType = 'museum' | 'private_collection' | 'on_site';
+
+export type LocationDetails = {
+	countryCode: string | null;
+	placeType: PlaceType | null;
+};
+
+export type ValueDetails = {
+	summary: string;
+	notes: string;
+	author?: AuthorDetails;
+	location?: LocationDetails;
+};
+
+export type AuthorFormState = {
+	image: ArtworkImageInput | null;
+	birthYear: string;
+	birthBeforeCommonEra: boolean;
+	deathYear: string;
+	deathBeforeCommonEra: boolean;
+	yearsApproximate: boolean;
+	sortByOther: boolean;
+	sortName: string;
+};
+
+export type AuthorFieldErrors = Partial<Record<'birthYear' | 'deathYear', string>>;
+
+export type ValueDetailsResult = {
+	details: ValueDetails;
+	error?: string;
+};
+
+export type ValuePageResult = {
+	subject?: ValueSubject;
+	index: CardIndexData;
+	artworks: WallArtwork[];
+	details: ValueDetails;
+	noteLinks?: NoteLinks;
+	mentions?: Mention[];
+	notFound?: boolean;
+	error?: string;
+};
+
+export type ImageFieldTexts = {
+	label: string;
+	find: string;
+	findOther: string;
+	findHint: string;
+	own: string;
+	changeOwn: string;
+	ownTitle: string;
+	changeOwnTitle: string;
+	remove: string;
+};

@@ -29,7 +29,7 @@
 			await invalidateAll();
 			return;
 		}
-		await goto(atelierPath, { state: { highlight: number } });
+		await goto(atelierPath, { refreshAll: true, state: { highlight: number } });
 	}
 </script>
 
@@ -51,6 +51,7 @@
 		bind:this={form}
 		cancelHref={atelierPath}
 		categoryValues={data.values}
+		noteLinks={data.noteLinks}
 		oncancel={backToAtelier}
 		onsaved={showSaved}
 		valueLinks={data.links}
