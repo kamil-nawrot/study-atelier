@@ -241,7 +241,8 @@ export const VALUE_DETAILS = {
 		{
 			value_id: valueId('period', 'Renaissance'),
 			summary: 'The revival of antiquity in Italy: harmony, proportion and perspective.',
-			notes: 'To check: where does **Mannerism** end and the Baroque begin?'
+			notes:
+				'To check: where does **Mannerism** end and the Baroque begin? Start with [#0009 The Birth of Venus](/atelier/9).'
 		}
 	]
 };

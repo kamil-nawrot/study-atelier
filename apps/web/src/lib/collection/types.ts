@@ -1,4 +1,5 @@
 import type { ArtworkTileImage, NoteLinks } from '@study-atelier/ui';
+import type { Mention } from './mentions.ts';
 
 export type WallOrder = 'recent' | 'period' | 'author';
 
@@ -167,6 +168,7 @@ export type SaveArtworkResult =
 export type LoadArtworkResult = {
 	artwork?: ArtworkRecord;
 	noteLinks?: NoteLinks;
+	mentions?: Mention[];
 	error?: string;
 	notFound?: boolean;
 };
@@ -334,6 +336,7 @@ export type ValuePageResult = {
 	artworks: WallArtwork[];
 	details: ValueDetails;
 	noteLinks?: NoteLinks;
+	mentions?: Mention[];
 	notFound?: boolean;
 	error?: string;
 };

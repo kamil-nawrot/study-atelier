@@ -5,7 +5,9 @@
 	import { eraIcon } from '../eras.ts';
 	import { formatLifeYears } from '../format.ts';
 	import { subjectName, valueKindName, valuePath, type ValueParent } from '../value-pages.ts';
+	import type { Mention } from '../mentions.ts';
 	import type { ValueDetails, ValueSubject } from '../types.ts';
+	import MentionedIn from './MentionedIn.svelte';
 
 	type Props = {
 		subject: ValueSubject;
@@ -13,9 +15,10 @@
 		count: number;
 		details: ValueDetails;
 		noteLinks?: NoteLinks;
+		mentions?: Mention[];
 	};
 
-	let { subject, parents, count, details, noteLinks }: Props = $props();
+	let { subject, parents, count, details, noteLinks, mentions = [] }: Props = $props();
 
 	const PORTRAIT_WIDTH = 500;
 
@@ -96,6 +99,8 @@
 				</section>
 			{/if}
 		{/if}
+
+		<MentionedIn {mentions} variant="label" />
 	</div>
 </article>
 
