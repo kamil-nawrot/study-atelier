@@ -104,6 +104,8 @@
 				</Button>
 			{:else}
 				<Tooltip
+					align="end"
+					placement="bottom"
 					text={m.valuePage.deleteBlocked(
 						kind.demonstrative,
 						m.atelier.count(record.count),

@@ -25,3 +25,17 @@
 		</div>
 	{/snippet}
 </Story>
+
+<Story name="Below, at the end of a top bar">
+	{#snippet template(args)}
+		<div style="display: flex; justify-content: flex-end">
+			<Tooltip align="end" placement="bottom" text={args.text}>
+				{#snippet children(describedby)}
+					<Button aria-describedby={describedby} aria-disabled="true" variant="danger"
+						>Delete</Button
+					>
+				{/snippet}
+			</Tooltip>
+		</div>
+	{/snippet}
+</Story>
