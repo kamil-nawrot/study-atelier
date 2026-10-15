@@ -98,9 +98,7 @@
 	.mark {
 		display: grid;
 		place-items: center;
-		padding: var(--spacing-1);
-		background: var(--color-fg);
-		color: var(--color-bg);
+		color: var(--color-fg);
 	}
 
 	h1 {
