@@ -35,9 +35,9 @@ Chosen, decided by the owner in ATL-145: `@` for values and `#` for artworks, li
 
 ### Writing a link
 
-- In the notes editor `@` opens a list of the learner's values of every kind (eras, periods, styles, materials, authors, locations) matching the text typed after it; `#` opens a list of the learner's artworks matching a record number or a title. Picking a row replaces the typed text with the link.
+- In the notes editor `@` opens a list of the learner's values of every kind (eras, periods, styles, materials, authors, locations) matching the text typed after it once at least two characters follow; `#` opens a list of the learner's artworks matching a record number or a title. Picking a row replaces the typed text with the link.
 - The list sits under the notes field across its whole width and looks like the suggestion list of a value field. A row shows the name on the left and the kind on the right ("Okres · nowożytność", "Autor", "Miejsce"); an artwork row shows "#0007 Dama z gronostajem" and its authors. Arrow keys move, Enter picks, Escape closes; a tap picks on a phone.
-- The toolbar gets two icon buttons after a hairline separator: `@` (Lucide `AtSign`) and `#` (Lucide `Hash`). Each types its character at the cursor and opens the list, with the same accessible name, `aria-pressed` handling and roving focus as the other buttons.
+- The toolbar gets two icon buttons after a hairline separator: `@` (Lucide `AtSign`) and `#` (Lucide `Hash`). Each types its character at the cursor and opens the list, with an accessible name and the roving focus of the other buttons. They are plain action buttons, not toggles, so they carry no `aria-pressed`.
 - A link is one token: the cursor moves over it as one character and Backspace deletes it whole. Its text is always the current name of the value, or "#0007 Title" of the artwork, and cannot be edited or inflected.
 - Summaries ("Podsumowanie") stay plain text without links.
 
@@ -69,7 +69,7 @@ Conversational, as in the card index ([voice and tone](../product/voice-and-tone
 - Good: notes stay plain Markdown; nothing in the database changes except the merge function.
 - Good: renaming a value never breaks or outdates a link.
 - Bad: a link cannot be inflected; the learner writes "w muzeum Luwr" rather than "w Luwrze".
-- Bad: the editor grows by two TipTap extensions (Mention and Suggestion) and a link token with its own Markdown parsing.
+- Bad: the editor grows by two TipTap extensions (a link node and TipTap's Suggestion) and a link token with its own Markdown parsing.
 - Bad: bold or italics applied over a link are lost when the note is saved, since the token is a single atom.
 - Bad: on a phone with the keyboard open the list under a long note can sit below the visible area until the page scrolls.
 
