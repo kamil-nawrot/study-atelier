@@ -33,7 +33,8 @@ describe('FilterTags', () => {
 		const valueStyle = getComputedStyle(page.getByText(value, { exact: true }).element());
 
 		expect(fieldStyle.color).not.toBe(valueStyle.color);
-		expect(Number(valueStyle.fontWeight)).toBeGreaterThan(Number(fieldStyle.fontWeight));
+		expect(fieldStyle.textTransform).toBe('uppercase');
+		expect(parseFloat(fieldStyle.fontSize)).toBeLessThan(parseFloat(valueStyle.fontSize));
 	});
 
 	it('removes the filter of the tag the learner removes', async () => {

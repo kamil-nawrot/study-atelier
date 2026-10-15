@@ -115,7 +115,8 @@ How views and components look and behave, so every new screen stays consistent w
 
 - The wall's filters follow [ADR-0042](../decisions/0042-filter-the-collection-in-the-browser.md). A choice of several values from a fixed list (the eras) is `ToggleTiles`: the tiles of `ChoiceTiles` as native checkboxes, each with an optional count. A choice of several values from a list that grows with the learner's data is a row of `ToggleTag` buttons: a tag that is pressed (`aria-pressed`) when chosen and shows the number of artworks next to it.
 - On a larger screen the filters open in a side panel at the right edge, under the top bar, that narrows the wall and changes it at once. On a phone the order and the filters share a full-screen `Dialog` ("Widok") that closes with a button naming the number of artworks left.
-- Active filters sit above the wall as `Tag`s with a remove button, followed by a text button that clears them all. In a tag the field name is in `--color-fg-muted` and the value in `--font-weight-medium`, so "Typ Rzeźba" reads as a field and its value at a glance.
+- Active filters sit above the wall as `Tag`s with a remove button, followed by a text button that clears them all. In a tag the field name is small capitals in `--color-fg-muted` (`--font-size-xs`, `--letter-spacing-wide`) and the value is regular text, so "Typ Rzeźba" reads as a field and its value at a glance.
+- A panel or a list that can scroll on its own reserves the place of its scrollbar (`scrollbar-gutter: stable`, set on `html` and on the filter panel), so content does not jump sideways when a scrollbar appears while filtering.
 
 ## Tabs
 

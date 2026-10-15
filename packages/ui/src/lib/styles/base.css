@@ -5,6 +5,7 @@
 }
 
 html {
+	scrollbar-gutter: stable;
 	background: var(--color-bg);
 	color: var(--color-fg);
 	font-family: var(--font-family-ui), system-ui, sans-serif;
