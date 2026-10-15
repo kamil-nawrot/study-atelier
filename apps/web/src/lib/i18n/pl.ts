@@ -215,6 +215,7 @@ export const pl = {
 			removeTag: (label: string): string => `Usuń filtr: ${label}`,
 			noResultsTitle: 'Nic tu nie pasuje',
 			noResults: 'Żadne dzieło nie pasuje do tych filtrów.',
+			noFavourites: 'Nie ma jeszcze ulubionych dzieł.',
 			showResults: (count: number): string =>
 				`Pokaż ${count} ${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })}`,
 			fields: {
@@ -226,7 +227,8 @@ export const pl = {
 				styles: 'Styl',
 				materials: 'Materiał',
 				locations: 'Miejsce',
-				missing: 'Do uzupełnienia'
+				missing: 'Do uzupełnienia',
+				favourites: 'Ulubione'
 			},
 			tagFields: {
 				eras: 'Epoka',
@@ -237,7 +239,8 @@ export const pl = {
 				styles: 'Styl',
 				materials: 'Materiał',
 				locations: 'Miejsce',
-				missing: 'Do uzupełnienia'
+				missing: 'Do uzupełnienia',
+				favourites: 'Ulubione'
 			},
 			tag: (field: string, value: string): string => `${field} ${value}`,
 			unknownAuthor: 'Autor nieznany',
@@ -360,6 +363,13 @@ export const pl = {
 		empty: 'Nie wpisano',
 		previous: 'Poprzednie dzieło',
 		next: 'Następne dzieło'
+	},
+	favourite: {
+		add: 'Dodaj do ulubionych',
+		remove: 'Usuń z ulubionych',
+		added: 'Dodano do ulubionych.',
+		removed: 'Usunięto z ulubionych.',
+		failed: 'Nie udało się zapisać zmiany. Spróbuj jeszcze raz.'
 	},
 	imageSearch: {
 		title: 'Które to dzieło?',

@@ -12,6 +12,7 @@
 		WALL_PART,
 		WIDE_MIN_WIDTH
 	} from '../masonry.ts';
+	import { m } from '#lib/i18n/index.ts';
 	import type { WallArtwork } from '../types.ts';
 
 	type Props = {
@@ -20,6 +21,7 @@
 		periodIndexes?: ReadonlyMap<string, number>;
 		element?: HTMLElement;
 		rendered?: number;
+		onfavourite?: (artwork: WallArtwork) => void;
 		onimagefailed?: (artwork: WallArtwork) => void;
 		onnearscreen?: (artwork: WallArtwork) => void;
 	};
@@ -30,6 +32,7 @@
 		periodIndexes,
 		element = $bindable(),
 		rendered = $bindable(WALL_PART),
+		onfavourite,
 		onimagefailed,
 		onnearscreen
 	}: Props = $props();
@@ -83,12 +86,15 @@
 					<ArtworkTile
 						authors={artwork.authors}
 						date={artwork.date}
+						favourite={artwork.favourite}
+						favouriteLabel={artwork.favourite ? m.favourite.remove : m.favourite.add}
 						href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
 						image={artwork.image}
 						imageUnavailable={artwork.imageUnavailable}
 						mark={artwork.eraCode ? eraIcon(artwork.eraCode) : undefined}
 						markLabel={artwork.eraCode ? eraName(artwork.eraCode) : undefined}
 						number={artwork.number}
+						onfavourite={onfavourite && (() => onfavourite(artwork))}
 						onimagefailed={() => onimagefailed?.(artwork)}
 						title={artwork.title}
 					/>

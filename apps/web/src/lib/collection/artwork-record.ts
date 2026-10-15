@@ -40,6 +40,7 @@ type ArtworkRecordRow = {
 	type_code: ArtworkTypeCode | null;
 	era_code: EraCode | null;
 	notes: string | null;
+	favourite: boolean;
 	artwork_values: ArtworkValueRow[];
 } & ImageRow;
 
@@ -56,6 +57,7 @@ const RECORD_COLUMNS = [
 	'type_code',
 	'era_code',
 	'notes',
+	'favourite',
 	...IMAGE_COLUMNS,
 	'artwork_values(position, category_values(category_code, name))'
 ].join(', ');
@@ -189,6 +191,7 @@ function artworkRecordFromRow(row: ArtworkRecordRow): ArtworkRecord {
 	return {
 		id: row.id,
 		number: row.record_number,
+		favourite: row.favourite,
 		title: row.title,
 		authors: valuesOf(row.artwork_values, 'author'),
 		authorUnknown: row.author_unknown,

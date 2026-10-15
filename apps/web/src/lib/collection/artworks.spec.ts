@@ -477,6 +477,7 @@ describe('resolveImages', () => {
 		return {
 			id,
 			number: 1,
+			favourite: false,
 			title: 'Pending',
 			authors: [],
 			yearFrom: null,
@@ -655,6 +656,7 @@ describe('refreshExpiredImages', () => {
 		return {
 			id,
 			number: 1,
+			favourite: false,
 			title: 'The Test Painting',
 			authors: [],
 			yearFrom: null,

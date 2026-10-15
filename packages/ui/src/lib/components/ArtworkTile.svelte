@@ -9,6 +9,7 @@
 </script>
 
 <script lang="ts">
+	import Heart from '@lucide/svelte/icons/heart';
 	import type { LucideIcon } from '@lucide/svelte';
 	import { uiMessages } from '../messages';
 	import ArtworkImage from './ArtworkImage.svelte';
@@ -24,6 +25,9 @@
 		image?: ArtworkTileImage;
 		mark?: LucideIcon;
 		markLabel?: string;
+		favourite?: boolean;
+		favouriteLabel?: string;
+		onfavourite?: () => void;
 		unknownAuthorLabel?: string;
 		noImageLabel?: string;
 		imageUnavailable?: boolean;
@@ -40,6 +44,9 @@
 		image,
 		mark,
 		markLabel,
+		favourite = false,
+		favouriteLabel,
+		onfavourite,
 		unknownAuthorLabel = uiMessages().unknownAuthor,
 		noImageLabel = uiMessages().noImage,
 		imageUnavailable = false,
@@ -53,60 +60,82 @@
 	let recordNumber = $derived(`#${String(number).padStart(RECORD_NUMBER_DIGITS, '0')}`);
 </script>
 
-<a class="tile" {href}>
-	<figure>
-		<div style:--artwork-ratio={image ? image.width / image.height : undefined} class="window">
-			{#if image}
-				<ArtworkImage
-					alt="{title}, {authorText}"
-					height={image.height}
-					loading="lazy"
-					onfailed={onimagefailed}
-					sizes={image.sizes}
-					src={image.src}
-					srcset={image.srcset}
-					width={image.width}
-				/>
-			{:else if imageUnavailable}
-				<ArtworkImage alt="{title}, {authorText}" failedLabel={imageUnavailableLabel} unavailable />
-			{:else}
-				<NoImage label={noImageLabel} />
-			{/if}
-			{#if mark}
-				<span class="mark">
-					<Icon icon={mark} label={markLabel} size="sm" />
-				</span>
-			{/if}
-			<span class="number">
-				{recordNumber}
-			</span>
-		</div>
-		<figcaption>
-			<cite class="artwork-title">
-				{title}
-			</cite>
-			<span class="meta">
-				<span>
-					{authorText}
-				</span>
-				{#if date}
-					<span aria-hidden="true">·</span>
-					<span class="date">
-						{date}
+<div class="tile" class:with-heart={onfavourite}>
+	<a class="link" {href}>
+		<figure>
+			<div style:--artwork-ratio={image ? image.width / image.height : undefined} class="window">
+				{#if image}
+					<ArtworkImage
+						alt="{title}, {authorText}"
+						height={image.height}
+						loading="lazy"
+						onfailed={onimagefailed}
+						sizes={image.sizes}
+						src={image.src}
+						srcset={image.srcset}
+						width={image.width}
+					/>
+				{:else if imageUnavailable}
+					<ArtworkImage
+						alt="{title}, {authorText}"
+						failedLabel={imageUnavailableLabel}
+						unavailable
+					/>
+				{:else}
+					<NoImage label={noImageLabel} />
+				{/if}
+				{#if mark}
+					<span class="mark">
+						<Icon icon={mark} label={markLabel} size="sm" />
 					</span>
 				{/if}
-			</span>
-		</figcaption>
-	</figure>
-</a>
+				<span class="number">
+					{recordNumber}
+				</span>
+			</div>
+			<figcaption>
+				<cite class="artwork-title">
+					{title}
+				</cite>
+				<span class="meta">
+					<span>
+						{authorText}
+					</span>
+					{#if date}
+						<span aria-hidden="true">·</span>
+						<span class="date">
+							{date}
+						</span>
+					{/if}
+				</span>
+			</figcaption>
+		</figure>
+	</a>
+	{#if onfavourite}
+		<button
+			class="heart"
+			aria-label={favouriteLabel}
+			aria-pressed={favourite}
+			onclick={onfavourite}
+			type="button"
+		>
+			<Icon icon={Heart} size="sm" />
+		</button>
+	{/if}
+</div>
 
 <style>
 	.tile {
-		display: block;
+		position: relative;
 		padding: var(--spacing-2) var(--spacing-2) 0;
 		border-radius: var(--border-radius-none);
 		background: var(--color-mat-bg);
 		color: var(--color-mat-fg);
+	}
+
+	.link {
+		display: block;
+		color: inherit;
 		text-decoration: none;
 	}
 
@@ -177,7 +206,36 @@
 		white-space: nowrap;
 	}
 
-	.tile:hover .artwork-title {
+	.with-heart figcaption {
+		padding-inline-end: var(--size-control);
+	}
+
+	.heart {
+		position: absolute;
+		inset-inline-end: 0;
+		inset-block-end: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: var(--size-control);
+		height: var(--size-control);
+		padding: 0;
+		border: 0;
+		background: none;
+		color: var(--color-mat-fg-muted);
+		cursor: pointer;
+	}
+
+	.heart :global(svg) {
+		width: var(--font-size-md);
+		height: var(--font-size-md);
+	}
+
+	.heart[aria-pressed='true'] :global(svg) {
+		fill: currentColor;
+	}
+
+	.link:hover .artwork-title {
 		text-decoration: underline;
 		text-decoration-thickness: var(--border-width-hairline);
 		text-underline-offset: 0.2em;

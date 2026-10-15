@@ -20,6 +20,7 @@ export function testArtwork(
 		materials: [],
 		location: null,
 		hasImage: true,
+		favourite: false,
 		image: { src: `data:image/gif;base64,R0lGODlhAQABAAAAACw=`, width: 4, height: 5 },
 		...overrides
 	};

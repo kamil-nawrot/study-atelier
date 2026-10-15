@@ -81,6 +81,7 @@ describe('artworkFormFromRecord', () => {
 	const record: ArtworkRecord = {
 		id: 'artwork-1',
 		number: 7,
+		favourite: false,
 		title: 'The Thinker',
 		authors: ['Auguste Rodin'],
 		authorUnknown: false,
@@ -247,6 +248,7 @@ describe('year span in the form', () => {
 	const record: ArtworkRecord = {
 		id: 'artwork-1',
 		number: 7,
+		favourite: false,
 		title: 'The Test Painting',
 		authors: [],
 		authorUnknown: true,

@@ -1,9 +1,18 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import { Checkbox, TextField, ToggleTiles } from '@study-atelier/ui';
+	import Heart from '@lucide/svelte/icons/heart';
+	import { Checkbox, Icon, TextField, ToggleTag, ToggleTiles } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { eraTiles } from '../eras.ts';
-	import { UNKNOWN_AUTHOR, filterOptions, optionLabel, setYears, toggleValue } from '../filter.ts';
+	import {
+		UNKNOWN_AUTHOR,
+		favouriteCount,
+		filterOptions,
+		optionLabel,
+		setYears,
+		toggleFavourites,
+		toggleValue
+	} from '../filter.ts';
 	import type { CollectionFilter, EraCode, WallArtwork } from '../types.ts';
 	import FilterValues from './FilterValues.svelte';
 
@@ -71,6 +80,17 @@
 </script>
 
 <div class="panel">
+	<div class="favourites">
+		<ToggleTag
+			count={favouriteCount(artworks, filter)}
+			onclick={() => (filter = toggleFavourites(filter))}
+			pressed={filter.favourites}
+		>
+			<Icon icon={Heart} size="sm" />
+			{m.atelier.filters.fields.favourites}
+		</ToggleTag>
+	</div>
+
 	<ToggleTiles
 		label={m.atelier.filters.fields.eras}
 		onchange={(values) => (filter = { ...filter, eras: values as EraCode[] })}
@@ -161,6 +181,15 @@
 	.panel {
 		display: grid;
 		gap: var(--spacing-8);
+	}
+
+	.favourites :global(svg) {
+		width: var(--font-size-md);
+		height: var(--font-size-md);
+	}
+
+	.favourites :global([aria-pressed='true'] svg) {
+		fill: currentColor;
 	}
 
 	.years {

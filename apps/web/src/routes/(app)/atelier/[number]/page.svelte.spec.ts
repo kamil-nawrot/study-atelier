@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { afterNavigate, goto, preloadData } from '$app/navigation';
+import { setFavourite } from '#lib/collection/favourite.ts';
 import { moveToTrash } from '#lib/collection/trash.ts';
 import type { ArtworkRecord, LoadArtworkResult } from '#lib/collection/types.ts';
 import { buildNoteLinks } from '#lib/collection/note-links.ts';
@@ -22,6 +23,10 @@ vi.mock('$app/navigation', () => ({
 	preloadData: vi.fn()
 }));
 vi.mock('#lib/collection/trash.ts', () => ({ moveToTrash: vi.fn() }));
+vi.mock('#lib/collection/favourite.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/collection/favourite.ts')>()),
+	setFavourite: vi.fn()
+}));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
 const IMAGE = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50"/>')}`;
@@ -30,6 +35,7 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 	return {
 		id: 'artwork-42',
 		number: 42,
+		favourite: false,
 		title: 'Girl with a Pearl Earring',
 		authors: ['Johannes Vermeer'],
 		authorUnknown: false,
@@ -447,6 +453,44 @@ describe('artwork page', () => {
 		const dialog = page.getByRole('alertdialog');
 		await expect.element(dialog.getByText(m.artworkErrors.network)).toBeVisible();
 		expect(goto).not.toHaveBeenCalled();
+	});
+
+	it('marks the artwork as a favourite from the top bar and confirms it', async () => {
+		vi.mocked(setFavourite).mockResolvedValue({});
+		renderPage();
+
+		const heart = page.getByRole('banner').getByRole('button', { name: m.favourite.add });
+		await expect.element(heart).toHaveAttribute('aria-pressed', 'false');
+		await heart.click();
+
+		expect(setFavourite).toHaveBeenCalledWith('artwork-42', true);
+		await expect
+			.element(page.getByRole('banner').getByRole('button', { name: m.favourite.remove }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect.element(page.getByText(m.favourite.added)).toBeVisible();
+	});
+
+	it('shows a favourite artwork with a filled heart and clears it', async () => {
+		vi.mocked(setFavourite).mockResolvedValue({});
+		renderPage({ artwork: artwork({ favourite: true }) });
+
+		await page.getByRole('button', { name: m.favourite.remove }).click();
+
+		expect(setFavourite).toHaveBeenCalledWith('artwork-42', false);
+		await expect.element(page.getByText(m.favourite.removed)).toBeVisible();
+	});
+
+	it('puts the heart back and says so when the save fails', async () => {
+		vi.mocked(setFavourite).mockResolvedValue({ error: m.favourite.failed });
+		renderPage();
+
+		await page.getByRole('button', { name: m.favourite.add }).click();
+
+		await expect.element(page.getByRole('alert')).toHaveTextContent(m.favourite.failed);
+		await expect
+			.element(page.getByRole('button', { name: m.favourite.add }))
+			.toHaveAttribute('aria-pressed', 'false');
+		await expect.element(page.getByText(m.favourite.added)).not.toBeInTheDocument();
 	});
 
 	describe('value summaries', () => {

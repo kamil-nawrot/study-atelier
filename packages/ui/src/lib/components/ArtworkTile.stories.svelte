@@ -114,6 +114,17 @@
 	{/snippet}
 </Story>
 
+<Story
+	name="Favourite"
+	args={{ favourite: true, favouriteLabel: 'Remove from favourites', onfavourite: () => {} }}
+>
+	{#snippet template(args)}
+		<div style="max-width: 280px">
+			<ArtworkTile {...args} />
+		</div>
+	{/snippet}
+</Story>
+
 <Story name="Wall">
 	{#snippet template()}
 		<div style="display: flex; gap: var(--spacing-6); align-items: flex-start">
