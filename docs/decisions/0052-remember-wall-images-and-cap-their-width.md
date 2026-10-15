@@ -1,4 +1,4 @@
-# 0046. Remember the wall images for the session and cap their width
+# 0052. Remember the wall images for the session and cap their width
 
 - Status: accepted
 - Date: 2026-10-14
@@ -56,5 +56,6 @@ Chosen options: 1, 960 px and 1 day. The owner chose them from the measurements 
 ## More information
 
 - Implementation: ATL-126.
+- Numbering: accepted as 0046 (#119) and later filed as a second 0047; it got the next free number, 0052, in ATL-128 so that every ADR has its own number. The decision is unchanged.
 - Supersedes the "no cache between page loads" point of ADR-0023; the rest of ADR-0023 and ADR-0044 stands. `ImageQueue` still resolves each artwork once per load, and a remembered image simply needs no resolving.
 - The Commons API now returns thumbnail URLs on `thumb.wikimedia.org` with `utm_*` query parameters; the `srcset` replaces only the width segment, so it works with both hosts.
