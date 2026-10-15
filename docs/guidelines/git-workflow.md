@@ -44,6 +44,7 @@ Commit messages follow [Conventional Commits 1.0](https://www.conventionalcommit
 - Screenshots of a change (desktop and phone, from `pnpm screenshot`, see [cloud-sessions.md](cloud-sessions.md)) are attached to the Linear issue, not to the pull request; the pull request description says they are there. Screenshots taken after review changes are added with a title that says so.
 - Before asking the owner for review, Claude reviews the pull request with the [`study-atelier-pr-review`](../../.claude/skills/study-atelier-pr-review/SKILL.md) skill and fixes blocking findings.
 - The owner reviews and merges. Claude keeps the pull request green and answers review comments.
+- A pull request with a conflict against `develop` gets no CI run at all. Claude merges `develop` into the branch (a merge, never a rebase or a force push), resolves the conflicts, runs lint, the type check and the tests of the touched files, and pushes; then checks that CI ran.
 - After a pull request is merged, further work goes on a new branch from `develop` and into a new pull request. Nobody pushes to the branch of a merged pull request; check that the pull request is still open before pushing to it.
 
 ## Releases
