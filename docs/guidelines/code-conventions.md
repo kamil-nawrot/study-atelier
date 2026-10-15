@@ -87,6 +87,7 @@ The SvelteKit app in `apps/web/src`:
 
 - Every error from Supabase or another service goes through a mapping function in `lib/<domain>/errors.ts`, which picks a dictionary message by error code and falls back to a general message. `error.message` is never shown to the learner.
 - Domain functions return the mapped message, so views only show it.
+- A domain function that writes passes the error through `failureMessage` from `lib/auth/expired-session.svelte.ts`: an authorization error (HTTP 401 or a `PGRST301`..`PGRST303` code) signs the learner out and returns the session-ended message; any other error goes to the domain's mapping function.
 
 ## External services
 

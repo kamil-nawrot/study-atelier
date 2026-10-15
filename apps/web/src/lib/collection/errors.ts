@@ -8,7 +8,10 @@ type PostgrestErrorLike = {
 const artworkMessagesByCode: Record<string, string> = {
 	P0002: m.artworkErrors.notFound,
 	'23502': m.artworkErrors.invalid,
-	'23514': m.artworkErrors.invalid
+	'23514': m.artworkErrors.invalid,
+	'23001': m.artworkErrors.conflict,
+	'23503': m.artworkErrors.conflict,
+	'23505': m.artworkErrors.conflict
 };
 
 function isNetworkError(error: PostgrestErrorLike): boolean {

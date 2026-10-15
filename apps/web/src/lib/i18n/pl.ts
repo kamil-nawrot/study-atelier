@@ -52,6 +52,7 @@ export const pl = {
 		passwordHint: (min: number): string => `Co najmniej ${min} znaków.`
 	},
 	authErrors: {
+		sessionEnded: 'Twoja sesja wygasła. Zaloguj się jeszcze raz.',
 		invalidCredentials:
 			'E-mail albo hasło się nie zgadzają. Sprawdź oba pola albo ustaw nowe hasło.',
 		emailNotConfirmed:
@@ -394,6 +395,8 @@ export const pl = {
 		spanOrder: 'Rok końcowy nie może być wcześniejszy niż początkowy.',
 		yearInvalid: 'Rok to liczba całkowita od 1 w górę. Dla lat przed naszą erą zaznacz „p.n.e.”.',
 		invalid: 'Niektóre pola się nie zgadzają. Sprawdź je i zapisz jeszcze raz.',
+		conflict:
+			'Nie udało się zapisać, bo dane zmieniły się w międzyczasie. Odśwież stronę i spróbuj jeszcze raz.',
 		notFound: 'Nie ma takiego dzieła w Twoim atelier. Mogło trafić do kosza.',
 		network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.'
 	},

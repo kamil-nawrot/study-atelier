@@ -36,6 +36,12 @@ describe('Alert', () => {
 		await expect.element(page.getByText('Check the form')).toBeVisible();
 	});
 
+	it('puts the given id on the alert', async () => {
+		render(Alert, { id: 'form-error', tone: 'danger', children: body });
+
+		await expect.element(page.getByRole('alert')).toHaveAttribute('id', 'form-error');
+	});
+
 	it('works without a message or a title', async () => {
 		render(Alert, { tone: 'success' });
 
