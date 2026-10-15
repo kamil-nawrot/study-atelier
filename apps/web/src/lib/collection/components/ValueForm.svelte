@@ -1,17 +1,17 @@
 <script lang="ts">
-	import { onDestroy, tick, untrack } from 'svelte';
+	import { tick, untrack } from 'svelte';
 	import {
 		Alert,
 		Button,
 		Dialog,
 		Form,
+		FormActions,
 		NotesEditor,
 		Select,
 		Tag,
 		TextArea,
 		TextField
 	} from '@study-atelier/ui';
-	import { beforeNavigate, goto } from '$app/navigation';
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
 	import { loadValuePageContent, saveValue } from '../card-index-data.ts';
@@ -25,10 +25,11 @@
 		valuesOf
 	} from '../card-index.ts';
 	import { ERA_CODES, eraName } from '../eras.ts';
-	import { pendingAnswer } from '../pending-answer.ts';
+	import { UnsavedChanges } from '../unsaved-changes.svelte.ts';
 	import { saveValueDetails, valueDetailsChanged } from '../value-details.ts';
 	import { SUMMARY_MAX_LENGTH, subjectPath, valuePath } from '../value-pages.ts';
 	import type { CardIndexData, EraCode, ValueDetails, ValueSubject } from '../types.ts';
+	import DiscardDialog from './DiscardDialog.svelte';
 
 	type Props = {
 		subject: ValueSubject;
@@ -61,10 +62,12 @@
 	let moveError = $state<string>();
 	let mergeOpen = $state(false);
 	let mergedHasContent = $state(false);
-	let discardOpen = $state(false);
 	let busy = $state(false);
-	let discarded: FormState | null = null;
-	const discardQuestion = pendingAnswer();
+	const changes = new UnsavedChanges(
+		() => $state.snapshot(form),
+		() => saved,
+		hasChanges
+	);
 
 	let kind = $derived(record ? m.cardIndex.kinds[record.category] : undefined);
 	let change = $derived(record ? planNameChange(record, form.name, index) : undefined);
@@ -155,46 +158,9 @@
 		);
 	}
 
-	function leaveAllowed(): boolean {
-		return discarded !== null && !hasChanges(form, discarded);
-	}
-
 	export function confirmLeave(): Promise<boolean> {
-		if (leaveAllowed() || !hasChanges(form, saved)) return Promise.resolve(true);
-		return discardQuestion
-			.ask(() => (discardOpen = true))
-			.then((discard) => {
-				if (discard) discarded = $state.snapshot(form);
-				return discard;
-			});
+		return changes.confirmLeave();
 	}
-
-	function answer(discard: boolean): void {
-		discardQuestion.answer(discard);
-		discardOpen = false;
-	}
-
-	beforeNavigate((navigation) => {
-		if (leaveAllowed()) {
-			discarded = null;
-			return;
-		}
-		if (!hasChanges(form, saved)) return;
-		navigation.cancel();
-		const url = navigation.to?.url;
-		if (navigation.type === 'leave' || !url || discardQuestion.pending) return;
-		const target = `${url.pathname}${url.search}${url.hash}` as ResolvedPathname;
-		const popstate = navigation.type === 'popstate' ? navigation.delta : null;
-		void confirmLeave().then((discard) => {
-			if (!discard) return;
-			if (popstate === null) void goto(target);
-			else history.go(popstate);
-		});
-	});
-
-	onDestroy(() => {
-		discardQuestion.answer(false);
-	});
 
 	function addEra(code: string): void {
 		if (!code) return;
@@ -409,33 +375,18 @@
 			/>
 		</div>
 
-		<footer class="actions">
+		<FormActions>
 			<Button href={cancelHref} onclick={oncancel}>
 				{m.valueForm.cancel}
 			</Button>
 			<Button disabled={busy} type="submit" variant="primary">
 				{busy ? m.valueForm.saving : m.valueForm.save}
 			</Button>
-		</footer>
+		</FormActions>
 	</Form>
 </div>
 
-<Dialog
-	description={m.valueForm.discardDescription}
-	onclose={() => discardQuestion.answer(false)}
-	size="small"
-	title={m.artworkForm.discardTitle}
-	bind:open={discardOpen}
->
-	{#snippet footer()}
-		<Button onclick={() => answer(false)}>
-			{m.artworkForm.keepEditing}
-		</Button>
-		<Button onclick={() => answer(true)} variant="primary">
-			{m.artworkForm.discard}
-		</Button>
-	{/snippet}
-</Dialog>
+<DiscardDialog {changes} description={m.valueForm.discardDescription} />
 
 <Dialog
 	description={moveDescription}
@@ -524,27 +475,6 @@
 		line-height: var(--line-height-sm);
 	}
 
-	.actions {
-		position: sticky;
-		bottom: 0;
-		margin-top: auto;
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--spacing-2) var(--spacing-3);
-		padding: var(--spacing-3) 0;
-		border-top: var(--border-width-hairline) solid var(--color-tag);
-		background: var(--color-bg);
-	}
-
-	.actions > :global(*) {
-		flex: 1 1 auto;
-	}
-
-	.actions > :global(:first-child) {
-		order: 3;
-		flex-basis: 100%;
-	}
-
 	@media (min-width: 768px) {
 		.page {
 			min-height: calc(100dvh - var(--bar-height) - var(--spacing-8));
@@ -552,21 +482,6 @@
 
 		.fields {
 			max-width: var(--size-content-default);
-		}
-
-		.actions {
-			justify-content: flex-end;
-			padding: var(--spacing-4) 0;
-		}
-
-		.actions > :global(*) {
-			flex: none;
-		}
-
-		.actions > :global(:first-child) {
-			order: 0;
-			flex-basis: auto;
-			margin-right: auto;
 		}
 	}
 </style>
