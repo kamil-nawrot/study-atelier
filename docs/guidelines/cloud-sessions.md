@@ -20,19 +20,20 @@ pnpm screenshot /atelier --combine
 
 Starts the dev server on port 5199, opens the route in Chromium at a desktop (1440 x 900) and a phone (390 x 844, 2x) viewport and writes PNGs to `tmp/screenshots/` (ignored by git). Options:
 
-| Option              | Effect                                                              |
-| ------------------- | ------------------------------------------------------------------- |
-| `--out <dir>`       | Output folder, for example a folder in the project files            |
-| `--name <name>`     | File name prefix (default derived from the route)                   |
-| `--viewport <v>`    | `desktop`, `phone` or `both` (default)                              |
-| `--combine`         | Also write `<name>-both.png` with both shots side by side           |
-| `--full-page`       | Capture the whole page instead of the first screen                  |
-| `--signed-out`      | No fake session (automatic for sign-in, sign-up and password pages) |
-| `--storage k=v`     | Set a localStorage entry first, for example `study-atelier:wall-order=period` |
+| Option              | Effect                                                                                                                                                                 |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--out <dir>`       | Output folder, for example a folder in the project files                                                                                                               |
+| `--name <name>`     | File name prefix (default derived from the route)                                                                                                                      |
+| `--viewport <v>`    | `desktop`, `phone` or `both` (default)                                                                                                                                 |
+| `--combine`         | Also write `<name>-both.png` with both shots side by side                                                                                                              |
+| `--full-page`       | Capture the whole page instead of the first screen                                                                                                                     |
+| `--signed-out`      | No fake session (automatic for sign-in, sign-up and password pages)                                                                                                    |
+| `--storage k=v`     | Set a localStorage entry first, for example `study-atelier:wall-order=period`                                                                                          |
 | `--session k=v`     | Set a sessionStorage entry first, for example the wall sequence that gives the artwork view its arrows: `'study-atelier:wall-sequence={"query":"","numbers":[9,3,1]}'` |
-| `--wait <selector>` | Wait for a selector before capturing                                |
-| `--script <file>`   | Run a JavaScript file in the page first, for example to mock an option |
-| `--url <base>`      | Use a dev server that is already running                            |
+| `--wait <selector>` | Wait for a selector before capturing                                                                                                                                   |
+| `--type <text>`     | Click the notes editor and type this text first, for example `' @ba'` to open the link suggestions                                                                     |
+| `--script <file>`   | Run a JavaScript file in the page first, for example to mock an option                                                                                                 |
+| `--url <base>`      | Use a dev server that is already running                                                                                                                               |
 
 Combine desktop and phone shots into one image when attaching to a thread: a thread accepts at most 24 attachments.
 

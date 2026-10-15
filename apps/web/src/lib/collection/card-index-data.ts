@@ -37,7 +37,7 @@ export type ValuePageContentResult = {
 	error?: string;
 };
 
-async function fetchAll<T>(
+export async function fetchAll<T>(
 	page: (from: number, to: number) => Page
 ): Promise<{ rows: T[]; error?: ErrorLike }> {
 	const rows: T[] = [];

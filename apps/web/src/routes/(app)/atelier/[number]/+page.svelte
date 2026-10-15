@@ -140,7 +140,13 @@
 	{/snippet}
 
 	{#if data.artwork}
-		<ArtworkView artwork={data.artwork} editHref={editPath} {flipLinks} onflip={flip} />
+		<ArtworkView
+			artwork={data.artwork}
+			editHref={editPath}
+			{flipLinks}
+			noteLinks={data.noteLinks}
+			onflip={flip}
+		/>
 	{:else}
 		<Section>
 			<h1>{title}</h1>

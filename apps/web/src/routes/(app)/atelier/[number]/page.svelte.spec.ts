@@ -4,8 +4,10 @@ import { render } from 'vitest-browser-svelte';
 import { afterNavigate, goto, preloadData } from '$app/navigation';
 import { moveToTrash } from '#lib/collection/trash.ts';
 import type { ArtworkRecord, LoadArtworkResult } from '#lib/collection/types.ts';
+import { buildNoteLinks } from '#lib/collection/note-links.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testSession } from '#lib/testing/auth.ts';
+import { testCardIndex } from '#lib/testing/card-index.ts';
 import ArtworkPage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -122,6 +124,28 @@ describe('artwork page', () => {
 		await expect.element(page.getByRole('listitem').filter({ hasText: 'Delft' })).toBeVisible();
 		await expect.element(page.getByText('<img src=x onerror=alert(1)>')).toBeVisible();
 		expect(document.querySelector('.notes img')).toBeNull();
+	});
+
+	it('links notes to values and artworks and shows the current names', async () => {
+		renderPage({
+			artwork: artwork({
+				notes:
+					'Like [old name](/atelier/values/author/author-phidias), see [x](/atelier/12) and [gone](/atelier/99).'
+			}),
+			noteLinks: buildNoteLinks({
+				index: testCardIndex(),
+				artworks: [{ number: 12, title: 'Calling of Saint Matthew', authors: [] }]
+			})
+		});
+
+		await expect
+			.element(page.getByRole('link', { name: 'Phidias' }))
+			.toHaveAttribute('href', '/atelier/values/author/author-phidias');
+		await expect
+			.element(page.getByRole('link', { name: '#0012 Calling of Saint Matthew' }))
+			.toHaveAttribute('href', '/atelier/12');
+		await expect.element(page.getByText('gone')).toBeVisible();
+		await expect.element(page.getByRole('link', { name: 'gone' })).not.toBeInTheDocument();
 	});
 
 	it('marks the fields the learner has not filled in', async () => {

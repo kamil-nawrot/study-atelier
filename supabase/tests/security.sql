@@ -246,7 +246,17 @@ begin
 
   insert into public.category_values (category_code, name) values ('period', 'Merged') returning id into a_merged;
   insert into public.period_details (value_id, summary) values (a_merged, 'Merged summary');
+  update public.artworks set notes = format('See [Merged](/atelier/values/period/%s) and [x](/atelier/12).', a_merged)
+    where id = a_artwork;
+  update public.period_details set notes = format('Also [Merged](/atelier/values/period/%s).', a_merged)
+    where value_id = a_value;
   perform public.merge_category_values(a_merged, a_value);
+  assert (select notes from public.artworks where id = a_artwork)
+      = format('See [Merged](/atelier/values/period/%s) and [x](/atelier/12).', a_value),
+    'merging rewrites links to the merged value in artwork notes';
+  assert (select notes from public.period_details where value_id = a_value)
+      = format('Also [Merged](/atelier/values/period/%s).', a_value),
+    'merging rewrites links to the merged value in value notes';
   assert (select array_agg(summary) from public.period_details) = array['Period summary'],
     'merging keeps the details of the merged value or drops those of the kept one';
 

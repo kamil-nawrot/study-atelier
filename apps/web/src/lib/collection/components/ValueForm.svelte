@@ -10,6 +10,7 @@
 		FormActions,
 		NotesEditor,
 		SearchSelect,
+		type NoteLinks,
 		Select,
 		Tag,
 		TextArea,
@@ -57,12 +58,13 @@
 		subject: ValueSubject;
 		index: CardIndexData;
 		details: ValueDetails;
+		noteLinks?: NoteLinks;
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
 		onsaved: (path: ResolvedPathname, message: string) => void | Promise<void>;
 	};
 
-	let { subject, index, details, cancelHref, oncancel, onsaved }: Props = $props();
+	let { subject, index, details, noteLinks, cancelHref, oncancel, onsaved }: Props = $props();
 
 	type FormState = {
 		name: string;
@@ -490,7 +492,9 @@
 				/>
 
 				<NotesEditor
+					hint={noteLinks ? m.valueForm.notesLinkHint : undefined}
 					label={m.valueForm.notes}
+					links={noteLinks}
 					placeholder={m.valueForm.notesPlaceholder}
 					bind:value={form.details.notes}
 				/>

@@ -3,7 +3,15 @@
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
 	import X from '@lucide/svelte/icons/x';
-	import { ArtworkImage, Button, Icon, NoImage, Notes, Tag } from '@study-atelier/ui';
+	import {
+		ArtworkImage,
+		Button,
+		Icon,
+		NoImage,
+		Notes,
+		type NoteLinks,
+		Tag
+	} from '@study-atelier/ui';
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
@@ -15,11 +23,12 @@
 	type Props = {
 		artwork: ArtworkRecord;
 		editHref: string;
+		noteLinks?: NoteLinks;
 		flipLinks?: Record<FlipDirection, ResolvedPathname | null>;
 		onflip?: (direction: FlipDirection) => void;
 	};
 
-	let { artwork, editHref, flipLinks, onflip }: Props = $props();
+	let { artwork, editHref, flipLinks, noteLinks, onflip }: Props = $props();
 
 	const STAGE_WIDTH = 960;
 	const VIEWER_WIDTH = 1920;
@@ -187,7 +196,7 @@
 			<section class="notes" aria-labelledby="artwork-notes">
 				<h2 id="artwork-notes" class="caption">{m.artworkForm.notes}</h2>
 				{#if artwork.notes.trim()}
-					<Notes value={artwork.notes} />
+					<Notes links={noteLinks} value={artwork.notes} />
 				{:else}
 					{@render empty()}
 				{/if}

@@ -131,7 +131,13 @@
 	{/snippet}
 
 	{#if subject && editHref}
-		<ValueView count={artworks.length} details={data.details} {parents} {subject} />
+		<ValueView
+			count={artworks.length}
+			details={data.details}
+			noteLinks={data.noteLinks}
+			{parents}
+			{subject}
+		/>
 
 		<section class="artworks" aria-labelledby="value-artworks">
 			<header>

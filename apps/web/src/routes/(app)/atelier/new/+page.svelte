@@ -51,6 +51,7 @@
 		bind:this={form}
 		cancelHref={atelierPath}
 		categoryValues={data.values}
+		noteLinks={data.noteLinks}
 		oncancel={backToAtelier}
 		onsaved={showSaved}
 		valueLinks={data.links}

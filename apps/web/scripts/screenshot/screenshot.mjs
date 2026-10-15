@@ -39,6 +39,7 @@ const USAGE = `Usage: pnpm screenshot <path> [options]
   --storage k=v      set a localStorage entry before the page loads (repeatable)
   --session k=v      set a sessionStorage entry before the page loads (repeatable)
   --wait <selector>  wait for this selector before capturing
+  --type <text>      click the notes editor and type this text before capturing
   --script <file>    run this JavaScript file in the page before capturing, for example to mock a variant
   --url <base>       use a running dev server instead of starting one
 `;
@@ -58,7 +59,9 @@ function parseArgs(argv) {
 		else if (arg === '--combine') options.combine = true;
 		else if (arg === '--full-page') options.fullPage = true;
 		else if (arg === '--signed-out') options.signedOut = true;
-		else if (['--out', '--name', '--viewport', '--wait', '--url', '--script'].includes(arg)) {
+		else if (
+			['--out', '--name', '--viewport', '--wait', '--url', '--script', '--type'].includes(arg)
+		) {
 			options[arg.slice(2)] = rest.shift();
 		} else if (arg === '--storage' || arg === '--session') {
 			const [key, ...value] = (rest.shift() ?? '').split('=');
@@ -284,6 +287,13 @@ async function capture(browser, base, options, name) {
 	await page.goto(new URL(options.route, base).href, { waitUntil: 'networkidle' });
 	if (options.wait) await page.waitForSelector(options.wait);
 	if (options.script) await page.evaluate(readFileSync(path.resolve(options.script), 'utf8'));
+	if (options.type) {
+		const editor = page.locator('.ProseMirror').first();
+		await editor.scrollIntoViewIfNeeded();
+		await editor.click();
+		await page.keyboard.press('Control+End');
+		await page.keyboard.type(options.type);
+	}
 	await page.evaluate(() => document.fonts.ready);
 	await page.waitForTimeout(400);
 	const file = path.join(options.out, `${options.name}-${name}.png`);

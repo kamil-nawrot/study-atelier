@@ -31,4 +31,5 @@ export { default as ToggleTiles } from './components/ToggleTiles.svelte';
 export { default as Tooltip } from './components/Tooltip.svelte';
 export { default as Toast } from './components/Toast.svelte';
 export { default as ValueField, type ValueOption } from './components/ValueField.svelte';
+export type { NoteLinkOption, NoteLinks, NoteLinkTrigger } from './note-links';
 export { defaultUiMessages, setUiMessages, type AlertTone, type UiMessages } from './messages';

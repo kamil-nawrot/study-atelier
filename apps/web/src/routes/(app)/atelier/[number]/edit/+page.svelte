@@ -62,6 +62,7 @@
 				artwork={data.artwork}
 				cancelHref={artworkPath}
 				categoryValues={data.values}
+				noteLinks={data.noteLinks}
 				oncancel={goBack}
 				onsaved={showSaved}
 				valueLinks={data.links}
