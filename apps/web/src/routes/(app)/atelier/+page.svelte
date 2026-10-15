@@ -479,6 +479,7 @@
 		max-height: calc(100dvh - var(--bar-height));
 		padding: var(--spacing-4) var(--spacing-6) var(--spacing-12);
 		overflow-y: auto;
+		scrollbar-gutter: stable;
 		border-left: var(--border-width-base) solid var(--color-line);
 	}
 

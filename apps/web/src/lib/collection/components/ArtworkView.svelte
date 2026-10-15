@@ -439,6 +439,8 @@
 
 	.viewer :global(img) {
 		display: block;
+		width: auto;
+		height: auto;
 		max-width: 100vw;
 		max-height: 100dvh;
 	}
@@ -453,7 +455,9 @@
 	@media (min-width: 768px) {
 		.view {
 			grid-template-columns: minmax(0, 1fr) auto;
+			grid-template-rows: minmax(0, 1fr);
 			height: 100%;
+			min-height: 0;
 		}
 
 		.stage {

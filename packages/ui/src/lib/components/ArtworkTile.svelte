@@ -55,7 +55,7 @@
 
 <a class="tile" {href}>
 	<figure>
-		<div class="window">
+		<div style:--artwork-ratio={image ? image.width / image.height : undefined} class="window">
 			{#if image}
 				<ArtworkImage
 					alt="{title}, {authorText}"
@@ -116,8 +116,9 @@
 
 	.window :global(img) {
 		display: block;
-		width: 100%;
+		width: min(100%, calc(var(--artwork-max-height, 100000px) * var(--artwork-ratio, 1)));
 		height: auto;
+		margin-inline: auto;
 		background: var(--color-mat-window);
 	}
 

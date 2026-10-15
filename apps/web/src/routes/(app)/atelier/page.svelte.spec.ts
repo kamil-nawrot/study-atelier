@@ -496,7 +496,7 @@ describe('atelier page', () => {
 				await expect.element(rail).toBeVisible();
 				await expect.element(rail).toHaveTextContent(m.eras.modern.name);
 				expect(rail.element().getBoundingClientRect().right).toBe(
-					document.documentElement.clientWidth
+					document.documentElement.getBoundingClientRect().right
 				);
 				expect(page.getByRole('complementary').elements()).toHaveLength(1);
 			});

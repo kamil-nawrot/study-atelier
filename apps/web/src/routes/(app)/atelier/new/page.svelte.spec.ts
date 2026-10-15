@@ -622,6 +622,39 @@ describe('add artwork page', () => {
 		expect(goto).not.toHaveBeenCalled();
 	});
 
+	it('brings the error into view when saving fails far from the top of the form', async () => {
+		const scrollIntoView = vi.spyOn(Element.prototype, 'scrollIntoView');
+		rpcCall.single.mockResolvedValue({
+			data: null,
+			error: { code: '23505', message: 'duplicate key' }
+		});
+		renderPage();
+		await fillRequired();
+
+		await saveButton().click();
+
+		await expect.element(page.getByText(m.artworkErrors.conflict)).toBeVisible();
+		await vi.waitFor(() => {
+			const alert = page.getByRole('alert').element();
+			expect(scrollIntoView.mock.contexts).toContain(alert);
+		});
+		scrollIntoView.mockRestore();
+	});
+
+	it('signs the learner out when the session is no longer valid', async () => {
+		rpcCall.single.mockResolvedValue({
+			data: null,
+			error: { code: 'PGRST301', message: 'JWT expired' }
+		});
+		renderPage();
+		await fillRequired();
+
+		await saveButton().click();
+
+		await expect.element(page.getByText(m.authErrors.sessionEnded)).toBeVisible();
+		expect(supabase.auth.signOut).toHaveBeenCalledOnce();
+	});
+
 	it('keeps a change made while saving as unsaved', async () => {
 		const response = deferred<{ data: unknown; error: null }>();
 		rpcCall.single.mockReturnValue(response.promise);

@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 import Landmark from '@lucide/svelte/icons/landmark';
 import { render } from 'vitest-browser-svelte';
+import '../styles/index.css';
 import { defaultUiMessages } from '../messages';
 import MessagesHost from '../testing/MessagesHost.svelte';
 import ArtworkTile from './ArtworkTile.svelte';
@@ -137,5 +138,38 @@ describe('ArtworkTile', () => {
 
 		await expect.element(page.getByText(defaultUiMessages.noImage)).not.toBeInTheDocument();
 		expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+	});
+
+	describe('with a maximum image height', () => {
+		afterEach(() => {
+			document.documentElement.style.removeProperty('--artwork-max-height');
+		});
+
+		it('keeps a tall image within the height and in proportion', async () => {
+			document.documentElement.style.setProperty('--artwork-max-height', '120px');
+			render(ArtworkTile, { ...base, image: { src: pixel, width: 300, height: 900 } });
+
+			const box = page
+				.getByRole('img', { name: /Sunflowers/ })
+				.element()
+				.getBoundingClientRect();
+			expect(box.height).toBeLessThanOrEqual(120);
+			expect(box.width / box.height).toBeCloseTo(300 / 900, 1);
+		});
+
+		it('leaves an image that fits at the full width', async () => {
+			document.documentElement.style.setProperty('--artwork-max-height', '2000px');
+			render(ArtworkTile, { ...base, image });
+
+			const box = page
+				.getByRole('img', { name: /Sunflowers/ })
+				.element()
+				.getBoundingClientRect();
+			const window = page
+				.getByRole('img', { name: /Sunflowers/ })
+				.element()
+				.closest('.window');
+			expect(box.width).toBeCloseTo(window!.getBoundingClientRect().width, 0);
+		});
 	});
 });
