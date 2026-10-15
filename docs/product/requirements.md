@@ -54,6 +54,7 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | Material | one or more values | |
 | Location | text | Where the artwork is now. |
 | Notes | long text with basic formatting | The learner's own notes. See R-37. |
+| Favourite | yes or no | Set with a heart, not in the form. See R-74. |
 
 ## Category values
 
@@ -118,6 +119,8 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-60 | ~~In the artwork view the era, period, styles, materials, location and authors are links to the wall filtered by that value, and in the card index every value has "Pokaż dzieła (n)" that does the same.~~ Dropped: the wall is filtered from the panel, and the card index is kept for later detail pages of its values ([ADR-0047](../decisions/0047-no-links-from-values-into-a-filtered-wall.md)). | 0.3 |
 | R-61 | In the artwork view the learner goes to the previous and next artwork of the filtered and ordered wall with subtle arrows at the edges of the stage, the arrow keys on a larger screen and a horizontal swipe on a phone; the arrow is dimmed at either end of the list. | 0.3 |
 | R-62 | The date of creation is either a single year or a [year span](glossary.md) with a start and an end year. A switch "Od – do" above the date inputs sets the mode; each year has its own "p.n.e.", so a year span can cross the turn of the eras, and "ok." marks the whole date as approximate. A start later than the end is rejected, and equal years are saved as a single year. A year span is written `1503–1519`, `450–420 p.n.e.` or `50 p.n.e. – 20 n.e.`, the wall orders it by its end year and the era bounds on the period rail take its whole extent ([ADR-0046](../decisions/0046-enter-the-date-of-creation-as-a-year-span.md)). | 0.3 |
+| R-74 | The learner marks an artwork as a favourite with a heart: on its tile on the wall, at the right end of the caption, and in the top bar of the artwork view, before "Edytuj". The heart is an outline when the artwork is not a favourite and filled when it is; each change shows a toast, and a failed save puts the heart back and says so ([ADR-0058](../decisions/0058-mark-artworks-as-favourites-with-a-heart.md)). | 0.4 |
+| R-75 | The "Filtry" panel starts with an "Ulubione" tag with the number of favourites; pressed, the wall shows only favourites, together with the other filters, and the tag is kept in the URL and shown among the active filters. The favourite marker is stored with the artwork, is not part of the form and stays through the trash and a restore. | 0.4 |
 
 ## Account
 

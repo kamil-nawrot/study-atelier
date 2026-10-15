@@ -1,4 +1,4 @@
-# 0058. Show a value's summary in a card that opens from the artwork view
+# 0059. Show a value's summary in a card that opens from the artwork view
 
 - Status: accepted
 - Date: 2026-10-15
