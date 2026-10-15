@@ -3,17 +3,25 @@
 
 	type Props = {
 		text: string;
+		placement?: 'top' | 'bottom';
+		align?: 'start' | 'end';
 		children: Snippet<[string]>;
 	};
 
-	let { text, children }: Props = $props();
+	let { text, placement = 'top', align = 'start', children }: Props = $props();
 
 	const id = $props.id();
 </script>
 
 <span class="tooltip">
 	{@render children(id)}
-	<span {id} class="bubble" role="tooltip">{text}</span>
+	<span
+		{id}
+		class="bubble"
+		class:below={placement === 'bottom'}
+		class:end={align === 'end'}
+		role="tooltip">{text}</span
+	>
 </span>
 
 <style>
@@ -37,6 +45,16 @@
 		line-height: var(--line-height-sm);
 		visibility: hidden;
 		pointer-events: none;
+	}
+
+	.bubble.below {
+		top: calc(100% + var(--spacing-2));
+		bottom: auto;
+	}
+
+	.bubble.end {
+		right: 0;
+		left: auto;
 	}
 
 	.tooltip:hover .bubble,

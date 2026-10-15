@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import '../styles/index.css';
 import Tooltip from './Tooltip.svelte';
 
 const button = createRawSnippet((describedby: () => string) => ({
@@ -45,5 +46,32 @@ describe('Tooltip', () => {
 		await expect
 			.element(page.getByRole('button', { name: 'Delete' }))
 			.toHaveAccessibleDescription('Two artworks still use this');
+	});
+
+	it('opens above the control and grows from its start by default', async () => {
+		renderTooltip();
+
+		await userEvent.hover(page.getByRole('button', { name: 'Delete' }));
+
+		const control = page.getByRole('button', { name: 'Delete' }).element().getBoundingClientRect();
+		const bubble = page.getByRole('tooltip').element().getBoundingClientRect();
+		expect(bubble.bottom).toBeLessThanOrEqual(control.top);
+		expect(bubble.left).toBeCloseTo(control.left, 0);
+	});
+
+	it('can open below the control and line up with its end', async () => {
+		render(Tooltip, {
+			text: 'Two artworks still use this',
+			placement: 'bottom',
+			align: 'end',
+			children: button
+		});
+
+		await userEvent.hover(page.getByRole('button', { name: 'Delete' }));
+
+		const control = page.getByRole('button', { name: 'Delete' }).element().getBoundingClientRect();
+		const bubble = page.getByRole('tooltip').element().getBoundingClientRect();
+		expect(bubble.top).toBeGreaterThanOrEqual(control.bottom);
+		expect(bubble.right).toBeCloseTo(control.right, 0);
 	});
 });

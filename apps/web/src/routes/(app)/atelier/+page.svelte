@@ -3,7 +3,7 @@
 	import Plus from '@lucide/svelte/icons/plus';
 	import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
 	import X from '@lucide/svelte/icons/x';
-	import { onDestroy, onMount, untrack } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { MediaQuery, SvelteSet } from 'svelte/reactivity';
 	import {
 		Alert,
@@ -20,7 +20,6 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
-	import { refreshExpiredImages, resolveImages } from '#lib/collection/artworks.ts';
 	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import FilterPanel from '#lib/collection/components/FilterPanel.svelte';
@@ -36,19 +35,19 @@
 		removeTag
 	} from '#lib/collection/filter.ts';
 	import { formatRecordNumber } from '#lib/collection/format.ts';
-	import { ImageQueue } from '#lib/collection/image-queue.ts';
 	import { WALL_PART } from '#lib/collection/masonry.ts';
 	import PeriodRail from '#lib/collection/components/PeriodRail.svelte';
 	import PeriodStrip from '#lib/collection/components/PeriodStrip.svelte';
 	import { groupByAuthor, groupByEra } from '#lib/collection/periods.ts';
 	import { MIN_RAIL_MARGIN, PeriodTracker } from '#lib/collection/period-tracker.svelte.ts';
 	import { filterByTitleOrAuthor } from '#lib/collection/search.ts';
-	import type { WallArtwork, WallOrder } from '#lib/collection/types.ts';
+	import type { WallOrder } from '#lib/collection/types.ts';
 	import {
 		isWallOrder,
 		rememberedWallOrder,
 		rememberWallOrder
 	} from '#lib/collection/wall-order.ts';
+	import { WallImages } from '#lib/collection/wall-images.svelte.ts';
 	import { rememberWallSequence } from '#lib/collection/wall-sequence.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps, Snapshot } from './$types';
@@ -93,7 +92,6 @@
 	const addPath = resolve('/(app)/atelier/new');
 	const atelierPath = resolve('/(app)/atelier');
 	const HIGHLIGHT_MS = 2000;
-	const REFRESH_DELAY_MS = 100;
 
 	let highlight = $state(page.state.highlight);
 	let toast: Toast;
@@ -114,13 +112,7 @@
 		return () => clearTimeout(timer);
 	});
 
-	let updated = $state<Record<string, WallArtwork>>({});
-	let failedImages: WallArtwork[] = [];
-	let refreshTimer: ReturnType<typeof setTimeout> | undefined;
-
-	const imageQueue = new ImageQueue(resolveImages, (resolved) => {
-		for (const artwork of resolved) updated[artwork.id] = artwork;
-	});
+	const images = new WallImages();
 
 	$effect.pre(() => {
 		const pruned = pruneFilter(
@@ -133,28 +125,10 @@
 
 	$effect.pre(() => {
 		void data.artworks;
-		updated = {};
-		imageQueue.reset();
+		images.reset();
 	});
 
-	onDestroy(() => {
-		clearTimeout(refreshTimer);
-		imageQueue.reset();
-	});
-
-	function imageFailed(artwork: WallArtwork): void {
-		failedImages.push(artwork);
-		clearTimeout(refreshTimer);
-		refreshTimer = setTimeout(refreshImages, REFRESH_DELAY_MS);
-	}
-
-	async function refreshImages(): Promise<void> {
-		const batch = failedImages;
-		failedImages = [];
-		for (const artwork of await refreshExpiredImages(batch)) updated[artwork.id] = artwork;
-	}
-
-	let artworks = $derived(data.artworks.map((artwork) => updated[artwork.id] ?? artwork));
+	let artworks = $derived(images.apply(data.artworks));
 	let imagesUnavailable = $derived(artworks.some((artwork) => artwork.imageUnavailable));
 	let filtered = $derived(applyFilter(artworks, filter));
 	let tags = $derived(filterTags(filter));
@@ -381,8 +355,8 @@
 		<ArtworkWall
 			artworks={shown}
 			{highlight}
-			onimagefailed={imageFailed}
-			onnearscreen={(artwork) => imageQueue.request(artwork)}
+			onimagefailed={(artwork) => images.failed(artwork)}
+			onnearscreen={(artwork) => images.request(artwork)}
 			{periodIndexes}
 			bind:element={wall}
 			bind:rendered

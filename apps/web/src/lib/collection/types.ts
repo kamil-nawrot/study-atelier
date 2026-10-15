@@ -289,3 +289,27 @@ export type WallSequence = {
 };
 
 export type Neighbours = Record<FlipDirection, number | null>;
+
+export type ValueKind = 'era' | CategoryCode;
+
+export type ValueSubject =
+	{ kind: 'era'; code: EraCode } | { kind: CategoryCode; record: CardIndexRecord };
+
+export type ValueDetails = {
+	summary: string;
+	notes: string;
+};
+
+export type ValueDetailsResult = {
+	details: ValueDetails;
+	error?: string;
+};
+
+export type ValuePageResult = {
+	subject?: ValueSubject;
+	index: CardIndexData;
+	artworks: WallArtwork[];
+	details: ValueDetails;
+	notFound?: boolean;
+	error?: string;
+};

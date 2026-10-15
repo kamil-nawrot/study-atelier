@@ -419,9 +419,8 @@ export const pl = {
 	},
 	cardIndex: {
 		title: 'Kartoteka',
-		lead: 'Tu porządkujesz swoje epoki, okresy, style i inne wartości, które wpisujesz przy dziełach.',
+		lead: 'Tu opisujesz i porządkujesz swoje epoki, okresy, style, autorów i miejsca. Kliknij nazwę, która cię interesuje, żeby zobaczyć szczegóły.',
 		loadErrorTitle: 'Nie udało się wczytać Kartoteki',
-		actionErrorTitle: 'Nie udało się zapisać zmian',
 		tabsLabel: 'Rodzaje wartości',
 		tabs: {
 			timeline: 'Okresy i style',
@@ -477,32 +476,6 @@ export const pl = {
 				other: 'innym miejscem'
 			}
 		},
-		dialog: {
-			description: (kind: string, count: string): string => `${kind} · ${count}`,
-			name: 'Nazwa',
-			nameRequired: 'Wpisz nazwę.',
-			mergeHint: (kind: string, name: string, count: string): string =>
-				`Masz już ${kind} „${name}” (${count}). Zapisz, a połączę je w jeden.`,
-			eras: 'Epoki',
-			periods: 'Okresy',
-			noEras: 'Ten okres nie ma jeszcze epoki.',
-			noPeriods: 'Ten styl nie ma jeszcze okresu.',
-			addEra: 'Dodaj epokę',
-			addPeriod: 'Dodaj okres',
-			chooseEra: 'Wybierz epokę',
-			choosePeriod: 'Wybierz okres',
-			removeEra: (name: string): string => `Usuń epokę ${name}`,
-			removePeriod: (name: string): string => `Usuń okres ${name}`,
-			periodLocked: (period: string, count: number): string =>
-				`Nie uda się odpiąć okresu „${period}” od tego stylu, bo ${workCount(count)} w tym stylu ${count === 1 ? 'ma' : 'mają'} przypisany taki okres.`,
-			delete: 'Usuń',
-			deleteBlocked: (demonstrative: string, count: string, other: string): string =>
-				`${demonstrative} ma jeszcze ${count}, więc nie da się go usunąć. Możesz go połączyć z ${other}.`,
-			cancel: 'Anuluj',
-			save: 'Zapisz',
-			saving: 'Zapisywanie…',
-			merge: 'Połącz'
-		},
 		mergeConfirm: {
 			title: (merged: string, kept: string): string => `Połączyć „${merged}” z „${kept}”?`,
 			unused: (merged: string): string =>
@@ -540,15 +513,89 @@ export const pl = {
 			confirm: 'Usuń',
 			deleting: 'Usuwanie…'
 		},
-		saved: (name: string): string => `Zapisano „${name}”.`,
 		merged: (name: string): string => `Połączono z „${name}”.`,
 		deleted: (name: string): string => `Usunięto „${name}”.`,
 		errors: {
 			network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.',
 			notFound: 'Nie ma już takiej wartości. Odśwież stronę.',
-			changed:
-				'Coś zmieniło się w międzyczasie. Zamknij okno, sprawdź Kartotekę i spróbuj jeszcze raz.'
+			changed: 'Coś zmieniło się w międzyczasie. Odśwież stronę i spróbuj jeszcze raz.'
 		}
+	},
+	valuePage: {
+		back: 'Kartoteka',
+		edit: 'Edytuj',
+		notes: 'Notatki',
+		delete: 'Usuń',
+		deleteBlocked: (demonstrative: string, count: string, other: string): string =>
+			`${demonstrative} ma jeszcze ${count}, więc nie da się go usunąć. Możesz go połączyć z ${other}.`,
+		header: (kind: string, count: string): string => `${kind} · ${count}`,
+		eraKind: 'Epoka',
+		notFoundTitle: 'Nie ma takiej wartości',
+		notFound: 'Nie ma takiej wartości w Kartotece. Może została usunięta albo połączona z inną.',
+		loadErrorTitle: 'Nie udało się wczytać tej strony',
+		saved: 'Zapisano zmiany.',
+		kinds: {
+			era: {
+				artworks: 'Dzieła z tej epoki',
+				noNotes: 'Nie masz jeszcze notatek o tej epoce.',
+				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tej epoki.'
+			},
+			period: {
+				artworks: 'Dzieła z tego okresu',
+				noNotes: 'Nie masz jeszcze notatek o tym okresie.',
+				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tego okresu.'
+			},
+			style: {
+				artworks: 'Dzieła w tym stylu',
+				noNotes: 'Nie masz jeszcze notatek o tym stylu.',
+				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła w tym stylu.'
+			},
+			material: {
+				artworks: 'Dzieła z tego materiału',
+				noNotes: 'Nie masz jeszcze notatek o tym materiale.',
+				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tego materiału.'
+			},
+			author: {
+				artworks: 'Dzieła tego autora',
+				noNotes: 'Nie masz jeszcze notatek o tym autorze.',
+				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła tego autora.'
+			},
+			location: {
+				artworks: 'Dzieła z tego miejsca',
+				noNotes: 'Nie masz jeszcze notatek o tym miejscu.',
+				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tego miejsca.'
+			}
+		}
+	},
+	valueForm: {
+		name: 'Nazwa',
+		nameRequired: 'Wpisz nazwę.',
+		mergeHint: (kind: string, name: string, count: string): string =>
+			`Masz już ${kind} „${name}” (${count}). Zapisz, a połączę je w jeden.`,
+		eras: 'Epoki',
+		periods: 'Okresy',
+		noEras: 'Ten okres nie ma jeszcze epoki.',
+		noPeriods: 'Ten styl nie ma jeszcze okresu.',
+		addEra: 'Dodaj epokę',
+		addPeriod: 'Dodaj okres',
+		chooseEra: 'Wybierz epokę',
+		choosePeriod: 'Wybierz okres',
+		removeEra: (name: string): string => `Usuń epokę ${name}`,
+		removePeriod: (name: string): string => `Usuń okres ${name}`,
+		periodLocked: (period: string, count: number): string =>
+			`Nie uda się odpiąć okresu „${period}” od tego stylu, bo ${workCount(count)} w tym stylu ${count === 1 ? 'ma' : 'mają'} przypisany taki okres.`,
+		cancel: 'Anuluj',
+		save: 'Zapisz',
+		saving: 'Zapisywanie…',
+		editTitle: (kind: string, name: string): string => `Edytuj ${kind} „${name}”`,
+		eraAccusative: 'epokę',
+		goBack: 'Wróć do strony',
+		summary: 'Podsumowanie',
+		summaryPlaceholder: 'Krótki opis do szybkiego podejrzenia przy oglądaniu dzieła.',
+		notes: 'Notatki',
+		notesPlaceholder: 'Wszystko, co warto zapamiętać',
+		errorTitle: 'Nie udało się zapisać zmian',
+		discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.'
 	},
 	trash: {
 		title: 'Kosz',

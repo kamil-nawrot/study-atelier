@@ -166,6 +166,11 @@ begin
     'insert into public.style_details (value_id, summary) values (%L, ''Forged'')', a_unlinked)),
     'B adds details to a value of A';
   assert security_test.denied(format(
+    'select public.save_value_details(%L, ''{"summary": "Forged"}'')', a_value)),
+    'B saves details of a value of A through save_value_details';
+  perform public.save_era_details('early_modern', '{"summary": "B era"}');
+  assert (select count(*) from public.era_details) = 1, 'B does not get era details of their own';
+  assert security_test.denied(format(
     'select public.save_artwork(''{"title": "Overwrite", "author_unknown": true}'', ''{}'', %L)', a_artwork)),
     'B overwrites an artwork of A through save_artwork';
   assert security_test.denied(format('select public.merge_category_values(%L, %L)', a_value, a_value)),
@@ -245,6 +250,23 @@ begin
   assert (select array_agg(summary) from public.period_details) = array['Period summary'],
     'merging keeps the details of the merged value or drops those of the kept one';
 
+  perform public.save_value_details(a_value, '{"notes": "Period notes"}');
+  assert (select summary from public.period_details where value_id = a_value) = 'Period summary',
+    'save_value_details clears a field it was not given';
+  perform public.save_value_details(a_value, '{"summary": "  "}');
+  assert (select summary from public.period_details where value_id = a_value) is null,
+    'save_value_details keeps a blank summary';
+  perform public.save_value_details(a_value, '{"summary": "Period summary"}');
+  perform public.save_value_details(a_author, '{"death_year": 1519, "sort_name": "Painter, The"}');
+  assert (select birth_year from public.author_details where value_id = a_author) = -480,
+    'save_value_details clears the year of birth of an author';
+  assert security_test.denied(format(
+    'select public.save_value_details(%L, ''{"summary": "%s"}'')', a_value, repeat('x', 301))),
+    'A saves a summary longer than 300 characters through save_value_details';
+  perform public.save_era_details('early_modern', '{"notes": "Era notes"}');
+  assert (select summary from public.era_details where era_code = 'early_modern') = 'Era summary',
+    'save_era_details clears a field it was not given';
+
   assert security_test.denied('insert into public.categories (code, multiple, position) values (''forged'', true, 99)'),
     'A adds a category';
   assert security_test.denied('update public.eras set position = 99'), 'A changes an era';
@@ -265,6 +287,8 @@ begin
   assert security_test.denied(format('select public.value_page_content(%L)', gen_random_uuid())),
     'anon executes value_page_content';
   assert security_test.denied('select public.save_artwork(''{}'', ''{}'')'), 'anon executes save_artwork';
+  assert security_test.denied('select public.save_era_details(''antiquity'', ''{}'')'),
+    'anon executes save_era_details';
   assert (select public.keep_alive()) is not null, 'anon cannot execute keep_alive';
 
   reset role;

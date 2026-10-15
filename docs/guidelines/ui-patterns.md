@@ -66,6 +66,7 @@ How views and components look and behave, so every new screen stays consistent w
 - `goto` is for navigation from code after an action, for example after a successful sign-in.
 - Each view has at most one `primary` button.
 - Text cut with an ellipsis shows its full content in the library `Tooltip`, on hover and on keyboard focus, and only when it is actually cut.
+- A `Tooltip` opens above its control and grows from the control's start. A control at the top or right edge of the screen, such as a button at the end of the top bar, uses `placement="bottom"` and `align="end"` so the bubble stays inside the viewport.
 - Sign out is shown in `--color-danger`, so it stands apart from the menu items that navigate.
 - A button that deletes is `variant="danger"`: an outline and text in `--color-danger`. The button that confirms the delete in its dialog stays `primary`.
 
@@ -84,7 +85,7 @@ How views and components look and behave, so every new screen stays consistent w
 ## Forms
 
 - A form is the library `Form`: it turns off browser validation, prevents the page reload and, after submit, moves focus to the first field marked invalid and scrolls it to the middle of the screen, so a sticky bar never hides it.
-- Fields are `TextField`, `TextArea` (longer plain text), `NotesEditor` (formatted notes, [ADR-0029](../decisions/0029-format-notes-with-a-visual-markdown-editor.md)), `Checkbox` and future library inputs, each with a visible label and the right `autocomplete` value.
+- Fields are `TextField`, `TextArea` (longer plain text; with `counter` and `maxlength` it shows the count on the right under the field, red at the limit), `NotesEditor` (formatted notes, [ADR-0029](../decisions/0029-format-notes-with-a-visual-markdown-editor.md)), `Checkbox` and future library inputs, each with a visible label and the right `autocomplete` value.
 - A single choice from a short fixed list that the learner should see all at once (the era) is `ChoiceTiles`: one row of tiles, three by two when the field is narrower than 600 px, each with an optional icon above the name and a note under it that never wraps. It is a native radio group, so the arrow keys move the choice. When the choice is optional the app sets `clearable` and clicking the chosen tile, or pressing the space bar on it, clears it. The chosen tile is filled like a primary button ([ADR-0038](../decisions/0038-chain-era-period-and-style.md)).
 - A single choice from a longer fixed list (for example the artwork type) is a `Select`, with an empty first option such as "Nie wybrano" passed as `placeholder` when the field is optional.
 - A category value (authors, period, style, material, location) is a `ValueField`: the chosen values are tags inside the field, and the suggestion list under it shows what the app passes as `options`. Which values to suggest, and whether a new value may be created, is decided in the app, not in the component.
@@ -101,8 +102,8 @@ How views and components look and behave, so every new screen stays consistent w
   5. On failure, show the mapped message in the form `Alert` and enable the button again.
   6. On success, navigate with `goto` or replace the form with a success `Alert`.
 - Fields are validated on submit, not while typing.
-- A long form keeps its actions in a bar fixed to the bottom of the screen. The action that leaves without saving ("Anuluj") is a link back to where the learner came from.
-- A form that holds work the learner could lose asks before the learner leaves it, by any navigation inside the app or by signing out: a small `Dialog` "Odrzucić zmiany?" with "Wróć do formularza" and "Odrzuć". Without changes it lets the learner leave without asking. Closing the tab shows the browser's own warning, whose text the app cannot set.
+- A long form keeps its actions in the library `FormActions`, a bar fixed to the bottom of the screen; a short form fills the screen so the bar still sits at the bottom. The action that leaves without saving ("Anuluj") is a link back to where the learner came from.
+- A form that holds work the learner could lose asks before the learner leaves it, by any navigation inside the app or by signing out: a small `Dialog` "Odrzucić zmiany?" with "Wróć do formularza" and "Odrzuć". Without changes it lets the learner leave without asking. Closing the tab shows the browser's own warning, whose text the app cannot set. In the app this is `UnsavedChanges` (`#lib/collection/unsaved-changes.svelte.ts`) with `DiscardDialog`; the form passes how to read its state and how to compare two states.
 - Limits used by a validator (for example `MIN_PASSWORD_LENGTH`) are exported constants, and the field hint uses the same constant.
 
 ## Dialogs

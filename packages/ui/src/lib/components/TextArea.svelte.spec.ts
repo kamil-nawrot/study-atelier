@@ -29,4 +29,21 @@ describe('TextArea', () => {
 		await expect.element(field).toHaveAccessibleDescription('Too long.');
 		await expect.element(page.getByText('Only you can see your notes.')).not.toBeInTheDocument();
 	});
+
+	it('counts the characters against the limit when asked', async () => {
+		render(TextArea, { label: 'Summary', counter: true, maxlength: 10, value: 'Doric' });
+
+		const field = page.getByRole('textbox', { name: 'Summary' });
+		await expect.element(field).toHaveAccessibleDescription('5/10');
+		await userEvent.type(field, ' order');
+
+		await expect.element(field).toHaveValue('Doric orde');
+		await expect.element(page.getByText('10/10')).toBeVisible();
+	});
+
+	it('shows no counter without a limit', async () => {
+		render(TextArea, { label: 'Summary', counter: true, value: 'Doric' });
+
+		await expect.element(page.getByText('5/', { exact: false })).not.toBeInTheDocument();
+	});
 });

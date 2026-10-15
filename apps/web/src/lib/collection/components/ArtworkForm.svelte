@@ -5,8 +5,8 @@
 		Button,
 		Checkbox,
 		ChoiceTiles,
-		Dialog,
 		Form,
+		FormActions,
 		Select,
 		NotesEditor,
 		Switch,
@@ -14,8 +14,6 @@
 		Toast,
 		ValueField
 	} from '@study-atelier/ui';
-	import { beforeNavigate, goto } from '$app/navigation';
-	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
 	import {
 		artworkFormFromRecord,
@@ -32,9 +30,10 @@
 	import { sameTitleAndAuthors } from '../duplicates.ts';
 	import { eraTiles, isEraCode } from '../eras.ts';
 	import { formatRecordNumber } from '../format.ts';
-	import { pendingAnswer } from '../pending-answer.ts';
+	import { UnsavedChanges } from '../unsaved-changes.svelte.ts';
 	import { suggestValues, valueKey } from '../value-suggestions.ts';
 	import ArtworkImageField from './ArtworkImageField.svelte';
+	import DiscardDialog from './DiscardDialog.svelte';
 	import DuplicateDialog from './DuplicateDialog.svelte';
 	import type {
 		ArtworkFieldErrors,
@@ -76,11 +75,13 @@
 	let formError = $state('');
 	let saving = $state<'save' | 'next' | null>(null);
 	let next = false;
-	let discardOpen = $state(false);
 	let barHeight = $state(0);
 	let toast: Toast;
-	let discarded: ArtworkFormState | null = null;
-	const discardQuestion = pendingAnswer();
+	const changes = new UnsavedChanges(
+		() => $state.snapshot(form),
+		() => saved,
+		formHasChanges
+	);
 	const duplicateCheck = new DuplicateCheck();
 
 	let imageSearchReady = $derived(canSearchImage(form));
@@ -90,23 +91,8 @@
 		return artwork ? artworkFormFromRecord(artwork) : emptyArtworkForm();
 	}
 
-	function leaveAllowed(): boolean {
-		return discarded !== null && !formHasChanges(form, discarded);
-	}
-
 	export function confirmLeave(): Promise<boolean> {
-		if (leaveAllowed() || !formHasChanges(form, saved)) return Promise.resolve(true);
-		return discardQuestion
-			.ask(() => (discardOpen = true))
-			.then((discard) => {
-				if (discard) discarded = $state.snapshot(form);
-				return discard;
-			});
-	}
-
-	function answer(discard: boolean): void {
-		discardQuestion.answer(discard);
-		discardOpen = false;
+		return changes.confirmLeave();
 	}
 
 	async function confirmDuplicate(input: ArtworkInput): Promise<boolean> {
@@ -114,26 +100,7 @@
 		return duplicateCheck.confirm(input, artwork?.id);
 	}
 
-	beforeNavigate((navigation) => {
-		if (leaveAllowed()) {
-			discarded = null;
-			return;
-		}
-		if (!formHasChanges(form, saved)) return;
-		navigation.cancel();
-		const url = navigation.to?.url;
-		if (navigation.type === 'leave' || !url || discardQuestion.pending) return;
-		const target = `${url.pathname}${url.search}${url.hash}` as ResolvedPathname;
-		const popstate = navigation.type === 'popstate' ? navigation.delta : null;
-		void confirmLeave().then((discard) => {
-			if (!discard) return;
-			if (popstate === null) void goto(target);
-			else history.go(popstate);
-		});
-	});
-
 	onDestroy(() => {
-		discardQuestion.answer(false);
 		duplicateCheck.answer(false);
 	});
 
@@ -390,7 +357,7 @@
 		</div>
 	</div>
 
-	<footer class="actions" bind:offsetHeight={barHeight}>
+	<FormActions bind:height={barHeight}>
 		<Button href={cancelHref} onclick={oncancel}>
 			{m.artworkForm.cancel}
 		</Button>
@@ -402,27 +369,12 @@
 		<Button disabled={saving !== null} type="submit" variant="primary">
 			{saving === 'save' ? m.artworkForm.saving : m.artworkForm.save}
 		</Button>
-	</footer>
+	</FormActions>
 </Form>
 
 <Toast bind:this={toast} offset={barHeight} />
 
-<Dialog
-	description={m.artworkForm.discardDescription}
-	onclose={() => discardQuestion.answer(false)}
-	size="small"
-	title={m.artworkForm.discardTitle}
-	bind:open={discardOpen}
->
-	{#snippet footer()}
-		<Button onclick={() => answer(false)}>
-			{m.artworkForm.keepEditing}
-		</Button>
-		<Button onclick={() => answer(true)} variant="primary">
-			{m.artworkForm.discard}
-		</Button>
-	{/snippet}
-</Dialog>
+<DiscardDialog {changes} description={m.artworkForm.discardDescription} />
 
 <DuplicateDialog action="save" check={duplicateCheck} />
 
@@ -487,26 +439,6 @@
 		min-width: 0;
 	}
 
-	.actions {
-		position: sticky;
-		bottom: 0;
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--spacing-2) var(--spacing-3);
-		padding: var(--spacing-3) 0;
-		border-top: var(--border-width-hairline) solid var(--color-tag);
-		background: var(--color-bg);
-	}
-
-	.actions > :global(*) {
-		flex: 1 1 auto;
-	}
-
-	.actions > :global(:first-child) {
-		order: 3;
-		flex-basis: 100%;
-	}
-
 	@media (min-width: 768px) {
 		.columns {
 			grid-template-columns: minmax(220px, 1fr) minmax(0, 1.25fr);
@@ -515,21 +447,6 @@
 
 		.fields {
 			max-width: var(--size-content-default);
-		}
-
-		.actions {
-			justify-content: flex-end;
-			padding: var(--spacing-4) 0;
-		}
-
-		.actions > :global(*) {
-			flex: none;
-		}
-
-		.actions > :global(:first-child) {
-			order: 0;
-			flex-basis: auto;
-			margin-right: auto;
 		}
 	}
 </style>

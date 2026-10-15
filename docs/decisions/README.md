@@ -54,5 +54,6 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0048](0048-flip-through-the-wall-from-the-artwork-view.md) | Flip through the wall from the artwork view in place of the history entry | accepted |
 | [0049](0049-give-every-category-value-a-page-of-its-own.md) | Give every category value a page of its own with the learner's notes | accepted |
 | [0050](0050-store-value-pages-in-details-tables.md)              | Store value pages in details tables and settle the details of the build | accepted |
+| [0051](0051-load-and-save-a-value-page.md)                        | Load a value page from the collection and save its form in steps | accepted |
 | [0052](0052-remember-wall-images-and-cap-their-width.md) | Remember the wall images for the session and cap their width | accepted |
 | [0053](0053-link-values-and-artworks-from-notes.md) | Link values and artworks from notes with @ and # | accepted |

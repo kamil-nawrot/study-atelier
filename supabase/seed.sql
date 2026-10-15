@@ -172,7 +172,7 @@ begin
   values (
     tester, 'early_modern',
     'Od odkrycia Ameryki do rewolucji francuskiej: renesans, barok i rokoko.',
-    E'## Co rozpoznać\n\nPerspektywa linearna, światłocień, ciało ludzkie zbudowane na anatomii.'
+    E'### Co rozpoznać\n\nPerspektywa linearna, światłocień, ciało ludzkie zbudowane na anatomii.'
   );
 
   insert into public.period_details (value_id, owner_id, summary, notes)

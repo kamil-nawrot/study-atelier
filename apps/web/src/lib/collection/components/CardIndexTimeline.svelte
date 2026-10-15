@@ -2,14 +2,14 @@
 	import { Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { eraIcon } from '../eras.ts';
+	import { valuePath } from '../value-pages.ts';
 	import type { CardIndexEntry, CardIndexPeriod, CardIndexTimeline } from '../types.ts';
 
 	type Props = {
 		timeline: CardIndexTimeline;
-		onopen: (id: string) => void;
 	};
 
-	let { timeline, onopen }: Props = $props();
+	let { timeline }: Props = $props();
 
 	let isEmpty = $derived(
 		timeline.eras.every((era) => era.periods.length === 0) &&
@@ -26,28 +26,18 @@
 	<ul class="periods">
 		{#each periods as period (period.id)}
 			<li>
-				<button
-					class="period"
-					aria-label={label(period)}
-					onclick={() => onopen(period.id)}
-					type="button"
-				>
+				<a class="period" aria-label={label(period)} href={valuePath('period', period.id)}>
 					<span class="period-name">{period.name}</span>
 					<span class="count">{period.count}</span>
-				</button>
+				</a>
 				{#if period.styles.length > 0}
 					<ul class="styles">
 						{#each period.styles as style (style.id)}
 							<li>
-								<button
-									class="style"
-									aria-label={label(style)}
-									onclick={() => onopen(style.id)}
-									type="button"
-								>
+								<a class="style" aria-label={label(style)} href={valuePath('style', style.id)}>
 									<span>{style.name}</span>
 									<span class="count">{style.count}</span>
-								</button>
+								</a>
 							</li>
 						{/each}
 					</ul>
@@ -68,7 +58,9 @@
 				<Icon icon={eraIcon(era.code)} />
 			</span>
 			<div class="era-body">
-				<h2 class="era-name">{m.eras[era.code].name}</h2>
+				<h2 class="era-name">
+					<a href={valuePath('era', era.code)}>{m.eras[era.code].name}</a>
+				</h2>
 				<span class="years">{m.eras[era.code].years}</span>
 				{#if era.periods.length > 0}
 					{@render periodList(era.periods)}
@@ -93,15 +85,10 @@
 		<ul class="styles">
 			{#each timeline.stylesWithoutPeriod as style (style.id)}
 				<li>
-					<button
-						class="style"
-						aria-label={label(style)}
-						onclick={() => onopen(style.id)}
-						type="button"
-					>
+					<a class="style" aria-label={label(style)} href={valuePath('style', style.id)}>
 						<span>{style.name}</span>
 						<span class="count">{style.count}</span>
-					</button>
+					</a>
 				</li>
 			{/each}
 		</ul>
@@ -182,23 +169,25 @@
 	}
 
 	.period,
-	.style {
-		font-family: inherit;
+	.style,
+	.era-name a {
 		color: var(--color-fg);
-		cursor: pointer;
+		text-decoration: none;
+	}
+
+	.era-name a:hover {
+		text-decoration: underline;
+		text-decoration-thickness: var(--border-width-hairline);
+		text-underline-offset: 0.2em;
 	}
 
 	.period {
 		display: inline-flex;
 		align-items: baseline;
 		gap: var(--spacing-3);
-		padding: 0;
-		border: none;
-		background: none;
 		font-size: var(--font-size-xl);
 		font-weight: var(--font-weight-bold);
 		line-height: var(--line-height-xl);
-		text-align: left;
 	}
 
 	.period:hover .period-name {
@@ -226,8 +215,6 @@
 		align-items: baseline;
 		gap: var(--spacing-2);
 		padding: var(--spacing-2) var(--spacing-3);
-		border: none;
-		border-radius: var(--border-radius-none);
 		background: var(--color-tag);
 		font-size: var(--font-size-md);
 		line-height: var(--line-height-md);
