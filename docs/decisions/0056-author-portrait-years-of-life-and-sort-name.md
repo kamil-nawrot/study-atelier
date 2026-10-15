@@ -33,7 +33,7 @@ Chosen, decided by the owner in ATL-142.
 
 ### Page
 
-- The portrait stands in a passe-partout beside the kind, the name and the years of life, 200 px wide from 768 px; on a phone it comes first at full width. Its credit is under it, as for an artwork. An author without a portrait shows no empty window.
+- From 768 px the page has two columns: the portrait in a passe-partout, 320 px wide, with its credit under it, and beside it the kind, the name, the years of life, the summary and the notes. The portrait keeps its width and proportions and is not stretched, so its size does not depend on how much text stands beside it; the row is as tall as the taller column. On a phone the portrait comes first at full width. An author without a portrait has one column and no empty window.
 - The years of life read "1452–1519", "ok. 480–430 p.n.e.", "ur. 1760" or "zm. 1519".
 
 ### Shared code

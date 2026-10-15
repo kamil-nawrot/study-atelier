@@ -31,25 +31,25 @@
 	);
 </script>
 
-<article>
-	<div class="head" class:with-portrait={portrait}>
-		{#if portrait}
-			<figure class="portrait">
-				<div class="mat">
-					<ArtworkImage
-						alt={name}
-						height={portrait.height}
-						sizes="(min-width: 768px) 200px, 100vw"
-						src={portrait.src}
-						srcset={portrait.srcset}
-						width={portrait.width}
-					/>
-				</div>
-				{#if credit}
-					<figcaption class="caption">{credit}</figcaption>
-				{/if}
-			</figure>
-		{/if}
+<article class:with-portrait={portrait}>
+	{#if portrait}
+		<figure class="portrait">
+			<div class="mat">
+				<ArtworkImage
+					alt={name}
+					height={portrait.height}
+					sizes="(min-width: 768px) 320px, 100vw"
+					src={portrait.src}
+					srcset={portrait.srcset}
+					width={portrait.width}
+				/>
+			</div>
+			{#if credit}
+				<figcaption class="caption">{credit}</figcaption>
+			{/if}
+		</figure>
+	{/if}
+	<div class="text">
 		<header>
 			<p class="kind">
 				{#if subject.kind === 'era'}
@@ -79,23 +79,23 @@
 				</p>
 			{/if}
 		</header>
-	</div>
 
-	{#if empty}
-		<p class="empty">{m.valuePage.kinds[subject.kind].noNotes}</p>
-	{:else}
-		{#if details.summary}
-			<Section>
-				<p class="summary">{details.summary}</p>
-			</Section>
+		{#if empty}
+			<p class="empty">{m.valuePage.kinds[subject.kind].noNotes}</p>
+		{:else}
+			{#if details.summary}
+				<Section>
+					<p class="summary">{details.summary}</p>
+				</Section>
+			{/if}
+			{#if details.notes}
+				<section class="notes" aria-labelledby="value-notes">
+					<h2 id="value-notes" class="label">{m.valuePage.notes}</h2>
+					<Notes value={details.notes} />
+				</section>
+			{/if}
 		{/if}
-		{#if details.notes}
-			<section class="notes" aria-labelledby="value-notes">
-				<h2 id="value-notes" class="label">{m.valuePage.notes}</h2>
-				<Notes value={details.notes} />
-			</section>
-		{/if}
-	{/if}
+	</div>
 </article>
 
 <style>
@@ -107,22 +107,23 @@
 	}
 
 	article {
+		gap: var(--spacing-8);
+	}
+
+	.text {
+		display: grid;
+		align-content: start;
 		gap: var(--spacing-6);
 		max-width: var(--size-content-default);
 	}
 
 	header {
-		align-content: end;
 		gap: var(--spacing-2);
-	}
-
-	.head {
-		display: grid;
-		gap: var(--spacing-6);
 	}
 
 	.portrait {
 		display: grid;
+		align-self: start;
 		gap: var(--spacing-2);
 		margin: 0;
 	}
@@ -201,9 +202,9 @@
 	}
 
 	@media (min-width: 768px) {
-		.head.with-portrait {
-			grid-template-columns: minmax(0, 200px) minmax(0, 1fr);
-			align-items: end;
+		article.with-portrait {
+			grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+			gap: var(--spacing-12);
 		}
 	}
 </style>
