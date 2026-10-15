@@ -12,7 +12,14 @@ import {
 	withPreview,
 	type ImageRow
 } from './image-record.ts';
-import type { AuthorDetails, ValueDetails, ValueDetailsResult, ValueSubject } from './types.ts';
+import { isPlaceType } from './place-types.ts';
+import type {
+	AuthorDetails,
+	LocationDetails,
+	ValueDetails,
+	ValueDetailsResult,
+	ValueSubject
+} from './types.ts';
 
 type ErrorLike = { code?: string; message?: string };
 
@@ -23,7 +30,12 @@ type AuthorRow = ImageRow & {
 	sort_name: string | null;
 };
 
-type DetailsRow = { summary: string | null; notes: string | null } & Partial<AuthorRow>;
+type LocationRow = { country_code: string | null; place_type: string | null };
+
+type DetailsRow = { summary: string | null; notes: string | null } & Partial<AuthorRow> &
+	Partial<LocationRow>;
+
+const LOCATION_COLUMNS = 'summary, notes, country_code, place_type';
 
 const AUTHOR_COLUMNS = [
 	'summary',
@@ -81,7 +93,7 @@ function detailsQuery(subject: ValueSubject): DetailsQuery {
 		case 'location':
 			return supabase
 				.from('location_details')
-				.select(columns)
+				.select(LOCATION_COLUMNS)
 				.eq('value_id', subject.record.id)
 				.maybeSingle();
 	}
@@ -98,11 +110,20 @@ async function authorOf(row: DetailsRow | null): Promise<AuthorDetails> {
 	};
 }
 
+function locationOf(row: DetailsRow | null): LocationDetails {
+	const placeType = row?.place_type;
+	return {
+		countryCode: row?.country_code ?? null,
+		placeType: isPlaceType(placeType) ? placeType : null
+	};
+}
+
 export async function loadValueDetails(subject: ValueSubject): Promise<ValueDetailsResult> {
 	const { data, error } = await detailsQuery(subject);
 	if (error) return { details: emptyValueDetails(), error: collectionErrorMessage(error) };
 	const details: ValueDetails = { summary: data?.summary ?? '', notes: data?.notes ?? '' };
 	if (subject.kind === 'author') details.author = await authorOf(data);
+	if (subject.kind === 'location') details.location = locationOf(data);
 	return { details };
 }
 
@@ -110,7 +131,8 @@ export function valueDetailsChanged(a: ValueDetails, b: ValueDetails): boolean {
 	return (
 		a.summary.trim() !== b.summary.trim() ||
 		a.notes !== b.notes ||
-		JSON.stringify(a.author ?? null) !== JSON.stringify(b.author ?? null)
+		JSON.stringify(a.author ?? null) !== JSON.stringify(b.author ?? null) ||
+		JSON.stringify(a.location ?? null) !== JSON.stringify(b.location ?? null)
 	);
 }
 
@@ -142,7 +164,12 @@ export async function saveValueDetails(
 	const stored = author ? await storedImage(author.image) : { image: null };
 	if (stored.error !== undefined) return { error: stored.error };
 	const newUpload = author?.image?.kind === 'file' ? uploadPath(stored.image) : null;
-	const payload = author ? { ...text, ...authorColumns(author, imageColumns(stored.image)) } : text;
+	const location = details.location;
+	const payload = {
+		...text,
+		...(author ? authorColumns(author, imageColumns(stored.image)) : {}),
+		...(location ? { country_code: location.countryCode, place_type: location.placeType } : {})
+	};
 
 	const { error } = await supabase.rpc('save_value_details', {
 		target_value: subject.record.id,

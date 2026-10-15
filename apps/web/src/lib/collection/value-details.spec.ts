@@ -236,3 +236,45 @@ describe('author details', () => {
 		});
 	});
 });
+
+describe('location details', () => {
+	const location: ValueSubject = {
+		kind: 'location',
+		record: { id: 'l1', category: 'location', name: 'Luwr', count: 1 }
+	};
+
+	beforeEach(() => {
+		vi.clearAllMocks();
+		vi.mocked(supabase.rpc).mockResolvedValue({ error: null } as never);
+	});
+
+	it('reads the country and the type of place', async () => {
+		detailsTable({ summary: null, notes: null, country_code: 'FR', place_type: 'museum' });
+
+		const { details } = await loadValueDetails(location);
+
+		expect(supabase.from).toHaveBeenCalledWith('location_details');
+		expect(details.location).toEqual({ countryCode: 'FR', placeType: 'museum' });
+	});
+
+	it('ignores a type it does not know and gives a place without a row empty fields', async () => {
+		detailsTable({ summary: null, notes: null, country_code: null, place_type: 'garden' });
+		expect((await loadValueDetails(location)).details.location).toEqual({
+			countryCode: null,
+			placeType: null
+		});
+	});
+
+	it('saves the country and the type with the text', async () => {
+		await saveValueDetails(location, {
+			summary: 'Pałac.',
+			notes: '',
+			location: { countryCode: 'FR', placeType: 'museum' }
+		});
+
+		expect(supabase.rpc).toHaveBeenCalledWith('save_value_details', {
+			target_value: 'l1',
+			details: { summary: 'Pałac.', notes: '', country_code: 'FR', place_type: 'museum' }
+		});
+	});
+});

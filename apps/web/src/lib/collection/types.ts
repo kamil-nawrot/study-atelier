@@ -303,10 +303,18 @@ export type AuthorDetails = {
 	sortName: string | null;
 };
 
+export type PlaceType = 'museum' | 'private_collection' | 'on_site';
+
+export type LocationDetails = {
+	countryCode: string | null;
+	placeType: PlaceType | null;
+};
+
 export type ValueDetails = {
 	summary: string;
 	notes: string;
 	author?: AuthorDetails;
+	location?: LocationDetails;
 };
 
 export type AuthorFormState = {

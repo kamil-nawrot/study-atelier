@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { page } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { beforeNavigate, goto } from '$app/navigation';
 import { loadValuePageContent, saveValue } from '#lib/collection/card-index-data.ts';
@@ -562,6 +562,54 @@ describe('edit value page', () => {
 				},
 				loaded
 			);
+		});
+	});
+
+	describe('location', () => {
+		it('picks a country from the searchable list and a type of place, then saves them', async () => {
+			const loaded = {
+				summary: '',
+				notes: '',
+				location: { countryCode: null, placeType: null }
+			};
+			renderEdit(subjectOf('location-athens'), loaded);
+
+			const country = page.getByRole('combobox', { name: m.valueForm.country });
+			await expect.element(country).toHaveAccessibleDescription(m.valueForm.countryHint);
+			await country.click();
+			await userEvent.type(country, 'grec');
+			await userEvent.keyboard('{Enter}');
+			await expect.element(country).toHaveValue('Grecja');
+			await userEvent.click(page.getByRole('radio', { name: m.valueForm.placeTypes.on_site }));
+			await saveButton().click();
+
+			expect(saveValueDetails).toHaveBeenCalledWith(
+				subjectOf('location-athens'),
+				{ summary: '', notes: '', location: { countryCode: 'GR', placeType: 'on_site' } },
+				loaded
+			);
+		});
+
+		it('shows the saved country and type', async () => {
+			renderEdit(subjectOf('location-athens'), {
+				summary: '',
+				notes: '',
+				location: { countryCode: 'FR', placeType: 'museum' }
+			});
+
+			await expect
+				.element(page.getByRole('combobox', { name: m.valueForm.country }))
+				.toHaveValue('Francja');
+			await expect
+				.element(page.getByRole('radio', { name: m.valueForm.placeTypes.museum }))
+				.toBeChecked();
+		});
+
+		it('shows no place fields for other kinds', async () => {
+			renderEdit(subjectOf('style-doric'));
+
+			await expect.element(nameField()).toBeVisible();
+			expect(page.getByRole('combobox', { name: m.valueForm.country }).elements()).toHaveLength(0);
 		});
 	});
 });

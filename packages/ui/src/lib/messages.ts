@@ -29,6 +29,10 @@ export type UiMessages = {
 		addAnyway: (name: string) => string;
 		remove: (name: string) => string;
 	};
+	searchSelect: {
+		empty: string;
+		clear: (label: string) => string;
+	};
 };
 
 export const defaultUiMessages: UiMessages = {
@@ -61,6 +65,10 @@ export const defaultUiMessages: UiMessages = {
 		add: (name) => `+ Add “${name}”`,
 		addAnyway: (name) => `+ Add “${name}” anyway`,
 		remove: (name) => `Remove ${name}`
+	},
+	searchSelect: {
+		empty: 'Nothing matches',
+		clear: (label) => `Clear ${label}`
 	}
 };
 

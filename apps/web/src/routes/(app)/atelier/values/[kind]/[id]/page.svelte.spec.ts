@@ -247,6 +247,18 @@ describe('value page', () => {
 		);
 	});
 
+	it('shows the type and the country of a place under its name', async () => {
+		renderValue(subjectOf('location-athens'), {
+			summary: '',
+			notes: '',
+			location: { countryCode: 'GR', placeType: 'on_site' }
+		});
+
+		await expect
+			.element(page.getByText(`${m.valueForm.placeTypes.on_site} · Grecja`))
+			.toBeVisible();
+	});
+
 	describe('deleting', () => {
 		it('explains why a used value cannot be deleted in a tooltip on the button', async () => {
 			renderValue(subjectOf('style-doric'));

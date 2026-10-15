@@ -236,6 +236,15 @@ export const VALUE_DETAILS = {
 			...commonsImage('Portrait_of_Leonardo.jpg')
 		}
 	],
+	location_details: [
+		{
+			value_id: valueId('location', 'Louvre'),
+			summary: 'A former royal palace in Paris, a museum since 1793.',
+			notes: null,
+			country_code: 'FR',
+			place_type: 'museum'
+		}
+	],
 	period_details: [
 		{
 			value_id: valueId('period', 'Renaissance'),

@@ -2,7 +2,9 @@
 	import { ArtworkImage, Icon, Notes, Section } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
+	import { countryName } from '../countries.ts';
 	import { eraIcon } from '../eras.ts';
+	import { placeTypeName } from '../place-types.ts';
 	import { formatLifeYears } from '../format.ts';
 	import { subjectName, valueKindName, valuePath, type ValueParent } from '../value-pages.ts';
 	import type { ValueDetails, ValueSubject } from '../types.ts';
@@ -25,6 +27,14 @@
 	let credit = $derived(artworkImageCredit(author?.image ?? null));
 	let lifeYears = $derived(
 		author && formatLifeYears(author.birthYear, author.deathYear, author.yearsApproximate)
+	);
+	let place = $derived(
+		[
+			details.location?.placeType ? placeTypeName(details.location.placeType) : null,
+			details.location?.countryCode ? countryName(details.location.countryCode) : null
+		]
+			.filter((part) => part !== null)
+			.join(' · ')
 	);
 	let title = $derived(
 		subject.kind === 'era' ? `${name.charAt(0).toLocaleUpperCase()}${name.slice(1)}` : name
@@ -65,6 +75,9 @@
 			{/if}
 			{#if lifeYears}
 				<p class="caption">{lifeYears}</p>
+			{/if}
+			{#if place}
+				<p class="caption">{place}</p>
 			{/if}
 			{#if parents.length > 0}
 				<p class="caption parents">
