@@ -58,7 +58,7 @@ How views and components look and behave, so every new screen stays consistent w
 - The default look of HTML elements (links, headings, paragraphs, focus outline) lives only in `packages/ui/src/lib/styles/base.css`.
 - A style that two or more views repeat moves into a library component or `base.css`.
 - Library controls build on native HTML elements (`dialog`, `select`, `input`), which bring their behaviour, accessibility and the phone's own pickers. Their look comes from tokens. Styling that only some browsers support (for example `appearance: base-select`) sits inside `@supports`, so the other browsers keep the plain native look.
-- The one exception is `NotesEditor`: a `contenteditable` region driven by TipTap, because formatted notes cannot be edited in a native element ([ADR-0029](../decisions/0029-format-notes-with-a-visual-markdown-editor.md)). It keeps the `TextArea` look and exposes `role="textbox"` and a labelled `role="toolbar"`.
+- The one exception is `NotesEditor`: a `contenteditable` region driven by TipTap, because formatted notes cannot be edited in a native element ([ADR-0029](../decisions/0029-format-notes-with-a-visual-markdown-editor.md)). It keeps the `TextArea` look and exposes `role="textbox"` and a labelled `role="toolbar"`. Its links to values and artworks (`@`, `#`) are single tokens with a thin muted underline, and their suggestion list sits under the field like a value field's list ([ADR-0053](../decisions/0053-link-values-and-artworks-from-notes.md)).
 
 ## Links and buttons
 
