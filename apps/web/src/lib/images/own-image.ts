@@ -5,9 +5,13 @@ import {
 	OWN_IMAGE_EXTENSIONS,
 	OWN_IMAGE_MAX_BYTES,
 	OWN_IMAGE_MAX_MEGABYTES,
+	OWN_THUMBNAIL_QUALITY,
+	OWN_THUMBNAIL_TYPE,
+	OWN_THUMBNAIL_WIDTH,
 	SIGNED_URL_SECONDS,
 	isOwnImageType,
-	ownImageFormats
+	ownImageFormats,
+	ownThumbnailPath
 } from './bucket.ts';
 import { ownImageErrorMessage } from './errors.ts';
 
@@ -64,6 +68,37 @@ export function ownImagePath(ownerId: string, file: File): string {
 	return `${ownerId}/${crypto.randomUUID()}.${extension}`;
 }
 
+export async function makeThumbnail(source: Blob): Promise<Blob | undefined> {
+	try {
+		const bitmap = await createImageBitmap(source);
+		const scale = Math.min(1, OWN_THUMBNAIL_WIDTH / bitmap.width);
+		const canvas = document.createElement('canvas');
+		canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+		canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+		const context = canvas.getContext('2d');
+		if (!context) return undefined;
+		context.fillStyle = '#ffffff';
+		context.fillRect(0, 0, canvas.width, canvas.height);
+		context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+		bitmap.close();
+		const blob = await new Promise<Blob | null>((resolve) =>
+			canvas.toBlob(resolve, OWN_THUMBNAIL_TYPE, OWN_THUMBNAIL_QUALITY)
+		);
+		return blob?.type === OWN_THUMBNAIL_TYPE ? blob : undefined;
+	} catch {
+		return undefined;
+	}
+}
+
+export async function uploadOwnThumbnail(path: string, source: Blob): Promise<boolean> {
+	const thumbnail = await makeThumbnail(source);
+	if (!thumbnail) return false;
+	const { error } = await supabase.storage
+		.from(IMAGES_BUCKET)
+		.upload(ownThumbnailPath(path), thumbnail, { contentType: OWN_THUMBNAIL_TYPE, upsert: false });
+	return !error;
+}
+
 export async function uploadOwnImage(file: File): Promise<OwnImageUpload> {
 	const { data } = await supabase.auth.getSession();
 	const ownerId = data.session?.user.id;
@@ -74,11 +109,12 @@ export async function uploadOwnImage(file: File): Promise<OwnImageUpload> {
 		.from(IMAGES_BUCKET)
 		.upload(path, file, { contentType: file.type, upsert: false });
 	if (error) return { error: ownImageErrorMessage(error) };
+	await uploadOwnThumbnail(path, file);
 	return { path };
 }
 
 export async function removeOwnImage(path: string): Promise<void> {
-	await supabase.storage.from(IMAGES_BUCKET).remove([path]);
+	await supabase.storage.from(IMAGES_BUCKET).remove([path, ownThumbnailPath(path)]);
 }
 
 export async function ownImageUrl(path: string): Promise<string | undefined> {

@@ -12,6 +12,7 @@ import {
 import {
 	ownImageFileError,
 	ownImagePath,
+	makeThumbnail,
 	ownImageUrl,
 	parseImageUrl,
 	readImageSize,
@@ -134,6 +135,56 @@ describe('readImageSize', () => {
 	});
 });
 
+function stubThumbnail(blob: Blob | undefined): void {
+	vi.stubGlobal(
+		'createImageBitmap',
+		vi.fn().mockResolvedValue({ width: 2000, height: 1000, close: vi.fn() })
+	);
+	const canvas = {
+		width: 0,
+		height: 0,
+		getContext: () => ({ fillRect: vi.fn(), drawImage: vi.fn(), fillStyle: '' }),
+		toBlob: (callback: (result: Blob | null) => void) => callback(blob ?? null)
+	};
+	vi.stubGlobal('document', { createElement: () => canvas });
+	thumbnailCanvas = canvas;
+}
+
+let thumbnailCanvas: { width: number; height: number } | undefined;
+
+describe('makeThumbnail', () => {
+	afterEach(() => vi.unstubAllGlobals());
+
+	it('scales a wide image down to 500 px and keeps its proportions', async () => {
+		stubThumbnail(new Blob(['small'], { type: 'image/jpeg' }));
+
+		const result = await makeThumbnail(file('image/png'));
+
+		expect(result?.type).toBe('image/jpeg');
+		expect(thumbnailCanvas).toMatchObject({ width: 500, height: 250 });
+	});
+
+	it('does not enlarge a small image', async () => {
+		stubThumbnail(new Blob(['small'], { type: 'image/jpeg' }));
+		vi.stubGlobal(
+			'createImageBitmap',
+			vi.fn().mockResolvedValue({ width: 300, height: 200, close: vi.fn() })
+		);
+
+		await makeThumbnail(file('image/png'));
+
+		expect(thumbnailCanvas).toMatchObject({ width: 300, height: 200 });
+	});
+
+	it('gives nothing when the browser cannot encode a JPEG or read the file', async () => {
+		stubThumbnail(new Blob(['png'], { type: 'image/png' }));
+		await expect(makeThumbnail(file('image/png'))).resolves.toBeUndefined();
+
+		vi.stubGlobal('createImageBitmap', vi.fn().mockRejectedValue(new Error('bad')));
+		await expect(makeThumbnail(file('image/png'))).resolves.toBeUndefined();
+	});
+});
+
 describe('ownImagePath', () => {
 	it('puts the file in the owner folder under a new name with the extension of its type', () => {
 		const path = ownImagePath('user-id', file('image/jpeg', 100, 'My holiday photo.jpeg'));
@@ -173,6 +224,30 @@ describe('uploadOwnImage', () => {
 		});
 	});
 
+	it('also uploads a small copy next to the original', async () => {
+		const small = new Blob(['small'], { type: 'image/jpeg' });
+		stubThumbnail(small);
+
+		const result = await uploadOwnImage(file('image/png'));
+
+		expect(bucket.upload).toHaveBeenCalledTimes(2);
+		expect(bucket.upload).toHaveBeenLastCalledWith(
+			(result.path as string).replace('.png', '-thumb.jpg'),
+			small,
+			{ contentType: 'image/jpeg', upsert: false }
+		);
+	});
+
+	it('keeps the original when the small copy cannot be made or uploaded', async () => {
+		stubThumbnail(undefined);
+
+		const result = await uploadOwnImage(file('image/png'));
+
+		expect(result.path).toMatch(/\.png$/);
+		expect(result.error).toBeUndefined();
+		expect(bucket.upload).toHaveBeenCalledOnce();
+	});
+
 	it('returns the dictionary message when the bucket refuses the file', async () => {
 		bucket.upload.mockResolvedValue({
 			data: null,
@@ -200,7 +275,7 @@ describe('uploadOwnImage', () => {
 		await removeOwnImage('user-id/old.png');
 
 		expect(supabase.storage.from).toHaveBeenCalledWith(IMAGES_BUCKET);
-		expect(bucket.remove).toHaveBeenCalledWith(['user-id/old.png']);
+		expect(bucket.remove).toHaveBeenCalledWith(['user-id/old.png', 'user-id/old-thumb.jpg']);
 	});
 });
 
