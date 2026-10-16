@@ -10,43 +10,48 @@
 		credit?: string;
 		compact?: boolean;
 		labelledby: string;
+		stage?: Snippet;
 		body: Snippet;
 		actions?: Snippet;
 	};
 
-	let { artwork, alt, credit, compact = false, labelledby, body, actions }: Props = $props();
+	let { artwork, alt, credit, compact = false, labelledby, stage, body, actions }: Props = $props();
 </script>
 
 <div class="card" class:compact>
-	<figure class="stage" class:dimmed={artwork.image?.src !== undefined}>
-		{#if artwork.image?.src}
-			<img class="backdrop" alt="" aria-hidden="true" src={artwork.image.src} />
-			<span class="mat">
-				<ArtworkImage
-					{alt}
-					height={artwork.image.height}
-					loading="eager"
-					sizes="(min-width: 768px) 60vw, 100vw"
-					src={artwork.image.src}
-					srcset={artwork.image.srcset}
-					width={artwork.image.width}
-				/>
-			</span>
-		{:else if artwork.imageUnavailable}
-			<span class="mat">
-				<ArtworkImage {alt} unavailable />
-			</span>
-		{:else}
-			<span class="mat">
-				<span class="window">
-					<NoImage label={m.ui.noImage} />
+	{#if stage}
+		<div class="stage">
+			{@render stage()}
+		</div>
+	{:else}
+		<figure class="stage" class:dimmed={artwork.image?.src !== undefined}>
+			{#if artwork.image?.src}
+				<img class="backdrop" alt="" aria-hidden="true" src={artwork.image.src} />
+				<span class="mat">
+					<ArtworkImage
+						{alt}
+						height={artwork.image.height}
+						loading="eager"
+						sizes="(min-width: 768px) 60vw, 100vw"
+						src={artwork.image.src}
+						srcset={artwork.image.srcset}
+						width={artwork.image.width}
+					/>
 				</span>
-			</span>
-		{/if}
-		{#if credit}
+			{:else if artwork.imageUnavailable}
+				<span class="mat">
+					<ArtworkImage {alt} unavailable />
+				</span>
+			{:else}
+				<span class="mat">
+					<span class="window">
+						<NoImage label={m.ui.noImage} />
+					</span>
+				</span>
+			{/if}
 			<figcaption class="caption">{credit}</figcaption>
-		{/if}
-	</figure>
+		</figure>
+	{/if}
 
 	<section class="panel" aria-labelledby={labelledby}>
 		<div class="body">
@@ -128,9 +133,16 @@
 	}
 
 	.caption {
+		min-height: 1lh;
 		color: var(--color-stage-fg-muted);
 		font-size: var(--font-size-xs);
 		line-height: var(--line-height-xs);
+	}
+
+	@media (max-width: 767.98px) {
+		.caption {
+			min-height: 2lh;
+		}
 	}
 
 	.panel {
