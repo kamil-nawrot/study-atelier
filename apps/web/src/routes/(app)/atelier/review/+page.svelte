@@ -25,7 +25,7 @@
 		waitingTomorrow
 	} from '#lib/review/overview.ts';
 	import { missingArtworks, sessionCounts, startOfDay } from '#lib/review/queue.ts';
-	import { quizArtworks, sessionItems } from '#lib/review/quiz.ts';
+	import { QUIZ_TILE_SIZES, quizArtworks, sessionItems } from '#lib/review/quiz.ts';
 	import {
 		loadReviewDetails,
 		loadSession,
@@ -95,7 +95,7 @@
 		for (const item of ahead) {
 			preload(item.artwork);
 			for (const option of item.quiz?.options ?? []) {
-				if (option.artwork) preload(option.artwork, '(min-width: 768px) 280px, 45vw');
+				if (option.artwork) preload(option.artwork, QUIZ_TILE_SIZES);
 			}
 		}
 	});
@@ -224,7 +224,7 @@
 
 <AtelierLayout
 	email={data.session.user.email ?? ''}
-	fill={phase === 'session' && current?.mode !== 'quiz_image'}
+	fill={phase === 'session'}
 	title={m.review.title}
 >
 	{#snippet bar()}

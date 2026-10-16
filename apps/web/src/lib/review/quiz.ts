@@ -1,6 +1,8 @@
 import type { WallArtwork } from '#lib/collection/types.ts';
 import type { Quiz, QuizOption, ReviewCard, ReviewItem, SessionRow } from './types.ts';
 
+export const QUIZ_TILE_SIZES = '(min-width: 768px) 25vw, 45vw';
+
 function shuffle<T>(values: T[], random: () => number): T[] {
 	const shuffled = [...values];
 	for (let index = shuffled.length - 1; index > 0; index -= 1) {
