@@ -65,9 +65,13 @@
 	}
 
 	function watchVisible(element: HTMLElement): () => void {
+		const bar = parseFloat(getComputedStyle(element).getPropertyValue('--bar-height')) || 0;
 		const observer = new IntersectionObserver(
 			([entry]) => element.classList.toggle('faded', entry.intersectionRatio < VISIBLE_RATIO),
-			{ threshold: [0, VISIBLE_RATIO - 0.01, VISIBLE_RATIO, 1] }
+			{
+				rootMargin: `-${bar}px 0px 0px 0px`,
+				threshold: [0, VISIBLE_RATIO - 0.01, VISIBLE_RATIO, 1]
+			}
 		);
 		observer.observe(element);
 		return () => observer.disconnect();
