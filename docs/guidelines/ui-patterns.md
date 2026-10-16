@@ -41,15 +41,15 @@ How views and components look and behave, so every new screen stays consistent w
 
 `base.css` styles each role once. Views use the role and do not restyle it.
 
-| Role | Markup | Look |
-| --- | --- | --- |
-| Page title | `h1` | `xl`, bold |
-| Section title | `h2` | `lg`, bold |
-| Subsection title | `h3` | `md`, bold |
-| Lead, one sentence under the page title | `p.lead` | `md`, muted |
-| Body | `p` | `md` |
-| Caption: metadata, hints, secondary details | `.caption` | `sm`, muted |
-| Artwork title | `cite.artwork-title` | Newsreader italic, `lg` |
+| Role                                        | Markup               | Look                    |
+| ------------------------------------------- | -------------------- | ----------------------- |
+| Page title                                  | `h1`                 | `xl`, bold              |
+| Section title                               | `h2`                 | `lg`, bold              |
+| Subsection title                            | `h3`                 | `md`, bold              |
+| Lead, one sentence under the page title     | `p.lead`             | `md`, muted             |
+| Body                                        | `p`                  | `md`                    |
+| Caption: metadata, hints, secondary details | `.caption`           | `sm`, muted             |
+| Artwork title                               | `cite.artwork-title` | Newsreader italic, `lg` |
 
 - Every page has one `h1`. The page title in the browser tab is built with `m.app.pageTitle(title)`.
 - Newsreader is used only for artwork titles.
