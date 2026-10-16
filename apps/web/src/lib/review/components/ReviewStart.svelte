@@ -1,23 +1,34 @@
 <script lang="ts">
+	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import Play from '@lucide/svelte/icons/play';
 	import { Alert, Button, Icon, ToggleTag } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
-	import { formatRecordNumber } from '#lib/collection/format.ts';
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import { type EraMemory, type ReviewScope, sameScope, scopeKey } from '../overview.ts';
+	import {
+		type AtelierKnowledge,
+		authorsOf,
+		type ReviewScope,
+		sameScope,
+		scopeKey
+	} from '../overview.ts';
+	import { MIN_ARTWORKS } from '../queue.ts';
 	import type { ReviewForm } from '../types.ts';
+
+	type ScopeChoice = {
+		scope: ReviewScope;
+		waiting: number;
+	};
 
 	type Props = {
 		known: number;
 		fresh: number;
-		minutes: number;
 		missing: number;
 		nextWhen?: string;
-		scopes: ReviewScope[];
+		scopes: ScopeChoice[];
 		scope: ReviewScope;
 		form: ReviewForm;
-		memory: EraMemory[];
+		knowledge: AtelierKnowledge;
 		troubles: WallArtwork[];
 		starting: boolean;
 		error?: string;
@@ -29,13 +40,12 @@
 	let {
 		known,
 		fresh,
-		minutes,
 		missing,
 		nextWhen,
 		scopes,
 		scope,
 		form,
-		memory,
+		knowledge,
 		troubles,
 		starting,
 		error,
@@ -45,8 +55,10 @@
 	}: Props = $props();
 
 	const FORMS: readonly ReviewForm[] = ['mixed', 'flashcards', 'quizzes'];
+	const GROUPS = ['settled', 'learning', 'fresh'] as const;
 
 	let waiting = $derived(known + fresh);
+	let total = $derived(knowledge.settled + knowledge.learning + knowledge.fresh);
 
 	function scopeLabel(option: ReviewScope): string {
 		switch (option.kind) {
@@ -60,10 +72,6 @@
 				return option.name;
 		}
 	}
-
-	function byline(artwork: WallArtwork): string {
-		return [artwork.authors.join(', '), artwork.date].filter(Boolean).join(', ');
-	}
 </script>
 
 <div class="start">
@@ -71,45 +79,25 @@
 		<header class="intro">
 			{#if missing > 0}
 				<h1>{m.review.title}</h1>
-				<p class="lead">{m.review.tooFew(missing)}</p>
+				<p class="lead">{m.review.tooFew(MIN_ARTWORKS, missing)}</p>
 			{:else if waiting > 0}
 				<h1>{m.review.waiting(waiting)}</h1>
-				<p class="lead">{m.review.plan(known, fresh, minutes)}</p>
+				<p class="lead">{m.review.plan(known, fresh)}</p>
 			{:else}
-				<h1>{m.review.title}</h1>
+				<h1>{m.review.allDoneTitle}</h1>
 				{#if nextWhen}
 					<p class="lead">{m.review.allDone(nextWhen)}</p>
 				{/if}
 			{/if}
 		</header>
 
-		{#if scopes.length > 1}
-			<section class="choice" aria-labelledby="review-scope">
-				<h2 id="review-scope" class="choice-title">{m.review.scope}</h2>
-				<div class="tags">
-					{#each scopes as option (scopeKey(option))}
-						<ToggleTag
-							bind:pressed={() => sameScope(option, scope), (pressed) => pressed && onscope(option)}
-						>
-							{scopeLabel(option)}
-						</ToggleTag>
-					{/each}
-				</div>
-			</section>
-		{/if}
-
-		{#if missing === 0 && waiting > 0}
-			<section class="choice" aria-labelledby="review-form">
-				<h2 id="review-form" class="choice-title">{m.review.form}</h2>
-				<div class="tags">
-					{#each FORMS as option (option)}
-						<ToggleTag bind:pressed={() => form === option, (pressed) => pressed && onform(option)}>
-							{m.review.forms[option]}
-						</ToggleTag>
-					{/each}
-				</div>
-			</section>
-
+		{#if missing > 0}
+			<div class="go">
+				<Button href={resolve('/(app)/atelier/new')} variant="primary">
+					{m.atelier.add}
+				</Button>
+			</div>
+		{:else if waiting > 0}
 			{#if error}
 				<Alert title={m.review.startErrorTitle} tone="danger">{error}</Alert>
 			{/if}
@@ -120,51 +108,101 @@
 					{m.review.start}
 				</Button>
 			</div>
+
+			<details class="options">
+				<summary>
+					{m.review.options}
+					<Icon icon={ChevronDown} size="sm" />
+				</summary>
+				<div class="choices">
+					{#if scopes.length > 1}
+						<section class="choice" aria-labelledby="review-scope">
+							<h2 id="review-scope" class="choice-title">{m.review.scope}</h2>
+							<div class="tags">
+								{#each scopes as option (scopeKey(option.scope))}
+									<ToggleTag
+										count={option.waiting}
+										bind:pressed={
+											() => sameScope(option.scope, scope),
+											(pressed) => pressed && onscope(option.scope)
+										}
+									>
+										{scopeLabel(option.scope)}
+									</ToggleTag>
+								{/each}
+							</div>
+						</section>
+					{/if}
+					<section class="choice" aria-labelledby="review-form">
+						<h2 id="review-form" class="choice-title">{m.review.form}</h2>
+						<div class="tags">
+							{#each FORMS as option (option)}
+								<ToggleTag
+									bind:pressed={() => form === option, (pressed) => pressed && onform(option)}
+								>
+									{m.review.forms[option]}
+								</ToggleTag>
+							{/each}
+						</div>
+						<p class="caption">{m.review.formHints[form]}</p>
+					</section>
+				</div>
+			</details>
 		{/if}
+
+		<section class="how" aria-labelledby="review-how">
+			<h2 id="review-how" class="choice-title">{m.review.howTitle}</h2>
+			<p class="caption">{m.review.how}</p>
+		</section>
 	</div>
 
-	{#if memory.length > 0 || troubles.length > 0}
-		<aside class="side" aria-label={m.review.memory}>
-			{#if memory.length > 0}
-				<section class="memory" aria-labelledby="review-memory">
-					<div class="section-head">
-						<h2 id="review-memory" class="choice-title">{m.review.memory}</h2>
-						<p class="caption">{m.review.memoryHint}</p>
-					</div>
-					<ul class="eras">
-						{#each memory as era (era.code)}
-							<li>
-								<span class="era">{m.eras[era.code].name}</span>
-								<span class="caption count">{m.review.memoryCount(era.remembered, era.total)}</span>
-								<span class="track" aria-hidden="true">
-									<span style:width="{(era.remembered / era.total) * 100}%" class="fill"></span>
-								</span>
-							</li>
-						{/each}
-					</ul>
-				</section>
-			{/if}
+	{#if total > 0}
+		<aside class="side" aria-labelledby="review-knowledge">
+			<section class="knowledge">
+				<h2 id="review-knowledge" class="choice-title">{m.review.knowledge}</h2>
+				<span class="bar" aria-hidden="true">
+					{#each GROUPS as group (group)}
+						<span style:flex-grow={knowledge[group]} class="segment {group}"></span>
+					{/each}
+				</span>
+				<dl class="groups">
+					{#each GROUPS as group (group)}
+						<div class="group">
+							<dt>
+								<span class="swatch {group}" aria-hidden="true"></span>
+								{m.review.knowledgeGroups[group].label}
+							</dt>
+							<dd class="number">{knowledge[group]}</dd>
+							<dd class="caption hint">{m.review.knowledgeGroups[group].hint}</dd>
+						</div>
+					{/each}
+				</dl>
+			</section>
 			{#if troubles.length > 0}
 				<section class="troubles" aria-labelledby="review-troubles">
 					<h2 id="review-troubles" class="choice-title">{m.review.troubles}</h2>
-					<ul class="thumbnails">
+					<ul class="trouble-list">
 						{#each troubles as artwork (artwork.id)}
 							<li>
 								<a
-									class="thumbnail"
-									aria-label={`${formatRecordNumber(artwork.number)} ${artwork.title}`}
+									class="trouble"
 									href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
-									title={[artwork.title, byline(artwork)].filter(Boolean).join(', ')}
 								>
-									{#if artwork.image?.src}
-										<img
-											alt=""
-											loading="lazy"
-											sizes="96px"
-											src={artwork.image.src}
-											srcset={artwork.image.srcset}
-										/>
-									{/if}
+									<span class="thumbnail">
+										{#if artwork.image?.src}
+											<img
+												alt=""
+												loading="lazy"
+												sizes="64px"
+												src={artwork.image.src}
+												srcset={artwork.image.srcset}
+											/>
+										{/if}
+									</span>
+									<span class="trouble-text">
+										<cite class="artwork-title">{artwork.title}</cite>
+										<span class="caption">{authorsOf(artwork)}</span>
+									</span>
 								</a>
 							</li>
 						{/each}
@@ -189,9 +227,45 @@
 		gap: var(--spacing-8);
 	}
 
-	.intro {
+	.intro,
+	.how {
 		display: grid;
 		gap: var(--spacing-2);
+	}
+
+	.how {
+		max-width: var(--size-content-narrow);
+	}
+
+	.options {
+		display: grid;
+		gap: var(--spacing-6);
+	}
+
+	summary {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		width: fit-content;
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
+		list-style: none;
+		cursor: pointer;
+	}
+
+	summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.options[open] summary :global(svg) {
+		rotate: 180deg;
+	}
+
+	.choices {
+		display: grid;
+		gap: var(--spacing-6);
+		padding-top: var(--spacing-6);
 	}
 
 	.choice {
@@ -216,62 +290,85 @@
 		gap: var(--spacing-8);
 	}
 
-	.memory,
-	.troubles,
-	.section-head {
+	.knowledge,
+	.troubles {
+		display: grid;
+		gap: var(--spacing-4);
+	}
+
+	.bar {
+		display: flex;
+		gap: var(--border-width-hairline);
+		height: var(--spacing-2);
+	}
+
+	.segment {
+		flex-basis: 0;
+	}
+
+	.settled {
+		background: var(--color-fg);
+	}
+
+	.learning {
+		background: var(--color-fg-muted);
+	}
+
+	.fresh {
+		background: var(--color-tag);
+	}
+
+	.groups {
 		display: grid;
 		gap: var(--spacing-3);
 	}
 
-	.section-head {
-		gap: var(--spacing-1);
-	}
-
-	.eras {
-		display: grid;
-		gap: var(--spacing-3);
-		padding: 0;
-		list-style: none;
-	}
-
-	.eras li {
+	.group {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) auto;
-		gap: var(--spacing-1) var(--spacing-4);
+		gap: 0 var(--spacing-4);
 		align-items: baseline;
 	}
 
-	.era {
+	dt {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
 	}
 
-	.era::first-letter {
-		text-transform: uppercase;
+	.swatch {
+		flex: none;
+		width: var(--spacing-2);
+		height: var(--spacing-2);
 	}
 
-	.count {
+	.number {
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
 		font-variant-numeric: tabular-nums;
 	}
 
-	.track {
+	.hint {
 		grid-column: 1 / -1;
-		height: var(--border-width-button);
-		background: var(--color-tag);
+		padding-left: var(--spacing-4);
 	}
 
-	.fill {
-		display: block;
-		height: 100%;
-		background: var(--color-fg);
-	}
-
-	.thumbnails {
+	.trouble-list {
 		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: var(--spacing-2);
+		gap: var(--spacing-3);
 		padding: 0;
 		list-style: none;
+	}
+
+	.trouble {
+		display: grid;
+		grid-template-columns: var(--spacing-16) minmax(0, 1fr);
+		gap: var(--spacing-3);
+		align-items: center;
+		color: inherit;
+		text-decoration: none;
 	}
 
 	.thumbnail {
@@ -289,6 +386,22 @@
 		object-fit: cover;
 	}
 
+	.trouble-text {
+		display: grid;
+		gap: var(--spacing-1);
+		min-width: 0;
+	}
+
+	.trouble-text > * {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.trouble:hover .artwork-title {
+		text-decoration: underline;
+	}
+
 	@media (max-width: 767.98px) {
 		.go {
 			position: sticky;
@@ -304,6 +417,12 @@
 	@media (min-width: 768px) {
 		.start {
 			grid-template-columns: minmax(0, 1fr) 360px;
+		}
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		summary :global(svg) {
+			transition: rotate var(--duration-short) ease-out;
 		}
 	}
 </style>
