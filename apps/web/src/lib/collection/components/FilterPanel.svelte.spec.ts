@@ -235,4 +235,27 @@ describe('FilterPanel', () => {
 		expect(state.current.favourites).toBe(true);
 		await expect.element(tag).toHaveAttribute('aria-pressed', 'true');
 	});
+
+	it('shows the first values of every group and a button for the rest', async () => {
+		const many = Array.from({ length: 10 }, (_, index) =>
+			testArtwork(10 + index, `Work ${index}`, {
+				period: `Period ${index}`,
+				styles: [`Style ${index}`],
+				materials: [`Material ${index}`]
+			})
+		);
+		render(FilterPanelHost, {
+			artworks: many,
+			initial: emptyFilter(),
+			report: (next: CollectionFilter) => (state.current = next)
+		});
+
+		const more = page.getByRole('button', { name: m.atelier.filters.showMore });
+		await expect.element(more.nth(2)).toBeVisible();
+		await expect.element(page.getByText('Style 9')).not.toBeInTheDocument();
+
+		await more.nth(1).click();
+
+		await expect.element(page.getByText('Style 9')).toBeVisible();
+	});
 });
