@@ -47,28 +47,44 @@ describe('review scopes', () => {
 		styles: index < 2 ? ['Caravaggism'] : index < 5 ? ['High Renaissance'] : []
 	}));
 
-	it('offers the whole collection, favourites, the two biggest periods and styles and the wall', () => {
-		expect(scopeOptions(artworks, true)).toEqual([
+	function large(count: number, values: Partial<WallArtwork>): WallArtwork[] {
+		return Array.from({ length: count }, (_, index) =>
+			testArtwork(100 + index, `Large ${index}`, values)
+		);
+	}
+
+	it('offers the whole collection and every scope with enough artworks to start', () => {
+		const pool = [
+			...large(24, { period: 'Baroque', styles: ['Caravaggism'], favourite: true }),
+			...large(21, { period: 'Renaissance', styles: ['High Renaissance'] }),
+			...large(19, { period: 'Gothic', styles: ['Rayonnant'] })
+		];
+		const wall = { ...emptyFilter(), periods: ['Renaissance'] };
+
+		expect(scopeOptions(pool, wall)).toEqual([
 			{ kind: 'all' },
 			{ kind: 'favourites' },
 			{ kind: 'period', name: 'Baroque' },
 			{ kind: 'period', name: 'Renaissance' },
-			{ kind: 'style', name: 'High Renaissance' },
 			{ kind: 'style', name: 'Caravaggism' },
+			{ kind: 'style', name: 'High Renaissance' },
 			{ kind: 'wall' }
+		]);
+		expect(scopeOptions(pool, { ...emptyFilter(), periods: ['Gothic'] })).not.toContainEqual({
+			kind: 'wall'
+		});
+	});
+
+	it('offers only the whole collection when no scope has enough artworks', () => {
+		expect(scopeOptions(artworks, { ...emptyFilter(), periods: ['Baroque'] })).toEqual([
+			{ kind: 'all' }
 		]);
 	});
 
-	it('leaves out favourites and the wall when there are none', () => {
-		const plain = collection(3);
+	it('counts only artworks with an image for the scopes it offers', () => {
+		const withoutImages = large(25, { period: 'Baroque', hasImage: false });
 
-		expect(scopeOptions(plain, false)).toEqual([{ kind: 'all' }]);
-	});
-
-	it('counts only artworks with an image for the values it offers', () => {
-		const withoutImages = collection(2, () => ({ period: 'Baroque', hasImage: false }));
-
-		expect(scopeOptions(withoutImages, false)).toEqual([{ kind: 'all' }]);
+		expect(scopeOptions(withoutImages, null)).toEqual([{ kind: 'all' }]);
 	});
 
 	it('narrows the artworks to the chosen scope', () => {

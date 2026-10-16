@@ -110,15 +110,21 @@ describe('review page', () => {
 		await expect.element(page.getByText(m.review.allDone('jutro'))).toBeVisible();
 	});
 
-	it('narrows the session to a scope and counts what is missing there', async () => {
-		renderReview(collection(25));
-
-		await page.getByRole('button', { name: 'Baroque' }).click();
+	it('offers only the scopes that have enough artworks to start', async () => {
+		const artworks = collection(25).map((artwork, index) => ({
+			...artwork,
+			styles: index < 21 ? ['Caravaggism'] : []
+		}));
+		renderReview(artworks);
 
 		await expect
-			.element(page.getByRole('button', { name: 'Baroque' }))
+			.element(page.getByRole('button', { name: m.review.scopes.all }))
 			.toHaveAttribute('aria-pressed', 'true');
-		await expect.element(page.getByText(m.review.tooFew(17))).toBeVisible();
+		await page.getByRole('button', { name: 'Caravaggism' }).click();
+		await expect
+			.element(page.getByRole('button', { name: 'Caravaggism' }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect.element(page.getByRole('button', { name: 'Baroque' })).not.toBeInTheDocument();
 	});
 
 	it('goes through a session card by card and ends with a summary', async () => {

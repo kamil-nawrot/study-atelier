@@ -318,7 +318,7 @@ export type AuthorDetails = {
 	sortName: string | null;
 };
 
-export type PlaceType = 'museum' | 'private_collection' | 'on_site';
+export type PlaceType = 'museum' | 'gallery' | 'private_collection' | 'on_site';
 
 export type LocationDetails = {
 	countryCode: string | null;

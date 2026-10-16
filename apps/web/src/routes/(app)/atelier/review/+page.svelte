@@ -78,7 +78,7 @@
 	const nextDate = $derived(
 		entries.length === 0 && missing === 0 ? nextWaiting(scoped, cards, now) : null
 	);
-	const scopes = $derived(scopeOptions(data.artworks, wallFilters > 0));
+	const scopes = $derived(scopeOptions(data.artworks, wallFilters > 0 ? wallFilter : null));
 	const memory = $derived(memoryByEra(data.artworks, cards));
 	const hard = $derived(troubles(data.artworks, cards).map(withImage));
 	const current = $derived(session?.current);
