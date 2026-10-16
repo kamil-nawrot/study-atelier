@@ -499,8 +499,21 @@ describe('artwork page', () => {
 			values: {
 				'period:Baroque': { summary: 'Movement, diagonals and strong light.' },
 				'author:Johannes Vermeer': { summary: 'Painter of quiet rooms.', lifeYears: '1632–1675' }
-			}
+			},
+			countries: { Mauritshuis: 'Holandia' }
 		};
+
+		it('shows the country of a place after its name', async () => {
+			renderPage({ artwork: artwork(), summaries });
+
+			await expect.element(page.getByText('Mauritshuis, Holandia')).toBeVisible();
+		});
+
+		it('keeps the bare name of a place without a country', async () => {
+			renderPage({ artwork: artwork(), summaries: { ...summaries, countries: {} } });
+
+			await expect.element(page.getByText('Mauritshuis', { exact: true })).toBeVisible();
+		});
 
 		it('shows the summary of a period with its era when the badge is clicked', async () => {
 			renderPage({ artwork: artwork(), summaries });

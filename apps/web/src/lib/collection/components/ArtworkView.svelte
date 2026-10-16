@@ -138,15 +138,19 @@
 
 {#snippet valueTag(kind: ValueKind | undefined, name: string)}
 	{@const summary = kind ? summaryOf(kind, name) : undefined}
+	{@const label =
+		kind === 'location' && summaries.countries[name]
+			? `${name}, ${summaries.countries[name]}`
+			: name}
 	{#if kind && summary}
 		<Popover>
-			<Tag>{name}</Tag>
+			<Tag>{label}</Tag>
 			{#snippet content()}
 				<ValueSummaryCard {name} kind={valueKindName(kind)} parent={parentOf(kind)} {summary} />
 			{/snippet}
 		</Popover>
 	{:else}
-		<Tag>{name}</Tag>
+		<Tag>{label}</Tag>
 	{/if}
 {/snippet}
 

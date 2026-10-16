@@ -1,4 +1,5 @@
 import { supabase } from '#lib/supabase.ts';
+import { countryName, isCountryCode } from './countries.ts';
 import { formatLifeYears } from './format.ts';
 import type { CategoryCode, EraCode } from './types.ts';
 
@@ -10,6 +11,7 @@ export type ValueSummary = {
 export type ValueSummaries = {
 	eras: Partial<Record<EraCode, ValueSummary>>;
 	values: Record<string, ValueSummary>;
+	countries: Record<string, string>;
 };
 
 type SummaryRow = { summary: string | null };
@@ -28,15 +30,15 @@ type ValueRow = {
 		style_details?: SummaryRow[];
 		material_details?: SummaryRow[];
 		author_details?: AuthorSummaryRow[];
-		location_details?: SummaryRow[];
+		location_details?: (SummaryRow & { country_code: string | null })[];
 	} | null;
 };
 
 const VALUE_COLUMNS =
-	'category_values(category_code, name, period_details(summary), style_details(summary), material_details(summary), author_details(summary, birth_year, death_year, years_approximate), location_details(summary)), artworks!inner(record_number)';
+	'category_values(category_code, name, period_details(summary), style_details(summary), material_details(summary), author_details(summary, birth_year, death_year, years_approximate), location_details(summary, country_code)), artworks!inner(record_number)';
 
 export function emptyValueSummaries(): ValueSummaries {
-	return { eras: {}, values: {} };
+	return { eras: {}, values: {}, countries: {} };
 }
 
 export function summaryKey(category: CategoryCode, name: string): string {
@@ -68,6 +70,10 @@ export async function loadValueSummaries(number: number): Promise<ValueSummaries
 	for (const row of (values.data ?? []) as unknown as ValueRow[]) {
 		const entry = valueSummary(row);
 		if (entry) summaries.values[entry[0]] = entry[1];
+		const place = row.category_values;
+		const code =
+			place?.category_code === 'location' ? place.location_details?.[0]?.country_code : null;
+		if (place && isCountryCode(code)) summaries.countries[place.name] = countryName(code);
 	}
 	for (const era of eras.data ?? []) {
 		if (era.summary) summaries.eras[era.era_code as EraCode] = { summary: era.summary };
