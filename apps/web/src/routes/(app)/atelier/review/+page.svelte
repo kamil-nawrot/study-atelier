@@ -4,6 +4,7 @@
 	import { Alert, Button, Dialog, Icon } from '@study-atelier/ui';
 	import { invalidate } from '$app/navigation';
 	import { resolveImages } from '#lib/collection/artworks.ts';
+	import AtelierBackLink from '#lib/collection/components/AtelierBackLink.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
@@ -277,7 +278,7 @@
 				</div>
 			</div>
 		{:else}
-			<span class="title">{m.review.title}</span>
+			<AtelierBackLink />
 		{/if}
 	{/snippet}
 
@@ -353,23 +354,19 @@
 </Dialog>
 
 <style>
-	.title,
 	.stop {
 		display: flex;
-		align-items: center;
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-medium);
-		line-height: var(--line-height-sm);
-	}
-
-	.stop {
 		align-self: stretch;
+		align-items: center;
 		gap: var(--spacing-2);
 		padding: 0 var(--spacing-2);
 		border: none;
 		background: transparent;
 		color: var(--color-fg);
 		font-family: inherit;
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-medium);
+		line-height: var(--line-height-sm);
 		cursor: pointer;
 	}
 

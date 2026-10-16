@@ -87,6 +87,9 @@ describe('review page', () => {
 		await expect.element(page.getByRole('button', { name: m.review.start })).toBeVisible();
 		await expect.element(page.getByRole('heading', { name: m.review.howTitle })).toBeVisible();
 		await expect.element(page.getByText(m.review.how)).toBeVisible();
+		await expect
+			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
+			.toHaveAttribute('href', '/atelier');
 	});
 
 	it('shows why the reviews could not be loaded', async () => {
