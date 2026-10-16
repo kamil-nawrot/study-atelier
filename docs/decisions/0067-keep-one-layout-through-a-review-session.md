@@ -37,4 +37,4 @@ Chosen option: one layout, as the owner decided.
 
 ## More information
 
-Changes the layout of the image quiz in [ADR-0061](0061-review-the-collection-in-one-mixed-session.md) (mockups 07 and 08). ATL-171.
+Changes the layout of the image quiz in [ADR-0061](0061-review-the-collection-in-one-mixed-session.md) (mockups 07 and 08). ATL-171. The image quiz layout and the hint are changed by [ADR-0069](0069-quiz-images-in-one-row-and-ratings-without-intervals.md).
