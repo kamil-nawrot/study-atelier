@@ -1,0 +1,61 @@
+\set ON_ERROR_STOP on
+
+begin;
+
+insert into auth.users (id, email) values
+  ('00000000-0000-0000-0000-00000000000a', 'owner-a@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-00000000000a", "role": "authenticated"}', true);
+
+do $$
+declare
+  forgotten uuid;
+  known uuid;
+  session jsonb;
+  day_start constant timestamptz := date_trunc('day', now());
+begin
+  for number in 1..20 loop
+    perform public.save_artwork(
+      jsonb_build_object(
+        'title', 'Work ' || number,
+        'author_unknown', true,
+        'era_code', 'early_modern',
+        'source_wikidata_id', 'Q' || number,
+        'source_image_file', 'Work_' || number || '.jpg'
+      ),
+      '{}'
+    );
+  end loop;
+
+  select id into forgotten from public.artworks where title = 'Work 1';
+  select id into known from public.artworks where title = 'Work 2';
+
+  perform public.record_review(forgotten,
+    jsonb_build_object('due', now() - interval '1 hour', 'stability', 1.2, 'difficulty', 6,
+      'state', 2, 'reps', 3, 'lapses', 1, 'scheduled_days', 1, 'learning_steps', 0,
+      'last_review', now() - interval '1 day'),
+    '{"mode": "flashcard", "rating": 1}');
+  perform public.record_review(known,
+    jsonb_build_object('due', now() - interval '2 hours', 'stability', 20, 'difficulty', 4,
+      'state', 2, 'reps', 4, 'lapses', 0, 'scheduled_days', 20, 'learning_steps', 0,
+      'last_review', now() - interval '20 days'),
+    '{"mode": "flashcard", "rating": 3}');
+
+  session := public.review_session(day_start, 'mixed');
+
+  assert (
+    select item ->> 'mode' from jsonb_array_elements(session) as item
+      where (item ->> 'artwork_id')::uuid = forgotten
+  ) in ('quiz_title', 'quiz_image'),
+    'a mixed session does not quiz an artwork whose last answer was forgotten';
+  assert (
+    select item ->> 'mode' from jsonb_array_elements(session) as item
+      where (item ->> 'artwork_id')::uuid = known
+  ) = 'flashcard',
+    'a mixed session quizzes an artwork remembered for weeks';
+end;
+$$;
+
+rollback;

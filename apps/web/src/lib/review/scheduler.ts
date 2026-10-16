@@ -2,7 +2,7 @@ import { type Card, type Grade, createEmptyCard, fsrs, generatorParameters } fro
 import type { ReviewCard, ReviewRating, ReviewState } from './types.ts';
 
 const scheduler = fsrs(
-	generatorParameters({ request_retention: 0.9, enable_fuzz: true, enable_short_term: true })
+	generatorParameters({ request_retention: 0.9, enable_fuzz: true, enable_short_term: false })
 );
 
 export const RATINGS: readonly ReviewRating[] = [1, 2, 3];
