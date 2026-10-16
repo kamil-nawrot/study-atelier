@@ -154,6 +154,99 @@ export const ARTWORKS = [
 	artwork(10, 'Untitled study', ['Learner Example'], null, null, {})
 ];
 
+const STUDY_SET = [
+	[12, 'The Night Watch', 'Rembrandt', 1642, 'Baroque', 'Dutch Golden Age', [5, 4]],
+	[13, 'Las Meninas', 'Diego Velázquez', 1656, 'Baroque', 'Spanish Golden Age', [6, 7]],
+	[14, 'The Milkmaid', 'Johannes Vermeer', 1658, 'Baroque', 'Dutch Golden Age', [4, 5]],
+	[
+		15,
+		'The Anatomy Lesson of Dr Nicolaes Tulp',
+		'Rembrandt',
+		1632,
+		'Baroque',
+		'Dutch Golden Age',
+		[4, 3]
+	],
+	[16, 'Judith Beheading Holofernes', 'Caravaggio', 1599, 'Baroque', 'Caravaggism', [4, 3]],
+	[17, 'The Last Supper', 'Leonardo da Vinci', 1498, 'Renaissance', 'High Renaissance', [2, 1]],
+	[18, 'The School of Athens', 'Raphael', 1511, 'Renaissance', 'High Renaissance', [3, 2]],
+	[19, 'Primavera', 'Sandro Botticelli', 1482, 'Renaissance', 'Early Renaissance', [3, 2]],
+	[
+		20,
+		'The Arnolfini Portrait',
+		'Jan van Eyck',
+		1434,
+		'Renaissance',
+		'Early Netherlandish',
+		[3, 4]
+	],
+	[21, 'Ginevra de’ Benci', 'Leonardo da Vinci', 1476, 'Renaissance', 'Early Renaissance', [1, 1]],
+	[22, 'Impression, Sunrise', 'Claude Monet', 1872, 'Impressionism', 'Impressionism', [4, 3]],
+	[
+		23,
+		'Luncheon of the Boating Party',
+		'Pierre-Auguste Renoir',
+		1881,
+		'Impressionism',
+		'Impressionism',
+		[4, 3]
+	],
+	[24, 'Water Lilies', 'Claude Monet', 1906, 'Impressionism', 'Impressionism', [1, 1]],
+	[25, 'The Dance Class', 'Edgar Degas', 1874, 'Impressionism', 'Impressionism', [6, 7]]
+];
+
+for (const [number, title, author, year, period, style, [width, height]] of STUDY_SET) {
+	const era = year < 1789 ? 'early_modern' : 'modern';
+	ARTWORKS.push(
+		withValues(
+			withValues(
+				artwork(number, title, [author], year, era, ownImage(number, width, height)),
+				'period',
+				[period]
+			),
+			'style',
+			[style]
+		)
+	);
+}
+
+const DAY = 24 * 60 * 60 * 1000;
+
+function reviewCard(number, dueInDays, stability, state, lapses = 0) {
+	const now = Date.now();
+	return {
+		artwork_id: ARTWORKS.find((row) => row.record_number === number).id,
+		due: new Date(now + dueInDays * DAY).toISOString(),
+		stability,
+		difficulty: 5,
+		state,
+		reps: 3 + lapses,
+		lapses,
+		scheduled_days: Math.max(0, Math.round(stability)),
+		learning_steps: 0,
+		last_review: new Date(now - (lapses > 0 ? 1 : 6) * DAY).toISOString()
+	};
+}
+
+export const REVIEW_CARDS = [
+	reviewCard(1, -1, 4, 2),
+	reviewCard(2, 9, 21, 2),
+	reviewCard(3, -2, 3, 3, 1),
+	reviewCard(4, 15, 30, 2),
+	reviewCard(5, 4, 12, 2),
+	reviewCard(6, 0, 2, 2),
+	reviewCard(7, 20, 40, 2),
+	reviewCard(9, -1, 5, 2),
+	reviewCard(12, 0, 1, 3, 2),
+	reviewCard(13, 6, 10, 2),
+	reviewCard(14, -3, 2, 3, 1),
+	reviewCard(15, 0, 3, 2),
+	reviewCard(16, 12, 25, 2),
+	reviewCard(17, 0, 6, 2),
+	reviewCard(18, 8, 14, 2),
+	reviewCard(20, -1, 1, 3, 1)
+];
+
 for (const number of [1, 3, 4, 7])
 	ARTWORKS.find((row) => row.record_number === number).favourite = true;
 

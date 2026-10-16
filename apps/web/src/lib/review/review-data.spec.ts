@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
-import { loadReviewCards, loadReviewCounts, recordReview, waitingToday } from './review-data.ts';
+import {
+	loadReviewCards,
+	loadReviewCounts,
+	loadReviewDetails,
+	recordReview,
+	waitingToday
+} from './review-data.ts';
 import type { ReviewCard } from './types.ts';
 
 vi.mock('#lib/supabase.ts', () => ({
@@ -149,5 +155,67 @@ describe('review data', () => {
 		await expect(recordReview(card, { mode: 'flashcard', rating: 2 })).resolves.toEqual({
 			error: m.review.saveFailed
 		});
+	});
+
+	it('loads the notes and the image credit of the session artworks in one query', async () => {
+		const query = { select: vi.fn(), in: vi.fn() };
+		query.select.mockReturnValue(query);
+		query.in.mockResolvedValue({
+			data: [
+				{
+					id: 'artwork-1',
+					notes: 'Look at the light.',
+					source_wikidata_id: 'Q1',
+					source_image_file: 'Pearl.jpg',
+					source_image_licence: 'Public domain',
+					source_image_licence_url: null,
+					source_image_attribution: null,
+					own_image_path: null,
+					own_image_url: null,
+					image_width: 4,
+					image_height: 5
+				},
+				{
+					id: 'artwork-2',
+					notes: null,
+					source_wikidata_id: null,
+					source_image_file: null,
+					source_image_licence: null,
+					source_image_licence_url: null,
+					source_image_attribution: null,
+					own_image_path: 'owner/own.jpg',
+					own_image_url: null,
+					image_width: 4,
+					image_height: 5
+				}
+			],
+			error: null
+		});
+		vi.mocked(supabase.from).mockReturnValue(query as never);
+
+		const details = await loadReviewDetails(['artwork-1', 'artwork-2']);
+
+		expect(supabase.from).toHaveBeenCalledWith('artworks');
+		expect(query.in).toHaveBeenCalledWith('id', ['artwork-1', 'artwork-2']);
+		expect(details.get('artwork-1')).toEqual({
+			notes: 'Look at the light.',
+			credit: m.artwork.credit
+		});
+		expect(details.get('artwork-2')).toEqual({
+			notes: '',
+			credit: m.artworkForm.ownImageCredit
+		});
+	});
+
+	it('asks for no details when the session is empty and shows none when they fail', async () => {
+		await expect(loadReviewDetails([])).resolves.toEqual(new Map());
+		expect(supabase.from).not.toHaveBeenCalled();
+
+		const query = { select: vi.fn(), in: vi.fn() };
+		query.select.mockReturnValue(query);
+		query.in.mockResolvedValue({ data: null, error: { message: 'Failed' } });
+		vi.mocked(supabase.from).mockReturnValue(query as never);
+
+		await expect(loadReviewDetails(['artwork-1'])).resolves.toEqual(new Map());
 	});
 });
