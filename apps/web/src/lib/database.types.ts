@@ -493,8 +493,8 @@ export type Database = {
           difficulty: number;
           due: string;
           facet: string;
-          last_review: string | null;
           lapses: number;
+          last_review: string | null;
           learning_steps: number;
           owner_id: string;
           reps: number;
@@ -509,8 +509,8 @@ export type Database = {
           difficulty: number;
           due: string;
           facet?: string;
-          last_review?: string | null;
           lapses?: number;
+          last_review?: string | null;
           learning_steps?: number;
           owner_id?: string;
           reps?: number;
@@ -524,8 +524,8 @@ export type Database = {
           difficulty?: number;
           due?: string;
           facet?: string;
-          last_review?: string | null;
           lapses?: number;
+          last_review?: string | null;
           learning_steps?: number;
           owner_id?: string;
           reps?: number;
