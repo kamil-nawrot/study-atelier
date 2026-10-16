@@ -91,6 +91,17 @@ describe('Flashcard', () => {
 			.toBeVisible();
 	});
 
+	it('opens the image in a full-screen preview and closes it again', async () => {
+		renderCard(false);
+
+		(page.getByRole('button', { name: m.artworkView.openImage }).element() as HTMLElement).click();
+		const viewer = page.getByRole('dialog');
+		await expect.element(viewer).toBeVisible();
+
+		(page.getByRole('button', { name: m.artworkView.closeImage }).element() as HTMLElement).click();
+		await expect.element(viewer).not.toBeInTheDocument();
+	});
+
 	it('rates with the buttons and with the keys 1 to 3', async () => {
 		const { onrate } = renderCard(true);
 

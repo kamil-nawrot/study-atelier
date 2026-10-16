@@ -2,11 +2,14 @@
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
 	import Check from '@lucide/svelte/icons/check';
 	import Hourglass from '@lucide/svelte/icons/hourglass';
+	import Maximize2 from '@lucide/svelte/icons/maximize-2';
 	import SwatchBook from '@lucide/svelte/icons/swatch-book';
 	import UserPen from '@lucide/svelte/icons/user-pen';
 	import X from '@lucide/svelte/icons/x';
 	import type { LucideIcon } from '@lucide/svelte';
+	import { tick } from 'svelte';
 	import { Alert, ArtworkImage, Button, Icon, Tooltip } from '@study-atelier/ui';
+	import ImageViewer from '#lib/collection/components/ImageViewer.svelte';
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { onControl, sessionKey } from '../keys.ts';
@@ -37,6 +40,8 @@
 
 	let heading = $state<HTMLElement>();
 	let nextButton = $state<HTMLElement>();
+	let viewer: ReturnType<typeof ImageViewer>;
+	let viewed = $state<{ image: WallArtwork['image']; alt: string }>();
 
 	let artwork = $derived(item.artwork);
 	let quiz = $derived(item.quiz);
@@ -58,6 +63,12 @@
 	function ratioOf(option: QuizOption): number {
 		const image = option.artwork?.image;
 		return image ? image.width / image.height : FALLBACK_RATIO;
+	}
+
+	async function enlarge(image: WallArtwork['image'], alt: string): Promise<void> {
+		viewed = { image, alt };
+		await tick();
+		viewer.open();
 	}
 
 	function describe(work: WallArtwork): string {
@@ -209,6 +220,16 @@
 						</span>
 						{@render optionState(index)}
 					</button>
+					{#if image?.src}
+						<button
+							class="zoom"
+							aria-label={m.review.quiz.openImage(index + 1)}
+							onclick={() => enlarge(image, imageAlt)}
+							type="button"
+						>
+							<Icon icon={Maximize2} size="sm" />
+						</button>
+					{/if}
 					<p class="tile-caption">
 						{#if answered}
 							<cite class="artwork-title">{option.label}</cite>
@@ -275,7 +296,7 @@
 									{@const reason = option.reason}
 									<Tooltip align="end" text={m.review.quiz.reasonLabels[reason]}>
 										{#snippet children(id)}
-											<span aria-describedby={id}>
+											<span class="reason-icon" aria-describedby={id}>
 												<Icon
 													icon={REASON_ICONS[reason]}
 													label={m.review.quiz.reasons[reason]}
@@ -295,6 +316,8 @@
 		{@render feedback()}
 	{/snippet}
 </ReviewCard>
+
+<ImageViewer bind:this={viewer} alt={viewed?.alt ?? ''} image={viewed?.image} />
 
 <style>
 	h1:focus {
@@ -414,6 +437,22 @@
 		display: block;
 	}
 
+	.zoom {
+		position: absolute;
+		top: calc(2 * var(--spacing-2));
+		right: calc(2 * var(--spacing-2));
+		z-index: 2;
+		display: grid;
+		place-items: center;
+		width: var(--spacing-8);
+		height: var(--spacing-8);
+		padding: 0;
+		border: none;
+		background: var(--color-mat-badge-bg);
+		color: var(--color-mat-badge-fg);
+		cursor: zoom-in;
+	}
+
 	.window :global(img) {
 		display: block;
 		width: var(--tile-image-width);
@@ -530,6 +569,10 @@
 		color: var(--color-danger);
 	}
 
+	.reason-icon {
+		display: flex;
+	}
+
 	.label {
 		flex: 1;
 		min-width: 0;
@@ -538,6 +581,7 @@
 	.reason {
 		display: flex;
 		flex: none;
+		align-items: center;
 		justify-content: center;
 		width: var(--spacing-6);
 		color: var(--color-fg-muted);

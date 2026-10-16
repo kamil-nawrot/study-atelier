@@ -2,6 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import { ArtworkImage, NoImage } from '@study-atelier/ui';
 	import type { WallArtwork } from '#lib/collection/types.ts';
+	import ImageViewer from '#lib/collection/components/ImageViewer.svelte';
 	import { m } from '#lib/i18n/index.ts';
 
 	type Props = {
@@ -16,6 +17,8 @@
 	};
 
 	let { artwork, alt, credit, compact = false, labelledby, stage, body, actions }: Props = $props();
+
+	let viewer = $state<ReturnType<typeof ImageViewer>>();
 </script>
 
 <div class="card" class:compact>
@@ -27,17 +30,24 @@
 		<figure class="stage" class:dimmed={artwork.image?.src !== undefined}>
 			{#if artwork.image?.src}
 				<img class="backdrop" alt="" aria-hidden="true" src={artwork.image.src} />
-				<span class="mat">
-					<ArtworkImage
-						{alt}
-						height={artwork.image.height}
-						loading="eager"
-						sizes="(min-width: 768px) 60vw, 100vw"
-						src={artwork.image.src}
-						srcset={artwork.image.srcset}
-						width={artwork.image.width}
-					/>
-				</span>
+				<button
+					class="open"
+					aria-label={m.artworkView.openImage}
+					onclick={() => viewer?.open()}
+					type="button"
+				>
+					<span class="mat">
+						<ArtworkImage
+							{alt}
+							height={artwork.image.height}
+							loading="eager"
+							sizes="(min-width: 768px) 60vw, 100vw"
+							src={artwork.image.src}
+							srcset={artwork.image.srcset}
+							width={artwork.image.width}
+						/>
+					</span>
+				</button>
 			{:else if artwork.imageUnavailable}
 				<span class="mat">
 					<ArtworkImage {alt} unavailable />
@@ -64,6 +74,10 @@
 		{/if}
 	</section>
 </div>
+
+{#if artwork.image?.src}
+	<ImageViewer bind:this={viewer} {alt} image={artwork.image} />
+{/if}
 
 <style>
 	.card {
@@ -102,6 +116,15 @@
 	.stage > :not(.backdrop) {
 		position: relative;
 		z-index: 1;
+	}
+
+	.open {
+		display: block;
+		max-width: 100%;
+		padding: 0;
+		border: none;
+		background: none;
+		cursor: zoom-in;
 	}
 
 	.mat {

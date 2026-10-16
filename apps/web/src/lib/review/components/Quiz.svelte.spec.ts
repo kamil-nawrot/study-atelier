@@ -57,7 +57,9 @@ describe('Quiz', () => {
 		await expect
 			.element(page.getByRole('heading', { level: 1 }))
 			.toHaveTextContent(`${m.review.quiz.imageQuestion.start} ${answer.title}?`);
-		const options = page.getByRole('list', { name: m.review.quiz.options }).getByRole('button');
+		const options = page
+			.getByRole('list', { name: m.review.quiz.options })
+			.getByRole('button', { name: /^Obraz \d$/ });
 		expect(options.elements()).toHaveLength(4);
 		await expect
 			.element(page.getByRole('img', { name: m.review.quiz.imageAlt(1) }))
@@ -66,6 +68,24 @@ describe('Quiz', () => {
 
 		await userEvent.keyboard('3');
 		expect(onanswer).toHaveBeenCalledWith(2);
+	});
+
+	it('enlarges one of the four images without answering', async () => {
+		await page.viewport(1280, 800);
+		const { onanswer } = renderQuiz('quiz_image', artworkQuiz);
+
+		(
+			page.getByRole('button', { name: m.review.quiz.openImage(2) }).element() as HTMLElement
+		).click();
+		await expect.element(page.getByRole('dialog')).toBeVisible();
+		expect(onanswer).not.toHaveBeenCalled();
+	});
+
+	it('enlarges the image of a title question', async () => {
+		renderQuiz('quiz_title', artworkQuiz);
+
+		(page.getByRole('button', { name: m.artworkView.openImage }).element() as HTMLElement).click();
+		await expect.element(page.getByRole('dialog')).toBeVisible();
 	});
 
 	it('keeps the next button in its place but disabled until the answer', async () => {
