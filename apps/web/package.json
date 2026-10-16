@@ -43,6 +43,7 @@
 		"#lib/*": "./src/lib/*"
 	},
 	"dependencies": {
-		"@supabase/supabase-js": "2.117.2"
+		"@supabase/supabase-js": "2.117.2",
+		"ts-fsrs": "5.4.2"
 	}
 }

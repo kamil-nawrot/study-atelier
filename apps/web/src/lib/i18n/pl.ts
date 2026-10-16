@@ -371,6 +371,9 @@ export const pl = {
 		removed: 'Usunięto z ulubionych.',
 		failed: 'Nie udało się zapisać zmiany. Spróbuj jeszcze raz.'
 	},
+	review: {
+		saveFailed: 'Nie udało się zapisać odpowiedzi. Spróbuj jeszcze raz.'
+	},
 	imageSearch: {
 		title: 'Które to dzieło?',
 		description: (title: string, authors: string): string =>
