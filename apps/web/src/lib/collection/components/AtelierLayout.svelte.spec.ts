@@ -117,7 +117,7 @@ describe('AtelierLayout', () => {
 		await expect.element(page.getByRole('button', { name: m.menu.lightTheme })).toBeInTheDocument();
 	});
 
-	it('links to the reviews between the card index and the trash with the number waiting today', async () => {
+	it('links to the reviews between the card index and the trash, with the number waiting today only in the expanded rail', async () => {
 		await page.viewport(1280, 800);
 		pageState.data = { reviewWaiting: Promise.resolve(14) };
 		renderLayout(views.empty);
@@ -127,7 +127,10 @@ describe('AtelierLayout', () => {
 			name: new RegExp(`^${m.menu.review}.*${m.menu.reviewWaiting(14)}$`)
 		});
 		await expect.element(link).toHaveAttribute('href', '/atelier/review');
-		await expect.element(link.getByText('14', { exact: true }).first()).toBeVisible();
+		await expect.element(link.getByText('14', { exact: true })).not.toBeVisible();
+
+		await rail.getByRole('button', { name: m.menu.expand }).click();
+		await expect.element(link.getByText('14', { exact: true })).toBeVisible();
 
 		const names = [...rail.element().querySelectorAll('a')].map((item) =>
 			item.querySelector('.label')?.textContent?.trim()

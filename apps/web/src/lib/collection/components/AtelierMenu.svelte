@@ -66,7 +66,7 @@
 			<Icon icon={Layers} />
 			{#await page.data.reviewWaiting then waiting}
 				{#if waiting > 0}
-					<span class="badge" aria-hidden="true">{waiting}</span>
+					<span class="badge" aria-hidden="true"></span>
 				{/if}
 			{/await}
 		</span>
@@ -187,7 +187,6 @@
 		display: flex;
 	}
 
-	.badge,
 	.count {
 		min-width: 16px;
 		padding: 0 var(--spacing-1);
@@ -202,9 +201,12 @@
 
 	.badge {
 		position: absolute;
-		top: calc(-1 * var(--spacing-2));
-		right: calc(-1 * var(--spacing-3));
+		top: calc(-1 * var(--spacing-1));
+		right: calc(-1 * var(--spacing-1));
 		display: none;
+		width: var(--spacing-2);
+		height: var(--spacing-2);
+		background: var(--color-fg);
 	}
 
 	.hidden {
