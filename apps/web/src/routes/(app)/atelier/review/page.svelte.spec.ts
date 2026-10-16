@@ -121,7 +121,7 @@ describe('review page', () => {
 		const artworks = collection(20);
 		renderReview(
 			artworks,
-			cards(artworks, (index) => (index === 0 ? 1.2 : 6))
+			cards(artworks, (index) => (index === 0 ? 1 : 6))
 		);
 
 		await expect.element(page.getByRole('heading', { name: m.review.allDoneTitle })).toBeVisible();
