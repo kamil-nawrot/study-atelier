@@ -61,7 +61,13 @@
 			{#if tab === 'timeline'}
 				<CardIndexTimeline {timeline} />
 			{:else if tab === 'material' || tab === 'author' || tab === 'location'}
-				<CardIndexList empty={m.cardIndex.emptyList[tab]} records={valuesOf(data.index, tab)} />
+				{#key tab}
+					<CardIndexList
+						empty={m.cardIndex.emptyList[tab]}
+						records={valuesOf(data.index, tab)}
+						searchLabel={m.cardIndex.search[tab]}
+					/>
+				{/key}
 			{/if}
 		</Tabs>
 	{/if}

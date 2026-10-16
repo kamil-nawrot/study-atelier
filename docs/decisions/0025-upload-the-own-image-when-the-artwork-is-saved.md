@@ -51,3 +51,4 @@ Chosen options: upload when the artwork is saved, and reject a URL whose image d
 
 - Implementation: ATL-48.
 - Making large photos smaller in the browser before upload is an idea for a later version.
+- [ADR-0063](0063-make-a-small-copy-of-every-own-image.md) adds a small copy next to every uploaded file.

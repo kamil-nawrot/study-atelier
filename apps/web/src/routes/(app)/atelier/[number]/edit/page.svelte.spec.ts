@@ -312,7 +312,10 @@ describe('edit artwork page', () => {
 
 		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
 		expect(supabase.storage.from).toHaveBeenCalledWith(IMAGES_BUCKET);
-		expect(bucket.remove).toHaveBeenCalledWith(['user-id/milkmaid.png']);
+		expect(bucket.remove).toHaveBeenCalledWith([
+			'user-id/milkmaid.png',
+			'user-id/milkmaid-thumb.jpg'
+		]);
 	});
 
 	it('goes back to where the learner came from', async () => {
