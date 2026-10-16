@@ -37,6 +37,8 @@
 		onnearscreen
 	}: Props = $props();
 
+	const VISIBLE_RATIO = 0.2;
+
 	const wide = new MediaQuery(`min-width: ${WIDE_MIN_WIDTH}px`);
 
 	let count = $derived(columnCount(wide.current, innerWidth.current ?? 0));
@@ -62,6 +64,15 @@
 		};
 	}
 
+	function watchVisible(element: HTMLElement): () => void {
+		const observer = new IntersectionObserver(
+			([entry]) => element.classList.toggle('faded', entry.intersectionRatio < VISIBLE_RATIO),
+			{ threshold: [0, VISIBLE_RATIO - 0.01, VISIBLE_RATIO, 1] }
+		);
+		observer.observe(element);
+		return () => observer.disconnect();
+	}
+
 	function watchEnd(element: HTMLElement): () => void {
 		const observer = new IntersectionObserver(
 			([entry]) => {
@@ -81,6 +92,7 @@
 				<li
 					class:highlight={artwork.number === highlight}
 					{@attach watchScreen(artwork)}
+					{@attach watchVisible}
 					data-period={periodIndexes?.get(artwork.id)}
 				>
 					<ArtworkTile
@@ -136,7 +148,13 @@
 
 	@media (prefers-reduced-motion: no-preference) {
 		li {
-			transition: outline-color var(--duration-short) ease-out;
+			transition:
+				opacity calc(var(--duration-short) * 4) ease,
+				outline-color var(--duration-short) ease-out;
+		}
+
+		li:global(.faded) {
+			opacity: 0;
 		}
 	}
 </style>
