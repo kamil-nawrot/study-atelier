@@ -13,7 +13,8 @@ import ArtworkPage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier/42'),
-	state: {} as App.PageState
+	state: {} as App.PageState,
+	data: {}
 }));
 
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
@@ -88,6 +89,15 @@ describe('artwork page', () => {
 		localStorage.clear();
 		sessionStorage.clear();
 		await page.viewport(1280, 800);
+	});
+
+	it('shows the type and the era as an icon with the name', async () => {
+		renderPage();
+
+		await expect.element(details(m.artworkTypes.painting)).toBeVisible();
+		for (const name of [m.artworkTypes.painting, m.eras.early_modern.name])
+			expect(details(name).element().querySelector('svg')).not.toBeNull();
+		expect(details('Baroque').element().querySelector('svg')).toBeNull();
 	});
 
 	it('shows the artwork with every field and links to editing it', async () => {
@@ -499,8 +509,21 @@ describe('artwork page', () => {
 			values: {
 				'period:Baroque': { summary: 'Movement, diagonals and strong light.' },
 				'author:Johannes Vermeer': { summary: 'Painter of quiet rooms.', lifeYears: '1632–1675' }
-			}
+			},
+			countries: { Mauritshuis: 'Holandia' }
 		};
+
+		it('shows the country of a place after its name', async () => {
+			renderPage({ artwork: artwork(), summaries });
+
+			await expect.element(page.getByText('Mauritshuis, Holandia')).toBeVisible();
+		});
+
+		it('keeps the bare name of a place without a country', async () => {
+			renderPage({ artwork: artwork(), summaries: { ...summaries, countries: {} } });
+
+			await expect.element(page.getByText('Mauritshuis', { exact: true })).toBeVisible();
+		});
 
 		it('shows the summary of a period with its era when the badge is clicked', async () => {
 			renderPage({ artwork: artwork(), summaries });

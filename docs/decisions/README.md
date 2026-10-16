@@ -64,3 +64,16 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0058](0058-mark-artworks-as-favourites-with-a-heart.md) | Mark artworks as favourites with a heart | accepted |
 | [0059](0059-value-summary-card-in-the-artwork-view.md) | Show a value's summary in a card that opens from the artwork view | accepted |
 | [0060](0060-order-authors-by-their-sort-name.md) | Order authors by their sort name on the wall, in the filters and in the card index | accepted |
+| [0061](0061-review-the-collection-in-one-mixed-session.md) | Review the collection in one mixed session of flashcards and quizzes | accepted |
+| [0062](0062-schedule-reviews-with-fsrs.md) | Schedule reviews with FSRS and store them per artwork | accepted |
+| [0063](0063-make-a-small-copy-of-every-own-image.md) | Make a small copy of every own image for the wall | proposed |
+| [0064](0064-narrow-the-review-scopes.md) | Narrow the review scopes to the collection, eras, periods and styles | accepted |
+| [0065](0065-build-review-sessions-in-the-database.md) | Build review sessions and their quizzes in the database | accepted |
+| [0066](0066-icons-for-artwork-types-shown-like-eras.md) | Give every artwork type an icon and show types like eras | accepted |
+| [0067](0067-keep-one-layout-through-a-review-session.md) | Keep one layout through a review session | accepted |
+| [0068](0068-schedule-every-review-in-days.md) | Schedule every review in days, without short-term steps | accepted |
+| [0069](0069-quiz-images-in-one-row-and-ratings-without-intervals.md) | Put the quiz images in one row and show the ratings without intervals | accepted |
+| [0070](0070-no-style-quiz-in-a-style-scope.md) | Ask no style quiz in a session scoped to a style | accepted |
+| [0071](0071-put-the-plan-first-on-the-review-start.md) | Put the plan first on the review start | accepted |
+| [0072](0072-give-the-museum-its-own-icon.md) | Give the museum its own icon | accepted |
+| [0073](0073-draw-new-artworks-at-random.md) | Draw the new artworks of a session at random | accepted |

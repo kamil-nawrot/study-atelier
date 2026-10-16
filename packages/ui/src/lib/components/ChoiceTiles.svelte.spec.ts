@@ -87,4 +87,26 @@ describe('ChoiceTiles', () => {
 		const note = page.getByText('100–200').element();
 		expect(getComputedStyle(note).whiteSpace).toBe('nowrap');
 	});
+
+	it('lays the tiles in the given numbers of columns on wide and narrow space', async () => {
+		const eight = Array.from({ length: 8 }, (_, index) => ({
+			value: `v${index}`,
+			label: `Tile ${index}`
+		}));
+		render(ChoiceTiles, { label: 'Type', options: eight, columns: 4, narrowColumns: 2 });
+		const group = page.getByRole('group', { name: 'Type' }).element() as HTMLElement;
+		const top = (index: number): number =>
+			page
+				.getByRole('radio', { name: `Tile ${index}` })
+				.element()
+				.getBoundingClientRect().top;
+
+		group.style.width = '800px';
+		await vi.waitFor(() => expect(top(3)).toBe(top(0)));
+		expect(top(4)).toBeGreaterThan(top(0));
+
+		group.style.width = '400px';
+		await vi.waitFor(() => expect(top(2)).toBeGreaterThan(top(0)));
+		expect(top(1)).toBe(top(0));
+	});
 });

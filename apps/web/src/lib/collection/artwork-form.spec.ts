@@ -1,10 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { m } from '#lib/i18n/index.ts';
 import {
 	artworkFormFromRecord,
 	artworkImageAlt,
 	artworkInputFromForm,
-	artworkTypeOptions,
 	canSearchImage,
 	emptyArtworkForm,
 	formHasChanges,
@@ -205,15 +203,6 @@ describe('artworkImageAlt', () => {
 		form.authorUnknown = true;
 		form.values.author = ['Leftover Author'];
 		expect(artworkImageAlt(form)).toBe('The Milkmaid');
-	});
-});
-
-describe('artworkTypeOptions', () => {
-	it('lists every artwork type with its label', () => {
-		const options = artworkTypeOptions();
-
-		expect(options).toHaveLength(8);
-		expect(options[1]).toEqual({ value: 'painting', label: m.artworkTypes.painting });
 	});
 });
 

@@ -18,6 +18,8 @@ How the project owner and Claude (implementer) work together on study-atelier.
 
 Mockups (for example from a design session in Claude Projects) show layout and proportions. Where a mockup differs from an accepted ADR in texts, fields or details, the ADR wins, and nothing that only the mockup shows is built without asking the owner. Mockup files kept locally go in the ignored `tmp/` folder, never in a commit.
 
+Instead of a separate mockup, a screen can be prototyped in code on its branch once the owner has agreed its content and texts: the owner runs it locally and asks for changes, screenshots are not needed for this step, and the ADR is written after the owner accepts the result.
+
 ## Pace
 
 The project goes one step at a time. Claude does not jump ahead to later steps (for example writing application code before requirements are agreed).

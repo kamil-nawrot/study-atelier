@@ -18,7 +18,7 @@ export type PeriodGroup = {
 
 export type CurrentPeriod = {
 	index: number;
-	progress: number;
+	distance: number;
 };
 
 export type ArtworkValueRow = {
@@ -318,7 +318,7 @@ export type AuthorDetails = {
 	sortName: string | null;
 };
 
-export type PlaceType = 'museum' | 'private_collection' | 'on_site';
+export type PlaceType = 'museum' | 'gallery' | 'private_collection' | 'on_site';
 
 export type LocationDetails = {
 	countryCode: string | null;

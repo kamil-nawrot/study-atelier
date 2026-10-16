@@ -1,5 +1,5 @@
-import { spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
+import { spawn, spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
@@ -7,6 +7,7 @@ import {
 	ARTWORKS,
 	PEOPLE,
 	PERIOD_ERA_USAGE,
+	REVIEW_CARDS,
 	STYLE_PERIOD_USAGE,
 	VALUE_DETAILS,
 	VALUE_USAGE,
@@ -23,9 +24,11 @@ import {
 const WEB_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const REPO_DIR = path.resolve(WEB_DIR, '../..');
 const PORT = 5199;
+const SCROLL_STEP = 40;
 const AUTH_PATHS = ['/sign-in', '/sign-up', '/forgot-password', '/update-password'];
 const VIEWPORTS = {
 	desktop: { width: 1440, height: 900, deviceScaleFactor: 1 },
+	wide: { width: 1920, height: 1000, deviceScaleFactor: 1 },
 	phone: { width: 390, height: 844, deviceScaleFactor: 2, isMobile: true, hasTouch: true }
 };
 const USAGE = `Usage: pnpm screenshot <path> [options]
@@ -33,7 +36,7 @@ const USAGE = `Usage: pnpm screenshot <path> [options]
   <path>             route to render, for example /atelier or /atelier/1
   --out <dir>        output folder (default tmp/screenshots in the repository)
   --name <name>      file name prefix (default derived from the path)
-  --viewport <v>     desktop, phone or both (default both)
+  --viewport <v>     desktop, wide (1920 x 1000), phone or both (default both)
   --combine          also write one image with the desktop and phone shots side by side
   --full-page        capture the whole page, not only the first screen
   --signed-out       do not inject the fake session (default for the auth routes)
@@ -42,6 +45,8 @@ const USAGE = `Usage: pnpm screenshot <path> [options]
   --wait <selector>  wait for this selector before capturing
   --type <text>      click the notes editor and type this text before capturing
   --script <file>    run this JavaScript file in the page before capturing, for example to mock a variant
+  --repeat <n>       show every sample artwork n times, to have more to scroll through
+  --scroll           also record a GIF of scrolling the page from top to bottom (needs ffmpeg)
   --url <base>       use a running dev server instead of starting one
 `;
 
@@ -58,10 +63,20 @@ function parseArgs(argv) {
 		if (arg === '--') continue;
 		if (arg === '--help' || arg === '-h') options.help = true;
 		else if (arg === '--combine') options.combine = true;
+		else if (arg === '--scroll') options.scroll = true;
 		else if (arg === '--full-page') options.fullPage = true;
 		else if (arg === '--signed-out') options.signedOut = true;
 		else if (
-			['--out', '--name', '--viewport', '--wait', '--url', '--script', '--type'].includes(arg)
+			[
+				'--out',
+				'--name',
+				'--viewport',
+				'--wait',
+				'--url',
+				'--script',
+				'--type',
+				'--repeat'
+			].includes(arg)
 		) {
 			options[arg.slice(2)] = rest.shift();
 		} else if (arg === '--storage' || arg === '--session') {
@@ -106,7 +121,113 @@ function filteredRows(url) {
 	if (id?.startsWith('eq.')) {
 		rows = [...ARTWORKS, ...TRASHED].filter((row) => row.id === id.slice(3));
 	}
+	if (id?.startsWith('in.(')) {
+		const ids = id.slice(4, -1).split(',');
+		rows = [...ARTWORKS, ...TRASHED].filter((row) => ids.includes(row.id));
+	}
 	return rows;
+}
+
+function hasImage(row) {
+	return Boolean(row.source_image_file || row.own_image_path || row.own_image_url);
+}
+
+function reviewCounts(dayStartText) {
+	const dayStart = new Date(dayStartText ?? Date.now());
+	const dayEnd = dayStart.getTime() + 24 * 60 * 60 * 1000;
+	const live = ARTWORKS.filter(hasImage).map((row) => row.id);
+	const cards = REVIEW_CARDS.filter((card) => live.includes(card.artwork_id));
+	return {
+		due: cards.filter((card) => new Date(card.due).getTime() < dayEnd).length,
+		new_available: live.filter((id) => !cards.some((card) => card.artwork_id === id)).length,
+		new_today: 0,
+		with_image: live.length
+	};
+}
+
+function valuesOf(row, category) {
+	return (row.artwork_values ?? [])
+		.filter((link) => link.category_values.category_code === category)
+		.sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+		.map((link) => link.category_values.name);
+}
+
+function inScope(row, kind, value) {
+	if (kind === 'era') return row.era_code === value;
+	if (kind === 'period') return valuesOf(row, 'period')[0] === value;
+	if (kind === 'style') return valuesOf(row, 'style').includes(value);
+	return true;
+}
+
+function quizFor(row, mode, pool) {
+	const others = pool.filter((other) => other.id !== row.id && other.title !== row.title);
+	if (mode === 'quiz_style') {
+		const [style] = valuesOf(row, 'style');
+		const styles = [...new Set(others.flatMap((other) => valuesOf(other, 'style')))].filter(
+			(other) => !valuesOf(row, 'style').includes(other)
+		);
+		if (!style || styles.length < 3) return undefined;
+		return [
+			{ label: styles[0] },
+			{ label: style, right: true },
+			...styles.slice(1, 3).map((label) => ({ label }))
+		];
+	}
+	if (others.length < 3) return undefined;
+	const shares = (category, other) =>
+		valuesOf(row, category).some((value) => valuesOf(other, category).includes(value));
+	const reason = (other) =>
+		shares('author', other)
+			? 'author'
+			: shares('style', other)
+				? 'style'
+				: shares('period', other)
+					? 'period'
+					: undefined;
+	const options = others.slice(0, 3).map((other) => ({
+		artwork_id: other.id,
+		label: other.title,
+		...(reason(other) ? { reason: reason(other) } : {})
+	}));
+	options.splice(row.record_number % 4, 0, { artwork_id: row.id, label: row.title, right: true });
+	return options;
+}
+
+function reviewSession({
+	day_start: dayStartText,
+	session_form: form = 'mixed',
+	scope_kind: kind = 'all',
+	scope_value: value
+} = {}) {
+	const dayEnd = new Date(dayStartText ?? Date.now()).getTime() + 24 * 60 * 60 * 1000;
+	const pool = ARTWORKS.filter((row) => hasImage(row) && inScope(row, kind, value));
+	if (pool.length < 20) return [];
+	const cardOf = (row) => REVIEW_CARDS.find((card) => card.artwork_id === row.id);
+	const due = pool
+		.filter((row) => cardOf(row) && new Date(cardOf(row).due).getTime() < dayEnd)
+		.sort((a, b) => new Date(cardOf(a).due).getTime() - new Date(cardOf(b).due).getTime())
+		.slice(0, 20);
+	const fresh = pool.filter((row) => !cardOf(row)).slice(0, Math.min(10, 20 - due.length));
+	return [...due, ...fresh].map((row, slot) => {
+		const card = cardOf(row);
+		const modes =
+			form === 'flashcards'
+				? []
+				: form === 'quizzes'
+					? ['quiz_title', 'quiz_image', 'quiz_style']
+							.slice(slot % 3)
+							.concat(['quiz_title', 'quiz_image'].slice(0, slot % 3))
+					: !card || card.state !== 2
+						? slot % 2 === 0
+							? ['quiz_title', 'quiz_image']
+							: ['quiz_image', 'quiz_title']
+						: [];
+		for (const mode of modes) {
+			const options = quizFor(row, mode, pool);
+			if (options) return { artwork_id: row.id, mode, options };
+		}
+		return { artwork_id: row.id, mode: 'flashcard' };
+	});
 }
 
 async function mockSupabase(context) {
@@ -124,6 +245,18 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/rpc/value_usage') return json(route, VALUE_USAGE);
 		if (url.pathname === '/rest/v1/rpc/period_era_usage') return json(route, PERIOD_ERA_USAGE);
 		if (url.pathname === '/rest/v1/rpc/style_period_usage') return json(route, STYLE_PERIOD_USAGE);
+		if (url.pathname === '/rest/v1/rpc/review_counts') {
+			const counts = reviewCounts(request.postDataJSON()?.day_start);
+			const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
+			return json(route, wantsObject ? counts : [counts]);
+		}
+		if (url.pathname === '/rest/v1/rpc/review_session') {
+			return json(route, reviewSession(request.postDataJSON() ?? {}));
+		}
+		if (url.pathname === '/rest/v1/rpc/record_review') {
+			return route.fulfill({ status: 204, headers: corsHeaders() });
+		}
+		if (url.pathname === '/rest/v1/review_cards') return json(route, REVIEW_CARDS);
 		if (url.pathname.startsWith('/rest/v1/rpc/')) {
 			return json(route, { id: ARTWORKS[0].id, record_number: ARTWORKS[0].record_number });
 		}
@@ -339,6 +472,76 @@ async function capture(browser, base, options, name) {
 	return file;
 }
 
+function repeatArtworks(times) {
+	const originals = [...ARTWORKS];
+	for (let copy = 1; copy < times; copy += 1) {
+		for (const row of originals) {
+			ARTWORKS.push({
+				...row,
+				id: `${row.id}-copy-${copy}`,
+				record_number: row.record_number + copy * 1000
+			});
+		}
+	}
+}
+
+async function recordScroll(browser, base, options, name) {
+	const viewport = VIEWPORTS[name];
+	const folder = path.join(options.out, `${options.name}-${name}-frames`);
+	rmSync(folder, { recursive: true, force: true });
+	mkdirSync(folder, { recursive: true });
+	const context = await browser.newContext({
+		viewport: { width: viewport.width, height: viewport.height }
+	});
+	await mockSupabase(context);
+	await mockImages(context);
+	await context.addInitScript(
+		({ key, session, entries }) => {
+			localStorage.setItem(key, JSON.stringify(session));
+			for (const [entryKey, value] of Object.entries(entries)) {
+				localStorage.setItem(entryKey, value);
+			}
+		},
+		{
+			key: `sb-${new URL(SUPABASE_URL).hostname.split('.')[0]}-auth-token`,
+			session: fakeSession(),
+			entries: options.storage
+		}
+	);
+	const page = await context.newPage();
+	await page.goto(new URL(options.route, base).href, { waitUntil: 'networkidle' });
+	if (options.wait) await page.waitForSelector(options.wait);
+	await page.waitForTimeout(800);
+	const total = await page.evaluate(
+		() => document.documentElement.scrollHeight - window.innerHeight
+	);
+	let frame = 0;
+	for (let position = 0; position <= total + SCROLL_STEP; position += SCROLL_STEP) {
+		await page.evaluate(
+			(top) =>
+				new Promise((resolve) => {
+					window.scrollTo(0, top);
+					requestAnimationFrame(() => requestAnimationFrame(resolve));
+				}),
+			Math.min(position, total)
+		);
+		const file = path.join(folder, `${String(frame).padStart(5, '0')}.jpg`);
+		await page.screenshot({ path: file, type: 'jpeg', quality: 80 });
+		frame += 1;
+	}
+	await context.close();
+	const target = path.join(options.out, `${options.name}-${name}-scroll.gif`);
+	const filter = 'scale=640:-1:flags=lanczos,split[a][b];[a]palettegen[p];[b][p]paletteuse';
+	const result = spawnSync(
+		'ffmpeg',
+		['-y', '-framerate', '15', '-i', path.join(folder, '%05d.jpg'), '-vf', filter, target],
+		{ stdio: 'ignore' }
+	);
+	rmSync(folder, { recursive: true, force: true });
+	if (result.status !== 0) throw new Error('ffmpeg could not convert the recording');
+	return target;
+}
+
 async function combine(browser, files, target) {
 	const context = await browser.newContext({ viewport: { width: 1000, height: 1000 } });
 	const page = await context.newPage();
@@ -374,6 +577,7 @@ async function main() {
 	if (!options.route.startsWith('/')) options.route = `/${options.route}`;
 	options.name ??= options.route.replace(/^\/+|\/+$/g, '').replace(/[^a-z0-9]+/gi, '-') || 'home';
 	mkdirSync(options.out, { recursive: true });
+	if (options.repeat) repeatArtworks(Number(options.repeat));
 
 	const names = options.viewport === 'both' ? ['desktop', 'phone'] : [options.viewport];
 	if (names.some((name) => !(name in VIEWPORTS))) throw new Error(USAGE);
@@ -386,6 +590,9 @@ async function main() {
 		browser = await launchBrowser();
 		const files = [];
 		for (const name of names) files.push(await capture(browser, base, options, name));
+		if (options.scroll) {
+			for (const name of names) files.push(await recordScroll(browser, base, options, name));
+		}
 		if (options.combine && files.length === 2) {
 			const target = path.join(options.out, `${options.name}-both.png`);
 			await combine(browser, files, target);

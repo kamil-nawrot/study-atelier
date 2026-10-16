@@ -1,7 +1,7 @@
 {
 	"name": "@study-atelier/web",
 	"private": true,
-	"version": "0.4.1",
+	"version": "0.5.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -43,6 +43,7 @@
 		"#lib/*": "./src/lib/*"
 	},
 	"dependencies": {
-		"@supabase/supabase-js": "2.117.2"
+		"@supabase/supabase-js": "2.117.2",
+		"ts-fsrs": "5.4.2"
 	}
 }

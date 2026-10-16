@@ -17,6 +17,8 @@
 		options: readonly ChoiceTile[];
 		value?: string | null;
 		clearable?: boolean;
+		columns?: number;
+		narrowColumns?: number;
 		disabled?: boolean;
 		onchange?: (value: string | null) => void;
 	};
@@ -26,6 +28,8 @@
 		options,
 		value = $bindable(null),
 		clearable = false,
+		columns,
+		narrowColumns,
 		disabled = false,
 		onchange
 	}: Props = $props();
@@ -50,7 +54,11 @@
 	}
 </script>
 
-<fieldset style:--columns={options.length} {disabled}>
+<fieldset
+	style:--columns={columns ?? options.length}
+	style:--narrow-columns={narrowColumns ?? (options.length === 4 ? 2 : 3)}
+	{disabled}
+>
 	<legend>{label}</legend>
 	<div class="tiles">
 		{#each options as option (option.value)}
@@ -97,7 +105,7 @@
 
 	.tiles {
 		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-template-columns: repeat(var(--narrow-columns), minmax(0, 1fr));
 		gap: var(--border-width-base);
 		border: var(--border-width-base) solid var(--color-line);
 		background: var(--color-line);

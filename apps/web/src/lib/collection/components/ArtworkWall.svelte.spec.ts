@@ -144,6 +144,30 @@ describe('ArtworkWall', () => {
 			expect(onnearscreen).toHaveBeenCalledWith(expect.objectContaining({ number: 1 }));
 		});
 
+		it('fades a tile while less than a fifth of it is on screen and shows it again after', async () => {
+			const { container } = await render(ArtworkWall, { artworks: long });
+			const tile = container.querySelector('li')!;
+			function see(ratio: number): void {
+				for (const { callback, targets } of watchers) {
+					if (targets.includes(tile)) {
+						callback(
+							[{ isIntersecting: ratio > 0, intersectionRatio: ratio, target: tile }] as never,
+							{} as never
+						);
+					}
+				}
+			}
+
+			see(0.19);
+			expect(tile.classList.contains('faded')).toBe(true);
+
+			see(0.2);
+			expect(tile.classList.contains('faded')).toBe(false);
+
+			see(0);
+			expect(tile.classList.contains('faded')).toBe(true);
+		});
+
 		it('does not watch an artwork that has its image already', async () => {
 			const onnearscreen = vi.fn();
 			await render(ArtworkWall, { artworks: [testArtwork(1, 'Ready')], onnearscreen });

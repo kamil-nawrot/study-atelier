@@ -60,7 +60,6 @@ describe('FilterPanel', () => {
 		renderPanel();
 
 		for (const field of [
-			m.atelier.filters.fields.types,
 			m.atelier.filters.fields.authors,
 			m.atelier.filters.fields.periods,
 			m.atelier.filters.fields.styles,
@@ -105,6 +104,42 @@ describe('FilterPanel', () => {
 		await page.getByRole('checkbox', { name: new RegExp(`^${m.eras.early_modern.name}`) }).click();
 
 		expect(state.current.eras).toEqual(['prehistory', 'early_modern']);
+	});
+
+	it('shows every type as a tile with its count and no search', async () => {
+		renderPanel();
+
+		await expect
+			.element(page.getByRole('group', { name: m.atelier.filters.fields.types }))
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('checkbox', { name: `${m.artworkTypes.painting} 1` }))
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('checkbox', { name: `${m.artworkTypes.sculpture} 0` }))
+			.toBeVisible();
+		expect(
+			page
+				.getByRole('group', { name: m.atelier.filters.fields.types })
+				.getByRole('checkbox')
+				.elements()
+		).toHaveLength(8);
+		await expect
+			.element(
+				page.getByRole('searchbox', {
+					name: m.atelier.filters.searchValues(m.atelier.filters.fields.types)
+				})
+			)
+			.not.toBeInTheDocument();
+	});
+
+	it('chooses several types', async () => {
+		renderPanel();
+
+		await page.getByRole('checkbox', { name: new RegExp(`^${m.artworkTypes.sculpture}`) }).click();
+		await page.getByRole('checkbox', { name: new RegExp(`^${m.artworkTypes.painting}`) }).click();
+
+		expect(state.current.types).toEqual(['sculpture', 'painting']);
 	});
 
 	it('writes the years with p.n.e. as negative years', async () => {
@@ -199,5 +234,28 @@ describe('FilterPanel', () => {
 
 		expect(state.current.favourites).toBe(true);
 		await expect.element(tag).toHaveAttribute('aria-pressed', 'true');
+	});
+
+	it('shows the first values of every group and a button for the rest', async () => {
+		const many = Array.from({ length: 10 }, (_, index) =>
+			testArtwork(10 + index, `Work ${index}`, {
+				period: `Period ${index}`,
+				styles: [`Style ${index}`],
+				materials: [`Material ${index}`]
+			})
+		);
+		render(FilterPanelHost, {
+			artworks: many,
+			initial: emptyFilter(),
+			report: (next: CollectionFilter) => (state.current = next)
+		});
+
+		const more = page.getByRole('button', { name: m.atelier.filters.showMore });
+		await expect.element(more.nth(2)).toBeVisible();
+		await expect.element(page.getByText('Style 9')).not.toBeInTheDocument();
+
+		await more.nth(1).click();
+
+		await expect.element(page.getByText('Style 9')).toBeVisible();
 	});
 });

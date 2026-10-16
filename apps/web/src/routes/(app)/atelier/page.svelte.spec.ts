@@ -14,6 +14,7 @@ import '@study-atelier/ui/styles.css';
 
 const navigation = vi.hoisted(() => ({
 	state: {} as App.PageState,
+	data: {},
 	url: new URL('http://localhost/atelier')
 }));
 
@@ -671,6 +672,18 @@ describe('atelier page', () => {
 			await expect
 				.element(page.getByRole('complementary', { name: m.atelier.filters.title }))
 				.not.toBeInTheDocument();
+		});
+
+		it('keeps the panel header in view while the panel is scrolled', async () => {
+			renderAtelier(styled);
+
+			await filtersButton().click();
+
+			const heading = page.getByRole('heading', { name: m.atelier.filters.title });
+			await expect.element(heading).toBeVisible();
+			expect(getComputedStyle(heading.element().parentElement as HTMLElement).position).toBe(
+				'sticky'
+			);
 		});
 
 		it('narrows the wall as soon as a value is chosen and counts the result', async () => {

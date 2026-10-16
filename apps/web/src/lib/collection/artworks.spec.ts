@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { IMAGES_BUCKET } from '#lib/images/bucket.ts';
 import { fetchCommonsThumbnails } from '#lib/images/commons.ts';
+import { backfillThumbnails } from '#lib/images/thumbnail-backfill.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
 import { SIGNED_URL_SECONDS } from '#lib/images/bucket.ts';
@@ -18,6 +19,7 @@ vi.mock('#lib/images/commons.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/images/commons.ts')>()),
 	fetchCommonsThumbnails: vi.fn()
 }));
+vi.mock('#lib/images/thumbnail-backfill.ts', () => ({ backfillThumbnails: vi.fn() }));
 vi.mock('#lib/supabase.ts', () => ({
 	supabase: { from: vi.fn(), storage: { from: vi.fn() } }
 }));
@@ -342,7 +344,9 @@ describe('loadAtelier', () => {
 			error: null
 		});
 		createSignedUrls.mockResolvedValue({
-			data: [{ path: 'user-id/artwork-1/image.jpg', signedUrl: 'https://example.com/signed' }],
+			data: [
+				{ path: 'user-id/artwork-1/image-thumb.jpg', signedUrl: 'https://example.com/signed' }
+			],
 			error: null
 		});
 		await loadResolved();
@@ -358,6 +362,60 @@ describe('loadAtelier', () => {
 		expect(before.pendingImage).toBeUndefined();
 		expect(after.pendingImage).toEqual({ ownPath: 'user-id/artwork-1/image.jpg' });
 		expect(createSignedUrls).toHaveBeenCalledOnce();
+	});
+
+	it('loads the small copy of an uploaded image on the wall', async () => {
+		query.range.mockResolvedValue({
+			data: [row({ own_image_path: 'user-id/artwork-1/image.jpg' })],
+			error: null
+		});
+		createSignedUrls.mockResolvedValue({
+			data: [{ path: 'user-id/artwork-1/image-thumb.jpg', signedUrl: 'https://example.com/small' }],
+			error: null
+		});
+
+		const artworks = await loadResolved();
+
+		expect(createSignedUrls).toHaveBeenCalledOnce();
+		expect(createSignedUrls).toHaveBeenCalledWith(
+			['user-id/artwork-1/image-thumb.jpg'],
+			SIGNED_URL_SECONDS
+		);
+		expect(artworks[0].image?.src).toBe('https://example.com/small');
+		expect(backfillThumbnails).toHaveBeenCalledWith(new Map());
+	});
+
+	it('falls back to the original of an uploaded image without a small copy and creates the copy', async () => {
+		query.range.mockResolvedValue({
+			data: [row({ own_image_path: 'user-id/artwork-1/image.jpg' })],
+			error: null
+		});
+		createSignedUrls
+			.mockResolvedValueOnce({
+				data: [
+					{
+						path: 'user-id/artwork-1/image-thumb.jpg',
+						signedUrl: null,
+						error: 'Object not found'
+					}
+				],
+				error: null
+			})
+			.mockResolvedValueOnce({
+				data: [{ path: 'user-id/artwork-1/image.jpg', signedUrl: 'https://example.com/big' }],
+				error: null
+			});
+
+		const artworks = await loadResolved();
+
+		expect(createSignedUrls).toHaveBeenLastCalledWith(
+			['user-id/artwork-1/image.jpg'],
+			SIGNED_URL_SECONDS
+		);
+		expect(artworks[0].image?.src).toBe('https://example.com/big');
+		expect(backfillThumbnails).toHaveBeenCalledWith(
+			new Map([['user-id/artwork-1/image.jpg', 'https://example.com/big']])
+		);
 	});
 
 	it('prefers an uploaded image and signs its url', async () => {
@@ -683,8 +741,8 @@ describe('refreshExpiredImages', () => {
 	it('signs again, in one request, only the images whose url has expired', async () => {
 		createSignedUrls.mockResolvedValue({
 			data: [
-				{ path: 'user-id/a/image.jpg', signedUrl: 'https://example.com/new-a' },
-				{ path: 'user-id/b/image.jpg', signedUrl: 'https://example.com/new-b' }
+				{ path: 'user-id/a/image-thumb.jpg', signedUrl: 'https://example.com/new-a' },
+				{ path: 'user-id/b/image-thumb.jpg', signedUrl: 'https://example.com/new-b' }
 			],
 			error: null
 		});
@@ -697,7 +755,7 @@ describe('refreshExpiredImages', () => {
 
 		expect(createSignedUrls).toHaveBeenCalledTimes(1);
 		expect(createSignedUrls).toHaveBeenCalledWith(
-			['user-id/a/image.jpg', 'user-id/b/image.jpg'],
+			['user-id/a/image-thumb.jpg', 'user-id/b/image-thumb.jpg'],
 			SIGNED_URL_SECONDS
 		);
 		expect(refreshed.map((artwork) => artwork.id)).toEqual(['a', 'b']);

@@ -486,6 +486,108 @@ export type Database = {
           },
         ];
       };
+      review_cards: {
+        Row: {
+          artwork_id: string;
+          created_at: string;
+          difficulty: number;
+          due: string;
+          facet: string;
+          lapses: number;
+          last_review: string | null;
+          learning_steps: number;
+          owner_id: string;
+          reps: number;
+          scheduled_days: number;
+          stability: number;
+          state: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          artwork_id: string;
+          created_at?: string;
+          difficulty: number;
+          due: string;
+          facet?: string;
+          lapses?: number;
+          last_review?: string | null;
+          learning_steps?: number;
+          owner_id?: string;
+          reps?: number;
+          scheduled_days?: number;
+          stability: number;
+          state: number;
+        };
+        Update: {
+          artwork_id?: string;
+          created_at?: string;
+          difficulty?: number;
+          due?: string;
+          facet?: string;
+          lapses?: number;
+          last_review?: string | null;
+          learning_steps?: number;
+          owner_id?: string;
+          reps?: number;
+          scheduled_days?: number;
+          stability?: number;
+          state?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "review_cards_artwork_id_owner_id_fkey";
+            columns: ["artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
+      review_log: {
+        Row: {
+          answer_ms: number | null;
+          artwork_id: string;
+          correct: boolean | null;
+          facet: string;
+          id: number;
+          mode: string;
+          owner_id: string;
+          rating: number;
+          reviewed_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          answer_ms?: number | null;
+          artwork_id: string;
+          correct?: boolean | null;
+          facet?: string;
+          id?: never;
+          mode: string;
+          owner_id?: string;
+          rating: number;
+          reviewed_at?: string;
+        };
+        Update: {
+          answer_ms?: number | null;
+          artwork_id?: string;
+          correct?: boolean | null;
+          facet?: string;
+          id?: never;
+          mode?: string;
+          owner_id?: string;
+          rating?: number;
+          reviewed_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "review_log_artwork_id_owner_id_fkey";
+            columns: ["artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
       style_details: {
         Row: {
           category_code: string;
@@ -577,6 +679,28 @@ export type Database = {
           era_code: string;
           period_id: string;
         }[];
+      };
+      record_review: {
+        Args: { answer: Json; card: Json; target_artwork: string };
+        Returns: undefined;
+      };
+      review_counts: {
+        Args: { day_start: string };
+        Returns: {
+          due: number;
+          new_available: number;
+          new_today: number;
+          with_image: number;
+        }[];
+      };
+      review_session: {
+        Args: {
+          day_start: string;
+          scope_kind?: string;
+          scope_value?: string;
+          session_form?: string;
+        };
+        Returns: Json;
       };
       save_artwork: {
         Args: { artwork: Json; existing_id?: string; values_by_category: Json };

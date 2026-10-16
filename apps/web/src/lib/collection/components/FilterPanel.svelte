@@ -1,8 +1,16 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import Heart from '@lucide/svelte/icons/heart';
-	import { Checkbox, Icon, TextField, ToggleTag, ToggleTiles } from '@study-atelier/ui';
+	import {
+		Checkbox,
+		type ChoiceTile,
+		Icon,
+		TextField,
+		ToggleTag,
+		ToggleTiles
+	} from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
+	import { artworkTypeTiles } from '../artwork-types.ts';
 	import { eraTiles } from '../eras.ts';
 	import {
 		UNKNOWN_AUTHOR,
@@ -13,7 +21,7 @@
 		toggleFavourites,
 		toggleValue
 	} from '../filter.ts';
-	import type { CollectionFilter, EraCode, WallArtwork } from '../types.ts';
+	import type { ArtworkTypeCode, CollectionFilter, EraCode, WallArtwork } from '../types.ts';
 	import FilterValues from './FilterValues.svelte';
 
 	type Props = {
@@ -25,16 +33,23 @@
 
 	let { artworks, filter = $bindable() }: Props = $props();
 
-	let eras = $derived(filterOptions(artworks, filter, 'eras'));
-	let eraCounts = $derived(new Map(eras.map((option) => [option.value, option.count])));
-	let tiles = $derived(
-		eraTiles().map((tile) => ({ ...tile, count: eraCounts.get(tile.value) ?? 0 }))
-	);
+	let eraTilesWithCounts = $derived(withCounts(eraTiles(), 'eras'));
+	let typeTilesWithCounts = $derived(withCounts(artworkTypeTiles(), 'types'));
 
 	let fromText = $state('');
 	let toText = $state('');
 	let fromBefore = $state(false);
 	let toBefore = $state(false);
+
+	function withCounts(
+		tiles: ChoiceTile[],
+		field: 'eras' | 'types'
+	): (ChoiceTile & { count: number })[] {
+		const counts = new Map(
+			filterOptions(artworks, filter, field).map((option) => [option.value, option.count])
+		);
+		return tiles.map((tile) => ({ ...tile, count: counts.get(tile.value) ?? 0 }));
+	}
 
 	function parseYear(text: string, before: boolean): number | null {
 		const digits = text.trim();
@@ -72,7 +87,7 @@
 	});
 
 	function choose(
-		field: 'types' | 'authors' | 'periods' | 'styles' | 'materials' | 'locations' | 'missing',
+		field: 'authors' | 'periods' | 'styles' | 'materials' | 'locations' | 'missing',
 		value: string
 	): void {
 		filter = toggleValue(filter, field, value);
@@ -94,17 +109,16 @@
 	<ToggleTiles
 		label={m.atelier.filters.fields.eras}
 		onchange={(values) => (filter = { ...filter, eras: values as EraCode[] })}
-		options={tiles}
+		options={eraTilesWithCounts}
 		values={filter.eras}
 	/>
 
-	<FilterValues
-		name={(value) => optionLabel('types', value)}
-		chosen={filter.types}
-		onchoose={(value) => choose('types', value)}
-		options={filterOptions(artworks, filter, 'types')}
-		searchLabel={m.atelier.filters.searchValues(m.atelier.filters.fields.types)}
-		title={m.atelier.filters.fields.types}
+	<ToggleTiles
+		columns={2}
+		label={m.atelier.filters.fields.types}
+		onchange={(values) => (filter = { ...filter, types: values as ArtworkTypeCode[] })}
+		options={typeTilesWithCounts}
+		values={filter.types}
 	/>
 
 	<section class="years">
@@ -134,6 +148,7 @@
 	<FilterValues
 		name={(value) => value}
 		chosen={filter.periods}
+		limit={FREQUENT_LIMIT}
 		onchoose={(value) => choose('periods', value)}
 		options={filterOptions(artworks, filter, 'periods')}
 		searchLabel={m.atelier.filters.searchValues(m.atelier.filters.fields.periods)}
@@ -143,6 +158,7 @@
 	<FilterValues
 		name={(value) => value}
 		chosen={filter.styles}
+		limit={FREQUENT_LIMIT}
 		onchoose={(value) => choose('styles', value)}
 		options={filterOptions(artworks, filter, 'styles')}
 		searchLabel={m.atelier.filters.searchValues(m.atelier.filters.fields.styles)}
@@ -152,6 +168,7 @@
 	<FilterValues
 		name={(value) => value}
 		chosen={filter.materials}
+		limit={FREQUENT_LIMIT}
 		onchoose={(value) => choose('materials', value)}
 		options={filterOptions(artworks, filter, 'materials')}
 		searchLabel={m.atelier.filters.searchValues(m.atelier.filters.fields.materials)}

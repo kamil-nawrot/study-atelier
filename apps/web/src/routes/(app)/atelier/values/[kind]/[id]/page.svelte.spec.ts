@@ -16,7 +16,8 @@ import ValuePage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier/values/style/style-doric'),
-	state: {} as App.PageState
+	state: {} as App.PageState,
+	data: {}
 }));
 
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));

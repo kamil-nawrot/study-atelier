@@ -3,6 +3,7 @@
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
 	import X from '@lucide/svelte/icons/x';
+	import type { LucideIcon } from '@lucide/svelte';
 	import {
 		ArtworkImage,
 		Button,
@@ -16,6 +17,8 @@
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
+	import { artworkTypeIcon } from '../artwork-types.ts';
+	import { eraIcon } from '../eras.ts';
 	import { formatDate, formatRecordNumber, signedYear } from '../format.ts';
 	import { artworkPanelOpen, rememberArtworkPanel } from '../artwork-panel.ts';
 	import { FLIP_DIRECTIONS, swipe } from '../flip.ts';
@@ -28,6 +31,7 @@
 		type ValueSummaries,
 		type ValueSummary
 	} from '../value-summaries.ts';
+	import ImageViewer from './ImageViewer.svelte';
 	import MentionedIn from './MentionedIn.svelte';
 	import ValueSummaryCard from './ValueSummaryCard.svelte';
 
@@ -55,8 +59,7 @@
 	const VIEWER_WIDTH = 1920;
 
 	let panelOpen = $state(artworkPanelOpen());
-	let viewer: HTMLDialogElement;
-	let viewerUsed = $state(false);
+	let viewer: ReturnType<typeof ImageViewer>;
 
 	let image = $derived(artworkImageSource(artwork.image, STAGE_WIDTH));
 	let fullImage = $derived(artworkImageSource(artwork.image, VIEWER_WIDTH));
@@ -76,13 +79,15 @@
 		{
 			label: m.artworkForm.type,
 			values: artwork.typeCode ? [m.artworkTypes[artwork.typeCode]] : [],
-			tags: false
+			tags: false,
+			icon: artwork.typeCode ? artworkTypeIcon(artwork.typeCode) : undefined
 		},
 		{
 			label: m.artworkForm.era,
 			values: artwork.eraCode ? [m.eras[artwork.eraCode].name] : [],
-			tags: true,
-			kind: 'era'
+			tags: false,
+			kind: 'era',
+			icon: artwork.eraCode ? eraIcon(artwork.eraCode) : undefined
 		},
 		{
 			label: m.artworkForm.period,
@@ -98,7 +103,13 @@
 			tags: true,
 			kind: 'location'
 		}
-	] satisfies { label: string; values: string[]; tags: boolean; kind?: ValueKind }[]);
+	] satisfies {
+		label: string;
+		values: string[];
+		tags: boolean;
+		kind?: ValueKind;
+		icon?: LucideIcon;
+	}[]);
 
 	function summaryOf(kind: ValueKind, name: string): ValueSummary | undefined {
 		if (kind === 'era') return artwork.eraCode ? summaries.eras[artwork.eraCode] : undefined;
@@ -117,8 +128,7 @@
 	}
 
 	function openViewer(): void {
-		viewerUsed = true;
-		viewer.showModal();
+		viewer.open();
 	}
 </script>
 
@@ -138,15 +148,19 @@
 
 {#snippet valueTag(kind: ValueKind | undefined, name: string)}
 	{@const summary = kind ? summaryOf(kind, name) : undefined}
+	{@const label =
+		kind === 'location' && summaries.countries[name]
+			? `${name}, ${summaries.countries[name]}`
+			: name}
 	{#if kind && summary}
 		<Popover>
-			<Tag>{name}</Tag>
+			<Tag>{label}</Tag>
 			{#snippet content()}
 				<ValueSummaryCard {name} kind={valueKindName(kind)} parent={parentOf(kind)} {summary} />
 			{/snippet}
 		</Popover>
 	{:else}
-		<Tag>{name}</Tag>
+		<Tag>{label}</Tag>
 	{/if}
 {/snippet}
 
@@ -240,8 +254,7 @@
 							{authors}
 						{:else}
 							{#each artwork.authors as author, index (author)}
-								{#if index > 0},
-								{/if}{@render valueName('author', author)}
+								{index > 0 ? ', ' : ''}{@render valueName('author', author)}
 							{/each}
 						{/if}
 					</span>
@@ -263,7 +276,16 @@
 								{@render valueTag(field.kind, value)}
 							{/each}
 						{:else}
-							{field.values.join(', ')}
+							{#if field.icon}
+								<Icon icon={field.icon} size="sm" />
+							{/if}
+							{#each field.values as value (value)}
+								{#if field.kind}
+									{@render valueName(field.kind, value)}
+								{:else}
+									{value}
+								{/if}
+							{/each}
 						{/if}
 					</dd>
 				{/each}
@@ -296,27 +318,7 @@
 	</div>
 </div>
 
-<dialog bind:this={viewer} class="viewer" aria-label={alt}>
-	{#if viewerUsed && fullImage}
-		<ArtworkImage
-			{alt}
-			height={fullImage.height}
-			sizes="100vw"
-			src={fullImage.src}
-			srcset={fullImage.srcset}
-			surface="stage"
-			width={fullImage.width}
-		/>
-	{/if}
-	<button
-		class="icon-button close"
-		aria-label={m.artworkView.closeImage}
-		onclick={() => viewer.close()}
-		type="button"
-	>
-		<Icon icon={X} />
-	</button>
-</dialog>
+<ImageViewer bind:this={viewer} {alt} image={fullImage} />
 
 <style>
 	.view {
@@ -479,10 +481,20 @@
 		gap: var(--spacing-3) var(--spacing-4);
 	}
 
+	dt,
+	dd {
+		min-height: calc(var(--font-size-sm) * var(--line-height-xs) + 2 * var(--spacing-1));
+	}
+
+	dt {
+		display: flex;
+		align-items: center;
+	}
+
 	dd {
 		display: flex;
 		flex-wrap: wrap;
-		align-items: start;
+		align-items: center;
 		gap: var(--spacing-2);
 	}
 
@@ -506,37 +518,6 @@
 		overflow: hidden;
 		clip-path: inset(50%);
 		white-space: nowrap;
-	}
-
-	.viewer {
-		width: 100vw;
-		max-width: none;
-		height: 100dvh;
-		max-height: none;
-		margin: 0;
-		padding: 0;
-		border: none;
-		background: var(--color-stage-bg);
-	}
-
-	.viewer[open] {
-		display: grid;
-		place-items: center;
-	}
-
-	.viewer :global(img) {
-		display: block;
-		width: auto;
-		height: auto;
-		max-width: 100vw;
-		max-height: 100dvh;
-	}
-
-	.close {
-		position: absolute;
-		top: var(--spacing-3);
-		right: var(--spacing-3);
-		color: var(--color-stage-fg);
 	}
 
 	@media (min-width: 768px) {

@@ -7,7 +7,6 @@
 		ChoiceTiles,
 		Form,
 		FormActions,
-		Select,
 		NotesEditor,
 		type NoteLinks,
 		Switch,
@@ -20,12 +19,12 @@
 		artworkFormFromRecord,
 		artworkImageAlt,
 		artworkInputFromForm,
-		artworkTypeOptions,
 		canSearchImage,
 		emptyArtworkForm,
 		formHasChanges
 	} from '../artwork-form.ts';
 	import { saveArtwork, validateArtwork } from '../artwork-record.ts';
+	import { artworkTypeTiles, isArtworkTypeCode } from '../artwork-types.ts';
 	import { takesOneValue } from '../category-values.ts';
 	import { DuplicateCheck } from '../duplicate-check.svelte.ts';
 	import { sameTitleAndAuthors } from '../duplicates.ts';
@@ -67,7 +66,7 @@
 	const titleId = $props.id();
 	const formErrorId = `${titleId}-error`;
 	const yearToId = `${titleId}-year-to`;
-	const typeOptions = artworkTypeOptions();
+	const typeTiles = artworkTypeTiles();
 	const imageTexts: ImageFieldTexts = {
 		label: m.artworkForm.image,
 		find: m.artworkForm.findImage,
@@ -159,6 +158,10 @@
 		const next: EraCode | null = isEraCode(code) ? code : null;
 		if (form.eraCode !== null && next !== form.eraCode) clearPeriod();
 		form.eraCode = next;
+	}
+
+	function chooseType(code: string | null): void {
+		form.typeCode = isArtworkTypeCode(code) ? code : '';
 	}
 
 	function choosePeriod(values: string[]): void {
@@ -300,11 +303,14 @@
 				/>
 			</YearGroup>
 
-			<Select
+			<ChoiceTiles
+				clearable
+				columns={4}
 				label={m.artworkForm.type}
-				options={typeOptions}
-				placeholder={m.artworkForm.typeNone}
-				bind:value={form.typeCode}
+				narrowColumns={2}
+				onchange={chooseType}
+				options={typeTiles}
+				value={form.typeCode || null}
 			/>
 
 			<ChoiceTiles

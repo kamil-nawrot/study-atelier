@@ -4,6 +4,15 @@ export const IMAGES_BUCKET = 'artwork-images';
 export const OWN_IMAGE_MAX_MEGABYTES = 5;
 export const OWN_IMAGE_MAX_BYTES = OWN_IMAGE_MAX_MEGABYTES * 1024 * 1024;
 export const SIGNED_URL_SECONDS = 60 * 60;
+export const OWN_THUMBNAIL_WIDTH = 500;
+export const OWN_THUMBNAIL_QUALITY = 0.85;
+export const OWN_THUMBNAIL_TYPE = 'image/jpeg';
+
+export function ownThumbnailPath(path: string): string {
+	const dot = path.lastIndexOf('.');
+	const stem = dot > path.lastIndexOf('/') ? path.slice(0, dot) : path;
+	return `${stem}-thumb.jpg`;
+}
 
 export const OWN_IMAGE_EXTENSIONS = {
 	'image/jpeg': 'jpg',

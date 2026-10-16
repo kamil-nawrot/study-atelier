@@ -152,6 +152,8 @@ export const pl = {
 		collapse: 'Zwiń menu',
 		atelier: 'Atelier',
 		cardIndex: 'Kartoteka',
+		review: 'Powtórki',
+		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
 		trash: 'Kosz',
 		lightTheme: 'Jasny motyw',
 		darkTheme: 'Ciemny motyw',
@@ -310,7 +312,6 @@ export const pl = {
 		beforeCommonEra: 'p.n.e.',
 		yearApproximate: 'ok.',
 		type: 'Typ',
-		typeNone: 'Nie wybrano',
 		era: 'Epoka',
 		period: 'Okres',
 		periodLocked: 'Najpierw wybierz epokę.',
@@ -370,6 +371,110 @@ export const pl = {
 		added: 'Dodano do ulubionych.',
 		removed: 'Usunięto z ulubionych.',
 		failed: 'Nie udało się zapisać zmiany. Spróbuj jeszcze raz.'
+	},
+	review: {
+		title: 'Powtórki',
+		loadErrorTitle: 'Nie udało się wczytać powtórek',
+		startErrorTitle: 'Nie udało się zacząć powtórki',
+		waiting: (count: number): string => `Na dziś do powtórki zaplanowane masz ${workCount(count)}`,
+		plan: (known: number, fresh: number): string =>
+			[
+				known > 0
+					? `${known} ${plural(known, { one: 'powracające', few: 'powracające', many: 'powracających' })}`
+					: '',
+				fresh > 0 ? `${fresh} ${plural(fresh, { one: 'nowe', few: 'nowe', many: 'nowych' })}` : ''
+			]
+				.filter(Boolean)
+				.join(' i '),
+		allDoneTitle: 'Nic nowego do powtórki',
+		allDone: (when: string): string => `Kolejne dzieła będą na Ciebie czekać ${when}.`,
+		tooFew: (minimum: number, missing: number): string =>
+			`Powtórki będzie można rozpocząć, gdy w Twoim atelier znajdzie się przynajmniej ${minimum} dzieł ze zdjęciami. Obecnie brakuje jeszcze ${missing}.`,
+		options: 'Zmień zakres lub formę',
+		scope: 'Co powtarzamy?',
+		scopes: {
+			all: 'Cała kolekcja'
+		},
+		form: 'W jakiej formie?',
+		forms: {
+			mixed: 'Mieszane',
+			flashcards: 'Fiszki',
+			quizzes: 'Quizy'
+		},
+		formHints: {
+			mixed: 'Fiszki i quizy, dobrane do tego, jak dobrze znasz dzieło.',
+			flashcards: 'Przypominasz sobie dzieło, odkrywasz kartę i oceniasz, jak Ci poszło.',
+			quizzes: 'Wybierasz jedną z czterech odpowiedzi.'
+		},
+		start: 'Zacznij powtórkę',
+		howTitle: 'Jak działają powtórki?',
+		how: 'Do puli codziennie dobierane są nowe dzieła, które dodasz do atelier, a także takie, które wymagają powtórki. Im lepiej pamiętasz dzieło, tym rzadziej będzie pojawiać się w kolejnych dniach.',
+		knowledge: 'Jak dobrze znasz swoje atelier?',
+		knowledgeGroups: {
+			settled: { label: 'Utrwalone', hint: 'Pamiętasz je dłużej niż tydzień.' },
+			learning: { label: 'W trakcie nauki', hint: 'Już powtarzane, jeszcze się utrwalają.' },
+			fresh: { label: 'Nowe', hint: 'Czekają na pierwszą powtórkę.' }
+		},
+		troubles: 'Ostatnio sprawiały kłopot',
+		stop: 'Przerwij',
+		stopTitle: 'Przerwać teraz?',
+		stopDescription: 'Twoje odpowiedzi do tej pory są zapisane.',
+		keepGoing: 'Powtarzaj dalej',
+		progress: (position: number, total: number): string => `${position} z ${total}`,
+		progressLabel: 'Postęp powtórki',
+		flashcard: {
+			question: 'Poznajesz?',
+			hint: 'Spróbuj przypomnieć sobie tytuł, autora, czas i styl, zanim odkryjesz kartę.',
+			imageAlt: 'Dzieło do rozpoznania',
+			reveal: 'Odkryj kartę',
+			rate: 'Jak dobrze to pamiętasz?',
+			notes: 'Twoja notatka'
+		},
+		quiz: {
+			imageQuestion: { start: 'Gdzie jest', end: '?' },
+			imageHint: 'Wybierz właściwy obraz.',
+			imageAlt: (position: number): string => `Obraz ${position}`,
+			openImage: (position: number): string => `Powiększ obraz ${position}`,
+			titleQuestion: 'Jaki to tytuł?',
+			styleQuestion: 'W jakim stylu powstał ten obraz?',
+			styleHint: 'Zwróć uwagę na światło, kolor i kompozycję.',
+			options: 'Odpowiedzi',
+			right: 'Tak, to',
+			wrong: 'Nie, to',
+			marked: 'Dobra odpowiedź jest zaznaczona.',
+			retry: 'Wrócimy do niego za chwilę.',
+			rightOption: 'dobra odpowiedź',
+			chosenOption: 'Twój wybór',
+			next: 'Następne',
+			reasons: {
+				author: 'ten sam autor',
+				style: 'ten sam styl',
+				period: 'ten sam okres'
+			},
+			reasonLabels: {
+				author: 'Ten sam autor',
+				style: 'Ten sam styl',
+				period: 'Ten sam okres'
+			}
+		},
+		ratings: {
+			1: 'Nie wiem',
+			2: 'Prawie',
+			3: 'Wiem'
+		},
+		saveErrorTitle: 'Nie udało się zapisać odpowiedzi',
+		saveFailed: 'Nie udało się zapisać odpowiedzi. Spróbuj jeszcze raz.',
+		done: 'Gotowe',
+		summary: (count: number, minutes: number, tomorrow: number): string =>
+			`Powtórzone ${workCount(count)}, czas ${minutes} min.` +
+			(tomorrow > 0 ? ` Jutro ${tomorrow}.` : ''),
+		groups: {
+			1: 'Do poprawki',
+			2: 'Prawie',
+			3: 'Opanowane'
+		},
+		nextRound: (count: number): string => `Następna runda (${count})`,
+		backToAtelier: 'Do atelier'
 	},
 	imageSearch: {
 		title: 'Które to dzieło?',
@@ -466,6 +571,13 @@ export const pl = {
 			author: 'Nie ma tu jeszcze autorów. Pojawią się, gdy wpiszesz ich przy dziele.',
 			location: 'Nie ma tu jeszcze miejsc. Pojawią się, gdy wpiszesz je przy dziele.'
 		},
+		search: {
+			material: 'Szukaj materiału',
+			author: 'Szukaj autora',
+			location: 'Szukaj miejsca'
+		},
+		noResults: (query: string): string =>
+			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment nazwy.`,
 		openValue: (name: string, count: string): string => `${name}, ${count}`,
 		kinds: {
 			period: {
@@ -659,6 +771,7 @@ export const pl = {
 		placeType: 'Typ miejsca',
 		placeTypes: {
 			museum: 'Muzeum',
+			gallery: 'Galeria',
 			private_collection: 'Kolekcja prywatna',
 			on_site: 'Na miejscu'
 		}

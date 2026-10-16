@@ -1,13 +1,24 @@
+import Frame from '@lucide/svelte/icons/frame';
 import House from '@lucide/svelte/icons/house';
-import Landmark from '@lucide/svelte/icons/landmark';
 import MapPin from '@lucide/svelte/icons/map-pin';
+import Ticket from '@lucide/svelte/icons/ticket';
 import type { ChoiceTile } from '@study-atelier/ui';
 import { m } from '#lib/i18n/index.ts';
 import type { PlaceType } from './types.ts';
 
-export const PLACE_TYPES: readonly PlaceType[] = ['museum', 'private_collection', 'on_site'];
+export const PLACE_TYPES: readonly PlaceType[] = [
+	'museum',
+	'gallery',
+	'private_collection',
+	'on_site'
+];
 
-const PLACE_ICONS = { museum: Landmark, private_collection: House, on_site: MapPin };
+const PLACE_ICONS = {
+	museum: Ticket,
+	gallery: Frame,
+	private_collection: House,
+	on_site: MapPin
+};
 
 export function isPlaceType(value: unknown): value is PlaceType {
 	return (PLACE_TYPES as readonly unknown[]).includes(value);
