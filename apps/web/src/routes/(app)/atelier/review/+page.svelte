@@ -5,9 +5,7 @@
 	import { invalidate } from '$app/navigation';
 	import { resolveImages } from '#lib/collection/artworks.ts';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
-	import { filterFromParams, filterTags } from '#lib/collection/filter.ts';
 	import type { WallArtwork } from '#lib/collection/types.ts';
-	import { rememberedWallSequence } from '#lib/collection/wall-sequence.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import Flashcard from '#lib/review/components/Flashcard.svelte';
 	import Quiz from '#lib/review/components/Quiz.svelte';
@@ -50,9 +48,6 @@
 
 	let { data }: PageProps = $props();
 
-	const wallFilter = filterFromParams(new URLSearchParams(rememberedWallSequence()?.query ?? ''));
-	const wallFilters = filterTags(wallFilter).length;
-
 	let scope = $state<ReviewScope>({ kind: 'all' });
 	let form = $state<ReviewForm>('mixed');
 	let cards = $state.raw(untrack(() => data.cards));
@@ -69,7 +64,7 @@
 	let revealedAt = $state(new Date());
 	let outcomes = $state<Record<ReviewRating, ReviewCard>>();
 
-	const scoped = $derived(scopeArtworks(data.artworks, scope, wallFilter));
+	const scoped = $derived(scopeArtworks(data.artworks, scope));
 	const entries = $derived(
 		buildSession({ artworks: scoped, cards, now, newToday, form: 'flashcards' })
 	);
@@ -78,7 +73,7 @@
 	const nextDate = $derived(
 		entries.length === 0 && missing === 0 ? nextWaiting(scoped, cards, now) : null
 	);
-	const scopes = $derived(scopeOptions(data.artworks, wallFilters > 0 ? wallFilter : null));
+	const scopes = $derived(scopeOptions(data.artworks));
 	const memory = $derived(memoryByEra(data.artworks, cards));
 	const hard = $derived(troubles(data.artworks, cards).map(withImage));
 	const current = $derived(session?.current);
@@ -320,7 +315,6 @@
 			{scopes}
 			{starting}
 			troubles={hard}
-			{wallFilters}
 		/>
 	{/if}
 </AtelierLayout>

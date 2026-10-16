@@ -1,6 +1,5 @@
 import { ERA_CODES } from '#lib/collection/eras.ts';
-import { applyFilter } from '#lib/collection/filter.ts';
-import type { CollectionFilter, EraCode, WallArtwork } from '#lib/collection/types.ts';
+import type { EraCode, WallArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import {
 	endOfDay,
@@ -14,8 +13,7 @@ import type { ReviewCard, ReviewItem, ReviewRating } from './types.ts';
 
 export type ReviewScope =
 	| { kind: 'all' }
-	| { kind: 'favourites' }
-	| { kind: 'wall' }
+	| { kind: 'era'; code: EraCode }
 	| { kind: 'period'; name: string }
 	| { kind: 'style'; name: string };
 
@@ -51,44 +49,44 @@ function valuesWithEnough(
 		.map(([name]) => name);
 }
 
-export function scopeOptions(
-	artworks: WallArtwork[],
-	wallFilter: CollectionFilter | null
-): ReviewScope[] {
+export function scopeOptions(artworks: WallArtwork[]): ReviewScope[] {
 	const pool = reviewableArtworks(artworks);
-	const enough = (scoped: WallArtwork[]): boolean => scoped.length >= MIN_ARTWORKS;
 	return [
 		{ kind: 'all' },
-		...(enough(pool.filter((artwork) => artwork.favourite))
-			? [{ kind: 'favourites' } as const]
-			: []),
+		...ERA_CODES.filter((code) => pool.some((artwork) => artwork.eraCode === code)).map(
+			(code): ReviewScope => ({ kind: 'era', code })
+		),
 		...valuesWithEnough(pool, (artwork) => (artwork.period ? [artwork.period] : [])).map(
 			(name): ReviewScope => ({ kind: 'period', name })
 		),
 		...valuesWithEnough(pool, (artwork) => artwork.styles).map((name): ReviewScope => ({
 			kind: 'style',
 			name
-		})),
-		...(wallFilter && enough(applyFilter(pool, wallFilter)) ? [{ kind: 'wall' } as const] : [])
+		}))
 	];
 }
 
-export function sameScope(a: ReviewScope, b: ReviewScope): boolean {
-	return a.kind === b.kind && ('name' in a ? a.name : '') === ('name' in b ? b.name : '');
+export function scopeKey(scope: ReviewScope): string {
+	switch (scope.kind) {
+		case 'all':
+			return 'all';
+		case 'era':
+			return `era:${scope.code}`;
+		default:
+			return `${scope.kind}:${scope.name}`;
+	}
 }
 
-export function scopeArtworks(
-	artworks: WallArtwork[],
-	scope: ReviewScope,
-	wallFilter: CollectionFilter
-): WallArtwork[] {
+export function sameScope(a: ReviewScope, b: ReviewScope): boolean {
+	return scopeKey(a) === scopeKey(b);
+}
+
+export function scopeArtworks(artworks: WallArtwork[], scope: ReviewScope): WallArtwork[] {
 	switch (scope.kind) {
 		case 'all':
 			return artworks;
-		case 'favourites':
-			return artworks.filter((artwork) => artwork.favourite);
-		case 'wall':
-			return applyFilter(artworks, wallFilter);
+		case 'era':
+			return artworks.filter((artwork) => artwork.eraCode === scope.code);
 		case 'period':
 			return artworks.filter((artwork) => artwork.period === scope.name);
 		case 'style':

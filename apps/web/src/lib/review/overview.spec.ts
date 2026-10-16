@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { emptyFilter } from '#lib/collection/filter.ts';
 import type { WallArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
@@ -40,7 +39,7 @@ function cardsFor(entries: [string, ReviewCard][]): Map<string, ReviewCard> {
 
 describe('review scopes', () => {
 	const artworks = collection(8, (index) => ({
-		favourite: index === 0,
+		eraCode: index < 5 ? 'early_modern' : 'middle_ages',
 		period: ['Baroque', 'Baroque', 'Baroque', 'Renaissance', 'Renaissance', 'Gothic', null, null][
 			index
 		],
@@ -53,59 +52,63 @@ describe('review scopes', () => {
 		);
 	}
 
-	it('offers the whole collection and every scope with enough artworks to start', () => {
+	it('offers the whole collection, every era and the periods and styles with enough artworks', () => {
 		const pool = [
-			...large(24, { period: 'Baroque', styles: ['Caravaggism'], favourite: true }),
-			...large(21, { period: 'Renaissance', styles: ['High Renaissance'] }),
-			...large(19, { period: 'Gothic', styles: ['Rayonnant'] })
+			...large(24, { eraCode: 'early_modern', period: 'Baroque', styles: ['Caravaggism'] }),
+			...large(21, {
+				eraCode: 'early_modern',
+				period: 'Renaissance',
+				styles: ['High Renaissance']
+			}),
+			...large(3, { eraCode: 'antiquity', period: 'Classical', styles: ['Doric'] })
 		];
-		const wall = { ...emptyFilter(), periods: ['Renaissance'] };
 
-		expect(scopeOptions(pool, wall)).toEqual([
+		expect(scopeOptions(pool)).toEqual([
 			{ kind: 'all' },
-			{ kind: 'favourites' },
+			{ kind: 'era', code: 'antiquity' },
+			{ kind: 'era', code: 'early_modern' },
 			{ kind: 'period', name: 'Baroque' },
 			{ kind: 'period', name: 'Renaissance' },
 			{ kind: 'style', name: 'Caravaggism' },
-			{ kind: 'style', name: 'High Renaissance' },
-			{ kind: 'wall' }
+			{ kind: 'style', name: 'High Renaissance' }
 		]);
-		expect(scopeOptions(pool, { ...emptyFilter(), periods: ['Gothic'] })).not.toContainEqual({
-			kind: 'wall'
-		});
 	});
 
-	it('offers only the whole collection when no scope has enough artworks', () => {
-		expect(scopeOptions(artworks, { ...emptyFilter(), periods: ['Baroque'] })).toEqual([
-			{ kind: 'all' }
+	it('offers the eras even when no period or style has enough artworks', () => {
+		expect(scopeOptions(artworks)).toEqual([
+			{ kind: 'all' },
+			{ kind: 'era', code: 'middle_ages' },
+			{ kind: 'era', code: 'early_modern' }
 		]);
 	});
 
 	it('counts only artworks with an image for the scopes it offers', () => {
-		const withoutImages = large(25, { period: 'Baroque', hasImage: false });
+		const withoutImages = large(25, { eraCode: 'modern', period: 'Baroque', hasImage: false });
 
-		expect(scopeOptions(withoutImages, null)).toEqual([{ kind: 'all' }]);
+		expect(scopeOptions(withoutImages)).toEqual([{ kind: 'all' }]);
 	});
 
 	it('narrows the artworks to the chosen scope', () => {
-		const wall = { ...emptyFilter(), periods: ['Gothic'] };
-
-		expect(scopeArtworks(artworks, { kind: 'all' }, wall)).toHaveLength(8);
-		expect(scopeArtworks(artworks, { kind: 'favourites' }, wall).map((a) => a.number)).toEqual([1]);
+		expect(scopeArtworks(artworks, { kind: 'all' })).toHaveLength(8);
 		expect(
-			scopeArtworks(artworks, { kind: 'period', name: 'Renaissance' }, wall).map((a) => a.number)
+			scopeArtworks(artworks, { kind: 'era', code: 'middle_ages' }).map((a) => a.number)
+		).toEqual([6, 7, 8]);
+		expect(
+			scopeArtworks(artworks, { kind: 'period', name: 'Renaissance' }).map((a) => a.number)
 		).toEqual([4, 5]);
 		expect(
-			scopeArtworks(artworks, { kind: 'style', name: 'Caravaggism' }, wall).map((a) => a.number)
+			scopeArtworks(artworks, { kind: 'style', name: 'Caravaggism' }).map((a) => a.number)
 		).toEqual([1, 2]);
-		expect(scopeArtworks(artworks, { kind: 'wall' }, wall).map((a) => a.number)).toEqual([6]);
 	});
 
-	it('compares scopes by kind and name', () => {
+	it('compares scopes by kind and value', () => {
 		expect(
 			sameScope({ kind: 'period', name: 'Baroque' }, { kind: 'period', name: 'Baroque' })
 		).toBe(true);
 		expect(sameScope({ kind: 'period', name: 'Baroque' }, { kind: 'style', name: 'Baroque' })).toBe(
+			false
+		);
+		expect(sameScope({ kind: 'era', code: 'modern' }, { kind: 'era', code: 'contemporary' })).toBe(
 			false
 		);
 		expect(sameScope({ kind: 'all' }, { kind: 'all' })).toBe(true);
