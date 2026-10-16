@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { previewDue, quizRating, schedule } from './scheduler.ts';
+import { outcomes, quizRating, schedule } from './scheduler.ts';
 
 const now = new Date('2026-10-16T09:00:00Z');
 const day = 24 * 60 * 60 * 1000;
@@ -17,10 +17,12 @@ describe('scheduler', () => {
 	it('spaces the next review further for a better rating', () => {
 		const learnt = schedule('artwork-1', schedule('artwork-1', null, 3, now), 3, now);
 		const later = new Date(learnt.due.getTime());
-		const due = previewDue(learnt, later);
-		expect(due[1].getTime()).toBeLessThan(due[2].getTime());
-		expect(due[2].getTime()).toBeLessThanOrEqual(due[3].getTime());
-		expect(due[3].getTime() - later.getTime()).toBeGreaterThanOrEqual(day);
+		const next = outcomes('artwork-1', learnt, later);
+		expect(next[1].due.getTime()).toBeLessThan(next[2].due.getTime());
+		expect(next[2].due.getTime()).toBeLessThanOrEqual(next[3].due.getTime());
+		expect(next[3].due.getTime() - later.getTime()).toBeGreaterThanOrEqual(day);
+		expect(next[3].artworkId).toBe('artwork-1');
+		expect(next[3].reps).toBe(learnt.reps + 1);
 	});
 
 	it('counts a forgotten artwork as a lapse once it was in review', () => {

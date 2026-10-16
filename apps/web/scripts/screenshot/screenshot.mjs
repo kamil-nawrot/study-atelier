@@ -7,6 +7,7 @@ import {
 	ARTWORKS,
 	PEOPLE,
 	PERIOD_ERA_USAGE,
+	REVIEW_CARDS,
 	STYLE_PERIOD_USAGE,
 	VALUE_DETAILS,
 	VALUE_USAGE,
@@ -106,7 +107,28 @@ function filteredRows(url) {
 	if (id?.startsWith('eq.')) {
 		rows = [...ARTWORKS, ...TRASHED].filter((row) => row.id === id.slice(3));
 	}
+	if (id?.startsWith('in.(')) {
+		const ids = id.slice(4, -1).split(',');
+		rows = [...ARTWORKS, ...TRASHED].filter((row) => ids.includes(row.id));
+	}
 	return rows;
+}
+
+function hasImage(row) {
+	return Boolean(row.source_image_file || row.own_image_path || row.own_image_url);
+}
+
+function reviewCounts(dayStartText) {
+	const dayStart = new Date(dayStartText ?? Date.now());
+	const dayEnd = dayStart.getTime() + 24 * 60 * 60 * 1000;
+	const live = ARTWORKS.filter(hasImage).map((row) => row.id);
+	const cards = REVIEW_CARDS.filter((card) => live.includes(card.artwork_id));
+	return {
+		due: cards.filter((card) => new Date(card.due).getTime() < dayEnd).length,
+		new_available: live.filter((id) => !cards.some((card) => card.artwork_id === id)).length,
+		new_today: 0,
+		with_image: live.length
+	};
 }
 
 async function mockSupabase(context) {
@@ -124,6 +146,15 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/rpc/value_usage') return json(route, VALUE_USAGE);
 		if (url.pathname === '/rest/v1/rpc/period_era_usage') return json(route, PERIOD_ERA_USAGE);
 		if (url.pathname === '/rest/v1/rpc/style_period_usage') return json(route, STYLE_PERIOD_USAGE);
+		if (url.pathname === '/rest/v1/rpc/review_counts') {
+			const counts = reviewCounts(request.postDataJSON()?.day_start);
+			const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
+			return json(route, wantsObject ? counts : [counts]);
+		}
+		if (url.pathname === '/rest/v1/rpc/record_review') {
+			return route.fulfill({ status: 204, headers: corsHeaders() });
+		}
+		if (url.pathname === '/rest/v1/review_cards') return json(route, REVIEW_CARDS);
 		if (url.pathname.startsWith('/rest/v1/rpc/')) {
 			return json(route, { id: ARTWORKS[0].id, record_number: ARTWORKS[0].record_number });
 		}

@@ -307,6 +307,14 @@
 			width: 216px;
 		}
 
+		.rail:not(.expanded) .menu :global(.count) {
+			display: none;
+		}
+
+		.rail:not(.expanded) .menu :global(.badge) {
+			display: block;
+		}
+
 		.rail:not(.expanded) .menu :global(.label) {
 			position: absolute;
 			width: 1px;

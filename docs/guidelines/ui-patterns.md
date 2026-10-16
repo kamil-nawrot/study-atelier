@@ -165,6 +165,14 @@ How views and components look and behave, so every new screen stays consistent w
 - A value page titles an era with a capital first letter ("Nowożytność"), although era names are lowercase elsewhere in the app. The artwork view's way back leads to the wall even when the artwork was opened from a value page.
 - The artwork view flips through the artworks the wall showed last in this tab, in its order ([ADR-0048](../decisions/0048-flip-through-the-wall-from-the-artwork-view.md)): chevrons in `--color-stage-fg` at the edges of the stage, without a frame and semi-transparent until hover or focus, the one at either end of the list dimmed and inert; the arrow keys when the focus is not in a field or a dialog; a horizontal swipe on the stage. Flipping replaces the history entry, so the back arrow returns to the wall in one step. An artwork the wall did not show has no arrows.
 
+## Reviews
+
+- The reviews ([ADR-0061](../decisions/0061-review-the-collection-in-one-mixed-session.md)) are one page, `/atelier/review`, with three states: the start, the session and the summary. "Powtórki" in the menu sits between "Kartoteka" and "Kosz" and shows the number of artworks waiting today in a small filled box after the label, or on the icon's corner while the rail is collapsed; with nothing waiting it shows no number.
+- The start puts the scope choice ("Co powtarzamy?") in a row of `ToggleTag`s, one pressed at a time, and "Zacznij powtórkę" as the view's one `primary` button, which on a phone stays at the bottom of the screen. The side panel shows, per era, a thin bar of the artworks remembered for longer than a week and up to four cropped thumbnails of the artworks forgotten lately, which link to their pages.
+- A session fills the screen below the top bar (`fill`). The bar holds "Przerwij" on the left and the progress ("3 z 14", with a thin track from 768 px) on the right. "Przerwij" asks in a small `Dialog` only when something was already answered.
+- A flashcard uses the stage and the panel of the artwork view. Before it is revealed nothing names the artwork: the image's `alt` is "Dzieło do rozpoznania", and the record number, the title and the credit are hidden. The actions sit at the bottom of the panel, and on a phone stick to the bottom of the screen: "Odkryj kartę" (Space), then the three ratings (keys 1 to 3), each with when the artwork comes back in a smaller second line; "Wiem" is the `primary` one. A failed save shows an `Alert` above the ratings and keeps the card.
+- The summary lists the artworks as `ArtworkTile`s grouped by their first rating, with "Następna runda (n)" as `primary` when more waits and "Do atelier" as a link.
+
 ## Logo
 
 - The brand is the library `Logo` (mark and wordmark) or `LogoMark` (mark only), never text styled to look like a logo. Both follow the text colour. Why it looks this way: [ADR-0020](../decisions/0020-logo-passe-partout-mark-and-wordmark.md).

@@ -31,6 +31,10 @@ type SessionEntry = {
 
 const noQuizzes: QuizAvailability = () => false;
 
+export function currentDate(): Date {
+	return new Date();
+}
+
 export function startOfDay(now: Date): Date {
 	return new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }

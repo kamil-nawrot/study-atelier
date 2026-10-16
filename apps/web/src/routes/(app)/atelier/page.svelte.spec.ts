@@ -14,6 +14,7 @@ import '@study-atelier/ui/styles.css';
 
 const navigation = vi.hoisted(() => ({
 	state: {} as App.PageState,
+	data: {},
 	url: new URL('http://localhost/atelier')
 }));
 

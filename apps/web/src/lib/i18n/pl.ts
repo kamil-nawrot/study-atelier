@@ -152,6 +152,8 @@ export const pl = {
 		collapse: 'Zwiń menu',
 		atelier: 'Atelier',
 		cardIndex: 'Kartoteka',
+		review: 'Powtórki',
+		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
 		trash: 'Kosz',
 		lightTheme: 'Jasny motyw',
 		darkTheme: 'Ciemny motyw',
@@ -372,7 +374,67 @@ export const pl = {
 		failed: 'Nie udało się zapisać zmiany. Spróbuj jeszcze raz.'
 	},
 	review: {
-		saveFailed: 'Nie udało się zapisać odpowiedzi. Spróbuj jeszcze raz.'
+		title: 'Powtórki',
+		loadErrorTitle: 'Nie udało się wczytać powtórek',
+		waiting: (count: number): string =>
+			`Na dziś ${plural(count, { one: 'czeka', few: 'czekają', many: 'czeka' })} ${workCount(count)}`,
+		plan: (known: number, fresh: number, minutes: number): string =>
+			[known > 0 ? `${known} znasz już` : '', fresh > 0 ? `${fresh} zobaczysz pierwszy raz` : '']
+				.filter(Boolean)
+				.join(', ') + `. Około ${minutes} ${minutes === 1 ? 'minuty' : 'minut'}.`,
+		allDone: (when: string): string =>
+			`Na dziś wszystko powtórzone. Następne dzieła czekają ${when}.`,
+		tooFew: (missing: number): string =>
+			`Dodaj jeszcze ${workCount(missing)} ze zdjęciem, żeby zacząć powtórki z tego zakresu.`,
+		scope: 'Co powtarzamy?',
+		scopes: {
+			all: 'Cała kolekcja',
+			favourites: 'Ulubione',
+			wall: (count: number): string =>
+				`Jak na ścianie: ${count} ${plural(count, { one: 'filtr', few: 'filtry', many: 'filtrów' })}`
+		},
+		start: 'Zacznij powtórkę',
+		memory: 'Co już pamiętasz',
+		memoryHint: 'Dzieła, które pamiętasz dłużej niż tydzień.',
+		memoryCount: (remembered: number, total: number): string => `${remembered} z ${total}`,
+		troubles: 'Ostatnio sprawiały kłopot',
+		stop: 'Przerwij',
+		stopTitle: 'Przerwać teraz?',
+		stopDescription: 'Twoje odpowiedzi do tej pory są zapisane.',
+		keepGoing: 'Powtarzaj dalej',
+		progress: (position: number, total: number): string => `${position} z ${total}`,
+		progressLabel: 'Postęp powtórki',
+		flashcard: {
+			question: 'Poznajesz?',
+			hint: 'Spróbuj przypomnieć sobie tytuł, autora, czas i styl, zanim odkryjesz kartę.',
+			imageAlt: 'Dzieło do rozpoznania',
+			reveal: 'Odkryj kartę',
+			rate: 'Jak dobrze to pamiętasz?',
+			notes: 'Twoja notatka'
+		},
+		ratings: {
+			1: 'Nie wiem',
+			2: 'Prawie',
+			3: 'Wiem'
+		},
+		interval: {
+			today: 'jeszcze dziś',
+			tomorrow: 'jutro',
+			days: (days: number): string => `za ${days} dni`
+		},
+		saveErrorTitle: 'Nie udało się zapisać odpowiedzi',
+		saveFailed: 'Nie udało się zapisać odpowiedzi. Spróbuj jeszcze raz.',
+		done: 'Gotowe',
+		summary: (count: number, minutes: number, tomorrow: number): string =>
+			`Powtórzone ${workCount(count)}, czas ${minutes} min.` +
+			(tomorrow > 0 ? ` Jutro ${tomorrow}.` : ''),
+		groups: {
+			1: 'Do poprawki',
+			2: 'Prawie',
+			3: 'Opanowane'
+		},
+		nextRound: (count: number): string => `Następna runda (${count})`,
+		backToAtelier: 'Do atelier'
 	},
 	imageSearch: {
 		title: 'Które to dzieło?',
