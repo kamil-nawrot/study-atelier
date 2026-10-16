@@ -1,5 +1,5 @@
 import type { ArtworkTileImage } from '@study-atelier/ui';
-import { IMAGES_BUCKET, SIGNED_URL_SECONDS } from '#lib/images/bucket.ts';
+import { IMAGES_BUCKET, SIGNED_URL_SECONDS, ownThumbnailPath } from '#lib/images/bucket.ts';
 import {
 	COMMONS_THUMBNAIL_WIDTHS,
 	commonsFileUrl,
@@ -7,6 +7,7 @@ import {
 	commonsThumbnailSrcset,
 	fetchCommonsThumbnails
 } from '#lib/images/commons.ts';
+import { backfillThumbnails } from '#lib/images/thumbnail-backfill.ts';
 import { supabase } from '#lib/supabase.ts';
 import { authorSortNamesOf, valuesOf } from './artwork-values.ts';
 import { collectionErrorMessage } from './errors.ts';
@@ -81,6 +82,21 @@ async function signedUrls(paths: string[]): Promise<Map<string, string>> {
 			.filter((entry) => entry.path && entry.signedUrl && !entry.error)
 			.map((entry) => [entry.path as string, entry.signedUrl as string])
 	);
+}
+
+async function wallImageUrls(paths: string[]): Promise<Map<string, string>> {
+	const thumbnails = await signedUrls(paths.map(ownThumbnailPath));
+	const urls = new Map<string, string>();
+	const withoutThumbnail: string[] = [];
+	for (const path of paths) {
+		const thumbnail = thumbnails.get(ownThumbnailPath(path));
+		if (thumbnail) urls.set(path, thumbnail);
+		else withoutThumbnail.push(path);
+	}
+	const originals = await signedUrls(withoutThumbnail);
+	for (const [path, url] of originals) urls.set(path, url);
+	backfillThumbnails(originals);
+	return urls;
 }
 
 function storedSize(row: ArtworkRow): ImageSize | undefined {
@@ -205,7 +221,7 @@ export async function resolveImages(artworks: WallArtwork[]): Promise<WallArtwor
 		files.length > 0
 			? fetchCommonsThumbnails(files, TILE_WIDTH)
 			: Promise.resolve(new Map<string, string>()),
-		signedUrls(paths)
+		wallImageUrls(paths)
 	]);
 
 	const signedAt = Date.now();
@@ -228,7 +244,7 @@ export async function refreshExpiredImages(
 	);
 	if (expired.length === 0) return [];
 
-	const urls = await signedUrls(expired.flatMap((artwork) => artwork.ownImagePath ?? []));
+	const urls = await wallImageUrls(expired.flatMap((artwork) => artwork.ownImagePath ?? []));
 	resolvedImages.rememberSignedUrls(urls, now);
 	return expired.map((artwork): WallArtwork => {
 		const src = urls.get(artwork.ownImagePath as string);
