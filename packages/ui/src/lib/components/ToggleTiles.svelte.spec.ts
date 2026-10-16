@@ -48,4 +48,19 @@ describe('ToggleTiles', () => {
 		await expect.element(page.getByRole('checkbox', { name: 'First to 100 3' })).not.toBeChecked();
 		expect(onchange).toHaveBeenCalledExactlyOnceWith(['three']);
 	});
+
+	it('lays the tiles in three columns unless told otherwise', async () => {
+		const four = [...options, { value: 'four', label: 'Fourth', count: 1 }];
+		const top = (name: string): number =>
+			page.getByRole('checkbox', { name }).element().getBoundingClientRect().top;
+
+		const { rerender } = await render(ToggleTiles, { label: 'Era', options: four });
+		await expect.element(page.getByRole('checkbox', { name: 'Fourth 1' })).toBeVisible();
+		expect(top('Third 5')).toBe(top('First to 100 3'));
+		expect(top('Fourth 1')).toBeGreaterThan(top('First to 100 3'));
+
+		await rerender({ columns: 2 });
+		await vi.waitFor(() => expect(top('Third 5')).toBeGreaterThan(top('First to 100 3')));
+		expect(top('Second 100–200 0')).toBe(top('First to 100 3'));
+	});
 });

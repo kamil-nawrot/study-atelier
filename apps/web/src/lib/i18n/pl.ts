@@ -310,7 +310,6 @@ export const pl = {
 		beforeCommonEra: 'p.n.e.',
 		yearApproximate: 'ok.',
 		type: 'Typ',
-		typeNone: 'Nie wybrano',
 		era: 'Epoka',
 		period: 'Okres',
 		periodLocked: 'Najpierw wybierz epokę.',

@@ -180,8 +180,8 @@ describe('edit artwork page', () => {
 			.element(page.getByRole('textbox', { name: m.artworkForm.year }))
 			.toHaveValue('1658');
 		await expect
-			.element(page.getByRole('combobox', { name: m.artworkForm.type }))
-			.toHaveValue('painting');
+			.element(page.getByRole('radio', { name: m.artworkTypes.painting, exact: true }))
+			.toBeChecked();
 		await expect
 			.element(page.getByRole('textbox', { name: m.artworkForm.notes }))
 			.toHaveTextContent('Seen in Amsterdam.');

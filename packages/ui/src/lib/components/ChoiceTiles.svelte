@@ -17,6 +17,8 @@
 		options: readonly ChoiceTile[];
 		value?: string | null;
 		clearable?: boolean;
+		columns?: number;
+		narrowColumns?: number;
 		disabled?: boolean;
 		onchange?: (value: string | null) => void;
 	};
@@ -26,6 +28,8 @@
 		options,
 		value = $bindable(null),
 		clearable = false,
+		columns,
+		narrowColumns,
 		disabled = false,
 		onchange
 	}: Props = $props();
@@ -51,8 +55,8 @@
 </script>
 
 <fieldset
-	style:--columns={options.length}
-	style:--narrow-columns={options.length === 4 ? 2 : 3}
+	style:--columns={columns ?? options.length}
+	style:--narrow-columns={narrowColumns ?? (options.length === 4 ? 2 : 3)}
 	{disabled}
 >
 	<legend>{label}</legend>

@@ -35,3 +35,5 @@
 	name="Without counts"
 	args={{ options: eras.map((tile) => ({ ...tile, count: undefined })) }}
 />
+
+<Story name="Two columns" args={{ columns: 2 }} />

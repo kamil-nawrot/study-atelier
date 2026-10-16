@@ -90,6 +90,15 @@ describe('artwork page', () => {
 		await page.viewport(1280, 800);
 	});
 
+	it('shows the type and the era as an icon with the name', async () => {
+		renderPage();
+
+		await expect.element(details(m.artworkTypes.painting)).toBeVisible();
+		for (const name of [m.artworkTypes.painting, m.eras.early_modern.name])
+			expect(details(name).element().querySelector('svg')).not.toBeNull();
+		expect(details('Baroque').element().querySelector('svg')).toBeNull();
+	});
+
 	it('shows the artwork with every field and links to editing it', async () => {
 		renderPage();
 

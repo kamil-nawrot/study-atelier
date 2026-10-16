@@ -345,7 +345,9 @@ describe('add artwork page', () => {
 		await expect.element(page.getByRole('group', { name: m.artworkForm.era })).toBeVisible();
 		await expect.element(eraTile('prehistory')).toBeVisible();
 		await expect.element(eraTile('contemporary')).toBeVisible();
-		expect(page.getByRole('radio').elements()).toHaveLength(6);
+		expect(
+			page.getByRole('group', { name: m.artworkForm.era }).getByRole('radio').elements()
+		).toHaveLength(6);
 		await expect.element(periodField()).toBeDisabled();
 		await expect.element(periodField()).toHaveAttribute('placeholder', m.artworkForm.periodLocked);
 		await expect.element(styleField()).toBeDisabled();
@@ -463,6 +465,26 @@ describe('add artwork page', () => {
 		expect(args.values_by_category).toMatchObject({ period: [], style: [] });
 	});
 
+	it('offers the eight types as tiles and saves no type when the chosen one is clicked again', async () => {
+		renderPage();
+		await fillRequired();
+		const types = page.getByRole('group', { name: m.artworkForm.type });
+		expect(types.getByRole('radio').elements()).toHaveLength(8);
+
+		const sculpture = page.getByRole('radio', { name: m.artworkTypes.sculpture, exact: true });
+		await sculpture.click();
+		await expect.element(sculpture).toBeChecked();
+		await sculpture.click();
+		await expect.element(sculpture).not.toBeChecked();
+		await saveButton().click();
+
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as unknown as [
+			string,
+			Record<string, unknown>
+		];
+		expect(args.artwork).toMatchObject({ type_code: null });
+	});
+
 	it('saves formatted notes as Markdown', async () => {
 		renderPage();
 		await fillRequired();
@@ -489,9 +511,7 @@ describe('add artwork page', () => {
 		await fillRequired();
 		await page.getByRole('textbox', { name: m.artworkForm.year }).fill('1658');
 		await page.getByText(m.artworkForm.yearApproximate, { exact: true }).click();
-		await page
-			.getByRole('combobox', { name: m.artworkForm.type })
-			.selectOptions(m.artworkTypes.painting);
+		await page.getByRole('radio', { name: m.artworkTypes.painting, exact: true }).click();
 		await page.getByRole('textbox', { name: m.artworkForm.notes }).fill('Seen in Amsterdam.');
 
 		await saveButton().click();
