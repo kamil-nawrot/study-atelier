@@ -29,4 +29,4 @@ Chosen option: the second one, as the owner decided. "Cała kolekcja" is always 
 
 ## More information
 
-Narrows the scope choice of [ADR-0061](0061-review-the-collection-in-one-mixed-session.md); requirement R-77. A session scoped to a style asks no style quiz ([ADR-0070](0070-no-style-quiz-in-a-style-scope.md)).
+Narrows the scope choice of [ADR-0061](0061-review-the-collection-in-one-mixed-session.md); requirement R-77. A session scoped to a style asks no style quiz ([ADR-0070](0070-no-style-quiz-in-a-style-scope.md)). An era, a period or a style is offered only with at least 10 artworks due today ([ADR-0071](0071-put-the-plan-first-on-the-review-start.md)).
