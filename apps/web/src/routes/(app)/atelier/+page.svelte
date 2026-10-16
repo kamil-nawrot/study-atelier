@@ -185,6 +185,7 @@
 		if (event.propertyName === 'width' && !panelOpen) panelMounted = false;
 	}
 	let railFits = $derived(tracker.margin >= MIN_RAIL_MARGIN && !panelShown);
+	let stripHeight = $state(0);
 
 	const writtenQueries = new SvelteSet<string>();
 
@@ -294,7 +295,7 @@
 
 	{#snippet strip()}
 		{#if showPeriods && !railFits}
-			<PeriodStrip current={tracker.current} {groups} label={railLabel} />
+			<PeriodStrip current={tracker.current} {groups} label={railLabel} bind:height={stripHeight} />
 		{/if}
 	{/snippet}
 
@@ -391,6 +392,7 @@
 		<ArtworkWall
 			artworks={shown}
 			{highlight}
+			inset={showPeriods && !railFits ? stripHeight : 0}
 			onfavourite={toggleFavourite}
 			onimagefailed={(artwork) => images.failed(artwork)}
 			onnearscreen={(artwork) => images.request(artwork)}
