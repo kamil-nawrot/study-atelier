@@ -24,11 +24,13 @@ The learning module: the learner reviews the personal collection with flashcards
 - Authors in the artwork view are separated by a comma and a space; category labels are centred on the first row of values.
 - Era names in the filter panel use the extra small font.
 - A period lands on the rail right after its first artwork.
+- Periods, styles and materials in the filter panel show their first eight badges and a "Pokaż więcej" button, like authors and locations.
 
 ### Fixed
 
 - Artworks answered only in quizzes no longer stay in FSRS learning, so the review counter clears.
 - No style quiz is asked in a style scope, and a review start that fails to load can be retried.
+- The header of the filter panel stays in view while the panel scrolls, so the panel can always be closed.
 - Quiz icons are centred, the page scrolls to the top between questions and review images are larger on phones.
 
 ### Migration note
