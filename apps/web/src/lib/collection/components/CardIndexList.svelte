@@ -1,21 +1,37 @@
 <script lang="ts">
+	import { SearchField } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
+	import { normalizeForSearch } from '../search.ts';
 	import { valuePath } from '../value-pages.ts';
 	import type { CardIndexRecord } from '../types.ts';
 
 	type Props = {
 		records: CardIndexRecord[];
 		empty: string;
+		searchLabel: string;
 	};
 
-	let { records, empty }: Props = $props();
+	let { records, empty, searchLabel }: Props = $props();
+
+	let query = $state('');
+
+	let term = $derived(normalizeForSearch(query));
+	let matching = $derived(
+		term ? records.filter((record) => normalizeForSearch(record.name).includes(term)) : records
+	);
 </script>
 
 {#if records.length === 0}
 	<p class="lead">{empty}</p>
 {:else}
+	<div class="search">
+		<SearchField label={searchLabel} placeholder={searchLabel} bind:value={query} />
+	</div>
+	{#if matching.length === 0}
+		<p class="lead">{m.cardIndex.noResults(query.trim())}</p>
+	{/if}
 	<ul>
-		{#each records as record (record.id)}
+		{#each matching as record (record.id)}
 			<li>
 				<a
 					aria-label={m.cardIndex.openValue(record.name, m.atelier.count(record.count))}
@@ -30,6 +46,11 @@
 {/if}
 
 <style>
+	.search {
+		max-width: var(--size-content-default);
+		margin-block-end: var(--spacing-6);
+	}
+
 	ul {
 		display: grid;
 		gap: var(--spacing-4);
