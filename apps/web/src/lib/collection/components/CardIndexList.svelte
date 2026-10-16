@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { SearchField } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
+	import { CARD_INDEX_SEARCH_MIN_VALUES } from '../card-index.ts';
 	import { normalizeForSearch } from '../search.ts';
 	import { valuePath } from '../value-pages.ts';
 	import type { CardIndexRecord } from '../types.ts';
@@ -24,9 +25,11 @@
 {#if records.length === 0}
 	<p class="lead">{empty}</p>
 {:else}
-	<div class="search">
-		<SearchField label={searchLabel} placeholder={searchLabel} bind:value={query} />
-	</div>
+	{#if records.length >= CARD_INDEX_SEARCH_MIN_VALUES}
+		<div class="search">
+			<SearchField label={searchLabel} placeholder={searchLabel} bind:value={query} />
+		</div>
+	{/if}
 	{#if matching.length === 0}
 		<p class="lead">{m.cardIndex.noResults(query.trim())}</p>
 	{/if}
