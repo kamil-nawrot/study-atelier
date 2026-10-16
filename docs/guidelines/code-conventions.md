@@ -112,6 +112,7 @@ The SvelteKit app in `apps/web/src`:
 - Uploaded files sit under a folder named after the owner's id, and the Storage policies compare that folder with `auth.uid()`.
 - `supabase/tests/security.sql` runs in the `migrations` job against the replayed migrations. It checks the rules above for every table and function, and that one learner cannot read or change another's rows or images. A new table, function or policy extends it.
 - `supabase/tests/review-session.sql` runs in the same job and checks the rules of `review_session` on a learner's own artworks, for example which artwork gets a quiz. A change to a session rule extends it.
+- A migration that changes the rules of a function comes with a test in `supabase/tests/` that fails against the previous version of the function and passes with the new one. Check both on the local stack before pushing.
 
 ## Tests
 
@@ -124,6 +125,7 @@ The SvelteKit app in `apps/web/src`:
 - A test of a library text override renders the component through `src/lib/testing/MessagesHost.svelte` in `packages/ui`, which calls `setUiMessages` before it renders the component and its props.
 - Component tests find elements the way a learner does: by role, label and visible text from `m`, not by component internals, so a refactor that keeps the behaviour keeps the tests green.
 - A test of behaviour that depends on time (a message that disappears, a delay) uses fake timers and advances them with `vi.advanceTimersByTime`; it never waits for real time, which makes tests slow and unstable in CI. In browser mode fake only what the code uses, for example `vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] })`, so `expect.element` can still poll.
+- The content of a closed `details` is not in the accessibility tree: a test opens it by clicking its `summary`, and checks that such content is absent with `not.toBeInTheDocument()`, not `not.toBeVisible()`.
 - A hidden `input type="file"` has no role, so a test reaches it with `document.querySelector('input[type="file"]')` and picks a file with `userEvent.upload`. This and the outlined box of a size test are the only exceptions to finding elements by role.
 - Code that loads an image with `new Image()` (for example to read its size) is tested with a stub: `vi.stubGlobal('Image', ...)` with a class that calls `onload` or `onerror`, and `vi.unstubAllGlobals()` after each test. When the order of events matters, the stub keeps `onload` and the test calls it at the chosen moment. A real image for a page test is drawn on an `OffscreenCanvas` and turned into a `File`.
 - The wall lays its tiles out column by column, so the order of the tile links in the DOM is not the order of the wall. A test of the wall's order reads the remembered wall sequence (`study-atelier:wall-sequence` in `sessionStorage`) instead of the links.

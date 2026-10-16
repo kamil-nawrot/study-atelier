@@ -32,4 +32,4 @@ Further rounds of new artworks beyond the daily limit were considered and reject
 
 ## More information
 
-Changes the order of new artworks in [ADR-0065](0065-build-review-sessions-in-the-database.md). Migration `20261016130000_draw_new_artworks_at_random.sql`, test `supabase/tests/review-session.sql`; ATL-176. The scopes and the start of the same issue are in ADR-0071.
+Changes the order of new artworks in [ADR-0065](0065-build-review-sessions-in-the-database.md). Migration `20261016130000_draw_new_artworks_at_random.sql`, test `supabase/tests/review-session.sql`; ATL-176. The scopes and the start of the same issue are in [ADR-0071](0071-put-the-plan-first-on-the-review-start.md).
