@@ -5,6 +5,7 @@ import { collectionErrorMessage } from '#lib/collection/errors.ts';
 import { IMAGE_COLUMNS, type ImageRow, imageOf } from '#lib/collection/image-record.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
+import type { ReviewScope } from './overview.ts';
 import { MIN_ARTWORKS, newAllowance } from './queue.ts';
 import type {
 	RecordReviewResult,
@@ -14,7 +15,10 @@ import type {
 	ReviewCounts,
 	ReviewCountsResult,
 	ReviewDetails,
-	ReviewState
+	ReviewForm,
+	ReviewSessionResult,
+	ReviewState,
+	SessionRow
 } from './types.ts';
 
 type CardRow = {
@@ -131,4 +135,26 @@ export async function loadReviewDetails(ids: string[]): Promise<Map<string, Revi
 			{ notes: row.notes ?? '', credit: artworkImageCredit(imageOf(row)) }
 		])
 	);
+}
+
+function scopeArgs(scope: ReviewScope): { scope_kind: string; scope_value?: string } {
+	if (scope.kind === 'all') return { scope_kind: 'all' };
+	if (scope.kind === 'era') return { scope_kind: 'era', scope_value: scope.code };
+	return { scope_kind: scope.kind, scope_value: scope.name };
+}
+
+export async function loadSession(
+	dayStart: Date,
+	form: ReviewForm,
+	scope: ReviewScope
+): Promise<ReviewSessionResult> {
+	const { data, error } = await supabase.rpc('review_session', {
+		day_start: dayStart.toISOString(),
+		session_form: form,
+		...scopeArgs(scope)
+	});
+	if (error || !Array.isArray(data)) {
+		return { rows: [], error: await failureMessage(error ?? {}, collectionErrorMessage) };
+	}
+	return { rows: data as unknown as SessionRow[] };
 }

@@ -1,7 +1,8 @@
 import { SvelteMap } from 'svelte/reactivity';
 import { currentDate, retryLater } from './queue.ts';
+import { shuffleQuiz } from './quiz.ts';
 import { recordReview } from './review-data.ts';
-import { outcomes } from './scheduler.ts';
+import { outcomes, quizRating } from './scheduler.ts';
 import type { ReviewCard, ReviewItem, ReviewRating } from './types.ts';
 
 export type ReviewAnswerLog = {
@@ -13,6 +14,7 @@ export class ReviewSession {
 	queue = $state<ReviewItem[]>([]);
 	position = $state(0);
 	revealed = $state(false);
+	chosen = $state<number>();
 	saving = $state(false);
 	error = $state<string>();
 	answers = $state<ReviewAnswerLog[]>([]);
@@ -63,7 +65,27 @@ export class ReviewSession {
 
 	async rate(rating: ReviewRating, scheduled?: ReviewCard): Promise<void> {
 		const item = this.current;
-		if (!item || !this.revealed || this.saving) return;
+		if (!item || item.quiz || !this.revealed || this.saving) return;
+		if (await this.#save(item, rating, scheduled)) this.#advance();
+	}
+
+	async answer(choice: number): Promise<void> {
+		const item = this.current;
+		if (!item?.quiz || this.chosen !== undefined || this.saving) return;
+		const correct = choice === item.quiz.answer;
+		if (await this.#save(item, quizRating(correct), undefined, correct)) this.chosen = choice;
+	}
+
+	proceed(): void {
+		if (this.current?.quiz && this.chosen !== undefined) this.#advance();
+	}
+
+	async #save(
+		item: ReviewItem,
+		rating: ReviewRating,
+		scheduled: ReviewCard | undefined,
+		correct?: boolean
+	): Promise<boolean> {
 		const now = this.#now();
 		const card = scheduled ?? outcomes(item.artwork.id, item.card, now)[rating];
 		this.saving = true;
@@ -71,20 +93,29 @@ export class ReviewSession {
 		const { error } = await recordReview(card, {
 			mode: item.mode,
 			rating,
+			correct,
 			answerMs: now.getTime() - this.#shownAt
 		});
 		this.saving = false;
 		if (error) {
 			this.error = error;
-			return;
+			return false;
 		}
 		this.cards.set(item.artwork.id, card);
 		this.answers.push({ item, rating });
 		if (rating === 1) {
-			this.queue = retryLater(this.queue, this.position, { ...item, card }, this.#random);
+			const retry = item.quiz
+				? { ...item, card, quiz: shuffleQuiz(item.quiz, this.#random) }
+				: { ...item, card };
+			this.queue = retryLater(this.queue, this.position, retry, this.#random);
 		}
+		return true;
+	}
+
+	#advance(): void {
 		this.position += 1;
 		this.revealed = false;
+		this.chosen = undefined;
 		this.#shownAt = this.#now().getTime();
 	}
 }

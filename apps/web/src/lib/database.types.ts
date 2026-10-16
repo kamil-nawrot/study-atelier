@@ -693,6 +693,15 @@ export type Database = {
           with_image: number;
         }[];
       };
+      review_session: {
+        Args: {
+          day_start: string;
+          scope_kind?: string;
+          scope_value?: string;
+          session_form?: string;
+        };
+        Returns: Json;
+      };
       save_artwork: {
         Args: { artwork: Json; existing_id?: string; values_by_category: Json };
         Returns: {

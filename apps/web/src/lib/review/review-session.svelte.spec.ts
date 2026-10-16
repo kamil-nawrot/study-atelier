@@ -90,4 +90,75 @@ describe('ReviewSession', () => {
 		expect(review.minutes).toBe(3);
 		expect(review.answers.map((answer) => answer.rating)).toEqual([3, 2]);
 	});
+
+	it('saves a quiz answer at once and moves on only when asked', async () => {
+		const clock = { now: start };
+		const review = new ReviewSession(
+			quizItems(2),
+			new Map(),
+			() => clock.now,
+			() => 0
+		);
+
+		await review.answer(1);
+
+		expect(recordReview).toHaveBeenCalledWith(
+			expect.objectContaining({ artworkId: 'artwork-1' }),
+			expect.objectContaining({ mode: 'quiz_title', rating: 2, correct: true })
+		);
+		expect(review.chosen).toBe(1);
+		expect(review.position).toBe(0);
+
+		await review.answer(2);
+		expect(recordReview).toHaveBeenCalledTimes(1);
+
+		review.proceed();
+		expect(review.position).toBe(1);
+		expect(review.chosen).toBeUndefined();
+	});
+
+	it('counts a wrong quiz answer as not known and asks it again later', async () => {
+		const clock = { now: start };
+		const review = new ReviewSession(
+			quizItems(6),
+			new Map(),
+			() => clock.now,
+			() => 0
+		);
+
+		await review.answer(0);
+
+		expect(recordReview).toHaveBeenCalledWith(
+			expect.anything(),
+			expect.objectContaining({ rating: 1, correct: false })
+		);
+		const retry = review.queue[4];
+		expect(retry.artwork.number).toBe(1);
+		expect(retry.quiz?.options[retry.quiz.answer].label).toBe('Artwork 1');
+	});
+
+	it('does not rate a quiz like a flashcard', async () => {
+		const review = new ReviewSession(
+			quizItems(1),
+			new Map(),
+			() => start,
+			() => 0
+		);
+
+		review.reveal();
+		await review.rate(3);
+
+		expect(recordReview).not.toHaveBeenCalled();
+	});
 });
+
+function quizItems(count: number): ReviewItem[] {
+	return items(count).map((item) => ({
+		...item,
+		mode: 'quiz_title',
+		quiz: {
+			answer: 1,
+			options: ['Other A', item.artwork.title, 'Other B', 'Other C'].map((label) => ({ label }))
+		}
+	}));
+}
