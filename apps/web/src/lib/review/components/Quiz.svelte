@@ -5,6 +5,8 @@
 	import { Alert, Button, Icon } from '@study-atelier/ui';
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
+	import { onControl, sessionKey } from '../keys.ts';
+	import { authorsOf } from '../overview.ts';
 	import type { Quiz, QuizOption, ReviewDetails, ReviewItem } from '../types.ts';
 	import ReviewCard from './ReviewCard.svelte';
 
@@ -36,10 +38,6 @@
 		else heading?.focus();
 	});
 
-	function authorsOf(work: WallArtwork): string {
-		return work.authors.length > 0 ? work.authors.join(', ') : m.ui.unknownAuthor;
-	}
-
 	function byline(work: WallArtwork): string {
 		return [authorsOf(work), work.date].filter(Boolean).join(', ');
 	}
@@ -59,16 +57,10 @@
 			.join(' · ');
 	}
 
-	function typing(target: EventTarget | null): boolean {
-		if (!(target instanceof HTMLElement)) return false;
-		return target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
-	}
-
 	function keydown(event: KeyboardEvent): void {
-		if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
-		if (typing(event.target) || document.querySelector('dialog[open]')) return;
+		if (!sessionKey(event)) return;
 		if (event.key === 'Enter' && answered) {
-			if (event.target instanceof HTMLElement && event.target.closest('button, a')) return;
+			if (onControl(event)) return;
 			event.preventDefault();
 			onnext();
 			return;

@@ -2,7 +2,8 @@
 	import { Alert, Button, Notes, Tag } from '@study-atelier/ui';
 	import { formatRecordNumber } from '#lib/collection/format.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import { formatInterval } from '../overview.ts';
+	import { onControl, sessionKey } from '../keys.ts';
+	import { authorsOf, formatInterval } from '../overview.ts';
 	import { RATINGS } from '../scheduler.ts';
 	import type {
 		ReviewCard as ScheduledCard,
@@ -30,9 +31,7 @@
 	let heading = $state<HTMLElement>();
 
 	let artwork = $derived(item.artwork);
-	let authors = $derived(
-		artwork.authors.length > 0 ? artwork.authors.join(', ') : m.ui.unknownAuthor
-	);
+	let authors = $derived(authorsOf(artwork));
 	let alt = $derived(revealed ? `${artwork.title}, ${authors}` : m.review.flashcard.imageAlt);
 	let fields = $derived(
 		[
@@ -49,16 +48,10 @@
 		else revealButton?.querySelector('button')?.focus();
 	});
 
-	function typing(target: EventTarget | null): boolean {
-		if (!(target instanceof HTMLElement)) return false;
-		return target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
-	}
-
 	function keydown(event: KeyboardEvent): void {
-		if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
-		if (typing(event.target) || document.querySelector('dialog[open]')) return;
+		if (!sessionKey(event)) return;
 		if (event.key === ' ' && !revealed) {
-			if (event.target instanceof HTMLElement && event.target.closest('button, a')) return;
+			if (onControl(event)) return;
 			event.preventDefault();
 			onreveal();
 			return;
