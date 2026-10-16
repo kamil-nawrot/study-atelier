@@ -669,6 +669,7 @@ export const pl = {
 		placeType: 'Typ miejsca',
 		placeTypes: {
 			museum: 'Muzeum',
+			gallery: 'Galeria',
 			private_collection: 'Kolekcja prywatna',
 			on_site: 'Na miejscu'
 		}
