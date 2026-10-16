@@ -23,10 +23,42 @@ export type ReviewCard = {
 	lastReview: Date | null;
 };
 
+export type QuizReason = 'author' | 'style' | 'period';
+
+export type QuizOption = {
+	label: string;
+	artwork?: WallArtwork;
+	reason?: QuizReason;
+};
+
+export type Quiz = {
+	options: QuizOption[];
+	answer: number;
+};
+
+export type SessionOptionRow = {
+	artwork_id?: string;
+	label: string;
+	reason?: QuizReason;
+	right?: boolean;
+};
+
+export type SessionRow = {
+	artwork_id: string;
+	mode: ReviewMode;
+	options?: SessionOptionRow[];
+};
+
+export type ReviewSessionResult = {
+	rows: SessionRow[];
+	error?: string;
+};
+
 export type ReviewItem = {
 	artwork: WallArtwork;
 	card: ReviewCard | null;
 	mode: ReviewMode;
+	quiz?: Quiz;
 };
 
 export type ReviewAnswer = {

@@ -6,7 +6,7 @@ import {
 	MIN_ARTWORKS,
 	reviewableArtworks,
 	SETTLED_STABILITY_DAYS,
-	sessionEntries,
+	sessionCounts,
 	startOfDay
 } from './queue.ts';
 import type { ReviewCard, ReviewItem, ReviewRating } from './types.ts';
@@ -138,6 +138,10 @@ export function nextWaiting(
 	return new Date(Math.min(...later.map((date) => date.getTime())));
 }
 
+export function authorsOf(artwork: WallArtwork): string {
+	return artwork.authors.length > 0 ? artwork.authors.join(', ') : m.ui.unknownAuthor;
+}
+
 export function formatWhen(date: Date, now: Date): string {
 	return relativeDays.format(daysBetween(now, date), 'day');
 }
@@ -157,7 +161,8 @@ export function waitingTomorrow(
 	cards: Map<string, ReviewCard>,
 	now: Date
 ): number {
-	return sessionEntries({ artworks, cards, now: endOfDay(now), newToday: 0 }).length;
+	const { known, fresh } = sessionCounts({ artworks, cards, now: endOfDay(now), newToday: 0 });
+	return known + fresh;
 }
 
 export function summaryGroups(

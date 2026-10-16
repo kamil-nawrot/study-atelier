@@ -8,6 +8,7 @@
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import Flashcard from '#lib/review/components/Flashcard.svelte';
+	import Quiz from '#lib/review/components/Quiz.svelte';
 	import ReviewStart from '#lib/review/components/ReviewStart.svelte';
 	import ReviewSummary from '#lib/review/components/ReviewSummary.svelte';
 	import {
@@ -23,10 +24,21 @@
 		troubles,
 		waitingTomorrow
 	} from '#lib/review/overview.ts';
-	import { buildSession, missingArtworks } from '#lib/review/queue.ts';
-	import { loadReviewDetails, REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data.ts';
+	import { missingArtworks, sessionCounts, startOfDay } from '#lib/review/queue.ts';
+	import { quizArtworks, sessionItems } from '#lib/review/quiz.ts';
+	import {
+		loadReviewDetails,
+		loadSession,
+		REVIEW_COUNTS_DEPENDENCY
+	} from '#lib/review/review-data.ts';
 	import { ReviewSession } from '#lib/review/review-session.svelte.ts';
-	import type { ReviewCard, ReviewDetails, ReviewItem, ReviewRating } from '#lib/review/types.ts';
+	import type {
+		ReviewCard,
+		ReviewDetails,
+		ReviewForm,
+		ReviewItem,
+		ReviewRating
+	} from '#lib/review/types.ts';
 	import type { PageProps } from './$types';
 
 	type Summary = {
@@ -41,6 +53,7 @@
 	let { data }: PageProps = $props();
 
 	let scope = $state<ReviewScope>({ kind: 'all' });
+	let form = $state<ReviewForm>('mixed');
 	let cards = $state.raw(untrack(() => data.cards));
 	let newToday = $state(untrack(() => data.newToday));
 	let now = $state(new Date());
@@ -48,6 +61,7 @@
 	let session = $state<ReviewSession>();
 	let summary = $state<Summary>();
 	let starting = $state(false);
+	let startError = $state<string>();
 	let stopOpen = $state(false);
 	let stopAfterSave = false;
 	let resolved = $state.raw(new Map<string, WallArtwork>());
@@ -56,15 +70,14 @@
 	let outcomes = $state<Record<ReviewRating, ReviewCard>>();
 
 	const scoped = $derived(scopeArtworks(data.artworks, scope));
-	const entries = $derived(
-		buildSession({ artworks: scoped, cards, now, newToday, form: 'flashcards' })
-	);
-	const known = $derived(entries.filter((entry) => entry.card !== null).length);
+	const counts = $derived(sessionCounts({ artworks: scoped, cards, now, newToday }));
+	const waiting = $derived(counts.known + counts.fresh);
 	const missing = $derived(missingArtworks(scoped));
 	const nextDate = $derived(
-		entries.length === 0 && missing === 0 ? nextWaiting(scoped, cards, now) : null
+		waiting === 0 && missing === 0 ? nextWaiting(scoped, cards, now) : null
 	);
 	const scopes = $derived(scopeOptions(data.artworks));
+	const artworksById = $derived(new Map(data.artworks.map((artwork) => [artwork.id, artwork])));
 	const memory = $derived(memoryByEra(data.artworks, cards));
 	const hard = $derived(troubles(data.artworks, cards).map(withImage));
 	const current = $derived(session?.current);
@@ -79,11 +92,33 @@
 	$effect(() => {
 		if (!session) return;
 		const ahead = session.queue.slice(session.position + 1, session.position + 1 + PRELOAD_AHEAD);
-		for (const item of ahead) preload(item.artwork);
+		for (const item of ahead) {
+			preload(item.artwork);
+			for (const option of item.quiz?.options ?? []) {
+				if (option.artwork) preload(option.artwork, '(min-width: 768px) 280px, 45vw');
+			}
+		}
 	});
 
 	function withImage(artwork: WallArtwork): WallArtwork {
 		return resolved.get(artwork.id) ?? artwork;
+	}
+
+	function withImages(item: ReviewItem): ReviewItem {
+		return {
+			...item,
+			artwork: withImage(item.artwork),
+			...(item.quiz
+				? {
+						quiz: {
+							...item.quiz,
+							options: item.quiz.options.map((option) =>
+								option.artwork ? { ...option, artwork: withImage(option.artwork) } : option
+							)
+						}
+					}
+				: {})
+		};
 	}
 
 	async function resolveInto(artworks: WallArtwork[]): Promise<void> {
@@ -92,12 +127,12 @@
 		resolved = new Map([...resolved, ...found.map((artwork) => [artwork.id, artwork] as const)]);
 	}
 
-	function preload(artwork: WallArtwork): void {
+	function preload(artwork: WallArtwork, sizes = '(min-width: 768px) 60vw, 100vw'): void {
 		const image = artwork.image;
 		if (!image?.src) return;
 		const loader = new Image();
 		if (image.srcset) {
-			loader.sizes = '(min-width: 768px) 60vw, 100vw';
+			loader.sizes = sizes;
 			loader.srcset = image.srcset;
 		}
 		loader.src = image.src;
@@ -107,23 +142,24 @@
 	async function start(): Promise<void> {
 		if (starting) return;
 		starting = true;
-		const items = buildSession({
-			artworks: scoped,
-			cards,
-			now: new Date(),
-			newToday,
-			form: 'flashcards'
-		});
+		startError = undefined;
+		const loaded = await loadSession(startOfDay(new Date()), form, scope);
+		const items = sessionItems(loaded.rows, artworksById, cards);
+		if (loaded.error || items.length === 0) {
+			startError = loaded.error;
+			now = new Date();
+			phase = 'start';
+			starting = false;
+			return;
+		}
 		const artworks = items.map((item) => item.artwork);
+		const shown = [...artworks, ...quizArtworks(items)];
 		const [, found] = await Promise.all([
-			resolveInto(artworks.filter((artwork) => artwork.pendingImage)),
+			resolveInto(shown.filter((artwork) => artwork.pendingImage)),
 			loadReviewDetails(artworks.map((artwork) => artwork.id))
 		]);
 		details = found;
-		session = new ReviewSession(
-			items.map((item): ReviewItem => ({ ...item, artwork: withImage(item.artwork) })),
-			cards
-		);
+		session = new ReviewSession(items.map(withImages), cards);
 		summary = undefined;
 		phase = 'session';
 		starting = false;
@@ -141,6 +177,19 @@
 		if (!active) return;
 		await active.rate(rating, outcomes?.[rating]);
 		if (active === session && (active.finished || stopAfterSave)) finish();
+	}
+
+	async function answer(choice: number): Promise<void> {
+		const active = session;
+		if (!active) return;
+		await active.answer(choice);
+		if (active === session && stopAfterSave) finish();
+	}
+
+	function proceed(): void {
+		if (!session) return;
+		session.proceed();
+		if (session.finished) finish();
 	}
 
 	function finish(): void {
@@ -175,7 +224,7 @@
 
 <AtelierLayout
 	email={data.session.user.email ?? ''}
-	fill={phase === 'session'}
+	fill={phase === 'session' && current?.mode !== 'quiz_image'}
 	title={m.review.title}
 >
 	{#snippet bar()}
@@ -216,17 +265,29 @@
 		<Alert title={m.review.loadErrorTitle} tone="danger">{data.error}</Alert>
 	{:else if phase === 'session' && session && current}
 		{#key `${session.position}:${current.artwork.id}`}
-			<Flashcard
-				details={details.get(current.artwork.id)}
-				error={session.error}
-				item={current}
-				now={revealedAt}
-				onrate={rate}
-				onreveal={reveal}
-				{outcomes}
-				revealed={session.revealed}
-				saving={session.saving}
-			/>
+			{#if current.quiz}
+				<Quiz
+					chosen={session.chosen}
+					details={details.get(current.artwork.id)}
+					error={session.error}
+					item={{ ...current, quiz: current.quiz }}
+					onanswer={answer}
+					onnext={proceed}
+					saving={session.saving}
+				/>
+			{:else}
+				<Flashcard
+					details={details.get(current.artwork.id)}
+					error={session.error}
+					item={current}
+					now={revealedAt}
+					onrate={rate}
+					onreveal={reveal}
+					{outcomes}
+					revealed={session.revealed}
+					saving={session.saving}
+				/>
+			{/if}
 		{/key}
 	{:else if phase === 'summary' && summary}
 		<ReviewSummary
@@ -236,18 +297,21 @@
 				artworks: group.artworks.map(withImage)
 			}))}
 			minutes={summary.minutes}
-			nextRound={entries.length}
+			nextRound={waiting}
 			onnext={start}
 			tomorrow={summary.tomorrow}
 		/>
 	{:else}
 		<ReviewStart
-			fresh={entries.length - known}
-			{known}
+			error={startError}
+			{form}
+			fresh={counts.fresh}
+			known={counts.known}
 			{memory}
-			minutes={estimateMinutes(entries.length)}
+			minutes={estimateMinutes(waiting)}
 			{missing}
 			nextWhen={nextDate ? formatWhen(nextDate, now) : undefined}
+			onform={(chosen) => (form = chosen)}
 			onscope={(chosen) => (scope = chosen)}
 			onstart={start}
 			{scope}

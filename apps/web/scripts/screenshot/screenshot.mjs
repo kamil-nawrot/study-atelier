@@ -131,6 +131,91 @@ function reviewCounts(dayStartText) {
 	};
 }
 
+function valuesOf(row, category) {
+	return (row.artwork_values ?? [])
+		.filter((link) => link.category_values.category_code === category)
+		.sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+		.map((link) => link.category_values.name);
+}
+
+function inScope(row, kind, value) {
+	if (kind === 'era') return row.era_code === value;
+	if (kind === 'period') return valuesOf(row, 'period')[0] === value;
+	if (kind === 'style') return valuesOf(row, 'style').includes(value);
+	return true;
+}
+
+function quizFor(row, mode, pool) {
+	const others = pool.filter((other) => other.id !== row.id && other.title !== row.title);
+	if (mode === 'quiz_style') {
+		const [style] = valuesOf(row, 'style');
+		const styles = [...new Set(others.flatMap((other) => valuesOf(other, 'style')))].filter(
+			(other) => !valuesOf(row, 'style').includes(other)
+		);
+		if (!style || styles.length < 3) return undefined;
+		return [
+			{ label: styles[0] },
+			{ label: style, right: true },
+			...styles.slice(1, 3).map((label) => ({ label }))
+		];
+	}
+	if (others.length < 3) return undefined;
+	const shares = (category, other) =>
+		valuesOf(row, category).some((value) => valuesOf(other, category).includes(value));
+	const reason = (other) =>
+		shares('author', other)
+			? 'author'
+			: shares('style', other)
+				? 'style'
+				: shares('period', other)
+					? 'period'
+					: undefined;
+	const options = others.slice(0, 3).map((other) => ({
+		artwork_id: other.id,
+		label: other.title,
+		...(reason(other) ? { reason: reason(other) } : {})
+	}));
+	options.splice(row.record_number % 4, 0, { artwork_id: row.id, label: row.title, right: true });
+	return options;
+}
+
+function reviewSession({
+	day_start: dayStartText,
+	session_form: form = 'mixed',
+	scope_kind: kind = 'all',
+	scope_value: value
+} = {}) {
+	const dayEnd = new Date(dayStartText ?? Date.now()).getTime() + 24 * 60 * 60 * 1000;
+	const pool = ARTWORKS.filter((row) => hasImage(row) && inScope(row, kind, value));
+	if (pool.length < 20) return [];
+	const cardOf = (row) => REVIEW_CARDS.find((card) => card.artwork_id === row.id);
+	const due = pool
+		.filter((row) => cardOf(row) && new Date(cardOf(row).due).getTime() < dayEnd)
+		.sort((a, b) => new Date(cardOf(a).due).getTime() - new Date(cardOf(b).due).getTime())
+		.slice(0, 20);
+	const fresh = pool.filter((row) => !cardOf(row)).slice(0, Math.min(10, 20 - due.length));
+	return [...due, ...fresh].map((row, slot) => {
+		const card = cardOf(row);
+		const modes =
+			form === 'flashcards'
+				? []
+				: form === 'quizzes'
+					? ['quiz_title', 'quiz_image', 'quiz_style']
+							.slice(slot % 3)
+							.concat(['quiz_title', 'quiz_image'].slice(0, slot % 3))
+					: !card || card.state !== 2
+						? slot % 2 === 0
+							? ['quiz_title', 'quiz_image']
+							: ['quiz_image', 'quiz_title']
+						: [];
+		for (const mode of modes) {
+			const options = quizFor(row, mode, pool);
+			if (options) return { artwork_id: row.id, mode, options };
+		}
+		return { artwork_id: row.id, mode: 'flashcard' };
+	});
+}
+
 async function mockSupabase(context) {
 	await context.route(`${SUPABASE_URL}/**`, async (route) => {
 		const request = route.request();
@@ -150,6 +235,9 @@ async function mockSupabase(context) {
 			const counts = reviewCounts(request.postDataJSON()?.day_start);
 			const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
 			return json(route, wantsObject ? counts : [counts]);
+		}
+		if (url.pathname === '/rest/v1/rpc/review_session') {
+			return json(route, reviewSession(request.postDataJSON() ?? {}));
 		}
 		if (url.pathname === '/rest/v1/rpc/record_review') {
 			return route.fulfill({ status: 204, headers: corsHeaders() });
