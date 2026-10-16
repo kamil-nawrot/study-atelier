@@ -1,4 +1,4 @@
-# 0072. Draw the new artworks of a session at random
+# 0073. Draw the new artworks of a session at random
 
 - Status: accepted
 - Date: 2026-10-16
