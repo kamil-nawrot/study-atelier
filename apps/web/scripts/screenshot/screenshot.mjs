@@ -1,5 +1,5 @@
-import { spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
+import { spawn, spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
@@ -24,9 +24,11 @@ import {
 const WEB_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const REPO_DIR = path.resolve(WEB_DIR, '../..');
 const PORT = 5199;
+const SCROLL_STEP = 40;
 const AUTH_PATHS = ['/sign-in', '/sign-up', '/forgot-password', '/update-password'];
 const VIEWPORTS = {
 	desktop: { width: 1440, height: 900, deviceScaleFactor: 1 },
+	wide: { width: 1920, height: 1000, deviceScaleFactor: 1 },
 	phone: { width: 390, height: 844, deviceScaleFactor: 2, isMobile: true, hasTouch: true }
 };
 const USAGE = `Usage: pnpm screenshot <path> [options]
@@ -34,7 +36,7 @@ const USAGE = `Usage: pnpm screenshot <path> [options]
   <path>             route to render, for example /atelier or /atelier/1
   --out <dir>        output folder (default tmp/screenshots in the repository)
   --name <name>      file name prefix (default derived from the path)
-  --viewport <v>     desktop, phone or both (default both)
+  --viewport <v>     desktop, wide (1920 x 1000), phone or both (default both)
   --combine          also write one image with the desktop and phone shots side by side
   --full-page        capture the whole page, not only the first screen
   --signed-out       do not inject the fake session (default for the auth routes)
@@ -43,6 +45,8 @@ const USAGE = `Usage: pnpm screenshot <path> [options]
   --wait <selector>  wait for this selector before capturing
   --type <text>      click the notes editor and type this text before capturing
   --script <file>    run this JavaScript file in the page before capturing, for example to mock a variant
+  --repeat <n>       show every sample artwork n times, to have more to scroll through
+  --scroll           also record a GIF of scrolling the page from top to bottom (needs ffmpeg)
   --url <base>       use a running dev server instead of starting one
 `;
 
@@ -59,10 +63,20 @@ function parseArgs(argv) {
 		if (arg === '--') continue;
 		if (arg === '--help' || arg === '-h') options.help = true;
 		else if (arg === '--combine') options.combine = true;
+		else if (arg === '--scroll') options.scroll = true;
 		else if (arg === '--full-page') options.fullPage = true;
 		else if (arg === '--signed-out') options.signedOut = true;
 		else if (
-			['--out', '--name', '--viewport', '--wait', '--url', '--script', '--type'].includes(arg)
+			[
+				'--out',
+				'--name',
+				'--viewport',
+				'--wait',
+				'--url',
+				'--script',
+				'--type',
+				'--repeat'
+			].includes(arg)
 		) {
 			options[arg.slice(2)] = rest.shift();
 		} else if (arg === '--storage' || arg === '--session') {
@@ -458,6 +472,76 @@ async function capture(browser, base, options, name) {
 	return file;
 }
 
+function repeatArtworks(times) {
+	const originals = [...ARTWORKS];
+	for (let copy = 1; copy < times; copy += 1) {
+		for (const row of originals) {
+			ARTWORKS.push({
+				...row,
+				id: `${row.id}-copy-${copy}`,
+				record_number: row.record_number + copy * 1000
+			});
+		}
+	}
+}
+
+async function recordScroll(browser, base, options, name) {
+	const viewport = VIEWPORTS[name];
+	const folder = path.join(options.out, `${options.name}-${name}-frames`);
+	rmSync(folder, { recursive: true, force: true });
+	mkdirSync(folder, { recursive: true });
+	const context = await browser.newContext({
+		viewport: { width: viewport.width, height: viewport.height }
+	});
+	await mockSupabase(context);
+	await mockImages(context);
+	await context.addInitScript(
+		({ key, session, entries }) => {
+			localStorage.setItem(key, JSON.stringify(session));
+			for (const [entryKey, value] of Object.entries(entries)) {
+				localStorage.setItem(entryKey, value);
+			}
+		},
+		{
+			key: `sb-${new URL(SUPABASE_URL).hostname.split('.')[0]}-auth-token`,
+			session: fakeSession(),
+			entries: options.storage
+		}
+	);
+	const page = await context.newPage();
+	await page.goto(new URL(options.route, base).href, { waitUntil: 'networkidle' });
+	if (options.wait) await page.waitForSelector(options.wait);
+	await page.waitForTimeout(800);
+	const total = await page.evaluate(
+		() => document.documentElement.scrollHeight - window.innerHeight
+	);
+	let frame = 0;
+	for (let position = 0; position <= total + SCROLL_STEP; position += SCROLL_STEP) {
+		await page.evaluate(
+			(top) =>
+				new Promise((resolve) => {
+					window.scrollTo(0, top);
+					requestAnimationFrame(() => requestAnimationFrame(resolve));
+				}),
+			Math.min(position, total)
+		);
+		const file = path.join(folder, `${String(frame).padStart(5, '0')}.jpg`);
+		await page.screenshot({ path: file, type: 'jpeg', quality: 80 });
+		frame += 1;
+	}
+	await context.close();
+	const target = path.join(options.out, `${options.name}-${name}-scroll.gif`);
+	const filter = 'scale=640:-1:flags=lanczos,split[a][b];[a]palettegen[p];[b][p]paletteuse';
+	const result = spawnSync(
+		'ffmpeg',
+		['-y', '-framerate', '15', '-i', path.join(folder, '%05d.jpg'), '-vf', filter, target],
+		{ stdio: 'ignore' }
+	);
+	rmSync(folder, { recursive: true, force: true });
+	if (result.status !== 0) throw new Error('ffmpeg could not convert the recording');
+	return target;
+}
+
 async function combine(browser, files, target) {
 	const context = await browser.newContext({ viewport: { width: 1000, height: 1000 } });
 	const page = await context.newPage();
@@ -493,6 +577,7 @@ async function main() {
 	if (!options.route.startsWith('/')) options.route = `/${options.route}`;
 	options.name ??= options.route.replace(/^\/+|\/+$/g, '').replace(/[^a-z0-9]+/gi, '-') || 'home';
 	mkdirSync(options.out, { recursive: true });
+	if (options.repeat) repeatArtworks(Number(options.repeat));
 
 	const names = options.viewport === 'both' ? ['desktop', 'phone'] : [options.viewport];
 	if (names.some((name) => !(name in VIEWPORTS))) throw new Error(USAGE);
@@ -505,6 +590,9 @@ async function main() {
 		browser = await launchBrowser();
 		const files = [];
 		for (const name of names) files.push(await capture(browser, base, options, name));
+		if (options.scroll) {
+			for (const name of names) files.push(await recordScroll(browser, base, options, name));
+		}
 		if (options.combine && files.length === 2) {
 			const target = path.join(options.out, `${options.name}-both.png`);
 			await combine(browser, files, target);
