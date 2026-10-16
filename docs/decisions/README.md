@@ -74,3 +74,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0068](0068-schedule-every-review-in-days.md) | Schedule every review in days, without short-term steps | accepted |
 | [0069](0069-quiz-images-in-one-row-and-ratings-without-intervals.md) | Put the quiz images in one row and show the ratings without intervals | accepted |
 | [0070](0070-no-style-quiz-in-a-style-scope.md) | Ask no style quiz in a session scoped to a style | accepted |
+| [0072](0072-draw-new-artworks-at-random.md) | Draw the new artworks of a session at random | accepted |
