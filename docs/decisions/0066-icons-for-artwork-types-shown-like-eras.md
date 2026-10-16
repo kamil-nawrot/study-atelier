@@ -47,5 +47,5 @@ Chosen by the owner:
 
 ## More information
 
-- The colonnade (`landmark`) is still shared by the era "starożytność" and the place type "Muzeum"; that predates this decision and is left for the owner to decide.
+- The colonnade (`landmark`) was shared by the era "starożytność" and the place type "Muzeum"; [ADR-0072](0072-give-the-museum-its-own-icon.md) gives the museum its own icon.
 - [ADR-0038](0038-chain-era-period-and-style.md) introduced `ChoiceTiles` for the era, [ADR-0042](0042-filter-the-collection-in-the-browser.md) the filter panel.
