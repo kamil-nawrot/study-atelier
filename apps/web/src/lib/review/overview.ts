@@ -146,12 +146,6 @@ export function formatWhen(date: Date, now: Date): string {
 	return relativeDays.format(daysBetween(now, date), 'day');
 }
 
-export function formatInterval(due: Date, now: Date): string {
-	if (due < endOfDay(now)) return m.review.interval.today;
-	const days = daysBetween(now, due);
-	return days === 1 ? m.review.interval.tomorrow : m.review.interval.days(days);
-}
-
 export function estimateMinutes(count: number): number {
 	return Math.max(1, Math.round((count * SECONDS_PER_ARTWORK) / 60));
 }

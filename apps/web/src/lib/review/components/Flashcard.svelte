@@ -3,29 +3,22 @@
 	import { formatRecordNumber } from '#lib/collection/format.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { onControl, sessionKey } from '../keys.ts';
-	import { authorsOf, formatInterval } from '../overview.ts';
+	import { authorsOf } from '../overview.ts';
 	import { RATINGS } from '../scheduler.ts';
-	import type {
-		ReviewCard as ScheduledCard,
-		ReviewDetails,
-		ReviewItem,
-		ReviewRating
-	} from '../types.ts';
+	import type { ReviewDetails, ReviewItem, ReviewRating } from '../types.ts';
 	import ReviewCard from './ReviewCard.svelte';
 
 	type Props = {
 		item: ReviewItem;
 		details?: ReviewDetails;
 		revealed: boolean;
-		outcomes?: Record<ReviewRating, ScheduledCard>;
-		now: Date;
 		saving: boolean;
 		error?: string;
 		onreveal: () => void;
 		onrate: (rating: ReviewRating) => void;
 	};
 
-	let { item, details, revealed, outcomes, now, saving, error, onreveal, onrate }: Props = $props();
+	let { item, details, revealed, saving, error, onreveal, onrate }: Props = $props();
 
 	let revealButton = $state<HTMLElement>();
 	let heading = $state<HTMLElement>();
@@ -124,12 +117,7 @@
 						onclick={() => onrate(rating)}
 						variant={rating === 3 ? 'primary' : 'secondary'}
 					>
-						<span class="rating">
-							<span>{m.review.ratings[rating]}</span>
-							{#if outcomes}
-								<span class="interval">{formatInterval(outcomes[rating].due, now)}</span>
-							{/if}
-						</span>
+						{m.review.ratings[rating]}
 					</Button>
 				{/each}
 			</div>
@@ -199,17 +187,5 @@
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 		gap: var(--spacing-2);
-	}
-
-	.rating {
-		display: grid;
-		justify-items: center;
-		padding: var(--spacing-1) 0;
-		line-height: var(--line-height-xs);
-	}
-
-	.interval {
-		font-size: var(--font-size-xs);
-		font-weight: var(--font-weight-regular);
 	}
 </style>

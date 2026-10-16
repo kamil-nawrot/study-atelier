@@ -109,6 +109,17 @@ describe('Quiz', () => {
 		await expect.element(page.getByText('Wikimedia Commons')).toBeVisible();
 	});
 
+	it('marks why a wrong title was close with an icon that explains itself on hover', async () => {
+		renderQuiz('quiz_title', artworkQuiz, 0);
+
+		const reason = page.getByRole('img', { name: m.review.quiz.reasons.author }).first();
+		await expect.element(reason).toBeVisible();
+		await userEvent.hover(reason);
+		await expect
+			.element(page.getByRole('tooltip', { name: m.review.quiz.reasonLabels.author }).first())
+			.toBeVisible();
+	});
+
 	it('asks for the style and hides the credit until the answer', async () => {
 		const { onanswer } = renderQuiz('quiz_style', styleQuiz);
 

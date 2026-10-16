@@ -1,8 +1,12 @@
 <script lang="ts">
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
 	import Check from '@lucide/svelte/icons/check';
+	import Hourglass from '@lucide/svelte/icons/hourglass';
+	import SwatchBook from '@lucide/svelte/icons/swatch-book';
+	import UserPen from '@lucide/svelte/icons/user-pen';
 	import X from '@lucide/svelte/icons/x';
-	import { Alert, ArtworkImage, Button, Icon } from '@study-atelier/ui';
+	import type { LucideIcon } from '@lucide/svelte';
+	import { Alert, ArtworkImage, Button, Icon, Tooltip } from '@study-atelier/ui';
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { onControl, sessionKey } from '../keys.ts';
@@ -23,7 +27,13 @@
 
 	let { item, details, chosen, saving, error, onanswer, onnext }: Props = $props();
 
-	const REASONS: readonly QuizReason[] = ['author', 'style', 'period'];
+	const FALLBACK_RATIO = 0.8;
+
+	const REASON_ICONS: Record<QuizReason, LucideIcon> = {
+		author: UserPen,
+		style: SwatchBook,
+		period: Hourglass
+	};
 
 	let heading = $state<HTMLElement>();
 	let nextButton = $state<HTMLElement>();
@@ -43,6 +53,11 @@
 
 	function byline(work: WallArtwork): string {
 		return [authorsOf(work), work.date].filter(Boolean).join(', ');
+	}
+
+	function ratioOf(option: QuizOption): number {
+		const image = option.artwork?.image;
+		return image ? image.width / image.height : FALLBACK_RATIO;
 	}
 
 	function describe(work: WallArtwork): string {
@@ -149,52 +164,61 @@
 {/snippet}
 
 {#snippet tiles()}
-	<ol class="tiles" aria-label={m.review.quiz.options}>
-		{#each quiz.options as option, index (option.artwork?.id ?? option.label)}
-			{@const image = option.artwork?.image}
-			{@const imageAlt =
-				answered && option.artwork ? describe(option.artwork) : m.review.quiz.imageAlt(index + 1)}
-			<li
-				style:--artwork-ratio={image ? image.width / image.height : undefined}
-				class="tile"
-				class:muted={answered && index !== quiz.answer && index !== chosen}
-				class:right={answered && index === quiz.answer}
-				class:wrong={answered && index === chosen && !correct}
-			>
-				<button
-					class="pick"
-					aria-keyshortcuts={String(index + 1)}
-					disabled={answered || saving}
-					onclick={() => onanswer(index)}
-					type="button"
+	<div
+		style:--r1={ratioOf(quiz.options[0])}
+		style:--r2={ratioOf(quiz.options[1])}
+		style:--r3={ratioOf(quiz.options[2])}
+		style:--r4={ratioOf(quiz.options[3])}
+		style:--ratio-sum={quiz.options.reduce((sum, option) => sum + ratioOf(option), 0)}
+		class="tiles-frame"
+	>
+		<ol class="tiles" aria-label={m.review.quiz.options}>
+			{#each quiz.options as option, index (option.artwork?.id ?? option.label)}
+				{@const image = option.artwork?.image}
+				{@const imageAlt =
+					answered && option.artwork ? describe(option.artwork) : m.review.quiz.imageAlt(index + 1)}
+				<li
+					style:--artwork-ratio={ratioOf(option)}
+					class="tile"
+					class:muted={answered && index !== quiz.answer && index !== chosen}
+					class:right={answered && index === quiz.answer}
+					class:wrong={answered && index === chosen && !correct}
 				>
-					<span class="window">
-						{#if image?.src}
-							<ArtworkImage
-								alt={imageAlt}
-								height={image.height}
-								loading="eager"
-								sizes={QUIZ_TILE_SIZES}
-								src={image.src}
-								srcset={image.srcset}
-								width={image.width}
-							/>
-						{:else}
-							<ArtworkImage alt={imageAlt} unavailable />
+					<button
+						class="pick"
+						aria-keyshortcuts={String(index + 1)}
+						disabled={answered || saving}
+						onclick={() => onanswer(index)}
+						type="button"
+					>
+						<span class="window">
+							{#if image?.src}
+								<ArtworkImage
+									alt={imageAlt}
+									height={image.height}
+									loading="eager"
+									sizes={QUIZ_TILE_SIZES}
+									src={image.src}
+									srcset={image.srcset}
+									width={image.width}
+								/>
+							{:else}
+								<ArtworkImage alt={imageAlt} unavailable />
+							{/if}
+							<span class="badge" aria-hidden="true">{@render mark(index)}</span>
+						</span>
+						{@render optionState(index)}
+					</button>
+					<p class="tile-caption">
+						{#if answered}
+							<cite class="artwork-title">{option.label}</cite>
+							<span class="caption">{optionDetails(option)}</span>
 						{/if}
-						<span class="badge" aria-hidden="true">{@render mark(index)}</span>
-					</span>
-					{@render optionState(index)}
-				</button>
-				<p class="tile-caption">
-					{#if answered}
-						<cite class="artwork-title">{option.label}</cite>
-						<span class="caption">{optionDetails(option)}</span>
-					{/if}
-				</p>
-			</li>
-		{/each}
-	</ol>
+					</p>
+				</li>
+			{/each}
+		</ol>
+	</div>
 {/snippet}
 
 <ReviewCard
@@ -219,10 +243,7 @@
 				{/if}
 			</h1>
 			{#if item.mode === 'quiz_image'}
-				<p class="lead">
-					<span class="pointer">{m.review.quiz.imageHint}</span>
-					<span class="touch">{m.review.quiz.imageHintTouch}</span>
-				</p>
+				<p class="lead">{m.review.quiz.imageHint}</p>
 			{:else if item.mode === 'quiz_style'}
 				<p class="lead">{m.review.quiz.styleHint}</p>
 			{/if}
@@ -248,13 +269,22 @@
 								{:else}
 									{option.label}
 								{/if}
-								<span class="caption reasons">
-									{#each REASONS as reason (reason)}
-										<span class:shown={answered && option.reason === reason}>
-											{m.review.quiz.reasons[reason]}
-										</span>
-									{/each}
-								</span>
+							</span>
+							<span class="reason">
+								{#if answered && option.reason}
+									{@const reason = option.reason}
+									<Tooltip align="end" text={m.review.quiz.reasonLabels[reason]}>
+										{#snippet children(id)}
+											<span aria-describedby={id}>
+												<Icon
+													icon={REASON_ICONS[reason]}
+													label={m.review.quiz.reasons[reason]}
+													size="sm"
+												/>
+											</span>
+										{/snippet}
+									</Tooltip>
+								{/if}
 							</span>
 							{@render optionState(index)}
 						</button>
@@ -295,11 +325,6 @@
 		line-height: var(--line-height-md);
 	}
 
-	.touch {
-		display: none;
-	}
-
-	.tiles,
 	.options {
 		display: grid;
 		gap: var(--spacing-3);
@@ -308,31 +333,59 @@
 		list-style: none;
 	}
 
-	.tiles {
-		--tile-gap: var(--spacing-3);
+	.tiles-frame {
+		--tile-gap: var(--spacing-6);
 		--tile-band: calc(
 			var(--spacing-2) + var(--font-size-lg) * var(--line-height-lg) + var(--spacing-1) +
 				var(--font-size-xs) * var(--line-height-xs) + var(--spacing-3)
 		);
-		--tile-max-width: calc(
-			(100cqw - var(--tile-gap)) / 2 - 2 * var(--spacing-2) - 2 * var(--border-width-button)
-		);
-		--tile-max-height: 20dvh;
+		--tile-chrome-x: calc(2 * var(--spacing-2) + 2 * var(--border-width-button));
+		--tile-chrome-y: calc(var(--spacing-2) + var(--tile-band) + 2 * var(--border-width-button));
+		--tile-image-width: calc((100cqw - var(--tile-gap)) / 2 - var(--tile-chrome-x));
+		--h1: calc(var(--tile-image-width) / var(--r1) + var(--tile-chrome-y));
+		--h2: calc(var(--tile-image-width) / var(--r2) + var(--tile-chrome-y));
+		--h3: calc(var(--tile-image-width) / var(--r3) + var(--tile-chrome-y));
+		--h4: calc(var(--tile-image-width) / var(--r4) + var(--tile-chrome-y));
 
 		container-type: inline-size;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		place-items: center;
-		gap: var(--tile-gap);
 		width: 100%;
 	}
 
-	.tile {
+	.tiles {
 		position: relative;
+		height: calc(max(var(--h1) + var(--h3), var(--h2) + var(--h4)) + var(--tile-gap));
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.tile {
+		position: absolute;
 		display: grid;
 		padding: var(--spacing-2) var(--spacing-2) 0;
 		border: var(--border-width-button) solid transparent;
 		background: var(--color-mat-bg);
 		color: var(--color-mat-fg);
+	}
+
+	.tile:nth-child(1) {
+		top: 0;
+		left: 0;
+	}
+
+	.tile:nth-child(2) {
+		top: 0;
+		right: 0;
+	}
+
+	.tile:nth-child(3) {
+		top: calc(var(--h1) + var(--tile-gap));
+		left: 0;
+	}
+
+	.tile:nth-child(4) {
+		top: calc(var(--h2) + var(--tile-gap));
+		right: 0;
 	}
 
 	.pick {
@@ -363,7 +416,7 @@
 
 	.window :global(img) {
 		display: block;
-		width: min(var(--tile-max-width), calc(var(--tile-max-height) * var(--artwork-ratio, 0.8)));
+		width: var(--tile-image-width);
 		height: auto;
 		background: var(--color-mat-window);
 	}
@@ -433,7 +486,7 @@
 		gap: var(--spacing-3);
 		width: 100%;
 		min-height: var(--size-control);
-		padding: var(--spacing-2) var(--spacing-4);
+		padding: var(--spacing-2) var(--spacing-3);
 		border: var(--border-width-button) solid var(--color-fg);
 		background: transparent;
 		color: var(--color-fg);
@@ -478,49 +531,45 @@
 	}
 
 	.label {
-		display: grid;
 		flex: 1;
-		grid-template-columns: minmax(0, 1fr) auto;
-		align-items: baseline;
-		gap: var(--spacing-3);
+		min-width: 0;
 	}
 
-	.reasons {
-		display: grid;
-		justify-items: end;
-		white-space: nowrap;
-	}
-
-	.reasons > span {
-		grid-area: 1 / 1;
-		visibility: hidden;
-	}
-
-	.reasons > .shown {
-		visibility: visible;
-	}
-
-	@media (hover: none) {
-		.pointer {
-			display: none;
-		}
-
-		.touch {
-			display: inline;
-		}
+	.reason {
+		display: flex;
+		flex: none;
+		justify-content: center;
+		width: var(--spacing-6);
+		color: var(--color-fg-muted);
 	}
 
 	@media (min-width: 768px) {
-		.tiles {
+		.tiles-frame {
 			--tile-gap: var(--spacing-4);
-			--tile-max-height: calc(
-				(100cqh - var(--tile-gap)) / 2 - var(--spacing-2) - var(--tile-band) - 2 *
-					var(--border-width-button)
+			--tile-height: min(
+				100cqh - var(--tile-chrome-y),
+				(100cqw - 3 * var(--tile-gap) - 4 * var(--tile-chrome-x)) / var(--ratio-sum)
 			);
+		}
 
-			grid-template-columns: repeat(2, auto);
+		.tiles {
+			display: flex;
 			justify-content: center;
-			align-content: center;
+			align-items: flex-start;
+			gap: var(--tile-gap);
+			height: auto;
+		}
+
+		.tile {
+			position: relative;
+		}
+
+		.tile:nth-child(n) {
+			inset: auto;
+		}
+
+		.window :global(img) {
+			width: calc(var(--tile-height) * var(--artwork-ratio));
 		}
 	}
 </style>

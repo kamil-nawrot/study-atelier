@@ -23,10 +23,13 @@
 Chosen option: one layout, as the owner decided.
 
 - Every card of a session uses the stage and the panel (stacked on a phone). The panel holds the question, the options of the title and style quizzes and the status line; the action sits at the bottom of the panel.
-- The image quiz puts its four tiles in a 2 x 2 grid on the stage, without the blurred backdrop, which would give the answer away. Each tile has the same passe-partout: 8 px on the top and sides and a wide bottom edge that stays empty until the answer and then holds the title and the authors, date and reason in one line each. The images keep their proportions and the same height limit, so the grid may be wider or narrower than a square.
+- The image quiz puts its four tiles on the stage, without the blurred backdrop, which would give the answer away. Each tile has the same passe-partout: 8 px on the top and sides and a wide bottom edge that stays empty until the answer and then holds the title and the authors, date and reason in one line each. From 768 px the four tiles stand in one row, all as high as the stage allows and the row as wide as it allows. On a phone they stand in two columns of half the width, like the wall: the top two aligned at the top and each lower tile right under the one above it.
 - The number badge, and the check or cross after the answer, sit on the image's top left corner, above it.
 - A quiz shows "Następne" from the start, disabled until the answer, as the flashcard shows "Odkryj kartę".
-- The place of what an answer shows is kept: the line of the image credit under the stage (two lines on a phone), the column of the reason ("ten sam autor") at the end of every title answer, the wide bottom edge of the tiles, and the hints under the question, which stay after the answer.
+- The hint of the image quiz is "Wybierz właściwy obraz.", the same on every device.
+- In the title quiz the reason a wrong title was close is an icon at the end of the answer, with the reason in a `Tooltip` ("Ten sam autor", "Ten sam styl", "Ten sam okres"): `user-pen` for the author, `swatch-book` for the style, `hourglass` for the period. The titles get the width the words took.
+- The flashcard's ratings show only "Nie wiem", "Prawie" and "Wiem", without when the artwork comes back.
+- The place of what an answer shows is kept: the line of the image credit under the stage (two lines on a phone), the place of the reason icon at the end of every title answer, the wide bottom edge of the tiles, and the hints under the question, which stay after the answer.
 
 ### Consequences
 
@@ -34,7 +37,9 @@ Chosen option: one layout, as the owner decided.
 - Good: the tiles look like the wall's tiles.
 - Bad: a disabled "Następne" stands on the screen before the answer.
 - Bad: on a phone the tiles are narrow, so their title and details are cut with an ellipsis; the status line names the right and the picked artwork in full.
+- Bad: on a phone a reason icon explains itself only to a pointer; the image quiz still writes the reasons out under the tiles.
+- Bad: the learner no longer sees when an artwork comes back before rating it.
 
 ## More information
 
-Changes the layout of the image quiz in [ADR-0061](0061-review-the-collection-in-one-mixed-session.md) (mockups 07 and 08). ATL-171.
+Changes the layout of the image quiz (mockups 07 and 08) and the ratings of the flashcard in [ADR-0061](0061-review-the-collection-in-one-mixed-session.md), and requirement R-79. ATL-171.
