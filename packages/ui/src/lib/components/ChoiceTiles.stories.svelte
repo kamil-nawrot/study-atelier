@@ -37,4 +37,6 @@
 	args={{ options: eras.map((tile) => ({ ...tile, icon: undefined })) }}
 />
 
+<Story name="Four columns" args={{ columns: 4, narrowColumns: 2 }} />
+
 <Story name="Disabled" args={{ value: 'modern', disabled: true }} />

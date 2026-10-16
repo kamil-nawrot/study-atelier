@@ -3,6 +3,7 @@
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
 	import X from '@lucide/svelte/icons/x';
+	import type { LucideIcon } from '@lucide/svelte';
 	import {
 		ArtworkImage,
 		Button,
@@ -16,6 +17,8 @@
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
+	import { artworkTypeIcon } from '../artwork-types.ts';
+	import { eraIcon } from '../eras.ts';
 	import { formatDate, formatRecordNumber, signedYear } from '../format.ts';
 	import { artworkPanelOpen, rememberArtworkPanel } from '../artwork-panel.ts';
 	import { FLIP_DIRECTIONS, swipe } from '../flip.ts';
@@ -76,13 +79,15 @@
 		{
 			label: m.artworkForm.type,
 			values: artwork.typeCode ? [m.artworkTypes[artwork.typeCode]] : [],
-			tags: false
+			tags: false,
+			icon: artwork.typeCode ? artworkTypeIcon(artwork.typeCode) : undefined
 		},
 		{
 			label: m.artworkForm.era,
 			values: artwork.eraCode ? [m.eras[artwork.eraCode].name] : [],
-			tags: true,
-			kind: 'era'
+			tags: false,
+			kind: 'era',
+			icon: artwork.eraCode ? eraIcon(artwork.eraCode) : undefined
 		},
 		{
 			label: m.artworkForm.period,
@@ -98,7 +103,13 @@
 			tags: true,
 			kind: 'location'
 		}
-	] satisfies { label: string; values: string[]; tags: boolean; kind?: ValueKind }[]);
+	] satisfies {
+		label: string;
+		values: string[];
+		tags: boolean;
+		kind?: ValueKind;
+		icon?: LucideIcon;
+	}[]);
 
 	function summaryOf(kind: ValueKind, name: string): ValueSummary | undefined {
 		if (kind === 'era') return artwork.eraCode ? summaries.eras[artwork.eraCode] : undefined;
@@ -266,7 +277,16 @@
 								{@render valueTag(field.kind, value)}
 							{/each}
 						{:else}
-							{field.values.join(', ')}
+							{#if field.icon}
+								<Icon icon={field.icon} size="sm" />
+							{/if}
+							{#each field.values as value (value)}
+								{#if field.kind}
+									{@render valueName(field.kind, value)}
+								{:else}
+									{value}
+								{/if}
+							{/each}
 						{/if}
 					</dd>
 				{/each}

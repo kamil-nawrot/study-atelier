@@ -8,10 +8,11 @@
 		label: string;
 		options: readonly Tile[];
 		values?: string[];
+		columns?: number;
 		onchange?: (values: string[]) => void;
 	};
 
-	let { label, options, values = $bindable([]), onchange }: Props = $props();
+	let { label, options, values = $bindable([]), columns = 3, onchange }: Props = $props();
 
 	function toggle(value: string): void {
 		values = values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
@@ -19,7 +20,7 @@
 	}
 </script>
 
-<fieldset>
+<fieldset style:--columns={columns}>
 	<legend>{label}</legend>
 	<div class="tiles">
 		{#each options as option (option.value)}
@@ -65,7 +66,7 @@
 
 	.tiles {
 		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
 		gap: var(--border-width-base);
 		border: var(--border-width-base) solid var(--color-line);
 		background: var(--color-line);
