@@ -8,11 +8,15 @@ import { setTheme } from '#lib/theme/theme.svelte.ts';
 import AtelierLayout from './AtelierLayout.svelte';
 
 const navigation = vi.hoisted(() => ({ to: null as object | null }));
+const pageState = vi.hoisted(() => ({
+	url: new URL('http://localhost/atelier'),
+	data: {} as { reviewWaiting?: Promise<number> }
+}));
 
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 vi.mock('$app/state', () => ({
 	navigating: navigation,
-	page: { url: new URL('http://localhost/atelier') }
+	page: pageState
 }));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
@@ -38,6 +42,7 @@ function renderLayout(bar: ReturnType<typeof createRawSnippet> | undefined): voi
 describe('AtelierLayout', () => {
 	beforeEach(() => {
 		navigation.to = null;
+		pageState.data = {};
 	});
 
 	afterEach(() => {
@@ -110,5 +115,38 @@ describe('AtelierLayout', () => {
 
 		expect(document.documentElement.dataset.theme).toBeUndefined();
 		await expect.element(page.getByRole('button', { name: m.menu.lightTheme })).toBeInTheDocument();
+	});
+
+	it('links to the reviews between the card index and the trash with the number waiting today', async () => {
+		await page.viewport(1280, 800);
+		pageState.data = { reviewWaiting: Promise.resolve(14) };
+		renderLayout(views.empty);
+
+		const rail = page.getByRole('navigation', { name: m.menu.label });
+		const link = rail.getByRole('link', {
+			name: new RegExp(`^${m.menu.review}.*${m.menu.reviewWaiting(14)}$`)
+		});
+		await expect.element(link).toHaveAttribute('href', '/atelier/review');
+		await expect.element(link.getByText('14', { exact: true }).first()).toBeVisible();
+
+		const names = [...rail.element().querySelectorAll('a')].map((item) =>
+			item.querySelector('.label')?.textContent?.trim()
+		);
+		expect(names.indexOf(m.menu.cardIndex) + 1).toBe(
+			names.findIndex((name) => name?.startsWith(m.menu.review))
+		);
+	});
+
+	it('shows no counter when nothing waits today', async () => {
+		pageState.data = { reviewWaiting: Promise.resolve(0) };
+		renderLayout(views.empty);
+
+		await expect
+			.element(
+				page
+					.getByRole('navigation', { name: m.menu.label })
+					.getByRole('link', { name: m.menu.review, exact: true })
+			)
+			.toBeInTheDocument();
 	});
 });

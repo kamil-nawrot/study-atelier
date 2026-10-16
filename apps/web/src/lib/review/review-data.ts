@@ -1,6 +1,8 @@
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
+import { artworkImageCredit } from '#lib/collection/artwork-image.ts';
 import { fetchAll } from '#lib/collection/card-index-data.ts';
 import { collectionErrorMessage } from '#lib/collection/errors.ts';
+import { IMAGE_COLUMNS, type ImageRow, imageOf } from '#lib/collection/image-record.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
 import { MIN_ARTWORKS, newAllowance } from './queue.ts';
@@ -11,6 +13,7 @@ import type {
 	ReviewCardsResult,
 	ReviewCounts,
 	ReviewCountsResult,
+	ReviewDetails,
 	ReviewState
 } from './types.ts';
 
@@ -33,6 +36,15 @@ type CountsRow = {
 	new_today: number;
 	with_image: number;
 };
+
+type DetailsRow = ImageRow & {
+	id: string;
+	notes: string | null;
+};
+
+const DETAILS_COLUMNS = ['id', 'notes', ...IMAGE_COLUMNS].join(', ');
+
+export const REVIEW_COUNTS_DEPENDENCY = 'review:counts';
 
 const CARD_COLUMNS =
 	'artwork_id, due, stability, difficulty, state, reps, lapses, scheduled_days, learning_steps, last_review';
@@ -107,4 +119,16 @@ export async function recordReview(
 		}
 	});
 	return error ? { error: await failureMessage(error, () => m.review.saveFailed) } : {};
+}
+
+export async function loadReviewDetails(ids: string[]): Promise<Map<string, ReviewDetails>> {
+	if (ids.length === 0) return new Map();
+	const { data, error } = await supabase.from('artworks').select(DETAILS_COLUMNS).in('id', ids);
+	if (error || !data) return new Map();
+	return new Map(
+		(data as unknown as DetailsRow[]).map((row) => [
+			row.id,
+			{ notes: row.notes ?? '', credit: artworkImageCredit(imageOf(row)) }
+		])
+	);
 }

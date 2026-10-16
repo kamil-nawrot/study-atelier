@@ -48,12 +48,16 @@ export function schedule(
 	return reviewCard(artworkId, next.card);
 }
 
-export function previewDue(card: ReviewCard | null, now: Date): Record<ReviewRating, Date> {
+export function outcomes(
+	artworkId: string,
+	card: ReviewCard | null,
+	now: Date
+): Record<ReviewRating, ReviewCard> {
 	const preview = scheduler.repeat(fsrsCard(card, now), now);
 	return {
-		1: preview[1].card.due,
-		2: preview[2].card.due,
-		3: preview[3].card.due
+		1: reviewCard(artworkId, preview[1].card),
+		2: reviewCard(artworkId, preview[2].card),
+		3: reviewCard(artworkId, preview[3].card)
 	};
 }
 

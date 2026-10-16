@@ -56,3 +56,8 @@ export type ReviewCountsResult = {
 export type RecordReviewResult = {
 	error?: string;
 };
+
+export type ReviewDetails = {
+	notes: string;
+	credit?: string;
+};

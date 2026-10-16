@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ImagesIcon from '@lucide/svelte/icons/images';
+	import Layers from '@lucide/svelte/icons/layers';
 	import ListTree from '@lucide/svelte/icons/list-tree';
 	import LogOut from '@lucide/svelte/icons/log-out';
 	import Moon from '@lucide/svelte/icons/moon';
@@ -22,6 +23,7 @@
 	const atelierPath = resolve('/(app)/atelier');
 	const cardIndexPath = resolve('/(app)/atelier/values');
 	const trashPath = resolve('/(app)/atelier/trash');
+	const reviewPath = resolve('/(app)/atelier/review');
 
 	const light = $derived(currentTheme() === 'light');
 </script>
@@ -54,6 +56,33 @@
 		<span class="label">
 			{m.menu.cardIndex}
 		</span>
+	</a>
+	<a
+		class="item"
+		aria-current={page.url.pathname === reviewPath ? 'page' : undefined}
+		href={reviewPath}
+	>
+		<span class="icon">
+			<Icon icon={Layers} />
+			{#await page.data.reviewWaiting then waiting}
+				{#if waiting > 0}
+					<span class="badge" aria-hidden="true">{waiting}</span>
+				{/if}
+			{/await}
+		</span>
+		<span class="label">
+			{m.menu.review}
+			{#await page.data.reviewWaiting then waiting}
+				{#if waiting > 0}
+					<span class="hidden">, {m.menu.reviewWaiting(waiting)}</span>
+				{/if}
+			{/await}
+		</span>
+		{#await page.data.reviewWaiting then waiting}
+			{#if waiting > 0}
+				<span class="count" aria-hidden="true">{waiting}</span>
+			{/if}
+		{/await}
 	</a>
 </div>
 <div class="group">
@@ -151,5 +180,39 @@
 	.label {
 		overflow: hidden;
 		text-overflow: ellipsis;
+	}
+
+	.icon {
+		position: relative;
+		display: flex;
+	}
+
+	.badge,
+	.count {
+		min-width: 16px;
+		padding: 0 var(--spacing-1);
+		background: var(--color-fg);
+		color: var(--color-bg);
+		font-size: var(--font-size-xs);
+		font-weight: var(--font-weight-bold);
+		line-height: var(--line-height-xs);
+		text-align: center;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.badge {
+		position: absolute;
+		top: calc(-1 * var(--spacing-2));
+		right: calc(-1 * var(--spacing-3));
+		display: none;
+	}
+
+	.hidden {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
 	}
 </style>
