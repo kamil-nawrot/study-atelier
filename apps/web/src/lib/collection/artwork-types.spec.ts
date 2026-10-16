@@ -33,7 +33,7 @@ describe('artwork types', () => {
 		const placeIcons = placeTiles().map((tile) => tile.icon);
 
 		expect(new Set(placeIcons).size).toBe(placeIcons.length);
-		expect(placeIcons.filter((icon) => eraIcons.includes(icon))).toEqual([]);
+		expect(placeIcons.filter((icon) => icon !== undefined && eraIcons.includes(icon))).toEqual([]);
 	});
 
 	it('accepts only the eight type codes', () => {
