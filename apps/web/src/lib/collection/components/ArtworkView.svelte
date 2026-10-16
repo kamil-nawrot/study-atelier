@@ -240,8 +240,7 @@
 							{authors}
 						{:else}
 							{#each artwork.authors as author, index (author)}
-								{#if index > 0},
-								{/if}{@render valueName('author', author)}
+								{index > 0 ? ', ' : ''}{@render valueName('author', author)}
 							{/each}
 						{/if}
 					</span>
