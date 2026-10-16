@@ -64,3 +64,5 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0058](0058-mark-artworks-as-favourites-with-a-heart.md) | Mark artworks as favourites with a heart | accepted |
 | [0059](0059-value-summary-card-in-the-artwork-view.md) | Show a value's summary in a card that opens from the artwork view | accepted |
 | [0060](0060-order-authors-by-their-sort-name.md) | Order authors by their sort name on the wall, in the filters and in the card index | accepted |
+| [0061](0061-review-the-collection-in-one-mixed-session.md) | Review the collection in one mixed session of flashcards and quizzes | accepted |
+| [0062](0062-schedule-reviews-with-fsrs.md) | Schedule reviews with FSRS and store them per artwork | accepted |

@@ -122,6 +122,20 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-74 | The learner marks an artwork as a favourite with a heart: on its tile on the wall, at the right end of the caption, and in the top bar of the artwork view, before "Edytuj". The heart is an outline when the artwork is not a favourite and filled when it is; each change shows a toast, and a failed save puts the heart back and says so ([ADR-0058](../decisions/0058-mark-artworks-as-favourites-with-a-heart.md)). | 0.4 |
 | R-75 | The "Filtry" panel starts with an "Ulubione" tag with the number of favourites; pressed, the wall shows only favourites, together with the other filters, and the tag is kept in the URL and shown among the active filters. The favourite marker is stored with the artwork, is not part of the form and stays through the trash and a restore. | 0.4 |
 
+## Review
+
+| ID | Requirement | Version |
+| --- | --- | --- |
+| R-76 | The learner reviews the atelier in sessions started from "Powtórki" in the menu, between "Kartoteka" and "Kosz". The menu item shows how many artworks are due today and shows no number when none are ([ADR-0061](../decisions/0061-review-the-collection-in-one-mixed-session.md)). | 0.5 |
+| R-77 | The start of a review says how many artworks are due today, how many of them are new and about how long it takes. The learner chooses what to review ("Co powtarzamy?": the whole collection, favourites, a style, a period or the wall's filters) and in what form ("W jakiej formie?": "Mieszane", "Fiszki" or "Quizy"). A side panel shows per era how many artworks the learner remembers for longer than a week, and the artworks that were hard lately. | 0.5 |
+| R-78 | A session takes the artworks due today, the most overdue first, then new artworks up to 10 a day, and has at most 20 artworks. Neighbours differ in era where possible, and an artwork the learner did not know comes back later in the same session. In a mixed session new and forgotten artworks get a quiz and known ones a flashcard. | 0.5 |
+| R-79 | A flashcard shows the image and asks the learner to recall the title, author, time and style. Revealing it shows the title, authors, year, period, style, place and the learner's note, and the learner rates it "Nie wiem", "Prawie" or "Wiem", each with when the artwork comes back. | 0.5 |
+| R-80 | A quiz asks one of: which of four images has a given title, which of four titles belongs to an image, or which of four styles an image is in. The other answers come from the same scope of the learner's collection and are as close to the right one as the collection allows (same style, author, period, type, era, time or place); the answer is shown at once, with why a wrong pick was close. | 0.5 |
+| R-81 | Until the answer is revealed, nothing on the screen names the artwork: no image credit, record number, title as alternative text or address. Artworks without an image, in the trash or with the same title as the answer are never offered as wrong answers. | 0.5 |
+| R-82 | A session starts only when the chosen scope has at least 20 artworks with an image; otherwise the start says how many more are needed. A quiz of a kind is asked only when four sensible answers exist; otherwise the artwork gets a flashcard. | 0.5 |
+| R-83 | When the next review of an artwork is due follows from the learner's ratings and quiz answers with the FSRS algorithm: a right quiz answer counts as "Prawie" and a wrong one as "Nie wiem", in every form of session. Every answer is saved as it is given, so leaving a session loses nothing, and the state follows the learner to any device ([ADR-0062](../decisions/0062-schedule-reviews-with-fsrs.md)). | 0.5 |
+| R-84 | A session ends with a summary: how many artworks were reviewed and in how long, how many are due tomorrow, the artworks grouped as "Do poprawki", "Prawie" and "Opanowane", and another round when more is due. The keyboard drives the whole session (Space, 1 to 4, Enter), and on a phone the actions sit at the bottom of the screen. | 0.5 |
+
 ## Account
 
 | ID | Requirement | Version |
@@ -144,7 +158,6 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 
 Ideas for later versions are collected in Linear as issues with the `idea` label and no milestone, not in this file. The main ones so far:
 
-- Learning modes such as flashcards or quizzes.
 - Pages for people, places, periods or styles with their own content.
 - More than one image per artwork.
 - Taking a photo directly in the app.
