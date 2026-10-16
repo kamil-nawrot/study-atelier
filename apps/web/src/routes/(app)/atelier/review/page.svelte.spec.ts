@@ -4,8 +4,8 @@ import { render } from 'vitest-browser-svelte';
 import { invalidate } from '$app/navigation';
 import type { WallArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
-import { recordReview } from '#lib/review/review-data.ts';
-import type { ReviewCard } from '#lib/review/types.ts';
+import { loadSession, recordReview } from '#lib/review/review-data.ts';
+import type { ReviewCard, SessionRow } from '#lib/review/types.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import { testReviewCard } from '#lib/testing/review.ts';
@@ -23,6 +23,7 @@ vi.mock('#lib/collection/artworks.ts', () => ({ resolveImages: vi.fn().mockResol
 vi.mock('#lib/review/review-data.ts', () => ({
 	REVIEW_COUNTS_DEPENDENCY: 'review:counts',
 	loadReviewDetails: vi.fn().mockResolvedValue(new Map()),
+	loadSession: vi.fn(),
 	recordReview: vi.fn()
 }));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
@@ -47,6 +48,10 @@ function cards(artworks: WallArtwork[], due: (index: number) => number): Map<str
 	);
 }
 
+function flashcards(...numbers: number[]): SessionRow[] {
+	return numbers.map((number) => ({ artwork_id: `artwork-${number}`, mode: 'flashcard' }));
+}
+
 function renderReview(
 	artworks: WallArtwork[],
 	reviewCards: Map<string, ReviewCard> = new Map(),
@@ -62,6 +67,9 @@ function renderReview(
 describe('review page', () => {
 	beforeEach(async () => {
 		vi.mocked(recordReview).mockReset().mockResolvedValue({});
+		vi.mocked(loadSession)
+			.mockReset()
+			.mockResolvedValue({ rows: flashcards(1, 2, 20, 21) });
 		vi.mocked(invalidate).mockClear();
 		await page.viewport(1280, 800);
 	});
@@ -140,6 +148,7 @@ describe('review page', () => {
 		await page.getByRole('button', { name: m.review.forms.flashcards }).click();
 		await page.getByRole('button', { name: m.review.start }).click();
 		await expect.element(page.getByText(m.review.progress(1, 4))).toBeVisible();
+		expect(loadSession).toHaveBeenCalledWith(expect.any(Date), 'flashcards', { kind: 'all' });
 
 		for (const rating of [3, 2, 3, 3] as const) {
 			await page.getByRole('button', { name: m.review.flashcard.reveal }).click();
@@ -214,23 +223,51 @@ describe('review page', () => {
 			cards(artworks.slice(0, 19), () => 6)
 		);
 
+		vi.mocked(loadSession).mockResolvedValue({
+			rows: [
+				{
+					artwork_id: 'artwork-20',
+					mode: 'quiz_title',
+					options: [
+						{ artwork_id: 'artwork-3', label: 'Artwork 3', reason: 'period' },
+						{ artwork_id: 'artwork-20', label: 'Artwork 20', right: true },
+						{ artwork_id: 'artwork-4', label: 'Artwork 4' },
+						{ artwork_id: 'artwork-5', label: 'Artwork 5' }
+					]
+				},
+				...flashcards(21)
+			]
+		});
+
 		await page.getByRole('button', { name: m.review.start }).click();
 		await expect.element(page.getByText(m.review.progress(1, 2))).toBeVisible();
 
-		const question = page.getByRole('heading', { level: 1 });
-		await expect.element(question).toHaveTextContent(/Artwork 20|Jaki to tytuł/);
-		await userEvent.keyboard('1');
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent(m.review.quiz.titleQuestion);
+		await userEvent.keyboard('2');
 
 		await expect.element(page.getByRole('button', { name: m.review.quiz.next })).toHaveFocus();
 		expect(recordReview).toHaveBeenCalledWith(
 			expect.objectContaining({ artworkId: 'artwork-20' }),
-			expect.objectContaining({ mode: expect.stringMatching(/^quiz_/) })
+			expect.objectContaining({ mode: 'quiz_title', correct: true })
 		);
 		await expect
 			.element(page.getByRole('status'))
-			.toHaveTextContent(new RegExp(`^(${m.review.quiz.right}|${m.review.quiz.wrong})`));
+			.toHaveTextContent(new RegExp(`^${m.review.quiz.right}`));
 
 		await userEvent.keyboard('{Enter}');
 		await expect.element(page.getByText(/^2 z/)).toBeVisible();
+	});
+
+	it('says when a session could not be started and stays on the start', async () => {
+		vi.mocked(loadSession).mockResolvedValue({ rows: [], error: 'Brak połączenia.' });
+		renderReview(collection(21));
+
+		await page.getByRole('button', { name: m.review.start }).click();
+
+		await expect.element(page.getByText(m.review.startErrorTitle)).toBeVisible();
+		await expect.element(page.getByText('Brak połączenia.')).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.review.start })).toBeEnabled();
 	});
 });

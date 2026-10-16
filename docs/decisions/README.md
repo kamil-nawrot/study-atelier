@@ -68,3 +68,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0062](0062-schedule-reviews-with-fsrs.md) | Schedule reviews with FSRS and store them per artwork | accepted |
 | [0063](0063-make-a-small-copy-of-every-own-image.md) | Make a small copy of every own image for the wall | proposed |
 | [0064](0064-narrow-the-review-scopes.md) | Narrow the review scopes to the collection, eras, periods and styles | accepted |
+| [0065](0065-build-review-sessions-in-the-database.md) | Build review sessions and their quizzes in the database | accepted |

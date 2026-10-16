@@ -5,6 +5,7 @@ import {
 	loadReviewCards,
 	loadReviewCounts,
 	loadReviewDetails,
+	loadSession,
 	recordReview,
 	waitingToday
 } from './review-data.ts';
@@ -154,6 +155,50 @@ describe('review data', () => {
 		rpc.mockResolvedValue({ error: { message: 'TypeError: Failed to fetch' } } as never);
 		await expect(recordReview(card, { mode: 'flashcard', rating: 2 })).resolves.toEqual({
 			error: m.review.saveFailed
+		});
+	});
+
+	it('asks the database for a session of the chosen form and scope', async () => {
+		const rows = [{ artwork_id: 'artwork-1', mode: 'flashcard' }];
+		rpc.mockResolvedValue({ data: rows, error: null } as never);
+
+		await expect(
+			loadSession(new Date('2026-10-15T22:00:00.000Z'), 'quizzes', {
+				kind: 'style',
+				name: 'Caravaggism'
+			})
+		).resolves.toEqual({ rows });
+		expect(rpc).toHaveBeenCalledWith('review_session', {
+			day_start: '2026-10-15T22:00:00.000Z',
+			session_form: 'quizzes',
+			scope_kind: 'style',
+			scope_value: 'Caravaggism'
+		});
+
+		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'mixed', {
+			kind: 'era',
+			code: 'modern'
+		});
+		expect(rpc).toHaveBeenLastCalledWith(
+			'review_session',
+			expect.objectContaining({ scope_kind: 'era', scope_value: 'modern' })
+		);
+		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'mixed', { kind: 'all' });
+		expect(rpc).toHaveBeenLastCalledWith('review_session', {
+			day_start: '2026-10-15T22:00:00.000Z',
+			session_form: 'mixed',
+			scope_kind: 'all'
+		});
+	});
+
+	it('returns a message when a session cannot be built', async () => {
+		rpc.mockResolvedValue({
+			data: null,
+			error: { message: 'TypeError: Failed to fetch' }
+		} as never);
+		await expect(loadSession(new Date(), 'mixed', { kind: 'all' })).resolves.toEqual({
+			rows: [],
+			error: m.collectionErrors.network
 		});
 	});
 

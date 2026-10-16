@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Play from '@lucide/svelte/icons/play';
-	import { Button, Icon, ToggleTag } from '@study-atelier/ui';
+	import { Alert, Button, Icon, ToggleTag } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { formatRecordNumber } from '#lib/collection/format.ts';
 	import type { WallArtwork } from '#lib/collection/types.ts';
@@ -20,6 +20,7 @@
 		memory: EraMemory[];
 		troubles: WallArtwork[];
 		starting: boolean;
+		error?: string;
 		onscope: (scope: ReviewScope) => void;
 		onform: (form: ReviewForm) => void;
 		onstart: () => void;
@@ -37,6 +38,7 @@
 		memory,
 		troubles,
 		starting,
+		error,
 		onscope,
 		onform,
 		onstart
@@ -107,6 +109,10 @@
 					{/each}
 				</div>
 			</section>
+
+			{#if error}
+				<Alert title={m.review.startErrorTitle} tone="danger">{error}</Alert>
+			{/if}
 
 			<div class="go">
 				<Button disabled={starting} onclick={onstart} variant="primary">

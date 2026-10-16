@@ -24,9 +24,13 @@
 		troubles,
 		waitingTomorrow
 	} from '#lib/review/overview.ts';
-	import { buildSession, missingArtworks } from '#lib/review/queue.ts';
-	import { canAsk, quizArtworks, withQuizzes } from '#lib/review/quiz.ts';
-	import { loadReviewDetails, REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data.ts';
+	import { missingArtworks, sessionCounts, startOfDay } from '#lib/review/queue.ts';
+	import { quizArtworks, sessionItems } from '#lib/review/quiz.ts';
+	import {
+		loadReviewDetails,
+		loadSession,
+		REVIEW_COUNTS_DEPENDENCY
+	} from '#lib/review/review-data.ts';
 	import { ReviewSession } from '#lib/review/review-session.svelte.ts';
 	import type {
 		ReviewCard,
@@ -57,6 +61,7 @@
 	let session = $state<ReviewSession>();
 	let summary = $state<Summary>();
 	let starting = $state(false);
+	let startError = $state<string>();
 	let stopOpen = $state(false);
 	let stopAfterSave = false;
 	let resolved = $state.raw(new Map<string, WallArtwork>());
@@ -65,15 +70,14 @@
 	let outcomes = $state<Record<ReviewRating, ReviewCard>>();
 
 	const scoped = $derived(scopeArtworks(data.artworks, scope));
-	const entries = $derived(
-		buildSession({ artworks: scoped, cards, now, newToday, form: 'flashcards' })
-	);
-	const known = $derived(entries.filter((entry) => entry.card !== null).length);
+	const counts = $derived(sessionCounts({ artworks: scoped, cards, now, newToday }));
+	const waiting = $derived(counts.known + counts.fresh);
 	const missing = $derived(missingArtworks(scoped));
 	const nextDate = $derived(
-		entries.length === 0 && missing === 0 ? nextWaiting(scoped, cards, now) : null
+		waiting === 0 && missing === 0 ? nextWaiting(scoped, cards, now) : null
 	);
 	const scopes = $derived(scopeOptions(data.artworks));
+	const artworksById = $derived(new Map(data.artworks.map((artwork) => [artwork.id, artwork])));
 	const memory = $derived(memoryByEra(data.artworks, cards));
 	const hard = $derived(troubles(data.artworks, cards).map(withImage));
 	const current = $derived(session?.current);
@@ -138,18 +142,16 @@
 	async function start(): Promise<void> {
 		if (starting) return;
 		starting = true;
-		const pool = scoped;
-		const items = withQuizzes(
-			buildSession({
-				artworks: pool,
-				cards,
-				now: new Date(),
-				newToday,
-				form,
-				canAsk: (artwork, mode) => canAsk(artwork, mode, pool)
-			}),
-			pool
-		);
+		startError = undefined;
+		const loaded = await loadSession(startOfDay(new Date()), form, scope);
+		const items = sessionItems(loaded.rows, artworksById, cards);
+		if (loaded.error || items.length === 0) {
+			startError = loaded.error;
+			now = new Date();
+			phase = 'start';
+			starting = false;
+			return;
+		}
 		const artworks = items.map((item) => item.artwork);
 		const shown = [...artworks, ...quizArtworks(items)];
 		const [, found] = await Promise.all([
@@ -295,17 +297,18 @@
 				artworks: group.artworks.map(withImage)
 			}))}
 			minutes={summary.minutes}
-			nextRound={entries.length}
+			nextRound={waiting}
 			onnext={start}
 			tomorrow={summary.tomorrow}
 		/>
 	{:else}
 		<ReviewStart
+			error={startError}
 			{form}
-			fresh={entries.length - known}
-			{known}
+			fresh={counts.fresh}
+			known={counts.known}
 			{memory}
-			minutes={estimateMinutes(entries.length)}
+			minutes={estimateMinutes(waiting)}
 			{missing}
 			nextWhen={nextDate ? formatWhen(nextDate, now) : undefined}
 			onform={(chosen) => (form = chosen)}

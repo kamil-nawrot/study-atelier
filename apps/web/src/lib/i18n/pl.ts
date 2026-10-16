@@ -376,6 +376,7 @@ export const pl = {
 	review: {
 		title: 'Powtórki',
 		loadErrorTitle: 'Nie udało się wczytać powtórek',
+		startErrorTitle: 'Nie udało się zacząć powtórki',
 		waiting: (count: number): string =>
 			`Na dziś ${plural(count, { one: 'czeka', few: 'czekają', many: 'czeka' })} ${workCount(count)}`,
 		plan: (known: number, fresh: number, minutes: number): string =>

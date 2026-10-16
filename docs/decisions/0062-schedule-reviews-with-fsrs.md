@@ -47,4 +47,4 @@ Chosen option: 1, because FSRS needs about 20 to 30 per cent fewer reviews than 
 
 ## More information
 
-Spike ATL-157 and `nauka/analiza.md` in the project files (comparison of Leitner, SM-2 and FSRS). `ts-fsrs`: https://github.com/open-spaced-repetition/ts-fsrs. Requirement R-83.
+Spike ATL-157 and `nauka/analiza.md` in the project files (comparison of Leitner, SM-2 and FSRS). `ts-fsrs`: https://github.com/open-spaced-repetition/ts-fsrs. Requirement R-83. Session building moved to the database in [ADR-0065](0065-build-review-sessions-in-the-database.md).

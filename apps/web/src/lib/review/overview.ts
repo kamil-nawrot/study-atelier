@@ -6,7 +6,7 @@ import {
 	MIN_ARTWORKS,
 	reviewableArtworks,
 	SETTLED_STABILITY_DAYS,
-	sessionEntries,
+	sessionCounts,
 	startOfDay
 } from './queue.ts';
 import type { ReviewCard, ReviewItem, ReviewRating } from './types.ts';
@@ -161,7 +161,8 @@ export function waitingTomorrow(
 	cards: Map<string, ReviewCard>,
 	now: Date
 ): number {
-	return sessionEntries({ artworks, cards, now: endOfDay(now), newToday: 0 }).length;
+	const { known, fresh } = sessionCounts({ artworks, cards, now: endOfDay(now), newToday: 0 });
+	return known + fresh;
 }
 
 export function summaryGroups(

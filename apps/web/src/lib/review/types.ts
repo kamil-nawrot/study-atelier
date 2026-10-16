@@ -36,6 +36,24 @@ export type Quiz = {
 	answer: number;
 };
 
+export type SessionOptionRow = {
+	artwork_id?: string;
+	label: string;
+	reason?: QuizReason;
+	right?: boolean;
+};
+
+export type SessionRow = {
+	artwork_id: string;
+	mode: ReviewMode;
+	options?: SessionOptionRow[];
+};
+
+export type ReviewSessionResult = {
+	rows: SessionRow[];
+	error?: string;
+};
+
 export type ReviewItem = {
 	artwork: WallArtwork;
 	card: ReviewCard | null;
