@@ -1,7 +1,7 @@
 import Frame from '@lucide/svelte/icons/frame';
 import House from '@lucide/svelte/icons/house';
-import Landmark from '@lucide/svelte/icons/landmark';
 import MapPin from '@lucide/svelte/icons/map-pin';
+import Ticket from '@lucide/svelte/icons/ticket';
 import type { ChoiceTile } from '@study-atelier/ui';
 import { m } from '#lib/i18n/index.ts';
 import type { PlaceType } from './types.ts';
@@ -14,7 +14,7 @@ export const PLACE_TYPES: readonly PlaceType[] = [
 ];
 
 const PLACE_ICONS = {
-	museum: Landmark,
+	museum: Ticket,
 	gallery: Frame,
 	private_collection: House,
 	on_site: MapPin

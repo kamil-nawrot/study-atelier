@@ -75,3 +75,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0069](0069-quiz-images-in-one-row-and-ratings-without-intervals.md) | Put the quiz images in one row and show the ratings without intervals | accepted |
 | [0070](0070-no-style-quiz-in-a-style-scope.md) | Ask no style quiz in a session scoped to a style | accepted |
 | [0071](0071-put-the-plan-first-on-the-review-start.md) | Put the plan first on the review start | accepted |
+| [0072](0072-give-the-museum-its-own-icon.md) | Give the museum its own icon | accepted |

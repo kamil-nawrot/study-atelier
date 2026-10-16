@@ -28,6 +28,14 @@ describe('artwork types', () => {
 		expect(icons.filter((icon) => taken.includes(icon))).toEqual([]);
 	});
 
+	it('gives no era the icon of a type of place', () => {
+		const eraIcons = ERA_CODES.map(eraIcon);
+		const placeIcons = placeTiles().map((tile) => tile.icon);
+
+		expect(new Set(placeIcons).size).toBe(placeIcons.length);
+		expect(placeIcons.filter((icon) => icon !== undefined && eraIcons.includes(icon))).toEqual([]);
+	});
+
 	it('accepts only the eight type codes', () => {
 		expect(isArtworkTypeCode('painting')).toBe(true);
 		expect(isArtworkTypeCode('applied_arts')).toBe(true);
