@@ -479,10 +479,20 @@
 		gap: var(--spacing-3) var(--spacing-4);
 	}
 
+	dt,
+	dd {
+		min-height: calc(var(--font-size-sm) * var(--line-height-xs) + 2 * var(--spacing-1));
+	}
+
+	dt {
+		display: flex;
+		align-items: center;
+	}
+
 	dd {
 		display: flex;
 		flex-wrap: wrap;
-		align-items: start;
+		align-items: center;
 		gap: var(--spacing-2);
 	}
 
