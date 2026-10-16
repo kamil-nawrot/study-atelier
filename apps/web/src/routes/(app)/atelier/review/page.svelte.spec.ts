@@ -75,7 +75,7 @@ describe('review page', () => {
 		await page.viewport(1280, 800);
 	});
 
-	it('says how many artworks wait today, how many are new and how long it takes', async () => {
+	it('says how many artworks wait today and how many are new, and how the reviews work', async () => {
 		const artworks = collection(25);
 		renderReview(
 			artworks,
@@ -83,8 +83,10 @@ describe('review page', () => {
 		);
 
 		await expect.element(page.getByRole('heading', { name: m.review.waiting(9) })).toBeVisible();
-		await expect.element(page.getByText(m.review.plan(4, 5, 4))).toBeVisible();
+		await expect.element(page.getByText(m.review.plan(4, 5))).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.review.start })).toBeVisible();
+		await expect.element(page.getByRole('heading', { name: m.review.howTitle })).toBeVisible();
+		await expect.element(page.getByText(m.review.how)).toBeVisible();
 	});
 
 	it('shows why the reviews could not be loaded', async () => {
@@ -103,7 +105,10 @@ describe('review page', () => {
 	it('asks for more artworks with an image before the first session', async () => {
 		renderReview(collection(15));
 
-		await expect.element(page.getByText(m.review.tooFew(5))).toBeVisible();
+		await expect.element(page.getByText(m.review.tooFew(20, 5))).toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: m.atelier.add }))
+			.toHaveAttribute('href', '/atelier/new');
 		await expect
 			.element(page.getByRole('button', { name: m.review.start }))
 			.not.toBeInTheDocument();
@@ -116,27 +121,50 @@ describe('review page', () => {
 			cards(artworks, (index) => (index === 0 ? 1.2 : 6))
 		);
 
+		await expect.element(page.getByRole('heading', { name: m.review.allDoneTitle })).toBeVisible();
 		await expect.element(page.getByText(m.review.allDone('jutro'))).toBeVisible();
 	});
 
-	it('offers every era and only the styles with enough artworks, and counts what is missing', async () => {
+	it('offers a style with at least 10 artworks due, and describes the chosen form, behind a disclosure', async () => {
 		const artworks = collection(25).map((artwork, index) => ({
 			...artwork,
 			styles: index < 21 ? ['Caravaggism'] : []
 		}));
-		renderReview(artworks);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 12), () => -1)
+		);
 
-		await expect
-			.element(page.getByRole('button', { name: m.review.scopes.all }))
-			.toHaveAttribute('aria-pressed', 'true');
-		await expect.element(page.getByRole('button', { name: 'Caravaggism' })).toBeVisible();
-		await expect.element(page.getByRole('button', { name: 'Baroque' })).not.toBeInTheDocument();
+		const caravaggism = page.getByRole('button', { name: /^Caravaggism/ });
+		await expect.element(caravaggism).not.toBeInTheDocument();
 
-		await page.getByRole('button', { name: 'Nowoczesność' }).click();
+		await page.getByText(m.review.options).click();
 		await expect
-			.element(page.getByRole('button', { name: 'Nowoczesność' }))
+			.element(page.getByRole('button', { name: new RegExp(`^${m.review.scopes.all}`) }))
 			.toHaveAttribute('aria-pressed', 'true');
-		await expect.element(page.getByText(m.review.tooFew(8))).toBeVisible();
+		await expect.element(caravaggism).toHaveTextContent(/^Caravaggism\s*20$/);
+		await expect.element(page.getByText(m.review.formHints.mixed)).toBeVisible();
+
+		await caravaggism.click();
+		await expect.element(caravaggism).toHaveAttribute('aria-pressed', 'true');
+		await page.getByRole('button', { name: m.review.forms.flashcards }).click();
+		await expect.element(page.getByText(m.review.formHints.flashcards)).toBeVisible();
+	});
+
+	it('shows how well the atelier is known and links the artworks that gave trouble', async () => {
+		const artworks = collection(25);
+		const known = cards(artworks.slice(0, 3), () => 5);
+		known.set(
+			artworks[0].id,
+			testReviewCard(artworks[0].id, new Date(Date.now() + 5 * DAY), { lapses: 1 })
+		);
+		renderReview(artworks, known);
+
+		await expect.element(page.getByRole('heading', { name: m.review.knowledge })).toBeVisible();
+		await expect.element(page.getByText(m.review.knowledgeGroups.settled.label)).toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: /Artwork 1\b/ }))
+			.toHaveAttribute('href', '/atelier/1');
 	});
 
 	it('goes through a session card by card and ends with a summary', async () => {
@@ -146,6 +174,7 @@ describe('review page', () => {
 			cards(artworks.slice(0, 19), (index) => (index < 2 ? -1 : 6))
 		);
 
+		await page.getByText(m.review.options).click();
 		await page.getByRole('button', { name: m.review.forms.flashcards }).click();
 		await page.getByRole('button', { name: m.review.start }).click();
 		await expect.element(page.getByText(m.review.progress(1, 4))).toBeVisible();

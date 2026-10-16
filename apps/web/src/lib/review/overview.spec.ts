@@ -3,9 +3,8 @@ import type { WallArtwork } from '#lib/collection/types.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { testReviewCard } from '#lib/testing/review.ts';
 import {
-	estimateMinutes,
+	atelierKnowledge,
 	formatWhen,
-	memoryByEra,
 	nextWaiting,
 	sameScope,
 	scopeArtworks,
@@ -44,46 +43,56 @@ describe('review scopes', () => {
 		styles: index < 2 ? ['Caravaggism'] : index < 5 ? ['High Renaissance'] : []
 	}));
 
+	let next = 100;
+
 	function large(count: number, values: Partial<WallArtwork>): WallArtwork[] {
-		return Array.from({ length: count }, (_, index) =>
-			testArtwork(100 + index, `Large ${index}`, values)
-		);
+		return Array.from({ length: count }, () => {
+			next += 1;
+			return testArtwork(next, `Large ${next}`, values);
+		});
 	}
 
-	it('offers the whole collection, every era and the periods and styles with enough artworks', () => {
-		const pool = [
-			...large(24, { eraCode: 'early_modern', period: 'Baroque', styles: ['Caravaggism'] }),
-			...large(21, {
-				eraCode: 'early_modern',
-				period: 'Renaissance',
-				styles: ['High Renaissance']
-			}),
-			...large(3, { eraCode: 'antiquity', period: 'Classical', styles: ['Doric'] })
-		];
+	function dueToday(works: WallArtwork[]): [string, ReviewCard][] {
+		return works.map((artwork) => [artwork.id, testReviewCard(artwork.id, days(0, 8))]);
+	}
 
-		expect(scopeOptions(pool)).toEqual([
+	it('offers the whole collection and a narrower scope only with at least 10 artworks due in it', () => {
+		const baroque = large(24, {
+			eraCode: 'early_modern',
+			period: 'Baroque',
+			styles: ['Caravaggism']
+		});
+		const renaissance = large(21, {
+			eraCode: 'early_modern',
+			period: 'Renaissance',
+			styles: ['High Renaissance']
+		});
+		const cards = cardsFor([
+			...dueToday(baroque.slice(0, 12)),
+			...dueToday(renaissance.slice(0, 5))
+		]);
+
+		expect(scopeOptions([...baroque, ...renaissance], cards, now)).toEqual([
 			{ kind: 'all' },
-			{ kind: 'era', code: 'antiquity' },
 			{ kind: 'era', code: 'early_modern' },
 			{ kind: 'period', name: 'Baroque' },
-			{ kind: 'period', name: 'Renaissance' },
-			{ kind: 'style', name: 'Caravaggism' },
-			{ kind: 'style', name: 'High Renaissance' }
+			{ kind: 'style', name: 'Caravaggism' }
 		]);
 	});
 
-	it('offers the eras even when no period or style has enough artworks', () => {
-		expect(scopeOptions(artworks)).toEqual([
-			{ kind: 'all' },
-			{ kind: 'era', code: 'middle_ages' },
-			{ kind: 'era', code: 'early_modern' }
+	it('leaves out a scope with fewer than 20 artworks with an image, however many are due', () => {
+		const ancient = large(15, { eraCode: 'antiquity' });
+		const unseen = large(25, { eraCode: 'antiquity', hasImage: false });
+
+		expect(scopeOptions([...ancient, ...unseen], cardsFor(dueToday(ancient)), now)).toEqual([
+			{ kind: 'all' }
 		]);
 	});
 
-	it('counts only artworks with an image for the scopes it offers', () => {
-		const withoutImages = large(25, { eraCode: 'modern', period: 'Baroque', hasImage: false });
-
-		expect(scopeOptions(withoutImages)).toEqual([{ kind: 'all' }]);
+	it('counts no new artworks towards a scope', () => {
+		expect(scopeOptions(large(30, { eraCode: 'modern' }), new Map(), now)).toEqual([
+			{ kind: 'all' }
+		]);
 	});
 
 	it('narrows the artworks to the chosen scope', () => {
@@ -114,20 +123,14 @@ describe('review scopes', () => {
 });
 
 describe('review overview', () => {
-	it('counts per era the artworks remembered for longer than a week', () => {
-		const artworks = collection(4, (index) => ({
-			eraCode: index < 3 ? 'early_modern' : 'modern',
-			hasImage: index !== 2
-		}));
+	it('counts the settled, the learning and the new artworks with an image', () => {
+		const artworks = collection(5, (index) => ({ hasImage: index !== 4 }));
 		const cards = cardsFor([
 			['artwork-1', testReviewCard('artwork-1', days(9), { stability: 12 })],
 			['artwork-2', testReviewCard('artwork-2', days(2), { stability: 3 })]
 		]);
 
-		expect(memoryByEra(artworks, cards)).toEqual([
-			{ code: 'early_modern', remembered: 1, total: 2 },
-			{ code: 'modern', remembered: 0, total: 1 }
-		]);
+		expect(atelierKnowledge(artworks, cards)).toEqual({ settled: 1, learning: 1, fresh: 2 });
 	});
 
 	it('lists up to four artworks that were forgotten lately, the latest first', () => {
@@ -164,12 +167,6 @@ describe('review overview', () => {
 		const cards = cardsFor([['artwork-1', testReviewCard('artwork-1', days(5))]]);
 
 		expect(nextWaiting(artworks, cards, now)).toEqual(days(1, 0));
-	});
-
-	it('estimates about 25 seconds per artwork, at least a minute', () => {
-		expect(estimateMinutes(1)).toBe(1);
-		expect(estimateMinutes(14)).toBe(6);
-		expect(estimateMinutes(20)).toBe(8);
 	});
 
 	it('counts what waits tomorrow with a fresh daily limit of new artworks', () => {

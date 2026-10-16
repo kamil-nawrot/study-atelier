@@ -12,11 +12,11 @@
 	import ReviewStart from '#lib/review/components/ReviewStart.svelte';
 	import ReviewSummary from '#lib/review/components/ReviewSummary.svelte';
 	import {
-		estimateMinutes,
+		atelierKnowledge,
 		formatWhen,
-		memoryByEra,
 		nextWaiting,
 		type ReviewScope,
+		sameScope,
 		scopeArtworks,
 		scopeOptions,
 		type SummaryGroup,
@@ -49,10 +49,11 @@
 	};
 
 	const PRELOAD_AHEAD = 2;
+	const ALL_SCOPE: ReviewScope = { kind: 'all' };
 
 	let { data }: PageProps = $props();
 
-	let scope = $state<ReviewScope>({ kind: 'all' });
+	let scope = $state<ReviewScope>(ALL_SCOPE);
 	let form = $state<ReviewForm>('mixed');
 	let cards = $state.raw(untrack(() => data.cards));
 	let newToday = $state(untrack(() => data.newToday));
@@ -68,16 +69,29 @@
 	let details = $state.raw(new Map<string, ReviewDetails>());
 	let outcomes = $state<Record<ReviewRating, ReviewCard>>();
 
-	const scoped = $derived(scopeArtworks(data.artworks, scope));
+	const scopes = $derived(
+		scopeOptions(data.artworks, cards, now).map((option) => {
+			const planned = sessionCounts({
+				artworks: scopeArtworks(data.artworks, option),
+				cards,
+				now,
+				newToday
+			});
+			return { scope: option, waiting: planned.known + planned.fresh };
+		})
+	);
+	const activeScope = $derived(
+		scopes.find((option) => sameScope(option.scope, scope))?.scope ?? ALL_SCOPE
+	);
+	const scoped = $derived(scopeArtworks(data.artworks, activeScope));
 	const counts = $derived(sessionCounts({ artworks: scoped, cards, now, newToday }));
 	const waiting = $derived(counts.known + counts.fresh);
 	const missing = $derived(missingArtworks(scoped));
 	const nextDate = $derived(
 		waiting === 0 && missing === 0 ? nextWaiting(scoped, cards, now) : null
 	);
-	const scopes = $derived(scopeOptions(data.artworks));
 	const artworksById = $derived(new Map(data.artworks.map((artwork) => [artwork.id, artwork])));
-	const memory = $derived(memoryByEra(data.artworks, cards));
+	const knowledge = $derived(atelierKnowledge(data.artworks, cards));
 	const hard = $derived(troubles(data.artworks, cards).map(withImage));
 	const current = $derived(session?.current);
 
@@ -155,7 +169,7 @@
 	}
 
 	async function prepareSession(): Promise<string | undefined> {
-		const loaded = await loadSession(startOfDay(new Date()), form, scope);
+		const loaded = await loadSession(startOfDay(new Date()), form, activeScope);
 		const items = sessionItems(loaded.rows, artworksById, cards);
 		if (loaded.error || items.length === 0) return loaded.error;
 		const artworks = items.map((item) => item.artwork);
@@ -310,15 +324,14 @@
 			error={startError}
 			{form}
 			fresh={counts.fresh}
+			{knowledge}
 			known={counts.known}
-			{memory}
-			minutes={estimateMinutes(waiting)}
 			{missing}
 			nextWhen={nextDate ? formatWhen(nextDate, now) : undefined}
 			onform={(chosen) => (form = chosen)}
 			onscope={(chosen) => (scope = chosen)}
 			onstart={start}
-			{scope}
+			scope={activeScope}
 			{scopes}
 			{starting}
 			troubles={hard}
