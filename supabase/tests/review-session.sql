@@ -25,7 +25,7 @@ begin
         'source_wikidata_id', 'Q' || number,
         'source_image_file', 'Work_' || number || '.jpg'
       ),
-      '{}'
+      jsonb_build_object('style', jsonb_build_array('Tenebrism', 'Style ' || (number % 5)))
     );
   end loop;
 
@@ -55,6 +55,18 @@ begin
       where (item ->> 'artwork_id')::uuid = known
   ) = 'flashcard',
     'a mixed session quizzes an artwork remembered for weeks';
+
+  assert exists (
+    select 1 from jsonb_array_elements(public.review_session(day_start, 'quizzes')) as item
+      where item ->> 'mode' = 'quiz_style'
+  ),
+    'a session of quizzes over the whole collection never asks for the style';
+  assert not exists (
+    select 1
+      from jsonb_array_elements(public.review_session(day_start, 'quizzes', 'style', 'Tenebrism')) as item
+      where item ->> 'mode' = 'quiz_style'
+  ),
+    'a session scoped to a style asks for the style';
 end;
 $$;
 

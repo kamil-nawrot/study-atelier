@@ -93,3 +93,8 @@ export type ReviewDetails = {
 	notes: string;
 	credit?: string;
 };
+
+export type ReviewDetailsResult = {
+	details: Map<string, ReviewDetails>;
+	error?: string;
+};

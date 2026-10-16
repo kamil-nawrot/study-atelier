@@ -238,7 +238,7 @@ describe('review data', () => {
 		});
 		vi.mocked(supabase.from).mockReturnValue(query as never);
 
-		const details = await loadReviewDetails(['artwork-1', 'artwork-2']);
+		const { details, error } = await loadReviewDetails(['artwork-1', 'artwork-2']);
 
 		expect(supabase.from).toHaveBeenCalledWith('artworks');
 		expect(query.in).toHaveBeenCalledWith('id', ['artwork-1', 'artwork-2']);
@@ -250,17 +250,24 @@ describe('review data', () => {
 			notes: '',
 			credit: m.artworkForm.ownImageCredit
 		});
+		expect(error).toBeUndefined();
 	});
 
-	it('asks for no details when the session is empty and shows none when they fail', async () => {
-		await expect(loadReviewDetails([])).resolves.toEqual(new Map());
-		expect(supabase.from).not.toHaveBeenCalled();
-
-		const query = { select: vi.fn(), in: vi.fn() };
-		query.select.mockReturnValue(query);
-		query.in.mockResolvedValue({ data: null, error: { message: 'Failed' } });
+	it('says so when the notes and credits cannot be loaded', async () => {
+		const query = {
+			select: vi.fn().mockReturnThis(),
+			in: vi.fn().mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } })
+		};
 		vi.mocked(supabase.from).mockReturnValue(query as never);
 
-		await expect(loadReviewDetails(['artwork-1'])).resolves.toEqual(new Map());
+		const { details, error } = await loadReviewDetails(['artwork-1']);
+
+		expect(details.size).toBe(0);
+		expect(error).toBe(m.collectionErrors.network);
+	});
+
+	it('asks for no details when the session is empty', async () => {
+		await expect(loadReviewDetails([])).resolves.toEqual({ details: new Map() });
+		expect(supabase.from).not.toHaveBeenCalled();
 	});
 });

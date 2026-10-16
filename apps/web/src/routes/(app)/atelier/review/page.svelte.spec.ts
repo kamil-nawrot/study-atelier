@@ -4,7 +4,8 @@ import { render } from 'vitest-browser-svelte';
 import { invalidate } from '$app/navigation';
 import type { WallArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
-import { loadSession, recordReview } from '#lib/review/review-data.ts';
+import { resolveImages } from '#lib/collection/artworks.ts';
+import { loadReviewDetails, loadSession, recordReview } from '#lib/review/review-data.ts';
 import type { ReviewCard, SessionRow } from '#lib/review/types.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { testSession } from '#lib/testing/auth.ts';
@@ -22,7 +23,7 @@ vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidate: vi.fn() }));
 vi.mock('#lib/collection/artworks.ts', () => ({ resolveImages: vi.fn().mockResolvedValue([]) }));
 vi.mock('#lib/review/review-data.ts', () => ({
 	REVIEW_COUNTS_DEPENDENCY: 'review:counts',
-	loadReviewDetails: vi.fn().mockResolvedValue(new Map()),
+	loadReviewDetails: vi.fn().mockResolvedValue({ details: new Map() }),
 	loadSession: vi.fn(),
 	recordReview: vi.fn()
 }));
@@ -268,6 +269,34 @@ describe('review page', () => {
 
 		await expect.element(page.getByText(m.review.startErrorTitle)).toBeVisible();
 		await expect.element(page.getByText('Brak połączenia.')).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.review.start })).toBeEnabled();
+	});
+
+	it('stays on the start with an error when the notes of a session cannot be loaded', async () => {
+		vi.mocked(loadReviewDetails).mockResolvedValueOnce({
+			details: new Map(),
+			error: 'Brak połączenia.'
+		});
+		renderReview(collection(21));
+
+		await page.getByRole('button', { name: m.review.start }).click();
+
+		await expect.element(page.getByText('Brak połączenia.')).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.review.start })).toBeEnabled();
+	});
+
+	it('stays on the start with an error when the images of a session fail to resolve', async () => {
+		vi.mocked(resolveImages).mockRejectedValueOnce(new Error('offline'));
+		renderReview(
+			collection(21).map((artwork) => ({
+				...artwork,
+				pendingImage: { sourceFile: 'Work.jpg' }
+			}))
+		);
+
+		await page.getByRole('button', { name: m.review.start }).click();
+
+		await expect.element(page.getByText(m.common.unexpectedError)).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.review.start })).toBeEnabled();
 	});
 });
