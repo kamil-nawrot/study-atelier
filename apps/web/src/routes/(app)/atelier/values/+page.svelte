@@ -1,7 +1,6 @@
 <script lang="ts">
-	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 	import { onMount } from 'svelte';
-	import { Alert, Icon, Tabs, Toast } from '@study-atelier/ui';
+	import { Alert, Tabs, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -11,6 +10,7 @@
 		rememberedCardIndexTab
 	} from '#lib/collection/card-index-tab.ts';
 	import { buildTimeline, valuesOf } from '#lib/collection/card-index.ts';
+	import AtelierBackLink from '#lib/collection/components/AtelierBackLink.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import CardIndexList from '#lib/collection/components/CardIndexList.svelte';
 	import CardIndexTimeline from '#lib/collection/components/CardIndexTimeline.svelte';
@@ -41,10 +41,7 @@
 
 <AtelierLayout email={data.session.user.email ?? ''} title={m.cardIndex.title}>
 	{#snippet bar()}
-		<a class="back" href={resolve('/(app)/atelier')}>
-			<Icon icon={ArrowLeft} />
-			{m.artworkView.back}
-		</a>
+		<AtelierBackLink />
 	{/snippet}
 
 	<header>
@@ -76,17 +73,6 @@
 <Toast bind:this={toast} />
 
 <style>
-	.back {
-		display: flex;
-		flex: 1;
-		align-items: center;
-		gap: var(--spacing-2);
-		color: var(--color-fg);
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-medium);
-		text-decoration: none;
-	}
-
 	header {
 		display: grid;
 		gap: var(--spacing-2);

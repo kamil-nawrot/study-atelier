@@ -1,9 +1,9 @@
 <script lang="ts">
-	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { Alert, Button, Dialog, Icon, Section, Toast } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
+	import AtelierBackLink from '#lib/collection/components/AtelierBackLink.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import DuplicateDialog from '#lib/collection/components/DuplicateDialog.svelte';
 	import { DuplicateCheck } from '#lib/collection/duplicate-check.svelte.ts';
@@ -74,10 +74,7 @@
 
 <AtelierLayout email={data.session.user.email ?? ''} title={m.trash.title}>
 	{#snippet bar()}
-		<a class="back" href={resolve('/(app)/atelier')}>
-			<Icon icon={ArrowLeft} />
-			{m.artworkView.back}
-		</a>
+		<AtelierBackLink />
 	{/snippet}
 
 	<header>
@@ -186,17 +183,6 @@
 <Toast bind:this={toast} />
 
 <style>
-	.back {
-		display: flex;
-		flex: 1;
-		align-items: center;
-		gap: var(--spacing-2);
-		color: var(--color-fg);
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-medium);
-		text-decoration: none;
-	}
-
 	header {
 		display: flex;
 		flex-wrap: wrap;
