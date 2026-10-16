@@ -3,11 +3,8 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/index.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
-import { testReviewCard } from '#lib/testing/review.ts';
 import type { ReviewItem } from '../types.ts';
 import Flashcard from './Flashcard.svelte';
-
-const now = new Date(2026, 9, 16, 9, 0);
 
 const item: ReviewItem = {
 	artwork: testArtwork(31, 'Girl with a Pearl Earring', {
@@ -19,12 +16,6 @@ const item: ReviewItem = {
 	}),
 	card: null,
 	mode: 'flashcard'
-};
-
-const outcomes = {
-	1: testReviewCard('artwork-31', new Date(2026, 9, 16, 9, 1)),
-	2: testReviewCard('artwork-31', new Date(2026, 9, 17, 9, 0)),
-	3: testReviewCard('artwork-31', new Date(2026, 9, 21, 9, 0))
 };
 
 function renderCard(
@@ -40,8 +31,6 @@ function renderCard(
 		item,
 		details: { notes: 'A study of a face in a turban.', credit: 'Wikimedia Commons' },
 		revealed,
-		outcomes,
-		now,
 		saving: false,
 		onreveal,
 		onrate,
@@ -92,19 +81,13 @@ describe('Flashcard', () => {
 			.element(page.getByRole('img', { name: 'Girl with a Pearl Earring, Johannes Vermeer' }))
 			.toBeInTheDocument();
 		await expect
-			.element(
-				page.getByRole('button', { name: `${m.review.ratings[1]} ${m.review.interval.today}` })
-			)
+			.element(page.getByRole('button', { name: m.review.ratings[1], exact: true }))
 			.toBeVisible();
 		await expect
-			.element(
-				page.getByRole('button', { name: `${m.review.ratings[2]} ${m.review.interval.tomorrow}` })
-			)
+			.element(page.getByRole('button', { name: m.review.ratings[2], exact: true }))
 			.toBeVisible();
 		await expect
-			.element(
-				page.getByRole('button', { name: `${m.review.ratings[3]} ${m.review.interval.days(5)}` })
-			)
+			.element(page.getByRole('button', { name: m.review.ratings[3], exact: true }))
 			.toBeVisible();
 	});
 

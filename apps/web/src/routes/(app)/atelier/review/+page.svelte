@@ -66,7 +66,6 @@
 	let stopAfterSave = false;
 	let resolved = $state.raw(new Map<string, WallArtwork>());
 	let details = $state.raw(new Map<string, ReviewDetails>());
-	let revealedAt = $state(new Date());
 	let outcomes = $state<Record<ReviewRating, ReviewCard>>();
 
 	const scoped = $derived(scopeArtworks(data.artworks, scope));
@@ -175,7 +174,6 @@
 
 	function reveal(): void {
 		if (!session) return;
-		revealedAt = new Date();
 		outcomes = session.next();
 		session.reveal();
 	}
@@ -288,10 +286,8 @@
 					details={details.get(current.artwork.id)}
 					error={session.error}
 					item={current}
-					now={revealedAt}
 					onrate={rate}
 					onreveal={reveal}
-					{outcomes}
 					revealed={session.revealed}
 					saving={session.saving}
 				/>

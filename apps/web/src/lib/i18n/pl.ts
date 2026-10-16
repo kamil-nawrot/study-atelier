@@ -417,8 +417,7 @@ export const pl = {
 		},
 		quiz: {
 			imageQuestion: { start: 'Gdzie jest', end: '?' },
-			imageHint: 'Wybierz obraz (klawisze 1–4).',
-			imageHintTouch: 'Wybierz obraz.',
+			imageHint: 'Wybierz właściwy obraz.',
 			imageAlt: (position: number): string => `Obraz ${position}`,
 			titleQuestion: 'Jaki to tytuł?',
 			styleQuestion: 'W jakim stylu powstał ten obraz?',
@@ -435,17 +434,17 @@ export const pl = {
 				author: 'ten sam autor',
 				style: 'ten sam styl',
 				period: 'ten sam okres'
+			},
+			reasonLabels: {
+				author: 'Ten sam autor',
+				style: 'Ten sam styl',
+				period: 'Ten sam okres'
 			}
 		},
 		ratings: {
 			1: 'Nie wiem',
 			2: 'Prawie',
 			3: 'Wiem'
-		},
-		interval: {
-			today: 'jeszcze dziś',
-			tomorrow: 'jutro',
-			days: (days: number): string => `za ${days} dni`
 		},
 		saveErrorTitle: 'Nie udało się zapisać odpowiedzi',
 		saveFailed: 'Nie udało się zapisać odpowiedzi. Spróbuj jeszcze raz.',
