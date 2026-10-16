@@ -114,6 +114,11 @@
 		}
 	});
 
+	$effect(() => {
+		void session?.position;
+		window.scrollTo(0, 0);
+	});
+
 	function withImage(artwork: WallArtwork): WallArtwork {
 		return resolved.get(artwork.id) ?? artwork;
 	}

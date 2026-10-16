@@ -31,6 +31,7 @@
 		type ValueSummaries,
 		type ValueSummary
 	} from '../value-summaries.ts';
+	import ImageViewer from './ImageViewer.svelte';
 	import MentionedIn from './MentionedIn.svelte';
 	import ValueSummaryCard from './ValueSummaryCard.svelte';
 
@@ -58,8 +59,7 @@
 	const VIEWER_WIDTH = 1920;
 
 	let panelOpen = $state(artworkPanelOpen());
-	let viewer: HTMLDialogElement;
-	let viewerUsed = $state(false);
+	let viewer: ReturnType<typeof ImageViewer>;
 
 	let image = $derived(artworkImageSource(artwork.image, STAGE_WIDTH));
 	let fullImage = $derived(artworkImageSource(artwork.image, VIEWER_WIDTH));
@@ -128,8 +128,7 @@
 	}
 
 	function openViewer(): void {
-		viewerUsed = true;
-		viewer.showModal();
+		viewer.open();
 	}
 </script>
 
@@ -319,27 +318,7 @@
 	</div>
 </div>
 
-<dialog bind:this={viewer} class="viewer" aria-label={alt}>
-	{#if viewerUsed && fullImage}
-		<ArtworkImage
-			{alt}
-			height={fullImage.height}
-			sizes="100vw"
-			src={fullImage.src}
-			srcset={fullImage.srcset}
-			surface="stage"
-			width={fullImage.width}
-		/>
-	{/if}
-	<button
-		class="icon-button close"
-		aria-label={m.artworkView.closeImage}
-		onclick={() => viewer.close()}
-		type="button"
-	>
-		<Icon icon={X} />
-	</button>
-</dialog>
+<ImageViewer bind:this={viewer} {alt} image={fullImage} />
 
 <style>
 	.view {
@@ -539,37 +518,6 @@
 		overflow: hidden;
 		clip-path: inset(50%);
 		white-space: nowrap;
-	}
-
-	.viewer {
-		width: 100vw;
-		max-width: none;
-		height: 100dvh;
-		max-height: none;
-		margin: 0;
-		padding: 0;
-		border: none;
-		background: var(--color-stage-bg);
-	}
-
-	.viewer[open] {
-		display: grid;
-		place-items: center;
-	}
-
-	.viewer :global(img) {
-		display: block;
-		width: auto;
-		height: auto;
-		max-width: 100vw;
-		max-height: 100dvh;
-	}
-
-	.close {
-		position: absolute;
-		top: var(--spacing-3);
-		right: var(--spacing-3);
-		color: var(--color-stage-fg);
 	}
 
 	@media (min-width: 768px) {

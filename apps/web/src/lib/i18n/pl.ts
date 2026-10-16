@@ -434,6 +434,7 @@ export const pl = {
 			imageQuestion: { start: 'Gdzie jest', end: '?' },
 			imageHint: 'Wybierz właściwy obraz.',
 			imageAlt: (position: number): string => `Obraz ${position}`,
+			openImage: (position: number): string => `Powiększ obraz ${position}`,
 			titleQuestion: 'Jaki to tytuł?',
 			styleQuestion: 'W jakim stylu powstał ten obraz?',
 			styleHint: 'Zwróć uwagę na światło, kolor i kompozycję.',
