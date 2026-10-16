@@ -168,4 +168,32 @@ describe('review page', () => {
 		await expect.element(page.getByRole('heading', { name: m.review.done })).toBeVisible();
 		await expect.element(page.getByText(m.review.summary(1, 1, 0))).toBeVisible();
 	});
+
+	it('keeps the answer still being saved when the session is stopped', async () => {
+		const artworks = collection(21);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 19), (index) => (index < 2 ? -1 : 6))
+		);
+		let saved: (value: object) => void = () => undefined;
+
+		await page.getByRole('button', { name: m.review.start }).click();
+		await page.getByRole('button', { name: m.review.flashcard.reveal }).click();
+		await page.getByRole('button', { name: new RegExp(`^${m.review.ratings[3]}`) }).click();
+		await expect.element(page.getByText(m.review.progress(2, 4))).toBeVisible();
+		vi.mocked(recordReview).mockImplementationOnce(
+			() => new Promise((resolve) => (saved = resolve))
+		);
+		await page.getByRole('button', { name: m.review.flashcard.reveal }).click();
+		await page.getByRole('button', { name: new RegExp(`^${m.review.ratings[2]}`) }).click();
+		await page.getByRole('button', { name: m.review.stop }).click();
+		await page
+			.getByRole('alertdialog', { name: m.review.stopTitle })
+			.getByRole('button', { name: m.review.stop })
+			.click();
+		saved({});
+
+		await expect.element(page.getByRole('heading', { name: m.review.done })).toBeVisible();
+		await expect.element(page.getByText(m.review.summary(2, 1, 0))).toBeVisible();
+	});
 });

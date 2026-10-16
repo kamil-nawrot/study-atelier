@@ -54,6 +54,7 @@
 	let summary = $state<Summary>();
 	let starting = $state(false);
 	let stopOpen = $state(false);
+	let stopAfterSave = false;
 	let resolved = $state.raw(new Map<string, WallArtwork>());
 	let details = $state.raw(new Map<string, ReviewDetails>());
 	let revealedAt = $state(new Date());
@@ -141,12 +142,14 @@
 	}
 
 	async function rate(rating: ReviewRating): Promise<void> {
-		if (!session) return;
-		await session.rate(rating, outcomes?.[rating]);
-		if (session.finished) finish();
+		const active = session;
+		if (!active) return;
+		await active.rate(rating, outcomes?.[rating]);
+		if (active === session && (active.finished || stopAfterSave)) finish();
 	}
 
 	function finish(): void {
+		stopAfterSave = false;
 		if (!session) return;
 		cards = new Map(session.cards);
 		newToday += session.started;
@@ -170,7 +173,8 @@
 
 	function stop(): void {
 		stopOpen = false;
-		finish();
+		if (session?.saving) stopAfterSave = true;
+		else finish();
 	}
 </script>
 
