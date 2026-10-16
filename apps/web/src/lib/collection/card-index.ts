@@ -13,6 +13,8 @@ import type {
 	NameChange
 } from './types.ts';
 
+export const CARD_INDEX_SEARCH_MIN_VALUES = 20;
+
 export const CARD_INDEX_LIST_CATEGORIES = ['material', 'author', 'location'] as const;
 
 export function emptyCardIndex(): CardIndexData {

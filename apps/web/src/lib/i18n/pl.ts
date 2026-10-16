@@ -466,6 +466,13 @@ export const pl = {
 			author: 'Nie ma tu jeszcze autorów. Pojawią się, gdy wpiszesz ich przy dziele.',
 			location: 'Nie ma tu jeszcze miejsc. Pojawią się, gdy wpiszesz je przy dziele.'
 		},
+		search: {
+			material: 'Szukaj materiału',
+			author: 'Szukaj autora',
+			location: 'Szukaj miejsca'
+		},
+		noResults: (query: string): string =>
+			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment nazwy.`,
 		openValue: (name: string, count: string): string => `${name}, ${count}`,
 		kinds: {
 			period: {
