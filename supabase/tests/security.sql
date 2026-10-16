@@ -105,6 +105,12 @@ insert into public.era_details (era_code, summary) values ('early_modern', 'Era 
 insert into storage.objects (bucket_id, name)
   values ('artwork-images', '00000000-0000-0000-0000-00000000000a/work.jpg');
 
+select public.record_review(
+  (select id from public.artworks),
+  '{"due": "2026-10-16T10:00:00Z", "stability": 2.3, "difficulty": 5.1, "state": 1, "reps": 1, "lapses": 0, "scheduled_days": 0, "learning_steps": 1, "last_review": "2026-10-16T09:50:00Z", "elapsed_days": 0}',
+  '{"mode": "quiz_title", "rating": 2, "correct": true, "answer_ms": 4200}'
+);
+
 reset role;
 
 do $$
@@ -138,6 +144,10 @@ begin
   assert not (select has_content from public.value_page_content(a_value)),
     'B sees the page content of a value of A';
   assert (select count(*) from public.eras) = 6, 'B cannot read the shared eras';
+  assert (select count(*) from public.review_cards) = 0, 'B reads review cards of A';
+  assert (select count(*) from public.review_log) = 0, 'B reads the review log of A';
+  assert (select due + new_available + new_today + with_image from public.review_counts('2026-10-16T00:00:00Z')) = 0,
+    'B counts reviews of A';
 
   assert security_test.affected(format('update public.artworks set title = ''x'' where id = %L', a_artwork)) = 0,
     'B updates an artwork of A';
@@ -152,6 +162,8 @@ begin
     'B updates period details of A';
   assert security_test.affected('update public.era_details set summary = ''x''') = 0,
     'B updates era details of A';
+  assert security_test.affected('update public.review_cards set due = now()') = 0,
+    'B reschedules a review card of A';
 
   assert security_test.denied(format(
     'insert into public.artworks (owner_id, title, author_unknown) values (%L, ''Forged'', true)', a)),
@@ -179,6 +191,10 @@ begin
     'B deletes a value of A through delete_unused_value';
   assert security_test.denied(format('select public.set_period_eras(%L, ''{modern}'')', a_value)),
     'B changes the eras of a period of A';
+  assert security_test.denied(format(
+    'select public.record_review(%L, ''{"due": "2026-10-17T00:00:00Z", "stability": 1, "difficulty": 1, "state": 2, "reps": 1, "lapses": 0, "scheduled_days": 1, "learning_steps": 0}'', ''{"mode": "flashcard", "rating": 3}'')',
+    a_artwork)),
+    'B records a review of an artwork of A';
 
   assert security_test.denied(format(
     'insert into storage.objects (bucket_id, name) values (''artwork-images'', ''%s/forged.jpg'')', a)),
@@ -283,6 +299,28 @@ begin
   assert security_test.denied('insert into public.artwork_types (code, position) values (''forged'', 99)'),
     'A adds an artwork type';
   assert security_test.denied('select * from private.record_counters'), 'A reads the record counters';
+  assert security_test.denied('update public.review_cards set owner_id = gen_random_uuid()'),
+    'A changes the owner of a review card';
+  assert security_test.denied('update public.review_cards set created_at = now()'),
+    'A changes when a review card was created';
+  assert security_test.denied('update public.review_log set rating = 3'), 'A rewrites the review log';
+  assert security_test.denied('delete from public.review_log'), 'A deletes from the review log';
+  assert security_test.denied(format(
+    'select public.record_review(%L, ''{"due": "2026-10-17T00:00:00Z", "stability": 1, "difficulty": 1, "state": 2, "reps": 1, "lapses": 0, "scheduled_days": 1, "learning_steps": 0}'', ''{"mode": "flashcard", "rating": 4}'')',
+    a_artwork)),
+    'A records a rating out of range';
+  assert security_test.denied(format(
+    'select public.record_review(%L, ''{"due": "2026-10-17T00:00:00Z", "stability": 1, "difficulty": 1, "state": 2, "reps": 1, "lapses": 0, "scheduled_days": 1, "learning_steps": 0}'', ''{"mode": "quiz_image", "rating": 1}'')',
+    a_artwork)),
+    'A records a quiz answer without saying whether it was right';
+  perform public.record_review(a_artwork,
+    '{"due": "2026-10-20T00:00:00Z", "stability": 4, "difficulty": 5, "state": 2, "reps": 2, "lapses": 0, "scheduled_days": 4, "learning_steps": 0, "last_review": "2026-10-16T10:00:00Z"}',
+    '{"mode": "flashcard", "rating": 3, "answer_ms": 3000}');
+  assert (select count(*) from public.review_cards) = 1, 'a second review adds a card instead of updating it';
+  assert (select reps from public.review_cards) = 2, 'record_review does not update the card';
+  assert (select count(*) from public.review_log) = 2, 'record_review does not log every answer';
+  assert (select with_image from public.review_counts('2026-10-16T00:00:00Z')) = 0,
+    'review_counts counts an artwork without an image';
   assert (select count(*) from storage.objects) = 1, 'A does not see their own image object';
 
   reset role;
@@ -297,6 +335,8 @@ begin
   assert security_test.denied(format('select public.value_page_content(%L)', gen_random_uuid())),
     'anon executes value_page_content';
   assert security_test.denied('select public.save_artwork(''{}'', ''{}'')'), 'anon executes save_artwork';
+  assert security_test.denied('select * from public.review_cards'), 'anon reads review cards';
+  assert security_test.denied('select public.review_counts(now())'), 'anon executes review_counts';
   assert security_test.denied('select public.save_era_details(''antiquity'', ''{}'')'),
     'anon executes save_era_details';
   assert (select public.keep_alive()) is not null, 'anon cannot execute keep_alive';
