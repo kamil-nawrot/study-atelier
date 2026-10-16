@@ -14,6 +14,8 @@ declare
   forgotten uuid;
   known uuid;
   session jsonb;
+  drawn integer;
+  seen uuid[] := '{}';
   day_start constant timestamptz := date_trunc('day', now());
 begin
   for number in 1..20 loop
@@ -67,6 +69,31 @@ begin
       where item ->> 'mode' = 'quiz_style'
   ),
     'a session scoped to a style asks for the style';
+
+  for number in 21..40 loop
+    perform public.save_artwork(
+      jsonb_build_object(
+        'title', 'Work ' || number,
+        'author_unknown', true,
+        'era_code', 'modern',
+        'source_wikidata_id', 'Q' || number,
+        'source_image_file', 'Work_' || number || '.jpg'
+      ),
+      '{}'
+    );
+  end loop;
+
+  for attempt in 1..6 loop
+    seen := seen || array(
+      select (item ->> 'artwork_id')::uuid
+        from jsonb_array_elements(public.review_session(day_start, 'flashcards')) as item
+    );
+  end loop;
+  select count(distinct id) into drawn
+    from unnest(seen) as id
+    where id not in (forgotten, known);
+  assert drawn > 8,
+    'review_session takes the new artworks in a fixed order instead of drawing them';
 end;
 $$;
 

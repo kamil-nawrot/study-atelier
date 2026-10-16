@@ -38,4 +38,4 @@ The browser maps the ids back to the artworks it has already loaded (for their i
 
 ## More information
 
-Replaces the "Session building" line of [ADR-0062](0062-schedule-reviews-with-fsrs.md). Migration `20261016100000_review_session.sql`; ATL-163.
+Replaces the "Session building" line of [ADR-0062](0062-schedule-reviews-with-fsrs.md). Migration `20261016100000_review_session.sql`; ATL-163. New artworks are drawn at random since [ADR-0073](0073-draw-new-artworks-at-random.md).
