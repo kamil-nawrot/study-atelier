@@ -393,6 +393,12 @@ export const pl = {
 			wall: (count: number): string =>
 				`Jak na ścianie: ${count} ${plural(count, { one: 'filtr', few: 'filtry', many: 'filtrów' })}`
 		},
+		form: 'W jakiej formie?',
+		forms: {
+			mixed: 'Mieszane',
+			flashcards: 'Fiszki',
+			quizzes: 'Quizy'
+		},
 		start: 'Zacznij powtórkę',
 		memory: 'Co już pamiętasz',
 		memoryHint: 'Dzieła, które pamiętasz dłużej niż tydzień.',
@@ -411,6 +417,28 @@ export const pl = {
 			reveal: 'Odkryj kartę',
 			rate: 'Jak dobrze to pamiętasz?',
 			notes: 'Twoja notatka'
+		},
+		quiz: {
+			imageQuestion: { start: 'Gdzie jest', end: '?' },
+			imageHint: 'Wybierz obraz (klawisze 1–4).',
+			imageHintTouch: 'Wybierz obraz.',
+			imageAlt: (position: number): string => `Obraz ${position}`,
+			titleQuestion: 'Jaki to tytuł?',
+			styleQuestion: 'W jakim stylu powstał ten obraz?',
+			styleHint: 'Zwróć uwagę na światło, kolor i kompozycję.',
+			options: 'Odpowiedzi',
+			right: 'Tak, to',
+			wrong: 'Nie, to',
+			marked: 'Dobra odpowiedź jest zaznaczona.',
+			retry: 'Wrócimy do niego za chwilę.',
+			rightOption: 'dobra odpowiedź',
+			chosenOption: 'Twój wybór',
+			next: 'Następne',
+			reasons: {
+				author: 'ten sam autor',
+				style: 'ten sam styl',
+				period: 'ten sam okres'
+			}
 		},
 		ratings: {
 			1: 'Nie wiem',

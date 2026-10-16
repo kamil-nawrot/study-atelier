@@ -6,6 +6,7 @@
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { type EraMemory, type ReviewScope, sameScope } from '../overview.ts';
+	import type { ReviewForm } from '../types.ts';
 
 	type Props = {
 		known: number;
@@ -15,11 +16,13 @@
 		nextWhen?: string;
 		scopes: ReviewScope[];
 		scope: ReviewScope;
+		form: ReviewForm;
 		wallFilters: number;
 		memory: EraMemory[];
 		troubles: WallArtwork[];
 		starting: boolean;
 		onscope: (scope: ReviewScope) => void;
+		onform: (form: ReviewForm) => void;
 		onstart: () => void;
 	};
 
@@ -31,13 +34,17 @@
 		nextWhen,
 		scopes,
 		scope,
+		form,
 		wallFilters,
 		memory,
 		troubles,
 		starting,
 		onscope,
+		onform,
 		onstart
 	}: Props = $props();
+
+	const FORMS: readonly ReviewForm[] = ['mixed', 'flashcards', 'quizzes'];
 
 	let waiting = $derived(known + fresh);
 
@@ -96,6 +103,17 @@
 		{/if}
 
 		{#if missing === 0 && waiting > 0}
+			<section class="choice" aria-labelledby="review-form">
+				<h2 id="review-form" class="choice-title">{m.review.form}</h2>
+				<div class="tags">
+					{#each FORMS as option (option)}
+						<ToggleTag bind:pressed={() => form === option, (pressed) => pressed && onform(option)}>
+							{m.review.forms[option]}
+						</ToggleTag>
+					{/each}
+				</div>
+			</section>
+
 			<div class="go">
 				<Button disabled={starting} onclick={onstart} variant="primary">
 					<Icon icon={Play} size="sm" />

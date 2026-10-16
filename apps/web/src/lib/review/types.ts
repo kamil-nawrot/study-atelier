@@ -23,10 +23,24 @@ export type ReviewCard = {
 	lastReview: Date | null;
 };
 
+export type QuizReason = 'author' | 'style' | 'period';
+
+export type QuizOption = {
+	label: string;
+	artwork?: WallArtwork;
+	reason?: QuizReason;
+};
+
+export type Quiz = {
+	options: QuizOption[];
+	answer: number;
+};
+
 export type ReviewItem = {
 	artwork: WallArtwork;
 	card: ReviewCard | null;
 	mode: ReviewMode;
+	quiz?: Quiz;
 };
 
 export type ReviewAnswer = {

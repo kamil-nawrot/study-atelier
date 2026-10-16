@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { page } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { invalidate } from '$app/navigation';
 import type { WallArtwork } from '#lib/collection/types.ts';
@@ -128,6 +128,7 @@ describe('review page', () => {
 			cards(artworks.slice(0, 19), (index) => (index < 2 ? -1 : 6))
 		);
 
+		await page.getByRole('button', { name: m.review.forms.flashcards }).click();
 		await page.getByRole('button', { name: m.review.start }).click();
 		await expect.element(page.getByText(m.review.progress(1, 4))).toBeVisible();
 
@@ -195,5 +196,32 @@ describe('review page', () => {
 
 		await expect.element(page.getByRole('heading', { name: m.review.done })).toBeVisible();
 		await expect.element(page.getByText(m.review.summary(2, 1, 0))).toBeVisible();
+	});
+
+	it('asks new artworks as quizzes, shows the answer at once and goes on with Enter', async () => {
+		const artworks = collection(21);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 19), () => 6)
+		);
+
+		await page.getByRole('button', { name: m.review.start }).click();
+		await expect.element(page.getByText(m.review.progress(1, 2))).toBeVisible();
+
+		const question = page.getByRole('heading', { level: 1 });
+		await expect.element(question).toHaveTextContent(/Artwork 20|Jaki to tytuł/);
+		await userEvent.keyboard('1');
+
+		await expect.element(page.getByRole('button', { name: m.review.quiz.next })).toHaveFocus();
+		expect(recordReview).toHaveBeenCalledWith(
+			expect.objectContaining({ artworkId: 'artwork-20' }),
+			expect.objectContaining({ mode: expect.stringMatching(/^quiz_/) })
+		);
+		await expect
+			.element(page.getByRole('status'))
+			.toHaveTextContent(new RegExp(`^(${m.review.quiz.right}|${m.review.quiz.wrong})`));
+
+		await userEvent.keyboard('{Enter}');
+		await expect.element(page.getByText(/^2 z/)).toBeVisible();
 	});
 });
