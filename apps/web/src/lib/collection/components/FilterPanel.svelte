@@ -148,6 +148,7 @@
 	<FilterValues
 		name={(value) => value}
 		chosen={filter.periods}
+		limit={FREQUENT_LIMIT}
 		onchoose={(value) => choose('periods', value)}
 		options={filterOptions(artworks, filter, 'periods')}
 		searchLabel={m.atelier.filters.searchValues(m.atelier.filters.fields.periods)}
@@ -157,6 +158,7 @@
 	<FilterValues
 		name={(value) => value}
 		chosen={filter.styles}
+		limit={FREQUENT_LIMIT}
 		onchoose={(value) => choose('styles', value)}
 		options={filterOptions(artworks, filter, 'styles')}
 		searchLabel={m.atelier.filters.searchValues(m.atelier.filters.fields.styles)}
@@ -166,6 +168,7 @@
 	<FilterValues
 		name={(value) => value}
 		chosen={filter.materials}
+		limit={FREQUENT_LIMIT}
 		onchoose={(value) => choose('materials', value)}
 		options={filterOptions(artworks, filter, 'materials')}
 		searchLabel={m.atelier.filters.searchValues(m.atelier.filters.fields.materials)}
