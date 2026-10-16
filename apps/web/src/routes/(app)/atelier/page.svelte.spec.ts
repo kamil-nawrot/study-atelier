@@ -674,6 +674,15 @@ describe('atelier page', () => {
 				.not.toBeInTheDocument();
 		});
 
+		it('keeps the panel header in view while the panel is scrolled', async () => {
+			renderAtelier(styled);
+
+			await filtersButton().click();
+
+			const header = page.getByRole('heading', { name: m.atelier.filters.title }).element();
+			expect(getComputedStyle(header.parentElement as HTMLElement).position).toBe('sticky');
+		});
+
 		it('narrows the wall as soon as a value is chosen and counts the result', async () => {
 			renderAtelier(styled);
 			await filtersButton().click();

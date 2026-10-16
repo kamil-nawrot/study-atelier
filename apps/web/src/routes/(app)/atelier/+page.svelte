@@ -488,7 +488,7 @@
 		box-sizing: border-box;
 		width: 380px;
 		max-height: calc(100dvh - var(--bar-height));
-		padding: var(--spacing-4) var(--spacing-6) var(--spacing-12);
+		padding: 0 var(--spacing-6) var(--spacing-12);
 		overflow-y: auto;
 		scrollbar-gutter: stable;
 		border-left: var(--border-width-base) solid var(--color-line);
@@ -500,6 +500,14 @@
 				width var(--duration-short) ease-out,
 				visibility var(--duration-short);
 		}
+	}
+
+	.filters-top {
+		position: sticky;
+		top: 0;
+		z-index: 1;
+		padding-block: var(--spacing-4);
+		background: var(--color-bg);
 	}
 
 	.filters-top,
