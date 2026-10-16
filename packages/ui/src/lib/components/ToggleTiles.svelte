@@ -113,8 +113,8 @@
 	}
 
 	.label {
-		font-size: var(--font-size-sm);
-		line-height: var(--line-height-sm);
+		font-size: var(--font-size-xs);
+		line-height: var(--line-height-xs);
 		white-space: nowrap;
 	}
 
