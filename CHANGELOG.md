@@ -2,6 +2,39 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] - 2026-10-16
+
+The learning module: the learner reviews the personal collection with flashcards and quizzes scheduled by a spaced repetition algorithm, in a session built from the "Powtórki" menu item.
+
+### Added
+
+- Reviews ("Powtórki"): a start page with a plan of the session, scopes (the whole collection, every era, and periods or styles with at least 20 artworks with an image) and forms (mixed, flashcards only, quizzes only); the menu item shows how many reviews are due, as a number or a small square in the collapsed rail.
+- Flashcards with the image on a stage and the answer in a panel, rated in three steps, and a summary that offers another round.
+- Quizzes: pick the image, pick the title or recognise the style, with distractors drawn from related artworks and the reason shown after an answer. New artworks of a session are drawn at random.
+- Scheduling with FSRS: the next review of every artwork is stored in days; a quiz answer always updates the schedule.
+- Icons for artwork types, shown like eras in the form, the artwork view and the filters; the museum place type has its own icon.
+- Gallery as a type of place.
+- Search fields in the card index lists of materials, authors and locations.
+- The country of a place after its name in the artwork view.
+- Wall tiles fade in and out while scrolling.
+
+### Changed
+
+- Own images get a 500 px copy for the wall and the quizzes; the copy is made at upload and, for older images, in the background on the first visit to the wall.
+- Authors in the artwork view are separated by a comma and a space; category labels are centred on the first row of values.
+- Era names in the filter panel use the extra small font.
+- A period lands on the rail right after its first artwork.
+
+### Fixed
+
+- Artworks answered only in quizzes no longer stay in FSRS learning, so the review counter clears.
+- No style quiz is asked in a style scope, and a review start that fails to load can be retried.
+- Quiz icons are centred, the page scrolls to the top between questions and review images are larger on phones.
+
+### Migration note
+
+Six migrations run on production with this release, all additive or replacing functions without touching data: `review_cards` creates the `review_cards` and `review_log` tables with their policies and the `record_review` and `review_counts` functions; `gallery_place_type` widens the place type check constraint with `gallery`; `review_session`, `quiz_forgotten_artworks`, `no_style_quiz_in_a_style_scope` and `draw_new_artworks_at_random` create and then replace the `review_session` function. No existing data is changed.
+
 ## [0.4.1] - 2026-10-15
 
 Hotfix for the wall: an image no longer loads forever after an artwork is marked as a favourite.
