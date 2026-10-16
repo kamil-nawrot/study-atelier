@@ -31,16 +31,13 @@ export function monotone(starts: number[]): number[] {
 	return starts.map((start) => (previous = Math.max(previous, start)));
 }
 
-export function currentPeriod(starts: number[], end: number, reference: number): CurrentPeriod {
-	if (starts.length === 0) return { index: 0, progress: 0 };
+export function currentPeriod(starts: number[], reference: number): CurrentPeriod {
+	if (starts.length === 0) return { index: 0, distance: 0 };
 	let index = 0;
 	starts.forEach((start, position) => {
 		if (start <= reference) index = position;
 	});
-	const next = index + 1 < starts.length ? starts[index + 1] : end;
-	const span = next - starts[index];
-	const progress = span > 0 ? clamp((reference - starts[index]) / span, 0, 1) : 1;
-	return { index, progress: reference < starts[index] ? 0 : progress };
+	return { index, distance: Math.max(0, reference - starts[index]) };
 }
 
 export function railRow(count: number, height: number, maxRow = MAX_RAIL_ROW): number {
@@ -61,6 +58,8 @@ export function railLayout(
 		if (index < current.index) return { state: 'past', offset: topSlot(index) };
 		if (index > current.index) return { state: 'upcoming', offset: bottomSlot(index) };
 		const from = index === 0 ? topSlot(0) : bottomSlot(index);
-		return { state: 'current', offset: from + (topSlot(index) - from) * current.progress };
+		const travel = from - topSlot(index);
+		const progress = travel > 0 ? clamp(current.distance / travel, 0, 1) : 1;
+		return { state: 'current', offset: from - travel * progress };
 	});
 }

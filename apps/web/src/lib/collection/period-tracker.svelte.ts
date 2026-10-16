@@ -4,11 +4,10 @@ import type { CurrentPeriod } from './types.ts';
 export const MIN_RAIL_MARGIN = 128;
 
 export class PeriodTracker {
-	current = $state<CurrentPeriod>({ index: 0, progress: 0 });
+	current = $state<CurrentPeriod>({ index: 0, distance: 0 });
 	margin = $state(0);
 
 	#starts: number[] = [];
-	#end = 0;
 	#frame = 0;
 
 	track(wall: HTMLElement, topInset: number): () => void {
@@ -20,7 +19,7 @@ export class PeriodTracker {
 				document.documentElement.scrollHeight,
 				topInset
 			);
-			this.current = currentPeriod(this.#starts, this.#end, reference);
+			this.current = currentPeriod(this.#starts, reference);
 		};
 
 		const schedule = (): void => {
@@ -29,15 +28,12 @@ export class PeriodTracker {
 
 		const measure = (): void => {
 			const starts: number[] = [];
-			let end = 0;
 			for (const tile of wall.querySelectorAll<HTMLElement>('[data-period]')) {
 				const index = Number(tile.dataset.period);
-				const { top, bottom } = tile.getBoundingClientRect();
+				const { top } = tile.getBoundingClientRect();
 				starts[index] = Math.min(starts[index] ?? Infinity, top + window.scrollY);
-				end = Math.max(end, bottom + window.scrollY);
 			}
 			this.#starts = monotone(Array.from(starts, (start) => start ?? Infinity));
-			this.#end = end;
 			this.margin = document.documentElement.clientWidth - wall.getBoundingClientRect().right;
 			place();
 		};

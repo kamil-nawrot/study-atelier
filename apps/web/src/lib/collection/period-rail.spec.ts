@@ -26,31 +26,27 @@ describe('currentPeriod', () => {
 	const starts = [100, 600, 1200];
 
 	it('picks the last period that has started', () => {
-		expect(currentPeriod(starts, 2000, 700).index).toBe(1);
-		expect(currentPeriod(starts, 2000, 1200).index).toBe(2);
+		expect(currentPeriod(starts, 700).index).toBe(1);
+		expect(currentPeriod(starts, 1200).index).toBe(2);
 	});
 
 	it('keeps the first period before the wall reaches the reference line', () => {
-		expect(currentPeriod(starts, 2000, 0)).toEqual({ index: 0, progress: 0 });
+		expect(currentPeriod(starts, 0)).toEqual({ index: 0, distance: 0 });
 	});
 
-	it('measures progress through the period', () => {
-		expect(currentPeriod(starts, 2000, 350).progress).toBeCloseTo(0.5);
-		expect(currentPeriod(starts, 2000, 1600).progress).toBeCloseTo(0.5);
+	it('measures the distance since the first artwork of the period', () => {
+		expect(currentPeriod(starts, 650).distance).toBe(50);
+		expect(currentPeriod(starts, 1600).distance).toBe(400);
 	});
 
 	it('has no current period without periods', () => {
-		expect(currentPeriod([], 0, 500)).toEqual({ index: 0, progress: 0 });
-	});
-
-	it('finishes the last period past the end of the wall', () => {
-		expect(currentPeriod(starts, 2000, 2400)).toEqual({ index: 2, progress: 1 });
+		expect(currentPeriod([], 500)).toEqual({ index: 0, distance: 0 });
 	});
 });
 
 describe('railLayout', () => {
 	it('stacks past periods at the top and upcoming ones at the bottom', () => {
-		const layout = railLayout(4, { index: 1, progress: 0 }, 400, 20);
+		const layout = railLayout(4, { index: 1, distance: 0 }, 400, 20);
 
 		expect(layout.map((entry) => entry.state)).toEqual(['past', 'current', 'upcoming', 'upcoming']);
 		expect(layout[0].offset).toBe(0);
@@ -59,28 +55,28 @@ describe('railLayout', () => {
 	});
 
 	it('starts the current period where the first upcoming one would be', () => {
-		const layout = railLayout(4, { index: 1, progress: 0 }, 400, 20);
+		const layout = railLayout(4, { index: 1, distance: 0 }, 400, 20);
 
 		expect(layout[1].offset).toBe(340);
 	});
 
-	it('moves the current period to the end of the top stack as it passes', () => {
-		const middle = railLayout(4, { index: 1, progress: 0.5 }, 400, 20);
-		const done = railLayout(4, { index: 1, progress: 1 }, 400, 20);
+	it('moves the current period to the end of the top stack within a short scroll and keeps it there', () => {
+		const middle = railLayout(4, { index: 1, distance: 160 }, 400, 20);
+		const done = railLayout(4, { index: 1, distance: 5000 }, 400, 20);
 
 		expect(middle[1].offset).toBe(180);
 		expect(done[1].offset).toBe(20);
 	});
 
 	it('puts the first period at the top edge from the start', () => {
-		const layout = railLayout(3, { index: 0, progress: 0 }, 300, 20);
+		const layout = railLayout(3, { index: 0, distance: 0 }, 300, 20);
 
 		expect(layout[0]).toEqual({ state: 'current', offset: 0 });
 		expect(layout[1].offset).toBe(260);
 	});
 
 	it('shrinks the rows when the periods do not fit', () => {
-		const layout = railLayout(10, { index: 0, progress: 0 }, 100, 28);
+		const layout = railLayout(10, { index: 0, distance: 0 }, 100, 28);
 
 		expect(layout[9].offset).toBe(90);
 		expect(layout[1].offset).toBe(10);
