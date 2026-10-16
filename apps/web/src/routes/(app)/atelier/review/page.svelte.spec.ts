@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { invalidate } from '$app/navigation';
@@ -67,12 +67,17 @@ function renderReview(
 
 describe('review page', () => {
 	beforeEach(async () => {
+		vi.useFakeTimers({ now: new Date(2026, 9, 16, 21, 30), toFake: ['Date'] });
 		vi.mocked(recordReview).mockReset().mockResolvedValue({});
 		vi.mocked(loadSession)
 			.mockReset()
 			.mockResolvedValue({ rows: flashcards(1, 2, 20, 21) });
 		vi.mocked(invalidate).mockClear();
 		await page.viewport(1280, 800);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
 	});
 
 	it('says how many artworks wait today and how many are new, and how the reviews work', async () => {
