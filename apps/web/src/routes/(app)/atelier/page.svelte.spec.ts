@@ -679,8 +679,11 @@ describe('atelier page', () => {
 
 			await filtersButton().click();
 
-			const header = page.getByRole('heading', { name: m.atelier.filters.title }).element();
-			expect(getComputedStyle(header.parentElement as HTMLElement).position).toBe('sticky');
+			const heading = page.getByRole('heading', { name: m.atelier.filters.title });
+			await expect.element(heading).toBeVisible();
+			expect(getComputedStyle(heading.element().parentElement as HTMLElement).position).toBe(
+				'sticky'
+			);
 		});
 
 		it('narrows the wall as soon as a value is chosen and counts the result', async () => {
