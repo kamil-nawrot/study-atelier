@@ -3,6 +3,7 @@ import type { EraCode, WallArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import {
 	endOfDay,
+	isDueToday,
 	MIN_ARTWORKS,
 	reviewableArtworks,
 	SETTLED_STABILITY_DAYS,
@@ -17,10 +18,10 @@ export type ReviewScope =
 	| { kind: 'period'; name: string }
 	| { kind: 'style'; name: string };
 
-export type EraMemory = {
-	code: EraCode;
-	remembered: number;
-	total: number;
+export type AtelierKnowledge = {
+	settled: number;
+	learning: number;
+	fresh: number;
 };
 
 export type SummaryGroup = {
@@ -28,7 +29,7 @@ export type SummaryGroup = {
 	artworks: WallArtwork[];
 };
 
-const SECONDS_PER_ARTWORK = 25;
+const MIN_DUE_IN_SCOPE = 10;
 const TROUBLES = 4;
 const RELEARNING_STATE = 3;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -49,13 +50,21 @@ function valuesWithEnough(
 		.map(([name]) => name);
 }
 
-export function scopeOptions(artworks: WallArtwork[]): ReviewScope[] {
+function dueIn(artworks: WallArtwork[], cards: Map<string, ReviewCard>, now: Date): number {
+	return artworks.filter((artwork) => {
+		const card = cards.get(artwork.id);
+		return card !== undefined && isDueToday(card, now);
+	}).length;
+}
+
+export function scopeOptions(
+	artworks: WallArtwork[],
+	cards: Map<string, ReviewCard>,
+	now: Date
+): ReviewScope[] {
 	const pool = reviewableArtworks(artworks);
-	return [
-		{ kind: 'all' },
-		...ERA_CODES.filter((code) => pool.some((artwork) => artwork.eraCode === code)).map(
-			(code): ReviewScope => ({ kind: 'era', code })
-		),
+	const narrower: ReviewScope[] = [
+		...ERA_CODES.map((code): ReviewScope => ({ kind: 'era', code })),
 		...valuesWithEnough(pool, (artwork) => (artwork.period ? [artwork.period] : [])).map(
 			(name): ReviewScope => ({ kind: 'period', name })
 		),
@@ -63,6 +72,13 @@ export function scopeOptions(artworks: WallArtwork[]): ReviewScope[] {
 			kind: 'style',
 			name
 		}))
+	];
+	return [
+		{ kind: 'all' },
+		...narrower.filter((scope) => {
+			const scoped = scopeArtworks(pool, scope);
+			return scoped.length >= MIN_ARTWORKS && dueIn(scoped, cards, now) >= MIN_DUE_IN_SCOPE;
+		})
 	];
 }
 
@@ -94,16 +110,18 @@ export function scopeArtworks(artworks: WallArtwork[], scope: ReviewScope): Wall
 	}
 }
 
-export function memoryByEra(artworks: WallArtwork[], cards: Map<string, ReviewCard>): EraMemory[] {
-	const pool = reviewableArtworks(artworks);
-	return ERA_CODES.flatMap((code) => {
-		const inEra = pool.filter((artwork) => artwork.eraCode === code);
-		if (inEra.length === 0) return [];
-		const remembered = inEra.filter(
-			(artwork) => (cards.get(artwork.id)?.stability ?? 0) >= SETTLED_STABILITY_DAYS
-		).length;
-		return [{ code, remembered, total: inEra.length }];
-	});
+export function atelierKnowledge(
+	artworks: WallArtwork[],
+	cards: Map<string, ReviewCard>
+): AtelierKnowledge {
+	const knowledge: AtelierKnowledge = { settled: 0, learning: 0, fresh: 0 };
+	for (const artwork of reviewableArtworks(artworks)) {
+		const card = cards.get(artwork.id);
+		if (!card) knowledge.fresh += 1;
+		else if (card.stability >= SETTLED_STABILITY_DAYS) knowledge.settled += 1;
+		else knowledge.learning += 1;
+	}
+	return knowledge;
 }
 
 export function troubles(artworks: WallArtwork[], cards: Map<string, ReviewCard>): WallArtwork[] {
@@ -144,10 +162,6 @@ export function authorsOf(artwork: WallArtwork): string {
 
 export function formatWhen(date: Date, now: Date): string {
 	return relativeDays.format(daysBetween(now, date), 'day');
-}
-
-export function estimateMinutes(count: number): number {
-	return Math.max(1, Math.round((count * SECONDS_PER_ARTWORK) / 60));
 }
 
 export function waitingTomorrow(

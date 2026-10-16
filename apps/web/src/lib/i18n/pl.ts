@@ -376,16 +376,21 @@ export const pl = {
 		title: 'Powtórki',
 		loadErrorTitle: 'Nie udało się wczytać powtórek',
 		startErrorTitle: 'Nie udało się zacząć powtórki',
-		waiting: (count: number): string =>
-			`Na dziś ${plural(count, { one: 'czeka', few: 'czekają', many: 'czeka' })} ${workCount(count)}`,
-		plan: (known: number, fresh: number, minutes: number): string =>
-			[known > 0 ? `${known} znasz już` : '', fresh > 0 ? `${fresh} zobaczysz pierwszy raz` : '']
+		waiting: (count: number): string => `Na dziś do powtórki zaplanowane masz ${workCount(count)}`,
+		plan: (known: number, fresh: number): string =>
+			[
+				known > 0
+					? `${known} ${plural(known, { one: 'powracające', few: 'powracające', many: 'powracających' })}`
+					: '',
+				fresh > 0 ? `${fresh} ${plural(fresh, { one: 'nowe', few: 'nowe', many: 'nowych' })}` : ''
+			]
 				.filter(Boolean)
-				.join(', ') + `. Około ${minutes} ${minutes === 1 ? 'minuty' : 'minut'}.`,
-		allDone: (when: string): string =>
-			`Na dziś wszystko powtórzone. Następne dzieła czekają ${when}.`,
-		tooFew: (missing: number): string =>
-			`Dodaj jeszcze ${workCount(missing)} ze zdjęciem, żeby zacząć powtórki z tego zakresu.`,
+				.join(' i '),
+		allDoneTitle: 'Nic nowego do powtórki',
+		allDone: (when: string): string => `Kolejne dzieła będą na Ciebie czekać ${when}.`,
+		tooFew: (minimum: number, missing: number): string =>
+			`Powtórki będzie można rozpocząć, gdy w Twoim atelier znajdzie się przynajmniej ${minimum} dzieł ze zdjęciami. Obecnie brakuje jeszcze ${missing}.`,
+		options: 'Zmień zakres lub formę',
 		scope: 'Co powtarzamy?',
 		scopes: {
 			all: 'Cała kolekcja'
@@ -396,10 +401,20 @@ export const pl = {
 			flashcards: 'Fiszki',
 			quizzes: 'Quizy'
 		},
+		formHints: {
+			mixed: 'Fiszki i quizy, dobrane do tego, jak dobrze znasz dzieło.',
+			flashcards: 'Przypominasz sobie dzieło, odkrywasz kartę i oceniasz, jak Ci poszło.',
+			quizzes: 'Wybierasz jedną z czterech odpowiedzi.'
+		},
 		start: 'Zacznij powtórkę',
-		memory: 'Co już pamiętasz',
-		memoryHint: 'Dzieła, które pamiętasz dłużej niż tydzień.',
-		memoryCount: (remembered: number, total: number): string => `${remembered} z ${total}`,
+		howTitle: 'Jak działają powtórki?',
+		how: 'Do puli codziennie dobierane są nowe dzieła, które dodasz do atelier, a także takie, które wymagają powtórki. Im lepiej pamiętasz dzieło, tym rzadziej będzie pojawiać się w kolejnych dniach.',
+		knowledge: 'Jak dobrze znasz swoje atelier?',
+		knowledgeGroups: {
+			settled: { label: 'Utrwalone', hint: 'Pamiętasz je dłużej niż tydzień.' },
+			learning: { label: 'W trakcie nauki', hint: 'Już powtarzane, jeszcze się utrwalają.' },
+			fresh: { label: 'Nowe', hint: 'Czekają na pierwszą powtórkę.' }
+		},
 		troubles: 'Ostatnio sprawiały kłopot',
 		stop: 'Przerwij',
 		stopTitle: 'Przerwać teraz?',
