@@ -39,6 +39,7 @@ Chosen option: one layout, as the owner decided.
 - Bad: on a phone the tiles are narrow, so their title and details are cut with an ellipsis; the status line names the right and the picked artwork in full.
 - Bad: on a phone a reason icon explains itself only to a pointer; the image quiz still writes the reasons out under the tiles.
 - Bad: the learner no longer sees when an artwork comes back before rating it.
+- Bad: on a phone the tiles fill most of the first screen, so the question of the image quiz stands below them and needs a scroll; the owner accepted it.
 
 ## More information
 
