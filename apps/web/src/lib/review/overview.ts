@@ -4,6 +4,7 @@ import type { CollectionFilter, EraCode, WallArtwork } from '#lib/collection/typ
 import { m } from '#lib/i18n/index.ts';
 import {
 	endOfDay,
+	MIN_ARTWORKS,
 	reviewableArtworks,
 	SETTLED_STABILITY_DAYS,
 	sessionEntries,
@@ -30,14 +31,13 @@ export type SummaryGroup = {
 };
 
 const SECONDS_PER_ARTWORK = 25;
-const VALUE_SCOPES = 2;
 const TROUBLES = 4;
 const RELEARNING_STATE = 3;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 const relativeDays = new Intl.RelativeTimeFormat('pl', { numeric: 'auto' });
 
-function topValues(
+function valuesWithEnough(
 	artworks: WallArtwork[],
 	valuesOf: (artwork: WallArtwork) => string[]
 ): string[] {
@@ -46,24 +46,30 @@ function topValues(
 		for (const value of valuesOf(artwork)) counts.set(value, (counts.get(value) ?? 0) + 1);
 	}
 	return [...counts]
+		.filter(([, count]) => count >= MIN_ARTWORKS)
 		.sort(([a, countA], [b, countB]) => countB - countA || a.localeCompare(b, 'pl'))
-		.slice(0, VALUE_SCOPES)
 		.map(([name]) => name);
 }
 
-export function scopeOptions(artworks: WallArtwork[], wallFiltered: boolean): ReviewScope[] {
+export function scopeOptions(
+	artworks: WallArtwork[],
+	wallFilter: CollectionFilter | null
+): ReviewScope[] {
 	const pool = reviewableArtworks(artworks);
+	const enough = (scoped: WallArtwork[]): boolean => scoped.length >= MIN_ARTWORKS;
 	return [
 		{ kind: 'all' },
-		...(pool.some((artwork) => artwork.favourite) ? [{ kind: 'favourites' } as const] : []),
-		...topValues(pool, (artwork) => (artwork.period ? [artwork.period] : [])).map(
+		...(enough(pool.filter((artwork) => artwork.favourite))
+			? [{ kind: 'favourites' } as const]
+			: []),
+		...valuesWithEnough(pool, (artwork) => (artwork.period ? [artwork.period] : [])).map(
 			(name): ReviewScope => ({ kind: 'period', name })
 		),
-		...topValues(pool, (artwork) => artwork.styles).map((name): ReviewScope => ({
+		...valuesWithEnough(pool, (artwork) => artwork.styles).map((name): ReviewScope => ({
 			kind: 'style',
 			name
 		})),
-		...(wallFiltered ? [{ kind: 'wall' } as const] : [])
+		...(wallFilter && enough(applyFilter(pool, wallFilter)) ? [{ kind: 'wall' } as const] : [])
 	];
 }
 
