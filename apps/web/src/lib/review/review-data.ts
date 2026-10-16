@@ -14,7 +14,7 @@ import type {
 	ReviewCardsResult,
 	ReviewCounts,
 	ReviewCountsResult,
-	ReviewDetails,
+	ReviewDetailsResult,
 	ReviewForm,
 	ReviewSessionResult,
 	ReviewState,
@@ -125,16 +125,18 @@ export async function recordReview(
 	return error ? { error: await failureMessage(error, () => m.review.saveFailed) } : {};
 }
 
-export async function loadReviewDetails(ids: string[]): Promise<Map<string, ReviewDetails>> {
-	if (ids.length === 0) return new Map();
+export async function loadReviewDetails(ids: string[]): Promise<ReviewDetailsResult> {
+	if (ids.length === 0) return { details: new Map() };
 	const { data, error } = await supabase.from('artworks').select(DETAILS_COLUMNS).in('id', ids);
-	if (error || !data) return new Map();
-	return new Map(
-		(data as unknown as DetailsRow[]).map((row) => [
-			row.id,
-			{ notes: row.notes ?? '', credit: artworkImageCredit(imageOf(row)) }
-		])
-	);
+	if (error || !data) return { details: new Map(), error: collectionErrorMessage(error ?? {}) };
+	return {
+		details: new Map(
+			(data as unknown as DetailsRow[]).map((row) => [
+				row.id,
+				{ notes: row.notes ?? '', credit: artworkImageCredit(imageOf(row)) }
+			])
+		)
+	};
 }
 
 function scopeArgs(scope: ReviewScope): { scope_kind: string; scope_value?: string } {

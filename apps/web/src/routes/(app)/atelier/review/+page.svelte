@@ -142,26 +142,34 @@
 		if (starting) return;
 		starting = true;
 		startError = undefined;
-		const loaded = await loadSession(startOfDay(new Date()), form, scope);
-		const items = sessionItems(loaded.rows, artworksById, cards);
-		if (loaded.error || items.length === 0) {
-			startError = loaded.error;
+		try {
+			startError = await prepareSession();
+		} catch {
+			startError = m.common.unexpectedError;
+		}
+		if (startError || !session) {
 			now = new Date();
 			phase = 'start';
-			starting = false;
-			return;
 		}
+		starting = false;
+	}
+
+	async function prepareSession(): Promise<string | undefined> {
+		const loaded = await loadSession(startOfDay(new Date()), form, scope);
+		const items = sessionItems(loaded.rows, artworksById, cards);
+		if (loaded.error || items.length === 0) return loaded.error;
 		const artworks = items.map((item) => item.artwork);
 		const shown = [...artworks, ...quizArtworks(items)];
 		const [, found] = await Promise.all([
 			resolveInto(shown.filter((artwork) => artwork.pendingImage)),
 			loadReviewDetails(artworks.map((artwork) => artwork.id))
 		]);
-		details = found;
+		if (found.error) return found.error;
+		details = found.details;
 		session = new ReviewSession(items.map(withImages), cards);
 		summary = undefined;
 		phase = 'session';
-		starting = false;
+		return undefined;
 	}
 
 	function reveal(): void {
