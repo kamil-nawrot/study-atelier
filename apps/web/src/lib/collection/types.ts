@@ -18,7 +18,7 @@ export type PeriodGroup = {
 
 export type CurrentPeriod = {
 	index: number;
-	progress: number;
+	distance: number;
 };
 
 export type ArtworkValueRow = {

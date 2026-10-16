@@ -24,7 +24,7 @@ Starts the dev server on port 5199, opens the route in Chromium at a desktop (14
 | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `--out <dir>`       | Output folder, for example a folder in the project files                                                                                                               |
 | `--name <name>`     | File name prefix (default derived from the route)                                                                                                                      |
-| `--viewport <v>`    | `desktop`, `phone` or `both` (default)                                                                                                                                 |
+| `--viewport <v>`    | `desktop`, `wide` (1920 x 1000, wide enough for the period rail), `phone` or `both` (default)                                                                                                                                 |
 | `--combine`         | Also write `<name>-both.png` with both shots side by side                                                                                                              |
 | `--full-page`       | Capture the whole page instead of the first screen                                                                                                                     |
 | `--signed-out`      | No fake session (automatic for sign-in, sign-up and password pages)                                                                                                    |
@@ -33,6 +33,8 @@ Starts the dev server on port 5199, opens the route in Chromium at a desktop (14
 | `--wait <selector>` | Wait for a selector before capturing                                                                                                                                   |
 | `--type <text>`     | Click the notes editor and type this text first, for example `' @ba'` to open the link suggestions                                                                     |
 | `--script <file>`   | Run a JavaScript file in the page first, for example to mock an option                                                                                                 |
+| `--repeat <n>`      | Show every sample artwork n times, to have more to scroll through |
+| `--scroll`          | Also write a GIF that scrolls the page from top to bottom (`<name>-<viewport>-scroll.gif`, needs ffmpeg) |
 | `--url <base>`      | Use a dev server that is already running                                                                                                                               |
 
 Combine desktop and phone shots into one image when attaching to a thread: a thread accepts at most 24 attachments.
