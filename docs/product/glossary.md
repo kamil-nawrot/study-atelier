@@ -15,3 +15,7 @@
 | Era | One of six fixed spans of history at the top of the timeline (prehistoria to współczesność). An artwork has one era; its period belongs to the era and its styles to the period. Unlike a period, an era is not the learner's own value. |
 | Card index | The view ("Kartoteka") listing the learner's category values and eras; each leads to its value page, where the learner describes, renames, merges, links and deletes it. |
 | Value page | The page of one category value or era in the card index, with the learner's summary ("Podsumowanie") and notes, the fields of its kind and the artworks that use it ([ADR-0049](../decisions/0049-give-every-category-value-a-page-of-its-own.md)). |
+| Review | A session ("Powtórki") in which the learner recalls artworks of the atelier as flashcards and quizzes; when each artwork comes back is scheduled from the answers ([ADR-0061](../decisions/0061-review-the-collection-in-one-mixed-session.md)). |
+| Flashcard | A review question that shows an artwork's image and asks the learner to recall it before revealing the answer and rating how well they knew it. |
+| Quiz | A review question with four answers to choose from: images, titles or styles. The wrong answers are distractors. |
+| Distractor | A wrong answer in a quiz, taken from the learner's own artworks or styles and chosen to be close to the right one. |
