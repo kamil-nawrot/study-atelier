@@ -68,6 +68,14 @@ describe('Quiz', () => {
 		expect(onanswer).toHaveBeenCalledWith(2);
 	});
 
+	it('keeps the next button in its place but disabled until the answer', async () => {
+		const { onnext } = renderQuiz('quiz_image', artworkQuiz);
+
+		await expect.element(page.getByRole('button', { name: m.review.quiz.next })).toBeDisabled();
+		await userEvent.keyboard('{Enter}');
+		expect(onnext).not.toHaveBeenCalled();
+	});
+
 	it('marks the right image, names the wrong pick and says why the others were close', async () => {
 		const { onnext } = renderQuiz('quiz_image', artworkQuiz, 0);
 

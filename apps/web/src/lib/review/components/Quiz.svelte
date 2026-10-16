@@ -2,12 +2,13 @@
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
 	import Check from '@lucide/svelte/icons/check';
 	import X from '@lucide/svelte/icons/x';
-	import { Alert, Button, Icon } from '@study-atelier/ui';
+	import { Alert, ArtworkImage, Button, Icon } from '@study-atelier/ui';
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { onControl, sessionKey } from '../keys.ts';
 	import { authorsOf } from '../overview.ts';
-	import type { Quiz, QuizOption, ReviewDetails, ReviewItem } from '../types.ts';
+	import { QUIZ_TILE_SIZES } from '../quiz.ts';
+	import type { Quiz, QuizOption, QuizReason, ReviewDetails, ReviewItem } from '../types.ts';
 	import ReviewCard from './ReviewCard.svelte';
 
 	type Props = {
@@ -21,6 +22,8 @@
 	};
 
 	let { item, details, chosen, saving, error, onanswer, onnext }: Props = $props();
+
+	const REASONS: readonly QuizReason[] = ['author', 'style', 'period'];
 
 	let heading = $state<HTMLElement>();
 	let nextButton = $state<HTMLElement>();
@@ -121,14 +124,18 @@
 	{#if error}
 		<Alert title={m.review.saveErrorTitle} tone="danger">{error}</Alert>
 	{/if}
-	{#if answered}
-		<div bind:this={nextButton}>
-			<Button aria-keyshortcuts="Enter" fullWidth onclick={onnext} variant="primary">
-				{m.review.quiz.next}
-				<Icon icon={ArrowRight} size="sm" />
-			</Button>
-		</div>
-	{/if}
+	<div bind:this={nextButton}>
+		<Button
+			aria-keyshortcuts="Enter"
+			disabled={!answered}
+			fullWidth
+			onclick={onnext}
+			variant="primary"
+		>
+			{m.review.quiz.next}
+			<Icon icon={ArrowRight} size="sm" />
+		</Button>
+	</div>
 {/snippet}
 
 {#snippet mark(index: number)}
@@ -141,84 +148,86 @@
 	{/if}
 {/snippet}
 
-{#if item.mode === 'quiz_image'}
-	<div class="images">
-		<section class="question" aria-labelledby="quiz-heading">
+{#snippet tiles()}
+	<ol class="tiles" aria-label={m.review.quiz.options}>
+		{#each quiz.options as option, index (option.artwork?.id ?? option.label)}
+			{@const image = option.artwork?.image}
+			{@const imageAlt =
+				answered && option.artwork ? describe(option.artwork) : m.review.quiz.imageAlt(index + 1)}
+			<li
+				style:--artwork-ratio={image ? image.width / image.height : undefined}
+				class="tile"
+				class:muted={answered && index !== quiz.answer && index !== chosen}
+				class:right={answered && index === quiz.answer}
+				class:wrong={answered && index === chosen && !correct}
+			>
+				<button
+					class="pick"
+					aria-keyshortcuts={String(index + 1)}
+					disabled={answered || saving}
+					onclick={() => onanswer(index)}
+					type="button"
+				>
+					<span class="window">
+						{#if image?.src}
+							<ArtworkImage
+								alt={imageAlt}
+								height={image.height}
+								loading="eager"
+								sizes={QUIZ_TILE_SIZES}
+								src={image.src}
+								srcset={image.srcset}
+								width={image.width}
+							/>
+						{:else}
+							<ArtworkImage alt={imageAlt} unavailable />
+						{/if}
+						<span class="badge" aria-hidden="true">{@render mark(index)}</span>
+					</span>
+					{@render optionState(index)}
+				</button>
+				<p class="tile-caption">
+					{#if answered}
+						<cite class="artwork-title">{option.label}</cite>
+						<span class="caption">{optionDetails(option)}</span>
+					{/if}
+				</p>
+			</li>
+		{/each}
+	</ol>
+{/snippet}
+
+<ReviewCard
+	actions={next}
+	{alt}
+	{artwork}
+	compact
+	credit={answered ? details?.credit : undefined}
+	labelledby="quiz-heading"
+	stage={item.mode === 'quiz_image' ? tiles : undefined}
+>
+	{#snippet body()}
+		<div class="intro">
 			<h1 bind:this={heading} id="quiz-heading" tabindex="-1">
-				{m.review.quiz.imageQuestion.start}
-				<cite class="artwork-title">{artwork.title}</cite>{m.review.quiz.imageQuestion.end}
+				{#if item.mode === 'quiz_image'}
+					{m.review.quiz.imageQuestion.start}
+					<cite class="artwork-title">{artwork.title}</cite>{m.review.quiz.imageQuestion.end}
+				{:else if item.mode === 'quiz_style'}
+					{m.review.quiz.styleQuestion}
+				{:else}
+					{m.review.quiz.titleQuestion}
+				{/if}
 			</h1>
-			{#if !answered}
-				<p class="lead hint">
+			{#if item.mode === 'quiz_image'}
+				<p class="lead">
 					<span class="pointer">{m.review.quiz.imageHint}</span>
 					<span class="touch">{m.review.quiz.imageHintTouch}</span>
 				</p>
+			{:else if item.mode === 'quiz_style'}
+				<p class="lead">{m.review.quiz.styleHint}</p>
 			{/if}
-			{@render feedback()}
-		</section>
-		<ol class="tiles" aria-label={m.review.quiz.options}>
-			{#each quiz.options as option, index (option.artwork?.id ?? option.label)}
-				<li>
-					<button
-						class="tile"
-						class:muted={answered && index !== quiz.answer && index !== chosen}
-						class:right={answered && index === quiz.answer}
-						class:wrong={answered && index === chosen && !correct}
-						aria-keyshortcuts={String(index + 1)}
-						disabled={answered || saving}
-						onclick={() => onanswer(index)}
-						type="button"
-					>
-						<span class="badge" aria-hidden="true">{@render mark(index)}</span>
-						{#if option.artwork?.image?.src}
-							<img
-								alt={answered && option.artwork
-									? describe(option.artwork)
-									: m.review.quiz.imageAlt(index + 1)}
-								height={option.artwork.image.height}
-								sizes="(min-width: 768px) 280px, 45vw"
-								src={option.artwork.image.src}
-								srcset={option.artwork.image.srcset}
-								width={option.artwork.image.width}
-							/>
-						{:else}
-							<span class="hidden">{m.review.quiz.imageAlt(index + 1)}</span>
-						{/if}
-						{@render optionState(index)}
-					</button>
-					{#if answered}
-						<p class="tile-caption">
-							<cite class="artwork-title">{option.label}</cite>
-							<span class="caption">{optionDetails(option)}</span>
-						</p>
-					{/if}
-				</li>
-			{/each}
-		</ol>
-		{#if answered || error}
-			<div class="actions">
-				{@render next()}
-			</div>
-		{/if}
-	</div>
-{:else}
-	<ReviewCard
-		actions={answered || error ? next : undefined}
-		{alt}
-		{artwork}
-		compact
-		credit={answered ? details?.credit : undefined}
-		labelledby="quiz-heading"
-	>
-		{#snippet body()}
-			<div class="intro">
-				<h1 bind:this={heading} id="quiz-heading" tabindex="-1">
-					{item.mode === 'quiz_style' ? m.review.quiz.styleQuestion : m.review.quiz.titleQuestion}
-				</h1>
-				{#if item.mode === 'quiz_style' && !answered}
-					<p class="lead">{m.review.quiz.styleHint}</p>
-				{/if}
-			</div>
+		</div>
+		{#if item.mode !== 'quiz_image'}
 			<ol class="options" aria-label={m.review.quiz.options}>
 				{#each quiz.options as option, index (option.artwork?.id ?? option.label)}
 					<li>
@@ -239,19 +248,23 @@
 								{:else}
 									{option.label}
 								{/if}
-								{#if answered && option.reason}
-									<span class="caption">{m.review.quiz.reasons[option.reason]}</span>
-								{/if}
+								<span class="caption reasons">
+									{#each REASONS as reason (reason)}
+										<span class:shown={answered && option.reason === reason}>
+											{m.review.quiz.reasons[reason]}
+										</span>
+									{/each}
+								</span>
 							</span>
 							{@render optionState(index)}
 						</button>
 					</li>
 				{/each}
 			</ol>
-			{@render feedback()}
-		{/snippet}
-	</ReviewCard>
-{/if}
+		{/if}
+		{@render feedback()}
+	{/snippet}
+</ReviewCard>
 
 <style>
 	h1:focus {
@@ -282,33 +295,8 @@
 		line-height: var(--line-height-md);
 	}
 
-	.images {
-		display: grid;
-		align-content: start;
-		gap: var(--spacing-6);
-		width: 100%;
-		max-width: var(--size-content-wide);
-	}
-
-	.question {
-		display: grid;
-		align-content: start;
-		gap: var(--spacing-4);
-	}
-
 	.touch {
 		display: none;
-	}
-
-	.actions {
-		position: sticky;
-		bottom: 0;
-		z-index: 1;
-		display: grid;
-		gap: var(--spacing-3);
-		padding: var(--spacing-4) 0;
-		border-top: var(--border-width-hairline) solid var(--color-tag);
-		background: var(--color-bg);
 	}
 
 	.tiles,
@@ -321,48 +309,75 @@
 	}
 
 	.tiles {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		align-items: start;
-	}
+		--tile-gap: var(--spacing-3);
+		--tile-band: calc(
+			var(--spacing-2) + var(--font-size-lg) * var(--line-height-lg) + var(--spacing-1) +
+				var(--font-size-xs) * var(--line-height-xs) + var(--spacing-3)
+		);
+		--tile-max-width: calc(
+			(100cqw - var(--tile-gap)) / 2 - 2 * var(--spacing-2) - 2 * var(--border-width-button)
+		);
+		--tile-max-height: 20dvh;
 
-	.tiles li {
-		display: grid;
-		gap: var(--spacing-2);
+		container-type: inline-size;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		place-items: center;
+		gap: var(--tile-gap);
+		width: 100%;
 	}
 
 	.tile {
 		position: relative;
-		display: block;
-		width: 100%;
-		aspect-ratio: 1;
-		padding: 0;
+		display: grid;
+		padding: var(--spacing-2) var(--spacing-2) 0;
 		border: var(--border-width-button) solid transparent;
 		background: var(--color-mat-bg);
+		color: var(--color-mat-fg);
+	}
+
+	.pick {
+		display: block;
+		padding: 0;
+		border: none;
+		background: transparent;
+		color: inherit;
+		font: inherit;
 		cursor: pointer;
 	}
 
-	.tile:disabled,
+	.pick:enabled::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+	}
+
+	.pick:disabled,
 	.option:disabled {
 		cursor: default;
 	}
 
-	.tile img {
-		position: absolute;
-		inset: var(--spacing-3);
+	.window {
+		position: relative;
 		display: block;
-		width: calc(100% - 2 * var(--spacing-3));
-		height: calc(100% - 2 * var(--spacing-3));
-		object-fit: contain;
+	}
+
+	.window :global(img) {
+		display: block;
+		width: min(var(--tile-max-width), calc(var(--tile-max-height) * var(--artwork-ratio, 0.8)));
+		height: auto;
+		background: var(--color-mat-window);
 	}
 
 	.badge {
 		position: absolute;
-		top: 0;
-		left: 0;
+		top: var(--spacing-2);
+		left: var(--spacing-2);
+		z-index: 1;
 		display: grid;
 		place-items: center;
 		min-width: var(--spacing-6);
 		height: var(--spacing-6);
+		padding: 0 var(--spacing-1);
 		background: var(--color-mat-badge-bg);
 		color: var(--color-mat-badge-fg);
 		font-size: var(--font-size-xs);
@@ -394,7 +409,22 @@
 
 	.tile-caption {
 		display: grid;
+		align-content: start;
 		gap: var(--spacing-1);
+		width: 0;
+		min-width: 100%;
+		height: var(--tile-band);
+		padding: var(--spacing-2) 0 var(--spacing-3);
+	}
+
+	.tile-caption > * {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.tile-caption .caption {
+		color: var(--color-mat-fg-muted);
 	}
 
 	.option {
@@ -427,6 +457,7 @@
 
 	.key {
 		display: grid;
+		flex: none;
 		place-items: center;
 		min-width: var(--spacing-6);
 		height: var(--spacing-6);
@@ -448,7 +479,25 @@
 
 	.label {
 		display: grid;
-		gap: var(--spacing-1);
+		flex: 1;
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: baseline;
+		gap: var(--spacing-3);
+	}
+
+	.reasons {
+		display: grid;
+		justify-items: end;
+		white-space: nowrap;
+	}
+
+	.reasons > span {
+		grid-area: 1 / 1;
+		visibility: hidden;
+	}
+
+	.reasons > .shown {
+		visibility: visible;
 	}
 
 	@media (hover: none) {
@@ -462,33 +511,16 @@
 	}
 
 	@media (min-width: 768px) {
-		.images {
-			grid-template-areas:
-				'question tiles'
-				'actions tiles';
-			grid-template-rows: auto 1fr;
-			grid-template-columns: minmax(0, 360px) auto;
-			justify-content: center;
-			gap: var(--spacing-6) var(--spacing-12);
-		}
-
-		.question {
-			grid-area: question;
-		}
-
 		.tiles {
-			grid-area: tiles;
-			grid-template-columns: repeat(2, min(30dvh, 280px));
-			gap: var(--spacing-4);
-		}
+			--tile-gap: var(--spacing-4);
+			--tile-max-height: calc(
+				(100cqh - var(--tile-gap)) / 2 - var(--spacing-2) - var(--tile-band) - 2 *
+					var(--border-width-button)
+			);
 
-		.actions {
-			position: static;
-			grid-area: actions;
-			align-self: start;
-			justify-self: start;
-			padding: 0;
-			border-top: none;
+			grid-template-columns: repeat(2, auto);
+			justify-content: center;
+			align-content: center;
 		}
 	}
 </style>
