@@ -388,10 +388,7 @@ export const pl = {
 			`Dodaj jeszcze ${workCount(missing)} ze zdjęciem, żeby zacząć powtórki z tego zakresu.`,
 		scope: 'Co powtarzamy?',
 		scopes: {
-			all: 'Cała kolekcja',
-			favourites: 'Ulubione',
-			wall: (count: number): string =>
-				`Jak na ścianie: ${count} ${plural(count, { one: 'filtr', few: 'filtry', many: 'filtrów' })}`
+			all: 'Cała kolekcja'
 		},
 		start: 'Zacznij powtórkę',
 		memory: 'Co już pamiętasz',

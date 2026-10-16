@@ -67,3 +67,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0061](0061-review-the-collection-in-one-mixed-session.md) | Review the collection in one mixed session of flashcards and quizzes | accepted |
 | [0062](0062-schedule-reviews-with-fsrs.md) | Schedule reviews with FSRS and store them per artwork | accepted |
 | [0063](0063-make-a-small-copy-of-every-own-image.md) | Make a small copy of every own image for the wall | proposed |
+| [0064](0064-narrow-the-review-scopes.md) | Narrow the review scopes to the collection, eras, periods and styles | accepted |

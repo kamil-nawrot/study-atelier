@@ -5,7 +5,7 @@
 	import { formatRecordNumber } from '#lib/collection/format.ts';
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import { type EraMemory, type ReviewScope, sameScope } from '../overview.ts';
+	import { type EraMemory, type ReviewScope, sameScope, scopeKey } from '../overview.ts';
 
 	type Props = {
 		known: number;
@@ -15,7 +15,6 @@
 		nextWhen?: string;
 		scopes: ReviewScope[];
 		scope: ReviewScope;
-		wallFilters: number;
 		memory: EraMemory[];
 		troubles: WallArtwork[];
 		starting: boolean;
@@ -31,7 +30,6 @@
 		nextWhen,
 		scopes,
 		scope,
-		wallFilters,
 		memory,
 		troubles,
 		starting,
@@ -45,17 +43,13 @@
 		switch (option.kind) {
 			case 'all':
 				return m.review.scopes.all;
-			case 'favourites':
-				return m.review.scopes.favourites;
-			case 'wall':
-				return m.review.scopes.wall(wallFilters);
+			case 'era': {
+				const name = m.eras[option.code].name;
+				return name.charAt(0).toLocaleUpperCase('pl') + name.slice(1);
+			}
 			default:
 				return option.name;
 		}
-	}
-
-	function scopeKey(option: ReviewScope): string {
-		return 'name' in option ? `${option.kind}:${option.name}` : option.kind;
 	}
 
 	function byline(artwork: WallArtwork): string {

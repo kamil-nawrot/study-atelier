@@ -110,7 +110,7 @@ describe('review page', () => {
 		await expect.element(page.getByText(m.review.allDone('jutro'))).toBeVisible();
 	});
 
-	it('offers only the scopes that have enough artworks to start', async () => {
+	it('offers every era and only the styles with enough artworks, and counts what is missing', async () => {
 		const artworks = collection(25).map((artwork, index) => ({
 			...artwork,
 			styles: index < 21 ? ['Caravaggism'] : []
@@ -120,11 +120,14 @@ describe('review page', () => {
 		await expect
 			.element(page.getByRole('button', { name: m.review.scopes.all }))
 			.toHaveAttribute('aria-pressed', 'true');
-		await page.getByRole('button', { name: 'Caravaggism' }).click();
-		await expect
-			.element(page.getByRole('button', { name: 'Caravaggism' }))
-			.toHaveAttribute('aria-pressed', 'true');
+		await expect.element(page.getByRole('button', { name: 'Caravaggism' })).toBeVisible();
 		await expect.element(page.getByRole('button', { name: 'Baroque' })).not.toBeInTheDocument();
+
+		await page.getByRole('button', { name: 'Nowoczesność' }).click();
+		await expect
+			.element(page.getByRole('button', { name: 'Nowoczesność' }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect.element(page.getByText(m.review.tooFew(8))).toBeVisible();
 	});
 
 	it('goes through a session card by card and ends with a summary', async () => {
