@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { WallArtwork } from '#lib/collection/types.ts';
-import { m } from '#lib/i18n/index.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { testReviewCard } from '#lib/testing/review.ts';
 import {
 	estimateMinutes,
-	formatInterval,
 	formatWhen,
 	memoryByEra,
 	nextWaiting,
@@ -166,12 +164,6 @@ describe('review overview', () => {
 		const cards = cardsFor([['artwork-1', testReviewCard('artwork-1', days(5))]]);
 
 		expect(nextWaiting(artworks, cards, now)).toEqual(days(1, 0));
-	});
-
-	it('names the interval under a rating', () => {
-		expect(formatInterval(new Date(2026, 9, 16, 9, 10), now)).toBe(m.review.interval.today);
-		expect(formatInterval(days(1), now)).toBe(m.review.interval.tomorrow);
-		expect(formatInterval(days(5, 23), now)).toBe(m.review.interval.days(5));
 	});
 
 	it('estimates about 25 seconds per artwork, at least a minute', () => {
