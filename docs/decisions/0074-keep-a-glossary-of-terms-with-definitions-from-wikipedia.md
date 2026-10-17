@@ -75,3 +75,4 @@ Chosen, decided by the owner in ATL-188: list A, page C, dialog A, background C,
 - Issues: ATL-187 (spike, analysis in Linear), ATL-188 (this design), ATL-189 (build: table, menu, list, page, form with the Wikipedia search, the dialog and the author warning), ATL-190 (build: marking entries in notes, the card and "Pojawia się w notatkach").
 - The cloud environment cannot reach `pl.wikipedia.org`, so the search was designed from the API documentation and mocked in the mockups. ATL-189 starts by checking it live on a few entries (nawa, łuk, Dawid).
 - The mockups are in the project files under `atl-188/`.
+- The fetched definition leaves out the term that opens the article, popovers open to the left when they do not fit, the list has a hairline between letters on a computer, and the lead under the title is changed by [ADR-0077](0077-trim-the-wikipedia-lead-and-polish-the-glossary-list.md).
