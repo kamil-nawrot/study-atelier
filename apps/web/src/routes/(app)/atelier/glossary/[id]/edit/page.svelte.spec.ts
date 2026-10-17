@@ -76,11 +76,39 @@ describe('edit glossary entry page', () => {
 		await expect
 			.element(page.getByLabelText(m.glossary.form.definition))
 			.toHaveValue(tympanum.definition);
-		await expect.element(page.getByText('tympana', { exact: true })).toBeVisible();
+		await expect.element(page.getByText('tympan', { exact: true })).toBeVisible();
 		await expect.element(page.getByText(/Na podstawie: Wikipedia, „Tympanum”/)).toBeVisible();
+		await expect
+			.element(page.getByRole('checkbox', { name: m.glossary.form.sortByOther }))
+			.not.toBeChecked();
 		await expect
 			.element(page.getByRole('link', { name: m.glossary.form.cancel }))
 			.toHaveAttribute('href', `/atelier/glossary/${tympanum.id}`);
+	});
+
+	it('collapses the saved forms behind their number and shows them on request', async () => {
+		renderEdit();
+
+		await expect.element(page.getByText(m.glossary.form.formsCount(2))).toBeVisible();
+		await expect.element(page.getByText('tympana', { exact: true })).not.toBeInTheDocument();
+
+		await page.getByRole('button', { name: m.glossary.form.showForms, exact: true }).click();
+
+		await expect.element(page.getByText('tympana', { exact: true })).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.glossary.form.hideForms, exact: true }))
+			.toHaveAttribute('aria-expanded', 'true');
+	});
+
+	it('shows the sort name of an entry that has one', async () => {
+		renderEdit(testEntry('a-lorenzo', 'Lorenzo Medici', { sortName: 'Medici, Lorenzo' }));
+
+		await expect
+			.element(page.getByRole('checkbox', { name: m.glossary.form.sortByOther }))
+			.toBeChecked();
+		await expect
+			.element(page.getByRole('textbox', { name: m.glossary.form.sortName }))
+			.toHaveValue('Medici, Lorenzo');
 	});
 
 	it('does not search Wikipedia again for an entry that already has a definition', async () => {

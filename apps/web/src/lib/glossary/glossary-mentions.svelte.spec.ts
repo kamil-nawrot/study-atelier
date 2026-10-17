@@ -26,25 +26,27 @@ function mockTables(tables: Rows): void {
 describe('loadGlossaryMentions', () => {
 	beforeEach(() => vi.clearAllMocks());
 
-	it('lists the artworks and values whose notes contain the entry or one of its forms', async () => {
+	it('lists the artworks and values whose notes contain the entry, one of its synonyms or forms', async () => {
 		mockTables({
 			artworks: [
 				{ record_number: 3, title: 'Temple', notes: 'The Tympanum shows a battle.' },
 				{ record_number: 4, title: 'Other', notes: 'Carved tympana everywhere.' },
-				{ record_number: 5, title: 'Unrelated', notes: 'Only a fresco.' }
+				{ record_number: 5, title: 'Unrelated', notes: 'Only a fresco.' },
+				{ record_number: 6, title: 'Synonym', notes: 'A tympan with saints.' }
 			],
 			author_details: [{ value_id: 'author-phidias', notes: 'Known for the tympanum.' }]
 		});
 
 		const mentions = await loadGlossaryMentions(
-			testEntry('a-tympanum', 'Tympanum', { forms: ['tympana'] }),
+			testEntry('a-tympanum', 'Tympanum', { synonyms: ['tympan'], forms: ['tympana'] }),
 			testCardIndex()
 		);
 
 		expect(mentions.map((mention) => mention.name)).toEqual([
 			'Phidias',
 			'#0003 Temple',
-			'#0004 Other'
+			'#0004 Other',
+			'#0006 Synonym'
 		]);
 	});
 

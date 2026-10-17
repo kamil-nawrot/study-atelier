@@ -25,7 +25,9 @@ function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 		name: 'Tympanum',
 		category: 'architecture',
 		definition: 'A definition.',
+		synonyms: ['tympan'],
 		forms: ['tympana'],
+		sort_name: null,
 		source_title: 'Tympanum',
 		source_url: 'https://pl.wikipedia.org/wiki/Tympanum',
 		source_licence: 'CC BY-SA 4.0',
@@ -53,7 +55,10 @@ const draft: GlossaryDraft = {
 	name: '  Tympanum ',
 	category: 'architecture',
 	definition: ' A definition. ',
+	synonyms: [' tympan ', 'Tympan'],
 	forms: ['tympana', ' ', 'Tympana'],
+	sortByOther: false,
+	sortName: 'Ignored',
 	source: {
 		title: 'Tympanum',
 		url: 'https://pl.wikipedia.org/wiki/Tympanum',
@@ -74,6 +79,7 @@ describe('loadGlossary', () => {
 				row({
 					id: 'other',
 					definition: null,
+					sort_name: 'Tympanum, the',
 					source_title: null,
 					source_url: null,
 					source_licence: null,
@@ -93,7 +99,9 @@ describe('loadGlossary', () => {
 				name: 'Tympanum',
 				category: 'architecture',
 				definition: 'A definition.',
+				synonyms: ['tympan'],
 				forms: ['tympana'],
+				sortName: null,
 				source: {
 					title: 'Tympanum',
 					url: 'https://pl.wikipedia.org/wiki/Tympanum',
@@ -106,7 +114,9 @@ describe('loadGlossary', () => {
 				name: 'Tympanum',
 				category: 'architecture',
 				definition: '',
+				synonyms: ['tympan'],
 				forms: ['tympana'],
+				sortName: 'Tympanum, the',
 				source: null
 			}
 		]);
@@ -162,7 +172,7 @@ describe('saveGlossaryEntry', () => {
 		vi.clearAllMocks();
 	});
 
-	it('inserts a new entry with a trimmed name and definition, clean forms and its source', async () => {
+	it('inserts a new entry with a trimmed name and definition, clean synonyms and forms and its source', async () => {
 		const query = chain({ data: { id: ID }, error: null });
 
 		const result = await saveGlossaryEntry(draft);
@@ -171,7 +181,9 @@ describe('saveGlossaryEntry', () => {
 			name: 'Tympanum',
 			category: 'architecture',
 			definition: 'A definition.',
+			synonyms: ['tympan'],
 			forms: ['tympana'],
+			sort_name: null,
 			source_title: 'Tympanum',
 			source_url: 'https://pl.wikipedia.org/wiki/Tympanum',
 			source_licence: 'CC BY-SA 4.0',
@@ -188,6 +200,7 @@ describe('saveGlossaryEntry', () => {
 		expect(query.update).toHaveBeenCalledWith(
 			expect.objectContaining({
 				definition: null,
+				sort_name: null,
 				source_title: null,
 				source_url: null,
 				source_licence: null,
@@ -195,6 +208,19 @@ describe('saveGlossaryEntry', () => {
 			})
 		);
 		expect(query.eq).toHaveBeenCalledWith('id', ID);
+	});
+
+	it('saves a trimmed sort name only when sorting by another name is chosen', async () => {
+		const query = chain({ data: { id: ID }, error: null });
+
+		await saveGlossaryEntry({ ...draft, sortByOther: true, sortName: '  Medici,   Lorenzo ' });
+		await saveGlossaryEntry({ ...draft, sortByOther: true, sortName: '   ' });
+
+		expect(query.insert).toHaveBeenNthCalledWith(
+			1,
+			expect.objectContaining({ sort_name: 'Medici, Lorenzo' })
+		);
+		expect(query.insert).toHaveBeenNthCalledWith(2, expect.objectContaining({ sort_name: null }));
 	});
 
 	it('says the name is taken when the unique name is violated', async () => {
