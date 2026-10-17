@@ -38,4 +38,4 @@ Chosen option: a shared, read-only catalogue table, `catalogue_museums` (Wikidat
 
 ## More information
 
-Requirements R-93, R-94. Migration `20261017060000_museum_catalogue.sql`, tests `supabase/tests/security.sql`; ATL-177.
+Requirements R-93, R-94. Migration `20261017070000_museum_catalogue.sql`, tests `supabase/tests/security.sql`; ATL-177.
