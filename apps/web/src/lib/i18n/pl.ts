@@ -153,7 +153,7 @@ export const pl = {
 		collapse: 'Zwiń menu',
 		atelier: 'Atelier',
 		cardIndex: 'Kartoteka',
-		glossary: 'Słowniczek',
+		glossary: 'Leksykon',
 		review: 'Powtórki',
 		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
 		trash: 'Kosz',
@@ -693,9 +693,11 @@ export const pl = {
 		}
 	},
 	glossary: {
-		title: 'Słowniczek',
+		title: 'Leksykon',
+		count: (count: number): string =>
+			`${count} ${plural(count, { one: 'pojęcie', few: 'pojęcia', many: 'pojęć' })}`,
 		lead: 'Pojęcia i postaci, które chcesz zapamiętać. Ich definicje pojawią się w twoich notatkach.',
-		back: 'Słowniczek',
+		back: 'Leksykon',
 		add: 'Dodaj pojęcie',
 		addShort: 'Dodaj',
 		empty:
@@ -704,7 +706,7 @@ export const pl = {
 		noResults: (query: string): string =>
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment.`,
 		categories: 'Kategorie',
-		loadErrorTitle: 'Nie udało się wczytać słowniczka',
+		loadErrorTitle: 'Nie udało się wczytać Leksykonu',
 		categoryNames: {
 			person: 'Osoba',
 			architecture: 'Architektura',
@@ -725,13 +727,13 @@ export const pl = {
 			edit: 'Edytuj',
 			delete: 'Usuń',
 			notFoundTitle: 'Nie ma takiego pojęcia',
-			notFound: 'Nie ma takiego pojęcia w słowniczku. Może zostało usunięte.',
+			notFound: 'Nie ma takiego pojęcia w Leksykonie. Może zostało usunięte.',
 			loadErrorTitle: 'Nie udało się wczytać tego pojęcia',
 			saved: (name: string): string => `Zapisano „${name}”.`,
 			deleted: (name: string): string => `Usunięto „${name}”.`
 		},
 		deleteConfirm: {
-			title: (name: string): string => `Usunąć „${name}” ze słowniczka?`,
+			title: (name: string): string => `Usunąć „${name}” z Leksykonu?`,
 			description: 'Słowo w notatkach straci tło i dymek. Tego nie da się cofnąć.',
 			back: 'Zostaw',
 			confirm: 'Usuń',
@@ -740,7 +742,7 @@ export const pl = {
 		form: {
 			newTitle: 'Nowe pojęcie',
 			editTitle: 'Edycja pojęcia',
-			goBack: 'Wróć do słowniczka',
+			goBack: 'Wróć do Leksykonu',
 			name: 'Nazwa',
 			namePlaceholder: 'Np. tympanon, sfumato, Lorenzo Medici',
 			nameTaken: (name: string): string => `Masz już pojęcie „${name}”.`,
@@ -784,7 +786,7 @@ export const pl = {
 			replace: 'Zastąp'
 		},
 		errors: {
-			notFound: 'Nie ma takiego pojęcia w słowniczku. Może zostało usunięte.',
+			notFound: 'Nie ma takiego pojęcia w Leksykonie. Może zostało usunięte.',
 			invalid: 'Nie udało się zapisać pojęcia. Sprawdź nazwę i definicję.',
 			network: 'Nie udało się połączyć. Sprawdź internet i spróbuj jeszcze raz.'
 		}
