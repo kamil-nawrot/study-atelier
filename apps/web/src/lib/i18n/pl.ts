@@ -694,7 +694,9 @@ export const pl = {
 	},
 	glossary: {
 		title: 'Słowniczek',
-		lead: 'Pojęcia i postaci, które chcesz zapamiętać. Ich definicje pojawią się w Twoich notatkach.',
+		count: (count: number): string =>
+			`${count} ${plural(count, { one: 'pojęcie', few: 'pojęcia', many: 'pojęć' })}`,
+		lead: 'Pojęcia i postaci, które chcesz zapamiętać. Ich definicje pojawią się w twoich notatkach.',
 		back: 'Słowniczek',
 		add: 'Dodaj pojęcie',
 		addShort: 'Dodaj',
