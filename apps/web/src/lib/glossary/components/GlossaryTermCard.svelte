@@ -1,14 +1,17 @@
 <script lang="ts">
+	import ArrowRight from '@lucide/svelte/icons/arrow-right';
 	import { Icon } from '@study-atelier/ui';
+	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/index.ts';
 	import { glossaryCategoryIcon, glossaryCategoryName } from '../categories.ts';
 	import type { GlossaryEntry } from '../types.ts';
 
 	type Props = {
 		entry: GlossaryEntry;
+		linked?: boolean;
 	};
 
-	let { entry }: Props = $props();
+	let { entry, linked = false }: Props = $props();
 </script>
 
 <span class="kind">
@@ -21,6 +24,12 @@
 {/if}
 {#if entry.source}
 	<span class="source">{m.glossary.card.source}</span>
+{/if}
+{#if linked}
+	<a class="open" href={resolve('/(app)/atelier/glossary/[id]', { id: entry.id })}>
+		{m.glossary.card.open}
+		<Icon icon={ArrowRight} size="sm" />
+	</a>
 {/if}
 
 <style>
@@ -52,5 +61,23 @@
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-xs);
 		line-height: var(--line-height-xs);
+	}
+
+	.open {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		margin-top: var(--spacing-2);
+		padding-top: var(--spacing-3);
+		border-top: var(--border-width-base) solid var(--color-line);
+		color: var(--color-fg);
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-medium);
+		line-height: var(--line-height-sm);
+		text-decoration: none;
+	}
+
+	.open:hover {
+		text-decoration: underline;
 	}
 </style>

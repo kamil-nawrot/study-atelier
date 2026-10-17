@@ -1,6 +1,8 @@
 <script lang="ts">
-	import { Alert, Button, Notes, Tag } from '@study-atelier/ui';
+	import { Alert, Button, Tag } from '@study-atelier/ui';
 	import { formatRecordNumber } from '#lib/collection/format.ts';
+	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes.svelte';
+	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { onControl, sessionKey } from '../keys.ts';
 	import { authorsOf } from '../overview.ts';
@@ -11,6 +13,7 @@
 	type Props = {
 		item: ReviewItem;
 		details?: ReviewDetails;
+		glossary?: GlossaryEntry[];
 		revealed: boolean;
 		saving: boolean;
 		error?: string;
@@ -18,7 +21,7 @@
 		onrate: (rating: ReviewRating) => void;
 	};
 
-	let { item, details, revealed, saving, error, onreveal, onrate }: Props = $props();
+	let { item, details, glossary, revealed, saving, error, onreveal, onrate }: Props = $props();
 
 	let revealButton = $state<HTMLElement>();
 	let heading = $state<HTMLElement>();
@@ -95,7 +98,7 @@
 			{#if notes}
 				<section class="notes" aria-labelledby="flashcard-notes">
 					<h2 id="flashcard-notes" class="caption">{m.review.flashcard.notes}</h2>
-					<Notes value={notes} />
+					<GlossaryNotes entries={glossary} linked={false} value={notes} />
 				</section>
 			{/if}
 		{:else}

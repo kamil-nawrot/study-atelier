@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import type { NoteLinks } from '../note-links';
-	import { renderNotes, type NoteTerm } from '../notes-markdown';
+	import { renderNotes, renderText, type NoteTerm } from '../notes-markdown';
 	import { PopoverState } from '../popover-state.svelte';
 	import PopoverCard from './PopoverCard.svelte';
 
@@ -10,17 +10,23 @@
 		links?: Pick<NoteLinks, 'resolve'>;
 		terms?: NoteTerm[];
 		termCard?: Snippet<[string]>;
+		interactive?: boolean;
+		plain?: boolean;
 	};
 
-	let { value, links, terms, termCard }: Props = $props();
+	let { value, links, terms, termCard, interactive = false, plain = false }: Props = $props();
 
 	const id = $props.id();
 	const cardId = `${id}-card`;
+	const termId = `${id}-term`;
 	const popover = new PopoverState();
 
 	let activeTerm = $state<string>();
 
-	const html = $derived(renderNotes(value, links, termCard ? terms : undefined));
+	const html = $derived.by(() => {
+		const marked = termCard ? terms : undefined;
+		return plain ? renderText(value, marked) : renderNotes(value, links, marked);
+	});
 
 	function termOf(target: EventTarget | null): HTMLElement | undefined {
 		const element = target instanceof Element ? target.closest<HTMLElement>('[data-term]') : null;
@@ -69,7 +75,7 @@
 			[
 				'focusout',
 				(event) => {
-					if (termOf(event.target)) popover.blur();
+					if (termOf(event.target)) popover.blur(event as FocusEvent);
 				}
 			]
 		];
@@ -85,13 +91,20 @@
 		const open = popover.open;
 		anchor.setAttribute('aria-expanded', String(open));
 		anchor.setAttribute('aria-controls', cardId);
-		if (open) anchor.setAttribute('aria-describedby', cardId);
-		return () => anchor.removeAttribute('aria-describedby');
+		if (open) {
+			anchor.id = termId;
+			anchor.setAttribute('aria-describedby', cardId);
+		}
+		return () => {
+			anchor.removeAttribute('id');
+			anchor.removeAttribute('aria-describedby');
+		};
 	});
 </script>
 
 <div
 	class="notes"
+	class:plain
 	{@attach (node) => {
 		node.innerHTML = html;
 		popover.hide();
@@ -100,7 +113,7 @@
 ></div>
 
 {#if termCard}
-	<PopoverCard id={cardId} {popover}>
+	<PopoverCard id={cardId} {interactive} labelledby={termId} {popover}>
 		{#if activeTerm}
 			{@render termCard(activeTerm)}
 		{/if}
@@ -112,6 +125,11 @@
 		display: grid;
 		gap: var(--spacing-3);
 		overflow-wrap: anywhere;
+	}
+
+	.plain {
+		display: block;
+		white-space: pre-line;
 	}
 
 	.notes :global(h3) {

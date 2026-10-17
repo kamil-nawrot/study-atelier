@@ -525,7 +525,13 @@ export const GLOSSARY_ENTRIES = [
 		['Nawa', 'architecture'],
 		['Pastel', 'technique']
 	].map(([name, category], index) =>
-		glossaryEntry(10 + index, name, category, `${name}: krótka definicja do zrzutów ekranu.`)
+		glossaryEntry(
+			10 + index,
+			name,
+			category,
+			`${name}: krótka definicja do zrzutów ekranu.`,
+			name === 'Nawa' ? ['nawy', 'nawie', 'nawę', 'nawą'] : []
+		)
 	)
 ];
 

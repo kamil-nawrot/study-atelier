@@ -716,7 +716,8 @@ export const pl = {
 			general: 'Pojęcie ogólne'
 		},
 		card: {
-			source: 'Na podstawie Wikipedii, CC BY-SA 4.0'
+			source: 'Na podstawie Wikipedii, CC BY-SA 4.0',
+			open: 'Otwórz w Słowniczku'
 		},
 		view: {
 			also: (forms: string): string => `też: ${forms}`,

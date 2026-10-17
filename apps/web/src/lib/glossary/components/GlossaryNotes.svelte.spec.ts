@@ -14,7 +14,7 @@ describe('GlossaryNotes', () => {
 
 		await page.getByRole('button', { name: 'tympana' }).click();
 
-		const card = page.getByRole('tooltip');
+		const card = page.getByRole('dialog');
 		await expect.element(card).toHaveTextContent('Tympanum');
 		await expect.element(card).toHaveTextContent(m.glossary.categoryNames.architecture);
 		await expect.element(card).toHaveTextContent('Tympanum is a test definition.');
@@ -29,7 +29,7 @@ describe('GlossaryNotes', () => {
 
 		await page.getByRole('button', { name: 'tympan' }).click();
 
-		await expect.element(page.getByRole('tooltip')).toHaveTextContent('Tympanum');
+		await expect.element(page.getByRole('dialog')).toHaveTextContent('Tympanum');
 	});
 
 	it('leaves the source line out when the entry has no source', async () => {
@@ -40,7 +40,33 @@ describe('GlossaryNotes', () => {
 
 		await page.getByRole('button', { name: 'fresco' }).click();
 
-		await expect.element(page.getByRole('tooltip')).not.toHaveTextContent(m.glossary.card.source);
+		await expect.element(page.getByRole('dialog')).not.toHaveTextContent(m.glossary.card.source);
+	});
+
+	it('leads from the card to the page of the entry', async () => {
+		render(GlossaryNotes, {
+			entries: testGlossary(),
+			value: 'The tympana of the temple were carved.'
+		});
+
+		await page.getByRole('button', { name: 'tympana' }).click();
+
+		await expect
+			.element(page.getByRole('dialog').getByRole('link', { name: m.glossary.card.open }))
+			.toHaveAttribute('href', '/atelier/glossary/a-tympanum');
+	});
+
+	it('shows the card without the link when it should not lead away', async () => {
+		render(GlossaryNotes, {
+			entries: testGlossary(),
+			linked: false,
+			value: 'The tympana of the temple were carved.'
+		});
+
+		await page.getByRole('button', { name: 'tympana' }).click();
+
+		await expect.element(page.getByRole('tooltip')).toHaveTextContent('Tympanum');
+		expect(page.getByRole('link').elements()).toHaveLength(0);
 	});
 
 	it('shows the note as it is when the glossary is empty', async () => {

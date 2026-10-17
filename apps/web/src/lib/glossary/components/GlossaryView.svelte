@@ -6,13 +6,17 @@
 	import { glossaryCategoryIcon, glossaryCategoryName } from '../categories.ts';
 	import type { GlossaryEntry } from '../types.ts';
 	import { WIKIPEDIA_LICENCE_URL } from '../wikipedia.ts';
+	import GlossaryNotes from './GlossaryNotes.svelte';
 
 	type Props = {
 		entry: GlossaryEntry;
+		entries?: GlossaryEntry[];
 		mentions?: Mention[];
 	};
 
-	let { entry, mentions = [] }: Props = $props();
+	let { entry, entries = [], mentions = [] }: Props = $props();
+
+	const others = $derived(entries.filter((candidate) => candidate.id !== entry.id));
 </script>
 
 <article>
@@ -29,7 +33,9 @@
 
 	{#if entry.definition}
 		<blockquote>
-			<p class="definition">{entry.definition}</p>
+			<div class="definition">
+				<GlossaryNotes entries={others} plain value={entry.definition} />
+			</div>
 			{#if entry.source}
 				<p class="caption">
 					{m.glossary.view.sourcePrefix}<a
