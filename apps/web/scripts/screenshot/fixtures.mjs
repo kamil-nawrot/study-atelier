@@ -407,3 +407,175 @@ export function fakeSession() {
 		user: USER
 	};
 }
+
+function glossaryEntry(number, name, category, definition, forms = [], article = null) {
+	return {
+		id: `00000000-0000-4000-9000-${String(number).padStart(12, '0')}`,
+		owner_id: USER.id,
+		name,
+		category,
+		definition,
+		forms,
+		source_title: article,
+		source_url: article ? `https://pl.wikipedia.org/wiki/${encodeURIComponent(article)}` : null,
+		source_licence: article ? 'CC BY-SA 4.0' : null,
+		source_fetched_on: article ? '2026-10-17' : null,
+		created_at: '2026-10-17T06:00:00Z',
+		updated_at: '2026-10-17T06:00:00Z'
+	};
+}
+
+export const GLOSSARY_ENTRIES = [
+	glossaryEntry(
+		1,
+		'Abakus',
+		'architecture',
+		'Kwadratowa płyta na szczycie głowicy kolumny, na której opiera się belkowanie.',
+		['abakusa'],
+		'Abakus (architektura)'
+	),
+	glossaryEntry(
+		2,
+		'Apsyda',
+		'architecture',
+		'Półkolista lub wieloboczna część budowli zamykająca nawę, zwykle od wschodu.',
+		['apsydy', 'apsydzie'],
+		'Apsyda'
+	),
+	glossaryEntry(
+		3,
+		'Chiaroscuro',
+		'painting',
+		'Budowanie bryły i nastroju silnym kontrastem światła i cienia.',
+		[],
+		'Chiaroscuro'
+	),
+	glossaryEntry(
+		4,
+		'Contrapposto',
+		'sculpture',
+		'Ułożenie postaci z ciężarem ciała na jednej nodze, przez co biodra i barki ustawiają się przeciwnie.',
+		[],
+		'Contrapposto'
+	),
+	glossaryEntry(
+		5,
+		'Fresk',
+		'technique',
+		'Malowanie farbami wodnymi na świeżym, mokrym tynku, z którym barwnik trwale się wiąże.',
+		['fresku', 'freski'],
+		'Fresk'
+	),
+	glossaryEntry(
+		6,
+		'Giorgio Vasari',
+		'person',
+		'Włoski malarz, architekt i pisarz, autor „Żywotów najsławniejszych malarzy, rzeźbiarzy i architektów”.',
+		[],
+		'Giorgio Vasari'
+	),
+	glossaryEntry(
+		7,
+		'Sfumato',
+		'technique',
+		'Technika malarska polegająca na miękkim, zamglonym przechodzeniu jednych barw w drugie.',
+		['sfumata'],
+		'Sfumato'
+	),
+	glossaryEntry(
+		8,
+		'Tympanon',
+		'architecture',
+		'Trójkątne lub półkoliste pole ściany nad wejściem albo w szczycie budowli, ograniczone gzymsem lub łukiem. W architekturze antycznej wypełniało szczyt świątyni, w romańskiej i gotyckiej zdobi portale kościołów, najczęściej płaskorzeźbą z Chrystusem w majestacie albo Sądem Ostatecznym.',
+		['tympanonu', 'tympanonie', 'tympanonem', 'tympany', 'tympanonów'],
+		'Tympanon'
+	),
+	glossaryEntry(
+		9,
+		'Wanitas',
+		'general',
+		'Motyw w sztuce przypominający o przemijaniu i marności życia, często czaszka, zgaszona świeca albo przekwitający kwiat.',
+		[],
+		null
+	),
+	...[
+		['Akwarela', 'technique'],
+		['Barok', 'general'],
+		['Cornice', 'architecture'],
+		['Diptyk', 'painting'],
+		['Filar', 'architecture'],
+		['Gotyk', 'general'],
+		['Impasto', 'technique'],
+		['Kariatyda', 'sculpture'],
+		['Lawowanie', 'technique'],
+		['Mozaika', 'general'],
+		['Nawa', 'architecture'],
+		['Pastel', 'technique']
+	].map(([name, category], index) =>
+		glossaryEntry(10 + index, name, category, `${name}: krótka definicja do zrzutów ekranu.`)
+	)
+];
+
+const ARTICLE = (pageid, title, extract, keywords, item = null) => ({
+	pageid,
+	title,
+	extract,
+	keywords,
+	fullurl: `https://pl.wikipedia.org/wiki/${encodeURIComponent(title.replaceAll(' ', '_'))}`,
+	pageprops: item ? { wikibase_item: item } : {}
+});
+
+export const WIKIPEDIA_PAGES = [
+	ARTICLE(
+		101,
+		'Nawa',
+		'Podłużna część wnętrza kościoła, ograniczona rzędami filarów lub kolumn albo ścianami. Kościół może mieć jedną nawę albo kilka: wyższą nawę główną i niższe nawy boczne, jak w bazylice.',
+		['nawa']
+	),
+	ARTICLE(
+		102,
+		'Transept',
+		'Nawa poprzeczna, która przecina nawę główną i tworzy plan krzyża łacińskiego.',
+		['nawa', 'transept']
+	),
+	ARTICLE(
+		103,
+		'Bazylika (architektura)',
+		'Budowla z wyższą nawą główną oświetloną oknami ponad nawami bocznymi.',
+		['nawa', 'bazylika']
+	),
+	ARTICLE(
+		104,
+		'Kościół halowy',
+		'Kościół, w którym wszystkie nawy mają tę samą lub podobną wysokość.',
+		['nawa', 'halowy']
+	),
+	ARTICLE(
+		105,
+		'Łuk (architektura)',
+		'Element konstrukcyjny przekrywający otwór w murze, zbudowany z klinowych elementów.',
+		['łuk']
+	),
+	ARTICLE(
+		106,
+		'Dawid (Michał Anioł)',
+		'Marmurowa rzeźba Michała Anioła z lat 1501–1504, przedstawiająca biblijnego Dawida.',
+		['dawid'],
+		'Q1001'
+	),
+	ARTICLE(
+		107,
+		'Dawid (król Izraela)',
+		'Drugi król zjednoczonego Izraela, według Biblii pokonał Goliata.',
+		['dawid'],
+		'Q1002'
+	),
+	ARTICLE(
+		108,
+		'Sfumato',
+		'Technika malarska polegająca na miękkim, zamglonym przechodzeniu jednych barw w drugie.',
+		['sfumato']
+	)
+];
+
+export const WIKIDATA_HUMANS = ['Q1002'];

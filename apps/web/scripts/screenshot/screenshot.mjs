@@ -6,6 +6,7 @@ import { chromium } from 'playwright';
 import {
 	ARTWORKS,
 	CATALOGUE_MUSEUMS,
+	GLOSSARY_ENTRIES,
 	PEOPLE,
 	PERIOD_ERA_USAGE,
 	REVIEW_CARDS,
@@ -17,6 +18,8 @@ import {
 	SUPABASE_URL,
 	TRASHED,
 	USER,
+	WIKIDATA_HUMANS,
+	WIKIPEDIA_PAGES,
 	commonsSize,
 	fakeSession,
 	imageSvg
@@ -231,6 +234,29 @@ function reviewSession({
 	});
 }
 
+function glossaryRoute(route, request, url) {
+	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
+	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
+	if (request.method() !== 'GET') {
+		return json(
+			route,
+			wantsObject ? { id: GLOSSARY_ENTRIES[0].id } : [{ id: GLOSSARY_ENTRIES[0].id }],
+			201
+		);
+	}
+	const id = url.searchParams.get('id');
+	const rows = id?.startsWith('eq.')
+		? GLOSSARY_ENTRIES.filter((row) => row.id === id.slice(3))
+		: GLOSSARY_ENTRIES;
+	if (!wantsObject) return json(route, rows);
+	if (rows.length === 1) return json(route, rows[0]);
+	return json(
+		route,
+		{ code: 'PGRST116', message: 'The result contains 0 rows', details: null, hint: null },
+		406
+	);
+}
+
 async function mockSupabase(context) {
 	await context.route(`${SUPABASE_URL}/**`, async (route) => {
 		const request = route.request();
@@ -279,6 +305,7 @@ async function mockSupabase(context) {
 					}))
 			);
 		}
+		if (url.pathname === '/rest/v1/glossary_entries') return glossaryRoute(route, request, url);
 		if (url.pathname.startsWith('/rest/v1/rpc/')) {
 			return json(route, { id: ARTWORKS[0].id, record_number: ARTWORKS[0].record_number });
 		}
@@ -395,8 +422,45 @@ async function mockImages(context) {
 		return json(route, { query: { pages } });
 	});
 
+	await context.route(/^https:\/\/pl\.wikipedia\.org\/w\/api\.php/, (route) => {
+		const params = new URL(route.request().url()).searchParams;
+		const search = params.get('srsearch');
+		if (search !== null) {
+			const word = search.toLocaleLowerCase('pl').split(' ')[0];
+			const hits = WIKIPEDIA_PAGES.filter((page) => page.keywords.includes(word)).map((page) => ({
+				pageid: page.pageid,
+				title: page.title
+			}));
+			return json(route, { query: { search: hits } });
+		}
+		const ids = (params.get('pageids') ?? '').split('|').map(Number);
+		return json(route, {
+			query: { pages: WIKIPEDIA_PAGES.filter((page) => ids.includes(page.pageid)) }
+		});
+	});
+
 	await context.route(/^https:\/\/(query\.wikidata|www\.wikidata)\.org\//, (route) => {
-		const query = new URL(route.request().url()).searchParams.get('query') ?? '';
+		const params = new URL(route.request().url()).searchParams;
+		if (params.get('action') === 'wbgetentities') {
+			const entities = Object.fromEntries(
+				(params.get('ids') ?? '').split('|').map((id) => [
+					id,
+					{
+						claims: {
+							P31: [
+								{
+									mainsnak: {
+										datavalue: { value: { id: WIKIDATA_HUMANS.includes(id) ? 'Q5' : 'Q386724' } }
+									}
+								}
+							]
+						}
+					}
+				])
+			);
+			return json(route, { entities });
+		}
+		const query = params.get('query') ?? '';
 		const bindings = query.includes('wd:Q5;')
 			? PEOPLE.map((person) =>
 					Object.fromEntries(Object.entries(person).map(([key, value]) => [key, { value }]))

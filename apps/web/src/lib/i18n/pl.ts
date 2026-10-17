@@ -153,6 +153,7 @@ export const pl = {
 		collapse: 'Zwiń menu',
 		atelier: 'Atelier',
 		cardIndex: 'Kartoteka',
+		glossary: 'Słowniczek',
 		review: 'Powtórki',
 		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
 		trash: 'Kosz',
@@ -665,6 +666,99 @@ export const pl = {
 	mentions: {
 		heading: 'Wspominasz o tym w notatkach',
 		artwork: 'Dzieło'
+	},
+	glossary: {
+		title: 'Słowniczek',
+		lead: 'Pojęcia i postacie, które chcesz rozumieć. Ich definicje podpowiadają się w twoich notatkach.',
+		back: 'Słowniczek',
+		add: 'Dodaj pojęcie',
+		addShort: 'Dodaj',
+		empty:
+			'Nie masz jeszcze żadnego pojęcia. Dodaj pierwsze, gdy trafisz na słowo, które chcesz zapamiętać.',
+		search: 'Szukaj pojęcia',
+		noResults: (query: string): string =>
+			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment.`,
+		categories: 'Kategorie',
+		loadErrorTitle: 'Nie udało się wczytać słowniczka',
+		categoryNames: {
+			person: 'Osoba',
+			architecture: 'Architektura',
+			painting: 'Malarstwo',
+			sculpture: 'Rzeźba',
+			technique: 'Technika i materiał',
+			general: 'Pojęcie ogólne'
+		},
+		view: {
+			also: (forms: string): string => `też: ${forms}`,
+			noDefinition: 'Nie dodano jeszcze definicji.',
+			sourcePrefix: 'Na podstawie: Wikipedia, ',
+			licenceLink: 'CC BY-SA 4.0',
+			edit: 'Edytuj',
+			delete: 'Usuń',
+			notFoundTitle: 'Nie ma takiego pojęcia',
+			notFound: 'Nie ma takiego pojęcia w słowniczku. Może zostało usunięte.',
+			loadErrorTitle: 'Nie udało się wczytać tego pojęcia',
+			saved: (name: string): string => `Zapisano „${name}”.`,
+			deleted: (name: string): string => `Usunięto „${name}”.`
+		},
+		deleteConfirm: {
+			title: (name: string): string => `Usunąć „${name}” ze słowniczka?`,
+			description: 'Słowo w notatkach straci tło i dymek. Tego nie da się cofnąć.',
+			back: 'Zostaw',
+			confirm: 'Usuń',
+			deleting: 'Usuwanie…'
+		},
+		form: {
+			newTitle: 'Nowe pojęcie',
+			editTitle: 'Edycja pojęcia',
+			goBack: 'Wróć do słowniczka',
+			name: 'Nazwa',
+			namePlaceholder: 'Np. tympanon, sfumato, Lorenzo Medici',
+			nameTaken: (name: string): string => `Masz już pojęcie „${name}”.`,
+			category: 'Kategoria',
+			categoryRequired: 'Wybierz kategorię.',
+			definition: 'Definicja',
+			definitionPending: 'Wpisz nazwę i wybierz kategorię, a poszukam definicji w Wikipedii.',
+			definitionSearching: 'Szukam w Wikipedii…',
+			definitionNone: 'Wikipedia nie zna tego słowa. Napisz definicję własnymi słowami.',
+			definitionFailed:
+				'Nie udało się połączyć z Wikipedią. Możesz napisać definicję własnymi słowami albo spróbować jeszcze raz.',
+			searchAgain: 'Szukaj jeszcze raz',
+			definitionTooLong: (max: number): string => `Definicja może mieć najwyżej ${max} znaków.`,
+			sourcePrefix: 'Na podstawie: Wikipedia, ',
+			pickArticle: 'Wybierz inny artykuł',
+			removeSource: 'Usuń źródło',
+			forms: 'Inne formy',
+			formsHint:
+				'Formy, w których piszesz to słowo w notatkach, np. „tympanonu”. Każdą zatwierdzasz Enterem.',
+			authorWarningSuffix:
+				' jest już w Kartotece jako autor. Możesz dodać ją także tutaj albo opisać na stronie autora.',
+			cancel: 'Anuluj',
+			save: 'Zapisz',
+			saving: 'Zapisywanie…',
+			errorTitle: 'Nie udało się zapisać pojęcia',
+			discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.'
+		},
+		articles: {
+			title: 'Który to artykuł?',
+			description: (name: string, category: string): string =>
+				`Wyniki z Wikipedii dla „${name}” w kategorii ${category}. Wybierz ten, o który ci chodzi.`,
+			listLabel: 'Artykuły z Wikipedii',
+			searching: 'Szukam w Wikipedii…',
+			cancel: 'Anuluj',
+			use: 'Użyj tego artykułu'
+		},
+		replaceConfirm: {
+			title: 'Zastąpić twoją definicję?',
+			description: 'Definicja ma już twoje zmiany. Tekst z nowego artykułu je zastąpi.',
+			keep: 'Zostaw moją',
+			replace: 'Zastąp'
+		},
+		errors: {
+			notFound: 'Nie ma takiego pojęcia w słowniczku. Może zostało usunięte.',
+			invalid: 'Nie udało się zapisać pojęcia. Sprawdź nazwę i definicję.',
+			network: 'Nie udało się połączyć. Sprawdź internet i spróbuj jeszcze raz.'
+		}
 	},
 	valuePage: {
 		back: 'Kartoteka',
