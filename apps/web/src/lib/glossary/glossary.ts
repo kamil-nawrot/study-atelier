@@ -21,6 +21,8 @@ const ABBREVIATIONS = new Set([
 	'prof',
 	'św',
 	'wł',
+	'właśc',
+	'zw',
 	'łac',
 	'gr',
 	'fr',

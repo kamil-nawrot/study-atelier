@@ -7,7 +7,7 @@ const WIKIDATA_API = 'https://www.wikidata.org/w/api.php';
 const SEARCH_LIMIT = 8;
 const ARTICLE_LIMIT = 5;
 const HUMAN = 'Q5';
-const LEAD_DASHES = new Set(['–', '—']);
+const LEAD_DASHES = new Set(['–', '—', '−', '-']);
 
 export const WIKIPEDIA_LICENCE = 'CC BY-SA 4.0';
 export const WIKIPEDIA_LICENCE_URL = 'https://creativecommons.org/licenses/by-sa/4.0/deed.pl';
@@ -54,19 +54,21 @@ export function searchQuery(name: string, category: GlossaryCategory, withHint: 
 }
 
 export function withoutLeadTerm(paragraph: string): string {
-	const sentenceEnd = firstSentence(paragraph).length;
 	let depth = 0;
-	for (let index = 1; index < sentenceEnd - 1; index += 1) {
+	let outside = '';
+	for (let index = 1; index < paragraph.length - 1; index += 1) {
 		const char = paragraph[index];
 		if (char === '(' || char === '[') depth += 1;
 		else if ((char === ')' || char === ']') && depth > 0) depth -= 1;
-		else if (
-			depth === 0 &&
-			LEAD_DASHES.has(char) &&
-			paragraph[index - 1] === ' ' &&
-			paragraph[index + 1] === ' '
-		) {
-			return paragraph.slice(index + 2).trim() || paragraph;
+		else if (depth === 0) {
+			const dash =
+				LEAD_DASHES.has(char) && paragraph[index - 1] === ' ' && paragraph[index + 1] === ' ';
+			if (dash) {
+				const lead = `${paragraph[0]}${outside}`.trim();
+				const rest = paragraph.slice(index + 2).trim();
+				return firstSentence(lead) === lead && rest ? rest : paragraph;
+			}
+			outside += char;
 		}
 	}
 	return paragraph;
