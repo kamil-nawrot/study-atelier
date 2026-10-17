@@ -131,6 +131,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 ## Tabs
 
+- A hairline that divides a list or a view into sections runs across the whole width of the content, like the line under the `Tabs` of the card index; the text between the lines keeps its own width (for example `--size-content-default`).
 - Kinds of one list that share a view are shown with the library `Tabs`: a row of text tabs under a hairline, the selected one underlined, with `tablist` roles, the arrow keys, Home and End. A tab changes only what the view lists; it does not change the address.
 - A tag whose removal is not allowed is a `Tag` with `removeDisabled`, and the reason is written under the tags.
 

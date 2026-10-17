@@ -32,7 +32,7 @@ Starts the dev server on port 5199, opens the route in Chromium at a desktop (14
 | `--session k=v`     | Set a sessionStorage entry first, for example the wall sequence that gives the artwork view its arrows: `'study-atelier:wall-sequence={"query":"","numbers":[9,3,1]}'` |
 | `--wait <selector>` | Wait for a selector before capturing                                                                                                                                   |
 | `--type <text>`     | Click the notes editor and type this text first, for example `' @ba'` to open the link suggestions                                                                     |
-| `--script <file>`   | Run a JavaScript file in the page first, for example to mock an option                                                                                                 |
+| `--script <file>`   | Run a JavaScript file in the page first, for example to mock an option; a relative path is read from `apps/web`, so pass an absolute one for a file elsewhere          |
 | `--repeat <n>`      | Show every sample artwork n times, to have more to scroll through                                                                                                      |
 | `--scroll`          | Also write a GIF that scrolls the page from top to bottom (`<name>-<viewport>-scroll.gif`, needs ffmpeg)                                                               |
 | `--url <base>`      | Use a dev server that is already running                                                                                                                               |
