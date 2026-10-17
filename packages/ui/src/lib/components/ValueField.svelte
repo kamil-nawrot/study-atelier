@@ -1,7 +1,8 @@
 <script lang="ts" module>
 	export type ValueOption = {
-		kind: 'similar' | 'existing' | 'new';
+		kind: 'similar' | 'existing' | 'starter' | 'new';
 		name: string;
+		note?: string;
 	};
 </script>
 
@@ -40,7 +41,7 @@
 	}: Props = $props();
 
 	const texts = uiMessages().valueField;
-	const kinds: ValueOption['kind'][] = ['similar', 'existing', 'new'];
+	const kinds: ValueOption['kind'][] = ['similar', 'existing', 'starter', 'new'];
 
 	const generatedId = $props.id();
 	const inputId = $derived(id ?? generatedId);
@@ -52,6 +53,7 @@
 		kinds.flatMap((kind) => options.filter((option) => option.kind === kind))
 	);
 	const existing = $derived(ordered.filter((option) => option.kind === 'existing'));
+	const starter = $derived(ordered.filter((option) => option.kind === 'starter'));
 	const similar = $derived(ordered.find((option) => option.kind === 'similar'));
 	const added = $derived(ordered.find((option) => option.kind === 'new'));
 	const full = $derived(single && values.length > 0);
@@ -216,7 +218,17 @@
 					<ul aria-labelledby={`${listId}-existing`} role="group">
 						<li id={`${listId}-existing`} class="group" role="presentation">{texts.existing}</li>
 						{#each existing as option (option.name)}
-							{@render item(option, option.name)}
+							{@render item(option, option.name, option.note)}
+						{/each}
+					</ul>
+				</li>
+			{/if}
+			{#if starter.length > 0}
+				<li role="presentation">
+					<ul aria-labelledby={`${listId}-starter`} role="group">
+						<li id={`${listId}-starter`} class="group" role="presentation">{texts.starter}</li>
+						{#each starter as option (option.name)}
+							{@render item(option, option.name, option.note)}
 						{/each}
 					</ul>
 				</li>

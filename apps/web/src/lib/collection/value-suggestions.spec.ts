@@ -144,3 +144,82 @@ describe('suggestValues', () => {
 		]);
 	});
 });
+
+describe('suggestValues with a starter list', () => {
+	const starter = [
+		{ name: 'Luwr', aliases: ['Louvre Museum'], note: 'Francja' },
+		{ name: 'Prado', aliases: ['Museo del Prado'], note: 'Hiszpania' },
+		{ name: 'Muzeum Narodowe w Warszawie', aliases: [], note: 'Polska' }
+	];
+
+	function suggest(
+		query: string,
+		overrides: Partial<Parameters<typeof suggestValues>[0]> = {}
+	): ReturnType<typeof suggestValues> {
+		return suggestValues({ query, existing: [], selected: [], starter, ...overrides });
+	}
+
+	it('offers nothing from the list before two characters are typed', () => {
+		expect(suggest('l').filter((option) => option.kind === 'starter')).toEqual([]);
+	});
+
+	it('offers entries that match the name, with their note', () => {
+		expect(suggest('lu')).toContainEqual({ kind: 'starter', name: 'Luwr', note: 'Francja' });
+	});
+
+	it('finds an entry by its alias but shows its name', () => {
+		const found = suggest('louvre').filter((option) => option.kind === 'starter');
+		expect(found).toEqual([{ kind: 'starter', name: 'Luwr', note: 'Francja' }]);
+	});
+
+	it('puts names that start with the query before aliases that start with it, then the rest', () => {
+		const found = suggest('mu').filter((option) => option.kind === 'starter');
+		expect(found.map((option) => option.name)).toEqual([
+			'Muzeum Narodowe w Warszawie',
+			'Prado',
+			'Luwr'
+		]);
+	});
+
+	it('hides entries the learner already has', () => {
+		const found = suggest('luwr', { existing: ['Luwr'] });
+		expect(found.filter((option) => option.kind === 'starter')).toEqual([]);
+		expect(found).toContainEqual({ kind: 'existing', name: 'Luwr' });
+	});
+
+	it('hides an entry whose other name the learner already uses', () => {
+		const found = suggest('prado', { existing: ['Museo del Prado'] });
+		expect(found.filter((option) => option.kind === 'starter')).toEqual([]);
+	});
+
+	it('hides an entry that is already selected', () => {
+		expect(suggest('luwr', { selected: ['Luwr'] }).filter((o) => o.kind === 'starter')).toEqual([]);
+	});
+
+	it('does not offer to add a name that is on the list', () => {
+		const found = suggest('Luwr');
+		expect(found.some((option) => option.kind === 'new')).toBe(false);
+		expect(found.some((option) => option.kind === 'starter')).toBe(true);
+	});
+
+	it('still offers to add a name that is not on the list', () => {
+		expect(suggest('Cellar').some((option) => option.kind === 'new')).toBe(true);
+	});
+
+	it('shows at most six entries', () => {
+		const many = Array.from({ length: 12 }, (_, i) => ({
+			name: `Museum ${i}`,
+			aliases: [],
+			note: 'Polska'
+		}));
+		const found = suggest('museum', { starter: many }).filter(
+			(option) => option.kind === 'starter'
+		);
+		expect(found).toHaveLength(6);
+	});
+
+	it('adds the note of a value the learner already has', () => {
+		const found = suggest('lou', { existing: ['Louvre'], notes: { louvre: 'Francja' } });
+		expect(found).toContainEqual({ kind: 'existing', name: 'Louvre', note: 'Francja' });
+	});
+});

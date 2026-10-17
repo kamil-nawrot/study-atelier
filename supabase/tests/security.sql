@@ -321,6 +321,36 @@ begin
     'A saves location details for an author';
   assert security_test.denied('insert into public.era_details (era_code) values (''forged'')'),
     'A saves details of an era that does not exist';
+
+  perform public.save_artwork(
+    '{"title": "Catalogue work", "author_unknown": true}',
+    '{"author": [], "location": ["Luwr"]}');
+  perform public.save_artwork(
+    '{"title": "Own place work", "author_unknown": true}',
+    '{"author": [], "location": ["Cellar"]}');
+  assert (select country_code from public.location_details as details
+      join public.category_values as value on value.id = details.value_id where value.name = 'Luwr') = 'FR',
+    'a museum from the catalogue does not bring its country';
+  assert (select place_type from public.location_details as details
+      join public.category_values as value on value.id = details.value_id where value.name = 'Luwr') = 'museum',
+    'a museum from the catalogue is not a museum';
+  assert (select catalogue_wikidata_id from public.location_details as details
+      join public.category_values as value on value.id = details.value_id where value.name = 'Luwr') = 'Q19675',
+    'a museum from the catalogue does not remember where it came from';
+  assert not exists (select 1 from public.location_details as details
+      join public.category_values as value on value.id = details.value_id where value.name = 'Cellar'),
+    'a place missing from the catalogue gets details';
+  assert (select count(*) from public.catalogue_museums) > 100, 'A does not read the museum catalogue';
+  assert security_test.denied('insert into public.catalogue_museums (wikidata_id, name, country_code) values (''Q1'', ''Forged'', ''FR'')'),
+    'A adds a museum to the catalogue';
+  assert security_test.denied('update public.catalogue_museums set country_code = ''PL'''),
+    'A changes a museum in the catalogue';
+  assert security_test.denied('delete from public.catalogue_museums'),
+    'A deletes a museum from the catalogue';
+  assert security_test.denied(format(
+    'insert into public.location_details (value_id, catalogue_wikidata_id) values (%L, ''Q404'')',
+    (select id from public.category_values where name = 'Cellar'))),
+    'A points a place at a museum that is not in the catalogue';
   assert not security_test.denied(format(
     'insert into public.author_details (value_id, birth_year, death_year, years_approximate) values (%L, -480, -430, true)', a_author)),
     'A cannot save the years of life of an author';
@@ -405,6 +435,7 @@ begin
   assert security_test.denied('select * from public.eras'), 'anon reads eras';
   assert security_test.denied('select * from public.era_details'), 'anon reads era details';
   assert security_test.denied('select * from public.author_details'), 'anon reads author details';
+  assert security_test.denied('select * from public.catalogue_museums'), 'anon reads the museum catalogue';
   assert security_test.denied('select * from public.glossary_entries'), 'anon reads glossary entries';
   assert (select count(*) from storage.objects) = 0, 'anon reads image objects';
   assert security_test.denied('select public.value_usage()'), 'anon executes value_usage';

@@ -28,6 +28,41 @@ describe('ValueField', () => {
 		await expect.element(used.getByRole('option', { name: 'gothic' })).toBeVisible();
 	});
 
+	it('lists starter entries in their own group, with a note, after the values in use', async () => {
+		render(ValueField, {
+			label: 'Location',
+			options: [
+				{ kind: 'existing', name: 'Louvre', note: 'France' },
+				{ kind: 'starter', name: 'Prado', note: 'Spain' }
+			]
+		});
+
+		await userEvent.click(page.getByRole('combobox', { name: 'Location' }));
+
+		const used = page.getByRole('group', { name: texts.existing });
+		await expect.element(used.getByRole('option', { name: /Louvre/ })).toBeVisible();
+		await expect.element(used.getByText('France')).toBeVisible();
+		const starter = page.getByRole('group', { name: texts.starter });
+		await expect.element(starter.getByRole('option', { name: /Prado/ })).toBeVisible();
+		await expect.element(starter.getByText('Spain')).toBeVisible();
+	});
+
+	it('picks a starter entry with the keyboard', async () => {
+		render(ValueField, {
+			label: 'Location',
+			single: true,
+			options: [
+				{ kind: 'existing', name: 'Louvre' },
+				{ kind: 'starter', name: 'Prado', note: 'Spain' }
+			]
+		});
+
+		await userEvent.click(page.getByRole('combobox', { name: 'Location' }));
+		await userEvent.keyboard('{ArrowDown}{Enter}');
+
+		await expect.element(page.getByRole('button', { name: texts.remove('Prado') })).toBeVisible();
+	});
+
 	it('moves through the options with the arrow keys and picks one with Enter', async () => {
 		render(ValueField, { label: 'Style', options });
 
