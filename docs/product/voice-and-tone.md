@@ -7,7 +7,7 @@ How the app speaks to the learner in every text and message.
 The app talks to the learner the way a museum curator talks to a visitor: it knows the subject, it is helpful and it is relaxed, but it never lectures and never shows off.
 
 - Matter-of-fact first: say what happened and what to do next.
-- Relaxed, not formal: address the learner directly and informally (in Polish with "Ty"), use everyday words.
+- Relaxed, not formal: address the learner directly and informally (in Polish with "Ty"), use everyday words. The forms of "Ty" and "Twój" that address the learner start with a capital letter also mid-sentence ("w Twoim atelier", "Zastąpić Twoją definicję?").
 - Short sentences. One idea per sentence.
 - No purple prose: no exclamation marks, no flowery metaphors, no jokes at the learner's expense. A light touch from the world of museums is fine when it stays clear ("Wkrótce zawisną tu dzieła z Twojego atelier").
 - Use the terms from the [glossary](glossary.md), for example "atelier" for the learner's collection.
