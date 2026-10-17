@@ -84,4 +84,5 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0078](0078-show-a-streak-of-days-with-reviews-on-the-review-start.md)   | Show a streak of days with reviews on the review start                                 | accepted           |
 | [0079](0079-connect-the-lexicon-and-suggest-forms-from-wiktionary.md)    | Connect the lexicon with learning and suggest the forms of a term from Wiktionary      | accepted           |
 | [0080](0080-keep-the-glossary-name-slowniczek.md)                        | Keep the glossary name "Słowniczek"                                                    | accepted           |
+| [0081](0081-preload-page-data-on-tap.md)                                 | Preload page data when a link is pressed, not when the pointer rests on it             | accepted           |
 | [0082](0082-find-note-mentions-with-one-database-function.md)            | Find note mentions with one database function                                          | accepted           |

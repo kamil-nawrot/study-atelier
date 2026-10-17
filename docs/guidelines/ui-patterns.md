@@ -64,7 +64,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 ## Links and buttons
 
-- Going to another page is always a link, `<a href>`. SvelteKit's router handles internal links without a page reload and preloads them. A link that should look like a button is `<Button href={...}>`.
+- Going to another page is always a link, `<a href>`. SvelteKit's router handles internal links without a page reload. It preloads a page's code when the pointer rests on its link and the page's data only when the link is pressed, so moving the pointer across the wall sends nothing to the database ([ADR-0081](../decisions/0081-preload-page-data-on-tap.md)). A link that should look like a button is `<Button href={...}>`.
 - `Button` without `href` is for actions on the current page: submit a form, sign out, resend a message.
 - `goto` is for navigation from code after an action, for example after a successful sign-in.
 - Each view has at most one `primary` button.

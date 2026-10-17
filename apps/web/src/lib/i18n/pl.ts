@@ -557,7 +557,7 @@ export const pl = {
 	},
 	cardIndex: {
 		title: 'Kartoteka',
-		lead: 'Tu opisujesz i porządkujesz swoje epoki, okresy, style, autorów i miejsca. Kliknij nazwę, która cię interesuje, żeby zobaczyć szczegóły.',
+		lead: 'Tu opisujesz i porządkujesz swoje epoki, okresy, style, autorów i miejsca. Kliknij nazwę, która Cię interesuje, żeby zobaczyć szczegóły.',
 		loadErrorTitle: 'Nie udało się wczytać Kartoteki',
 		tabsLabel: 'Rodzaje wartości',
 		tabs: {
@@ -696,7 +696,7 @@ export const pl = {
 		title: 'Słowniczek',
 		count: (count: number): string =>
 			`${count} ${plural(count, { one: 'pojęcie', few: 'pojęcia', many: 'pojęć' })}`,
-		lead: 'Pojęcia i postaci, które chcesz zapamiętać. Ich definicje pojawią się w twoich notatkach.',
+		lead: 'Pojęcia i postaci, które chcesz zapamiętać. Ich definicje pojawią się w Twoich notatkach.',
 		back: 'Słowniczek',
 		add: 'Dodaj pojęcie',
 		addShort: 'Dodaj',
