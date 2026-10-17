@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import Play from '@lucide/svelte/icons/play';
-	import { Alert, Button, Icon, ToggleTag } from '@study-atelier/ui';
+	import { Alert, Button, Icon, Tag, ToggleTag } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
@@ -92,7 +92,9 @@
 				{/if}
 			{/if}
 			{#if streak > 0}
-				<p class="caption">{m.review.streak(streak)}</p>
+				<p class="streak">
+					<Tag>{m.review.streak(streak)}</Tag>
+				</p>
 			{/if}
 		</header>
 
@@ -236,6 +238,10 @@
 	.how {
 		display: grid;
 		gap: var(--spacing-2);
+	}
+
+	.streak {
+		padding-top: var(--spacing-2);
 	}
 
 	.how {

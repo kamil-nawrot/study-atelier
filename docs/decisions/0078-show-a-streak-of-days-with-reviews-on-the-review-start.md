@@ -23,7 +23,7 @@ The learner asked for the number of days in a row with reviews to be shown in th
 
 Chosen option: "a database function that computes the streak from `review_log`". Every answer is already logged with `reviewed_at`, so `review_streak(day_start, time_zone)` groups the log by day in the learner's time zone (the one the browser reports) and counts the run of consecutive days that ends today or, when today has no review yet, yesterday. A streak therefore stays alive until the end of the day after the last review. Any answer, flashcard or quiz, makes a day count. Nothing is stored, so past reviews count from the first day they were logged.
 
-The start of a review shows one line, "Seria: n dni z powtórkami z rzędu", only when the streak is at least one day. There is no record, calendar or reward.
+The start of a review shows a `Tag` under the plan, "Seria: n dni z powtórkami z rzędu", only when the streak is at least one day, so it stands out from the plain text around it. There is no record, calendar or reward.
 
 ### Consequences
 
