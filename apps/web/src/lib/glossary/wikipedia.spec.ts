@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { searchArticles, firstParagraph, searchQuery, sourceOf } from './wikipedia.ts';
+import {
+	searchArticles,
+	firstParagraph,
+	searchQuery,
+	sourceOf,
+	withoutLeadTerm
+} from './wikipedia.ts';
 
 type Fixture = {
 	hits?: { pageid: number; title: string }[];
@@ -83,6 +89,49 @@ describe('firstParagraph', () => {
 
 	it('gives an empty text for an empty extract', () => {
 		expect(firstParagraph('')).toBe('');
+	});
+
+	it('leaves out the term that opens the introduction', () => {
+		expect(
+			firstParagraph(
+				'Woluta, ślimacznica – element architektoniczny i motyw ornamentacyjny w formie spirali lub zwoju.\nDruga linia.'
+			)
+		).toBe('element architektoniczny i motyw ornamentacyjny w formie spirali lub zwoju.');
+	});
+});
+
+describe('withoutLeadTerm', () => {
+	it('cuts the text up to the first dash of the first sentence', () => {
+		expect(withoutLeadTerm('Nawa – podłużna część kościoła. Bywa też – rzadko – poprzeczna.')).toBe(
+			'podłużna część kościoła. Bywa też – rzadko – poprzeczna.'
+		);
+	});
+
+	it('skips dashes in parentheses, also with the dates of a person', () => {
+		expect(withoutLeadTerm('Sfumato (wł. sfumare – rozmywać) – technika malarska.')).toBe(
+			'technika malarska.'
+		);
+		expect(
+			withoutLeadTerm(
+				'Wawrzyniec Medyceusz, zwany Wspaniałym (ur. 1 stycznia 1449 we Florencji, zm. 8 kwietnia 1492 w Careggi) – władca Florencji.'
+			)
+		).toBe('władca Florencji.');
+	});
+
+	it('takes an em dash as well', () => {
+		expect(withoutLeadTerm('Abakus — płyta na szczycie głowicy.')).toBe(
+			'płyta na szczycie głowicy.'
+		);
+	});
+
+	it('keeps the text when the first sentence has no dash outside parentheses', () => {
+		expect(
+			withoutLeadTerm('Fresk to technika malarska. Barwnik – w wodzie – wiąże się z tynkiem.')
+		).toBe('Fresk to technika malarska. Barwnik – w wodzie – wiąże się z tynkiem.');
+		expect(withoutLeadTerm('Łuk (1400–1500) jest elementem.')).toBe(
+			'Łuk (1400–1500) jest elementem.'
+		);
+		expect(withoutLeadTerm('Tympanon –')).toBe('Tympanon –');
 	});
 });
 

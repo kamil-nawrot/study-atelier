@@ -48,10 +48,8 @@
 					onclick={() => toggle(category)}
 					pressed={chosen.includes(category)}
 				>
-					<span class="tag">
-						<Icon icon={glossaryCategoryIcon(category)} size="sm" />
-						{glossaryCategoryName(category)}
-					</span>
+					<Icon icon={glossaryCategoryIcon(category)} size="sm" />
+					{glossaryCategoryName(category)}
 				</ToggleTag>
 			</li>
 		{/each}
@@ -105,12 +103,6 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--spacing-2);
-	}
-
-	.tag {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--spacing-1);
 	}
 
 	.search,
@@ -173,11 +165,15 @@
 
 	.category {
 		display: inline-flex;
-		align-items: center;
+		align-items: baseline;
 		gap: var(--spacing-1);
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
+	}
+
+	.category :global(svg) {
+		align-self: center;
 	}
 
 	.sentence {
@@ -193,6 +189,11 @@
 		.group {
 			grid-template-columns: 80px minmax(0, 1fr);
 			gap: 0;
+		}
+
+		.group + .group {
+			padding-top: var(--spacing-8);
+			border-top: var(--border-width-hairline) solid var(--color-line);
 		}
 
 		h2 {

@@ -77,6 +77,20 @@ describe('Popover', () => {
 		expect(box.top).toBeGreaterThanOrEqual(0);
 	});
 
+	it('opens to the left when the card does not fit to the right of the trigger', async () => {
+		renderPopover();
+		const wrapper = button().element().parentElement;
+		wrapper?.style.setProperty('position', 'fixed');
+		wrapper?.style.setProperty('right', '40px');
+
+		await button().click();
+		const trigger = button().element().getBoundingClientRect();
+		const box = page.getByRole('tooltip').element().getBoundingClientRect();
+
+		expect(box.right).toBeCloseTo(trigger.right, 0);
+		expect(box.right).toBeLessThanOrEqual(document.documentElement.clientWidth);
+	});
+
 	it('lets a click on the card reach what lies under it and closes', async () => {
 		renderPopover();
 

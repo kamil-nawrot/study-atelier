@@ -1,5 +1,5 @@
 import { fetchJson } from '#lib/images/wikimedia.ts';
-import { DEFINITION_MAX_LENGTH, shortenDefinition } from './glossary.ts';
+import { DEFINITION_MAX_LENGTH, firstSentence, shortenDefinition } from './glossary.ts';
 import type { GlossaryCategory, GlossarySource, WikipediaArticle } from './types.ts';
 
 const WIKIPEDIA_API = 'https://pl.wikipedia.org/w/api.php';
@@ -7,6 +7,7 @@ const WIKIDATA_API = 'https://www.wikidata.org/w/api.php';
 const SEARCH_LIMIT = 8;
 const ARTICLE_LIMIT = 5;
 const HUMAN = 'Q5';
+const LEAD_DASHES = new Set(['–', '—']);
 
 export const WIKIPEDIA_LICENCE = 'CC BY-SA 4.0';
 export const WIKIPEDIA_LICENCE_URL = 'https://creativecommons.org/licenses/by-sa/4.0/deed.pl';
@@ -52,12 +53,31 @@ export function searchQuery(name: string, category: GlossaryCategory, withHint: 
 	return withHint && hint ? `${name.trim()} ${hint}` : name.trim();
 }
 
+export function withoutLeadTerm(paragraph: string): string {
+	const sentenceEnd = firstSentence(paragraph).length;
+	let depth = 0;
+	for (let index = 1; index < sentenceEnd - 1; index += 1) {
+		const char = paragraph[index];
+		if (char === '(' || char === '[') depth += 1;
+		else if ((char === ')' || char === ']') && depth > 0) depth -= 1;
+		else if (
+			depth === 0 &&
+			LEAD_DASHES.has(char) &&
+			paragraph[index - 1] === ' ' &&
+			paragraph[index + 1] === ' '
+		) {
+			return paragraph.slice(index + 2).trim() || paragraph;
+		}
+	}
+	return paragraph;
+}
+
 export function firstParagraph(extract: string): string {
 	const paragraph = extract
 		.split('\n')
 		.map((line) => line.replace(/\s+/g, ' ').trim())
 		.find((line) => line !== '');
-	return shortenDefinition(paragraph ?? '', DEFINITION_MAX_LENGTH);
+	return shortenDefinition(withoutLeadTerm(paragraph ?? ''), DEFINITION_MAX_LENGTH);
 }
 
 async function findPages(query: string): Promise<Page[]> {

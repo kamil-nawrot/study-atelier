@@ -42,15 +42,15 @@ How views and components look and behave, so every new screen stays consistent w
 
 `base.css` styles each role once. Views use the role and do not restyle it.
 
-| Role | Markup | Look |
-| --- | --- | --- |
-| Page title | `h1` | `xl`, bold |
-| Section title | `h2` | `lg`, bold |
-| Subsection title | `h3` | `md`, bold |
-| Lead, one sentence under the page title | `p.lead` | `md`, muted |
-| Body | `p` | `md` |
-| Caption: metadata, hints, secondary details | `.caption` | `sm`, muted |
-| Artwork title | `cite.artwork-title` | Newsreader italic, `lg` |
+| Role                                        | Markup               | Look                    |
+| ------------------------------------------- | -------------------- | ----------------------- |
+| Page title                                  | `h1`                 | `xl`, bold              |
+| Section title                               | `h2`                 | `lg`, bold              |
+| Subsection title                            | `h3`                 | `md`, bold              |
+| Lead, one sentence under the page title     | `p.lead`             | `md`, muted             |
+| Body                                        | `p`                  | `md`                    |
+| Caption: metadata, hints, secondary details | `.caption`           | `sm`, muted             |
+| Artwork title                               | `cite.artwork-title` | Newsreader italic, `lg` |
 
 - Every page has one `h1`. The page title in the browser tab is built with `m.app.pageTitle(title)`.
 - Newsreader is used only for artwork titles.
@@ -69,7 +69,7 @@ How views and components look and behave, so every new screen stays consistent w
 - `goto` is for navigation from code after an action, for example after a successful sign-in.
 - Each view has at most one `primary` button.
 - Text cut with an ellipsis shows its full content in the library `Tooltip`, on hover and on keyboard focus, and only when it is actually cut.
-- A short note about something on the screen with more than one line of text (a value's summary in the artwork view) is a `Popover`: its trigger is a button that looks like the text or tag it wraps, the card opens on a click or a tap and, on a computer, also on hover and keyboard focus, and closes on a second click, a click elsewhere or Escape. Hover counts only on the trigger, and the card holds nothing to click and lets clicks through, so it never covers other triggers ([ADR-0059](../decisions/0059-value-summary-card-in-the-artwork-view.md)). A plain `Tooltip` stays for one short line.
+- A short note about something on the screen with more than one line of text (a value's summary in the artwork view) is a `Popover`: its trigger is a button that looks like the text or tag it wraps, the card opens on a click or a tap and, on a computer, also on hover and keyboard focus, and closes on a second click, a click elsewhere or Escape. Hover counts only on the trigger, and the card holds nothing to click and lets clicks through, so it never covers other triggers ([ADR-0059](../decisions/0059-value-summary-card-in-the-artwork-view.md)). A card that does not fit to the right of its trigger opens to the left, and the room is measured without the scrollbar ([ADR-0077](../decisions/0077-trim-the-wikipedia-lead-and-polish-the-glossary-list.md)). A plain `Tooltip` stays for one short line.
 - Glossary terms in read-only notes are `button`s inside the `Notes` text with the background of a tag; they open the same card as a `Popover` (`PopoverState` and `PopoverCard` are shared), with the entry's category, name, definition and source. Only the first occurrence of an entry in a note is marked, and the editor and the review cards show notes unmarked ([ADR-0074](../decisions/0074-keep-a-glossary-of-terms-with-definitions-from-wikipedia.md)).
 - A `Tooltip` opens above its control and grows from the control's start. A control at the top or right edge of the screen, such as a button at the end of the top bar, uses `placement="bottom"` and `align="end"` so the bubble stays inside the viewport.
 - Sign out is shown in `--color-danger`, so it stands apart from the menu items that navigate.
@@ -183,7 +183,7 @@ How views and components look and behave, so every new screen stays consistent w
 ## Glossary
 
 - The glossary ([ADR-0074](../decisions/0074-keep-a-glossary-of-terms-with-definitions-from-wikipedia.md)) is "Słowniczek" in the menu, after "Kartoteka", with the icon `book-a`. Its six categories each have an icon used nowhere else (`person-standing`, `drafting-compass`, `paintbrush`, `cuboid`, `pipette`, `lightbulb`) (defined in `lib/glossary/categories.ts`); `categories.spec.ts` checks them against the eras, the types of place, the artwork types and the menu.
-- The list has the category `ToggleTag`s with their numbers above it (a category with no entries is disabled), a `SearchField` from 20 entries, and the entries sorted by name in Polish order under their capital first letters: to the left of them from 768 px, above them over a hairline on a phone. An entry shows its name, its category as a small icon and name, and the first sentence of its definition in at most two lines. "Dodaj pojęcie" is the view's `primary` button.
+- The list has the category `ToggleTag`s with their numbers above it (a category with no entries is disabled), a `SearchField` from 20 entries, and the entries sorted by name in Polish order under their capital first letters: to the left of them from 768 px with a hairline above every letter after the first, above them over a hairline on a phone ([ADR-0077](../decisions/0077-trim-the-wikipedia-lead-and-polish-the-glossary-list.md)). An entry shows its name, its category as a small icon and name, and the first sentence of its definition in at most two lines. "Dodaj pojęcie" is the view's `primary` button.
 - An entry's page is built like a value page: category in small capitals with its icon, the name in the title font, the other forms in one caption line, the definition as a quote with a bar and, under it inside the bar, the source line that links the article and the licence. "Edytuj" and "Usuń" sit only in the top bar.
 - The form searches Polish Wikipedia by itself once the name and the category are set and the definition is empty or still the fetched text, after the learner pauses typing. A definition the learner wrote or changed is never replaced without asking ("Zastąpić twoją definicję?"); an entry opened for editing counts as changed, because the app does not keep the original text. The article can be changed with "Wybierz inny artykuł", the source removed with "Usuń źródło".
 

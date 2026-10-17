@@ -21,10 +21,15 @@
 		const anchorBox = anchor.getBoundingClientRect();
 		const box = card.getBoundingClientRect();
 		const margin = parseFloat(getComputedStyle(card).getPropertyValue('--popover-margin')) || 0;
+		const { clientWidth: width, clientHeight: height } = document.documentElement;
 		const below = anchorBox.bottom + margin;
-		const fitsBelow = below + box.height <= window.innerHeight - margin;
+		const fitsBelow = below + box.height <= height - margin;
+		const fitsRight = anchorBox.left + box.width <= width - margin;
 		top = fitsBelow ? below : Math.max(margin, anchorBox.top - margin - box.height);
-		left = Math.min(Math.max(margin, anchorBox.left), window.innerWidth - margin - box.width);
+		left = Math.min(
+			Math.max(margin, fitsRight ? anchorBox.left : anchorBox.right - box.width),
+			width - margin - box.width
+		);
 	}
 
 	$effect(() => {
