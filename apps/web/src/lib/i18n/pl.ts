@@ -692,7 +692,7 @@ export const pl = {
 	},
 	glossary: {
 		title: 'Słowniczek',
-		lead: 'Pojęcia i postaci, które chcesz zapamiętać. Ich definicje pojawią się w twoich notatkach.',
+		lead: 'Pojęcia i postaci, które chcesz zapamiętać. Ich definicje pojawią się w Twoich notatkach.',
 		back: 'Słowniczek',
 		add: 'Dodaj pojęcie',
 		addShort: 'Dodaj',
@@ -776,8 +776,8 @@ export const pl = {
 			use: 'Użyj tego artykułu'
 		},
 		replaceConfirm: {
-			title: 'Zastąpić twoją definicję?',
-			description: 'Definicja ma już twoje zmiany. Tekst z nowego artykułu je zastąpi.',
+			title: 'Zastąpić Twoją definicję?',
+			description: 'Definicja ma już Twoje zmiany. Tekst z nowego artykułu je zastąpi.',
 			keep: 'Zostaw moją',
 			replace: 'Zastąp'
 		},
