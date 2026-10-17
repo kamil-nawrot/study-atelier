@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BookA from '@lucide/svelte/icons/book-a';
 	import ImagesIcon from '@lucide/svelte/icons/images';
 	import Layers from '@lucide/svelte/icons/layers';
 	import ListTree from '@lucide/svelte/icons/list-tree';
@@ -22,6 +23,7 @@
 
 	const atelierPath = resolve('/(app)/atelier');
 	const cardIndexPath = resolve('/(app)/atelier/values');
+	const glossaryPath = resolve('/(app)/atelier/glossary');
 	const trashPath = resolve('/(app)/atelier/trash');
 	const reviewPath = resolve('/(app)/atelier/review');
 
@@ -55,6 +57,16 @@
 		<Icon icon={ListTree} />
 		<span class="label">
 			{m.menu.cardIndex}
+		</span>
+	</a>
+	<a
+		class="item"
+		aria-current={page.url.pathname.startsWith(glossaryPath) ? 'page' : undefined}
+		href={glossaryPath}
+	>
+		<Icon icon={BookA} />
+		<span class="label">
+			{m.menu.glossary}
 		</span>
 	</a>
 	<a

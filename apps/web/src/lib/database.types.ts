@@ -338,6 +338,52 @@ export type Database = {
         };
         Relationships: [];
       };
+      glossary_entries: {
+        Row: {
+          category: string;
+          created_at: string;
+          definition: string | null;
+          forms: string[];
+          id: string;
+          name: string;
+          owner_id: string;
+          source_fetched_on: string | null;
+          source_licence: string | null;
+          source_title: string | null;
+          source_url: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          category: string;
+          created_at?: string;
+          definition?: string | null;
+          forms?: string[];
+          id?: string;
+          name: string;
+          owner_id?: string;
+          source_fetched_on?: string | null;
+          source_licence?: string | null;
+          source_title?: string | null;
+          source_url?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          category?: string;
+          created_at?: string;
+          definition?: string | null;
+          forms?: string[];
+          id?: string;
+          name?: string;
+          owner_id?: string;
+          source_fetched_on?: string | null;
+          source_licence?: string | null;
+          source_title?: string | null;
+          source_url?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       location_details: {
         Row: {
           category_code: string;
