@@ -4,6 +4,7 @@ import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
 import { m } from '#lib/i18n/index.ts';
 import { deleteGlossaryEntry } from '#lib/glossary/glossary-data.ts';
+import type { Mention } from '#lib/collection/mentions.ts';
 import type { GlossaryEntry } from '#lib/glossary/types.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import { testEntry, testGlossary } from '#lib/testing/glossary.ts';
@@ -24,7 +25,7 @@ const tympanum = testGlossary()[0];
 
 function renderEntry(
 	entry: GlossaryEntry | null = tympanum,
-	failure: { error?: string; notFound?: boolean } = {}
+	failure: { error?: string; notFound?: boolean; mentions?: Mention[] } = {}
 ): void {
 	render(GlossaryEntryPage, {
 		data: { session: testSession(), entry: entry ?? undefined, ...failure },
@@ -63,6 +64,28 @@ describe('glossary entry page', () => {
 		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Plain');
 		expect(page.getByText(/^też:/).elements()).toHaveLength(0);
 		expect(page.getByText(/Na podstawie/).elements()).toHaveLength(0);
+	});
+
+	it('lists the notes where the entry appears and hides the section when there are none', async () => {
+		renderEntry(tympanum, {
+			mentions: [{ href: '/atelier/3', name: '#0003 Temple', kind: m.mentions.artwork }]
+		});
+
+		await expect
+			.element(page.getByRole('heading', { name: m.glossary.view.mentionsHeading }))
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: '#0003 Temple' }))
+			.toHaveAttribute('href', '/atelier/3');
+	});
+
+	it('has no notes section without mentions', async () => {
+		renderEntry();
+
+		await expect.element(page.getByRole('heading', { level: 1 })).toBeVisible();
+		expect(
+			page.getByRole('heading', { name: m.glossary.view.mentionsHeading }).elements()
+		).toHaveLength(0);
 	});
 
 	it('says there is no definition yet', async () => {

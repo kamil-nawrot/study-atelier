@@ -13,6 +13,7 @@ function mockTables(tables: Rows): void {
 		const query = {
 			select: vi.fn().mockReturnThis(),
 			is: vi.fn().mockReturnThis(),
+			not: vi.fn().mockReturnThis(),
 			like: vi.fn().mockReturnThis(),
 			order: vi.fn().mockReturnThis(),
 			range: vi.fn().mockResolvedValue({ data: tables[table] ?? [], error: null }),

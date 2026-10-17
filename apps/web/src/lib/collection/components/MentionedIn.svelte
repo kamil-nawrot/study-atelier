@@ -4,17 +4,18 @@
 
 	type Props = {
 		mentions: Mention[];
+		heading?: string;
 		variant?: 'caption' | 'label';
 	};
 
-	let { mentions, variant = 'caption' }: Props = $props();
+	let { mentions, heading = m.mentions.heading, variant = 'caption' }: Props = $props();
 
 	const headingId = $props.id();
 </script>
 
 {#if mentions.length > 0}
 	<section aria-labelledby={headingId}>
-		<h2 id={headingId} class={variant}>{m.mentions.heading}</h2>
+		<h2 id={headingId} class={variant}>{heading}</h2>
 		<ul>
 			{#each mentions as mention (mention.href)}
 				<li>

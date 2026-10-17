@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Icon } from '@study-atelier/ui';
+	import MentionedIn from '#lib/collection/components/MentionedIn.svelte';
+	import type { Mention } from '#lib/collection/mentions.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { glossaryCategoryIcon, glossaryCategoryName } from '../categories.ts';
 	import type { GlossaryEntry } from '../types.ts';
@@ -7,9 +9,10 @@
 
 	type Props = {
 		entry: GlossaryEntry;
+		mentions?: Mention[];
 	};
 
-	let { entry }: Props = $props();
+	let { entry, mentions = [] }: Props = $props();
 </script>
 
 <article>
@@ -43,6 +46,8 @@
 	{:else}
 		<p class="empty">{m.glossary.view.noDefinition}</p>
 	{/if}
+
+	<MentionedIn heading={m.glossary.view.mentionsHeading} {mentions} variant="label" />
 </article>
 
 <style>

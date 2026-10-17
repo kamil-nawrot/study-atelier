@@ -328,6 +328,12 @@ async function mockSupabase(context) {
 		const detailsTable = url.pathname.replace('/rest/v1/', '');
 		if (detailsTable in VALUE_DETAILS) {
 			const [column, filter] = [...url.searchParams].find(([key]) => key !== 'select') ?? [];
+			if (column === 'notes' && filter === 'not.is.null') {
+				return json(
+					route,
+					VALUE_DETAILS[detailsTable].filter((row) => row.notes)
+				);
+			}
 			if (column === 'notes' && filter?.startsWith('like.')) {
 				const needle = filter.slice('like.'.length).replaceAll('%', '');
 				return json(

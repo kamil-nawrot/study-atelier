@@ -91,7 +91,7 @@
 	{/snippet}
 
 	{#if entry}
-		<GlossaryView {entry} />
+		<GlossaryView {entry} mentions={data.mentions} />
 	{:else}
 		<Section>
 			{#if data.notFound}
