@@ -360,6 +360,34 @@ export type Database = {
         };
         Relationships: [];
       };
+      feedback: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          kind: string;
+          owner_id: string;
+          title: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          kind: string;
+          owner_id?: string;
+          title: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          kind?: string;
+          owner_id?: string;
+          title?: string;
+        };
+        Relationships: [];
+      };
       glossary_entries: {
         Row: {
           category: string;

@@ -183,6 +183,9 @@ begin
     'insert into public.glossary_entries (owner_id, name, category) values (%L, ''Forged'', ''general'')', a)),
     'B inserts a glossary entry owned by A';
   assert security_test.denied(format(
+    'insert into public.feedback (owner_id, kind, title) values (%L, ''bug'', ''Forged'')', a)),
+    'B sends feedback owned by A';
+  assert security_test.denied(format(
     'insert into public.period_eras (value_id, era_code) values (%L, ''modern'')', a_value)),
     'B adds an era to a period of A';
   assert security_test.denied(format(
@@ -251,6 +254,34 @@ begin
     'A changes the owner of a glossary entry';
   assert security_test.denied('update public.glossary_entries set created_at = now()'),
     'A changes when a glossary entry was created';
+
+  assert not security_test.denied(
+    'insert into public.feedback (kind, title, description) values (''bug'', ''Broken filter'', ''Details'')'),
+    'A cannot send feedback';
+  assert not security_test.denied(
+    'insert into public.feedback (kind, title) values (''idea'', ''Dark mode'')'),
+    'A cannot send feedback without a description';
+  assert security_test.denied('select * from public.feedback'), 'A reads feedback';
+  assert security_test.denied('update public.feedback set title = ''x'''), 'A updates feedback';
+  assert security_test.denied('delete from public.feedback'), 'A deletes feedback';
+  assert security_test.denied(
+    'insert into public.feedback (kind, title) values (''question'', ''Wrong kind'')'),
+    'A sends feedback of an unknown kind';
+  assert security_test.denied(
+    'insert into public.feedback (kind, title) values (''bug'', '' Padded '')'),
+    'A sends feedback with a padded title';
+  assert security_test.denied(
+    'insert into public.feedback (kind, title) values (''bug'', '''')'),
+    'A sends feedback with an empty title';
+  assert security_test.denied(
+    'insert into public.feedback (kind, title, description) values (''bug'', ''Blank'', '''')'),
+    'A sends feedback with an empty description';
+  assert security_test.denied(
+    format('insert into public.feedback (kind, title) values (''bug'', %L)', repeat('x', 121))),
+    'A sends feedback with a title over 120 characters';
+  assert security_test.denied(
+    format('insert into public.feedback (kind, title, description) values (''bug'', ''Long'', %L)', repeat('x', 4001))),
+    'A sends feedback with a description over 4000 characters';
 
   assert security_test.denied('update public.artworks set owner_id = gen_random_uuid()'),
     'A changes the owner of an artwork';

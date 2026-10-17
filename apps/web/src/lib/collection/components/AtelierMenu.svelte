@@ -4,6 +4,7 @@
 	import Layers from '@lucide/svelte/icons/layers';
 	import ListTree from '@lucide/svelte/icons/list-tree';
 	import LogOut from '@lucide/svelte/icons/log-out';
+	import MessageSquarePlus from '@lucide/svelte/icons/message-square-plus';
 	import Moon from '@lucide/svelte/icons/moon';
 	import Sun from '@lucide/svelte/icons/sun';
 	import Trash from '@lucide/svelte/icons/trash-2';
@@ -17,9 +18,10 @@
 		email: string;
 		signingOut: boolean;
 		onsignout: () => void;
+		onfeedback: () => void;
 	};
 
-	let { email, signingOut, onsignout }: Props = $props();
+	let { email, signingOut, onsignout, onfeedback }: Props = $props();
 
 	const atelierPath = resolve('/(app)/atelier');
 	const cardIndexPath = resolve('/(app)/atelier/values');
@@ -108,6 +110,12 @@
 			{m.menu.trash}
 		</span>
 	</a>
+	<button class="item muted" onclick={onfeedback} type="button">
+		<Icon icon={MessageSquarePlus} />
+		<span class="label">
+			{m.menu.feedback}
+		</span>
+	</button>
 	<button class="item muted" onclick={() => setTheme(light ? 'dark' : 'light')} type="button">
 		<Icon icon={light ? Moon : Sun} />
 		<span class="label">

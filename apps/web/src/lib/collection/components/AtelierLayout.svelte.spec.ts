@@ -124,7 +124,7 @@ describe('AtelierLayout', () => {
 		pageState.url = new URL('http://localhost/atelier');
 	});
 
-	it('switches between the dark and the light theme from the menu, between the trash and signing out', async () => {
+	it('switches between the dark and the light theme from the menu, between the feedback item and signing out', async () => {
 		await page.viewport(1280, 800);
 		renderLayout(views.empty);
 
@@ -133,7 +133,12 @@ describe('AtelierLayout', () => {
 			.element()
 			.querySelectorAll('a, button');
 		const names = [...items].map((item) => item.textContent?.trim());
-		expect(names.slice(-3)).toEqual([m.menu.trash, m.menu.lightTheme, m.menu.signOut]);
+		expect(names.slice(-4)).toEqual([
+			m.menu.trash,
+			m.menu.feedback,
+			m.menu.lightTheme,
+			m.menu.signOut
+		]);
 
 		await userEvent.click(page.getByRole('button', { name: m.menu.lightTheme }));
 
@@ -180,5 +185,14 @@ describe('AtelierLayout', () => {
 					.getByRole('link', { name: m.menu.review, exact: true })
 			)
 			.toBeInTheDocument();
+	});
+
+	it('opens the feedback dialog from the menu', async () => {
+		await page.viewport(1280, 800);
+		renderLayout(views.empty);
+
+		await userEvent.click(page.getByRole('button', { name: m.menu.feedback }));
+
+		await expect.element(page.getByRole('dialog', { name: m.feedback.title })).toBeInTheDocument();
 	});
 });

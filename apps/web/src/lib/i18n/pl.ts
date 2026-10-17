@@ -157,6 +157,7 @@ export const pl = {
 		review: 'Powtórki',
 		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
 		trash: 'Kosz',
+		feedback: 'Zgłoś uwagę',
 		lightTheme: 'Jasny motyw',
 		darkTheme: 'Ciemny motyw',
 		signOut: 'Wyloguj się'
@@ -666,6 +667,28 @@ export const pl = {
 	mentions: {
 		heading: 'Wspominasz o tym w notatkach',
 		artwork: 'Dzieło'
+	},
+	feedback: {
+		title: 'Zgłoś uwagę',
+		description: 'Coś nie działa albo brakuje Ci jakiejś funkcji? Daj znać.',
+		kind: 'Co zgłaszasz?',
+		bug: 'Błąd',
+		idea: 'Pomysł',
+		titleLabel: 'Tytuł',
+		titleHint: 'Jedno zdanie o tym, czego dotyczy zgłoszenie.',
+		descriptionLabel: 'Opis',
+		descriptionHint: 'Co się stało albo jak miałoby to działać? Nieobowiązkowe.',
+		send: 'Wyślij',
+		sending: 'Wysyłanie…',
+		cancel: 'Anuluj',
+		sent: 'Zgłoszenie wysłane.',
+		errorTitle: 'Nie udało się wysłać zgłoszenia',
+		errors: {
+			kindRequired: 'Wybierz, czy to błąd, czy pomysł.',
+			titleRequired: 'Wpisz tytuł zgłoszenia.',
+			invalid: 'Zgłoszenie jest niepoprawne. Sprawdź tytuł i opis.',
+			network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.'
+		}
 	},
 	glossary: {
 		title: 'Słowniczek',

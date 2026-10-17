@@ -167,7 +167,8 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-20 | The app has a responsive layout that works well on a phone as well as on a larger screen. | MVP |
 | R-21 | The interface is in Polish. Texts are kept in a simple i18n setup so that more languages can be added later. | MVP |
 | R-22 | Each learner sees and changes only their own atelier. | MVP |
-| R-73 | The app is dark by default. The learner switches to the light theme and back from the menu, between the trash and signing out; the choice is remembered on the device. In the light theme the passe-partout of the wall is a card lighter than the wall, and the stage behind a featured artwork stays dark ([ADR-0054](../decisions/0054-switch-to-the-light-theme-from-the-menu.md)). | 0.4 |
+| R-73 | The app is dark by default. The learner switches to the light theme and back from the menu, between "Zgłoś uwagę" and signing out; the choice is remembered on the device. In the light theme the passe-partout of the wall is a card lighter than the wall, and the stage behind a featured artwork stays dark ([ADR-0054](../decisions/0054-switch-to-the-light-theme-from-the-menu.md)). | 0.4 |
+| R-95 | The learner reports a bug or an idea from "Zgłoś uwagę" in the menu, between "Kosz" and the theme switch: a dialog with the kind (error or idea), a required title of up to 120 characters and an optional description of up to 4000. A sent report is stored privately; the learner cannot read reports back, and the owner reads them in Supabase ([ADR-0076](../decisions/0076-collect-feedback-in-a-table-from-a-menu-dialog.md)). | 0.6 |
 
 ## Not in the MVP
 
