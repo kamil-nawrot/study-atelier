@@ -41,6 +41,7 @@ export type GlossaryResult = {
 export type GlossaryEntryResult = {
 	entry?: GlossaryEntry;
 	mentions?: Mention[];
+	glossary?: GlossaryEntry[];
 	error?: string;
 	notFound?: boolean;
 };

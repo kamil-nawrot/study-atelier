@@ -5,10 +5,12 @@
 	type Props = {
 		id: string;
 		popover: PopoverState;
+		interactive?: boolean;
+		labelledby?: string;
 		children: Snippet;
 	};
 
-	let { id, popover, children }: Props = $props();
+	let { id, popover, interactive = false, labelledby, children }: Props = $props();
 
 	let card: HTMLDivElement | undefined = $state();
 	let top = $state(0);
@@ -33,6 +35,11 @@
 	}
 
 	$effect(() => {
+		popover.card = card;
+		popover.interactive = interactive;
+	});
+
+	$effect(() => {
 		if (popover.open && popover.anchor) void place();
 	});
 
@@ -54,8 +61,13 @@
 	style:top="{top}px"
 	style:left="{left}px"
 	class="card"
+	class:interactive
+	aria-labelledby={interactive ? labelledby : undefined}
 	hidden={!popover.open}
-	role="tooltip"
+	onfocusout={(event) => popover.blur(event)}
+	onpointerenter={(event) => popover.cardPointerEnter(event)}
+	onpointerleave={(event) => popover.pointerLeave(event)}
+	role={interactive ? 'dialog' : 'tooltip'}
 >
 	{@render children()}
 </div>
@@ -73,8 +85,18 @@
 		border: var(--border-width-base) solid var(--color-line);
 		background: var(--color-bg);
 		color: var(--color-fg);
+		font-family: var(--font-family-ui), system-ui, sans-serif;
+		font-size: var(--font-size-md);
+		font-style: normal;
+		font-weight: var(--font-weight-regular);
+		line-height: var(--line-height-md);
 		text-align: left;
+		white-space: normal;
 		pointer-events: none;
+	}
+
+	.interactive {
+		pointer-events: auto;
 	}
 
 	.card[hidden] {

@@ -305,6 +305,7 @@
 				<Flashcard
 					details={details.get(current.artwork.id)}
 					error={session.error}
+					glossary={data.glossary}
 					item={current}
 					onrate={rate}
 					onreveal={reveal}

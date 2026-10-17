@@ -8,18 +8,20 @@
 		value: string;
 		links?: NoteLinks;
 		entries?: GlossaryEntry[];
+		linked?: boolean;
+		plain?: boolean;
 	};
 
-	let { value, links, entries = [] }: Props = $props();
+	let { value, links, entries = [], linked = true, plain = false }: Props = $props();
 
 	const terms = $derived(noteTermsOf(entries));
 </script>
 
-<Notes {links} {terms} {value}>
+<Notes interactive={linked} {links} {plain} {terms} {value}>
 	{#snippet termCard(id)}
 		{@const entry = entries.find((candidate) => candidate.id === id)}
 		{#if entry}
-			<GlossaryTermCard {entry} />
+			<GlossaryTermCard {entry} {linked} />
 		{/if}
 	{/snippet}
 </Notes>

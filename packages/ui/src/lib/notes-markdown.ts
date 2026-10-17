@@ -154,6 +154,11 @@ export function renderNotes(source: string, links?: LinkResolver, terms: NoteTer
 	}
 }
 
+export function renderText(source: string, terms: NoteTerm[] = []): string {
+	const html = escapeHtml(source);
+	return terms.length === 0 ? html : markTerms(html, terms);
+}
+
 export function mentionsTerm(source: string, term: NoteTerm): boolean {
 	return renderNotes(source, undefined, [term]).includes('<button');
 }
