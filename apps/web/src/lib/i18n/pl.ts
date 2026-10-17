@@ -389,6 +389,8 @@ export const pl = {
 			]
 				.filter(Boolean)
 				.join(' i '),
+		streak: (days: number): string =>
+			`Seria: ${days} ${plural(days, { one: 'dzień', few: 'dni', many: 'dni' })} z powtórkami z rzędu`,
 		allDoneTitle: 'Nic nowego do powtórki',
 		allDone: (when: string): string => `Kolejne dzieła będą na Ciebie czekać ${when}.`,
 		tooFew: (minimum: number, missing: number): string =>

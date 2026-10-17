@@ -42,6 +42,9 @@ jobs:
       - name: Check review sessions
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/review-session.sql
 
+      - name: Check review streaks
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/review-streak.sql
+
       - name: Stop local Supabase
         if: always()
         run: supabase stop --no-backup

@@ -57,10 +57,11 @@ function renderReview(
 	artworks: WallArtwork[],
 	reviewCards: Map<string, ReviewCard> = new Map(),
 	newToday = 0,
-	error?: string
+	error?: string,
+	streak = 0
 ): void {
 	render(ReviewPage, {
-		data: { session: testSession(), artworks, cards: reviewCards, newToday, error },
+		data: { session: testSession(), artworks, cards: reviewCards, newToday, streak, error },
 		params: {}
 	});
 }
@@ -95,6 +96,19 @@ describe('review page', () => {
 		await expect
 			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
 			.toHaveAttribute('href', '/atelier');
+	});
+
+	it('tells how many days in a row there were reviews', async () => {
+		renderReview(collection(25), new Map(), 0, undefined, 5);
+
+		await expect.element(page.getByText(m.review.streak(5))).toBeVisible();
+	});
+
+	it('says nothing about a streak when there is none', async () => {
+		renderReview(collection(25));
+
+		await expect.element(page.getByRole('heading', { name: m.review.waiting(10) })).toBeVisible();
+		await expect.element(page.getByText(m.review.streak(0))).not.toBeInTheDocument();
 	});
 
 	it('shows why the reviews could not be loaded', async () => {
