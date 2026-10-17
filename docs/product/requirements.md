@@ -99,6 +99,17 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-38 | The learner can paste an image straight from the system clipboard as their own image: with a button in the own image dialog, or with Ctrl+V anywhere in the add and edit form, which asks before replacing an image already there ([ADR-0032](../decisions/0032-paste-the-own-image-from-the-clipboard.md)). | MVP |
 | R-16 | Images from the image source are shown with their licence and attribution ([ADR-0007](../decisions/0007-images-from-open-sources.md)). | MVP |
 
+## Glossary
+
+| ID | Requirement | Version |
+| --- | --- | --- |
+| R-87 | The learner keeps a [glossary](glossary.md) ("Słowniczek", its own item in the menu) of terms and people they want to understand, independent of the artworks: an entry has a unique name, one of six fixed categories (Osoba, Architektura, Malarstwo, Rzeźba, Technika i materiał, Pojęcie ogólne, each with its own icon), a definition and other forms of its name. Deleting an entry changes no artwork or note ([ADR-0074](../decisions/0074-keep-a-glossary-of-terms-with-definitions-from-wikipedia.md)). | 0.6 |
+| R-88 | The glossary lists the entries in alphabetical order under their first letters, each with its category and the first sentence of its definition. The categories above the list filter it and show how many entries each has; a search by name appears from 20 entries. | 0.6 |
+| R-89 | When an entry is added, the app fills its definition from the best match in Polish Wikipedia, searched with the category as a hint (only people for Osoba). The learner can pick another of the articles found and edit the definition freely; the article, its licence (CC BY-SA 4.0) and the date it was fetched stay under the definition until the learner removes them. This is an exception to R-6, kept visible by that line. | 0.6 |
+| R-90 | When the learner adds a person who is already an author in the card index, the form says so and links to the author's page, and still lets the learner save. | 0.6 |
+| R-91 | In the notes of artworks and card index values, the first occurrence of an entry's name or one of its other forms (exact match, letter case ignored, links skipped) is marked, and the marked word shows the entry's category, name, definition and source in a card. | 0.6 |
+| R-92 | An entry's page lists the artworks and card index values whose notes contain the entry, matched as in R-91; the list is hidden when there are none. | 0.6 |
+
 ## Browsing and search
 
 | ID | Requirement | Version |
