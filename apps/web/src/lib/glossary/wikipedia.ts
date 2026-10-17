@@ -53,6 +53,10 @@ export function searchQuery(name: string, category: GlossaryCategory, withHint: 
 	return withHint && hint ? `${name.trim()} ${hint}` : name.trim();
 }
 
+function capitalized(text: string): string {
+	return `${text.charAt(0).toLocaleUpperCase('pl')}${text.slice(1)}`;
+}
+
 export function withoutLeadTerm(paragraph: string): string {
 	let depth = 0;
 	let outside = '';
@@ -66,7 +70,7 @@ export function withoutLeadTerm(paragraph: string): string {
 			if (dash) {
 				const lead = `${paragraph[0]}${outside}`.trim();
 				const rest = paragraph.slice(index + 2).trim();
-				return firstSentence(lead) === lead && rest ? rest : paragraph;
+				return firstSentence(lead) === lead && rest ? capitalized(rest) : paragraph;
 			}
 			outside += char;
 		}

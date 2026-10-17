@@ -96,32 +96,49 @@ describe('firstParagraph', () => {
 			firstParagraph(
 				'Woluta, ślimacznica – element architektoniczny i motyw ornamentacyjny w formie spirali lub zwoju.\nDruga linia.'
 			)
-		).toBe('element architektoniczny i motyw ornamentacyjny w formie spirali lub zwoju.');
+		).toBe('Element architektoniczny i motyw ornamentacyjny w formie spirali lub zwoju.');
 	});
 });
 
 describe('withoutLeadTerm', () => {
-	it('cuts the text up to the first dash of the first sentence', () => {
+	it('cuts the text up to the first dash of the first sentence and starts it with a capital', () => {
 		expect(withoutLeadTerm('Nawa – podłużna część kościoła. Bywa też – rzadko – poprzeczna.')).toBe(
-			'podłużna część kościoła. Bywa też – rzadko – poprzeczna.'
+			'Podłużna część kościoła. Bywa też – rzadko – poprzeczna.'
 		);
 	});
 
 	it('skips dashes in parentheses, also with the dates of a person', () => {
 		expect(withoutLeadTerm('Sfumato (wł. sfumare – rozmywać) – technika malarska.')).toBe(
-			'technika malarska.'
+			'Technika malarska.'
 		);
 		expect(
 			withoutLeadTerm(
 				'Wawrzyniec Medyceusz, zwany Wspaniałym (ur. 1 stycznia 1449 we Florencji, zm. 8 kwietnia 1492 w Careggi) – władca Florencji.'
 			)
-		).toBe('władca Florencji.');
+		).toBe('Władca Florencji.');
 	});
 
-	it('takes an em dash as well', () => {
+	it('ignores the ends of sentences in parentheses and known abbreviations', () => {
+		expect(
+			withoutLeadTerm(
+				'Michał Anioł (wł. Michelangelo), właśc. Michelangelo Buonarroti (ur. 6 marca 1475 w Caprese, zm. 18 lutego 1564 w Rzymie) – włoski artysta.'
+			)
+		).toBe('Włoski artysta.');
+		expect(
+			withoutLeadTerm(
+				'Wawrzyniec Medyceusz (właśc. Lorenzo de’ Medici; zm. 8 kwietnia 1492 w Careggi) – władca Florencji.'
+			)
+		).toBe('Władca Florencji.');
+	});
+
+	it('takes an em dash, a minus sign and a hyphen as well', () => {
 		expect(withoutLeadTerm('Abakus — płyta na szczycie głowicy.')).toBe(
-			'płyta na szczycie głowicy.'
+			'Płyta na szczycie głowicy.'
 		);
+		expect(withoutLeadTerm('Kontrapost − sposób ustawienia postaci.')).toBe(
+			'Sposób ustawienia postaci.'
+		);
+		expect(withoutLeadTerm('Abakus - płyta.')).toBe('Płyta.');
 	});
 
 	it('keeps the text when the first sentence has no dash outside parentheses', () => {
