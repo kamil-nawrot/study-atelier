@@ -28,6 +28,7 @@ export type UiMessages = {
 	};
 	valueField: {
 		existing: string;
+		starter: string;
 		similar: (name: string) => string;
 		useSimilar: string;
 		add: (name: string) => string;
@@ -70,6 +71,7 @@ export const defaultUiMessages: UiMessages = {
 	},
 	valueField: {
 		existing: 'Already used',
+		starter: 'From the starter list',
 		similar: (name) => `You already have “${name}”`,
 		useSimilar: 'Use this value',
 		add: (name) => `+ Add “${name}”`,

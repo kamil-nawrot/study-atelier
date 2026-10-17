@@ -1,6 +1,7 @@
 import { loadArtwork } from '#lib/collection/artwork-record.ts';
 import { emptyCategoryValues, loadCategoryValues } from '#lib/collection/category-values.ts';
 import { loadNoteLinks } from '#lib/collection/note-link-data.ts';
+import { emptyPlaceStarter, loadPlaceStarter } from '#lib/collection/place-starter.ts';
 import { emptyValueLinks, loadValueLinks } from '#lib/collection/value-links.ts';
 import { parseRecordNumber } from '#lib/collection/format.ts';
 import { m } from '#lib/i18n/index.ts';
@@ -15,14 +16,16 @@ export const load: PageLoad = async ({ params }) => {
 			...missing,
 			values: emptyCategoryValues(),
 			links: emptyValueLinks(),
-			noteLinks: undefined
+			noteLinks: undefined,
+			placeStarter: emptyPlaceStarter()
 		};
 	}
-	const [result, categories, linked, noteLinks] = await Promise.all([
+	const [result, categories, linked, noteLinks, placeStarter] = await Promise.all([
 		loadArtwork(number),
 		loadCategoryValues(),
 		loadValueLinks(),
-		loadNoteLinks()
+		loadNoteLinks(),
+		loadPlaceStarter()
 	]);
-	return { ...result, values: categories.values, links: linked.links, noteLinks };
+	return { ...result, values: categories.values, links: linked.links, noteLinks, placeStarter };
 };

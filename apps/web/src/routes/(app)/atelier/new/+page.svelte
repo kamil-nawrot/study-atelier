@@ -54,6 +54,7 @@
 		noteLinks={data.noteLinks}
 		oncancel={backToAtelier}
 		onsaved={showSaved}
+		placeStarter={data.placeStarter}
 		valueLinks={data.links}
 	/>
 </AtelierLayout>

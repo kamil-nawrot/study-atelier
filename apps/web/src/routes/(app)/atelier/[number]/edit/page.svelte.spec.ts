@@ -3,6 +3,7 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
 import { emptyCategoryValues } from '#lib/collection/category-values.ts';
+import { emptyPlaceStarter } from '#lib/collection/place-starter.ts';
 import { emptyValueLinks } from '#lib/collection/value-links.ts';
 import type { ArtworkRecord, LoadArtworkResult } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
@@ -62,6 +63,7 @@ function renderPage(result: LoadArtworkResult = { artwork: artwork() }, number =
 			values: emptyCategoryValues(),
 			links: emptyValueLinks(),
 			noteLinks: undefined,
+			placeStarter: emptyPlaceStarter(),
 			...result
 		},
 		params: { number }

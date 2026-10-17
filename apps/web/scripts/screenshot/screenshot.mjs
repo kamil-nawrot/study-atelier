@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import {
 	ARTWORKS,
+	CATALOGUE_MUSEUMS,
 	PEOPLE,
 	PERIOD_ERA_USAGE,
 	REVIEW_CARDS,
@@ -257,6 +258,27 @@ async function mockSupabase(context) {
 			return route.fulfill({ status: 204, headers: corsHeaders() });
 		}
 		if (url.pathname === '/rest/v1/review_cards') return json(route, REVIEW_CARDS);
+		if (url.pathname === '/rest/v1/catalogue_museums') return json(route, CATALOGUE_MUSEUMS);
+		if (
+			url.pathname === '/rest/v1/location_details' &&
+			url.searchParams.get('country_code') === 'not.is.null'
+		) {
+			const names = new Map(
+				ARTWORKS.flatMap((row) => row.artwork_values).map(({ category_values: value }) => [
+					valueId(value.category_code, value.name),
+					value.name
+				])
+			);
+			return json(
+				route,
+				VALUE_DETAILS.location_details
+					.filter((row) => row.country_code && names.has(row.value_id))
+					.map((row) => ({
+						country_code: row.country_code,
+						category_values: { name: names.get(row.value_id) }
+					}))
+			);
+		}
 		if (url.pathname.startsWith('/rest/v1/rpc/')) {
 			return json(route, { id: ARTWORKS[0].id, record_number: ARTWORKS[0].record_number });
 		}
