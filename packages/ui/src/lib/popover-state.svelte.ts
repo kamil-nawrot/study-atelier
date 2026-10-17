@@ -3,8 +3,8 @@ const FOCUSABLE =
 	'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
 function focusablesIn(root: Element | Document): HTMLElement[] {
-	return [...root.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((element) =>
-		element.checkVisibility()
+	return [...root.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
+		(element) => element.getClientRects().length > 0
 	);
 }
 
