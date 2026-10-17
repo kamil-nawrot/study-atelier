@@ -780,8 +780,8 @@ export const pl = {
 			use: 'Użyj tego artykułu'
 		},
 		replaceConfirm: {
-			title: 'Zastąpić twoją definicję?',
-			description: 'Definicja ma już twoje zmiany. Tekst z nowego artykułu je zastąpi.',
+			title: 'Zastąpić Twoją definicję?',
+			description: 'Definicja ma już Twoje zmiany. Tekst z nowego artykułu je zastąpi.',
 			keep: 'Zostaw moją',
 			replace: 'Zastąp'
 		},
