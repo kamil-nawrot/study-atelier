@@ -81,3 +81,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0075](0075-offer-a-starter-list-of-museums-in-the-place-field.md)       | Offer a starter list of museums in the place field                                     | accepted           |
 | [0076](0076-collect-feedback-in-a-table-from-a-menu-dialog.md)           | Collect feedback in a table, from a dialog in the menu                                 | accepted           |
 | [0077](0077-trim-the-wikipedia-lead-and-polish-the-glossary-list.md)     | Trim the term from a Wikipedia definition and polish the glossary list                 | accepted           |
+| [0078](0078-show-a-streak-of-days-with-reviews-on-the-review-start.md)   | Show a streak of days with reviews on the review start                                 | accepted           |

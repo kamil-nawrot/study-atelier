@@ -85,6 +85,11 @@ export type ReviewCountsResult = {
 	error?: string;
 };
 
+export type ReviewStreakResult = {
+	days: number;
+	error?: string;
+};
+
 export type RecordReviewResult = {
 	error?: string;
 };

@@ -808,6 +808,10 @@ export type Database = {
         };
         Returns: Json;
       };
+      review_streak: {
+        Args: { day_start: string; time_zone: string };
+        Returns: number;
+      };
       save_artwork: {
         Args: { artwork: Json; existing_id?: string; values_by_category: Json };
         Returns: {

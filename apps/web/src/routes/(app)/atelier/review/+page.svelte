@@ -340,6 +340,7 @@
 			scope={activeScope}
 			{scopes}
 			{starting}
+			streak={data.streak}
 			troubles={hard}
 		/>
 	{/if}

@@ -31,6 +31,7 @@
 		knowledge: AtelierKnowledge;
 		troubles: WallArtwork[];
 		starting: boolean;
+		streak: number;
 		error?: string;
 		onscope: (scope: ReviewScope) => void;
 		onform: (form: ReviewForm) => void;
@@ -48,6 +49,7 @@
 		knowledge,
 		troubles,
 		starting,
+		streak,
 		error,
 		onscope,
 		onform,
@@ -88,6 +90,9 @@
 				{#if nextWhen}
 					<p class="lead">{m.review.allDone(nextWhen)}</p>
 				{/if}
+			{/if}
+			{#if streak > 0}
+				<p class="caption">{m.review.streak(streak)}</p>
 			{/if}
 		</header>
 
