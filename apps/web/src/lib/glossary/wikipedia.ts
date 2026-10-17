@@ -1,5 +1,10 @@
 import { fetchJson } from '#lib/images/wikimedia.ts';
-import { DEFINITION_MAX_LENGTH, firstSentence, shortenDefinition } from './glossary.ts';
+import {
+	DEFINITION_MAX_LENGTH,
+	firstSentence,
+	isShortSentence,
+	shortenDefinition
+} from './glossary.ts';
 import type { GlossaryCategory, GlossarySource, WikipediaArticle } from './types.ts';
 
 const WIKIPEDIA_API = 'https://pl.wikipedia.org/w/api.php';
@@ -79,11 +84,13 @@ export function withoutLeadTerm(paragraph: string): string {
 }
 
 export function firstParagraph(extract: string): string {
-	const paragraph = extract
+	const [first = '', next] = extract
 		.split('\n')
 		.map((line) => line.replace(/\s+/g, ' ').trim())
-		.find((line) => line !== '');
-	return shortenDefinition(withoutLeadTerm(paragraph ?? ''), DEFINITION_MAX_LENGTH);
+		.filter((line) => line !== '');
+	const lead = withoutLeadTerm(first);
+	const text = next && isShortSentence(lead) ? `${lead} ${firstSentence(next)}` : lead;
+	return shortenDefinition(text, DEFINITION_MAX_LENGTH);
 }
 
 async function findPages(query: string): Promise<Page[]> {

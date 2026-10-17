@@ -84,11 +84,24 @@ describe('searchQuery', () => {
 
 describe('firstParagraph', () => {
 	it('takes the first paragraph of the introduction, collapsing white space', () => {
-		expect(firstParagraph('\nNawa  to część\nkościoła.\nDruga linia.')).toBe('Nawa to część');
+		expect(firstParagraph('\nNawa  to część budowli\nkościoła.\nDruga linia.')).toBe(
+			'Nawa to część budowli'
+		);
 	});
 
 	it('gives an empty text for an empty extract', () => {
 		expect(firstParagraph('')).toBe('');
+	});
+
+	it('adds the first sentence of the next paragraph to a paragraph of three words or fewer', () => {
+		expect(
+			firstParagraph(
+				'Tympanon (gr. τύμπανον) – detal architektoniczny.\nW architekturze klasycznej to pole frontonu. Bywa wypełnione rzeźbą.'
+			)
+		).toBe('Detal architektoniczny. W architekturze klasycznej to pole frontonu.');
+		expect(firstParagraph('Ołtarz (łac. altare) – miejsce składania ofiar.')).toBe(
+			'Miejsce składania ofiar.'
+		);
 	});
 
 	it('leaves out the term that opens the introduction', () => {

@@ -24,12 +24,15 @@ After the first use of the glossary ([ADR-0074](0074-keep-a-glossary-of-terms-wi
 Chosen by the owner in ATL-192: cut people's dates too, start the definition with a capital letter (after first choosing the lowercase), and write "twoich".
 
 - Polish Wikipedia opens an article with "Term, other names (…) – definition". When it fetches a definition, the app cuts the first paragraph up to the first spaced dash (`–`, `—`, a minus sign or a hyphen) outside parentheses and brackets, when no sentence ends before it outside them ("właśc." and the other abbreviations do not end one), and starts the rest with a capital letter: "Woluta, ślimacznica – element architektoniczny…" gives "Element architektoniczny…", "Sfumato (wł. sfumare – rozmywać) – technika malarska…" gives "Technika malarska…". A first sentence without such a dash stays whole. The candidates of "Który to artykuł?" are cut the same way. Definitions saved before stay as they are.
+- When the first paragraph has three words or fewer after the cut, the first sentence of the next paragraph of the introduction follows it: "Tympanon (…) – detal architektoniczny." gives "Detal architektoniczny. W architekturze klasycznej terminem tym określano wewnętrzne trójkątne pole…". An introduction of one paragraph stays as it is ("Ołtarz" gives "Miejsce składania ofiar religijnych.").
+- The list shows the first two sentences of a definition when the first has three words or fewer, for definitions from Wikipedia and the learner's own alike, still in at most two lines.
 - A popover card that does not fit to the right of its trigger opens to the left, its right edge under the trigger's right edge, and the room on the screen is measured without the scrollbar.
 - From 768 px every letter of the glossary list after the first has a hairline (`--color-line`) above it across the whole width of the page, like the line under the tabs of the card index, while the entries keep the width of `--size-content-default`; a phone keeps the hairline under the letter.
 - The lead under "Słowniczek" reads "Pojęcia i postaci, które chcesz zapamiętać. Ich definicje pojawią się w twoich notatkach."
 
 ### Consequences
 
+- Good: a fetched definition too short to explain the term borrows one sentence from the next paragraph, which is already in the response, so no request is added.
 - Good: the first sentence on the list and the card in notes say what the term is, without repeating it.
 - Good: popovers in the artwork panel open towards the middle of the screen instead of under the scrollbar.
 - Bad: a person's dates of life are not in the fetched definition; the learner adds them by hand when they want them.

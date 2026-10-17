@@ -10,9 +10,9 @@
 	import {
 		countByCategory,
 		filterEntries,
-		firstSentence,
 		GLOSSARY_SEARCH_MIN_ENTRIES,
-		groupByLetter
+		groupByLetter,
+		leadSentences
 	} from '../glossary.ts';
 	import type { GlossaryCategory, GlossaryEntry } from '../types.ts';
 
@@ -81,7 +81,7 @@
 									</span>
 								</span>
 								{#if entry.definition}
-									<span class="sentence">{firstSentence(entry.definition)}</span>
+									<span class="sentence">{leadSentences(entry.definition)}</span>
 								{/if}
 							</a>
 						</li>
