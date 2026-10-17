@@ -76,3 +76,4 @@ Chosen, decided by the owner in ATL-188: list A, page C, dialog A, background C,
 - The cloud environment cannot reach `pl.wikipedia.org`, so the search was designed from the API documentation and mocked in the mockups. ATL-189 starts by checking it live on a few entries (nawa, łuk, Dawid).
 - The mockups are in the project files under `atl-188/`.
 - The fetched definition leaves out the term that opens the article, popovers open to the left when they do not fit, the list has a hairline between letters on a computer, and the lead under the title is changed by [ADR-0077](0077-trim-the-wikipedia-lead-and-polish-the-glossary-list.md).
+- The module's name, the list layout, the link from the card to the entry's page, marking in definitions and on flashcards, and the split of the other forms into synonyms and inflected forms are changed by [ADR-0079](0079-connect-the-lexicon-and-suggest-forms-from-wiktionary.md).
