@@ -34,8 +34,9 @@
 	} from '../glossary.ts';
 	import type { GlossaryDraft, GlossaryEntry, WikipediaArticle } from '../types.ts';
 	import { searchArticles, sourceOf } from '../wikipedia.ts';
+	import { fetchForms, suggestsForms } from '../wiktionary.ts';
 	import ArticleDialog from './ArticleDialog.svelte';
-	import InflectionField from './InflectionField.svelte';
+	import InflectionField, { type FormsOffer, type FormsStatus } from './InflectionField.svelte';
 
 	type SearchStatus = 'idle' | 'searching' | 'found' | 'none' | 'failed';
 
@@ -61,6 +62,10 @@
 	let saved = $state<GlossaryDraft>(initial());
 	let synonymsQuery = $state('');
 	let formsQuery = $state('');
+	let formsExpanded = $state(untrack(() => (existing?.forms.length ?? 0) === 0));
+	let formsStatus = $state<FormsStatus>('idle');
+	let formsAutoFilled = $state<string[] | null>(null);
+	let formsName = $state<string | null>(untrack(() => existing?.name.trim() ?? null));
 	let autoFilled = $state<string | null>(null);
 	let status = $state<SearchStatus>('idle');
 	let articles = $state<WikipediaArticle[]>([]);
@@ -73,6 +78,7 @@
 	let formError = $state('');
 	let busy = $state(false);
 	let request = 0;
+	let formsRequest = 0;
 
 	const changes = new UnsavedChanges(
 		() => $state.snapshot(form),
@@ -83,6 +89,20 @@
 	let author = $derived(form.category === 'person' ? authorNamed(index, form.name) : undefined);
 	let synonymOptions = $derived(newOption(synonymsQuery, form.synonyms));
 	let formOptions = $derived(newOption(formsQuery, form.forms));
+	let formsEligible = $derived(suggestsForms(form.name, form.category));
+	let formsShownStatus = $derived<FormsStatus>(
+		form.name.trim() && form.category && !formsEligible ? 'skipped' : formsStatus
+	);
+	let formsOffer = $derived.by((): FormsOffer | undefined => {
+		if (!formsEligible) return undefined;
+		const renamed =
+			formsName !== null &&
+			formsName.toLocaleLowerCase('pl') !== form.name.trim().toLocaleLowerCase('pl');
+		if (form.forms.length === 0)
+			return existing && (formsStatus === 'idle' || renamed) ? 'fetch' : undefined;
+		if (!existing && formsReplaceable()) return undefined;
+		return renamed ? 'refetch' : undefined;
+	});
 	let definitionHint = $derived(
 		status === 'none'
 			? m.glossary.form.definitionNone
@@ -101,6 +121,54 @@
 		if (values.some((item) => item.toLocaleLowerCase('pl') === key)) return [];
 		return [{ kind: 'new', name: typed }];
 	}
+
+	function formsReplaceable(): boolean {
+		return (
+			form.forms.length === 0 ||
+			(formsAutoFilled !== null && JSON.stringify(form.forms) === JSON.stringify(formsAutoFilled))
+		);
+	}
+
+	async function suggestForms(): Promise<void> {
+		const name = form.name.trim();
+		if (!suggestsForms(name, form.category)) return;
+		const current = ++formsRequest;
+		formsStatus = 'searching';
+		try {
+			const found = await fetchForms(name);
+			if (current !== formsRequest) return;
+			form.forms = found;
+			formsAutoFilled = found;
+			formsName = name;
+			formsStatus = found.length > 0 ? 'found' : 'none';
+			if (found.length > 0) formsExpanded = false;
+		} catch {
+			if (current !== formsRequest) return;
+			formsStatus = 'failed';
+		}
+	}
+
+	$effect(() => {
+		if (existing) return;
+		const name = form.name.trim();
+		const category = form.category;
+		if (!name || !category) return;
+		if (!suggestsForms(name, category)) {
+			untrack(() => {
+				formsRequest += 1;
+				formsStatus = 'idle';
+				if (formsAutoFilled !== null && formsReplaceable()) {
+					form.forms = [];
+					formsAutoFilled = null;
+				}
+			});
+			return;
+		}
+		const timer = setTimeout(() => {
+			if (untrack(formsReplaceable)) void suggestForms();
+		}, SEARCH_DELAY_MS);
+		return () => clearTimeout(timer);
+	});
 
 	function replaceable(): boolean {
 		return form.definition === '' || form.definition === autoFilled;
@@ -333,7 +401,15 @@
 				bind:values={form.synonyms}
 			/>
 
-			<InflectionField options={formOptions} bind:forms={form.forms} bind:query={formsQuery} />
+			<InflectionField
+				offer={formsOffer}
+				onfetch={suggestForms}
+				options={formOptions}
+				status={formsShownStatus}
+				bind:expanded={formsExpanded}
+				bind:forms={form.forms}
+				bind:query={formsQuery}
+			/>
 		</div>
 
 		<FormActions>

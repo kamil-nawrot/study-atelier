@@ -18,6 +18,8 @@ import {
 	SUPABASE_URL,
 	TRASHED,
 	USER,
+	WIKTIONARY_PAGES,
+	WIKTIONARY_TABLES,
 	WIKIDATA_HUMANS,
 	WIKIPEDIA_PAGES,
 	commonsSize,
@@ -444,6 +446,20 @@ async function mockImages(context) {
 		return json(route, {
 			query: { pages: WIKIPEDIA_PAGES.filter((page) => ids.includes(page.pageid)) }
 		});
+	});
+
+	await context.route(/^https:\/\/pl\.wiktionary\.org\/w\/api\.php/, (route) => {
+		const params = new URL(route.request().url()).searchParams;
+		if (params.get('action') === 'expandtemplates') {
+			const wikitext = WIKTIONARY_TABLES[params.get('title') ?? ''] ?? '';
+			return json(route, { expandtemplates: { wikitext } });
+		}
+		const title = params.get('page') ?? '';
+		const wikitext = WIKTIONARY_PAGES[title];
+		return json(
+			route,
+			wikitext === undefined ? { error: { code: 'missingtitle' } } : { parse: { title, wikitext } }
+		);
 	});
 
 	await context.route(/^https:\/\/(query\.wikidata|www\.wikidata)\.org\//, (route) => {

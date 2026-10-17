@@ -5,6 +5,7 @@ import { beforeNavigate, goto } from '$app/navigation';
 import { m } from '#lib/i18n/index.ts';
 import { saveGlossaryEntry } from '#lib/glossary/glossary-data.ts';
 import { searchArticles } from '#lib/glossary/wikipedia.ts';
+import { fetchForms } from '#lib/glossary/wiktionary.ts';
 import type { WikipediaArticle } from '#lib/glossary/types.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import { testCardIndex } from '#lib/testing/card-index.ts';
@@ -20,6 +21,10 @@ vi.mock('#lib/glossary/glossary-data.ts', () => ({ saveGlossaryEntry: vi.fn() })
 vi.mock('#lib/glossary/wikipedia.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/glossary/wikipedia.ts')>()),
 	searchArticles: vi.fn()
+}));
+vi.mock('#lib/glossary/wiktionary.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/glossary/wiktionary.ts')>()),
+	fetchForms: vi.fn()
 }));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
@@ -71,6 +76,7 @@ describe('new glossary entry page', () => {
 		await page.viewport(1280, 800);
 		vi.mocked(saveGlossaryEntry).mockResolvedValue({ id: 'new-id' });
 		vi.mocked(searchArticles).mockResolvedValue([]);
+		vi.mocked(fetchForms).mockResolvedValue([]);
 	});
 
 	afterEach(() => {
@@ -400,6 +406,77 @@ describe('new glossary entry page', () => {
 		await expect
 			.element(page.getByRole('button', { name: m.glossary.form.hideForms, exact: true }))
 			.toHaveAttribute('aria-expanded', 'true');
+	});
+
+	it('fills the forms from Wiktionary, collapsed behind their number, and saves them', async () => {
+		vi.mocked(fetchForms).mockResolvedValue(['nawy', 'nawie']);
+		renderNew();
+		await fillAndSearch([NAWA]);
+
+		expect(fetchForms).toHaveBeenCalledWith('nawa');
+		await expect.element(page.getByText(m.glossary.form.formsCount(2))).toBeVisible();
+		await expect.element(page.getByText('nawy', { exact: true })).not.toBeInTheDocument();
+
+		await page.getByRole('button', { name: m.glossary.form.showForms, exact: true }).click();
+		await expect.element(page.getByText('nawy', { exact: true })).toBeVisible();
+
+		await saveButton().click();
+		expect(saveGlossaryEntry).toHaveBeenCalledWith(
+			expect.objectContaining({ forms: ['nawy', 'nawie'] }),
+			undefined
+		);
+	});
+
+	it('fetches the forms again after the name changes, while they are still the fetched ones', async () => {
+		vi.mocked(fetchForms).mockResolvedValue(['nawy']);
+		renderNew();
+		await fillAndSearch([NAWA]);
+
+		vi.mocked(fetchForms).mockResolvedValue(['nawy bocznej']);
+		await nameField().fill('nawa boczna');
+		await vi.advanceTimersByTimeAsync(700);
+
+		expect(fetchForms).toHaveBeenLastCalledWith('nawa boczna');
+		await page.getByRole('button', { name: m.glossary.form.showForms, exact: true }).click();
+		await expect.element(page.getByText('nawy bocznej', { exact: true })).toBeVisible();
+		await expect.element(page.getByText('nawy', { exact: true })).not.toBeInTheDocument();
+	});
+
+	it('says Wiktionary has no entry and leaves the forms open for typing', async () => {
+		renderNew();
+		await fillAndSearch([NAWA]);
+
+		await expect.element(page.getByText(m.glossary.form.formsNone)).toBeVisible();
+		await expect.element(page.getByRole('combobox', { name: m.glossary.form.forms })).toBeVisible();
+	});
+
+	it('does not ask Wiktionary for a person or a name of more than two words', async () => {
+		renderNew();
+		await nameField().fill('Giorgio Vasari');
+		await category(m.glossary.categoryNames.person).click();
+		await vi.advanceTimersByTimeAsync(700);
+
+		await expect.element(page.getByText(m.glossary.form.formsSkipped)).toBeVisible();
+
+		await nameField().fill('ołtarz z predellą boczną');
+		await category(m.glossary.categoryNames.architecture).click();
+		await vi.advanceTimersByTimeAsync(700);
+
+		await expect.element(page.getByText(m.glossary.form.formsSkipped)).toBeVisible();
+		expect(fetchForms).not.toHaveBeenCalled();
+	});
+
+	it('says Wiktionary did not answer and tries again on request', async () => {
+		vi.mocked(fetchForms).mockRejectedValueOnce(new Error('offline'));
+		renderNew();
+		await fillAndSearch([NAWA]);
+
+		await expect.element(page.getByText(m.glossary.form.formsFailed)).toBeVisible();
+
+		vi.mocked(fetchForms).mockResolvedValue(['nawy']);
+		await page.getByRole('button', { name: m.glossary.form.searchAgain }).click();
+
+		await expect.element(page.getByText(m.glossary.form.formsCount(1))).toBeVisible();
 	});
 
 	it('offers a form that differs from the name only by its diacritics, but not the name itself', async () => {
