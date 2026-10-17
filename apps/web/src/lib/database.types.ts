@@ -237,6 +237,28 @@ export type Database = {
           },
         ];
       };
+      catalogue_museums: {
+        Row: {
+          country_code: string;
+          english_name: string | null;
+          name: string;
+          wikidata_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          country_code: string;
+          english_name?: string | null;
+          name: string;
+          wikidata_id: string;
+        };
+        Update: {
+          country_code?: string;
+          english_name?: string | null;
+          name?: string;
+          wikidata_id?: string;
+        };
+        Relationships: [];
+      };
       categories: {
         Row: {
           code: string;
@@ -386,6 +408,7 @@ export type Database = {
       };
       location_details: {
         Row: {
+          catalogue_wikidata_id: string | null;
           category_code: string;
           country_code: string | null;
           notes: string | null;
@@ -397,6 +420,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          catalogue_wikidata_id?: string | null;
           category_code?: string;
           country_code?: string | null;
           notes?: string | null;
@@ -407,6 +431,7 @@ export type Database = {
           value_id: string;
         };
         Update: {
+          catalogue_wikidata_id?: string | null;
           category_code?: string;
           country_code?: string | null;
           notes?: string | null;
@@ -417,6 +442,13 @@ export type Database = {
           value_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "location_details_catalogue_wikidata_id_fkey";
+            columns: ["catalogue_wikidata_id"];
+            isOneToOne: false;
+            referencedRelation: "catalogue_museums";
+            referencedColumns: ["wikidata_id"];
+          },
           {
             foreignKeyName: "location_details_value_id_owner_id_category_code_fkey";
             columns: ["value_id", "owner_id", "category_code"];

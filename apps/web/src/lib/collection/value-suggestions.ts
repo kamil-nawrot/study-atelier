@@ -1,12 +1,17 @@
 import { locale } from '#lib/i18n/index.ts';
 import { normalizeForSearch } from './search.ts';
-import type { ValueSuggestion } from './types.ts';
+import type { StarterValue, ValueSuggestion } from './types.ts';
 
 export type SuggestionSource = {
 	query: string;
 	existing: readonly string[];
 	selected: readonly string[];
+	starter?: readonly StarterValue[];
+	notes?: Readonly<Record<string, string>>;
 };
+
+export const STARTER_MIN_QUERY = 2;
+export const STARTER_LIMIT = 6;
 
 export function valueKey(name: string): string {
 	return normalizeForSearch(name).replace(/\s+/g, ' ');
@@ -62,6 +67,36 @@ function matching(values: readonly string[], key: string): string[] {
 	];
 }
 
+function matchingStarter(
+	starter: readonly StarterValue[],
+	key: string,
+	known: ReadonlySet<string>
+): StarterValue[] {
+	if (key.length < STARTER_MIN_QUERY) return [];
+	const found = starter.filter(
+		(value) =>
+			![value.name, ...value.aliases].some((text) => known.has(valueKey(text))) &&
+			[value.name, ...value.aliases].some((text) => valueKey(text).includes(key))
+	);
+	const rank = (value: StarterValue): number =>
+		valueKey(value.name).startsWith(key)
+			? 0
+			: [value.name, ...value.aliases].some((text) => valueKey(text).startsWith(key))
+				? 1
+				: 2;
+	return found
+		.sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name, locale))
+		.slice(0, STARTER_LIMIT);
+}
+
+function noteOf(
+	notes: Readonly<Record<string, string>> | undefined,
+	name: string
+): { note: string } | Record<string, never> {
+	const note = notes?.[valueKey(name)];
+	return note ? { note } : {};
+}
+
 export function suggestValues(source: SuggestionSource): ValueSuggestion[] {
 	const name = source.query.trim();
 	const key = valueKey(name);
@@ -71,11 +106,15 @@ export function suggestValues(source: SuggestionSource): ValueSuggestion[] {
 	const existing = source.existing.filter(isFree);
 
 	const existingMatches = matching(existing, key);
+	const known = new Set([...source.existing, ...source.selected].map(valueKey));
+	const starterMatches = matchingStarter(source.starter ?? [], key, known);
+	const isListed = (source.starter ?? []).some((value) => valueKey(value.name) === key);
 	const canCreate =
 		key !== '' &&
 		!taken.has(key) &&
 		!findSameValue(name, source.existing) &&
-		!existingMatches.includes(name);
+		!existingMatches.includes(name) &&
+		!isListed;
 	const similar = canCreate
 		? findSimilarValue(
 				name,
@@ -85,7 +124,16 @@ export function suggestValues(source: SuggestionSource): ValueSuggestion[] {
 
 	return [
 		...(similar ? [{ kind: 'similar' as const, name: similar }] : []),
-		...existingMatches.map((value) => ({ kind: 'existing' as const, name: value })),
+		...existingMatches.map((value) => ({
+			kind: 'existing' as const,
+			name: value,
+			...noteOf(source.notes, value)
+		})),
+		...starterMatches.map((value) => ({
+			kind: 'starter' as const,
+			name: value.name,
+			note: value.note
+		})),
 		...(canCreate ? [{ kind: 'new' as const, name }] : [])
 	];
 }

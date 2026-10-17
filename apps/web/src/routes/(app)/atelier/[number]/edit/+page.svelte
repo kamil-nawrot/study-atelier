@@ -65,6 +65,7 @@
 				noteLinks={data.noteLinks}
 				oncancel={goBack}
 				onsaved={showSaved}
+				placeStarter={data.placeStarter}
 				valueLinks={data.links}
 			/>
 		{/key}

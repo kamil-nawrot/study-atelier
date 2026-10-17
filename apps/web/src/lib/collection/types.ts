@@ -99,6 +99,11 @@ export type CategoryValuesResult = {
 	error?: string;
 };
 
+export type PlaceStarter = {
+	museums: StarterValue[];
+	notes: Record<string, string>;
+};
+
 export type ValueLinks = {
 	periodsByEra: Record<EraCode, string[]>;
 	stylesByPeriod: Record<string, string[]>;
@@ -110,8 +115,15 @@ export type ValueLinksResult = {
 };
 
 export type ValueSuggestion = {
-	kind: 'similar' | 'existing' | 'new';
+	kind: 'similar' | 'existing' | 'starter' | 'new';
 	name: string;
+	note?: string;
+};
+
+export type StarterValue = {
+	name: string;
+	aliases: readonly string[];
+	note: string;
 };
 
 export type ArtworkImageInput =

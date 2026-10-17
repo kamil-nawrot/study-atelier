@@ -35,6 +35,7 @@ export const pl = {
 		},
 		valueField: {
 			existing: 'Już używane',
+			starter: 'Z listy startowej',
 			similar: (name: string): string => `Masz już „${name}”`,
 			useSimilar: 'Użyj tej wartości',
 			add: (name: string): string => `+ Dodaj „${name}”`,
@@ -320,7 +321,7 @@ export const pl = {
 		styleLocked: 'Najpierw wybierz okres.',
 		material: 'Materiał',
 		location: 'Miejsce',
-		locationHint: 'Gdzie dzieło jest teraz. Jedna wartość.',
+		locationHint: 'Gdzie dzieło jest teraz?',
 		notes: 'Notatki',
 		notesPlaceholder: 'Co warto zapamiętać, skąd znasz to dzieło',
 		notesLinkHint:
