@@ -276,7 +276,6 @@
 	.choices {
 		display: grid;
 		gap: var(--spacing-6);
-		padding-top: var(--spacing-6);
 	}
 
 	.choice {
