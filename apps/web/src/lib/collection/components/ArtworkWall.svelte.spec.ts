@@ -60,7 +60,11 @@ describe('ArtworkWall', () => {
 	});
 
 	describe('with a long list', () => {
-		type Watcher = { callback: IntersectionObserverCallback; targets: Element[] };
+		type Watcher = {
+			callback: IntersectionObserverCallback;
+			targets: Element[];
+			options?: IntersectionObserverInit;
+		};
 		const watchers: Watcher[] = [];
 
 		function reveal(matches: (element: Element) => boolean): void {
@@ -83,8 +87,8 @@ describe('ArtworkWall', () => {
 				'IntersectionObserver',
 				class {
 					watcher: Watcher;
-					constructor(callback: IntersectionObserverCallback) {
-						this.watcher = { callback, targets: [] };
+					constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
+						this.watcher = { callback, targets: [], options };
 						watchers.push(this.watcher);
 					}
 					observe(target: Element): void {
@@ -166,6 +170,18 @@ describe('ArtworkWall', () => {
 
 			see(0);
 			expect(tile.classList.contains('faded')).toBe(true);
+		});
+
+		it('leaves the area under a sticky strip out of what counts as visible', async () => {
+			const { container } = await render(ArtworkWall, { artworks: long, inset: 40 });
+			const tile = container.querySelector('li')!;
+
+			const faders = watchers.filter(
+				(watcher) =>
+					watcher.targets.includes(tile) && watcher.options?.rootMargin?.startsWith('-40px')
+			);
+
+			expect(faders).toHaveLength(1);
 		});
 
 		it('does not watch an artwork that has its image already', async () => {

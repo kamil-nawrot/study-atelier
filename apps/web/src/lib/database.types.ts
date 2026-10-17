@@ -237,6 +237,28 @@ export type Database = {
           },
         ];
       };
+      catalogue_museums: {
+        Row: {
+          country_code: string;
+          english_name: string | null;
+          name: string;
+          wikidata_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          country_code: string;
+          english_name?: string | null;
+          name: string;
+          wikidata_id: string;
+        };
+        Update: {
+          country_code?: string;
+          english_name?: string | null;
+          name?: string;
+          wikidata_id?: string;
+        };
+        Relationships: [];
+      };
       categories: {
         Row: {
           code: string;
@@ -338,8 +360,83 @@ export type Database = {
         };
         Relationships: [];
       };
+      feedback: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          kind: string;
+          owner_id: string;
+          title: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          kind: string;
+          owner_id?: string;
+          title: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          kind?: string;
+          owner_id?: string;
+          title?: string;
+        };
+        Relationships: [];
+      };
+      glossary_entries: {
+        Row: {
+          category: string;
+          created_at: string;
+          definition: string | null;
+          forms: string[];
+          id: string;
+          name: string;
+          owner_id: string;
+          source_fetched_on: string | null;
+          source_licence: string | null;
+          source_title: string | null;
+          source_url: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          category: string;
+          created_at?: string;
+          definition?: string | null;
+          forms?: string[];
+          id?: string;
+          name: string;
+          owner_id?: string;
+          source_fetched_on?: string | null;
+          source_licence?: string | null;
+          source_title?: string | null;
+          source_url?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          category?: string;
+          created_at?: string;
+          definition?: string | null;
+          forms?: string[];
+          id?: string;
+          name?: string;
+          owner_id?: string;
+          source_fetched_on?: string | null;
+          source_licence?: string | null;
+          source_title?: string | null;
+          source_url?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       location_details: {
         Row: {
+          catalogue_wikidata_id: string | null;
           category_code: string;
           country_code: string | null;
           notes: string | null;
@@ -351,6 +448,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          catalogue_wikidata_id?: string | null;
           category_code?: string;
           country_code?: string | null;
           notes?: string | null;
@@ -361,6 +459,7 @@ export type Database = {
           value_id: string;
         };
         Update: {
+          catalogue_wikidata_id?: string | null;
           category_code?: string;
           country_code?: string | null;
           notes?: string | null;
@@ -371,6 +470,13 @@ export type Database = {
           value_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "location_details_catalogue_wikidata_id_fkey";
+            columns: ["catalogue_wikidata_id"];
+            isOneToOne: false;
+            referencedRelation: "catalogue_museums";
+            referencedColumns: ["wikidata_id"];
+          },
           {
             foreignKeyName: "location_details_value_id_owner_id_category_code_fkey";
             columns: ["value_id", "owner_id", "category_code"];
@@ -701,6 +807,10 @@ export type Database = {
           session_form?: string;
         };
         Returns: Json;
+      };
+      review_streak: {
+        Args: { day_start: string; time_zone: string };
+        Returns: number;
       };
       save_artwork: {
         Args: { artwork: Json; existing_id?: string; values_by_category: Json };

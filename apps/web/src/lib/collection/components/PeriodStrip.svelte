@@ -7,16 +7,17 @@
 		groups: PeriodGroup[];
 		current: CurrentPeriod;
 		label: string;
+		height?: number;
 	};
 
-	let { groups, current, label }: Props = $props();
+	let { groups, current, label, height = $bindable(0) }: Props = $props();
 
 	let period = $derived(groups[current.index]);
 	let years = $derived(period ? formatYearRange(period.from, period.to) : undefined);
 </script>
 
 {#if period}
-	<aside class="strip" aria-label={label}>
+	<aside class="strip" aria-label={label} bind:offsetHeight={height}>
 		<p class="current">
 			<span class="name">{period.name}</span>
 			{#if years}

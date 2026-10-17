@@ -3,8 +3,9 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { beforeNavigate, goto, invalidateAll } from '$app/navigation';
 import { emptyCategoryValues } from '#lib/collection/category-values.ts';
+import { emptyPlaceStarter } from '#lib/collection/place-starter.ts';
 import { emptyValueLinks } from '#lib/collection/value-links.ts';
-import type { ValueLinks } from '#lib/collection/types.ts';
+import type { PlaceStarter, ValueLinks } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import {
 	IMAGES_BUCKET,
@@ -46,9 +47,18 @@ function linkedValues(): ValueLinks {
 
 let screen: ReturnType<typeof render>;
 
-function renderPage(links: ValueLinks = emptyValueLinks()): void {
+function renderPage(
+	links: ValueLinks = emptyValueLinks(),
+	placeStarter: PlaceStarter = emptyPlaceStarter()
+): void {
 	screen = render(AddArtworkPage, {
-		data: { session: testSession(), values: emptyCategoryValues(), links, noteLinks: undefined },
+		data: {
+			session: testSession(),
+			values: emptyCategoryValues(),
+			links,
+			noteLinks: undefined,
+			placeStarter
+		},
 		params: {}
 	});
 }
@@ -504,6 +514,31 @@ describe('add artwork page', () => {
 				})
 			)
 		);
+	});
+
+	it('offers museums from the starter list in the place field and saves the one picked', async () => {
+		renderPage(emptyValueLinks(), {
+			museums: [{ name: 'Luwr', aliases: ['Louvre Museum'], note: 'Francja' }],
+			notes: {}
+		});
+		await fillRequired();
+
+		const location = page.getByRole('combobox', { name: m.artworkForm.location });
+		await userEvent.click(location);
+		await expect.element(page.getByRole('option', { name: /Luwr/ })).not.toBeInTheDocument();
+		await userEvent.keyboard('louv');
+		const museum = page.getByRole('option', { name: /Luwr/ });
+		await expect.element(museum).toBeVisible();
+		await expect.element(museum.getByText('Francja')).toBeVisible();
+		await userEvent.click(museum);
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+		expect(supabase.rpc).toHaveBeenCalledWith('save_artwork', {
+			artwork: expect.anything(),
+			values_by_category: expect.objectContaining({ location: ['Luwr'] }),
+			existing_id: undefined
+		});
 	});
 
 	it('saves the artwork and opens the atelier with the new tile highlighted', async () => {

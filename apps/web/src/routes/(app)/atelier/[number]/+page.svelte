@@ -180,6 +180,7 @@
 			artwork={data.artwork}
 			editHref={editPath}
 			{flipLinks}
+			glossary={data.glossary}
 			mentions={data.mentions}
 			noteLinks={data.noteLinks}
 			onflip={flip}

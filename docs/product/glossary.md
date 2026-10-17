@@ -23,3 +23,5 @@
 | Settled artwork | "Utrwalone": an artwork the learner remembers for longer than a week (FSRS stability of at least 7 days). |
 | Learning artwork | "W trakcie nauki": an artwork already reviewed but not settled yet. |
 | New artwork | "Nowe": an artwork with an image that has never been reviewed. |
+| Glossary | The module ("Słowniczek") where the learner keeps terms and people with their definitions, independent of the artworks; its entries are marked where they occur in notes ([ADR-0074](../decisions/0074-keep-a-glossary-of-terms-with-definitions-from-wikipedia.md)). Not to be confused with this page. |
+| Glossary entry | One term or person in the glossary ("pojęcie"), with a name, one fixed category, a definition, other forms of the name used for matching in notes, and an optional Wikipedia source. |

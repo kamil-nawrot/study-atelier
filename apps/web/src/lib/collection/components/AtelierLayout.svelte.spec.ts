@@ -95,7 +95,36 @@ describe('AtelierLayout', () => {
 		expect(getComputedStyle(document.documentElement).overflow).toBe('hidden');
 	});
 
-	it('switches between the dark and the light theme from the menu, between the trash and signing out', async () => {
+	it('puts the glossary after the card index and before the reviews, and marks it on its pages', async () => {
+		await page.viewport(1280, 800);
+		pageState.url = new URL('http://localhost/atelier/glossary/some-entry');
+		renderLayout(views.empty);
+
+		const links = page
+			.getByRole('navigation', { name: m.menu.label })
+			.element()
+			.querySelectorAll('a');
+		const names = [...links].map((link) => link.textContent?.trim() ?? '');
+
+		expect(names.slice(0, 4)).toEqual([
+			m.menu.atelier,
+			m.menu.cardIndex,
+			m.menu.glossary,
+			m.menu.review
+		]);
+		await expect
+			.element(page.getByRole('link', { name: m.menu.glossary }))
+			.toHaveAttribute('href', '/atelier/glossary');
+		await expect
+			.element(page.getByRole('link', { name: m.menu.glossary }))
+			.toHaveAttribute('aria-current', 'page');
+		await expect
+			.element(page.getByRole('link', { name: m.menu.cardIndex }))
+			.not.toHaveAttribute('aria-current');
+		pageState.url = new URL('http://localhost/atelier');
+	});
+
+	it('switches between the dark and the light theme from the menu, between the feedback item and signing out', async () => {
 		await page.viewport(1280, 800);
 		renderLayout(views.empty);
 
@@ -104,7 +133,12 @@ describe('AtelierLayout', () => {
 			.element()
 			.querySelectorAll('a, button');
 		const names = [...items].map((item) => item.textContent?.trim());
-		expect(names.slice(-3)).toEqual([m.menu.trash, m.menu.lightTheme, m.menu.signOut]);
+		expect(names.slice(-4)).toEqual([
+			m.menu.trash,
+			m.menu.feedback,
+			m.menu.lightTheme,
+			m.menu.signOut
+		]);
 
 		await userEvent.click(page.getByRole('button', { name: m.menu.lightTheme }));
 
@@ -117,7 +151,7 @@ describe('AtelierLayout', () => {
 		await expect.element(page.getByRole('button', { name: m.menu.lightTheme })).toBeInTheDocument();
 	});
 
-	it('links to the reviews between the card index and the trash, with the number waiting today only in the expanded rail', async () => {
+	it('links to the reviews between the glossary and the trash, with the number waiting today only in the expanded rail', async () => {
 		await page.viewport(1280, 800);
 		pageState.data = { reviewWaiting: Promise.resolve(14) };
 		renderLayout(views.empty);
@@ -135,7 +169,7 @@ describe('AtelierLayout', () => {
 		const names = [...rail.element().querySelectorAll('a')].map((item) =>
 			item.querySelector('.label')?.textContent?.trim()
 		);
-		expect(names.indexOf(m.menu.cardIndex) + 1).toBe(
+		expect(names.indexOf(m.menu.glossary) + 1).toBe(
 			names.findIndex((name) => name?.startsWith(m.menu.review))
 		);
 	});
@@ -151,5 +185,14 @@ describe('AtelierLayout', () => {
 					.getByRole('link', { name: m.menu.review, exact: true })
 			)
 			.toBeInTheDocument();
+	});
+
+	it('opens the feedback dialog from the menu', async () => {
+		await page.viewport(1280, 800);
+		renderLayout(views.empty);
+
+		await userEvent.click(page.getByRole('button', { name: m.menu.feedback }));
+
+		await expect.element(page.getByRole('dialog', { name: m.feedback.title })).toBeInTheDocument();
 	});
 });

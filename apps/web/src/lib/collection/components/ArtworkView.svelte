@@ -9,12 +9,13 @@
 		Button,
 		Icon,
 		NoImage,
-		Notes,
 		type NoteLinks,
 		Popover,
 		Tag
 	} from '@study-atelier/ui';
 	import type { ResolvedPathname } from '$app/types';
+	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes.svelte';
+	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
 	import { artworkTypeIcon } from '../artwork-types.ts';
@@ -39,6 +40,7 @@
 		artwork: ArtworkRecord;
 		editHref: string;
 		noteLinks?: NoteLinks;
+		glossary?: GlossaryEntry[];
 		mentions?: Mention[];
 		summaries?: ValueSummaries;
 		flipLinks?: Record<FlipDirection, ResolvedPathname | null>;
@@ -50,6 +52,7 @@
 		editHref,
 		flipLinks,
 		noteLinks,
+		glossary,
 		mentions = [],
 		summaries = emptyValueSummaries(),
 		onflip
@@ -294,7 +297,7 @@
 			<section class="notes" aria-labelledby="artwork-notes">
 				<h2 id="artwork-notes" class="caption">{m.artworkForm.notes}</h2>
 				{#if artwork.notes.trim()}
-					<Notes links={noteLinks} value={artwork.notes} />
+					<GlossaryNotes entries={glossary} links={noteLinks} value={artwork.notes} />
 				{:else}
 					{@render empty()}
 				{/if}

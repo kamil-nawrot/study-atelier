@@ -1,3 +1,4 @@
+import type { GlossaryEntry } from '#lib/glossary/types.ts';
 import type { ArtworkTileImage, NoteLinks } from '@study-atelier/ui';
 import type { Mention } from './mentions.ts';
 import type { ValueSummaries } from './value-summaries.ts';
@@ -99,6 +100,11 @@ export type CategoryValuesResult = {
 	error?: string;
 };
 
+export type PlaceStarter = {
+	museums: StarterValue[];
+	notes: Record<string, string>;
+};
+
 export type ValueLinks = {
 	periodsByEra: Record<EraCode, string[]>;
 	stylesByPeriod: Record<string, string[]>;
@@ -110,8 +116,15 @@ export type ValueLinksResult = {
 };
 
 export type ValueSuggestion = {
-	kind: 'similar' | 'existing' | 'new';
+	kind: 'similar' | 'existing' | 'starter' | 'new';
 	name: string;
+	note?: string;
+};
+
+export type StarterValue = {
+	name: string;
+	aliases: readonly string[];
+	note: string;
 };
 
 export type ArtworkImageInput =
@@ -176,6 +189,7 @@ export type SaveArtworkResult =
 export type LoadArtworkResult = {
 	artwork?: ArtworkRecord;
 	noteLinks?: NoteLinks;
+	glossary?: GlossaryEntry[];
 	mentions?: Mention[];
 	summaries?: ValueSummaries;
 	error?: string;
@@ -356,6 +370,7 @@ export type ValuePageResult = {
 	artworks: WallArtwork[];
 	details: ValueDetails;
 	noteLinks?: NoteLinks;
+	glossary?: GlossaryEntry[];
 	mentions?: Mention[];
 	notFound?: boolean;
 	error?: string;

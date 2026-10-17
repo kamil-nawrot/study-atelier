@@ -18,6 +18,7 @@ import type {
 	ReviewForm,
 	ReviewSessionResult,
 	ReviewState,
+	ReviewStreakResult,
 	SessionRow
 } from './types.ts';
 
@@ -90,6 +91,17 @@ export async function loadReviewCounts(dayStart: Date): Promise<ReviewCountsResu
 			withImage: row.with_image
 		}
 	};
+}
+
+export async function loadReviewStreak(dayStart: Date): Promise<ReviewStreakResult> {
+	const { data, error } = await supabase.rpc('review_streak', {
+		day_start: dayStart.toISOString(),
+		time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone
+	});
+	if (error || typeof data !== 'number') {
+		return { days: 0, error: collectionErrorMessage(error ?? {}) };
+	}
+	return { days: data };
 }
 
 export function waitingToday(counts: ReviewCounts): number {

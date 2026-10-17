@@ -19,6 +19,7 @@
 		artworks: WallArtwork[];
 		highlight?: number;
 		periodIndexes?: ReadonlyMap<string, number>;
+		inset?: number;
 		element?: HTMLElement;
 		rendered?: number;
 		onfavourite?: (artwork: WallArtwork) => void;
@@ -30,6 +31,7 @@
 		artworks,
 		highlight,
 		periodIndexes,
+		inset = 0,
 		element = $bindable(),
 		rendered = $bindable(WALL_PART),
 		onfavourite,
@@ -64,17 +66,19 @@
 		};
 	}
 
-	function watchVisible(element: HTMLElement): () => void {
-		const bar = parseFloat(getComputedStyle(element).getPropertyValue('--bar-height')) || 0;
-		const observer = new IntersectionObserver(
-			([entry]) => element.classList.toggle('faded', entry.intersectionRatio < VISIBLE_RATIO),
-			{
-				rootMargin: `-${bar}px 0px 0px 0px`,
-				threshold: [0, VISIBLE_RATIO - 0.01, VISIBLE_RATIO, 1]
-			}
-		);
-		observer.observe(element);
-		return () => observer.disconnect();
+	function watchVisible(inset: number): (element: HTMLElement) => () => void {
+		return (element) => {
+			const bar = parseFloat(getComputedStyle(element).getPropertyValue('--bar-height')) || 0;
+			const observer = new IntersectionObserver(
+				([entry]) => element.classList.toggle('faded', entry.intersectionRatio < VISIBLE_RATIO),
+				{
+					rootMargin: `-${bar + inset}px 0px 0px 0px`,
+					threshold: [0, VISIBLE_RATIO - 0.01, VISIBLE_RATIO, 1]
+				}
+			);
+			observer.observe(element);
+			return () => observer.disconnect();
+		};
 	}
 
 	function watchEnd(element: HTMLElement): () => void {
@@ -96,7 +100,7 @@
 				<li
 					class:highlight={artwork.number === highlight}
 					{@attach watchScreen(artwork)}
-					{@attach watchVisible}
+					{@attach watchVisible(inset)}
 					data-period={periodIndexes?.get(artwork.id)}
 				>
 					<ArtworkTile

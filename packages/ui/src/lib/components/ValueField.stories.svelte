@@ -54,6 +54,20 @@
 />
 
 <Story
+	name="Starter list"
+	args={{
+		label: 'Location',
+		single: true,
+		query: 'pra',
+		options: [
+			{ kind: 'existing', name: 'Prague Castle', note: 'Czechia' },
+			{ kind: 'starter', name: 'Museo del Prado', note: 'Spain' },
+			{ kind: 'starter', name: 'Pradla Museum', note: 'Poland' }
+		]
+	}}
+/>
+
+<Story
 	name="Locked"
 	args={{ label: 'Style', options: [], locked: true, placeholder: 'Choose a period first.' }}
 />

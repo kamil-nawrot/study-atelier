@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { createRawSnippet } from 'svelte';
+import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import type { NoteLinks } from '../note-links';
+import type { NoteTerm } from '../notes-markdown';
 import Notes from './Notes.svelte';
 
 function renderedHtml(value: string, links?: Pick<NoteLinks, 'resolve'>): string {
@@ -102,6 +105,72 @@ describe('Notes', () => {
 			expect(html).not.toContain('<img');
 			expect(html).toContain('&lt;a href=');
 			expect(html).toContain('&lt;img src=x onerror=1&gt;');
+		});
+	});
+	describe('glossary terms', () => {
+		const terms: NoteTerm[] = [
+			{ id: 'sfumato', phrases: ['sfumato'] },
+			{ id: 'tympanum', phrases: ['tympanum', 'tympana'] },
+			{ id: 'lorenzo', phrases: ['Lorenzo de Medici'] },
+			{ id: 'medici', phrases: ['Medici'] }
+		];
+		const termCard = createRawSnippet((id: () => string) => ({
+			render: () => `<span>card of ${id()}</span>`
+		}));
+
+		function renderTerms(value: string, links?: Pick<NoteLinks, 'resolve'>): HTMLElement {
+			render(Notes, { value, links, terms, termCard });
+			return document.querySelector('.notes') as HTMLElement;
+		}
+
+		function marked(root: HTMLElement): string[] {
+			return [...root.querySelectorAll('button[data-term]')].map(
+				(button) => button.textContent ?? ''
+			);
+		}
+
+		it('marks the first occurrence of a term, ignoring letter case', () => {
+			const root = renderTerms('Sfumato here and sfumato there');
+
+			expect(marked(root)).toEqual(['Sfumato']);
+		});
+
+		it('marks a term written in one of its other forms', () => {
+			expect(marked(renderTerms('Two tympana were carved'))).toEqual(['tympana']);
+		});
+
+		it('marks whole words only', () => {
+			expect(marked(renderTerms('A sfumatos effect'))).toEqual([]);
+		});
+
+		it('lets the longer phrase win when two terms overlap', () => {
+			expect(marked(renderTerms('Lorenzo de Medici ruled'))).toEqual(['Lorenzo de Medici']);
+		});
+
+		it('marks inside bold text but not inside links', () => {
+			const root = renderTerms('**sfumato** and [sfumato](/atelier/1) and tympanum', {
+				resolve: () => 'sfumato'
+			});
+
+			expect(marked(root)).toEqual(['sfumato', 'tympanum']);
+		});
+
+		it('marks nothing without a card to show', () => {
+			render(Notes, { value: 'sfumato', terms });
+
+			expect(document.querySelector('button[data-term]')).toBeNull();
+		});
+
+		it('opens the card of the term on a click and closes it on Escape', async () => {
+			renderTerms('The sfumato technique');
+
+			const button = page.getByRole('button', { name: 'sfumato' });
+			await button.click();
+			await expect.element(page.getByRole('tooltip')).toHaveTextContent('card of sfumato');
+			await expect.element(button).toHaveAttribute('aria-expanded', 'true');
+			await userEvent.keyboard('{Escape}');
+
+			await expect.element(button).toHaveAttribute('aria-expanded', 'false');
 		});
 	});
 });

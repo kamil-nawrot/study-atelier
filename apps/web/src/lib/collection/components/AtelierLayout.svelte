@@ -4,12 +4,13 @@
 	import Menu from '@lucide/svelte/icons/menu';
 	import X from '@lucide/svelte/icons/x';
 	import type { Snippet } from 'svelte';
-	import { Icon, Logo, ProgressLine } from '@study-atelier/ui';
+	import { Icon, Logo, ProgressLine, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { navigating } from '$app/state';
 	import { signOut } from '#lib/auth/account.ts';
 	import { m } from '#lib/i18n/index.ts';
+	import FeedbackDialog from '#lib/feedback/components/FeedbackDialog.svelte';
 	import AtelierMenu from './AtelierMenu.svelte';
 
 	type Props = {
@@ -40,6 +41,9 @@
 	let signingOut = $state(false);
 	let drawer: HTMLDialogElement;
 	let drawerUsed = $state(false);
+	let feedbackOpen = $state(false);
+	let feedbackUsed = $state(false);
+	let toast = $state<Toast>();
 
 	function openDrawer(): void {
 		drawerUsed = true;
@@ -49,6 +53,12 @@
 	function closeDrawerOnLink(event: MouseEvent): void {
 		const target = event.target as Element;
 		if (target === drawer || target.closest('a')) drawer.close();
+	}
+
+	function openFeedback(): void {
+		if (drawer.open) drawer.close();
+		feedbackUsed = true;
+		feedbackOpen = true;
 	}
 
 	async function submitSignOut(): Promise<void> {
@@ -81,7 +91,7 @@
 			{/if}
 		</button>
 		<div class="menu">
-			<AtelierMenu {email} onsignout={submitSignOut} {signingOut} />
+			<AtelierMenu {email} onfeedback={openFeedback} onsignout={submitSignOut} {signingOut} />
 		</div>
 	</nav>
 
@@ -125,11 +135,16 @@
 					</button>
 				</div>
 				<div class="menu">
-					<AtelierMenu {email} onsignout={submitSignOut} {signingOut} />
+					<AtelierMenu {email} onfeedback={openFeedback} onsignout={submitSignOut} {signingOut} />
 				</div>
 			</nav>
 		{/if}
 	</dialog>
+
+	{#if feedbackUsed}
+		<FeedbackDialog onsent={() => toast?.show(m.feedback.sent)} bind:open={feedbackOpen} />
+		<Toast bind:this={toast} />
+	{/if}
 </div>
 
 <style>

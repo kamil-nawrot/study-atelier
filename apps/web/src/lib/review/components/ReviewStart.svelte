@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import Play from '@lucide/svelte/icons/play';
-	import { Alert, Button, Icon, ToggleTag } from '@study-atelier/ui';
+	import { Alert, Button, Icon, Tag, ToggleTag } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
@@ -31,6 +31,7 @@
 		knowledge: AtelierKnowledge;
 		troubles: WallArtwork[];
 		starting: boolean;
+		streak: number;
 		error?: string;
 		onscope: (scope: ReviewScope) => void;
 		onform: (form: ReviewForm) => void;
@@ -48,6 +49,7 @@
 		knowledge,
 		troubles,
 		starting,
+		streak,
 		error,
 		onscope,
 		onform,
@@ -88,6 +90,11 @@
 				{#if nextWhen}
 					<p class="lead">{m.review.allDone(nextWhen)}</p>
 				{/if}
+			{/if}
+			{#if streak > 0}
+				<p class="streak">
+					<Tag>{m.review.streak(streak)}</Tag>
+				</p>
 			{/if}
 		</header>
 
@@ -233,6 +240,10 @@
 		gap: var(--spacing-2);
 	}
 
+	.streak {
+		padding-top: var(--spacing-2);
+	}
+
 	.how {
 		max-width: var(--size-content-narrow);
 	}
@@ -265,7 +276,6 @@
 	.choices {
 		display: grid;
 		gap: var(--spacing-6);
-		padding-top: var(--spacing-6);
 	}
 
 	.choice {

@@ -46,6 +46,7 @@
 		CategoryValues,
 		EraCode,
 		ImageFieldTexts,
+		PlaceStarter,
 		ValueLinks,
 		ValueSuggestion
 	} from '../types.ts';
@@ -54,14 +55,23 @@
 		artwork?: ArtworkRecord;
 		categoryValues: CategoryValues;
 		valueLinks: ValueLinks;
+		placeStarter?: PlaceStarter;
 		noteLinks?: NoteLinks;
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
 		onsaved: (number: number, next: boolean) => void | Promise<void>;
 	};
 
-	let { artwork, categoryValues, valueLinks, noteLinks, cancelHref, oncancel, onsaved }: Props =
-		$props();
+	let {
+		artwork,
+		categoryValues,
+		valueLinks,
+		placeStarter,
+		noteLinks,
+		cancelHref,
+		oncancel,
+		onsaved
+	}: Props = $props();
 
 	const titleId = $props.id();
 	const formErrorId = `${titleId}-error`;
@@ -126,7 +136,10 @@
 		return suggestValues({
 			query: form.queries[code],
 			existing,
-			selected: form.values[code]
+			selected: form.values[code],
+			...(code === 'location' && placeStarter
+				? { starter: placeStarter.museums, notes: placeStarter.notes }
+				: {})
 		});
 	}
 

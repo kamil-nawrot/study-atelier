@@ -5,6 +5,7 @@ import {
 	loadReviewCards,
 	loadReviewCounts,
 	loadReviewDetails,
+	loadReviewStreak,
 	loadSession,
 	recordReview,
 	waitingToday
@@ -99,6 +100,27 @@ describe('review data', () => {
 			counts: { due: 4, newAvailable: 30, newToday: 3, withImage: 40 }
 		});
 		expect(rpc).toHaveBeenCalledWith('review_counts', { day_start: '2026-10-15T22:00:00.000Z' });
+	});
+
+	it('asks for the streak in the learner’s time zone', async () => {
+		rpc.mockResolvedValue({ data: 6, error: null } as never);
+		const dayStart = new Date('2026-10-15T22:00:00.000Z');
+		await expect(loadReviewStreak(dayStart)).resolves.toEqual({ days: 6 });
+		expect(rpc).toHaveBeenCalledWith('review_streak', {
+			day_start: '2026-10-15T22:00:00.000Z',
+			time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone
+		});
+	});
+
+	it('returns no streak and a message when the streak fails', async () => {
+		rpc.mockResolvedValue({
+			data: null,
+			error: { message: 'TypeError: Failed to fetch' }
+		} as never);
+		await expect(loadReviewStreak(new Date())).resolves.toEqual({
+			days: 0,
+			error: m.collectionErrors.network
+		});
 	});
 
 	it('returns a message when the counts fail', async () => {
