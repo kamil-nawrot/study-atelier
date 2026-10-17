@@ -130,6 +130,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 ## Tabs
 
+- A hairline that divides a list or a view into sections runs across the whole width of the content, like the line under the `Tabs` of the card index; the text between the lines keeps its own width (for example `--size-content-default`).
 - Kinds of one list that share a view are shown with the library `Tabs`: a row of text tabs under a hairline, the selected one underlined, with `tablist` roles, the arrow keys, Home and End. A tab changes only what the view lists; it does not change the address.
 - A tag whose removal is not allowed is a `Tag` with `removeDisabled`, and the reason is written under the tags.
 
@@ -185,7 +186,7 @@ How views and components look and behave, so every new screen stays consistent w
 - The glossary ([ADR-0074](../decisions/0074-keep-a-glossary-of-terms-with-definitions-from-wikipedia.md)) is "Słowniczek" in the menu, after "Kartoteka", with the icon `book-a`. Its six categories each have an icon used nowhere else (`person-standing`, `drafting-compass`, `paintbrush`, `cuboid`, `pipette`, `lightbulb`) (defined in `lib/glossary/categories.ts`); `categories.spec.ts` checks them against the eras, the types of place, the artwork types and the menu.
 - The list has the category `ToggleTag`s with their numbers above it (a category with no entries is disabled), a `SearchField` from 20 entries, and the entries sorted by name in Polish order under their capital first letters: to the left of them from 768 px with a full-width hairline above every letter after the first, above them over a hairline on a phone ([ADR-0077](../decisions/0077-trim-the-wikipedia-lead-and-polish-the-glossary-list.md)). An entry shows its name, its category as a small icon and name, and the first sentence of its definition (two when the first has three words or fewer) in at most two lines. "Dodaj pojęcie" is the view's `primary` button.
 - An entry's page is built like a value page: category in small capitals with its icon, the name in the title font, the other forms in one caption line, the definition as a quote with a bar and, under it inside the bar, the source line that links the article and the licence. "Edytuj" and "Usuń" sit only in the top bar.
-- The form searches Polish Wikipedia by itself once the name and the category are set and the definition is empty or still the fetched text, after the learner pauses typing. A definition the learner wrote or changed is never replaced without asking ("Zastąpić twoją definicję?"); an entry opened for editing counts as changed, because the app does not keep the original text. The article can be changed with "Wybierz inny artykuł", the source removed with "Usuń źródło".
+- The form searches Polish Wikipedia by itself once the name and the category are set and the definition is empty or still the fetched text, after the learner pauses typing. A definition the learner wrote or changed is never replaced without asking ("Zastąpić Twoją definicję?"); an entry opened for editing counts as changed, because the app does not keep the original text. The article can be changed with "Wybierz inny artykuł", the source removed with "Usuń źródło".
 
 ## Logo
 
