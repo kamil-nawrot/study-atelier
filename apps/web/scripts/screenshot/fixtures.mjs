@@ -483,6 +483,22 @@ export const GLOSSARY_ENTRIES = [
 		'Motyw w sztuce przypominający o przemijaniu i marności życia, często czaszka, zgaszona świeca albo przekwitający kwiat.',
 		[],
 		null
+	),
+	...[
+		['Akwarela', 'technique'],
+		['Barok', 'general'],
+		['Cornice', 'architecture'],
+		['Diptyk', 'painting'],
+		['Filar', 'architecture'],
+		['Gotyk', 'general'],
+		['Impasto', 'technique'],
+		['Kariatyda', 'sculpture'],
+		['Lawowanie', 'technique'],
+		['Mozaika', 'general'],
+		['Nawa', 'architecture'],
+		['Pastel', 'technique']
+	].map(([name, category], index) =>
+		glossaryEntry(10 + index, name, category, `${name}: krótka definicja do zrzutów ekranu.`)
 	)
 ];
 
