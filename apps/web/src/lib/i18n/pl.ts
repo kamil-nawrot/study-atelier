@@ -770,6 +770,14 @@ export const pl = {
 				`${count} ${plural(count, { one: 'forma', few: 'formy', many: 'form' })}`,
 			showForms: 'Pokaż formy',
 			hideForms: 'Zwiń',
+			formsSearching: 'Szukam odmiany w Wikisłowniku…',
+			formsSkipped: 'Odmianę tego pojęcia musisz dopisać samodzielnie.',
+			formsNone:
+				'Nie udało się odszukać tego hasła w słowniku. Możesz dopisać jego formy samodzielnie.',
+			formsFailed:
+				'Nie udało się połączyć z Wikisłownikiem. Spróbuj jeszcze raz albo dopisz formy samodzielnie.',
+			formsFetch: 'Pobierz z Wikisłownika',
+			formsRefetch: 'Pobierz ponownie',
 			formsHint:
 				'Formy nie pokazują się pod nazwą. Dzięki nim pojęcie znajdzie się w notatkach także odmienione.',
 			authorWarningSuffix:
