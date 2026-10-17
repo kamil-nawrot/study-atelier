@@ -36,7 +36,7 @@ Chosen, decided by the owner in ATL-188: list A, page C, dialog A, background C,
 
 ### List
 
-- The page title "Słowniczek" with the lead "Pojęcia i postacie, które chcesz rozumieć. Ich definicje podpowiadają się w twoich notatkach." The top bar has the way back to the atelier and "Dodaj pojęcie" (the view's `primary` button, "Dodaj" on a phone).
+- The page title "Słowniczek" with the lead "Pojęcia i postacie, które chcesz rozumieć. Ich definicje podpowiadają się w Twoich notatkach." The top bar has the way back to the atelier and "Dodaj pojęcie" (the view's `primary` button, "Dodaj" on a phone).
 - Under the lead, the six categories as `ToggleTag`s with an icon and the number of entries; pressing one filters the list, like the filter panel. A `SearchField` ("Szukaj pojęcia") follows once the glossary has at least 20 entries, as in the card index.
 - Entries are sorted by name in Polish alphabetical order and grouped under their first letter, set large in the title font: to the left of the entries from 768 px, above them over a hairline on a phone. Each entry shows its name (bold, `lg`), its category as a small icon with the name in `--color-fg-muted`, and the first sentence of the definition, at most two lines. The whole entry links to its page.
 
