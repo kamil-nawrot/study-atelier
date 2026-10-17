@@ -687,9 +687,13 @@ export const pl = {
 			technique: 'Technika i materiał',
 			general: 'Pojęcie ogólne'
 		},
+		card: {
+			source: 'Na podstawie Wikipedii, CC BY-SA 4.0'
+		},
 		view: {
 			also: (forms: string): string => `też: ${forms}`,
 			noDefinition: 'Nie dodano jeszcze definicji.',
+			mentionsHeading: 'Pojawia się w notatkach',
 			sourcePrefix: 'Na podstawie: Wikipedia, ',
 			licenceLink: 'CC BY-SA 4.0',
 			edit: 'Edytuj',

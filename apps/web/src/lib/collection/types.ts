@@ -1,3 +1,4 @@
+import type { GlossaryEntry } from '#lib/glossary/types.ts';
 import type { ArtworkTileImage, NoteLinks } from '@study-atelier/ui';
 import type { Mention } from './mentions.ts';
 import type { ValueSummaries } from './value-summaries.ts';
@@ -176,6 +177,7 @@ export type SaveArtworkResult =
 export type LoadArtworkResult = {
 	artwork?: ArtworkRecord;
 	noteLinks?: NoteLinks;
+	glossary?: GlossaryEntry[];
 	mentions?: Mention[];
 	summaries?: ValueSummaries;
 	error?: string;
@@ -356,6 +358,7 @@ export type ValuePageResult = {
 	artworks: WallArtwork[];
 	details: ValueDetails;
 	noteLinks?: NoteLinks;
+	glossary?: GlossaryEntry[];
 	mentions?: Mention[];
 	notFound?: boolean;
 	error?: string;

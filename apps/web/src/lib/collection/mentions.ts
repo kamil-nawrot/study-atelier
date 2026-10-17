@@ -27,23 +27,30 @@ const DETAILS_TABLES = [
 	{ table: 'location_details', kind: 'location', column: 'value_id' }
 ] as const;
 
-function mentions(notes: string | null, needle: string): boolean {
-	return notes?.includes(needle) ?? false;
+export type NotesMatcher = {
+	like?: string;
+	test: (notes: string) => boolean;
+};
+
+function matches(notes: string | null, matcher: NotesMatcher): boolean {
+	return notes !== null && matcher.test(notes);
 }
 
-async function artworkMentions(needle: string, own: string): Promise<Mention[]> {
-	const { rows, error } = await fetchAll<ArtworkNotesRow>((from, to) =>
-		supabase
+async function artworkMentions(matcher: NotesMatcher, own: string): Promise<Mention[]> {
+	const { rows, error } = await fetchAll<ArtworkNotesRow>((from, to) => {
+		const base = supabase
 			.from('artworks')
 			.select('record_number, title, notes')
-			.is('deleted_at', null)
-			.like('notes', `%${needle}%`)
-			.order('record_number', { ascending: true })
-			.range(from, to)
-	);
+			.is('deleted_at', null);
+		const narrowed =
+			matcher.like === undefined
+				? base.not('notes', 'is', null)
+				: base.like('notes', `%${matcher.like}%`);
+		return narrowed.order('record_number', { ascending: true }).range(from, to);
+	});
 	if (error) return [];
 	return rows
-		.filter((row) => mentions(row.notes, needle))
+		.filter((row) => matches(row.notes, matcher))
 		.map((row) => ({
 			href: resolve('/(app)/atelier/[number]', { number: String(row.record_number) }),
 			name: `${formatRecordNumber(row.record_number)} ${row.title}`,
@@ -53,19 +60,19 @@ async function artworkMentions(needle: string, own: string): Promise<Mention[]> 
 }
 
 async function valueMentions(
-	needle: string,
+	matcher: NotesMatcher,
 	own: string,
 	index: CardIndexData | undefined
 ): Promise<Mention[]> {
 	const found = await Promise.all(
 		DETAILS_TABLES.map(async ({ table, kind, column }) => {
-			const { data, error } = await supabase
-				.from(table)
-				.select(`${column}, notes`)
-				.like('notes', `%${needle}%`);
+			const base = supabase.from(table).select(`${column}, notes`);
+			const { data, error } = await (matcher.like === undefined
+				? base.not('notes', 'is', null)
+				: base.like('notes', `%${matcher.like}%`));
 			if (error) return [];
 			return ((data ?? []) as unknown as DetailsNotesRow[])
-				.filter((row) => mentions(row.notes, needle))
+				.filter((row) => matches(row.notes, matcher))
 				.map((row) => ({ kind, id: (row[column] ?? '') as string }));
 		})
 	);
@@ -90,14 +97,22 @@ async function valueMentions(
 		.sort((a, b) => normalizeForSearch(a.name).localeCompare(normalizeForSearch(b.name), 'pl'));
 }
 
+export async function loadNotesMentions(
+	matcher: NotesMatcher,
+	own: string,
+	index?: CardIndexData
+): Promise<Mention[]> {
+	const [values, artworks] = await Promise.all([
+		valueMentions(matcher, own, index),
+		artworkMentions(matcher, own)
+	]);
+	return [...values, ...artworks];
+}
+
 export async function loadMentions(
 	path: ResolvedPathname,
 	index?: CardIndexData
 ): Promise<Mention[]> {
 	const needle = `](${path})`;
-	const [values, artworks] = await Promise.all([
-		valueMentions(needle, path, index),
-		artworkMentions(needle, path)
-	]);
-	return [...values, ...artworks];
+	return loadNotesMentions({ like: needle, test: (notes) => notes.includes(needle) }, path, index);
 }

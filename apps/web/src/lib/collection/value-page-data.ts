@@ -1,3 +1,4 @@
+import { loadGlossary } from '#lib/glossary/glossary-data.ts';
 import { m } from '#lib/i18n/index.ts';
 import { loadAtelier } from './artworks.ts';
 import { loadCardIndex } from './card-index-data.ts';
@@ -42,6 +43,7 @@ export async function loadValuePage(
 	]);
 	if (error) return failed(error);
 
+	const glossary = withArtworks && details.notes ? (await loadGlossary()).entries : undefined;
 	const noteLinks =
 		editorLinks ?? (withArtworks ? noteLinksFrom(cardIndex.index, atelier.artworks) : undefined);
 	return {
@@ -50,6 +52,7 @@ export async function loadValuePage(
 		artworks: atelier.artworks,
 		details,
 		noteLinks,
+		glossary,
 		mentions
 	};
 }

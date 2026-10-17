@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { ArtworkImage, Icon, Notes, type NoteLinks, Section } from '@study-atelier/ui';
+	import { ArtworkImage, Icon, type NoteLinks, Section } from '@study-atelier/ui';
+	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes.svelte';
+	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
 	import { countryName } from '../countries.ts';
@@ -17,10 +19,11 @@
 		count: number;
 		details: ValueDetails;
 		noteLinks?: NoteLinks;
+		glossary?: GlossaryEntry[];
 		mentions?: Mention[];
 	};
 
-	let { subject, parents, count, details, noteLinks, mentions = [] }: Props = $props();
+	let { subject, parents, count, details, noteLinks, glossary, mentions = [] }: Props = $props();
 
 	const PORTRAIT_WIDTH = 500;
 
@@ -108,7 +111,7 @@
 			{#if details.notes}
 				<section class="notes" aria-labelledby="value-notes">
 					<h2 id="value-notes" class="label">{m.valuePage.notes}</h2>
-					<Notes links={noteLinks} value={details.notes} />
+					<GlossaryNotes entries={glossary} links={noteLinks} value={details.notes} />
 				</section>
 			{/if}
 		{/if}

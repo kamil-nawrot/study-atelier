@@ -1,3 +1,4 @@
+import type { Mention } from '#lib/collection/mentions.ts';
 import type { CardIndexData } from '#lib/collection/types.ts';
 
 export type GlossaryCategory =
@@ -34,6 +35,7 @@ export type GlossaryResult = {
 
 export type GlossaryEntryResult = {
 	entry?: GlossaryEntry;
+	mentions?: Mention[];
 	error?: string;
 	notFound?: boolean;
 };
