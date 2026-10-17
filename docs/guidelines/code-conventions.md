@@ -112,7 +112,7 @@ The SvelteKit app in `apps/web/src`:
 - Functions are `security invoker` with `set search_path = ''` and, when callable from the app, `revoke all ... from public, anon` plus `grant execute ... to authenticated`. A `security definer` function lives in the `private` schema and is not granted to the API roles.
 - Uploaded files sit under a folder named after the owner's id, and the Storage policies compare that folder with `auth.uid()`.
 - `supabase/tests/security.sql` runs in the `migrations` job against the replayed migrations. It checks the rules above for every table and function, and that one learner cannot read or change another's rows or images. A new table, function or policy extends it.
-- `supabase/tests/review-session.sql` runs in the same job and checks the rules of `review_session` on a learner's own artworks, for example which artwork gets a quiz. A change to a session rule extends it.
+- `supabase/tests/review-session.sql` runs in the same job and checks the rules of `review_session` on a learner's own artworks, for example which artwork gets a quiz. A change to a session rule extends it. `review-streak.sql` and `notes-mentions.sql` do the same for `review_streak` and `notes_mentions`.
 - A migration that changes the rules of a function comes with a test in `supabase/tests/` that fails against the previous version of the function and passes with the new one. Check both on the local stack before pushing.
 
 ## Tests

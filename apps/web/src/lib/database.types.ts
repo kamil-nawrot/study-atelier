@@ -784,6 +784,16 @@ export type Database = {
         Args: { kept_id: string; merged_id: string };
         Returns: undefined;
       };
+      notes_mentions: {
+        Args: { needle?: string };
+        Returns: {
+          id: string;
+          kind: string;
+          notes: string;
+          record_number: number;
+          title: string;
+        }[];
+      };
       period_era_usage: {
         Args: Record<PropertyKey, never>;
         Returns: {

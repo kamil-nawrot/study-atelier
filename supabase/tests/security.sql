@@ -144,6 +144,7 @@ begin
   assert (select count(*) from public.glossary_entries) = 0, 'B reads glossary entries of A';
   assert (select count(*) from storage.objects) = 0, 'B reads image objects of A';
   assert (select count(*) from public.value_usage()) = 0, 'B sees value usage of A';
+  assert (select count(*) from public.notes_mentions()) = 0, 'B sees the notes of A';
   assert not (select has_content from public.value_page_content(a_value)),
     'B sees the page content of a value of A';
   assert (select count(*) from public.eras) = 6, 'B cannot read the shared eras';
@@ -452,6 +453,7 @@ begin
   assert security_test.denied('select * from public.glossary_entries'), 'anon reads glossary entries';
   assert (select count(*) from storage.objects) = 0, 'anon reads image objects';
   assert security_test.denied('select public.value_usage()'), 'anon executes value_usage';
+  assert security_test.denied('select public.notes_mentions()'), 'anon executes notes_mentions';
   assert security_test.denied(format('select public.value_page_content(%L)', gen_random_uuid())),
     'anon executes value_page_content';
   assert security_test.denied('select public.save_artwork(''{}'', ''{}'')'), 'anon executes save_artwork';

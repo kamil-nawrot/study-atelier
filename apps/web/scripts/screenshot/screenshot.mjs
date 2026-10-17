@@ -236,6 +236,28 @@ function reviewSession({
 	});
 }
 
+function notesMentions(needle) {
+	const values = Object.entries(VALUE_DETAILS).flatMap(([table, rows]) =>
+		rows.map((row) => ({
+			kind: table.replace('_details', ''),
+			id: row.value_id ?? row.era_code,
+			record_number: null,
+			title: null,
+			notes: row.notes
+		}))
+	);
+	const artworks = ARTWORKS.map((row) => ({
+		kind: 'artwork',
+		id: row.id,
+		record_number: row.record_number,
+		title: row.title,
+		notes: row.notes
+	}));
+	return [...values, ...artworks].filter(
+		(row) => row.notes && (needle === undefined || row.notes.includes(needle))
+	);
+}
+
 function glossaryRoute(route, request, url) {
 	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
 	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
@@ -283,6 +305,9 @@ async function mockSupabase(context) {
 			return json(route, reviewSession(request.postDataJSON() ?? {}));
 		}
 		if (url.pathname === '/rest/v1/rpc/review_streak') return json(route, 5);
+		if (url.pathname === '/rest/v1/rpc/notes_mentions') {
+			return json(route, notesMentions(request.postDataJSON()?.needle));
+		}
 		if (url.pathname === '/rest/v1/rpc/record_review') {
 			return route.fulfill({ status: 204, headers: corsHeaders() });
 		}
@@ -331,19 +356,6 @@ async function mockSupabase(context) {
 		const detailsTable = url.pathname.replace('/rest/v1/', '');
 		if (detailsTable in VALUE_DETAILS) {
 			const [column, filter] = [...url.searchParams].find(([key]) => key !== 'select') ?? [];
-			if (column === 'notes' && filter === 'not.is.null') {
-				return json(
-					route,
-					VALUE_DETAILS[detailsTable].filter((row) => row.notes)
-				);
-			}
-			if (column === 'notes' && filter?.startsWith('like.')) {
-				const needle = filter.slice('like.'.length).replaceAll('%', '');
-				return json(
-					route,
-					VALUE_DETAILS[detailsTable].filter((row) => row.notes?.includes(needle))
-				);
-			}
 			return json(
 				route,
 				VALUE_DETAILS[detailsTable].filter((row) => `eq.${row[column]}` === filter)
