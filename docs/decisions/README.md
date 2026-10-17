@@ -77,3 +77,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0071](0071-put-the-plan-first-on-the-review-start.md) | Put the plan first on the review start | accepted |
 | [0072](0072-give-the-museum-its-own-icon.md) | Give the museum its own icon | accepted |
 | [0073](0073-draw-new-artworks-at-random.md) | Draw the new artworks of a session at random | accepted |
+| [0074](0074-keep-a-glossary-of-terms-with-definitions-from-wikipedia.md) | Keep a glossary of terms with definitions from Wikipedia, highlighted in notes | accepted |
