@@ -2,6 +2,33 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.6.0] - 2026-10-17
+
+The glossary: a place for terms and people that are not values of any artwork field, with definitions filled from Polish Wikipedia and marked in notes.
+
+### Added
+
+- Glossary ("Słowniczek"): a menu module with entries in six categories (person, architecture, painting, sculpture, technique and material, general term), a dictionary-style list with letters, category filters and a search field from 20 entries, and a page for every entry.
+- Definitions filled from Polish Wikipedia with the source and licence line kept, freely editable, with a dialog to pick another article and a confirmation before an edited text is replaced; extra forms of a term can be written by hand.
+- Glossary terms in notes: the first occurrence of an entry in the notes of artworks and card index values is marked, with the definition in a popover, and the entry page lists the notes that mention it.
+- A starter list of 725 art museums in the place field, with the country shown on the right.
+- A "Zgłoś uwagę" menu item with a dialog for sending bug reports and ideas, stored in a table the owner reads.
+- A streak on the review start: the number of days in a row with reviews, counted in the time zone of the device.
+
+### Changed
+
+- Fetched Wikipedia definitions are trimmed to the lead sentence, and a very short one gets a second sentence.
+- Toggle tags centre their icon and text, and the glossary list has a hairline between letters from 768 px.
+- Wall tiles under the period strip fade like the rest of the wall.
+
+### Fixed
+
+- Extra spacing at the top of the review options when only the form section is open.
+
+### Migrations run on production
+
+Four migrations run on production with this release, all additive and none changes existing data: `glossary` creates the `glossary_entries` table with its policy and grants; `museum_catalogue` creates and fills the `catalogue_museums` table, adds the nullable `catalogue_wikidata_id` column to `location_details` and replaces the `save_artwork` function; `feedback` creates the insert-only `feedback` table; `review_streak` creates the `review_streak` function.
+
 ## [0.5.0] - 2026-10-16
 
 The learning module: the learner reviews the personal collection with flashcards and quizzes scheduled by a spaced repetition algorithm, in a session built from the "Powtórki" menu item.
