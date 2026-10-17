@@ -39,27 +39,29 @@
 {#if entries.length === 0}
 	<p class="lead">{m.glossary.empty}</p>
 {:else}
-	<ul class="categories" aria-label={m.glossary.categories}>
-		{#each GLOSSARY_CATEGORIES as category (category)}
-			<li>
-				<ToggleTag
-					count={counts[category]}
-					disabled={counts[category] === 0 && !chosen.includes(category)}
-					onclick={() => toggle(category)}
-					pressed={chosen.includes(category)}
-				>
-					<Icon icon={glossaryCategoryIcon(category)} size="sm" />
-					{glossaryCategoryName(category)}
-				</ToggleTag>
-			</li>
-		{/each}
-	</ul>
+	<div class="filter">
+		{#if entries.length >= GLOSSARY_SEARCH_MIN_ENTRIES}
+			<div class="search">
+				<SearchField label={m.glossary.search} placeholder={m.glossary.search} bind:value={query} />
+			</div>
+		{/if}
 
-	{#if entries.length >= GLOSSARY_SEARCH_MIN_ENTRIES}
-		<div class="search">
-			<SearchField label={m.glossary.search} placeholder={m.glossary.search} bind:value={query} />
-		</div>
-	{/if}
+		<ul class="categories" aria-label={m.glossary.categories}>
+			{#each GLOSSARY_CATEGORIES as category (category)}
+				<li>
+					<ToggleTag
+						count={counts[category]}
+						disabled={counts[category] === 0 && !chosen.includes(category)}
+						onclick={() => toggle(category)}
+						pressed={chosen.includes(category)}
+					>
+						<Icon icon={glossaryCategoryIcon(category)} size="sm" />
+						{glossaryCategoryName(category)}
+					</ToggleTag>
+				</li>
+			{/each}
+		</ul>
+	</div>
 
 	{#if matching.length === 0}
 		<p class="lead">{m.glossary.noResults(query.trim())}</p>
@@ -99,6 +101,14 @@
 		list-style: none;
 	}
 
+	.filter {
+		display: grid;
+		gap: var(--spacing-4);
+		margin: var(--spacing-4) 0;
+		padding-bottom: var(--spacing-8);
+		border-bottom: var(--border-width-hairline) solid var(--color-line);
+	}
+
 	.categories {
 		display: flex;
 		flex-wrap: wrap;
@@ -111,7 +121,7 @@
 
 	.groups {
 		display: grid;
-		gap: var(--spacing-8);
+		gap: var(--spacing-12);
 	}
 
 	.group {
@@ -133,7 +143,7 @@
 
 	.group ul {
 		display: grid;
-		gap: var(--spacing-6);
+		gap: var(--spacing-8);
 		max-width: var(--size-content-default);
 	}
 
@@ -196,7 +206,7 @@
 		}
 
 		.group + .group {
-			padding-top: var(--spacing-8);
+			padding-top: var(--spacing-12);
 			border-top: var(--border-width-hairline) solid var(--color-line);
 		}
 

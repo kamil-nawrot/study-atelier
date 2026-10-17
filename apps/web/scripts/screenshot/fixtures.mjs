@@ -408,14 +408,24 @@ export function fakeSession() {
 	};
 }
 
-function glossaryEntry(number, name, category, definition, forms = [], article = null) {
+function glossaryEntry(
+	number,
+	name,
+	category,
+	definition,
+	forms = [],
+	article = null,
+	{ synonyms = [], sortName = null } = {}
+) {
 	return {
 		id: `00000000-0000-4000-9000-${String(number).padStart(12, '0')}`,
 		owner_id: USER.id,
 		name,
 		category,
 		definition,
+		synonyms,
 		forms,
+		sort_name: sortName,
 		source_title: article,
 		source_url: article ? `https://pl.wikipedia.org/wiki/${encodeURIComponent(article)}` : null,
 		source_licence: article ? 'CC BY-SA 4.0' : null,
@@ -448,7 +458,8 @@ export const GLOSSARY_ENTRIES = [
 		'painting',
 		'Budowanie bryły i nastroju silnym kontrastem światła i cienia.',
 		[],
-		'Chiaroscuro'
+		'Chiaroscuro',
+		{ synonyms: ['światłocień'] }
 	),
 	glossaryEntry(
 		4,
@@ -472,7 +483,8 @@ export const GLOSSARY_ENTRIES = [
 		'person',
 		'Włoski malarz, architekt i pisarz, autor „Żywotów najsławniejszych malarzy, rzeźbiarzy i architektów”.',
 		[],
-		'Giorgio Vasari'
+		'Giorgio Vasari',
+		{ sortName: 'Vasari, Giorgio' }
 	),
 	glossaryEntry(
 		7,
@@ -488,7 +500,8 @@ export const GLOSSARY_ENTRIES = [
 		'architecture',
 		'Trójkątne lub półkoliste pole ściany nad wejściem albo w szczycie budowli, ograniczone gzymsem lub łukiem. W architekturze antycznej wypełniało szczyt świątyni, w romańskiej i gotyckiej zdobi portale kościołów, najczęściej płaskorzeźbą z Chrystusem w majestacie albo Sądem Ostatecznym.',
 		['tympanonu', 'tympanonie', 'tympanonem', 'tympany', 'tympanonów'],
-		'Tympanon'
+		'Tympanon',
+		{ synonyms: ['tympan'] }
 	),
 	glossaryEntry(
 		9,

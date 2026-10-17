@@ -21,6 +21,17 @@ describe('GlossaryNotes', () => {
 		await expect.element(card).toHaveTextContent(m.glossary.card.source);
 	});
 
+	it('marks a synonym of an entry like its name', async () => {
+		render(GlossaryNotes, {
+			entries: testGlossary(),
+			value: 'A carved tympan over the door.'
+		});
+
+		await page.getByRole('button', { name: 'tympan' }).click();
+
+		await expect.element(page.getByRole('tooltip')).toHaveTextContent('Tympanum');
+	});
+
 	it('leaves the source line out when the entry has no source', async () => {
 		render(GlossaryNotes, {
 			entries: [testEntry('a-fresco', 'Fresco')],

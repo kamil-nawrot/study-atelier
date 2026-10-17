@@ -22,8 +22,8 @@
 			{glossaryCategoryName(entry.category)}
 		</p>
 		<h1>{entry.name}</h1>
-		{#if entry.forms.length > 0}
-			<p class="caption">{m.glossary.view.also(entry.forms.join(', '))}</p>
+		{#if entry.synonyms.length > 0}
+			<p class="caption">{m.glossary.view.also(entry.synonyms.join(', '))}</p>
 		{/if}
 	</header>
 

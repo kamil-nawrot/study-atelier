@@ -38,7 +38,12 @@
 	{/snippet}
 
 	<header>
-		<h1>{m.glossary.title}</h1>
+		<div class="title">
+			<h1>{m.glossary.title}</h1>
+			{#if !data.error && data.entries.length > 0}
+				<span class="caption">{m.glossary.count(data.entries.length)}</span>
+			{/if}
+		</div>
 		<p class="lead">{m.glossary.lead}</p>
 	</header>
 
@@ -57,6 +62,18 @@
 	header {
 		display: grid;
 		gap: var(--spacing-2);
+	}
+
+	.title {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: var(--spacing-4);
+	}
+
+	.caption {
+		font-variant-numeric: tabular-nums;
 	}
 
 	.short {

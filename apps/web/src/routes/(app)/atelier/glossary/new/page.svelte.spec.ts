@@ -93,6 +93,7 @@ describe('new glossary entry page', () => {
 			.element(definitionField())
 			.toHaveAttribute('placeholder', m.glossary.form.definitionPending);
 		await expect.element(page.getByText(m.glossary.form.formsHint)).toBeVisible();
+		await expect.element(page.getByText(m.glossary.form.synonymsHint)).toBeVisible();
 		await expect
 			.element(page.getByRole('link', { name: m.glossary.form.cancel }))
 			.toHaveAttribute('href', '/atelier/glossary');
@@ -346,7 +347,10 @@ describe('new glossary entry page', () => {
 				name: 'nawa',
 				category: 'architecture',
 				definition: NAWA.extract,
+				synonyms: [],
 				forms: ['nawy', 'nawie'],
+				sortByOther: false,
+				sortName: '',
 				source: {
 					title: 'Nawa',
 					url: 'https://pl.wikipedia.org/wiki/Nawa',
@@ -361,6 +365,41 @@ describe('new glossary entry page', () => {
 			refreshAll: true,
 			state: { glossaryMessage: m.glossary.view.saved('nawa') }
 		});
+	});
+
+	it('saves the synonyms and a sort name chosen under the name', async () => {
+		renderNew();
+		await fillAndSearch([NAWA]);
+		await page.getByRole('combobox', { name: m.glossary.form.synonyms }).fill('nawa główna');
+		await userEvent.keyboard('{Enter}');
+		await page.getByText(m.glossary.form.sortByOther).click();
+		await page.getByRole('textbox', { name: m.glossary.form.sortName }).fill('Nawa, główna');
+
+		await saveButton().click();
+
+		expect(saveGlossaryEntry).toHaveBeenCalledWith(
+			expect.objectContaining({
+				synonyms: ['nawa główna'],
+				forms: [],
+				sortByOther: true,
+				sortName: 'Nawa, główna'
+			}),
+			undefined
+		);
+	});
+
+	it('keeps the forms of a new entry open while the learner adds them', async () => {
+		renderNew();
+		const forms = page.getByRole('combobox', { name: m.glossary.form.forms });
+
+		await forms.fill('nawy');
+		await userEvent.keyboard('{Enter}');
+
+		await expect.element(forms).toBeVisible();
+		await expect.element(page.getByText(m.glossary.form.formsCount(1))).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.glossary.form.hideForms, exact: true }))
+			.toHaveAttribute('aria-expanded', 'true');
 	});
 
 	it('offers a form that differs from the name only by its diacritics, but not the name itself', async () => {
