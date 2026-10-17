@@ -105,8 +105,7 @@
 		gap: var(--spacing-2);
 	}
 
-	.search,
-	.groups {
+	.search {
 		max-width: var(--size-content-default);
 	}
 
@@ -135,6 +134,7 @@
 	.group ul {
 		display: grid;
 		gap: var(--spacing-6);
+		max-width: var(--size-content-default);
 	}
 
 	a {
@@ -189,6 +189,10 @@
 		.group {
 			grid-template-columns: 80px minmax(0, 1fr);
 			gap: 0;
+		}
+
+		.group ul {
+			max-width: calc(var(--size-content-default) - 80px);
 		}
 
 		.group + .group {
