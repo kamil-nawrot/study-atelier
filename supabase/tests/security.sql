@@ -14,7 +14,7 @@ begin
   return false;
 exception
   when insufficient_privilege or check_violation or foreign_key_violation
-    or no_data_found or restrict_violation then
+    or no_data_found or restrict_violation or unique_violation then
     return true;
 end;
 $$;
@@ -101,6 +101,8 @@ insert into public.category_values (category_code, name) values ('author', 'Pain
 insert into public.period_details (value_id, summary)
   select id, 'Period summary' from public.category_values where category_code = 'period';
 insert into public.era_details (era_code, summary) values ('early_modern', 'Era summary');
+insert into public.glossary_entries (name, category, definition, forms)
+  values ('Tympanum', 'architecture', 'A definition', '{tympana}');
 
 insert into storage.objects (bucket_id, name)
   values ('artwork-images', '00000000-0000-0000-0000-00000000000a/work.jpg');
@@ -139,6 +141,7 @@ begin
   assert (select count(*) from public.style_periods) = 0, 'B reads style periods of A';
   assert (select count(*) from public.period_details) = 0, 'B reads period details of A';
   assert (select count(*) from public.era_details) = 0, 'B reads era details of A';
+  assert (select count(*) from public.glossary_entries) = 0, 'B reads glossary entries of A';
   assert (select count(*) from storage.objects) = 0, 'B reads image objects of A';
   assert (select count(*) from public.value_usage()) = 0, 'B sees value usage of A';
   assert not (select has_content from public.value_page_content(a_value)),
@@ -165,6 +168,10 @@ begin
     'B updates era details of A';
   assert security_test.affected('update public.review_cards set due = now()') = 0,
     'B reschedules a review card of A';
+  assert security_test.affected('update public.glossary_entries set definition = ''x''') = 0,
+    'B updates a glossary entry of A';
+  assert security_test.affected('delete from public.glossary_entries') = 0,
+    'B deletes a glossary entry of A';
 
   assert security_test.denied(format(
     'insert into public.artworks (owner_id, title, author_unknown) values (%L, ''Forged'', true)', a)),
@@ -172,6 +179,9 @@ begin
   assert security_test.denied(format(
     'insert into public.artwork_values (artwork_id, value_id) values (%L, %L)', a_artwork, a_unlinked)),
     'B links a value to an artwork of A';
+  assert security_test.denied(format(
+    'insert into public.glossary_entries (owner_id, name, category) values (%L, ''Forged'', ''general'')', a)),
+    'B inserts a glossary entry owned by A';
   assert security_test.denied(format(
     'insert into public.period_eras (value_id, era_code) values (%L, ''modern'')', a_value)),
     'B adds an era to a period of A';
@@ -208,6 +218,39 @@ begin
     'B points an artwork at an image of A';
 
   perform security_test.act_as(a);
+
+  assert (select count(*) from public.glossary_entries) = 1, 'A does not see their glossary entry';
+  assert not security_test.denied(
+    'insert into public.glossary_entries (name, category, forms) values (''Sfumato'', ''technique'', ''{sfumata,sfumatem}'')'),
+    'A cannot add a glossary entry';
+  assert security_test.denied(
+    'insert into public.glossary_entries (name, category) values (''tympanum'', ''architecture'')'),
+    'A adds a glossary entry whose name differs only in letter case';
+  assert security_test.denied(
+    'insert into public.glossary_entries (name, category) values (''Fresco'', ''fresco'')'),
+    'A gives a glossary entry a category that does not exist';
+  assert security_test.denied(
+    'insert into public.glossary_entries (name, category) values ('' Padded '', ''general'')'),
+    'A adds a glossary entry with a padded name';
+  assert security_test.denied(
+    'insert into public.glossary_entries (name, category, definition) values (''Blank'', ''general'', '''')'),
+    'A adds a glossary entry with an empty definition';
+  assert security_test.denied(
+    'insert into public.glossary_entries (name, category, forms) values (''Blank forms'', ''general'', ''{a,""}'')'),
+    'A adds a glossary entry with an empty form';
+  assert security_test.denied(
+    'insert into public.glossary_entries (name, category, source_title) values (''Half source'', ''general'', ''Title'')'),
+    'A adds a glossary entry with a half-filled source';
+  assert security_test.denied(
+    'insert into public.glossary_entries (name, category, source_title, source_url, source_licence, source_fetched_on) values (''Insecure'', ''general'', ''Title'', ''http://pl.wikipedia.org/wiki/Title'', ''CC BY-SA 4.0'', ''2026-10-17'')'),
+    'A adds a glossary entry with a source address that is not https';
+  assert not security_test.denied(
+    'insert into public.glossary_entries (name, category, definition, source_title, source_url, source_licence, source_fetched_on) values (''Whole source'', ''general'', ''Text'', ''Title'', ''https://pl.wikipedia.org/wiki/Title'', ''CC BY-SA 4.0'', ''2026-10-17'')'),
+    'A cannot add a glossary entry with a whole source';
+  assert security_test.denied('update public.glossary_entries set owner_id = gen_random_uuid()'),
+    'A changes the owner of a glossary entry';
+  assert security_test.denied('update public.glossary_entries set created_at = now()'),
+    'A changes when a glossary entry was created';
 
   assert security_test.denied('update public.artworks set owner_id = gen_random_uuid()'),
     'A changes the owner of an artwork';
@@ -331,6 +374,7 @@ begin
   assert security_test.denied('select * from public.eras'), 'anon reads eras';
   assert security_test.denied('select * from public.era_details'), 'anon reads era details';
   assert security_test.denied('select * from public.author_details'), 'anon reads author details';
+  assert security_test.denied('select * from public.glossary_entries'), 'anon reads glossary entries';
   assert (select count(*) from storage.objects) = 0, 'anon reads image objects';
   assert security_test.denied('select public.value_usage()'), 'anon executes value_usage';
   assert security_test.denied(format('select public.value_page_content(%L)', gen_random_uuid())),
