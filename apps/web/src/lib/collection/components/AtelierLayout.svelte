@@ -42,7 +42,8 @@
 	let drawer: HTMLDialogElement;
 	let drawerUsed = $state(false);
 	let feedbackOpen = $state(false);
-	let toast: Toast;
+	let feedbackUsed = $state(false);
+	let toast = $state<Toast>();
 
 	function openDrawer(): void {
 		drawerUsed = true;
@@ -56,6 +57,7 @@
 
 	function openFeedback(): void {
 		if (drawer.open) drawer.close();
+		feedbackUsed = true;
 		feedbackOpen = true;
 	}
 
@@ -139,8 +141,10 @@
 		{/if}
 	</dialog>
 
-	<FeedbackDialog onsent={() => toast.show(m.feedback.sent)} bind:open={feedbackOpen} />
-	<Toast bind:this={toast} />
+	{#if feedbackUsed}
+		<FeedbackDialog onsent={() => toast?.show(m.feedback.sent)} bind:open={feedbackOpen} />
+		<Toast bind:this={toast} />
+	{/if}
 </div>
 
 <style>

@@ -669,7 +669,7 @@ export const pl = {
 	},
 	feedback: {
 		title: 'Zgłoś uwagę',
-		description: 'Napisz, co nie działa albo co chciałbyś mieć w aplikacji.',
+		description: 'Coś nie działa albo brakuje Ci jakiejś funkcji? Daj znać.',
 		kind: 'Co zgłaszasz?',
 		bug: 'Błąd',
 		idea: 'Pomysł',
@@ -680,7 +680,7 @@ export const pl = {
 		send: 'Wyślij',
 		sending: 'Wysyłanie…',
 		cancel: 'Anuluj',
-		sent: 'Dziękuję, zgłoszenie dotarło.',
+		sent: 'Zgłoszenie wysłane.',
 		errorTitle: 'Nie udało się wysłać zgłoszenia',
 		errors: {
 			kindRequired: 'Wybierz, czy to błąd, czy pomysł.',
