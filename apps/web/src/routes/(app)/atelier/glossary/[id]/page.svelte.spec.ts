@@ -41,14 +41,15 @@ describe('glossary entry page', () => {
 		vi.mocked(deleteGlossaryEntry).mockResolvedValue({});
 	});
 
-	it('shows the category, the name, the other forms, the definition and its source', async () => {
+	it('shows the category, the name, the synonyms, the definition and its source', async () => {
 		renderEntry();
 
 		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Tympanum');
 		await expect
 			.element(page.getByText(m.glossary.categoryNames.architecture, { exact: true }).first())
 			.toBeVisible();
-		await expect.element(page.getByText(m.glossary.view.also('tympana, tympanum’s'))).toBeVisible();
+		await expect.element(page.getByText(m.glossary.view.also('tympan'))).toBeVisible();
+		await expect.element(page.getByText(/tympana/)).not.toBeInTheDocument();
 		await expect.element(page.getByText(tympanum.definition)).toBeVisible();
 		await expect
 			.element(page.getByRole('link', { name: '„Tympanum”' }))

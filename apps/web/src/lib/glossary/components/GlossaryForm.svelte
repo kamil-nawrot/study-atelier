@@ -3,6 +3,7 @@
 	import {
 		Alert,
 		Button,
+		Checkbox,
 		ChoiceTiles,
 		Dialog,
 		Form,
@@ -34,6 +35,7 @@
 	import type { GlossaryDraft, GlossaryEntry, WikipediaArticle } from '../types.ts';
 	import { searchArticles, sourceOf } from '../wikipedia.ts';
 	import ArticleDialog from './ArticleDialog.svelte';
+	import InflectionField from './InflectionField.svelte';
 
 	type SearchStatus = 'idle' | 'searching' | 'found' | 'none' | 'failed';
 
@@ -57,6 +59,7 @@
 
 	let form = $state<GlossaryDraft>(initial());
 	let saved = $state<GlossaryDraft>(initial());
+	let synonymsQuery = $state('');
 	let formsQuery = $state('');
 	let autoFilled = $state<string | null>(null);
 	let status = $state<SearchStatus>('idle');
@@ -78,14 +81,8 @@
 	);
 
 	let author = $derived(form.category === 'person' ? authorNamed(index, form.name) : undefined);
-	let formOptions = $derived.by((): ValueOption[] => {
-		const typed = formsQuery.replace(/\s+/g, ' ').trim();
-		if (!typed || typed.toLocaleLowerCase('pl') === form.name.trim().toLocaleLowerCase('pl'))
-			return [];
-		if (form.forms.some((item) => item.toLocaleLowerCase('pl') === typed.toLocaleLowerCase('pl')))
-			return [];
-		return [{ kind: 'new', name: typed }];
-	});
+	let synonymOptions = $derived(newOption(synonymsQuery, form.synonyms));
+	let formOptions = $derived(newOption(formsQuery, form.forms));
 	let definitionHint = $derived(
 		status === 'none'
 			? m.glossary.form.definitionNone
@@ -96,6 +93,14 @@
 	let placeholder = $derived(
 		status === 'searching' ? m.glossary.form.definitionSearching : m.glossary.form.definitionPending
 	);
+
+	function newOption(query: string, values: readonly string[]): ValueOption[] {
+		const typed = query.replace(/\s+/g, ' ').trim();
+		const key = typed.toLocaleLowerCase('pl');
+		if (!typed || key === form.name.trim().toLocaleLowerCase('pl')) return [];
+		if (values.some((item) => item.toLocaleLowerCase('pl') === key)) return [];
+		return [{ kind: 'new', name: typed }];
+	}
 
 	function replaceable(): boolean {
 		return form.definition === '' || form.definition === autoFilled;
@@ -209,7 +214,12 @@
 		const snapshot = $state.snapshot(form);
 		try {
 			const result = await saveGlossaryEntry(
-				{ ...snapshot, name, forms: cleanForms(snapshot.forms) },
+				{
+					...snapshot,
+					name,
+					synonyms: cleanForms(snapshot.synonyms),
+					forms: cleanForms(snapshot.forms)
+				},
 				existing?.id
 			);
 			if (result.nameTaken) {
@@ -255,6 +265,19 @@
 							.authorWarningSuffix}
 					</Alert>
 				{/if}
+				<div class="sort">
+					<Checkbox label={m.glossary.form.sortByOther} bind:checked={form.sortByOther} />
+					{#if form.sortByOther}
+						<TextField
+							autocomplete="off"
+							hint={m.glossary.form.sortNameHint}
+							label={m.glossary.form.sortName}
+							maxlength={NAME_MAX_LENGTH}
+							placeholder={m.glossary.form.sortNamePlaceholder}
+							bind:value={form.sortName}
+						/>
+					{/if}
+				</div>
 			</div>
 
 			<div class="category">
@@ -303,12 +326,14 @@
 			</div>
 
 			<ValueField
-				hint={m.glossary.form.formsHint}
-				label={m.glossary.form.forms}
-				options={formOptions}
-				bind:query={formsQuery}
-				bind:values={form.forms}
+				hint={m.glossary.form.synonymsHint}
+				label={m.glossary.form.synonyms}
+				options={synonymOptions}
+				bind:query={synonymsQuery}
+				bind:values={form.synonyms}
 			/>
+
+			<InflectionField options={formOptions} bind:forms={form.forms} bind:query={formsQuery} />
 		</div>
 
 		<FormActions>
@@ -374,6 +399,7 @@
 	}
 
 	.name,
+	.sort,
 	.category,
 	.definition {
 		display: grid;

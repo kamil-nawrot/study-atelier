@@ -4,7 +4,7 @@ import { supabase } from '#lib/supabase.ts';
 import type { Database } from '#lib/database.types.ts';
 import { isGlossaryCategory } from './categories.ts';
 import { glossaryErrorMessage, isNameTakenError } from './errors.ts';
-import { cleanForms } from './glossary.ts';
+import { cleanForms, sortNameOf } from './glossary.ts';
 import type { GlossaryDraft, GlossaryEntry, GlossaryEntryResult, GlossaryResult } from './types.ts';
 
 type Row = Database['public']['Tables']['glossary_entries']['Row'];
@@ -29,7 +29,9 @@ function entryOf(row: Row): GlossaryEntry | undefined {
 		name: row.name,
 		category: row.category,
 		definition: row.definition ?? '',
+		synonyms: row.synonyms,
 		forms: row.forms,
+		sortName: row.sort_name,
 		source:
 			row.source_title && row.source_url && row.source_licence && row.source_fetched_on
 				? {
@@ -49,7 +51,9 @@ function writeOf(draft: GlossaryDraft): Write | undefined {
 		name: draft.name.trim(),
 		category: draft.category,
 		definition: definition === '' ? null : definition,
+		synonyms: cleanForms(draft.synonyms),
 		forms: cleanForms(draft.forms),
+		sort_name: sortNameOf(draft),
 		source_title: draft.source?.title ?? null,
 		source_url: draft.source?.url ?? null,
 		source_licence: draft.source?.licence ?? null,

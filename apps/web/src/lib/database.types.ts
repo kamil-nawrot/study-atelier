@@ -397,10 +397,12 @@ export type Database = {
           id: string;
           name: string;
           owner_id: string;
+          sort_name: string | null;
           source_fetched_on: string | null;
           source_licence: string | null;
           source_title: string | null;
           source_url: string | null;
+          synonyms: string[];
           updated_at: string;
         };
         ComputedFields: never;
@@ -412,10 +414,12 @@ export type Database = {
           id?: string;
           name: string;
           owner_id?: string;
+          sort_name?: string | null;
           source_fetched_on?: string | null;
           source_licence?: string | null;
           source_title?: string | null;
           source_url?: string | null;
+          synonyms?: string[];
           updated_at?: string;
         };
         Update: {
@@ -426,10 +430,12 @@ export type Database = {
           id?: string;
           name?: string;
           owner_id?: string;
+          sort_name?: string | null;
           source_fetched_on?: string | null;
           source_licence?: string | null;
           source_title?: string | null;
           source_url?: string | null;
+          synonyms?: string[];
           updated_at?: string;
         };
         Relationships: [];
