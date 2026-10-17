@@ -692,7 +692,7 @@ export const pl = {
 	},
 	glossary: {
 		title: 'Słowniczek',
-		lead: 'Pojęcia i postacie, które chcesz rozumieć. Ich definicje podpowiadają się w twoich notatkach.',
+		lead: 'Pojęcia i postaci, które chcesz zapamiętać. Ich definicje pojawią się w twoich notatkach.',
 		back: 'Słowniczek',
 		add: 'Dodaj pojęcie',
 		addShort: 'Dodaj',

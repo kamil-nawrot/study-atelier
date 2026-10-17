@@ -6,6 +6,7 @@ export const GLOSSARY_SEARCH_MIN_ENTRIES = 20;
 export const DEFINITION_MAX_LENGTH = 4000;
 export const NAME_MAX_LENGTH = 120;
 export const FORMS_MAX_COUNT = 50;
+export const SHORT_SENTENCE_WORDS = 3;
 
 const collator = new Intl.Collator('pl');
 
@@ -21,6 +22,8 @@ const ABBREVIATIONS = new Set([
 	'prof',
 	'św',
 	'wł',
+	'właśc',
+	'zw',
 	'łac',
 	'gr',
 	'fr',
@@ -100,6 +103,17 @@ export function firstSentence(text: string): string {
 		return flat.slice(0, end);
 	}
 	return flat;
+}
+
+export function isShortSentence(sentence: string): boolean {
+	return sentence.split(' ').filter((word) => word !== '').length <= SHORT_SENTENCE_WORDS;
+}
+
+export function leadSentences(text: string): string {
+	const first = firstSentence(text);
+	if (!isShortSentence(first)) return first;
+	const rest = text.replace(/\s+/g, ' ').trim().slice(first.length).trim();
+	return rest ? `${first} ${firstSentence(rest)}` : first;
 }
 
 export function sameName(a: string, b: string): boolean {

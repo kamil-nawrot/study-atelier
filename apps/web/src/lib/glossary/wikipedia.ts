@@ -1,5 +1,10 @@
 import { fetchJson } from '#lib/images/wikimedia.ts';
-import { DEFINITION_MAX_LENGTH, shortenDefinition } from './glossary.ts';
+import {
+	DEFINITION_MAX_LENGTH,
+	firstSentence,
+	isShortSentence,
+	shortenDefinition
+} from './glossary.ts';
 import type { GlossaryCategory, GlossarySource, WikipediaArticle } from './types.ts';
 
 const WIKIPEDIA_API = 'https://pl.wikipedia.org/w/api.php';
@@ -7,6 +12,7 @@ const WIKIDATA_API = 'https://www.wikidata.org/w/api.php';
 const SEARCH_LIMIT = 8;
 const ARTICLE_LIMIT = 5;
 const HUMAN = 'Q5';
+const LEAD_DASHES = new Set(['–', '—', '−', '-']);
 
 export const WIKIPEDIA_LICENCE = 'CC BY-SA 4.0';
 export const WIKIPEDIA_LICENCE_URL = 'https://creativecommons.org/licenses/by-sa/4.0/deed.pl';
@@ -52,12 +58,39 @@ export function searchQuery(name: string, category: GlossaryCategory, withHint: 
 	return withHint && hint ? `${name.trim()} ${hint}` : name.trim();
 }
 
+function capitalized(text: string): string {
+	return `${text.charAt(0).toLocaleUpperCase('pl')}${text.slice(1)}`;
+}
+
+export function withoutLeadTerm(paragraph: string): string {
+	let depth = 0;
+	let outside = '';
+	for (let index = 1; index < paragraph.length - 1; index += 1) {
+		const char = paragraph[index];
+		if (char === '(' || char === '[') depth += 1;
+		else if ((char === ')' || char === ']') && depth > 0) depth -= 1;
+		else if (depth === 0) {
+			const dash =
+				LEAD_DASHES.has(char) && paragraph[index - 1] === ' ' && paragraph[index + 1] === ' ';
+			if (dash) {
+				const lead = `${paragraph[0]}${outside}`.trim();
+				const rest = paragraph.slice(index + 2).trim();
+				return firstSentence(lead) === lead && rest ? capitalized(rest) : paragraph;
+			}
+			outside += char;
+		}
+	}
+	return paragraph;
+}
+
 export function firstParagraph(extract: string): string {
-	const paragraph = extract
+	const [first = '', next] = extract
 		.split('\n')
 		.map((line) => line.replace(/\s+/g, ' ').trim())
-		.find((line) => line !== '');
-	return shortenDefinition(paragraph ?? '', DEFINITION_MAX_LENGTH);
+		.filter((line) => line !== '');
+	const lead = withoutLeadTerm(first);
+	const text = next && isShortSentence(lead) ? `${lead} ${firstSentence(next)}` : lead;
+	return shortenDefinition(text, DEFINITION_MAX_LENGTH);
 }
 
 async function findPages(query: string): Promise<Page[]> {

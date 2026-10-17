@@ -10,9 +10,9 @@
 	import {
 		countByCategory,
 		filterEntries,
-		firstSentence,
 		GLOSSARY_SEARCH_MIN_ENTRIES,
-		groupByLetter
+		groupByLetter,
+		leadSentences
 	} from '../glossary.ts';
 	import type { GlossaryCategory, GlossaryEntry } from '../types.ts';
 
@@ -48,10 +48,8 @@
 					onclick={() => toggle(category)}
 					pressed={chosen.includes(category)}
 				>
-					<span class="tag">
-						<Icon icon={glossaryCategoryIcon(category)} size="sm" />
-						{glossaryCategoryName(category)}
-					</span>
+					<Icon icon={glossaryCategoryIcon(category)} size="sm" />
+					{glossaryCategoryName(category)}
 				</ToggleTag>
 			</li>
 		{/each}
@@ -83,7 +81,7 @@
 									</span>
 								</span>
 								{#if entry.definition}
-									<span class="sentence">{firstSentence(entry.definition)}</span>
+									<span class="sentence">{leadSentences(entry.definition)}</span>
 								{/if}
 							</a>
 						</li>
@@ -107,14 +105,7 @@
 		gap: var(--spacing-2);
 	}
 
-	.tag {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--spacing-1);
-	}
-
-	.search,
-	.groups {
+	.search {
 		max-width: var(--size-content-default);
 	}
 
@@ -143,6 +134,7 @@
 	.group ul {
 		display: grid;
 		gap: var(--spacing-6);
+		max-width: var(--size-content-default);
 	}
 
 	a {
@@ -173,11 +165,15 @@
 
 	.category {
 		display: inline-flex;
-		align-items: center;
+		align-items: baseline;
 		gap: var(--spacing-1);
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
+	}
+
+	.category :global(svg) {
+		align-self: center;
 	}
 
 	.sentence {
@@ -193,6 +189,15 @@
 		.group {
 			grid-template-columns: 80px minmax(0, 1fr);
 			gap: 0;
+		}
+
+		.group ul {
+			max-width: calc(var(--size-content-default) - 80px);
+		}
+
+		.group + .group {
+			padding-top: var(--spacing-8);
+			border-top: var(--border-width-hairline) solid var(--color-line);
 		}
 
 		h2 {

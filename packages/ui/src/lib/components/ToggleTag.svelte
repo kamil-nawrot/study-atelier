@@ -68,6 +68,13 @@
 		cursor: not-allowed;
 	}
 
+	.label {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--spacing-1);
+		min-width: 0;
+	}
+
 	.count {
 		color: var(--color-fg-muted);
 		font-variant-numeric: tabular-nums;

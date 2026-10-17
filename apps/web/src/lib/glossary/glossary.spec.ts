@@ -12,6 +12,7 @@ import {
 	findNameConflict,
 	firstLetter,
 	firstSentence,
+	leadSentences,
 	groupByLetter,
 	shortenDefinition,
 	sortEntries
@@ -109,6 +110,21 @@ describe('filterEntries', () => {
 
 	it('combines the categories with the query', () => {
 		expect(filterEntries(entries, new Set(['person'] as const), 'tymp')).toEqual([]);
+	});
+});
+
+describe('leadSentences', () => {
+	it('adds the second sentence to a first sentence of three words or fewer', () => {
+		expect(leadSentences('Detal architektoniczny. Pole frontonu. Trzecie zdanie.')).toBe(
+			'Detal architektoniczny. Pole frontonu.'
+		);
+		expect(leadSentences('Krótkie zdanie.')).toBe('Krótkie zdanie.');
+	});
+
+	it('keeps a first sentence of four words or more alone', () => {
+		expect(leadSentences('Płyta na szczycie głowicy. Drugie zdanie.')).toBe(
+			'Płyta na szczycie głowicy.'
+		);
 	});
 });
 
