@@ -694,6 +694,8 @@ export const pl = {
 	},
 	glossary: {
 		title: 'Słowniczek',
+		count: (count: number): string =>
+			`${count} ${plural(count, { one: 'pojęcie', few: 'pojęcia', many: 'pojęć' })}`,
 		lead: 'Pojęcia i postaci, które chcesz zapamiętać. Ich definicje pojawią się w twoich notatkach.',
 		back: 'Słowniczek',
 		add: 'Dodaj pojęcie',
@@ -757,9 +759,27 @@ export const pl = {
 			sourcePrefix: 'Na podstawie: Wikipedia, ',
 			pickArticle: 'Wybierz inny artykuł',
 			removeSource: 'Usuń źródło',
-			forms: 'Inne formy',
+			sortByOther: 'Sortuj inaczej niż po nazwie',
+			sortName: 'Sortuj jako',
+			sortNamePlaceholder: 'np. Medici, Lorenzo',
+			sortNameHint: 'Według tego pojęcie trafi pod właściwą literę.',
+			synonyms: 'Synonimy',
+			synonymsHint: 'Inne nazwy tego samego. Pokażą się pod nazwą. Każdą zatwierdzasz Enterem.',
+			forms: 'Odmiana',
+			formsCount: (count: number): string =>
+				`${count} ${plural(count, { one: 'forma', few: 'formy', many: 'form' })}`,
+			showForms: 'Pokaż formy',
+			hideForms: 'Zwiń',
+			formsSearching: 'Szukam odmiany w Wikisłowniku…',
+			formsSkipped: 'Odmianę tego pojęcia musisz dopisać samodzielnie.',
+			formsNone:
+				'Nie udało się odszukać tego hasła w słowniku. Możesz dopisać jego formy samodzielnie.',
+			formsFailed:
+				'Nie udało się połączyć z Wikisłownikiem. Spróbuj jeszcze raz albo dopisz formy samodzielnie.',
+			formsFetch: 'Pobierz z Wikisłownika',
+			formsRefetch: 'Pobierz ponownie',
 			formsHint:
-				'Formy, w których piszesz to słowo w notatkach, np. „tympanonu”. Każdą zatwierdzasz Enterem.',
+				'Formy nie pokazują się pod nazwą. Dzięki nim pojęcie znajdzie się w notatkach także odmienione.',
 			authorWarningSuffix:
 				' jest już w Kartotece jako autor. Możesz dodać ją także tutaj albo opisać na stronie autora.',
 			cancel: 'Anuluj',

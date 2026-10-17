@@ -60,6 +60,22 @@ describe('groupByLetter', () => {
 		expect(groups[0].entries.map((entry) => entry.name)).toEqual(['Abakus', 'apsyda']);
 	});
 
+	it('sorts and groups an entry with a sort name under the letter of that name', () => {
+		const groups = groupByLetter([
+			testEntry('1', 'Lorenzo Medici', { sortName: 'Medici, Lorenzo' }),
+			testEntry('2', 'Loggia'),
+			testEntry('3', 'Mandorla'),
+			testEntry('4', 'Meander')
+		]);
+
+		expect(groups.map((group) => group.letter)).toEqual(['L', 'M']);
+		expect(groups[1].entries.map((entry) => entry.name)).toEqual([
+			'Mandorla',
+			'Meander',
+			'Lorenzo Medici'
+		]);
+	});
+
 	it('gives nothing for an empty list', () => {
 		expect(groupByLetter([])).toEqual([]);
 	});
@@ -204,8 +220,17 @@ describe('draftChanged', () => {
 		current.name = ` ${entry.name} `;
 		current.definition = `${entry.definition}  `;
 		current.forms = [...entry.forms, ' '];
+		current.synonyms = [...entry.synonyms, ' '];
 
 		expect(draftChanged(current, draftOf(entry))).toBe(false);
+	});
+
+	it('ignores a sort name that is not used or empty', () => {
+		const unticked = { ...draftOf(entry), sortName: 'Typed and unticked' };
+		const blank = { ...draftOf(entry), sortByOther: true, sortName: '  ' };
+
+		expect(draftChanged(unticked, draftOf(entry))).toBe(false);
+		expect(draftChanged(blank, draftOf(entry))).toBe(false);
 	});
 
 	it('sees a changed field', () => {
@@ -214,9 +239,19 @@ describe('draftChanged', () => {
 		const recategorised = { ...draftOf(entry), category: 'general' as const };
 		const rewritten = { ...draftOf(entry), definition: 'Other text' };
 		const reformed = { ...draftOf(entry), forms: ['one'] };
+		const synonymised = { ...draftOf(entry), synonyms: ['one'] };
+		const resorted = { ...draftOf(entry), sortByOther: true, sortName: 'Sort' };
 		const unsourced = { ...draftOf(entry), source: null };
 
-		for (const current of [renamed, recategorised, rewritten, reformed, unsourced]) {
+		for (const current of [
+			renamed,
+			recategorised,
+			rewritten,
+			reformed,
+			synonymised,
+			resorted,
+			unsourced
+		]) {
 			expect(draftChanged(current, reference)).toBe(true);
 		}
 	});

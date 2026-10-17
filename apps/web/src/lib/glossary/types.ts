@@ -16,7 +16,9 @@ export type GlossaryEntry = {
 	name: string;
 	category: GlossaryCategory;
 	definition: string;
+	synonyms: string[];
 	forms: string[];
+	sortName: string | null;
 	source: GlossarySource | null;
 };
 
@@ -24,7 +26,10 @@ export type GlossaryDraft = {
 	name: string;
 	category: GlossaryCategory | null;
 	definition: string;
+	synonyms: string[];
 	forms: string[];
+	sortByOther: boolean;
+	sortName: string;
 	source: GlossarySource | null;
 };
 

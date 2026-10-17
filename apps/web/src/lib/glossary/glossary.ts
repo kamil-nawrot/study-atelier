@@ -43,8 +43,12 @@ export type LetterGroup = {
 	entries: GlossaryEntry[];
 };
 
+export function sortKeyOf(entry: GlossaryEntry): string {
+	return entry.sortName ?? entry.name;
+}
+
 export function sortEntries(entries: readonly GlossaryEntry[]): GlossaryEntry[] {
-	return [...entries].sort((a, b) => collator.compare(a.name, b.name));
+	return [...entries].sort((a, b) => collator.compare(sortKeyOf(a), sortKeyOf(b)));
 }
 
 export function firstLetter(name: string): string {
@@ -54,7 +58,7 @@ export function firstLetter(name: string): string {
 export function groupByLetter(entries: readonly GlossaryEntry[]): LetterGroup[] {
 	const groups: LetterGroup[] = [];
 	for (const entry of sortEntries(entries)) {
-		const letter = firstLetter(entry.name);
+		const letter = firstLetter(sortKeyOf(entry));
 		const last = groups.at(-1);
 		if (last && collator.compare(last.letter, letter) === 0) last.entries.push(entry);
 		else groups.push({ letter, entries: [entry] });
@@ -143,7 +147,16 @@ export function cleanForms(forms: readonly string[]): string[] {
 }
 
 export function emptyDraft(): GlossaryDraft {
-	return { name: '', category: null, definition: '', forms: [], source: null };
+	return {
+		name: '',
+		category: null,
+		definition: '',
+		synonyms: [],
+		forms: [],
+		sortByOther: false,
+		sortName: '',
+		source: null
+	};
 }
 
 export function draftOf(entry: GlossaryEntry): GlossaryDraft {
@@ -151,9 +164,17 @@ export function draftOf(entry: GlossaryEntry): GlossaryDraft {
 		name: entry.name,
 		category: entry.category,
 		definition: entry.definition,
+		synonyms: [...entry.synonyms],
 		forms: [...entry.forms],
+		sortByOther: entry.sortName !== null,
+		sortName: entry.sortName ?? '',
 		source: entry.source ? { ...entry.source } : null
 	};
+}
+
+export function sortNameOf(draft: GlossaryDraft): string | null {
+	const sortName = draft.sortName.replace(/\s+/g, ' ').trim();
+	return draft.sortByOther && sortName !== '' ? sortName : null;
 }
 
 export function draftChanged(current: GlossaryDraft, reference: GlossaryDraft): boolean {
@@ -161,7 +182,10 @@ export function draftChanged(current: GlossaryDraft, reference: GlossaryDraft): 
 		current.name.trim() !== reference.name.trim() ||
 		current.category !== reference.category ||
 		current.definition.trim() !== reference.definition.trim() ||
+		JSON.stringify(cleanForms(current.synonyms)) !==
+			JSON.stringify(cleanForms(reference.synonyms)) ||
 		JSON.stringify(cleanForms(current.forms)) !== JSON.stringify(cleanForms(reference.forms)) ||
+		sortNameOf(current) !== sortNameOf(reference) ||
 		JSON.stringify(current.source) !== JSON.stringify(reference.source)
 	);
 }

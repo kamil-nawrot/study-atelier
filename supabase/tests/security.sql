@@ -242,6 +242,18 @@ begin
   assert security_test.denied(
     'insert into public.glossary_entries (name, category, forms) values (''Blank forms'', ''general'', ''{a,""}'')'),
     'A adds a glossary entry with an empty form';
+  assert not security_test.denied(
+    'insert into public.glossary_entries (name, category, synonyms, sort_name) values (''Lorenzo de Medici'', ''person'', ''{Lorenzo Wspaniały}'', ''Medici, Lorenzo de'')'),
+    'A cannot add a glossary entry with synonyms and a sort name';
+  assert security_test.denied(
+    'insert into public.glossary_entries (name, category, synonyms) values (''Blank synonyms'', ''general'', ''{a,""}'')'),
+    'A adds a glossary entry with an empty synonym';
+  assert security_test.denied(
+    'insert into public.glossary_entries (name, category, sort_name) values (''Padded sort'', ''general'', '' Sort '')'),
+    'A adds a glossary entry with a padded sort name';
+  assert security_test.denied(
+    'insert into public.glossary_entries (name, category, sort_name) values (''Blank sort'', ''general'', '''')'),
+    'A adds a glossary entry with an empty sort name';
   assert security_test.denied(
     'insert into public.glossary_entries (name, category, source_title) values (''Half source'', ''general'', ''Title'')'),
     'A adds a glossary entry with a half-filled source';
