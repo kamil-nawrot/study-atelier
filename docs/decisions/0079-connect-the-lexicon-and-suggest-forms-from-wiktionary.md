@@ -1,6 +1,6 @@
 # 0079. Connect the lexicon with learning and suggest the forms of a term from Wiktionary
 
-- Status: accepted
+- Status: accepted; the new name "Leksykon" is superseded by [0080](0080-keep-the-glossary-name-slowniczek.md)
 - Date: 2026-10-17
 
 ## Context and problem statement
