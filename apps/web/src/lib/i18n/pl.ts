@@ -471,8 +471,8 @@ export const pl = {
 		saveFailed: 'Nie udało się zapisać odpowiedzi. Spróbuj jeszcze raz.',
 		done: 'Gotowe',
 		summary: (count: number, minutes: number, tomorrow: number): string =>
-			`Powtórzone ${workCount(count)}, czas ${minutes} min.` +
-			(tomorrow > 0 ? ` Jutro ${tomorrow}.` : ''),
+			`Dziś udało się powtórzyć ${workCount(count)}, zajęło Ci to ${minutes} minut` +
+			(tomorrow > 0 ? ` Jutro będzie na Ciebie czekać ${workCount(tomorrow)}.` : ''),
 		groups: {
 			1: 'Do poprawki',
 			2: 'Prawie',

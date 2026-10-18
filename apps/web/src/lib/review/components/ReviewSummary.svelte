@@ -1,7 +1,6 @@
 <script lang="ts">
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import { Button, Icon } from '@study-atelier/ui';
-	import { resolve } from '$app/paths';
 	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
 	import { m } from '#lib/i18n/index.ts';
 	import type { SummaryGroup } from '../overview.ts';
@@ -28,7 +27,6 @@
 			{#if nextRound > 0}
 				<Button onclick={onnext} variant="primary">{m.review.nextRound(nextRound)}</Button>
 			{/if}
-			<Button href={resolve('/(app)/atelier')}>{m.review.backToAtelier}</Button>
 		</div>
 	</header>
 
