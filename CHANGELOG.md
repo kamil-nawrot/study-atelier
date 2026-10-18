@@ -2,6 +2,33 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.6.1] - 2026-10-18
+
+The glossary joins the rest of learning: a term card leads to its page, terms are marked in definitions and on review flashcards, and the inflected forms of a term come from Polish Wiktionary.
+
+### Added
+
+- Forms from Wiktionary: a new term fetches its inflected forms from Polish Wiktionary, also for two-word terms made of a noun and an adjective; an existing term offers "Pobierz z Wikisłownika", and "Pobierz ponownie" after a rename.
+- Synonyms of a term, kept apart from its inflected forms and shown as "też: …" on the term's page.
+- An optional sort name for a term ("Sortuj jako"), used to sort and group the glossary list, like the sort name of an author.
+- "Otwórz w Słowniczku" in the card of a marked term, leading to the term's page; the card can be reached with the keyboard.
+- Other terms are marked in the definition on a term's page, and terms are marked in the notes of a review flashcard after it is turned.
+
+### Changed
+
+- The glossary list shows the number of terms next to its title, puts the search field before the category filters and leaves more space between letters and terms.
+- The inflected forms in the term form sit in a collapsible "Odmiana" frame with their count.
+- Page data is loaded when a link is pressed instead of when the pointer rests on it, so moving across the wall no longer sends requests.
+- "Wspomniane w" and "Pojawia się w notatkach" find the notes that mention a value or a term in one request instead of seven.
+
+### Fixed
+
+- The forms of "Ty" and "Twój" that address the learner start with a capital letter in the glossary and card index texts.
+
+### Migrations run on production
+
+Two migrations run on production with this release, both additive and neither changes existing data: `glossary_synonyms_and_sort_name` adds the `synonyms` (empty by default) and nullable `sort_name` columns to `glossary_entries` with their grants; `notes_mentions` creates the `notes_mentions` function.
+
 ## [0.6.0] - 2026-10-17
 
 The glossary: a place for terms and people that are not values of any artwork field, with definitions filled from Polish Wikipedia and marked in notes.
