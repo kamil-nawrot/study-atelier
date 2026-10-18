@@ -14,7 +14,7 @@
 | `design/tokens` | Design tokens synced by the Tokens Studio Figma plugin ([details](design-tokens.md)) | `develop` | `develop` |
 
 - `develop` is the repository's default branch, so new pull requests target it and scheduled workflows run from it.
-- Branch names are lowercase and include the Linear issue key, for example `feature/atl-1-docs-foundation` or `bugfix/atl-103-artwork-form-save-and-leave`.
+- Branch names are lowercase. `feature/*` and `bugfix/*` branches include the Linear issue key, for example `feature/atl-1-docs-foundation` or `bugfix/atl-103-artwork-form-save-and-leave`.
 - A bug that cannot wait for the next release is a `hotfix/<version>` cut from `main` instead (see [Hotfixes](#hotfixes)).
 - Nobody pushes directly to `main` or `develop`. The only exception was the initial commit of the empty repository.
 
