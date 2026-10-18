@@ -477,7 +477,9 @@ export const pl = {
 		done: 'Gotowe',
 		summary: (count: number, minutes: number, tomorrow: number): string =>
 			`Dziś udało się powtórzyć ${workCount(count)}, zajęło Ci to ${minuteCount(minutes)}.` +
-			(tomorrow > 0 ? ` Jutro będzie na Ciebie czekać ${workCount(tomorrow)}.` : ''),
+			(tomorrow > 0
+				? ` Jutro ${plural(tomorrow, { one: 'będzie', few: 'będą', many: 'będzie' })} na Ciebie czekać ${workCount(tomorrow)}.`
+				: ''),
 		groups: {
 			1: 'Do poprawki',
 			2: 'Prawie',

@@ -80,7 +80,7 @@ describe('ReviewSummary', () => {
 			.not.toBeInTheDocument();
 	});
 
-	it('says how long the review took with the minutes inflected', () => {
+	it('inflects the minutes and the artworks waiting tomorrow', () => {
 		expect(m.review.summary(3, 1, 0)).toBe(
 			'Dziś udało się powtórzyć 3 dzieła, zajęło Ci to 1 minutę.'
 		);
@@ -88,8 +88,11 @@ describe('ReviewSummary', () => {
 			'Dziś udało się powtórzyć 1 dzieło, zajęło Ci to 3 minuty.'
 		);
 		expect(m.review.summary(5, 5, 2)).toBe(
-			'Dziś udało się powtórzyć 5 dzieł, zajęło Ci to 5 minut. Jutro będzie na Ciebie czekać 2 dzieła.'
+			'Dziś udało się powtórzyć 5 dzieł, zajęło Ci to 5 minut. Jutro będą na Ciebie czekać 2 dzieła.'
 		);
+		expect(m.review.summary(1, 1, 1)).toContain('Jutro będzie na Ciebie czekać 1 dzieło.');
+		expect(m.review.summary(1, 1, 12)).toContain('Jutro będzie na Ciebie czekać 12 dzieł.');
+		expect(m.review.summary(1, 1, 23)).toContain('Jutro będą na Ciebie czekać 23 dzieła.');
 		expect(m.review.summary(5, 22, 0)).toBe(
 			'Dziś udało się powtórzyć 5 dzieł, zajęło Ci to 22 minuty.'
 		);
