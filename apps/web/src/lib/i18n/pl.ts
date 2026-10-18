@@ -476,7 +476,7 @@ export const pl = {
 		saveFailed: 'Nie udało się zapisać odpowiedzi. Spróbuj jeszcze raz.',
 		done: 'Gotowe',
 		summary: (count: number, minutes: number, tomorrow: number): string =>
-			`Dziś udało się powtórzyć ${workCount(count)}, zajęło Ci to ${minutes} minut` +
+			`Dziś udało się powtórzyć ${workCount(count)}, zajęło Ci to ${minuteCount(minutes)}.` +
 			(tomorrow > 0 ? ` Jutro będzie na Ciebie czekać ${workCount(tomorrow)}.` : ''),
 		groups: {
 			1: 'Do poprawki',
@@ -957,6 +957,10 @@ export const pl = {
 type PluralForms = Record<'one' | 'few' | 'many', string>;
 
 const pluralRules = new Intl.PluralRules('pl');
+
+function minuteCount(count: number): string {
+	return `${count} ${plural(count, { one: 'minutę', few: 'minuty', many: 'minut' })}`;
+}
 
 function workCount(count: number): string {
 	return `${count} ${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })}`;
