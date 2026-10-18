@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Button } from '@study-atelier/ui';
+	import ChevronDown from '@lucide/svelte/icons/chevron-down';
+	import { Button, Icon } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
 	import { m } from '#lib/i18n/index.ts';
@@ -32,12 +33,17 @@
 	</header>
 
 	{#each groups as group (group.rating)}
-		<section class="group" aria-labelledby="review-group-{group.rating}">
-			<h2 id="review-group-{group.rating}">
-				{m.review.groups[group.rating]}
-				<span class="caption">{group.artworks.length}</span>
-			</h2>
-			<ArtworkWall artworks={group.artworks} />
+		<section aria-labelledby="review-group-{group.rating}">
+			<details class="group" open={group.rating === 1}>
+				<summary>
+					<h2 id="review-group-{group.rating}">
+						{m.review.groups[group.rating]}
+						<span class="count">{group.artworks.length}</span>
+					</h2>
+					<Icon icon={ChevronDown} size="sm" />
+				</summary>
+				<ArtworkWall artworks={group.artworks} />
+			</details>
 		</section>
 	{/each}
 </div>
@@ -65,15 +71,43 @@
 		gap: var(--spacing-3);
 	}
 
-	.group {
-		display: grid;
-		gap: var(--spacing-4);
+	summary {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		width: fit-content;
+		list-style: none;
+		cursor: pointer;
+	}
+
+	summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.group[open] summary {
+		margin-bottom: var(--spacing-4);
+	}
+
+	.group[open] summary :global(svg) {
+		rotate: 180deg;
 	}
 
 	h2 {
 		display: flex;
-		align-items: baseline;
+		align-items: center;
 		gap: var(--spacing-2);
+	}
+
+	.count {
+		min-width: 16px;
+		padding: 0 var(--spacing-1);
+		background: var(--color-fg);
+		color: var(--color-bg);
+		font-size: var(--font-size-xs);
+		font-weight: var(--font-weight-bold);
+		line-height: var(--line-height-xs);
+		text-align: center;
+		font-variant-numeric: tabular-nums;
 	}
 
 	@media (min-width: 768px) {
@@ -85,6 +119,12 @@
 		.actions {
 			display: flex;
 			flex-wrap: wrap;
+		}
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		summary :global(svg) {
+			transition: rotate var(--duration-short) ease-out;
 		}
 	}
 </style>
