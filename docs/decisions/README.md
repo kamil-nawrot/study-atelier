@@ -86,3 +86,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0080](0080-keep-the-glossary-name-slowniczek.md)                        | Keep the glossary name "Słowniczek"                                                    | accepted           |
 | [0081](0081-preload-page-data-on-tap.md)                                 | Preload page data when a link is pressed, not when the pointer rests on it             | accepted           |
 | [0082](0082-find-note-mentions-with-one-database-function.md)            | Find note mentions with one database function                                          | accepted           |
+| [0083](0083-collapse-the-review-summary-groups.md)                       | Collapse the groups of the review summary and show their counts in a box               | accepted           |

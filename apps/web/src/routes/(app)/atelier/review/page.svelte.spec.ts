@@ -227,7 +227,9 @@ describe('review page', () => {
 		const hard = page.getByRole('region', { name: new RegExp(m.review.groups[2]) }).element();
 		expect(good.querySelectorAll('ul.column li')).toHaveLength(3);
 		expect(hard.querySelectorAll('ul.column li')).toHaveLength(1);
-		await expect.element(page.getByRole('link', { name: m.review.backToAtelier })).toBeVisible();
+		await expect
+			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
+			.toHaveAttribute('href', '/atelier');
 		expect(invalidate).toHaveBeenCalledWith('review:counts');
 	});
 
