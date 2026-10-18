@@ -223,6 +223,10 @@ describe('review page', () => {
 		await expect
 			.element(page.getByRole('heading', { name: new RegExp(m.review.groups[2]) }))
 			.toBeVisible();
+		const good = page.getByRole('region', { name: new RegExp(m.review.groups[3]) }).element();
+		const hard = page.getByRole('region', { name: new RegExp(m.review.groups[2]) }).element();
+		expect(good.querySelectorAll('ul.column li')).toHaveLength(3);
+		expect(hard.querySelectorAll('ul.column li')).toHaveLength(1);
 		await expect.element(page.getByRole('link', { name: m.review.backToAtelier })).toBeVisible();
 		expect(invalidate).toHaveBeenCalledWith('review:counts');
 	});
