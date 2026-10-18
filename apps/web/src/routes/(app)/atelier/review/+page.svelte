@@ -1,7 +1,7 @@
 <script lang="ts">
 	import X from '@lucide/svelte/icons/x';
 	import { untrack } from 'svelte';
-	import { Alert, Button, Dialog, Icon } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, Icon, Tag } from '@study-atelier/ui';
 	import { invalidate } from '$app/navigation';
 	import { resolveImages } from '#lib/collection/artworks.ts';
 	import AtelierBackLink from '#lib/collection/components/AtelierBackLink.svelte';
@@ -15,11 +15,13 @@
 	import {
 		atelierKnowledge,
 		formatWhen,
+		freeScopeOptions,
 		nextWaiting,
 		type ReviewScope,
 		sameScope,
 		scopeArtworks,
 		scopeOptions,
+		type ScopeChoice,
 		type SummaryGroup,
 		summaryGroups,
 		troubles,
@@ -47,6 +49,7 @@
 		minutes: number;
 		tomorrow: number;
 		groups: SummaryGroup[];
+		free: boolean;
 	};
 
 	const PRELOAD_AHEAD = 2;
@@ -56,6 +59,7 @@
 
 	let scope = $state<ReviewScope>(ALL_SCOPE);
 	let form = $state<ReviewForm>('mixed');
+	let freeRound = $state(0);
 	let cards = $state.raw(untrack(() => data.cards));
 	let newToday = $state(untrack(() => data.newToday));
 	let now = $state(new Date());
@@ -70,16 +74,27 @@
 	let details = $state.raw(new Map<string, ReviewDetails>());
 	let outcomes = $state<Record<ReviewRating, ReviewCard>>();
 
-	const scopes = $derived(
-		scopeOptions(data.artworks, cards, now).map((option) => {
-			const planned = sessionCounts({
-				artworks: scopeArtworks(data.artworks, option),
-				cards,
-				now,
-				newToday
-			});
-			return { scope: option, waiting: planned.known + planned.fresh };
-		})
+	const allCounts = $derived(
+		sessionCounts({ artworks: scopeArtworks(data.artworks, ALL_SCOPE), cards, now, newToday })
+	);
+	const freeScopes = $derived(freeScopeOptions(data.artworks, cards));
+	const freeOpen = $derived(
+		allCounts.known + allCounts.fresh === 0 &&
+			missingArtworks(scopeArtworks(data.artworks, ALL_SCOPE)) === 0 &&
+			freeScopes.length > 0
+	);
+	const scopes = $derived<ScopeChoice[]>(
+		freeOpen
+			? freeScopes
+			: scopeOptions(data.artworks, cards, now).map((option) => {
+					const planned = sessionCounts({
+						artworks: scopeArtworks(data.artworks, option),
+						cards,
+						now,
+						newToday
+					});
+					return { scope: option, count: planned.known + planned.fresh };
+				})
 	);
 	const activeScope = $derived(
 		scopes.find((option) => sameScope(option.scope, scope))?.scope ?? ALL_SCOPE
@@ -175,7 +190,11 @@
 	}
 
 	async function prepareSession(): Promise<string | undefined> {
-		const loaded = await loadSession(startOfDay(new Date()), form, activeScope);
+		const free = freeOpen;
+		const dayStart = startOfDay(new Date());
+		const loaded = free
+			? await loadSession(dayStart, form, activeScope, freeRound)
+			: await loadSession(dayStart, form, activeScope);
 		const items = sessionItems(loaded.rows, artworksById, cards);
 		if (loaded.error || items.length === 0) return loaded.error;
 		const artworks = items.map((item) => item.artwork);
@@ -186,7 +205,8 @@
 		]);
 		if (found.error) return found.error;
 		details = found.details;
-		session = new ReviewSession(items.map(withImages), cards);
+		if (free) freeRound += 1;
+		session = new ReviewSession(items.map(withImages), cards, undefined, undefined, free);
 		summary = undefined;
 		phase = 'session';
 		return undefined;
@@ -221,19 +241,22 @@
 	function finish(): void {
 		stopAfterSave = false;
 		if (!session) return;
-		cards = new Map(session.cards);
-		newToday += session.started;
+		if (!session.free) {
+			cards = new Map(session.cards);
+			newToday += session.started;
+		}
 		now = new Date();
 		const answered = new Set(session.answers.map((answer) => answer.item.artwork.id));
 		summary = {
 			count: answered.size,
 			minutes: session.minutes,
-			tomorrow: waitingTomorrow(scoped, cards, now),
-			groups: summaryGroups(session.answers)
+			tomorrow: session.free ? 0 : waitingTomorrow(scoped, cards, now),
+			groups: summaryGroups(session.answers),
+			free: session.free
 		};
+		if (!session.free) void invalidate(REVIEW_COUNTS_DEPENDENCY);
 		session = undefined;
 		phase = answered.size > 0 ? 'summary' : 'start';
-		void invalidate(REVIEW_COUNTS_DEPENDENCY);
 	}
 
 	function askToStop(): void {
@@ -260,6 +283,9 @@
 					<Icon icon={X} />
 					{m.review.stop}
 				</button>
+				{#if session.free}
+					<Tag>{m.review.freeTag}</Tag>
+				{/if}
 				<div
 					class="progress"
 					aria-label={m.review.progressLabel}
@@ -317,12 +343,15 @@
 	{:else if phase === 'summary' && summary}
 		<ReviewSummary
 			count={summary.count}
+			free={summary.free}
+			{freeOpen}
 			groups={summary.groups.map((group) => ({
 				...group,
 				artworks: group.artworks.map(withImage)
 			}))}
 			minutes={summary.minutes}
 			nextRound={waiting}
+			onfree={start}
 			onnext={start}
 			tomorrow={summary.tomorrow}
 		/>
@@ -330,13 +359,17 @@
 		<ReviewStart
 			error={startError}
 			{form}
+			free={freeOpen}
 			fresh={counts.fresh}
 			{knowledge}
 			known={counts.known}
 			{missing}
 			nextWhen={nextDate ? formatWhen(nextDate, now) : undefined}
 			onform={(chosen) => (form = chosen)}
-			onscope={(chosen) => (scope = chosen)}
+			onscope={(chosen) => {
+				scope = chosen;
+				freeRound = 0;
+			}}
 			onstart={start}
 			scope={activeScope}
 			{scopes}
@@ -348,7 +381,7 @@
 </AtelierLayout>
 
 <Dialog
-	description={m.review.stopDescription}
+	description={session?.free ? m.review.freeStopDescription : m.review.stopDescription}
 	onclose={() => (stopOpen = false)}
 	size="small"
 	title={m.review.stopTitle}

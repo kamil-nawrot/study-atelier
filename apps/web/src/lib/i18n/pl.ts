@@ -412,6 +412,10 @@ export const pl = {
 			quizzes: 'Wybierasz jedną z czterech odpowiedzi.'
 		},
 		start: 'Zacznij powtórkę',
+		free: 'Powtórka swobodna',
+		freeHint:
+			'Dodatkowa runda dzieł, które znasz najsłabiej. Nie zmienia planu powtórek ani serii.',
+		freeTag: 'Tryb swobodny',
 		howTitle: 'Jak działają powtórki?',
 		how: 'Do puli codziennie dobierane są nowe dzieła, które dodasz do atelier, a także takie, które wymagają powtórki. Im lepiej pamiętasz dzieło, tym rzadziej będzie pojawiać się w kolejnych dniach.',
 		knowledge: 'Jak dobrze znasz swoje atelier?',
@@ -424,6 +428,7 @@ export const pl = {
 		stop: 'Przerwij',
 		stopTitle: 'Przerwać teraz?',
 		stopDescription: 'Twoje odpowiedzi do tej pory są zapisane.',
+		freeStopDescription: 'Odpowiedzi w powtórce swobodnej nie są zapisywane.',
 		keepGoing: 'Powtarzaj dalej',
 		progress: (position: number, total: number): string => `${position} z ${total}`,
 		progressLabel: 'Postęp powtórki',
@@ -478,8 +483,10 @@ export const pl = {
 			2: 'Prawie',
 			3: 'Opanowane'
 		},
+		freeSummary: (count: number, minutes: number): string =>
+			`Powtórzone ${workCount(count)}, czas ${minutes} min. Plan powtórek się nie zmienił.`,
 		nextRound: (count: number): string => `Następna runda (${count})`,
-		backToAtelier: 'Do atelier'
+		freeNextRound: 'Kolejna runda swobodna'
 	},
 	imageSearch: {
 		title: 'Które to dzieło?',

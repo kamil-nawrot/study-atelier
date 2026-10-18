@@ -5,6 +5,7 @@ import { testReviewCard } from '#lib/testing/review.ts';
 import {
 	atelierKnowledge,
 	formatWhen,
+	freeScopeOptions,
 	nextWaiting,
 	sameScope,
 	scopeArtworks,
@@ -93,6 +94,29 @@ describe('review scopes', () => {
 		expect(scopeOptions(large(30, { eraCode: 'modern' }), new Map(), now)).toEqual([
 			{ kind: 'all' }
 		]);
+	});
+
+	it('offers free scopes with at least 20 artworks already reviewed, whatever is due', () => {
+		const baroque = large(24, {
+			eraCode: 'early_modern',
+			period: 'Baroque',
+			styles: ['Caravaggism']
+		});
+		const gothic = large(30, { eraCode: 'middle_ages', period: 'Gothic' });
+		const later = (works: WallArtwork[]): [string, ReviewCard][] =>
+			works.map((artwork) => [artwork.id, testReviewCard(artwork.id, days(5))]);
+		const cards = cardsFor([...later(baroque.slice(0, 21)), ...later(gothic.slice(0, 19))]);
+
+		expect(freeScopeOptions([...baroque, ...gothic], cards)).toEqual([
+			{ scope: { kind: 'all' }, count: 40 },
+			{ scope: { kind: 'era', code: 'early_modern' }, count: 21 },
+			{ scope: { kind: 'period', name: 'Baroque' }, count: 21 },
+			{ scope: { kind: 'style', name: 'Caravaggism' }, count: 21 }
+		]);
+	});
+
+	it('offers no free scope before any artwork was reviewed', () => {
+		expect(freeScopeOptions(large(25, { eraCode: 'modern' }), new Map())).toEqual([]);
 	});
 
 	it('narrows the artworks to the chosen scope', () => {

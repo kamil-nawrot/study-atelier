@@ -97,4 +97,67 @@ begin
 end;
 $$;
 
+do $$
+declare
+  weakest uuid;
+  strongest uuid;
+  first_round jsonb;
+  second_round jsonb;
+  cards_before integer;
+  log_before integer;
+  day_start constant timestamptz := date_trunc('day', now());
+begin
+  for number in 3..24 loop
+    perform public.record_review(
+      (select id from public.artworks where title = 'Work ' || number),
+      jsonb_build_object('due', now() + interval '10 days', 'stability', number, 'difficulty', 5,
+        'state', 2, 'reps', 2, 'lapses', 0, 'scheduled_days', 10, 'learning_steps', 0,
+        'last_review', now() - interval '1 day'),
+      '{"mode": "flashcard", "rating": 3}');
+  end loop;
+  select id into weakest from public.artworks where title = 'Work 1';
+  select id into strongest from public.artworks where title = 'Work 24';
+  select count(*) into cards_before from public.review_cards;
+  select count(*) into log_before from public.review_log;
+
+  first_round := public.review_session(day_start, 'flashcards', 'all', null, 0);
+  second_round := public.review_session(day_start, 'flashcards', 'all', null, 1);
+
+  assert jsonb_array_length(first_round) = 20,
+    'a free round does not hold 20 artworks';
+  assert (first_round -> 0 ->> 'artwork_id')::uuid = weakest,
+    'a free round does not start with the weakest artwork';
+  assert not exists (
+    select 1 from jsonb_array_elements(first_round || second_round) as item
+      where not exists (
+        select 1 from public.review_cards as card
+          where card.artwork_id = (item ->> 'artwork_id')::uuid
+      )
+  ),
+    'a free round takes an artwork that was never reviewed';
+  assert not exists (
+    select 1 from jsonb_array_elements(first_round) as item
+      where (item ->> 'artwork_id')::uuid = strongest
+  ),
+    'the first free round takes the strongest artwork';
+  assert exists (
+    select 1 from jsonb_array_elements(second_round) as item
+      where (item ->> 'artwork_id')::uuid = strongest
+  ),
+    'the second free round does not go on after the first';
+  assert jsonb_array_length(second_round) = 20,
+    'a free round does not start again from the weakest after the last artwork';
+  assert (select count(*) from public.review_cards) = cards_before
+    and (select count(*) from public.review_log) = log_before,
+    'a free round writes a review';
+
+  begin
+    perform public.review_session(day_start, 'mixed', 'all', null, -1);
+    raise exception 'a negative free round was accepted';
+  exception when invalid_parameter_value then
+    null;
+  end;
+end;
+$$;
+
 rollback;

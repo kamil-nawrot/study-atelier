@@ -20,6 +20,7 @@ export class ReviewSession {
 	answers = $state<ReviewAnswerLog[]>([]);
 	readonly cards: Map<string, ReviewCard>;
 	readonly startedAt: number;
+	readonly free: boolean;
 	#shownAt: number;
 	#now: () => Date;
 	#random: () => number;
@@ -28,9 +29,11 @@ export class ReviewSession {
 		items: ReviewItem[],
 		cards: Map<string, ReviewCard>,
 		now: () => Date = currentDate,
-		random: () => number = Math.random
+		random: () => number = Math.random,
+		free = false
 	) {
 		this.queue = items;
+		this.free = free;
 		this.cards = new SvelteMap(cards);
 		this.#now = now;
 		this.#random = random;
@@ -88,18 +91,20 @@ export class ReviewSession {
 	): Promise<boolean> {
 		const now = this.#now();
 		const card = scheduled ?? outcomes(item.artwork.id, item.card, now)[rating];
-		this.saving = true;
-		this.error = undefined;
-		const { error } = await recordReview(card, {
-			mode: item.mode,
-			rating,
-			correct,
-			answerMs: now.getTime() - this.#shownAt
-		});
-		this.saving = false;
-		if (error) {
-			this.error = error;
-			return false;
+		if (!this.free) {
+			this.saving = true;
+			this.error = undefined;
+			const { error } = await recordReview(card, {
+				mode: item.mode,
+				rating,
+				correct,
+				answerMs: now.getTime() - this.#shownAt
+			});
+			this.saving = false;
+			if (error) {
+				this.error = error;
+				return false;
+			}
 		}
 		this.cards.set(item.artwork.id, card);
 		this.answers.push({ item, rating });

@@ -20,6 +20,7 @@
 | Quiz | A review question with four answers to choose from: images, titles or styles. The wrong answers are distractors. |
 | Distractor | A wrong answer in a quiz, taken from the learner's own artworks or styles and chosen to be close to the right one. |
 | Plan for today | What the review start offers for the day: every artwork due before midnight plus up to 10 new artworks of the whole atelier; a scope only narrows it ([ADR-0071](../decisions/0071-put-the-plan-first-on-the-review-start.md)). |
+| Free review | "Powtórka swobodna": extra rounds after the plan for today is done, of artworks already reviewed, the weakest first, which save no answer ([ADR-0084](../decisions/0084-free-review-after-the-day-is-done.md)). |
 | Settled artwork | "Utrwalone": an artwork the learner remembers for longer than a week (FSRS stability of at least 7 days). |
 | Learning artwork | "W trakcie nauki": an artwork already reviewed but not settled yet. |
 | New artwork | "Nowe": an artwork with an image that has never been reviewed. |

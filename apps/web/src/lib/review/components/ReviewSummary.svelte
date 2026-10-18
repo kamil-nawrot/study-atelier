@@ -11,21 +11,40 @@
 		tomorrow: number;
 		groups: SummaryGroup[];
 		nextRound: number;
+		free?: boolean;
+		freeOpen?: boolean;
 		onnext: () => void;
+		onfree?: () => void;
 	};
 
-	let { count, minutes, tomorrow, groups, nextRound, onnext }: Props = $props();
+	let {
+		count,
+		minutes,
+		tomorrow,
+		groups,
+		nextRound,
+		free = false,
+		freeOpen = false,
+		onnext,
+		onfree
+	}: Props = $props();
 </script>
 
 <div class="summary">
 	<header class="head">
 		<div class="intro">
 			<h1>{m.review.done}</h1>
-			<p class="lead">{m.review.summary(count, minutes, tomorrow)}</p>
+			<p class="lead">
+				{free ? m.review.freeSummary(count, minutes) : m.review.summary(count, minutes, tomorrow)}
+			</p>
 		</div>
 		<div class="actions">
-			{#if nextRound > 0}
+			{#if free}
+				<Button onclick={onfree} variant="primary">{m.review.freeNextRound}</Button>
+			{:else if nextRound > 0}
 				<Button onclick={onnext} variant="primary">{m.review.nextRound(nextRound)}</Button>
+			{:else if freeOpen}
+				<Button onclick={onfree} variant="primary">{m.review.free}</Button>
 			{/if}
 		</div>
 	</header>

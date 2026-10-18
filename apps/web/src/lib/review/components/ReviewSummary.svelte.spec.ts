@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
@@ -6,14 +7,18 @@ import { m } from '#lib/i18n/index.ts';
 import type { SummaryGroup } from '../overview.ts';
 import ReviewSummary from './ReviewSummary.svelte';
 
-async function renderSummary(groups: SummaryGroup[]): Promise<void> {
+async function renderSummary(
+	groups: SummaryGroup[],
+	props: Partial<ComponentProps<typeof ReviewSummary>> = {}
+): Promise<void> {
 	await render(ReviewSummary, {
 		count: 3,
 		minutes: 1,
 		tomorrow: 0,
 		groups,
 		nextRound: 0,
-		onnext: vi.fn()
+		onnext: vi.fn(),
+		...props
 	});
 }
 
@@ -48,5 +53,30 @@ describe('ReviewSummary', () => {
 		await heading.click();
 		expect(group(m.review.groups[3]).open).toBe(true);
 		await expect.element(page.getByRole('link', { name: /Artwork 3\b/ })).toBeVisible();
+	});
+
+	it('offers a free review after the last round of the day', async () => {
+		const onfree = vi.fn();
+		await renderSummary([{ rating: 3, artworks: [testArtwork(3, 'Artwork 3')] }], {
+			freeOpen: true,
+			onfree
+		});
+
+		await page.getByRole('button', { name: m.review.free }).click();
+		expect(onfree).toHaveBeenCalled();
+	});
+
+	it('offers another free round after a free review and says the plan did not change', async () => {
+		await renderSummary([{ rating: 3, artworks: [testArtwork(3, 'Artwork 3')] }], {
+			free: true,
+			freeOpen: true,
+			nextRound: 4
+		});
+
+		await expect.element(page.getByText(m.review.freeSummary(3, 1))).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.review.freeNextRound })).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.review.nextRound(4) }))
+			.not.toBeInTheDocument();
 	});
 });

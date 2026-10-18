@@ -211,6 +211,13 @@ describe('review data', () => {
 			session_form: 'mixed',
 			scope_kind: 'all'
 		});
+		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'flashcards', { kind: 'all' }, 2);
+		expect(rpc).toHaveBeenLastCalledWith('review_session', {
+			day_start: '2026-10-15T22:00:00.000Z',
+			session_form: 'flashcards',
+			scope_kind: 'all',
+			free_round: 2
+		});
 	});
 
 	it('returns a message when a session cannot be built', async () => {

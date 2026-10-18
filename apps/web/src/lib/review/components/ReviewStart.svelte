@@ -10,15 +10,11 @@
 		authorsOf,
 		type ReviewScope,
 		sameScope,
+		type ScopeChoice,
 		scopeKey
 	} from '../overview.ts';
 	import { MIN_ARTWORKS } from '../queue.ts';
 	import type { ReviewForm } from '../types.ts';
-
-	type ScopeChoice = {
-		scope: ReviewScope;
-		waiting: number;
-	};
 
 	type Props = {
 		known: number;
@@ -32,6 +28,7 @@
 		troubles: WallArtwork[];
 		starting: boolean;
 		streak: number;
+		free?: boolean;
 		error?: string;
 		onscope: (scope: ReviewScope) => void;
 		onform: (form: ReviewForm) => void;
@@ -50,6 +47,7 @@
 		troubles,
 		starting,
 		streak,
+		free = false,
 		error,
 		onscope,
 		onform,
@@ -104,7 +102,7 @@
 					{m.atelier.add}
 				</Button>
 			</div>
-		{:else if waiting > 0}
+		{:else if waiting > 0 || free}
 			{#if error}
 				<Alert title={m.review.startErrorTitle} tone="danger">{error}</Alert>
 			{/if}
@@ -112,8 +110,11 @@
 			<div class="go">
 				<Button disabled={starting} onclick={onstart} variant="primary">
 					<Icon icon={Play} size="sm" />
-					{m.review.start}
+					{waiting > 0 ? m.review.start : m.review.free}
 				</Button>
+				{#if waiting === 0}
+					<p class="caption">{m.review.freeHint}</p>
+				{/if}
 			</div>
 
 			<details class="options">
@@ -128,7 +129,7 @@
 							<div class="tags">
 								{#each scopes as option (scopeKey(option.scope))}
 									<ToggleTag
-										count={option.waiting}
+										count={option.count}
 										bind:pressed={
 											() => sameScope(option.scope, scope),
 											(pressed) => pressed && onscope(option.scope)
@@ -246,6 +247,12 @@
 
 	.how {
 		max-width: var(--size-content-narrow);
+	}
+
+	.go {
+		display: grid;
+		justify-items: start;
+		gap: var(--spacing-2);
 	}
 
 	.options {
@@ -417,7 +424,7 @@
 			position: sticky;
 			bottom: 0;
 			z-index: 1;
-			display: grid;
+			justify-items: stretch;
 			padding: var(--spacing-4) 0;
 			border-top: var(--border-width-hairline) solid var(--color-tag);
 			background: var(--color-bg);

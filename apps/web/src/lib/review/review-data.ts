@@ -160,12 +160,14 @@ function scopeArgs(scope: ReviewScope): { scope_kind: string; scope_value?: stri
 export async function loadSession(
 	dayStart: Date,
 	form: ReviewForm,
-	scope: ReviewScope
+	scope: ReviewScope,
+	freeRound?: number
 ): Promise<ReviewSessionResult> {
 	const { data, error } = await supabase.rpc('review_session', {
 		day_start: dayStart.toISOString(),
 		session_form: form,
-		...scopeArgs(scope)
+		...scopeArgs(scope),
+		...(freeRound === undefined ? {} : { free_round: freeRound })
 	});
 	if (error || !Array.isArray(data)) {
 		return { rows: [], error: await failureMessage(error ?? {}, collectionErrorMessage) };
