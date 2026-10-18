@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { ArtworkTile, Button } from '@study-atelier/ui';
+	import { Button } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
+	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
 	import { m } from '#lib/i18n/index.ts';
 	import type { SummaryGroup } from '../overview.ts';
 
@@ -36,21 +37,7 @@
 				{m.review.groups[group.rating]}
 				<span class="caption">{group.artworks.length}</span>
 			</h2>
-			<ul class="tiles">
-				{#each group.artworks as artwork (artwork.id)}
-					<li>
-						<ArtworkTile
-							authors={artwork.authors}
-							date={artwork.date}
-							href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
-							image={artwork.image}
-							imageUnavailable={artwork.imageUnavailable}
-							number={artwork.number}
-							title={artwork.title}
-						/>
-					</li>
-				{/each}
-			</ul>
+			<ArtworkWall artworks={group.artworks} />
 		</section>
 	{/each}
 </div>
@@ -89,15 +76,6 @@
 		gap: var(--spacing-2);
 	}
 
-	.tiles {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		align-items: start;
-		gap: var(--spacing-4);
-		padding: 0;
-		list-style: none;
-	}
-
 	@media (min-width: 768px) {
 		.head {
 			grid-template-columns: minmax(0, 1fr) auto;
@@ -107,10 +85,6 @@
 		.actions {
 			display: flex;
 			flex-wrap: wrap;
-		}
-
-		.tiles {
-			grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
 		}
 	}
 </style>
