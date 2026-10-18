@@ -478,8 +478,7 @@ export const pl = {
 			2: 'Prawie',
 			3: 'Opanowane'
 		},
-		nextRound: (count: number): string => `Następna runda (${count})`,
-		backToAtelier: 'Do atelier'
+		nextRound: (count: number): string => `Następna runda (${count})`
 	},
 	imageSearch: {
 		title: 'Które to dzieło?',
