@@ -4,6 +4,10 @@
 	box-sizing: border-box;
 }
 
+:root {
+	--cursor-zoom-in: url('./cursor-zoom-in.svg') 11 11, pointer;
+}
+
 html {
 	scrollbar-gutter: stable;
 	background: var(--color-bg);

@@ -154,6 +154,8 @@ begin
     'B counts reviews of A';
   assert public.review_streak('2026-10-16T00:00:00Z', 'UTC') = 0, 'B counts the review streak of A';
   assert public.review_session('2026-10-16T00:00:00Z') = '[]'::jsonb, 'B builds a session of A';
+  assert public.review_session('2026-10-16T00:00:00Z', 'mixed', 'all', null, 0) = '[]'::jsonb,
+    'B builds a free session of A';
 
   assert security_test.affected(format('update public.artworks set title = ''x'' where id = %L', a_artwork)) = 0,
     'B updates an artwork of A';

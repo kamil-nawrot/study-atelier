@@ -450,7 +450,7 @@
 		border: none;
 		background: var(--color-mat-badge-bg);
 		color: var(--color-mat-badge-fg);
-		cursor: zoom-in;
+		cursor: var(--cursor-zoom-in);
 	}
 
 	.window :global(img) {

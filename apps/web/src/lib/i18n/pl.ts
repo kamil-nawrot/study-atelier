@@ -412,6 +412,10 @@ export const pl = {
 			quizzes: 'Wybierasz jedną z czterech odpowiedzi.'
 		},
 		start: 'Zacznij powtórkę',
+		free: 'Powtórka swobodna',
+		freeHint:
+			'Dodatkowa runda dzieł, które znasz najsłabiej. Nie zmienia planu powtórek ani serii.',
+		freeTag: 'Tryb swobodny',
 		howTitle: 'Jak działają powtórki?',
 		how: 'Do puli codziennie dobierane są nowe dzieła, które dodasz do atelier, a także takie, które wymagają powtórki. Im lepiej pamiętasz dzieło, tym rzadziej będzie pojawiać się w kolejnych dniach.',
 		knowledge: 'Jak dobrze znasz swoje atelier?',
@@ -424,6 +428,7 @@ export const pl = {
 		stop: 'Przerwij',
 		stopTitle: 'Przerwać teraz?',
 		stopDescription: 'Twoje odpowiedzi do tej pory są zapisane.',
+		freeStopDescription: 'Odpowiedzi w powtórce swobodnej nie są zapisywane.',
 		keepGoing: 'Powtarzaj dalej',
 		progress: (position: number, total: number): string => `${position} z ${total}`,
 		progressLabel: 'Postęp powtórki',
@@ -471,14 +476,19 @@ export const pl = {
 		saveFailed: 'Nie udało się zapisać odpowiedzi. Spróbuj jeszcze raz.',
 		done: 'Gotowe',
 		summary: (count: number, minutes: number, tomorrow: number): string =>
-			`Dziś udało się powtórzyć ${workCount(count)}, zajęło Ci to ${minutes} minut` +
-			(tomorrow > 0 ? ` Jutro będzie na Ciebie czekać ${workCount(tomorrow)}.` : ''),
+			reviewedToday(count, minutes) +
+			(tomorrow > 0
+				? ` Jutro ${plural(tomorrow, { one: 'będzie', few: 'będą', many: 'będzie' })} na Ciebie czekać ${workCount(tomorrow)}.`
+				: ''),
 		groups: {
 			1: 'Do poprawki',
 			2: 'Prawie',
 			3: 'Opanowane'
 		},
-		nextRound: (count: number): string => `Następna runda (${count})`
+		freeSummary: (count: number, minutes: number): string =>
+			`${reviewedToday(count, minutes)} Plan powtórek się nie zmienił.`,
+		nextRound: (count: number): string => `Następna runda (${count})`,
+		freeNextRound: 'Kolejna runda swobodna'
 	},
 	imageSearch: {
 		title: 'Które to dzieło?',
@@ -949,6 +959,14 @@ export const pl = {
 type PluralForms = Record<'one' | 'few' | 'many', string>;
 
 const pluralRules = new Intl.PluralRules('pl');
+
+function reviewedToday(count: number, minutes: number): string {
+	return `Dziś udało się powtórzyć ${workCount(count)}, zajęło Ci to ${minuteCount(minutes)}.`;
+}
+
+function minuteCount(count: number): string {
+	return `${count} ${plural(count, { one: 'minutę', few: 'minuty', many: 'minut' })}`;
+}
 
 function workCount(count: number): string {
 	return `${count} ${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })}`;

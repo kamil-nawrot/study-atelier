@@ -99,6 +99,7 @@ describe('review page', () => {
 		await expect.element(page.getByRole('heading', { name: m.review.waiting(9) })).toBeVisible();
 		await expect.element(page.getByText(m.review.plan(4, 5))).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.review.start })).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.review.free })).not.toBeInTheDocument();
 		await expect.element(page.getByRole('heading', { name: m.review.howTitle })).toBeVisible();
 		await expect.element(page.getByText(m.review.how)).toBeVisible();
 		await expect
@@ -153,6 +154,48 @@ describe('review page', () => {
 
 		await expect.element(page.getByRole('heading', { name: m.review.allDoneTitle })).toBeVisible();
 		await expect.element(page.getByText(m.review.allDone('jutro'))).toBeVisible();
+	});
+
+	it('offers a free review once today is done and saves none of its answers', async () => {
+		const artworks = collection(20);
+		renderReview(
+			artworks,
+			cards(artworks, () => 6)
+		);
+		vi.mocked(loadSession).mockResolvedValue({ rows: flashcards(1, 2) });
+
+		await expect.element(page.getByText(m.review.freeHint)).toBeVisible();
+		await page.getByRole('button', { name: m.review.free }).click();
+		expect(loadSession).toHaveBeenLastCalledWith(expect.any(Date), 'mixed', { kind: 'all' }, 0);
+		await expect.element(page.getByText(m.review.freeTag)).toBeVisible();
+
+		for (const rating of [3, 3] as const) {
+			await page.getByRole('button', { name: m.review.flashcard.reveal }).click();
+			await page.getByRole('button', { name: new RegExp(`^${m.review.ratings[rating]}`) }).click();
+		}
+
+		await expect.element(page.getByText(m.review.freeSummary(2, 1))).toBeVisible();
+		expect(recordReview).not.toHaveBeenCalled();
+		expect(invalidate).not.toHaveBeenCalled();
+		await page.getByRole('button', { name: m.review.freeNextRound }).click();
+		expect(loadSession).toHaveBeenLastCalledWith(expect.any(Date), 'mixed', { kind: 'all' }, 1);
+	});
+
+	it('says in a free session that its answers are not saved', async () => {
+		const artworks = collection(20);
+		renderReview(
+			artworks,
+			cards(artworks, () => 6)
+		);
+
+		await page.getByRole('button', { name: m.review.free }).click();
+		await page.getByRole('button', { name: m.review.flashcard.reveal }).click();
+		await page.getByRole('button', { name: new RegExp(`^${m.review.ratings[3]}`) }).click();
+		await page.getByRole('button', { name: m.review.stop }).click();
+
+		await expect
+			.element(page.getByRole('alertdialog').getByText(m.review.freeStopDescription))
+			.toBeVisible();
 	});
 
 	it('offers a style with at least 10 artworks due, and describes the chosen form, behind a disclosure', async () => {

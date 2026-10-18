@@ -150,6 +150,26 @@ describe('ReviewSession', () => {
 
 		expect(recordReview).not.toHaveBeenCalled();
 	});
+
+	it('saves nothing in a free session and still asks a forgotten artwork again', async () => {
+		const clock = { now: start };
+		const review = new ReviewSession(
+			items(6),
+			new Map(),
+			() => clock.now,
+			() => 0,
+			true
+		);
+
+		review.reveal();
+		await review.rate(1);
+		await review.answer(0);
+
+		expect(recordReview).not.toHaveBeenCalled();
+		expect(review.position).toBe(1);
+		expect(review.answers).toHaveLength(1);
+		expect(review.queue.map((item) => item.artwork.number)).toEqual([1, 2, 3, 4, 1, 5, 6]);
+	});
 });
 
 function quizItems(count: number): ReviewItem[] {
