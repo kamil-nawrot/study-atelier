@@ -77,7 +77,7 @@ Chosen, decided by the owner in ATL-19: data model option 1, the one-column page
 
 Conversational, as in [voice and tone](../product/voice-and-tone.md):
 
-- Card index lead: "Tu opisujesz i porządkujesz swoje epoki, okresy, style, autorów i miejsca. Kliknij nazwę, która cię interesuje, żeby zobaczyć szczegóły."
+- Card index lead: "Tu opisujesz i porządkujesz swoje epoki, okresy, style, autorów i miejsca. Kliknij nazwę, która Cię interesuje, żeby zobaczyć szczegóły."
 - Hint under "Podsumowanie": "Krótki opis do szybkiego podejrzenia przy oglądaniu dzieła."; placeholder of "Notatki": "Wszystko, co warto zapamiętać".
 - Sort name: a checkbox that shows the "Sortuj jako" field with "Po tej wartości będą sortowani autorzy."
 - Hint under "Kraj": "Wybierz kraj z listy."

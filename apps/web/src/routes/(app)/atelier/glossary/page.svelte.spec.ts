@@ -52,6 +52,27 @@ describe('glossary page', () => {
 			.toHaveAttribute('href', '/atelier/glossary/new');
 	});
 
+	it('counts every entry next to the title, whatever the filter shows', async () => {
+		renderGlossary();
+
+		await expect.element(page.getByText(m.glossary.count(6))).toBeVisible();
+
+		await page.getByRole('button', { name: `${m.glossary.categoryNames.painting} 1` }).click();
+
+		await expect.element(page.getByText(m.glossary.count(6))).toBeVisible();
+	});
+
+	it('puts the search field before the categories', async () => {
+		renderGlossary(manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES));
+
+		const search = page.getByRole('searchbox', { name: m.glossary.search }).element();
+		const categories = page.getByRole('list', { name: m.glossary.categories }).element();
+
+		expect(
+			search.compareDocumentPosition(categories) & Node.DOCUMENT_POSITION_FOLLOWING
+		).toBeTruthy();
+	});
+
 	it('lists the entries in alphabetical order under their capital letters', async () => {
 		renderGlossary();
 
@@ -130,6 +151,7 @@ describe('glossary page', () => {
 		renderGlossary([]);
 
 		await expect.element(page.getByText(m.glossary.empty)).toBeVisible();
+		await expect.element(page.getByText(m.glossary.count(0))).not.toBeInTheDocument();
 		expect(
 			page.getByRole('button', { name: m.glossary.categoryNames.person }).elements()
 		).toHaveLength(0);

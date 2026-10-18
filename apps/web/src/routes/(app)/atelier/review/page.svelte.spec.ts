@@ -61,7 +61,15 @@ function renderReview(
 	streak = 0
 ): void {
 	render(ReviewPage, {
-		data: { session: testSession(), artworks, cards: reviewCards, newToday, streak, error },
+		data: {
+			session: testSession(),
+			artworks,
+			cards: reviewCards,
+			newToday,
+			streak,
+			glossary: [],
+			error
+		},
 		params: {}
 	});
 }

@@ -14,71 +14,41 @@ export type Mention = {
 	kind: string;
 };
 
-type ArtworkNotesRow = { record_number: number; title: string; notes: string | null };
-
-type DetailsNotesRow = { notes: string | null; value_id?: string; era_code?: string };
-
-const DETAILS_TABLES = [
-	{ table: 'era_details', kind: 'era', column: 'era_code' },
-	{ table: 'period_details', kind: 'period', column: 'value_id' },
-	{ table: 'style_details', kind: 'style', column: 'value_id' },
-	{ table: 'material_details', kind: 'material', column: 'value_id' },
-	{ table: 'author_details', kind: 'author', column: 'value_id' },
-	{ table: 'location_details', kind: 'location', column: 'value_id' }
-] as const;
+type MentionRow = {
+	kind: string;
+	id: string;
+	record_number: number | null;
+	title: string | null;
+	notes: string;
+};
 
 export type NotesMatcher = {
 	like?: string;
 	test: (notes: string) => boolean;
 };
 
-function matches(notes: string | null, matcher: NotesMatcher): boolean {
-	return notes !== null && matcher.test(notes);
-}
-
-async function artworkMentions(matcher: NotesMatcher, own: string): Promise<Mention[]> {
-	const { rows, error } = await fetchAll<ArtworkNotesRow>((from, to) => {
-		const base = supabase
-			.from('artworks')
-			.select('record_number, title, notes')
-			.is('deleted_at', null);
-		const narrowed =
-			matcher.like === undefined
-				? base.not('notes', 'is', null)
-				: base.like('notes', `%${matcher.like}%`);
-		return narrowed.order('record_number', { ascending: true }).range(from, to);
-	});
-	if (error) return [];
+function artworkMentions(rows: MentionRow[], own: string): Mention[] {
 	return rows
-		.filter((row) => matches(row.notes, matcher))
-		.map((row) => ({
-			href: resolve('/(app)/atelier/[number]', { number: String(row.record_number) }),
-			name: `${formatRecordNumber(row.record_number)} ${row.title}`,
-			kind: m.mentions.artwork
-		}))
+		.flatMap(({ record_number: number, title }) =>
+			number === null
+				? []
+				: [
+						{
+							href: resolve('/(app)/atelier/[number]', { number: String(number) }),
+							name: `${formatRecordNumber(number)} ${title ?? ''}`,
+							kind: m.mentions.artwork
+						}
+					]
+		)
 		.filter((mention) => mention.href !== own);
 }
 
 async function valueMentions(
-	matcher: NotesMatcher,
+	rows: MentionRow[],
 	own: string,
 	index: CardIndexData | undefined
 ): Promise<Mention[]> {
-	const found = await Promise.all(
-		DETAILS_TABLES.map(async ({ table, kind, column }) => {
-			const base = supabase.from(table).select(`${column}, notes`);
-			const { data, error } = await (matcher.like === undefined
-				? base.not('notes', 'is', null)
-				: base.like('notes', `%${matcher.like}%`));
-			if (error) return [];
-			return ((data ?? []) as unknown as DetailsNotesRow[])
-				.filter((row) => matches(row.notes, matcher))
-				.map((row) => ({ kind, id: (row[column] ?? '') as string }));
-		})
-	);
-	const rows = found.flat();
 	if (rows.length === 0) return [];
-
 	const known = index ?? (await loadCardIndex()).index;
 	return rows
 		.flatMap(({ kind, id }) => {
@@ -102,11 +72,25 @@ export async function loadNotesMentions(
 	own: string,
 	index?: CardIndexData
 ): Promise<Mention[]> {
-	const [values, artworks] = await Promise.all([
-		valueMentions(matcher, own, index),
-		artworkMentions(matcher, own)
-	]);
-	return [...values, ...artworks];
+	const { rows, error } = await fetchAll<MentionRow>((from, to) =>
+		supabase
+			.rpc('notes_mentions', matcher.like === undefined ? {} : { needle: matcher.like })
+			.range(from, to)
+	);
+	if (error) return [];
+	const found = rows.filter((row) => matcher.test(row.notes));
+	const values = await valueMentions(
+		found.filter((row) => row.kind !== 'artwork'),
+		own,
+		index
+	);
+	return [
+		...values,
+		...artworkMentions(
+			found.filter((row) => row.kind === 'artwork'),
+			own
+		)
+	];
 }
 
 export async function loadMentions(

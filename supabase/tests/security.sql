@@ -144,6 +144,7 @@ begin
   assert (select count(*) from public.glossary_entries) = 0, 'B reads glossary entries of A';
   assert (select count(*) from storage.objects) = 0, 'B reads image objects of A';
   assert (select count(*) from public.value_usage()) = 0, 'B sees value usage of A';
+  assert (select count(*) from public.notes_mentions()) = 0, 'B sees the notes of A';
   assert not (select has_content from public.value_page_content(a_value)),
     'B sees the page content of a value of A';
   assert (select count(*) from public.eras) = 6, 'B cannot read the shared eras';
@@ -242,6 +243,18 @@ begin
   assert security_test.denied(
     'insert into public.glossary_entries (name, category, forms) values (''Blank forms'', ''general'', ''{a,""}'')'),
     'A adds a glossary entry with an empty form';
+  assert not security_test.denied(
+    'insert into public.glossary_entries (name, category, synonyms, sort_name) values (''Lorenzo de Medici'', ''person'', ''{Lorenzo Wspaniały}'', ''Medici, Lorenzo de'')'),
+    'A cannot add a glossary entry with synonyms and a sort name';
+  assert security_test.denied(
+    'insert into public.glossary_entries (name, category, synonyms) values (''Blank synonyms'', ''general'', ''{a,""}'')'),
+    'A adds a glossary entry with an empty synonym';
+  assert security_test.denied(
+    'insert into public.glossary_entries (name, category, sort_name) values (''Padded sort'', ''general'', '' Sort '')'),
+    'A adds a glossary entry with a padded sort name';
+  assert security_test.denied(
+    'insert into public.glossary_entries (name, category, sort_name) values (''Blank sort'', ''general'', '''')'),
+    'A adds a glossary entry with an empty sort name';
   assert security_test.denied(
     'insert into public.glossary_entries (name, category, source_title) values (''Half source'', ''general'', ''Title'')'),
     'A adds a glossary entry with a half-filled source';
@@ -440,6 +453,7 @@ begin
   assert security_test.denied('select * from public.glossary_entries'), 'anon reads glossary entries';
   assert (select count(*) from storage.objects) = 0, 'anon reads image objects';
   assert security_test.denied('select public.value_usage()'), 'anon executes value_usage';
+  assert security_test.denied('select public.notes_mentions()'), 'anon executes notes_mentions';
   assert security_test.denied(format('select public.value_page_content(%L)', gen_random_uuid())),
     'anon executes value_page_content';
   assert security_test.denied('select public.save_artwork(''{}'', ''{}'')'), 'anon executes save_artwork';

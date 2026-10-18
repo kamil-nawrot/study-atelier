@@ -25,7 +25,12 @@ const tympanum = testGlossary()[0];
 
 function renderEntry(
 	entry: GlossaryEntry | null = tympanum,
-	failure: { error?: string; notFound?: boolean; mentions?: Mention[] } = {}
+	failure: {
+		error?: string;
+		notFound?: boolean;
+		mentions?: Mention[];
+		glossary?: GlossaryEntry[];
+	} = {}
 ): void {
 	render(GlossaryEntryPage, {
 		data: { session: testSession(), entry: entry ?? undefined, ...failure },
@@ -41,14 +46,15 @@ describe('glossary entry page', () => {
 		vi.mocked(deleteGlossaryEntry).mockResolvedValue({});
 	});
 
-	it('shows the category, the name, the other forms, the definition and its source', async () => {
+	it('shows the category, the name, the synonyms, the definition and its source', async () => {
 		renderEntry();
 
 		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Tympanum');
 		await expect
 			.element(page.getByText(m.glossary.categoryNames.architecture, { exact: true }).first())
 			.toBeVisible();
-		await expect.element(page.getByText(m.glossary.view.also('tympana, tympanum’s'))).toBeVisible();
+		await expect.element(page.getByText(m.glossary.view.also('tympan'))).toBeVisible();
+		await expect.element(page.getByText(/tympana/)).not.toBeInTheDocument();
 		await expect.element(page.getByText(tympanum.definition)).toBeVisible();
 		await expect
 			.element(page.getByRole('link', { name: '„Tympanum”' }))
@@ -56,6 +62,23 @@ describe('glossary entry page', () => {
 		await expect
 			.element(page.getByRole('link', { name: 'CC BY-SA 4.0' }))
 			.toHaveAttribute('href', 'https://creativecommons.org/licenses/by-sa/4.0/deed.pl');
+	});
+
+	it('marks other entries in the definition, but never the entry itself', async () => {
+		const entry = testEntry('a-tympanum', 'Tympanum', {
+			definition: 'A tympanum is often painted in fresco, like the fresco of the apse.'
+		});
+		renderEntry(entry, { glossary: [entry, ...testGlossary().slice(1)] });
+
+		await page.getByRole('button', { name: 'fresco' }).click();
+
+		const card = page.getByRole('dialog');
+		await expect.element(card).toHaveTextContent('Fresco is a test definition.');
+		await expect
+			.element(card.getByRole('link', { name: m.glossary.card.open }))
+			.toHaveAttribute('href', '/atelier/glossary/a-fresco');
+		expect(page.getByRole('button', { name: 'fresco' }).elements()).toHaveLength(1);
+		expect(page.getByRole('button', { name: /tympanum/i }).elements()).toHaveLength(0);
 	});
 
 	it('leaves out the forms line and the source line when the entry has neither', async () => {

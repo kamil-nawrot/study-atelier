@@ -3,6 +3,7 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/index.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
+import { testGlossary } from '#lib/testing/glossary.ts';
 import type { ReviewItem } from '../types.ts';
 import Flashcard from './Flashcard.svelte';
 
@@ -89,6 +90,18 @@ describe('Flashcard', () => {
 		await expect
 			.element(page.getByRole('button', { name: m.review.ratings[3], exact: true }))
 			.toBeVisible();
+	});
+
+	it('marks glossary terms in the note and opens their card without a way out of the session', async () => {
+		renderCard(true, {
+			details: { notes: 'The tympana over the door.', credit: 'Wikimedia Commons' },
+			glossary: testGlossary()
+		});
+
+		await page.getByRole('button', { name: 'tympana' }).click();
+
+		await expect.element(page.getByRole('tooltip')).toHaveTextContent('Tympanum');
+		expect(page.getByRole('link', { name: m.glossary.card.open }).elements()).toHaveLength(0);
 	});
 
 	it('opens the image in a full-screen preview and closes it again', async () => {

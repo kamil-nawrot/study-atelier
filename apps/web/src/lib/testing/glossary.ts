@@ -10,7 +10,9 @@ export function testEntry(
 		name,
 		category: 'architecture',
 		definition: `${name} is a test definition. It has a second sentence.`,
+		synonyms: [],
 		forms: [],
+		sortName: null,
 		source: null,
 		...overrides
 	};
@@ -26,6 +28,7 @@ export function testArticle(
 export function testGlossary(): GlossaryEntry[] {
 	return [
 		testEntry('a-tympanum', 'Tympanum', {
+			synonyms: ['tympan'],
 			forms: ['tympana', 'tympanum’s'],
 			source: {
 				title: 'Tympanum',

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
@@ -171,6 +171,81 @@ describe('Notes', () => {
 			await userEvent.keyboard('{Escape}');
 
 			await expect.element(button).toHaveAttribute('aria-expanded', 'false');
+		});
+
+		it('marks terms in plain text without reading it as Markdown', () => {
+			render(Notes, { value: '**sfumato**\n1. tympanum', terms, termCard, plain: true });
+			const root = document.querySelector('.notes') as HTMLElement;
+
+			expect(marked(root)).toEqual(['sfumato', 'tympanum']);
+			expect(root.querySelector('strong, ol')).toBeNull();
+			expect(root.textContent).toBe('**sfumato**\n1. tympanum');
+		});
+
+		describe('with a card to click', () => {
+			const linkCard = createRawSnippet((id: () => string) => ({
+				render: () => `<a href="#page-of-${id()}">open ${id()}</a>`
+			}));
+
+			function renderInteractive(value: string): void {
+				render(Notes, { value, terms, termCard: linkCard, interactive: true });
+			}
+
+			afterEach(() => {
+				vi.useRealTimers();
+				history.replaceState(null, '', location.pathname + location.search);
+			});
+
+			it('keeps the card open while the pointer moves onto it and closes after it leaves both', async () => {
+				vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+				renderInteractive('The sfumato technique');
+				const button = page.getByRole('button', { name: 'sfumato' });
+				const card = page.getByRole('dialog', { name: 'sfumato' });
+
+				await userEvent.hover(button);
+				await expect.element(card).toHaveTextContent('open sfumato');
+				await userEvent.unhover(button);
+				await userEvent.hover(page.getByRole('link', { name: 'open sfumato' }));
+				vi.advanceTimersByTime(1000);
+				await expect.element(button).toHaveAttribute('aria-expanded', 'true');
+				await userEvent.unhover(card);
+				vi.advanceTimersByTime(1000);
+
+				await expect.element(button).toHaveAttribute('aria-expanded', 'false');
+			});
+
+			it('lets a tap on the link in the card follow it', async () => {
+				renderInteractive('The sfumato technique');
+
+				await page.getByRole('button', { name: 'sfumato' }).click();
+				await page.getByRole('link', { name: 'open sfumato' }).click();
+
+				expect(location.hash).toBe('#page-of-sfumato');
+			});
+
+			it('moves the keyboard from the term into its card and on to the next term', async () => {
+				renderInteractive('The sfumato technique of Medici');
+				const sfumato = page.getByRole('button', { name: 'sfumato' });
+				document.body.focus();
+
+				await userEvent.tab();
+				await expect.element(sfumato).toHaveFocus();
+				await userEvent.tab();
+				await expect.element(page.getByRole('link', { name: 'open sfumato' })).toHaveFocus();
+				await userEvent.tab({ shift: true });
+				await expect.element(sfumato).toHaveFocus();
+				await userEvent.tab();
+				await userEvent.tab();
+				const medici = page.getByRole('button', { name: 'Medici' });
+				await expect.element(medici).toHaveFocus();
+				await expect.element(medici).toHaveAttribute('aria-expanded', 'true');
+				await userEvent.tab();
+				await expect.element(page.getByRole('dialog', { name: 'Medici' })).toBeVisible();
+				await userEvent.keyboard('{Escape}');
+
+				await expect.element(medici).toHaveFocus();
+				await expect.element(medici).toHaveAttribute('aria-expanded', 'false');
+			});
 		});
 	});
 });

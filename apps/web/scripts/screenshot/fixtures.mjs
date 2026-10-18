@@ -408,14 +408,24 @@ export function fakeSession() {
 	};
 }
 
-function glossaryEntry(number, name, category, definition, forms = [], article = null) {
+function glossaryEntry(
+	number,
+	name,
+	category,
+	definition,
+	forms = [],
+	article = null,
+	{ synonyms = [], sortName = null } = {}
+) {
 	return {
 		id: `00000000-0000-4000-9000-${String(number).padStart(12, '0')}`,
 		owner_id: USER.id,
 		name,
 		category,
 		definition,
+		synonyms,
 		forms,
+		sort_name: sortName,
 		source_title: article,
 		source_url: article ? `https://pl.wikipedia.org/wiki/${encodeURIComponent(article)}` : null,
 		source_licence: article ? 'CC BY-SA 4.0' : null,
@@ -448,7 +458,8 @@ export const GLOSSARY_ENTRIES = [
 		'painting',
 		'Budowanie bryły i nastroju silnym kontrastem światła i cienia.',
 		[],
-		'Chiaroscuro'
+		'Chiaroscuro',
+		{ synonyms: ['światłocień'] }
 	),
 	glossaryEntry(
 		4,
@@ -472,7 +483,8 @@ export const GLOSSARY_ENTRIES = [
 		'person',
 		'Włoski malarz, architekt i pisarz, autor „Żywotów najsławniejszych malarzy, rzeźbiarzy i architektów”.',
 		[],
-		'Giorgio Vasari'
+		'Giorgio Vasari',
+		{ sortName: 'Vasari, Giorgio' }
 	),
 	glossaryEntry(
 		7,
@@ -488,7 +500,8 @@ export const GLOSSARY_ENTRIES = [
 		'architecture',
 		'Trójkątne lub półkoliste pole ściany nad wejściem albo w szczycie budowli, ograniczone gzymsem lub łukiem. W architekturze antycznej wypełniało szczyt świątyni, w romańskiej i gotyckiej zdobi portale kościołów, najczęściej płaskorzeźbą z Chrystusem w majestacie albo Sądem Ostatecznym.',
 		['tympanonu', 'tympanonie', 'tympanonem', 'tympany', 'tympanonów'],
-		'Tympanon'
+		'Tympanon',
+		{ synonyms: ['tympan'] }
 	),
 	glossaryEntry(
 		9,
@@ -512,7 +525,13 @@ export const GLOSSARY_ENTRIES = [
 		['Nawa', 'architecture'],
 		['Pastel', 'technique']
 	].map(([name, category], index) =>
-		glossaryEntry(10 + index, name, category, `${name}: krótka definicja do zrzutów ekranu.`)
+		glossaryEntry(
+			10 + index,
+			name,
+			category,
+			`${name}: krótka definicja do zrzutów ekranu.`,
+			name === 'Nawa' ? ['nawy', 'nawie', 'nawę', 'nawą'] : []
+		)
 	)
 ];
 
@@ -579,3 +598,96 @@ export const WIKIPEDIA_PAGES = [
 ];
 
 export const WIKIDATA_HUMANS = ['Q1002'];
+
+const WIKTIONARY_CASES = [
+	'Mianownik',
+	'Dopełniacz',
+	'Celownik',
+	'Biernik',
+	'Narzędnik',
+	'Miejscownik',
+	'Wołacz'
+];
+
+function wiktionaryNoun(title, gender, singular, plural) {
+	const rows = WIKTIONARY_CASES.flatMap((name, index) => [
+		`|${name} lp = ${singular[index]}`,
+		`|${name} lm = ${plural[index]}`
+	]);
+	return [
+		`== ${title} ({{język polski}}) ==`,
+		`''rzeczownik, rodzaj ${gender}''`,
+		'{{odmiana}}',
+		': (1.1) {{odmiana-rzeczownik-polski',
+		...rows,
+		'}}'
+	].join('\n');
+}
+
+export const WIKTIONARY_PAGES = {
+	nawa: wiktionaryNoun(
+		'nawa',
+		'żeński',
+		['nawa', 'nawy', 'nawie', 'nawę', 'nawą', 'nawie', 'nawo'],
+		['nawy', 'naw', 'nawom', 'nawy', 'nawami', 'nawach', 'nawy']
+	),
+	sklepienie: wiktionaryNoun(
+		'sklepienie',
+		'nijaki',
+		[
+			'sklepienie',
+			'sklepienia',
+			'sklepieniu',
+			'sklepienie',
+			'sklepieniem',
+			'sklepieniu',
+			'sklepienie'
+		],
+		[
+			'sklepienia',
+			'sklepień',
+			'sklepieniom',
+			'sklepienia',
+			'sklepieniami',
+			'sklepieniach',
+			'sklepienia'
+		]
+	),
+	krzyżowy:
+		"== krzyżowy ({{język polski}}) ==\n''przymiotnik''\n{{odmiana}}\n: (1.1) {{odmiana-przymiotnik-polski}}"
+};
+
+const ADJECTIVE_ROWS = [
+	[
+		'mianownik',
+		'<td colspan="2">krzyżowy</td><td>krzyżowa</td><td>krzyżowe</td><td>krzyżowi</td><td>krzyżowe</td>'
+	],
+	[
+		'dopełniacz',
+		'<td colspan="2">krzyżowego</td><td>krzyżowej</td><td>krzyżowego</td><td colspan="2">krzyżowych</td>'
+	],
+	[
+		'celownik',
+		'<td colspan="2">krzyżowemu</td><td>krzyżowej</td><td>krzyżowemu</td><td colspan="2">krzyżowym</td>'
+	],
+	[
+		'biernik',
+		'<td>krzyżowego</td><td>krzyżowy</td><td>krzyżową</td><td>krzyżowe</td><td>krzyżowych</td><td>krzyżowe</td>'
+	],
+	[
+		'narzędnik',
+		'<td colspan="2">krzyżowym</td><td>krzyżową</td><td>krzyżowym</td><td colspan="2">krzyżowymi</td>'
+	],
+	[
+		'miejscownik',
+		'<td colspan="2">krzyżowym</td><td>krzyżowej</td><td>krzyżowym</td><td colspan="2">krzyżowych</td>'
+	],
+	[
+		'wołacz',
+		'<td colspan="2">krzyżowy</td><td>krzyżowa</td><td>krzyżowe</td><td>krzyżowi</td><td>krzyżowe</td>'
+	]
+];
+
+export const WIKTIONARY_TABLES = {
+	krzyżowy: `<table class="wikitable odmiana adj"><tr><th rowspan="2">[[przypadek]]</th><th colspan="4">liczba pojedyncza</th><th colspan="2">liczba mnoga</th></tr><tr><td class="forma">mos/mzw</td><td class="forma">mrz</td><td class="forma">ż</td><td class="forma">n</td><td class="forma">mos</td><td class="forma">nmos</td></tr>${ADJECTIVE_ROWS.map(([label, cells]) => `<tr><td class="forma">[[${label}]]</td>${cells}</tr>`).join('')}</table>`
+};

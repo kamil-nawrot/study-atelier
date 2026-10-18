@@ -2,59 +2,42 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { supabase } from '#lib/supabase.ts';
 import { testCardIndex } from '#lib/testing/card-index.ts';
 import { testEntry } from '#lib/testing/glossary.ts';
+import { artworkNote, mockNotesMentions, valueNote } from '#lib/testing/mentions.ts';
 import { loadGlossaryMentions } from './glossary-mentions.ts';
 
 vi.mock('#lib/supabase.ts', () => ({ supabase: { from: vi.fn(), rpc: vi.fn() } }));
 
-type Rows = Record<string, unknown[]>;
-
-function mockTables(tables: Rows): void {
-	vi.mocked(supabase.from).mockImplementation(((table: string) => {
-		const query = {
-			select: vi.fn().mockReturnThis(),
-			is: vi.fn().mockReturnThis(),
-			not: vi.fn().mockReturnThis(),
-			order: vi.fn().mockReturnThis(),
-			range: vi.fn().mockResolvedValue({ data: tables[table] ?? [], error: null }),
-			then: (resolve: (value: unknown) => unknown) =>
-				resolve({ data: tables[table] ?? [], error: null })
-		};
-		return query;
-	}) as never);
-}
-
 describe('loadGlossaryMentions', () => {
 	beforeEach(() => vi.clearAllMocks());
 
-	it('lists the artworks and values whose notes contain the entry or one of its forms', async () => {
-		mockTables({
-			artworks: [
-				{ record_number: 3, title: 'Temple', notes: 'The Tympanum shows a battle.' },
-				{ record_number: 4, title: 'Other', notes: 'Carved tympana everywhere.' },
-				{ record_number: 5, title: 'Unrelated', notes: 'Only a fresco.' }
-			],
-			author_details: [{ value_id: 'author-phidias', notes: 'Known for the tympanum.' }]
-		});
+	it('lists the artworks and values whose notes contain the entry, one of its synonyms or forms', async () => {
+		mockNotesMentions([
+			valueNote('author', 'author-phidias', 'Known for the tympanum.'),
+			artworkNote(3, 'Temple', 'The Tympanum shows a battle.'),
+			artworkNote(4, 'Other', 'Carved tympana everywhere.'),
+			artworkNote(5, 'Unrelated', 'Only a fresco.'),
+			artworkNote(6, 'Synonym', 'A tympan with saints.')
+		]);
 
 		const mentions = await loadGlossaryMentions(
-			testEntry('a-tympanum', 'Tympanum', { forms: ['tympana'] }),
+			testEntry('a-tympanum', 'Tympanum', { synonyms: ['tympan'], forms: ['tympana'] }),
 			testCardIndex()
 		);
 
 		expect(mentions.map((mention) => mention.name)).toEqual([
 			'Phidias',
 			'#0003 Temple',
-			'#0004 Other'
+			'#0004 Other',
+			'#0006 Synonym'
 		]);
+		expect(supabase.rpc).toHaveBeenCalledWith('notes_mentions', {});
 	});
 
 	it('skips notes where the word only appears inside a link or as part of a longer word', async () => {
-		mockTables({
-			artworks: [
-				{ record_number: 3, title: 'Linked', notes: 'See [tympanum](/atelier/1).' },
-				{ record_number: 4, title: 'Longer', notes: 'The tympanums are lost.' }
-			]
-		});
+		mockNotesMentions([
+			artworkNote(3, 'Linked', 'See [tympanum](/atelier/1).'),
+			artworkNote(4, 'Longer', 'The tympanums are lost.')
+		]);
 
 		const mentions = await loadGlossaryMentions(
 			testEntry('a-tympanum', 'Tympanum'),

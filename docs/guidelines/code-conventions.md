@@ -79,7 +79,7 @@ The SvelteKit app in `apps/web/src`:
 - Pages that need a signed-in learner are in the `(app)` group; the start page, sign-in, sign-up and password reset are in `(auth)`. The atelier lives at `/atelier`, one artwork at `/atelier/<record number>`, its edit form at `/atelier/<record number>/edit`, the add form at `/atelier/new`, the trash at `/atelier/trash` ([ADR-0023](../decisions/0023-atelier-routes-and-commons-thumbnails.md)), the card index at `/atelier/values`, a value page at `/atelier/values/<kind>/<id>` and its form at `/atelier/values/<kind>/<id>/edit` ([ADR-0050](../decisions/0050-store-value-pages-in-details-tables.md)); the glossary at `/atelier/glossary`, an entry at `/atelier/glossary/<id>`, its form at `/atelier/glossary/<id>/edit` and the add form at `/atelier/glossary/new` ([ADR-0074](../decisions/0074-keep-a-glossary-of-terms-with-definitions-from-wikipedia.md)); `/` is the start page. Each group's `+layout.ts` redirects by session. A page reachable in both states (for example `update-password`, opened from an email) stays outside the groups.
 - Paths in code are built with `resolve()` from `$app/paths`, for example `resolve('/(auth)/sign-in')`, in views and in `redirect()` alike, so a renamed route fails the type check.
 - Internal navigation follows [ui-patterns.md](ui-patterns.md#links-and-buttons): links for going somewhere, `goto` only after an action.
-- A `goto` after an action that changed data (a save, a delete, moving to the trash) passes `refreshAll: true`. Links preload their page's data on hover, and without it the navigation reuses data loaded before the change, so the page shows the old content until a reload.
+- A `goto` after an action that changed data (a save, a delete, moving to the trash) passes `refreshAll: true`. Links preload their page's data when they are pressed, and without it the navigation reuses data loaded before the change, so the page shows the old content until a reload.
 
 ## UI text
 
@@ -101,7 +101,7 @@ The SvelteKit app in `apps/web/src`:
 ## External services
 
 - URLs of one image source are built in one module, `lib/images/<source>.ts` (for example `commons.ts`). Views and other domains call it instead of writing the URL themselves.
-- The Polish Wikipedia API (the definitions of the glossary) and the Wikidata API it is checked against are called only from `lib/glossary/wikipedia.ts`, through the same `fetchJson` as the image sources, so the identification and the retry are shared. Tests and screenshots mock it: the cloud environment cannot reach `pl.wikipedia.org`.
+- The Polish Wikipedia API (the definitions of the glossary) and the Wikidata API it is checked against are called only from `lib/glossary/wikipedia.ts`, through the same `fetchJson` as the image sources, so the identification and the retry are shared. Tests and screenshots mock it: the cloud environment cannot reach `pl.wikipedia.org`. A local session can, so a change to how the responses are parsed (the definition, the sentences, the lead) is also checked against a handful of live articles before the pull request; sample texts written by hand miss the variety of real leads.
 - A request to a service that asks clients to identify themselves (for example the Wikimedia `Api-User-Agent` header) names the app and the repository URL. It never carries personal data such as an email address.
 - Requests to a rate-limited service are batched where the API allows it, and a 429 is retried at most once, after `Retry-After` ([ADR-0023](../decisions/0023-atelier-routes-and-commons-thumbnails.md)).
 - A SPARQL query to the Wikidata Query Service never follows a subclass path such as `wdt:P31/wdt:P279*`: it runs for tens of seconds and times out. Narrow the results with `FILTER EXISTS` and `FILTER NOT EXISTS` on specific properties and classes instead.
@@ -112,7 +112,7 @@ The SvelteKit app in `apps/web/src`:
 - Functions are `security invoker` with `set search_path = ''` and, when callable from the app, `revoke all ... from public, anon` plus `grant execute ... to authenticated`. A `security definer` function lives in the `private` schema and is not granted to the API roles.
 - Uploaded files sit under a folder named after the owner's id, and the Storage policies compare that folder with `auth.uid()`.
 - `supabase/tests/security.sql` runs in the `migrations` job against the replayed migrations. It checks the rules above for every table and function, and that one learner cannot read or change another's rows or images. A new table, function or policy extends it.
-- `supabase/tests/review-session.sql` runs in the same job and checks the rules of `review_session` on a learner's own artworks, for example which artwork gets a quiz. A change to a session rule extends it.
+- `supabase/tests/review-session.sql` runs in the same job and checks the rules of `review_session` on a learner's own artworks, for example which artwork gets a quiz. A change to a session rule extends it. `review-streak.sql` and `notes-mentions.sql` do the same for `review_streak` and `notes_mentions`.
 - A migration that changes the rules of a function comes with a test in `supabase/tests/` that fails against the previous version of the function and passes with the new one. Check both on the local stack before pushing.
 
 ## Tests

@@ -557,7 +557,7 @@ export const pl = {
 	},
 	cardIndex: {
 		title: 'Kartoteka',
-		lead: 'Tu opisujesz i porządkujesz swoje epoki, okresy, style, autorów i miejsca. Kliknij nazwę, która cię interesuje, żeby zobaczyć szczegóły.',
+		lead: 'Tu opisujesz i porządkujesz swoje epoki, okresy, style, autorów i miejsca. Kliknij nazwę, która Cię interesuje, żeby zobaczyć szczegóły.',
 		loadErrorTitle: 'Nie udało się wczytać Kartoteki',
 		tabsLabel: 'Rodzaje wartości',
 		tabs: {
@@ -694,7 +694,9 @@ export const pl = {
 	},
 	glossary: {
 		title: 'Słowniczek',
-		lead: 'Pojęcia i postaci, które chcesz zapamiętać. Ich definicje pojawią się w twoich notatkach.',
+		count: (count: number): string =>
+			`${count} ${plural(count, { one: 'pojęcie', few: 'pojęcia', many: 'pojęć' })}`,
+		lead: 'Pojęcia i postaci, które chcesz zapamiętać. Ich definicje pojawią się w Twoich notatkach.',
 		back: 'Słowniczek',
 		add: 'Dodaj pojęcie',
 		addShort: 'Dodaj',
@@ -714,7 +716,8 @@ export const pl = {
 			general: 'Pojęcie ogólne'
 		},
 		card: {
-			source: 'Na podstawie Wikipedii, CC BY-SA 4.0'
+			source: 'Na podstawie Wikipedii, CC BY-SA 4.0',
+			open: 'Otwórz w Słowniczku'
 		},
 		view: {
 			also: (forms: string): string => `też: ${forms}`,
@@ -757,9 +760,27 @@ export const pl = {
 			sourcePrefix: 'Na podstawie: Wikipedia, ',
 			pickArticle: 'Wybierz inny artykuł',
 			removeSource: 'Usuń źródło',
-			forms: 'Inne formy',
+			sortByOther: 'Sortuj inaczej niż po nazwie',
+			sortName: 'Sortuj jako',
+			sortNamePlaceholder: 'np. Medici, Lorenzo',
+			sortNameHint: 'Według tego pojęcie trafi pod właściwą literę.',
+			synonyms: 'Synonimy',
+			synonymsHint: 'Inne nazwy tego samego. Pokażą się pod nazwą. Każdą zatwierdzasz Enterem.',
+			forms: 'Odmiana',
+			formsCount: (count: number): string =>
+				`${count} ${plural(count, { one: 'forma', few: 'formy', many: 'form' })}`,
+			showForms: 'Pokaż formy',
+			hideForms: 'Zwiń',
+			formsSearching: 'Szukam odmiany w Wikisłowniku…',
+			formsSkipped: 'Odmianę tego pojęcia musisz dopisać samodzielnie.',
+			formsNone:
+				'Nie udało się odszukać tego hasła w słowniku. Możesz dopisać jego formy samodzielnie.',
+			formsFailed:
+				'Nie udało się połączyć z Wikisłownikiem. Spróbuj jeszcze raz albo dopisz formy samodzielnie.',
+			formsFetch: 'Pobierz z Wikisłownika',
+			formsRefetch: 'Pobierz ponownie',
 			formsHint:
-				'Formy, w których piszesz to słowo w notatkach, np. „tympanonu”. Każdą zatwierdzasz Enterem.',
+				'Formy nie pokazują się pod nazwą. Dzięki nim pojęcie znajdzie się w notatkach także odmienione.',
 			authorWarningSuffix:
 				' jest już w Kartotece jako autor. Możesz dodać ją także tutaj albo opisać na stronie autora.',
 			cancel: 'Anuluj',
@@ -778,8 +799,8 @@ export const pl = {
 			use: 'Użyj tego artykułu'
 		},
 		replaceConfirm: {
-			title: 'Zastąpić twoją definicję?',
-			description: 'Definicja ma już twoje zmiany. Tekst z nowego artykułu je zastąpi.',
+			title: 'Zastąpić Twoją definicję?',
+			description: 'Definicja ma już Twoje zmiany. Tekst z nowego artykułu je zastąpi.',
 			keep: 'Zostaw moją',
 			replace: 'Zastąp'
 		},

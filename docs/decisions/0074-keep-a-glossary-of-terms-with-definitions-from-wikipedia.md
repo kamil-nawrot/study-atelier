@@ -36,7 +36,7 @@ Chosen, decided by the owner in ATL-188: list A, page C, dialog A, background C,
 
 ### List
 
-- The page title "Słowniczek" with the lead "Pojęcia i postacie, które chcesz rozumieć. Ich definicje podpowiadają się w twoich notatkach." The top bar has the way back to the atelier and "Dodaj pojęcie" (the view's `primary` button, "Dodaj" on a phone).
+- The page title "Słowniczek" with the lead "Pojęcia i postacie, które chcesz rozumieć. Ich definicje podpowiadają się w Twoich notatkach." The top bar has the way back to the atelier and "Dodaj pojęcie" (the view's `primary` button, "Dodaj" on a phone).
 - Under the lead, the six categories as `ToggleTag`s with an icon and the number of entries; pressing one filters the list, like the filter panel. A `SearchField` ("Szukaj pojęcia") follows once the glossary has at least 20 entries, as in the card index.
 - Entries are sorted by name in Polish alphabetical order and grouped under their first letter, set large in the title font: to the left of the entries from 768 px, above them over a hairline on a phone. Each entry shows its name (bold, `lg`), its category as a small icon with the name in `--color-fg-muted`, and the first sentence of the definition, at most two lines. The whole entry links to its page.
 
@@ -76,3 +76,4 @@ Chosen, decided by the owner in ATL-188: list A, page C, dialog A, background C,
 - The cloud environment cannot reach `pl.wikipedia.org`, so the search was designed from the API documentation and mocked in the mockups. ATL-189 starts by checking it live on a few entries (nawa, łuk, Dawid).
 - The mockups are in the project files under `atl-188/`.
 - The fetched definition leaves out the term that opens the article, popovers open to the left when they do not fit, the list has a hairline between letters on a computer, and the lead under the title is changed by [ADR-0077](0077-trim-the-wikipedia-lead-and-polish-the-glossary-list.md).
+- The module's name, the list layout, the link from the card to the entry's page, marking in definitions and on flashcards, and the split of the other forms into synonyms and inflected forms are changed by [ADR-0079](0079-connect-the-lexicon-and-suggest-forms-from-wiktionary.md).

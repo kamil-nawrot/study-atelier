@@ -82,3 +82,7 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0076](0076-collect-feedback-in-a-table-from-a-menu-dialog.md)           | Collect feedback in a table, from a dialog in the menu                                 | accepted           |
 | [0077](0077-trim-the-wikipedia-lead-and-polish-the-glossary-list.md)     | Trim the term from a Wikipedia definition and polish the glossary list                 | accepted           |
 | [0078](0078-show-a-streak-of-days-with-reviews-on-the-review-start.md)   | Show a streak of days with reviews on the review start                                 | accepted           |
+| [0079](0079-connect-the-lexicon-and-suggest-forms-from-wiktionary.md)    | Connect the lexicon with learning and suggest the forms of a term from Wiktionary      | accepted           |
+| [0080](0080-keep-the-glossary-name-slowniczek.md)                        | Keep the glossary name "Słowniczek"                                                    | accepted           |
+| [0081](0081-preload-page-data-on-tap.md)                                 | Preload page data when a link is pressed, not when the pointer rests on it             | accepted           |
+| [0082](0082-find-note-mentions-with-one-database-function.md)            | Find note mentions with one database function                                          | accepted           |
