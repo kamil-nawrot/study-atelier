@@ -95,7 +95,9 @@ describe('Dialog', () => {
 		expect(getComputedStyle(document.documentElement).overflow).toBe('hidden');
 		await userEvent.keyboard('{Escape}');
 		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-		expect(getComputedStyle(document.documentElement).overflow).toBe('visible');
+		await vi.waitFor(() =>
+			expect(getComputedStyle(document.documentElement).overflow).toBe('visible')
+		);
 	});
 
 	it('opens and closes when the open prop changes', async () => {
