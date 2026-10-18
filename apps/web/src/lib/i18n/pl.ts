@@ -476,7 +476,7 @@ export const pl = {
 		saveFailed: 'Nie udało się zapisać odpowiedzi. Spróbuj jeszcze raz.',
 		done: 'Gotowe',
 		summary: (count: number, minutes: number, tomorrow: number): string =>
-			`Dziś udało się powtórzyć ${workCount(count)}, zajęło Ci to ${minuteCount(minutes)}.` +
+			reviewedToday(count, minutes) +
 			(tomorrow > 0
 				? ` Jutro ${plural(tomorrow, { one: 'będzie', few: 'będą', many: 'będzie' })} na Ciebie czekać ${workCount(tomorrow)}.`
 				: ''),
@@ -486,7 +486,7 @@ export const pl = {
 			3: 'Opanowane'
 		},
 		freeSummary: (count: number, minutes: number): string =>
-			`Powtórzone ${workCount(count)}, czas ${minutes} min. Plan powtórek się nie zmienił.`,
+			`${reviewedToday(count, minutes)} Plan powtórek się nie zmienił.`,
 		nextRound: (count: number): string => `Następna runda (${count})`,
 		freeNextRound: 'Kolejna runda swobodna'
 	},
@@ -959,6 +959,10 @@ export const pl = {
 type PluralForms = Record<'one' | 'few' | 'many', string>;
 
 const pluralRules = new Intl.PluralRules('pl');
+
+function reviewedToday(count: number, minutes: number): string {
+	return `Dziś udało się powtórzyć ${workCount(count)}, zajęło Ci to ${minuteCount(minutes)}.`;
+}
 
 function minuteCount(count: number): string {
 	return `${count} ${plural(count, { one: 'minutę', few: 'minuty', many: 'minut' })}`;

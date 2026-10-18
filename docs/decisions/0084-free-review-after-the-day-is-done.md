@@ -34,7 +34,7 @@ Chosen options: "when nothing waits today in the whole collection", "artworks al
 - The scope choice offers "Cała kolekcja" and every era, period or style with at least 20 reviewed artworks with an image, each with that number; the forms are those of a scheduled session.
 - `review_session` takes an optional `free_round` and builds the free round in the database, with the quizzes of [ADR-0065](0065-build-review-sessions-in-the-database.md).
 - A free session never calls `record_review`, so nothing is written. A wrong answer comes back 3 to 5 artworks later in the browser only, and the page keeps the cards and the count of new artworks it had before the session.
-- The session bar shows the `Tag` "Tryb swobodny". "Przerwij" says "Odpowiedzi w powtórce swobodnej nie są zapisywane.". The summary says "Powtórzone {n} dzieł, czas {m} min. Plan powtórek się nie zmienił." and offers "Kolejna runda swobodna", without a limit.
+- The session bar shows the `Tag` "Tryb swobodny". "Przerwij" says "Odpowiedzi w powtórce swobodnej nie są zapisywane.". The summary opens with the same sentence as a scheduled one ("Dziś udało się powtórzyć {n} dzieł, zajęło Ci to {m} minut.") and ends with "Plan powtórek się nie zmienił." instead of the artworks waiting tomorrow, and offers "Kolejna runda swobodna", without a limit.
 
 ### Consequences
 
