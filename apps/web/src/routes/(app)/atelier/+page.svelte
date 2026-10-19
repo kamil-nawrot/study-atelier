@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
+	import Layers from '@lucide/svelte/icons/layers';
 	import Plus from '@lucide/svelte/icons/plus';
 	import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
 	import X from '@lucide/svelte/icons/x';
@@ -14,6 +15,8 @@
 		Section,
 		Select,
 		type SelectOption,
+		StepSelect,
+		type StepOption,
 		Toast
 	} from '@study-atelier/ui';
 	import { goto, invalidateAll } from '$app/navigation';
@@ -24,6 +27,7 @@
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import FilterPanel from '#lib/collection/components/FilterPanel.svelte';
 	import FilterTags from '#lib/collection/components/FilterTags.svelte';
+	import WallSections from '#lib/collection/components/WallSections.svelte';
 	import {
 		applyFilter,
 		emptyFilter,
@@ -40,7 +44,17 @@
 	import { WALL_PART } from '#lib/collection/masonry.ts';
 	import PeriodRail from '#lib/collection/components/PeriodRail.svelte';
 	import PeriodStrip from '#lib/collection/components/PeriodStrip.svelte';
-	import { groupByAuthor, groupByEra } from '#lib/collection/periods.ts';
+	import {
+		groupingFromParams,
+		groupWall,
+		orderWall,
+		railGroups,
+		sectionKeys,
+		sectionSequence,
+		WALL_GROUPINGS,
+		wallParams
+	} from '#lib/collection/grouping.ts';
+	import { groupByAuthor } from '#lib/collection/periods.ts';
 	import { MIN_RAIL_MARGIN, PeriodTracker } from '#lib/collection/period-tracker.svelte.ts';
 	import { filterByTitleOrAuthor } from '#lib/collection/search.ts';
 	import type { WallArtwork, WallOrder } from '#lib/collection/types.ts';
@@ -59,6 +73,8 @@
 	let query = $state('');
 	let order = $state<WallOrder>(rememberedWallOrder());
 	let filter = $state(filterFromParams(page.url.searchParams));
+	let grouping = $state(groupingFromParams(page.url.searchParams));
+	const collapsed = new SvelteSet<string>();
 	let panelOpen = $state(false);
 	let panelMounted = $state(false);
 	let viewOpen = $state(false);
@@ -72,7 +88,7 @@
 
 	const orders: SelectOption[] = [
 		{ value: 'recent', label: m.atelier.sort.recent },
-		{ value: 'period', label: m.atelier.sort.period },
+		{ value: 'year', label: m.atelier.sort.year },
 		{ value: 'author', label: m.atelier.sort.author }
 	];
 
@@ -83,11 +99,36 @@
 		window.scrollTo({ top: 0 });
 	}
 
-	export const snapshot: Snapshot<{ query: string; rendered: number }> = {
-		capture: () => ({ query, rendered }),
+	const groupings: StepOption[] = WALL_GROUPINGS.map((value) => ({
+		value,
+		label: m.atelier.grouping.options[value]
+	}));
+
+	function chooseGrouping(value: string): void {
+		const next = WALL_GROUPINGS.find((known) => known === value);
+		if (!next || next === grouping) return;
+		grouping = next;
+		collapsed.clear();
+		window.scrollTo({ top: 0 });
+	}
+
+	function toggleSection(key: string, open: boolean): void {
+		if (open) collapsed.delete(key);
+		else collapsed.add(key);
+	}
+
+	function toggleAll(): void {
+		if (collapsed.size > 0) collapsed.clear();
+		else for (const key of sectionKeys(sections)) collapsed.add(key);
+	}
+
+	export const snapshot: Snapshot<{ query: string; rendered: number; collapsed: string[] }> = {
+		capture: () => ({ query, rendered, collapsed: [...collapsed] }),
 		restore: (value) => {
 			query = value.query;
 			rendered = value.rendered;
+			collapsed.clear();
+			for (const key of value.collapsed ?? []) collapsed.add(key);
 		}
 	};
 
@@ -163,14 +204,22 @@
 	let tags = $derived(filterTags(filter));
 	let filtering = $derived(!isEmptyFilter(filter));
 	let matching = $derived(filterByTitleOrAuthor(filtered, query));
+	let grouped = $derived(grouping !== 'none');
+	let ordered = $derived(orderWall(matching, order));
+	let sections = $derived(groupWall(ordered, grouping));
 	let groups = $derived(
-		order === 'period' ? groupByEra(matching) : order === 'author' ? groupByAuthor(matching) : []
+		grouped ? railGroups(sections) : order === 'author' ? groupByAuthor(matching) : []
 	);
-	let shown = $derived(order === 'recent' ? matching : groups.flatMap((group) => group.artworks));
-	let railLabel = $derived(order === 'author' ? m.atelier.authors.label : m.atelier.periods.label);
+	let shown = $derived(grouped ? sectionSequence(sections) : ordered);
+	let railLabel = $derived(grouped ? m.atelier.periods.label : m.atelier.authors.label);
 	let periodIndexes = $derived(
-		new Map(groups.flatMap((group, index) => group.artworks.map((artwork) => [artwork.id, index])))
+		grouped
+			? undefined
+			: new Map(
+					groups.flatMap((group, index) => group.artworks.map((artwork) => [artwork.id, index]))
+				)
 	);
+	let written = $derived(wallParams(filterToParams(filter), grouping).toString());
 	let total = $derived(artworks.length);
 	let searching = $derived(query.trim() !== '');
 	let showPeriods = $derived(groups.length > 1);
@@ -190,7 +239,6 @@
 	const writtenQueries = new SvelteSet<string>();
 
 	$effect(() => {
-		const written = filterToParams(filter).toString();
 		if (written === untrack(() => page.url.searchParams.toString())) return;
 		untrack(() => writtenQueries.add(written));
 		const target =
@@ -201,7 +249,8 @@
 	$effect(() => {
 		const current = page.url.searchParams.toString();
 		if (untrack(() => writtenQueries.delete(current))) return;
-		if (current === untrack(() => filterToParams(filter).toString())) return;
+		if (current === untrack(() => written)) return;
+		grouping = groupingFromParams(page.url.searchParams);
 		filter = pruneFilter(
 			filterFromParams(page.url.searchParams),
 			untrack(() => artworks)
@@ -210,7 +259,7 @@
 
 	$effect(() => {
 		rememberWallSequence({
-			query: filterToParams(filter).toString(),
+			query: written,
 			numbers: shown.map((artwork) => artwork.number)
 		});
 	});
@@ -232,6 +281,16 @@
 			/>
 		</div>
 		{#if wide.current}
+			<div class="sort">
+				<StepSelect
+					disabled={total === 0}
+					icon={Layers}
+					label={m.atelier.grouping.label}
+					options={groupings}
+					summary={m.atelier.grouping.button[grouping]}
+					bind:value={() => grouping, chooseGrouping}
+				/>
+			</div>
 			<div class="sort">
 				<Select
 					compact
@@ -302,11 +361,18 @@
 	<header>
 		<h1>{m.atelier.title}</h1>
 		{#if total > 0}
-			<span class="caption">
-				{searching || filtering || shown.length < total
-					? m.atelier.filteredCount(shown.length, total)
-					: m.atelier.count(total)}
-			</span>
+			<div class="summary">
+				<span class="caption">
+					{searching || filtering || shown.length < total
+						? m.atelier.filteredCount(shown.length, total)
+						: m.atelier.count(total)}
+				</span>
+				{#if grouped && sections.length > 0}
+					<Button onclick={toggleAll}>
+						{collapsed.size > 0 ? m.atelier.grouping.expandAll : m.atelier.grouping.collapseAll}
+					</Button>
+				{/if}
+			</div>
 		{/if}
 	</header>
 
@@ -346,18 +412,6 @@
 				</div>
 			</Section>
 		</div>
-	{:else if shown.length === 0 && !searching}
-		<div class="state">
-			<Section>
-				<h2>{m.atelier.periods.emptyTitle}</h2>
-				<p class="lead">{m.atelier.periods.empty}</p>
-				<div>
-					<Button onclick={() => chooseOrder('recent')}>
-						{m.atelier.periods.showRecent}
-					</Button>
-				</div>
-			</Section>
-		</div>
 	{:else if shown.length === 0}
 		<div class="state">
 			<Section>
@@ -389,17 +443,32 @@
 				</Button>
 			</Alert>
 		{/if}
-		<ArtworkWall
-			artworks={shown}
-			{highlight}
-			inset={showPeriods && !railFits ? stripHeight : 0}
-			onfavourite={toggleFavourite}
-			onimagefailed={(artwork) => images.failed(artwork)}
-			onnearscreen={(artwork) => images.request(artwork)}
-			{periodIndexes}
-			bind:element={wall}
-			bind:rendered
-		/>
+		{#if grouped}
+			<WallSections
+				{collapsed}
+				{highlight}
+				inset={showPeriods && !railFits ? stripHeight : 0}
+				onfavourite={toggleFavourite}
+				onimagefailed={(artwork) => images.failed(artwork)}
+				onnearscreen={(artwork) => images.request(artwork)}
+				ontoggle={toggleSection}
+				{sections}
+				bind:element={wall}
+				bind:rendered
+			/>
+		{:else}
+			<ArtworkWall
+				artworks={shown}
+				{highlight}
+				inset={showPeriods && !railFits ? stripHeight : 0}
+				onfavourite={toggleFavourite}
+				onimagefailed={(artwork) => images.failed(artwork)}
+				onnearscreen={(artwork) => images.request(artwork)}
+				{periodIndexes}
+				bind:element={wall}
+				bind:rendered
+			/>
+		{/if}
 		{#if showPeriods && railFits}
 			<PeriodRail current={tracker.current} {groups} label={railLabel} width={tracker.margin} />
 		{/if}
@@ -415,6 +484,13 @@
 				label={m.atelier.sort.label}
 				options={orders}
 				bind:value={() => order, chooseOrder}
+			/>
+			<StepSelect
+				disabled={total === 0}
+				inline
+				label={m.atelier.grouping.label}
+				options={groupings}
+				bind:value={() => grouping, chooseGrouping}
 			/>
 			<FilterPanel {artworks} bind:filter />
 		</div>
@@ -441,6 +517,12 @@
 
 	.sort {
 		flex: none;
+	}
+
+	.summary {
+		display: flex;
+		align-items: baseline;
+		gap: var(--spacing-4);
 	}
 
 	header {

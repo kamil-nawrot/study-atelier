@@ -23,6 +23,7 @@ export { default as SearchField } from './components/SearchField.svelte';
 export { default as SearchSelect, type SearchSelectOption } from './components/SearchSelect.svelte';
 export { default as Section } from './components/Section.svelte';
 export { default as Select, type SelectOption } from './components/Select.svelte';
+export { default as StepSelect, type StepOption } from './components/StepSelect.svelte';
 export { default as Tabs, type TabOption } from './components/Tabs.svelte';
 export { default as Tag } from './components/Tag.svelte';
 export { default as TextArea } from './components/TextArea.svelte';

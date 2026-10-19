@@ -168,7 +168,7 @@
 	.bar {
 		position: sticky;
 		top: 0;
-		z-index: 1;
+		z-index: 2;
 		display: flex;
 		box-sizing: content-box;
 		align-items: stretch;

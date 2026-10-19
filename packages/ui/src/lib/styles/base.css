@@ -23,6 +23,7 @@ body,
 h1,
 h2,
 h3,
+h4,
 p,
 figure,
 blockquote,
@@ -49,6 +50,12 @@ h3 {
 	font-size: var(--font-size-md);
 	font-weight: var(--font-weight-bold);
 	line-height: var(--line-height-md);
+}
+
+h4 {
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-bold);
+	line-height: var(--line-height-sm);
 }
 
 .lead {
