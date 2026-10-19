@@ -14,9 +14,11 @@
 		Section,
 		Select,
 		type SelectOption,
+		PopupButton,
 		StepSelect,
 		type StepOption,
-		Toast
+		Toast,
+		Tooltip
 	} from '@study-atelier/ui';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -203,6 +205,20 @@
 	let filtering = $derived(!isEmptyFilter(filter));
 	let matching = $derived(filterByTitleOrAuthor(filtered, query));
 	let grouped = $derived(grouping !== 'none');
+	let depth = $derived(groupingSteps.findIndex((step) => step.value === grouping) + 1);
+	let groupingLabel = $derived(
+		m.atelier.grouping.button(
+			depth === 0
+				? m.atelier.grouping.off
+				: groupingSteps
+						.slice(0, depth)
+						.map((step) => step.label.toLowerCase())
+						.join(' › ')
+		)
+	);
+	let filtersLabel = $derived(
+		filtering ? m.atelier.filters.buttonWithCount(tags.length) : m.atelier.filters.button
+	);
 	let ordered = $derived(orderWall(matching, order));
 	let sections = $derived(groupWall(ordered, grouping));
 	let groups = $derived(
@@ -268,6 +284,26 @@
 	});
 </script>
 
+{#snippet levels()}
+	<span class="levels" aria-hidden="true">
+		{#each groupingSteps as step, index (step.value)}
+			<span class:on={index < depth}></span>
+		{/each}
+	</span>
+{/snippet}
+
+{#snippet groupingChoice()}
+	<div class="grouping-panel">
+		<StepSelect
+			label={m.atelier.grouping.label}
+			size="lg"
+			steps={groupingSteps}
+			bind:value={() => (grouping === 'none' ? '' : grouping), chooseGrouping}
+		/>
+		<p class="caption">{m.atelier.grouping.hint}</p>
+	</div>
+{/snippet}
+
 <AtelierLayout email={data.session.user.email ?? ''} title={m.atelier.title} bind:barHeight>
 	{#snippet bar()}
 		<div class="tools">
@@ -280,6 +316,12 @@
 				/>
 			</div>
 			{#if wide.current}
+				<PopupButton disabled={total === 0} label={groupingLabel}>
+					{#snippet trigger()}
+						{@render levels()}
+					{/snippet}
+					{@render groupingChoice()}
+				</PopupButton>
 				<div class="sort">
 					<Select
 						compact
@@ -291,25 +333,28 @@
 					/>
 				</div>
 			{/if}
-			<Button
-				aria-expanded={wide.current ? panelOpen : undefined}
-				aria-haspopup={wide.current ? undefined : 'dialog'}
-				aria-label={wide.current ? undefined : m.atelier.filters.viewButton}
-				disabled={total === 0}
-				onclick={() => (wide.current ? (panelOpen = !panelOpen) : (viewOpen = true))}
-				variant={!wide.current && filtering ? 'primary' : 'secondary'}
-			>
-				<Icon icon={SlidersHorizontal} />
-				<span class="filters-label">
-					{filtering ? m.atelier.filters.buttonWithCount(tags.length) : m.atelier.filters.button}
-				</span>
-			</Button>
-			<Button aria-label={m.atelier.add} href={addPath} variant="primary">
-				<Icon icon={Plus} />
-				<span class="add-label">
-					{m.atelier.add}
-				</span>
-			</Button>
+			<Tooltip align="end" placement="bottom" text={filtersLabel}>
+				{#snippet children(id)}
+					<Button
+						aria-describedby={id}
+						aria-expanded={wide.current ? panelOpen : undefined}
+						aria-haspopup={wide.current ? undefined : 'dialog'}
+						aria-label={wide.current ? filtersLabel : m.atelier.filters.viewButton}
+						disabled={total === 0}
+						onclick={() => (wide.current ? (panelOpen = !panelOpen) : (viewOpen = true))}
+						variant={filtering ? 'primary' : 'secondary'}
+					>
+						<Icon icon={SlidersHorizontal} />
+					</Button>
+				{/snippet}
+			</Tooltip>
+			<Tooltip align="end" placement="bottom" text={m.atelier.add}>
+				{#snippet children(id)}
+					<Button aria-describedby={id} aria-label={m.atelier.add} href={addPath} variant="primary">
+						<Icon icon={Plus} />
+					</Button>
+				{/snippet}
+			</Tooltip>
 		</div>
 	{/snippet}
 
@@ -351,28 +396,20 @@
 	<header>
 		<h1>{m.atelier.title}</h1>
 		{#if total > 0}
-			<span class="caption">
-				{searching || filtering || shown.length < total
-					? m.atelier.filteredCount(shown.length, total)
-					: m.atelier.count(total)}
-			</span>
+			<div class="summary">
+				{#if grouped && sections.length > 0}
+					<button class="toggle-all" onclick={toggleAll} type="button">
+						{collapsed.size > 0 ? m.atelier.grouping.expandAll : m.atelier.grouping.collapseAll}
+					</button>
+				{/if}
+				<span class="caption">
+					{searching || filtering || shown.length < total
+						? m.atelier.filteredCount(shown.length, total)
+						: m.atelier.count(total)}
+				</span>
+			</div>
 		{/if}
 	</header>
-
-	{#if total > 0 && !data.error}
-		<div class="grouping">
-			<StepSelect
-				label={m.atelier.grouping.label}
-				steps={groupingSteps}
-				bind:value={() => (grouping === 'none' ? '' : grouping), chooseGrouping}
-			/>
-			{#if grouped && sections.length > 0}
-				<button class="toggle-all" onclick={toggleAll} type="button">
-					{collapsed.size > 0 ? m.atelier.grouping.expandAll : m.atelier.grouping.collapseAll}
-				</button>
-			{/if}
-		</div>
-	{/if}
 
 	{#if data.error}
 		<Alert title={m.atelier.loadErrorTitle} tone="danger">
@@ -483,6 +520,7 @@
 				options={orders}
 				bind:value={() => order, chooseOrder}
 			/>
+			{@render groupingChoice()}
 			<FilterPanel {artworks} bind:filter />
 		</div>
 		{#snippet footer()}
@@ -519,12 +557,41 @@
 		flex: none;
 	}
 
-	.grouping {
+	.summary {
 		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-		align-items: center;
+		align-items: baseline;
 		gap: var(--spacing-4);
+	}
+
+	.levels {
+		display: grid;
+		gap: var(--spacing-1);
+		width: 24px;
+	}
+
+	.levels span {
+		height: var(--border-width-button);
+		background: var(--color-fg-muted);
+		opacity: 0.35;
+	}
+
+	.levels span:nth-child(2) {
+		margin-inline-start: var(--spacing-1);
+	}
+
+	.levels span:nth-child(3) {
+		margin-inline-start: var(--spacing-2);
+	}
+
+	.levels span.on {
+		background: var(--color-fg);
+		opacity: 1;
+	}
+
+	.grouping-panel {
+		display: grid;
+		gap: var(--spacing-3);
+		width: max-content;
 	}
 
 	.toggle-all {
@@ -554,11 +621,6 @@
 
 	.state {
 		max-width: var(--size-content-default);
-	}
-
-	.add-label,
-	.filters-label {
-		display: none;
 	}
 
 	.view {
@@ -630,12 +692,5 @@
 		background: transparent;
 		color: var(--color-fg);
 		cursor: pointer;
-	}
-
-	@media (min-width: 768px) {
-		.add-label,
-		.filters-label {
-			display: inline;
-		}
 	}
 </style>

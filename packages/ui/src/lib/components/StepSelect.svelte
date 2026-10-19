@@ -11,9 +11,10 @@
 		steps: readonly StepOption[];
 		value?: string;
 		disabled?: boolean;
+		size?: 'sm' | 'lg';
 	};
 
-	let { label, steps, value = $bindable(''), disabled = false }: Props = $props();
+	let { label, steps, value = $bindable(''), disabled = false, size = 'sm' }: Props = $props();
 
 	const id = $props.id();
 	const labelId = `${id}-label`;
@@ -25,7 +26,7 @@
 	}
 </script>
 
-<div class="steps" aria-labelledby={labelId} role="group">
+<div class="steps {size}" aria-labelledby={labelId} role="group">
 	<span id={labelId} class="label">{label}</span>
 	{#each steps as step, index (step.value)}
 		{#if index > 0}
@@ -69,6 +70,24 @@
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-xs);
 		cursor: pointer;
+	}
+
+	.lg {
+		gap: var(--spacing-3);
+	}
+
+	.lg .label {
+		flex-basis: 100%;
+		color: var(--color-fg);
+		font-weight: var(--font-weight-medium);
+	}
+
+	.lg .step {
+		min-width: 96px;
+		min-height: var(--size-control);
+		padding: var(--spacing-3) var(--spacing-4);
+		font-size: var(--font-size-md);
+		line-height: var(--line-height-md);
 	}
 
 	.step:hover:not(:disabled, .pressed) {

@@ -98,8 +98,16 @@ function groupingStep(grouping: 'era' | 'period' | 'style'): ReturnType<typeof p
 		.getByRole('button', { name: m.atelier.grouping.steps[grouping] });
 }
 
+function groupingButton(): ReturnType<typeof page.getByRole> {
+	return page.getByRole('button', { name: m.atelier.grouping.button('') });
+}
+
 async function chooseGrouping(grouping: 'era' | 'period' | 'style'): Promise<void> {
+	const wide = window.innerWidth >= 768;
+	if (wide) await groupingButton().click();
+	else await page.getByRole('button', { name: m.atelier.filters.viewButton }).click();
 	await groupingStep(grouping).click();
+	await userEvent.keyboard('{Escape}');
 }
 
 const styled = [
@@ -451,7 +459,9 @@ describe('atelier page', () => {
 		it('starts without groups', async () => {
 			renderAtelier(dated);
 
-			await expect.element(groupingStep('era')).toHaveAttribute('aria-pressed', 'false');
+			await expect
+				.element(groupingButton())
+				.toHaveAccessibleName(m.atelier.grouping.button(m.atelier.grouping.off));
 			await expect.element(page.getByRole('heading', { level: 2 })).not.toBeInTheDocument();
 		});
 
@@ -864,7 +874,9 @@ describe('atelier page', () => {
 			renderAtelier(styled);
 
 			expect(titlesOnTheWall(styled)).toEqual(['Water Lilies', 'Impression, Sunrise']);
-			await expect.element(filtersButton()).toHaveTextContent(m.atelier.filters.buttonWithCount(2));
+			await expect
+				.element(filtersButton())
+				.toHaveAccessibleName(m.atelier.filters.buttonWithCount(2));
 		});
 
 		it('ignores values in the address that no artwork has', async () => {

@@ -176,7 +176,10 @@ export const pl = {
 			author: 'Według autorów'
 		},
 		grouping: {
-			label: 'Grupuj:',
+			label: 'Grupuj',
+			button: (levels: string): string => `Grupowanie: ${levels}`,
+			off: 'wyłączone',
+			hint: 'Kliknij jeszcze raz najniższy poziom, żeby go wyłączyć.',
 			steps: {
 				era: 'Epoka',
 				period: 'Okres',
