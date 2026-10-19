@@ -24,13 +24,15 @@
 	import { saveGlossaryEntry } from '../glossary-data.ts';
 	import {
 		authorNamed,
+		cappedForms,
 		cleanForms,
 		DEFINITION_MAX_LENGTH,
 		draftChanged,
 		draftOf,
 		emptyDraft,
 		findNameConflict,
-		NAME_MAX_LENGTH
+		NAME_MAX_LENGTH,
+		SYNONYMS_MAX_COUNT
 	} from '../glossary.ts';
 	import type { GlossaryDraft, GlossaryEntry, WikipediaArticle } from '../types.ts';
 	import { searchArticles, sourceOf } from '../wikipedia.ts';
@@ -66,6 +68,9 @@
 	let formsStatus = $state<FormsStatus>('idle');
 	let formsAutoFilled = $state<string[] | null>(null);
 	let formsName = $state<string | null>(untrack(() => existing?.name.trim() ?? null));
+	let nameForms = $state<string[]>([]);
+	let synonymForms = $state<Record<string, string[]>>({});
+	let synonymMessage = $state<string>();
 	let autoFilled = $state<string | null>(null);
 	let status = $state<SearchStatus>('idle');
 	let articles = $state<WikipediaArticle[]>([]);
@@ -79,6 +84,7 @@
 	let busy = $state(false);
 	let request = 0;
 	let formsRequest = 0;
+	let knownSynonyms = untrack(() => [...form.synonyms]);
 
 	const changes = new UnsavedChanges(
 		() => $state.snapshot(form),
@@ -129,24 +135,85 @@
 		);
 	}
 
+	function synonymKey(word: string): string {
+		return word.trim().toLocaleLowerCase('pl');
+	}
+
+	function eligibleSynonyms(): string[] {
+		return form.synonyms.filter((word) => suggestsForms(word, form.category));
+	}
+
+	function setForms(forms: string[]): void {
+		const wasReplaceable = formsReplaceable();
+		form.forms = cappedForms(forms);
+		if (wasReplaceable) formsAutoFilled = form.forms;
+	}
+
 	async function suggestForms(): Promise<void> {
 		const name = form.name.trim();
 		if (!suggestsForms(name, form.category)) return;
 		const current = ++formsRequest;
 		formsStatus = 'searching';
+		synonymMessage = undefined;
+		const words = eligibleSynonyms();
 		try {
-			const found = await fetchForms(name);
+			const [found, ...synonyms] = await Promise.all(
+				[name, ...words].map((word) => fetchForms(word))
+			);
 			if (current !== formsRequest) return;
-			form.forms = found;
-			formsAutoFilled = found;
+			nameForms = found;
+			synonymForms = Object.fromEntries(words.map((word, i) => [synonymKey(word), synonyms[i]]));
+			form.forms = cappedForms([...found, ...synonyms.flat()]);
+			formsAutoFilled = form.forms;
 			formsName = name;
-			formsStatus = found.length > 0 ? 'found' : 'none';
-			if (found.length > 0) formsExpanded = false;
+			formsStatus = form.forms.length > 0 ? 'found' : 'none';
+			if (form.forms.length > 0) formsExpanded = false;
 		} catch {
 			if (current !== formsRequest) return;
 			formsStatus = 'failed';
 		}
 	}
+
+	async function addSynonymForms(word: string): Promise<void> {
+		if (!suggestsForms(word, form.category)) return;
+		const key = synonymKey(word);
+		synonymMessage = m.glossary.form.synonymFormsSearching(word);
+		try {
+			const found = await fetchForms(word);
+			if (!form.synonyms.some((synonym) => synonymKey(synonym) === key)) return;
+			synonymForms = { ...synonymForms, [key]: found };
+			setForms([...form.forms, ...found]);
+			synonymMessage = found.length > 0 ? undefined : m.glossary.form.synonymFormsNone(word);
+		} catch {
+			synonymMessage = m.glossary.form.formsFailed;
+		}
+	}
+
+	function dropSynonymForms(word: string): void {
+		const key = synonymKey(word);
+		const dropped = synonymForms[key];
+		if (!dropped) return;
+		const rest = Object.fromEntries(
+			Object.entries(synonymForms).filter(([synonym]) => synonym !== key)
+		);
+		synonymForms = rest;
+		const kept = new Set([...nameForms, ...Object.values(rest).flat()]);
+		setForms(form.forms.filter((item) => kept.has(item) || !dropped.includes(item)));
+		synonymMessage = undefined;
+	}
+
+	$effect(() => {
+		const current = [...form.synonyms];
+		untrack(() => {
+			const known = new Set(knownSynonyms.map(synonymKey));
+			const now = new Set(current.map(synonymKey));
+			const removed = knownSynonyms.filter((word) => !now.has(synonymKey(word)));
+			const added = current.filter((word) => !known.has(synonymKey(word)));
+			knownSynonyms = current;
+			removed.forEach(dropSynonymForms);
+			added.forEach((word) => void addSynonymForms(word));
+		});
+	});
 
 	$effect(() => {
 		if (existing) return;
@@ -394,14 +461,18 @@
 			</div>
 
 			<ValueField
-				hint={m.glossary.form.synonymsHint}
+				hint={form.synonyms.length >= SYNONYMS_MAX_COUNT
+					? m.glossary.form.synonymsFull
+					: m.glossary.form.synonymsHint}
 				label={m.glossary.form.synonyms}
+				max={SYNONYMS_MAX_COUNT}
 				options={synonymOptions}
 				bind:query={synonymsQuery}
 				bind:values={form.synonyms}
 			/>
 
 			<InflectionField
+				message={formsStatus === 'searching' ? undefined : synonymMessage}
 				offer={formsOffer}
 				onfetch={suggestForms}
 				options={formOptions}

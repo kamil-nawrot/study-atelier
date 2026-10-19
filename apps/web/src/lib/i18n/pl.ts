@@ -786,13 +786,18 @@ export const pl = {
 			sortNamePlaceholder: 'np. Medici, Lorenzo',
 			sortNameHint: 'Według tego pojęcie trafi pod właściwą literę.',
 			synonyms: 'Synonimy',
-			synonymsHint: 'Inne nazwy tego samego. Pokażą się pod nazwą. Każdą zatwierdzasz Enterem.',
+			synonymsHint:
+				'Inne nazwy tego samego. Pokażą się pod nazwą, a ich odmiana trafi do „Odmiany”. Każdą zatwierdzasz Enterem.',
+			synonymsFull: 'Najwyżej 3 synonimy. Usuń któryś, żeby dodać inny.',
 			forms: 'Odmiana',
 			formsCount: (count: number): string =>
 				`${count} ${plural(count, { one: 'forma', few: 'formy', many: 'form' })}`,
 			showForms: 'Pokaż formy',
 			hideForms: 'Zwiń',
 			formsSearching: 'Szukam odmiany w Wikisłowniku…',
+			synonymFormsSearching: (word: string): string => `Szukam odmiany „${word}” w Wikisłowniku…`,
+			synonymFormsNone: (word: string): string =>
+				`Nie udało się odszukać „${word}” w słowniku. Możesz dopisać formy samodzielnie.`,
 			formsSkipped: 'Odmianę tego pojęcia musisz dopisać samodzielnie.',
 			formsNone:
 				'Nie udało się odszukać tego hasła w słowniku. Możesz dopisać jego formy samodzielnie.',

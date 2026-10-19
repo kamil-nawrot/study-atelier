@@ -16,6 +16,7 @@
 		expanded: boolean;
 		status?: FormsStatus;
 		offer?: FormsOffer;
+		message?: string;
 		onfetch?: () => void;
 	};
 
@@ -26,6 +27,7 @@
 		expanded = $bindable(),
 		status = 'idle',
 		offer,
+		message,
 		onfetch
 	}: Props = $props();
 
@@ -43,9 +45,10 @@
 
 	let open = $derived(expanded || forms.length === 0);
 	let summary = $derived(
-		status === 'searching' || forms.length === 0
-			? STATUS_TEXTS[status]
-			: m.glossary.form.formsCount(forms.length)
+		message ??
+			(status === 'searching' || forms.length === 0
+				? STATUS_TEXTS[status]
+				: m.glossary.form.formsCount(forms.length))
 	);
 	let action = $derived(
 		status === 'searching'
