@@ -1,6 +1,5 @@
 <script lang="ts">
-	import ChevronDown from '@lucide/svelte/icons/chevron-down';
-	import { Icon } from '@study-atelier/ui';
+	import { Disclosure } from '@study-atelier/ui';
 	import { eraIcon } from '../eras.ts';
 	import { allocateTiles } from '../grouping.ts';
 	import { WALL_MARGIN, WALL_PART } from '../masonry.ts';
@@ -33,6 +32,8 @@
 		onnearscreen
 	}: Props = $props();
 
+	const HEADING_LEVELS = [2, 3, 4] as const;
+
 	let budget = $derived(allocateTiles(sections, collapsed, rendered));
 
 	function watchEnd(element: HTMLElement): () => void {
@@ -50,40 +51,34 @@
 {#snippet section(item: WallSection, railIndex?: number)}
 	{#if budget.shown.has(item.key)}
 		<section class="section level-{item.level}" data-period={railIndex}>
-			<details
-				ontoggle={(event) => ontoggle(item.key, event.currentTarget.open)}
+			<Disclosure
+				count={item.artworks.length}
+				icon={item.code ? eraIcon(item.code) : undefined}
+				lazy
+				level={HEADING_LEVELS[item.level - 1]}
+				muted={item.level === 3}
+				ontoggle={(open) => ontoggle(item.key, open)}
 				open={!collapsed.has(item.key)}
+				title={item.name}
 			>
-				<summary>
-					<svelte:element this={`h${item.level + 1}`} class="heading">
-						{#if item.code}
-							<Icon icon={eraIcon(item.code)} size={item.level === 1 ? 'md' : 'sm'} />
-						{/if}
-						{item.name}
-						<span class="count">{item.artworks.length}</span>
-					</svelte:element>
-					<Icon icon={ChevronDown} size="sm" />
-				</summary>
-				{#if !collapsed.has(item.key)}
-					{#if item.sections.length > 0}
-						<div class="sections">
-							{#each item.sections as child (child.key)}
-								{@render section(child)}
-							{/each}
-						</div>
-					{:else}
-						<ArtworkWall
-							artworks={item.artworks.slice(0, budget.shown.get(item.key))}
-							{highlight}
-							{inset}
-							{onfavourite}
-							{onimagefailed}
-							{onnearscreen}
-							rendered={item.artworks.length}
-						/>
-					{/if}
+				{#if item.sections.length > 0}
+					<div class="sections">
+						{#each item.sections as child (child.key)}
+							{@render section(child)}
+						{/each}
+					</div>
+				{:else}
+					<ArtworkWall
+						artworks={item.artworks.slice(0, budget.shown.get(item.key))}
+						{highlight}
+						{inset}
+						{onfavourite}
+						{onimagefailed}
+						{onnearscreen}
+						rendered={item.artworks.length}
+					/>
 				{/if}
-			</details>
+			</Disclosure>
 		</section>
 	{/if}
 {/snippet}
@@ -114,68 +109,11 @@
 		border-top: var(--border-width-hairline) solid var(--color-tag);
 	}
 
-	.level-3 .heading {
-		color: var(--color-fg-muted);
-		font-weight: var(--font-weight-medium);
-	}
-
-	.level-3 .count {
-		outline: var(--border-width-hairline) solid var(--color-fg-muted);
-		outline-offset: calc(-1 * var(--border-width-hairline));
-		background: transparent;
-		color: var(--color-fg-muted);
-	}
-
 	.level-1 .sections {
 		margin-top: var(--spacing-2);
 	}
 
 	.level-2 .sections {
 		gap: var(--spacing-6);
-	}
-
-	summary {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-		width: fit-content;
-		list-style: none;
-		cursor: pointer;
-	}
-
-	summary::-webkit-details-marker {
-		display: none;
-	}
-
-	details[open] > summary {
-		margin-bottom: var(--spacing-4);
-	}
-
-	details[open] > summary > :global(svg) {
-		rotate: 180deg;
-	}
-
-	.heading {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-	}
-
-	.count {
-		min-width: 16px;
-		padding: 0 var(--spacing-1);
-		background: var(--color-fg);
-		color: var(--color-bg);
-		font-size: var(--font-size-xs);
-		font-weight: var(--font-weight-bold);
-		line-height: var(--line-height-xs);
-		text-align: center;
-		font-variant-numeric: tabular-nums;
-	}
-
-	@media (prefers-reduced-motion: no-preference) {
-		summary > :global(svg) {
-			transition: rotate var(--duration-short) ease-out;
-		}
 	}
 </style>

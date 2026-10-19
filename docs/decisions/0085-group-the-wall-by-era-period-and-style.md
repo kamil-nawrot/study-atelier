@@ -66,7 +66,7 @@ Chosen by the owner, after a prototype on the wall:
 - To make room, "Filtry" and "Dodaj dzieło" are icons with tooltips, "Filtry" filled while a filter is on, and the search field narrows. The controls of the top bar line up with both edges of the wall.
 - On a phone the steps sit in the "Widok" dialog under the order.
 - A select with stepped options and the steps under the title were tried in the prototype and turned down: the first did not look right, the second put the control out of the top bar.
-- The popover (`PopupButton`), the steps (`StepSelect`) and an underlined text button (`TextButton`, also used by "Wyczyść filtry") are library components. The popover is a `button` with a `div` of role `dialog`, not a native control.
+- The popover (`PopupButton`), the steps (`StepSelect`), the collapsible group (`Disclosure`, also used by the review summary) and an underlined text button (`TextButton`, also used by "Wyczyść filtry") are library components. The popover is a `button` with a `div` of role `dialog`, not a native control.
 - Tooltips now open on hover and on keyboard focus only, so a clicked button does not keep its tooltip, and stay hidden while the button's panel is open.
 
 ### Consequences

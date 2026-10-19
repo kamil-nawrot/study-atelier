@@ -1,6 +1,5 @@
 <script lang="ts">
-	import ChevronDown from '@lucide/svelte/icons/chevron-down';
-	import { Button, Icon } from '@study-atelier/ui';
+	import { Button, Disclosure } from '@study-atelier/ui';
 	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
 	import { m } from '#lib/i18n/index.ts';
 	import type { SummaryGroup } from '../overview.ts';
@@ -51,16 +50,14 @@
 
 	{#each groups as group (group.rating)}
 		<section aria-labelledby="review-group-{group.rating}">
-			<details class="group" open={group.rating === 1}>
-				<summary>
-					<h2 id="review-group-{group.rating}">
-						{m.review.groups[group.rating]}
-						<span class="count">{group.artworks.length}</span>
-					</h2>
-					<Icon icon={ChevronDown} size="sm" />
-				</summary>
+			<Disclosure
+				id="review-group-{group.rating}"
+				count={group.artworks.length}
+				open={group.rating === 1}
+				title={m.review.groups[group.rating]}
+			>
 				<ArtworkWall artworks={group.artworks} />
-			</details>
+			</Disclosure>
 		</section>
 	{/each}
 </div>
@@ -88,45 +85,6 @@
 		gap: var(--spacing-3);
 	}
 
-	summary {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-		width: fit-content;
-		list-style: none;
-		cursor: pointer;
-	}
-
-	summary::-webkit-details-marker {
-		display: none;
-	}
-
-	.group[open] summary {
-		margin-bottom: var(--spacing-4);
-	}
-
-	.group[open] summary :global(svg) {
-		rotate: 180deg;
-	}
-
-	h2 {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-	}
-
-	.count {
-		min-width: 16px;
-		padding: 0 var(--spacing-1);
-		background: var(--color-fg);
-		color: var(--color-bg);
-		font-size: var(--font-size-xs);
-		font-weight: var(--font-weight-bold);
-		line-height: var(--line-height-xs);
-		text-align: center;
-		font-variant-numeric: tabular-nums;
-	}
-
 	@media (min-width: 768px) {
 		.head {
 			grid-template-columns: minmax(0, 1fr) auto;
@@ -136,12 +94,6 @@
 		.actions {
 			display: flex;
 			flex-wrap: wrap;
-		}
-	}
-
-	@media (prefers-reduced-motion: no-preference) {
-		summary :global(svg) {
-			transition: rotate var(--duration-short) ease-out;
 		}
 	}
 </style>
