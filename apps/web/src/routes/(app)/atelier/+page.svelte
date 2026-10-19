@@ -316,7 +316,7 @@
 				/>
 			</div>
 			{#if wide.current}
-				<PopupButton disabled={total === 0} label={groupingLabel}>
+				<PopupButton disabled={total === 0} label={groupingLabel} tooltip>
 					{#snippet trigger()}
 						{@render levels()}
 					{/snippet}

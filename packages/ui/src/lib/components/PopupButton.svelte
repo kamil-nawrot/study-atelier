@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import Button from './Button.svelte';
+	import Tooltip from './Tooltip.svelte';
 
 	type Props = {
 		label: string;
@@ -8,9 +9,17 @@
 		children: Snippet;
 		disabled?: boolean;
 		align?: 'start' | 'end';
+		tooltip?: boolean;
 	};
 
-	let { label, trigger, children, disabled = false, align = 'start' }: Props = $props();
+	let {
+		label,
+		trigger,
+		children,
+		disabled = false,
+		align = 'start',
+		tooltip = false
+	}: Props = $props();
 
 	const id = $props.id();
 	const panelId = `${id}-panel`;
@@ -39,17 +48,29 @@
 </script>
 
 <div bind:this={root} class="popup" {@attach closeOutside}>
-	<Button
-		aria-controls={panelId}
-		aria-expanded={open}
-		aria-haspopup="dialog"
-		aria-label={label}
-		{disabled}
-		onclick={() => (open = !open)}
-		{onkeydown}
-	>
-		{@render trigger()}
-	</Button>
+	{#snippet control(describedby?: string)}
+		<Button
+			aria-controls={panelId}
+			aria-describedby={describedby}
+			aria-expanded={open}
+			aria-haspopup="dialog"
+			aria-label={label}
+			{disabled}
+			onclick={() => (open = !open)}
+			{onkeydown}
+		>
+			{@render trigger()}
+		</Button>
+	{/snippet}
+	{#if tooltip}
+		<Tooltip {align} placement="bottom" text={label}>
+			{#snippet children(id)}
+				{@render control(id)}
+			{/snippet}
+		</Tooltip>
+	{:else}
+		{@render control()}
+	{/if}
 	<div
 		id={panelId}
 		class="panel"

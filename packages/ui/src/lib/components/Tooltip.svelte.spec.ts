@@ -40,6 +40,35 @@ describe('Tooltip', () => {
 		await expect.element(page.getByRole('tooltip')).toBeVisible();
 	});
 
+	it('hides the text once the pointer leaves a clicked control, though it keeps the focus', async () => {
+		render(Tooltip, {
+			text: 'Filters',
+			children: createRawSnippet((describedby: () => string) => ({
+				render: () => `<button aria-describedby="${describedby()}" type="button">Open</button>`
+			}))
+		});
+
+		await page.getByRole('button', { name: 'Open' }).click();
+		await userEvent.unhover(page.getByRole('button', { name: 'Open' }));
+
+		await expect.element(page.getByRole('button', { name: 'Open' })).toHaveFocus();
+		await expect.element(page.getByText('Filters')).not.toBeVisible();
+	});
+
+	it('hides the text while the control has its panel open', async () => {
+		render(Tooltip, {
+			text: 'Filters',
+			children: createRawSnippet((describedby: () => string) => ({
+				render: () =>
+					`<button aria-describedby="${describedby()}" aria-expanded="true" type="button">Open</button>`
+			}))
+		});
+
+		await userEvent.hover(page.getByRole('button', { name: 'Open' }));
+
+		await expect.element(page.getByText('Filters')).not.toBeVisible();
+	});
+
 	it('describes the wrapped control with the text', async () => {
 		renderTooltip();
 
