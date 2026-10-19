@@ -1,10 +1,9 @@
 import { m } from '#lib/i18n/index.ts';
 import { authorSortKeys, compareSortKeys, sortKeyOf } from './author-sort.ts';
-import { ERA_CODES, eraName } from './eras.ts';
 import { UNKNOWN_AUTHOR } from './filter.ts';
 import type { EraCode, PeriodGroup, WallArtwork } from './types.ts';
 
-function byYear(a: WallArtwork, b: WallArtwork): number {
+export function byYear(a: WallArtwork, b: WallArtwork): number {
 	if (a.yearTo === null && b.yearTo === null) return a.number - b.number;
 	if (a.yearTo === null) return 1;
 	if (b.yearTo === null) return -1;
@@ -42,14 +41,6 @@ function group(
 		to: ends.length > 0 ? Math.max(...ends) : null,
 		artworks: members.sort(byYear)
 	};
-}
-
-export function groupByEra(artworks: WallArtwork[]): PeriodGroup[] {
-	const groups = collect(artworks, (artwork) => artwork.eraCode);
-	return ERA_CODES.flatMap((code): PeriodGroup[] => {
-		const members = groups.get(code);
-		return members ? [group(code, code, eraName(code), members)] : [];
-	});
 }
 
 export function groupByAuthor(artworks: WallArtwork[]): PeriodGroup[] {

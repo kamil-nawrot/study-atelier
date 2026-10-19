@@ -25,6 +25,7 @@
 - A fixed set of values is a string literal union type, for example `'one' | 'few' | 'many'`, not a TypeScript `enum`.
 - Attributes of Svelte elements and components are kept in a fixed order by ESLint `svelte/sort-attributes`: identity (`this`, `id`, `name`) first, then `style` and `class`, then all other attributes and props alphabetically (event handlers such as `onclick` included), then `bind:` directives, then directives such as `use:` and `transition:`. `pnpm exec eslint --fix` sorts them.
 - A CSS animation is one full `animation` shorthand that names its keyframes, for example `animation: fade 5.6s linear infinite`. The production CSS minifier turns a shorthand without a name into `animation: none`, so a name set by another rule runs for 0 s and only the build shows it. `packages/ui/src/lib/components/animations.test.ts` checks the library components.
+- Svelte scopes every selector of a component's `<style>` to the component's own elements, also inside `:has()`. A selector in `:has()` that must match an element rendered by a child component or a snippet is wrapped in `:global(...)`, for example `.tooltip:has(:global(:focus-visible))`; without it the rule silently never applies, so it needs a browser test.
 - Markup has no wrapper elements without a purpose. Prefer a semantic element (`footer`, `section`, `nav`) to a `div` when one fits.
 - `pnpm lint` runs Prettier, ESLint and Stylelint inside each pnpm package, so code outside them (for example a future Go backend) is not touched and uses its own language tooling.
 

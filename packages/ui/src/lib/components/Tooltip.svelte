@@ -58,7 +58,11 @@
 	}
 
 	.tooltip:hover .bubble,
-	.tooltip:focus-within .bubble {
+	.tooltip:has(:global(:focus-visible)) .bubble {
 		visibility: visible;
+	}
+
+	.tooltip:has(:global([aria-expanded='true'])) .bubble {
+		visibility: hidden;
 	}
 </style>

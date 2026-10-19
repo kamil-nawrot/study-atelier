@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Tag } from '@study-atelier/ui';
+	import { Tag, TextButton } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { tagLabel, tagParts } from '../filter.ts';
 	import type { FilterTag } from '../types.ts';
@@ -30,9 +30,9 @@
 			</li>
 		{/each}
 		<li>
-			<button class="clear" onclick={onclear} type="button">
+			<TextButton onclick={onclear}>
 				{m.atelier.filters.clear}
-			</button>
+			</TextButton>
 		</li>
 	</ul>
 {/if}
@@ -54,18 +54,5 @@
 		font-size: var(--font-size-xs);
 		letter-spacing: var(--letter-spacing-wide);
 		text-transform: uppercase;
-	}
-
-	.clear {
-		padding: var(--spacing-1) var(--spacing-2);
-		border: none;
-		background: transparent;
-		color: var(--color-fg);
-		font: inherit;
-		font-size: var(--font-size-sm);
-		text-decoration: underline;
-		text-underline-offset: var(--spacing-1);
-		white-space: nowrap;
-		cursor: pointer;
 	}
 </style>

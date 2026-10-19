@@ -172,15 +172,27 @@ export const pl = {
 		sort: {
 			label: 'Kolejność',
 			recent: 'Ostatnio dodane',
-			period: 'Według epok',
+			year: 'Według daty powstania',
 			author: 'Według autorów'
 		},
+		grouping: {
+			label: 'Grupuj',
+			button: (levels: string): string => `Grupowanie: ${levels}`,
+			off: 'wyłączone',
+			hint: 'Kliknij jeszcze raz najniższy poziom, żeby go wyłączyć.',
+			steps: {
+				era: 'Epoka',
+				period: 'Okres',
+				style: 'Styl'
+			},
+			noEra: 'Bez epoki',
+			noPeriod: 'Bez okresu',
+			noStyle: 'Bez stylu',
+			collapseAll: 'Zwiń wszystkie',
+			expandAll: 'Rozwiń wszystkie'
+		},
 		periods: {
-			label: 'Epoki',
-			emptyTitle: 'Żadne dzieło nie ma jeszcze epoki',
-			empty:
-				'W tej kolejności widać tylko dzieła z wpisaną epoką. Dopisz epokę w dziele albo wróć do ostatnio dodanych.',
-			showRecent: 'Pokaż ostatnio dodane'
+			label: 'Epoki'
 		},
 		authors: {
 			label: 'Autorzy'
