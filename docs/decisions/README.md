@@ -88,3 +88,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0082](0082-find-note-mentions-with-one-database-function.md)            | Find note mentions with one database function                                          | accepted           |
 | [0083](0083-collapse-the-review-summary-groups.md)                       | Collapse the groups of the review summary and show their counts in a box               | accepted           |
 | [0084](0084-free-review-after-the-day-is-done.md)                        | Free review rounds after the day's reviews are done                                    | accepted           |
+| [0085](0085-group-the-wall-by-era-period-and-style.md)                   | Group the wall by era, period and style, apart from the order and the filters          | accepted           |

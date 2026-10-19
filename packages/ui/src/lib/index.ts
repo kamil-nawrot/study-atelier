@@ -31,6 +31,7 @@ export { default as TextArea } from './components/TextArea.svelte';
 export { default as TextField } from './components/TextField.svelte';
 export { default as ToggleTag } from './components/ToggleTag.svelte';
 export { default as ToggleTiles } from './components/ToggleTiles.svelte';
+export { default as TextButton } from './components/TextButton.svelte';
 export { default as Tooltip } from './components/Tooltip.svelte';
 export { default as Toast } from './components/Toast.svelte';
 export { default as ValueField, type ValueOption } from './components/ValueField.svelte';

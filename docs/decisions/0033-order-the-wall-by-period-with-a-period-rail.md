@@ -1,6 +1,6 @@
 # 0033. Order the wall by period, with a period rail that follows the scroll
 
-- Status: accepted
+- Status: accepted; the order by period is superseded by [0038](0038-chain-era-period-and-style.md) and then by [0085](0085-group-the-wall-by-era-period-and-style.md), the period rail and strip stay
 - Date: 2026-10-12
 
 ## Context and problem statement

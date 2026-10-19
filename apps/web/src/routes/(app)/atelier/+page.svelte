@@ -17,6 +17,7 @@
 		PopupButton,
 		StepSelect,
 		type StepOption,
+		TextButton,
 		Toast,
 		Tooltip
 	} from '@study-atelier/ui';
@@ -398,9 +399,9 @@
 		{#if total > 0}
 			<div class="summary">
 				{#if grouped && sections.length > 0}
-					<button class="toggle-all" onclick={toggleAll} type="button">
+					<TextButton onclick={toggleAll}>
 						{collapsed.size > 0 ? m.atelier.grouping.expandAll : m.atelier.grouping.collapseAll}
-					</button>
+					</TextButton>
 				{/if}
 				<span class="caption">
 					{searching || filtering || shown.length < total
@@ -592,19 +593,6 @@
 		display: grid;
 		gap: var(--spacing-3);
 		width: max-content;
-	}
-
-	.toggle-all {
-		padding: var(--spacing-1) var(--spacing-2);
-		border: none;
-		background: transparent;
-		color: var(--color-fg);
-		font: inherit;
-		font-size: var(--font-size-sm);
-		text-decoration: underline;
-		text-underline-offset: var(--spacing-1);
-		white-space: nowrap;
-		cursor: pointer;
 	}
 
 	header {
