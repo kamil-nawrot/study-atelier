@@ -106,7 +106,24 @@
 	}
 
 	.top {
-		gap: var(--spacing-12);
+		gap: var(--spacing-8);
+	}
+
+	.top > .section {
+		padding-top: var(--spacing-8);
+		border-top: var(--border-width-hairline) solid var(--color-tag);
+	}
+
+	.level-3 .heading {
+		color: var(--color-fg-muted);
+		font-weight: var(--font-weight-medium);
+	}
+
+	.level-3 .count {
+		outline: var(--border-width-hairline) solid var(--color-fg-muted);
+		outline-offset: calc(-1 * var(--border-width-hairline));
+		background: transparent;
+		color: var(--color-fg-muted);
 	}
 
 	.level-1 .sections {

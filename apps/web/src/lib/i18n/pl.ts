@@ -176,15 +176,8 @@ export const pl = {
 			author: 'Według autorów'
 		},
 		grouping: {
-			label: 'Grupowanie',
-			button: {
-				none: 'Bez grup',
-				era: 'Epoki',
-				period: 'Epoki › okresy',
-				style: 'Epoki › okresy › style'
-			},
-			options: {
-				none: 'Bez grupowania',
+			label: 'Grupuj:',
+			steps: {
 				era: 'Epoka',
 				period: 'Okres',
 				style: 'Styl'

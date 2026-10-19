@@ -92,13 +92,14 @@ function orderSelect(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('combobox', { name: m.atelier.sort.label });
 }
 
-function groupingSelect(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('combobox', { name: m.atelier.grouping.label });
+function groupingStep(grouping: 'era' | 'period' | 'style'): ReturnType<typeof page.getByRole> {
+	return page
+		.getByRole('group', { name: m.atelier.grouping.label })
+		.getByRole('button', { name: m.atelier.grouping.steps[grouping] });
 }
 
 async function chooseGrouping(grouping: 'era' | 'period' | 'style'): Promise<void> {
-	await groupingSelect().click();
-	await page.getByRole('option', { name: m.atelier.grouping.options[grouping] }).click();
+	await groupingStep(grouping).click();
 }
 
 const styled = [
@@ -450,7 +451,7 @@ describe('atelier page', () => {
 		it('starts without groups', async () => {
 			renderAtelier(dated);
 
-			await expect.element(groupingSelect()).toHaveTextContent(m.atelier.grouping.button.none);
+			await expect.element(groupingStep('era')).toHaveAttribute('aria-pressed', 'false');
 			await expect.element(page.getByRole('heading', { level: 2 })).not.toBeInTheDocument();
 		});
 
@@ -554,16 +555,10 @@ describe('atelier page', () => {
 				await page.viewport(390, 800);
 			});
 
-			it('chooses the grouping in the view dialog and follows the eras in the strip', async () => {
+			it('chooses the grouping under the title and follows the eras in the strip', async () => {
 				renderAtelier(manyPeriods());
 
-				await expect.element(groupingSelect()).not.toBeInTheDocument();
-				await page.getByRole('button', { name: m.atelier.filters.viewButton }).click();
-				await page
-					.getByRole('group', { name: m.atelier.grouping.label })
-					.getByText(m.atelier.grouping.options.era)
-					.click();
-				await page.getByRole('button', { name: m.atelier.filters.showResults(12) }).click();
+				await chooseGrouping('era');
 
 				const strip = page.getByRole('complementary', { name: m.atelier.periods.label });
 				await expect.element(strip).toHaveTextContent(m.eras.early_modern.name);

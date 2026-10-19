@@ -1,6 +1,5 @@
 <script lang="ts">
 	import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
-	import Layers from '@lucide/svelte/icons/layers';
 	import Plus from '@lucide/svelte/icons/plus';
 	import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
 	import X from '@lucide/svelte/icons/x';
@@ -99,13 +98,12 @@
 		window.scrollTo({ top: 0 });
 	}
 
-	const groupings: StepOption[] = WALL_GROUPINGS.map((value) => ({
-		value,
-		label: m.atelier.grouping.options[value]
-	}));
+	const groupingSteps: StepOption[] = WALL_GROUPINGS.flatMap((value) =>
+		value === 'none' ? [] : [{ value, label: m.atelier.grouping.steps[value] }]
+	);
 
 	function chooseGrouping(value: string): void {
-		const next = WALL_GROUPINGS.find((known) => known === value);
+		const next = WALL_GROUPINGS.find((known) => known === (value || 'none'));
 		if (!next || next === grouping) return;
 		grouping = next;
 		collapsed.clear();
@@ -272,55 +270,47 @@
 
 <AtelierLayout email={data.session.user.email ?? ''} title={m.atelier.title} bind:barHeight>
 	{#snippet bar()}
-		<div class="search">
-			<SearchField
+		<div class="tools">
+			<div class="search">
+				<SearchField
+					disabled={total === 0}
+					label={m.atelier.search}
+					placeholder={m.atelier.search}
+					bind:value={query}
+				/>
+			</div>
+			{#if wide.current}
+				<div class="sort">
+					<Select
+						compact
+						disabled={total === 0}
+						icon={ArrowUpDown}
+						label={m.atelier.sort.label}
+						options={orders}
+						bind:value={() => order, chooseOrder}
+					/>
+				</div>
+			{/if}
+			<Button
+				aria-expanded={wide.current ? panelOpen : undefined}
+				aria-haspopup={wide.current ? undefined : 'dialog'}
+				aria-label={wide.current ? undefined : m.atelier.filters.viewButton}
 				disabled={total === 0}
-				label={m.atelier.search}
-				placeholder={m.atelier.search}
-				bind:value={query}
-			/>
+				onclick={() => (wide.current ? (panelOpen = !panelOpen) : (viewOpen = true))}
+				variant={!wide.current && filtering ? 'primary' : 'secondary'}
+			>
+				<Icon icon={SlidersHorizontal} />
+				<span class="filters-label">
+					{filtering ? m.atelier.filters.buttonWithCount(tags.length) : m.atelier.filters.button}
+				</span>
+			</Button>
+			<Button aria-label={m.atelier.add} href={addPath} variant="primary">
+				<Icon icon={Plus} />
+				<span class="add-label">
+					{m.atelier.add}
+				</span>
+			</Button>
 		</div>
-		{#if wide.current}
-			<div class="sort">
-				<StepSelect
-					disabled={total === 0}
-					icon={Layers}
-					label={m.atelier.grouping.label}
-					options={groupings}
-					summary={m.atelier.grouping.button[grouping]}
-					bind:value={() => grouping, chooseGrouping}
-				/>
-			</div>
-			<div class="sort">
-				<Select
-					compact
-					disabled={total === 0}
-					icon={ArrowUpDown}
-					label={m.atelier.sort.label}
-					options={orders}
-					bind:value={() => order, chooseOrder}
-				/>
-			</div>
-		{/if}
-		<Button
-			aria-expanded={wide.current ? panelOpen : undefined}
-			aria-haspopup={wide.current ? undefined : 'dialog'}
-			aria-label={wide.current ? undefined : m.atelier.filters.viewButton}
-			disabled={total === 0}
-			onclick={() => (wide.current ? (panelOpen = !panelOpen) : (viewOpen = true))}
-			variant={!wide.current && filtering ? 'primary' : 'secondary'}
-		>
-			<Icon icon={SlidersHorizontal} />
-			<span class="filters-label">
-				{filtering ? m.atelier.filters.buttonWithCount(tags.length) : m.atelier.filters.button}
-			</span>
-		</Button>
-		<Button aria-label={m.atelier.add} href={addPath} variant="primary">
-			<Icon icon={Plus} />
-			<span class="add-label">
-				{m.atelier.add}
-			</span>
-		</Button>
 	{/snippet}
 
 	{#snippet panel()}
@@ -361,20 +351,28 @@
 	<header>
 		<h1>{m.atelier.title}</h1>
 		{#if total > 0}
-			<div class="summary">
-				<span class="caption">
-					{searching || filtering || shown.length < total
-						? m.atelier.filteredCount(shown.length, total)
-						: m.atelier.count(total)}
-				</span>
-				{#if grouped && sections.length > 0}
-					<Button onclick={toggleAll}>
-						{collapsed.size > 0 ? m.atelier.grouping.expandAll : m.atelier.grouping.collapseAll}
-					</Button>
-				{/if}
-			</div>
+			<span class="caption">
+				{searching || filtering || shown.length < total
+					? m.atelier.filteredCount(shown.length, total)
+					: m.atelier.count(total)}
+			</span>
 		{/if}
 	</header>
+
+	{#if total > 0 && !data.error}
+		<div class="grouping">
+			<StepSelect
+				label={m.atelier.grouping.label}
+				steps={groupingSteps}
+				bind:value={() => (grouping === 'none' ? '' : grouping), chooseGrouping}
+			/>
+			{#if grouped && sections.length > 0}
+				<button class="toggle-all" onclick={toggleAll} type="button">
+					{collapsed.size > 0 ? m.atelier.grouping.expandAll : m.atelier.grouping.collapseAll}
+				</button>
+			{/if}
+		</div>
+	{/if}
 
 	{#if data.error}
 		<Alert title={m.atelier.loadErrorTitle} tone="danger">
@@ -485,13 +483,6 @@
 				options={orders}
 				bind:value={() => order, chooseOrder}
 			/>
-			<StepSelect
-				disabled={total === 0}
-				inline
-				label={m.atelier.grouping.label}
-				options={groupings}
-				bind:value={() => grouping, chooseGrouping}
-			/>
 			<FilterPanel {artworks} bind:filter />
 		</div>
 		{#snippet footer()}
@@ -508,21 +499,45 @@
 <Toast bind:this={toast} />
 
 <style>
+	.tools {
+		display: flex;
+		flex: 1;
+		align-items: stretch;
+		gap: var(--spacing-2);
+		min-width: 0;
+		max-width: var(--size-content-wide);
+		margin-inline-start: max(0px, calc((100% - var(--size-content-wide)) / 2));
+	}
+
 	.search {
 		flex: 1;
 		min-width: 0;
 		max-width: var(--size-content-default);
-		margin-inline-start: max(0px, calc((100% - var(--size-content-wide)) / 2));
 	}
 
 	.sort {
 		flex: none;
 	}
 
-	.summary {
+	.grouping {
 		display: flex;
-		align-items: baseline;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: center;
 		gap: var(--spacing-4);
+	}
+
+	.toggle-all {
+		padding: var(--spacing-1) var(--spacing-2);
+		border: none;
+		background: transparent;
+		color: var(--color-fg);
+		font: inherit;
+		font-size: var(--font-size-sm);
+		text-decoration: underline;
+		text-underline-offset: var(--spacing-1);
+		white-space: nowrap;
+		cursor: pointer;
 	}
 
 	header {
