@@ -215,6 +215,16 @@ describe('ValueField', () => {
 		await expect.element(page.getByRole('button', { name: texts.remove('baroque') })).toBeVisible();
 	});
 
+	it('hides the text input once it holds the most values allowed', async () => {
+		render(ValueField, { label: 'Synonyms', values: ['one', 'two'], max: 2 });
+
+		await expect.element(page.getByRole('combobox', { name: 'Synonyms' })).not.toBeInTheDocument();
+
+		await page.getByRole('button', { name: texts.remove('two') }).click();
+
+		await expect.element(page.getByRole('combobox', { name: 'Synonyms' })).toBeVisible();
+	});
+
 	it('takes one value in single mode and hides the text input until it is removed', async () => {
 		render(ValueField, {
 			label: 'Location',

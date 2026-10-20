@@ -6,6 +6,7 @@ export const GLOSSARY_SEARCH_MIN_ENTRIES = 20;
 export const DEFINITION_MAX_LENGTH = 4000;
 export const NAME_MAX_LENGTH = 120;
 export const FORMS_MAX_COUNT = 50;
+export const SYNONYMS_MAX_COUNT = 3;
 export const SHORT_SENTENCE_WORDS = 3;
 
 const collator = new Intl.Collator('pl');
@@ -144,6 +145,10 @@ export function cleanForms(forms: readonly string[]): string[] {
 		cleaned.push(trimmed);
 	}
 	return cleaned;
+}
+
+export function cappedForms(forms: readonly string[]): string[] {
+	return cleanForms(forms).slice(0, FORMS_MAX_COUNT);
 }
 
 export function emptyDraft(): GlossaryDraft {

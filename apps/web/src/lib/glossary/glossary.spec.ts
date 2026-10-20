@@ -3,6 +3,7 @@ import { testCardIndex } from '#lib/testing/card-index.ts';
 import { testEntry, testGlossary } from '#lib/testing/glossary.ts';
 import {
 	authorNamed,
+	cappedForms,
 	cleanForms,
 	countByCategory,
 	draftChanged,
@@ -12,8 +13,8 @@ import {
 	findNameConflict,
 	firstLetter,
 	firstSentence,
-	leadSentences,
 	groupByLetter,
+	leadSentences,
 	shortenDefinition,
 	sortEntries
 } from './glossary.ts';
@@ -288,5 +289,17 @@ describe('shortenDefinition', () => {
 
 	it('cuts a long text without sentences with an ellipsis', () => {
 		expect(shortenDefinition('word '.repeat(40), 30)).toMatch(/^(word ){5}word…$/);
+	});
+});
+
+describe('cappedForms', () => {
+	it('drops repeated forms and keeps at most fifty, the first ones first', () => {
+		const forms = Array.from({ length: 60 }, (_, index) => `forma ${index}`);
+
+		const capped = cappedForms(['forma 0', 'Forma 0', ...forms]);
+
+		expect(capped).toHaveLength(50);
+		expect(capped[0]).toBe('forma 0');
+		expect(capped[49]).toBe('forma 49');
 	});
 });
