@@ -117,11 +117,6 @@
 	}
 
 	@media (min-width: 768px) {
-		input {
-			font-size: var(--font-size-lg);
-			line-height: var(--line-height-lg);
-		}
-
 		.compact input {
 			font-size: var(--font-size-sm);
 			line-height: var(--line-height-sm);
