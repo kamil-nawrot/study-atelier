@@ -238,18 +238,18 @@
 		bind:clientHeight={previewHeight}
 	>
 		<ArtworkTile
-				authors={artwork.authors}
-				date={dateOf(shown.mark)}
-				favourite={artwork.favourite}
-				favouriteLabel={artwork.favourite ? m.favourite.remove : m.favourite.add}
-				href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
-				image={artwork.image}
-				imageUnavailable={artwork.imageUnavailable}
-				mark={artwork.eraCode ? eraIcon(artwork.eraCode) : undefined}
-				markLabel={artwork.eraCode ? eraName(artwork.eraCode) : undefined}
-				number={artwork.number}
-				title={artwork.title}
-			/>
+			authors={artwork.authors}
+			date={dateOf(shown.mark)}
+			favourite={artwork.favourite}
+			favouriteLabel={artwork.favourite ? m.favourite.remove : m.favourite.add}
+			href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
+			image={artwork.image}
+			imageUnavailable={artwork.imageUnavailable}
+			mark={artwork.eraCode ? eraIcon(artwork.eraCode) : undefined}
+			markLabel={artwork.eraCode ? eraName(artwork.eraCode) : undefined}
+			number={artwork.number}
+			title={artwork.title}
+		/>
 	</div>
 {/if}
 
@@ -350,5 +350,4 @@
 		display: grid;
 		pointer-events: none;
 	}
-
 </style>
