@@ -27,7 +27,7 @@
 	import { NARROW_WIDTH, orientationFor, verticalLength } from '../stage.ts';
 	import { deleteTimelineEvent } from '../timeline-data.ts';
 	import type { TimelineEvent } from '../types.ts';
-	import { rememberEra } from '../start.ts';
+	import { eraOfYear, rememberEra } from '../start.ts';
 	import { eraOf, eras, overlaps, spanOfYears, yearAt, type TimeSpan, type View } from '../time.ts';
 	import EraStrip from './EraStrip.svelte';
 	import EventCard from './EventCard.svelte';
@@ -210,6 +210,12 @@
 		pan(share * target.span);
 	}
 
+	function chooseArtwork(artwork: WallArtwork): void {
+		const span = spanOf(artwork);
+		if (span && !overlaps(span, era) && artwork.yearTo !== null) openEra(eraOfYear(artwork.yearTo));
+		selected = { kind: 'artwork', id: artwork.id };
+	}
+
 	function openEra(next: EraCode): void {
 		code = next;
 		step = 'era';
@@ -329,7 +335,7 @@
 		<EventCard
 			artworks={artworksOf(event)}
 			{event}
-			onartwork={(artwork) => (selected = { kind: 'artwork', id: artwork.id })}
+			onartwork={chooseArtwork}
 			ondelete={askToDelete}
 			onwhole={() => showWhole(event)}
 		/>
