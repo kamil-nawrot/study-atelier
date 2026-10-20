@@ -16,6 +16,7 @@
 | How the app speaks to the learner | `docs/product/voice-and-tone.md` |
 | How the system is structured | `docs/architecture/` |
 | A rule for working in the repository | `docs/guidelines/` |
+| A library component and what it is for | its row in `packages/ui/README.md`, in the pull request that adds or changes it |
 
 ## Architecture Decision Records
 
