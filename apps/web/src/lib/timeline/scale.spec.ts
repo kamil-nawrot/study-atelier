@@ -3,6 +3,7 @@ import {
 	availableSteps,
 	clampCenter,
 	eraView,
+	focusView,
 	nextStep,
 	panView,
 	stepSpan,
@@ -55,5 +56,16 @@ describe('clampCenter and panView', () => {
 
 	it('centres a view wider than the era', () => {
 		expect(clampCenter(0, 1000, earlyModern)).toBe(1640.5);
+	});
+});
+
+describe('focusView', () => {
+	it('shows an event at the closest step that holds it whole', () => {
+		expect(focusView(earlyModern, { start: 1618, end: 1649 })).toEqual({
+			step: '100',
+			view: { center: 1633.5, span: 100 }
+		});
+		expect(focusView(earlyModern, { start: 1648, end: 1649 }).step).toBe('30');
+		expect(focusView(earlyModern, { start: 1492, end: 1789 }).step).toBe('era');
 	});
 });

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { busiestEra, rememberEra, rememberedEra, startEra } from './start.ts';
+import { busiestEra, eraOfYear, rememberEra, rememberedEra, startEra } from './start.ts';
 
 function memoryStorage(): Pick<Storage, 'getItem' | 'setItem'> {
 	const items = new Map<string, string>();
@@ -44,5 +44,13 @@ describe('startEra', () => {
 
 	it('falls back to the early modern era without dated artworks', () => {
 		expect(busiestEra([{ yearTo: null }])).toBe('early_modern');
+	});
+});
+
+describe('eraOfYear', () => {
+	it('finds the era a year falls in', () => {
+		expect(eraOfYear(-4)).toBe('antiquity');
+		expect(eraOfYear(1492)).toBe('early_modern');
+		expect(eraOfYear(1815)).toBe('modern');
 	});
 });

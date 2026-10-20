@@ -9,29 +9,44 @@
 	import type { EraCode } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { seenRange } from '../labels.ts';
-	import { availableSteps, eraView, nextStep, panView, stepView, type StepKey } from '../scale.ts';
+	import {
+		availableSteps,
+		eraView,
+		focusView,
+		nextStep,
+		panView,
+		stepView,
+		type StepKey
+	} from '../scale.ts';
 	import type { StageGeometry } from '../stage.ts';
 	import { rememberEra } from '../start.ts';
-	import { eraOf, eras, type View } from '../time.ts';
+	import { eraOf, eras, type TimeSpan, type View } from '../time.ts';
 	import EraStrip from './EraStrip.svelte';
 	import TimelineStage from './TimelineStage.svelte';
 
 	type Props = {
 		initialEra: EraCode;
+		initialFocus?: TimeSpan;
 		eventLanes?: number;
 		events?: Snippet<[StageGeometry]>;
 		artworks?: Snippet<[StageGeometry]>;
 	};
 
-	let { initialEra, eventLanes = 1, events, artworks }: Props = $props();
+	let { initialEra, initialFocus, eventLanes = 1, events, artworks }: Props = $props();
 
 	const STEP_ANIMATION_MS = 400;
 	const allEras = eras();
 
+	const start = untrack(() =>
+		initialFocus
+			? focusView(eraOf(initialEra), initialFocus)
+			: { step: 'era' as StepKey, view: eraView(eraOf(initialEra)) }
+	);
+
 	let code = $state<EraCode>(untrack(() => initialEra));
-	let step = $state<StepKey>('era');
-	let target = $state<View>(untrack(() => eraView(eraOf(initialEra))));
-	let view = $state<View>(untrack(() => eraView(eraOf(initialEra))));
+	let step = $state<StepKey>(start.step);
+	let target = $state<View>(start.view);
+	let view = $state<View>(start.view);
 	let frame = 0;
 
 	let era = $derived(eraOf(code));

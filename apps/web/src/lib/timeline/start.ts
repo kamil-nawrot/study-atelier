@@ -49,3 +49,9 @@ export function busiestEra(artworks: readonly Dated[]): EraCode {
 export function startEra(artworks: readonly Dated[], remembered: EraCode | null): EraCode {
 	return remembered ?? busiestEra(artworks);
 }
+
+export function eraOfYear(year: number): EraCode {
+	const time = timeOf(year);
+	const all = eras();
+	return (all.find((era) => time >= era.start && time < era.end) ?? all[all.length - 1]).code;
+}

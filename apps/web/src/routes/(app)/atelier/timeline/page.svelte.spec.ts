@@ -116,6 +116,33 @@ describe('timeline page', () => {
 			.toHaveTextContent('Współczesność');
 	});
 
+	it('offers to add an event in the top bar', async () => {
+		renderTimeline();
+
+		await expect
+			.element(page.getByRole('link', { name: m.timeline.add }))
+			.toHaveAttribute('href', '/atelier/timeline/events/new');
+	});
+
+	it('returns to a saved event in its era and confirms it', async () => {
+		navigation.state = {
+			timelineEvent: {
+				message: m.timeline.saved('Wojny napoleońskie'),
+				yearFrom: 1803,
+				yearTo: 1815
+			}
+		};
+		renderTimeline([testArtwork(1, 'Mona Lisa', { yearTo: 1519 })]);
+
+		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Nowoczesność');
+		await expect.element(page.getByText(m.timeline.saved('Wojny napoleońskie'))).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: 'Pokolenie', exact: true }))
+			.toHaveAttribute('aria-pressed', 'true');
+		expect(localStorage.getItem(ERA_KEY)).toBe('modern');
+		navigation.state = {};
+	});
+
 	it('says when the collection could not be loaded', async () => {
 		renderTimeline([], 'Brak połączenia.');
 
