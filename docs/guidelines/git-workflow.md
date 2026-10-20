@@ -51,13 +51,14 @@ Commit messages follow [Conventional Commits 1.0](https://www.conventionalcommit
 
 ## Releases
 
-1. Cut `release/<version>` from `develop`, for example `release/0.1.0`. From then on the branch takes only release fixes; new features keep going to `develop`.
+1. Check the Linear milestone of the version: every issue is Done or canceled. An open issue is the owner's call, either wait for it or move it to the next milestone; it is never left in the released milestone. Then cut `release/<version>` from `develop`, for example `release/0.1.0`. From then on the branch takes only release fixes; new features keep going to `develop`.
 2. On the release branch, set the same `version` in the root, `apps/web` and `packages/ui` `package.json` files and move the changelog entries to a new section in [`CHANGELOG.md`](../../CHANGELOG.md), user-facing changes first, with a link to the release at the end of the file. A commit that changes only these files relies on CI instead of the local checks in [Before pushing](#before-pushing).
 3. Open a pull request from the release branch to `main`. CI must pass. The owner merges it with a **merge commit**, not a squash, so `main` and `develop` keep a shared history and later releases do not conflict.
 4. Pushing to `main` deploys production and applies the migrations to the production database. Check the `Web app` and `Database migrations` jobs of that run.
 5. Once both jobs pass, tag the merge commit `v<version>` with a lightweight tag and publish a GitHub Release titled `v<version>`. Its notes are the changelog section without its heading; a release without migrations ends with `No migrations.`
 6. Smoke-test production: the start page and the sign-in page load, then the owner checks the signed-in flows.
 7. Merge `main` back into `develop` with a pull request from `chore/merge-main-after-release-<version>` (merge commit), so the version and changelog are on `develop` too.
+8. Update the description of the Linear milestone: the release date, the tag and what the release brought, so it matches what shipped rather than what was planned.
 
 Migrations are applied to the development database from `develop` and to the production database from `main`, so a migration only has to work with the code of its own release. The two databases are separate instances; a migration is tried on the development database and on the local stack before it reaches production.
 
