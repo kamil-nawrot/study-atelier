@@ -203,9 +203,6 @@
 			</Tooltip>
 		{/if}
 	</div>
-	{#if full}
-		<p class="caption">{m.artworkForm.imagesLimit}</p>
-	{/if}
 {/snippet}
 
 {#snippet matchStatusLine()}
@@ -222,7 +219,6 @@
 
 <ImageField
 	{alt}
-	findLabel={matchShown ? m.artworkForm.matchAll : undefined}
 	onsearch={stopMatch}
 	{query}
 	removable={selected > 0}

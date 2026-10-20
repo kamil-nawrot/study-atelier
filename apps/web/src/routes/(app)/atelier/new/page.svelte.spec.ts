@@ -934,7 +934,6 @@ describe('add artwork page', () => {
 		for (let added = 0; added < 4; added += 1) await add.click();
 
 		await expect.element(add).not.toBeInTheDocument();
-		await expect.element(page.getByText(m.artworkForm.imagesLimit)).toBeVisible();
 		await page.getByRole('button', { name: m.artworkForm.removeImage }).click();
 		await expect.element(add).toBeVisible();
 
@@ -1210,7 +1209,9 @@ describe('image search on the add artwork page', () => {
 		await fillRequired();
 
 		await expect.element(page.getByText(matched), { timeout: 3000 }).toBeVisible();
-		await expect.element(page.getByRole('button', { name: m.artworkForm.matchAll })).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.chooseOtherImage }))
+			.toBeVisible();
 
 		await saveButton().click();
 

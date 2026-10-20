@@ -42,7 +42,6 @@
 		texts: ImageFieldTexts;
 		image: ArtworkImageInput | null;
 		removable?: boolean;
-		findLabel?: string;
 		onsearch?: () => void;
 		slots?: Snippet;
 		status?: Snippet;
@@ -55,7 +54,6 @@
 		texts,
 		image = $bindable(),
 		removable = false,
-		findLabel,
 		onsearch,
 		slots,
 		status
@@ -265,7 +263,7 @@
 	<div class="image-actions">
 		<Button id={findImageId} disabled={!searchReady} onclick={openSearch}>
 			<Icon icon={Search} size="sm" />
-			{findLabel ?? (image?.kind === 'commons' ? texts.findOther : texts.find)}
+			{image?.kind === 'commons' ? texts.findOther : texts.find}
 		</Button>
 		<Button aria-haspopup="dialog" onclick={() => (dialogOpen = true)}>
 			<Icon icon={ImagePlus} size="sm" />
