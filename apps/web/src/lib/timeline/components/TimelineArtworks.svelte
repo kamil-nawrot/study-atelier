@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { SvelteMap } from 'svelte/reactivity';
 	import { resolve } from '$app/paths';
-	import ArrowRight from '@lucide/svelte/icons/arrow-right';
-	import { ArtworkTile, Icon } from '@study-atelier/ui';
+	import { ArtworkTile } from '@study-atelier/ui';
 	import { resolveImages } from '#lib/collection/artworks.ts';
 	import { eraIcon, eraName } from '#lib/collection/eras.ts';
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
+	import type { ArtworkLane } from '../types.ts';
 	import { DOT_SIZE, marksIn, spread, type Mark } from '../placement.ts';
 	import { boxStyle, type StageGeometry } from '../stage.ts';
 	import type { Era } from '../time.ts';
@@ -17,44 +17,86 @@
 		geometry: StageGeometry;
 		selected: string | null;
 		onselect: (artwork: WallArtwork) => void;
+		lanes?: readonly ArtworkLane[];
+		colourOf?: (artwork: WallArtwork) => string | undefined;
+		empty?: string;
 	};
 
-	let { artworks, era, geometry, selected, onselect }: Props = $props();
+	type Group = {
+		key: string;
+		lane?: ArtworkLane;
+		count: number;
+		from: number;
+		marks: Mark<WallArtwork>[];
+		across: number[];
+	};
+
+	let {
+		artworks,
+		era,
+		geometry,
+		selected,
+		onselect,
+		lanes = [],
+		colourOf,
+		empty
+	}: Props = $props();
 
 	const EDGE = 10;
 	const PREVIEW_WIDTH = 176;
 	const VISIBLE_MARGIN = 40;
 	const PREVIEW_GAP = 8;
+	const LANE_LABEL = 22;
 
 	let hovered = $state<string | null>(null);
+	let pinnedKey = $state<string | null>(null);
+	let pointer = '';
 	let previewHeight = $state(0);
 	const resolved = new SvelteMap<string, WallArtwork>();
 
-	let marks = $derived(marksIn(artworks, era));
 	let vertical = $derived(geometry.orientation === 'vertical');
 	let perYear = $derived(geometry.length / geometry.view.span);
-	let across = $derived(
-		spread(
-			marks.map((mark) => mark.item.id),
-			marks.map((mark) => mark.at * perYear),
-			Math.max(geometry.artworksSize - 2 * EDGE, 1)
-		)
+	let laned = $derived(lanes.length > 0 && !vertical);
+	let before = $derived(Math.max(0, geometry.position(era.start)));
+	let groups = $derived<Group[]>(
+		(laned ? lanes : [undefined]).map((lane, index) => {
+			const marks = marksIn(lane ? lane.artworks : artworks, era);
+			const top = laned ? LANE_LABEL : 0;
+			const room = (laned ? geometry.artworkLane : geometry.artworksSize) - top - 2 * EDGE;
+			return {
+				key: lane ? lane.key : 'all',
+				lane,
+				count: marks.length,
+				from: geometry.artworksFrom + index * geometry.artworkLane + top + EDGE,
+				marks,
+				across: spread(
+					marks.map((mark) => mark.item.id),
+					marks.map((mark) => mark.at * perYear),
+					Math.max(room, 1)
+				)
+			};
+		})
 	);
 	let placed = $derived(
-		marks
-			.map((mark, index) => ({
-				mark,
-				at: geometry.position(mark.at),
-				from: geometry.position(mark.start),
-				cross: geometry.artworksFrom + EDGE + across[index]
-			}))
-			.filter((dot) => dot.at > -VISIBLE_MARGIN && dot.from < geometry.length + VISIBLE_MARGIN)
+		groups.flatMap((group) =>
+			group.marks
+				.map((mark, index) => ({
+					key: `${group.key}:${mark.item.id}`,
+					mark,
+					at: geometry.position(mark.at),
+					from: geometry.position(mark.start),
+					cross: group.from + group.across[index],
+					colour: group.lane ? group.lane.colour : colourOf?.(mark.item)
+				}))
+				.filter((dot) => dot.at > -VISIBLE_MARGIN && dot.from < geometry.length + VISIBLE_MARGIN)
+		)
 	);
+	let nothing = $derived(groups.every((group) => group.count === 0));
 	let shown = $derived(
-		placed.find((dot) => dot.mark.item.id === selected) ??
-			placed.find((dot) => dot.mark.item.id === hovered)
+		placed.find((dot) => dot.key === pinnedKey && dot.mark.item.id === selected) ??
+			placed.find((dot) => dot.mark.item.id === selected) ??
+			placed.find((dot) => dot.key === hovered)
 	);
-	let pinned = $derived(shown !== undefined && shown.mark.item.id === selected);
 
 	function artworkOf(mark: Mark<WallArtwork>): WallArtwork {
 		return resolved.get(mark.item.id) ?? mark.item;
@@ -66,16 +108,20 @@
 		if (result) resolved.set(artwork.id, result);
 	}
 
-	function show(artwork: WallArtwork): void {
-		hovered = artwork.id;
+	function show(key: string, artwork: WallArtwork): void {
+		hovered = key;
 		void loadImage(artwork);
 	}
 
-	function hide(artwork: WallArtwork): void {
-		if (hovered === artwork.id) hovered = null;
+	function hide(key: string): void {
+		if (hovered === key) hovered = null;
 	}
 
-	function choose(artwork: WallArtwork): void {
+	function choose(key: string, artwork: WallArtwork): void {
+		const mouse = pointer === 'mouse';
+		pointer = '';
+		if (mouse) return;
+		pinnedKey = key;
 		void loadImage(artwork);
 		onselect(artwork);
 	}
@@ -107,8 +153,53 @@
 	}
 </script>
 
-{#each placed as dot (dot.mark.item.id)}
+{#if laned}
+	{#each groups as group, index (group.key)}
+		{#if group.lane}
+			<div
+				style={boxStyle(geometry, {
+					along: 0,
+					across: geometry.artworksFrom + index * geometry.artworkLane,
+					alongSize: geometry.length,
+					acrossSize: geometry.artworkLane
+				})}
+				class="lane"
+				class:first={index === 0}
+				aria-hidden="true"
+			>
+				<span style:left={`${before}px`} class="lane-label">
+					<svg style:fill={group.lane.colour} height="8" viewBox="0 0 8 8" width="8">
+						<circle cx="4" cy="4" r="4" />
+					</svg>
+					{m.timeline.lane(group.lane.name, group.count)}
+				</span>
+			</div>
+		{/if}
+	{/each}
+{/if}
+
+{#if empty && nothing}
+	<p
+		style={boxStyle(
+			geometry,
+			vertical
+				? {
+						along: geometry.length / 2,
+						across: geometry.artworksFrom,
+						acrossSize: geometry.artworksSize
+					}
+				: { along: geometry.length / 2, across: geometry.artworksFrom + geometry.artworksSize / 2 }
+		)}
+		class="empty caption"
+		class:vertical
+	>
+		{empty}
+	</p>
+{/if}
+
+{#each placed as dot (dot.key)}
 	<button
+		style:--dot-colour={dot.colour}
 		style={boxStyle(geometry, {
 			along: Math.min(dot.from, dot.at - DOT_SIZE / 2),
 			across: dot.cross - DOT_SIZE / 2,
@@ -121,11 +212,13 @@
 		class:vertical
 		aria-label={[dot.mark.item.title, dateOf(dot.mark)].filter(Boolean).join(', ')}
 		aria-pressed={dot.mark.item.id === selected}
-		onblur={() => hide(dot.mark.item)}
-		onclick={() => choose(dot.mark.item)}
-		onfocus={(event) => event.currentTarget.matches(':focus-visible') && show(dot.mark.item)}
-		onpointerenter={(event) => event.pointerType === 'mouse' && show(dot.mark.item)}
-		onpointerleave={(event) => event.pointerType === 'mouse' && hide(dot.mark.item)}
+		onblur={() => hide(dot.key)}
+		onclick={() => choose(dot.key, dot.mark.item)}
+		onfocus={(event) =>
+			event.currentTarget.matches(':focus-visible') && show(dot.key, dot.mark.item)}
+		onpointerdown={(event) => (pointer = event.pointerType)}
+		onpointerenter={(event) => event.pointerType === 'mouse' && show(dot.key, dot.mark.item)}
+		onpointerleave={(event) => event.pointerType === 'mouse' && hide(dot.key)}
 		type="button"
 	>
 		<span class="line"></span>
@@ -140,13 +233,11 @@
 	<div
 		style={previewStyle(shown)}
 		class="preview"
-		class:pinned
-		aria-hidden={pinned ? undefined : 'true'}
-		inert={!pinned}
+		aria-hidden="true"
+		inert
 		bind:clientHeight={previewHeight}
 	>
-		<div class="tile" inert>
-			<ArtworkTile
+		<ArtworkTile
 				authors={artwork.authors}
 				date={dateOf(shown.mark)}
 				favourite={artwork.favourite}
@@ -159,16 +250,6 @@
 				number={artwork.number}
 				title={artwork.title}
 			/>
-		</div>
-		{#if pinned}
-			<a
-				class="details"
-				href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
-			>
-				{m.timeline.showArtwork}
-				<Icon icon={ArrowRight} size="sm" />
-			</a>
-		{/if}
 	</div>
 {/if}
 
@@ -192,7 +273,7 @@
 		position: absolute;
 		top: 0;
 		right: 0;
-		fill: var(--color-fg);
+		fill: var(--dot-colour, var(--color-fg));
 	}
 
 	.line {
@@ -229,6 +310,40 @@
 		fill: var(--color-highlight);
 	}
 
+	.lane {
+		position: absolute;
+		border-top: var(--border-width-hairline) solid var(--color-tag);
+		pointer-events: none;
+	}
+
+	.lane.first {
+		border-top: 0;
+	}
+
+	.lane-label {
+		position: absolute;
+		top: var(--spacing-1);
+		display: inline-flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		padding-left: var(--spacing-2);
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-xs);
+		white-space: nowrap;
+	}
+
+	.empty {
+		position: absolute;
+		z-index: 1;
+		padding-inline: var(--spacing-2);
+		transform: translate(-50%, -50%);
+	}
+
+	.empty.vertical {
+		text-align: center;
+		transform: translateY(-50%);
+	}
+
 	.preview {
 		position: absolute;
 		z-index: 5;
@@ -236,18 +351,4 @@
 		pointer-events: none;
 	}
 
-	.preview.pinned {
-		pointer-events: auto;
-	}
-
-	.details {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		gap: var(--spacing-2);
-		padding: var(--spacing-2) var(--spacing-3);
-		background: var(--color-surface);
-		color: var(--color-fg);
-		font-size: var(--font-size-sm);
-	}
 </style>

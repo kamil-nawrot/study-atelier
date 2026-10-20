@@ -1,3 +1,27 @@
+import type { ArtworkTypeCode, WallArtwork } from '#lib/collection/types.ts';
+
+export type LaneField = 'periods' | 'styles';
+
+export type Lane = {
+	field: LaneField;
+	value: string;
+};
+
+export type ArtworkLane = {
+	key: string;
+	name: string;
+	colour: string;
+	artworks: readonly WallArtwork[];
+};
+
+export type TimelineFilter = {
+	lanes: Lane[];
+	favourites: boolean;
+	types: ArtworkTypeCode[];
+	authors: string[];
+	unknownAuthor: boolean;
+};
+
 export type TimelineEvent = {
 	id: string;
 	name: string;

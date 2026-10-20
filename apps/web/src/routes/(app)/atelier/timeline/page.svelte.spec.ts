@@ -177,7 +177,7 @@ describe('timeline page', () => {
 			.not.toBeInTheDocument();
 	});
 
-	it('pins the preview of a chosen artwork with a link to its page, and unpins it', async () => {
+	it('selects an artwork with a tap and unselects it, but ignores a mouse click', async () => {
 		renderTimeline([
 			testArtwork(7, 'Straż nocna', {
 				yearTo: 1642,
@@ -188,18 +188,17 @@ describe('timeline page', () => {
 		]);
 
 		const dot = page.getByRole('button', { name: 'Straż nocna, 1642' });
-		(dot.element() as HTMLButtonElement).click();
-
+		const button = dot.element() as HTMLButtonElement;
+		button.click();
 		await expect.element(dot).toHaveAttribute('aria-pressed', 'true');
-		await expect
-			.element(page.getByRole('link', { name: m.timeline.showArtwork }))
-			.toHaveAttribute('href', '/atelier/7');
 
-		(dot.element() as HTMLButtonElement).click();
+		button.click();
 		await expect.element(dot).toHaveAttribute('aria-pressed', 'false');
-		await expect
-			.element(page.getByRole('link', { name: m.timeline.showArtwork }))
-			.not.toBeInTheDocument();
+
+		button.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'mouse', bubbles: true }));
+		button.click();
+		await expect.element(dot).toHaveAttribute('aria-pressed', 'false');
+		expect(document.querySelector('a[href="/atelier/7"]')).toBeNull();
 	});
 
 	it('closes a pinned preview with a click on the empty stage or with Escape', async () => {
@@ -252,7 +251,9 @@ describe('timeline page', () => {
 			.element(page.getByRole('button', { name: /Wojny napoleońskie/ }))
 			.not.toBeInTheDocument();
 		await expect
-			.element(page.getByText(m.timeline.now('1640', 'Wojna trzydziestoletnia')))
+			.element(
+				page.getByText(m.timeline.now('1640', [m.timeline.nowEvents('Wojna trzydziestoletnia')]))
+			)
 			.toBeVisible();
 	});
 
@@ -310,9 +311,6 @@ describe('timeline page', () => {
 		await expect
 			.element(page.getByRole('button', { name: 'Tratwa Meduzy, 1818–1819' }))
 			.toHaveAttribute('aria-pressed', 'true');
-		await expect
-			.element(page.getByRole('link', { name: m.timeline.showArtwork }))
-			.toHaveAttribute('href', '/atelier/3');
 	});
 
 	it('deletes an event after asking and confirms it', async () => {
@@ -422,5 +420,85 @@ describe('timeline page', () => {
 
 		await expect.element(page.getByText(m.timeline.loadErrorTitle)).toBeVisible();
 		await expect.element(stage()).not.toBeInTheDocument();
+	});
+
+	it('shows the name of the current era above the scale', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		renderTimeline();
+
+		await expect.element(page.getByText('Nowożytność', { exact: true })).toBeVisible();
+	});
+
+	it('gives every chosen period and style its own lane, and clears them in another era', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		renderTimeline([
+			testArtwork(1, 'Straż nocna', {
+				yearTo: 1642,
+				date: '1642',
+				period: 'Barok',
+				styles: ['Tenebryzm'],
+				favourite: true
+			}),
+			testArtwork(2, 'Ekstaza św. Teresy', { yearTo: 1652, date: '1652', period: 'Barok' }),
+			testArtwork(3, 'Narodziny Wenus', { yearTo: 1485, date: '1485', period: 'Renesans' })
+		]);
+
+		await press(page.getByRole('button', { name: m.atelier.filters.button }));
+		const panel = page.getByRole('complementary', { name: m.atelier.filters.title });
+		await expect
+			.element(panel.getByText(m.timeline.filters.lanesHint('nowożytność')))
+			.toBeVisible();
+		await press(panel.getByRole('button', { name: /Barok/ }));
+		await press(panel.getByRole('button', { name: /Tenebryzm/ }));
+
+		await expect.element(page.getByText(m.timeline.lane('Barok', 2))).toBeInTheDocument();
+		await expect.element(page.getByText(m.timeline.lane('Tenebryzm', 1))).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: 'Narodziny Wenus, 1485' }))
+			.not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('list', { name: m.atelier.filters.activeLabel }))
+			.toHaveTextContent(/Barok.*Tenebryzm/);
+
+		await press(page.getByRole('button', { name: m.timeline.next('Nowoczesność') }));
+		await expect.element(page.getByText(m.timeline.lane('Barok', 0))).not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('list', { name: m.atelier.filters.activeLabel }))
+			.not.toBeInTheDocument();
+	});
+
+	it('says so when no artwork of the era matches the filters', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		renderTimeline([testArtwork(1, 'Straż nocna', { yearTo: 1642, date: '1642' })]);
+
+		await press(page.getByRole('button', { name: m.atelier.filters.button }));
+		await press(
+			page
+				.getByRole('complementary', { name: m.atelier.filters.title })
+				.getByRole('button', { name: /Ulubione/ })
+		);
+
+		await expect.element(page.getByText(m.timeline.filters.empty)).toBeInTheDocument();
+	});
+
+	it('hides the events and names the artworks at the reading line with the switches', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		renderTimeline(
+			[testArtwork(1, 'Straż nocna', { yearFrom: 1600, yearTo: 1700, date: '1600–1700' })],
+			undefined,
+			[testEvent('war', 'Wojna trzydziestoletnia', 1618, 1648)]
+		);
+
+		await press(page.getByRole('button', { name: m.atelier.filters.button }));
+		const panel = page.getByRole('complementary', { name: m.atelier.filters.title });
+		await press(panel.getByRole('switch', { name: m.timeline.filters.readingArtworks }));
+		await press(page.getByRole('button', { name: 'Stulecie', exact: true }));
+		await expect.element(page.getByText(/dzieła: Straż nocna/)).toBeInTheDocument();
+
+		await press(panel.getByRole('switch', { name: m.timeline.filters.events }));
+		await expect
+			.element(page.getByRole('button', { name: /Wojna trzydziestoletnia/ }))
+			.not.toBeInTheDocument();
+		await expect.element(page.getByText(/w tym czasie/)).not.toBeInTheDocument();
 	});
 });

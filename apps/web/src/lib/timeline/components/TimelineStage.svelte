@@ -18,6 +18,7 @@
 		view: View;
 		orientation?: Orientation;
 		eventLanes?: number;
+		artworkLanes?: number;
 		tint?: TimeSpan;
 		onpan: (by: number) => void;
 		onkeypan: (share: number) => void;
@@ -32,6 +33,7 @@
 		view,
 		orientation = 'horizontal',
 		eventLanes = 1,
+		artworkLanes = 0,
 		tint,
 		onpan,
 		onkeypan,
@@ -54,7 +56,9 @@
 	let stage = $state<HTMLDivElement>();
 
 	let vertical = $derived(orientation === 'vertical');
-	let geometry = $derived(stageGeometry(view, width, eventLanes, orientation, viewportHeight));
+	let geometry = $derived(
+		stageGeometry(view, width, eventLanes, orientation, viewportHeight, artworkLanes)
+	);
 	let size = $derived(stageSize(geometry));
 	let length = $derived(geometry.length);
 	let before = $derived(Math.max(0, geometry.position(era.start)));
@@ -226,11 +230,15 @@
 	tabindex="0"
 	bind:clientWidth={width}
 >
-	<div class="zone" aria-hidden="true"></div>
+	{#if eventLanes > 0}
+		<div class="zone" aria-hidden="true"></div>
+	{/if}
 	{#if !vertical}
-		<span style:left={`${before}px`} class="zone-label events-label" aria-hidden="true">
-			{m.timeline.zones.events}
-		</span>
+		{#if eventLanes > 0}
+			<span style:left={`${before}px`} class="zone-label events-label" aria-hidden="true">
+				{m.timeline.zones.events}
+			</span>
+		{/if}
 		<span style:left={`${before}px`} class="zone-label artworks-label" aria-hidden="true">
 			{m.timeline.zones.artworks}
 		</span>
