@@ -207,7 +207,7 @@ export const pl = {
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu lub nazwiska.`,
 		clearSearch: 'Wyczyść wyszukiwanie',
 		loadErrorTitle: 'Nie udało się wczytać atelier',
-		imagesUnavailableTitle: 'Nie wszystkie zdjęcia się wczytały',
+		imagesUnavailableTitle: 'Nie wszystkie obrazy się wczytały',
 		imagesUnavailable: 'Część zdjęć nie jest teraz dostępna. Spróbuj jeszcze raz za chwilę.',
 		retryImages: 'Spróbuj ponownie',
 		year: (year: number, approximate: boolean): string =>
@@ -262,7 +262,7 @@ export const pl = {
 			tag: (field: string, value: string): string => `${field} ${value}`,
 			unknownAuthor: 'Autor nieznany',
 			missing: {
-				image: 'bez zdjęcia',
+				image: 'bez obrazu',
 				year: 'bez roku',
 				era: 'bez epoki',
 				period: 'bez okresu',
@@ -374,8 +374,8 @@ export const pl = {
 		}
 	},
 	artworkView: {
-		previousImage: 'Poprzednie zdjęcie',
-		nextImage: 'Następne zdjęcie',
+		previousImage: 'Poprzedni obraz',
+		nextImage: 'Następny obraz',
 		back: 'Atelier',
 		edit: 'Edytuj',
 		delete: 'Usuń',
@@ -415,7 +415,7 @@ export const pl = {
 		allDoneTitle: 'Nic nowego do powtórki',
 		allDone: (when: string): string => `Kolejne dzieła będą na Ciebie czekać ${when}.`,
 		tooFew: (minimum: number, missing: number): string =>
-			`Powtórki będzie można rozpocząć, gdy w Twoim atelier znajdzie się przynajmniej ${minimum} dzieł ze zdjęciami. Obecnie brakuje jeszcze ${missing}.`,
+			`Powtórki będzie można rozpocząć, gdy w Twoim atelier znajdzie się przynajmniej ${minimum} dzieł z obrazami. Obecnie brakuje jeszcze ${missing}.`,
 		options: 'Zmień zakres lub formę',
 		scope: 'Co powtarzamy?',
 		scopes: {
@@ -977,7 +977,7 @@ export const pl = {
 		restored: (number: string): string => `Przywrócono ${number}.`,
 		deleteTitle: (number: string): string => `Usunąć ${number} na zawsze?`,
 		deleteDescription: (number: string): string =>
-			`Dzieło i Twoje zdjęcie znikną bezpowrotnie. Numer ${number} nie wróci do użycia.`,
+			`Dzieło i Twój obraz znikną bezpowrotnie. Numer ${number} nie wróci do użycia.`,
 		deleting: 'Usuwanie…',
 		deleted: (number: string): string => `Usunięto ${number} na zawsze.`
 	}
