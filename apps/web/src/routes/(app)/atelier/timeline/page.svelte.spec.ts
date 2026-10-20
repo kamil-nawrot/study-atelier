@@ -30,7 +30,7 @@ function testEvent(
 	yearTo: number,
 	description = ''
 ): TimelineEvent {
-	return { id, name, yearFrom, yearTo, yearApproximate: false, description };
+	return { id, name, yearFrom, yearTo, yearApproximate: false, description, source: null };
 }
 
 function renderTimeline(
@@ -311,6 +311,27 @@ describe('timeline page', () => {
 		await expect
 			.element(page.getByRole('button', { name: 'Tratwa Meduzy, 1818–1819' }))
 			.toHaveAttribute('aria-pressed', 'true');
+	});
+
+	it('shows the Wikipedia source of an event in its card', async () => {
+		renderTimeline([], undefined, [
+			{
+				...testEvent('war', 'Wojna trzydziestoletnia', 1618, 1648, 'Konflikt w Europie.'),
+				source: {
+					title: 'Wojna trzydziestoletnia',
+					url: 'https://pl.wikipedia.org/wiki/Wojna_trzydziestoletnia',
+					licence: 'CC BY-SA 4.0',
+					fetchedOn: '2026-10-21'
+				}
+			}
+		]);
+
+		await press(page.getByRole('button', { name: 'Wojna trzydziestoletnia, 1618–1648' }));
+		const card = page.getByRole('region', { name: m.timeline.card.period });
+		await expect
+			.element(card.getByRole('link', { name: '„Wojna trzydziestoletnia”' }))
+			.toHaveAttribute('href', 'https://pl.wikipedia.org/wiki/Wojna_trzydziestoletnia');
+		await expect.element(card.getByRole('link', { name: 'CC BY-SA 4.0' })).toBeVisible();
 	});
 
 	it('deletes an event after asking and confirms it', async () => {

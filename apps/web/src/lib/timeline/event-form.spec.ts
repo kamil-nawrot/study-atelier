@@ -42,7 +42,8 @@ describe('draftOfEventForm and eventFormOf', () => {
 			yearFrom: -27,
 			yearTo: 180,
 			yearApproximate: false,
-			description: 'Pokój w cesarstwie.'
+			description: 'Pokój w cesarstwie.',
+			source: null
 		});
 		expect(
 			eventFormOf({ id: 'e', ...draft, yearTo: 180, description: 'Pokój w cesarstwie.' })

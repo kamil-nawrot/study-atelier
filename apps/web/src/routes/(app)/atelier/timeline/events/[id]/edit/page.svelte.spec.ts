@@ -16,6 +16,7 @@ vi.mock('$app/state', () => ({
 }));
 vi.mock('#lib/timeline/timeline-data.ts', () => ({ saveTimelineEvent: vi.fn() }));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/timeline/wikipedia.ts', () => ({ searchEvents: vi.fn().mockResolvedValue([]) }));
 
 describe('edit timeline event page', () => {
 	beforeEach(async () => {
@@ -32,7 +33,8 @@ describe('edit timeline event page', () => {
 					yearFrom: -27,
 					yearTo: 180,
 					yearApproximate: true,
-					description: 'Pokój w cesarstwie.'
+					description: 'Pokój w cesarstwie.',
+					source: null
 				}
 			},
 			params: { id: 'e' }
@@ -49,7 +51,7 @@ describe('edit timeline event page', () => {
 			.element(page.getByRole('textbox', { name: m.artworkForm.spanTo }))
 			.toHaveValue('180');
 		await expect
-			.element(page.getByLabelText(m.timeline.form.description))
+			.element(page.getByLabelText(m.timeline.form.description, { exact: true }))
 			.toHaveValue('Pokój w cesarstwie.');
 	});
 

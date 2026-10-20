@@ -1,8 +1,9 @@
 import { parseYear } from '#lib/collection/artwork-form.ts';
 import { validateYears, type YearsInput } from '#lib/collection/artwork-record.ts';
 import { signedYear } from '#lib/collection/format.ts';
+import type { WikipediaSource } from '#lib/glossary/types.ts';
 import { m } from '#lib/i18n/index.ts';
-import type { TimelineEvent, TimelineEventDraft } from './types.ts';
+import type { EventDates, TimelineEvent, TimelineEventDraft } from './types.ts';
 
 export const EVENT_NAME_MAX_LENGTH = 120;
 export const EVENT_DESCRIPTION_MAX_LENGTH = 300;
@@ -16,6 +17,7 @@ export type EventFormState = {
 	toBeforeCommonEra: boolean;
 	yearApproximate: boolean;
 	description: string;
+	source: WikipediaSource | null;
 };
 
 export type EventFormErrors = {
@@ -33,7 +35,8 @@ export function emptyEventForm(): EventFormState {
 		yearTo: '',
 		toBeforeCommonEra: false,
 		yearApproximate: false,
-		description: ''
+		description: '',
+		source: null
 	};
 }
 
@@ -46,7 +49,8 @@ export function eventFormOf(event: TimelineEvent): EventFormState {
 		yearTo: String(Math.abs(event.yearTo)),
 		toBeforeCommonEra: event.yearTo < 0,
 		yearApproximate: event.yearApproximate,
-		description: event.description
+		description: event.description,
+		source: event.source
 	};
 }
 
@@ -75,8 +79,51 @@ export function draftOfEventForm(form: EventFormState): TimelineEventDraft {
 		yearFrom: signedYear(input.yearFrom, input.fromBeforeCommonEra),
 		yearTo: signedYear(input.yearTo, input.toBeforeCommonEra),
 		yearApproximate: form.yearApproximate,
-		description: form.description.trim()
+		description: form.description.trim(),
+		source: form.source
 	};
+}
+
+export function withDates(form: EventFormState, dates: EventDates): EventFormState {
+	return {
+		...form,
+		spanMode: dates.yearFrom !== null,
+		yearFrom: dates.yearFrom === null ? '' : String(Math.abs(dates.yearFrom)),
+		fromBeforeCommonEra: dates.yearFrom !== null && dates.yearFrom < 0,
+		yearTo: String(Math.abs(dates.yearTo)),
+		toBeforeCommonEra: dates.yearTo < 0,
+		yearApproximate: dates.approximate
+	};
+}
+
+export function withoutDates(form: EventFormState): EventFormState {
+	const empty = emptyEventForm();
+	return {
+		...form,
+		spanMode: empty.spanMode,
+		yearFrom: empty.yearFrom,
+		fromBeforeCommonEra: empty.fromBeforeCommonEra,
+		yearTo: empty.yearTo,
+		toBeforeCommonEra: empty.toBeforeCommonEra,
+		yearApproximate: empty.yearApproximate
+	};
+}
+
+export function datesKey(form: EventFormState): string {
+	const { spanMode, yearFrom, fromBeforeCommonEra, yearTo, toBeforeCommonEra, yearApproximate } =
+		form;
+	return JSON.stringify([
+		spanMode,
+		spanMode ? yearFrom.trim() : '',
+		spanMode && fromBeforeCommonEra,
+		yearTo.trim(),
+		toBeforeCommonEra,
+		yearApproximate
+	]);
+}
+
+export function hasNoDates(form: EventFormState): boolean {
+	return form.yearTo.trim() === '' && (!form.spanMode || form.yearFrom.trim() === '');
 }
 
 export function eventFormChanged(form: EventFormState, saved: EventFormState): boolean {

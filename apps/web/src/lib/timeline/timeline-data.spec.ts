@@ -27,6 +27,10 @@ function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 		year_to: 1648,
 		year_approximate: false,
 		description: 'Opis.',
+		source_title: null,
+		source_url: null,
+		source_licence: null,
+		source_fetched_on: null,
 		created_at: '2026-10-20T00:00:00Z',
 		updated_at: '2026-10-20T00:00:00Z',
 		...overrides
@@ -51,12 +55,36 @@ const draft: TimelineEventDraft = {
 	yearFrom: 1618,
 	yearTo: 1648,
 	yearApproximate: false,
-	description: ' Opis. '
+	description: ' Opis. ',
+	source: null
 };
 
 describe('loadTimelineEvents', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+	});
+
+	it('reads the Wikipedia source of an event', async () => {
+		chain({
+			data: [
+				row({
+					source_title: 'Wojna trzydziestoletnia',
+					source_url: 'https://pl.wikipedia.org/wiki/Wojna_trzydziestoletnia',
+					source_licence: 'CC BY-SA 4.0',
+					source_fetched_on: '2026-10-21'
+				})
+			],
+			error: null
+		});
+
+		const result = await loadTimelineEvents();
+
+		expect(result.events[0].source).toEqual({
+			title: 'Wojna trzydziestoletnia',
+			url: 'https://pl.wikipedia.org/wiki/Wojna_trzydziestoletnia',
+			licence: 'CC BY-SA 4.0',
+			fetchedOn: '2026-10-21'
+		});
 	});
 
 	it('maps the rows to events ordered by their end year', async () => {
@@ -86,7 +114,8 @@ describe('loadTimelineEvents', () => {
 				yearFrom: 1618,
 				yearTo: 1648,
 				yearApproximate: false,
-				description: 'Opis.'
+				description: 'Opis.',
+				source: null
 			},
 			{
 				id: 'other',
@@ -94,7 +123,8 @@ describe('loadTimelineEvents', () => {
 				yearFrom: null,
 				yearTo: -4,
 				yearApproximate: true,
-				description: ''
+				description: '',
+				source: null
 			}
 		]);
 	});
@@ -147,9 +177,34 @@ describe('saveTimelineEvent', () => {
 			year_from: 1618,
 			year_to: 1648,
 			year_approximate: false,
-			description: 'Opis.'
+			description: 'Opis.',
+			source_title: null,
+			source_url: null,
+			source_licence: null,
+			source_fetched_on: null
 		});
 		expect(result).toEqual({ id: ID });
+	});
+
+	it('saves the Wikipedia source of the description', async () => {
+		const query = chain({ data: { id: ID }, error: null });
+		const source = {
+			title: 'Wojna trzydziestoletnia',
+			url: 'https://pl.wikipedia.org/wiki/Wojna_trzydziestoletnia',
+			licence: 'CC BY-SA 4.0',
+			fetchedOn: '2026-10-21'
+		};
+
+		await saveTimelineEvent({ ...draft, source });
+
+		expect(query.insert).toHaveBeenCalledWith(
+			expect.objectContaining({
+				source_title: source.title,
+				source_url: source.url,
+				source_licence: source.licence,
+				source_fetched_on: source.fetchedOn
+			})
+		);
 	});
 
 	it('updates an existing event and clears an empty description', async () => {

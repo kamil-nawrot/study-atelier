@@ -6,7 +6,7 @@ import type { TimelineEvent } from './types.ts';
 const earlyModern = eraOf('early_modern', 2026);
 
 function event(id: string, yearFrom: number | null, yearTo: number, name = id): TimelineEvent {
-	return { id, name, yearFrom, yearTo, yearApproximate: false, description: '' };
+	return { id, name, yearFrom, yearTo, yearApproximate: false, description: '', source: null };
 }
 
 const width = (item: TimelineEvent): number => item.name.length * 7;
