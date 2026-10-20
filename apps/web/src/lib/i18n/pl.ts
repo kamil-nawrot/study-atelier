@@ -154,6 +154,7 @@ export const pl = {
 		atelier: 'Atelier',
 		cardIndex: 'Kartoteka',
 		glossary: 'Słowniczek',
+		timeline: 'Oś czasu',
 		review: 'Powtórki',
 		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
 		trash: 'Kosz',
@@ -844,6 +845,95 @@ export const pl = {
 		errors: {
 			notFound: 'Nie ma takiego pojęcia w słowniczku. Może zostało usunięte.',
 			invalid: 'Nie udało się zapisać pojęcia. Sprawdź nazwę i definicję.',
+			network: 'Nie udało się połączyć. Sprawdź internet i spróbuj jeszcze raz.'
+		}
+	},
+	timeline: {
+		title: 'Oś czasu',
+		add: 'Dodaj wydarzenie',
+		addShort: 'Dodaj',
+		saved: (name: string): string => `Zapisano wydarzenie „${name}”.`,
+		form: {
+			newTitle: 'Nowe wydarzenie',
+			editTitle: 'Edycja wydarzenia',
+			goBack: 'Wróć do osi czasu',
+			name: 'Nazwa',
+			namePlaceholder: 'Np. wojny napoleońskie, chrzest Polski',
+			nameRequired: 'Wpisz nazwę wydarzenia.',
+			year: 'Rok',
+			spanTitle: 'Lata',
+			yearRequired: 'Wpisz rok wydarzenia.',
+			description: 'Opis',
+			descriptionPlaceholder: 'Co warto o nim pamiętać',
+			cancel: 'Anuluj',
+			save: 'Zapisz',
+			saving: 'Zapisywanie…',
+			errorTitle: 'Nie udało się zapisać wydarzenia',
+			discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.',
+			notFoundTitle: 'Nie ma takiego wydarzenia',
+			loadErrorTitle: 'Nie udało się wczytać wydarzenia'
+		},
+		loadErrorTitle: 'Nie udało się wczytać osi czasu',
+		eras: 'Epoki',
+		strip: 'Pasek epok',
+		previous: (era: string): string => `Poprzednia epoka: ${era}`,
+		next: (era: string): string => `Następna epoka: ${era}`,
+		seen: 'Widzisz:',
+		scale: 'skala:',
+		steps: {
+			label: 'Skala',
+			era: 'Epoka',
+			'10000': '10 tysiącleci',
+			'1000': 'Tysiąclecie',
+			'300': 'Trzy wieki',
+			'100': 'Stulecie',
+			'30': 'Pokolenie'
+		},
+		zoomIn: 'Przybliż o krok',
+		zoomOut: 'Oddal o krok',
+		stage: 'Oś czasu. Strzałki przesuwają czas, plus i minus zmieniają skalę o krok.',
+		card: {
+			artwork: 'Dzieło',
+			event: 'Wydarzenie',
+			period: 'Okres',
+			length: (years: number): string =>
+				`${years} ${plural(years, { one: 'rok', few: 'lata', many: 'lat' })}`,
+			artworksOfTime: 'Dzieła z tego czasu',
+			noArtworks: 'W tym czasie nie masz żadnego dzieła.',
+			eventsOfTime: 'W tym czasie',
+			showWhole: 'Pokaż cały okres na osi',
+			edit: 'Edytuj',
+			delete: 'Usuń'
+		},
+		deleteConfirm: {
+			title: (name: string): string => `Usunąć wydarzenie „${name}”?`,
+			description: 'Zniknie z osi czasu. Żadne dzieło się nie zmieni.',
+			back: 'Wróć',
+			confirm: 'Usuń',
+			deleting: 'Usuwanie…'
+		},
+		deleted: (name: string): string => `Usunięto wydarzenie „${name}”.`,
+		noEvents: 'Nie masz jeszcze żadnych dodanych wydarzeń',
+		hiddenEvents: (count: number): string =>
+			`${count} ${plural(count, { one: 'wydarzenie', few: 'wydarzenia', many: 'wydarzeń' })} poza widokiem. Przybliż, żeby je zobaczyć.`,
+		now: (year: string, events: string): string => `${year} · w tym czasie: ${events}`,
+		zones: {
+			events: 'Wydarzenia',
+			artworks: 'Dzieła'
+		},
+		century: (numeral: string, beforeCommonEra: boolean): string =>
+			`${numeral} w.${beforeCommonEra ? ' p.n.e.' : ''}`,
+		centuriesRange: (from: string, to: string, beforeCommonEra: boolean): string =>
+			`${from}–${to} w.${beforeCommonEra ? ' p.n.e.' : ''}`,
+		millennium: (numeral: string, beforeCommonEra: boolean): string =>
+			`${numeral} tysiąclecie${beforeCommonEra ? ' p.n.e.' : ''}`,
+		millenniumShort: (numeral: string, beforeCommonEra: boolean): string =>
+			`${numeral} tys.${beforeCommonEra ? ' p.n.e.' : ''}`,
+		millenniaRange: (from: string, to: string, beforeCommonEra: boolean): string =>
+			`${from}–${to} tys.${beforeCommonEra ? ' p.n.e.' : ''}`,
+		errors: {
+			notFound: 'Nie ma takiego wydarzenia na osi czasu. Może zostało usunięte.',
+			invalid: 'Nie udało się zapisać wydarzenia. Sprawdź nazwę i datę.',
 			network: 'Nie udało się połączyć. Sprawdź internet i spróbuj jeszcze raz.'
 		}
 	},

@@ -464,6 +464,97 @@ function glossaryEntry(
 	};
 }
 
+export const TIMELINE_EVENTS = [
+	{
+		id: '00000000-0000-4000-8000-000000000301',
+		owner_id: USER.id,
+		name: 'Odkrycie Ameryki',
+		year_from: null,
+		year_to: 1492,
+		year_approximate: false,
+		description: 'Wyprawa Kolumba dociera do wysp karaibskich.',
+		created_at: '2026-10-20T00:00:00Z',
+		updated_at: '2026-10-20T00:00:00Z'
+	},
+	{
+		id: '00000000-0000-4000-8000-000000000302',
+		owner_id: USER.id,
+		name: 'Wystąpienie Lutra',
+		year_from: null,
+		year_to: 1517,
+		year_approximate: false,
+		description: null,
+		created_at: '2026-10-20T00:00:00Z',
+		updated_at: '2026-10-20T00:00:00Z'
+	},
+	{
+		id: '00000000-0000-4000-8000-000000000303',
+		owner_id: USER.id,
+		name: 'Sobór trydencki',
+		year_from: 1545,
+		year_to: 1563,
+		year_approximate: false,
+		description: null,
+		created_at: '2026-10-20T00:00:00Z',
+		updated_at: '2026-10-20T00:00:00Z'
+	},
+	{
+		id: '00000000-0000-4000-8000-000000000304',
+		owner_id: USER.id,
+		name: 'Wojna trzydziestoletnia',
+		year_from: 1618,
+		year_to: 1648,
+		year_approximate: false,
+		description: 'Wojna religijna i polityczna w Europie Środkowej.',
+		created_at: '2026-10-20T00:00:00Z',
+		updated_at: '2026-10-20T00:00:00Z'
+	},
+	{
+		id: '00000000-0000-4000-8000-000000000305',
+		owner_id: USER.id,
+		name: 'Odsiecz wiedeńska',
+		year_from: null,
+		year_to: 1683,
+		year_approximate: false,
+		description: null,
+		created_at: '2026-10-20T00:00:00Z',
+		updated_at: '2026-10-20T00:00:00Z'
+	},
+	{
+		id: '00000000-0000-4000-8000-000000000306',
+		owner_id: USER.id,
+		name: 'Rewolucja przemysłowa',
+		year_from: 1760,
+		year_to: 1840,
+		year_approximate: true,
+		description: null,
+		created_at: '2026-10-20T00:00:00Z',
+		updated_at: '2026-10-20T00:00:00Z'
+	},
+	{
+		id: '00000000-0000-4000-8000-000000000307',
+		owner_id: USER.id,
+		name: 'Rewolucja francuska',
+		year_from: 1789,
+		year_to: 1799,
+		year_approximate: false,
+		description: null,
+		created_at: '2026-10-20T00:00:00Z',
+		updated_at: '2026-10-20T00:00:00Z'
+	},
+	{
+		id: '00000000-0000-4000-8000-000000000308',
+		owner_id: USER.id,
+		name: 'Wojny napoleońskie',
+		year_from: 1803,
+		year_to: 1815,
+		year_approximate: false,
+		description: null,
+		created_at: '2026-10-20T00:00:00Z',
+		updated_at: '2026-10-20T00:00:00Z'
+	}
+];
+
 export const GLOSSARY_ENTRIES = [
 	glossaryEntry(
 		1,

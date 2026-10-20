@@ -39,6 +39,11 @@ export function eraName(code: EraCode): string {
 	return m.eras[code].name;
 }
 
+export function eraTitle(code: EraCode): string {
+	const name = eraName(code);
+	return `${name.charAt(0).toLocaleUpperCase('pl')}${name.slice(1)}`;
+}
+
 export function eraTiles(): ChoiceTile[] {
 	return ERA_CODES.map((code) => ({
 		value: code,
