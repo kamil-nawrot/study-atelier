@@ -2,7 +2,7 @@
 	import Plus from '@lucide/svelte/icons/plus';
 	import { onMount, untrack } from 'svelte';
 	import { Alert, Button, Icon, Toast } from '@study-atelier/ui';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import AtelierBackLink from '#lib/collection/components/AtelierBackLink.svelte';
@@ -11,6 +11,7 @@
 	import TimelineView from '#lib/timeline/components/TimelineView.svelte';
 	import { eraOfYear, rememberEra, rememberedEra, startEra } from '#lib/timeline/start.ts';
 	import { spanOfYears } from '#lib/timeline/time.ts';
+	import type { TimelineEvent } from '#lib/timeline/types.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -23,6 +24,11 @@
 	const initialFocus = saved ? spanOfYears(saved.yearFrom, saved.yearTo) : undefined;
 
 	let toast: Toast;
+
+	async function removed(event: TimelineEvent): Promise<void> {
+		await invalidateAll();
+		toast.show(m.timeline.deleted(event.name));
+	}
 
 	onMount(() => {
 		if (!saved) return;
@@ -49,7 +55,13 @@
 			{data.error}
 		</Alert>
 	{:else}
-		<TimelineView artworks={data.artworks} {initialEra} {initialFocus} />
+		<TimelineView
+			artworks={data.artworks}
+			events={data.events}
+			{initialEra}
+			{initialFocus}
+			ondeleted={removed}
+		/>
 	{/if}
 </AtelierLayout>
 

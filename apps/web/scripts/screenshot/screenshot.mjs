@@ -11,6 +11,7 @@ import {
 	PEOPLE,
 	PERIOD_ERA_USAGE,
 	REVIEW_CARDS,
+	TIMELINE_EVENTS,
 	STYLE_PERIOD_USAGE,
 	VALUE_DETAILS,
 	VALUE_USAGE,
@@ -321,6 +322,7 @@ async function mockSupabase(context) {
 			return route.fulfill({ status: 204, headers: corsHeaders() });
 		}
 		if (url.pathname === '/rest/v1/review_cards') return json(route, REVIEW_CARDS);
+		if (url.pathname === '/rest/v1/timeline_events') return json(route, TIMELINE_EVENTS);
 		if (url.pathname === '/rest/v1/catalogue_museums') return json(route, CATALOGUE_MUSEUMS);
 		if (
 			url.pathname === '/rest/v1/location_details' &&
