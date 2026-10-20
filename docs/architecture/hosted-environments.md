@@ -30,7 +30,7 @@ The same five names must not remain as repository secrets: an environment secret
 3. In Authentication, Providers, Email, keep the same settings as production (email confirmation on).
 4. Push to `develop`: the `database` job applies all migrations, including the `artwork-images` bucket and the `keep_alive()` function.
 5. Sign up in the develop app, then fill it with the sample artworks by running the seed files in the SQL Editor.
-6. Run the `Supabase keep-alive` and `Unused images clean-up` workflows manually and check that both jobs of each pass.
+6. Run the `Supabase keep-alive` workflow manually and check that both jobs pass. Run the `Unused images clean-up` workflow manually from `develop` and, after the next release, from `main`: a manual run cleans only the environment of its branch, the daily one both ([ADR-0092](../decisions/0092-clean-up-images-by-hand-for-one-environment.md)).
 
 ## Releasing
 
