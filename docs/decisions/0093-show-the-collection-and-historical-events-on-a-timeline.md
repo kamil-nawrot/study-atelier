@@ -1,6 +1,6 @@
 # 0093. Show the collection and the learner's historical events on a timeline, one era at a time
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-10-20
 
 ## Context and problem statement
