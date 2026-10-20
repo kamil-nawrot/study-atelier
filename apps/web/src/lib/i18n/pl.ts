@@ -383,7 +383,7 @@ export const pl = {
 		information: 'Informacje',
 		showInformation: 'Pokaż informacje',
 		hideInformation: 'Zamknij informacje',
-		openImage: 'Powiększ zdjęcie',
+		openImage: 'Powiększ obraz',
 		closeImage: 'Zamknij powiększenie',
 		empty: 'Nie wpisano',
 		previous: 'Poprzednie dzieło',
