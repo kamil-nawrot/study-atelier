@@ -197,10 +197,23 @@ function duplicateDialog(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('alertdialog', { name: m.duplicateDialog.title });
 }
 
+async function addValue(field: ReturnType<typeof page.getByRole>, name: string): Promise<void> {
+	await field.fill(name);
+	await userEvent.keyboard('{Enter}');
+}
+
+function selectFile(file: File): void {
+	const input = document.querySelector<HTMLInputElement>('input[type="file"]');
+	if (!input) throw new Error('The file input is missing');
+	const transfer = new DataTransfer();
+	transfer.items.add(file);
+	input.files = transfer.files;
+	input.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
 async function fillRequired(): Promise<void> {
 	await titleField().fill('The Milkmaid');
-	await userEvent.click(authorsField());
-	await userEvent.keyboard('Johannes Vermeer{Enter}');
+	await addValue(authorsField(), 'Johannes Vermeer');
 }
 
 function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
@@ -331,8 +344,7 @@ describe('add artwork page', () => {
 
 	it('clears and disables the authors when the author is unknown', async () => {
 		renderPage();
-		await userEvent.click(authorsField());
-		await userEvent.keyboard('Johannes Vermeer{Enter}');
+		await addValue(authorsField(), 'Johannes Vermeer');
 
 		await page.getByText(m.artworkForm.authorUnknown).click();
 
@@ -393,10 +405,8 @@ describe('add artwork page', () => {
 		renderPage();
 
 		await userEvent.click(eraTile('modern'));
-		await userEvent.click(periodField());
-		await userEvent.keyboard('Pointillism{Enter}');
-		await userEvent.click(styleField());
-		await userEvent.keyboard('Neo-impressionism{Enter}');
+		await addValue(periodField(), 'Pointillism');
+		await addValue(styleField(), 'Neo-impressionism');
 
 		await expect.element(page.getByText('Pointillism', { exact: true })).toBeVisible();
 		await expect.element(page.getByText('Neo-impressionism', { exact: true })).toBeVisible();
@@ -830,9 +840,7 @@ describe('add artwork page', () => {
 			.element(page.getByRole('button', { name: m.artworkForm.chooseFile }))
 			.toHaveAccessibleDescription(m.ownImageErrors.fileType('JPG, PNG, WebP, GIF lub AVIF'));
 
-		const input = document.querySelector<HTMLInputElement>('input[type="file"]');
-		await userEvent.upload(
-			input as HTMLInputElement,
+		selectFile(
 			new File([new Uint8Array(OWN_IMAGE_MAX_BYTES + 1)], 'large.png', { type: 'image/png' })
 		);
 
