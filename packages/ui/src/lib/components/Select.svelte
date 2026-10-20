@@ -42,7 +42,7 @@
 </script>
 
 <div class="field" class:compact>
-	<label for={selectId}>{label}</label>
+	<label class:visually-hidden={compact} for={selectId}>{label}</label>
 	<div class="control" class:invalid={!!error}>
 		{#if icon}
 			<span class="glyph">
@@ -145,15 +145,6 @@
 
 	.glyph {
 		display: none;
-	}
-
-	.compact label {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		overflow: hidden;
-		clip-path: inset(50%);
-		white-space: nowrap;
 	}
 
 	@media (max-width: 767.98px) {

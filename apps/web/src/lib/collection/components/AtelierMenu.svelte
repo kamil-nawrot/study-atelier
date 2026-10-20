@@ -17,11 +17,12 @@
 	type Props = {
 		email: string;
 		signingOut: boolean;
+		compact?: boolean;
 		onsignout: () => void;
 		onfeedback: () => void;
 	};
 
-	let { email, signingOut, onsignout, onfeedback }: Props = $props();
+	let { email, signingOut, compact = false, onsignout, onfeedback }: Props = $props();
 
 	const atelierPath = resolve('/(app)/atelier');
 	const cardIndexPath = resolve('/(app)/atelier/values');
@@ -37,7 +38,7 @@
 		<span class="avatar" aria-hidden="true">
 			{email.charAt(0).toLocaleUpperCase('pl')}
 		</span>
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{email}
 		</span>
 	</span>
@@ -47,7 +48,7 @@
 		href={atelierPath}
 	>
 		<Icon icon={ImagesIcon} />
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{m.menu.atelier}
 		</span>
 	</a>
@@ -57,7 +58,7 @@
 		href={cardIndexPath}
 	>
 		<Icon icon={ListTree} />
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{m.menu.cardIndex}
 		</span>
 	</a>
@@ -67,7 +68,7 @@
 		href={glossaryPath}
 	>
 		<Icon icon={BookA} />
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{m.menu.glossary}
 		</span>
 	</a>
@@ -84,11 +85,11 @@
 				{/if}
 			{/await}
 		</span>
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{m.menu.review}
 			{#await page.data.reviewWaiting then waiting}
 				{#if waiting > 0}
-					<span class="hidden">, {m.menu.reviewWaiting(waiting)}</span>
+					<span class="visually-hidden">, {m.menu.reviewWaiting(waiting)}</span>
 				{/if}
 			{/await}
 		</span>
@@ -106,25 +107,25 @@
 		href={trashPath}
 	>
 		<Icon icon={Trash} />
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{m.menu.trash}
 		</span>
 	</a>
 	<button class="item muted" onclick={onfeedback} type="button">
 		<Icon icon={MessageSquarePlus} />
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{m.menu.feedback}
 		</span>
 	</button>
 	<button class="item muted" onclick={() => setTheme(light ? 'dark' : 'light')} type="button">
 		<Icon icon={light ? Moon : Sun} />
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{light ? m.menu.darkTheme : m.menu.lightTheme}
 		</span>
 	</button>
 	<button class="item danger" disabled={signingOut} onclick={onsignout} type="button">
 		<Icon icon={LogOut} />
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{m.menu.signOut}
 		</span>
 	</button>
@@ -227,14 +228,5 @@
 		width: var(--spacing-2);
 		height: var(--spacing-2);
 		background: var(--color-fg);
-	}
-
-	.hidden {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		overflow: hidden;
-		clip-path: inset(50%);
-		white-space: nowrap;
 	}
 </style>
