@@ -824,6 +824,43 @@ export type Database = {
           },
         ];
       };
+      timeline_events: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          name: string;
+          owner_id: string;
+          updated_at: string;
+          year_approximate: boolean;
+          year_from: number | null;
+          year_to: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          name: string;
+          owner_id?: string;
+          updated_at?: string;
+          year_approximate?: boolean;
+          year_from?: number | null;
+          year_to: number;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          name?: string;
+          owner_id?: string;
+          updated_at?: string;
+          year_approximate?: boolean;
+          year_from?: number | null;
+          year_to?: number;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
