@@ -19,6 +19,7 @@
 	import X from '@lucide/svelte/icons/x';
 	import { tick } from 'svelte';
 	import { uiMessages } from '../messages';
+	import FieldMessage from './FieldMessage.svelte';
 	import Icon from './Icon.svelte';
 
 	type Props = {
@@ -205,7 +206,7 @@
 		</ul>
 	</div>
 	{#if message}
-		<span id={messageId} class="message" class:error={!!error}>{message}</span>
+		<FieldMessage id={messageId} {error} {hint} />
 	{/if}
 </div>
 
@@ -327,15 +328,5 @@
 
 	.empty {
 		color: var(--color-fg-muted);
-	}
-
-	.message {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-	}
-
-	.message.error {
-		color: var(--color-danger);
 	}
 </style>

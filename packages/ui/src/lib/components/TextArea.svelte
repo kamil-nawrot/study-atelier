@@ -1,4 +1,5 @@
 <script lang="ts">
+	import FieldMessage from './FieldMessage.svelte';
 	import type { HTMLTextareaAttributes } from 'svelte/elements';
 
 	type Props = Omit<HTMLTextareaAttributes, 'value'> & {
@@ -47,11 +48,15 @@
 	{#if message || counted}
 		<div class="messages">
 			{#if message}
-				<span id={messageId} class="message" class:error={!!error}>{message}</span>
+				<FieldMessage id={messageId} {error} {hint} />
 			{/if}
 			{#if counted}
-				<span id={counterId} class="message counter" class:error={full}>
-					{value.length}/{maxlength}
+				<span class="counter">
+					<FieldMessage
+						id={counterId}
+						error={full ? `${value.length}/${maxlength}` : undefined}
+						hint={`${value.length}/${maxlength}`}
+					/>
 				</span>
 			{/if}
 		</div>
@@ -102,12 +107,6 @@
 		cursor: not-allowed;
 	}
 
-	.message {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-	}
-
 	.messages {
 		display: flex;
 		gap: var(--spacing-3);
@@ -116,9 +115,5 @@
 	.counter {
 		margin-left: auto;
 		font-variant-numeric: tabular-nums;
-	}
-
-	.message.error {
-		color: var(--color-danger);
 	}
 </style>
