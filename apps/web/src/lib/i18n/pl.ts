@@ -154,6 +154,7 @@ export const pl = {
 		atelier: 'Atelier',
 		cardIndex: 'Kartoteka',
 		glossary: 'Słowniczek',
+		timeline: 'Oś czasu',
 		review: 'Powtórki',
 		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
 		trash: 'Kosz',
@@ -848,6 +849,40 @@ export const pl = {
 		}
 	},
 	timeline: {
+		title: 'Oś czasu',
+		loadErrorTitle: 'Nie udało się wczytać osi czasu',
+		eras: 'Epoki',
+		strip: 'Pasek epok',
+		previous: (era: string): string => `Poprzednia epoka: ${era}`,
+		next: (era: string): string => `Następna epoka: ${era}`,
+		seen: 'Widzisz:',
+		scale: 'skala:',
+		steps: {
+			label: 'Skala',
+			era: 'Epoka',
+			'10000': '10 tysiącleci',
+			'1000': 'Tysiąclecie',
+			'300': 'Trzy wieki',
+			'100': 'Stulecie',
+			'30': 'Pokolenie'
+		},
+		zoomIn: 'Przybliż o krok',
+		zoomOut: 'Oddal o krok',
+		stage: 'Oś czasu. Strzałki przesuwają czas, plus i minus zmieniają skalę o krok.',
+		zones: {
+			events: 'Wydarzenia',
+			artworks: 'Dzieła'
+		},
+		century: (numeral: string, beforeCommonEra: boolean): string =>
+			`${numeral} w.${beforeCommonEra ? ' p.n.e.' : ''}`,
+		centuriesRange: (from: string, to: string, beforeCommonEra: boolean): string =>
+			`${from}–${to} w.${beforeCommonEra ? ' p.n.e.' : ''}`,
+		millennium: (numeral: string, beforeCommonEra: boolean): string =>
+			`${numeral} tysiąclecie${beforeCommonEra ? ' p.n.e.' : ''}`,
+		millenniumShort: (numeral: string, beforeCommonEra: boolean): string =>
+			`${numeral} tys.${beforeCommonEra ? ' p.n.e.' : ''}`,
+		millenniaRange: (from: string, to: string, beforeCommonEra: boolean): string =>
+			`${from}–${to} tys.${beforeCommonEra ? ' p.n.e.' : ''}`,
 		errors: {
 			notFound: 'Nie ma takiego wydarzenia na osi czasu. Może zostało usunięte.',
 			invalid: 'Nie udało się zapisać wydarzenia. Sprawdź nazwę i datę.',

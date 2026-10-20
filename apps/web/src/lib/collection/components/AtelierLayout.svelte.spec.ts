@@ -95,7 +95,7 @@ describe('AtelierLayout', () => {
 		expect(getComputedStyle(document.documentElement).overflow).toBe('hidden');
 	});
 
-	it('puts the glossary after the card index and before the reviews, and marks it on its pages', async () => {
+	it('puts the glossary after the card index and the timeline before the reviews, and marks the glossary on its pages', async () => {
 		await page.viewport(1280, 800);
 		pageState.url = new URL('http://localhost/atelier/glossary/some-entry');
 		renderLayout(views.empty);
@@ -106,12 +106,16 @@ describe('AtelierLayout', () => {
 			.querySelectorAll('a');
 		const names = [...links].map((link) => link.textContent?.trim() ?? '');
 
-		expect(names.slice(0, 4)).toEqual([
+		expect(names.slice(0, 5)).toEqual([
 			m.menu.atelier,
 			m.menu.cardIndex,
 			m.menu.glossary,
+			m.menu.timeline,
 			m.menu.review
 		]);
+		await expect
+			.element(page.getByRole('link', { name: m.menu.timeline }))
+			.toHaveAttribute('href', '/atelier/timeline');
 		await expect
 			.element(page.getByRole('link', { name: m.menu.glossary }))
 			.toHaveAttribute('href', '/atelier/glossary');
@@ -151,7 +155,7 @@ describe('AtelierLayout', () => {
 		await expect.element(page.getByRole('button', { name: m.menu.lightTheme })).toBeInTheDocument();
 	});
 
-	it('links to the reviews between the glossary and the trash, with the number waiting today only in the expanded rail', async () => {
+	it('links to the reviews between the timeline and the trash, with the number waiting today only in the expanded rail', async () => {
 		await page.viewport(1280, 800);
 		pageState.data = { reviewWaiting: Promise.resolve(14) };
 		renderLayout(views.empty);
@@ -169,7 +173,7 @@ describe('AtelierLayout', () => {
 		const names = [...rail.element().querySelectorAll('a')].map((item) =>
 			item.querySelector('.label')?.textContent?.trim()
 		);
-		expect(names.indexOf(m.menu.glossary) + 1).toBe(
+		expect(names.indexOf(m.menu.timeline) + 1).toBe(
 			names.findIndex((name) => name?.startsWith(m.menu.review))
 		);
 	});
