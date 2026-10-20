@@ -1209,7 +1209,7 @@ describe('image search on the add artwork page', () => {
 		renderPage();
 		await fillRequired();
 
-		await expect.element(page.getByText(matched)).toBeVisible({ timeout: 3000 });
+		await expect.element(page.getByText(matched), { timeout: 3000 }).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.artworkForm.matchAll })).toBeVisible();
 		expect(page.getByRole('button', { name: m.artworkForm.matchNext }).elements()).toHaveLength(0);
 
@@ -1227,7 +1227,7 @@ describe('image search on the add artwork page', () => {
 		]);
 		renderPage();
 		await fillRequired();
-		await expect.element(page.getByText(matched)).toBeVisible({ timeout: 3000 });
+		await expect.element(page.getByText(matched), { timeout: 3000 }).toBeVisible();
 
 		await page.getByRole('button', { name: m.artworkForm.matchNext }).click();
 
@@ -1240,7 +1240,7 @@ describe('image search on the add artwork page', () => {
 		await titleField().fill('The Milkmaid');
 		await addValue(authorsField(), 'Rembrandt');
 
-		await expect.element(page.getByText(m.artworkForm.matchNone)).toBeVisible({ timeout: 3000 });
+		await expect.element(page.getByText(m.artworkForm.matchNone), { timeout: 3000 }).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.artworkForm.findImage })).toBeVisible();
 	});
 
