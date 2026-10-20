@@ -60,13 +60,26 @@
 
 	const STAGE_WIDTH = 960;
 	const VIEWER_WIDTH = 1920;
+	const GALLERY_WIDTH = 120;
 
 	let panelOpen = $state(artworkPanelOpen());
 	let viewer: ReturnType<typeof ImageViewer>;
 
-	let image = $derived(artworkImageSource(artwork.image, STAGE_WIDTH));
-	let fullImage = $derived(artworkImageSource(artwork.image, VIEWER_WIDTH));
-	let credit = $derived(image ? artworkImageCredit(artwork.image) : undefined);
+	let shown = $state(0);
+	let gallery = $derived(artwork.image ? [artwork.image, ...artwork.images] : []);
+	let current = $derived(gallery[shown] ?? artwork.image);
+	let image = $derived(artworkImageSource(current, STAGE_WIDTH));
+	let fullImage = $derived(artworkImageSource(current, VIEWER_WIDTH));
+	let credit = $derived(image ? artworkImageCredit(current) : undefined);
+
+	$effect.pre(() => {
+		void artwork.id;
+		shown = 0;
+	});
+
+	function step(by: -1 | 1): void {
+		shown = (shown + by + gallery.length) % gallery.length;
+	}
 	let authors = $derived(
 		artwork.authors.length > 0 ? artwork.authors.join(', ') : m.ui.unknownAuthor
 	);
@@ -219,6 +232,25 @@
 			{#if credit}
 				<figcaption class="caption">{credit}</figcaption>
 			{/if}
+			{#if gallery.length > 1}
+				<div class="gallery">
+					{#each gallery as item, index (index)}
+						{@const thumb = artworkImageSource(item, GALLERY_WIDTH)}
+						<button
+							class="thumb"
+							class:shown={index === shown}
+							aria-label={m.artworkForm.imageSlot(index + 1, gallery.length)}
+							aria-pressed={index === shown}
+							onclick={() => (shown = index)}
+							type="button"
+						>
+							{#if thumb}
+								<img alt="" src={thumb.src} />
+							{/if}
+						</button>
+					{/each}
+				</div>
+			{/if}
 		{:else}
 			<span class="mat">
 				<span class="window">
@@ -321,7 +353,7 @@
 	</div>
 </div>
 
-<ImageViewer bind:this={viewer} {alt} image={fullImage} />
+<ImageViewer bind:this={viewer} {alt} count={gallery.length} image={fullImage} onstep={step} />
 
 <style>
 	.view {
@@ -423,6 +455,35 @@
 		display: grid;
 		width: min(320px, calc(100vw - 2 * var(--spacing-6)));
 		aspect-ratio: 4 / 5;
+	}
+
+	.gallery {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: var(--spacing-2);
+	}
+
+	.thumb {
+		width: 56px;
+		height: 56px;
+		padding: 0;
+		overflow: hidden;
+		border: var(--border-width-base) solid var(--color-stage-fg-muted);
+		background: transparent;
+		cursor: pointer;
+		opacity: 0.6;
+	}
+
+	.thumb.shown {
+		border-color: var(--color-stage-fg);
+		opacity: 1;
+	}
+
+	.thumb img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 
 	.stage .caption {

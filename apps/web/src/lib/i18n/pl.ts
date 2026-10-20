@@ -289,6 +289,11 @@ export const pl = {
 		notFoundTitle: (number: string): string => `Nie ma dzieła ${number}`,
 		loadErrorTitle: 'Nie udało się wczytać dzieła',
 		image: 'Zdjęcie',
+		addImage: 'Dodaj kolejne zdjęcie',
+		mainImage: 'Główne',
+		setMainImage: 'Ustaw jako główne',
+		imagesLimit: 'Najwyżej 5 zdjęć.',
+		imageSlot: (number: number, count: number): string => `Zdjęcie ${number} z ${count}`,
 		findImage: 'Znajdź zdjęcie',
 		ownImage: 'Dodaj własne',
 		changeOwnImage: 'Zmień własne',
@@ -367,6 +372,8 @@ export const pl = {
 		}
 	},
 	artworkView: {
+		previousImage: 'Poprzednie zdjęcie',
+		nextImage: 'Następne zdjęcie',
 		back: 'Atelier',
 		edit: 'Edytuj',
 		delete: 'Usuń',

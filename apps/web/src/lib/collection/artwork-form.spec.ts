@@ -55,7 +55,8 @@ describe('artworkInputFromForm', () => {
 			materials: [],
 			location: 'Mauritshuis',
 			notes: 'Seen in The Hague.',
-			image: null
+			image: null,
+			images: []
 		});
 	});
 
@@ -79,6 +80,7 @@ describe('artworkFormFromRecord', () => {
 	const record: ArtworkRecord = {
 		id: 'artwork-1',
 		number: 7,
+		images: [],
 		favourite: false,
 		title: 'The Thinker',
 		authors: ['Auguste Rodin'],
@@ -119,7 +121,8 @@ describe('artworkFormFromRecord', () => {
 			typeCode: 'sculpture',
 			eraCode: 'modern',
 			notes: 'Seen in Paris.',
-			image: { kind: 'upload', path: 'user-id/thinker.jpg', width: 3, height: 4 }
+			image: { kind: 'upload', path: 'user-id/thinker.jpg', width: 3, height: 4 },
+			images: []
 		});
 	});
 
@@ -237,6 +240,7 @@ describe('year span in the form', () => {
 	const record: ArtworkRecord = {
 		id: 'artwork-1',
 		number: 7,
+		images: [],
 		favourite: false,
 		title: 'The Test Painting',
 		authors: [],

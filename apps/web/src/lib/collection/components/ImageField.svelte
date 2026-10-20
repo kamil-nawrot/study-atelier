@@ -4,7 +4,7 @@
 	import Search from '@lucide/svelte/icons/search';
 	import Trash from '@lucide/svelte/icons/trash';
 	import Upload from '@lucide/svelte/icons/upload';
-	import { tick } from 'svelte';
+	import { onDestroy, tick, type Snippet } from 'svelte';
 	import {
 		ArtworkImage,
 		Button,
@@ -41,9 +41,21 @@
 		query: ImageSearchQuery;
 		texts: ImageFieldTexts;
 		image: ArtworkImageInput | null;
+		removable?: boolean;
+		slots?: Snippet;
+		actions?: Snippet;
 	};
 
-	let { alt, searchReady, query, texts, image = $bindable() }: Props = $props();
+	let {
+		alt,
+		searchReady,
+		query,
+		texts,
+		image = $bindable(),
+		removable = false,
+		slots,
+		actions
+	}: Props = $props();
 
 	const id = $props.id();
 	const fileMessageId = `${id}-file`;
@@ -69,18 +81,19 @@
 	let credit = $derived(artworkImageCredit(image));
 	let ownImage = $derived(image !== null && image.kind !== 'commons');
 
-	$effect(() => {
-		const previewUrl = image?.kind === 'file' ? image.previewUrl : null;
-		return () => {
-			if (previewUrl) URL.revokeObjectURL(previewUrl);
-		};
-	});
+	function release(previous: ArtworkImageInput | null): void {
+		if (previous?.kind === 'file') URL.revokeObjectURL(previous.previewUrl);
+	}
+
+	onDestroy(() => release(image));
 
 	function pickCandidate(candidate: ImageCandidate): void {
+		release(image);
 		image = imageFromCandidate(candidate);
 	}
 
 	async function removeImage(): Promise<void> {
+		release(image);
 		image = null;
 		await tick();
 		document.getElementById(findImageId)?.focus();
@@ -93,6 +106,7 @@
 	}
 
 	function useImage(next: ArtworkImageInput): void {
+		release(image);
 		image = next;
 		pasteError = '';
 		dialogOpen = false;
@@ -237,6 +251,7 @@
 			<figcaption class="caption">{credit}</figcaption>
 		{/if}
 	</figure>
+	{@render slots?.()}
 
 	<div class="image-actions">
 		<Button id={findImageId} disabled={!searchReady} onclick={() => (searchOpen = true)}>
@@ -247,12 +262,13 @@
 			<Icon icon={ImagePlus} size="sm" />
 			{ownImage ? texts.changeOwn : texts.own}
 		</Button>
-		{#if image}
+		{#if image || removable}
 			<Button onclick={removeImage}>
 				<Icon icon={Trash} size="sm" />
 				{texts.remove}
 			</Button>
 		{/if}
+		{@render actions?.()}
 	</div>
 	{#if !searchReady}
 		<p class="caption">{texts.findHint}</p>

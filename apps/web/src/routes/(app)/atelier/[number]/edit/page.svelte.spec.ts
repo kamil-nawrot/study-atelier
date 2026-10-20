@@ -35,6 +35,7 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 	return {
 		id: 'artwork-7',
 		number: 7,
+		images: [],
 		favourite: false,
 		title: 'The Milkmaid',
 		authors: ['Johannes Vermeer'],
@@ -246,7 +247,8 @@ describe('edit artwork page', () => {
 				material: [],
 				location: ['Rijksmuseum']
 			},
-			existing_id: 'artwork-7'
+			existing_id: 'artwork-7',
+			extra_images: []
 		});
 	});
 

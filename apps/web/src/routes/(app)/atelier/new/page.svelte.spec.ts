@@ -547,7 +547,8 @@ describe('add artwork page', () => {
 		expect(supabase.rpc).toHaveBeenCalledWith('save_artwork', {
 			artwork: expect.anything(),
 			values_by_category: expect.objectContaining({ location: ['Luwr'] }),
-			existing_id: undefined
+			existing_id: undefined,
+			extra_images: []
 		});
 	});
 
@@ -580,7 +581,8 @@ describe('add artwork page', () => {
 				material: [],
 				location: []
 			},
-			existing_id: undefined
+			existing_id: undefined,
+			extra_images: []
 		});
 	});
 
@@ -875,6 +877,51 @@ describe('add artwork page', () => {
 			image_width: 1200,
 			image_height: 900
 		});
+	});
+
+	it('adds another image in a new slot and makes it the main one', async () => {
+		stubRemoteImage({ width: 1200, height: 900 });
+		renderPage();
+		await fillRequired();
+		await openOwnImage();
+		await urlField().fill('https://example.com/facade.jpg');
+		await userEvent.keyboard('{Enter}');
+
+		await page.getByRole('button', { name: m.artworkForm.addImage }).click();
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.imageSlot(2, 2) }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await openOwnImage();
+		await urlField().fill('https://example.org/plan.jpg');
+		await userEvent.keyboard('{Enter}');
+		await page.getByRole('button', { name: m.artworkForm.setMainImage }).click();
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
+		expect(savedArtwork()).toMatchObject({ own_image_url: 'https://example.org/plan.jpg' });
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
+		expect(args.extra_images).toEqual([
+			expect.objectContaining({ own_image_url: 'https://example.com/facade.jpg' })
+		]);
+	});
+
+	it('leaves out an empty slot and offers at most five images', async () => {
+		renderPage();
+		await fillRequired();
+		const add = page.getByRole('button', { name: m.artworkForm.addImage });
+
+		for (let added = 0; added < 4; added += 1) await add.click();
+
+		await expect.element(add).not.toBeInTheDocument();
+		await expect.element(page.getByText(m.artworkForm.imagesLimit)).toBeVisible();
+		await page.getByRole('button', { name: m.artworkForm.removeImage }).click();
+		await expect.element(add).toBeVisible();
+
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
+		expect(args.extra_images).toEqual([]);
 	});
 
 	it('rejects an address that is not https or does not lead to an image', async () => {

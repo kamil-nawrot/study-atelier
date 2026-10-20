@@ -207,7 +207,8 @@ describe('saveArtwork', () => {
 				material: ['Marble'],
 				location: ['Test Museum']
 			},
-			existing_id: undefined
+			existing_id: undefined,
+			extra_images: []
 		});
 	});
 
@@ -244,7 +245,7 @@ describe('saveArtwork', () => {
 	});
 
 	it('updates an existing artwork by its id', async () => {
-		await saveArtwork(input(), { id: 'artwork-1', image: null });
+		await saveArtwork(input(), { id: 'artwork-1', image: null, images: [] });
 
 		expect(supabase.rpc).toHaveBeenCalledWith(
 			'save_artwork',
@@ -365,10 +366,51 @@ describe('saveArtwork', () => {
 		expect(removeOwnImage).not.toHaveBeenCalled();
 	});
 
+	it('saves the other images after the main one, in their order', async () => {
+		await saveArtwork(
+			input({
+				image: { kind: 'url', url: 'https://example.com/facade.jpg', width: 4, height: 3 },
+				images: [uploaded('user-id/plan.png')]
+			})
+		);
+
+		expect(supabase.rpc).toHaveBeenLastCalledWith(
+			'save_artwork',
+			expect.objectContaining({
+				artwork: expect.objectContaining({ own_image_url: 'https://example.com/facade.jpg' }),
+				extra_images: [expect.objectContaining({ own_image_path: 'user-id/plan.png' })]
+			})
+		);
+	});
+
+	it('makes the first other image the main one when there is no main image', async () => {
+		await saveArtwork(input({ image: null, images: [uploaded('user-id/plan.png')] }));
+
+		expect(supabase.rpc).toHaveBeenLastCalledWith(
+			'save_artwork',
+			expect.objectContaining({
+				artwork: expect.objectContaining({ own_image_path: 'user-id/plan.png' }),
+				extra_images: []
+			})
+		);
+	});
+
+	it('removes the file of another image that was taken away, and keeps one that moved', async () => {
+		await saveArtwork(input({ image: uploaded('user-id/plan.png'), images: [] }), {
+			id: 'artwork-1',
+			image: uploaded('user-id/facade.png'),
+			images: [uploaded('user-id/plan.png'), uploaded('user-id/interior.png')]
+		});
+
+		expect(removeOwnImage).toHaveBeenCalledWith('user-id/facade.png');
+		expect(removeOwnImage).toHaveBeenCalledWith('user-id/interior.png');
+		expect(removeOwnImage).not.toHaveBeenCalledWith('user-id/plan.png');
+	});
+
 	it('removes the previous file once another image replaced it', async () => {
 		await saveArtwork(
 			input({ image: { kind: 'url', url: 'https://example.com/a.jpg', width: 3, height: 2 } }),
-			{ id: 'artwork-1', image: uploaded('user-id/old.png') }
+			{ id: 'artwork-1', image: uploaded('user-id/old.png'), images: [] }
 		);
 
 		expect(removeOwnImage).toHaveBeenCalledWith('user-id/old.png');
@@ -377,7 +419,8 @@ describe('saveArtwork', () => {
 	it('removes the previous file when the image was removed', async () => {
 		await saveArtwork(input({ image: null }), {
 			id: 'artwork-1',
-			image: uploaded('user-id/old.png')
+			image: uploaded('user-id/old.png'),
+			images: []
 		});
 
 		expect(removeOwnImage).toHaveBeenCalledWith('user-id/old.png');
@@ -386,7 +429,8 @@ describe('saveArtwork', () => {
 	it('keeps the previous file when the artwork still uses it', async () => {
 		await saveArtwork(input({ image: uploaded('user-id/old.png') }), {
 			id: 'artwork-1',
-			image: uploaded('user-id/old.png')
+			image: uploaded('user-id/old.png'),
+			images: []
 		});
 
 		expect(removeOwnImage).not.toHaveBeenCalled();
@@ -400,7 +444,8 @@ describe('saveArtwork', () => {
 
 		await saveArtwork(input({ image: null }), {
 			id: 'artwork-1',
-			image: uploaded('user-id/old.png')
+			image: uploaded('user-id/old.png'),
+			images: []
 		});
 
 		expect(removeOwnImage).not.toHaveBeenCalled();
@@ -420,7 +465,9 @@ describe('saveArtwork', () => {
 			error: { code: 'P0002', message: 'artwork not found' }
 		});
 
-		await expect(saveArtwork(input(), { id: 'artwork-1', image: null })).resolves.toEqual({
+		await expect(
+			saveArtwork(input(), { id: 'artwork-1', image: null, images: [] })
+		).resolves.toEqual({
 			saved: false,
 			error: m.artworkErrors.notFound,
 			fieldErrors: {}
@@ -445,6 +492,28 @@ describe('loadArtwork', () => {
 		expect(supabase.from).toHaveBeenCalledWith('artworks');
 		expect(query.eq).toHaveBeenCalledWith('record_number', 7);
 		expect(query.is).toHaveBeenCalledWith('deleted_at', null);
+	});
+
+	it('reads the other images of an artwork in their order, after the main one', async () => {
+		query.maybeSingle.mockResolvedValue({
+			data: row({
+				own_image_url: 'https://example.com/facade.jpg',
+				image_width: 4,
+				image_height: 3,
+				artwork_images: [
+					{ ...row(), position: 2, own_image_url: 'https://example.com/interior.jpg' },
+					{ ...row(), position: 1, own_image_url: 'https://example.com/plan.jpg' }
+				]
+			}),
+			error: null
+		});
+
+		const result = await loadArtwork(7);
+
+		expect(result.artwork?.images.map((image) => image.kind === 'url' && image.url)).toEqual([
+			'https://example.com/plan.jpg',
+			'https://example.com/interior.jpg'
+		]);
 	});
 
 	it('returns every field with values grouped by category in their order', async () => {
@@ -488,7 +557,8 @@ describe('loadArtwork', () => {
 				materials: ['Marble', 'Bronze'],
 				location: 'Test Museum',
 				notes: 'Seen in class.',
-				image: null
+				image: null,
+				images: []
 			}
 		});
 	});
