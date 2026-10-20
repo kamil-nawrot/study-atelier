@@ -507,6 +507,7 @@
 		font-size: var(--font-size-xs);
 		font-weight: var(--font-weight-medium);
 		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
 		transform: translateX(-50%);
 	}
 
