@@ -2,6 +2,26 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.6.3] - 2026-10-20
+
+An artwork can have up to five images, a new artwork gets its image from Wikidata on its own, and a large photo from a phone can be added as it is.
+
+### Added
+
+- Up to five images per artwork: a row of slots above the image in the form adds further images ("Dodaj kolejny obraz"), each found in Wikidata, uploaded or given as a link, and the star "Ustaw jako główne" makes one the main image. The artwork page shows thumbnails under the main image, and the full-screen viewer steps through all of them. The wall, the reviews and the filters keep using the main image.
+- In the add form, once the title and an author are filled in, the main image is looked up in Wikidata and the candidate whose creator matches an author is filled in, with "Z Wikidata: …" under it; without an author only a single result is used. "Wybierz inny" opens every candidate.
+- A file or pasted image over 5 MB is made smaller in the browser before it is uploaded (the longer side at most 3200 px, as a JPEG); files up to 50 MB are accepted, and the location stored in a phone photo is not uploaded.
+
+### Changed
+
+- The artwork's image is called "obraz" everywhere in the app, and the image search speaks in the first person ("Szukam w Wikidata…", "Nie znalazłem…"). The search button reads "Wybierz inny" once an image from Wikidata is set.
+- Uploaded images that no artwork or author has used for a day are removed by a daily job, so files left behind by an interrupted save do not pile up.
+- The texts of the component library are set once for the whole app, the file picker and field messages come from the library, and the add artwork tests run faster.
+
+### Migrations run on production
+
+Two migrations run on production with this release and change no existing data: `artwork_images` creates the `artwork_images` table with its policy and grants, and replaces `save_artwork` with a version that takes an optional list of further images, so the calls of the previous version keep working; `unused_images` creates the `unused_images` function, callable only with the secret key.
+
 ## [0.6.2] - 2026-10-20
 
 The wall can be grouped by era, period and style without filtering anything out, reviews go on after the day is done, and the artwork image search answers again.
@@ -304,3 +324,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.6.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.6.0
 [0.6.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.6.1
 [0.6.2]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.6.2
+[0.6.3]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.6.3
