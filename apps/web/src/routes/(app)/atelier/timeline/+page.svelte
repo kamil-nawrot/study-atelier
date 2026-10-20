@@ -44,6 +44,10 @@
 
 	const wide = new MediaQuery('min-width: 768px');
 
+	$effect(() => {
+		if (wide.current) dialogOpen = false;
+	});
+
 	let eraArtworks = $derived(artworksIn(data.artworks, eraOf(era)));
 	let matching = $derived(applyTimelineFilter(eraArtworks, filter).length);
 	let filtering = $derived(!isEmptyTimelineFilter(filter));

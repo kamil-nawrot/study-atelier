@@ -891,7 +891,6 @@ export const pl = {
 			replace: 'Zastąp'
 		},
 		loadErrorTitle: 'Nie udało się wczytać kalendarium',
-		eras: 'Epoki',
 		strip: 'Pasek epok',
 		previous: (era: string): string => `Poprzednia epoka: ${era}`,
 		next: (era: string): string => `Następna epoka: ${era}`,
@@ -941,7 +940,6 @@ export const pl = {
 			lanesFull: 'Wybrano 5. Odznacz któryś, żeby wybrać inny.',
 			periods: 'Okresy',
 			styles: 'Style',
-			favourites: 'Ulubione',
 			types: 'Typ dzieła',
 			authors: 'Autor',
 			searchAuthors: 'Szukaj autora',

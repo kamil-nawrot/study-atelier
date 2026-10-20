@@ -50,7 +50,6 @@
 
 	let hovered = $state<string | null>(null);
 	let pinnedKey = $state<string | null>(null);
-	let pointer = '';
 	let previewHeight = $state(0);
 	const resolved = new SvelteMap<string, WallArtwork>();
 
@@ -117,10 +116,8 @@
 		if (hovered === key) hovered = null;
 	}
 
-	function choose(key: string, artwork: WallArtwork): void {
-		const mouse = pointer === 'mouse';
-		pointer = '';
-		if (mouse) return;
+	function choose(key: string, artwork: WallArtwork, event: MouseEvent): void {
+		if (event instanceof PointerEvent && event.pointerType === 'mouse') return;
 		pinnedKey = key;
 		void loadImage(artwork);
 		onselect(artwork);
@@ -213,10 +210,9 @@
 		aria-label={[dot.mark.item.title, dateOf(dot.mark)].filter(Boolean).join(', ')}
 		aria-pressed={dot.mark.item.id === selected}
 		onblur={() => hide(dot.key)}
-		onclick={() => choose(dot.key, dot.mark.item)}
+		onclick={(event) => choose(dot.key, dot.mark.item, event)}
 		onfocus={(event) =>
 			event.currentTarget.matches(':focus-visible') && show(dot.key, dot.mark.item)}
-		onpointerdown={(event) => (pointer = event.pointerType)}
 		onpointerenter={(event) => event.pointerType === 'mouse' && show(dot.key, dot.mark.item)}
 		onpointerleave={(event) => event.pointerType === 'mouse' && hide(dot.key)}
 		type="button"

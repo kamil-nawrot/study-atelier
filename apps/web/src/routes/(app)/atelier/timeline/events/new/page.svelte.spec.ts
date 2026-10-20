@@ -238,4 +238,63 @@ describe('new timeline event page', () => {
 			.element(page.getByLabelText(m.timeline.form.description, { exact: true }))
 			.toHaveValue('Bitwa z 1683 roku.');
 	});
+
+	it('searches once for a name and keeps the article the learner picked', async () => {
+		search.mockResolvedValue([deluge, vienna]);
+		renderNew();
+
+		await userEvent.fill(page.getByLabelText(m.timeline.form.name), 'Potop szwedzki');
+		await expect
+			.element(page.getByRole('button', { name: m.timeline.form.pickArticle }))
+			.toBeVisible();
+		await page.getByRole('button', { name: m.timeline.form.pickArticle }).click();
+		const dialog = page.getByRole('dialog');
+		await dialog.getByRole('radio', { name: /Bitwa pod Wiedniem/ }).click();
+		await dialog.getByRole('button', { name: m.glossary.articles.use }).click();
+
+		await new Promise((resolve) => setTimeout(resolve, 1500));
+		expect(search).toHaveBeenCalledTimes(1);
+		await expect
+			.element(page.getByRole('textbox', { name: m.timeline.form.year }))
+			.toHaveValue('1683');
+	});
+
+	it('drops an answer that comes after the name was cleared', async () => {
+		let answer: (articles: EventArticle[]) => void = () => {};
+		search.mockReturnValue(new Promise((resolve) => (answer = resolve)));
+		renderNew();
+
+		await userEvent.fill(page.getByLabelText(m.timeline.form.name), 'Potop szwedzki');
+		await vi.waitFor(() => expect(search).toHaveBeenCalled());
+		await userEvent.clear(page.getByLabelText(m.timeline.form.name));
+		answer([deluge]);
+
+		await new Promise((resolve) => setTimeout(resolve, 300));
+		await expect
+			.element(page.getByLabelText(m.timeline.form.description, { exact: true }))
+			.toHaveValue('');
+	});
+
+	it('keeps the source of a description the learner edited when a new name finds nothing', async () => {
+		search.mockResolvedValueOnce([deluge]).mockResolvedValue([]);
+		renderNew();
+
+		await userEvent.fill(page.getByLabelText(m.timeline.form.name), 'Potop szwedzki');
+		await expect
+			.element(page.getByRole('button', { name: m.timeline.form.pickArticle }))
+			.toBeVisible();
+		await userEvent.fill(
+			page.getByLabelText(m.timeline.form.description, { exact: true }),
+			'Najazd Szwecji na Polskę.'
+		);
+		await userEvent.fill(page.getByLabelText(m.timeline.form.name), 'Potop szwedzki 1655');
+		await vi.waitFor(() => expect(search).toHaveBeenCalledTimes(2));
+
+		await expect
+			.element(page.getByRole('textbox', { name: m.artworkForm.spanTo }))
+			.not.toBeInTheDocument();
+		await expect
+			.element(page.getByText(`${m.timeline.form.sourcePrefix}„Potop szwedzki”, CC BY-SA 4.0`))
+			.toBeVisible();
+	});
 });

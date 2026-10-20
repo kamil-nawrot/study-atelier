@@ -71,6 +71,8 @@
 	let autoDates = $state<string | null>(null);
 	let request = 0;
 
+	let query = $derived(form.name.trim());
+
 	const changes = new UnsavedChanges(
 		() => $state.snapshot(form),
 		() => saved,
@@ -104,7 +106,8 @@
 	function clearSuggestion(): void {
 		if (autoDescription !== null && form.description === autoDescription) form.description = '';
 		if (autoDates !== null && datesKey(form) === autoDates) form = withoutDates(form);
-		if (autoDates !== null || autoDescription !== null) form.source = null;
+		const fromArticle = autoDescription !== null && form.description !== '';
+		if (!fromArticle && (autoDates !== null || autoDescription !== null)) form.source = null;
 		autoDescription = null;
 		autoDates = null;
 	}
@@ -116,7 +119,7 @@
 		status = 'searching';
 		try {
 			const found = await searchEvents(name);
-			if (current !== request) return;
+			if (current !== request || busy) return;
 			articles = found;
 			articlesName = name;
 			status = found.length > 0 ? 'found' : 'none';
@@ -125,7 +128,7 @@
 				if (replaceable()) applyArticle(found[0]);
 			} else clearSuggestion();
 		} catch {
-			if (current !== request) return;
+			if (current !== request || busy) return;
 			articles = [];
 			articlesName = '';
 			status = 'failed';
@@ -133,17 +136,19 @@
 	}
 
 	$effect(() => {
-		const name = form.name.trim();
+		const name = query;
+		if (existing) return;
+		request += 1;
 		if (!name) return;
 		const timer = setTimeout(() => {
-			if (untrack(replaceable)) void search(true);
+			if (!busy && untrack(replaceable)) void search(true);
 		}, SEARCH_DELAY_MS);
 		return () => clearTimeout(timer);
 	});
 
 	async function openArticles(): Promise<void> {
 		articlesOpen = true;
-		if (articlesName === form.name.trim() && articles.length > 0) {
+		if (articlesName === query && articles.length > 0) {
 			status = 'found';
 			return;
 		}
@@ -194,6 +199,7 @@
 		errors = validateEventForm(form);
 		if (Object.keys(errors).length > 0) return;
 		busy = true;
+		request += 1;
 		const snapshot = $state.snapshot(form);
 		const draft = draftOfEventForm(snapshot);
 		try {

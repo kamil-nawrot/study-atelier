@@ -195,10 +195,28 @@ describe('timeline page', () => {
 		button.click();
 		await expect.element(dot).toHaveAttribute('aria-pressed', 'false');
 
-		button.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'mouse', bubbles: true }));
-		button.click();
+		button.dispatchEvent(new PointerEvent('click', { pointerType: 'mouse', bubbles: true }));
 		await expect.element(dot).toHaveAttribute('aria-pressed', 'false');
 		expect(document.querySelector('a[href="/atelier/7"]')).toBeNull();
+
+		button.click();
+		await expect.element(dot).toHaveAttribute('aria-pressed', 'true');
+	});
+
+	it('takes the next tap after a drag the system cancelled', async () => {
+		renderTimeline([testArtwork(7, 'Straż nocna', { yearTo: 1642, date: '1642' })]);
+		const dot = page.getByRole('button', { name: 'Straż nocna, 1642' });
+		await expect.element(dot).toBeInTheDocument();
+		const surface = stage().element() as HTMLElement;
+		const box = surface.getBoundingClientRect();
+		const at = { clientX: box.left + 100, clientY: box.top + 100, pointerId: 3, bubbles: true };
+
+		surface.dispatchEvent(new PointerEvent('pointerdown', at));
+		surface.dispatchEvent(new PointerEvent('pointermove', { ...at, clientX: at.clientX + 60 }));
+		surface.dispatchEvent(new PointerEvent('pointercancel', at));
+		(dot.element() as HTMLButtonElement).click();
+
+		await expect.element(dot).toHaveAttribute('aria-pressed', 'true');
 	});
 
 	it('closes a pinned preview with a click on the empty stage or with Escape', async () => {
@@ -521,5 +539,24 @@ describe('timeline page', () => {
 			.element(page.getByRole('button', { name: /Wojna trzydziestoletnia/ }))
 			.not.toBeInTheDocument();
 		await expect.element(page.getByText(/w tym czasie/)).not.toBeInTheDocument();
+	});
+
+	it('forgets a chosen event when the events are hidden', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		renderTimeline([], undefined, [testEvent('war', 'Wojna trzydziestoletnia', 1618, 1648)]);
+
+		await press(page.getByRole('button', { name: 'Wojna trzydziestoletnia, 1618–1648' }));
+		await expect.element(page.getByRole('region', { name: m.timeline.card.period })).toBeVisible();
+		await press(page.getByRole('button', { name: m.atelier.filters.button }));
+		const panel = page.getByRole('complementary', { name: m.atelier.filters.title });
+		await press(panel.getByRole('switch', { name: m.timeline.filters.events }));
+		await press(panel.getByRole('switch', { name: m.timeline.filters.events }));
+
+		await expect
+			.element(page.getByRole('button', { name: 'Wojna trzydziestoletnia, 1618–1648' }))
+			.toHaveAttribute('aria-pressed', 'false');
+		await expect
+			.element(page.getByRole('region', { name: m.timeline.card.period }))
+			.not.toBeInTheDocument();
 	});
 });

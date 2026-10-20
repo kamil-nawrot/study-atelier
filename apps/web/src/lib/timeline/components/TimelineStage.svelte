@@ -112,6 +112,7 @@
 	}
 
 	function pointerDown(event: PointerEvent): void {
+		suppressClick = false;
 		pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
 		if (pointers.size === 1) {
 			drag = { id: event.pointerId, at: along(event), center: view.center, moved: false };
@@ -142,7 +143,8 @@
 		if (!drag.moved && Math.abs(moved) < DRAG_THRESHOLD) return;
 		if (!drag.moved) {
 			drag.moved = true;
-			stage?.setPointerCapture(event.pointerId);
+			if (stage?.hasPointerCapture(event.pointerId) === false && event.isTrusted)
+				stage.setPointerCapture(event.pointerId);
 		}
 		onpan(drag.center - (moved / Math.max(length, 1)) * view.span - view.center);
 	}
@@ -150,7 +152,7 @@
 	function pointerUp(event: PointerEvent): void {
 		pointers.delete(event.pointerId);
 		if (drag?.id === event.pointerId) {
-			if (drag.moved) suppressClick = true;
+			if (drag.moved && event.type !== 'pointercancel') suppressClick = true;
 			drag = null;
 		}
 		if (pointers.size < 2) pinch = null;

@@ -121,6 +121,16 @@ describe('datesOf', () => {
 		expect(datesOf({ P582: [time('+1815-00-00')] })?.yearTo).toBe(1815);
 	});
 
+	it('falls back to the point in time when the start comes after the end', () => {
+		expect(
+			datesOf({
+				P580: [time('+1700-00-00')],
+				P582: [time('+1600-00-00')],
+				P585: [time('+1650-00-00')]
+			})
+		).toEqual({ yearFrom: null, yearTo: 1650, approximate: false });
+	});
+
 	it('gives nothing without dates', () => {
 		expect(datesOf({})).toBeNull();
 		expect(datesOf({ P585: [time('+0000-00-00')] })).toBeNull();

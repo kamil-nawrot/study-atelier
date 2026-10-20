@@ -53,10 +53,9 @@ export function datesOf(claims: Claims): EventDates | null {
 	const starts = timesOf(claims[START]);
 	const ends = timesOf(claims[END]);
 	const points = timesOf(claims[POINT]);
-	if (starts.length > 0 && ends.length > 0) {
+	if (starts.length > 0 && ends.length > 0 && earliest(starts) <= latest(ends)) {
 		const yearFrom = earliest(starts);
 		const yearTo = latest(ends);
-		if (yearFrom > yearTo) return null;
 		return {
 			yearFrom: yearFrom === yearTo ? null : yearFrom,
 			yearTo,

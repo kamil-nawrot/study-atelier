@@ -1,5 +1,5 @@
 import { availableSteps, stepSpan } from './scale.ts';
-import { spanOfYears, timeOf, type Era, type TimeSpan } from './time.ts';
+import { overlaps, spanOfYears, timeOf, type Era, type TimeSpan } from './time.ts';
 import type { TimelineEvent } from './types.ts';
 
 export type EventShape = 'ribbon' | 'pin';
@@ -24,11 +24,8 @@ const LABEL_PADDING = 16;
 const AFTER_RIBBON = 22;
 const GAP = 8;
 
-export function eventsIn(events: readonly TimelineEvent[], era: Era): TimelineEvent[] {
-	return events.filter((event) => {
-		const span = spanOfYears(event.yearFrom, event.yearTo);
-		return span.end > era.start && span.start < era.end;
-	});
+export function eventsIn(events: readonly TimelineEvent[], span: TimeSpan): TimelineEvent[] {
+	return events.filter((event) => overlaps(spanOfYears(event.yearFrom, event.yearTo), span));
 }
 
 export function layEvents(
@@ -92,13 +89,6 @@ export function lanesForEra(
 		lanes = Math.max(lanes, ...laid.map((event) => event.lane + 1));
 	}
 	return Math.min(lanes, cap);
-}
-
-export function activeAt(events: readonly TimelineEvent[], window: TimeSpan): TimelineEvent[] {
-	return events.filter((event) => {
-		const span = spanOfYears(event.yearFrom, event.yearTo);
-		return span.end > window.start && span.start < window.end;
-	});
 }
 
 export function yearsLong(event: TimelineEvent): number {

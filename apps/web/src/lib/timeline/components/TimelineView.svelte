@@ -17,18 +17,21 @@
 		stepView,
 		type StepKey
 	} from '../scale.ts';
-	import {
-		activeAt,
-		EVENT_LANES,
-		EVENT_LANES_NARROW,
-		eventsIn,
-		lanesForEra
-	} from '../event-lanes.ts';
+	import { EVENT_LANES, EVENT_LANES_NARROW, eventsIn, lanesForEra } from '../event-lanes.ts';
 	import { NARROW_WIDTH, orientationFor, verticalLength } from '../stage.ts';
 	import { deleteTimelineEvent } from '../timeline-data.ts';
 	import type { ArtworkLane, TimelineEvent, TimelineFilter } from '../types.ts';
 	import { eraOfYear, rememberEra } from '../start.ts';
-	import { eraOf, eras, overlaps, spanOfYears, yearAt, type TimeSpan, type View } from '../time.ts';
+	import {
+		eraOf,
+		eras,
+		overlaps,
+		spanOfYears,
+		timeOf,
+		yearAt,
+		type TimeSpan,
+		type View
+	} from '../time.ts';
 	import FilterTags from '#lib/collection/components/FilterTags.svelte';
 	import {
 		applyTimelineFilter,
@@ -141,13 +144,10 @@
 		start: view.center - view.span / NOW_SHARE,
 		end: view.center + view.span / NOW_SHARE
 	});
-	let now = $derived(showEvents ? activeAt(eraEvents, reading) : []);
+	let now = $derived(showEvents ? eventsIn(eraEvents, reading) : []);
 	let nowArtworks = $derived(
 		readingArtworks
-			? artworksIn(collection, reading).sort(
-					(a, b) =>
-						Math.abs((a.yearTo ?? 0) - readingYear) - Math.abs((b.yearTo ?? 0) - readingYear)
-				)
+			? artworksIn(collection, reading).sort((a, b) => distanceToReading(a) - distanceToReading(b))
 			: []
 	);
 	let nowParts = $derived([
@@ -165,6 +165,16 @@
 			: [])
 	]);
 
+	$effect(() => {
+		const current = selected;
+		if (!current) return;
+		const gone =
+			current.kind === 'event'
+				? !showEvents
+				: !collection.some((artwork) => artwork.id === current.id);
+		if (gone) untrack(() => (selected = null));
+	});
+
 	function labelWidth(event: TimelineEvent): number {
 		if (!measure) {
 			measure = document.createElement('canvas').getContext('2d');
@@ -181,6 +191,10 @@
 
 	function artworksOf(event: TimelineEvent): WallArtwork[] {
 		return artworksIn(collection, spanOfYears(event.yearFrom, event.yearTo));
+	}
+
+	function distanceToReading(artwork: WallArtwork): number {
+		return artwork.yearTo === null ? Infinity : Math.abs(timeOf(artwork.yearTo) - view.center);
 	}
 
 	function laneColourOf(artwork: WallArtwork): string | undefined {
