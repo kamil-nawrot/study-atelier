@@ -1211,27 +1211,12 @@ describe('image search on the add artwork page', () => {
 
 		await expect.element(page.getByText(matched), { timeout: 3000 }).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.artworkForm.matchAll })).toBeVisible();
-		expect(page.getByRole('button', { name: m.artworkForm.matchNext }).elements()).toHaveLength(0);
 
 		await saveButton().click();
 
 		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
 		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
 		expect(args.artwork).toMatchObject({ source_wikidata_id: 'Q167605' });
-	});
-
-	it('steps to the next matching artwork, and says when there is none left', async () => {
-		answerSearch([
-			binding('Q167605', 'The%20Milkmaid.jpg'),
-			binding('Q167606', 'The%20Milkmaid%202.jpg')
-		]);
-		renderPage();
-		await fillRequired();
-		await expect.element(page.getByText(matched), { timeout: 3000 }).toBeVisible();
-
-		await page.getByRole('button', { name: m.artworkForm.matchNext }).click();
-
-		await expect.element(page.getByText(m.artworkForm.matchEnd)).toBeVisible();
 	});
 
 	it('fills in nothing when no artwork matches the author', async () => {

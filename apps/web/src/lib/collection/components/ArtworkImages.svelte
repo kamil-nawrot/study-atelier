@@ -3,7 +3,7 @@
 	import Plus from '@lucide/svelte/icons/plus';
 	import Star from '@lucide/svelte/icons/star';
 	import { onDestroy, untrack } from 'svelte';
-	import { ArtworkImage, Icon, TextButton, Tooltip } from '@study-atelier/ui';
+	import { ArtworkImage, Icon, Tooltip } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { findImageCandidates } from '#lib/images/image-search.ts';
 	import type { ImageCandidate, ImageSearchQuery } from '#lib/images/types.ts';
@@ -47,14 +47,13 @@
 	let matchStatus = $state<MatchStatus>('idle');
 	let matchError = $state('');
 	let pool = $state<ImageCandidate[]>([]);
-	let poolIndex = $state(0);
 	let searchedKey = '';
 	let matchRequest = 0;
 
 	let slots = $derived([image, ...images]);
 	let full = $derived(slots.length >= MAX_ARTWORK_IMAGES);
 	let matchShown = $derived(
-		selected === 0 && matchStatus === 'matched' && isCandidateImage(image, pool[poolIndex])
+		selected === 0 && matchStatus === 'matched' && isCandidateImage(image, pool[0])
 	);
 
 	$effect(() => {
@@ -84,7 +83,6 @@
 			return;
 		}
 		pool = matchPool(result, query.authors.length === 0);
-		poolIndex = 0;
 		if (pool.length === 0) {
 			matchStatus = 'none';
 			return;
@@ -97,11 +95,6 @@
 		if (query.kind === 'artwork') searchedKey = matchKey(query.title, query.authors);
 		matchRequest += 1;
 		if (matchStatus === 'searching') matchStatus = 'idle';
-	}
-
-	function nextMatch(): void {
-		poolIndex += 1;
-		image = imageFromCandidate(pool[poolIndex]);
 	}
 
 	$effect.pre(() => {
@@ -219,16 +212,7 @@
 	{#if selected === 0 && matchStatus === 'searching'}
 		<p class="caption" aria-live="polite">{m.artworkForm.matchSearching}</p>
 	{:else if matchShown}
-		<div class="match" aria-live="polite">
-			<p class="caption">{matchLabel(pool[poolIndex])}</p>
-			{#if pool.length > 1}
-				{#if poolIndex < pool.length - 1}
-					<TextButton onclick={nextMatch}>{m.artworkForm.matchNext}</TextButton>
-				{:else}
-					<p class="caption">{m.artworkForm.matchEnd}</p>
-				{/if}
-			{/if}
-		</div>
+		<p class="caption" aria-live="polite">{matchLabel(pool[0])}</p>
 	{:else if selected === 0 && image === null && matchStatus === 'none'}
 		<p class="caption" aria-live="polite">{m.artworkForm.matchNone}</p>
 	{:else if selected === 0 && image === null && matchStatus === 'failed'}
@@ -250,13 +234,6 @@
 />
 
 <style>
-	.match {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: baseline;
-		gap: var(--spacing-2);
-	}
-
 	.slots {
 		display: flex;
 		flex-wrap: wrap;

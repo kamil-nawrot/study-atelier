@@ -1,6 +1,6 @@
 # 0088. Up to five images per artwork, and the best match from Wikidata filled in automatically
 
-- Status: accepted
+- Status: accepted; "Wybierz inne" in the automatic match is superseded by [0089](0089-no-stepping-through-matches-in-the-image-field.md)
 - Date: 2026-10-20
 
 ## Context and problem statement
