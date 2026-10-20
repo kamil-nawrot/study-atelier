@@ -116,6 +116,58 @@ describe('timeline page', () => {
 			.toHaveTextContent('Współczesność');
 	});
 
+	it('shows a dot for every dated artwork of the era and none for the others', async () => {
+		renderTimeline([
+			testArtwork(1, 'Mona Lisa', { yearFrom: 1503, yearTo: 1519, date: '1503–1519' }),
+			testArtwork(2, 'Straż nocna', { yearTo: 1642, date: '1642' }),
+			testArtwork(3, 'Bez daty', { yearTo: null, date: undefined }),
+			testArtwork(4, 'Gwiaździsta noc', { yearTo: 1889, date: '1889' })
+		]);
+
+		await expect
+			.element(page.getByRole('button', { name: 'Mona Lisa, 1503–1519' }))
+			.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: 'Straż nocna, 1642' }))
+			.toBeInTheDocument();
+		await expect.element(page.getByRole('button', { name: /Bez daty/ })).not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: /Gwiaździsta noc/ }))
+			.not.toBeInTheDocument();
+	});
+
+	it('opens the card of a chosen artwork with a link to its page and a preview', async () => {
+		renderTimeline([
+			testArtwork(7, 'Straż nocna', {
+				yearTo: 1642,
+				date: '1642',
+				eraCode: 'early_modern',
+				styles: ['barok']
+			})
+		]);
+
+		const dot = page.getByRole('button', { name: 'Straż nocna, 1642' });
+		(dot.element() as HTMLButtonElement).click();
+
+		await expect.element(dot).toHaveAttribute('aria-pressed', 'true');
+		const card = page.getByRole('region', { name: m.timeline.card.artwork });
+		await expect
+			.element(card.getByRole('link', { name: 'Straż nocna' }))
+			.toHaveAttribute('href', '/atelier/7');
+		await expect.element(card.getByText('nowożytność · barok')).toBeVisible();
+		expect(document.querySelector('.preview')).not.toBeNull();
+	});
+
+	it('marks an artwork that starts in the previous era', async () => {
+		renderTimeline([
+			testArtwork(1, 'Ogród rozkoszy', { yearFrom: 1490, yearTo: 1510, date: '1490–1510' })
+		]);
+
+		await expect
+			.element(page.getByRole('button', { name: 'Ogród rozkoszy, ‹ 1490–1510' }))
+			.toBeInTheDocument();
+	});
+
 	it('offers to add an event in the top bar', async () => {
 		renderTimeline();
 

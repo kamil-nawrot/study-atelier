@@ -892,6 +892,9 @@ export const pl = {
 		zoomIn: 'Przybliż o krok',
 		zoomOut: 'Oddal o krok',
 		stage: 'Oś czasu. Strzałki przesuwają czas, plus i minus zmieniają skalę o krok.',
+		card: {
+			artwork: 'Dzieło'
+		},
 		zones: {
 			events: 'Wydarzenia',
 			artworks: 'Dzieła'
