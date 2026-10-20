@@ -133,13 +133,16 @@ function lifeYears(person: WikidataPerson): string | undefined {
 	return formatLifeYears(lifeYear(person.born), lifeYear(person.died), approximate);
 }
 
-async function findArtworkCandidates(title: string, authors: string[]): Promise<ImageCandidate[]> {
+async function findArtworkCandidates(title: string, authors: string[]): Promise<ImageSearchResult> {
 	const artworks = rankArtworks(await searchWikidataArtworks(title), authors);
+	const authorMatch = artworks.some((artwork) =>
+		matchesAuthor([...artwork.creators, ...artwork.creatorNames], authors)
+	);
 	const files = await fetchCommonsFiles(
 		artworks.map((artwork) => artwork.file),
 		CANDIDATE_THUMBNAIL_WIDTH
 	);
-	return artworks.flatMap((artwork): ImageCandidate[] => {
+	const candidates = artworks.flatMap((artwork): ImageCandidate[] => {
 		const image = candidateImage(artwork.file, files);
 		return image
 			? [
@@ -153,6 +156,7 @@ async function findArtworkCandidates(title: string, authors: string[]): Promise<
 				]
 			: [];
 	});
+	return { candidates, authorMatch };
 }
 
 async function findPortraitCandidates(name: string): Promise<ImageCandidate[]> {
@@ -179,11 +183,9 @@ async function findPortraitCandidates(name: string): Promise<ImageCandidate[]> {
 
 export async function findImageCandidates(query: ImageSearchQuery): Promise<ImageSearchResult> {
 	try {
-		const candidates =
-			query.kind === 'person'
-				? await findPortraitCandidates(query.name.trim())
-				: await findArtworkCandidates(query.title.trim(), query.authors);
-		return { candidates };
+		if (query.kind === 'person')
+			return { candidates: await findPortraitCandidates(query.name.trim()) };
+		return await findArtworkCandidates(query.title.trim(), query.authors);
 	} catch (error) {
 		return { candidates: [], error: imageSearchErrorMessage(error) };
 	}

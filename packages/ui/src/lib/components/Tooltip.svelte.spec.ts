@@ -103,4 +103,15 @@ describe('Tooltip', () => {
 		expect(bubble.top).toBeGreaterThanOrEqual(control.bottom);
 		expect(bubble.right).toBeCloseTo(control.right, 0);
 	});
+
+	it('can open to the left of the control, centred on it', async () => {
+		render(Tooltip, { text: 'Make it the main image', placement: 'left', children: button });
+
+		await userEvent.hover(page.getByRole('button', { name: 'Delete' }));
+
+		const control = page.getByRole('button', { name: 'Delete' }).element().getBoundingClientRect();
+		const bubble = page.getByRole('tooltip').element().getBoundingClientRect();
+		expect(bubble.right).toBeLessThanOrEqual(control.left);
+		expect(bubble.top + bubble.height / 2).toBeCloseTo(control.top + control.height / 2, 0);
+	});
 });

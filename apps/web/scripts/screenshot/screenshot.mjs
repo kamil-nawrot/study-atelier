@@ -7,6 +7,7 @@ import {
 	ARTWORKS,
 	CATALOGUE_MUSEUMS,
 	GLOSSARY_ENTRIES,
+	ARTWORK_SEARCH,
 	PEOPLE,
 	PERIOD_ERA_USAGE,
 	REVIEW_CARDS,
@@ -504,11 +505,12 @@ async function mockImages(context) {
 			return json(route, { entities });
 		}
 		const query = params.get('query') ?? '';
-		const bindings = query.includes('wd:Q5;')
-			? PEOPLE.map((person) =>
-					Object.fromEntries(Object.entries(person).map(([key, value]) => [key, { value }]))
-				)
-			: [];
+		const rows = query.includes('wd:Q5;')
+			? PEOPLE
+			: ARTWORK_SEARCH.filter((artwork) => query.includes(`"${artwork.title}"`));
+		const bindings = rows.map((row) =>
+			Object.fromEntries(Object.entries(row).map(([key, value]) => [key, { value }]))
+		);
 		return json(route, { results: { bindings }, search: [], entities: {} });
 	});
 }

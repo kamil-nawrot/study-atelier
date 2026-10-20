@@ -1,7 +1,6 @@
 <script lang="ts">
-	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import Play from '@lucide/svelte/icons/play';
-	import { Alert, Button, Icon, Tag, ToggleTag } from '@study-atelier/ui';
+	import { Alert, Button, Disclosure, Icon, Tag, ToggleTag } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
@@ -117,11 +116,7 @@
 				{/if}
 			</div>
 
-			<details class="options">
-				<summary>
-					{m.review.options}
-					<Icon icon={ChevronDown} size="sm" />
-				</summary>
+			<Disclosure open={false} plain title={m.review.options}>
 				<div class="choices">
 					{#if scopes.length > 1}
 						<section class="choice" aria-labelledby="review-scope">
@@ -155,7 +150,7 @@
 						<p class="caption">{m.review.formHints[form]}</p>
 					</section>
 				</div>
-			</details>
+			</Disclosure>
 		{/if}
 
 		<section class="how" aria-labelledby="review-how">
@@ -253,31 +248,6 @@
 		display: grid;
 		justify-items: start;
 		gap: var(--spacing-2);
-	}
-
-	.options {
-		display: grid;
-		gap: var(--spacing-6);
-	}
-
-	summary {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--spacing-2);
-		width: fit-content;
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-sm);
-		line-height: var(--line-height-sm);
-		list-style: none;
-		cursor: pointer;
-	}
-
-	summary::-webkit-details-marker {
-		display: none;
-	}
-
-	.options[open] summary :global(svg) {
-		rotate: 180deg;
 	}
 
 	.choices {
@@ -434,12 +404,6 @@
 	@media (min-width: 768px) {
 		.start {
 			grid-template-columns: minmax(0, 1fr) 360px;
-		}
-	}
-
-	@media (prefers-reduced-motion: no-preference) {
-		summary :global(svg) {
-			transition: rotate var(--duration-short) ease-out;
 		}
 	}
 </style>

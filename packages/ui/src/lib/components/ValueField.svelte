@@ -10,10 +10,12 @@
 	import X from '@lucide/svelte/icons/x';
 	import { tick } from 'svelte';
 	import { uiMessages } from '../messages';
+	import FieldMessage from './FieldMessage.svelte';
 	import Icon from './Icon.svelte';
 
 	type Props = {
 		label: string;
+		labelHidden?: boolean;
 		values?: string[];
 		query?: string;
 		options?: readonly ValueOption[];
@@ -29,6 +31,7 @@
 
 	let {
 		label,
+		labelHidden = false,
 		values = $bindable([]),
 		query = $bindable(''),
 		options = [],
@@ -165,7 +168,7 @@
 {/snippet}
 
 <div class="field">
-	<label for={inputId}>{label}</label>
+	<label class:visually-hidden={labelHidden} for={inputId}>{label}</label>
 	<div
 		bind:this={control}
 		class="control"
@@ -241,7 +244,7 @@
 		</ul>
 	</div>
 	{#if message}
-		<span id={messageId} class="message" class:error={!!error}>{message}</span>
+		<FieldMessage id={messageId} {error} {hint} />
 	{/if}
 </div>
 
@@ -418,15 +421,5 @@
 	.similar ~ .new {
 		color: var(--color-fg-muted);
 		font-weight: var(--font-weight-regular);
-	}
-
-	.message {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-	}
-
-	.message.error {
-		color: var(--color-danger);
 	}
 </style>

@@ -111,11 +111,11 @@ function leave(type: 'link' | 'popstate' | 'leave' = 'link'): Leave {
 	return navigation as unknown as Leave;
 }
 
-async function imageFile(width: number, height: number): Promise<File> {
+async function imageFile(width: number, height: number, padding = 0): Promise<File> {
 	const canvas = new OffscreenCanvas(width, height);
 	canvas.getContext('2d')?.fillRect(0, 0, width, height);
 	const blob = await canvas.convertToBlob({ type: 'image/png' });
-	return new File([blob], 'photo.png', { type: 'image/png' });
+	return new File([blob, new Uint8Array(padding)], 'photo.png', { type: 'image/png' });
 }
 
 function stubRemoteImage(size: { width: number; height: number } | 'error'): void {
@@ -197,10 +197,23 @@ function duplicateDialog(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('alertdialog', { name: m.duplicateDialog.title });
 }
 
+async function addValue(field: ReturnType<typeof page.getByRole>, name: string): Promise<void> {
+	await field.fill(name);
+	await userEvent.keyboard('{Enter}');
+}
+
+function selectFile(file: File): void {
+	const input = document.querySelector<HTMLInputElement>('input[type="file"]');
+	if (!input) throw new Error('The file input is missing');
+	const transfer = new DataTransfer();
+	transfer.items.add(file);
+	input.files = transfer.files;
+	input.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
 async function fillRequired(): Promise<void> {
 	await titleField().fill('The Milkmaid');
-	await userEvent.click(authorsField());
-	await userEvent.keyboard('Johannes Vermeer{Enter}');
+	await addValue(authorsField(), 'Johannes Vermeer');
 }
 
 function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
@@ -211,9 +224,17 @@ function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
 	return { promise, resolve };
 }
 
+function answerNothingFromWikidata(): void {
+	vi.stubGlobal(
+		'fetch',
+		vi.fn(async () => new Response(JSON.stringify({ results: { bindings: [] } })))
+	);
+}
+
 describe('add artwork page', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
+		answerNothingFromWikidata();
 		vi.mocked(supabase.rpc).mockReturnValue(rpcCall as never);
 		rpcCall.single.mockResolvedValue({
 			data: { id: 'artwork-12', record_number: 12 },
@@ -331,8 +352,7 @@ describe('add artwork page', () => {
 
 	it('clears and disables the authors when the author is unknown', async () => {
 		renderPage();
-		await userEvent.click(authorsField());
-		await userEvent.keyboard('Johannes Vermeer{Enter}');
+		await addValue(authorsField(), 'Johannes Vermeer');
 
 		await page.getByText(m.artworkForm.authorUnknown).click();
 
@@ -393,10 +413,8 @@ describe('add artwork page', () => {
 		renderPage();
 
 		await userEvent.click(eraTile('modern'));
-		await userEvent.click(periodField());
-		await userEvent.keyboard('Pointillism{Enter}');
-		await userEvent.click(styleField());
-		await userEvent.keyboard('Neo-impressionism{Enter}');
+		await addValue(periodField(), 'Pointillism');
+		await addValue(styleField(), 'Neo-impressionism');
 
 		await expect.element(page.getByText('Pointillism', { exact: true })).toBeVisible();
 		await expect.element(page.getByText('Neo-impressionism', { exact: true })).toBeVisible();
@@ -537,7 +555,8 @@ describe('add artwork page', () => {
 		expect(supabase.rpc).toHaveBeenCalledWith('save_artwork', {
 			artwork: expect.anything(),
 			values_by_category: expect.objectContaining({ location: ['Luwr'] }),
-			existing_id: undefined
+			existing_id: undefined,
+			extra_images: []
 		});
 	});
 
@@ -570,7 +589,8 @@ describe('add artwork page', () => {
 				material: [],
 				location: []
 			},
-			existing_id: undefined
+			existing_id: undefined,
+			extra_images: []
 		});
 	});
 
@@ -821,6 +841,25 @@ describe('add artwork page', () => {
 		await expect.element(page.getByText(m.ownImageErrors.urlInvalid)).not.toBeInTheDocument();
 	});
 
+	it('makes a picked file over the limit smaller and uploads the smaller JPEG', async () => {
+		renderPage();
+		await fillRequired();
+
+		await chooseFile(await imageFile(4000, 3000, OWN_IMAGE_MAX_BYTES));
+
+		const image = page.getByRole('img', { name: 'The Milkmaid, Johannes Vermeer' });
+		await expect.element(image).toHaveAttribute('width', '3200');
+		await expect.element(image).toHaveAttribute('height', '2400');
+
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
+		const [path, file] = bucket.upload.mock.calls[0] as [string, File];
+		expect(path).toMatch(/^user-id\/[0-9a-f-]{36}\.jpg$/);
+		expect(file).toMatchObject({ name: 'photo.jpg', type: 'image/jpeg' });
+		expect(file.size).toBeLessThanOrEqual(OWN_IMAGE_MAX_BYTES);
+	});
+
 	it('explains under the button why a file cannot be added', async () => {
 		renderPage();
 
@@ -830,15 +869,11 @@ describe('add artwork page', () => {
 			.element(page.getByRole('button', { name: m.artworkForm.chooseFile }))
 			.toHaveAccessibleDescription(m.ownImageErrors.fileType('JPG, PNG, WebP, GIF lub AVIF'));
 
-		const input = document.querySelector<HTMLInputElement>('input[type="file"]');
-		await userEvent.upload(
-			input as HTMLInputElement,
+		selectFile(
 			new File([new Uint8Array(OWN_IMAGE_MAX_BYTES + 1)], 'large.png', { type: 'image/png' })
 		);
 
-		await expect
-			.element(page.getByText(m.ownImageErrors.fileTooLarge(OWN_IMAGE_MAX_MEGABYTES)))
-			.toBeVisible();
+		await expect.element(page.getByText(m.ownImageErrors.shrinkFailed)).toBeVisible();
 		await expect.element(page.getByRole('img', { name: m.ui.noImage })).toBeInTheDocument();
 	});
 
@@ -867,6 +902,63 @@ describe('add artwork page', () => {
 			image_width: 1200,
 			image_height: 900
 		});
+	});
+
+	it('adds another image in a new slot and makes it the main one', async () => {
+		stubRemoteImage({ width: 1200, height: 900 });
+		renderPage();
+		await fillRequired();
+		await openOwnImage();
+		await urlField().fill('https://example.com/facade.jpg');
+		await userEvent.keyboard('{Enter}');
+
+		await page.getByRole('button', { name: m.artworkForm.addImage }).click();
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.imageSlot(2, 2) }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await openOwnImage();
+		await urlField().fill('https://example.org/plan.jpg');
+		await userEvent.keyboard('{Enter}');
+		await page.getByRole('button', { name: m.artworkForm.setMainImage }).click();
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
+		expect(savedArtwork()).toMatchObject({ own_image_url: 'https://example.org/plan.jpg' });
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
+		expect(args.extra_images).toEqual([
+			expect.objectContaining({ own_image_url: 'https://example.com/facade.jpg' })
+		]);
+	});
+
+	it('starts the next artwork with only the main slot after saving and adding another', async () => {
+		renderPage();
+		await fillRequired();
+		await page.getByRole('button', { name: m.artworkForm.addImage }).click();
+		await page.getByRole('button', { name: m.artworkForm.addImage }).click();
+
+		await page.getByRole('button', { name: m.artworkForm.saveAndNext }).click();
+
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.imageSlot(1, 1) }))
+			.toHaveAttribute('aria-pressed', 'true');
+	});
+
+	it('leaves out an empty slot and offers at most five images', async () => {
+		renderPage();
+		await fillRequired();
+		const add = page.getByRole('button', { name: m.artworkForm.addImage });
+
+		for (let added = 0; added < 4; added += 1) await add.click();
+
+		await expect.element(add).not.toBeInTheDocument();
+		await page.getByRole('button', { name: m.artworkForm.removeImage }).click();
+		await expect.element(add).toBeVisible();
+
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
+		expect(args.extra_images).toEqual([]);
 	});
 
 	it('rejects an address that is not https or does not lead to an image', async () => {
@@ -1066,37 +1158,32 @@ describe('image search on the add artwork page', () => {
 		};
 	}
 
-	function answerSearch(): void {
+	function answerSearch(
+		bindings = [binding('Q167605', 'The%20Milkmaid.jpg'), binding('Q99', null)]
+	): void {
 		fetchMock.mockImplementation(async (input) => {
 			const url = new URL(String(input));
 			if (url.hostname === 'query.wikidata.org') {
-				return new Response(
-					JSON.stringify({
-						results: {
-							bindings: [binding('Q167605', 'The%20Milkmaid.jpg'), binding('Q99', null)]
-						}
-					})
-				);
+				return new Response(JSON.stringify({ results: { bindings } }));
 			}
+			const titles = (url.searchParams.get('titles') ?? '').split('|');
 			return new Response(
 				JSON.stringify({
 					query: {
-						pages: [
-							{
-								title: 'File:The Milkmaid.jpg',
-								imageinfo: [
-									{
-										thumburl: thumbnail,
-										width: 2000,
-										height: 2250,
-										extmetadata: {
-											LicenseShortName: { value: 'CC BY-SA 4.0' },
-											Artist: { value: 'Jane Doe' }
-										}
+						pages: titles.map((title) => ({
+							title,
+							imageinfo: [
+								{
+									thumburl: thumbnail,
+									width: 2000,
+									height: 2250,
+									extmetadata: {
+										LicenseShortName: { value: 'CC BY-SA 4.0' },
+										Artist: { value: 'Jane Doe' }
 									}
-								]
-							}
-						]
+								}
+							]
+						}))
 					}
 				})
 			);
@@ -1112,6 +1199,8 @@ describe('image search on the add artwork page', () => {
 		await fillRequired();
 		await page.getByRole('button', { name: m.artworkForm.findImage }).click();
 	}
+
+	const matched = m.artworkForm.matchFound('The Milkmaid · Johannes Vermeer · 1658');
 
 	beforeEach(async () => {
 		vi.clearAllMocks();
@@ -1129,6 +1218,44 @@ describe('image search on the add artwork page', () => {
 
 	afterEach(() => {
 		vi.unstubAllGlobals();
+	});
+
+	it('fills in the image of the artwork that matches the author once the title and author are in', async () => {
+		answerSearch();
+		renderPage();
+		await fillRequired();
+
+		await expect.element(page.getByText(matched), { timeout: 3000 }).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.chooseOtherImage }))
+			.toBeVisible();
+
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
+		expect(args.artwork).toMatchObject({ source_wikidata_id: 'Q167605' });
+	});
+
+	it('fills in nothing when no artwork matches the author', async () => {
+		answerSearch();
+		renderPage();
+		await titleField().fill('The Milkmaid');
+		await addValue(authorsField(), 'Rembrandt');
+
+		await expect.element(page.getByText(m.artworkForm.matchNone), { timeout: 3000 }).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.artworkForm.findImage })).toBeVisible();
+	});
+
+	it('does not fill in an image after the learner opened the search', async () => {
+		answerSearch();
+		await openSearch();
+		await searchDialog().getByRole('button', { name: m.imageSearch.none }).click();
+
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
+		await expect.element(page.getByText(matched)).not.toBeInTheDocument();
+		await expect.element(page.getByRole('button', { name: m.artworkForm.findImage })).toBeVisible();
 	});
 
 	it('lists only the candidates that have an image', async () => {
@@ -1236,6 +1363,7 @@ describe('image search on the add artwork page', () => {
 
 describe('pasting an own image on the add artwork page', () => {
 	beforeEach(async () => {
+		answerNothingFromWikidata();
 		vi.clearAllMocks();
 		vi.mocked(supabase.auth.getSession).mockResolvedValue({
 			data: { session: testSession() },
@@ -1322,7 +1450,7 @@ describe('pasting an own image on the add artwork page', () => {
 			.toBeVisible();
 	});
 
-	it('rejects a pasted image over the limit under the image actions', async () => {
+	it('rejects a pasted image over the limit that cannot be made smaller', async () => {
 		renderPage();
 
 		paste(document.body, {
@@ -1330,9 +1458,7 @@ describe('pasting an own image on the add artwork page', () => {
 		});
 
 		await expect
-			.element(
-				page.getByRole('alert').getByText(m.ownImageErrors.fileTooLarge(OWN_IMAGE_MAX_MEGABYTES))
-			)
+			.element(page.getByRole('alert').getByText(m.ownImageErrors.shrinkFailed))
 			.toBeVisible();
 		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).not.toBeInTheDocument();
 	});

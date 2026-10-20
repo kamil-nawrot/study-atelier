@@ -4,8 +4,17 @@
 	import Search from '@lucide/svelte/icons/search';
 	import Trash from '@lucide/svelte/icons/trash';
 	import Upload from '@lucide/svelte/icons/upload';
-	import { tick } from 'svelte';
-	import { ArtworkImage, Button, Dialog, Icon, NoImage, TextField } from '@study-atelier/ui';
+	import { onDestroy, tick, type Snippet } from 'svelte';
+	import {
+		ArtworkImage,
+		Button,
+		Dialog,
+		FieldMessage,
+		FilePicker,
+		Icon,
+		NoImage,
+		TextField
+	} from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import {
 		OWN_IMAGE_ACCEPT,
@@ -20,7 +29,12 @@
 		type PastedImage
 	} from '#lib/images/clipboard.ts';
 	import ImageSearchDialog from '#lib/images/components/ImageSearchDialog.svelte';
-	import { ownImageFileError, parseImageUrl, readImageSize } from '#lib/images/own-image.ts';
+	import {
+		fitOwnImage,
+		ownImageFileError,
+		parseImageUrl,
+		readImageSize
+	} from '#lib/images/own-image.ts';
 	import type { ImageCandidate, ImageSearchQuery } from '#lib/images/types.ts';
 	import { imageFromCandidate } from '../artwork-form.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
@@ -32,9 +46,23 @@
 		query: ImageSearchQuery;
 		texts: ImageFieldTexts;
 		image: ArtworkImageInput | null;
+		removable?: boolean;
+		onsearch?: () => void;
+		slots?: Snippet;
+		status?: Snippet;
 	};
 
-	let { alt, searchReady, query, texts, image = $bindable() }: Props = $props();
+	let {
+		alt,
+		searchReady,
+		query,
+		texts,
+		image = $bindable(),
+		removable = false,
+		onsearch,
+		slots,
+		status
+	}: Props = $props();
 
 	const id = $props.id();
 	const fileMessageId = `${id}-file`;
@@ -49,7 +77,6 @@
 	let urlText = $state('');
 	let urlError = $state('');
 	let loadingUrl = $state(false);
-	let fileInput = $state<HTMLInputElement>();
 	let pasting = $state(false);
 	let pasteError = $state('');
 	let replaceOpen = $state(false);
@@ -61,18 +88,24 @@
 	let credit = $derived(artworkImageCredit(image));
 	let ownImage = $derived(image !== null && image.kind !== 'commons');
 
-	$effect(() => {
-		const previewUrl = image?.kind === 'file' ? image.previewUrl : null;
-		return () => {
-			if (previewUrl) URL.revokeObjectURL(previewUrl);
-		};
-	});
+	function openSearch(): void {
+		onsearch?.();
+		searchOpen = true;
+	}
+
+	function release(previous: ArtworkImageInput | null): void {
+		if (previous?.kind === 'file') URL.revokeObjectURL(previous.previewUrl);
+	}
+
+	onDestroy(() => release(image));
 
 	function pickCandidate(candidate: ImageCandidate): void {
+		release(image);
 		image = imageFromCandidate(candidate);
 	}
 
 	async function removeImage(): Promise<void> {
+		release(image);
 		image = null;
 		await tick();
 		document.getElementById(findImageId)?.focus();
@@ -85,15 +118,19 @@
 	}
 
 	function useImage(next: ArtworkImageInput): void {
+		release(image);
 		image = next;
 		pasteError = '';
 		dialogOpen = false;
 	}
 
-	async function useFile(file: File): Promise<string | undefined> {
-		const error = ownImageFileError(file);
+	async function useFile(picked: File): Promise<string | undefined> {
+		const error = ownImageFileError(picked);
 		if (error) return error;
+		const fitted = await fitOwnImage(picked);
+		if ('error' in fitted) return fitted.error;
 
+		const file = fitted.file;
 		const previewUrl = URL.createObjectURL(file);
 		try {
 			const size = await readImageSize(previewUrl);
@@ -116,10 +153,7 @@
 		}
 	}
 
-	async function pickFile(event: Event & { currentTarget: HTMLInputElement }): Promise<void> {
-		const file = event.currentTarget.files?.[0];
-		event.currentTarget.value = '';
-		if (!file) return;
+	async function pickFile(file: File): Promise<void> {
 		fileError = (await useFile(file)) ?? '';
 	}
 
@@ -213,6 +247,7 @@
 <svelte:window onpaste={handlePaste} />
 
 <section class="image" aria-label={texts.label}>
+	{@render slots?.()}
 	<figure class="picture">
 		<div class="mat">
 			{#if preview}
@@ -225,7 +260,7 @@
 					width={preview.width}
 				/>
 			{:else}
-				<NoImage label={m.ui.noImage} />
+				<NoImage />
 			{/if}
 		</div>
 		{#if credit}
@@ -234,7 +269,7 @@
 	</figure>
 
 	<div class="image-actions">
-		<Button id={findImageId} disabled={!searchReady} onclick={() => (searchOpen = true)}>
+		<Button id={findImageId} disabled={!searchReady} onclick={openSearch}>
 			<Icon icon={Search} size="sm" />
 			{image?.kind === 'commons' ? texts.findOther : texts.find}
 		</Button>
@@ -242,13 +277,14 @@
 			<Icon icon={ImagePlus} size="sm" />
 			{ownImage ? texts.changeOwn : texts.own}
 		</Button>
-		{#if image}
+		{#if image || removable}
 			<Button onclick={removeImage}>
 				<Icon icon={Trash} size="sm" />
 				{texts.remove}
 			</Button>
 		{/if}
 	</div>
+	{@render status?.()}
 	{#if !searchReady}
 		<p class="caption">{texts.findHint}</p>
 	{/if}
@@ -280,21 +316,15 @@
 					<Icon icon={Clipboard} size="sm" />
 					{m.artworkForm.pasteFromClipboard}
 				</Button>
-				<Button aria-describedby={fileMessageId} onclick={() => fileInput?.click()}>
-					<Icon icon={Upload} size="sm" />
-					{m.artworkForm.chooseFile}
-				</Button>
+				<FilePicker
+					accept={OWN_IMAGE_ACCEPT}
+					describedby={fileMessageId}
+					icon={Upload}
+					label={m.artworkForm.chooseFile}
+					onpick={pickFile}
+				/>
 			</div>
-			<input
-				bind:this={fileInput}
-				accept={OWN_IMAGE_ACCEPT}
-				hidden
-				onchange={pickFile}
-				type="file"
-			/>
-			<span id={fileMessageId} class="message" class:error={!!fileError} aria-live="polite">
-				{fileError || fileHint}
-			</span>
+			<FieldMessage id={fileMessageId} error={fileError} hint={fileHint} live />
 		</div>
 		<TextField
 			autocomplete="off"
@@ -410,16 +440,6 @@
 		color: var(--color-danger);
 		font-size: var(--font-size-xs);
 		line-height: var(--line-height-xs);
-	}
-
-	.message {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-	}
-
-	.message.error {
-		color: var(--color-danger);
 	}
 
 	@media (pointer: fine) {

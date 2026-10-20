@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { type Component, untrack } from 'svelte';
-	import { setUiMessages, type UiMessages } from '../messages';
+	import { type Component, onDestroy, untrack } from 'svelte';
+	import { setUiMessages, uiMessages, type UiMessages } from '../messages';
 
 	type Props = {
 		messages: UiMessages;
@@ -10,7 +10,9 @@
 
 	let { messages, component: Subject, props = {} }: Props = $props();
 
+	const previous = uiMessages();
 	setUiMessages(untrack(() => messages));
+	onDestroy(() => setUiMessages(previous));
 </script>
 
 <Subject {...props} />

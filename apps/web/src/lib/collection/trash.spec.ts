@@ -13,10 +13,19 @@ const query = {
 	eq: vi.fn()
 };
 
+const images = {
+	select: vi.fn(),
+	eq: vi.fn()
+};
+
 describe('trash actions', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.mocked(supabase.from).mockReturnValue(query as never);
+		vi.mocked(supabase.from).mockImplementation(
+			(table: string) => (table === 'artwork_images' ? images : query) as never
+		);
+		images.select.mockReturnValue(images);
+		images.eq.mockResolvedValue({ data: [], error: null });
 		query.update.mockReturnValue(query);
 		query.delete.mockReturnValue(query);
 		query.eq.mockResolvedValue({ error: null });
@@ -48,6 +57,19 @@ describe('trash actions', () => {
 		expect(query.delete).toHaveBeenCalled();
 		expect(query.eq).toHaveBeenCalledWith('id', 'artwork-1');
 		expect(removeOwnImage).toHaveBeenCalledWith('owner/image.jpg');
+	});
+
+	it('deletes the uploaded files of the other images too', async () => {
+		images.eq.mockResolvedValue({
+			data: [{ own_image_path: 'owner/plan.jpg' }, { own_image_path: null }],
+			error: null
+		});
+
+		await expect(deletePermanently('artwork-1', 'owner/image.jpg')).resolves.toEqual({});
+		expect(images.eq).toHaveBeenCalledWith('artwork_id', 'artwork-1');
+		expect(removeOwnImage).toHaveBeenCalledWith('owner/image.jpg');
+		expect(removeOwnImage).toHaveBeenCalledWith('owner/plan.jpg');
+		expect(removeOwnImage).toHaveBeenCalledTimes(2);
 	});
 
 	it('deletes an artwork without an uploaded image without touching storage', async () => {

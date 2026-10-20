@@ -8,7 +8,7 @@
 	import Moon from '@lucide/svelte/icons/moon';
 	import Sun from '@lucide/svelte/icons/sun';
 	import Trash from '@lucide/svelte/icons/trash-2';
-	import { Icon } from '@study-atelier/ui';
+	import { Count, Icon } from '@study-atelier/ui';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/index.ts';
@@ -17,11 +17,12 @@
 	type Props = {
 		email: string;
 		signingOut: boolean;
+		compact?: boolean;
 		onsignout: () => void;
 		onfeedback: () => void;
 	};
 
-	let { email, signingOut, onsignout, onfeedback }: Props = $props();
+	let { email, signingOut, compact = false, onsignout, onfeedback }: Props = $props();
 
 	const atelierPath = resolve('/(app)/atelier');
 	const cardIndexPath = resolve('/(app)/atelier/values');
@@ -37,7 +38,7 @@
 		<span class="avatar" aria-hidden="true">
 			{email.charAt(0).toLocaleUpperCase('pl')}
 		</span>
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{email}
 		</span>
 	</span>
@@ -47,7 +48,7 @@
 		href={atelierPath}
 	>
 		<Icon icon={ImagesIcon} />
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{m.menu.atelier}
 		</span>
 	</a>
@@ -57,7 +58,7 @@
 		href={cardIndexPath}
 	>
 		<Icon icon={ListTree} />
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{m.menu.cardIndex}
 		</span>
 	</a>
@@ -67,7 +68,7 @@
 		href={glossaryPath}
 	>
 		<Icon icon={BookA} />
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{m.menu.glossary}
 		</span>
 	</a>
@@ -84,17 +85,17 @@
 				{/if}
 			{/await}
 		</span>
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{m.menu.review}
 			{#await page.data.reviewWaiting then waiting}
 				{#if waiting > 0}
-					<span class="hidden">, {m.menu.reviewWaiting(waiting)}</span>
+					<span class="visually-hidden">, {m.menu.reviewWaiting(waiting)}</span>
 				{/if}
 			{/await}
 		</span>
 		{#await page.data.reviewWaiting then waiting}
 			{#if waiting > 0}
-				<span class="count" aria-hidden="true">{waiting}</span>
+				<Count aria-hidden="true" value={waiting} />
 			{/if}
 		{/await}
 	</a>
@@ -106,25 +107,25 @@
 		href={trashPath}
 	>
 		<Icon icon={Trash} />
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{m.menu.trash}
 		</span>
 	</a>
 	<button class="item muted" onclick={onfeedback} type="button">
 		<Icon icon={MessageSquarePlus} />
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{m.menu.feedback}
 		</span>
 	</button>
 	<button class="item muted" onclick={() => setTheme(light ? 'dark' : 'light')} type="button">
 		<Icon icon={light ? Moon : Sun} />
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{light ? m.menu.darkTheme : m.menu.lightTheme}
 		</span>
 	</button>
 	<button class="item danger" disabled={signingOut} onclick={onsignout} type="button">
 		<Icon icon={LogOut} />
-		<span class="label">
+		<span class="label" class:visually-hidden={compact}>
 			{m.menu.signOut}
 		</span>
 	</button>
@@ -207,18 +208,6 @@
 		display: flex;
 	}
 
-	.count {
-		min-width: 16px;
-		padding: 0 var(--spacing-1);
-		background: var(--color-fg);
-		color: var(--color-bg);
-		font-size: var(--font-size-xs);
-		font-weight: var(--font-weight-bold);
-		line-height: var(--line-height-xs);
-		text-align: center;
-		font-variant-numeric: tabular-nums;
-	}
-
 	.badge {
 		position: absolute;
 		top: calc(-1 * var(--spacing-1));
@@ -227,14 +216,5 @@
 		width: var(--spacing-2);
 		height: var(--spacing-2);
 		background: var(--color-fg);
-	}
-
-	.hidden {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		overflow: hidden;
-		clip-path: inset(50%);
-		white-space: nowrap;
 	}
 </style>

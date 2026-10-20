@@ -90,3 +90,9 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0084](0084-free-review-after-the-day-is-done.md)                        | Free review rounds after the day's reviews are done                                    | accepted           |
 | [0085](0085-group-the-wall-by-era-period-and-style.md)                   | Group the wall by era, period and style, apart from the order and the filters          | accepted           |
 | [0086](0086-fetch-the-forms-of-synonyms-from-wiktionary.md)              | Fetch the inflected forms of synonyms from Wiktionary, with at most three synonyms     | accepted           |
+| [0087](0087-set-library-texts-once-for-the-whole-app.md)                 | Set the library texts once for the whole app, also in tests                            | accepted           |
+| [0088](0088-up-to-five-images-and-an-automatic-best-match.md)            | Up to five images per artwork and the best Wikidata match filled in automatically      | accepted           |
+| [0089](0089-one-search-button-and-the-word-obraz-in-the-image-field.md)  | One search button and the word "obraz" in the image field                              | accepted           |
+| [0090](0090-clean-up-unused-images-daily-from-github-actions.md)         | Clean up unused images daily from GitHub Actions                                       | accepted           |
+| [0091](0091-make-large-own-images-smaller-in-the-browser.md)             | Make large own images smaller in the browser                                           | accepted           |
+| [0092](0092-clean-up-images-by-hand-for-one-environment.md)              | Run the unused images clean-up by hand for one environment                             | accepted           |

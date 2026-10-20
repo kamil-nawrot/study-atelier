@@ -15,7 +15,7 @@ export const pl = {
 		hidePassword: 'Ukryj',
 		removeTag: 'Usuń tag',
 		unknownAuthor: 'Autor nieznany',
-		noImage: 'Brak zdjęcia',
+		noImage: 'Brak obrazu',
 		imageFailed: 'Nie udało się wczytać obrazu',
 		loading: 'Wczytywanie',
 		clearSearch: 'Wyczyść wyszukiwanie',
@@ -207,7 +207,7 @@ export const pl = {
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu lub nazwiska.`,
 		clearSearch: 'Wyczyść wyszukiwanie',
 		loadErrorTitle: 'Nie udało się wczytać atelier',
-		imagesUnavailableTitle: 'Nie wszystkie zdjęcia się wczytały',
+		imagesUnavailableTitle: 'Nie wszystkie obrazy się wczytały',
 		imagesUnavailable: 'Część zdjęć nie jest teraz dostępna. Spróbuj jeszcze raz za chwilę.',
 		retryImages: 'Spróbuj ponownie',
 		year: (year: number, approximate: boolean): string =>
@@ -262,7 +262,7 @@ export const pl = {
 			tag: (field: string, value: string): string => `${field} ${value}`,
 			unknownAuthor: 'Autor nieznany',
 			missing: {
-				image: 'bez zdjęcia',
+				image: 'bez obrazu',
 				year: 'bez roku',
 				era: 'bez epoki',
 				period: 'bez okresu',
@@ -288,20 +288,24 @@ export const pl = {
 		goBack: 'Wróć',
 		notFoundTitle: (number: string): string => `Nie ma dzieła ${number}`,
 		loadErrorTitle: 'Nie udało się wczytać dzieła',
-		image: 'Zdjęcie',
-		findImage: 'Znajdź zdjęcie',
+		image: 'Obraz',
+		addImage: 'Dodaj kolejny obraz',
+		mainImage: 'Główne',
+		setMainImage: 'Ustaw jako główne',
+		imageSlot: (number: number, count: number): string => `Obraz ${number} z ${count}`,
+		findImage: 'Znajdź obraz',
 		ownImage: 'Dodaj własne',
 		changeOwnImage: 'Zmień własne',
-		ownImageTitle: 'Dodaj własne zdjęcie',
-		changeOwnImageTitle: 'Zmień własne zdjęcie',
-		removeImage: 'Usuń zdjęcie',
+		ownImageTitle: 'Dodaj własny obraz',
+		changeOwnImageTitle: 'Zmień własny obraz',
+		removeImage: 'Usuń obraz',
 		chooseFile: 'Wybierz plik z dysku',
 		fileHint: (formats: string, maxMegabytes: number): string =>
-			`${formats}, do ${maxMegabytes} MB.`,
+			`${formats}. Większe niż ${maxMegabytes} MB zmniejszę.`,
 		pasteFromClipboard: 'Wklej ze schowka',
 		pasteHintLead: 'Masz obraz w schowku? Po prostu naciśnij',
 		pasteHintForm: 'Obraz ze schowka możesz też wkleić tutaj:',
-		replaceImageTitle: 'Zastąpić obecne zdjęcie?',
+		replaceImageTitle: 'Zastąpić obecny obraz?',
 		replaceImageDescription: 'Wklejony obraz zajmie jego miejsce.',
 		replaceImage: 'Zastąp',
 		keepImage: 'Zostaw obecne',
@@ -309,11 +313,14 @@ export const pl = {
 		imageUrlPlaceholder: 'https://…',
 		useImageUrl: 'Użyj',
 		usingImageUrl: 'Wczytywanie…',
-		ownImageCredit: 'Twoje zdjęcie, widoczne tylko dla Ciebie.',
+		ownImageCredit: 'Twój obraz, widoczny tylko dla Ciebie.',
 		ownImageUrlCredit: (host: string): string =>
-			`Twoje zdjęcie z adresu ${host}, widoczne tylko dla Ciebie.`,
-		findImageHint: 'Wpisz tytuł i autora, żeby znaleźć zdjęcie.',
-		chooseOtherImage: 'Wybierz inne',
+			`Twój obraz z adresu ${host}, widoczny tylko dla Ciebie.`,
+		findImageHint: 'Wpisz tytuł i autora, żeby znaleźć obraz.',
+		chooseOtherImage: 'Wybierz inny',
+		matchSearching: 'Szukam obrazu w Wikidata…',
+		matchFound: (details: string): string => `Z Wikidata: ${details}`,
+		matchNone: 'Nie znalazłem tego dzieła w Wikidata. Poszukaj sam albo dodaj własny obraz.',
 		title: 'Tytuł',
 		authors: 'Autorzy',
 		authorUnknown: 'Autor nieznany',
@@ -367,14 +374,16 @@ export const pl = {
 		}
 	},
 	artworkView: {
+		previousImage: 'Poprzedni obraz',
+		nextImage: 'Następny obraz',
 		back: 'Atelier',
 		edit: 'Edytuj',
 		delete: 'Usuń',
-		addImage: 'Dodaj zdjęcie',
+		addImage: 'Dodaj obraz',
 		information: 'Informacje',
 		showInformation: 'Pokaż informacje',
 		hideInformation: 'Zamknij informacje',
-		openImage: 'Powiększ zdjęcie',
+		openImage: 'Powiększ obraz',
 		closeImage: 'Zamknij powiększenie',
 		empty: 'Nie wpisano',
 		previous: 'Poprzednie dzieło',
@@ -406,7 +415,7 @@ export const pl = {
 		allDoneTitle: 'Nic nowego do powtórki',
 		allDone: (when: string): string => `Kolejne dzieła będą na Ciebie czekać ${when}.`,
 		tooFew: (minimum: number, missing: number): string =>
-			`Powtórki będzie można rozpocząć, gdy w Twoim atelier znajdzie się przynajmniej ${minimum} dzieł ze zdjęciami. Obecnie brakuje jeszcze ${missing}.`,
+			`Powtórki będzie można rozpocząć, gdy w Twoim atelier znajdzie się przynajmniej ${minimum} dzieł z obrazami. Obecnie brakuje jeszcze ${missing}.`,
 		options: 'Zmień zakres lub formę',
 		scope: 'Co powtarzamy?',
 		scopes: {
@@ -506,8 +515,9 @@ export const pl = {
 		title: 'Które to dzieło?',
 		description: (title: string, authors: string): string =>
 			`Wyniki z Wikidata dla „${title}”${authors ? `, ${authors}` : ''}. Kliknij to, które dodajesz.`,
-		searching: 'Szukamy w Wikidata…',
-		empty: 'Wikidata nie zna dzieła o takim tytule. Sprawdź pisownię albo dodaj własne zdjęcie.',
+		searching: 'Szukam w Wikidata…',
+		empty:
+			'Nie znalazłem w Wikidata dzieła o takim tytule. Sprawdź pisownię albo dodaj własny obraz.',
 		none: 'Żadne z tych',
 		errorTitle: 'Nie udało się przeszukać Wikidata',
 		retry: 'Szukaj jeszcze raz',
@@ -517,7 +527,7 @@ export const pl = {
 		personDescription: (name: string): string =>
 			`Wyniki z Wikidata dla „${name}”. Kliknij portret, który chcesz dodać.`,
 		personEmpty:
-			'Wikidata nie zna portretu osoby o takiej nazwie. Sprawdź pisownię albo dodaj własny portret.',
+			'Nie znalazłem w Wikidata portretu osoby o takiej nazwie. Sprawdź pisownię albo dodaj własny portret.',
 		personNone: 'Żaden z tych'
 	},
 	imageSearchErrors: {
@@ -561,10 +571,11 @@ export const pl = {
 	},
 	ownImageErrors: {
 		fileType: (formats: string): string =>
-			`Tego pliku nie da się dodać jako zdjęcia. Wybierz ${formats}.`,
+			`Tego pliku nie da się dodać jako obrazu. Wybierz ${formats}.`,
 		fileTooLarge: (maxMegabytes: number): string =>
-			`Ten plik ma więcej niż ${maxMegabytes} MB. Wybierz mniejszy albo zmniejsz zdjęcie.`,
-		fileUnreadable: 'Nie udało się otworzyć tego zdjęcia. Wybierz inny plik.',
+			`Ten plik ma więcej niż ${maxMegabytes} MB. Wybierz mniejszy.`,
+		shrinkFailed: 'Nie udało mi się zmniejszyć tego obrazu. Wybierz mniejszy.',
+		fileUnreadable: 'Nie udało się otworzyć tego obrazu. Wybierz inny plik.',
 		clipboardEmpty:
 			'W schowku nie ma teraz obrazu. Skopiuj go albo zrób zrzut ekranu i spróbuj jeszcze raz.',
 		clipboardDenied:
@@ -573,8 +584,8 @@ export const pl = {
 		urlInvalid: 'Wklej pełny adres obrazka, zaczynający się od https://.',
 		urlUnreadable:
 			'Nie udało się wczytać obrazka z tego adresu. Sprawdź, czy prowadzi wprost do obrazka.',
-		uploadNetwork: 'Nie udało się wysłać zdjęcia. Sprawdź internet i spróbuj jeszcze raz.',
-		uploadFailed: 'Nie udało się wysłać zdjęcia. Spróbuj jeszcze raz za chwilę.'
+		uploadNetwork: 'Nie udało się wysłać obrazu. Sprawdź internet i spróbuj jeszcze raz.',
+		uploadFailed: 'Nie udało się wysłać obrazu. Spróbuj jeszcze raz za chwilę.'
 	},
 	cardIndex: {
 		title: 'Kartoteka',
@@ -967,7 +978,7 @@ export const pl = {
 		restored: (number: string): string => `Przywrócono ${number}.`,
 		deleteTitle: (number: string): string => `Usunąć ${number} na zawsze?`,
 		deleteDescription: (number: string): string =>
-			`Dzieło i Twoje zdjęcie znikną bezpowrotnie. Numer ${number} nie wróci do użycia.`,
+			`Dzieło i Twój obraz znikną bezpowrotnie. Numer ${number} nie wróci do użycia.`,
 		deleting: 'Usuwanie…',
 		deleted: (number: string): string => `Usunięto ${number} na zawsze.`
 	}

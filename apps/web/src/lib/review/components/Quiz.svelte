@@ -112,9 +112,9 @@
 
 {#snippet optionState(index: number)}
 	{#if answered && index === quiz.answer}
-		<span class="hidden">, {m.review.quiz.rightOption}</span>
+		<span class="visually-hidden">, {m.review.quiz.rightOption}</span>
 	{:else if index === chosen}
-		<span class="hidden">, {m.review.quiz.chosenOption}</span>
+		<span class="visually-hidden">, {m.review.quiz.chosenOption}</span>
 	{/if}
 {/snippet}
 
@@ -322,15 +322,6 @@
 <style>
 	h1:focus {
 		outline: none;
-	}
-
-	.hidden {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		overflow: hidden;
-		clip-path: inset(50%);
-		white-space: nowrap;
 	}
 
 	.intro,

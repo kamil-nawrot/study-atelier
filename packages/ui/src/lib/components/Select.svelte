@@ -9,6 +9,7 @@
 	import type { LucideIcon } from '@lucide/svelte';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import type { HTMLSelectAttributes } from 'svelte/elements';
+	import FieldMessage from './FieldMessage.svelte';
 	import Icon from './Icon.svelte';
 
 	type Props = Omit<HTMLSelectAttributes, 'value' | 'multiple' | 'children'> & {
@@ -42,7 +43,7 @@
 </script>
 
 <div class="field" class:compact>
-	<label for={selectId}>{label}</label>
+	<label class:visually-hidden={compact} for={selectId}>{label}</label>
 	<div class="control" class:invalid={!!error}>
 		{#if icon}
 			<span class="glyph">
@@ -68,7 +69,7 @@
 		</span>
 	</div>
 	{#if message}
-		<span id={messageId} class="message" class:error={!!error}>{message}</span>
+		<FieldMessage id={messageId} {error} {hint} />
 	{/if}
 </div>
 
@@ -147,15 +148,6 @@
 		display: none;
 	}
 
-	.compact label {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		overflow: hidden;
-		clip-path: inset(50%);
-		white-space: nowrap;
-	}
-
 	@media (max-width: 767.98px) {
 		.compact .control {
 			width: var(--size-control);
@@ -178,15 +170,5 @@
 		.compact .chevron {
 			display: none;
 		}
-	}
-
-	.message {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-	}
-
-	.message.error {
-		color: var(--color-danger);
 	}
 </style>

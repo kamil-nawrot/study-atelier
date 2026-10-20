@@ -15,6 +15,7 @@
 	import { NoteLink, NoteLinkSuggestion, type SuggestionState } from '../note-link-extension';
 	import type { NoteLinks, NoteLinkTrigger } from '../note-links';
 	import { renderNotes } from '../notes-markdown';
+	import FieldMessage from './FieldMessage.svelte';
 	import Icon from './Icon.svelte';
 
 	type Props = {
@@ -336,7 +337,7 @@
 		{/if}
 	</div>
 	{#if message}
-		<span id={messageId} class="message" class:error={!!error}>{message}</span>
+		<FieldMessage id={messageId} {error} {hint} />
 	{/if}
 </div>
 
@@ -527,15 +528,5 @@
 
 	.empty {
 		color: var(--color-fg-muted);
-	}
-
-	.message {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-	}
-
-	.message.error {
-		color: var(--color-danger);
 	}
 </style>

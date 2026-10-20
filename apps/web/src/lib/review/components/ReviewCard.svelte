@@ -55,7 +55,7 @@
 			{:else}
 				<span class="mat">
 					<span class="window">
-						<NoImage label={m.ui.noImage} />
+						<NoImage />
 					</span>
 				</span>
 			{/if}

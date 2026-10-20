@@ -33,7 +33,7 @@
 	import { UnsavedChanges } from '../unsaved-changes.svelte.ts';
 	import { suggestValues, valueKey } from '../value-suggestions.ts';
 	import DiscardDialog from './DiscardDialog.svelte';
-	import ImageField from './ImageField.svelte';
+	import ArtworkImages from './ArtworkImages.svelte';
 	import YearGroup from './YearGroup.svelte';
 	import YearInput from './YearInput.svelte';
 	import DuplicateDialog from './DuplicateDialog.svelte';
@@ -209,7 +209,7 @@
 			if (!(await confirmDuplicate(input))) return;
 			const result = await saveArtwork(
 				input,
-				artwork ? { id: artwork.id, image: artwork.image } : undefined
+				artwork ? { id: artwork.id, image: artwork.image, images: artwork.images } : undefined
 			);
 			if (!result.saved) {
 				fieldErrors = result.fieldErrors;
@@ -249,8 +249,9 @@
 	{/if}
 
 	<div class="columns">
-		<ImageField
+		<ArtworkImages
 			alt={imageAlt}
+			autoMatch={!artwork}
 			query={{
 				kind: 'artwork',
 				title: form.title,
@@ -259,6 +260,7 @@
 			searchReady={imageSearchReady}
 			texts={imageTexts}
 			bind:image={form.image}
+			bind:images={form.images}
 		/>
 
 		<div class="fields">

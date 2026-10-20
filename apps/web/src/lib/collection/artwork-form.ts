@@ -2,6 +2,8 @@ import { emptyCategoryValues } from './category-values.ts';
 import type { ImageCandidate } from '#lib/images/types.ts';
 import type { ArtworkFormState, ArtworkImageInput, ArtworkInput, ArtworkRecord } from './types.ts';
 
+export const MAX_ARTWORK_IMAGES = 5;
+
 export function emptyArtworkForm(): ArtworkFormState {
 	return {
 		title: '',
@@ -17,7 +19,8 @@ export function emptyArtworkForm(): ArtworkFormState {
 		typeCode: '',
 		eraCode: null,
 		notes: '',
-		image: null
+		image: null,
+		images: []
 	};
 }
 
@@ -42,7 +45,8 @@ export function artworkFormFromRecord(record: ArtworkRecord): ArtworkFormState {
 		typeCode: record.typeCode ?? '',
 		eraCode: record.eraCode,
 		notes: record.notes,
-		image: record.image
+		image: record.image,
+		images: [...record.images]
 	};
 }
 
@@ -53,6 +57,9 @@ export function parseYear(text: string): number | null {
 }
 
 export function artworkInputFromForm(form: ArtworkFormState): ArtworkInput {
+	const [image = null, ...images] = [form.image, ...form.images].filter(
+		(item): item is ArtworkImageInput => item !== null
+	);
 	return {
 		title: form.title,
 		authors: form.authorUnknown ? [] : [...form.values.author],
@@ -69,7 +76,8 @@ export function artworkInputFromForm(form: ArtworkFormState): ArtworkInput {
 		materials: [...form.values.material],
 		location: form.values.location[0] ?? null,
 		notes: form.notes,
-		image: form.image
+		image,
+		images
 	};
 }
 

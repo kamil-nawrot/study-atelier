@@ -31,6 +31,17 @@ export function imageSvg(seed, width = 4, height = 5) {
 	return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${dark}"/><stop offset="1" stop-color="${light}"/></linearGradient></defs><rect width="${w}" height="${h}" fill="url(#g)"/><circle cx="${w * 0.62}" cy="${h * 0.38}" r="${Math.min(w, h) * 0.18}" fill="${light}" fill-opacity="0.55"/></svg>`;
 }
 
+function extraImage() {
+	return {
+		source_wikidata_id: null,
+		source_image_file: null,
+		source_image_licence: null,
+		source_image_licence_url: null,
+		source_image_attribution: null,
+		own_image_path: null
+	};
+}
+
 function ownImage(number, width, height) {
 	return {
 		own_image_url: `${IMAGE_HOST}/own-${number}-${width}x${height}.svg`,
@@ -79,6 +90,7 @@ function artwork(number, title, authors, year, era, extra = {}) {
 			position,
 			category_values: { category_code: 'author', name }
 		})),
+		artwork_images: [],
 		...extra
 	};
 }
@@ -138,7 +150,11 @@ export const ARTWORKS = [
 	artwork(6, 'Notre-Dame de Paris', ['Maurice de Sully', 'Jean de Chelles'], 1345, 'middle_ages', {
 		...ownImage(6, 5, 4),
 		year_from: 1163,
-		type_code: 'architecture'
+		type_code: 'architecture',
+		artwork_images: [
+			{ position: 1, ...extraImage(), ...ownImage(61, 3, 4) },
+			{ position: 2, ...extraImage(), ...ownImage(62, 4, 3) }
+		]
 	}),
 	artwork(7, 'The Kiss', ['Gustav Klimt'], 1908, 'modern', { ...ownImage(7, 1, 1) }),
 	artwork(8, 'Campbell’s Soup Cans', ['Andy Warhol'], 1962, 'contemporary', {
@@ -368,6 +384,19 @@ export const CATALOGUE_MUSEUMS = [
 		country_code: 'PL'
 	},
 	{ name: 'Pradla Museum', english_name: null, country_code: 'PL' }
+];
+
+export const ARTWORK_SEARCH = [
+	{
+		item: 'http://www.wikidata.org/entity/Q167605',
+		title: 'The Milkmaid',
+		file: 'http://commons.wikimedia.org/wiki/Special:FilePath/The%20Milkmaid.jpg',
+		date: '1658-01-01T00:00:00Z/9',
+		creators: 'Johannes Vermeer',
+		creatorNames: 'Johannes Vermeer',
+		creatorCount: '1',
+		order: '0'
+	}
 ];
 
 export const PEOPLE = [
