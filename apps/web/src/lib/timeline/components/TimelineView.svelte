@@ -26,9 +26,23 @@
 	} from '../event-lanes.ts';
 	import { NARROW_WIDTH, orientationFor, verticalLength } from '../stage.ts';
 	import { deleteTimelineEvent } from '../timeline-data.ts';
-	import type { TimelineEvent } from '../types.ts';
+	import type { ArtworkLane, TimelineEvent, TimelineFilter } from '../types.ts';
 	import { eraOfYear, rememberEra } from '../start.ts';
 	import { eraOf, eras, overlaps, spanOfYears, yearAt, type TimeSpan, type View } from '../time.ts';
+	import FilterTags from '#lib/collection/components/FilterTags.svelte';
+	import {
+		applyTimelineFilter,
+		artworksIn,
+		emptyTimelineFilter,
+		forOtherEra,
+		inLane,
+		isEmptyTimelineFilter,
+		laneColour,
+		lanesOf,
+		removeTimelineTag,
+		tagLane,
+		timelineTags
+	} from '../filter.ts';
 	import EraStrip from './EraStrip.svelte';
 	import EventCard from './EventCard.svelte';
 	import TimelineEvents from './TimelineEvents.svelte';
@@ -41,13 +55,28 @@
 		artworks?: readonly WallArtwork[];
 		events?: readonly TimelineEvent[];
 		ondeleted?: (event: TimelineEvent) => void | Promise<void>;
+		onerachange?: (code: EraCode) => void;
+		filter?: TimelineFilter;
+		showEvents?: boolean;
+		readingArtworks?: boolean;
 	};
 
 	type Selection = { kind: 'artwork' | 'event'; id: string } | null;
 
-	let { initialEra, initialFocus, artworks = [], events = [], ondeleted }: Props = $props();
+	let {
+		initialEra,
+		initialFocus,
+		artworks = [],
+		events = [],
+		ondeleted,
+		onerachange,
+		filter = $bindable(emptyTimelineFilter()),
+		showEvents = true,
+		readingArtworks = false
+	}: Props = $props();
 
 	const NOW_SHARE = 40;
+	const READING_TITLES = 2;
 	const LABEL_FONT = 14;
 
 	const STEP_ANIMATION_MS = 400;
@@ -77,7 +106,17 @@
 	let index = $derived(ERA_CODES.indexOf(code));
 	let previous = $derived(index > 0 ? ERA_CODES[index - 1] : undefined);
 	let next = $derived(index < ERA_CODES.length - 1 ? ERA_CODES[index + 1] : undefined);
-	let collection = $derived(artworks);
+	let collection = $derived(applyTimelineFilter(artworks, filter));
+	let filtering = $derived(!isEmptyTimelineFilter(filter));
+	let tags = $derived(timelineTags(filter));
+	let artworkLanes = $derived<ArtworkLane[]>(
+		filter.lanes.map((lane, laneAt) => ({
+			key: `${lane.field}:${lane.value}`,
+			name: lane.value,
+			colour: laneColour(laneAt),
+			artworks: collection.filter((artwork) => inLane(artwork, lane))
+		}))
+	);
 	let orientation = $derived(orientationFor(width));
 	let eraEvents = $derived(eventsIn(events, era));
 	let lanes = $derived(
@@ -90,18 +129,41 @@
 		)
 	);
 	let selectedEvent = $derived(
-		selected?.kind === 'event' ? events.find((event) => event.id === selected?.id) : undefined
+		showEvents && selected?.kind === 'event'
+			? events.find((event) => event.id === selected?.id)
+			: undefined
 	);
 	let tint = $derived(
 		selectedEvent ? spanOfYears(selectedEvent.yearFrom, selectedEvent.yearTo) : undefined
 	);
 	let readingYear = $derived(yearAt(view.center));
-	let now = $derived(
-		activeAt(eraEvents, {
-			start: view.center - view.span / NOW_SHARE,
-			end: view.center + view.span / NOW_SHARE
-		})
+	let reading = $derived({
+		start: view.center - view.span / NOW_SHARE,
+		end: view.center + view.span / NOW_SHARE
+	});
+	let now = $derived(showEvents ? activeAt(eraEvents, reading) : []);
+	let nowArtworks = $derived(
+		readingArtworks
+			? artworksIn(collection, reading).sort(
+					(a, b) =>
+						Math.abs((a.yearTo ?? 0) - readingYear) - Math.abs((b.yearTo ?? 0) - readingYear)
+				)
+			: []
 	);
+	let nowParts = $derived([
+		...(now.length > 0 ? [m.timeline.nowEvents(now.map((event) => event.name).join(', '))] : []),
+		...(nowArtworks.length > 0
+			? [
+					m.timeline.nowArtworks(
+						nowArtworks
+							.slice(0, READING_TITLES)
+							.map((artwork) => artwork.title)
+							.join(', '),
+						nowArtworks.length - READING_TITLES
+					)
+				]
+			: [])
+	]);
 
 	function labelWidth(event: TimelineEvent): number {
 		if (!measure) {
@@ -118,11 +180,12 @@
 	}
 
 	function artworksOf(event: TimelineEvent): WallArtwork[] {
-		const span = spanOfYears(event.yearFrom, event.yearTo);
-		return artworks.filter((artwork) => {
-			const other = spanOf(artwork);
-			return other !== undefined && overlaps(other, span);
-		});
+		return artworksIn(collection, spanOfYears(event.yearFrom, event.yearTo));
+	}
+
+	function laneColourOf(artwork: WallArtwork): string | undefined {
+		const [first] = lanesOf(artwork, filter);
+		return first === undefined ? undefined : laneColour(first);
 	}
 
 	function toggle(kind: 'artwork' | 'event', id: string): void {
@@ -220,7 +283,9 @@
 		code = next;
 		step = 'era';
 		selected = null;
+		filter = forOtherEra(filter);
 		rememberEra(next);
+		onerachange?.(next);
 		showNow(eraView(eraOf(next)));
 	}
 
@@ -231,6 +296,8 @@
 
 <div class="timeline">
 	<EraStrip current={code} eras={allEras} onselect={openEra} {view} />
+
+	<p class="era-name" aria-live="polite">{eraTitle(code)}</p>
 
 	<div class="controls">
 		<div class="move">
@@ -286,19 +353,27 @@
 		</div>
 	</div>
 
+	<FilterTags
+		colour={(tag) => {
+			const at = tagLane(filter, tag);
+			return at < 0 ? undefined : laneColour(at);
+		}}
+		onclear={() => (filter = emptyTimelineFilter())}
+		onremove={(tag) => (filter = removeTimelineTag(filter, tag))}
+		{tags}
+	/>
+
 	<p class="now" aria-live="polite">
-		{#if now.length > 0}
-			{m.timeline.now(
-				m.atelier.year(readingYear, false),
-				now.map((event) => event.name).join(', ')
-			)}
+		{#if nowParts.length > 0}
+			{m.timeline.now(m.atelier.year(readingYear, false), nowParts)}
 		{/if}
 	</p>
 
 	<div bind:clientWidth={width}>
 		<TimelineStage
+			artworkLanes={orientation === 'horizontal' ? artworkLanes.length : 0}
 			{era}
-			eventLanes={lanes}
+			eventLanes={showEvents ? lanes : 0}
 			onbackground={() => (selected = null)}
 			onkeypan={panShare}
 			onpan={pan}
@@ -308,21 +383,26 @@
 			{view}
 		>
 			{#snippet events(geometry)}
-				<TimelineEvents
-					{era}
-					events={eraEvents}
-					{geometry}
-					{labelWidth}
-					{lanes}
-					onselect={(event) => toggle('event', event.id)}
-					selected={selected?.kind === 'event' ? selected.id : null}
-				/>
+				{#if showEvents}
+					<TimelineEvents
+						{era}
+						events={eraEvents}
+						{geometry}
+						{labelWidth}
+						{lanes}
+						onselect={(event) => toggle('event', event.id)}
+						selected={selected?.kind === 'event' ? selected.id : null}
+					/>
+				{/if}
 			{/snippet}
 			{#snippet artworks(geometry)}
 				<TimelineArtworks
 					artworks={collection}
+					colourOf={laneColourOf}
+					empty={filtering ? m.timeline.filters.empty : undefined}
 					{era}
 					{geometry}
+					lanes={artworkLanes}
 					onselect={(artwork) => toggle('artwork', artwork.id)}
 					selected={selected?.kind === 'artwork' ? selected.id : null}
 				/>
@@ -371,6 +451,11 @@
 	.timeline {
 		display: grid;
 		gap: var(--spacing-3);
+	}
+
+	.era-name {
+		justify-self: center;
+		font-weight: var(--font-weight-medium);
 	}
 
 	.now {

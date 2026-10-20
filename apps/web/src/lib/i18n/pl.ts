@@ -854,7 +854,6 @@ export const pl = {
 		add: 'Dodaj wydarzenie',
 		addShort: 'Dodaj',
 		saved: (name: string): string => `Zapisano wydarzenie „${name}”.`,
-		showArtwork: 'Pokaż szczegóły dzieła',
 		form: {
 			newTitle: 'Nowe wydarzenie',
 			editTitle: 'Edycja wydarzenia',
@@ -914,7 +913,26 @@ export const pl = {
 		noEvents: 'Nie masz jeszcze żadnych dodanych wydarzeń',
 		hiddenEvents: (count: number): string =>
 			`${count} ${plural(count, { one: 'wydarzenie', few: 'wydarzenia', many: 'wydarzeń' })} poza widokiem. Przybliż, żeby je zobaczyć.`,
-		now: (year: string, events: string): string => `${year} · w tym czasie: ${events}`,
+		now: (year: string, parts: string[]): string => [year, ...parts].join(' · '),
+		nowEvents: (events: string): string => `w tym czasie: ${events}`,
+		nowArtworks: (titles: string, more: number): string =>
+			`dzieła: ${titles}${more > 0 ? ` (+${more})` : ''}`,
+		lane: (name: string, count: number): string => `${name} · ${count}`,
+		filters: {
+			lanes: 'Okresy i style',
+			lanesHint: (era: string): string => `Wybierz maksymalnie 5 z epoki ${era}.`,
+			lanesFull: 'Wybrano 5. Odznacz któryś, żeby wybrać inny.',
+			periods: 'Okresy',
+			styles: 'Style',
+			favourites: 'Ulubione',
+			types: 'Typ dzieła',
+			authors: 'Autor',
+			searchAuthors: 'Szukaj autora',
+			view: 'Widok',
+			events: 'Wydarzenia',
+			readingArtworks: 'Dzieła w linii czytania',
+			empty: 'W tej epoce nie ma dzieł, które pasują do filtrów.'
+		},
 		zones: {
 			events: 'Wydarzenia',
 			artworks: 'Dzieła'

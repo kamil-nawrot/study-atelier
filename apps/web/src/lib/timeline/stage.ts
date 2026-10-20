@@ -10,6 +10,7 @@ const ZONE_LABEL_HEIGHT = 22;
 const LANE_HORIZONTAL = 28;
 const ARTWORKS_HEIGHT = 300;
 const ARTWORKS_HEIGHT_NARROW = 220;
+const ARTWORK_LANE_MIN = 72;
 
 const AXIS_WIDTH = 64;
 const LANE_VERTICAL = 22;
@@ -28,6 +29,7 @@ export type StageGeometry = {
 	eventsSize: number;
 	artworksFrom: number;
 	artworksSize: number;
+	artworkLane: number;
 };
 
 export type Box = {
@@ -52,13 +54,15 @@ export function stageGeometry(
 	width: number,
 	eventLanes: number,
 	orientation: Orientation = 'horizontal',
-	viewportHeight = 0
+	viewportHeight = 0,
+	artworkLanes = 0
 ): StageGeometry {
 	if (orientation === 'vertical') {
 		const length = verticalLength(viewportHeight);
 		const eventsFrom = AXIS_WIDTH + ZONE_GAP;
 		const eventsSize = eventLanes * LANE_VERTICAL;
-		const artworksFrom = eventsFrom + eventsSize + 2 * ZONE_GAP;
+		const artworksFrom = eventsFrom + eventsSize + (eventLanes > 0 ? 2 * ZONE_GAP : 0);
+		const artworksSize = Math.max(width - artworksFrom - ZONE_GAP, 1);
 		return {
 			orientation,
 			length,
@@ -69,13 +73,16 @@ export function stageGeometry(
 			eventsFrom,
 			eventsSize,
 			artworksFrom,
-			artworksSize: Math.max(width - artworksFrom - ZONE_GAP, 1)
+			artworksSize,
+			artworkLane: artworksSize
 		};
 	}
-	const eventsFrom = AXIS_HEIGHT + ZONE_LABEL_HEIGHT;
-	const eventsSize = eventLanes * LANE_HORIZONTAL + ZONE_GAP;
+	const eventsFrom = AXIS_HEIGHT + (eventLanes > 0 ? ZONE_LABEL_HEIGHT : 0);
+	const eventsSize = eventLanes > 0 ? eventLanes * LANE_HORIZONTAL + ZONE_GAP : 0;
 	const artworksFrom = eventsFrom + eventsSize + ZONE_LABEL_HEIGHT;
-	const artworksSize = width < NARROW_WIDTH ? ARTWORKS_HEIGHT_NARROW : ARTWORKS_HEIGHT;
+	const height = width < NARROW_WIDTH ? ARTWORKS_HEIGHT_NARROW : ARTWORKS_HEIGHT;
+	const artworkLane = artworkLanes > 0 ? Math.max(height / artworkLanes, ARTWORK_LANE_MIN) : height;
+	const artworksSize = artworkLanes > 0 ? artworkLane * artworkLanes : height;
 	return {
 		orientation,
 		length: width,
@@ -86,7 +93,8 @@ export function stageGeometry(
 		eventsFrom,
 		eventsSize,
 		artworksFrom,
-		artworksSize
+		artworksSize,
+		artworkLane
 	};
 }
 
