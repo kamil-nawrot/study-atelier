@@ -91,3 +91,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0085](0085-group-the-wall-by-era-period-and-style.md)                   | Group the wall by era, period and style, apart from the order and the filters          | accepted           |
 | [0086](0086-fetch-the-forms-of-synonyms-from-wiktionary.md)              | Fetch the inflected forms of synonyms from Wiktionary, with at most three synonyms     | accepted           |
 | [0087](0087-set-library-texts-once-for-the-whole-app.md)                 | Set the library texts once for the whole app, also in tests                            | accepted           |
+| [0088](0088-up-to-five-images-and-an-automatic-best-match.md)            | Up to five images per artwork and the best Wikidata match filled in automatically      | accepted           |
