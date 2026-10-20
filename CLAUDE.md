@@ -16,6 +16,7 @@ Key rules in short:
 
 - The project owner makes every decision. Propose options with a recommendation; record the outcome as an ADR in `docs/decisions/`.
 - Gitflow: work on `feature/*` branches (or `bugfix/*` for bugs) cut from `develop`; open PRs into `develop`; the owner approves and merges.
+- A pushed branch is never rebased or force-pushed; a conflict with `develop` is resolved by merging `develop` into the branch.
 - Commit messages follow Conventional Commits.
 - No comments in code unless the owner explicitly asks for them.
 - Everything in this repository (code, comments, docs) is written in English. Conversation with the owner is in Polish.
