@@ -5,19 +5,20 @@
 	import { axisKind, lineTimes, segments, tickYears } from '../axis.ts';
 	import { segmentLabel } from '../labels.ts';
 	import { stageGeometry, stageHeight, type StageGeometry } from '../stage.ts';
-	import { timeOf, yearAt, type Era, type View } from '../time.ts';
+	import { timeOf, yearAt, type Era, type TimeSpan, type View } from '../time.ts';
 
 	type Props = {
 		era: Era;
 		view: View;
 		eventLanes?: number;
+		tint?: TimeSpan;
 		onpan: (by: number) => void;
 		onstep: (direction: 1 | -1, anchor?: number) => void;
 		events?: Snippet<[StageGeometry]>;
 		artworks?: Snippet<[StageGeometry]>;
 	};
 
-	let { era, view, eventLanes = 1, onpan, onstep, events, artworks }: Props = $props();
+	let { era, view, eventLanes = 1, tint, onpan, onstep, events, artworks }: Props = $props();
 
 	const DRAG_THRESHOLD = 6;
 	const PINCH_STEP = 1.4;
@@ -209,6 +210,17 @@
 		{/each}
 	</div>
 
+	{#if tint && tint.end > era.start && tint.start < era.end}
+		{@const from = geometry.position(Math.max(tint.start, era.start))}
+		{@const to = geometry.position(Math.min(tint.end, era.end))}
+		<div
+			style:left={`${from}px`}
+			style:width={`${Math.max(to - from, 2)}px`}
+			class="tint"
+			aria-hidden="true"
+		></div>
+	{/if}
+
 	{#if events}
 		{@render events(geometry)}
 	{/if}
@@ -305,6 +317,14 @@
 		font-size: var(--font-size-xs);
 		font-variant-numeric: tabular-nums;
 		white-space: nowrap;
+	}
+
+	.tint {
+		position: absolute;
+		top: var(--events-top);
+		bottom: 0;
+		border-inline: var(--border-width-hairline) dashed var(--color-highlight);
+		background: var(--color-tag);
 	}
 
 	.outside {

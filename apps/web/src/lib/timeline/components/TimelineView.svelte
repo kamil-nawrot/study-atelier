@@ -3,8 +3,8 @@
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
 	import Minus from '@lucide/svelte/icons/minus';
 	import Plus from '@lucide/svelte/icons/plus';
-	import { onDestroy, untrack, type Snippet } from 'svelte';
-	import { Button, Icon, ToggleTag } from '@study-atelier/ui';
+	import { onDestroy, untrack } from 'svelte';
+	import { Alert, Button, Dialog, Icon, ToggleTag } from '@study-atelier/ui';
 	import { ERA_CODES, eraTitle } from '#lib/collection/eras.ts';
 	import type { EraCode, WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
@@ -18,11 +18,22 @@
 		stepView,
 		type StepKey
 	} from '../scale.ts';
-	import type { StageGeometry } from '../stage.ts';
+	import {
+		activeAt,
+		EVENT_LANES,
+		EVENT_LANES_NARROW,
+		eventsIn,
+		lanesForEra
+	} from '../event-lanes.ts';
+	import { NARROW_WIDTH } from '../stage.ts';
+	import { deleteTimelineEvent } from '../timeline-data.ts';
+	import type { TimelineEvent } from '../types.ts';
 	import { rememberEra } from '../start.ts';
-	import { eraOf, eras, type TimeSpan, type View } from '../time.ts';
+	import { eraOf, eras, overlaps, spanOfYears, yearAt, type TimeSpan, type View } from '../time.ts';
 	import ArtworkCard from './ArtworkCard.svelte';
 	import EraStrip from './EraStrip.svelte';
+	import EventCard from './EventCard.svelte';
+	import TimelineEvents from './TimelineEvents.svelte';
 	import TimelineArtworks from './TimelineArtworks.svelte';
 	import TimelineStage from './TimelineStage.svelte';
 
@@ -30,11 +41,16 @@
 		initialEra: EraCode;
 		initialFocus?: TimeSpan;
 		artworks?: readonly WallArtwork[];
-		eventLanes?: number;
-		events?: Snippet<[StageGeometry]>;
+		events?: readonly TimelineEvent[];
+		ondeleted?: (event: TimelineEvent) => void | Promise<void>;
 	};
 
-	let { initialEra, initialFocus, artworks = [], eventLanes = 1, events }: Props = $props();
+	type Selection = { kind: 'artwork' | 'event'; id: string } | null;
+
+	let { initialEra, initialFocus, artworks = [], events = [], ondeleted }: Props = $props();
+
+	const NOW_SHARE = 40;
+	const LABEL_FONT = 14;
 
 	const STEP_ANIMATION_MS = 400;
 	const allEras = eras();
@@ -49,7 +65,12 @@
 	let step = $state<StepKey>(start.step);
 	let target = $state<View>(start.view);
 	let view = $state<View>(start.view);
-	let selected = $state<string | null>(null);
+	let selected = $state<Selection>(null);
+	let width = $state(0);
+	let deleteOpen = $state(false);
+	let deleting = $state(false);
+	let deleteError = $state<string>();
+	let measure: CanvasRenderingContext2D | null = null;
 	let frame = 0;
 
 	let era = $derived(eraOf(code));
@@ -58,8 +79,93 @@
 	let previous = $derived(index > 0 ? ERA_CODES[index - 1] : undefined);
 	let next = $derived(index < ERA_CODES.length - 1 ? ERA_CODES[index + 1] : undefined);
 	let seen = $derived(seenRange(view, era));
-	let allArtworks = $derived(artworks);
-	let selectedArtwork = $derived(artworks.find((artwork) => artwork.id === selected));
+	let collection = $derived(artworks);
+	let eraEvents = $derived(eventsIn(events, era));
+	let lanes = $derived(
+		lanesForEra(
+			eraEvents,
+			era,
+			width,
+			labelWidth,
+			width < NARROW_WIDTH ? EVENT_LANES_NARROW : EVENT_LANES
+		)
+	);
+	let selectedArtwork = $derived(
+		selected?.kind === 'artwork'
+			? artworks.find((artwork) => artwork.id === selected?.id)
+			: undefined
+	);
+	let selectedEvent = $derived(
+		selected?.kind === 'event' ? events.find((event) => event.id === selected?.id) : undefined
+	);
+	let tint = $derived(
+		selectedEvent ? spanOfYears(selectedEvent.yearFrom, selectedEvent.yearTo) : undefined
+	);
+	let readingYear = $derived(yearAt(view.center));
+	let now = $derived(
+		activeAt(eraEvents, {
+			start: view.center - view.span / NOW_SHARE,
+			end: view.center + view.span / NOW_SHARE
+		})
+	);
+
+	function labelWidth(event: TimelineEvent): number {
+		if (!measure) {
+			measure = document.createElement('canvas').getContext('2d');
+			if (measure) {
+				measure.font = `500 ${LABEL_FONT}px ${getComputedStyle(document.body).fontFamily}`;
+			}
+		}
+		return measure ? measure.measureText(event.name).width + LABEL_FONT : event.name.length * 8;
+	}
+
+	function spanOf(item: { yearFrom: number | null; yearTo: number | null }): TimeSpan | undefined {
+		return item.yearTo === null ? undefined : spanOfYears(item.yearFrom, item.yearTo);
+	}
+
+	function artworksOf(event: TimelineEvent): WallArtwork[] {
+		const span = spanOfYears(event.yearFrom, event.yearTo);
+		return artworks.filter((artwork) => {
+			const other = spanOf(artwork);
+			return other !== undefined && overlaps(other, span);
+		});
+	}
+
+	function eventsOf(artwork: WallArtwork): TimelineEvent[] {
+		const span = spanOf(artwork);
+		return span ? activeAt(events, span) : [];
+	}
+
+	function toggle(kind: 'artwork' | 'event', id: string): void {
+		selected = selected?.kind === kind && selected.id === id ? null : { kind, id };
+	}
+
+	function showWhole(event: TimelineEvent): void {
+		const focus = focusView(era, spanOfYears(event.yearFrom, event.yearTo));
+		step = focus.step;
+		animateTo(focus.view);
+	}
+
+	function askToDelete(): void {
+		deleteError = undefined;
+		deleteOpen = true;
+	}
+
+	async function remove(): Promise<void> {
+		const event = selectedEvent;
+		if (!event || deleting) return;
+		deleting = true;
+		deleteError = undefined;
+		const result = await deleteTimelineEvent(event.id);
+		deleting = false;
+		if (result.error) {
+			deleteError = result.error;
+			return;
+		}
+		deleteOpen = false;
+		selected = null;
+		await ondeleted?.(event);
+	}
 
 	function reducedMotion(): boolean {
 		return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -183,22 +289,82 @@
 		</div>
 	</div>
 
-	<TimelineStage {era} {eventLanes} {events} onpan={pan} onstep={moveStep} {view}>
-		{#snippet artworks(geometry)}
-			<TimelineArtworks
-				artworks={allArtworks}
-				{era}
-				{geometry}
-				onselect={(artwork) => (selected = selected === artwork.id ? null : artwork.id)}
-				{selected}
-			/>
-		{/snippet}
-	</TimelineStage>
+	<p class="now" aria-live="polite">
+		{#if now.length > 0}
+			{m.timeline.now(
+				m.atelier.year(readingYear, false),
+				now.map((event) => event.name).join(', ')
+			)}
+		{/if}
+	</p>
+
+	<div bind:clientWidth={width}>
+		<TimelineStage {era} eventLanes={lanes} onpan={pan} onstep={moveStep} {tint} {view}>
+			{#snippet events(geometry)}
+				<TimelineEvents
+					{era}
+					events={eraEvents}
+					{geometry}
+					{labelWidth}
+					{lanes}
+					onselect={(event) => toggle('event', event.id)}
+					selected={selected?.kind === 'event' ? selected.id : null}
+				/>
+			{/snippet}
+			{#snippet artworks(geometry)}
+				<TimelineArtworks
+					artworks={collection}
+					{era}
+					{geometry}
+					onselect={(artwork) => toggle('artwork', artwork.id)}
+					selected={selected?.kind === 'artwork' ? selected.id : null}
+				/>
+			{/snippet}
+		</TimelineStage>
+	</div>
 
 	{#if selectedArtwork}
-		<ArtworkCard artwork={selectedArtwork} />
+		<ArtworkCard
+			artwork={selectedArtwork}
+			events={eventsOf(selectedArtwork)}
+			onevent={(event) => (selected = { kind: 'event', id: event.id })}
+		/>
+	{:else if selectedEvent}
+		{@const event = selectedEvent}
+		<EventCard
+			artworks={artworksOf(event)}
+			{event}
+			onartwork={(artwork) => (selected = { kind: 'artwork', id: artwork.id })}
+			ondelete={askToDelete}
+			onwhole={() => showWhole(event)}
+		/>
 	{/if}
 </div>
+
+{#snippet deleteErrorAlert()}
+	<Alert tone="danger">
+		{deleteError}
+	</Alert>
+{/snippet}
+
+{#if selectedEvent}
+	<Dialog
+		children={deleteError ? deleteErrorAlert : undefined}
+		description={m.timeline.deleteConfirm.description}
+		size="small"
+		title={m.timeline.deleteConfirm.title(selectedEvent.name)}
+		bind:open={deleteOpen}
+	>
+		{#snippet footer()}
+			<Button onclick={() => (deleteOpen = false)}>
+				{m.timeline.deleteConfirm.back}
+			</Button>
+			<Button disabled={deleting} onclick={remove} variant="primary">
+				{deleting ? m.timeline.deleteConfirm.deleting : m.timeline.deleteConfirm.confirm}
+			</Button>
+		{/snippet}
+	</Dialog>
+{/if}
 
 <style>
 	.timeline {
@@ -218,8 +384,14 @@
 		gap: var(--spacing-2) var(--spacing-4);
 	}
 
-	.seen {
+	.seen,
+	.now {
 		font-variant-numeric: tabular-nums;
+	}
+
+	.now {
+		min-height: var(--line-height-md);
+		color: var(--color-fg-muted);
 	}
 
 	.muted {

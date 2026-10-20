@@ -893,8 +893,30 @@ export const pl = {
 		zoomOut: 'Oddal o krok',
 		stage: 'Oś czasu. Strzałki przesuwają czas, plus i minus zmieniają skalę o krok.',
 		card: {
-			artwork: 'Dzieło'
+			artwork: 'Dzieło',
+			event: 'Wydarzenie',
+			period: 'Okres',
+			length: (years: number): string =>
+				`${years} ${plural(years, { one: 'rok', few: 'lata', many: 'lat' })}`,
+			artworksOfTime: 'Dzieła z tego czasu',
+			noArtworks: 'W tym czasie nie masz żadnego dzieła.',
+			eventsOfTime: 'W tym czasie',
+			showWhole: 'Pokaż cały okres na osi',
+			edit: 'Edytuj',
+			delete: 'Usuń'
 		},
+		deleteConfirm: {
+			title: (name: string): string => `Usunąć wydarzenie „${name}”?`,
+			description: 'Zniknie z osi czasu. Żadne dzieło się nie zmieni.',
+			back: 'Wróć',
+			confirm: 'Usuń',
+			deleting: 'Usuwanie…'
+		},
+		deleted: (name: string): string => `Usunięto wydarzenie „${name}”.`,
+		noEvents: 'Nie masz jeszcze żadnych dodanych wydarzeń',
+		hiddenEvents: (count: number): string =>
+			`${count} ${plural(count, { one: 'wydarzenie', few: 'wydarzenia', many: 'wydarzeń' })} poza widokiem. Przybliż, żeby je zobaczyć.`,
+		now: (year: string, events: string): string => `${year} · w tym czasie: ${events}`,
 		zones: {
 			events: 'Wydarzenia',
 			artworks: 'Dzieła'

@@ -5,6 +5,9 @@ import type { WallArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { testSession } from '#lib/testing/auth.ts';
+import type { TimelineEvent } from '#lib/timeline/types.ts';
+import { deleteTimelineEvent } from '#lib/timeline/timeline-data.ts';
+import { invalidateAll } from '$app/navigation';
 import TimelinePage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -14,13 +17,33 @@ const navigation = vi.hoisted(() => ({
 }));
 
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
-vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
+vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidateAll: vi.fn() }));
+vi.mock('#lib/timeline/timeline-data.ts', () => ({ deleteTimelineEvent: vi.fn() }));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
 const ERA_KEY = 'study-atelier:timeline-era';
 
-function renderTimeline(artworks: WallArtwork[] = [], error?: string): void {
-	render(TimelinePage, { data: { session: testSession(), artworks, error }, params: {} });
+function testEvent(
+	id: string,
+	name: string,
+	yearFrom: number | null,
+	yearTo: number,
+	description = ''
+): TimelineEvent {
+	return { id, name, yearFrom, yearTo, yearApproximate: false, description };
+}
+
+function renderTimeline(
+	artworks: WallArtwork[] = [],
+	error?: string,
+	events: TimelineEvent[] = []
+): void {
+	render(TimelinePage, { data: { session: testSession(), artworks, events, error }, params: {} });
+}
+
+async function press(locator: ReturnType<typeof page.getByRole>): Promise<void> {
+	await expect.element(locator).toBeInTheDocument();
+	(locator.element() as HTMLElement).click();
 }
 
 function stage(): ReturnType<typeof page.getByRole> {
@@ -166,6 +189,112 @@ describe('timeline page', () => {
 		await expect
 			.element(page.getByRole('button', { name: 'Ogród rozkoszy, ‹ 1490–1510' }))
 			.toBeInTheDocument();
+	});
+
+	it('says when there are no events yet', async () => {
+		renderTimeline([testArtwork(1, 'Mona Lisa', { yearTo: 1519 })]);
+
+		await expect.element(page.getByText(m.timeline.noEvents)).toBeVisible();
+	});
+
+	it('shows the events of the era and names those at the reading line', async () => {
+		renderTimeline([testArtwork(1, 'Mona Lisa', { yearTo: 1519 })], undefined, [
+			testEvent('thirty', 'Wojna trzydziestoletnia', 1618, 1648),
+			testEvent('america', 'Odkrycie Ameryki', null, 1492),
+			testEvent('napoleon', 'Wojny napoleońskie', 1803, 1815)
+		]);
+
+		await expect
+			.element(page.getByRole('button', { name: 'Wojna trzydziestoletnia, 1618–1648' }))
+			.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: 'Odkrycie Ameryki, 1492' }))
+			.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: /Wojny napoleońskie/ }))
+			.not.toBeInTheDocument();
+		await expect
+			.element(page.getByText(m.timeline.now('1640', 'Wojna trzydziestoletnia')))
+			.toBeVisible();
+	});
+
+	it('opens the card of a chosen period with its artworks and its length', async () => {
+		renderTimeline(
+			[
+				testArtwork(1, 'Straż nocna', { yearTo: 1642, date: '1642' }),
+				testArtwork(2, 'Mona Lisa', { yearTo: 1519, date: '1519' })
+			],
+			undefined,
+			[testEvent('thirty', 'Wojna trzydziestoletnia', 1618, 1648, 'Wojna w Europie.')]
+		);
+
+		await press(page.getByRole('button', { name: 'Wojna trzydziestoletnia, 1618–1648' }));
+
+		const card = page.getByRole('region', { name: m.timeline.card.period });
+		await expect
+			.element(card.getByRole('heading', { name: 'Wojna trzydziestoletnia' }))
+			.toBeVisible();
+		await expect.element(card.getByText(/30 lat/)).toBeVisible();
+		await expect.element(card.getByText('Wojna w Europie.')).toBeVisible();
+		await expect.element(card.getByRole('button', { name: 'Straż nocna' })).toBeVisible();
+		await expect.element(card.getByRole('button', { name: 'Mona Lisa' })).not.toBeInTheDocument();
+		await expect
+			.element(card.getByRole('link', { name: m.timeline.card.edit }))
+			.toHaveAttribute('href', '/atelier/timeline/events/thirty/edit');
+
+		await card.getByRole('button', { name: m.timeline.card.showWhole }).click();
+		await expect
+			.element(page.getByRole('button', { name: 'Stulecie', exact: true }))
+			.toHaveAttribute('aria-pressed', 'true');
+
+		await card.getByRole('button', { name: 'Straż nocna' }).click();
+		const artworkCard = page.getByRole('region', { name: m.timeline.card.artwork });
+		await expect
+			.element(artworkCard.getByRole('button', { name: 'Wojna trzydziestoletnia' }))
+			.toBeVisible();
+	});
+
+	it('deletes an event after asking and confirms it', async () => {
+		vi.mocked(deleteTimelineEvent).mockResolvedValue({});
+		renderTimeline([], undefined, [testEvent('treaty', 'Pokój westfalski', null, 1648)]);
+
+		await press(page.getByRole('button', { name: 'Pokój westfalski, 1648' }));
+		await press(
+			page
+				.getByRole('region', { name: m.timeline.card.event })
+				.getByRole('button', { name: m.timeline.card.delete })
+		);
+		const dialog = page.getByRole('alertdialog');
+		await expect
+			.element(dialog.getByText(m.timeline.deleteConfirm.title('Pokój westfalski')))
+			.toBeVisible();
+		await expect.element(dialog.getByText(m.timeline.deleteConfirm.description)).toBeVisible();
+		await press(dialog.getByRole('button', { name: m.timeline.deleteConfirm.confirm }));
+
+		await vi.waitFor(() => expect(deleteTimelineEvent).toHaveBeenCalledWith('treaty'));
+		await vi.waitFor(() => expect(invalidateAll).toHaveBeenCalled());
+		await expect.element(page.getByText(m.timeline.deleted('Pokój westfalski'))).toBeVisible();
+	});
+
+	it('keeps the dialog open with the error when deleting fails', async () => {
+		vi.mocked(deleteTimelineEvent).mockResolvedValue({ error: m.common.unexpectedError });
+		renderTimeline([], undefined, [testEvent('treaty', 'Pokój westfalski', null, 1648)]);
+
+		await press(page.getByRole('button', { name: 'Pokój westfalski, 1648' }));
+		await press(
+			page
+				.getByRole('region', { name: m.timeline.card.event })
+				.getByRole('button', { name: m.timeline.card.delete })
+		);
+		await expect.element(page.getByRole('alertdialog')).toBeVisible();
+		await press(
+			page.getByRole('alertdialog').getByRole('button', { name: m.timeline.deleteConfirm.confirm })
+		);
+
+		await expect
+			.element(page.getByRole('alertdialog').getByText(m.common.unexpectedError))
+			.toBeVisible();
+		expect(invalidateAll).not.toHaveBeenCalled();
 	});
 
 	it('offers to add an event in the top bar', async () => {
