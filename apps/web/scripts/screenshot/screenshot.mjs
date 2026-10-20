@@ -22,6 +22,7 @@ import {
 	USER,
 	WIKTIONARY_PAGES,
 	WIKTIONARY_TABLES,
+	WIKIDATA_DATES,
 	WIKIDATA_HUMANS,
 	WIKIPEDIA_PAGES,
 	commonsSize,
@@ -493,6 +494,7 @@ async function mockImages(context) {
 					id,
 					{
 						claims: {
+							...WIKIDATA_DATES[id],
 							P31: [
 								{
 									mainsnak: {

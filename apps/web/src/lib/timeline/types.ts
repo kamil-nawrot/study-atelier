@@ -1,4 +1,5 @@
 import type { ArtworkTypeCode, WallArtwork } from '#lib/collection/types.ts';
+import type { WikipediaArticle, WikipediaSource } from '#lib/glossary/types.ts';
 
 export type LaneField = 'periods' | 'styles';
 
@@ -29,6 +30,7 @@ export type TimelineEvent = {
 	yearTo: number;
 	yearApproximate: boolean;
 	description: string;
+	source: WikipediaSource | null;
 };
 
 export type TimelineEventDraft = {
@@ -37,6 +39,17 @@ export type TimelineEventDraft = {
 	yearTo: number | null;
 	yearApproximate: boolean;
 	description: string;
+	source: WikipediaSource | null;
+};
+
+export type EventDates = {
+	yearFrom: number | null;
+	yearTo: number;
+	approximate: boolean;
+};
+
+export type EventArticle = WikipediaArticle & {
+	dates: EventDates;
 };
 
 export type TimelineEventsResult = {

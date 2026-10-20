@@ -831,6 +831,10 @@ export type Database = {
           id: string;
           name: string;
           owner_id: string;
+          source_fetched_on: string | null;
+          source_licence: string | null;
+          source_title: string | null;
+          source_url: string | null;
           updated_at: string;
           year_approximate: boolean;
           year_from: number | null;
@@ -843,6 +847,10 @@ export type Database = {
           id?: string;
           name: string;
           owner_id?: string;
+          source_fetched_on?: string | null;
+          source_licence?: string | null;
+          source_title?: string | null;
+          source_url?: string | null;
           updated_at?: string;
           year_approximate?: boolean;
           year_from?: number | null;
@@ -854,6 +862,10 @@ export type Database = {
           id?: string;
           name?: string;
           owner_id?: string;
+          source_fetched_on?: string | null;
+          source_licence?: string | null;
+          source_title?: string | null;
+          source_url?: string | null;
           updated_at?: string;
           year_approximate?: boolean;
           year_from?: number | null;

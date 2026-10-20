@@ -5,6 +5,7 @@
 	import { resolve } from '$app/paths';
 	import { formatDate } from '#lib/collection/format.ts';
 	import type { WallArtwork } from '#lib/collection/types.ts';
+	import { WIKIPEDIA_LICENCE_URL } from '#lib/glossary/wikipedia.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { yearsLong } from '../event-lanes.ts';
 	import type { TimelineEvent } from '../types.ts';
@@ -50,6 +51,18 @@
 	</div>
 	{#if event.description}
 		<p>{event.description}</p>
+	{/if}
+	{#if event.source}
+		<p class="caption">
+			{m.timeline.card.sourcePrefix}<a
+				href={event.source.url}
+				rel="external noreferrer"
+				target="_blank">„{event.source.title}”</a
+			>,
+			<a href={WIKIPEDIA_LICENCE_URL} rel="external noreferrer" target="_blank"
+				>{event.source.licence}</a
+			>
+		</p>
 	{/if}
 	{#if period}
 		<div>

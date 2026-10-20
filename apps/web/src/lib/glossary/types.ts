@@ -4,7 +4,7 @@ import type { CardIndexData } from '#lib/collection/types.ts';
 export type GlossaryCategory =
 	'person' | 'architecture' | 'painting' | 'sculpture' | 'technique' | 'general';
 
-export type GlossarySource = {
+export type WikipediaSource = {
 	title: string;
 	url: string;
 	licence: string;
@@ -19,7 +19,7 @@ export type GlossaryEntry = {
 	synonyms: string[];
 	forms: string[];
 	sortName: string | null;
-	source: GlossarySource | null;
+	source: WikipediaSource | null;
 };
 
 export type GlossaryDraft = {
@@ -30,7 +30,7 @@ export type GlossaryDraft = {
 	forms: string[];
 	sortByOther: boolean;
 	sortName: string;
-	source: GlossarySource | null;
+	source: WikipediaSource | null;
 };
 
 export type GlossaryResult = {

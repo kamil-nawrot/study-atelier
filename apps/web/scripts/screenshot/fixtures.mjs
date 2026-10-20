@@ -714,10 +714,39 @@ export const WIKIPEDIA_PAGES = [
 		'Sfumato',
 		'Technika malarska polegająca na miękkim, zamglonym przechodzeniu jednych barw w drugie.',
 		['sfumato']
+	),
+	ARTICLE(
+		109,
+		'Potop szwedzki',
+		'Najazd Szwecji na Rzeczpospolitą w latach 1655–1660, w czasie II wojny północnej.',
+		['potop'],
+		'Q1009'
+	),
+	ARTICLE(
+		110,
+		'Potop (powieść)',
+		'Powieść historyczna Henryka Sienkiewicza z lat 1884–1886, druga część Trylogii.',
+		['potop'],
+		'Q1010'
 	)
 ];
 
 export const WIKIDATA_HUMANS = ['Q1002'];
+
+const WIKIDATA_TIME = (time, precision = 9) => [
+	{ rank: 'normal', mainsnak: { datavalue: { value: { time, precision } } } }
+];
+
+export const WIKIDATA_DATES = {
+	Q1009: {
+		P580: WIKIDATA_TIME('+1655-07-00T00:00:00Z'),
+		P582: WIKIDATA_TIME('+1660-05-03T00:00:00Z', 11)
+	},
+	Q1010: {
+		P577: WIKIDATA_TIME('+1886-00-00T00:00:00Z'),
+		P585: WIKIDATA_TIME('+1886-00-00T00:00:00Z')
+	}
+};
 
 const WIKTIONARY_CASES = [
 	'Mianownik',

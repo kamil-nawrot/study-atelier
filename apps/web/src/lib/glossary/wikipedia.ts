@@ -5,10 +5,10 @@ import {
 	isShortSentence,
 	shortenDefinition
 } from './glossary.ts';
-import type { GlossaryCategory, GlossarySource, WikipediaArticle } from './types.ts';
+import type { GlossaryCategory, WikipediaSource, WikipediaArticle } from './types.ts';
 
 const WIKIPEDIA_API = 'https://pl.wikipedia.org/w/api.php';
-const WIKIDATA_API = 'https://www.wikidata.org/w/api.php';
+export const WIKIDATA_API = 'https://www.wikidata.org/w/api.php';
 const SEARCH_LIMIT = 8;
 const ARTICLE_LIMIT = 5;
 const HUMAN = 'Q5';
@@ -27,7 +27,7 @@ type SearchResponse = {
 	query?: { search?: { pageid: number; title: string }[] };
 };
 
-type Page = {
+export type Page = {
 	pageid: number;
 	title: string;
 	extract?: string;
@@ -83,17 +83,17 @@ export function withoutLeadTerm(paragraph: string): string {
 	return paragraph;
 }
 
-export function firstParagraph(extract: string): string {
+export function firstParagraph(extract: string, max = DEFINITION_MAX_LENGTH): string {
 	const [first = '', next] = extract
 		.split('\n')
 		.map((line) => line.replace(/\s+/g, ' ').trim())
 		.filter((line) => line !== '');
 	const lead = withoutLeadTerm(first);
 	const text = next && isShortSentence(lead) ? `${lead} ${firstSentence(next)}` : lead;
-	return shortenDefinition(text, DEFINITION_MAX_LENGTH);
+	return shortenDefinition(text, max);
 }
 
-async function findPages(query: string): Promise<Page[]> {
+export async function findPages(query: string): Promise<Page[]> {
 	const found = await fetchJson<SearchResponse>(
 		wikipediaUrl({
 			action: 'query',
@@ -147,8 +147,8 @@ async function humansAmong(pages: Page[]): Promise<Page[]> {
 	});
 }
 
-function articleOf(page: Page): WikipediaArticle[] {
-	const extract = firstParagraph(page.extract ?? '');
+export function articleOf(page: Page, max = DEFINITION_MAX_LENGTH): WikipediaArticle[] {
+	const extract = firstParagraph(page.extract ?? '', max);
 	if (!extract) return [];
 	const url =
 		page.fullurl ??
@@ -167,13 +167,13 @@ export async function searchArticles(
 	for (const query of [...new Set(attempts)]) {
 		const pages = await findPages(query);
 		const matching = category === 'person' ? await humansAmong(pages) : pages;
-		const articles = matching.flatMap(articleOf).slice(0, ARTICLE_LIMIT);
+		const articles = matching.flatMap((page) => articleOf(page)).slice(0, ARTICLE_LIMIT);
 		if (articles.length > 0) return articles;
 	}
 	return [];
 }
 
-export function sourceOf(article: WikipediaArticle, fetchedOn: Date = new Date()): GlossarySource {
+export function sourceOf(article: WikipediaArticle, fetchedOn: Date = new Date()): WikipediaSource {
 	const month = String(fetchedOn.getMonth() + 1).padStart(2, '0');
 	const day = String(fetchedOn.getDate()).padStart(2, '0');
 	return {

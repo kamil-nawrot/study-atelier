@@ -872,7 +872,23 @@ export const pl = {
 			errorTitle: 'Nie udało się zapisać wydarzenia',
 			discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.',
 			notFoundTitle: 'Nie ma takiego wydarzenia',
-			loadErrorTitle: 'Nie udało się wczytać wydarzenia'
+			loadErrorTitle: 'Nie udało się wczytać wydarzenia',
+			sourcePrefix: 'Na podstawie: Wikipedia, ',
+			pickArticle: 'Wybierz inny artykuł',
+			removeSource: 'Usuń źródło'
+		},
+		articles: {
+			description: (name: string): string =>
+				`Wyniki z Wikipedii dla „${name}”. Wybierz ten, o który ci chodzi.`,
+			none: 'Wikipedia nie zna tego wydarzenia. Wpisz daty sam.',
+			failed:
+				'Nie udało się połączyć z Wikipedią. Możesz wpisać daty sam albo spróbować jeszcze raz.'
+		},
+		replaceConfirm: {
+			title: 'Zastąpić Twoje daty i opis?',
+			description: 'Daty albo opis mają już Twoje zmiany. Dane z nowego artykułu je zastąpią.',
+			keep: 'Zostaw moje',
+			replace: 'Zastąp'
 		},
 		loadErrorTitle: 'Nie udało się wczytać kalendarium',
 		eras: 'Epoki',
@@ -899,6 +915,7 @@ export const pl = {
 			artworksOfTime: 'Dzieła z tego czasu',
 			noArtworks: 'W tym czasie nie masz żadnego dzieła.',
 			showWhole: 'Pokaż cały okres na osi',
+			sourcePrefix: 'Na podstawie: Wikipedia, ',
 			edit: 'Edytuj',
 			delete: 'Usuń'
 		},

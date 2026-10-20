@@ -99,3 +99,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0093](0093-show-the-collection-and-historical-events-on-a-timeline.md)  | Show the collection and the learner's historical events on a timeline, one era at a time | accepted           |
 | [0094](0094-name-the-timeline-kalendarium-and-simplify-its-header.md)    | Name the timeline "Kalendarium" and simplify its header                                  | accepted           |
 | [0095](0095-filter-the-timeline-with-period-and-style-lanes.md)          | Filter the timeline in a side panel, with lanes for periods and styles                   | accepted           |
+| [0096](0096-suggest-an-events-dates-and-description-from-wikipedia.md)   | Suggest an event's dates and description from Wikipedia, quietly                         | accepted           |
