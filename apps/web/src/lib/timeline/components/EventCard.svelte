@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
-	import { Button, Icon, TextButton } from '@study-atelier/ui';
+	import { Button, Icon } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { formatDate } from '#lib/collection/format.ts';
 	import type { WallArtwork } from '#lib/collection/types.ts';
@@ -33,8 +33,8 @@
 			<span class="kind caption">{period ? m.timeline.card.period : m.timeline.card.event}</span>
 			<h2>{event.name}</h2>
 			<p>
-				{date}{#if period && length > 0}<span class="muted">
-						· {m.timeline.card.length(length)}</span
+				{date}{#if period && length > 0}<span class="muted"
+						>{` · ${m.timeline.card.length(length)}`}</span
 					>{/if}
 			</p>
 		</div>
@@ -66,7 +66,7 @@
 	{/if}
 	{#if period}
 		<div>
-			<TextButton onclick={onwhole}>{m.timeline.card.showWhole}</TextButton>
+			<button class="link" onclick={onwhole} type="button">{m.timeline.card.showWhole}</button>
 		</div>
 	{/if}
 	<div class="artworks">
@@ -115,6 +115,18 @@
 
 	.muted {
 		color: var(--color-fg-muted);
+	}
+
+	.link {
+		padding: 0;
+		border: none;
+		background: transparent;
+		color: var(--color-fg);
+		font: inherit;
+		font-size: var(--font-size-sm);
+		text-decoration: underline;
+		text-underline-offset: var(--spacing-1);
+		cursor: pointer;
 	}
 
 	.actions {

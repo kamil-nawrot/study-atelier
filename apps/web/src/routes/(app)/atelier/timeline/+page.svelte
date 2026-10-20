@@ -158,6 +158,11 @@
 <Toast bind:this={toast} />
 
 <style>
+	header {
+		display: grid;
+		gap: var(--spacing-2);
+	}
+
 	.short {
 		display: inline;
 	}

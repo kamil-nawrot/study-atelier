@@ -29,7 +29,7 @@
 	}
 </script>
 
-<div class="slot" class:open ontransitionend={unmount}>
+<div class="slot filter-panel" class:open ontransitionend={unmount}>
 	{#if mounted}
 		<aside class="filters" aria-label={m.atelier.filters.title}>
 			<div class="top">
@@ -65,7 +65,7 @@
 	}
 
 	.slot.open {
-		width: 380px;
+		width: var(--filter-panel-width);
 		visibility: visible;
 	}
 
@@ -74,7 +74,7 @@
 		align-content: start;
 		gap: var(--spacing-8);
 		box-sizing: border-box;
-		width: 380px;
+		width: var(--filter-panel-width);
 		max-height: calc(100dvh - var(--bar-height));
 		padding: 0 var(--spacing-6) var(--spacing-12);
 		overflow-y: auto;
