@@ -1,6 +1,6 @@
 # 0090. Clean up unused images daily from GitHub Actions
 
-- Status: accepted
+- Status: accepted; cleaning both environments on a manual run is superseded by [0092](0092-clean-up-images-by-hand-for-one-environment.md)
 - Date: 2026-10-20
 
 ## Context and problem statement

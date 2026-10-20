@@ -95,3 +95,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0089](0089-one-search-button-and-the-word-obraz-in-the-image-field.md)  | One search button and the word "obraz" in the image field                              | accepted           |
 | [0090](0090-clean-up-unused-images-daily-from-github-actions.md)         | Clean up unused images daily from GitHub Actions                                       | accepted           |
 | [0091](0091-make-large-own-images-smaller-in-the-browser.md)             | Make large own images smaller in the browser                                           | accepted           |
+| [0092](0092-clean-up-images-by-hand-for-one-environment.md)              | Run the unused images clean-up by hand for one environment                             | accepted           |

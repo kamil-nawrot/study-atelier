@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        environment: [develop, production]
+        environment: ${{ fromJSON(github.event_name == 'schedule' && '["develop","production"]' || github.ref_name == 'main' && '["production"]' || '["develop"]') }}
     environment: ${{ matrix.environment }}
     steps:
       - name: Remove images no artwork or author uses
@@ -20,19 +20,25 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: |
-          paths=$(curl --fail-with-body --silent --show-error --retry 3 \
+          if ! paths=$(curl --fail-with-body --silent --show-error --retry 3 \
             --request POST "$SUPABASE_URL/rest/v1/rpc/unused_images" \
             --header "apikey: $SUPABASE_SECRET_KEY" \
             --header "Content-Type: application/json" \
-            --data '{}')
+            --data '{}'); then
+            echo "$paths"
+            exit 1
+          fi
           count=$(jq 'length' <<< "$paths")
           echo "Unused images: $count"
           jq -r '.[]' <<< "$paths"
           if [ "$count" -gt 0 ]; then
-            curl --fail-with-body --silent --show-error --retry 3 \
+            if ! removed=$(curl --fail-with-body --silent --show-error --retry 3 \
               --request DELETE "$SUPABASE_URL/storage/v1/object/artwork-images" \
               --header "apikey: $SUPABASE_SECRET_KEY" \
               --header "Content-Type: application/json" \
-              --data "$(jq '{prefixes: .}' <<< "$paths")" > /dev/null
+              --data "$(jq '{prefixes: .}' <<< "$paths")"); then
+              echo "$removed"
+              exit 1
+            fi
             echo "Removed: $count"
           fi
