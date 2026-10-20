@@ -7,7 +7,7 @@
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { DOT_SIZE, marksIn, spread, type Mark } from '../placement.ts';
-	import type { StageGeometry } from '../stage.ts';
+	import { boxStyle, type StageGeometry } from '../stage.ts';
 	import type { Era } from '../time.ts';
 
 	type Props = {
@@ -30,23 +30,24 @@
 	const resolved = new SvelteMap<string, WallArtwork>();
 
 	let marks = $derived(marksIn(artworks, era));
-	let perYear = $derived(geometry.width / geometry.view.span);
+	let vertical = $derived(geometry.orientation === 'vertical');
+	let perYear = $derived(geometry.length / geometry.view.span);
 	let across = $derived(
 		spread(
 			marks.map((mark) => mark.item.id),
 			marks.map((mark) => mark.at * perYear),
-			Math.max(geometry.artworksHeight - 2 * EDGE, 1)
+			Math.max(geometry.artworksSize - 2 * EDGE, 1)
 		)
 	);
 	let placed = $derived(
 		marks
 			.map((mark, index) => ({
 				mark,
-				x: geometry.position(mark.at),
+				at: geometry.position(mark.at),
 				from: geometry.position(mark.start),
-				y: geometry.artworksTop + EDGE + across[index]
+				cross: geometry.artworksFrom + EDGE + across[index]
 			}))
-			.filter((dot) => dot.x > -VISIBLE_MARGIN && dot.from < geometry.width + VISIBLE_MARGIN)
+			.filter((dot) => dot.at > -VISIBLE_MARGIN && dot.from < geometry.length + VISIBLE_MARGIN)
 	);
 	let shown = $derived(
 		placed.find((dot) => dot.mark.item.id === (hovered ?? selected)) ?? undefined
@@ -81,27 +82,40 @@
 		return `${mark.cutBefore ? '‹ ' : ''}${mark.item.date}${mark.cutAfter ? ' ›' : ''}`;
 	}
 
-	function previewLeft(x: number): number {
-		const right = x + DOT_SIZE + PREVIEW_GAP;
-		if (right + PREVIEW_WIDTH <= geometry.width) return right;
-		return Math.max(x - DOT_SIZE - PREVIEW_GAP - PREVIEW_WIDTH, 0);
+	function beside(at: number, room: number, size: number): number {
+		const after = at + DOT_SIZE + PREVIEW_GAP;
+		if (after + size <= room) return after;
+		return Math.max(at - DOT_SIZE - PREVIEW_GAP - size, 0);
 	}
 
-	function previewTop(y: number): number {
-		const bottom = geometry.artworksTop + geometry.artworksHeight;
-		return Math.min(Math.max(y - previewHeight / 2, geometry.artworksTop), bottom - previewHeight);
+	function centred(at: number, from: number, room: number, size: number): number {
+		return Math.min(Math.max(at - size / 2, from), from + room - size);
+	}
+
+	function previewStyle(dot: { at: number; cross: number }): string {
+		if (vertical) {
+			const left = beside(dot.cross, geometry.breadth, PREVIEW_WIDTH);
+			const top = centred(dot.at, 0, geometry.length, previewHeight);
+			return `left: ${left}px; top: ${top}px; width: ${PREVIEW_WIDTH}px`;
+		}
+		const left = beside(dot.at, geometry.length, PREVIEW_WIDTH);
+		const top = centred(dot.cross, geometry.artworksFrom, geometry.artworksSize, previewHeight);
+		return `left: ${left}px; top: ${top}px; width: ${PREVIEW_WIDTH}px`;
 	}
 </script>
 
 {#each placed as dot (dot.mark.item.id)}
 	<button
-		style:left={`${dot.from}px`}
-		style:top={`${dot.y - DOT_SIZE / 2}px`}
-		style:width={`${Math.max(dot.x - dot.from + DOT_SIZE / 2, DOT_SIZE)}px`}
-		style:height={`${DOT_SIZE}px`}
+		style={boxStyle(geometry, {
+			along: Math.min(dot.from, dot.at - DOT_SIZE / 2),
+			across: dot.cross - DOT_SIZE / 2,
+			alongSize: Math.max(dot.at - dot.from + DOT_SIZE / 2, DOT_SIZE),
+			acrossSize: DOT_SIZE
+		})}
 		class="mark"
 		class:selected={dot.mark.item.id === selected}
-		class:spanned={dot.x - dot.from > DOT_SIZE}
+		class:spanned={dot.at - dot.from > DOT_SIZE}
+		class:vertical
 		aria-label={[dot.mark.item.title, dateOf(dot.mark)].filter(Boolean).join(', ')}
 		aria-pressed={dot.mark.item.id === selected}
 		onblur={() => hide(dot.mark.item)}
@@ -121,9 +135,7 @@
 {#if shown}
 	{@const artwork = artworkOf(shown.mark)}
 	<div
-		style:left={`${previewLeft(shown.x)}px`}
-		style:top={`${previewTop(shown.y)}px`}
-		style:width={`${PREVIEW_WIDTH}px`}
+		style={previewStyle(shown)}
 		class="preview"
 		aria-hidden="true"
 		inert
@@ -176,6 +188,21 @@
 		height: var(--border-width-base);
 		background: var(--color-fg-muted);
 		transform: translateY(-50%);
+	}
+
+	.vertical .line {
+		top: 0;
+		right: auto;
+		bottom: var(--spacing-1);
+		left: 50%;
+		width: var(--border-width-base);
+		height: auto;
+		transform: translateX(-50%);
+	}
+
+	.vertical .dot {
+		top: auto;
+		bottom: 0;
 	}
 
 	.mark:not(.spanned) .line {

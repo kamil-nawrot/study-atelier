@@ -1,38 +1,111 @@
 import { positionOf, type View } from './time.ts';
 
-export const AXIS_HEIGHT = 52;
-export const EVENT_LANE_HEIGHT = 28;
-export const ZONE_LABEL_HEIGHT = 22;
-export const ZONE_GAP = 8;
-export const ARTWORKS_HEIGHT = 300;
-export const ARTWORKS_HEIGHT_NARROW = 220;
+export type Orientation = 'horizontal' | 'vertical';
+
 export const NARROW_WIDTH = 768;
+export const ZONE_GAP = 8;
+
+const AXIS_HEIGHT = 52;
+const ZONE_LABEL_HEIGHT = 22;
+const LANE_HORIZONTAL = 28;
+const ARTWORKS_HEIGHT = 300;
+const ARTWORKS_HEIGHT_NARROW = 220;
+
+const AXIS_WIDTH = 64;
+const LANE_VERTICAL = 22;
+const VERTICAL_SHARE = 0.66;
+const VERTICAL_MIN = 440;
+const VERTICAL_MAX = 820;
 
 export type StageGeometry = {
-	width: number;
+	orientation: Orientation;
+	length: number;
+	breadth: number;
 	view: View;
 	position: (time: number) => number;
-	eventsTop: number;
-	eventsHeight: number;
-	artworksTop: number;
-	artworksHeight: number;
+	lane: number;
+	eventsFrom: number;
+	eventsSize: number;
+	artworksFrom: number;
+	artworksSize: number;
 };
 
-export function stageGeometry(view: View, width: number, eventLanes: number): StageGeometry {
-	const eventsTop = AXIS_HEIGHT + ZONE_LABEL_HEIGHT;
-	const eventsHeight = eventLanes * EVENT_LANE_HEIGHT + ZONE_GAP;
-	const artworksTop = eventsTop + eventsHeight + ZONE_LABEL_HEIGHT;
+export type Box = {
+	along: number;
+	across: number;
+	alongSize?: number;
+	acrossSize?: number;
+};
+
+export function orientationFor(width: number): Orientation {
+	return width > 0 && width < NARROW_WIDTH ? 'vertical' : 'horizontal';
+}
+
+export function verticalLength(viewportHeight: number): number {
+	return Math.round(
+		Math.min(Math.max(viewportHeight * VERTICAL_SHARE, VERTICAL_MIN), VERTICAL_MAX)
+	);
+}
+
+export function stageGeometry(
+	view: View,
+	width: number,
+	eventLanes: number,
+	orientation: Orientation = 'horizontal',
+	viewportHeight = 0
+): StageGeometry {
+	if (orientation === 'vertical') {
+		const length = verticalLength(viewportHeight);
+		const eventsFrom = AXIS_WIDTH + ZONE_GAP;
+		const eventsSize = eventLanes * LANE_VERTICAL;
+		const artworksFrom = eventsFrom + eventsSize + 2 * ZONE_GAP;
+		return {
+			orientation,
+			length,
+			breadth: width,
+			view,
+			position: (time) => positionOf(view, length, time),
+			lane: LANE_VERTICAL,
+			eventsFrom,
+			eventsSize,
+			artworksFrom,
+			artworksSize: Math.max(width - artworksFrom - ZONE_GAP, 1)
+		};
+	}
+	const eventsFrom = AXIS_HEIGHT + ZONE_LABEL_HEIGHT;
+	const eventsSize = eventLanes * LANE_HORIZONTAL + ZONE_GAP;
+	const artworksFrom = eventsFrom + eventsSize + ZONE_LABEL_HEIGHT;
+	const artworksSize = width < NARROW_WIDTH ? ARTWORKS_HEIGHT_NARROW : ARTWORKS_HEIGHT;
 	return {
-		width,
+		orientation,
+		length: width,
+		breadth: artworksFrom + artworksSize + ZONE_GAP,
 		view,
 		position: (time) => positionOf(view, width, time),
-		eventsTop,
-		eventsHeight,
-		artworksTop,
-		artworksHeight: width < NARROW_WIDTH ? ARTWORKS_HEIGHT_NARROW : ARTWORKS_HEIGHT
+		lane: LANE_HORIZONTAL,
+		eventsFrom,
+		eventsSize,
+		artworksFrom,
+		artworksSize
 	};
 }
 
-export function stageHeight(geometry: StageGeometry): number {
-	return geometry.artworksTop + geometry.artworksHeight + ZONE_GAP;
+export function stageSize(geometry: StageGeometry): { width: number; height: number } {
+	return geometry.orientation === 'vertical'
+		? { width: geometry.breadth, height: geometry.length }
+		: { width: geometry.length, height: geometry.breadth };
+}
+
+export function boxStyle(geometry: StageGeometry, box: Box): string {
+	const vertical = geometry.orientation === 'vertical';
+	const parts: [string, number | undefined][] = [
+		[vertical ? 'top' : 'left', box.along],
+		[vertical ? 'left' : 'top', box.across],
+		[vertical ? 'height' : 'width', box.alongSize],
+		[vertical ? 'width' : 'height', box.acrossSize]
+	];
+	return parts
+		.filter((part): part is [string, number] => part[1] !== undefined)
+		.map(([property, value]) => `${property}: ${value}px`)
+		.join('; ');
 }
