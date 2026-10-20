@@ -93,3 +93,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0087](0087-set-library-texts-once-for-the-whole-app.md)                 | Set the library texts once for the whole app, also in tests                            | accepted           |
 | [0088](0088-up-to-five-images-and-an-automatic-best-match.md)            | Up to five images per artwork and the best Wikidata match filled in automatically      | accepted           |
 | [0089](0089-one-search-button-and-the-word-obraz-in-the-image-field.md)  | One search button and the word "obraz" in the image field                              | accepted           |
+| [0090](0090-clean-up-unused-images-daily-from-github-actions.md)         | Clean up unused images daily from GitHub Actions                                       | accepted           |

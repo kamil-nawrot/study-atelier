@@ -919,6 +919,7 @@ export type Database = {
           style_id: string;
         }[];
       };
+      unused_images: { Args: Record<PropertyKey, never>; Returns: string[] };
       value_page_content: {
         Args: { target_value: string };
         Returns: {

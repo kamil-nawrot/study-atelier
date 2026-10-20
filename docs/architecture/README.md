@@ -96,7 +96,7 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 2. If the learner picked their own file, it uploads it to `artwork-images` at `<learner id>/<random uuid>.<extension>` (`#lib/images/own-image.ts`). The browser then makes the small copy and uploads it too; a copy that fails never stops the save ([ADR-0063](../decisions/0063-make-a-small-copy-of-every-own-image.md)). A failed upload stops the save ([ADR-0025](../decisions/0025-upload-the-own-image-when-the-artwork-is-saved.md)).
 3. It calls the `save_artwork` RPC once with the artwork's columns and its value names by category; the years `year_from` (only for a year span) and `year_to` are stored negative before the common era ([ADR-0014](../decisions/0014-artwork-collection-data-model.md), [ADR-0046](../decisions/0046-enter-the-date-of-creation-as-a-year-span.md)).
 4. The function inserts or updates the artwork, creates the names the learner does not have yet, replaces the artwork's value links, links its period to its era and its styles to its period, and returns the record number, all in one transaction ([ADR-0024](../decisions/0024-save-an-artwork-in-one-database-function.md)).
-5. If the database rejected the save (the error carries a code), the file uploaded in step 2 is removed. If no answer came back (a network error), the file stays, because the artwork may have been saved and would point to a deleted file; at worst it is an orphaned file. If it succeeded and the artwork's previous uploaded file was replaced or removed, that file is removed.
+5. If the database rejected the save (the error carries a code), the file uploaded in step 2 is removed. If no answer came back (a network error), the file stays, because the artwork may have been saved and would point to a deleted file; at worst it is an orphaned file, which the daily clean-up removes ([ADR-0090](../decisions/0090-clean-up-unused-images-daily-from-github-actions.md)). If it succeeded and the artwork's previous uploaded file was replaced or removed, that file is removed.
 
 ### Viewing an artwork
 
@@ -126,7 +126,7 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 
 1. "Usuń" in the artwork view asks first, then sets `deleted_at` on the artwork (`moveToTrash` in `#lib/collection/trash.ts`) and returns to the wall, which confirms with a toast. Every other query filters on `deleted_at is null`, so the artwork disappears from the wall, the suggestions and its own pages ([ADR-0028](../decisions/0028-trash-as-a-list-with-confirmed-deletes.md)).
 2. `/atelier/trash` reads the artworks with `deleted_at` set, most recently deleted first, with the same images as the wall (`loadTrash` in `#lib/collection/artworks.ts`).
-3. "Przywróć" clears `deleted_at`; the record number stays. "Usuń na zawsze" asks first, deletes the row, whose values go with it, then removes the uploaded image from Storage. A failed storage removal leaves an orphaned file but no broken artwork. The record number counter never goes back, so the number is not reused ([R-2](../product/requirements.md#artworks)).
+3. "Przywróć" clears `deleted_at`; the record number stays. "Usuń na zawsze" asks first, deletes the row, whose values go with it, then removes the uploaded image from Storage. A failed storage removal leaves an orphaned file, removed by the daily clean-up, but no broken artwork. The record number counter never goes back, so the number is not reused ([R-2](../product/requirements.md#artworks)).
 
 ## 7. Deployment view
 
@@ -142,6 +142,7 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 
 - `develop` and `production` each have their own Supabase project and GitHub environment. Migrations in [`supabase/migrations`](../../supabase/migrations) are applied by the `database` job in `ci.yml` after a push to `develop` (develop database) or `main` (production database) ([ADR-0037](../decisions/0037-separate-databases-for-develop-and-production.md), setup in [hosted environments](hosted-environments.md)).
 - The scheduled workflow [`supabase-keep-alive.yml`](../../.github/workflows/supabase-keep-alive.yml) calls the `keep_alive()` database function of both projects daily so the free projects are not paused.
+- The scheduled workflow [`unused-images-cleanup.yml`](../../.github/workflows/unused-images-cleanup.yml) removes, daily in both projects, the uploaded images that no artwork or author has used for 24 hours: the `unused_images()` database function lists them and the Storage API removes them, with the project's secret key ([ADR-0090](../decisions/0090-clean-up-unused-images-daily-from-github-actions.md)).
 
 ## 8. Crosscutting concepts
 
