@@ -53,5 +53,6 @@ export function startEra(artworks: readonly Dated[], remembered: EraCode | null)
 export function eraOfYear(year: number): EraCode {
 	const time = timeOf(year);
 	const all = eras();
+	if (time < all[0].start) return all[0].code;
 	return (all.find((era) => time >= era.start && time < era.end) ?? all[all.length - 1]).code;
 }

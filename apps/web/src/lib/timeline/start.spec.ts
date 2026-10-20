@@ -53,4 +53,9 @@ describe('eraOfYear', () => {
 		expect(eraOfYear(1492)).toBe('early_modern');
 		expect(eraOfYear(1815)).toBe('modern');
 	});
+
+	it('takes a year before prehistory starts as prehistory and a future year as the last era', () => {
+		expect(eraOfYear(-43500)).toBe('prehistory');
+		expect(eraOfYear(3000)).toBe('contemporary');
+	});
 });

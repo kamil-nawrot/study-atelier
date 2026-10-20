@@ -3,6 +3,7 @@ import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/index.ts';
 import { testSession } from '#lib/testing/auth.ts';
+import { searchEvents } from '#lib/timeline/wikipedia.ts';
 import EditEventPage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({
@@ -63,5 +64,27 @@ describe('edit timeline event page', () => {
 
 		await expect.element(page.getByText(m.timeline.errors.notFound)).toBeVisible();
 		await expect.element(page.getByLabelText(m.timeline.form.name)).not.toBeInTheDocument();
+	});
+
+	it('does not search Wikipedia by itself for an event without a description', async () => {
+		render(EditEventPage, {
+			data: {
+				session: testSession(),
+				event: {
+					id: 'e',
+					name: 'Chrzest Polski',
+					yearFrom: null,
+					yearTo: 966,
+					yearApproximate: false,
+					description: '',
+					source: null
+				}
+			},
+			params: { id: 'e' }
+		});
+
+		await expect.element(page.getByLabelText(m.timeline.form.name)).toHaveValue('Chrzest Polski');
+		await new Promise((resolve) => setTimeout(resolve, 900));
+		expect(searchEvents).not.toHaveBeenCalled();
 	});
 });

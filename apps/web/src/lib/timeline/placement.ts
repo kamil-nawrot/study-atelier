@@ -1,5 +1,4 @@
-import type { Era } from './time.ts';
-import { spanOfYears } from './time.ts';
+import { overlaps, spanOfYears, type Era } from './time.ts';
 
 export type Dated = {
 	id: string;
@@ -25,7 +24,7 @@ export function marksIn<T extends Dated>(items: readonly T[], era: Era): Mark<T>
 		.flatMap((item) => {
 			if (item.yearTo === null) return [];
 			const span = spanOfYears(item.yearFrom, item.yearTo);
-			if (span.end <= era.start || span.start >= era.end) return [];
+			if (!overlaps(span, era)) return [];
 			const start = Math.max(span.start, era.start);
 			const end = Math.min(span.end, era.end);
 			return [
