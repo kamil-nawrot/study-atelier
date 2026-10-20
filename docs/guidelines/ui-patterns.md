@@ -4,7 +4,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 ## Tokens
 
-- Views and components use only semantic tokens: `--color-bg`, `--color-fg`, `--color-fg-muted`, `--color-line`, `--color-surface`, `--color-stage-*`, `--size-content-*`, `--duration-*` and the scales for spacing, type and borders. Palette tokens such as `--color-neutral-950` are used only inside `design/tokens.json`.
+- Views and components use only semantic tokens: `--color-bg`, `--color-fg`, `--color-fg-muted`, `--color-line`, `--color-surface`, `--color-highlight` (the current position on a scale, such as the timeline's reading line), `--color-stage-*`, `--size-content-*`, `--duration-*` and the scales for spacing, type and borders. Palette tokens such as `--color-neutral-950` are used only inside `design/tokens.json`.
 - When a view needs a colour or size with a new role, add a semantic token for that role instead of reaching for the palette or a literal value.
 - Spacing is a multiple of 4 from the `--spacing-*` scale. Border widths come from `--border-width-*`; corners are square (`--border-radius-none`); there are no shadows.
 - A literal value is fine only for something that belongs to one component and has no shared role, for example the height of the artwork stage on a phone.
