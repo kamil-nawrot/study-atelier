@@ -177,15 +177,20 @@
 		height: 64px;
 		padding: 0;
 		overflow: hidden;
-		border: var(--border-width-base) solid var(--color-line);
+		border: var(--border-width-base) solid var(--color-fg-muted);
 		background: var(--color-surface);
 		color: var(--color-fg);
 		cursor: pointer;
+		opacity: 0.6;
+	}
+
+	.slot.selected,
+	.slot.add {
+		opacity: 1;
 	}
 
 	.slot.selected {
-		outline: var(--border-width-button) solid var(--color-fg);
-		outline-offset: var(--spacing-1);
+		border-color: var(--color-fg);
 	}
 
 	.thumb {
