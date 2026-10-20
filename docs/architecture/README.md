@@ -85,7 +85,7 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 ### Adding the learner's own image
 
 1. "Dodaj własne" opens a dialog with "Wybierz plik z dysku" and a field for an image URL.
-2. A picked file is checked against the bucket's types and size limit and shown from a local object URL; its width and height are read from that preview. Nothing is uploaded yet.
+2. A picked file is checked against the bucket's types; a file over 5 MB (up to 50 MB) is made smaller in the browser, its longer side cut to 3200, 2400 or 1600 px as a JPEG ([ADR-0091](../decisions/0091-make-large-own-images-smaller-in-the-browser.md)). The file is shown from a local object URL; its width and height are read from that preview. Nothing is uploaded yet.
 3. A URL must be a full `https` address. The browser loads its image to read the width and height; an address whose image does not load is rejected under the field ([ADR-0025](../decisions/0025-upload-the-own-image-when-the-artwork-is-saved.md)).
 4. An own image replaces an image from the image source and the other way round, because the form holds one image at a time.
 5. An image can also be pasted ([ADR-0032](../decisions/0032-paste-the-own-image-from-the-clipboard.md), `#lib/images/clipboard.ts`). Ctrl+V uses the browser's `paste` event and needs no permission; "Wklej ze schowka" reads `navigator.clipboard.read()`, which asks the browser for access. Both look in the clipboard for an image file, then an `https` address as text, then the `src` of an `<img>` in copied HTML. A pasted image becomes a `File` and follows step 2; an address follows step 3. Ctrl+V is ignored when the focus is in a field the learner types in, and asks before replacing an image already in the form.

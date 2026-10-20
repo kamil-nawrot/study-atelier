@@ -7,9 +7,12 @@ import {
 	IMAGES_BUCKET,
 	OWN_IMAGE_MAX_BYTES,
 	OWN_IMAGE_MAX_MEGABYTES,
+	OWN_IMAGE_MAX_SOURCE_BYTES,
+	OWN_IMAGE_MAX_SOURCE_MEGABYTES,
 	SIGNED_URL_SECONDS
 } from './bucket.ts';
 import {
+	fitOwnImage,
 	ownImageFileError,
 	ownImagePath,
 	makeThumbnail,
@@ -28,6 +31,11 @@ const bucket = { upload: vi.fn(), remove: vi.fn(), createSignedUrl: vi.fn() };
 
 function file(type: string, size = 100, name = 'photo'): File {
 	return new File([new Uint8Array(size)], name, { type });
+}
+
+function sized(source: File, size: number): File {
+	Object.defineProperty(source, 'size', { value: size });
+	return source;
 }
 
 type ImageOutcome = { width: number; height: number } | 'error';
@@ -73,10 +81,12 @@ describe('ownImageFileError', () => {
 		);
 	});
 
-	it('names the size limit for a file over it', () => {
-		expect(ownImageFileError(file('image/jpeg', OWN_IMAGE_MAX_BYTES))).toBeUndefined();
-		expect(ownImageFileError(file('image/jpeg', OWN_IMAGE_MAX_BYTES + 1))).toBe(
-			m.ownImageErrors.fileTooLarge(OWN_IMAGE_MAX_MEGABYTES)
+	it('names the limit for a file too large to make smaller', () => {
+		expect(
+			ownImageFileError(sized(file('image/jpeg'), OWN_IMAGE_MAX_SOURCE_BYTES))
+		).toBeUndefined();
+		expect(ownImageFileError(sized(file('image/jpeg'), OWN_IMAGE_MAX_SOURCE_BYTES + 1))).toBe(
+			m.ownImageErrors.fileTooLarge(OWN_IMAGE_MAX_SOURCE_MEGABYTES)
 		);
 	});
 
@@ -182,6 +192,84 @@ describe('makeThumbnail', () => {
 
 		vi.stubGlobal('createImageBitmap', vi.fn().mockRejectedValue(new Error('bad')));
 		await expect(makeThumbnail(file('image/png'))).resolves.toBeUndefined();
+	});
+});
+
+function stubSmaller(bitmap: { width: number; height: number }, sizes: number[]): number[][] {
+	const drawn: number[][] = [];
+	vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue({ ...bitmap, close: vi.fn() }));
+	const canvas = {
+		width: 0,
+		height: 0,
+		getContext: () => ({ fillRect: vi.fn(), drawImage: vi.fn(), fillStyle: '' }),
+		toBlob: (callback: (result: Blob | null) => void) => {
+			drawn.push([canvas.width, canvas.height]);
+			callback(new Blob([new Uint8Array(sizes[drawn.length - 1] ?? 1)], { type: 'image/jpeg' }));
+		}
+	};
+	vi.stubGlobal('document', { createElement: () => canvas });
+	return drawn;
+}
+
+describe('fitOwnImage', () => {
+	afterEach(() => vi.unstubAllGlobals());
+
+	it('keeps a file within the limit as it is', async () => {
+		const small = file('image/png', OWN_IMAGE_MAX_BYTES, 'photo.png');
+
+		await expect(fitOwnImage(small)).resolves.toEqual({ file: small });
+	});
+
+	it('cuts the longer side to 3200 px and saves a JPEG', async () => {
+		const drawn = stubSmaller({ width: 3000, height: 8000 }, [1000]);
+
+		const result = await fitOwnImage(
+			sized(file('image/png', 1, 'scan.png'), OWN_IMAGE_MAX_BYTES + 1)
+		);
+
+		expect(drawn).toEqual([[1200, 3200]]);
+		expect('file' in result && result.file).toMatchObject({ name: 'scan.jpg', type: 'image/jpeg' });
+	});
+
+	it('goes down to 2400 and 1600 px while the JPEG is still over the limit', async () => {
+		const drawn = stubSmaller({ width: 8000, height: 6000 }, [
+			OWN_IMAGE_MAX_BYTES + 1,
+			OWN_IMAGE_MAX_BYTES + 1,
+			1000
+		]);
+
+		const result = await fitOwnImage(sized(file('image/jpeg'), OWN_IMAGE_MAX_BYTES + 1));
+
+		expect(drawn).toEqual([
+			[3200, 2400],
+			[2400, 1800],
+			[1600, 1200]
+		]);
+		expect('file' in result).toBe(true);
+	});
+
+	it('does not enlarge an image whose file is large for its size', async () => {
+		const drawn = stubSmaller({ width: 2000, height: 1000 }, [1000]);
+
+		await fitOwnImage(sized(file('image/png'), OWN_IMAGE_MAX_BYTES + 1));
+
+		expect(drawn).toEqual([[2000, 1000]]);
+	});
+
+	it('gives up when even 1600 px is over the limit or the file cannot be read', async () => {
+		stubSmaller({ width: 8000, height: 6000 }, [
+			OWN_IMAGE_MAX_BYTES + 1,
+			OWN_IMAGE_MAX_BYTES + 1,
+			OWN_IMAGE_MAX_BYTES + 1
+		]);
+		await expect(fitOwnImage(sized(file('image/jpeg'), OWN_IMAGE_MAX_BYTES + 1))).resolves.toEqual({
+			error: m.ownImageErrors.shrinkFailed
+		});
+
+		vi.stubGlobal('createImageBitmap', vi.fn().mockRejectedValue(new Error('bad')));
+		await expect(fitOwnImage(sized(file('image/jpeg'), OWN_IMAGE_MAX_BYTES + 1))).resolves.toEqual({
+			error: m.ownImageErrors.shrinkFailed
+		});
 	});
 });
 

@@ -4,7 +4,10 @@ import {
 	IMAGES_BUCKET,
 	OWN_IMAGE_EXTENSIONS,
 	OWN_IMAGE_MAX_BYTES,
-	OWN_IMAGE_MAX_MEGABYTES,
+	OWN_IMAGE_MAX_SOURCE_BYTES,
+	OWN_IMAGE_MAX_SOURCE_MEGABYTES,
+	OWN_IMAGE_SMALLER_QUALITY,
+	OWN_IMAGE_SMALLER_SIDES,
 	OWN_THUMBNAIL_QUALITY,
 	OWN_THUMBNAIL_TYPE,
 	OWN_THUMBNAIL_WIDTH,
@@ -25,8 +28,8 @@ export type OwnImageUpload =
 
 export function ownImageFileError(file: File): string | undefined {
 	if (!isOwnImageType(file.type)) return m.ownImageErrors.fileType(ownImageFormats());
-	if (file.size > OWN_IMAGE_MAX_BYTES)
-		return m.ownImageErrors.fileTooLarge(OWN_IMAGE_MAX_MEGABYTES);
+	if (file.size > OWN_IMAGE_MAX_SOURCE_BYTES)
+		return m.ownImageErrors.fileTooLarge(OWN_IMAGE_MAX_SOURCE_MEGABYTES);
 	if (file.size === 0) return m.ownImageErrors.fileUnreadable;
 	return undefined;
 }
@@ -68,25 +71,64 @@ export function ownImagePath(ownerId: string, file: File): string {
 	return `${ownerId}/${crypto.randomUUID()}.${extension}`;
 }
 
+async function encodeJpeg(
+	bitmap: ImageBitmap,
+	scale: number,
+	quality: number
+): Promise<Blob | undefined> {
+	const canvas = document.createElement('canvas');
+	canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+	canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+	const context = canvas.getContext('2d');
+	if (!context) return undefined;
+	context.fillStyle = '#ffffff';
+	context.fillRect(0, 0, canvas.width, canvas.height);
+	context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+	const blob = await new Promise<Blob | null>((resolve) =>
+		canvas.toBlob(resolve, OWN_THUMBNAIL_TYPE, quality)
+	);
+	return blob?.type === OWN_THUMBNAIL_TYPE ? blob : undefined;
+}
+
 export async function makeThumbnail(source: Blob): Promise<Blob | undefined> {
 	try {
 		const bitmap = await createImageBitmap(source);
 		const scale = Math.min(1, OWN_THUMBNAIL_WIDTH / bitmap.width);
-		const canvas = document.createElement('canvas');
-		canvas.width = Math.max(1, Math.round(bitmap.width * scale));
-		canvas.height = Math.max(1, Math.round(bitmap.height * scale));
-		const context = canvas.getContext('2d');
-		if (!context) return undefined;
-		context.fillStyle = '#ffffff';
-		context.fillRect(0, 0, canvas.width, canvas.height);
-		context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+		const blob = await encodeJpeg(bitmap, scale, OWN_THUMBNAIL_QUALITY);
 		bitmap.close();
-		const blob = await new Promise<Blob | null>((resolve) =>
-			canvas.toBlob(resolve, OWN_THUMBNAIL_TYPE, OWN_THUMBNAIL_QUALITY)
-		);
-		return blob?.type === OWN_THUMBNAIL_TYPE ? blob : undefined;
+		return blob;
 	} catch {
 		return undefined;
+	}
+}
+
+function smallerFileName(name: string): string {
+	const dot = name.lastIndexOf('.');
+	return `${dot > 0 ? name.slice(0, dot) : name || 'image'}.jpg`;
+}
+
+export async function fitOwnImage(file: File): Promise<{ file: File } | { error: string }> {
+	if (file.size <= OWN_IMAGE_MAX_BYTES) return { file };
+	let bitmap: ImageBitmap;
+	try {
+		bitmap = await createImageBitmap(file);
+	} catch {
+		return { error: m.ownImageErrors.shrinkFailed };
+	}
+	try {
+		const longer = Math.max(bitmap.width, bitmap.height);
+		for (const side of OWN_IMAGE_SMALLER_SIDES) {
+			const blob = await encodeJpeg(bitmap, Math.min(1, side / longer), OWN_IMAGE_SMALLER_QUALITY);
+			if (!blob) break;
+			if (blob.size <= OWN_IMAGE_MAX_BYTES) {
+				return { file: new File([blob], smallerFileName(file.name), { type: blob.type }) };
+			}
+		}
+		return { error: m.ownImageErrors.shrinkFailed };
+	} catch {
+		return { error: m.ownImageErrors.shrinkFailed };
+	} finally {
+		bitmap.close();
 	}
 }
 

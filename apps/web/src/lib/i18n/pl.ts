@@ -301,7 +301,7 @@ export const pl = {
 		removeImage: 'Usuń obraz',
 		chooseFile: 'Wybierz plik z dysku',
 		fileHint: (formats: string, maxMegabytes: number): string =>
-			`${formats}, do ${maxMegabytes} MB.`,
+			`${formats}. Większe niż ${maxMegabytes} MB zmniejszę.`,
 		pasteFromClipboard: 'Wklej ze schowka',
 		pasteHintLead: 'Masz obraz w schowku? Po prostu naciśnij',
 		pasteHintForm: 'Obraz ze schowka możesz też wkleić tutaj:',
@@ -573,7 +573,8 @@ export const pl = {
 		fileType: (formats: string): string =>
 			`Tego pliku nie da się dodać jako obrazu. Wybierz ${formats}.`,
 		fileTooLarge: (maxMegabytes: number): string =>
-			`Ten plik ma więcej niż ${maxMegabytes} MB. Wybierz mniejszy albo zmniejsz obraz.`,
+			`Ten plik ma więcej niż ${maxMegabytes} MB. Wybierz mniejszy.`,
+		shrinkFailed: 'Nie udało mi się zmniejszyć tego obrazu. Wybierz mniejszy.',
 		fileUnreadable: 'Nie udało się otworzyć tego obrazu. Wybierz inny plik.',
 		clipboardEmpty:
 			'W schowku nie ma teraz obrazu. Skopiuj go albo zrób zrzut ekranu i spróbuj jeszcze raz.',
