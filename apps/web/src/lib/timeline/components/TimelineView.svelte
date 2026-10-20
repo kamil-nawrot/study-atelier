@@ -6,7 +6,7 @@
 	import { onDestroy, untrack, type Snippet } from 'svelte';
 	import { Button, Icon, ToggleTag } from '@study-atelier/ui';
 	import { ERA_CODES, eraTitle } from '#lib/collection/eras.ts';
-	import type { EraCode } from '#lib/collection/types.ts';
+	import type { EraCode, WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { seenRange } from '../labels.ts';
 	import {
@@ -21,18 +21,20 @@
 	import type { StageGeometry } from '../stage.ts';
 	import { rememberEra } from '../start.ts';
 	import { eraOf, eras, type TimeSpan, type View } from '../time.ts';
+	import ArtworkCard from './ArtworkCard.svelte';
 	import EraStrip from './EraStrip.svelte';
+	import TimelineArtworks from './TimelineArtworks.svelte';
 	import TimelineStage from './TimelineStage.svelte';
 
 	type Props = {
 		initialEra: EraCode;
 		initialFocus?: TimeSpan;
+		artworks?: readonly WallArtwork[];
 		eventLanes?: number;
 		events?: Snippet<[StageGeometry]>;
-		artworks?: Snippet<[StageGeometry]>;
 	};
 
-	let { initialEra, initialFocus, eventLanes = 1, events, artworks }: Props = $props();
+	let { initialEra, initialFocus, artworks = [], eventLanes = 1, events }: Props = $props();
 
 	const STEP_ANIMATION_MS = 400;
 	const allEras = eras();
@@ -47,6 +49,7 @@
 	let step = $state<StepKey>(start.step);
 	let target = $state<View>(start.view);
 	let view = $state<View>(start.view);
+	let selected = $state<string | null>(null);
 	let frame = 0;
 
 	let era = $derived(eraOf(code));
@@ -55,6 +58,8 @@
 	let previous = $derived(index > 0 ? ERA_CODES[index - 1] : undefined);
 	let next = $derived(index < ERA_CODES.length - 1 ? ERA_CODES[index + 1] : undefined);
 	let seen = $derived(seenRange(view, era));
+	let allArtworks = $derived(artworks);
+	let selectedArtwork = $derived(artworks.find((artwork) => artwork.id === selected));
 
 	function reducedMotion(): boolean {
 		return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -109,6 +114,7 @@
 	function openEra(next: EraCode): void {
 		code = next;
 		step = 'era';
+		selected = null;
 		rememberEra(next);
 		showNow(eraView(eraOf(next)));
 	}
@@ -177,7 +183,21 @@
 		</div>
 	</div>
 
-	<TimelineStage {artworks} {era} {eventLanes} {events} onpan={pan} onstep={moveStep} {view} />
+	<TimelineStage {era} {eventLanes} {events} onpan={pan} onstep={moveStep} {view}>
+		{#snippet artworks(geometry)}
+			<TimelineArtworks
+				artworks={allArtworks}
+				{era}
+				{geometry}
+				onselect={(artwork) => (selected = selected === artwork.id ? null : artwork.id)}
+				{selected}
+			/>
+		{/snippet}
+	</TimelineStage>
+
+	{#if selectedArtwork}
+		<ArtworkCard artwork={selectedArtwork} />
+	{/if}
 </div>
 
 <style>
