@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { ArtworkTile, Button } from '@study-atelier/ui';
-	import { resolve } from '$app/paths';
+	import { Button, Disclosure } from '@study-atelier/ui';
+	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
 	import { m } from '#lib/i18n/index.ts';
 	import type { SummaryGroup } from '../overview.ts';
 
@@ -10,47 +10,54 @@
 		tomorrow: number;
 		groups: SummaryGroup[];
 		nextRound: number;
+		free?: boolean;
+		freeOpen?: boolean;
 		onnext: () => void;
+		onfree?: () => void;
 	};
 
-	let { count, minutes, tomorrow, groups, nextRound, onnext }: Props = $props();
+	let {
+		count,
+		minutes,
+		tomorrow,
+		groups,
+		nextRound,
+		free = false,
+		freeOpen = false,
+		onnext,
+		onfree
+	}: Props = $props();
 </script>
 
 <div class="summary">
 	<header class="head">
 		<div class="intro">
 			<h1>{m.review.done}</h1>
-			<p class="lead">{m.review.summary(count, minutes, tomorrow)}</p>
+			<p class="lead">
+				{free ? m.review.freeSummary(count, minutes) : m.review.summary(count, minutes, tomorrow)}
+			</p>
 		</div>
 		<div class="actions">
-			{#if nextRound > 0}
+			{#if free}
+				<Button onclick={onfree} variant="primary">{m.review.freeNextRound}</Button>
+			{:else if nextRound > 0}
 				<Button onclick={onnext} variant="primary">{m.review.nextRound(nextRound)}</Button>
+			{:else if freeOpen}
+				<Button onclick={onfree} variant="primary">{m.review.free}</Button>
 			{/if}
-			<Button href={resolve('/(app)/atelier')}>{m.review.backToAtelier}</Button>
 		</div>
 	</header>
 
 	{#each groups as group (group.rating)}
-		<section class="group" aria-labelledby="review-group-{group.rating}">
-			<h2 id="review-group-{group.rating}">
-				{m.review.groups[group.rating]}
-				<span class="caption">{group.artworks.length}</span>
-			</h2>
-			<ul class="tiles">
-				{#each group.artworks as artwork (artwork.id)}
-					<li>
-						<ArtworkTile
-							authors={artwork.authors}
-							date={artwork.date}
-							href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
-							image={artwork.image}
-							imageUnavailable={artwork.imageUnavailable}
-							number={artwork.number}
-							title={artwork.title}
-						/>
-					</li>
-				{/each}
-			</ul>
+		<section aria-labelledby="review-group-{group.rating}">
+			<Disclosure
+				id="review-group-{group.rating}"
+				count={group.artworks.length}
+				open={group.rating === 1}
+				title={m.review.groups[group.rating]}
+			>
+				<ArtworkWall artworks={group.artworks} />
+			</Disclosure>
 		</section>
 	{/each}
 </div>
@@ -78,26 +85,6 @@
 		gap: var(--spacing-3);
 	}
 
-	.group {
-		display: grid;
-		gap: var(--spacing-4);
-	}
-
-	h2 {
-		display: flex;
-		align-items: baseline;
-		gap: var(--spacing-2);
-	}
-
-	.tiles {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		align-items: start;
-		gap: var(--spacing-4);
-		padding: 0;
-		list-style: none;
-	}
-
 	@media (min-width: 768px) {
 		.head {
 			grid-template-columns: minmax(0, 1fr) auto;
@@ -107,10 +94,6 @@
 		.actions {
 			display: flex;
 			flex-wrap: wrap;
-		}
-
-		.tiles {
-			grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
 		}
 	}
 </style>

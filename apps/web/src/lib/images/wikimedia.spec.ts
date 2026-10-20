@@ -39,6 +39,19 @@ describe('fetchJson', () => {
 		expect(fetchMock).toHaveBeenCalledTimes(2);
 	});
 
+	it('gives up after thirty seconds without an answer and does not retry', async () => {
+		vi.stubGlobal('fetch', fetchMock);
+		const timeout = vi
+			.spyOn(AbortSignal, 'timeout')
+			.mockReturnValue(AbortSignal.abort(new DOMException('No answer', 'TimeoutError')));
+		fetchMock.mockImplementation((_url, init) => Promise.reject(init?.signal?.reason));
+
+		await expect(fetchJson('https://example.org/api')).rejects.toEqual(new WikimediaError(504));
+		expect(timeout).toHaveBeenCalledWith(30000);
+		expect(fetchMock).toHaveBeenCalledOnce();
+		timeout.mockRestore();
+	});
+
 	it('fails without a status when the network is down twice', async () => {
 		vi.useFakeTimers();
 		vi.stubGlobal('fetch', fetchMock);

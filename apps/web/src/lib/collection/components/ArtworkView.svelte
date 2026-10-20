@@ -401,7 +401,7 @@
 		padding: 0;
 		border: none;
 		background: none;
-		cursor: zoom-in;
+		cursor: var(--cursor-zoom-in);
 	}
 
 	.mat {

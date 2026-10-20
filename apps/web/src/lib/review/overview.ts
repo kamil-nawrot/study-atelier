@@ -18,6 +18,11 @@ export type ReviewScope =
 	| { kind: 'period'; name: string }
 	| { kind: 'style'; name: string };
 
+export type ScopeChoice = {
+	scope: ReviewScope;
+	count: number;
+};
+
 export type AtelierKnowledge = {
 	settled: number;
 	learning: number;
@@ -79,6 +84,30 @@ export function scopeOptions(
 			const scoped = scopeArtworks(pool, scope);
 			return scoped.length >= MIN_ARTWORKS && dueIn(scoped, cards, now) >= MIN_DUE_IN_SCOPE;
 		})
+	];
+}
+
+export function freeScopeOptions(
+	artworks: WallArtwork[],
+	cards: Map<string, ReviewCard>
+): ScopeChoice[] {
+	const reviewed = reviewableArtworks(artworks).filter((artwork) => cards.has(artwork.id));
+	if (reviewed.length === 0) return [];
+	const narrower: ReviewScope[] = [
+		...ERA_CODES.map((code): ReviewScope => ({ kind: 'era', code })),
+		...valuesWithEnough(reviewed, (artwork) => (artwork.period ? [artwork.period] : [])).map(
+			(name): ReviewScope => ({ kind: 'period', name })
+		),
+		...valuesWithEnough(reviewed, (artwork) => artwork.styles).map((name): ReviewScope => ({
+			kind: 'style',
+			name
+		}))
+	];
+	return [
+		{ scope: { kind: 'all' }, count: reviewed.length },
+		...narrower
+			.map((scope) => ({ scope, count: scopeArtworks(reviewed, scope).length }))
+			.filter((choice) => choice.count >= MIN_ARTWORKS)
 	];
 }
 

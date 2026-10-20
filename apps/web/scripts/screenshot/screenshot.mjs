@@ -203,7 +203,8 @@ function reviewSession({
 	day_start: dayStartText,
 	session_form: form = 'mixed',
 	scope_kind: kind = 'all',
-	scope_value: value
+	scope_value: value,
+	free_round: freeRound
 } = {}) {
 	const dayEnd = new Date(dayStartText ?? Date.now()).getTime() + 24 * 60 * 60 * 1000;
 	const pool = ARTWORKS.filter((row) => hasImage(row) && inScope(row, kind, value));
@@ -214,7 +215,14 @@ function reviewSession({
 		.sort((a, b) => new Date(cardOf(a).due).getTime() - new Date(cardOf(b).due).getTime())
 		.slice(0, 20);
 	const fresh = pool.filter((row) => !cardOf(row)).slice(0, Math.min(10, 20 - due.length));
-	return [...due, ...fresh].map((row, slot) => {
+	const known = pool
+		.filter((row) => cardOf(row))
+		.sort((a, b) => cardOf(a).stability - cardOf(b).stability);
+	const free = Array.from(
+		{ length: Math.min(20, known.length) },
+		(_, index) => known[(index + (freeRound ?? 0) * 20) % known.length]
+	);
+	return (freeRound === undefined ? [...due, ...fresh] : free).map((row, slot) => {
 		const card = cardOf(row);
 		const modes =
 			form === 'flashcards'

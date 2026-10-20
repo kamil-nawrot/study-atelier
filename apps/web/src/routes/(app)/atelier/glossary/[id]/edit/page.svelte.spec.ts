@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { page } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
 import { m } from '#lib/i18n/index.ts';
@@ -49,6 +49,12 @@ function renderEdit(
 
 function nameField(): ReturnType<typeof page.getByRole> {
 	return page.getByLabelText(m.glossary.form.name);
+}
+
+async function addSynonym(word: string): Promise<void> {
+	await page.getByRole('combobox', { name: m.glossary.form.synonyms }).fill(word);
+	await userEvent.keyboard('{Enter}');
+	await vi.advanceTimersByTimeAsync(0);
 }
 
 function saveButton(): ReturnType<typeof page.getByRole> {
@@ -132,6 +138,63 @@ describe('edit glossary entry page', () => {
 
 		expect(fetchForms).toHaveBeenCalledWith('Tympan');
 		await expect.element(page.getByText(m.glossary.form.formsCount(1))).toBeVisible();
+	});
+
+	it('adds the forms of a new synonym and takes them away with it', async () => {
+		vi.mocked(fetchForms).mockResolvedValue(['malowidła', 'malowidłem']);
+		renderEdit(testEntry('a-fresco', 'Fresk', { category: 'technique', forms: ['fresku'] }));
+
+		await addSynonym('malowidło');
+
+		expect(fetchForms).toHaveBeenCalledWith('malowidło');
+		await expect.element(page.getByText(m.glossary.form.formsCount(3))).toBeVisible();
+
+		await page.getByRole('button', { name: /malowidło/ }).click();
+
+		await expect.element(page.getByText(m.glossary.form.formsCount(1))).toBeVisible();
+	});
+
+	it('says when Wiktionary has no forms of a synonym', async () => {
+		renderEdit(testEntry('a-fresco', 'Fresk', { category: 'technique', forms: ['fresku'] }));
+
+		await addSynonym('al fresco');
+
+		await expect
+			.element(page.getByText(m.glossary.form.synonymFormsNone('al fresco')))
+			.toBeVisible();
+	});
+
+	it('does not look up the synonyms of a person', async () => {
+		renderEdit(testEntry('a-lorenzo', 'Lorenzo Medici', { category: 'person' }));
+
+		await addSynonym('Wspaniały');
+
+		expect(fetchForms).not.toHaveBeenCalled();
+	});
+
+	it('takes at most three synonyms', async () => {
+		renderEdit(testEntry('a-fresco', 'Fresk', { category: 'technique' }));
+
+		await addSynonym('jeden');
+		await addSynonym('dwa');
+		await addSynonym('trzy');
+
+		await expect.element(page.getByText(m.glossary.form.synonymsFull)).toBeVisible();
+		await expect
+			.element(page.getByRole('combobox', { name: m.glossary.form.synonyms }))
+			.not.toBeInTheDocument();
+	});
+
+	it('fetches the forms of the name and of every synonym again', async () => {
+		vi.mocked(fetchForms).mockImplementation(async (word) => [`${word}-forma`]);
+		renderEdit();
+
+		await nameField().fill('Tympanon');
+		await page.getByRole('button', { name: m.glossary.form.formsRefetch }).click();
+
+		expect(fetchForms).toHaveBeenCalledWith('Tympanon');
+		expect(fetchForms).toHaveBeenCalledWith('tympan');
+		await expect.element(page.getByText(m.glossary.form.formsCount(2))).toBeVisible();
 	});
 
 	it('shows the sort name of an entry that has one', async () => {

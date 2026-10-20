@@ -818,6 +818,7 @@ export type Database = {
       review_session: {
         Args: {
           day_start: string;
+          free_round?: number;
           scope_kind?: string;
           scope_value?: string;
           session_form?: string;

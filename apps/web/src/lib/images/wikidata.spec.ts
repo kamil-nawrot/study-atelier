@@ -34,6 +34,15 @@ describe('artworkSearchQuery', () => {
 		expect(query).toContain('ORDER BY ?order');
 	});
 
+	it('keeps the order of the query, so the searches run before the items with an image', () => {
+		const query = artworkSearchQuery('Mona Lisa');
+
+		expect(query).toContain('hint:Query hint:optimizer "None".');
+		expect(query.indexOf('wikibase:api "EntitySearch"')).toBeLessThan(
+			query.indexOf('?item wdt:P18 ?image.')
+		);
+	});
+
 	it('asks only for items with an image, and no people', () => {
 		const query = artworkSearchQuery('David');
 

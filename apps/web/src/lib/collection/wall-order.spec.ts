@@ -30,14 +30,20 @@ describe('wall order', () => {
 	it('remembers the order the learner chose', () => {
 		vi.stubGlobal('localStorage', memoryStorage());
 
-		rememberWallOrder('period');
-		expect(rememberedWallOrder()).toBe('period');
+		rememberWallOrder('year');
+		expect(rememberedWallOrder()).toBe('year');
 
 		rememberWallOrder('author');
 		expect(rememberedWallOrder()).toBe('author');
 
 		rememberWallOrder('recent');
 		expect(rememberedWallOrder()).toBe('recent');
+	});
+
+	it('turns the former order by era into the order by date of creation', () => {
+		vi.stubGlobal('localStorage', memoryStorage({ 'study-atelier:wall-order': 'period' }));
+
+		expect(rememberedWallOrder()).toBe('year');
 	});
 
 	it('ignores a stored value it does not know', () => {
@@ -49,13 +55,14 @@ describe('wall order', () => {
 	it('falls back to the default when the browser blocks storage', () => {
 		vi.stubGlobal('localStorage', { getItem: blocked, setItem: blocked, removeItem: blocked });
 
-		expect(() => rememberWallOrder('period')).not.toThrow();
+		expect(() => rememberWallOrder('year')).not.toThrow();
 		expect(rememberedWallOrder()).toBe('recent');
 	});
 
 	it('recognises only the known orders', () => {
 		expect(isWallOrder('recent')).toBe(true);
-		expect(isWallOrder('period')).toBe(true);
+		expect(isWallOrder('year')).toBe(true);
+		expect(isWallOrder('period')).toBe(false);
 		expect(isWallOrder('author')).toBe(true);
 		expect(isWallOrder('oldest')).toBe(false);
 		expect(isWallOrder(null)).toBe(false);

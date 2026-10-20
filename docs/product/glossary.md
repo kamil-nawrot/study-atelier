@@ -10,7 +10,8 @@
 | Record number | The artwork's sequential number in the atelier, shown as `#0001`. Never reused. |
 | Candidate | An artwork found in the image source that may match the artwork being added; the learner picks one or none. |
 | Trash | Where deleted artworks go. An artwork in the trash can be restored or deleted permanently. |
-| Period rail | The labelled lines at the right edge of the wall that show the eras while the wall is ordered by era, or the authors while it is ordered by author: those scrolled past at the top, the ones ahead at the bottom, the current one passing through the middle. When the rail is too short to name every line, only the current one is named. |
+| Period rail | The labelled lines at the right edge of the wall that show the eras while the wall is grouped, or the authors while it is ordered by author: those scrolled past at the top, the ones ahead at the bottom, the current one passing through the middle. When the rail is too short to name every line, only the current one is named. |
+| Group (of the wall) | A section of the wall with a heading, a count and its own wall: an era, a period within an era or a style within a period, chosen in steps under "Grupuj". An artwork with several styles stands in each of its style groups; artworks without a value go to "Bez epoki", "Bez okresu" or "Bez stylu". |
 | Year span | The date of creation of an artwork given as a start year and an end year ("Lata powstania", for example `1503–1519`), as an alternative to a single year. It is not a period: "Okres" is the field of the era chain (era, period, style). A span can cross the turn of the eras, each year has its own "p.n.e.", and the artwork is placed on the wall by its end year. |
 | Era | One of six fixed spans of history at the top of the timeline (prehistoria to współczesność). An artwork has one era; its period belongs to the era and its styles to the period. Unlike a period, an era is not the learner's own value. |
 | Card index | The view ("Kartoteka") listing the learner's category values and eras; each leads to its value page, where the learner describes, renames, merges, links and deletes it. |
@@ -20,6 +21,7 @@
 | Quiz | A review question with four answers to choose from: images, titles or styles. The wrong answers are distractors. |
 | Distractor | A wrong answer in a quiz, taken from the learner's own artworks or styles and chosen to be close to the right one. |
 | Plan for today | What the review start offers for the day: every artwork due before midnight plus up to 10 new artworks of the whole atelier; a scope only narrows it ([ADR-0071](../decisions/0071-put-the-plan-first-on-the-review-start.md)). |
+| Free review | "Powtórka swobodna": extra rounds after the plan for today is done, of artworks already reviewed, the weakest first, which save no answer ([ADR-0084](../decisions/0084-free-review-after-the-day-is-done.md)). |
 | Settled artwork | "Utrwalone": an artwork the learner remembers for longer than a week (FSRS stability of at least 7 days). |
 | Learning artwork | "W trakcie nauki": an artwork already reviewed but not settled yet. |
 | New artwork | "Nowe": an artwork with an image that has never been reviewed. |

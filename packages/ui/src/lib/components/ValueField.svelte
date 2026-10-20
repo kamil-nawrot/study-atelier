@@ -18,6 +18,7 @@
 		query?: string;
 		options?: readonly ValueOption[];
 		single?: boolean;
+		max?: number;
 		disabled?: boolean;
 		locked?: boolean;
 		hint?: string;
@@ -32,6 +33,7 @@
 		query = $bindable(''),
 		options = [],
 		single = false,
+		max,
 		disabled = false,
 		locked = false,
 		hint,
@@ -56,7 +58,7 @@
 	const starter = $derived(ordered.filter((option) => option.kind === 'starter'));
 	const similar = $derived(ordered.find((option) => option.kind === 'similar'));
 	const added = $derived(ordered.find((option) => option.kind === 'new'));
-	const full = $derived(single && values.length > 0);
+	const full = $derived(values.length >= (single ? 1 : (max ?? Infinity)));
 
 	let control: HTMLDivElement | undefined = $state();
 	let input: HTMLInputElement | undefined = $state();

@@ -3,7 +3,9 @@ import type { ArtworkTileImage, NoteLinks } from '@study-atelier/ui';
 import type { Mention } from './mentions.ts';
 import type { ValueSummaries } from './value-summaries.ts';
 
-export type WallOrder = 'recent' | 'period' | 'author';
+export type WallOrder = 'recent' | 'year' | 'author';
+
+export type WallGrouping = 'none' | 'era' | 'period' | 'style';
 
 export type EraCode =
 	'prehistory' | 'antiquity' | 'middle_ages' | 'early_modern' | 'modern' | 'contemporary';
@@ -15,6 +17,15 @@ export type PeriodGroup = {
 	from: number | null;
 	to: number | null;
 	artworks: WallArtwork[];
+};
+
+export type WallSection = {
+	key: string;
+	level: number;
+	code: EraCode | null;
+	name: string;
+	artworks: WallArtwork[];
+	sections: WallSection[];
 };
 
 export type CurrentPeriod = {

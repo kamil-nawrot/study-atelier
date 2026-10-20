@@ -92,6 +92,24 @@ function orderSelect(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('combobox', { name: m.atelier.sort.label });
 }
 
+function groupingStep(grouping: 'era' | 'period' | 'style'): ReturnType<typeof page.getByRole> {
+	return page
+		.getByRole('group', { name: m.atelier.grouping.label })
+		.getByRole('button', { name: m.atelier.grouping.steps[grouping] });
+}
+
+function groupingButton(): ReturnType<typeof page.getByRole> {
+	return page.getByRole('button', { name: m.atelier.grouping.button('') });
+}
+
+async function chooseGrouping(grouping: 'era' | 'period' | 'style'): Promise<void> {
+	const wide = window.innerWidth >= 768;
+	if (wide) await groupingButton().click();
+	else await page.getByRole('button', { name: m.atelier.filters.viewButton }).click();
+	await groupingStep(grouping).click();
+	await userEvent.keyboard('{Escape}');
+}
+
 const styled = [
 	testArtwork(1, 'Mona Lisa', {
 		yearTo: 1503,
@@ -115,6 +133,23 @@ const styled = [
 		hasImage: false
 	}),
 	testArtwork(4, 'The Thinker', { yearTo: 1904, eraCode: 'modern', typeCode: 'sculpture' })
+];
+
+const periods = [
+	testArtwork(3, 'Night Watch', { yearTo: 1642, eraCode: 'early_modern', period: 'barok' }),
+	testArtwork(2, 'Calling of Saint Matthew', {
+		yearTo: 1600,
+		eraCode: 'early_modern',
+		period: 'barok',
+		styles: ['caravaggionizm', 'barok']
+	}),
+	testArtwork(1, 'Mona Lisa', {
+		yearTo: 1503,
+		eraCode: 'early_modern',
+		period: 'renesans',
+		styles: ['wysoki renesans']
+	}),
+	testArtwork(4, 'Water Lilies', { yearTo: 1906, eraCode: 'modern' })
 ];
 
 function filtersButton(): ReturnType<typeof page.getByRole> {
@@ -370,7 +405,7 @@ describe('atelier page', () => {
 		});
 	});
 
-	describe('ordered by period', () => {
+	describe('ordered by date of creation', () => {
 		it('offers the order next to the search, most recently added first', async () => {
 			renderAtelier(dated);
 
@@ -383,36 +418,21 @@ describe('atelier page', () => {
 			]);
 		});
 
-		it('shows eras in their fixed order with artworks by year and hides those without an era', async () => {
+		it('orders the whole wall by year, without a rail', async () => {
 			renderAtelier(dated);
 
-			await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
+			await userEvent.selectOptions(orderSelect(), m.atelier.sort.year);
 
-			await expect.element(page.getByText(m.atelier.filteredCount(3, 4))).toBeVisible();
-			expect(titlesOnTheWall(dated)).toEqual(['Mona Lisa', 'Impression, Sunrise', 'Water Lilies']);
-		});
-
-		it('puts the eras in their fixed order even when the years disagree', async () => {
-			const both = [
-				testArtwork(1, 'Dated Late', { yearTo: 1700, eraCode: 'antiquity' }),
-				testArtwork(2, 'Dated Early', { yearTo: 1500, eraCode: 'modern' })
-			];
-			renderAtelier(both);
-
-			await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
-
-			expect(titlesOnTheWall(both)).toEqual(['Dated Late', 'Dated Early']);
-			await expect.element(page.getByText(m.atelier.count(2))).toBeVisible();
-		});
-
-		it('searches inside the order', async () => {
-			renderAtelier(dated);
-			await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
-
-			await searchField().fill('water');
-
-			expect(titlesOnTheWall(dated)).toEqual(['Water Lilies']);
-			await expect.element(page.getByText(m.atelier.filteredCount(1, 4))).toBeVisible();
+			await expect.element(page.getByText(m.atelier.count(4))).toBeVisible();
+			expect(titlesOnTheWall(dated)).toEqual([
+				'Mona Lisa',
+				'Untitled study',
+				'Impression, Sunrise',
+				'Water Lilies'
+			]);
+			await expect
+				.element(page.getByRole('complementary', { name: m.atelier.periods.label }))
+				.not.toBeInTheDocument();
 		});
 
 		it('remembers the order on the device', async () => {
@@ -420,27 +440,12 @@ describe('atelier page', () => {
 				data: { session: testSession(), artworks: dated },
 				params: {}
 			});
-			await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
+			await userEvent.selectOptions(orderSelect(), m.atelier.sort.year);
 			await view.unmount();
 
 			renderAtelier(dated);
 
-			await expect.element(orderSelect()).toHaveDisplayValue(m.atelier.sort.period);
-			expect(titlesOnTheWall(dated)).toEqual(['Mona Lisa', 'Impression, Sunrise', 'Water Lilies']);
-		});
-
-		it('says no artwork has a period yet and goes back to the recent order', async () => {
-			renderAtelier(artworks);
-			await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
-
-			await expect
-				.element(page.getByRole('heading', { level: 2 }))
-				.toHaveTextContent(m.atelier.periods.emptyTitle);
-
-			await page.getByRole('button', { name: m.atelier.periods.showRecent }).click();
-
-			await expect.element(orderSelect()).toHaveDisplayValue(m.atelier.sort.recent);
-			await expect.element(page.getByText('Starry Night')).toBeVisible();
+			await expect.element(orderSelect()).toHaveDisplayValue(m.atelier.sort.year);
 		});
 
 		it('keeps the order select enabled only when there are artworks', async () => {
@@ -448,39 +453,132 @@ describe('atelier page', () => {
 
 			await expect.element(orderSelect()).toBeDisabled();
 		});
+	});
+
+	describe('grouped', () => {
+		it('starts without groups', async () => {
+			renderAtelier(dated);
+
+			await expect
+				.element(groupingButton())
+				.toHaveAccessibleName(m.atelier.grouping.button(m.atelier.grouping.off));
+			await expect.element(page.getByRole('heading', { level: 2 })).not.toBeInTheDocument();
+		});
+
+		it('gives every era a heading and its own wall, artworks without an era last', async () => {
+			renderAtelier(dated);
+
+			await chooseGrouping('era');
+
+			const headings = page.getByRole('heading', { level: 2 }).elements();
+			expect(headings.map((heading) => heading.textContent?.trim())).toEqual([
+				`${m.eras.early_modern.name} 1`,
+				`${m.eras.modern.name} 2`,
+				`${m.atelier.grouping.noEra} 1`
+			]);
+			expect(titlesOnTheWall(dated)).toEqual([
+				'Mona Lisa',
+				'Water Lilies',
+				'Impression, Sunrise',
+				'Untitled study'
+			]);
+			await expect.element(page.getByText(m.atelier.count(4))).toBeVisible();
+			expect(vi.mocked(goto)).toHaveBeenLastCalledWith('/atelier?grupuj=epoka', {
+				replace: true,
+				reset: false
+			});
+		});
+
+		it('orders the artworks inside each group by the chosen order', async () => {
+			renderAtelier(dated);
+			await userEvent.selectOptions(orderSelect(), m.atelier.sort.year);
+
+			await chooseGrouping('era');
+
+			expect(titlesOnTheWall(dated)).toEqual([
+				'Mona Lisa',
+				'Impression, Sunrise',
+				'Water Lilies',
+				'Untitled study'
+			]);
+		});
+
+		it('nests the periods and styles, repeating an artwork in each of its styles', async () => {
+			renderAtelier(periods);
+
+			await chooseGrouping('style');
+
+			const levels = (level: number): (string | undefined)[] =>
+				page
+					.getByRole('heading', { level })
+					.elements()
+					.map((heading) => heading.textContent?.trim());
+			expect(levels(3)).toEqual(['renesans 1', 'barok 2', `${m.atelier.grouping.noPeriod} 1`]);
+			expect(levels(4)).toEqual([
+				'wysoki renesans 1',
+				'barok 1',
+				'caravaggionizm 1',
+				`${m.atelier.grouping.noStyle} 1`
+			]);
+			await expect.element(page.getByText(m.atelier.count(4))).toBeVisible();
+		});
+
+		it('collapses a group and every group at once', async () => {
+			renderAtelier(dated);
+			await chooseGrouping('era');
+
+			await page.getByRole('heading', { level: 2, name: m.eras.modern.name }).click();
+
+			expect(titlesOnTheWall(dated)).toEqual(['Mona Lisa', 'Untitled study']);
+			await page.getByRole('button', { name: m.atelier.grouping.expandAll }).click();
+			expect(titlesOnTheWall(dated)).toHaveLength(4);
+
+			await page.getByRole('button', { name: m.atelier.grouping.collapseAll }).click();
+
+			expect(titlesOnTheWall(dated)).toEqual([]);
+		});
+
+		it('keeps filtering and searching inside the groups', async () => {
+			renderAtelier(dated);
+			await chooseGrouping('era');
+
+			await searchField().fill('water');
+
+			expect(page.getByRole('heading', { level: 2 }).elements()).toHaveLength(1);
+			await expect.element(page.getByText(m.atelier.filteredCount(1, 4))).toBeVisible();
+		});
+
+		it('flips through the artworks in the order of the groups, each once', async () => {
+			renderAtelier(periods);
+
+			await chooseGrouping('style');
+
+			await vi.waitFor(() =>
+				expect(JSON.parse(sessionStorage.getItem('study-atelier:wall-sequence') ?? 'null')).toEqual(
+					{ query: 'grupuj=styl', numbers: [1, 2, 3, 4] }
+				)
+			);
+		});
 
 		describe('on a phone', () => {
 			beforeEach(async () => {
 				await page.viewport(390, 800);
 			});
 
-			it('keeps the order select in the view dialog, not in the top bar', async () => {
-				renderAtelier(dated);
-
-				await expect.element(orderSelect()).not.toBeInTheDocument();
-
-				await page.getByRole('button', { name: m.atelier.filters.viewButton }).click();
-
-				await expect.element(orderSelect()).toBeVisible();
-			});
-
-			it('follows the scroll in a strip under the top bar', async () => {
+			it('chooses the grouping under the title and follows the eras in the strip', async () => {
 				renderAtelier(manyPeriods());
-				await page.getByRole('button', { name: m.atelier.filters.viewButton }).click();
-				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
-				await page.getByRole('button', { name: m.atelier.filters.showResults(12) }).click();
+
+				await chooseGrouping('era');
 
 				const strip = page.getByRole('complementary', { name: m.atelier.periods.label });
 				await expect.element(strip).toHaveTextContent(m.eras.early_modern.name);
-				await expect.element(strip).toHaveTextContent('1500 – 1503');
 
 				scrollToTheEnd();
 
 				await expect.element(strip).toHaveTextContent(m.eras.contemporary.name);
-				await expect.element(strip).toHaveTextContent('1960 – 1963');
 			});
 
-			it('has no strip in the recent order', async () => {
+			it('has no strip without groups', async () => {
 				renderAtelier(manyPeriods());
 
 				await expect
@@ -496,65 +594,32 @@ describe('atelier page', () => {
 
 			it('has no rail when every artwork falls into one era', async () => {
 				renderAtelier(manyPeriods().slice(0, 4));
-				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
+				await chooseGrouping('era');
 
-				await expect.element(orderSelect()).toHaveValue('period');
 				await expect
 					.element(page.getByRole('complementary', { name: m.atelier.periods.label }))
 					.not.toBeInTheDocument();
 			});
 
-			it('shows the rail at the right edge instead of the strip', async () => {
+			it('shows the eras on the rail at the right edge, the current one highlighted', async () => {
 				renderAtelier(manyPeriods());
-				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
-
-				const rail = page.getByRole('complementary', { name: m.atelier.periods.label });
-				await expect.element(rail).toBeVisible();
-				await expect.element(rail).toHaveTextContent(m.eras.modern.name);
-				expect(rail.element().getBoundingClientRect().right).toBe(
-					document.documentElement.getBoundingClientRect().right
-				);
-				expect(page.getByRole('complementary').elements()).toHaveLength(1);
-			});
-
-			it('highlights the first era at the top and the last one at the end', async () => {
-				renderAtelier(manyPeriods());
-				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
+				await chooseGrouping('period');
 				const rail = page.getByRole('complementary', { name: m.atelier.periods.label });
 				const current = rail.getByRole('listitem').filter({ hasText: /./ });
 
+				await expect.element(rail).toBeVisible();
+				expect(rail.element().getBoundingClientRect().right).toBe(
+					document.documentElement.getBoundingClientRect().right
+				);
 				await expect
 					.element(current.filter({ hasText: m.eras.early_modern.name }))
 					.toHaveAttribute('aria-current', 'true');
-				expect(rail.getByRole('listitem').elements()[0].getBoundingClientRect().top).toBe(
-					rail.element().getBoundingClientRect().top
-				);
 
 				scrollToTheEnd();
 
 				await expect
 					.element(current.filter({ hasText: m.eras.contemporary.name }))
 					.toHaveAttribute('aria-current', 'true');
-				await expect
-					.element(current.filter({ hasText: m.eras.early_modern.name }))
-					.not.toHaveAttribute('aria-current');
-			});
-
-			it('shows the era icon only on the current era', async () => {
-				renderAtelier(manyPeriods());
-				await userEvent.selectOptions(orderSelect(), m.atelier.sort.period);
-				const rail = page.getByRole('complementary', { name: m.atelier.periods.label });
-
-				expect(rail.element().querySelectorAll('svg')).toHaveLength(1);
-
-				scrollToTheEnd();
-
-				await vi.waitFor(() =>
-					expect(
-						rail.getByRole('listitem').filter({ hasText: m.eras.contemporary.name }).element()
-					).toContainElement(rail.element().querySelector('svg'))
-				);
-				expect(rail.element().querySelectorAll('svg')).toHaveLength(1);
 			});
 		});
 	});
@@ -809,7 +874,9 @@ describe('atelier page', () => {
 			renderAtelier(styled);
 
 			expect(titlesOnTheWall(styled)).toEqual(['Water Lilies', 'Impression, Sunrise']);
-			await expect.element(filtersButton()).toHaveTextContent(m.atelier.filters.buttonWithCount(2));
+			await expect
+				.element(filtersButton())
+				.toHaveAccessibleName(m.atelier.filters.buttonWithCount(2));
 		});
 
 		it('ignores values in the address that no artwork has', async () => {

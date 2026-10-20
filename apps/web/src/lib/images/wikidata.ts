@@ -51,6 +51,7 @@ export function artworkSearchQuery(title: string): string {
 (GROUP_CONCAT(DISTINCT ?creatorLabel; separator="|") AS ?creators)
 (GROUP_CONCAT(DISTINCT ?creatorName; separator="|") AS ?creatorNames)
 (COUNT(DISTINCT ?creatorStatement) AS ?creatorCount) WHERE {
+  hint:Query hint:optimizer "None".
   {
     SERVICE wikibase:mwapi {
       bd:serviceParam wikibase:endpoint "www.wikidata.org"; wikibase:api "EntitySearch";

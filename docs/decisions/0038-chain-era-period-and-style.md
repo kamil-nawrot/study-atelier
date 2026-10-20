@@ -1,6 +1,6 @@
 # 0038. Chain era, period and style, with the era from a fixed list
 
-- Status: accepted
+- Status: accepted; the wall order by era is superseded by [0085](0085-group-the-wall-by-era-period-and-style.md)
 - Date: 2026-10-13
 
 ## Context and problem statement
