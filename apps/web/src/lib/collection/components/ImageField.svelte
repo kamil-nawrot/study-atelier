@@ -42,7 +42,9 @@
 		texts: ImageFieldTexts;
 		image: ArtworkImageInput | null;
 		removable?: boolean;
+		onsearch?: () => void;
 		slots?: Snippet;
+		status?: Snippet;
 	};
 
 	let {
@@ -52,7 +54,9 @@
 		texts,
 		image = $bindable(),
 		removable = false,
-		slots
+		onsearch,
+		slots,
+		status
 	}: Props = $props();
 
 	const id = $props.id();
@@ -78,6 +82,11 @@
 	let preview = $derived(artworkImageSource(image, COMMONS_PREVIEW_WIDTH));
 	let credit = $derived(artworkImageCredit(image));
 	let ownImage = $derived(image !== null && image.kind !== 'commons');
+
+	function openSearch(): void {
+		onsearch?.();
+		searchOpen = true;
+	}
 
 	function release(previous: ArtworkImageInput | null): void {
 		if (previous?.kind === 'file') URL.revokeObjectURL(previous.previewUrl);
@@ -252,7 +261,7 @@
 	</figure>
 
 	<div class="image-actions">
-		<Button id={findImageId} disabled={!searchReady} onclick={() => (searchOpen = true)}>
+		<Button id={findImageId} disabled={!searchReady} onclick={openSearch}>
 			<Icon icon={Search} size="sm" />
 			{image?.kind === 'commons' ? texts.findOther : texts.find}
 		</Button>
@@ -267,6 +276,7 @@
 			</Button>
 		{/if}
 	</div>
+	{@render status?.()}
 	{#if !searchReady}
 		<p class="caption">{texts.findHint}</p>
 	{/if}

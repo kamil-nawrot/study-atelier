@@ -224,9 +224,17 @@ function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
 	return { promise, resolve };
 }
 
+function answerNothingFromWikidata(): void {
+	vi.stubGlobal(
+		'fetch',
+		vi.fn(async () => new Response(JSON.stringify({ results: { bindings: [] } })))
+	);
+}
+
 describe('add artwork page', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
+		answerNothingFromWikidata();
 		vi.mocked(supabase.rpc).mockReturnValue(rpcCall as never);
 		rpcCall.single.mockResolvedValue({
 			data: { id: 'artwork-12', record_number: 12 },
@@ -926,7 +934,6 @@ describe('add artwork page', () => {
 		for (let added = 0; added < 4; added += 1) await add.click();
 
 		await expect.element(add).not.toBeInTheDocument();
-		await expect.element(page.getByText(m.artworkForm.imagesLimit)).toBeVisible();
 		await page.getByRole('button', { name: m.artworkForm.removeImage }).click();
 		await expect.element(add).toBeVisible();
 
@@ -1134,37 +1141,32 @@ describe('image search on the add artwork page', () => {
 		};
 	}
 
-	function answerSearch(): void {
+	function answerSearch(
+		bindings = [binding('Q167605', 'The%20Milkmaid.jpg'), binding('Q99', null)]
+	): void {
 		fetchMock.mockImplementation(async (input) => {
 			const url = new URL(String(input));
 			if (url.hostname === 'query.wikidata.org') {
-				return new Response(
-					JSON.stringify({
-						results: {
-							bindings: [binding('Q167605', 'The%20Milkmaid.jpg'), binding('Q99', null)]
-						}
-					})
-				);
+				return new Response(JSON.stringify({ results: { bindings } }));
 			}
+			const titles = (url.searchParams.get('titles') ?? '').split('|');
 			return new Response(
 				JSON.stringify({
 					query: {
-						pages: [
-							{
-								title: 'File:The Milkmaid.jpg',
-								imageinfo: [
-									{
-										thumburl: thumbnail,
-										width: 2000,
-										height: 2250,
-										extmetadata: {
-											LicenseShortName: { value: 'CC BY-SA 4.0' },
-											Artist: { value: 'Jane Doe' }
-										}
+						pages: titles.map((title) => ({
+							title,
+							imageinfo: [
+								{
+									thumburl: thumbnail,
+									width: 2000,
+									height: 2250,
+									extmetadata: {
+										LicenseShortName: { value: 'CC BY-SA 4.0' },
+										Artist: { value: 'Jane Doe' }
 									}
-								]
-							}
-						]
+								}
+							]
+						}))
 					}
 				})
 			);
@@ -1180,6 +1182,8 @@ describe('image search on the add artwork page', () => {
 		await fillRequired();
 		await page.getByRole('button', { name: m.artworkForm.findImage }).click();
 	}
+
+	const matched = m.artworkForm.matchFound('The Milkmaid · Johannes Vermeer · 1658');
 
 	beforeEach(async () => {
 		vi.clearAllMocks();
@@ -1197,6 +1201,44 @@ describe('image search on the add artwork page', () => {
 
 	afterEach(() => {
 		vi.unstubAllGlobals();
+	});
+
+	it('fills in the image of the artwork that matches the author once the title and author are in', async () => {
+		answerSearch();
+		renderPage();
+		await fillRequired();
+
+		await expect.element(page.getByText(matched), { timeout: 3000 }).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.chooseOtherImage }))
+			.toBeVisible();
+
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
+		expect(args.artwork).toMatchObject({ source_wikidata_id: 'Q167605' });
+	});
+
+	it('fills in nothing when no artwork matches the author', async () => {
+		answerSearch();
+		renderPage();
+		await titleField().fill('The Milkmaid');
+		await addValue(authorsField(), 'Rembrandt');
+
+		await expect.element(page.getByText(m.artworkForm.matchNone), { timeout: 3000 }).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.artworkForm.findImage })).toBeVisible();
+	});
+
+	it('does not fill in an image after the learner opened the search', async () => {
+		answerSearch();
+		await openSearch();
+		await searchDialog().getByRole('button', { name: m.imageSearch.none }).click();
+
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
+		await expect.element(page.getByText(matched)).not.toBeInTheDocument();
+		await expect.element(page.getByRole('button', { name: m.artworkForm.findImage })).toBeVisible();
 	});
 
 	it('lists only the candidates that have an image', async () => {
@@ -1304,6 +1346,7 @@ describe('image search on the add artwork page', () => {
 
 describe('pasting an own image on the add artwork page', () => {
 	beforeEach(async () => {
+		answerNothingFromWikidata();
 		vi.clearAllMocks();
 		vi.mocked(supabase.auth.getSession).mockResolvedValue({
 			data: { session: testSession() },

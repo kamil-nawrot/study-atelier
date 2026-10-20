@@ -386,6 +386,19 @@ export const CATALOGUE_MUSEUMS = [
 	{ name: 'Pradla Museum', english_name: null, country_code: 'PL' }
 ];
 
+export const ARTWORK_SEARCH = [
+	{
+		item: 'http://www.wikidata.org/entity/Q167605',
+		title: 'The Milkmaid',
+		file: 'http://commons.wikimedia.org/wiki/Special:FilePath/The%20Milkmaid.jpg',
+		date: '1658-01-01T00:00:00Z/9',
+		creators: 'Johannes Vermeer',
+		creatorNames: 'Johannes Vermeer',
+		creatorCount: '1',
+		order: '0'
+	}
+];
+
 export const PEOPLE = [
 	{
 		item: 'http://www.wikidata.org/entity/Q762',
