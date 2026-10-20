@@ -92,7 +92,9 @@ select security_test.act_as('00000000-0000-0000-0000-00000000000a');
 
 select id, record_number from public.save_artwork(
   '{"title": "Owner A work", "author_unknown": true, "era_code": "early_modern"}',
-  '{"author": [], "period": ["Baroque"], "style": ["Tenebrism"]}'
+  '{"author": [], "period": ["Baroque"], "style": ["Tenebrism"]}',
+  null,
+  '[{"own_image_path": "00000000-0000-0000-0000-00000000000a/plan.jpg", "image_width": 4, "image_height": 3}]'
 );
 
 insert into public.category_values (category_code, name) values ('style', 'Unlinked');
@@ -137,6 +139,7 @@ begin
   assert (select count(*) from public.artworks) = 0, 'B reads artworks of A';
   assert (select count(*) from public.category_values) = 0, 'B reads category values of A';
   assert (select count(*) from public.artwork_values) = 0, 'B reads artwork values of A';
+  assert (select count(*) from public.artwork_images) = 0, 'B reads artwork images of A';
   assert (select count(*) from public.period_eras) = 0, 'B reads period eras of A';
   assert (select count(*) from public.style_periods) = 0, 'B reads style periods of A';
   assert (select count(*) from public.period_details) = 0, 'B reads period details of A';
@@ -223,6 +226,15 @@ begin
   assert security_test.denied(format(
     'insert into public.artworks (title, author_unknown, own_image_path) values (''Borrowed'', true, ''%s/work.jpg'')', a)),
     'B points an artwork at an image of A';
+  assert security_test.denied(format(
+    'insert into public.artwork_images (artwork_id, position, own_image_url) values (%L, 2, ''https://example.com/b.jpg'')',
+    a_artwork)),
+    'B adds an image to an artwork of A';
+  assert security_test.denied(format(
+    'select public.save_artwork(''{"title": "Mine", "author_unknown": true}'', ''{}'', null, ''[{"own_image_path": "%s/plan.jpg"}]'')',
+    a)),
+    'B points an extra image at an image of A';
+  assert security_test.affected('delete from public.artwork_images') = 0, 'B deletes artwork images of A';
 
   perform security_test.act_as(a);
 

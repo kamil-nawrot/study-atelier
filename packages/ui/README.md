@@ -77,7 +77,7 @@ Every exported component has a row here; a pull request that adds a component ad
 | `Popover`       | Text-like trigger that opens a card on click, hover or focus                                                 |
 | `PopoverCard`   | The card of a `Popover` or of a glossary term in notes; `interactive` holds a link                           |
 | `PopupButton`   | Button that opens a panel under it (role `dialog`), closed by a click outside or Escape; optional tooltip    |
-| `Tooltip`       | One short line above or below a control, on hover and keyboard focus                                         |
+| `Tooltip`       | One short line above, below or to the left of a control, on hover and keyboard focus                         |
 | `LoadingScreen` | Full-screen first load: the logo mark with strokes in its window                                             |
 | `ProgressLine`  | Thin stroke along the bottom of the top bar while a navigation loads                                         |
 | `Primer`        | Faint strokes laid across an image window while the image loads                                              |

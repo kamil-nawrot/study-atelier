@@ -42,6 +42,7 @@ type ArtworkRecordRow = {
 	notes: string | null;
 	favourite: boolean;
 	artwork_values: ArtworkValueRow[];
+	artwork_images: (ImageRow & { position: number })[];
 } & ImageRow;
 
 type StoredInput = Omit<ArtworkInput, 'image'> & { image: StoredImage | null };
@@ -59,7 +60,8 @@ const RECORD_COLUMNS = [
 	'notes',
 	'favourite',
 	...IMAGE_COLUMNS,
-	'artwork_values(position, category_values(category_code, name))'
+	'artwork_values(position, category_values(category_code, name))',
+	`artwork_images(position, ${IMAGE_COLUMNS.join(', ')})`
 ].join(', ');
 
 export function emptyArtworkInput(): ArtworkInput {
@@ -79,7 +81,8 @@ export function emptyArtworkInput(): ArtworkInput {
 		materials: [],
 		location: null,
 		notes: '',
-		image: null
+		image: null,
+		images: []
 	};
 }
 
@@ -156,19 +159,32 @@ export async function saveArtwork(
 	const fieldErrors = validateArtwork(input);
 	if (Object.keys(fieldErrors).length > 0) return { saved: false, fieldErrors };
 
-	const stored = await storedImage(input.image);
-	if (stored.error !== undefined) return { saved: false, error: stored.error, fieldErrors };
-	const newUpload = input.image?.kind === 'file' ? uploadPath(stored.image) : null;
+	const stored: StoredImage[] = [];
+	const newUploads: string[] = [];
+	for (const image of [input.image, ...input.images]) {
+		if (image === null) continue;
+		const result = await storedImage(image);
+		if (result.error !== undefined) {
+			await Promise.all(newUploads.map((path) => removeOwnImage(path)));
+			return { saved: false, error: result.error, fieldErrors };
+		}
+		if (result.image === null) continue;
+		stored.push(result.image);
+		const path = image.kind === 'file' ? uploadPath(result.image) : null;
+		if (path) newUploads.push(path);
+	}
+	const [main = null, ...others] = stored;
 
 	const { data, error, status } = await supabase
 		.rpc('save_artwork', {
-			artwork: artworkColumns({ ...input, image: stored.image }),
+			artwork: artworkColumns({ ...input, image: main }),
 			values_by_category: valuesByCategory(input),
-			existing_id: existing?.id
+			existing_id: existing?.id,
+			extra_images: others.map(imageColumns) as unknown as Json
 		})
 		.single();
 	if (error) {
-		if (newUpload && error.code) await removeOwnImage(newUpload);
+		if (error.code) await Promise.all(newUploads.map((path) => removeOwnImage(path)));
 		return {
 			saved: false,
 			error: await failureMessage(
@@ -179,10 +195,11 @@ export async function saveArtwork(
 		};
 	}
 
-	const previousUpload = uploadPath(existing?.image ?? null);
-	if (previousUpload && previousUpload !== uploadPath(stored.image)) {
-		await removeOwnImage(previousUpload);
-	}
+	const kept = new Set(stored.map(uploadPath));
+	const previous = existing ? [existing.image, ...existing.images].map(uploadPath) : [];
+	await Promise.all(
+		previous.flatMap((path) => (path && !kept.has(path) ? [removeOwnImage(path)] : []))
+	);
 
 	return { saved: true, id: data.id, number: data.record_number };
 }
@@ -207,7 +224,10 @@ function artworkRecordFromRow(row: ArtworkRecordRow): ArtworkRecord {
 		materials: valuesOf(row.artwork_values, 'material'),
 		location: valuesOf(row.artwork_values, 'location')[0] ?? null,
 		notes: row.notes ?? '',
-		image: imageOf(row)
+		image: imageOf(row),
+		images: [...(row.artwork_images ?? [])]
+			.sort((first, second) => first.position - second.position)
+			.flatMap((image) => imageOf(image) ?? [])
 	};
 }
 
@@ -221,5 +241,14 @@ export async function loadArtwork(number: number): Promise<LoadArtworkResult> {
 	if (error) return { error: artworkErrorMessage(error) };
 	if (!data) return { error: m.artworkErrors.notFound, notFound: true };
 	const artwork = artworkRecordFromRow(data as unknown as ArtworkRecordRow);
-	return { artwork: { ...artwork, image: await withPreview(artwork.image) } };
+	const [image, ...images] = await Promise.all(
+		[artwork.image, ...artwork.images].map((item) => withPreview(item))
+	);
+	return {
+		artwork: {
+			...artwork,
+			image,
+			images: images.filter((item): item is NonNullable<typeof item> => item !== null)
+		}
+	};
 }

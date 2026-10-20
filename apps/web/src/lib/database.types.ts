@@ -9,6 +9,60 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      artwork_images: {
+        Row: {
+          artwork_id: string;
+          image_height: number | null;
+          image_width: number | null;
+          own_image_path: string | null;
+          own_image_url: string | null;
+          owner_id: string;
+          position: number;
+          source_image_attribution: string | null;
+          source_image_file: string | null;
+          source_image_licence: string | null;
+          source_image_licence_url: string | null;
+          source_wikidata_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          artwork_id: string;
+          image_height?: number | null;
+          image_width?: number | null;
+          own_image_path?: string | null;
+          own_image_url?: string | null;
+          owner_id?: string;
+          position: number;
+          source_image_attribution?: string | null;
+          source_image_file?: string | null;
+          source_image_licence?: string | null;
+          source_image_licence_url?: string | null;
+          source_wikidata_id?: string | null;
+        };
+        Update: {
+          artwork_id?: string;
+          image_height?: number | null;
+          image_width?: number | null;
+          own_image_path?: string | null;
+          own_image_url?: string | null;
+          owner_id?: string;
+          position?: number;
+          source_image_attribution?: string | null;
+          source_image_file?: string | null;
+          source_image_licence?: string | null;
+          source_image_licence_url?: string | null;
+          source_wikidata_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "artwork_images_artwork_id_owner_id_fkey";
+            columns: ["artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
       artwork_types: {
         Row: {
           code: string;
@@ -830,7 +884,12 @@ export type Database = {
         Returns: number;
       };
       save_artwork: {
-        Args: { artwork: Json; existing_id?: string; values_by_category: Json };
+        Args: {
+          artwork: Json;
+          existing_id?: string;
+          extra_images?: Json;
+          values_by_category: Json;
+        };
         Returns: {
           id: string;
           record_number: number;

@@ -36,6 +36,7 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 	return {
 		id: 'artwork-42',
 		number: 42,
+		images: [],
 		favourite: false,
 		title: 'Girl with a Pearl Earring',
 		authors: ['Johannes Vermeer'],
@@ -225,6 +226,39 @@ describe('artwork page', () => {
 
 		await page.getByRole('button', { name: m.artworkView.closeImage }).click();
 		await expect.element(viewer).not.toBeInTheDocument();
+	});
+
+	it('has no strip of images when the artwork has one image', async () => {
+		renderPage();
+
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.imageSlot(1, 1) }))
+			.not.toBeInTheDocument();
+	});
+
+	it('shows the other images as thumbnails and steps through them full screen', async () => {
+		const plan = `${IMAGE}#plan`;
+		renderPage({
+			artwork: artwork({ images: [{ kind: 'url', url: plan, width: 40, height: 50 }] })
+		});
+
+		const second = page.getByRole('button', { name: m.artworkForm.imageSlot(2, 2) });
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.imageSlot(1, 2) }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await second.click();
+		await expect.element(second).toHaveAttribute('aria-pressed', 'true');
+
+		await page.getByRole('button', { name: m.artworkView.openImage }).click();
+		const viewer = page.getByRole('dialog');
+		await expect.element(viewer.getByRole('img')).toHaveAttribute('src', plan);
+		await expect
+			.element(viewer.getByRole('button', { name: m.artworkView.previousImage }))
+			.toBeInTheDocument();
+		await userEvent.keyboard('{ArrowRight}');
+		await expect.element(viewer.getByRole('img')).toHaveAttribute('src', IMAGE);
+		await userEvent.keyboard('{ArrowLeft}');
+		await expect.element(viewer.getByRole('img')).toHaveAttribute('src', plan);
 	});
 
 	it('offers to add an image to an artwork without one', async () => {

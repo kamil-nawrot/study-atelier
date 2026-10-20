@@ -3,7 +3,7 @@
 
 	type Props = {
 		text: string;
-		placement?: 'top' | 'bottom';
+		placement?: 'top' | 'bottom' | 'left';
 		align?: 'start' | 'end';
 		children: Snippet<[string]>;
 	};
@@ -20,6 +20,7 @@
 		class="bubble"
 		class:below={placement === 'bottom'}
 		class:end={align === 'end'}
+		class:left={placement === 'left'}
 		role="tooltip">{text}</span
 	>
 </span>
@@ -50,6 +51,14 @@
 	.bubble.below {
 		top: calc(100% + var(--spacing-2));
 		bottom: auto;
+	}
+
+	.bubble.left {
+		top: 50%;
+		right: calc(100% + var(--spacing-2));
+		bottom: auto;
+		left: auto;
+		translate: 0 -50%;
 	}
 
 	.bubble.end {

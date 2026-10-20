@@ -39,3 +39,15 @@
 		</div>
 	{/snippet}
 </Story>
+
+<Story name="To the left of a control">
+	{#snippet template(args)}
+		<div style="display: flex; justify-content: flex-end">
+			<Tooltip placement="left" text={args.text}>
+				{#snippet children(describedby)}
+					<Button aria-describedby={describedby}>Main</Button>
+				{/snippet}
+			</Tooltip>
+		</div>
+	{/snippet}
+</Story>

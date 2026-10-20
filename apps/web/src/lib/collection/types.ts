@@ -176,6 +176,7 @@ export type ArtworkInput = {
 	location: string | null;
 	notes: string;
 	image: ArtworkImageInput | null;
+	images: ArtworkImageInput[];
 };
 
 export type ArtworkRecord = ArtworkInput & {
@@ -187,6 +188,7 @@ export type ArtworkRecord = ArtworkInput & {
 export type ExistingArtwork = {
 	id: string;
 	image: ArtworkImageInput | null;
+	images: ArtworkImageInput[];
 };
 
 export type ArtworkFieldErrors = Partial<
@@ -222,6 +224,7 @@ export type ArtworkFormState = {
 	eraCode: EraCode | null;
 	notes: string;
 	image: ArtworkImageInput | null;
+	images: (ArtworkImageInput | null)[];
 };
 
 export type CardIndexRecord = {
