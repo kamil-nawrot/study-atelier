@@ -1,8 +1,9 @@
 <script lang="ts">
+	import ImageIcon from '@lucide/svelte/icons/image';
 	import Plus from '@lucide/svelte/icons/plus';
 	import Star from '@lucide/svelte/icons/star';
 	import { onDestroy } from 'svelte';
-	import { ArtworkImage, Button, Icon, NoImage } from '@study-atelier/ui';
+	import { ArtworkImage, Icon, Tooltip } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import type { ImageSearchQuery } from '#lib/images/types.ts';
 	import { MAX_ARTWORK_IMAGES } from '../artwork-form.ts';
@@ -104,7 +105,9 @@
 							width={preview.width}
 						/>
 					{:else}
-						<NoImage />
+						<span class="empty">
+							<Icon icon={ImageIcon} size="sm" />
+						</span>
 					{/if}
 				</span>
 				{#if index === 0}
@@ -123,23 +126,28 @@
 				<Icon icon={Plus} />
 			</button>
 		{/if}
+		{#if selected > 0 && current() !== null}
+			<Tooltip align="end" text={m.artworkForm.setMainImage}>
+				{#snippet children(id)}
+					<button
+						class="make-main"
+						aria-describedby={id}
+						aria-label={m.artworkForm.setMainImage}
+						onclick={makeMain}
+						type="button"
+					>
+						<Icon icon={Star} size="sm" />
+					</button>
+				{/snippet}
+			</Tooltip>
+		{/if}
 	</div>
 	{#if full}
 		<p class="caption">{m.artworkForm.imagesLimit}</p>
 	{/if}
 {/snippet}
 
-{#snippet mainAction()}
-	{#if selected > 0 && current() !== null}
-		<Button onclick={makeMain}>
-			<Icon icon={Star} size="sm" />
-			{m.artworkForm.setMainImage}
-		</Button>
-	{/if}
-{/snippet}
-
 <ImageField
-	actions={mainAction}
 	{alt}
 	{query}
 	removable={selected > 0}
@@ -153,7 +161,12 @@
 	.slots {
 		display: flex;
 		flex-wrap: wrap;
+		align-items: center;
 		gap: var(--spacing-2);
+	}
+
+	.slots > :global(:last-child:not(.slot)) {
+		margin-left: auto;
 	}
 
 	.slot {
@@ -200,7 +213,32 @@
 		text-align: center;
 	}
 
+	.empty {
+		display: grid;
+		place-items: center;
+		width: 100%;
+		height: 100%;
+		color: var(--color-fg-muted);
+	}
+
 	.add {
 		border-style: dashed;
+		background: transparent;
+		color: var(--color-fg-muted);
+	}
+
+	.make-main {
+		display: grid;
+		place-items: center;
+		padding: var(--spacing-2);
+		border: none;
+		background: transparent;
+		color: var(--color-fg-muted);
+		cursor: pointer;
+	}
+
+	.make-main:hover,
+	.make-main:focus-visible {
+		color: var(--color-fg);
 	}
 </style>

@@ -43,7 +43,6 @@
 		image: ArtworkImageInput | null;
 		removable?: boolean;
 		slots?: Snippet;
-		actions?: Snippet;
 	};
 
 	let {
@@ -53,8 +52,7 @@
 		texts,
 		image = $bindable(),
 		removable = false,
-		slots,
-		actions
+		slots
 	}: Props = $props();
 
 	const id = $props.id();
@@ -232,6 +230,7 @@
 <svelte:window onpaste={handlePaste} />
 
 <section class="image" aria-label={texts.label}>
+	{@render slots?.()}
 	<figure class="picture">
 		<div class="mat">
 			{#if preview}
@@ -251,7 +250,6 @@
 			<figcaption class="caption">{credit}</figcaption>
 		{/if}
 	</figure>
-	{@render slots?.()}
 
 	<div class="image-actions">
 		<Button id={findImageId} disabled={!searchReady} onclick={() => (searchOpen = true)}>
@@ -268,7 +266,6 @@
 				{texts.remove}
 			</Button>
 		{/if}
-		{@render actions?.()}
 	</div>
 	{#if !searchReady}
 		<p class="caption">{texts.findHint}</p>
