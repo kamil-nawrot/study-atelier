@@ -205,7 +205,8 @@ describe('findImageCandidates', () => {
 						attribution: 'Johannes Vermeer'
 					}
 				}
-			]
+			],
+			authorMatch: true
 		});
 		expect(fetchMock).toHaveBeenCalledTimes(2);
 		const commonsUrl = new URL(String(fetchMock.mock.calls[1][0]));
@@ -220,7 +221,8 @@ describe('findImageCandidates', () => {
 		await expect(
 			findImageCandidates({ kind: 'artwork', title: 'Nothing', authors: [] })
 		).resolves.toEqual({
-			candidates: []
+			candidates: [],
+			authorMatch: false
 		});
 		expect(fetchMock).toHaveBeenCalledOnce();
 	});

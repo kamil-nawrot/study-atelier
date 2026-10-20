@@ -19,6 +19,7 @@ export type ImageCandidate = {
 
 export type ImageSearchResult = {
 	candidates: ImageCandidate[];
+	authorMatch?: boolean;
 	error?: string;
 };
 

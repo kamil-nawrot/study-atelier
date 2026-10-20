@@ -2,11 +2,19 @@
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import Plus from '@lucide/svelte/icons/plus';
 	import Star from '@lucide/svelte/icons/star';
-	import { onDestroy } from 'svelte';
-	import { ArtworkImage, Icon, Tooltip } from '@study-atelier/ui';
+	import { onDestroy, untrack } from 'svelte';
+	import { ArtworkImage, Icon, TextButton, Tooltip } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
-	import type { ImageSearchQuery } from '#lib/images/types.ts';
-	import { MAX_ARTWORK_IMAGES } from '../artwork-form.ts';
+	import { findImageCandidates } from '#lib/images/image-search.ts';
+	import type { ImageCandidate, ImageSearchQuery } from '#lib/images/types.ts';
+	import { imageFromCandidate, MAX_ARTWORK_IMAGES } from '../artwork-form.ts';
+	import {
+		AUTO_MATCH_DELAY_MS,
+		isCandidateImage,
+		matchKey,
+		matchLabel,
+		matchPool
+	} from '../auto-match.ts';
 	import { artworkImageSource } from '../artwork-image.ts';
 	import type { ArtworkImageInput, ImageFieldTexts } from '../types.ts';
 	import ImageField from './ImageField.svelte';
@@ -18,6 +26,7 @@
 		texts: ImageFieldTexts;
 		image: ArtworkImageInput | null;
 		images: (ArtworkImageInput | null)[];
+		autoMatch?: boolean;
 	};
 
 	let {
@@ -26,15 +35,74 @@
 		query,
 		texts,
 		image = $bindable(),
-		images = $bindable()
+		images = $bindable(),
+		autoMatch = false
 	}: Props = $props();
+
+	type MatchStatus = 'idle' | 'searching' | 'matched' | 'none' | 'failed';
 
 	const SLOT_WIDTH = 120;
 
 	let selected = $state(0);
+	let matchStatus = $state<MatchStatus>('idle');
+	let matchError = $state('');
+	let pool = $state<ImageCandidate[]>([]);
+	let poolIndex = $state(0);
+	let searchedKey = '';
+	let matchRequest = 0;
 
 	let slots = $derived([image, ...images]);
 	let full = $derived(slots.length >= MAX_ARTWORK_IMAGES);
+	let matchShown = $derived(
+		selected === 0 && matchStatus === 'matched' && isCandidateImage(image, pool[poolIndex])
+	);
+
+	$effect(() => {
+		if (!autoMatch || !searchReady || query.kind !== 'artwork' || image !== null) return;
+		const key = matchKey(query.title, query.authors);
+		if (key === untrack(() => searchedKey)) return;
+		const timer = setTimeout(() => {
+			if (key !== searchedKey) void runMatch(key);
+		}, AUTO_MATCH_DELAY_MS);
+		return () => clearTimeout(timer);
+	});
+
+	async function runMatch(key: string): Promise<void> {
+		if (query.kind !== 'artwork') return;
+		searchedKey = key;
+		const current = ++matchRequest;
+		matchStatus = 'searching';
+		const result = await findImageCandidates(query);
+		if (current !== matchRequest) return;
+		if (image !== null) {
+			matchStatus = 'idle';
+			return;
+		}
+		if (result.error !== undefined) {
+			matchError = result.error;
+			matchStatus = 'failed';
+			return;
+		}
+		pool = matchPool(result, query.authors.length === 0);
+		poolIndex = 0;
+		if (pool.length === 0) {
+			matchStatus = 'none';
+			return;
+		}
+		image = imageFromCandidate(pool[0]);
+		matchStatus = 'matched';
+	}
+
+	function stopMatch(): void {
+		if (query.kind === 'artwork') searchedKey = matchKey(query.title, query.authors);
+		matchRequest += 1;
+		if (matchStatus === 'searching') matchStatus = 'idle';
+	}
+
+	function nextMatch(): void {
+		poolIndex += 1;
+		image = imageFromCandidate(pool[poolIndex]);
+	}
 
 	$effect.pre(() => {
 		if (selected > images.length) selected = images.length;
@@ -147,17 +215,48 @@
 	{/if}
 {/snippet}
 
+{#snippet matchStatusLine()}
+	{#if selected === 0 && matchStatus === 'searching'}
+		<p class="caption" aria-live="polite">{m.artworkForm.matchSearching}</p>
+	{:else if matchShown}
+		<div class="match" aria-live="polite">
+			<p class="caption">{matchLabel(pool[poolIndex])}</p>
+			{#if pool.length > 1}
+				{#if poolIndex < pool.length - 1}
+					<TextButton onclick={nextMatch}>{m.artworkForm.matchNext}</TextButton>
+				{:else}
+					<p class="caption">{m.artworkForm.matchEnd}</p>
+				{/if}
+			{/if}
+		</div>
+	{:else if selected === 0 && image === null && matchStatus === 'none'}
+		<p class="caption" aria-live="polite">{m.artworkForm.matchNone}</p>
+	{:else if selected === 0 && image === null && matchStatus === 'failed'}
+		<p class="caption" aria-live="polite">{matchError}</p>
+	{/if}
+{/snippet}
+
 <ImageField
 	{alt}
+	findLabel={matchShown ? m.artworkForm.matchAll : undefined}
+	onsearch={stopMatch}
 	{query}
 	removable={selected > 0}
 	{searchReady}
 	slots={slotRow}
+	status={matchStatusLine}
 	{texts}
 	bind:image={current, setCurrent}
 />
 
 <style>
+	.match {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: var(--spacing-2);
+	}
+
 	.slots {
 		display: flex;
 		flex-wrap: wrap;

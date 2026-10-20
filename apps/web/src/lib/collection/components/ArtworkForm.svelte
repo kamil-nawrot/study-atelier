@@ -251,6 +251,7 @@
 	<div class="columns">
 		<ArtworkImages
 			alt={imageAlt}
+			autoMatch={!artwork}
 			query={{
 				kind: 'artwork',
 				title: form.title,
