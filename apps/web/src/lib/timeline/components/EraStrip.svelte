@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { eraTitle } from '#lib/collection/eras.ts';
+	import { Icon } from '@study-atelier/ui';
+	import { eraIcon, eraTitle } from '#lib/collection/eras.ts';
 	import type { EraCode } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { stripLayout, stripPosition } from '../strip.ts';
@@ -14,12 +15,15 @@
 
 	let { eras, current, view, onselect }: Props = $props();
 
-	const NAME_MIN_WIDTH = 96;
+	const NAME_ROOM = 9;
+	const ICON_ROOM = 40;
 	const FRAME_MIN_WIDTH = 4;
+	const FALLBACK_HEIGHT = 40;
 
 	let width = $state(0);
+	let height = $state(0);
 
-	let segments = $derived(width > 0 ? stripLayout(eras, width) : []);
+	let segments = $derived(width > 0 ? stripLayout(eras, width, height || FALLBACK_HEIGHT) : []);
 	let era = $derived(eras.find((candidate) => candidate.code === current) as Era);
 	let frame = $derived.by(() => {
 		if (segments.length === 0) return undefined;
@@ -28,9 +32,18 @@
 		const size = Math.max(FRAME_MIN_WIDTH, to - from);
 		return { from: Math.min(from, width - size), size };
 	});
+
+	function showsName(code: EraCode, size: number): boolean {
+		return size >= ICON_ROOM + eraTitle(code).length * NAME_ROOM;
+	}
 </script>
 
-<nav class="strip" aria-label={m.timeline.strip} bind:clientWidth={width}>
+<nav
+	class="strip"
+	aria-label={m.timeline.strip}
+	bind:clientHeight={height}
+	bind:clientWidth={width}
+>
 	{#each segments as segment (segment.code)}
 		<button
 			style:left={`${segment.from}px`}
@@ -47,7 +60,8 @@
 					<path d="M5 0 L2 6 L6 10 L3 16" />
 				</svg>
 			{/if}
-			{#if segment.to - segment.from >= NAME_MIN_WIDTH}
+			<Icon icon={eraIcon(segment.code)} size="sm" />
+			{#if showsName(segment.code, segment.to - segment.from)}
 				<span class="name" aria-hidden="true">{eraTitle(segment.code)}</span>
 			{/if}
 		</button>
@@ -71,13 +85,14 @@
 
 	.segment {
 		position: absolute;
-		top: var(--spacing-1);
-		bottom: var(--spacing-1);
+		top: 0;
+		bottom: 0;
 		display: flex;
+		justify-content: center;
 		align-items: center;
-		gap: var(--spacing-1);
+		gap: var(--spacing-2);
 		overflow: hidden;
-		padding-inline: var(--spacing-2);
+		padding-inline: var(--spacing-1);
 		border: 0;
 		border-right: var(--border-width-base) solid var(--color-bg);
 		background: var(--color-tag);
@@ -97,9 +112,8 @@
 	}
 
 	.break {
-		flex: none;
-		width: var(--spacing-2);
-		height: var(--spacing-4);
+		position: absolute;
+		left: var(--spacing-1);
 		fill: none;
 		stroke: var(--color-bg);
 		stroke-width: 2;

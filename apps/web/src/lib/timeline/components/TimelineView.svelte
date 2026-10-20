@@ -8,7 +8,6 @@
 	import { ERA_CODES, eraTitle } from '#lib/collection/eras.ts';
 	import type { EraCode, WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import { seenRange } from '../labels.ts';
 	import {
 		availableSteps,
 		eraView,
@@ -30,7 +29,6 @@
 	import type { TimelineEvent } from '../types.ts';
 	import { rememberEra } from '../start.ts';
 	import { eraOf, eras, overlaps, spanOfYears, yearAt, type TimeSpan, type View } from '../time.ts';
-	import ArtworkCard from './ArtworkCard.svelte';
 	import EraStrip from './EraStrip.svelte';
 	import EventCard from './EventCard.svelte';
 	import TimelineEvents from './TimelineEvents.svelte';
@@ -79,7 +77,6 @@
 	let index = $derived(ERA_CODES.indexOf(code));
 	let previous = $derived(index > 0 ? ERA_CODES[index - 1] : undefined);
 	let next = $derived(index < ERA_CODES.length - 1 ? ERA_CODES[index + 1] : undefined);
-	let seen = $derived(seenRange(view, era));
 	let collection = $derived(artworks);
 	let orientation = $derived(orientationFor(width));
 	let eraEvents = $derived(eventsIn(events, era));
@@ -91,11 +88,6 @@
 			labelWidth,
 			width < NARROW_WIDTH ? EVENT_LANES_NARROW : EVENT_LANES
 		)
-	);
-	let selectedArtwork = $derived(
-		selected?.kind === 'artwork'
-			? artworks.find((artwork) => artwork.id === selected?.id)
-			: undefined
 	);
 	let selectedEvent = $derived(
 		selected?.kind === 'event' ? events.find((event) => event.id === selected?.id) : undefined
@@ -131,11 +123,6 @@
 			const other = spanOf(artwork);
 			return other !== undefined && overlaps(other, span);
 		});
-	}
-
-	function eventsOf(artwork: WallArtwork): TimelineEvent[] {
-		const span = spanOf(artwork);
-		return span ? activeAt(events, span) : [];
 	}
 
 	function toggle(kind: 'artwork' | 'event', id: string): void {
@@ -237,63 +224,59 @@
 <svelte:window bind:innerHeight={viewportHeight} />
 
 <div class="timeline">
-	<header class="chapter">
-		<div class="title">
-			<h1>{eraTitle(code)}</h1>
-			<span class="caption">{m.eras[code].years}</span>
-		</div>
-		<p class="seen">
-			<span class="muted">{m.timeline.seen}</span>
-			{seen}
-			<span class="muted"
-				>· {m.timeline.scale} {m.timeline.steps[step].toLocaleLowerCase('pl')}</span
-			>
-		</p>
-	</header>
-
-	<div class="eras" aria-label={m.timeline.eras} role="group">
-		{#each ERA_CODES as candidate (candidate)}
-			<ToggleTag
-				bind:pressed={() => candidate === code, (pressed) => pressed && openEra(candidate)}
-			>
-				{eraTitle(candidate)}
-			</ToggleTag>
-		{/each}
-	</div>
-
 	<EraStrip current={code} eras={allEras} onselect={openEra} {view} />
 
 	<div class="controls">
+		<div class="move">
+			{#if previous}
+				<button
+					class="quiet"
+					aria-label={m.timeline.previous(eraTitle(previous))}
+					onclick={() => openEra(previous)}
+					type="button"
+				>
+					<Icon icon={ArrowLeft} size="sm" />
+					{eraTitle(previous)}
+				</button>
+			{/if}
+		</div>
 		<div class="steps" aria-label={m.timeline.steps.label} role="group">
-			<span class="caption">{m.timeline.steps.label}</span>
+			<button
+				class="quiet zoom"
+				aria-label={m.timeline.zoomOut}
+				disabled={steps.indexOf(step) <= 0}
+				onclick={() => moveStep(-1)}
+				type="button"
+			>
+				<Icon icon={Minus} size="sm" />
+			</button>
 			{#each steps as key (key)}
 				<ToggleTag bind:pressed={() => key === step, (pressed) => pressed && chooseStep(key)}>
 					{m.timeline.steps[key]}
 				</ToggleTag>
 			{/each}
+			<button
+				class="quiet zoom"
+				aria-label={m.timeline.zoomIn}
+				disabled={steps.indexOf(step) >= steps.length - 1}
+				onclick={() => moveStep(1)}
+				type="button"
+			>
+				<Icon icon={Plus} size="sm" />
+			</button>
 		</div>
-		<div class="moves">
-			{#if previous}
-				<Button
-					aria-label={m.timeline.previous(eraTitle(previous))}
-					onclick={() => openEra(previous)}
-				>
-					<Icon icon={ArrowLeft} size="sm" />
-					{eraTitle(previous)}
-				</Button>
-			{/if}
+		<div class="move next">
 			{#if next}
-				<Button aria-label={m.timeline.next(eraTitle(next))} onclick={() => openEra(next)}>
+				<button
+					class="quiet"
+					aria-label={m.timeline.next(eraTitle(next))}
+					onclick={() => openEra(next)}
+					type="button"
+				>
 					{eraTitle(next)}
 					<Icon icon={ArrowRight} size="sm" />
-				</Button>
+				</button>
 			{/if}
-			<Button aria-label={m.timeline.zoomOut} onclick={() => moveStep(-1)}>
-				<Icon icon={Minus} size="sm" />
-			</Button>
-			<Button aria-label={m.timeline.zoomIn} onclick={() => moveStep(1)}>
-				<Icon icon={Plus} size="sm" />
-			</Button>
 		</div>
 	</div>
 
@@ -310,6 +293,7 @@
 		<TimelineStage
 			{era}
 			eventLanes={lanes}
+			onbackground={() => (selected = null)}
 			onkeypan={panShare}
 			onpan={pan}
 			onstep={moveStep}
@@ -340,13 +324,7 @@
 		</TimelineStage>
 	</div>
 
-	{#if selectedArtwork}
-		<ArtworkCard
-			artwork={selectedArtwork}
-			events={eventsOf(selectedArtwork)}
-			onevent={(event) => (selected = { kind: 'event', id: event.id })}
-		/>
-	{:else if selectedEvent}
+	{#if selectedEvent}
 		{@const event = selectedEvent}
 		<EventCard
 			artworks={artworksOf(event)}
@@ -386,49 +364,67 @@
 <style>
 	.timeline {
 		display: grid;
-		gap: var(--spacing-4);
-	}
-
-	.chapter {
-		display: grid;
-		gap: var(--spacing-1);
-	}
-
-	.title {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: baseline;
-		gap: var(--spacing-2) var(--spacing-4);
-	}
-
-	.seen,
-	.now {
-		font-variant-numeric: tabular-nums;
+		gap: var(--spacing-3);
 	}
 
 	.now {
 		min-height: var(--line-height-md);
 		color: var(--color-fg-muted);
+		font-variant-numeric: tabular-nums;
 	}
 
-	.muted {
-		color: var(--color-fg-muted);
-	}
-
-	.eras,
-	.steps,
-	.moves {
-		display: flex;
-		flex-wrap: wrap;
+	.controls {
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
 		align-items: center;
 		gap: var(--spacing-2);
 	}
 
-	.controls {
+	.steps {
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: space-between;
+		justify-content: center;
 		align-items: center;
-		gap: var(--spacing-3) var(--spacing-6);
+		gap: var(--spacing-2);
+	}
+
+	.move {
+		display: flex;
+	}
+
+	.move.next {
+		justify-content: flex-end;
+	}
+
+	.quiet {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--spacing-1);
+		padding: var(--spacing-1);
+		border: 0;
+		background: none;
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
+		cursor: pointer;
+	}
+
+	.quiet:hover:not(:disabled) {
+		color: var(--color-fg);
+	}
+
+	.quiet:disabled {
+		opacity: 0.4;
+		cursor: default;
+	}
+
+	@media (max-width: 767.98px) {
+		.controls {
+			grid-template-columns: 1fr 1fr;
+		}
+
+		.steps {
+			grid-row: 2;
+			grid-column: 1 / -1;
+		}
 	}
 </style>

@@ -97,3 +97,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0091](0091-make-large-own-images-smaller-in-the-browser.md)             | Make large own images smaller in the browser                                             | accepted           |
 | [0092](0092-clean-up-images-by-hand-for-one-environment.md)              | Run the unused images clean-up by hand for one environment                               | accepted           |
 | [0093](0093-show-the-collection-and-historical-events-on-a-timeline.md)  | Show the collection and the learner's historical events on a timeline, one era at a time | accepted           |
+| [0094](0094-name-the-timeline-kalendarium-and-simplify-its-header.md)    | Name the timeline "Kalendarium" and simplify its header                                  | accepted           |

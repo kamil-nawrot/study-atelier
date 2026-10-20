@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { SvelteMap } from 'svelte/reactivity';
 	import { resolve } from '$app/paths';
-	import { ArtworkTile } from '@study-atelier/ui';
+	import ArrowRight from '@lucide/svelte/icons/arrow-right';
+	import { ArtworkTile, Icon } from '@study-atelier/ui';
 	import { resolveImages } from '#lib/collection/artworks.ts';
 	import { eraIcon, eraName } from '#lib/collection/eras.ts';
 	import type { WallArtwork } from '#lib/collection/types.ts';
@@ -50,8 +51,10 @@
 			.filter((dot) => dot.at > -VISIBLE_MARGIN && dot.from < geometry.length + VISIBLE_MARGIN)
 	);
 	let shown = $derived(
-		placed.find((dot) => dot.mark.item.id === (hovered ?? selected)) ?? undefined
+		placed.find((dot) => dot.mark.item.id === selected) ??
+			placed.find((dot) => dot.mark.item.id === hovered)
 	);
+	let pinned = $derived(shown !== undefined && shown.mark.item.id === selected);
 
 	function artworkOf(mark: Mark<WallArtwork>): WallArtwork {
 		return resolved.get(mark.item.id) ?? mark.item;
@@ -120,7 +123,7 @@
 		aria-pressed={dot.mark.item.id === selected}
 		onblur={() => hide(dot.mark.item)}
 		onclick={() => choose(dot.mark.item)}
-		onfocus={() => show(dot.mark.item)}
+		onfocus={(event) => event.currentTarget.matches(':focus-visible') && show(dot.mark.item)}
 		onpointerenter={(event) => event.pointerType === 'mouse' && show(dot.mark.item)}
 		onpointerleave={(event) => event.pointerType === 'mouse' && hide(dot.mark.item)}
 		type="button"
@@ -137,23 +140,35 @@
 	<div
 		style={previewStyle(shown)}
 		class="preview"
-		aria-hidden="true"
-		inert
+		class:pinned
+		aria-hidden={pinned ? undefined : 'true'}
+		inert={!pinned}
 		bind:clientHeight={previewHeight}
 	>
-		<ArtworkTile
-			authors={artwork.authors}
-			date={dateOf(shown.mark)}
-			favourite={artwork.favourite}
-			favouriteLabel={artwork.favourite ? m.favourite.remove : m.favourite.add}
-			href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
-			image={artwork.image}
-			imageUnavailable={artwork.imageUnavailable}
-			mark={artwork.eraCode ? eraIcon(artwork.eraCode) : undefined}
-			markLabel={artwork.eraCode ? eraName(artwork.eraCode) : undefined}
-			number={artwork.number}
-			title={artwork.title}
-		/>
+		<div class="tile" inert>
+			<ArtworkTile
+				authors={artwork.authors}
+				date={dateOf(shown.mark)}
+				favourite={artwork.favourite}
+				favouriteLabel={artwork.favourite ? m.favourite.remove : m.favourite.add}
+				href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
+				image={artwork.image}
+				imageUnavailable={artwork.imageUnavailable}
+				mark={artwork.eraCode ? eraIcon(artwork.eraCode) : undefined}
+				markLabel={artwork.eraCode ? eraName(artwork.eraCode) : undefined}
+				number={artwork.number}
+				title={artwork.title}
+			/>
+		</div>
+		{#if pinned}
+			<a
+				class="details"
+				href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
+			>
+				{m.timeline.showArtwork}
+				<Icon icon={ArrowRight} size="sm" />
+			</a>
+		{/if}
 	</div>
 {/if}
 
@@ -217,6 +232,22 @@
 	.preview {
 		position: absolute;
 		z-index: 5;
+		display: grid;
 		pointer-events: none;
+	}
+
+	.preview.pinned {
+		pointer-events: auto;
+	}
+
+	.details {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: var(--spacing-2);
+		padding: var(--spacing-2) var(--spacing-3);
+		background: var(--color-surface);
+		color: var(--color-fg);
+		font-size: var(--font-size-sm);
 	}
 </style>
