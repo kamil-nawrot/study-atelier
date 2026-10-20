@@ -192,6 +192,7 @@
 		class="stage"
 		class:dimmed={image !== undefined}
 		class:flipping={flipLinks !== undefined}
+		class:with-gallery={image !== undefined && gallery.length > 1}
 		{@attach swipe((direction) => onflip?.(direction))}
 	>
 		{#if flipLinks}
@@ -361,6 +362,8 @@
 	}
 
 	.stage {
+		--size-gallery-thumb: 56px;
+
 		position: relative;
 		display: grid;
 		justify-items: center;
@@ -457,7 +460,15 @@
 		aspect-ratio: 4 / 5;
 	}
 
-	.gallery {
+	.stage.with-gallery {
+		padding-bottom: calc(var(--size-gallery-thumb) + 2 * var(--spacing-6));
+	}
+
+	.stage > .gallery {
+		position: absolute;
+		right: 0;
+		bottom: var(--spacing-6);
+		left: 0;
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
@@ -465,8 +476,8 @@
 	}
 
 	.thumb {
-		width: 56px;
-		height: 56px;
+		width: var(--size-gallery-thumb);
+		height: var(--size-gallery-thumb);
 		padding: 0;
 		overflow: hidden;
 		border: var(--border-width-base) solid var(--color-stage-fg-muted);
