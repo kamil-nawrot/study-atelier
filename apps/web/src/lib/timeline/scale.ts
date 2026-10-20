@@ -1,4 +1,4 @@
-import type { Era, View } from './time.ts';
+import type { Era, TimeSpan, View } from './time.ts';
 
 export type StepKey = 'era' | '10000' | '1000' | '300' | '100' | '30';
 
@@ -58,4 +58,17 @@ export function nextStep(current: StepKey, era: Era, direction: 1 | -1): StepKey
 
 export function panView(view: View, by: number, era: Era): View {
 	return { center: clampCenter(view.center + by, view.span, era), span: view.span };
+}
+
+export function focusView(era: Era, focus: TimeSpan): { step: StepKey; view: View } {
+	const start = Math.max(focus.start, era.start);
+	const end = Math.min(focus.end, era.end);
+	const needed = (end - start) * 1.3;
+	const fitting = availableSteps(era).filter(
+		(key) => key !== 'era' && stepSpan(key, era) >= needed
+	);
+	const step = fitting.at(-1) ?? 'era';
+	if (step === 'era') return { step, view: eraView(era) };
+	const span = stepSpan(step, era);
+	return { step, view: { center: clampCenter((start + end) / 2, span, era), span } };
 }

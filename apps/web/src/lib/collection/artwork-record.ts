@@ -94,18 +94,24 @@ function isYear(year: number): boolean {
 	return Number.isInteger(year) && year >= 1;
 }
 
-function endsInOrder(input: ArtworkInput): boolean {
+export type YearsInput = Pick<
+	ArtworkInput,
+	'yearFrom' | 'fromBeforeCommonEra' | 'yearTo' | 'toBeforeCommonEra' | 'yearApproximate'
+>;
+
+export type YearsErrors = {
+	yearFrom?: string;
+	yearTo?: string;
+};
+
+function endsInOrder(input: YearsInput): boolean {
 	const from = signedYear(input.yearFrom, input.fromBeforeCommonEra);
 	const to = signedYear(input.yearTo, input.toBeforeCommonEra);
 	return from === null || to === null || from <= to;
 }
 
-export function validateArtwork(input: ArtworkInput): ArtworkFieldErrors {
-	const errors: ArtworkFieldErrors = {};
-	if (!input.title.trim()) errors.title = m.artworkErrors.titleRequired;
-	if (!input.authorUnknown && names(input.authors).length === 0) {
-		errors.authors = m.artworkErrors.authorRequired;
-	}
+export function validateYears(input: YearsInput): YearsErrors {
+	const errors: YearsErrors = {};
 	if (input.yearTo === null) {
 		if (input.yearFrom !== null) errors.yearTo = m.artworkErrors.spanEndRequired;
 		else if (input.toBeforeCommonEra || input.yearApproximate)
@@ -121,6 +127,15 @@ export function validateArtwork(input: ArtworkInput): ArtworkFieldErrors {
 		errors.yearTo = m.artworkErrors.spanOrder;
 	}
 	return errors;
+}
+
+export function validateArtwork(input: ArtworkInput): ArtworkFieldErrors {
+	const errors: ArtworkFieldErrors = {};
+	if (!input.title.trim()) errors.title = m.artworkErrors.titleRequired;
+	if (!input.authorUnknown && names(input.authors).length === 0) {
+		errors.authors = m.artworkErrors.authorRequired;
+	}
+	return { ...errors, ...validateYears(input) };
 }
 
 function storedYearFrom(input: ArtworkInput): number | null {

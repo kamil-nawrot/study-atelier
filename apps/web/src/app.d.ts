@@ -5,6 +5,7 @@ declare global {
 			glossaryMessage?: string;
 			highlight?: number;
 			saved?: number;
+			timelineEvent?: { message: string; yearFrom: number | null; yearTo: number };
 			trashed?: number;
 			valueMessage?: string;
 		}
