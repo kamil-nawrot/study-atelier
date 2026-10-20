@@ -5,7 +5,16 @@
 	import Trash from '@lucide/svelte/icons/trash';
 	import Upload from '@lucide/svelte/icons/upload';
 	import { tick } from 'svelte';
-	import { ArtworkImage, Button, Dialog, Icon, NoImage, TextField } from '@study-atelier/ui';
+	import {
+		ArtworkImage,
+		Button,
+		Dialog,
+		FieldMessage,
+		FilePicker,
+		Icon,
+		NoImage,
+		TextField
+	} from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import {
 		OWN_IMAGE_ACCEPT,
@@ -49,7 +58,6 @@
 	let urlText = $state('');
 	let urlError = $state('');
 	let loadingUrl = $state(false);
-	let fileInput = $state<HTMLInputElement>();
 	let pasting = $state(false);
 	let pasteError = $state('');
 	let replaceOpen = $state(false);
@@ -116,10 +124,7 @@
 		}
 	}
 
-	async function pickFile(event: Event & { currentTarget: HTMLInputElement }): Promise<void> {
-		const file = event.currentTarget.files?.[0];
-		event.currentTarget.value = '';
-		if (!file) return;
+	async function pickFile(file: File): Promise<void> {
 		fileError = (await useFile(file)) ?? '';
 	}
 
@@ -280,21 +285,15 @@
 					<Icon icon={Clipboard} size="sm" />
 					{m.artworkForm.pasteFromClipboard}
 				</Button>
-				<Button aria-describedby={fileMessageId} onclick={() => fileInput?.click()}>
-					<Icon icon={Upload} size="sm" />
-					{m.artworkForm.chooseFile}
-				</Button>
+				<FilePicker
+					accept={OWN_IMAGE_ACCEPT}
+					describedby={fileMessageId}
+					icon={Upload}
+					label={m.artworkForm.chooseFile}
+					onpick={pickFile}
+				/>
 			</div>
-			<input
-				bind:this={fileInput}
-				accept={OWN_IMAGE_ACCEPT}
-				hidden
-				onchange={pickFile}
-				type="file"
-			/>
-			<span id={fileMessageId} class="message" class:error={!!fileError} aria-live="polite">
-				{fileError || fileHint}
-			</span>
+			<FieldMessage id={fileMessageId} error={fileError} hint={fileHint} live />
 		</div>
 		<TextField
 			autocomplete="off"
@@ -410,16 +409,6 @@
 		color: var(--color-danger);
 		font-size: var(--font-size-xs);
 		line-height: var(--line-height-xs);
-	}
-
-	.message {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-	}
-
-	.message.error {
-		color: var(--color-danger);
 	}
 
 	@media (pointer: fine) {
