@@ -14,7 +14,9 @@
 		const form = event.currentTarget as HTMLFormElement;
 		await onsubmit();
 		await tick();
-		form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+		const invalid = form.querySelector<HTMLElement>('[aria-invalid="true"]');
+		invalid?.focus({ preventScroll: true });
+		invalid?.scrollIntoView({ block: 'center' });
 	}
 </script>
 

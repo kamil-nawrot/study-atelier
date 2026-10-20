@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { Alert, Button, Form, TextField } from '@study-atelier/ui';
+	import { sessionEnded } from '#lib/auth/expired-session.svelte.ts';
 	import { signIn } from '#lib/auth/account.ts';
 	import AuthLayout from '#lib/auth/components/AuthLayout.svelte';
 	import { validateEmail, validateRequiredPassword } from '#lib/auth/validation.ts';
@@ -18,6 +19,7 @@
 		emailError = validateEmail(email);
 		passwordError = validateRequiredPassword(password);
 		formError = undefined;
+		sessionEnded.value = false;
 		if (emailError || passwordError) return;
 
 		submitting = true;
@@ -26,12 +28,15 @@
 			submitting = false;
 			return;
 		}
-		await goto(resolve('/(app)'), { invalidateAll: true });
+		await goto(resolve('/(app)/atelier'), { invalidateAll: true });
 	}
 </script>
 
 <AuthLayout lead={m.signIn.lead} title={m.signIn.title}>
 	<Form onsubmit={submit}>
+		{#if sessionEnded.value && !formError}
+			<Alert tone="warning">{m.authErrors.sessionEnded}</Alert>
+		{/if}
 		{#if formError}
 			<Alert title={m.signIn.errorTitle} tone="danger">{formError}</Alert>
 		{/if}

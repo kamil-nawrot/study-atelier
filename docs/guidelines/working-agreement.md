@@ -12,10 +12,25 @@ How the project owner and Claude (implementer) work together on study-atelier.
 1. When a choice comes up, Claude presents the options with a recommendation and waits for the owner's decision.
 2. Every decision, business or technical, is recorded as an ADR in [`docs/decisions/`](../decisions/).
 3. A proposal the owner has not confirmed yet is recorded with status `proposed` and is not built upon.
+4. When a design changes how existing data is stored or interpreted, Claude first checks the owner's real data: it writes a read-only SQL query, the owner runs it in the Supabase SQL Editor and shares the result, and the options are weighed against what the data actually contains.
+
+## Mockups
+
+Mockups (for example from a design session in Claude Projects) show layout and proportions. Where a mockup differs from an accepted ADR in texts, fields or details, the ADR wins, and nothing that only the mockup shows is built without asking the owner. Mockup files kept locally go in the ignored `tmp/` folder, never in a commit.
+
+Instead of a separate mockup, a screen can be prototyped in code on its branch once the owner has agreed its content and texts: the owner runs it locally and asks for changes, screenshots are not needed for this step, and the ADR is written after the owner accepts the result.
+
+In a spike, a design can also be tried as an interactive prototype published as a private Artifact, which the owner opens on a phone and a larger screen and which is changed version by version on the owner's feedback. The prototype stays outside the repository and is linked in the Linear issue. Its data is sample data shaped like the target collection and marked as such. Its images are placeholders, because an Artifact cannot load images from other hosts. The decisions taken on it are recorded in the issue as they are made and then in an ADR. Where the prototype differs from the ADR, the ADR wins.
 
 ## Pace
 
 The project goes one step at a time. Claude does not jump ahead to later steps (for example writing application code before requirements are agreed).
+
+Several Claude sessions may work at the same time. Before starting an issue, Claude checks that no other session is on it: its status in Linear, the remote branches and the open pull requests. When one is, Claude tells the owner before doing anything.
+
+## End of a session
+
+Before a session's pull request is merged, once the owner's review comments are addressed, Claude runs the [`study-atelier-session-retro`](../../.claude/skills/study-atelier-session-retro/SKILL.md) skill: it proposes what the conversation and the session's pull request taught that is worth recording in the docs, the guidelines or the project memory, and records what the owner confirms in that same pull request.
 
 ## Actions that need the owner's explicit approval
 

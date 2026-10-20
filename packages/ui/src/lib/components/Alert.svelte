@@ -3,6 +3,7 @@
 	import { type AlertTone, uiMessages } from '../messages';
 
 	type Props = {
+		id?: string;
 		tone: AlertTone;
 		label?: string;
 		title?: string;
@@ -11,10 +12,10 @@
 
 	const messages = uiMessages();
 
-	let { tone, label, title, children }: Props = $props();
+	let { id, tone, label, title, children }: Props = $props();
 </script>
 
-<div class="alert {tone}" role={tone === 'danger' ? 'alert' : 'status'}>
+<div {id} class="alert {tone}" role={tone === 'danger' ? 'alert' : 'status'}>
 	<div class="label">{label ?? messages.alert[tone]}</div>
 	<div class="body">
 		{#if title}

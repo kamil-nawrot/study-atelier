@@ -3,7 +3,7 @@
 	import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
 
 	type CommonProps = {
-		variant?: 'primary' | 'secondary';
+		variant?: 'primary' | 'secondary' | 'danger';
 		fullWidth?: boolean;
 		children: Snippet;
 	};
@@ -38,7 +38,8 @@
 		align-items: center;
 		justify-content: center;
 		gap: var(--spacing-2);
-		padding: var(--spacing-2) var(--spacing-4);
+		min-height: var(--size-control);
+		padding: 0 var(--spacing-4);
 		border: var(--border-width-base) solid var(--color-line);
 		border-bottom-width: var(--border-width-button);
 		border-radius: var(--border-radius-none);
@@ -52,9 +53,15 @@
 		cursor: pointer;
 	}
 
-	.secondary:hover:not(:disabled) {
+	.danger {
+		border-color: var(--color-danger);
+		color: var(--color-danger);
+	}
+
+	.secondary:hover:not(:disabled, [aria-disabled='true']),
+	.danger:hover:not(:disabled, [aria-disabled='true']) {
 		border-bottom-width: var(--border-width-heavy);
-		padding-bottom: calc(var(--spacing-2) - var(--border-width-heavy) + var(--border-width-button));
+		padding-top: calc(var(--border-width-heavy) - var(--border-width-button));
 	}
 
 	.primary {
@@ -62,18 +69,20 @@
 		color: var(--color-on-fg);
 	}
 
-	.primary:hover:not(:disabled) {
+	.primary:hover:not(:disabled, [aria-disabled='true']) {
 		border-color: var(--color-fg-muted);
 		background: var(--color-fg-muted);
 	}
 
-	.button:disabled {
+	.button:disabled,
+	.button[aria-disabled='true'] {
 		border-color: var(--color-fg-muted);
 		color: var(--color-fg-muted);
 		cursor: not-allowed;
 	}
 
-	.primary:disabled {
+	.primary:disabled,
+	.primary[aria-disabled='true'] {
 		background: transparent;
 	}
 

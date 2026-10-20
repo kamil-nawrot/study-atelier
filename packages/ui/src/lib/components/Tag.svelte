@@ -6,15 +6,27 @@
 		children: Snippet;
 		onremove?: () => void;
 		removeLabel?: string;
+		removeDisabled?: boolean;
 	};
 
-	let { children, onremove, removeLabel = uiMessages().removeTag }: Props = $props();
+	let {
+		children,
+		onremove,
+		removeLabel = uiMessages().removeTag,
+		removeDisabled = false
+	}: Props = $props();
 </script>
 
 <span class="tag">
 	<span class="label">{@render children()}</span>
 	{#if onremove}
-		<button class="remove" aria-label={removeLabel} onclick={onremove} type="button">×</button>
+		<button
+			class="remove"
+			aria-label={removeLabel}
+			disabled={removeDisabled}
+			onclick={onremove}
+			type="button">×</button
+		>
 	{/if}
 </span>
 
@@ -31,12 +43,7 @@
 		font-size: var(--font-size-sm);
 		font-weight: var(--font-weight-regular);
 		line-height: var(--line-height-xs);
-		white-space: nowrap;
-	}
-
-	.label::before {
-		content: '#';
-		color: var(--color-fg-muted);
+		max-width: 100%;
 	}
 
 	.remove {
@@ -49,7 +56,12 @@
 		cursor: pointer;
 	}
 
-	.remove:hover {
+	.remove:hover:not(:disabled) {
 		color: var(--color-fg);
+	}
+
+	.remove:disabled {
+		color: var(--color-fg-muted);
+		cursor: not-allowed;
 	}
 </style>

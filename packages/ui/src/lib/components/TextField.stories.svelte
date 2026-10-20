@@ -1,5 +1,6 @@
 <script lang="ts" module>
 	import { defineMeta } from '@storybook/addon-svelte-csf';
+	import Button from './Button.svelte';
 	import TextField from './TextField.svelte';
 
 	const { Story } = defineMeta({
@@ -46,4 +47,41 @@
 	}}
 />
 
+<Story
+	name="Hidden label"
+	args={{ label: 'From', hideLabel: true, type: 'text', placeholder: 'From' }}
+/>
+
 <Story name="Disabled" args={{ value: 'name@example.com', disabled: true }} />
+
+<Story
+	name="With action"
+	args={{ label: 'Image address', type: 'url', placeholder: 'https://…', autocomplete: 'off' }}
+>
+	{#snippet template(args)}
+		<TextField {...args}>
+			{#snippet action()}
+				<Button>Use</Button>
+			{/snippet}
+		</TextField>
+	{/snippet}
+</Story>
+
+<Story
+	name="With action and error"
+	args={{
+		label: 'Image address',
+		type: 'url',
+		value: 'http://example.com/painting.jpg',
+		error: 'Paste a full image address that starts with https://.',
+		autocomplete: 'off'
+	}}
+>
+	{#snippet template(args)}
+		<TextField {...args}>
+			{#snippet action()}
+				<Button>Use</Button>
+			{/snippet}
+		</TextField>
+	{/snippet}
+</Story>

@@ -97,7 +97,7 @@ erDiagram
 - Near-duplicate hints (R-25) are computed in the app over the learner's own values, which are few. The database only rejects a name that differs from an existing one by letter case.
 - `artwork_values.position` keeps the order of authors and other values on an artwork.
 - Dates: `year` is a signed integer, negative for years before the common era, with no year 0; `year_approximate` needs a year.
-- Images ([0007](0007-images-from-open-sources.md)): the source image is a reference (`source_wikidata_id`, `source_image_file` on Commons, licence, licence URL and attribution). The learner's own image is either a file in the private storage bucket (`own_image_path`) or an `https` URL (`own_image_url`), optionally with `own_image_source_url` pointing to where it was found. The own image overrides the source image.
+- Images ([0007](0007-images-from-open-sources.md)): the source image is a reference (`source_wikidata_id`, `source_image_file` on Commons, licence, licence URL and attribution). The learner's own image is either a file in the private storage bucket (`own_image_path`) or an `https` URL (`own_image_url`), optionally with `own_image_source_url` pointing to where it was found. The own image overrides the source image. `own_image_source_url` was never used and was dropped by [ADR-0024](0024-save-an-artwork-in-one-database-function.md).
 - Trash (R-23): `deleted_at` on `artworks`. Moving to the trash and restoring set and clear it; deleting from the trash removes the row and its links. The app hides trashed artworks from the collection and suggests only values linked to at least one artwork outside the trash.
 - Record numbers: `private.record_counters` holds the last number per learner; a `before insert` trigger on `artworks` assigns the next one. The app shows it as `#` plus the number padded to four digits.
 
@@ -107,7 +107,7 @@ erDiagram
 - `artwork_values` references both its artwork and its value together with `owner_id`, so a link between two learners' data cannot exist even if a policy were wrong.
 - Grants are explicit, because new Supabase projects give the Data API no default access. Insert and update grants are per column: `owner_id`, `record_number` and timestamps cannot be written by the client.
 - The counter table and trigger functions live in a `private` schema that the Data API does not expose.
-- Storage bucket `artwork-images` is private, accepts images up to 5 MB, and its policies allow access only to objects under a folder named after the learner's id: `<user id>/<artwork id>/<file name>`. The app shows those images through signed URLs.
+- Storage bucket `artwork-images` is private, accepts images up to 5 MB, and its policies allow access only to objects under a folder named after the learner's id: `<user id>/<artwork id>/<file name>`. The app shows those images through signed URLs. [ADR-0025](0025-upload-the-own-image-when-the-artwork-is-saved.md) changed the object name to `<user id>/<random uuid>.<extension>`.
 
 ### Consequences
 

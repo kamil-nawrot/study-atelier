@@ -2,8 +2,14 @@ name: CI
 
 on:
   pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
   push:
     branches: [develop, main]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -12,47 +18,29 @@ concurrency:
 jobs:
   ui:
     name: UI library
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/ui.yml
 
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        run: pnpm --filter @study-atelier/ui lint
-
-      - name: Type check and token CSS check
-        run: pnpm --filter @study-atelier/ui check
-
-      - name: Unit tests
-        run: pnpm --filter @study-atelier/ui test
-
-      - name: Build Storybook
-        run: pnpm --filter @study-atelier/ui build
+  migrations:
+    name: Migrations on local Supabase
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/migrations.yml
 
   web:
     name: Web app
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    environment: ${{ github.event_name == 'push' && (github.ref_name == 'main' && 'production' || 'develop') || '' }}
     env:
       CLOUDFLARE_CONFIGURED: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_URL: ${{ github.event_name == 'pull_request' && 'https://test.supabase.co' || secrets.SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ github.event_name == 'pull_request' && 'test-key' || secrets.SUPABASE_PUBLISHABLE_KEY }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: pnpm
@@ -66,8 +54,15 @@ jobs:
       - name: Type check
         run: pnpm --filter @study-atelier/web check
 
-      - name: Unit tests
-        run: pnpm --filter @study-atelier/web test
+      - name: Install Playwright Chromium
+        run: pnpm --filter @study-atelier/web exec playwright install --with-deps --only-shell chromium
+
+      - name: Unit and component tests with coverage
+        run: pnpm --filter @study-atelier/web test:coverage
+
+      - name: Coverage summary
+        if: ${{ !cancelled() && hashFiles('apps/web/coverage/coverage-summary.json') != '' }}
+        run: node .github/scripts/coverage-summary.mjs "Web app" apps/web/coverage/coverage-summary.json >> "$GITHUB_STEP_SUMMARY"
 
       - name: Build
         run: pnpm --filter @study-atelier/web build
@@ -98,19 +93,20 @@ jobs:
 
   database:
     name: Database migrations
-    needs: web
-    if: github.event_name == 'push' && github.ref_name == 'develop'
+    needs: [web, migrations]
+    if: github.event_name == 'push' && (github.ref_name == 'develop' || github.ref_name == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    environment: ${{ github.ref_name == 'main' && 'production' || 'develop' }}
     concurrency:
-      group: supabase-migrations
+      group: supabase-migrations-${{ github.ref_name }}
       cancel-in-progress: false
     env:
       SUPABASE_CONFIGURED: ${{ secrets.SUPABASE_URL != '' && secrets.SUPABASE_ACCESS_TOKEN != '' && secrets.SUPABASE_DB_PASSWORD != '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         if: env.SUPABASE_CONFIGURED == 'true'
-      - uses: supabase/setup-cli@v1
+      - uses: supabase/setup-cli@v3
         if: env.SUPABASE_CONFIGURED == 'true'
         with:
           version: 2.120.0

@@ -9,8 +9,14 @@
 
 ## Formatting and linting
 
+- Text files use `LF` line endings on every operating system. [`.gitattributes`](../../.gitattributes) makes Git store and check them out with `LF` (Windows scripts such as `.bat`, `.cmd` and `.ps1` keep `CRLF`) and marks images, fonts and archives as binary, [`.editorconfig`](../../.editorconfig) sets `end_of_line = lf` for editors, and Prettier uses `endOfLine: 'lf'`. A new binary file type gets a `binary` line in `.gitattributes`.
 - Prettier has one config for the whole repository: [`prettier.config.js`](../../prettier.config.js) at the root. Packages do not add their own.
 - ESLint rules shared by all packages live in [`eslint.config.base.js`](../../eslint.config.base.js) at the root. Each package has a short `eslint.config.js` that imports the base and adds only what is specific to it, for example the Storybook rules in `packages/ui`.
+- Stylelint has one config for the whole repository: [`stylelint.config.js`](../../stylelint.config.js) at the root. It checks `.css` files and `<style>` blocks in `.svelte` files from each package's `lint` script.
+- Stylelint requires a design token (`var(--…)`) for colours, margins, paddings, gaps, font sizes, weights, line heights, letter spacing, border widths and radii, and forbids literal colours and lengths in the `background`, `border*`, `outline` and `box-shadow` shorthands. `0`, `auto`, `none`, `transparent`, `currentColor`, inherited keywords and a unitless line height of `1` are allowed, and so is any value that contains a `var(--…)`, such as a `calc()` over tokens.
+- Stylelint also forbids `!important`, duplicate properties and selectors, unknown properties and units, named colours, `box-shadow` and `text-shadow`, and a `min-width` media query with any value other than `768px`.
+- Palette tokens (`--color-neutral-*`, `--color-red-*`, `--color-amber-*`, `--color-green-*`) may appear only in `packages/ui/src/lib/styles`; everywhere else Stylelint reports them.
+- A literal that belongs to one component and has no shared role (see [ui-patterns.md](ui-patterns.md#tokens)) is the only reason to disable a rule, and it needs the owner's agreement.
 - The lint dependencies used by the shared configs are root dev dependencies.
 
 ## TypeScript and Svelte
@@ -18,8 +24,10 @@
 - Functions declare their return type. Inline callbacks and functions assigned to a typed variable may rely on inference (ESLint `@typescript-eslint/explicit-function-return-type`).
 - A fixed set of values is a string literal union type, for example `'one' | 'few' | 'many'`, not a TypeScript `enum`.
 - Attributes of Svelte elements and components are kept in a fixed order by ESLint `svelte/sort-attributes`: identity (`this`, `id`, `name`) first, then `style` and `class`, then all other attributes and props alphabetically (event handlers such as `onclick` included), then `bind:` directives, then directives such as `use:` and `transition:`. `pnpm exec eslint --fix` sorts them.
+- A CSS animation is one full `animation` shorthand that names its keyframes, for example `animation: fade 5.6s linear infinite`. The production CSS minifier turns a shorthand without a name into `animation: none`, so a name set by another rule runs for 0 s and only the build shows it. `packages/ui/src/lib/components/animations.test.ts` checks the library components.
+- Svelte scopes every selector of a component's `<style>` to the component's own elements, also inside `:has()`. A selector in `:has()` that must match an element rendered by a child component or a snippet is wrapped in `:global(...)`, for example `.tooltip:has(:global(:focus-visible))`; without it the rule silently never applies, so it needs a browser test.
 - Markup has no wrapper elements without a purpose. Prefer a semantic element (`footer`, `section`, `nav`) to a `div` when one fits.
-- `pnpm lint` runs Prettier and ESLint inside each pnpm package, so code outside them (for example a future Go backend) is not touched and uses its own language tooling.
+- `pnpm lint` runs Prettier, ESLint and Stylelint inside each pnpm package, so code outside them (for example a future Go backend) is not touched and uses its own language tooling.
 
 ## Svelte markup
 
@@ -31,23 +39,33 @@
 </Alert>
 ```
 
+## Reuse
+
+- Before writing a mechanism, look for one that already exists in `#lib` or `packages/ui` and use or extend it, for example an option on a library component instead of a new component.
+- When a change needs logic or markup that already lives elsewhere (a guard against leaving a form, a bar, image loading), it moves that code into a shared module or component in the same pull request and switches the existing callers to it; it does not copy it.
+- Duplication found that the change did not introduce gets its own `Chore` issue in Linear instead of widening the pull request.
+- Long reference data, such as the list of country codes, is not typed by hand: it is generated once from a trusted source (the ICU data behind `Intl.DisplayNames`, for example) by a short script, the source and the left-out entries are written in the ADR, and a test checks the number of entries and the exclusions ([ADR-0057](../decisions/0057-location-country-and-type-of-place.md)).
+
 ## Web app layout
 
 The SvelteKit app in `apps/web/src`:
 
-| Path | Holds |
-| --- | --- |
-| `routes/` | Pages and layouts only (`+page.svelte`, `+layout.ts` and other SvelteKit files) |
-| `lib/<domain>/` | Code of one domain, for example `auth`, `i18n` or later `collection`: TypeScript modules at the top of the folder |
-| `lib/<domain>/components/` | Svelte components that belong to that domain, for example `AuthLayout.svelte` |
-| `lib/supabase.ts` | The one Supabase client |
+| Path                       | Holds                                                                                                             |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `routes/`                  | Pages and layouts only (`+page.svelte`, `+layout.ts` and other SvelteKit files)                                   |
+| `lib/<domain>/`            | Code of one domain, for example `auth`, `i18n` or later `collection`: TypeScript modules at the top of the folder |
+| `lib/<domain>/types.ts`    | Types the domain exports, for example `ArtworkInput` in `collection`                                              |
+| `lib/<domain>/components/` | Svelte components that belong to that domain, for example `AuthLayout.svelte`                                     |
+| `lib/supabase.ts`          | The one Supabase client, typed with `lib/database.types.ts` (generated by `pnpm db:types`, never edited by hand)   |
 
+- A type used by more than one module, or by views, lives in the domain's `types.ts`. A type used by one module only, such as the shape of rows a query returns, stays in that module.
 - Components used in more than one domain, or that know nothing about the app's data and routes, belong in `packages/ui` instead.
 - Files in `routes/` connect pieces: they read data, call domain functions and render components. Logic (Supabase calls, validation, mapping, formatting) lives in `lib/<domain>`.
 
 ## Naming
 
 - Svelte components: `PascalCase.svelte`, the same name they are imported under.
+- A component is named for what it is, not for one way it opens or one interaction: `Popover`, not `HoverCard`, because it also opens on a click.
 - Other files and folders: `kebab-case`, for example `auth-artworks.ts`. Route folders are kebab-case because they become URLs (`/forgot-password`).
 - SvelteKit files keep the framework's names (`+page.svelte`, `+layout.ts`).
 - Tests: the tested file's name plus `.spec.ts`, next to the tested file.
@@ -59,9 +77,10 @@ The SvelteKit app in `apps/web/src`:
 
 ## Routes and navigation
 
-- Pages that need a signed-in learner are in the `(app)` group; sign-in, sign-up and password reset are in `(auth)`. Each group's `+layout.ts` redirects by session. A page reachable in both states (for example `update-password`, opened from an email) stays outside the groups.
+- Pages that need a signed-in learner are in the `(app)` group; the start page, sign-in, sign-up and password reset are in `(auth)`. The atelier lives at `/atelier`, one artwork at `/atelier/<record number>`, its edit form at `/atelier/<record number>/edit`, the add form at `/atelier/new`, the trash at `/atelier/trash` ([ADR-0023](../decisions/0023-atelier-routes-and-commons-thumbnails.md)), the card index at `/atelier/values`, a value page at `/atelier/values/<kind>/<id>` and its form at `/atelier/values/<kind>/<id>/edit` ([ADR-0050](../decisions/0050-store-value-pages-in-details-tables.md)); the glossary at `/atelier/glossary`, an entry at `/atelier/glossary/<id>`, its form at `/atelier/glossary/<id>/edit` and the add form at `/atelier/glossary/new` ([ADR-0074](../decisions/0074-keep-a-glossary-of-terms-with-definitions-from-wikipedia.md)); `/` is the start page. Each group's `+layout.ts` redirects by session. A page reachable in both states (for example `update-password`, opened from an email) stays outside the groups.
 - Paths in code are built with `resolve()` from `$app/paths`, for example `resolve('/(auth)/sign-in')`, in views and in `redirect()` alike, so a renamed route fails the type check.
 - Internal navigation follows [ui-patterns.md](ui-patterns.md#links-and-buttons): links for going somewhere, `goto` only after an action.
+- A `goto` after an action that changed data (a save, a delete, moving to the trash) passes `refreshAll: true`. Links preload their page's data when they are pressed, and without it the navigation reuses data loaded before the change, so the page shows the old content until a reload.
 
 ## UI text
 
@@ -78,9 +97,42 @@ The SvelteKit app in `apps/web/src`:
 
 - Every error from Supabase or another service goes through a mapping function in `lib/<domain>/errors.ts`, which picks a dictionary message by error code and falls back to a general message. `error.message` is never shown to the learner.
 - Domain functions return the mapped message, so views only show it.
+- A domain function that writes passes the error through `failureMessage` from `lib/auth/expired-session.svelte.ts`: an authorization error (HTTP 401 or a `PGRST301`..`PGRST303` code) signs the learner out and returns the session-ended message; any other error goes to the domain's mapping function.
+
+## External services
+
+- URLs of one image source are built in one module, `lib/images/<source>.ts` (for example `commons.ts`). Views and other domains call it instead of writing the URL themselves.
+- The Polish Wikipedia API (the definitions of the glossary) and the Wikidata API it is checked against are called only from `lib/glossary/wikipedia.ts`, through the same `fetchJson` as the image sources, so the identification and the retry are shared. Tests and screenshots mock it: the cloud environment cannot reach `pl.wikipedia.org`. A local session can, so a change to how the responses are parsed (the definition, the sentences, the lead) is also checked against a handful of live articles before the pull request; sample texts written by hand miss the variety of real leads. A script that calls the app's Wikimedia functions from Node for such a check sets a `User-Agent` header naming the app and the repository URL (as `API_USER_AGENT`): browsers send one themselves, while Node's default makes Wikimedia answer `403`.
+- A request to a service that asks clients to identify themselves (for example the Wikimedia `Api-User-Agent` header) names the app and the repository URL. It never carries personal data such as an email address.
+- Requests to a rate-limited service are batched where the API allows it, and a 429 is retried at most once, after `Retry-After` ([ADR-0023](../decisions/0023-atelier-routes-and-commons-thumbnails.md)).
+- The Query Service optimizer may start a query from a large pattern such as `?item wdt:P18 ?image` instead of from the few results of `SERVICE wikibase:mwapi`, and then times out after about 60 s with a `502` or `504`. A query that joins search results under `UNION` with other patterns starts with `hint:Query hint:optimizer "None".`, so it runs in the written order, searches first (ATL-213).
+- A request to a Wikimedia service gives up after 30 s (`AbortSignal.timeout` in `fetchWithRetry`), is not retried, and reports a `504`, which the learner sees as the "did not answer" message rather than a network error.
+- A SPARQL query to the Wikidata Query Service never follows a subclass path such as `wdt:P31/wdt:P279*`: it runs for tens of seconds and times out. Narrow the results with `FILTER EXISTS` and `FILTER NOT EXISTS` on specific properties and classes instead.
+
+## Database
+
+- Every table in `public` has Row Level Security on, policies for `authenticated` only, and an explicit `revoke all ... from anon, authenticated` followed by the narrowest `grant` (columns, not whole tables, for writes). Supabase grants new objects to the API roles by default, so a migration that skips the `revoke` exposes the table.
+- Functions are `security invoker` with `set search_path = ''` and, when callable from the app, `revoke all ... from public, anon` plus `grant execute ... to authenticated`. A `security definer` function lives in the `private` schema and is not granted to the API roles.
+- Uploaded files sit under a folder named after the owner's id, and the Storage policies compare that folder with `auth.uid()`.
+- `supabase/tests/security.sql` runs in the `migrations` job against the replayed migrations. It checks the rules above for every table and function, and that one learner cannot read or change another's rows or images. A new table, function or policy extends it.
+- `supabase/tests/review-session.sql` runs in the same job and checks the rules of `review_session` on a learner's own artworks, for example which artwork gets a quiz. A change to a session rule extends it. `review-streak.sql`, `notes-mentions.sql` and `artwork-images.sql` do the same for `review_streak`, `notes_mentions` and the other images of `save_artwork`.
+- A migration that changes the rules of a function comes with a test in `supabase/tests/` that fails against the previous version of the function and passes with the new one. Check both on the local stack before pushing.
 
 ## Tests
 
 - Unit tests (Vitest) cover every module with logic: validation, mapping, formatting and the domain functions that wrap Supabase (with the client mocked).
+- Components and pages have component tests named `<Name>.svelte.spec.ts` next to the component (for a route, `page.svelte.spec.ts` next to `+page.svelte`). They run in Chromium with Vitest browser mode; other tests run in Node ([ADR-0018](../decisions/0018-component-tests-in-vitest-browser-mode.md)).
 - Test names describe behaviour in a sentence ("rejects a short password and says how long it is").
-- Expected texts are read from `m`. A literal string is used only when the text itself is under test, for example a plural form.
+- Expected texts are read from `m`, and in `packages/ui` from `defaultUiMessages`. A literal string is used only when the text itself is under test, for example a plural form.
+- The app's browser tests see the Polish library texts: `src/lib/testing/ui-messages.ts`, the `setupFiles` entry of the `client` project, calls `setUiMessages(m.ui)` ([ADR-0087](../decisions/0087-set-library-texts-once-for-the-whole-app.md)). A library text is read from `m.ui`, for example `m.ui.valueField.remove('barok')`. Library styles are not loaded in tests, so a custom checkbox has no size: click its label.
+- A test of a size or position loads the styles itself. In `packages/ui`, `src/lib/testing/control-height.ts` loads them and gives the token's height (`controlHeight`) and the height of a control's outlined box (`outlinedHeight`); in the app, the spec imports `@study-atelier/ui/styles.css`. Such a test may reach that box by its class.
+- A test of a library text override renders the component through `src/lib/testing/MessagesHost.svelte` in `packages/ui`, which calls `setUiMessages` before it renders the component and puts the previous texts back when it is destroyed.
+- Component tests find elements the way a learner does: by role, label and visible text from `m`, not by component internals, so a refactor that keeps the behaviour keeps the tests green.
+- A test enters a whole value with `fill()` and presses only the keys it needs (`{Enter}`), instead of typing text with `userEvent.keyboard`: every key is a separate round trip to the browser, and under the load of a full local run such tests come close to the 15 s timeout (ATL-151). Typing key by key is kept for behaviour that depends on it, such as the notes editor.
+- A test of behaviour that depends on time (a message that disappears, a delay) uses fake timers and advances them with `vi.advanceTimersByTime`; it never waits for real time, which makes tests slow and unstable in CI. In browser mode fake only what the code uses, for example `vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] })`, so `expect.element` can still poll.
+- The content of a closed `details` is not in the accessibility tree: a test opens it by clicking its `summary`, and checks that such content is absent with `not.toBeInTheDocument()`, not `not.toBeVisible()`.
+- A hidden `input type="file"` has no role, so a test reaches it with `document.querySelector('input[type="file"]')` and picks a small file with `userEvent.upload`. A large file (for example one over the upload limit) is built in the page and set on the input with a `DataTransfer` and a `change` event, because `userEvent.upload` sends every byte from Node to the browser and takes seconds. This and the outlined box of a size test are the only exceptions to finding elements by role.
+- Code that loads an image with `new Image()` (for example to read its size) is tested with a stub: `vi.stubGlobal('Image', ...)` with a class that calls `onload` or `onerror`, and `vi.unstubAllGlobals()` after each test. When the order of events matters, the stub keeps `onload` and the test calls it at the chosen moment. A real image for a page test is drawn on an `OffscreenCanvas` and turned into a `File`.
+- The wall lays its tiles out column by column, so the order of the tile links in the DOM is not the order of the wall. A test of the wall's order reads the remembered wall sequence (`study-atelier:wall-sequence` in `sessionStorage`) instead of the links.
+- Supabase is never called from tests. A test mocks `#lib/supabase.ts` with `vi.mock` and returns results built with the helpers in `src/lib/testing/`, which use the real Supabase error classes. Navigation (`$app/navigation`) is mocked the same way.
+- Test data that is not UI text (addresses, passwords, sample titles) is made up, in English, and never real personal data, for example `learner@example.com`.

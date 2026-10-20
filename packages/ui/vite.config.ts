@@ -1,4 +1,5 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { playwright } from '@vitest/browser-playwright';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -10,9 +11,49 @@ export default defineConfig({
 			}
 		})
 	],
+	optimizeDeps: {
+		include: [
+			'@lucide/svelte/icons/bold',
+			'@lucide/svelte/icons/heading',
+			'@lucide/svelte/icons/italic',
+			'@lucide/svelte/icons/list',
+			'@lucide/svelte/icons/list-ordered',
+			'@tiptap/core',
+			'@tiptap/markdown',
+			'@tiptap/starter-kit',
+			'dompurify',
+			'marked'
+		]
+	},
 	test: {
 		expect: { requireAssertions: true },
-		environment: 'node',
-		include: ['scripts/**/*.test.ts', 'src/**/*.test.ts']
+		coverage: {
+			provider: 'v8',
+			include: ['src/**/*.{ts,svelte}'],
+			exclude: ['src/**/*.{test,spec}.ts', 'src/**/*.stories.svelte', 'src/stories/**'],
+			reporter: ['text-summary', 'json-summary', 'html']
+		},
+		projects: [
+			{
+				extends: './vite.config.ts',
+				test: {
+					name: 'node',
+					environment: 'node',
+					include: ['scripts/**/*.test.ts', 'src/**/*.test.ts']
+				}
+			},
+			{
+				extends: './vite.config.ts',
+				test: {
+					name: 'client',
+					browser: {
+						enabled: true,
+						provider: playwright(),
+						instances: [{ browser: 'chromium', headless: true }]
+					},
+					include: ['src/**/*.svelte.spec.ts']
+				}
+			}
+		]
 	}
 });

@@ -1,9 +1,10 @@
 :root {
+	--color-neutral-50: #EEECE6;
 	--color-neutral-100: #E2DFD7;
 	--color-neutral-150: #D4D1CA;
 	--color-neutral-200: #C6C3BC;
 	--color-neutral-400: #A39E95;
-	--color-neutral-600: #5E5952;
+	--color-neutral-600: #544F49;
 	--color-neutral-850: #2D2A26;
 	--color-neutral-900: #201E1B;
 	--color-neutral-950: #1C1A18;
@@ -17,6 +18,12 @@
 	--color-stage-bg: var(--color-neutral-950);
 	--color-stage-fg: var(--color-neutral-100);
 	--color-stage-fg-muted: var(--color-neutral-400);
+	--color-mat-bg: var(--color-neutral-100);
+	--color-mat-fg: var(--color-neutral-950);
+	--color-mat-fg-muted: var(--color-neutral-600);
+	--color-mat-window: var(--color-neutral-150);
+	--color-mat-badge-bg: rgba(28, 26, 24, 0.45);
+	--color-mat-badge-fg: rgba(226, 223, 215, 0.8);
 	--font-family-ui: 'Schibsted Grotesk';
 	--font-family-title: 'Newsreader';
 	--font-weight-regular: 400;
@@ -48,14 +55,19 @@
 	--spacing-12: 48px;
 	--spacing-16: 64px;
 	--spacing-24: 96px;
+	--size-control: 48px;
 	--size-content-narrow: 400px;
 	--size-content-default: 720px;
+	--size-content-wide: 1280px;
 	--border-width-hairline: 1px;
 	--border-width-base: 2px;
 	--border-width-button: 4px;
 	--border-width-heavy: 8px;
 	--border-width-mat: 16px;
 	--border-radius-none: 0px;
+	--duration-short: 160ms;
+	--duration-loading-delay: 300ms;
+	--blur-scrim: 4px;
 	--color-bg: var(--color-neutral-950);
 	--color-surface: var(--color-neutral-900);
 	--color-tag: var(--color-neutral-850);
@@ -80,5 +92,6 @@
 	--color-success: var(--color-green-700);
 	--color-warning: var(--color-amber-700);
 	--color-danger: var(--color-red-700);
+	--color-mat-bg: var(--color-neutral-50);
 	color-scheme: light;
 }

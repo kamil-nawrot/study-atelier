@@ -1,0 +1,59 @@
+name: Migrations
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/**'
+      - 'apps/web/src/lib/database.types.ts'
+      - '.github/workflows/migrations.yml'
+  workflow_call:
+
+concurrency:
+  group: migrations-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  migrations:
+    name: Migrations on local Supabase
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.120.0
+
+      - name: Start local Supabase and apply migrations
+        run: supabase start
+
+      - name: Replay migrations from scratch
+        run: supabase db reset
+
+      - name: Check generated database types
+        run: |
+          supabase gen types --lang typescript --local --schema public \
+            | npx --yes prettier@3.9.10 --no-config --parser typescript > "$RUNNER_TEMP/database.types.ts"
+          diff --unified apps/web/src/lib/database.types.ts "$RUNNER_TEMP/database.types.ts" \
+            || { echo "::error::apps/web/src/lib/database.types.ts is stale. Run pnpm db:types and commit the result."; exit 1; }
+      - name: Check row level security and grants
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/security.sql
+
+      - name: Check review sessions
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/review-session.sql
+
+      - name: Check review streaks
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/review-streak.sql
+
+      - name: Check note mentions
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/notes-mentions.sql
+
+      - name: Check artwork images
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/artwork-images.sql
+
+      - name: Check unused images
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/unused-images.sql
+
+      - name: Stop local Supabase
+        if: always()
+        run: supabase stop --no-backup

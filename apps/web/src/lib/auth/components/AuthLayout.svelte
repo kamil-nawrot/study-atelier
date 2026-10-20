@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { Frame, Section } from '@study-atelier/ui';
-	import { commonsImageUrl, pickArtwork } from '#lib/artworks/auth-artworks.ts';
+	import { ArtworkImage, Frame, Logo, Section } from '@study-atelier/ui';
+	import { pickArtwork } from '#lib/artworks/auth-artworks.ts';
+	import { commonsFileUrl } from '#lib/images/commons.ts';
 	import { m } from '#lib/i18n/index.ts';
 
 	type Props = {
@@ -14,7 +15,7 @@
 	let { title, lead, children, footer }: Props = $props();
 
 	const artwork = pickArtwork();
-	const imageUrl = commonsImageUrl(artwork.file, 1280);
+	const imageUrl = commonsFileUrl(artwork.file, 1280);
 </script>
 
 <svelte:head>
@@ -26,18 +27,18 @@
 		<img class="backdrop" alt="" aria-hidden="true" src={imageUrl} />
 		<div class="artwork">
 			<Frame size="view">
-				<img alt="{artwork.title}, {artwork.artist}" src={imageUrl} />
+				<ArtworkImage alt="{artwork.title}, {artwork.artist}" src={imageUrl} surface="frame" />
 			</Frame>
 		</div>
 		<figcaption>
 			<cite class="artwork-title">{artwork.title}</cite>
 			<span>{artwork.artist}, {artwork.date}</span>
-			<span class="credit">{m.artwork.credit}</span>
+			<span class="credit">{artwork.credit}</span>
 		</figcaption>
 	</figure>
 
 	<main class="panel">
-		<div class="brand">{m.app.name}</div>
+		<Logo label={m.app.name} size="sm" />
 		<Section>
 			<h1>{title}</h1>
 			<p class="lead">{lead}</p>
@@ -61,9 +62,7 @@
 		position: relative;
 		display: grid;
 		justify-items: center;
-		align-content: start;
 		height: 400px;
-		padding-top: var(--spacing-6);
 		overflow: hidden;
 		background: var(--color-stage-bg);
 	}
@@ -84,13 +83,9 @@
 	}
 
 	.artwork {
+		display: none;
 		position: relative;
 		z-index: 1;
-	}
-
-	.stage .artwork :global(img) {
-		width: auto;
-		max-height: 180px;
 	}
 
 	figcaption {
@@ -124,24 +119,6 @@
 		padding: var(--spacing-8) var(--spacing-4) var(--spacing-12);
 	}
 
-	.brand {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-bold);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
-	}
-
-	.brand::before {
-		content: '';
-		width: var(--spacing-4);
-		height: var(--spacing-4);
-		border: var(--border-width-base) solid var(--color-line);
-		border-bottom-width: var(--border-width-button);
-	}
-
 	footer {
 		display: grid;
 		gap: var(--spacing-3);
@@ -161,14 +138,15 @@
 			top: 0;
 			align-content: center;
 			height: 100dvh;
-			padding-top: 0;
 		}
 
 		.artwork {
+			display: block;
 			margin-bottom: var(--spacing-16);
 		}
 
 		.stage .artwork :global(img) {
+			width: auto;
 			max-height: min(64dvh, 720px);
 			max-width: min(36vw, 560px);
 		}

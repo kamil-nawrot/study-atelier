@@ -23,3 +23,6 @@ coverage/
 
 # Cloudflare
 .wrangler/
+
+# Screenshots
+tmp/
