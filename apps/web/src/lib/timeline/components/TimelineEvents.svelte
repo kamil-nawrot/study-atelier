@@ -2,7 +2,7 @@
 	import { formatDate } from '#lib/collection/format.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { layEvents, type LaidEvent } from '../event-lanes.ts';
-	import { EVENT_LANE_HEIGHT, type StageGeometry } from '../stage.ts';
+	import { boxStyle, type StageGeometry } from '../stage.ts';
 	import type { Era } from '../time.ts';
 	import type { TimelineEvent } from '../types.ts';
 
@@ -21,7 +21,8 @@
 	const VISIBLE_MARGIN = 400;
 	const MIN_RIBBON = 2;
 
-	let laid = $derived(layEvents(events, era, geometry.width / geometry.view.span, labelWidth));
+	let vertical = $derived(geometry.orientation === 'vertical');
+	let laid = $derived(layEvents(events, era, geometry.length / geometry.view.span, labelWidth));
 	let near = $derived(
 		laid
 			.map((item) => ({
@@ -29,11 +30,13 @@
 				from: geometry.position(item.start),
 				to: geometry.position(item.end)
 			}))
-			.filter((shown) => shown.to > -VISIBLE_MARGIN && shown.from < geometry.width + VISIBLE_MARGIN)
+			.filter(
+				(shown) => shown.to > -VISIBLE_MARGIN && shown.from < geometry.length + VISIBLE_MARGIN
+			)
 	);
 	let visible = $derived(near.filter((shown) => shown.item.lane < lanes));
 	let hidden = $derived(
-		near.filter((shown) => shown.item.lane >= lanes && shown.to > 0 && shown.from < geometry.width)
+		near.filter((shown) => shown.item.lane >= lanes && shown.to > 0 && shown.from < geometry.length)
 			.length
 	);
 
@@ -46,22 +49,28 @@
 		return [label(item), date].filter(Boolean).join(', ');
 	}
 
-	function top(item: LaidEvent): number {
-		return geometry.eventsTop + item.lane * EVENT_LANE_HEIGHT;
+	function across(item: LaidEvent): number {
+		return geometry.eventsFrom + item.lane * geometry.lane;
 	}
 </script>
 
 {#if events.length === 0}
-	<p style:top={`${geometry.eventsTop}px`} class="empty caption">{m.timeline.noEvents}</p>
+	<p
+		style={boxStyle(geometry, { along: geometry.length / 2, across: geometry.eventsFrom })}
+		class="empty caption"
+		class:vertical
+	>
+		{m.timeline.noEvents}
+	</p>
 {/if}
 
 {#each visible as shown (shown.item.event.id)}
 	{#if shown.item.shape === 'pin'}
 		<button
-			style:left={`${(shown.from + shown.to) / 2}px`}
-			style:top={`${top(shown.item)}px`}
+			style={boxStyle(geometry, { along: (shown.from + shown.to) / 2, across: across(shown.item) })}
 			class="pin"
 			class:selected={shown.item.event.id === selected}
+			class:vertical
 			aria-label={title(shown.item)}
 			aria-pressed={shown.item.event.id === selected}
 			onclick={() => onselect(shown.item.event)}
@@ -72,14 +81,17 @@
 		</button>
 	{:else}
 		{@const from = Math.max(shown.from, -4)}
-		{@const to = Math.min(shown.to, geometry.width + 4)}
+		{@const to = Math.min(shown.to, geometry.length + 4)}
 		<button
-			style:left={`${from}px`}
-			style:top={`${top(shown.item)}px`}
-			style:width={`${Math.max(to - from, MIN_RIBBON)}px`}
+			style={boxStyle(geometry, {
+				along: from,
+				across: across(shown.item),
+				alongSize: Math.max(to - from, MIN_RIBBON)
+			})}
 			class="ribbon"
 			class:outside={!shown.item.inside}
 			class:selected={shown.item.event.id === selected}
+			class:vertical
 			aria-label={title(shown.item)}
 			aria-pressed={shown.item.event.id === selected}
 			onclick={() => onselect(shown.item.event)}
@@ -92,7 +104,10 @@
 
 {#if hidden > 0}
 	<span
-		style:top={`${geometry.eventsTop + lanes * EVENT_LANE_HEIGHT - EVENT_LANE_HEIGHT / 2}px`}
+		style={boxStyle(geometry, {
+			along: geometry.length - geometry.lane * (vertical ? 1 : 2),
+			across: geometry.eventsFrom + (vertical ? 0 : (lanes - 1) * geometry.lane)
+		})}
 		class="hidden caption"
 		title={m.timeline.hiddenEvents(hidden)}
 	>
@@ -104,10 +119,15 @@
 <style>
 	.empty {
 		position: absolute;
-		left: 50%;
 		z-index: 1;
 		padding-inline: var(--spacing-2);
 		transform: translateX(-50%);
+	}
+
+	.empty.vertical {
+		writing-mode: vertical-rl;
+		padding: var(--spacing-2) 0;
+		transform: translateY(-50%);
 	}
 
 	.ribbon,
@@ -127,14 +147,32 @@
 		cursor: pointer;
 	}
 
+	.ribbon.vertical,
+	.pin.vertical {
+		flex-direction: column;
+		width: var(--spacing-4);
+		height: auto;
+	}
+
 	.ribbon {
 		overflow: visible;
 		border-left: var(--border-width-base) solid var(--color-fg-muted);
 		background: var(--color-tag);
 	}
 
+	.ribbon.vertical {
+		align-items: center;
+		border-top: var(--border-width-base) solid var(--color-fg-muted);
+		border-left: 0;
+	}
+
 	.ribbon .name {
 		padding-inline: var(--spacing-2);
+	}
+
+	.vertical .name {
+		writing-mode: vertical-rl;
+		padding: var(--spacing-2) 0;
 	}
 
 	.ribbon.outside .name {
@@ -142,8 +180,13 @@
 		left: 100%;
 	}
 
+	.ribbon.vertical.outside .name {
+		top: 100%;
+		left: auto;
+	}
+
 	.ribbon.selected {
-		border-left-color: var(--color-highlight);
+		border-color: var(--color-highlight);
 		background: var(--color-highlight);
 		color: var(--color-on-fg);
 	}
@@ -155,6 +198,11 @@
 	.pin {
 		gap: var(--spacing-2);
 		margin-left: calc(-1 * var(--spacing-1));
+	}
+
+	.pin.vertical {
+		margin-top: calc(-1 * var(--spacing-1));
+		margin-left: 0;
 	}
 
 	.diamond {
@@ -176,7 +224,6 @@
 
 	.hidden {
 		position: absolute;
-		right: var(--spacing-2);
 		z-index: 2;
 		padding-inline: var(--spacing-1);
 		background: var(--color-surface);

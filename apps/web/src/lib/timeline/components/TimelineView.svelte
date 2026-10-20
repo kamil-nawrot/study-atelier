@@ -25,7 +25,7 @@
 		eventsIn,
 		lanesForEra
 	} from '../event-lanes.ts';
-	import { NARROW_WIDTH } from '../stage.ts';
+	import { NARROW_WIDTH, orientationFor, verticalLength } from '../stage.ts';
 	import { deleteTimelineEvent } from '../timeline-data.ts';
 	import type { TimelineEvent } from '../types.ts';
 	import { rememberEra } from '../start.ts';
@@ -67,6 +67,7 @@
 	let view = $state<View>(start.view);
 	let selected = $state<Selection>(null);
 	let width = $state(0);
+	let viewportHeight = $state(0);
 	let deleteOpen = $state(false);
 	let deleting = $state(false);
 	let deleteError = $state<string>();
@@ -80,12 +81,13 @@
 	let next = $derived(index < ERA_CODES.length - 1 ? ERA_CODES[index + 1] : undefined);
 	let seen = $derived(seenRange(view, era));
 	let collection = $derived(artworks);
+	let orientation = $derived(orientationFor(width));
 	let eraEvents = $derived(eventsIn(events, era));
 	let lanes = $derived(
 		lanesForEra(
 			eraEvents,
 			era,
-			width,
+			orientation === 'vertical' ? verticalLength(viewportHeight) : width,
 			labelWidth,
 			width < NARROW_WIDTH ? EVENT_LANES_NARROW : EVENT_LANES
 		)
@@ -217,6 +219,10 @@
 		showNow(panView(target, by, era));
 	}
 
+	function panShare(share: number): void {
+		pan(share * target.span);
+	}
+
 	function openEra(next: EraCode): void {
 		code = next;
 		step = 'era';
@@ -227,6 +233,8 @@
 
 	onDestroy(stopAnimation);
 </script>
+
+<svelte:window bind:innerHeight={viewportHeight} />
 
 <div class="timeline">
 	<header class="chapter">
@@ -299,7 +307,16 @@
 	</p>
 
 	<div bind:clientWidth={width}>
-		<TimelineStage {era} eventLanes={lanes} onpan={pan} onstep={moveStep} {tint} {view}>
+		<TimelineStage
+			{era}
+			eventLanes={lanes}
+			onkeypan={panShare}
+			onpan={pan}
+			onstep={moveStep}
+			{orientation}
+			{tint}
+			{view}
+		>
 			{#snippet events(geometry)}
 				<TimelineEvents
 					{era}

@@ -324,6 +324,38 @@ describe('timeline page', () => {
 		navigation.state = {};
 	});
 
+	it('runs time from top to bottom on a phone', async () => {
+		await page.viewport(390, 844);
+		renderTimeline([testArtwork(1, 'Straż nocna', { yearTo: 1642, date: '1642' })], undefined, [
+			testEvent('thirty', 'Wojna trzydziestoletnia', 1618, 1648)
+		]);
+
+		await expect.element(stage()).toHaveAttribute('aria-orientation', 'vertical');
+		await expect
+			.element(page.getByRole('button', { name: 'Wojna trzydziestoletnia, 1618–1648' }))
+			.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: 'Straż nocna, 1642' }))
+			.toBeInTheDocument();
+
+		await page.getByRole('button', { name: 'Stulecie', exact: true }).click();
+		await expect
+			.element(page.getByRole('button', { name: 'Stulecie', exact: true }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect.element(stage()).toHaveAttribute('aria-valuenow', '1640');
+		stage().element().focus();
+		stage()
+			.element()
+			.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+		await expect.element(stage()).toHaveAttribute('aria-valuenow', '1665');
+	});
+
+	it('runs time from left to right on a larger screen', async () => {
+		renderTimeline();
+
+		await expect.element(stage()).toHaveAttribute('aria-orientation', 'horizontal');
+	});
+
 	it('says when the collection could not be loaded', async () => {
 		renderTimeline([], 'Brak połączenia.');
 
