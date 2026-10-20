@@ -8,7 +8,7 @@
 	import Moon from '@lucide/svelte/icons/moon';
 	import Sun from '@lucide/svelte/icons/sun';
 	import Trash from '@lucide/svelte/icons/trash-2';
-	import { Icon } from '@study-atelier/ui';
+	import { Count, Icon } from '@study-atelier/ui';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/index.ts';
@@ -95,7 +95,7 @@
 		</span>
 		{#await page.data.reviewWaiting then waiting}
 			{#if waiting > 0}
-				<span class="count" aria-hidden="true">{waiting}</span>
+				<Count aria-hidden="true" value={waiting} />
 			{/if}
 		{/await}
 	</a>
@@ -206,18 +206,6 @@
 	.icon {
 		position: relative;
 		display: flex;
-	}
-
-	.count {
-		min-width: 16px;
-		padding: 0 var(--spacing-1);
-		background: var(--color-fg);
-		color: var(--color-bg);
-		font-size: var(--font-size-xs);
-		font-weight: var(--font-weight-bold);
-		line-height: var(--line-height-xs);
-		text-align: center;
-		font-variant-numeric: tabular-nums;
 	}
 
 	.badge {

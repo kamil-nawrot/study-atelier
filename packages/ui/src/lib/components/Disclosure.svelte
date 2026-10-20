@@ -2,6 +2,7 @@
 	import type { LucideIcon } from '@lucide/svelte';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import type { Snippet } from 'svelte';
+	import Count from './Count.svelte';
 	import Icon from './Icon.svelte';
 
 	type Props = {
@@ -10,6 +11,7 @@
 		count?: number;
 		icon?: LucideIcon;
 		muted?: boolean;
+		plain?: boolean;
 		open?: boolean;
 		lazy?: boolean;
 		id?: string;
@@ -23,6 +25,7 @@
 		count,
 		icon,
 		muted = false,
+		plain = false,
 		open = $bindable(true),
 		lazy = false,
 		id,
@@ -34,19 +37,24 @@
 <details
 	class="disclosure"
 	class:muted
+	class:plain
 	ontoggle={(event) => ontoggle?.(event.currentTarget.open)}
 	bind:open
 >
 	<summary>
-		<svelte:element this={`h${level}`} {id} class="heading">
-			{#if icon}
-				<Icon {icon} size={level === 2 ? 'md' : 'sm'} />
-			{/if}
-			{title}
-			{#if count !== undefined}
-				<span class="count">{count}</span>
-			{/if}
-		</svelte:element>
+		{#if plain}
+			<span {id} class="heading">{title}</span>
+		{:else}
+			<svelte:element this={`h${level}`} {id} class="heading">
+				{#if icon}
+					<Icon {icon} size={level === 2 ? 'md' : 'sm'} />
+				{/if}
+				{title}
+				{#if count !== undefined}
+					<Count outlined={muted} value={count} />
+				{/if}
+			</svelte:element>
+		{/if}
 		<Icon icon={ChevronDown} size="sm" />
 	</summary>
 	{#if open || !lazy}
@@ -82,28 +90,19 @@
 		gap: var(--spacing-2);
 	}
 
-	.count {
-		min-width: 16px;
-		padding: 0 var(--spacing-1);
-		background: var(--color-fg);
-		color: var(--color-bg);
-		font-size: var(--font-size-xs);
-		font-weight: var(--font-weight-bold);
-		line-height: var(--line-height-xs);
-		text-align: center;
-		font-variant-numeric: tabular-nums;
-	}
-
 	.muted .heading {
 		color: var(--color-fg-muted);
 		font-weight: var(--font-weight-medium);
 	}
 
-	.muted .count {
-		outline: var(--border-width-hairline) solid var(--color-fg-muted);
-		outline-offset: calc(-1 * var(--border-width-hairline));
-		background: transparent;
+	.plain > summary {
 		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
+	}
+
+	.plain[open] > summary {
+		margin-bottom: var(--spacing-6);
 	}
 
 	@media (prefers-reduced-motion: no-preference) {
