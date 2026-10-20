@@ -1,6 +1,6 @@
 # 0025. Upload the learner's own image when the artwork is saved
 
-- Status: accepted
+- Status: accepted; rejecting a file over the size limit is superseded by [0091](0091-make-large-own-images-smaller-in-the-browser.md)
 - Date: 2026-10-12
 
 ## Context and problem statement
