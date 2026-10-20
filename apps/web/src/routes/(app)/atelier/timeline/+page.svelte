@@ -49,7 +49,7 @@
 			{data.error}
 		</Alert>
 	{:else}
-		<TimelineView {initialEra} {initialFocus} />
+		<TimelineView artworks={data.artworks} {initialEra} {initialFocus} />
 	{/if}
 </AtelierLayout>
 
