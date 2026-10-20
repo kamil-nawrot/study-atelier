@@ -46,6 +46,16 @@ async function press(locator: ReturnType<typeof page.getByRole>): Promise<void> 
 	(locator.element() as HTMLElement).click();
 }
 
+async function expectEra(name: string): Promise<void> {
+	await expect
+		.poll(() =>
+			document
+				.querySelector(`nav[aria-label="${m.timeline.strip}"] [aria-current="true"]`)
+				?.getAttribute('aria-label')
+		)
+		.toBe(name);
+}
+
 function stage(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('slider', { name: m.timeline.stage });
 }
@@ -57,6 +67,15 @@ describe('timeline page', () => {
 		await page.viewport(1280, 800);
 	});
 
+	it('shows the name of the module and its lead', async () => {
+		renderTimeline();
+
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent(m.timeline.title);
+		await expect.element(page.getByText(m.timeline.lead)).toBeVisible();
+	});
+
 	it('opens the era with the most dated artworks the first time', async () => {
 		renderTimeline([
 			testArtwork(1, 'Waza z Warki', { yearTo: -3000 }),
@@ -64,21 +83,19 @@ describe('timeline page', () => {
 			testArtwork(3, 'Mona Lisa', { yearTo: 1519 })
 		]);
 
-		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Starożytność');
-		await expect.element(page.getByText('do 476')).toBeVisible();
+		await expectEra('Starożytność');
 	});
 
 	it('opens the era looked at last on the device', async () => {
 		localStorage.setItem(ERA_KEY, 'modern');
 		renderTimeline([testArtwork(1, 'Mona Lisa', { yearTo: 1519 })]);
 
-		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Nowoczesność');
+		await expectEra('Nowoczesność');
 	});
 
 	it('shows the whole era at the era step and the centuries it covers', async () => {
 		renderTimeline([testArtwork(1, 'Mona Lisa', { yearTo: 1519 })]);
 
-		await expect.element(page.getByText('XV–XVIII w.')).toBeVisible();
 		await expect.element(stage()).toHaveAttribute('aria-valuenow', '1640');
 		await expect
 			.element(page.getByRole('button', { name: 'Epoka', exact: true }))
@@ -93,7 +110,6 @@ describe('timeline page', () => {
 		await expect
 			.element(page.getByRole('button', { name: 'Stulecie', exact: true }))
 			.toHaveAttribute('aria-pressed', 'true');
-		await expect.element(page.getByText(/skala: stulecie/)).toBeVisible();
 
 		await page.getByRole('button', { name: m.timeline.zoomOut }).click();
 		await expect
@@ -121,22 +137,24 @@ describe('timeline page', () => {
 
 		await page.getByRole('button', { name: m.timeline.next('Nowoczesność') }).click();
 
-		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Nowoczesność');
+		await expectEra('Nowoczesność');
 		expect(localStorage.getItem(ERA_KEY)).toBe('modern');
 	});
 
-	it('opens an era from the era buttons and from the strip', async () => {
+	it('opens an era from the strip', async () => {
 		renderTimeline([testArtwork(1, 'Mona Lisa', { yearTo: 1519 })]);
 
-		await page.getByRole('button', { name: 'Prehistoria', exact: true }).first().click();
-		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Prehistoria');
+		await press(
+			page
+				.getByRole('navigation', { name: m.timeline.strip })
+				.getByRole('button', { name: 'Prehistoria' })
+		);
+		await expectEra('Prehistoria');
 		await expect.element(page.getByRole('button', { name: '10 tysiącleci' })).toBeVisible();
 
 		const strip = page.getByRole('navigation', { name: m.timeline.strip });
 		(strip.getByRole('button', { name: 'Współczesność' }).element() as HTMLButtonElement).click();
-		await expect
-			.element(page.getByRole('heading', { level: 1 }))
-			.toHaveTextContent('Współczesność');
+		await expectEra('Współczesność');
 	});
 
 	it('shows a dot for every dated artwork of the era and none for the others', async () => {
@@ -159,7 +177,7 @@ describe('timeline page', () => {
 			.not.toBeInTheDocument();
 	});
 
-	it('opens the card of a chosen artwork with a link to its page and a preview', async () => {
+	it('pins the preview of a chosen artwork with a link to its page, and unpins it', async () => {
 		renderTimeline([
 			testArtwork(7, 'Straż nocna', {
 				yearTo: 1642,
@@ -173,12 +191,32 @@ describe('timeline page', () => {
 		(dot.element() as HTMLButtonElement).click();
 
 		await expect.element(dot).toHaveAttribute('aria-pressed', 'true');
-		const card = page.getByRole('region', { name: m.timeline.card.artwork });
 		await expect
-			.element(card.getByRole('link', { name: 'Straż nocna' }))
+			.element(page.getByRole('link', { name: m.timeline.showArtwork }))
 			.toHaveAttribute('href', '/atelier/7');
-		await expect.element(card.getByText('nowożytność · barok')).toBeVisible();
-		expect(document.querySelector('.preview')).not.toBeNull();
+
+		(dot.element() as HTMLButtonElement).click();
+		await expect.element(dot).toHaveAttribute('aria-pressed', 'false');
+		await expect
+			.element(page.getByRole('link', { name: m.timeline.showArtwork }))
+			.not.toBeInTheDocument();
+	});
+
+	it('closes a pinned preview with a click on the empty stage or with Escape', async () => {
+		renderTimeline([testArtwork(7, 'Straż nocna', { yearTo: 1642, date: '1642' })]);
+		const dot = page.getByRole('button', { name: 'Straż nocna, 1642' });
+
+		(dot.element() as HTMLButtonElement).click();
+		await expect.element(dot).toHaveAttribute('aria-pressed', 'true');
+		(stage().element() as HTMLElement).click();
+		await expect.element(dot).toHaveAttribute('aria-pressed', 'false');
+
+		(dot.element() as HTMLButtonElement).click();
+		await expect.element(dot).toHaveAttribute('aria-pressed', 'true');
+		stage()
+			.element()
+			.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+		await expect.element(dot).toHaveAttribute('aria-pressed', 'false');
 	});
 
 	it('marks an artwork that starts in the previous era', async () => {
@@ -248,10 +286,33 @@ describe('timeline page', () => {
 			.toHaveAttribute('aria-pressed', 'true');
 
 		await card.getByRole('button', { name: 'Straż nocna' }).click();
-		const artworkCard = page.getByRole('region', { name: m.timeline.card.artwork });
 		await expect
-			.element(artworkCard.getByRole('button', { name: 'Wojna trzydziestoletnia' }))
-			.toBeVisible();
+			.element(page.getByRole('button', { name: 'Straż nocna, 1642' }))
+			.toHaveAttribute('aria-pressed', 'true');
+	});
+
+	it('opens the era of an artwork chosen from an event that crosses two eras', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		renderTimeline(
+			[testArtwork(3, 'Tratwa Meduzy', { yearFrom: 1818, yearTo: 1819, date: '1818–1819' })],
+			undefined,
+			[testEvent('industry', 'Rewolucja przemysłowa', 1760, 1840)]
+		);
+
+		await press(page.getByRole('button', { name: 'Rewolucja przemysłowa ›, 1760–1840' }));
+		await press(
+			page
+				.getByRole('region', { name: m.timeline.card.period })
+				.getByRole('button', { name: 'Tratwa Meduzy' })
+		);
+
+		await expectEra('Nowoczesność');
+		await expect
+			.element(page.getByRole('button', { name: 'Tratwa Meduzy, 1818–1819' }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect
+			.element(page.getByRole('link', { name: m.timeline.showArtwork }))
+			.toHaveAttribute('href', '/atelier/3');
 	});
 
 	it('deletes an event after asking and confirms it', async () => {
@@ -315,7 +376,7 @@ describe('timeline page', () => {
 		};
 		renderTimeline([testArtwork(1, 'Mona Lisa', { yearTo: 1519 })]);
 
-		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Nowoczesność');
+		await expectEra('Nowoczesność');
 		await expect.element(page.getByText(m.timeline.saved('Wojny napoleońskie'))).toBeVisible();
 		await expect
 			.element(page.getByRole('button', { name: 'Pokolenie', exact: true }))

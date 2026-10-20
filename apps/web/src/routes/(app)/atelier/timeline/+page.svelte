@@ -50,6 +50,11 @@
 		{/if}
 	{/snippet}
 
+	<header>
+		<h1>{m.timeline.title}</h1>
+		<p class="lead">{m.timeline.lead}</p>
+	</header>
+
 	{#if data.error}
 		<Alert title={m.timeline.loadErrorTitle} tone="danger">
 			{data.error}

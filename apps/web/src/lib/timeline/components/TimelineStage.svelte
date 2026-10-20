@@ -21,6 +21,7 @@
 		tint?: TimeSpan;
 		onpan: (by: number) => void;
 		onkeypan: (share: number) => void;
+		onbackground?: () => void;
 		onstep: (direction: 1 | -1, anchor?: number) => void;
 		events?: Snippet<[StageGeometry]>;
 		artworks?: Snippet<[StageGeometry]>;
@@ -34,6 +35,7 @@
 		tint,
 		onpan,
 		onkeypan,
+		onbackground,
 		onstep,
 		events,
 		artworks
@@ -150,6 +152,11 @@
 		if (pointers.size < 2) pinch = null;
 	}
 
+	function backgroundClick(event: MouseEvent): void {
+		if (event.target instanceof Element && event.target.closest('button, a')) return;
+		onbackground?.();
+	}
+
 	function clickCapture(event: MouseEvent): void {
 		if (!suppressClick) return;
 		suppressClick = false;
@@ -179,6 +186,7 @@
 		else if (event.key === 'ArrowRight' || event.key === 'ArrowDown') onkeypan(KEY_PAN);
 		else if (event.key === '+' || event.key === '=') onstep(1);
 		else if (event.key === '-') onstep(-1);
+		else if (event.key === 'Escape') onbackground?.();
 		else return;
 		event.preventDefault();
 	}
@@ -207,6 +215,7 @@
 	aria-valuemin={yearAt(era.start)}
 	aria-valuenow={readingYear}
 	aria-valuetext={m.atelier.year(readingYear, false)}
+	onclick={backgroundClick}
 	onclickcapture={clickCapture}
 	onkeydown={keydown}
 	onpointercancel={pointerUp}
