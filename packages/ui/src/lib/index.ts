@@ -8,6 +8,8 @@ export { default as ChoiceTiles, type ChoiceTile } from './components/ChoiceTile
 export { default as Count } from './components/Count.svelte';
 export { default as Dialog } from './components/Dialog.svelte';
 export { default as Disclosure } from './components/Disclosure.svelte';
+export { default as FieldMessage } from './components/FieldMessage.svelte';
+export { default as FilePicker } from './components/FilePicker.svelte';
 export { default as Form } from './components/Form.svelte';
 export { default as FormActions } from './components/FormActions.svelte';
 export { default as Frame } from './components/Frame.svelte';
