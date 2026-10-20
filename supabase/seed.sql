@@ -215,5 +215,14 @@ begin
     'FR', 'museum'
     from public.category_values as value
     where value.owner_id = tester and value.category_code = 'location' and value.name = 'Luwr, Paryż';
+
+  insert into public.timeline_events (owner_id, name, year_from, year_to, year_approximate, description)
+  values
+    (tester, 'Odkrycie Ameryki', null, 1492, false, 'Wyprawa Kolumba dociera do wysp karaibskich.'),
+    (tester, 'Wojna trzydziestoletnia', 1618, 1648, false, null),
+    (tester, 'Rewolucja francuska', 1789, 1799, false, null),
+    (tester, 'Wojny napoleońskie', 1803, 1815, false, null),
+    (tester, 'Rewolucja przemysłowa', 1760, 1840, true, 'Od maszyny parowej do kolei.'),
+    (tester, 'Narodziny Jezusa', null, -4, true, null);
 end;
 $$;

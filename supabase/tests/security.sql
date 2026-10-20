@@ -14,7 +14,7 @@ begin
   return false;
 exception
   when insufficient_privilege or check_violation or foreign_key_violation
-    or no_data_found or restrict_violation or unique_violation then
+    or no_data_found or not_null_violation or restrict_violation or unique_violation then
     return true;
 end;
 $$;
@@ -105,6 +105,8 @@ insert into public.period_details (value_id, summary)
 insert into public.era_details (era_code, summary) values ('early_modern', 'Era summary');
 insert into public.glossary_entries (name, category, definition, forms)
   values ('Tympanum', 'architecture', 'A definition', '{tympana}');
+insert into public.timeline_events (name, year_from, year_to, description)
+  values ('Thirty Years'' War', 1618, 1648, 'A description');
 
 insert into storage.objects (bucket_id, name)
   values ('artwork-images', '00000000-0000-0000-0000-00000000000a/work.jpg');
@@ -145,6 +147,7 @@ begin
   assert (select count(*) from public.period_details) = 0, 'B reads period details of A';
   assert (select count(*) from public.era_details) = 0, 'B reads era details of A';
   assert (select count(*) from public.glossary_entries) = 0, 'B reads glossary entries of A';
+  assert (select count(*) from public.timeline_events) = 0, 'B reads timeline events of A';
   assert (select count(*) from storage.objects) = 0, 'B reads image objects of A';
   assert (select count(*) from public.value_usage()) = 0, 'B sees value usage of A';
   assert (select count(*) from public.notes_mentions()) = 0, 'B sees the notes of A';
@@ -179,6 +182,10 @@ begin
     'B updates a glossary entry of A';
   assert security_test.affected('delete from public.glossary_entries') = 0,
     'B deletes a glossary entry of A';
+  assert security_test.affected('update public.timeline_events set name = ''x''') = 0,
+    'B updates a timeline event of A';
+  assert security_test.affected('delete from public.timeline_events') = 0,
+    'B deletes a timeline event of A';
 
   assert security_test.denied(format(
     'insert into public.artworks (owner_id, title, author_unknown) values (%L, ''Forged'', true)', a)),
@@ -189,6 +196,9 @@ begin
   assert security_test.denied(format(
     'insert into public.glossary_entries (owner_id, name, category) values (%L, ''Forged'', ''general'')', a)),
     'B inserts a glossary entry owned by A';
+  assert security_test.denied(format(
+    'insert into public.timeline_events (owner_id, name, year_to) values (%L, ''Forged'', 1500)', a)),
+    'B inserts a timeline event owned by A';
   assert security_test.denied(format(
     'insert into public.feedback (owner_id, kind, title) values (%L, ''bug'', ''Forged'')', a)),
     'B sends feedback owned by A';
@@ -282,6 +292,39 @@ begin
     'A changes the owner of a glossary entry';
   assert security_test.denied('update public.glossary_entries set created_at = now()'),
     'A changes when a glossary entry was created';
+
+  assert (select count(*) from public.timeline_events) = 1, 'A does not see their timeline event';
+  assert not security_test.denied(
+    'insert into public.timeline_events (name, year_to, year_approximate) values (''Birth of Jesus'', -4, true)'),
+    'A cannot add a timeline event with a single year';
+  assert not security_test.denied(
+    'insert into public.timeline_events (name, year_from, year_to) values (''Pax Romana'', -27, 180)'),
+    'A cannot add a timeline event across the turn of the eras';
+  assert security_test.denied(
+    'insert into public.timeline_events (name) values (''Undated'')'),
+    'A adds a timeline event without a year';
+  assert security_test.denied(
+    'insert into public.timeline_events (name, year_to) values (''Year zero'', 0)'),
+    'A adds a timeline event in the year 0';
+  assert security_test.denied(
+    'insert into public.timeline_events (name, year_from, year_to) values (''Backwards'', 1815, 1803)'),
+    'A adds a timeline event that ends before it starts';
+  assert security_test.denied(
+    'insert into public.timeline_events (name, year_from, year_to) values (''Same year'', 1648, 1648)'),
+    'A adds a timeline event whose span starts and ends in the same year';
+  assert security_test.denied(
+    'insert into public.timeline_events (name, year_to) values ('' Padded '', 1500)'),
+    'A adds a timeline event with a padded name';
+  assert security_test.denied(
+    'insert into public.timeline_events (name, year_to, description) values (''Blank'', 1500, '''')'),
+    'A adds a timeline event with an empty description';
+  assert security_test.denied(format(
+    'insert into public.timeline_events (name, year_to, description) values (''Long'', 1500, %L)', repeat('a', 301))),
+    'A adds a timeline event with a description over 300 characters';
+  assert security_test.denied('update public.timeline_events set owner_id = gen_random_uuid()'),
+    'A changes the owner of a timeline event';
+  assert security_test.denied('update public.timeline_events set created_at = now()'),
+    'A changes when a timeline event was created';
 
   assert not security_test.denied(
     'insert into public.feedback (kind, title, description) values (''bug'', ''Broken filter'', ''Details'')'),

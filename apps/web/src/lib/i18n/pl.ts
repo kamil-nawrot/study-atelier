@@ -847,6 +847,13 @@ export const pl = {
 			network: 'Nie udało się połączyć. Sprawdź internet i spróbuj jeszcze raz.'
 		}
 	},
+	timeline: {
+		errors: {
+			notFound: 'Nie ma takiego wydarzenia na osi czasu. Może zostało usunięte.',
+			invalid: 'Nie udało się zapisać wydarzenia. Sprawdź nazwę i datę.',
+			network: 'Nie udało się połączyć. Sprawdź internet i spróbuj jeszcze raz.'
+		}
+	},
 	valuePage: {
 		back: 'Kartoteka',
 		edit: 'Edytuj',
