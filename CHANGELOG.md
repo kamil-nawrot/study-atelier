@@ -2,6 +2,32 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.6.2] - 2026-10-20
+
+The wall can be grouped by era, period and style without filtering anything out, reviews go on after the day is done, and the artwork image search answers again.
+
+### Added
+
+- Grouping of the wall: by era, by era and period, or by era, period and style, chosen in steps from a button in the top bar (in "Widok" on a phone). Every group has a heading with its count and its own wall, can be collapsed, and "Zwiń wszystkie" collapses them all; artworks without a value go to "Bez epoki", "Bez okresu" or "Bez stylu", and an artwork with several styles stands in each. Grouping works together with the filters, the search and the order, and is kept in the address.
+- Free review rounds: when nothing waits today, "Powtórka swobodna" offers rounds of the artworks the learner knows least, without changing the review plan or the streak.
+- The inflected forms of a term's synonyms come from Polish Wiktionary too, so a term is found in notes under any of its names in any case; a term has at most three synonyms.
+
+### Changed
+
+- The order "Według epok" is replaced by "Według daty powstania"; grouping by era with this order shows the wall as before, with headings.
+- The review summary lays out each group as the artwork wall, the groups can be collapsed, and their counts stand in a box.
+- "Filtry" and "Dodaj dzieło" in the top bar of the wall are icons with tooltips, and the top bar keeps the width of the wall.
+- Tooltips no longer stay open after a click.
+- The search field of the top bar uses the same font size as the other controls.
+
+### Fixed
+
+- The search for an artwork's image on Wikidata no longer hangs for a minute and ends with an error; a request to Wikimedia that gets no answer gives up after 30 seconds.
+
+### Migrations run on production
+
+One migration runs on production with this release and changes no data: `free_review_session` replaces the `review_session` function with a version that takes an optional `free_round`, so the calls of the previous version keep working.
+
 ## [0.6.1] - 2026-10-18
 
 The glossary joins the rest of learning: a term card leads to its page, terms are marked in definitions and on review flashcards, and the inflected forms of a term come from Polish Wiktionary.
@@ -277,3 +303,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.5.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.5.0
 [0.6.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.6.0
 [0.6.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.6.1
+[0.6.2]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.6.2
