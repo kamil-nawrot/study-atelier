@@ -40,7 +40,8 @@ export default defineConfig({
 						provider: playwright(),
 						instances: [{ browser: 'chromium', headless: true }]
 					},
-					include: ['src/**/*.svelte.{test,spec}.{js,ts}']
+					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
+					setupFiles: ['src/lib/testing/ui-messages.ts']
 				}
 			}
 		]

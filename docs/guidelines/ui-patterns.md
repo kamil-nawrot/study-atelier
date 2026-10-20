@@ -209,7 +209,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 ## Library texts
 
-The library has English defaults for its own words (alert labels, show and hide password, remove tag). The app sets the Polish texts once in the root layout with `setUiMessages(m.ui)`. A view passes a text prop such as `label` only when one place needs different wording.
+The library has English defaults for its own words (alert labels, show and hide password, remove tag). The app sets the Polish texts once in the root layout with `setUiMessages(m.ui)`, which keeps them in the library module for the whole app, and its browser tests set them the same way ([ADR-0087](../decisions/0087-set-library-texts-once-for-the-whole-app.md)). A view passes a text prop such as `label` only when one place needs different wording, never to repeat `m.ui`.
 
 ## Storybook
 

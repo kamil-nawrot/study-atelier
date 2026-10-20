@@ -26,7 +26,7 @@ Icons come from Lucide and are always drawn through `Icon` ([ADR-0017](../../doc
 
 `styles.css` loads the token variables, fonts and base styles (margin reset and text roles) once, in the root layout. Set `data-theme="light"` on the root element for the light theme; dark is the default.
 
-Components have English default texts. The app sets its own once, in the root layout:
+Components have English default texts. The app sets its own once for the whole app, in the root layout (and in the setup file of its tests):
 
 ```svelte
 <script lang="ts">

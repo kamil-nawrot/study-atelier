@@ -1,5 +1,3 @@
-import { getContext, setContext } from 'svelte';
-
 export type AlertTone = 'danger' | 'warning' | 'success';
 
 export type UiMessages = {
@@ -84,12 +82,12 @@ export const defaultUiMessages: UiMessages = {
 	}
 };
 
-const contextKey = Symbol('ui-messages');
+let current = defaultUiMessages;
 
 export function setUiMessages(messages: UiMessages): void {
-	setContext(contextKey, messages);
+	current = messages;
 }
 
 export function uiMessages(): UiMessages {
-	return getContext<UiMessages | undefined>(contextKey) ?? defaultUiMessages;
+	return current;
 }
