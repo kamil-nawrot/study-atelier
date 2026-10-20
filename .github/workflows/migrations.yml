@@ -51,6 +51,9 @@ jobs:
       - name: Check artwork images
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/artwork-images.sql
 
+      - name: Check unused images
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/unused-images.sql
+
       - name: Stop local Supabase
         if: always()
         run: supabase stop --no-backup
