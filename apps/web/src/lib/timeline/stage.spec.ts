@@ -17,6 +17,29 @@ describe('stage geometry', () => {
 		expect(stageSize(narrow)).toEqual({ width: 390, height: narrow.length });
 	});
 
+	it('splits the artworks zone into lanes of at least 72 px on a larger screen', () => {
+		const one = stageGeometry(view, 1200, 2);
+		expect(one.artworkLane).toBe(one.artworksSize);
+		const two = stageGeometry(view, 1200, 2, 'horizontal', 0, 2);
+		expect(two.artworksSize).toBe(one.artworksSize);
+		expect(two.artworkLane).toBe(one.artworksSize / 2);
+		const five = stageGeometry(view, 1200, 2, 'horizontal', 0, 5);
+		expect(five.artworkLane).toBe(72);
+		expect(five.artworksSize).toBe(360);
+		expect(stageGeometry(view, 390, 3, 'vertical', 844, 5).artworkLane).toBe(
+			stageGeometry(view, 390, 3, 'vertical', 844).artworksSize
+		);
+	});
+
+	it('leaves no room for events when the band is hidden', () => {
+		const shown = stageGeometry(view, 1200, 2);
+		const hidden = stageGeometry(view, 1200, 0);
+		expect(hidden.eventsSize).toBe(0);
+		expect(hidden.artworksFrom).toBeLessThan(shown.artworksFrom);
+		const vertical = stageGeometry(view, 390, 0, 'vertical', 844);
+		expect(vertical.artworksFrom).toBe(vertical.eventsFrom);
+	});
+
 	it('keeps the vertical stage between its limits', () => {
 		expect(verticalLength(400)).toBe(440);
 		expect(verticalLength(2000)).toBe(820);
