@@ -127,7 +127,7 @@
 			</button>
 		{/if}
 		{#if selected > 0 && current() !== null}
-			<Tooltip align="end" text={m.artworkForm.setMainImage}>
+			<Tooltip placement="left" text={m.artworkForm.setMainImage}>
 				{#snippet children(id)}
 					<button
 						class="make-main"
