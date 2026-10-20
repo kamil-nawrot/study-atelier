@@ -5,6 +5,7 @@ export { default as Button } from './components/Button.svelte';
 export { default as Checkbox } from './components/Checkbox.svelte';
 export { default as Switch } from './components/Switch.svelte';
 export { default as ChoiceTiles, type ChoiceTile } from './components/ChoiceTiles.svelte';
+export { default as Count } from './components/Count.svelte';
 export { default as Dialog } from './components/Dialog.svelte';
 export { default as Disclosure } from './components/Disclosure.svelte';
 export { default as Form } from './components/Form.svelte';
