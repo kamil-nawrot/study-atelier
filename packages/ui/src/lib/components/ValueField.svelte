@@ -14,6 +14,7 @@
 
 	type Props = {
 		label: string;
+		labelHidden?: boolean;
 		values?: string[];
 		query?: string;
 		options?: readonly ValueOption[];
@@ -29,6 +30,7 @@
 
 	let {
 		label,
+		labelHidden = false,
 		values = $bindable([]),
 		query = $bindable(''),
 		options = [],
@@ -165,7 +167,7 @@
 {/snippet}
 
 <div class="field">
-	<label for={inputId}>{label}</label>
+	<label class:visually-hidden={labelHidden} for={inputId}>{label}</label>
 	<div
 		bind:this={control}
 		class="control"

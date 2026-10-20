@@ -62,6 +62,7 @@ How views and components look and behave, so every new screen stays consistent w
 ## Element defaults
 
 - The default look of HTML elements (links, headings, paragraphs, focus outline) lives only in `packages/ui/src/lib/styles/base.css`.
+- Text for screen readers only has the global class `visually-hidden` from `base.css`; a component never copies its rules. When the text hides only in one state, the class is toggled with `class:visually-hidden`, and a library component whose label can be hidden takes a prop for it (`labelHidden` of `ValueField`, `compact` of `Select`).
 - A style that two or more views repeat moves into a library component or `base.css`.
 - Library controls build on native HTML elements (`dialog`, `select`, `input`), which bring their behaviour, accessibility and the phone's own pickers. Their look comes from tokens. Styling that only some browsers support (for example `appearance: base-select`) sits inside `@supports`, so the other browsers keep the plain native look.
 - `PopupButton` opens a panel under its button: a `button` with `aria-expanded` and a `div` of role `dialog` named like the button. It closes on a second click, a click outside or Escape, which gives the focus back to the button; a choice inside does not close it.

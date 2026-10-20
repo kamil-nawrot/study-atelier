@@ -93,6 +93,7 @@
 			<ValueField
 				id={fieldId}
 				label={m.glossary.form.forms}
+				labelHidden
 				{options}
 				bind:query
 				bind:values={forms}
@@ -155,15 +156,6 @@
 		text-decoration-thickness: var(--border-width-hairline);
 		text-underline-offset: 0.2em;
 		cursor: pointer;
-	}
-
-	.forms :global(label) {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		overflow: hidden;
-		clip-path: inset(50%);
-		white-space: nowrap;
 	}
 
 	.hint {

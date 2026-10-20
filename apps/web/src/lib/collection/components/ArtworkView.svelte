@@ -170,7 +170,7 @@
 {#snippet empty()}
 	<span class="empty">
 		<span aria-hidden="true">—</span>
-		<span class="hidden">{m.artworkView.empty}</span>
+		<span class="visually-hidden">{m.artworkView.empty}</span>
 	</span>
 {/snippet}
 
@@ -512,15 +512,6 @@
 
 	.empty {
 		color: var(--color-fg-muted);
-	}
-
-	.hidden {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		overflow: hidden;
-		clip-path: inset(50%);
-		white-space: nowrap;
 	}
 
 	@media (min-width: 768px) {

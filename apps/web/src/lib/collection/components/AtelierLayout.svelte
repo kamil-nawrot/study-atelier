@@ -91,7 +91,13 @@
 			{/if}
 		</button>
 		<div class="menu">
-			<AtelierMenu {email} onfeedback={openFeedback} onsignout={submitSignOut} {signingOut} />
+			<AtelierMenu
+				compact={!railExpanded}
+				{email}
+				onfeedback={openFeedback}
+				onsignout={submitSignOut}
+				{signingOut}
+			/>
 		</div>
 	</nav>
 
@@ -328,15 +334,6 @@
 
 		.rail:not(.expanded) .menu :global(.badge) {
 			display: block;
-		}
-
-		.rail:not(.expanded) .menu :global(.label) {
-			position: absolute;
-			width: 1px;
-			height: 1px;
-			overflow: hidden;
-			clip-path: inset(50%);
-			white-space: nowrap;
 		}
 
 		.toggle {
