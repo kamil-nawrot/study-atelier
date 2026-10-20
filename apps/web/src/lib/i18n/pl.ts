@@ -154,7 +154,7 @@ export const pl = {
 		atelier: 'Atelier',
 		cardIndex: 'Kartoteka',
 		glossary: 'Słowniczek',
-		timeline: 'Oś czasu',
+		timeline: 'Kalendarium',
 		review: 'Powtórki',
 		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
 		trash: 'Kosz',
@@ -849,14 +849,16 @@ export const pl = {
 		}
 	},
 	timeline: {
-		title: 'Oś czasu',
+		title: 'Kalendarium',
+		lead: 'Twoje dzieła i wydarzenia w prawdziwej skali czasu, epoka po epoce.',
 		add: 'Dodaj wydarzenie',
 		addShort: 'Dodaj',
 		saved: (name: string): string => `Zapisano wydarzenie „${name}”.`,
+		showArtwork: 'Pokaż szczegóły dzieła',
 		form: {
 			newTitle: 'Nowe wydarzenie',
 			editTitle: 'Edycja wydarzenia',
-			goBack: 'Wróć do osi czasu',
+			goBack: 'Wróć do kalendarium',
 			name: 'Nazwa',
 			namePlaceholder: 'Np. wojny napoleońskie, chrzest Polski',
 			nameRequired: 'Wpisz nazwę wydarzenia.',
@@ -873,13 +875,11 @@ export const pl = {
 			notFoundTitle: 'Nie ma takiego wydarzenia',
 			loadErrorTitle: 'Nie udało się wczytać wydarzenia'
 		},
-		loadErrorTitle: 'Nie udało się wczytać osi czasu',
+		loadErrorTitle: 'Nie udało się wczytać kalendarium',
 		eras: 'Epoki',
 		strip: 'Pasek epok',
 		previous: (era: string): string => `Poprzednia epoka: ${era}`,
 		next: (era: string): string => `Następna epoka: ${era}`,
-		seen: 'Widzisz:',
-		scale: 'skala:',
 		steps: {
 			label: 'Skala',
 			era: 'Epoka',
@@ -893,21 +893,19 @@ export const pl = {
 		zoomOut: 'Oddal o krok',
 		stage: 'Oś czasu. Strzałki przesuwają czas, plus i minus zmieniają skalę o krok.',
 		card: {
-			artwork: 'Dzieło',
 			event: 'Wydarzenie',
 			period: 'Okres',
 			length: (years: number): string =>
 				`${years} ${plural(years, { one: 'rok', few: 'lata', many: 'lat' })}`,
 			artworksOfTime: 'Dzieła z tego czasu',
 			noArtworks: 'W tym czasie nie masz żadnego dzieła.',
-			eventsOfTime: 'W tym czasie',
 			showWhole: 'Pokaż cały okres na osi',
 			edit: 'Edytuj',
 			delete: 'Usuń'
 		},
 		deleteConfirm: {
 			title: (name: string): string => `Usunąć wydarzenie „${name}”?`,
-			description: 'Zniknie z osi czasu. Żadne dzieło się nie zmieni.',
+			description: 'Zniknie z kalendarium. Żadne dzieło się nie zmieni.',
 			back: 'Wróć',
 			confirm: 'Usuń',
 			deleting: 'Usuwanie…'
@@ -923,16 +921,10 @@ export const pl = {
 		},
 		century: (numeral: string, beforeCommonEra: boolean): string =>
 			`${numeral} w.${beforeCommonEra ? ' p.n.e.' : ''}`,
-		centuriesRange: (from: string, to: string, beforeCommonEra: boolean): string =>
-			`${from}–${to} w.${beforeCommonEra ? ' p.n.e.' : ''}`,
 		millennium: (numeral: string, beforeCommonEra: boolean): string =>
 			`${numeral} tysiąclecie${beforeCommonEra ? ' p.n.e.' : ''}`,
-		millenniumShort: (numeral: string, beforeCommonEra: boolean): string =>
-			`${numeral} tys.${beforeCommonEra ? ' p.n.e.' : ''}`,
-		millenniaRange: (from: string, to: string, beforeCommonEra: boolean): string =>
-			`${from}–${to} tys.${beforeCommonEra ? ' p.n.e.' : ''}`,
 		errors: {
-			notFound: 'Nie ma takiego wydarzenia na osi czasu. Może zostało usunięte.',
+			notFound: 'Nie ma takiego wydarzenia w kalendarium. Może zostało usunięte.',
 			invalid: 'Nie udało się zapisać wydarzenia. Sprawdź nazwę i datę.',
 			network: 'Nie udało się połączyć. Sprawdź internet i spróbuj jeszcze raz.'
 		}
