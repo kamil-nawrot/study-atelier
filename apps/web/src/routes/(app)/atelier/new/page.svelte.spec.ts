@@ -905,6 +905,19 @@ describe('add artwork page', () => {
 		]);
 	});
 
+	it('starts the next artwork with only the main slot after saving and adding another', async () => {
+		renderPage();
+		await fillRequired();
+		await page.getByRole('button', { name: m.artworkForm.addImage }).click();
+		await page.getByRole('button', { name: m.artworkForm.addImage }).click();
+
+		await page.getByRole('button', { name: m.artworkForm.saveAndNext }).click();
+
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.imageSlot(1, 1) }))
+			.toHaveAttribute('aria-pressed', 'true');
+	});
+
 	it('leaves out an empty slot and offers at most five images', async () => {
 		renderPage();
 		await fillRequired();

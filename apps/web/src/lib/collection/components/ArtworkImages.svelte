@@ -35,6 +35,10 @@
 	let slots = $derived([image, ...images]);
 	let full = $derived(slots.length >= MAX_ARTWORK_IMAGES);
 
+	$effect.pre(() => {
+		if (selected > images.length) selected = images.length;
+	});
+
 	onDestroy(() => {
 		for (const slot of [image, ...images]) {
 			if (slot?.kind === 'file') URL.revokeObjectURL(slot.previewUrl);
