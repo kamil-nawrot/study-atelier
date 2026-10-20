@@ -291,6 +291,30 @@ describe('timeline page', () => {
 			.toHaveAttribute('aria-pressed', 'true');
 	});
 
+	it('opens the era of an artwork chosen from an event that crosses two eras', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		renderTimeline(
+			[testArtwork(3, 'Tratwa Meduzy', { yearFrom: 1818, yearTo: 1819, date: '1818–1819' })],
+			undefined,
+			[testEvent('industry', 'Rewolucja przemysłowa', 1760, 1840)]
+		);
+
+		await press(page.getByRole('button', { name: 'Rewolucja przemysłowa ›, 1760–1840' }));
+		await press(
+			page
+				.getByRole('region', { name: m.timeline.card.period })
+				.getByRole('button', { name: 'Tratwa Meduzy' })
+		);
+
+		await expectEra('Nowoczesność');
+		await expect
+			.element(page.getByRole('button', { name: 'Tratwa Meduzy, 1818–1819' }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect
+			.element(page.getByRole('link', { name: m.timeline.showArtwork }))
+			.toHaveAttribute('href', '/atelier/3');
+	});
+
 	it('deletes an event after asking and confirms it', async () => {
 		vi.mocked(deleteTimelineEvent).mockResolvedValue({});
 		renderTimeline([], undefined, [testEvent('treaty', 'Pokój westfalski', null, 1648)]);
