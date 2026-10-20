@@ -149,7 +149,7 @@ describe('edit glossary entry page', () => {
 		expect(fetchForms).toHaveBeenCalledWith('malowidło');
 		await expect.element(page.getByText(m.glossary.form.formsCount(3))).toBeVisible();
 
-		await page.getByRole('button', { name: /malowidło/ }).click();
+		await page.getByRole('button', { name: m.ui.valueField.remove('malowidło') }).click();
 
 		await expect.element(page.getByText(m.glossary.form.formsCount(1))).toBeVisible();
 	});

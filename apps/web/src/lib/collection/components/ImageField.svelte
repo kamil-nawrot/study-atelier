@@ -225,7 +225,7 @@
 					width={preview.width}
 				/>
 			{:else}
-				<NoImage label={m.ui.noImage} />
+				<NoImage />
 			{/if}
 		</div>
 		{#if credit}
