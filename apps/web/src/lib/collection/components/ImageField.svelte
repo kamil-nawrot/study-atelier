@@ -29,7 +29,12 @@
 		type PastedImage
 	} from '#lib/images/clipboard.ts';
 	import ImageSearchDialog from '#lib/images/components/ImageSearchDialog.svelte';
-	import { ownImageFileError, parseImageUrl, readImageSize } from '#lib/images/own-image.ts';
+	import {
+		fitOwnImage,
+		ownImageFileError,
+		parseImageUrl,
+		readImageSize
+	} from '#lib/images/own-image.ts';
 	import type { ImageCandidate, ImageSearchQuery } from '#lib/images/types.ts';
 	import { imageFromCandidate } from '../artwork-form.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
@@ -119,10 +124,13 @@
 		dialogOpen = false;
 	}
 
-	async function useFile(file: File): Promise<string | undefined> {
-		const error = ownImageFileError(file);
+	async function useFile(picked: File): Promise<string | undefined> {
+		const error = ownImageFileError(picked);
 		if (error) return error;
+		const fitted = await fitOwnImage(picked);
+		if ('error' in fitted) return fitted.error;
 
+		const file = fitted.file;
 		const previewUrl = URL.createObjectURL(file);
 		try {
 			const size = await readImageSize(previewUrl);

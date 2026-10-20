@@ -111,11 +111,11 @@ function leave(type: 'link' | 'popstate' | 'leave' = 'link'): Leave {
 	return navigation as unknown as Leave;
 }
 
-async function imageFile(width: number, height: number): Promise<File> {
+async function imageFile(width: number, height: number, padding = 0): Promise<File> {
 	const canvas = new OffscreenCanvas(width, height);
 	canvas.getContext('2d')?.fillRect(0, 0, width, height);
 	const blob = await canvas.convertToBlob({ type: 'image/png' });
-	return new File([blob], 'photo.png', { type: 'image/png' });
+	return new File([blob, new Uint8Array(padding)], 'photo.png', { type: 'image/png' });
 }
 
 function stubRemoteImage(size: { width: number; height: number } | 'error'): void {
@@ -841,6 +841,25 @@ describe('add artwork page', () => {
 		await expect.element(page.getByText(m.ownImageErrors.urlInvalid)).not.toBeInTheDocument();
 	});
 
+	it('makes a picked file over the limit smaller and uploads the smaller JPEG', async () => {
+		renderPage();
+		await fillRequired();
+
+		await chooseFile(await imageFile(4000, 3000, OWN_IMAGE_MAX_BYTES));
+
+		const image = page.getByRole('img', { name: 'The Milkmaid, Johannes Vermeer' });
+		await expect.element(image).toHaveAttribute('width', '3200');
+		await expect.element(image).toHaveAttribute('height', '2400');
+
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
+		const [path, file] = bucket.upload.mock.calls[0] as [string, File];
+		expect(path).toMatch(/^user-id\/[0-9a-f-]{36}\.jpg$/);
+		expect(file).toMatchObject({ name: 'photo.jpg', type: 'image/jpeg' });
+		expect(file.size).toBeLessThanOrEqual(OWN_IMAGE_MAX_BYTES);
+	});
+
 	it('explains under the button why a file cannot be added', async () => {
 		renderPage();
 
@@ -854,9 +873,7 @@ describe('add artwork page', () => {
 			new File([new Uint8Array(OWN_IMAGE_MAX_BYTES + 1)], 'large.png', { type: 'image/png' })
 		);
 
-		await expect
-			.element(page.getByText(m.ownImageErrors.fileTooLarge(OWN_IMAGE_MAX_MEGABYTES)))
-			.toBeVisible();
+		await expect.element(page.getByText(m.ownImageErrors.shrinkFailed)).toBeVisible();
 		await expect.element(page.getByRole('img', { name: m.ui.noImage })).toBeInTheDocument();
 	});
 
@@ -1433,7 +1450,7 @@ describe('pasting an own image on the add artwork page', () => {
 			.toBeVisible();
 	});
 
-	it('rejects a pasted image over the limit under the image actions', async () => {
+	it('rejects a pasted image over the limit that cannot be made smaller', async () => {
 		renderPage();
 
 		paste(document.body, {
@@ -1441,9 +1458,7 @@ describe('pasting an own image on the add artwork page', () => {
 		});
 
 		await expect
-			.element(
-				page.getByRole('alert').getByText(m.ownImageErrors.fileTooLarge(OWN_IMAGE_MAX_MEGABYTES))
-			)
+			.element(page.getByRole('alert').getByText(m.ownImageErrors.shrinkFailed))
 			.toBeVisible();
 		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).not.toBeInTheDocument();
 	});
