@@ -3,23 +3,31 @@
 	import { m } from '#lib/i18n/index.ts';
 	import { CARD_INDEX_SEARCH_MIN_VALUES } from '../card-index.ts';
 	import { normalizeForSearch } from '../search.ts';
-	import { valuePath } from '../value-pages.ts';
-	import type { CardIndexRecord } from '../types.ts';
+	import type { ResolvedPathname } from '$app/types';
+
+	type ListedRecord = { id: string; name: string; count: number };
 
 	type Props = {
-		records: CardIndexRecord[];
+		records: ListedRecord[];
 		empty: string;
 		searchLabel: string;
 		query?: string;
+		href?: (id: string) => ResolvedPathname;
+		onchoose?: (id: string) => void;
 	};
 
-	let { records, empty, searchLabel, query = $bindable('') }: Props = $props();
+	let { records, empty, searchLabel, query = $bindable(''), href, onchoose }: Props = $props();
 
 	let term = $derived(normalizeForSearch(query));
 	let matching = $derived(
 		term ? records.filter((record) => normalizeForSearch(record.name).includes(term)) : records
 	);
 </script>
+
+{#snippet label(record: ListedRecord)}
+	<span class="name">{record.name}</span>
+	<span class="count">{record.count}</span>
+{/snippet}
 
 {#if records.length === 0}
 	<p class="lead">{empty}</p>
@@ -35,13 +43,24 @@
 	<ul>
 		{#each matching as record (record.id)}
 			<li>
-				<a
-					aria-label={m.cardIndex.openValue(record.name, m.atelier.count(record.count))}
-					href={valuePath(record.category, record.id)}
-				>
-					<span class="name">{record.name}</span>
-					<span class="count">{record.count}</span>
-				</a>
+				{#if href}
+					<a
+						class="record"
+						aria-label={m.cardIndex.openValue(record.name, m.atelier.count(record.count))}
+						href={href(record.id)}
+					>
+						{@render label(record)}
+					</a>
+				{:else}
+					<button
+						class="record"
+						aria-label={m.cardIndex.openValue(record.name, m.atelier.count(record.count))}
+						onclick={() => onchoose?.(record.id)}
+						type="button"
+					>
+						{@render label(record)}
+					</button>
+				{/if}
 			</li>
 		{/each}
 	</ul>
@@ -61,7 +80,7 @@
 		list-style: none;
 	}
 
-	a {
+	.record {
 		display: inline-flex;
 		align-items: baseline;
 		gap: var(--spacing-3);
@@ -72,7 +91,16 @@
 		text-decoration: none;
 	}
 
-	a:hover .name {
+	button.record {
+		padding: 0;
+		border: 0;
+		background: none;
+		font-family: inherit;
+		text-align: start;
+		cursor: pointer;
+	}
+
+	.record:hover .name {
 		text-decoration: underline;
 		text-decoration-thickness: var(--border-width-hairline);
 		text-underline-offset: 0.2em;

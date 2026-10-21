@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { Alert, Tabs, Toast } from '@study-atelier/ui';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import {
@@ -14,6 +14,8 @@
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import CardIndexList from '#lib/collection/components/CardIndexList.svelte';
 	import CardIndexTimeline from '#lib/collection/components/CardIndexTimeline.svelte';
+	import OwnFieldsTab from '#lib/collection/components/OwnFieldsTab.svelte';
+	import { valuePath } from '#lib/collection/value-pages.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps, Snapshot } from './$types';
 
@@ -42,6 +44,11 @@
 
 	let timeline = $derived(buildTimeline(data.index));
 
+	async function ownFieldsChanged(message?: string): Promise<void> {
+		await invalidateAll();
+		if (message) toast.show(message);
+	}
+
 	$effect(() => {
 		rememberCardIndexTab(tab);
 	});
@@ -69,14 +76,18 @@
 			{#if tab === 'timeline'}
 				<CardIndexTimeline {timeline} />
 			{:else if tab === 'material' || tab === 'author' || tab === 'location'}
-				{#key tab}
+				{@const kind = tab}
+				{#key kind}
 					<CardIndexList
-						empty={m.cardIndex.emptyList[tab]}
-						records={valuesOf(data.index, tab)}
-						searchLabel={m.cardIndex.search[tab]}
+						empty={m.cardIndex.emptyList[kind]}
+						href={(id) => valuePath(kind, id)}
+						records={valuesOf(data.index, kind)}
+						searchLabel={m.cardIndex.search[kind]}
 						bind:query
 					/>
 				{/key}
+			{:else if tab === 'own'}
+				<OwnFieldsTab fields={data.ownFields} onchanged={ownFieldsChanged} />
 			{/if}
 		</Tabs>
 	{/if}

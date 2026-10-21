@@ -1,6 +1,6 @@
 const TAB_KEY = 'study-atelier:card-index-tab';
 
-export const CARD_INDEX_TABS = ['timeline', 'material', 'author', 'location'] as const;
+export const CARD_INDEX_TABS = ['timeline', 'material', 'author', 'location', 'own'] as const;
 
 export type CardIndexTab = (typeof CARD_INDEX_TABS)[number];
 
