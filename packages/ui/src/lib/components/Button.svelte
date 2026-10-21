@@ -4,11 +4,13 @@
 	import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
 	import Icon from './Icon.svelte';
 
-	type CommonProps = {
+	type CompactProps =
+		| { compact?: false; icon?: LucideIcon }
+		| { compact: true; icon: LucideIcon; 'aria-label': string };
+
+	type CommonProps = CompactProps & {
 		variant?: 'primary' | 'secondary' | 'danger';
 		fullWidth?: boolean;
-		icon?: LucideIcon;
-		compact?: boolean;
 		children: Snippet;
 	};
 
