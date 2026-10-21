@@ -38,11 +38,13 @@
 <AtelierLayout email={data.session.user.email ?? ''} title={m.glossary.title}>
 	{#snippet bar()}
 		{#if !data.error}
-			<Button href={resolve('/(app)/atelier/glossary/new')} variant="primary">
-				<Icon icon={Plus} size="sm" />
-				<span class="long">{m.glossary.add}</span>
-				<span class="short">{m.glossary.addShort}</span>
-			</Button>
+			<div class="actions">
+				<Button href={resolve('/(app)/atelier/glossary/new')} variant="primary">
+					<Icon icon={Plus} size="sm" />
+					<span class="long">{m.glossary.add}</span>
+					<span class="short">{m.glossary.addShort}</span>
+				</Button>
+			</div>
 		{/if}
 	{/snippet}
 
@@ -68,6 +70,12 @@
 <Toast bind:this={toast} />
 
 <style>
+	.actions {
+		display: flex;
+		gap: inherit;
+		margin-inline-start: auto;
+	}
+
 	header {
 		display: grid;
 		gap: var(--spacing-2);
