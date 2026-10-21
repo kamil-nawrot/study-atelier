@@ -28,9 +28,9 @@ export function thumbGeometry(
 	minimum = MIN_THUMB
 ): ThumbGeometry | null {
 	if (view <= 0 || full <= view + 1) return null;
-	const length = Math.min(view, Math.max(minimum, (view / full) * view));
+	const length = Math.floor(Math.min(view, Math.max(minimum, (view / full) * view)));
 	const share = Math.min(Math.max(position / (full - view), 0), 1);
-	return { offset: share * (view - length), length };
+	return { offset: Math.floor(share * (view - length)), length };
 }
 
 export function scrollForDrag(moved: number, view: number, full: number, length: number): number {

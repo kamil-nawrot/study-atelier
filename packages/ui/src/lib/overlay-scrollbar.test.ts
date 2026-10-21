@@ -12,7 +12,7 @@ describe('thumbGeometry', () => {
 	});
 
 	it('moves the thumb from the top to the bottom of its track', () => {
-		expect(thumbGeometry(300, 1200, 450)?.offset).toBeCloseTo(112.5);
+		expect(thumbGeometry(300, 1200, 450)?.offset).toBe(112);
 		expect(thumbGeometry(300, 1200, 900)?.offset).toBe(225);
 		expect(thumbGeometry(300, 1200, 2000)?.offset).toBe(225);
 	});
