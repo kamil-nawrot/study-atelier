@@ -106,3 +106,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0100](0100-show-the-artworks-at-the-reading-line-under-the-stage.md)    | Show the artworks at the reading line under the stage                                    | accepted           |
 | [0101](0101-go-back-to-where-the-learner-came-from.md)                   | Go back to where the learner came from                                                   | accepted           |
 | [0102](0102-name-the-address-parameters-in-english.md)                   | Name the wall's address parameters in English                                            | accepted           |
+| [0103](0103-draw-free-review-rounds-at-random.md)                        | Draw free review rounds at random                                                        | accepted           |
