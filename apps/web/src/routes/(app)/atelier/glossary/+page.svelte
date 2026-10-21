@@ -8,14 +8,25 @@
 	import AtelierBackLink from '#lib/collection/components/AtelierBackLink.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import GlossaryList from '#lib/glossary/components/GlossaryList.svelte';
+	import type { GlossaryCategory } from '#lib/glossary/types.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import type { PageProps } from './$types';
+	import type { PageProps, Snapshot } from './$types';
 
 	let { data }: PageProps = $props();
 
 	const glossaryPath = resolve('/(app)/atelier/glossary');
 
 	let toast: Toast;
+	let query = $state('');
+	let chosen = $state<GlossaryCategory[]>([]);
+
+	export const snapshot: Snapshot<{ query: string; chosen: GlossaryCategory[] }> = {
+		capture: () => ({ query, chosen: [...chosen] }),
+		restore: (value) => {
+			query = value.query;
+			chosen = value.chosen ?? [];
+		}
+	};
 
 	onMount(() => {
 		const message = page.state.glossaryMessage;
@@ -52,7 +63,7 @@
 			{data.error}
 		</Alert>
 	{:else}
-		<GlossaryList entries={data.entries} />
+		<GlossaryList entries={data.entries} bind:chosen bind:query />
 	{/if}
 </AtelierLayout>
 

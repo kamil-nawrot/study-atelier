@@ -4,10 +4,11 @@
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
 	import { Alert, Button, Dialog, Icon, Section, Toast } from '@study-atelier/ui';
-	import { goto } from '$app/navigation';
+	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import { goBackThroughHistory } from '#lib/collection/history.ts';
 	import GlossaryView from '#lib/glossary/components/GlossaryView.svelte';
 	import { deleteGlossaryEntry } from '#lib/glossary/glossary-data.ts';
 	import { m } from '#lib/i18n/index.ts';
@@ -18,6 +19,7 @@
 	const glossaryPath = resolve('/(app)/atelier/glossary');
 
 	let toast: Toast;
+	let cameFromList = false;
 	let deleteOpen = $state(false);
 	let deleting = $state(false);
 	let deleteError = $state<string>();
@@ -41,6 +43,14 @@
 			replace: true
 		});
 	});
+
+	afterNavigate(({ from }) => {
+		cameFromList = from?.route.id === '/(app)/atelier/glossary';
+	});
+
+	function goBack(event: MouseEvent): void {
+		goBackThroughHistory(event, cameFromList);
+	}
 
 	function askToDelete(): void {
 		deleteError = undefined;
@@ -67,7 +77,7 @@
 
 <AtelierLayout email={data.session.user.email ?? ''} {title}>
 	{#snippet bar()}
-		<a class="back" href={glossaryPath}>
+		<a class="back" href={glossaryPath} onclick={goBack}>
 			<Icon icon={ArrowLeft} />
 			{m.glossary.back}
 		</a>
@@ -103,7 +113,7 @@
 			{/if}
 		</Section>
 		<div>
-			<Button href={glossaryPath}>
+			<Button href={glossaryPath} onclick={goBack}>
 				{m.glossary.back}
 			</Button>
 		</div>

@@ -176,4 +176,26 @@ describe('glossary page', () => {
 			replace: true
 		});
 	});
+
+	it('keeps the search and the chosen categories when the learner comes back', async () => {
+		const first = await render(GlossaryPage, {
+			data: { session: testSession(), entries: manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES) },
+			params: {}
+		});
+		await userEvent.fill(page.getByRole('searchbox', { name: m.glossary.search }), 'Tymp');
+		const saved = first.component.snapshot.capture();
+		first.unmount();
+
+		const second = await render(GlossaryPage, {
+			data: { session: testSession(), entries: manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES) },
+			params: {}
+		});
+		second.component.snapshot.restore(saved);
+
+		await expect
+			.element(page.getByRole('searchbox', { name: m.glossary.search }))
+			.toHaveValue('Tymp');
+		await expect.element(entryLink('Term 1')).not.toBeInTheDocument();
+		expect(saved).toEqual({ query: 'Tymp', chosen: [] });
+	});
 });
