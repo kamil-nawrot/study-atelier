@@ -102,3 +102,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0096](0096-suggest-an-events-dates-and-description-from-wikipedia.md)   | Suggest an event's dates and description from Wikipedia, quietly                         | accepted           |
 | [0097](0097-start-prehistory-at-the-oldest-entry-on-the-timeline.md)     | Start prehistory at the oldest entry on the timeline                                     | accepted           |
 | [0098](0098-bound-years-and-make-the-timeline-stage-accessible.md)       | Bound the years and make the timeline stage accessible                                   | accepted           |
+| [0099](0099-draw-an-overlay-scrollbar-on-a-larger-screen.md)             | Draw an overlay scrollbar on a larger screen                                             | accepted           |
