@@ -436,7 +436,7 @@ export const pl = {
 		start: 'Zacznij powtórkę',
 		free: 'Powtórka swobodna',
 		freeHint:
-			'Dodatkowa runda dzieł, które znasz najsłabiej. Nie zmienia planu powtórek ani serii.',
+			'Dodatkowa runda losowo wybranych dzieł, które już powtarzasz. Nie zmienia planu powtórek ani serii.',
 		freeTag: 'Tryb swobodny',
 		howTitle: 'Jak działają powtórki?',
 		how: 'Do puli codziennie dobierane są nowe dzieła, które dodasz do atelier, a także takie, które wymagają powtórki. Im lepiej pamiętasz dzieło, tym rzadziej będzie pojawiać się w kolejnych dniach.',
