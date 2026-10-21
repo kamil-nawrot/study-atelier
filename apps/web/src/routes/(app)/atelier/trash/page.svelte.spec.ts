@@ -1,15 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import { invalidate } from '$app/navigation';
 import { findDuplicates } from '#lib/collection/duplicates.ts';
 import { deletePermanently, restoreArtwork } from '#lib/collection/trash.ts';
 import type { TrashArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
+import { REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import TrashPage from './+page.svelte';
 
-vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
+vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidate: vi.fn() }));
 vi.mock('#lib/collection/trash.ts', () => ({
 	restoreArtwork: vi.fn(),
 	deletePermanently: vi.fn()
@@ -83,6 +85,7 @@ describe('trash page', () => {
 		await expect.element(page.getByText(m.trash.restored('#0007'))).toBeVisible();
 		await expect.element(row('Night Watch')).not.toBeInTheDocument();
 		await expect.element(page.getByText(m.atelier.count(1))).toBeVisible();
+		expect(invalidate).toHaveBeenCalledWith(REVIEW_COUNTS_DEPENDENCY);
 	});
 
 	it('shows an alert when restoring fails and keeps the artwork', async () => {
