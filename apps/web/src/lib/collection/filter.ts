@@ -36,21 +36,21 @@ type ValueField = Exclude<FilterField, 'years' | 'favourites'>;
 const NAME_FIELDS = ['authors', 'periods', 'styles', 'materials', 'locations'] as const;
 
 const PARAMS: Record<FilterField, string> = {
-	eras: 'epoka',
-	types: 'typ',
-	years: 'rok',
-	authors: 'autor',
-	periods: 'okres',
-	styles: 'styl',
+	eras: 'era',
+	types: 'type',
+	years: 'year',
+	authors: 'author',
+	periods: 'period',
+	styles: 'style',
 	materials: 'material',
-	locations: 'miejsce',
-	missing: 'braki',
-	favourites: 'ulubione'
+	locations: 'location',
+	missing: 'missing',
+	favourites: 'favourites'
 };
 
 type Params = Pick<URLSearchParams, 'get' | 'getAll' | 'has'>;
 
-const UNKNOWN_AUTHOR_PARAM = 'bez-autora';
+const UNKNOWN_AUTHOR_PARAM = 'unknown-author';
 const RANGE_SEPARATOR = '..';
 
 export function emptyFilter(): CollectionFilter {
