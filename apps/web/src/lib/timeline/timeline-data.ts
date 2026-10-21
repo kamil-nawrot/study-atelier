@@ -24,7 +24,16 @@ function eventOf(row: Row): TimelineEvent {
 		yearFrom: row.year_from,
 		yearTo: row.year_to,
 		yearApproximate: row.year_approximate,
-		description: row.description ?? ''
+		description: row.description ?? '',
+		source:
+			row.source_title && row.source_url && row.source_licence && row.source_fetched_on
+				? {
+						title: row.source_title,
+						url: row.source_url,
+						licence: row.source_licence,
+						fetchedOn: row.source_fetched_on
+					}
+				: null
 	};
 }
 
@@ -36,7 +45,11 @@ function writeOf(draft: TimelineEventDraft): Write | undefined {
 		year_from: draft.yearFrom === draft.yearTo ? null : draft.yearFrom,
 		year_to: draft.yearTo,
 		year_approximate: draft.yearApproximate,
-		description: description === '' ? null : description
+		description: description === '' ? null : description,
+		source_title: draft.source?.title ?? null,
+		source_url: draft.source?.url ?? null,
+		source_licence: draft.source?.licence ?? null,
+		source_fetched_on: draft.source?.fetchedOn ?? null
 	};
 }
 

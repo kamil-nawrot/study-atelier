@@ -564,6 +564,8 @@ export const pl = {
 		spanEndRequired: 'Wpisz rok końcowy.',
 		spanOrder: 'Rok końcowy nie może być wcześniejszy niż początkowy.',
 		yearInvalid: 'Rok to liczba całkowita od 1 w górę. Dla lat przed naszą erą zaznacz „p.n.e.”.',
+		yearTooEarly: 'Rok przed naszą erą może sięgać najwyżej 3 000 000 p.n.e.',
+		yearTooLate: 'Rok nie może być późniejszy niż 2500.',
 		invalid: 'Niektóre pola się nie zgadzają. Sprawdź je i zapisz jeszcze raz.',
 		conflict:
 			'Nie udało się zapisać, bo dane zmieniły się w międzyczasie. Odśwież stronę i spróbuj jeszcze raz.',
@@ -872,10 +874,25 @@ export const pl = {
 			errorTitle: 'Nie udało się zapisać wydarzenia',
 			discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.',
 			notFoundTitle: 'Nie ma takiego wydarzenia',
-			loadErrorTitle: 'Nie udało się wczytać wydarzenia'
+			loadErrorTitle: 'Nie udało się wczytać wydarzenia',
+			sourcePrefix: 'Na podstawie: Wikipedia, ',
+			pickArticle: 'Wybierz inny artykuł',
+			removeSource: 'Usuń źródło'
+		},
+		articles: {
+			description: (name: string): string =>
+				`Wyniki z Wikipedii dla „${name}”. Wybierz ten, o który ci chodzi.`,
+			none: 'Wikipedia nie zna tego wydarzenia. Wpisz daty sam.',
+			failed:
+				'Nie udało się połączyć z Wikipedią. Możesz wpisać daty sam albo spróbować jeszcze raz.'
+		},
+		replaceConfirm: {
+			title: 'Zastąpić Twoje daty i opis?',
+			description: 'Daty albo opis mają już Twoje zmiany. Dane z nowego artykułu je zastąpią.',
+			keep: 'Zostaw moje',
+			replace: 'Zastąp'
 		},
 		loadErrorTitle: 'Nie udało się wczytać kalendarium',
-		eras: 'Epoki',
 		strip: 'Pasek epok',
 		previous: (era: string): string => `Poprzednia epoka: ${era}`,
 		next: (era: string): string => `Następna epoka: ${era}`,
@@ -891,6 +908,7 @@ export const pl = {
 		zoomIn: 'Przybliż o krok',
 		zoomOut: 'Oddal o krok',
 		stage: 'Oś czasu. Strzałki przesuwają czas, plus i minus zmieniają skalę o krok.',
+		stageGroup: 'Oś czasu',
 		card: {
 			event: 'Wydarzenie',
 			period: 'Okres',
@@ -899,6 +917,7 @@ export const pl = {
 			artworksOfTime: 'Dzieła z tego czasu',
 			noArtworks: 'W tym czasie nie masz żadnego dzieła.',
 			showWhole: 'Pokaż cały okres na osi',
+			sourcePrefix: 'Na podstawie: Wikipedia, ',
 			edit: 'Edytuj',
 			delete: 'Usuń'
 		},
@@ -924,7 +943,6 @@ export const pl = {
 			lanesFull: 'Wybrano 5. Odznacz któryś, żeby wybrać inny.',
 			periods: 'Okresy',
 			styles: 'Style',
-			favourites: 'Ulubione',
 			types: 'Typ dzieła',
 			authors: 'Autor',
 			searchAuthors: 'Szukaj autora',

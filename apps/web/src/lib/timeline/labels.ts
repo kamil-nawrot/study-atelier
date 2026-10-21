@@ -1,6 +1,10 @@
 import { m } from '#lib/i18n/index.ts';
 import type { Segment } from './axis.ts';
 
+export function cutLabel(text: string, cutBefore: boolean, cutAfter: boolean): string {
+	return `${cutBefore ? '‹ ' : ''}${text}${cutAfter ? ' ›' : ''}`;
+}
+
 const NUMERALS: readonly [number, string][] = [
 	[1000, 'M'],
 	[900, 'CM'],

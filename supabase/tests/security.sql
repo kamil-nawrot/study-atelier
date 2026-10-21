@@ -321,6 +321,18 @@ begin
   assert security_test.denied(format(
     'insert into public.timeline_events (name, year_to, description) values (''Long'', 1500, %L)', repeat('a', 301))),
     'A adds a timeline event with a description over 300 characters';
+  assert security_test.denied(format(
+    'insert into public.timeline_events (name, year_to) values (%L, 1500)', repeat('a', 121))),
+    'A adds a timeline event with a name over 120 characters';
+  assert security_test.denied(
+    'insert into public.timeline_events (name, year_to, source_title) values (''Half source'', 1500, ''Title'')'),
+    'A adds a timeline event with a half-filled source';
+  assert security_test.denied(
+    'insert into public.timeline_events (name, year_to, source_title, source_url, source_licence, source_fetched_on) values (''Insecure'', 1500, ''Title'', ''http://pl.wikipedia.org/wiki/Title'', ''CC BY-SA 4.0'', ''2026-10-21'')'),
+    'A adds a timeline event with a source address that is not https';
+  assert not security_test.denied(
+    'insert into public.timeline_events (name, year_to, description, source_title, source_url, source_licence, source_fetched_on) values (''Whole source'', 1500, ''Text'', ''Title'', ''https://pl.wikipedia.org/wiki/Title'', ''CC BY-SA 4.0'', ''2026-10-21'')'),
+    'A cannot add a timeline event with a whole source';
   assert security_test.denied('update public.timeline_events set owner_id = gen_random_uuid()'),
     'A changes the owner of a timeline event';
   assert security_test.denied('update public.timeline_events set created_at = now()'),

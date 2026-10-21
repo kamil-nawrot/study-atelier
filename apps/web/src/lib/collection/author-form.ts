@@ -1,5 +1,6 @@
 import { m } from '#lib/i18n/index.ts';
 import { parseYear } from './artwork-form.ts';
+import { yearError } from './artwork-record.ts';
 import { signedYear } from './format.ts';
 import type { AuthorDetails, AuthorFieldErrors, AuthorFormState } from './types.ts';
 
@@ -20,18 +21,12 @@ export function authorFormFromDetails(details: AuthorDetails): AuthorFormState {
 	};
 }
 
-function yearError(year: number | null): string | undefined {
-	return year !== null && !(Number.isInteger(year) && year >= 1)
-		? m.artworkErrors.yearInvalid
-		: undefined;
-}
-
 export function validateAuthorForm(form: AuthorFormState): AuthorFieldErrors {
 	const birth = parseYear(form.birthYear);
 	const death = parseYear(form.deathYear);
 	const errors: AuthorFieldErrors = {};
-	const birthError = yearError(birth);
-	const deathError = yearError(death);
+	const birthError = birth === null ? undefined : yearError(birth, form.birthBeforeCommonEra);
+	const deathError = death === null ? undefined : yearError(death, form.deathBeforeCommonEra);
 	if (birthError) errors.birthYear = birthError;
 	if (deathError) errors.deathYear = deathError;
 	if (birthError || deathError || birth === null || death === null) return errors;

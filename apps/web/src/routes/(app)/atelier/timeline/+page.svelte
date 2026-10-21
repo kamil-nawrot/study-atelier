@@ -21,7 +21,7 @@
 		timelineTags
 	} from '#lib/timeline/filter.ts';
 	import { eraOfYear, rememberEra, rememberedEra, startEra } from '#lib/timeline/start.ts';
-	import { eraOf, spanOfYears } from '#lib/timeline/time.ts';
+	import { entriesSpan, eraOf, spanOfYears } from '#lib/timeline/time.ts';
 	import type { TimelineEvent } from '#lib/timeline/types.ts';
 	import type { PageProps } from './$types';
 
@@ -44,7 +44,16 @@
 
 	const wide = new MediaQuery('min-width: 768px');
 
-	let eraArtworks = $derived(artworksIn(data.artworks, eraOf(era)));
+	$effect(() => {
+		if (wide.current) dialogOpen = false;
+	});
+
+	let eraArtworks = $derived(
+		artworksIn(
+			data.artworks,
+			eraOf(era, undefined, entriesSpan([...data.artworks, ...data.events]))
+		)
+	);
 	let matching = $derived(applyTimelineFilter(eraArtworks, filter).length);
 	let filtering = $derived(!isEmptyTimelineFilter(filter));
 	let filtersLabel = $derived(
@@ -158,6 +167,11 @@
 <Toast bind:this={toast} />
 
 <style>
+	header {
+		display: grid;
+		gap: var(--spacing-2);
+	}
+
 	.short {
 		display: inline;
 	}

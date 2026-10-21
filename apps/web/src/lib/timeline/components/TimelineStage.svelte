@@ -24,6 +24,8 @@
 		onkeypan: (share: number) => void;
 		onbackground?: () => void;
 		onstep: (direction: 1 | -1, anchor?: number) => void;
+		onsettle?: () => void;
+		viewportHeight?: number;
 		events?: Snippet<[StageGeometry]>;
 		artworks?: Snippet<[StageGeometry]>;
 	};
@@ -39,6 +41,8 @@
 		onkeypan,
 		onbackground,
 		onstep,
+		onsettle,
+		viewportHeight = 0,
 		events,
 		artworks
 	}: Props = $props();
@@ -52,8 +56,8 @@
 	const LABEL_MIN_VERTICAL = 24;
 
 	let width = $state(0);
-	let viewportHeight = $state(0);
 	let stage = $state<HTMLDivElement>();
+	let slider = $state<HTMLSpanElement>();
 
 	let vertical = $derived(orientation === 'vertical');
 	let geometry = $derived(
@@ -112,8 +116,12 @@
 	}
 
 	function pointerDown(event: PointerEvent): void {
+		suppressClick = false;
+		if (!(event.target instanceof Element && event.target.closest('button, a')))
+			slider?.focus({ preventScroll: true });
 		pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
 		if (pointers.size === 1) {
+			onsettle?.();
 			drag = { id: event.pointerId, at: along(event), center: view.center, moved: false };
 		} else if (pointers.size === 2) {
 			drag = null;
@@ -142,7 +150,8 @@
 		if (!drag.moved && Math.abs(moved) < DRAG_THRESHOLD) return;
 		if (!drag.moved) {
 			drag.moved = true;
-			stage?.setPointerCapture(event.pointerId);
+			if (stage?.hasPointerCapture(event.pointerId) === false && event.isTrusted)
+				stage.setPointerCapture(event.pointerId);
 		}
 		onpan(drag.center - (moved / Math.max(length, 1)) * view.span - view.center);
 	}
@@ -150,7 +159,7 @@
 	function pointerUp(event: PointerEvent): void {
 		pointers.delete(event.pointerId);
 		if (drag?.id === event.pointerId) {
-			if (drag.moved) suppressClick = true;
+			if (drag.moved && event.type !== 'pointercancel') suppressClick = true;
 			drag = null;
 		}
 		if (pointers.size < 2) pinch = null;
@@ -171,7 +180,8 @@
 	function wheel(event: WheelEvent): void {
 		event.preventDefault();
 		if (Math.abs(event.deltaX) > Math.abs(event.deltaY) || event.shiftKey) {
-			const by = event.shiftKey ? event.deltaY : event.deltaX;
+			onsettle?.();
+			const by = event.shiftKey ? event.deltaY || event.deltaX : event.deltaX;
 			onpan((by / Math.max(length, 1)) * view.span);
 			return;
 		}
@@ -184,26 +194,43 @@
 		wheelPausedUntil = now + WHEEL_PAUSE_MS;
 	}
 
+	function stageKeydown(event: KeyboardEvent): void {
+		if (event.key !== 'Escape') return;
+		onbackground?.();
+		event.preventDefault();
+	}
+
 	function keydown(event: KeyboardEvent): void {
-		if (event.target !== stage) return;
 		if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') onkeypan(-KEY_PAN);
 		else if (event.key === 'ArrowRight' || event.key === 'ArrowDown') onkeypan(KEY_PAN);
 		else if (event.key === '+' || event.key === '=') onstep(1);
 		else if (event.key === '-') onstep(-1);
-		else if (event.key === 'Escape') onbackground?.();
 		else return;
 		event.preventDefault();
+		event.stopPropagation();
 	}
 
 	$effect(() => {
 		const element = stage;
 		if (!element) return;
-		element.addEventListener('wheel', wheel, { passive: false });
-		return () => element.removeEventListener('wheel', wheel);
+		const listeners: [string, EventListener, AddEventListenerOptions?][] = [
+			['wheel', wheel as EventListener, { passive: false }],
+			['click', backgroundClick as EventListener],
+			['click', clickCapture as EventListener, { capture: true }],
+			['keydown', stageKeydown as EventListener],
+			['pointerdown', pointerDown as EventListener],
+			['pointermove', pointerMove as EventListener],
+			['pointerup', pointerUp as EventListener],
+			['pointercancel', pointerUp as EventListener]
+		];
+		for (const [type, listener, options] of listeners)
+			element.addEventListener(type, listener, options);
+		return () => {
+			for (const [type, listener, options] of listeners)
+				element.removeEventListener(type, listener, options);
+		};
 	});
 </script>
-
-<svelte:window bind:innerHeight={viewportHeight} />
 
 <div
 	bind:this={stage}
@@ -213,21 +240,8 @@
 	style:--artworks-from={`${geometry.artworksFrom}px`}
 	class="stage"
 	class:vertical
-	aria-label={m.timeline.stage}
-	aria-orientation={orientation}
-	aria-valuemax={yearAt(era.end - 1)}
-	aria-valuemin={yearAt(era.start)}
-	aria-valuenow={readingYear}
-	aria-valuetext={m.atelier.year(readingYear, false)}
-	onclick={backgroundClick}
-	onclickcapture={clickCapture}
-	onkeydown={keydown}
-	onpointercancel={pointerUp}
-	onpointerdown={pointerDown}
-	onpointermove={pointerMove}
-	onpointerup={pointerUp}
-	role="slider"
-	tabindex="0"
+	aria-label={m.timeline.stageGroup}
+	role="group"
 	bind:clientWidth={width}
 >
 	{#if eventLanes > 0}
@@ -308,8 +322,20 @@
 		></div>
 	{/if}
 
-	<div class="reading" aria-hidden="true">
-		<span class="reading-year">{m.atelier.year(readingYear, false)}</span>
+	<div class="reading">
+		<span
+			bind:this={slider}
+			class="reading-year"
+			aria-label={m.timeline.stage}
+			aria-orientation={orientation}
+			aria-valuemax={yearAt(era.end - 1)}
+			aria-valuemin={yearAt(era.start)}
+			aria-valuenow={readingYear}
+			aria-valuetext={m.atelier.year(readingYear, false)}
+			onkeydown={keydown}
+			role="slider"
+			tabindex="0">{m.atelier.year(readingYear, false)}</span
+		>
 	</div>
 </div>
 
@@ -507,7 +533,13 @@
 		font-size: var(--font-size-xs);
 		font-weight: var(--font-weight-medium);
 		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
 		transform: translateX(-50%);
+	}
+
+	.reading-year:focus-visible {
+		outline: var(--border-width-base) dashed var(--color-fg);
+		outline-offset: var(--border-width-base);
 	}
 
 	.vertical .reading-year {

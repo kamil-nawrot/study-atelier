@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { activeAt, eventsIn, lanesForEra, layEvents, yearsLong } from './event-lanes.ts';
+import { eventsIn, lanesForEra, layEvents, yearsLong } from './event-lanes.ts';
 import { eraOf } from './time.ts';
 import type { TimelineEvent } from './types.ts';
 
 const earlyModern = eraOf('early_modern', 2026);
 
 function event(id: string, yearFrom: number | null, yearTo: number, name = id): TimelineEvent {
-	return { id, name, yearFrom, yearTo, yearApproximate: false, description: '' };
+	return { id, name, yearFrom, yearTo, yearApproximate: false, description: '', source: null };
 }
 
 const width = (item: TimelineEvent): number => item.name.length * 7;
@@ -65,11 +65,11 @@ describe('lanesForEra', () => {
 	});
 });
 
-describe('eventsIn, activeAt and yearsLong', () => {
+describe('eventsIn and yearsLong', () => {
 	it('finds the events of a time and their length in years', () => {
 		const thirty = event('thirty', 1618, 1648);
 		expect(eventsIn([thirty], eraOf('modern', 2026))).toEqual([]);
-		expect(activeAt([thirty, event('x', null, 1700)], { start: 1640, end: 1641 })).toEqual([
+		expect(eventsIn([thirty, event('x', null, 1700)], { start: 1640, end: 1641 })).toEqual([
 			thirty
 		]);
 		expect(yearsLong(thirty)).toBe(30);

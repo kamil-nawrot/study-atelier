@@ -141,6 +141,20 @@ describe('validateArtwork', () => {
 		});
 	});
 
+	it('accepts years from 3 000 000 BCE to 2500 and rejects the rest', () => {
+		expect(validateArtwork(input({ yearTo: 3_000_000, toBeforeCommonEra: true }))).toEqual({});
+		expect(validateArtwork(input({ yearTo: 2500 }))).toEqual({});
+		expect(validateArtwork(input({ yearTo: 3_000_001, toBeforeCommonEra: true }))).toEqual({
+			yearTo: m.artworkErrors.yearTooEarly
+		});
+		expect(validateArtwork(input({ yearFrom: 2020, yearTo: 2501 }))).toEqual({
+			yearTo: m.artworkErrors.yearTooLate
+		});
+		expect(validateArtwork(input({ yearFrom: 3_000_000_000, yearTo: 1500 }))).toEqual({
+			yearFrom: m.artworkErrors.yearTooLate
+		});
+	});
+
 	it('rejects a year that is not a whole number from 1', () => {
 		for (const year of [0, -5, 1.5]) {
 			expect(validateArtwork(input({ yearTo: year }))).toEqual({

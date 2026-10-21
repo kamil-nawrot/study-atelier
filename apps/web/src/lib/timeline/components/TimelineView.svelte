@@ -17,18 +17,23 @@
 		stepView,
 		type StepKey
 	} from '../scale.ts';
-	import {
-		activeAt,
-		EVENT_LANES,
-		EVENT_LANES_NARROW,
-		eventsIn,
-		lanesForEra
-	} from '../event-lanes.ts';
+	import { EVENT_LANES, EVENT_LANES_NARROW, eventsIn, lanesForEra } from '../event-lanes.ts';
 	import { NARROW_WIDTH, orientationFor, verticalLength } from '../stage.ts';
 	import { deleteTimelineEvent } from '../timeline-data.ts';
 	import type { ArtworkLane, TimelineEvent, TimelineFilter } from '../types.ts';
 	import { eraOfYear, rememberEra } from '../start.ts';
-	import { eraOf, eras, overlaps, spanOfYears, yearAt, type TimeSpan, type View } from '../time.ts';
+	import {
+		entriesSpan,
+		eraOf,
+		eras,
+		overlaps,
+		spanOfYears,
+		timeOf,
+		yearAt,
+		type Era,
+		type TimeSpan,
+		type View
+	} from '../time.ts';
 	import FilterTags from '#lib/collection/components/FilterTags.svelte';
 	import {
 		applyTimelineFilter,
@@ -43,6 +48,7 @@
 		tagLane,
 		timelineTags
 	} from '../filter.ts';
+	import { labelWidth as measureLabel } from '../label-width.ts';
 	import EraStrip from './EraStrip.svelte';
 	import EventCard from './EventCard.svelte';
 	import TimelineEvents from './TimelineEvents.svelte';
@@ -77,16 +83,15 @@
 
 	const NOW_SHARE = 40;
 	const READING_TITLES = 2;
-	const LABEL_FONT = 14;
+	const SPOKEN_DELAY_MS = 500;
 
 	const STEP_ANIMATION_MS = 400;
-	const allEras = eras();
-
-	const start = untrack(() =>
-		initialFocus
-			? focusView(eraOf(initialEra), initialFocus)
-			: { step: 'era' as StepKey, view: eraView(eraOf(initialEra)) }
-	);
+	const start = untrack(() => {
+		const first = eraOf(initialEra, undefined, entriesSpan([...artworks, ...events]));
+		return initialFocus
+			? focusView(first, initialFocus)
+			: { step: 'era' as StepKey, view: eraView(first) };
+	});
 
 	let code = $state<EraCode>(untrack(() => initialEra));
 	let step = $state<StepKey>(start.step);
@@ -98,10 +103,10 @@
 	let deleteOpen = $state(false);
 	let deleting = $state(false);
 	let deleteError = $state<string>();
-	let measure: CanvasRenderingContext2D | null = null;
 	let frame = 0;
 
-	let era = $derived(eraOf(code));
+	let allEras = $derived(eras(undefined, entriesSpan([...artworks, ...events])));
+	let era = $derived(allEras.find((candidate) => candidate.code === code) as Era);
 	let steps = $derived(availableSteps(era));
 	let index = $derived(ERA_CODES.indexOf(code));
 	let previous = $derived(index > 0 ? ERA_CODES[index - 1] : undefined);
@@ -141,13 +146,10 @@
 		start: view.center - view.span / NOW_SHARE,
 		end: view.center + view.span / NOW_SHARE
 	});
-	let now = $derived(showEvents ? activeAt(eraEvents, reading) : []);
+	let now = $derived(showEvents ? eventsIn(eraEvents, reading) : []);
 	let nowArtworks = $derived(
 		readingArtworks
-			? artworksIn(collection, reading).sort(
-					(a, b) =>
-						Math.abs((a.yearTo ?? 0) - readingYear) - Math.abs((b.yearTo ?? 0) - readingYear)
-				)
+			? artworksIn(collection, reading).sort((a, b) => distanceToReading(a) - distanceToReading(b))
 			: []
 	);
 	let nowParts = $derived([
@@ -165,14 +167,29 @@
 			: [])
 	]);
 
+	let nowText = $derived(
+		nowParts.length > 0 ? m.timeline.now(m.atelier.year(readingYear, false), nowParts) : ''
+	);
+	let spoken = $state('');
+
+	$effect(() => {
+		const text = nowText;
+		const timer = setTimeout(() => (spoken = text), SPOKEN_DELAY_MS);
+		return () => clearTimeout(timer);
+	});
+
+	$effect(() => {
+		const current = selected;
+		if (!current) return;
+		const gone =
+			current.kind === 'event'
+				? !showEvents
+				: !collection.some((artwork) => artwork.id === current.id);
+		if (gone) untrack(() => (selected = null));
+	});
+
 	function labelWidth(event: TimelineEvent): number {
-		if (!measure) {
-			measure = document.createElement('canvas').getContext('2d');
-			if (measure) {
-				measure.font = `500 ${LABEL_FONT}px ${getComputedStyle(document.body).fontFamily}`;
-			}
-		}
-		return measure ? measure.measureText(event.name).width + LABEL_FONT : event.name.length * 8;
+		return measureLabel(event.name);
 	}
 
 	function spanOf(item: { yearFrom: number | null; yearTo: number | null }): TimeSpan | undefined {
@@ -181,6 +198,10 @@
 
 	function artworksOf(event: TimelineEvent): WallArtwork[] {
 		return artworksIn(collection, spanOfYears(event.yearFrom, event.yearTo));
+	}
+
+	function distanceToReading(artwork: WallArtwork): number {
+		return artwork.yearTo === null ? Infinity : Math.abs(timeOf(artwork.yearTo) - view.center);
 	}
 
 	function laneColourOf(artwork: WallArtwork): string | undefined {
@@ -265,6 +286,10 @@
 		if (key !== step) chooseStep(key, anchor);
 	}
 
+	function settle(): void {
+		if (frame) showNow(target);
+	}
+
 	function pan(by: number): void {
 		showNow(panView(target, by, era));
 	}
@@ -286,7 +311,7 @@
 		filter = forOtherEra(filter);
 		rememberEra(next);
 		onerachange?.(next);
-		showNow(eraView(eraOf(next)));
+		showNow(eraView(allEras.find((candidate) => candidate.code === next) as Era));
 	}
 
 	onDestroy(stopAnimation);
@@ -363,11 +388,8 @@
 		{tags}
 	/>
 
-	<p class="now" aria-live="polite">
-		{#if nowParts.length > 0}
-			{m.timeline.now(m.atelier.year(readingYear, false), nowParts)}
-		{/if}
-	</p>
+	<p class="now" aria-hidden="true">{nowText}</p>
+	<p class="visually-hidden" aria-live="polite">{spoken}</p>
 
 	<div bind:clientWidth={width}>
 		<TimelineStage
@@ -377,10 +399,12 @@
 			onbackground={() => (selected = null)}
 			onkeypan={panShare}
 			onpan={pan}
+			onsettle={settle}
 			onstep={moveStep}
 			{orientation}
 			{tint}
 			{view}
+			{viewportHeight}
 		>
 			{#snippet events(geometry)}
 				{#if showEvents}
@@ -390,6 +414,7 @@
 						{geometry}
 						{labelWidth}
 						{lanes}
+						layoutSpan={target.span}
 						onselect={(event) => toggle('event', event.id)}
 						selected={selected?.kind === 'event' ? selected.id : null}
 					/>
@@ -403,6 +428,7 @@
 					{era}
 					{geometry}
 					lanes={artworkLanes}
+					layoutSpan={target.span}
 					onselect={(artwork) => toggle('artwork', artwork.id)}
 					selected={selected?.kind === 'artwork' ? selected.id : null}
 				/>

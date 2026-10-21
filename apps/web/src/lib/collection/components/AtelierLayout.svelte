@@ -156,6 +156,7 @@
 <style>
 	.atelier {
 		--page-inline: var(--spacing-4);
+		--filter-panel-width: 380px;
 		--artwork-max-height: calc(100dvh - var(--bar-height));
 		display: flex;
 		min-height: 100dvh;
@@ -166,7 +167,11 @@
 	}
 
 	.main {
-		--wall-inline: max(var(--page-inline), calc((100% - var(--size-content-wide)) / 2));
+		--panel-width: 0px;
+		--wall-inline: max(
+			var(--page-inline),
+			calc((100% - var(--panel-width) - var(--size-content-wide)) / 2)
+		);
 		flex: 1;
 		min-width: 0;
 	}
@@ -222,6 +227,10 @@
 		padding: 0;
 	}
 
+	.main:has(> .body > :global(.filter-panel.open)) {
+		--panel-width: var(--filter-panel-width);
+	}
+
 	.menu {
 		display: flex;
 		flex: 1;
@@ -261,6 +270,10 @@
 	@media (prefers-reduced-motion: no-preference) {
 		.rail {
 			transition: width var(--duration-short) ease-out;
+		}
+
+		.content {
+			transition: padding var(--duration-short) ease-out;
 		}
 
 		.drawer,
