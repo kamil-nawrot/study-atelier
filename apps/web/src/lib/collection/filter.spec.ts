@@ -337,6 +337,16 @@ describe('the filter in the address', () => {
 		).toEqual(emptyFilter());
 	});
 
+	it('turns the favourites and the unknown author on only with 1', () => {
+		expect(filterFromParams(new URLSearchParams('favourites=0&unknown-author=false'))).toEqual(
+			emptyFilter()
+		);
+		expect(filterFromParams(new URLSearchParams('favourites=1&unknown-author=1'))).toMatchObject({
+			favourites: true,
+			unknownAuthor: true
+		});
+	});
+
 	it('is empty for an empty filter', () => {
 		expect(filterToParams(emptyFilter()).toString()).toBe('');
 		expect(filterFromParams(new URLSearchParams())).toEqual(emptyFilter());

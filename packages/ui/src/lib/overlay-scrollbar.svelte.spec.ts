@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
+import { pageScrollbar } from './overlay-scrollbar.ts';
 import './styles/tokens.css';
 import './styles/base.css';
 import OverlayScrollArea from './testing/OverlayScrollArea.svelte';
@@ -95,6 +96,86 @@ describe('overlayScrollbar', () => {
 		await nextFrame();
 
 		expect(thumb()?.hidden).toBe(true);
+	});
+
+	it('starts a drag only with the main button and ends it when the capture is lost', async () => {
+		await render(OverlayScrollArea);
+		await nextFrame();
+		const handle = thumb() as HTMLElement;
+		const box = handle.getBoundingClientRect();
+		const at = { clientX: box.left + 1, clientY: box.top + 5, pointerId: 1, bubbles: true };
+
+		handle.dispatchEvent(new PointerEvent('pointerdown', { ...at, button: 2 }));
+		handle.dispatchEvent(new PointerEvent('pointermove', { ...at, clientY: at.clientY + 35 }));
+		expect(area().scrollTop).toBe(0);
+
+		handle.dispatchEvent(new PointerEvent('pointerdown', at));
+		handle.dispatchEvent(new PointerEvent('lostpointercapture', at));
+		handle.dispatchEvent(new PointerEvent('pointermove', { ...at, clientY: at.clientY + 35 }));
+		expect(area().scrollTop).toBe(0);
+		expect(handle.classList.contains('dragging')).toBe(false);
+	});
+
+	it('measures the content again when the pointer enters', async () => {
+		await render(OverlayScrollArea);
+		await nextFrame();
+		for (const row of Array.from(area().children).slice(0, 10)) {
+			(row as HTMLElement).style.height = '0px';
+		}
+
+		area().dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+		await nextFrame();
+
+		expect(thumb()?.classList.contains('hovered')).toBe(true);
+		expect(thumb()?.style.height).toBe(`${Math.floor((200 / 1200) * 200)}px`);
+	});
+
+	it('follows the scroller when it is resized and the content when it changes', async () => {
+		const { rerender } = await render(OverlayScrollArea);
+		await nextFrame();
+
+		area().style.height = '400px';
+		await vi.waitFor(() => expect(thumb()?.style.height).toBe('100px'));
+
+		await rerender({ rows: 80 });
+		await vi.waitFor(() => expect(thumb()?.style.height).toBe('50px'));
+	});
+
+	it('draws a horizontal thumb for the x axis', async () => {
+		await render(OverlayScrollArea, { axis: 'x' });
+		await nextFrame();
+
+		expect(thumb()?.classList.contains('x')).toBe(true);
+		expect(thumb()?.style.width).toBe(`${Math.floor((200 / 1600) * 200)}px`);
+	});
+
+	it('removes the thumb and gives back the native bar when the scroller goes', async () => {
+		const { unmount } = await render(OverlayScrollArea);
+		await nextFrame();
+		const scroller = area();
+
+		unmount();
+
+		expect(scroller.classList.contains('overlay-scrollbar')).toBe(false);
+		expect(scroller.querySelector('.overlay-scrollbar-thumb')).toBeNull();
+	});
+
+	it('draws the page thumb fixed to the window and removes it when stopped', async () => {
+		const tall = document.createElement('div');
+		tall.style.height = `${window.innerHeight * 4}px`;
+		document.body.append(tall);
+		const stop = pageScrollbar();
+		await nextFrame();
+
+		const page = document.body.querySelector(
+			':scope > .overlay-scrollbar-thumb.page'
+		) as HTMLElement;
+		expect(page.hidden).toBe(false);
+		expect(getComputedStyle(page).position).toBe('fixed');
+
+		stop?.();
+		tall.remove();
+		expect(document.body.querySelector(':scope > .overlay-scrollbar-thumb.page')).toBeNull();
 	});
 
 	it('keeps the native bar on a touch screen or with forced colours', async () => {

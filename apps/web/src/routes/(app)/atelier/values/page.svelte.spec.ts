@@ -243,4 +243,17 @@ describe('card index page', () => {
 			.element(page.getByRole('searchbox', { name: m.cardIndex.search.material }))
 			.toHaveValue('marb');
 	});
+
+	it('ignores a snapshot with a tab it does not know', async () => {
+		const shown = await render(ValuesPage, {
+			data: { session: testSession(), index: testCardIndex() },
+			params: {}
+		});
+
+		shown.component.snapshot.restore({ tab: 'colours', query: 'x' });
+
+		await expect
+			.element(page.getByRole('tab', { name: m.cardIndex.tabs.timeline }))
+			.toHaveAttribute('aria-selected', 'true');
+	});
 });

@@ -101,19 +101,21 @@ function install(
 		frame = 0;
 		if (!thumb.isConnected) host.appendChild(thumb);
 		const geometry = thumbGeometry(target.view(), target.full(), target.position());
-		thumb.hidden = geometry === null;
-		if (!geometry) return;
+		if (!geometry) {
+			thumb.hidden = true;
+			return;
+		}
 		const along = `${target.origin() + geometry.offset}px`;
 		const across = `${target.cross()}px`;
+		const inset =
+			!page &&
+			vertical &&
+			scroller.getBoundingClientRect().right >= document.documentElement.clientWidth - 1;
+		thumb.hidden = false;
 		thumb.style.setProperty(vertical ? 'top' : 'left', along);
 		thumb.style.setProperty(vertical ? 'height' : 'width', `${geometry.length}px`);
 		thumb.style.setProperty(vertical ? 'left' : 'top', across);
-		thumb.classList.toggle(
-			'inset',
-			!page &&
-				vertical &&
-				scroller.getBoundingClientRect().right >= document.documentElement.clientWidth - 1
-		);
+		thumb.classList.toggle('inset', inset);
 	};
 
 	const schedule = (): void => {
@@ -128,7 +130,9 @@ function install(
 	};
 
 	const enter = (event: PointerEvent): void => {
-		if (event.pointerType === 'mouse') thumb.classList.add('hovered');
+		if (event.pointerType !== 'mouse') return;
+		schedule();
+		thumb.classList.add('hovered');
 	};
 	const leave = (): void => thumb.classList.remove('hovered');
 	const nearEdge = (event: PointerEvent): void => {
@@ -136,6 +140,7 @@ function install(
 	};
 
 	const grab = (event: PointerEvent): void => {
+		if (event.button !== 0) return;
 		event.preventDefault();
 		event.stopPropagation();
 		thumb.setPointerCapture?.(event.pointerId);
@@ -153,10 +158,12 @@ function install(
 			thumb.removeEventListener('pointermove', move);
 			thumb.removeEventListener('pointerup', release);
 			thumb.removeEventListener('pointercancel', release);
+			thumb.removeEventListener('lostpointercapture', release);
 		};
 		thumb.addEventListener('pointermove', move);
 		thumb.addEventListener('pointerup', release);
 		thumb.addEventListener('pointercancel', release);
+		thumb.addEventListener('lostpointercapture', release);
 	};
 
 	const scrolled = page ? window : scroller;

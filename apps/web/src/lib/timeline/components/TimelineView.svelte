@@ -23,12 +23,12 @@
 	import type { ArtworkLane, TimelineEvent, TimelineFilter } from '../types.ts';
 	import { eraOfYear, rememberEra } from '../start.ts';
 	import {
+		distanceToSpan,
 		entriesSpan,
 		eraOf,
 		eras,
 		overlaps,
 		spanOfYears,
-		timeOf,
 		yearAt,
 		type Era,
 		type TimeSpan,
@@ -216,7 +216,8 @@
 	}
 
 	function distanceToReading(artwork: WallArtwork): number {
-		return artwork.yearTo === null ? Infinity : Math.abs(timeOf(artwork.yearTo) - view.center);
+		const span = spanOf(artwork);
+		return span ? distanceToSpan(span, view.center) : Infinity;
 	}
 
 	function laneColourOf(artwork: WallArtwork): string | undefined {

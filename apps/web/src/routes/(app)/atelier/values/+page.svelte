@@ -6,6 +6,7 @@
 	import { page } from '$app/state';
 	import {
 		CARD_INDEX_TABS,
+		isCardIndexTab,
 		rememberCardIndexTab,
 		rememberedCardIndexTab
 	} from '#lib/collection/card-index-tab.ts';
@@ -28,6 +29,7 @@
 	export const snapshot: Snapshot<{ tab: string; query: string }> = {
 		capture: () => ({ tab, query }),
 		restore: (value) => {
+			if (!isCardIndexTab(value.tab)) return;
 			tab = value.tab;
 			query = value.query;
 		}
