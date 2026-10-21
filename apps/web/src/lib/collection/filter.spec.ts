@@ -324,9 +324,17 @@ describe('the filter in the address', () => {
 	it('is written as a readable query and read back unchanged', () => {
 		const params = filterToParams(filter);
 
-		expect(params.getAll('epoka')).toEqual(['early_modern', 'modern']);
-		expect(params.get('rok')).toBe('-500..1700');
+		expect(params.getAll('era')).toEqual(['early_modern', 'modern']);
+		expect(params.get('year')).toBe('-500..1700');
 		expect(filterFromParams(new URLSearchParams(params.toString()))).toEqual(filter);
+	});
+
+	it('ignores a link saved with the old Polish names and any unknown parameter', () => {
+		expect(
+			filterFromParams(
+				new URLSearchParams('epoka=modern&typ=painting&ulubione=1&bez-autora=1&colour=%ZZ&era=')
+			)
+		).toEqual(emptyFilter());
 	});
 
 	it('is empty for an empty filter', () => {
@@ -337,13 +345,13 @@ describe('the filter in the address', () => {
 	it('writes an open year range with one end', () => {
 		const params = filterToParams(filterWith({ yearTo: 1700 }));
 
-		expect(params.get('rok')).toBe('..1700');
+		expect(params.get('year')).toBe('..1700');
 		expect(filterFromParams(params)).toMatchObject({ yearFrom: null, yearTo: 1700 });
 	});
 
 	it('ignores unknown eras, types and missing data and a broken year range', () => {
 		const params = new URLSearchParams(
-			'epoka=nope&epoka=modern&typ=nope&braki=nope&braki=era&rok=abc..12x&styl=&styl=Baroque&styl=Baroque'
+			'era=nope&era=modern&type=nope&missing=nope&missing=era&year=abc..12x&style=&style=Baroque&style=Baroque'
 		);
 
 		expect(filterFromParams(params)).toEqual(
@@ -410,8 +418,8 @@ describe('favourites', () => {
 		const filter = filterWith({ favourites: true });
 		const params = filterToParams(filter);
 
-		expect(params.get('ulubione')).toBe('1');
+		expect(params.get('favourites')).toBe('1');
 		expect(filterFromParams(params)).toEqual(filter);
-		expect(filterToParams(emptyFilter()).has('ulubione')).toBe(false);
+		expect(filterToParams(emptyFilter()).has('favourites')).toBe(false);
 	});
 });

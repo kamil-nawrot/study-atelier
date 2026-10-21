@@ -305,13 +305,13 @@ describe('artwork page', () => {
 	});
 
 	it('links to the previous and next artwork of the wall the learner came from', async () => {
-		rememberWall([7, 42, 30], 'epoka=early_modern');
+		rememberWall([7, 42, 30], 'era=early_modern');
 		renderPage();
 
 		await expect.element(arrow(m.artworkView.previous)).toHaveAttribute('href', '/atelier/7');
 		await expect.element(arrow(m.artworkView.next)).toHaveAttribute('href', '/atelier/30');
 		await expect.element(arrow(m.artworkView.next)).toHaveAttribute('data-sveltekit-replacestate');
-		await expect.element(backLink()).toHaveAttribute('href', '/atelier?epoka=early_modern');
+		await expect.element(backLink()).toHaveAttribute('href', '/atelier?era=early_modern');
 		expect(preloadData).toHaveBeenCalledWith('/atelier/30');
 	});
 
@@ -325,7 +325,7 @@ describe('artwork page', () => {
 	});
 
 	it('has no arrows for an artwork the wall did not show', async () => {
-		rememberWall([7, 30], 'epoka=early_modern');
+		rememberWall([7, 30], 'era=early_modern');
 		renderPage();
 
 		await expect.element(page.getByRole('heading', { level: 1 })).toBeVisible();
@@ -407,10 +407,10 @@ describe('artwork page', () => {
 	});
 
 	it('keeps the filter of the wall on the way back from an artwork that is gone', async () => {
-		rememberWall([7, 42, 30], 'epoka=early_modern');
+		rememberWall([7, 42, 30], 'era=early_modern');
 		renderPage({ error: m.artworkErrors.notFound, notFound: true });
 
-		await expect.element(backLink()).toHaveAttribute('href', '/atelier?epoka=early_modern');
+		await expect.element(backLink()).toHaveAttribute('href', '/atelier?era=early_modern');
 	});
 
 	it('names a record number that is not a number as it was typed', async () => {

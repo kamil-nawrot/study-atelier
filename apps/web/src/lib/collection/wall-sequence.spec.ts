@@ -16,7 +16,7 @@ function blocked(): never {
 	throw new Error('blocked');
 }
 
-const SEQUENCE = { query: 'epoka=early_modern', numbers: [12, 7, 30] };
+const SEQUENCE = { query: 'era=early_modern', numbers: [12, 7, 30] };
 
 describe('wall sequence', () => {
 	afterEach(() => {
