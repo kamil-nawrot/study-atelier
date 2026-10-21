@@ -5,7 +5,7 @@
 - All documentation is written in English, in Markdown, inside [`docs/`](../).
 - Docs change in the same pull request as the code or decision they describe.
 - Prefer short, specific pages over long ones. Link instead of repeating.
-- Every Markdown file in the repository (docs, `CHANGELOG.md`, `CLAUDE.md`, skills) is formatted with Prettier: `pnpm format:docs` formats them and `pnpm lint:docs` checks them. The `Docs` workflow runs the check (job `Markdown`) on every pull request that changes Markdown, because the `CI` workflow skips pull requests that change only docs. A table that Prettier realigns after an edit is an expected part of the diff.
+- Every Markdown file in the repository (docs, `CHANGELOG.md`, `CLAUDE.md`, skills) is formatted with Prettier: `pnpm format` formats them with the code and `pnpm lint` checks them. The `Docs` workflow runs only the Markdown check (job `Markdown`) on every pull request that changes Markdown, because the `CI` workflow skips pull requests that change only docs. A table that Prettier realigns after an edit is an expected part of the diff.
 
 ## Where things go
 
