@@ -2,7 +2,7 @@
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
-	import { Alert, Button, Dialog, Icon, Section, Toast, Tooltip } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, LoadFailure, Toast, Tooltip } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -87,20 +87,20 @@
 	{#snippet bar()}
 		<BackLink fallbackHref={cardIndexPath} fallbackName={m.valuePage.back} />
 		{#if editHref}
-			<Button aria-label={m.valuePage.edit} href={editHref}>
-				<Icon icon={Pencil} size="sm" />
-				<span class="label">
-					{m.valuePage.edit}
-				</span>
+			<Button aria-label={m.valuePage.edit} compact href={editHref} icon={Pencil}>
+				{m.valuePage.edit}
 			</Button>
 		{/if}
 		{#if record && kind}
 			{#if canDelete(record)}
-				<Button aria-label={m.valuePage.delete} onclick={askToDelete} variant="danger">
-					<Icon icon={Trash} size="sm" />
-					<span class="label">
-						{m.valuePage.delete}
-					</span>
+				<Button
+					aria-label={m.valuePage.delete}
+					compact
+					icon={Trash}
+					onclick={askToDelete}
+					variant="danger"
+				>
+					{m.valuePage.delete}
 				</Button>
 			{:else}
 				<Tooltip
@@ -117,12 +117,11 @@
 							aria-describedby={describedby}
 							aria-disabled="true"
 							aria-label={m.valuePage.delete}
+							compact
+							icon={Trash}
 							variant="danger"
 						>
-							<Icon icon={Trash} size="sm" />
-							<span class="label">
-								{m.valuePage.delete}
-							</span>
+							{m.valuePage.delete}
 						</Button>
 					{/snippet}
 				</Tooltip>
@@ -157,20 +156,12 @@
 			{/if}
 		</section>
 	{:else}
-		<Section>
-			{#if data.notFound}
-				<p class="lead">{data.error}</p>
-			{:else}
-				<Alert tone="danger">
-					{data.error}
-				</Alert>
-			{/if}
-		</Section>
-		<div>
-			<Button href={cardIndexPath}>
-				{m.valuePage.back}
-			</Button>
-		</div>
+		<LoadFailure
+			backHref={cardIndexPath}
+			backLabel={m.valuePage.back}
+			message={data.error ?? ''}
+			notFound={data.notFound === true}
+		/>
 	{/if}
 </AtelierLayout>
 
@@ -202,10 +193,6 @@
 {/if}
 
 <style>
-	.label {
-		display: none;
-	}
-
 	.artworks {
 		display: grid;
 		gap: var(--spacing-6);
@@ -231,11 +218,5 @@
 	.empty {
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
-	}
-
-	@media (min-width: 768px) {
-		.label {
-			display: inline;
-		}
 	}
 </style>

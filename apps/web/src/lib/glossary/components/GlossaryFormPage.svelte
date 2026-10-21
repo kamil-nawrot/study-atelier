@@ -1,6 +1,5 @@
 <script lang="ts">
-	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
-	import { Alert, Button, Icon, Section } from '@study-atelier/ui';
+	import { BackHeading, LoadFailure } from '@study-atelier/ui';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import type { ResolvedPathname } from '$app/types';
@@ -45,29 +44,17 @@
 	title={data.notFound ? m.glossary.view.notFoundTitle : title}
 >
 	{#snippet bar()}
-		<div class="heading">
-			<a class="back" aria-label={m.glossary.form.goBack} href={backPath} onclick={goBack}>
-				<Icon icon={ArrowLeft} />
-			</a>
-			<h1>{title}</h1>
-		</div>
+		<BackHeading backLabel={m.glossary.form.goBack} href={backPath} onclick={goBack} {title} />
 	{/snippet}
 
 	{#if failed}
-		<Section>
-			{#if data.notFound}
-				<p class="lead">{m.glossary.view.notFound}</p>
-			{:else}
-				<Alert title={m.glossary.view.loadErrorTitle} tone="danger">
-					{data.error}
-				</Alert>
-			{/if}
-		</Section>
-		<div>
-			<Button href={glossaryPath}>
-				{m.glossary.back}
-			</Button>
-		</div>
+		<LoadFailure
+			backHref={glossaryPath}
+			backLabel={m.glossary.back}
+			errorTitle={m.glossary.view.loadErrorTitle}
+			message={data.notFound ? m.glossary.view.notFound : (data.error ?? '')}
+			notFound={data.notFound === true}
+		/>
 	{:else}
 		{#key backPath}
 			<GlossaryForm
@@ -82,26 +69,3 @@
 		{/key}
 	{/if}
 </AtelierLayout>
-
-<style>
-	.heading {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-		min-width: 0;
-	}
-
-	.back {
-		display: grid;
-		place-items: center;
-		flex: none;
-		padding-block: var(--spacing-2);
-		color: var(--color-fg);
-	}
-
-	h1 {
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-medium);
-		line-height: var(--line-height-sm);
-	}
-</style>

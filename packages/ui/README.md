@@ -45,33 +45,34 @@ Every exported component has a row here; a pull request that adds a component ad
 
 ### Actions and forms
 
-| Component      | Purpose                                                                                                                                                            |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `Button`       | Outline button with a heavier bottom edge; `primary` is filled, one per view; `danger` for deletes; a link with `href`                                             |
-| `TextButton`   | Small underlined text action without a frame, read as part of a line ("Wyczyść filtry", "Zwiń wszystkie"); `inline` drops the inline padding for a column of texts |
-| `Form`         | Form without browser validation; focuses the first invalid field on submit                                                                                         |
-| `FormActions`  | Bar fixed to the bottom of the screen with a form's actions                                                                                                        |
-| `TextField`    | Labelled input with hint, error, password reveal and an `action` button beside the input                                                                           |
-| `TextArea`     | Labelled multi-line input with hint and error                                                                                                                      |
-| `SearchField`  | Search input with a clear button, labelled for assistive technology only                                                                                           |
-| `Select`       | Labelled single choice from a fixed list on the native `select`, with hint and error; `compact` hides the label and shrinks to an icon on a phone                  |
-| `SearchSelect` | Labelled single choice from a long list, filtered as the learner types (combobox)                                                                                  |
-| `ValueField`   | Category values as removable tags with a suggestion list (combobox); one value with `single`, at most `max`, `labelHidden`                                         |
-| `Checkbox`     | Labelled checkbox                                                                                                                                                  |
-| `Switch`       | Labelled on/off switch (a native checkbox with `role="switch"`), for a setting that governs other fields                                                           |
-| `ChoiceTiles`  | Single choice shown as tiles with an icon (era, artwork type), as a radio group; `clearable`                                                                       |
-| `ToggleTiles`  | Several choices shown as tiles with a count, for filters                                                                                                           |
-| `ToggleTag`    | Pressable tag with an optional count, for filters and options                                                                                                      |
-| `StepSelect`   | Levels chosen in steps ("Epoka › Okres › Styl"); a step presses every step above it; `lg` tiles                                                                    |
-| `FilePicker`   | Button over a hidden native file input, with `accept`, handing over the picked file                                                                                |
-| `FieldMessage` | Hint or error line under a field, optionally a polite live region                                                                                                  |
-| `NotesEditor`  | Notes with formatting and links to values and artworks, edited as Markdown (TipTap)                                                                                |
+| Component      | Purpose                                                                                                                                                                                                |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Button`       | Outline button with a heavier bottom edge; `primary` is filled, one per view; `danger` for deletes; a link with `href`; `icon`, and `compact` shows only the icon on a phone (give it an `aria-label`) |
+| `TextButton`   | Small underlined text action without a frame, read as part of a line ("Wyczyść filtry", "Zwiń wszystkie"); `inline` drops the inline padding for a column of texts                                     |
+| `Form`         | Form without browser validation; focuses the first invalid field on submit                                                                                                                             |
+| `FormActions`  | Bar fixed to the bottom of the screen with a form's actions                                                                                                                                            |
+| `TextField`    | Labelled input with hint, error, password reveal and an `action` button beside the input                                                                                                               |
+| `TextArea`     | Labelled multi-line input with hint and error                                                                                                                                                          |
+| `SearchField`  | Search input with a clear button, labelled for assistive technology only                                                                                                                               |
+| `Select`       | Labelled single choice from a fixed list on the native `select`, with hint and error; `compact` hides the label and shrinks to an icon on a phone                                                      |
+| `SearchSelect` | Labelled single choice from a long list, filtered as the learner types (combobox)                                                                                                                      |
+| `ValueField`   | Category values as removable tags with a suggestion list (combobox); one value with `single`, at most `max`, `labelHidden`                                                                             |
+| `Checkbox`     | Labelled checkbox                                                                                                                                                                                      |
+| `Switch`       | Labelled on/off switch (a native checkbox with `role="switch"`), for a setting that governs other fields                                                                                               |
+| `ChoiceTiles`  | Single choice shown as tiles with an icon (era, artwork type), as a radio group; `clearable`                                                                                                           |
+| `ToggleTiles`  | Several choices shown as tiles with a count, for filters                                                                                                                                               |
+| `ToggleTag`    | Pressable tag with an optional count, for filters and options                                                                                                                                          |
+| `StepSelect`   | Levels chosen in steps ("Epoka › Okres › Styl"); a step presses every step above it; `lg` tiles                                                                                                        |
+| `FilePicker`   | Button over a hidden native file input, with `accept`, handing over the picked file                                                                                                                    |
+| `FieldMessage` | Hint or error line under a field, optionally a polite live region                                                                                                                                      |
+| `NotesEditor`  | Notes with formatting and links to values and artworks, edited as Markdown (TipTap)                                                                                                                    |
 
 ### Messages and overlays
 
 | Component       | Purpose                                                                                                      |
 | --------------- | ------------------------------------------------------------------------------------------------------------ |
 | `Alert`         | Status message with a coloured label bar: `danger`, `warning`, `success`                                     |
+| `LoadFailure`   | What a page shows instead of its content when it is not found or failed to load, with a button back          |
 | `Toast`         | Short confirmation floating above the content; disappears after 5 s; the newest message replaces the old one |
 | `Dialog`        | Modal over the scrim with title, body and footer actions; full screen on a phone; `small` for confirmations  |
 | `Popover`       | Text-like trigger that opens a card on click, hover or focus                                                 |
@@ -87,6 +88,7 @@ Every exported component has a row here; a pull request that adds a component ad
 | Component       | Purpose                                                                                                                                                      |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `Section`       | Text section with a heavy left edge (spine)                                                                                                                  |
+| `BackHeading`   | A form page's heading in the top bar: an arrow back and a small `h1` title                                                                                   |
 | `Disclosure`    | Collapsible group with a heading, a count and a chevron (native `details`); `muted`, `plain`, `lazy`                                                         |
 | `Tabs`          | Row of text tabs under a hairline that switch what a view lists                                                                                              |
 | `Tag`           | Flat tag with `#` prefix; optional remove button                                                                                                             |

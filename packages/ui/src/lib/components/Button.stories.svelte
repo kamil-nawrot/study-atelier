@@ -1,4 +1,5 @@
 <script lang="ts" module>
+	import Pencil from '@lucide/svelte/icons/pencil';
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import { text } from '../../stories/snippets';
 	import Button from './Button.svelte';
@@ -29,6 +30,13 @@
 />
 
 <Story name="Link" args={{ href: '#', children: text('Create account') }} />
+
+<Story name="With icon" args={{ icon: Pencil, children: text('Edytuj') }} />
+
+<Story
+	name="Compact"
+	args={{ 'aria-label': 'Edytuj', compact: true, icon: Pencil, children: text('Edytuj') }}
+/>
 
 <Story name="Primary with secondary actions">
 	{#snippet template()}

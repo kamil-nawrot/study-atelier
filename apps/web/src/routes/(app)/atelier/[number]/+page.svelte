@@ -3,7 +3,7 @@
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
-	import { Alert, Button, Dialog, Icon, Section, Toast } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, Icon, LoadFailure, Toast } from '@study-atelier/ui';
 	import { goto, preloadData } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -141,17 +141,17 @@
 					<Icon icon={Heart} size="sm" />
 				</span>
 			</Button>
-			<Button aria-label={m.artworkView.edit} href={editPath}>
-				<Icon icon={Pencil} size="sm" />
-				<span class="label">
-					{m.artworkView.edit}
-				</span>
+			<Button aria-label={m.artworkView.edit} compact href={editPath} icon={Pencil}>
+				{m.artworkView.edit}
 			</Button>
-			<Button aria-label={m.artworkView.delete} onclick={askToTrash} variant="danger">
-				<Icon icon={Trash} size="sm" />
-				<span class="label">
-					{m.artworkView.delete}
-				</span>
+			<Button
+				aria-label={m.artworkView.delete}
+				compact
+				icon={Trash}
+				onclick={askToTrash}
+				variant="danger"
+			>
+				{m.artworkView.delete}
 			</Button>
 		{/if}
 	{/snippet}
@@ -173,21 +173,13 @@
 			summaries={data.summaries}
 		/>
 	{:else}
-		<Section>
-			<h1>{title}</h1>
-			{#if data.notFound}
-				<p class="lead">{data.error}</p>
-			{:else}
-				<Alert tone="danger">
-					{data.error}
-				</Alert>
-			{/if}
-		</Section>
-		<div>
-			<Button href={atelierPath}>
-				{m.artworkForm.back}
-			</Button>
-		</div>
+		<LoadFailure
+			backHref={atelierPath}
+			backLabel={m.artworkForm.back}
+			heading={title}
+			message={data.error ?? ''}
+			notFound={data.notFound === true}
+		/>
 	{/if}
 </AtelierLayout>
 
@@ -217,21 +209,11 @@
 <Toast bind:this={toast} />
 
 <style>
-	.label {
-		display: none;
-	}
-
 	.heart {
 		display: flex;
 	}
 
 	.heart.filled :global(svg) {
 		fill: currentColor;
-	}
-
-	@media (min-width: 768px) {
-		.label {
-			display: inline;
-		}
 	}
 </style>

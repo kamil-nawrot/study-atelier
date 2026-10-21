@@ -1,7 +1,7 @@
 <script lang="ts">
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Trash from '@lucide/svelte/icons/trash-2';
-	import { Alert, Button, Dialog, Icon, Section, Toast } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, Section, Toast } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import DuplicateDialog from '#lib/collection/components/DuplicateDialog.svelte';
@@ -128,20 +128,22 @@
 					<div class="actions">
 						<Button
 							aria-label={m.trash.restore}
+							compact
 							disabled={busy === artwork.id}
+							icon={RotateCcw}
 							onclick={() => restore(artwork)}
 						>
-							<Icon icon={RotateCcw} size="sm" />
-							<span class="label">{m.trash.restore}</span>
+							{m.trash.restore}
 						</Button>
 						<Button
 							aria-label={m.trash.deleteForever}
+							compact
 							disabled={busy === artwork.id}
+							icon={Trash}
 							onclick={() => askToDelete(artwork)}
 							variant="danger"
 						>
-							<Icon icon={Trash} size="sm" />
-							<span class="label">{m.trash.deleteForever}</span>
+							{m.trash.deleteForever}
 						</Button>
 					</div>
 				</li>
@@ -253,15 +255,5 @@
 	.actions {
 		display: flex;
 		gap: var(--spacing-2);
-	}
-
-	.label {
-		display: none;
-	}
-
-	@media (min-width: 768px) {
-		.label {
-			display: inline;
-		}
 	}
 </style>
