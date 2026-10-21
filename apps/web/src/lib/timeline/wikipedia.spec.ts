@@ -134,6 +134,8 @@ describe('datesOf', () => {
 	it('gives nothing without dates', () => {
 		expect(datesOf({})).toBeNull();
 		expect(datesOf({ P585: [time('+0000-00-00')] })).toBeNull();
+		expect(datesOf({ P580: [time('-13800000000-00-00')] })).toBeNull();
+		expect(datesOf({ P585: [time('+3000-00-00')] })).toBeNull();
 	});
 });
 

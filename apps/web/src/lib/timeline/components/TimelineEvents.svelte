@@ -2,6 +2,7 @@
 	import { formatDate } from '#lib/collection/format.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { layEvents, type LaidEvent } from '../event-lanes.ts';
+	import { cutLabel } from '../labels.ts';
 	import { boxStyle, type StageGeometry } from '../stage.ts';
 	import type { Era } from '../time.ts';
 	import type { TimelineEvent } from '../types.ts';
@@ -14,15 +15,18 @@
 		selected: string | null;
 		labelWidth: (event: TimelineEvent) => number;
 		onselect: (event: TimelineEvent) => void;
+		layoutSpan?: number;
 	};
 
-	let { events, era, geometry, lanes, selected, labelWidth, onselect }: Props = $props();
+	let { events, era, geometry, lanes, selected, labelWidth, onselect, layoutSpan }: Props =
+		$props();
 
 	const VISIBLE_MARGIN = 400;
 	const MIN_RIBBON = 2;
 
 	let vertical = $derived(geometry.orientation === 'vertical');
-	let laid = $derived(layEvents(events, era, geometry.length / geometry.view.span, labelWidth));
+	let perYear = $derived(geometry.length / (layoutSpan ?? geometry.view.span));
+	let laid = $derived(layEvents(events, era, perYear, labelWidth));
 	let near = $derived(
 		laid
 			.map((item) => ({
@@ -41,7 +45,7 @@
 	);
 
 	function label(item: LaidEvent): string {
-		return `${item.cutBefore ? '‹ ' : ''}${item.event.name}${item.cutAfter ? ' ›' : ''}`;
+		return cutLabel(item.event.name, item.cutBefore, item.cutAfter);
 	}
 
 	function title(item: LaidEvent): string {

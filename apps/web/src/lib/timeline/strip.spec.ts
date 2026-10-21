@@ -15,7 +15,7 @@ describe('stripLayout', () => {
 	});
 
 	it('keeps the strip the same however early prehistory starts', () => {
-		const longer = eras(2026, timeOf(-200000));
+		const longer = eras(2026, { start: timeOf(-200000), end: 2000 });
 		expect(stripLayout(longer, 1240, 40)).toEqual(stripLayout(all, 1240, 40));
 	});
 

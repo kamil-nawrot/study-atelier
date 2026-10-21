@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-	earliestTime,
+	entriesSpan,
 	eraOf,
 	eras,
 	overlaps,
@@ -26,23 +26,30 @@ describe('timeOf and yearAt', () => {
 	});
 });
 
-describe('earliestTime and the start of prehistory', () => {
-	it('finds the earliest start among dated items', () => {
+describe('entriesSpan and the bounds of the first and the last era', () => {
+	it('spans the dated items from the earliest start to the latest end', () => {
 		expect(
-			earliestTime([
+			entriesSpan([
 				{ yearFrom: -500, yearTo: -400 },
 				{ yearFrom: null, yearTo: -43500 },
+				{ yearFrom: 2030, yearTo: 2040 },
 				{ yearFrom: null, yearTo: null }
 			])
-		).toBe(timeOf(-43500));
-		expect(earliestTime([])).toBeUndefined();
+		).toEqual({ start: timeOf(-43500), end: 2041 });
+		expect(entriesSpan([])).toBeUndefined();
 	});
 
 	it('starts prehistory at the oldest entry, a full millennium earlier, but never later than 40000 BCE', () => {
-		expect(eras(2026, timeOf(-43500))[0].start).toBe(-44000);
-		expect(eras(2026, timeOf(-200000))[0].start).toBe(-200000);
-		expect(eras(2026, timeOf(-500))[0].start).toBe(timeOf(-40000));
-		expect(eraOf('antiquity', 2026, timeOf(-43500)).start).toBe(timeOf(-3000));
+		const span = (start: number): { start: number; end: number } => ({ start, end: 2000 });
+		expect(eras(2026, span(timeOf(-43500)))[0].start).toBe(-44000);
+		expect(eras(2026, span(timeOf(-200000)))[0].start).toBe(-200000);
+		expect(eras(2026, span(timeOf(-500)))[0].start).toBe(timeOf(-40000));
+		expect(eraOf('antiquity', 2026, span(timeOf(-43500))).start).toBe(timeOf(-3000));
+	});
+
+	it('ends the contemporary era at the latest entry when it lies in the future', () => {
+		expect(eraOf('contemporary', 2026, { start: 1500, end: 2041 }).end).toBe(2041);
+		expect(eraOf('contemporary', 2026, { start: 1500, end: 1900 }).end).toBe(2027);
 	});
 });
 

@@ -571,4 +571,39 @@ describe('timeline page', () => {
 			.element(page.getByRole('button', { name: 'Malowidła z Sulawesi, 43500 p.n.e.' }))
 			.toBeInTheDocument();
 	});
+
+	it('keeps the dots and events as buttons in a group, with the slider on the reading line year', async () => {
+		renderTimeline([testArtwork(7, 'Straż nocna', { yearTo: 1642, date: '1642' })], undefined, [
+			testEvent('war', 'Wojna trzydziestoletnia', 1618, 1648)
+		]);
+
+		const group = page.getByRole('group', { name: m.timeline.stageGroup, exact: true });
+		await expect
+			.element(group.getByRole('button', { name: 'Straż nocna, 1642' }))
+			.toBeInTheDocument();
+		await expect
+			.element(group.getByRole('button', { name: 'Wojna trzydziestoletnia, 1618–1648' }))
+			.toBeInTheDocument();
+		await expect.element(group.getByRole('slider', { name: m.timeline.stage })).toBeInTheDocument();
+	});
+
+	it('speaks the reading line only after the timeline stops', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		renderTimeline([], undefined, [testEvent('war', 'Wojna trzydziestoletnia', 1618, 1648)]);
+		const live = (): string =>
+			document.querySelector('[aria-live="polite"].visually-hidden')?.textContent ?? '';
+		await page.getByRole('button', { name: 'Stulecie', exact: true }).click();
+		await expect.element(stage()).toHaveAttribute('aria-valuenow', '1640');
+		await vi.waitFor(() => expect(live()).toContain('Wojna trzydziestoletnia'));
+
+		for (let press = 0; press < 4; press++) {
+			stage()
+				.element()
+				.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+		}
+
+		await expect.element(stage()).toHaveAttribute('aria-valuenow', '1740');
+		expect(live()).toContain('Wojna trzydziestoletnia');
+		await vi.waitFor(() => expect(live()).not.toContain('Wojna trzydziestoletnia'));
+	});
 });
