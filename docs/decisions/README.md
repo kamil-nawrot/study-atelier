@@ -103,3 +103,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0097](0097-start-prehistory-at-the-oldest-entry-on-the-timeline.md)     | Start prehistory at the oldest entry on the timeline                                     | accepted           |
 | [0098](0098-bound-years-and-make-the-timeline-stage-accessible.md)       | Bound the years and make the timeline stage accessible                                   | accepted           |
 | [0099](0099-draw-an-overlay-scrollbar-on-a-larger-screen.md)             | Draw an overlay scrollbar on a larger screen                                             | accepted           |
+| [0100](0100-show-the-artworks-at-the-reading-line-under-the-stage.md)    | Show the artworks at the reading line under the stage                                    | accepted           |

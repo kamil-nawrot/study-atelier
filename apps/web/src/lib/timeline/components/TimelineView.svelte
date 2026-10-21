@@ -82,7 +82,7 @@
 	}: Props = $props();
 
 	const NOW_SHARE = 40;
-	const READING_TITLES = 2;
+	const READING_TITLES = 3;
 	const SPOKEN_DELAY_MS = 500;
 
 	const STEP_ANIMATION_MS = 400;
@@ -152,20 +152,9 @@
 			? artworksIn(collection, reading).sort((a, b) => distanceToReading(a) - distanceToReading(b))
 			: []
 	);
-	let nowParts = $derived([
-		...(now.length > 0 ? [m.timeline.nowEvents(now.map((event) => event.name).join(', '))] : []),
-		...(nowArtworks.length > 0
-			? [
-					m.timeline.nowArtworks(
-						nowArtworks
-							.slice(0, READING_TITLES)
-							.map((artwork) => artwork.title)
-							.join(', '),
-						nowArtworks.length - READING_TITLES
-					)
-				]
-			: [])
-	]);
+	let nowParts = $derived(
+		now.length > 0 ? [m.timeline.nowEvents(now.map((event) => event.name).join(', '))] : []
+	);
 
 	let nowText = $derived(
 		nowParts.length > 0 ? m.timeline.now(m.atelier.year(readingYear, false), nowParts) : ''
@@ -436,6 +425,30 @@
 		</TimelineStage>
 	</div>
 
+	{#if readingArtworks}
+		<div class="reading-artworks">
+			{#if nowArtworks.length > 0}
+				<span class="caption label">{m.timeline.readingArtworks}</span>
+				<ul class="titles">
+					{#each nowArtworks.slice(0, READING_TITLES) as artwork (artwork.id)}
+						<li>
+							<button class="title" onclick={() => chooseArtwork(artwork)} type="button">
+								<cite>{artwork.title}</cite>
+							</button>
+						</li>
+					{/each}
+				</ul>
+				{#if nowArtworks.length > READING_TITLES}
+					<span class="caption more"
+						>{m.timeline.readingMore(nowArtworks.length - READING_TITLES)}</span
+					>
+				{/if}
+			{:else}
+				<span class="caption">{m.timeline.readingArtworksNone}</span>
+			{/if}
+		</div>
+	{/if}
+
 	{#if selectedEvent}
 		{@const event = selectedEvent}
 		<EventCard
@@ -482,6 +495,50 @@
 	.era-name {
 		justify-self: center;
 		font-weight: var(--font-weight-medium);
+	}
+
+	.reading-artworks {
+		display: flex;
+		align-items: baseline;
+		gap: var(--spacing-2);
+		min-width: 0;
+		height: var(--line-height-md);
+		overflow: hidden;
+		white-space: nowrap;
+	}
+
+	.label,
+	.more {
+		flex: none;
+	}
+
+	.titles {
+		display: flex;
+		gap: var(--spacing-3);
+		min-width: 0;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.titles li {
+		min-width: 0;
+	}
+
+	.title {
+		max-width: 100%;
+		padding: 0;
+		overflow: hidden;
+		border: 0;
+		background: none;
+		color: var(--color-fg);
+		font: inherit;
+		text-overflow: ellipsis;
+		cursor: pointer;
+	}
+
+	.title:hover cite {
+		text-decoration: underline;
 	}
 
 	.now {
