@@ -2,16 +2,16 @@
 
 ## Branches (gitflow)
 
-| Branch | Purpose | Created from | Merged into |
-| --- | --- | --- | --- |
-| `main` | Released, production state | | |
-| `develop` | Integration branch for the next release | `main` | `main` (via release) |
-| `feature/<issue>-<slug>` | One Linear issue that adds or changes behaviour, docs or tooling | `develop` | `develop` |
-| `bugfix/<issue>-<slug>` | One Linear issue with the `Bug` label that is not urgent for production | `develop` | `develop` |
-| `release/<version>` | Release preparation | `develop` | `main` and `develop` |
-| `hotfix/<version>` | Urgent production fix | `main` | `main` and `develop` |
-| `chore/merge-main-after-release-<version>` | Brings a release or hotfix back into `develop` | `main` | `develop` |
-| `design/tokens` | Design tokens synced by the Tokens Studio Figma plugin ([details](design-tokens.md)) | `develop` | `develop` |
+| Branch                                     | Purpose                                                                              | Created from | Merged into          |
+| ------------------------------------------ | ------------------------------------------------------------------------------------ | ------------ | -------------------- |
+| `main`                                     | Released, production state                                                           |              |                      |
+| `develop`                                  | Integration branch for the next release                                              | `main`       | `main` (via release) |
+| `feature/<issue>-<slug>`                   | One Linear issue that adds or changes behaviour, docs or tooling                     | `develop`    | `develop`            |
+| `bugfix/<issue>-<slug>`                    | One Linear issue with the `Bug` label that is not urgent for production              | `develop`    | `develop`            |
+| `release/<version>`                        | Release preparation                                                                  | `develop`    | `main` and `develop` |
+| `hotfix/<version>`                         | Urgent production fix                                                                | `main`       | `main` and `develop` |
+| `chore/merge-main-after-release-<version>` | Brings a release or hotfix back into `develop`                                       | `main`       | `develop`            |
+| `design/tokens`                            | Design tokens synced by the Tokens Studio Figma plugin ([details](design-tokens.md)) | `develop`    | `develop`            |
 
 - `develop` is the repository's default branch, so new pull requests target it and scheduled workflows run from it.
 - Branch names are lowercase. `feature/*` and `bugfix/*` branches include the Linear issue key, for example `feature/atl-1-docs-foundation` or `bugfix/atl-103-artwork-form-save-and-leave`.

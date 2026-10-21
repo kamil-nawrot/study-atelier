@@ -23,16 +23,16 @@ Eras have icons and are chosen with tiles, but the type of an artwork was a sele
 
 Chosen by the owner:
 
-| Type | Icon |
-| --- | --- |
-| Architektura | `castle` |
-| Malarstwo | `palette` |
-| Rzeźba | `hammer` (Lucide has no statue or bust) |
-| Rysunek | `pen-tool` (`pencil` is the edit action) |
-| Grafika | `stamp` |
-| Rzemiosło artystyczne | `amphora` |
-| Fotografia | `camera` |
-| Inne | `shapes` |
+| Type                  | Icon                                     |
+| --------------------- | ---------------------------------------- |
+| Architektura          | `castle`                                 |
+| Malarstwo             | `palette`                                |
+| Rzeźba                | `hammer` (Lucide has no statue or bust)  |
+| Rysunek               | `pen-tool` (`pencil` is the edit action) |
+| Grafika               | `stamp`                                  |
+| Rzemiosło artystyczne | `amphora`                                |
+| Fotografia            | `camera`                                 |
+| Inne                  | `shapes`                                 |
 
 - The form chooses the type with `ChoiceTiles` (clearable), four columns wide and two on a phone, like the type of place and the era.
 - The artwork view shows the type and the era the same way: the icon and the name, without a tag. The era keeps its summary card.

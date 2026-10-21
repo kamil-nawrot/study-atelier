@@ -29,7 +29,7 @@
 - An effect reacts to everything it reads. When a state object is replaced as a whole (`form = { ...form, ... }`), an effect meant to react to one field reads it through a primitive `$derived`, for example `let query = $derived(form.name.trim())`, or it re-runs on every replacement.
 - Costly work (layout, sorting, measuring) is derived from primitive `$derived` values, not from an object that is recreated on every frame or pointer move. A primitive derived notifies its dependents only when its value changes, so a pan or an animation frame recomputes only what really moves.
 - Markup has no wrapper elements without a purpose. Prefer a semantic element (`footer`, `section`, `nav`) to a `div` when one fits.
-- `pnpm lint` runs Prettier, ESLint and Stylelint inside each pnpm package, so code outside them (for example a future Go backend) is not touched and uses its own language tooling.
+- `pnpm lint` checks the Markdown of the whole repository with Prettier, then runs Prettier, ESLint and Stylelint inside each pnpm package, so code outside them (for example a future Go backend) is not touched and uses its own language tooling.
 
 ## Svelte markup
 
