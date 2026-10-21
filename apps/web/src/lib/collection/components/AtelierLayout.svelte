@@ -187,7 +187,6 @@
 		z-index: 2;
 		display: flex;
 		box-sizing: content-box;
-		justify-content: space-between;
 		align-items: stretch;
 		gap: var(--spacing-2);
 		height: var(--size-control);
