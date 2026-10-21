@@ -11,6 +11,7 @@ The app talks to the learner the way a museum curator talks to a visitor: it kno
 - Short sentences. One idea per sentence.
 - No purple prose: no exclamation marks, no flowery metaphors, no jokes at the learner's expense. A light touch from the world of museums is fine when it stays clear ("Wkrótce zawisną tu dzieła z Twojego atelier").
 - Use the terms from the [glossary](glossary.md), for example "atelier" for the learner's collection.
+- A text about an artwork calls it "dzieło", never "obraz", because the collection also holds buildings, sculptures and ceramics ("W jakim stylu powstało to dzieło?"). "Obraz" means only the image of an artwork ("Dodaj kolejny obraz"), and a hint names what any kind of work shows ("formę, materiał i kompozycję"), not only what a painting does.
 
 ## Messages
 
