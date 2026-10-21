@@ -1,4 +1,5 @@
 import { WIKIDATA_API, articleOf, findPages, type Page } from '#lib/glossary/wikipedia.ts';
+import { isStoredYear } from '#lib/collection/artwork-record.ts';
 import { fetchJson } from '#lib/images/wikimedia.ts';
 import { EVENT_DESCRIPTION_MAX_LENGTH } from './event-form.ts';
 import type { EventArticle, EventDates } from './types.ts';
@@ -24,7 +25,7 @@ function yearOf(time: string): number | null {
 	const match = /^([+-])0*(\d+)-/.exec(time);
 	if (!match) return null;
 	const year = Number(match[2]) * (match[1] === '-' ? -1 : 1);
-	return year === 0 || !Number.isSafeInteger(year) ? null : year;
+	return isStoredYear(year) ? year : null;
 }
 
 function timesOf(statements: TimeStatement[] | undefined): Time[] {

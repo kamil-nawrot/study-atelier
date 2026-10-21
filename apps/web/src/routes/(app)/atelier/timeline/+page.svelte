@@ -21,7 +21,7 @@
 		timelineTags
 	} from '#lib/timeline/filter.ts';
 	import { eraOfYear, rememberEra, rememberedEra, startEra } from '#lib/timeline/start.ts';
-	import { earliestTime, eraOf, spanOfYears } from '#lib/timeline/time.ts';
+	import { entriesSpan, eraOf, spanOfYears } from '#lib/timeline/time.ts';
 	import type { TimelineEvent } from '#lib/timeline/types.ts';
 	import type { PageProps } from './$types';
 
@@ -51,7 +51,7 @@
 	let eraArtworks = $derived(
 		artworksIn(
 			data.artworks,
-			eraOf(era, undefined, earliestTime([...data.artworks, ...data.events]))
+			eraOf(era, undefined, entriesSpan([...data.artworks, ...data.events]))
 		)
 	);
 	let matching = $derived(applyTimelineFilter(eraArtworks, filter).length);

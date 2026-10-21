@@ -1,6 +1,6 @@
 import { ERA_CODES, isEraCode } from '#lib/collection/eras.ts';
 import type { EraCode } from '#lib/collection/types.ts';
-import { earliestTime, eras, timeOf } from './time.ts';
+import { entriesSpan, eras, timeOf } from './time.ts';
 
 const ERA_KEY = 'study-atelier:timeline-era';
 
@@ -28,7 +28,7 @@ export function rememberEra(code: EraCode): void {
 export function busiestEra(artworks: readonly Dated[]): EraCode {
 	const all = eras(
 		undefined,
-		earliestTime(artworks.map((artwork) => ({ yearFrom: null, yearTo: artwork.yearTo })))
+		entriesSpan(artworks.map((artwork) => ({ yearFrom: null, yearTo: artwork.yearTo })))
 	);
 	const counts = new Map<EraCode, number>();
 	for (const artwork of artworks) {

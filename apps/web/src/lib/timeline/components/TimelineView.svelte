@@ -23,7 +23,7 @@
 	import type { ArtworkLane, TimelineEvent, TimelineFilter } from '../types.ts';
 	import { eraOfYear, rememberEra } from '../start.ts';
 	import {
-		earliestTime,
+		entriesSpan,
 		eraOf,
 		eras,
 		overlaps,
@@ -48,6 +48,7 @@
 		tagLane,
 		timelineTags
 	} from '../filter.ts';
+	import { labelWidth as measureLabel } from '../label-width.ts';
 	import EraStrip from './EraStrip.svelte';
 	import EventCard from './EventCard.svelte';
 	import TimelineEvents from './TimelineEvents.svelte';
@@ -82,11 +83,11 @@
 
 	const NOW_SHARE = 40;
 	const READING_TITLES = 2;
-	const LABEL_FONT = 14;
+	const SPOKEN_DELAY_MS = 500;
 
 	const STEP_ANIMATION_MS = 400;
 	const start = untrack(() => {
-		const first = eraOf(initialEra, undefined, earliestTime([...artworks, ...events]));
+		const first = eraOf(initialEra, undefined, entriesSpan([...artworks, ...events]));
 		return initialFocus
 			? focusView(first, initialFocus)
 			: { step: 'era' as StepKey, view: eraView(first) };
@@ -102,10 +103,9 @@
 	let deleteOpen = $state(false);
 	let deleting = $state(false);
 	let deleteError = $state<string>();
-	let measure: CanvasRenderingContext2D | null = null;
 	let frame = 0;
 
-	let allEras = $derived(eras(undefined, earliestTime([...artworks, ...events])));
+	let allEras = $derived(eras(undefined, entriesSpan([...artworks, ...events])));
 	let era = $derived(allEras.find((candidate) => candidate.code === code) as Era);
 	let steps = $derived(availableSteps(era));
 	let index = $derived(ERA_CODES.indexOf(code));
@@ -167,6 +167,17 @@
 			: [])
 	]);
 
+	let nowText = $derived(
+		nowParts.length > 0 ? m.timeline.now(m.atelier.year(readingYear, false), nowParts) : ''
+	);
+	let spoken = $state('');
+
+	$effect(() => {
+		const text = nowText;
+		const timer = setTimeout(() => (spoken = text), SPOKEN_DELAY_MS);
+		return () => clearTimeout(timer);
+	});
+
 	$effect(() => {
 		const current = selected;
 		if (!current) return;
@@ -178,13 +189,7 @@
 	});
 
 	function labelWidth(event: TimelineEvent): number {
-		if (!measure) {
-			measure = document.createElement('canvas').getContext('2d');
-			if (measure) {
-				measure.font = `500 ${LABEL_FONT}px ${getComputedStyle(document.body).fontFamily}`;
-			}
-		}
-		return measure ? measure.measureText(event.name).width + LABEL_FONT : event.name.length * 8;
+		return measureLabel(event.name);
 	}
 
 	function spanOf(item: { yearFrom: number | null; yearTo: number | null }): TimeSpan | undefined {
@@ -279,6 +284,10 @@
 	function moveStep(direction: 1 | -1, anchor = 0.5): void {
 		const key = nextStep(step, era, direction);
 		if (key !== step) chooseStep(key, anchor);
+	}
+
+	function settle(): void {
+		if (frame) showNow(target);
 	}
 
 	function pan(by: number): void {
@@ -379,11 +388,8 @@
 		{tags}
 	/>
 
-	<p class="now" aria-live="polite">
-		{#if nowParts.length > 0}
-			{m.timeline.now(m.atelier.year(readingYear, false), nowParts)}
-		{/if}
-	</p>
+	<p class="now" aria-hidden="true">{nowText}</p>
+	<p class="visually-hidden" aria-live="polite">{spoken}</p>
 
 	<div bind:clientWidth={width}>
 		<TimelineStage
@@ -393,10 +399,12 @@
 			onbackground={() => (selected = null)}
 			onkeypan={panShare}
 			onpan={pan}
+			onsettle={settle}
 			onstep={moveStep}
 			{orientation}
 			{tint}
 			{view}
+			{viewportHeight}
 		>
 			{#snippet events(geometry)}
 				{#if showEvents}
@@ -406,6 +414,7 @@
 						{geometry}
 						{labelWidth}
 						{lanes}
+						layoutSpan={target.span}
 						onselect={(event) => toggle('event', event.id)}
 						selected={selected?.kind === 'event' ? selected.id : null}
 					/>
@@ -419,6 +428,7 @@
 					{era}
 					{geometry}
 					lanes={artworkLanes}
+					layoutSpan={target.span}
 					onselect={(artwork) => toggle('artwork', artwork.id)}
 					selected={selected?.kind === 'artwork' ? selected.id : null}
 				/>

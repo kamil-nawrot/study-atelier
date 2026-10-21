@@ -564,6 +564,8 @@ export const pl = {
 		spanEndRequired: 'Wpisz rok końcowy.',
 		spanOrder: 'Rok końcowy nie może być wcześniejszy niż początkowy.',
 		yearInvalid: 'Rok to liczba całkowita od 1 w górę. Dla lat przed naszą erą zaznacz „p.n.e.”.',
+		yearTooEarly: 'Rok przed naszą erą może sięgać najwyżej 3 000 000 p.n.e.',
+		yearTooLate: 'Rok nie może być późniejszy niż 2500.',
 		invalid: 'Niektóre pola się nie zgadzają. Sprawdź je i zapisz jeszcze raz.',
 		conflict:
 			'Nie udało się zapisać, bo dane zmieniły się w międzyczasie. Odśwież stronę i spróbuj jeszcze raz.',
@@ -906,6 +908,7 @@ export const pl = {
 		zoomIn: 'Przybliż o krok',
 		zoomOut: 'Oddal o krok',
 		stage: 'Oś czasu. Strzałki przesuwają czas, plus i minus zmieniają skalę o krok.',
+		stageGroup: 'Oś czasu',
 		card: {
 			event: 'Wydarzenie',
 			period: 'Okres',

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { SvelteMap } from 'svelte/reactivity';
+	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 	import { resolve } from '$app/paths';
 	import { ArtworkTile } from '@study-atelier/ui';
 	import { resolveImages } from '#lib/collection/artworks.ts';
@@ -7,6 +7,7 @@
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { ArtworkLane } from '../types.ts';
+	import { cutLabel } from '../labels.ts';
 	import { DOT_SIZE, marksIn, spread, type Mark } from '../placement.ts';
 	import { boxStyle, type StageGeometry } from '../stage.ts';
 	import type { Era } from '../time.ts';
@@ -20,6 +21,7 @@
 		lanes?: readonly ArtworkLane[];
 		colourOf?: (artwork: WallArtwork) => string | undefined;
 		empty?: string;
+		layoutSpan?: number;
 	};
 
 	type Group = {
@@ -39,7 +41,8 @@
 		onselect,
 		lanes = [],
 		colourOf,
-		empty
+		empty,
+		layoutSpan
 	}: Props = $props();
 
 	const EDGE = 10;
@@ -52,21 +55,30 @@
 	let pinnedKey = $state<string | null>(null);
 	let previewHeight = $state(0);
 	const resolved = new SvelteMap<string, WallArtwork>();
+	const loading = new SvelteSet<string>();
 
 	let vertical = $derived(geometry.orientation === 'vertical');
-	let perYear = $derived(geometry.length / geometry.view.span);
+	let perYear = $derived(geometry.length / (layoutSpan ?? geometry.view.span));
+	let laneSize = $derived(geometry.artworkLane);
+	let zoneSize = $derived(geometry.artworksSize);
+	let zoneFrom = $derived(geometry.artworksFrom);
 	let laned = $derived(lanes.length > 0 && !vertical);
 	let before = $derived(Math.max(0, geometry.position(era.start)));
+	let laneMarks = $derived(
+		(laned ? lanes : [undefined]).map((lane) => ({
+			lane,
+			marks: marksIn(lane ? lane.artworks : artworks, era)
+		}))
+	);
 	let groups = $derived<Group[]>(
-		(laned ? lanes : [undefined]).map((lane, index) => {
-			const marks = marksIn(lane ? lane.artworks : artworks, era);
+		laneMarks.map(({ lane, marks }, index) => {
 			const top = laned ? LANE_LABEL : 0;
-			const room = (laned ? geometry.artworkLane : geometry.artworksSize) - top - 2 * EDGE;
+			const room = (laned ? laneSize : zoneSize) - top - 2 * EDGE;
 			return {
 				key: lane ? lane.key : 'all',
 				lane,
 				count: marks.length,
-				from: geometry.artworksFrom + index * geometry.artworkLane + top + EDGE,
+				from: zoneFrom + index * laneSize + top + EDGE,
 				marks,
 				across: spread(
 					marks.map((mark) => mark.item.id),
@@ -102,9 +114,14 @@
 	}
 
 	async function loadImage(artwork: WallArtwork): Promise<void> {
-		if (!artwork.pendingImage || resolved.has(artwork.id)) return;
-		const [result] = await resolveImages([artwork]);
-		if (result) resolved.set(artwork.id, result);
+		if (!artwork.pendingImage || resolved.has(artwork.id) || loading.has(artwork.id)) return;
+		loading.add(artwork.id);
+		try {
+			const [result] = await resolveImages([artwork]);
+			if (result) resolved.set(artwork.id, result);
+		} finally {
+			loading.delete(artwork.id);
+		}
 	}
 
 	function show(key: string, artwork: WallArtwork): void {
@@ -125,7 +142,7 @@
 
 	function dateOf(mark: Mark<WallArtwork>): string | undefined {
 		if (!mark.item.date) return undefined;
-		return `${mark.cutBefore ? '‹ ' : ''}${mark.item.date}${mark.cutAfter ? ' ›' : ''}`;
+		return cutLabel(mark.item.date, mark.cutBefore, mark.cutAfter);
 	}
 
 	function beside(at: number, room: number, size: number): number {

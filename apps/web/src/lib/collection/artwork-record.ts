@@ -90,8 +90,18 @@ function names(values: string[]): string[] {
 	return values.map((value) => value.trim()).filter((value) => value !== '');
 }
 
-function isYear(year: number): boolean {
-	return Number.isInteger(year) && year >= 1;
+export const EARLIEST_YEAR = 3_000_000;
+export const LATEST_YEAR = 2500;
+
+export function yearError(year: number, beforeCommonEra: boolean): string | undefined {
+	if (!Number.isInteger(year) || year < 1) return m.artworkErrors.yearInvalid;
+	if (beforeCommonEra && year > EARLIEST_YEAR) return m.artworkErrors.yearTooEarly;
+	if (!beforeCommonEra && year > LATEST_YEAR) return m.artworkErrors.yearTooLate;
+	return undefined;
+}
+
+export function isStoredYear(year: number): boolean {
+	return Number.isInteger(year) && year !== 0 && year >= -EARLIEST_YEAR && year <= LATEST_YEAR;
 }
 
 export type YearsInput = Pick<
@@ -116,13 +126,14 @@ export function validateYears(input: YearsInput): YearsErrors {
 		if (input.yearFrom !== null) errors.yearTo = m.artworkErrors.spanEndRequired;
 		else if (input.toBeforeCommonEra || input.yearApproximate)
 			errors.yearTo = m.artworkErrors.yearRequired;
-	} else if (!isYear(input.yearTo)) {
-		errors.yearTo = m.artworkErrors.yearInvalid;
+	} else {
+		const error = yearError(input.yearTo, input.toBeforeCommonEra);
+		if (error) errors.yearTo = error;
 	}
 	if (input.yearFrom === null) {
 		if (input.fromBeforeCommonEra) errors.yearFrom = m.artworkErrors.yearRequired;
-	} else if (!isYear(input.yearFrom)) {
-		errors.yearFrom = m.artworkErrors.yearInvalid;
+	} else if (yearError(input.yearFrom, input.fromBeforeCommonEra)) {
+		errors.yearFrom = yearError(input.yearFrom, input.fromBeforeCommonEra);
 	} else if (input.yearTo !== null && !errors.yearTo && !endsInOrder(input)) {
 		errors.yearTo = m.artworkErrors.spanOrder;
 	}

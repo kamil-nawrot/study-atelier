@@ -42,6 +42,15 @@ describe('validateAuthorForm', () => {
 		});
 	});
 
+	it('rejects a year beyond 3 000 000 BCE or after 2500', () => {
+		expect(
+			validateAuthorForm({ ...form, birthYear: '4000000', birthBeforeCommonEra: true })
+		).toEqual({ birthYear: m.artworkErrors.yearTooEarly });
+		expect(validateAuthorForm({ ...form, deathYear: '2600' })).toEqual({
+			deathYear: m.artworkErrors.yearTooLate
+		});
+	});
+
 	it('rejects a death before the birth, across the turn of the eras too', () => {
 		expect(validateAuthorForm({ ...form, birthYear: '1519', deathYear: '1452' })).toEqual({
 			deathYear: m.valueForm.lifeYearsOrder
