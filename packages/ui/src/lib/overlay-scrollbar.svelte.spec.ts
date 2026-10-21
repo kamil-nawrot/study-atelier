@@ -77,6 +77,19 @@ describe('overlayScrollbar', () => {
 		expect(area().scrollTop).toBe(height - area().clientHeight);
 	});
 
+	it('keeps its thumb when a list empties and fills again', async () => {
+		const { rerender } = await render(OverlayScrollArea);
+		await nextFrame();
+
+		await rerender({ rows: 0 });
+		await nextFrame();
+		await rerender({ rows: 40 });
+		await nextFrame();
+
+		expect(thumb()?.hidden).toBe(false);
+		expect(thumb()?.style.height).toBe('25px');
+	});
+
 	it('draws no thumb when the content fits', async () => {
 		await render(OverlayScrollArea, { rows: 3 });
 		await nextFrame();

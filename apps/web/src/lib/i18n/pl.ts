@@ -934,6 +934,8 @@ export const pl = {
 			`${count} ${plural(count, { one: 'wydarzenie', few: 'wydarzenia', many: 'wydarzeń' })} poza widokiem. Przybliż, żeby je zobaczyć.`,
 		now: (year: string, parts: string[]): string => [year, ...parts].join(' · '),
 		nowEvents: (events: string): string => `w tym czasie: ${events}`,
+		nowArtworks: (titles: string, more: number): string =>
+			`dzieła: ${titles}${more > 0 ? ` (+${more})` : ''}`,
 		readingArtworks: 'W linii czytania:',
 		readingArtworksNone: 'W linii czytania nie ma dzieł.',
 		readingMore: (count: number): string => `(+${count})`,

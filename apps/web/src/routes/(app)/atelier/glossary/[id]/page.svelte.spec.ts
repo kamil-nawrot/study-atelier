@@ -8,8 +8,7 @@ import type { Mention } from '#lib/collection/mentions.ts';
 import type { GlossaryEntry } from '#lib/glossary/types.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import { testEntry, testGlossary } from '#lib/testing/glossary.ts';
-import { emptyBackState } from '#lib/navigation/back-places.ts';
-import { replaceBackState } from '#lib/navigation/back.svelte.ts';
+import { setBackPlace } from '#lib/navigation/back.svelte.ts';
 import GlossaryEntryPage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -41,10 +40,7 @@ function renderEntry(
 }
 
 function cameFrom(name: string, path: string): void {
-	replaceBackState({
-		...emptyBackState(),
-		back: { '/atelier/glossary/a-tympanum': { name, path } }
-	});
+	setBackPlace({ name, path });
 }
 
 describe('glossary entry page', () => {
@@ -235,7 +231,7 @@ describe('glossary entry page', () => {
 
 	it('links to the top of the glossary when the entry was opened from elsewhere', async () => {
 		const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
-		replaceBackState(emptyBackState());
+		setBackPlace(undefined);
 		renderEntry();
 		let followed = false;
 		const stop = (event: Event): void => {

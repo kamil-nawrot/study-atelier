@@ -2,8 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto, preloadData } from '$app/navigation';
-import { emptyBackState } from '#lib/navigation/back-places.ts';
-import { replaceBackState } from '#lib/navigation/back.svelte.ts';
+import { setBackPlace } from '#lib/navigation/back.svelte.ts';
 import { setFavourite } from '#lib/collection/favourite.ts';
 import { moveToTrash } from '#lib/collection/trash.ts';
 import type { ArtworkRecord, LoadArtworkResult } from '#lib/collection/types.ts';
@@ -289,10 +288,7 @@ describe('artwork page', () => {
 
 	it('goes back through history to the place it was opened from, named after it', async () => {
 		const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
-		replaceBackState({
-			...emptyBackState(),
-			back: { '/atelier/42': { name: 'Kalendarium', path: '/atelier/timeline' } }
-		});
+		setBackPlace({ name: 'Kalendarium', path: '/atelier/timeline' });
 		renderPage();
 
 		const link = page.getByRole('banner').getByRole('link', { name: 'Kalendarium' });
@@ -301,7 +297,7 @@ describe('artwork page', () => {
 
 		expect(back).toHaveBeenCalled();
 		back.mockRestore();
-		replaceBackState(emptyBackState());
+		setBackPlace(undefined);
 	});
 
 	it('links to the previous and next artwork of the wall the learner came from', async () => {

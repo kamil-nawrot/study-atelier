@@ -1,12 +1,10 @@
 export type Place = {
 	name: string;
 	path: string;
+	previous?: Place;
 };
 
-export type BackState = {
-	names: Record<string, Place>;
-	back: Record<string, Place>;
-};
+export type Names = Record<string, Place>;
 
 export type PageStop = {
 	key: string;
@@ -19,57 +17,47 @@ export type Arrival = {
 	to: PageStop;
 };
 
-const STORAGE_KEY = 'study-atelier:back-places';
+const STORAGE_KEY = 'study-atelier:place-names';
 const CARRY_ROUTES = new Set(['/(app)/atelier/[number]']);
 const FORM_ROUTE = /\/(new|edit)$/;
 
-export function emptyBackState(): BackState {
-	return { names: {}, back: {} };
+function isForm(route: string | null): boolean {
+	return route !== null && FORM_ROUTE.test(route);
 }
 
-function without(record: Record<string, Place>, key: string): Record<string, Place> {
-	return Object.fromEntries(Object.entries(record).filter(([entry]) => entry !== key));
-}
-
-export function arrive(state: BackState, arrival: Arrival): BackState {
+export function arrive(
+	names: Names,
+	current: Place | undefined,
+	arrival: Arrival
+): Place | undefined {
 	const { type, from, to } = arrival;
-	if (type === 'popstate') return state;
-	if (!from || type === 'enter') return { ...state, back: without(state.back, to.key) };
-	if (from.route && FORM_ROUTE.test(from.route)) return state;
-	if (from.key === to.key) return state;
-	const carried = from.route === to.route && to.route !== null && CARRY_ROUTES.has(to.route);
-	const place = carried ? state.back[from.key] : state.names[from.key];
-	return {
-		...state,
-		back: place ? { ...state.back, [to.key]: place } : without(state.back, to.key)
-	};
+	if (type === 'popstate' || type === 'enter' || !from) return undefined;
+	if (isForm(from.route)) return current?.previous;
+	if (from.key === to.key) return current;
+	if (from.route === to.route && to.route !== null && CARRY_ROUTES.has(to.route)) return current;
+	const place = names[from.key];
+	if (!place) return undefined;
+	return isForm(to.route) ? { ...place, previous: current } : place;
 }
 
-export function named(state: BackState, key: string, place: Place): BackState {
-	const known = state.names[key];
-	if (known?.name === place.name && known.path === place.path) return state;
-	return { ...state, names: { ...state.names, [key]: place } };
+export function named(names: Names, key: string, place: Place): Names {
+	const known = names[key];
+	if (known?.name === place.name && known.path === place.path) return names;
+	return { ...names, [key]: place };
 }
 
-export function backPlace(state: BackState, key: string): Place | undefined {
-	return state.back[key];
-}
-
-export function loadBackState(storage: Pick<Storage, 'getItem'> = sessionStorage): BackState {
+export function loadNames(storage?: Pick<Storage, 'getItem'>): Names {
 	try {
-		const saved = JSON.parse(storage.getItem(STORAGE_KEY) ?? 'null') as BackState | null;
-		return saved?.names && saved.back ? saved : emptyBackState();
+		const saved = JSON.parse((storage ?? sessionStorage).getItem(STORAGE_KEY) ?? 'null') as unknown;
+		return saved !== null && typeof saved === 'object' ? (saved as Names) : {};
 	} catch {
-		return emptyBackState();
+		return {};
 	}
 }
 
-export function saveBackState(
-	state: BackState,
-	storage: Pick<Storage, 'setItem'> = sessionStorage
-): void {
+export function saveNames(names: Names, storage?: Pick<Storage, 'setItem'>): void {
 	try {
-		storage.setItem(STORAGE_KEY, JSON.stringify(state));
+		(storage ?? sessionStorage).setItem(STORAGE_KEY, JSON.stringify(names));
 	} catch {
 		return;
 	}

@@ -99,6 +99,7 @@ function install(
 
 	const place = (): void => {
 		frame = 0;
+		if (!thumb.isConnected) host.appendChild(thumb);
 		const geometry = thumbGeometry(target.view(), target.full(), target.position());
 		thumb.hidden = geometry === null;
 		if (!geometry) return;

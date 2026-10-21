@@ -163,13 +163,32 @@
 		now.length > 0 ? [m.timeline.nowEvents(now.map((event) => event.name).join(', '))] : []
 	);
 
+	let atReading = $derived(now.length > 0 || nowArtworks.length > 0);
 	let nowText = $derived(
-		nowParts.length > 0 ? m.timeline.now(m.atelier.year(readingYear, false), nowParts) : ''
+		atReading ? m.timeline.now(m.atelier.year(readingYear, false), nowParts) : ''
+	);
+	let spokenText = $derived(
+		atReading
+			? m.timeline.now(m.atelier.year(readingYear, false), [
+					...nowParts,
+					...(nowArtworks.length > 0
+						? [
+								m.timeline.nowArtworks(
+									nowArtworks
+										.slice(0, READING_TITLES)
+										.map((artwork) => artwork.title)
+										.join(', '),
+									nowArtworks.length - READING_TITLES
+								)
+							]
+						: [])
+				])
+			: ''
 	);
 	let spoken = $state('');
 
 	$effect(() => {
-		const text = nowText;
+		const text = spokenText;
 		const timer = setTimeout(() => (spoken = text), SPOKEN_DELAY_MS);
 		return () => clearTimeout(timer);
 	});
@@ -520,8 +539,11 @@
 		display: flex;
 		align-items: baseline;
 		gap: var(--spacing-2);
+		box-sizing: border-box;
 		min-width: 0;
-		height: var(--line-height-md);
+		height: calc(var(--line-height-md) + 2 * var(--spacing-2));
+		margin: calc(-1 * var(--spacing-2));
+		padding: var(--spacing-2);
 		overflow: hidden;
 		white-space: nowrap;
 	}

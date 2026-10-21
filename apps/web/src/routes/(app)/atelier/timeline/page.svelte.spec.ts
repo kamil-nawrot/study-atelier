@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
+import '@study-atelier/ui/styles.css';
 import { render } from 'vitest-browser-svelte';
 import type { WallArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
@@ -546,6 +547,62 @@ describe('timeline page', () => {
 			.element(page.getByRole('button', { name: /Wojna trzydziestoletnia/ }))
 			.not.toBeInTheDocument();
 		await expect.element(page.getByText(/w tym czasie/)).not.toBeInTheDocument();
+	});
+
+	it('names the year and speaks the artworks at the reading line when no event is there', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		renderTimeline([
+			testArtwork(1, 'Straż nocna', { yearFrom: 1600, yearTo: 1700, date: '1600–1700' })
+		]);
+		const live = (): string =>
+			document.querySelector('[aria-live="polite"].visually-hidden')?.textContent ?? '';
+
+		await press(page.getByRole('button', { name: m.atelier.filters.button }));
+		await press(
+			page
+				.getByRole('complementary', { name: m.atelier.filters.title })
+				.getByRole('switch', { name: m.timeline.filters.readingArtworks })
+		);
+		await press(page.getByRole('button', { name: 'Stulecie', exact: true }));
+
+		await expect
+			.element(page.getByRole('button', { name: 'Straż nocna', exact: true }))
+			.toBeVisible();
+		expect(document.querySelector('.now')?.textContent).toBe('1640');
+		await vi.waitFor(() =>
+			expect(live()).toBe(m.timeline.now('1640', [m.timeline.nowArtworks('Straż nocna', -2)]))
+		);
+	});
+
+	it('leaves room around the artworks at the reading line for the focus outline', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		renderTimeline([
+			testArtwork(1, 'Straż nocna', { yearFrom: 1600, yearTo: 1700, date: '1600–1700' })
+		]);
+		await press(page.getByRole('button', { name: m.atelier.filters.button }));
+		await press(
+			page
+				.getByRole('complementary', { name: m.atelier.filters.title })
+				.getByRole('switch', { name: m.timeline.filters.readingArtworks })
+		);
+		await press(page.getByRole('button', { name: 'Stulecie', exact: true }));
+		const title = page.getByRole('button', { name: 'Straż nocna', exact: true });
+		await expect.element(title).toBeVisible();
+
+		const row = document.querySelector('.reading-artworks') as HTMLElement;
+		const outline = title.element().getBoundingClientRect();
+		const box = row.getBoundingClientRect();
+		const reach =
+			2 *
+				parseFloat(
+					getComputedStyle(document.documentElement).getPropertyValue('--border-width-base')
+				) +
+			parseFloat(
+				getComputedStyle(document.documentElement).getPropertyValue('--border-width-hairline')
+			);
+		expect(outline.top - reach).toBeGreaterThanOrEqual(box.top);
+		expect(outline.bottom + reach).toBeLessThanOrEqual(box.bottom);
+		expect(outline.left - reach).toBeGreaterThanOrEqual(box.left);
 	});
 
 	it('forgets a chosen event when the events are hidden', async () => {
