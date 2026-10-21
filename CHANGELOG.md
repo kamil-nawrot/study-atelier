@@ -2,6 +2,35 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.7.1] - 2026-10-21
+
+The way back now leads where the learner came from, scrollbars no longer move the page, and free reviews draw a new set of artworks every time.
+
+### Added
+
+- The arrow in the top bar of an artwork, a value or a glossary entry goes back to the place the learner came from and names it ("← Kalendarium", "← Leonardo da Vinci"), also after the browser's back and forward buttons; a page opened directly links to its list. The modules have no back arrow, and the menu moves between them.
+- The wall, Słowniczek, Kartoteka and Kalendarium keep the learner's place, search and filters when the learner comes back to them.
+- On a larger screen, thin overlay scrollbars in the app's colours replace the native ones, so they take no space and never shift the content; they widen under the pointer and while dragged.
+
+### Changed
+
+- Every free review round draws up to 20 of the artworks already reviewed at random, so no two rounds are the same; the caption reads "Dodatkowa runda losowo wybranych dzieł, które już powtarzasz.".
+- The artworks at the reading line of Kalendarium stand in a row under the timeline, the nearest first, so the timeline no longer jumps while panning.
+- The review quizzes call the artwork "dzieło" ("W jakim stylu powstało to dzieło?"), because the collection also holds buildings and sculptures.
+- The wall's address names its filters in English (`era`, `style`, `favourites`, …); an old or unknown parameter is ignored instead of breaking the page.
+- Every form has the width of the artwork form, the event form included; the top bar keeps the way back on the left and the actions on the right.
+- Internal: shared top bar pieces and a not-found block in the component library, a Markdown check in CI, and fixes from the code review of the version.
+
+### Fixed
+
+- The review counter in the menu now updates after a review round and after a restore from the trash.
+- Going back from a glossary entry returns to the place in the list instead of its top.
+- A panel with an overlay scrollbar no longer scrolls past its content.
+
+### Migrations run on production
+
+One migration runs on production with this release and changes no existing data: `draw_free_review_rounds_at_random` replaces `review_session` with the same signature, drawing free rounds at random, so the calls of the previous version keep working.
+
 ## [0.7.0] - 2026-10-21
 
 A new module, "Kalendarium", shows the learner's artworks and their own historical events at true scale on a timeline, one era at a time.
@@ -349,3 +378,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.6.2]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.6.2
 [0.6.3]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.6.3
 [0.7.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.7.0
+[0.7.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.7.1
