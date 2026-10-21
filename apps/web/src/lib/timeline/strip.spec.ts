@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { stripLayout, stripPosition } from './strip.ts';
-import { eras } from './time.ts';
+import { eras, timeOf } from './time.ts';
 
 const all = eras(2026);
 const width = (segment: { from: number; to: number }): number => segment.to - segment.from;
@@ -12,6 +12,11 @@ describe('stripLayout', () => {
 		expect(width(segments[1]) / width(segments[2])).toBeCloseTo((476 + 2999) / (1492 - 476));
 		expect(segments[0].shortened).toBe(true);
 		expect(segments.at(-1)?.to).toBeCloseTo(1240);
+	});
+
+	it('keeps the strip the same however early prehistory starts', () => {
+		const longer = eras(2026, timeOf(-200000));
+		expect(stripLayout(longer, 1240, 40)).toEqual(stripLayout(all, 1240, 40));
 	});
 
 	it('makes no era narrower than the strip is high', () => {

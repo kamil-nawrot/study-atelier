@@ -23,12 +23,14 @@
 	import type { ArtworkLane, TimelineEvent, TimelineFilter } from '../types.ts';
 	import { eraOfYear, rememberEra } from '../start.ts';
 	import {
+		earliestTime,
 		eraOf,
 		eras,
 		overlaps,
 		spanOfYears,
 		timeOf,
 		yearAt,
+		type Era,
 		type TimeSpan,
 		type View
 	} from '../time.ts';
@@ -83,13 +85,12 @@
 	const LABEL_FONT = 14;
 
 	const STEP_ANIMATION_MS = 400;
-	const allEras = eras();
-
-	const start = untrack(() =>
-		initialFocus
-			? focusView(eraOf(initialEra), initialFocus)
-			: { step: 'era' as StepKey, view: eraView(eraOf(initialEra)) }
-	);
+	const start = untrack(() => {
+		const first = eraOf(initialEra, undefined, earliestTime([...artworks, ...events]));
+		return initialFocus
+			? focusView(first, initialFocus)
+			: { step: 'era' as StepKey, view: eraView(first) };
+	});
 
 	let code = $state<EraCode>(untrack(() => initialEra));
 	let step = $state<StepKey>(start.step);
@@ -104,7 +105,8 @@
 	let measure: CanvasRenderingContext2D | null = null;
 	let frame = 0;
 
-	let era = $derived(eraOf(code));
+	let allEras = $derived(eras(undefined, earliestTime([...artworks, ...events])));
+	let era = $derived(allEras.find((candidate) => candidate.code === code) as Era);
 	let steps = $derived(availableSteps(era));
 	let index = $derived(ERA_CODES.indexOf(code));
 	let previous = $derived(index > 0 ? ERA_CODES[index - 1] : undefined);
@@ -300,7 +302,7 @@
 		filter = forOtherEra(filter);
 		rememberEra(next);
 		onerachange?.(next);
-		showNow(eraView(eraOf(next)));
+		showNow(eraView(allEras.find((candidate) => candidate.code === next) as Era));
 	}
 
 	onDestroy(stopAnimation);
