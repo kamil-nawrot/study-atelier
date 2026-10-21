@@ -1,19 +1,20 @@
-<script lang="ts">
+<script generics="T extends WikipediaArticle" lang="ts">
 	import { Alert, Button, Dialog } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
-	import { glossaryCategoryName } from '../categories.ts';
-	import type { GlossaryCategory, WikipediaArticle } from '../types.ts';
+	import type { WikipediaArticle } from '../types.ts';
 
 	type Status = 'searching' | 'found' | 'none' | 'failed';
 
 	type Props = {
 		open: boolean;
 		status: Status;
-		articles: WikipediaArticle[];
+		articles: T[];
 		currentTitle?: string;
-		name: string;
-		category: GlossaryCategory;
-		onuse: (article: WikipediaArticle) => void;
+		description: string;
+		noneText: string;
+		failedText: string;
+		detail?: (article: T) => string;
+		onuse: (article: T) => void;
 	};
 
 	let {
@@ -21,8 +22,10 @@
 		status,
 		articles,
 		currentTitle,
-		name,
-		category,
+		description,
+		noneText,
+		failedText,
+		detail,
 		onuse
 	}: Props = $props();
 
@@ -39,14 +42,7 @@
 	});
 </script>
 
-<Dialog
-	description={m.glossary.articles.description(
-		name.trim(),
-		glossaryCategoryName(category).toLocaleLowerCase('pl')
-	)}
-	title={m.glossary.articles.title}
-	bind:open
->
+<Dialog {description} title={m.glossary.articles.title} bind:open>
 	{#if open}
 		{#if status === 'searching'}
 			<p class="status">{m.glossary.articles.searching}</p>
@@ -63,6 +59,9 @@
 						/>
 						<span class="text">
 							<span class="title">{article.title}</span>
+							{#if detail}
+								<span class="detail">{detail(article)}</span>
+							{/if}
 							<span class="extract">{article.extract}</span>
 						</span>
 					</label>
@@ -70,7 +69,7 @@
 			</div>
 		{:else}
 			<Alert tone={status === 'failed' ? 'danger' : 'warning'}>
-				{status === 'failed' ? m.glossary.form.definitionFailed : m.glossary.form.definitionNone}
+				{status === 'failed' ? failedText : noneText}
 			</Alert>
 		{/if}
 	{/if}
@@ -128,6 +127,12 @@
 
 	.title {
 		font-weight: var(--font-weight-medium);
+	}
+
+	.detail {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
+		font-variant-numeric: tabular-nums;
 	}
 
 	.extract {

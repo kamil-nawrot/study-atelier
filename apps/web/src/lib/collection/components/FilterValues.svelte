@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import { SearchField, ToggleTag } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { normalizeForSearch } from '../search.ts';
@@ -12,9 +13,23 @@
 		onchoose: (value: string) => void;
 		searchLabel?: string;
 		limit?: number;
+		heading?: 'h3' | 'h4';
+		disabled?: (value: string) => boolean;
+		mark?: Snippet<[string]>;
 	};
 
-	let { title, options, chosen, name, onchoose, searchLabel, limit }: Props = $props();
+	let {
+		title,
+		options,
+		chosen,
+		name,
+		onchoose,
+		searchLabel,
+		limit,
+		heading = 'h3',
+		disabled,
+		mark
+	}: Props = $props();
 
 	let query = $state('');
 	let expanded = $state(false);
@@ -35,7 +50,7 @@
 
 {#if options.length > 0}
 	<section>
-		<h3>{title}</h3>
+		<svelte:element this={heading} class="title">{title}</svelte:element>
 		{#if searchLabel}
 			<SearchField compact label={searchLabel} placeholder={searchLabel} bind:value={query} />
 		{/if}
@@ -44,9 +59,11 @@
 				<li>
 					<ToggleTag
 						count={option.count}
+						disabled={disabled?.(option.value)}
 						onclick={() => onchoose(option.value)}
 						pressed={chosen.includes(option.value)}
 					>
+						{@render mark?.(option.value)}
 						{name(option.value)}
 					</ToggleTag>
 				</li>
@@ -70,7 +87,7 @@
 		gap: var(--spacing-3);
 	}
 
-	h3 {
+	.title {
 		font-size: var(--font-size-sm);
 		font-weight: var(--font-weight-medium);
 		line-height: var(--line-height-sm);

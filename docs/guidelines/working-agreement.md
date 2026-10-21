@@ -20,6 +20,8 @@ Mockups (for example from a design session in Claude Projects) show layout and p
 
 Instead of a separate mockup, a screen can be prototyped in code on its branch once the owner has agreed its content and texts: the owner runs it locally and asks for changes, screenshots are not needed for this step, and the ADR is written after the owner accepts the result.
 
+In a spike, a design can also be tried as an interactive prototype published as a private Artifact, which the owner opens on a phone and a larger screen and which is changed version by version on the owner's feedback. The prototype stays outside the repository and is linked in the Linear issue. Its data is sample data shaped like the target collection and marked as such. Its images are placeholders, because an Artifact cannot load images from other hosts. The decisions taken on it are recorded in the issue as they are made and then in an ADR. Where the prototype differs from the ADR, the ADR wins.
+
 ## Pace
 
 The project goes one step at a time. Claude does not jump ahead to later steps (for example writing application code before requirements are agreed).

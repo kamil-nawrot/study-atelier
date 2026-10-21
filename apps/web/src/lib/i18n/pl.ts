@@ -154,6 +154,7 @@ export const pl = {
 		atelier: 'Atelier',
 		cardIndex: 'Kartoteka',
 		glossary: 'Słowniczek',
+		timeline: 'Kalendarium',
 		review: 'Powtórki',
 		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
 		trash: 'Kosz',
@@ -563,6 +564,8 @@ export const pl = {
 		spanEndRequired: 'Wpisz rok końcowy.',
 		spanOrder: 'Rok końcowy nie może być wcześniejszy niż początkowy.',
 		yearInvalid: 'Rok to liczba całkowita od 1 w górę. Dla lat przed naszą erą zaznacz „p.n.e.”.',
+		yearTooEarly: 'Rok przed naszą erą może sięgać najwyżej 3 000 000 p.n.e.',
+		yearTooLate: 'Rok nie może być późniejszy niż 2500.',
 		invalid: 'Niektóre pola się nie zgadzają. Sprawdź je i zapisz jeszcze raz.',
 		conflict:
 			'Nie udało się zapisać, bo dane zmieniły się w międzyczasie. Odśwież stronę i spróbuj jeszcze raz.',
@@ -844,6 +847,121 @@ export const pl = {
 		errors: {
 			notFound: 'Nie ma takiego pojęcia w słowniczku. Może zostało usunięte.',
 			invalid: 'Nie udało się zapisać pojęcia. Sprawdź nazwę i definicję.',
+			network: 'Nie udało się połączyć. Sprawdź internet i spróbuj jeszcze raz.'
+		}
+	},
+	timeline: {
+		title: 'Kalendarium',
+		lead: 'Twoje dzieła i wydarzenia w prawdziwej skali czasu, epoka po epoce.',
+		add: 'Dodaj wydarzenie',
+		addShort: 'Dodaj',
+		saved: (name: string): string => `Zapisano wydarzenie „${name}”.`,
+		form: {
+			newTitle: 'Nowe wydarzenie',
+			editTitle: 'Edycja wydarzenia',
+			goBack: 'Wróć do kalendarium',
+			name: 'Nazwa',
+			namePlaceholder: 'Np. wojny napoleońskie, chrzest Polski',
+			nameRequired: 'Wpisz nazwę wydarzenia.',
+			year: 'Rok',
+			spanTitle: 'Lata',
+			yearRequired: 'Wpisz rok wydarzenia.',
+			description: 'Opis',
+			descriptionPlaceholder: 'Co warto o nim pamiętać',
+			cancel: 'Anuluj',
+			save: 'Zapisz',
+			saving: 'Zapisywanie…',
+			errorTitle: 'Nie udało się zapisać wydarzenia',
+			discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.',
+			notFoundTitle: 'Nie ma takiego wydarzenia',
+			loadErrorTitle: 'Nie udało się wczytać wydarzenia',
+			sourcePrefix: 'Na podstawie: Wikipedia, ',
+			pickArticle: 'Wybierz inny artykuł',
+			removeSource: 'Usuń źródło'
+		},
+		articles: {
+			description: (name: string): string =>
+				`Wyniki z Wikipedii dla „${name}”. Wybierz ten, o który ci chodzi.`,
+			none: 'Wikipedia nie zna tego wydarzenia. Wpisz daty sam.',
+			failed:
+				'Nie udało się połączyć z Wikipedią. Możesz wpisać daty sam albo spróbować jeszcze raz.'
+		},
+		replaceConfirm: {
+			title: 'Zastąpić Twoje daty i opis?',
+			description: 'Daty albo opis mają już Twoje zmiany. Dane z nowego artykułu je zastąpią.',
+			keep: 'Zostaw moje',
+			replace: 'Zastąp'
+		},
+		loadErrorTitle: 'Nie udało się wczytać kalendarium',
+		strip: 'Pasek epok',
+		previous: (era: string): string => `Poprzednia epoka: ${era}`,
+		next: (era: string): string => `Następna epoka: ${era}`,
+		steps: {
+			label: 'Skala',
+			era: 'Epoka',
+			'10000': '10 tysiącleci',
+			'1000': 'Tysiąclecie',
+			'300': 'Trzy wieki',
+			'100': 'Stulecie',
+			'30': 'Pokolenie'
+		},
+		zoomIn: 'Przybliż o krok',
+		zoomOut: 'Oddal o krok',
+		stage: 'Oś czasu. Strzałki przesuwają czas, plus i minus zmieniają skalę o krok.',
+		stageGroup: 'Oś czasu',
+		card: {
+			event: 'Wydarzenie',
+			period: 'Okres',
+			length: (years: number): string =>
+				`${years} ${plural(years, { one: 'rok', few: 'lata', many: 'lat' })}`,
+			artworksOfTime: 'Dzieła z tego czasu',
+			noArtworks: 'W tym czasie nie masz żadnego dzieła.',
+			showWhole: 'Pokaż cały okres na osi',
+			sourcePrefix: 'Na podstawie: Wikipedia, ',
+			edit: 'Edytuj',
+			delete: 'Usuń'
+		},
+		deleteConfirm: {
+			title: (name: string): string => `Usunąć wydarzenie „${name}”?`,
+			description: 'Zniknie z kalendarium. Żadne dzieło się nie zmieni.',
+			back: 'Wróć',
+			confirm: 'Usuń',
+			deleting: 'Usuwanie…'
+		},
+		deleted: (name: string): string => `Usunięto wydarzenie „${name}”.`,
+		noEvents: 'Nie masz jeszcze żadnych dodanych wydarzeń',
+		hiddenEvents: (count: number): string =>
+			`${count} ${plural(count, { one: 'wydarzenie', few: 'wydarzenia', many: 'wydarzeń' })} poza widokiem. Przybliż, żeby je zobaczyć.`,
+		now: (year: string, parts: string[]): string => [year, ...parts].join(' · '),
+		nowEvents: (events: string): string => `w tym czasie: ${events}`,
+		nowArtworks: (titles: string, more: number): string =>
+			`dzieła: ${titles}${more > 0 ? ` (+${more})` : ''}`,
+		lane: (name: string, count: number): string => `${name} · ${count}`,
+		filters: {
+			lanes: 'Okresy i style',
+			lanesHint: (era: string): string => `Wybierz maksymalnie 5 z epoki ${era}.`,
+			lanesFull: 'Wybrano 5. Odznacz któryś, żeby wybrać inny.',
+			periods: 'Okresy',
+			styles: 'Style',
+			types: 'Typ dzieła',
+			authors: 'Autor',
+			searchAuthors: 'Szukaj autora',
+			view: 'Widok',
+			events: 'Wydarzenia',
+			readingArtworks: 'Dzieła w linii czytania',
+			empty: 'W tej epoce nie ma dzieł, które pasują do filtrów.'
+		},
+		zones: {
+			events: 'Wydarzenia',
+			artworks: 'Dzieła'
+		},
+		century: (numeral: string, beforeCommonEra: boolean): string =>
+			`${numeral} w.${beforeCommonEra ? ' p.n.e.' : ''}`,
+		millennium: (numeral: string, beforeCommonEra: boolean): string =>
+			`${numeral} tysiąclecie${beforeCommonEra ? ' p.n.e.' : ''}`,
+		errors: {
+			notFound: 'Nie ma takiego wydarzenia w kalendarium. Może zostało usunięte.',
+			invalid: 'Nie udało się zapisać wydarzenia. Sprawdź nazwę i datę.',
 			network: 'Nie udało się połączyć. Sprawdź internet i spróbuj jeszcze raz.'
 		}
 	},

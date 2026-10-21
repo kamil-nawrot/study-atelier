@@ -20,7 +20,11 @@
 	import { UnsavedChanges } from '#lib/collection/unsaved-changes.svelte.ts';
 	import { valuePath } from '#lib/collection/value-pages.ts';
 	import { resolve } from '$app/paths';
-	import { glossaryCategoryTiles, isGlossaryCategory } from '../categories.ts';
+	import {
+		glossaryCategoryName,
+		glossaryCategoryTiles,
+		isGlossaryCategory
+	} from '../categories.ts';
 	import { saveGlossaryEntry } from '../glossary-data.ts';
 	import {
 		authorNamed,
@@ -498,10 +502,14 @@
 
 {#if form.category}
 	<ArticleDialog
-		name={form.name}
 		{articles}
-		category={form.category}
 		currentTitle={form.source?.title}
+		description={m.glossary.articles.description(
+			form.name.trim(),
+			glossaryCategoryName(form.category).toLocaleLowerCase('pl')
+		)}
+		failedText={m.glossary.form.definitionFailed}
+		noneText={m.glossary.form.definitionNone}
 		onuse={useArticle}
 		status={status === 'idle' ? 'searching' : status === 'found' ? 'found' : status}
 		bind:open={articlesOpen}
