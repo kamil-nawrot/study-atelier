@@ -45,7 +45,7 @@ Chosen: own fields defined by each learner, list values in the existing category
 ### Fields
 
 - Own fields belong to artworks only. Authors and other values get none.
-- A field has a name, an optional description of at most 150 characters, a kind and a place in the order. Every field is optional on an artwork.
+- A field has a name of at most 60 characters, an optional description of at most 150 characters, a kind and a place in the order. Every field is optional on an artwork.
 - Kinds, fixed when the field is created:
   - "Tekst": one line of at most 200 characters.
   - "Lista": values with suggestions, created while filling in an artwork as authors and styles are (R-9, R-25). One or several values per artwork, chosen when the field is created and fixed afterwards.
@@ -78,8 +78,8 @@ Chosen: own fields defined by each learner, list values in the existing category
 
 - `artwork_fields`: `id`, `owner_id`, `name`, `description`, `kind` (`text`, `list` or `flag`), `multiple` (only for a list), `position`, timestamps. Names are unique per learner ignoring letter case; the clash with built-in labels is checked in the app, which holds the labels in its i18n texts.
 - A list field has its own row in `categories`, whose code is the field's id. `categories` gets an optional `owner_id` (empty for the built-in categories) and a link to the field that is deleted with it; the read policy shows the built-in categories and the learner's own; the global uniqueness of `position` goes, because the order of own fields is kept in `artwork_fields`. Values of a list field are rows of `category_values` and `artwork_values` as for any category, and the database refuses a value in another learner's category.
-- `artwork_field_entries`: `artwork_id`, `field_id`, `owner_id`, and `text_value` or `flag` according to the field's kind. Foreign keys to the artwork and to the field, both with `owner_id`, delete the entries with either. A "Tak / nie" field has a row only when ticked.
-- `save_artwork` gets the list values in its existing `values_by_category`, keyed by the field's id, and the text and "Tak / nie" entries in a new argument, so an artwork is still saved in one transaction.
+- `artwork_field_entries`: `artwork_id`, `field_id`, `owner_id`, the field's kind and `text_value`. A "Tak / nie" field has a row without text only when ticked, a text field a row with its text. Foreign keys to the artwork and to the field (with `owner_id` and the kind, as the details tables of [ADR-0050](0050-store-value-pages-in-details-tables.md)) delete the entries with either and refuse an entry of the wrong kind.
+- `save_artwork` gets the list values in its existing `values_by_category`, keyed by the field's id, and the text and "Tak / nie" entries in a new argument, so an artwork is still saved in one transaction. It now replaces only the categories named in `values_by_category`, and leaves the entries alone when the new argument is not given, so a caller that does not know the own fields does not erase them.
 - The app no longer assumes that every category is one of five codes: values of other categories are the artwork's own fields.
 
 ### Consequences
