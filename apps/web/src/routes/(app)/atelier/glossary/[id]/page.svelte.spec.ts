@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { goto } from '$app/navigation';
+import { afterNavigate, goto } from '$app/navigation';
 import { m } from '#lib/i18n/index.ts';
 import { deleteGlossaryEntry } from '#lib/glossary/glossary-data.ts';
 import type { Mention } from '#lib/collection/mentions.ts';
@@ -17,7 +17,7 @@ const navigation = vi.hoisted(() => ({
 }));
 
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
-vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
+vi.mock('$app/navigation', () => ({ afterNavigate: vi.fn(), goto: vi.fn() }));
 vi.mock('#lib/glossary/glossary-data.ts', () => ({ deleteGlossaryEntry: vi.fn() }));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
@@ -36,6 +36,11 @@ function renderEntry(
 		data: { session: testSession(), entry: entry ?? undefined, ...failure },
 		params: { id: entry?.id ?? 'unknown' }
 	});
+}
+
+function cameFrom(route: string): void {
+	for (const [callback] of vi.mocked(afterNavigate).mock.calls)
+		callback({ from: { route: { id: route } } } as never);
 }
 
 describe('glossary entry page', () => {
@@ -200,5 +205,37 @@ describe('glossary entry page', () => {
 		renderEntry(null, { error: m.common.unexpectedError });
 
 		await expect.element(page.getByText(m.common.unexpectedError)).toBeVisible();
+	});
+
+	it('goes back to the list through history when the entry was opened from it', async () => {
+		const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
+		renderEntry();
+		cameFrom('/(app)/atelier/glossary');
+
+		(document.querySelector('a.back') as HTMLElement).click();
+
+		expect(back).toHaveBeenCalled();
+		back.mockRestore();
+	});
+
+	it('links to the top of the glossary when the entry was opened from elsewhere', async () => {
+		const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
+		renderEntry();
+		cameFrom('/(app)/atelier/glossary/[id]');
+		let followed = false;
+		const stop = (event: Event): void => {
+			followed = !event.defaultPrevented;
+			event.preventDefault();
+		};
+		window.addEventListener('click', stop);
+
+		const link = document.querySelector('a.back') as HTMLAnchorElement;
+		expect(link.getAttribute('href')).toBe('/atelier/glossary');
+		link.click();
+
+		window.removeEventListener('click', stop);
+		expect(followed).toBe(true);
+		expect(back).not.toHaveBeenCalled();
+		back.mockRestore();
 	});
 });
