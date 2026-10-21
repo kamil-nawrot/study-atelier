@@ -15,6 +15,13 @@ export type Era = TimeSpan & {
 	code: EraCode;
 };
 
+export type DatedItem = {
+	yearFrom: number | null;
+	yearTo: number | null;
+};
+
+const PREHISTORY_ROUNDING = 1000;
+
 const ERA_STARTS: Record<EraCode, number> = {
 	prehistory: -40000,
 	antiquity: -3000,
@@ -37,19 +44,35 @@ export function spanOfYears(yearFrom: number | null, yearTo: number): TimeSpan {
 	return { start: timeOf(yearFrom ?? yearTo), end: timeOf(yearTo) + 1 };
 }
 
-export function eras(currentYear: number = new Date().getFullYear()): Era[] {
+export function earliestTime(items: readonly DatedItem[]): number | undefined {
+	let earliest: number | undefined;
+	for (const item of items) {
+		if (item.yearTo === null) continue;
+		const start = spanOfYears(item.yearFrom, item.yearTo).start;
+		if (earliest === undefined || start < earliest) earliest = start;
+	}
+	return earliest;
+}
+
+function prehistoryStart(earliest: number | undefined): number {
+	const fixed = timeOf(ERA_STARTS.prehistory);
+	if (earliest === undefined || earliest >= fixed) return fixed;
+	return Math.floor(earliest / PREHISTORY_ROUNDING) * PREHISTORY_ROUNDING;
+}
+
+export function eras(currentYear: number = new Date().getFullYear(), earliest?: number): Era[] {
 	return ERA_CODES.map((code, index) => {
 		const next = ERA_CODES[index + 1];
 		return {
 			code,
-			start: timeOf(ERA_STARTS[code]),
+			start: index === 0 ? prehistoryStart(earliest) : timeOf(ERA_STARTS[code]),
 			end: next ? timeOf(ERA_STARTS[next]) : timeOf(currentYear) + 1
 		};
 	});
 }
 
-export function eraOf(code: EraCode, currentYear?: number): Era {
-	return eras(currentYear).find((era) => era.code === code) as Era;
+export function eraOf(code: EraCode, currentYear?: number, earliest?: number): Era {
+	return eras(currentYear, earliest).find((era) => era.code === code) as Era;
 }
 
 export function overlaps(span: TimeSpan, other: TimeSpan): boolean {

@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { eraOf, eras, overlaps, positionOf, spanOfYears, timeOf, yearAt } from './time.ts';
+import {
+	earliestTime,
+	eraOf,
+	eras,
+	overlaps,
+	positionOf,
+	spanOfYears,
+	timeOf,
+	yearAt
+} from './time.ts';
 
 describe('timeOf and yearAt', () => {
 	it('maps years without a year 0 onto a continuous time and back', () => {
@@ -14,6 +23,26 @@ describe('timeOf and yearAt', () => {
 	it('gives a span its whole end year', () => {
 		expect(spanOfYears(null, 1648)).toEqual({ start: 1648, end: 1649 });
 		expect(spanOfYears(-27, 180)).toEqual({ start: -26, end: 181 });
+	});
+});
+
+describe('earliestTime and the start of prehistory', () => {
+	it('finds the earliest start among dated items', () => {
+		expect(
+			earliestTime([
+				{ yearFrom: -500, yearTo: -400 },
+				{ yearFrom: null, yearTo: -43500 },
+				{ yearFrom: null, yearTo: null }
+			])
+		).toBe(timeOf(-43500));
+		expect(earliestTime([])).toBeUndefined();
+	});
+
+	it('starts prehistory at the oldest entry, a full millennium earlier, but never later than 40000 BCE', () => {
+		expect(eras(2026, timeOf(-43500))[0].start).toBe(-44000);
+		expect(eras(2026, timeOf(-200000))[0].start).toBe(-200000);
+		expect(eras(2026, timeOf(-500))[0].start).toBe(timeOf(-40000));
+		expect(eraOf('antiquity', 2026, timeOf(-43500)).start).toBe(timeOf(-3000));
 	});
 });
 

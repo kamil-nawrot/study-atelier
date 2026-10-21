@@ -559,4 +559,16 @@ describe('timeline page', () => {
 			.element(page.getByRole('region', { name: m.timeline.card.period }))
 			.not.toBeInTheDocument();
 	});
+
+	it('shows an artwork older than 40000 BCE in prehistory', async () => {
+		localStorage.setItem(ERA_KEY, 'prehistory');
+		renderTimeline([
+			testArtwork(1, 'Malowidła z Sulawesi', { yearTo: -43500, date: '43500 p.n.e.' })
+		]);
+
+		await expectEra('Prehistoria');
+		await expect
+			.element(page.getByRole('button', { name: 'Malowidła z Sulawesi, 43500 p.n.e.' }))
+			.toBeInTheDocument();
+	});
 });

@@ -21,7 +21,7 @@
 		timelineTags
 	} from '#lib/timeline/filter.ts';
 	import { eraOfYear, rememberEra, rememberedEra, startEra } from '#lib/timeline/start.ts';
-	import { eraOf, spanOfYears } from '#lib/timeline/time.ts';
+	import { earliestTime, eraOf, spanOfYears } from '#lib/timeline/time.ts';
 	import type { TimelineEvent } from '#lib/timeline/types.ts';
 	import type { PageProps } from './$types';
 
@@ -48,7 +48,12 @@
 		if (wide.current) dialogOpen = false;
 	});
 
-	let eraArtworks = $derived(artworksIn(data.artworks, eraOf(era)));
+	let eraArtworks = $derived(
+		artworksIn(
+			data.artworks,
+			eraOf(era, undefined, earliestTime([...data.artworks, ...data.events]))
+		)
+	);
 	let matching = $derived(applyTimelineFilter(eraArtworks, filter).length);
 	let filtering = $derived(!isEmptyTimelineFilter(filter));
 	let filtersLabel = $derived(
