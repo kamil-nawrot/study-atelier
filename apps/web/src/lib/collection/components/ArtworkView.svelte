@@ -11,7 +11,8 @@
 		NoImage,
 		type NoteLinks,
 		Popover,
-		Tag
+		Tag,
+		overlayScrollbar
 	} from '@study-atelier/ui';
 	import type { ResolvedPathname } from '$app/types';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes.svelte';
@@ -268,7 +269,7 @@
 	</figure>
 
 	<div class="side">
-		<aside class="panel" aria-label={m.artworkView.information}>
+		<aside class="panel" {@attach overlayScrollbar()} aria-label={m.artworkView.information}>
 			<div class="panel-top">
 				<span class="caption">{m.artworkView.information}</span>
 				<button

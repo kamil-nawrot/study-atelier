@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { overlayScrollbar } from '../overlay-scrollbar.ts';
 	import X from '@lucide/svelte/icons/x';
 	import type { Snippet } from 'svelte';
 	import { uiMessages } from '../messages';
@@ -83,7 +84,7 @@
 		{/if}
 	</header>
 	{#if children}
-		<div class="body">
+		<div class="body" {@attach overlayScrollbar()}>
 			{@render children()}
 		</div>
 	{/if}

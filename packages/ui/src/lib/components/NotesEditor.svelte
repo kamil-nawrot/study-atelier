@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { overlayScrollbar } from '../overlay-scrollbar.ts';
 	import { Editor } from '@tiptap/core';
 	import { Markdown } from '@tiptap/markdown';
 	import StarterKit from '@tiptap/starter-kit';
@@ -308,6 +309,7 @@
 				bind:this={listElement}
 				id={listId}
 				class="list"
+				{@attach overlayScrollbar()}
 				aria-label={messages.linkSuggestions}
 				hidden={!suggestion}
 				role="listbox"

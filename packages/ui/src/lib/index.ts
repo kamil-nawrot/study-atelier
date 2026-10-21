@@ -19,6 +19,7 @@ export { default as Logo } from './components/Logo.svelte';
 export { default as LogoMark } from './components/LogoMark.svelte';
 export { default as NoImage } from './components/NoImage.svelte';
 export { default as Notes } from './components/Notes.svelte';
+export { default as PageScrollbar } from './components/PageScrollbar.svelte';
 export { default as NotesEditor } from './components/NotesEditor.svelte';
 export { default as Popover } from './components/Popover.svelte';
 export { default as Primer } from './components/Primer.svelte';
@@ -42,3 +43,11 @@ export { default as ValueField, type ValueOption } from './components/ValueField
 export type { NoteLinkOption, NoteLinks, NoteLinkTrigger } from './note-links';
 export { mentionsTerm, type NoteTerm } from './notes-markdown';
 export { defaultUiMessages, setUiMessages, type AlertTone, type UiMessages } from './messages';
+export {
+	overlayScrollbar,
+	overlaysScrollbars,
+	pageScrollbar,
+	scrollForDrag,
+	thumbGeometry,
+	type ScrollAxis
+} from './overlay-scrollbar.ts';
