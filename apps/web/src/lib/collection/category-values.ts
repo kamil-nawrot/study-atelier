@@ -12,6 +12,18 @@ type ArtworkValuesRow = {
 	artwork_values: { category_values: CategoryValueRow | null }[];
 };
 
+export const CATEGORY_CODES: readonly CategoryCode[] = [
+	'author',
+	'period',
+	'style',
+	'material',
+	'location'
+];
+
+export function isCategoryCode(value: string): value is CategoryCode {
+	return (CATEGORY_CODES as readonly string[]).includes(value);
+}
+
 export const SINGLE_VALUE_CATEGORIES: readonly CategoryCode[] = ['location'];
 
 export function takesOneValue(category: CategoryCode): boolean {

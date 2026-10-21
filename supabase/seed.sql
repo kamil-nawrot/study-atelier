@@ -224,5 +224,42 @@ begin
     (tester, 'Wojny napoleońskie', 1803, 1815, false, null),
     (tester, 'Rewolucja przemysłowa', 1760, 1840, true, 'Od maszyny parowej do kolei.'),
     (tester, 'Narodziny Jezusa', null, -4, true, null);
+
+  insert into public.artwork_fields (id, owner_id, name, description, kind, multiple)
+  values
+    ('00000000-0000-4000-8000-000000000301', tester, 'Wykład', null, 'list', false),
+    ('00000000-0000-4000-8000-000000000302', tester, 'Motywy', 'Co przedstawia dzieło', 'list', true),
+    ('00000000-0000-4000-8000-000000000303', tester, 'Źródło', 'Podręcznik i strona', 'text', false),
+    ('00000000-0000-4000-8000-000000000304', tester, 'Widziane na żywo', null, 'flag', false);
+
+  insert into public.category_values (owner_id, category_code, name)
+  values
+    (tester, '00000000-0000-4000-8000-000000000301', 'Sztuka renesansu'),
+    (tester, '00000000-0000-4000-8000-000000000301', 'Barok – ćwiczenia'),
+    (tester, '00000000-0000-4000-8000-000000000302', 'portret'),
+    (tester, '00000000-0000-4000-8000-000000000302', 'pejzaż'),
+    (tester, '00000000-0000-4000-8000-000000000302', 'noc');
+
+  insert into public.artwork_values (artwork_id, value_id, owner_id, position)
+  select link.artwork_id, value.id, tester, link.position
+    from (
+      values
+        ('00000000-0000-4000-8000-000000000101'::uuid, '00000000-0000-4000-8000-000000000301', 'Sztuka renesansu', 0),
+        ('00000000-0000-4000-8000-000000000101', '00000000-0000-4000-8000-000000000302', 'portret', 0),
+        ('00000000-0000-4000-8000-000000000102', '00000000-0000-4000-8000-000000000302', 'pejzaż', 0),
+        ('00000000-0000-4000-8000-000000000102', '00000000-0000-4000-8000-000000000302', 'noc', 1),
+        ('00000000-0000-4000-8000-000000000103', '00000000-0000-4000-8000-000000000301', 'Barok – ćwiczenia', 0),
+        ('00000000-0000-4000-8000-000000000103', '00000000-0000-4000-8000-000000000302', 'portret', 0)
+    ) as link (artwork_id, category_code, name, position)
+    join public.category_values as value
+      on value.owner_id = tester
+      and value.category_code = link.category_code
+      and value.name = link.name;
+
+  insert into public.artwork_field_entries (artwork_id, field_id, owner_id, field_kind, text_value)
+  values
+    ('00000000-0000-4000-8000-000000000101', '00000000-0000-4000-8000-000000000303', tester, 'text', 'Gombrich, O sztuce, s. 300'),
+    ('00000000-0000-4000-8000-000000000101', '00000000-0000-4000-8000-000000000304', tester, 'flag', null),
+    ('00000000-0000-4000-8000-000000000103', '00000000-0000-4000-8000-000000000304', tester, 'flag', null);
 end;
 $$;
