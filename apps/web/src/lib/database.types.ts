@@ -9,6 +9,83 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      artwork_field_entries: {
+        Row: {
+          artwork_id: string;
+          field_id: string;
+          field_kind: string;
+          owner_id: string;
+          text_value: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          artwork_id: string;
+          field_id: string;
+          field_kind: string;
+          owner_id?: string;
+          text_value?: string | null;
+        };
+        Update: {
+          artwork_id?: string;
+          field_id?: string;
+          field_kind?: string;
+          owner_id?: string;
+          text_value?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "artwork_field_entries_artwork_id_owner_id_fkey";
+            columns: ["artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "artwork_field_entries_field_id_owner_id_field_kind_fkey";
+            columns: ["field_id", "owner_id", "field_kind"];
+            isOneToOne: false;
+            referencedRelation: "artwork_fields";
+            referencedColumns: ["id", "owner_id", "kind"];
+          },
+        ];
+      };
+      artwork_fields: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          kind: string;
+          multiple: boolean;
+          name: string;
+          owner_id: string;
+          position: number;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          kind: string;
+          multiple?: boolean;
+          name: string;
+          owner_id?: string;
+          position: number;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          kind?: string;
+          multiple?: boolean;
+          name?: string;
+          owner_id?: string;
+          position?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       artwork_images: {
         Row: {
           artwork_id: string;
@@ -316,21 +393,35 @@ export type Database = {
       categories: {
         Row: {
           code: string;
+          field_id: string | null;
           multiple: boolean;
-          position: number;
+          owner_id: string | null;
+          position: number | null;
         };
         ComputedFields: never;
         Insert: {
           code: string;
+          field_id?: string | null;
           multiple: boolean;
-          position: number;
+          owner_id?: string | null;
+          position?: number | null;
         };
         Update: {
           code?: string;
+          field_id?: string | null;
           multiple?: boolean;
-          position?: number;
+          owner_id?: string | null;
+          position?: number | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "categories_field_fkey";
+            columns: ["field_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artwork_fields";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
       };
       category_values: {
         Row: {
@@ -878,6 +969,13 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      artwork_field_usage: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          artwork_count: number;
+          field_id: string;
+        }[];
+      };
       delete_unused_value: {
         Args: { target_value: string };
         Returns: undefined;
@@ -885,6 +983,10 @@ export type Database = {
       keep_alive: { Args: Record<PropertyKey, never>; Returns: string };
       merge_category_values: {
         Args: { kept_id: string; merged_id: string };
+        Returns: undefined;
+      };
+      move_artwork_field: {
+        Args: { direction: number; target_field: string };
         Returns: undefined;
       };
       notes_mentions: {
@@ -937,6 +1039,7 @@ export type Database = {
           artwork: Json;
           existing_id?: string;
           extra_images?: Json;
+          field_entries?: Json;
           values_by_category: Json;
         };
         Returns: {

@@ -108,6 +108,27 @@ describe('loadCardIndex', () => {
 		});
 	});
 
+	it('leaves out the values of the learner own list fields', async () => {
+		rpc.mockImplementation(((name: string) =>
+			rpcResult(
+				name === 'value_usage'
+					? [
+							{ id: 'p1', category_code: 'period', name: 'Classical', artwork_count: 2 },
+							{
+								id: 'f1',
+								category_code: '7d1c3a52-1b4e-4c55-9d1e-0f2a7b6c8e90',
+								name: 'Annunciation',
+								artwork_count: 1
+							}
+						]
+					: []
+			)) as never);
+
+		const { index } = await loadCardIndex();
+
+		expect(index.values).toEqual([{ id: 'p1', category: 'period', name: 'Classical', count: 2 }]);
+	});
+
 	it('reads every page of 1000 rows', async () => {
 		const row = (n: number): Record<string, unknown> => ({
 			id: `v${n}`,
