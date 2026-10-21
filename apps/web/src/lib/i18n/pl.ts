@@ -706,12 +706,12 @@ export const pl = {
 		empty:
 			'Nie masz jeszcze żadnych własnych pól. Dodaj pole, aby zobaczyć je przy wszystkich swoich dziełach.',
 		intro:
-			'Własne pola to dodatkowe informacje, które chcesz zapisywać przy dziełach, na przykład wykład, na którym je omawiano, albo źródło. Każde z nich pojawi się w formularzu dzieła jako nieobowiązkowe.',
+			'Własne pola to dodatkowe informacje, które będzie można uzupełniać przy dziełach. Każde z nich pojawi się przy edycji istniejących dzieł oraz przy dodawaniu nowych. Ich wypełnianie zawsze będzie opcjonalne.',
 		add: 'Dodaj pole',
 		kinds: {
 			text: 'Tekst',
 			list: 'Lista',
-			flag: 'Tak / nie'
+			flag: 'Zaznaczenie'
 		},
 		kindNotes: {
 			text: 'dowolna treść',

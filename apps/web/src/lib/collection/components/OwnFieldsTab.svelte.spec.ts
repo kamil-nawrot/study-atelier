@@ -51,7 +51,7 @@ describe('OwnFieldsTab', () => {
 		await expect.element(page.getByRole('heading', { name: 'Motifs' })).toBeVisible();
 		await expect.element(page.getByText('Lista · kilka wartości · 3 dzieła')).toBeVisible();
 		await expect.element(page.getByText('What the artwork shows')).toBeVisible();
-		await expect.element(page.getByText('Tak / nie · 0 dzieł')).toBeVisible();
+		await expect.element(page.getByText('Zaznaczenie · 0 dzieł')).toBeVisible();
 		await expect
 			.element(page.getByRole('button', { name: m.cardIndex.openValue('Angel', '2 dzieła') }))
 			.toBeVisible();
