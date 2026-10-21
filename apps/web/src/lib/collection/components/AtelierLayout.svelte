@@ -187,6 +187,7 @@
 		z-index: 2;
 		display: flex;
 		box-sizing: content-box;
+		justify-content: flex-end;
 		align-items: stretch;
 		gap: var(--spacing-2);
 		height: var(--size-control);
@@ -212,6 +213,10 @@
 	.close {
 		flex: none;
 		padding: var(--spacing-2);
+	}
+
+	.burger {
+		margin-inline-end: auto;
 	}
 
 	.body {
