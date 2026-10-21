@@ -4,7 +4,7 @@ export const CARD_INDEX_TABS = ['timeline', 'material', 'author', 'location'] as
 
 export type CardIndexTab = (typeof CARD_INDEX_TABS)[number];
 
-function isCardIndexTab(value: unknown): value is CardIndexTab {
+export function isCardIndexTab(value: unknown): value is CardIndexTab {
 	return (CARD_INDEX_TABS as readonly unknown[]).includes(value);
 }
 
