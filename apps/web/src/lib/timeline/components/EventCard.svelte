@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
-	import { Button, Icon } from '@study-atelier/ui';
+	import { Button, Icon, TextButton } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { formatDate } from '#lib/collection/format.ts';
 	import type { WallArtwork } from '#lib/collection/types.ts';
@@ -66,7 +66,7 @@
 	{/if}
 	{#if period}
 		<div>
-			<button class="link" onclick={onwhole} type="button">{m.timeline.card.showWhole}</button>
+			<TextButton inline onclick={onwhole}>{m.timeline.card.showWhole}</TextButton>
 		</div>
 	{/if}
 	<div class="artworks">
@@ -115,18 +115,6 @@
 
 	.muted {
 		color: var(--color-fg-muted);
-	}
-
-	.link {
-		padding: 0;
-		border: none;
-		background: transparent;
-		color: var(--color-fg);
-		font: inherit;
-		font-size: var(--font-size-sm);
-		text-decoration: underline;
-		text-underline-offset: var(--spacing-1);
-		cursor: pointer;
 	}
 
 	.actions {

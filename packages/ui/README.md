@@ -45,27 +45,27 @@ Every exported component has a row here; a pull request that adds a component ad
 
 ### Actions and forms
 
-| Component      | Purpose                                                                                                                                           |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Button`       | Outline button with a heavier bottom edge; `primary` is filled, one per view; `danger` for deletes; a link with `href`                            |
-| `TextButton`   | Small underlined text action without a frame, read as part of a line ("Wyczyść filtry", "Zwiń wszystkie")                                         |
-| `Form`         | Form without browser validation; focuses the first invalid field on submit                                                                        |
-| `FormActions`  | Bar fixed to the bottom of the screen with a form's actions                                                                                       |
-| `TextField`    | Labelled input with hint, error, password reveal and an `action` button beside the input                                                          |
-| `TextArea`     | Labelled multi-line input with hint and error                                                                                                     |
-| `SearchField`  | Search input with a clear button, labelled for assistive technology only                                                                          |
-| `Select`       | Labelled single choice from a fixed list on the native `select`, with hint and error; `compact` hides the label and shrinks to an icon on a phone |
-| `SearchSelect` | Labelled single choice from a long list, filtered as the learner types (combobox)                                                                 |
-| `ValueField`   | Category values as removable tags with a suggestion list (combobox); one value with `single`, at most `max`, `labelHidden`                        |
-| `Checkbox`     | Labelled checkbox                                                                                                                                 |
-| `Switch`       | Labelled on/off switch (a native checkbox with `role="switch"`), for a setting that governs other fields                                          |
-| `ChoiceTiles`  | Single choice shown as tiles with an icon (era, artwork type), as a radio group; `clearable`                                                      |
-| `ToggleTiles`  | Several choices shown as tiles with a count, for filters                                                                                          |
-| `ToggleTag`    | Pressable tag with an optional count, for filters and options                                                                                     |
-| `StepSelect`   | Levels chosen in steps ("Epoka › Okres › Styl"); a step presses every step above it; `lg` tiles                                                   |
-| `FilePicker`   | Button over a hidden native file input, with `accept`, handing over the picked file                                                               |
-| `FieldMessage` | Hint or error line under a field, optionally a polite live region                                                                                 |
-| `NotesEditor`  | Notes with formatting and links to values and artworks, edited as Markdown (TipTap)                                                               |
+| Component      | Purpose                                                                                                                                                            |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Button`       | Outline button with a heavier bottom edge; `primary` is filled, one per view; `danger` for deletes; a link with `href`                                             |
+| `TextButton`   | Small underlined text action without a frame, read as part of a line ("Wyczyść filtry", "Zwiń wszystkie"); `inline` drops the inline padding for a column of texts |
+| `Form`         | Form without browser validation; focuses the first invalid field on submit                                                                                         |
+| `FormActions`  | Bar fixed to the bottom of the screen with a form's actions                                                                                                        |
+| `TextField`    | Labelled input with hint, error, password reveal and an `action` button beside the input                                                                           |
+| `TextArea`     | Labelled multi-line input with hint and error                                                                                                                      |
+| `SearchField`  | Search input with a clear button, labelled for assistive technology only                                                                                           |
+| `Select`       | Labelled single choice from a fixed list on the native `select`, with hint and error; `compact` hides the label and shrinks to an icon on a phone                  |
+| `SearchSelect` | Labelled single choice from a long list, filtered as the learner types (combobox)                                                                                  |
+| `ValueField`   | Category values as removable tags with a suggestion list (combobox); one value with `single`, at most `max`, `labelHidden`                                         |
+| `Checkbox`     | Labelled checkbox                                                                                                                                                  |
+| `Switch`       | Labelled on/off switch (a native checkbox with `role="switch"`), for a setting that governs other fields                                                           |
+| `ChoiceTiles`  | Single choice shown as tiles with an icon (era, artwork type), as a radio group; `clearable`                                                                       |
+| `ToggleTiles`  | Several choices shown as tiles with a count, for filters                                                                                                           |
+| `ToggleTag`    | Pressable tag with an optional count, for filters and options                                                                                                      |
+| `StepSelect`   | Levels chosen in steps ("Epoka › Okres › Styl"); a step presses every step above it; `lg` tiles                                                                    |
+| `FilePicker`   | Button over a hidden native file input, with `accept`, handing over the picked file                                                                                |
+| `FieldMessage` | Hint or error line under a field, optionally a polite live region                                                                                                  |
+| `NotesEditor`  | Notes with formatting and links to values and artworks, edited as Markdown (TipTap)                                                                                |
 
 ### Messages and overlays
 

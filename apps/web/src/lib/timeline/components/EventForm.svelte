@@ -9,6 +9,7 @@
 		FormActions,
 		Switch,
 		TextArea,
+		TextButton,
 		TextField
 	} from '@study-atelier/ui';
 	import DiscardDialog from '#lib/collection/components/DiscardDialog.svelte';
@@ -278,12 +279,12 @@
 						<span class="caption">
 							{m.timeline.form.sourcePrefix}„{form.source.title}”, {form.source.licence}
 						</span>
-						<button class="link" onclick={openArticles} type="button">
+						<TextButton inline onclick={openArticles}>
 							{m.timeline.form.pickArticle}
-						</button>
-						<button class="link" onclick={removeSource} type="button">
+						</TextButton>
+						<TextButton inline onclick={removeSource}>
 							{m.timeline.form.removeSource}
-						</button>
+						</TextButton>
 					</div>
 				{/if}
 			</div>
@@ -352,18 +353,6 @@
 	.description {
 		display: grid;
 		gap: var(--spacing-2);
-	}
-
-	.link {
-		padding: 0;
-		border: none;
-		background: transparent;
-		color: var(--color-fg);
-		font: inherit;
-		font-size: var(--font-size-sm);
-		text-decoration: underline;
-		text-underline-offset: 0.2em;
-		cursor: pointer;
 	}
 
 	.fields {
