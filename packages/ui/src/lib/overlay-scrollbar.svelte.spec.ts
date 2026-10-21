@@ -39,7 +39,7 @@ describe('overlayScrollbar', () => {
 		area().dispatchEvent(new Event('scroll'));
 		await nextFrame();
 		expect(thumb()?.classList.contains('visible')).toBe(true);
-		expect(thumb()?.style.top).toBe(`${800 + (800 / 1400) * 175}px`);
+		expect(thumb()?.style.top).toBe(`${800 + Math.floor((800 / 1400) * 175)}px`);
 
 		await vi.waitFor(() => expect(thumb()?.classList.contains('visible')).toBe(false), {
 			timeout: 2000
@@ -58,6 +58,23 @@ describe('overlayScrollbar', () => {
 		handle.dispatchEvent(new PointerEvent('pointerup', at));
 
 		expect(area().scrollTop).toBe(280);
+	});
+
+	it('never lets the content scroll past its end or sideways', async () => {
+		await render(OverlayScrollArea);
+		await nextFrame();
+		const height = area().scrollHeight;
+
+		for (let round = 0; round < 5; round++) {
+			area().scrollTop = area().scrollHeight;
+			area().dispatchEvent(new Event('scroll'));
+			await nextFrame();
+			await nextFrame();
+		}
+
+		expect(area().scrollHeight).toBe(height);
+		expect(area().scrollWidth).toBe(area().clientWidth);
+		expect(area().scrollTop).toBe(height - area().clientHeight);
 	});
 
 	it('draws no thumb when the content fits', async () => {
