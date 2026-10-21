@@ -628,4 +628,40 @@ describe('timeline page', () => {
 
 		await expect.element(page.getByText(m.timeline.readingArtworksNone)).toBeVisible();
 	});
+
+	it('comes back at the same era, scale, place and filters', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		const artworks = [
+			testArtwork(1, 'Straż nocna', { yearTo: 1642, date: '1642', favourite: true })
+		];
+		const data = { session: testSession(), artworks, events: [], error: undefined };
+		const first = await render(TimelinePage, { data, params: {} });
+		await page.getByRole('button', { name: 'Stulecie', exact: true }).click();
+		for (let press = 0; press < 2; press++)
+			stage()
+				.element()
+				.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+		await expect.element(stage()).toHaveAttribute('aria-valuenow', '1690');
+		await press(page.getByRole('button', { name: m.atelier.filters.button }));
+		await press(
+			page
+				.getByRole('complementary', { name: m.atelier.filters.title })
+				.getByRole('button', { name: /Ulubione/ })
+		);
+		const saved = first.component.snapshot.capture();
+		first.unmount();
+
+		localStorage.setItem(ERA_KEY, 'modern');
+		const second = await render(TimelinePage, { data, params: {} });
+		second.component.snapshot.restore(saved);
+
+		await expectEra('Nowożytność');
+		await expect.element(stage()).toHaveAttribute('aria-valuenow', '1690');
+		await expect
+			.element(page.getByRole('button', { name: 'Stulecie', exact: true }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect
+			.element(page.getByRole('list', { name: m.atelier.filters.activeLabel }))
+			.toHaveTextContent(m.atelier.filters.fields.favourites);
+	});
 });

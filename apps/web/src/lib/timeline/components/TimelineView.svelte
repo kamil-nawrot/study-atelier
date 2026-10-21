@@ -69,6 +69,13 @@
 
 	type Selection = { kind: 'artwork' | 'event'; id: string } | null;
 
+	export type TimelinePlace = {
+		code: EraCode;
+		step: StepKey;
+		view: View;
+		selected: Selection;
+	};
+
 	let {
 		initialEra,
 		initialFocus,
@@ -291,6 +298,18 @@
 		const span = spanOf(artwork);
 		if (span && !overlaps(span, era) && artwork.yearTo !== null) openEra(eraOfYear(artwork.yearTo));
 		selected = { kind: 'artwork', id: artwork.id };
+	}
+
+	export function capture(): TimelinePlace {
+		return { code, step, view: { ...target }, selected };
+	}
+
+	export function restore(place: TimelinePlace): void {
+		code = place.code;
+		step = place.step;
+		selected = place.selected;
+		onerachange?.(place.code);
+		showNow(place.view);
 	}
 
 	function openEra(next: EraCode): void {

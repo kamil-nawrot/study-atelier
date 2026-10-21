@@ -1,13 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { afterNavigate, goto } from '$app/navigation';
+import { goto } from '$app/navigation';
 import { m } from '#lib/i18n/index.ts';
 import { deleteGlossaryEntry } from '#lib/glossary/glossary-data.ts';
 import type { Mention } from '#lib/collection/mentions.ts';
 import type { GlossaryEntry } from '#lib/glossary/types.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import { testEntry, testGlossary } from '#lib/testing/glossary.ts';
+import { emptyBackState } from '#lib/navigation/back-places.ts';
+import { replaceBackState } from '#lib/navigation/back.svelte.ts';
 import GlossaryEntryPage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -38,9 +40,11 @@ function renderEntry(
 	});
 }
 
-function cameFrom(route: string): void {
-	for (const [callback] of vi.mocked(afterNavigate).mock.calls)
-		callback({ from: { route: { id: route } } } as never);
+function cameFrom(name: string, path: string): void {
+	replaceBackState({
+		...emptyBackState(),
+		back: { '/atelier/glossary/a-tympanum': { name, path } }
+	});
 }
 
 describe('glossary entry page', () => {
@@ -209,19 +213,30 @@ describe('glossary entry page', () => {
 
 	it('goes back to the list through history when the entry was opened from it', async () => {
 		const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
+		cameFrom('Słowniczek', '/atelier/glossary');
 		renderEntry();
-		cameFrom('/(app)/atelier/glossary');
 
-		(document.querySelector('a.back') as HTMLElement).click();
+		const link = page.getByRole('banner').getByRole('link', { name: 'Słowniczek' });
+		await expect.element(link).toBeVisible();
+		(link.element() as HTMLElement).click();
 
 		expect(back).toHaveBeenCalled();
 		back.mockRestore();
 	});
 
+	it('names the arrow after the artwork the entry was opened from', async () => {
+		cameFrom('Straż nocna', '/atelier/7');
+		renderEntry();
+
+		await expect
+			.element(page.getByRole('banner').getByRole('link', { name: 'Straż nocna' }))
+			.toHaveAttribute('href', '/atelier/7');
+	});
+
 	it('links to the top of the glossary when the entry was opened from elsewhere', async () => {
 		const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
+		replaceBackState(emptyBackState());
 		renderEntry();
-		cameFrom('/(app)/atelier/glossary/[id]');
 		let followed = false;
 		const stop = (event: Event): void => {
 			followed = !event.defaultPrevented;

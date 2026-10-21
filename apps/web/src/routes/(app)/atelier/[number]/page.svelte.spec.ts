@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { afterNavigate, goto, preloadData } from '$app/navigation';
+import { goto, preloadData } from '$app/navigation';
+import { emptyBackState } from '#lib/navigation/back-places.ts';
+import { replaceBackState } from '#lib/navigation/back.svelte.ts';
 import { setFavourite } from '#lib/collection/favourite.ts';
 import { moveToTrash } from '#lib/collection/trash.ts';
 import type { ArtworkRecord, LoadArtworkResult } from '#lib/collection/types.ts';
@@ -72,11 +74,6 @@ function rememberWall(numbers: number[], query = ''): void {
 
 function arrow(name: string): ReturnType<typeof page.getByRole> {
 	return page.getByRole('link', { name });
-}
-
-function arrivedFrom(route: string): void {
-	for (const [callback] of vi.mocked(afterNavigate).mock.calls)
-		callback({ from: { route: { id: route } } } as never);
 }
 
 function details(label: string): ReturnType<typeof page.getByRole> {
@@ -290,17 +287,21 @@ describe('artwork page', () => {
 			.toBeVisible();
 	});
 
-	it('goes back to the wall through history when it came from there', async () => {
+	it('goes back through history to the place it was opened from, named after it', async () => {
 		const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
+		replaceBackState({
+			...emptyBackState(),
+			back: { '/atelier/42': { name: 'Kalendarium', path: '/atelier/timeline' } }
+		});
 		renderPage();
-		vi.mocked(afterNavigate).mock.calls[0][0]({
-			from: { route: { id: '/(app)/atelier' } }
-		} as never);
 
-		await backLink().click();
+		const link = page.getByRole('banner').getByRole('link', { name: 'Kalendarium' });
+		await expect.element(link).toBeVisible();
+		(link.element() as HTMLElement).click();
 
 		expect(back).toHaveBeenCalled();
 		back.mockRestore();
+		replaceBackState(emptyBackState());
 	});
 
 	it('links to the previous and next artwork of the wall the learner came from', async () => {
@@ -385,19 +386,6 @@ describe('artwork page', () => {
 		stage.dispatchEvent(new PointerEvent('pointerup', { ...touch, clientX: 150, clientY: 210 }));
 
 		expect(goto).toHaveBeenCalledWith('/atelier/30', { replace: true, reset: false });
-	});
-
-	it('still goes back to the wall through history after flipping through artworks', async () => {
-		const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
-		rememberWall([7, 42, 30]);
-		renderPage();
-		arrivedFrom('/(app)/atelier');
-		arrivedFrom('/(app)/atelier/[number]');
-
-		await backLink().click();
-
-		expect(back).toHaveBeenCalled();
-		back.mockRestore();
 	});
 
 	it('shows a not-found state for an unknown record number', async () => {

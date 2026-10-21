@@ -5,7 +5,6 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import AtelierBackLink from '#lib/collection/components/AtelierBackLink.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import GlossaryList from '#lib/glossary/components/GlossaryList.svelte';
 	import type { GlossaryCategory } from '#lib/glossary/types.ts';
@@ -38,7 +37,6 @@
 
 <AtelierLayout email={data.session.user.email ?? ''} title={m.glossary.title}>
 	{#snippet bar()}
-		<AtelierBackLink />
 		{#if !data.error}
 			<Button href={resolve('/(app)/atelier/glossary/new')} variant="primary">
 				<Icon icon={Plus} size="sm" />
