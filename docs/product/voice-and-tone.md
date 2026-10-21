@@ -22,10 +22,10 @@ The app talks to the learner the way a museum curator talks to a visitor: it kno
 
 ## Examples
 
-| Instead of | Write |
-| --- | --- |
-| Nieprawidłowy e-mail lub hasło. | E-mail albo hasło się nie zgadzają. Sprawdź oba pola albo ustaw nowe hasło. |
-| Za dużo prób w krótkim czasie. | Sporo prób w krótkim czasie. Odczekaj chwilę i spróbuj jeszcze raz. |
-| Wpisz nowe hasło do swojego konta. | Wybierz nowe hasło do swojego konta. |
-| Alternatywnie wprowadź adres URL obrazka. | Jeśli wolisz, podaj po prostu adres obrazka. |
-| Wklej obraz ze schowka skrótem Ctrl+V. | Masz obraz w schowku? Po prostu naciśnij Ctrl+V. |
+| Instead of                                | Write                                                                       |
+| ----------------------------------------- | --------------------------------------------------------------------------- |
+| Nieprawidłowy e-mail lub hasło.           | E-mail albo hasło się nie zgadzają. Sprawdź oba pola albo ustaw nowe hasło. |
+| Za dużo prób w krótkim czasie.            | Sporo prób w krótkim czasie. Odczekaj chwilę i spróbuj jeszcze raz.         |
+| Wpisz nowe hasło do swojego konta.        | Wybierz nowe hasło do swojego konta.                                        |
+| Alternatywnie wprowadź adres URL obrazka. | Jeśli wolisz, podaj po prostu adres obrazka.                                |
+| Wklej obraz ze schowka skrótem Ctrl+V.    | Masz obraz w schowku? Po prostu naciśnij Ctrl+V.                            |
