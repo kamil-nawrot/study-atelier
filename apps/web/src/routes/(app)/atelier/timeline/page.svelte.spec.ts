@@ -574,6 +574,32 @@ describe('timeline page', () => {
 		);
 	});
 
+	it('lists a work that spans the reading line first and counts the rest', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		renderTimeline([
+			testArtwork(1, 'Straż nocna', { yearTo: 1642, date: '1642' }),
+			testArtwork(2, 'Las Meninas', { yearTo: 1638, date: '1638' }),
+			testArtwork(3, 'Ekstaza św. Teresy', { yearTo: 1641, date: '1641' }),
+			testArtwork(4, 'Pejzaż', { yearTo: 1639, date: '1639' }),
+			testArtwork(5, 'Kościół', { yearFrom: 1600, yearTo: 1700, date: '1600–1700' })
+		]);
+		await press(page.getByRole('button', { name: m.atelier.filters.button }));
+		await press(
+			page
+				.getByRole('complementary', { name: m.atelier.filters.title })
+				.getByRole('switch', { name: m.timeline.filters.readingArtworks })
+		);
+		await press(page.getByRole('button', { name: 'Stulecie', exact: true }));
+		await expect.element(stage()).toHaveAttribute('aria-valuenow', '1640');
+
+		const row = page.getByRole('list').filter({ hasText: 'Kościół' });
+		await expect.element(row).toBeVisible();
+		const titles = Array.from(row.element().querySelectorAll('cite'), (cite) => cite.textContent);
+		expect(titles).toHaveLength(3);
+		expect(titles[0]).toBe('Kościół');
+		await expect.element(page.getByText(m.timeline.readingMore(2), { exact: true })).toBeVisible();
+	});
+
 	it('leaves room around the artworks at the reading line for the focus outline', async () => {
 		localStorage.setItem(ERA_KEY, 'early_modern');
 		renderTimeline([

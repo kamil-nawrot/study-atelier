@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+	distanceToSpan,
 	entriesSpan,
 	eraOf,
 	eras,
@@ -50,6 +51,15 @@ describe('entriesSpan and the bounds of the first and the last era', () => {
 	it('ends the contemporary era at the latest entry when it lies in the future', () => {
 		expect(eraOf('contemporary', 2026, { start: 1500, end: 2041 }).end).toBe(2041);
 		expect(eraOf('contemporary', 2026, { start: 1500, end: 1900 }).end).toBe(2027);
+	});
+});
+
+describe('distanceToSpan', () => {
+	it('is zero inside the span and the gap to the nearer end outside it', () => {
+		const span = spanOfYears(1600, 1700);
+		expect(distanceToSpan(span, 1645)).toBe(0);
+		expect(distanceToSpan(span, 1590)).toBe(10);
+		expect(distanceToSpan(span, 1711)).toBe(10);
 	});
 });
 

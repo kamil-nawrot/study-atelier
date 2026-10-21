@@ -44,6 +44,12 @@ export function spanOfYears(yearFrom: number | null, yearTo: number): TimeSpan {
 	return { start: timeOf(yearFrom ?? yearTo), end: timeOf(yearTo) + 1 };
 }
 
+export function distanceToSpan(span: TimeSpan, time: number): number {
+	if (time < span.start) return span.start - time;
+	if (time >= span.end) return time - span.end;
+	return 0;
+}
+
 export function entriesSpan(items: readonly DatedItem[]): TimeSpan | undefined {
 	let span: TimeSpan | undefined;
 	for (const item of items) {
