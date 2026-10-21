@@ -63,6 +63,8 @@
 	--size-content-narrow: 400px;
 	--size-content-default: 720px;
 	--size-content-wide: 1280px;
+	--size-scrollbar-rest: 4px;
+	--size-scrollbar-active: 8px;
 	--border-width-hairline: 1px;
 	--border-width-base: 2px;
 	--border-width-button: 4px;
