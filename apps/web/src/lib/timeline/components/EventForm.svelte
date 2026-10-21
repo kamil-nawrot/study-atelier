@@ -361,6 +361,6 @@
 		gap: var(--spacing-6);
 		width: 100%;
 		min-width: 0;
-		max-width: var(--size-content-narrow);
+		max-width: var(--size-content-default);
 	}
 </style>
