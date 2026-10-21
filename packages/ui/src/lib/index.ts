@@ -1,6 +1,7 @@
 export { default as Alert } from './components/Alert.svelte';
 export { default as ArtworkImage } from './components/ArtworkImage.svelte';
 export { default as ArtworkTile, type ArtworkTileImage } from './components/ArtworkTile.svelte';
+export { default as BackHeading } from './components/BackHeading.svelte';
 export { default as Button } from './components/Button.svelte';
 export { default as Checkbox } from './components/Checkbox.svelte';
 export { default as Switch } from './components/Switch.svelte';
@@ -14,6 +15,7 @@ export { default as Form } from './components/Form.svelte';
 export { default as FormActions } from './components/FormActions.svelte';
 export { default as Frame } from './components/Frame.svelte';
 export { default as Icon } from './components/Icon.svelte';
+export { default as LoadFailure } from './components/LoadFailure.svelte';
 export { default as LoadingScreen } from './components/LoadingScreen.svelte';
 export { default as Logo } from './components/Logo.svelte';
 export { default as LogoMark } from './components/LogoMark.svelte';
