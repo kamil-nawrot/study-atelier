@@ -16,6 +16,14 @@ describe('TextButton', () => {
 		expect(onclick).toHaveBeenCalledOnce();
 	});
 
+	it('drops its inline padding in the inline variant', async () => {
+		render(TextButton, { children: label, inline: true });
+
+		const button = page.getByRole('button', { name: 'Collapse all' }).element();
+		expect(getComputedStyle(button).paddingLeft).toBe('0px');
+		expect(getComputedStyle(button).paddingRight).toBe('0px');
+	});
+
 	it('can be disabled', async () => {
 		render(TextButton, { children: label, disabled: true });
 
