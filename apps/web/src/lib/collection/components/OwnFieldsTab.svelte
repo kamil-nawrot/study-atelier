@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Ellipsis from '@lucide/svelte/icons/ellipsis';
 	import Plus from '@lucide/svelte/icons/plus';
-	import { Alert, Button, Dialog, Icon, PopupButton } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, Icon, PopupButton, TextButton } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { deleteOwnField, moveOwnField } from '../own-fields.ts';
 	import CardIndexList from './CardIndexList.svelte';
@@ -92,11 +92,14 @@
 </script>
 
 <div class="own-fields">
-	<div class="add">
-		<Button onclick={add}>
-			<Icon icon={Plus} />
-			{m.ownFields.add}
-		</Button>
+	<div class="intro">
+		<p>{m.ownFields.intro}</p>
+		<div class="add">
+			<Button onclick={add}>
+				<Icon icon={Plus} />
+				{m.ownFields.add}
+			</Button>
+		</div>
 	</div>
 
 	{#if failure}
@@ -129,24 +132,24 @@
 						<Icon icon={Ellipsis} />
 					{/snippet}
 					<div class="menu">
-						<Button onclick={() => fromMenu(field, () => edit(field))}>
+						<TextButton onclick={() => fromMenu(field, () => edit(field))}>
 							{m.ownFields.edit}
-						</Button>
-						<Button
+						</TextButton>
+						<TextButton
 							disabled={index === 0}
 							onclick={() => fromMenu(field, () => void move(field, -1))}
 						>
 							{m.ownFields.moveUp}
-						</Button>
-						<Button
+						</TextButton>
+						<TextButton
 							disabled={index === fields.length - 1}
 							onclick={() => fromMenu(field, () => void move(field, 1))}
 						>
 							{m.ownFields.moveDown}
-						</Button>
-						<Button onclick={() => fromMenu(field, () => askDelete(field))} variant="danger">
+						</TextButton>
+						<TextButton danger onclick={() => fromMenu(field, () => askDelete(field))}>
 							{m.ownFields.remove}
-						</Button>
+						</TextButton>
 					</div>
 				</PopupButton>
 			</header>
@@ -189,6 +192,25 @@
 		gap: var(--spacing-8);
 	}
 
+	.intro {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: var(--spacing-4);
+	}
+
+	.add {
+		margin-inline-start: auto;
+	}
+
+	.intro p {
+		flex: 1 1 var(--size-content-narrow);
+		max-width: var(--size-content-default);
+		margin: 0;
+		color: var(--color-fg-muted);
+	}
+
 	section {
 		display: grid;
 		gap: var(--spacing-4);
@@ -214,7 +236,8 @@
 
 	.menu {
 		display: grid;
-		gap: var(--spacing-2);
+		justify-items: start;
+		gap: var(--spacing-1);
 		min-width: max-content;
 	}
 </style>

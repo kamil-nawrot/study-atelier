@@ -592,7 +592,7 @@ export const pl = {
 	},
 	cardIndex: {
 		title: 'Kartoteka',
-		lead: 'Tu opisujesz i porządkujesz swoje epoki, okresy, style, autorów i miejsca. Kliknij nazwę, która Cię interesuje, żeby zobaczyć szczegóły.',
+		lead: 'Tu opisujesz i porządkujesz swoje epoki, okresy, style, autorów i miejsca. Możesz tutaj także utworzyć własne pola, które pozwolą dokładniej opisywać dzieła. Kliknij nazwę, która Cię interesuje, żeby zobaczyć szczegóły.',
 		loadErrorTitle: 'Nie udało się wczytać Kartoteki',
 		tabsLabel: 'Rodzaje wartości',
 		tabs: {
@@ -705,6 +705,8 @@ export const pl = {
 	ownFields: {
 		empty:
 			'Nie masz jeszcze żadnych własnych pól. Dodaj pole, aby zobaczyć je przy wszystkich swoich dziełach.',
+		intro:
+			'Własne pola to dodatkowe informacje, które chcesz zapisywać przy dziełach, na przykład wykład, na którym je omawiano, albo źródło. Każde z nich pojawi się w formularzu dzieła jako nieobowiązkowe.',
 		add: 'Dodaj pole',
 		kinds: {
 			text: 'Tekst',
@@ -712,9 +714,9 @@ export const pl = {
 			flag: 'Tak / nie'
 		},
 		kindNotes: {
-			text: 'jedna linia, dowolna treść',
-			list: 'wartości z podpowiedziami',
-			flag: 'jedno pole do zaznaczenia'
+			text: 'dowolna treść',
+			list: 'jedna lub wiele wartości z podpowiedziami',
+			flag: 'pole do zaznaczania'
 		},
 		oneValue: 'jedna wartość',
 		manyValues: 'kilka wartości',
@@ -730,9 +732,10 @@ export const pl = {
 			newTitle: 'Nowe pole',
 			name: 'Nazwa',
 			description: 'Opis (opcjonalnie)',
-			descriptionHint: 'Co wpisywać w tym polu. Zobaczysz to w formularzu dzieła.',
+			descriptionHint:
+				'Wyjaśnienie, które może w przyszłości pomóc zdecydować, co wpisywać w tym polu.',
 			kind: 'Rodzaj',
-			kindFixed: 'Rodzaju nie zmienisz po utworzeniu pola.',
+			kindFixed: 'Wybranego rodzaju nie będzie można zmienić po utworzeniu pola.',
 			multiple: 'Dzieło może mieć kilka wartości',
 			cancel: 'Anuluj',
 			create: 'Dodaj',

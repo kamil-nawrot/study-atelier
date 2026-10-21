@@ -22,7 +22,11 @@
 	let { data }: PageProps = $props();
 
 	const cardIndexPath = resolve('/(app)/atelier/values');
-	const tabs = CARD_INDEX_TABS.map((value) => ({ value, label: m.cardIndex.tabs[value] }));
+	const tabs = CARD_INDEX_TABS.map((value) => ({
+		value,
+		label: m.cardIndex.tabs[value],
+		end: value === 'own'
+	}));
 
 	let toast: Toast;
 	let tab = $state<string>(rememberedCardIndexTab());

@@ -24,3 +24,14 @@
 <Story name="Default" />
 
 <Story name="Second selected" args={{ value: 'materials' }} />
+
+<Story
+	name="Tab at the end"
+	args={{
+		tabs: [
+			{ value: 'periods', label: 'Periods and styles' },
+			{ value: 'materials', label: 'Materials' },
+			{ value: 'own', label: 'Own fields', end: true }
+		]
+	}}
+/>
