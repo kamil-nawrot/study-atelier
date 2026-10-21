@@ -107,7 +107,7 @@ describe('review page', () => {
 		await expect.element(page.getByText(m.review.how)).toBeVisible();
 		await expect
 			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
-			.toHaveAttribute('href', '/atelier');
+			.not.toBeInTheDocument();
 	});
 
 	it('tells how many days in a row there were reviews', async () => {
@@ -275,7 +275,7 @@ describe('review page', () => {
 		expect(hard.querySelectorAll('ul.column li')).toHaveLength(1);
 		await expect
 			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
-			.toHaveAttribute('href', '/atelier');
+			.not.toBeInTheDocument();
 		expect(invalidate).toHaveBeenCalledWith('review:counts');
 	});
 

@@ -10,6 +10,7 @@
 	import { navigating } from '$app/state';
 	import { signOut } from '#lib/auth/account.ts';
 	import { m } from '#lib/i18n/index.ts';
+	import { nameCurrentPlace } from '#lib/navigation/back.svelte.ts';
 	import FeedbackDialog from '#lib/feedback/components/FeedbackDialog.svelte';
 	import AtelierMenu from './AtelierMenu.svelte';
 
@@ -36,6 +37,10 @@
 		fill = false,
 		barHeight = $bindable(0)
 	}: Props = $props();
+
+	$effect(() => {
+		nameCurrentPlace(title);
+	});
 
 	let railExpanded = $state(false);
 	let signingOut = $state(false);
@@ -182,6 +187,7 @@
 		z-index: 2;
 		display: flex;
 		box-sizing: content-box;
+		justify-content: flex-end;
 		align-items: stretch;
 		gap: var(--spacing-2);
 		height: var(--size-control);
@@ -207,6 +213,10 @@
 	.close {
 		flex: none;
 		padding: var(--spacing-2);
+	}
+
+	.burger {
+		margin-inline-end: auto;
 	}
 
 	.body {

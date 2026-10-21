@@ -3,7 +3,6 @@
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { Alert, Button, Dialog, Icon, Section, Toast } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
-	import AtelierBackLink from '#lib/collection/components/AtelierBackLink.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import DuplicateDialog from '#lib/collection/components/DuplicateDialog.svelte';
 	import { DuplicateCheck } from '#lib/collection/duplicate-check.svelte.ts';
@@ -73,10 +72,6 @@
 </script>
 
 <AtelierLayout email={data.session.user.email ?? ''} title={m.trash.title}>
-	{#snippet bar()}
-		<AtelierBackLink />
-	{/snippet}
-
 	<header>
 		<h1>{m.trash.title}</h1>
 		{#if shown.length > 0}

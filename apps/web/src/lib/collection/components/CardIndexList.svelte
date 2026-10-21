@@ -10,11 +10,10 @@
 		records: CardIndexRecord[];
 		empty: string;
 		searchLabel: string;
+		query?: string;
 	};
 
-	let { records, empty, searchLabel }: Props = $props();
-
-	let query = $state('');
+	let { records, empty, searchLabel, query = $bindable('') }: Props = $props();
 
 	let term = $derived(normalizeForSearch(query));
 	let matching = $derived(

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
@@ -21,6 +20,7 @@
 		valueParents
 	} from '#lib/collection/value-pages.ts';
 	import { WallImages } from '#lib/collection/wall-images.svelte.ts';
+	import BackLink from '#lib/navigation/components/BackLink.svelte';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps } from './$types';
 
@@ -85,10 +85,7 @@
 
 <AtelierLayout email={data.session.user.email ?? ''} {title}>
 	{#snippet bar()}
-		<a class="back" href={cardIndexPath}>
-			<Icon icon={ArrowLeft} />
-			{m.valuePage.back}
-		</a>
+		<BackLink fallbackHref={cardIndexPath} fallbackName={m.valuePage.back} />
 		{#if editHref}
 			<Button aria-label={m.valuePage.edit} href={editHref}>
 				<Icon icon={Pencil} size="sm" />
@@ -205,17 +202,6 @@
 {/if}
 
 <style>
-	.back {
-		display: flex;
-		flex: 1;
-		align-items: center;
-		gap: var(--spacing-2);
-		color: var(--color-fg);
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-medium);
-		text-decoration: none;
-	}
-
 	.label {
 		display: none;
 	}

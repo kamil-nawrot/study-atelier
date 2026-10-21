@@ -4,7 +4,6 @@
 	import { Alert, Button, Dialog, Icon, Tag } from '@study-atelier/ui';
 	import { invalidate } from '$app/navigation';
 	import { resolveImages } from '#lib/collection/artworks.ts';
-	import AtelierBackLink from '#lib/collection/components/AtelierBackLink.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
@@ -318,8 +317,6 @@
 					</span>
 				</div>
 			</div>
-		{:else}
-			<AtelierBackLink />
 		{/if}
 	{/snippet}
 
