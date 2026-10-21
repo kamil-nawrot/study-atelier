@@ -2,6 +2,29 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.7.0] - 2026-10-21
+
+A new module, "Kalendarium", shows the learner's artworks and their own historical events at true scale on a timeline, one era at a time.
+
+### Added
+
+- "Kalendarium" in the menu after "Słowniczek": one era at a time on a timeline at true scale, chosen on an era strip with the eras' icons, with the name of the current era above the scale. The scale changes in steps ("Epoka", "Tysiąclecie", "Stulecie", "Pokolenie" and others) with buttons, the mouse wheel or a pinch, and the timeline pans by dragging or with the arrow keys. A reading line in the middle shows the exact year, and the line above names the events of that year ("1640 · w tym czasie: …"). Prehistory starts at 40000 BCE or at the oldest entry, and the contemporary era reaches the latest one.
+- Every dated artwork is a dot at its end year, with a thin line from its start year for a span, spread across the timeline without overlapping and the same on every visit; hovering a dot, or tapping it on a phone, shows the artwork's tile.
+- Historical events and periods of the learner's own, added with "Dodaj wydarzenie": a name, a year or a span written like a date of creation, and a short description. They stand in their own band above the artworks, and a chosen one opens a card with its length, the artworks of its time, "Pokaż cały okres na osi", "Edytuj" and "Usuń".
+- When a new event is named, its dates and a short description are filled in from Polish Wikipedia and Wikidata, quietly and only where the form is still empty, with "Wybierz inny artykuł" and "Usuń źródło"; the event keeps the source.
+- A "Filtry" panel on the timeline: up to five periods and styles of the era, each in its own coloured lane (on a phone they colour the dots), plus favourites, artwork type and author, and the switches "Wydarzenia" and "Dzieła w linii czytania".
+- On a phone the timeline runs from top to bottom.
+
+### Changed
+
+- Years can go back to 3 000 000 BCE and forward to 2500, for artworks, events and the life years of authors; a year outside gets its own message instead of a general error.
+- The filter panel of the wall first takes the free side margins and narrows the wall only when they run out.
+- The component library has five lane colours and a highlight colour, and the wall and the timeline share the filter side panel.
+
+### Migrations run on production
+
+Two migrations run on production with this release and change no existing data: `timeline_events` creates the `timeline_events` table with its policy and column grants; `timeline_event_sources` adds four optional source columns to that table with their checks and grants, so rows without a source stay valid.
+
 ## [0.6.3] - 2026-10-20
 
 An artwork can have up to five images, a new artwork gets its image from Wikidata on its own, and a large photo from a phone can be added as it is.
@@ -325,3 +348,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.6.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.6.1
 [0.6.2]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.6.2
 [0.6.3]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.6.3
+[0.7.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.7.0
