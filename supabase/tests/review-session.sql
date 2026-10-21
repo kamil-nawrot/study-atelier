@@ -99,10 +99,8 @@ $$;
 
 do $$
 declare
-  weakest uuid;
-  strongest uuid;
+  rounds jsonb := '[]';
   first_round jsonb;
-  second_round jsonb;
   cards_before integer;
   log_before integer;
   day_start constant timestamptz := date_trunc('day', now());
@@ -115,38 +113,33 @@ begin
         'last_review', now() - interval '1 day'),
       '{"mode": "flashcard", "rating": 3}');
   end loop;
-  select id into weakest from public.artworks where title = 'Work 1';
-  select id into strongest from public.artworks where title = 'Work 24';
   select count(*) into cards_before from public.review_cards;
   select count(*) into log_before from public.review_log;
 
   first_round := public.review_session(day_start, 'flashcards', 'all', null, 0);
-  second_round := public.review_session(day_start, 'flashcards', 'all', null, 1);
+  for attempt in 1..10 loop
+    rounds := rounds || jsonb_build_array(public.review_session(day_start, 'flashcards', 'all', null, 0));
+  end loop;
 
   assert jsonb_array_length(first_round) = 20,
     'a free round does not hold 20 artworks';
-  assert (first_round -> 0 ->> 'artwork_id')::uuid = weakest,
-    'a free round does not start with the weakest artwork';
   assert not exists (
-    select 1 from jsonb_array_elements(first_round || second_round) as item
+    select 1 from jsonb_array_elements(rounds) as round, jsonb_array_elements(round) as item
       where not exists (
         select 1 from public.review_cards as card
           where card.artwork_id = (item ->> 'artwork_id')::uuid
       )
   ),
     'a free round takes an artwork that was never reviewed';
-  assert not exists (
-    select 1 from jsonb_array_elements(first_round) as item
-      where (item ->> 'artwork_id')::uuid = strongest
-  ),
-    'the first free round takes the strongest artwork';
-  assert exists (
-    select 1 from jsonb_array_elements(second_round) as item
-      where (item ->> 'artwork_id')::uuid = strongest
-  ),
-    'the second free round does not go on after the first';
-  assert jsonb_array_length(second_round) = 20,
-    'a free round does not start again from the weakest after the last artwork';
+  assert (
+    select count(distinct item ->> 'artwork_id')
+      from jsonb_array_elements(rounds) as round, jsonb_array_elements(round) as item
+  ) > 20,
+    'free rounds of the same scope always take the same artworks';
+  assert (
+    select count(distinct round -> 0 ->> 'artwork_id') from jsonb_array_elements(rounds) as round
+  ) > 1,
+    'free rounds of the same scope always start with the same artwork';
   assert (select count(*) from public.review_cards) = cards_before
     and (select count(*) from public.review_log) = log_before,
     'a free round writes a review';

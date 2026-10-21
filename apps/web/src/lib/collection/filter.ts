@@ -36,21 +36,22 @@ type ValueField = Exclude<FilterField, 'years' | 'favourites'>;
 const NAME_FIELDS = ['authors', 'periods', 'styles', 'materials', 'locations'] as const;
 
 const PARAMS: Record<FilterField, string> = {
-	eras: 'epoka',
-	types: 'typ',
-	years: 'rok',
-	authors: 'autor',
-	periods: 'okres',
-	styles: 'styl',
+	eras: 'era',
+	types: 'type',
+	years: 'year',
+	authors: 'author',
+	periods: 'period',
+	styles: 'style',
 	materials: 'material',
-	locations: 'miejsce',
-	missing: 'braki',
-	favourites: 'ulubione'
+	locations: 'location',
+	missing: 'missing',
+	favourites: 'favourites'
 };
 
 type Params = Pick<URLSearchParams, 'get' | 'getAll' | 'has'>;
 
-const UNKNOWN_AUTHOR_PARAM = 'bez-autora';
+const UNKNOWN_AUTHOR_PARAM = 'unknown-author';
+const FLAG_ON = '1';
 const RANGE_SEPARATOR = '..';
 
 export function emptyFilter(): CollectionFilter {
@@ -291,12 +292,12 @@ export function filterToParams(filter: CollectionFilter): URLSearchParams {
 			continue;
 		}
 		if (field === 'favourites') {
-			if (filter.favourites) params.set(PARAMS.favourites, '1');
+			if (filter.favourites) params.set(PARAMS.favourites, FLAG_ON);
 			continue;
 		}
 		for (const value of filter[field]) params.append(PARAMS[field], value);
 	}
-	if (filter.unknownAuthor) params.set(UNKNOWN_AUTHOR_PARAM, '1');
+	if (filter.unknownAuthor) params.set(UNKNOWN_AUTHOR_PARAM, FLAG_ON);
 	return params;
 }
 
@@ -308,14 +309,14 @@ export function filterFromParams(params: Params): CollectionFilter {
 	const years = params.get(PARAMS.years);
 	return {
 		...emptyFilter(),
-		favourites: params.has(PARAMS.favourites),
+		favourites: params.get(PARAMS.favourites) === FLAG_ON,
 		eras: uniqueValues(params, PARAMS.eras).filter(isEraCode),
 		types: uniqueValues(params, PARAMS.types).filter((value): value is ArtworkTypeCode =>
 			ARTWORK_TYPE_CODES.includes(value as ArtworkTypeCode)
 		),
 		...(years ? parseYears(years) : {}),
 		authors: uniqueValues(params, PARAMS.authors),
-		unknownAuthor: params.has(UNKNOWN_AUTHOR_PARAM),
+		unknownAuthor: params.get(UNKNOWN_AUTHOR_PARAM) === FLAG_ON,
 		periods: uniqueValues(params, PARAMS.periods),
 		styles: uniqueValues(params, PARAMS.styles),
 		materials: uniqueValues(params, PARAMS.materials),

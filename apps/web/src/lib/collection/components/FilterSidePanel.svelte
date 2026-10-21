@@ -2,7 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import X from '@lucide/svelte/icons/x';
 	import { MediaQuery } from 'svelte/reactivity';
-	import { Button, Icon } from '@study-atelier/ui';
+	import { Button, Icon, overlayScrollbar } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 
 	type Props = {
@@ -31,7 +31,7 @@
 
 <div class="slot filter-panel" class:open ontransitionend={unmount}>
 	{#if mounted}
-		<aside class="filters" aria-label={m.atelier.filters.title}>
+		<aside class="filters" {@attach overlayScrollbar()} aria-label={m.atelier.filters.title}>
 			<div class="top">
 				<h2>{m.atelier.filters.title}</h2>
 				<button
@@ -78,7 +78,6 @@
 		max-height: calc(100dvh - var(--bar-height));
 		padding: 0 var(--spacing-6) var(--spacing-12);
 		overflow-y: auto;
-		scrollbar-gutter: stable;
 		border-left: var(--border-width-base) solid var(--color-line);
 	}
 

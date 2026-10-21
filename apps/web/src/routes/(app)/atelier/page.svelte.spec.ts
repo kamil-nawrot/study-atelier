@@ -483,7 +483,7 @@ describe('atelier page', () => {
 				'Untitled study'
 			]);
 			await expect.element(page.getByText(m.atelier.count(4))).toBeVisible();
-			expect(vi.mocked(goto)).toHaveBeenLastCalledWith('/atelier?grupuj=epoka', {
+			expect(vi.mocked(goto)).toHaveBeenLastCalledWith('/atelier?group=era', {
 				replace: true,
 				reset: false
 			});
@@ -555,7 +555,7 @@ describe('atelier page', () => {
 
 			await vi.waitFor(() =>
 				expect(JSON.parse(sessionStorage.getItem('study-atelier:wall-sequence') ?? 'null')).toEqual(
-					{ query: 'grupuj=styl', numbers: [1, 2, 3, 4] }
+					{ query: 'group=style', numbers: [1, 2, 3, 4] }
 				)
 			);
 		});
@@ -863,14 +863,14 @@ describe('atelier page', () => {
 
 			await eraTile('modern').click();
 
-			expect(goto).toHaveBeenLastCalledWith('/atelier?epoka=modern', {
+			expect(goto).toHaveBeenLastCalledWith('/atelier?era=modern', {
 				replace: true,
 				reset: false
 			});
 		});
 
 		it('reads the filter from the address', async () => {
-			navigation.url = new URL('http://localhost/atelier?epoka=modern&styl=Impressionism');
+			navigation.url = new URL('http://localhost/atelier?era=modern&style=Impressionism');
 			renderAtelier(styled);
 
 			expect(titlesOnTheWall(styled)).toEqual(['Water Lilies', 'Impression, Sunrise']);
@@ -880,15 +880,24 @@ describe('atelier page', () => {
 		});
 
 		it('ignores values in the address that no artwork has', async () => {
-			navigation.url = new URL('http://localhost/atelier?styl=Gone&epoka=nope');
+			navigation.url = new URL('http://localhost/atelier?style=Gone&era=nope');
 			renderAtelier(styled);
 
 			expect(titlesOnTheWall(styled)).toHaveLength(4);
 			await expect.element(page.getByText(m.atelier.count(4))).toBeVisible();
 		});
 
+		it('opens a link saved with the old Polish names as the whole wall', async () => {
+			navigation.url = new URL('http://localhost/atelier?epoka=modern&grupuj=epoka&ulubione=1');
+			renderAtelier(styled);
+
+			expect(titlesOnTheWall(styled)).toHaveLength(4);
+			await expect.element(page.getByText(m.atelier.count(4))).toBeVisible();
+			await expect.element(filtersButton()).toHaveAccessibleName(m.atelier.filters.button);
+		});
+
 		it('remembers the artworks it shows, in their order, for the artwork view', async () => {
-			navigation.url = new URL('http://localhost/atelier?epoka=modern');
+			navigation.url = new URL('http://localhost/atelier?era=modern');
 			renderAtelier(styled);
 			const shownNumbers = (): number[] =>
 				titlesOnTheWall(styled).map(
@@ -898,12 +907,12 @@ describe('atelier page', () => {
 				JSON.parse(sessionStorage.getItem('study-atelier:wall-sequence') ?? 'null');
 
 			await expect.element(page.getByText(m.atelier.filteredCount(3, 4))).toBeVisible();
-			expect(remembered()).toEqual({ query: 'epoka=modern', numbers: shownNumbers() });
+			expect(remembered()).toEqual({ query: 'era=modern', numbers: shownNumbers() });
 
 			await searchField().fill('impression');
 
 			await expect.element(page.getByText(m.atelier.filteredCount(1, 4))).toBeVisible();
-			expect(remembered()).toEqual({ query: 'epoka=modern', numbers: [3] });
+			expect(remembered()).toEqual({ query: 'era=modern', numbers: [3] });
 		});
 
 		it('has no filter button when the atelier is empty', async () => {

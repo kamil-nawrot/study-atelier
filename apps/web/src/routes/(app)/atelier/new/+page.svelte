@@ -1,6 +1,5 @@
 <script lang="ts">
-	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
-	import { Icon } from '@study-atelier/ui';
+	import { BackHeading } from '@study-atelier/ui';
 	import { afterNavigate, goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import ArtworkForm from '#lib/collection/components/ArtworkForm.svelte';
@@ -39,12 +38,12 @@
 	title={m.artworkForm.newTitle}
 >
 	{#snippet bar()}
-		<div class="heading">
-			<a class="back" aria-label={m.artworkForm.back} href={atelierPath} onclick={backToAtelier}>
-				<Icon icon={ArrowLeft} />
-			</a>
-			<h1>{m.artworkForm.newTitle}</h1>
-		</div>
+		<BackHeading
+			backLabel={m.artworkForm.back}
+			href={atelierPath}
+			onclick={backToAtelier}
+			title={m.artworkForm.newTitle}
+		/>
 	{/snippet}
 
 	<ArtworkForm
@@ -58,26 +57,3 @@
 		valueLinks={data.links}
 	/>
 </AtelierLayout>
-
-<style>
-	.heading {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-		min-width: 0;
-	}
-
-	.back {
-		display: grid;
-		place-items: center;
-		flex: none;
-		padding-block: var(--spacing-2);
-		color: var(--color-fg);
-	}
-
-	h1 {
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-medium);
-		line-height: var(--line-height-sm);
-	}
-</style>

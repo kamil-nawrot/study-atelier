@@ -5,13 +5,13 @@ import type { PeriodGroup, WallArtwork, WallGrouping, WallOrder, WallSection } f
 
 export const WALL_GROUPINGS: readonly WallGrouping[] = ['none', 'era', 'period', 'style'];
 
-export const GROUPING_PARAM = 'grupuj';
+export const GROUPING_PARAM = 'group';
 
 const GROUPING_VALUES: Record<WallGrouping, string> = {
 	none: '',
-	era: 'epoka',
-	period: 'okres',
-	style: 'styl'
+	era: 'era',
+	period: 'period',
+	style: 'style'
 };
 
 const DEPTHS: Record<WallGrouping, number> = { none: 0, era: 1, period: 2, style: 3 };

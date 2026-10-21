@@ -9,6 +9,7 @@
 		Form,
 		FormActions,
 		TextArea,
+		TextButton,
 		TextField,
 		ValueField,
 		type ValueOption
@@ -444,9 +445,9 @@
 				/>
 				{#if status === 'failed'}
 					<div class="links">
-						<button class="link" onclick={() => search(true)} type="button">
+						<TextButton inline onclick={() => search(true)}>
 							{m.glossary.form.searchAgain}
-						</button>
+						</TextButton>
 					</div>
 				{/if}
 				{#if form.source}
@@ -454,12 +455,12 @@
 						<span class="caption">
 							{m.glossary.form.sourcePrefix}„{form.source.title}”, {form.source.licence}
 						</span>
-						<button class="link" onclick={openArticles} type="button">
+						<TextButton inline onclick={openArticles}>
 							{m.glossary.form.pickArticle}
-						</button>
-						<button class="link" onclick={removeSource} type="button">
+						</TextButton>
+						<TextButton inline onclick={removeSource}>
 							{m.glossary.form.removeSource}
-						</button>
+						</TextButton>
 					</div>
 				{/if}
 			</div>
@@ -585,18 +586,6 @@
 		flex-wrap: wrap;
 		align-items: baseline;
 		gap: var(--spacing-1) var(--spacing-4);
-	}
-
-	.link {
-		padding: 0;
-		border: none;
-		background: transparent;
-		color: var(--color-fg);
-		font: inherit;
-		font-size: var(--font-size-sm);
-		text-decoration: underline;
-		text-underline-offset: 0.2em;
-		cursor: pointer;
 	}
 
 	@media (min-width: 768px) {

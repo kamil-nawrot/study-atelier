@@ -23,12 +23,12 @@
 	import type { ArtworkLane, TimelineEvent, TimelineFilter } from '../types.ts';
 	import { eraOfYear, rememberEra } from '../start.ts';
 	import {
+		distanceToSpan,
 		entriesSpan,
 		eraOf,
 		eras,
 		overlaps,
 		spanOfYears,
-		timeOf,
 		yearAt,
 		type Era,
 		type TimeSpan,
@@ -69,6 +69,13 @@
 
 	type Selection = { kind: 'artwork' | 'event'; id: string } | null;
 
+	export type TimelinePlace = {
+		code: EraCode;
+		step: StepKey;
+		view: View;
+		selected: Selection;
+	};
+
 	let {
 		initialEra,
 		initialFocus,
@@ -82,7 +89,7 @@
 	}: Props = $props();
 
 	const NOW_SHARE = 40;
-	const READING_TITLES = 2;
+	const READING_TITLES = 3;
 	const SPOKEN_DELAY_MS = 500;
 
 	const STEP_ANIMATION_MS = 400;
@@ -152,28 +159,36 @@
 			? artworksIn(collection, reading).sort((a, b) => distanceToReading(a) - distanceToReading(b))
 			: []
 	);
-	let nowParts = $derived([
-		...(now.length > 0 ? [m.timeline.nowEvents(now.map((event) => event.name).join(', '))] : []),
-		...(nowArtworks.length > 0
-			? [
-					m.timeline.nowArtworks(
-						nowArtworks
-							.slice(0, READING_TITLES)
-							.map((artwork) => artwork.title)
-							.join(', '),
-						nowArtworks.length - READING_TITLES
-					)
-				]
-			: [])
-	]);
+	let nowParts = $derived(
+		now.length > 0 ? [m.timeline.nowEvents(now.map((event) => event.name).join(', '))] : []
+	);
 
+	let atReading = $derived(now.length > 0 || nowArtworks.length > 0);
 	let nowText = $derived(
-		nowParts.length > 0 ? m.timeline.now(m.atelier.year(readingYear, false), nowParts) : ''
+		atReading ? m.timeline.now(m.atelier.year(readingYear, false), nowParts) : ''
+	);
+	let spokenText = $derived(
+		atReading
+			? m.timeline.now(m.atelier.year(readingYear, false), [
+					...nowParts,
+					...(nowArtworks.length > 0
+						? [
+								m.timeline.nowArtworks(
+									nowArtworks
+										.slice(0, READING_TITLES)
+										.map((artwork) => artwork.title)
+										.join(', '),
+									nowArtworks.length - READING_TITLES
+								)
+							]
+						: [])
+				])
+			: ''
 	);
 	let spoken = $state('');
 
 	$effect(() => {
-		const text = nowText;
+		const text = spokenText;
 		const timer = setTimeout(() => (spoken = text), SPOKEN_DELAY_MS);
 		return () => clearTimeout(timer);
 	});
@@ -201,7 +216,8 @@
 	}
 
 	function distanceToReading(artwork: WallArtwork): number {
-		return artwork.yearTo === null ? Infinity : Math.abs(timeOf(artwork.yearTo) - view.center);
+		const span = spanOf(artwork);
+		return span ? distanceToSpan(span, view.center) : Infinity;
 	}
 
 	function laneColourOf(artwork: WallArtwork): string | undefined {
@@ -302,6 +318,18 @@
 		const span = spanOf(artwork);
 		if (span && !overlaps(span, era) && artwork.yearTo !== null) openEra(eraOfYear(artwork.yearTo));
 		selected = { kind: 'artwork', id: artwork.id };
+	}
+
+	export function capture(): TimelinePlace {
+		return { code, step, view: { ...target }, selected };
+	}
+
+	export function restore(place: TimelinePlace): void {
+		code = place.code;
+		step = place.step;
+		selected = place.selected;
+		onerachange?.(place.code);
+		showNow(place.view);
 	}
 
 	function openEra(next: EraCode): void {
@@ -436,6 +464,30 @@
 		</TimelineStage>
 	</div>
 
+	{#if readingArtworks}
+		<div class="reading-artworks">
+			{#if nowArtworks.length > 0}
+				<span class="caption label">{m.timeline.readingArtworks}</span>
+				<ul class="titles">
+					{#each nowArtworks.slice(0, READING_TITLES) as artwork (artwork.id)}
+						<li>
+							<button class="title" onclick={() => chooseArtwork(artwork)} type="button">
+								<cite>{artwork.title}</cite>
+							</button>
+						</li>
+					{/each}
+				</ul>
+				{#if nowArtworks.length > READING_TITLES}
+					<span class="caption more"
+						>{m.timeline.readingMore(nowArtworks.length - READING_TITLES)}</span
+					>
+				{/if}
+			{:else}
+				<span class="caption">{m.timeline.readingArtworksNone}</span>
+			{/if}
+		</div>
+	{/if}
+
 	{#if selectedEvent}
 		{@const event = selectedEvent}
 		<EventCard
@@ -482,6 +534,53 @@
 	.era-name {
 		justify-self: center;
 		font-weight: var(--font-weight-medium);
+	}
+
+	.reading-artworks {
+		display: flex;
+		align-items: baseline;
+		gap: var(--spacing-2);
+		box-sizing: border-box;
+		min-width: 0;
+		height: calc(var(--line-height-md) + 2 * var(--spacing-2));
+		margin: calc(-1 * var(--spacing-2));
+		padding: var(--spacing-2);
+		overflow: hidden;
+		white-space: nowrap;
+	}
+
+	.label,
+	.more {
+		flex: none;
+	}
+
+	.titles {
+		display: flex;
+		gap: var(--spacing-3);
+		min-width: 0;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.titles li {
+		min-width: 0;
+	}
+
+	.title {
+		max-width: 100%;
+		padding: 0;
+		overflow: hidden;
+		border: 0;
+		background: none;
+		color: var(--color-fg);
+		font: inherit;
+		text-overflow: ellipsis;
+		cursor: pointer;
+	}
+
+	.title:hover cite {
+		text-decoration: underline;
 	}
 
 	.now {

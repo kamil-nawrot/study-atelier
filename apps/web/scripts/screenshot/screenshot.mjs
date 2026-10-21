@@ -1,7 +1,7 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
 import {
 	ARTWORKS,
@@ -54,6 +54,8 @@ const USAGE = `Usage: pnpm screenshot <path> [options]
   --wait <selector>  wait for this selector before capturing
   --type <text>      click the notes editor and type this text before capturing
   --script <file>    run this JavaScript file in the page before capturing, for example to mock a variant
+  --steps <file>     run the default export of this module with the Playwright page before capturing,
+                     for a flow across navigations (clicks, history.back())
   --repeat <n>       show every sample artwork n times, to have more to scroll through
   --scroll           also record a GIF of scrolling the page from top to bottom (needs ffmpeg)
   --url <base>       use a running dev server instead of starting one
@@ -83,6 +85,7 @@ function parseArgs(argv) {
 				'--wait',
 				'--url',
 				'--script',
+				'--steps',
 				'--type',
 				'--repeat'
 			].includes(arg)
@@ -592,6 +595,10 @@ async function capture(browser, base, options, name) {
 	await page.goto(new URL(options.route, base).href, { waitUntil: 'networkidle' });
 	if (options.wait) await page.waitForSelector(options.wait);
 	if (options.script) await page.evaluate(readFileSync(path.resolve(options.script), 'utf8'));
+	if (options.steps) {
+		const { default: steps } = await import(pathToFileURL(path.resolve(options.steps)).href);
+		await steps(page);
+	}
 	if (options.type) {
 		const editor = page.locator('.ProseMirror').first();
 		await editor.scrollIntoViewIfNeeded();

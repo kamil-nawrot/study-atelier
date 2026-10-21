@@ -58,7 +58,8 @@ function renderReview(
 	reviewCards: Map<string, ReviewCard> = new Map(),
 	newToday = 0,
 	error?: string,
-	streak = 0
+	streak = 0,
+	menu: { reviewWaiting?: Promise<number>; waiting?: number } = {}
 ): void {
 	render(ReviewPage, {
 		data: {
@@ -67,6 +68,8 @@ function renderReview(
 			cards: reviewCards,
 			newToday,
 			streak,
+			waiting: undefined,
+			...menu,
 			glossary: [],
 			error
 		},
@@ -104,7 +107,7 @@ describe('review page', () => {
 		await expect.element(page.getByText(m.review.how)).toBeVisible();
 		await expect
 			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
-			.toHaveAttribute('href', '/atelier');
+			.not.toBeInTheDocument();
 	});
 
 	it('tells how many days in a row there were reviews', async () => {
@@ -272,7 +275,7 @@ describe('review page', () => {
 		expect(hard.querySelectorAll('ul.column li')).toHaveLength(1);
 		await expect
 			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
-			.toHaveAttribute('href', '/atelier');
+			.not.toBeInTheDocument();
 		expect(invalidate).toHaveBeenCalledWith('review:counts');
 	});
 
@@ -406,5 +409,24 @@ describe('review page', () => {
 
 		await expect.element(page.getByText(m.common.unexpectedError)).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.review.start })).toBeEnabled();
+	});
+
+	it('refreshes the menu count when it differs from the counts the page loaded', async () => {
+		renderReview(collection(6), new Map(), 0, undefined, 0, {
+			reviewWaiting: Promise.resolve(3),
+			waiting: 0
+		});
+
+		await vi.waitFor(() => expect(invalidate).toHaveBeenCalledWith('review:counts'));
+	});
+
+	it('leaves the menu count alone when it matches the page', async () => {
+		renderReview(collection(6), new Map(), 0, undefined, 0, {
+			reviewWaiting: Promise.resolve(2),
+			waiting: 2
+		});
+
+		await new Promise((resolve) => setTimeout(resolve, 100));
+		expect(invalidate).not.toHaveBeenCalled();
 	});
 });

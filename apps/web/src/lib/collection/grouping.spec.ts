@@ -197,15 +197,16 @@ describe('allocateTiles', () => {
 
 describe('wall params', () => {
 	it('adds the grouping to the filter and reads it back', () => {
-		const params = wallParams(new URLSearchParams('epoka=antiquity'), 'period');
+		const params = wallParams(new URLSearchParams('era=antiquity'), 'period');
 
-		expect(params.toString()).toBe('epoka=antiquity&grupuj=okres');
+		expect(params.toString()).toBe('era=antiquity&group=period');
 		expect(groupingFromParams(params)).toBe('period');
 	});
 
 	it('leaves the grouping out when the wall is not grouped, and ignores an unknown value', () => {
 		expect(wallParams(new URLSearchParams(), 'none').toString()).toBe('');
-		expect(groupingFromParams(new URLSearchParams('grupuj=autor'))).toBe('none');
+		expect(groupingFromParams(new URLSearchParams('group=author'))).toBe('none');
+		expect(groupingFromParams(new URLSearchParams('grupuj=epoka'))).toBe('none');
 		expect(groupingFromParams(new URLSearchParams())).toBe('none');
 	});
 });

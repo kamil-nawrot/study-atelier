@@ -6,16 +6,16 @@
 	import { page } from '$app/state';
 	import {
 		CARD_INDEX_TABS,
+		isCardIndexTab,
 		rememberCardIndexTab,
 		rememberedCardIndexTab
 	} from '#lib/collection/card-index-tab.ts';
 	import { buildTimeline, valuesOf } from '#lib/collection/card-index.ts';
-	import AtelierBackLink from '#lib/collection/components/AtelierBackLink.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import CardIndexList from '#lib/collection/components/CardIndexList.svelte';
 	import CardIndexTimeline from '#lib/collection/components/CardIndexTimeline.svelte';
 	import { m } from '#lib/i18n/index.ts';
-	import type { PageProps } from './$types';
+	import type { PageProps, Snapshot } from './$types';
 
 	let { data }: PageProps = $props();
 
@@ -24,6 +24,21 @@
 
 	let toast: Toast;
 	let tab = $state<string>(rememberedCardIndexTab());
+	let query = $state('');
+
+	export const snapshot: Snapshot<{ tab: string; query: string }> = {
+		capture: () => ({ tab, query }),
+		restore: (value) => {
+			if (!isCardIndexTab(value.tab)) return;
+			tab = value.tab;
+			query = value.query;
+		}
+	};
+
+	function chooseTab(next: string): void {
+		if (next !== tab) query = '';
+		tab = next;
+	}
 
 	let timeline = $derived(buildTimeline(data.index));
 
@@ -40,10 +55,6 @@
 </script>
 
 <AtelierLayout email={data.session.user.email ?? ''} title={m.cardIndex.title}>
-	{#snippet bar()}
-		<AtelierBackLink />
-	{/snippet}
-
 	<header>
 		<h1>{m.cardIndex.title}</h1>
 		<p class="lead">{m.cardIndex.lead}</p>
@@ -54,7 +65,7 @@
 			{data.error}
 		</Alert>
 	{:else}
-		<Tabs label={m.cardIndex.tabsLabel} {tabs} bind:value={tab}>
+		<Tabs label={m.cardIndex.tabsLabel} {tabs} bind:value={() => tab, chooseTab}>
 			{#if tab === 'timeline'}
 				<CardIndexTimeline {timeline} />
 			{:else if tab === 'material' || tab === 'author' || tab === 'location'}
@@ -63,6 +74,7 @@
 						empty={m.cardIndex.emptyList[tab]}
 						records={valuesOf(data.index, tab)}
 						searchLabel={m.cardIndex.search[tab]}
+						bind:query
 					/>
 				{/key}
 			{/if}

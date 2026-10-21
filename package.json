@@ -1,6 +1,6 @@
 {
 	"name": "study-atelier",
-	"version": "0.7.0",
+	"version": "0.7.1",
 	"private": true,
 	"type": "module",
 	"packageManager": "pnpm@10.28.0",
@@ -13,8 +13,8 @@
 		"tokens": "pnpm --filter @study-atelier/ui tokens",
 		"build": "pnpm -r build",
 		"check": "pnpm -r check",
-		"lint": "pnpm -r lint",
-		"format": "pnpm -r format",
+		"lint": "prettier --check \"**/*.md\" && pnpm -r lint",
+		"format": "prettier --write \"**/*.md\" && pnpm -r format",
 		"test": "pnpm -r test",
 		"screenshot": "pnpm --filter @study-atelier/web screenshot",
 		"db:start": "supabase start",

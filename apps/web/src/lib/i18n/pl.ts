@@ -436,7 +436,7 @@ export const pl = {
 		start: 'Zacznij powtórkę',
 		free: 'Powtórka swobodna',
 		freeHint:
-			'Dodatkowa runda dzieł, które znasz najsłabiej. Nie zmienia planu powtórek ani serii.',
+			'Dodatkowa runda losowo wybranych dzieł, które już powtarzasz. Nie zmienia planu powtórek ani serii.',
 		freeTag: 'Tryb swobodny',
 		howTitle: 'Jak działają powtórki?',
 		how: 'Do puli codziennie dobierane są nowe dzieła, które dodasz do atelier, a także takie, które wymagają powtórki. Im lepiej pamiętasz dzieło, tym rzadziej będzie pojawiać się w kolejnych dniach.',
@@ -464,12 +464,12 @@ export const pl = {
 		},
 		quiz: {
 			imageQuestion: { start: 'Gdzie jest', end: '?' },
-			imageHint: 'Wybierz właściwy obraz.',
+			imageHint: 'Wybierz właściwe dzieło.',
 			imageAlt: (position: number): string => `Obraz ${position}`,
 			openImage: (position: number): string => `Powiększ obraz ${position}`,
 			titleQuestion: 'Jaki to tytuł?',
-			styleQuestion: 'W jakim stylu powstał ten obraz?',
-			styleHint: 'Zwróć uwagę na światło, kolor i kompozycję.',
+			styleQuestion: 'W jakim stylu powstało to dzieło?',
+			styleHint: 'Zwróć uwagę na formę, materiał i kompozycję.',
 			options: 'Odpowiedzi',
 			right: 'Tak, to',
 			wrong: 'Nie, to',
@@ -936,6 +936,9 @@ export const pl = {
 		nowEvents: (events: string): string => `w tym czasie: ${events}`,
 		nowArtworks: (titles: string, more: number): string =>
 			`dzieła: ${titles}${more > 0 ? ` (+${more})` : ''}`,
+		readingArtworks: 'W linii czytania:',
+		readingArtworksNone: 'W linii czytania nie ma dzieł.',
+		readingMore: (count: number): string => `(+${count})`,
 		lane: (name: string, count: number): string => `${name} · ${count}`,
 		filters: {
 			lanes: 'Okresy i style',

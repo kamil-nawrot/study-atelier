@@ -18,12 +18,11 @@
 
 	type Props = {
 		entries: GlossaryEntry[];
+		query?: string;
+		chosen?: GlossaryCategory[];
 	};
 
-	let { entries }: Props = $props();
-
-	let chosen = $state<GlossaryCategory[]>([]);
-	let query = $state('');
+	let { entries, query = $bindable(''), chosen = $bindable([]) }: Props = $props();
 
 	let counts = $derived(countByCategory(entries));
 	let matching = $derived(filterEntries(entries, new Set(chosen), query));

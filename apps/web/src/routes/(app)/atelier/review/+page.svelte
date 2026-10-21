@@ -1,10 +1,9 @@
 <script lang="ts">
 	import X from '@lucide/svelte/icons/x';
-	import { untrack } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { Alert, Button, Dialog, Icon, Tag } from '@study-atelier/ui';
 	import { invalidate } from '$app/navigation';
 	import { resolveImages } from '#lib/collection/artworks.ts';
-	import AtelierBackLink from '#lib/collection/components/AtelierBackLink.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
@@ -56,6 +55,16 @@
 	const ALL_SCOPE: ReviewScope = { kind: 'all' };
 
 	let { data }: PageProps = $props();
+
+	onMount(() => {
+		void refreshMenuCount();
+	});
+
+	async function refreshMenuCount(): Promise<void> {
+		const fresh = data.waiting;
+		if (data.reviewWaiting === undefined || fresh === undefined) return;
+		if ((await data.reviewWaiting) !== fresh) void invalidate(REVIEW_COUNTS_DEPENDENCY);
+	}
 
 	let scope = $state<ReviewScope>(ALL_SCOPE);
 	let form = $state<ReviewForm>('mixed');
@@ -308,8 +317,6 @@
 					</span>
 				</div>
 			</div>
-		{:else}
-			<AtelierBackLink />
 		{/if}
 	{/snippet}
 

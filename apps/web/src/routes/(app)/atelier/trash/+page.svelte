@@ -1,9 +1,9 @@
 <script lang="ts">
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Trash from '@lucide/svelte/icons/trash-2';
-	import { Alert, Button, Dialog, Icon, Section, Toast } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, Section, Toast } from '@study-atelier/ui';
+	import { invalidate } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import AtelierBackLink from '#lib/collection/components/AtelierBackLink.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import DuplicateDialog from '#lib/collection/components/DuplicateDialog.svelte';
 	import { DuplicateCheck } from '#lib/collection/duplicate-check.svelte.ts';
@@ -11,6 +11,7 @@
 	import { deletePermanently, restoreArtwork } from '#lib/collection/trash.ts';
 	import type { TrashArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
+	import { REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -46,6 +47,7 @@
 			return;
 		}
 		removed.push(artwork.id);
+		void invalidate(REVIEW_COUNTS_DEPENDENCY);
 		toast.show(m.trash.restored(formatRecordNumber(artwork.number)));
 	}
 
@@ -73,10 +75,6 @@
 </script>
 
 <AtelierLayout email={data.session.user.email ?? ''} title={m.trash.title}>
-	{#snippet bar()}
-		<AtelierBackLink />
-	{/snippet}
-
 	<header>
 		<h1>{m.trash.title}</h1>
 		{#if shown.length > 0}
@@ -133,20 +131,22 @@
 					<div class="actions">
 						<Button
 							aria-label={m.trash.restore}
+							compact
 							disabled={busy === artwork.id}
+							icon={RotateCcw}
 							onclick={() => restore(artwork)}
 						>
-							<Icon icon={RotateCcw} size="sm" />
-							<span class="label">{m.trash.restore}</span>
+							{m.trash.restore}
 						</Button>
 						<Button
 							aria-label={m.trash.deleteForever}
+							compact
 							disabled={busy === artwork.id}
+							icon={Trash}
 							onclick={() => askToDelete(artwork)}
 							variant="danger"
 						>
-							<Icon icon={Trash} size="sm" />
-							<span class="label">{m.trash.deleteForever}</span>
+							{m.trash.deleteForever}
 						</Button>
 					</div>
 				</li>
@@ -258,15 +258,5 @@
 	.actions {
 		display: flex;
 		gap: var(--spacing-2);
-	}
-
-	.label {
-		display: none;
-	}
-
-	@media (min-width: 768px) {
-		.label {
-			display: inline;
-		}
 	}
 </style>

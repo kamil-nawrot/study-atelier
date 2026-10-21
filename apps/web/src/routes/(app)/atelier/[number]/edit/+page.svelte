@@ -1,6 +1,5 @@
 <script lang="ts">
-	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
-	import { Alert, Button, Icon, Section } from '@study-atelier/ui';
+	import { BackHeading, LoadFailure } from '@study-atelier/ui';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import ArtworkForm from '#lib/collection/components/ArtworkForm.svelte';
@@ -47,12 +46,7 @@
 	{title}
 >
 	{#snippet bar()}
-		<div class="heading">
-			<a class="back" aria-label={m.artworkForm.goBack} href={artworkPath} onclick={goBack}>
-				<Icon icon={ArrowLeft} />
-			</a>
-			<h1>{title}</h1>
-		</div>
+		<BackHeading backLabel={m.artworkForm.goBack} href={artworkPath} onclick={goBack} {title} />
 	{/snippet}
 
 	{#if data.artwork}
@@ -70,42 +64,11 @@
 			/>
 		{/key}
 	{:else}
-		<Section>
-			{#if data.notFound}
-				<p class="lead">{data.error}</p>
-			{:else}
-				<Alert tone="danger">
-					{data.error}
-				</Alert>
-			{/if}
-		</Section>
-		<div>
-			<Button href={atelierPath}>
-				{m.artworkForm.back}
-			</Button>
-		</div>
+		<LoadFailure
+			backHref={atelierPath}
+			backLabel={m.artworkForm.back}
+			message={data.error ?? ''}
+			notFound={data.notFound === true}
+		/>
 	{/if}
 </AtelierLayout>
-
-<style>
-	.heading {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-		min-width: 0;
-	}
-
-	.back {
-		display: grid;
-		place-items: center;
-		flex: none;
-		padding-block: var(--spacing-2);
-		color: var(--color-fg);
-	}
-
-	h1 {
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-medium);
-		line-height: var(--line-height-sm);
-	}
-</style>

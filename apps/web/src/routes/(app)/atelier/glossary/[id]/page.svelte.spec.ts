@@ -8,6 +8,7 @@ import type { Mention } from '#lib/collection/mentions.ts';
 import type { GlossaryEntry } from '#lib/glossary/types.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import { testEntry, testGlossary } from '#lib/testing/glossary.ts';
+import { setBackPlace } from '#lib/navigation/back.svelte.ts';
 import GlossaryEntryPage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -17,7 +18,7 @@ const navigation = vi.hoisted(() => ({
 }));
 
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
-vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
+vi.mock('$app/navigation', () => ({ afterNavigate: vi.fn(), goto: vi.fn() }));
 vi.mock('#lib/glossary/glossary-data.ts', () => ({ deleteGlossaryEntry: vi.fn() }));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
@@ -36,6 +37,10 @@ function renderEntry(
 		data: { session: testSession(), entry: entry ?? undefined, ...failure },
 		params: { id: entry?.id ?? 'unknown' }
 	});
+}
+
+function cameFrom(name: string, path: string): void {
+	setBackPlace({ name, path });
 }
 
 describe('glossary entry page', () => {
@@ -200,5 +205,48 @@ describe('glossary entry page', () => {
 		renderEntry(null, { error: m.common.unexpectedError });
 
 		await expect.element(page.getByText(m.common.unexpectedError)).toBeVisible();
+	});
+
+	it('goes back to the list through history when the entry was opened from it', async () => {
+		const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
+		cameFrom('Słowniczek', '/atelier/glossary');
+		renderEntry();
+
+		const link = page.getByRole('banner').getByRole('link', { name: 'Słowniczek' });
+		await expect.element(link).toBeVisible();
+		(link.element() as HTMLElement).click();
+
+		expect(back).toHaveBeenCalled();
+		back.mockRestore();
+	});
+
+	it('names the arrow after the artwork the entry was opened from', async () => {
+		cameFrom('Straż nocna', '/atelier/7');
+		renderEntry();
+
+		await expect
+			.element(page.getByRole('banner').getByRole('link', { name: 'Straż nocna' }))
+			.toHaveAttribute('href', '/atelier/7');
+	});
+
+	it('links to the top of the glossary when the entry was opened from elsewhere', async () => {
+		const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
+		setBackPlace(undefined);
+		renderEntry();
+		let followed = false;
+		const stop = (event: Event): void => {
+			followed = !event.defaultPrevented;
+			event.preventDefault();
+		};
+		window.addEventListener('click', stop);
+
+		const link = document.querySelector('a.back') as HTMLAnchorElement;
+		expect(link.getAttribute('href')).toBe('/atelier/glossary');
+		link.click();
+
+		window.removeEventListener('click', stop);
+		expect(followed).toBe(true);
+		expect(back).not.toHaveBeenCalled();
+		back.mockRestore();
 	});
 });

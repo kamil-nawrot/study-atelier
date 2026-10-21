@@ -7,12 +7,11 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import AtelierBackLink from '#lib/collection/components/AtelierBackLink.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import FilterSidePanel from '#lib/collection/components/FilterSidePanel.svelte';
 	import { m } from '#lib/i18n/index.ts';
 	import TimelineFilterPanel from '#lib/timeline/components/TimelineFilterPanel.svelte';
-	import TimelineView from '#lib/timeline/components/TimelineView.svelte';
+	import TimelineView, { type TimelinePlace } from '#lib/timeline/components/TimelineView.svelte';
 	import {
 		applyTimelineFilter,
 		artworksIn,
@@ -22,8 +21,8 @@
 	} from '#lib/timeline/filter.ts';
 	import { eraOfYear, rememberEra, rememberedEra, startEra } from '#lib/timeline/start.ts';
 	import { entriesSpan, eraOf, spanOfYears } from '#lib/timeline/time.ts';
-	import type { TimelineEvent } from '#lib/timeline/types.ts';
-	import type { PageProps } from './$types';
+	import type { TimelineEvent, TimelineFilter } from '#lib/timeline/types.ts';
+	import type { PageProps, Snapshot } from './$types';
 
 	let { data }: PageProps = $props();
 
@@ -40,6 +39,24 @@
 	let showEvents = $state(true);
 	let readingArtworks = $state(false);
 	let panelOpen = $state(false);
+	let timelineView = $state<TimelineView>();
+
+	type Saved = {
+		place?: TimelinePlace;
+		filter: TimelineFilter;
+		showEvents: boolean;
+		readingArtworks: boolean;
+	};
+
+	export const snapshot: Snapshot<Saved> = {
+		capture: () => ({ place: timelineView?.capture(), filter, showEvents, readingArtworks }),
+		restore: (value) => {
+			filter = value.filter;
+			showEvents = value.showEvents;
+			readingArtworks = value.readingArtworks;
+			if (value.place) timelineView?.restore(value.place);
+		}
+	};
 	let dialogOpen = $state(false);
 
 	const wide = new MediaQuery('min-width: 768px');
@@ -77,27 +94,28 @@
 
 <AtelierLayout email={data.session.user.email ?? ''} title={m.timeline.title}>
 	{#snippet bar()}
-		<AtelierBackLink />
 		{#if !data.error}
-			<Tooltip align="end" placement="bottom" text={filtersLabel}>
-				{#snippet children(id)}
-					<Button
-						aria-describedby={id}
-						aria-expanded={wide.current ? panelOpen : undefined}
-						aria-haspopup={wide.current ? undefined : 'dialog'}
-						aria-label={filtersLabel}
-						onclick={() => (wide.current ? (panelOpen = !panelOpen) : (dialogOpen = true))}
-						variant={filtering ? 'primary' : 'secondary'}
-					>
-						<Icon icon={SlidersHorizontal} />
-					</Button>
-				{/snippet}
-			</Tooltip>
-			<Button href={resolve('/(app)/atelier/timeline/events/new')} variant="primary">
-				<Icon icon={Plus} size="sm" />
-				<span class="long">{m.timeline.add}</span>
-				<span class="short">{m.timeline.addShort}</span>
-			</Button>
+			<div class="actions">
+				<Tooltip align="end" placement="bottom" text={filtersLabel}>
+					{#snippet children(id)}
+						<Button
+							aria-describedby={id}
+							aria-expanded={wide.current ? panelOpen : undefined}
+							aria-haspopup={wide.current ? undefined : 'dialog'}
+							aria-label={filtersLabel}
+							onclick={() => (wide.current ? (panelOpen = !panelOpen) : (dialogOpen = true))}
+							variant={filtering ? 'primary' : 'secondary'}
+						>
+							<Icon icon={SlidersHorizontal} />
+						</Button>
+					{/snippet}
+				</Tooltip>
+				<Button href={resolve('/(app)/atelier/timeline/events/new')} variant="primary">
+					<Icon icon={Plus} size="sm" />
+					<span class="long">{m.timeline.add}</span>
+					<span class="short">{m.timeline.addShort}</span>
+				</Button>
+			</div>
 		{/if}
 	{/snippet}
 
@@ -131,6 +149,7 @@
 		</Alert>
 	{:else}
 		<TimelineView
+			bind:this={timelineView}
 			artworks={data.artworks}
 			events={data.events}
 			{initialEra}
@@ -167,6 +186,12 @@
 <Toast bind:this={toast} />
 
 <style>
+	.actions {
+		display: flex;
+		gap: inherit;
+		margin-inline-start: auto;
+	}
+
 	header {
 		display: grid;
 		gap: var(--spacing-2);

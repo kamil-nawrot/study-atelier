@@ -1,4 +1,4 @@
-# 0053. Link values and artworks from notes with @ and #
+# 0053. Link values and artworks from notes with @ and
 
 - Status: accepted
 - Date: 2026-10-15

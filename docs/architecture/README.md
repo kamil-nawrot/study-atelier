@@ -135,11 +135,11 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 - GitHub Actions ([`ci.yml`](../../.github/workflows/ci.yml)) runs lint, type check, unit and component tests and the build, then deploys with Wrangler ([ADR-0011](../decisions/0011-deploy-from-github-actions.md)). To save free runner minutes, the [UI library](../../.github/workflows/ui.yml) and [migrations](../../.github/workflows/migrations.yml) checks run on a pull request only when it touches their files, and a change to documentation alone starts no CI; every push to `develop` and `main` runs all checks.
 - The same workflow checks `packages/ui` and builds its Storybook without deploying it ([ADR-0013](../decisions/0013-component-library-with-storybook.md)).
 
-| Trigger | Deployment |
-| --- | --- |
-| Push to `main` | Production at `study-atelier.pages.dev` |
+| Trigger           | Deployment                                   |
+| ----------------- | -------------------------------------------- |
+| Push to `main`    | Production at `study-atelier.pages.dev`      |
 | Push to `develop` | Preview at `develop.study-atelier.pages.dev` |
-| Pull request | Checks only, no deployment |
+| Pull request      | Checks only, no deployment                   |
 
 - `develop` and `production` each have their own Supabase project and GitHub environment. Migrations in [`supabase/migrations`](../../supabase/migrations) are applied by the `database` job in `ci.yml` after a push to `develop` (develop database) or `main` (production database) ([ADR-0037](../decisions/0037-separate-databases-for-develop-and-production.md), setup in [hosted environments](hosted-environments.md)).
 - The scheduled workflow [`supabase-keep-alive.yml`](../../.github/workflows/supabase-keep-alive.yml) calls the `keep_alive()` database function of both projects daily so the free projects are not paused.

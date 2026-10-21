@@ -1,15 +1,15 @@
 <script lang="ts">
-	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
-	import { Alert, Button, Dialog, Icon, Section, Toast } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, LoadFailure, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import GlossaryView from '#lib/glossary/components/GlossaryView.svelte';
 	import { deleteGlossaryEntry } from '#lib/glossary/glossary-data.ts';
+	import BackLink from '#lib/navigation/components/BackLink.svelte';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps } from './$types';
 
@@ -67,25 +67,24 @@
 
 <AtelierLayout email={data.session.user.email ?? ''} {title}>
 	{#snippet bar()}
-		<a class="back" href={glossaryPath}>
-			<Icon icon={ArrowLeft} />
-			{m.glossary.back}
-		</a>
+		<BackLink fallbackHref={glossaryPath} fallbackName={m.glossary.back} />
 		{#if entry}
 			<Button
 				aria-label={m.glossary.view.edit}
+				compact
 				href={resolve('/(app)/atelier/glossary/[id]/edit', { id: entry.id })}
+				icon={Pencil}
 			>
-				<Icon icon={Pencil} size="sm" />
-				<span class="label">
-					{m.glossary.view.edit}
-				</span>
+				{m.glossary.view.edit}
 			</Button>
-			<Button aria-label={m.glossary.view.delete} onclick={askToDelete} variant="danger">
-				<Icon icon={Trash} size="sm" />
-				<span class="label">
-					{m.glossary.view.delete}
-				</span>
+			<Button
+				aria-label={m.glossary.view.delete}
+				compact
+				icon={Trash}
+				onclick={askToDelete}
+				variant="danger"
+			>
+				{m.glossary.view.delete}
 			</Button>
 		{/if}
 	{/snippet}
@@ -93,20 +92,13 @@
 	{#if entry}
 		<GlossaryView entries={data.glossary} {entry} mentions={data.mentions} />
 	{:else}
-		<Section>
-			{#if data.notFound}
-				<p class="lead">{m.glossary.view.notFound}</p>
-			{:else}
-				<Alert title={m.glossary.view.loadErrorTitle} tone="danger">
-					{data.error}
-				</Alert>
-			{/if}
-		</Section>
-		<div>
-			<Button href={glossaryPath}>
-				{m.glossary.back}
-			</Button>
-		</div>
+		<LoadFailure
+			backHref={glossaryPath}
+			backLabel={m.glossary.back}
+			errorTitle={m.glossary.view.loadErrorTitle}
+			message={data.notFound ? m.glossary.view.notFound : (data.error ?? '')}
+			notFound={data.notFound === true}
+		/>
 	{/if}
 </AtelierLayout>
 
@@ -136,26 +128,3 @@
 		{/snippet}
 	</Dialog>
 {/if}
-
-<style>
-	.back {
-		display: flex;
-		flex: 1;
-		align-items: center;
-		gap: var(--spacing-2);
-		color: var(--color-fg);
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-medium);
-		text-decoration: none;
-	}
-
-	.label {
-		display: none;
-	}
-
-	@media (min-width: 768px) {
-		.label {
-			display: inline;
-		}
-	}
-</style>

@@ -32,6 +32,7 @@ If a file the checklist below expects is missing, don't invent the rule; mention
 Turn the docs into concrete checks. Typical areas (verify each against the current text, they are examples, not the rules):
 
 **Process and hygiene**
+
 - Target branch and branch name match the branching model in the git-workflow guideline.
 - PR title and every commit message follow the commit convention (type, scope, imperative lowercase description, issue reference) as currently written.
 - PR description covers what the guidelines require (what, why, docs/ADRs touched).
@@ -39,11 +40,13 @@ Turn the docs into concrete checks. Typical areas (verify each against the curre
 - Language rules (repo content in English).
 
 **No personal data in the repository**
+
 - Docs, ADRs, guidelines, code and comments refer to people by role ("the owner"), never by name.
 - No personal fields such as a "Deciders" list in ADRs, no e-mail addresses, phone numbers or other personal details.
 - The repository's own name and URL are allowed.
 
 **Docs kept in sync**
+
 - Behaviour, architecture or rule changes update the matching docs in the same PR (use the "where things go" table in the documentation guideline).
 - A new decision comes with a new ADR from the template, correctly numbered, with a valid status, and added to the ADR index.
 - Accepted ADRs are not rewritten; a changed decision supersedes the old ADR and updates its status.
@@ -51,15 +54,18 @@ Turn the docs into concrete checks. Typical areas (verify each against the curre
 - Links between docs resolve (check relative paths actually exist on the head branch).
 
 **Consistency with decisions**
+
 - The change does not contradict an accepted ADR (e.g. adds a component, service, dependency or cost the ADRs rule out) and does not build on a `proposed` one.
 - Anything that needs the owner's explicit approval per the working agreement (external resources, cost, deletions, direct pushes) is flagged, not assumed.
 
 **Code** (once code exists)
+
 - Correctness, edge cases, error handling, tests for new behaviour.
 - Security for the actual stack in the ADRs: e.g. no secrets or service-role keys in frontend code, data access protected server-side (row-level security policies for every new table), safe handling of external API data.
 - Fits the documented architecture and folder layout; no dead code or leftover debug output.
 
 **UI and texts** (when the PR changes views, components or messages)
+
 - Follows `docs/guidelines/ui-patterns.md` for what a linter cannot check: links for navigation and buttons for actions, the form flow, message placement, text roles instead of restyled headings, semantic tokens only, no literal values where a token exists.
 - New or changed UI texts follow `docs/product/voice-and-tone.md` and live in the message dictionary.
 

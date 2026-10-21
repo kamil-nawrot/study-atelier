@@ -163,12 +163,12 @@ describe('card index page', () => {
 		expect(page.getByRole('tablist').elements()).toHaveLength(0);
 	});
 
-	it('links back to the atelier', async () => {
+	it('has no link back to the atelier, the menu moves between modules', async () => {
 		renderValues();
 
 		await expect
 			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
-			.toHaveAttribute('href', '/atelier');
+			.not.toBeInTheDocument();
 	});
 
 	it('links each value to its page', async () => {
@@ -216,6 +216,44 @@ describe('card index page', () => {
 
 		await expect
 			.element(page.getByRole('tab', { name: m.cardIndex.tabs.location }))
+			.toHaveAttribute('aria-selected', 'true');
+	});
+
+	it('keeps the tab and the search when the learner comes back', async () => {
+		const index = withMaterials(CARD_INDEX_SEARCH_MIN_VALUES);
+		const first = await render(ValuesPage, {
+			data: { session: testSession(), index },
+			params: {}
+		});
+		await page.getByRole('tab', { name: m.cardIndex.tabs.material }).click();
+		await page.getByRole('searchbox', { name: m.cardIndex.search.material }).fill('marb');
+		const saved = first.component.snapshot.capture();
+		first.unmount();
+
+		const second = await render(ValuesPage, {
+			data: { session: testSession(), index },
+			params: {}
+		});
+		second.component.snapshot.restore(saved);
+
+		await expect
+			.element(page.getByRole('tab', { name: m.cardIndex.tabs.material }))
+			.toHaveAttribute('aria-selected', 'true');
+		await expect
+			.element(page.getByRole('searchbox', { name: m.cardIndex.search.material }))
+			.toHaveValue('marb');
+	});
+
+	it('ignores a snapshot with a tab it does not know', async () => {
+		const shown = await render(ValuesPage, {
+			data: { session: testSession(), index: testCardIndex() },
+			params: {}
+		});
+
+		shown.component.snapshot.restore({ tab: 'colours', query: 'x' });
+
+		await expect
+			.element(page.getByRole('tab', { name: m.cardIndex.tabs.timeline }))
 			.toHaveAttribute('aria-selected', 'true');
 	});
 });

@@ -1,11 +1,10 @@
 <script lang="ts">
-	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 	import Heart from '@lucide/svelte/icons/heart';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
-	import { Alert, Button, Dialog, Icon, Section, Toast } from '@study-atelier/ui';
-	import { afterNavigate, goto, preloadData } from '$app/navigation';
+	import { Alert, Button, Dialog, Icon, LoadFailure, Toast } from '@study-atelier/ui';
+	import { goto, preloadData } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
@@ -13,11 +12,11 @@
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import { favouriteLabel, favouriteToast, setFavourite } from '#lib/collection/favourite.ts';
 	import { keyDirection } from '#lib/collection/flip.ts';
-	import { goBackThroughHistory } from '#lib/collection/history.ts';
 	import { formatRecordNumber, parseRecordNumber } from '#lib/collection/format.ts';
 	import { moveToTrash } from '#lib/collection/trash.ts';
 	import type { FlipDirection } from '#lib/collection/types.ts';
 	import { neighboursIn, rememberedWallSequence } from '#lib/collection/wall-sequence.ts';
+	import BackLink from '#lib/navigation/components/BackLink.svelte';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps } from './$types';
 
@@ -28,7 +27,6 @@
 	const sequence = rememberedWallSequence();
 
 	let toast: Toast;
-	let cameFromWall = false;
 	let trashOpen = $state(false);
 	let moving = $state(false);
 	let trashError = $state<string>();
@@ -61,11 +59,6 @@
 				? m.artworkForm.notFoundTitle(label)
 				: m.artworkForm.loadErrorTitle
 	);
-
-	afterNavigate(({ from }) => {
-		if (from?.route.id === artworkRoute) return;
-		cameFromWall = from?.route.id === '/(app)/atelier';
-	});
 
 	$effect(() => {
 		if (flipLinks?.next) void preloadData(flipLinks.next);
@@ -131,20 +124,13 @@
 		}
 		toast.show(favouriteToast(next));
 	}
-
-	function goBack(event: MouseEvent): void {
-		goBackThroughHistory(event, cameFromWall);
-	}
 </script>
 
 <svelte:window onkeydown={flipWithKey} />
 
 <AtelierLayout email={data.session.user.email ?? ''} fill={data.artwork !== undefined} {title}>
 	{#snippet bar()}
-		<a class="back" href={wallPath} onclick={goBack}>
-			<Icon icon={ArrowLeft} />
-			{m.artworkView.back}
-		</a>
+		<BackLink fallbackHref={wallPath} fallbackName={m.artworkView.back} />
 		{#if data.artwork}
 			<Button
 				aria-label={favouriteLabel(favourite)}
@@ -155,17 +141,17 @@
 					<Icon icon={Heart} size="sm" />
 				</span>
 			</Button>
-			<Button aria-label={m.artworkView.edit} href={editPath}>
-				<Icon icon={Pencil} size="sm" />
-				<span class="label">
-					{m.artworkView.edit}
-				</span>
+			<Button aria-label={m.artworkView.edit} compact href={editPath} icon={Pencil}>
+				{m.artworkView.edit}
 			</Button>
-			<Button aria-label={m.artworkView.delete} onclick={askToTrash} variant="danger">
-				<Icon icon={Trash} size="sm" />
-				<span class="label">
-					{m.artworkView.delete}
-				</span>
+			<Button
+				aria-label={m.artworkView.delete}
+				compact
+				icon={Trash}
+				onclick={askToTrash}
+				variant="danger"
+			>
+				{m.artworkView.delete}
 			</Button>
 		{/if}
 	{/snippet}
@@ -187,21 +173,13 @@
 			summaries={data.summaries}
 		/>
 	{:else}
-		<Section>
-			<h1>{title}</h1>
-			{#if data.notFound}
-				<p class="lead">{data.error}</p>
-			{:else}
-				<Alert tone="danger">
-					{data.error}
-				</Alert>
-			{/if}
-		</Section>
-		<div>
-			<Button href={atelierPath}>
-				{m.artworkForm.back}
-			</Button>
-		</div>
+		<LoadFailure
+			backHref={atelierPath}
+			backLabel={m.artworkForm.back}
+			heading={title}
+			message={data.error ?? ''}
+			notFound={data.notFound === true}
+		/>
 	{/if}
 </AtelierLayout>
 
@@ -231,32 +209,11 @@
 <Toast bind:this={toast} />
 
 <style>
-	.back {
-		display: flex;
-		flex: 1;
-		align-items: center;
-		gap: var(--spacing-2);
-		color: var(--color-fg);
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-medium);
-		text-decoration: none;
-	}
-
-	.label {
-		display: none;
-	}
-
 	.heart {
 		display: flex;
 	}
 
 	.heart.filled :global(svg) {
 		fill: currentColor;
-	}
-
-	@media (min-width: 768px) {
-		.label {
-			display: inline;
-		}
 	}
 </style>

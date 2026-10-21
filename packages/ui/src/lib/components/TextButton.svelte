@@ -4,12 +4,13 @@
 
 	type Props = HTMLButtonAttributes & {
 		children: Snippet;
+		inline?: boolean;
 	};
 
-	let { children, ...rest }: Props = $props();
+	let { children, inline = false, ...rest }: Props = $props();
 </script>
 
-<button class="text-button" type="button" {...rest}>
+<button class="text-button" class:inline type="button" {...rest}>
 	{@render children()}
 </button>
 
@@ -25,6 +26,10 @@
 		text-underline-offset: var(--spacing-1);
 		white-space: nowrap;
 		cursor: pointer;
+	}
+
+	.text-button.inline {
+		padding-inline: 0;
 	}
 
 	.text-button:disabled {

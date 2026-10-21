@@ -1,8 +1,14 @@
 <script lang="ts">
+	import type { LucideIcon } from '@lucide/svelte';
 	import type { Snippet } from 'svelte';
 	import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
+	import Icon from './Icon.svelte';
 
-	type CommonProps = {
+	type CompactProps =
+		| { compact?: false; icon?: LucideIcon }
+		| { compact: true; icon: LucideIcon; 'aria-label': string };
+
+	type CommonProps = CompactProps & {
 		variant?: 'primary' | 'secondary' | 'danger';
 		fullWidth?: boolean;
 		children: Snippet;
@@ -14,8 +20,28 @@
 
 	type Props = ButtonProps | LinkProps;
 
-	let { variant = 'secondary', fullWidth = false, children, ...rest }: Props = $props();
+	let {
+		variant = 'secondary',
+		fullWidth = false,
+		icon,
+		compact = false,
+		children,
+		...rest
+	}: Props = $props();
 </script>
+
+{#snippet content()}
+	{#if icon}
+		<Icon {icon} size="sm" />
+	{/if}
+	{#if compact}
+		<span class="label">
+			{@render children()}
+		</span>
+	{:else}
+		{@render children()}
+	{/if}
+{/snippet}
 
 {#if rest.href === undefined}
 	<button
@@ -24,11 +50,11 @@
 		type="button"
 		{...rest as HTMLButtonAttributes}
 	>
-		{@render children()}
+		{@render content()}
 	</button>
 {:else}
 	<a class="button {variant}" class:full-width={fullWidth} {...rest as HTMLAnchorAttributes}>
-		{@render children()}
+		{@render content()}
 	</a>
 {/if}
 
@@ -88,5 +114,15 @@
 
 	.full-width {
 		width: 100%;
+	}
+
+	.label {
+		display: none;
+	}
+
+	@media (min-width: 768px) {
+		.label {
+			display: inline;
+		}
 	}
 </style>

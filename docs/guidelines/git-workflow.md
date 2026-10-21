@@ -2,16 +2,16 @@
 
 ## Branches (gitflow)
 
-| Branch | Purpose | Created from | Merged into |
-| --- | --- | --- | --- |
-| `main` | Released, production state | | |
-| `develop` | Integration branch for the next release | `main` | `main` (via release) |
-| `feature/<issue>-<slug>` | One Linear issue that adds or changes behaviour, docs or tooling | `develop` | `develop` |
-| `bugfix/<issue>-<slug>` | One Linear issue with the `Bug` label that is not urgent for production | `develop` | `develop` |
-| `release/<version>` | Release preparation | `develop` | `main` and `develop` |
-| `hotfix/<version>` | Urgent production fix | `main` | `main` and `develop` |
-| `chore/merge-main-after-release-<version>` | Brings a release or hotfix back into `develop` | `main` | `develop` |
-| `design/tokens` | Design tokens synced by the Tokens Studio Figma plugin ([details](design-tokens.md)) | `develop` | `develop` |
+| Branch                                     | Purpose                                                                              | Created from | Merged into          |
+| ------------------------------------------ | ------------------------------------------------------------------------------------ | ------------ | -------------------- |
+| `main`                                     | Released, production state                                                           |              |                      |
+| `develop`                                  | Integration branch for the next release                                              | `main`       | `main` (via release) |
+| `feature/<issue>-<slug>`                   | One Linear issue that adds or changes behaviour, docs or tooling                     | `develop`    | `develop`            |
+| `bugfix/<issue>-<slug>`                    | One Linear issue with the `Bug` label that is not urgent for production              | `develop`    | `develop`            |
+| `release/<version>`                        | Release preparation                                                                  | `develop`    | `main` and `develop` |
+| `hotfix/<version>`                         | Urgent production fix                                                                | `main`       | `main` and `develop` |
+| `chore/merge-main-after-release-<version>` | Brings a release or hotfix back into `develop`                                       | `main`       | `develop`            |
+| `design/tokens`                            | Design tokens synced by the Tokens Studio Figma plugin ([details](design-tokens.md)) | `develop`    | `develop`            |
 
 - `develop` is the repository's default branch, so new pull requests target it and scheduled workflows run from it.
 - Branch names are lowercase. `feature/*` and `bugfix/*` branches include the Linear issue key, for example `feature/atl-1-docs-foundation` or `bugfix/atl-103-artwork-form-save-and-leave`.
@@ -51,7 +51,7 @@ Commit messages follow [Conventional Commits 1.0](https://www.conventionalcommit
 
 ## Releases
 
-1. Check the Linear milestone of the version: every issue is Done or canceled. An open issue is the owner's call, either wait for it or move it to the next milestone; it is never left in the released milestone. Then cut `release/<version>` from `develop`, for example `release/0.1.0`. From then on the branch takes only release fixes; new features keep going to `develop`.
+1. Check the Linear milestone of the version: every issue is Done or canceled. An open issue is the owner's call, either wait for it or move it to the next milestone; it is never left in the released milestone. Before cutting the branch, Claude reviews the code of the whole version (the diff from the previous tag to `develop`) for bugs and inefficient solutions, one reviewer per area of the code, and checks every finding in the code; the bugs go into one `Bug` issue of the milestone and are fixed first, and larger improvements get their own issue once the owner agrees. Then cut `release/<version>` from `develop`, for example `release/0.1.0`. From then on the branch takes only release fixes; new features keep going to `develop`.
 2. On the release branch, set the same `version` in the root, `apps/web` and `packages/ui` `package.json` files and move the changelog entries to a new section in [`CHANGELOG.md`](../../CHANGELOG.md), user-facing changes first, with a link to the release at the end of the file. A commit that changes only these files relies on CI instead of the local checks in [Before pushing](#before-pushing).
 3. Open a pull request from the release branch to `main`. CI must pass. The owner merges it with a **merge commit**, not a squash, so `main` and `develop` keep a shared history and later releases do not conflict.
 4. Pushing to `main` deploys production and applies the migrations to the production database. Check the `Web app` and `Database migrations` jobs of that run.

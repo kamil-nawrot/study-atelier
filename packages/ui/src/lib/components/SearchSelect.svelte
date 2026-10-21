@@ -1,4 +1,5 @@
 <script lang="ts" module>
+	import { overlayScrollbar } from '../overlay-scrollbar.ts';
 	export type SearchSelectOption = {
 		value: string;
 		label: string;
@@ -185,6 +186,7 @@
 			bind:this={list}
 			id={listId}
 			class="list"
+			{@attach overlayScrollbar()}
 			aria-label={label}
 			hidden={!expanded}
 			role="listbox"
