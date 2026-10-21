@@ -1,4 +1,5 @@
 <script lang="ts" module>
+	import { overlayScrollbar } from '../overlay-scrollbar.ts';
 	export type ValueOption = {
 		kind: 'similar' | 'existing' | 'starter' | 'new';
 		name: string;
@@ -214,7 +215,14 @@
 			type="text"
 			bind:value={query}
 		/>
-		<ul id={listId} class="list" aria-label={label} hidden={!expanded} role="listbox">
+		<ul
+			id={listId}
+			class="list"
+			{@attach overlayScrollbar()}
+			aria-label={label}
+			hidden={!expanded}
+			role="listbox"
+		>
 			{#if similar}
 				{@render item(similar, texts.similar(similar.name), texts.useSimilar)}
 			{/if}

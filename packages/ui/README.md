@@ -84,15 +84,16 @@ Every exported component has a row here; a pull request that adds a component ad
 
 ### Text and structure
 
-| Component    | Purpose                                                                                              |
-| ------------ | ---------------------------------------------------------------------------------------------------- |
-| `Section`    | Text section with a heavy left edge (spine)                                                          |
-| `Disclosure` | Collapsible group with a heading, a count and a chevron (native `details`); `muted`, `plain`, `lazy` |
-| `Tabs`       | Row of text tabs under a hairline that switch what a view lists                                      |
-| `Tag`        | Flat tag with `#` prefix; optional remove button                                                     |
-| `Count`      | Number in a small filled box; `outlined` is the muted form                                           |
-| `Notes`      | Read-only notes from Markdown, with links to values and artworks and marked glossary terms           |
-| `Icon`       | Lucide icon in the shared style: `sm` (20 px) or `md` (24 px)                                        |
+| Component       | Purpose                                                                                                                                                      |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Section`       | Text section with a heavy left edge (spine)                                                                                                                  |
+| `Disclosure`    | Collapsible group with a heading, a count and a chevron (native `details`); `muted`, `plain`, `lazy`                                                         |
+| `Tabs`          | Row of text tabs under a hairline that switch what a view lists                                                                                              |
+| `Tag`           | Flat tag with `#` prefix; optional remove button                                                                                                             |
+| `Count`         | Number in a small filled box; `outlined` is the muted form                                                                                                   |
+| `Notes`         | Read-only notes from Markdown, with links to values and artworks and marked glossary terms                                                                   |
+| `Icon`          | Lucide icon in the shared style: `sm` (20 px) or `md` (24 px)                                                                                                |
+| `PageScrollbar` | The overlay scrollbar of the page, mounted once in the root layout; `{@attach overlayScrollbar()}` gives a scrolling element its own ('y', or 'x' for a row) |
 
 ### Artworks and brand
 

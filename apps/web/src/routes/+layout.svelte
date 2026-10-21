@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { setUiMessages } from '@study-atelier/ui';
+	import { PageScrollbar, setUiMessages } from '@study-atelier/ui';
 	import { onMount } from 'svelte';
 	import { invalidate } from '$app/navigation';
 	import appleTouchIcon from '#lib/assets/apple-touch-icon.png';
@@ -28,5 +28,7 @@
 	<link href={favicon} rel="icon" type="image/svg+xml" />
 	<link href={appleTouchIcon} rel="apple-touch-icon" />
 </svelte:head>
+
+<PageScrollbar />
 
 {@render children()}

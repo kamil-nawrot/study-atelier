@@ -9,7 +9,6 @@
 }
 
 html {
-	scrollbar-gutter: stable;
 	background: var(--color-bg);
 	color: var(--color-fg);
 	font-family: var(--font-family-ui), system-ui, sans-serif;
@@ -94,4 +93,76 @@ a {
 :focus-visible {
 	outline: var(--border-width-base) dashed var(--color-fg);
 	outline-offset: calc(var(--border-width-base) + var(--border-width-hairline));
+}
+
+.overlay-scrollbar {
+	scrollbar-width: none;
+}
+
+.overlay-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+
+.overlay-scrollbar-thumb {
+	position: absolute;
+	z-index: 10;
+	background: var(--color-fg-muted);
+	opacity: 0;
+	cursor: default;
+	touch-action: none;
+}
+
+.overlay-scrollbar-thumb::before {
+	position: absolute;
+	inset: calc(-1 * var(--spacing-1));
+	content: '';
+}
+
+.overlay-scrollbar-thumb.y {
+	width: var(--size-scrollbar-rest);
+	transform: translateX(-100%);
+}
+
+.overlay-scrollbar-thumb.x {
+	height: var(--size-scrollbar-rest);
+	transform: translateY(-100%);
+}
+
+.overlay-scrollbar-thumb.page {
+	position: fixed;
+}
+
+.overlay-scrollbar-thumb.y.inset {
+	margin-left: calc(-1 * var(--size-scrollbar-active));
+}
+
+.overlay-scrollbar-thumb.visible,
+.overlay-scrollbar-thumb.hovered,
+.overlay-scrollbar-thumb.dragging {
+	opacity: 1;
+}
+
+.overlay-scrollbar-thumb:hover,
+.overlay-scrollbar-thumb.dragging {
+	background: var(--color-fg);
+}
+
+.overlay-scrollbar-thumb.y:hover,
+.overlay-scrollbar-thumb.y.dragging {
+	width: var(--size-scrollbar-active);
+}
+
+.overlay-scrollbar-thumb.x:hover,
+.overlay-scrollbar-thumb.x.dragging {
+	height: var(--size-scrollbar-active);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.overlay-scrollbar-thumb {
+		transition:
+			opacity var(--duration-short) ease-out,
+			width var(--duration-short) ease-out,
+			height var(--duration-short) ease-out,
+			background var(--duration-short) ease-out;
+	}
 }

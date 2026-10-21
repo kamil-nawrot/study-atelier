@@ -1,4 +1,5 @@
 <script lang="ts" module>
+	import { overlayScrollbar } from '../overlay-scrollbar.ts';
 	export type TabOption = {
 		value: string;
 		label: string;
@@ -43,7 +44,7 @@
 </script>
 
 <div class="tabs">
-	<div class="list" aria-label={label} role="tablist">
+	<div class="list" {@attach overlayScrollbar('x')} aria-label={label} role="tablist">
 		{#each tabs as tab, index (tab.value)}
 			<button
 				id={tabId(tab)}
