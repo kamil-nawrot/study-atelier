@@ -95,25 +95,27 @@
 <AtelierLayout email={data.session.user.email ?? ''} title={m.timeline.title}>
 	{#snippet bar()}
 		{#if !data.error}
-			<Tooltip align="end" placement="bottom" text={filtersLabel}>
-				{#snippet children(id)}
-					<Button
-						aria-describedby={id}
-						aria-expanded={wide.current ? panelOpen : undefined}
-						aria-haspopup={wide.current ? undefined : 'dialog'}
-						aria-label={filtersLabel}
-						onclick={() => (wide.current ? (panelOpen = !panelOpen) : (dialogOpen = true))}
-						variant={filtering ? 'primary' : 'secondary'}
-					>
-						<Icon icon={SlidersHorizontal} />
-					</Button>
-				{/snippet}
-			</Tooltip>
-			<Button href={resolve('/(app)/atelier/timeline/events/new')} variant="primary">
-				<Icon icon={Plus} size="sm" />
-				<span class="long">{m.timeline.add}</span>
-				<span class="short">{m.timeline.addShort}</span>
-			</Button>
+			<div class="actions">
+				<Tooltip align="end" placement="bottom" text={filtersLabel}>
+					{#snippet children(id)}
+						<Button
+							aria-describedby={id}
+							aria-expanded={wide.current ? panelOpen : undefined}
+							aria-haspopup={wide.current ? undefined : 'dialog'}
+							aria-label={filtersLabel}
+							onclick={() => (wide.current ? (panelOpen = !panelOpen) : (dialogOpen = true))}
+							variant={filtering ? 'primary' : 'secondary'}
+						>
+							<Icon icon={SlidersHorizontal} />
+						</Button>
+					{/snippet}
+				</Tooltip>
+				<Button href={resolve('/(app)/atelier/timeline/events/new')} variant="primary">
+					<Icon icon={Plus} size="sm" />
+					<span class="long">{m.timeline.add}</span>
+					<span class="short">{m.timeline.addShort}</span>
+				</Button>
+			</div>
 		{/if}
 	{/snippet}
 
@@ -184,6 +186,12 @@
 <Toast bind:this={toast} />
 
 <style>
+	.actions {
+		display: flex;
+		gap: inherit;
+		margin-inline-start: auto;
+	}
+
 	header {
 		display: grid;
 		gap: var(--spacing-2);
