@@ -809,7 +809,9 @@ export const pl = {
 	},
 	pins: {
 		switchLabel: (count: number): string => `Pinezki (${count})`,
-		edit: 'Edytuj pinezki',
+		editor: (count: number): string => (count > 0 ? `Pinezki (${count})` : 'Dodaj pinezki'),
+		editorTitle: 'Pinezki na obrazie',
+		editorNote: 'Pinezki zapisują się od razu, niezależnie od przycisku „Zapisz”.',
 		done: 'Gotowe',
 		editHint: 'Dotknij obrazu, żeby dodać pinezkę. Przeciągnij pinezkę, żeby ją przesunąć.',
 		placeHere: 'Dodaj pinezkę w tym miejscu',

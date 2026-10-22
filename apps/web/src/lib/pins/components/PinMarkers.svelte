@@ -9,7 +9,7 @@
 		editing?: boolean;
 		draft?: Fraction & { number: number };
 		onselect: (pin: Pin) => void;
-		onmove: (pin: Pin, place: Fraction) => void;
+		onmove?: (pin: Pin, place: Fraction) => void;
 	};
 
 	const MOVE_DISTANCE = 4;
@@ -49,7 +49,7 @@
 		const finished = { moved: origin.moved, place: { x: drag.x, y: drag.y } };
 		origin = undefined;
 		drag = undefined;
-		if (finished.moved) onmove(pin, finished.place);
+		if (finished.moved) onmove?.(pin, finished.place);
 		else onselect(pin);
 	}
 
@@ -68,7 +68,7 @@
 		const place = nudged(pin, event.key);
 		if (!place) return;
 		event.preventDefault();
-		onmove(pin, place);
+		onmove?.(pin, place);
 	}
 </script>
 

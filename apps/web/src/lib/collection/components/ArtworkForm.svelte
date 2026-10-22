@@ -36,11 +36,16 @@
 	import { suggestValues, valueKey } from '../value-suggestions.ts';
 	import DiscardDialog from './DiscardDialog.svelte';
 	import ArtworkImages from './ArtworkImages.svelte';
+	import PinEditor from '#lib/pins/components/PinEditor.svelte';
+	import type { GlossaryEntry } from '#lib/glossary/types.ts';
+	import type { Pin } from '#lib/pins/types.ts';
+	import { artworkImageSource } from '../artwork-image.ts';
 	import YearGroup from './YearGroup.svelte';
 	import YearInput from './YearInput.svelte';
 	import DuplicateDialog from './DuplicateDialog.svelte';
 	import type {
 		ArtworkFieldErrors,
+		ArtworkImageInput,
 		ArtworkFormState,
 		ArtworkInput,
 		ArtworkRecord,
@@ -62,6 +67,8 @@
 		noteLinks?: NoteLinks;
 		ownFields?: OwnFieldDefinition[];
 		ownValues?: Record<string, string[]>;
+		pins?: Pin[];
+		glossary?: GlossaryEntry[];
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
 		onsaved: (number: number, next: boolean) => void | Promise<void>;
@@ -75,11 +82,14 @@
 		noteLinks,
 		ownFields,
 		ownValues = {},
+		pins = [],
+		glossary = [],
 		cancelHref,
 		oncancel,
 		onsaved
 	}: Props = $props();
 
+	const PIN_IMAGE_WIDTH = 1200;
 	const titleId = $props.id();
 	const formErrorId = `${titleId}-error`;
 	const yearToId = `${titleId}-year-to`;
@@ -118,6 +128,10 @@
 
 	let imageSearchReady = $derived(canSearchImage(form));
 	let imageAlt = $derived(artworkImageAlt(form));
+	let pinList = $derived(pins);
+	let pinTarget = $state<ArtworkImageInput>();
+	let pinEditorOpen = $state(false);
+	let pinImageId = $derived(pinTarget?.id);
 
 	function initialForm(): ArtworkFormState {
 		return artwork ? artworkFormFromRecord(artwork, ownFields) : emptyArtworkForm(ownFields);
@@ -285,6 +299,11 @@
 		<ArtworkImages
 			alt={imageAlt}
 			autoMatch={!artwork}
+			onpins={(target) => {
+				pinTarget = target;
+				pinEditorOpen = true;
+			}}
+			pins={artwork ? pinList : undefined}
 			query={{
 				kind: 'artwork',
 				title: form.title,
@@ -462,6 +481,17 @@
 </Form>
 
 <Toast bind:this={toast} offset={barHeight} />
+
+{#if pinImageId !== undefined}
+	<PinEditor
+		alt={imageAlt}
+		entries={glossary}
+		imageId={pinImageId}
+		source={artworkImageSource(pinTarget ?? null, PIN_IMAGE_WIDTH)}
+		bind:open={pinEditorOpen}
+		bind:pins={pinList}
+	/>
+{/if}
 
 <DiscardDialog {changes} description={m.artworkForm.discardDescription} />
 

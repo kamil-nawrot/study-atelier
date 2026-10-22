@@ -9,7 +9,6 @@ import type { ArtworkRecord, LoadArtworkResult } from '#lib/collection/types.ts'
 import { buildNoteLinks } from '#lib/collection/note-links.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testSession } from '#lib/testing/auth.ts';
-import { createPin, movePin } from '#lib/pins/pin-data.ts';
 import type { Pin } from '#lib/pins/types.ts';
 import { testEntry } from '#lib/testing/glossary.ts';
 import { testCardIndex } from '#lib/testing/card-index.ts';
@@ -31,11 +30,6 @@ vi.mock('#lib/collection/trash.ts', () => ({ moveToTrash: vi.fn() }));
 vi.mock('#lib/collection/favourite.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/collection/favourite.ts')>()),
 	setFavourite: vi.fn()
-}));
-vi.mock('#lib/pins/pin-data.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/pins/pin-data.ts')>()),
-	createPin: vi.fn(),
-	movePin: vi.fn()
 }));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
@@ -654,46 +648,15 @@ describe('artwork page', () => {
 			await expect.element(card).toHaveTextContent('The sitter’s turban.');
 		});
 
-		it('offers the switch only when the image has pins', async () => {
+		it('offers the switch only when the image has pins and no way to edit them', async () => {
 			renderWithPins([]);
 
-			await expect.element(page.getByRole('button', { name: m.pins.edit })).toBeVisible();
 			await expect
 				.element(page.getByRole('button', { name: m.pins.switchLabel(0) }))
 				.not.toBeInTheDocument();
-		});
-
-		it('places a new pin from the editing mode and keeps its marker', async () => {
-			vi.mocked(createPin).mockResolvedValue({
-				pin: { ...PIN, id: 'pin-2', glossaryEntryId: null, text: 'Pearl' }
-			});
-			renderWithPins([]);
-
-			await page.getByRole('button', { name: m.pins.edit }).click();
-			await page.getByRole('button', { name: m.pins.placeHere }).click();
-			await userEvent.fill(page.getByLabelText(m.pins.text), 'Pearl');
-			await page.getByRole('button', { name: m.pins.save }).click();
-
-			expect(createPin).toHaveBeenCalledWith('image-1', expect.objectContaining({ text: 'Pearl' }));
-			await page.getByRole('button', { name: m.pins.done }).click();
-			await expect.element(page.getByRole('button', { name: 'Pinezka 1' })).toBeVisible();
-		});
-
-		it('reverts a pin that could not be moved and shows the error', async () => {
-			vi.mocked(movePin).mockResolvedValue({ error: 'Nie udało się połączyć z serwerem.' });
-			renderWithPins();
-
-			await page.getByRole('button', { name: m.pins.edit }).click();
-			page.getByRole('button', { name: 'Pinezka 1: Turban' }).element().focus();
-			await userEvent.keyboard('{ArrowRight}');
-
 			await expect
-				.element(page.getByRole('alert'))
-				.toHaveTextContent('Nie udało się połączyć z serwerem.');
-			expect(movePin).toHaveBeenCalledWith('pin-1', 0.27, 0.75);
-			await expect
-				.element(page.getByRole('button', { name: 'Pinezka 1: Turban' }))
-				.toHaveStyle({ left: '25%' });
+				.element(page.getByRole('button', { name: m.pins.editor(0) }))
+				.not.toBeInTheDocument();
 		});
 	});
 });
