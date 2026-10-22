@@ -111,3 +111,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0105](0105-filter-the-wall-by-own-fields.md)                            | Filter the wall by the learner's own fields                                              | accepted           |
 | [0106](0106-name-where-the-arrow-of-a-form-leads.md)                     | Name where the arrow of a form leads                                                     | accepted           |
 | [0107](0107-drop-the-line-above-the-timeline.md)                         | Drop the line above the timeline                                                         | accepted           |
+| [0108](0108-collapse-own-lists-and-show-their-values-as-tags.md)         | Collapse own lists in Kartoteka and show their values as tags                            | accepted           |

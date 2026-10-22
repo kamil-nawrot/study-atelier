@@ -54,6 +54,13 @@ describe('OwnFieldsTab', () => {
 		await expect.element(page.getByText('Zaznaczenie · 0 dzieł')).toBeVisible();
 		await expect
 			.element(page.getByRole('button', { name: m.cardIndex.openValue('Angel', '2 dzieła') }))
+			.not.toBeInTheDocument();
+		await page
+			.getByRole('heading', { name: new RegExp(`^${m.ownFields.values}`) })
+			.nth(1)
+			.click();
+		await expect
+			.element(page.getByRole('button', { name: m.cardIndex.openValue('Angel', '2 dzieła') }))
 			.toBeVisible();
 	});
 
@@ -126,6 +133,10 @@ describe('OwnFieldsTab', () => {
 	it('merges a value renamed to another value of the field after a confirmation', async () => {
 		renderTab();
 
+		await page
+			.getByRole('heading', { name: new RegExp(`^${m.ownFields.values}`) })
+			.nth(1)
+			.click();
 		await page.getByRole('button', { name: m.cardIndex.openValue('Angle', '1 dzieło') }).click();
 		await page.getByRole('textbox', { name: m.ownFields.value.name }).fill('angel');
 

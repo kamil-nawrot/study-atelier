@@ -1,7 +1,15 @@
 <script lang="ts">
 	import Ellipsis from '@lucide/svelte/icons/ellipsis';
 	import Plus from '@lucide/svelte/icons/plus';
-	import { Alert, Button, Dialog, Icon, PopupButton, TextButton } from '@study-atelier/ui';
+	import {
+		Alert,
+		Button,
+		Dialog,
+		Disclosure,
+		Icon,
+		PopupButton,
+		TextButton
+	} from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { deleteOwnField, moveOwnField } from '../own-fields.ts';
 	import CardIndexList from './CardIndexList.svelte';
@@ -153,14 +161,18 @@
 					</div>
 				</PopupButton>
 			</header>
-			{#if field.kind === 'list'}
-				<CardIndexList
-					empty={m.ownFields.noValues}
-					onchoose={(id) => chooseValue(field, id)}
-					records={field.values}
-					searchLabel={m.ownFields.search(field.name)}
-					bind:query={() => queries[field.id] ?? '', (query) => (queries[field.id] = query)}
-				/>
+			{#if field.kind === 'list' && field.values.length === 0}
+				<p class="lead">{m.ownFields.noValues}</p>
+			{:else if field.kind === 'list'}
+				<Disclosure count={field.values.length} level={3} open={false} title={m.ownFields.values}>
+					<CardIndexList
+						empty={m.ownFields.noValues}
+						onchoose={(id) => chooseValue(field, id)}
+						records={field.values}
+						searchLabel={m.ownFields.search(field.name)}
+						bind:query={() => queries[field.id] ?? '', (query) => (queries[field.id] = query)}
+					/>
+				</Disclosure>
 			{/if}
 		</section>
 	{/each}
@@ -214,6 +226,11 @@
 	section {
 		display: grid;
 		gap: var(--spacing-4);
+	}
+
+	section + section {
+		padding-block-start: var(--spacing-8);
+		border-block-start: var(--border-width-hairline) solid var(--color-line);
 	}
 
 	header {
