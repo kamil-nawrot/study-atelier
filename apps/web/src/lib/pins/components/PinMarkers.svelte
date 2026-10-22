@@ -129,12 +129,14 @@
 			class:dragging={drag?.id === pin.id}
 			class:editing
 			class:entry={pin.glossaryEntryId !== null}
+			class:view={pin.viewWidth !== undefined}
 			aria-controls={previewing ? cardId : undefined}
 			aria-describedby={expanded ? cardId : undefined}
 			aria-expanded={previewing ? expanded : undefined}
 			aria-label={m.pins.marker(
 				index + 1,
-				pin.glossaryEntryId ? names[pin.glossaryEntryId] : undefined
+				pin.glossaryEntryId ? names[pin.glossaryEntryId] : undefined,
+				pin.viewWidth !== undefined
 			)}
 			onblur={blur}
 			onclick={(event) => click(event, pin)}
@@ -210,6 +212,16 @@
 	.pin.entry {
 		background: var(--color-mat-bg);
 		color: var(--color-mat-fg);
+	}
+
+	.pin.view::after {
+		content: '';
+		position: absolute;
+		top: calc(-1 * var(--spacing-1));
+		right: calc(-1 * var(--spacing-1));
+		width: var(--spacing-2);
+		height: var(--spacing-2);
+		background: var(--color-highlight);
 	}
 
 	.pin:focus-visible {

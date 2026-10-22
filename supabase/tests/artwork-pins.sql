@@ -95,4 +95,36 @@ begin
 end;
 $$;
 
+do $$
+declare
+  saved uuid;
+  image uuid;
+  term uuid;
+  viewed uuid;
+  rejected boolean := false;
+begin
+  select id into saved from public.save_artwork(
+    '{"title": "Arnolfini Portrait", "author_unknown": true}', '{}', null,
+    '[{"own_image_url": "https://example.com/arnolfini.jpg"}]');
+  select id into image from public.artwork_images where artwork_id = saved;
+  insert into public.glossary_entries (name, category) values ('Convex mirror', 'painting') returning id into term;
+
+  insert into public.artwork_pins (image_id, x, y, view_width) values (image, 0.5, 0.4, 0.1);
+  insert into public.artwork_pins (image_id, x, y, glossary_entry_id, view_width)
+    values (image, 0.5, 0.4, term, 0.2) returning id into viewed;
+  assert (select count(*) from public.artwork_pins where image_id = image) = 2,
+    'a pin with only a view is not stored';
+
+  begin
+    insert into public.artwork_pins (image_id, x, y, view_width) values (image, 0.5, 0.4, 1.5);
+  exception when check_violation then rejected := true;
+  end;
+  assert rejected, 'a view wider than the image is stored';
+
+  delete from public.glossary_entries where id = term;
+  assert exists (select 1 from public.artwork_pins where id = viewed),
+    'deleting an entry drops a pin that keeps a view';
+end;
+$$;
+
 rollback;

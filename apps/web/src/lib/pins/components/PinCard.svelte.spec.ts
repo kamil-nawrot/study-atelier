@@ -29,4 +29,21 @@ describe('PinCard', () => {
 
 		await expect.element(page.getByText('The rose window.')).toBeVisible();
 	});
+
+	it('shows the view of the loupe above the text of a pin that keeps one', async () => {
+		const { container } = await render(PinCard, {
+			pin: { ...PIN, viewWidth: 0.1 },
+			image: {
+				kind: 'url',
+				url: `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="30"/>')}`,
+				width: 4000,
+				height: 3000
+			},
+			shownWidth: 550
+		});
+
+		await expect.element(page.getByText('4×')).toBeVisible();
+		expect(container.querySelector('.lens')).not.toBeNull();
+		await expect.element(page.getByText('The rose window.')).toBeVisible();
+	});
 });

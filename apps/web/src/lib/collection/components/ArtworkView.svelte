@@ -23,9 +23,11 @@
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import PinCard from '#lib/pins/components/PinCard.svelte';
+	import PinDialog from '#lib/pins/components/PinDialog.svelte';
 	import PinMarkers from '#lib/pins/components/PinMarkers.svelte';
 	import { pinsOfImage } from '#lib/pins/pin-layout.ts';
 	import type { Pin as PinRecord } from '#lib/pins/types.ts';
+	import { LOUPE_MIN_RATIO } from '../loupe.ts';
 	import { artworkImageCredit, artworkImageSource, artworkLargeSource } from '../artwork-image.ts';
 	import { artworkTypeIcon } from '../artwork-types.ts';
 	import { eraIcon } from '../eras.ts';
@@ -77,7 +79,6 @@
 	const STAGE_WIDTH = 960;
 	const VIEWER_WIDTH = 1920;
 	const GALLERY_WIDTH = 120;
-	const LOUPE_MIN_RATIO = 1.5;
 
 	let panelOpen = $state(artworkPanelOpen());
 	let viewer: ReturnType<typeof ImageViewer>;
@@ -102,7 +103,10 @@
 	let showPins = $state(false);
 
 	let imageId = $derived(current?.id);
-	let imagePins = $derived(pinsOfImage(pins, imageId));
+	let allPins = $derived(pins);
+	let imagePins = $derived(pinsOfImage(allPins, imageId));
+	let newPin = $state<{ x: number; y: number; viewWidth: number }>();
+	let newPinOpen = $state(false);
 	let entryNames = $derived(
 		Object.fromEntries((glossary ?? []).map((entry) => [entry.id, entry.name]))
 	);
@@ -205,6 +209,16 @@
 	function toggleLoupe(): void {
 		if (loupeReady) loupeOn = !loupeOn;
 	}
+
+	function pickView(spot: { x: number; y: number; viewWidth: number }): void {
+		newPin = spot;
+		newPinOpen = true;
+	}
+
+	function pinSaved(pin: PinRecord): void {
+		allPins = [...allPins, pin];
+		showPins = true;
+	}
 </script>
 
 {#snippet valueName(kind: ValueKind, name: string)}
@@ -304,6 +318,7 @@
 							image={image.src}
 							large={large.src}
 							onclose={() => (loupeOn = false)}
+							onpick={pickView}
 							sourceWidth={large.width}
 						/>
 					{/if}
@@ -474,8 +489,26 @@
 	</div>
 </div>
 
+{#if imageId !== undefined && newPin}
+	<PinDialog
+		entries={glossary ?? []}
+		image={current}
+		{imageId}
+		ondeleted={() => {}}
+		onsaved={pinSaved}
+		shownWidth={frameWidth}
+		spot={newPin}
+		view={newPin.viewWidth}
+		bind:open={newPinOpen}
+	/>
+{/if}
 {#snippet pinCard(pin: PinRecord)}
-	<PinCard entry={glossary?.find((entry) => entry.id === pin.glossaryEntryId)} {pin} />
+	<PinCard
+		entry={glossary?.find((entry) => entry.id === pin.glossaryEntryId)}
+		image={current}
+		{pin}
+		shownWidth={frameWidth}
+	/>
 {/snippet}
 
 <ImageViewer bind:this={viewer} {alt} count={gallery.length} image={fullImage} onstep={step} />
@@ -601,6 +634,10 @@
 		display: block;
 		padding: var(--spacing-2);
 		background: var(--color-mat-bg);
+	}
+
+	.frame {
+		position: relative;
 	}
 
 	.mat :global(img) {

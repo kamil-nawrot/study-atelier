@@ -8,6 +8,7 @@ export type Pin = {
 	y: number;
 	glossaryEntryId: string | null;
 	text: string;
+	viewWidth?: number;
 };
 
 export type PinDraft = {
@@ -15,6 +16,7 @@ export type PinDraft = {
 	y: number;
 	glossaryEntryId: string | null;
 	text: string;
+	viewWidth?: number;
 };
 
 export type PinsResult = {

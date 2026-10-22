@@ -117,3 +117,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0111](0111-fixed-height-first-screen-of-an-artwork-on-a-phone.md)       | Fixed-height first screen of an artwork on a phone                                       | accepted           |
 | [0112](0112-edit-pins-in-the-artwork-form.md)                            | Edit pins in the artwork form                                                            | accepted           |
 | [0113](0113-switch-the-loupe-on-from-the-corner-of-the-stage.md)         | Switch the loupe on from the corner of the stage                                         | accepted           |
+| [0114](0114-keep-a-view-of-the-loupe-in-a-pin.md)                        | Keep a view of the loupe in a pin                                                        | accepted           |
