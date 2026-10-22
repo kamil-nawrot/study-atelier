@@ -143,6 +143,55 @@ export type Database = {
           },
         ];
       };
+      artwork_pins: {
+        Row: {
+          created_at: string;
+          glossary_entry_id: string | null;
+          id: string;
+          image_id: string;
+          owner_id: string;
+          text: string | null;
+          x: number;
+          y: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          glossary_entry_id?: string | null;
+          id?: string;
+          image_id: string;
+          owner_id?: string;
+          text?: string | null;
+          x: number;
+          y: number;
+        };
+        Update: {
+          created_at?: string;
+          glossary_entry_id?: string | null;
+          id?: string;
+          image_id?: string;
+          owner_id?: string;
+          text?: string | null;
+          x?: number;
+          y?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "artwork_pins_glossary_entry_id_owner_id_fkey";
+            columns: ["glossary_entry_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "glossary_entries";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "artwork_pins_image_id_owner_id_fkey";
+            columns: ["image_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artwork_images";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
       artwork_types: {
         Row: {
           code: string;
