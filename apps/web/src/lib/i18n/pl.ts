@@ -391,6 +391,12 @@ export const pl = {
 		previous: 'Poprzednie dzieło',
 		next: 'Następne dzieło'
 	},
+	loupe: {
+		label: 'Lupa',
+		unavailable:
+			'Ten obraz nie jest większy niż na ekranie, więc lupy nie ma: pokazałaby tylko powiększone piksele.',
+		level: (level: number): string => `${level.toLocaleString('pl', { maximumFractionDigits: 1 })}×`
+	},
 	favourite: {
 		add: 'Dodaj do ulubionych',
 		remove: 'Usuń z ulubionych',

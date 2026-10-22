@@ -1,6 +1,6 @@
 # 0110. Look at the details of an artwork through a loupe
 
-- Status: accepted
+- Status: accepted; the place of the button "Lupa" and of the caption for an image that is too small is superseded by [0113](0113-switch-the-loupe-on-from-the-corner-of-the-stage.md)
 - Date: 2026-10-22
 
 ## Context and problem statement

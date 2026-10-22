@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
-import { artworkImageCredit, artworkImageSource } from './artwork-image.ts';
+import { artworkImageCredit, artworkImageSource, artworkLargeSource } from './artwork-image.ts';
 import type { ArtworkImageInput } from './types.ts';
 
 const commons: ArtworkImageInput = {
@@ -68,5 +68,34 @@ describe('artworkImageCredit', () => {
 		expect(artworkImageCredit({ kind: 'upload', path: 'u/a.jpg', width: null, height: null })).toBe(
 			m.artworkForm.ownImageCredit
 		);
+	});
+});
+
+describe('artworkLargeSource', () => {
+	it('takes the original file from Commons', () => {
+		expect(artworkLargeSource(commons)).toEqual({
+			src: 'https://commons.wikimedia.org/wiki/Special:FilePath/The%20Milkmaid.jpg',
+			width: 1000
+		});
+	});
+
+	it('takes an upload in its stored size and a link as it is', () => {
+		expect(
+			artworkLargeSource({
+				kind: 'upload',
+				path: 'u/a.jpg',
+				previewUrl: 'https://example.com/signed.jpg',
+				width: 3200,
+				height: 2400
+			})
+		).toEqual({ src: 'https://example.com/signed.jpg', width: 3200 });
+		expect(
+			artworkLargeSource({ kind: 'url', url: 'https://example.com/a.jpg', width: 900, height: 600 })
+		).toEqual({ src: 'https://example.com/a.jpg', width: 900 });
+	});
+
+	it('has no large version without a stored width', () => {
+		expect(artworkLargeSource({ ...commons, width: null })).toBeUndefined();
+		expect(artworkLargeSource(null)).toBeUndefined();
 	});
 });
