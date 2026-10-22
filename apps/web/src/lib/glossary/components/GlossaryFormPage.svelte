@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { BackHeading, LoadFailure } from '@study-atelier/ui';
+	import { LoadFailure } from '@study-atelier/ui';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import type { ResolvedPathname } from '$app/types';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import { goBackThroughHistory } from '#lib/collection/history.ts';
 	import { m } from '#lib/i18n/index.ts';
+	import BackLink from '#lib/navigation/components/BackLink.svelte';
 	import type { GlossaryFormResult } from '../types.ts';
 	import GlossaryForm from './GlossaryForm.svelte';
 
@@ -44,7 +45,8 @@
 	title={data.notFound ? m.glossary.view.notFoundTitle : title}
 >
 	{#snippet bar()}
-		<BackHeading backLabel={m.glossary.form.goBack} href={backPath} onclick={goBack} {title} />
+		<BackLink fallbackHref={backPath} fallbackName={data.entry?.name ?? m.glossary.back} />
+		<h1 class="visually-hidden">{title}</h1>
 	{/snippet}
 
 	{#if failed}

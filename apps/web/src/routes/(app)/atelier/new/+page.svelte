@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { BackHeading } from '@study-atelier/ui';
 	import { afterNavigate, goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import ArtworkForm from '#lib/collection/components/ArtworkForm.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import { goBackThroughHistory } from '#lib/collection/history.ts';
 	import { m } from '#lib/i18n/index.ts';
+	import BackLink from '#lib/navigation/components/BackLink.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -38,12 +38,8 @@
 	title={m.artworkForm.newTitle}
 >
 	{#snippet bar()}
-		<BackHeading
-			backLabel={m.artworkForm.back}
-			href={atelierPath}
-			onclick={backToAtelier}
-			title={m.artworkForm.newTitle}
-		/>
+		<BackLink fallbackHref={atelierPath} fallbackName={m.artworkView.back} />
+		<h1 class="visually-hidden">{m.artworkForm.newTitle}</h1>
 	{/snippet}
 
 	<ArtworkForm
