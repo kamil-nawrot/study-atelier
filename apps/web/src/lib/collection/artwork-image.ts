@@ -1,5 +1,10 @@
 import { m } from '#lib/i18n/index.ts';
-import { COMMONS_THUMBNAIL_WIDTHS, commonsFileUrl, commonsSrcset } from '#lib/images/commons.ts';
+import {
+	COMMONS_THUMBNAIL_WIDTHS,
+	commonsFileUrl,
+	commonsOriginalUrl,
+	commonsSrcset
+} from '#lib/images/commons.ts';
 import { commonsCredit } from '#lib/images/credit.ts';
 import type { ArtworkImageInput } from './types.ts';
 
@@ -38,6 +43,22 @@ export function artworkImageSource(
 						height: image.height ?? undefined
 					}
 				: undefined;
+	}
+}
+
+export function artworkLargeSource(
+	image: ArtworkImageInput | null
+): { src: string; width: number } | undefined {
+	if (image === null || !image.width) return undefined;
+	switch (image.kind) {
+		case 'commons':
+			return { src: commonsOriginalUrl(image.file), width: image.width };
+		case 'file':
+			return { src: image.previewUrl, width: image.width };
+		case 'url':
+			return { src: image.url, width: image.width };
+		case 'upload':
+			return image.previewUrl ? { src: image.previewUrl, width: image.width } : undefined;
 	}
 }
 

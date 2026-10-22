@@ -734,4 +734,35 @@ describe('artwork page', () => {
 			navigation.url = new URL('http://localhost/atelier/42');
 		});
 	});
+
+	describe('loupe', () => {
+		function loupeButton(): ReturnType<typeof page.getByRole> {
+			return page.getByRole('button', { name: m.loupe.label });
+		}
+
+		it('switches the loupe on for a large image and keeps the image from opening full screen', async () => {
+			renderPage({
+				artwork: artwork({ image: { kind: 'url', url: IMAGE, width: 4000, height: 5000 } })
+			});
+
+			await loupeButton().click();
+			await expect.element(loupeButton()).toHaveAttribute('aria-pressed', 'true');
+			(document.querySelector('.loupe') as HTMLElement).click();
+			await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+
+			await userEvent.keyboard('{Escape}');
+			await expect.element(loupeButton()).toHaveAttribute('aria-pressed', 'false');
+			expect(document.querySelector('.loupe')).toBeNull();
+		});
+
+		it('dims the loupe and says why for an image that is not larger than shown', async () => {
+			renderPage();
+
+			await expect.element(loupeButton()).toHaveAttribute('aria-disabled', 'true');
+			await expect.element(page.getByRole('tooltip')).toHaveTextContent(m.loupe.unavailable);
+			(loupeButton().element() as HTMLElement).click();
+			await expect.element(loupeButton()).not.toHaveAttribute('aria-pressed');
+			expect(document.querySelector('.loupe')).toBeNull();
+		});
+	});
 });
