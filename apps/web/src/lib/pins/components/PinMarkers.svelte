@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+	import { PopoverCard, PopoverState } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { fractionIn, nudged, type Fraction } from '../pin-layout.ts';
 	import type { Pin } from '../types.ts';
@@ -8,13 +10,31 @@
 		names?: Readonly<Record<string, string>>;
 		editing?: boolean;
 		draft?: Fraction & { number: number };
-		onselect: (pin: Pin) => void;
+		card?: Snippet<[Pin]>;
+		onselect?: (pin: Pin) => void;
 		onmove?: (pin: Pin, place: Fraction) => void;
 	};
 
 	const MOVE_DISTANCE = 4;
 
-	let { pins, names = {}, editing = false, draft, onselect, onmove }: Props = $props();
+	let { pins, names = {}, editing = false, draft, card, onselect, onmove }: Props = $props();
+
+	const id = $props.id();
+	const cardId = `${id}-card`;
+	const popover = new PopoverState();
+
+	let shown = $state<Pin>();
+	let previewing = $derived(card !== undefined && !editing);
+	let shownIndex = $derived(pins.findIndex((pin) => pin.id === shown?.id));
+
+	$effect(() => {
+		if (shownIndex === -1) popover.hide();
+	});
+
+	function toBody(node: HTMLElement): () => void {
+		document.body.appendChild(node);
+		return () => node.remove();
+	}
 
 	let layer: HTMLDivElement | undefined = $state();
 	let drag = $state<{ id: string; x: number; y: number }>();
@@ -50,7 +70,7 @@
 		origin = undefined;
 		drag = undefined;
 		if (finished.moved) onmove?.(pin, finished.place);
-		else onselect(pin);
+		else onselect?.(pin);
 	}
 
 	function cancel(): void {
@@ -59,8 +79,33 @@
 	}
 
 	function click(event: MouseEvent, pin: Pin): void {
+		if (previewing) {
+			shown = pin;
+			popover.toggle(event.currentTarget as HTMLElement);
+			return;
+		}
 		if (editing && event.detail !== 0) return;
-		onselect(pin);
+		onselect?.(pin);
+	}
+
+	function enter(event: PointerEvent, pin: Pin): void {
+		if (!previewing) return;
+		shown = pin;
+		popover.pointerEnter(event.currentTarget as HTMLElement, event);
+	}
+
+	function leave(event: PointerEvent): void {
+		if (previewing) popover.pointerLeave(event);
+	}
+
+	function focus(event: FocusEvent, pin: Pin): void {
+		if (!previewing) return;
+		shown = pin;
+		popover.focus(event.currentTarget as HTMLElement);
+	}
+
+	function blur(event: FocusEvent): void {
+		if (previewing) popover.blur(event);
 	}
 
 	function key(event: KeyboardEvent, pin: Pin): void {
@@ -75,7 +120,9 @@
 <div bind:this={layer} class="pins">
 	{#each pins as pin, index (pin.id)}
 		{@const place = placeOf(pin)}
+		{@const expanded = previewing && popover.open && shown?.id === pin.id}
 		<button
+			id="{id}-pin-{index}"
 			style:left="{place.x * 100}%"
 			style:top="{place.y * 100}%"
 			class="pin"
@@ -83,15 +130,22 @@
 			class:editing
 			class:entry={pin.glossaryEntryId !== null}
 			class:view={pin.viewWidth !== undefined}
+			aria-controls={previewing ? cardId : undefined}
+			aria-describedby={expanded ? cardId : undefined}
+			aria-expanded={previewing ? expanded : undefined}
 			aria-label={m.pins.marker(
 				index + 1,
 				pin.glossaryEntryId ? names[pin.glossaryEntryId] : undefined,
 				pin.viewWidth !== undefined
 			)}
+			onblur={blur}
 			onclick={(event) => click(event, pin)}
+			onfocus={(event) => focus(event, pin)}
 			onkeydown={(event) => key(event, pin)}
 			onpointercancel={cancel}
 			onpointerdown={(event) => down(event, pin)}
+			onpointerenter={(event) => enter(event, pin)}
+			onpointerleave={leave}
 			onpointermove={move}
 			onpointerup={(event) => up(event, pin)}
 			type="button"
@@ -110,6 +164,16 @@
 		</span>
 	{/if}
 </div>
+
+{#if card}
+	<div {@attach toBody}>
+		<PopoverCard id={cardId} interactive labelledby="{id}-pin-{shownIndex}" {popover}>
+			{#if shown}
+				{@render card(shown)}
+			{/if}
+		</PopoverCard>
+	</div>
+{/if}
 
 <style>
 	.pins {

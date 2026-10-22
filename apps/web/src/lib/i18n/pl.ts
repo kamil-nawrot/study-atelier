@@ -827,8 +827,6 @@ export const pl = {
 			`${name ? `Pinezka ${number}: ${name}` : `Pinezka ${number}`}${view ? ', widok lupy' : ''}`,
 		view: (level?: string): string => (level ? `Widok lupy (${level})` : 'Widok lupy'),
 		removeView: 'Usuń widok',
-		cardTitle: (number: number): string => `Pinezka ${number}`,
-		cardClose: 'Zamknij',
 		newTitle: 'Nowa pinezka',
 		title: 'Pinezka',
 		term: 'Pojęcie ze Słowniczka (opcjonalnie)',

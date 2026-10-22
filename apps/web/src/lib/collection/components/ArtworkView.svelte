@@ -101,8 +101,6 @@
 	let loupeActive = $derived(loupeOn && loupeReady && mouse.current);
 
 	let showPins = $state(false);
-	let cardPin = $state<PinRecord>();
-	let cardOpen = $state(false);
 
 	let imageId = $derived(current?.id);
 	let allPins = $derived(pins);
@@ -112,7 +110,6 @@
 	let entryNames = $derived(
 		Object.fromEntries((glossary ?? []).map((entry) => [entry.id, entry.name]))
 	);
-	let cardNumber = $derived(imagePins.findIndex((pin) => pin.id === cardPin?.id) + 1);
 
 	$effect.pre(() => {
 		void artwork.id;
@@ -222,11 +219,6 @@
 		allPins = [...allPins, pin];
 		showPins = true;
 	}
-
-	function selectPin(pin: PinRecord): void {
-		cardPin = pin;
-		cardOpen = true;
-	}
 </script>
 
 {#snippet valueName(kind: ValueKind, name: string)}
@@ -319,7 +311,7 @@
 						/>
 					</button>
 					{#if showPins}
-						<PinMarkers names={entryNames} onselect={selectPin} pins={imagePins} />
+						<PinMarkers card={pinCard} names={entryNames} pins={imagePins} />
 					{/if}
 					{#if loupeActive && large}
 						<Loupe
@@ -510,12 +502,14 @@
 		bind:open={newPinOpen}
 	/>
 {/if}
-<PinCard
-	entry={glossary?.find((entry) => entry.id === cardPin?.glossaryEntryId)}
-	number={cardNumber}
-	pin={cardPin}
-	bind:open={cardOpen}
-/>
+{#snippet pinCard(pin: PinRecord)}
+	<PinCard
+		entry={glossary?.find((entry) => entry.id === pin.glossaryEntryId)}
+		image={current}
+		{pin}
+		shownWidth={frameWidth}
+	/>
+{/snippet}
 
 <ImageViewer bind:this={viewer} {alt} count={gallery.length} image={fullImage} onstep={step} />
 
