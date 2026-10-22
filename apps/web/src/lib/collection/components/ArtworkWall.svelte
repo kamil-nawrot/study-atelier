@@ -25,6 +25,7 @@
 		onfavourite?: (artwork: WallArtwork) => void;
 		onimagefailed?: (artwork: WallArtwork) => void;
 		onnearscreen?: (artwork: WallArtwork) => void;
+		hrefOf?: (artwork: WallArtwork) => string;
 	};
 
 	let {
@@ -36,7 +37,8 @@
 		rendered = $bindable(WALL_PART),
 		onfavourite,
 		onimagefailed,
-		onnearscreen
+		onnearscreen,
+		hrefOf
 	}: Props = $props();
 
 	const VISIBLE_RATIO = 0.2;
@@ -108,7 +110,8 @@
 						date={artwork.date}
 						favourite={artwork.favourite}
 						favouriteLabel={artwork.favourite ? m.favourite.remove : m.favourite.add}
-						href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
+						href={hrefOf?.(artwork) ??
+							resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
 						image={artwork.image}
 						imageUnavailable={artwork.imageUnavailable}
 						mark={artwork.eraCode ? eraIcon(artwork.eraCode) : undefined}

@@ -1,5 +1,5 @@
 import type { Mention } from '#lib/collection/mentions.ts';
-import type { CardIndexData } from '#lib/collection/types.ts';
+import type { CardIndexData, WallArtwork } from '#lib/collection/types.ts';
 
 export type GlossaryCategory =
 	'person' | 'architecture' | 'painting' | 'sculpture' | 'technique' | 'general';
@@ -42,6 +42,8 @@ export type GlossaryEntryResult = {
 	entry?: GlossaryEntry;
 	mentions?: Mention[];
 	glossary?: GlossaryEntry[];
+	pinned?: PinnedArtwork[];
+	pinnedError?: string;
 	error?: string;
 	notFound?: boolean;
 };
@@ -58,4 +60,9 @@ export type WikipediaArticle = {
 	title: string;
 	url: string;
 	extract: string;
+};
+
+export type PinnedArtwork = {
+	artwork: WallArtwork;
+	pinId: string;
 };

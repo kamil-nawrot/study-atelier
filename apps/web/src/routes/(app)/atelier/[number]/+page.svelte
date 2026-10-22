@@ -171,6 +171,7 @@
 			artwork={data.artwork}
 			editHref={editPath}
 			{flipLinks}
+			focusPin={page.url.searchParams.get('pin') ?? undefined}
 			glossary={data.glossary}
 			mentions={data.mentions}
 			noteLinks={data.noteLinks}

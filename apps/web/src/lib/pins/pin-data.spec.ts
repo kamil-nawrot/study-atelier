@@ -1,7 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
-import { createPin, deletePin, loadPins, movePin, pinDraftError, updatePin } from './pin-data.ts';
+import {
+	createPin,
+	deletePin,
+	loadEntryPins,
+	loadPins,
+	movePin,
+	pinDraftError,
+	updatePin
+} from './pin-data.ts';
 
 vi.mock('#lib/supabase.ts', () => ({ supabase: { from: vi.fn() } }));
 
@@ -171,5 +179,35 @@ describe('pin data', () => {
 
 		query.eq.mockResolvedValueOnce({ error: { code: '', message: 'Failed to fetch' } });
 		await expect(deletePin('pin-1')).resolves.toEqual({ error: m.pins.errors.network });
+	});
+
+	it('finds the first pin of every artwork with a glossary entry', async () => {
+		query.order.mockReturnValueOnce(query).mockResolvedValueOnce({
+			data: [
+				{ id: 'pin-1', artwork_images: { artwork_id: 'artwork-1' } },
+				{ id: 'pin-2', artwork_images: { artwork_id: 'artwork-2' } },
+				{ id: 'pin-3', artwork_images: { artwork_id: 'artwork-1' } }
+			],
+			error: null
+		});
+
+		await expect(loadEntryPins('term-1')).resolves.toEqual({
+			pins: [
+				{ artworkId: 'artwork-1', pinId: 'pin-1' },
+				{ artworkId: 'artwork-2', pinId: 'pin-2' }
+			]
+		});
+		expect(query.eq).toHaveBeenCalledWith('glossary_entry_id', 'term-1');
+	});
+
+	it('reports a failure to find the pins of a glossary entry', async () => {
+		query.order
+			.mockReturnValueOnce(query)
+			.mockResolvedValueOnce({ data: null, error: { code: '', message: 'Failed to fetch' } });
+
+		await expect(loadEntryPins('term-1')).resolves.toEqual({
+			pins: [],
+			error: m.pins.errors.network
+		});
 	});
 });

@@ -30,3 +30,13 @@ export type PinResult = {
 export type PinActionResult = {
 	error?: string;
 };
+
+export type EntryPin = {
+	artworkId: string;
+	pinId: string;
+};
+
+export type EntryPinsResult = {
+	pins: EntryPin[];
+	error?: string;
+};
