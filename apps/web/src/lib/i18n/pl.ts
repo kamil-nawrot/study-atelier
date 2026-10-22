@@ -825,8 +825,6 @@ export const pl = {
 		placeHere: 'Dodaj pinezkę w tym miejscu',
 		marker: (number: number, name?: string): string =>
 			name ? `Pinezka ${number}: ${name}` : `Pinezka ${number}`,
-		cardTitle: (number: number): string => `Pinezka ${number}`,
-		cardClose: 'Zamknij',
 		newTitle: 'Nowa pinezka',
 		title: 'Pinezka',
 		term: 'Pojęcie ze Słowniczka (opcjonalnie)',

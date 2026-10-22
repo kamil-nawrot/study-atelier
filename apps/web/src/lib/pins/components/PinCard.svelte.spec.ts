@@ -16,21 +16,17 @@ const PIN = {
 describe('PinCard', () => {
 	it('shows the term and the text of the pin', async () => {
 		render(PinCard, {
-			open: true,
 			pin: { ...PIN, glossaryEntryId: 'entry-1' },
-			number: 3,
 			entry: testEntry('entry-1', 'Rose window')
 		});
 
-		const card = page.getByRole('alertdialog');
-		await expect.element(card).toHaveTextContent('Pinezka 3');
-		await expect.element(card).toHaveTextContent('The rose window.');
-		await expect.element(card).toHaveTextContent('Rose window');
+		await expect.element(page.getByText('The rose window.')).toBeVisible();
+		await expect.element(page.getByText('Rose window', { exact: true })).toBeVisible();
 	});
 
 	it('shows only the text of a pin without a term', async () => {
-		render(PinCard, { open: true, pin: PIN, number: 1 });
+		render(PinCard, { pin: PIN });
 
-		await expect.element(page.getByRole('alertdialog')).toHaveTextContent('The rose window.');
+		await expect.element(page.getByText('The rose window.')).toBeVisible();
 	});
 });

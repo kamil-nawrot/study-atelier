@@ -675,18 +675,34 @@ describe('artwork page', () => {
 			});
 		}
 
-		it('hides the markers until the switch is on and then opens the card of a pin', async () => {
+		it('hides the markers until the switch is on and then shows a pin next to it on a tap', async () => {
 			renderWithPins();
 
 			await expect
 				.element(page.getByRole('button', { name: 'Pinezka 1: Turban' }))
 				.not.toBeInTheDocument();
 			await page.getByRole('button', { name: m.pins.switchLabel(1) }).click();
-			await page.getByRole('button', { name: 'Pinezka 1: Turban' }).click();
+			const marker = page.getByRole('button', { name: 'Pinezka 1: Turban' });
+			await marker.click();
 
-			const card = page.getByRole('alertdialog');
+			const card = page.getByRole('dialog', { name: 'Pinezka 1: Turban' });
 			await expect.element(card).toHaveTextContent('Turban is a test definition.');
 			await expect.element(card).toHaveTextContent('The sitter’s turban.');
+			await expect.element(marker).toHaveAttribute('aria-expanded', 'true');
+
+			await userEvent.keyboard('{Escape}');
+			await expect.element(card).not.toBeInTheDocument();
+		});
+
+		it('shows a pin while the pointer rests on it', async () => {
+			renderWithPins();
+
+			await page.getByRole('button', { name: m.pins.switchLabel(1) }).click();
+			await page.getByRole('button', { name: 'Pinezka 1: Turban' }).hover();
+
+			await expect
+				.element(page.getByRole('dialog', { name: 'Pinezka 1: Turban' }))
+				.toHaveTextContent('The sitter’s turban.');
 		});
 
 		it('offers the switch only when the image has pins and no way to edit them', async () => {
