@@ -86,15 +86,12 @@
 	let ratio = $derived(image?.width && image.height ? image.width / image.height : undefined);
 
 	let showPins = $state(false);
-	let cardPin = $state<PinRecord>();
-	let cardOpen = $state(false);
 
 	let imageId = $derived(current?.id);
 	let imagePins = $derived(pinsOfImage(pins, imageId));
 	let entryNames = $derived(
 		Object.fromEntries((glossary ?? []).map((entry) => [entry.id, entry.name]))
 	);
-	let cardNumber = $derived(imagePins.findIndex((pin) => pin.id === cardPin?.id) + 1);
 
 	$effect.pre(() => {
 		void artwork.id;
@@ -183,11 +180,6 @@
 
 	function openViewer(): void {
 		viewer.open();
-	}
-
-	function selectPin(pin: PinRecord): void {
-		cardPin = pin;
-		cardOpen = true;
 	}
 </script>
 
@@ -281,7 +273,7 @@
 						/>
 					</button>
 					{#if showPins}
-						<PinMarkers names={entryNames} onselect={selectPin} pins={imagePins} />
+						<PinMarkers card={pinCard} names={entryNames} pins={imagePins} />
 					{/if}
 				</div>
 			</div>
@@ -423,12 +415,9 @@
 	</div>
 </div>
 
-<PinCard
-	entry={glossary?.find((entry) => entry.id === cardPin?.glossaryEntryId)}
-	number={cardNumber}
-	pin={cardPin}
-	bind:open={cardOpen}
-/>
+{#snippet pinCard(pin: PinRecord)}
+	<PinCard entry={glossary?.find((entry) => entry.id === pin.glossaryEntryId)} {pin} />
+{/snippet}
 
 <ImageViewer bind:this={viewer} {alt} count={gallery.length} image={fullImage} onstep={step} />
 
