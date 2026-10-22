@@ -186,9 +186,9 @@ begin
     'a session of quizzes never asks what a pinned detail is';
   assert (
     select count(*) from jsonb_array_elements(round) with ordinality as item (value, slot)
-      where item.value ->> 'mode' = 'quiz_pin' and item.slot % 2 = 0
+      where item.value ->> 'mode' = 'quiz_pin' and (item.slot - 1) % 3 <> 0
   ) = 0,
-    'the question about a pin is asked on every slot instead of every second one';
+    'the question about a pin is asked more often than on every third slot';
   select array_agg(option ->> 'label' order by option ->> 'label') into labels
     from jsonb_array_elements(pinned -> 'options') as option;
   assert labels = array['Apse', 'Choir', 'Nave', 'Portal'],

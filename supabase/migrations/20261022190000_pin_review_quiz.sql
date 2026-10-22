@@ -213,7 +213,7 @@ begin
       modes := array_remove(modes, 'quiz_style');
     end if;
 
-    if session_form <> 'flashcards' and slot % 2 = 0 and exists (
+    if session_form <> 'flashcards' and slot % 3 = 0 and exists (
       select 1
         from public.artwork_pins as pin
         join public.artwork_images as image on image.id = pin.image_id
