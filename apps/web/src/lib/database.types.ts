@@ -70,7 +70,7 @@ export type Database = {
           multiple?: boolean;
           name: string;
           owner_id?: string;
-          position: number;
+          position?: number;
           updated_at?: string;
         };
         Update: {

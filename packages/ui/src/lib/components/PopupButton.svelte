@@ -27,7 +27,7 @@
 	let open = $state(false);
 	let root: HTMLElement | undefined = $state();
 
-	function close(): void {
+	export function close(): void {
 		open = false;
 		root?.querySelector<HTMLElement>('[aria-haspopup]')?.focus();
 	}

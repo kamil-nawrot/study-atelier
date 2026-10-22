@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import '../styles/index.css';
 import TextButton from './TextButton.svelte';
 
 const label = createRawSnippet(() => ({ render: () => '<span>Collapse all</span>' }));
@@ -22,6 +23,14 @@ describe('TextButton', () => {
 		const button = page.getByRole('button', { name: 'Collapse all' }).element();
 		expect(getComputedStyle(button).paddingLeft).toBe('0px');
 		expect(getComputedStyle(button).paddingRight).toBe('0px');
+	});
+
+	it('takes the danger colour in the danger variant', async () => {
+		render(TextButton, { children: label });
+		render(TextButton, { children: label, danger: true });
+
+		const [plain, danger] = page.getByRole('button', { name: 'Collapse all' }).elements();
+		expect(getComputedStyle(danger).color).not.toBe(getComputedStyle(plain).color);
 	});
 
 	it('can be disabled', async () => {

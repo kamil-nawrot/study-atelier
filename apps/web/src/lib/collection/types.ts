@@ -401,3 +401,40 @@ export type ImageFieldTexts = {
 	changeOwnTitle: string;
 	remove: string;
 };
+
+export type OwnFieldKind = 'text' | 'list' | 'flag';
+
+export type OwnValue = {
+	id: string;
+	fieldId: string;
+	name: string;
+	count: number;
+};
+
+export type OwnField = {
+	id: string;
+	name: string;
+	description: string | null;
+	kind: OwnFieldKind;
+	multiple: boolean;
+	count: number;
+	values: OwnValue[];
+};
+
+export type OwnFieldInput = {
+	name: string;
+	description: string;
+	kind: OwnFieldKind;
+	multiple: boolean;
+};
+
+export type OwnFieldsResult = {
+	fields: OwnField[];
+	error?: string;
+};
+
+export type OwnValueChange =
+	| { kind: 'unchanged' }
+	| { kind: 'empty' }
+	| { kind: 'rename'; name: string }
+	| { kind: 'merge'; target: OwnValue };

@@ -592,14 +592,15 @@ export const pl = {
 	},
 	cardIndex: {
 		title: 'Kartoteka',
-		lead: 'Tu opisujesz i porządkujesz swoje epoki, okresy, style, autorów i miejsca. Kliknij nazwę, która Cię interesuje, żeby zobaczyć szczegóły.',
+		lead: 'Tu opisujesz i porządkujesz swoje epoki, okresy, style, autorów i miejsca. Możesz tutaj także utworzyć własne pola, które pozwolą dokładniej opisywać dzieła. Kliknij nazwę, która Cię interesuje, żeby zobaczyć szczegóły.',
 		loadErrorTitle: 'Nie udało się wczytać Kartoteki',
 		tabsLabel: 'Rodzaje wartości',
 		tabs: {
 			timeline: 'Okresy i style',
 			material: 'Materiały',
 			author: 'Autorzy',
-			location: 'Miejsca'
+			location: 'Miejsca',
+			own: 'Własne pola'
 		},
 		emptyEra: 'W tej epoce nie ma jeszcze okresów.',
 		periodsWithoutEra: 'Okresy bez epoki',
@@ -699,6 +700,81 @@ export const pl = {
 			network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.',
 			notFound: 'Nie ma już takiej wartości. Odśwież stronę.',
 			changed: 'Coś zmieniło się w międzyczasie. Odśwież stronę i spróbuj jeszcze raz.'
+		}
+	},
+	ownFields: {
+		empty:
+			'Nie masz jeszcze żadnych własnych pól. Dodaj pole, aby zobaczyć je przy wszystkich swoich dziełach.',
+		intro:
+			'Własne pola to dodatkowe informacje, które będzie można uzupełniać przy dziełach. Każde z nich pojawi się przy edycji istniejących dzieł oraz przy dodawaniu nowych. Ich wypełnianie zawsze będzie opcjonalne.',
+		add: 'Dodaj pole',
+		kinds: {
+			text: 'Tekst',
+			list: 'Lista',
+			flag: 'Zaznaczenie'
+		},
+		kindNotes: {
+			text: 'dowolna treść',
+			list: 'jedna lub wiele wartości z podpowiedziami',
+			flag: 'pole do zaznaczania'
+		},
+		oneValue: 'jedna wartość',
+		manyValues: 'kilka wartości',
+		summary: (parts: string[]): string => parts.join(' · '),
+		noValues: 'Nie ma tu jeszcze wartości. Pojawią się, gdy wpiszesz je przy dziele.',
+		search: (name: string): string => `Szukaj w polu „${name}”`,
+		menu: (name: string): string => `Działania pola „${name}”`,
+		edit: 'Zmień nazwę',
+		moveUp: 'Przesuń wyżej',
+		moveDown: 'Przesuń niżej',
+		remove: 'Usuń',
+		form: {
+			newTitle: 'Nowe pole',
+			name: 'Nazwa',
+			description: 'Opis (opcjonalnie)',
+			descriptionHint:
+				'Wyjaśnienie, które może w przyszłości pomóc zdecydować, co wpisywać w tym polu.',
+			kind: 'Rodzaj',
+			kindFixed: 'Wybranego rodzaju nie będzie można zmienić po utworzeniu pola.',
+			multiple: 'Dzieło może mieć kilka wartości',
+			cancel: 'Anuluj',
+			create: 'Dodaj',
+			creating: 'Dodawanie…',
+			save: 'Zapisz',
+			saving: 'Zapisywanie…',
+			errorTitle: 'Nie udało się zapisać pola'
+		},
+		deleteConfirm: {
+			title: (name: string): string => `Usunąć pole „${name}”?`,
+			description: (count: number): string =>
+				count === 0
+					? 'Pole zniknie z formularza. Usunięcia nie będzie można cofnąć.'
+					: `Pole zniknie z formularza i z ${count} ${plural(count, { one: 'dzieła', few: 'dzieł', many: 'dzieł' })}, ${plural(count, { one: 'które ma', few: 'które mają', many: 'które mają' })} je uzupełnione. Usunięcia nie będzie można cofnąć.`,
+			back: 'Wróć',
+			confirm: 'Usuń pole',
+			deleting: 'Usuwanie…'
+		},
+		value: {
+			description: (field: string, count: string): string => `${field} · ${count}`,
+			name: 'Nazwa',
+			mergeHint: (name: string, count: string): string =>
+				`Masz już „${name}” (${count}). Zapisz, a połączę je w jeden.`,
+			cancel: 'Anuluj',
+			save: 'Zapisz',
+			saving: 'Zapisywanie…',
+			merge: 'Połącz',
+			kind: 'wartości',
+			errorTitle: 'Nie udało się zapisać wartości'
+		},
+		errorTitle: 'Nie udało się zmienić pola',
+		created: (name: string): string => `Dodano pole „${name}”.`,
+		saved: (name: string): string => `Zapisano „${name}”.`,
+		deleted: (name: string): string => `Usunięto pole „${name}”.`,
+		errors: {
+			nameRequired: 'Wpisz nazwę.',
+			builtInName: (name: string): string =>
+				`Dzieło ma już wbudowane pole „${name}”. Wybierz inną nazwę.`,
+			ownName: (name: string): string => `Masz już pole „${name}”.`
 		}
 	},
 	mentions: {

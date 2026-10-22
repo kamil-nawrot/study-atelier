@@ -5,12 +5,13 @@
 	type Props = HTMLButtonAttributes & {
 		children: Snippet;
 		inline?: boolean;
+		danger?: boolean;
 	};
 
-	let { children, inline = false, ...rest }: Props = $props();
+	let { children, inline = false, danger = false, ...rest }: Props = $props();
 </script>
 
-<button class="text-button" class:inline type="button" {...rest}>
+<button class="text-button" class:danger class:inline type="button" {...rest}>
 	{@render children()}
 </button>
 
@@ -30,6 +31,10 @@
 
 	.text-button.inline {
 		padding-inline: 0;
+	}
+
+	.text-button.danger {
+		color: var(--color-danger);
 	}
 
 	.text-button:disabled {
