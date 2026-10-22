@@ -18,7 +18,11 @@
 	);
 </script>
 
-<a class="back" {href} onclick={(event) => goBackThroughHistory(event, place !== undefined)}>
+<a
+	class="back"
+	{href}
+	onclick={(event) => goBackThroughHistory(event, place !== undefined, place?.steps)}
+>
 	<Icon icon={ArrowLeft} />
 	<span class="name">{place?.name ?? fallbackName}</span>
 </a>

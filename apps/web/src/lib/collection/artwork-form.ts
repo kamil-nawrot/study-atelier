@@ -48,7 +48,9 @@ export function emptyArtworkForm(fields?: readonly OwnFieldDefinition[]): Artwor
 		image: null,
 		images: [],
 		...(fields ? { own: ownEntries(fields) } : {}),
-		ownQueries: {}
+		ownQueries: Object.fromEntries(
+			(fields ?? []).filter((field) => field.kind === 'list').map((field) => [field.id, ''])
+		)
 	};
 }
 
@@ -57,7 +59,7 @@ export function artworkFormFromRecord(
 	fields?: readonly OwnFieldDefinition[]
 ): ArtworkFormState {
 	return {
-		...emptyArtworkForm(),
+		...emptyArtworkForm(fields),
 		...(fields ? { own: ownEntries(fields, record.own) } : {}),
 		title: record.title,
 		values: {

@@ -362,14 +362,14 @@ describe('edit artwork page', () => {
 	});
 
 	it('goes back to where the learner came from', async () => {
-		const back = vi.spyOn(history, 'back').mockImplementation(() => {});
+		const go = vi.spyOn(history, 'go').mockImplementation(() => {});
 		renderPage();
 		arrive('/(app)/atelier');
 
 		await page.getByRole('link', { name: m.artworkForm.cancel }).click();
 
-		expect(back).toHaveBeenCalled();
-		back.mockRestore();
+		expect(go).toHaveBeenCalledWith(-1);
+		go.mockRestore();
 	});
 
 	it('leaves without asking when nothing was changed', async () => {

@@ -2,7 +2,6 @@ import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
 import { compareSortKeys } from './author-sort.ts';
-import { fetchAll } from './card-index-data.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from './errors.ts';
 import { valueKey } from './value-suggestions.ts';
 import type {
@@ -30,8 +29,6 @@ type FieldRow = {
 };
 
 type UsageRow = { field_id: string; artwork_count: number };
-
-type ValueRow = { id: string; category_code: string; name: string; artwork_count: number };
 
 type ActionResult = { error?: string };
 
@@ -76,32 +73,23 @@ export async function loadOwnFields(): Promise<OwnFieldsResult> {
 	const error = fields.error ?? usage.error;
 	if (error) return { fields: [], error: collectionErrorMessage(error) };
 
-	const rows = (fields.data ?? []).filter((row) => isOwnFieldKind(row.kind));
-	const listIds = rows.filter((row) => row.kind === 'list').map((row) => row.id);
-	const values =
-		listIds.length === 0
-			? { rows: [] as ValueRow[] }
-			: await fetchAll<ValueRow>((from, to) =>
-					supabase.rpc('value_usage').in('category_code', listIds).range(from, to)
-				);
-	if (values.error) return { fields: [], error: collectionErrorMessage(values.error) };
-
 	const counts = new Map(((usage.data ?? []) as UsageRow[]).map((row) => [row.field_id, row]));
 	return {
-		fields: rows.map((row): OwnField => ({
-			...definitionOf(row),
-			count: counts.get(row.id)?.artwork_count ?? 0,
-			values: values.rows
-				.filter((value) => value.category_code === row.id)
-				.map((value) => ({
-					id: value.id,
-					fieldId: row.id,
-					name: value.name,
-					count: value.artwork_count
-				}))
-				.sort(byName)
-		}))
+		fields: (fields.data ?? [])
+			.filter((row) => isOwnFieldKind(row.kind))
+			.map((row): OwnField => ({
+				...definitionOf(row),
+				count: counts.get(row.id)?.artwork_count ?? 0,
+				values: []
+			}))
 	};
+}
+
+export function withOwnValues(fields: OwnField[], values: readonly OwnValue[]): OwnField[] {
+	return fields.map((field) => ({
+		...field,
+		values: values.filter((value) => value.fieldId === field.id).sort(byName)
+	}));
 }
 
 export function builtInFieldNames(): string[] {

@@ -104,6 +104,18 @@ export function isEmptyFilter(filter: CollectionFilter): boolean {
 	return FILTER_FIELDS.every((field) => !hasChoice(filter, field)) && !hasOwnChoice(filter);
 }
 
+const searchTerms = new Map<string, string>();
+
+function searchTerm(text: string): string {
+	let term = searchTerms.get(text);
+	if (term === undefined) {
+		if (searchTerms.size > 50) searchTerms.clear();
+		term = normalizeForSearch(text);
+		searchTerms.set(text, term);
+	}
+	return term;
+}
+
 function ownMatches(artwork: WallArtwork, filter: CollectionFilter, skip?: FilterSkip): boolean {
 	const listsMatch = Object.entries(filter.own).every(([id, chosen]) => {
 		if (chosen.length === 0 || skip === `own:${id}`) return true;
@@ -111,7 +123,7 @@ function ownMatches(artwork: WallArtwork, filter: CollectionFilter, skip?: Filte
 		return Array.isArray(entry) && entry.some((value) => chosen.includes(value));
 	});
 	const textsMatch = Object.entries(filter.ownTexts).every(([id, text]) => {
-		const term = normalizeForSearch(text);
+		const term = searchTerm(text);
 		if (!term || skip === `ownText:${id}`) return true;
 		const entry = artwork.own?.[id];
 		return typeof entry === 'string' && normalizeForSearch(entry).includes(term);
@@ -324,43 +336,24 @@ export function clearField(filter: CollectionFilter, field: FilterField): Collec
 }
 
 function ownTags(filter: CollectionFilter, fields: readonly OwnFieldDefinition[]): FilterTag[] {
-	return fields.flatMap((field): FilterTag[] => {
-		const name = field.name;
-		if (field.kind === 'list') {
-			return (filter.own[field.id] ?? []).map((value) => ({
-				id: `own:${field.id}:${value}`,
-				field: 'own',
-				fieldId: field.id,
-				value,
-				parts: { field: name, value }
-			}));
-		}
-		if (field.kind === 'text') {
-			const text = (filter.ownTexts[field.id] ?? '').trim();
-			return text
-				? [
-						{
-							id: `ownText:${field.id}`,
-							field: 'ownText',
-							fieldId: field.id,
-							value: text,
-							parts: { field: name, value: text }
-						}
-					]
-				: [];
-		}
-		return filter.ticked.includes(field.id)
-			? [
-					{
-						id: `ticked:${field.id}`,
-						field: 'ticked',
-						fieldId: field.id,
-						value: '',
-						parts: { field: name, value: '' }
-					}
-				]
-			: [];
+	const names = new Map(fields.map((field) => [field.id, field.name]));
+	const nameOf = (id: string): string => names.get(id) ?? m.atelier.filters.ownField;
+	const tag = (field: 'own' | 'ownText' | 'ticked', id: string, value: string): FilterTag => ({
+		id: `${field}:${id}${field === 'own' ? `:${value}` : ''}`,
+		field,
+		fieldId: id,
+		value,
+		parts: { field: nameOf(id), value }
 	});
+	return [
+		...Object.entries(filter.own).flatMap(([id, values]) =>
+			values.map((value) => tag('own', id, value))
+		),
+		...Object.entries(filter.ownTexts).flatMap(([id, text]) =>
+			text.trim() ? [tag('ownText', id, text.trim())] : []
+		),
+		...filter.ticked.map((id) => tag('ticked', id, ''))
+	];
 }
 
 export function filterTags(
@@ -504,13 +497,14 @@ function ownFromParams(params: Params): Pick<CollectionFilter, 'own' | 'ownTexts
 export function pruneFilter(
 	filter: CollectionFilter,
 	artworks: WallArtwork[],
-	fields: readonly OwnFieldDefinition[] = []
+	fields?: readonly OwnFieldDefinition[]
 ): CollectionFilter {
 	const pruned = { ...filter };
 	for (const field of NAME_FIELDS) {
 		const existing = new Set(artworks.flatMap((artwork) => valuesOf(artwork, field)));
 		pruned[field] = filter[field].filter((value) => existing.has(value));
 	}
+	if (!fields) return pruned;
 	const ofKind = (kind: OwnFieldDefinition['kind']): Set<string> =>
 		new Set(fields.filter((field) => field.kind === kind).map((field) => field.id));
 	const lists = ofKind('list');

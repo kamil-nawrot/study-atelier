@@ -25,7 +25,10 @@ function renderValues(
 	error?: string,
 	ownFields: OwnField[] = []
 ): void {
-	render(ValuesPage, { data: { session: testSession(), index, error, ownFields }, params: {} });
+	render(ValuesPage, {
+		data: { session: testSession(), index, error, ownFields, ownFieldsError: undefined },
+		params: {}
+	});
 }
 
 function withMaterials(count: number): CardIndexData {
@@ -169,6 +172,28 @@ describe('card index page', () => {
 		await expect.element(page.getByRole('button', { name: m.ownFields.add })).toBeVisible();
 	});
 
+	it('keeps the other tabs and says so in its tab when the own fields could not be loaded', async () => {
+		render(ValuesPage, {
+			data: {
+				session: testSession(),
+				index: testCardIndex(),
+				error: undefined,
+				ownFields: [],
+				ownFieldsError: m.collectionErrors.network
+			},
+			params: {}
+		});
+
+		await page.getByRole('tab', { name: m.cardIndex.tabs.own }).click();
+
+		await expect.element(page.getByText(m.ownFields.loadErrorTitle)).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.ownFields.add }))
+			.not.toBeInTheDocument();
+		await page.getByRole('tab', { name: m.cardIndex.tabs.material }).click();
+		await expect.element(page.getByText(m.ownFields.loadErrorTitle)).not.toBeInTheDocument();
+	});
+
 	it('shows a loading error instead of the tabs', async () => {
 		renderValues(testCardIndex(), m.collectionErrors.network);
 
@@ -236,7 +261,13 @@ describe('card index page', () => {
 	it('keeps the tab and the search when the learner comes back', async () => {
 		const index = withMaterials(CARD_INDEX_SEARCH_MIN_VALUES);
 		const first = await render(ValuesPage, {
-			data: { session: testSession(), index, error: undefined, ownFields: [] },
+			data: {
+				session: testSession(),
+				index,
+				error: undefined,
+				ownFields: [],
+				ownFieldsError: undefined
+			},
 			params: {}
 		});
 		await page.getByRole('tab', { name: m.cardIndex.tabs.material }).click();
@@ -245,7 +276,13 @@ describe('card index page', () => {
 		first.unmount();
 
 		const second = await render(ValuesPage, {
-			data: { session: testSession(), index, error: undefined, ownFields: [] },
+			data: {
+				session: testSession(),
+				index,
+				error: undefined,
+				ownFields: [],
+				ownFieldsError: undefined
+			},
 			params: {}
 		});
 		second.component.snapshot.restore(saved);
@@ -260,7 +297,13 @@ describe('card index page', () => {
 
 	it('ignores a snapshot with a tab it does not know', async () => {
 		const shown = await render(ValuesPage, {
-			data: { session: testSession(), index: testCardIndex(), error: undefined, ownFields: [] },
+			data: {
+				session: testSession(),
+				index: testCardIndex(),
+				error: undefined,
+				ownFields: [],
+				ownFieldsError: undefined
+			},
 			params: {}
 		});
 

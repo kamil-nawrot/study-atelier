@@ -2,6 +2,7 @@ export type Place = {
 	name: string;
 	path: string;
 	previous?: Place;
+	steps?: number;
 };
 
 export type Names = Record<string, Place>;
@@ -28,7 +29,8 @@ function isForm(route: string | null): boolean {
 function afterForm(current: Place | undefined, to: PageStop): Place | undefined {
 	if (!current) return undefined;
 	const { previous, ...opener } = current;
-	return opener.path.split('?')[0] === to.key ? previous : opener;
+	if (opener.path.split('?')[0] !== to.key) return opener;
+	return previous && { ...previous, steps: 2 };
 }
 
 export function arrive(
@@ -38,7 +40,7 @@ export function arrive(
 ): Place | undefined {
 	const { type, from, to } = arrival;
 	if (type === 'popstate' || type === 'enter' || !from) return undefined;
-	if (isForm(from.route)) return afterForm(current, to);
+	if (isForm(from.route) && type === 'goto') return afterForm(current, to);
 	if (from.key === to.key) return current;
 	if (from.route === to.route && to.route !== null && CARRY_ROUTES.has(to.route)) return current;
 	const place = names[from.key];

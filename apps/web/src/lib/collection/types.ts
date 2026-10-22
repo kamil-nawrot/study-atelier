@@ -252,6 +252,7 @@ export type CardIndexData = {
 
 export type CardIndexResult = {
 	index: CardIndexData;
+	ownValues: OwnValue[];
 	error?: string;
 };
 

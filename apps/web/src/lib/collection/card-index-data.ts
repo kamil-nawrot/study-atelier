@@ -5,7 +5,7 @@ import { emptyCardIndex } from './card-index.ts';
 import { isCategoryCode } from './category-values.ts';
 import { isEraCode } from './eras.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from './errors.ts';
-import type { CardIndexRecord, CardIndexResult, EraCode } from './types.ts';
+import type { CardIndexRecord, CardIndexResult, EraCode, OwnValue } from './types.ts';
 
 const PAGE_SIZE = 1000;
 
@@ -68,9 +68,16 @@ export async function loadCardIndex(): Promise<CardIndexResult> {
 	]);
 	const error = values.error ?? periodEras.error ?? stylePeriods.error ?? sortNames.error;
 	const sortNameOf = new Map(sortNames.rows.map((row) => [row.value_id, row.sort_name]));
-	if (error) return { index: emptyCardIndex(), error: collectionErrorMessage(error) };
+	if (error) {
+		return { index: emptyCardIndex(), ownValues: [], error: collectionErrorMessage(error) };
+	}
 
 	return {
+		ownValues: values.rows.flatMap((row): OwnValue[] =>
+			isCategoryCode(row.category_code)
+				? []
+				: [{ id: row.id, fieldId: row.category_code, name: row.name, count: row.artwork_count }]
+		),
 		index: {
 			values: values.rows.flatMap((row): CardIndexRecord[] =>
 				isCategoryCode(row.category_code)

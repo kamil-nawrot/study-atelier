@@ -249,6 +249,7 @@ export const pl = {
 				favourites: 'Ulubione',
 				ticked: 'Zaznaczone'
 			},
+			ownField: 'Własne pole',
 			tagFields: {
 				eras: 'Epoka',
 				types: 'Typ',
@@ -769,6 +770,7 @@ export const pl = {
 			errorTitle: 'Nie udało się zapisać wartości'
 		},
 		errorTitle: 'Nie udało się zmienić pola',
+		loadErrorTitle: 'Nie udało się wczytać własnych pól',
 		created: (name: string): string => `Dodano pole „${name}”.`,
 		saved: (name: string): string => `Zapisano „${name}”.`,
 		deleted: (name: string): string => `Usunięto pole „${name}”.`,

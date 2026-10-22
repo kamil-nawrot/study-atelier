@@ -185,12 +185,19 @@ function valuesByCategory(input: ArtworkInput): Record<string, string[]> {
 	} satisfies Record<CategoryCode, string[]>;
 }
 
+const CONTROL_CHARACTERS = /\p{Cc}/gu;
+
+function oneLine(text: string): string {
+	return text.replace(CONTROL_CHARACTERS, ' ').trim();
+}
+
 function fieldEntries(input: ArtworkInput): Record<string, Json> | undefined {
 	if (!input.own) return undefined;
 	return Object.fromEntries(
 		Object.entries(input.own).flatMap(([id, entry]): [string, Json][] => {
 			if (entry === true) return [[id, true]];
-			if (typeof entry === 'string' && entry.trim()) return [[id, entry.trim()]];
+			const text = typeof entry === 'string' ? oneLine(entry) : '';
+			if (text) return [[id, text]];
 			return [];
 		})
 	);

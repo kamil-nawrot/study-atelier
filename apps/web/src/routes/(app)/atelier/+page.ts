@@ -4,5 +4,5 @@ import type { PageLoad } from './$types';
 
 export const load: PageLoad = async () => {
 	const [atelier, own] = await Promise.all([loadAtelier(), loadOwnFieldDefinitions()]);
-	return { ...atelier, ownFields: own.fields };
+	return { ...atelier, ownFields: own.error ? undefined : own.fields };
 };
