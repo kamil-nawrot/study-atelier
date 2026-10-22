@@ -9,6 +9,14 @@ alter table public.artwork_images
 alter table public.artwork_images drop constraint artwork_images_position_check;
 alter table public.artwork_images add check (position between 0 and 4);
 
+update public.artwork_images as image
+  set position = image.position - 1
+  from public.artworks as artwork
+  where artwork.id = image.artwork_id
+    and artwork.source_image_file is null
+    and artwork.own_image_path is null
+    and artwork.own_image_url is null;
+
 insert into public.artwork_images (
   artwork_id, owner_id, position, source_wikidata_id, source_image_file, source_image_licence,
   source_image_licence_url, source_image_attribution, own_image_path, own_image_url,
