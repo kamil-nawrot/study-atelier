@@ -112,3 +112,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0106](0106-name-where-the-arrow-of-a-form-leads.md)                     | Name where the arrow of a form leads                                                     | accepted           |
 | [0107](0107-drop-the-line-above-the-timeline.md)                         | Drop the line above the timeline                                                         | accepted           |
 | [0108](0108-collapse-own-lists-and-show-their-values-as-tags.md)         | Collapse own lists in Kartoteka and show their values as tags                            | accepted           |
+| [0109](0109-pin-details-on-the-artwork-image.md)                         | Pin details on the artwork image                                                         | accepted           |
