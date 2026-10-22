@@ -91,7 +91,11 @@
 					/>
 				{/key}
 			{:else if tab === 'own'}
-				<OwnFieldsTab fields={data.ownFields} onchanged={ownFieldsChanged} />
+				<OwnFieldsTab
+					error={data.ownFieldsError}
+					fields={data.ownFields}
+					onchanged={ownFieldsChanged}
+				/>
 			{/if}
 		</Tabs>
 	{/if}

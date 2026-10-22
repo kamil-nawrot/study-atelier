@@ -542,6 +542,16 @@ describe('own fields', () => {
 		expect(filterFromParams(new URLSearchParams(`${params}&colour=red`))).toEqual(filter);
 	});
 
+	it('keeps own choices and names their tags in general when the fields could not be loaded', () => {
+		const filter = toggleTicked(toggleOwnValue(emptyFilter(), 'lecture', 'Baroque class'), 'seen');
+
+		expect(pruneFilter(filter, own)).toEqual(filter);
+		expect(filterTags(filter).map((tag) => tagParts(tag))).toEqual([
+			{ field: m.atelier.filters.ownField, value: 'Baroque class' },
+			{ field: m.atelier.filters.ownField, value: '' }
+		]);
+	});
+
 	it('drops own fields that no longer exist and values no artwork has', () => {
 		let filter = toggleOwnValue(emptyFilter(), 'lecture', 'Gone class');
 		filter = toggleOwnValue(filter, 'lecture', 'Baroque class');

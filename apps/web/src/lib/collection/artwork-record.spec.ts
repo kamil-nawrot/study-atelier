@@ -301,6 +301,15 @@ describe('saveArtwork', () => {
 		);
 	});
 
+	it('turns a tab or a line break pasted into an own text into a space', async () => {
+		await saveArtwork(input({ own: { source: ' Gombrich,\tp.\n300 ' } }));
+
+		expect(supabase.rpc).toHaveBeenLastCalledWith(
+			'save_artwork',
+			expect.objectContaining({ field_entries: { source: 'Gombrich, p. 300' } })
+		);
+	});
+
 	it('leaves the own fields alone when the form does not know them', async () => {
 		await saveArtwork(input());
 

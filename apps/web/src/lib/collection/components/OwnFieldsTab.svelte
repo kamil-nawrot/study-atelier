@@ -19,10 +19,11 @@
 
 	type Props = {
 		fields: OwnField[];
+		error?: string;
 		onchanged: (message?: string) => Promise<void>;
 	};
 
-	let { fields, onchanged }: Props = $props();
+	let { fields, error, onchanged }: Props = $props();
 
 	let menus = $state<Record<string, PopupButton>>({});
 	let queries = $state<Record<string, string>>({});
@@ -100,82 +101,88 @@
 </script>
 
 <div class="own-fields">
-	<div class="intro">
-		<p>{m.ownFields.intro}</p>
-		<div class="add">
-			<Button onclick={add}>
-				<Icon icon={Plus} />
-				{m.ownFields.add}
-			</Button>
-		</div>
-	</div>
-
-	{#if failure}
-		<Alert title={m.ownFields.errorTitle} tone="danger">
-			{failure}
+	{#if error}
+		<Alert title={m.ownFields.loadErrorTitle} tone="danger">
+			{error}
 		</Alert>
-	{/if}
+	{:else}
+		<div class="intro">
+			<p>{m.ownFields.intro}</p>
+			<div class="add">
+				<Button onclick={add}>
+					<Icon icon={Plus} />
+					{m.ownFields.add}
+				</Button>
+			</div>
+		</div>
 
-	{#if fields.length === 0}
-		<p class="lead">{m.ownFields.empty}</p>
-	{/if}
+		{#if failure}
+			<Alert title={m.ownFields.errorTitle} tone="danger">
+				{failure}
+			</Alert>
+		{/if}
 
-	{#each fields as field, index (field.id)}
-		<section aria-labelledby="field-{field.id}">
-			<header>
-				<div class="heading">
-					<h2 id="field-{field.id}">{field.name}</h2>
-					<p class="caption">{summary(field)}</p>
-					{#if field.description}
-						<p class="caption">{field.description}</p>
-					{/if}
-				</div>
-				<PopupButton
-					bind:this={menus[field.id]}
-					align="end"
-					label={m.ownFields.menu(field.name)}
-					tooltip
-				>
-					{#snippet trigger()}
-						<Icon icon={Ellipsis} />
-					{/snippet}
-					<div class="menu">
-						<TextButton onclick={() => fromMenu(field, () => edit(field))}>
-							{m.ownFields.edit}
-						</TextButton>
-						<TextButton
-							disabled={index === 0}
-							onclick={() => fromMenu(field, () => void move(field, -1))}
-						>
-							{m.ownFields.moveUp}
-						</TextButton>
-						<TextButton
-							disabled={index === fields.length - 1}
-							onclick={() => fromMenu(field, () => void move(field, 1))}
-						>
-							{m.ownFields.moveDown}
-						</TextButton>
-						<TextButton danger onclick={() => fromMenu(field, () => askDelete(field))}>
-							{m.ownFields.remove}
-						</TextButton>
+		{#if fields.length === 0}
+			<p class="lead">{m.ownFields.empty}</p>
+		{/if}
+
+		{#each fields as field, index (field.id)}
+			<section aria-labelledby="field-{field.id}">
+				<header>
+					<div class="heading">
+						<h2 id="field-{field.id}">{field.name}</h2>
+						<p class="caption">{summary(field)}</p>
+						{#if field.description}
+							<p class="caption">{field.description}</p>
+						{/if}
 					</div>
-				</PopupButton>
-			</header>
-			{#if field.kind === 'list' && field.values.length === 0}
-				<p class="lead">{m.ownFields.noValues}</p>
-			{:else if field.kind === 'list'}
-				<Disclosure count={field.values.length} level={3} open={false} title={m.ownFields.values}>
-					<CardIndexList
-						empty={m.ownFields.noValues}
-						onchoose={(id) => chooseValue(field, id)}
-						records={field.values}
-						searchLabel={m.ownFields.search(field.name)}
-						bind:query={() => queries[field.id] ?? '', (query) => (queries[field.id] = query)}
-					/>
-				</Disclosure>
-			{/if}
-		</section>
-	{/each}
+					<PopupButton
+						bind:this={menus[field.id]}
+						align="end"
+						label={m.ownFields.menu(field.name)}
+						tooltip
+					>
+						{#snippet trigger()}
+							<Icon icon={Ellipsis} />
+						{/snippet}
+						<div class="menu">
+							<TextButton onclick={() => fromMenu(field, () => edit(field))}>
+								{m.ownFields.edit}
+							</TextButton>
+							<TextButton
+								disabled={index === 0}
+								onclick={() => fromMenu(field, () => void move(field, -1))}
+							>
+								{m.ownFields.moveUp}
+							</TextButton>
+							<TextButton
+								disabled={index === fields.length - 1}
+								onclick={() => fromMenu(field, () => void move(field, 1))}
+							>
+								{m.ownFields.moveDown}
+							</TextButton>
+							<TextButton danger onclick={() => fromMenu(field, () => askDelete(field))}>
+								{m.ownFields.remove}
+							</TextButton>
+						</div>
+					</PopupButton>
+				</header>
+				{#if field.kind === 'list' && field.values.length === 0}
+					<p class="lead">{m.ownFields.noValues}</p>
+				{:else if field.kind === 'list'}
+					<Disclosure count={field.values.length} level={3} open={false} title={m.ownFields.values}>
+						<CardIndexList
+							empty={m.ownFields.noValues}
+							onchoose={(id) => chooseValue(field, id)}
+							records={field.values}
+							searchLabel={m.ownFields.search(field.name)}
+							bind:query={() => queries[field.id] ?? '', (query) => (queries[field.id] = query)}
+						/>
+					</Disclosure>
+				{/if}
+			</section>
+		{/each}
+	{/if}
 </div>
 
 <OwnFieldDialog {edited} {fields} onsaved={onchanged} bind:open={fieldOpen} />

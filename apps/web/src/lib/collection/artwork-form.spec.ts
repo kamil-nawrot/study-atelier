@@ -162,6 +162,16 @@ describe('own fields in the form', () => {
 		expect(emptyArtworkForm().own).toBeUndefined();
 	});
 
+	it('starts an empty search for every own list, so a cleared search is no change', () => {
+		const form = emptyArtworkForm(fields);
+		const saved = emptyArtworkForm(fields);
+
+		form.ownQueries.lecture = '';
+
+		expect(saved.ownQueries).toEqual({ lecture: '' });
+		expect(formHasChanges(form, saved)).toBe(false);
+	});
+
 	it('fills own fields from the saved artwork and empties an entry of another kind', () => {
 		const record: ArtworkRecord = {
 			id: 'artwork-1',

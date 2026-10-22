@@ -104,11 +104,12 @@ describe('loadCardIndex', () => {
 				values: [{ id: 'p1', category: 'period', name: 'Classical', count: 2 }],
 				periodEras: [{ periodId: 'p1', eraCode: 'antiquity', count: 2 }],
 				stylePeriods: [{ styleId: 's1', periodId: 'p1', count: 1 }]
-			}
+			},
+			ownValues: []
 		});
 	});
 
-	it('leaves out the values of the learner own list fields', async () => {
+	it('keeps the values of the learner own list fields apart from the card index', async () => {
 		rpc.mockImplementation(((name: string) =>
 			rpcResult(
 				name === 'value_usage'
@@ -124,9 +125,17 @@ describe('loadCardIndex', () => {
 					: []
 			)) as never);
 
-		const { index } = await loadCardIndex();
+		const { index, ownValues } = await loadCardIndex();
 
 		expect(index.values).toEqual([{ id: 'p1', category: 'period', name: 'Classical', count: 2 }]);
+		expect(ownValues).toEqual([
+			{
+				id: 'f1',
+				fieldId: '7d1c3a52-1b4e-4c55-9d1e-0f2a7b6c8e90',
+				name: 'Annunciation',
+				count: 1
+			}
+		]);
 	});
 
 	it('reads every page of 1000 rows', async () => {

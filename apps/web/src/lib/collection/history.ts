@@ -1,11 +1,11 @@
 import { navigating } from '$app/state';
 
-export function goBackThroughHistory(event: MouseEvent, cameFromApp: boolean): void {
+export function goBackThroughHistory(event: MouseEvent, cameFromApp: boolean, steps = 1): void {
 	if (navigating.to) {
 		event.preventDefault();
 		return;
 	}
 	if (!cameFromApp) return;
 	event.preventDefault();
-	history.back();
+	history.go(-steps);
 }

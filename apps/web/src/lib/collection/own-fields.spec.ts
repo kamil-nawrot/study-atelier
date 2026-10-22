@@ -11,7 +11,8 @@ import {
 	loadOwnFields,
 	moveOwnField,
 	planOwnValueChange,
-	updateOwnField
+	updateOwnField,
+	withOwnValues
 } from './own-fields.ts';
 
 vi.mock('#lib/supabase.ts', () => ({ supabase: { from: vi.fn(), rpc: vi.fn() } }));
@@ -41,7 +42,7 @@ describe('loadOwnFields', () => {
 		query.select.mockReturnValue(query);
 	});
 
-	it('gives every field its count and the values of a list in A to Z order', async () => {
+	it('gives every field its count without asking for the values again', async () => {
 		query.order.mockResolvedValue({
 			data: [
 				{ id: 'lecture', name: 'Lecture', description: null, kind: 'list', multiple: false },
@@ -55,57 +56,37 @@ describe('loadOwnFields', () => {
 			],
 			error: null
 		});
-		rpc.mockImplementation(((name: string) =>
-			name === 'artwork_field_usage'
-				? rows([
-						{ field_id: 'lecture', artwork_count: 3 },
-						{ field_id: 'source', artwork_count: 1 }
-					])
-				: rows([
-						{ id: 'v2', category_code: 'lecture', name: 'Renaissance', artwork_count: 1 },
-						{ id: 'v1', category_code: 'lecture', name: 'Baroque', artwork_count: 2 }
-					])) as never);
-
-		await expect(loadOwnFields()).resolves.toEqual({
-			fields: [
-				{
-					id: 'lecture',
-					name: 'Lecture',
-					description: null,
-					kind: 'list',
-					multiple: false,
-					count: 3,
-					values: [
-						{ id: 'v1', fieldId: 'lecture', name: 'Baroque', count: 2 },
-						{ id: 'v2', fieldId: 'lecture', name: 'Renaissance', count: 1 }
-					]
-				},
-				{
-					id: 'source',
-					name: 'Source',
-					description: 'Book and page',
-					kind: 'text',
-					multiple: false,
-					count: 1,
-					values: []
-				}
-			]
-		});
-		expect(query.order).toHaveBeenCalledWith('position');
-	});
-
-	it('does not ask for values when there is no list field', async () => {
-		query.order.mockResolvedValue({
-			data: [{ id: 'seen', name: 'Seen', description: null, kind: 'flag', multiple: false }],
-			error: null
-		});
-		rpc.mockImplementation(((name: string) =>
-			name === 'artwork_field_usage' ? rows([]) : rows([])) as never);
+		rpc.mockReturnValue(
+			rows([
+				{ field_id: 'lecture', artwork_count: 3 },
+				{ field_id: 'source', artwork_count: 1 }
+			])
+		);
 
 		const { fields } = await loadOwnFields();
 
-		expect(fields).toHaveLength(1);
-		expect(rpc).not.toHaveBeenCalledWith('value_usage');
+		expect(fields.map((field) => [field.id, field.count, field.values])).toEqual([
+			['lecture', 3, []],
+			['source', 1, []]
+		]);
+		expect(query.order).toHaveBeenCalledWith('position');
+		expect(rpc).toHaveBeenCalledTimes(1);
+		expect(rpc).toHaveBeenCalledWith('artwork_field_usage');
+	});
+
+	it('puts the values of each list on its field in A to Z order', () => {
+		const [lecture] = testOwnFields();
+
+		expect(
+			withOwnValues(
+				[{ ...lecture, values: [] }],
+				[
+					{ id: 'v2', fieldId: 'lecture', name: 'Renaissance class', count: 1 },
+					{ id: 'm1', fieldId: 'motifs', name: 'Angel', count: 2 },
+					{ id: 'v1', fieldId: 'lecture', name: 'Baroque class', count: 2 }
+				]
+			)[0].values.map((value) => value.name)
+		).toEqual(['Baroque class', 'Renaissance class']);
 	});
 
 	it('says the fields could not be loaded when a request fails', async () => {

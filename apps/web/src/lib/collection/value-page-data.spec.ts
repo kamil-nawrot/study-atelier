@@ -26,7 +26,7 @@ const artworks = [testArtwork(1, 'Parthenon')];
 describe('loadValuePage', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.mocked(loadCardIndex).mockResolvedValue({ index: testCardIndex() });
+		vi.mocked(loadCardIndex).mockResolvedValue({ index: testCardIndex(), ownValues: [] });
 		vi.mocked(loadAtelier).mockResolvedValue({ artworks });
 		vi.mocked(loadNoteLinks).mockResolvedValue(undefined);
 		vi.mocked(loadMentions).mockResolvedValue([]);

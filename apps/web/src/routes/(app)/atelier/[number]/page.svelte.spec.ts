@@ -314,7 +314,7 @@ describe('artwork page', () => {
 	});
 
 	it('goes back through history to the place it was opened from, named after it', async () => {
-		const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
+		const go = vi.spyOn(history, 'go').mockImplementation(() => undefined);
 		setBackPlace({ name: 'Kalendarium', path: '/atelier/timeline' });
 		renderPage();
 
@@ -322,8 +322,8 @@ describe('artwork page', () => {
 		await expect.element(link).toBeVisible();
 		(link.element() as HTMLElement).click();
 
-		expect(back).toHaveBeenCalled();
-		back.mockRestore();
+		expect(go).toHaveBeenCalledWith(-1);
+		go.mockRestore();
 		setBackPlace(undefined);
 	});
 

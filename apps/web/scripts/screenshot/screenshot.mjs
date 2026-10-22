@@ -316,7 +316,12 @@ async function mockSupabase(context) {
 				route,
 				codes
 					? OWN_VALUE_USAGE.filter((row) => codes.includes(row.category_code))
-					: [...VALUE_USAGE, ...OWN_VALUE_USAGE]
+					: [
+							...VALUE_USAGE.filter(
+								(row) => !OWN_FIELDS.some((field) => field.id === row.category_code)
+							),
+							...OWN_VALUE_USAGE
+						]
 			);
 		}
 		if (url.pathname === '/rest/v1/rpc/artwork_field_usage') return json(route, OWN_FIELD_USAGE);

@@ -1,8 +1,12 @@
 import { loadCardIndex } from '#lib/collection/card-index-data.ts';
-import { loadOwnFields } from '#lib/collection/own-fields.ts';
+import { loadOwnFields, withOwnValues } from '#lib/collection/own-fields.ts';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async () => {
-	const [cardIndex, ownFields] = await Promise.all([loadCardIndex(), loadOwnFields()]);
-	return { ...cardIndex, error: cardIndex.error ?? ownFields.error, ownFields: ownFields.fields };
+	const [{ ownValues, ...cardIndex }, own] = await Promise.all([loadCardIndex(), loadOwnFields()]);
+	return {
+		...cardIndex,
+		ownFields: withOwnValues(own.fields, ownValues),
+		ownFieldsError: own.error
+	};
 };
