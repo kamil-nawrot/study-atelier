@@ -38,7 +38,10 @@ function extraImage() {
 		source_image_licence: null,
 		source_image_licence_url: null,
 		source_image_attribution: null,
-		own_image_path: null
+		own_image_path: null,
+		own_image_url: null,
+		image_width: null,
+		image_height: null
 	};
 }
 
@@ -63,7 +66,32 @@ function commonsImage(file) {
 	};
 }
 
+const IMAGE_KEYS = [
+	'source_wikidata_id',
+	'source_image_file',
+	'source_image_licence',
+	'source_image_licence_url',
+	'source_image_attribution',
+	'own_image_path',
+	'own_image_url',
+	'image_width',
+	'image_height'
+];
+
 function artwork(number, title, authors, year, era, extra = {}) {
+	const { artwork_images: others = [], ...fields } = extra;
+	const main = Object.fromEntries(
+		Object.entries(fields).filter(([key]) => IMAGE_KEYS.includes(key))
+	);
+	const rest = Object.fromEntries(
+		Object.entries(fields).filter(([key]) => !IMAGE_KEYS.includes(key))
+	);
+	const imageId = (position) =>
+		`00000000-0000-4000-9000-${String(number).padStart(9, '0')}${String(position).padStart(3, '0')}`;
+	const images = [
+		...(Object.keys(main).length > 0 ? [{ position: 0, ...extraImage(), ...main }] : []),
+		...others
+	].map((image) => ({ id: imageId(image.position), ...image }));
 	return {
 		id: `00000000-0000-4000-8000-${String(number).padStart(12, '0')}`,
 		record_number: number,
@@ -75,23 +103,14 @@ function artwork(number, title, authors, year, era, extra = {}) {
 		author_unknown: false,
 		type_code: 'painting',
 		notes: null,
-		source_wikidata_id: null,
-		source_image_file: null,
-		source_image_licence: null,
-		source_image_licence_url: null,
-		source_image_attribution: null,
-		own_image_path: null,
-		own_image_url: null,
-		image_width: null,
-		image_height: null,
 		favourite: false,
 		deleted_at: null,
 		artwork_values: authors.map((name, position) => ({
 			position,
 			category_values: { category_code: 'author', name }
 		})),
-		artwork_images: [],
-		...extra
+		artwork_images: images,
+		...rest
 	};
 }
 

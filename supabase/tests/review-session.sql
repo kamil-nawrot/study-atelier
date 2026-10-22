@@ -23,11 +23,14 @@ begin
       jsonb_build_object(
         'title', 'Work ' || number,
         'author_unknown', true,
-        'era_code', 'early_modern',
+        'era_code', 'early_modern'
+      ),
+      jsonb_build_object('style', jsonb_build_array('Tenebrism', 'Style ' || (number % 5))),
+      null,
+      jsonb_build_array(jsonb_build_object(
         'source_wikidata_id', 'Q' || number,
         'source_image_file', 'Work_' || number || '.jpg'
-      ),
-      jsonb_build_object('style', jsonb_build_array('Tenebrism', 'Style ' || (number % 5)))
+      ))
     );
   end loop;
 
@@ -75,11 +78,14 @@ begin
       jsonb_build_object(
         'title', 'Work ' || number,
         'author_unknown', true,
-        'era_code', 'modern',
+        'era_code', 'modern'
+      ),
+      '{}',
+      null,
+      jsonb_build_array(jsonb_build_object(
         'source_wikidata_id', 'Q' || number,
         'source_image_file', 'Work_' || number || '.jpg'
-      ),
-      '{}'
+      ))
     );
   end loop;
 

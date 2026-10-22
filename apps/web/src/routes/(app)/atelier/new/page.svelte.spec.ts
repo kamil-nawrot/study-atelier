@@ -178,9 +178,13 @@ function urlField(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('textbox', { name: m.artworkForm.imageUrl });
 }
 
-function savedArtwork(): Record<string, unknown> {
+function savedImages(): Record<string, unknown>[] {
 	const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
-	return args.artwork;
+	return args.images;
+}
+
+function savedMainImage(): Record<string, unknown> {
+	return savedImages()[0];
 }
 
 function savedBefore(title: string, author: string, number = 5): void {
@@ -563,7 +567,7 @@ describe('add artwork page', () => {
 			artwork: expect.anything(),
 			values_by_category: expect.objectContaining({ location: ['Luwr'] }),
 			existing_id: undefined,
-			extra_images: []
+			images: []
 		});
 	});
 
@@ -640,7 +644,7 @@ describe('add artwork page', () => {
 				location: []
 			},
 			existing_id: undefined,
-			extra_images: []
+			images: []
 		});
 	});
 
@@ -849,7 +853,7 @@ describe('add artwork page', () => {
 		const [path, file] = bucket.upload.mock.calls[0] as [string, File];
 		expect(path).toMatch(/^user-id\/[0-9a-f-]{36}\.png$/);
 		expect(file.name).toBe('photo.png');
-		expect(savedArtwork()).toMatchObject({
+		expect(savedMainImage()).toMatchObject({
 			own_image_path: path,
 			own_image_url: null,
 			image_width: 30,
@@ -946,7 +950,7 @@ describe('add artwork page', () => {
 
 		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
 		expect(bucket.upload).not.toHaveBeenCalled();
-		expect(savedArtwork()).toMatchObject({
+		expect(savedMainImage()).toMatchObject({
 			own_image_path: null,
 			own_image_url: 'https://example.com/milkmaid.jpg',
 			image_width: 1200,
@@ -973,9 +977,8 @@ describe('add artwork page', () => {
 		await saveButton().click();
 
 		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
-		expect(savedArtwork()).toMatchObject({ own_image_url: 'https://example.org/plan.jpg' });
-		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
-		expect(args.extra_images).toEqual([
+		expect(savedImages()).toEqual([
+			expect.objectContaining({ own_image_url: 'https://example.org/plan.jpg' }),
 			expect.objectContaining({ own_image_url: 'https://example.com/facade.jpg' })
 		]);
 	});
@@ -1007,8 +1010,7 @@ describe('add artwork page', () => {
 		await saveButton().click();
 
 		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
-		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
-		expect(args.extra_images).toEqual([]);
+		expect(savedImages()).toEqual([]);
 	});
 
 	it('rejects an address that is not https or does not lead to an image', async () => {
@@ -1062,12 +1064,7 @@ describe('add artwork page', () => {
 		await saveButton().click();
 
 		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
-		expect(savedArtwork()).toMatchObject({
-			own_image_path: null,
-			own_image_url: null,
-			image_width: null,
-			image_height: null
-		});
+		expect(savedImages()).toEqual([]);
 	});
 
 	it('says when the image could not be uploaded and keeps the form', async () => {
@@ -1283,8 +1280,7 @@ describe('image search on the add artwork page', () => {
 		await saveButton().click();
 
 		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
-		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
-		expect(args.artwork).toMatchObject({ source_wikidata_id: 'Q167605' });
+		expect(savedMainImage()).toMatchObject({ source_wikidata_id: 'Q167605' });
 	});
 
 	it('fills in nothing when no artwork matches the author', async () => {
@@ -1348,14 +1344,16 @@ describe('image search on the add artwork page', () => {
 		expect(supabase.rpc).toHaveBeenCalledWith(
 			'save_artwork',
 			expect.objectContaining({
-				artwork: expect.objectContaining({
-					source_wikidata_id: 'Q167605',
-					source_image_file: 'The Milkmaid.jpg',
-					source_image_licence: 'CC BY-SA 4.0',
-					source_image_attribution: 'Jane Doe',
-					image_width: 2000,
-					image_height: 2250
-				})
+				images: [
+					expect.objectContaining({
+						source_wikidata_id: 'Q167605',
+						source_image_file: 'The Milkmaid.jpg',
+						source_image_licence: 'CC BY-SA 4.0',
+						source_image_attribution: 'Jane Doe',
+						image_width: 2000,
+						image_height: 2250
+					})
+				]
 			})
 		);
 	});

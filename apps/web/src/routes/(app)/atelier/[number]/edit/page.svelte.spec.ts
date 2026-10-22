@@ -261,7 +261,7 @@ describe('edit artwork page', () => {
 				location: ['Rijksmuseum']
 			},
 			existing_id: 'artwork-7',
-			extra_images: []
+			images: []
 		});
 	});
 

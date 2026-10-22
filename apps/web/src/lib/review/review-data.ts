@@ -42,12 +42,13 @@ type CountsRow = {
 	with_image: number;
 };
 
-type DetailsRow = ImageRow & {
+type DetailsRow = {
 	id: string;
 	notes: string | null;
+	artwork_images: ImageRow[];
 };
 
-const DETAILS_COLUMNS = ['id', 'notes', ...IMAGE_COLUMNS].join(', ');
+const DETAILS_COLUMNS = `id, notes, artwork_images(${IMAGE_COLUMNS.join(', ')})`;
 
 export const REVIEW_COUNTS_DEPENDENCY = 'review:counts';
 
@@ -139,14 +140,21 @@ export async function recordReview(
 
 export async function loadReviewDetails(ids: string[]): Promise<ReviewDetailsResult> {
 	if (ids.length === 0) return { details: new Map() };
-	const { data, error } = await supabase.from('artworks').select(DETAILS_COLUMNS).in('id', ids);
+	const { data, error } = await supabase
+		.from('artworks')
+		.select(DETAILS_COLUMNS)
+		.in('id', ids)
+		.eq('artwork_images.position', 0);
 	if (error || !data) return { details: new Map(), error: collectionErrorMessage(error ?? {}) };
 	return {
 		details: new Map(
-			(data as unknown as DetailsRow[]).map((row) => [
-				row.id,
-				{ notes: row.notes ?? '', credit: artworkImageCredit(imageOf(row)) }
-			])
+			(data as unknown as DetailsRow[]).map((row) => {
+				const main = row.artwork_images[0];
+				return [
+					row.id,
+					{ notes: row.notes ?? '', credit: artworkImageCredit(main ? imageOf(main) : null) }
+				];
+			})
 		)
 	};
 }
