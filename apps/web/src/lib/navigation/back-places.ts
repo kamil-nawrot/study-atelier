@@ -25,6 +25,12 @@ function isForm(route: string | null): boolean {
 	return route !== null && FORM_ROUTE.test(route);
 }
 
+function afterForm(current: Place | undefined, to: PageStop): Place | undefined {
+	if (!current) return undefined;
+	const { previous, ...opener } = current;
+	return opener.path.split('?')[0] === to.key ? previous : opener;
+}
+
 export function arrive(
 	names: Names,
 	current: Place | undefined,
@@ -32,7 +38,7 @@ export function arrive(
 ): Place | undefined {
 	const { type, from, to } = arrival;
 	if (type === 'popstate' || type === 'enter' || !from) return undefined;
-	if (isForm(from.route)) return current?.previous;
+	if (isForm(from.route)) return afterForm(current, to);
 	if (from.key === to.key) return current;
 	if (from.route === to.route && to.route !== null && CARRY_ROUTES.has(to.route)) return current;
 	const place = names[from.key];

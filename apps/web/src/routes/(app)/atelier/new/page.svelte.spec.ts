@@ -278,8 +278,11 @@ describe('add artwork page', () => {
 			.element(page.getByRole('link', { name: m.artworkForm.cancel }))
 			.toHaveAttribute('href', '/atelier');
 		await expect
-			.element(page.getByRole('link', { name: m.artworkForm.back }))
+			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
 			.toHaveAttribute('href', '/atelier');
+		await expect
+			.element(page.getByRole('heading', { level: 1, name: m.artworkForm.newTitle }))
+			.toBeInTheDocument();
 	});
 
 	it('shows field errors on save and moves focus to the first one', async () => {
