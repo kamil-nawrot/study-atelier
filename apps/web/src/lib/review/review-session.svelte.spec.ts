@@ -5,6 +5,7 @@ import { ReviewSession } from './review-session.svelte.ts';
 import type { ReviewItem } from './types.ts';
 
 vi.mock('./review-data.ts', () => ({ recordReview: vi.fn() }));
+vi.mock('#lib/supabase.ts', () => ({ supabase: {} }));
 
 const start = new Date(2026, 9, 16, 9, 0);
 

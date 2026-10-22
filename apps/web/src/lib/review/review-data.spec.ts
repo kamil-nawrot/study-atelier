@@ -8,12 +8,14 @@ import {
 	loadReviewStreak,
 	loadSession,
 	recordReview,
-	waitingToday
+	waitingToday,
+	withPinPreviews
 } from './review-data.ts';
-import type { ReviewCard } from './types.ts';
+import type { ReviewCard, ReviewItem } from './types.ts';
+import { testArtwork } from '#lib/testing/artworks.ts';
 
 vi.mock('#lib/supabase.ts', () => ({
-	supabase: { rpc: vi.fn(), from: vi.fn(), auth: { signOut: vi.fn() } }
+	supabase: { rpc: vi.fn(), from: vi.fn(), storage: { from: vi.fn() }, auth: { signOut: vi.fn() } }
 }));
 
 const rpc = vi.mocked(supabase.rpc);
@@ -311,5 +313,40 @@ describe('review data', () => {
 	it('asks for no details when the session is empty', async () => {
 		await expect(loadReviewDetails([])).resolves.toEqual({ details: new Map() });
 		expect(supabase.from).not.toHaveBeenCalled();
+	});
+
+	it('signs the own image of a pin question and leaves the other items as they are', async () => {
+		const createSignedUrl = vi
+			.fn()
+			.mockResolvedValue({ data: { signedUrl: 'https://signed.test/pin.jpg' }, error: null });
+		vi.mocked(supabase.storage.from).mockReturnValue({ createSignedUrl } as never);
+		const flashcard: ReviewItem = {
+			artwork: testArtwork(1, 'Lily'),
+			card: null,
+			mode: 'flashcard'
+		};
+		const pinned: ReviewItem = {
+			artwork: testArtwork(2, 'Apse'),
+			card: null,
+			mode: 'quiz_pin',
+			quiz: { options: [{ label: 'Apse' }], answer: 0 },
+			pin: {
+				x: 0.5,
+				y: 0.5,
+				image: { kind: 'upload', path: 'owner/pin.jpg', width: 800, height: 600 }
+			}
+		};
+
+		const [first, second] = await withPinPreviews([flashcard, pinned]);
+
+		expect(first).toBe(flashcard);
+		expect(second.pin?.image).toEqual({
+			kind: 'upload',
+			path: 'owner/pin.jpg',
+			width: 800,
+			height: 600,
+			previewUrl: 'https://signed.test/pin.jpg'
+		});
+		expect(createSignedUrl).toHaveBeenCalledWith('owner/pin.jpg', expect.any(Number));
 	});
 });

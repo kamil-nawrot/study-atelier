@@ -31,7 +31,8 @@
 	import {
 		loadReviewDetails,
 		loadSession,
-		REVIEW_COUNTS_DEPENDENCY
+		REVIEW_COUNTS_DEPENDENCY,
+		withPinPreviews
 	} from '#lib/review/review-data.ts';
 	import { ReviewSession } from '#lib/review/review-session.svelte.ts';
 	import type {
@@ -204,7 +205,7 @@
 		const loaded = free
 			? await loadSession(dayStart, form, activeScope, freeRound)
 			: await loadSession(dayStart, form, activeScope);
-		const items = sessionItems(loaded.rows, artworksById, cards);
+		const items = await withPinPreviews(sessionItems(loaded.rows, artworksById, cards));
 		if (loaded.error || items.length === 0) return loaded.error;
 		const artworks = items.map((item) => item.artwork);
 		const shown = [...artworks, ...quizArtworks(items)];

@@ -471,6 +471,8 @@ export const pl = {
 			titleQuestion: 'Jaki to tytuł?',
 			styleQuestion: 'W jakim stylu powstało to dzieło?',
 			styleHint: 'Zwróć uwagę na formę, materiał i kompozycję.',
+			pinQuestion: 'Co to jest?',
+			pinHint: 'Wybierz pojęcie, które pasuje do zaznaczonego miejsca.',
 			options: 'Odpowiedzi',
 			right: 'Tak, to',
 			wrong: 'Nie, to',

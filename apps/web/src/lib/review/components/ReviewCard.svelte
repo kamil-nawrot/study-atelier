@@ -7,6 +7,7 @@
 
 	type Props = {
 		artwork: WallArtwork;
+		image?: { src?: string; srcset?: string; width?: number; height?: number };
 		alt: string;
 		credit?: string;
 		compact?: boolean;
@@ -14,9 +15,21 @@
 		stage?: Snippet;
 		body: Snippet;
 		actions?: Snippet;
+		overlay?: Snippet;
 	};
 
-	let { artwork, alt, credit, compact = false, labelledby, stage, body, actions }: Props = $props();
+	let {
+		artwork,
+		image = artwork.image,
+		alt,
+		credit,
+		compact = false,
+		labelledby,
+		stage,
+		body,
+		actions,
+		overlay
+	}: Props = $props();
 
 	let viewer = $state<ReturnType<typeof ImageViewer>>();
 </script>
@@ -27,9 +40,9 @@
 			{@render stage()}
 		</div>
 	{:else}
-		<figure class="stage" class:dimmed={artwork.image?.src !== undefined}>
-			{#if artwork.image?.src}
-				<img class="backdrop" alt="" aria-hidden="true" src={artwork.image.src} />
+		<figure class="stage" class:dimmed={image?.src !== undefined}>
+			{#if image?.src}
+				<img class="backdrop" alt="" aria-hidden="true" src={image.src} />
 				<button
 					class="open"
 					aria-label={m.artworkView.openImage}
@@ -37,15 +50,18 @@
 					type="button"
 				>
 					<span class="mat">
-						<ArtworkImage
-							{alt}
-							height={artwork.image.height}
-							loading="eager"
-							sizes="(min-width: 768px) 60vw, 100vw"
-							src={artwork.image.src}
-							srcset={artwork.image.srcset}
-							width={artwork.image.width}
-						/>
+						<span class="frame">
+							<ArtworkImage
+								{alt}
+								height={image.height}
+								loading="eager"
+								sizes="(min-width: 768px) 60vw, 100vw"
+								src={image.src}
+								srcset={image.srcset}
+								width={image.width}
+							/>
+							{@render overlay?.()}
+						</span>
 					</span>
 				</button>
 			{:else if artwork.imageUnavailable}
@@ -75,8 +91,8 @@
 	</section>
 </div>
 
-{#if artwork.image?.src}
-	<ImageViewer bind:this={viewer} {alt} image={artwork.image} />
+{#if image?.src}
+	<ImageViewer bind:this={viewer} {alt} {image} />
 {/if}
 
 <style>
@@ -132,6 +148,11 @@
 		max-width: 100%;
 		padding: var(--spacing-2);
 		background: var(--color-mat-bg);
+	}
+
+	.frame {
+		position: relative;
+		display: block;
 	}
 
 	.mat :global(img) {

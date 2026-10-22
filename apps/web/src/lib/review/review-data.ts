@@ -2,7 +2,12 @@ import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { artworkImageCredit } from '#lib/collection/artwork-image.ts';
 import { fetchAll } from '#lib/collection/card-index-data.ts';
 import { collectionErrorMessage } from '#lib/collection/errors.ts';
-import { IMAGE_COLUMNS, type ImageRow, imageOf } from '#lib/collection/image-record.ts';
+import {
+	IMAGE_COLUMNS,
+	type ImageRow,
+	imageOf,
+	withPreview
+} from '#lib/collection/image-record.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
 import type { ReviewScope } from './overview.ts';
@@ -16,6 +21,7 @@ import type {
 	ReviewCountsResult,
 	ReviewDetailsResult,
 	ReviewForm,
+	ReviewItem,
 	ReviewSessionResult,
 	ReviewState,
 	ReviewStreakResult,
@@ -157,6 +163,16 @@ export async function loadReviewDetails(ids: string[]): Promise<ReviewDetailsRes
 			})
 		)
 	};
+}
+
+export async function withPinPreviews(items: ReviewItem[]): Promise<ReviewItem[]> {
+	return Promise.all(
+		items.map(async (item) => {
+			if (!item.pin) return item;
+			const image = (await withPreview(item.pin.image)) ?? item.pin.image;
+			return { ...item, pin: { ...item.pin, image } };
+		})
+	);
 }
 
 function scopeArgs(scope: ReviewScope): { scope_kind: string; scope_value?: string } {

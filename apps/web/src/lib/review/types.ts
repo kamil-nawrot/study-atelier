@@ -1,8 +1,9 @@
-import type { WallArtwork } from '#lib/collection/types.ts';
+import type { ImageRow } from '#lib/collection/image-record.ts';
+import type { ArtworkImageInput, WallArtwork } from '#lib/collection/types.ts';
 
 export type ReviewForm = 'mixed' | 'flashcards' | 'quizzes';
 
-export type QuizMode = 'quiz_image' | 'quiz_title' | 'quiz_style';
+export type QuizMode = 'quiz_image' | 'quiz_title' | 'quiz_style' | 'quiz_pin';
 
 export type ReviewMode = 'flashcard' | QuizMode;
 
@@ -43,10 +44,17 @@ export type SessionOptionRow = {
 	right?: boolean;
 };
 
+export type SessionPinRow = {
+	x: number;
+	y: number;
+	image: ImageRow & { id: string };
+};
+
 export type SessionRow = {
 	artwork_id: string;
 	mode: ReviewMode;
 	options?: SessionOptionRow[];
+	pin?: SessionPinRow;
 };
 
 export type ReviewSessionResult = {
@@ -54,11 +62,18 @@ export type ReviewSessionResult = {
 	error?: string;
 };
 
+export type ReviewPin = {
+	x: number;
+	y: number;
+	image: ArtworkImageInput;
+};
+
 export type ReviewItem = {
 	artwork: WallArtwork;
 	card: ReviewCard | null;
 	mode: ReviewMode;
 	quiz?: Quiz;
+	pin?: ReviewPin;
 };
 
 export type ReviewAnswer = {
