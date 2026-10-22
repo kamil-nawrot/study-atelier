@@ -10,6 +10,8 @@ import type { ArtworkRecord, LoadArtworkResult } from '#lib/collection/types.ts'
 import { buildNoteLinks } from '#lib/collection/note-links.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testSession } from '#lib/testing/auth.ts';
+import type { Pin } from '#lib/pins/types.ts';
+import { testEntry } from '#lib/testing/glossary.ts';
 import { testCardIndex } from '#lib/testing/card-index.ts';
 import ArtworkPage from './+page.svelte';
 
@@ -650,6 +652,52 @@ describe('artwork page', () => {
 			await expect.element(page.getByText('Mauritshuis')).toBeVisible();
 			expect(page.getByRole('button', { name: 'Mauritshuis' }).elements()).toHaveLength(0);
 			expect(page.getByRole('button', { name: 'Oil' }).elements()).toHaveLength(0);
+		});
+	});
+
+	describe('pins', () => {
+		const PIN: Pin = {
+			id: 'pin-1',
+			imageId: 'image-1',
+			x: 0.25,
+			y: 0.75,
+			glossaryEntryId: 'entry-1',
+			text: 'The sitter’s turban.'
+		};
+
+		function renderWithPins(pins: Pin[] = [PIN]): void {
+			renderPage({
+				artwork: artwork({
+					image: { kind: 'url', url: IMAGE, width: 40, height: 50, id: 'image-1' }
+				}),
+				glossary: [testEntry('entry-1', 'Turban')],
+				pins
+			});
+		}
+
+		it('hides the markers until the switch is on and then opens the card of a pin', async () => {
+			renderWithPins();
+
+			await expect
+				.element(page.getByRole('button', { name: 'Pinezka 1: Turban' }))
+				.not.toBeInTheDocument();
+			await page.getByRole('button', { name: m.pins.switchLabel(1) }).click();
+			await page.getByRole('button', { name: 'Pinezka 1: Turban' }).click();
+
+			const card = page.getByRole('alertdialog');
+			await expect.element(card).toHaveTextContent('Turban is a test definition.');
+			await expect.element(card).toHaveTextContent('The sitter’s turban.');
+		});
+
+		it('offers the switch only when the image has pins and no way to edit them', async () => {
+			renderWithPins([]);
+
+			await expect
+				.element(page.getByRole('button', { name: m.pins.switchLabel(0) }))
+				.not.toBeInTheDocument();
+			await expect
+				.element(page.getByRole('button', { name: m.pins.editor(0) }))
+				.not.toBeInTheDocument();
 		});
 	});
 });

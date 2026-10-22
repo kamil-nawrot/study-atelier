@@ -72,6 +72,8 @@ function renderPage(
 			values: emptyCategoryValues(),
 			ownValues,
 			ownFields: undefined,
+			pins: [],
+			glossary: [],
 			links: emptyValueLinks(),
 			noteLinks: undefined,
 			placeStarter: emptyPlaceStarter(),
@@ -450,6 +452,49 @@ describe('edit artwork page', () => {
 
 		expect(go).toHaveBeenCalledWith(-1);
 		go.mockRestore();
+	});
+
+	it('shows the pins of the shown image on its preview and none on an image that is not saved', async () => {
+		renderPage({
+			artwork: artwork({
+				image: {
+					kind: 'url',
+					url: 'https://example.com/main.jpg',
+					width: 4,
+					height: 3,
+					id: 'image-0'
+				},
+				images: [{ kind: 'url', url: 'https://example.com/plan.jpg', width: 3, height: 4 }]
+			}),
+			pins: [
+				{ id: 'pin-1', imageId: 'image-0', x: 0.5, y: 0.5, glossaryEntryId: null, text: 'A detail' }
+			]
+		});
+
+		await expect.element(page.getByRole('button', { name: 'Pinezka 1' })).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.pins.placeHere })).toBeVisible();
+		await page.getByRole('button', { name: m.artworkForm.imageSlot(2, 2) }).click();
+		await expect
+			.element(page.getByRole('button', { name: m.pins.placeHere }))
+			.not.toBeInTheDocument();
+	});
+
+	it('places a pin from the preview of a saved image', async () => {
+		renderPage({
+			artwork: artwork({
+				image: {
+					kind: 'url',
+					url: 'https://example.com/main.jpg',
+					width: 4,
+					height: 3,
+					id: 'image-0'
+				}
+			})
+		});
+
+		await page.getByRole('button', { name: m.pins.placeHere }).click();
+
+		await expect.element(page.getByRole('dialog', { name: m.pins.newTitle })).toBeVisible();
 	});
 
 	it('leaves without asking when nothing was changed', async () => {

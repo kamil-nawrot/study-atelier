@@ -1,6 +1,6 @@
 # 0109. Pin details on the artwork image
 
-- Status: accepted
+- Status: accepted; the place of editing pins (the editing mode in the artwork view) is superseded by [0112](0112-edit-pins-in-the-artwork-form.md)
 - Date: 2026-10-22
 
 ## Context and problem statement

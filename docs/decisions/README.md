@@ -115,3 +115,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0109](0109-pin-details-on-the-artwork-image.md)                         | Pin details on the artwork image                                                         | accepted           |
 | [0110](0110-look-at-details-through-a-loupe.md)                          | Look at the details of an artwork through a loupe                                        | accepted           |
 | [0111](0111-fixed-height-first-screen-of-an-artwork-on-a-phone.md)       | Fixed-height first screen of an artwork on a phone                                       | accepted           |
+| [0112](0112-edit-pins-in-the-artwork-form.md)                            | Edit pins in the artwork form                                                            | accepted           |

@@ -5,6 +5,8 @@ import { loadOwnFieldDefinitions } from '#lib/collection/own-fields.ts';
 import { emptyPlaceStarter, loadPlaceStarter } from '#lib/collection/place-starter.ts';
 import { emptyValueLinks, loadValueLinks } from '#lib/collection/value-links.ts';
 import { parseRecordNumber } from '#lib/collection/format.ts';
+import { loadGlossary } from '#lib/glossary/glossary-data.ts';
+import { loadPins } from '#lib/pins/pin-data.ts';
 import { m } from '#lib/i18n/index.ts';
 import type { LoadArtworkResult } from '#lib/collection/types.ts';
 import type { PageLoad } from './$types';
@@ -20,7 +22,9 @@ export const load: PageLoad = async ({ params }) => {
 			ownFields: undefined,
 			links: emptyValueLinks(),
 			noteLinks: undefined,
-			placeStarter: emptyPlaceStarter()
+			placeStarter: emptyPlaceStarter(),
+			pins: [],
+			glossary: []
 		};
 	}
 	const [result, categories, linked, noteLinks, placeStarter, own] = await Promise.all([
@@ -31,8 +35,17 @@ export const load: PageLoad = async ({ params }) => {
 		loadPlaceStarter(),
 		loadOwnFieldDefinitions()
 	]);
+	const imageIds = [result.artwork?.image, ...(result.artwork?.images ?? [])].flatMap(
+		(image) => image?.id ?? []
+	);
+	const [pins, glossary] = await Promise.all([
+		loadPins(imageIds),
+		result.artwork ? loadGlossary() : undefined
+	]);
 	return {
 		...result,
+		pins: pins.pins,
+		glossary: glossary?.entries ?? [],
 		values: categories.values,
 		ownValues: categories.ownValues,
 		ownFields: own.error ? undefined : own.fields,

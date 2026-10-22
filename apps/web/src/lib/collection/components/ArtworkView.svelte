@@ -2,6 +2,7 @@
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
+	import Pin from '@lucide/svelte/icons/pin';
 	import X from '@lucide/svelte/icons/x';
 	import type { LucideIcon } from '@lucide/svelte';
 	import {
@@ -18,6 +19,10 @@
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import { m } from '#lib/i18n/index.ts';
+	import PinCard from '#lib/pins/components/PinCard.svelte';
+	import PinMarkers from '#lib/pins/components/PinMarkers.svelte';
+	import { pinsOfImage } from '#lib/pins/pin-layout.ts';
+	import type { Pin as PinRecord } from '#lib/pins/types.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
 	import { artworkTypeIcon } from '../artwork-types.ts';
 	import { eraIcon } from '../eras.ts';
@@ -42,6 +47,7 @@
 		editHref: string;
 		noteLinks?: NoteLinks;
 		glossary?: GlossaryEntry[];
+		pins?: PinRecord[];
 		mentions?: Mention[];
 		summaries?: ValueSummaries;
 		ownFields?: OwnFieldDefinition[];
@@ -55,6 +61,7 @@
 		flipLinks,
 		noteLinks,
 		glossary,
+		pins = [],
 		mentions = [],
 		summaries = emptyValueSummaries(),
 		ownFields = [],
@@ -76,9 +83,21 @@
 	let credit = $derived(image ? artworkImageCredit(current) : undefined);
 	let ratio = $derived(image?.width && image.height ? image.width / image.height : undefined);
 
+	let showPins = $state(false);
+	let cardPin = $state<PinRecord>();
+	let cardOpen = $state(false);
+
+	let imageId = $derived(current?.id);
+	let imagePins = $derived(pinsOfImage(pins, imageId));
+	let entryNames = $derived(
+		Object.fromEntries((glossary ?? []).map((entry) => [entry.id, entry.name]))
+	);
+	let cardNumber = $derived(imagePins.findIndex((pin) => pin.id === cardPin?.id) + 1);
+
 	$effect.pre(() => {
 		void artwork.id;
 		shown = 0;
+		showPins = false;
 	});
 
 	function step(by: -1 | 1): void {
@@ -161,6 +180,11 @@
 	function openViewer(): void {
 		viewer.open();
 	}
+
+	function selectPin(pin: PinRecord): void {
+		cardPin = pin;
+		cardOpen = true;
+	}
 </script>
 
 {#snippet valueName(kind: ValueKind, name: string)}
@@ -235,20 +259,44 @@
 		{/if}
 		{#if image}
 			<img class="backdrop" alt="" aria-hidden="true" src={image.src} />
-			<button class="open" aria-label={m.artworkView.openImage} onclick={openViewer} type="button">
-				<span class="mat">
-					<ArtworkImage
-						{alt}
-						height={image.height}
-						sizes="(min-width: 768px) 60vw, 100vw"
-						src={image.src}
-						srcset={image.srcset}
-						width={image.width}
-					/>
-				</span>
-			</button>
+			<div class="mat">
+				<div class="frame">
+					<button
+						class="open"
+						aria-label={m.artworkView.openImage}
+						onclick={openViewer}
+						type="button"
+					>
+						<ArtworkImage
+							{alt}
+							height={image.height}
+							sizes="(min-width: 768px) 60vw, 100vw"
+							src={image.src}
+							srcset={image.srcset}
+							width={image.width}
+						/>
+					</button>
+					{#if showPins}
+						<PinMarkers names={entryNames} onselect={selectPin} pins={imagePins} />
+					{/if}
+				</div>
+			</div>
 			{#if credit}
 				<figcaption class="caption">{credit}</figcaption>
+			{/if}
+			{#if imagePins.length > 0}
+				<button
+					class="pin-action"
+					class:active={showPins}
+					aria-label={m.pins.switchLabel(imagePins.length)}
+					aria-pressed={showPins}
+					onclick={() => (showPins = !showPins)}
+					title={m.pins.switchLabel(imagePins.length)}
+					type="button"
+				>
+					<Icon icon={Pin} size="sm" />
+					<span>{imagePins.length}</span>
+				</button>
 			{/if}
 			{#if gallery.length > 1}
 				<div class="gallery">
@@ -371,6 +419,13 @@
 	</div>
 </div>
 
+<PinCard
+	entry={glossary?.find((entry) => entry.id === cardPin?.glossaryEntryId)}
+	number={cardNumber}
+	pin={cardPin}
+	bind:open={cardOpen}
+/>
+
 <ImageViewer bind:this={viewer} {alt} count={gallery.length} image={fullImage} onstep={step} />
 
 <style>
@@ -454,6 +509,33 @@
 		border: none;
 		background: none;
 		cursor: var(--cursor-zoom-in);
+	}
+
+	.stage > .pin-action {
+		position: absolute;
+		top: var(--spacing-2);
+		right: var(--spacing-2);
+		z-index: 2;
+	}
+
+	.pin-action {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-1);
+		padding: var(--spacing-2);
+		border: none;
+		background: transparent;
+		color: var(--color-stage-fg);
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
+		cursor: pointer;
+		opacity: 0.6;
+	}
+
+	.pin-action:hover,
+	.pin-action:focus-visible,
+	.pin-action.active {
+		opacity: 1;
 	}
 
 	.mat {

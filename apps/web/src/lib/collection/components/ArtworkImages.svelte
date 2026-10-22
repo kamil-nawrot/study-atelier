@@ -3,7 +3,7 @@
 	import Plus from '@lucide/svelte/icons/plus';
 	import Star from '@lucide/svelte/icons/star';
 	import { onDestroy, untrack } from 'svelte';
-	import { ArtworkImage, Icon, Tooltip } from '@study-atelier/ui';
+	import { Alert, ArtworkImage, Icon, Tooltip } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { findImageCandidates } from '#lib/images/image-search.ts';
 	import type { ImageCandidate, ImageSearchQuery } from '#lib/images/types.ts';
@@ -18,6 +18,9 @@
 	import { artworkImageSource } from '../artwork-image.ts';
 	import type { ArtworkImageInput, ImageFieldTexts } from '../types.ts';
 	import ImageField from './ImageField.svelte';
+	import type { GlossaryEntry } from '#lib/glossary/types.ts';
+	import PinLayer from '#lib/pins/components/PinLayer.svelte';
+	import type { Pin } from '#lib/pins/types.ts';
 
 	type Props = {
 		alt: string;
@@ -27,6 +30,8 @@
 		image: ArtworkImageInput | null;
 		images: (ArtworkImageInput | null)[];
 		autoMatch?: boolean;
+		pins?: Pin[];
+		entries?: readonly GlossaryEntry[];
 	};
 
 	let {
@@ -36,7 +41,9 @@
 		texts,
 		image = $bindable(),
 		images = $bindable(),
-		autoMatch = false
+		autoMatch = false,
+		pins = $bindable(),
+		entries = []
 	}: Props = $props();
 
 	type MatchStatus = 'idle' | 'searching' | 'matched' | 'none' | 'failed';
@@ -51,6 +58,8 @@
 	let matchRequest = 0;
 
 	let slots = $derived([image, ...images]);
+	let pinImageId = $derived(pins === undefined ? undefined : current()?.id);
+	let pinFailure = $state<string>();
 	let full = $derived(slots.length >= MAX_ARTWORK_IMAGES);
 	let matchShown = $derived(
 		selected === 0 && matchStatus === 'matched' && isCandidateImage(image, pool[0])
@@ -207,6 +216,31 @@
 	</div>
 {/snippet}
 
+{#snippet pinLayer()}
+	{#if pins !== undefined && pinImageId !== undefined}
+		<PinLayer
+			{entries}
+			imageId={pinImageId}
+			onfailure={(message) => (pinFailure = message)}
+			bind:pins
+		/>
+	{/if}
+{/snippet}
+
+{#snippet statusLines()}
+	{@render matchStatusLine()}
+	{@render pinStatus()}
+{/snippet}
+
+{#snippet pinStatus()}
+	{#if pinImageId !== undefined}
+		{#if pinFailure}
+			<Alert tone="danger">{pinFailure}</Alert>
+		{/if}
+		<p class="caption">{m.pins.editHint} {m.pins.editorNote}</p>
+	{/if}
+{/snippet}
+
 {#snippet matchStatusLine()}
 	{#if selected === 0 && matchStatus === 'searching'}
 		<p class="caption" aria-live="polite">{m.artworkForm.matchSearching}</p>
@@ -222,11 +256,12 @@
 <ImageField
 	{alt}
 	onsearch={stopMatch}
+	overlay={pinLayer}
 	{query}
 	removable={selected > 0}
 	{searchReady}
 	slots={slotRow}
-	status={matchStatusLine}
+	status={statusLines}
 	{texts}
 	bind:image={current, setCurrent}
 />

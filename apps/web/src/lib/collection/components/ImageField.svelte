@@ -50,6 +50,7 @@
 		onsearch?: () => void;
 		slots?: Snippet;
 		status?: Snippet;
+		overlay?: Snippet;
 	};
 
 	let {
@@ -61,7 +62,8 @@
 		removable = false,
 		onsearch,
 		slots,
-		status
+		status,
+		overlay
 	}: Props = $props();
 
 	const id = $props.id();
@@ -251,14 +253,17 @@
 	<figure class="picture">
 		<div class="mat">
 			{#if preview}
-				<ArtworkImage
-					{alt}
-					height={preview.height}
-					sizes="(min-width: 768px) 40vw, 100vw"
-					src={preview.src}
-					srcset={preview.srcset}
-					width={preview.width}
-				/>
+				<div class="frame">
+					<ArtworkImage
+						{alt}
+						height={preview.height}
+						sizes="(min-width: 768px) 40vw, 100vw"
+						src={preview.src}
+						srcset={preview.srcset}
+						width={preview.width}
+					/>
+					{@render overlay?.()}
+				</div>
 			{:else}
 				<NoImage />
 			{/if}
@@ -377,6 +382,10 @@
 	.mat {
 		padding: var(--spacing-2);
 		background: var(--color-mat-bg);
+	}
+
+	.frame {
+		position: relative;
 	}
 
 	.mat :global(img) {

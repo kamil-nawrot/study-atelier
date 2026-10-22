@@ -7,6 +7,7 @@ import { loadValueSummaries } from '#lib/collection/value-summaries.ts';
 import { loadNoteLinks, mentionsLinks } from '#lib/collection/note-link-data.ts';
 import { loadGlossary } from '#lib/glossary/glossary-data.ts';
 import { m } from '#lib/i18n/index.ts';
+import { loadPins } from '#lib/pins/pin-data.ts';
 import type { LoadArtworkResult } from '#lib/collection/types.ts';
 import type { PageLoad } from './$types';
 
@@ -20,9 +21,27 @@ export const load: PageLoad = async ({ params }): Promise<LoadArtworkResult> => 
 		loadOwnFieldDefinitions()
 	]);
 	const ownFields = own.fields;
-	const glossary = result.artwork?.notes.trim() ? (await loadGlossary()).entries : undefined;
+	const imageIds = [result.artwork?.image, ...(result.artwork?.images ?? [])].flatMap(
+		(image) => image?.id ?? []
+	);
+	const [loadedPins, loadedGlossary] = await Promise.all([
+		loadPins(imageIds),
+		result.artwork ? loadGlossary() : undefined
+	]);
+	const glossary = loadedGlossary?.entries;
+	const pins = loadedPins.pins;
+	const pinsError = loadedPins.error;
 	if (!mentionsLinks(result.artwork?.notes)) {
-		return { ...result, mentions, summaries, glossary, ownFields };
+		return { ...result, mentions, summaries, glossary, pins, pinsError, ownFields };
 	}
-	return { ...result, mentions, summaries, glossary, ownFields, noteLinks: await loadNoteLinks() };
+	return {
+		...result,
+		mentions,
+		summaries,
+		glossary,
+		pins,
+		pinsError,
+		ownFields,
+		noteLinks: await loadNoteLinks()
+	};
 };

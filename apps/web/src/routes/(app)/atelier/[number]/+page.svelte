@@ -162,6 +162,11 @@
 				{favouriteError}
 			</Alert>
 		{/if}
+		{#if data.pinsError}
+			<Alert tone="danger">
+				{m.pins.loadFailed}
+			</Alert>
+		{/if}
 		<ArtworkView
 			artwork={data.artwork}
 			editHref={editPath}
@@ -171,6 +176,7 @@
 			noteLinks={data.noteLinks}
 			onflip={flip}
 			ownFields={data.ownFields}
+			pins={data.pins}
 			summaries={data.summaries}
 		/>
 	{:else}
