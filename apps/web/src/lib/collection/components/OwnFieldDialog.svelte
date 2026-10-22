@@ -111,7 +111,7 @@
 		{#if !edited}
 			<div class="kind">
 				<ChoiceTiles
-					columns={1}
+					columns={3}
 					label={m.ownFields.form.kind}
 					narrowColumns={1}
 					onchange={chooseKind}

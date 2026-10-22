@@ -715,7 +715,7 @@ export const pl = {
 		},
 		kindNotes: {
 			text: 'dowolna treść',
-			list: 'jedna lub wiele wartości z podpowiedziami',
+			list: 'jedna lub wiele wartości',
 			flag: 'pole do zaznaczania'
 		},
 		oneValue: 'jedna wartość',
