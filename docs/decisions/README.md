@@ -113,4 +113,5 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0107](0107-drop-the-line-above-the-timeline.md)                         | Drop the line above the timeline                                                         | accepted           |
 | [0108](0108-collapse-own-lists-and-show-their-values-as-tags.md)         | Collapse own lists in Kartoteka and show their values as tags                            | accepted           |
 | [0109](0109-pin-details-on-the-artwork-image.md)                         | Pin details on the artwork image                                                         | accepted           |
+| [0110](0110-look-at-details-through-a-loupe.md)                          | Look at the details of an artwork through a loupe                                        | accepted           |
 | [0111](0111-fixed-height-first-screen-of-an-artwork-on-a-phone.md)       | Fixed-height first screen of an artwork on a phone                                       | accepted           |

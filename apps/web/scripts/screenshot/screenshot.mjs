@@ -144,7 +144,7 @@ function filteredRows(url) {
 }
 
 function hasImage(row) {
-	return Boolean(row.source_image_file || row.own_image_path || row.own_image_url);
+	return row.artwork_images.some((image) => image.position === 0);
 }
 
 function reviewCounts(dayStartText) {
@@ -397,8 +397,12 @@ async function mockSupabase(context) {
 			);
 		}
 		if (url.pathname === '/rest/v1/artworks') {
+			const imagePosition = url.searchParams.get('artwork_images.position');
 			const rows = filteredRows(url).map((row) => ({
 				...row,
+				artwork_images: row.artwork_images.filter(
+					(image) => imagePosition === null || imagePosition === `eq.${image.position}`
+				),
 				artwork_values: row.artwork_values.map((link) => ({
 					...link,
 					category_values: {

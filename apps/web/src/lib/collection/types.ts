@@ -88,7 +88,6 @@ export type AtelierResult = {
 
 export type TrashArtwork = WallArtwork & {
 	deletedAt: string;
-	ownImagePath: string | null;
 };
 
 export type TrashResult = {
@@ -143,7 +142,7 @@ export type StarterValue = {
 	note: string;
 };
 
-export type ArtworkImageInput =
+type ImageSource =
 	| {
 			kind: 'commons';
 			wikidataId: string;
@@ -163,6 +162,8 @@ export type ArtworkImageInput =
 			height: number | null;
 	  }
 	| { kind: 'url'; url: string; width: number | null; height: number | null };
+
+export type ArtworkImageInput = ImageSource & { id?: string };
 
 export type ArtworkInput = {
 	title: string;

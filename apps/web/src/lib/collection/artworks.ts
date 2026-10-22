@@ -27,6 +27,14 @@ import type {
 	WallArtwork
 } from './types.ts';
 
+type MainImageRow = {
+	source_image_file: string | null;
+	own_image_path: string | null;
+	own_image_url: string | null;
+	image_width: number | null;
+	image_height: number | null;
+};
+
 type ArtworkRow = {
 	id: string;
 	record_number: number;
@@ -36,11 +44,7 @@ type ArtworkRow = {
 	year_approximate: boolean;
 	era_code: EraCode | null;
 	type_code: ArtworkTypeCode | null;
-	source_image_file: string | null;
-	own_image_path: string | null;
-	own_image_url: string | null;
-	image_width: number | null;
-	image_height: number | null;
+	artwork_images: MainImageRow[];
 	favourite: boolean;
 	deleted_at: string | null;
 	artwork_values: ArtworkValueRow[];
@@ -63,11 +67,7 @@ const ARTWORK_COLUMNS = [
 	'year_approximate',
 	'era_code',
 	'type_code',
-	'source_image_file',
-	'own_image_path',
-	'own_image_url',
-	'image_width',
-	'image_height',
+	'artwork_images(source_image_file, own_image_path, own_image_url, image_width, image_height)',
 	'favourite',
 	'deleted_at',
 	'artwork_values(position, category_values(category_code, name, author_details(sort_name)))',
@@ -102,9 +102,9 @@ async function wallImageUrls(paths: string[]): Promise<Map<string, string>> {
 	return urls;
 }
 
-function storedSize(row: ArtworkRow): ImageSize | undefined {
-	return row.image_width && row.image_height
-		? { width: row.image_width, height: row.image_height }
+function storedSize(image: MainImageRow | undefined): ImageSize | undefined {
+	return image?.image_width && image.image_height
+		? { width: image.image_width, height: image.image_height }
 		: undefined;
 }
 
@@ -156,17 +156,18 @@ async function fetchAllRows(
 }
 
 function wallArtwork(row: ArtworkRow): WallArtwork {
-	const size = storedSize(row);
-	const pendingImage: PendingImage | undefined = row.own_image_path
-		? { ownPath: row.own_image_path, size }
-		: row.own_image_url
+	const main = row.artwork_images[0];
+	const size = storedSize(main);
+	const pendingImage: PendingImage | undefined = main?.own_image_path
+		? { ownPath: main.own_image_path, size }
+		: main?.own_image_url
 			? undefined
-			: row.source_image_file
-				? { sourceFile: row.source_image_file, size }
+			: main?.source_image_file
+				? { sourceFile: main.source_image_file, size }
 				: undefined;
 	const image = pendingImage
 		? { ...(size ?? DEFAULT_IMAGE_SIZE) }
-		: ownImage(row.own_image_url ?? undefined, size);
+		: ownImage(main?.own_image_url ?? undefined, size);
 	return {
 		id: row.id,
 		number: row.record_number,
@@ -182,12 +183,12 @@ function wallArtwork(row: ArtworkRow): WallArtwork {
 		styles: valuesOf(row.artwork_values, 'style'),
 		materials: valuesOf(row.artwork_values, 'material'),
 		location: valuesOf(row.artwork_values, 'location')[0] ?? null,
-		hasImage: Boolean(row.source_image_file || row.own_image_path || row.own_image_url),
+		hasImage: main !== undefined,
 		favourite: row.favourite,
 		own: ownEntriesOf(row.artwork_values, row.artwork_field_entries),
 		image,
 		...(pendingImage ? { pendingImage } : {}),
-		...(row.own_image_path ? { ownImagePath: row.own_image_path } : {})
+		...(main?.own_image_path ? { ownImagePath: main.own_image_path } : {})
 	};
 }
 
@@ -268,6 +269,7 @@ export async function loadAtelier(): Promise<AtelierResult> {
 		supabase
 			.from('artworks')
 			.select(ARTWORK_COLUMNS)
+			.eq('artwork_images.position', 0)
 			.is('deleted_at', null)
 			.order('created_at', { ascending: false })
 			.order('id', { ascending: false })
@@ -285,6 +287,7 @@ export async function loadTrash(): Promise<TrashResult> {
 		supabase
 			.from('artworks')
 			.select(ARTWORK_COLUMNS)
+			.eq('artwork_images.position', 0)
 			.not('deleted_at', 'is', null)
 			.order('deleted_at', { ascending: false })
 			.order('id', { ascending: false })
@@ -298,8 +301,7 @@ export async function loadTrash(): Promise<TrashResult> {
 	return {
 		artworks: artworks.map((artwork, index): TrashArtwork => ({
 			...(resolved.get(artwork.id) ?? { ...artwork, image: undefined, pendingImage: undefined }),
-			deletedAt: rows[index].deleted_at as string,
-			ownImagePath: rows[index].own_image_path
+			deletedAt: rows[index].deleted_at as string
 		}))
 	};
 }

@@ -52,20 +52,15 @@ describe('trash actions', () => {
 		});
 	});
 
-	it('deletes an artwork permanently together with its uploaded image', async () => {
-		await expect(deletePermanently('artwork-1', 'owner/image.jpg')).resolves.toEqual({});
-		expect(query.delete).toHaveBeenCalled();
-		expect(query.eq).toHaveBeenCalledWith('id', 'artwork-1');
-		expect(removeOwnImage).toHaveBeenCalledWith('owner/image.jpg');
-	});
-
-	it('deletes the uploaded files of the other images too', async () => {
+	it('deletes an artwork permanently together with the uploaded files of its images', async () => {
 		images.eq.mockResolvedValue({
-			data: [{ own_image_path: 'owner/plan.jpg' }, { own_image_path: null }],
+			data: [{ own_image_path: 'owner/image.jpg' }, { own_image_path: 'owner/plan.jpg' }],
 			error: null
 		});
 
-		await expect(deletePermanently('artwork-1', 'owner/image.jpg')).resolves.toEqual({});
+		await expect(deletePermanently('artwork-1')).resolves.toEqual({});
+		expect(query.delete).toHaveBeenCalled();
+		expect(query.eq).toHaveBeenCalledWith('id', 'artwork-1');
 		expect(images.eq).toHaveBeenCalledWith('artwork_id', 'artwork-1');
 		expect(removeOwnImage).toHaveBeenCalledWith('owner/image.jpg');
 		expect(removeOwnImage).toHaveBeenCalledWith('owner/plan.jpg');
@@ -73,14 +68,17 @@ describe('trash actions', () => {
 	});
 
 	it('deletes an artwork without an uploaded image without touching storage', async () => {
-		await expect(deletePermanently('artwork-1', null)).resolves.toEqual({});
+		images.eq.mockResolvedValue({ data: [{ own_image_path: null }], error: null });
+
+		await expect(deletePermanently('artwork-1')).resolves.toEqual({});
 		expect(removeOwnImage).not.toHaveBeenCalled();
 	});
 
 	it('keeps the uploaded image when deleting the artwork fails', async () => {
+		images.eq.mockResolvedValue({ data: [{ own_image_path: 'owner/image.jpg' }], error: null });
 		query.eq.mockResolvedValue({ error: { code: '42501', message: 'denied' } });
 
-		await expect(deletePermanently('artwork-1', 'owner/image.jpg')).resolves.toEqual({
+		await expect(deletePermanently('artwork-1')).resolves.toEqual({
 			error: m.common.unexpectedError
 		});
 		expect(removeOwnImage).not.toHaveBeenCalled();

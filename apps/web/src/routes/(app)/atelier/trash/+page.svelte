@@ -62,7 +62,7 @@
 		if (!artwork || busy) return;
 		busy = artwork.id;
 		deleteError = undefined;
-		const { error } = await deletePermanently(artwork.id, artwork.ownImagePath);
+		const { error } = await deletePermanently(artwork.id);
 		busy = undefined;
 		if (error) {
 			deleteError = error;

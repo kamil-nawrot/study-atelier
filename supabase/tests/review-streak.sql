@@ -15,9 +15,9 @@ declare
   work uuid;
 begin
   perform public.save_artwork(
-    jsonb_build_object('title', 'Work', 'author_unknown', true, 'era_code', 'early_modern',
-      'source_wikidata_id', 'Q1', 'source_image_file', 'Work.jpg'),
-    '{}');
+    jsonb_build_object('title', 'Work', 'author_unknown', true, 'era_code', 'early_modern'),
+    '{}', null,
+    '[{"source_wikidata_id": "Q1", "source_image_file": "Work.jpg"}]');
   select id into work from public.artworks where title = 'Work';
 
   assert public.review_streak('2026-10-17T00:00:00Z', 'UTC') = 0, 'a learner without reviews has a streak';

@@ -277,10 +277,7 @@ begin
     'insert into storage.objects (bucket_id, name) values (''artwork-images'', ''loose.jpg'')'),
     'B uploads outside of any folder';
   assert security_test.denied(format(
-    'insert into public.artworks (title, author_unknown, own_image_path) values (''Borrowed'', true, ''%s/work.jpg'')', a)),
-    'B points an artwork at an image of A';
-  assert security_test.denied(format(
-    'insert into public.artwork_images (artwork_id, position, own_image_url) values (%L, 2, ''https://example.com/b.jpg'')',
+    'insert into public.artwork_images (artwork_id, position, own_image_url) values (%L, 1, ''https://example.com/b.jpg'')',
     a_artwork)),
     'B adds an image to an artwork of A';
   assert security_test.denied(format(
@@ -574,8 +571,8 @@ begin
   assert (select count(*) from public.review_cards) = 1, 'a second review adds a card instead of updating it';
   assert (select reps from public.review_cards) = 2, 'record_review does not update the card';
   assert (select count(*) from public.review_log) = 2, 'record_review does not log every answer';
-  assert (select with_image from public.review_counts('2026-10-16T00:00:00Z')) = 0,
-    'review_counts counts an artwork without an image';
+  assert (select with_image from public.review_counts('2026-10-16T00:00:00Z')) = 1,
+    'review_counts does not count an artwork with a main image';
   assert (select count(*) from storage.objects) = 1, 'A does not see their own image object';
 
   reset role;

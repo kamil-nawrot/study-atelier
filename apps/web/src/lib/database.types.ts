@@ -89,6 +89,7 @@ export type Database = {
       artwork_images: {
         Row: {
           artwork_id: string;
+          id: string;
           image_height: number | null;
           image_width: number | null;
           own_image_path: string | null;
@@ -104,6 +105,7 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           artwork_id: string;
+          id?: string;
           image_height?: number | null;
           image_width?: number | null;
           own_image_path?: string | null;
@@ -118,6 +120,7 @@ export type Database = {
         };
         Update: {
           artwork_id?: string;
+          id?: string;
           image_height?: number | null;
           image_width?: number | null;
           own_image_path?: string | null;
@@ -201,18 +204,9 @@ export type Database = {
           era_code: string | null;
           favourite: boolean;
           id: string;
-          image_height: number | null;
-          image_width: number | null;
           notes: string | null;
-          own_image_path: string | null;
-          own_image_url: string | null;
           owner_id: string;
           record_number: number;
-          source_image_attribution: string | null;
-          source_image_file: string | null;
-          source_image_licence: string | null;
-          source_image_licence_url: string | null;
-          source_wikidata_id: string | null;
           title: string;
           type_code: string | null;
           updated_at: string;
@@ -228,18 +222,9 @@ export type Database = {
           era_code?: string | null;
           favourite?: boolean;
           id?: string;
-          image_height?: number | null;
-          image_width?: number | null;
           notes?: string | null;
-          own_image_path?: string | null;
-          own_image_url?: string | null;
           owner_id?: string;
           record_number: number;
-          source_image_attribution?: string | null;
-          source_image_file?: string | null;
-          source_image_licence?: string | null;
-          source_image_licence_url?: string | null;
-          source_wikidata_id?: string | null;
           title: string;
           type_code?: string | null;
           updated_at?: string;
@@ -254,18 +239,9 @@ export type Database = {
           era_code?: string | null;
           favourite?: boolean;
           id?: string;
-          image_height?: number | null;
-          image_width?: number | null;
           notes?: string | null;
-          own_image_path?: string | null;
-          own_image_url?: string | null;
           owner_id?: string;
           record_number?: number;
-          source_image_attribution?: string | null;
-          source_image_file?: string | null;
-          source_image_licence?: string | null;
-          source_image_licence_url?: string | null;
-          source_wikidata_id?: string | null;
           title?: string;
           type_code?: string | null;
           updated_at?: string;
@@ -1038,8 +1014,8 @@ export type Database = {
         Args: {
           artwork: Json;
           existing_id?: string;
-          extra_images?: Json;
           field_entries?: Json;
+          images?: Json;
           values_by_category: Json;
         };
         Returns: {

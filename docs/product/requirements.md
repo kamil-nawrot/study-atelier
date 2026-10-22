@@ -125,6 +125,13 @@ Entering an artwork is itself part of learning, so the learner writes the data i
 | R-133 | A glossary entry's page lists, under "Na dziełach", the artworks whose pins carry the entry.                                                                                                                                                                                                                               | 0.9     |
 | R-134 | The review asks "Co to jest?" about an artwork with a pin that has a glossary entry: the image with that pin marked and four glossary terms, the distractors from the same glossary category first.                                                                                                                        | 0.9     |
 
+## Loupe
+
+| ID    | Requirement                                                                                                                                                                                                                                                                                                                              | Version |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| R-135 | On a larger screen with a mouse, "Lupa" under the image of the artwork page turns the cursor over the image into a circle that enlarges what is under it; the mouse wheel changes the level up to the source's full resolution, and Escape or "Lupa" switches it off ([ADR-0110](../decisions/0110-look-at-details-through-a-loupe.md)). | 0.9     |
+| R-136 | The loupe is offered only for an image at least 1.5 times wider than shown on the page; its large version loads only when the loupe is switched on.                                                                                                                                                                                      | 0.9     |
+
 ## Glossary
 
 | ID    | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | Version |
