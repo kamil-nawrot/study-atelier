@@ -807,6 +807,15 @@ export const pl = {
 			network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.'
 		}
 	},
+	pins: {
+		errors: {
+			empty: 'Wybierz pojęcie albo wpisz opis.',
+			tooLong: (limit: number): string => `Opis może mieć najwyżej ${limit} znaków.`,
+			tooMany: (limit: number): string => `Na jednym obrazie zmieści się ${limit} pinezek.`,
+			notFound: 'Nie znaleziono tej pinezki. Odśwież stronę i spróbuj jeszcze raz.',
+			network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.'
+		}
+	},
 	glossary: {
 		title: 'Słowniczek',
 		count: (count: number): string =>
