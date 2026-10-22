@@ -180,7 +180,8 @@ describe('artwork page', () => {
 			.elements()
 			.map((term) => term.textContent?.trim());
 		expect(terms.slice(-3)).toEqual(['Motifs', 'Source', 'Seen in person']);
-		await expect.element(page.getByText('Angel, Lily')).toBeVisible();
+		await expect.element(page.getByText('Angel', { exact: true })).toBeVisible();
+		await expect.element(page.getByText('Lily', { exact: true })).toBeVisible();
 		await expect.element(page.getByText('Gombrich')).toBeVisible();
 		await expect.element(page.getByText(m.ownFields.ticked, { exact: true })).toBeVisible();
 		expect(page.getByText('For the exam').elements()).toHaveLength(0);

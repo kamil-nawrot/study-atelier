@@ -133,11 +133,10 @@
 		},
 		...ownFields.flatMap((field) => {
 			const entry = artwork.own?.[field.id];
-			const text = Array.isArray(entry)
-				? entry.join(', ')
-				: entry === true
-					? m.ownFields.ticked
-					: (entry || '').trim();
+			if (Array.isArray(entry)) {
+				return entry.length > 0 ? [{ label: field.name, values: entry, tags: true }] : [];
+			}
+			const text = entry === true ? m.ownFields.ticked : (entry || '').trim();
 			return text ? [{ label: field.name, values: [text], tags: false }] : [];
 		})
 	]);
