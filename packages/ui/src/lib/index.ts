@@ -1,7 +1,6 @@
 export { default as Alert } from './components/Alert.svelte';
 export { default as ArtworkImage } from './components/ArtworkImage.svelte';
 export { default as ArtworkTile, type ArtworkTileImage } from './components/ArtworkTile.svelte';
-export { default as BackHeading } from './components/BackHeading.svelte';
 export { default as Button } from './components/Button.svelte';
 export { default as Checkbox } from './components/Checkbox.svelte';
 export { default as Switch } from './components/Switch.svelte';

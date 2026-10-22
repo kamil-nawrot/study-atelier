@@ -206,8 +206,11 @@ describe('edit artwork page', () => {
 			.element(page.getByRole('link', { name: m.artworkForm.cancel }))
 			.toHaveAttribute('href', '/atelier/7');
 		await expect
-			.element(page.getByRole('link', { name: m.artworkForm.goBack }))
+			.element(page.getByRole('banner').getByRole('link', { name: artwork().title }))
 			.toHaveAttribute('href', '/atelier/7');
+		await expect
+			.element(page.getByRole('heading', { level: 1, name: m.artworkForm.editTitle('#0007') }))
+			.toBeInTheDocument();
 	});
 
 	it('shows the uploaded image through its signed preview URL', async () => {

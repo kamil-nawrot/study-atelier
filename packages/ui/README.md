@@ -88,7 +88,6 @@ Every exported component has a row here; a pull request that adds a component ad
 | Component       | Purpose                                                                                                                                                      |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `Section`       | Text section with a heavy left edge (spine)                                                                                                                  |
-| `BackHeading`   | A form page's heading in the top bar: an arrow back and a small `h1` title                                                                                   |
 | `Disclosure`    | Collapsible group with a heading, a count and a chevron (native `details`); `muted`, `plain`, `lazy`                                                         |
 | `Tabs`          | Row of text tabs under a hairline that switch what a view lists; a tab with `end` stands at the right edge                                                   |
 | `Tag`           | Flat tag with `#` prefix; optional remove button                                                                                                             |

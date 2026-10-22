@@ -59,6 +59,18 @@ describe('arrive', () => {
 		expect(arrive(names, inForm, { type: 'goto', from: edit, to: artwork })).toEqual(entryPlace);
 	});
 
+	it('names the page that opened an add form on the new page the form saved', () => {
+		const added = { key: '/atelier/glossary/c', route: '/(app)/atelier/glossary/[id]' };
+		const add = { key: '/atelier/glossary/new', route: '/(app)/atelier/glossary/new' };
+		const cardIndex = { name: 'Kartoteka', path: '/atelier/values' };
+
+		const inForm = arrive(withNames(), cardIndex, { type: 'link', from: glossary, to: add });
+		expect(inForm).toEqual({ ...glossaryPlace, previous: cardIndex });
+		expect(arrive(withNames(), inForm, { type: 'goto', from: add, to: added })).toEqual(
+			glossaryPlace
+		);
+	});
+
 	it('gives each visit to the same page its own place', () => {
 		const names = withNames();
 		const visits: (Place | undefined)[] = [];

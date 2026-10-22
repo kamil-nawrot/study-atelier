@@ -287,7 +287,6 @@ export const pl = {
 		newTitle: 'Nowe dzieło',
 		editTitle: (number: string): string => `Edytuj dzieło ${number}`,
 		back: 'Wróć do atelier',
-		goBack: 'Wróć',
 		notFoundTitle: (number: string): string => `Nie ma dzieła ${number}`,
 		loadErrorTitle: 'Nie udało się wczytać dzieła',
 		image: 'Obraz',
@@ -856,7 +855,6 @@ export const pl = {
 		form: {
 			newTitle: 'Nowe pojęcie',
 			editTitle: 'Edycja pojęcia',
-			goBack: 'Wróć do słowniczka',
 			name: 'Nazwa',
 			namePlaceholder: 'Np. tympanon, sfumato, Lorenzo Medici',
 			nameTaken: (name: string): string => `Masz już pojęcie „${name}”.`,
@@ -937,7 +935,6 @@ export const pl = {
 		form: {
 			newTitle: 'Nowe wydarzenie',
 			editTitle: 'Edycja wydarzenia',
-			goBack: 'Wróć do kalendarium',
 			name: 'Nazwa',
 			namePlaceholder: 'Np. wojny napoleońskie, chrzest Polski',
 			nameRequired: 'Wpisz nazwę wydarzenia.',
@@ -1116,7 +1113,6 @@ export const pl = {
 		saving: 'Zapisywanie…',
 		editTitle: (kind: string, name: string): string => `Edytuj ${kind} „${name}”`,
 		eraAccusative: 'epokę',
-		goBack: 'Wróć do strony',
 		summary: 'Podsumowanie',
 		summaryPlaceholder: 'Krótki opis do szybkiego podejrzenia przy oglądaniu dzieła.',
 		notes: 'Notatki',
