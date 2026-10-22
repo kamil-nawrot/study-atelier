@@ -109,3 +109,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0103](0103-draw-free-review-rounds-at-random.md)                        | Draw free review rounds at random                                                        | accepted           |
 | [0104](0104-let-the-learner-define-own-artwork-fields.md)                | Let the learner define their own artwork fields                                          | accepted           |
 | [0105](0105-filter-the-wall-by-own-fields.md)                            | Filter the wall by the learner's own fields                                              | accepted           |
+| [0107](0107-drop-the-line-above-the-timeline.md)                         | Drop the line above the timeline                                                         | accepted           |
