@@ -7,6 +7,8 @@ import { cardIndexErrorMessage, collectionErrorMessage } from './errors.ts';
 import { valueKey } from './value-suggestions.ts';
 import type {
 	OwnField,
+	OwnFieldDefinition,
+	OwnFieldDefinitionsResult,
 	OwnFieldInput,
 	OwnFieldKind,
 	OwnFieldsResult,
@@ -16,6 +18,7 @@ import type {
 
 export const FIELD_NAME_MAX_LENGTH = 60;
 export const FIELD_DESCRIPTION_MAX_LENGTH = 150;
+export const OWN_TEXT_MAX_LENGTH = 200;
 export const OWN_FIELD_KINDS: readonly OwnFieldKind[] = ['text', 'list', 'flag'];
 
 type FieldRow = {
@@ -40,18 +43,40 @@ function byName(a: OwnValue, b: OwnValue): number {
 	return compareSortKeys(a.name, b.name);
 }
 
+function definitionOf(row: FieldRow): OwnFieldDefinition {
+	return {
+		id: row.id,
+		name: row.name,
+		description: row.description,
+		kind: row.kind as OwnFieldKind,
+		multiple: row.multiple
+	};
+}
+
+function fieldsQuery(): PromiseLike<{
+	data: FieldRow[] | null;
+	error: { message: string } | null;
+}> {
+	return supabase
+		.from('artwork_fields')
+		.select('id, name, description, kind, multiple')
+		.order('position');
+}
+
+export async function loadOwnFieldDefinitions(): Promise<OwnFieldDefinitionsResult> {
+	const { data, error } = await fieldsQuery();
+	if (error) return { fields: [], error: collectionErrorMessage(error) };
+	return {
+		fields: (data ?? []).filter((row) => isOwnFieldKind(row.kind)).map(definitionOf)
+	};
+}
+
 export async function loadOwnFields(): Promise<OwnFieldsResult> {
-	const [fields, usage] = await Promise.all([
-		supabase
-			.from('artwork_fields')
-			.select('id, name, description, kind, multiple')
-			.order('position'),
-		supabase.rpc('artwork_field_usage')
-	]);
+	const [fields, usage] = await Promise.all([fieldsQuery(), supabase.rpc('artwork_field_usage')]);
 	const error = fields.error ?? usage.error;
 	if (error) return { fields: [], error: collectionErrorMessage(error) };
 
-	const rows = ((fields.data ?? []) as FieldRow[]).filter((row) => isOwnFieldKind(row.kind));
+	const rows = (fields.data ?? []).filter((row) => isOwnFieldKind(row.kind));
 	const listIds = rows.filter((row) => row.kind === 'list').map((row) => row.id);
 	const values =
 		listIds.length === 0
@@ -64,11 +89,7 @@ export async function loadOwnFields(): Promise<OwnFieldsResult> {
 	const counts = new Map(((usage.data ?? []) as UsageRow[]).map((row) => [row.field_id, row]));
 	return {
 		fields: rows.map((row): OwnField => ({
-			id: row.id,
-			name: row.name,
-			description: row.description,
-			kind: row.kind as OwnFieldKind,
-			multiple: row.multiple,
+			...definitionOf(row),
 			count: counts.get(row.id)?.artwork_count ?? 0,
 			values: values.rows
 				.filter((value) => value.category_code === row.id)

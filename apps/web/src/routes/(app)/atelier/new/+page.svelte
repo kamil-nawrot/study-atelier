@@ -53,6 +53,8 @@
 		noteLinks={data.noteLinks}
 		oncancel={backToAtelier}
 		onsaved={showSaved}
+		ownFields={data.ownFields}
+		ownValues={data.ownValues}
 		placeStarter={data.placeStarter}
 		valueLinks={data.links}
 	/>

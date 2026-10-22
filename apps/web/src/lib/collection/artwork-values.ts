@@ -1,4 +1,4 @@
-import type { ArtworkValueRow, CategoryCode } from './types.ts';
+import type { ArtworkValueRow } from './types.ts';
 
 export function authorSortNamesOf(rows: ArtworkValueRow[]): (string | null)[] {
 	return rows
@@ -16,7 +16,7 @@ export function authorSortNamesOf(rows: ArtworkValueRow[]): (string | null)[] {
 		.map((value) => value.sortName);
 }
 
-export function valuesOf(rows: ArtworkValueRow[], category: CategoryCode): string[] {
+export function valuesOf(rows: ArtworkValueRow[], category: string): string[] {
 	return rows
 		.flatMap((row) =>
 			row.category_values?.category_code === category

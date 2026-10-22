@@ -4,6 +4,7 @@ import type { Json } from '#lib/database.types.ts';
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { supabase } from '#lib/supabase.ts';
 import { valuesOf } from './artwork-values.ts';
+import { isCategoryCode } from './category-values.ts';
 import { signedYear } from './format.ts';
 import { artworkErrorMessage } from './errors.ts';
 import {
@@ -26,6 +27,7 @@ import type {
 	EraCode,
 	ExistingArtwork,
 	LoadArtworkResult,
+	OwnEntries,
 	SaveArtworkResult
 } from './types.ts';
 
@@ -43,6 +45,7 @@ type ArtworkRecordRow = {
 	favourite: boolean;
 	artwork_values: ArtworkValueRow[];
 	artwork_images: (ImageRow & { position: number })[];
+	artwork_field_entries?: { field_id: string; text_value: string | null }[];
 } & ImageRow;
 
 type StoredInput = Omit<ArtworkInput, 'image'> & { image: StoredImage | null };
@@ -61,7 +64,8 @@ const RECORD_COLUMNS = [
 	'favourite',
 	...IMAGE_COLUMNS,
 	'artwork_values(position, category_values(category_code, name))',
-	`artwork_images(position, ${IMAGE_COLUMNS.join(', ')})`
+	`artwork_images(position, ${IMAGE_COLUMNS.join(', ')})`,
+	'artwork_field_entries(field_id, text_value)'
 ].join(', ');
 
 export function emptyArtworkInput(): ArtworkInput {
@@ -168,13 +172,43 @@ function artworkColumns(input: StoredInput): Record<string, Json> {
 	};
 }
 
-function valuesByCategory(input: ArtworkInput): Record<CategoryCode, string[]> {
+function valuesByCategory(input: ArtworkInput): Record<string, string[]> {
+	const own = Object.entries(input.own ?? {}).flatMap(([id, entry]) =>
+		Array.isArray(entry) ? [[id, names(entry)]] : []
+	);
 	return {
 		author: input.authorUnknown ? [] : names(input.authors),
 		period: names(input.period === null ? [] : [input.period]),
 		style: names(input.styles),
 		material: names(input.materials),
-		location: names(input.location === null ? [] : [input.location])
+		location: names(input.location === null ? [] : [input.location]),
+		...Object.fromEntries(own)
+	} satisfies Record<CategoryCode, string[]>;
+}
+
+function fieldEntries(input: ArtworkInput): Record<string, Json> | undefined {
+	if (!input.own) return undefined;
+	return Object.fromEntries(
+		Object.entries(input.own).flatMap(([id, entry]): [string, Json][] => {
+			if (entry === true) return [[id, true]];
+			if (typeof entry === 'string' && entry.trim()) return [[id, entry.trim()]];
+			return [];
+		})
+	);
+}
+
+function ownEntriesOf(row: ArtworkRecordRow): OwnEntries {
+	const lists = new Set(
+		row.artwork_values.flatMap((value) => {
+			const code = value.category_values?.category_code;
+			return code && !isCategoryCode(code) ? [code] : [];
+		})
+	);
+	return {
+		...Object.fromEntries([...lists].map((code) => [code, valuesOf(row.artwork_values, code)])),
+		...Object.fromEntries(
+			(row.artwork_field_entries ?? []).map((entry) => [entry.field_id, entry.text_value ?? true])
+		)
 	};
 }
 
@@ -206,7 +240,8 @@ export async function saveArtwork(
 			artwork: artworkColumns({ ...input, image: main }),
 			values_by_category: valuesByCategory(input),
 			existing_id: existing?.id,
-			extra_images: others.map(imageColumns) as unknown as Json
+			extra_images: others.map(imageColumns) as unknown as Json,
+			field_entries: fieldEntries(input)
 		})
 		.single();
 	if (error) {
@@ -253,7 +288,8 @@ function artworkRecordFromRow(row: ArtworkRecordRow): ArtworkRecord {
 		image: imageOf(row),
 		images: [...(row.artwork_images ?? [])]
 			.sort((first, second) => first.position - second.position)
-			.flatMap((image) => imageOf(image) ?? [])
+			.flatMap((image) => imageOf(image) ?? []),
+		own: ownEntriesOf(row)
 	};
 }
 

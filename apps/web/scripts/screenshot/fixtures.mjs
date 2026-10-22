@@ -111,23 +111,34 @@ export const ARTWORKS = [
 		withValues(
 			withValues(
 				withValues(
-					artwork(1, 'Mona Lisa', ['Leonardo da Vinci'], 1503, 'early_modern', {
-						...commonsImage('Mona_Lisa.jpg'),
-						year_approximate: true,
-						notes:
-							'Sample note about the sfumato technique, see [Leonardo da Vinci](/atelier/values/author/author-leonardo-da-vinci) and compare [#0009 The Birth of Venus](/atelier/9).'
-					}),
-					'period',
-					['Renaissance']
+					withValues(
+						artwork(1, 'Mona Lisa', ['Leonardo da Vinci'], 1503, 'early_modern', {
+							...commonsImage('Mona_Lisa.jpg'),
+							year_approximate: true,
+							notes:
+								'Sample note about the sfumato technique, see [Leonardo da Vinci](/atelier/values/author/author-leonardo-da-vinci) and compare [#0009 The Birth of Venus](/atelier/9).',
+							artwork_field_entries: [
+								{
+									field_id: '00000000-0000-4000-8000-000000000403',
+									text_value: 'Gombrich, s. 300'
+								},
+								{ field_id: '00000000-0000-4000-8000-000000000404', text_value: null }
+							]
+						}),
+						'period',
+						['Renaissance']
+					),
+					'style',
+					['High Renaissance']
 				),
-				'style',
-				['High Renaissance']
+				'material',
+				['Oil on poplar']
 			),
-			'material',
-			['Oil on poplar']
+			'location',
+			['Louvre']
 		),
-		'location',
-		['Louvre']
+		'00000000-0000-4000-8000-000000000402',
+		['portret', 'pejzaż']
 	),
 	artwork(2, 'The Starry Night', ['Vincent van Gogh'], 1889, 'modern', {
 		...commonsImage('The_Starry_Night.jpg')

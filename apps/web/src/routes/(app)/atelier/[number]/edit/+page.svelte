@@ -59,6 +59,8 @@
 				noteLinks={data.noteLinks}
 				oncancel={goBack}
 				onsaved={showSaved}
+				ownFields={data.ownFields}
+				ownValues={data.ownValues}
 				placeStarter={data.placeStarter}
 				valueLinks={data.links}
 			/>

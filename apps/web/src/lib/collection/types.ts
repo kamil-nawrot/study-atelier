@@ -108,6 +108,7 @@ export type CategoryValues = Record<CategoryCode, string[]>;
 
 export type CategoryValuesResult = {
 	values: CategoryValues;
+	ownValues: Record<string, string[]>;
 	error?: string;
 };
 
@@ -177,6 +178,7 @@ export type ArtworkInput = {
 	notes: string;
 	image: ArtworkImageInput | null;
 	images: ArtworkImageInput[];
+	own?: OwnEntries;
 };
 
 export type ArtworkRecord = ArtworkInput & {
@@ -205,6 +207,7 @@ export type LoadArtworkResult = {
 	glossary?: GlossaryEntry[];
 	mentions?: Mention[];
 	summaries?: ValueSummaries;
+	ownFields?: OwnFieldDefinition[];
 	error?: string;
 	notFound?: boolean;
 };
@@ -225,6 +228,8 @@ export type ArtworkFormState = {
 	notes: string;
 	image: ArtworkImageInput | null;
 	images: (ArtworkImageInput | null)[];
+	own?: OwnEntries;
+	ownQueries: Record<string, string>;
 };
 
 export type CardIndexRecord = {
@@ -411,14 +416,26 @@ export type OwnValue = {
 	count: number;
 };
 
-export type OwnField = {
+export type OwnFieldDefinition = {
 	id: string;
 	name: string;
 	description: string | null;
 	kind: OwnFieldKind;
 	multiple: boolean;
+};
+
+export type OwnField = OwnFieldDefinition & {
 	count: number;
 	values: OwnValue[];
+};
+
+export type OwnEntry = string | string[] | boolean;
+
+export type OwnEntries = Record<string, OwnEntry>;
+
+export type OwnFieldDefinitionsResult = {
+	fields: OwnFieldDefinition[];
+	error?: string;
 };
 
 export type OwnFieldInput = {

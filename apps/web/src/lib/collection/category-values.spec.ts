@@ -26,7 +26,10 @@ describe('loadCategoryValues', () => {
 	it('reads values only through artworks outside the trash', async () => {
 		query.is.mockResolvedValue({ data: [], error: null });
 
-		await expect(loadCategoryValues()).resolves.toEqual({ values: emptyCategoryValues() });
+		await expect(loadCategoryValues()).resolves.toEqual({
+			values: emptyCategoryValues(),
+			ownValues: {}
+		});
 		expect(supabase.from).toHaveBeenCalledWith('artworks');
 		expect(query.select).toHaveBeenCalledWith(
 			'artwork_values(category_values(category_code, name))'
@@ -58,8 +61,24 @@ describe('loadCategoryValues', () => {
 				style: ['gotyk'],
 				material: [],
 				location: ['Lyon', 'Łódź']
-			}
+			},
+			ownValues: {}
 		});
+	});
+
+	it('collects the values of own lists apart, keyed by the field', async () => {
+		query.is.mockResolvedValue({
+			data: [
+				{ artwork_values: [value('lecture-id', 'Renaissance class'), value('style', 'gotyk')] },
+				{ artwork_values: [value('lecture-id', 'Baroque class')] }
+			],
+			error: null
+		});
+
+		const { values, ownValues } = await loadCategoryValues();
+
+		expect(values.style).toEqual(['gotyk']);
+		expect(ownValues).toEqual({ 'lecture-id': ['Baroque class', 'Renaissance class'] });
 	});
 
 	it('returns no values and a message when the request fails', async () => {
@@ -67,6 +86,7 @@ describe('loadCategoryValues', () => {
 
 		await expect(loadCategoryValues()).resolves.toEqual({
 			values: emptyCategoryValues(),
+			ownValues: {},
 			error: m.common.unexpectedError
 		});
 	});

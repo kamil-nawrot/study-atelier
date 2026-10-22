@@ -170,6 +170,7 @@
 			mentions={data.mentions}
 			noteLinks={data.noteLinks}
 			onflip={flip}
+			ownFields={data.ownFields}
 			summaries={data.summaries}
 		/>
 	{:else}
