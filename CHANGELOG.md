@@ -2,6 +2,33 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.8.0] - 2026-10-22
+
+The learner can define their own artwork fields, fill them in with every artwork, see them in the artwork view and filter the wall by them.
+
+### Added
+
+- Own fields in a new Kartoteka tab "Własne pola", at the right of the tabs: "Dodaj pole" asks for a name, an optional description and a kind, "Tekst", "Lista" (one or several values with suggestions) or "Zaznaczenie"; the kind cannot change afterwards. A name cannot repeat another own field or a built-in one ("Dzieło ma już wbudowane pole „Styl”."). Each field has a "…" menu to rename it, move it up or down, or delete it after a confirmation that names how many artworks lose it.
+- The values of an own list are listed in the tab under "Wartości" with their number of artworks, closed at first; renaming a value to another one's name merges the two after a confirmation.
+- The artwork form shows the own fields after "Miejsce", with their description as the hint, and the artwork view shows the filled ones: a list as tags, a text as text, a ticked field as "Tak".
+- The "Filtry" panel of the wall offers the own fields after "Miejsce": the values of a list, a search inside a text field, and the ticked fields in one section "Zaznaczone"; the filter stays in the address.
+
+### Changed
+
+- The arrow in the top bar of a form names where it leads ("← Mona Lisa", "← Atelier", "← Słowniczek") instead of the form's title, which is no longer shown.
+- Kalendarium has no line above the timeline any more ("1640 · w tym czasie: …"), so the timeline does not move while panning; a screen reader still hears the events at the reading line.
+- Internal: tab and text button variants in the component library, `BackHeading` removed, and fixes from the code review of the version.
+
+### Fixed
+
+- After saving an edit, the back arrow returns to the page before the artwork, value or entry in one step instead of showing the same page again.
+- A new glossary entry's arrow names Słowniczek, not the page before it.
+- The "Widok" dialog of the wall fits the width of a phone instead of scrolling sideways.
+
+### Migrations run on production
+
+Two migrations run on production with this release and change no existing data: `artwork_fields` creates the `artwork_fields` and `artwork_field_entries` tables with their policies and grants, lets `categories` hold a learner's own list categories (an optional owner and field, a read policy for the shared ones and the learner's own, the position unique only among the shared ones), makes `category_values` follow a deleted category, and replaces `save_artwork` with a version that takes optional field entries and replaces only the categories it is given, so the calls of the previous version, which send all five categories, keep working; `artwork_field_position_default` gives the position of an own field a default.
+
 ## [0.7.1] - 2026-10-21
 
 The way back now leads where the learner came from, scrollbars no longer move the page, and free reviews draw a new set of artworks every time.
@@ -379,3 +406,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.6.3]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.6.3
 [0.7.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.7.0
 [0.7.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.7.1
+[0.8.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.8.0
