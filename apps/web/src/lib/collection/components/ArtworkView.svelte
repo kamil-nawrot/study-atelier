@@ -2,15 +2,18 @@
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
+	import Pin from '@lucide/svelte/icons/pin';
 	import X from '@lucide/svelte/icons/x';
 	import type { LucideIcon } from '@lucide/svelte';
 	import {
+		Alert,
 		ArtworkImage,
 		Button,
 		Icon,
 		NoImage,
 		type NoteLinks,
 		Popover,
+		Switch,
 		Tag,
 		overlayScrollbar
 	} from '@study-atelier/ui';
@@ -18,6 +21,12 @@
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import { m } from '#lib/i18n/index.ts';
+	import PinCard from '#lib/pins/components/PinCard.svelte';
+	import PinDialog from '#lib/pins/components/PinDialog.svelte';
+	import PinMarkers from '#lib/pins/components/PinMarkers.svelte';
+	import { movePin } from '#lib/pins/pin-data.ts';
+	import { fractionIn, pinsOfImage, type Fraction } from '#lib/pins/pin-layout.ts';
+	import { MAX_PINS_PER_IMAGE, type Pin as PinRecord } from '#lib/pins/types.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
 	import { artworkTypeIcon } from '../artwork-types.ts';
 	import { eraIcon } from '../eras.ts';
@@ -42,6 +51,7 @@
 		editHref: string;
 		noteLinks?: NoteLinks;
 		glossary?: GlossaryEntry[];
+		pins?: PinRecord[];
 		mentions?: Mention[];
 		summaries?: ValueSummaries;
 		ownFields?: OwnFieldDefinition[];
@@ -55,6 +65,7 @@
 		flipLinks,
 		noteLinks,
 		glossary,
+		pins = [],
 		mentions = [],
 		summaries = emptyValueSummaries(),
 		ownFields = [],
@@ -75,9 +86,35 @@
 	let fullImage = $derived(artworkImageSource(current, VIEWER_WIDTH));
 	let credit = $derived(image ? artworkImageCredit(current) : undefined);
 
+	let allPins = $derived(pins);
+	let showPins = $state(false);
+	let editing = $state(false);
+	let pinError = $state<string>();
+	let draftSpot = $state<Fraction>();
+	let dialogPin = $state<PinRecord>();
+	let dialogOpen = $state(false);
+	let cardPin = $state<PinRecord>();
+	let cardOpen = $state(false);
+
+	let imageId = $derived(current?.id);
+	let imagePins = $derived(pinsOfImage(allPins, imageId));
+	let pinsVisible = $derived(editing || showPins);
+	let entryNames = $derived(
+		Object.fromEntries((glossary ?? []).map((entry) => [entry.id, entry.name]))
+	);
+	let cardNumber = $derived(imagePins.findIndex((pin) => pin.id === cardPin?.id) + 1);
+
 	$effect.pre(() => {
 		void artwork.id;
 		shown = 0;
+		showPins = false;
+		editing = false;
+		pinError = undefined;
+	});
+
+	$effect.pre(() => {
+		void shown;
+		pinError = undefined;
 	});
 
 	function step(by: -1 | 1): void {
@@ -160,6 +197,58 @@
 	function openViewer(): void {
 		viewer.open();
 	}
+
+	function placePin(event: MouseEvent): void {
+		pinError = undefined;
+		if (imagePins.length >= MAX_PINS_PER_IMAGE) {
+			pinError = m.pins.errors.tooMany(MAX_PINS_PER_IMAGE);
+			return;
+		}
+		const frame = event.currentTarget as HTMLElement;
+		draftSpot =
+			event.detail === 0
+				? { x: 0.5, y: 0.5 }
+				: fractionIn(event.clientX, event.clientY, frame.getBoundingClientRect());
+		dialogPin = undefined;
+		dialogOpen = true;
+	}
+
+	function clickImage(event: MouseEvent): void {
+		if (editing) placePin(event);
+		else openViewer();
+	}
+
+	function selectPin(pin: PinRecord): void {
+		pinError = undefined;
+		if (editing) {
+			draftSpot = undefined;
+			dialogPin = pin;
+			dialogOpen = true;
+			return;
+		}
+		cardPin = pin;
+		cardOpen = true;
+	}
+
+	async function moveTo(pin: PinRecord, place: Fraction): Promise<void> {
+		pinError = undefined;
+		allPins = allPins.map((item) => (item.id === pin.id ? { ...item, ...place } : item));
+		const { error } = await movePin(pin.id, place.x, place.y);
+		if (!error) return;
+		allPins = allPins.map((item) => (item.id === pin.id ? pin : item));
+		pinError = error;
+	}
+
+	function pinSaved(pin: PinRecord): void {
+		allPins = allPins.some((item) => item.id === pin.id)
+			? allPins.map((item) => (item.id === pin.id ? pin : item))
+			: [...allPins, pin];
+		showPins = true;
+	}
+
+	function pinDeleted(pin: PinRecord): void {
+		allPins = allPins.filter((item) => item.id !== pin.id);
+	}
 </script>
 
 {#snippet valueName(kind: ValueKind, name: string)}
@@ -205,9 +294,11 @@
 	<figure
 		class="stage"
 		class:dimmed={image !== undefined}
+		class:editing
 		class:flipping={flipLinks !== undefined}
 		class:with-gallery={image !== undefined && gallery.length > 1}
-		{@attach swipe((direction) => onflip?.(direction))}
+		class:with-pins={imageId !== undefined}
+		{@attach editing ? undefined : swipe((direction) => onflip?.(direction))}
 	>
 		{#if flipLinks}
 			{#each FLIP_DIRECTIONS as direction (direction)}
@@ -232,20 +323,59 @@
 		{/if}
 		{#if image}
 			<img class="backdrop" alt="" aria-hidden="true" src={image.src} />
-			<button class="open" aria-label={m.artworkView.openImage} onclick={openViewer} type="button">
-				<span class="mat">
-					<ArtworkImage
-						{alt}
-						height={image.height}
-						sizes="(min-width: 768px) 60vw, 100vw"
-						src={image.src}
-						srcset={image.srcset}
-						width={image.width}
-					/>
-				</span>
-			</button>
+			{#if editing}
+				<div class="pin-bar" role="status">
+					<p>{m.pins.editHint}</p>
+					<Button onclick={() => (editing = false)} variant="primary">{m.pins.done}</Button>
+				</div>
+			{/if}
+			<div class="mat">
+				<div class="frame">
+					<button
+						class="open"
+						class:placing={editing}
+						aria-label={editing ? m.pins.placeHere : m.artworkView.openImage}
+						onclick={clickImage}
+						type="button"
+					>
+						<ArtworkImage
+							{alt}
+							height={image.height}
+							sizes="(min-width: 768px) 60vw, 100vw"
+							src={image.src}
+							srcset={image.srcset}
+							width={image.width}
+						/>
+					</button>
+					{#if pinsVisible}
+						<PinMarkers
+							draft={draftSpot && dialogOpen && !dialogPin
+								? { ...draftSpot, number: imagePins.length + 1 }
+								: undefined}
+							{editing}
+							names={entryNames}
+							onmove={moveTo}
+							onselect={selectPin}
+							pins={imagePins}
+						/>
+					{/if}
+				</div>
+			</div>
 			{#if credit}
 				<figcaption class="caption">{credit}</figcaption>
+			{/if}
+			{#if imageId !== undefined}
+				<div class="pin-tools">
+					{#if pinError}
+						<Alert tone="danger">{pinError}</Alert>
+					{/if}
+					{#if !editing}
+						{#if imagePins.length > 0}
+							<Switch label={m.pins.switchLabel(imagePins.length)} bind:checked={showPins} />
+						{/if}
+						<Button icon={Pin} onclick={() => (editing = true)}>{m.pins.edit}</Button>
+					{/if}
+				</div>
 			{/if}
 			{#if gallery.length > 1}
 				<div class="gallery">
@@ -368,6 +498,24 @@
 	</div>
 </div>
 
+{#if imageId !== undefined}
+	<PinDialog
+		entries={glossary ?? []}
+		{imageId}
+		ondeleted={pinDeleted}
+		onsaved={pinSaved}
+		pin={dialogPin}
+		spot={draftSpot ?? { x: 0.5, y: 0.5 }}
+		bind:open={dialogOpen}
+	/>
+{/if}
+<PinCard
+	entry={glossary?.find((entry) => entry.id === cardPin?.glossaryEntryId)}
+	number={cardNumber}
+	pin={cardPin}
+	bind:open={cardOpen}
+/>
+
 <ImageViewer bind:this={viewer} {alt} count={gallery.length} image={fullImage} onstep={step} />
 
 <style>
@@ -451,6 +599,37 @@
 		border: none;
 		background: none;
 		cursor: var(--cursor-zoom-in);
+	}
+
+	.open.placing {
+		cursor: crosshair;
+	}
+
+	.frame {
+		position: relative;
+	}
+
+	.pin-bar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: var(--spacing-3);
+		color: var(--color-stage-fg);
+	}
+
+	.pin-bar p {
+		margin: 0;
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
+	}
+
+	.pin-tools {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: var(--spacing-4);
 	}
 
 	.mat {

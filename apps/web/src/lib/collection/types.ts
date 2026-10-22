@@ -1,5 +1,6 @@
 import type { GlossaryEntry } from '#lib/glossary/types.ts';
 import type { ArtworkTileImage, NoteLinks } from '@study-atelier/ui';
+import type { Pin } from '#lib/pins/types.ts';
 import type { Mention } from './mentions.ts';
 import type { ValueSummaries } from './value-summaries.ts';
 
@@ -208,6 +209,8 @@ export type SaveArtworkResult =
 
 export type LoadArtworkResult = {
 	artwork?: ArtworkRecord;
+	pins?: Pin[];
+	pinsError?: string;
 	noteLinks?: NoteLinks;
 	glossary?: GlossaryEntry[];
 	mentions?: Mention[];

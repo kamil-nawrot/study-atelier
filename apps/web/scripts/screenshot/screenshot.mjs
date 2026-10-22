@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
 import {
+	ARTWORK_PINS,
 	ARTWORKS,
 	CATALOGUE_MUSEUMS,
 	GLOSSARY_ENTRIES,
@@ -275,6 +276,17 @@ function notesMentions(needle) {
 	);
 }
 
+function pinsRoute(route, request, url) {
+	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
+	if (request.method() !== 'GET') return json(route, [ARTWORK_PINS[0]], 201);
+	const filter = url.searchParams.get('image_id') ?? '';
+	const ids = filter.startsWith('in.(') ? filter.slice(4, -1).split(',') : [];
+	return json(
+		route,
+		ARTWORK_PINS.filter((row) => ids.includes(row.image_id))
+	);
+}
+
 function glossaryRoute(route, request, url) {
 	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
 	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
@@ -368,6 +380,7 @@ async function mockSupabase(context) {
 					}))
 			);
 		}
+		if (url.pathname === '/rest/v1/artwork_pins') return pinsRoute(route, request, url);
 		if (url.pathname === '/rest/v1/glossary_entries') return glossaryRoute(route, request, url);
 		if (url.pathname.startsWith('/rest/v1/rpc/')) {
 			return json(route, { id: ARTWORKS[0].id, record_number: ARTWORKS[0].record_number });

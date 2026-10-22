@@ -808,6 +808,27 @@ export const pl = {
 		}
 	},
 	pins: {
+		switchLabel: (count: number): string => `Pinezki (${count})`,
+		edit: 'Edytuj pinezki',
+		done: 'Gotowe',
+		editHint: 'Dotknij obrazu, żeby dodać pinezkę. Przeciągnij pinezkę, żeby ją przesunąć.',
+		placeHere: 'Dodaj pinezkę w tym miejscu',
+		marker: (number: number, name?: string): string =>
+			name ? `Pinezka ${number}: ${name}` : `Pinezka ${number}`,
+		cardTitle: (number: number): string => `Pinezka ${number}`,
+		cardClose: 'Zamknij',
+		newTitle: 'Nowa pinezka',
+		title: 'Pinezka',
+		term: 'Pojęcie ze Słowniczka (opcjonalnie)',
+		termPlaceholder: 'Szukaj pojęcia',
+		text: 'Opis (opcjonalnie)',
+		remove: 'Usuń',
+		removing: 'Usuwam…',
+		cancel: 'Anuluj',
+		save: 'Zapisz',
+		saving: 'Zapisuję…',
+		loadFailed: 'Nie udało się wczytać pinezek.',
+		errorTitle: 'Nie udało się zapisać pinezki',
 		errors: {
 			empty: 'Wybierz pojęcie albo wpisz opis.',
 			tooLong: (limit: number): string => `Opis może mieć najwyżej ${limit} znaków.`,
