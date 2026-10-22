@@ -646,7 +646,7 @@ describe('artwork page', () => {
 			await expect
 				.element(page.getByRole('button', { name: 'Pinezka 1: Turban' }))
 				.not.toBeInTheDocument();
-			await page.getByText(m.pins.switchLabel(1), { exact: true }).click();
+			await page.getByRole('button', { name: m.pins.switchLabel(1) }).click();
 			await page.getByRole('button', { name: 'Pinezka 1: Turban' }).click();
 
 			const card = page.getByRole('alertdialog');
@@ -659,7 +659,7 @@ describe('artwork page', () => {
 
 			await expect.element(page.getByRole('button', { name: m.pins.edit })).toBeVisible();
 			await expect
-				.element(page.getByRole('switch', { name: m.pins.switchLabel(0) }))
+				.element(page.getByRole('button', { name: m.pins.switchLabel(0) }))
 				.not.toBeInTheDocument();
 		});
 

@@ -2,6 +2,7 @@
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
+	import MapPin from '@lucide/svelte/icons/map-pin';
 	import Pin from '@lucide/svelte/icons/pin';
 	import X from '@lucide/svelte/icons/x';
 	import type { LucideIcon } from '@lucide/svelte';
@@ -13,7 +14,6 @@
 		NoImage,
 		type NoteLinks,
 		Popover,
-		Switch,
 		Tag,
 		overlayScrollbar
 	} from '@study-atelier/ui';
@@ -365,17 +365,36 @@
 				<figcaption class="caption">{credit}</figcaption>
 			{/if}
 			{#if imageId !== undefined}
-				<div class="pin-tools">
-					{#if pinError}
-						<Alert tone="danger">{pinError}</Alert>
-					{/if}
-					{#if !editing}
+				{#if pinError}
+					<Alert tone="danger">{pinError}</Alert>
+				{/if}
+				{#if !editing}
+					<div class="pin-actions">
 						{#if imagePins.length > 0}
-							<Switch label={m.pins.switchLabel(imagePins.length)} bind:checked={showPins} />
+							<button
+								class="pin-action"
+								class:active={showPins}
+								aria-label={m.pins.switchLabel(imagePins.length)}
+								aria-pressed={showPins}
+								onclick={() => (showPins = !showPins)}
+								title={m.pins.switchLabel(imagePins.length)}
+								type="button"
+							>
+								<Icon icon={MapPin} size="sm" />
+								<span>{imagePins.length}</span>
+							</button>
 						{/if}
-						<Button icon={Pin} onclick={() => (editing = true)}>{m.pins.edit}</Button>
-					{/if}
-				</div>
+						<button
+							class="pin-action"
+							aria-label={m.pins.edit}
+							onclick={() => (editing = true)}
+							title={m.pins.edit}
+							type="button"
+						>
+							<Icon icon={Pin} size="sm" />
+						</button>
+					</div>
+				{/if}
 			{/if}
 			{#if gallery.length > 1}
 				<div class="gallery">
@@ -624,12 +643,33 @@
 		line-height: var(--line-height-sm);
 	}
 
-	.pin-tools {
+	.stage > .pin-actions {
+		position: absolute;
+		top: var(--spacing-2);
+		right: var(--spacing-2);
+		z-index: 2;
 		display: flex;
-		flex-wrap: wrap;
+		gap: var(--spacing-1);
+	}
+
+	.pin-action {
+		display: flex;
 		align-items: center;
-		justify-content: center;
-		gap: var(--spacing-4);
+		gap: var(--spacing-1);
+		padding: var(--spacing-2);
+		border: none;
+		background: transparent;
+		color: var(--color-stage-fg);
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
+		cursor: pointer;
+		opacity: 0.6;
+	}
+
+	.pin-action:hover,
+	.pin-action:focus-visible,
+	.pin-action.active {
+		opacity: 1;
 	}
 
 	.mat {
@@ -777,6 +817,12 @@
 
 	.empty {
 		color: var(--color-fg-muted);
+	}
+
+	@media (max-width: 767.98px) {
+		.stage.with-pins {
+			padding-top: var(--spacing-12);
+		}
 	}
 
 	@media (min-width: 768px) {
