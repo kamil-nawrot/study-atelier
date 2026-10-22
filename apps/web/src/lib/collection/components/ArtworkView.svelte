@@ -48,6 +48,7 @@
 		noteLinks?: NoteLinks;
 		glossary?: GlossaryEntry[];
 		pins?: PinRecord[];
+		focusPin?: string;
 		mentions?: Mention[];
 		summaries?: ValueSummaries;
 		ownFields?: OwnFieldDefinition[];
@@ -62,6 +63,7 @@
 		noteLinks,
 		glossary,
 		pins = [],
+		focusPin,
 		mentions = [],
 		summaries = emptyValueSummaries(),
 		ownFields = [],
@@ -96,8 +98,10 @@
 
 	$effect.pre(() => {
 		void artwork.id;
-		shown = 0;
-		showPins = false;
+		const focused = pins.find((pin) => pin.id === focusPin);
+		const focusedImage = focused ? gallery.findIndex((item) => item?.id === focused.imageId) : -1;
+		shown = Math.max(focusedImage, 0);
+		showPins = focusedImage >= 0;
 	});
 
 	function step(by: -1 | 1): void {

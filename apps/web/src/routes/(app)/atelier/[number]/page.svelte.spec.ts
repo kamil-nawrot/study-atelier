@@ -699,5 +699,23 @@ describe('artwork page', () => {
 				.element(page.getByRole('button', { name: m.pins.editor(0) }))
 				.not.toBeInTheDocument();
 		});
+
+		it('opens the image of the pin from the address with the pins shown', async () => {
+			navigation.url = new URL('http://localhost/atelier/42?pin=pin-2');
+			renderPage({
+				artwork: artwork({
+					image: { kind: 'url', url: IMAGE, width: 40, height: 50, id: 'image-1' },
+					images: [{ kind: 'url', url: IMAGE, width: 40, height: 50, id: 'image-2' }]
+				}),
+				glossary: [testEntry('entry-1', 'Turban')],
+				pins: [PIN, { ...PIN, id: 'pin-2', imageId: 'image-2', glossaryEntryId: null }]
+			});
+
+			await expect
+				.element(page.getByRole('button', { name: m.artworkForm.imageSlot(2, 2) }))
+				.toHaveAttribute('aria-pressed', 'true');
+			await expect.element(page.getByRole('button', { name: 'Pinezka 1' })).toBeVisible();
+			navigation.url = new URL('http://localhost/atelier/42');
+		});
 	});
 });

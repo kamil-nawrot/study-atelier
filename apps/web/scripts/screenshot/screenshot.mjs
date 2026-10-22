@@ -279,6 +279,20 @@ function notesMentions(needle) {
 function pinsRoute(route, request, url) {
 	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
 	if (request.method() !== 'GET') return json(route, [ARTWORK_PINS[0]], 201);
+	const entry = url.searchParams.get('glossary_entry_id');
+	if (entry) {
+		return json(
+			route,
+			ARTWORK_PINS.filter((row) => `eq.${row.glossary_entry_id}` === entry).map((row) => ({
+				id: row.id,
+				artwork_images: {
+					artwork_id: ARTWORKS.find((artwork) =>
+						artwork.artwork_images.some((image) => image.id === row.image_id)
+					).id
+				}
+			}))
+		);
+	}
 	const filter = url.searchParams.get('image_id') ?? '';
 	const ids = filter.startsWith('in.(') ? filter.slice(4, -1).split(',') : [];
 	return json(
