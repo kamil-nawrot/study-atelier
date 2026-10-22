@@ -43,7 +43,7 @@ Chosen by the owner: a glossary entry or own words, or both, and A1.
 - It has a glossary entry, a text of at most 300 characters, or both. An empty pin cannot be saved ("Wybierz pojęcie albo wpisz opis.").
 - An image holds at most 10 pins ("Na jednym obrazie zmieści się 10 pinezek.").
 - Removing an image removes its pins. Replacing an image (a new photo in the same slot) keeps its pins where they are; the learner moves them. "Ustaw jako główne" keeps every pin on its image.
-- Deleting a glossary entry removes it from its pins, and a pin left without a text is deleted with it. This was proposed with the record and is to be confirmed by the owner.
+- Deleting a glossary entry removes it from its pins, and a pin left without a text is deleted with it. The owner confirmed this after the record was merged.
 
 ### Artwork view
 
