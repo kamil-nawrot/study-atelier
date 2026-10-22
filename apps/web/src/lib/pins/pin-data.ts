@@ -5,7 +5,14 @@ import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
 import { pinErrorMessage } from './errors.ts';
 import { MAX_PIN_TEXT } from './types.ts';
-import type { Pin, PinActionResult, PinDraft, PinResult, PinsResult } from './types.ts';
+import type {
+	EntryPinsResult,
+	Pin,
+	PinActionResult,
+	PinDraft,
+	PinResult,
+	PinsResult
+} from './types.ts';
 
 type Row = Database['public']['Tables']['artwork_pins']['Row'];
 
@@ -98,4 +105,20 @@ export async function movePin(id: string, x: number, y: number): Promise<PinActi
 export async function deletePin(id: string): Promise<PinActionResult> {
 	const { error } = await supabase.from('artwork_pins').delete().eq('id', id);
 	return error ? { error: await failureMessage(error, pinErrorMessage) } : {};
+}
+
+export async function loadEntryPins(entryId: string): Promise<EntryPinsResult> {
+	const { data, error } = await supabase
+		.from('artwork_pins')
+		.select('id, artwork_images!inner(artwork_id)')
+		.eq('glossary_entry_id', entryId)
+		.order('created_at')
+		.order('id');
+	if (error) return { pins: [], error: pinErrorMessage(error) };
+	const firstPins = new Map<string, string>();
+	for (const row of data) {
+		const artworkId = row.artwork_images.artwork_id;
+		if (!firstPins.has(artworkId)) firstPins.set(artworkId, row.id);
+	}
+	return { pins: [...firstPins].map(([artworkId, pinId]) => ({ artworkId, pinId })) };
 }

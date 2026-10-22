@@ -872,6 +872,7 @@ export const pl = {
 			also: (forms: string): string => `też: ${forms}`,
 			noDefinition: 'Nie dodano jeszcze definicji.',
 			mentionsHeading: 'Pojawia się w notatkach',
+			onArtworks: 'Na dziełach',
 			sourcePrefix: 'Na podstawie: Wikipedia, ',
 			licenceLink: 'CC BY-SA 4.0',
 			edit: 'Edytuj',
