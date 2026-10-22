@@ -8,8 +8,8 @@ import { signedYear } from './format.ts';
 import { artworkErrorMessage } from './errors.ts';
 import {
 	IMAGE_COLUMNS,
-	imageColumns,
 	imageOf,
+	imageRecord,
 	storedImage,
 	uploadPath,
 	withPreview,
@@ -43,11 +43,9 @@ type ArtworkRecordRow = {
 	notes: string | null;
 	favourite: boolean;
 	artwork_values: ArtworkValueRow[];
-	artwork_images: (ImageRow & { position: number })[];
+	artwork_images: (ImageRow & { id: string; position: number })[];
 	artwork_field_entries?: FieldEntryRow[];
-} & ImageRow;
-
-type StoredInput = Omit<ArtworkInput, 'image'> & { image: StoredImage | null };
+};
 
 const RECORD_COLUMNS = [
 	'id',
@@ -61,9 +59,8 @@ const RECORD_COLUMNS = [
 	'era_code',
 	'notes',
 	'favourite',
-	...IMAGE_COLUMNS,
 	'artwork_values(position, category_values(category_code, name))',
-	`artwork_images(position, ${IMAGE_COLUMNS.join(', ')})`,
+	`artwork_images(id, position, ${IMAGE_COLUMNS.join(', ')})`,
 	'artwork_field_entries(field_id, text_value)'
 ].join(', ');
 
@@ -157,7 +154,7 @@ function storedYearFrom(input: ArtworkInput): number | null {
 	return from === signedYear(input.yearTo, input.toBeforeCommonEra) ? null : from;
 }
 
-function artworkColumns(input: StoredInput): Record<string, Json> {
+function artworkColumns(input: ArtworkInput): Record<string, Json> {
 	return {
 		title: input.title.trim(),
 		author_unknown: input.authorUnknown,
@@ -166,8 +163,7 @@ function artworkColumns(input: StoredInput): Record<string, Json> {
 		year_approximate: input.yearTo !== null && input.yearApproximate,
 		type_code: input.typeCode,
 		era_code: input.eraCode,
-		notes: input.notes.trim() || null,
-		...imageColumns(input.image)
+		notes: input.notes.trim() || null
 	};
 }
 
@@ -224,14 +220,12 @@ export async function saveArtwork(
 		const path = image.kind === 'file' ? uploadPath(result.image) : null;
 		if (path) newUploads.push(path);
 	}
-	const [main = null, ...others] = stored;
-
 	const { data, error, status } = await supabase
 		.rpc('save_artwork', {
-			artwork: artworkColumns({ ...input, image: main }),
+			artwork: artworkColumns(input),
 			values_by_category: valuesByCategory(input),
 			existing_id: existing?.id,
-			extra_images: others.map(imageColumns) as unknown as Json,
+			images: stored.map(imageRecord) as unknown as Json,
 			field_entries: fieldEntries(input)
 		})
 		.single();
@@ -257,6 +251,9 @@ export async function saveArtwork(
 }
 
 function artworkRecordFromRow(row: ArtworkRecordRow): ArtworkRecord {
+	const [image = null, ...images] = [...(row.artwork_images ?? [])]
+		.sort((first, second) => first.position - second.position)
+		.flatMap((stored) => imageOf(stored) ?? []);
 	return {
 		id: row.id,
 		number: row.record_number,
@@ -276,10 +273,8 @@ function artworkRecordFromRow(row: ArtworkRecordRow): ArtworkRecord {
 		materials: valuesOf(row.artwork_values, 'material'),
 		location: valuesOf(row.artwork_values, 'location')[0] ?? null,
 		notes: row.notes ?? '',
-		image: imageOf(row),
-		images: [...(row.artwork_images ?? [])]
-			.sort((first, second) => first.position - second.position)
-			.flatMap((image) => imageOf(image) ?? []),
+		image,
+		images,
 		own: ownEntriesOf(row.artwork_values, row.artwork_field_entries)
 	};
 }

@@ -112,6 +112,8 @@
 	}
 
 	function setCurrent(next: ArtworkImageInput | null): void {
+		const id = current()?.id;
+		if (next !== null && id !== undefined && next.id === undefined) next = { ...next, id };
 		if (selected === 0) {
 			if (next === null && images.length > 0) {
 				const [first, ...rest] = images;

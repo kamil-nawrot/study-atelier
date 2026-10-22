@@ -59,6 +59,19 @@ function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 		type_code: null,
 		era_code: null,
 		notes: null,
+		artwork_images: [],
+		artwork_values: [],
+		...overrides
+	};
+}
+
+function imageRow(
+	position: number,
+	overrides: Record<string, unknown> = {}
+): Record<string, unknown> {
+	return {
+		id: `image-${position}`,
+		position,
 		source_wikidata_id: null,
 		source_image_file: null,
 		source_image_licence: null,
@@ -68,7 +81,6 @@ function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 		own_image_url: null,
 		image_width: null,
 		image_height: null,
-		artwork_values: [],
 		...overrides
 	};
 }
@@ -203,16 +215,7 @@ describe('saveArtwork', () => {
 				year_approximate: true,
 				type_code: 'sculpture',
 				era_code: 'antiquity',
-				notes: 'Seen in class.',
-				source_wikidata_id: null,
-				source_image_file: null,
-				source_image_licence: null,
-				source_image_licence_url: null,
-				source_image_attribution: null,
-				own_image_path: null,
-				own_image_url: null,
-				image_width: null,
-				image_height: null
+				notes: 'Seen in class.'
 			},
 			values_by_category: {
 				author: ['First Author', 'Second Author'],
@@ -222,7 +225,7 @@ describe('saveArtwork', () => {
 				location: ['Test Museum']
 			},
 			existing_id: undefined,
-			extra_images: []
+			images: []
 		});
 	});
 
@@ -340,8 +343,8 @@ describe('saveArtwork', () => {
 			})
 		);
 
-		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
-		expect(args.artwork).toMatchObject({
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never[]>];
+		expect(args.images[0]).toMatchObject({
 			source_wikidata_id: 'Q1',
 			source_image_file: 'Test painting.jpg',
 			source_image_licence: 'Public domain',
@@ -358,8 +361,8 @@ describe('saveArtwork', () => {
 			input({ image: { kind: 'url', url: 'https://example.com/a.jpg', width: 3, height: 2 } })
 		);
 
-		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
-		expect(args.artwork).toMatchObject({
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never[]>];
+		expect(args.images[0]).toMatchObject({
 			source_wikidata_id: null,
 			source_image_file: null,
 			own_image_url: 'https://example.com/a.jpg',
@@ -379,8 +382,8 @@ describe('saveArtwork', () => {
 		});
 
 		expect(uploadOwnImage).toHaveBeenCalledWith(file);
-		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
-		expect(args.artwork).toMatchObject({
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never[]>];
+		expect(args.images[0]).toMatchObject({
 			source_wikidata_id: null,
 			own_image_path: 'user-id/new.png',
 			own_image_url: null,
@@ -429,7 +432,7 @@ describe('saveArtwork', () => {
 		expect(removeOwnImage).not.toHaveBeenCalled();
 	});
 
-	it('saves the other images after the main one, in their order', async () => {
+	it('saves every image in its order, the main one first', async () => {
 		await saveArtwork(
 			input({
 				image: { kind: 'url', url: 'https://example.com/facade.jpg', width: 4, height: 3 },
@@ -440,8 +443,33 @@ describe('saveArtwork', () => {
 		expect(supabase.rpc).toHaveBeenLastCalledWith(
 			'save_artwork',
 			expect.objectContaining({
-				artwork: expect.objectContaining({ own_image_url: 'https://example.com/facade.jpg' }),
-				extra_images: [expect.objectContaining({ own_image_path: 'user-id/plan.png' })]
+				images: [
+					expect.objectContaining({ own_image_url: 'https://example.com/facade.jpg' }),
+					expect.objectContaining({ own_image_path: 'user-id/plan.png' })
+				]
+			})
+		);
+	});
+
+	it('sends the id of an image that already exists, also for a file that replaced it', async () => {
+		vi.mocked(uploadOwnImage).mockResolvedValue({ path: 'user-id/new.png' });
+		const file = new File(['image'], 'photo.png', { type: 'image/png' });
+
+		await saveArtwork(
+			input({
+				image: { ...pickedFile(file), id: 'image-0' },
+				images: [{ ...uploaded('user-id/plan.png'), id: 'image-1' }, uploaded('user-id/new-2.png')]
+			})
+		);
+
+		expect(supabase.rpc).toHaveBeenLastCalledWith(
+			'save_artwork',
+			expect.objectContaining({
+				images: [
+					expect.objectContaining({ id: 'image-0', own_image_path: 'user-id/new.png' }),
+					expect.objectContaining({ id: 'image-1', own_image_path: 'user-id/plan.png' }),
+					expect.not.objectContaining({ id: expect.anything() })
+				]
 			})
 		);
 	});
@@ -452,8 +480,7 @@ describe('saveArtwork', () => {
 		expect(supabase.rpc).toHaveBeenLastCalledWith(
 			'save_artwork',
 			expect.objectContaining({
-				artwork: expect.objectContaining({ own_image_path: 'user-id/plan.png' }),
-				extra_images: []
+				images: [expect.objectContaining({ own_image_path: 'user-id/plan.png' })]
 			})
 		);
 	});
@@ -560,12 +587,14 @@ describe('loadArtwork', () => {
 	it('reads the other images of an artwork in their order, after the main one', async () => {
 		query.maybeSingle.mockResolvedValue({
 			data: row({
-				own_image_url: 'https://example.com/facade.jpg',
-				image_width: 4,
-				image_height: 3,
 				artwork_images: [
-					{ ...row(), position: 2, own_image_url: 'https://example.com/interior.jpg' },
-					{ ...row(), position: 1, own_image_url: 'https://example.com/plan.jpg' }
+					imageRow(2, { own_image_url: 'https://example.com/interior.jpg' }),
+					imageRow(0, {
+						own_image_url: 'https://example.com/facade.jpg',
+						image_width: 4,
+						image_height: 3
+					}),
+					imageRow(1, { own_image_url: 'https://example.com/plan.jpg' })
 				]
 			}),
 			error: null
@@ -573,10 +602,12 @@ describe('loadArtwork', () => {
 
 		const result = await loadArtwork(7);
 
+		expect(result.artwork?.image).toMatchObject({ kind: 'url', id: 'image-0' });
 		expect(result.artwork?.images.map((image) => image.kind === 'url' && image.url)).toEqual([
 			'https://example.com/plan.jpg',
 			'https://example.com/interior.jpg'
 		]);
+		expect(result.artwork?.images.map((image) => image.id)).toEqual(['image-1', 'image-2']);
 	});
 
 	it('returns every field with values grouped by category in their order', async () => {
@@ -657,11 +688,15 @@ describe('loadArtwork', () => {
 		vi.mocked(ownImageUrl).mockResolvedValue('https://storage.example.com/signed/photo.jpg');
 		query.maybeSingle.mockResolvedValue({
 			data: row({
-				source_wikidata_id: 'Q1',
-				source_image_file: 'Test painting.jpg',
-				own_image_path: 'user-id/artwork-1/photo.jpg',
-				image_width: 4,
-				image_height: 3
+				artwork_images: [
+					imageRow(0, {
+						source_wikidata_id: 'Q1',
+						source_image_file: 'Test painting.jpg',
+						own_image_path: 'user-id/artwork-1/photo.jpg',
+						image_width: 4,
+						image_height: 3
+					})
+				]
 			}),
 			error: null
 		});
@@ -673,7 +708,8 @@ describe('loadArtwork', () => {
 			path: 'user-id/artwork-1/photo.jpg',
 			previewUrl: 'https://storage.example.com/signed/photo.jpg',
 			width: 4,
-			height: 3
+			height: 3,
+			id: 'image-0'
 		});
 		expect(ownImageUrl).toHaveBeenCalledWith('user-id/artwork-1/photo.jpg');
 	});
@@ -681,11 +717,15 @@ describe('loadArtwork', () => {
 	it('reads a Commons image with its licence', async () => {
 		query.maybeSingle.mockResolvedValue({
 			data: row({
-				source_wikidata_id: 'Q1',
-				source_image_file: 'Test painting.jpg',
-				source_image_licence: 'CC BY-SA 4.0',
-				source_image_licence_url: 'https://creativecommons.org/licenses/by-sa/4.0/',
-				source_image_attribution: 'Test Photographer'
+				artwork_images: [
+					imageRow(0, {
+						source_wikidata_id: 'Q1',
+						source_image_file: 'Test painting.jpg',
+						source_image_licence: 'CC BY-SA 4.0',
+						source_image_licence_url: 'https://creativecommons.org/licenses/by-sa/4.0/',
+						source_image_attribution: 'Test Photographer'
+					})
+				]
 			}),
 			error: null
 		});
@@ -700,7 +740,8 @@ describe('loadArtwork', () => {
 			licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
 			attribution: 'Test Photographer',
 			width: null,
-			height: null
+			height: null,
+			id: 'image-0'
 		});
 	});
 

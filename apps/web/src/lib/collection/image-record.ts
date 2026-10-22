@@ -41,10 +41,15 @@ export function imageColumns(image: StoredImage | null): ImageRow {
 	};
 }
 
-export function imageOf(row: ImageRow): ArtworkImageInput | null {
+export function imageRecord(image: StoredImage): ImageRow & { id?: string } {
+	return { ...imageColumns(image), ...(image.id ? { id: image.id } : {}) };
+}
+
+export function imageOf(row: ImageRow & { id?: string }): ArtworkImageInput | null {
 	const size = { width: row.image_width, height: row.image_height };
-	if (row.own_image_path) return { kind: 'upload', path: row.own_image_path, ...size };
-	if (row.own_image_url) return { kind: 'url', url: row.own_image_url, ...size };
+	const id = row.id ? { id: row.id } : {};
+	if (row.own_image_path) return { kind: 'upload', path: row.own_image_path, ...size, ...id };
+	if (row.own_image_url) return { kind: 'url', url: row.own_image_url, ...size, ...id };
 	if (row.source_wikidata_id && row.source_image_file) {
 		return {
 			kind: 'commons',
@@ -53,7 +58,8 @@ export function imageOf(row: ImageRow): ArtworkImageInput | null {
 			licence: row.source_image_licence,
 			licenceUrl: row.source_image_licence_url,
 			attribution: row.source_image_attribution,
-			...size
+			...size,
+			...id
 		};
 	}
 	return null;
@@ -66,7 +72,13 @@ export async function storedImage(
 	const upload = await uploadOwnImage(image.file);
 	if (upload.error !== undefined) return { error: upload.error };
 	return {
-		image: { kind: 'upload', path: upload.path, width: image.width, height: image.height }
+		image: {
+			kind: 'upload',
+			path: upload.path,
+			width: image.width,
+			height: image.height,
+			...(image.id ? { id: image.id } : {})
+		}
 	};
 }
 

@@ -81,6 +81,26 @@ function renderPage(
 	});
 }
 
+function stubRemoteImage(size: { width: number; height: number }): void {
+	vi.stubGlobal(
+		'Image',
+		class {
+			naturalWidth = 0;
+			naturalHeight = 0;
+			onload: (() => void) | null = null;
+			onerror: (() => void) | null = null;
+
+			set src(_value: string) {
+				setTimeout(() => {
+					this.naturalWidth = size.width;
+					this.naturalHeight = size.height;
+					this.onload?.();
+				});
+			}
+		}
+	);
+}
+
 function titleField(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('textbox', { name: m.artworkForm.title });
 }
@@ -232,6 +252,66 @@ describe('edit artwork page', () => {
 		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).toBeVisible();
 	});
 
+	it('keeps the id of the main image when its photo is replaced from an address', async () => {
+		stubRemoteImage({ width: 1200, height: 900 });
+		renderPage({
+			artwork: artwork({
+				image: {
+					kind: 'url',
+					url: 'https://example.com/facade.jpg',
+					width: 4,
+					height: 3,
+					id: 'image-0'
+				},
+				images: [
+					{ kind: 'url', url: 'https://example.com/plan.jpg', width: 3, height: 4, id: 'image-1' }
+				]
+			})
+		});
+
+		await page.getByRole('button', { name: m.artworkForm.changeOwnImage }).click();
+		await page
+			.getByRole('textbox', { name: m.artworkForm.imageUrl })
+			.fill('https://example.org/new.jpg');
+		await page.getByRole('button', { name: m.artworkForm.useImageUrl }).click();
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
+		expect(args.images).toEqual([
+			expect.objectContaining({ id: 'image-0', own_image_url: 'https://example.org/new.jpg' }),
+			expect.objectContaining({ id: 'image-1', own_image_url: 'https://example.com/plan.jpg' })
+		]);
+	});
+
+	it('keeps the ids of the images when another one is made the main one', async () => {
+		renderPage({
+			artwork: artwork({
+				image: {
+					kind: 'url',
+					url: 'https://example.com/facade.jpg',
+					width: 4,
+					height: 3,
+					id: 'image-0'
+				},
+				images: [
+					{ kind: 'url', url: 'https://example.com/plan.jpg', width: 3, height: 4, id: 'image-1' }
+				]
+			})
+		});
+
+		await page.getByRole('button', { name: m.artworkForm.imageSlot(2, 2) }).click();
+		await page.getByRole('button', { name: m.artworkForm.setMainImage }).click();
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
+		expect(args.images).toEqual([
+			expect.objectContaining({ id: 'image-1', own_image_url: 'https://example.com/plan.jpg' }),
+			expect.objectContaining({ id: 'image-0', own_image_url: 'https://example.com/facade.jpg' })
+		]);
+	});
+
 	it('saves the changes over the same artwork and returns to it with a confirmation', async () => {
 		renderPage();
 
@@ -261,7 +341,7 @@ describe('edit artwork page', () => {
 				location: ['Rijksmuseum']
 			},
 			existing_id: 'artwork-7',
-			extra_images: []
+			images: []
 		});
 	});
 
