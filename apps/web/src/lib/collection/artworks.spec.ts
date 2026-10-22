@@ -177,9 +177,31 @@ describe('loadAtelier', () => {
 				materials: [],
 				location: null,
 				hasImage: false,
+				own: {},
 				image: undefined
 			}
 		]);
+	});
+
+	it('keeps the own lists, texts and ticks of every artwork', async () => {
+		query.range.mockResolvedValue({
+			data: [
+				row({
+					artwork_values: [
+						{ position: 0, category_values: { category_code: 'motifs', name: 'Angel' } }
+					],
+					artwork_field_entries: [
+						{ field_id: 'source', text_value: 'Gombrich' },
+						{ field_id: 'seen', text_value: null }
+					]
+				})
+			],
+			error: null
+		});
+
+		const { artworks } = await loadAtelier();
+
+		expect(artworks[0].own).toEqual({ motifs: ['Angel'], source: 'Gombrich', seen: true });
 	});
 
 	it('formats a year span and keeps both of its years', async () => {

@@ -246,7 +246,8 @@ export const pl = {
 				materials: 'Materiał',
 				locations: 'Miejsce',
 				missing: 'Do uzupełnienia',
-				favourites: 'Ulubione'
+				favourites: 'Ulubione',
+				ticked: 'Zaznaczone'
 			},
 			tagFields: {
 				eras: 'Epoka',

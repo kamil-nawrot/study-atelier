@@ -42,6 +42,8 @@ export type ArtworkValueRow = {
 	} | null;
 };
 
+export type FieldEntryRow = { field_id: string; text_value: string | null };
+
 export type ImageSize = {
 	width: number;
 	height: number;
@@ -70,6 +72,7 @@ export type WallArtwork = {
 	location: string | null;
 	hasImage: boolean;
 	favourite: boolean;
+	own?: OwnEntries;
 	image?: ArtworkTileImage;
 	imageUnavailable?: boolean;
 	pendingImage?: PendingImage;
@@ -79,6 +82,7 @@ export type WallArtwork = {
 
 export type AtelierResult = {
 	artworks: WallArtwork[];
+	ownFields?: OwnFieldDefinition[];
 	error?: string;
 };
 
@@ -311,12 +315,19 @@ export type CollectionFilter = {
 	materials: string[];
 	locations: string[];
 	missing: MissingData[];
+	own: Record<string, string[]>;
+	ownTexts: Record<string, string>;
+	ticked: string[];
 };
+
+export type OwnFilterKind = 'own' | 'ownText' | 'ticked';
 
 export type FilterTag = {
 	id: string;
-	field: FilterField;
+	field: FilterField | OwnFilterKind;
 	value: string;
+	fieldId?: string;
+	parts?: TagParts;
 };
 
 export type TagParts = {
