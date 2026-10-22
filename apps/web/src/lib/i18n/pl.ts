@@ -823,8 +823,10 @@ export const pl = {
 		done: 'Gotowe',
 		editHint: 'Dotknij obrazu, żeby dodać pinezkę. Przeciągnij pinezkę, żeby ją przesunąć.',
 		placeHere: 'Dodaj pinezkę w tym miejscu',
-		marker: (number: number, name?: string): string =>
-			name ? `Pinezka ${number}: ${name}` : `Pinezka ${number}`,
+		marker: (number: number, name?: string, view = false): string =>
+			`${name ? `Pinezka ${number}: ${name}` : `Pinezka ${number}`}${view ? ', widok lupy' : ''}`,
+		view: (level?: string): string => (level ? `Widok lupy (${level})` : 'Widok lupy'),
+		removeView: 'Usuń widok',
 		cardTitle: (number: number): string => `Pinezka ${number}`,
 		cardClose: 'Zamknij',
 		newTitle: 'Nowa pinezka',

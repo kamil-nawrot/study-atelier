@@ -924,7 +924,7 @@ export const OWN_FIELD_USAGE = [
 	{ field_id: '00000000-0000-4000-8000-000000000404', artwork_count: 3 }
 ];
 
-function pin(artworkNumber, number, x, y, glossaryNumber, text) {
+function pin(artworkNumber, number, x, y, glossaryNumber, text, viewWidth = null) {
 	const row = ARTWORKS.find((artwork) => artwork.record_number === artworkNumber);
 	return {
 		id: `00000000-0000-4000-a000-${String(number).padStart(12, '0')}`,
@@ -935,6 +935,7 @@ function pin(artworkNumber, number, x, y, glossaryNumber, text) {
 			? `00000000-0000-4000-9000-${String(glossaryNumber).padStart(12, '0')}`
 			: null,
 		text,
+		view_width: viewWidth,
 		created_at: '2026-10-22T10:00:00Z'
 	};
 }
@@ -942,5 +943,6 @@ function pin(artworkNumber, number, x, y, glossaryNumber, text) {
 export const ARTWORK_PINS = [
 	pin(6, 1, 0.62, 0.34, 2, 'Półkolista część chóru, widoczna od wschodu.'),
 	pin(6, 2, 0.3, 0.55, null, 'Rozeta, której szkło pochodzi z XIII wieku.'),
-	pin(6, 3, 0.48, 0.2, 5, null)
+	pin(6, 3, 0.48, 0.2, 5, null),
+	pin(2, 4, 0.62, 0.38, null, 'Księżyc w nowiu otoczony poświatą.', 0.12)
 ];

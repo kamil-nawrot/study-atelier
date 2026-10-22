@@ -1,41 +1,26 @@
 <script lang="ts">
-	import { m } from '#lib/i18n/index.ts';
+	import { LOUPE_MIN_LEVEL, LOUPE_SIZE, LOUPE_START_LEVEL, loupeViewWidth } from '../loupe.ts';
+	import LoupeLens from './LoupeLens.svelte';
 
 	type Props = {
 		image: string;
 		large: string;
 		sourceWidth: number;
 		onclose: () => void;
+		onpick?: (spot: { x: number; y: number; viewWidth: number }) => void;
 	};
 
-	const SIZE = 220;
-	const MIN_LEVEL = 1.5;
-	const START_LEVEL = 2;
 	const STEP = 1;
 
-	let { image, large, sourceWidth, onclose }: Props = $props();
+	let { image, large, sourceWidth, onclose, onpick }: Props = $props();
 
 	let width = $state(0);
 	let height = $state(0);
 	let point = $state<{ x: number; y: number }>();
-	let chosen = $state(START_LEVEL);
-	let loaded = $state<string>();
+	let chosen = $state(LOUPE_START_LEVEL);
 
-	let maxLevel = $derived(width > 0 ? sourceWidth / width : MIN_LEVEL);
-	let level = $derived(Math.max(MIN_LEVEL, Math.min(chosen, maxLevel)));
-	let src = $derived(loaded === large ? large : image);
-
-	$effect(() => {
-		const target = large;
-		const preload = new Image();
-		preload.onload = () => {
-			loaded = target;
-		};
-		preload.src = target;
-		return () => {
-			preload.onload = null;
-		};
-	});
+	let maxLevel = $derived(width > 0 ? sourceWidth / width : LOUPE_MIN_LEVEL);
+	let level = $derived(Math.max(LOUPE_MIN_LEVEL, Math.min(chosen, maxLevel)));
 
 	function follow(event: PointerEvent): void {
 		if (event.pointerType !== 'mouse') return;
@@ -47,10 +32,19 @@
 		const listener = (event: WheelEvent): void => {
 			event.preventDefault();
 			const next = level + (event.deltaY < 0 ? STEP : -STEP);
-			chosen = Math.max(MIN_LEVEL, Math.min(maxLevel, next));
+			chosen = Math.max(LOUPE_MIN_LEVEL, Math.min(maxLevel, next));
 		};
 		node.addEventListener('wheel', listener, { passive: false });
 		return () => node.removeEventListener('wheel', listener);
+	}
+
+	function pick(): void {
+		if (!point || width === 0 || height === 0) return;
+		onpick?.({
+			x: Math.min(1, Math.max(0, point.x / width)),
+			y: Math.min(1, Math.max(0, point.y / height)),
+			viewWidth: loupeViewWidth(width, level)
+		});
 	}
 
 	function close(event: KeyboardEvent): void {
@@ -64,6 +58,7 @@
 	class="loupe"
 	{@attach zoom}
 	aria-hidden="true"
+	onclick={pick}
 	onpointerdown={follow}
 	onpointerleave={() => (point = undefined)}
 	onpointermove={follow}
@@ -72,22 +67,20 @@
 >
 	{#if point}
 		<div
-			style:left="{point.x - SIZE / 2}px"
-			style:top="{point.y - SIZE / 2}px"
-			style:width="{SIZE}px"
-			style:height="{SIZE}px"
-			class="lens"
+			style:left="{point.x - LOUPE_SIZE / 2}px"
+			style:top="{point.y - LOUPE_SIZE / 2}px"
+			class="place"
 		>
-			<div
-				style:background-image="url({JSON.stringify(src)})"
-				style:background-size="{width * level}px {height * level}px"
-				style:background-position="{SIZE / 2 - point.x * level}px {SIZE / 2 - point.y * level}px"
-				class="glass"
-			></div>
-			<svg class="ring" viewBox="0 0 {SIZE} {SIZE}">
-				<circle cx={SIZE / 2} cy={SIZE / 2} r={SIZE / 2} />
-			</svg>
-			<span class="level">{m.loupe.level(level)}</span>
+			<LoupeLens
+				height={height * level}
+				{image}
+				{large}
+				{level}
+				size={LOUPE_SIZE}
+				width={width * level}
+				x={LOUPE_SIZE / 2 - point.x * level}
+				y={LOUPE_SIZE / 2 - point.y * level}
+			/>
 		</div>
 	{/if}
 </div>
@@ -100,38 +93,8 @@
 		cursor: none;
 	}
 
-	.lens {
+	.place {
 		position: absolute;
 		pointer-events: none;
-	}
-
-	.glass {
-		position: absolute;
-		inset: 0;
-		clip-path: circle(50%);
-		background-color: var(--color-stage-bg);
-		background-repeat: no-repeat;
-	}
-
-	.ring {
-		position: absolute;
-		inset: 0;
-		overflow: visible;
-		fill: none;
-		stroke: var(--color-mat-bg);
-		stroke-width: var(--border-width-heavy);
-	}
-
-	.level {
-		position: absolute;
-		bottom: var(--spacing-4);
-		left: 50%;
-		padding: 0 var(--spacing-1);
-		background: var(--color-mat-badge-bg);
-		color: var(--color-mat-badge-fg);
-		font-size: var(--font-size-xs);
-		font-variant-numeric: tabular-nums;
-		line-height: var(--line-height-sm);
-		translate: -50% 0;
 	}
 </style>

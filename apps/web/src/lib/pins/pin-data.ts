@@ -16,17 +16,20 @@ import type {
 
 type Row = Database['public']['Tables']['artwork_pins']['Row'];
 
-const COLUMNS = 'id, image_id, x, y, glossary_entry_id, text';
+const COLUMNS = 'id, image_id, x, y, glossary_entry_id, text, view_width';
 const IMAGE_BATCH = 100;
 
-function pinOf(row: Pick<Row, 'id' | 'image_id' | 'x' | 'y' | 'glossary_entry_id' | 'text'>): Pin {
+function pinOf(
+	row: Pick<Row, 'id' | 'image_id' | 'x' | 'y' | 'glossary_entry_id' | 'text' | 'view_width'>
+): Pin {
 	return {
 		id: row.id,
 		imageId: row.image_id,
 		x: row.x,
 		y: row.y,
 		glossaryEntryId: row.glossary_entry_id,
-		text: row.text ?? ''
+		text: row.text ?? '',
+		...(row.view_width ? { viewWidth: row.view_width } : {})
 	};
 }
 
@@ -35,19 +38,23 @@ function writeOf(draft: PinDraft): {
 	y: number;
 	glossary_entry_id: string | null;
 	text: string | null;
+	view_width: number | null;
 } {
 	const text = draft.text.trim();
 	return {
 		x: draft.x,
 		y: draft.y,
 		glossary_entry_id: draft.glossaryEntryId,
-		text: text === '' ? null : text
+		text: text === '' ? null : text,
+		view_width: draft.viewWidth ?? null
 	};
 }
 
 export function pinDraftError(draft: PinDraft): string | undefined {
 	const text = draft.text.trim();
-	if (draft.glossaryEntryId === null && text === '') return m.pins.errors.empty;
+	if (draft.glossaryEntryId === null && text === '' && draft.viewWidth === undefined) {
+		return m.pins.errors.empty;
+	}
 	if (text.length > MAX_PIN_TEXT) return m.pins.errors.tooLong(MAX_PIN_TEXT);
 	return undefined;
 }

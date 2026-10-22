@@ -220,6 +220,7 @@
 	{#if pins !== undefined && pinImageId !== undefined}
 		<PinLayer
 			{entries}
+			image={current()}
 			imageId={pinImageId}
 			onfailure={(message) => (pinFailure = message)}
 			bind:pins

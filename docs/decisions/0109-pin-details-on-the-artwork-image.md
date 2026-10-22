@@ -1,6 +1,6 @@
 # 0109. Pin details on the artwork image
 
-- Status: accepted; the place of editing pins (the editing mode in the artwork view) is superseded by [0112](0112-edit-pins-in-the-artwork-form.md)
+- Status: accepted; the place of editing pins (the editing mode in the artwork view) is superseded by [0112](0112-edit-pins-in-the-artwork-form.md); a pin may also keep a view of the loupe instead of an entry or a text, see [0114](0114-keep-a-view-of-the-loupe-in-a-pin.md)
 - Date: 2026-10-22
 
 ## Context and problem statement

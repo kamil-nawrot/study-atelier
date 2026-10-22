@@ -73,4 +73,14 @@ describe('PinMarkers', () => {
 		await expect.element(page.getByText('2', { exact: true })).toBeVisible();
 		expect(page.getByRole('button').elements()).toHaveLength(1);
 	});
+
+	it('names a pin that keeps a view of the loupe', async () => {
+		render(PinMarkers, {
+			pins: [pin('a', { viewWidth: 0.1 })],
+			onmove: vi.fn(),
+			onselect: vi.fn()
+		});
+
+		await expect.element(page.getByRole('button', { name: 'Pinezka 1, widok lupy' })).toBeVisible();
+	});
 });

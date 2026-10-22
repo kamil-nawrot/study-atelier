@@ -739,6 +739,32 @@ describe('artwork page', () => {
 			expect(document.querySelector('.loupe')).toBeNull();
 		});
 
+		it('opens a new pin with the view of the loupe on a click', async () => {
+			renderPage({
+				artwork: artwork({
+					image: { kind: 'url', url: IMAGE, width: 4000, height: 5000, id: 'image-1' }
+				}),
+				pins: []
+			});
+
+			await loupeButton().click();
+			const layer = document.querySelector('.loupe') as HTMLElement;
+			const rect = layer.getBoundingClientRect();
+			layer.dispatchEvent(
+				new PointerEvent('pointermove', {
+					pointerType: 'mouse',
+					clientX: rect.left + rect.width / 2,
+					clientY: rect.top + rect.height / 2,
+					bubbles: true
+				})
+			);
+			layer.click();
+
+			const dialog = page.getByRole('dialog');
+			await expect.element(dialog).toHaveTextContent(m.pins.newTitle);
+			await expect.element(dialog).toHaveTextContent(/Widok lupy \(\d+(,\d)?×\)/);
+		});
+
 		it('dims the loupe and says why for an image that is not larger than shown', async () => {
 			renderPage();
 

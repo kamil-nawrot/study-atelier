@@ -101,7 +101,8 @@ describe('pin data', () => {
 			x: 0.25,
 			y: 0.5,
 			glossary_entry_id: 'term-1',
-			text: null
+			text: null,
+			view_width: null
 		});
 
 		await createPin('image-1', { x: 0, y: 1, glossaryEntryId: null, text: ' A lily ' });
@@ -110,7 +111,25 @@ describe('pin data', () => {
 			x: 0,
 			y: 1,
 			glossary_entry_id: null,
-			text: 'A lily'
+			text: 'A lily',
+			view_width: null
+		});
+	});
+
+	it('creates a pin that keeps only a view of the loupe', async () => {
+		query.single.mockResolvedValue({ data: { ...row, text: null, view_width: 0.1 }, error: null });
+		query.select.mockReturnValue(query);
+
+		await expect(
+			createPin('image-1', { x: 0.5, y: 0.4, glossaryEntryId: null, text: '', viewWidth: 0.1 })
+		).resolves.toMatchObject({ pin: { id: 'pin-1', viewWidth: 0.1 } });
+		expect(query.insert).toHaveBeenCalledWith({
+			image_id: 'image-1',
+			x: 0.5,
+			y: 0.4,
+			glossary_entry_id: null,
+			text: null,
+			view_width: 0.1
 		});
 	});
 
@@ -151,7 +170,8 @@ describe('pin data', () => {
 			x: 0.3,
 			y: 0.4,
 			glossary_entry_id: 'term-1',
-			text: 'Lily'
+			text: 'Lily',
+			view_width: null
 		});
 		expect(query.eq).toHaveBeenCalledWith('id', 'pin-1');
 	});

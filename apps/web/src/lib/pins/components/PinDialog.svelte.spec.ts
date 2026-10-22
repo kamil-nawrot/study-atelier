@@ -23,6 +23,7 @@ const SAVED: Pin = {
 	text: 'A detail'
 };
 const ENTRIES = [testEntry('entry-1', 'Apse')];
+const IMAGE = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="30"/>')}`;
 
 function open(overrides: Record<string, unknown> = {}): {
 	onsaved: Mock;
@@ -119,5 +120,45 @@ describe('PinDialog', () => {
 		open();
 
 		expect(page.getByRole('button', { name: 'Usuń' }).elements()).toHaveLength(0);
+	});
+
+	it('saves a pin that keeps only the view of the loupe', async () => {
+		vi.mocked(createPin).mockResolvedValue({ pin: { ...SAVED, text: '', viewWidth: 0.1 } });
+		const { onsaved } = open({
+			image: { kind: 'url', url: IMAGE, width: 4000, height: 3000 },
+			view: 0.1,
+			shownWidth: 550
+		});
+
+		await expect.element(page.getByText('Widok lupy (4×)')).toBeVisible();
+		await page.getByRole('button', { name: 'Zapisz' }).click();
+
+		expect(createPin).toHaveBeenCalledWith('image-1', {
+			x: 0.25,
+			y: 0.75,
+			glossaryEntryId: null,
+			text: '',
+			viewWidth: 0.1
+		});
+		await vi.waitFor(() => expect(onsaved).toHaveBeenCalled());
+	});
+
+	it('removes the view of a saved pin', async () => {
+		vi.mocked(updatePin).mockResolvedValue({ pin: SAVED });
+		open({
+			pin: { ...SAVED, viewWidth: 0.1 },
+			image: { kind: 'url', url: IMAGE, width: 4000, height: 3000 }
+		});
+
+		await page.getByRole('button', { name: 'Usuń widok' }).click();
+		await expect.element(page.getByText('Widok lupy')).not.toBeInTheDocument();
+		await page.getByRole('button', { name: 'Zapisz' }).click();
+
+		expect(updatePin).toHaveBeenCalledWith('pin-1', {
+			x: 0.25,
+			y: 0.75,
+			glossaryEntryId: null,
+			text: 'A detail'
+		});
 	});
 });

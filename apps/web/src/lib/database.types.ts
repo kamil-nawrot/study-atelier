@@ -151,6 +151,7 @@ export type Database = {
           image_id: string;
           owner_id: string;
           text: string | null;
+          view_width: number | null;
           x: number;
           y: number;
         };
@@ -162,6 +163,7 @@ export type Database = {
           image_id: string;
           owner_id?: string;
           text?: string | null;
+          view_width?: number | null;
           x: number;
           y: number;
         };
@@ -172,6 +174,7 @@ export type Database = {
           image_id?: string;
           owner_id?: string;
           text?: string | null;
+          view_width?: number | null;
           x?: number;
           y?: number;
         };
