@@ -3,6 +3,7 @@
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
 	import Pin from '@lucide/svelte/icons/pin';
+	import Search from '@lucide/svelte/icons/search';
 	import X from '@lucide/svelte/icons/x';
 	import type { LucideIcon } from '@lucide/svelte';
 	import {
@@ -13,8 +14,10 @@
 		type NoteLinks,
 		Popover,
 		Tag,
+		Tooltip,
 		overlayScrollbar
 	} from '@study-atelier/ui';
+	import { MediaQuery } from 'svelte/reactivity';
 	import type { ResolvedPathname } from '$app/types';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
@@ -23,7 +26,7 @@
 	import PinMarkers from '#lib/pins/components/PinMarkers.svelte';
 	import { pinsOfImage } from '#lib/pins/pin-layout.ts';
 	import type { Pin as PinRecord } from '#lib/pins/types.ts';
-	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
+	import { artworkImageCredit, artworkImageSource, artworkLargeSource } from '../artwork-image.ts';
 	import { artworkTypeIcon } from '../artwork-types.ts';
 	import { eraIcon } from '../eras.ts';
 	import { formatDate, formatRecordNumber, signedYear } from '../format.ts';
@@ -39,6 +42,7 @@
 		type ValueSummary
 	} from '../value-summaries.ts';
 	import ImageViewer from './ImageViewer.svelte';
+	import Loupe from './Loupe.svelte';
 	import MentionedIn from './MentionedIn.svelte';
 	import ValueSummaryCard from './ValueSummaryCard.svelte';
 
@@ -73,6 +77,7 @@
 	const STAGE_WIDTH = 960;
 	const VIEWER_WIDTH = 1920;
 	const GALLERY_WIDTH = 120;
+	const LOUPE_MIN_RATIO = 1.5;
 
 	let panelOpen = $state(artworkPanelOpen());
 	let viewer: ReturnType<typeof ImageViewer>;
@@ -84,6 +89,15 @@
 	let fullImage = $derived(artworkImageSource(current, VIEWER_WIDTH));
 	let credit = $derived(image ? artworkImageCredit(current) : undefined);
 	let ratio = $derived(image?.width && image.height ? image.width / image.height : undefined);
+
+	const mouse = new MediaQuery('(hover: hover) and (pointer: fine)');
+	let frameWidth = $state(0);
+	let loupeOn = $state(false);
+	let large = $derived(artworkLargeSource(current));
+	let loupeReady = $derived(
+		large !== undefined && frameWidth > 0 && large.width >= LOUPE_MIN_RATIO * frameWidth
+	);
+	let loupeActive = $derived(loupeOn && loupeReady && mouse.current);
 
 	let showPins = $state(false);
 	let cardPin = $state<PinRecord>();
@@ -102,6 +116,12 @@
 		const focusedImage = focused ? gallery.findIndex((item) => item?.id === focused.imageId) : -1;
 		shown = Math.max(focusedImage, 0);
 		showPins = focusedImage >= 0;
+	});
+
+	$effect.pre(() => {
+		void artwork.id;
+		void shown;
+		loupeOn = false;
 	});
 
 	function step(by: -1 | 1): void {
@@ -185,6 +205,10 @@
 		viewer.open();
 	}
 
+	function toggleLoupe(): void {
+		if (loupeReady) loupeOn = !loupeOn;
+	}
+
 	function selectPin(pin: PinRecord): void {
 		cardPin = pin;
 		cardOpen = true;
@@ -264,7 +288,7 @@
 		{#if image}
 			<img class="backdrop" alt="" aria-hidden="true" src={image.src} />
 			<div class="mat">
-				<div class="frame">
+				<div class="frame" bind:clientWidth={frameWidth}>
 					<button
 						class="open"
 						aria-label={m.artworkView.openImage}
@@ -283,24 +307,59 @@
 					{#if showPins}
 						<PinMarkers names={entryNames} onselect={selectPin} pins={imagePins} />
 					{/if}
+					{#if loupeActive && large}
+						<Loupe
+							image={image.src}
+							large={large.src}
+							onclose={() => (loupeOn = false)}
+							sourceWidth={large.width}
+						/>
+					{/if}
 				</div>
 			</div>
 			{#if credit}
 				<figcaption class="caption">{credit}</figcaption>
 			{/if}
-			{#if imagePins.length > 0}
-				<button
-					class="pin-action"
-					class:active={showPins}
-					aria-label={m.pins.switchLabel(imagePins.length)}
-					aria-pressed={showPins}
-					onclick={() => (showPins = !showPins)}
-					title={m.pins.switchLabel(imagePins.length)}
-					type="button"
-				>
-					<Icon icon={Pin} size="sm" />
-					<span>{imagePins.length}</span>
-				</button>
+			{#if mouse.current || imagePins.length > 0}
+				<div class="stage-actions">
+					{#if mouse.current}
+						<Tooltip
+							align="end"
+							placement="bottom"
+							text={loupeReady ? m.loupe.label : m.loupe.unavailable}
+						>
+							{#snippet children(id)}
+								<button
+									class="stage-action"
+									class:active={loupeActive}
+									class:unavailable={!loupeReady}
+									aria-describedby={id}
+									aria-disabled={!loupeReady}
+									aria-label={m.loupe.label}
+									aria-pressed={loupeReady ? loupeActive : undefined}
+									onclick={toggleLoupe}
+									type="button"
+								>
+									<Icon icon={Search} size="sm" />
+								</button>
+							{/snippet}
+						</Tooltip>
+					{/if}
+					{#if imagePins.length > 0}
+						<button
+							class="stage-action"
+							class:active={showPins}
+							aria-label={m.pins.switchLabel(imagePins.length)}
+							aria-pressed={showPins}
+							onclick={() => (showPins = !showPins)}
+							title={m.pins.switchLabel(imagePins.length)}
+							type="button"
+						>
+							<Icon icon={Pin} size="sm" />
+							<span>{imagePins.length}</span>
+						</button>
+					{/if}
+				</div>
 			{/if}
 			{#if gallery.length > 1}
 				<div class="gallery">
@@ -515,14 +574,16 @@
 		cursor: var(--cursor-zoom-in);
 	}
 
-	.stage > .pin-action {
+	.stage > .stage-actions {
 		position: absolute;
 		top: var(--spacing-2);
 		right: var(--spacing-2);
-		z-index: 2;
+		z-index: 3;
+		display: flex;
+		align-items: center;
 	}
 
-	.pin-action {
+	.stage-action {
 		display: flex;
 		align-items: center;
 		gap: var(--spacing-1);
@@ -536,10 +597,15 @@
 		opacity: 0.6;
 	}
 
-	.pin-action:hover,
-	.pin-action:focus-visible,
-	.pin-action.active {
+	.stage-action:hover,
+	.stage-action:focus-visible,
+	.stage-action.active {
 		opacity: 1;
+	}
+
+	.stage-action.unavailable {
+		cursor: default;
+		opacity: 0.2;
 	}
 
 	.mat {

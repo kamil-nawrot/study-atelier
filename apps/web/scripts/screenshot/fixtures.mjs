@@ -3,7 +3,7 @@ export const IMAGE_HOST = 'https://images.mock.test';
 
 const COMMONS_SIZES = {
 	'Mona_Lisa.jpg': [4, 6],
-	'The_Starry_Night.jpg': [5, 4],
+	'The_Starry_Night.jpg': [4000, 3200],
 	'Girl_with_a_Pearl_Earring.jpg': [4, 5],
 	'Portrait_of_Leonardo.jpg': [3, 4],
 	'Self-portrait_in_red_chalk.jpg': [2, 3]
@@ -26,8 +26,9 @@ export function imageSvg(seed, width = 4, height = 5) {
 	let hash = 0;
 	for (const char of String(seed)) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
 	const [dark, light] = PALETTE[hash % PALETTE.length];
-	const w = width * 100;
-	const h = height * 100;
+	const scale = width >= 100 ? 1 : 100;
+	const w = width * scale;
+	const h = height * scale;
 	return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${dark}"/><stop offset="1" stop-color="${light}"/></linearGradient></defs><rect width="${w}" height="${h}" fill="url(#g)"/><circle cx="${w * 0.62}" cy="${h * 0.38}" r="${Math.min(w, h) * 0.18}" fill="${light}" fill-opacity="0.55"/></svg>`;
 }
 
