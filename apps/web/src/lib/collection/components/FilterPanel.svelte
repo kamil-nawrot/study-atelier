@@ -1,6 +1,12 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import { Checkbox, type ChoiceTile, TextField, ToggleTiles } from '@study-atelier/ui';
+	import {
+		Checkbox,
+		type ChoiceTile,
+		SearchField,
+		TextField,
+		ToggleTiles
+	} from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { artworkTypeTiles } from '../artwork-types.ts';
 	import { eraTiles } from '../eras.ts';
@@ -8,23 +14,38 @@
 		UNKNOWN_AUTHOR,
 		favouriteCount,
 		filterOptions,
+		hasOwnText,
 		optionLabel,
+		ownFilterOptions,
+		setOwnText,
 		setYears,
+		tickedOptions,
 		toggleFavourites,
+		toggleOwnValue,
+		toggleTicked,
 		toggleValue
 	} from '../filter.ts';
-	import type { ArtworkTypeCode, CollectionFilter, EraCode, WallArtwork } from '../types.ts';
+	import type {
+		ArtworkTypeCode,
+		CollectionFilter,
+		EraCode,
+		OwnFieldDefinition,
+		WallArtwork
+	} from '../types.ts';
 	import FavouriteToggle from './FavouriteToggle.svelte';
 	import FilterValues from './FilterValues.svelte';
 
 	type Props = {
 		artworks: WallArtwork[];
 		filter: CollectionFilter;
+		ownFields?: OwnFieldDefinition[];
 	};
 
 	const FREQUENT_LIMIT = 8;
 
-	let { artworks, filter = $bindable() }: Props = $props();
+	let { artworks, filter = $bindable(), ownFields = [] }: Props = $props();
+
+	let fieldNames = $derived(new Map(ownFields.map((field) => [field.id, field.name])));
 
 	let eraTilesWithCounts = $derived(withCounts(eraTiles(), 'eras'));
 	let typeTilesWithCounts = $derived(withCounts(artworkTypeTiles(), 'types'));
@@ -173,6 +194,41 @@
 		title={m.atelier.filters.fields.locations}
 	/>
 
+	{#each ownFields as field (field.id)}
+		{#if field.kind === 'list'}
+			<FilterValues
+				name={(value) => value}
+				chosen={filter.own[field.id] ?? []}
+				limit={FREQUENT_LIMIT}
+				onchoose={(value) => (filter = toggleOwnValue(filter, field.id, value))}
+				options={ownFilterOptions(artworks, filter, field.id)}
+				searchLabel={m.atelier.filters.searchValues(field.name)}
+				title={field.name}
+			/>
+		{:else if field.kind === 'text' && hasOwnText(artworks, field.id)}
+			<section class="text">
+				<h3>{field.name}</h3>
+				<SearchField
+					compact
+					label={m.ownFields.search(field.name)}
+					placeholder={m.ownFields.search(field.name)}
+					bind:value={
+						() => filter.ownTexts[field.id] ?? '',
+						(text) => (filter = setOwnText(filter, field.id, text))
+					}
+				/>
+			</section>
+		{/if}
+	{/each}
+
+	<FilterValues
+		name={(id) => fieldNames.get(id) ?? ''}
+		chosen={filter.ticked}
+		onchoose={(id) => (filter = toggleTicked(filter, id))}
+		options={tickedOptions(artworks, filter, ownFields)}
+		title={m.atelier.filters.fields.ticked}
+	/>
+
 	<FilterValues
 		name={(value) => optionLabel('missing', value)}
 		chosen={filter.missing}
@@ -188,7 +244,8 @@
 		gap: var(--spacing-8);
 	}
 
-	.years {
+	.years,
+	.text {
 		display: grid;
 		gap: var(--spacing-3);
 	}

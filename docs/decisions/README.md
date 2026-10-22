@@ -108,3 +108,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0102](0102-name-the-address-parameters-in-english.md)                   | Name the wall's address parameters in English                                            | accepted           |
 | [0103](0103-draw-free-review-rounds-at-random.md)                        | Draw free review rounds at random                                                        | accepted           |
 | [0104](0104-let-the-learner-define-own-artwork-fields.md)                | Let the learner define their own artwork fields                                          | accepted           |
+| [0105](0105-filter-the-wall-by-own-fields.md)                            | Filter the wall by the learner's own fields                                              | accepted           |

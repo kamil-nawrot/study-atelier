@@ -9,7 +9,7 @@ import {
 } from '#lib/images/commons.ts';
 import { backfillThumbnails } from '#lib/images/thumbnail-backfill.ts';
 import { supabase } from '#lib/supabase.ts';
-import { authorSortNamesOf, valuesOf } from './artwork-values.ts';
+import { authorSortNamesOf, ownEntriesOf, valuesOf } from './artwork-values.ts';
 import { collectionErrorMessage } from './errors.ts';
 import { formatDate } from './format.ts';
 import { tileSizes } from './masonry.ts';
@@ -19,6 +19,7 @@ import type {
 	ArtworkTypeCode,
 	AtelierResult,
 	EraCode,
+	FieldEntryRow,
 	ImageSize,
 	PendingImage,
 	TrashArtwork,
@@ -43,6 +44,7 @@ type ArtworkRow = {
 	favourite: boolean;
 	deleted_at: string | null;
 	artwork_values: ArtworkValueRow[];
+	artwork_field_entries?: FieldEntryRow[];
 };
 
 export const DEFAULT_IMAGE_SIZE: ImageSize = { width: 4, height: 5 };
@@ -68,7 +70,8 @@ const ARTWORK_COLUMNS = [
 	'image_height',
 	'favourite',
 	'deleted_at',
-	'artwork_values(position, category_values(category_code, name, author_details(sort_name)))'
+	'artwork_values(position, category_values(category_code, name, author_details(sort_name)))',
+	'artwork_field_entries(field_id, text_value)'
 ].join(', ');
 
 async function signedUrls(paths: string[]): Promise<Map<string, string>> {
@@ -181,6 +184,7 @@ function wallArtwork(row: ArtworkRow): WallArtwork {
 		location: valuesOf(row.artwork_values, 'location')[0] ?? null,
 		hasImage: Boolean(row.source_image_file || row.own_image_path || row.own_image_url),
 		favourite: row.favourite,
+		own: ownEntriesOf(row.artwork_values, row.artwork_field_entries),
 		image,
 		...(pendingImage ? { pendingImage } : {}),
 		...(row.own_image_path ? { ownImagePath: row.own_image_path } : {})

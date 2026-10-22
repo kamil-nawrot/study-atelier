@@ -3,8 +3,7 @@ import { removeOwnImage } from '#lib/images/own-image.ts';
 import type { Json } from '#lib/database.types.ts';
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { supabase } from '#lib/supabase.ts';
-import { valuesOf } from './artwork-values.ts';
-import { isCategoryCode } from './category-values.ts';
+import { ownEntriesOf, valuesOf } from './artwork-values.ts';
 import { signedYear } from './format.ts';
 import { artworkErrorMessage } from './errors.ts';
 import {
@@ -26,8 +25,8 @@ import type {
 	CategoryCode,
 	EraCode,
 	ExistingArtwork,
+	FieldEntryRow,
 	LoadArtworkResult,
-	OwnEntries,
 	SaveArtworkResult
 } from './types.ts';
 
@@ -45,7 +44,7 @@ type ArtworkRecordRow = {
 	favourite: boolean;
 	artwork_values: ArtworkValueRow[];
 	artwork_images: (ImageRow & { position: number })[];
-	artwork_field_entries?: { field_id: string; text_value: string | null }[];
+	artwork_field_entries?: FieldEntryRow[];
 } & ImageRow;
 
 type StoredInput = Omit<ArtworkInput, 'image'> & { image: StoredImage | null };
@@ -197,21 +196,6 @@ function fieldEntries(input: ArtworkInput): Record<string, Json> | undefined {
 	);
 }
 
-function ownEntriesOf(row: ArtworkRecordRow): OwnEntries {
-	const lists = new Set(
-		row.artwork_values.flatMap((value) => {
-			const code = value.category_values?.category_code;
-			return code && !isCategoryCode(code) ? [code] : [];
-		})
-	);
-	return {
-		...Object.fromEntries([...lists].map((code) => [code, valuesOf(row.artwork_values, code)])),
-		...Object.fromEntries(
-			(row.artwork_field_entries ?? []).map((entry) => [entry.field_id, entry.text_value ?? true])
-		)
-	};
-}
-
 export async function saveArtwork(
 	input: ArtworkInput,
 	existing?: ExistingArtwork
@@ -289,7 +273,7 @@ function artworkRecordFromRow(row: ArtworkRecordRow): ArtworkRecord {
 		images: [...(row.artwork_images ?? [])]
 			.sort((first, second) => first.position - second.position)
 			.flatMap((image) => imageOf(image) ?? []),
-		own: ownEntriesOf(row)
+		own: ownEntriesOf(row.artwork_values, row.artwork_field_entries)
 	};
 }
 
