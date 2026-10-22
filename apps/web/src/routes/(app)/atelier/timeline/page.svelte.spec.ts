@@ -253,7 +253,7 @@ describe('timeline page', () => {
 		await expect.element(page.getByText(m.timeline.noEvents)).toBeVisible();
 	});
 
-	it('shows the events of the era and names those at the reading line', async () => {
+	it('shows the events of the era and names those at the reading line only for a screen reader', async () => {
 		renderTimeline([testArtwork(1, 'Mona Lisa', { yearTo: 1519 })], undefined, [
 			testEvent('thirty', 'Wojna trzydziestoletnia', 1618, 1648),
 			testEvent('america', 'Odkrycie Ameryki', null, 1492),
@@ -269,11 +269,18 @@ describe('timeline page', () => {
 		await expect
 			.element(page.getByRole('button', { name: /Wojny napoleońskie/ }))
 			.not.toBeInTheDocument();
-		await expect
-			.element(
-				page.getByText(m.timeline.now('1640', [m.timeline.nowEvents('Wojna trzydziestoletnia')]))
+		const spoken = m.timeline.now('1640', [m.timeline.nowEvents('Wojna trzydziestoletnia')]);
+		await vi.waitFor(() =>
+			expect(document.querySelector('[aria-live="polite"].visually-hidden')?.textContent).toBe(
+				spoken
 			)
-			.toBeVisible();
+		);
+		expect(
+			[...document.querySelectorAll('p')].filter(
+				(paragraph) =>
+					paragraph.textContent === spoken && !paragraph.classList.contains('visually-hidden')
+			)
+		).toHaveLength(0);
 	});
 
 	it('opens the card of a chosen period with its artworks and its length', async () => {
@@ -536,7 +543,6 @@ describe('timeline page', () => {
 		await expect.element(page.getByText(m.timeline.readingArtworks)).toBeVisible();
 		const title = page.getByRole('button', { name: 'Straż nocna', exact: true });
 		await expect.element(title).toBeVisible();
-		expect(document.querySelector('.now')?.textContent).not.toContain('Straż nocna');
 		await title.click();
 		await expect
 			.element(page.getByRole('button', { name: 'Straż nocna, 1600–1700' }))
@@ -568,7 +574,6 @@ describe('timeline page', () => {
 		await expect
 			.element(page.getByRole('button', { name: 'Straż nocna', exact: true }))
 			.toBeVisible();
-		expect(document.querySelector('.now')?.textContent).toBe('1640');
 		await vi.waitFor(() =>
 			expect(live()).toBe(m.timeline.now('1640', [m.timeline.nowArtworks('Straż nocna', -2)]))
 		);
