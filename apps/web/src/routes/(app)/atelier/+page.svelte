@@ -589,6 +589,11 @@
 
 	.view {
 		display: grid;
+		grid-template-columns: minmax(0, 1fr);
 		gap: var(--spacing-8);
+	}
+
+	.view .grouping-panel {
+		width: auto;
 	}
 </style>
