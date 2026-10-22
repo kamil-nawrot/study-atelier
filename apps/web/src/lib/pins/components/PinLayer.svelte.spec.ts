@@ -5,7 +5,7 @@ import { m } from '#lib/i18n/index.ts';
 import { testEntry } from '#lib/testing/glossary.ts';
 import { createPin, movePin } from '../pin-data.ts';
 import type { Pin } from '../types.ts';
-import PinEditor from './PinEditor.svelte';
+import PinLayer from './PinLayer.svelte';
 
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 vi.mock('../pin-data.ts', async (importOriginal) => ({
@@ -14,7 +14,6 @@ vi.mock('../pin-data.ts', async (importOriginal) => ({
 	movePin: vi.fn()
 }));
 
-const IMAGE = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50"/>')}`;
 const PIN: Pin = {
 	id: 'pin-1',
 	imageId: 'image-1',
@@ -24,18 +23,16 @@ const PIN: Pin = {
 	text: 'The sitter’s turban.'
 };
 
-function open(pins: Pin[] = [PIN]): void {
-	render(PinEditor, {
-		open: true,
-		alt: 'Girl with a Pearl Earring',
-		source: { src: IMAGE, width: 40, height: 50 },
+function layer(pins: Pin[] = [PIN]): void {
+	render(PinLayer, {
 		imageId: 'image-1',
 		pins,
-		entries: [testEntry('entry-1', 'Turban')]
+		entries: [testEntry('entry-1', 'Turban')],
+		onfailure: vi.fn()
 	});
 }
 
-describe('PinEditor', () => {
+describe('PinLayer', () => {
 	beforeEach(() => {
 		vi.mocked(createPin).mockReset();
 		vi.mocked(movePin).mockReset();
@@ -45,7 +42,7 @@ describe('PinEditor', () => {
 		vi.mocked(createPin).mockResolvedValue({
 			pin: { ...PIN, id: 'pin-2', glossaryEntryId: null, text: 'Pearl' }
 		});
-		open([]);
+		layer([]);
 
 		await page.getByRole('button', { name: m.pins.placeHere }).click();
 		await userEvent.fill(page.getByLabelText(m.pins.text), 'Pearl');
@@ -55,24 +52,21 @@ describe('PinEditor', () => {
 		await expect.element(page.getByRole('button', { name: 'Pinezka 1' })).toBeVisible();
 	});
 
-	it('reverts a pin that could not be moved and shows the error', async () => {
+	it('reverts a pin that could not be moved', async () => {
 		vi.mocked(movePin).mockResolvedValue({ error: 'Nie udało się połączyć z serwerem.' });
-		open();
+		layer();
 
 		page.getByRole('button', { name: 'Pinezka 1: Turban' }).element().focus();
 		await userEvent.keyboard('{ArrowRight}');
 
-		await expect
-			.element(page.getByRole('alert'))
-			.toHaveTextContent('Nie udało się połączyć z serwerem.');
-		expect(movePin).toHaveBeenCalledWith('pin-1', 0.27, 0.75);
+		await vi.waitFor(() => expect(movePin).toHaveBeenCalledWith('pin-1', 0.27, 0.75));
 		await expect
 			.element(page.getByRole('button', { name: 'Pinezka 1: Turban' }))
 			.toHaveStyle({ left: '25%' });
 	});
 
 	it('opens a saved pin for editing', async () => {
-		open();
+		layer();
 
 		await page.getByRole('button', { name: 'Pinezka 1: Turban' }).click();
 

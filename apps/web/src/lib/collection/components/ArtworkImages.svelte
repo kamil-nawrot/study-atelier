@@ -1,10 +1,9 @@
 <script lang="ts">
 	import ImageIcon from '@lucide/svelte/icons/image';
-	import PinIcon from '@lucide/svelte/icons/pin';
 	import Plus from '@lucide/svelte/icons/plus';
 	import Star from '@lucide/svelte/icons/star';
 	import { onDestroy, untrack } from 'svelte';
-	import { ArtworkImage, Icon, Tooltip } from '@study-atelier/ui';
+	import { Alert, ArtworkImage, Icon, Tooltip } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { findImageCandidates } from '#lib/images/image-search.ts';
 	import type { ImageCandidate, ImageSearchQuery } from '#lib/images/types.ts';
@@ -19,6 +18,8 @@
 	import { artworkImageSource } from '../artwork-image.ts';
 	import type { ArtworkImageInput, ImageFieldTexts } from '../types.ts';
 	import ImageField from './ImageField.svelte';
+	import type { GlossaryEntry } from '#lib/glossary/types.ts';
+	import PinLayer from '#lib/pins/components/PinLayer.svelte';
 	import type { Pin } from '#lib/pins/types.ts';
 
 	type Props = {
@@ -30,7 +31,7 @@
 		images: (ArtworkImageInput | null)[];
 		autoMatch?: boolean;
 		pins?: Pin[];
-		onpins?: (image: ArtworkImageInput) => void;
+		entries?: readonly GlossaryEntry[];
 	};
 
 	let {
@@ -41,8 +42,8 @@
 		image = $bindable(),
 		images = $bindable(),
 		autoMatch = false,
-		pins,
-		onpins
+		pins = $bindable(),
+		entries = []
 	}: Props = $props();
 
 	type MatchStatus = 'idle' | 'searching' | 'matched' | 'none' | 'failed';
@@ -57,9 +58,8 @@
 	let matchRequest = 0;
 
 	let slots = $derived([image, ...images]);
-	let pinnable = $derived(pins !== undefined && onpins !== undefined ? current() : null);
-	let pinnableId = $derived(pinnable?.id);
-	let pinCount = $derived(pins?.filter((pin) => pin.imageId === pinnableId).length ?? 0);
+	let pinImageId = $derived(pins === undefined ? undefined : current()?.id);
+	let pinFailure = $state<string>();
 	let full = $derived(slots.length >= MAX_ARTWORK_IMAGES);
 	let matchShown = $derived(
 		selected === 0 && matchStatus === 'matched' && isCandidateImage(image, pool[0])
@@ -213,13 +213,32 @@
 				{/snippet}
 			</Tooltip>
 		{/if}
-		{#if pinnable !== null && pinnableId !== undefined}
-			<button class="pins" onclick={() => onpins?.(pinnable)} type="button">
-				<Icon icon={PinIcon} size="sm" />
-				{m.pins.editor(pinCount)}
-			</button>
-		{/if}
 	</div>
+{/snippet}
+
+{#snippet pinLayer()}
+	{#if pins !== undefined && pinImageId !== undefined}
+		<PinLayer
+			{entries}
+			imageId={pinImageId}
+			onfailure={(message) => (pinFailure = message)}
+			bind:pins
+		/>
+	{/if}
+{/snippet}
+
+{#snippet statusLines()}
+	{@render matchStatusLine()}
+	{@render pinStatus()}
+{/snippet}
+
+{#snippet pinStatus()}
+	{#if pinImageId !== undefined}
+		{#if pinFailure}
+			<Alert tone="danger">{pinFailure}</Alert>
+		{/if}
+		<p class="caption">{m.pins.editHint} {m.pins.editorNote}</p>
+	{/if}
 {/snippet}
 
 {#snippet matchStatusLine()}
@@ -237,11 +256,12 @@
 <ImageField
 	{alt}
 	onsearch={stopMatch}
+	overlay={pinLayer}
 	{query}
 	removable={selected > 0}
 	{searchReady}
 	slots={slotRow}
-	status={matchStatusLine}
+	status={statusLines}
 	{texts}
 	bind:image={current, setCurrent}
 />
@@ -319,24 +339,6 @@
 		border-style: dashed;
 		background: transparent;
 		color: var(--color-fg-muted);
-	}
-
-	.pins {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-1);
-		padding: var(--spacing-2);
-		border: none;
-		background: transparent;
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-sm);
-		line-height: var(--line-height-sm);
-		cursor: pointer;
-	}
-
-	.pins:hover,
-	.pins:focus-visible {
-		color: var(--color-fg);
 	}
 
 	.make-main {

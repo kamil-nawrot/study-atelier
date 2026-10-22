@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Alert, Button, Dialog, Form, SearchSelect, TextArea } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, SearchSelect, TextArea } from '@study-atelier/ui';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { Fraction } from '../pin-layout.ts';
@@ -25,8 +25,6 @@
 		onsaved,
 		ondeleted
 	}: Props = $props();
-
-	const formId = $props.id();
 
 	let entryId = $state<string | null>(null);
 	let text = $state('');
@@ -79,7 +77,7 @@
 </script>
 
 <Dialog title={pin ? m.pins.title : m.pins.newTitle} bind:open>
-	<Form id={formId} onsubmit={submit}>
+	<div class="fields">
 		{#if failure}
 			<Alert title={m.pins.errorTitle} tone="danger">
 				{failure}
@@ -92,7 +90,7 @@
 			bind:value={entryId}
 		/>
 		<TextArea counter label={m.pins.text} maxlength={MAX_PIN_TEXT} rows={4} bind:value={text} />
-	</Form>
+	</div>
 	{#snippet footer()}
 		{#if pin}
 			<Button disabled={busy !== undefined} onclick={remove} variant="danger">
@@ -102,8 +100,15 @@
 		<Button onclick={() => (open = false)}>
 			{m.pins.cancel}
 		</Button>
-		<Button disabled={busy !== undefined} form={formId} type="submit" variant="primary">
+		<Button disabled={busy !== undefined} onclick={submit} variant="primary">
 			{busy === 'saving' ? m.pins.saving : m.pins.save}
 		</Button>
 	{/snippet}
 </Dialog>
+
+<style>
+	.fields {
+		display: grid;
+		gap: var(--spacing-4);
+	}
+</style>

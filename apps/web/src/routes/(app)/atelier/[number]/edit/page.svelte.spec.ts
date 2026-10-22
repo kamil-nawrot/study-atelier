@@ -454,7 +454,7 @@ describe('edit artwork page', () => {
 		go.mockRestore();
 	});
 
-	it('offers the pins of a saved image and no way to pin one that is not saved yet', async () => {
+	it('shows the pins of the shown image on its preview and none on an image that is not saved', async () => {
 		renderPage({
 			artwork: artwork({
 				image: {
@@ -471,14 +471,15 @@ describe('edit artwork page', () => {
 			]
 		});
 
-		await expect.element(page.getByRole('button', { name: m.pins.editor(1) })).toBeVisible();
+		await expect.element(page.getByRole('button', { name: 'Pinezka 1' })).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.pins.placeHere })).toBeVisible();
 		await page.getByRole('button', { name: m.artworkForm.imageSlot(2, 2) }).click();
 		await expect
-			.element(page.getByRole('button', { name: m.pins.editor(0) }))
+			.element(page.getByRole('button', { name: m.pins.placeHere }))
 			.not.toBeInTheDocument();
 	});
 
-	it('opens the editor of the pins of the shown image', async () => {
+	it('places a pin from the preview of a saved image', async () => {
 		renderPage({
 			artwork: artwork({
 				image: {
@@ -491,10 +492,9 @@ describe('edit artwork page', () => {
 			})
 		});
 
-		await page.getByRole('button', { name: m.pins.editor(0) }).click();
+		await page.getByRole('button', { name: m.pins.placeHere }).click();
 
-		await expect.element(page.getByRole('dialog', { name: m.pins.editorTitle })).toBeVisible();
-		await expect.element(page.getByRole('button', { name: m.pins.placeHere })).toBeVisible();
+		await expect.element(page.getByRole('dialog', { name: m.pins.newTitle })).toBeVisible();
 	});
 
 	it('leaves without asking when nothing was changed', async () => {
