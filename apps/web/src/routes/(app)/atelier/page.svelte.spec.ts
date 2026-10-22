@@ -945,6 +945,18 @@ describe('atelier page', () => {
 				await expect.element(eraTile('modern')).toBeVisible();
 			});
 
+			it('keeps the view dialog within the width of the screen', async () => {
+				renderAtelier(styled);
+				await page.getByRole('button', { name: m.atelier.filters.viewButton }).click();
+				await expect.element(orderSelect()).toBeVisible();
+
+				const body = page
+					.getByRole('dialog', { name: m.atelier.filters.viewTitle })
+					.element()
+					.querySelector('.body');
+				expect(body?.scrollWidth).toBe(body?.clientWidth);
+			});
+
 			it('shows how many artworks the filters leave and closes with that button', async () => {
 				renderAtelier(styled);
 				await page.getByRole('button', { name: m.atelier.filters.viewButton }).click();
