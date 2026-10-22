@@ -209,6 +209,30 @@ function quizFor(row, mode, pool) {
 	return options;
 }
 
+function pinQuizFor(row) {
+	const images = row.artwork_images ?? [];
+	const pin = ARTWORK_PINS.find(
+		(candidate) =>
+			candidate.glossary_entry_id && images.some((image) => image.id === candidate.image_id)
+	);
+	if (!pin) return undefined;
+	const term = GLOSSARY_ENTRIES.find((entry) => entry.id === pin.glossary_entry_id);
+	const others = GLOSSARY_ENTRIES.filter((entry) => entry.id !== term.id).sort(
+		(a, b) => Number(b.category === term.category) - Number(a.category === term.category)
+	);
+	const image = images.find((candidate) => candidate.id === pin.image_id);
+	return {
+		artwork_id: row.id,
+		mode: 'quiz_pin',
+		options: [
+			{ label: others[0].name },
+			{ label: term.name, right: true },
+			...others.slice(1, 3).map((entry) => ({ label: entry.name }))
+		],
+		pin: { x: pin.x, y: pin.y, image }
+	};
+}
+
 function reviewSession({
 	day_start: dayStartText,
 	session_form: form = 'mixed',
@@ -234,6 +258,8 @@ function reviewSession({
 	);
 	return (freeRound === undefined ? [...due, ...fresh] : free).map((row, slot) => {
 		const card = cardOf(row);
+		const pinQuiz = form === 'flashcards' ? undefined : pinQuizFor(row);
+		if (pinQuiz) return pinQuiz;
 		const modes =
 			form === 'flashcards'
 				? []

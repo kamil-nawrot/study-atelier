@@ -24,6 +24,33 @@ const imageQuiz: SessionRow = {
 	]
 };
 
+const pinQuiz: SessionRow = {
+	artwork_id: 'artwork-2',
+	mode: 'quiz_pin',
+	options: [
+		{ label: 'Nave' },
+		{ label: 'Apse', right: true },
+		{ label: 'Choir' },
+		{ label: 'Portal' }
+	],
+	pin: {
+		x: 0.25,
+		y: 0.75,
+		image: {
+			id: 'image-2',
+			source_wikidata_id: 'Q2',
+			source_image_file: 'Artwork_2.jpg',
+			source_image_licence: null,
+			source_image_licence_url: null,
+			source_image_attribution: null,
+			own_image_path: null,
+			own_image_url: null,
+			image_width: 800,
+			image_height: 600
+		}
+	}
+};
+
 describe('session items', () => {
 	it('turns the rows of the database into review items with their cards and quizzes', () => {
 		const card = testReviewCard('artwork-5', new Date(2026, 9, 16));
@@ -81,6 +108,41 @@ describe('session items', () => {
 		expect(items.map((item) => [item.artwork.number, item.mode, item.quiz])).toEqual([
 			[1, 'flashcard', undefined],
 			[1, 'flashcard', undefined]
+		]);
+	});
+
+	it('asks what a pinned detail is with the image and the place of the pin', () => {
+		const [item] = sessionItems([pinQuiz], byId, new Map());
+
+		expect(item.mode).toBe('quiz_pin');
+		expect(item.quiz?.options[item.quiz.answer]).toEqual({ label: 'Apse' });
+		expect(item.pin).toEqual({
+			x: 0.25,
+			y: 0.75,
+			image: expect.objectContaining({ kind: 'commons', file: 'Artwork_2.jpg', id: 'image-2' })
+		});
+		expect(quizArtworks([item])).toEqual([]);
+	});
+
+	it('makes a flashcard of a pin question without a pin', () => {
+		const items = sessionItems(
+			[
+				{ ...pinQuiz, pin: undefined },
+				{
+					...pinQuiz,
+					pin: pinQuiz.pin && {
+						...pinQuiz.pin,
+						image: { ...pinQuiz.pin.image, source_wikidata_id: null, source_image_file: null }
+					}
+				}
+			],
+			byId,
+			new Map()
+		);
+
+		expect(items.map((item) => [item.mode, item.pin])).toEqual([
+			['flashcard', undefined],
+			['flashcard', undefined]
 		]);
 	});
 

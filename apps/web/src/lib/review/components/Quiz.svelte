@@ -9,9 +9,11 @@
 	import type { LucideIcon } from '@lucide/svelte';
 	import { tick } from 'svelte';
 	import { Alert, ArtworkImage, Button, Icon, Tooltip } from '@study-atelier/ui';
+	import { artworkImageCredit, artworkImageSource } from '#lib/collection/artwork-image.ts';
 	import ImageViewer from '#lib/collection/components/ImageViewer.svelte';
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
+	import PinMark from '#lib/pins/components/PinMark.svelte';
 	import { onControl, sessionKey } from '../keys.ts';
 	import { authorsOf } from '../overview.ts';
 	import { QUIZ_TILE_SIZES } from '../quiz.ts';
@@ -31,6 +33,7 @@
 	let { item, details, chosen, saving, error, onanswer, onnext }: Props = $props();
 
 	const FALLBACK_RATIO = 0.8;
+	const STAGE_WIDTH = 960;
 
 	const REASON_ICONS: Record<QuizReason, LucideIcon> = {
 		author: UserPen,
@@ -49,6 +52,8 @@
 	let correct = $derived(chosen === quiz.answer);
 	let picked = $derived(chosen === undefined ? undefined : quiz.options[chosen]);
 	let alt = $derived(answered ? describe(artwork) : m.review.flashcard.imageAlt);
+	let pin = $derived(item.pin);
+	let credit = $derived(pin ? artworkImageCredit(pin.image) : details?.credit);
 
 	$effect(() => {
 		void artwork.id;
@@ -121,7 +126,7 @@
 {#snippet feedback()}
 	<div class="feedback" role="status">
 		{#if answered && picked}
-			{#if item.mode === 'quiz_style'}
+			{#if item.mode === 'quiz_style' || item.mode === 'quiz_pin'}
 				<p class="verdict">
 					{correct ? m.review.quiz.right : m.review.quiz.wrong}
 					{quiz.options[quiz.answer].label}.
@@ -242,13 +247,21 @@
 	</div>
 {/snippet}
 
+{#snippet pinMark()}
+	{#if pin}
+		<PinMark label="?" x={pin.x} y={pin.y} />
+	{/if}
+{/snippet}
+
 <ReviewCard
 	actions={next}
 	{alt}
 	{artwork}
 	compact
-	credit={answered ? details?.credit : undefined}
+	credit={answered ? credit : undefined}
+	image={pin ? artworkImageSource(pin.image, STAGE_WIDTH) : artwork.image}
 	labelledby="quiz-heading"
+	overlay={pin ? pinMark : undefined}
 	stage={item.mode === 'quiz_image' ? tiles : undefined}
 >
 	{#snippet body()}
@@ -259,6 +272,8 @@
 					<cite class="artwork-title">{artwork.title}</cite>{m.review.quiz.imageQuestion.end}
 				{:else if item.mode === 'quiz_style'}
 					{m.review.quiz.styleQuestion}
+				{:else if item.mode === 'quiz_pin'}
+					{m.review.quiz.pinQuestion}
 				{:else}
 					{m.review.quiz.titleQuestion}
 				{/if}
@@ -267,6 +282,8 @@
 				<p class="lead">{m.review.quiz.imageHint}</p>
 			{:else if item.mode === 'quiz_style'}
 				<p class="lead">{m.review.quiz.styleHint}</p>
+			{:else if item.mode === 'quiz_pin'}
+				<p class="lead">{m.review.quiz.pinHint}</p>
 			{/if}
 		</div>
 		{#if item.mode !== 'quiz_image'}
