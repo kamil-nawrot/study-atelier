@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import '@study-atelier/ui/styles.css';
 import { goto, preloadData } from '$app/navigation';
 import { setBackPlace } from '#lib/navigation/back.svelte.ts';
 import { setFavourite } from '#lib/collection/favourite.ts';
@@ -34,6 +35,7 @@ vi.mock('#lib/collection/favourite.ts', async (importOriginal) => ({
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
 const IMAGE = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50"/>')}`;
+const WIDE_IMAGE = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="40"/>')}`;
 
 function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 	return {
@@ -338,6 +340,45 @@ describe('artwork page', () => {
 		await expect.element(arrow(m.artworkView.next)).toHaveAttribute('data-sveltekit-replacestate');
 		await expect.element(backLink()).toHaveAttribute('href', '/atelier?era=early_modern');
 		expect(preloadData).toHaveBeenCalledWith('/atelier/30');
+	});
+
+	it('keeps the first screen of every artwork the same height on a phone', async () => {
+		await page.viewport(390, 844);
+		rememberWall([7, 42, 30]);
+		const artworks = [
+			artwork(),
+			artwork({
+				title: 'Portrait of Giovanni Arnolfini and his wife in their chamber in Bruges',
+				authors: ['Jan van Eyck', 'Hubert van Eyck', 'Petrus Christus', 'Workshop of Ghent'],
+				image: { kind: 'url', url: WIDE_IMAGE, width: 80, height: 40 },
+				images: [{ kind: 'url', url: IMAGE, width: 40, height: 50 }]
+			}),
+			artwork({ image: null })
+		];
+		const screens = [];
+
+		for (const record of artworks) {
+			const view = await render(ArtworkPage, {
+				data: { session: testSession(), artwork: record },
+				params: { number: '42' }
+			});
+			await expect.element(arrow(m.artworkView.next)).toBeVisible();
+			const stage = document.querySelector('.stage')!.getBoundingClientRect();
+			const next = arrow(m.artworkView.next).element().getBoundingClientRect();
+			const image = document.querySelector('.stage .mat')!.getBoundingClientRect();
+			const type = page.getByText(m.artworkForm.type, { exact: true }).element();
+			screens.push({
+				stage: stage.height,
+				arrow: next.top,
+				fitsStage: image.bottom <= stage.bottom,
+				typeBelowFold: Math.round(type.getBoundingClientRect().top) >= window.innerHeight
+			});
+			await view.unmount();
+		}
+
+		expect(new Set(screens.map((screen) => screen.stage)).size).toBe(1);
+		expect(new Set(screens.map((screen) => screen.arrow)).size).toBe(1);
+		expect(screens.every((screen) => screen.fitsStage && screen.typeBelowFold)).toBe(true);
 	});
 
 	it('dims the arrow at either end of the wall', async () => {

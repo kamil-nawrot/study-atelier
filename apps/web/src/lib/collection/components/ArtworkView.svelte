@@ -81,6 +81,7 @@
 	let image = $derived(artworkImageSource(current, STAGE_WIDTH));
 	let fullImage = $derived(artworkImageSource(current, VIEWER_WIDTH));
 	let credit = $derived(image ? artworkImageCredit(current) : undefined);
+	let ratio = $derived(image?.width && image.height ? image.width / image.height : undefined);
 
 	let showPins = $state(false);
 	let cardPin = $state<PinRecord>();
@@ -227,11 +228,12 @@
 
 <div class="view" class:closed={!panelOpen}>
 	<figure
+		style:--image-ratio={ratio}
 		class="stage"
 		class:dimmed={image !== undefined}
 		class:flipping={flipLinks !== undefined}
+		class:sized={ratio !== undefined}
 		class:with-gallery={image !== undefined && gallery.length > 1}
-		class:with-pins={imagePins.length > 0}
 		{@attach swipe((direction) => onflip?.(direction))}
 	>
 		{#if flipLinks}
@@ -684,8 +686,46 @@
 	}
 
 	@media (max-width: 767.98px) {
-		.stage.with-pins {
-			padding-top: var(--spacing-12);
+		.view {
+			--heading-height: calc(
+				var(--font-size-xs) * var(--line-height-xs) + 2 * var(--spacing-2) + 2 *
+					var(--font-size-xl) * var(--line-height-xl) + var(--font-size-md) * var(--line-height-md)
+			);
+		}
+
+		.stage {
+			--caption-height: calc(2 * var(--font-size-xs) * var(--line-height-xs) + var(--spacing-3));
+			--image-max-height: calc(100cqh - 2 * var(--spacing-2) - var(--caption-height));
+
+			container-type: size;
+			height: calc(
+				var(--artwork-max-height) - var(--spacing-6) - var(--heading-height) - var(--spacing-8)
+			);
+		}
+
+		.mat :global(img) {
+			max-width: calc(100cqw - 2 * var(--spacing-2));
+			max-height: var(--image-max-height);
+		}
+
+		.sized .mat :global(img) {
+			width: min(
+				calc(100cqw - 2 * var(--spacing-2)),
+				calc(var(--image-max-height) * var(--image-ratio))
+			);
+		}
+
+		.window {
+			width: auto;
+			height: min(
+				400px,
+				calc(100cqh - var(--size-control) - var(--spacing-3) - 2 * var(--spacing-2))
+			);
+		}
+
+		.heading {
+			align-content: start;
+			min-height: var(--heading-height);
 		}
 	}
 
