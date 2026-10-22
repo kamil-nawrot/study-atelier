@@ -7,6 +7,7 @@ import {
 	createOwnField,
 	deleteOwnField,
 	fieldNameError,
+	loadOwnFieldDefinitions,
 	loadOwnFields,
 	moveOwnField,
 	planOwnValueChange,
@@ -115,6 +116,27 @@ describe('loadOwnFields', () => {
 			fields: [],
 			error: m.collectionErrors.network
 		});
+	});
+});
+
+describe('loadOwnFieldDefinitions', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		vi.mocked(supabase.from).mockReturnValue(query as never);
+		query.select.mockReturnValue(query);
+	});
+
+	it('reads the fields in their order without counts or values', async () => {
+		query.order.mockResolvedValue({
+			data: [{ id: 'seen', name: 'Seen', description: null, kind: 'flag', multiple: false }],
+			error: null
+		});
+
+		await expect(loadOwnFieldDefinitions()).resolves.toEqual({
+			fields: [{ id: 'seen', name: 'Seen', description: null, kind: 'flag', multiple: false }]
+		});
+		expect(query.order).toHaveBeenCalledWith('position');
+		expect(rpc).not.toHaveBeenCalled();
 	});
 });
 

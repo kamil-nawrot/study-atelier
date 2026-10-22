@@ -9,7 +9,7 @@ import {
 	imageFromCandidate,
 	parseYear
 } from './artwork-form.ts';
-import type { ArtworkRecord } from './types.ts';
+import type { ArtworkRecord, OwnFieldDefinition } from './types.ts';
 
 describe('parseYear', () => {
 	it('reads an empty field as no year', () => {
@@ -122,7 +122,8 @@ describe('artworkFormFromRecord', () => {
 			eraCode: 'modern',
 			notes: 'Seen in Paris.',
 			image: { kind: 'upload', path: 'user-id/thinker.jpg', width: 3, height: 4 },
-			images: []
+			images: [],
+			ownQueries: {}
 		});
 	});
 
@@ -146,6 +147,45 @@ describe('artworkFormFromRecord', () => {
 		const input = artworkInputFromForm(artworkFormFromRecord(record));
 
 		expect({ ...record, ...input }).toEqual(record);
+	});
+});
+
+describe('own fields in the form', () => {
+	const fields: OwnFieldDefinition[] = [
+		{ id: 'lecture', name: 'Lecture', description: null, kind: 'list', multiple: false },
+		{ id: 'source', name: 'Source', description: null, kind: 'text', multiple: false },
+		{ id: 'seen', name: 'Seen', description: null, kind: 'flag', multiple: false }
+	];
+
+	it('starts every own field empty when the fields are known', () => {
+		expect(emptyArtworkForm(fields).own).toEqual({ lecture: [], source: '', seen: false });
+		expect(emptyArtworkForm().own).toBeUndefined();
+	});
+
+	it('fills own fields from the saved artwork and empties an entry of another kind', () => {
+		const record: ArtworkRecord = {
+			id: 'artwork-1',
+			number: 1,
+			favourite: false,
+			...artworkInputFromForm(emptyArtworkForm()),
+			own: { lecture: ['Baroque class'], source: true, seen: true, gone: 'Deleted field' }
+		};
+
+		const form = artworkFormFromRecord(record, fields);
+
+		expect(form.own).toEqual({ lecture: ['Baroque class'], source: '', seen: true });
+	});
+
+	it('hands the own entries over to the saved input', () => {
+		const form = emptyArtworkForm(fields);
+		form.own = { lecture: ['Baroque class'], source: 'Gombrich', seen: true };
+
+		expect(artworkInputFromForm(form).own).toEqual({
+			lecture: ['Baroque class'],
+			source: 'Gombrich',
+			seen: true
+		});
+		expect(artworkInputFromForm(emptyArtworkForm())).not.toHaveProperty('own');
 	});
 });
 

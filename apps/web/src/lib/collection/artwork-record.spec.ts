@@ -275,6 +275,46 @@ describe('saveArtwork', () => {
 		expect(args.values_by_category).toMatchObject({ author: [] });
 	});
 
+	it('saves own lists with the values and own texts and ticks as field entries', async () => {
+		await saveArtwork(
+			input({
+				own: {
+					lecture: ['Baroque class', ' '],
+					motifs: [],
+					source: '  Gombrich, p. 300 ',
+					note: '   ',
+					seen: true,
+					exam: false
+				}
+			})
+		);
+
+		expect(supabase.rpc).toHaveBeenLastCalledWith(
+			'save_artwork',
+			expect.objectContaining({
+				values_by_category: expect.objectContaining({
+					lecture: ['Baroque class'],
+					motifs: []
+				}),
+				field_entries: { source: 'Gombrich, p. 300', seen: true }
+			})
+		);
+	});
+
+	it('leaves the own fields alone when the form does not know them', async () => {
+		await saveArtwork(input());
+
+		const [, args] = vi.mocked(supabase.rpc).mock.lastCall ?? [];
+		expect(args).toHaveProperty('field_entries', undefined);
+		expect(Object.keys((args as { values_by_category: object }).values_by_category)).toEqual([
+			'author',
+			'period',
+			'style',
+			'material',
+			'location'
+		]);
+	});
+
 	it('stores a Commons image with its licence and size', async () => {
 		await saveArtwork(
 			input({
@@ -572,9 +612,36 @@ describe('loadArtwork', () => {
 				location: 'Test Museum',
 				notes: 'Seen in class.',
 				image: null,
-				images: []
+				images: [],
+				own: {}
 			}
 		});
+	});
+
+	it('reads own lists from the values and own texts and ticks from the field entries', async () => {
+		query.maybeSingle.mockResolvedValue({
+			data: row({
+				artwork_values: [
+					value('author', 'First Author', 0),
+					value('motifs', 'Lily', 1),
+					value('motifs', 'Angel', 0)
+				],
+				artwork_field_entries: [
+					{ field_id: 'source', text_value: 'Gombrich, p. 300' },
+					{ field_id: 'seen', text_value: null }
+				]
+			}),
+			error: null
+		});
+
+		const result = await loadArtwork(7);
+
+		expect(result.artwork?.own).toEqual({
+			motifs: ['Angel', 'Lily'],
+			source: 'Gombrich, p. 300',
+			seen: true
+		});
+		expect(result.artwork?.authors).toEqual(['First Author']);
 	});
 
 	it('reads an uploaded image before a Commons image, with a signed preview URL', async () => {

@@ -5,7 +5,11 @@ import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
 import { emptyCategoryValues } from '#lib/collection/category-values.ts';
 import { emptyPlaceStarter } from '#lib/collection/place-starter.ts';
 import { emptyValueLinks } from '#lib/collection/value-links.ts';
-import type { ArtworkRecord, LoadArtworkResult } from '#lib/collection/types.ts';
+import type {
+	ArtworkRecord,
+	LoadArtworkResult,
+	OwnFieldDefinition
+} from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import { IMAGES_BUCKET } from '#lib/images/bucket.ts';
 import { supabase } from '#lib/supabase.ts';
@@ -57,11 +61,17 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 	};
 }
 
-function renderPage(result: LoadArtworkResult = { artwork: artwork() }, number = '7'): void {
+function renderPage(
+	result: LoadArtworkResult = { artwork: artwork() },
+	number = '7',
+	ownValues: Record<string, string[]> = {}
+): void {
 	render(EditArtworkPage, {
 		data: {
 			session: testSession(),
 			values: emptyCategoryValues(),
+			ownValues,
+			ownFields: undefined,
 			links: emptyValueLinks(),
 			noteLinks: undefined,
 			placeStarter: emptyPlaceStarter(),
@@ -250,6 +260,32 @@ describe('edit artwork page', () => {
 			existing_id: 'artwork-7',
 			extra_images: []
 		});
+	});
+
+	it('fills the own fields with the saved entries and saves an emptied list as empty', async () => {
+		const ownFields: OwnFieldDefinition[] = [
+			{ id: 'motifs', name: 'Motifs', description: null, kind: 'list', multiple: true },
+			{ id: 'source', name: 'Source', description: null, kind: 'text', multiple: false },
+			{ id: 'seen', name: 'Seen in person', description: null, kind: 'flag', multiple: false }
+		];
+		renderPage({
+			artwork: artwork({ own: { motifs: ['Milk'], source: 'Gombrich', seen: true } }),
+			ownFields
+		});
+
+		await expect.element(page.getByRole('textbox', { name: 'Source' })).toHaveValue('Gombrich');
+		await expect.element(page.getByRole('checkbox', { name: 'Seen in person' })).toBeChecked();
+		await page.getByRole('button', { name: m.ui.valueField.remove('Milk') }).click();
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+		expect(supabase.rpc).toHaveBeenCalledWith(
+			'save_artwork',
+			expect.objectContaining({
+				values_by_category: expect.objectContaining({ motifs: [] }),
+				field_entries: { source: 'Gombrich', seen: true }
+			})
+		);
 	});
 
 	it('says the changes are saved when opening the artwork fails', async () => {

@@ -723,6 +723,7 @@ export const pl = {
 		summary: (parts: string[]): string => parts.join(' · '),
 		noValues: 'Nie ma tu jeszcze wartości. Pojawią się, gdy wpiszesz je przy dziele.',
 		search: (name: string): string => `Szukaj w polu „${name}”`,
+		ticked: 'Tak',
 		menu: (name: string): string => `Działania pola „${name}”`,
 		edit: 'Zmień nazwę',
 		moveUp: 'Przesuń wyżej',
