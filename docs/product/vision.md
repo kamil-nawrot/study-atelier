@@ -12,7 +12,7 @@ Assembling the collection is part of the learning process itself. The collection
 
 ## Users
 
-For now a single user: the project owner, learning art history.
+For now a single user: the project owner, learning art history. In the long run the app is designed for many learners, each with their own atelier, so what a learner records is not limited to what the owner foresees ([ADR-0104](../decisions/0104-let-the-learner-define-own-artwork-fields.md)).
 
 ## Principles
 

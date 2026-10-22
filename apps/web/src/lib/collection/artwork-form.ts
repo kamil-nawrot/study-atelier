@@ -1,10 +1,36 @@
 import { emptyCategoryValues } from './category-values.ts';
 import type { ImageCandidate } from '#lib/images/types.ts';
-import type { ArtworkFormState, ArtworkImageInput, ArtworkInput, ArtworkRecord } from './types.ts';
+import type {
+	ArtworkFormState,
+	ArtworkImageInput,
+	ArtworkInput,
+	ArtworkRecord,
+	OwnEntries,
+	OwnEntry,
+	OwnFieldDefinition
+} from './types.ts';
 
 export const MAX_ARTWORK_IMAGES = 5;
 
-export function emptyArtworkForm(): ArtworkFormState {
+function emptyEntry(field: OwnFieldDefinition): OwnEntry {
+	if (field.kind === 'list') return [];
+	return field.kind === 'flag' ? false : '';
+}
+
+function ownEntries(fields: readonly OwnFieldDefinition[], saved: OwnEntries = {}): OwnEntries {
+	return Object.fromEntries(
+		fields.map((field) => {
+			const entry = saved[field.id];
+			const fits =
+				field.kind === 'list'
+					? Array.isArray(entry)
+					: typeof entry === (field.kind === 'flag' ? 'boolean' : 'string');
+			return [field.id, fits ? structuredClone(entry) : emptyEntry(field)];
+		})
+	);
+}
+
+export function emptyArtworkForm(fields?: readonly OwnFieldDefinition[]): ArtworkFormState {
 	return {
 		title: '',
 		values: emptyCategoryValues(),
@@ -20,13 +46,21 @@ export function emptyArtworkForm(): ArtworkFormState {
 		eraCode: null,
 		notes: '',
 		image: null,
-		images: []
+		images: [],
+		...(fields ? { own: ownEntries(fields) } : {}),
+		ownQueries: Object.fromEntries(
+			(fields ?? []).filter((field) => field.kind === 'list').map((field) => [field.id, ''])
+		)
 	};
 }
 
-export function artworkFormFromRecord(record: ArtworkRecord): ArtworkFormState {
+export function artworkFormFromRecord(
+	record: ArtworkRecord,
+	fields?: readonly OwnFieldDefinition[]
+): ArtworkFormState {
 	return {
-		...emptyArtworkForm(),
+		...emptyArtworkForm(fields),
+		...(fields ? { own: ownEntries(fields, record.own) } : {}),
 		title: record.title,
 		values: {
 			author: record.authorUnknown ? [] : [...record.authors],
@@ -77,7 +111,8 @@ export function artworkInputFromForm(form: ArtworkFormState): ArtworkInput {
 		location: form.values.location[0] ?? null,
 		notes: form.notes,
 		image,
-		images
+		images,
+		...(form.own ? { own: structuredClone(form.own) } : {})
 	};
 }
 

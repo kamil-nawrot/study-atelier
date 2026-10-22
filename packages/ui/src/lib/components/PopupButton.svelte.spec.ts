@@ -42,6 +42,16 @@ describe('PopupButton', () => {
 		await expect.element(page.getByRole('dialog', { name: 'Grouping: era' })).toBeVisible();
 	});
 
+	it('closes from the code and gives the focus back to its button', async () => {
+		const popup = await render(PopupButton, { label: 'Grouping: era', trigger, children: panel });
+		await button().click();
+
+		popup.component.close();
+
+		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+		await expect.element(button()).toHaveFocus();
+	});
+
 	it('closes on Escape and gives the focus back to its button', async () => {
 		renderPopup();
 		await button().click();

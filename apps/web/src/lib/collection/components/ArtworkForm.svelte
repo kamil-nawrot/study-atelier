@@ -5,6 +5,7 @@
 		Button,
 		Checkbox,
 		ChoiceTiles,
+		FieldMessage,
 		Form,
 		FormActions,
 		NotesEditor,
@@ -30,6 +31,7 @@
 	import { sameTitleAndAuthors } from '../duplicates.ts';
 	import { eraTiles, isEraCode } from '../eras.ts';
 	import { formatRecordNumber } from '../format.ts';
+	import { OWN_TEXT_MAX_LENGTH } from '../own-fields.ts';
 	import { UnsavedChanges } from '../unsaved-changes.svelte.ts';
 	import { suggestValues, valueKey } from '../value-suggestions.ts';
 	import DiscardDialog from './DiscardDialog.svelte';
@@ -46,6 +48,7 @@
 		CategoryValues,
 		EraCode,
 		ImageFieldTexts,
+		OwnFieldDefinition,
 		PlaceStarter,
 		ValueLinks,
 		ValueSuggestion
@@ -57,6 +60,8 @@
 		valueLinks: ValueLinks;
 		placeStarter?: PlaceStarter;
 		noteLinks?: NoteLinks;
+		ownFields?: OwnFieldDefinition[];
+		ownValues?: Record<string, string[]>;
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
 		onsaved: (number: number, next: boolean) => void | Promise<void>;
@@ -68,6 +73,8 @@
 		valueLinks,
 		placeStarter,
 		noteLinks,
+		ownFields,
+		ownValues = {},
 		cancelHref,
 		oncancel,
 		onsaved
@@ -113,7 +120,7 @@
 	let imageAlt = $derived(artworkImageAlt(form));
 
 	function initialForm(): ArtworkFormState {
-		return artwork ? artworkFormFromRecord(artwork) : emptyArtworkForm();
+		return artwork ? artworkFormFromRecord(artwork, ownFields) : emptyArtworkForm(ownFields);
 	}
 
 	export function confirmLeave(): Promise<boolean> {
@@ -149,6 +156,32 @@
 
 	function periodOptions(): ValueSuggestion[] {
 		return suggestions('period', form.eraCode ? valueLinks.periodsByEra[form.eraCode] : []);
+	}
+
+	function ownOptions(field: OwnFieldDefinition): ValueSuggestion[] {
+		return suggestValues({
+			query: form.ownQueries[field.id] ?? '',
+			existing: ownValues[field.id] ?? [],
+			selected: ownList(field)
+		});
+	}
+
+	function ownText(field: OwnFieldDefinition): string {
+		const entry = form.own?.[field.id];
+		return typeof entry === 'string' ? entry : '';
+	}
+
+	function ownList(field: OwnFieldDefinition): string[] {
+		const entry = form.own?.[field.id];
+		return Array.isArray(entry) ? entry : [];
+	}
+
+	function ownFlag(field: OwnFieldDefinition): boolean {
+		return form.own?.[field.id] === true;
+	}
+
+	function setOwn(field: OwnFieldDefinition, entry: string | string[] | boolean): void {
+		if (form.own) form.own[field.id] = entry;
 	}
 
 	function styleOptions(): ValueSuggestion[] {
@@ -229,8 +262,8 @@
 			}
 			if (!andNext) return;
 
-			form = emptyArtworkForm();
-			saved = emptyArtworkForm();
+			form = emptyArtworkForm(ownFields);
+			saved = emptyArtworkForm(ownFields);
 			toast.show(m.artworkForm.saved(formatRecordNumber(result.number)));
 			window.scrollTo({ top: 0 });
 			await tick();
@@ -365,6 +398,43 @@
 					bind:values={form.values[category.code]}
 				/>
 			{/each}
+
+			{#if form.own}
+				{#each ownFields ?? [] as field (field.id)}
+					{#if field.kind === 'text'}
+						<TextField
+							autocomplete="off"
+							hint={field.description ?? undefined}
+							label={field.name}
+							maxlength={OWN_TEXT_MAX_LENGTH}
+							bind:value={() => ownText(field), (value) => setOwn(field, value)}
+						/>
+					{:else if field.kind === 'list'}
+						<ValueField
+							hint={field.description ?? undefined}
+							label={field.name}
+							options={ownOptions(field)}
+							single={!field.multiple}
+							bind:query={
+								() => form.ownQueries[field.id] ?? '',
+								(query) => (form.ownQueries[field.id] = query)
+							}
+							bind:values={() => ownList(field), (values) => setOwn(field, values)}
+						/>
+					{:else}
+						<div class="group">
+							<Checkbox
+								aria-describedby={field.description ? `${titleId}-own-${field.id}` : undefined}
+								label={field.name}
+								bind:checked={() => ownFlag(field), (checked) => setOwn(field, checked)}
+							/>
+							{#if field.description}
+								<FieldMessage id="{titleId}-own-{field.id}" hint={field.description} />
+							{/if}
+						</div>
+					{/if}
+				{/each}
+			{/if}
 
 			<NotesEditor
 				hint={noteLinks ? m.artworkForm.notesLinkHint : undefined}

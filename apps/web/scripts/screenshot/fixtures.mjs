@@ -111,23 +111,34 @@ export const ARTWORKS = [
 		withValues(
 			withValues(
 				withValues(
-					artwork(1, 'Mona Lisa', ['Leonardo da Vinci'], 1503, 'early_modern', {
-						...commonsImage('Mona_Lisa.jpg'),
-						year_approximate: true,
-						notes:
-							'Sample note about the sfumato technique, see [Leonardo da Vinci](/atelier/values/author/author-leonardo-da-vinci) and compare [#0009 The Birth of Venus](/atelier/9).'
-					}),
-					'period',
-					['Renaissance']
+					withValues(
+						artwork(1, 'Mona Lisa', ['Leonardo da Vinci'], 1503, 'early_modern', {
+							...commonsImage('Mona_Lisa.jpg'),
+							year_approximate: true,
+							notes:
+								'Sample note about the sfumato technique, see [Leonardo da Vinci](/atelier/values/author/author-leonardo-da-vinci) and compare [#0009 The Birth of Venus](/atelier/9).',
+							artwork_field_entries: [
+								{
+									field_id: '00000000-0000-4000-8000-000000000403',
+									text_value: 'Gombrich, s. 300'
+								},
+								{ field_id: '00000000-0000-4000-8000-000000000404', text_value: null }
+							]
+						}),
+						'period',
+						['Renaissance']
+					),
+					'style',
+					['High Renaissance']
 				),
-				'style',
-				['High Renaissance']
+				'material',
+				['Oil on poplar']
 			),
-			'material',
-			['Oil on poplar']
+			'location',
+			['Louvre']
 		),
-		'location',
-		['Louvre']
+		'00000000-0000-4000-8000-000000000402',
+		['portret', 'pejzaż']
 	),
 	artwork(2, 'The Starry Night', ['Vincent van Gogh'], 1889, 'modern', {
 		...commonsImage('The_Starry_Night.jpg')
@@ -840,3 +851,55 @@ const ADJECTIVE_ROWS = [
 export const WIKTIONARY_TABLES = {
 	krzyżowy: `<table class="wikitable odmiana adj"><tr><th rowspan="2">[[przypadek]]</th><th colspan="4">liczba pojedyncza</th><th colspan="2">liczba mnoga</th></tr><tr><td class="forma">mos/mzw</td><td class="forma">mrz</td><td class="forma">ż</td><td class="forma">n</td><td class="forma">mos</td><td class="forma">nmos</td></tr>${ADJECTIVE_ROWS.map(([label, cells]) => `<tr><td class="forma">[[${label}]]</td>${cells}</tr>`).join('')}</table>`
 };
+
+export const OWN_FIELDS = [
+	{
+		id: '00000000-0000-4000-8000-000000000401',
+		name: 'Wykład',
+		description: null,
+		kind: 'list',
+		multiple: false
+	},
+	{
+		id: '00000000-0000-4000-8000-000000000402',
+		name: 'Motywy',
+		description: 'Co przedstawia dzieło',
+		kind: 'list',
+		multiple: true
+	},
+	{
+		id: '00000000-0000-4000-8000-000000000403',
+		name: 'Źródło',
+		description: 'Podręcznik i strona',
+		kind: 'text',
+		multiple: false
+	},
+	{
+		id: '00000000-0000-4000-8000-000000000404',
+		name: 'Widziane na żywo',
+		description: null,
+		kind: 'flag',
+		multiple: false
+	}
+];
+
+export const OWN_VALUE_USAGE = [
+	['00000000-0000-4000-8000-000000000401', 'Sztuka renesansu', 3],
+	['00000000-0000-4000-8000-000000000401', 'Barok – ćwiczenia', 2],
+	['00000000-0000-4000-8000-000000000402', 'portret', 2],
+	['00000000-0000-4000-8000-000000000402', 'pejzaż', 1],
+	['00000000-0000-4000-8000-000000000402', 'Aniol', 1],
+	['00000000-0000-4000-8000-000000000402', 'Anioł', 2]
+].map(([field, name, count], index) => ({
+	id: `00000000-0000-4000-8000-0000000005${String(index).padStart(2, '0')}`,
+	category_code: field,
+	name,
+	artwork_count: count
+}));
+
+export const OWN_FIELD_USAGE = [
+	{ field_id: '00000000-0000-4000-8000-000000000401', artwork_count: 5 },
+	{ field_id: '00000000-0000-4000-8000-000000000402', artwork_count: 4 },
+	{ field_id: '00000000-0000-4000-8000-000000000403', artwork_count: 2 },
+	{ field_id: '00000000-0000-4000-8000-000000000404', artwork_count: 3 }
+];

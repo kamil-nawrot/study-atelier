@@ -10,15 +10,15 @@ function click(): MouseEvent {
 }
 
 describe('goBackThroughHistory', () => {
-	const back = vi.spyOn(history, 'back');
+	const go = vi.spyOn(history, 'go');
 
 	beforeEach(() => {
 		navigation.to = null;
-		back.mockReset().mockImplementation(() => undefined);
+		go.mockReset().mockImplementation(() => undefined);
 	});
 
 	afterEach(() => {
-		back.mockReset();
+		go.mockReset();
 	});
 
 	it('goes back through history when the learner came from the app', () => {
@@ -26,8 +26,14 @@ describe('goBackThroughHistory', () => {
 
 		goBackThroughHistory(event, true);
 
-		expect(back).toHaveBeenCalledTimes(1);
+		expect(go).toHaveBeenCalledExactlyOnceWith(-1);
 		expect(event.defaultPrevented).toBe(true);
+	});
+
+	it('goes back past the replaced entry of a saved form', () => {
+		goBackThroughHistory(click(), true, 2);
+
+		expect(go).toHaveBeenCalledExactlyOnceWith(-2);
 	});
 
 	it('leaves the link to navigate when the learner did not come from the app', () => {
@@ -35,7 +41,7 @@ describe('goBackThroughHistory', () => {
 
 		goBackThroughHistory(event, false);
 
-		expect(back).not.toHaveBeenCalled();
+		expect(go).not.toHaveBeenCalled();
 		expect(event.defaultPrevented).toBe(false);
 	});
 
@@ -45,7 +51,7 @@ describe('goBackThroughHistory', () => {
 
 		goBackThroughHistory(event, true);
 
-		expect(back).not.toHaveBeenCalled();
+		expect(go).not.toHaveBeenCalled();
 		expect(event.defaultPrevented).toBe(true);
 	});
 });

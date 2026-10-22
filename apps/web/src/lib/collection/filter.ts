@@ -2,6 +2,7 @@ import { ARTWORK_TYPE_CODES } from './artwork-types.ts';
 import { authorSortKeys, sortKeyOf } from './author-sort.ts';
 import { ERA_CODES, eraName, isEraCode } from './eras.ts';
 import { m } from '#lib/i18n/index.ts';
+import { normalizeForSearch } from './search.ts';
 import type {
 	ArtworkTypeCode,
 	CollectionFilter,
@@ -10,9 +11,12 @@ import type {
 	FilterOption,
 	FilterTag,
 	MissingData,
+	OwnFieldDefinition,
 	TagParts,
 	WallArtwork
 } from './types.ts';
+
+type FilterSkip = FilterField | `own:${string}` | `ownText:${string}` | 'ticked';
 
 export const UNKNOWN_AUTHOR = '';
 
@@ -48,9 +52,12 @@ const PARAMS: Record<FilterField, string> = {
 	favourites: 'favourites'
 };
 
-type Params = Pick<URLSearchParams, 'get' | 'getAll' | 'has'>;
+type Params = Pick<URLSearchParams, 'get' | 'getAll' | 'has' | 'keys'>;
 
 const UNKNOWN_AUTHOR_PARAM = 'unknown-author';
+const OWN_PARAM_PREFIX = 'field.';
+const OWN_TEXT_PARAM_PREFIX = 'text.';
+const TICKED_PARAM = 'ticked';
 const FLAG_ON = '1';
 const RANGE_SEPARATOR = '..';
 
@@ -67,8 +74,19 @@ export function emptyFilter(): CollectionFilter {
 		styles: [],
 		materials: [],
 		locations: [],
-		missing: []
+		missing: [],
+		own: {},
+		ownTexts: {},
+		ticked: []
 	};
+}
+
+function hasOwnChoice(filter: CollectionFilter): boolean {
+	return (
+		Object.values(filter.own).some((values) => values.length > 0) ||
+		Object.values(filter.ownTexts).some((text) => text.trim() !== '') ||
+		filter.ticked.length > 0
+	);
 }
 
 function hasYears(filter: CollectionFilter): boolean {
@@ -83,7 +101,35 @@ function hasChoice(filter: CollectionFilter, field: FilterField): boolean {
 }
 
 export function isEmptyFilter(filter: CollectionFilter): boolean {
-	return FILTER_FIELDS.every((field) => !hasChoice(filter, field));
+	return FILTER_FIELDS.every((field) => !hasChoice(filter, field)) && !hasOwnChoice(filter);
+}
+
+const searchTerms = new Map<string, string>();
+
+function searchTerm(text: string): string {
+	let term = searchTerms.get(text);
+	if (term === undefined) {
+		if (searchTerms.size > 50) searchTerms.clear();
+		term = normalizeForSearch(text);
+		searchTerms.set(text, term);
+	}
+	return term;
+}
+
+function ownMatches(artwork: WallArtwork, filter: CollectionFilter, skip?: FilterSkip): boolean {
+	const listsMatch = Object.entries(filter.own).every(([id, chosen]) => {
+		if (chosen.length === 0 || skip === `own:${id}`) return true;
+		const entry = artwork.own?.[id];
+		return Array.isArray(entry) && entry.some((value) => chosen.includes(value));
+	});
+	const textsMatch = Object.entries(filter.ownTexts).every(([id, text]) => {
+		const term = searchTerm(text);
+		if (!term || skip === `ownText:${id}`) return true;
+		const entry = artwork.own?.[id];
+		return typeof entry === 'string' && normalizeForSearch(entry).includes(term);
+	});
+	const ticksMatch = skip === 'ticked' || filter.ticked.every((id) => artwork.own?.[id] === true);
+	return listsMatch && textsMatch && ticksMatch;
 }
 
 function missingOf(artwork: WallArtwork): MissingData[] {
@@ -127,10 +173,12 @@ function fieldMatches(artwork: WallArtwork, filter: CollectionFilter, field: Fil
 export function matchesFilter(
 	artwork: WallArtwork,
 	filter: CollectionFilter,
-	skip?: FilterField
+	skip?: FilterSkip
 ): boolean {
-	return FILTER_FIELDS.every(
-		(field) => field === skip || !hasChoice(filter, field) || fieldMatches(artwork, filter, field)
+	return (
+		FILTER_FIELDS.every(
+			(field) => field === skip || !hasChoice(filter, field) || fieldMatches(artwork, filter, field)
+		) && ownMatches(artwork, filter, skip)
 	);
 }
 
@@ -174,6 +222,71 @@ export function filterOptions(
 	});
 }
 
+function byCountAndName(a: FilterOption, b: FilterOption): number {
+	return b.count - a.count || NAME_COLLATOR.compare(a.value, b.value);
+}
+
+export function ownFilterOptions(
+	artworks: WallArtwork[],
+	filter: CollectionFilter,
+	fieldId: string
+): FilterOption[] {
+	const counts = new Map<string, number>();
+	for (const artwork of artworks) {
+		const entry = artwork.own?.[fieldId];
+		if (!Array.isArray(entry) || !matchesFilter(artwork, filter, `own:${fieldId}`)) continue;
+		for (const value of entry) counts.set(value, (counts.get(value) ?? 0) + 1);
+	}
+	for (const value of filter.own[fieldId] ?? []) counts.set(value, counts.get(value) ?? 0);
+	return [...counts].map(([value, count]) => ({ value, count })).sort(byCountAndName);
+}
+
+export function tickedOptions(
+	artworks: WallArtwork[],
+	filter: CollectionFilter,
+	fields: readonly OwnFieldDefinition[]
+): FilterOption[] {
+	return fields.flatMap((field) => {
+		if (field.kind !== 'flag') return [];
+		const others = { ...filter, ticked: filter.ticked.filter((id) => id !== field.id) };
+		const count = artworks.filter(
+			(artwork) => artwork.own?.[field.id] === true && matchesFilter(artwork, others)
+		).length;
+		return count > 0 || filter.ticked.includes(field.id) ? [{ value: field.id, count }] : [];
+	});
+}
+
+export function hasOwnText(artworks: WallArtwork[], fieldId: string): boolean {
+	return artworks.some((artwork) => typeof artwork.own?.[fieldId] === 'string');
+}
+
+export function toggleOwnValue(
+	filter: CollectionFilter,
+	fieldId: string,
+	value: string
+): CollectionFilter {
+	const current = filter.own[fieldId] ?? [];
+	const next = current.includes(value)
+		? current.filter((item) => item !== value)
+		: [...current, value];
+	return { ...filter, own: { ...filter.own, [fieldId]: next } };
+}
+
+export function setOwnText(
+	filter: CollectionFilter,
+	fieldId: string,
+	text: string
+): CollectionFilter {
+	return { ...filter, ownTexts: { ...filter.ownTexts, [fieldId]: text } };
+}
+
+export function toggleTicked(filter: CollectionFilter, fieldId: string): CollectionFilter {
+	const ticked = filter.ticked.includes(fieldId)
+		? filter.ticked.filter((id) => id !== fieldId)
+		: [...filter.ticked, fieldId];
+	return { ...filter, ticked };
+}
+
 export function favouriteCount(artworks: WallArtwork[], filter: CollectionFilter): number {
 	return artworks.filter(
 		(artwork) => artwork.favourite && matchesFilter(artwork, filter, 'favourites')
@@ -187,7 +300,8 @@ export function toggleFavourites(filter: CollectionFilter): CollectionFilter {
 export function onlyFavourites(filter: CollectionFilter): boolean {
 	return (
 		filter.favourites &&
-		FILTER_FIELDS.every((field) => field === 'favourites' || !hasChoice(filter, field))
+		FILTER_FIELDS.every((field) => field === 'favourites' || !hasChoice(filter, field)) &&
+		!hasOwnChoice(filter)
 	);
 }
 
@@ -221,9 +335,34 @@ export function clearField(filter: CollectionFilter, field: FilterField): Collec
 	return { ...filter, [field]: empty[field] };
 }
 
-export function filterTags(filter: CollectionFilter): FilterTag[] {
+function ownTags(filter: CollectionFilter, fields: readonly OwnFieldDefinition[]): FilterTag[] {
+	const names = new Map(fields.map((field) => [field.id, field.name]));
+	const nameOf = (id: string): string => names.get(id) ?? m.atelier.filters.ownField;
+	const tag = (field: 'own' | 'ownText' | 'ticked', id: string, value: string): FilterTag => ({
+		id: `${field}:${id}${field === 'own' ? `:${value}` : ''}`,
+		field,
+		fieldId: id,
+		value,
+		parts: { field: nameOf(id), value }
+	});
+	return [
+		...Object.entries(filter.own).flatMap(([id, values]) =>
+			values.map((value) => tag('own', id, value))
+		),
+		...Object.entries(filter.ownTexts).flatMap(([id, text]) =>
+			text.trim() ? [tag('ownText', id, text.trim())] : []
+		),
+		...filter.ticked.map((id) => tag('ticked', id, ''))
+	];
+}
+
+export function filterTags(
+	filter: CollectionFilter,
+	fields: readonly OwnFieldDefinition[] = []
+): FilterTag[] {
 	const tags: FilterTag[] = [];
 	for (const field of FILTER_FIELDS) {
+		if (field === 'missing') tags.push(...ownTags(filter, fields));
 		if (field === 'years') {
 			if (hasYears(filter))
 				tags.push({ id: 'years', field, value: yearsParam(filter.yearFrom, filter.yearTo) });
@@ -240,6 +379,9 @@ export function filterTags(filter: CollectionFilter): FilterTag[] {
 }
 
 export function removeTag(filter: CollectionFilter, tag: FilterTag): CollectionFilter {
+	if (tag.field === 'own') return toggleOwnValue(filter, tag.fieldId ?? '', tag.value);
+	if (tag.field === 'ownText') return setOwnText(filter, tag.fieldId ?? '', '');
+	if (tag.field === 'ticked') return toggleTicked(filter, tag.fieldId ?? '');
 	if (tag.field === 'years' || tag.field === 'favourites') return clearField(filter, tag.field);
 	return toggleValue(filter, tag.field, tag.value);
 }
@@ -252,6 +394,10 @@ export function optionLabel(field: ValueField, value: string): string {
 }
 
 export function tagParts(tag: FilterTag): TagParts {
+	if (tag.parts) return tag.parts;
+	if (tag.field === 'own' || tag.field === 'ownText' || tag.field === 'ticked') {
+		return { field: '', value: tag.value };
+	}
 	const field = m.atelier.filters.tagFields[tag.field];
 	if (tag.field === 'favourites') return { field, value: '' };
 	if (tag.field !== 'years') return { field, value: optionLabel(tag.field, tag.value) };
@@ -297,6 +443,13 @@ export function filterToParams(filter: CollectionFilter): URLSearchParams {
 		}
 		for (const value of filter[field]) params.append(PARAMS[field], value);
 	}
+	for (const [id, values] of Object.entries(filter.own)) {
+		for (const value of values) params.append(`${OWN_PARAM_PREFIX}${id}`, value);
+	}
+	for (const [id, text] of Object.entries(filter.ownTexts)) {
+		if (text.trim()) params.set(`${OWN_TEXT_PARAM_PREFIX}${id}`, text);
+	}
+	for (const id of filter.ticked) params.append(TICKED_PARAM, id);
 	if (filter.unknownAuthor) params.set(UNKNOWN_AUTHOR_PARAM, FLAG_ON);
 	return params;
 }
@@ -323,15 +476,57 @@ export function filterFromParams(params: Params): CollectionFilter {
 		locations: uniqueValues(params, PARAMS.locations),
 		missing: uniqueValues(params, PARAMS.missing).filter((value): value is MissingData =>
 			MISSING_DATA.includes(value as MissingData)
-		)
+		),
+		...ownFromParams(params)
 	};
 }
 
-export function pruneFilter(filter: CollectionFilter, artworks: WallArtwork[]): CollectionFilter {
+function ownFromParams(params: Params): Pick<CollectionFilter, 'own' | 'ownTexts' | 'ticked'> {
+	const own: Record<string, string[]> = {};
+	const ownTexts: Record<string, string> = {};
+	for (const name of new Set(params.keys())) {
+		if (name.startsWith(OWN_PARAM_PREFIX)) {
+			own[name.slice(OWN_PARAM_PREFIX.length)] = uniqueValues(params, name);
+		} else if (name.startsWith(OWN_TEXT_PARAM_PREFIX)) {
+			ownTexts[name.slice(OWN_TEXT_PARAM_PREFIX.length)] = params.get(name) ?? '';
+		}
+	}
+	return { own, ownTexts, ticked: uniqueValues(params, TICKED_PARAM) };
+}
+
+export function pruneFilter(
+	filter: CollectionFilter,
+	artworks: WallArtwork[],
+	fields?: readonly OwnFieldDefinition[]
+): CollectionFilter {
 	const pruned = { ...filter };
 	for (const field of NAME_FIELDS) {
 		const existing = new Set(artworks.flatMap((artwork) => valuesOf(artwork, field)));
 		pruned[field] = filter[field].filter((value) => existing.has(value));
 	}
+	if (!fields) return pruned;
+	const ofKind = (kind: OwnFieldDefinition['kind']): Set<string> =>
+		new Set(fields.filter((field) => field.kind === kind).map((field) => field.id));
+	const lists = ofKind('list');
+	const texts = ofKind('text');
+	const flags = ofKind('flag');
+	pruned.own = Object.fromEntries(
+		Object.entries(filter.own)
+			.filter(([id]) => lists.has(id))
+			.map(([id, values]) => {
+				const existing = new Set(
+					artworks.flatMap((artwork) => {
+						const entry = artwork.own?.[id];
+						return Array.isArray(entry) ? entry : [];
+					})
+				);
+				return [id, values.filter((value) => existing.has(value))];
+			})
+			.filter(([, values]) => values.length > 0)
+	);
+	pruned.ownTexts = Object.fromEntries(
+		Object.entries(filter.ownTexts).filter(([id]) => texts.has(id))
+	);
+	pruned.ticked = filter.ticked.filter((id) => flags.has(id));
 	return pruned;
 }

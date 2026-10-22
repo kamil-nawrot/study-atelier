@@ -4,7 +4,7 @@ import { render } from 'vitest-browser-svelte';
 import { goto, invalidateAll } from '$app/navigation';
 import { refreshExpiredImages } from '#lib/collection/artworks.ts';
 import { setFavourite } from '#lib/collection/favourite.ts';
-import type { WallArtwork } from '#lib/collection/types.ts';
+import type { OwnFieldDefinition, WallArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
@@ -43,8 +43,15 @@ const artworks = [
 	testArtwork(1, 'Night Watch', { image: undefined })
 ];
 
-function renderAtelier(list: WallArtwork[] = artworks, error?: string): void {
-	render(AtelierPage, { data: { session: testSession(), artworks: list, error }, params: {} });
+function renderAtelier(
+	list: WallArtwork[] = artworks,
+	error?: string,
+	ownFields: OwnFieldDefinition[] = []
+): void {
+	render(AtelierPage, {
+		data: { session: testSession(), artworks: list, error, ownFields },
+		params: {}
+	});
 }
 
 const dated = [
@@ -437,7 +444,7 @@ describe('atelier page', () => {
 
 		it('remembers the order on the device', async () => {
 			const view = await render(AtelierPage, {
-				data: { session: testSession(), artworks: dated },
+				data: { session: testSession(), artworks: dated, ownFields: [] },
 				params: {}
 			});
 			await userEvent.selectOptions(orderSelect(), m.atelier.sort.year);
@@ -639,7 +646,7 @@ describe('atelier page', () => {
 
 		it('remembers the order on the device', async () => {
 			const view = await render(AtelierPage, {
-				data: { session: testSession(), artworks: byAuthors },
+				data: { session: testSession(), artworks: byAuthors, ownFields: [] },
 				params: {}
 			});
 			await userEvent.selectOptions(orderSelect(), m.atelier.sort.author);
@@ -936,6 +943,18 @@ describe('atelier page', () => {
 					.toBeVisible();
 				await expect.element(orderSelect()).toBeVisible();
 				await expect.element(eraTile('modern')).toBeVisible();
+			});
+
+			it('keeps the view dialog within the width of the screen', async () => {
+				renderAtelier(styled);
+				await page.getByRole('button', { name: m.atelier.filters.viewButton }).click();
+				await expect.element(orderSelect()).toBeVisible();
+
+				const body = page
+					.getByRole('dialog', { name: m.atelier.filters.viewTitle })
+					.element()
+					.querySelector('.body');
+				expect(body?.scrollWidth).toBe(body?.clientWidth);
 			});
 
 			it('shows how many artworks the filters leave and closes with that button', async () => {

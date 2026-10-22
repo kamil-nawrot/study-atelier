@@ -172,7 +172,8 @@
 	$effect.pre(() => {
 		const pruned = pruneFilter(
 			untrack(() => filter),
-			data.artworks
+			data.artworks,
+			data.ownFields
 		);
 		if (filterToParams(pruned).toString() !== untrack(() => filterToParams(filter).toString()))
 			filter = pruned;
@@ -200,7 +201,7 @@
 	);
 	let imagesUnavailable = $derived(artworks.some((artwork) => artwork.imageUnavailable));
 	let filtered = $derived(applyFilter(artworks, filter));
-	let tags = $derived(filterTags(filter));
+	let tags = $derived(filterTags(filter, data.ownFields));
 	let filtering = $derived(!isEmptyFilter(filter));
 	let matching = $derived(filterByTitleOrAuthor(filtered, query));
 	let grouped = $derived(grouping !== 'none');
@@ -258,7 +259,8 @@
 		grouping = groupingFromParams(page.url.searchParams);
 		filter = pruneFilter(
 			filterFromParams(page.url.searchParams),
-			untrack(() => artworks)
+			untrack(() => artworks),
+			data.ownFields
 		);
 	});
 
@@ -357,7 +359,7 @@
 				summary={m.atelier.filteredCount(shown.length, total)}
 				bind:open={panelOpen}
 			>
-				<FilterPanel {artworks} bind:filter />
+				<FilterPanel {artworks} ownFields={data.ownFields} bind:filter />
 			</FilterSidePanel>
 		{/if}
 	{/snippet}
@@ -496,7 +498,7 @@
 				bind:value={() => order, chooseOrder}
 			/>
 			{@render groupingChoice()}
-			<FilterPanel {artworks} bind:filter />
+			<FilterPanel {artworks} ownFields={data.ownFields} bind:filter />
 		</div>
 		{#snippet footer()}
 			<Button disabled={!filtering} onclick={() => (filter = emptyFilter())}>
@@ -587,6 +589,11 @@
 
 	.view {
 		display: grid;
+		grid-template-columns: minmax(0, 1fr);
 		gap: var(--spacing-8);
+	}
+
+	.view .grouping-panel {
+		width: auto;
 	}
 </style>

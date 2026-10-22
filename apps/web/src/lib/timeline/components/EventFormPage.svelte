@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { BackHeading, LoadFailure } from '@study-atelier/ui';
+	import { LoadFailure } from '@study-atelier/ui';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import { goBackThroughHistory } from '#lib/collection/history.ts';
 	import { m } from '#lib/i18n/index.ts';
+	import BackLink from '#lib/navigation/components/BackLink.svelte';
 	import type { TimelineEventDraft, TimelineEventResult } from '../types.ts';
 	import EventForm from './EventForm.svelte';
 
@@ -53,7 +54,8 @@
 	title={data.notFound ? m.timeline.form.notFoundTitle : title}
 >
 	{#snippet bar()}
-		<BackHeading backLabel={m.timeline.form.goBack} href={timelinePath} onclick={goBack} {title} />
+		<BackLink fallbackHref={timelinePath} fallbackName={m.timeline.title} />
+		<h1 class="visually-hidden">{title}</h1>
 	{/snippet}
 
 	{#if failed}

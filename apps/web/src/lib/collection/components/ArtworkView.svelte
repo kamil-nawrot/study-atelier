@@ -25,7 +25,7 @@
 	import { artworkPanelOpen, rememberArtworkPanel } from '../artwork-panel.ts';
 	import { FLIP_DIRECTIONS, swipe } from '../flip.ts';
 	import type { Mention } from '../mentions.ts';
-	import type { ArtworkRecord, FlipDirection, ValueKind } from '../types.ts';
+	import type { ArtworkRecord, FlipDirection, OwnFieldDefinition, ValueKind } from '../types.ts';
 	import { valueKindName } from '../value-pages.ts';
 	import {
 		emptyValueSummaries,
@@ -44,6 +44,7 @@
 		glossary?: GlossaryEntry[];
 		mentions?: Mention[];
 		summaries?: ValueSummaries;
+		ownFields?: OwnFieldDefinition[];
 		flipLinks?: Record<FlipDirection, ResolvedPathname | null>;
 		onflip?: (direction: FlipDirection) => void;
 	};
@@ -56,6 +57,7 @@
 		glossary,
 		mentions = [],
 		summaries = emptyValueSummaries(),
+		ownFields = [],
 		onflip
 	}: Props = $props();
 
@@ -91,8 +93,17 @@
 			artwork.yearApproximate
 		)
 	);
+
+	type ViewField = {
+		label: string;
+		values: string[];
+		tags: boolean;
+		kind?: ValueKind;
+		icon?: LucideIcon;
+	};
+
 	let alt = $derived(`${artwork.title}, ${authors}`);
-	let fields = $derived([
+	let fields = $derived<ViewField[]>([
 		{
 			label: m.artworkForm.type,
 			values: artwork.typeCode ? [m.artworkTypes[artwork.typeCode]] : [],
@@ -119,14 +130,16 @@
 			values: artwork.location ? [artwork.location] : [],
 			tags: true,
 			kind: 'location'
-		}
-	] satisfies {
-		label: string;
-		values: string[];
-		tags: boolean;
-		kind?: ValueKind;
-		icon?: LucideIcon;
-	}[]);
+		},
+		...ownFields.flatMap((field) => {
+			const entry = artwork.own?.[field.id];
+			if (Array.isArray(entry)) {
+				return entry.length > 0 ? [{ label: field.name, values: entry, tags: true }] : [];
+			}
+			const text = entry === true ? m.ownFields.ticked : (entry || '').trim();
+			return text ? [{ label: field.name, values: [text], tags: false }] : [];
+		})
+	]);
 
 	function summaryOf(kind: ValueKind, name: string): ValueSummary | undefined {
 		if (kind === 'era') return artwork.eraCode ? summaries.eras[artwork.eraCode] : undefined;

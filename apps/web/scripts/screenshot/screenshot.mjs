@@ -7,6 +7,9 @@ import {
 	ARTWORKS,
 	CATALOGUE_MUSEUMS,
 	GLOSSARY_ENTRIES,
+	OWN_FIELD_USAGE,
+	OWN_FIELDS,
+	OWN_VALUE_USAGE,
 	ARTWORK_SEARCH,
 	PEOPLE,
 	PERIOD_ERA_USAGE,
@@ -307,7 +310,24 @@ async function mockSupabase(context) {
 			return json(route, { ...fakeSession(), user: USER });
 		}
 		if (url.pathname.startsWith('/storage/v1/')) return json(route, []);
-		if (url.pathname === '/rest/v1/rpc/value_usage') return json(route, VALUE_USAGE);
+		if (url.pathname === '/rest/v1/rpc/value_usage') {
+			const codes = url.searchParams.get('category_code');
+			return json(
+				route,
+				codes
+					? OWN_VALUE_USAGE.filter((row) => codes.includes(row.category_code))
+					: [
+							...VALUE_USAGE.filter(
+								(row) => !OWN_FIELDS.some((field) => field.id === row.category_code)
+							),
+							...OWN_VALUE_USAGE
+						]
+			);
+		}
+		if (url.pathname === '/rest/v1/rpc/artwork_field_usage') return json(route, OWN_FIELD_USAGE);
+		if (url.pathname === '/rest/v1/artwork_fields' && request.method() === 'GET') {
+			return json(route, OWN_FIELDS);
+		}
 		if (url.pathname === '/rest/v1/rpc/period_era_usage') return json(route, PERIOD_ERA_USAGE);
 		if (url.pathname === '/rest/v1/rpc/style_period_usage') return json(route, STYLE_PERIOD_USAGE);
 		if (url.pathname === '/rest/v1/rpc/review_counts') {

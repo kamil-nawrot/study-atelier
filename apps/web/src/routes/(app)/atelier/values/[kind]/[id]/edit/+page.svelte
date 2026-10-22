@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BackHeading, LoadFailure } from '@study-atelier/ui';
+	import { LoadFailure } from '@study-atelier/ui';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import type { ResolvedPathname } from '$app/types';
@@ -8,6 +8,7 @@
 	import { goBackThroughHistory } from '#lib/collection/history.ts';
 	import { subjectName, subjectPath } from '#lib/collection/value-pages.ts';
 	import { m } from '#lib/i18n/index.ts';
+	import BackLink from '#lib/navigation/components/BackLink.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -51,7 +52,11 @@
 	{title}
 >
 	{#snippet bar()}
-		<BackHeading backLabel={m.valueForm.goBack} href={backPath} onclick={goBack} {title} />
+		<BackLink
+			fallbackHref={backPath}
+			fallbackName={subject ? subjectName(subject) : m.valuePage.back}
+		/>
+		<h1 class="visually-hidden">{title}</h1>
 	{/snippet}
 
 	{#if subject}

@@ -18,6 +18,10 @@
 	<TextButton inline>Wybierz inny artykuł</TextButton>
 </Story>
 
+<Story name="Danger">
+	<TextButton danger>Delete</TextButton>
+</Story>
+
 <Story name="Disabled">
 	<TextButton disabled>Collapse all</TextButton>
 </Story>

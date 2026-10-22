@@ -48,7 +48,7 @@ Every exported component has a row here; a pull request that adds a component ad
 | Component      | Purpose                                                                                                                                                                                                   |
 | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Button`       | Outline button with a heavier bottom edge; `primary` is filled, one per view; `danger` for deletes; a link with `href`; `icon`, and `compact` shows only the icon on a phone and requires an `aria-label` |
-| `TextButton`   | Small underlined text action without a frame, read as part of a line ("Wyczyść filtry", "Zwiń wszystkie"); `inline` drops the inline padding for a column of texts                                        |
+| `TextButton`   | Small underlined text action without a frame, read as part of a line ("Wyczyść filtry", "Zwiń wszystkie"); `inline` drops the inline padding for a column of texts, `danger` colours a delete             |
 | `Form`         | Form without browser validation; focuses the first invalid field on submit                                                                                                                                |
 | `FormActions`  | Bar fixed to the bottom of the screen with a form's actions                                                                                                                                               |
 | `TextField`    | Labelled input with hint, error, password reveal and an `action` button beside the input                                                                                                                  |
@@ -77,7 +77,7 @@ Every exported component has a row here; a pull request that adds a component ad
 | `Dialog`        | Modal over the scrim with title, body and footer actions; full screen on a phone; `small` for confirmations  |
 | `Popover`       | Text-like trigger that opens a card on click, hover or focus                                                 |
 | `PopoverCard`   | The card of a `Popover` or of a glossary term in notes; `interactive` holds a link                           |
-| `PopupButton`   | Button that opens a panel under it (role `dialog`), closed by a click outside or Escape; optional tooltip    |
+| `PopupButton`   | Button that opens a panel under it (role `dialog`), closed by a click outside, Escape or `close()`           |
 | `Tooltip`       | One short line above, below or to the left of a control, on hover and keyboard focus                         |
 | `LoadingScreen` | Full-screen first load: the logo mark with strokes in its window                                             |
 | `ProgressLine`  | Thin stroke along the bottom of the top bar while a navigation loads                                         |
@@ -88,9 +88,8 @@ Every exported component has a row here; a pull request that adds a component ad
 | Component       | Purpose                                                                                                                                                      |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `Section`       | Text section with a heavy left edge (spine)                                                                                                                  |
-| `BackHeading`   | A form page's heading in the top bar: an arrow back and a small `h1` title                                                                                   |
 | `Disclosure`    | Collapsible group with a heading, a count and a chevron (native `details`); `muted`, `plain`, `lazy`                                                         |
-| `Tabs`          | Row of text tabs under a hairline that switch what a view lists                                                                                              |
+| `Tabs`          | Row of text tabs under a hairline that switch what a view lists; a tab with `end` stands at the right edge                                                   |
 | `Tag`           | Flat tag with `#` prefix; optional remove button                                                                                                             |
 | `Count`         | Number in a small filled box; `outlined` is the muted form                                                                                                   |
 | `Notes`         | Read-only notes from Markdown, with links to values and artworks and marked glossary terms                                                                   |

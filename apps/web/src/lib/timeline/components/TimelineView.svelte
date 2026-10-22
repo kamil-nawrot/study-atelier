@@ -164,9 +164,6 @@
 	);
 
 	let atReading = $derived(now.length > 0 || nowArtworks.length > 0);
-	let nowText = $derived(
-		atReading ? m.timeline.now(m.atelier.year(readingYear, false), nowParts) : ''
-	);
 	let spokenText = $derived(
 		atReading
 			? m.timeline.now(m.atelier.year(readingYear, false), [
@@ -416,7 +413,6 @@
 		{tags}
 	/>
 
-	<p class="now" aria-hidden="true">{nowText}</p>
 	<p class="visually-hidden" aria-live="polite">{spoken}</p>
 
 	<div bind:clientWidth={width}>
@@ -581,12 +577,6 @@
 
 	.title:hover cite {
 		text-decoration: underline;
-	}
-
-	.now {
-		min-height: var(--line-height-md);
-		color: var(--color-fg-muted);
-		font-variant-numeric: tabular-nums;
 	}
 
 	.controls {

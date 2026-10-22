@@ -1,4 +1,5 @@
-import type { ArtworkValueRow, CategoryCode } from './types.ts';
+import { isCategoryCode } from './category-values.ts';
+import type { ArtworkValueRow, FieldEntryRow, OwnEntries } from './types.ts';
 
 export function authorSortNamesOf(rows: ArtworkValueRow[]): (string | null)[] {
 	return rows
@@ -16,7 +17,7 @@ export function authorSortNamesOf(rows: ArtworkValueRow[]): (string | null)[] {
 		.map((value) => value.sortName);
 }
 
-export function valuesOf(rows: ArtworkValueRow[], category: CategoryCode): string[] {
+export function valuesOf(rows: ArtworkValueRow[], category: string): string[] {
 	return rows
 		.flatMap((row) =>
 			row.category_values?.category_code === category
@@ -25,4 +26,17 @@ export function valuesOf(rows: ArtworkValueRow[], category: CategoryCode): strin
 		)
 		.sort((a, b) => a.position - b.position)
 		.map((value) => value.name);
+}
+
+export function ownEntriesOf(values: ArtworkValueRow[], entries: FieldEntryRow[] = []): OwnEntries {
+	const lists = new Set(
+		values.flatMap((value) => {
+			const code = value.category_values?.category_code;
+			return code && !isCategoryCode(code) ? [code] : [];
+		})
+	);
+	return {
+		...Object.fromEntries([...lists].map((code) => [code, valuesOf(values, code)])),
+		...Object.fromEntries(entries.map((entry) => [entry.field_id, entry.text_value ?? true]))
+	};
 }

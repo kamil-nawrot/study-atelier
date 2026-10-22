@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BackHeading, LoadFailure } from '@study-atelier/ui';
+	import { LoadFailure } from '@study-atelier/ui';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import ArtworkForm from '#lib/collection/components/ArtworkForm.svelte';
@@ -7,6 +7,7 @@
 	import { goBackThroughHistory } from '#lib/collection/history.ts';
 	import { formatRecordNumber, parseRecordNumber } from '#lib/collection/format.ts';
 	import { m } from '#lib/i18n/index.ts';
+	import BackLink from '#lib/navigation/components/BackLink.svelte';
 	import type { PageProps } from './$types';
 
 	let { data, params }: PageProps = $props();
@@ -46,7 +47,11 @@
 	{title}
 >
 	{#snippet bar()}
-		<BackHeading backLabel={m.artworkForm.goBack} href={artworkPath} onclick={goBack} {title} />
+		<BackLink
+			fallbackHref={data.artwork ? artworkPath : atelierPath}
+			fallbackName={data.artwork?.title ?? m.artworkView.back}
+		/>
+		<h1 class="visually-hidden">{title}</h1>
 	{/snippet}
 
 	{#if data.artwork}
@@ -59,6 +64,8 @@
 				noteLinks={data.noteLinks}
 				oncancel={goBack}
 				onsaved={showSaved}
+				ownFields={data.ownFields}
+				ownValues={data.ownValues}
 				placeStarter={data.placeStarter}
 				valueLinks={data.links}
 			/>

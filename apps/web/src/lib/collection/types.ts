@@ -42,6 +42,8 @@ export type ArtworkValueRow = {
 	} | null;
 };
 
+export type FieldEntryRow = { field_id: string; text_value: string | null };
+
 export type ImageSize = {
 	width: number;
 	height: number;
@@ -70,6 +72,7 @@ export type WallArtwork = {
 	location: string | null;
 	hasImage: boolean;
 	favourite: boolean;
+	own?: OwnEntries;
 	image?: ArtworkTileImage;
 	imageUnavailable?: boolean;
 	pendingImage?: PendingImage;
@@ -79,6 +82,7 @@ export type WallArtwork = {
 
 export type AtelierResult = {
 	artworks: WallArtwork[];
+	ownFields?: OwnFieldDefinition[];
 	error?: string;
 };
 
@@ -108,6 +112,7 @@ export type CategoryValues = Record<CategoryCode, string[]>;
 
 export type CategoryValuesResult = {
 	values: CategoryValues;
+	ownValues: Record<string, string[]>;
 	error?: string;
 };
 
@@ -177,6 +182,7 @@ export type ArtworkInput = {
 	notes: string;
 	image: ArtworkImageInput | null;
 	images: ArtworkImageInput[];
+	own?: OwnEntries;
 };
 
 export type ArtworkRecord = ArtworkInput & {
@@ -205,6 +211,7 @@ export type LoadArtworkResult = {
 	glossary?: GlossaryEntry[];
 	mentions?: Mention[];
 	summaries?: ValueSummaries;
+	ownFields?: OwnFieldDefinition[];
 	error?: string;
 	notFound?: boolean;
 };
@@ -225,6 +232,8 @@ export type ArtworkFormState = {
 	notes: string;
 	image: ArtworkImageInput | null;
 	images: (ArtworkImageInput | null)[];
+	own?: OwnEntries;
+	ownQueries: Record<string, string>;
 };
 
 export type CardIndexRecord = {
@@ -243,6 +252,7 @@ export type CardIndexData = {
 
 export type CardIndexResult = {
 	index: CardIndexData;
+	ownValues: OwnValue[];
 	error?: string;
 };
 
@@ -306,12 +316,19 @@ export type CollectionFilter = {
 	materials: string[];
 	locations: string[];
 	missing: MissingData[];
+	own: Record<string, string[]>;
+	ownTexts: Record<string, string>;
+	ticked: string[];
 };
+
+export type OwnFilterKind = 'own' | 'ownText' | 'ticked';
 
 export type FilterTag = {
 	id: string;
-	field: FilterField;
+	field: FilterField | OwnFilterKind;
 	value: string;
+	fieldId?: string;
+	parts?: TagParts;
 };
 
 export type TagParts = {
@@ -401,3 +418,52 @@ export type ImageFieldTexts = {
 	changeOwnTitle: string;
 	remove: string;
 };
+
+export type OwnFieldKind = 'text' | 'list' | 'flag';
+
+export type OwnValue = {
+	id: string;
+	fieldId: string;
+	name: string;
+	count: number;
+};
+
+export type OwnFieldDefinition = {
+	id: string;
+	name: string;
+	description: string | null;
+	kind: OwnFieldKind;
+	multiple: boolean;
+};
+
+export type OwnField = OwnFieldDefinition & {
+	count: number;
+	values: OwnValue[];
+};
+
+export type OwnEntry = string | string[] | boolean;
+
+export type OwnEntries = Record<string, OwnEntry>;
+
+export type OwnFieldDefinitionsResult = {
+	fields: OwnFieldDefinition[];
+	error?: string;
+};
+
+export type OwnFieldInput = {
+	name: string;
+	description: string;
+	kind: OwnFieldKind;
+	multiple: boolean;
+};
+
+export type OwnFieldsResult = {
+	fields: OwnField[];
+	error?: string;
+};
+
+export type OwnValueChange =
+	| { kind: 'unchanged' }
+	| { kind: 'empty' }
+	| { kind: 'rename'; name: string }
+	| { kind: 'merge'; target: OwnValue };

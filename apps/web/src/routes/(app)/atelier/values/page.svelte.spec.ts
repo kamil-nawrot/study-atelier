@@ -2,11 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
-import type { CardIndexData } from '#lib/collection/types.ts';
+import type { CardIndexData, OwnField } from '#lib/collection/types.ts';
 import { CARD_INDEX_SEARCH_MIN_VALUES } from '#lib/collection/card-index.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testCardIndex } from '#lib/testing/card-index.ts';
 import { testSession } from '#lib/testing/auth.ts';
+import { testOwnFields } from '#lib/testing/own-fields.ts';
 import ValuesPage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -16,11 +17,18 @@ const navigation = vi.hoisted(() => ({
 }));
 
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
-vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
+vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidateAll: vi.fn() }));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
-function renderValues(index: CardIndexData = testCardIndex(), error?: string): void {
-	render(ValuesPage, { data: { session: testSession(), index, error }, params: {} });
+function renderValues(
+	index: CardIndexData = testCardIndex(),
+	error?: string,
+	ownFields: OwnField[] = []
+): void {
+	render(ValuesPage, {
+		data: { session: testSession(), index, error, ownFields, ownFieldsError: undefined },
+		params: {}
+	});
 }
 
 function withMaterials(count: number): CardIndexData {
@@ -155,6 +163,37 @@ describe('card index page', () => {
 		expect(page.getByRole('searchbox').elements()).toHaveLength(0);
 	});
 
+	it('shows the learner own fields in their tab', async () => {
+		renderValues(testCardIndex(), undefined, testOwnFields());
+
+		await page.getByRole('tab', { name: m.cardIndex.tabs.own }).click();
+
+		await expect.element(page.getByRole('heading', { name: 'Motifs' })).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.ownFields.add })).toBeVisible();
+	});
+
+	it('keeps the other tabs and says so in its tab when the own fields could not be loaded', async () => {
+		render(ValuesPage, {
+			data: {
+				session: testSession(),
+				index: testCardIndex(),
+				error: undefined,
+				ownFields: [],
+				ownFieldsError: m.collectionErrors.network
+			},
+			params: {}
+		});
+
+		await page.getByRole('tab', { name: m.cardIndex.tabs.own }).click();
+
+		await expect.element(page.getByText(m.ownFields.loadErrorTitle)).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.ownFields.add }))
+			.not.toBeInTheDocument();
+		await page.getByRole('tab', { name: m.cardIndex.tabs.material }).click();
+		await expect.element(page.getByText(m.ownFields.loadErrorTitle)).not.toBeInTheDocument();
+	});
+
 	it('shows a loading error instead of the tabs', async () => {
 		renderValues(testCardIndex(), m.collectionErrors.network);
 
@@ -222,7 +261,13 @@ describe('card index page', () => {
 	it('keeps the tab and the search when the learner comes back', async () => {
 		const index = withMaterials(CARD_INDEX_SEARCH_MIN_VALUES);
 		const first = await render(ValuesPage, {
-			data: { session: testSession(), index },
+			data: {
+				session: testSession(),
+				index,
+				error: undefined,
+				ownFields: [],
+				ownFieldsError: undefined
+			},
 			params: {}
 		});
 		await page.getByRole('tab', { name: m.cardIndex.tabs.material }).click();
@@ -231,7 +276,13 @@ describe('card index page', () => {
 		first.unmount();
 
 		const second = await render(ValuesPage, {
-			data: { session: testSession(), index },
+			data: {
+				session: testSession(),
+				index,
+				error: undefined,
+				ownFields: [],
+				ownFieldsError: undefined
+			},
 			params: {}
 		});
 		second.component.snapshot.restore(saved);
@@ -246,7 +297,13 @@ describe('card index page', () => {
 
 	it('ignores a snapshot with a tab it does not know', async () => {
 		const shown = await render(ValuesPage, {
-			data: { session: testSession(), index: testCardIndex() },
+			data: {
+				session: testSession(),
+				index: testCardIndex(),
+				error: undefined,
+				ownFields: [],
+				ownFieldsError: undefined
+			},
 			params: {}
 		});
 

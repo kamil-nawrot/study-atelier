@@ -5,7 +5,7 @@ import { beforeNavigate, goto, invalidateAll } from '$app/navigation';
 import { emptyCategoryValues } from '#lib/collection/category-values.ts';
 import { emptyPlaceStarter } from '#lib/collection/place-starter.ts';
 import { emptyValueLinks } from '#lib/collection/value-links.ts';
-import type { PlaceStarter, ValueLinks } from '#lib/collection/types.ts';
+import type { OwnFieldDefinition, PlaceStarter, ValueLinks } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import {
 	IMAGES_BUCKET,
@@ -49,12 +49,16 @@ let screen: ReturnType<typeof render>;
 
 function renderPage(
 	links: ValueLinks = emptyValueLinks(),
-	placeStarter: PlaceStarter = emptyPlaceStarter()
+	placeStarter: PlaceStarter = emptyPlaceStarter(),
+	ownFields?: OwnFieldDefinition[],
+	ownValues: Record<string, string[]> = {}
 ): void {
 	screen = render(AddArtworkPage, {
 		data: {
 			session: testSession(),
 			values: emptyCategoryValues(),
+			ownValues,
+			ownFields,
 			links,
 			noteLinks: undefined,
 			placeStarter
@@ -274,8 +278,11 @@ describe('add artwork page', () => {
 			.element(page.getByRole('link', { name: m.artworkForm.cancel }))
 			.toHaveAttribute('href', '/atelier');
 		await expect
-			.element(page.getByRole('link', { name: m.artworkForm.back }))
+			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
 			.toHaveAttribute('href', '/atelier');
+		await expect
+			.element(page.getByRole('heading', { level: 1, name: m.artworkForm.newTitle }))
+			.toBeInTheDocument();
 	});
 
 	it('shows field errors on save and moves focus to the first one', async () => {
@@ -558,6 +565,49 @@ describe('add artwork page', () => {
 			existing_id: undefined,
 			extra_images: []
 		});
+	});
+
+	it('shows the own fields after the place and saves what the learner filled in', async () => {
+		const fields: OwnFieldDefinition[] = [
+			{ id: 'lecture', name: 'Lecture', description: null, kind: 'list', multiple: false },
+			{ id: 'source', name: 'Source', description: 'Book and page', kind: 'text', multiple: false },
+			{ id: 'seen', name: 'Seen in person', description: null, kind: 'flag', multiple: false }
+		];
+		renderPage(emptyValueLinks(), emptyPlaceStarter(), fields, { lecture: ['Baroque class'] });
+		await fillRequired();
+
+		const location = page.getByRole('combobox', { name: m.artworkForm.location }).element();
+		const source = page.getByRole('textbox', { name: 'Source' });
+		expect(
+			location.compareDocumentPosition(source.element()) & Node.DOCUMENT_POSITION_FOLLOWING
+		).toBeTruthy();
+		await expect.element(source).toHaveAccessibleDescription('Book and page');
+
+		await addValue(page.getByRole('combobox', { name: 'Lecture' }), 'Baroque class');
+		await source.fill(' Gombrich, p. 300 ');
+		await page.getByText('Seen in person', { exact: true }).click();
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+		expect(supabase.rpc).toHaveBeenCalledWith(
+			'save_artwork',
+			expect.objectContaining({
+				values_by_category: expect.objectContaining({ lecture: ['Baroque class'] }),
+				field_entries: { source: 'Gombrich, p. 300', seen: true }
+			})
+		);
+	});
+
+	it('shows no own fields and leaves them alone when they could not be loaded', async () => {
+		renderPage();
+		await fillRequired();
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+		expect(supabase.rpc).toHaveBeenCalledWith(
+			'save_artwork',
+			expect.objectContaining({ field_entries: undefined })
+		);
 	});
 
 	it('saves the artwork and opens the atelier with the new tile highlighted', async () => {

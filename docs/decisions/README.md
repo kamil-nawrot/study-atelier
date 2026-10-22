@@ -107,3 +107,8 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0101](0101-go-back-to-where-the-learner-came-from.md)                   | Go back to where the learner came from                                                   | accepted           |
 | [0102](0102-name-the-address-parameters-in-english.md)                   | Name the wall's address parameters in English                                            | accepted           |
 | [0103](0103-draw-free-review-rounds-at-random.md)                        | Draw free review rounds at random                                                        | accepted           |
+| [0104](0104-let-the-learner-define-own-artwork-fields.md)                | Let the learner define their own artwork fields                                          | accepted           |
+| [0105](0105-filter-the-wall-by-own-fields.md)                            | Filter the wall by the learner's own fields                                              | accepted           |
+| [0106](0106-name-where-the-arrow-of-a-form-leads.md)                     | Name where the arrow of a form leads                                                     | accepted           |
+| [0107](0107-drop-the-line-above-the-timeline.md)                         | Drop the line above the timeline                                                         | accepted           |
+| [0108](0108-collapse-own-lists-and-show-their-values-as-tags.md)         | Collapse own lists in Kartoteka and show their values as tags                            | accepted           |

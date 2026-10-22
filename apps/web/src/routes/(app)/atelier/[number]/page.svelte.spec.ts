@@ -161,6 +161,33 @@ describe('artwork page', () => {
 		await expect.element(page.getByRole('link', { name: 'gone' })).not.toBeInTheDocument();
 	});
 
+	it('shows the filled own fields after the place and hides the empty and unticked ones', async () => {
+		renderPage({
+			artwork: artwork({
+				own: { motifs: ['Angel', 'Lily'], source: 'Gombrich', note: '', seen: true, exam: false }
+			}),
+			ownFields: [
+				{ id: 'motifs', name: 'Motifs', description: null, kind: 'list', multiple: true },
+				{ id: 'source', name: 'Source', description: null, kind: 'text', multiple: false },
+				{ id: 'note', name: 'Note', description: null, kind: 'text', multiple: false },
+				{ id: 'seen', name: 'Seen in person', description: null, kind: 'flag', multiple: false },
+				{ id: 'exam', name: 'For the exam', description: null, kind: 'flag', multiple: false }
+			]
+		});
+
+		const terms = page
+			.getByRole('term')
+			.elements()
+			.map((term) => term.textContent?.trim());
+		expect(terms.slice(-3)).toEqual(['Motifs', 'Source', 'Seen in person']);
+		await expect.element(page.getByText('Angel', { exact: true })).toBeVisible();
+		await expect.element(page.getByText('Lily', { exact: true })).toBeVisible();
+		await expect.element(page.getByText('Gombrich')).toBeVisible();
+		await expect.element(page.getByText(m.ownFields.ticked, { exact: true })).toBeVisible();
+		expect(page.getByText('For the exam').elements()).toHaveLength(0);
+		expect(page.getByText('Note', { exact: true }).elements()).toHaveLength(0);
+	});
+
 	it('marks the fields the learner has not filled in', async () => {
 		renderPage({
 			artwork: artwork({
@@ -287,7 +314,7 @@ describe('artwork page', () => {
 	});
 
 	it('goes back through history to the place it was opened from, named after it', async () => {
-		const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
+		const go = vi.spyOn(history, 'go').mockImplementation(() => undefined);
 		setBackPlace({ name: 'Kalendarium', path: '/atelier/timeline' });
 		renderPage();
 
@@ -295,8 +322,8 @@ describe('artwork page', () => {
 		await expect.element(link).toBeVisible();
 		(link.element() as HTMLElement).click();
 
-		expect(back).toHaveBeenCalled();
-		back.mockRestore();
+		expect(go).toHaveBeenCalledWith(-1);
+		go.mockRestore();
 		setBackPlace(undefined);
 	});
 

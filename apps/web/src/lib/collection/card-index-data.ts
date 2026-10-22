@@ -2,9 +2,10 @@ import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { removeOwnImage } from '#lib/images/own-image.ts';
 import { supabase } from '#lib/supabase.ts';
 import { emptyCardIndex } from './card-index.ts';
+import { isCategoryCode } from './category-values.ts';
 import { isEraCode } from './eras.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from './errors.ts';
-import type { CardIndexRecord, CardIndexResult, CategoryCode, EraCode } from './types.ts';
+import type { CardIndexRecord, CardIndexResult, EraCode, OwnValue } from './types.ts';
 
 const PAGE_SIZE = 1000;
 
@@ -14,7 +15,7 @@ type Page = PromiseLike<{ data: unknown; error: ErrorLike | null }>;
 
 type UsageRow = {
 	id: string;
-	category_code: CategoryCode;
+	category_code: string;
 	name: string;
 	artwork_count: number;
 };
@@ -67,17 +68,30 @@ export async function loadCardIndex(): Promise<CardIndexResult> {
 	]);
 	const error = values.error ?? periodEras.error ?? stylePeriods.error ?? sortNames.error;
 	const sortNameOf = new Map(sortNames.rows.map((row) => [row.value_id, row.sort_name]));
-	if (error) return { index: emptyCardIndex(), error: collectionErrorMessage(error) };
+	if (error) {
+		return { index: emptyCardIndex(), ownValues: [], error: collectionErrorMessage(error) };
+	}
 
 	return {
+		ownValues: values.rows.flatMap((row): OwnValue[] =>
+			isCategoryCode(row.category_code)
+				? []
+				: [{ id: row.id, fieldId: row.category_code, name: row.name, count: row.artwork_count }]
+		),
 		index: {
-			values: values.rows.map((row): CardIndexRecord => ({
-				id: row.id,
-				category: row.category_code,
-				name: row.name,
-				count: row.artwork_count,
-				...(sortNameOf.get(row.id) ? { sortName: sortNameOf.get(row.id) } : {})
-			})),
+			values: values.rows.flatMap((row): CardIndexRecord[] =>
+				isCategoryCode(row.category_code)
+					? [
+							{
+								id: row.id,
+								category: row.category_code,
+								name: row.name,
+								count: row.artwork_count,
+								...(sortNameOf.get(row.id) ? { sortName: sortNameOf.get(row.id) } : {})
+							}
+						]
+					: []
+			),
 			periodEras: periodEras.rows
 				.filter((row) => isEraCode(row.era_code))
 				.map((row) => ({

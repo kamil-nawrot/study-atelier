@@ -3,6 +3,7 @@
 	export type TabOption = {
 		value: string;
 		label: string;
+		end?: boolean;
 	};
 </script>
 
@@ -49,6 +50,7 @@
 			<button
 				id={tabId(tab)}
 				class="tab"
+				class:end={tab.end}
 				aria-controls="{id}-panel"
 				aria-selected={tab === active}
 				onclick={() => select(tab)}
@@ -92,6 +94,10 @@
 		line-height: var(--line-height-md);
 		white-space: nowrap;
 		cursor: pointer;
+	}
+
+	.tab.end {
+		margin-inline-start: auto;
 	}
 
 	.tab:hover {

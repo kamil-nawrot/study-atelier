@@ -4,7 +4,7 @@ import { render } from 'vitest-browser-svelte';
 import { emptyFilter } from '../filter.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
-import type { CollectionFilter } from '../types.ts';
+import type { CollectionFilter, OwnFieldDefinition } from '../types.ts';
 import FilterPanelHost from '#lib/testing/FilterPanelHost.svelte';
 import '@study-atelier/ui/styles.css';
 
@@ -257,5 +257,43 @@ describe('FilterPanel', () => {
 		await more.nth(1).click();
 
 		await expect.element(page.getByText('Style 9')).toBeVisible();
+	});
+
+	it('offers the own fields after the places, with a search for a text and the ticks last', async () => {
+		const fields: OwnFieldDefinition[] = [
+			{ id: 'lecture', name: 'Lecture', description: null, kind: 'list', multiple: false },
+			{ id: 'source', name: 'Source', description: null, kind: 'text', multiple: false },
+			{ id: 'seen', name: 'Seen in person', description: null, kind: 'flag', multiple: false },
+			{ id: 'empty', name: 'Never filled', description: null, kind: 'text', multiple: false }
+		];
+		const withOwn = [
+			testArtwork(1, 'Mona Lisa', {
+				location: 'Louvre',
+				own: { lecture: ['Renaissance class'], source: 'Gombrich', seen: true }
+			}),
+			testArtwork(2, 'Night Watch', { own: { lecture: ['Baroque class'] } })
+		];
+		state.current = emptyFilter();
+		render(FilterPanelHost, {
+			artworks: withOwn,
+			initial: emptyFilter(),
+			ownFields: fields,
+			report: (next: CollectionFilter) => (state.current = next)
+		});
+
+		const headings = page
+			.getByRole('heading', { level: 3 })
+			.elements()
+			.map((heading) => heading.textContent?.trim());
+		const at = (title: string): number => headings.indexOf(title);
+		expect(at('Lecture')).toBeGreaterThan(at(m.atelier.filters.fields.locations));
+		expect(at('Source')).toBeGreaterThan(at('Lecture'));
+		expect(at(m.atelier.filters.fields.ticked)).toBeGreaterThan(at('Source'));
+		expect(headings).not.toContain('Never filled');
+
+		await page.getByRole('searchbox', { name: m.ownFields.search('Source') }).fill('gomb');
+		await expect.poll(() => state.current.ownTexts).toEqual({ source: 'gomb' });
+		await page.getByRole('button', { name: /Seen in person/ }).click();
+		await expect.poll(() => state.current.ticked).toEqual(['seen']);
 	});
 });

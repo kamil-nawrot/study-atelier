@@ -52,11 +52,35 @@ describe('arrive', () => {
 		expect(place?.name).toBe('Tympanon');
 	});
 
-	it('gives a page back the place it had before the learner opened its form', () => {
+	it('gives a page back the place it had before its form, two steps back in the history', () => {
 		const names = withNames();
 		const inForm = arrive(names, entryPlace, { type: 'link', from: artwork, to: edit });
 		expect(inForm).toEqual({ ...artworkPlace, previous: entryPlace });
-		expect(arrive(names, inForm, { type: 'goto', from: edit, to: artwork })).toEqual(entryPlace);
+		expect(arrive(names, inForm, { type: 'goto', from: edit, to: artwork })).toEqual({
+			...entryPlace,
+			steps: 2
+		});
+	});
+
+	it('names the form when the learner follows a link out of it instead of saving', () => {
+		const names = named(withNames(), edit.key, { name: 'Edytuj dzieło #0007', path: edit.key });
+		const inForm = arrive(names, entryPlace, { type: 'link', from: artwork, to: edit });
+
+		expect(arrive(names, inForm, { type: 'link', from: edit, to: entry })?.name).toBe(
+			'Edytuj dzieło #0007'
+		);
+	});
+
+	it('names the page that opened an add form on the new page the form saved', () => {
+		const added = { key: '/atelier/glossary/c', route: '/(app)/atelier/glossary/[id]' };
+		const add = { key: '/atelier/glossary/new', route: '/(app)/atelier/glossary/new' };
+		const cardIndex = { name: 'Kartoteka', path: '/atelier/values' };
+
+		const inForm = arrive(withNames(), cardIndex, { type: 'link', from: glossary, to: add });
+		expect(inForm).toEqual({ ...glossaryPlace, previous: cardIndex });
+		expect(arrive(withNames(), inForm, { type: 'goto', from: add, to: added })).toEqual(
+			glossaryPlace
+		);
 	});
 
 	it('gives each visit to the same page its own place', () => {

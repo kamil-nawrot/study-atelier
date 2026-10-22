@@ -117,6 +117,14 @@ select public.record_review(
   '{"mode": "quiz_title", "rating": 2, "correct": true, "answer_ms": 4200}'
 );
 
+insert into public.artwork_fields (name, kind) values ('Lecture', 'list'), ('Source', 'text');
+insert into public.category_values (category_code, name)
+  select id::text, 'Baroque class' from public.artwork_fields where name = 'Lecture';
+insert into public.artwork_field_entries (artwork_id, field_id, field_kind, text_value)
+  select artwork.id, field.id, 'text', 'A source'
+    from public.artworks as artwork cross join public.artwork_fields as field
+    where field.name = 'Source';
+
 reset role;
 
 do $$
@@ -128,12 +136,17 @@ declare
   a_unlinked uuid;
   a_author uuid;
   a_merged uuid;
+  a_lecture uuid;
+  a_source uuid;
 begin
   select id into a_artwork from public.artworks where owner_id = a;
   select id into a_value from public.category_values where owner_id = a and category_code = 'period';
   select id into a_unlinked from public.category_values where owner_id = a and name = 'Unlinked';
   select id into a_author from public.category_values where owner_id = a and name = 'Painter';
+  select id into a_lecture from public.artwork_fields where owner_id = a and name = 'Lecture';
+  select id into a_source from public.artwork_fields where owner_id = a and name = 'Source';
   assert a_artwork is not null and a_value is not null, 'fixture for owner A was not created';
+  assert a_lecture is not null and a_source is not null, 'fields of owner A were not created';
 
   set local role authenticated;
   perform security_test.act_as(b);
@@ -150,6 +163,10 @@ begin
   assert (select count(*) from public.timeline_events) = 0, 'B reads timeline events of A';
   assert (select count(*) from storage.objects) = 0, 'B reads image objects of A';
   assert (select count(*) from public.value_usage()) = 0, 'B sees value usage of A';
+  assert (select count(*) from public.artwork_fields) = 0, 'B reads artwork fields of A';
+  assert (select count(*) from public.artwork_field_entries) = 0, 'B reads field entries of A';
+  assert (select count(*) from public.artwork_field_usage()) = 0, 'B sees field usage of A';
+  assert (select count(*) from public.categories) = 5, 'B reads the categories of the fields of A';
   assert (select count(*) from public.notes_mentions()) = 0, 'B sees the notes of A';
   assert not (select has_content from public.value_page_content(a_value)),
     'B sees the page content of a value of A';
@@ -184,6 +201,12 @@ begin
     'B deletes a glossary entry of A';
   assert security_test.affected('update public.timeline_events set name = ''x''') = 0,
     'B updates a timeline event of A';
+  assert security_test.affected('update public.artwork_fields set name = ''x''') = 0,
+    'B renames an artwork field of A';
+  assert security_test.affected('delete from public.artwork_fields') = 0,
+    'B deletes an artwork field of A';
+  assert security_test.affected('delete from public.artwork_field_entries') = 0,
+    'B deletes field entries of A';
   assert security_test.affected('delete from public.timeline_events') = 0,
     'B deletes a timeline event of A';
 
@@ -205,6 +228,26 @@ begin
   assert security_test.denied(format(
     'insert into public.period_eras (value_id, era_code) values (%L, ''modern'')', a_value)),
     'B adds an era to a period of A';
+  assert security_test.denied(format(
+    'insert into public.category_values (category_code, name) values (%L, ''Forged'')', a_lecture)),
+    'B adds a value to a list field of A';
+  assert security_test.denied(format(
+    'insert into public.artwork_field_entries (artwork_id, field_id, field_kind, text_value) values (%L, %L, ''text'', ''Forged'')',
+    a_artwork, a_source)),
+    'B fills in a field of A';
+  assert security_test.denied(format(
+    'insert into public.artwork_fields (owner_id, name, kind) values (%L, ''Forged'', ''text'')', a)),
+    'B inserts an artwork field owned by A';
+  assert security_test.denied(format('select public.move_artwork_field(%L, 1)', a_lecture)),
+    'B moves an artwork field of A';
+  perform public.save_artwork('{"title": "B work", "author_unknown": true}',
+    jsonb_build_object('author', '[]'::jsonb), null, null, jsonb_build_object(a_source::text, 'Forged'));
+  assert (select count(*) from public.artwork_field_entries) = 0,
+    'B fills in a field of A through save_artwork';
+  assert security_test.denied(format(
+    'select public.save_artwork(''{"title": "B list", "author_unknown": true}'', ''{"author": [], "%s": ["Forged"]}'')',
+    a_lecture)),
+    'B adds a value to a list field of A through save_artwork';
   assert security_test.denied(format(
     'insert into public.style_details (value_id, summary) values (%L, ''Forged'')', a_unlinked)),
     'B adds details to a value of A';
@@ -483,6 +526,30 @@ begin
 
   assert security_test.denied('insert into public.categories (code, multiple, position) values (''forged'', true, 99)'),
     'A adds a category';
+  assert security_test.denied('update public.categories set multiple = false'),
+    'A changes a category';
+  assert security_test.denied('update public.artwork_fields set kind = ''flag'''),
+    'A changes the kind of an artwork field';
+  assert security_test.denied('update public.artwork_fields set multiple = true'),
+    'A changes the number of values of an artwork field';
+  assert security_test.denied('update public.artwork_fields set owner_id = gen_random_uuid()'),
+    'A changes the owner of an artwork field';
+  assert security_test.denied(format(
+    'insert into public.artwork_field_entries (artwork_id, field_id, field_kind) values (%L, %L, ''flag'')',
+    a_artwork, a_lecture)),
+    'A ticks a list field';
+  assert security_test.denied(
+    'insert into public.artwork_fields (name, kind) values (''Padded '', ''text'')'),
+    'A adds an artwork field with a padded name';
+  assert security_test.denied(format(
+    'insert into public.artwork_fields (name, kind) values (%L, ''text'')', repeat('x', 61))),
+    'A adds an artwork field with a name over 60 characters';
+  assert security_test.denied(format(
+    'insert into public.artwork_fields (name, description, kind) values (''Long'', %L, ''text'')', repeat('x', 151))),
+    'A adds an artwork field with a description over 150 characters';
+  assert security_test.denied(
+    'insert into public.artwork_fields (name, kind) values (''Number'', ''number'')'),
+    'A adds an artwork field of an unknown kind';
   assert security_test.denied('update public.eras set position = 99'), 'A changes an era';
   assert security_test.denied('insert into public.artwork_types (code, position) values (''forged'', 99)'),
     'A adds an artwork type';
@@ -522,6 +589,11 @@ begin
   assert security_test.denied('select * from public.glossary_entries'), 'anon reads glossary entries';
   assert (select count(*) from storage.objects) = 0, 'anon reads image objects';
   assert security_test.denied('select public.value_usage()'), 'anon executes value_usage';
+  assert security_test.denied('select * from public.artwork_fields'), 'anon reads artwork fields';
+  assert security_test.denied('select * from public.artwork_field_entries'), 'anon reads field entries';
+  assert security_test.denied('select public.artwork_field_usage()'), 'anon executes artwork_field_usage';
+  assert security_test.denied(format('select public.move_artwork_field(%L, 1)', gen_random_uuid())),
+    'anon executes move_artwork_field';
   assert security_test.denied('select public.notes_mentions()'), 'anon executes notes_mentions';
   assert security_test.denied(format('select public.value_page_content(%L)', gen_random_uuid())),
     'anon executes value_page_content';

@@ -1,6 +1,7 @@
 import { loadArtwork } from '#lib/collection/artwork-record.ts';
 import { emptyCategoryValues, loadCategoryValues } from '#lib/collection/category-values.ts';
 import { loadNoteLinks } from '#lib/collection/note-link-data.ts';
+import { loadOwnFieldDefinitions } from '#lib/collection/own-fields.ts';
 import { emptyPlaceStarter, loadPlaceStarter } from '#lib/collection/place-starter.ts';
 import { emptyValueLinks, loadValueLinks } from '#lib/collection/value-links.ts';
 import { parseRecordNumber } from '#lib/collection/format.ts';
@@ -15,17 +16,28 @@ export const load: PageLoad = async ({ params }) => {
 		return {
 			...missing,
 			values: emptyCategoryValues(),
+			ownValues: {},
+			ownFields: undefined,
 			links: emptyValueLinks(),
 			noteLinks: undefined,
 			placeStarter: emptyPlaceStarter()
 		};
 	}
-	const [result, categories, linked, noteLinks, placeStarter] = await Promise.all([
+	const [result, categories, linked, noteLinks, placeStarter, own] = await Promise.all([
 		loadArtwork(number),
 		loadCategoryValues(),
 		loadValueLinks(),
 		loadNoteLinks(),
-		loadPlaceStarter()
+		loadPlaceStarter(),
+		loadOwnFieldDefinitions()
 	]);
-	return { ...result, values: categories.values, links: linked.links, noteLinks, placeStarter };
+	return {
+		...result,
+		values: categories.values,
+		ownValues: categories.ownValues,
+		ownFields: own.error ? undefined : own.fields,
+		links: linked.links,
+		noteLinks,
+		placeStarter
+	};
 };

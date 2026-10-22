@@ -3,7 +3,7 @@ import { removeOwnImage } from '#lib/images/own-image.ts';
 import type { Json } from '#lib/database.types.ts';
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { supabase } from '#lib/supabase.ts';
-import { valuesOf } from './artwork-values.ts';
+import { ownEntriesOf, valuesOf } from './artwork-values.ts';
 import { signedYear } from './format.ts';
 import { artworkErrorMessage } from './errors.ts';
 import {
@@ -25,6 +25,7 @@ import type {
 	CategoryCode,
 	EraCode,
 	ExistingArtwork,
+	FieldEntryRow,
 	LoadArtworkResult,
 	SaveArtworkResult
 } from './types.ts';
@@ -43,6 +44,7 @@ type ArtworkRecordRow = {
 	favourite: boolean;
 	artwork_values: ArtworkValueRow[];
 	artwork_images: (ImageRow & { position: number })[];
+	artwork_field_entries?: FieldEntryRow[];
 } & ImageRow;
 
 type StoredInput = Omit<ArtworkInput, 'image'> & { image: StoredImage | null };
@@ -61,7 +63,8 @@ const RECORD_COLUMNS = [
 	'favourite',
 	...IMAGE_COLUMNS,
 	'artwork_values(position, category_values(category_code, name))',
-	`artwork_images(position, ${IMAGE_COLUMNS.join(', ')})`
+	`artwork_images(position, ${IMAGE_COLUMNS.join(', ')})`,
+	'artwork_field_entries(field_id, text_value)'
 ].join(', ');
 
 export function emptyArtworkInput(): ArtworkInput {
@@ -168,14 +171,36 @@ function artworkColumns(input: StoredInput): Record<string, Json> {
 	};
 }
 
-function valuesByCategory(input: ArtworkInput): Record<CategoryCode, string[]> {
+function valuesByCategory(input: ArtworkInput): Record<string, string[]> {
+	const own = Object.entries(input.own ?? {}).flatMap(([id, entry]) =>
+		Array.isArray(entry) ? [[id, names(entry)]] : []
+	);
 	return {
 		author: input.authorUnknown ? [] : names(input.authors),
 		period: names(input.period === null ? [] : [input.period]),
 		style: names(input.styles),
 		material: names(input.materials),
-		location: names(input.location === null ? [] : [input.location])
-	};
+		location: names(input.location === null ? [] : [input.location]),
+		...Object.fromEntries(own)
+	} satisfies Record<CategoryCode, string[]>;
+}
+
+const CONTROL_CHARACTERS = /\p{Cc}/gu;
+
+function oneLine(text: string): string {
+	return text.replace(CONTROL_CHARACTERS, ' ').trim();
+}
+
+function fieldEntries(input: ArtworkInput): Record<string, Json> | undefined {
+	if (!input.own) return undefined;
+	return Object.fromEntries(
+		Object.entries(input.own).flatMap(([id, entry]): [string, Json][] => {
+			if (entry === true) return [[id, true]];
+			const text = typeof entry === 'string' ? oneLine(entry) : '';
+			if (text) return [[id, text]];
+			return [];
+		})
+	);
 }
 
 export async function saveArtwork(
@@ -206,7 +231,8 @@ export async function saveArtwork(
 			artwork: artworkColumns({ ...input, image: main }),
 			values_by_category: valuesByCategory(input),
 			existing_id: existing?.id,
-			extra_images: others.map(imageColumns) as unknown as Json
+			extra_images: others.map(imageColumns) as unknown as Json,
+			field_entries: fieldEntries(input)
 		})
 		.single();
 	if (error) {
@@ -253,7 +279,8 @@ function artworkRecordFromRow(row: ArtworkRecordRow): ArtworkRecord {
 		image: imageOf(row),
 		images: [...(row.artwork_images ?? [])]
 			.sort((first, second) => first.position - second.position)
-			.flatMap((image) => imageOf(image) ?? [])
+			.flatMap((image) => imageOf(image) ?? []),
+		own: ownEntriesOf(row.artwork_values, row.artwork_field_entries)
 	};
 }
 

@@ -208,7 +208,7 @@ describe('glossary entry page', () => {
 	});
 
 	it('goes back to the list through history when the entry was opened from it', async () => {
-		const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
+		const go = vi.spyOn(history, 'go').mockImplementation(() => undefined);
 		cameFrom('Słowniczek', '/atelier/glossary');
 		renderEntry();
 
@@ -216,8 +216,8 @@ describe('glossary entry page', () => {
 		await expect.element(link).toBeVisible();
 		(link.element() as HTMLElement).click();
 
-		expect(back).toHaveBeenCalled();
-		back.mockRestore();
+		expect(go).toHaveBeenCalledWith(-1);
+		go.mockRestore();
 	});
 
 	it('names the arrow after the artwork the entry was opened from', async () => {
@@ -230,7 +230,7 @@ describe('glossary entry page', () => {
 	});
 
 	it('links to the top of the glossary when the entry was opened from elsewhere', async () => {
-		const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
+		const go = vi.spyOn(history, 'go').mockImplementation(() => undefined);
 		setBackPlace(undefined);
 		renderEntry();
 		let followed = false;
@@ -246,7 +246,7 @@ describe('glossary entry page', () => {
 
 		window.removeEventListener('click', stop);
 		expect(followed).toBe(true);
-		expect(back).not.toHaveBeenCalled();
-		back.mockRestore();
+		expect(go).not.toHaveBeenCalled();
+		go.mockRestore();
 	});
 });

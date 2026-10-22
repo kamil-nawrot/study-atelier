@@ -16,13 +16,18 @@ import {
 	onlyFavourites,
 	pruneFilter,
 	removeTag,
+	ownFilterOptions,
+	setOwnText,
 	setYears,
 	tagLabel,
 	tagParts,
+	tickedOptions,
 	toggleFavourites,
+	toggleOwnValue,
+	toggleTicked,
 	toggleValue
 } from './filter.ts';
-import type { CollectionFilter, WallArtwork } from './types.ts';
+import type { CollectionFilter, OwnFieldDefinition, WallArtwork } from './types.ts';
 
 const artworks: WallArtwork[] = [
 	testArtwork(1, 'Girl with a Pearl Earring', {
@@ -431,5 +436,133 @@ describe('favourites', () => {
 		expect(params.get('favourites')).toBe('1');
 		expect(filterFromParams(params)).toEqual(filter);
 		expect(filterToParams(emptyFilter()).has('favourites')).toBe(false);
+	});
+});
+
+describe('own fields', () => {
+	const fields: OwnFieldDefinition[] = [
+		{ id: 'lecture', name: 'Lecture', description: null, kind: 'list', multiple: false },
+		{ id: 'source', name: 'Source', description: null, kind: 'text', multiple: false },
+		{ id: 'seen', name: 'Seen in person', description: null, kind: 'flag', multiple: false },
+		{ id: 'exam', name: 'For the exam', description: null, kind: 'flag', multiple: false }
+	];
+	const own: WallArtwork[] = [
+		testArtwork(1, 'Annunciation', {
+			own: { lecture: ['Renaissance class'], source: 'Gombrich, Story of Art', seen: true }
+		}),
+		testArtwork(2, 'Night Watch', {
+			own: { lecture: ['Baroque class'], seen: true, exam: true }
+		}),
+		testArtwork(3, 'Las Meninas', { own: { lecture: ['Baroque class'], source: 'Lecture notes' } })
+	];
+	const titles = (filter: CollectionFilter): string[] =>
+		applyFilter(own, filter).map((artwork) => artwork.title);
+
+	it('matches any chosen value of a list', () => {
+		const filter = toggleOwnValue(
+			toggleOwnValue(emptyFilter(), 'lecture', 'Renaissance class'),
+			'lecture',
+			'Baroque class'
+		);
+
+		expect(titles(filter)).toEqual(['Annunciation', 'Night Watch', 'Las Meninas']);
+		expect(titles(toggleOwnValue(filter, 'lecture', 'Baroque class'))).toEqual(['Annunciation']);
+	});
+
+	it('matches a text that contains the typed text anywhere, ignoring case and diacritics', () => {
+		expect(titles(setOwnText(emptyFilter(), 'source', 'STÓRY'))).toEqual(['Annunciation']);
+		expect(titles(setOwnText(emptyFilter(), 'source', '  '))).toHaveLength(3);
+	});
+
+	it('matches only artworks with every chosen tick', () => {
+		const seen = toggleTicked(emptyFilter(), 'seen');
+
+		expect(titles(seen)).toEqual(['Annunciation', 'Night Watch']);
+		expect(titles(toggleTicked(seen, 'exam'))).toEqual(['Night Watch']);
+		expect(titles(toggleTicked(seen, 'seen'))).toHaveLength(3);
+	});
+
+	it('counts the values of a list on the artworks the rest of the filter leaves', () => {
+		const filter = toggleTicked(emptyFilter(), 'seen');
+
+		expect(ownFilterOptions(own, filter, 'lecture')).toEqual([
+			{ value: 'Baroque class', count: 1 },
+			{ value: 'Renaissance class', count: 1 }
+		]);
+		expect(ownFilterOptions(own, emptyFilter(), 'lecture')[0]).toEqual({
+			value: 'Baroque class',
+			count: 2
+		});
+	});
+
+	it('counts each tick together with the ticks already chosen', () => {
+		expect(tickedOptions(own, emptyFilter(), fields)).toEqual([
+			{ value: 'seen', count: 2 },
+			{ value: 'exam', count: 1 }
+		]);
+		expect(tickedOptions(own, toggleTicked(emptyFilter(), 'exam'), fields)).toEqual([
+			{ value: 'seen', count: 1 },
+			{ value: 'exam', count: 1 }
+		]);
+	});
+
+	it('is not empty and not favourites only while an own field is chosen', () => {
+		const ticked = toggleTicked(toggleFavourites(emptyFilter()), 'seen');
+
+		expect(isEmptyFilter(toggleTicked(emptyFilter(), 'seen'))).toBe(false);
+		expect(onlyFavourites(ticked)).toBe(false);
+	});
+
+	it('puts tags of own fields before the missing data and removes them one by one', () => {
+		let filter = toggleOwnValue(emptyFilter(), 'lecture', 'Baroque class');
+		filter = setOwnText(filter, 'source', ' gomb ');
+		filter = toggleTicked(filter, 'seen');
+		filter = toggleValue(filter, 'missing', 'image');
+
+		const tags = filterTags(filter, fields);
+
+		expect(tags.map((tag) => tagParts(tag))).toEqual([
+			{ field: 'Lecture', value: 'Baroque class' },
+			{ field: 'Source', value: 'gomb' },
+			{ field: 'Seen in person', value: '' },
+			{ field: m.atelier.filters.tagFields.missing, value: m.atelier.filters.missing.image }
+		]);
+		const cleared = tags.slice(0, 3).reduce(removeTag, filter);
+		expect(filterTags(cleared, fields)).toHaveLength(1);
+	});
+
+	it('keeps own fields in the address by their ids and ignores unknown parameters', () => {
+		let filter = toggleOwnValue(emptyFilter(), 'lecture', 'Baroque class');
+		filter = setOwnText(filter, 'source', 'gomb');
+		filter = toggleTicked(filter, 'seen');
+
+		const params = filterToParams(filter);
+
+		expect(params.toString()).toBe('field.lecture=Baroque+class&text.source=gomb&ticked=seen');
+		expect(filterFromParams(new URLSearchParams(`${params}&colour=red`))).toEqual(filter);
+	});
+
+	it('keeps own choices and names their tags in general when the fields could not be loaded', () => {
+		const filter = toggleTicked(toggleOwnValue(emptyFilter(), 'lecture', 'Baroque class'), 'seen');
+
+		expect(pruneFilter(filter, own)).toEqual(filter);
+		expect(filterTags(filter).map((tag) => tagParts(tag))).toEqual([
+			{ field: m.atelier.filters.ownField, value: 'Baroque class' },
+			{ field: m.atelier.filters.ownField, value: '' }
+		]);
+	});
+
+	it('drops own fields that no longer exist and values no artwork has', () => {
+		let filter = toggleOwnValue(emptyFilter(), 'lecture', 'Gone class');
+		filter = toggleOwnValue(filter, 'lecture', 'Baroque class');
+		filter = toggleOwnValue(filter, 'deleted', 'Value');
+		filter = setOwnText(filter, 'deleted-text', 'x');
+		filter = toggleTicked(toggleTicked(filter, 'seen'), 'deleted-tick');
+
+		const pruned = pruneFilter(filter, own, fields);
+
+		expect(pruned.own).toEqual({ lecture: ['Baroque class'] });
+		expect(pruned.ownTexts).toEqual({});
+		expect(pruned.ticked).toEqual(['seen']);
 	});
 });

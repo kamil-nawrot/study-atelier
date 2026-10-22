@@ -29,6 +29,20 @@ describe('Tabs', () => {
 			.toHaveAttribute('aria-selected', 'false');
 	});
 
+	it('puts a tab marked as end at the right edge of the list', async () => {
+		render(Tabs, {
+			label: 'Kinds',
+			tabs: [...tabs, { value: 'own', label: 'Own', end: true }],
+			children: panel
+		});
+
+		const list = page.getByRole('tablist').element().getBoundingClientRect();
+		const own = page.getByRole('tab', { name: 'Own' }).element().getBoundingClientRect();
+		const authors = page.getByRole('tab', { name: 'Authors' }).element().getBoundingClientRect();
+		expect(own.right).toBeCloseTo(list.right, 0);
+		expect(own.left - authors.right).toBeGreaterThan(100);
+	});
+
 	it('selects the tab given as value', async () => {
 		renderTabs('authors');
 
