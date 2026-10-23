@@ -11,6 +11,7 @@
 	import { signOut } from '#lib/auth/account.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { nameCurrentPlace } from '#lib/navigation/back.svelte.ts';
+	import { railExpanded, setRailExpanded } from '#lib/navigation/rail.svelte.ts';
 	import FeedbackDialog from '#lib/feedback/components/FeedbackDialog.svelte';
 	import AtelierMenu from './AtelierMenu.svelte';
 
@@ -42,7 +43,6 @@
 		nameCurrentPlace(title);
 	});
 
-	let railExpanded = $state(false);
 	let signingOut = $state(false);
 	let drawer: HTMLDialogElement;
 	let drawerUsed = $state(false);
@@ -80,15 +80,15 @@
 </svelte:head>
 
 <div style:--bar-height="{barHeight}px" class="atelier" class:fill>
-	<nav class="rail" class:expanded={railExpanded} aria-label={m.menu.label}>
+	<nav class="rail" class:expanded={railExpanded()} aria-label={m.menu.label}>
 		<button
 			class="toggle"
-			aria-expanded={railExpanded}
-			aria-label={railExpanded ? m.menu.collapse : m.menu.expand}
-			onclick={() => (railExpanded = !railExpanded)}
+			aria-expanded={railExpanded()}
+			aria-label={railExpanded() ? m.menu.collapse : m.menu.expand}
+			onclick={() => setRailExpanded(!railExpanded())}
 			type="button"
 		>
-			{#if railExpanded}
+			{#if railExpanded()}
 				<Logo label={m.app.name} size="sm" />
 				<Icon icon={ChevronLeft} />
 			{:else}
@@ -97,7 +97,7 @@
 		</button>
 		<div class="menu">
 			<AtelierMenu
-				compact={!railExpanded}
+				compact={!railExpanded()}
 				{email}
 				onfeedback={openFeedback}
 				onsignout={submitSignOut}
