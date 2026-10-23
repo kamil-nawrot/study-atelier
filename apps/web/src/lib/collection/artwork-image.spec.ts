@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
-import { artworkImageCredit, artworkImageSource, artworkLargeSource } from './artwork-image.ts';
+import {
+	artworkImageCredit,
+	artworkImageSource,
+	artworkLargeSource,
+	isTooLargeForLoupe
+} from './artwork-image.ts';
 import type { ArtworkImageInput } from './types.ts';
 
 const commons: ArtworkImageInput = {
@@ -92,6 +97,46 @@ describe('artworkLargeSource', () => {
 		expect(
 			artworkLargeSource({ kind: 'url', url: 'https://example.com/a.jpg', width: 900, height: 600 })
 		).toEqual({ src: 'https://example.com/a.jpg', width: 900 });
+	});
+
+	it('caps the large version of a big Commons file at 3840 px', () => {
+		expect(artworkLargeSource({ ...commons, width: 44567, height: 35291 })).toEqual({
+			src: 'https://commons.wikimedia.org/wiki/Special:FilePath/The%20Milkmaid.jpg?width=3840',
+			width: 3840
+		});
+	});
+
+	it('takes a thumbnail of a link to a Commons file and drops its query', () => {
+		const url =
+			'https://upload.wikimedia.org/wikipedia/commons/d/de/Colosseo_2020.jpg?utm_source=pl.wikipedia.org&amp;utm_campaign=imageinfo';
+		const linked: ArtworkImageInput = { kind: 'url', url, width: 12051, height: 8442 };
+		expect(artworkLargeSource(linked)).toEqual({
+			src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Colosseo_2020.jpg/3840px-Colosseo_2020.jpg',
+			width: 3840
+		});
+		expect(artworkImageSource(linked, 800)?.src).toBe(
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Colosseo_2020.jpg/960px-Colosseo_2020.jpg'
+		);
+		expect(artworkImageSource(linked, 800)?.srcset).toContain(
+			'/thumb/d/de/Colosseo_2020.jpg/250px-Colosseo_2020.jpg 250w'
+		);
+		expect(artworkImageSource({ ...linked, width: 700, height: 500 }, 800)?.src).toBe(
+			'https://upload.wikimedia.org/wikipedia/commons/d/de/Colosseo_2020.jpg'
+		);
+		expect(isTooLargeForLoupe(linked)).toBe(false);
+	});
+
+	it('does not offer the loupe for a big image from another link', () => {
+		const big: ArtworkImageInput = {
+			kind: 'url',
+			url: 'https://example.com/a.jpg',
+			width: 9000,
+			height: 6000
+		};
+		expect(isTooLargeForLoupe(big)).toBe(true);
+		expect(artworkLargeSource(big)).toBeUndefined();
+		expect(isTooLargeForLoupe({ ...big, width: 4000, height: 3000 })).toBe(false);
+		expect(isTooLargeForLoupe(commons)).toBe(false);
 	});
 
 	it('has no large version without a stored width', () => {

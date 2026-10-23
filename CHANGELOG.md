@@ -2,6 +2,16 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.9.1] - 2026-10-23
+
+A fix of the artwork view for a very large image and of the loupe of a huge Commons file.
+
+### Fixed
+
+- The artwork view no longer freezes on an image given as a link to a file on `upload.wikimedia.org`: the page shows a thumbnail of the nearest Commons width instead of decoding the whole original, and the loupe takes the 3840 px thumbnail.
+- The loupe of a Commons file wider than 3840 px takes the 3840 px thumbnail instead of an original that the browser may not load, so it shows real detail up to that width.
+- The loupe is not offered for an image over 40 MP from any other link; its tooltip says that the image is too large.
+
 ## [0.9.0] - 2026-10-23
 
 The learner marks details on the image of an artwork with pins, looks at them closely through a loupe, and meets them again in the glossary and in the review.
@@ -427,3 +437,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.7.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.7.1
 [0.8.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.8.0
 [0.9.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.9.0
+[0.9.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.9.1
