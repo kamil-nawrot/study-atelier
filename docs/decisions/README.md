@@ -127,3 +127,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0121](0121-export-the-atelier-as-a-zip-file.md)                             | Export the atelier as a ZIP file                                                         | accepted           |
 | [0122](0122-import-an-atelier-into-an-empty-atelier-through-one-function.md) | Import an atelier into an empty atelier through one function                             | accepted           |
 | [0123](0123-switch-the-automatic-fetching-from-external-sources.md)          | Switch the automatic fetching from external sources                                      | accepted           |
+| [0124](0124-ask-before-removing-an-image-that-holds-pins.md)                 | Ask before removing an image that holds pins                                             | accepted           |

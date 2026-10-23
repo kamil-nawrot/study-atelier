@@ -68,6 +68,7 @@
 				ownFields={data.ownFields}
 				ownValues={data.ownValues}
 				pins={data.pins}
+				pinsError={data.pinsError}
 				placeStarter={data.placeStarter}
 				valueLinks={data.links}
 			/>

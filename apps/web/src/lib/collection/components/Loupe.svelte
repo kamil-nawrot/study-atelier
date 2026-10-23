@@ -48,7 +48,7 @@
 	}
 
 	function close(event: KeyboardEvent): void {
-		if (event.key === 'Escape') onclose();
+		if (event.key === 'Escape' && !document.querySelector('dialog[open]')) onclose();
 	}
 </script>
 

@@ -39,6 +39,7 @@
 	let text = $state('');
 	let viewWidth = $state<number>();
 	let failure = $state<string>();
+	let failureTitle = $state(m.pins.errorTitle);
 	let busy = $state<'saving' | 'deleting'>();
 
 	let options = $derived(
@@ -65,6 +66,7 @@
 			text,
 			...(viewWidth !== undefined ? { viewWidth } : {})
 		};
+		failureTitle = m.pins.errorTitle;
 		failure = pinDraftError(draft);
 		if (failure) return;
 		busy = 'saving';
@@ -85,6 +87,7 @@
 		const { error } = await deletePin(pin.id);
 		busy = undefined;
 		if (error) {
+			failureTitle = m.pins.deleteErrorTitle;
 			failure = error;
 			return;
 		}
@@ -96,7 +99,7 @@
 <Dialog title={pin ? m.pins.title : m.pins.newTitle} bind:open>
 	<div class="fields">
 		{#if failure}
-			<Alert title={m.pins.errorTitle} tone="danger">
+			<Alert title={failureTitle} tone="danger">
 				{failure}
 			</Alert>
 		{/if}

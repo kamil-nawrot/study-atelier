@@ -18,6 +18,7 @@ declare
   term uuid;
   both_pin uuid;
   rejected boolean;
+  limit_hint text;
 begin
   select id into saved from public.save_artwork(
     '{"title": "Parthenon", "author_unknown": true}', '{}', null,
@@ -59,9 +60,12 @@ begin
   rejected := false;
   begin
     insert into public.artwork_pins (image_id, x, y, text) values (facade, 0.9, 0.9, 'Eleventh');
-  exception when check_violation then rejected := true;
+  exception when check_violation then
+    rejected := true;
+    get stacked diagnostics limit_hint = pg_exception_hint;
   end;
   assert rejected, 'an image takes more than 10 pins';
+  assert limit_hint = 'pin_limit', 'the pin limit gives no hint the app can recognise';
   insert into public.artwork_pins (image_id, x, y, text) values (plan, 0.9, 0.9, 'Another image');
 
   update public.artwork_pins set x = 0.75 where id = both_pin;
