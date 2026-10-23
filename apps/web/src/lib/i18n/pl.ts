@@ -174,7 +174,8 @@ export const pl = {
 			profile: 'Profil',
 			account: 'Konto',
 			review: 'Powtórki',
-			view: 'Widok dzieła'
+			view: 'Widok dzieła',
+			data: 'Dane'
 		},
 		loadErrorTitle: 'Nie udało się wczytać ustawień',
 		profile: {
@@ -228,6 +229,20 @@ export const pl = {
 			saved: 'Zapisano ustawienia.',
 			errorTitle: 'Nie udało się zapisać ustawień',
 			discardDescription: 'Masz niezapisane zmiany w ustawieniach. Jeśli wyjdziesz, znikną.'
+		},
+		data: {
+			exportTitle: 'Eksport',
+			exportDescription:
+				'Pobierz całe atelier w jednym pliku ZIP: dzieła z notatkami, własne zdjęcia, pinezki, Słowniczek, Kalendarium, kosz i historię powtórek.',
+			exportHint:
+				'Zdjęcia z Wikimedia Commons i z linków zostają odnośnikami. Duże atelier lepiej wyeksportować na komputerze.',
+			exportButton: 'Pobierz atelier',
+			reading: 'Zbieram dzieła…',
+			images: (done: number, total: number): string => `Zdjęcia: ${done} z ${total}`,
+			packing: 'Pakuję plik…',
+			exported: 'Plik z atelier jest pobrany.',
+			errorTitle: 'Nie udało się wyeksportować atelier',
+			failed: 'Spróbuj jeszcze raz. Jeśli to się powtarza, spróbuj na komputerze.'
 		}
 	},
 	atelier: {
