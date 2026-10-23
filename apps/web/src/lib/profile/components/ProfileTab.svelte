@@ -153,7 +153,6 @@
 			<TextField
 				autocomplete="given-name"
 				error={nameError}
-				hint={m.settings.profile.nameHint}
 				label={m.settings.profile.name}
 				maxlength={DISPLAY_NAME_MAX_LENGTH * 2}
 				bind:value={name}

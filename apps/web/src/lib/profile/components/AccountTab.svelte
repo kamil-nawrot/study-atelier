@@ -95,11 +95,6 @@
 		max-width: var(--size-content-default);
 	}
 
-	h2 {
-		font-size: var(--font-size-md);
-		font-weight: var(--font-weight-medium);
-	}
-
 	.actions {
 		display: flex;
 	}

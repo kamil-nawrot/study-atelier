@@ -182,7 +182,6 @@ export const pl = {
 			photoHint: 'Przytnę je do kwadratu i zmniejszę.',
 			removePhoto: 'Usuń zdjęcie',
 			name: 'Imię',
-			nameHint: 'Widać je w menu.',
 			nameTooLong: (max: number): string => `Imię może mieć najwyżej ${max} znaków.`,
 			cancel: 'Anuluj',
 			save: 'Zapisz profil',
