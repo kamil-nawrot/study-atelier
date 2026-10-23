@@ -1,0 +1,105 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { page } from 'vitest/browser';
+import { render } from 'vitest-browser-svelte';
+import { goto, invalidate } from '$app/navigation';
+import { m } from '#lib/i18n/index.ts';
+import { saveProfile } from '#lib/profile/profile-data.ts';
+import { PROFILE_DEPENDENCY } from '#lib/profile/profile-data.ts';
+import { testSession } from '#lib/testing/auth.ts';
+import SettingsPage from './+page.svelte';
+import '@study-atelier/ui/styles.css';
+
+const navigation = vi.hoisted(() => ({
+	state: {} as App.PageState,
+	data: {},
+	url: new URL('http://localhost/atelier/settings')
+}));
+
+vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
+vi.mock('$app/navigation', () => ({
+	beforeNavigate: vi.fn(),
+	goto: vi.fn(),
+	invalidate: vi.fn()
+}));
+vi.mock('#lib/profile/profile-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/profile/profile-data.ts')>()),
+	saveProfile: vi.fn()
+}));
+vi.mock('#lib/profile/avatar.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/profile/avatar.ts')>()),
+	avatarUrl: vi.fn().mockResolvedValue(undefined)
+}));
+vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+
+const profile = { displayName: 'Anna', avatarPath: null };
+
+function renderSettings(error?: string, search = ''): void {
+	navigation.url = new URL(`http://localhost/atelier/settings${search}`);
+	render(SettingsPage, { data: { session: testSession(), profile, error }, params: {} });
+}
+
+describe('settings page', () => {
+	beforeEach(async () => {
+		vi.clearAllMocks();
+		await page.viewport(1280, 800);
+	});
+
+	it('opens on the profile tab with the title and the lead', async () => {
+		renderSettings();
+
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent(m.settings.title);
+		await expect.element(page.getByText(m.settings.lead)).toBeVisible();
+		await expect
+			.element(page.getByRole('tab', { name: m.settings.tabs.profile }))
+			.toHaveAttribute('aria-selected', 'true');
+		await expect.element(page.getByLabelText(m.settings.profile.name)).toHaveValue('Anna');
+	});
+
+	it('opens the tab named in the address', async () => {
+		renderSettings(undefined, '?tab=account');
+
+		await expect
+			.element(page.getByRole('tab', { name: m.settings.tabs.account }))
+			.toHaveAttribute('aria-selected', 'true');
+		await expect.element(page.getByText(m.settings.account.passwordTitle)).toBeVisible();
+	});
+
+	it('falls back to the profile tab for a tab it does not know', async () => {
+		renderSettings(undefined, '?tab=unknown');
+
+		await expect
+			.element(page.getByRole('tab', { name: m.settings.tabs.profile }))
+			.toHaveAttribute('aria-selected', 'true');
+	});
+
+	it('puts the chosen tab in the address', async () => {
+		renderSettings();
+
+		await page.getByRole('tab', { name: m.settings.tabs.account }).click();
+
+		expect(goto).toHaveBeenCalledWith('/atelier/settings?tab=account', {
+			replace: true,
+			reset: false
+		});
+	});
+
+	it('refreshes the menu and confirms after the profile is saved', async () => {
+		vi.mocked(saveProfile).mockResolvedValue({ profile: { ...profile, displayName: 'Ania' } });
+		renderSettings();
+
+		await page.getByLabelText(m.settings.profile.name).fill('Ania');
+		await page.getByRole('button', { name: m.settings.profile.save }).click();
+
+		expect(invalidate).toHaveBeenCalledWith(PROFILE_DEPENDENCY);
+		await expect.element(page.getByText(m.settings.profile.saved)).toBeVisible();
+	});
+
+	it('shows a load error instead of the tabs', async () => {
+		renderSettings(m.settings.profile.failed);
+
+		await expect.element(page.getByText(m.settings.loadErrorTitle)).toBeVisible();
+		expect(page.getByRole('tab').elements()).toHaveLength(0);
+	});
+});

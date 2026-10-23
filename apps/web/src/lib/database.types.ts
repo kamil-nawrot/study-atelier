@@ -771,6 +771,31 @@ export type Database = {
           },
         ];
       };
+      profiles: {
+        Row: {
+          avatar_path: string | null;
+          created_at: string;
+          display_name: string | null;
+          owner_id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          avatar_path?: string | null;
+          created_at?: string;
+          display_name?: string | null;
+          owner_id?: string;
+          updated_at?: string;
+        };
+        Update: {
+          avatar_path?: string | null;
+          created_at?: string;
+          display_name?: string | null;
+          owner_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       review_cards: {
         Row: {
           artwork_id: string;

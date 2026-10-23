@@ -90,6 +90,48 @@ async function encodeJpeg(
 	return blob?.type === OWN_THUMBNAIL_TYPE ? blob : undefined;
 }
 
+export async function cropSquareJpeg(
+	source: Blob,
+	side: number,
+	quality: number
+): Promise<Blob | undefined> {
+	let bitmap: ImageBitmap;
+	try {
+		bitmap = await createImageBitmap(source);
+	} catch {
+		return undefined;
+	}
+	try {
+		const canvas = document.createElement('canvas');
+		canvas.width = side;
+		canvas.height = side;
+		const context = canvas.getContext('2d');
+		if (!context) return undefined;
+		const edge = Math.min(bitmap.width, bitmap.height);
+		context.fillStyle = '#ffffff';
+		context.fillRect(0, 0, side, side);
+		context.drawImage(
+			bitmap,
+			(bitmap.width - edge) / 2,
+			(bitmap.height - edge) / 2,
+			edge,
+			edge,
+			0,
+			0,
+			side,
+			side
+		);
+		const blob = await new Promise<Blob | null>((resolve) =>
+			canvas.toBlob(resolve, OWN_THUMBNAIL_TYPE, quality)
+		);
+		return blob?.type === OWN_THUMBNAIL_TYPE ? blob : undefined;
+	} catch {
+		return undefined;
+	} finally {
+		bitmap.close();
+	}
+}
+
 export async function makeThumbnail(source: Blob): Promise<Blob | undefined> {
 	try {
 		const bitmap = await createImageBitmap(source);

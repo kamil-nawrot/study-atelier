@@ -158,10 +158,53 @@ export const pl = {
 		review: 'Powtórki',
 		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
 		trash: 'Kosz',
+		settings: 'Ustawienia',
+		settingsLink: (name: string, email: string): string =>
+			name === email ? `Ustawienia, ${email}` : `Ustawienia, ${name}, ${email}`,
 		feedback: 'Zgłoś uwagę',
 		lightTheme: 'Jasny motyw',
 		darkTheme: 'Ciemny motyw',
 		signOut: 'Wyloguj się'
+	},
+	settings: {
+		title: 'Ustawienia',
+		lead: 'Tu zmienisz swoje imię, zdjęcie i hasło oraz ustawisz, jak mają działać powtórki i widok dzieła.',
+		tabsLabel: 'Części ustawień',
+		tabs: {
+			profile: 'Profil',
+			account: 'Konto'
+		},
+		loadErrorTitle: 'Nie udało się wczytać ustawień',
+		profile: {
+			avatarAlt: 'Twoje zdjęcie',
+			addPhoto: 'Dodaj zdjęcie',
+			changePhoto: 'Zmień zdjęcie',
+			photoHint: 'Przytnę je do kwadratu i zmniejszę.',
+			removePhoto: 'Usuń zdjęcie',
+			name: 'Imię',
+			nameHint: 'Widać je w menu.',
+			nameTooLong: (max: number): string => `Imię może mieć najwyżej ${max} znaków.`,
+			cancel: 'Anuluj',
+			save: 'Zapisz profil',
+			saving: 'Zapisuję…',
+			saved: 'Zapisano profil.',
+			errorTitle: 'Nie udało się zapisać profilu',
+			failed: 'Nie udało się zapisać profilu. Spróbuj jeszcze raz.',
+			network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.',
+			discardDescription: 'Masz niezapisane zmiany w profilu. Jeśli wyjdziesz, znikną.'
+		},
+		account: {
+			passwordTitle: 'Zmiana hasła',
+			currentPassword: 'Obecne hasło',
+			newPassword: 'Nowe hasło',
+			signOutOthers: 'Wyloguj mnie na innych urządzeniach',
+			submit: 'Zmień hasło',
+			submitting: 'Zmieniam…',
+			wrongCurrent: 'To nie jest Twoje obecne hasło.',
+			sameAsCurrent: 'Nowe hasło musi być inne niż obecne.',
+			changed: 'Hasło jest zmienione.',
+			errorTitle: 'Nie udało się zmienić hasła'
+		}
 	},
 	atelier: {
 		title: 'Atelier',

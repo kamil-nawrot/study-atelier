@@ -107,6 +107,7 @@ insert into public.glossary_entries (name, category, definition, forms)
   values ('Tympanum', 'architecture', 'A definition', '{tympana}');
 insert into public.timeline_events (name, year_from, year_to, description)
   values ('Thirty Years'' War', 1618, 1648, 'A description');
+insert into public.profiles (display_name) values ('Owner A');
 
 insert into public.artwork_pins (image_id, x, y, text)
   select id, 0.5, 0.5, 'A pin' from public.artwork_images;
@@ -167,6 +168,7 @@ begin
   assert (select count(*) from public.era_details) = 0, 'B reads era details of A';
   assert (select count(*) from public.glossary_entries) = 0, 'B reads glossary entries of A';
   assert (select count(*) from public.timeline_events) = 0, 'B reads timeline events of A';
+  assert (select count(*) from public.profiles) = 0, 'B reads the profile of A';
   assert (select count(*) from storage.objects) = 0, 'B reads image objects of A';
   assert (select count(*) from public.value_usage()) = 0, 'B sees value usage of A';
   assert (select count(*) from public.artwork_fields) = 0, 'B reads artwork fields of A';
@@ -207,6 +209,8 @@ begin
     'B deletes a glossary entry of A';
   assert security_test.affected('update public.timeline_events set name = ''x''') = 0,
     'B updates a timeline event of A';
+  assert security_test.affected('update public.profiles set display_name = ''x''') = 0,
+    'B updates the profile of A';
   assert security_test.affected('update public.artwork_fields set name = ''x''') = 0,
     'B renames an artwork field of A';
   assert security_test.affected('delete from public.artwork_fields') = 0,
@@ -228,6 +232,12 @@ begin
   assert security_test.denied(format(
     'insert into public.timeline_events (owner_id, name, year_to) values (%L, ''Forged'', 1500)', a)),
     'B inserts a timeline event owned by A';
+  assert security_test.denied(format(
+    'insert into public.profiles (owner_id, display_name) values (%L, ''Forged'')', a)),
+    'B inserts a profile owned by A';
+  assert security_test.denied(format(
+    'insert into public.profiles (avatar_path) values (%L)', a || '/avatar-' || gen_random_uuid() || '.jpg')),
+    'B sets an avatar in the folder of A';
   assert security_test.denied(format(
     'insert into public.feedback (owner_id, kind, title) values (%L, ''bug'', ''Forged'')', a)),
     'B sends feedback owned by A';
@@ -300,6 +310,30 @@ begin
   perform security_test.act_as(a);
 
   assert (select count(*) from public.glossary_entries) = 1, 'A does not see their glossary entry';
+  assert (select display_name from public.profiles) = 'Owner A', 'A does not see their profile';
+  assert not security_test.denied('update public.profiles set display_name = ''Renamed A'''),
+    'A cannot rename themselves';
+  assert security_test.denied('update public.profiles set display_name = '''''),
+    'A gives themselves an empty name';
+  assert security_test.denied('update public.profiles set display_name = '' Padded '''),
+    'A gives themselves a padded name';
+  assert security_test.denied(format('update public.profiles set display_name = %L', repeat('x', 61))),
+    'A gives themselves a name over 60 characters';
+  assert security_test.denied('update public.profiles set avatar_path = ''elsewhere/photo.jpg'''),
+    'A points the avatar at a path that is not an avatar';
+  assert security_test.denied(format(
+    'update public.profiles set avatar_path = %L', b || '/avatar-' || gen_random_uuid() || '.jpg')),
+    'A points the avatar at the folder of B';
+  assert not security_test.denied(format(
+    'update public.profiles set avatar_path = %L', a || '/avatar-' || gen_random_uuid() || '.jpg')),
+    'A cannot set their own avatar';
+  assert not security_test.denied(
+    'insert into public.profiles (display_name) values (''Upserted A'') on conflict (owner_id) do update set display_name = excluded.display_name'),
+    'A cannot save their existing profile with an upsert';
+  assert (select display_name from public.profiles) = 'Upserted A', 'the upsert of A does not change their name';
+  assert security_test.denied('update public.profiles set owner_id = gen_random_uuid()'),
+    'A moves their profile to another owner';
+  assert security_test.denied('delete from public.profiles'), 'A deletes their profile';
   assert not security_test.denied(
     'insert into public.glossary_entries (name, category, forms) values (''Sfumato'', ''technique'', ''{sfumata,sfumatem}'')'),
     'A cannot add a glossary entry';
@@ -596,6 +630,7 @@ begin
   assert security_test.denied('select * from public.author_details'), 'anon reads author details';
   assert security_test.denied('select * from public.catalogue_museums'), 'anon reads the museum catalogue';
   assert security_test.denied('select * from public.glossary_entries'), 'anon reads glossary entries';
+  assert security_test.denied('select * from public.profiles'), 'anon reads profiles';
   assert (select count(*) from storage.objects) = 0, 'anon reads image objects';
   assert security_test.denied('select public.value_usage()'), 'anon executes value_usage';
   assert security_test.denied('select * from public.artwork_fields'), 'anon reads artwork fields';

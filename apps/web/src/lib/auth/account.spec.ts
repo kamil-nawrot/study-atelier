@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
-import { signIn, signUp } from './account';
+import { changePassword, signIn, signUp } from './account';
 
 const auth = vi.hoisted(() => ({
 	signInWithPassword: vi.fn(),
-	signUp: vi.fn()
+	signUp: vi.fn(),
+	updateUser: vi.fn(),
+	signOut: vi.fn()
 }));
 
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth } }));
@@ -13,6 +15,8 @@ beforeEach(() => {
 	vi.stubGlobal('window', { location: { origin: 'https://atelier.test' } });
 	auth.signInWithPassword.mockReset();
 	auth.signUp.mockReset();
+	auth.updateUser.mockReset();
+	auth.signOut.mockReset();
 });
 
 describe('signIn', () => {
@@ -63,5 +67,91 @@ describe('signUp', () => {
 			accountExists: true,
 			signedIn: false
 		});
+	});
+});
+
+describe('changePassword', () => {
+	beforeEach(() => {
+		auth.signInWithPassword.mockResolvedValue({ error: null });
+		auth.updateUser.mockResolvedValue({ error: null });
+		auth.signOut.mockResolvedValue({ error: null });
+	});
+
+	it('checks the current password by signing in with it before setting the new one', async () => {
+		const result = await changePassword('learner@example.com', 'vermeer1', 'rembrandt2', false);
+
+		expect(result).toEqual({ changed: true });
+		expect(auth.signInWithPassword).toHaveBeenCalledWith({
+			email: 'learner@example.com',
+			password: 'vermeer1'
+		});
+		expect(auth.updateUser).toHaveBeenCalledWith({ password: 'rembrandt2' });
+		expect(auth.signInWithPassword.mock.invocationCallOrder[0]).toBeLessThan(
+			auth.updateUser.mock.invocationCallOrder[0]
+		);
+	});
+
+	it('signs out the other devices only when asked to', async () => {
+		await changePassword('learner@example.com', 'vermeer1', 'rembrandt2', false);
+		expect(auth.signOut).not.toHaveBeenCalled();
+
+		await changePassword('learner@example.com', 'vermeer1', 'rembrandt2', true);
+		expect(auth.signOut).toHaveBeenCalledExactlyOnceWith({ scope: 'others' });
+	});
+
+	it('reports a wrong current password under that field and changes nothing', async () => {
+		auth.signInWithPassword.mockResolvedValue({
+			error: { code: 'invalid_credentials', status: 400 }
+		});
+
+		const result = await changePassword('learner@example.com', 'wrong', 'rembrandt2', true);
+
+		expect(result).toEqual({ changed: false, currentError: m.settings.account.wrongCurrent });
+		expect(auth.updateUser).not.toHaveBeenCalled();
+		expect(auth.signOut).not.toHaveBeenCalled();
+	});
+
+	it('does not sign anyone out when the server refuses the check with an authorization error', async () => {
+		auth.signInWithPassword.mockResolvedValue({
+			error: { code: 'invalid_credentials', status: 401 }
+		});
+
+		const result = await changePassword('learner@example.com', 'wrong', 'rembrandt2', true);
+
+		expect(result.currentError).toBe(m.settings.account.wrongCurrent);
+		expect(auth.signOut).not.toHaveBeenCalled();
+	});
+
+	it('rejects a new password equal to the current one without calling the server', async () => {
+		const result = await changePassword('learner@example.com', 'vermeer1', 'vermeer1', true);
+
+		expect(result).toEqual({ changed: false, newError: m.settings.account.sameAsCurrent });
+		expect(auth.signInWithPassword).not.toHaveBeenCalled();
+	});
+
+	it('reports a password the server calls the same under the new password field', async () => {
+		auth.updateUser.mockResolvedValue({ error: { code: 'same_password', status: 422 } });
+
+		const result = await changePassword('learner@example.com', 'vermeer1', 'rembrandt2', true);
+
+		expect(result).toEqual({ changed: false, newError: m.settings.account.sameAsCurrent });
+		expect(auth.signOut).not.toHaveBeenCalled();
+	});
+
+	it('reports a weak password under the new password field', async () => {
+		auth.updateUser.mockResolvedValue({ error: { code: 'weak_password', status: 422 } });
+
+		const result = await changePassword('learner@example.com', 'vermeer1', 'rembrandt2', true);
+
+		expect(result).toEqual({ changed: false, newError: m.authErrors.weakPassword });
+	});
+
+	it('shows a general message when the network fails and keeps the session', async () => {
+		auth.signInWithPassword.mockResolvedValue({ error: { name: 'AuthRetryableFetchError' } });
+
+		const result = await changePassword('learner@example.com', 'vermeer1', 'rembrandt2', true);
+
+		expect(result).toEqual({ changed: false, error: m.authErrors.network });
+		expect(auth.signOut).not.toHaveBeenCalled();
 	});
 });

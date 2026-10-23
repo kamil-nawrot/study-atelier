@@ -10,7 +10,10 @@ import AtelierLayout from './AtelierLayout.svelte';
 const navigation = vi.hoisted(() => ({ to: null as object | null }));
 const pageState = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier'),
-	data: {} as { reviewWaiting?: Promise<number> }
+	data: {} as {
+		reviewWaiting?: Promise<number>;
+		menuProfile?: Promise<{ displayName: string | null; avatarPath: string | null } | undefined>;
+	}
 }));
 
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
@@ -106,7 +109,7 @@ describe('AtelierLayout', () => {
 			.querySelectorAll('a');
 		const names = [...links].map((link) => link.textContent?.trim() ?? '');
 
-		expect(names.slice(0, 5)).toEqual([
+		expect(names.slice(1, 6)).toEqual([
 			m.menu.atelier,
 			m.menu.cardIndex,
 			m.menu.glossary,
@@ -198,5 +201,65 @@ describe('AtelierLayout', () => {
 		await userEvent.click(page.getByRole('button', { name: m.menu.feedback }));
 
 		await expect.element(page.getByRole('dialog', { name: m.feedback.title })).toBeInTheDocument();
+	});
+});
+
+describe('AtelierLayout account row', () => {
+	beforeEach(async () => {
+		navigation.to = null;
+		pageState.data = {};
+		await page.viewport(1280, 800);
+	});
+
+	it('links to the settings with the email until the profile is known', async () => {
+		pageState.data = { menuProfile: new Promise(() => {}) };
+		renderLayout(views.empty);
+
+		await expect
+			.element(
+				page.getByRole('link', {
+					name: m.menu.settingsLink('learner@example.com', 'learner@example.com')
+				})
+			)
+			.toHaveAttribute('href', '/atelier/settings');
+	});
+
+	it('names the settings link after the learner and shows the first letter of the name', async () => {
+		pageState.data = { menuProfile: Promise.resolve({ displayName: 'Anna', avatarPath: null }) };
+		renderLayout(views.empty);
+
+		const link = page.getByRole('link', {
+			name: m.menu.settingsLink('Anna', 'learner@example.com')
+		});
+		await expect.element(link).toHaveAttribute('href', '/atelier/settings');
+		await expect.element(link).toHaveTextContent('A');
+	});
+
+	it('falls back to the email when the profile cannot be read', async () => {
+		pageState.data = { menuProfile: Promise.resolve(undefined) };
+		renderLayout(views.empty);
+
+		await expect
+			.element(
+				page.getByRole('link', {
+					name: m.menu.settingsLink('learner@example.com', 'learner@example.com')
+				})
+			)
+			.toHaveTextContent('L');
+	});
+
+	it('marks the settings as the current page on the settings view', async () => {
+		pageState.url = new URL('http://localhost/atelier/settings');
+		pageState.data = { menuProfile: Promise.resolve(undefined) };
+		renderLayout(views.empty);
+
+		await expect
+			.element(
+				page.getByRole('link', {
+					name: m.menu.settingsLink('learner@example.com', 'learner@example.com')
+				})
+			)
+			.toHaveAttribute('aria-current', 'page');
+		pageState.url = new URL('http://localhost/atelier');
 	});
 });

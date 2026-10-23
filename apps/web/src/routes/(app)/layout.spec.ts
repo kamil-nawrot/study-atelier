@@ -8,6 +8,15 @@ const reviewData = vi.hoisted(() => ({
 	loadReviewCounts: vi.fn()
 }));
 
+const profileData = vi.hoisted(() => ({
+	loadProfile: vi.fn()
+}));
+
+vi.mock('#lib/profile/profile-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/profile/profile-data.ts')>()),
+	loadProfile: profileData.loadProfile
+}));
+
 vi.mock('#lib/review/review-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/review/review-data.ts')>()),
 	loadReviewCounts: reviewData.loadReviewCounts
@@ -24,6 +33,9 @@ function loadWith(session: Session | null): ReturnType<typeof load> {
 
 describe('(app) layout load', () => {
 	beforeEach(() => {
+		profileData.loadProfile.mockResolvedValue({
+			profile: { displayName: 'Anna', avatarPath: null }
+		});
 		reviewData.loadReviewCounts.mockResolvedValue({
 			counts: { due: 4, newAvailable: 30, newToday: 3, withImage: 40 }
 		});
@@ -53,5 +65,22 @@ describe('(app) layout load', () => {
 		const { reviewWaiting } = (await loadWith(testSession())) ?? {};
 
 		await expect(reviewWaiting).resolves.toBe(0);
+	});
+
+	it('reads the name and the photo for the menu without holding the page', async () => {
+		const { menuProfile } = (await loadWith(testSession())) ?? {};
+
+		await expect(menuProfile).resolves.toEqual({ displayName: 'Anna', avatarPath: null });
+	});
+
+	it('shows the email in the menu when the profile cannot be read', async () => {
+		profileData.loadProfile.mockResolvedValue({
+			profile: { displayName: null, avatarPath: null },
+			error: 'Failed'
+		});
+
+		const { menuProfile } = (await loadWith(testSession())) ?? {};
+
+		await expect(menuProfile).resolves.toBeUndefined();
 	});
 });

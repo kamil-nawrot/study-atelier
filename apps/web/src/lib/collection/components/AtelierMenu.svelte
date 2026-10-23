@@ -13,6 +13,9 @@
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/index.ts';
+	import type { Profile } from '#lib/profile/types.ts';
+	import Avatar from '#lib/profile/components/Avatar.svelte';
+	import { avatarInitial } from '#lib/profile/profile.ts';
 	import { currentTheme, setTheme } from '#lib/theme/theme.svelte.ts';
 
 	type Props = {
@@ -30,20 +33,37 @@
 	const glossaryPath = resolve('/(app)/atelier/glossary');
 	const timelinePath = resolve('/(app)/atelier/timeline');
 	const trashPath = resolve('/(app)/atelier/trash');
+	const settingsPath = resolve('/(app)/atelier/settings');
 	const reviewPath = resolve('/(app)/atelier/review');
 
 	const light = $derived(currentTheme() === 'light');
 </script>
 
+{#snippet account(profile?: Profile)}
+	<a
+		class="item"
+		aria-current={page.url.pathname === settingsPath ? 'page' : undefined}
+		aria-label={compact ? m.menu.settingsLink(profile?.displayName ?? email, email) : undefined}
+		href={settingsPath}
+	>
+		<Avatar initial={avatarInitial(profile, email)} path={profile?.avatarPath} />
+		<span class="who" class:visually-hidden={compact}>
+			{#if profile?.displayName}
+				<span class="label">{profile.displayName}</span>
+				<span class="label email">{email}</span>
+			{:else}
+				<span class="label">{email}</span>
+			{/if}
+		</span>
+	</a>
+{/snippet}
+
 <div class="group">
-	<span class="item avatar-item">
-		<span class="avatar" aria-hidden="true">
-			{email.charAt(0).toLocaleUpperCase('pl')}
-		</span>
-		<span class="label" class:visually-hidden={compact}>
-			{email}
-		</span>
-	</span>
+	{#await page.data.menuProfile}
+		{@render account()}
+	{:then profile}
+		{@render account(profile)}
+	{/await}
 	<a
 		class="item"
 		aria-current={page.url.pathname === atelierPath ? 'page' : undefined}
@@ -191,23 +211,14 @@
 		cursor: not-allowed;
 	}
 
-	.avatar-item {
-		cursor: default;
+	.who {
+		display: grid;
+		min-width: 0;
 	}
 
-	.avatar {
-		display: grid;
-		place-items: center;
-		flex: none;
-		width: 24px;
-		height: 24px;
-		border: var(--border-width-base) solid var(--color-fg);
-		border-radius: var(--border-radius-none);
-		background: var(--color-tag);
+	.email {
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-xs);
-		font-weight: var(--font-weight-bold);
-		line-height: 1;
 	}
 
 	.label {

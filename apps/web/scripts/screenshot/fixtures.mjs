@@ -457,6 +457,8 @@ export const USER = {
 	created_at: '2026-01-01T00:00:00Z'
 };
 
+export const PROFILE = { display_name: 'Anna', avatar_path: null };
+
 export function fakeSession() {
 	return {
 		access_token: 'fake-access-token',
