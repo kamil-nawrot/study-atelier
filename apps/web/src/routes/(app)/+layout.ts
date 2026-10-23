@@ -24,20 +24,21 @@ async function ownProfile(): Promise<Profile | undefined> {
 	return error ? undefined : profile;
 }
 
-async function reviewWaiting(): Promise<number> {
-	const [{ counts }, { preferences }] = await Promise.all([
-		loadReviewCounts(startOfDay(new Date())),
-		loadPreferences().then((result) => {
-			applyAutoFetch(result.preferences);
-			return result;
-		})
-	]);
-	return counts ? waitingToday(counts, preferences.reviewNewPerDay) : 0;
+async function reviewWaiting(newPerDay: number): Promise<number> {
+	const { counts } = await loadReviewCounts(startOfDay(new Date()));
+	return counts ? waitingToday(counts, newPerDay) : 0;
 }
 
 export const load: LayoutLoad = async ({ parent, depends }): Promise<AppLayoutData> => {
 	depends(REVIEW_COUNTS_DEPENDENCY, PROFILE_DEPENDENCY, PREFERENCES_DEPENDENCY);
+	const preferences = loadPreferences();
 	const { session } = await parent();
 	if (!session) redirect(307, resolve('/(auth)/sign-in'));
-	return { session, reviewWaiting: reviewWaiting(), menuProfile: ownProfile() };
+	const loaded = (await preferences).preferences;
+	applyAutoFetch(loaded);
+	return {
+		session,
+		reviewWaiting: reviewWaiting(loaded.reviewNewPerDay),
+		menuProfile: ownProfile()
+	};
 };

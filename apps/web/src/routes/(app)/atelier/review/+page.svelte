@@ -26,6 +26,7 @@
 		troubles,
 		waitingTomorrow
 	} from '#lib/review/overview.ts';
+	import { offeredForms, quizzesPossible } from '#lib/review/forms.ts';
 	import { missingArtworks, sessionCounts, startOfDay } from '#lib/review/queue.ts';
 	import { QUIZ_TILE_SIZES, quizArtworks, sessionItems } from '#lib/review/quiz.ts';
 	import {
@@ -69,6 +70,10 @@
 
 	let scope = $state<ReviewScope>(ALL_SCOPE);
 	let form = $state<ReviewForm>(untrack(() => data.preferences.reviewForm));
+	const forms = $derived(
+		offeredForms(quizzesPossible(data.preferences.reviewQuizKinds, data.artworks, data.termPins))
+	);
+	const activeForm = $derived(forms.includes(form) ? form : 'mixed');
 	let freeRound = $state(0);
 	let cards = $state.raw(untrack(() => data.cards));
 	let newToday = $state(untrack(() => data.newToday));
@@ -215,8 +220,8 @@
 		const free = freeOpen;
 		const dayStart = startOfDay(new Date());
 		const loaded = free
-			? await loadSession(dayStart, form, activeScope, freeRound)
-			: await loadSession(dayStart, form, activeScope);
+			? await loadSession(dayStart, activeForm, activeScope, freeRound)
+			: await loadSession(dayStart, activeForm, activeScope);
 		const items = await withPinPreviews(sessionItems(loaded.rows, artworksById, cards));
 		if (loaded.error || items.length === 0) return loaded.error;
 		const artworks = items.map((item) => item.artwork);
@@ -378,7 +383,8 @@
 	{:else}
 		<ReviewStart
 			error={startError}
-			{form}
+			form={activeForm}
+			{forms}
 			free={freeOpen}
 			fresh={counts.fresh}
 			{knowledge}

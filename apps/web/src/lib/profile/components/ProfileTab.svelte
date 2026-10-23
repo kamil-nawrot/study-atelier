@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onDestroy, tick, untrack } from 'svelte';
-	import Camera from '@lucide/svelte/icons/camera';
-	import ImageOff from '@lucide/svelte/icons/image-off';
+	import ImageUp from '@lucide/svelte/icons/image-up';
+	import ImageMinus from '@lucide/svelte/icons/image-minus';
 	import { Alert, Button, Form, FormActions, IconButton, TextField } from '@study-atelier/ui';
 	import DiscardDialog from '#lib/collection/components/DiscardDialog.svelte';
 	import { UnsavedChanges } from '#lib/collection/unsaved-changes.svelte.ts';
@@ -134,14 +134,14 @@
 					<div class="buttons">
 						<IconButton
 							disabled={busy || cropping}
-							icon={Camera}
+							icon={ImageUp}
 							label={hasAvatar ? m.settings.profile.changePhoto : m.settings.profile.addPhoto}
 							onclick={() => fileInput?.click()}
 						/>
 						{#if hasAvatar}
 							<IconButton
 								disabled={busy}
-								icon={ImageOff}
+								icon={ImageMinus}
 								label={m.settings.profile.removePhoto}
 								onclick={() => setAvatar({ kind: 'remove' })}
 							/>

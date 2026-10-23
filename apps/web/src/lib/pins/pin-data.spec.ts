@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
 import {
+	countTermPins,
 	createPin,
 	deletePin,
 	loadArtworkPins,
@@ -42,6 +43,21 @@ describe('pin data', () => {
 			query[name as keyof typeof query].mockReturnValue(query);
 		}
 		query.eq.mockReturnValue(query);
+	});
+
+	it('counts the pins that name a glossary entry, and gives up quietly on an error', async () => {
+		const counted = {
+			select: vi.fn(() => counted),
+			not: vi.fn(() => counted),
+			is: vi.fn()
+		};
+		vi.mocked(supabase.from).mockReturnValue(counted as never);
+		counted.is.mockResolvedValueOnce({ count: 3, error: null });
+		counted.is.mockResolvedValueOnce({ count: null, error: { message: 'x' } });
+
+		await expect(countTermPins()).resolves.toBe(3);
+		expect(counted.not).toHaveBeenCalledWith('glossary_entry_id', 'is', null);
+		await expect(countTermPins()).resolves.toBeUndefined();
 	});
 
 	it('loads the pins of every image of an artwork in the order they were placed', async () => {

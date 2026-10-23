@@ -63,7 +63,8 @@ function renderReview(
 	error?: string,
 	streak = 0,
 	menu: { reviewWaiting?: Promise<number>; waiting?: number } = {},
-	preferences: Preferences = defaultPreferences
+	preferences: Preferences = defaultPreferences,
+	termPins?: number
 ): void {
 	render(ReviewPage, {
 		data: {
@@ -76,6 +77,7 @@ function renderReview(
 			...menu,
 			glossary: [],
 			preferences,
+			termPins,
 			error
 		},
 		params: {}
@@ -222,6 +224,30 @@ describe('review page', () => {
 		await expect
 			.element(page.getByRole('button', { name: m.review.forms.quizzes }))
 			.toHaveAttribute('aria-pressed', 'true');
+	});
+
+	it('leaves out "Quizy" and starts mixed when no quiz kind can be asked', async () => {
+		const artworks = collection(25);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 20), () => 5),
+			0,
+			undefined,
+			0,
+			{},
+			{ ...defaultPreferences, reviewForm: 'quizzes', reviewQuizKinds: ['quiz_pin'] },
+			0
+		);
+
+		await page.getByText(m.review.options).click();
+		await expect
+			.element(page.getByRole('button', { name: m.review.forms.mixed }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect
+			.element(page.getByRole('button', { name: m.review.forms.quizzes }))
+			.not.toBeInTheDocument();
+		await page.getByRole('button', { name: m.review.start }).click();
+		expect(loadSession).toHaveBeenCalledWith(expect.any(Date), 'mixed', { kind: 'all' });
 	});
 
 	it('says in a free session that its answers are not saved', async () => {

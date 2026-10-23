@@ -8,6 +8,14 @@ import { EXPORT_TABLES, type ExportTable } from './tables.ts';
 
 type ReadResult = { data: AtelierData; error?: undefined } | { error: string };
 
+type StorageErrorLike = {
+	status?: number;
+	statusCode?: string;
+};
+
+export type OwnImageDownload =
+	{ bytes: Uint8Array } | { missing: true } | { error: StorageErrorLike };
+
 const IMAGE_PATH_COLUMNS = ['own_image_path', 'avatar_path'];
 
 function withoutOwner(row: ExportRow): ExportRow {
@@ -51,8 +59,13 @@ export function ownImagePaths(data: AtelierData): string[] {
 	);
 }
 
-export async function downloadOwnImage(path: string): Promise<Uint8Array | null> {
+function isMissing(error: StorageErrorLike): boolean {
+	return error.status === 404 || error.statusCode === '404';
+}
+
+export async function downloadOwnImage(path: string): Promise<OwnImageDownload> {
 	const { data, error } = await supabase.storage.from(IMAGES_BUCKET).download(path);
-	if (error || !data) return null;
-	return new Uint8Array(await data.arrayBuffer());
+	if (error) return isMissing(error) ? { missing: true } : { error };
+	if (!data) return { missing: true };
+	return { bytes: new Uint8Array(await data.arrayBuffer()) };
 }

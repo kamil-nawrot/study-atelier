@@ -146,7 +146,7 @@ type AfterNavigate = Parameters<Parameters<typeof afterNavigate>[0]>[0];
 function arrive(from: string | null): void {
 	const callback = vi.mocked(afterNavigate).mock.calls[0][0];
 	callback({
-		from: from === null ? null : { route: { id: from } }
+		from: from === null ? null : { route: { id: from }, url: new URL('/atelier', location.href) }
 	} as unknown as AfterNavigate);
 }
 

@@ -21,7 +21,7 @@ describe('exportAtelier', () => {
 			data: { artworks: [{ id: 'a', own_image_path: 'u/a.jpg' }] }
 		});
 		vi.mocked(downloadOwnImage).mockImplementation(async (path) =>
-			path === 'u/a-thumb.jpg' ? null : new Uint8Array([1])
+			path === 'u/a-thumb.jpg' ? { missing: true } : { bytes: new Uint8Array([1]) }
 		);
 		const steps: ExportProgress[] = [];
 
@@ -36,6 +36,17 @@ describe('exportAtelier', () => {
 		expect(steps[0]).toEqual({ step: 'data' });
 		expect(steps).toContainEqual({ step: 'images', done: 2, total: 2 });
 		expect(steps.at(-1)).toEqual({ step: 'archive' });
+	});
+
+	it('gives up instead of leaving out an image it could not download', async () => {
+		vi.mocked(readAtelier).mockResolvedValue({
+			data: { artworks: [{ id: 'a', own_image_path: 'u/a.jpg' }] }
+		});
+		vi.mocked(downloadOwnImage).mockResolvedValue({ error: { status: 500 } });
+
+		expect(await exportAtelier(() => undefined, now)).toEqual({
+			error: m.settings.data.imageFailed
+		});
 	});
 
 	it('returns the error of a table that cannot be read', async () => {

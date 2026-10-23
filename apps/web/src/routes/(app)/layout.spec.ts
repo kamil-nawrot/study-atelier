@@ -81,13 +81,12 @@ describe('(app) layout load', () => {
 		await expect(reviewWaiting).resolves.toBe(21);
 	});
 
-	it('applies the switches for the automatic fetching from the preferences', async () => {
+	it('applies the switches for the automatic fetching before the page shows', async () => {
 		preferencesData.loadPreferences.mockResolvedValue({
 			preferences: { ...defaultPreferences, fetchImage: false, fetchEvent: false }
 		});
 
-		const { reviewWaiting } = (await loadWith(testSession())) ?? {};
-		await reviewWaiting;
+		await loadWith(testSession());
 
 		expect(autoFetch).toEqual({ image: false, definition: true, forms: true, event: false });
 		Object.assign(autoFetch, { image: true, event: true });

@@ -72,11 +72,29 @@ describe('ownImagePaths', () => {
 });
 
 describe('downloadOwnImage', () => {
-	it('returns the bytes, or null when the file is missing', async () => {
+	it('returns the bytes of a file', async () => {
 		storage.download.mockResolvedValueOnce({ data: new Blob([new Uint8Array([7])]), error: null });
-		storage.download.mockResolvedValueOnce({ data: null, error: { message: 'x' } });
 
-		expect([...((await downloadOwnImage('u/a.jpg')) ?? [])]).toEqual([7]);
-		expect(await downloadOwnImage('u/missing.jpg')).toBeNull();
+		const download = await downloadOwnImage('u/a.jpg');
+
+		expect('bytes' in download && [...download.bytes]).toEqual([7]);
+	});
+
+	it('says a file is missing when the bucket does not have it', async () => {
+		storage.download.mockResolvedValueOnce({
+			data: null,
+			error: { message: 'Object not found', status: 400, statusCode: '404' }
+		});
+		storage.download.mockResolvedValueOnce({ data: null, error: { message: 'x', status: 404 } });
+
+		expect(await downloadOwnImage('u/missing.jpg')).toEqual({ missing: true });
+		expect(await downloadOwnImage('u/missing-thumb.jpg')).toEqual({ missing: true });
+	});
+
+	it('returns the error when a file cannot be downloaded', async () => {
+		const error = { message: 'Failed to fetch' };
+		storage.download.mockResolvedValueOnce({ data: null, error });
+
+		expect(await downloadOwnImage('u/a.jpg')).toEqual({ error });
 	});
 });

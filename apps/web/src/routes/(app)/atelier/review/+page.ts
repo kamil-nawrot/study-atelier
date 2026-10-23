@@ -1,5 +1,6 @@
 import { loadAtelier } from '#lib/collection/artworks.ts';
 import { loadGlossary } from '#lib/glossary/glossary-data.ts';
+import { countTermPins } from '#lib/pins/pin-data.ts';
 import { loadPreferences, PREFERENCES_DEPENDENCY } from '#lib/profile/preferences-data.ts';
 import { startOfDay } from '#lib/review/queue.ts';
 import {
@@ -13,13 +14,14 @@ import type { PageLoad } from './$types';
 export const load: PageLoad = async ({ depends }) => {
 	depends(PREFERENCES_DEPENDENCY);
 	const dayStart = startOfDay(new Date());
-	const [atelier, review, counts, streak, glossary, prefs] = await Promise.all([
+	const [atelier, review, counts, streak, glossary, prefs, termPins] = await Promise.all([
 		loadAtelier(),
 		loadReviewCards(),
 		loadReviewCounts(dayStart),
 		loadReviewStreak(dayStart),
 		loadGlossary(),
-		loadPreferences()
+		loadPreferences(),
+		countTermPins()
 	]);
 	return {
 		artworks: atelier.artworks,
@@ -30,6 +32,7 @@ export const load: PageLoad = async ({ depends }) => {
 			: undefined,
 		streak: streak.days,
 		preferences: prefs.preferences,
+		termPins,
 		glossary: glossary.entries,
 		error: atelier.error ?? review.error ?? counts.error
 	};
