@@ -249,6 +249,17 @@ begin
   assert jsonb_array_length(public.review_session(day_start, 'flashcards')) <= 5,
     'a session takes more new artworks than the profile allows per day';
 
+  assert (
+    select fetch_image and fetch_definition and fetch_forms and fetch_event from public.profiles
+  ), 'a new profile switches an automatic fetch off';
+  update public.profiles
+    set fetch_image = false, fetch_definition = false, fetch_forms = false, fetch_event = false;
+  assert (
+    select not (fetch_image or fetch_definition or fetch_forms or fetch_event) from public.profiles
+  ), 'the automatic fetches cannot be switched off';
+  update public.profiles
+    set fetch_image = true, fetch_definition = true, fetch_forms = true, fetch_event = true;
+
   update public.profiles set review_quiz_kinds = array['quiz_image'];
   select array_agg(distinct item ->> 'mode') into modes
     from jsonb_array_elements(public.review_session(day_start, 'quizzes')) as item;

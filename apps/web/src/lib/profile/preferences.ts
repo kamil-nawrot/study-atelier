@@ -18,12 +18,17 @@ export const defaultPreferences: Preferences = {
 	reviewQuizKinds: [...QUIZ_KINDS],
 	reviewFree: true,
 	viewShowPins: false,
-	viewLoupeOn: false
+	viewLoupeOn: false,
+	fetchImage: true,
+	fetchDefinition: true,
+	fetchForms: true,
+	fetchEvent: true
 };
 
 const PART_FIELDS: Record<PreferencesPart, readonly (keyof Preferences)[]> = {
 	review: ['reviewSessionSize', 'reviewNewPerDay', 'reviewForm', 'reviewQuizKinds', 'reviewFree'],
-	view: ['viewShowPins', 'viewLoupeOn']
+	view: ['viewShowPins', 'viewLoupeOn'],
+	sources: ['fetchImage', 'fetchDefinition', 'fetchForms', 'fetchEvent']
 };
 
 function sameKinds(left: QuizMode[], right: QuizMode[]): boolean {

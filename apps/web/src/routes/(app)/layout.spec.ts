@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { isRedirect } from '@sveltejs/kit';
 import type { Session } from '@supabase/supabase-js';
+import { autoFetch } from '#lib/profile/auto-fetch.svelte.ts';
 import { defaultPreferences } from '#lib/profile/preferences.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import { load } from './+layout';
@@ -78,6 +79,18 @@ describe('(app) layout load', () => {
 		const { reviewWaiting } = (await loadWith(testSession())) ?? {};
 
 		await expect(reviewWaiting).resolves.toBe(21);
+	});
+
+	it('applies the switches for the automatic fetching from the preferences', async () => {
+		preferencesData.loadPreferences.mockResolvedValue({
+			preferences: { ...defaultPreferences, fetchImage: false, fetchEvent: false }
+		});
+
+		const { reviewWaiting } = (await loadWith(testSession())) ?? {};
+		await reviewWaiting;
+
+		expect(autoFetch).toEqual({ image: false, definition: true, forms: true, event: false });
+		Object.assign(autoFetch, { image: true, event: true });
 	});
 
 	it('shows no counter when the counts cannot be read', async () => {
