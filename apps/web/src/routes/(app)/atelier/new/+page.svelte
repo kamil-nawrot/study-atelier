@@ -13,14 +13,14 @@
 	const atelierPath = resolve('/(app)/atelier');
 
 	let form: ArtworkForm;
-	let cameFromAtelier = false;
+	let cameFromApp = false;
 
 	afterNavigate(({ from }) => {
-		cameFromAtelier = from?.route.id === '/(app)/atelier';
+		cameFromApp = from !== null;
 	});
 
-	function backToAtelier(event: MouseEvent): void {
-		goBackThroughHistory(event, cameFromAtelier);
+	function goBack(event: MouseEvent): void {
+		goBackThroughHistory(event, cameFromApp);
 	}
 
 	async function showSaved(number: number, next: boolean): Promise<void> {
@@ -47,7 +47,7 @@
 		cancelHref={atelierPath}
 		categoryValues={data.values}
 		noteLinks={data.noteLinks}
-		oncancel={backToAtelier}
+		oncancel={goBack}
 		onsaved={showSaved}
 		ownFields={data.ownFields}
 		ownValues={data.ownValues}

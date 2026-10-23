@@ -53,6 +53,22 @@ export async function fetchAll<T>(
 	}
 }
 
+function ownValuesOf(rows: readonly UsageRow[]): OwnValue[] {
+	return rows.flatMap((row): OwnValue[] =>
+		isCategoryCode(row.category_code)
+			? []
+			: [{ id: row.id, fieldId: row.category_code, name: row.name, count: row.artwork_count }]
+	);
+}
+
+export async function loadOwnValues(): Promise<{ ownValues: OwnValue[]; error?: string }> {
+	const { rows, error } = await fetchAll<UsageRow>((from, to) =>
+		supabase.rpc('value_usage').range(from, to)
+	);
+	if (error) return { ownValues: [], error: collectionErrorMessage(error) };
+	return { ownValues: ownValuesOf(rows) };
+}
+
 export async function loadCardIndex(): Promise<CardIndexResult> {
 	const [values, periodEras, stylePeriods, sortNames] = await Promise.all([
 		fetchAll<UsageRow>((from, to) => supabase.rpc('value_usage').range(from, to)),
@@ -73,11 +89,7 @@ export async function loadCardIndex(): Promise<CardIndexResult> {
 	}
 
 	return {
-		ownValues: values.rows.flatMap((row): OwnValue[] =>
-			isCategoryCode(row.category_code)
-				? []
-				: [{ id: row.id, fieldId: row.category_code, name: row.name, count: row.artwork_count }]
-		),
+		ownValues: ownValuesOf(values.rows),
 		index: {
 			values: values.rows.flatMap((row): CardIndexRecord[] =>
 				isCategoryCode(row.category_code)

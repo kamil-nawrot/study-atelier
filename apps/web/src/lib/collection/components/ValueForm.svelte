@@ -34,6 +34,7 @@
 		emptyAuthorDetails,
 		validateAuthorForm
 	} from '../author-form.ts';
+	import { VALUE_NAME_MAX_LENGTH } from '../category-values.ts';
 	import { countryOptions } from '../countries.ts';
 	import { ERA_CODES, eraName } from '../eras.ts';
 	import { isPlaceType, placeTiles } from '../place-types.ts';
@@ -353,6 +354,7 @@
 								)
 							: undefined}
 						label={m.valueForm.name}
+						maxlength={VALUE_NAME_MAX_LENGTH}
 						bind:value={form.name}
 					/>
 				{/if}

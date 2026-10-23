@@ -260,9 +260,9 @@ begin
     jsonb_build_object('author', '[]'::jsonb), null, null, jsonb_build_object(a_source::text, 'Forged'));
   assert (select count(*) from public.artwork_field_entries) = 0,
     'B fills in a field of A through save_artwork';
-  assert security_test.denied(format(
-    'select public.save_artwork(''{"title": "B list", "author_unknown": true}'', ''{"author": [], "%s": ["Forged"]}'')',
-    a_lecture)),
+  perform public.save_artwork('{"title": "B list", "author_unknown": true}',
+    jsonb_build_object('author', '[]'::jsonb, a_lecture::text, '["Forged"]'::jsonb));
+  assert not exists (select 1 from public.category_values where name = 'Forged'),
     'B adds a value to a list field of A through save_artwork';
   assert security_test.denied(format(
     'insert into public.style_details (value_id, summary) values (%L, ''Forged'')', a_unlinked)),

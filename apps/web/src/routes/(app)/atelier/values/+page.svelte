@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { Alert, Tabs, Toast } from '@study-atelier/ui';
-	import { goto, invalidateAll } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import {
@@ -10,11 +10,13 @@
 		rememberCardIndexTab,
 		rememberedCardIndexTab
 	} from '#lib/collection/card-index-tab.ts';
+	import { loadOwnValues } from '#lib/collection/card-index-data.ts';
 	import { buildTimeline, valuesOf } from '#lib/collection/card-index.ts';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import CardIndexList from '#lib/collection/components/CardIndexList.svelte';
 	import CardIndexTimeline from '#lib/collection/components/CardIndexTimeline.svelte';
 	import OwnFieldsTab from '#lib/collection/components/OwnFieldsTab.svelte';
+	import { loadOwnFields, withOwnValues } from '#lib/collection/own-fields.ts';
 	import { valuePath } from '#lib/collection/value-pages.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps, Snapshot } from './$types';
@@ -48,8 +50,14 @@
 
 	let timeline = $derived(buildTimeline(data.index));
 
+	let own = $derived({ fields: data.ownFields, error: data.ownFieldsError });
+
 	async function ownFieldsChanged(message?: string): Promise<void> {
-		await invalidateAll();
+		const [definitions, values] = await Promise.all([loadOwnFields(), loadOwnValues()]);
+		own = {
+			fields: withOwnValues(definitions.fields, values.ownValues),
+			error: definitions.error ?? values.error
+		};
 		if (message) toast.show(message);
 	}
 
@@ -91,11 +99,7 @@
 					/>
 				{/key}
 			{:else if tab === 'own'}
-				<OwnFieldsTab
-					error={data.ownFieldsError}
-					fields={data.ownFields}
-					onchanged={ownFieldsChanged}
-				/>
+				<OwnFieldsTab error={own.error} fields={own.fields} onchanged={ownFieldsChanged} />
 			{/if}
 		</Tabs>
 	{/if}
