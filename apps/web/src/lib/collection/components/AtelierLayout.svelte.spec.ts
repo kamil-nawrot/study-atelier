@@ -4,6 +4,7 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import '@study-atelier/ui/styles.css';
 import { m } from '#lib/i18n/index.ts';
+import { setRailExpanded } from '#lib/navigation/rail.svelte.ts';
 import { setTheme } from '#lib/theme/theme.svelte.ts';
 import AtelierLayout from './AtelierLayout.svelte';
 
@@ -50,6 +51,7 @@ describe('AtelierLayout', () => {
 
 	afterEach(() => {
 		setTheme('dark');
+		setRailExpanded(false);
 	});
 
 	it('shows no loading indicator while no navigation is in progress', async () => {
@@ -179,6 +181,24 @@ describe('AtelierLayout', () => {
 		expect(names.indexOf(m.menu.timeline) + 1).toBe(
 			names.findIndex((name) => name?.startsWith(m.menu.review))
 		);
+	});
+
+	it('keeps the rail expanded in a layout rendered by the next page', async () => {
+		await page.viewport(1280, 800);
+		const first = await render(AtelierLayout, {
+			title: 'Atelier',
+			email: 'learner@example.com',
+			children: snippet('<p>Content</p>')
+		});
+		const rail = page.getByRole('navigation', { name: m.menu.label });
+		await rail.getByRole('button', { name: m.menu.expand }).click();
+		first.unmount();
+
+		renderLayout(views.empty);
+
+		await expect
+			.element(rail.getByRole('button', { name: m.menu.collapse }))
+			.toHaveAttribute('aria-expanded', 'true');
 	});
 
 	it('shows no counter when nothing waits today', async () => {
