@@ -237,4 +237,57 @@ begin
 end;
 $$;
 
+do $$
+declare
+  day_start constant timestamptz := date_trunc('day', now());
+  modes text[];
+begin
+  insert into public.profiles (review_session_size, review_new_per_day) values (10, 5);
+
+  assert jsonb_array_length(public.review_session(day_start, 'flashcards', 'all', null, 0)) = 10,
+    'a free round ignores the size from the profile';
+  assert jsonb_array_length(public.review_session(day_start, 'flashcards')) <= 5,
+    'a session takes more new artworks than the profile allows per day';
+
+  update public.profiles set review_quiz_kinds = array['quiz_image'];
+  select array_agg(distinct item ->> 'mode') into modes
+    from jsonb_array_elements(public.review_session(day_start, 'quizzes')) as item;
+  assert modes = array['quiz_image'],
+    'a session asks a kind of quiz the profile switched off: ' || modes::text;
+
+  update public.profiles set review_quiz_kinds = array['quiz_style'];
+  select array_agg(distinct item ->> 'mode') into modes
+    from jsonb_array_elements(public.review_session(day_start, 'quizzes', 'style', 'Tenebrism')) as item;
+  assert modes = array['flashcard'],
+    'a session scoped to a style asks the style or something the profile switched off: ' || modes::text;
+
+  update public.profiles set review_quiz_kinds = array['quiz_style', 'quiz_title'];
+  select array_agg(distinct item ->> 'mode') into modes
+    from jsonb_array_elements(public.review_session(day_start, 'quizzes', 'style', 'Tenebrism')) as item;
+  assert modes = array['quiz_title'],
+    'a session scoped to a style does not fall back to the kinds that remain: ' || modes::text;
+
+  update public.profiles set review_quiz_kinds = array['quiz_title', 'quiz_image', 'quiz_style', 'quiz_pin'];
+
+  begin
+    update public.profiles set review_quiz_kinds = '{}';
+    raise exception 'an empty list of quiz kinds was accepted';
+  exception when check_violation then
+    null;
+  end;
+  begin
+    update public.profiles set review_session_size = 25;
+    raise exception 'a size of 25 was accepted';
+  exception when check_violation then
+    null;
+  end;
+  begin
+    update public.profiles set review_form = 'anything';
+    raise exception 'an unknown review form was accepted';
+  exception when check_violation then
+    null;
+  end;
+end;
+$$;
+
 rollback;

@@ -3,8 +3,9 @@ import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto, invalidate } from '$app/navigation';
 import { m } from '#lib/i18n/index.ts';
-import { saveProfile } from '#lib/profile/profile-data.ts';
-import { PROFILE_DEPENDENCY } from '#lib/profile/profile-data.ts';
+import { defaultPreferences } from '#lib/profile/preferences.ts';
+import { PREFERENCES_DEPENDENCY, savePreferences } from '#lib/profile/preferences-data.ts';
+import { PROFILE_DEPENDENCY, saveProfile } from '#lib/profile/profile-data.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import SettingsPage from './+page.svelte';
 import '@study-atelier/ui/styles.css';
@@ -21,6 +22,10 @@ vi.mock('$app/navigation', () => ({
 	goto: vi.fn(),
 	invalidate: vi.fn()
 }));
+vi.mock('#lib/profile/preferences-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/profile/preferences-data.ts')>()),
+	savePreferences: vi.fn()
+}));
 vi.mock('#lib/profile/profile-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/profile/profile-data.ts')>()),
 	saveProfile: vi.fn()
@@ -35,7 +40,10 @@ const profile = { displayName: 'Anna', avatarPath: null };
 
 function renderSettings(error?: string, search = ''): void {
 	navigation.url = new URL(`http://localhost/atelier/settings${search}`);
-	render(SettingsPage, { data: { session: testSession(), profile, error }, params: {} });
+	render(SettingsPage, {
+		data: { session: testSession(), profile, preferences: defaultPreferences, error },
+		params: {}
+	});
 }
 
 describe('settings page', () => {
@@ -94,6 +102,50 @@ describe('settings page', () => {
 
 		expect(invalidate).toHaveBeenCalledWith(PROFILE_DEPENDENCY);
 		await expect.element(page.getByText(m.settings.profile.saved)).toBeVisible();
+	});
+
+	it('saves the review preferences and refreshes the menu counter', async () => {
+		vi.mocked(savePreferences).mockResolvedValue({
+			preferences: { ...defaultPreferences, reviewSessionSize: 30 }
+		});
+		renderSettings(undefined, '?tab=review');
+
+		await page.getByRole('button', { name: '30' }).click();
+		await page.getByRole('button', { name: m.settings.preferences.save }).click();
+
+		expect(savePreferences).toHaveBeenCalledWith(
+			'review',
+			expect.objectContaining({ reviewSessionSize: 30 })
+		);
+		expect(invalidate).toHaveBeenCalledWith(PREFERENCES_DEPENDENCY);
+		await expect.element(page.getByText(m.settings.preferences.saved)).toBeVisible();
+	});
+
+	it('does not save the review preferences without a kind of question', async () => {
+		renderSettings(undefined, '?tab=review');
+
+		for (const label of Object.values(m.settings.preferences.kindLabels)) {
+			await page.getByText(label).click();
+		}
+		await page.getByRole('button', { name: m.settings.preferences.save }).click();
+
+		expect(savePreferences).not.toHaveBeenCalled();
+		await expect.element(page.getByText(m.settings.preferences.kindsHint)).toHaveClass(/error/);
+	});
+
+	it('saves the artwork view preferences', async () => {
+		vi.mocked(savePreferences).mockResolvedValue({
+			preferences: { ...defaultPreferences, viewShowPins: true }
+		});
+		renderSettings(undefined, '?tab=view');
+
+		await page.getByRole('switch', { name: m.settings.preferences.showPins }).click();
+		await page.getByRole('button', { name: m.settings.preferences.save }).click();
+
+		expect(savePreferences).toHaveBeenCalledWith(
+			'view',
+			expect.objectContaining({ viewShowPins: true })
+		);
 	});
 
 	it('shows a load error instead of the tabs', async () => {

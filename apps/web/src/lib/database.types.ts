@@ -777,7 +777,14 @@ export type Database = {
           created_at: string;
           display_name: string | null;
           owner_id: string;
+          review_form: string;
+          review_free: boolean;
+          review_new_per_day: number;
+          review_quiz_kinds: string[];
+          review_session_size: number;
           updated_at: string;
+          view_loupe_on: boolean;
+          view_show_pins: boolean;
         };
         ComputedFields: never;
         Insert: {
@@ -785,14 +792,28 @@ export type Database = {
           created_at?: string;
           display_name?: string | null;
           owner_id?: string;
+          review_form?: string;
+          review_free?: boolean;
+          review_new_per_day?: number;
+          review_quiz_kinds?: string[];
+          review_session_size?: number;
           updated_at?: string;
+          view_loupe_on?: boolean;
+          view_show_pins?: boolean;
         };
         Update: {
           avatar_path?: string | null;
           created_at?: string;
           display_name?: string | null;
           owner_id?: string;
+          review_form?: string;
+          review_free?: boolean;
+          review_new_per_day?: number;
+          review_quiz_kinds?: string[];
+          review_session_size?: number;
           updated_at?: string;
+          view_loupe_on?: boolean;
+          view_show_pins?: boolean;
         };
         Relationships: [];
       };

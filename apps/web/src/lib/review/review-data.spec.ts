@@ -138,6 +138,11 @@ describe('review data', () => {
 		expect(waitingToday({ due: 25, newAvailable: 30, newToday: 10, withImage: 40 })).toBe(25);
 	});
 
+	it('counts the new artworks up to the limit of the preferences', () => {
+		expect(waitingToday({ due: 4, newAvailable: 30, newToday: 3, withImage: 40 }, 20)).toBe(21);
+		expect(waitingToday({ due: 4, newAvailable: 30, newToday: 3, withImage: 40 }, 5)).toBe(6);
+	});
+
 	it('shows nothing waiting until the collection has 20 artworks with an image', () => {
 		expect(waitingToday({ due: 0, newAvailable: 19, newToday: 0, withImage: 19 })).toBe(0);
 	});

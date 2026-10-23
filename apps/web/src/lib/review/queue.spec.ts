@@ -98,6 +98,37 @@ describe('review queue', () => {
 		).toEqual({ known: 0, fresh: 0 });
 	});
 
+	it('takes the size of a session and the new artworks a day from the preferences', () => {
+		const artworks = collection(40);
+		expect(
+			sessionCounts({
+				artworks,
+				cards: new Map(),
+				now,
+				newToday: 0,
+				sessionSize: 30,
+				newPerDay: 15
+			})
+		).toEqual({ known: 0, fresh: 15 });
+		expect(sessionCounts({ artworks, cards: new Map(), now, newToday: 3, newPerDay: 5 })).toEqual({
+			known: 0,
+			fresh: 2
+		});
+		const due = new Map(
+			artworks
+				.slice(0, 25)
+				.map((artwork, index) => [artwork.id, card(artwork.id, new Date(2026, 8, 1 + index))])
+		);
+		expect(sessionCounts({ artworks, cards: due, now, newToday: 0, sessionSize: 10 })).toEqual({
+			known: 10,
+			fresh: 0
+		});
+		expect(sessionCounts({ artworks, cards: due, now, newToday: 0, sessionSize: 40 })).toEqual({
+			known: 25,
+			fresh: 10
+		});
+	});
+
 	it('brings an artwork back after three to five others', () => {
 		const queue: ReviewItem[] = collection(10).map((artwork) => ({
 			artwork,

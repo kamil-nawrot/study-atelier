@@ -7,10 +7,12 @@
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import { m } from '#lib/i18n/index.ts';
 	import AccountTab from '#lib/profile/components/AccountTab.svelte';
+	import PreferencesTab from '#lib/profile/components/PreferencesTab.svelte';
 	import ProfileTab from '#lib/profile/components/ProfileTab.svelte';
+	import { PREFERENCES_DEPENDENCY } from '#lib/profile/preferences-data.ts';
 	import { PROFILE_DEPENDENCY } from '#lib/profile/profile-data.ts';
 	import { SETTINGS_TABS, settingsTabOf } from '#lib/profile/settings-tab.ts';
-	import type { Profile } from '#lib/profile/types.ts';
+	import type { Preferences, Profile } from '#lib/profile/types.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -20,6 +22,7 @@
 
 	let toast: Toast;
 	let profileTab = $state<ProfileTab>();
+	let preferencesTab = $state<PreferencesTab>();
 	let barHeight = $state(0);
 
 	let email = $derived(data.session.user.email ?? '');
@@ -31,6 +34,11 @@
 		void goto(target, { replace: true, reset: false });
 	}
 
+	async function preferencesSaved(_preferences: Preferences, message: string): Promise<void> {
+		await invalidate(PREFERENCES_DEPENDENCY);
+		toast.show(message);
+	}
+
 	async function profileSaved(_profile: Profile, message: string): Promise<void> {
 		await invalidate(PROFILE_DEPENDENCY);
 		toast.show(message);
@@ -38,7 +46,8 @@
 </script>
 
 <AtelierLayout
-	confirmLeave={() => profileTab?.confirmLeave() ?? Promise.resolve(true)}
+	confirmLeave={() =>
+		(tab === 'profile' ? profileTab : preferencesTab)?.confirmLeave() ?? Promise.resolve(true)}
 	{email}
 	title={m.settings.title}
 >
@@ -63,8 +72,18 @@
 							profile={data.profile}
 							bind:barHeight
 						/>
-					{:else}
+					{:else if tab === 'account'}
 						<AccountTab {email} onchanged={(message) => toast.show(message)} />
+					{:else}
+						{#key tab}
+							<PreferencesTab
+								bind:this={preferencesTab}
+								onsaved={preferencesSaved}
+								part={tab}
+								preferences={data.preferences}
+								bind:barHeight
+							/>
+						{/key}
 					{/if}
 				</div>
 			</Tabs>
@@ -72,7 +91,7 @@
 	</div>
 </AtelierLayout>
 
-<Toast bind:this={toast} offset={tab === 'profile' ? barHeight : 0} />
+<Toast bind:this={toast} offset={tab === 'account' ? 0 : barHeight} />
 
 <style>
 	header {
