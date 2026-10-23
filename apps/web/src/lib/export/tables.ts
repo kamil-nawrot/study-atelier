@@ -1,0 +1,29 @@
+export type ExportTable = {
+	table: string;
+	order: string[];
+	ownedOnly?: boolean;
+};
+
+export const EXPORT_TABLES: readonly ExportTable[] = [
+	{ table: 'profiles', order: ['owner_id'] },
+	{ table: 'artworks', order: ['id'] },
+	{ table: 'artwork_images', order: ['artwork_id', 'position'] },
+	{ table: 'artwork_pins', order: ['id'] },
+	{ table: 'category_values', order: ['id'] },
+	{ table: 'artwork_values', order: ['artwork_id', 'value_id'] },
+	{ table: 'period_eras', order: ['value_id', 'era_code'] },
+	{ table: 'style_periods', order: ['style_id', 'period_id'] },
+	{ table: 'author_details', order: ['value_id'] },
+	{ table: 'period_details', order: ['value_id'] },
+	{ table: 'style_details', order: ['value_id'] },
+	{ table: 'material_details', order: ['value_id'] },
+	{ table: 'location_details', order: ['value_id'] },
+	{ table: 'era_details', order: ['era_code'] },
+	{ table: 'artwork_fields', order: ['id'] },
+	{ table: 'categories', order: ['code'], ownedOnly: true },
+	{ table: 'artwork_field_entries', order: ['artwork_id', 'field_id'] },
+	{ table: 'glossary_entries', order: ['id'] },
+	{ table: 'timeline_events', order: ['id'] },
+	{ table: 'review_cards', order: ['artwork_id', 'facet'] },
+	{ table: 'review_log', order: ['id'] }
+];

@@ -6,6 +6,7 @@
 	import type { ResolvedPathname } from '$app/types';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import { m } from '#lib/i18n/index.ts';
+	import DataTab from '#lib/export/components/DataTab.svelte';
 	import AccountTab from '#lib/profile/components/AccountTab.svelte';
 	import ProfileTab from '#lib/profile/components/ProfileTab.svelte';
 	import { PROFILE_DEPENDENCY } from '#lib/profile/profile-data.ts';
@@ -63,6 +64,8 @@
 							profile={data.profile}
 							bind:barHeight
 						/>
+					{:else if tab === 'data'}
+						<DataTab onexported={(message) => toast.show(message)} />
 					{:else}
 						<AccountTab {email} onchanged={(message) => toast.show(message)} />
 					{/if}
