@@ -168,7 +168,7 @@ export const pl = {
 	},
 	settings: {
 		title: 'Ustawienia',
-		lead: 'Tu zmienisz swoje imię, zdjęcie i hasło oraz ustawisz, jak mają działać powtórki i widok dzieła.',
+		lead: 'Tutaj możesz zmienić swoje dane, oraz zarządzać preferencjami dotyczącymi funkcjonowania Twojego atelier.',
 		tabsLabel: 'Części ustawień',
 		tabs: {
 			profile: 'Profil',
@@ -182,9 +182,11 @@ export const pl = {
 			avatarAlt: 'Twoje zdjęcie',
 			addPhoto: 'Dodaj zdjęcie',
 			changePhoto: 'Zmień zdjęcie',
-			photoHint: 'Przytnę je do kwadratu i zmniejszę.',
+			photoHint: 'Zdjęcie zostanie automatycznie dopasowane do rozmiaru awatara',
 			removePhoto: 'Usuń zdjęcie',
 			name: 'Imię',
+			email: 'Adres e-mail',
+			emailHint: 'Adres podany przy rejestracji, obecnie nie ma możliwości jego zmiany.',
 			nameTooLong: (max: number): string => `Imię może mieć najwyżej ${max} znaków.`,
 			cancel: 'Anuluj',
 			save: 'Zapisz profil',

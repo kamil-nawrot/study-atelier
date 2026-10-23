@@ -55,10 +55,10 @@
 	}
 
 	.large {
-		width: 96px;
-		height: 96px;
+		width: 256px;
+		height: 256px;
 		border-color: transparent;
-		background: var(--color-surface);
+		background: var(--color-tag);
 		font-size: var(--font-size-3xl);
 	}
 
