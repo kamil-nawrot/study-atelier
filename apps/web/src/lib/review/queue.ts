@@ -13,6 +13,8 @@ export type SessionInput = {
 	cards: Map<string, ReviewCard>;
 	now: Date;
 	newToday: number;
+	sessionSize?: number;
+	newPerDay?: number;
 };
 
 export type SessionCounts = {
@@ -40,24 +42,31 @@ export function missingArtworks(artworks: WallArtwork[]): number {
 	return Math.max(0, MIN_ARTWORKS - reviewableArtworks(artworks).length);
 }
 
-export function newAllowance(newToday: number): number {
-	return Math.max(0, NEW_PER_DAY - newToday);
+export function newAllowance(newToday: number, newPerDay: number = NEW_PER_DAY): number {
+	return Math.max(0, newPerDay - newToday);
 }
 
 export function isDueToday(card: ReviewCard, now: Date): boolean {
 	return card.due < endOfDay(now);
 }
 
-export function sessionCounts({ artworks, cards, now, newToday }: SessionInput): SessionCounts {
+export function sessionCounts({
+	artworks,
+	cards,
+	now,
+	newToday,
+	sessionSize = SESSION_SIZE,
+	newPerDay = NEW_PER_DAY
+}: SessionInput): SessionCounts {
 	const pool = reviewableArtworks(artworks);
 	if (pool.length < MIN_ARTWORKS) return { known: 0, fresh: 0 };
 	const due = pool.filter((artwork) => {
 		const card = cards.get(artwork.id);
 		return card !== undefined && isDueToday(card, now);
 	}).length;
-	const known = Math.min(due, SESSION_SIZE);
+	const known = Math.min(due, sessionSize);
 	const unseen = pool.filter((artwork) => !cards.has(artwork.id)).length;
-	return { known, fresh: Math.min(unseen, newAllowance(newToday), SESSION_SIZE - known) };
+	return { known, fresh: Math.min(unseen, newAllowance(newToday, newPerDay), sessionSize - known) };
 }
 
 export function retryLater(

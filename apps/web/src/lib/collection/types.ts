@@ -1,6 +1,7 @@
 import type { GlossaryEntry } from '#lib/glossary/types.ts';
 import type { ArtworkTileImage, NoteLinks } from '@study-atelier/ui';
 import type { Pin } from '#lib/pins/types.ts';
+import type { Preferences } from '#lib/profile/types.ts';
 import type { Mention } from './mentions.ts';
 import type { ValueSummaries } from './value-summaries.ts';
 
@@ -216,6 +217,7 @@ export type LoadArtworkResult = {
 	mentions?: Mention[];
 	summaries?: ValueSummaries;
 	ownFields?: OwnFieldDefinition[];
+	preferences?: Preferences;
 	error?: string;
 	notFound?: boolean;
 };

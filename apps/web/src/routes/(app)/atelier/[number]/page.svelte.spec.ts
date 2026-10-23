@@ -9,6 +9,7 @@ import { moveToTrash } from '#lib/collection/trash.ts';
 import type { ArtworkRecord, LoadArtworkResult } from '#lib/collection/types.ts';
 import { buildNoteLinks } from '#lib/collection/note-links.ts';
 import { m } from '#lib/i18n/index.ts';
+import { defaultPreferences } from '#lib/profile/preferences.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import type { Pin } from '#lib/pins/types.ts';
 import { testEntry } from '#lib/testing/glossary.ts';
@@ -694,6 +695,22 @@ describe('artwork page', () => {
 			await expect.element(card).not.toBeInTheDocument();
 		});
 
+		it('shows the markers at once when the preferences ask for it', async () => {
+			renderPage({
+				artwork: artwork({
+					image: { kind: 'url', url: IMAGE, width: 40, height: 50, id: 'image-1' }
+				}),
+				glossary: [testEntry('entry-1', 'Turban')],
+				pins: [PIN],
+				preferences: { ...defaultPreferences, viewShowPins: true }
+			});
+
+			await expect.element(page.getByRole('button', { name: 'Pinezka 1: Turban' })).toBeVisible();
+			await expect
+				.element(page.getByRole('button', { name: m.pins.switchLabel(1) }))
+				.toHaveAttribute('aria-pressed', 'true');
+		});
+
 		it('shows a pin while the pointer rests on it', async () => {
 			renderWithPins();
 
@@ -753,6 +770,15 @@ describe('artwork page', () => {
 			await userEvent.keyboard('{Escape}');
 			await expect.element(loupeButton()).toHaveAttribute('aria-pressed', 'false');
 			expect(document.querySelector('.loupe')).toBeNull();
+		});
+
+		it('switches the loupe on at once when the preferences ask for it', async () => {
+			renderPage({
+				artwork: artwork({ image: { kind: 'url', url: IMAGE, width: 4000, height: 5000 } }),
+				preferences: { ...defaultPreferences, viewLoupeOn: true }
+			});
+
+			await expect.element(loupeButton()).toHaveAttribute('aria-pressed', 'true');
 		});
 
 		it('opens a new pin with the view of the loupe on a click', async () => {

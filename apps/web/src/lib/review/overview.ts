@@ -7,6 +7,7 @@ import {
 	MIN_ARTWORKS,
 	reviewableArtworks,
 	SETTLED_STABILITY_DAYS,
+	type SessionInput,
 	sessionCounts,
 	startOfDay
 } from './queue.ts';
@@ -196,9 +197,16 @@ export function formatWhen(date: Date, now: Date): string {
 export function waitingTomorrow(
 	artworks: WallArtwork[],
 	cards: Map<string, ReviewCard>,
-	now: Date
+	now: Date,
+	limits: Pick<SessionInput, 'sessionSize' | 'newPerDay'> = {}
 ): number {
-	const { known, fresh } = sessionCounts({ artworks, cards, now: endOfDay(now), newToday: 0 });
+	const { known, fresh } = sessionCounts({
+		artworks,
+		cards,
+		now: endOfDay(now),
+		newToday: 0,
+		...limits
+	});
 	return known + fresh;
 }
 
