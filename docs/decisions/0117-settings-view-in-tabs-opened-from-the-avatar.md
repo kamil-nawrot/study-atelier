@@ -25,9 +25,9 @@ Chosen by the owner:
 
 - The view `/atelier/settings` ("Ustawienia") is a module page with the library `Tabs`: "Profil", "Konto", "Powtórki", "Widok dzieła". The chosen tab is in the address, so another view can link straight to a tab.
 - The avatar row at the top of the menu becomes a link to the view: the avatar, the name and under it the email in smaller muted text. There is no separate menu item.
-- "Profil" has the photo with "Dodaj zdjęcie" / "Zmień zdjęcie" and "Usuń zdjęcie", and "Imię" with "Zapisz profil".
+- "Profil" has the photo with "Dodaj zdjęcie" / "Zmień zdjęcie" and "Usuń zdjęcie", and "Imię"; it saves with "Zapisz profil".
 - "Konto" has two small forms: "Adres e-mail" with "Zmień adres", and "Zmiana hasła" with "Obecne hasło", "Nowe hasło" (at least 8 characters) and "Wyloguj mnie na innych urządzeniach", ticked by default, with "Zmień hasło". The current password is checked by signing in with it before the new one is set; ticking the box signs out the other sessions. The email change uses Supabase's secure email change: a link goes to the old and to the new address and the change takes effect after both are clicked ([ADR-0119](0119-send-the-auth-emails-through-brevo.md)).
-- "Powtórki" and "Widok dzieła" save with "Zapisz ustawienia"; leaving a tab or the view with unsaved changes asks "Odrzucić zmiany?" like the forms.
+- "Powtórki" and "Widok dzieła" save with "Zapisz ustawienia". "Zapisz profil" and "Zapisz ustawienia" stand with "Anuluj" (which brings back the saved values) in the library `FormActions` bar at the bottom of the screen, like every form, not under the fields. "Konto" keeps "Zmień adres" and "Zmień hasło" under their own fields, because they are two separate actions. Leaving a tab or the view with unsaved changes asks "Odrzucić zmiany?" like the forms.
 - Every save confirms with a `Toast`; errors show inline under the field or in an `Alert` at the top of the tab.
 
 ### Consequences

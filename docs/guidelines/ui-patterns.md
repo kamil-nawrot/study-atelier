@@ -236,8 +236,8 @@ How views and components look and behave, so every new screen stays consistent w
 ## Settings
 
 - "Ustawienia" is a module page reached from the avatar row at the top of the menu (the avatar, the name, and the email in smaller `--color-fg-muted` text under it), which is a link with the same hover and current-page marks as the other items. The page has the library `Tabs` "Profil", "Konto", "Powtórki" and "Widok dzieła", with the chosen tab in the address ([ADR-0117](../decisions/0117-settings-view-in-tabs-opened-from-the-avatar.md)).
-- Every part saves on its own: "Zapisz profil", "Zmień adres", "Zmień hasło", and "Zapisz ustawienia" at the end of "Powtórki" and "Widok dzieła", which ask "Odrzucić zmiany?" before the learner leaves them with changes. A save confirms with a `Toast`; a field error stands under its field, a failed save in an `Alert` at the top of the tab.
-- Fields take `--size-content-narrow`. A choice of one value from a few (the session size, the start form) is a row of `ToggleTag`s, one pressed at a time, like the review start; an on/off preference is a `Switch`; a set of things to include (the quiz kinds) is a column of `Checkbox`es.
+- Every part saves on its own. "Profil", "Powtórki" and "Widok dzieła" keep "Anuluj" and "Zapisz profil" or "Zapisz ustawienia" in `FormActions`, the bar at the bottom of the screen, and ask "Odrzucić zmiany?" before the learner leaves them with changes; "Konto" has "Zmień adres" and "Zmień hasło" under their own fields. A save confirms with a `Toast`; a field error stands under its field, a failed save in an `Alert` at the top of the tab.
+- Fields take `--size-content-default`, like every form. A choice of one value from a few (the session size, the start form) is a row of `ToggleTag`s, one pressed at a time, like the review start; an on/off preference is a `Switch`; a set of things to include (the quiz kinds) is a column of `Checkbox`es.
 
 ## Logo
 
