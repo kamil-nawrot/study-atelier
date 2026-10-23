@@ -10,21 +10,25 @@ describe('IconButton', () => {
 		render(IconButton, { icon: Pencil, label: 'Change photo' });
 
 		await expect.element(page.getByRole('button', { name: 'Change photo' })).toBeVisible();
-		await expect.element(page.getByRole('tooltip')).not.toBeVisible();
+		await expect.element(page.getByText('Change photo', { exact: true })).not.toBeVisible();
 
 		await userEvent.hover(page.getByRole('button', { name: 'Change photo' }));
 
 		await expect.element(page.getByRole('tooltip')).toBeVisible();
 	});
 
-	it('calls onclick and ignores a click while disabled', async () => {
+	it('calls onclick', async () => {
 		const onclick = vi.fn();
-		const { rerender } = render(IconButton, { icon: Pencil, label: 'Change photo', onclick });
+		render(IconButton, { icon: Pencil, label: 'Change photo', onclick });
 
 		await page.getByRole('button', { name: 'Change photo' }).click();
-		expect(onclick).toHaveBeenCalledTimes(1);
 
-		await rerender({ icon: Pencil, label: 'Change photo', onclick, disabled: true });
+		expect(onclick).toHaveBeenCalledTimes(1);
+	});
+
+	it('is disabled when asked to be', async () => {
+		render(IconButton, { icon: Pencil, label: 'Change photo', disabled: true });
+
 		await expect.element(page.getByRole('button', { name: 'Change photo' })).toBeDisabled();
 	});
 });
