@@ -264,6 +264,25 @@ describe('AtelierLayout account row', () => {
 			.toHaveAttribute('title', 'learner@example.com');
 	});
 
+	it('keeps the name while the profile loads again after a navigation', async () => {
+		pageState.data = { menuProfile: Promise.resolve({ displayName: 'Anna', avatarPath: null }) };
+		const first = await render(AtelierLayout, {
+			title: 'Atelier',
+			email: 'learner@example.com',
+			children: snippet('<p>Content</p>')
+		});
+		const named = page.getByRole('link', {
+			name: m.menu.settingsLink('Anna', 'learner@example.com')
+		});
+		await expect.element(named).toBeInTheDocument();
+		first.unmount();
+
+		pageState.data = { menuProfile: new Promise(() => {}) };
+		renderLayout(views.empty);
+
+		await expect.element(named).toBeInTheDocument();
+	});
+
 	it('falls back to the email when the profile cannot be read', async () => {
 		pageState.data = { menuProfile: Promise.resolve(undefined) };
 		renderLayout(views.empty);

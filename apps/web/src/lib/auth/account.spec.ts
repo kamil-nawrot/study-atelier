@@ -99,6 +99,14 @@ describe('changePassword', () => {
 		expect(auth.signOut).toHaveBeenCalledExactlyOnceWith({ scope: 'others' });
 	});
 
+	it('says when the other devices could not be signed out after the change', async () => {
+		auth.signOut.mockResolvedValue({ error: { status: 500 } });
+
+		const result = await changePassword('learner@example.com', 'vermeer1', 'rembrandt2', true);
+
+		expect(result).toEqual({ changed: true, othersError: m.settings.account.othersFailed });
+	});
+
 	it('reports a wrong current password under that field and changes nothing', async () => {
 		auth.signInWithPassword.mockResolvedValue({
 			error: { code: 'invalid_credentials', status: 400 }

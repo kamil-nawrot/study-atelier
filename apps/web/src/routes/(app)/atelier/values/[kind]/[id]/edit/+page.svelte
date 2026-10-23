@@ -5,7 +5,7 @@
 	import type { ResolvedPathname } from '$app/types';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import ValueForm from '#lib/collection/components/ValueForm.svelte';
-	import { goBackThroughHistory } from '#lib/collection/history.ts';
+	import { arrivedFromApp, goBackThroughHistory } from '#lib/collection/history.ts';
 	import { subjectName, subjectPath } from '#lib/collection/value-pages.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import BackLink from '#lib/navigation/components/BackLink.svelte';
@@ -34,7 +34,7 @@
 	);
 
 	afterNavigate(({ from }) => {
-		cameFromApp = from !== null;
+		cameFromApp = arrivedFromApp(from);
 	});
 
 	function goBack(event: MouseEvent): void {

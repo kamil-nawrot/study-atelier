@@ -53,6 +53,7 @@ export type PasswordChangeResult = {
 	currentError?: string;
 	newError?: string;
 	error?: string;
+	othersError?: string;
 };
 
 export async function changePassword(
@@ -81,7 +82,10 @@ export async function changePassword(
 		}
 		return { changed: false, error: authErrorMessage(error) };
 	}
-	if (signOutOthers) await supabase.auth.signOut({ scope: 'others' });
+	if (signOutOthers) {
+		const signedOut = await supabase.auth.signOut({ scope: 'others' });
+		if (signedOut.error) return { changed: true, othersError: m.settings.account.othersFailed };
+	}
 	return { changed: true };
 }
 

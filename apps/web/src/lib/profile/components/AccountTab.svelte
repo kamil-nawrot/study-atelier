@@ -25,6 +25,7 @@
 	let currentError = $state<string>();
 	let newError = $state<string>();
 	let formError = $state('');
+	let othersError = $state('');
 	let busy = $state(false);
 
 	async function showError(message: string): Promise<void> {
@@ -36,6 +37,7 @@
 	async function submit(): Promise<void> {
 		if (busy) return;
 		formError = '';
+		othersError = '';
 		currentError = validateRequiredPassword(currentPassword);
 		newError = validateNewPassword(newPassword);
 		if (currentError || newError) return;
@@ -48,6 +50,10 @@
 			if (!result.changed) return;
 			currentPassword = '';
 			newPassword = '';
+			if (result.othersError) {
+				othersError = result.othersError;
+				return;
+			}
 			onchanged(m.settings.account.changed);
 		} finally {
 			busy = false;
@@ -61,6 +67,11 @@
 		{#if formError}
 			<Alert id={formErrorId} title={m.settings.account.errorTitle} tone="danger">
 				{formError}
+			</Alert>
+		{/if}
+		{#if othersError}
+			<Alert title={m.settings.account.othersFailedTitle} tone="warning">
+				{othersError}
 			</Alert>
 		{/if}
 		<TextField

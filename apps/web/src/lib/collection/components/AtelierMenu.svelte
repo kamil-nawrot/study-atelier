@@ -15,6 +15,7 @@
 	import { m } from '#lib/i18n/index.ts';
 	import type { Profile } from '#lib/profile/types.ts';
 	import Avatar from '#lib/profile/components/Avatar.svelte';
+	import { followMenuProfile, shownMenuProfile } from '#lib/profile/menu-profile.svelte.ts';
 	import { avatarInitial } from '#lib/profile/profile.ts';
 	import { currentTheme, setTheme } from '#lib/theme/theme.svelte.ts';
 
@@ -37,6 +38,9 @@
 	const reviewPath = resolve('/(app)/atelier/review');
 
 	const light = $derived(currentTheme() === 'light');
+	const ownerId = $derived(page.data.session?.user.id);
+
+	$effect(() => followMenuProfile(page.data.menuProfile, ownerId));
 </script>
 
 {#snippet account(profile?: Profile)}
@@ -60,11 +64,7 @@
 
 <div class="group">
 	<div class="account-group">
-		{#await page.data.menuProfile}
-			{@render account()}
-		{:then profile}
-			{@render account(profile)}
-		{/await}
+		{@render account(shownMenuProfile(ownerId))}
 	</div>
 	<a
 		class="item"

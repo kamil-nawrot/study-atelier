@@ -59,6 +59,15 @@ export function pinDraftError(draft: PinDraft): string | undefined {
 	return undefined;
 }
 
+export async function countTermPins(): Promise<number | undefined> {
+	const { count, error } = await supabase
+		.from('artwork_pins')
+		.select('id', { count: 'exact', head: true })
+		.not('glossary_entry_id', 'is', null)
+		.is('view_width', null);
+	return error ? undefined : (count ?? 0);
+}
+
 export async function loadPins(imageIds: string[]): Promise<PinsResult> {
 	if (imageIds.length === 0) return { pins: [] };
 	const pins: Pin[] = [];

@@ -208,7 +208,10 @@ export const pl = {
 			wrongCurrent: 'To nie jest Twoje obecne hasło.',
 			sameAsCurrent: 'Nowe hasło musi być inne niż obecne.',
 			changed: 'Hasło jest zmienione.',
-			errorTitle: 'Nie udało się zmienić hasła'
+			errorTitle: 'Nie udało się zmienić hasła',
+			othersFailedTitle: 'Hasło jest zmienione',
+			othersFailed:
+				'Nie udało się wylogować Cię na innych urządzeniach. Wyloguj się tam ręcznie albo zmień hasło jeszcze raz.'
 		},
 		preferences: {
 			sessionSize: 'Ile dzieł w jednej sesji?',
@@ -271,7 +274,9 @@ export const pl = {
 				'Nie udało się wczytać atelier. Nic nie zostało zmienione, spróbuj jeszcze raz.',
 			importNotEmpty: 'Atelier nie jest już puste, więc nic nie wczytałem.',
 			errorTitle: 'Nie udało się wyeksportować atelier',
-			failed: 'Spróbuj jeszcze raz. Jeśli to się powtarza, spróbuj na komputerze.'
+			failed: 'Spróbuj jeszcze raz. Jeśli to się powtarza, spróbuj na komputerze.',
+			imageFailed:
+				'Nie udało się pobrać jednego z Twoich zdjęć, a bez niego kopia byłaby niepełna. Spróbuj jeszcze raz.'
 		}
 	},
 	atelier: {

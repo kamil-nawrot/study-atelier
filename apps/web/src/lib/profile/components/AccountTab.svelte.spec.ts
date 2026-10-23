@@ -87,4 +87,19 @@ describe('AccountTab', () => {
 			.element(page.getByRole('alert').filter({ hasText: m.settings.account.errorTitle }))
 			.toHaveTextContent(m.authErrors.network);
 	});
+
+	it('warns, instead of confirming, when the other devices stay signed in', async () => {
+		vi.mocked(changePassword).mockResolvedValue({
+			changed: true,
+			othersError: m.settings.account.othersFailed
+		});
+		await fillPasswords('vermeer1', 'rembrandt2');
+		await submit().click();
+
+		await expect
+			.element(page.getByRole('status').filter({ hasText: m.settings.account.othersFailedTitle }))
+			.toHaveTextContent(m.settings.account.othersFailed);
+		expect(onchanged).not.toHaveBeenCalled();
+		await expect.element(field(m.settings.account.newPassword)).toHaveValue('');
+	});
 });

@@ -23,6 +23,7 @@
 		scopes: ScopeChoice[];
 		scope: ReviewScope;
 		form: ReviewForm;
+		forms: readonly ReviewForm[];
 		knowledge: AtelierKnowledge;
 		troubles: WallArtwork[];
 		starting: boolean;
@@ -42,6 +43,7 @@
 		scopes,
 		scope,
 		form,
+		forms,
 		knowledge,
 		troubles,
 		starting,
@@ -53,7 +55,6 @@
 		onstart
 	}: Props = $props();
 
-	const FORMS: readonly ReviewForm[] = ['mixed', 'flashcards', 'quizzes'];
 	const GROUPS = ['settled', 'learning', 'fresh'] as const;
 
 	let waiting = $derived(known + fresh);
@@ -139,7 +140,7 @@
 					<section class="choice" aria-labelledby="review-form">
 						<h2 id="review-form" class="choice-title">{m.review.form}</h2>
 						<div class="tags">
-							{#each FORMS as option (option)}
+							{#each forms as option (option)}
 								<ToggleTag
 									bind:pressed={() => form === option, (pressed) => pressed && onform(option)}
 								>

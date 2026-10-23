@@ -1,3 +1,4 @@
+import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { m } from '#lib/i18n/index.ts';
 import { ArchiveBuilder, atelierFile } from './archive.ts';
 import { downloadOwnImage, ownImagePaths, readAtelier } from './export-data.ts';
@@ -17,8 +18,11 @@ export async function exportAtelier(
 	const paths = ownImagePaths(read.data);
 	for (const [index, path] of paths.entries()) {
 		onprogress({ step: 'images', done: index, total: paths.length });
-		const bytes = await downloadOwnImage(path);
-		if (bytes) archive.addImage({ path, bytes });
+		const download = await downloadOwnImage(path);
+		if ('error' in download) {
+			return { error: await failureMessage(download.error, () => m.settings.data.imageFailed) };
+		}
+		if ('bytes' in download) archive.addImage({ path, bytes: download.bytes });
 	}
 	onprogress({ step: 'images', done: paths.length, total: paths.length });
 

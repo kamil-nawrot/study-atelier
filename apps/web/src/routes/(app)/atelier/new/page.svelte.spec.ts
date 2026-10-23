@@ -268,11 +268,40 @@ describe('add artwork page', () => {
 		const go = vi.spyOn(history, 'go').mockImplementation(() => {});
 		renderPage();
 		const callback = vi.mocked(afterNavigate).mock.calls[0][0];
-		callback({ from: { route: { id: '/(app)/atelier/review' } } } as never);
+		callback({
+			from: {
+				route: { id: '/(app)/atelier/review' },
+				url: new URL('/atelier/review', location.href)
+			}
+		} as never);
 
 		await page.getByRole('link', { name: m.artworkForm.cancel }).click();
 
 		expect(go).toHaveBeenCalledWith(-1);
+		go.mockRestore();
+	});
+
+	it('follows the cancel link when the form was opened straight from its address', async () => {
+		const go = vi.spyOn(history, 'go').mockImplementation(() => {});
+		renderPage();
+		const callback = vi.mocked(afterNavigate).mock.calls[0][0];
+		callback({ from: { route: { id: null }, url: null } } as never);
+		const cancel = page.getByRole('link', { name: m.artworkForm.cancel });
+		const followed = new Promise<boolean>((resolve) =>
+			window.addEventListener(
+				'click',
+				(event) => {
+					resolve(!event.defaultPrevented);
+					event.preventDefault();
+				},
+				{ once: true }
+			)
+		);
+
+		await cancel.click();
+
+		expect(await followed).toBe(true);
+		expect(go).not.toHaveBeenCalled();
 		go.mockRestore();
 	});
 

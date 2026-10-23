@@ -86,7 +86,7 @@ declare
 begin
   foreach table_name in array tables loop
     execute format(
-      'select coalesce(jsonb_agg(to_jsonb(t) - ''owner_id''), ''[]'') from public.%I as t where t.owner_id = $1',
+      'select coalesce(jsonb_agg(to_jsonb(t) - ''owner_id'' order by to_jsonb(t) ->> ''position'' desc nulls last), ''[]'') from public.%I as t where t.owner_id = $1',
       table_name
     ) into rows using owner;
     data := data || jsonb_build_object(table_name, rows);
