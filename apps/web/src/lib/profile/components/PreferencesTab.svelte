@@ -203,6 +203,11 @@
 		max-width: var(--size-content-default);
 	}
 
+	.fields > :global(.switch) {
+		display: flex;
+		justify-content: space-between;
+	}
+
 	.group {
 		display: grid;
 		justify-items: start;
