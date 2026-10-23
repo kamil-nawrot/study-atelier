@@ -148,6 +148,17 @@ describe('settings page', () => {
 		);
 	});
 
+	it('opens the data tab with the export', async () => {
+		renderSettings(undefined, '?tab=data');
+
+		await expect
+			.element(page.getByRole('tab', { name: m.settings.tabs.data }))
+			.toHaveAttribute('aria-selected', 'true');
+		await expect
+			.element(page.getByRole('button', { name: m.settings.data.exportButton }))
+			.toBeVisible();
+	});
+
 	it('shows a load error instead of the tabs', async () => {
 		renderSettings(m.settings.profile.failed);
 

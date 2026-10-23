@@ -6,6 +6,7 @@
 	import type { ResolvedPathname } from '$app/types';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import { m } from '#lib/i18n/index.ts';
+	import DataTab from '#lib/export/components/DataTab.svelte';
 	import AccountTab from '#lib/profile/components/AccountTab.svelte';
 	import PreferencesTab from '#lib/profile/components/PreferencesTab.svelte';
 	import ProfileTab from '#lib/profile/components/ProfileTab.svelte';
@@ -74,6 +75,8 @@
 						/>
 					{:else if tab === 'account'}
 						<AccountTab {email} onchanged={(message) => toast.show(message)} />
+					{:else if tab === 'data'}
+						<DataTab onexported={(message) => toast.show(message)} />
 					{:else}
 						{#key tab}
 							<PreferencesTab
@@ -91,7 +94,7 @@
 	</div>
 </AtelierLayout>
 
-<Toast bind:this={toast} offset={tab === 'account' ? 0 : barHeight} />
+<Toast bind:this={toast} offset={tab === 'account' || tab === 'data' ? 0 : barHeight} />
 
 <style>
 	header {
