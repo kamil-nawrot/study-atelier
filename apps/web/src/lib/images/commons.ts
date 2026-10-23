@@ -1,6 +1,11 @@
 import { fetchJson } from './wikimedia.ts';
 
 export const COMMONS_THUMBNAIL_WIDTHS = [250, 330, 500, 960, 1280, 1920] as const;
+export const COMMONS_LOUPE_WIDTH = 3840;
+
+const UPLOAD_THUMBNAIL_WIDTHS = [...COMMONS_THUMBNAIL_WIDTHS, COMMONS_LOUPE_WIDTH];
+const UPLOAD_FILE_PATTERN =
+	/^https:\/\/upload\.wikimedia\.org\/wikipedia\/commons\/([0-9a-f])\/([0-9a-f]{2})\/([^/?#]+\.(?:jpe?g|png|webp))(?:[?#].*)?$/i;
 
 const COMMONS_API = 'https://commons.wikimedia.org/w/api.php';
 const TITLES_PER_REQUEST = 50;
@@ -48,6 +53,22 @@ export function commonsFileUrl(file: string, width: number): string {
 
 export function commonsOriginalUrl(file: string): string {
 	return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}`;
+}
+
+export function commonsUploadOriginalUrl(url: string): string | undefined {
+	const match = UPLOAD_FILE_PATTERN.exec(url);
+	if (!match) return undefined;
+	return `https://upload.wikimedia.org/wikipedia/commons/${match[1]}/${match[2]}/${match[3]}`;
+}
+
+export function commonsUploadThumbnailWidth(width: number): number {
+	return UPLOAD_THUMBNAIL_WIDTHS.find((size) => size >= width) ?? COMMONS_LOUPE_WIDTH;
+}
+
+export function commonsUploadThumbnailUrl(url: string, width: number): string | undefined {
+	const match = UPLOAD_FILE_PATTERN.exec(url);
+	if (!match) return undefined;
+	return `https://upload.wikimedia.org/wikipedia/commons/thumb/${match[1]}/${match[2]}/${match[3]}/${width}px-${match[3]}`;
 }
 
 export function commonsSrcset(file: string, widths: readonly number[]): string {

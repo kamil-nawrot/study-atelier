@@ -28,7 +28,12 @@
 	import { pinsOfImage } from '#lib/pins/pin-layout.ts';
 	import type { Pin as PinRecord } from '#lib/pins/types.ts';
 	import { LOUPE_MIN_RATIO } from '../loupe.ts';
-	import { artworkImageCredit, artworkImageSource, artworkLargeSource } from '../artwork-image.ts';
+	import {
+		artworkImageCredit,
+		artworkImageSource,
+		artworkLargeSource,
+		isTooLargeForLoupe
+	} from '../artwork-image.ts';
 	import { artworkTypeIcon } from '../artwork-types.ts';
 	import { eraIcon } from '../eras.ts';
 	import { formatDate, formatRecordNumber, signedYear } from '../format.ts';
@@ -333,7 +338,11 @@
 						<Tooltip
 							align="end"
 							placement="bottom"
-							text={loupeReady ? m.loupe.label : m.loupe.unavailable}
+							text={loupeReady
+								? m.loupe.label
+								: isTooLargeForLoupe(current)
+									? m.loupe.tooLarge
+									: m.loupe.unavailable}
 						>
 							{#snippet children(id)}
 								<button

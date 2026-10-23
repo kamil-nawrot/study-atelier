@@ -1,12 +1,18 @@
 import { m } from '#lib/i18n/index.ts';
 import {
+	COMMONS_LOUPE_WIDTH,
 	COMMONS_THUMBNAIL_WIDTHS,
 	commonsFileUrl,
 	commonsOriginalUrl,
-	commonsSrcset
+	commonsSrcset,
+	commonsUploadOriginalUrl,
+	commonsUploadThumbnailUrl,
+	commonsUploadThumbnailWidth
 } from '#lib/images/commons.ts';
 import { commonsCredit } from '#lib/images/credit.ts';
 import type { ArtworkImageInput } from './types.ts';
+
+export const LOUPE_MAX_LINKED_MEGAPIXELS = 40;
 
 export type ArtworkImageSource = {
 	src: string;
@@ -34,7 +40,7 @@ export function artworkImageSource(
 		case 'file':
 			return { src: image.previewUrl, width: image.width, height: image.height };
 		case 'url':
-			return { src: image.url, width: image.width ?? undefined, height: image.height ?? undefined };
+			return linkedImageSource(image, width);
 		case 'upload':
 			return image.previewUrl
 				? {
@@ -46,17 +52,58 @@ export function artworkImageSource(
 	}
 }
 
+function linkedImageSource(
+	image: Extract<ArtworkImageInput, { kind: 'url' }>,
+	width: number
+): ArtworkImageSource {
+	const source = {
+		width: image.width ?? undefined,
+		height: image.height ?? undefined
+	};
+	const original = commonsUploadOriginalUrl(image.url);
+	if (original === undefined || !image.width) return { src: image.url, ...source };
+	const widths = COMMONS_THUMBNAIL_WIDTHS.filter((size) => size < image.width!);
+	const snapped = commonsUploadThumbnailWidth(width);
+	const src =
+		snapped < image.width ? (commonsUploadThumbnailUrl(image.url, snapped) ?? original) : original;
+	const srcset = widths
+		.map((size) => `${commonsUploadThumbnailUrl(image.url, size)} ${size}w`)
+		.concat(`${original} ${image.width}w`)
+		.join(', ');
+	return { src, srcset, ...source };
+}
+
+export function isTooLargeForLoupe(image: ArtworkImageInput | null): boolean {
+	if (image === null || image.kind !== 'url' || !image.width || !image.height) return false;
+	if (commonsUploadOriginalUrl(image.url) !== undefined) return false;
+	return image.width * image.height > LOUPE_MAX_LINKED_MEGAPIXELS * 1_000_000;
+}
+
+function linkedLargeSource(
+	image: Extract<ArtworkImageInput, { kind: 'url' }>,
+	width: number
+): { src: string; width: number } | undefined {
+	if (isTooLargeForLoupe(image)) return undefined;
+	const original = commonsUploadOriginalUrl(image.url);
+	if (original === undefined) return { src: image.url, width };
+	if (width <= COMMONS_LOUPE_WIDTH) return { src: original, width };
+	const src = commonsUploadThumbnailUrl(image.url, COMMONS_LOUPE_WIDTH);
+	return src === undefined ? undefined : { src, width: COMMONS_LOUPE_WIDTH };
+}
+
 export function artworkLargeSource(
 	image: ArtworkImageInput | null
 ): { src: string; width: number } | undefined {
 	if (image === null || !image.width) return undefined;
 	switch (image.kind) {
 		case 'commons':
-			return { src: commonsOriginalUrl(image.file), width: image.width };
+			return image.width > COMMONS_LOUPE_WIDTH
+				? { src: commonsFileUrl(image.file, COMMONS_LOUPE_WIDTH), width: COMMONS_LOUPE_WIDTH }
+				: { src: commonsOriginalUrl(image.file), width: image.width };
 		case 'file':
 			return { src: image.previewUrl, width: image.width };
 		case 'url':
-			return { src: image.url, width: image.width };
+			return linkedLargeSource(image, image.width);
 		case 'upload':
 			return image.previewUrl ? { src: image.previewUrl, width: image.width } : undefined;
 	}
