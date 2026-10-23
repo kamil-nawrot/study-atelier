@@ -4,8 +4,8 @@ import { supabase } from '#lib/supabase.ts';
 import {
 	createPin,
 	deletePin,
+	loadArtworkPins,
 	loadEntryPins,
-	loadPins,
 	movePin,
 	pinDraftError,
 	updatePin
@@ -44,10 +44,13 @@ describe('pin data', () => {
 		query.eq.mockReturnValue(query);
 	});
 
-	it('loads the pins of several images in the order they were placed', async () => {
-		query.range.mockResolvedValue({ data: [row], error: null });
+	it('loads the pins of every image of an artwork in the order they were placed', async () => {
+		query.range.mockResolvedValue({
+			data: [{ ...row, artwork_images: { artworks: { record_number: 12 } } }],
+			error: null
+		});
 
-		await expect(loadPins(['image-1', 'image-2'])).resolves.toEqual({
+		await expect(loadArtworkPins(12)).resolves.toEqual({
 			pins: [
 				{
 					id: 'pin-1',
@@ -60,30 +63,15 @@ describe('pin data', () => {
 			]
 		});
 		expect(supabase.from).toHaveBeenCalledWith('artwork_pins');
-		expect(query.in).toHaveBeenCalledWith('image_id', ['image-1', 'image-2']);
+		expect(query.eq).toHaveBeenCalledWith('artwork_images.artworks.record_number', 12);
 		expect(query.order).toHaveBeenCalledWith('created_at');
 		expect(query.order).toHaveBeenCalledWith('id');
-	});
-
-	it('does not ask for the pins of no image', async () => {
-		await expect(loadPins([])).resolves.toEqual({ pins: [] });
-		expect(supabase.from).not.toHaveBeenCalled();
-	});
-
-	it('asks for the pins of many images in batches', async () => {
-		query.range.mockResolvedValue({ data: [], error: null });
-
-		await loadPins(Array.from({ length: 150 }, (_, index) => `image-${index}`));
-
-		expect(query.in).toHaveBeenCalledTimes(2);
-		expect(query.in.mock.calls[0][1]).toHaveLength(100);
-		expect(query.in.mock.calls[1][1]).toHaveLength(50);
 	});
 
 	it('says so when the pins cannot be loaded', async () => {
 		query.range.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } });
 
-		await expect(loadPins(['image-1'])).resolves.toEqual({
+		await expect(loadArtworkPins(12)).resolves.toEqual({
 			pins: [],
 			error: m.pins.errors.network
 		});
@@ -152,12 +140,23 @@ describe('pin data', () => {
 	it('says that an image holds at most 10 pins when the database refuses the eleventh', async () => {
 		query.single.mockResolvedValue({
 			data: null,
-			error: { code: '23514', message: 'an image holds at most 10 pins' }
+			error: { code: '23514', message: 'an image holds at most 10 pins', hint: 'pin_limit' }
 		});
 
 		await expect(
 			createPin('image-1', { x: 0.5, y: 0.5, glossaryEntryId: null, text: 'Lily' })
 		).resolves.toEqual({ error: m.pins.errors.tooMany(10) });
+	});
+
+	it('does not take another refused check for the pin limit', async () => {
+		query.single.mockResolvedValue({
+			data: null,
+			error: { code: '23514', message: 'violates check constraint "at most"', hint: null }
+		});
+
+		await expect(
+			createPin('image-1', { x: 0.5, y: 0.5, glossaryEntryId: null, text: 'Lily' })
+		).resolves.toEqual({ error: m.pins.errors.empty });
 	});
 
 	it('updates a pin by its id', async () => {

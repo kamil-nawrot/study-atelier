@@ -367,18 +367,22 @@
 						</Tooltip>
 					{/if}
 					{#if imagePins.length > 0}
-						<button
-							class="stage-action"
-							class:active={showPins}
-							aria-label={m.pins.switchLabel(imagePins.length)}
-							aria-pressed={showPins}
-							onclick={() => (showPins = !showPins)}
-							title={m.pins.switchLabel(imagePins.length)}
-							type="button"
-						>
-							<Icon icon={Pin} size="sm" />
-							<span>{imagePins.length}</span>
-						</button>
+						<Tooltip align="end" placement="bottom" text={m.pins.switchLabel(imagePins.length)}>
+							{#snippet children(id)}
+								<button
+									class="stage-action"
+									class:active={showPins}
+									aria-describedby={id}
+									aria-label={m.pins.switchLabel(imagePins.length)}
+									aria-pressed={showPins}
+									onclick={() => (showPins = !showPins)}
+									type="button"
+								>
+									<Icon icon={Pin} size="sm" />
+									<span>{imagePins.length}</span>
+								</button>
+							{/snippet}
+						</Tooltip>
 					{/if}
 				</div>
 			{/if}

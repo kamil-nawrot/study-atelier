@@ -17,7 +17,6 @@ import type {
 type Row = Database['public']['Tables']['artwork_pins']['Row'];
 
 const COLUMNS = 'id, image_id, x, y, glossary_entry_id, text, view_width';
-const IMAGE_BATCH = 100;
 
 function pinOf(
 	row: Pick<Row, 'id' | 'image_id' | 'x' | 'y' | 'glossary_entry_id' | 'text' | 'view_width'>
@@ -59,24 +58,18 @@ export function pinDraftError(draft: PinDraft): string | undefined {
 	return undefined;
 }
 
-export async function loadPins(imageIds: string[]): Promise<PinsResult> {
-	if (imageIds.length === 0) return { pins: [] };
-	const pins: Pin[] = [];
-	for (let start = 0; start < imageIds.length; start += IMAGE_BATCH) {
-		const batch = imageIds.slice(start, start + IMAGE_BATCH);
-		const { rows, error } = await fetchAll<Row>((from, to) =>
-			supabase
-				.from('artwork_pins')
-				.select(COLUMNS)
-				.in('image_id', batch)
-				.order('created_at')
-				.order('id')
-				.range(from, to)
-		);
-		if (error) return { pins: [], error: pinErrorMessage(error) };
-		pins.push(...rows.map(pinOf));
-	}
-	return { pins };
+export async function loadArtworkPins(recordNumber: number): Promise<PinsResult> {
+	const { rows, error } = await fetchAll<Row>((from, to) =>
+		supabase
+			.from('artwork_pins')
+			.select(`${COLUMNS}, artwork_images!inner(artworks!inner(record_number))`)
+			.eq('artwork_images.artworks.record_number', recordNumber)
+			.order('created_at')
+			.order('id')
+			.range(from, to)
+	);
+	if (error) return { pins: [], error: pinErrorMessage(error) };
+	return { pins: rows.map(pinOf) };
 }
 
 export async function createPin(imageId: string, draft: PinDraft): Promise<PinResult> {

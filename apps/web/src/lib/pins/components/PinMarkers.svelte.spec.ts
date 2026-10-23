@@ -62,6 +62,22 @@ describe('PinMarkers', () => {
 		expect(onmove).toHaveBeenCalledWith(first, { x: 0.52, y: 0.5 });
 	});
 
+	it('saves the place of a pin moved with a held arrow key once, when the key is released', async () => {
+		const onmove = vi.fn();
+		const first = pin('a');
+		render(PinMarkers, { pins: [first], editing: true, onmove, onselect: vi.fn() });
+
+		page.getByRole('button', { name: 'Pinezka 1' }).element().focus();
+		await userEvent.keyboard('{ArrowRight>3}');
+
+		expect(onmove).not.toHaveBeenCalled();
+
+		await userEvent.keyboard('{/ArrowRight}');
+
+		expect(onmove).toHaveBeenCalledTimes(1);
+		expect(onmove.mock.calls[0][1].x).toBeCloseTo(0.56);
+	});
+
 	it('shows the draft marker without making it a button', async () => {
 		render(PinMarkers, {
 			pins: [pin('a')],

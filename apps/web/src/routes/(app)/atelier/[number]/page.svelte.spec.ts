@@ -722,14 +722,11 @@ describe('artwork page', () => {
 				.toHaveTextContent('The sitter’s turban.');
 		});
 
-		it('offers the switch only when the image has pins and no way to edit them', async () => {
+		it('offers the switch only when the image has pins', async () => {
 			renderWithPins([]);
 
 			await expect
 				.element(page.getByRole('button', { name: m.pins.switchLabel(0) }))
-				.not.toBeInTheDocument();
-			await expect
-				.element(page.getByRole('button', { name: m.pins.editor(0) }))
 				.not.toBeInTheDocument();
 		});
 
