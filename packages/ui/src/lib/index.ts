@@ -14,6 +14,7 @@ export { default as Form } from './components/Form.svelte';
 export { default as FormActions } from './components/FormActions.svelte';
 export { default as Frame } from './components/Frame.svelte';
 export { default as Icon } from './components/Icon.svelte';
+export { default as IconButton } from './components/IconButton.svelte';
 export { default as LoadFailure } from './components/LoadFailure.svelte';
 export { default as LoadingScreen } from './components/LoadingScreen.svelte';
 export { default as Logo } from './components/Logo.svelte';

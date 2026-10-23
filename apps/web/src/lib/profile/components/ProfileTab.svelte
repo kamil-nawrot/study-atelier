@@ -1,14 +1,8 @@
 <script lang="ts">
 	import { onDestroy, tick, untrack } from 'svelte';
-	import {
-		Alert,
-		Button,
-		FilePicker,
-		Form,
-		FormActions,
-		TextButton,
-		TextField
-	} from '@study-atelier/ui';
+	import Camera from '@lucide/svelte/icons/camera';
+	import ImageOff from '@lucide/svelte/icons/image-off';
+	import { Alert, Button, Form, FormActions, IconButton, TextField } from '@study-atelier/ui';
 	import DiscardDialog from '#lib/collection/components/DiscardDialog.svelte';
 	import { UnsavedChanges } from '#lib/collection/unsaved-changes.svelte.ts';
 	import { m } from '#lib/i18n/index.ts';
@@ -48,6 +42,7 @@
 	let formError = $state('');
 	let busy = $state(false);
 	let cropping = $state(false);
+	let fileInput = $state<HTMLInputElement>();
 
 	const changes = new UnsavedChanges<ProfileDraft>(
 		() => ({ name, avatar }),
@@ -64,7 +59,10 @@
 		avatar = next;
 	}
 
-	async function pick(file: File): Promise<void> {
+	async function pick(event: Event & { currentTarget: HTMLInputElement }): Promise<void> {
+		const file = event.currentTarget.files?.[0];
+		event.currentTarget.value = '';
+		if (!file) return;
 		photoError = undefined;
 		cropping = true;
 		const result = await cropAvatar(file);
@@ -129,26 +127,38 @@
 				</Alert>
 			{/if}
 			<div class="photo">
-				<Avatar {initial} large path={hasAvatar ? saved.avatarPath : null} {previewUrl} />
-				<div class="photo-actions">
+				<div class="photo-row">
+					<div class="mat">
+						<Avatar {initial} large path={hasAvatar ? saved.avatarPath : null} {previewUrl} />
+					</div>
 					<div class="buttons">
-						<FilePicker
-							accept={OWN_IMAGE_ACCEPT}
-							describedby={hintId}
+						<IconButton
 							disabled={busy || cropping}
+							icon={Camera}
 							label={hasAvatar ? m.settings.profile.changePhoto : m.settings.profile.addPhoto}
-							onpick={pick}
+							onclick={() => fileInput?.click()}
 						/>
 						{#if hasAvatar}
-							<TextButton disabled={busy} onclick={() => setAvatar({ kind: 'remove' })}>
-								{m.settings.profile.removePhoto}
-							</TextButton>
+							<IconButton
+								disabled={busy}
+								icon={ImageOff}
+								label={m.settings.profile.removePhoto}
+								onclick={() => setAvatar({ kind: 'remove' })}
+							/>
 						{/if}
 					</div>
-					<span id={hintId} class="hint" class:error={photoError}>
-						{photoError ?? m.settings.profile.photoHint}
-					</span>
 				</div>
+				<span id={hintId} class="hint" class:error={photoError}>
+					{photoError ?? m.settings.profile.photoHint}
+				</span>
+				<input
+					bind:this={fileInput}
+					accept={OWN_IMAGE_ACCEPT}
+					aria-describedby={hintId}
+					hidden
+					onchange={pick}
+					type="file"
+				/>
 			</div>
 			<TextField
 				autocomplete="given-name"
@@ -156,6 +166,14 @@
 				label={m.settings.profile.name}
 				maxlength={DISPLAY_NAME_MAX_LENGTH * 2}
 				bind:value={name}
+			/>
+			<TextField
+				disabled
+				hint={m.settings.profile.emailHint}
+				label={m.settings.profile.email}
+				readonly
+				type="email"
+				value={email}
 			/>
 		</div>
 		<FormActions bind:height={barHeight}>
@@ -193,21 +211,26 @@
 	}
 
 	.photo {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-6);
+		display: grid;
+		justify-items: start;
+		gap: var(--spacing-3);
 	}
 
-	.photo-actions {
-		display: grid;
-		gap: var(--spacing-2);
-		justify-items: start;
+	.photo-row {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--spacing-4);
+	}
+
+	.mat {
+		padding: var(--spacing-4);
+		border: var(--border-width-hairline) solid var(--color-line);
+		background: var(--color-surface);
 	}
 
 	.buttons {
 		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
+		flex-direction: column;
 		gap: var(--spacing-3);
 	}
 

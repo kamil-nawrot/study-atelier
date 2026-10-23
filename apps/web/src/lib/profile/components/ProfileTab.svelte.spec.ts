@@ -48,6 +48,27 @@ describe('ProfileTab', () => {
 		URL.revokeObjectURL = vi.fn();
 	});
 
+	it('shows the email read-only with the reason it cannot be changed', async () => {
+		renderTab(named);
+
+		const email = page.getByLabelText(m.settings.profile.email);
+		await expect.element(email).toHaveValue(TEST_EMAIL);
+		await expect.element(email).toBeDisabled();
+		await expect.element(page.getByText(m.settings.profile.emailHint)).toBeVisible();
+	});
+
+	it('explains that the photo is fitted to the avatar and names the photo buttons by icon', async () => {
+		renderTab(named);
+
+		await expect.element(page.getByText(m.settings.profile.photoHint)).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.settings.profile.changePhoto }))
+			.toHaveTextContent('');
+		await expect
+			.element(page.getByRole('button', { name: m.settings.profile.removePhoto }))
+			.toHaveTextContent('');
+	});
+
 	it('shows the saved name and offers to add a photo when there is none', async () => {
 		renderTab({ ...empty, displayName: 'Anna' });
 
