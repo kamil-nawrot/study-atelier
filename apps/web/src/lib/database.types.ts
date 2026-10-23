@@ -776,6 +776,10 @@ export type Database = {
           avatar_path: string | null;
           created_at: string;
           display_name: string | null;
+          fetch_definition: boolean;
+          fetch_event: boolean;
+          fetch_forms: boolean;
+          fetch_image: boolean;
           owner_id: string;
           review_form: string;
           review_free: boolean;
@@ -791,6 +795,10 @@ export type Database = {
           avatar_path?: string | null;
           created_at?: string;
           display_name?: string | null;
+          fetch_definition?: boolean;
+          fetch_event?: boolean;
+          fetch_forms?: boolean;
+          fetch_image?: boolean;
           owner_id?: string;
           review_form?: string;
           review_free?: boolean;
@@ -805,6 +813,10 @@ export type Database = {
           avatar_path?: string | null;
           created_at?: string;
           display_name?: string | null;
+          fetch_definition?: boolean;
+          fetch_event?: boolean;
+          fetch_forms?: boolean;
+          fetch_image?: boolean;
           owner_id?: string;
           review_form?: string;
           review_free?: boolean;

@@ -27,9 +27,13 @@ export type Preferences = {
 	reviewFree: boolean;
 	viewShowPins: boolean;
 	viewLoupeOn: boolean;
+	fetchImage: boolean;
+	fetchDefinition: boolean;
+	fetchForms: boolean;
+	fetchEvent: boolean;
 };
 
-export type PreferencesPart = 'review' | 'view';
+export type PreferencesPart = 'review' | 'view' | 'sources';
 
 export type PreferencesResult = {
 	preferences: Preferences;

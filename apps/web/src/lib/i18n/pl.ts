@@ -174,7 +174,8 @@ export const pl = {
 			profile: 'Profil',
 			account: 'Konto',
 			review: 'Powtórki',
-			view: 'Widok dzieła'
+			view: 'Widok dzieła',
+			sources: 'Źródła'
 		},
 		loadErrorTitle: 'Nie udało się wczytać ustawień',
 		profile: {
@@ -222,6 +223,12 @@ export const pl = {
 			free: 'Proponuj powtórkę swobodną po skończonym dniu',
 			showPins: 'Pokazuj pinezki od razu po otwarciu dzieła',
 			loupe: 'Włączaj lupę od razu po otwarciu dzieła',
+			sourcesHint:
+				'Po wyłączeniu nic nie jest pobierane samo. Zawsze możesz poprosić o to przyciskiem w formularzu.',
+			fetchImage: 'Szukaj zdjęcia nowego dzieła w Wikidata i Commons',
+			fetchDefinition: 'Uzupełniaj definicję hasła ze Słowniczka z Wikipedii',
+			fetchForms: 'Podpowiadaj odmiany hasła z Wikisłownika',
+			fetchEvent: 'Uzupełniaj opis i daty wydarzenia z Wikipedii',
 			cancel: 'Anuluj',
 			save: 'Zapisz ustawienia',
 			saving: 'Zapisuję…',
@@ -978,6 +985,8 @@ export const pl = {
 			definitionFailed:
 				'Nie udało się połączyć z Wikipedią. Możesz napisać definicję własnymi słowami albo spróbować jeszcze raz.',
 			searchAgain: 'Szukaj jeszcze raz',
+			searchDefinition: 'Szukaj w Wikipedii',
+			definitionManual: 'Napisz definicję własnymi słowami albo poszukaj jej w Wikipedii.',
 			definitionTooLong: (max: number): string => `Definicja może mieć najwyżej ${max} znaków.`,
 			sourcePrefix: 'Na podstawie: Wikipedia, ',
 			pickArticle: 'Wybierz inny artykuł',
@@ -1063,6 +1072,7 @@ export const pl = {
 			loadErrorTitle: 'Nie udało się wczytać wydarzenia',
 			sourcePrefix: 'Na podstawie: Wikipedia, ',
 			pickArticle: 'Wybierz inny artykuł',
+			searchArticles: 'Szukaj w Wikipedii',
 			removeSource: 'Usuń źródło'
 		},
 		articles: {

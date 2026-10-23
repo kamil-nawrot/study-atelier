@@ -155,6 +155,12 @@
 					</span>
 				</div>
 				<Switch label={m.settings.preferences.free} bind:checked={draft.reviewFree} />
+			{:else if part === 'sources'}
+				<p class="hint">{m.settings.preferences.sourcesHint}</p>
+				<Switch label={m.settings.preferences.fetchImage} bind:checked={draft.fetchImage} />
+				<Switch label={m.settings.preferences.fetchDefinition} bind:checked={draft.fetchDefinition} />
+				<Switch label={m.settings.preferences.fetchForms} bind:checked={draft.fetchForms} />
+				<Switch label={m.settings.preferences.fetchEvent} bind:checked={draft.fetchEvent} />
 			{:else}
 				<Switch label={m.settings.preferences.showPins} bind:checked={draft.viewShowPins} />
 				<Switch label={m.settings.preferences.loupe} bind:checked={draft.viewLoupeOn} />

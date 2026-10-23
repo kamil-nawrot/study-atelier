@@ -22,10 +22,14 @@ type Row = Pick<
 	| 'review_free'
 	| 'view_show_pins'
 	| 'view_loupe_on'
+	| 'fetch_image'
+	| 'fetch_definition'
+	| 'fetch_forms'
+	| 'fetch_event'
 >;
 
 const COLUMNS =
-	'review_session_size, review_new_per_day, review_form, review_quiz_kinds, review_free, view_show_pins, view_loupe_on';
+	'review_session_size, review_new_per_day, review_form, review_quiz_kinds, review_free, view_show_pins, view_loupe_on, fetch_image, fetch_definition, fetch_forms, fetch_event';
 
 export function preferencesOf(row: Row | null): Preferences {
 	if (!row) return defaultPreferences;
@@ -40,7 +44,11 @@ export function preferencesOf(row: Row | null): Preferences {
 			kinds.length > 0 ? (kinds as QuizMode[]) : [...defaultPreferences.reviewQuizKinds],
 		reviewFree: row.review_free,
 		viewShowPins: row.view_show_pins,
-		viewLoupeOn: row.view_loupe_on
+		viewLoupeOn: row.view_loupe_on,
+		fetchImage: row.fetch_image,
+		fetchDefinition: row.fetch_definition,
+		fetchForms: row.fetch_forms,
+		fetchEvent: row.fetch_event
 	};
 }
 
@@ -51,6 +59,14 @@ export async function loadPreferences(): Promise<PreferencesResult> {
 }
 
 function columnsOf(part: PreferencesPart, preferences: Preferences): Partial<Row> {
+	if (part === 'sources') {
+		return {
+			fetch_image: preferences.fetchImage,
+			fetch_definition: preferences.fetchDefinition,
+			fetch_forms: preferences.fetchForms,
+			fetch_event: preferences.fetchEvent
+		};
+	}
 	if (part === 'view') {
 		return { view_show_pins: preferences.viewShowPins, view_loupe_on: preferences.viewLoupeOn };
 	}

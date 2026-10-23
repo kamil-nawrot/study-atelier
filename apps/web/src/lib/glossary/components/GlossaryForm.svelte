@@ -20,6 +20,7 @@
 	import DiscardDialog from '#lib/collection/components/DiscardDialog.svelte';
 	import { UnsavedChanges } from '#lib/collection/unsaved-changes.svelte.ts';
 	import { valuePath } from '#lib/collection/value-pages.ts';
+	import { autoFetch } from '#lib/profile/auto-fetch.svelte.ts';
 	import { resolve } from '$app/paths';
 	import {
 		glossaryCategoryName,
@@ -110,8 +111,10 @@
 			formsName !== null &&
 			formsName.toLocaleLowerCase('pl') !== form.name.trim().toLocaleLowerCase('pl');
 		if (form.forms.length === 0)
-			return existing && (formsStatus === 'idle' || renamed) ? 'fetch' : undefined;
-		if (!existing && formsReplaceable()) return undefined;
+			return (existing || !autoFetch.forms) && (formsStatus === 'idle' || renamed)
+				? 'fetch'
+				: undefined;
+		if (!existing && autoFetch.forms && formsReplaceable()) return undefined;
 		return renamed ? 'refetch' : undefined;
 	});
 	let definitionHint = $derived(
@@ -122,7 +125,19 @@
 				: undefined
 	);
 	let placeholder = $derived(
-		status === 'searching' ? m.glossary.form.definitionSearching : m.glossary.form.definitionPending
+		status === 'searching'
+			? m.glossary.form.definitionSearching
+			: autoFetch.definition
+				? m.glossary.form.definitionPending
+				: m.glossary.form.definitionManual
+	);
+	let definitionSearchable = $derived(
+		!autoFetch.definition &&
+			status !== 'searching' &&
+			status !== 'failed' &&
+			!form.source &&
+			form.name.trim() !== '' &&
+			!!form.category
 	);
 
 	function newOption(query: string, values: readonly string[]): ValueOption[] {
@@ -216,7 +231,7 @@
 			const added = current.filter((word) => !known.has(synonymKey(word)));
 			knownSynonyms = current;
 			removed.forEach(dropSynonymForms);
-			added.forEach((word) => void addSynonymForms(word));
+			if (autoFetch.forms) added.forEach((word) => void addSynonymForms(word));
 		});
 	});
 
@@ -236,6 +251,7 @@
 			});
 			return;
 		}
+		if (!autoFetch.forms) return;
 		const timer = setTimeout(() => {
 			if (untrack(formsReplaceable)) void suggestForms();
 		}, SEARCH_DELAY_MS);
@@ -287,7 +303,7 @@
 	$effect(() => {
 		const name = form.name.trim();
 		const category = form.category;
-		if (!name || !category) return;
+		if (!name || !category || !autoFetch.definition) return;
 		const timer = setTimeout(() => {
 			if (untrack(replaceable)) void search(true);
 		}, SEARCH_DELAY_MS);
@@ -447,6 +463,13 @@
 					<div class="links">
 						<TextButton inline onclick={() => search(true)}>
 							{m.glossary.form.searchAgain}
+						</TextButton>
+					</div>
+				{/if}
+				{#if definitionSearchable}
+					<div class="links">
+						<TextButton inline onclick={() => search(true)}>
+							{m.glossary.form.searchDefinition}
 						</TextButton>
 					</div>
 				{/if}
