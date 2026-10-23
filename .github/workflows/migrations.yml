@@ -57,6 +57,9 @@ jobs:
       - name: Check artwork fields
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/artwork-fields.sql
 
+      - name: Check atelier import
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/import-atelier.sql
+
       - name: Check artwork pins
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/artwork-pins.sql
 

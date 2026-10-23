@@ -1033,6 +1033,10 @@ export type Database = {
         Args: { target_value: string };
         Returns: undefined;
       };
+      import_atelier: {
+        Args: { payload: Json };
+        Returns: Json;
+      };
       keep_alive: { Args: Record<PropertyKey, never>; Returns: string };
       merge_category_values: {
         Args: { kept_id: string; merged_id: string };

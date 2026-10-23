@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Alert, Tabs, Toast } from '@study-atelier/ui';
-	import { goto, invalidate } from '$app/navigation';
+	import { goto, invalidate, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
@@ -30,6 +30,11 @@
 		if (next === tab) return;
 		const target = `${settingsPath}?tab=${next}` as ResolvedPathname;
 		void goto(target, { replace: true, reset: false });
+	}
+
+	async function dataImported(message: string): Promise<void> {
+		await invalidateAll();
+		toast.show(message);
 	}
 
 	async function profileSaved(_profile: Profile, message: string): Promise<void> {
@@ -65,7 +70,11 @@
 							bind:barHeight
 						/>
 					{:else if tab === 'data'}
-						<DataTab onexported={(message) => toast.show(message)} />
+						<DataTab
+							atelierEmpty={data.atelierEmpty}
+							onexported={(message) => toast.show(message)}
+							onimported={dataImported}
+						/>
 					{:else}
 						<AccountTab {email} onchanged={(message) => toast.show(message)} />
 					{/if}

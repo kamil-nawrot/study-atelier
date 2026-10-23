@@ -19,7 +19,8 @@ vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
 vi.mock('$app/navigation', () => ({
 	beforeNavigate: vi.fn(),
 	goto: vi.fn(),
-	invalidate: vi.fn()
+	invalidate: vi.fn(),
+	invalidateAll: vi.fn()
 }));
 vi.mock('#lib/profile/profile-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/profile/profile-data.ts')>()),
@@ -35,7 +36,10 @@ const profile = { displayName: 'Anna', avatarPath: null };
 
 function renderSettings(error?: string, search = ''): void {
 	navigation.url = new URL(`http://localhost/atelier/settings${search}`);
-	render(SettingsPage, { data: { session: testSession(), profile, error }, params: {} });
+	render(SettingsPage, {
+		data: { session: testSession(), profile, atelierEmpty: true, error },
+		params: {}
+	});
 }
 
 describe('settings page', () => {
