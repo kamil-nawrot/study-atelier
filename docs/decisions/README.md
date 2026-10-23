@@ -119,3 +119,7 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0113](0113-switch-the-loupe-on-from-the-corner-of-the-stage.md)          | Switch the loupe on from the corner of the stage                                         | accepted           |
 | [0114](0114-keep-a-view-of-the-loupe-in-a-pin.md)                         | Keep a view of the loupe in a pin                                                        | accepted           |
 | [0115](0115-cap-the-loupe-image-and-thumbnail-linked-wikimedia-images.md) | Cap the loupe image at 3840 px and thumbnail linked Wikimedia images                     | accepted           |
+| [0116](0116-keep-the-profile-and-preferences-in-a-profiles-table.md)      | Keep the profile and the preferences in a profiles table                                 | accepted           |
+| [0117](0117-settings-view-in-tabs-opened-from-the-avatar.md)              | Settings view in tabs opened from the avatar                                             | accepted           |
+| [0118](0118-preferences-for-the-reviews-and-the-artwork-view.md)          | Preferences for the reviews and the artwork view                                         | accepted           |
+| [0119](0119-send-the-auth-emails-through-brevo.md)                        | Send the auth emails through Brevo                                                       | accepted           |
