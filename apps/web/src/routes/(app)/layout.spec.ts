@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { isRedirect } from '@sveltejs/kit';
 import type { Session } from '@supabase/supabase-js';
+import { defaultPreferences } from '#lib/profile/preferences.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import { load } from './+layout';
 
@@ -8,8 +9,17 @@ const reviewData = vi.hoisted(() => ({
 	loadReviewCounts: vi.fn()
 }));
 
+const preferencesData = vi.hoisted(() => ({
+	loadPreferences: vi.fn()
+}));
+
 const profileData = vi.hoisted(() => ({
 	loadProfile: vi.fn()
+}));
+
+vi.mock('#lib/profile/preferences-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/profile/preferences-data.ts')>()),
+	loadPreferences: preferencesData.loadPreferences
 }));
 
 vi.mock('#lib/profile/profile-data.ts', async (importOriginal) => ({
@@ -36,6 +46,7 @@ describe('(app) layout load', () => {
 		profileData.loadProfile.mockResolvedValue({
 			profile: { displayName: 'Anna', avatarPath: null }
 		});
+		preferencesData.loadPreferences.mockResolvedValue({ preferences: defaultPreferences });
 		reviewData.loadReviewCounts.mockResolvedValue({
 			counts: { due: 4, newAvailable: 30, newToday: 3, withImage: 40 }
 		});
@@ -57,6 +68,16 @@ describe('(app) layout load', () => {
 		const { reviewWaiting } = (await loadWith(testSession())) ?? {};
 
 		await expect(reviewWaiting).resolves.toBe(11);
+	});
+
+	it('counts the new artworks up to the limit of the preferences', async () => {
+		preferencesData.loadPreferences.mockResolvedValue({
+			preferences: { ...defaultPreferences, reviewNewPerDay: 20 }
+		});
+
+		const { reviewWaiting } = (await loadWith(testSession())) ?? {};
+
+		await expect(reviewWaiting).resolves.toBe(21);
 	});
 
 	it('shows no counter when the counts cannot be read', async () => {

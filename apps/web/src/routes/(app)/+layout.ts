@@ -7,6 +7,7 @@ import {
 	REVIEW_COUNTS_DEPENDENCY,
 	waitingToday
 } from '#lib/review/review-data.ts';
+import { loadPreferences, PREFERENCES_DEPENDENCY } from '#lib/profile/preferences-data.ts';
 import { loadProfile, PROFILE_DEPENDENCY } from '#lib/profile/profile-data.ts';
 import type { Profile } from '#lib/profile/types.ts';
 import type { LayoutLoad } from './$types';
@@ -23,12 +24,15 @@ async function ownProfile(): Promise<Profile | undefined> {
 }
 
 async function reviewWaiting(): Promise<number> {
-	const { counts } = await loadReviewCounts(startOfDay(new Date()));
-	return counts ? waitingToday(counts) : 0;
+	const [{ counts }, { preferences }] = await Promise.all([
+		loadReviewCounts(startOfDay(new Date())),
+		loadPreferences()
+	]);
+	return counts ? waitingToday(counts, preferences.reviewNewPerDay) : 0;
 }
 
 export const load: LayoutLoad = async ({ parent, depends }): Promise<AppLayoutData> => {
-	depends(REVIEW_COUNTS_DEPENDENCY, PROFILE_DEPENDENCY);
+	depends(REVIEW_COUNTS_DEPENDENCY, PROFILE_DEPENDENCY, PREFERENCES_DEPENDENCY);
 	const { session } = await parent();
 	if (!session) redirect(307, resolve('/(auth)/sign-in'));
 	return { session, reviewWaiting: reviewWaiting(), menuProfile: ownProfile() };
