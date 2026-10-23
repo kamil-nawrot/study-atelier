@@ -87,7 +87,7 @@ export function emptyArtworkInput(): ArtworkInput {
 }
 
 function names(values: string[]): string[] {
-	return values.map((value) => value.trim()).filter((value) => value !== '');
+	return values.map(oneLine).filter((value) => value !== '');
 }
 
 export const EARLIEST_YEAR = 3_000_000;
@@ -191,10 +191,9 @@ function fieldEntries(input: ArtworkInput): Record<string, Json> | undefined {
 	if (!input.own) return undefined;
 	return Object.fromEntries(
 		Object.entries(input.own).flatMap(([id, entry]): [string, Json][] => {
-			if (entry === true) return [[id, true]];
-			const text = typeof entry === 'string' ? oneLine(entry) : '';
-			if (text) return [[id, text]];
-			return [];
+			if (Array.isArray(entry)) return [];
+			if (typeof entry === 'boolean') return [[id, entry]];
+			return [[id, oneLine(entry)]];
 		})
 	);
 }

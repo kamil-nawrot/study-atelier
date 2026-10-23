@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Ellipsis from '@lucide/svelte/icons/ellipsis';
 	import Plus from '@lucide/svelte/icons/plus';
+	import { tick } from 'svelte';
 	import {
 		Alert,
 		Button,
@@ -36,6 +37,21 @@
 	let valueField = $state<OwnField>();
 	let chosenValue = $state<OwnValue>();
 	let failure = $state<string>();
+
+	const addButtonId = 'own-fields-add';
+
+	async function keepFocus(fallbackId: string): Promise<void> {
+		await tick();
+		const active = document.activeElement;
+		if (active && active !== document.body && active.isConnected) return;
+		document.getElementById(fallbackId)?.focus();
+	}
+
+	async function valueSaved(message: string): Promise<void> {
+		const field = valueField;
+		await onchanged(message);
+		if (field) await keepFocus(`field-${field.id}`);
+	}
 
 	function summary(field: OwnField): string {
 		const { ownFields } = m;
@@ -90,6 +106,7 @@
 			return;
 		}
 		await onchanged(m.ownFields.deleted(deleted.name));
+		await keepFocus(addButtonId);
 	}
 
 	function chooseValue(field: OwnField, id: string): void {
@@ -109,7 +126,7 @@
 		<div class="intro">
 			<p>{m.ownFields.intro}</p>
 			<div class="add">
-				<Button onclick={add}>
+				<Button id={addButtonId} onclick={add}>
 					<Icon icon={Plus} />
 					{m.ownFields.add}
 				</Button>
@@ -130,7 +147,7 @@
 			<section aria-labelledby="field-{field.id}">
 				<header>
 					<div class="heading">
-						<h2 id="field-{field.id}">{field.name}</h2>
+						<h2 id="field-{field.id}" tabindex="-1">{field.name}</h2>
 						<p class="caption">{summary(field)}</p>
 						{#if field.description}
 							<p class="caption">{field.description}</p>
@@ -187,7 +204,7 @@
 
 <OwnFieldDialog {edited} {fields} onsaved={onchanged} bind:open={fieldOpen} />
 
-<OwnValueDialog field={valueField} onsaved={onchanged} value={chosenValue} bind:open={valueOpen} />
+<OwnValueDialog field={valueField} onsaved={valueSaved} value={chosenValue} bind:open={valueOpen} />
 
 <Dialog
 	description={deleted ? m.ownFields.deleteConfirm.description(deleted.count) : undefined}
