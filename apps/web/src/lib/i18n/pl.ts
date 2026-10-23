@@ -173,6 +173,8 @@ export const pl = {
 		tabs: {
 			profile: 'Profil',
 			account: 'Konto',
+			review: 'Powtórki',
+			view: 'Widok dzieła',
 			data: 'Dane'
 		},
 		loadErrorTitle: 'Nie udało się wczytać ustawień',
@@ -204,6 +206,29 @@ export const pl = {
 			sameAsCurrent: 'Nowe hasło musi być inne niż obecne.',
 			changed: 'Hasło jest zmienione.',
 			errorTitle: 'Nie udało się zmienić hasła'
+		},
+		preferences: {
+			sessionSize: 'Ile dzieł w jednej sesji?',
+			newPerDay: 'Ile nowych dzieł dziennie?',
+			form: 'Od jakiej formy zaczynać?',
+			formHint: 'Zmienisz ją też na starcie powtórki.',
+			kinds: 'O co mogę pytać?',
+			kindLabels: {
+				quiz_image: 'Gdzie jest „tytuł”? (wybór obrazu)',
+				quiz_title: 'Jaki to tytuł?',
+				quiz_style: 'W jakim stylu powstało to dzieło?',
+				quiz_pin: 'Co to jest? (pinezki ze Słowniczka)'
+			},
+			kindsHint: 'Zostaw zaznaczone co najmniej jedno.',
+			free: 'Proponuj powtórkę swobodną po skończonym dniu',
+			showPins: 'Pokazuj pinezki od razu po otwarciu dzieła',
+			loupe: 'Włączaj lupę od razu po otwarciu dzieła',
+			cancel: 'Anuluj',
+			save: 'Zapisz ustawienia',
+			saving: 'Zapisuję…',
+			saved: 'Zapisano ustawienia.',
+			errorTitle: 'Nie udało się zapisać ustawień',
+			discardDescription: 'Masz niezapisane zmiany w ustawieniach. Jeśli wyjdziesz, znikną.'
 		},
 		data: {
 			exportTitle: 'Eksport',

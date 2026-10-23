@@ -457,7 +457,17 @@ export const USER = {
 	created_at: '2026-01-01T00:00:00Z'
 };
 
-export const PROFILE = { display_name: 'Anna', avatar_path: null };
+export const PROFILE = {
+	display_name: 'Anna',
+	avatar_path: null,
+	review_session_size: 20,
+	review_new_per_day: 10,
+	review_form: 'mixed',
+	review_quiz_kinds: ['quiz_title', 'quiz_image', 'quiz_style', 'quiz_pin'],
+	review_free: true,
+	view_show_pins: false,
+	view_loupe_on: false
+};
 
 export function fakeSession() {
 	return {

@@ -173,11 +173,13 @@
 			{flipLinks}
 			focusPin={page.url.searchParams.get('pin') ?? undefined}
 			glossary={data.glossary}
+			loupeOnOpen={data.preferences?.viewLoupeOn}
 			mentions={data.mentions}
 			noteLinks={data.noteLinks}
 			onflip={flip}
 			ownFields={data.ownFields}
 			pins={data.pins}
+			showPinsOnOpen={data.preferences?.viewShowPins}
 			summaries={data.summaries}
 		/>
 	{:else}
