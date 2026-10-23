@@ -2,6 +2,25 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.9.0] - 2026-10-23
+
+The learner marks details on the image of an artwork with pins, looks at them closely through a loupe, and meets them again in the glossary and in the review.
+
+### Added
+
+- Pins on the image of an artwork. In the artwork form the learner taps the picture of a saved image to place a pin, drags it to move it and changes or deletes it; a pin is saved at once and has a glossary entry, a text of at most 300 characters, or both, with at most 10 pins on an image.
+- In the artwork view an icon with the number of pins shows or hides them on the image. Pointing at a pin, focusing it or tapping it opens its card next to it with the entry's name and definition, "Otwórz w Słowniczku" and the learner's text.
+- A pin stays on its image when the images are reordered or the picture is replaced, and goes with its image when the image is removed.
+- "Na dziełach" on the page of a glossary entry lists the artworks whose pins carry the entry; each tile leads to the artwork.
+- The review asks "Co to jest?": the image with a pin marked and four glossary terms, the distractors from the same category first. It is asked about artworks with a pin that has an entry, at most on every third question of a quiz session and never in flashcards.
+- The loupe on a larger screen with a mouse: the magnifier icon "Lupa" in the corner of the stage turns the cursor over the image into a circle that enlarges what is under it. The mouse wheel changes the level up to the full resolution of the source, and Escape or "Lupa" switches it off. It is offered only for an image at least 1.5 times wider than shown on the page; for a smaller one the icon is dimmed and its tooltip says why.
+- A click on the image while the loupe is on makes a pin that keeps the view of the loupe. Its card shows that view in a circle on any screen, and the artwork form can remove the view.
+
+### Changed
+
+- On a phone the first screen of an artwork has the same height for every artwork: a stage of a fixed height with the image fitted inside, then the number, the title and the authors with the date. The fields from "Typ" down start below the fold, and the arrows to the previous and next artwork stay at the same height.
+- Internal: every image of an artwork, the main one included, is a row of one table with a stable id, so that a pin keeps its image whatever happens to the order; fixes from the code review of the version.
+
 ## [0.8.0] - 2026-10-22
 
 The learner can define their own artwork fields, fill them in with every artwork, see them in the artwork view and filter the wall by them.
@@ -407,3 +426,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.7.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.7.0
 [0.7.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.7.1
 [0.8.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.8.0
+[0.9.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.9.0
