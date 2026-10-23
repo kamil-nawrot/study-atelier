@@ -466,7 +466,11 @@ export const PROFILE = {
 	review_quiz_kinds: ['quiz_title', 'quiz_image', 'quiz_style', 'quiz_pin'],
 	review_free: true,
 	view_show_pins: false,
-	view_loupe_on: false
+	view_loupe_on: false,
+	fetch_image: true,
+	fetch_definition: true,
+	fetch_forms: true,
+	fetch_event: true
 };
 
 export function fakeSession() {

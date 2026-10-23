@@ -3,6 +3,7 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
 import { m } from '#lib/i18n/index.ts';
+import { autoFetch } from '#lib/profile/auto-fetch.svelte.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import { saveTimelineEvent } from '#lib/timeline/timeline-data.ts';
 import type { EventArticle } from '#lib/timeline/types.ts';
@@ -55,6 +56,7 @@ describe('new timeline event page', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
 		search.mockResolvedValue([]);
+		autoFetch.event = true;
 		await page.viewport(1280, 800);
 	});
 
@@ -175,6 +177,21 @@ describe('new timeline event page', () => {
 				undefined
 			)
 		);
+	});
+
+	it('does not search Wikipedia by itself when the learner switched it off, but does on request', async () => {
+		autoFetch.event = false;
+		search.mockResolvedValue([deluge]);
+		renderNew();
+
+		await userEvent.fill(page.getByLabelText(m.timeline.form.name), 'Potop szwedzki');
+		await new Promise((resolve) => setTimeout(resolve, 900));
+
+		expect(search).not.toHaveBeenCalled();
+		await page.getByRole('button', { name: m.timeline.form.searchArticles }).click();
+
+		await vi.waitFor(() => expect(search).toHaveBeenCalledWith('Potop szwedzki'));
+		await expect.element(page.getByText(deluge.title, { exact: true })).toBeVisible();
 	});
 
 	it('says nothing when Wikipedia finds nothing or does not answer', async () => {

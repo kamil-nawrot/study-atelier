@@ -7,6 +7,7 @@ import {
 	REVIEW_COUNTS_DEPENDENCY,
 	waitingToday
 } from '#lib/review/review-data.ts';
+import { applyAutoFetch } from '#lib/profile/auto-fetch.svelte.ts';
 import { loadPreferences, PREFERENCES_DEPENDENCY } from '#lib/profile/preferences-data.ts';
 import { loadProfile, PROFILE_DEPENDENCY } from '#lib/profile/profile-data.ts';
 import type { Profile } from '#lib/profile/types.ts';
@@ -26,7 +27,10 @@ async function ownProfile(): Promise<Profile | undefined> {
 async function reviewWaiting(): Promise<number> {
 	const [{ counts }, { preferences }] = await Promise.all([
 		loadReviewCounts(startOfDay(new Date())),
-		loadPreferences()
+		loadPreferences().then((result) => {
+			applyAutoFetch(result.preferences);
+			return result;
+		})
 	]);
 	return counts ? waitingToday(counts, preferences.reviewNewPerDay) : 0;
 }

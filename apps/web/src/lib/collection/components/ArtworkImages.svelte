@@ -21,6 +21,7 @@
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import PinLayer from '#lib/pins/components/PinLayer.svelte';
 	import type { Pin } from '#lib/pins/types.ts';
+	import { autoFetch } from '#lib/profile/auto-fetch.svelte.ts';
 
 	type Props = {
 		alt: string;
@@ -66,7 +67,14 @@
 	);
 
 	$effect(() => {
-		if (!autoMatch || !searchReady || query.kind !== 'artwork' || image !== null) return;
+		if (
+			!autoMatch ||
+			!autoFetch.image ||
+			!searchReady ||
+			query.kind !== 'artwork' ||
+			image !== null
+		)
+			return;
 		const key = matchKey(query.title, query.authors);
 		if (key === untrack(() => searchedKey)) return;
 		const timer = setTimeout(() => {
