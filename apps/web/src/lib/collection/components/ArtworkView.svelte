@@ -2,6 +2,8 @@
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
+	import Pin from '@lucide/svelte/icons/pin';
+	import Search from '@lucide/svelte/icons/search';
 	import X from '@lucide/svelte/icons/x';
 	import type { LucideIcon } from '@lucide/svelte';
 	import {
@@ -12,13 +14,21 @@
 		type NoteLinks,
 		Popover,
 		Tag,
+		Tooltip,
 		overlayScrollbar
 	} from '@study-atelier/ui';
+	import { MediaQuery } from 'svelte/reactivity';
 	import type { ResolvedPathname } from '$app/types';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
+	import PinCard from '#lib/pins/components/PinCard.svelte';
+	import PinDialog from '#lib/pins/components/PinDialog.svelte';
+	import PinMarkers from '#lib/pins/components/PinMarkers.svelte';
+	import { pinsOfImage } from '#lib/pins/pin-layout.ts';
+	import type { Pin as PinRecord } from '#lib/pins/types.ts';
+	import { LOUPE_MIN_RATIO } from '../loupe.ts';
+	import { artworkImageCredit, artworkImageSource, artworkLargeSource } from '../artwork-image.ts';
 	import { artworkTypeIcon } from '../artwork-types.ts';
 	import { eraIcon } from '../eras.ts';
 	import { formatDate, formatRecordNumber, signedYear } from '../format.ts';
@@ -34,6 +44,7 @@
 		type ValueSummary
 	} from '../value-summaries.ts';
 	import ImageViewer from './ImageViewer.svelte';
+	import Loupe from './Loupe.svelte';
 	import MentionedIn from './MentionedIn.svelte';
 	import ValueSummaryCard from './ValueSummaryCard.svelte';
 
@@ -42,6 +53,8 @@
 		editHref: string;
 		noteLinks?: NoteLinks;
 		glossary?: GlossaryEntry[];
+		pins?: PinRecord[];
+		focusPin?: string;
 		mentions?: Mention[];
 		summaries?: ValueSummaries;
 		ownFields?: OwnFieldDefinition[];
@@ -55,6 +68,8 @@
 		flipLinks,
 		noteLinks,
 		glossary,
+		pins = [],
+		focusPin,
 		mentions = [],
 		summaries = emptyValueSummaries(),
 		ownFields = [],
@@ -74,10 +89,40 @@
 	let image = $derived(artworkImageSource(current, STAGE_WIDTH));
 	let fullImage = $derived(artworkImageSource(current, VIEWER_WIDTH));
 	let credit = $derived(image ? artworkImageCredit(current) : undefined);
+	let ratio = $derived(image?.width && image.height ? image.width / image.height : undefined);
+
+	const mouse = new MediaQuery('(hover: hover) and (pointer: fine)');
+	let frameWidth = $state(0);
+	let loupeOn = $state(false);
+	let large = $derived(artworkLargeSource(current));
+	let loupeReady = $derived(
+		large !== undefined && frameWidth > 0 && large.width >= LOUPE_MIN_RATIO * frameWidth
+	);
+	let loupeActive = $derived(loupeOn && loupeReady && mouse.current);
+
+	let showPins = $state(false);
+
+	let imageId = $derived(current?.id);
+	let allPins = $derived(pins);
+	let imagePins = $derived(pinsOfImage(allPins, imageId));
+	let newPin = $state<{ x: number; y: number; viewWidth: number }>();
+	let newPinOpen = $state(false);
+	let entryNames = $derived(
+		Object.fromEntries((glossary ?? []).map((entry) => [entry.id, entry.name]))
+	);
 
 	$effect.pre(() => {
 		void artwork.id;
-		shown = 0;
+		const focused = pins.find((pin) => pin.id === focusPin);
+		const focusedImage = focused ? gallery.findIndex((item) => item?.id === focused.imageId) : -1;
+		shown = Math.max(focusedImage, 0);
+		showPins = focusedImage >= 0;
+	});
+
+	$effect.pre(() => {
+		void artwork.id;
+		void shown;
+		loupeOn = false;
 	});
 
 	function step(by: -1 | 1): void {
@@ -160,6 +205,20 @@
 	function openViewer(): void {
 		viewer.open();
 	}
+
+	function toggleLoupe(): void {
+		if (loupeReady) loupeOn = !loupeOn;
+	}
+
+	function pickView(spot: { x: number; y: number; viewWidth: number }): void {
+		newPin = spot;
+		newPinOpen = true;
+	}
+
+	function pinSaved(pin: PinRecord): void {
+		allPins = [...allPins, pin];
+		showPins = true;
+	}
 </script>
 
 {#snippet valueName(kind: ValueKind, name: string)}
@@ -203,9 +262,11 @@
 
 <div class="view" class:closed={!panelOpen}>
 	<figure
+		style:--image-ratio={ratio}
 		class="stage"
 		class:dimmed={image !== undefined}
 		class:flipping={flipLinks !== undefined}
+		class:sized={ratio !== undefined}
 		class:with-gallery={image !== undefined && gallery.length > 1}
 		{@attach swipe((direction) => onflip?.(direction))}
 	>
@@ -232,20 +293,80 @@
 		{/if}
 		{#if image}
 			<img class="backdrop" alt="" aria-hidden="true" src={image.src} />
-			<button class="open" aria-label={m.artworkView.openImage} onclick={openViewer} type="button">
-				<span class="mat">
-					<ArtworkImage
-						{alt}
-						height={image.height}
-						sizes="(min-width: 768px) 60vw, 100vw"
-						src={image.src}
-						srcset={image.srcset}
-						width={image.width}
-					/>
-				</span>
-			</button>
+			<div class="mat">
+				<div class="frame" bind:clientWidth={frameWidth}>
+					<button
+						class="open"
+						aria-label={m.artworkView.openImage}
+						onclick={openViewer}
+						type="button"
+					>
+						<ArtworkImage
+							{alt}
+							height={image.height}
+							sizes="(min-width: 768px) 60vw, 100vw"
+							src={image.src}
+							srcset={image.srcset}
+							width={image.width}
+						/>
+					</button>
+					{#if showPins}
+						<PinMarkers card={pinCard} names={entryNames} pins={imagePins} />
+					{/if}
+					{#if loupeActive && large}
+						<Loupe
+							image={image.src}
+							large={large.src}
+							onclose={() => (loupeOn = false)}
+							onpick={pickView}
+							sourceWidth={large.width}
+						/>
+					{/if}
+				</div>
+			</div>
 			{#if credit}
 				<figcaption class="caption">{credit}</figcaption>
+			{/if}
+			{#if mouse.current || imagePins.length > 0}
+				<div class="stage-actions">
+					{#if mouse.current}
+						<Tooltip
+							align="end"
+							placement="bottom"
+							text={loupeReady ? m.loupe.label : m.loupe.unavailable}
+						>
+							{#snippet children(id)}
+								<button
+									class="stage-action"
+									class:active={loupeActive}
+									class:unavailable={!loupeReady}
+									aria-describedby={id}
+									aria-disabled={!loupeReady}
+									aria-label={m.loupe.label}
+									aria-pressed={loupeReady ? loupeActive : undefined}
+									onclick={toggleLoupe}
+									type="button"
+								>
+									<Icon icon={Search} size="sm" />
+								</button>
+							{/snippet}
+						</Tooltip>
+					{/if}
+					{#if imagePins.length > 0}
+						<button
+							class="stage-action"
+							class:active={showPins}
+							aria-label={m.pins.switchLabel(imagePins.length)}
+							aria-pressed={showPins}
+							onclick={() => (showPins = !showPins)}
+							title={m.pins.switchLabel(imagePins.length)}
+							type="button"
+						>
+							<Icon icon={Pin} size="sm" />
+							<span>{imagePins.length}</span>
+						</button>
+					{/if}
+				</div>
 			{/if}
 			{#if gallery.length > 1}
 				<div class="gallery">
@@ -368,6 +489,28 @@
 	</div>
 </div>
 
+{#if imageId !== undefined && newPin}
+	<PinDialog
+		entries={glossary ?? []}
+		image={current}
+		{imageId}
+		ondeleted={() => {}}
+		onsaved={pinSaved}
+		shownWidth={frameWidth}
+		spot={newPin}
+		view={newPin.viewWidth}
+		bind:open={newPinOpen}
+	/>
+{/if}
+{#snippet pinCard(pin: PinRecord)}
+	<PinCard
+		entry={glossary?.find((entry) => entry.id === pin.glossaryEntryId)}
+		image={current}
+		{pin}
+		shownWidth={frameWidth}
+	/>
+{/snippet}
+
 <ImageViewer bind:this={viewer} {alt} count={gallery.length} image={fullImage} onstep={step} />
 
 <style>
@@ -453,10 +596,48 @@
 		cursor: var(--cursor-zoom-in);
 	}
 
+	.stage > .stage-actions {
+		position: absolute;
+		top: var(--spacing-2);
+		right: var(--spacing-2);
+		z-index: 3;
+		display: flex;
+		align-items: center;
+	}
+
+	.stage-action {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-1);
+		padding: var(--spacing-2);
+		border: none;
+		background: transparent;
+		color: var(--color-stage-fg);
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
+		cursor: pointer;
+		opacity: 0.6;
+	}
+
+	.stage-action:hover,
+	.stage-action:focus-visible,
+	.stage-action.active {
+		opacity: 1;
+	}
+
+	.stage-action.unavailable {
+		cursor: default;
+		opacity: 0.2;
+	}
+
 	.mat {
 		display: block;
 		padding: var(--spacing-2);
 		background: var(--color-mat-bg);
+	}
+
+	.frame {
+		position: relative;
 	}
 
 	.mat :global(img) {
@@ -598,6 +779,50 @@
 
 	.empty {
 		color: var(--color-fg-muted);
+	}
+
+	@media (max-width: 767.98px) {
+		.view {
+			--heading-height: calc(
+				var(--font-size-xs) * var(--line-height-xs) + 2 * var(--spacing-2) + 2 *
+					var(--font-size-xl) * var(--line-height-xl) + var(--font-size-md) * var(--line-height-md)
+			);
+		}
+
+		.stage {
+			--caption-height: calc(2 * var(--font-size-xs) * var(--line-height-xs) + var(--spacing-3));
+			--image-max-height: calc(100cqh - 2 * var(--spacing-2) - var(--caption-height));
+
+			container-type: size;
+			height: calc(
+				var(--artwork-max-height) - var(--spacing-6) - var(--heading-height) - var(--spacing-8)
+			);
+		}
+
+		.mat :global(img) {
+			max-width: calc(100cqw - 2 * var(--spacing-2));
+			max-height: var(--image-max-height);
+		}
+
+		.sized .mat :global(img) {
+			width: min(
+				calc(100cqw - 2 * var(--spacing-2)),
+				calc(var(--image-max-height) * var(--image-ratio))
+			);
+		}
+
+		.window {
+			width: auto;
+			height: min(
+				400px,
+				calc(100cqh - var(--size-control) - var(--spacing-3) - 2 * var(--spacing-2))
+			);
+		}
+
+		.heading {
+			align-content: start;
+			min-height: var(--heading-height);
+		}
 	}
 
 	@media (min-width: 768px) {

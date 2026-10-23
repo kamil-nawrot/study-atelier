@@ -3,7 +3,7 @@ export const IMAGE_HOST = 'https://images.mock.test';
 
 const COMMONS_SIZES = {
 	'Mona_Lisa.jpg': [4, 6],
-	'The_Starry_Night.jpg': [5, 4],
+	'The_Starry_Night.jpg': [4000, 3200],
 	'Girl_with_a_Pearl_Earring.jpg': [4, 5],
 	'Portrait_of_Leonardo.jpg': [3, 4],
 	'Self-portrait_in_red_chalk.jpg': [2, 3]
@@ -26,8 +26,9 @@ export function imageSvg(seed, width = 4, height = 5) {
 	let hash = 0;
 	for (const char of String(seed)) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
 	const [dark, light] = PALETTE[hash % PALETTE.length];
-	const w = width * 100;
-	const h = height * 100;
+	const scale = width >= 100 ? 1 : 100;
+	const w = width * scale;
+	const h = height * scale;
 	return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${dark}"/><stop offset="1" stop-color="${light}"/></linearGradient></defs><rect width="${w}" height="${h}" fill="url(#g)"/><circle cx="${w * 0.62}" cy="${h * 0.38}" r="${Math.min(w, h) * 0.18}" fill="${light}" fill-opacity="0.55"/></svg>`;
 }
 
@@ -38,7 +39,10 @@ function extraImage() {
 		source_image_licence: null,
 		source_image_licence_url: null,
 		source_image_attribution: null,
-		own_image_path: null
+		own_image_path: null,
+		own_image_url: null,
+		image_width: null,
+		image_height: null
 	};
 }
 
@@ -63,7 +67,32 @@ function commonsImage(file) {
 	};
 }
 
+const IMAGE_KEYS = [
+	'source_wikidata_id',
+	'source_image_file',
+	'source_image_licence',
+	'source_image_licence_url',
+	'source_image_attribution',
+	'own_image_path',
+	'own_image_url',
+	'image_width',
+	'image_height'
+];
+
 function artwork(number, title, authors, year, era, extra = {}) {
+	const { artwork_images: others = [], ...fields } = extra;
+	const main = Object.fromEntries(
+		Object.entries(fields).filter(([key]) => IMAGE_KEYS.includes(key))
+	);
+	const rest = Object.fromEntries(
+		Object.entries(fields).filter(([key]) => !IMAGE_KEYS.includes(key))
+	);
+	const imageId = (position) =>
+		`00000000-0000-4000-9000-${String(number).padStart(9, '0')}${String(position).padStart(3, '0')}`;
+	const images = [
+		...(Object.keys(main).length > 0 ? [{ position: 0, ...extraImage(), ...main }] : []),
+		...others
+	].map((image) => ({ id: imageId(image.position), ...image }));
 	return {
 		id: `00000000-0000-4000-8000-${String(number).padStart(12, '0')}`,
 		record_number: number,
@@ -75,23 +104,14 @@ function artwork(number, title, authors, year, era, extra = {}) {
 		author_unknown: false,
 		type_code: 'painting',
 		notes: null,
-		source_wikidata_id: null,
-		source_image_file: null,
-		source_image_licence: null,
-		source_image_licence_url: null,
-		source_image_attribution: null,
-		own_image_path: null,
-		own_image_url: null,
-		image_width: null,
-		image_height: null,
 		favourite: false,
 		deleted_at: null,
 		artwork_values: authors.map((name, position) => ({
 			position,
 			category_values: { category_code: 'author', name }
 		})),
-		artwork_images: [],
-		...extra
+		artwork_images: images,
+		...rest
 	};
 }
 
@@ -902,4 +922,27 @@ export const OWN_FIELD_USAGE = [
 	{ field_id: '00000000-0000-4000-8000-000000000402', artwork_count: 4 },
 	{ field_id: '00000000-0000-4000-8000-000000000403', artwork_count: 2 },
 	{ field_id: '00000000-0000-4000-8000-000000000404', artwork_count: 3 }
+];
+
+function pin(artworkNumber, number, x, y, glossaryNumber, text, viewWidth = null) {
+	const row = ARTWORKS.find((artwork) => artwork.record_number === artworkNumber);
+	return {
+		id: `00000000-0000-4000-a000-${String(number).padStart(12, '0')}`,
+		image_id: row.artwork_images.find((image) => image.position === 0).id,
+		x,
+		y,
+		glossary_entry_id: glossaryNumber
+			? `00000000-0000-4000-9000-${String(glossaryNumber).padStart(12, '0')}`
+			: null,
+		text,
+		view_width: viewWidth,
+		created_at: '2026-10-22T10:00:00Z'
+	};
+}
+
+export const ARTWORK_PINS = [
+	pin(6, 1, 0.62, 0.34, 2, 'Półkolista część chóru, widoczna od wschodu.'),
+	pin(6, 2, 0.3, 0.55, null, 'Rozeta, której szkło pochodzi z XIII wieku.'),
+	pin(6, 3, 0.48, 0.2, 5, null),
+	pin(2, 4, 0.62, 0.38, null, 'Księżyc w nowiu otoczony poświatą.', 0.12)
 ];

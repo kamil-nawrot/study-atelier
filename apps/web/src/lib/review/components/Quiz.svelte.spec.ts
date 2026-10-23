@@ -3,8 +3,10 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/index.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
-import type { Quiz as QuizData, QuizMode, ReviewItem } from '../types.ts';
+import type { Quiz as QuizData, QuizMode, ReviewItem, ReviewPin } from '../types.ts';
 import Quiz from './Quiz.svelte';
+
+vi.mock('#lib/supabase.ts', () => ({ supabase: {} }));
 
 const answer = testArtwork(31, 'Girl with a Pearl Earring', {
 	authors: ['Johannes Vermeer'],
@@ -30,14 +32,38 @@ const styleQuiz: QuizData = {
 	options: ['Dutch Golden Age', 'Mannerism', 'Caravaggism', 'Rococo'].map((label) => ({ label }))
 };
 
+const termQuiz: QuizData = {
+	answer: 1,
+	options: ['Nave', 'Apse', 'Choir', 'Portal'].map((label) => ({ label }))
+};
+
+const pin: ReviewPin = {
+	x: 0.25,
+	y: 0.75,
+	image: {
+		kind: 'url',
+		url: 'https://images.example.test/detail.jpg',
+		width: 800,
+		height: 600,
+		id: 'image-2'
+	}
+};
+
 function renderQuiz(
 	mode: QuizMode,
 	quiz: QuizData,
-	chosen?: number
+	chosen?: number,
+	extra: Partial<ReviewItem> = {}
 ): { onanswer: ReturnType<typeof vi.fn>; onnext: ReturnType<typeof vi.fn> } {
 	const onanswer = vi.fn();
 	const onnext = vi.fn();
-	const item: ReviewItem & { quiz: QuizData } = { artwork: answer, card: null, mode, quiz };
+	const item: ReviewItem & { quiz: QuizData } = {
+		artwork: answer,
+		card: null,
+		mode,
+		quiz,
+		...extra
+	};
 	render(Quiz, {
 		item,
 		details: { notes: '', credit: 'Wikimedia Commons' },
@@ -153,5 +179,44 @@ describe('Quiz', () => {
 
 		await page.getByRole('button', { name: /Caravaggism/ }).click();
 		expect(onanswer).toHaveBeenCalledWith(2);
+	});
+
+	it('asks what the marked place of a pinned image is', async () => {
+		await page.viewport(1280, 800);
+		const { onanswer } = renderQuiz('quiz_pin', termQuiz, undefined, { pin });
+
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent(m.review.quiz.pinQuestion);
+		await expect.element(page.getByText(m.review.quiz.pinHint)).toBeVisible();
+		await expect
+			.element(page.getByRole('img', { name: m.review.flashcard.imageAlt }))
+			.toHaveAttribute('src', 'https://images.example.test/detail.jpg');
+		const mark = document.querySelector<HTMLElement>('.mark');
+		expect(mark?.style.left).toBe('25%');
+		expect(mark?.style.top).toBe('75%');
+		expect(
+			page
+				.getByRole('list', { name: m.review.quiz.options })
+				.getByRole('button')
+				.elements()
+				.map((button) => button.textContent?.trim())
+		).toEqual(['1 Nave', '2 Apse', '3 Choir', '4 Portal']);
+
+		await userEvent.keyboard('2');
+		expect(onanswer).toHaveBeenCalledWith(1);
+	});
+
+	it('names the right term and the artwork after a pin question', async () => {
+		await page.viewport(1280, 800);
+		renderQuiz('quiz_pin', termQuiz, 0, { pin });
+
+		await expect
+			.element(page.getByRole('status'))
+			.toHaveTextContent(`${m.review.quiz.wrong} Apse.`);
+		await expect.element(page.getByRole('status')).toHaveTextContent(answer.title);
+		await expect
+			.element(page.getByText(m.artworkForm.ownImageUrlCredit('images.example.test')))
+			.toBeVisible();
 	});
 });

@@ -1,5 +1,6 @@
 import type { GlossaryEntry } from '#lib/glossary/types.ts';
 import type { ArtworkTileImage, NoteLinks } from '@study-atelier/ui';
+import type { Pin } from '#lib/pins/types.ts';
 import type { Mention } from './mentions.ts';
 import type { ValueSummaries } from './value-summaries.ts';
 
@@ -88,7 +89,6 @@ export type AtelierResult = {
 
 export type TrashArtwork = WallArtwork & {
 	deletedAt: string;
-	ownImagePath: string | null;
 };
 
 export type TrashResult = {
@@ -143,7 +143,7 @@ export type StarterValue = {
 	note: string;
 };
 
-export type ArtworkImageInput =
+type ImageSource =
 	| {
 			kind: 'commons';
 			wikidataId: string;
@@ -163,6 +163,8 @@ export type ArtworkImageInput =
 			height: number | null;
 	  }
 	| { kind: 'url'; url: string; width: number | null; height: number | null };
+
+export type ArtworkImageInput = ImageSource & { id?: string };
 
 export type ArtworkInput = {
 	title: string;
@@ -207,6 +209,8 @@ export type SaveArtworkResult =
 
 export type LoadArtworkResult = {
 	artwork?: ArtworkRecord;
+	pins?: Pin[];
+	pinsError?: string;
 	noteLinks?: NoteLinks;
 	glossary?: GlossaryEntry[];
 	mentions?: Mention[];

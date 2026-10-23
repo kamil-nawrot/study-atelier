@@ -6,7 +6,10 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import { WallImages } from '#lib/collection/wall-images.svelte.ts';
+	import type { WallArtwork } from '#lib/collection/types.ts';
 	import GlossaryView from '#lib/glossary/components/GlossaryView.svelte';
 	import { deleteGlossaryEntry } from '#lib/glossary/glossary-data.ts';
 	import BackLink from '#lib/navigation/components/BackLink.svelte';
@@ -22,7 +25,18 @@
 	let deleting = $state(false);
 	let deleteError = $state<string>();
 
+	const images = new WallImages();
+
 	let entry = $derived(data.entry);
+	let pinned = $derived(data.pinned ?? []);
+	let pinIds = $derived(new Map(pinned.map((item) => [item.artwork.id, item.pinId])));
+	let artworks = $derived(images.apply(pinned.map((item) => item.artwork)));
+
+	$effect.pre(() => {
+		void data.pinned;
+		images.reset();
+	});
+
 	let title = $derived(
 		entry
 			? entry.name
@@ -30,6 +44,12 @@
 				? m.glossary.view.notFoundTitle
 				: m.glossary.view.loadErrorTitle
 	);
+
+	function pinnedHref(artwork: WallArtwork): string {
+		const path = resolve('/(app)/atelier/[number]', { number: String(artwork.number) });
+		const pinId = pinIds.get(artwork.id);
+		return pinId ? `${path}?pin=${encodeURIComponent(pinId)}` : path;
+	}
 
 	onMount(() => {
 		const message = page.state.glossaryMessage;
@@ -91,6 +111,20 @@
 
 	{#if entry}
 		<GlossaryView entries={data.glossary} {entry} mentions={data.mentions} />
+		{#if data.pinnedError}
+			<Alert tone="danger">{m.pins.loadFailed}</Alert>
+		{/if}
+		{#if artworks.length > 0}
+			<section class="artworks" aria-labelledby="glossary-artworks">
+				<h2 id="glossary-artworks">{m.glossary.view.onArtworks}</h2>
+				<ArtworkWall
+					{artworks}
+					hrefOf={pinnedHref}
+					onimagefailed={(artwork) => images.failed(artwork)}
+					onnearscreen={(artwork) => images.request(artwork)}
+				/>
+			</section>
+		{/if}
 	{:else}
 		<LoadFailure
 			backHref={glossaryPath}
@@ -128,3 +162,22 @@
 		{/snippet}
 	</Dialog>
 {/if}
+
+<style>
+	.artworks {
+		display: grid;
+		gap: var(--spacing-6);
+		margin-top: var(--spacing-8);
+		padding-top: var(--spacing-6);
+		border-top: var(--border-width-hairline) solid var(--color-line);
+	}
+
+	h2 {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-xs);
+		font-weight: var(--font-weight-regular);
+		line-height: var(--line-height-xs);
+		letter-spacing: var(--letter-spacing-wide);
+		text-transform: uppercase;
+	}
+</style>

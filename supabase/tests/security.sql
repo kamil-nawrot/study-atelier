@@ -108,6 +108,9 @@ insert into public.glossary_entries (name, category, definition, forms)
 insert into public.timeline_events (name, year_from, year_to, description)
   values ('Thirty Years'' War', 1618, 1648, 'A description');
 
+insert into public.artwork_pins (image_id, x, y, text)
+  select id, 0.5, 0.5, 'A pin' from public.artwork_images;
+
 insert into storage.objects (bucket_id, name)
   values ('artwork-images', '00000000-0000-0000-0000-00000000000a/work.jpg');
 
@@ -132,6 +135,7 @@ declare
   a constant uuid := '00000000-0000-0000-0000-00000000000a';
   b constant uuid := '00000000-0000-0000-0000-00000000000b';
   a_artwork uuid;
+  a_image uuid;
   a_value uuid;
   a_unlinked uuid;
   a_author uuid;
@@ -140,6 +144,7 @@ declare
   a_source uuid;
 begin
   select id into a_artwork from public.artworks where owner_id = a;
+  select id into a_image from public.artwork_images where owner_id = a limit 1;
   select id into a_value from public.category_values where owner_id = a and category_code = 'period';
   select id into a_unlinked from public.category_values where owner_id = a and name = 'Unlinked';
   select id into a_author from public.category_values where owner_id = a and name = 'Painter';
@@ -155,6 +160,7 @@ begin
   assert (select count(*) from public.category_values) = 0, 'B reads category values of A';
   assert (select count(*) from public.artwork_values) = 0, 'B reads artwork values of A';
   assert (select count(*) from public.artwork_images) = 0, 'B reads artwork images of A';
+  assert (select count(*) from public.artwork_pins) = 0, 'B reads pins of A';
   assert (select count(*) from public.period_eras) = 0, 'B reads period eras of A';
   assert (select count(*) from public.style_periods) = 0, 'B reads style periods of A';
   assert (select count(*) from public.period_details) = 0, 'B reads period details of A';
@@ -277,10 +283,7 @@ begin
     'insert into storage.objects (bucket_id, name) values (''artwork-images'', ''loose.jpg'')'),
     'B uploads outside of any folder';
   assert security_test.denied(format(
-    'insert into public.artworks (title, author_unknown, own_image_path) values (''Borrowed'', true, ''%s/work.jpg'')', a)),
-    'B points an artwork at an image of A';
-  assert security_test.denied(format(
-    'insert into public.artwork_images (artwork_id, position, own_image_url) values (%L, 2, ''https://example.com/b.jpg'')',
+    'insert into public.artwork_images (artwork_id, position, own_image_url) values (%L, 1, ''https://example.com/b.jpg'')',
     a_artwork)),
     'B adds an image to an artwork of A';
   assert security_test.denied(format(
@@ -288,6 +291,11 @@ begin
     a)),
     'B points an extra image at an image of A';
   assert security_test.affected('delete from public.artwork_images') = 0, 'B deletes artwork images of A';
+  assert security_test.denied(format(
+    'insert into public.artwork_pins (image_id, x, y, text) values (%L, 0.5, 0.5, ''Forged'')', a_image)),
+    'B pins a detail on an image of A';
+  assert security_test.affected('update public.artwork_pins set x = 0') = 0, 'B moves pins of A';
+  assert security_test.affected('delete from public.artwork_pins') = 0, 'B deletes pins of A';
 
   perform security_test.act_as(a);
 
@@ -574,14 +582,15 @@ begin
   assert (select count(*) from public.review_cards) = 1, 'a second review adds a card instead of updating it';
   assert (select reps from public.review_cards) = 2, 'record_review does not update the card';
   assert (select count(*) from public.review_log) = 2, 'record_review does not log every answer';
-  assert (select with_image from public.review_counts('2026-10-16T00:00:00Z')) = 0,
-    'review_counts counts an artwork without an image';
+  assert (select with_image from public.review_counts('2026-10-16T00:00:00Z')) = 1,
+    'review_counts does not count an artwork with a main image';
   assert (select count(*) from storage.objects) = 1, 'A does not see their own image object';
 
   reset role;
   set local role anon;
 
   assert security_test.denied('select * from public.artworks'), 'anon reads artworks';
+  assert security_test.denied('select * from public.artwork_pins'), 'anon reads artwork pins';
   assert security_test.denied('select * from public.eras'), 'anon reads eras';
   assert security_test.denied('select * from public.era_details'), 'anon reads era details';
   assert security_test.denied('select * from public.author_details'), 'anon reads author details';

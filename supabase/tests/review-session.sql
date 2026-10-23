@@ -23,11 +23,14 @@ begin
       jsonb_build_object(
         'title', 'Work ' || number,
         'author_unknown', true,
-        'era_code', 'early_modern',
+        'era_code', 'early_modern'
+      ),
+      jsonb_build_object('style', jsonb_build_array('Tenebrism', 'Style ' || (number % 5))),
+      null,
+      jsonb_build_array(jsonb_build_object(
         'source_wikidata_id', 'Q' || number,
         'source_image_file', 'Work_' || number || '.jpg'
-      ),
-      jsonb_build_object('style', jsonb_build_array('Tenebrism', 'Style ' || (number % 5)))
+      ))
     );
   end loop;
 
@@ -75,11 +78,14 @@ begin
       jsonb_build_object(
         'title', 'Work ' || number,
         'author_unknown', true,
-        'era_code', 'modern',
+        'era_code', 'modern'
+      ),
+      '{}',
+      null,
+      jsonb_build_array(jsonb_build_object(
         'source_wikidata_id', 'Q' || number,
         'source_image_file', 'Work_' || number || '.jpg'
-      ),
-      '{}'
+      ))
     );
   end loop;
 
@@ -150,6 +156,84 @@ begin
   exception when invalid_parameter_value then
     null;
   end;
+end;
+$$;
+
+do $$
+declare
+  round jsonb;
+  pinned jsonb;
+  labels text[];
+  apse uuid;
+  nave uuid;
+  day_start constant timestamptz := date_trunc('day', now());
+begin
+  insert into public.glossary_entries (name, category) values ('Apse', 'architecture')
+    returning id into apse;
+  insert into public.glossary_entries (name, category) values ('Nave', 'architecture')
+    returning id into nave;
+  insert into public.glossary_entries (name, category) values
+    ('Choir', 'architecture'), ('Portal', 'architecture'), ('Fresco', 'technique'), ('Tondo', 'painting');
+  insert into public.artwork_pins (image_id, x, y, glossary_entry_id)
+    select image.id, 0.25, 0.75, apse from public.artwork_images as image
+    union all
+    select image.id, 0.5, 0.5, nave from public.artwork_images as image;
+  update public.artwork_pins set glossary_entry_id = null, text = 'A note' where glossary_entry_id = nave;
+
+  round := public.review_session(day_start, 'quizzes', 'all', null, 1);
+  select item into pinned from jsonb_array_elements(round) as item where item ->> 'mode' = 'quiz_pin' limit 1;
+  assert pinned is not null,
+    'a session of quizzes never asks what a pinned detail is';
+  assert (
+    select count(*) from jsonb_array_elements(round) with ordinality as item (value, slot)
+      where item.value ->> 'mode' = 'quiz_pin' and (item.slot - 1) % 3 <> 0
+  ) = 0,
+    'the question about a pin is asked more often than on every third slot';
+  select array_agg(option ->> 'label' order by option ->> 'label') into labels
+    from jsonb_array_elements(pinned -> 'options') as option;
+  assert labels = array['Apse', 'Choir', 'Nave', 'Portal'],
+    'the terms of a pin question do not come from the category of the right one first';
+  assert (
+    select option ->> 'label' from jsonb_array_elements(pinned -> 'options') as option
+      where (option ->> 'right')::boolean
+  ) = 'Apse',
+    'the right answer of a pin question is not the term of the pin';
+  assert (pinned -> 'pin' ->> 'x')::double precision = 0.25
+    and (pinned -> 'pin' ->> 'y')::double precision = 0.75
+    and (pinned -> 'pin' -> 'image' ->> 'source_image_file') like 'Work\_%',
+    'a pin question does not say where the pin is';
+
+  update public.artwork_pins set glossary_entry_id = nave, text = null where text = 'A note';
+  select array_agg(option ->> 'label' order by option ->> 'label') into labels
+    from jsonb_array_elements(public.review_session(day_start, 'quizzes', 'all', null, 1)) as item,
+      jsonb_array_elements(item -> 'options') as option
+    where item ->> 'mode' = 'quiz_pin' and (item -> 'pin' ->> 'x')::double precision = 0.25;
+  assert not 'Nave' = any (labels),
+    'a pin question offers the term of another pin on the same image';
+
+  assert not exists (
+    select 1
+      from jsonb_array_elements(public.review_session(day_start, 'flashcards', 'all', null, 1)) as item
+      where item ->> 'mode' = 'quiz_pin'
+  ),
+    'a session of flashcards asks what a pinned detail is';
+
+  update public.artwork_pins set view_width = 0.2;
+  assert not exists (
+    select 1
+      from jsonb_array_elements(public.review_session(day_start, 'quizzes', 'all', null, 1)) as item
+      where item ->> 'mode' = 'quiz_pin'
+  ),
+    'a pin question is asked about a pin that keeps a view of the loupe';
+  update public.artwork_pins set view_width = null;
+
+  delete from public.glossary_entries where name in ('Choir', 'Portal', 'Fresco', 'Tondo');
+  assert not exists (
+    select 1
+      from jsonb_array_elements(public.review_session(day_start, 'quizzes', 'all', null, 1)) as item
+      where item ->> 'mode' = 'quiz_pin'
+  ),
+    'a pin question is asked with fewer than four terms in the glossary';
 end;
 $$;
 

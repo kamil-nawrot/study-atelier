@@ -8,12 +8,14 @@ import {
 	loadReviewStreak,
 	loadSession,
 	recordReview,
-	waitingToday
+	waitingToday,
+	withPinPreviews
 } from './review-data.ts';
-import type { ReviewCard } from './types.ts';
+import type { ReviewCard, ReviewItem } from './types.ts';
+import { testArtwork } from '#lib/testing/artworks.ts';
 
 vi.mock('#lib/supabase.ts', () => ({
-	supabase: { rpc: vi.fn(), from: vi.fn(), auth: { signOut: vi.fn() } }
+	supabase: { rpc: vi.fn(), from: vi.fn(), storage: { from: vi.fn() }, auth: { signOut: vi.fn() } }
 }));
 
 const rpc = vi.mocked(supabase.rpc);
@@ -232,36 +234,46 @@ describe('review data', () => {
 	});
 
 	it('loads the notes and the image credit of the session artworks in one query', async () => {
-		const query = { select: vi.fn(), in: vi.fn() };
+		const query = { select: vi.fn(), in: vi.fn(), eq: vi.fn() };
 		query.select.mockReturnValue(query);
-		query.in.mockResolvedValue({
+		query.in.mockReturnValue(query);
+		query.eq.mockResolvedValue({
 			data: [
 				{
 					id: 'artwork-1',
 					notes: 'Look at the light.',
-					source_wikidata_id: 'Q1',
-					source_image_file: 'Pearl.jpg',
-					source_image_licence: 'Public domain',
-					source_image_licence_url: null,
-					source_image_attribution: null,
-					own_image_path: null,
-					own_image_url: null,
-					image_width: 4,
-					image_height: 5
+					artwork_images: [
+						{
+							source_wikidata_id: 'Q1',
+							source_image_file: 'Pearl.jpg',
+							source_image_licence: 'Public domain',
+							source_image_licence_url: null,
+							source_image_attribution: null,
+							own_image_path: null,
+							own_image_url: null,
+							image_width: 4,
+							image_height: 5
+						}
+					]
 				},
 				{
 					id: 'artwork-2',
 					notes: null,
-					source_wikidata_id: null,
-					source_image_file: null,
-					source_image_licence: null,
-					source_image_licence_url: null,
-					source_image_attribution: null,
-					own_image_path: 'owner/own.jpg',
-					own_image_url: null,
-					image_width: 4,
-					image_height: 5
-				}
+					artwork_images: [
+						{
+							source_wikidata_id: null,
+							source_image_file: null,
+							source_image_licence: null,
+							source_image_licence_url: null,
+							source_image_attribution: null,
+							own_image_path: 'owner/own.jpg',
+							own_image_url: null,
+							image_width: 4,
+							image_height: 5
+						}
+					]
+				},
+				{ id: 'artwork-3', notes: null, artwork_images: [] }
 			],
 			error: null
 		});
@@ -271,6 +283,7 @@ describe('review data', () => {
 
 		expect(supabase.from).toHaveBeenCalledWith('artworks');
 		expect(query.in).toHaveBeenCalledWith('id', ['artwork-1', 'artwork-2']);
+		expect(query.eq).toHaveBeenCalledWith('artwork_images.position', 0);
 		expect(details.get('artwork-1')).toEqual({
 			notes: 'Look at the light.',
 			credit: m.artwork.credit
@@ -279,13 +292,15 @@ describe('review data', () => {
 			notes: '',
 			credit: m.artworkForm.ownImageCredit
 		});
+		expect(details.get('artwork-3')).toEqual({ notes: '', credit: undefined });
 		expect(error).toBeUndefined();
 	});
 
 	it('says so when the notes and credits cannot be loaded', async () => {
 		const query = {
 			select: vi.fn().mockReturnThis(),
-			in: vi.fn().mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } })
+			in: vi.fn().mockReturnThis(),
+			eq: vi.fn().mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } })
 		};
 		vi.mocked(supabase.from).mockReturnValue(query as never);
 
@@ -298,5 +313,40 @@ describe('review data', () => {
 	it('asks for no details when the session is empty', async () => {
 		await expect(loadReviewDetails([])).resolves.toEqual({ details: new Map() });
 		expect(supabase.from).not.toHaveBeenCalled();
+	});
+
+	it('signs the own image of a pin question and leaves the other items as they are', async () => {
+		const createSignedUrl = vi
+			.fn()
+			.mockResolvedValue({ data: { signedUrl: 'https://signed.test/pin.jpg' }, error: null });
+		vi.mocked(supabase.storage.from).mockReturnValue({ createSignedUrl } as never);
+		const flashcard: ReviewItem = {
+			artwork: testArtwork(1, 'Lily'),
+			card: null,
+			mode: 'flashcard'
+		};
+		const pinned: ReviewItem = {
+			artwork: testArtwork(2, 'Apse'),
+			card: null,
+			mode: 'quiz_pin',
+			quiz: { options: [{ label: 'Apse' }], answer: 0 },
+			pin: {
+				x: 0.5,
+				y: 0.5,
+				image: { kind: 'upload', path: 'owner/pin.jpg', width: 800, height: 600 }
+			}
+		};
+
+		const [first, second] = await withPinPreviews([flashcard, pinned]);
+
+		expect(first).toBe(flashcard);
+		expect(second.pin?.image).toEqual({
+			kind: 'upload',
+			path: 'owner/pin.jpg',
+			width: 800,
+			height: 600,
+			previewUrl: 'https://signed.test/pin.jpg'
+		});
+		expect(createSignedUrl).toHaveBeenCalledWith('owner/pin.jpg', expect.any(Number));
 	});
 });

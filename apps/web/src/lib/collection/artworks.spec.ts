@@ -26,6 +26,7 @@ vi.mock('#lib/supabase.ts', () => ({
 
 const query = {
 	select: vi.fn(),
+	eq: vi.fn(),
 	is: vi.fn(),
 	not: vi.fn(),
 	order: vi.fn(),
@@ -33,7 +34,29 @@ const query = {
 };
 const createSignedUrls = vi.fn();
 
+const IMAGE_KEYS = [
+	'source_image_file',
+	'own_image_path',
+	'own_image_url',
+	'image_width',
+	'image_height'
+];
+
+const EMPTY_IMAGE = {
+	source_image_file: null,
+	own_image_path: null,
+	own_image_url: null,
+	image_width: null,
+	image_height: null
+};
+
 function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+	const image = Object.fromEntries(
+		Object.entries(overrides).filter(([key]) => IMAGE_KEYS.includes(key))
+	);
+	const rest = Object.fromEntries(
+		Object.entries(overrides).filter(([key]) => !IMAGE_KEYS.includes(key))
+	);
 	return {
 		id: 'artwork-1',
 		record_number: 1,
@@ -43,14 +66,10 @@ function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 		year_approximate: true,
 		era_code: null,
 		type_code: null,
-		source_image_file: null,
-		own_image_path: null,
-		own_image_url: null,
-		image_width: null,
-		image_height: null,
+		artwork_images: Object.keys(image).length === 0 ? [] : [{ ...EMPTY_IMAGE, ...image }],
 		deleted_at: null,
 		artwork_values: [],
-		...overrides
+		...rest
 	};
 }
 
@@ -76,6 +95,7 @@ describe('loadAtelier', () => {
 		vi.mocked(supabase.storage.from).mockReturnValue({ createSignedUrls } as never);
 		query.select.mockReturnValue(query);
 		query.is.mockReturnValue(query);
+		query.eq.mockReturnValue(query);
 		query.order.mockReturnValue(query);
 		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map());
 	});
@@ -85,7 +105,8 @@ describe('loadAtelier', () => {
 
 		await expect(loadAtelier()).resolves.toEqual({ artworks: [] });
 		expect(supabase.from).toHaveBeenCalledWith('artworks');
-		expect(query.select).toHaveBeenCalledWith(expect.stringContaining('image_width, image_height'));
+		expect(query.select).toHaveBeenCalledWith(expect.stringContaining('artwork_images('));
+		expect(query.eq).toHaveBeenCalledWith('artwork_images.position', 0);
 		expect(query.is).toHaveBeenCalledWith('deleted_at', null);
 		expect(query.order).toHaveBeenCalledWith('created_at', { ascending: false });
 		expect(query.order).toHaveBeenCalledWith('id', { ascending: false });
@@ -640,6 +661,7 @@ describe('loadTrash', () => {
 		vi.mocked(supabase.storage.from).mockReturnValue({ createSignedUrls } as never);
 		query.select.mockReturnValue(query);
 		query.not.mockReturnValue(query);
+		query.eq.mockReturnValue(query);
 		query.order.mockReturnValue(query);
 		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map());
 	});

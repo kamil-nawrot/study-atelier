@@ -46,6 +46,10 @@ export function commonsFileUrl(file: string, width: number): string {
 	return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=${width}`;
 }
 
+export function commonsOriginalUrl(file: string): string {
+	return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}`;
+}
+
 export function commonsSrcset(file: string, widths: readonly number[]): string {
 	return widths.map((width) => `${commonsFileUrl(file, width)} ${width}w`).join(', ');
 }

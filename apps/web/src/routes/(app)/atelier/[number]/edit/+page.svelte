@@ -61,11 +61,13 @@
 				artwork={data.artwork}
 				cancelHref={artworkPath}
 				categoryValues={data.values}
+				glossary={data.glossary}
 				noteLinks={data.noteLinks}
 				oncancel={goBack}
 				onsaved={showSaved}
 				ownFields={data.ownFields}
 				ownValues={data.ownValues}
+				pins={data.pins}
 				placeStarter={data.placeStarter}
 				valueLinks={data.links}
 			/>

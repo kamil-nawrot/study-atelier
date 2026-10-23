@@ -25,7 +25,8 @@ vi.mock('#lib/review/review-data.ts', () => ({
 	REVIEW_COUNTS_DEPENDENCY: 'review:counts',
 	loadReviewDetails: vi.fn().mockResolvedValue({ details: new Map() }),
 	loadSession: vi.fn(),
-	recordReview: vi.fn()
+	recordReview: vi.fn(),
+	withPinPreviews: async (items: unknown) => items
 }));
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 

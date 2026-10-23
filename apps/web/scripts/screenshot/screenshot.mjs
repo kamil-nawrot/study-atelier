@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
 import {
+	ARTWORK_PINS,
 	ARTWORKS,
 	CATALOGUE_MUSEUMS,
 	GLOSSARY_ENTRIES,
@@ -144,7 +145,7 @@ function filteredRows(url) {
 }
 
 function hasImage(row) {
-	return Boolean(row.source_image_file || row.own_image_path || row.own_image_url);
+	return row.artwork_images.some((image) => image.position === 0);
 }
 
 function reviewCounts(dayStartText) {
@@ -208,6 +209,30 @@ function quizFor(row, mode, pool) {
 	return options;
 }
 
+function pinQuizFor(row) {
+	const images = row.artwork_images ?? [];
+	const pin = ARTWORK_PINS.find(
+		(candidate) =>
+			candidate.glossary_entry_id && images.some((image) => image.id === candidate.image_id)
+	);
+	if (!pin) return undefined;
+	const term = GLOSSARY_ENTRIES.find((entry) => entry.id === pin.glossary_entry_id);
+	const others = GLOSSARY_ENTRIES.filter((entry) => entry.id !== term.id).sort(
+		(a, b) => Number(b.category === term.category) - Number(a.category === term.category)
+	);
+	const image = images.find((candidate) => candidate.id === pin.image_id);
+	return {
+		artwork_id: row.id,
+		mode: 'quiz_pin',
+		options: [
+			{ label: others[0].name },
+			{ label: term.name, right: true },
+			...others.slice(1, 3).map((entry) => ({ label: entry.name }))
+		],
+		pin: { x: pin.x, y: pin.y, image }
+	};
+}
+
 function reviewSession({
 	day_start: dayStartText,
 	session_form: form = 'mixed',
@@ -233,6 +258,8 @@ function reviewSession({
 	);
 	return (freeRound === undefined ? [...due, ...fresh] : free).map((row, slot) => {
 		const card = cardOf(row);
+		const pinQuiz = form === 'flashcards' ? undefined : pinQuizFor(row);
+		if (pinQuiz) return pinQuiz;
 		const modes =
 			form === 'flashcards'
 				? []
@@ -272,6 +299,31 @@ function notesMentions(needle) {
 	}));
 	return [...values, ...artworks].filter(
 		(row) => row.notes && (needle === undefined || row.notes.includes(needle))
+	);
+}
+
+function pinsRoute(route, request, url) {
+	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
+	if (request.method() !== 'GET') return json(route, [ARTWORK_PINS[0]], 201);
+	const entry = url.searchParams.get('glossary_entry_id');
+	if (entry) {
+		return json(
+			route,
+			ARTWORK_PINS.filter((row) => `eq.${row.glossary_entry_id}` === entry).map((row) => ({
+				id: row.id,
+				artwork_images: {
+					artwork_id: ARTWORKS.find((artwork) =>
+						artwork.artwork_images.some((image) => image.id === row.image_id)
+					).id
+				}
+			}))
+		);
+	}
+	const filter = url.searchParams.get('image_id') ?? '';
+	const ids = filter.startsWith('in.(') ? filter.slice(4, -1).split(',') : [];
+	return json(
+		route,
+		ARTWORK_PINS.filter((row) => ids.includes(row.image_id))
 	);
 }
 
@@ -368,6 +420,7 @@ async function mockSupabase(context) {
 					}))
 			);
 		}
+		if (url.pathname === '/rest/v1/artwork_pins') return pinsRoute(route, request, url);
 		if (url.pathname === '/rest/v1/glossary_entries') return glossaryRoute(route, request, url);
 		if (url.pathname.startsWith('/rest/v1/rpc/')) {
 			return json(route, { id: ARTWORKS[0].id, record_number: ARTWORKS[0].record_number });
@@ -397,8 +450,12 @@ async function mockSupabase(context) {
 			);
 		}
 		if (url.pathname === '/rest/v1/artworks') {
+			const imagePosition = url.searchParams.get('artwork_images.position');
 			const rows = filteredRows(url).map((row) => ({
 				...row,
+				artwork_images: row.artwork_images.filter(
+					(image) => imagePosition === null || imagePosition === `eq.${image.position}`
+				),
 				artwork_values: row.artwork_values.map((link) => ({
 					...link,
 					category_values: {

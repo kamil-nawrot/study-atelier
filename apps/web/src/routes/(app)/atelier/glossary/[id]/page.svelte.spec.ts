@@ -5,7 +5,8 @@ import { goto } from '$app/navigation';
 import { m } from '#lib/i18n/index.ts';
 import { deleteGlossaryEntry } from '#lib/glossary/glossary-data.ts';
 import type { Mention } from '#lib/collection/mentions.ts';
-import type { GlossaryEntry } from '#lib/glossary/types.ts';
+import type { GlossaryEntry, PinnedArtwork } from '#lib/glossary/types.ts';
+import { testArtwork } from '#lib/testing/artworks.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import { testEntry, testGlossary } from '#lib/testing/glossary.ts';
 import { setBackPlace } from '#lib/navigation/back.svelte.ts';
@@ -31,6 +32,8 @@ function renderEntry(
 		notFound?: boolean;
 		mentions?: Mention[];
 		glossary?: GlossaryEntry[];
+		pinned?: PinnedArtwork[];
+		pinnedError?: string;
 	} = {}
 ): void {
 	render(GlossaryEntryPage, {
@@ -248,5 +251,33 @@ describe('glossary entry page', () => {
 		expect(followed).toBe(true);
 		expect(go).not.toHaveBeenCalled();
 		go.mockRestore();
+	});
+
+	it('lists the artworks whose pins carry the entry and leads to the pin', async () => {
+		renderEntry(tympanum, {
+			pinned: [{ artwork: testArtwork(12, 'Saint-Trophime'), pinId: 'pin-7' }]
+		});
+
+		await expect
+			.element(page.getByRole('heading', { name: m.glossary.view.onArtworks }))
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: /Saint-Trophime/ }))
+			.toHaveAttribute('href', '/atelier/12?pin=pin-7');
+	});
+
+	it('leaves out the artworks without pins of the entry', async () => {
+		renderEntry(tympanum, { pinned: [] });
+
+		await expect.element(page.getByRole('heading', { level: 1 })).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { name: m.glossary.view.onArtworks }))
+			.not.toBeInTheDocument();
+	});
+
+	it('says when the pins of the entry could not be loaded', async () => {
+		renderEntry(tympanum, { pinned: [], pinnedError: m.pins.errors.network });
+
+		await expect.element(page.getByText(m.pins.loadFailed)).toBeVisible();
 	});
 });

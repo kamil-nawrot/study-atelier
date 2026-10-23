@@ -36,6 +36,8 @@
 	import { suggestValues, valueKey } from '../value-suggestions.ts';
 	import DiscardDialog from './DiscardDialog.svelte';
 	import ArtworkImages from './ArtworkImages.svelte';
+	import type { GlossaryEntry } from '#lib/glossary/types.ts';
+	import type { Pin } from '#lib/pins/types.ts';
 	import YearGroup from './YearGroup.svelte';
 	import YearInput from './YearInput.svelte';
 	import DuplicateDialog from './DuplicateDialog.svelte';
@@ -62,6 +64,8 @@
 		noteLinks?: NoteLinks;
 		ownFields?: OwnFieldDefinition[];
 		ownValues?: Record<string, string[]>;
+		pins?: Pin[];
+		glossary?: GlossaryEntry[];
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
 		onsaved: (number: number, next: boolean) => void | Promise<void>;
@@ -75,6 +79,8 @@
 		noteLinks,
 		ownFields,
 		ownValues = {},
+		pins = [],
+		glossary = [],
 		cancelHref,
 		oncancel,
 		onsaved
@@ -118,6 +124,7 @@
 
 	let imageSearchReady = $derived(canSearchImage(form));
 	let imageAlt = $derived(artworkImageAlt(form));
+	let pinList = $derived(pins);
 
 	function initialForm(): ArtworkFormState {
 		return artwork ? artworkFormFromRecord(artwork, ownFields) : emptyArtworkForm(ownFields);
@@ -285,6 +292,7 @@
 		<ArtworkImages
 			alt={imageAlt}
 			autoMatch={!artwork}
+			entries={glossary}
 			query={{
 				kind: 'artwork',
 				title: form.title,
@@ -294,6 +302,7 @@
 			texts={imageTexts}
 			bind:image={form.image}
 			bind:images={form.images}
+			bind:pins={pinList}
 		/>
 
 		<div class="fields">

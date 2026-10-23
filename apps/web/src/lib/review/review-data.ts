@@ -2,7 +2,12 @@ import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { artworkImageCredit } from '#lib/collection/artwork-image.ts';
 import { fetchAll } from '#lib/collection/card-index-data.ts';
 import { collectionErrorMessage } from '#lib/collection/errors.ts';
-import { IMAGE_COLUMNS, type ImageRow, imageOf } from '#lib/collection/image-record.ts';
+import {
+	IMAGE_COLUMNS,
+	type ImageRow,
+	imageOf,
+	withPreview
+} from '#lib/collection/image-record.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/supabase.ts';
 import type { ReviewScope } from './overview.ts';
@@ -16,6 +21,7 @@ import type {
 	ReviewCountsResult,
 	ReviewDetailsResult,
 	ReviewForm,
+	ReviewItem,
 	ReviewSessionResult,
 	ReviewState,
 	ReviewStreakResult,
@@ -42,12 +48,13 @@ type CountsRow = {
 	with_image: number;
 };
 
-type DetailsRow = ImageRow & {
+type DetailsRow = {
 	id: string;
 	notes: string | null;
+	artwork_images: ImageRow[];
 };
 
-const DETAILS_COLUMNS = ['id', 'notes', ...IMAGE_COLUMNS].join(', ');
+const DETAILS_COLUMNS = `id, notes, artwork_images(${IMAGE_COLUMNS.join(', ')})`;
 
 export const REVIEW_COUNTS_DEPENDENCY = 'review:counts';
 
@@ -139,16 +146,33 @@ export async function recordReview(
 
 export async function loadReviewDetails(ids: string[]): Promise<ReviewDetailsResult> {
 	if (ids.length === 0) return { details: new Map() };
-	const { data, error } = await supabase.from('artworks').select(DETAILS_COLUMNS).in('id', ids);
+	const { data, error } = await supabase
+		.from('artworks')
+		.select(DETAILS_COLUMNS)
+		.in('id', ids)
+		.eq('artwork_images.position', 0);
 	if (error || !data) return { details: new Map(), error: collectionErrorMessage(error ?? {}) };
 	return {
 		details: new Map(
-			(data as unknown as DetailsRow[]).map((row) => [
-				row.id,
-				{ notes: row.notes ?? '', credit: artworkImageCredit(imageOf(row)) }
-			])
+			(data as unknown as DetailsRow[]).map((row) => {
+				const main = row.artwork_images[0];
+				return [
+					row.id,
+					{ notes: row.notes ?? '', credit: artworkImageCredit(main ? imageOf(main) : null) }
+				];
+			})
 		)
 	};
+}
+
+export async function withPinPreviews(items: ReviewItem[]): Promise<ReviewItem[]> {
+	return Promise.all(
+		items.map(async (item) => {
+			if (!item.pin) return item;
+			const image = (await withPreview(item.pin.image)) ?? item.pin.image;
+			return { ...item, pin: { ...item.pin, image } };
+		})
+	);
 }
 
 function scopeArgs(scope: ReviewScope): { scope_kind: string; scope_value?: string } {

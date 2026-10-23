@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import '@study-atelier/ui/styles.css';
 import { goto, preloadData } from '$app/navigation';
 import { setBackPlace } from '#lib/navigation/back.svelte.ts';
 import { setFavourite } from '#lib/collection/favourite.ts';
@@ -9,6 +10,8 @@ import type { ArtworkRecord, LoadArtworkResult } from '#lib/collection/types.ts'
 import { buildNoteLinks } from '#lib/collection/note-links.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testSession } from '#lib/testing/auth.ts';
+import type { Pin } from '#lib/pins/types.ts';
+import { testEntry } from '#lib/testing/glossary.ts';
 import { testCardIndex } from '#lib/testing/card-index.ts';
 import ArtworkPage from './+page.svelte';
 
@@ -32,6 +35,7 @@ vi.mock('#lib/collection/favourite.ts', async (importOriginal) => ({
 vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
 const IMAGE = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50"/>')}`;
+const WIDE_IMAGE = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="40"/>')}`;
 
 function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 	return {
@@ -338,6 +342,45 @@ describe('artwork page', () => {
 		expect(preloadData).toHaveBeenCalledWith('/atelier/30');
 	});
 
+	it('keeps the first screen of every artwork the same height on a phone', async () => {
+		await page.viewport(390, 844);
+		rememberWall([7, 42, 30]);
+		const artworks = [
+			artwork(),
+			artwork({
+				title: 'Portrait of Giovanni Arnolfini and his wife in their chamber in Bruges',
+				authors: ['Jan van Eyck', 'Hubert van Eyck', 'Petrus Christus', 'Workshop of Ghent'],
+				image: { kind: 'url', url: WIDE_IMAGE, width: 80, height: 40 },
+				images: [{ kind: 'url', url: IMAGE, width: 40, height: 50 }]
+			}),
+			artwork({ image: null })
+		];
+		const screens = [];
+
+		for (const record of artworks) {
+			const view = await render(ArtworkPage, {
+				data: { session: testSession(), artwork: record },
+				params: { number: '42' }
+			});
+			await expect.element(arrow(m.artworkView.next)).toBeVisible();
+			const stage = document.querySelector('.stage')!.getBoundingClientRect();
+			const next = arrow(m.artworkView.next).element().getBoundingClientRect();
+			const image = document.querySelector('.stage .mat')!.getBoundingClientRect();
+			const type = page.getByText(m.artworkForm.type, { exact: true }).element();
+			screens.push({
+				stage: stage.height,
+				arrow: next.top,
+				fitsStage: image.bottom <= stage.bottom,
+				typeBelowFold: Math.round(type.getBoundingClientRect().top) >= window.innerHeight
+			});
+			await view.unmount();
+		}
+
+		expect(new Set(screens.map((screen) => screen.stage)).size).toBe(1);
+		expect(new Set(screens.map((screen) => screen.arrow)).size).toBe(1);
+		expect(screens.every((screen) => screen.fitsStage && screen.typeBelowFold)).toBe(true);
+	});
+
 	it('dims the arrow at either end of the wall', async () => {
 		rememberWall([42, 30]);
 		renderPage();
@@ -609,6 +652,143 @@ describe('artwork page', () => {
 			await expect.element(page.getByText('Mauritshuis')).toBeVisible();
 			expect(page.getByRole('button', { name: 'Mauritshuis' }).elements()).toHaveLength(0);
 			expect(page.getByRole('button', { name: 'Oil' }).elements()).toHaveLength(0);
+		});
+	});
+
+	describe('pins', () => {
+		const PIN: Pin = {
+			id: 'pin-1',
+			imageId: 'image-1',
+			x: 0.25,
+			y: 0.75,
+			glossaryEntryId: 'entry-1',
+			text: 'The sitter’s turban.'
+		};
+
+		function renderWithPins(pins: Pin[] = [PIN]): void {
+			renderPage({
+				artwork: artwork({
+					image: { kind: 'url', url: IMAGE, width: 40, height: 50, id: 'image-1' }
+				}),
+				glossary: [testEntry('entry-1', 'Turban')],
+				pins
+			});
+		}
+
+		it('hides the markers until the switch is on and then shows a pin next to it on a tap', async () => {
+			renderWithPins();
+
+			await expect
+				.element(page.getByRole('button', { name: 'Pinezka 1: Turban' }))
+				.not.toBeInTheDocument();
+			await page.getByRole('button', { name: m.pins.switchLabel(1) }).click();
+			const marker = page.getByRole('button', { name: 'Pinezka 1: Turban' });
+			await marker.click();
+
+			const card = page.getByRole('dialog', { name: 'Pinezka 1: Turban' });
+			await expect.element(card).toHaveTextContent('Turban is a test definition.');
+			await expect.element(card).toHaveTextContent('The sitter’s turban.');
+			await expect.element(marker).toHaveAttribute('aria-expanded', 'true');
+
+			await userEvent.keyboard('{Escape}');
+			await expect.element(card).not.toBeInTheDocument();
+		});
+
+		it('shows a pin while the pointer rests on it', async () => {
+			renderWithPins();
+
+			await page.getByRole('button', { name: m.pins.switchLabel(1) }).click();
+			await page.getByRole('button', { name: 'Pinezka 1: Turban' }).hover();
+
+			await expect
+				.element(page.getByRole('dialog', { name: 'Pinezka 1: Turban' }))
+				.toHaveTextContent('The sitter’s turban.');
+		});
+
+		it('offers the switch only when the image has pins and no way to edit them', async () => {
+			renderWithPins([]);
+
+			await expect
+				.element(page.getByRole('button', { name: m.pins.switchLabel(0) }))
+				.not.toBeInTheDocument();
+			await expect
+				.element(page.getByRole('button', { name: m.pins.editor(0) }))
+				.not.toBeInTheDocument();
+		});
+
+		it('opens the image of the pin from the address with the pins shown', async () => {
+			navigation.url = new URL('http://localhost/atelier/42?pin=pin-2');
+			renderPage({
+				artwork: artwork({
+					image: { kind: 'url', url: IMAGE, width: 40, height: 50, id: 'image-1' },
+					images: [{ kind: 'url', url: IMAGE, width: 40, height: 50, id: 'image-2' }]
+				}),
+				glossary: [testEntry('entry-1', 'Turban')],
+				pins: [PIN, { ...PIN, id: 'pin-2', imageId: 'image-2', glossaryEntryId: null }]
+			});
+
+			await expect
+				.element(page.getByRole('button', { name: m.artworkForm.imageSlot(2, 2) }))
+				.toHaveAttribute('aria-pressed', 'true');
+			await expect.element(page.getByRole('button', { name: 'Pinezka 1' })).toBeVisible();
+			navigation.url = new URL('http://localhost/atelier/42');
+		});
+	});
+
+	describe('loupe', () => {
+		function loupeButton(): ReturnType<typeof page.getByRole> {
+			return page.getByRole('button', { name: m.loupe.label });
+		}
+
+		it('switches the loupe on for a large image and keeps the image from opening full screen', async () => {
+			renderPage({
+				artwork: artwork({ image: { kind: 'url', url: IMAGE, width: 4000, height: 5000 } })
+			});
+
+			await loupeButton().click();
+			await expect.element(loupeButton()).toHaveAttribute('aria-pressed', 'true');
+			(document.querySelector('.loupe') as HTMLElement).click();
+			await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+
+			await userEvent.keyboard('{Escape}');
+			await expect.element(loupeButton()).toHaveAttribute('aria-pressed', 'false');
+			expect(document.querySelector('.loupe')).toBeNull();
+		});
+
+		it('opens a new pin with the view of the loupe on a click', async () => {
+			renderPage({
+				artwork: artwork({
+					image: { kind: 'url', url: IMAGE, width: 4000, height: 5000, id: 'image-1' }
+				}),
+				pins: []
+			});
+
+			await loupeButton().click();
+			const layer = document.querySelector('.loupe') as HTMLElement;
+			const rect = layer.getBoundingClientRect();
+			layer.dispatchEvent(
+				new PointerEvent('pointermove', {
+					pointerType: 'mouse',
+					clientX: rect.left + rect.width / 2,
+					clientY: rect.top + rect.height / 2,
+					bubbles: true
+				})
+			);
+			layer.click();
+
+			const dialog = page.getByRole('dialog');
+			await expect.element(dialog).toHaveTextContent(m.pins.newTitle);
+			await expect.element(dialog).toHaveTextContent(/Widok lupy \(\d+(,\d)?×\)/);
+		});
+
+		it('dims the loupe and says why for an image that is not larger than shown', async () => {
+			renderPage();
+
+			await expect.element(loupeButton()).toHaveAttribute('aria-disabled', 'true');
+			await expect.element(page.getByRole('tooltip')).toHaveTextContent(m.loupe.unavailable);
+			(loupeButton().element() as HTMLElement).click();
+			await expect.element(loupeButton()).not.toHaveAttribute('aria-pressed');
+			expect(document.querySelector('.loupe')).toBeNull();
 		});
 	});
 });

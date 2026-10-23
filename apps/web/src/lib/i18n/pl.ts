@@ -391,6 +391,11 @@ export const pl = {
 		previous: 'Poprzednie dzieło',
 		next: 'Następne dzieło'
 	},
+	loupe: {
+		label: 'Lupa',
+		unavailable: 'Rozdzielczość tego obrazu jest zbyt mała, żeby można było skorzystać z lupy.',
+		level: (level: number): string => `${level.toLocaleString('pl', { maximumFractionDigits: 1 })}×`
+	},
 	favourite: {
 		add: 'Dodaj do ulubionych',
 		remove: 'Usuń z ulubionych',
@@ -471,6 +476,8 @@ export const pl = {
 			titleQuestion: 'Jaki to tytuł?',
 			styleQuestion: 'W jakim stylu powstało to dzieło?',
 			styleHint: 'Zwróć uwagę na formę, materiał i kompozycję.',
+			pinQuestion: 'Co to jest?',
+			pinHint: 'Wybierz pojęcie, które pasuje do zaznaczonego miejsca.',
 			options: 'Odpowiedzi',
 			right: 'Tak, to',
 			wrong: 'Nie, to',
@@ -807,6 +814,38 @@ export const pl = {
 			network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.'
 		}
 	},
+	pins: {
+		switchLabel: (count: number): string => `Pinezki (${count})`,
+		editor: (count: number): string => (count > 0 ? `Pinezki (${count})` : 'Dodaj pinezki'),
+		editorTitle: 'Pinezki na obrazie',
+		editorNote: 'Pinezki zapisują się od razu, niezależnie od przycisku „Zapisz”.',
+		done: 'Gotowe',
+		editHint: 'Dotknij obrazu, żeby dodać pinezkę. Przeciągnij pinezkę, żeby ją przesunąć.',
+		placeHere: 'Dodaj pinezkę w tym miejscu',
+		marker: (number: number, name?: string, view = false): string =>
+			`${name ? `Pinezka ${number}: ${name}` : `Pinezka ${number}`}${view ? ', widok lupy' : ''}`,
+		view: (level?: string): string => (level ? `Widok lupy (${level})` : 'Widok lupy'),
+		removeView: 'Usuń widok',
+		newTitle: 'Nowa pinezka',
+		title: 'Pinezka',
+		term: 'Pojęcie ze Słowniczka (opcjonalnie)',
+		termPlaceholder: 'Szukaj pojęcia',
+		text: 'Opis (opcjonalnie)',
+		remove: 'Usuń',
+		removing: 'Usuwam…',
+		cancel: 'Anuluj',
+		save: 'Zapisz',
+		saving: 'Zapisuję…',
+		loadFailed: 'Nie udało się wczytać pinezek.',
+		errorTitle: 'Nie udało się zapisać pinezki',
+		errors: {
+			empty: 'Wybierz pojęcie albo wpisz opis.',
+			tooLong: (limit: number): string => `Opis może mieć najwyżej ${limit} znaków.`,
+			tooMany: (limit: number): string => `Na jednym obrazie zmieści się ${limit} pinezek.`,
+			notFound: 'Nie znaleziono tej pinezki. Odśwież stronę i spróbuj jeszcze raz.',
+			network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.'
+		}
+	},
 	glossary: {
 		title: 'Słowniczek',
 		count: (count: number): string =>
@@ -838,6 +877,7 @@ export const pl = {
 			also: (forms: string): string => `też: ${forms}`,
 			noDefinition: 'Nie dodano jeszcze definicji.',
 			mentionsHeading: 'Pojawia się w notatkach',
+			onArtworks: 'Na dziełach',
 			sourcePrefix: 'Na podstawie: Wikipedia, ',
 			licenceLink: 'CC BY-SA 4.0',
 			edit: 'Edytuj',

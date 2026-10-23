@@ -1,6 +1,6 @@
 # 0088. Up to five images per artwork, and the best match from Wikidata filled in automatically
 
-- Status: accepted; "Wybierz inne", "Pokaż wszystkie" and "Najwyżej 5 zdjęć." are superseded by [0089](0089-one-search-button-and-the-word-obraz-in-the-image-field.md)
+- Status: accepted; "Wybierz inne", "Pokaż wszystkie" and "Najwyżej 5 zdjęć." are superseded by [0089](0089-one-search-button-and-the-word-obraz-in-the-image-field.md); the storage of the main image is superseded by [0109](0109-pin-details-on-the-artwork-image.md)
 - Date: 2026-10-20
 
 ## Context and problem statement

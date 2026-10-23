@@ -16,13 +16,15 @@ declare
   refused boolean := false;
 begin
   perform public.save_artwork(
-    '{"title": "Parthenon", "author_unknown": true, "own_image_path": "00000000-0000-0000-0000-00000000000a/main.png", "image_width": 4, "image_height": 3}',
+    '{"title": "Parthenon", "author_unknown": true}',
     '{}', null,
-    '[{"own_image_path": "00000000-0000-0000-0000-00000000000a/plan.jpg", "image_width": 3, "image_height": 4}]');
+    '[{"own_image_path": "00000000-0000-0000-0000-00000000000a/main.png", "image_width": 4, "image_height": 3},
+      {"own_image_path": "00000000-0000-0000-0000-00000000000a/plan.jpg", "image_width": 3, "image_height": 4}]');
 
   select id into trashed from public.save_artwork(
-    '{"title": "Erechtheion", "author_unknown": true, "own_image_path": "00000000-0000-0000-0000-00000000000a/trashed.jpg", "image_width": 4, "image_height": 3}',
-    '{}', null);
+    '{"title": "Erechtheion", "author_unknown": true}',
+    '{}', null,
+    '[{"own_image_path": "00000000-0000-0000-0000-00000000000a/trashed.jpg", "image_width": 4, "image_height": 3}]');
   update public.artworks set deleted_at = now() where id = trashed;
 
   insert into public.category_values (category_code, name) values ('author', 'Phidias') returning id into author;

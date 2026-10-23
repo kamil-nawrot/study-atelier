@@ -1,5 +1,6 @@
+import { imageOf } from '#lib/collection/image-record.ts';
 import type { WallArtwork } from '#lib/collection/types.ts';
-import type { Quiz, QuizOption, ReviewCard, ReviewItem, SessionRow } from './types.ts';
+import type { Quiz, QuizOption, ReviewCard, ReviewItem, ReviewPin, SessionRow } from './types.ts';
 
 export const QUIZ_TILE_SIZES = '(min-width: 768px) 25vw, 45vw';
 
@@ -33,17 +34,24 @@ function quizOf(row: SessionRow, artworks: Map<string, WallArtwork>): Quiz | und
 	return answer === -1 ? undefined : { options, answer };
 }
 
+function pinOf(row: SessionRow): ReviewPin | undefined {
+	const image = row.pin ? imageOf(row.pin.image) : null;
+	return row.pin && image ? { x: row.pin.x, y: row.pin.y, image } : undefined;
+}
+
 export function sessionItems(
 	rows: SessionRow[],
 	artworks: Map<string, WallArtwork>,
 	cards: Map<string, ReviewCard>
 ): ReviewItem[] {
-	return rows.flatMap((row) => {
+	return rows.flatMap((row): ReviewItem[] => {
 		const artwork = artworks.get(row.artwork_id);
 		if (!artwork) return [];
 		const card = cards.get(row.artwork_id) ?? null;
 		const quiz = row.mode === 'flashcard' ? undefined : quizOf(row, artworks);
-		return [quiz ? { artwork, card, mode: row.mode, quiz } : { artwork, card, mode: 'flashcard' }];
+		const pin = row.mode === 'quiz_pin' ? pinOf(row) : undefined;
+		if (!quiz || (row.mode === 'quiz_pin' && !pin)) return [{ artwork, card, mode: 'flashcard' }];
+		return [{ artwork, card, mode: row.mode, quiz, ...(pin ? { pin } : {}) }];
 	});
 }
 

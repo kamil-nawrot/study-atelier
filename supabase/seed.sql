@@ -25,42 +25,47 @@ begin
 
   insert into public.artworks (
     id, owner_id, title, author_unknown, year_to, year_approximate, type_code, era_code, notes,
-    source_wikidata_id, source_image_file, source_image_licence, source_image_licence_url,
-    source_image_attribution, image_width, image_height, deleted_at
+    deleted_at
   )
   values
     ('00000000-0000-4000-8000-000000000101', tester, 'Mona Liza', false, 1503, true,
-      'painting', 'early_modern', 'Portret Lisy Gherardini, żony kupca Francesca del Giocondo.',
+      'painting', 'early_modern', 'Portret Lisy Gherardini, żony kupca Francesca del Giocondo.', null),
+    ('00000000-0000-4000-8000-000000000102', tester, 'Gwiaździsta noc', false, 1889, false,
+      'painting', 'modern', 'Widok z okna sanatorium w Saint-Rémy-de-Provence.', null),
+    ('00000000-0000-4000-8000-000000000103', tester, 'Dziewczyna z perłą', false, 1665, true,
+      'painting', 'early_modern', 'Tronie, czyli studium głowy, a nie portret konkretnej osoby.', null),
+    ('00000000-0000-4000-8000-000000000104', tester, 'Wieża Eiffla', false, 1889, false,
+      'architecture', 'modern', null, null),
+    ('00000000-0000-4000-8000-000000000105', tester, 'Wielka fala w Kanagawie', false, 1831, true,
+      'printmaking', 'modern', 'Pierwsza grafika z cyklu Trzydzieści sześć widoków góry Fudżi.', null),
+    ('00000000-0000-4000-8000-000000000106', tester, 'Człowiek witruwiański', false, 1490, true,
+      'drawing', 'early_modern', null, null),
+    ('00000000-0000-4000-8000-000000000107', tester, 'Wenus z Willendorfu', true, -25000, true,
+      'sculpture', 'prehistory', null, null),
+    ('00000000-0000-4000-8000-000000000108', tester, 'Dawid', false, 1504, false,
+      'sculpture', 'early_modern', null, now());
+
+  insert into public.artwork_images (
+    artwork_id, owner_id, position, source_wikidata_id, source_image_file, source_image_licence,
+    source_image_licence_url, source_image_attribution, image_width, image_height
+  )
+  values
+    ('00000000-0000-4000-8000-000000000101', tester, 0,
       'Q12418', 'Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg',
       'Public domain', 'https://creativecommons.org/publicdomain/mark/1.0/', 'Leonardo da Vinci',
-      1060, 1540, null),
-    ('00000000-0000-4000-8000-000000000102', tester, 'Gwiaździsta noc', false, 1889, false,
-      'painting', 'modern', 'Widok z okna sanatorium w Saint-Rémy-de-Provence.',
+      1060, 1540),
+    ('00000000-0000-4000-8000-000000000102', tester, 0,
       'Q45585', 'Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg',
       'Public domain', 'https://creativecommons.org/publicdomain/mark/1.0/', 'Vincent van Gogh',
-      1840, 1460, null),
-    ('00000000-0000-4000-8000-000000000103', tester, 'Dziewczyna z perłą', false, 1665, true,
-      'painting', 'early_modern', 'Tronie, czyli studium głowy, a nie portret konkretnej osoby.',
+      1840, 1460),
+    ('00000000-0000-4000-8000-000000000103', tester, 0,
       'Q185372', 'Meisje_met_de_parel.jpg',
       'Public domain', 'https://creativecommons.org/publicdomain/mark/1.0/', 'Johannes Vermeer',
-      1170, 1350, null),
-    ('00000000-0000-4000-8000-000000000104', tester, 'Wieża Eiffla', false, 1889, false,
-      'architecture', 'modern', null,
+      1170, 1350),
+    ('00000000-0000-4000-8000-000000000104', tester, 0,
       'Q243', 'Tour_Eiffel_Wikimedia_Commons.jpg',
       'Public domain', 'https://creativecommons.org/publicdomain/mark/1.0/', 'Gustave Eiffel',
-      null, null, null),
-    ('00000000-0000-4000-8000-000000000105', tester, 'Wielka fala w Kanagawie', false, 1831, true,
-      'printmaking', 'modern', 'Pierwsza grafika z cyklu Trzydzieści sześć widoków góry Fudżi.',
-      null, null, null, null, null, null, null, null),
-    ('00000000-0000-4000-8000-000000000106', tester, 'Człowiek witruwiański', false, 1490, true,
-      'drawing', 'early_modern', null,
-      null, null, null, null, null, null, null, null),
-    ('00000000-0000-4000-8000-000000000107', tester, 'Wenus z Willendorfu', true, -25000, true,
-      'sculpture', 'prehistory', null,
-      null, null, null, null, null, null, null, null),
-    ('00000000-0000-4000-8000-000000000108', tester, 'Dawid', false, 1504, false,
-      'sculpture', 'early_modern', null,
-      null, null, null, null, null, null, null, now());
+      null, null);
 
   insert into public.category_values (owner_id, category_code, name)
   values

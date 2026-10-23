@@ -110,7 +110,7 @@ describe('trash page', () => {
 		await expect.element(dialog.getByText(m.trash.deleteDescription('#0042'))).toBeVisible();
 		await dialog.getByRole('button', { name: m.trash.deleteForever }).click();
 
-		expect(deletePermanently).toHaveBeenCalledWith('artwork-42', 'owner/pearl.jpg');
+		expect(deletePermanently).toHaveBeenCalledWith('artwork-42');
 		await expect.element(page.getByText(m.trash.deleted('#0042'))).toBeVisible();
 		await expect.element(row('Girl with a Pearl Earring')).not.toBeInTheDocument();
 	});
