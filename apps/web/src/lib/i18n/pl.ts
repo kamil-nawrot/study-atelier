@@ -241,6 +241,26 @@ export const pl = {
 			images: (done: number, total: number): string => `Zdjęcia: ${done} z ${total}`,
 			packing: 'Pakuję plik…',
 			exported: 'Plik z atelier jest pobrany.',
+			importTitle: 'Import',
+			importDescription:
+				'Wczytaj plik z eksportu do pustego atelier. Numery dzieł, daty i powtórki zostaną takie same jak w kopii.',
+			importHint:
+				'Import niczego nie łączy ani nie nadpisuje, dlatego działa tylko w pustym atelier.',
+			importButton: 'Wybierz plik ZIP',
+			importFilled: 'W tym atelier już coś jest, więc nie mogę wczytać kopii.',
+			importReading: 'Czytam plik…',
+			importSaving: 'Zapisuję atelier…',
+			imported: 'Atelier jest wczytane.',
+			importErrorTitle: 'Nie udało się wczytać pliku',
+			importNotZip: 'To nie jest plik ZIP.',
+			importNoData: 'W tym pliku nie ma atelier.json, więc to nie wygląda na eksport z Atelier.',
+			importNotAtelier: 'Ten plik nie pochodzi z eksportu Atelier.',
+			importNewer:
+				'Ten plik jest z nowszej wersji Atelier. Odśwież aplikację i spróbuj jeszcze raz.',
+			importBroken: 'Nie mogę odczytać tego pliku. Jest uszkodzony albo niepełny.',
+			importFailed:
+				'Nie udało się wczytać atelier. Nic nie zostało zmienione, spróbuj jeszcze raz.',
+			importNotEmpty: 'Atelier nie jest już puste, więc nic nie wczytałem.',
 			errorTitle: 'Nie udało się wyeksportować atelier',
 			failed: 'Spróbuj jeszcze raz. Jeśli to się powtarza, spróbuj na komputerze.'
 		}

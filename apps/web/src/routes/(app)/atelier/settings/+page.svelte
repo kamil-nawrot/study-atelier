@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Alert, Tabs, Toast } from '@study-atelier/ui';
-	import { goto, invalidate } from '$app/navigation';
+	import { goto, invalidate, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
@@ -40,6 +40,11 @@
 		toast.show(message);
 	}
 
+	async function dataImported(message: string): Promise<void> {
+		await invalidateAll();
+		toast.show(message);
+	}
+
 	async function profileSaved(_profile: Profile, message: string): Promise<void> {
 		await invalidate(PROFILE_DEPENDENCY);
 		toast.show(message);
@@ -76,7 +81,11 @@
 					{:else if tab === 'account'}
 						<AccountTab {email} onchanged={(message) => toast.show(message)} />
 					{:else if tab === 'data'}
-						<DataTab onexported={(message) => toast.show(message)} />
+						<DataTab
+							atelierEmpty={data.atelierEmpty}
+							onexported={(message) => toast.show(message)}
+							onimported={dataImported}
+						/>
 					{:else}
 						{#key tab}
 							<PreferencesTab
