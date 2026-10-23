@@ -11,6 +11,7 @@ import {
 	OWN_FIELD_USAGE,
 	OWN_FIELDS,
 	OWN_VALUE_USAGE,
+	PROFILE,
 	ARTWORK_SEARCH,
 	PEOPLE,
 	PERIOD_ERA_USAGE,
@@ -350,6 +351,12 @@ function glossaryRoute(route, request, url) {
 	);
 }
 
+function profileRoute(route, request) {
+	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
+	if (request.method() !== 'GET') return json(route, wantsObject ? PROFILE : [PROFILE], 201);
+	return json(route, wantsObject ? PROFILE : [PROFILE]);
+}
+
 async function mockSupabase(context) {
 	await context.route(`${SUPABASE_URL}/**`, async (route) => {
 		const request = route.request();
@@ -425,6 +432,7 @@ async function mockSupabase(context) {
 			);
 		}
 		if (url.pathname === '/rest/v1/artwork_pins') return pinsRoute(route, request, url);
+		if (url.pathname === '/rest/v1/profiles') return profileRoute(route, request);
 		if (url.pathname === '/rest/v1/glossary_entries') return glossaryRoute(route, request, url);
 		if (url.pathname.startsWith('/rest/v1/rpc/')) {
 			return json(route, { id: ARTWORKS[0].id, record_number: ARTWORKS[0].record_number });
