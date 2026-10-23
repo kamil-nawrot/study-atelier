@@ -65,6 +65,7 @@
 		ownFields?: OwnFieldDefinition[];
 		ownValues?: Record<string, string[]>;
 		pins?: Pin[];
+		pinsError?: string;
 		glossary?: GlossaryEntry[];
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
@@ -80,6 +81,7 @@
 		ownFields,
 		ownValues = {},
 		pins = [],
+		pinsError,
 		glossary = [],
 		cancelHref,
 		oncancel,
@@ -293,6 +295,7 @@
 			alt={imageAlt}
 			autoMatch={!artwork}
 			entries={glossary}
+			{pinsError}
 			query={{
 				kind: 'artwork',
 				title: form.title,

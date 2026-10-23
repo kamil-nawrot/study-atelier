@@ -9,6 +9,7 @@ import {
 } from '#lib/images/commons.ts';
 import { backfillThumbnails } from '#lib/images/thumbnail-backfill.ts';
 import { supabase } from '#lib/supabase.ts';
+import { artworkImageSource } from './artwork-image.ts';
 import { authorSortNamesOf, ownEntriesOf, valuesOf } from './artwork-values.ts';
 import { collectionErrorMessage } from './errors.ts';
 import { formatDate } from './format.ts';
@@ -137,6 +138,24 @@ function ownImage(
 	return src ? { src, ...(size ?? DEFAULT_IMAGE_SIZE) } : undefined;
 }
 
+function linkedImage(
+	url: string | undefined,
+	size: ImageSize | undefined
+): ArtworkTileImage | undefined {
+	if (!url) return undefined;
+	const source = artworkImageSource(
+		{ kind: 'url', url, width: size?.width ?? null, height: size?.height ?? null },
+		TILE_WIDTH
+	);
+	if (!source?.srcset) return ownImage(url, size);
+	return {
+		src: source.src,
+		srcset: source.srcset,
+		sizes: TILE_SIZES,
+		...(size ?? DEFAULT_IMAGE_SIZE)
+	};
+}
+
 type RowsPage = {
 	data: unknown;
 	error: { code?: string; message?: string } | null;
@@ -167,7 +186,7 @@ function wallArtwork(row: ArtworkRow): WallArtwork {
 				: undefined;
 	const image = pendingImage
 		? { ...(size ?? DEFAULT_IMAGE_SIZE) }
-		: ownImage(main?.own_image_url ?? undefined, size);
+		: linkedImage(main?.own_image_url ?? undefined, size);
 	return {
 		id: row.id,
 		number: row.record_number,

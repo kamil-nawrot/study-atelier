@@ -126,6 +126,25 @@ describe('artworkLargeSource', () => {
 		expect(isTooLargeForLoupe(linked)).toBe(false);
 	});
 
+	it('offers thumbnails up to 3840 px and never the original of a big linked Commons file', () => {
+		const url = 'https://upload.wikimedia.org/wikipedia/commons/d/de/Colosseo_2020.jpg';
+		const srcset = artworkImageSource(
+			{ kind: 'url', url, width: 12051, height: 8442 },
+			1920
+		)?.srcset;
+		expect(srcset).toContain('/3840px-Colosseo_2020.jpg 3840w');
+		expect(srcset).not.toContain(`${url} `);
+		expect(srcset).not.toContain('12051w');
+	});
+
+	it('offers the original of a linked Commons file that is not wider than 3840 px', () => {
+		const url = 'https://upload.wikimedia.org/wikipedia/commons/d/de/Colosseo_2020.jpg';
+		const srcset = artworkImageSource({ kind: 'url', url, width: 2400, height: 1600 }, 960)?.srcset;
+		expect(srcset).toContain(`${url} 2400w`);
+		expect(srcset).toContain('/1920px-Colosseo_2020.jpg 1920w');
+		expect(srcset).not.toContain('3840w');
+	});
+
 	it('does not offer the loupe for a big image from another link', () => {
 		const big: ArtworkImageInput = {
 			kind: 'url',

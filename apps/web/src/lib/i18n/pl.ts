@@ -427,6 +427,9 @@ export const pl = {
 		replaceImageDescription: 'Wklejony obraz zajmie jego miejsce.',
 		replaceImage: 'Zastąp',
 		keepImage: 'Zostaw obecne',
+		removeImageTitle: 'Usunąć obraz?',
+		removeImageConfirm: 'Usuń',
+		removeImageCancel: 'Anuluj',
 		imageUrl: 'Jeśli wolisz, podaj po prostu adres obrazka',
 		imageUrlPlaceholder: 'https://…',
 		useImageUrl: 'Użyj',
@@ -933,11 +936,10 @@ export const pl = {
 	},
 	pins: {
 		switchLabel: (count: number): string => `Pinezki (${count})`,
-		editor: (count: number): string => (count > 0 ? `Pinezki (${count})` : 'Dodaj pinezki'),
-		editorTitle: 'Pinezki na obrazie',
 		editorNote: 'Pinezki zapisują się od razu, niezależnie od przycisku „Zapisz”.',
-		done: 'Gotowe',
-		editHint: 'Dotknij obrazu, żeby dodać pinezkę. Przeciągnij pinezkę, żeby ją przesunąć.',
+		editHint:
+			'Wskaż miejsce na obrazie, żeby dodać pinezkę. Przeciągnij pinezkę, żeby ją przesunąć.',
+		imagePins: (count: number): string => `Jego pinezki (${count}) usuną się po zapisaniu.`,
 		placeHere: 'Dodaj pinezkę w tym miejscu',
 		marker: (number: number, name?: string, view = false): string =>
 			`${name ? `Pinezka ${number}: ${name}` : `Pinezka ${number}`}${view ? ', widok lupy' : ''}`,
@@ -955,6 +957,7 @@ export const pl = {
 		saving: 'Zapisuję…',
 		loadFailed: 'Nie udało się wczytać pinezek.',
 		errorTitle: 'Nie udało się zapisać pinezki',
+		deleteErrorTitle: 'Nie udało się usunąć pinezki',
 		errors: {
 			empty: 'Wybierz pojęcie albo wpisz opis.',
 			tooLong: (limit: number): string => `Opis może mieć najwyżej ${limit} znaków.`,

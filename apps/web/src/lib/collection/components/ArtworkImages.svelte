@@ -20,6 +20,7 @@
 	import ImageField from './ImageField.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import PinLayer from '#lib/pins/components/PinLayer.svelte';
+	import { pinsOfImage } from '#lib/pins/pin-layout.ts';
 	import type { Pin } from '#lib/pins/types.ts';
 	import { autoFetch } from '#lib/profile/auto-fetch.svelte.ts';
 
@@ -33,6 +34,7 @@
 		autoMatch?: boolean;
 		pins?: Pin[];
 		entries?: readonly GlossaryEntry[];
+		pinsError?: string;
 	};
 
 	let {
@@ -44,7 +46,8 @@
 		images = $bindable(),
 		autoMatch = false,
 		pins = $bindable(),
-		entries = []
+		entries = [],
+		pinsError
 	}: Props = $props();
 
 	type MatchStatus = 'idle' | 'searching' | 'matched' | 'none' | 'failed';
@@ -59,8 +62,9 @@
 	let matchRequest = 0;
 
 	let slots = $derived([image, ...images]);
-	let pinImageId = $derived(pins === undefined ? undefined : current()?.id);
+	let pinImageId = $derived(pins === undefined || pinsError ? undefined : current()?.id);
 	let pinFailure = $state<string>();
+	let currentPins = $derived(pins === undefined ? 0 : pinsOfImage(pins, current()?.id).length);
 	let full = $derived(slots.length >= MAX_ARTWORK_IMAGES);
 	let matchShown = $derived(
 		selected === 0 && matchStatus === 'matched' && isCandidateImage(image, pool[0])
@@ -242,6 +246,9 @@
 {/snippet}
 
 {#snippet pinStatus()}
+	{#if pinsError && current()?.id !== undefined}
+		<Alert tone="danger">{m.pins.loadFailed}</Alert>
+	{/if}
 	{#if pinImageId !== undefined}
 		{#if pinFailure}
 			<Alert tone="danger">{pinFailure}</Alert>
@@ -268,6 +275,7 @@
 	overlay={pinLayer}
 	{query}
 	removable={selected > 0}
+	removeWarning={currentPins > 0 ? m.pins.imagePins(currentPins) : undefined}
 	{searchReady}
 	slots={slotRow}
 	status={statusLines}
