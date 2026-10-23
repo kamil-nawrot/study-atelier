@@ -126,3 +126,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0120](0120-replace-only-the-field-entries-the-form-sends.md)                | Replace only the field entries the form sends                                            | accepted           |
 | [0121](0121-export-the-atelier-as-a-zip-file.md)                             | Export the atelier as a ZIP file                                                         | accepted           |
 | [0122](0122-import-an-atelier-into-an-empty-atelier-through-one-function.md) | Import an atelier into an empty atelier through one function                             | accepted           |
+| [0123](0123-switch-the-automatic-fetching-from-external-sources.md)          | Switch the automatic fetching from external sources                                      | accepted           |

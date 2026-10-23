@@ -166,6 +166,22 @@ describe('settings page', () => {
 			.toBeVisible();
 	});
 
+	it('saves the switches for the automatic fetching', async () => {
+		vi.mocked(savePreferences).mockResolvedValue({
+			preferences: { ...defaultPreferences, fetchForms: false }
+		});
+		renderSettings(undefined, '?tab=sources');
+
+		await page.getByRole('switch', { name: m.settings.preferences.fetchForms }).click();
+		await page.getByRole('button', { name: m.settings.preferences.save }).click();
+
+		expect(savePreferences).toHaveBeenCalledWith(
+			'sources',
+			expect.objectContaining({ fetchForms: false, fetchImage: true })
+		);
+		expect(invalidate).toHaveBeenCalledWith(PREFERENCES_DEPENDENCY);
+	});
+
 	it('shows a load error instead of the tabs', async () => {
 		renderSettings(m.settings.profile.failed);
 
