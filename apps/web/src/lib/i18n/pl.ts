@@ -393,8 +393,7 @@ export const pl = {
 	},
 	loupe: {
 		label: 'Lupa',
-		unavailable:
-			'Ten obraz nie jest większy niż na ekranie, więc lupy nie ma: pokazałaby tylko powiększone piksele.',
+		unavailable: 'Rozdzielczość tego obrazu jest zbyt mała, żeby można było skorzystać z lupy.',
 		level: (level: number): string => `${level.toLocaleString('pl', { maximumFractionDigits: 1 })}×`
 	},
 	favourite: {
