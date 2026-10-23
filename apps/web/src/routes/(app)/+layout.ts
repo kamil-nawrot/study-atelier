@@ -27,9 +27,11 @@ async function ownProfile(): Promise<Profile | undefined> {
 async function reviewWaiting(): Promise<number> {
 	const [{ counts }, { preferences }] = await Promise.all([
 		loadReviewCounts(startOfDay(new Date())),
-		loadPreferences()
+		loadPreferences().then((result) => {
+			applyAutoFetch(result.preferences);
+			return result;
+		})
 	]);
-	applyAutoFetch(preferences);
 	return counts ? waitingToday(counts, preferences.reviewNewPerDay) : 0;
 }
 

@@ -17,7 +17,11 @@ const row = {
 	review_quiz_kinds: ['quiz_pin', 'quiz_image'],
 	review_free: false,
 	view_show_pins: true,
-	view_loupe_on: true
+	view_loupe_on: true,
+	fetch_image: false,
+	fetch_definition: true,
+	fetch_forms: false,
+	fetch_event: true
 };
 
 beforeEach(() => {
@@ -33,7 +37,11 @@ describe('preferencesOf', () => {
 			reviewQuizKinds: ['quiz_image', 'quiz_pin'],
 			reviewFree: false,
 			viewShowPins: true,
-			viewLoupeOn: true
+			viewLoupeOn: true,
+			fetchImage: false,
+			fetchDefinition: true,
+			fetchForms: false,
+			fetchEvent: true
 		});
 	});
 
@@ -103,6 +111,19 @@ describe('savePreferences', () => {
 		await savePreferences('view', { ...defaultPreferences, viewShowPins: true });
 
 		expect(upsert).toHaveBeenCalledWith({ view_show_pins: true, view_loupe_on: false });
+	});
+
+	it('writes only the columns of the sources tab', async () => {
+		const upsert = upserting({ data: row, error: null });
+
+		await savePreferences('sources', { ...defaultPreferences, fetchForms: false });
+
+		expect(upsert).toHaveBeenCalledWith({
+			fetch_image: true,
+			fetch_definition: true,
+			fetch_forms: false,
+			fetch_event: true
+		});
 	});
 
 	it('says why a save failed', async () => {

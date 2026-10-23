@@ -9,6 +9,7 @@ import type { ImageFieldTexts } from '../types.ts';
 import ArtworkImages from './ArtworkImages.svelte';
 
 vi.mock('#lib/images/image-search.ts', () => ({ findImageCandidates: vi.fn() }));
+vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
 
 const texts: ImageFieldTexts = {
 	label: m.artworkForm.image,

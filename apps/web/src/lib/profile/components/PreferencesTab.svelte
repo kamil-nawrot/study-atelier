@@ -158,7 +158,10 @@
 			{:else if part === 'sources'}
 				<p class="hint">{m.settings.preferences.sourcesHint}</p>
 				<Switch label={m.settings.preferences.fetchImage} bind:checked={draft.fetchImage} />
-				<Switch label={m.settings.preferences.fetchDefinition} bind:checked={draft.fetchDefinition} />
+				<Switch
+					label={m.settings.preferences.fetchDefinition}
+					bind:checked={draft.fetchDefinition}
+				/>
 				<Switch label={m.settings.preferences.fetchForms} bind:checked={draft.fetchForms} />
 				<Switch label={m.settings.preferences.fetchEvent} bind:checked={draft.fetchEvent} />
 			{:else}

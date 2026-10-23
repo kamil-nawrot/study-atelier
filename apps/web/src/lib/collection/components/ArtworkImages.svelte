@@ -67,7 +67,14 @@
 	);
 
 	$effect(() => {
-		if (!autoMatch || !autoFetch.image || !searchReady || query.kind !== 'artwork' || image !== null) return;
+		if (
+			!autoMatch ||
+			!autoFetch.image ||
+			!searchReady ||
+			query.kind !== 'artwork' ||
+			image !== null
+		)
+			return;
 		const key = matchKey(query.title, query.authors);
 		if (key === untrack(() => searchedKey)) return;
 		const timer = setTimeout(() => {
