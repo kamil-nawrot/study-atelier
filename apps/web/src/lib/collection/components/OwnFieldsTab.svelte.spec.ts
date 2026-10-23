@@ -130,6 +130,26 @@ describe('OwnFieldsTab', () => {
 		expect(onchanged).toHaveBeenCalledWith(m.ownFields.deleted('Lecture'));
 	});
 
+	it('moves the focus to the add button when the deleted field takes its menu with it', async () => {
+		const fields = testOwnFields();
+		const screen = await render(OwnFieldsTab, { fields, onchanged });
+		onchanged.mockImplementation(async () => {
+			await screen.rerender({
+				fields: fields.filter((field) => field.id !== 'lecture'),
+				onchanged
+			});
+		});
+
+		await menu('Lecture').click();
+		await page.getByRole('button', { name: m.ownFields.remove, exact: true }).click();
+		await page
+			.getByRole('alertdialog')
+			.getByRole('button', { name: m.ownFields.deleteConfirm.confirm })
+			.click();
+
+		await expect.element(page.getByRole('button', { name: m.ownFields.add })).toHaveFocus();
+	});
+
 	it('merges a value renamed to another value of the field after a confirmation', async () => {
 		renderTab();
 

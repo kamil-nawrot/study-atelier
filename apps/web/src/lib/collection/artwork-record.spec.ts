@@ -278,7 +278,7 @@ describe('saveArtwork', () => {
 		expect(args.values_by_category).toMatchObject({ author: [] });
 	});
 
-	it('saves own lists with the values and own texts and ticks as field entries', async () => {
+	it('saves own lists with the values and own texts and ticks as field entries, emptied ones included', async () => {
 		await saveArtwork(
 			input({
 				own: {
@@ -299,7 +299,7 @@ describe('saveArtwork', () => {
 					lecture: ['Baroque class'],
 					motifs: []
 				}),
-				field_entries: { source: 'Gombrich, p. 300', seen: true }
+				field_entries: { source: 'Gombrich, p. 300', note: '', seen: true, exam: false }
 			})
 		);
 	});

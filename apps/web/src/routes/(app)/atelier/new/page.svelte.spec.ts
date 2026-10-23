@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { beforeNavigate, goto, invalidateAll } from '$app/navigation';
+import { afterNavigate, beforeNavigate, goto, invalidateAll } from '$app/navigation';
 import { emptyCategoryValues } from '#lib/collection/category-values.ts';
 import { emptyPlaceStarter } from '#lib/collection/place-starter.ts';
 import { emptyValueLinks } from '#lib/collection/value-links.ts';
@@ -262,6 +262,18 @@ describe('add artwork page', () => {
 
 	afterEach(() => {
 		vi.unstubAllGlobals();
+	});
+
+	it('goes back through the history on cancel, wherever the learner came from', async () => {
+		const go = vi.spyOn(history, 'go').mockImplementation(() => {});
+		renderPage();
+		const callback = vi.mocked(afterNavigate).mock.calls[0][0];
+		callback({ from: { route: { id: '/(app)/atelier/review' } } } as never);
+
+		await page.getByRole('link', { name: m.artworkForm.cancel }).click();
+
+		expect(go).toHaveBeenCalledWith(-1);
+		go.mockRestore();
 	});
 
 	it('shows the empty form with the image window and the actions', async () => {

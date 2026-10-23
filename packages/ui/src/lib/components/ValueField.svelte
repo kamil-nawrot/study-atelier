@@ -22,6 +22,7 @@
 		options?: readonly ValueOption[];
 		single?: boolean;
 		max?: number;
+		maxlength?: number;
 		disabled?: boolean;
 		locked?: boolean;
 		hint?: string;
@@ -38,6 +39,7 @@
 		options = [],
 		single = false,
 		max,
+		maxlength,
 		disabled = false,
 		locked = false,
 		hint,
@@ -206,6 +208,7 @@
 			autocomplete="off"
 			disabled={inactive}
 			hidden={full}
+			{maxlength}
 			onblur={() => (open = false)}
 			{onfocus}
 			oninput={show}

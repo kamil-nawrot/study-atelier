@@ -21,11 +21,13 @@
 
 	let form = $state<EventForm>();
 	let cameFromApp = false;
+	let cameFromTimeline = false;
 
 	let failed = $derived(data.error !== undefined || data.notFound === true);
 
 	afterNavigate(({ from }) => {
 		cameFromApp = from !== null;
+		cameFromTimeline = from?.url.pathname === timelinePath;
 	});
 
 	function goBack(event: MouseEvent): void {
@@ -34,7 +36,7 @@
 
 	async function showSaved(draft: TimelineEventDraft): Promise<void> {
 		if (draft.yearTo === null) return;
-		await goto(timelinePath, {
+		const options = {
 			replace: true,
 			refreshAll: true,
 			state: {
@@ -44,7 +46,13 @@
 					yearTo: draft.yearTo
 				}
 			}
-		});
+		};
+		if (!cameFromTimeline) {
+			await goto(timelinePath, options);
+			return;
+		}
+		addEventListener('popstate', () => void goto(timelinePath, options), { once: true });
+		history.back();
 	}
 </script>
 

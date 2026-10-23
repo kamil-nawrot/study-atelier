@@ -4,6 +4,7 @@ import { arrive, loadNames, named, saveNames, type Place } from './back-places.t
 
 let names = $state(loadNames());
 let current = $state<Place>();
+let restored = false;
 
 type Stop = {
 	url: URL | null;
@@ -21,8 +22,13 @@ export function recordArrival({ type, from, to }: Navigation): void {
 	current = arrive(names, current, {
 		type,
 		from: from?.url ? { key: from.url.pathname, route: from.route.id } : null,
-		to: { key: to.url.pathname, route: to.route.id }
+		to: { key: to.url.pathname, route: to.route.id },
+		restored
 	});
+}
+
+export function forgetRestoredBackPlace(): void {
+	restored = false;
 }
 
 export function nameCurrentPlace(name: string): void {
@@ -43,4 +49,5 @@ export function currentBackPlace(): Place | undefined {
 
 export function setBackPlace(place: Place | undefined): void {
 	current = place;
+	restored = place !== undefined;
 }
