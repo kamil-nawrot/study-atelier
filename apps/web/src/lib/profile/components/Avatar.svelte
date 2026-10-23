@@ -6,9 +6,10 @@
 		path?: string | null;
 		previewUrl?: string;
 		large?: boolean;
+		medium?: boolean;
 	};
 
-	let { initial, path = null, previewUrl, large = false }: Props = $props();
+	let { initial, path = null, previewUrl, large = false, medium = false }: Props = $props();
 
 	let loaded = $state<{ path: string; url: string }>();
 	let broken = $state(false);
@@ -29,7 +30,7 @@
 	});
 </script>
 
-<span class="avatar" class:large aria-hidden="true">
+<span class="avatar" class:large class:medium aria-hidden="true">
 	{#if source && !broken}
 		<img alt="" onerror={() => (broken = true)} src={source} />
 	{:else}
@@ -52,6 +53,12 @@
 		font-size: var(--font-size-xs);
 		font-weight: var(--font-weight-bold);
 		line-height: 1;
+	}
+
+	.medium {
+		width: 40px;
+		height: 40px;
+		font-size: var(--font-size-md);
 	}
 
 	.large {

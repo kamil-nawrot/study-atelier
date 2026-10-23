@@ -41,16 +41,16 @@
 
 {#snippet account(profile?: Profile)}
 	<a
-		class="item"
+		class="item account"
 		aria-current={page.url.pathname === settingsPath ? 'page' : undefined}
 		aria-label={compact ? m.menu.settingsLink(profile?.displayName ?? email, email) : undefined}
 		href={settingsPath}
 	>
-		<Avatar initial={avatarInitial(profile, email)} path={profile?.avatarPath} />
+		<Avatar initial={avatarInitial(profile, email)} medium={!compact} path={profile?.avatarPath} />
 		<span class="who" class:visually-hidden={compact}>
 			{#if profile?.displayName}
 				<span class="label">{profile.displayName}</span>
-				<span class="label email">{email}</span>
+				<span class="label email" title={email}>{email}</span>
 			{:else}
 				<span class="label">{email}</span>
 			{/if}
@@ -59,11 +59,13 @@
 {/snippet}
 
 <div class="group">
-	{#await page.data.menuProfile}
-		{@render account()}
-	{:then profile}
-		{@render account(profile)}
-	{/await}
+	<div class="account-group">
+		{#await page.data.menuProfile}
+			{@render account()}
+		{:then profile}
+			{@render account(profile)}
+		{/await}
+	</div>
 	<a
 		class="item"
 		aria-current={page.url.pathname === atelierPath ? 'page' : undefined}
@@ -193,6 +195,16 @@
 	a.item:hover,
 	button.item:hover:not(:disabled) {
 		background: var(--color-surface);
+	}
+
+	.account-group {
+		margin-bottom: var(--spacing-2);
+		padding-bottom: var(--spacing-2);
+		border-bottom: var(--border-width-hairline) solid var(--color-tag);
+	}
+
+	.account {
+		min-height: calc(40px + 2 * var(--spacing-2));
 	}
 
 	.item[aria-current='page'] {

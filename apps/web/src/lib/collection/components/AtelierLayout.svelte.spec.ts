@@ -255,6 +255,15 @@ describe('AtelierLayout account row', () => {
 		await expect.element(link).toHaveTextContent('A');
 	});
 
+	it('shows the whole email in a tooltip under the name', async () => {
+		pageState.data = { menuProfile: Promise.resolve({ displayName: 'Anna', avatarPath: null }) };
+		renderLayout(views.empty);
+
+		await expect
+			.element(page.getByText('learner@example.com', { exact: true }))
+			.toHaveAttribute('title', 'learner@example.com');
+	});
+
 	it('falls back to the email when the profile cannot be read', async () => {
 		pageState.data = { menuProfile: Promise.resolve(undefined) };
 		renderLayout(views.empty);
