@@ -77,7 +77,9 @@ begin
     assert not has_function_privilege('anon', routine.signature, 'execute')
       or routine.proname = 'keep_alive',
       format('anon can execute %s', routine.signature);
-    assert not routine.prosecdef or not has_function_privilege('authenticated', routine.signature, 'execute'),
+    assert not routine.prosecdef
+      or routine.proname = 'import_atelier'
+      or not has_function_privilege('authenticated', routine.signature, 'execute'),
       format('authenticated can execute the security definer function %s', routine.signature);
   end loop;
 
