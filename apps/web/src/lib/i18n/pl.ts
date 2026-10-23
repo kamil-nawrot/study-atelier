@@ -394,6 +394,7 @@ export const pl = {
 	loupe: {
 		label: 'Lupa',
 		unavailable: 'Rozdzielczość tego obrazu jest zbyt mała, żeby można było skorzystać z lupy.',
+		tooLarge: 'Ten obraz z adresu jest zbyt duży, żeby można było skorzystać z lupy.',
 		level: (level: number): string => `${level.toLocaleString('pl', { maximumFractionDigits: 1 })}×`
 	},
 	favourite: {
