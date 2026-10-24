@@ -2,6 +2,23 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.10.1] - 2026-10-24
+
+Fixes of the settings view, of the overlay scrollbar and of returning to a list.
+
+### Changed
+
+- The "Profil" tab of the settings has the avatar in the left column and the fields in the right one from 768 px; on a phone they stay stacked.
+
+### Fixed
+
+- A panel with its own scroll, such as the notes in the artwork view, can no longer be scrolled past its content with a touchpad on a scaled screen.
+- The settings tabs without a save bar ("Konto", "Dane" and "Źródła") keep the space below their content on smaller screens.
+- Going back to the glossary list restores the place the learner left, also when the list is filtered or searched.
+- Going back to a searched list in the card index restores the place the learner left.
+
+No migrations.
+
 ## [0.10.0] - 2026-10-24
 
 The learner gets a settings view with a profile, an account section, preferences and a copy of the whole atelier.
@@ -468,3 +485,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.9.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.9.0
 [0.9.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.9.1
 [0.10.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.10.0
+[0.10.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.10.1
