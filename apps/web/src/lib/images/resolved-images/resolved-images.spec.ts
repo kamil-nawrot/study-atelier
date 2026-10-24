@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { SIGNED_URL_SECONDS } from '#lib/images/bucket.ts';
+import { SIGNED_URL_SECONDS } from '#lib/images/bucket/bucket.ts';
 import { ResolvedImages } from './resolved-images.ts';
 
 describe('ResolvedImages', () => {

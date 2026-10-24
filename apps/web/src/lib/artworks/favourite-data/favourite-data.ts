@@ -1,5 +1,5 @@
-import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
-import { m } from '#lib/i18n/index.ts';
+import { failureMessage } from '#lib/auth/expired-session/expired-session.svelte.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 
 export type FavouriteResult = {

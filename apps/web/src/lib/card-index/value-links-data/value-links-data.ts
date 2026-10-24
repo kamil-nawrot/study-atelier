@@ -1,4 +1,4 @@
-import { locale } from '#lib/i18n/index.ts';
+import { locale } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { isEraCode } from '#lib/catalogue/eras/eras.ts';
 import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';

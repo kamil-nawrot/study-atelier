@@ -1,4 +1,4 @@
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { signedYear } from '#lib/catalogue/years/years.ts';
 import type { ArtworkFieldErrors } from '#lib/artworks/types/artwork-field-errors.ts';
 import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';

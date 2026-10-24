@@ -1,4 +1,4 @@
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { compareSortKeys } from '#lib/catalogue/author-sort/author-sort.ts';
 import { valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
 import type { OwnField } from '#lib/card-index/types/own-field.ts';

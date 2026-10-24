@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Heart from '@lucide/svelte/icons/heart';
 	import { Icon, ToggleTag } from '@study-atelier/ui';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 
 	type Props = {
 		count: number;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { ERA_CODES, eraName, eraTiles, isEraCode } from './eras.ts';
 
 describe('ERA_CODES', () => {

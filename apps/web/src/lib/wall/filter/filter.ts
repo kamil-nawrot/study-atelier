@@ -1,7 +1,7 @@
 import { ARTWORK_TYPE_CODES } from '#lib/catalogue/artwork-types/artwork-types.ts';
 import { authorSortKeys, sortKeyOf } from '#lib/catalogue/author-sort/author-sort.ts';
 import { ERA_CODES, eraName, isEraCode } from '#lib/catalogue/eras/eras.ts';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';

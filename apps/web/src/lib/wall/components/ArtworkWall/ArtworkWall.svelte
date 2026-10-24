@@ -12,7 +12,7 @@
 		WALL_PART,
 		WIDE_MIN_WIDTH
 	} from '#lib/wall/masonry/masonry.ts';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 	type Props = {

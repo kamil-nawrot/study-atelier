@@ -1,4 +1,4 @@
-import { SIGNED_URL_SECONDS } from '#lib/images/bucket.ts';
+import { SIGNED_URL_SECONDS } from '#lib/images/bucket/bucket.ts';
 
 export type SignedImageUrl = {
 	url: string;

@@ -1,5 +1,5 @@
-import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
-import { removeOwnImage } from '#lib/images/own-image.ts';
+import { failureMessage } from '#lib/auth/expired-session/expired-session.svelte.ts';
+import { removeOwnImage } from '#lib/images/own-image/own-image.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyAuthorDetails } from '#lib/values/author-form/author-form.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';

@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
-import { m } from '#lib/i18n/index.ts';
-import { autoFetch } from '#lib/profile/auto-fetch.svelte.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import { saveTimelineEvent } from '#lib/timeline/timeline-data.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { autoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import { saveTimelineEvent } from '#lib/timeline/timeline-data/timeline-data.ts';
 import type { EventArticle } from '#lib/timeline/types.ts';
-import { searchEvents } from '#lib/timeline/wikipedia.ts';
+import { searchEvents } from '#lib/timeline/wikipedia/wikipedia.ts';
 import NewEventPage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({
@@ -19,11 +19,11 @@ vi.mock('$app/state', () => ({
 	page: { url: new URL('http://localhost/atelier/timeline/events/new'), state: {}, data: {} },
 	navigating: { to: null }
 }));
-vi.mock('#lib/timeline/timeline-data.ts', () => ({ saveTimelineEvent: vi.fn() }));
+vi.mock('#lib/timeline/timeline-data/timeline-data.ts', () => ({ saveTimelineEvent: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
-vi.mock('#lib/timeline/wikipedia.ts', () => ({ searchEvents: vi.fn() }));
+vi.mock('#lib/timeline/wikipedia/wikipedia.ts', () => ({ searchEvents: vi.fn() }));
 
 const save = vi.mocked(saveTimelineEvent);
 const search = vi.mocked(searchEvents);

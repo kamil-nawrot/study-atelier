@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { m } from '#lib/i18n/index.ts';
-	import GlossaryFormPage from '#lib/glossary/components/GlossaryFormPage.svelte';
+	import { m } from '#lib/i18n/i18n.ts';
+	import GlossaryFormPage from '#lib/glossary/components/GlossaryFormPage/GlossaryFormPage.svelte';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import type { PageProps } from './$types';

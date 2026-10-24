@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { errorMessages, isNetworkError } from './errors.ts';
 
 const messageOf = errorMessages({ P0002: 'Not found.' }, 'Offline.');

@@ -11,7 +11,7 @@ import {
 	subjectPath,
 	valueKindName
 } from '#lib/card-index/value-pages/value-pages.ts';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { resolve } from '$app/paths';
 
 export type Mention = {

@@ -10,10 +10,10 @@
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-	import GlossaryView from '#lib/glossary/components/GlossaryView.svelte';
-	import { deleteGlossaryEntry } from '#lib/glossary/glossary-data.ts';
+	import GlossaryView from '#lib/glossary/components/GlossaryView/GlossaryView.svelte';
+	import { deleteGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();

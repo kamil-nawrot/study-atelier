@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
-import { SESSION_DEPENDENCY } from '#lib/auth/session.ts';
-import { testSession } from '#lib/testing/auth.ts';
+import { SESSION_DEPENDENCY } from '#lib/auth/session/session.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
 import { load } from './+layout';
 
-vi.mock('#lib/auth/session.ts', () => ({
+vi.mock('#lib/auth/session/session.ts', () => ({
 	SESSION_DEPENDENCY: 'supabase:auth',
 	currentSession: vi.fn(async () => testSession())
 }));

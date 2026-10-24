@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { emptyFilter } from '#lib/wall/filter/filter.ts';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
-import FilterPanelHost from '#lib/testing/FilterPanelHost.svelte';
+import FilterPanelHost from '#lib/testing/FilterPanelHost/FilterPanelHost.svelte';
 import '@study-atelier/ui/styles.css';
 
 const artworks = [

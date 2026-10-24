@@ -7,7 +7,7 @@
 	import ValueForm from '#lib/values/components/ValueForm/ValueForm.svelte';
 	import { arrivedFromApp, goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
 	import { subjectName, subjectPath } from '#lib/card-index/value-pages/value-pages.ts';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
 	import type { PageProps } from './$types';
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { SearchField, ToggleTag } from '@study-atelier/ui';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 	import type { FilterOption } from '#lib/catalogue/types/filter-option.ts';
 

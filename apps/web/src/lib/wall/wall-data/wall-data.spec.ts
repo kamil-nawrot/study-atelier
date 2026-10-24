@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { IMAGES_BUCKET } from '#lib/images/bucket.ts';
-import { fetchCommonsThumbnails } from '#lib/images/commons.ts';
-import { backfillThumbnails } from '#lib/images/thumbnail-backfill.ts';
-import { m } from '#lib/i18n/index.ts';
+import { IMAGES_BUCKET } from '#lib/images/bucket/bucket.ts';
+import { fetchCommonsThumbnails } from '#lib/images/commons/commons.ts';
+import { backfillThumbnails } from '#lib/images/thumbnail-backfill/thumbnail-backfill.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { SIGNED_URL_SECONDS } from '#lib/images/bucket.ts';
+import { SIGNED_URL_SECONDS } from '#lib/images/bucket/bucket.ts';
 import {
 	DEFAULT_IMAGE_SIZE,
 	loadAtelier,
@@ -15,11 +15,13 @@ import {
 import { resolvedImages } from '#lib/images/resolved-images/resolved-images.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
-vi.mock('#lib/images/commons.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/images/commons.ts')>()),
+vi.mock('#lib/images/commons/commons.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/images/commons/commons.ts')>()),
 	fetchCommonsThumbnails: vi.fn()
 }));
-vi.mock('#lib/images/thumbnail-backfill.ts', () => ({ backfillThumbnails: vi.fn() }));
+vi.mock('#lib/images/thumbnail-backfill/thumbnail-backfill.ts', () => ({
+	backfillThumbnails: vi.fn()
+}));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn(), storage: { from: vi.fn() } }
 }));

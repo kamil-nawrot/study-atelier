@@ -6,11 +6,11 @@
 	import { resolveImages } from '#lib/wall/wall-data/wall-data.ts';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-	import { m } from '#lib/i18n/index.ts';
-	import Flashcard from '#lib/review/components/Flashcard.svelte';
-	import Quiz from '#lib/review/components/Quiz.svelte';
-	import ReviewStart from '#lib/review/components/ReviewStart.svelte';
-	import ReviewSummary from '#lib/review/components/ReviewSummary.svelte';
+	import { m } from '#lib/i18n/i18n.ts';
+	import Flashcard from '#lib/review/components/Flashcard/Flashcard.svelte';
+	import Quiz from '#lib/review/components/Quiz/Quiz.svelte';
+	import ReviewStart from '#lib/review/components/ReviewStart/ReviewStart.svelte';
+	import ReviewSummary from '#lib/review/components/ReviewSummary/ReviewSummary.svelte';
 	import {
 		atelierKnowledge,
 		formatWhen,
@@ -25,17 +25,17 @@
 		summaryGroups,
 		troubles,
 		waitingTomorrow
-	} from '#lib/review/overview.ts';
-	import { offeredForms, quizzesPossible } from '#lib/review/forms.ts';
-	import { missingArtworks, sessionCounts, startOfDay } from '#lib/review/queue.ts';
-	import { QUIZ_TILE_SIZES, quizArtworks, sessionItems } from '#lib/review/quiz.ts';
+	} from '#lib/review/overview/overview.ts';
+	import { offeredForms, quizzesPossible } from '#lib/review/forms/forms.ts';
+	import { missingArtworks, sessionCounts, startOfDay } from '#lib/review/queue/queue.ts';
+	import { QUIZ_TILE_SIZES, quizArtworks, sessionItems } from '#lib/review/quiz/quiz.ts';
 	import {
 		loadReviewDetails,
 		loadSession,
 		REVIEW_COUNTS_DEPENDENCY,
 		withPinPreviews
-	} from '#lib/review/review-data.ts';
-	import { ReviewSession } from '#lib/review/review-session.svelte.ts';
+	} from '#lib/review/review-data/review-data.ts';
+	import { ReviewSession } from '#lib/review/review-session/review-session.svelte.ts';
 	import type {
 		ReviewCard,
 		ReviewDetails,

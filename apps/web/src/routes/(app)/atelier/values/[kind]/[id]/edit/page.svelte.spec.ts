@@ -12,9 +12,9 @@ import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
 import { emptyAuthorDetails } from '#lib/values/author-form/author-form.ts';
 import { emptyValueDetails } from '#lib/values/value-details/value-details.ts';
 import { saveValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
-import { m } from '#lib/i18n/index.ts';
-import { testCardIndex } from '#lib/testing/card-index.ts';
-import { testSession } from '#lib/testing/auth.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
 import EditValuePage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({

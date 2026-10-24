@@ -3,9 +3,9 @@ import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import type { Session } from '@supabase/supabase-js';
 import { goto } from '$app/navigation';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { apiError, networkError, pending, testSession } from '#lib/testing/auth.ts';
+import { apiError, networkError, pending, testSession } from '#lib/testing/auth/auth.ts';
 import UpdatePasswordPage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));

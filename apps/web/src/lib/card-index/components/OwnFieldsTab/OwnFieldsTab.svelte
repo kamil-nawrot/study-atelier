@@ -11,7 +11,7 @@
 		PopupButton,
 		TextButton
 	} from '@study-atelier/ui';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import { deleteOwnField, moveOwnField } from '#lib/card-index/own-fields-data/own-fields-data.ts';
 	import CardIndexList from '#lib/card-index/components/CardIndexList/CardIndexList.svelte';
 	import OwnFieldDialog from '#lib/card-index/components/OwnFieldDialog/OwnFieldDialog.svelte';

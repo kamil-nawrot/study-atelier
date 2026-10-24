@@ -5,10 +5,10 @@ import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
 import { loadOwnFieldDefinitions } from '#lib/card-index/own-fields-data/own-fields-data.ts';
 import { loadValueSummaries } from '#lib/card-index/value-summaries-data/value-summaries-data.ts';
 import { loadNoteLinks, mentionsLinks } from '#lib/notes/note-link-data/note-link-data.ts';
-import { loadGlossary } from '#lib/glossary/glossary-data.ts';
-import { m } from '#lib/i18n/index.ts';
-import { loadPreferences } from '#lib/profile/preferences-data.ts';
-import { loadArtworkPins } from '#lib/pins/pin-data.ts';
+import { loadGlossary } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { loadPreferences } from '#lib/profile/preferences-data/preferences-data.ts';
+import { loadArtworkPins } from '#lib/pins/pin-data/pin-data.ts';
 import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
 import type { PageLoad } from './$types';
 

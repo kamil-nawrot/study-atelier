@@ -1,8 +1,8 @@
 import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
-import { loadGlossaryMentions } from '#lib/glossary/glossary-mentions.ts';
-import { loadGlossary, loadGlossaryEntry } from '#lib/glossary/glossary-data.ts';
+import { loadGlossaryMentions } from '#lib/glossary/glossary-mentions/glossary-mentions.ts';
+import { loadGlossary, loadGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
 import type { GlossaryEntryResult, PinnedArtwork } from '#lib/glossary/types.ts';
-import { loadEntryPins } from '#lib/pins/pin-data.ts';
+import { loadEntryPins } from '#lib/pins/pin-data/pin-data.ts';
 import type { PageLoad } from './$types';
 
 async function loadPinned(entryId: string): Promise<{ pinned: PinnedArtwork[]; error?: string }> {

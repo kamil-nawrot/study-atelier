@@ -1,4 +1,4 @@
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import type { ServiceError } from '#lib/shared/types/service-error.ts';
 
 export function isNetworkError(error: ServiceError): boolean {

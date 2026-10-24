@@ -8,10 +8,10 @@ import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
 import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
 import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
 import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
-import { m } from '#lib/i18n/index.ts';
-import { IMAGES_BUCKET } from '#lib/images/bucket.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { IMAGES_BUCKET } from '#lib/images/bucket/bucket.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { testSession } from '#lib/testing/auth.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
 import EditArtworkPage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({

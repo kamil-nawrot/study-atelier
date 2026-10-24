@@ -1,13 +1,13 @@
 import type { ArtworkTileImage } from '@study-atelier/ui';
-import { IMAGES_BUCKET, SIGNED_URL_SECONDS, ownThumbnailPath } from '#lib/images/bucket.ts';
+import { IMAGES_BUCKET, SIGNED_URL_SECONDS, ownThumbnailPath } from '#lib/images/bucket/bucket.ts';
 import {
 	COMMONS_THUMBNAIL_WIDTHS,
 	commonsFileUrl,
 	commonsSrcset,
 	commonsThumbnailSrcset,
 	fetchCommonsThumbnails
-} from '#lib/images/commons.ts';
-import { backfillThumbnails } from '#lib/images/thumbnail-backfill.ts';
+} from '#lib/images/commons/commons.ts';
+import { backfillThumbnails } from '#lib/images/thumbnail-backfill/thumbnail-backfill.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { artworkImageSource } from '#lib/images/artwork-image/artwork-image.ts';

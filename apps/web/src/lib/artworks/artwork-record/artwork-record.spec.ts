@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { emptyArtworkInput, validateArtwork } from './artwork-record.ts';
 import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
 

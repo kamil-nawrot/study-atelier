@@ -15,26 +15,26 @@
 		NoImage,
 		TextField
 	} from '@study-atelier/ui';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import {
 		OWN_IMAGE_ACCEPT,
 		OWN_IMAGE_MAX_MEGABYTES,
 		ownImageFormats
-	} from '#lib/images/bucket.ts';
+	} from '#lib/images/bucket/bucket.ts';
 	import {
 		contentFromPasteEvent,
 		pasteShortcut,
 		pastedImageFrom,
 		readClipboard,
 		type PastedImage
-	} from '#lib/images/clipboard.ts';
-	import ImageSearchDialog from '#lib/images/components/ImageSearchDialog.svelte';
+	} from '#lib/images/clipboard/clipboard.ts';
+	import ImageSearchDialog from '#lib/images/components/ImageSearchDialog/ImageSearchDialog.svelte';
 	import {
 		fitOwnImage,
 		ownImageFileError,
 		parseImageUrl,
 		readImageSize
-	} from '#lib/images/own-image.ts';
+	} from '#lib/images/own-image/own-image.ts';
 	import type { ImageCandidate, ImageSearchQuery } from '#lib/images/types.ts';
 	import { imageFromCandidate } from '#lib/images/image-candidate/image-candidate.ts';
 	import {

@@ -6,10 +6,10 @@ import { refreshExpiredImages } from '#lib/wall/wall-data/wall-data.ts';
 import { setFavourite } from '#lib/artworks/favourite-data/favourite-data.ts';
 import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
-import { pending, TEST_EMAIL, testSession } from '#lib/testing/auth.ts';
+import { pending, TEST_EMAIL, testSession } from '#lib/testing/auth/auth.ts';
 import AtelierPage from './+page.svelte';
 import '@study-atelier/ui/styles.css';
 

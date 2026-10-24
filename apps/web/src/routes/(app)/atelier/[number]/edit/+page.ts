@@ -8,9 +8,9 @@ import { loadPlaceStarter } from '#lib/card-index/place-starter-data/place-start
 import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
 import { loadValueLinks } from '#lib/card-index/value-links-data/value-links-data.ts';
 import { parseRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
-import { loadGlossary } from '#lib/glossary/glossary-data.ts';
-import { loadArtworkPins } from '#lib/pins/pin-data.ts';
-import { m } from '#lib/i18n/index.ts';
+import { loadGlossary } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { loadArtworkPins } from '#lib/pins/pin-data/pin-data.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
 import type { PageLoad } from './$types';
 

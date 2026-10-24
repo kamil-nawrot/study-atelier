@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { m } from '#lib/i18n/index.ts';
-import { ownImageUrl, removeOwnImage, uploadOwnImage } from '#lib/images/own-image.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { ownImageUrl, removeOwnImage, uploadOwnImage } from '#lib/images/own-image/own-image.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyAuthorDetails } from '#lib/values/author-form/author-form.ts';
 import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
@@ -9,7 +9,7 @@ import { loadValueDetails, saveValueDetails } from './value-details-data.ts';
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { rpc: vi.fn(), from: vi.fn() }
 }));
-vi.mock('#lib/images/own-image.ts', () => ({
+vi.mock('#lib/images/own-image/own-image.ts', () => ({
 	uploadOwnImage: vi.fn(),
 	removeOwnImage: vi.fn(),
 	ownImageUrl: vi.fn()

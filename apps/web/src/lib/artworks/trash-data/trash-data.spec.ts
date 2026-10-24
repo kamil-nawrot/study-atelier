@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { removeOwnImage } from '#lib/images/own-image.ts';
-import { m } from '#lib/i18n/index.ts';
+import { removeOwnImage } from '#lib/images/own-image/own-image.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { deletePermanently, moveToTrash, restoreArtwork } from './trash-data.ts';
 
-vi.mock('#lib/images/own-image.ts', () => ({ removeOwnImage: vi.fn() }));
+vi.mock('#lib/images/own-image/own-image.ts', () => ({ removeOwnImage: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: { from: vi.fn() } }));
 
 const query = {

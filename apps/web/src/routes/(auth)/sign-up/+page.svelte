@@ -2,10 +2,14 @@
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { Alert, Button, Form, TextField } from '@study-atelier/ui';
-	import { signUp } from '#lib/auth/account.ts';
-	import AuthLayout from '#lib/auth/components/AuthLayout.svelte';
-	import { MIN_PASSWORD_LENGTH, validateEmail, validateNewPassword } from '#lib/auth/validation.ts';
-	import { m } from '#lib/i18n/index.ts';
+	import { signUp } from '#lib/auth/account/account.ts';
+	import AuthLayout from '#lib/auth/components/AuthLayout/AuthLayout.svelte';
+	import {
+		MIN_PASSWORD_LENGTH,
+		validateEmail,
+		validateNewPassword
+	} from '#lib/auth/validation/validation.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 
 	let email = $state('');
 	let password = $state('');

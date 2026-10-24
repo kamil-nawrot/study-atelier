@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { Button } from '@study-atelier/ui';
-	import AuthLayout from '#lib/auth/components/AuthLayout.svelte';
-	import { m } from '#lib/i18n/index.ts';
+	import AuthLayout from '#lib/auth/components/AuthLayout/AuthLayout.svelte';
+	import { m } from '#lib/i18n/i18n.ts';
 </script>
 
 <AuthLayout lead={m.landing.lead} title={m.landing.title}>

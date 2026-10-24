@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { apiError, networkError, pending, TEST_EMAIL } from '#lib/testing/auth.ts';
+import { apiError, networkError, pending, TEST_EMAIL } from '#lib/testing/auth/auth.ts';
 import ForgotPasswordPage from './+page.svelte';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({

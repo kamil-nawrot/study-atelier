@@ -1,5 +1,5 @@
-import { loadGlossary } from '#lib/glossary/glossary-data.ts';
-import { m } from '#lib/i18n/index.ts';
+import { loadGlossary } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
 import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.ts';
 import { emptyCardIndex } from '#lib/card-index/card-index/card-index.ts';

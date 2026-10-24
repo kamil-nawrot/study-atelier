@@ -8,15 +8,15 @@ import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
 import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 import type { PlaceStarter } from '#lib/card-index/types/place-starter.ts';
 import type { ValueLinks } from '#lib/card-index/types/value-links.ts';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import {
 	IMAGES_BUCKET,
 	OWN_IMAGE_ACCEPT,
 	OWN_IMAGE_MAX_BYTES,
 	OWN_IMAGE_MAX_MEGABYTES
-} from '#lib/images/bucket.ts';
+} from '#lib/images/bucket/bucket.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { pending, testSession } from '#lib/testing/auth.ts';
+import { pending, testSession } from '#lib/testing/auth/auth.ts';
 import AddArtworkPage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({
