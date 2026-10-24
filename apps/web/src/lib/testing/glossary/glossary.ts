@@ -1,4 +1,5 @@
-import type { GlossaryEntry, WikipediaArticle } from '#lib/glossary/types.ts';
+import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+import type { WikipediaArticle } from '#lib/glossary/types/wikipedia-article.ts';
 
 export function testEntry(
 	id: string,

@@ -1,5 +1,7 @@
 import { type Card, type Grade, createEmptyCard, fsrs, generatorParameters } from 'ts-fsrs';
-import type { ReviewCard, ReviewRating, ReviewState } from '#lib/review/types.ts';
+import type { ReviewCard } from '#lib/review/types/review-card.ts';
+import type { ReviewRating } from '#lib/review/types/review-rating.ts';
+import type { ReviewState } from '#lib/review/types/review-state.ts';
 
 const scheduler = fsrs(
 	generatorParameters({ request_retention: 0.9, enable_fuzz: true, enable_short_term: false })

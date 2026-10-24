@@ -3,7 +3,7 @@ import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testReviewCard } from '#lib/testing/review/review.ts';
 import { quizArtworks, sessionItems, shuffleQuiz } from './quiz.ts';
-import type { SessionRow } from '#lib/review/types.ts';
+import type { SessionRow } from '#lib/review/types/session-row.ts';
 
 const artworks = [1, 2, 3, 4, 5].map((number) => testArtwork(number, `Artwork ${number}`));
 const byId = new Map<string, WallArtwork>(artworks.map((artwork) => [artwork.id, artwork]));

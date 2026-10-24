@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { recordReview } from '#lib/review/review-data/review-data.ts';
 import { ReviewSession } from './review-session.svelte.ts';
-import type { ReviewItem } from '#lib/review/types.ts';
+import type { ReviewItem } from '#lib/review/types/review-item.ts';
 
 vi.mock('#lib/review/review-data/review-data.ts', () => ({ recordReview: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: {} }));

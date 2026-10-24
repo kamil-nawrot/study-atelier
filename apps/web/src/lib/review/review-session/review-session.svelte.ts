@@ -3,7 +3,9 @@ import { currentDate, retryLater } from '#lib/review/queue/queue.ts';
 import { shuffleQuiz } from '#lib/review/quiz/quiz.ts';
 import { recordReview } from '#lib/review/review-data/review-data.ts';
 import { outcomes, quizRating } from '#lib/review/scheduler/scheduler.ts';
-import type { ReviewCard, ReviewItem, ReviewRating } from '#lib/review/types.ts';
+import type { ReviewCard } from '#lib/review/types/review-card.ts';
+import type { ReviewItem } from '#lib/review/types/review-item.ts';
+import type { ReviewRating } from '#lib/review/types/review-rating.ts';
 
 export type ReviewAnswerLog = {
 	item: ReviewItem;

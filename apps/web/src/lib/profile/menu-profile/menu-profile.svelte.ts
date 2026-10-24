@@ -1,4 +1,4 @@
-import type { Profile } from '#lib/profile/types.ts';
+import type { Profile } from '#lib/profile/types/profile.ts';
 
 const shown = $state<{ ownerId?: string; profile?: Profile }>({});
 

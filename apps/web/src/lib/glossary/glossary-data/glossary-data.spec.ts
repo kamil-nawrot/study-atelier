@@ -8,7 +8,7 @@ import {
 	saveGlossaryEntry
 } from './glossary-data.ts';
 import { glossaryErrorMessage } from '#lib/glossary/errors/errors.ts';
-import type { GlossaryDraft } from '#lib/glossary/types.ts';
+import type { GlossaryDraft } from '#lib/glossary/types/glossary-draft.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn(), auth: { signOut: vi.fn() } }

@@ -3,7 +3,7 @@
 	import { PopoverCard, PopoverState } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { fractionIn, nudged, type Fraction } from '#lib/pins/pin-layout/pin-layout.ts';
-	import type { Pin } from '#lib/pins/types.ts';
+	import type { Pin } from '#lib/pins/types/pin.ts';
 
 	type Props = {
 		pins: readonly Pin[];

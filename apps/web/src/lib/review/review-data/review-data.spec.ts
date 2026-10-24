@@ -11,7 +11,8 @@ import {
 	waitingToday,
 	withPinPreviews
 } from './review-data.ts';
-import type { ReviewCard, ReviewItem } from '#lib/review/types.ts';
+import type { ReviewCard } from '#lib/review/types/review-card.ts';
+import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({

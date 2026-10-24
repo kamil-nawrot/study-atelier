@@ -1,4 +1,4 @@
-import type { Pin } from '#lib/pins/types.ts';
+import type { Pin } from '#lib/pins/types/pin.ts';
 
 export type Fraction = { x: number; y: number };
 

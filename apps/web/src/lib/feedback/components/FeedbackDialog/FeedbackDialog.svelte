@@ -20,7 +20,9 @@
 		hasFeedbackErrors,
 		validateFeedback
 	} from '#lib/feedback/feedback/feedback.ts';
-	import type { FeedbackDraft, FeedbackErrors, FeedbackKind } from '#lib/feedback/types.ts';
+	import type { FeedbackDraft } from '#lib/feedback/types/feedback-draft.ts';
+	import type { FeedbackErrors } from '#lib/feedback/types/feedback-errors.ts';
+	import type { FeedbackKind } from '#lib/feedback/types/feedback-kind.ts';
 
 	type Props = {
 		open?: boolean;

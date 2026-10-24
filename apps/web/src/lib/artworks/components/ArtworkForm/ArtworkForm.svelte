@@ -43,8 +43,8 @@
 	import { suggestValues, valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import ArtworkImages from '#lib/artworks/components/ArtworkImages/ArtworkImages.svelte';
-	import type { GlossaryEntry } from '#lib/glossary/types.ts';
-	import type { Pin } from '#lib/pins/types.ts';
+	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import type { Pin } from '#lib/pins/types/pin.ts';
 	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
 	import YearInput from '#lib/shared/forms/YearInput/YearInput.svelte';
 	import DuplicateDialog from '#lib/artworks/components/DuplicateDialog/DuplicateDialog.svelte';

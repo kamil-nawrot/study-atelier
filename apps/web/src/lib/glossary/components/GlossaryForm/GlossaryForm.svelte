@@ -41,7 +41,9 @@
 		NAME_MAX_LENGTH,
 		SYNONYMS_MAX_COUNT
 	} from '#lib/glossary/glossary/glossary.ts';
-	import type { GlossaryDraft, GlossaryEntry, WikipediaArticle } from '#lib/glossary/types.ts';
+	import type { GlossaryDraft } from '#lib/glossary/types/glossary-draft.ts';
+	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import type { WikipediaArticle } from '#lib/glossary/types/wikipedia-article.ts';
 	import { searchArticles, sourceOf } from '#lib/glossary/wikipedia/wikipedia.ts';
 	import { fetchForms, suggestsForms } from '#lib/glossary/wiktionary/wiktionary.ts';
 	import ArticleDialog from '#lib/glossary/components/ArticleDialog/ArticleDialog.svelte';

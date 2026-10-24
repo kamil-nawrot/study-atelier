@@ -1,7 +1,7 @@
 import { m } from '#lib/i18n/i18n.ts';
 import { errorMessages } from '#lib/shared/data/errors/errors.ts';
 import type { ServiceError } from '#lib/shared/types/service-error.ts';
-import { MAX_PINS_PER_IMAGE } from '#lib/pins/types.ts';
+import { MAX_PINS_PER_IMAGE } from '#lib/pins/pin-limits/pin-limits.ts';
 
 type PinError = ServiceError & {
 	hint?: string | null;

@@ -6,7 +6,8 @@ import {
 	shortenDefinition
 } from '#lib/glossary/glossary/glossary.ts';
 import type { WikipediaSource } from '#lib/shared/types/wikipedia-source.ts';
-import type { GlossaryCategory, WikipediaArticle } from '#lib/glossary/types.ts';
+import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
+import type { WikipediaArticle } from '#lib/glossary/types/wikipedia-article.ts';
 
 const WIKIPEDIA_API = 'https://pl.wikipedia.org/w/api.php';
 export const WIKIDATA_API = 'https://www.wikidata.org/w/api.php';

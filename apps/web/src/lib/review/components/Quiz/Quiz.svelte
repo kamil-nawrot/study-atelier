@@ -20,13 +20,11 @@
 	import { onControl, sessionKey } from '#lib/review/keys/keys.ts';
 	import { authorsOf } from '#lib/review/overview/overview.ts';
 	import { QUIZ_TILE_SIZES } from '#lib/review/quiz/quiz.ts';
-	import type {
-		Quiz,
-		QuizOption,
-		QuizReason,
-		ReviewDetails,
-		ReviewItem
-	} from '#lib/review/types.ts';
+	import type { Quiz } from '#lib/review/types/quiz.ts';
+	import type { QuizOption } from '#lib/review/types/quiz-option.ts';
+	import type { QuizReason } from '#lib/review/types/quiz-reason.ts';
+	import type { ReviewDetails } from '#lib/review/types/review-details.ts';
+	import type { ReviewItem } from '#lib/review/types/review-item.ts';
 	import ReviewCard from '#lib/review/components/ReviewCard/ReviewCard.svelte';
 
 	type Props = {

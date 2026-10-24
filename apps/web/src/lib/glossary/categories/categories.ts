@@ -7,7 +7,7 @@ import PersonStanding from '@lucide/svelte/icons/person-standing';
 import Pipette from '@lucide/svelte/icons/pipette';
 import type { ChoiceTile } from '@study-atelier/ui';
 import { m } from '#lib/i18n/i18n.ts';
-import type { GlossaryCategory } from '#lib/glossary/types.ts';
+import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
 
 export const GLOSSARY_CATEGORIES: readonly GlossaryCategory[] = [
 	'person',

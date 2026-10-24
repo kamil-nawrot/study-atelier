@@ -1,7 +1,9 @@
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
-import type { GlossaryCategory, GlossaryDraft, GlossaryEntry } from '#lib/glossary/types.ts';
+import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
+import type { GlossaryDraft } from '#lib/glossary/types/glossary-draft.ts';
+import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 
 export const GLOSSARY_SEARCH_MIN_ENTRIES = 20;
 export const DEFINITION_MAX_LENGTH = 4000;

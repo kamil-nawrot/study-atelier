@@ -26,7 +26,9 @@
 	} from '#lib/timeline/event-lanes/event-lanes.ts';
 	import { NARROW_WIDTH, orientationFor, verticalLength } from '#lib/timeline/stage/stage.ts';
 	import { deleteTimelineEvent } from '#lib/timeline/timeline-data/timeline-data.ts';
-	import type { ArtworkLane, TimelineEvent, TimelineFilter } from '#lib/timeline/types.ts';
+	import type { ArtworkLane } from '#lib/timeline/types/artwork-lane.ts';
+	import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
+	import type { TimelineFilter } from '#lib/timeline/types/timeline-filter.ts';
 	import { eraOfYear, rememberEra } from '#lib/timeline/start/start.ts';
 	import {
 		distanceToSpan,

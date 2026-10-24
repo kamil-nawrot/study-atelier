@@ -23,7 +23,8 @@
 	} from '#lib/timeline/filter/filter.ts';
 	import { eraOfYear, rememberEra, rememberedEra, startEra } from '#lib/timeline/start/start.ts';
 	import { entriesSpan, eraOf, spanOfYears } from '#lib/timeline/time/time.ts';
-	import type { TimelineEvent, TimelineFilter } from '#lib/timeline/types.ts';
+	import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
+	import type { TimelineFilter } from '#lib/timeline/types/timeline-filter.ts';
 	import type { PageProps, Snapshot } from './$types';
 
 	let { data }: PageProps = $props();

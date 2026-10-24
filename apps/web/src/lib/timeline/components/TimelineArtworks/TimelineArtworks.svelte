@@ -6,7 +6,7 @@
 	import { eraIcon, eraName } from '#lib/catalogue/eras/eras.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
-	import type { ArtworkLane } from '#lib/timeline/types.ts';
+	import type { ArtworkLane } from '#lib/timeline/types/artwork-lane.ts';
 	import { cutLabel } from '#lib/timeline/labels/labels.ts';
 	import { DOT_SIZE, marksIn, spread, type Mark } from '#lib/timeline/placement/placement.ts';
 	import { boxStyle, type StageGeometry } from '#lib/timeline/stage/stage.ts';

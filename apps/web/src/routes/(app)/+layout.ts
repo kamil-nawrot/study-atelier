@@ -13,7 +13,7 @@ import {
 	PREFERENCES_DEPENDENCY
 } from '#lib/profile/preferences-data/preferences-data.ts';
 import { loadProfile, PROFILE_DEPENDENCY } from '#lib/profile/profile-data/profile-data.ts';
-import type { Profile } from '#lib/profile/types.ts';
+import type { Profile } from '#lib/profile/types/profile.ts';
 import type { LayoutLoad } from './$types';
 
 type AppLayoutData = {

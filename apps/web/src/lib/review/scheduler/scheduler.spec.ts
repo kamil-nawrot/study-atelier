@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { outcomes, quizRating, schedule } from './scheduler.ts';
-import type { ReviewCard } from '#lib/review/types.ts';
+import type { ReviewCard } from '#lib/review/types/review-card.ts';
 
 const now = new Date('2026-10-16T09:00:00Z');
 const day = 24 * 60 * 60 * 1000;

@@ -1,5 +1,6 @@
 import { m } from '#lib/i18n/i18n.ts';
-import type { FeedbackDraft, FeedbackErrors } from '#lib/feedback/types.ts';
+import type { FeedbackDraft } from '#lib/feedback/types/feedback-draft.ts';
+import type { FeedbackErrors } from '#lib/feedback/types/feedback-errors.ts';
 
 export const FEEDBACK_TITLE_MAX = 120;
 export const FEEDBACK_DESCRIPTION_MAX = 4000;

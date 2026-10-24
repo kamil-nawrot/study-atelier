@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { eventsIn, lanesForEra, layEvents, yearsLong } from './event-lanes.ts';
 import { eraOf } from '#lib/timeline/time/time.ts';
-import type { TimelineEvent } from '#lib/timeline/types.ts';
+import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 
 const earlyModern = eraOf('early_modern', 2026);
 

@@ -6,7 +6,7 @@ import { m } from '#lib/i18n/i18n.ts';
 import { saveGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { searchArticles } from '#lib/glossary/wikipedia/wikipedia.ts';
 import { fetchForms } from '#lib/glossary/wiktionary/wiktionary.ts';
-import type { GlossaryEntry } from '#lib/glossary/types.ts';
+import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
 import { testArticle, testEntry, testGlossary } from '#lib/testing/glossary/glossary.ts';

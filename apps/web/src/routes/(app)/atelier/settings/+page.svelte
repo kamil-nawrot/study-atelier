@@ -16,7 +16,8 @@
 	import { PREFERENCES_DEPENDENCY } from '#lib/profile/preferences-data/preferences-data.ts';
 	import { PROFILE_DEPENDENCY } from '#lib/profile/profile-data/profile-data.ts';
 	import { SETTINGS_TABS, settingsTabOf } from '#lib/profile/settings-tab/settings-tab.ts';
-	import type { Preferences, Profile } from '#lib/profile/types.ts';
+	import type { Preferences } from '#lib/profile/types/preferences.ts';
+	import type { Profile } from '#lib/profile/types/profile.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();

@@ -12,7 +12,7 @@ import { buildNoteLinks } from '#lib/notes/note-links/note-links.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
-import type { Pin } from '#lib/pins/types.ts';
+import type { Pin } from '#lib/pins/types/pin.ts';
 import { testEntry } from '#lib/testing/glossary/glossary.ts';
 import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
 import ArtworkPage from './+page.svelte';

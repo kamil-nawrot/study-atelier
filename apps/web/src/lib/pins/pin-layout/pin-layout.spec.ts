@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { fractionIn, nudged, pinsOfImage } from './pin-layout.ts';
-import type { Pin } from '#lib/pins/types.ts';
+import type { Pin } from '#lib/pins/types/pin.ts';
 
 const rect = { left: 100, top: 50, width: 400, height: 200 };
 

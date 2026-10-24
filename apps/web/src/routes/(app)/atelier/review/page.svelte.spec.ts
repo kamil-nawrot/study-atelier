@@ -10,9 +10,10 @@ import {
 	loadSession,
 	recordReview
 } from '#lib/review/review-data/review-data.ts';
-import type { ReviewCard, SessionRow } from '#lib/review/types.ts';
+import type { ReviewCard } from '#lib/review/types/review-card.ts';
+import type { SessionRow } from '#lib/review/types/session-row.ts';
 import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
-import type { Preferences } from '#lib/profile/types.ts';
+import type { Preferences } from '#lib/profile/types/preferences.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import { testReviewCard } from '#lib/testing/review/review.ts';

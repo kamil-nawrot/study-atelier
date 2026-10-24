@@ -1,4 +1,4 @@
-import type { Preferences } from '#lib/profile/types.ts';
+import type { Preferences } from '#lib/profile/types/preferences.ts';
 
 export type AutoFetchSource = 'image' | 'definition' | 'forms' | 'event';
 

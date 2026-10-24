@@ -4,15 +4,36 @@ import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { pinErrorMessage } from '#lib/pins/errors/errors.ts';
-import { MAX_PIN_TEXT } from '#lib/pins/types.ts';
-import type {
-	EntryPinsResult,
-	Pin,
-	PinActionResult,
-	PinDraft,
-	PinResult,
-	PinsResult
-} from '#lib/pins/types.ts';
+import { MAX_PIN_TEXT } from '#lib/pins/pin-limits/pin-limits.ts';
+import type { Pin } from '#lib/pins/types/pin.ts';
+import type { EntryPin } from '#lib/pins/types/entry-pin.ts';
+
+type PinDraft = {
+	x: number;
+	y: number;
+	glossaryEntryId: string | null;
+	text: string;
+	viewWidth?: number;
+};
+
+type PinsResult = {
+	pins: Pin[];
+	error?: string;
+};
+
+type PinResult = {
+	pin?: Pin;
+	error?: string;
+};
+
+type PinActionResult = {
+	error?: string;
+};
+
+type EntryPinsResult = {
+	pins: EntryPin[];
+	error?: string;
+};
 
 type Row = Database['public']['Tables']['artwork_pins']['Row'];
 

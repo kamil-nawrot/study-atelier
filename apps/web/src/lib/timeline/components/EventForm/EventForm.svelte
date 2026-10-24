@@ -37,7 +37,9 @@
 		type EventFormState
 	} from '#lib/timeline/event-form/event-form.ts';
 	import { saveTimelineEvent } from '#lib/timeline/timeline-data/timeline-data.ts';
-	import type { EventArticle, TimelineEvent, TimelineEventDraft } from '#lib/timeline/types.ts';
+	import type { EventArticle } from '#lib/timeline/types/event-article.ts';
+	import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
+	import type { TimelineEventDraft } from '#lib/timeline/types/timeline-event-draft.ts';
 	import { searchEvents } from '#lib/timeline/wikipedia/wikipedia.ts';
 
 	type SearchStatus = 'idle' | 'searching' | 'found' | 'none' | 'failed';

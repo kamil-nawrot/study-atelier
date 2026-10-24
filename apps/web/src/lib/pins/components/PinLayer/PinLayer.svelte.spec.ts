@@ -4,7 +4,7 @@ import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/i18n.ts';
 import { testEntry } from '#lib/testing/glossary/glossary.ts';
 import { createPin, movePin } from '#lib/pins/pin-data/pin-data.ts';
-import type { Pin } from '#lib/pins/types.ts';
+import type { Pin } from '#lib/pins/types/pin.ts';
 import PinLayer from './PinLayer.svelte';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({

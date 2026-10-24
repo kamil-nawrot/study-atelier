@@ -13,7 +13,7 @@
 		scopeKey
 	} from '#lib/review/overview/overview.ts';
 	import { MIN_ARTWORKS } from '#lib/review/queue/queue.ts';
-	import type { ReviewForm } from '#lib/review/types.ts';
+	import type { ReviewForm } from '#lib/review/types/review-form.ts';
 
 	type Props = {
 		known: number;

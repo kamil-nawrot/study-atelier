@@ -10,7 +10,8 @@ import {
 	sessionCounts,
 	startOfDay
 } from './queue.ts';
-import type { ReviewCard, ReviewItem } from '#lib/review/types.ts';
+import type { ReviewCard } from '#lib/review/types/review-card.ts';
+import type { ReviewItem } from '#lib/review/types/review-item.ts';
 
 const now = new Date(2026, 9, 16, 9, 0);
 const ERAS: EraCode[] = ['antiquity', 'middle_ages', 'early_modern', 'modern'];

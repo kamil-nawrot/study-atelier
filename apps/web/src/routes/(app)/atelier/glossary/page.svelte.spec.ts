@@ -4,7 +4,7 @@ import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
 import { GLOSSARY_SEARCH_MIN_ENTRIES } from '#lib/glossary/glossary/glossary.ts';
-import type { GlossaryEntry } from '#lib/glossary/types.ts';
+import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import { testEntry, testGlossary } from '#lib/testing/glossary/glossary.ts';
 import GlossaryPage from './+page.svelte';

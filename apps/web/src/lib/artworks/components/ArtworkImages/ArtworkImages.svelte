@@ -6,7 +6,8 @@
 	import { Alert, ArtworkImage, Icon, Tooltip } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { findImageCandidates } from '#lib/images/image-search/image-search.ts';
-	import type { ImageCandidate, ImageSearchQuery } from '#lib/images/types.ts';
+	import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
+	import type { ImageSearchQuery } from '#lib/images/types/image-search-query.ts';
 	import { MAX_ARTWORK_IMAGES } from '#lib/artworks/artwork-form/artwork-form.ts';
 	import { imageFromCandidate } from '#lib/images/image-candidate/image-candidate.ts';
 	import {
@@ -20,10 +21,10 @@
 	import type { ImageFieldTexts } from '#lib/images/types/image-field-texts.ts';
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 	import ImageField from '#lib/images/components/ImageField/ImageField.svelte';
-	import type { GlossaryEntry } from '#lib/glossary/types.ts';
+	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 	import PinLayer from '#lib/pins/components/PinLayer/PinLayer.svelte';
 	import { pinsOfImage } from '#lib/pins/pin-layout/pin-layout.ts';
-	import type { Pin } from '#lib/pins/types.ts';
+	import type { Pin } from '#lib/pins/types/pin.ts';
 	import { autoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
 
 	type Props = {

@@ -1,7 +1,8 @@
 import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
 import { loadGlossaryMentions } from '#lib/glossary/glossary-mentions/glossary-mentions.ts';
 import { loadGlossary, loadGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
-import type { GlossaryEntryResult, PinnedArtwork } from '#lib/glossary/types.ts';
+import type { GlossaryEntryResult } from '#lib/glossary/types/glossary-entry-result.ts';
+import type { PinnedArtwork } from '#lib/glossary/types/pinned-artwork.ts';
 import { loadEntryPins } from '#lib/pins/pin-data/pin-data.ts';
 import type { PageLoad } from './$types';
 

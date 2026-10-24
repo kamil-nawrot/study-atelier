@@ -6,7 +6,7 @@ import { m } from '#lib/i18n/i18n.ts';
 import { autoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import { saveTimelineEvent } from '#lib/timeline/timeline-data/timeline-data.ts';
-import type { EventArticle } from '#lib/timeline/types.ts';
+import type { EventArticle } from '#lib/timeline/types/event-article.ts';
 import { searchEvents } from '#lib/timeline/wikipedia/wikipedia.ts';
 import NewEventPage from './+page.svelte';
 

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import GlossaryTermCard from '#lib/glossary/components/GlossaryTermCard/GlossaryTermCard.svelte';
-	import type { GlossaryEntry } from '#lib/glossary/types.ts';
+	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
-	import type { Pin } from '#lib/pins/types.ts';
+	import type { Pin } from '#lib/pins/types/pin.ts';
 	import PinView from '#lib/pins/components/PinView/PinView.svelte';
 
 	type Props = {

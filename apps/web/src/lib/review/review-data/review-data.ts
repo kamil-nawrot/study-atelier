@@ -12,21 +12,51 @@ import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import type { ReviewScope } from '#lib/review/overview/overview.ts';
 import { MIN_ARTWORKS, newAllowance } from '#lib/review/queue/queue.ts';
-import type {
-	RecordReviewResult,
-	ReviewAnswer,
-	ReviewCard,
-	ReviewCardsResult,
-	ReviewCounts,
-	ReviewCountsResult,
-	ReviewDetailsResult,
-	ReviewForm,
-	ReviewItem,
-	ReviewSessionResult,
-	ReviewState,
-	ReviewStreakResult,
-	SessionRow
-} from '#lib/review/types.ts';
+import type { ReviewCard } from '#lib/review/types/review-card.ts';
+import type { ReviewCounts } from '#lib/review/types/review-counts.ts';
+import type { ReviewForm } from '#lib/review/types/review-form.ts';
+import type { ReviewItem } from '#lib/review/types/review-item.ts';
+import type { ReviewState } from '#lib/review/types/review-state.ts';
+import type { SessionRow } from '#lib/review/types/session-row.ts';
+import type { ReviewMode } from '#lib/review/types/review-mode.ts';
+import type { ReviewRating } from '#lib/review/types/review-rating.ts';
+import type { ReviewDetails } from '#lib/review/types/review-details.ts';
+
+type ReviewSessionResult = {
+	rows: SessionRow[];
+	error?: string;
+};
+
+type ReviewAnswer = {
+	mode: ReviewMode;
+	rating: ReviewRating;
+	correct?: boolean;
+	answerMs?: number;
+};
+
+type ReviewCardsResult = {
+	cards: Map<string, ReviewCard>;
+	error?: string;
+};
+
+type ReviewCountsResult = {
+	counts?: ReviewCounts;
+	error?: string;
+};
+
+type ReviewStreakResult = {
+	days: number;
+	error?: string;
+};
+
+type RecordReviewResult = {
+	error?: string;
+};
+
+type ReviewDetailsResult = {
+	details: Map<string, ReviewDetails>;
+	error?: string;
+};
 
 type CardRow = {
 	artwork_id: string;

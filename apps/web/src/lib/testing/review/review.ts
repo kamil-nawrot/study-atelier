@@ -1,4 +1,4 @@
-import type { ReviewCard } from '#lib/review/types.ts';
+import type { ReviewCard } from '#lib/review/types/review-card.ts';
 
 export function testReviewCard(
 	artworkId: string,

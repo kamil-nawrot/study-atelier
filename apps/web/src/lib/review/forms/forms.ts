@@ -1,6 +1,7 @@
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { REVIEW_FORMS } from '#lib/profile/preferences/preferences.ts';
-import type { QuizMode, ReviewForm } from '#lib/review/types.ts';
+import type { QuizMode } from '#lib/review/types/quiz-mode.ts';
+import type { ReviewForm } from '#lib/review/types/review-form.ts';
 
 export function quizzesPossible(
 	kinds: readonly QuizMode[],

@@ -6,12 +6,15 @@ import type { Database } from '#lib/shared/data/database.types.ts';
 import { avatarPathOf } from '#lib/profile/avatar/avatar.ts';
 import { profileErrorMessage } from '#lib/profile/errors/errors.ts';
 import { emptyProfile, normalizedName } from '#lib/profile/profile/profile.ts';
-import type {
-	Profile,
-	ProfileDraft,
-	ProfileResult,
-	ProfileSaveResult
-} from '#lib/profile/types.ts';
+import type { Profile } from '#lib/profile/types/profile.ts';
+import type { ProfileDraft } from '#lib/profile/types/profile-draft.ts';
+
+type ProfileResult = {
+	profile: Profile;
+	error?: string;
+};
+
+type ProfileSaveResult = { profile: Profile; error?: undefined } | { error: string };
 
 export const PROFILE_DEPENDENCY = 'profile:own';
 

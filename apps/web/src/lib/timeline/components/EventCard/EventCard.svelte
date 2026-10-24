@@ -8,7 +8,7 @@
 	import { WIKIPEDIA_LICENCE_URL } from '#lib/glossary/wikipedia/wikipedia.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { yearsLong } from '#lib/timeline/event-lanes/event-lanes.ts';
-	import type { TimelineEvent } from '#lib/timeline/types.ts';
+	import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 
 	type Props = {
 		event: TimelineEvent;

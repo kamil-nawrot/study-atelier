@@ -1,5 +1,7 @@
 import { m } from '#lib/i18n/i18n.ts';
-import type { AvatarChange, Profile, ProfileDraft } from '#lib/profile/types.ts';
+import type { AvatarChange } from '#lib/profile/types/avatar-change.ts';
+import type { Profile } from '#lib/profile/types/profile.ts';
+import type { ProfileDraft } from '#lib/profile/types/profile-draft.ts';
 
 export const DISPLAY_NAME_MAX_LENGTH = 60;
 

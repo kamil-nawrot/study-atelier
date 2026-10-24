@@ -21,7 +21,8 @@
 		toggleTimelineFavourites,
 		valueOptions
 	} from '#lib/timeline/filter/filter.ts';
-	import type { LaneField, TimelineFilter } from '#lib/timeline/types.ts';
+	import type { LaneField } from '#lib/timeline/types/lane-field.ts';
+	import type { TimelineFilter } from '#lib/timeline/types/timeline-filter.ts';
 
 	type Props = {
 		artworks: readonly WallArtwork[];

@@ -3,12 +3,10 @@ import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { commonsThumbnailSrcset, fetchCommonsFiles } from '#lib/images/commons/commons.ts';
 import { imageSearchErrorMessage } from '#lib/images/errors/errors.ts';
-import type {
-	CandidateImage,
-	ImageCandidate,
-	ImageSearchQuery,
-	ImageSearchResult
-} from '#lib/images/types.ts';
+import type { CandidateImage } from '#lib/images/types/candidate-image.ts';
+import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
+import type { ImageSearchQuery } from '#lib/images/types/image-search-query.ts';
+import type { ImageSearchResult } from '#lib/images/types/image-search-result.ts';
 import {
 	searchWikidataArtworks,
 	searchWikidataPeople,

@@ -1,6 +1,6 @@
 import { fetchJson } from '#lib/images/wikimedia/wikimedia.ts';
 import { cleanForms } from '#lib/glossary/glossary/glossary.ts';
-import type { GlossaryCategory } from '#lib/glossary/types.ts';
+import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
 
 const WIKTIONARY_API = 'https://pl.wiktionary.org/w/api.php';
 const NOUN_TEMPLATE = 'odmiana-rzeczownik-polski';

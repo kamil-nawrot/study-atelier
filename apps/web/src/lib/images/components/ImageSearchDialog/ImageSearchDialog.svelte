@@ -4,7 +4,9 @@
 	import { Alert, ArtworkImage, Button, Dialog, Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { findImageCandidates } from '#lib/images/image-search/image-search.ts';
-	import type { ImageCandidate, ImageSearchQuery, ImageSearchResult } from '#lib/images/types.ts';
+	import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
+	import type { ImageSearchQuery } from '#lib/images/types/image-search-query.ts';
+	import type { ImageSearchResult } from '#lib/images/types/image-search-result.ts';
 
 	type Props = {
 		query: ImageSearchQuery;

@@ -7,13 +7,17 @@ import {
 	QUIZ_KINDS,
 	REVIEW_FORMS
 } from '#lib/profile/preferences/preferences.ts';
-import type {
-	Preferences,
-	PreferencesPart,
-	PreferencesResult,
-	PreferencesSaveResult
-} from '#lib/profile/types.ts';
-import type { QuizMode, ReviewForm } from '#lib/review/types.ts';
+import type { Preferences } from '#lib/profile/types/preferences.ts';
+import type { PreferencesPart } from '#lib/profile/types/preferences-part.ts';
+import type { QuizMode } from '#lib/review/types/quiz-mode.ts';
+import type { ReviewForm } from '#lib/review/types/review-form.ts';
+
+type PreferencesResult = {
+	preferences: Preferences;
+	error?: string;
+};
+
+type PreferencesSaveResult = { preferences: Preferences; error?: undefined } | { error: string };
 
 export const PREFERENCES_DEPENDENCY = 'preferences:own';
 

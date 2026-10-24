@@ -8,7 +8,7 @@ import {
 	loadTimelineEvents,
 	saveTimelineEvent
 } from './timeline-data.ts';
-import type { TimelineEventDraft } from '#lib/timeline/types.ts';
+import type { TimelineEventDraft } from '#lib/timeline/types/timeline-event-draft.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn(), auth: { signOut: vi.fn() } }

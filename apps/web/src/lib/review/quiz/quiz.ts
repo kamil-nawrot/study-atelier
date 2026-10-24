@@ -1,13 +1,11 @@
 import { imageOf } from '#lib/images/image-record/image-record.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-import type {
-	Quiz,
-	QuizOption,
-	ReviewCard,
-	ReviewItem,
-	ReviewPin,
-	SessionRow
-} from '#lib/review/types.ts';
+import type { Quiz } from '#lib/review/types/quiz.ts';
+import type { QuizOption } from '#lib/review/types/quiz-option.ts';
+import type { ReviewCard } from '#lib/review/types/review-card.ts';
+import type { ReviewItem } from '#lib/review/types/review-item.ts';
+import type { ReviewPin } from '#lib/review/types/review-pin.ts';
+import type { SessionRow } from '#lib/review/types/session-row.ts';
 
 export const QUIZ_TILE_SIZES = '(min-width: 768px) 25vw, 45vw';
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
-import type { ImageCandidate } from '#lib/images/types.ts';
+import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
 import { isCandidateImage, matchKey, matchLabel, matchPool } from './auto-match.ts';
 
 function candidate(wikidataId: string, overrides: Partial<ImageCandidate> = {}): ImageCandidate {

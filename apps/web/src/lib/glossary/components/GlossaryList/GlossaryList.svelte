@@ -14,7 +14,8 @@
 		groupByLetter,
 		leadSentences
 	} from '#lib/glossary/glossary/glossary.ts';
-	import type { GlossaryCategory, GlossaryEntry } from '#lib/glossary/types.ts';
+	import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
+	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 
 	type Props = {
 		entries: GlossaryEntry[];

@@ -1,5 +1,7 @@
-import type { QuizMode, ReviewForm } from '#lib/review/types.ts';
-import type { Preferences, PreferencesPart } from '#lib/profile/types.ts';
+import type { QuizMode } from '#lib/review/types/quiz-mode.ts';
+import type { ReviewForm } from '#lib/review/types/review-form.ts';
+import type { Preferences } from '#lib/profile/types/preferences.ts';
+import type { PreferencesPart } from '#lib/profile/types/preferences-part.ts';
 
 export const SESSION_SIZES = [10, 20, 30, 40] as const;
 export const NEW_PER_DAY_CHOICES = [5, 10, 15, 20] as const;

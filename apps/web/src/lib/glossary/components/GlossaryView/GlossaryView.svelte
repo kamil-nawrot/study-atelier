@@ -7,7 +7,7 @@
 		glossaryCategoryIcon,
 		glossaryCategoryName
 	} from '#lib/glossary/categories/categories.ts';
-	import type { GlossaryEntry } from '#lib/glossary/types.ts';
+	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 	import { WIKIPEDIA_LICENCE_URL } from '#lib/glossary/wikipedia/wikipedia.ts';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
 

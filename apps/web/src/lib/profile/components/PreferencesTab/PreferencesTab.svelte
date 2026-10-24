@@ -14,7 +14,8 @@
 		toggledKind
 	} from '#lib/profile/preferences/preferences.ts';
 	import { savePreferences } from '#lib/profile/preferences-data/preferences-data.ts';
-	import type { Preferences, PreferencesPart } from '#lib/profile/types.ts';
+	import type { Preferences } from '#lib/profile/types/preferences.ts';
+	import type { PreferencesPart } from '#lib/profile/types/preferences-part.ts';
 
 	type Props = {
 		part: PreferencesPart;

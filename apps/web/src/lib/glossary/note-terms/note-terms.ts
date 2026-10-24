@@ -1,5 +1,5 @@
 import type { NoteTerm } from '@study-atelier/ui';
-import type { GlossaryEntry } from '#lib/glossary/types.ts';
+import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 
 export function noteTermsOf(entries: GlossaryEntry[]): NoteTerm[] {
 	return entries.map((entry) => ({

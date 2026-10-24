@@ -3,7 +3,7 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { testEntry } from '#lib/testing/glossary/glossary.ts';
 import { createPin, deletePin, updatePin } from '#lib/pins/pin-data/pin-data.ts';
-import type { Pin } from '#lib/pins/types.ts';
+import type { Pin } from '#lib/pins/types/pin.ts';
 import PinDialog from './PinDialog.svelte';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({

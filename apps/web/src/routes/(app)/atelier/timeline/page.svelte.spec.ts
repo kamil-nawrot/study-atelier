@@ -6,7 +6,7 @@ import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
-import type { TimelineEvent } from '#lib/timeline/types.ts';
+import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 import { deleteTimelineEvent } from '#lib/timeline/timeline-data/timeline-data.ts';
 import { invalidateAll } from '$app/navigation';
 import TimelinePage from './+page.svelte';

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Notes, type NoteLinks } from '@study-atelier/ui';
 	import { noteTermsOf } from '#lib/glossary/note-terms/note-terms.ts';
-	import type { GlossaryEntry } from '#lib/glossary/types.ts';
+	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 	import GlossaryTermCard from '#lib/glossary/components/GlossaryTermCard/GlossaryTermCard.svelte';
 
 	type Props = {

@@ -36,13 +36,11 @@
 		withPinPreviews
 	} from '#lib/review/review-data/review-data.ts';
 	import { ReviewSession } from '#lib/review/review-session/review-session.svelte.ts';
-	import type {
-		ReviewCard,
-		ReviewDetails,
-		ReviewForm,
-		ReviewItem,
-		ReviewRating
-	} from '#lib/review/types.ts';
+	import type { ReviewCard } from '#lib/review/types/review-card.ts';
+	import type { ReviewDetails } from '#lib/review/types/review-details.ts';
+	import type { ReviewForm } from '#lib/review/types/review-form.ts';
+	import type { ReviewItem } from '#lib/review/types/review-item.ts';
+	import type { ReviewRating } from '#lib/review/types/review-rating.ts';
 	import type { PageProps } from './$types';
 
 	type Summary = {

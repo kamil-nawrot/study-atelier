@@ -6,7 +6,7 @@ import { m } from '#lib/i18n/i18n.ts';
 import { TEST_EMAIL } from '#lib/testing/auth/auth.ts';
 import { cropAvatar } from '#lib/profile/avatar/avatar.ts';
 import { saveProfile } from '#lib/profile/profile-data/profile-data.ts';
-import type { Profile } from '#lib/profile/types.ts';
+import type { Profile } from '#lib/profile/types/profile.ts';
 import ProfileTab from './ProfileTab.svelte';
 
 vi.mock('$app/navigation', () => ({ beforeNavigate: vi.fn(), goto: vi.fn() }));

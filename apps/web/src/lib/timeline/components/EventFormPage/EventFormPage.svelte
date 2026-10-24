@@ -4,7 +4,8 @@
 	import { resolve } from '$app/paths';
 	import { arrivedFromApp, goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
 	import { m } from '#lib/i18n/i18n.ts';
-	import type { TimelineEventDraft, TimelineEventResult } from '#lib/timeline/types.ts';
+	import type { TimelineEventDraft } from '#lib/timeline/types/timeline-event-draft.ts';
+	import type { TimelineEventResult } from '#lib/timeline/types/timeline-event-result.ts';
 	import EventForm from '#lib/timeline/components/EventForm/EventForm.svelte';
 
 	type Props = {

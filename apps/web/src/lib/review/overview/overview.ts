@@ -12,7 +12,9 @@ import {
 	sessionCounts,
 	startOfDay
 } from '#lib/review/queue/queue.ts';
-import type { ReviewCard, ReviewItem, ReviewRating } from '#lib/review/types.ts';
+import type { ReviewCard } from '#lib/review/types/review-card.ts';
+import type { ReviewItem } from '#lib/review/types/review-item.ts';
+import type { ReviewRating } from '#lib/review/types/review-rating.ts';
 
 export type ReviewScope =
 	| { kind: 'all' }

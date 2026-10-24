@@ -8,14 +8,23 @@ import {
 } from '#lib/shared/data/wikipedia-source/wikipedia-source.ts';
 import { isUuid } from '#lib/shared/utils/ids/ids.ts';
 import { timelineErrorMessage } from '#lib/timeline/errors/errors.ts';
-import type {
-	TimelineEvent,
-	TimelineEventDeleteResult,
-	TimelineEventDraft,
-	TimelineEventResult,
-	TimelineEventSaveResult,
-	TimelineEventsResult
-} from '#lib/timeline/types.ts';
+import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
+import type { TimelineEventDraft } from '#lib/timeline/types/timeline-event-draft.ts';
+import type { TimelineEventResult } from '#lib/timeline/types/timeline-event-result.ts';
+
+type TimelineEventsResult = {
+	events: TimelineEvent[];
+	error?: string;
+};
+
+type TimelineEventSaveResult = {
+	id?: string;
+	error?: string;
+};
+
+type TimelineEventDeleteResult = {
+	error?: string;
+};
 
 type Row = Database['public']['Tables']['timeline_events']['Row'];
 type Write = Database['public']['Tables']['timeline_events']['Insert'];

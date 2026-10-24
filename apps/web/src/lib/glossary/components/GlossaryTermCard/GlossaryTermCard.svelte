@@ -7,7 +7,7 @@
 		glossaryCategoryIcon,
 		glossaryCategoryName
 	} from '#lib/glossary/categories/categories.ts';
-	import type { GlossaryEntry } from '#lib/glossary/types.ts';
+	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 
 	type Props = {
 		entry: GlossaryEntry;

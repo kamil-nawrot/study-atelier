@@ -3,7 +3,9 @@ import { validateYears, type YearsInput } from '#lib/artworks/artwork-record/art
 import { signedYear } from '#lib/catalogue/years/years.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import type { WikipediaSource } from '#lib/shared/types/wikipedia-source.ts';
-import type { EventDates, TimelineEvent, TimelineEventDraft } from '#lib/timeline/types.ts';
+import type { EventDates } from '#lib/timeline/types/event-dates.ts';
+import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
+import type { TimelineEventDraft } from '#lib/timeline/types/timeline-event-draft.ts';
 
 export const EVENT_NAME_MAX_LENGTH = 120;
 export const EVENT_DESCRIPTION_MAX_LENGTH = 300;

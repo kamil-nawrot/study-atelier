@@ -8,7 +8,7 @@ import { loadNoteLinks, noteLinksFrom } from '#lib/notes/note-link-data/note-lin
 import { emptyValueDetails } from '#lib/values/value-details/value-details.ts';
 import { loadValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
 import { findSubject, isValueKind, subjectPath } from '#lib/card-index/value-pages/value-pages.ts';
-import type { GlossaryEntry } from '#lib/glossary/types.ts';
+import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 import type { NoteLinks } from '@study-atelier/ui';
 import type { Mention } from '#lib/notes/mentions-data/mentions-data.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';

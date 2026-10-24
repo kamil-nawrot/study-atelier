@@ -1,5 +1,6 @@
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-import type { ReviewCard, ReviewItem } from '#lib/review/types.ts';
+import type { ReviewCard } from '#lib/review/types/review-card.ts';
+import type { ReviewItem } from '#lib/review/types/review-item.ts';
 
 export const SESSION_SIZE = 20;
 export const NEW_PER_DAY = 10;

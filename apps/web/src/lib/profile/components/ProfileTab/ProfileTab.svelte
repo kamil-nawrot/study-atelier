@@ -18,7 +18,9 @@
 		validateDisplayName
 	} from '#lib/profile/profile/profile.ts';
 	import { saveProfile } from '#lib/profile/profile-data/profile-data.ts';
-	import type { AvatarChange, Profile, ProfileDraft } from '#lib/profile/types.ts';
+	import type { AvatarChange } from '#lib/profile/types/avatar-change.ts';
+	import type { Profile } from '#lib/profile/types/profile.ts';
+	import type { ProfileDraft } from '#lib/profile/types/profile-draft.ts';
 	import Avatar from '#lib/profile/components/Avatar/Avatar.svelte';
 
 	type Props = {

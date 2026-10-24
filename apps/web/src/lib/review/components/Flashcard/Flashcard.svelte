@@ -2,12 +2,14 @@
 	import { Alert, Button, Tag } from '@study-atelier/ui';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
-	import type { GlossaryEntry } from '#lib/glossary/types.ts';
+	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { onControl, sessionKey } from '#lib/review/keys/keys.ts';
 	import { authorsOf } from '#lib/review/overview/overview.ts';
 	import { RATINGS } from '#lib/review/scheduler/scheduler.ts';
-	import type { ReviewDetails, ReviewItem, ReviewRating } from '#lib/review/types.ts';
+	import type { ReviewDetails } from '#lib/review/types/review-details.ts';
+	import type { ReviewItem } from '#lib/review/types/review-item.ts';
+	import type { ReviewRating } from '#lib/review/types/review-rating.ts';
 	import ReviewCard from '#lib/review/components/ReviewCard/ReviewCard.svelte';
 
 	type Props = {

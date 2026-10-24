@@ -10,12 +10,14 @@ import { isUuid } from '#lib/shared/utils/ids/ids.ts';
 import { isGlossaryCategory } from '#lib/glossary/categories/categories.ts';
 import { glossaryErrorMessage, isNameTakenError } from '#lib/glossary/errors/errors.ts';
 import { cleanForms, sortNameOf } from '#lib/glossary/glossary/glossary.ts';
-import type {
-	GlossaryDraft,
-	GlossaryEntry,
-	GlossaryEntryResult,
-	GlossaryResult
-} from '#lib/glossary/types.ts';
+import type { GlossaryDraft } from '#lib/glossary/types/glossary-draft.ts';
+import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+import type { GlossaryEntryResult } from '#lib/glossary/types/glossary-entry-result.ts';
+
+type GlossaryResult = {
+	entries: GlossaryEntry[];
+	error?: string;
+};
 
 type Row = Database['public']['Tables']['glossary_entries']['Row'];
 type Write = Database['public']['Tables']['glossary_entries']['Insert'];

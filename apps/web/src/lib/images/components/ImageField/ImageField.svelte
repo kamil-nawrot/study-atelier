@@ -35,7 +35,8 @@
 		parseImageUrl,
 		readImageSize
 	} from '#lib/images/own-image/own-image.ts';
-	import type { ImageCandidate, ImageSearchQuery } from '#lib/images/types.ts';
+	import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
+	import type { ImageSearchQuery } from '#lib/images/types/image-search-query.ts';
 	import { imageFromCandidate } from '#lib/images/image-candidate/image-candidate.ts';
 	import {
 		artworkImageCredit,

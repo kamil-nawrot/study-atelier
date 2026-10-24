@@ -7,7 +7,8 @@ import {
 import { isStoredYear } from '#lib/artworks/artwork-record/artwork-record.ts';
 import { fetchJson } from '#lib/images/wikimedia/wikimedia.ts';
 import { EVENT_DESCRIPTION_MAX_LENGTH } from '#lib/timeline/event-form/event-form.ts';
-import type { EventArticle, EventDates } from '#lib/timeline/types.ts';
+import type { EventArticle } from '#lib/timeline/types/event-article.ts';
+import type { EventDates } from '#lib/timeline/types/event-dates.ts';
 
 const ARTICLE_LIMIT = 5;
 const YEAR_PRECISION = 9;

@@ -2,11 +2,12 @@
 	import { Alert, Button, Dialog, SearchSelect, TextArea, TextButton } from '@study-atelier/ui';
 	import { loupeLevel } from '#lib/images/loupe/loupe.ts';
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
-	import type { GlossaryEntry } from '#lib/glossary/types.ts';
+	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { Fraction } from '#lib/pins/pin-layout/pin-layout.ts';
 	import { createPin, deletePin, pinDraftError, updatePin } from '#lib/pins/pin-data/pin-data.ts';
-	import { MAX_PIN_TEXT, type Pin } from '#lib/pins/types.ts';
+	import type { Pin } from '#lib/pins/types/pin.ts';
+	import { MAX_PIN_TEXT } from '#lib/pins/pin-limits/pin-limits.ts';
 	import PinView from '#lib/pins/components/PinView/PinView.svelte';
 
 	type Props = {

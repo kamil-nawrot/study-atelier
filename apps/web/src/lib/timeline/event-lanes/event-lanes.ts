@@ -1,6 +1,6 @@
 import { availableSteps, stepSpan } from '#lib/timeline/scale/scale.ts';
 import { overlaps, spanOfYears, timeOf, type Era, type TimeSpan } from '#lib/timeline/time/time.ts';
-import type { TimelineEvent } from '#lib/timeline/types.ts';
+import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 
 export type EventShape = 'ribbon' | 'pin';
 

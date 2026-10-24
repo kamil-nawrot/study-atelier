@@ -5,7 +5,7 @@
 	import { cutLabel } from '#lib/timeline/labels/labels.ts';
 	import { boxStyle, type StageGeometry } from '#lib/timeline/stage/stage.ts';
 	import type { Era } from '#lib/timeline/time/time.ts';
-	import type { TimelineEvent } from '#lib/timeline/types.ts';
+	import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 
 	type Props = {
 		events: readonly TimelineEvent[];

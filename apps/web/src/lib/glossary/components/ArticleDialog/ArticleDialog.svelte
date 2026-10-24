@@ -1,7 +1,7 @@
 <script generics="T extends WikipediaArticle" lang="ts">
 	import { Alert, Button, Dialog } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
-	import type { WikipediaArticle } from '#lib/glossary/types.ts';
+	import type { WikipediaArticle } from '#lib/glossary/types/wikipedia-article.ts';
 
 	type Status = 'searching' | 'found' | 'none' | 'failed';
 
