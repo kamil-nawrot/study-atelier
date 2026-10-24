@@ -42,6 +42,12 @@ Message dictionary: one file per section in `i18n/pl/`; messages next to each mo
 
 Timing: the refactor as version 0.11; the foundation now and the rest alongside features; everything alongside features.
 
+Raised by the owner after the first eight decisions, from the layout he is used to:
+
+- Types: a `types/` folder per module with files by topic; a `types/` folder with one type per file; one `types.ts` per module.
+- Files and their tests: side by side, with a folder only for a component split into parts; a folder per file, imported straight; a folder per file with an `index.ts`.
+- Helpers: `utils/` in each module and in `shared`, with files by topic inside; no `utils`, files named by topic; one `lib/utils/` instead of `shared`.
+
 ## Decision outcome
 
 Chosen by the owner, topic by topic:
@@ -62,6 +68,9 @@ Chosen by the owner, topic by topic:
 6. **Thin routes.** A page whose script grows past about 80 lines moves its logic into a view component of its module, for example `wall/WallPage.svelte`; the page keeps `load`, `snapshot` and navigation.
 7. **`i18n/pl.ts` stays one file**, exempt from the size limits. The owner chose this over a file per section.
 8. **Version 0.11 is the refactor.** The steps run one after another without feature work in between, so moves cause no conflicts; features continue in 0.12 in the new structure.
+9. **One type per file in `types/`.** Every type a module exports lives in a file of its own, named after the type in kebab-case, in the module's `types/` folder (`wall/types/wall-order.ts` exports `WallOrder`). A type used by one file only stays in that file. The owner chose this over files by topic.
+10. **Every code file has a folder of its own name, with its tests.** A `.ts` or `.svelte` file sits in a folder named like the file without its extension, next to its tests (`wall/filter/filter.ts` and `wall/filter/filter.spec.ts`; `wall/components/ArtworkWall/ArtworkWall.svelte` and `ArtworkWall.svelte.spec.ts`). Imports name the file itself (`#lib/wall/filter/filter.ts`); there are no `index.ts` files. Type files in `types/`, SvelteKit files in `routes/` and the message dictionary keep their places. The owner chose this over keeping a file and its test side by side.
+11. **Helpers in `utils/`.** General helpers of one module sit in its `utils/` folder, helpers shared by several modules in `shared/utils/`; each helper has a file named by its topic (`utils/years/years.ts`), never one `utils.ts`. Domain logic (the wall filter, the grouping, the timeline layout) stays in the module, outside `utils/`.
 
 ### Consequences
 
@@ -71,6 +80,8 @@ Chosen by the owner, topic by topic:
 - Bad: moving files touches imports across the app, so the moves need a quiet window and fast merges, and `git log --follow` is needed to trace a moved file.
 - Bad: a new development dependency (`dependency-cruiser`), a small lint script that measures the blocks of a Svelte file, and an allowlist to maintain.
 - Bad: the message dictionary keeps growing as one file.
+- Good: a folder holds one file and everything about it, and a type is found by its name.
+- Bad: many more files and folders (one per exported type, one folder per code file), longer import paths, and a larger first move.
 
 ## More information
 

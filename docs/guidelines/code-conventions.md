@@ -61,20 +61,23 @@ The SvelteKit app in `apps/web/src` is organised in feature modules ([ADR-0126](
 | `lib/<module>/`  | One feature, named as the learner knows it: `artworks`, `images`, `wall`, `card-index`, `notes`, `pins`, `glossary`, `timeline`, `review`, `profile`, `auth`, `feedback`, `data-transfer` |
 | `lib/shell/`     | The atelier layout, the menu, the theme and the rail, which put the modules together into the app                                                                                         |
 
-Inside a module:
+Inside a module (example: `wall`):
 
-| Path                | Holds                                                                                     |
-| ------------------- | ----------------------------------------------------------------------------------------- |
-| `types.ts`          | Types the module exports to other files or views                                          |
-| `<thing>-data.ts`   | Calls to Supabase; the only files that import the client                                  |
-| `errors.ts`         | The module's table of error codes, passed to the shared error-message factory             |
-| `<logic>.ts`        | Pure logic: validation, mapping, formatting, layout                                       |
-| `<thing>.svelte.ts` | State built with runes                                                                    |
-| `components/`       | The module's Svelte components, in subfolders by screen area once there are more than ~12 |
+| Path                                        | Holds                                                                                                                              |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `types/wall-order.ts`                       | One exported type per file, named after the type (`WallOrder`)                                                                     |
+| `wall-data/wall-data.ts`                    | Calls to Supabase; only `*-data.ts` files import the client                                                                        |
+| `errors/errors.ts`                          | The module's table of error codes, passed to the shared error-message factory                                                      |
+| `filter/filter.ts`, `filter/filter.spec.ts` | Domain logic (validation, mapping, layout) with its tests                                                                          |
+| `period-tracker/period-tracker.svelte.ts`   | State built with runes                                                                                                             |
+| `utils/years/years.ts`                      | A general helper of this module, named by its topic; helpers several modules need go to `shared/utils/`                            |
+| `components/ArtworkWall/ArtworkWall.svelte` | A component, with `ArtworkWall.svelte.spec.ts` beside it; `components/` gets subfolders by screen area once it holds more than ~12 |
 
+- Every `.ts` and `.svelte` file of code sits in a folder named like the file without its extension, together with its tests and nothing else. Imports name the file itself (`#lib/wall/filter/filter.ts`); there are no `index.ts` files. Type files in `types/`, SvelteKit files in `routes/` and `i18n/pl.ts` keep their places.
+- `utils/` holds general helpers only, each in a file named by its topic, never one `utils.ts`. Domain logic such as the wall filter or the grouping is not a helper and stays at the top of the module.
 - Dependencies point down only: `shared` imports nothing from `lib` except `i18n`; `catalogue` imports `shared` and `i18n`; a module imports `shared`, `i18n`, `catalogue` and other modules, with no cycles; only `routes/` imports `shell`. `dependency-cruiser` checks this in `pnpm lint` once the lint issue of version 0.11 adds it.
 - Code that two modules need and that is not about one of them moves down, to `catalogue` when it is about the domain and to `shared` when it is not, instead of one module importing it from the other in both directions.
-- A type used by more than one module, or by views, lives in the module's `types.ts`. A type used by one module only, such as the shape of rows a query returns, stays in that module.
+- A type used by more than one file, or by views, lives in its own file in the module's `types/` folder. A type used by one file only, such as the shape of rows a query returns, stays in that file.
 - Components used in more than one module, or that know nothing about the app's data and routes, belong in `packages/ui` instead.
 - Files in `routes/` connect pieces: they read data, call module functions and render components. Logic (Supabase calls, validation, mapping, formatting) lives in `lib/<module>`. When the script of a page grows past about 80 lines, its logic moves into a view component of its module (for example `wall/WallPage.svelte`), and the page keeps `load`, `snapshot` and navigation.
 
@@ -96,12 +99,12 @@ Inside a module:
 
 ## Naming
 
-- Svelte components: `PascalCase.svelte`, the same name they are imported under.
+- Svelte components: `PascalCase.svelte`, the same name they are imported under, in a `PascalCase` folder of the same name.
 - A component is named for what it is, not for one way it opens or one interaction: `Popover`, not `HoverCard`, because it also opens on a click.
 - Other files and folders: `kebab-case`, for example `auth-artworks.ts`. Route folders are kebab-case because they become URLs (`/forgot-password`).
 - A file that calls Supabase ends in `-data.ts` (`glossary-data.ts`); a file with runes ends in `.svelte.ts`; any other `.ts` file is pure logic.
 - SvelteKit files keep the framework's names (`+page.svelte`, `+layout.ts`).
-- Tests: the tested file's name plus `.spec.ts`, next to the tested file.
+- Tests: the tested file's name plus `.spec.ts`, in the tested file's folder.
 
 ## Imports
 
