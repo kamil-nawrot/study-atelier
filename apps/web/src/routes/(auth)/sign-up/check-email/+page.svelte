@@ -2,7 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { Alert, Button } from '@study-atelier/ui';
-	import { resendConfirmation } from '#lib/auth/account/account.ts';
+	import { resendConfirmation } from '#lib/auth/account-data/account-data.ts';
 	import AuthLayout from '#lib/auth/components/AuthLayout/AuthLayout.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 

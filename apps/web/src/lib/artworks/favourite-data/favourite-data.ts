@@ -1,4 +1,4 @@
-import { failureMessage } from '#lib/auth/expired-session/expired-session.svelte.ts';
+import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 

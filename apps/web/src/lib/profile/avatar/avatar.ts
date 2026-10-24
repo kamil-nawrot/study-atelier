@@ -1,5 +1,6 @@
 import { m } from '#lib/i18n/i18n.ts';
-import { cropSquareJpeg, ownImageFileError, ownImageUrl } from '#lib/images/own-image/own-image.ts';
+import { cropSquareJpeg, ownImageFileError } from '#lib/images/own-image/own-image.ts';
+import { ownImageUrl } from '#lib/images/own-image-data/own-image-data.ts';
 
 export const AVATAR_SIDE = 256;
 export const AVATAR_QUALITY = 0.9;

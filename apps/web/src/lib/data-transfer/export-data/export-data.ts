@@ -1,4 +1,4 @@
-import { failureMessage } from '#lib/auth/expired-session/expired-session.svelte.ts';
+import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { IMAGES_BUCKET, ownThumbnailPath } from '#lib/images/bucket/bucket.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';

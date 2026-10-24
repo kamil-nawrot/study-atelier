@@ -1,4 +1,4 @@
-import { pendingEmailChange } from '#lib/auth/account/account.ts';
+import { pendingEmailChange } from '#lib/auth/account-data/account-data.ts';
 import {
 	ATELIER_EMPTY_DEPENDENCY,
 	loadAtelierEmpty

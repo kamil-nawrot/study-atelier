@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Alert, Button, Checkbox, Form, TextField } from '@study-atelier/ui';
-	import { changePassword, requestEmailChange } from '#lib/auth/account/account.ts';
+	import { changePassword, requestEmailChange } from '#lib/auth/account-data/account-data.ts';
 	import {
 		MIN_PASSWORD_LENGTH,
 		validateEmail,

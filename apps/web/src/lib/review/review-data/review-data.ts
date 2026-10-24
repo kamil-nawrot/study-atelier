@@ -1,4 +1,4 @@
-import { failureMessage } from '#lib/auth/expired-session/expired-session.svelte.ts';
+import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { artworkImageCredit } from '#lib/images/artwork-image/artwork-image.ts';
 import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import {

@@ -1,4 +1,4 @@
-import { failureMessage } from '#lib/auth/expired-session/expired-session.svelte.ts';
+import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import type { Database } from '#lib/shared/data/database.types.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { m } from '#lib/i18n/i18n.ts';

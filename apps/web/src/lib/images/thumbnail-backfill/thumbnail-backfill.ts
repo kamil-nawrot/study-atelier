@@ -1,4 +1,4 @@
-import { uploadOwnThumbnail } from '#lib/images/own-image/own-image.ts';
+import { uploadOwnThumbnail } from '#lib/images/own-image-data/own-image-data.ts';
 
 const attempted = new Set<string>();
 let queue: Promise<void> = Promise.resolve();

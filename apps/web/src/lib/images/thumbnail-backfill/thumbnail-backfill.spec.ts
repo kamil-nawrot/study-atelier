@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { backfillThumbnails } from './thumbnail-backfill.ts';
-import { uploadOwnThumbnail } from '#lib/images/own-image/own-image.ts';
+import { uploadOwnThumbnail } from '#lib/images/own-image-data/own-image-data.ts';
 
-vi.mock('#lib/images/own-image/own-image.ts', () => ({ uploadOwnThumbnail: vi.fn() }));
+vi.mock('#lib/images/own-image-data/own-image-data.ts', () => ({ uploadOwnThumbnail: vi.fn() }));
 
 async function settle(): Promise<void> {
 	await new Promise((resolve) => setTimeout(resolve, 0));

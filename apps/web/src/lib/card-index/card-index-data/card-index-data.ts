@@ -1,5 +1,5 @@
-import { failureMessage } from '#lib/auth/expired-session/expired-session.svelte.ts';
-import { removeOwnImage } from '#lib/images/own-image/own-image.ts';
+import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
+import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import type { ServiceError } from '#lib/shared/types/service-error.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';

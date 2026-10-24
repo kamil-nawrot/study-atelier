@@ -5,7 +5,7 @@
 	import appleTouchIcon from '#lib/assets/apple-touch-icon.png';
 	import faviconPng from '#lib/assets/favicon-32.png';
 	import favicon from '#lib/assets/favicon.svg';
-	import { SESSION_DEPENDENCY, watchSession } from '#lib/auth/session/session.ts';
+	import { SESSION_DEPENDENCY, watchSession } from '#lib/auth/session-data/session-data.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
 		currentBackPlace,

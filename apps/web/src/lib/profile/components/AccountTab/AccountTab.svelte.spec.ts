@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { changePassword, requestEmailChange } from '#lib/auth/account/account.ts';
+import { changePassword, requestEmailChange } from '#lib/auth/account-data/account-data.ts';
 import { MIN_PASSWORD_LENGTH } from '#lib/auth/validation/validation.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { TEST_EMAIL } from '#lib/testing/auth/auth.ts';
 import AccountTab from './AccountTab.svelte';
 
-vi.mock('#lib/auth/account/account.ts', () => ({
+vi.mock('#lib/auth/account-data/account-data.ts', () => ({
 	changePassword: vi.fn(),
 	requestEmailChange: vi.fn()
 }));

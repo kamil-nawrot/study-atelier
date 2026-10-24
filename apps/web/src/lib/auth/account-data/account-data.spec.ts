@@ -6,7 +6,7 @@ import {
 	requestEmailChange,
 	signIn,
 	signUp
-} from './account.ts';
+} from './account-data.ts';
 
 const auth = vi.hoisted(() => ({
 	signInWithPassword: vi.fn(),

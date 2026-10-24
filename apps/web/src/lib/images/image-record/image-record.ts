@@ -1,4 +1,4 @@
-import { ownImageUrl, uploadOwnImage } from '#lib/images/own-image/own-image.ts';
+import { ownImageUrl, uploadOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 
 export type StoredImage = Exclude<ArtworkImageInput, { kind: 'file' }>;

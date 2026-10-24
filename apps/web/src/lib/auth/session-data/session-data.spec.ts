@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
-import { currentSession, watchSession } from './session.ts';
+import { currentSession, watchSession } from './session-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { getSession: vi.fn(), onAuthStateChange: vi.fn() } }
