@@ -196,6 +196,36 @@ describe('glossary page', () => {
 			.element(page.getByRole('searchbox', { name: m.glossary.search }))
 			.toHaveValue('Tymp');
 		await expect.element(entryLink('Term 1')).not.toBeInTheDocument();
-		expect(saved).toEqual({ query: 'Tymp', chosen: [] });
+		expect(saved).toEqual({ query: 'Tymp', chosen: [], scroll: 0 });
+	});
+
+	it('scrolls back to the saved place after the restored filter moved the page', async () => {
+		const entries = Array.from({ length: 80 }, (_, position) =>
+			testEntry(`entry-${position}`, `Term ${String(position).padStart(2, '0')}`, {
+				category: position % 2 === 0 ? 'architecture' : 'painting'
+			})
+		);
+		const first = await render(GlossaryPage, {
+			data: { session: testSession(), entries },
+			params: {}
+		});
+		await page.getByRole('button', { name: `${m.glossary.categoryNames.painting} 40` }).click();
+		await expect.element(entryLink('Term 00')).not.toBeInTheDocument();
+		const place = Math.round((document.documentElement.scrollHeight - window.innerHeight) / 2);
+		window.scrollTo({ top: place, behavior: 'instant' });
+		const saved = first.component.snapshot.capture();
+		first.unmount();
+
+		const second = await render(GlossaryPage, {
+			data: { session: testSession(), entries },
+			params: {}
+		});
+		window.scrollTo({ top: place, behavior: 'instant' });
+		second.component.snapshot.restore(saved);
+		window.scrollTo({ top: place / 2, behavior: 'instant' });
+
+		await expect.element(entryLink('Term 00')).not.toBeInTheDocument();
+		await expect.poll(() => window.scrollY).toBe(place);
+		expect(saved).toEqual({ query: '', chosen: ['painting'], scroll: place });
 	});
 });
