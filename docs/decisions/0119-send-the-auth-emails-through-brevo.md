@@ -1,6 +1,6 @@
 # 0119. Send the auth emails through Brevo
 
-- Status: accepted
+- Status: superseded by [0125](0125-send-the-auth-emails-through-gmail-smtp.md)
 - Date: 2026-10-23
 
 ## Context and problem statement

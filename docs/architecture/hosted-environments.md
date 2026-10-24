@@ -34,7 +34,7 @@ The same five names must not remain as repository secrets: an environment secret
 
 ## Auth emails
 
-Supabase Auth sends the sign-up confirmation, the password reset and the email change through Brevo on the free plan, from one verified sender without an own domain ([ADR-0119](../decisions/0119-send-the-auth-emails-through-brevo.md)). Nothing of this is applied by CI: the SMTP settings and the templates live in the dashboard of each Supabase project, so both projects are set up by hand and the credentials never reach the repository.
+Supabase Auth sends the sign-up confirmation, the password reset and the email change through SMTP of a dedicated Gmail address ([ADR-0125](../decisions/0125-send-the-auth-emails-through-gmail-smtp.md), which replaced Brevo of ADR-0119). Nothing of this is applied by CI: the SMTP settings and the templates live in the dashboard of each Supabase project, so both projects are set up by hand and the credentials never reach the repository.
 
 The Polish texts are kept in [`supabase/templates`](../../supabase/templates) and the local stack (`supabase start`) uses the same files through [`supabase/config.toml`](../../supabase/config.toml), with the mails caught by the local inbox instead of sent. A change to a template is made in the file and pasted into the dashboard of `develop` and `production`.
 
@@ -46,15 +46,14 @@ The Polish texts are kept in [`supabase/templates`](../../supabase/templates) an
 
 ### Setting up a project
 
-1. Brevo: create the account, then Senders, Domains & Dedicated IPs, Senders, add the mailbox the mails are sent from and confirm it with the link Brevo sends there.
-2. Brevo: SMTP & API, SMTP, note the server `smtp-relay.brevo.com`, port `587` and the login, and generate an SMTP key. The key is shown once; the login and the key are the SMTP credentials, not the password of the Brevo account.
-3. Supabase, Authentication, Emails, SMTP Settings: turn on custom SMTP and enter the sender email (the verified mailbox), the sender name `Study Atelier`, the host, the port, the login as the username and the SMTP key as the password. Save.
-4. Supabase, Authentication, Emails, Templates: for each row of the table above set the subject and paste the whole file as the message body.
-5. Supabase, Authentication, Sign In / Providers, Email: keep "Confirm email" and "Secure email change" on, so a change of address needs a click in the old and in the new mailbox.
-6. Supabase, Authentication, Rate Limits: raise the emails per hour if the default is too low once the custom SMTP is on.
-7. Check it on that environment's app: ask for a password reset to an address outside the Supabase team and see that the Polish mail arrives and the link opens `/update-password`.
+1. Google: create a Gmail address for the app, sign in to it normally and send a few ordinary mails so a fresh account is not blocked, then turn on two-step verification and, under Security, App passwords, create an app password (16 characters, shown once). It is the SMTP password, not the password of the account.
+2. Supabase, Authentication, Emails, SMTP Settings: turn on custom SMTP and enter the sender email (the Gmail address), the sender name `Study Atelier`, the host `smtp.gmail.com`, the port `465`, the full Gmail address as the username and the app password as the password. Save.
+3. Supabase, Authentication, Emails, Templates: for each row of the table above set the subject and paste the whole file as the message body.
+4. Supabase, Authentication, Sign In / Providers, Email: keep "Confirm email" and "Secure email change" on, so a change of address needs a click in the old and in the new mailbox.
+5. Supabase, Authentication, Rate Limits: raise the emails per hour if the default is too low once the custom SMTP is on.
+6. Check it on that environment's app: ask for a password reset to an address outside the Supabase team and see that the Polish mail arrives (look in spam too) and the link opens `/update-password`.
 
-Brevo adds its own footer on the free plan and mail from a free mailbox may land in spam; moving to an own domain later changes only the SMTP settings.
+Gmail allows about 500 mails a day and may put the mails in spam; moving to an own domain later changes only the SMTP settings.
 
 ## Releasing
 

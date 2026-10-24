@@ -54,7 +54,7 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 
 1. The Cloudflare worker renders the page shell. The server `handle` hook (`hooks.server.ts`) puts `LoadingScreen` into it, and the library styles are linked in its head, so the loading screen shows from the first paint; its logo mark appears after 300 ms ([ADR-0030](../decisions/0030-loading-states-for-the-first-load-and-images.md)).
 2. The client `init` hook in `hooks.client.ts` hydrates the loading screen.
-3. The root layout load reads the session from Supabase Auth; the route groups redirect by session, and the first view loads its data ([ADR-0016](../decisions/0016-supabase-auth-in-the-browser.md)); the auth emails go through Brevo with Polish templates kept in `supabase/templates` ([hosted environments](hosted-environments.md#auth-emails)).
+3. The root layout load reads the session from Supabase Auth; the route groups redirect by session, and the first view loads its data ([ADR-0016](../decisions/0016-supabase-auth-in-the-browser.md)); the auth emails go through Gmail SMTP with Polish templates kept in `supabase/templates` ([hosted environments](hosted-environments.md#auth-emails)).
 4. The root layout mounts and removes the loading screen.
 
 ### Opening the atelier
