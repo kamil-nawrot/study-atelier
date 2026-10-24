@@ -2,6 +2,35 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.10.0] - 2026-10-24
+
+The learner gets a settings view with a profile, an account section, preferences and a copy of the whole atelier.
+
+### Added
+
+- "Ustawienia", opened from the avatar row at the top of the menu, which shows the avatar, the name and the email address. The tabs are "Profil", "Konto", "Powtórki", "Widok dzieła", "Dane" and "Źródła", and the chosen tab is kept in the address.
+- A profile with a name and a photo as the avatar: the photo is cropped to a square and made 256 px in the browser, and without it the avatar is the first letter of the name. The profile is visible only to the learner.
+- Password change in "Konto" with the current password and a new one of at least 8 characters, signing out the other devices by default.
+- Email change in "Konto": a link goes to the old and to the new address, and the change takes effect after both are clicked. The Auth emails (sign-up confirmation, password reset, email change) are in Polish and are sent through the SMTP of a dedicated Gmail address (ADR-0125).
+- Review preferences in "Powtórki": the number of artworks in a session, the number of new artworks a day, the form the review starts with, the kinds of quiz that are asked, and whether the free review is offered. The quiz form "Quizy" is offered only when a quiz can be asked.
+- Artwork view preferences in "Widok dzieła": whether the pins are shown and the loupe is switched on when an artwork opens.
+- Export in "Dane": the whole atelier as one ZIP file with `atelier.json` and the learner's own image files, including the trash, the review history, own fields, pins, the glossary and the timeline events.
+- Import in "Dane": a ZIP made by the export is loaded into an empty atelier with the same record numbers, dates, notes and links; a failed import changes nothing.
+- Switches in "Źródła" for the fetching that starts by itself: the image of a new artwork, the definition of a glossary term, its forms from Wiktionary, and the description and dates of an event.
+- Removing an image that holds pins in the artwork form first asks "Usunąć obraz?" and says how many pins go.
+
+### Changed
+
+- The side menu keeps its state across navigation, and its account row keeps a stable height with the email address as a tooltip.
+- The profile photo buttons use the icons `image-up` and `image-minus`.
+
+### Fixed
+
+- A linked `upload.wikimedia.org` image never offers its original on a HiDPI screen, in the stage, the full-screen viewer, the wall, the review cards or the quiz tiles.
+- The own field order survives an import, and an export stops with a message instead of silently leaving out an own image it cannot download.
+- "Anuluj" in a form opened directly leaves to the list instead of the app, and the event form no longer fails on a direct entry.
+- Fixes from the code reviews of 0.8 and 0.9: pin and loupe findings and a hint for the 10-pin limit.
+
 ## [0.9.1] - 2026-10-23
 
 A fix of the artwork view for a very large image and of the loupe of a huge Commons file.
@@ -438,3 +467,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.8.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.8.0
 [0.9.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.9.0
 [0.9.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.9.1
+[0.10.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.10.0
