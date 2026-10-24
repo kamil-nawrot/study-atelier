@@ -4,7 +4,7 @@ import { render } from 'vitest-browser-svelte';
 import { goto, invalidateAll } from '$app/navigation';
 import { refreshExpiredImages } from '#lib/wall/wall-data/wall-data.ts';
 import { setFavourite } from '#lib/artworks/favourite/favourite.ts';
-import type { OwnFieldDefinition } from '#lib/collection/types.ts';
+import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';

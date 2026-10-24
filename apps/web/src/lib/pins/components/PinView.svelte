@@ -1,5 +1,8 @@
 <script lang="ts">
-	import { artworkImageSource, artworkLargeSource } from '#lib/images/artwork-image/artwork-image.ts';
+	import {
+		artworkImageSource,
+		artworkLargeSource
+	} from '#lib/images/artwork-image/artwork-image.ts';
 	import LoupeLens from '#lib/images/components/LoupeLens/LoupeLens.svelte';
 	import { LOUPE_SIZE, loupeLevel } from '#lib/images/loupe/loupe.ts';
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';

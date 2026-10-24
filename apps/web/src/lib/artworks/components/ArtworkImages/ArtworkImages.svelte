@@ -7,7 +7,10 @@
 	import { m } from '#lib/i18n/index.ts';
 	import { findImageCandidates } from '#lib/images/image-search.ts';
 	import type { ImageCandidate, ImageSearchQuery } from '#lib/images/types.ts';
-	import { imageFromCandidate, MAX_ARTWORK_IMAGES } from '#lib/artworks/artwork-form/artwork-form.ts';
+	import {
+		imageFromCandidate,
+		MAX_ARTWORK_IMAGES
+	} from '#lib/artworks/artwork-form/artwork-form.ts';
 	import {
 		AUTO_MATCH_DELAY_MS,
 		isCandidateImage,
@@ -16,7 +19,7 @@
 		matchPool
 	} from '#lib/images/auto-match/auto-match.ts';
 	import { artworkImageSource } from '#lib/images/artwork-image/artwork-image.ts';
-	import type { ImageFieldTexts } from '#lib/collection/types.ts';
+	import type { ImageFieldTexts } from '#lib/images/types/image-field-texts.ts';
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 	import ImageField from '#lib/images/components/ImageField/ImageField.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';

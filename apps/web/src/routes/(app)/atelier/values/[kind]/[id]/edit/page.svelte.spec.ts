@@ -2,9 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { beforeNavigate, goto } from '$app/navigation';
-import { loadValuePageContent, saveValue } from '#lib/card-index/card-index-data/card-index-data.ts';
+import {
+	loadValuePageContent,
+	saveValue
+} from '#lib/card-index/card-index-data/card-index-data.ts';
 import { findRecord } from '#lib/card-index/card-index/card-index.ts';
-import type { ValueDetails, ValueSubject } from '#lib/collection/types.ts';
+import type { ValueDetails } from '#lib/values/types/value-details.ts';
+import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
 import { emptyAuthorDetails } from '#lib/values/author-form/author-form.ts';
 import { emptyValueDetails, saveValueDetails } from '#lib/values/value-details/value-details.ts';
 import { m } from '#lib/i18n/index.ts';

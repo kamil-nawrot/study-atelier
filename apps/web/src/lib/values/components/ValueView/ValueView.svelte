@@ -3,7 +3,10 @@
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import { artworkImageCredit, artworkImageSource } from '#lib/images/artwork-image/artwork-image.ts';
+	import {
+		artworkImageCredit,
+		artworkImageSource
+	} from '#lib/images/artwork-image/artwork-image.ts';
 	import { countryName } from '#lib/catalogue/countries/countries.ts';
 	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
 	import { placeTypeName } from '#lib/catalogue/place-types/place-types.ts';
@@ -15,7 +18,8 @@
 		type ValueParent
 	} from '#lib/card-index/value-pages/value-pages.ts';
 	import type { Mention } from '#lib/notes/mentions-data/mentions-data.ts';
-	import type { ValueDetails, ValueSubject } from '#lib/collection/types.ts';
+	import type { ValueDetails } from '#lib/values/types/value-details.ts';
+	import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
 	import MentionedIn from '#lib/notes/components/MentionedIn/MentionedIn.svelte';
 
 	type Props = {

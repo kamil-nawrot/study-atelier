@@ -9,7 +9,7 @@ import { loadGlossary } from '#lib/glossary/glossary-data.ts';
 import { m } from '#lib/i18n/index.ts';
 import { loadPreferences } from '#lib/profile/preferences-data.ts';
 import { loadArtworkPins } from '#lib/pins/pin-data.ts';
-import type { LoadArtworkResult } from '#lib/collection/types.ts';
+import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ params }): Promise<LoadArtworkResult> => {

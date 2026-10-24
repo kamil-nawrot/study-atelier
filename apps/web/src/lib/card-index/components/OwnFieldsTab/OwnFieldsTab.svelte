@@ -16,7 +16,8 @@
 	import CardIndexList from '#lib/card-index/components/CardIndexList/CardIndexList.svelte';
 	import OwnFieldDialog from '#lib/card-index/components/OwnFieldDialog/OwnFieldDialog.svelte';
 	import OwnValueDialog from '#lib/card-index/components/OwnValueDialog/OwnValueDialog.svelte';
-	import type { OwnField, OwnValue } from '#lib/collection/types.ts';
+	import type { OwnField } from '#lib/card-index/types/own-field.ts';
+	import type { OwnValue } from '#lib/card-index/types/own-value.ts';
 
 	type Props = {
 		fields: OwnField[];

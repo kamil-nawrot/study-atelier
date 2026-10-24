@@ -39,15 +39,16 @@
 	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import { formatDate, signedYear } from '#lib/catalogue/years/years.ts';
-	import { artworkPanelOpen, rememberArtworkPanel } from '#lib/artworks/artwork-panel/artwork-panel.ts';
+	import {
+		artworkPanelOpen,
+		rememberArtworkPanel
+	} from '#lib/artworks/artwork-panel/artwork-panel.ts';
 	import { FLIP_DIRECTIONS, swipe } from '#lib/wall/flip/flip.ts';
 	import type { Mention } from '#lib/notes/mentions-data/mentions-data.ts';
-	import type {
-		ArtworkRecord,
-		FlipDirection,
-		OwnFieldDefinition,
-		ValueKind
-	} from '#lib/collection/types.ts';
+	import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
+	import type { FlipDirection } from '#lib/wall/types/flip-direction.ts';
+	import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
+	import type { ValueKind } from '#lib/card-index/types/value-kind.ts';
 	import { valueKindName } from '#lib/card-index/value-pages/value-pages.ts';
 	import {
 		emptyValueSummaries,

@@ -1,5 +1,5 @@
 import type { Attachment } from 'svelte/attachments';
-import type { FlipDirection } from '#lib/collection/types.ts';
+import type { FlipDirection } from '#lib/wall/types/flip-direction.ts';
 
 export const FLIP_DIRECTIONS: readonly FlipDirection[] = ['previous', 'next'];
 

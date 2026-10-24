@@ -16,19 +16,26 @@ import {
 	type ImageRow,
 	type StoredImage
 } from '#lib/images/image-record/image-record.ts';
-import type {
-	ArtworkFieldErrors,
-	ArtworkInput,
-	ArtworkValueRow,
-	ArtworkRecord,
-	ExistingArtwork,
-	FieldEntryRow,
-	LoadArtworkResult,
-	SaveArtworkResult
-} from '#lib/collection/types.ts';
+import type { ArtworkFieldErrors } from '#lib/artworks/types/artwork-field-errors.ts';
+import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
+import type { ArtworkValueRow } from '#lib/card-index/types/artwork-value-row.ts';
+import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
+import type { FieldEntryRow } from '#lib/card-index/types/field-entry-row.ts';
+import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
 import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
 import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
+
+type ExistingArtwork = {
+	id: string;
+	image: ArtworkImageInput | null;
+	images: ArtworkImageInput[];
+};
+
+type SaveArtworkResult =
+	| { saved: true; id: string; number: number }
+	| { saved: false; error?: string; fieldErrors: ArtworkFieldErrors };
 
 type ArtworkRecordRow = {
 	id: string;

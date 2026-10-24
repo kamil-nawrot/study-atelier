@@ -20,7 +20,9 @@
 		fieldNameError,
 		updateOwnField
 	} from '#lib/card-index/own-fields/own-fields.ts';
-	import type { OwnField, OwnFieldInput, OwnFieldKind } from '#lib/collection/types.ts';
+	import type { OwnField } from '#lib/card-index/types/own-field.ts';
+	import type { OwnFieldInput } from '#lib/card-index/types/own-field-input.ts';
+	import type { OwnFieldKind } from '#lib/card-index/types/own-field-kind.ts';
 
 	type Props = {
 		open?: boolean;

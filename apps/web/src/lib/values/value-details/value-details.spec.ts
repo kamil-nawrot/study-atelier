@@ -3,7 +3,7 @@ import { m } from '#lib/i18n/index.ts';
 import { ownImageUrl, removeOwnImage, uploadOwnImage } from '#lib/images/own-image.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyAuthorDetails } from '#lib/values/author-form/author-form.ts';
-import type { ValueSubject } from '#lib/collection/types.ts';
+import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
 import { loadValueDetails, saveValueDetails, valueDetailsChanged } from './value-details.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({

@@ -1,6 +1,7 @@
 import { locale } from '#lib/i18n/index.ts';
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
-import type { StarterValue, ValueSuggestion } from '#lib/collection/types.ts';
+import type { StarterValue } from '#lib/card-index/types/starter-value.ts';
+import type { ValueSuggestion } from '#lib/card-index/types/value-suggestion.ts';
 
 export type SuggestionSource = {
 	query: string;

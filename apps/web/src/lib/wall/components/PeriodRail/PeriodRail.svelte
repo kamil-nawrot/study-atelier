@@ -2,7 +2,8 @@
 	import { Icon } from '@study-atelier/ui';
 	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
 	import { MIN_LABELLED_ROW, railLayout, railRow } from '#lib/wall/period-rail/period-rail.ts';
-	import type { CurrentPeriod, PeriodGroup } from '#lib/collection/types.ts';
+	import type { CurrentPeriod } from '#lib/wall/types/current-period.ts';
+	import type { PeriodGroup } from '#lib/wall/types/period-group.ts';
 
 	type Props = {
 		groups: PeriodGroup[];

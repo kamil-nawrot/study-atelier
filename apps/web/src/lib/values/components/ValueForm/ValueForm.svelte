@@ -17,7 +17,10 @@
 	} from '@study-atelier/ui';
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
-	import { loadValuePageContent, saveValue } from '#lib/card-index/card-index-data/card-index-data.ts';
+	import {
+		loadValuePageContent,
+		saveValue
+	} from '#lib/card-index/card-index-data/card-index-data.ts';
 	import {
 		erasOfPeriod,
 		findRecord,
@@ -39,15 +42,20 @@
 	import { isPlaceType, placeTiles } from '#lib/catalogue/place-types/place-types.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
-	import { saveValueDetails, valueDetailsChanged } from '#lib/values/value-details/value-details.ts';
-	import { SUMMARY_MAX_LENGTH, subjectPath, valuePath } from '#lib/card-index/value-pages/value-pages.ts';
-	import type {
-		AuthorFieldErrors,
-		AuthorFormState,
-		LocationDetails,
-		ValueDetails,
-		ValueSubject
-	} from '#lib/collection/types.ts';
+	import {
+		saveValueDetails,
+		valueDetailsChanged
+	} from '#lib/values/value-details/value-details.ts';
+	import {
+		SUMMARY_MAX_LENGTH,
+		subjectPath,
+		valuePath
+	} from '#lib/card-index/value-pages/value-pages.ts';
+	import type { AuthorFieldErrors } from '#lib/values/types/author-field-errors.ts';
+	import type { AuthorFormState } from '#lib/values/types/author-form-state.ts';
+	import type { LocationDetails } from '#lib/values/types/location-details.ts';
+	import type { ValueDetails } from '#lib/values/types/value-details.ts';
+	import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
 	import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { valuesOf } from './artwork-values.ts';
-import type { ArtworkValueRow } from '#lib/collection/types.ts';
+import type { ArtworkValueRow } from '#lib/card-index/types/artwork-value-row.ts';
 
 function value(category: string, name: string, position: number): ArtworkValueRow {
 	return { position, category_values: { category_code: category, name } };

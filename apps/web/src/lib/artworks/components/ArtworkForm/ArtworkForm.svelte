@@ -28,7 +28,10 @@
 		artworkTypeTiles,
 		isArtworkTypeCode
 	} from '#lib/catalogue/artwork-types/artwork-types.ts';
-	import { takesOneValue, VALUE_NAME_MAX_LENGTH } from '#lib/card-index/category-values/category-values.ts';
+	import {
+		takesOneValue,
+		VALUE_NAME_MAX_LENGTH
+	} from '#lib/card-index/category-values/category-values.ts';
 	import { DuplicateCheck } from '#lib/artworks/duplicate-check/duplicate-check.svelte.ts';
 	import { sameTitleAndAuthors } from '#lib/artworks/duplicates/duplicates.ts';
 	import { eraTiles, isEraCode } from '#lib/catalogue/eras/eras.ts';
@@ -44,18 +47,16 @@
 	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
 	import YearInput from '#lib/shared/forms/YearInput/YearInput.svelte';
 	import DuplicateDialog from '#lib/artworks/components/DuplicateDialog/DuplicateDialog.svelte';
-	import type {
-		ArtworkFieldErrors,
-		ArtworkFormState,
-		ArtworkInput,
-		ArtworkRecord,
-		CategoryValues,
-		ImageFieldTexts,
-		OwnFieldDefinition,
-		PlaceStarter,
-		ValueLinks,
-		ValueSuggestion
-	} from '#lib/collection/types.ts';
+	import type { ArtworkFieldErrors } from '#lib/artworks/types/artwork-field-errors.ts';
+	import type { ArtworkFormState } from '#lib/artworks/types/artwork-form-state.ts';
+	import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
+	import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
+	import type { CategoryValues } from '#lib/card-index/types/category-values.ts';
+	import type { ImageFieldTexts } from '#lib/images/types/image-field-texts.ts';
+	import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
+	import type { PlaceStarter } from '#lib/card-index/types/place-starter.ts';
+	import type { ValueLinks } from '#lib/card-index/types/value-links.ts';
+	import type { ValueSuggestion } from '#lib/card-index/types/value-suggestion.ts';
 	import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 

@@ -5,7 +5,12 @@ import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.t
 import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
-import { findSubject, subjectName, subjectPath, valueKindName } from '#lib/card-index/value-pages/value-pages.ts';
+import {
+	findSubject,
+	subjectName,
+	subjectPath,
+	valueKindName
+} from '#lib/card-index/value-pages/value-pages.ts';
 import { m } from '#lib/i18n/index.ts';
 import { resolve } from '$app/paths';
 

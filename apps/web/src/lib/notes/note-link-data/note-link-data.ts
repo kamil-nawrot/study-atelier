@@ -3,7 +3,7 @@ import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.ts';
 import { valuesOf } from '#lib/card-index/artwork-values/artwork-values.ts';
 import { buildNoteLinks, type NoteLinkArtwork } from '#lib/notes/note-links/note-links.ts';
-import type { ArtworkValueRow } from '#lib/collection/types.ts';
+import type { ArtworkValueRow } from '#lib/card-index/types/artwork-value-row.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 import type { NoteLinks } from '@study-atelier/ui';
 

@@ -5,7 +5,7 @@ import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { testOwnFields } from '#lib/testing/own-fields.ts';
 import OwnFieldsTab from './OwnFieldsTab.svelte';
-import type { OwnField } from '#lib/collection/types.ts';
+import type { OwnField } from '#lib/card-index/types/own-field.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn(), rpc: vi.fn() }

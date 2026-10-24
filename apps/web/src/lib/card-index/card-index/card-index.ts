@@ -1,17 +1,25 @@
 import { compareSortKeys } from '#lib/catalogue/author-sort/author-sort.ts';
 import { ERA_CODES } from '#lib/catalogue/eras/eras.ts';
 import { valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
-import type {
-	CardIndexEntry,
-	CardIndexPeriod,
-	CardIndexTimeline,
-	EraMove,
-	NameChange
-} from '#lib/collection/types.ts';
+import type { CardIndexEntry } from '#lib/card-index/types/card-index-entry.ts';
+import type { CardIndexPeriod } from '#lib/card-index/types/card-index-period.ts';
+import type { CardIndexTimeline } from '#lib/card-index/types/card-index-timeline.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
 import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+
+type NameChange =
+	| { kind: 'unchanged' }
+	| { kind: 'empty' }
+	| { kind: 'rename'; name: string }
+	| { kind: 'merge'; target: CardIndexRecord };
+
+type EraMove = {
+	count: number;
+	removed: EraCode[];
+	remaining: EraCode[];
+};
 
 export const CARD_INDEX_SEARCH_MIN_VALUES = 20;
 

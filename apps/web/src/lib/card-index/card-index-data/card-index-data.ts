@@ -7,9 +7,16 @@ import { emptyCardIndex } from '#lib/card-index/card-index/card-index.ts';
 import { isCategoryCode } from '#lib/card-index/category-values/category-values.ts';
 import { isEraCode } from '#lib/catalogue/eras/eras.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
-import type { CardIndexResult, OwnValue } from '#lib/collection/types.ts';
+import type { OwnValue } from '#lib/card-index/types/own-value.ts';
 import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
+
+type CardIndexResult = {
+	index: CardIndexData;
+	ownValues: OwnValue[];
+	error?: string;
+};
 
 type UsageRow = {
 	id: string;

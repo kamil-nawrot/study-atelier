@@ -9,7 +9,8 @@ import {
 	imageFromCandidate,
 	parseYear
 } from './artwork-form.ts';
-import type { ArtworkRecord, OwnFieldDefinition } from '#lib/collection/types.ts';
+import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
+import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 
 describe('parseYear', () => {
 	it('reads an empty field as no year', () => {

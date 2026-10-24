@@ -10,7 +10,7 @@
 	import { formatDeletedOn } from '#lib/artworks/trash/trash.ts';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import { deletePermanently, restoreArtwork } from '#lib/artworks/trash-data/trash-data.ts';
-	import type { TrashArtwork } from '#lib/collection/types.ts';
+	import type { TrashArtwork } from '#lib/wall/types/trash-artwork.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data.ts';
 	import type { PageProps } from './$types';

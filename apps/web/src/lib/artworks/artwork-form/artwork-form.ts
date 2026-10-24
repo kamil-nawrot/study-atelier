@@ -1,6 +1,9 @@
 import { emptyCategoryValues } from '#lib/card-index/category-values/category-values.ts';
 import type { ImageCandidate } from '#lib/images/types.ts';
-import type { ArtworkFormState, ArtworkInput, ArtworkRecord, OwnFieldDefinition } from '#lib/collection/types.ts';
+import type { ArtworkFormState } from '#lib/artworks/types/artwork-form-state.ts';
+import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
+import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
+import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import type { OwnEntries } from '#lib/catalogue/types/own-entries.ts';
 import type { OwnEntry } from '#lib/catalogue/types/own-entry.ts';

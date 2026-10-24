@@ -57,9 +57,12 @@
 		wallParams
 	} from '#lib/wall/grouping/grouping.ts';
 	import { groupByAuthor } from '#lib/wall/periods/periods.ts';
-	import { MIN_RAIL_MARGIN, PeriodTracker } from '#lib/wall/period-tracker/period-tracker.svelte.ts';
+	import {
+		MIN_RAIL_MARGIN,
+		PeriodTracker
+	} from '#lib/wall/period-tracker/period-tracker.svelte.ts';
 	import { filterByTitleOrAuthor } from '#lib/wall/search/search.ts';
-	import type { WallOrder } from '#lib/collection/types.ts';
+	import type { WallOrder } from '#lib/wall/types/wall-order.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import {
 		isWallOrder,

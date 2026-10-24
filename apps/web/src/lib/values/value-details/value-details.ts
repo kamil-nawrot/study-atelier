@@ -14,13 +14,15 @@ import {
 } from '#lib/images/image-record/image-record.ts';
 import { isCountryCode } from '#lib/catalogue/countries/countries.ts';
 import { isPlaceType } from '#lib/catalogue/place-types/place-types.ts';
-import type {
-	AuthorDetails,
-	LocationDetails,
-	ValueDetails,
-	ValueDetailsResult,
-	ValueSubject
-} from '#lib/collection/types.ts';
+import type { AuthorDetails } from '#lib/values/types/author-details.ts';
+import type { LocationDetails } from '#lib/values/types/location-details.ts';
+import type { ValueDetails } from '#lib/values/types/value-details.ts';
+import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
+
+type ValueDetailsResult = {
+	details: ValueDetails;
+	error?: string;
+};
 
 type ErrorLike = { code?: string; message?: string };
 

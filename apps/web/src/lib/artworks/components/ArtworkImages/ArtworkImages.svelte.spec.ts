@@ -5,7 +5,7 @@ import { m } from '#lib/i18n/index.ts';
 import { findImageCandidates } from '#lib/images/image-search.ts';
 import { autoFetch } from '#lib/profile/auto-fetch.svelte.ts';
 import { AUTO_MATCH_DELAY_MS } from '#lib/images/auto-match/auto-match.ts';
-import type { ImageFieldTexts } from '#lib/collection/types.ts';
+import type { ImageFieldTexts } from '#lib/images/types/image-field-texts.ts';
 import ArtworkImages from './ArtworkImages.svelte';
 
 vi.mock('#lib/images/image-search.ts', () => ({ findImageCandidates: vi.fn() }));

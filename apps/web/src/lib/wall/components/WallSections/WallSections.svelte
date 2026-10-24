@@ -4,7 +4,7 @@
 	import { allocateTiles } from '#lib/wall/grouping/grouping.ts';
 	import { WALL_MARGIN, WALL_PART } from '#lib/wall/masonry/masonry.ts';
 	import ArtworkWall from '#lib/wall/components/ArtworkWall/ArtworkWall.svelte';
-	import type { WallSection } from '#lib/collection/types.ts';
+	import type { WallSection } from '#lib/wall/types/wall-section.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 	type Props = {

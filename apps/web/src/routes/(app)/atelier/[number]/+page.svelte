@@ -10,14 +10,18 @@
 	import type { ResolvedPathname } from '$app/types';
 	import ArtworkView from '#lib/artworks/components/ArtworkView/ArtworkView.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
-	import { favouriteLabel, favouriteToast, setFavourite } from '#lib/artworks/favourite/favourite.ts';
+	import {
+		favouriteLabel,
+		favouriteToast,
+		setFavourite
+	} from '#lib/artworks/favourite/favourite.ts';
 	import { keyDirection } from '#lib/wall/flip/flip.ts';
 	import {
 		formatRecordNumber,
 		parseRecordNumber
 	} from '#lib/catalogue/record-number/record-number.ts';
 	import { moveToTrash } from '#lib/artworks/trash-data/trash-data.ts';
-	import type { FlipDirection } from '#lib/collection/types.ts';
+	import type { FlipDirection } from '#lib/wall/types/flip-direction.ts';
 	import { neighboursIn, rememberedWallSequence } from '#lib/wall/wall-sequence/wall-sequence.ts';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
 	import { m } from '#lib/i18n/index.ts';

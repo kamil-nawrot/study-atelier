@@ -2,7 +2,9 @@ import { m } from '#lib/i18n/index.ts';
 import { parseYear } from '#lib/artworks/artwork-form/artwork-form.ts';
 import { yearError } from '#lib/artworks/artwork-record/artwork-record.ts';
 import { signedYear } from '#lib/catalogue/years/years.ts';
-import type { AuthorDetails, AuthorFieldErrors, AuthorFormState } from '#lib/collection/types.ts';
+import type { AuthorDetails } from '#lib/values/types/author-details.ts';
+import type { AuthorFieldErrors } from '#lib/values/types/author-field-errors.ts';
+import type { AuthorFormState } from '#lib/values/types/author-form-state.ts';
 
 export function emptyAuthorDetails(): AuthorDetails {
 	return { image: null, birthYear: null, deathYear: null, yearsApproximate: false, sortName: null };

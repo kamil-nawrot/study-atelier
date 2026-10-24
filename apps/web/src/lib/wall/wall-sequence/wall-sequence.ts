@@ -1,5 +1,12 @@
 import { readStoredJson, writeStored } from '#lib/shared/utils/storage/storage.ts';
-import type { Neighbours, WallSequence } from '#lib/collection/types.ts';
+import type { FlipDirection } from '#lib/wall/types/flip-direction.ts';
+
+type WallSequence = {
+	query: string;
+	numbers: number[];
+};
+
+type Neighbours = Record<FlipDirection, number | null>;
 
 const SEQUENCE_KEY = 'study-atelier:wall-sequence';
 

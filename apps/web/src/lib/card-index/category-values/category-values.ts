@@ -1,8 +1,14 @@
 import { locale } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
-import type { CategoryValues, CategoryValuesResult } from '#lib/collection/types.ts';
+import type { CategoryValues } from '#lib/card-index/types/category-values.ts';
 import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
+
+type CategoryValuesResult = {
+	values: CategoryValues;
+	ownValues: Record<string, string[]>;
+	error?: string;
+};
 
 type CategoryValueRow = {
 	category_code: string;

@@ -4,16 +4,27 @@ import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { compareSortKeys } from '#lib/catalogue/author-sort/author-sort.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import { valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
-import type {
-	OwnField,
-	OwnFieldDefinition,
-	OwnFieldDefinitionsResult,
-	OwnFieldInput,
-	OwnFieldKind,
-	OwnFieldsResult,
-	OwnValue,
-	OwnValueChange
-} from '#lib/collection/types.ts';
+import type { OwnField } from '#lib/card-index/types/own-field.ts';
+import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
+import type { OwnFieldInput } from '#lib/card-index/types/own-field-input.ts';
+import type { OwnFieldKind } from '#lib/card-index/types/own-field-kind.ts';
+import type { OwnValue } from '#lib/card-index/types/own-value.ts';
+
+type OwnFieldDefinitionsResult = {
+	fields: OwnFieldDefinition[];
+	error?: string;
+};
+
+type OwnFieldsResult = {
+	fields: OwnField[];
+	error?: string;
+};
+
+type OwnValueChange =
+	| { kind: 'unchanged' }
+	| { kind: 'empty' }
+	| { kind: 'rename'; name: string }
+	| { kind: 'merge'; target: OwnValue };
 
 export const FIELD_NAME_MAX_LENGTH = 60;
 export const FIELD_DESCRIPTION_MAX_LENGTH = 150;

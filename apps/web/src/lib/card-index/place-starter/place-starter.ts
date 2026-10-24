@@ -1,6 +1,6 @@
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { countryName } from '#lib/catalogue/countries/countries.ts';
-import type { PlaceStarter } from '#lib/collection/types.ts';
+import type { PlaceStarter } from '#lib/card-index/types/place-starter.ts';
 import { valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
 
 type MuseumRow = {

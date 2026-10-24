@@ -1,4 +1,4 @@
-import type { CurrentPeriod } from '#lib/collection/types.ts';
+import type { CurrentPeriod } from '#lib/wall/types/current-period.ts';
 
 export type RailState = 'past' | 'current' | 'upcoming';
 

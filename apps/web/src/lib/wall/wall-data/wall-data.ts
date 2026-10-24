@@ -11,23 +11,35 @@ import { backfillThumbnails } from '#lib/images/thumbnail-backfill.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { artworkImageSource } from '#lib/images/artwork-image/artwork-image.ts';
-import { authorSortNamesOf, ownEntriesOf, valuesOf } from '#lib/card-index/artwork-values/artwork-values.ts';
+import {
+	authorSortNamesOf,
+	ownEntriesOf,
+	valuesOf
+} from '#lib/card-index/artwork-values/artwork-values.ts';
 import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import { formatDate } from '#lib/catalogue/years/years.ts';
 import { tileSizes } from '#lib/wall/masonry/masonry.ts';
 import { resolvedImages } from '#lib/images/resolved-images/resolved-images.ts';
-import type {
-	ArtworkValueRow,
-	AtelierResult,
-	FieldEntryRow,
-	TrashArtwork,
-	TrashResult
-} from '#lib/collection/types.ts';
+import type { ArtworkValueRow } from '#lib/card-index/types/artwork-value-row.ts';
+import type { FieldEntryRow } from '#lib/card-index/types/field-entry-row.ts';
+import type { TrashArtwork } from '#lib/wall/types/trash-artwork.ts';
 import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 import type { ImageSize } from '#lib/catalogue/types/image-size.ts';
 import type { PendingImage } from '#lib/catalogue/types/pending-image.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
+
+type AtelierResult = {
+	artworks: WallArtwork[];
+	ownFields?: OwnFieldDefinition[];
+	error?: string;
+};
+
+type TrashResult = {
+	artworks: TrashArtwork[];
+	error?: string;
+};
 
 type MainImageRow = {
 	source_image_file: string | null;

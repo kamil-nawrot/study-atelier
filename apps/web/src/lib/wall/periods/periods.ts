@@ -1,7 +1,11 @@
 import { m } from '#lib/i18n/index.ts';
-import { authorSortKeys, compareSortKeys, sortKeyOf } from '#lib/catalogue/author-sort/author-sort.ts';
+import {
+	authorSortKeys,
+	compareSortKeys,
+	sortKeyOf
+} from '#lib/catalogue/author-sort/author-sort.ts';
 import { UNKNOWN_AUTHOR } from '#lib/wall/filter/filter.ts';
-import type { PeriodGroup } from '#lib/collection/types.ts';
+import type { PeriodGroup } from '#lib/wall/types/period-group.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 

@@ -3,7 +3,8 @@
 	import { m } from '#lib/i18n/index.ts';
 	import { VALUE_NAME_MAX_LENGTH } from '#lib/card-index/category-values/category-values.ts';
 	import { changeOwnValue, planOwnValueChange } from '#lib/card-index/own-fields/own-fields.ts';
-	import type { OwnField, OwnValue } from '#lib/collection/types.ts';
+	import type { OwnField } from '#lib/card-index/types/own-field.ts';
+	import type { OwnValue } from '#lib/card-index/types/own-value.ts';
 
 	type Props = {
 		open?: boolean;

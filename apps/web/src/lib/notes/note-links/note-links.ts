@@ -3,7 +3,7 @@ import { resolve } from '$app/paths';
 import { ERA_CODES } from '#lib/catalogue/eras/eras.ts';
 import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
-import type { ValueSubject } from '#lib/collection/types.ts';
+import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 import {
 	findSubject,

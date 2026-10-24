@@ -5,11 +5,9 @@ import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
 import { emptyCategoryValues } from '#lib/card-index/category-values/category-values.ts';
 import { emptyPlaceStarter } from '#lib/card-index/place-starter/place-starter.ts';
 import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
-import type {
-	ArtworkRecord,
-	LoadArtworkResult,
-	OwnFieldDefinition
-} from '#lib/collection/types.ts';
+import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
+import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
+import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 import { m } from '#lib/i18n/index.ts';
 import { IMAGES_BUCKET } from '#lib/images/bucket.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';

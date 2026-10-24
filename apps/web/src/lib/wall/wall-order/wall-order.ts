@@ -1,5 +1,5 @@
 import { readStored, writeStored } from '#lib/shared/utils/storage/storage.ts';
-import type { WallOrder } from '#lib/collection/types.ts';
+import type { WallOrder } from '#lib/wall/types/wall-order.ts';
 
 export const DEFAULT_WALL_ORDER: WallOrder = 'recent';
 

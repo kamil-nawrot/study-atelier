@@ -3,11 +3,9 @@
 	import { m } from '#lib/i18n/index.ts';
 	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
 	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
-	import type {
-		CardIndexEntry,
-		CardIndexPeriod,
-		CardIndexTimeline
-	} from '#lib/collection/types.ts';
+	import type { CardIndexEntry } from '#lib/card-index/types/card-index-entry.ts';
+	import type { CardIndexPeriod } from '#lib/card-index/types/card-index-period.ts';
+	import type { CardIndexTimeline } from '#lib/card-index/types/card-index-timeline.ts';
 
 	type Props = {
 		timeline: CardIndexTimeline;

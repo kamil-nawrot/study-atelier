@@ -22,7 +22,9 @@ const navigation = vi.hoisted(() => ({
 
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidate: vi.fn() }));
-vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({ resolveImages: vi.fn().mockResolvedValue([]) }));
+vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
+	resolveImages: vi.fn().mockResolvedValue([])
+}));
 vi.mock('#lib/review/review-data.ts', () => ({
 	REVIEW_COUNTS_DEPENDENCY: 'review:counts',
 	loadReviewDetails: vi.fn().mockResolvedValue({ details: new Map() }),

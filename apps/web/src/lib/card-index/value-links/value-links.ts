@@ -3,8 +3,13 @@ import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { isEraCode } from '#lib/catalogue/eras/eras.ts';
 import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import { valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
-import type { ValueLinks, ValueLinksResult } from '#lib/collection/types.ts';
+import type { ValueLinks } from '#lib/card-index/types/value-links.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+
+type ValueLinksResult = {
+	links: ValueLinks;
+	error?: string;
+};
 
 type ValueRow = {
 	id: string;

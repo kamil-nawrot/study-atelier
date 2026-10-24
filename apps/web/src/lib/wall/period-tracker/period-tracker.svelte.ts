@@ -1,5 +1,5 @@
 import { currentPeriod, monotone, referenceLine } from '#lib/wall/period-rail/period-rail.ts';
-import type { CurrentPeriod } from '#lib/collection/types.ts';
+import type { CurrentPeriod } from '#lib/wall/types/current-period.ts';
 
 export const MIN_RAIL_MARGIN = 128;
 
