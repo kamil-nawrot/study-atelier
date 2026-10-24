@@ -9,7 +9,7 @@ import { loadReviewDetails, loadSession, recordReview } from '#lib/review/review
 import type { ReviewCard, SessionRow } from '#lib/review/types.ts';
 import { defaultPreferences } from '#lib/profile/preferences.ts';
 import type { Preferences } from '#lib/profile/types.ts';
-import { testArtwork } from '#lib/testing/artworks.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import { testReviewCard } from '#lib/testing/review.ts';
 import ReviewPage from './+page.svelte';

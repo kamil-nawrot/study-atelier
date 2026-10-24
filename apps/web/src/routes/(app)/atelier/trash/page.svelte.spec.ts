@@ -7,7 +7,7 @@ import { deletePermanently, restoreArtwork } from '#lib/artworks/trash-data/tras
 import type { TrashArtwork } from '#lib/wall/types/trash-artwork.ts';
 import { m } from '#lib/i18n/index.ts';
 import { REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data.ts';
-import { testArtwork } from '#lib/testing/artworks.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import TrashPage from './+page.svelte';
 

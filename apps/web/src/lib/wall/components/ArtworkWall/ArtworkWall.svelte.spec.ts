@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { testArtwork } from '#lib/testing/artworks.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { m } from '#lib/i18n/index.ts';
 import { distribute, WALL_PART } from '#lib/wall/masonry/masonry.ts';
 import ArtworkWall from './ArtworkWall.svelte';

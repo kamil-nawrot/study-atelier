@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { testArtwork } from '#lib/testing/artworks.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { authorSortKeys, compareSortKeys, sortKeyOf } from './author-sort.ts';
 
 describe('author sort keys', () => {

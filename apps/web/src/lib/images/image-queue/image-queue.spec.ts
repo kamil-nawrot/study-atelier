@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { testArtwork } from '#lib/testing/artworks.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { IMAGE_BATCH_DELAY, IMAGE_BATCH_SIZE, ImageQueue } from './image-queue.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 

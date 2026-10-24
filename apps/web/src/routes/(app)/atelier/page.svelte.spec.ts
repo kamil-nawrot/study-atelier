@@ -8,7 +8,7 @@ import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definit
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { testArtwork } from '#lib/testing/artworks.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { pending, TEST_EMAIL, testSession } from '#lib/testing/auth.ts';
 import AtelierPage from './+page.svelte';
 import '@study-atelier/ui/styles.css';
