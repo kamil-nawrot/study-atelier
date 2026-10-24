@@ -1,19 +1,12 @@
+import { readStored, writeStored } from '#lib/shared/utils/storage/storage.ts';
+
 const PANEL_KEY = 'study-atelier:artwork-panel';
 const CLOSED = 'closed';
 
 export function artworkPanelOpen(): boolean {
-	try {
-		return localStorage.getItem(PANEL_KEY) !== CLOSED;
-	} catch {
-		return true;
-	}
+	return readStored('local', PANEL_KEY) !== CLOSED;
 }
 
 export function rememberArtworkPanel(open: boolean): void {
-	try {
-		if (open) localStorage.removeItem(PANEL_KEY);
-		else localStorage.setItem(PANEL_KEY, CLOSED);
-	} catch {
-		return;
-	}
+	writeStored('local', PANEL_KEY, open ? null : CLOSED);
 }

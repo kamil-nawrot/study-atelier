@@ -1,15 +1,9 @@
 import type { Mention } from '#lib/collection/mentions.ts';
 import type { CardIndexData, WallArtwork } from '#lib/collection/types.ts';
+import type { WikipediaSource } from '#lib/shared/types/wikipedia-source.ts';
 
 export type GlossaryCategory =
 	'person' | 'architecture' | 'painting' | 'sculpture' | 'technique' | 'general';
-
-export type WikipediaSource = {
-	title: string;
-	url: string;
-	licence: string;
-	fetchedOn: string;
-};
 
 export type GlossaryEntry = {
 	id: string;

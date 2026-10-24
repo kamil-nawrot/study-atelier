@@ -8,6 +8,7 @@ import {
 	fetchCommonsThumbnails
 } from '#lib/images/commons.ts';
 import { backfillThumbnails } from '#lib/images/thumbnail-backfill.ts';
+import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { artworkImageSource } from './artwork-image.ts';
 import { authorSortNamesOf, ownEntriesOf, valuesOf } from './artwork-values.ts';
@@ -54,7 +55,6 @@ type ArtworkRow = {
 
 export const DEFAULT_IMAGE_SIZE: ImageSize = { width: 4, height: 5 };
 
-const PAGE_SIZE = 1000;
 const TILE_SIZES = tileSizes();
 const TILE_WIDTH = 500;
 const TILE_MAX_IMAGE_WIDTH = 960;
@@ -156,22 +156,11 @@ function linkedImage(
 	};
 }
 
-type RowsPage = {
-	data: unknown;
-	error: { code?: string; message?: string } | null;
-};
-
 async function fetchAllRows(
-	page: (from: number, to: number) => PromiseLike<RowsPage>
+	page: Parameters<typeof fetchAll>[0]
 ): Promise<{ rows: ArtworkRow[]; error?: string }> {
-	const rows: ArtworkRow[] = [];
-	for (let from = 0; ; from += PAGE_SIZE) {
-		const { data, error } = await page(from, from + PAGE_SIZE - 1);
-		if (error) return { rows: [], error: collectionErrorMessage(error) };
-		const received = (data ?? []) as ArtworkRow[];
-		rows.push(...received);
-		if (received.length < PAGE_SIZE) return { rows };
-	}
+	const { rows, error } = await fetchAll<ArtworkRow>(page);
+	return error ? { rows: [], error: collectionErrorMessage(error) } : { rows };
 }
 
 function wallArtwork(row: ArtworkRow): WallArtwork {

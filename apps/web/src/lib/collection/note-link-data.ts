@@ -1,5 +1,6 @@
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { fetchAll, loadCardIndex } from './card-index-data.ts';
+import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
+import { loadCardIndex } from './card-index-data.ts';
 import { valuesOf } from './artwork-values.ts';
 import { buildNoteLinks, type NoteLinkArtwork } from './note-links.ts';
 import type { ArtworkValueRow, CardIndexData } from './types.ts';

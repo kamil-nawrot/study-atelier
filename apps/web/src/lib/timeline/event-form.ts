@@ -1,8 +1,8 @@
 import { parseYear } from '#lib/collection/artwork-form.ts';
 import { validateYears, type YearsInput } from '#lib/collection/artwork-record.ts';
 import { signedYear } from '#lib/collection/format.ts';
-import type { WikipediaSource } from '#lib/glossary/types.ts';
 import { m } from '#lib/i18n/index.ts';
+import type { WikipediaSource } from '#lib/shared/types/wikipedia-source.ts';
 import type { EventDates, TimelineEvent, TimelineEventDraft } from './types.ts';
 
 export const EVENT_NAME_MAX_LENGTH = 120;

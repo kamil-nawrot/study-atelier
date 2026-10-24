@@ -1,3 +1,5 @@
+import { readStored, writeStored } from '#lib/shared/utils/storage/storage.ts';
+
 const TAB_KEY = 'study-atelier:card-index-tab';
 
 export const CARD_INDEX_TABS = ['timeline', 'material', 'author', 'location', 'own'] as const;
@@ -9,18 +11,10 @@ export function isCardIndexTab(value: unknown): value is CardIndexTab {
 }
 
 export function rememberCardIndexTab(tab: string): void {
-	try {
-		sessionStorage.setItem(TAB_KEY, tab);
-	} catch {
-		return;
-	}
+	writeStored('session', TAB_KEY, tab);
 }
 
 export function rememberedCardIndexTab(): CardIndexTab {
-	try {
-		const stored = sessionStorage.getItem(TAB_KEY);
-		return isCardIndexTab(stored) ? stored : 'timeline';
-	} catch {
-		return 'timeline';
-	}
+	const stored = readStored('session', TAB_KEY);
+	return isCardIndexTab(stored) ? stored : 'timeline';
 }

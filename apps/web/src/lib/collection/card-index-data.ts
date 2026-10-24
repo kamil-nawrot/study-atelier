@@ -1,17 +1,13 @@
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { removeOwnImage } from '#lib/images/own-image.ts';
+import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
+import type { ServiceError } from '#lib/shared/types/service-error.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyCardIndex } from './card-index.ts';
 import { isCategoryCode } from './category-values.ts';
 import { isEraCode } from './eras.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from './errors.ts';
 import type { CardIndexRecord, CardIndexResult, EraCode, OwnValue } from './types.ts';
-
-const PAGE_SIZE = 1000;
-
-type ErrorLike = { code?: string; message?: string };
-
-type Page = PromiseLike<{ data: unknown; error: ErrorLike | null }>;
 
 type UsageRow = {
 	id: string;
@@ -39,19 +35,6 @@ export type ValuePageContentResult = {
 	content?: ValuePageContent;
 	error?: string;
 };
-
-export async function fetchAll<T>(
-	page: (from: number, to: number) => Page
-): Promise<{ rows: T[]; error?: ErrorLike }> {
-	const rows: T[] = [];
-	for (let from = 0; ; from += PAGE_SIZE) {
-		const { data, error } = await page(from, from + PAGE_SIZE - 1);
-		if (error) return { rows: [], error };
-		const received = (data ?? []) as T[];
-		rows.push(...received);
-		if (received.length < PAGE_SIZE) return { rows };
-	}
-}
 
 function ownValuesOf(rows: readonly UsageRow[]): OwnValue[] {
 	return rows.flatMap((row): OwnValue[] =>
@@ -129,7 +112,9 @@ export type ValueChanges = {
 	mergeInto?: CardIndexRecord;
 };
 
-async function run(call: PromiseLike<{ error: ErrorLike | null }>): Promise<CardIndexActionResult> {
+async function run(
+	call: PromiseLike<{ error: ServiceError | null }>
+): Promise<CardIndexActionResult> {
 	const { error } = await call;
 	return error ? { error: await failureMessage(error, cardIndexErrorMessage) } : {};
 }

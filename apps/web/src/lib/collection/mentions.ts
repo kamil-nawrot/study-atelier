@@ -1,8 +1,9 @@
 import type { ResolvedPathname } from '$app/types';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { fetchAll, loadCardIndex } from './card-index-data.ts';
+import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
+import { loadCardIndex } from './card-index-data.ts';
 import { formatRecordNumber } from './format.ts';
-import { normalizeForSearch } from './search.ts';
+import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import type { CardIndexData } from './types.ts';
 import { findSubject, subjectName, subjectPath, valueKindName } from './value-pages.ts';
 import { m } from '#lib/i18n/index.ts';

@@ -1,5 +1,5 @@
 import { formatLifeYears, formatYear } from '#lib/collection/format.ts';
-import { normalizeForSearch } from '#lib/collection/search.ts';
+import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import { m } from '#lib/i18n/index.ts';
 import { commonsThumbnailSrcset, fetchCommonsFiles } from './commons.ts';
 import { imageSearchErrorMessage } from './errors.ts';

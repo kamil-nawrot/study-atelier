@@ -1,7 +1,12 @@
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
-import { fetchAll } from '#lib/collection/card-index-data.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import type { Database } from '#lib/shared/data/database.types.ts';
+import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
+import {
+	sourceColumns,
+	sourceFromRow
+} from '#lib/shared/data/wikipedia-source/wikipedia-source.ts';
+import { isUuid } from '#lib/shared/utils/ids/ids.ts';
 import { timelineErrorMessage } from './errors.ts';
 import type {
 	TimelineEvent,
@@ -15,8 +20,6 @@ import type {
 type Row = Database['public']['Tables']['timeline_events']['Row'];
 type Write = Database['public']['Tables']['timeline_events']['Insert'];
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 function eventOf(row: Row): TimelineEvent {
 	return {
 		id: row.id,
@@ -25,15 +28,7 @@ function eventOf(row: Row): TimelineEvent {
 		yearTo: row.year_to,
 		yearApproximate: row.year_approximate,
 		description: row.description ?? '',
-		source:
-			row.source_title && row.source_url && row.source_licence && row.source_fetched_on
-				? {
-						title: row.source_title,
-						url: row.source_url,
-						licence: row.source_licence,
-						fetchedOn: row.source_fetched_on
-					}
-				: null
+		source: sourceFromRow(row)
 	};
 }
 
@@ -46,10 +41,7 @@ function writeOf(draft: TimelineEventDraft): Write | undefined {
 		year_to: draft.yearTo,
 		year_approximate: draft.yearApproximate,
 		description: description === '' ? null : description,
-		source_title: draft.source?.title ?? null,
-		source_url: draft.source?.url ?? null,
-		source_licence: draft.source?.licence ?? null,
-		source_fetched_on: draft.source?.fetchedOn ?? null
+		...sourceColumns(draft.source)
 	};
 }
 
@@ -62,7 +54,7 @@ export async function loadTimelineEvents(): Promise<TimelineEventsResult> {
 }
 
 export async function loadTimelineEvent(id: string): Promise<TimelineEventResult> {
-	if (!UUID.test(id)) return { notFound: true };
+	if (!isUuid(id)) return { notFound: true };
 	const { data, error } = await supabase
 		.from('timeline_events')
 		.select('*')

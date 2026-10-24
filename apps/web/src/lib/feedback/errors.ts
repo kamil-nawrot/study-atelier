@@ -1,12 +1,7 @@
 import { m } from '#lib/i18n/index.ts';
+import { errorMessages } from '#lib/shared/data/errors/errors.ts';
 
-type ErrorLike = {
-	code?: string;
-	message?: string;
-};
-
-export function feedbackErrorMessage(error: ErrorLike): string {
-	if (error.code === '23502' || error.code === '23514') return m.feedback.errors.invalid;
-	if (!error.code && (error.message?.includes('fetch') ?? false)) return m.feedback.errors.network;
-	return m.common.unexpectedError;
-}
+export const feedbackErrorMessage = errorMessages(
+	{ '23502': m.feedback.errors.invalid, '23514': m.feedback.errors.invalid },
+	m.feedback.errors.network
+);

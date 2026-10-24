@@ -2,7 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import { SearchField, ToggleTag } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
-	import { normalizeForSearch } from '../search.ts';
+	import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 	import type { FilterOption } from '../types.ts';
 
 	type Props = {

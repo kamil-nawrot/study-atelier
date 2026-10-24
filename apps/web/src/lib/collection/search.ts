@@ -1,13 +1,4 @@
-const COMBINING_MARKS = /\p{M}/gu;
-
-export function normalizeForSearch(text: string): string {
-	return text
-		.toLocaleLowerCase('pl')
-		.normalize('NFD')
-		.replace(COMBINING_MARKS, '')
-		.replaceAll('ł', 'l')
-		.trim();
-}
+import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 
 export function filterByTitleOrAuthor<T extends { title: string; authors: string[] }>(
 	items: T[],
