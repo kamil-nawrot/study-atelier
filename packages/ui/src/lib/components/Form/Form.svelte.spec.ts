@@ -35,4 +35,37 @@ describe('Form', () => {
 		await expect.element(year).toHaveFocus();
 		await expect.element(year).toBeInViewport();
 	});
+
+	it('shows the form error with its title above the fields', async () => {
+		render(Form, {
+			onsubmit: vi.fn(),
+			error: 'The server did not answer.',
+			errorTitle: 'Could not save',
+			children: fields
+		});
+
+		const alert = page.getByRole('alert');
+		await expect.element(alert).toHaveTextContent('Could not save');
+		await expect.element(alert).toHaveTextContent('The server did not answer.');
+	});
+
+	it('scrolls the form error into view when it appears', async () => {
+		await page.viewport(400, 600);
+		const tall = createRawSnippet(() => ({
+			render: () =>
+				`<div><div style="height: 2000px"></div><button type="submit">Save</button></div>`
+		}));
+		const { rerender } = await render(Form, { onsubmit: vi.fn(), children: tall });
+		window.scrollTo({ top: document.body.scrollHeight });
+
+		await rerender({ error: 'The server did not answer.' });
+
+		await expect.element(page.getByRole('alert')).toBeInViewport();
+	});
+
+	it('shows no alert without an error', async () => {
+		render(Form, { onsubmit: vi.fn(), errorTitle: 'Could not save', children: fields });
+
+		await expect.element(page.getByRole('alert')).not.toBeInTheDocument();
+	});
 });

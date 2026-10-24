@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { onDestroy, tick, untrack } from 'svelte';
+	import { onDestroy, untrack } from 'svelte';
 	import ImageUp from '@lucide/svelte/icons/image-up';
 	import ImageMinus from '@lucide/svelte/icons/image-minus';
-	import { Alert, Button, Form, FormActions, IconButton, TextField } from '@study-atelier/ui';
+	import { Button, Form, FormActions, IconButton, TextField } from '@study-atelier/ui';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
+	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { OWN_IMAGE_ACCEPT } from '#lib/images/bucket.ts';
@@ -30,27 +31,25 @@
 	let { profile, email, barHeight = $bindable(0), onsaved }: Props = $props();
 
 	const formId = $props.id();
-	const formErrorId = `${formId}-error`;
 	const hintId = `${formId}-hint`;
 
-	let saved = $state.raw<Profile>(untrack(() => profile));
+	const formState = new FormState<Profile>(untrack(() => profile));
+
 	let name = $state(untrack(() => profileDraftOf(profile).name));
 	let avatar = $state.raw<AvatarChange>({ kind: 'keep' });
 	let previewUrl = $state<string>();
 	let nameError = $state<string>();
 	let photoError = $state<string>();
-	let formError = $state('');
-	let busy = $state(false);
 	let cropping = $state(false);
 	let fileInput = $state<HTMLInputElement>();
 
 	const changes = new UnsavedChanges<ProfileDraft>(
 		() => ({ name, avatar }),
-		() => profileDraftOf(saved),
+		() => profileDraftOf(formState.saved),
 		profileDraftChanged
 	);
 
-	let hasAvatar = $derived(showsAvatar(saved, avatar));
+	let hasAvatar = $derived(showsAvatar(formState.saved, avatar));
 	let initial = $derived(avatarInitial({ displayName: name, avatarPath: null }, email));
 
 	function setAvatar(next: AvatarChange): void {
@@ -76,37 +75,26 @@
 
 	function cancel(): void {
 		setAvatar({ kind: 'keep' });
-		name = profileDraftOf(saved).name;
+		name = profileDraftOf(formState.saved).name;
 		nameError = undefined;
 		photoError = undefined;
-		formError = '';
+		formState.error = '';
 	}
 
-	async function showError(message: string): Promise<void> {
-		formError = message;
-		await tick();
-		document.getElementById(formErrorId)?.scrollIntoView({ block: 'center' });
-	}
-
-	async function submit(): Promise<void> {
-		if (busy) return;
-		formError = '';
-		nameError = validateDisplayName(name);
-		if (nameError) return;
-		busy = true;
-		try {
-			const result = await saveProfile({ name, avatar }, saved);
+	function submit(): Promise<void> {
+		return formState.run(async () => {
+			nameError = validateDisplayName(name);
+			if (nameError) return;
+			const result = await saveProfile({ name, avatar }, formState.saved);
 			if (result.error !== undefined) {
-				await showError(result.error);
+				formState.error = result.error;
 				return;
 			}
-			saved = result.profile;
-			name = profileDraftOf(saved).name;
+			formState.saved = result.profile;
+			name = profileDraftOf(result.profile).name;
 			setAvatar({ kind: 'keep' });
-			await onsaved(saved, m.settings.profile.saved);
-		} finally {
-			busy = false;
-		}
+			await onsaved(result.profile, m.settings.profile.saved);
+		});
 	}
 
 	export function confirmLeave(): Promise<boolean> {
@@ -119,28 +107,28 @@
 </script>
 
 <div class="tab">
-	<Form onsubmit={submit}>
+	<Form error={formState.error} errorTitle={m.settings.profile.errorTitle} onsubmit={submit}>
 		<div class="fields">
-			{#if formError}
-				<Alert id={formErrorId} title={m.settings.profile.errorTitle} tone="danger">
-					{formError}
-				</Alert>
-			{/if}
 			<div class="photo">
 				<div class="photo-row">
 					<div class="mat">
-						<Avatar {initial} large path={hasAvatar ? saved.avatarPath : null} {previewUrl} />
+						<Avatar
+							{initial}
+							large
+							path={hasAvatar ? formState.saved.avatarPath : null}
+							{previewUrl}
+						/>
 					</div>
 					<div class="buttons">
 						<IconButton
-							disabled={busy || cropping}
+							disabled={formState.busy || cropping}
 							icon={ImageUp}
 							label={hasAvatar ? m.settings.profile.changePhoto : m.settings.profile.addPhoto}
 							onclick={() => fileInput?.click()}
 						/>
 						{#if hasAvatar}
 							<IconButton
-								disabled={busy}
+								disabled={formState.busy}
 								icon={ImageMinus}
 								label={m.settings.profile.removePhoto}
 								onclick={() => setAvatar({ kind: 'remove' })}
@@ -179,11 +167,11 @@
 			</div>
 		</div>
 		<FormActions bind:height={barHeight}>
-			<Button disabled={busy} onclick={cancel}>
+			<Button disabled={formState.busy} onclick={cancel}>
 				{m.settings.profile.cancel}
 			</Button>
-			<Button disabled={busy} type="submit" variant="primary">
-				{busy ? m.settings.profile.saving : m.settings.profile.save}
+			<Button disabled={formState.busy} type="submit" variant="primary">
+				{formState.busy ? m.settings.profile.saving : m.settings.profile.save}
 			</Button>
 		</FormActions>
 	</Form>
@@ -201,6 +189,10 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--spacing-6);
+	}
+
+	.tab > :global(form) > :global([role='alert']) {
+		max-width: var(--size-content-default);
 	}
 
 	.fields {

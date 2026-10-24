@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { tick, untrack } from 'svelte';
+	import { untrack } from 'svelte';
 	import {
 		Alert,
 		Button,
@@ -18,6 +18,7 @@
 	import { m } from '#lib/i18n/index.ts';
 	import type { CardIndexData } from '#lib/collection/types.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
+	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { valuePath } from '#lib/collection/value-pages.ts';
 	import { autoFetch } from '#lib/profile/auto-fetch.svelte.ts';
@@ -61,13 +62,10 @@
 
 	const SEARCH_DELAY_MS = 600;
 	const tiles = glossaryCategoryTiles();
-	const formId = $props.id();
-	const formErrorId = `${formId}-error`;
 	const existing = untrack(() => entry);
 	const initial = (): GlossaryDraft => (existing ? draftOf(existing) : emptyDraft());
 
 	let form = $state<GlossaryDraft>(initial());
-	let saved = $state<GlossaryDraft>(initial());
 	let synonymsQuery = $state('');
 	let formsQuery = $state('');
 	let formsExpanded = $state(untrack(() => (existing?.forms.length ?? 0) === 0));
@@ -86,15 +84,15 @@
 	let pendingArticle = $state<WikipediaArticle>();
 	let nameError = $state<string>();
 	let categoryError = $state<string>();
-	let formError = $state('');
-	let busy = $state(false);
 	let request = 0;
 	let formsRequest = 0;
 	let knownSynonyms = untrack(() => [...form.synonyms]);
 
+	const formState = new FormState<GlossaryDraft>(initial());
+
 	const changes = new UnsavedChanges(
 		() => $state.snapshot(form),
-		() => saved,
+		() => formState.saved,
 		draftChanged
 	);
 
@@ -349,26 +347,21 @@
 		return changes.confirmLeave();
 	}
 
-	async function showError(message: string): Promise<void> {
-		formError = message;
-		await tick();
-		document.getElementById(formErrorId)?.scrollIntoView({ block: 'center' });
-	}
-
-	async function submit(): Promise<void> {
-		if (busy) return;
-		formError = '';
-		const name = form.name.trim();
+	function validate(name: string): boolean {
 		nameError = !name
 			? m.valueForm.nameRequired
 			: findNameConflict(entries, name, existing?.id)
 				? m.glossary.form.nameTaken(name)
 				: undefined;
 		categoryError = form.category ? undefined : m.glossary.form.categoryRequired;
-		if (nameError || categoryError) return;
-		busy = true;
-		const snapshot = $state.snapshot(form);
-		try {
+		return !nameError && !categoryError;
+	}
+
+	function submit(): Promise<void> {
+		return formState.run(async () => {
+			const name = form.name.trim();
+			if (!validate(name)) return;
+			const snapshot = $state.snapshot(form);
 			const result = await saveGlossaryEntry(
 				{
 					...snapshot,
@@ -383,28 +376,20 @@
 				return;
 			}
 			if (result.error || !result.id) {
-				await showError(result.error ?? m.common.unexpectedError);
+				formState.error = result.error ?? m.common.unexpectedError;
 				return;
 			}
-			saved = snapshot;
+			formState.saved = snapshot;
 			await onsaved(
 				resolve('/(app)/atelier/glossary/[id]', { id: result.id }),
 				m.glossary.view.saved(name)
 			);
-		} finally {
-			busy = false;
-		}
+		});
 	}
 </script>
 
 <div class="page">
-	<Form onsubmit={submit}>
-		{#if formError}
-			<Alert id={formErrorId} title={m.glossary.form.errorTitle} tone="danger">
-				{formError}
-			</Alert>
-		{/if}
-
+	<Form error={formState.error} errorTitle={m.glossary.form.errorTitle} onsubmit={submit}>
 		<div class="fields">
 			<div class="name">
 				<TextField
@@ -515,8 +500,8 @@
 			<Button href={cancelHref} onclick={oncancel}>
 				{m.glossary.form.cancel}
 			</Button>
-			<Button disabled={busy} type="submit" variant="primary">
-				{busy ? m.glossary.form.saving : m.glossary.form.save}
+			<Button disabled={formState.busy} type="submit" variant="primary">
+				{formState.busy ? m.glossary.form.saving : m.glossary.form.save}
 			</Button>
 		</FormActions>
 	</Form>

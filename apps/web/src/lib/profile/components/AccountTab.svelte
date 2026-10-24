@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { tick } from 'svelte';
 	import { Alert, Button, Checkbox, Form, TextField } from '@study-atelier/ui';
 	import { changePassword, requestEmailChange } from '#lib/auth/account.ts';
 	import {
@@ -9,6 +8,7 @@
 		validateRequiredPassword
 	} from '#lib/auth/validation.ts';
 	import { m } from '#lib/i18n/index.ts';
+	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 
 	type Props = {
 		email: string;
@@ -18,59 +18,42 @@
 
 	let { email, pendingEmail, onchanged }: Props = $props();
 
-	const formId = $props.id();
-	const formErrorId = `${formId}-error`;
-
 	let newEmail = $state('');
 	let emailFieldError = $state<string>();
 	let emailSent = $state(false);
-	let emailBusy = $state(false);
+	const emailForm = new FormState(null);
 
 	let currentPassword = $state('');
 	let newPassword = $state('');
 	let signOutOthers = $state(true);
 	let currentError = $state<string>();
 	let newError = $state<string>();
-	let formError = $state('');
 	let othersError = $state('');
-	let busy = $state(false);
+	const passwordForm = new FormState(null);
 
-	async function showError(message: string): Promise<void> {
-		formError = message;
-		await tick();
-		document.getElementById(formErrorId)?.scrollIntoView({ block: 'center' });
-	}
-
-	async function submitEmail(): Promise<void> {
-		if (emailBusy) return;
-		emailFieldError = validateEmail(newEmail);
-		if (emailFieldError) return;
-		emailBusy = true;
-		try {
+	function submitEmail(): Promise<void> {
+		return emailForm.run(async () => {
+			emailFieldError = validateEmail(newEmail);
+			if (emailFieldError) return;
 			const result = await requestEmailChange(email, newEmail);
 			if (!result.sent) {
 				emailFieldError = result.error;
 				return;
 			}
 			emailSent = true;
-		} finally {
-			emailBusy = false;
-		}
+		});
 	}
 
-	async function submit(): Promise<void> {
-		if (busy) return;
-		formError = '';
-		othersError = '';
-		currentError = validateRequiredPassword(currentPassword);
-		newError = validateNewPassword(newPassword);
-		if (currentError || newError) return;
-		busy = true;
-		try {
+	function submit(): Promise<void> {
+		return passwordForm.run(async () => {
+			othersError = '';
+			currentError = validateRequiredPassword(currentPassword);
+			newError = validateNewPassword(newPassword);
+			if (currentError || newError) return;
 			const result = await changePassword(email, currentPassword, newPassword, signOutOthers);
 			currentError = result.currentError;
 			newError = result.newError;
-			if (result.error) await showError(result.error);
+			if (result.error) passwordForm.error = result.error;
 			if (!result.changed) return;
 			currentPassword = '';
 			newPassword = '';
@@ -79,9 +62,7 @@
 				return;
 			}
 			onchanged(m.settings.account.changed);
-		} finally {
-			busy = false;
-		}
+		});
 	}
 </script>
 
@@ -105,20 +86,15 @@
 				bind:value={newEmail}
 			/>
 			<div class="actions">
-				<Button disabled={emailBusy} type="submit">
-					{emailBusy ? m.settings.account.emailSubmitting : m.settings.account.emailSubmit}
+				<Button disabled={emailForm.busy} type="submit">
+					{emailForm.busy ? m.settings.account.emailSubmitting : m.settings.account.emailSubmit}
 				</Button>
 			</div>
 		</Form>
 	</section>
 	<section class="rule">
 		<h2>{m.settings.account.passwordTitle}</h2>
-		<Form onsubmit={submit}>
-			{#if formError}
-				<Alert id={formErrorId} title={m.settings.account.errorTitle} tone="danger">
-					{formError}
-				</Alert>
-			{/if}
+		<Form error={passwordForm.error} errorTitle={m.settings.account.errorTitle} onsubmit={submit}>
 			{#if othersError}
 				<Alert title={m.settings.account.othersFailedTitle} tone="warning">
 					{othersError}
@@ -141,8 +117,8 @@
 			/>
 			<Checkbox label={m.settings.account.signOutOthers} bind:checked={signOutOthers} />
 			<div class="actions">
-				<Button disabled={busy} type="submit">
-					{busy ? m.settings.account.submitting : m.settings.account.submit}
+				<Button disabled={passwordForm.busy} type="submit">
+					{passwordForm.busy ? m.settings.account.submitting : m.settings.account.submit}
 				</Button>
 			</div>
 		</Form>

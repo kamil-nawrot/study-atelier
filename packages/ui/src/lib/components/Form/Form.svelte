@@ -1,13 +1,24 @@
 <script lang="ts">
 	import { tick, type Snippet } from 'svelte';
 	import type { HTMLFormAttributes } from 'svelte/elements';
+	import Alert from '../Alert/Alert.svelte';
 
 	type Props = Omit<HTMLFormAttributes, 'onsubmit'> & {
 		onsubmit: () => void | Promise<void>;
+		error?: string;
+		errorTitle?: string;
 		children: Snippet;
 	};
 
-	let { onsubmit, children, ...rest }: Props = $props();
+	let { onsubmit, error, errorTitle, children, ...rest }: Props = $props();
+
+	const formId = $props.id();
+	const errorId = `${formId}-error`;
+
+	$effect(() => {
+		if (!error) return;
+		document.getElementById(errorId)?.scrollIntoView({ block: 'center' });
+	});
 
 	async function handleSubmit(event: SubmitEvent): Promise<void> {
 		event.preventDefault();
@@ -21,6 +32,9 @@
 </script>
 
 <form novalidate onsubmit={handleSubmit} {...rest}>
+	{#if error}
+		<Alert id={errorId} title={errorTitle} tone="danger">{error}</Alert>
+	{/if}
 	{@render children()}
 </form>
 
