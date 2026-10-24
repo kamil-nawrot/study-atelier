@@ -34,7 +34,7 @@ The same five names must not remain as repository secrets: an environment secret
 
 ## Auth emails
 
-Supabase Auth sends the sign-up confirmation, the password reset and the email change through SMTP of a dedicated Gmail address ([ADR-0125](../decisions/0125-send-the-auth-emails-through-gmail-smtp.md), which replaced Brevo of ADR-0119). Nothing of this is applied by CI: the SMTP settings and the templates live in the dashboard of each Supabase project, so both projects are set up by hand and the credentials never reach the repository.
+Supabase Auth sends the sign-up confirmation, the password reset and the email change through a custom SMTP server. The app and the repository know nothing about the provider: the code only calls `supabase.auth`, and the provider is four values in the dashboard (host, port, username, password) plus the sender address, so changing it never needs a code change. The current provider is a dedicated Gmail address ([ADR-0125](../decisions/0125-send-the-auth-emails-through-gmail-smtp.md), which replaced Brevo of ADR-0119). Nothing of this is applied by CI: the SMTP settings and the templates live in the dashboard of each Supabase project, so both projects are set up by hand and the credentials never reach the repository.
 
 The Polish texts are kept in [`supabase/templates`](../../supabase/templates) and the local stack (`supabase start`) uses the same files through [`supabase/config.toml`](../../supabase/config.toml), with the mails caught by the local inbox instead of sent. A change to a template is made in the file and pasted into the dashboard of `develop` and `production`.
 
@@ -45,6 +45,8 @@ The Polish texts are kept in [`supabase/templates`](../../supabase/templates) an
 | Change email address      | [`email-change.html`](../../supabase/templates/email-change.html) | Potwierdź zmianę adresu e-mail w Study Atelier |
 
 ### Setting up a project
+
+The steps are the same for any provider: get the SMTP host, port, username and password and a verified sender address from it, then enter them in step 2. The current provider, Gmail:
 
 1. Google: create a Gmail address for the app, sign in to it normally and send a few ordinary mails so a fresh account is not blocked, then turn on two-step verification and, under Security, App passwords, create an app password (16 characters, shown once). It is the SMTP password, not the password of the account.
 2. Supabase, Authentication, Emails, SMTP Settings: turn on custom SMTP and enter the sender email (the Gmail address), the sender name `Study Atelier`, the host `smtp.gmail.com`, the port `465`, the full Gmail address as the username and the app password as the password. Save.
