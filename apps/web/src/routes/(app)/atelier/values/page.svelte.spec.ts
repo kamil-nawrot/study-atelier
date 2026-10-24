@@ -295,6 +295,45 @@ describe('card index page', () => {
 			.toHaveValue('marb');
 	});
 
+	it('scrolls back to the saved place after the restored search moved the page', async () => {
+		const index = withMaterials(150);
+		const first = await render(ValuesPage, {
+			data: {
+				session: testSession(),
+				index,
+				error: undefined,
+				ownFields: [],
+				ownFieldsError: undefined
+			},
+			params: {}
+		});
+		await page.getByRole('tab', { name: m.cardIndex.tabs.material }).click();
+		await page.getByRole('searchbox', { name: m.cardIndex.search.material }).fill('1');
+		await expect.element(openValue('Material 2', 1)).not.toBeInTheDocument();
+		const place = Math.round((document.documentElement.scrollHeight - window.innerHeight) / 2);
+		window.scrollTo({ top: place, behavior: 'instant' });
+		const saved = first.component.snapshot.capture();
+		first.unmount();
+
+		const second = await render(ValuesPage, {
+			data: {
+				session: testSession(),
+				index,
+				error: undefined,
+				ownFields: [],
+				ownFieldsError: undefined
+			},
+			params: {}
+		});
+		window.scrollTo({ top: place, behavior: 'instant' });
+		second.component.snapshot.restore(saved);
+		window.scrollTo({ top: place / 2, behavior: 'instant' });
+
+		await expect.element(openValue('Material 2', 1)).not.toBeInTheDocument();
+		await expect.poll(() => window.scrollY).toBe(place);
+		expect(saved).toEqual({ tab: 'material', query: '1', scroll: place });
+	});
+
 	it('ignores a snapshot with a tab it does not know', async () => {
 		const shown = await render(ValuesPage, {
 			data: {

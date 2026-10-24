@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { Alert, Tabs, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -34,12 +34,17 @@
 	let tab = $state<string>(rememberedCardIndexTab());
 	let query = $state('');
 
-	export const snapshot: Snapshot<{ tab: string; query: string }> = {
-		capture: () => ({ tab, query }),
+	type Saved = { tab: string; query: string; scroll?: number };
+
+	export const snapshot: Snapshot<Saved> = {
+		capture: () => ({ tab, query, scroll: window.scrollY }),
 		restore: (value) => {
 			if (!isCardIndexTab(value.tab)) return;
 			tab = value.tab;
 			query = value.query;
+			const { scroll } = value;
+			if (scroll === undefined) return;
+			void tick().then(() => window.scrollTo({ top: scroll, behavior: 'instant' }));
 		}
 	};
 
