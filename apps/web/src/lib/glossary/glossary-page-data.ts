@@ -1,5 +1,5 @@
-import { loadCardIndex } from '#lib/collection/card-index-data.ts';
-import { emptyCardIndex } from '#lib/collection/card-index.ts';
+import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.ts';
+import { emptyCardIndex } from '#lib/card-index/card-index/card-index.ts';
 import { loadGlossary } from './glossary-data.ts';
 import type { GlossaryFormResult } from './types.ts';
 

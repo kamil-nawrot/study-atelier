@@ -1,4 +1,4 @@
-import { loadAtelier } from '#lib/collection/artworks.ts';
+import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
 import { loadGlossaryMentions } from '#lib/glossary/glossary-mentions.ts';
 import { loadGlossary, loadGlossaryEntry } from '#lib/glossary/glossary-data.ts';
 import type { GlossaryEntryResult, PinnedArtwork } from '#lib/glossary/types.ts';

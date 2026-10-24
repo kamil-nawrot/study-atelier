@@ -4,7 +4,7 @@ import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
 import type { OwnField } from '#lib/collection/types.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
-import { CARD_INDEX_SEARCH_MIN_VALUES } from '#lib/collection/card-index.ts';
+import { CARD_INDEX_SEARCH_MIN_VALUES } from '#lib/card-index/card-index/card-index.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testCardIndex } from '#lib/testing/card-index.ts';
 import { testSession } from '#lib/testing/auth.ts';

@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { invalidate } from '$app/navigation';
-import { findDuplicates } from '#lib/collection/duplicates.ts';
-import { deletePermanently, restoreArtwork } from '#lib/collection/trash.ts';
+import { findDuplicates } from '#lib/artworks/duplicates/duplicates.ts';
+import { deletePermanently, restoreArtwork } from '#lib/artworks/trash-data/trash-data.ts';
 import type { TrashArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import { REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data.ts';
@@ -12,12 +12,12 @@ import { testSession } from '#lib/testing/auth.ts';
 import TrashPage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidate: vi.fn() }));
-vi.mock('#lib/collection/trash.ts', () => ({
+vi.mock('#lib/artworks/trash-data/trash-data.ts', () => ({
 	restoreArtwork: vi.fn(),
 	deletePermanently: vi.fn()
 }));
-vi.mock('#lib/collection/duplicates.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/collection/duplicates.ts')>()),
+vi.mock('#lib/artworks/duplicates/duplicates.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/artworks/duplicates/duplicates.ts')>()),
 	findDuplicates: vi.fn()
 }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({

@@ -8,7 +8,7 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
-	import FilterSidePanel from '#lib/collection/components/FilterSidePanel.svelte';
+	import FilterSidePanel from '#lib/wall/components/FilterSidePanel/FilterSidePanel.svelte';
 	import { m } from '#lib/i18n/index.ts';
 	import TimelineFilterPanel from '#lib/timeline/components/TimelineFilterPanel.svelte';
 	import TimelineView, { type TimelinePlace } from '#lib/timeline/components/TimelineView.svelte';

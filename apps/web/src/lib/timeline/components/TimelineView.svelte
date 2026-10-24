@@ -40,7 +40,7 @@
 		type TimeSpan,
 		type View
 	} from '#lib/timeline/time.ts';
-	import FilterTags from '#lib/collection/components/FilterTags.svelte';
+	import FilterTags from '#lib/wall/components/FilterTags/FilterTags.svelte';
 	import {
 		applyTimelineFilter,
 		artworksIn,

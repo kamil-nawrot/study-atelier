@@ -1,12 +1,12 @@
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
-import { artworkImageCredit } from '#lib/collection/artwork-image.ts';
-import { collectionErrorMessage } from '#lib/collection/errors.ts';
+import { artworkImageCredit } from '#lib/images/artwork-image/artwork-image.ts';
+import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import {
 	IMAGE_COLUMNS,
 	type ImageRow,
 	imageOf,
 	withPreview
-} from '#lib/collection/image-record.ts';
+} from '#lib/images/image-record/image-record.ts';
 import { m } from '#lib/i18n/index.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';

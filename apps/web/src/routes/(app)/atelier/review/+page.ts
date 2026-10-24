@@ -1,4 +1,4 @@
-import { loadAtelier } from '#lib/collection/artworks.ts';
+import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
 import { loadGlossary } from '#lib/glossary/glossary-data.ts';
 import { countTermPins } from '#lib/pins/pin-data.ts';
 import { loadPreferences, PREFERENCES_DEPENDENCY } from '#lib/profile/preferences-data.ts';

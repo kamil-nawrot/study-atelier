@@ -24,12 +24,12 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
-	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
+	import ArtworkWall from '#lib/wall/components/ArtworkWall/ArtworkWall.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
-	import FilterPanel from '#lib/collection/components/FilterPanel.svelte';
-	import FilterSidePanel from '#lib/collection/components/FilterSidePanel.svelte';
-	import FilterTags from '#lib/collection/components/FilterTags.svelte';
-	import WallSections from '#lib/collection/components/WallSections.svelte';
+	import FilterPanel from '#lib/wall/components/FilterPanel/FilterPanel.svelte';
+	import FilterSidePanel from '#lib/wall/components/FilterSidePanel/FilterSidePanel.svelte';
+	import FilterTags from '#lib/wall/components/FilterTags/FilterTags.svelte';
+	import WallSections from '#lib/wall/components/WallSections/WallSections.svelte';
 	import {
 		applyFilter,
 		emptyFilter,
@@ -40,12 +40,12 @@
 		onlyFavourites,
 		pruneFilter,
 		removeTag
-	} from '#lib/collection/filter.ts';
-	import { favouriteToast, setFavourite } from '#lib/collection/favourite.ts';
+	} from '#lib/wall/filter/filter.ts';
+	import { favouriteToast, setFavourite } from '#lib/artworks/favourite/favourite.ts';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
-	import { WALL_PART } from '#lib/collection/masonry.ts';
-	import PeriodRail from '#lib/collection/components/PeriodRail.svelte';
-	import PeriodStrip from '#lib/collection/components/PeriodStrip.svelte';
+	import { WALL_PART } from '#lib/wall/masonry/masonry.ts';
+	import PeriodRail from '#lib/wall/components/PeriodRail/PeriodRail.svelte';
+	import PeriodStrip from '#lib/wall/components/PeriodStrip/PeriodStrip.svelte';
 	import {
 		groupingFromParams,
 		groupWall,
@@ -55,19 +55,19 @@
 		sectionSequence,
 		WALL_GROUPINGS,
 		wallParams
-	} from '#lib/collection/grouping.ts';
-	import { groupByAuthor } from '#lib/collection/periods.ts';
-	import { MIN_RAIL_MARGIN, PeriodTracker } from '#lib/collection/period-tracker.svelte.ts';
-	import { filterByTitleOrAuthor } from '#lib/collection/search.ts';
+	} from '#lib/wall/grouping/grouping.ts';
+	import { groupByAuthor } from '#lib/wall/periods/periods.ts';
+	import { MIN_RAIL_MARGIN, PeriodTracker } from '#lib/wall/period-tracker/period-tracker.svelte.ts';
+	import { filterByTitleOrAuthor } from '#lib/wall/search/search.ts';
 	import type { WallOrder } from '#lib/collection/types.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import {
 		isWallOrder,
 		rememberedWallOrder,
 		rememberWallOrder
-	} from '#lib/collection/wall-order.ts';
-	import { WallImages } from '#lib/collection/wall-images.svelte.ts';
-	import { rememberWallSequence } from '#lib/collection/wall-sequence.ts';
+	} from '#lib/wall/wall-order/wall-order.ts';
+	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
+	import { rememberWallSequence } from '#lib/wall/wall-sequence/wall-sequence.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps, Snapshot } from './$types';
 

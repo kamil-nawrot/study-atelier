@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { ArtworkImage, Frame, Logo, Section } from '@study-atelier/ui';
-	import { pickArtwork } from '#lib/artworks/auth-artworks.ts';
+	import { pickArtwork } from '#lib/auth/auth-artworks.ts';
 	import { commonsFileUrl } from '#lib/images/commons.ts';
 	import { m } from '#lib/i18n/index.ts';
 

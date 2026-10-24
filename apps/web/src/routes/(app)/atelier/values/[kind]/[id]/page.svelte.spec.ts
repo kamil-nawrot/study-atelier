@@ -2,13 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
-import { refreshExpiredImages, resolveImages } from '#lib/collection/artworks.ts';
-import { deleteValue } from '#lib/collection/card-index-data.ts';
-import { findRecord } from '#lib/collection/card-index.ts';
+import { refreshExpiredImages, resolveImages } from '#lib/wall/wall-data/wall-data.ts';
+import { deleteValue } from '#lib/card-index/card-index-data/card-index-data.ts';
+import { findRecord } from '#lib/card-index/card-index/card-index.ts';
 import type { ValueDetails, ValueSubject } from '#lib/collection/types.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-import { emptyAuthorDetails } from '#lib/collection/author-form.ts';
-import { emptyValueDetails } from '#lib/collection/value-details.ts';
+import { emptyAuthorDetails } from '#lib/values/author-form/author-form.ts';
+import { emptyValueDetails } from '#lib/values/value-details/value-details.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { testCardIndex } from '#lib/testing/card-index.ts';
@@ -23,11 +23,11 @@ const navigation = vi.hoisted(() => ({
 
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
-vi.mock('#lib/collection/artworks.ts', () => ({
+vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
 	refreshExpiredImages: vi.fn(),
 	resolveImages: vi.fn()
 }));
-vi.mock('#lib/collection/card-index-data.ts', () => ({ deleteValue: vi.fn() }));
+vi.mock('#lib/card-index/card-index-data/card-index-data.ts', () => ({ deleteValue: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));

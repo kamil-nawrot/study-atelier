@@ -1,8 +1,8 @@
-import { loadCategoryValues } from '#lib/collection/category-values.ts';
-import { loadNoteLinks } from '#lib/collection/note-link-data.ts';
-import { loadOwnFieldDefinitions } from '#lib/collection/own-fields.ts';
-import { loadPlaceStarter } from '#lib/collection/place-starter.ts';
-import { loadValueLinks } from '#lib/collection/value-links.ts';
+import { loadCategoryValues } from '#lib/card-index/category-values/category-values.ts';
+import { loadNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
+import { loadOwnFieldDefinitions } from '#lib/card-index/own-fields/own-fields.ts';
+import { loadPlaceStarter } from '#lib/card-index/place-starter/place-starter.ts';
+import { loadValueLinks } from '#lib/card-index/value-links/value-links.ts';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async () => {

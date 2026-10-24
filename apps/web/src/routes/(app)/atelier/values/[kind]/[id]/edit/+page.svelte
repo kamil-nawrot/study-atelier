@@ -4,9 +4,9 @@
 	import { resolve } from '$app/paths';
 	import type { ResolvedPathname } from '$app/types';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
-	import ValueForm from '#lib/collection/components/ValueForm.svelte';
+	import ValueForm from '#lib/values/components/ValueForm/ValueForm.svelte';
 	import { arrivedFromApp, goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
-	import { subjectName, subjectPath } from '#lib/collection/value-pages.ts';
+	import { subjectName, subjectPath } from '#lib/card-index/value-pages/value-pages.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
 	import type { PageProps } from './$types';

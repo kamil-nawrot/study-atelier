@@ -1,9 +1,9 @@
-import { loadArtwork } from '#lib/collection/artwork-record.ts';
-import { emptyCategoryValues, loadCategoryValues } from '#lib/collection/category-values.ts';
-import { loadNoteLinks } from '#lib/collection/note-link-data.ts';
-import { loadOwnFieldDefinitions } from '#lib/collection/own-fields.ts';
-import { emptyPlaceStarter, loadPlaceStarter } from '#lib/collection/place-starter.ts';
-import { emptyValueLinks, loadValueLinks } from '#lib/collection/value-links.ts';
+import { loadArtwork } from '#lib/artworks/artwork-record/artwork-record.ts';
+import { emptyCategoryValues, loadCategoryValues } from '#lib/card-index/category-values/category-values.ts';
+import { loadNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
+import { loadOwnFieldDefinitions } from '#lib/card-index/own-fields/own-fields.ts';
+import { emptyPlaceStarter, loadPlaceStarter } from '#lib/card-index/place-starter/place-starter.ts';
+import { emptyValueLinks, loadValueLinks } from '#lib/card-index/value-links/value-links.ts';
 import { parseRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import { loadGlossary } from '#lib/glossary/glossary-data.ts';
 import { loadArtworkPins } from '#lib/pins/pin-data.ts';

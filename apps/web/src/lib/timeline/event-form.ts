@@ -1,5 +1,5 @@
-import { parseYear } from '#lib/collection/artwork-form.ts';
-import { validateYears, type YearsInput } from '#lib/collection/artwork-record.ts';
+import { parseYear } from '#lib/artworks/artwork-form/artwork-form.ts';
+import { validateYears, type YearsInput } from '#lib/artworks/artwork-record/artwork-record.ts';
 import { signedYear } from '#lib/catalogue/years/years.ts';
 import { m } from '#lib/i18n/index.ts';
 import type { WikipediaSource } from '#lib/shared/types/wikipedia-source.ts';

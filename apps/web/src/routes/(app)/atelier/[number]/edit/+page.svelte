@@ -2,7 +2,7 @@
 	import { LoadFailure } from '@study-atelier/ui';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import ArtworkForm from '#lib/collection/components/ArtworkForm.svelte';
+	import ArtworkForm from '#lib/artworks/components/ArtworkForm/ArtworkForm.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import { arrivedFromApp, goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
 	import {

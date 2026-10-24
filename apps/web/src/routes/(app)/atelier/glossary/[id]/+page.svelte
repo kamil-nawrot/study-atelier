@@ -6,9 +6,9 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
+	import ArtworkWall from '#lib/wall/components/ArtworkWall/ArtworkWall.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
-	import { WallImages } from '#lib/collection/wall-images.svelte.ts';
+	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import GlossaryView from '#lib/glossary/components/GlossaryView.svelte';
 	import { deleteGlossaryEntry } from '#lib/glossary/glossary-data.ts';

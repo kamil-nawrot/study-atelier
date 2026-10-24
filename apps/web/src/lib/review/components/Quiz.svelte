@@ -9,8 +9,8 @@
 	import type { LucideIcon } from '@lucide/svelte';
 	import { tick } from 'svelte';
 	import { Alert, ArtworkImage, Button, Icon, Tooltip } from '@study-atelier/ui';
-	import { artworkImageCredit, artworkImageSource } from '#lib/collection/artwork-image.ts';
-	import ImageViewer from '#lib/collection/components/ImageViewer.svelte';
+	import { artworkImageCredit, artworkImageSource } from '#lib/images/artwork-image/artwork-image.ts';
+	import ImageViewer from '#lib/images/components/ImageViewer/ImageViewer.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import PinMark from '#lib/pins/components/PinMark.svelte';

@@ -2,7 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import { ArtworkImage, NoImage, overlayScrollbar } from '@study-atelier/ui';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-	import ImageViewer from '#lib/collection/components/ImageViewer.svelte';
+	import ImageViewer from '#lib/images/components/ImageViewer/ImageViewer.svelte';
 	import { m } from '#lib/i18n/index.ts';
 
 	type Props = {

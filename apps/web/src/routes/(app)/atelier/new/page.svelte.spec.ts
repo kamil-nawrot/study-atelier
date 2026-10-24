@@ -2,9 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { afterNavigate, beforeNavigate, goto, invalidateAll } from '$app/navigation';
-import { emptyCategoryValues } from '#lib/collection/category-values.ts';
-import { emptyPlaceStarter } from '#lib/collection/place-starter.ts';
-import { emptyValueLinks } from '#lib/collection/value-links.ts';
+import { emptyCategoryValues } from '#lib/card-index/category-values/category-values.ts';
+import { emptyPlaceStarter } from '#lib/card-index/place-starter/place-starter.ts';
+import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
 import type { OwnFieldDefinition, PlaceStarter, ValueLinks } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import {

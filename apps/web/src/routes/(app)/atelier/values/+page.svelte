@@ -9,15 +9,15 @@
 		isCardIndexTab,
 		rememberCardIndexTab,
 		rememberedCardIndexTab
-	} from '#lib/collection/card-index-tab.ts';
-	import { loadOwnValues } from '#lib/collection/card-index-data.ts';
-	import { buildTimeline, valuesOf } from '#lib/collection/card-index.ts';
+	} from '#lib/card-index/card-index-tab/card-index-tab.ts';
+	import { loadOwnValues } from '#lib/card-index/card-index-data/card-index-data.ts';
+	import { buildTimeline, valuesOf } from '#lib/card-index/card-index/card-index.ts';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
-	import CardIndexList from '#lib/collection/components/CardIndexList.svelte';
-	import CardIndexTimeline from '#lib/collection/components/CardIndexTimeline.svelte';
-	import OwnFieldsTab from '#lib/collection/components/OwnFieldsTab.svelte';
-	import { loadOwnFields, withOwnValues } from '#lib/collection/own-fields.ts';
-	import { valuePath } from '#lib/collection/value-pages.ts';
+	import CardIndexList from '#lib/card-index/components/CardIndexList/CardIndexList.svelte';
+	import CardIndexTimeline from '#lib/card-index/components/CardIndexTimeline/CardIndexTimeline.svelte';
+	import OwnFieldsTab from '#lib/card-index/components/OwnFieldsTab/OwnFieldsTab.svelte';
+	import { loadOwnFields, withOwnValues } from '#lib/card-index/own-fields/own-fields.ts';
+	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps, Snapshot } from './$types';
 

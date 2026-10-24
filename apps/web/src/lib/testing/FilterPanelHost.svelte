@@ -3,7 +3,7 @@
 	import type { OwnFieldDefinition } from '#lib/collection/types.ts';
 	import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-	import FilterPanel from '#lib/collection/components/FilterPanel.svelte';
+	import FilterPanel from '#lib/wall/components/FilterPanel/FilterPanel.svelte';
 
 	type Props = {
 		artworks: WallArtwork[];

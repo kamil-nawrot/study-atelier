@@ -1,4 +1,4 @@
-import { loadAtelier } from '#lib/collection/artworks.ts';
+import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
 import { loadTimelineEvents } from '#lib/timeline/timeline-data.ts';
 import type { PageLoad } from './$types';
 

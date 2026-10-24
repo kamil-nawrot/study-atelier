@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
-import { emptyCategoryValues } from '#lib/collection/category-values.ts';
-import { emptyPlaceStarter } from '#lib/collection/place-starter.ts';
-import { emptyValueLinks } from '#lib/collection/value-links.ts';
+import { emptyCategoryValues } from '#lib/card-index/category-values/category-values.ts';
+import { emptyPlaceStarter } from '#lib/card-index/place-starter/place-starter.ts';
+import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
 import type {
 	ArtworkRecord,
 	LoadArtworkResult,

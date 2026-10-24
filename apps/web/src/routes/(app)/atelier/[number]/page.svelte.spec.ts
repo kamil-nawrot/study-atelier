@@ -4,10 +4,10 @@ import { render } from 'vitest-browser-svelte';
 import '@study-atelier/ui/styles.css';
 import { goto, preloadData } from '$app/navigation';
 import { setBackPlace } from '#lib/shared/navigation/back/back.svelte.ts';
-import { setFavourite } from '#lib/collection/favourite.ts';
-import { moveToTrash } from '#lib/collection/trash.ts';
+import { setFavourite } from '#lib/artworks/favourite/favourite.ts';
+import { moveToTrash } from '#lib/artworks/trash-data/trash-data.ts';
 import type { ArtworkRecord, LoadArtworkResult } from '#lib/collection/types.ts';
-import { buildNoteLinks } from '#lib/collection/note-links.ts';
+import { buildNoteLinks } from '#lib/notes/note-links/note-links.ts';
 import { m } from '#lib/i18n/index.ts';
 import { defaultPreferences } from '#lib/profile/preferences.ts';
 import { testSession } from '#lib/testing/auth.ts';
@@ -28,9 +28,9 @@ vi.mock('$app/navigation', () => ({
 	goto: vi.fn(),
 	preloadData: vi.fn()
 }));
-vi.mock('#lib/collection/trash.ts', () => ({ moveToTrash: vi.fn() }));
-vi.mock('#lib/collection/favourite.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/collection/favourite.ts')>()),
+vi.mock('#lib/artworks/trash-data/trash-data.ts', () => ({ moveToTrash: vi.fn() }));
+vi.mock('#lib/artworks/favourite/favourite.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/artworks/favourite/favourite.ts')>()),
 	setFavourite: vi.fn()
 }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({

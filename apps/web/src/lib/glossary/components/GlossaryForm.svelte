@@ -20,7 +20,7 @@
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
-	import { valuePath } from '#lib/collection/value-pages.ts';
+	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
 	import { autoFetch } from '#lib/profile/auto-fetch.svelte.ts';
 	import { resolve } from '$app/paths';
 	import {
