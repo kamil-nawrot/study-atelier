@@ -16,10 +16,12 @@
 	import {
 		FIELD_DESCRIPTION_MAX_LENGTH,
 		FIELD_NAME_MAX_LENGTH,
-		createOwnField,
-		fieldNameError,
-		updateOwnField
+		fieldNameError
 	} from '#lib/card-index/own-fields/own-fields.ts';
+	import {
+		createOwnField,
+		updateOwnField
+	} from '#lib/card-index/own-fields-data/own-fields-data.ts';
 	import type { OwnField } from '#lib/card-index/types/own-field.ts';
 	import type { OwnFieldInput } from '#lib/card-index/types/own-field-input.ts';
 	import type { OwnFieldKind } from '#lib/card-index/types/own-field-kind.ts';

@@ -3,7 +3,7 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto, invalidateAll } from '$app/navigation';
 import { refreshExpiredImages } from '#lib/wall/wall-data/wall-data.ts';
-import { setFavourite } from '#lib/artworks/favourite/favourite.ts';
+import { setFavourite } from '#lib/artworks/favourite-data/favourite-data.ts';
 import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { m } from '#lib/i18n/index.ts';
@@ -28,8 +28,8 @@ vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
 	refreshExpiredImages: vi.fn(),
 	resolveImages: vi.fn()
 }));
-vi.mock('#lib/artworks/favourite/favourite.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/artworks/favourite/favourite.ts')>()),
+vi.mock('#lib/artworks/favourite-data/favourite-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/artworks/favourite-data/favourite-data.ts')>()),
 	setFavourite: vi.fn()
 }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({

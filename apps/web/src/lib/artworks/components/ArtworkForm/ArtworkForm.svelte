@@ -23,7 +23,8 @@
 		emptyArtworkForm,
 		formHasChanges
 	} from '#lib/artworks/artwork-form/artwork-form.ts';
-	import { saveArtwork, validateArtwork } from '#lib/artworks/artwork-record/artwork-record.ts';
+	import { validateArtwork } from '#lib/artworks/artwork-record/artwork-record.ts';
+	import { saveArtwork } from '#lib/artworks/artwork-data/artwork-data.ts';
 	import {
 		artworkTypeTiles,
 		isArtworkTypeCode

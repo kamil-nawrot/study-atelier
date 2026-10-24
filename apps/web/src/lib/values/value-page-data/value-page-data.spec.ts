@@ -6,7 +6,7 @@ import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
 import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.ts';
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
 import { loadNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
-import { loadValueDetails } from '#lib/values/value-details/value-details.ts';
+import { loadValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
 import { loadValuePage } from './value-page-data.ts';
 
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({ loadAtelier: vi.fn() }));
@@ -16,8 +16,10 @@ vi.mock('#lib/notes/note-link-data/note-link-data.ts', async (importOriginal) =>
 	...(await importOriginal<typeof import('#lib/notes/note-link-data/note-link-data.ts')>()),
 	loadNoteLinks: vi.fn()
 }));
-vi.mock('#lib/values/value-details/value-details.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/values/value-details/value-details.ts')>()),
+vi.mock('#lib/values/value-details-data/value-details-data.ts', async (importOriginal) => ({
+	...(await importOriginal<
+		typeof import('#lib/values/value-details-data/value-details-data.ts')
+	>()),
 	loadValueDetails: vi.fn()
 }));
 

@@ -7,10 +7,8 @@
 	import { m } from '#lib/i18n/index.ts';
 	import { findImageCandidates } from '#lib/images/image-search.ts';
 	import type { ImageCandidate, ImageSearchQuery } from '#lib/images/types.ts';
-	import {
-		imageFromCandidate,
-		MAX_ARTWORK_IMAGES
-	} from '#lib/artworks/artwork-form/artwork-form.ts';
+	import { MAX_ARTWORK_IMAGES } from '#lib/artworks/artwork-form/artwork-form.ts';
+	import { imageFromCandidate } from '#lib/images/image-candidate/image-candidate.ts';
 	import {
 		AUTO_MATCH_DELAY_MS,
 		isCandidateImage,

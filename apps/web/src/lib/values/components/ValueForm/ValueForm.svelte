@@ -42,10 +42,8 @@
 	import { isPlaceType, placeTiles } from '#lib/catalogue/place-types/place-types.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
-	import {
-		saveValueDetails,
-		valueDetailsChanged
-	} from '#lib/values/value-details/value-details.ts';
+	import { valueDetailsChanged } from '#lib/values/value-details/value-details.ts';
+	import { saveValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
 	import {
 		SUMMARY_MAX_LENGTH,
 		subjectPath,

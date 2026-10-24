@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { emptyPlaceStarter, loadPlaceStarter } from './place-starter.ts';
+import { emptyPlaceStarter } from '#lib/card-index/place-starter/place-starter.ts';
+import { loadPlaceStarter } from './place-starter-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn() }

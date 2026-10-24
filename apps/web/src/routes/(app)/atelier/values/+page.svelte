@@ -16,7 +16,8 @@
 	import CardIndexList from '#lib/card-index/components/CardIndexList/CardIndexList.svelte';
 	import CardIndexTimeline from '#lib/card-index/components/CardIndexTimeline/CardIndexTimeline.svelte';
 	import OwnFieldsTab from '#lib/card-index/components/OwnFieldsTab/OwnFieldsTab.svelte';
-	import { loadOwnFields, withOwnValues } from '#lib/card-index/own-fields/own-fields.ts';
+	import { withOwnValues } from '#lib/card-index/own-fields/own-fields.ts';
+	import { loadOwnFields } from '#lib/card-index/own-fields-data/own-fields-data.ts';
 	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps, Snapshot } from './$types';

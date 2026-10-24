@@ -1,15 +1,12 @@
-import { loadArtwork } from '#lib/artworks/artwork-record/artwork-record.ts';
-import {
-	emptyCategoryValues,
-	loadCategoryValues
-} from '#lib/card-index/category-values/category-values.ts';
+import { loadArtwork } from '#lib/artworks/artwork-data/artwork-data.ts';
+import { emptyCategoryValues } from '#lib/card-index/category-values/category-values.ts';
+import { loadCategoryValues } from '#lib/card-index/category-values-data/category-values-data.ts';
 import { loadNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
-import { loadOwnFieldDefinitions } from '#lib/card-index/own-fields/own-fields.ts';
-import {
-	emptyPlaceStarter,
-	loadPlaceStarter
-} from '#lib/card-index/place-starter/place-starter.ts';
-import { emptyValueLinks, loadValueLinks } from '#lib/card-index/value-links/value-links.ts';
+import { loadOwnFieldDefinitions } from '#lib/card-index/own-fields-data/own-fields-data.ts';
+import { emptyPlaceStarter } from '#lib/card-index/place-starter/place-starter.ts';
+import { loadPlaceStarter } from '#lib/card-index/place-starter-data/place-starter-data.ts';
+import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
+import { loadValueLinks } from '#lib/card-index/value-links-data/value-links-data.ts';
 import { parseRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import { loadGlossary } from '#lib/glossary/glossary-data.ts';
 import { loadArtworkPins } from '#lib/pins/pin-data.ts';

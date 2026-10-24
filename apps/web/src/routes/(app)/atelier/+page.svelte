@@ -41,7 +41,8 @@
 		pruneFilter,
 		removeTag
 	} from '#lib/wall/filter/filter.ts';
-	import { favouriteToast, setFavourite } from '#lib/artworks/favourite/favourite.ts';
+	import { favouriteToast } from '#lib/artworks/favourite/favourite.ts';
+	import { setFavourite } from '#lib/artworks/favourite-data/favourite-data.ts';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import { WALL_PART } from '#lib/wall/masonry/masonry.ts';
 	import PeriodRail from '#lib/wall/components/PeriodRail/PeriodRail.svelte';

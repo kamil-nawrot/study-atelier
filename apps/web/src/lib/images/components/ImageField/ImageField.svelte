@@ -36,7 +36,7 @@
 		readImageSize
 	} from '#lib/images/own-image.ts';
 	import type { ImageCandidate, ImageSearchQuery } from '#lib/images/types.ts';
-	import { imageFromCandidate } from '#lib/artworks/artwork-form/artwork-form.ts';
+	import { imageFromCandidate } from '#lib/images/image-candidate/image-candidate.ts';
 	import {
 		artworkImageCredit,
 		artworkImageSource

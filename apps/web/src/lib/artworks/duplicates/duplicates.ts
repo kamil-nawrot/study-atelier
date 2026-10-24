@@ -1,5 +1,4 @@
 import { locale } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
 import { valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
@@ -9,13 +8,6 @@ export type TitleAndAuthors = Pick<ArtworkInput, 'title' | 'authors'>;
 export type DuplicateCandidate = TitleAndAuthors & {
 	id: string;
 	number: number;
-};
-
-type CandidateRow = {
-	id: string;
-	record_number: number;
-	title: string;
-	artwork_values: { category_values: { category_code: string; name: string } | null }[];
 };
 
 function authorKeys(authors: readonly string[]): string[] {
@@ -44,28 +36,4 @@ export function formatRecordNumbers(numbers: readonly number[]): string {
 	return new Intl.ListFormat(locale, { type: 'conjunction' }).format(
 		numbers.map(formatRecordNumber)
 	);
-}
-
-function candidateFromRow(row: CandidateRow): DuplicateCandidate {
-	return {
-		id: row.id,
-		number: row.record_number,
-		title: row.title,
-		authors: row.artwork_values
-			.filter((value) => value.category_values?.category_code === 'author')
-			.map((value) => value.category_values?.name ?? '')
-	};
-}
-
-export async function findDuplicates(
-	artwork: TitleAndAuthors,
-	excludeId?: string
-): Promise<number[]> {
-	const { data, error } = await supabase
-		.from('artworks')
-		.select('id, record_number, title, artwork_values(category_values(category_code, name))')
-		.is('deleted_at', null);
-	if (error) return [];
-	const candidates = ((data ?? []) as unknown as CandidateRow[]).map(candidateFromRow);
-	return duplicateNumbers(artwork, candidates, excludeId);
 }

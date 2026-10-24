@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { loadValueSummaries, summaryKey } from './value-summaries.ts';
+import { summaryKey } from '#lib/card-index/value-summaries/value-summaries.ts';
+import { loadValueSummaries } from './value-summaries-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: { from: vi.fn() } }));
 

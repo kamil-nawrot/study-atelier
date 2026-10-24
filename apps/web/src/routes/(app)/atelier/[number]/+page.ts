@@ -1,9 +1,9 @@
 import { resolve } from '$app/paths';
-import { loadArtwork } from '#lib/artworks/artwork-record/artwork-record.ts';
+import { loadArtwork } from '#lib/artworks/artwork-data/artwork-data.ts';
 import { parseRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
-import { loadOwnFieldDefinitions } from '#lib/card-index/own-fields/own-fields.ts';
-import { loadValueSummaries } from '#lib/card-index/value-summaries/value-summaries.ts';
+import { loadOwnFieldDefinitions } from '#lib/card-index/own-fields-data/own-fields-data.ts';
+import { loadValueSummaries } from '#lib/card-index/value-summaries-data/value-summaries-data.ts';
 import { loadNoteLinks, mentionsLinks } from '#lib/notes/note-link-data/note-link-data.ts';
 import { loadGlossary } from '#lib/glossary/glossary-data.ts';
 import { m } from '#lib/i18n/index.ts';

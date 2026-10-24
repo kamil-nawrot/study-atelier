@@ -5,7 +5,8 @@ import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.t
 import { emptyCardIndex } from '#lib/card-index/card-index/card-index.ts';
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
 import { loadNoteLinks, noteLinksFrom } from '#lib/notes/note-link-data/note-link-data.ts';
-import { emptyValueDetails, loadValueDetails } from '#lib/values/value-details/value-details.ts';
+import { emptyValueDetails } from '#lib/values/value-details/value-details.ts';
+import { loadValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
 import { findSubject, isValueKind, subjectPath } from '#lib/card-index/value-pages/value-pages.ts';
 import type { GlossaryEntry } from '#lib/glossary/types.ts';
 import type { NoteLinks } from '@study-atelier/ui';

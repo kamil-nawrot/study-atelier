@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DuplicateCheck } from './duplicate-check.svelte.ts';
-import { findDuplicates } from '#lib/artworks/duplicates/duplicates.ts';
+import { findDuplicates } from '#lib/artworks/duplicates-data/duplicates-data.ts';
 
-vi.mock('#lib/artworks/duplicates/duplicates.ts', () => ({ findDuplicates: vi.fn() }));
+vi.mock('#lib/artworks/duplicates-data/duplicates-data.ts', () => ({ findDuplicates: vi.fn() }));
 
 const artwork = { title: 'Sunflowers', authors: ['Vincent van Gogh'] };
 

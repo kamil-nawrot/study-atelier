@@ -10,11 +10,8 @@
 	import type { ResolvedPathname } from '$app/types';
 	import ArtworkView from '#lib/artworks/components/ArtworkView/ArtworkView.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
-	import {
-		favouriteLabel,
-		favouriteToast,
-		setFavourite
-	} from '#lib/artworks/favourite/favourite.ts';
+	import { favouriteLabel, favouriteToast } from '#lib/artworks/favourite/favourite.ts';
+	import { setFavourite } from '#lib/artworks/favourite-data/favourite-data.ts';
 	import { keyDirection } from '#lib/wall/flip/flip.ts';
 	import {
 		formatRecordNumber,
