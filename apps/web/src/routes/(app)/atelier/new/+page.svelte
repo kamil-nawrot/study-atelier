@@ -3,7 +3,7 @@
 	import { resolve } from '$app/paths';
 	import ArtworkForm from '#lib/collection/components/ArtworkForm.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
-	import { goBackThroughHistory } from '#lib/collection/history.ts';
+	import { arrivedFromApp, goBackThroughHistory } from '#lib/collection/history.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import BackLink from '#lib/navigation/components/BackLink.svelte';
 	import type { PageProps } from './$types';
@@ -13,14 +13,14 @@
 	const atelierPath = resolve('/(app)/atelier');
 
 	let form: ArtworkForm;
-	let cameFromAtelier = false;
+	let cameFromApp = false;
 
 	afterNavigate(({ from }) => {
-		cameFromAtelier = from?.route.id === '/(app)/atelier';
+		cameFromApp = arrivedFromApp(from);
 	});
 
-	function backToAtelier(event: MouseEvent): void {
-		goBackThroughHistory(event, cameFromAtelier);
+	function goBack(event: MouseEvent): void {
+		goBackThroughHistory(event, cameFromApp);
 	}
 
 	async function showSaved(number: number, next: boolean): Promise<void> {
@@ -47,7 +47,7 @@
 		cancelHref={atelierPath}
 		categoryValues={data.values}
 		noteLinks={data.noteLinks}
-		oncancel={backToAtelier}
+		oncancel={goBack}
 		onsaved={showSaved}
 		ownFields={data.ownFields}
 		ownValues={data.ownValues}

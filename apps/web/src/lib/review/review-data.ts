@@ -111,9 +111,9 @@ export async function loadReviewStreak(dayStart: Date): Promise<ReviewStreakResu
 	return { days: data };
 }
 
-export function waitingToday(counts: ReviewCounts): number {
+export function waitingToday(counts: ReviewCounts, newPerDay?: number): number {
 	if (counts.withImage < MIN_ARTWORKS) return 0;
-	const fresh = Math.min(counts.newAvailable, newAllowance(counts.newToday));
+	const fresh = Math.min(counts.newAvailable, newAllowance(counts.newToday, newPerDay));
 	return counts.due + fresh;
 }
 

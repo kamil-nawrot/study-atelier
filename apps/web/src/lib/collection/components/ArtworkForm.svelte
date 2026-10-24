@@ -26,7 +26,7 @@
 	} from '../artwork-form.ts';
 	import { saveArtwork, validateArtwork } from '../artwork-record.ts';
 	import { artworkTypeTiles, isArtworkTypeCode } from '../artwork-types.ts';
-	import { takesOneValue } from '../category-values.ts';
+	import { takesOneValue, VALUE_NAME_MAX_LENGTH } from '../category-values.ts';
 	import { DuplicateCheck } from '../duplicate-check.svelte.ts';
 	import { sameTitleAndAuthors } from '../duplicates.ts';
 	import { eraTiles, isEraCode } from '../eras.ts';
@@ -65,6 +65,7 @@
 		ownFields?: OwnFieldDefinition[];
 		ownValues?: Record<string, string[]>;
 		pins?: Pin[];
+		pinsError?: string;
 		glossary?: GlossaryEntry[];
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
@@ -80,6 +81,7 @@
 		ownFields,
 		ownValues = {},
 		pins = [],
+		pinsError,
 		glossary = [],
 		cancelHref,
 		oncancel,
@@ -293,6 +295,7 @@
 			alt={imageAlt}
 			autoMatch={!artwork}
 			entries={glossary}
+			{pinsError}
 			query={{
 				kind: 'artwork',
 				title: form.title,
@@ -319,6 +322,7 @@
 					disabled={form.authorUnknown}
 					error={fieldErrors.authors}
 					label={m.artworkForm.authors}
+					maxlength={VALUE_NAME_MAX_LENGTH}
 					options={options('author')}
 					bind:query={form.queries.author}
 					bind:values={form.values.author}
@@ -381,6 +385,7 @@
 			<ValueField
 				label={m.artworkForm.period}
 				locked={periodLocked}
+				maxlength={VALUE_NAME_MAX_LENGTH}
 				options={periodOptions()}
 				placeholder={periodLocked ? m.artworkForm.periodLocked : undefined}
 				single
@@ -391,6 +396,7 @@
 			<ValueField
 				label={m.artworkForm.style}
 				locked={styleLocked}
+				maxlength={VALUE_NAME_MAX_LENGTH}
 				options={styleOptions()}
 				placeholder={styleLocked ? m.artworkForm.styleLocked : undefined}
 				bind:query={form.queries.style}
@@ -401,6 +407,7 @@
 				<ValueField
 					hint={category.code === 'location' ? m.artworkForm.locationHint : undefined}
 					label={category.label}
+					maxlength={VALUE_NAME_MAX_LENGTH}
 					options={options(category.code)}
 					single={takesOneValue(category.code)}
 					bind:query={form.queries[category.code]}
@@ -422,6 +429,7 @@
 						<ValueField
 							hint={field.description ?? undefined}
 							label={field.name}
+							maxlength={VALUE_NAME_MAX_LENGTH}
 							options={ownOptions(field)}
 							single={!field.multiple}
 							bind:query={

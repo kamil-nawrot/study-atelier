@@ -20,6 +20,7 @@
 	import ArticleDialog from '#lib/glossary/components/ArticleDialog.svelte';
 	import { sourceOf } from '#lib/glossary/wikipedia.ts';
 	import { m } from '#lib/i18n/index.ts';
+	import { autoFetch } from '#lib/profile/auto-fetch.svelte.ts';
 	import {
 		datesKey,
 		draftOfEventForm,
@@ -140,7 +141,7 @@
 		const name = query;
 		if (existing) return;
 		request += 1;
-		if (!name) return;
+		if (!name || !autoFetch.event) return;
 		const timer = setTimeout(() => {
 			if (!busy && untrack(replaceable)) void search(true);
 		}, SEARCH_DELAY_MS);
@@ -274,6 +275,13 @@
 					rows={4}
 					bind:value={form.description}
 				/>
+				{#if !autoFetch.event && !form.source && form.name.trim() !== ''}
+					<div class="links">
+						<TextButton inline onclick={openArticles}>
+							{m.timeline.form.searchArticles}
+						</TextButton>
+					</div>
+				{/if}
 				{#if form.source}
 					<div class="links">
 						<span class="caption">

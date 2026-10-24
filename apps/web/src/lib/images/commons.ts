@@ -3,7 +3,7 @@ import { fetchJson } from './wikimedia.ts';
 export const COMMONS_THUMBNAIL_WIDTHS = [250, 330, 500, 960, 1280, 1920] as const;
 export const COMMONS_LOUPE_WIDTH = 3840;
 
-const UPLOAD_THUMBNAIL_WIDTHS = [...COMMONS_THUMBNAIL_WIDTHS, COMMONS_LOUPE_WIDTH];
+export const COMMONS_UPLOAD_THUMBNAIL_WIDTHS = [...COMMONS_THUMBNAIL_WIDTHS, COMMONS_LOUPE_WIDTH];
 const UPLOAD_FILE_PATTERN =
 	/^https:\/\/upload\.wikimedia\.org\/wikipedia\/commons\/([0-9a-f])\/([0-9a-f]{2})\/([^/?#]+\.(?:jpe?g|png|webp))(?:[?#].*)?$/i;
 
@@ -62,7 +62,7 @@ export function commonsUploadOriginalUrl(url: string): string | undefined {
 }
 
 export function commonsUploadThumbnailWidth(width: number): number {
-	return UPLOAD_THUMBNAIL_WIDTHS.find((size) => size >= width) ?? COMMONS_LOUPE_WIDTH;
+	return COMMONS_UPLOAD_THUMBNAIL_WIDTHS.find((size) => size >= width) ?? COMMONS_LOUPE_WIDTH;
 }
 
 export function commonsUploadThumbnailUrl(url: string, width: number): string | undefined {

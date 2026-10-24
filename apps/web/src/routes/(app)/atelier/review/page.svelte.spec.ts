@@ -7,6 +7,8 @@ import { m } from '#lib/i18n/index.ts';
 import { resolveImages } from '#lib/collection/artworks.ts';
 import { loadReviewDetails, loadSession, recordReview } from '#lib/review/review-data.ts';
 import type { ReviewCard, SessionRow } from '#lib/review/types.ts';
+import { defaultPreferences } from '#lib/profile/preferences.ts';
+import type { Preferences } from '#lib/profile/types.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import { testReviewCard } from '#lib/testing/review.ts';
@@ -60,7 +62,9 @@ function renderReview(
 	newToday = 0,
 	error?: string,
 	streak = 0,
-	menu: { reviewWaiting?: Promise<number>; waiting?: number } = {}
+	menu: { reviewWaiting?: Promise<number>; waiting?: number } = {},
+	preferences: Preferences = defaultPreferences,
+	termPins?: number
 ): void {
 	render(ReviewPage, {
 		data: {
@@ -72,6 +76,8 @@ function renderReview(
 			waiting: undefined,
 			...menu,
 			glossary: [],
+			preferences,
+			termPins,
 			error
 		},
 		params: {}
@@ -183,6 +189,65 @@ describe('review page', () => {
 		expect(invalidate).not.toHaveBeenCalled();
 		await page.getByRole('button', { name: m.review.freeNextRound }).click();
 		expect(loadSession).toHaveBeenLastCalledWith(expect.any(Date), 'mixed', { kind: 'all' }, 1);
+	});
+
+	it('does not offer a free review when the preferences switch it off', async () => {
+		const artworks = collection(20);
+		renderReview(
+			artworks,
+			cards(artworks, () => 6),
+			0,
+			undefined,
+			0,
+			{},
+			{ ...defaultPreferences, reviewFree: false }
+		);
+
+		await expect.element(page.getByRole('heading', { name: m.review.allDoneTitle })).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.review.free })).not.toBeInTheDocument();
+	});
+
+	it('opens with the form and the limits of the preferences', async () => {
+		const artworks = collection(25);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 20), () => 5),
+			0,
+			undefined,
+			0,
+			{},
+			{ ...defaultPreferences, reviewForm: 'quizzes', reviewNewPerDay: 5 }
+		);
+
+		await expect.element(page.getByText(m.review.plan(0, 5))).toBeVisible();
+		await page.getByText(m.review.options).click();
+		await expect
+			.element(page.getByRole('button', { name: m.review.forms.quizzes }))
+			.toHaveAttribute('aria-pressed', 'true');
+	});
+
+	it('leaves out "Quizy" and starts mixed when no quiz kind can be asked', async () => {
+		const artworks = collection(25);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 20), () => 5),
+			0,
+			undefined,
+			0,
+			{},
+			{ ...defaultPreferences, reviewForm: 'quizzes', reviewQuizKinds: ['quiz_pin'] },
+			0
+		);
+
+		await page.getByText(m.review.options).click();
+		await expect
+			.element(page.getByRole('button', { name: m.review.forms.mixed }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect
+			.element(page.getByRole('button', { name: m.review.forms.quizzes }))
+			.not.toBeInTheDocument();
+		await page.getByRole('button', { name: m.review.start }).click();
+		expect(loadSession).toHaveBeenCalledWith(expect.any(Date), 'mixed', { kind: 'all' });
 	});
 
 	it('says in a free session that its answers are not saved', async () => {

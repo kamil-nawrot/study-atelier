@@ -38,10 +38,12 @@
 
 	let layer: HTMLDivElement | undefined = $state();
 	let drag = $state<{ id: string; x: number; y: number }>();
+	let nudge = $state<{ id: string; x: number; y: number }>();
 	let origin: { pointer: number; x: number; y: number; moved: boolean } | undefined;
 
 	function placeOf(pin: Pin): Fraction {
-		return drag?.id === pin.id ? drag : pin;
+		if (drag?.id === pin.id) return drag;
+		return nudge?.id === pin.id ? nudge : pin;
 	}
 
 	function down(event: PointerEvent, pin: Pin): void {
@@ -104,15 +106,23 @@
 		popover.focus(event.currentTarget as HTMLElement);
 	}
 
-	function blur(event: FocusEvent): void {
+	function blur(event: FocusEvent, pin: Pin): void {
+		finishNudge(pin);
 		if (previewing) popover.blur(event);
 	}
 
 	function key(event: KeyboardEvent, pin: Pin): void {
 		if (!editing) return;
-		const place = nudged(pin, event.key);
+		const place = nudged(placeOf(pin), event.key);
 		if (!place) return;
 		event.preventDefault();
+		nudge = { id: pin.id, ...place };
+	}
+
+	function finishNudge(pin: Pin): void {
+		if (nudge?.id !== pin.id) return;
+		const place = { x: nudge.x, y: nudge.y };
+		nudge = undefined;
 		onmove?.(pin, place);
 	}
 </script>
@@ -138,10 +148,11 @@
 				pin.glossaryEntryId ? names[pin.glossaryEntryId] : undefined,
 				pin.viewWidth !== undefined
 			)}
-			onblur={blur}
+			onblur={(event) => blur(event, pin)}
 			onclick={(event) => click(event, pin)}
 			onfocus={(event) => focus(event, pin)}
 			onkeydown={(event) => key(event, pin)}
+			onkeyup={() => finishNudge(pin)}
 			onpointercancel={cancel}
 			onpointerdown={(event) => down(event, pin)}
 			onpointerenter={(event) => enter(event, pin)}
@@ -167,7 +178,12 @@
 
 {#if card}
 	<div {@attach toBody}>
-		<PopoverCard id={cardId} interactive labelledby="{id}-pin-{shownIndex}" {popover}>
+		<PopoverCard
+			id={cardId}
+			interactive
+			labelledby={shownIndex >= 0 ? `${id}-pin-${shownIndex}` : undefined}
+			{popover}
+		>
 			{#if shown}
 				{@render card(shown)}
 			{/if}
@@ -206,7 +222,7 @@
 	.pin::before {
 		content: '';
 		position: absolute;
-		inset: calc(-1 * var(--spacing-2));
+		inset: calc(-1 * var(--spacing-3));
 	}
 
 	.pin.entry {

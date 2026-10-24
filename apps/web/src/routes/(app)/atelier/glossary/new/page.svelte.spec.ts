@@ -7,6 +7,7 @@ import { saveGlossaryEntry } from '#lib/glossary/glossary-data.ts';
 import { searchArticles } from '#lib/glossary/wikipedia.ts';
 import { fetchForms } from '#lib/glossary/wiktionary.ts';
 import type { WikipediaArticle } from '#lib/glossary/types.ts';
+import { autoFetch } from '#lib/profile/auto-fetch.svelte.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import { testCardIndex } from '#lib/testing/card-index.ts';
 import { testArticle, testEntry } from '#lib/testing/glossary.ts';
@@ -81,6 +82,8 @@ describe('new glossary entry page', () => {
 
 	afterEach(() => {
 		vi.useRealTimers();
+		autoFetch.definition = true;
+		autoFetch.forms = true;
 	});
 
 	it('titles the page and the form and lays out the fields', async () => {
@@ -168,6 +171,48 @@ describe('new glossary entry page', () => {
 		await expect
 			.element(page.getByRole('button', { name: m.glossary.form.removeSource }))
 			.toBeVisible();
+	});
+
+	it('does not search Wikipedia by itself when the learner switched it off, but does on request', async () => {
+		autoFetch.definition = false;
+		renderNew();
+
+		await fillAndSearch([NAWA]);
+
+		expect(searchArticles).not.toHaveBeenCalled();
+		await expect.element(definitionField()).toHaveValue('');
+		await page.getByRole('button', { name: m.glossary.form.searchDefinition }).click();
+		await vi.advanceTimersByTimeAsync(0);
+
+		expect(searchArticles).toHaveBeenCalledWith('nawa', 'architecture');
+		await expect.element(definitionField()).toHaveValue(NAWA.extract);
+	});
+
+	it('does not ask Wiktionary by itself when the learner switched it off, but does on request', async () => {
+		autoFetch.forms = false;
+		vi.mocked(fetchForms).mockResolvedValue(['nawy']);
+		renderNew();
+
+		await fillAndSearch([NAWA]);
+
+		expect(fetchForms).not.toHaveBeenCalled();
+		await page.getByRole('button', { name: m.glossary.form.formsFetch }).click();
+		await vi.advanceTimersByTimeAsync(0);
+
+		expect(fetchForms).toHaveBeenCalledWith('nawa');
+		await expect.element(page.getByText(m.glossary.form.formsCount(1))).toBeVisible();
+	});
+
+	it('does not ask Wiktionary for the forms of a synonym when the learner switched it off', async () => {
+		autoFetch.forms = false;
+		renderNew();
+		await fillAndSearch([NAWA]);
+
+		await page.getByRole('combobox', { name: m.glossary.form.synonyms }).fill('korpus');
+		await page.getByRole('option', { name: /korpus/ }).click();
+		await vi.advanceTimersByTimeAsync(700);
+
+		expect(fetchForms).not.toHaveBeenCalled();
 	});
 
 	it('waits for the learner to stop typing before it searches', async () => {

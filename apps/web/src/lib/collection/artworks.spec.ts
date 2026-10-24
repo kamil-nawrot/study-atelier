@@ -532,6 +532,25 @@ describe('loadAtelier', () => {
 		expect(artworks[0].imageSignedAt).toBe(1_000_000);
 	});
 
+	it('shows a thumbnail of a linked Commons file instead of the file itself', async () => {
+		const url = 'https://upload.wikimedia.org/wikipedia/commons/d/de/Colosseo_2020.jpg';
+		query.range.mockResolvedValue({
+			data: [row({ own_image_url: url, image_width: 12051, image_height: 8442 })],
+			error: null
+		});
+
+		const { artworks } = await loadAtelier();
+		const image = artworks[0].image;
+
+		expect(image?.src).toBe(
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Colosseo_2020.jpg/500px-Colosseo_2020.jpg'
+		);
+		expect(image?.srcset).toContain('/250px-Colosseo_2020.jpg 250w');
+		expect(image?.srcset).not.toContain(`${url} `);
+		expect(image?.sizes).toBeDefined();
+		expect(image).toMatchObject({ width: 12051, height: 8442 });
+	});
+
 	it('uses a linked image as it is, with its stored size', async () => {
 		query.range.mockResolvedValue({
 			data: [

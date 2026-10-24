@@ -31,9 +31,19 @@ describe('arrive', () => {
 		expect(place?.name).toBe('Tympanon');
 	});
 
-	it('leaves the place of an entry the learner goes back or forward to to its snapshot', () => {
+	it('forgets the place of an entry the learner goes back or forward to without a snapshot', () => {
 		const place = arrive(withNames(), entryPlace, { type: 'popstate', from: artwork, to: entry });
 		expect(place).toBeUndefined();
+	});
+
+	it('keeps the place its snapshot gave an entry the learner goes back or forward to', () => {
+		const place = arrive(withNames(), entryPlace, {
+			type: 'popstate',
+			from: artwork,
+			to: entry,
+			restored: true
+		});
+		expect(place).toEqual(entryPlace);
 	});
 
 	it('forgets the place of a page opened directly', () => {

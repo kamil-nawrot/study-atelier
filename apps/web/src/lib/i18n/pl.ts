@@ -69,6 +69,7 @@ export const pl = {
 			'Ten adres nie jest jeszcze potwierdzony. Kliknij link z wiadomości, którą wysłaliśmy po rejestracji.',
 		weakPassword: 'To hasło łatwo odgadnąć. Wybierz dłuższe, najlepiej z cyframi i znakami.',
 		samePassword: 'Nowe hasło musi być inne niż obecne.',
+		emailTaken: 'Ten adres jest już przypisany do innego konta.',
 		rateLimited: 'Sporo prób w krótkim czasie. Odczekaj chwilę i spróbuj jeszcze raz.',
 		emailRateLimited:
 			'Kilka wiadomości jest już w drodze. Daj im chwilę, zanim poprosisz o kolejną.',
@@ -158,10 +159,138 @@ export const pl = {
 		review: 'Powtórki',
 		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
 		trash: 'Kosz',
+		settings: 'Ustawienia',
+		settingsLink: (name: string, email: string): string =>
+			name === email ? `Ustawienia, ${email}` : `Ustawienia, ${name}, ${email}`,
 		feedback: 'Zgłoś uwagę',
 		lightTheme: 'Jasny motyw',
 		darkTheme: 'Ciemny motyw',
 		signOut: 'Wyloguj się'
+	},
+	settings: {
+		title: 'Ustawienia',
+		lead: 'Tutaj możesz zmienić swoje dane, oraz zarządzać preferencjami dotyczącymi funkcjonowania Twojego atelier.',
+		tabsLabel: 'Części ustawień',
+		tabs: {
+			profile: 'Profil',
+			account: 'Konto',
+			review: 'Powtórki',
+			view: 'Widok dzieła',
+			sources: 'Źródła',
+			data: 'Dane'
+		},
+		loadErrorTitle: 'Nie udało się wczytać ustawień',
+		profile: {
+			avatarAlt: 'Twoje zdjęcie',
+			addPhoto: 'Dodaj zdjęcie',
+			changePhoto: 'Zmień zdjęcie',
+			photoHint: 'Zdjęcie zostanie automatycznie dopasowane do rozmiaru awatara',
+			removePhoto: 'Usuń zdjęcie',
+			name: 'Imię',
+			email: 'Adres e-mail',
+			emailHint: 'Adres podany przy rejestracji. Zmienisz go w zakładce „Konto”.',
+			nameTooLong: (max: number): string => `Imię może mieć najwyżej ${max} znaków.`,
+			cancel: 'Anuluj',
+			save: 'Zapisz profil',
+			saving: 'Zapisuję…',
+			saved: 'Zapisano profil.',
+			errorTitle: 'Nie udało się zapisać profilu',
+			failed: 'Nie udało się zapisać profilu. Spróbuj jeszcze raz.',
+			network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.',
+			discardDescription: 'Masz niezapisane zmiany w profilu. Jeśli wyjdziesz, znikną.'
+		},
+		account: {
+			emailTitle: 'Adres e-mail',
+			currentEmail: (email: string): string => `Obecny adres: ${email}`,
+			newEmail: 'Nowy adres e-mail',
+			emailSubmit: 'Zmień adres',
+			emailSubmitting: 'Wysyłam…',
+			sameEmail: 'To jest Twój obecny adres.',
+			emailSentTitle: 'Link wysłany',
+			emailSent: 'Wysłałem link na stary i na nowy adres. Kliknij oba, a zmiana wejdzie w życie.',
+			emailPending: (email: string): string =>
+				`Czeka na potwierdzenie zmiany na ${email}. Kliknij linki, które wysłałem na stary i na nowy adres.`,
+			emailChanged: 'Adres e-mail jest zmieniony.',
+			emailErrorTitle: 'Nie udało się zmienić adresu',
+			passwordTitle: 'Zmiana hasła',
+			currentPassword: 'Obecne hasło',
+			newPassword: 'Nowe hasło',
+			signOutOthers: 'Wyloguj mnie na innych urządzeniach',
+			submit: 'Zmień hasło',
+			submitting: 'Zmieniam…',
+			wrongCurrent: 'To nie jest Twoje obecne hasło.',
+			sameAsCurrent: 'Nowe hasło musi być inne niż obecne.',
+			changed: 'Hasło jest zmienione.',
+			errorTitle: 'Nie udało się zmienić hasła',
+			othersFailedTitle: 'Hasło jest zmienione',
+			othersFailed:
+				'Nie udało się wylogować Cię na innych urządzeniach. Wyloguj się tam ręcznie albo zmień hasło jeszcze raz.'
+		},
+		preferences: {
+			sessionSize: 'Ile dzieł w jednej sesji?',
+			newPerDay: 'Ile nowych dzieł dziennie?',
+			form: 'Od jakiej formy zaczynać?',
+			formHint: 'Zmienisz ją też na starcie powtórki.',
+			kinds: 'O co mogę pytać?',
+			kindLabels: {
+				quiz_image: 'Gdzie jest „tytuł”? (wybór obrazu)',
+				quiz_title: 'Jaki to tytuł?',
+				quiz_style: 'W jakim stylu powstało to dzieło?',
+				quiz_pin: 'Co to jest? (pinezki ze Słowniczka)'
+			},
+			kindsHint: 'Zostaw zaznaczone co najmniej jedno.',
+			free: 'Proponuj powtórkę swobodną po skończonym dniu',
+			showPins: 'Pokazuj pinezki od razu po otwarciu dzieła',
+			loupe: 'Włączaj lupę od razu po otwarciu dzieła',
+			sourcesHint:
+				'Po wyłączeniu nic nie jest pobierane samo. Zawsze możesz poprosić o to przyciskiem w formularzu.',
+			fetchImage: 'Szukaj zdjęcia nowego dzieła w Wikidata i Commons',
+			fetchDefinition: 'Uzupełniaj definicję hasła ze Słowniczka z Wikipedii',
+			fetchForms: 'Podpowiadaj odmiany hasła z Wikisłownika',
+			fetchEvent: 'Uzupełniaj opis i daty wydarzenia z Wikipedii',
+			cancel: 'Anuluj',
+			save: 'Zapisz ustawienia',
+			saving: 'Zapisuję…',
+			saved: 'Zapisano ustawienia.',
+			errorTitle: 'Nie udało się zapisać ustawień',
+			discardDescription: 'Masz niezapisane zmiany w ustawieniach. Jeśli wyjdziesz, znikną.'
+		},
+		data: {
+			exportTitle: 'Eksport',
+			exportDescription:
+				'Pobierz całe atelier w jednym pliku ZIP: dzieła z notatkami, własne zdjęcia, pinezki, Słowniczek, Kalendarium, kosz i historię powtórek.',
+			exportHint:
+				'Zdjęcia z Wikimedia Commons i z linków zostają odnośnikami. Duże atelier lepiej wyeksportować na komputerze.',
+			exportButton: 'Pobierz atelier',
+			reading: 'Zbieram dzieła…',
+			images: (done: number, total: number): string => `Zdjęcia: ${done} z ${total}`,
+			packing: 'Pakuję plik…',
+			exported: 'Plik z atelier jest pobrany.',
+			importTitle: 'Import',
+			importDescription:
+				'Wczytaj plik z eksportu do pustego atelier. Numery dzieł, daty i powtórki zostaną takie same jak w kopii.',
+			importHint:
+				'Import niczego nie łączy ani nie nadpisuje, dlatego działa tylko w pustym atelier.',
+			importButton: 'Wybierz plik ZIP',
+			importFilled: 'W tym atelier już coś jest, więc nie mogę wczytać kopii.',
+			importReading: 'Czytam plik…',
+			importSaving: 'Zapisuję atelier…',
+			imported: 'Atelier jest wczytane.',
+			importErrorTitle: 'Nie udało się wczytać pliku',
+			importNotZip: 'To nie jest plik ZIP.',
+			importNoData: 'W tym pliku nie ma atelier.json, więc to nie wygląda na eksport z Atelier.',
+			importNotAtelier: 'Ten plik nie pochodzi z eksportu Atelier.',
+			importNewer:
+				'Ten plik jest z nowszej wersji Atelier. Odśwież aplikację i spróbuj jeszcze raz.',
+			importBroken: 'Nie mogę odczytać tego pliku. Jest uszkodzony albo niepełny.',
+			importFailed:
+				'Nie udało się wczytać atelier. Nic nie zostało zmienione, spróbuj jeszcze raz.',
+			importNotEmpty: 'Atelier nie jest już puste, więc nic nie wczytałem.',
+			errorTitle: 'Nie udało się wyeksportować atelier',
+			failed: 'Spróbuj jeszcze raz. Jeśli to się powtarza, spróbuj na komputerze.',
+			imageFailed:
+				'Nie udało się pobrać jednego z Twoich zdjęć, a bez niego kopia byłaby niepełna. Spróbuj jeszcze raz.'
+		}
 	},
 	atelier: {
 		title: 'Atelier',
@@ -311,6 +440,9 @@ export const pl = {
 		replaceImageDescription: 'Wklejony obraz zajmie jego miejsce.',
 		replaceImage: 'Zastąp',
 		keepImage: 'Zostaw obecne',
+		removeImageTitle: 'Usunąć obraz?',
+		removeImageConfirm: 'Usuń',
+		removeImageCancel: 'Anuluj',
 		imageUrl: 'Jeśli wolisz, podaj po prostu adres obrazka',
 		imageUrlPlaceholder: 'https://…',
 		useImageUrl: 'Użyj',
@@ -817,11 +949,10 @@ export const pl = {
 	},
 	pins: {
 		switchLabel: (count: number): string => `Pinezki (${count})`,
-		editor: (count: number): string => (count > 0 ? `Pinezki (${count})` : 'Dodaj pinezki'),
-		editorTitle: 'Pinezki na obrazie',
 		editorNote: 'Pinezki zapisują się od razu, niezależnie od przycisku „Zapisz”.',
-		done: 'Gotowe',
-		editHint: 'Dotknij obrazu, żeby dodać pinezkę. Przeciągnij pinezkę, żeby ją przesunąć.',
+		editHint:
+			'Wskaż miejsce na obrazie, żeby dodać pinezkę. Przeciągnij pinezkę, żeby ją przesunąć.',
+		imagePins: (count: number): string => `Jego pinezki (${count}) usuną się po zapisaniu.`,
 		placeHere: 'Dodaj pinezkę w tym miejscu',
 		marker: (number: number, name?: string, view = false): string =>
 			`${name ? `Pinezka ${number}: ${name}` : `Pinezka ${number}`}${view ? ', widok lupy' : ''}`,
@@ -839,6 +970,7 @@ export const pl = {
 		saving: 'Zapisuję…',
 		loadFailed: 'Nie udało się wczytać pinezek.',
 		errorTitle: 'Nie udało się zapisać pinezki',
+		deleteErrorTitle: 'Nie udało się usunąć pinezki',
 		errors: {
 			empty: 'Wybierz pojęcie albo wpisz opis.',
 			tooLong: (limit: number): string => `Opis może mieć najwyżej ${limit} znaków.`,
@@ -911,6 +1043,8 @@ export const pl = {
 			definitionFailed:
 				'Nie udało się połączyć z Wikipedią. Możesz napisać definicję własnymi słowami albo spróbować jeszcze raz.',
 			searchAgain: 'Szukaj jeszcze raz',
+			searchDefinition: 'Szukaj w Wikipedii',
+			definitionManual: 'Napisz definicję własnymi słowami albo poszukaj jej w Wikipedii.',
 			definitionTooLong: (max: number): string => `Definicja może mieć najwyżej ${max} znaków.`,
 			sourcePrefix: 'Na podstawie: Wikipedia, ',
 			pickArticle: 'Wybierz inny artykuł',
@@ -996,6 +1130,7 @@ export const pl = {
 			loadErrorTitle: 'Nie udało się wczytać wydarzenia',
 			sourcePrefix: 'Na podstawie: Wikipedia, ',
 			pickArticle: 'Wybierz inny artykuł',
+			searchArticles: 'Szukaj w Wikipedii',
 			removeSource: 'Usuń źródło'
 		},
 		articles: {

@@ -2,7 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
 import { removeOwnImage } from '#lib/images/own-image.ts';
 import { supabase } from '#lib/supabase.ts';
-import { deleteValue, loadCardIndex, loadValuePageContent, saveValue } from './card-index-data.ts';
+import {
+	deleteValue,
+	loadCardIndex,
+	loadOwnValues,
+	loadValuePageContent,
+	saveValue
+} from './card-index-data.ts';
 import type { CardIndexRecord } from './types.ts';
 
 vi.mock('#lib/supabase.ts', () => ({ supabase: { rpc: vi.fn(), from: vi.fn() } }));
@@ -136,6 +142,32 @@ describe('loadCardIndex', () => {
 				count: 1
 			}
 		]);
+	});
+
+	it('loads only the values of own list fields without the rest of the card index', async () => {
+		rpc.mockImplementation(((name: string) =>
+			rpcResult(
+				name === 'value_usage'
+					? [
+							{ id: 'p1', category_code: 'period', name: 'Classical', artwork_count: 2 },
+							{ id: 'f1', category_code: 'field-id', name: 'Annunciation', artwork_count: 1 }
+						]
+					: []
+			)) as never);
+
+		await expect(loadOwnValues()).resolves.toEqual({
+			ownValues: [{ id: 'f1', fieldId: 'field-id', name: 'Annunciation', count: 1 }]
+		});
+		expect(rpc).toHaveBeenCalledTimes(1);
+	});
+
+	it('reports a failure to load the values of own list fields', async () => {
+		rpc.mockReturnValue(rpcResult([], { code: 'PGRST000', message: 'down' }));
+
+		const { ownValues, error } = await loadOwnValues();
+
+		expect(ownValues).toEqual([]);
+		expect(error).toBeDefined();
 	});
 
 	it('reads every page of 1000 rows', async () => {

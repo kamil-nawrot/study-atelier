@@ -4,7 +4,7 @@
 	import { resolve } from '$app/paths';
 	import ArtworkForm from '#lib/collection/components/ArtworkForm.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
-	import { goBackThroughHistory } from '#lib/collection/history.ts';
+	import { arrivedFromApp, goBackThroughHistory } from '#lib/collection/history.ts';
 	import { formatRecordNumber, parseRecordNumber } from '#lib/collection/format.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import BackLink from '#lib/navigation/components/BackLink.svelte';
@@ -29,7 +29,7 @@
 	);
 
 	afterNavigate(({ from }) => {
-		cameFromApp = from !== null;
+		cameFromApp = arrivedFromApp(from);
 	});
 
 	function goBack(event: MouseEvent): void {
@@ -68,6 +68,7 @@
 				ownFields={data.ownFields}
 				ownValues={data.ownValues}
 				pins={data.pins}
+				pinsError={data.pinsError}
 				placeStarter={data.placeStarter}
 				valueLinks={data.links}
 			/>

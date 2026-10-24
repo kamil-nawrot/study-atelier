@@ -33,7 +33,7 @@
 			onfailure(m.pins.errors.tooMany(MAX_PINS_PER_IMAGE));
 			return;
 		}
-		const layer = (event.currentTarget as HTMLElement).parentElement as HTMLElement;
+		const layer = event.currentTarget as HTMLElement;
 		draftSpot =
 			event.detail === 0
 				? { x: 0.5, y: 0.5 }

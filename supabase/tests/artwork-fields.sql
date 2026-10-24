@@ -120,6 +120,40 @@ begin
   assert (select count(*) from public.artwork_field_entries where artwork_id = saved) = 2,
     'save_artwork stores an entry for a list field';
 
+  perform public.save_artwork('{"title": "Zwiastowanie", "author_unknown": true}', '{"author": []}',
+    saved, null, jsonb_build_object(seen::text, false));
+  assert exists (select 1 from public.artwork_field_entries where artwork_id = saved and field_id = source),
+    'save_artwork wipes the entry of a field it was not given';
+  assert not exists (select 1 from public.artwork_field_entries where artwork_id = saved and field_id = seen),
+    'save_artwork keeps an unticked field it was given';
+  perform public.save_artwork('{"title": "Zwiastowanie", "author_unknown": true}', '{"author": []}',
+    saved, null, jsonb_build_object(seen::text, true));
+
+  perform public.save_artwork('{"title": "Zwiastowanie", "author_unknown": true}',
+    jsonb_build_object('author', '[]'::jsonb, motifs::text, '["Anioł", "Lilia"]'::jsonb,
+      gen_random_uuid()::text, '["Gone"]'::jsonb),
+    saved);
+  assert (select count(*) from public.artwork_values as link
+      join public.category_values as value on value.id = link.value_id
+      where link.artwork_id = saved and value.category_code = motifs::text) = 2,
+    'save_artwork fails or drops the values around a list field that no longer exists';
+
+  rejected := false;
+  begin
+    insert into public.category_values (category_code, name) values ('material', repeat('x', 201));
+  exception
+    when check_violation then rejected := true;
+  end;
+  assert rejected, 'a value takes more than 200 characters';
+
+  rejected := false;
+  begin
+    insert into public.category_values (category_code, name) values ('material', E'two\tlines');
+  exception
+    when check_violation then rejected := true;
+  end;
+  assert rejected, 'a value takes a control character';
+
   assert (select artwork_count from public.artwork_field_usage() where field_id = motifs) = 1,
     'artwork_field_usage does not count the artworks with values of a list field';
   assert (select artwork_count from public.artwork_field_usage() where field_id = lecture) = 0,

@@ -16,6 +16,7 @@ export type Arrival = {
 	type: string;
 	from: PageStop | null;
 	to: PageStop;
+	restored?: boolean;
 };
 
 const STORAGE_KEY = 'study-atelier:place-names';
@@ -38,8 +39,8 @@ export function arrive(
 	current: Place | undefined,
 	arrival: Arrival
 ): Place | undefined {
-	const { type, from, to } = arrival;
-	if (type === 'popstate' || type === 'enter' || !from) return undefined;
+	const { type, from, to, restored } = arrival;
+	if (type === 'popstate' || type === 'enter' || !from) return restored ? current : undefined;
 	if (isForm(from.route) && type === 'goto') return afterForm(current, to);
 	if (from.key === to.key) return current;
 	if (from.route === to.route && to.route !== null && CARRY_ROUTES.has(to.route)) return current;

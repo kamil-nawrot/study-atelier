@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { goBackThroughHistory } from './history.ts';
+import { arrivedFromApp, goBackThroughHistory } from './history.ts';
 
 const navigation = vi.hoisted(() => ({ to: null as object | null }));
 
@@ -53,5 +53,13 @@ describe('goBackThroughHistory', () => {
 
 		expect(go).not.toHaveBeenCalled();
 		expect(event.defaultPrevented).toBe(true);
+	});
+});
+
+describe('arrivedFromApp', () => {
+	it('is true only after a navigation from a page of the app', () => {
+		expect(arrivedFromApp({ url: new URL('https://example.com/atelier') })).toBe(true);
+		expect(arrivedFromApp({ url: null })).toBe(false);
+		expect(arrivedFromApp(null)).toBe(false);
 	});
 });

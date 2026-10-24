@@ -73,6 +73,7 @@ function renderPage(
 			ownValues,
 			ownFields: undefined,
 			pins: [],
+			pinsError: undefined,
 			glossary: [],
 			links: emptyValueLinks(),
 			noteLinks: undefined,
@@ -145,7 +146,7 @@ type AfterNavigate = Parameters<Parameters<typeof afterNavigate>[0]>[0];
 function arrive(from: string | null): void {
 	const callback = vi.mocked(afterNavigate).mock.calls[0][0];
 	callback({
-		from: from === null ? null : { route: { id: from } }
+		from: from === null ? null : { route: { id: from }, url: new URL('/atelier', location.href) }
 	} as unknown as AfterNavigate);
 }
 
@@ -474,6 +475,53 @@ describe('edit artwork page', () => {
 		await expect.element(page.getByRole('button', { name: 'Pinezka 1' })).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.pins.placeHere })).toBeVisible();
 		await page.getByRole('button', { name: m.artworkForm.imageSlot(2, 2) }).click();
+		await expect
+			.element(page.getByRole('button', { name: m.pins.placeHere }))
+			.not.toBeInTheDocument();
+	});
+
+	it('asks before removing an image that holds pins and keeps it on cancel', async () => {
+		renderPage({
+			artwork: artwork({
+				image: {
+					kind: 'url',
+					url: 'https://example.com/main.jpg',
+					width: 4,
+					height: 3,
+					id: 'image-0'
+				}
+			}),
+			pins: [
+				{ id: 'pin-1', imageId: 'image-0', x: 0.5, y: 0.5, glossaryEntryId: null, text: 'A detail' }
+			]
+		});
+
+		await page.getByRole('button', { name: m.artworkForm.removeImage }).click();
+		const dialog = page.getByRole('alertdialog', { name: m.artworkForm.removeImageTitle });
+		await expect.element(dialog).toHaveTextContent(m.pins.imagePins(1));
+		await dialog.getByRole('button', { name: m.artworkForm.removeImageCancel }).click();
+		await expect.element(page.getByRole('button', { name: 'Pinezka 1' })).toBeVisible();
+
+		await page.getByRole('button', { name: m.artworkForm.removeImage }).click();
+		await dialog.getByRole('button', { name: m.artworkForm.removeImageConfirm }).click();
+		await expect.element(page.getByRole('button', { name: 'Pinezka 1' })).not.toBeInTheDocument();
+	});
+
+	it('says that the pins could not be loaded and offers no placing of pins', async () => {
+		renderPage({
+			artwork: artwork({
+				image: {
+					kind: 'url',
+					url: 'https://example.com/main.jpg',
+					width: 4,
+					height: 3,
+					id: 'image-0'
+				}
+			}),
+			pinsError: m.pins.errors.network
+		});
+
+		await expect.element(page.getByText(m.pins.loadFailed)).toBeVisible();
 		await expect
 			.element(page.getByRole('button', { name: m.pins.placeHere }))
 			.not.toBeInTheDocument();

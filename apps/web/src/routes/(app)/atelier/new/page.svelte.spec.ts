@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { beforeNavigate, goto, invalidateAll } from '$app/navigation';
+import { afterNavigate, beforeNavigate, goto, invalidateAll } from '$app/navigation';
 import { emptyCategoryValues } from '#lib/collection/category-values.ts';
 import { emptyPlaceStarter } from '#lib/collection/place-starter.ts';
 import { emptyValueLinks } from '#lib/collection/value-links.ts';
@@ -262,6 +262,47 @@ describe('add artwork page', () => {
 
 	afterEach(() => {
 		vi.unstubAllGlobals();
+	});
+
+	it('goes back through the history on cancel, wherever the learner came from', async () => {
+		const go = vi.spyOn(history, 'go').mockImplementation(() => {});
+		renderPage();
+		const callback = vi.mocked(afterNavigate).mock.calls[0][0];
+		callback({
+			from: {
+				route: { id: '/(app)/atelier/review' },
+				url: new URL('/atelier/review', location.href)
+			}
+		} as never);
+
+		await page.getByRole('link', { name: m.artworkForm.cancel }).click();
+
+		expect(go).toHaveBeenCalledWith(-1);
+		go.mockRestore();
+	});
+
+	it('follows the cancel link when the form was opened straight from its address', async () => {
+		const go = vi.spyOn(history, 'go').mockImplementation(() => {});
+		renderPage();
+		const callback = vi.mocked(afterNavigate).mock.calls[0][0];
+		callback({ from: { route: { id: null }, url: null } } as never);
+		const cancel = page.getByRole('link', { name: m.artworkForm.cancel });
+		const followed = new Promise<boolean>((resolve) =>
+			window.addEventListener(
+				'click',
+				(event) => {
+					resolve(!event.defaultPrevented);
+					event.preventDefault();
+				},
+				{ once: true }
+			)
+		);
+
+		await cancel.click();
+
+		expect(await followed).toBe(true);
+		expect(go).not.toHaveBeenCalled();
+		go.mockRestore();
 	});
 
 	it('shows the empty form with the image window and the actions', async () => {

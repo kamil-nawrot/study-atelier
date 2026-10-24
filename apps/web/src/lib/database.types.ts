@@ -771,6 +771,64 @@ export type Database = {
           },
         ];
       };
+      profiles: {
+        Row: {
+          avatar_path: string | null;
+          created_at: string;
+          display_name: string | null;
+          fetch_definition: boolean;
+          fetch_event: boolean;
+          fetch_forms: boolean;
+          fetch_image: boolean;
+          owner_id: string;
+          review_form: string;
+          review_free: boolean;
+          review_new_per_day: number;
+          review_quiz_kinds: string[];
+          review_session_size: number;
+          updated_at: string;
+          view_loupe_on: boolean;
+          view_show_pins: boolean;
+        };
+        ComputedFields: never;
+        Insert: {
+          avatar_path?: string | null;
+          created_at?: string;
+          display_name?: string | null;
+          fetch_definition?: boolean;
+          fetch_event?: boolean;
+          fetch_forms?: boolean;
+          fetch_image?: boolean;
+          owner_id?: string;
+          review_form?: string;
+          review_free?: boolean;
+          review_new_per_day?: number;
+          review_quiz_kinds?: string[];
+          review_session_size?: number;
+          updated_at?: string;
+          view_loupe_on?: boolean;
+          view_show_pins?: boolean;
+        };
+        Update: {
+          avatar_path?: string | null;
+          created_at?: string;
+          display_name?: string | null;
+          fetch_definition?: boolean;
+          fetch_event?: boolean;
+          fetch_forms?: boolean;
+          fetch_image?: boolean;
+          owner_id?: string;
+          review_form?: string;
+          review_free?: boolean;
+          review_new_per_day?: number;
+          review_quiz_kinds?: string[];
+          review_session_size?: number;
+          updated_at?: string;
+          view_loupe_on?: boolean;
+          view_show_pins?: boolean;
+        };
+        Relationships: [];
+      };
       review_cards: {
         Row: {
           artwork_id: string;
@@ -1008,6 +1066,7 @@ export type Database = {
         Args: { target_value: string };
         Returns: undefined;
       };
+      import_atelier: { Args: { payload: Json }; Returns: Json };
       keep_alive: { Args: Record<PropertyKey, never>; Returns: string };
       merge_category_values: {
         Args: { kept_id: string; merged_id: string };

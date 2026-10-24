@@ -6,6 +6,7 @@
 	import Search from '@lucide/svelte/icons/search';
 	import X from '@lucide/svelte/icons/x';
 	import type { LucideIcon } from '@lucide/svelte';
+	import { untrack } from 'svelte';
 	import {
 		ArtworkImage,
 		Button,
@@ -63,6 +64,8 @@
 		mentions?: Mention[];
 		summaries?: ValueSummaries;
 		ownFields?: OwnFieldDefinition[];
+		showPinsOnOpen?: boolean;
+		loupeOnOpen?: boolean;
 		flipLinks?: Record<FlipDirection, ResolvedPathname | null>;
 		onflip?: (direction: FlipDirection) => void;
 	};
@@ -78,6 +81,8 @@
 		mentions = [],
 		summaries = emptyValueSummaries(),
 		ownFields = [],
+		showPinsOnOpen = false,
+		loupeOnOpen = false,
 		onflip
 	}: Props = $props();
 
@@ -121,13 +126,13 @@
 		const focused = pins.find((pin) => pin.id === focusPin);
 		const focusedImage = focused ? gallery.findIndex((item) => item?.id === focused.imageId) : -1;
 		shown = Math.max(focusedImage, 0);
-		showPins = focusedImage >= 0;
+		showPins = focusedImage >= 0 || untrack(() => showPinsOnOpen);
 	});
 
 	$effect.pre(() => {
 		void artwork.id;
 		void shown;
-		loupeOn = false;
+		loupeOn = untrack(() => loupeOnOpen);
 	});
 
 	function step(by: -1 | 1): void {
@@ -362,18 +367,22 @@
 						</Tooltip>
 					{/if}
 					{#if imagePins.length > 0}
-						<button
-							class="stage-action"
-							class:active={showPins}
-							aria-label={m.pins.switchLabel(imagePins.length)}
-							aria-pressed={showPins}
-							onclick={() => (showPins = !showPins)}
-							title={m.pins.switchLabel(imagePins.length)}
-							type="button"
-						>
-							<Icon icon={Pin} size="sm" />
-							<span>{imagePins.length}</span>
-						</button>
+						<Tooltip align="end" placement="bottom" text={m.pins.switchLabel(imagePins.length)}>
+							{#snippet children(id)}
+								<button
+									class="stage-action"
+									class:active={showPins}
+									aria-describedby={id}
+									aria-label={m.pins.switchLabel(imagePins.length)}
+									aria-pressed={showPins}
+									onclick={() => (showPins = !showPins)}
+									type="button"
+								>
+									<Icon icon={Pin} size="sm" />
+									<span>{imagePins.length}</span>
+								</button>
+							{/snippet}
+						</Tooltip>
 					{/if}
 				</div>
 			{/if}

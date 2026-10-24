@@ -51,6 +51,7 @@
 		slots?: Snippet;
 		status?: Snippet;
 		overlay?: Snippet;
+		removeWarning?: string;
 	};
 
 	let {
@@ -63,7 +64,8 @@
 		onsearch,
 		slots,
 		status,
-		overlay
+		overlay,
+		removeWarning
 	}: Props = $props();
 
 	const id = $props.id();
@@ -82,6 +84,7 @@
 	let pasting = $state(false);
 	let pasteError = $state('');
 	let replaceOpen = $state(false);
+	let removeOpen = $state(false);
 	let pendingPaste = $state<PastedImage | null>(null);
 
 	const shortcut = pasteShortcut();
@@ -106,7 +109,13 @@
 		image = imageFromCandidate(candidate);
 	}
 
+	function askToRemove(): void {
+		if (removeWarning) removeOpen = true;
+		else void removeImage();
+	}
+
 	async function removeImage(): Promise<void> {
+		removeOpen = false;
 		release(image);
 		image = null;
 		await tick();
@@ -283,7 +292,7 @@
 			{ownImage ? texts.changeOwn : texts.own}
 		</Button>
 		{#if image || removable}
-			<Button onclick={removeImage}>
+			<Button onclick={askToRemove}>
 				<Icon icon={Trash} size="sm" />
 				{texts.remove}
 			</Button>
@@ -363,6 +372,22 @@
 		</Button>
 		<Button onclick={replaceImage} variant="primary">
 			{m.artworkForm.replaceImage}
+		</Button>
+	{/snippet}
+</Dialog>
+
+<Dialog
+	description={removeWarning}
+	size="small"
+	title={m.artworkForm.removeImageTitle}
+	bind:open={removeOpen}
+>
+	{#snippet footer()}
+		<Button onclick={() => (removeOpen = false)}>
+			{m.artworkForm.removeImageCancel}
+		</Button>
+		<Button onclick={removeImage} variant="danger">
+			{m.artworkForm.removeImageConfirm}
 		</Button>
 	{/snippet}
 </Dialog>

@@ -3,7 +3,7 @@
 	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
-	import { goBackThroughHistory } from '#lib/collection/history.ts';
+	import { arrivedFromApp, goBackThroughHistory } from '#lib/collection/history.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import BackLink from '#lib/navigation/components/BackLink.svelte';
 	import type { TimelineEventDraft, TimelineEventResult } from '../types.ts';
@@ -21,11 +21,13 @@
 
 	let form = $state<EventForm>();
 	let cameFromApp = false;
+	let cameFromTimeline = false;
 
 	let failed = $derived(data.error !== undefined || data.notFound === true);
 
 	afterNavigate(({ from }) => {
-		cameFromApp = from !== null;
+		cameFromApp = arrivedFromApp(from);
+		cameFromTimeline = from?.url?.pathname === timelinePath;
 	});
 
 	function goBack(event: MouseEvent): void {
@@ -34,7 +36,7 @@
 
 	async function showSaved(draft: TimelineEventDraft): Promise<void> {
 		if (draft.yearTo === null) return;
-		await goto(timelinePath, {
+		const options = {
 			replace: true,
 			refreshAll: true,
 			state: {
@@ -44,7 +46,13 @@
 					yearTo: draft.yearTo
 				}
 			}
-		});
+		};
+		if (!cameFromTimeline) {
+			await goto(timelinePath, options);
+			return;
+		}
+		addEventListener('popstate', () => void goto(timelinePath, options), { once: true });
+		history.back();
 	}
 </script>
 

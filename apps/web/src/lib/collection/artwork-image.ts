@@ -2,6 +2,7 @@ import { m } from '#lib/i18n/index.ts';
 import {
 	COMMONS_LOUPE_WIDTH,
 	COMMONS_THUMBNAIL_WIDTHS,
+	COMMONS_UPLOAD_THUMBNAIL_WIDTHS,
 	commonsFileUrl,
 	commonsOriginalUrl,
 	commonsSrcset,
@@ -62,13 +63,14 @@ function linkedImageSource(
 	};
 	const original = commonsUploadOriginalUrl(image.url);
 	if (original === undefined || !image.width) return { src: image.url, ...source };
-	const widths = COMMONS_THUMBNAIL_WIDTHS.filter((size) => size < image.width!);
+	const fileWidth = image.width;
+	const widths = COMMONS_UPLOAD_THUMBNAIL_WIDTHS.filter((size) => size < fileWidth);
 	const snapped = commonsUploadThumbnailWidth(width);
 	const src =
-		snapped < image.width ? (commonsUploadThumbnailUrl(image.url, snapped) ?? original) : original;
+		snapped < fileWidth ? (commonsUploadThumbnailUrl(image.url, snapped) ?? original) : original;
 	const srcset = widths
 		.map((size) => `${commonsUploadThumbnailUrl(image.url, size)} ${size}w`)
-		.concat(`${original} ${image.width}w`)
+		.concat(fileWidth <= COMMONS_LOUPE_WIDTH ? [`${original} ${fileWidth}w`] : [])
 		.join(', ');
 	return { src, srcset, ...source };
 }
