@@ -73,9 +73,9 @@ Inside a module (example: `wall`):
 | `utils/years/years.ts`                      | A general helper of this module, named by its topic; helpers several modules need go to `shared/utils/`                            |
 | `components/ArtworkWall/ArtworkWall.svelte` | A component, with `ArtworkWall.svelte.spec.ts` beside it; `components/` gets subfolders by screen area once it holds more than ~12 |
 
-- Every `.ts` and `.svelte` file of code sits in a folder named like the file without its extension, together with its tests and nothing else. Imports name the file itself (`#lib/wall/filter/filter.ts`); there are no `index.ts` files. `lint/check-limits.js` checks this in `apps/web/src/lib`, together with the one type per file in `types/`; folders that were not moved yet are listed under `layout` in the allowlist described in [Size limits](#size-limits). Type files in `types/`, SvelteKit files in `routes/` and `i18n/pl.ts` keep their places. `packages/ui` follows the same rule: a component sits in its own folder with its story and test (`components/Button/Button.svelte`, `Button.stories.svelte`, `Button.svelte.spec.ts`), and `src/lib/index.ts`, the package's entry, is the only `index.ts`.
+- Every `.ts` and `.svelte` file of code sits in a folder named like the file without its extension, together with its tests and nothing else. Imports name the file itself (`#lib/wall/filter/filter.ts`); there are no `index.ts` files. Type files in `types/`, SvelteKit files in `routes/` and `i18n/pl.ts` keep their places. `packages/ui` follows the same rule: a component sits in its own folder with its story and test (`components/Button/Button.svelte`, `Button.stories.svelte`, `Button.svelte.spec.ts`), and `src/lib/index.ts`, the package's entry, is the only `index.ts`.
 - `utils/` holds general helpers only, each in a file named by its topic, never one `utils.ts`. Domain logic such as the wall filter or the grouping is not a helper and stays at the top of the module.
-- Dependencies point down only: `shared` imports nothing from `lib` except `i18n`; `catalogue` imports `shared` and `i18n`; a module imports `shared`, `i18n`, `catalogue` and other modules, with no cycles; only `routes/` imports `shell`; nothing in `lib` imports `routes/`. `dependency-cruiser` checks this in `pnpm lint` (`lint:deps` in `apps/web`, rules in `.dependency-cruiser.cjs`) twice: once between files, and once with every `lib/<module>` collapsed into one node, which finds cycles between modules. The cycles that existed when the check was added are listed in `.dependency-cruiser-known-violations.json` (files) and `.dependency-cruiser-known-module-cycles.json` (modules), so only new ones fail. A move that removes a cycle regenerates the file with `pnpm exec depcruise src --output-type baseline > .dependency-cruiser-known-violations.json` (and the same with `--config .dependency-cruiser-modules.cjs` for the module file); a baseline never gains an entry without the owner's agreement.
+- Dependencies point down only: `shared` imports nothing from `lib` except `i18n`; `catalogue` imports `shared` and `i18n`; a module imports `shared`, `i18n`, `catalogue` and other modules, with no cycles; only `routes/` imports `shell`; nothing in `lib` imports `routes/`.
 - Code that two modules need and that is not about one of them moves down, to `catalogue` when it is about the domain and to `shared` when it is not, instead of one module importing it from the other in both directions.
 - A type used by more than one file, or by views, lives in its own file in the module's `types/` folder. A type used by one file only, such as the shape of rows a query returns, stays in that file.
 - Components used in more than one module, or that know nothing about the app's data and routes, belong in `packages/ui` instead.
@@ -92,17 +92,31 @@ Inside a module (example: `wall`):
 | A test file                         | 800 lines |
 | Cyclomatic complexity of a function | 15        |
 
-- `pnpm lint` checks the limits in both packages. ESLint checks the lines of a file (`max-lines`, blank lines not counted) and the complexity of a function (`complexity`); `lint/check-limits.js`, run from each package's `lint`, counts the non-blank lines of the `<script>` and `<style>` blocks of every `.svelte` file. The limits live in `lint/limits.js`. Generated files (`database.types.ts`), the message dictionary (`i18n/pl.ts`) and long reference data (`countries.ts`) are exempt.
-- Files that were over a limit when the check was added are listed in [`lint/allowlist.json`](../../lint/allowlist.json), by kind: `lines`, `script`, `style`, `complexity`, plus `supabase` (files outside `*-data.ts` that still import the client) and `layout` (folders not moved into the layout yet). ESLint and `lint/check-limits.js` both read it. The list only shrinks: an entry whose file is back within its limit, imports no client, follows the layout or no longer exists fails the check until the change removes it, and no change adds one without the owner's agreement.
+- Generated files (`database.types.ts`), the message dictionary (`i18n/pl.ts`) and long reference data (`countries.ts`) are exempt.
 - A file over a limit is split along what the learner sees, not along technical layers: `ArtworkView` becomes the stage, the information panel and the pin card, not a script file and a style file. Long styles usually mean several components in one, or a style that belongs in `packages/ui`.
 - A snippet passed to another component, or longer than about 30 lines, becomes a component.
+
+## Checked by lint
+
+`pnpm lint` (and CI) enforces the layout, the dependency directions, the data files and the size limits above, so review does not repeat them:
+
+| Rule                                                                              | Tool                                                                             |
+| --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Lines of a file, complexity of a function                                         | ESLint `max-lines`, `complexity`                                                 |
+| Lines of the `<script>` and `<style>` of a `.svelte` file                         | `lint/check-limits.js`                                                           |
+| A code file in a folder of its name, one type per file in `types/`, no `index.ts` | `lint/check-limits.js`, in `apps/web/src/lib`                                    |
+| The Supabase client only in `*-data.ts` (and tests, `testing/`)                   | ESLint `no-restricted-imports`                                                   |
+| Directions between `lib` folders, no cycles between files or modules              | `dependency-cruiser` (`pnpm lint:deps` in `apps/web`, `.dependency-cruiser.cjs`) |
+
+- The limits live in `lint/limits.js`. What broke a rule when the check was added is listed in [`lint/allowlist.json`](../../lint/allowlist.json) by kind (`lines`, `script`, `style`, `complexity`, `supabase`, and `layout` by folder). An entry that is no longer needed fails the check, so a change that fixes a file removes its entry; no change adds one without the owner's agreement.
+- Cycles that existed when the check was added are in `apps/web/.dependency-cruiser-known-violations.json` (files) and `.dependency-cruiser-known-module-cycles.json` (modules, found with `.dependency-cruiser-modules.cjs`, which collapses each `lib/<module>`). A change that removes a cycle regenerates the file with `pnpm exec depcruise src --output-type baseline` (plus `--config .dependency-cruiser-modules.cjs` for modules); a baseline gains no entry without the owner's agreement.
 
 ## Naming
 
 - Svelte components: `PascalCase.svelte`, the same name they are imported under, in a `PascalCase` folder of the same name.
 - A component is named for what it is, not for one way it opens or one interaction: `Popover`, not `HoverCard`, because it also opens on a click.
 - Other files and folders: `kebab-case`, for example `auth-artworks.ts`. Route folders are kebab-case because they become URLs (`/forgot-password`).
-- A file that calls Supabase ends in `-data.ts` (`glossary-data.ts`), and ESLint `no-restricted-imports` reports an import of the client anywhere else except tests and `testing/` helpers; a file with runes ends in `.svelte.ts`; any other `.ts` file is pure logic.
+- A file that calls Supabase ends in `-data.ts` (`glossary-data.ts`); a file with runes ends in `.svelte.ts`; any other `.ts` file is pure logic.
 - SvelteKit files keep the framework's names (`+page.svelte`, `+layout.ts`).
 - Tests: the tested file's name plus `.spec.ts`, in the tested file's folder.
 
