@@ -78,6 +78,25 @@ describe('overlayScrollbar', () => {
 		expect(area().scrollTop).toBe(height - area().clientHeight);
 	});
 
+	it('keeps the thumb inside the content at a fractional size and scroll position', async () => {
+		await render(OverlayScrollArea);
+		const scroller = area();
+		scroller.style.height = '199.6px';
+		scroller.style.width = '239.6px';
+		await nextFrame();
+		const end = 1600 - 199.6;
+		Object.defineProperty(scroller, 'scrollTop', { configurable: true, get: () => end });
+
+		scroller.dispatchEvent(new Event('scroll'));
+		await nextFrame();
+
+		const handle = thumb() as HTMLElement;
+		expect(parseFloat(handle.style.top) + parseFloat(handle.style.height)).toBeLessThanOrEqual(
+			1600
+		);
+		expect(parseFloat(handle.style.left)).toBeLessThanOrEqual(239.6);
+	});
+
 	it('keeps its thumb when a list empties and fills again', async () => {
 		const { rerender } = await render(OverlayScrollArea);
 		await nextFrame();
