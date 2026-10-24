@@ -3,7 +3,8 @@
 	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { movePin } from '#lib/pins/pin-data/pin-data.ts';
-	import { fractionIn, pinsOfImage, type Fraction } from '#lib/pins/pin-layout/pin-layout.ts';
+	import { fractionIn, pinsOfImage } from '#lib/pins/pin-layout/pin-layout.ts';
+	import type { Fraction } from '#lib/pins/types/fraction.ts';
 	import type { Pin } from '#lib/pins/types/pin.ts';
 	import { MAX_PINS_PER_IMAGE } from '#lib/pins/pin-limits/pin-limits.ts';
 	import PinDialog from '#lib/pins/components/PinDialog/PinDialog.svelte';

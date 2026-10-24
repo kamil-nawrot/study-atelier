@@ -4,18 +4,17 @@ import {
 	FORMAT_NAME,
 	FORMAT_VERSION,
 	imageEntryName,
-	type AtelierData,
 	type AtelierFile
 } from '#lib/data-transfer/format/format.ts';
+import type { AtelierData } from '#lib/data-transfer/types/atelier-data.ts';
+import type { ParseFailure } from '#lib/data-transfer/types/parse-failure.ts';
 
-export type ParseFailure = 'notZip' | 'noData' | 'notAtelier' | 'newer' | 'broken';
-
-export type ParsedArchive = {
+type ParsedArchive = {
 	file: AtelierFile;
 	images: Map<string, Uint8Array>;
 };
 
-export type ParseResult = { archive: ParsedArchive } | { failure: ParseFailure };
+type ParseResult = { archive: ParsedArchive } | { failure: ParseFailure };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);

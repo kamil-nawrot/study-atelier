@@ -6,11 +6,9 @@ import {
 	ownImagePaths,
 	readAtelier
 } from '#lib/data-transfer/export-data/export-data.ts';
-import {
-	archiveName,
-	type ExportProgress,
-	type ExportResult
-} from '#lib/data-transfer/format/format.ts';
+import { archiveName } from '#lib/data-transfer/format/format.ts';
+import type { ExportProgress } from '#lib/data-transfer/types/export-progress.ts';
+import type { ExportResult } from '#lib/data-transfer/types/export-result.ts';
 
 export async function exportAtelier(
 	onprogress: (progress: ExportProgress) => void,

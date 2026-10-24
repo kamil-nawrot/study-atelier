@@ -13,7 +13,8 @@ import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts
 import type { FilterOption } from '#lib/catalogue/types/filter-option.ts';
 import type { FilterTag } from '#lib/catalogue/types/filter-tag.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-import { overlaps, spanOfYears, type TimeSpan } from '#lib/timeline/time/time.ts';
+import { overlaps, spanOfYears } from '#lib/timeline/time/time.ts';
+import type { TimeSpan } from '#lib/timeline/types/time-span.ts';
 import type { Lane } from '#lib/timeline/types/lane.ts';
 import type { LaneField } from '#lib/timeline/types/lane-field.ts';
 import type { TimelineFilter } from '#lib/timeline/types/timeline-filter.ts';

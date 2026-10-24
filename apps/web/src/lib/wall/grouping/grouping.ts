@@ -154,7 +154,7 @@ export function sectionSequence(sections: WallSection[]): WallArtwork[] {
 	return sequence;
 }
 
-export type SectionBudget = {
+type SectionBudget = {
 	shown: Map<string, number>;
 	complete: boolean;
 };

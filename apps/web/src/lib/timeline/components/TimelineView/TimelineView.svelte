@@ -15,9 +15,9 @@
 		focusView,
 		nextStep,
 		panView,
-		stepView,
-		type StepKey
+		stepView
 	} from '#lib/timeline/scale/scale.ts';
+	import type { StepKey } from '#lib/timeline/types/step-key.ts';
 	import {
 		EVENT_LANES,
 		EVENT_LANES_NARROW,
@@ -37,11 +37,11 @@
 		eras,
 		overlaps,
 		spanOfYears,
-		yearAt,
-		type Era,
-		type TimeSpan,
-		type View
+		yearAt
 	} from '#lib/timeline/time/time.ts';
+	import type { Era } from '#lib/timeline/types/era.ts';
+	import type { TimeSpan } from '#lib/timeline/types/time-span.ts';
+	import type { View } from '#lib/timeline/types/view.ts';
 	import FilterTags from '#lib/wall/components/FilterTags/FilterTags.svelte';
 	import {
 		applyTimelineFilter,

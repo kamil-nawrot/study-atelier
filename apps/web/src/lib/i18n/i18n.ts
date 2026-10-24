@@ -1,6 +1,6 @@
 import { pl } from './pl';
 
-export type Messages = typeof pl;
+type Messages = typeof pl;
 
 export const locale = 'pl';
 

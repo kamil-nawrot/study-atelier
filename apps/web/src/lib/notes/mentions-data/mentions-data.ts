@@ -13,12 +13,7 @@ import {
 } from '#lib/card-index/value-pages/value-pages.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { resolve } from '$app/paths';
-
-export type Mention = {
-	href: ResolvedPathname;
-	name: string;
-	kind: string;
-};
+import type { Mention } from '#lib/notes/types/mention.ts';
 
 type MentionRow = {
 	kind: string;
@@ -28,7 +23,7 @@ type MentionRow = {
 	notes: string;
 };
 
-export type NotesMatcher = {
+type NotesMatcher = {
 	like?: string;
 	test: (notes: string) => boolean;
 };

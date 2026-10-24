@@ -1,7 +1,7 @@
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
-import type { Era } from '#lib/timeline/time/time.ts';
+import type { Era } from '#lib/timeline/types/era.ts';
 
-export type StripSegment = {
+type StripSegment = {
 	code: EraCode;
 	from: number;
 	to: number;

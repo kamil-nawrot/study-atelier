@@ -1,21 +1,10 @@
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 import { ERA_CODES } from '#lib/catalogue/eras/eras.ts';
+import type { TimeSpan } from '#lib/timeline/types/time-span.ts';
+import type { View } from '#lib/timeline/types/view.ts';
+import type { Era } from '#lib/timeline/types/era.ts';
 
-export type TimeSpan = {
-	start: number;
-	end: number;
-};
-
-export type View = {
-	center: number;
-	span: number;
-};
-
-export type Era = TimeSpan & {
-	code: EraCode;
-};
-
-export type DatedItem = {
+type DatedItem = {
 	yearFrom: number | null;
 	yearTo: number | null;
 };

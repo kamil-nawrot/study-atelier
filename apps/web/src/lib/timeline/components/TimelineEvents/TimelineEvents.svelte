@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { formatDate } from '#lib/catalogue/years/years.ts';
 	import { m } from '#lib/i18n/i18n.ts';
-	import { layEvents, type LaidEvent } from '#lib/timeline/event-lanes/event-lanes.ts';
+	import { layEvents } from '#lib/timeline/event-lanes/event-lanes.ts';
+	import type { LaidEvent } from '#lib/timeline/types/laid-event.ts';
 	import { cutLabel } from '#lib/timeline/labels/labels.ts';
-	import { boxStyle, type StageGeometry } from '#lib/timeline/stage/stage.ts';
-	import type { Era } from '#lib/timeline/time/time.ts';
+	import { boxStyle } from '#lib/timeline/stage/stage.ts';
+	import type { StageGeometry } from '#lib/timeline/types/stage-geometry.ts';
+	import type { Era } from '#lib/timeline/types/era.ts';
 	import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 
 	type Props = {

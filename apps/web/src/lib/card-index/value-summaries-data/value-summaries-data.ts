@@ -4,11 +4,11 @@ import { formatLifeYears } from '#lib/catalogue/years/years.ts';
 import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 import {
-	type ValueSummary,
-	type ValueSummaries,
 	emptyValueSummaries,
 	summaryKey
 } from '#lib/card-index/value-summaries/value-summaries.ts';
+import type { ValueSummary } from '#lib/card-index/types/value-summary.ts';
+import type { ValueSummaries } from '#lib/card-index/types/value-summaries.ts';
 
 type SummaryRow = { summary: string | null };
 

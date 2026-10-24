@@ -4,7 +4,7 @@
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 	import { m } from '#lib/i18n/i18n.ts';
-	import type { Fraction } from '#lib/pins/pin-layout/pin-layout.ts';
+	import type { Fraction } from '#lib/pins/types/fraction.ts';
 	import { createPin, deletePin, pinDraftError, updatePin } from '#lib/pins/pin-data/pin-data.ts';
 	import type { Pin } from '#lib/pins/types/pin.ts';
 	import { MAX_PIN_TEXT } from '#lib/pins/pin-limits/pin-limits.ts';

@@ -3,7 +3,7 @@ import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { artworkErrorMessage } from '#lib/catalogue/errors/errors.ts';
 
-export type TrashActionResult = {
+type TrashActionResult = {
 	error?: string;
 };
 

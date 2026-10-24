@@ -1,4 +1,4 @@
-import type { Mention } from '#lib/notes/mentions-data/mentions-data.ts';
+import type { Mention } from '#lib/notes/types/mention.ts';
 import type { GlossaryEntry } from './glossary-entry.ts';
 import type { PinnedArtwork } from './pinned-artwork.ts';
 

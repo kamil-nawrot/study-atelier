@@ -1,24 +1,12 @@
 import { fetchJson } from '#lib/images/wikimedia/wikimedia.ts';
+import type { SourceDate } from '#lib/images/types/source-date.ts';
+import type { WikidataArtwork } from '#lib/images/types/wikidata-artwork.ts';
+import type { WikidataPerson } from '#lib/images/types/wikidata-person.ts';
 
 const SPARQL_ENDPOINT = 'https://query.wikidata.org/sparql';
 const SEARCH_LIMIT = 30;
 const LABEL_LANGUAGES = ['pl', 'en'];
 const EXCLUDED_CLASSES = ['Q5', 'Q16521', 'Q4167410'];
-
-export type SourceDate = {
-	year: number;
-	precision: number;
-};
-
-export type WikidataArtwork = {
-	wikidataId: string;
-	title: string;
-	creators: string[];
-	creatorNames: string[];
-	hasCreator: boolean;
-	date: SourceDate | null;
-	file: string;
-};
 
 type Binding = Partial<
 	Record<
@@ -26,14 +14,6 @@ type Binding = Partial<
 		{ value: string }
 	>
 >;
-
-export type WikidataPerson = {
-	wikidataId: string;
-	name: string;
-	born: SourceDate | null;
-	died: SourceDate | null;
-	file: string;
-};
 
 type PersonBinding = Partial<Record<'item' | 'name' | 'file' | 'born' | 'died', { value: string }>>;
 

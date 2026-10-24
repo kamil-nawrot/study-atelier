@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { arrive, loadNames, named, saveNames, type Names, type Place } from './back-places.ts';
+import { arrive, loadNames, named, saveNames } from './back-places.ts';
+import type { Names } from '#lib/shared/types/names.ts';
+import type { Place } from '#lib/shared/types/place.ts';
 
 const glossary = { key: '/atelier/glossary', route: '/(app)/atelier/glossary' };
 const entry = { key: '/atelier/glossary/a', route: '/(app)/atelier/glossary/[id]' };

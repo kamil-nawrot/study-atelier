@@ -22,13 +22,13 @@ type GlossaryResult = {
 type Row = Database['public']['Tables']['glossary_entries']['Row'];
 type Write = Database['public']['Tables']['glossary_entries']['Insert'];
 
-export type GlossarySaveResult = {
+type GlossarySaveResult = {
 	id?: string;
 	error?: string;
 	nameTaken?: boolean;
 };
 
-export type GlossaryDeleteResult = {
+type GlossaryDeleteResult = {
 	error?: string;
 };
 

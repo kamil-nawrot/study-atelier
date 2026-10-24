@@ -4,7 +4,9 @@
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { stripLayout, stripPosition } from '#lib/timeline/strip/strip.ts';
-	import { viewStart, type Era, type View } from '#lib/timeline/time/time.ts';
+	import { viewStart } from '#lib/timeline/time/time.ts';
+	import type { Era } from '#lib/timeline/types/era.ts';
+	import type { View } from '#lib/timeline/types/view.ts';
 
 	type Props = {
 		eras: readonly Era[];

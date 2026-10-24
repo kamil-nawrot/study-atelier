@@ -3,8 +3,10 @@ import {
 	ownThumbnailPath,
 	type OwnImageType
 } from '#lib/images/bucket/bucket.ts';
-import type { AtelierData, ExportRow } from '#lib/data-transfer/format/format.ts';
+import type { AtelierData } from '#lib/data-transfer/types/atelier-data.ts';
+import type { ExportRow } from '#lib/data-transfer/types/export-row.ts';
 import { UUID_PATTERN } from '#lib/shared/utils/ids/ids.ts';
+import type { Upload } from '#lib/data-transfer/types/upload.ts';
 
 export const IMPORT_TABLES = [
 	'artworks',
@@ -31,9 +33,7 @@ export const IMPORT_TABLES = [
 const UUID = new RegExp(UUID_PATTERN, 'g');
 const IMAGE_PATH_TABLES = ['artworks', 'artwork_images', 'author_details'];
 
-export type Upload = { path: string; bytes: Uint8Array; contentType: string };
-
-export type Remapped = {
+type Remapped = {
 	payload: Record<string, ExportRow[]>;
 	uploads: Upload[];
 };

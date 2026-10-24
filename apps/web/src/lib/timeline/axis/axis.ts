@@ -1,13 +1,11 @@
-import { timeOf, viewStart, yearAt, type TimeSpan, type View } from '#lib/timeline/time/time.ts';
+import { timeOf, viewStart, yearAt } from '#lib/timeline/time/time.ts';
+import type { TimeSpan } from '#lib/timeline/types/time-span.ts';
+import type { View } from '#lib/timeline/types/view.ts';
+import type { Segment } from '#lib/timeline/types/segment.ts';
 
-export type Unit = 100 | 1000;
+type Unit = 100 | 1000;
 
-export type Segment = TimeSpan & {
-	number: number;
-	beforeCommonEra: boolean;
-};
-
-export type AxisKind = 'years' | 'millennia' | 'centuries' | 'decades';
+type AxisKind = 'years' | 'millennia' | 'centuries' | 'decades';
 
 const YEAR_TICKS_ABOVE = 12000;
 const MILLENNIA_ABOVE = 1500;

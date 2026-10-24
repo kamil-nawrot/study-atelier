@@ -25,9 +25,9 @@
 		contentFromPasteEvent,
 		pasteShortcut,
 		pastedImageFrom,
-		readClipboard,
-		type PastedImage
+		readClipboard
 	} from '#lib/images/clipboard/clipboard.ts';
+	import type { PastedImage } from '#lib/images/types/pasted-image.ts';
 	import ImageSearchDialog from '#lib/images/components/ImageSearchDialog/ImageSearchDialog.svelte';
 	import {
 		fitOwnImage,

@@ -12,10 +12,10 @@ import {
 	imageRecord,
 	storedImage,
 	uploadPath,
-	withPreview,
-	type ImageRow,
-	type StoredImage
+	withPreview
 } from '#lib/images/image-record/image-record.ts';
+import type { ImageRow } from '#lib/images/types/image-row.ts';
+import type { StoredImage } from '#lib/images/types/stored-image.ts';
 import type { ArtworkFieldErrors } from '#lib/artworks/types/artwork-field-errors.ts';
 import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
 import type { ArtworkValueRow } from '#lib/card-index/types/artwork-value-row.ts';

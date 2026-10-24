@@ -7,8 +7,9 @@ import type { ValueKind } from '#lib/card-index/types/value-kind.ts';
 import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
-import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+import type { ValueParent } from '#lib/card-index/types/value-parent.ts';
 
 export const SUMMARY_MAX_LENGTH = 300;
 
@@ -20,8 +21,6 @@ const VALUE_KINDS: readonly ValueKind[] = [
 	'author',
 	'location'
 ];
-
-export type ValueParent = { kind: ValueKind; id: string; name: string; era?: EraCode };
 
 export function isValueKind(value: string): value is ValueKind {
 	return (VALUE_KINDS as readonly string[]).includes(value);

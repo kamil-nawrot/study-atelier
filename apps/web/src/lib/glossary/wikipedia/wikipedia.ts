@@ -8,6 +8,7 @@ import {
 import type { WikipediaSource } from '#lib/shared/types/wikipedia-source.ts';
 import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
 import type { WikipediaArticle } from '#lib/glossary/types/wikipedia-article.ts';
+import type { Page } from '#lib/glossary/types/page.ts';
 
 const WIKIPEDIA_API = 'https://pl.wikipedia.org/w/api.php';
 export const WIKIDATA_API = 'https://www.wikidata.org/w/api.php';
@@ -27,14 +28,6 @@ const CATEGORY_HINTS: Partial<Record<GlossaryCategory, string>> = {
 
 type SearchResponse = {
 	query?: { search?: { pageid: number; title: string }[] };
-};
-
-export type Page = {
-	pageid: number;
-	title: string;
-	extract?: string;
-	fullurl?: string;
-	pageprops?: { wikibase_item?: string; disambiguation?: string };
 };
 
 type PagesResponse = { query?: { pages?: Page[] } };

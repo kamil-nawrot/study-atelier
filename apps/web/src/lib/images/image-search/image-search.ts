@@ -7,13 +7,10 @@ import type { CandidateImage } from '#lib/images/types/candidate-image.ts';
 import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
 import type { ImageSearchQuery } from '#lib/images/types/image-search-query.ts';
 import type { ImageSearchResult } from '#lib/images/types/image-search-result.ts';
-import {
-	searchWikidataArtworks,
-	searchWikidataPeople,
-	type SourceDate,
-	type WikidataArtwork,
-	type WikidataPerson
-} from '#lib/images/wikidata/wikidata.ts';
+import { searchWikidataArtworks, searchWikidataPeople } from '#lib/images/wikidata/wikidata.ts';
+import type { SourceDate } from '#lib/images/types/source-date.ts';
+import type { WikidataArtwork } from '#lib/images/types/wikidata-artwork.ts';
+import type { WikidataPerson } from '#lib/images/types/wikidata-person.ts';
 
 export const CANDIDATE_LIMIT = 8;
 export const CANDIDATE_THUMBNAIL_WIDTH = 330;

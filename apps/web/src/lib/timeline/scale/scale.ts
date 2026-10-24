@@ -1,6 +1,7 @@
-import type { Era, TimeSpan, View } from '#lib/timeline/time/time.ts';
-
-export type StepKey = 'era' | '10000' | '1000' | '300' | '100' | '30';
+import type { Era } from '#lib/timeline/types/era.ts';
+import type { TimeSpan } from '#lib/timeline/types/time-span.ts';
+import type { View } from '#lib/timeline/types/view.ts';
+import type { StepKey } from '#lib/timeline/types/step-key.ts';
 
 export const STEP_KEYS: readonly StepKey[] = ['era', '10000', '1000', '300', '100', '30'];
 

@@ -1,16 +1,12 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { artworkImageCredit } from '#lib/images/artwork-image/artwork-image.ts';
 import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
-import {
-	IMAGE_COLUMNS,
-	type ImageRow,
-	imageOf,
-	withPreview
-} from '#lib/images/image-record/image-record.ts';
+import { IMAGE_COLUMNS, imageOf, withPreview } from '#lib/images/image-record/image-record.ts';
+import type { ImageRow } from '#lib/images/types/image-row.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import type { ReviewScope } from '#lib/review/overview/overview.ts';
+import type { ReviewScope } from '#lib/review/types/review-scope.ts';
 import { MIN_ARTWORKS, newAllowance } from '#lib/review/queue/queue.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewCounts } from '#lib/review/types/review-counts.ts';

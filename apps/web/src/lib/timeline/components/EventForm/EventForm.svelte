@@ -32,10 +32,10 @@
 		hasNoDates,
 		validateEventForm,
 		withDates,
-		withoutDates,
-		type EventFormErrors,
-		type EventFormState
+		withoutDates
 	} from '#lib/timeline/event-form/event-form.ts';
+	import type { EventFormErrors } from '#lib/timeline/types/event-form-errors.ts';
+	import type { EventFormState } from '#lib/timeline/types/event-form-state.ts';
 	import { saveTimelineEvent } from '#lib/timeline/timeline-data/timeline-data.ts';
 	import type { EventArticle } from '#lib/timeline/types/event-article.ts';
 	import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';

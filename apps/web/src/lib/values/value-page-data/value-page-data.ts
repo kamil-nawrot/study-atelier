@@ -10,7 +10,7 @@ import { loadValueDetails } from '#lib/values/value-details-data/value-details-d
 import { findSubject, isValueKind, subjectPath } from '#lib/card-index/value-pages/value-pages.ts';
 import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 import type { NoteLinks } from '@study-atelier/ui';
-import type { Mention } from '#lib/notes/mentions-data/mentions-data.ts';
+import type { Mention } from '#lib/notes/types/mention.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';

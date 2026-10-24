@@ -1,4 +1,4 @@
-import type { ImageRow } from '#lib/images/image-record/image-record.ts';
+import type { ImageRow } from '#lib/images/types/image-row.ts';
 
 export type SessionPinRow = {
 	x: number;

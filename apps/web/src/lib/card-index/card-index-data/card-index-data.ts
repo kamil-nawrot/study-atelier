@@ -31,16 +31,16 @@ type PeriodEraRow = { period_id: string; era_code: string; artwork_count: number
 
 type StylePeriodRow = { style_id: string; period_id: string; artwork_count: number };
 
-export type CardIndexActionResult = {
+type CardIndexActionResult = {
 	error?: string;
 };
 
-export type ValuePageContent = {
+type ValuePageContent = {
 	hasContent: boolean;
 	ownImagePath?: string;
 };
 
-export type ValuePageContentResult = {
+type ValuePageContentResult = {
 	content?: ValuePageContent;
 	error?: string;
 };
@@ -112,7 +112,7 @@ export async function loadCardIndex(): Promise<CardIndexResult> {
 	};
 }
 
-export type ValueChanges = {
+type ValueChanges = {
 	record: CardIndexRecord;
 	name: string;
 	eraCodes?: EraCode[];

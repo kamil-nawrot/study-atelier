@@ -1,6 +1,5 @@
 import type { Pin } from '#lib/pins/types/pin.ts';
-
-export type Fraction = { x: number; y: number };
+import type { Fraction } from '#lib/pins/types/fraction.ts';
 
 type Rect = { left: number; top: number; width: number; height: number };
 

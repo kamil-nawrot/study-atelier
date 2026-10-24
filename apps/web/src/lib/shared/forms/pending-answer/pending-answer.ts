@@ -1,4 +1,4 @@
-export type PendingAnswer = {
+type PendingAnswer = {
 	readonly pending: boolean;
 	ask: (open: () => void) => Promise<boolean>;
 	answer: (value: boolean) => void;

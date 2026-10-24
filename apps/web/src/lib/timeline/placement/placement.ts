@@ -1,19 +1,7 @@
-import { overlaps, spanOfYears, type Era } from '#lib/timeline/time/time.ts';
-
-export type Dated = {
-	id: string;
-	yearFrom: number | null;
-	yearTo: number | null;
-};
-
-export type Mark<T extends Dated> = {
-	item: T;
-	start: number;
-	end: number;
-	cutBefore: boolean;
-	cutAfter: boolean;
-	at: number;
-};
+import { overlaps, spanOfYears } from '#lib/timeline/time/time.ts';
+import type { Era } from '#lib/timeline/types/era.ts';
+import type { Dated } from '#lib/timeline/types/dated.ts';
+import type { Mark } from '#lib/timeline/types/mark.ts';
 
 export const DOT_SIZE = 10;
 const CANDIDATES = 14;

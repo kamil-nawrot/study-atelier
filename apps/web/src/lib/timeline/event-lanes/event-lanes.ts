@@ -1,19 +1,10 @@
 import { availableSteps, stepSpan } from '#lib/timeline/scale/scale.ts';
-import { overlaps, spanOfYears, timeOf, type Era, type TimeSpan } from '#lib/timeline/time/time.ts';
+import { overlaps, spanOfYears, timeOf } from '#lib/timeline/time/time.ts';
+import type { Era } from '#lib/timeline/types/era.ts';
+import type { TimeSpan } from '#lib/timeline/types/time-span.ts';
 import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
-
-export type EventShape = 'ribbon' | 'pin';
-
-export type LaidEvent = {
-	event: TimelineEvent;
-	start: number;
-	end: number;
-	cutBefore: boolean;
-	cutAfter: boolean;
-	shape: EventShape;
-	inside: boolean;
-	lane: number;
-};
+import type { EventShape } from '#lib/timeline/types/event-shape.ts';
+import type { LaidEvent } from '#lib/timeline/types/laid-event.ts';
 
 export const EVENT_LANES = 4;
 export const EVENT_LANES_NARROW = 3;

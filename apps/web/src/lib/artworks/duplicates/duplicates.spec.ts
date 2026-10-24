@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-	duplicateNumbers,
-	formatRecordNumbers,
-	sameTitleAndAuthors,
-	type DuplicateCandidate
-} from './duplicates.ts';
+import { duplicateNumbers, formatRecordNumbers, sameTitleAndAuthors } from './duplicates.ts';
+import type { DuplicateCandidate } from '#lib/artworks/types/duplicate-candidate.ts';
 
 function candidate(
 	number: number,

@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { datesOf, searchEvents, type Claims, type TimeStatement } from './wikipedia.ts';
+import { datesOf, searchEvents } from './wikipedia.ts';
+import type { Claims } from '#lib/timeline/types/claims.ts';
+import type { TimeStatement } from '#lib/timeline/types/time-statement.ts';
 
 function time(value: string, precision = 9, rank: TimeStatement['rank'] = 'normal'): TimeStatement {
 	return { rank, mainsnak: { datavalue: { value: { time: `${value}T00:00:00Z`, precision } } } };

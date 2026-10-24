@@ -1,5 +1,5 @@
 import { ERA_CODES } from '#lib/catalogue/eras/eras.ts';
-import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import {
@@ -8,35 +8,17 @@ import {
 	MIN_ARTWORKS,
 	reviewableArtworks,
 	SETTLED_STABILITY_DAYS,
-	type SessionInput,
 	sessionCounts,
 	startOfDay
 } from '#lib/review/queue/queue.ts';
+import type { SessionInput } from '#lib/review/types/session-input.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { ReviewRating } from '#lib/review/types/review-rating.ts';
-
-export type ReviewScope =
-	| { kind: 'all' }
-	| { kind: 'era'; code: EraCode }
-	| { kind: 'period'; name: string }
-	| { kind: 'style'; name: string };
-
-export type ScopeChoice = {
-	scope: ReviewScope;
-	count: number;
-};
-
-export type AtelierKnowledge = {
-	settled: number;
-	learning: number;
-	fresh: number;
-};
-
-export type SummaryGroup = {
-	rating: ReviewRating;
-	artworks: WallArtwork[];
-};
+import type { ReviewScope } from '#lib/review/types/review-scope.ts';
+import type { ScopeChoice } from '#lib/review/types/scope-choice.ts';
+import type { AtelierKnowledge } from '#lib/review/types/atelier-knowledge.ts';
+import type { SummaryGroup } from '#lib/review/types/summary-group.ts';
 
 const MIN_DUE_IN_SCOPE = 10;
 const TROUBLES = 4;

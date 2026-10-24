@@ -4,11 +4,11 @@ import {
 	FORMAT_NAME,
 	FORMAT_VERSION,
 	imageEntryName,
-	type AtelierData,
 	type AtelierFile
 } from '#lib/data-transfer/format/format.ts';
+import type { AtelierData } from '#lib/data-transfer/types/atelier-data.ts';
 
-export type ArchiveImage = { path: string; bytes: Uint8Array };
+type ArchiveImage = { path: string; bytes: Uint8Array };
 
 export function atelierFile(data: AtelierData, now: Date): AtelierFile {
 	return { format: FORMAT_NAME, version: FORMAT_VERSION, exportedAt: now.toISOString(), data };

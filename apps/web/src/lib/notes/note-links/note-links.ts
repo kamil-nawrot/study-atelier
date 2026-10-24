@@ -12,17 +12,12 @@ import {
 	valueKindName,
 	valueParents
 } from '#lib/card-index/value-pages/value-pages.ts';
+import type { NoteLinkArtwork } from '#lib/notes/types/note-link-artwork.ts';
 
 const SUGGESTION_LIMIT = 8;
 const MIN_QUERY_LENGTH = 2;
 
-export type NoteLinkArtwork = {
-	number: number;
-	title: string;
-	authors: string[];
-};
-
-export type NoteLinkSources = {
+type NoteLinkSources = {
 	index: CardIndexData;
 	artworks: NoteLinkArtwork[];
 };
