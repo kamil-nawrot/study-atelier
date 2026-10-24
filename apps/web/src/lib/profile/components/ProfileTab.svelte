@@ -3,8 +3,8 @@
 	import ImageUp from '@lucide/svelte/icons/image-up';
 	import ImageMinus from '@lucide/svelte/icons/image-minus';
 	import { Alert, Button, Form, FormActions, IconButton, TextField } from '@study-atelier/ui';
-	import DiscardDialog from '#lib/collection/components/DiscardDialog.svelte';
-	import { UnsavedChanges } from '#lib/collection/unsaved-changes.svelte.ts';
+	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
+	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { OWN_IMAGE_ACCEPT } from '#lib/images/bucket.ts';
 	import { cropAvatar } from '../avatar.ts';

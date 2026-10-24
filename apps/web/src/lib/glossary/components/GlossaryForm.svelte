@@ -17,8 +17,8 @@
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
 	import type { CardIndexData } from '#lib/collection/types.ts';
-	import DiscardDialog from '#lib/collection/components/DiscardDialog.svelte';
-	import { UnsavedChanges } from '#lib/collection/unsaved-changes.svelte.ts';
+	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
+	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { valuePath } from '#lib/collection/value-pages.ts';
 	import { autoFetch } from '#lib/profile/auto-fetch.svelte.ts';
 	import { resolve } from '$app/paths';

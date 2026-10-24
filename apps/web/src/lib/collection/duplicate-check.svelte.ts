@@ -1,5 +1,5 @@
 import { findDuplicates, type TitleAndAuthors } from './duplicates.ts';
-import { pendingAnswer } from './pending-answer.ts';
+import { pendingAnswer } from '#lib/shared/forms/pending-answer/pending-answer.ts';
 
 export class DuplicateCheck {
 	open = $state(false);

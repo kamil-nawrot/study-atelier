@@ -12,11 +12,11 @@
 		TextButton,
 		TextField
 	} from '@study-atelier/ui';
-	import DiscardDialog from '#lib/collection/components/DiscardDialog.svelte';
+	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import { formatDate } from '#lib/collection/format.ts';
-	import YearGroup from '#lib/collection/components/YearGroup.svelte';
-	import YearInput from '#lib/collection/components/YearInput.svelte';
-	import { UnsavedChanges } from '#lib/collection/unsaved-changes.svelte.ts';
+	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
+	import YearInput from '#lib/shared/forms/YearInput/YearInput.svelte';
+	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import ArticleDialog from '#lib/glossary/components/ArticleDialog.svelte';
 	import { sourceOf } from '#lib/glossary/wikipedia.ts';
 	import { m } from '#lib/i18n/index.ts';

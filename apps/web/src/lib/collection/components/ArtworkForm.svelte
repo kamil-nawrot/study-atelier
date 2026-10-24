@@ -32,14 +32,14 @@
 	import { eraTiles, isEraCode } from '../eras.ts';
 	import { formatRecordNumber } from '../format.ts';
 	import { OWN_TEXT_MAX_LENGTH } from '../own-fields.ts';
-	import { UnsavedChanges } from '../unsaved-changes.svelte.ts';
+	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { suggestValues, valueKey } from '../value-suggestions.ts';
-	import DiscardDialog from './DiscardDialog.svelte';
+	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import ArtworkImages from './ArtworkImages.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import type { Pin } from '#lib/pins/types.ts';
-	import YearGroup from './YearGroup.svelte';
-	import YearInput from './YearInput.svelte';
+	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
+	import YearInput from '#lib/shared/forms/YearInput/YearInput.svelte';
 	import DuplicateDialog from './DuplicateDialog.svelte';
 	import type {
 		ArtworkFieldErrors,

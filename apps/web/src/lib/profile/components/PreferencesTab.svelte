@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { tick, untrack } from 'svelte';
 	import { Alert, Button, Checkbox, Form, FormActions, Switch, ToggleTag } from '@study-atelier/ui';
-	import DiscardDialog from '#lib/collection/components/DiscardDialog.svelte';
-	import { UnsavedChanges } from '#lib/collection/unsaved-changes.svelte.ts';
+	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
+	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import {
 		NEW_PER_DAY_CHOICES,

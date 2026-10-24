@@ -38,7 +38,7 @@
 	import { countryOptions } from '../countries.ts';
 	import { ERA_CODES, eraName } from '../eras.ts';
 	import { isPlaceType, placeTiles } from '../place-types.ts';
-	import { UnsavedChanges } from '../unsaved-changes.svelte.ts';
+	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { saveValueDetails, valueDetailsChanged } from '../value-details.ts';
 	import { SUMMARY_MAX_LENGTH, subjectPath, valuePath } from '../value-pages.ts';
 	import type {
@@ -50,10 +50,10 @@
 		ValueDetails,
 		ValueSubject
 	} from '../types.ts';
-	import DiscardDialog from './DiscardDialog.svelte';
+	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import ImageField from './ImageField.svelte';
-	import YearGroup from './YearGroup.svelte';
-	import YearInput from './YearInput.svelte';
+	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
+	import YearInput from '#lib/shared/forms/YearInput/YearInput.svelte';
 
 	type Props = {
 		subject: ValueSubject;

@@ -1,7 +1,7 @@
 import { onDestroy } from 'svelte';
 import { beforeNavigate, goto } from '$app/navigation';
 import type { ResolvedPathname } from '$app/types';
-import { pendingAnswer } from './pending-answer.ts';
+import { pendingAnswer } from '#lib/shared/forms/pending-answer/pending-answer.ts';
 
 export class UnsavedChanges<T> {
 	open = $state(false);

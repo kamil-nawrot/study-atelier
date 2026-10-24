@@ -1,7 +1,7 @@
 <script generics="T" lang="ts">
 	import { Button, Dialog } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
-	import type { UnsavedChanges } from '../unsaved-changes.svelte.ts';
+	import type { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 
 	type Props = {
 		changes: UnsavedChanges<T>;
