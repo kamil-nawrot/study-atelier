@@ -16,7 +16,7 @@ export const exemptFromLines = ['**/database.types.ts', '**/i18n/pl.ts', '**/cou
 
 export const testFiles = ['**/*.spec.ts', '**/*.test.ts'];
 
-export const allowlistPath = path.join(repositoryRoot, 'lint', 'allowlist.json');
+const allowlistPath = path.join(repositoryRoot, 'lint', 'allowlist.json');
 
 export function readAllowlist() {
 	return JSON.parse(readFileSync(allowlistPath, 'utf8'));
