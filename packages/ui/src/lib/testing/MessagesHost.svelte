@@ -1,6 +1,7 @@
 <script lang="ts">
+	import type { UiMessages } from '../types/ui-messages';
 	import { type Component, onDestroy, untrack } from 'svelte';
-	import { setUiMessages, uiMessages, type UiMessages } from '../messages';
+	import { setUiMessages, uiMessages } from '../messages/messages';
 
 	type Props = {
 		messages: UiMessages;
