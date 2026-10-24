@@ -50,16 +50,17 @@
 
 ## Web app layout
 
-The SvelteKit app in `apps/web/src` is organised in feature modules ([ADR-0126](../decisions/0126-organise-the-web-app-in-feature-modules-with-enforced-limits.md)). Version 0.11 moves the existing code into this layout; until its issues are done, a file outside the layout stays where it is unless the issue at hand moves it, and new code goes straight into the layout.
+The SvelteKit app in `apps/web/src` is organised in feature modules ([ADR-0126](../decisions/0126-organise-the-web-app-in-feature-modules-with-enforced-limits.md)). Every file in `lib` follows this layout, and `pnpm lint` keeps it that way.
 
-| Path             | Holds                                                                                                                                                                                                                                                                         |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `routes/`        | Pages and layouts only (`+page.svelte`, `+layout.ts` and other SvelteKit files)                                                                                                                                                                                               |
-| `lib/shared/`    | Technical code that knows nothing about artworks: the Supabase client and generated types (`shared/data/`), form helpers (`shared/forms/`), storage, ids, search, dates                                                                                                       |
-| `lib/i18n/`      | The message dictionary                                                                                                                                                                                                                                                        |
-| `lib/catalogue/` | The domain model several modules share (artwork and value types, eras, artwork types, record numbers, years), without Supabase and without components                                                                                                                         |
-| `lib/<module>/`  | One feature, named as the learner knows it: `artworks`, `images`, `wall`, `card-index`, `values` ([ADR-0127](../decisions/0127-keep-the-value-page-in-a-values-module.md)), `notes`, `pins`, `glossary`, `timeline`, `review`, `profile`, `auth`, `feedback`, `data-transfer` |
-| `lib/shell/`     | The atelier layout, the menu, the theme and the rail, which put the modules together into the app                                                                                                                                                                             |
+| Path                           | Holds                                                                                                                                                                                                                                                                         |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `routes/`                      | Pages and layouts only (`+page.svelte`, `+layout.ts` and other SvelteKit files)                                                                                                                                                                                               |
+| `lib/shared/`                  | Technical code that knows nothing about artworks: the Supabase client and generated types (`shared/data/`), form helpers (`shared/forms/`), storage, ids, search, dates                                                                                                       |
+| `lib/i18n/`                    | The message dictionary                                                                                                                                                                                                                                                        |
+| `lib/catalogue/`               | The domain model several modules share (artwork and value types, eras, artwork types, record numbers, years), without Supabase and without components                                                                                                                         |
+| `lib/<module>/`                | One feature, named as the learner knows it: `artworks`, `images`, `wall`, `card-index`, `values` ([ADR-0127](../decisions/0127-keep-the-value-page-in-a-values-module.md)), `notes`, `pins`, `glossary`, `timeline`, `review`, `profile`, `auth`, `feedback`, `data-transfer` |
+| `lib/shell/`                   | The atelier layout, the menu, the theme and the rail, which put the modules together into the app                                                                                                                                                                             |
+| `lib/startup/`, `lib/testing/` | The loading screen shown before the app starts; helpers and fixtures for tests                                                                                                                                                                                                |
 
 Inside a module (example: `wall`):
 
@@ -115,7 +116,7 @@ Inside a module (example: `wall`):
 | Wikimedia, Wikipedia, Wiktionary and Wikidata addresses only in `lib/images` and the glossary `wikipedia`/`wiktionary` files                  | ESLint `study-atelier/no-wiki-hosts`                                                            |
 | `font-family` only `inherit` or a `--font-family-*` token; the visually-hidden technique (`clip`, `clip-path: inset(50%)`) only in `base.css` | Stylelint (`stylelint/visually-hidden-in-base.js`)                                              |
 
-- The limits live in `lint/limits.js`. What broke a rule when the check was added is listed in [`lint/allowlist.json`](../../lint/allowlist.json) by kind (`lines`, `script`, `style`, `complexity`, `supabase`, `route-script`, `storage`, and `layout` by folder). An entry that is no longer needed fails the check, so a change that fixes a file removes its entry; no change adds one without the owner's agreement.
+- The limits live in `lint/limits.js`. What broke a rule when the check was added is listed in [`lint/allowlist.json`](../../lint/allowlist.json) by kind (`lines`, `script`, `style`, `complexity`, `route-script`, `storage`, and `layout` by folder, which is empty). An entry that is no longer needed fails the check, so a change that fixes a file removes its entry; no change adds one without the owner's agreement.
 - `dependency-cruiser` runs twice: over files, and over modules with `.dependency-cruiser-modules.cjs`, which collapses each `lib/<module>`. Its baselines, `apps/web/.dependency-cruiser-known-violations.json` (files) and `.dependency-cruiser-known-module-cycles.json` (modules), are empty: no cycle and no import in a wrong direction is left. A baseline gains no entry without the owner's agreement; one that does is regenerated with `pnpm exec depcruise src --output-type baseline` (plus `--config .dependency-cruiser-modules.cjs` for modules).
 
 ## Naming
@@ -129,7 +130,7 @@ Inside a module (example: `wall`):
 
 ## Imports
 
-- Code in `apps/web` imports from another folder through `#lib/...` with the file extension, for example `#lib/auth/validation.ts`. The alias comes from `imports` in `package.json`.
+- Code in `apps/web` imports from another folder through `#lib/...` with the file extension, for example `#lib/auth/validation/validation.ts`. The alias comes from `imports` in `package.json`.
 - Files in the same folder import each other with a relative path (`./errors.ts`).
 
 ## Routes and navigation
@@ -148,7 +149,7 @@ Inside a module (example: `wall`):
 - A message with values is a function (`sent(email)`). Plural forms use `plural()` with `Intl.PluralRules`.
 - Adding a language takes three steps:
   1. Add a dictionary file of type `Messages` (for example `en.ts`).
-  2. Choose the dictionary and `locale` in `lib/i18n/index.ts` from the learner's setting or `navigator.language`.
+  2. Choose the dictionary and `locale` in `lib/i18n/i18n.ts` from the learner's setting or `navigator.language`.
   3. Set `document.documentElement.lang` in the root layout and pass `locale` to `Intl.PluralRules` and date formatting.
 
 ## Errors from services
@@ -156,12 +157,12 @@ Inside a module (example: `wall`):
 - Every error from Supabase or another service goes through a mapping function in `lib/<domain>/errors.ts`, which picks a dictionary message by error code and falls back to a general message. `error.message` is never shown to the learner.
 - A database error is mapped by a function built with `errorMessages` from `#lib/shared/data/errors/errors.ts`, given the module's table of codes and its network message; the factory alone decides what counts as a network error. Errors of other shapes (auth, storage, Wikimedia) keep their own mapping in the module.
 - Domain functions return the mapped message, so views only show it.
-- A domain function that writes passes the error through `failureMessage` from `lib/auth/expired-session.svelte.ts`: an authorization error (HTTP 401 or a `PGRST301`..`PGRST303` code) signs the learner out and returns the session-ended message; any other error goes to the domain's mapping function.
+- A domain function that writes passes the error through `failureMessage` from `lib/auth/expired-session-data/expired-session-data.ts`: an authorization error (HTTP 401 or a `PGRST301`..`PGRST303` code) signs the learner out and returns the session-ended message; any other error goes to the domain's mapping function.
 
 ## External services
 
-- URLs of one image source are built in one module, `lib/images/<source>.ts` (for example `commons.ts`). Views and other domains call it instead of writing the URL themselves.
-- The Polish Wikipedia API (the definitions of the glossary) and the Wikidata API it is checked against are called only from `lib/glossary/wikipedia.ts`, through the same `fetchJson` as the image sources, so the identification and the retry are shared. Tests and screenshots mock it: the cloud environment cannot reach `pl.wikipedia.org`. A local session can, so a change to how the responses are parsed (the definition, the sentences, the lead) is also checked against a handful of live articles before the pull request; sample texts written by hand miss the variety of real leads. A script that calls the app's Wikimedia functions from Node for such a check sets a `User-Agent` header naming the app and the repository URL (as `API_USER_AGENT`): browsers send one themselves, while Node's default makes Wikimedia answer `403`.
+- URLs of one image source are built in one module, `lib/images/<source>/<source>.ts` (for example `commons/commons.ts`). Views and other domains call it instead of writing the URL themselves.
+- The Polish Wikipedia API (the definitions of the glossary) and the Wikidata API it is checked against are called only from `lib/glossary/wikipedia/wikipedia.ts`, through the same `fetchJson` as the image sources, so the identification and the retry are shared. Tests and screenshots mock it: the cloud environment cannot reach `pl.wikipedia.org`. A local session can, so a change to how the responses are parsed (the definition, the sentences, the lead) is also checked against a handful of live articles before the pull request; sample texts written by hand miss the variety of real leads. A script that calls the app's Wikimedia functions from Node for such a check sets a `User-Agent` header naming the app and the repository URL (as `API_USER_AGENT`): browsers send one themselves, while Node's default makes Wikimedia answer `403`.
 - A request to a service that asks clients to identify themselves (for example the Wikimedia `Api-User-Agent` header) names the app and the repository URL. It never carries personal data such as an email address.
 - Requests to a rate-limited service are batched where the API allows it, and a 429 is retried at most once, after `Retry-After` ([ADR-0023](../decisions/0023-atelier-routes-and-commons-thumbnails.md)).
 - The Query Service optimizer may start a query from a large pattern such as `?item wdt:P18 ?image` instead of from the few results of `SERVICE wikibase:mwapi`, and then times out after about 60 s with a `502` or `504`. A query that joins search results under `UNION` with other patterns starts with `hint:Query hint:optimizer "None".`, so it runs in the written order, searches first (ATL-213).
@@ -184,7 +185,7 @@ Inside a module (example: `wall`):
 - Components and pages have component tests named `<Name>.svelte.spec.ts` next to the component (for a route, `page.svelte.spec.ts` next to `+page.svelte`). They run in Chromium with Vitest browser mode; other tests run in Node ([ADR-0018](../decisions/0018-component-tests-in-vitest-browser-mode.md)).
 - Test names describe behaviour in a sentence ("rejects a short password and says how long it is").
 - Expected texts are read from `m`, and in `packages/ui` from `defaultUiMessages`. A literal string is used only when the text itself is under test, for example a plural form.
-- The app's browser tests see the Polish library texts: `src/lib/testing/ui-messages.ts`, the `setupFiles` entry of the `client` project, calls `setUiMessages(m.ui)` ([ADR-0087](../decisions/0087-set-library-texts-once-for-the-whole-app.md)). A library text is read from `m.ui`, for example `m.ui.valueField.remove('barok')`. Library styles are not loaded in tests, so a custom checkbox has no size: click its label.
+- The app's browser tests see the Polish library texts: `src/lib/testing/ui-messages/ui-messages.ts`, the `setupFiles` entry of the `client` project, calls `setUiMessages(m.ui)` ([ADR-0087](../decisions/0087-set-library-texts-once-for-the-whole-app.md)). A library text is read from `m.ui`, for example `m.ui.valueField.remove('barok')`. Library styles are not loaded in tests, so a custom checkbox has no size: click its label.
 - A test of a size or position loads the styles itself. In `packages/ui`, `src/lib/testing/control-height.ts` loads them and gives the token's height (`controlHeight`) and the height of a control's outlined box (`outlinedHeight`); in the app, the spec imports `@study-atelier/ui/styles.css`. Such a test may reach that box by its class.
 - A test of a library text override renders the component through `src/lib/testing/MessagesHost.svelte` in `packages/ui`, which calls `setUiMessages` before it renders the component and puts the previous texts back when it is destroyed.
 - Component tests find elements the way a learner does: by role, label and visible text from `m`, not by component internals, so a refactor that keeps the behaviour keeps the tests green.

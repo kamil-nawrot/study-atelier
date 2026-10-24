@@ -126,14 +126,6 @@ async function checkListedRule(kind, ruleId, setting, reason) {
 	}
 }
 
-function checkListedSupabase() {
-	for (const file of existing('supabase')) {
-		if (!/from\s+['"][^'"]*\/supabase\.ts['"]/.test(read(file))) {
-			stale('supabase', file, 'it no longer imports the Supabase client');
-		}
-	}
-}
-
 function baseName(file) {
 	return path.posix
 		.basename(file)
@@ -196,7 +188,6 @@ checkSvelteBlocks(files);
 checkRouteScripts(files);
 checkMarkupComments(files);
 checkListedLines();
-checkListedSupabase();
 if (layoutRoot) checkLayout(files);
 await checkListedRule(
 	'complexity',
