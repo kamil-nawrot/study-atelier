@@ -100,15 +100,22 @@ Inside a module (example: `wall`):
 
 `pnpm lint` (and CI) enforces the layout, the dependency directions, the data files and the size limits above, so review does not repeat them:
 
-| Rule                                                                              | Tool                                                                             |
-| --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Lines of a file, complexity of a function                                         | ESLint `max-lines`, `complexity`                                                 |
-| Lines of the `<script>` and `<style>` of a `.svelte` file                         | `lint/check-limits.js`                                                           |
-| A code file in a folder of its name, one type per file in `types/`, no `index.ts` | `lint/check-limits.js`, in `apps/web/src/lib`                                    |
-| The Supabase client only in `*-data.ts` (and tests, `testing/`)                   | ESLint `no-restricted-imports`                                                   |
-| Directions between `lib` folders, no cycles between files or modules              | `dependency-cruiser` (`pnpm lint:deps` in `apps/web`, `.dependency-cruiser.cjs`) |
+| Rule                                                                                                                                          | Tool                                                                                            |
+| --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Lines of a file, complexity of a function                                                                                                     | ESLint `max-lines`, `complexity`                                                                |
+| Lines of the `<script>` and `<style>` of a `.svelte` file                                                                                     | `lint/check-limits.js`                                                                          |
+| A code file in a folder of its name, one type per file in `types/`, no `index.ts`                                                             | `lint/check-limits.js`, in `apps/web/src/lib`                                                   |
+| The Supabase client only in `*-data.ts` (and tests, `testing/`)                                                                               | ESLint `no-restricted-imports`                                                                  |
+| Directions between `lib` folders, no cycles between files or modules                                                                          | `dependency-cruiser` (`pnpm lint:deps` in `apps/web`, `.dependency-cruiser.cjs`)                |
+| No comments in code, only `eslint`, `@ts-` and `svelte-ignore` directives                                                                     | ESLint `study-atelier/no-comments` (`lint/eslint-plugin.js`); `lint/check-limits.js` for markup |
+| No TypeScript `enum`                                                                                                                          | ESLint `no-restricted-syntax`                                                                   |
+| Imports through `#lib/...` with the extension, `../` never, `$lib` never (`apps/web`)                                                         | ESLint `study-atelier/import-paths`                                                             |
+| A `+page.svelte` or `+layout.svelte` script of at most 80 lines                                                                               | `lint/check-limits.js`                                                                          |
+| `localStorage` and `sessionStorage` only through `#lib/shared/utils/storage/storage.ts` (`apps/web`)                                          | ESLint `no-restricted-globals`                                                                  |
+| Wikimedia, Wikipedia, Wiktionary and Wikidata addresses only in `lib/images` and the glossary `wikipedia`/`wiktionary` files                  | ESLint `study-atelier/no-wiki-hosts`                                                            |
+| `font-family` only `inherit` or a `--font-family-*` token; the visually-hidden technique (`clip`, `clip-path: inset(50%)`) only in `base.css` | Stylelint (`stylelint/visually-hidden-in-base.js`)                                              |
 
-- The limits live in `lint/limits.js`. What broke a rule when the check was added is listed in [`lint/allowlist.json`](../../lint/allowlist.json) by kind (`lines`, `script`, `style`, `complexity`, `supabase`, and `layout` by folder). An entry that is no longer needed fails the check, so a change that fixes a file removes its entry; no change adds one without the owner's agreement.
+- The limits live in `lint/limits.js`. What broke a rule when the check was added is listed in [`lint/allowlist.json`](../../lint/allowlist.json) by kind (`lines`, `script`, `style`, `complexity`, `supabase`, `route-script`, `storage`, and `layout` by folder). An entry that is no longer needed fails the check, so a change that fixes a file removes its entry; no change adds one without the owner's agreement.
 - Cycles that existed when the check was added are in `apps/web/.dependency-cruiser-known-violations.json` (files) and `.dependency-cruiser-known-module-cycles.json` (modules, found with `.dependency-cruiser-modules.cjs`, which collapses each `lib/<module>`). A change that removes a cycle regenerates the file with `pnpm exec depcruise src --output-type baseline` (plus `--config .dependency-cruiser-modules.cjs` for modules); a baseline gains no entry without the owner's agreement.
 
 ## Naming

@@ -85,5 +85,12 @@
 		"apps/web/src/lib/testing",
 		"apps/web/src/lib/timeline",
 		"apps/web/src/lib/timeline/components"
-	]
+	],
+	"route-script": [
+		"apps/web/src/routes/(app)/atelier/+page.svelte",
+		"apps/web/src/routes/(app)/atelier/[number]/+page.svelte",
+		"apps/web/src/routes/(app)/atelier/review/+page.svelte",
+		"apps/web/src/routes/(app)/atelier/timeline/+page.svelte"
+	],
+	"storage": ["apps/web/src/lib/shared/navigation/back-places/back-places.ts"]
 }

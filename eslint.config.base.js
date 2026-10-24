@@ -3,6 +3,7 @@ import prettier from 'eslint-config-prettier';
 import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
 import ts from 'typescript-eslint';
+import studyAtelier from './lint/eslint-plugin.js';
 import { allowlisted, exemptFromLines, limits, testFiles } from './lint/limits.js';
 
 function maxLines(max) {
@@ -34,6 +35,19 @@ export default [
 		files: ['**/*.svelte'],
 		rules: {
 			'svelte/sort-attributes': 'error'
+		}
+	},
+	{
+		plugins: { 'study-atelier': studyAtelier },
+		rules: {
+			'study-atelier/no-comments': 'error',
+			'no-restricted-syntax': [
+				'error',
+				{
+					selector: 'TSEnumDeclaration',
+					message: 'Use a union of string literals instead of an enum'
+				}
+			]
 		}
 	},
 	{
