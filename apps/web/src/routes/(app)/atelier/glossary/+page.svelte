@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Plus from '@lucide/svelte/icons/plus';
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { Alert, Button, Icon, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -19,11 +19,16 @@
 	let query = $state('');
 	let chosen = $state<GlossaryCategory[]>([]);
 
-	export const snapshot: Snapshot<{ query: string; chosen: GlossaryCategory[] }> = {
-		capture: () => ({ query, chosen: [...chosen] }),
+	type Saved = { query: string; chosen: GlossaryCategory[]; scroll?: number };
+
+	export const snapshot: Snapshot<Saved> = {
+		capture: () => ({ query, chosen: [...chosen], scroll: window.scrollY }),
 		restore: (value) => {
 			query = value.query;
 			chosen = value.chosen ?? [];
+			const { scroll } = value;
+			if (scroll === undefined) return;
+			void tick().then(() => window.scrollTo({ top: scroll, behavior: 'instant' }));
 		}
 	};
 

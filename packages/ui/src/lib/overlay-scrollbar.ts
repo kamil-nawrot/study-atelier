@@ -47,21 +47,34 @@ type Target = {
 	cross: () => number;
 };
 
+function viewHeight(scroller: HTMLElement): number {
+	const edges = scroller.offsetHeight - scroller.clientHeight;
+	return Math.min(
+		scroller.clientHeight,
+		Math.floor(scroller.getBoundingClientRect().height) - edges
+	);
+}
+
+function viewWidth(scroller: HTMLElement): number {
+	const edges = scroller.offsetWidth - scroller.clientWidth;
+	return Math.min(scroller.clientWidth, Math.floor(scroller.getBoundingClientRect().width) - edges);
+}
+
 function elementTarget(scroller: HTMLElement, axis: ScrollAxis): Target {
 	const vertical = axis === 'y';
 	return {
-		view: () => (vertical ? scroller.clientHeight : scroller.clientWidth),
+		view: () => (vertical ? viewHeight(scroller) : viewWidth(scroller)),
 		full: () => (vertical ? scroller.scrollHeight : scroller.scrollWidth),
 		position: () => (vertical ? scroller.scrollTop : scroller.scrollLeft),
 		scrollTo: (position) => {
 			if (vertical) scroller.scrollTop = position;
 			else scroller.scrollLeft = position;
 		},
-		origin: () => (vertical ? scroller.scrollTop : scroller.scrollLeft),
+		origin: () => Math.floor(vertical ? scroller.scrollTop : scroller.scrollLeft),
 		cross: () =>
 			vertical
-				? scroller.scrollLeft + scroller.clientWidth
-				: scroller.scrollTop + scroller.clientHeight
+				? Math.floor(scroller.scrollLeft) + viewWidth(scroller)
+				: Math.floor(scroller.scrollTop) + viewHeight(scroller)
 	};
 }
 

@@ -71,7 +71,7 @@
 	{email}
 	title={m.settings.title}
 >
-	<div class="page">
+	<div class="page" class:bar={tab !== 'account' && tab !== 'data'}>
 		<header>
 			<h1>{m.settings.title}</h1>
 			<p class="lead">{m.settings.lead}</p>
@@ -133,6 +133,9 @@
 		flex-direction: column;
 		gap: var(--spacing-6);
 		min-height: calc(100dvh - var(--bar-height) - var(--spacing-6));
+	}
+
+	.page.bar {
 		margin-bottom: calc(-1 * var(--spacing-12));
 	}
 
