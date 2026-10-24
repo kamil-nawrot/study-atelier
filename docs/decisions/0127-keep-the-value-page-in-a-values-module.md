@@ -1,6 +1,6 @@
 # 0127. Keep the value page in a values module
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-10-24
 
 ## Context and problem statement
