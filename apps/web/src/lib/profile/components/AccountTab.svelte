@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { tick } from 'svelte';
 	import { Alert, Button, Checkbox, Form, TextField } from '@study-atelier/ui';
-	import { changePassword } from '#lib/auth/account.ts';
+	import { changePassword, requestEmailChange } from '#lib/auth/account.ts';
 	import {
 		MIN_PASSWORD_LENGTH,
+		validateEmail,
 		validateNewPassword,
 		validateRequiredPassword
 	} from '#lib/auth/validation.ts';
@@ -11,13 +12,19 @@
 
 	type Props = {
 		email: string;
+		pendingEmail?: string;
 		onchanged: (message: string) => void;
 	};
 
-	let { email, onchanged }: Props = $props();
+	let { email, pendingEmail, onchanged }: Props = $props();
 
 	const formId = $props.id();
 	const formErrorId = `${formId}-error`;
+
+	let newEmail = $state('');
+	let emailFieldError = $state<string>();
+	let emailSent = $state(false);
+	let emailBusy = $state(false);
 
 	let currentPassword = $state('');
 	let newPassword = $state('');
@@ -32,6 +39,23 @@
 		formError = message;
 		await tick();
 		document.getElementById(formErrorId)?.scrollIntoView({ block: 'center' });
+	}
+
+	async function submitEmail(): Promise<void> {
+		if (emailBusy) return;
+		emailFieldError = validateEmail(newEmail);
+		if (emailFieldError) return;
+		emailBusy = true;
+		try {
+			const result = await requestEmailChange(email, newEmail);
+			if (!result.sent) {
+				emailFieldError = result.error;
+				return;
+			}
+			emailSent = true;
+		} finally {
+			emailBusy = false;
+		}
 	}
 
 	async function submit(): Promise<void> {
@@ -62,6 +86,29 @@
 </script>
 
 <div class="account">
+	<h2>{m.settings.account.emailTitle}</h2>
+	<Form onsubmit={submitEmail}>
+		{#if emailSent || pendingEmail}
+			<Alert title={m.settings.account.emailSentTitle} tone="success">
+				{emailSent || !pendingEmail
+					? m.settings.account.emailSent
+					: m.settings.account.emailPending(pendingEmail)}
+			</Alert>
+		{/if}
+		<TextField
+			autocomplete="email"
+			error={emailFieldError}
+			hint={m.settings.account.currentEmail(email)}
+			label={m.settings.account.newEmail}
+			type="email"
+			bind:value={newEmail}
+		/>
+		<div class="actions">
+			<Button disabled={emailBusy} type="submit">
+				{emailBusy ? m.settings.account.emailSubmitting : m.settings.account.emailSubmit}
+			</Button>
+		</div>
+	</Form>
 	<h2>{m.settings.account.passwordTitle}</h2>
 	<Form onsubmit={submit}>
 		{#if formError}

@@ -39,7 +39,7 @@ vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } })
 
 const profile = { displayName: 'Anna', avatarPath: null };
 
-function renderSettings(error?: string, search = ''): void {
+function renderSettings(error?: string, search = '', pendingEmail?: string): void {
 	navigation.url = new URL(`http://localhost/atelier/settings${search}`);
 	render(SettingsPage, {
 		data: {
@@ -47,6 +47,7 @@ function renderSettings(error?: string, search = ''): void {
 			profile,
 			preferences: defaultPreferences,
 			atelierEmpty: true,
+			pendingEmail,
 			error
 		},
 		params: {}
@@ -79,6 +80,25 @@ describe('settings page', () => {
 			.element(page.getByRole('tab', { name: m.settings.tabs.account }))
 			.toHaveAttribute('aria-selected', 'true');
 		await expect.element(page.getByText(m.settings.account.passwordTitle)).toBeVisible();
+	});
+
+	it('confirms the new address after the return from the last link and drops the mark', async () => {
+		renderSettings(undefined, '?tab=account&emailChanged=1');
+
+		await expect.element(page.getByText(m.settings.account.emailChanged)).toBeVisible();
+		expect(goto).toHaveBeenCalledWith('/atelier/settings?tab=account', {
+			replace: true,
+			invalidateAll: true
+		});
+	});
+
+	it('stays silent after the first link while the other one is still to be clicked', async () => {
+		renderSettings(undefined, '?tab=account&emailChanged=1', 'new@example.com');
+
+		await expect
+			.element(page.getByText(m.settings.account.emailPending('new@example.com')))
+			.toBeVisible();
+		await expect.element(page.getByText(m.settings.account.emailChanged)).not.toBeInTheDocument();
 	});
 
 	it('falls back to the profile tab for a tab it does not know', async () => {

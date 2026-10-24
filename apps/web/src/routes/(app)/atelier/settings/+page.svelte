@@ -1,9 +1,11 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { Alert, Tabs, Toast } from '@study-atelier/ui';
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
+	import { EMAIL_CHANGED_PARAM } from '#lib/auth/account.ts';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
 	import { m } from '#lib/i18n/index.ts';
 	import DataTab from '#lib/export/components/DataTab.svelte';
@@ -28,6 +30,17 @@
 
 	let email = $derived(data.session.user.email ?? '');
 	let tab = $derived(settingsTabOf(page.url.searchParams.get('tab')));
+
+	onMount(() => {
+		if (!page.url.searchParams.has(EMAIL_CHANGED_PARAM)) return;
+		const params = new URLSearchParams(page.url.searchParams.toString());
+		params.delete(EMAIL_CHANGED_PARAM);
+		void goto(`${settingsPath}?${params}` as ResolvedPathname, {
+			replace: true,
+			invalidateAll: true
+		});
+		if (!data.pendingEmail) toast.show(m.settings.account.emailChanged);
+	});
 
 	function chooseTab(next: string): void {
 		if (next === tab) return;
@@ -79,7 +92,11 @@
 							bind:barHeight
 						/>
 					{:else if tab === 'account'}
-						<AccountTab {email} onchanged={(message) => toast.show(message)} />
+						<AccountTab
+							{email}
+							onchanged={(message) => toast.show(message)}
+							pendingEmail={data.pendingEmail}
+						/>
 					{:else if tab === 'data'}
 						<DataTab
 							atelierEmpty={data.atelierEmpty}

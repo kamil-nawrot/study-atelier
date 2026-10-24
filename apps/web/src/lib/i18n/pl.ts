@@ -69,6 +69,7 @@ export const pl = {
 			'Ten adres nie jest jeszcze potwierdzony. Kliknij link z wiadomości, którą wysłaliśmy po rejestracji.',
 		weakPassword: 'To hasło łatwo odgadnąć. Wybierz dłuższe, najlepiej z cyframi i znakami.',
 		samePassword: 'Nowe hasło musi być inne niż obecne.',
+		emailTaken: 'Ten adres jest już przypisany do innego konta.',
 		rateLimited: 'Sporo prób w krótkim czasie. Odczekaj chwilę i spróbuj jeszcze raz.',
 		emailRateLimited:
 			'Kilka wiadomości jest już w drodze. Daj im chwilę, zanim poprosisz o kolejną.',
@@ -187,7 +188,7 @@ export const pl = {
 			removePhoto: 'Usuń zdjęcie',
 			name: 'Imię',
 			email: 'Adres e-mail',
-			emailHint: 'Adres podany przy rejestracji, obecnie nie ma możliwości jego zmiany.',
+			emailHint: 'Adres podany przy rejestracji. Zmienisz go w zakładce „Konto”.',
 			nameTooLong: (max: number): string => `Imię może mieć najwyżej ${max} znaków.`,
 			cancel: 'Anuluj',
 			save: 'Zapisz profil',
@@ -199,6 +200,18 @@ export const pl = {
 			discardDescription: 'Masz niezapisane zmiany w profilu. Jeśli wyjdziesz, znikną.'
 		},
 		account: {
+			emailTitle: 'Adres e-mail',
+			currentEmail: (email: string): string => `Obecny adres: ${email}`,
+			newEmail: 'Nowy adres e-mail',
+			emailSubmit: 'Zmień adres',
+			emailSubmitting: 'Wysyłam…',
+			sameEmail: 'To jest Twój obecny adres.',
+			emailSentTitle: 'Link wysłany',
+			emailSent: 'Wysłałem link na stary i na nowy adres. Kliknij oba, a zmiana wejdzie w życie.',
+			emailPending: (email: string): string =>
+				`Czeka na potwierdzenie zmiany na ${email}. Kliknij linki, które wysłałem na stary i na nowy adres.`,
+			emailChanged: 'Adres e-mail jest zmieniony.',
+			emailErrorTitle: 'Nie udało się zmienić adresu',
 			passwordTitle: 'Zmiana hasła',
 			currentPassword: 'Obecne hasło',
 			newPassword: 'Nowe hasło',
