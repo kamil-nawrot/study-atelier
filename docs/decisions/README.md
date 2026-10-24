@@ -122,9 +122,10 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0116](0116-keep-the-profile-and-preferences-in-a-profiles-table.md)         | Keep the profile and the preferences in a profiles table                                 | accepted           |
 | [0117](0117-settings-view-in-tabs-opened-from-the-avatar.md)                 | Settings view in tabs opened from the avatar                                             | accepted           |
 | [0118](0118-preferences-for-the-reviews-and-the-artwork-view.md)             | Preferences for the reviews and the artwork view                                         | accepted           |
-| [0119](0119-send-the-auth-emails-through-brevo.md)                           | Send the auth emails through Brevo                                                       | accepted           |
+| [0119](0119-send-the-auth-emails-through-brevo.md)                           | Send the auth emails through Brevo                                                       | superseded by 0125 |
 | [0120](0120-replace-only-the-field-entries-the-form-sends.md)                | Replace only the field entries the form sends                                            | accepted           |
 | [0121](0121-export-the-atelier-as-a-zip-file.md)                             | Export the atelier as a ZIP file                                                         | accepted           |
 | [0122](0122-import-an-atelier-into-an-empty-atelier-through-one-function.md) | Import an atelier into an empty atelier through one function                             | accepted           |
 | [0123](0123-switch-the-automatic-fetching-from-external-sources.md)          | Switch the automatic fetching from external sources                                      | accepted           |
 | [0124](0124-ask-before-removing-an-image-that-holds-pins.md)                 | Ask before removing an image that holds pins                                             | accepted           |
+| [0125](0125-send-the-auth-emails-through-gmail-smtp.md)                      | Send the auth emails through Gmail SMTP                                                  | accepted           |

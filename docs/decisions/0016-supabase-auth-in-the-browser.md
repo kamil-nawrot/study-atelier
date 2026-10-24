@@ -41,4 +41,4 @@ Settings that live in the Supabase dashboard (Authentication), not in the reposi
 
 - Site URL `https://study-atelier.pages.dev`; redirect URLs `https://study-atelier.pages.dev/**`, `https://develop.study-atelier.pages.dev/**`, `http://localhost:5173/**`.
 - Minimum password length 8.
-- The built-in email service sends only a few emails per hour and only to the project team's addresses, which is enough for a single learner; a custom SMTP provider is needed before other people sign up.
+- The built-in email service sends only a few emails per hour and only to the project team's addresses, which is enough for a single learner; a custom SMTP provider is needed before other people sign up (set up with [ADR-0125](0125-send-the-auth-emails-through-gmail-smtp.md)).
