@@ -29,3 +29,18 @@
 		</Form>
 	{/snippet}
 </Story>
+
+<Story
+	name="Form error"
+	args={{
+		error: 'The server did not answer. Try again in a moment.',
+		errorTitle: 'Could not save'
+	}}
+>
+	{#snippet template(args)}
+		<Form error={args.error} errorTitle={args.errorTitle} onsubmit={() => {}}>
+			<TextField autocomplete="email" label="Email" type="email" value="anna@example.com" />
+			<Button type="submit" variant="primary">Send link</Button>
+		</Form>
+	{/snippet}
+</Story>

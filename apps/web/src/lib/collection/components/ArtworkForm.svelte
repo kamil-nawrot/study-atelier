@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onDestroy, tick } from 'svelte';
 	import {
-		Alert,
 		Button,
 		Checkbox,
 		ChoiceTiles,
@@ -32,14 +31,15 @@
 	import { eraTiles, isEraCode } from '../eras.ts';
 	import { formatRecordNumber } from '../format.ts';
 	import { OWN_TEXT_MAX_LENGTH } from '../own-fields.ts';
-	import { UnsavedChanges } from '../unsaved-changes.svelte.ts';
+	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
+	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { suggestValues, valueKey } from '../value-suggestions.ts';
-	import DiscardDialog from './DiscardDialog.svelte';
+	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import ArtworkImages from './ArtworkImages.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import type { Pin } from '#lib/pins/types.ts';
-	import YearGroup from './YearGroup.svelte';
-	import YearInput from './YearInput.svelte';
+	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
+	import YearInput from '#lib/shared/forms/YearInput/YearInput.svelte';
 	import DuplicateDialog from './DuplicateDialog.svelte';
 	import type {
 		ArtworkFieldErrors,
@@ -89,7 +89,6 @@
 	}: Props = $props();
 
 	const titleId = $props.id();
-	const formErrorId = `${titleId}-error`;
 	const yearToId = `${titleId}-year-to`;
 	const typeTiles = artworkTypeTiles();
 	const imageTexts: ImageFieldTexts = {
@@ -110,16 +109,15 @@
 	];
 
 	let form = $state(initialForm());
-	let saved = $state(initialForm());
 	let fieldErrors = $state<ArtworkFieldErrors>({});
-	let formError = $state('');
-	let saving = $state<'save' | 'next' | null>(null);
+	let savingNext = $state(false);
 	let next = false;
 	let barHeight = $state(0);
 	let toast: Toast;
+	const formState = new FormState<ArtworkFormState>(initialForm());
 	const changes = new UnsavedChanges(
 		() => $state.snapshot(form),
-		() => saved,
+		() => formState.saved,
 		formHasChanges
 	);
 	const duplicateCheck = new DuplicateCheck();
@@ -239,15 +237,12 @@
 	async function submit(): Promise<void> {
 		const andNext = next;
 		next = false;
-		if (saving !== null) return;
-		formError = '';
-		const snapshot = $state.snapshot(form);
-		const input = artworkInputFromForm(snapshot);
-		fieldErrors = validateArtwork(input);
-		if (Object.keys(fieldErrors).length > 0) return;
-
-		saving = andNext ? 'next' : 'save';
-		try {
+		await formState.run(async () => {
+			savingNext = andNext;
+			const snapshot = $state.snapshot(form);
+			const input = artworkInputFromForm(snapshot);
+			fieldErrors = validateArtwork(input);
+			if (Object.keys(fieldErrors).length > 0) return;
 			if (!(await confirmDuplicate(input))) return;
 			const result = await saveArtwork(
 				input,
@@ -255,41 +250,34 @@
 			);
 			if (!result.saved) {
 				fieldErrors = result.fieldErrors;
-				formError = result.error ?? '';
-				await tick();
-				document.getElementById(formErrorId)?.scrollIntoView({ block: 'center' });
+				formState.error = result.error ?? '';
 				return;
 			}
+			formState.saved = snapshot;
+			await afterSave(result.number, andNext);
+		});
+	}
 
-			saved = snapshot;
-			try {
-				await onsaved(result.number, andNext);
-			} catch {
-				const number = formatRecordNumber(result.number);
-				toast.show(artwork ? m.artworkForm.changesSaved(number) : m.artworkForm.saved(number));
-				return;
-			}
-			if (!andNext) return;
-
-			form = emptyArtworkForm(ownFields);
-			saved = emptyArtworkForm(ownFields);
-			toast.show(m.artworkForm.saved(formatRecordNumber(result.number)));
-			window.scrollTo({ top: 0 });
-			await tick();
-			document.getElementById(titleId)?.focus();
-		} finally {
-			saving = null;
+	async function afterSave(recordNumber: number, andNext: boolean): Promise<void> {
+		try {
+			await onsaved(recordNumber, andNext);
+		} catch {
+			const number = formatRecordNumber(recordNumber);
+			toast.show(artwork ? m.artworkForm.changesSaved(number) : m.artworkForm.saved(number));
+			return;
 		}
+		if (!andNext) return;
+
+		form = emptyArtworkForm(ownFields);
+		formState.saved = emptyArtworkForm(ownFields);
+		toast.show(m.artworkForm.saved(formatRecordNumber(recordNumber)));
+		window.scrollTo({ top: 0 });
+		await tick();
+		document.getElementById(titleId)?.focus();
 	}
 </script>
 
-<Form onsubmit={submit}>
-	{#if formError}
-		<Alert id={formErrorId} title={m.artworkForm.errorTitle} tone="danger">
-			{formError}
-		</Alert>
-	{/if}
-
+<Form error={formState.error} errorTitle={m.artworkForm.errorTitle} onsubmit={submit}>
 	<div class="columns">
 		<ArtworkImages
 			alt={imageAlt}
@@ -468,12 +456,12 @@
 			{m.artworkForm.cancel}
 		</Button>
 		{#if !artwork}
-			<Button disabled={saving !== null} onclick={saveAndAddNext}>
-				{saving === 'next' ? m.artworkForm.saving : m.artworkForm.saveAndNext}
+			<Button disabled={formState.busy} onclick={saveAndAddNext}>
+				{formState.busy && savingNext ? m.artworkForm.saving : m.artworkForm.saveAndNext}
 			</Button>
 		{/if}
-		<Button disabled={saving !== null} type="submit" variant="primary">
-			{saving === 'save' ? m.artworkForm.saving : m.artworkForm.save}
+		<Button disabled={formState.busy} type="submit" variant="primary">
+			{formState.busy && !savingNext ? m.artworkForm.saving : m.artworkForm.save}
 		</Button>
 	</FormActions>
 </Form>

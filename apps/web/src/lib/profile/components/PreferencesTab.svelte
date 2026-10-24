@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { tick, untrack } from 'svelte';
-	import { Alert, Button, Checkbox, Form, FormActions, Switch, ToggleTag } from '@study-atelier/ui';
-	import DiscardDialog from '#lib/collection/components/DiscardDialog.svelte';
-	import { UnsavedChanges } from '#lib/collection/unsaved-changes.svelte.ts';
+	import { untrack } from 'svelte';
+	import { Button, Checkbox, Form, FormActions, Switch, ToggleTag } from '@study-atelier/ui';
+	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
+	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
+	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import {
 		NEW_PER_DAY_CHOICES,
@@ -25,25 +26,23 @@
 	let { part, preferences, barHeight = $bindable(0), onsaved }: Props = $props();
 
 	const formId = $props.id();
-	const formErrorId = `${formId}-error`;
 	const kindsHintId = `${formId}-kinds`;
 
-	let saved = $state.raw<Preferences>(untrack(() => preferences));
+	const formState = new FormState<Preferences>(untrack(() => preferences));
+
 	let draft = $state<Preferences>(untrack(() => ({ ...preferences })));
 	let kindsError = $state(false);
-	let formError = $state('');
-	let busy = $state(false);
 
 	const changes = new UnsavedChanges<Preferences>(
 		() => draft,
-		() => saved,
+		() => formState.saved,
 		(current, reference) => preferencesChanged(part, current, reference)
 	);
 
 	function cancel(): void {
-		draft = { ...saved };
+		draft = { ...formState.saved };
 		kindsError = false;
-		formError = '';
+		formState.error = '';
 	}
 
 	function setKind(kind: (typeof QUIZ_KINDS)[number], on: boolean): void {
@@ -51,30 +50,19 @@
 		kindsError = false;
 	}
 
-	async function showError(message: string): Promise<void> {
-		formError = message;
-		await tick();
-		document.getElementById(formErrorId)?.scrollIntoView({ block: 'center' });
-	}
-
-	async function submit(): Promise<void> {
-		if (busy) return;
-		formError = '';
-		kindsError = part === 'review' && draft.reviewQuizKinds.length === 0;
-		if (kindsError) return;
-		busy = true;
-		try {
+	function submit(): Promise<void> {
+		return formState.run(async () => {
+			kindsError = part === 'review' && draft.reviewQuizKinds.length === 0;
+			if (kindsError) return;
 			const result = await savePreferences(part, draft);
 			if (result.error !== undefined) {
-				await showError(result.error);
+				formState.error = result.error;
 				return;
 			}
-			saved = result.preferences;
-			draft = { ...saved };
-			await onsaved(saved, m.settings.preferences.saved);
-		} finally {
-			busy = false;
-		}
+			formState.saved = result.preferences;
+			draft = { ...result.preferences };
+			await onsaved(result.preferences, m.settings.preferences.saved);
+		});
 	}
 
 	export function confirmLeave(): Promise<boolean> {
@@ -83,13 +71,8 @@
 </script>
 
 <div class="tab">
-	<Form onsubmit={submit}>
+	<Form error={formState.error} errorTitle={m.settings.preferences.errorTitle} onsubmit={submit}>
 		<div class="fields">
-			{#if formError}
-				<Alert id={formErrorId} title={m.settings.preferences.errorTitle} tone="danger">
-					{formError}
-				</Alert>
-			{/if}
 			{#if part === 'review'}
 				<div class="group" aria-labelledby="{formId}-size" role="group">
 					<span id="{formId}-size" class="label">{m.settings.preferences.sessionSize}</span>
@@ -170,11 +153,11 @@
 			{/if}
 		</div>
 		<FormActions bind:height={barHeight}>
-			<Button disabled={busy} onclick={cancel}>
+			<Button disabled={formState.busy} onclick={cancel}>
 				{m.settings.preferences.cancel}
 			</Button>
-			<Button disabled={busy} type="submit" variant="primary">
-				{busy ? m.settings.preferences.saving : m.settings.preferences.save}
+			<Button disabled={formState.busy} type="submit" variant="primary">
+				{formState.busy ? m.settings.preferences.saving : m.settings.preferences.save}
 			</Button>
 		</FormActions>
 	</Form>
@@ -192,6 +175,10 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--spacing-6);
+	}
+
+	.tab > :global(form) > :global([role='alert']) {
+		max-width: var(--size-content-default);
 	}
 
 	.fields {

@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { tick, untrack } from 'svelte';
+	import { untrack } from 'svelte';
 	import {
-		Alert,
 		Button,
 		Checkbox,
 		ChoiceTiles,
@@ -38,7 +37,8 @@
 	import { countryOptions } from '../countries.ts';
 	import { ERA_CODES, eraName } from '../eras.ts';
 	import { isPlaceType, placeTiles } from '../place-types.ts';
-	import { UnsavedChanges } from '../unsaved-changes.svelte.ts';
+	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
+	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { saveValueDetails, valueDetailsChanged } from '../value-details.ts';
 	import { SUMMARY_MAX_LENGTH, subjectPath, valuePath } from '../value-pages.ts';
 	import type {
@@ -50,10 +50,10 @@
 		ValueDetails,
 		ValueSubject
 	} from '../types.ts';
-	import DiscardDialog from './DiscardDialog.svelte';
+	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import ImageField from './ImageField.svelte';
-	import YearGroup from './YearGroup.svelte';
-	import YearInput from './YearInput.svelte';
+	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
+	import YearInput from '#lib/shared/forms/YearInput/YearInput.svelte';
 
 	type Props = {
 		subject: ValueSubject;
@@ -67,7 +67,7 @@
 
 	let { subject, index, details, noteLinks, cancelHref, oncancel, onsaved }: Props = $props();
 
-	type FormState = {
+	type ValueFormFields = {
 		name: string;
 		eraCodes: EraCode[];
 		periodIds: string[];
@@ -78,13 +78,9 @@
 
 	const countries = countryOptions();
 	const placeOptions = placeTiles();
-	const formId = $props.id();
-	const formErrorId = `${formId}-error`;
 	const record = untrack(() => (subject.kind === 'era' ? undefined : subject.record));
 
-	let form = $state<FormState>(initialForm());
-	let saved = $state<FormState>(initialForm());
-	let formError = $state('');
+	let form = $state<ValueFormFields>(initialForm());
 	let nameError = $state<string>();
 	let authorErrors = $state<AuthorFieldErrors>({});
 	let moveTo = $state('');
@@ -92,10 +88,10 @@
 	let moveError = $state<string>();
 	let mergeOpen = $state(false);
 	let mergedHasContent = $state(false);
-	let busy = $state(false);
+	const formState = new FormState<ValueFormFields>(initialForm());
 	const changes = new UnsavedChanges(
 		() => $state.snapshot(form),
-		() => saved,
+		() => formState.saved,
 		hasChanges
 	);
 
@@ -112,7 +108,8 @@
 		record?.category === 'style' ? lockedPeriodIds(index, record.id) : new Map<string, number>()
 	);
 	let linksChanged = $derived(
-		!sameItems(form.eraCodes, saved.eraCodes) || !sameItems(form.periodIds, saved.periodIds)
+		!sameItems(form.eraCodes, formState.saved.eraCodes) ||
+			!sameItems(form.periodIds, formState.saved.periodIds)
 	);
 	let eraOptions = $derived(
 		ERA_CODES.filter((code) => !form.eraCodes.includes(code)).map((code) => ({
@@ -163,7 +160,7 @@
 		return [mergeConfirm.assigned(merged, kept, record.count, kind.genitive), ...ending].join(' ');
 	});
 
-	function initialForm(): FormState {
+	function initialForm(): ValueFormFields {
 		return {
 			name: record?.name ?? '',
 			eraCodes: record?.category === 'period' ? erasOfPeriod(index, record.id) : [],
@@ -191,7 +188,7 @@
 		if (form.author) form.author.yearsApproximate = value;
 	}
 
-	function detailsOf(state: FormState): ValueDetails {
+	function detailsOf(state: ValueFormFields): ValueDetails {
 		return {
 			...state.details,
 			author: state.author ? authorDetailsFromForm(state.author) : undefined,
@@ -203,7 +200,7 @@
 		return a.length === b.length && a.every((item) => b.includes(item));
 	}
 
-	function hasChanges(current: FormState, reference: FormState): boolean {
+	function hasChanges(current: ValueFormFields, reference: ValueFormFields): boolean {
 		return (
 			current.name.trim() !== reference.name.trim() ||
 			!sameItems(current.eraCodes, reference.eraCodes) ||
@@ -235,15 +232,9 @@
 		form.periodIds = form.periodIds.filter((period) => period !== id);
 	}
 
-	async function showError(message: string): Promise<void> {
-		formError = message;
-		await tick();
-		document.getElementById(formErrorId)?.scrollIntoView({ block: 'center' });
-	}
-
 	function submit(): void {
-		if (busy) return;
-		formError = '';
+		if (formState.busy) return;
+		formState.error = '';
 		nameError = change?.kind === 'empty' ? m.valueForm.nameRequired : undefined;
 		authorErrors = form.author ? validateAuthorForm(form.author) : {};
 		if (nameError || Object.keys(authorErrors).length > 0) return;
@@ -266,32 +257,32 @@
 
 	function proceed(): void {
 		if (mergeTarget) void confirmMerge();
-		else void run();
+		else void save();
 	}
 
 	async function confirmMerge(): Promise<void> {
 		if (!record) return;
-		busy = true;
-		const result = await loadValuePageContent(record.id);
-		busy = false;
-		if (result.error) {
-			await showError(result.error);
-			return;
-		}
-		mergedHasContent = result.content?.hasContent ?? false;
-		mergeOpen = true;
+		const recordId = record.id;
+		await formState.run(async () => {
+			const result = await loadValuePageContent(recordId);
+			if (result.error) {
+				formState.error = result.error;
+				return;
+			}
+			mergedHasContent = result.content?.hasContent ?? false;
+			mergeOpen = true;
+		});
 	}
 
-	async function run(): Promise<void> {
-		busy = true;
-		const snapshot = $state.snapshot(form);
-		const target = mergeTarget;
-		try {
-			if (!target && valueDetailsChanged(detailsOf(snapshot), detailsOf(saved))) {
+	function save(): Promise<void> {
+		return formState.run(async () => {
+			const snapshot = $state.snapshot(form);
+			const target = mergeTarget;
+			if (!target && valueDetailsChanged(detailsOf(snapshot), detailsOf(formState.saved))) {
 				const result = await saveValueDetails(subject, detailsOf(snapshot), details);
 				if (result.error) {
 					mergeOpen = false;
-					await showError(result.error);
+					formState.error = result.error;
 					return;
 				}
 			}
@@ -306,31 +297,23 @@
 				});
 				if (result.error) {
 					mergeOpen = false;
-					await showError(result.error);
+					formState.error = result.error;
 					return;
 				}
 			}
-			saved = snapshot;
+			formState.saved = snapshot;
 			mergeOpen = false;
 			if (target && record) {
 				await onsaved(valuePath(record.category, target.id), m.cardIndex.merged(target.name));
 			} else {
 				await onsaved(subjectPath(subject), m.valuePage.saved);
 			}
-		} finally {
-			busy = false;
-		}
+		});
 	}
 </script>
 
 <div class="page">
-	<Form onsubmit={submit}>
-		{#if formError}
-			<Alert id={formErrorId} title={m.valueForm.errorTitle} tone="danger">
-				{formError}
-			</Alert>
-		{/if}
-
+	<Form error={formState.error} errorTitle={m.valueForm.errorTitle} onsubmit={submit}>
 		<div class="columns" class:author={form.author}>
 			{#if form.author && record}
 				<ImageField
@@ -507,8 +490,8 @@
 			<Button href={cancelHref} onclick={oncancel}>
 				{m.valueForm.cancel}
 			</Button>
-			<Button disabled={busy} type="submit" variant="primary">
-				{busy ? m.valueForm.saving : m.valueForm.save}
+			<Button disabled={formState.busy} type="submit" variant="primary">
+				{formState.busy ? m.valueForm.saving : m.valueForm.save}
 			</Button>
 		</FormActions>
 	</Form>
@@ -535,7 +518,7 @@
 		<Button onclick={() => (moveOpen = false)}>
 			{m.cardIndex.moveConfirm.back}
 		</Button>
-		<Button disabled={busy} onclick={confirmMove} variant="primary">
+		<Button disabled={formState.busy} onclick={confirmMove} variant="primary">
 			{m.cardIndex.moveConfirm.confirm}
 		</Button>
 	{/snippet}
@@ -551,8 +534,8 @@
 		<Button onclick={() => (mergeOpen = false)}>
 			{m.cardIndex.mergeConfirm.back}
 		</Button>
-		<Button disabled={busy} onclick={run} variant="primary">
-			{busy ? m.cardIndex.mergeConfirm.merging : m.cardIndex.mergeConfirm.confirm}
+		<Button disabled={formState.busy} onclick={save} variant="primary">
+			{formState.busy ? m.cardIndex.mergeConfirm.merging : m.cardIndex.mergeConfirm.confirm}
 		</Button>
 	{/snippet}
 </Dialog>

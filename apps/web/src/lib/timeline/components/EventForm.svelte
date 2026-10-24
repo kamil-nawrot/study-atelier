@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { tick, untrack } from 'svelte';
+	import { untrack } from 'svelte';
 	import {
-		Alert,
 		Button,
 		Checkbox,
 		Dialog,
@@ -12,11 +11,12 @@
 		TextButton,
 		TextField
 	} from '@study-atelier/ui';
-	import DiscardDialog from '#lib/collection/components/DiscardDialog.svelte';
+	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import { formatDate } from '#lib/collection/format.ts';
-	import YearGroup from '#lib/collection/components/YearGroup.svelte';
-	import YearInput from '#lib/collection/components/YearInput.svelte';
-	import { UnsavedChanges } from '#lib/collection/unsaved-changes.svelte.ts';
+	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
+	import YearInput from '#lib/shared/forms/YearInput/YearInput.svelte';
+	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
+	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import ArticleDialog from '#lib/glossary/components/ArticleDialog.svelte';
 	import { sourceOf } from '#lib/glossary/wikipedia.ts';
 	import { m } from '#lib/i18n/index.ts';
@@ -53,16 +53,12 @@
 
 	const SEARCH_DELAY_MS = 600;
 	const formId = $props.id();
-	const formErrorId = `${formId}-error`;
 	const yearToId = `${formId}-year-to`;
 	const existing = untrack(() => event);
 	const initial = (): EventFormState => (existing ? eventFormOf(existing) : emptyEventForm());
 
 	let form = $state<EventFormState>(initial());
-	let saved = $state<EventFormState>(initial());
 	let errors = $state<EventFormErrors>({});
-	let formError = $state('');
-	let busy = $state(false);
 	let status = $state<SearchStatus>('idle');
 	let articles = $state<EventArticle[]>([]);
 	let articlesName = $state('');
@@ -73,11 +69,13 @@
 	let autoDates = $state<string | null>(null);
 	let request = 0;
 
+	const formState = new FormState<EventFormState>(initial());
+
 	let query = $derived(form.name.trim());
 
 	const changes = new UnsavedChanges(
 		() => $state.snapshot(form),
-		() => saved,
+		() => formState.saved,
 		eventFormChanged
 	);
 
@@ -121,7 +119,7 @@
 		status = 'searching';
 		try {
 			const found = await searchEvents(name);
-			if (current !== request || busy) return;
+			if (current !== request || formState.busy) return;
 			articles = found;
 			articlesName = name;
 			status = found.length > 0 ? 'found' : 'none';
@@ -130,7 +128,7 @@
 				if (replaceable()) applyArticle(found[0]);
 			} else clearSuggestion();
 		} catch {
-			if (current !== request || busy) return;
+			if (current !== request || formState.busy) return;
 			articles = [];
 			articlesName = '';
 			status = 'failed';
@@ -143,7 +141,7 @@
 		request += 1;
 		if (!name || !autoFetch.event) return;
 		const timer = setTimeout(() => {
-			if (!busy && untrack(replaceable)) void search(true);
+			if (!formState.busy && untrack(replaceable)) void search(true);
 		}, SEARCH_DELAY_MS);
 		return () => clearTimeout(timer);
 	});
@@ -189,43 +187,26 @@
 		return changes.confirmLeave();
 	}
 
-	async function showError(message: string): Promise<void> {
-		formError = message;
-		await tick();
-		document.getElementById(formErrorId)?.scrollIntoView({ block: 'center' });
-	}
-
-	async function submit(): Promise<void> {
-		if (busy) return;
-		formError = '';
-		errors = validateEventForm(form);
-		if (Object.keys(errors).length > 0) return;
-		busy = true;
-		request += 1;
-		const snapshot = $state.snapshot(form);
-		const draft = draftOfEventForm(snapshot);
-		try {
+	function submit(): Promise<void> {
+		return formState.run(async () => {
+			errors = validateEventForm(form);
+			if (Object.keys(errors).length > 0) return;
+			request += 1;
+			const snapshot = $state.snapshot(form);
+			const draft = draftOfEventForm(snapshot);
 			const result = await saveTimelineEvent(draft, existing?.id);
 			if (result.error || !result.id) {
-				await showError(result.error ?? m.common.unexpectedError);
+				formState.error = result.error ?? m.common.unexpectedError;
 				return;
 			}
-			saved = snapshot;
+			formState.saved = snapshot;
 			await onsaved(draft);
-		} finally {
-			busy = false;
-		}
+		});
 	}
 </script>
 
 <div class="page">
-	<Form onsubmit={submit}>
-		{#if formError}
-			<Alert id={formErrorId} title={m.timeline.form.errorTitle} tone="danger">
-				{formError}
-			</Alert>
-		{/if}
-
+	<Form error={formState.error} errorTitle={m.timeline.form.errorTitle} onsubmit={submit}>
 		<div class="fields">
 			<TextField
 				autocomplete="off"
@@ -302,8 +283,8 @@
 			<Button href={cancelHref} onclick={oncancel}>
 				{m.timeline.form.cancel}
 			</Button>
-			<Button disabled={busy} type="submit" variant="primary">
-				{busy ? m.timeline.form.saving : m.timeline.form.save}
+			<Button disabled={formState.busy} type="submit" variant="primary">
+				{formState.busy ? m.timeline.form.saving : m.timeline.form.save}
 			</Button>
 		</FormActions>
 	</Form>
