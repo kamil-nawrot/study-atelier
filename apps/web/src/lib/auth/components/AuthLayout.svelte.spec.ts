@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { authArtworks } from '#lib/artworks/auth-artworks.ts';
+import { authArtworks } from '#lib/auth/auth-artworks.ts';
 import { m } from '#lib/i18n/index.ts';
 import AuthLayout from './AuthLayout.svelte';
 

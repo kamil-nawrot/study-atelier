@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-import { testArtwork } from '#lib/testing/artworks.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testReviewCard } from '#lib/testing/review.ts';
 import { quizArtworks, sessionItems, shuffleQuiz } from './quiz.ts';
 import type { SessionRow } from './types.ts';

@@ -1,4 +1,4 @@
-import type { ImageRow } from '#lib/collection/image-record.ts';
+import type { ImageRow } from '#lib/images/image-record/image-record.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 

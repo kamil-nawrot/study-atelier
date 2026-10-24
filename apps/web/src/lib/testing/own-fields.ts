@@ -1,4 +1,4 @@
-import type { OwnField } from '#lib/collection/types.ts';
+import type { OwnField } from '#lib/card-index/types/own-field.ts';
 
 export function testOwnFields(): OwnField[] {
 	return [

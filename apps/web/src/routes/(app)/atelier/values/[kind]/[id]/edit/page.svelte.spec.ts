@@ -2,11 +2,16 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { beforeNavigate, goto } from '$app/navigation';
-import { loadValuePageContent, saveValue } from '#lib/collection/card-index-data.ts';
-import { findRecord } from '#lib/collection/card-index.ts';
-import type { ValueDetails, ValueSubject } from '#lib/collection/types.ts';
-import { emptyAuthorDetails } from '#lib/collection/author-form.ts';
-import { emptyValueDetails, saveValueDetails } from '#lib/collection/value-details.ts';
+import {
+	loadValuePageContent,
+	saveValue
+} from '#lib/card-index/card-index-data/card-index-data.ts';
+import { findRecord } from '#lib/card-index/card-index/card-index.ts';
+import type { ValueDetails } from '#lib/values/types/value-details.ts';
+import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
+import { emptyAuthorDetails } from '#lib/values/author-form/author-form.ts';
+import { emptyValueDetails } from '#lib/values/value-details/value-details.ts';
+import { saveValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testCardIndex } from '#lib/testing/card-index.ts';
 import { testSession } from '#lib/testing/auth.ts';
@@ -17,12 +22,14 @@ vi.mock('$app/navigation', () => ({
 	beforeNavigate: vi.fn(),
 	goto: vi.fn()
 }));
-vi.mock('#lib/collection/card-index-data.ts', () => ({
+vi.mock('#lib/card-index/card-index-data/card-index-data.ts', () => ({
 	saveValue: vi.fn(),
 	loadValuePageContent: vi.fn()
 }));
-vi.mock('#lib/collection/value-details.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/collection/value-details.ts')>()),
+vi.mock('#lib/values/value-details-data/value-details-data.ts', async (importOriginal) => ({
+	...(await importOriginal<
+		typeof import('#lib/values/value-details-data/value-details-data.ts')
+	>()),
 	saveValueDetails: vi.fn()
 }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({

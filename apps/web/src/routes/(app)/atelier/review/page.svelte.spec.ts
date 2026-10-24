@@ -4,12 +4,12 @@ import { render } from 'vitest-browser-svelte';
 import { invalidate } from '$app/navigation';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { m } from '#lib/i18n/index.ts';
-import { resolveImages } from '#lib/collection/artworks.ts';
+import { resolveImages } from '#lib/wall/wall-data/wall-data.ts';
 import { loadReviewDetails, loadSession, recordReview } from '#lib/review/review-data.ts';
 import type { ReviewCard, SessionRow } from '#lib/review/types.ts';
 import { defaultPreferences } from '#lib/profile/preferences.ts';
 import type { Preferences } from '#lib/profile/types.ts';
-import { testArtwork } from '#lib/testing/artworks.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import { testReviewCard } from '#lib/testing/review.ts';
 import ReviewPage from './+page.svelte';
@@ -22,7 +22,9 @@ const navigation = vi.hoisted(() => ({
 
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidate: vi.fn() }));
-vi.mock('#lib/collection/artworks.ts', () => ({ resolveImages: vi.fn().mockResolvedValue([]) }));
+vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
+	resolveImages: vi.fn().mockResolvedValue([])
+}));
 vi.mock('#lib/review/review-data.ts', () => ({
 	REVIEW_COUNTS_DEPENDENCY: 'review:counts',
 	loadReviewDetails: vi.fn().mockResolvedValue({ details: new Map() }),

@@ -1,5 +1,6 @@
-import { loadCardIndex } from '#lib/collection/card-index-data.ts';
-import { loadOwnFields, withOwnValues } from '#lib/collection/own-fields.ts';
+import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.ts';
+import { withOwnValues } from '#lib/card-index/own-fields/own-fields.ts';
+import { loadOwnFields } from '#lib/card-index/own-fields-data/own-fields-data.ts';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async () => {

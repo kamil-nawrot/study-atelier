@@ -4,7 +4,7 @@ import '@study-atelier/ui/styles.css';
 import { render } from 'vitest-browser-svelte';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { m } from '#lib/i18n/index.ts';
-import { testArtwork } from '#lib/testing/artworks.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import type { TimelineEvent } from '#lib/timeline/types.ts';
 import { deleteTimelineEvent } from '#lib/timeline/timeline-data.ts';

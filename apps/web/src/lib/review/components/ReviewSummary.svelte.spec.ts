@@ -2,7 +2,7 @@ import type { ComponentProps } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { testArtwork } from '#lib/testing/artworks.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { m } from '#lib/i18n/index.ts';
 import type { SummaryGroup } from '#lib/review/overview.ts';
 import ReviewSummary from './ReviewSummary.svelte';

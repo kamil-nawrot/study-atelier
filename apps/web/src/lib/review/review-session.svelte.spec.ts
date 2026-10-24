@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { testArtwork } from '#lib/testing/artworks.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { recordReview } from './review-data.ts';
 import { ReviewSession } from './review-session.svelte.ts';
 import type { ReviewItem } from './types.ts';

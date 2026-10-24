@@ -3,7 +3,7 @@
 	import { onMount, untrack } from 'svelte';
 	import { Alert, Button, Dialog, Icon, Tag } from '@study-atelier/ui';
 	import { invalidate } from '$app/navigation';
-	import { resolveImages } from '#lib/collection/artworks.ts';
+	import { resolveImages } from '#lib/wall/wall-data/wall-data.ts';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/index.ts';

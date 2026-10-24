@@ -2,13 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto, invalidateAll } from '$app/navigation';
-import { refreshExpiredImages } from '#lib/collection/artworks.ts';
-import { setFavourite } from '#lib/collection/favourite.ts';
-import type { OwnFieldDefinition } from '#lib/collection/types.ts';
+import { refreshExpiredImages } from '#lib/wall/wall-data/wall-data.ts';
+import { setFavourite } from '#lib/artworks/favourite-data/favourite-data.ts';
+import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { m } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { testArtwork } from '#lib/testing/artworks.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { pending, TEST_EMAIL, testSession } from '#lib/testing/auth.ts';
 import AtelierPage from './+page.svelte';
 import '@study-atelier/ui/styles.css';
@@ -24,12 +24,12 @@ vi.mock('$app/navigation', () => ({
 	goto: vi.fn(),
 	invalidateAll: vi.fn()
 }));
-vi.mock('#lib/collection/artworks.ts', () => ({
+vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
 	refreshExpiredImages: vi.fn(),
 	resolveImages: vi.fn()
 }));
-vi.mock('#lib/collection/favourite.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/collection/favourite.ts')>()),
+vi.mock('#lib/artworks/favourite-data/favourite-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/artworks/favourite-data/favourite-data.ts')>()),
 	setFavourite: vi.fn()
 }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({

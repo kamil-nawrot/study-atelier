@@ -1,4 +1,4 @@
-import { imageOf } from '#lib/collection/image-record.ts';
+import { imageOf } from '#lib/images/image-record/image-record.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { Quiz, QuizOption, ReviewCard, ReviewItem, ReviewPin, SessionRow } from './types.ts';
 

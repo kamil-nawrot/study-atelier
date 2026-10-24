@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button, Disclosure } from '@study-atelier/ui';
-	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
+	import ArtworkWall from '#lib/wall/components/ArtworkWall/ArtworkWall.svelte';
 	import { m } from '#lib/i18n/index.ts';
 	import type { SummaryGroup } from '#lib/review/overview.ts';
 

@@ -1,15 +1,15 @@
 import { resolve } from '$app/paths';
-import { loadArtwork } from '#lib/collection/artwork-record.ts';
+import { loadArtwork } from '#lib/artworks/artwork-data/artwork-data.ts';
 import { parseRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
-import { loadMentions } from '#lib/collection/mentions.ts';
-import { loadOwnFieldDefinitions } from '#lib/collection/own-fields.ts';
-import { loadValueSummaries } from '#lib/collection/value-summaries.ts';
-import { loadNoteLinks, mentionsLinks } from '#lib/collection/note-link-data.ts';
+import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
+import { loadOwnFieldDefinitions } from '#lib/card-index/own-fields-data/own-fields-data.ts';
+import { loadValueSummaries } from '#lib/card-index/value-summaries-data/value-summaries-data.ts';
+import { loadNoteLinks, mentionsLinks } from '#lib/notes/note-link-data/note-link-data.ts';
 import { loadGlossary } from '#lib/glossary/glossary-data.ts';
 import { m } from '#lib/i18n/index.ts';
 import { loadPreferences } from '#lib/profile/preferences-data.ts';
 import { loadArtworkPins } from '#lib/pins/pin-data.ts';
-import type { LoadArtworkResult } from '#lib/collection/types.ts';
+import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ params }): Promise<LoadArtworkResult> => {

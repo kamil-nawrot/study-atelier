@@ -52,14 +52,14 @@
 
 The SvelteKit app in `apps/web/src` is organised in feature modules ([ADR-0126](../decisions/0126-organise-the-web-app-in-feature-modules-with-enforced-limits.md)). Version 0.11 moves the existing code into this layout; until its issues are done, a file outside the layout stays where it is unless the issue at hand moves it, and new code goes straight into the layout.
 
-| Path             | Holds                                                                                                                                                                                     |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `routes/`        | Pages and layouts only (`+page.svelte`, `+layout.ts` and other SvelteKit files)                                                                                                           |
-| `lib/shared/`    | Technical code that knows nothing about artworks: the Supabase client and generated types (`shared/data/`), form helpers (`shared/forms/`), storage, ids, search, dates                   |
-| `lib/i18n/`      | The message dictionary                                                                                                                                                                    |
-| `lib/catalogue/` | The domain model several modules share (artwork and value types, eras, artwork types, record numbers, years), without Supabase and without components                                     |
-| `lib/<module>/`  | One feature, named as the learner knows it: `artworks`, `images`, `wall`, `card-index`, `notes`, `pins`, `glossary`, `timeline`, `review`, `profile`, `auth`, `feedback`, `data-transfer` |
-| `lib/shell/`     | The atelier layout, the menu, the theme and the rail, which put the modules together into the app                                                                                         |
+| Path             | Holds                                                                                                                                                                                                                                                                         |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `routes/`        | Pages and layouts only (`+page.svelte`, `+layout.ts` and other SvelteKit files)                                                                                                                                                                                               |
+| `lib/shared/`    | Technical code that knows nothing about artworks: the Supabase client and generated types (`shared/data/`), form helpers (`shared/forms/`), storage, ids, search, dates                                                                                                       |
+| `lib/i18n/`      | The message dictionary                                                                                                                                                                                                                                                        |
+| `lib/catalogue/` | The domain model several modules share (artwork and value types, eras, artwork types, record numbers, years), without Supabase and without components                                                                                                                         |
+| `lib/<module>/`  | One feature, named as the learner knows it: `artworks`, `images`, `wall`, `card-index`, `values` ([ADR-0127](../decisions/0127-keep-the-value-page-in-a-values-module.md)), `notes`, `pins`, `glossary`, `timeline`, `review`, `profile`, `auth`, `feedback`, `data-transfer` |
+| `lib/shell/`     | The atelier layout, the menu, the theme and the rail, which put the modules together into the app                                                                                                                                                                             |
 
 Inside a module (example: `wall`):
 
@@ -116,7 +116,7 @@ Inside a module (example: `wall`):
 | `font-family` only `inherit` or a `--font-family-*` token; the visually-hidden technique (`clip`, `clip-path: inset(50%)`) only in `base.css` | Stylelint (`stylelint/visually-hidden-in-base.js`)                                              |
 
 - The limits live in `lint/limits.js`. What broke a rule when the check was added is listed in [`lint/allowlist.json`](../../lint/allowlist.json) by kind (`lines`, `script`, `style`, `complexity`, `supabase`, `route-script`, `storage`, and `layout` by folder). An entry that is no longer needed fails the check, so a change that fixes a file removes its entry; no change adds one without the owner's agreement.
-- Cycles that existed when the check was added are in `apps/web/.dependency-cruiser-known-violations.json` (files) and `.dependency-cruiser-known-module-cycles.json` (modules, found with `.dependency-cruiser-modules.cjs`, which collapses each `lib/<module>`). A change that removes a cycle regenerates the file with `pnpm exec depcruise src --output-type baseline` (plus `--config .dependency-cruiser-modules.cjs` for modules); a baseline gains no entry without the owner's agreement.
+- `dependency-cruiser` runs twice: over files, and over modules with `.dependency-cruiser-modules.cjs`, which collapses each `lib/<module>`. Its baselines, `apps/web/.dependency-cruiser-known-violations.json` (files) and `.dependency-cruiser-known-module-cycles.json` (modules), are empty: no cycle and no import in a wrong direction is left. A baseline gains no entry without the owner's agreement; one that does is regenerated with `pnpm exec depcruise src --output-type baseline` (plus `--config .dependency-cruiser-modules.cjs` for modules).
 
 ## Naming
 

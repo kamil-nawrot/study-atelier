@@ -12,7 +12,7 @@ import {
 	withPinPreviews
 } from './review-data.ts';
 import type { ReviewCard, ReviewItem } from './types.ts';
-import { testArtwork } from '#lib/testing/artworks.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { rpc: vi.fn(), from: vi.fn(), storage: { from: vi.fn() }, auth: { signOut: vi.fn() } }

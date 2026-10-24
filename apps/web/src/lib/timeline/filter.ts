@@ -8,7 +8,7 @@ import {
 	removeTag,
 	toggleFavourites,
 	toggleValue
-} from '#lib/collection/filter.ts';
+} from '#lib/wall/filter/filter.ts';
 import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
 import type { FilterOption } from '#lib/catalogue/types/filter-option.ts';
 import type { FilterTag } from '#lib/catalogue/types/filter-tag.ts';

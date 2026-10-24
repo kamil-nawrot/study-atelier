@@ -1,14 +1,14 @@
 {
 	"lines": [
-		"apps/web/src/lib/collection/components/ArtworkForm.svelte",
-		"apps/web/src/lib/collection/components/ArtworkView.svelte",
-		"apps/web/src/lib/collection/components/ImageField.svelte",
-		"apps/web/src/lib/collection/components/ValueForm.svelte",
-		"apps/web/src/lib/collection/filter.ts",
+		"apps/web/src/lib/artworks/components/ArtworkForm/ArtworkForm.svelte",
+		"apps/web/src/lib/artworks/components/ArtworkView/ArtworkView.svelte",
 		"apps/web/src/lib/glossary/components/GlossaryForm.svelte",
+		"apps/web/src/lib/images/components/ImageField/ImageField.svelte",
 		"apps/web/src/lib/review/components/Quiz.svelte",
 		"apps/web/src/lib/timeline/components/TimelineStage.svelte",
 		"apps/web/src/lib/timeline/components/TimelineView.svelte",
+		"apps/web/src/lib/values/components/ValueForm/ValueForm.svelte",
+		"apps/web/src/lib/wall/filter/filter.ts",
 		"apps/web/src/routes/(app)/atelier/+page.svelte",
 		"apps/web/src/routes/(app)/atelier/new/page.svelte.spec.ts",
 		"apps/web/src/routes/(app)/atelier/page.svelte.spec.ts",
@@ -16,19 +16,19 @@
 		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte"
 	],
 	"script": [
-		"apps/web/src/lib/collection/components/ArtworkForm.svelte",
-		"apps/web/src/lib/collection/components/ArtworkView.svelte",
-		"apps/web/src/lib/collection/components/ImageField.svelte",
-		"apps/web/src/lib/collection/components/ValueForm.svelte",
+		"apps/web/src/lib/artworks/components/ArtworkForm/ArtworkForm.svelte",
+		"apps/web/src/lib/artworks/components/ArtworkView/ArtworkView.svelte",
 		"apps/web/src/lib/glossary/components/GlossaryForm.svelte",
+		"apps/web/src/lib/images/components/ImageField/ImageField.svelte",
 		"apps/web/src/lib/timeline/components/TimelineStage.svelte",
 		"apps/web/src/lib/timeline/components/TimelineView.svelte",
+		"apps/web/src/lib/values/components/ValueForm/ValueForm.svelte",
 		"apps/web/src/routes/(app)/atelier/+page.svelte",
 		"apps/web/src/routes/(app)/atelier/review/+page.svelte",
 		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte"
 	],
 	"style": [
-		"apps/web/src/lib/collection/components/ArtworkView.svelte",
+		"apps/web/src/lib/artworks/components/ArtworkView/ArtworkView.svelte",
 		"apps/web/src/lib/review/components/Quiz.svelte",
 		"apps/web/src/lib/review/components/ReviewStart.svelte",
 		"apps/web/src/lib/shell/AtelierLayout/AtelierLayout.svelte",
@@ -37,34 +37,19 @@
 		"packages/ui/src/lib/components/Primer/Primer.svelte"
 	],
 	"complexity": [
-		"apps/web/src/lib/collection/artworks.ts",
-		"apps/web/src/lib/collection/image-record.ts",
-		"apps/web/src/lib/collection/value-details.ts"
+		"apps/web/src/lib/images/image-record/image-record.ts",
+		"apps/web/src/lib/values/value-details-data/value-details-data.ts",
+		"apps/web/src/lib/wall/wall-data/wall-data.ts"
 	],
 	"supabase": [
 		"apps/web/src/lib/auth/account.ts",
 		"apps/web/src/lib/auth/expired-session.svelte.ts",
 		"apps/web/src/lib/auth/session.ts",
-		"apps/web/src/lib/collection/artwork-record.ts",
-		"apps/web/src/lib/collection/artworks.ts",
-		"apps/web/src/lib/collection/category-values.ts",
-		"apps/web/src/lib/collection/duplicates.ts",
-		"apps/web/src/lib/collection/favourite.ts",
-		"apps/web/src/lib/collection/mentions.ts",
-		"apps/web/src/lib/collection/own-fields.ts",
-		"apps/web/src/lib/collection/place-starter.ts",
-		"apps/web/src/lib/collection/trash.ts",
-		"apps/web/src/lib/collection/value-details.ts",
-		"apps/web/src/lib/collection/value-links.ts",
-		"apps/web/src/lib/collection/value-summaries.ts",
 		"apps/web/src/lib/images/own-image.ts"
 	],
 	"layout": [
-		"apps/web/src/lib/artworks",
 		"apps/web/src/lib/auth",
 		"apps/web/src/lib/auth/components",
-		"apps/web/src/lib/collection",
-		"apps/web/src/lib/collection/components",
 		"apps/web/src/lib/export",
 		"apps/web/src/lib/export/components",
 		"apps/web/src/lib/feedback",

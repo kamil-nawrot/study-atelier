@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { testArtwork } from '#lib/testing/artworks.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import {
