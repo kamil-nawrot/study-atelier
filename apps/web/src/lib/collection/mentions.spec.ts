@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { testCardIndex } from '#lib/testing/card-index.ts';
 import { artworkNote, mockNotesMentions, valueNote } from '#lib/testing/mentions.ts';
 import { loadMentions } from './mentions.ts';
 
-vi.mock('#lib/supabase.ts', () => ({ supabase: { from: vi.fn(), rpc: vi.fn() } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { from: vi.fn(), rpc: vi.fn() }
+}));
 
 describe('loadMentions', () => {
 	beforeEach(() => vi.clearAllMocks());

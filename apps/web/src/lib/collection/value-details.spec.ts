@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
 import { ownImageUrl, removeOwnImage, uploadOwnImage } from '#lib/images/own-image.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyAuthorDetails } from './author-form.ts';
 import type { ValueSubject } from './types.ts';
 import { loadValueDetails, saveValueDetails, valueDetailsChanged } from './value-details.ts';
 
-vi.mock('#lib/supabase.ts', () => ({ supabase: { rpc: vi.fn(), from: vi.fn() } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { rpc: vi.fn(), from: vi.fn() }
+}));
 vi.mock('#lib/images/own-image.ts', () => ({
 	uploadOwnImage: vi.fn(),
 	removeOwnImage: vi.fn(),

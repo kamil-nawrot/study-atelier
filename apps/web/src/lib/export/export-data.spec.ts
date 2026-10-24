@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { downloadOwnImage, ownImagePaths, readAtelier } from './export-data.ts';
 import { EXPORT_TABLES } from './tables.ts';
 
 const storage = vi.hoisted(() => ({ download: vi.fn() }));
 
-vi.mock('#lib/supabase.ts', () => ({
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn(), storage: { from: vi.fn(() => storage) }, auth: { signOut: vi.fn() } }
 }));
 

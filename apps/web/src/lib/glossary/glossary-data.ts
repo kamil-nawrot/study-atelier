@@ -1,7 +1,7 @@
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { fetchAll } from '#lib/collection/card-index-data.ts';
-import { supabase } from '#lib/supabase.ts';
-import type { Database } from '#lib/database.types.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
+import type { Database } from '#lib/shared/data/database.types.ts';
 import { isGlossaryCategory } from './categories.ts';
 import { glossaryErrorMessage, isNameTakenError } from './errors.ts';
 import { cleanForms, sortNameOf } from './glossary.ts';

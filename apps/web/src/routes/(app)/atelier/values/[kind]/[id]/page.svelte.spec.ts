@@ -27,7 +27,9 @@ vi.mock('#lib/collection/artworks.ts', () => ({
 	resolveImages: vi.fn()
 }));
 vi.mock('#lib/collection/card-index-data.ts', () => ({ deleteValue: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const artworks: WallArtwork[] = [
 	testArtwork(1, 'Parthenon', {

@@ -7,7 +7,9 @@ import { createPin, movePin } from '../pin-data.ts';
 import type { Pin } from '../types.ts';
 import PinLayer from './PinLayer.svelte';
 
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 vi.mock('../pin-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('../pin-data.ts')>()),
 	createPin: vi.fn(),

@@ -8,7 +8,7 @@ import {
 	fetchCommonsThumbnails
 } from '#lib/images/commons.ts';
 import { backfillThumbnails } from '#lib/images/thumbnail-backfill.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { artworkImageSource } from './artwork-image.ts';
 import { authorSortNamesOf, ownEntriesOf, valuesOf } from './artwork-values.ts';
 import { collectionErrorMessage } from './errors.ts';

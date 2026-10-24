@@ -11,7 +11,9 @@ import ProfileTab from './ProfileTab.svelte';
 
 vi.mock('$app/navigation', () => ({ beforeNavigate: vi.fn(), goto: vi.fn() }));
 vi.mock('../profile-data.ts', () => ({ saveProfile: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 vi.mock('../avatar.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('../avatar.ts')>()),
 	avatarUrl: vi.fn().mockResolvedValue(undefined),

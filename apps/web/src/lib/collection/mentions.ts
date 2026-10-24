@@ -1,5 +1,5 @@
 import type { ResolvedPathname } from '$app/types';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { fetchAll, loadCardIndex } from './card-index-data.ts';
 import { formatRecordNumber } from './format.ts';
 import { normalizeForSearch } from './search.ts';

@@ -1,6 +1,6 @@
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
-import { supabase } from '#lib/supabase.ts';
-import type { Database } from '#lib/database.types.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
+import type { Database } from '#lib/shared/data/database.types.ts';
 import { profileErrorMessage } from './errors.ts';
 import { defaultPreferences, QUIZ_KINDS, REVIEW_FORMS } from './preferences.ts';
 import type {

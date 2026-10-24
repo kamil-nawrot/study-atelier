@@ -3,7 +3,7 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import '@study-atelier/ui/styles.css';
 import { goto, preloadData } from '$app/navigation';
-import { setBackPlace } from '#lib/navigation/back.svelte.ts';
+import { setBackPlace } from '#lib/shared/navigation/back/back.svelte.ts';
 import { setFavourite } from '#lib/collection/favourite.ts';
 import { moveToTrash } from '#lib/collection/trash.ts';
 import type { ArtworkRecord, LoadArtworkResult } from '#lib/collection/types.ts';
@@ -33,7 +33,9 @@ vi.mock('#lib/collection/favourite.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/collection/favourite.ts')>()),
 	setFavourite: vi.fn()
 }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const IMAGE = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50"/>')}`;
 const WIDE_IMAGE = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="40"/>')}`;

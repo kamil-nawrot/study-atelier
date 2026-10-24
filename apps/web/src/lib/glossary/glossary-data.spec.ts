@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
 	deleteGlossaryEntry,
 	loadGlossary,
@@ -10,7 +10,7 @@ import {
 import { glossaryErrorMessage } from './errors.ts';
 import type { GlossaryDraft } from './types.ts';
 
-vi.mock('#lib/supabase.ts', () => ({
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn(), auth: { signOut: vi.fn() } }
 }));
 

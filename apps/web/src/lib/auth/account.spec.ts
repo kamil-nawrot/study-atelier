@@ -10,7 +10,7 @@ const auth = vi.hoisted(() => ({
 	signOut: vi.fn()
 }));
 
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: { auth } }));
 
 beforeEach(() => {
 	vi.stubGlobal('window', { location: { origin: 'https://atelier.test' } });

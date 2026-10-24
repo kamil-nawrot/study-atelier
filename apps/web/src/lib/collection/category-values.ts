@@ -1,5 +1,5 @@
 import { locale } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { collectionErrorMessage } from './errors.ts';
 import type { CategoryCode, CategoryValues, CategoryValuesResult } from './types.ts';
 

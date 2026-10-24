@@ -20,7 +20,9 @@ const navigation = vi.hoisted(() => ({
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidateAll: vi.fn() }));
 vi.mock('#lib/timeline/timeline-data.ts', () => ({ deleteTimelineEvent: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const ERA_KEY = 'study-atelier:timeline-era';
 

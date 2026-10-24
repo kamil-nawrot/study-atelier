@@ -13,7 +13,7 @@ import {
 	OWN_IMAGE_MAX_BYTES,
 	OWN_IMAGE_MAX_MEGABYTES
 } from '#lib/images/bucket.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { pending, testSession } from '#lib/testing/auth.ts';
 import AddArtworkPage from './+page.svelte';
 
@@ -25,7 +25,7 @@ vi.mock('$app/navigation', () => ({
 }));
 const artworks = vi.hoisted(() => ({ select: vi.fn(), is: vi.fn() }));
 
-vi.mock('#lib/supabase.ts', () => ({
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: {
 		auth: { getSession: vi.fn(), signOut: vi.fn() },
 		from: vi.fn(() => artworks),

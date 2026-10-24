@@ -4,7 +4,7 @@
 	import { resolve } from '$app/paths';
 	import ArtworkForm from '#lib/collection/components/ArtworkForm.svelte';
 	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
-	import { arrivedFromApp, goBackThroughHistory } from '#lib/collection/history.ts';
+	import { arrivedFromApp, goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
 	import { formatRecordNumber, parseRecordNumber } from '#lib/collection/format.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import BackLink from '#lib/navigation/components/BackLink.svelte';

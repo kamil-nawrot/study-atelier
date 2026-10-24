@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { testOwnFields } from '#lib/testing/own-fields.ts';
 import {
 	changeOwnValue,
@@ -15,7 +15,9 @@ import {
 	withOwnValues
 } from './own-fields.ts';
 
-vi.mock('#lib/supabase.ts', () => ({ supabase: { from: vi.fn(), rpc: vi.fn() } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { from: vi.fn(), rpc: vi.fn() }
+}));
 
 const rpc = vi.mocked(supabase.rpc);
 

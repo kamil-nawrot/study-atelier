@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { loadProfile, saveProfile } from './profile-data.ts';
 
 const OWNER = '3f2c1d4e-5a6b-4c7d-8e9f-0a1b2c3d4e5f';
@@ -10,7 +10,7 @@ const storage = vi.hoisted(() => ({
 	remove: vi.fn()
 }));
 
-vi.mock('#lib/supabase.ts', () => ({
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: {
 		from: vi.fn(),
 		auth: { getSession: vi.fn(), signOut: vi.fn() },

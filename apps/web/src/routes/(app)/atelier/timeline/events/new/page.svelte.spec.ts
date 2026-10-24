@@ -20,7 +20,9 @@ vi.mock('$app/state', () => ({
 	navigating: { to: null }
 }));
 vi.mock('#lib/timeline/timeline-data.ts', () => ({ saveTimelineEvent: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 vi.mock('#lib/timeline/wikipedia.ts', () => ({ searchEvents: vi.fn() }));
 
 const save = vi.mocked(saveTimelineEvent);

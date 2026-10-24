@@ -30,7 +30,9 @@ vi.mock('#lib/review/review-data.ts', () => ({
 	recordReview: vi.fn(),
 	withPinPreviews: async (items: unknown) => items
 }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const DAY = 24 * 60 * 60 * 1000;
 

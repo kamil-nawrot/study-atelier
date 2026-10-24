@@ -1,6 +1,12 @@
 import { untrack } from 'svelte';
 import { page } from '$app/state';
-import { arrive, loadNames, named, saveNames, type Place } from './back-places.ts';
+import {
+	arrive,
+	loadNames,
+	named,
+	saveNames,
+	type Place
+} from '#lib/shared/navigation/back-places/back-places.ts';
 
 let names = $state(loadNames());
 let current = $state<Place>();

@@ -1,7 +1,7 @@
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { IMAGES_BUCKET } from '#lib/images/bucket.ts';
 import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import type { ExportRow } from '#lib/export/format.ts';
 import type { Upload } from './remap.ts';
 

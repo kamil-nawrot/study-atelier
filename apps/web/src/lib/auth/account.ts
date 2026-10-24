@@ -1,5 +1,5 @@
 import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { authErrorMessage } from './errors.ts';
 import { authRedirectUrl } from './redirects.ts';
 

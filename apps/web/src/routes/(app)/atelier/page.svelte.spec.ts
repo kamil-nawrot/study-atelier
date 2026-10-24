@@ -6,7 +6,7 @@ import { refreshExpiredImages } from '#lib/collection/artworks.ts';
 import { setFavourite } from '#lib/collection/favourite.ts';
 import type { OwnFieldDefinition, WallArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { pending, TEST_EMAIL, testSession } from '#lib/testing/auth.ts';
 import AtelierPage from './+page.svelte';
@@ -31,7 +31,7 @@ vi.mock('#lib/collection/favourite.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/collection/favourite.ts')>()),
 	setFavourite: vi.fn()
 }));
-vi.mock('#lib/supabase.ts', () => ({
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
 

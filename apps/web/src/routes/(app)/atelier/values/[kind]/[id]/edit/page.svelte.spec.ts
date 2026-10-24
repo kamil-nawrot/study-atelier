@@ -25,7 +25,9 @@ vi.mock('#lib/collection/value-details.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/collection/value-details.ts')>()),
 	saveValueDetails: vi.fn()
 }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 function subjectOf(id: string): ValueSubject {
 	const record = findRecord(testCardIndex(), id);

@@ -9,7 +9,7 @@ import {
 	withPreview
 } from '#lib/collection/image-record.ts';
 import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import type { ReviewScope } from './overview.ts';
 import { MIN_ARTWORKS, newAllowance } from './queue.ts';
 import type {

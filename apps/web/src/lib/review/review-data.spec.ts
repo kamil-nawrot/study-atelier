@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
 	loadReviewCards,
 	loadReviewCounts,
@@ -14,7 +14,7 @@ import {
 import type { ReviewCard, ReviewItem } from './types.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
 
-vi.mock('#lib/supabase.ts', () => ({
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { rpc: vi.fn(), from: vi.fn(), storage: { from: vi.fn() }, auth: { signOut: vi.fn() } }
 }));
 

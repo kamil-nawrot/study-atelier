@@ -17,7 +17,9 @@ const navigation = vi.hoisted(() => ({
 
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 function renderGlossary(entries: GlossaryEntry[] = testGlossary(), error?: string): void {
 	render(GlossaryPage, { data: { session: testSession(), entries, error }, params: {} });
