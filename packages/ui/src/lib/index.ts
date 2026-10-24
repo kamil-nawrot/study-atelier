@@ -1,16 +1,10 @@
 export { default as Alert } from './components/Alert/Alert.svelte';
 export { default as ArtworkImage } from './components/ArtworkImage/ArtworkImage.svelte';
-export {
-	default as ArtworkTile,
-	type ArtworkTileImage
-} from './components/ArtworkTile/ArtworkTile.svelte';
+export { default as ArtworkTile } from './components/ArtworkTile/ArtworkTile.svelte';
 export { default as Button } from './components/Button/Button.svelte';
 export { default as Checkbox } from './components/Checkbox/Checkbox.svelte';
 export { default as Switch } from './components/Switch/Switch.svelte';
-export {
-	default as ChoiceTiles,
-	type ChoiceTile
-} from './components/ChoiceTiles/ChoiceTiles.svelte';
+export { default as ChoiceTiles } from './components/ChoiceTiles/ChoiceTiles.svelte';
 export { default as Count } from './components/Count/Count.svelte';
 export { default as Dialog } from './components/Dialog/Dialog.svelte';
 export { default as Disclosure } from './components/Disclosure/Disclosure.svelte';
@@ -35,14 +29,11 @@ export { default as Primer } from './components/Primer/Primer.svelte';
 export { default as PopupButton } from './components/PopupButton/PopupButton.svelte';
 export { default as ProgressLine } from './components/ProgressLine/ProgressLine.svelte';
 export { default as SearchField } from './components/SearchField/SearchField.svelte';
-export {
-	default as SearchSelect,
-	type SearchSelectOption
-} from './components/SearchSelect/SearchSelect.svelte';
+export { default as SearchSelect } from './components/SearchSelect/SearchSelect.svelte';
 export { default as Section } from './components/Section/Section.svelte';
-export { default as Select, type SelectOption } from './components/Select/Select.svelte';
-export { default as StepSelect, type StepOption } from './components/StepSelect/StepSelect.svelte';
-export { default as Tabs, type TabOption } from './components/Tabs/Tabs.svelte';
+export { default as Select } from './components/Select/Select.svelte';
+export { default as StepSelect } from './components/StepSelect/StepSelect.svelte';
+export { default as Tabs } from './components/Tabs/Tabs.svelte';
 export { default as Tag } from './components/Tag/Tag.svelte';
 export { default as TextArea } from './components/TextArea/TextArea.svelte';
 export { default as TextField } from './components/TextField/TextField.svelte';
@@ -51,21 +42,28 @@ export { default as ToggleTiles } from './components/ToggleTiles/ToggleTiles.sve
 export { default as TextButton } from './components/TextButton/TextButton.svelte';
 export { default as Tooltip } from './components/Tooltip/Tooltip.svelte';
 export { default as Toast } from './components/Toast/Toast.svelte';
-export { default as ValueField, type ValueOption } from './components/ValueField/ValueField.svelte';
-export type { NoteLinkOption, NoteLinks, NoteLinkTrigger } from './note-links/note-links';
-export { mentionsTerm, type NoteTerm } from './notes-markdown/notes-markdown';
-export {
-	defaultUiMessages,
-	setUiMessages,
-	type AlertTone,
-	type UiMessages
-} from './messages/messages';
+export { default as ValueField } from './components/ValueField/ValueField.svelte';
+export { mentionsTerm } from './notes-markdown/notes-markdown';
+export { defaultUiMessages, setUiMessages } from './messages/messages';
 export {
 	overlayScrollbar,
 	overlaysScrollbars,
 	pageScrollbar,
 	scrollForDrag,
-	thumbGeometry,
-	type ScrollAxis
+	thumbGeometry
 } from './overlay-scrollbar/overlay-scrollbar.ts';
 export { PopoverState } from './popover-state/popover-state.svelte';
+export type { ArtworkTileImage } from './types/artwork-tile-image';
+export type { ChoiceTile } from './types/choice-tile';
+export type { SearchSelectOption } from './types/search-select-option';
+export type { SelectOption } from './types/select-option';
+export type { StepOption } from './types/step-option';
+export type { TabOption } from './types/tab-option';
+export type { ValueOption } from './types/value-option';
+export type { NoteLinkOption } from './types/note-link-option';
+export type { NoteLinks } from './types/note-links';
+export type { NoteLinkTrigger } from './types/note-link-trigger';
+export type { NoteTerm } from './types/note-term';
+export type { AlertTone } from './types/alert-tone';
+export type { UiMessages } from './types/ui-messages';
+export type { ScrollAxis } from './types/scroll-axis';

@@ -1,13 +1,9 @@
 <script lang="ts" module>
 	import { overlayScrollbar } from '../../overlay-scrollbar/overlay-scrollbar.ts';
-	export type TabOption = {
-		value: string;
-		label: string;
-		end?: boolean;
-	};
 </script>
 
 <script lang="ts">
+	import type { TabOption } from '../../types/tab-option';
 	import type { Snippet } from 'svelte';
 
 	type Props = {

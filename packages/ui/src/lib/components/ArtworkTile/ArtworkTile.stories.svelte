@@ -1,7 +1,8 @@
 <script lang="ts" module>
+	import type { ArtworkTileImage } from '../../types/artwork-tile-image';
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import Landmark from '@lucide/svelte/icons/landmark';
-	import ArtworkTile, { type ArtworkTileImage } from './ArtworkTile.svelte';
+	import ArtworkTile from './ArtworkTile.svelte';
 
 	function placeholder(width: number, height: number, stops: string[]): ArtworkTileImage {
 		const gradient = stops

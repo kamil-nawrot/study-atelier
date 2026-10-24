@@ -1,6 +1,7 @@
 <script lang="ts" module>
+	import type { ValueOption } from '../../types/value-option';
 	import { defineMeta } from '@storybook/addon-svelte-csf';
-	import ValueField, { type ValueOption } from './ValueField.svelte';
+	import ValueField from './ValueField.svelte';
 
 	const styles: ValueOption[] = [
 		{ kind: 'existing', name: 'baroque' },

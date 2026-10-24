@@ -1,14 +1,11 @@
+import type { NoteLinks } from '../types/note-links';
+import type { NoteTerm } from '../types/note-term';
 import DOMPurify from 'dompurify';
 import { Marked, type Tokens } from 'marked';
-import { isNoteLinkPath, type NoteLinks } from '../note-links/note-links';
+import { isNoteLinkPath } from '../note-links/note-links';
 
 const allowedTags = ['p', 'br', 'strong', 'em', 'h3', 'ul', 'ol', 'li', 'a', 'span'];
 const allowedAttributes = ['href', 'data-note-link', 'data-missing', 'data-href'];
-
-export type NoteTerm = {
-	id: string;
-	phrases: string[];
-};
 
 type TermMatch = { start: number; end: number; id: string };
 

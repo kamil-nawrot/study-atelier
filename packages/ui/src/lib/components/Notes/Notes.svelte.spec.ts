@@ -1,9 +1,9 @@
+import type { NoteLinks } from '../../types/note-links';
+import type { NoteTerm } from '../../types/note-term';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import type { NoteLinks } from '../../note-links/note-links';
-import type { NoteTerm } from '../../notes-markdown/notes-markdown';
 import Notes from './Notes.svelte';
 
 function renderedHtml(value: string, links?: Pick<NoteLinks, 'resolve'>): string {

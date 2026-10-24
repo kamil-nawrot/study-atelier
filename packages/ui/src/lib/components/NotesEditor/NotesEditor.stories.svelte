@@ -1,6 +1,6 @@
 <script lang="ts" module>
+	import type { NoteLinks } from '../../types/note-links';
 	import { defineMeta } from '@storybook/addon-svelte-csf';
-	import type { NoteLinks } from '../../note-links/note-links';
 	import NotesEditor from './NotesEditor.svelte';
 
 	const sample: NoteLinks = {

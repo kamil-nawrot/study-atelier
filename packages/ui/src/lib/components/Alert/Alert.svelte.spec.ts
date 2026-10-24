@@ -1,8 +1,9 @@
+import type { AlertTone } from '../../types/alert-tone';
 import { describe, expect, it } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { defaultUiMessages, type AlertTone } from '../../messages/messages';
+import { defaultUiMessages } from '../../messages/messages';
 import MessagesHost from '../../testing/MessagesHost.svelte';
 import Alert from './Alert.svelte';
 

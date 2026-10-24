@@ -1,9 +1,10 @@
+import type { ValueOption } from '../../types/value-option';
 import { describe, expect, it } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { defaultUiMessages } from '../../messages/messages';
 import { controlHeight, outlinedHeight } from '../../testing/control-height';
-import ValueField, { type ValueOption } from './ValueField.svelte';
+import ValueField from './ValueField.svelte';
 
 const texts = defaultUiMessages.valueField;
 

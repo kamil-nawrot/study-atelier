@@ -1,11 +1,5 @@
-<script lang="ts" module>
-	export type StepOption = {
-		value: string;
-		label: string;
-	};
-</script>
-
 <script lang="ts">
+	import type { StepOption } from '../../types/step-option';
 	type Props = {
 		label: string;
 		steps: readonly StepOption[];

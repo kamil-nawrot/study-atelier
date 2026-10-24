@@ -1,11 +1,6 @@
+import type { ScrollAxis } from '../types/scroll-axis';
+import type { ThumbGeometry } from '../types/thumb-geometry';
 import type { Attachment } from 'svelte/attachments';
-
-export type ScrollAxis = 'y' | 'x';
-
-export type ThumbGeometry = {
-	offset: number;
-	length: number;
-};
 
 const SHOW_MS = 900;
 const MIN_THUMB = 24;

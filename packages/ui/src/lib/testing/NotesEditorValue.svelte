@@ -1,7 +1,7 @@
 <script lang="ts">
+	import type { NoteLinks } from '../types/note-links';
 	import { untrack } from 'svelte';
 	import NotesEditor from '../components/NotesEditor/NotesEditor.svelte';
-	import type { NoteLinks } from '../note-links/note-links';
 
 	type Props = { links?: NoteLinks; initial?: string };
 

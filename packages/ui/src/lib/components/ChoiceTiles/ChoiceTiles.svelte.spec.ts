@@ -1,8 +1,9 @@
+import type { ChoiceTile } from '../../types/choice-tile';
 import { describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import Flame from '@lucide/svelte/icons/flame';
-import ChoiceTiles, { type ChoiceTile } from './ChoiceTiles.svelte';
+import ChoiceTiles from './ChoiceTiles.svelte';
 
 const options: ChoiceTile[] = [
 	{ value: 'one', label: 'First', note: 'to 100', icon: Flame },

@@ -1,4 +1,5 @@
 <script lang="ts" module>
+	import type { ChoiceTile } from '../../types/choice-tile';
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import Church from '@lucide/svelte/icons/church';
 	import Compass from '@lucide/svelte/icons/compass';
@@ -6,7 +7,7 @@
 	import Landmark from '@lucide/svelte/icons/landmark';
 	import Smartphone from '@lucide/svelte/icons/smartphone';
 	import TrainFront from '@lucide/svelte/icons/train-front';
-	import ChoiceTiles, { type ChoiceTile } from './ChoiceTiles.svelte';
+	import ChoiceTiles from './ChoiceTiles.svelte';
 
 	const eras: ChoiceTile[] = [
 		{ value: 'prehistory', label: 'Prehistory', note: 'to 3000 BCE', icon: Flame },

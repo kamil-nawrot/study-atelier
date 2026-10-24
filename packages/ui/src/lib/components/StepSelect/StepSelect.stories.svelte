@@ -1,6 +1,7 @@
 <script lang="ts" module>
+	import type { StepOption } from '../../types/step-option';
 	import { defineMeta } from '@storybook/addon-svelte-csf';
-	import StepSelect, { type StepOption } from './StepSelect.svelte';
+	import StepSelect from './StepSelect.svelte';
 
 	const levels: StepOption[] = [
 		{ value: 'era', label: 'Era' },

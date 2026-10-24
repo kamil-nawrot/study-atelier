@@ -1,13 +1,9 @@
 <script lang="ts" module>
 	import { overlayScrollbar } from '../../overlay-scrollbar/overlay-scrollbar.ts';
-	export type ValueOption = {
-		kind: 'similar' | 'existing' | 'starter' | 'new';
-		name: string;
-		note?: string;
-	};
 </script>
 
 <script lang="ts">
+	import type { ValueOption } from '../../types/value-option';
 	import X from '@lucide/svelte/icons/x';
 	import { tick } from 'svelte';
 	import { uiMessages } from '../../messages/messages';

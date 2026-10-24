@@ -1,7 +1,8 @@
+import type { StepOption } from '../../types/step-option';
 import { describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import StepSelect, { type StepOption } from './StepSelect.svelte';
+import StepSelect from './StepSelect.svelte';
 
 const levels: StepOption[] = [
 	{ value: 'era', label: 'Era' },

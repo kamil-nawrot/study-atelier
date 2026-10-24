@@ -1,7 +1,8 @@
 <script lang="ts" module>
+	import type { SelectOption } from '../../types/select-option';
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
-	import Select, { type SelectOption } from './Select.svelte';
+	import Select from './Select.svelte';
 
 	const types: SelectOption[] = [
 		{ value: 'architecture', label: 'Architecture' },

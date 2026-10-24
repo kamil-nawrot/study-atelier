@@ -1,7 +1,7 @@
+import type { NoteLinks } from '../../types/note-links';
 import { describe, expect, it } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import type { NoteLinks } from '../../note-links/note-links';
 import NotesEditorValue from '../../testing/NotesEditorValue.svelte';
 import NotesEditor from './NotesEditor.svelte';
 

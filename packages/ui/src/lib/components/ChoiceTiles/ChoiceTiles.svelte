@@ -1,15 +1,5 @@
-<script lang="ts" module>
-	import type { LucideIcon } from '@lucide/svelte';
-
-	export type ChoiceTile = {
-		value: string;
-		label: string;
-		note?: string;
-		icon?: LucideIcon;
-	};
-</script>
-
 <script lang="ts">
+	import type { ChoiceTile } from '../../types/choice-tile';
 	import Icon from '../Icon/Icon.svelte';
 
 	type Props = {

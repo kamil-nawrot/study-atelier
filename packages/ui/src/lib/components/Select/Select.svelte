@@ -1,11 +1,5 @@
-<script lang="ts" module>
-	export type SelectOption = {
-		value: string;
-		label: string;
-	};
-</script>
-
 <script lang="ts">
+	import type { SelectOption } from '../../types/select-option';
 	import type { LucideIcon } from '@lucide/svelte';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import type { HTMLSelectAttributes } from 'svelte/elements';

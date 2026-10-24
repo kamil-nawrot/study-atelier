@@ -1,4 +1,7 @@
 <script lang="ts">
+	import type { NoteLinkTrigger } from '../../types/note-link-trigger';
+	import type { NoteLinks } from '../../types/note-links';
+	import type { SuggestionState } from '../../types/suggestion-state';
 	import { overlayScrollbar } from '../../overlay-scrollbar/overlay-scrollbar.ts';
 	import { Editor } from '@tiptap/core';
 	import { Markdown } from '@tiptap/markdown';
@@ -13,12 +16,7 @@
 	import type { LucideIcon } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import { uiMessages } from '../../messages/messages';
-	import {
-		NoteLink,
-		NoteLinkSuggestion,
-		type SuggestionState
-	} from '../../note-link-extension/note-link-extension';
-	import type { NoteLinks, NoteLinkTrigger } from '../../note-links/note-links';
+	import { NoteLink, NoteLinkSuggestion } from '../../note-link-extension/note-link-extension';
 	import { renderNotes } from '../../notes-markdown/notes-markdown';
 	import FieldMessage from '../FieldMessage/FieldMessage.svelte';
 	import Icon from '../Icon/Icon.svelte';

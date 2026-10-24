@@ -1,12 +1,11 @@
+import type { NoteLinkOption } from '../types/note-link-option';
+import type { NoteLinkSuggestionOptions } from '../types/note-link-suggestion-options';
+import type { NoteLinkTrigger } from '../types/note-link-trigger';
 import { Extension, Node, type Editor, type Range } from '@tiptap/core';
 import { PluginKey } from '@tiptap/pm/state';
 import type { EditorView } from '@tiptap/pm/view';
 import { exitSuggestion, Suggestion } from '@tiptap/suggestion';
-import {
-	noteLinkMarkdown,
-	type NoteLinkOption,
-	type NoteLinkTrigger
-} from '../note-links/note-links';
+import { noteLinkMarkdown } from '../note-links/note-links';
 
 export const NoteLink = Node.create({
 	name: 'noteLink',
@@ -61,20 +60,6 @@ export const NoteLink = Node.create({
 		return noteLinkMarkdown(node.attrs?.label ?? '', node.attrs?.href ?? '');
 	}
 });
-
-export type SuggestionState = {
-	trigger: NoteLinkTrigger;
-	query: string;
-	items: NoteLinkOption[];
-	loading: boolean;
-	choose: (option: NoteLinkOption) => void;
-};
-
-export type NoteLinkSuggestionOptions = {
-	items: (trigger: NoteLinkTrigger, query: string) => NoteLinkOption[];
-	onChange: (trigger: NoteLinkTrigger, state: SuggestionState | null) => void;
-	onKeyDown: (event: KeyboardEvent) => boolean;
-};
 
 const triggers: Record<NoteLinkTrigger, PluginKey> = {
 	'@': new PluginKey('noteLinkValue'),

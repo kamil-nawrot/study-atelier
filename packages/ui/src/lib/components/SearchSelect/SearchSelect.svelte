@@ -1,9 +1,5 @@
 <script lang="ts" module>
 	import { overlayScrollbar } from '../../overlay-scrollbar/overlay-scrollbar.ts';
-	export type SearchSelectOption = {
-		value: string;
-		label: string;
-	};
 
 	export function searchKey(text: string): string {
 		return text
@@ -17,6 +13,7 @@
 </script>
 
 <script lang="ts">
+	import type { SearchSelectOption } from '../../types/search-select-option';
 	import X from '@lucide/svelte/icons/x';
 	import { tick } from 'svelte';
 	import { uiMessages } from '../../messages/messages';

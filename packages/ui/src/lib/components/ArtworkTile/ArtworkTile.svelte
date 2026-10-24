@@ -1,14 +1,5 @@
-<script lang="ts" module>
-	export type ArtworkTileImage = {
-		src?: string;
-		srcset?: string;
-		sizes?: string;
-		width: number;
-		height: number;
-	};
-</script>
-
 <script lang="ts">
+	import type { ArtworkTileImage } from '../../types/artwork-tile-image';
 	import Heart from '@lucide/svelte/icons/heart';
 	import type { LucideIcon } from '@lucide/svelte';
 	import { uiMessages } from '../../messages/messages';
