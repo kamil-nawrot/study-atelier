@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { Disclosure } from '@study-atelier/ui';
-	import { eraIcon } from '../eras.ts';
+	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
 	import { allocateTiles } from '../grouping.ts';
 	import { WALL_MARGIN, WALL_PART } from '../masonry.ts';
 	import ArtworkWall from './ArtworkWall.svelte';
-	import type { WallArtwork, WallSection } from '../types.ts';
+	import type { WallSection } from '../types.ts';
+	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 	type Props = {
 		sections: WallSection[];

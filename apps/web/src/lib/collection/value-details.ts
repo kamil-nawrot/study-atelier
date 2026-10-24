@@ -13,7 +13,7 @@ import {
 	type ImageRow
 } from './image-record.ts';
 import { isCountryCode } from './countries.ts';
-import { isPlaceType } from './place-types.ts';
+import { isPlaceType } from '#lib/catalogue/place-types/place-types.ts';
 import type {
 	AuthorDetails,
 	LocationDetails,

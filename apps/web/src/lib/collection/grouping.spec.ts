@@ -11,7 +11,8 @@ import {
 	sectionSequence,
 	wallParams
 } from './grouping.ts';
-import type { WallArtwork, WallSection } from './types.ts';
+import type { WallSection } from './types.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 function artwork(number: number, overrides: Partial<WallArtwork> = {}): WallArtwork {
 	return testArtwork(number, `Artwork ${number}`, overrides);

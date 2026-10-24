@@ -1,4 +1,4 @@
-import type { WallArtwork } from '#lib/collection/types.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { ReviewCard, ReviewItem } from './types.ts';
 
 export const SESSION_SIZE = 20;

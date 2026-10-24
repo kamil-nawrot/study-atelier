@@ -16,7 +16,8 @@
 		matchPool
 	} from '../auto-match.ts';
 	import { artworkImageSource } from '../artwork-image.ts';
-	import type { ArtworkImageInput, ImageFieldTexts } from '../types.ts';
+	import type { ImageFieldTexts } from '../types.ts';
+	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 	import ImageField from './ImageField.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import PinLayer from '#lib/pins/components/PinLayer.svelte';

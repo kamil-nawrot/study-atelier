@@ -4,10 +4,11 @@
 	import { Alert, Button, Dialog, Section, Toast } from '@study-atelier/ui';
 	import { invalidate } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import DuplicateDialog from '#lib/collection/components/DuplicateDialog.svelte';
 	import { DuplicateCheck } from '#lib/collection/duplicate-check.svelte.ts';
-	import { formatDeletedOn, formatRecordNumber } from '#lib/collection/format.ts';
+	import { formatDeletedOn } from '#lib/collection/format.ts';
+	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import { deletePermanently, restoreArtwork } from '#lib/collection/trash.ts';
 	import type { TrashArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';

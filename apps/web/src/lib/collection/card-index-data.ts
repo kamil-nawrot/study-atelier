@@ -5,9 +5,11 @@ import type { ServiceError } from '#lib/shared/types/service-error.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyCardIndex } from './card-index.ts';
 import { isCategoryCode } from './category-values.ts';
-import { isEraCode } from './eras.ts';
+import { isEraCode } from '#lib/catalogue/eras/eras.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from './errors.ts';
-import type { CardIndexRecord, CardIndexResult, EraCode, OwnValue } from './types.ts';
+import type { CardIndexResult, OwnValue } from './types.ts';
+import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
+import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 
 type UsageRow = {
 	id: string;

@@ -1,4 +1,4 @@
-import type { CardIndexData } from '#lib/collection/types.ts';
+import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 
 export function testCardIndex(): CardIndexData {
 	return {

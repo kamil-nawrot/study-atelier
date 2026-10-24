@@ -6,7 +6,7 @@ import {
 	artworkLargeSource,
 	isTooLargeForLoupe
 } from './artwork-image.ts';
-import type { ArtworkImageInput } from './types.ts';
+import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 
 const commons: ArtworkImageInput = {
 	kind: 'commons',

@@ -17,7 +17,7 @@
 	import Avatar from '#lib/profile/components/Avatar.svelte';
 	import { followMenuProfile, shownMenuProfile } from '#lib/profile/menu-profile.svelte.ts';
 	import { avatarInitial } from '#lib/profile/profile.ts';
-	import { currentTheme, setTheme } from '#lib/theme/theme.svelte.ts';
+	import { currentTheme, setTheme } from '#lib/shell/theme/theme.svelte.ts';
 
 	type Props = {
 		email: string;

@@ -4,7 +4,7 @@ import { loadNoteLinks } from '#lib/collection/note-link-data.ts';
 import { loadOwnFieldDefinitions } from '#lib/collection/own-fields.ts';
 import { emptyPlaceStarter, loadPlaceStarter } from '#lib/collection/place-starter.ts';
 import { emptyValueLinks, loadValueLinks } from '#lib/collection/value-links.ts';
-import { parseRecordNumber } from '#lib/collection/format.ts';
+import { parseRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import { loadGlossary } from '#lib/glossary/glossary-data.ts';
 import { loadArtworkPins } from '#lib/pins/pin-data.ts';
 import { m } from '#lib/i18n/index.ts';

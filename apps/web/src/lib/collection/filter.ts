@@ -1,20 +1,18 @@
-import { ARTWORK_TYPE_CODES } from './artwork-types.ts';
+import { ARTWORK_TYPE_CODES } from '#lib/catalogue/artwork-types/artwork-types.ts';
 import { authorSortKeys, sortKeyOf } from './author-sort.ts';
-import { ERA_CODES, eraName, isEraCode } from './eras.ts';
+import { ERA_CODES, eraName, isEraCode } from '#lib/catalogue/eras/eras.ts';
 import { m } from '#lib/i18n/index.ts';
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
-import type {
-	ArtworkTypeCode,
-	CollectionFilter,
-	EraCode,
-	FilterField,
-	FilterOption,
-	FilterTag,
-	MissingData,
-	OwnFieldDefinition,
-	TagParts,
-	WallArtwork
-} from './types.ts';
+import type { OwnFieldDefinition } from './types.ts';
+import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
+import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
+import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+import type { FilterField } from '#lib/catalogue/types/filter-field.ts';
+import type { FilterOption } from '#lib/catalogue/types/filter-option.ts';
+import type { FilterTag } from '#lib/catalogue/types/filter-tag.ts';
+import type { MissingData } from '#lib/catalogue/types/missing-data.ts';
+import type { TagParts } from '#lib/catalogue/types/tag-parts.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 type FilterSkip = FilterField | `own:${string}` | `ownText:${string}` | 'ticked';
 

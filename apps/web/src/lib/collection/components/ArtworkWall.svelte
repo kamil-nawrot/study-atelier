@@ -3,7 +3,7 @@
 	import { MediaQuery } from 'svelte/reactivity';
 	import { innerWidth } from 'svelte/reactivity/window';
 	import { resolve } from '$app/paths';
-	import { eraIcon, eraName } from '../eras.ts';
+	import { eraIcon, eraName } from '#lib/catalogue/eras/eras.ts';
 	import {
 		columnCount,
 		distribute,
@@ -13,7 +13,7 @@
 		WIDE_MIN_WIDTH
 	} from '../masonry.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import type { WallArtwork } from '../types.ts';
+	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 	type Props = {
 		artworks: WallArtwork[];

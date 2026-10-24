@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ArtworkImageInput } from '#lib/collection/types.ts';
+	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { movePin } from '../pin-data.ts';

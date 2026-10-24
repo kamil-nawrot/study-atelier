@@ -1,7 +1,7 @@
 import { onDestroy } from 'svelte';
 import { refreshExpiredImages, resolveImages } from './artworks.ts';
 import { ImageQueue } from './image-queue.ts';
-import type { WallArtwork } from './types.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 export const REFRESH_DELAY_MS = 100;
 

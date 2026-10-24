@@ -3,7 +3,8 @@ import { m } from '#lib/i18n/index.ts';
 import { ownImageUrl, removeOwnImage, uploadOwnImage } from '#lib/images/own-image.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyArtworkInput, loadArtwork, saveArtwork, validateArtwork } from './artwork-record.ts';
-import type { ArtworkImageInput, ArtworkInput } from './types.ts';
+import type { ArtworkInput } from './types.ts';
+import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn(), rpc: vi.fn() }

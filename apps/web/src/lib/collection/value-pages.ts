@@ -2,15 +2,12 @@ import { resolve } from '$app/paths';
 import type { ResolvedPathname } from '$app/types';
 import { m } from '#lib/i18n/index.ts';
 import { erasOfPeriod, findRecord, periodsOfStyle } from './card-index.ts';
-import { isEraCode } from './eras.ts';
-import type {
-	CardIndexData,
-	CardIndexRecord,
-	EraCode,
-	ValueKind,
-	ValueSubject,
-	WallArtwork
-} from './types.ts';
+import { isEraCode } from '#lib/catalogue/eras/eras.ts';
+import type { ValueKind, ValueSubject } from './types.ts';
+import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
+import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
+import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 export const SUMMARY_MAX_LENGTH = 300;
 

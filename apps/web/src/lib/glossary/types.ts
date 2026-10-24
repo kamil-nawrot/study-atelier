@@ -1,5 +1,6 @@
 import type { Mention } from '#lib/collection/mentions.ts';
-import type { CardIndexData, WallArtwork } from '#lib/collection/types.ts';
+import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { WikipediaSource } from '#lib/shared/types/wikipedia-source.ts';
 
 export type GlossaryCategory =

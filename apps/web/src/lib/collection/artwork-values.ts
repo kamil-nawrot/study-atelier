@@ -1,5 +1,6 @@
 import { isCategoryCode } from './category-values.ts';
-import type { ArtworkValueRow, FieldEntryRow, OwnEntries } from './types.ts';
+import type { ArtworkValueRow, FieldEntryRow } from './types.ts';
+import type { OwnEntries } from '#lib/catalogue/types/own-entries.ts';
 
 export function authorSortNamesOf(rows: ArtworkValueRow[]): (string | null)[] {
 	return rows

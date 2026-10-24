@@ -9,12 +9,10 @@ import {
 	toggleFavourites,
 	toggleValue
 } from '#lib/collection/filter.ts';
-import type {
-	CollectionFilter,
-	FilterOption,
-	FilterTag,
-	WallArtwork
-} from '#lib/collection/types.ts';
+import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
+import type { FilterOption } from '#lib/catalogue/types/filter-option.ts';
+import type { FilterTag } from '#lib/catalogue/types/filter-tag.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { overlaps, spanOfYears, type TimeSpan } from './time.ts';
 import type { Lane, LaneField, TimelineFilter } from './types.ts';
 

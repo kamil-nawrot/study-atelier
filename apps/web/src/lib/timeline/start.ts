@@ -1,5 +1,5 @@
-import { ERA_CODES, isEraCode } from '#lib/collection/eras.ts';
-import type { EraCode } from '#lib/collection/types.ts';
+import { ERA_CODES, isEraCode } from '#lib/catalogue/eras/eras.ts';
+import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 import { readStored, writeStored } from '#lib/shared/utils/storage/storage.ts';
 import { entriesSpan, eras, timeOf } from './time.ts';
 

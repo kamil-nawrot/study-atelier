@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Alert, Button, Tag } from '@study-atelier/ui';
-	import { formatRecordNumber } from '#lib/collection/format.ts';
+	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import { m } from '#lib/i18n/index.ts';

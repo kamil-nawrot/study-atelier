@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { groupByAuthor } from './periods.ts';
-import type { WallArtwork } from './types.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 function numbers(groups: ReturnType<typeof groupByAuthor>): number[][] {
 	return groups.map((group) => group.artworks.map((item) => item.number));

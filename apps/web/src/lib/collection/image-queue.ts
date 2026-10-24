@@ -1,4 +1,4 @@
-import type { WallArtwork } from './types.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 export const IMAGE_BATCH_SIZE = 50;
 export const IMAGE_BATCH_DELAY = 100;

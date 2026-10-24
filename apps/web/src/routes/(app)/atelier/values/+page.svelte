@@ -12,7 +12,7 @@
 	} from '#lib/collection/card-index-tab.ts';
 	import { loadOwnValues } from '#lib/collection/card-index-data.ts';
 	import { buildTimeline, valuesOf } from '#lib/collection/card-index.ts';
-	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import CardIndexList from '#lib/collection/components/CardIndexList.svelte';
 	import CardIndexTimeline from '#lib/collection/components/CardIndexTimeline.svelte';
 	import OwnFieldsTab from '#lib/collection/components/OwnFieldsTab.svelte';

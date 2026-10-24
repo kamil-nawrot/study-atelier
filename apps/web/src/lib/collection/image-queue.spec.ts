@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { IMAGE_BATCH_DELAY, IMAGE_BATCH_SIZE, ImageQueue } from './image-queue.ts';
-import type { WallArtwork } from './types.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 function pending(number: number): WallArtwork {
 	return testArtwork(number, `Artwork ${number}`, {

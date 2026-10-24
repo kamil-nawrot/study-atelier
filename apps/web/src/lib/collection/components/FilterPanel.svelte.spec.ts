@@ -4,7 +4,8 @@ import { render } from 'vitest-browser-svelte';
 import { emptyFilter } from '../filter.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
-import type { CollectionFilter, OwnFieldDefinition } from '../types.ts';
+import type { OwnFieldDefinition } from '../types.ts';
+import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
 import FilterPanelHost from '#lib/testing/FilterPanelHost.svelte';
 import '@study-atelier/ui/styles.css';
 

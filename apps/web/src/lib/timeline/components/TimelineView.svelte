@@ -5,8 +5,9 @@
 	import Plus from '@lucide/svelte/icons/plus';
 	import { onDestroy, untrack } from 'svelte';
 	import { Alert, Button, Dialog, Icon, ToggleTag } from '@study-atelier/ui';
-	import { ERA_CODES, eraTitle } from '#lib/collection/eras.ts';
-	import type { EraCode, WallArtwork } from '#lib/collection/types.ts';
+	import { ERA_CODES, eraTitle } from '#lib/catalogue/eras/eras.ts';
+	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import {
 		availableSteps,

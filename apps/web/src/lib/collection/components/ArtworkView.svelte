@@ -35,9 +35,10 @@
 		artworkLargeSource,
 		isTooLargeForLoupe
 	} from '../artwork-image.ts';
-	import { artworkTypeIcon } from '../artwork-types.ts';
-	import { eraIcon } from '../eras.ts';
-	import { formatDate, formatRecordNumber, signedYear } from '../format.ts';
+	import { artworkTypeIcon } from '#lib/catalogue/artwork-types/artwork-types.ts';
+	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
+	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
+	import { formatDate, signedYear } from '#lib/catalogue/years/years.ts';
 	import { artworkPanelOpen, rememberArtworkPanel } from '../artwork-panel.ts';
 	import { FLIP_DIRECTIONS, swipe } from '../flip.ts';
 	import type { Mention } from '../mentions.ts';

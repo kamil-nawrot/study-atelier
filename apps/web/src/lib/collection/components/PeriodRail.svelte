@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Icon } from '@study-atelier/ui';
-	import { eraIcon } from '../eras.ts';
+	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
 	import { MIN_LABELLED_ROW, railLayout, railRow } from '../period-rail.ts';
 	import type { CurrentPeriod, PeriodGroup } from '../types.ts';
 

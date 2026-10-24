@@ -1,4 +1,4 @@
-import { formatLifeYears, formatYear } from '#lib/collection/format.ts';
+import { formatLifeYears, formatYear } from '#lib/catalogue/years/years.ts';
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import { m } from '#lib/i18n/index.ts';
 import { commonsThumbnailSrcset, fetchCommonsFiles } from './commons.ts';

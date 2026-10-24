@@ -1,5 +1,6 @@
-import { ERA_CODES } from '#lib/collection/eras.ts';
-import type { EraCode, WallArtwork } from '#lib/collection/types.ts';
+import { ERA_CODES } from '#lib/catalogue/eras/eras.ts';
+import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { m } from '#lib/i18n/index.ts';
 import {
 	endOfDay,

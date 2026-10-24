@@ -9,14 +9,17 @@
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
 	import ArtworkView from '#lib/collection/components/ArtworkView.svelte';
-	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import { favouriteLabel, favouriteToast, setFavourite } from '#lib/collection/favourite.ts';
 	import { keyDirection } from '#lib/collection/flip.ts';
-	import { formatRecordNumber, parseRecordNumber } from '#lib/collection/format.ts';
+	import {
+		formatRecordNumber,
+		parseRecordNumber
+	} from '#lib/catalogue/record-number/record-number.ts';
 	import { moveToTrash } from '#lib/collection/trash.ts';
 	import type { FlipDirection } from '#lib/collection/types.ts';
 	import { neighboursIn, rememberedWallSequence } from '#lib/collection/wall-sequence.ts';
-	import BackLink from '#lib/navigation/components/BackLink.svelte';
+	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps } from './$types';
 

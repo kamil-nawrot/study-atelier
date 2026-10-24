@@ -7,7 +7,7 @@ import Smartphone from '@lucide/svelte/icons/smartphone';
 import TrainFront from '@lucide/svelte/icons/train-front';
 import type { ChoiceTile } from '@study-atelier/ui';
 import { m } from '#lib/i18n/index.ts';
-import type { EraCode } from './types.ts';
+import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 
 export const ERA_CODES: readonly EraCode[] = [
 	'prehistory',

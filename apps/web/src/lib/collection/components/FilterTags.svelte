@@ -2,7 +2,7 @@
 	import { Tag, TextButton } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { tagLabel, tagParts } from '../filter.ts';
-	import type { FilterTag } from '../types.ts';
+	import type { FilterTag } from '#lib/catalogue/types/filter-tag.ts';
 
 	type Props = {
 		tags: FilterTag[];

@@ -2,7 +2,7 @@
 	import Play from '@lucide/svelte/icons/play';
 	import { Alert, Button, Disclosure, Icon, Tag, ToggleTag } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
-	import type { WallArtwork } from '#lib/collection/types.ts';
+	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import {
 		type AtelierKnowledge,

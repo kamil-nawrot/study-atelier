@@ -1,4 +1,4 @@
-import type { WallArtwork } from './types.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 const collator = new Intl.Collator('pl');
 

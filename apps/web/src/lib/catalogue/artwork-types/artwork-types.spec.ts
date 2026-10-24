@@ -6,8 +6,8 @@ import {
 	artworkTypeTiles,
 	isArtworkTypeCode
 } from './artwork-types.ts';
-import { eraIcon, ERA_CODES } from './eras.ts';
-import { placeTiles } from './place-types.ts';
+import { eraIcon, ERA_CODES } from '#lib/catalogue/eras/eras.ts';
+import { placeTiles } from '#lib/catalogue/place-types/place-types.ts';
 
 describe('artwork types', () => {
 	it('gives eight tiles with names and icons in the fixed order', () => {

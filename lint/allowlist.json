@@ -5,7 +5,6 @@
 		"apps/web/src/lib/collection/components/ImageField.svelte",
 		"apps/web/src/lib/collection/components/ValueForm.svelte",
 		"apps/web/src/lib/collection/filter.ts",
-		"apps/web/src/lib/collection/types.ts",
 		"apps/web/src/lib/glossary/components/GlossaryForm.svelte",
 		"apps/web/src/lib/review/components/Quiz.svelte",
 		"apps/web/src/lib/timeline/components/TimelineStage.svelte",
@@ -30,9 +29,9 @@
 	],
 	"style": [
 		"apps/web/src/lib/collection/components/ArtworkView.svelte",
-		"apps/web/src/lib/collection/components/AtelierLayout.svelte",
 		"apps/web/src/lib/review/components/Quiz.svelte",
 		"apps/web/src/lib/review/components/ReviewStart.svelte",
+		"apps/web/src/lib/shell/AtelierLayout/AtelierLayout.svelte",
 		"apps/web/src/lib/timeline/components/TimelineStage.svelte",
 		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte",
 		"packages/ui/src/lib/components/Primer/Primer.svelte"
@@ -76,8 +75,6 @@
 		"apps/web/src/lib/images",
 		"apps/web/src/lib/images/components",
 		"apps/web/src/lib/import",
-		"apps/web/src/lib/navigation",
-		"apps/web/src/lib/navigation/components",
 		"apps/web/src/lib/pins",
 		"apps/web/src/lib/pins/components",
 		"apps/web/src/lib/profile",

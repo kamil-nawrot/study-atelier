@@ -1,9 +1,10 @@
 import { locale } from '#lib/i18n/index.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { isEraCode } from './eras.ts';
+import { isEraCode } from '#lib/catalogue/eras/eras.ts';
 import { collectionErrorMessage } from './errors.ts';
 import { valueKey } from './value-suggestions.ts';
-import type { EraCode, ValueLinks, ValueLinksResult } from './types.ts';
+import type { ValueLinks, ValueLinksResult } from './types.ts';
+import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 
 type ValueRow = {
 	id: string;

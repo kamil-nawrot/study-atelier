@@ -38,7 +38,8 @@
 	import type { ImageCandidate, ImageSearchQuery } from '#lib/images/types.ts';
 	import { imageFromCandidate } from '../artwork-form.ts';
 	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
-	import type { ArtworkImageInput, ImageFieldTexts } from '../types.ts';
+	import type { ImageFieldTexts } from '../types.ts';
+	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 
 	type Props = {
 		alt: string;

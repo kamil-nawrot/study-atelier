@@ -1,42 +1,5 @@
 import { locale, m } from '#lib/i18n/index.ts';
 
-const RECORD_NUMBER_DIGITS = 4;
-
-export function formatRecordNumber(number: number): string {
-	return `#${String(number).padStart(RECORD_NUMBER_DIGITS, '0')}`;
-}
-
-export function parseRecordNumber(text: string): number | null {
-	if (!/^\d+$/.test(text)) return null;
-	const number = Number(text);
-	return Number.isSafeInteger(number) && number > 0 ? number : null;
-}
-
-export function formatYear(year: number | null, approximate: boolean): string | undefined {
-	return year === null ? undefined : m.atelier.year(year, approximate);
-}
-
-export function signedYear(year: number | null, beforeCommonEra: boolean): number | null {
-	if (year === null) return null;
-	return beforeCommonEra ? -year : year;
-}
-
-export function formatDate(
-	yearFrom: number | null,
-	yearTo: number | null,
-	approximate: boolean
-): string | undefined {
-	if (yearTo === null) return undefined;
-	if (yearFrom === null || yearFrom === yearTo) return m.atelier.year(yearTo, approximate);
-	return m.atelier.span(yearFrom, yearTo, approximate);
-}
-
-export function formatYearRange(from: number | null, to: number | null): string | undefined {
-	if (from === null || to === null) return undefined;
-	const start = m.atelier.year(from, false);
-	return from === to ? start : m.atelier.yearRange(start, m.atelier.year(to, false));
-}
-
 export function formatDeletedOn(deletedAt: string, now = new Date()): string {
 	const date = new Date(deletedAt);
 	if (date.toDateString() === now.toDateString()) return m.trash.deletedOn(m.trash.today);
@@ -46,15 +9,4 @@ export function formatDeletedOn(deletedAt: string, now = new Date()): string {
 		year: date.getFullYear() === now.getFullYear() ? undefined : 'numeric'
 	});
 	return m.trash.deletedOn(format.format(date));
-}
-
-export function formatLifeYears(
-	born: number | null,
-	died: number | null,
-	approximate: boolean
-): string | undefined {
-	if (born !== null && died !== null) return m.atelier.span(born, died, approximate);
-	if (born !== null) return m.valuePage.born(m.atelier.year(born, approximate));
-	if (died !== null) return m.valuePage.died(m.atelier.year(died, approximate));
-	return undefined;
 }

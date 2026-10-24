@@ -2,10 +2,10 @@
 	import { afterNavigate, goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import ArtworkForm from '#lib/collection/components/ArtworkForm.svelte';
-	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import { arrivedFromApp, goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import BackLink from '#lib/navigation/components/BackLink.svelte';
+	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();

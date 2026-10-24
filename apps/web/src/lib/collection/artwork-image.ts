@@ -11,7 +11,7 @@ import {
 	commonsUploadThumbnailWidth
 } from '#lib/images/commons.ts';
 import { commonsCredit } from '#lib/images/credit.ts';
-import type { ArtworkImageInput } from './types.ts';
+import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 
 export const LOUPE_MAX_LINKED_MEGAPIXELS = 40;
 

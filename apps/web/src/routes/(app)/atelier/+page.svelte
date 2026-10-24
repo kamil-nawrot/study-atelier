@@ -25,7 +25,7 @@
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
 	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
-	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import FilterPanel from '#lib/collection/components/FilterPanel.svelte';
 	import FilterSidePanel from '#lib/collection/components/FilterSidePanel.svelte';
 	import FilterTags from '#lib/collection/components/FilterTags.svelte';
@@ -42,7 +42,7 @@
 		removeTag
 	} from '#lib/collection/filter.ts';
 	import { favouriteToast, setFavourite } from '#lib/collection/favourite.ts';
-	import { formatRecordNumber } from '#lib/collection/format.ts';
+	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import { WALL_PART } from '#lib/collection/masonry.ts';
 	import PeriodRail from '#lib/collection/components/PeriodRail.svelte';
 	import PeriodStrip from '#lib/collection/components/PeriodStrip.svelte';
@@ -59,7 +59,8 @@
 	import { groupByAuthor } from '#lib/collection/periods.ts';
 	import { MIN_RAIL_MARGIN, PeriodTracker } from '#lib/collection/period-tracker.svelte.ts';
 	import { filterByTitleOrAuthor } from '#lib/collection/search.ts';
-	import type { WallArtwork, WallOrder } from '#lib/collection/types.ts';
+	import type { WallOrder } from '#lib/collection/types.ts';
+	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import {
 		isWallOrder,
 		rememberedWallOrder,

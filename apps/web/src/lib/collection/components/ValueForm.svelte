@@ -35,8 +35,8 @@
 	} from '../author-form.ts';
 	import { VALUE_NAME_MAX_LENGTH } from '../category-values.ts';
 	import { countryOptions } from '../countries.ts';
-	import { ERA_CODES, eraName } from '../eras.ts';
-	import { isPlaceType, placeTiles } from '../place-types.ts';
+	import { ERA_CODES, eraName } from '#lib/catalogue/eras/eras.ts';
+	import { isPlaceType, placeTiles } from '#lib/catalogue/place-types/place-types.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { saveValueDetails, valueDetailsChanged } from '../value-details.ts';
@@ -44,12 +44,12 @@
 	import type {
 		AuthorFieldErrors,
 		AuthorFormState,
-		CardIndexData,
-		EraCode,
 		LocationDetails,
 		ValueDetails,
 		ValueSubject
 	} from '../types.ts';
+	import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
+	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import ImageField from './ImageField.svelte';
 	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';

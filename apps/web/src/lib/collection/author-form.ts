@@ -1,7 +1,7 @@
 import { m } from '#lib/i18n/index.ts';
 import { parseYear } from './artwork-form.ts';
 import { yearError } from './artwork-record.ts';
-import { signedYear } from './format.ts';
+import { signedYear } from '#lib/catalogue/years/years.ts';
 import type { AuthorDetails, AuthorFieldErrors, AuthorFormState } from './types.ts';
 
 export function emptyAuthorDetails(): AuthorDetails {
