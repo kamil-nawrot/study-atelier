@@ -160,21 +160,23 @@
 					type="file"
 				/>
 			</div>
-			<TextField
-				autocomplete="given-name"
-				error={nameError}
-				label={m.settings.profile.name}
-				maxlength={DISPLAY_NAME_MAX_LENGTH * 2}
-				bind:value={name}
-			/>
-			<TextField
-				disabled
-				hint={m.settings.profile.emailHint}
-				label={m.settings.profile.email}
-				readonly
-				type="email"
-				value={email}
-			/>
+			<div class="inputs">
+				<TextField
+					autocomplete="given-name"
+					error={nameError}
+					label={m.settings.profile.name}
+					maxlength={DISPLAY_NAME_MAX_LENGTH * 2}
+					bind:value={name}
+				/>
+				<TextField
+					disabled
+					hint={m.settings.profile.emailHint}
+					label={m.settings.profile.email}
+					readonly
+					type="email"
+					value={email}
+				/>
+			</div>
 		</div>
 		<FormActions bind:height={barHeight}>
 			<Button disabled={busy} onclick={cancel}>
@@ -208,6 +210,23 @@
 		width: 100%;
 		min-width: 0;
 		max-width: var(--size-content-default);
+	}
+
+	.inputs {
+		display: grid;
+		align-content: start;
+		gap: var(--spacing-6);
+		min-width: 0;
+	}
+
+	@media (min-width: 768px) {
+		.fields {
+			grid-template-columns: max-content minmax(0, var(--size-content-narrow));
+			justify-content: start;
+			column-gap: var(--spacing-12);
+			max-width: none;
+			width: auto;
+		}
 	}
 
 	.photo {
