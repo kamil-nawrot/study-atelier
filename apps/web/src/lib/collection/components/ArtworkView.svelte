@@ -35,8 +35,8 @@
 		artworkLargeSource,
 		isTooLargeForLoupe
 	} from '../artwork-image.ts';
-	import { artworkTypeIcon } from '../artwork-types.ts';
-	import { eraIcon } from '../eras.ts';
+	import { artworkTypeIcon } from '#lib/catalogue/artwork-types/artwork-types.ts';
+	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
 	import { formatDate, formatRecordNumber, signedYear } from '../format.ts';
 	import { artworkPanelOpen, rememberArtworkPanel } from '../artwork-panel.ts';
 	import { FLIP_DIRECTIONS, swipe } from '../flip.ts';

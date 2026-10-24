@@ -25,7 +25,7 @@
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
 	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
-	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import FilterPanel from '#lib/collection/components/FilterPanel.svelte';
 	import FilterSidePanel from '#lib/collection/components/FilterSidePanel.svelte';
 	import FilterTags from '#lib/collection/components/FilterTags.svelte';

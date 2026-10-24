@@ -7,7 +7,7 @@
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
 	import { EMAIL_CHANGED_PARAM } from '#lib/auth/account.ts';
-	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import { m } from '#lib/i18n/index.ts';
 	import DataTab from '#lib/export/components/DataTab.svelte';
 	import AccountTab from '#lib/profile/components/AccountTab.svelte';

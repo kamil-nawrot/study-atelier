@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Icon } from '@study-atelier/ui';
-	import { eraIcon, eraTitle } from '#lib/collection/eras.ts';
+	import { eraIcon, eraTitle } from '#lib/catalogue/eras/eras.ts';
 	import type { EraCode } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { stripLayout, stripPosition } from '../strip.ts';

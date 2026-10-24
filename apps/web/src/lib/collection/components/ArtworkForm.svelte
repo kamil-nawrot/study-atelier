@@ -24,11 +24,14 @@
 		formHasChanges
 	} from '../artwork-form.ts';
 	import { saveArtwork, validateArtwork } from '../artwork-record.ts';
-	import { artworkTypeTiles, isArtworkTypeCode } from '../artwork-types.ts';
+	import {
+		artworkTypeTiles,
+		isArtworkTypeCode
+	} from '#lib/catalogue/artwork-types/artwork-types.ts';
 	import { takesOneValue, VALUE_NAME_MAX_LENGTH } from '../category-values.ts';
 	import { DuplicateCheck } from '../duplicate-check.svelte.ts';
 	import { sameTitleAndAuthors } from '../duplicates.ts';
-	import { eraTiles, isEraCode } from '../eras.ts';
+	import { eraTiles, isEraCode } from '#lib/catalogue/eras/eras.ts';
 	import { formatRecordNumber } from '../format.ts';
 	import { OWN_TEXT_MAX_LENGTH } from '../own-fields.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';

@@ -1,4 +1,4 @@
-import { ERA_CODES } from '#lib/collection/eras.ts';
+import { ERA_CODES } from '#lib/catalogue/eras/eras.ts';
 import type { EraCode, WallArtwork } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import {

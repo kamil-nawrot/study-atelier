@@ -3,9 +3,9 @@ import BookA from '@lucide/svelte/icons/book-a';
 import Images from '@lucide/svelte/icons/images';
 import Layers from '@lucide/svelte/icons/layers';
 import ListTree from '@lucide/svelte/icons/list-tree';
-import { ARTWORK_TYPE_CODES, artworkTypeIcon } from '#lib/collection/artwork-types.ts';
-import { ERA_CODES, eraIcon } from '#lib/collection/eras.ts';
-import { placeTiles } from '#lib/collection/place-types.ts';
+import { ARTWORK_TYPE_CODES, artworkTypeIcon } from '#lib/catalogue/artwork-types/artwork-types.ts';
+import { ERA_CODES, eraIcon } from '#lib/catalogue/eras/eras.ts';
+import { placeTiles } from '#lib/catalogue/place-types/place-types.ts';
 import { m } from '#lib/i18n/index.ts';
 import {
 	GLOSSARY_CATEGORIES,

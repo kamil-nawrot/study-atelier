@@ -1,5 +1,5 @@
 import { m } from '#lib/i18n/index.ts';
-import { ERA_CODES, eraName, isEraCode } from './eras.ts';
+import { ERA_CODES, eraName, isEraCode } from '#lib/catalogue/eras/eras.ts';
 import { byYear, groupByAuthor } from './periods.ts';
 import type { PeriodGroup, WallArtwork, WallGrouping, WallOrder, WallSection } from './types.ts';
 

@@ -4,7 +4,7 @@
 	import { Alert, Button, Dialog, Icon, Tag } from '@study-atelier/ui';
 	import { invalidate } from '$app/navigation';
 	import { resolveImages } from '#lib/collection/artworks.ts';
-	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import type { WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import Flashcard from '#lib/review/components/Flashcard.svelte';

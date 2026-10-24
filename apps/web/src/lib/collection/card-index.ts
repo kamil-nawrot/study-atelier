@@ -1,5 +1,5 @@
 import { compareSortKeys } from './author-sort.ts';
-import { ERA_CODES } from './eras.ts';
+import { ERA_CODES } from '#lib/catalogue/eras/eras.ts';
 import { valueKey } from './value-suggestions.ts';
 import type {
 	CardIndexData,

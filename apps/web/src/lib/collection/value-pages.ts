@@ -2,7 +2,7 @@ import { resolve } from '$app/paths';
 import type { ResolvedPathname } from '$app/types';
 import { m } from '#lib/i18n/index.ts';
 import { erasOfPeriod, findRecord, periodsOfStyle } from './card-index.ts';
-import { isEraCode } from './eras.ts';
+import { isEraCode } from '#lib/catalogue/eras/eras.ts';
 import type {
 	CardIndexData,
 	CardIndexRecord,

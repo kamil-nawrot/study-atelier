@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { Switch, ToggleTiles, type ChoiceTile } from '@study-atelier/ui';
-	import { artworkTypeTiles } from '#lib/collection/artwork-types.ts';
+	import { artworkTypeTiles } from '#lib/catalogue/artwork-types/artwork-types.ts';
 	import FavouriteToggle from '#lib/collection/components/FavouriteToggle.svelte';
 	import FilterValues from '#lib/collection/components/FilterValues.svelte';
-	import { eraName } from '#lib/collection/eras.ts';
+	import { eraName } from '#lib/catalogue/eras/eras.ts';
 	import { UNKNOWN_AUTHOR, optionLabel } from '#lib/collection/filter.ts';
 	import type { ArtworkTypeCode, EraCode, WallArtwork } from '#lib/collection/types.ts';
 	import { m } from '#lib/i18n/index.ts';

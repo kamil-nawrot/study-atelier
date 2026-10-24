@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
 import { LOADING_SCREEN_SLOT } from '#lib/startup/loading-screen.ts';
-import { THEME_SLOT, themeScript } from '#lib/theme/theme.svelte.ts';
+import { THEME_SLOT, themeScript } from '#lib/shell/theme/theme.svelte.ts';
 import { handle } from './hooks.server.ts';
 
 type HandleInput = Parameters<typeof handle>[0];

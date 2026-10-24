@@ -8,8 +8,8 @@
 		ToggleTiles
 	} from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
-	import { artworkTypeTiles } from '../artwork-types.ts';
-	import { eraTiles } from '../eras.ts';
+	import { artworkTypeTiles } from '#lib/catalogue/artwork-types/artwork-types.ts';
+	import { eraTiles } from '#lib/catalogue/eras/eras.ts';
 	import {
 		UNKNOWN_AUTHOR,
 		favouriteCount,

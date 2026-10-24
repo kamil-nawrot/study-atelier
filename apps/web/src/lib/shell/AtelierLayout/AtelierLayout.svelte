@@ -11,9 +11,9 @@
 	import { signOut } from '#lib/auth/account.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { nameCurrentPlace } from '#lib/shared/navigation/back/back.svelte.ts';
-	import { railExpanded, setRailExpanded } from '#lib/navigation/rail.svelte.ts';
+	import { railExpanded, setRailExpanded } from '#lib/shell/rail/rail.svelte.ts';
 	import FeedbackDialog from '#lib/feedback/components/FeedbackDialog.svelte';
-	import AtelierMenu from './AtelierMenu.svelte';
+	import AtelierMenu from '#lib/shell/AtelierMenu/AtelierMenu.svelte';
 
 	type Props = {
 		title: string;

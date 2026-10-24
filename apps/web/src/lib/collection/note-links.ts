@@ -1,6 +1,6 @@
 import type { NoteLinkOption, NoteLinks, NoteLinkTrigger } from '@study-atelier/ui';
 import { resolve } from '$app/paths';
-import { ERA_CODES } from './eras.ts';
+import { ERA_CODES } from '#lib/catalogue/eras/eras.ts';
 import { formatRecordNumber } from './format.ts';
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import type { CardIndexData, ValueSubject } from './types.ts';

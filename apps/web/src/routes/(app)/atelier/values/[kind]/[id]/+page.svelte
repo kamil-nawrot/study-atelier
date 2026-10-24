@@ -9,7 +9,7 @@
 	import { deleteValue } from '#lib/collection/card-index-data.ts';
 	import { canDelete } from '#lib/collection/card-index.ts';
 	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
-	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import ValueView from '#lib/collection/components/ValueView.svelte';
 	import {
 		artworksOfValue,
@@ -20,7 +20,7 @@
 		valueParents
 	} from '#lib/collection/value-pages.ts';
 	import { WallImages } from '#lib/collection/wall-images.svelte.ts';
-	import BackLink from '#lib/navigation/components/BackLink.svelte';
+	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
 	import { m } from '#lib/i18n/index.ts';
 	import type { PageProps } from './$types';
 

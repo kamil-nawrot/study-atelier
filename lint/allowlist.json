@@ -30,9 +30,9 @@
 	],
 	"style": [
 		"apps/web/src/lib/collection/components/ArtworkView.svelte",
-		"apps/web/src/lib/collection/components/AtelierLayout.svelte",
 		"apps/web/src/lib/review/components/Quiz.svelte",
 		"apps/web/src/lib/review/components/ReviewStart.svelte",
+		"apps/web/src/lib/shell/AtelierLayout/AtelierLayout.svelte",
 		"apps/web/src/lib/timeline/components/TimelineStage.svelte",
 		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte",
 		"packages/ui/src/lib/components/Primer/Primer.svelte"
@@ -76,8 +76,6 @@
 		"apps/web/src/lib/images",
 		"apps/web/src/lib/images/components",
 		"apps/web/src/lib/import",
-		"apps/web/src/lib/navigation",
-		"apps/web/src/lib/navigation/components",
 		"apps/web/src/lib/pins",
 		"apps/web/src/lib/pins/components",
 		"apps/web/src/lib/profile",

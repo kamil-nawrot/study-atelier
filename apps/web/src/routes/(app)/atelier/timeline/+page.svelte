@@ -7,7 +7,7 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
+	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import FilterSidePanel from '#lib/collection/components/FilterSidePanel.svelte';
 	import { m } from '#lib/i18n/index.ts';
 	import TimelineFilterPanel from '#lib/timeline/components/TimelineFilterPanel.svelte';

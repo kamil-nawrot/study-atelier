@@ -3,7 +3,7 @@
 	import { MediaQuery } from 'svelte/reactivity';
 	import { innerWidth } from 'svelte/reactivity/window';
 	import { resolve } from '$app/paths';
-	import { eraIcon, eraName } from '../eras.ts';
+	import { eraIcon, eraName } from '#lib/catalogue/eras/eras.ts';
 	import {
 		columnCount,
 		distribute,
