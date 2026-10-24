@@ -4,18 +4,18 @@ import { render } from 'vitest-browser-svelte';
 import { beforeNavigate } from '$app/navigation';
 import { m } from '#lib/i18n/index.ts';
 import { TEST_EMAIL } from '#lib/testing/auth.ts';
-import { cropAvatar } from '../avatar.ts';
-import { saveProfile } from '../profile-data.ts';
-import type { Profile } from '../types.ts';
+import { cropAvatar } from '#lib/profile/avatar.ts';
+import { saveProfile } from '#lib/profile/profile-data.ts';
+import type { Profile } from '#lib/profile/types.ts';
 import ProfileTab from './ProfileTab.svelte';
 
 vi.mock('$app/navigation', () => ({ beforeNavigate: vi.fn(), goto: vi.fn() }));
-vi.mock('../profile-data.ts', () => ({ saveProfile: vi.fn() }));
+vi.mock('#lib/profile/profile-data.ts', () => ({ saveProfile: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
-vi.mock('../avatar.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('../avatar.ts')>()),
+vi.mock('#lib/profile/avatar.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/profile/avatar.ts')>()),
 	avatarUrl: vi.fn().mockResolvedValue(undefined),
 	cropAvatar: vi.fn()
 }));

@@ -2,15 +2,15 @@ import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { testEntry } from '#lib/testing/glossary.ts';
-import { createPin, deletePin, updatePin } from '../pin-data.ts';
-import type { Pin } from '../types.ts';
+import { createPin, deletePin, updatePin } from '#lib/pins/pin-data.ts';
+import type { Pin } from '#lib/pins/types.ts';
 import PinDialog from './PinDialog.svelte';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
-vi.mock('../pin-data.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('../pin-data.ts')>()),
+vi.mock('#lib/pins/pin-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/pins/pin-data.ts')>()),
 	createPin: vi.fn(),
 	updatePin: vi.fn(),
 	deletePin: vi.fn()

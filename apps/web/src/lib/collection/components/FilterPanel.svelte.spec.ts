@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { emptyFilter } from '../filter.ts';
+import { emptyFilter } from '#lib/collection/filter.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
-import type { OwnFieldDefinition } from '../types.ts';
+import type { OwnFieldDefinition } from '#lib/collection/types.ts';
 import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
 import FilterPanelHost from '#lib/testing/FilterPanelHost.svelte';
 import '@study-atelier/ui/styles.css';

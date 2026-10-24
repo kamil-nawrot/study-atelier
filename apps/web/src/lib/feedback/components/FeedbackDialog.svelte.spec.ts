@@ -3,10 +3,10 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import '@study-atelier/ui/styles.css';
 import { m } from '#lib/i18n/index.ts';
-import { sendFeedback } from '../feedback-data.ts';
+import { sendFeedback } from '#lib/feedback/feedback-data.ts';
 import FeedbackDialog from './FeedbackDialog.svelte';
 
-vi.mock('../feedback-data.ts', () => ({ sendFeedback: vi.fn() }));
+vi.mock('#lib/feedback/feedback-data.ts', () => ({ sendFeedback: vi.fn() }));
 
 const send = vi.mocked(sendFeedback);
 

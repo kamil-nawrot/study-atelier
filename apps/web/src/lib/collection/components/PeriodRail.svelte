@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { Icon } from '@study-atelier/ui';
 	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
-	import { MIN_LABELLED_ROW, railLayout, railRow } from '../period-rail.ts';
-	import type { CurrentPeriod, PeriodGroup } from '../types.ts';
+	import { MIN_LABELLED_ROW, railLayout, railRow } from '#lib/collection/period-rail.ts';
+	import type { CurrentPeriod, PeriodGroup } from '#lib/collection/types.ts';
 
 	type Props = {
 		groups: PeriodGroup[];

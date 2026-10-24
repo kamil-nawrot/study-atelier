@@ -4,9 +4,9 @@
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import type { Fraction } from '../pin-layout.ts';
-	import { createPin, deletePin, pinDraftError, updatePin } from '../pin-data.ts';
-	import { MAX_PIN_TEXT, type Pin } from '../types.ts';
+	import type { Fraction } from '#lib/pins/pin-layout.ts';
+	import { createPin, deletePin, pinDraftError, updatePin } from '#lib/pins/pin-data.ts';
+	import { MAX_PIN_TEXT, type Pin } from '#lib/pins/types.ts';
 	import PinView from './PinView.svelte';
 
 	type Props = {

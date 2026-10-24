@@ -3,7 +3,7 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/index.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
-import type { Quiz as QuizData, QuizMode, ReviewItem, ReviewPin } from '../types.ts';
+import type { Quiz as QuizData, QuizMode, ReviewItem, ReviewPin } from '#lib/review/types.ts';
 import Quiz from './Quiz.svelte';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: {} }));

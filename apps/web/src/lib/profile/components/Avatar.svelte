@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { avatarUrl } from '../avatar.ts';
+	import { avatarUrl } from '#lib/profile/avatar.ts';
 
 	type Props = {
 		initial: string;

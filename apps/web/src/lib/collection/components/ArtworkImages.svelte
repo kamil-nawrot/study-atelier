@@ -7,16 +7,16 @@
 	import { m } from '#lib/i18n/index.ts';
 	import { findImageCandidates } from '#lib/images/image-search.ts';
 	import type { ImageCandidate, ImageSearchQuery } from '#lib/images/types.ts';
-	import { imageFromCandidate, MAX_ARTWORK_IMAGES } from '../artwork-form.ts';
+	import { imageFromCandidate, MAX_ARTWORK_IMAGES } from '#lib/collection/artwork-form.ts';
 	import {
 		AUTO_MATCH_DELAY_MS,
 		isCandidateImage,
 		matchKey,
 		matchLabel,
 		matchPool
-	} from '../auto-match.ts';
-	import { artworkImageSource } from '../artwork-image.ts';
-	import type { ImageFieldTexts } from '../types.ts';
+	} from '#lib/collection/auto-match.ts';
+	import { artworkImageSource } from '#lib/collection/artwork-image.ts';
+	import type { ImageFieldTexts } from '#lib/collection/types.ts';
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 	import ImageField from './ImageField.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';

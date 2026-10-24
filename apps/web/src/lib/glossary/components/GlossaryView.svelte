@@ -3,9 +3,9 @@
 	import MentionedIn from '#lib/collection/components/MentionedIn.svelte';
 	import type { Mention } from '#lib/collection/mentions.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import { glossaryCategoryIcon, glossaryCategoryName } from '../categories.ts';
-	import type { GlossaryEntry } from '../types.ts';
-	import { WIKIPEDIA_LICENCE_URL } from '../wikipedia.ts';
+	import { glossaryCategoryIcon, glossaryCategoryName } from '#lib/glossary/categories.ts';
+	import type { GlossaryEntry } from '#lib/glossary/types.ts';
+	import { WIKIPEDIA_LICENCE_URL } from '#lib/glossary/wikipedia.ts';
 	import GlossaryNotes from './GlossaryNotes.svelte';
 
 	type Props = {

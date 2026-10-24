@@ -5,7 +5,7 @@
 	import type { ResolvedPathname } from '$app/types';
 	import { arrivedFromApp, goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import type { GlossaryFormResult } from '../types.ts';
+	import type { GlossaryFormResult } from '#lib/glossary/types.ts';
 	import GlossaryForm from './GlossaryForm.svelte';
 
 	type Props = {

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { Button, Dialog } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
-	import type { DuplicateCheck } from '../duplicate-check.svelte.ts';
-	import { formatRecordNumbers } from '../duplicates.ts';
+	import type { DuplicateCheck } from '#lib/collection/duplicate-check.svelte.ts';
+	import { formatRecordNumbers } from '#lib/collection/duplicates.ts';
 
 	type Props = {
 		check: DuplicateCheck;

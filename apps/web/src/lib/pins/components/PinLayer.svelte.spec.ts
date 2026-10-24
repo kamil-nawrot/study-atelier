@@ -3,15 +3,15 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/index.ts';
 import { testEntry } from '#lib/testing/glossary.ts';
-import { createPin, movePin } from '../pin-data.ts';
-import type { Pin } from '../types.ts';
+import { createPin, movePin } from '#lib/pins/pin-data.ts';
+import type { Pin } from '#lib/pins/types.ts';
 import PinLayer from './PinLayer.svelte';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
-vi.mock('../pin-data.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('../pin-data.ts')>()),
+vi.mock('#lib/pins/pin-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/pins/pin-data.ts')>()),
 	createPin: vi.fn(),
 	movePin: vi.fn()
 }));

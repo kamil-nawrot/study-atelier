@@ -24,8 +24,8 @@
 		toggleOwnValue,
 		toggleTicked,
 		toggleValue
-	} from '../filter.ts';
-	import type { OwnFieldDefinition } from '../types.ts';
+	} from '#lib/collection/filter.ts';
+	import type { OwnFieldDefinition } from '#lib/collection/types.ts';
 	import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
 	import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { Alert, Button, Dialog, Form, TextField } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
-	import { VALUE_NAME_MAX_LENGTH } from '../category-values.ts';
-	import { changeOwnValue, planOwnValueChange } from '../own-fields.ts';
-	import type { OwnField, OwnValue } from '../types.ts';
+	import { VALUE_NAME_MAX_LENGTH } from '#lib/collection/category-values.ts';
+	import { changeOwnValue, planOwnValueChange } from '#lib/collection/own-fields.ts';
+	import type { OwnField, OwnValue } from '#lib/collection/types.ts';
 
 	type Props = {
 		open?: boolean;

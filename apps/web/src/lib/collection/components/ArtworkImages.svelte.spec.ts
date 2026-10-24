@@ -4,8 +4,8 @@ import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/index.ts';
 import { findImageCandidates } from '#lib/images/image-search.ts';
 import { autoFetch } from '#lib/profile/auto-fetch.svelte.ts';
-import { AUTO_MATCH_DELAY_MS } from '../auto-match.ts';
-import type { ImageFieldTexts } from '../types.ts';
+import { AUTO_MATCH_DELAY_MS } from '#lib/collection/auto-match.ts';
+import type { ImageFieldTexts } from '#lib/collection/types.ts';
 import ArtworkImages from './ArtworkImages.svelte';
 
 vi.mock('#lib/images/image-search.ts', () => ({ findImageCandidates: vi.fn() }));

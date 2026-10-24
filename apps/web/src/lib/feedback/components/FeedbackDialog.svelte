@@ -12,15 +12,15 @@
 		type ChoiceTile
 	} from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
-	import { sendFeedback } from '../feedback-data.ts';
+	import { sendFeedback } from '#lib/feedback/feedback-data.ts';
 	import {
 		FEEDBACK_DESCRIPTION_MAX,
 		FEEDBACK_TITLE_MAX,
 		emptyFeedback,
 		hasFeedbackErrors,
 		validateFeedback
-	} from '../feedback.ts';
-	import type { FeedbackDraft, FeedbackErrors, FeedbackKind } from '../types.ts';
+	} from '#lib/feedback/feedback.ts';
+	import type { FeedbackDraft, FeedbackErrors, FeedbackKind } from '#lib/feedback/types.ts';
 
 	type Props = {
 		open?: boolean;

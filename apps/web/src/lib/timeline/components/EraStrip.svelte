@@ -3,8 +3,8 @@
 	import { eraIcon, eraTitle } from '#lib/catalogue/eras/eras.ts';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import { stripLayout, stripPosition } from '../strip.ts';
-	import { viewStart, type Era, type View } from '../time.ts';
+	import { stripLayout, stripPosition } from '#lib/timeline/strip.ts';
+	import { viewStart, type Era, type View } from '#lib/timeline/time.ts';
 
 	type Props = {
 		eras: readonly Era[];

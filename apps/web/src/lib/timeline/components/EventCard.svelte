@@ -7,8 +7,8 @@
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { WIKIPEDIA_LICENCE_URL } from '#lib/glossary/wikipedia.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import { yearsLong } from '../event-lanes.ts';
-	import type { TimelineEvent } from '../types.ts';
+	import { yearsLong } from '#lib/timeline/event-lanes.ts';
+	import type { TimelineEvent } from '#lib/timeline/types.ts';
 
 	type Props = {
 		event: TimelineEvent;

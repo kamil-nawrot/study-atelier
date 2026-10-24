@@ -27,8 +27,8 @@
 		glossaryCategoryName,
 		glossaryCategoryTiles,
 		isGlossaryCategory
-	} from '../categories.ts';
-	import { saveGlossaryEntry } from '../glossary-data.ts';
+	} from '#lib/glossary/categories.ts';
+	import { saveGlossaryEntry } from '#lib/glossary/glossary-data.ts';
 	import {
 		authorNamed,
 		cappedForms,
@@ -40,10 +40,10 @@
 		findNameConflict,
 		NAME_MAX_LENGTH,
 		SYNONYMS_MAX_COUNT
-	} from '../glossary.ts';
-	import type { GlossaryDraft, GlossaryEntry, WikipediaArticle } from '../types.ts';
-	import { searchArticles, sourceOf } from '../wikipedia.ts';
-	import { fetchForms, suggestsForms } from '../wiktionary.ts';
+	} from '#lib/glossary/glossary.ts';
+	import type { GlossaryDraft, GlossaryEntry, WikipediaArticle } from '#lib/glossary/types.ts';
+	import { searchArticles, sourceOf } from '#lib/glossary/wikipedia.ts';
+	import { fetchForms, suggestsForms } from '#lib/glossary/wiktionary.ts';
 	import ArticleDialog from './ArticleDialog.svelte';
 	import InflectionField, { type FormsOffer, type FormsStatus } from './InflectionField.svelte';
 

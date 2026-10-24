@@ -28,28 +28,33 @@
 	import PinMarkers from '#lib/pins/components/PinMarkers.svelte';
 	import { pinsOfImage } from '#lib/pins/pin-layout.ts';
 	import type { Pin as PinRecord } from '#lib/pins/types.ts';
-	import { LOUPE_MIN_RATIO } from '../loupe.ts';
+	import { LOUPE_MIN_RATIO } from '#lib/collection/loupe.ts';
 	import {
 		artworkImageCredit,
 		artworkImageSource,
 		artworkLargeSource,
 		isTooLargeForLoupe
-	} from '../artwork-image.ts';
+	} from '#lib/collection/artwork-image.ts';
 	import { artworkTypeIcon } from '#lib/catalogue/artwork-types/artwork-types.ts';
 	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import { formatDate, signedYear } from '#lib/catalogue/years/years.ts';
-	import { artworkPanelOpen, rememberArtworkPanel } from '../artwork-panel.ts';
-	import { FLIP_DIRECTIONS, swipe } from '../flip.ts';
-	import type { Mention } from '../mentions.ts';
-	import type { ArtworkRecord, FlipDirection, OwnFieldDefinition, ValueKind } from '../types.ts';
-	import { valueKindName } from '../value-pages.ts';
+	import { artworkPanelOpen, rememberArtworkPanel } from '#lib/collection/artwork-panel.ts';
+	import { FLIP_DIRECTIONS, swipe } from '#lib/collection/flip.ts';
+	import type { Mention } from '#lib/collection/mentions.ts';
+	import type {
+		ArtworkRecord,
+		FlipDirection,
+		OwnFieldDefinition,
+		ValueKind
+	} from '#lib/collection/types.ts';
+	import { valueKindName } from '#lib/collection/value-pages.ts';
 	import {
 		emptyValueSummaries,
 		summaryKey,
 		type ValueSummaries,
 		type ValueSummary
-	} from '../value-summaries.ts';
+	} from '#lib/collection/value-summaries.ts';
 	import ImageViewer from './ImageViewer.svelte';
 	import Loupe from './Loupe.svelte';
 	import MentionedIn from './MentionedIn.svelte';

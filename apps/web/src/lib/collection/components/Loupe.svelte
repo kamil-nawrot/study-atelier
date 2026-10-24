@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { LOUPE_MIN_LEVEL, LOUPE_SIZE, LOUPE_START_LEVEL, loupeViewWidth } from '../loupe.ts';
+	import {
+		LOUPE_MIN_LEVEL,
+		LOUPE_SIZE,
+		LOUPE_START_LEVEL,
+		loupeViewWidth
+	} from '#lib/collection/loupe.ts';
 	import LoupeLens from './LoupeLens.svelte';
 
 	type Props = {

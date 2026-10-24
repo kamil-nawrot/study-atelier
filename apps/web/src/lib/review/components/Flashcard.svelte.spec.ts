@@ -4,7 +4,7 @@ import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/index.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { testGlossary } from '#lib/testing/glossary.ts';
-import type { ReviewItem } from '../types.ts';
+import type { ReviewItem } from '#lib/review/types.ts';
 import Flashcard from './Flashcard.svelte';
 
 const item: ReviewItem = {

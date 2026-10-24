@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { SearchField } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
-	import { CARD_INDEX_SEARCH_MIN_VALUES } from '../card-index.ts';
+	import { CARD_INDEX_SEARCH_MIN_VALUES } from '#lib/collection/card-index.ts';
 	import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 	import type { ResolvedPathname } from '$app/types';
 

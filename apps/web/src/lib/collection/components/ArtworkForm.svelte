@@ -22,21 +22,21 @@
 		canSearchImage,
 		emptyArtworkForm,
 		formHasChanges
-	} from '../artwork-form.ts';
-	import { saveArtwork, validateArtwork } from '../artwork-record.ts';
+	} from '#lib/collection/artwork-form.ts';
+	import { saveArtwork, validateArtwork } from '#lib/collection/artwork-record.ts';
 	import {
 		artworkTypeTiles,
 		isArtworkTypeCode
 	} from '#lib/catalogue/artwork-types/artwork-types.ts';
-	import { takesOneValue, VALUE_NAME_MAX_LENGTH } from '../category-values.ts';
-	import { DuplicateCheck } from '../duplicate-check.svelte.ts';
-	import { sameTitleAndAuthors } from '../duplicates.ts';
+	import { takesOneValue, VALUE_NAME_MAX_LENGTH } from '#lib/collection/category-values.ts';
+	import { DuplicateCheck } from '#lib/collection/duplicate-check.svelte.ts';
+	import { sameTitleAndAuthors } from '#lib/collection/duplicates.ts';
 	import { eraTiles, isEraCode } from '#lib/catalogue/eras/eras.ts';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
-	import { OWN_TEXT_MAX_LENGTH } from '../own-fields.ts';
+	import { OWN_TEXT_MAX_LENGTH } from '#lib/collection/own-fields.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
-	import { suggestValues, valueKey } from '../value-suggestions.ts';
+	import { suggestValues, valueKey } from '#lib/collection/value-suggestions.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import ArtworkImages from './ArtworkImages.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
@@ -55,7 +55,7 @@
 		PlaceStarter,
 		ValueLinks,
 		ValueSuggestion
-	} from '../types.ts';
+	} from '#lib/collection/types.ts';
 	import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 

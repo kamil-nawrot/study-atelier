@@ -11,9 +11,9 @@
 		sameScope,
 		type ScopeChoice,
 		scopeKey
-	} from '../overview.ts';
-	import { MIN_ARTWORKS } from '../queue.ts';
-	import type { ReviewForm } from '../types.ts';
+	} from '#lib/review/overview.ts';
+	import { MIN_ARTWORKS } from '#lib/review/queue.ts';
+	import type { ReviewForm } from '#lib/review/types.ts';
 
 	type Props = {
 		known: number;
