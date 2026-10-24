@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { Alert, Tabs, Toast } from '@study-atelier/ui';
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -33,7 +34,7 @@
 
 	onMount(() => {
 		if (!page.url.searchParams.has(EMAIL_CHANGED_PARAM)) return;
-		const params = new URLSearchParams(page.url.searchParams.toString());
+		const params = new SvelteURLSearchParams(page.url.searchParams.toString());
 		params.delete(EMAIL_CHANGED_PARAM);
 		void goto(`${settingsPath}?${params}` as ResolvedPathname, {
 			replace: true,
