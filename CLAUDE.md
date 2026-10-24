@@ -19,6 +19,7 @@ Key rules in short:
 - A pushed branch is never rebased or force-pushed; a conflict with `develop` is resolved by merging `develop` into the branch.
 - Commit messages follow Conventional Commits.
 - No comments in code unless the owner explicitly asks for them.
+- `apps/web/src/lib` is organised in feature modules over `shared` and `catalogue`, with size limits per file and only `*-data.ts` files calling Supabase ([ADR-0126](docs/decisions/0126-organise-the-web-app-in-feature-modules-with-enforced-limits.md)).
 - Everything in this repository (code, comments, docs) is written in English. Conversation with the owner is in Polish.
 - Track work in the Linear project "study-atelier" (team "Study Atelier", key `ATL`) and reference the issue key in branch names and PRs.
 - In a cloud session the start hook has already prepared the environment (dependencies, Supabase variables, Chromium for Vitest), and screenshots come from `pnpm screenshot` (see [docs/guidelines/cloud-sessions.md](docs/guidelines/cloud-sessions.md)). Do not set this up by hand or write your own screenshot script; extend the existing one when it lacks something.

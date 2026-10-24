@@ -129,3 +129,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0123](0123-switch-the-automatic-fetching-from-external-sources.md)          | Switch the automatic fetching from external sources                                      | accepted           |
 | [0124](0124-ask-before-removing-an-image-that-holds-pins.md)                 | Ask before removing an image that holds pins                                             | accepted           |
 | [0125](0125-send-the-auth-emails-through-gmail-smtp.md)                      | Send the auth emails through Gmail SMTP                                                  | accepted           |
+| [0126](0126-organise-the-web-app-in-feature-modules-with-enforced-limits.md) | Organise the web app in feature modules with enforced limits                             | accepted           |
