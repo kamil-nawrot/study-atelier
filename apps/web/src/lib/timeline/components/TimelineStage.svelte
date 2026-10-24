@@ -2,16 +2,16 @@
 	import type { Snippet } from 'svelte';
 	import { SvelteMap } from 'svelte/reactivity';
 	import { m } from '#lib/i18n/index.ts';
-	import { axisKind, lineTimes, segments, tickYears } from '../axis.ts';
-	import { segmentLabel } from '../labels.ts';
+	import { axisKind, lineTimes, segments, tickYears } from '#lib/timeline/axis.ts';
+	import { segmentLabel } from '#lib/timeline/labels.ts';
 	import {
 		boxStyle,
 		stageGeometry,
 		stageSize,
 		type Orientation,
 		type StageGeometry
-	} from '../stage.ts';
-	import { timeOf, yearAt, type Era, type TimeSpan, type View } from '../time.ts';
+	} from '#lib/timeline/stage.ts';
+	import { timeOf, yearAt, type Era, type TimeSpan, type View } from '#lib/timeline/time.ts';
 
 	type Props = {
 		era: Era;

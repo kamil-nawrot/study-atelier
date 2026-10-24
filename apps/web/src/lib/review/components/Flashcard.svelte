@@ -4,10 +4,10 @@
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import { onControl, sessionKey } from '../keys.ts';
-	import { authorsOf } from '../overview.ts';
-	import { RATINGS } from '../scheduler.ts';
-	import type { ReviewDetails, ReviewItem, ReviewRating } from '../types.ts';
+	import { onControl, sessionKey } from '#lib/review/keys.ts';
+	import { authorsOf } from '#lib/review/overview.ts';
+	import { RATINGS } from '#lib/review/scheduler.ts';
+	import type { ReviewDetails, ReviewItem, ReviewRating } from '#lib/review/types.ts';
 	import ReviewCard from './ReviewCard.svelte';
 
 	type Props = {

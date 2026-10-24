@@ -2,15 +2,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/index.ts';
-import { downloadBlob } from '../download.ts';
+import { downloadBlob } from '#lib/export/download.ts';
 import { importArchive } from '#lib/import/import-atelier.ts';
-import { exportAtelier } from '../export-atelier.ts';
+import { exportAtelier } from '#lib/export/export-atelier.ts';
 import DataTab from './DataTab.svelte';
 import '@study-atelier/ui/styles.css';
 
-vi.mock('../export-atelier.ts', () => ({ exportAtelier: vi.fn() }));
+vi.mock('#lib/export/export-atelier.ts', () => ({ exportAtelier: vi.fn() }));
 vi.mock('#lib/import/import-atelier.ts', () => ({ importArchive: vi.fn() }));
-vi.mock('../download.ts', () => ({ downloadBlob: vi.fn() }));
+vi.mock('#lib/export/download.ts', () => ({ downloadBlob: vi.fn() }));
 
 beforeEach(() => vi.clearAllMocks());
 

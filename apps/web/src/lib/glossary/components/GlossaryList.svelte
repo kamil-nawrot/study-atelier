@@ -6,15 +6,15 @@
 		glossaryCategoryIcon,
 		glossaryCategoryName,
 		GLOSSARY_CATEGORIES
-	} from '../categories.ts';
+	} from '#lib/glossary/categories.ts';
 	import {
 		countByCategory,
 		filterEntries,
 		GLOSSARY_SEARCH_MIN_ENTRIES,
 		groupByLetter,
 		leadSentences
-	} from '../glossary.ts';
-	import type { GlossaryCategory, GlossaryEntry } from '../types.ts';
+	} from '#lib/glossary/glossary.ts';
+	import type { GlossaryCategory, GlossaryEntry } from '#lib/glossary/types.ts';
 
 	type Props = {
 		entries: GlossaryEntry[];

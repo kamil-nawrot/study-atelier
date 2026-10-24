@@ -8,7 +8,7 @@
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { OWN_IMAGE_ACCEPT } from '#lib/images/bucket.ts';
-	import { cropAvatar } from '../avatar.ts';
+	import { cropAvatar } from '#lib/profile/avatar.ts';
 	import {
 		avatarInitial,
 		DISPLAY_NAME_MAX_LENGTH,
@@ -16,9 +16,9 @@
 		profileDraftOf,
 		showsAvatar,
 		validateDisplayName
-	} from '../profile.ts';
-	import { saveProfile } from '../profile-data.ts';
-	import type { AvatarChange, Profile, ProfileDraft } from '../types.ts';
+	} from '#lib/profile/profile.ts';
+	import { saveProfile } from '#lib/profile/profile-data.ts';
+	import type { AvatarChange, Profile, ProfileDraft } from '#lib/profile/types.ts';
 	import Avatar from './Avatar.svelte';
 
 	type Props = {

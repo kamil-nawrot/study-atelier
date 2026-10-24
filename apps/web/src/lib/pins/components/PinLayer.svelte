@@ -2,9 +2,9 @@
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import { movePin } from '../pin-data.ts';
-	import { fractionIn, pinsOfImage, type Fraction } from '../pin-layout.ts';
-	import { MAX_PINS_PER_IMAGE, type Pin } from '../types.ts';
+	import { movePin } from '#lib/pins/pin-data.ts';
+	import { fractionIn, pinsOfImage, type Fraction } from '#lib/pins/pin-layout.ts';
+	import { MAX_PINS_PER_IMAGE, type Pin } from '#lib/pins/types.ts';
 	import PinDialog from './PinDialog.svelte';
 	import PinMarkers from './PinMarkers.svelte';
 

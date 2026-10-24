@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { m } from '#lib/i18n/index.ts';
-	import type { Mention } from '../mentions.ts';
+	import type { Mention } from '#lib/collection/mentions.ts';
 
 	type Props = {
 		mentions: Mention[];

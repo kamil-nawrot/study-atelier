@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { formatDate } from '#lib/catalogue/years/years.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import { layEvents, type LaidEvent } from '../event-lanes.ts';
-	import { cutLabel } from '../labels.ts';
-	import { boxStyle, type StageGeometry } from '../stage.ts';
-	import type { Era } from '../time.ts';
-	import type { TimelineEvent } from '../types.ts';
+	import { layEvents, type LaidEvent } from '#lib/timeline/event-lanes.ts';
+	import { cutLabel } from '#lib/timeline/labels.ts';
+	import { boxStyle, type StageGeometry } from '#lib/timeline/stage.ts';
+	import type { Era } from '#lib/timeline/time.ts';
+	import type { TimelineEvent } from '#lib/timeline/types.ts';
 
 	type Props = {
 		events: readonly TimelineEvent[];

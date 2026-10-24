@@ -17,12 +17,17 @@
 		panView,
 		stepView,
 		type StepKey
-	} from '../scale.ts';
-	import { EVENT_LANES, EVENT_LANES_NARROW, eventsIn, lanesForEra } from '../event-lanes.ts';
-	import { NARROW_WIDTH, orientationFor, verticalLength } from '../stage.ts';
-	import { deleteTimelineEvent } from '../timeline-data.ts';
-	import type { ArtworkLane, TimelineEvent, TimelineFilter } from '../types.ts';
-	import { eraOfYear, rememberEra } from '../start.ts';
+	} from '#lib/timeline/scale.ts';
+	import {
+		EVENT_LANES,
+		EVENT_LANES_NARROW,
+		eventsIn,
+		lanesForEra
+	} from '#lib/timeline/event-lanes.ts';
+	import { NARROW_WIDTH, orientationFor, verticalLength } from '#lib/timeline/stage.ts';
+	import { deleteTimelineEvent } from '#lib/timeline/timeline-data.ts';
+	import type { ArtworkLane, TimelineEvent, TimelineFilter } from '#lib/timeline/types.ts';
+	import { eraOfYear, rememberEra } from '#lib/timeline/start.ts';
 	import {
 		distanceToSpan,
 		entriesSpan,
@@ -34,7 +39,7 @@
 		type Era,
 		type TimeSpan,
 		type View
-	} from '../time.ts';
+	} from '#lib/timeline/time.ts';
 	import FilterTags from '#lib/collection/components/FilterTags.svelte';
 	import {
 		applyTimelineFilter,
@@ -48,8 +53,8 @@
 		removeTimelineTag,
 		tagLane,
 		timelineTags
-	} from '../filter.ts';
-	import { labelWidth as measureLabel } from '../label-width.ts';
+	} from '#lib/timeline/filter.ts';
+	import { labelWidth as measureLabel } from '#lib/timeline/label-width.ts';
 	import EraStrip from './EraStrip.svelte';
 	import EventCard from './EventCard.svelte';
 	import TimelineEvents from './TimelineEvents.svelte';

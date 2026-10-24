@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { formatYearRange } from '#lib/catalogue/years/years.ts';
-	import { MAX_STRIP_MARKS } from '../period-rail.ts';
-	import type { CurrentPeriod, PeriodGroup } from '../types.ts';
+	import { MAX_STRIP_MARKS } from '#lib/collection/period-rail.ts';
+	import type { CurrentPeriod, PeriodGroup } from '#lib/collection/types.ts';
 
 	type Props = {
 		groups: PeriodGroup[];

@@ -3,11 +3,11 @@ import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { m } from '#lib/i18n/index.ts';
-import { distribute, WALL_PART } from '../masonry.ts';
+import { distribute, WALL_PART } from '#lib/collection/masonry.ts';
 import ArtworkWall from './ArtworkWall.svelte';
 
-vi.mock('../masonry.ts', async (importOriginal) => {
-	const original = await importOriginal<typeof import('../masonry.ts')>();
+vi.mock('#lib/collection/masonry.ts', async (importOriginal) => {
+	const original = await importOriginal<typeof import('#lib/collection/masonry.ts')>();
 	return { ...original, distribute: vi.fn(original.distribute) };
 });
 

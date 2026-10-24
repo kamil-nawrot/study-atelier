@@ -19,8 +19,8 @@
 		createOwnField,
 		fieldNameError,
 		updateOwnField
-	} from '../own-fields.ts';
-	import type { OwnField, OwnFieldInput, OwnFieldKind } from '../types.ts';
+	} from '#lib/collection/own-fields.ts';
+	import type { OwnField, OwnFieldInput, OwnFieldKind } from '#lib/collection/types.ts';
 
 	type Props = {
 		open?: boolean;

@@ -17,7 +17,7 @@
 	} from '@study-atelier/ui';
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
-	import { loadValuePageContent, saveValue } from '../card-index-data.ts';
+	import { loadValuePageContent, saveValue } from '#lib/collection/card-index-data.ts';
 	import {
 		erasOfPeriod,
 		findRecord,
@@ -26,28 +26,28 @@
 		planEraMove,
 		planNameChange,
 		valuesOf
-	} from '../card-index.ts';
+	} from '#lib/collection/card-index.ts';
 	import {
 		authorDetailsFromForm,
 		authorFormFromDetails,
 		emptyAuthorDetails,
 		validateAuthorForm
-	} from '../author-form.ts';
-	import { VALUE_NAME_MAX_LENGTH } from '../category-values.ts';
-	import { countryOptions } from '../countries.ts';
+	} from '#lib/collection/author-form.ts';
+	import { VALUE_NAME_MAX_LENGTH } from '#lib/collection/category-values.ts';
+	import { countryOptions } from '#lib/collection/countries.ts';
 	import { ERA_CODES, eraName } from '#lib/catalogue/eras/eras.ts';
 	import { isPlaceType, placeTiles } from '#lib/catalogue/place-types/place-types.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
-	import { saveValueDetails, valueDetailsChanged } from '../value-details.ts';
-	import { SUMMARY_MAX_LENGTH, subjectPath, valuePath } from '../value-pages.ts';
+	import { saveValueDetails, valueDetailsChanged } from '#lib/collection/value-details.ts';
+	import { SUMMARY_MAX_LENGTH, subjectPath, valuePath } from '#lib/collection/value-pages.ts';
 	import type {
 		AuthorFieldErrors,
 		AuthorFormState,
 		LocationDetails,
 		ValueDetails,
 		ValueSubject
-	} from '../types.ts';
+	} from '#lib/collection/types.ts';
 	import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';

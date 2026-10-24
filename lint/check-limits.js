@@ -70,6 +70,38 @@ function checkSvelteBlocks(files) {
 	}
 }
 
+function isRoutePage(file) {
+	return /\/src\/routes\/(.*\/)?\+(page|layout)\.svelte$/.test(file);
+}
+
+function checkRouteScripts(files) {
+	const allowed = new Set(existing('route-script'));
+	for (const file of files.filter(isRoutePage)) {
+		const lines = blockLines(read(file), 'script');
+		if (lines > limits.routeScript && !allowed.has(file)) {
+			problems.push(
+				`${file}: the page script has ${lines} lines, more than ${limits.routeScript}; move its logic into a view component of its module`
+			);
+		}
+		if (lines <= limits.routeScript && allowed.has(file)) {
+			stale('route-script', file, `its script has ${lines} lines, within ${limits.routeScript}`);
+		}
+	}
+}
+
+function markup(source) {
+	return source.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/g, '');
+}
+
+function checkMarkupComments(files) {
+	for (const file of files.filter((candidate) => candidate.endsWith('.svelte'))) {
+		for (const comment of markup(read(file)).matchAll(/<!--([\s\S]*?)-->/g)) {
+			if (/^\s*(svelte-ignore|prettier-ignore)\b/.test(comment[1])) continue;
+			problems.push(`${file}: no comments in markup, only svelte-ignore directives`);
+		}
+	}
+}
+
 function checkListedLines() {
 	for (const file of existing('lines')) {
 		const lines = countLines(read(file));
@@ -79,18 +111,17 @@ function checkListedLines() {
 	}
 }
 
-async function checkListedComplexity() {
-	const files = existing('complexity');
+async function checkListedRule(kind, ruleId, setting, reason) {
+	const files = existing(kind);
 	if (files.length === 0) return;
 	const eslint = new ESLint({
 		cwd: packageDirectory,
-		overrideConfig: { rules: { complexity: ['error', limits.complexity] } }
+		overrideConfig: { rules: { [ruleId]: setting } }
 	});
 	const results = await eslint.lintFiles(files.map(absolute));
 	for (const result of results) {
-		if (!result.messages.some((message) => message.ruleId === 'complexity')) {
-			const file = toPosix(path.relative(repositoryRoot, result.filePath));
-			stale('complexity', file, `no function is more complex than ${limits.complexity}`);
+		if (!result.messages.some((message) => message.ruleId === ruleId)) {
+			stale(kind, toPosix(path.relative(repositoryRoot, result.filePath)), reason);
 		}
 	}
 }
@@ -162,13 +193,26 @@ function checkLayout(files) {
 
 const files = listFiles(`${packagePrefix}src`);
 checkSvelteBlocks(files);
+checkRouteScripts(files);
+checkMarkupComments(files);
 checkListedLines();
 checkListedSupabase();
 if (layoutRoot) checkLayout(files);
-await checkListedComplexity();
+await checkListedRule(
+	'complexity',
+	'complexity',
+	['error', limits.complexity],
+	`no function is more complex than ${limits.complexity}`
+);
+await checkListedRule(
+	'storage',
+	'no-restricted-globals',
+	['error', 'localStorage', 'sessionStorage'],
+	'it no longer uses localStorage or sessionStorage directly'
+);
 
 if (problems.length > 0) {
 	console.error(problems.join('\n'));
-	console.error(`\n${problems.length} size or layout problems`);
+	console.error(`\n${problems.length} size, layout or comment problems`);
 	process.exitCode = 1;
 }

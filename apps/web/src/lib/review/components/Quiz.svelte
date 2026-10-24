@@ -14,10 +14,16 @@
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import PinMark from '#lib/pins/components/PinMark.svelte';
-	import { onControl, sessionKey } from '../keys.ts';
-	import { authorsOf } from '../overview.ts';
-	import { QUIZ_TILE_SIZES } from '../quiz.ts';
-	import type { Quiz, QuizOption, QuizReason, ReviewDetails, ReviewItem } from '../types.ts';
+	import { onControl, sessionKey } from '#lib/review/keys.ts';
+	import { authorsOf } from '#lib/review/overview.ts';
+	import { QUIZ_TILE_SIZES } from '#lib/review/quiz.ts';
+	import type {
+		Quiz,
+		QuizOption,
+		QuizReason,
+		ReviewDetails,
+		ReviewItem
+	} from '#lib/review/types.ts';
 	import ReviewCard from './ReviewCard.svelte';
 
 	type Props = {

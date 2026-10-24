@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { Alert, Button, FilePicker } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
-	import { downloadBlob } from '../download.ts';
-	import { exportAtelier } from '../export-atelier.ts';
+	import { downloadBlob } from '#lib/export/download.ts';
+	import { exportAtelier } from '#lib/export/export-atelier.ts';
 	import { importArchive, type ImportProgress } from '#lib/import/import-atelier.ts';
-	import type { ExportProgress } from '../format.ts';
+	import type { ExportProgress } from '#lib/export/format.ts';
 
 	type Props = {
 		atelierEmpty?: boolean;

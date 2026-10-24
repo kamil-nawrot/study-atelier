@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { filterTags, emptyFilter, tagLabel, tagParts } from '../filter.ts';
+import { filterTags, emptyFilter, tagLabel, tagParts } from '#lib/collection/filter.ts';
 import { m } from '#lib/i18n/index.ts';
 import FilterTags from './FilterTags.svelte';
 import '@study-atelier/ui/styles.css';

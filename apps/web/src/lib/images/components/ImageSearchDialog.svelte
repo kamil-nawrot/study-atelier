@@ -3,8 +3,8 @@
 	import { tick, untrack } from 'svelte';
 	import { Alert, ArtworkImage, Button, Dialog, Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
-	import { findImageCandidates } from '../image-search.ts';
-	import type { ImageCandidate, ImageSearchQuery, ImageSearchResult } from '../types.ts';
+	import { findImageCandidates } from '#lib/images/image-search.ts';
+	import type { ImageCandidate, ImageSearchQuery, ImageSearchResult } from '#lib/images/types.ts';
 
 	type Props = {
 		query: ImageSearchQuery;

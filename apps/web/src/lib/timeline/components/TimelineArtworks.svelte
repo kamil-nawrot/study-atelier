@@ -6,11 +6,11 @@
 	import { eraIcon, eraName } from '#lib/catalogue/eras/eras.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import type { ArtworkLane } from '../types.ts';
-	import { cutLabel } from '../labels.ts';
-	import { DOT_SIZE, marksIn, spread, type Mark } from '../placement.ts';
-	import { boxStyle, type StageGeometry } from '../stage.ts';
-	import type { Era } from '../time.ts';
+	import type { ArtworkLane } from '#lib/timeline/types.ts';
+	import { cutLabel } from '#lib/timeline/labels.ts';
+	import { DOT_SIZE, marksIn, spread, type Mark } from '#lib/timeline/placement.ts';
+	import { boxStyle, type StageGeometry } from '#lib/timeline/stage.ts';
+	import type { Era } from '#lib/timeline/time.ts';
 
 	type Props = {
 		artworks: readonly WallArtwork[];

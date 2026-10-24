@@ -11,7 +11,7 @@
 		WALL_MARGIN,
 		WALL_PART,
 		WIDE_MIN_WIDTH
-	} from '../masonry.ts';
+	} from '#lib/collection/masonry.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 

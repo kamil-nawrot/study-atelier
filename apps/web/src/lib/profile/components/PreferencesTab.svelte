@@ -12,9 +12,9 @@
 		REVIEW_FORMS,
 		SESSION_SIZES,
 		toggledKind
-	} from '../preferences.ts';
-	import { savePreferences } from '../preferences-data.ts';
-	import type { Preferences, PreferencesPart } from '../types.ts';
+	} from '#lib/profile/preferences.ts';
+	import { savePreferences } from '#lib/profile/preferences-data.ts';
+	import type { Preferences, PreferencesPart } from '#lib/profile/types.ts';
 
 	type Props = {
 		part: PreferencesPart;

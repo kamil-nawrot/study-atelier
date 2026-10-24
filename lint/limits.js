@@ -9,7 +9,8 @@ export const limits = {
 	test: 800,
 	script: 200,
 	style: 150,
-	complexity: 15
+	complexity: 15,
+	routeScript: 80
 };
 
 export const exemptFromLines = ['**/database.types.ts', '**/i18n/pl.ts', '**/countries.ts'];

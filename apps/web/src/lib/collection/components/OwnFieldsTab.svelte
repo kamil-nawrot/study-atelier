@@ -12,11 +12,11 @@
 		TextButton
 	} from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
-	import { deleteOwnField, moveOwnField } from '../own-fields.ts';
+	import { deleteOwnField, moveOwnField } from '#lib/collection/own-fields.ts';
 	import CardIndexList from './CardIndexList.svelte';
 	import OwnFieldDialog from './OwnFieldDialog.svelte';
 	import OwnValueDialog from './OwnValueDialog.svelte';
-	import type { OwnField, OwnValue } from '../types.ts';
+	import type { OwnField, OwnValue } from '#lib/collection/types.ts';
 
 	type Props = {
 		fields: OwnField[];

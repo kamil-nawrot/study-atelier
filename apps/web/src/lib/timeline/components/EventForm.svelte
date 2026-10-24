@@ -35,10 +35,10 @@
 		withoutDates,
 		type EventFormErrors,
 		type EventFormState
-	} from '../event-form.ts';
-	import { saveTimelineEvent } from '../timeline-data.ts';
-	import type { EventArticle, TimelineEvent, TimelineEventDraft } from '../types.ts';
-	import { searchEvents } from '../wikipedia.ts';
+	} from '#lib/timeline/event-form.ts';
+	import { saveTimelineEvent } from '#lib/timeline/timeline-data.ts';
+	import type { EventArticle, TimelineEvent, TimelineEventDraft } from '#lib/timeline/types.ts';
+	import { searchEvents } from '#lib/timeline/wikipedia.ts';
 
 	type SearchStatus = 'idle' | 'searching' | 'found' | 'none' | 'failed';
 

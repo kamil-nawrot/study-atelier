@@ -3,8 +3,8 @@
 	import { Icon } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/index.ts';
-	import { glossaryCategoryIcon, glossaryCategoryName } from '../categories.ts';
-	import type { GlossaryEntry } from '../types.ts';
+	import { glossaryCategoryIcon, glossaryCategoryName } from '#lib/glossary/categories.ts';
+	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 
 	type Props = {
 		entry: GlossaryEntry;

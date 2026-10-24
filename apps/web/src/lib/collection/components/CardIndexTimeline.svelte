@@ -2,8 +2,12 @@
 	import { Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/index.ts';
 	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
-	import { valuePath } from '../value-pages.ts';
-	import type { CardIndexEntry, CardIndexPeriod, CardIndexTimeline } from '../types.ts';
+	import { valuePath } from '#lib/collection/value-pages.ts';
+	import type {
+		CardIndexEntry,
+		CardIndexPeriod,
+		CardIndexTimeline
+	} from '#lib/collection/types.ts';
 
 	type Props = {
 		timeline: CardIndexTimeline;

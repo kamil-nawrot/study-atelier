@@ -20,8 +20,8 @@
 		toggleLane,
 		toggleTimelineFavourites,
 		valueOptions
-	} from '../filter.ts';
-	import type { LaneField, TimelineFilter } from '../types.ts';
+	} from '#lib/timeline/filter.ts';
+	import type { LaneField, TimelineFilter } from '#lib/timeline/types.ts';
 
 	type Props = {
 		artworks: readonly WallArtwork[];

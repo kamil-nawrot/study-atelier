@@ -3,14 +3,19 @@
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types.ts';
 	import { m } from '#lib/i18n/index.ts';
-	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
-	import { countryName } from '../countries.ts';
+	import { artworkImageCredit, artworkImageSource } from '#lib/collection/artwork-image.ts';
+	import { countryName } from '#lib/collection/countries.ts';
 	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
 	import { placeTypeName } from '#lib/catalogue/place-types/place-types.ts';
 	import { formatLifeYears } from '#lib/catalogue/years/years.ts';
-	import { subjectName, valueKindName, valuePath, type ValueParent } from '../value-pages.ts';
-	import type { Mention } from '../mentions.ts';
-	import type { ValueDetails, ValueSubject } from '../types.ts';
+	import {
+		subjectName,
+		valueKindName,
+		valuePath,
+		type ValueParent
+	} from '#lib/collection/value-pages.ts';
+	import type { Mention } from '#lib/collection/mentions.ts';
+	import type { ValueDetails, ValueSubject } from '#lib/collection/types.ts';
 	import MentionedIn from './MentionedIn.svelte';
 
 	type Props = {

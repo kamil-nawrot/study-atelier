@@ -36,9 +36,9 @@
 		readImageSize
 	} from '#lib/images/own-image.ts';
 	import type { ImageCandidate, ImageSearchQuery } from '#lib/images/types.ts';
-	import { imageFromCandidate } from '../artwork-form.ts';
-	import { artworkImageCredit, artworkImageSource } from '../artwork-image.ts';
-	import type { ImageFieldTexts } from '../types.ts';
+	import { imageFromCandidate } from '#lib/collection/artwork-form.ts';
+	import { artworkImageCredit, artworkImageSource } from '#lib/collection/artwork-image.ts';
+	import type { ImageFieldTexts } from '#lib/collection/types.ts';
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 
 	type Props = {
