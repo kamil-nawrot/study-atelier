@@ -1,5 +1,6 @@
 import type { ArtworkTypeCode, WallArtwork } from '#lib/collection/types.ts';
-import type { WikipediaArticle, WikipediaSource } from '#lib/glossary/types.ts';
+import type { WikipediaArticle } from '#lib/glossary/types.ts';
+import type { WikipediaSource } from '#lib/shared/types/wikipedia-source.ts';
 
 export type LaneField = 'periods' | 'styles';
 

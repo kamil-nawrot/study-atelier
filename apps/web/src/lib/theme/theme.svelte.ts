@@ -1,3 +1,5 @@
+import { readStored, writeStored } from '#lib/shared/utils/storage/storage.ts';
+
 export type Theme = 'dark' | 'light';
 
 export const DEFAULT_THEME: Theme = 'dark';
@@ -12,21 +14,12 @@ export function isTheme(value: unknown): value is Theme {
 }
 
 export function rememberedTheme(): Theme {
-	try {
-		const stored = localStorage.getItem(THEME_KEY);
-		return isTheme(stored) ? stored : DEFAULT_THEME;
-	} catch {
-		return DEFAULT_THEME;
-	}
+	const stored = readStored('local', THEME_KEY);
+	return isTheme(stored) ? stored : DEFAULT_THEME;
 }
 
 function rememberTheme(theme: Theme): void {
-	try {
-		if (theme === DEFAULT_THEME) localStorage.removeItem(THEME_KEY);
-		else localStorage.setItem(THEME_KEY, theme);
-	} catch {
-		return;
-	}
+	writeStored('local', THEME_KEY, theme === DEFAULT_THEME ? null : theme);
 }
 
 function shownTheme(): Theme {

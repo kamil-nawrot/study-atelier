@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 
 export type TestMentionRow = {
 	kind: string;

@@ -1,5 +1,6 @@
 import { OWN_IMAGE_EXTENSIONS, ownThumbnailPath, type OwnImageType } from '#lib/images/bucket.ts';
 import type { AtelierData, ExportRow } from '#lib/export/format.ts';
+import { UUID_PATTERN } from '#lib/shared/utils/ids/ids.ts';
 
 export const IMPORT_TABLES = [
 	'artworks',
@@ -23,7 +24,7 @@ export const IMPORT_TABLES = [
 	'review_log'
 ] as const;
 
-const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g;
+const UUID = new RegExp(UUID_PATTERN, 'g');
 const IMAGE_PATH_TABLES = ['artworks', 'artwork_images', 'author_details'];
 
 export type Upload = { path: string; bytes: Uint8Array; contentType: string };

@@ -12,7 +12,7 @@
 		forgetRestoredBackPlace,
 		recordArrival,
 		setBackPlace
-	} from '#lib/navigation/back.svelte.ts';
+	} from '#lib/shared/navigation/back/back.svelte.ts';
 	import { hideLoadingScreen } from '#lib/startup/loading-screen.ts';
 	import type { LayoutProps } from './$types';
 

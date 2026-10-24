@@ -2,8 +2,8 @@
 	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 	import { Icon } from '@study-atelier/ui';
 	import type { ResolvedPathname } from '$app/types';
-	import { goBackThroughHistory } from '#lib/collection/history.ts';
-	import { currentBackPlace } from '../back.svelte.ts';
+	import { goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
+	import { currentBackPlace } from '#lib/shared/navigation/back/back.svelte.ts';
 
 	type Props = {
 		fallbackName: string;

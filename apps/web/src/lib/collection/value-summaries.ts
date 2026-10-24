@@ -1,4 +1,4 @@
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { countryName, isCountryCode } from './countries.ts';
 import { formatLifeYears } from './format.ts';
 import type { CategoryCode, EraCode } from './types.ts';

@@ -9,7 +9,7 @@ import type { GlossaryEntry, PinnedArtwork } from '#lib/glossary/types.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import { testEntry, testGlossary } from '#lib/testing/glossary.ts';
-import { setBackPlace } from '#lib/navigation/back.svelte.ts';
+import { setBackPlace } from '#lib/shared/navigation/back/back.svelte.ts';
 import GlossaryEntryPage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -21,7 +21,9 @@ const navigation = vi.hoisted(() => ({
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
 vi.mock('$app/navigation', () => ({ afterNavigate: vi.fn(), goto: vi.fn() }));
 vi.mock('#lib/glossary/glossary-data.ts', () => ({ deleteGlossaryEntry: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const tympanum = testGlossary()[0];
 

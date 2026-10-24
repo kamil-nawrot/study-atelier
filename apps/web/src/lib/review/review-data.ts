@@ -1,6 +1,5 @@
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { artworkImageCredit } from '#lib/collection/artwork-image.ts';
-import { fetchAll } from '#lib/collection/card-index-data.ts';
 import { collectionErrorMessage } from '#lib/collection/errors.ts';
 import {
 	IMAGE_COLUMNS,
@@ -9,7 +8,8 @@ import {
 	withPreview
 } from '#lib/collection/image-record.ts';
 import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
+import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import type { ReviewScope } from './overview.ts';
 import { MIN_ARTWORKS, newAllowance } from './queue.ts';
 import type {

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { loadValueSummaries, summaryKey } from './value-summaries.ts';
 
-vi.mock('#lib/supabase.ts', () => ({ supabase: { from: vi.fn() } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: { from: vi.fn() } }));
 
 function respond(values: unknown, eras: unknown, error: unknown = null): void {
 	vi.mocked(supabase.from).mockImplementation(((table: string) => {

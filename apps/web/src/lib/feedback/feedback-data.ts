@@ -1,5 +1,5 @@
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { feedbackErrorMessage } from './errors.ts';
 import type { FeedbackDraft } from './types.ts';
 

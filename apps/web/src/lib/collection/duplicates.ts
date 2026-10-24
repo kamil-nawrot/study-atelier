@@ -1,5 +1,5 @@
 import { locale } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { formatRecordNumber } from './format.ts';
 import type { ArtworkInput } from './types.ts';
 import { valueKey } from './value-suggestions.ts';

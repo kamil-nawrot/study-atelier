@@ -12,7 +12,7 @@ import type {
 } from '#lib/collection/types.ts';
 import { m } from '#lib/i18n/index.ts';
 import { IMAGES_BUCKET } from '#lib/images/bucket.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import EditArtworkPage from './+page.svelte';
 
@@ -23,7 +23,7 @@ vi.mock('$app/navigation', () => ({
 }));
 const artworks = vi.hoisted(() => ({ select: vi.fn(), is: vi.fn() }));
 
-vi.mock('#lib/supabase.ts', () => ({
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: {
 		auth: { getSession: vi.fn(), signOut: vi.fn() },
 		from: vi.fn(() => artworks),

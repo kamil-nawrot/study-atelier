@@ -1,3 +1,4 @@
+import { readStoredJson, writeStored } from '#lib/shared/utils/storage/storage.ts';
 import type { Neighbours, WallSequence } from './types.ts';
 
 const SEQUENCE_KEY = 'study-atelier:wall-sequence';
@@ -13,22 +14,12 @@ function isWallSequence(value: unknown): value is WallSequence {
 }
 
 export function rememberWallSequence(sequence: WallSequence): void {
-	try {
-		sessionStorage.setItem(SEQUENCE_KEY, JSON.stringify(sequence));
-	} catch {
-		return;
-	}
+	writeStored('session', SEQUENCE_KEY, JSON.stringify(sequence));
 }
 
 export function rememberedWallSequence(): WallSequence | undefined {
-	try {
-		const stored = sessionStorage.getItem(SEQUENCE_KEY);
-		if (stored === null) return undefined;
-		const parsed: unknown = JSON.parse(stored);
-		return isWallSequence(parsed) ? parsed : undefined;
-	} catch {
-		return undefined;
-	}
+	const stored = readStoredJson('session', SEQUENCE_KEY);
+	return isWallSequence(stored) ? stored : undefined;
 }
 
 export function neighboursIn(

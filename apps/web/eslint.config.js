@@ -5,7 +5,7 @@ import { allowlisted } from '../../lint/limits.js';
 
 export default defineConfig(
 	includeIgnoreFile(path.resolve(import.meta.dirname, '.gitignore')),
-	{ ignores: ['worker-configuration.d.ts', 'src/lib/database.types.ts'] },
+	{ ignores: ['worker-configuration.d.ts', 'src/lib/shared/data/database.types.ts'] },
 	base,
 	{
 		files: ['**/*.ts', '**/*.svelte'],

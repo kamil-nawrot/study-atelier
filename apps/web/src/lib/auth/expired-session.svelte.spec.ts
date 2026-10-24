@@ -3,7 +3,7 @@ import { m } from '#lib/i18n/index.ts';
 
 const { signOut } = vi.hoisted(() => ({ signOut: vi.fn() }));
 
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: { auth: { signOut } } }));
 
 import { failureMessage, isAuthorizationError, sessionEnded } from './expired-session.svelte.ts';
 

@@ -2,7 +2,7 @@ import { ARTWORK_TYPE_CODES } from './artwork-types.ts';
 import { authorSortKeys, sortKeyOf } from './author-sort.ts';
 import { ERA_CODES, eraName, isEraCode } from './eras.ts';
 import { m } from '#lib/i18n/index.ts';
-import { normalizeForSearch } from './search.ts';
+import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import type {
 	ArtworkTypeCode,
 	CollectionFilter,

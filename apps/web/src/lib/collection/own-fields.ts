@@ -1,6 +1,6 @@
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { compareSortKeys } from './author-sort.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from './errors.ts';
 import { valueKey } from './value-suggestions.ts';

@@ -1,5 +1,6 @@
 import { ERA_CODES, isEraCode } from '#lib/collection/eras.ts';
 import type { EraCode } from '#lib/collection/types.ts';
+import { readStored, writeStored } from '#lib/shared/utils/storage/storage.ts';
 import { entriesSpan, eras, timeOf } from './time.ts';
 
 const ERA_KEY = 'study-atelier:timeline-era';
@@ -9,20 +10,12 @@ type Dated = {
 };
 
 export function rememberedEra(): EraCode | null {
-	try {
-		const stored = localStorage.getItem(ERA_KEY);
-		return isEraCode(stored) ? stored : null;
-	} catch {
-		return null;
-	}
+	const stored = readStored('local', ERA_KEY);
+	return isEraCode(stored) ? stored : null;
 }
 
 export function rememberEra(code: EraCode): void {
-	try {
-		localStorage.setItem(ERA_KEY, code);
-	} catch {
-		return;
-	}
+	writeStored('local', ERA_KEY, code);
 }
 
 export function busiestEra(artworks: readonly Dated[]): EraCode {

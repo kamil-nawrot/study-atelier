@@ -1,7 +1,12 @@
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
-import { fetchAll } from '#lib/collection/card-index-data.ts';
-import { supabase } from '#lib/supabase.ts';
-import type { Database } from '#lib/database.types.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
+import type { Database } from '#lib/shared/data/database.types.ts';
+import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
+import {
+	sourceColumns,
+	sourceFromRow
+} from '#lib/shared/data/wikipedia-source/wikipedia-source.ts';
+import { isUuid } from '#lib/shared/utils/ids/ids.ts';
 import { isGlossaryCategory } from './categories.ts';
 import { glossaryErrorMessage, isNameTakenError } from './errors.ts';
 import { cleanForms, sortNameOf } from './glossary.ts';
@@ -9,8 +14,6 @@ import type { GlossaryDraft, GlossaryEntry, GlossaryEntryResult, GlossaryResult 
 
 type Row = Database['public']['Tables']['glossary_entries']['Row'];
 type Write = Database['public']['Tables']['glossary_entries']['Insert'];
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export type GlossarySaveResult = {
 	id?: string;
@@ -32,15 +35,7 @@ function entryOf(row: Row): GlossaryEntry | undefined {
 		synonyms: row.synonyms,
 		forms: row.forms,
 		sortName: row.sort_name,
-		source:
-			row.source_title && row.source_url && row.source_licence && row.source_fetched_on
-				? {
-						title: row.source_title,
-						url: row.source_url,
-						licence: row.source_licence,
-						fetchedOn: row.source_fetched_on
-					}
-				: null
+		source: sourceFromRow(row)
 	};
 }
 
@@ -54,10 +49,7 @@ function writeOf(draft: GlossaryDraft): Write | undefined {
 		synonyms: cleanForms(draft.synonyms),
 		forms: cleanForms(draft.forms),
 		sort_name: sortNameOf(draft),
-		source_title: draft.source?.title ?? null,
-		source_url: draft.source?.url ?? null,
-		source_licence: draft.source?.licence ?? null,
-		source_fetched_on: draft.source?.fetchedOn ?? null
+		...sourceColumns(draft.source)
 	};
 }
 
@@ -70,7 +62,7 @@ export async function loadGlossary(): Promise<GlossaryResult> {
 }
 
 export async function loadGlossaryEntry(id: string): Promise<GlossaryEntryResult> {
-	if (!UUID.test(id)) return { notFound: true };
+	if (!isUuid(id)) return { notFound: true };
 	const { data, error } = await supabase
 		.from('glossary_entries')
 		.select('*')

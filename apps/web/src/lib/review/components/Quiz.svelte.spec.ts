@@ -6,7 +6,7 @@ import { testArtwork } from '#lib/testing/artworks.ts';
 import type { Quiz as QuizData, QuizMode, ReviewItem, ReviewPin } from '../types.ts';
 import Quiz from './Quiz.svelte';
 
-vi.mock('#lib/supabase.ts', () => ({ supabase: {} }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: {} }));
 
 const answer = testArtwork(31, 'Girl with a Pearl Earring', {
 	authors: ['Johannes Vermeer'],

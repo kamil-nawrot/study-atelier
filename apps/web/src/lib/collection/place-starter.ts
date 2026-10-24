@@ -1,4 +1,4 @@
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { countryName } from './countries.ts';
 import type { PlaceStarter } from './types.ts';
 import { valueKey } from './value-suggestions.ts';

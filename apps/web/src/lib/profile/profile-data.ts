@@ -1,8 +1,8 @@
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { IMAGES_BUCKET } from '#lib/images/bucket.ts';
 import { removeOwnImage } from '#lib/images/own-image.ts';
-import { supabase } from '#lib/supabase.ts';
-import type { Database } from '#lib/database.types.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
+import type { Database } from '#lib/shared/data/database.types.ts';
 import { avatarPathOf } from './avatar.ts';
 import { profileErrorMessage } from './errors.ts';
 import { emptyProfile, normalizedName } from './profile.ts';

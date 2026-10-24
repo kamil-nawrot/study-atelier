@@ -1,5 +1,5 @@
 import { locale } from '#lib/i18n/index.ts';
-import { normalizeForSearch } from './search.ts';
+import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import type { StarterValue, ValueSuggestion } from './types.ts';
 
 export type SuggestionSource = {

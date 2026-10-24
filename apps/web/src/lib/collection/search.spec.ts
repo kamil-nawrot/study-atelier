@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterByTitleOrAuthor, normalizeForSearch } from './search.ts';
-
-describe('normalizeForSearch', () => {
-	it('ignores case, diacritics and surrounding spaces', () => {
-		expect(normalizeForSearch('  Żółć ŁĄKA ')).toBe('zolc laka');
-	});
-});
+import { filterByTitleOrAuthor } from './search.ts';
 
 describe('filterByTitleOrAuthor', () => {
 	const ermine = { title: 'Lady with an Ermine', authors: ['Anna Painter'] };

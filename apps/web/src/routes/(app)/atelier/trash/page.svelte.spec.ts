@@ -20,7 +20,9 @@ vi.mock('#lib/collection/duplicates.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/collection/duplicates.ts')>()),
 	findDuplicates: vi.fn()
 }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const today = new Date().toISOString();
 

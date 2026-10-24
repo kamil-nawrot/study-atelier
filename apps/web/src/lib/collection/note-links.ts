@@ -2,7 +2,7 @@ import type { NoteLinkOption, NoteLinks, NoteLinkTrigger } from '@study-atelier/
 import { resolve } from '$app/paths';
 import { ERA_CODES } from './eras.ts';
 import { formatRecordNumber } from './format.ts';
-import { normalizeForSearch } from './search.ts';
+import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import type { CardIndexData, ValueSubject } from './types.ts';
 import {
 	findSubject,

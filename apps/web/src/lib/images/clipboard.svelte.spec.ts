@@ -7,7 +7,7 @@ import {
 	type ClipboardContent
 } from './clipboard.ts';
 
-vi.mock('#lib/supabase.ts', () => ({ supabase: {} }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: {} }));
 
 function content(parts: Partial<ClipboardContent>): ClipboardContent {
 	return { images: [], text: '', html: '', ...parts };

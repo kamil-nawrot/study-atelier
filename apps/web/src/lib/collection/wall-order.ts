@@ -1,3 +1,4 @@
+import { readStored, writeStored } from '#lib/shared/utils/storage/storage.ts';
 import type { WallOrder } from './types.ts';
 
 export const DEFAULT_WALL_ORDER: WallOrder = 'recent';
@@ -11,20 +12,11 @@ export function isWallOrder(value: unknown): value is WallOrder {
 }
 
 export function rememberedWallOrder(): WallOrder {
-	try {
-		const stored = localStorage.getItem(ORDER_KEY);
-		if (stored === FORMER_ERA_ORDER) return 'year';
-		return isWallOrder(stored) ? stored : DEFAULT_WALL_ORDER;
-	} catch {
-		return DEFAULT_WALL_ORDER;
-	}
+	const stored = readStored('local', ORDER_KEY);
+	if (stored === FORMER_ERA_ORDER) return 'year';
+	return isWallOrder(stored) ? stored : DEFAULT_WALL_ORDER;
 }
 
 export function rememberWallOrder(order: WallOrder): void {
-	try {
-		if (order === DEFAULT_WALL_ORDER) localStorage.removeItem(ORDER_KEY);
-		else localStorage.setItem(ORDER_KEY, order);
-	} catch {
-		return;
-	}
+	writeStored('local', ORDER_KEY, order === DEFAULT_WALL_ORDER ? null : order);
 }

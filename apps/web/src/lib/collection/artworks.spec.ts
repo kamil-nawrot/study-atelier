@@ -3,7 +3,7 @@ import { IMAGES_BUCKET } from '#lib/images/bucket.ts';
 import { fetchCommonsThumbnails } from '#lib/images/commons.ts';
 import { backfillThumbnails } from '#lib/images/thumbnail-backfill.ts';
 import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { SIGNED_URL_SECONDS } from '#lib/images/bucket.ts';
 import {
 	DEFAULT_IMAGE_SIZE,
@@ -20,7 +20,7 @@ vi.mock('#lib/images/commons.ts', async (importOriginal) => ({
 	fetchCommonsThumbnails: vi.fn()
 }));
 vi.mock('#lib/images/thumbnail-backfill.ts', () => ({ backfillThumbnails: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn(), storage: { from: vi.fn() } }
 }));
 

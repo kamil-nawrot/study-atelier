@@ -1,7 +1,7 @@
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
-import { fetchAll } from '#lib/collection/card-index-data.ts';
 import { IMAGES_BUCKET, ownThumbnailPath } from '#lib/images/bucket.ts';
-import { supabase } from '#lib/supabase.ts';
+import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { m } from '#lib/i18n/index.ts';
 import type { AtelierData, ExportRow } from './format.ts';
 import { EXPORT_TABLES, type ExportTable } from './tables.ts';

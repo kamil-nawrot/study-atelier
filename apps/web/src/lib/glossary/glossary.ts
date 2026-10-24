@@ -1,4 +1,4 @@
-import { normalizeForSearch } from '#lib/collection/search.ts';
+import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import type { CardIndexData, CardIndexRecord } from '#lib/collection/types.ts';
 import type { GlossaryCategory, GlossaryDraft, GlossaryEntry } from './types.ts';
 

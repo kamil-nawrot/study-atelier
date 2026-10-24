@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StorageApiError } from '@supabase/supabase-js';
 import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { testSession } from '#lib/testing/auth.ts';
 import {
 	IMAGES_BUCKET,
@@ -23,7 +23,7 @@ import {
 	uploadOwnImage
 } from './own-image.ts';
 
-vi.mock('#lib/supabase.ts', () => ({
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { getSession: vi.fn() }, storage: { from: vi.fn() } }
 }));
 

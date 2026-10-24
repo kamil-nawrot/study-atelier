@@ -1,8 +1,8 @@
 import { m } from '#lib/i18n/index.ts';
 import { removeOwnImage } from '#lib/images/own-image.ts';
-import type { Json } from '#lib/database.types.ts';
+import type { Json } from '#lib/shared/data/database.types.ts';
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
-import { supabase } from '#lib/supabase.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { ownEntriesOf, valuesOf } from './artwork-values.ts';
 import { signedYear } from './format.ts';
 import { artworkErrorMessage } from './errors.ts';

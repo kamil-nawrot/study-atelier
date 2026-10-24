@@ -27,7 +27,9 @@ vi.mock('#lib/glossary/wiktionary.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/glossary/wiktionary.ts')>()),
 	fetchForms: vi.fn()
 }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const NAWA = testArticle('Nawa', 'Nawa to podłużna część wnętrza kościoła.');
 const TRANSEPT = testArticle('Transept', 'Transept to nawa poprzeczna.');

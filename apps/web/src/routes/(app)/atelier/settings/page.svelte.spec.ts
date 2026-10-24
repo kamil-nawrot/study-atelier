@@ -35,7 +35,9 @@ vi.mock('#lib/profile/avatar.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/profile/avatar.ts')>()),
 	avatarUrl: vi.fn().mockResolvedValue(undefined)
 }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const profile = { displayName: 'Anna', avatarPath: null };
 
