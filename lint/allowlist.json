@@ -14,7 +14,7 @@
 		"apps/web/src/routes/(app)/atelier/new/page.svelte.spec.ts",
 		"apps/web/src/routes/(app)/atelier/page.svelte.spec.ts",
 		"apps/web/src/routes/(app)/atelier/review/+page.svelte",
-		"packages/ui/src/lib/components/NotesEditor.svelte"
+		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte"
 	],
 	"script": [
 		"apps/web/src/lib/collection/components/ArtworkForm.svelte",
@@ -26,7 +26,7 @@
 		"apps/web/src/lib/timeline/components/TimelineView.svelte",
 		"apps/web/src/routes/(app)/atelier/+page.svelte",
 		"apps/web/src/routes/(app)/atelier/review/+page.svelte",
-		"packages/ui/src/lib/components/NotesEditor.svelte"
+		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte"
 	],
 	"style": [
 		"apps/web/src/lib/collection/components/ArtworkView.svelte",
@@ -34,8 +34,8 @@
 		"apps/web/src/lib/review/components/Quiz.svelte",
 		"apps/web/src/lib/review/components/ReviewStart.svelte",
 		"apps/web/src/lib/timeline/components/TimelineStage.svelte",
-		"packages/ui/src/lib/components/NotesEditor.svelte",
-		"packages/ui/src/lib/components/Primer.svelte"
+		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte",
+		"packages/ui/src/lib/components/Primer/Primer.svelte"
 	],
 	"complexity": [
 		"apps/web/src/lib/collection/artworks.ts",
