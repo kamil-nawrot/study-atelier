@@ -1,9 +1,10 @@
 import type { NoteLinkOption, NoteLinks, NoteLinkTrigger } from '@study-atelier/ui';
 import { resolve } from '$app/paths';
 import { ERA_CODES } from '#lib/catalogue/eras/eras.ts';
-import { formatRecordNumber } from './format.ts';
+import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
-import type { CardIndexData, ValueSubject } from './types.ts';
+import type { ValueSubject } from './types.ts';
+import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 import {
 	findSubject,
 	subjectName,

@@ -1,6 +1,6 @@
 import { mentionsTerm } from '@study-atelier/ui';
 import { loadNotesMentions, type Mention } from '#lib/collection/mentions.ts';
-import type { CardIndexData } from '#lib/collection/types.ts';
+import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 import { noteTermsOf } from './note-terms.ts';
 import type { GlossaryEntry } from './types.ts';
 

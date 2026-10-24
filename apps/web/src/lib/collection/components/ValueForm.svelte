@@ -44,12 +44,12 @@
 	import type {
 		AuthorFieldErrors,
 		AuthorFormState,
-		CardIndexData,
-		EraCode,
 		LocationDetails,
 		ValueDetails,
 		ValueSubject
 	} from '../types.ts';
+	import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
+	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import ImageField from './ImageField.svelte';
 	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';

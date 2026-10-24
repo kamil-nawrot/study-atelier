@@ -5,7 +5,10 @@
 	import ArtworkForm from '#lib/collection/components/ArtworkForm.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import { arrivedFromApp, goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
-	import { formatRecordNumber, parseRecordNumber } from '#lib/collection/format.ts';
+	import {
+		formatRecordNumber,
+		parseRecordNumber
+	} from '#lib/catalogue/record-number/record-number.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
 	import type { PageProps } from './$types';

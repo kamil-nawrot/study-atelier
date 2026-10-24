@@ -5,7 +5,6 @@
 		"apps/web/src/lib/collection/components/ImageField.svelte",
 		"apps/web/src/lib/collection/components/ValueForm.svelte",
 		"apps/web/src/lib/collection/filter.ts",
-		"apps/web/src/lib/collection/types.ts",
 		"apps/web/src/lib/glossary/components/GlossaryForm.svelte",
 		"apps/web/src/lib/review/components/Quiz.svelte",
 		"apps/web/src/lib/timeline/components/TimelineStage.svelte",

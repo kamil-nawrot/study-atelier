@@ -2,7 +2,7 @@
 	import { artworkImageSource, artworkLargeSource } from '#lib/collection/artwork-image.ts';
 	import LoupeLens from '#lib/collection/components/LoupeLens.svelte';
 	import { LOUPE_SIZE, loupeLevel } from '#lib/collection/loupe.ts';
-	import type { ArtworkImageInput } from '#lib/collection/types.ts';
+	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 
 	type Props = {
 		image: ArtworkImageInput;

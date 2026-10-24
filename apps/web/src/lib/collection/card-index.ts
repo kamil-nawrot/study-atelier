@@ -2,16 +2,16 @@ import { compareSortKeys } from './author-sort.ts';
 import { ERA_CODES } from '#lib/catalogue/eras/eras.ts';
 import { valueKey } from './value-suggestions.ts';
 import type {
-	CardIndexData,
 	CardIndexEntry,
 	CardIndexPeriod,
-	CardIndexRecord,
 	CardIndexTimeline,
-	CategoryCode,
-	EraCode,
 	EraMove,
 	NameChange
 } from './types.ts';
+import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
+import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
+import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
+import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 
 export const CARD_INDEX_SEARCH_MIN_VALUES = 20;
 

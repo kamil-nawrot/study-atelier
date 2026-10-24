@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { WallArtwork } from '#lib/collection/types.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { offeredForms, quizzesPossible } from './forms.ts';
 
 function artwork(styles: string[]): WallArtwork {

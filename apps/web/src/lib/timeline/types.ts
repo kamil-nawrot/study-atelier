@@ -1,4 +1,5 @@
-import type { ArtworkTypeCode, WallArtwork } from '#lib/collection/types.ts';
+import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { WikipediaArticle } from '#lib/glossary/types.ts';
 import type { WikipediaSource } from '#lib/shared/types/wikipedia-source.ts';
 

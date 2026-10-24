@@ -7,7 +7,7 @@
 	import { countryName } from '../countries.ts';
 	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
 	import { placeTypeName } from '#lib/catalogue/place-types/place-types.ts';
-	import { formatLifeYears } from '../format.ts';
+	import { formatLifeYears } from '#lib/catalogue/years/years.ts';
 	import { subjectName, valueKindName, valuePath, type ValueParent } from '../value-pages.ts';
 	import type { Mention } from '../mentions.ts';
 	import type { ValueDetails, ValueSubject } from '../types.ts';

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { invalidate } from '$app/navigation';
-import type { WallArtwork } from '#lib/collection/types.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { m } from '#lib/i18n/index.ts';
 import { resolveImages } from '#lib/collection/artworks.ts';
 import { loadReviewDetails, loadSession, recordReview } from '#lib/review/review-data.ts';

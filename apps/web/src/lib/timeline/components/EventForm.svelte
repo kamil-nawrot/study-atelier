@@ -12,7 +12,7 @@
 		TextField
 	} from '@study-atelier/ui';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
-	import { formatDate } from '#lib/collection/format.ts';
+	import { formatDate } from '#lib/catalogue/years/years.ts';
 	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
 	import YearInput from '#lib/shared/forms/YearInput/YearInput.svelte';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';

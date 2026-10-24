@@ -9,7 +9,7 @@ import Shapes from '@lucide/svelte/icons/shapes';
 import Stamp from '@lucide/svelte/icons/stamp';
 import type { ChoiceTile } from '@study-atelier/ui';
 import { m } from '#lib/i18n/index.ts';
-import type { ArtworkTypeCode } from '#lib/collection/types.ts';
+import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
 
 export const ARTWORK_TYPE_CODES: readonly ArtworkTypeCode[] = [
 	'architecture',

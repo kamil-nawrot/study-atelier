@@ -1,4 +1,4 @@
-import type { WallArtwork } from '#lib/collection/types.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { REVIEW_FORMS } from '#lib/profile/preferences.ts';
 import type { QuizMode, ReviewForm } from './types.ts';
 

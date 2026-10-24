@@ -3,8 +3,8 @@
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { Button, Icon, TextButton } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
-	import { formatDate } from '#lib/collection/format.ts';
-	import type { WallArtwork } from '#lib/collection/types.ts';
+	import { formatDate } from '#lib/catalogue/years/years.ts';
+	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { WIKIPEDIA_LICENCE_URL } from '#lib/glossary/wikipedia.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { yearsLong } from '../event-lanes.ts';

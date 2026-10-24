@@ -27,7 +27,9 @@ import {
 	toggleTicked,
 	toggleValue
 } from './filter.ts';
-import type { CollectionFilter, OwnFieldDefinition, WallArtwork } from './types.ts';
+import type { OwnFieldDefinition } from './types.ts';
+import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 const artworks: WallArtwork[] = [
 	testArtwork(1, 'Girl with a Pearl Earring', {

@@ -25,13 +25,11 @@
 		toggleTicked,
 		toggleValue
 	} from '../filter.ts';
-	import type {
-		ArtworkTypeCode,
-		CollectionFilter,
-		EraCode,
-		OwnFieldDefinition,
-		WallArtwork
-	} from '../types.ts';
+	import type { OwnFieldDefinition } from '../types.ts';
+	import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
+	import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
+	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import FavouriteToggle from './FavouriteToggle.svelte';
 	import FilterValues from './FilterValues.svelte';
 

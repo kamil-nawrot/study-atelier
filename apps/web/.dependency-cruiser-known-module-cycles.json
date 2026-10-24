@@ -15,33 +15,16 @@
 				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
 			},
 			{
-				"name": "src/lib/collection/types.ts",
-				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
-			}
-		]
-	},
-	{
-		"type": "cycle",
-		"from": "src/lib/collection",
-		"to": "src/lib/profile",
-		"unresolvedTo": "#lib/profile/types.ts",
-		"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"],
-		"rule": {
-			"severity": "error",
-			"name": "no-circular"
-		},
-		"cycle": [
-			{
-				"name": "src/lib/profile/types.ts",
+				"name": "src/lib/collection/mentions.ts",
 				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
 			},
 			{
-				"name": "src/lib/review/types.ts",
-				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
+				"name": "src/lib/collection/card-index-data.ts",
+				"dependencyTypes": ["local", "import"]
 			},
 			{
 				"name": "src/lib/collection/types.ts",
-				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
+				"dependencyTypes": ["local", "type-only", "import"]
 			}
 		]
 	},
@@ -69,44 +52,11 @@
 				"dependencyTypes": ["local", "import"]
 			},
 			{
-				"name": "src/lib/collection/author-sort.ts",
-				"dependencyTypes": ["local", "import"]
-			},
-			{
 				"name": "src/lib/collection/types.ts",
 				"dependencyTypes": ["local", "type-only", "import"]
 			},
 			{
 				"name": "src/lib/glossary/types.ts",
-				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
-			}
-		]
-	},
-	{
-		"type": "cycle",
-		"from": "src/lib/profile",
-		"to": "src/lib/review",
-		"unresolvedTo": "#lib/review/types.ts",
-		"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"],
-		"rule": {
-			"severity": "error",
-			"name": "no-circular"
-		},
-		"cycle": [
-			{
-				"name": "src/lib/review/types.ts",
-				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
-			},
-			{
-				"name": "src/lib/collection/image-record.ts",
-				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
-			},
-			{
-				"name": "src/lib/collection/types.ts",
-				"dependencyTypes": ["local", "type-only", "import"]
-			},
-			{
-				"name": "src/lib/profile/types.ts",
 				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
 			}
 		]

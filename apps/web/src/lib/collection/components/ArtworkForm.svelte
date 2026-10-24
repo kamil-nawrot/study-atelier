@@ -32,7 +32,7 @@
 	import { DuplicateCheck } from '../duplicate-check.svelte.ts';
 	import { sameTitleAndAuthors } from '../duplicates.ts';
 	import { eraTiles, isEraCode } from '#lib/catalogue/eras/eras.ts';
-	import { formatRecordNumber } from '../format.ts';
+	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import { OWN_TEXT_MAX_LENGTH } from '../own-fields.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
@@ -49,15 +49,15 @@
 		ArtworkFormState,
 		ArtworkInput,
 		ArtworkRecord,
-		CategoryCode,
 		CategoryValues,
-		EraCode,
 		ImageFieldTexts,
 		OwnFieldDefinition,
 		PlaceStarter,
 		ValueLinks,
 		ValueSuggestion
 	} from '../types.ts';
+	import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
+	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 
 	type Props = {
 		artwork?: ArtworkRecord;

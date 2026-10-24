@@ -1,7 +1,9 @@
 import { m } from '#lib/i18n/index.ts';
 import { authorSortKeys, compareSortKeys, sortKeyOf } from './author-sort.ts';
 import { UNKNOWN_AUTHOR } from './filter.ts';
-import type { EraCode, PeriodGroup, WallArtwork } from './types.ts';
+import type { PeriodGroup } from './types.ts';
+import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 export function byYear(a: WallArtwork, b: WallArtwork): number {
 	if (a.yearTo === null && b.yearTo === null) return a.number - b.number;

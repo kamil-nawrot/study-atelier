@@ -1,4 +1,4 @@
-import type { CardIndexRecord } from './types.ts';
+import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
 import { describe, expect, it } from 'vitest';
 import { testCardIndex } from '#lib/testing/card-index.ts';
 import {

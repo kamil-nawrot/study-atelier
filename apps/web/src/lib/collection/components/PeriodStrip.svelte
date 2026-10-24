@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { formatYearRange } from '../format.ts';
+	import { formatYearRange } from '#lib/catalogue/years/years.ts';
 	import { MAX_STRIP_MARKS } from '../period-rail.ts';
 	import type { CurrentPeriod, PeriodGroup } from '../types.ts';
 

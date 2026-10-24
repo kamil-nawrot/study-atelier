@@ -4,7 +4,7 @@ import type { Json } from '#lib/shared/data/database.types.ts';
 import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { ownEntriesOf, valuesOf } from './artwork-values.ts';
-import { signedYear } from './format.ts';
+import { signedYear } from '#lib/catalogue/years/years.ts';
 import { artworkErrorMessage } from './errors.ts';
 import {
 	IMAGE_COLUMNS,
@@ -21,14 +21,14 @@ import type {
 	ArtworkInput,
 	ArtworkValueRow,
 	ArtworkRecord,
-	ArtworkTypeCode,
-	CategoryCode,
-	EraCode,
 	ExistingArtwork,
 	FieldEntryRow,
 	LoadArtworkResult,
 	SaveArtworkResult
 } from './types.ts';
+import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
+import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
+import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 
 type ArtworkRecordRow = {
 	id: string;

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import '@study-atelier/ui/styles.css';
 import { render } from 'vitest-browser-svelte';
-import type { WallArtwork } from '#lib/collection/types.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { m } from '#lib/i18n/index.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { testSession } from '#lib/testing/auth.ts';

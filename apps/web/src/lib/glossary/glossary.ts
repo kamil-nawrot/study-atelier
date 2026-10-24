@@ -1,5 +1,6 @@
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
-import type { CardIndexData, CardIndexRecord } from '#lib/collection/types.ts';
+import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
+import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
 import type { GlossaryCategory, GlossaryDraft, GlossaryEntry } from './types.ts';
 
 export const GLOSSARY_SEARCH_MIN_ENTRIES = 20;

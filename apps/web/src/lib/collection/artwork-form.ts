@@ -1,14 +1,9 @@
 import { emptyCategoryValues } from './category-values.ts';
 import type { ImageCandidate } from '#lib/images/types.ts';
-import type {
-	ArtworkFormState,
-	ArtworkImageInput,
-	ArtworkInput,
-	ArtworkRecord,
-	OwnEntries,
-	OwnEntry,
-	OwnFieldDefinition
-} from './types.ts';
+import type { ArtworkFormState, ArtworkInput, ArtworkRecord, OwnFieldDefinition } from './types.ts';
+import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
+import type { OwnEntries } from '#lib/catalogue/types/own-entries.ts';
+import type { OwnEntry } from '#lib/catalogue/types/own-entry.ts';
 
 export const MAX_ARTWORK_IMAGES = 5;
 

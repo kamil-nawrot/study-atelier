@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { testArtwork } from '#lib/testing/artworks.ts';
-import type { EraCode, WallArtwork } from '#lib/collection/types.ts';
+import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import {
 	MIN_ARTWORKS,
 	endOfDay,

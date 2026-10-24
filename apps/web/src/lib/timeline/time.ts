@@ -1,4 +1,4 @@
-import type { EraCode } from '#lib/collection/types.ts';
+import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 import { ERA_CODES } from '#lib/catalogue/eras/eras.ts';
 
 export type TimeSpan = {

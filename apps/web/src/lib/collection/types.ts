@@ -1,16 +1,22 @@
 import type { GlossaryEntry } from '#lib/glossary/types.ts';
-import type { ArtworkTileImage, NoteLinks } from '@study-atelier/ui';
+import type { NoteLinks } from '@study-atelier/ui';
 import type { Pin } from '#lib/pins/types.ts';
 import type { Preferences } from '#lib/profile/types.ts';
 import type { Mention } from './mentions.ts';
 import type { ValueSummaries } from './value-summaries.ts';
+import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
+import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
+import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
+import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
+import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
+import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+import type { OwnEntries } from '#lib/catalogue/types/own-entries.ts';
+import type { PlaceType } from '#lib/catalogue/types/place-type.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 export type WallOrder = 'recent' | 'year' | 'author';
 
 export type WallGrouping = 'none' | 'era' | 'period' | 'style';
-
-export type EraCode =
-	'prehistory' | 'antiquity' | 'middle_ages' | 'early_modern' | 'modern' | 'contemporary';
 
 export type PeriodGroup = {
 	key: string;
@@ -46,42 +52,6 @@ export type ArtworkValueRow = {
 
 export type FieldEntryRow = { field_id: string; text_value: string | null };
 
-export type ImageSize = {
-	width: number;
-	height: number;
-};
-
-export type PendingImage = {
-	sourceFile?: string;
-	ownPath?: string;
-	size?: ImageSize;
-};
-
-export type WallArtwork = {
-	id: string;
-	number: number;
-	title: string;
-	authors: string[];
-	authorSortNames?: (string | null)[];
-	date?: string;
-	yearFrom: number | null;
-	yearTo: number | null;
-	eraCode: EraCode | null;
-	typeCode: ArtworkTypeCode | null;
-	period: string | null;
-	styles: string[];
-	materials: string[];
-	location: string | null;
-	hasImage: boolean;
-	favourite: boolean;
-	own?: OwnEntries;
-	image?: ArtworkTileImage;
-	imageUnavailable?: boolean;
-	pendingImage?: PendingImage;
-	ownImagePath?: string | null;
-	imageSignedAt?: number;
-};
-
 export type AtelierResult = {
 	artworks: WallArtwork[];
 	ownFields?: OwnFieldDefinition[];
@@ -96,18 +66,6 @@ export type TrashResult = {
 	artworks: TrashArtwork[];
 	error?: string;
 };
-
-export type ArtworkTypeCode =
-	| 'architecture'
-	| 'painting'
-	| 'sculpture'
-	| 'drawing'
-	| 'printmaking'
-	| 'applied_arts'
-	| 'photography'
-	| 'other';
-
-export type CategoryCode = 'author' | 'period' | 'style' | 'material' | 'location';
 
 export type CategoryValues = Record<CategoryCode, string[]>;
 
@@ -143,29 +101,6 @@ export type StarterValue = {
 	aliases: readonly string[];
 	note: string;
 };
-
-type ImageSource =
-	| {
-			kind: 'commons';
-			wikidataId: string;
-			file: string;
-			licence: string | null;
-			licenceUrl: string | null;
-			attribution: string | null;
-			width: number | null;
-			height: number | null;
-	  }
-	| { kind: 'file'; file: File; previewUrl: string; width: number; height: number }
-	| {
-			kind: 'upload';
-			path: string;
-			previewUrl?: string;
-			width: number | null;
-			height: number | null;
-	  }
-	| { kind: 'url'; url: string; width: number | null; height: number | null };
-
-export type ArtworkImageInput = ImageSource & { id?: string };
 
 export type ArtworkInput = {
 	title: string;
@@ -242,20 +177,6 @@ export type ArtworkFormState = {
 	ownQueries: Record<string, string>;
 };
 
-export type CardIndexRecord = {
-	id: string;
-	category: CategoryCode;
-	name: string;
-	count: number;
-	sortName?: string;
-};
-
-export type CardIndexData = {
-	values: CardIndexRecord[];
-	periodEras: { periodId: string; eraCode: EraCode; count: number }[];
-	stylePeriods: { styleId: string; periodId: string; count: number }[];
-};
-
 export type CardIndexResult = {
 	index: CardIndexData;
 	ownValues: OwnValue[];
@@ -295,58 +216,6 @@ export type EraMove = {
 	remaining: EraCode[];
 };
 
-export type MissingData = 'image' | 'year' | 'era' | 'period' | 'type';
-
-export type FilterField =
-	| 'eras'
-	| 'types'
-	| 'years'
-	| 'authors'
-	| 'periods'
-	| 'styles'
-	| 'materials'
-	| 'locations'
-	| 'missing'
-	| 'favourites';
-
-export type CollectionFilter = {
-	favourites: boolean;
-	eras: EraCode[];
-	types: ArtworkTypeCode[];
-	yearFrom: number | null;
-	yearTo: number | null;
-	authors: string[];
-	unknownAuthor: boolean;
-	periods: string[];
-	styles: string[];
-	materials: string[];
-	locations: string[];
-	missing: MissingData[];
-	own: Record<string, string[]>;
-	ownTexts: Record<string, string>;
-	ticked: string[];
-};
-
-export type OwnFilterKind = 'own' | 'ownText' | 'ticked';
-
-export type FilterTag = {
-	id: string;
-	field: FilterField | OwnFilterKind;
-	value: string;
-	fieldId?: string;
-	parts?: TagParts;
-};
-
-export type TagParts = {
-	field: string;
-	value: string;
-};
-
-export type FilterOption = {
-	value: string;
-	count: number;
-};
-
 export type FlipDirection = 'previous' | 'next';
 
 export type WallSequence = {
@@ -368,8 +237,6 @@ export type AuthorDetails = {
 	yearsApproximate: boolean;
 	sortName: string | null;
 };
-
-export type PlaceType = 'museum' | 'gallery' | 'private_collection' | 'on_site';
 
 export type LocationDetails = {
 	countryCode: string | null;
@@ -446,10 +313,6 @@ export type OwnField = OwnFieldDefinition & {
 	count: number;
 	values: OwnValue[];
 };
-
-export type OwnEntry = string | string[] | boolean;
-
-export type OwnEntries = Record<string, OwnEntry>;
 
 export type OwnFieldDefinitionsResult = {
 	fields: OwnFieldDefinition[];

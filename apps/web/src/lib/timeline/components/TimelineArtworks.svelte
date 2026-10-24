@@ -4,7 +4,7 @@
 	import { ArtworkTile } from '@study-atelier/ui';
 	import { resolveImages } from '#lib/collection/artworks.ts';
 	import { eraIcon, eraName } from '#lib/catalogue/eras/eras.ts';
-	import type { WallArtwork } from '#lib/collection/types.ts';
+	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import type { ArtworkLane } from '../types.ts';
 	import { cutLabel } from '../labels.ts';

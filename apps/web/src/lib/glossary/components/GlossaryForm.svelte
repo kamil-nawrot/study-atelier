@@ -16,7 +16,7 @@
 	} from '@study-atelier/ui';
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/index.ts';
-	import type { CardIndexData } from '#lib/collection/types.ts';
+	import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';

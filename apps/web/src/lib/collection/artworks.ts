@@ -13,21 +13,21 @@ import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { artworkImageSource } from './artwork-image.ts';
 import { authorSortNamesOf, ownEntriesOf, valuesOf } from './artwork-values.ts';
 import { collectionErrorMessage } from './errors.ts';
-import { formatDate } from './format.ts';
+import { formatDate } from '#lib/catalogue/years/years.ts';
 import { tileSizes } from './masonry.ts';
 import { resolvedImages } from './resolved-images.ts';
 import type {
 	ArtworkValueRow,
-	ArtworkTypeCode,
 	AtelierResult,
-	EraCode,
 	FieldEntryRow,
-	ImageSize,
-	PendingImage,
 	TrashArtwork,
-	TrashResult,
-	WallArtwork
+	TrashResult
 } from './types.ts';
+import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
+import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+import type { ImageSize } from '#lib/catalogue/types/image-size.ts';
+import type { PendingImage } from '#lib/catalogue/types/pending-image.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 type MainImageRow = {
 	source_image_file: string | null;

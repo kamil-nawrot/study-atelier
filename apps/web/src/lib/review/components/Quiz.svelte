@@ -11,7 +11,7 @@
 	import { Alert, ArtworkImage, Button, Icon, Tooltip } from '@study-atelier/ui';
 	import { artworkImageCredit, artworkImageSource } from '#lib/collection/artwork-image.ts';
 	import ImageViewer from '#lib/collection/components/ImageViewer.svelte';
-	import type { WallArtwork } from '#lib/collection/types.ts';
+	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import PinMark from '#lib/pins/components/PinMark.svelte';
 	import { onControl, sessionKey } from '../keys.ts';

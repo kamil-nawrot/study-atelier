@@ -27,7 +27,7 @@ module.exports = {
 		{
 			name: 'shell-only-from-routes',
 			severity: 'error',
-			from: { pathNot: '^src/(routes|lib/shell)/' },
+			from: { pathNot: '^src/(routes/|lib/shell/|hooks\\.)' },
 			to: { path: '^src/lib/shell/' }
 		}
 	],

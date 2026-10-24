@@ -1,6 +1,6 @@
 import { m } from '#lib/i18n/index.ts';
 import type { ImageCandidate, ImageSearchResult } from '#lib/images/types.ts';
-import type { ArtworkImageInput } from './types.ts';
+import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 
 export const AUTO_MATCH_DELAY_MS = 600;
 

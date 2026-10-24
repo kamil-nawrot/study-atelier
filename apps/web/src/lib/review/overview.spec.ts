@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { WallArtwork } from '#lib/collection/types.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { testArtwork } from '#lib/testing/artworks.ts';
 import { testReviewCard } from '#lib/testing/review.ts';
 import {

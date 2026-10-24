@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { ArtworkImage, NoImage, overlayScrollbar } from '@study-atelier/ui';
-	import type { WallArtwork } from '#lib/collection/types.ts';
+	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import ImageViewer from '#lib/collection/components/ImageViewer.svelte';
 	import { m } from '#lib/i18n/index.ts';
 

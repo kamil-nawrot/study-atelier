@@ -9,7 +9,7 @@
 	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import { WallImages } from '#lib/collection/wall-images.svelte.ts';
-	import type { WallArtwork } from '#lib/collection/types.ts';
+	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import GlossaryView from '#lib/glossary/components/GlossaryView.svelte';
 	import { deleteGlossaryEntry } from '#lib/glossary/glossary-data.ts';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';

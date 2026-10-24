@@ -1,5 +1,5 @@
 import { ownImageUrl, uploadOwnImage } from '#lib/images/own-image.ts';
-import type { ArtworkImageInput } from './types.ts';
+import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 
 export type StoredImage = Exclude<ArtworkImageInput, { kind: 'file' }>;
 

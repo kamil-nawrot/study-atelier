@@ -9,7 +9,7 @@ import {
 	loadValuePageContent,
 	saveValue
 } from './card-index-data.ts';
-import type { CardIndexRecord } from './types.ts';
+import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { rpc: vi.fn(), from: vi.fn() }

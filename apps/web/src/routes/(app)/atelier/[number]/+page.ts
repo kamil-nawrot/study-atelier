@@ -1,6 +1,6 @@
 import { resolve } from '$app/paths';
 import { loadArtwork } from '#lib/collection/artwork-record.ts';
-import { parseRecordNumber } from '#lib/collection/format.ts';
+import { parseRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import { loadMentions } from '#lib/collection/mentions.ts';
 import { loadOwnFieldDefinitions } from '#lib/collection/own-fields.ts';
 import { loadValueSummaries } from '#lib/collection/value-summaries.ts';

@@ -13,7 +13,7 @@ import {
 	resolveImages
 } from './artworks.ts';
 import { resolvedImages } from './resolved-images.ts';
-import type { WallArtwork } from './types.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 vi.mock('#lib/images/commons.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/images/commons.ts')>()),

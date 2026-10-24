@@ -1,5 +1,6 @@
 import type { ImageRow } from '#lib/collection/image-record.ts';
-import type { ArtworkImageInput, WallArtwork } from '#lib/collection/types.ts';
+import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 export type ReviewForm = 'mixed' | 'flashcards' | 'quizzes';
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { formatDate } from '#lib/collection/format.ts';
+	import { formatDate } from '#lib/catalogue/years/years.ts';
 	import { m } from '#lib/i18n/index.ts';
 	import { layEvents, type LaidEvent } from '../event-lanes.ts';
 	import { cutLabel } from '../labels.ts';
