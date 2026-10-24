@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import '../styles/index.css';
-import { html } from '../../stories/snippets';
-import { defaultUiMessages } from '../messages';
+import '../../styles/index.css';
+import { html } from '../../../stories/snippets';
+import { defaultUiMessages } from '../../messages/messages';
 import Dialog from './Dialog.svelte';
 
 const closeLabel = defaultUiMessages.closeDialog;

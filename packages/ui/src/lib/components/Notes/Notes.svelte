@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import type { NoteLinks } from '../note-links';
-	import { renderNotes, renderText, type NoteTerm } from '../notes-markdown';
-	import { PopoverState } from '../popover-state.svelte';
-	import PopoverCard from './PopoverCard.svelte';
+	import type { NoteLinks } from '../../note-links/note-links';
+	import { renderNotes, renderText, type NoteTerm } from '../../notes-markdown/notes-markdown';
+	import { PopoverState } from '../../popover-state/popover-state.svelte';
+	import PopoverCard from '../PopoverCard/PopoverCard.svelte';
 
 	type Props = {
 		value: string;

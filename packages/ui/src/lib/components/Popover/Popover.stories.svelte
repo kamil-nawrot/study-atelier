@@ -1,7 +1,7 @@
 <script lang="ts" module>
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import Popover from './Popover.svelte';
-	import Tag from './Tag.svelte';
+	import Tag from '../Tag/Tag.svelte';
 
 	const { Story } = defineMeta({
 		title: 'Components/Popover',

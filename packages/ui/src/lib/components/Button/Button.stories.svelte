@@ -1,7 +1,7 @@
 <script lang="ts" module>
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import { defineMeta } from '@storybook/addon-svelte-csf';
-	import { text } from '../../stories/snippets';
+	import { text } from '../../../stories/snippets';
 	import Button from './Button.svelte';
 
 	const { Story } = defineMeta({

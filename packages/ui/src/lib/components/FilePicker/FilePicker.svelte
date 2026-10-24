@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { LucideIcon } from '@lucide/svelte';
-	import Button from './Button.svelte';
-	import Icon from './Icon.svelte';
+	import Button from '../Button/Button.svelte';
+	import Icon from '../Icon/Icon.svelte';
 
 	type Props = {
 		label: string;

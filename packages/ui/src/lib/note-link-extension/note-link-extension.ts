@@ -2,7 +2,11 @@ import { Extension, Node, type Editor, type Range } from '@tiptap/core';
 import { PluginKey } from '@tiptap/pm/state';
 import type { EditorView } from '@tiptap/pm/view';
 import { exitSuggestion, Suggestion } from '@tiptap/suggestion';
-import { noteLinkMarkdown, type NoteLinkOption, type NoteLinkTrigger } from './note-links';
+import {
+	noteLinkMarkdown,
+	type NoteLinkOption,
+	type NoteLinkTrigger
+} from '../note-links/note-links';
 
 export const NoteLink = Node.create({
 	name: 'noteLink',

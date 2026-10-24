@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import '../styles/index.css';
+import '../../styles/index.css';
 import Logo from './Logo.svelte';
 
 function heightOf(label: string): number {

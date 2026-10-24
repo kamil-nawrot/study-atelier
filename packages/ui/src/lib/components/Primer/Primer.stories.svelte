@@ -1,6 +1,6 @@
 <script lang="ts" module>
 	import { defineMeta } from '@storybook/addon-svelte-csf';
-	import Frame from './Frame.svelte';
+	import Frame from '../Frame/Frame.svelte';
 	import Primer from './Primer.svelte';
 
 	const { Story } = defineMeta({

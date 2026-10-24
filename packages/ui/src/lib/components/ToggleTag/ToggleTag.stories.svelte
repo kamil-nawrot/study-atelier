@@ -1,7 +1,7 @@
 <script lang="ts" module>
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import { fn } from 'storybook/test';
-	import { text } from '../../stories/snippets';
+	import { text } from '../../../stories/snippets';
 	import ToggleTag from './ToggleTag.svelte';
 
 	const { Story } = defineMeta({

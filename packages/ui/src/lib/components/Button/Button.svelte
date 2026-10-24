@@ -2,7 +2,7 @@
 	import type { LucideIcon } from '@lucide/svelte';
 	import type { Snippet } from 'svelte';
 	import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
-	import Icon from './Icon.svelte';
+	import Icon from '../Icon/Icon.svelte';
 
 	type CompactProps =
 		| { compact?: false; icon?: LucideIcon }

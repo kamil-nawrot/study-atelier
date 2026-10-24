@@ -2,8 +2,8 @@
 	import Search from '@lucide/svelte/icons/search';
 	import X from '@lucide/svelte/icons/x';
 	import type { HTMLInputAttributes } from 'svelte/elements';
-	import { uiMessages } from '../messages';
-	import Icon from './Icon.svelte';
+	import { uiMessages } from '../../messages/messages';
+	import Icon from '../Icon/Icon.svelte';
 
 	type Props = Omit<HTMLInputAttributes, 'type' | 'value'> & {
 		label: string;

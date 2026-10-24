@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { defaultUiMessages } from '../messages';
+import { defaultUiMessages } from '../../messages/messages';
 import ArtworkImage, { IMAGE_RETRY_DELAY } from './ArtworkImage.svelte';
 
 const pixel =

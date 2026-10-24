@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Alert from './Alert.svelte';
-	import Button from './Button.svelte';
-	import Section from './Section.svelte';
+	import Alert from '../Alert/Alert.svelte';
+	import Button from '../Button/Button.svelte';
+	import Section from '../Section/Section.svelte';
 
 	type Props = {
 		notFound: boolean;

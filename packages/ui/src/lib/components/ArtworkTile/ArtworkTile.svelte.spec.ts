@@ -2,9 +2,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import Landmark from '@lucide/svelte/icons/landmark';
 import { render } from 'vitest-browser-svelte';
-import '../styles/index.css';
-import { defaultUiMessages } from '../messages';
-import MessagesHost from '../testing/MessagesHost.svelte';
+import '../../styles/index.css';
+import { defaultUiMessages } from '../../messages/messages';
+import MessagesHost from '../../testing/MessagesHost.svelte';
 import ArtworkTile from './ArtworkTile.svelte';
 
 const pixel = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';

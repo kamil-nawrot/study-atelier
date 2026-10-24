@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { pageScrollbar } from './overlay-scrollbar.ts';
-import './styles/tokens.css';
-import './styles/base.css';
-import OverlayScrollArea from './testing/OverlayScrollArea.svelte';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import OverlayScrollArea from '../testing/OverlayScrollArea.svelte';
 
 function area(): HTMLElement {
 	return document.querySelector('[data-testid="area"]') as HTMLElement;

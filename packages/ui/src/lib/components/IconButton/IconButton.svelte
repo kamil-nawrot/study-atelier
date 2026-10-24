@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { LucideIcon } from '@lucide/svelte';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
-	import Icon from './Icon.svelte';
-	import Tooltip from './Tooltip.svelte';
+	import Icon from '../Icon/Icon.svelte';
+	import Tooltip from '../Tooltip/Tooltip.svelte';
 
 	type Props = Omit<HTMLButtonAttributes, 'aria-label' | 'children'> & {
 		icon: LucideIcon;

@@ -11,10 +11,10 @@
 <script lang="ts">
 	import Heart from '@lucide/svelte/icons/heart';
 	import type { LucideIcon } from '@lucide/svelte';
-	import { uiMessages } from '../messages';
-	import ArtworkImage from './ArtworkImage.svelte';
-	import Icon from './Icon.svelte';
-	import NoImage from './NoImage.svelte';
+	import { uiMessages } from '../../messages/messages';
+	import ArtworkImage from '../ArtworkImage/ArtworkImage.svelte';
+	import Icon from '../Icon/Icon.svelte';
+	import NoImage from '../NoImage/NoImage.svelte';
 
 	type Props = {
 		href: string;

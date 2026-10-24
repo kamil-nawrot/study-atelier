@@ -1,10 +1,10 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const directory = new URL('./', import.meta.url);
-const components = readdirSync(directory).filter(
-	(file) => file.endsWith('.svelte') && !file.endsWith('.stories.svelte')
-);
+const directory = new URL('../', import.meta.url);
+const components = readdirSync(directory, { recursive: true, encoding: 'utf8' })
+	.map((file) => file.replaceAll('\\', '/'))
+	.filter((file) => file.endsWith('.svelte') && !file.endsWith('.stories.svelte'));
 
 function shorthandsWithoutKeyframes(source: string): string[] {
 	const keyframes = [...source.matchAll(/@keyframes\s+([\w-]+)/g)].map((match) => match[1]);

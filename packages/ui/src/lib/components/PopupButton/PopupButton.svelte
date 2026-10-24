@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import Button from './Button.svelte';
-	import Tooltip from './Tooltip.svelte';
+	import Button from '../Button/Button.svelte';
+	import Tooltip from '../Tooltip/Tooltip.svelte';
 
 	type Props = {
 		label: string;

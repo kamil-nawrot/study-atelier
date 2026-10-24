@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { overlayScrollbar } from '../overlay-scrollbar.ts';
+	import { overlayScrollbar } from '../../overlay-scrollbar/overlay-scrollbar.ts';
 	import { Editor } from '@tiptap/core';
 	import { Markdown } from '@tiptap/markdown';
 	import StarterKit from '@tiptap/starter-kit';
@@ -12,12 +12,16 @@
 	import ListOrdered from '@lucide/svelte/icons/list-ordered';
 	import type { LucideIcon } from '@lucide/svelte';
 	import { onMount } from 'svelte';
-	import { uiMessages } from '../messages';
-	import { NoteLink, NoteLinkSuggestion, type SuggestionState } from '../note-link-extension';
-	import type { NoteLinks, NoteLinkTrigger } from '../note-links';
-	import { renderNotes } from '../notes-markdown';
-	import FieldMessage from './FieldMessage.svelte';
-	import Icon from './Icon.svelte';
+	import { uiMessages } from '../../messages/messages';
+	import {
+		NoteLink,
+		NoteLinkSuggestion,
+		type SuggestionState
+	} from '../../note-link-extension/note-link-extension';
+	import type { NoteLinks, NoteLinkTrigger } from '../../note-links/note-links';
+	import { renderNotes } from '../../notes-markdown/notes-markdown';
+	import FieldMessage from '../FieldMessage/FieldMessage.svelte';
+	import Icon from '../Icon/Icon.svelte';
 
 	type Props = {
 		label: string;

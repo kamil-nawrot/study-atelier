@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import Pencil from '@lucide/svelte/icons/pencil';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import '../styles/index.css';
+import '../../styles/index.css';
 import IconButton from './IconButton.svelte';
 
 describe('IconButton', () => {

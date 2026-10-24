@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { uiMessages } from '../messages';
-	import LogoMark from './LogoMark.svelte';
+	import { uiMessages } from '../../messages/messages';
+	import LogoMark from '../LogoMark/LogoMark.svelte';
 
 	type Props = {
 		label?: string;

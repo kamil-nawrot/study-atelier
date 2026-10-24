@@ -1,6 +1,6 @@
 import DOMPurify from 'dompurify';
 import { Marked, type Tokens } from 'marked';
-import { isNoteLinkPath, type NoteLinks } from './note-links';
+import { isNoteLinkPath, type NoteLinks } from '../note-links/note-links';
 
 const allowedTags = ['p', 'br', 'strong', 'em', 'h3', 'ul', 'ol', 'li', 'a', 'span'];
 const allowedAttributes = ['href', 'data-note-link', 'data-missing', 'data-href'];

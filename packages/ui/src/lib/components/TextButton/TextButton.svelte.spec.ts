@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import '../styles/index.css';
+import '../../styles/index.css';
 import TextButton from './TextButton.svelte';
 
 const label = createRawSnippet(() => ({ render: () => '<span>Collapse all</span>' }));

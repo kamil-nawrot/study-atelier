@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { defaultUiMessages, type AlertTone } from '../messages';
-import MessagesHost from '../testing/MessagesHost.svelte';
+import { defaultUiMessages, type AlertTone } from '../../messages/messages';
+import MessagesHost from '../../testing/MessagesHost.svelte';
 import Alert from './Alert.svelte';
 
 const body = createRawSnippet(() => ({ render: () => '<span>Check the form</span>' }));

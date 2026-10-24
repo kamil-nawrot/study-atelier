@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { tick, type Snippet } from 'svelte';
-	import type { PopoverState } from '../popover-state.svelte';
+	import type { PopoverState } from '../../popover-state/popover-state.svelte';
 
 	type Props = {
 		id: string;

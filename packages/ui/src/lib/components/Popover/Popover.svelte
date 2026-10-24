@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { PopoverState } from '../popover-state.svelte';
-	import PopoverCard from './PopoverCard.svelte';
+	import { PopoverState } from '../../popover-state/popover-state.svelte';
+	import PopoverCard from '../PopoverCard/PopoverCard.svelte';
 
 	type Props = {
 		children: Snippet;

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { uiMessages } from '../messages';
+	import { uiMessages } from '../../messages/messages';
 
 	type Props = {
 		children: Snippet;

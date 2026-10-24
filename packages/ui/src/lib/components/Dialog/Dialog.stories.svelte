@@ -1,9 +1,9 @@
 <script lang="ts" module>
 	import { defineMeta } from '@storybook/addon-svelte-csf';
-	import ArtworkTile from './ArtworkTile.svelte';
-	import Button from './Button.svelte';
+	import ArtworkTile from '../ArtworkTile/ArtworkTile.svelte';
+	import Button from '../Button/Button.svelte';
 	import Dialog from './Dialog.svelte';
-	import Select from './Select.svelte';
+	import Select from '../Select/Select.svelte';
 
 	const candidates = [
 		{ number: 1, title: 'Lady with an Ermine', date: 'c. 1490' },

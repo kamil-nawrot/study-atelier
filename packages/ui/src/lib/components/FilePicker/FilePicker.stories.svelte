@@ -1,7 +1,7 @@
 <script lang="ts" module>
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import Upload from '@lucide/svelte/icons/upload';
-	import FieldMessage from './FieldMessage.svelte';
+	import FieldMessage from '../FieldMessage/FieldMessage.svelte';
 	import FilePicker from './FilePicker.svelte';
 
 	const { Story } = defineMeta({

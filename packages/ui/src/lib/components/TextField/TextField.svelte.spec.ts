@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { controlHeight, outlinedHeight } from '../testing/control-height';
+import { controlHeight, outlinedHeight } from '../../testing/control-height';
 import TextField from './TextField.svelte';
 
 const action = createRawSnippet(() => ({ render: () => '<button type="button">Use</button>' }));

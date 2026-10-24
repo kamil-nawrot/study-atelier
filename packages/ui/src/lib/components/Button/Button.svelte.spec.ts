@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { controlHeight } from '../testing/control-height';
+import { controlHeight } from '../../testing/control-height';
 import Button from './Button.svelte';
 
 const label = createRawSnippet(() => ({ render: () => '<span>Use</span>' }));

@@ -3,9 +3,9 @@
 	import EyeOff from '@lucide/svelte/icons/eye-off';
 	import type { Snippet } from 'svelte';
 	import type { HTMLInputAttributes } from 'svelte/elements';
-	import { uiMessages } from '../messages';
-	import FieldMessage from './FieldMessage.svelte';
-	import Icon from './Icon.svelte';
+	import { uiMessages } from '../../messages/messages';
+	import FieldMessage from '../FieldMessage/FieldMessage.svelte';
+	import Icon from '../Icon/Icon.svelte';
 
 	type Props = Omit<HTMLInputAttributes, 'type' | 'value'> & {
 		label: string;

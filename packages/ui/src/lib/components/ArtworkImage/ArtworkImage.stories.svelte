@@ -2,7 +2,7 @@
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import type { ComponentProps } from 'svelte';
 	import ArtworkImage from './ArtworkImage.svelte';
-	import Frame from './Frame.svelte';
+	import Frame from '../Frame/Frame.svelte';
 
 	const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400"><defs><linearGradient id="g" x2="0" y2="1"><stop offset="0" stop-color="#2a2622"/><stop offset="0.5" stop-color="#3b332b"/><stop offset="1" stop-color="#1d1a17"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>`;
 

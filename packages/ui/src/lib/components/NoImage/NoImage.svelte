@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { uiMessages } from '../messages';
+	import { uiMessages } from '../../messages/messages';
 
 	type Props = {
 		label?: string;

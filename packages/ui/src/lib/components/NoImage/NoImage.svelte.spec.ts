@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { defaultUiMessages } from '../messages';
+import { defaultUiMessages } from '../../messages/messages';
 import NoImage from './NoImage.svelte';
 
 describe('NoImage', () => {

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { overlayScrollbar } from '../overlay-scrollbar.ts';
+	import { overlayScrollbar } from '../../overlay-scrollbar/overlay-scrollbar.ts';
 	import X from '@lucide/svelte/icons/x';
 	import type { Snippet } from 'svelte';
-	import { uiMessages } from '../messages';
-	import Icon from './Icon.svelte';
+	import { uiMessages } from '../../messages/messages';
+	import Icon from '../Icon/Icon.svelte';
 
 	type Props = {
 		title: string;

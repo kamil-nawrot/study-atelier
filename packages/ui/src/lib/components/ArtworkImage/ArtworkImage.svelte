@@ -4,9 +4,9 @@
 
 <script lang="ts">
 	import ImageOff from '@lucide/svelte/icons/image-off';
-	import { uiMessages } from '../messages';
-	import Icon from './Icon.svelte';
-	import Primer from './Primer.svelte';
+	import { uiMessages } from '../../messages/messages';
+	import Icon from '../Icon/Icon.svelte';
+	import Primer from '../Primer/Primer.svelte';
 
 	type Props = {
 		src?: string;

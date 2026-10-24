@@ -1,5 +1,5 @@
 <script lang="ts" module>
-	import { overlayScrollbar } from '../overlay-scrollbar.ts';
+	import { overlayScrollbar } from '../../overlay-scrollbar/overlay-scrollbar.ts';
 	export type TabOption = {
 		value: string;
 		label: string;

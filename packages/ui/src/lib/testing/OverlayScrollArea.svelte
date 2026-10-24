@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { overlayScrollbar, type ScrollAxis } from '../overlay-scrollbar.ts';
+	import { overlayScrollbar, type ScrollAxis } from '../overlay-scrollbar/overlay-scrollbar.ts';
 
 	type Props = {
 		rows?: number;

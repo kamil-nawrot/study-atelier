@@ -1,5 +1,5 @@
 <script lang="ts">
-	import FieldMessage from './FieldMessage.svelte';
+	import FieldMessage from '../FieldMessage/FieldMessage.svelte';
 	import type { HTMLTextareaAttributes } from 'svelte/elements';
 
 	type Props = Omit<HTMLTextareaAttributes, 'value'> & {

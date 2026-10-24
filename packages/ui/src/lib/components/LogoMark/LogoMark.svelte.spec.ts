@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import '../styles/index.css';
+import '../../styles/index.css';
 import LogoMark from './LogoMark.svelte';
 
 const stroke = createRawSnippet(() => ({

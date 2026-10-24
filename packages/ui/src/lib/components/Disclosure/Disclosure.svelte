@@ -2,8 +2,8 @@
 	import type { LucideIcon } from '@lucide/svelte';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import type { Snippet } from 'svelte';
-	import Count from './Count.svelte';
-	import Icon from './Icon.svelte';
+	import Count from '../Count/Count.svelte';
+	import Icon from '../Icon/Icon.svelte';
 
 	type Props = {
 		title: string;

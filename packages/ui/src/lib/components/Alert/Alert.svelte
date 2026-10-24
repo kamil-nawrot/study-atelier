@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { type AlertTone, uiMessages } from '../messages';
+	import { type AlertTone, uiMessages } from '../../messages/messages';
 
 	type Props = {
 		id?: string;

@@ -1,5 +1,5 @@
 <script lang="ts" module>
-	import { overlayScrollbar } from '../overlay-scrollbar.ts';
+	import { overlayScrollbar } from '../../overlay-scrollbar/overlay-scrollbar.ts';
 	export type ValueOption = {
 		kind: 'similar' | 'existing' | 'starter' | 'new';
 		name: string;
@@ -10,9 +10,9 @@
 <script lang="ts">
 	import X from '@lucide/svelte/icons/x';
 	import { tick } from 'svelte';
-	import { uiMessages } from '../messages';
-	import FieldMessage from './FieldMessage.svelte';
-	import Icon from './Icon.svelte';
+	import { uiMessages } from '../../messages/messages';
+	import FieldMessage from '../FieldMessage/FieldMessage.svelte';
+	import Icon from '../Icon/Icon.svelte';
 
 	type Props = {
 		label: string;

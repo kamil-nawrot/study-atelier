@@ -1,6 +1,6 @@
 <script lang="ts" module>
 	import { defineMeta } from '@storybook/addon-svelte-csf';
-	import { text } from '../../stories/snippets';
+	import { text } from '../../../stories/snippets';
 	import Tabs from './Tabs.svelte';
 
 	const { Story } = defineMeta({

@@ -2,8 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { defaultUiMessages } from '../messages';
-import MessagesHost from '../testing/MessagesHost.svelte';
+import { defaultUiMessages } from '../../messages/messages';
+import MessagesHost from '../../testing/MessagesHost.svelte';
 import Tag from './Tag.svelte';
 
 const label = createRawSnippet(() => ({ render: () => '<span>Baroque</span>' }));

@@ -9,8 +9,8 @@
 	import type { LucideIcon } from '@lucide/svelte';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import type { HTMLSelectAttributes } from 'svelte/elements';
-	import FieldMessage from './FieldMessage.svelte';
-	import Icon from './Icon.svelte';
+	import FieldMessage from '../FieldMessage/FieldMessage.svelte';
+	import Icon from '../Icon/Icon.svelte';
 
 	type Props = Omit<HTMLSelectAttributes, 'value' | 'multiple' | 'children'> & {
 		label: string;

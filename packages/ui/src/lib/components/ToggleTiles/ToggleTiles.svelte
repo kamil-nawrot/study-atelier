@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { ChoiceTile } from './ChoiceTiles.svelte';
-	import Icon from './Icon.svelte';
+	import type { ChoiceTile } from '../ChoiceTiles/ChoiceTiles.svelte';
+	import Icon from '../Icon/Icon.svelte';
 
 	type Tile = ChoiceTile & { count?: number };
 

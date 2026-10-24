@@ -1,7 +1,7 @@
 <script lang="ts" module>
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import PopupButton from './PopupButton.svelte';
-	import StepSelect from './StepSelect.svelte';
+	import StepSelect from '../StepSelect/StepSelect.svelte';
 
 	const { Story } = defineMeta({
 		title: 'Components/PopupButton',

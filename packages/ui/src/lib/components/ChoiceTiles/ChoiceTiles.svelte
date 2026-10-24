@@ -10,7 +10,7 @@
 </script>
 
 <script lang="ts">
-	import Icon from './Icon.svelte';
+	import Icon from '../Icon/Icon.svelte';
 
 	type Props = {
 		label: string;

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { controlHeight, outlinedHeight } from '../testing/control-height';
+import { controlHeight, outlinedHeight } from '../../testing/control-height';
 import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
 import Select, { type SelectOption } from './Select.svelte';
 
