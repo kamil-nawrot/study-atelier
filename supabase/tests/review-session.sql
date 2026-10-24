@@ -204,10 +204,15 @@ begin
     'a pin question does not say where the pin is';
 
   update public.artwork_pins set glossary_entry_id = nave, text = null where text = 'A note';
-  select array_agg(option ->> 'label' order by option ->> 'label') into labels
-    from jsonb_array_elements(public.review_session(day_start, 'quizzes', 'all', null, 1)) as item,
-      jsonb_array_elements(item -> 'options') as option
-    where item ->> 'mode' = 'quiz_pin' and (item -> 'pin' ->> 'x')::double precision = 0.25;
+  labels := '{}';
+  for attempt in 1..40 loop
+    select coalesce(labels, '{}') || coalesce(array_agg(option ->> 'label'), '{}') into labels
+      from jsonb_array_elements(public.review_session(day_start, 'quizzes', 'all', null, 1)) as item,
+        jsonb_array_elements(item -> 'options') as option
+      where item ->> 'mode' = 'quiz_pin' and (item -> 'pin' ->> 'x')::double precision = 0.25;
+  end loop;
+  assert cardinality(labels) > 0,
+    'a pin question about the first pin of an image is never asked';
   assert not 'Nave' = any (labels),
     'a pin question offers the term of another pin on the same image';
 
