@@ -32,6 +32,30 @@ The same five names must not remain as repository secrets: an environment secret
 5. Sign up in the develop app, then fill it with the sample artworks by running the seed files in the SQL Editor.
 6. Run the `Supabase keep-alive` workflow manually and check that both jobs pass. Run the `Unused images clean-up` workflow manually from `develop` and, after the next release, from `main`: a manual run cleans only the environment of its branch, the daily one both ([ADR-0092](../decisions/0092-clean-up-images-by-hand-for-one-environment.md)).
 
+## Auth emails
+
+Supabase Auth sends the sign-up confirmation, the password reset and the email change through Brevo on the free plan, from one verified sender without an own domain ([ADR-0119](../decisions/0119-send-the-auth-emails-through-brevo.md)). Nothing of this is applied by CI: the SMTP settings and the templates live in the dashboard of each Supabase project, so both projects are set up by hand and the credentials never reach the repository.
+
+The Polish texts are kept in [`supabase/templates`](../../supabase/templates) and the local stack (`supabase start`) uses the same files through [`supabase/config.toml`](../../supabase/config.toml), with the mails caught by the local inbox instead of sent. A change to a template is made in the file and pasted into the dashboard of `develop` and `production`.
+
+| Template (dashboard name) | File                                                              | Subject                                        |
+| ------------------------- | ----------------------------------------------------------------- | ---------------------------------------------- |
+| Confirm sign up           | [`confirmation.html`](../../supabase/templates/confirmation.html) | Potwierdź adres e-mail w Study Atelier         |
+| Reset password            | [`recovery.html`](../../supabase/templates/recovery.html)         | Ustaw nowe hasło w Study Atelier               |
+| Change email address      | [`email-change.html`](../../supabase/templates/email-change.html) | Potwierdź zmianę adresu e-mail w Study Atelier |
+
+### Setting up a project
+
+1. Brevo: create the account, then Senders, Domains & Dedicated IPs, Senders, add the mailbox the mails are sent from and confirm it with the link Brevo sends there.
+2. Brevo: SMTP & API, SMTP, note the server `smtp-relay.brevo.com`, port `587` and the login, and generate an SMTP key. The key is shown once; the login and the key are the SMTP credentials, not the password of the Brevo account.
+3. Supabase, Authentication, Emails, SMTP Settings: turn on custom SMTP and enter the sender email (the verified mailbox), the sender name `Study Atelier`, the host, the port, the login as the username and the SMTP key as the password. Save.
+4. Supabase, Authentication, Emails, Templates: for each row of the table above set the subject and paste the whole file as the message body.
+5. Supabase, Authentication, Sign In / Providers, Email: keep "Confirm email" and "Secure email change" on, so a change of address needs a click in the old and in the new mailbox.
+6. Supabase, Authentication, Rate Limits: raise the emails per hour if the default is too low once the custom SMTP is on.
+7. Check it on that environment's app: ask for a password reset to an address outside the Supabase team and see that the Polish mail arrives and the link opens `/update-password`.
+
+Brevo adds its own footer on the free plan and mail from a free mailbox may land in spam; moving to an own domain later changes only the SMTP settings.
+
 ## Releasing
 
 A merge to `main` applies pending migrations to the production database and deploys the production build. Review the new files in `supabase/migrations` before merging the release.

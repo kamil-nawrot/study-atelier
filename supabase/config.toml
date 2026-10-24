@@ -43,6 +43,19 @@ minimum_password_length = 8
 [auth.email]
 enable_signup = true
 enable_confirmations = true
+double_confirm_changes = true
+
+[auth.email.template.confirmation]
+subject = "Potwierdź adres e-mail w Study Atelier"
+content_path = "./templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "Ustaw nowe hasło w Study Atelier"
+content_path = "./templates/recovery.html"
+
+[auth.email.template.email_change]
+subject = "Potwierdź zmianę adresu e-mail w Study Atelier"
+content_path = "./templates/email-change.html"
 
 [realtime]
 enabled = false
