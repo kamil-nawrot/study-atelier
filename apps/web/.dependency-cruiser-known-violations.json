@@ -1,0 +1,454 @@
+[
+	{
+		"type": "cycle",
+		"from": "src/lib/collection/author-sort.ts",
+		"to": "src/lib/collection/types.ts",
+		"unresolvedTo": "./types.ts",
+		"dependencyTypes": ["local", "type-only", "import"],
+		"rule": {
+			"severity": "error",
+			"name": "no-circular"
+		},
+		"cycle": [
+			{
+				"name": "src/lib/collection/types.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/mentions.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/card-index-data.ts",
+				"dependencyTypes": ["local", "import"]
+			},
+			{
+				"name": "src/lib/collection/card-index.ts",
+				"dependencyTypes": ["local", "import"]
+			},
+			{
+				"name": "src/lib/collection/author-sort.ts",
+				"dependencyTypes": ["local", "import"]
+			}
+		]
+	},
+	{
+		"type": "cycle",
+		"from": "src/lib/collection/card-index-data.ts",
+		"to": "src/lib/collection/category-values.ts",
+		"unresolvedTo": "./category-values.ts",
+		"dependencyTypes": ["local", "import"],
+		"rule": {
+			"severity": "error",
+			"name": "no-circular"
+		},
+		"cycle": [
+			{
+				"name": "src/lib/collection/category-values.ts",
+				"dependencyTypes": ["local", "import"]
+			},
+			{
+				"name": "src/lib/collection/types.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/mentions.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/card-index-data.ts",
+				"dependencyTypes": ["local", "import"]
+			}
+		]
+	},
+	{
+		"type": "cycle",
+		"from": "src/lib/collection/card-index-data.ts",
+		"to": "src/lib/collection/eras.ts",
+		"unresolvedTo": "./eras.ts",
+		"dependencyTypes": ["local", "import"],
+		"rule": {
+			"severity": "error",
+			"name": "no-circular"
+		},
+		"cycle": [
+			{
+				"name": "src/lib/collection/eras.ts",
+				"dependencyTypes": ["local", "import"]
+			},
+			{
+				"name": "src/lib/collection/types.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/mentions.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/card-index-data.ts",
+				"dependencyTypes": ["local", "import"]
+			}
+		]
+	},
+	{
+		"type": "cycle",
+		"from": "src/lib/collection/card-index-data.ts",
+		"to": "src/lib/collection/types.ts",
+		"unresolvedTo": "./types.ts",
+		"dependencyTypes": ["local", "type-only", "import"],
+		"rule": {
+			"severity": "error",
+			"name": "no-circular"
+		},
+		"cycle": [
+			{
+				"name": "src/lib/collection/types.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/mentions.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/card-index-data.ts",
+				"dependencyTypes": ["local", "import"]
+			}
+		]
+	},
+	{
+		"type": "cycle",
+		"from": "src/lib/collection/card-index.ts",
+		"to": "src/lib/collection/eras.ts",
+		"unresolvedTo": "./eras.ts",
+		"dependencyTypes": ["local", "import"],
+		"rule": {
+			"severity": "error",
+			"name": "no-circular"
+		},
+		"cycle": [
+			{
+				"name": "src/lib/collection/eras.ts",
+				"dependencyTypes": ["local", "import"]
+			},
+			{
+				"name": "src/lib/collection/types.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/mentions.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/card-index-data.ts",
+				"dependencyTypes": ["local", "import"]
+			},
+			{
+				"name": "src/lib/collection/card-index.ts",
+				"dependencyTypes": ["local", "import"]
+			}
+		]
+	},
+	{
+		"type": "cycle",
+		"from": "src/lib/collection/card-index.ts",
+		"to": "src/lib/collection/types.ts",
+		"unresolvedTo": "./types.ts",
+		"dependencyTypes": ["local", "type-only", "import"],
+		"rule": {
+			"severity": "error",
+			"name": "no-circular"
+		},
+		"cycle": [
+			{
+				"name": "src/lib/collection/types.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/mentions.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/card-index-data.ts",
+				"dependencyTypes": ["local", "import"]
+			},
+			{
+				"name": "src/lib/collection/card-index.ts",
+				"dependencyTypes": ["local", "import"]
+			}
+		]
+	},
+	{
+		"type": "cycle",
+		"from": "src/lib/collection/card-index.ts",
+		"to": "src/lib/collection/value-suggestions.ts",
+		"unresolvedTo": "./value-suggestions.ts",
+		"dependencyTypes": ["local", "import"],
+		"rule": {
+			"severity": "error",
+			"name": "no-circular"
+		},
+		"cycle": [
+			{
+				"name": "src/lib/collection/value-suggestions.ts",
+				"dependencyTypes": ["local", "import"]
+			},
+			{
+				"name": "src/lib/collection/types.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/mentions.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/card-index-data.ts",
+				"dependencyTypes": ["local", "import"]
+			},
+			{
+				"name": "src/lib/collection/card-index.ts",
+				"dependencyTypes": ["local", "import"]
+			}
+		]
+	},
+	{
+		"type": "cycle",
+		"from": "src/lib/collection/mentions.ts",
+		"to": "src/lib/collection/types.ts",
+		"unresolvedTo": "./types.ts",
+		"dependencyTypes": ["local", "type-only", "import"],
+		"rule": {
+			"severity": "error",
+			"name": "no-circular"
+		},
+		"cycle": [
+			{
+				"name": "src/lib/collection/types.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/mentions.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			}
+		]
+	},
+	{
+		"type": "cycle",
+		"from": "src/lib/collection/mentions.ts",
+		"to": "src/lib/collection/value-pages.ts",
+		"unresolvedTo": "./value-pages.ts",
+		"dependencyTypes": ["local", "import"],
+		"rule": {
+			"severity": "error",
+			"name": "no-circular"
+		},
+		"cycle": [
+			{
+				"name": "src/lib/collection/value-pages.ts",
+				"dependencyTypes": ["local", "import"]
+			},
+			{
+				"name": "src/lib/collection/card-index.ts",
+				"dependencyTypes": ["local", "import"]
+			},
+			{
+				"name": "src/lib/collection/author-sort.ts",
+				"dependencyTypes": ["local", "import"]
+			},
+			{
+				"name": "src/lib/collection/types.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/mentions.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			}
+		]
+	},
+	{
+		"type": "cycle",
+		"from": "src/lib/collection/types.ts",
+		"to": "src/lib/collection/value-summaries.ts",
+		"unresolvedTo": "./value-summaries.ts",
+		"dependencyTypes": ["local", "type-only", "import"],
+		"rule": {
+			"severity": "error",
+			"name": "no-circular"
+		},
+		"cycle": [
+			{
+				"name": "src/lib/collection/value-summaries.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/types.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			}
+		]
+	},
+	{
+		"type": "cycle",
+		"from": "src/lib/collection/types.ts",
+		"to": "src/lib/glossary/types.ts",
+		"unresolvedTo": "#lib/glossary/types.ts",
+		"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"],
+		"rule": {
+			"severity": "error",
+			"name": "no-circular"
+		},
+		"cycle": [
+			{
+				"name": "src/lib/glossary/types.ts",
+				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/types.ts",
+				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
+			}
+		]
+	},
+	{
+		"type": "cycle",
+		"from": "src/lib/collection/types.ts",
+		"to": "src/lib/profile/types.ts",
+		"unresolvedTo": "#lib/profile/types.ts",
+		"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"],
+		"rule": {
+			"severity": "error",
+			"name": "no-circular"
+		},
+		"cycle": [
+			{
+				"name": "src/lib/profile/types.ts",
+				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/review/types.ts",
+				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/types.ts",
+				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
+			}
+		]
+	},
+	{
+		"type": "cycle",
+		"from": "src/lib/collection/value-pages.ts",
+		"to": "src/lib/collection/eras.ts",
+		"unresolvedTo": "./eras.ts",
+		"dependencyTypes": ["local", "import"],
+		"rule": {
+			"severity": "error",
+			"name": "no-circular"
+		},
+		"cycle": [
+			{
+				"name": "src/lib/collection/eras.ts",
+				"dependencyTypes": ["local", "import"]
+			},
+			{
+				"name": "src/lib/collection/types.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/mentions.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/value-pages.ts",
+				"dependencyTypes": ["local", "import"]
+			}
+		]
+	},
+	{
+		"type": "cycle",
+		"from": "src/lib/collection/value-pages.ts",
+		"to": "src/lib/collection/types.ts",
+		"unresolvedTo": "./types.ts",
+		"dependencyTypes": ["local", "type-only", "import"],
+		"rule": {
+			"severity": "error",
+			"name": "no-circular"
+		},
+		"cycle": [
+			{
+				"name": "src/lib/collection/types.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/mentions.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/value-pages.ts",
+				"dependencyTypes": ["local", "import"]
+			}
+		]
+	},
+	{
+		"type": "cycle",
+		"from": "src/lib/glossary/types.ts",
+		"to": "src/lib/collection/mentions.ts",
+		"unresolvedTo": "#lib/collection/mentions.ts",
+		"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"],
+		"rule": {
+			"severity": "error",
+			"name": "no-circular"
+		},
+		"cycle": [
+			{
+				"name": "src/lib/collection/mentions.ts",
+				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/card-index-data.ts",
+				"dependencyTypes": ["local", "import"]
+			},
+			{
+				"name": "src/lib/collection/card-index.ts",
+				"dependencyTypes": ["local", "import"]
+			},
+			{
+				"name": "src/lib/collection/author-sort.ts",
+				"dependencyTypes": ["local", "import"]
+			},
+			{
+				"name": "src/lib/collection/types.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/glossary/types.ts",
+				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
+			}
+		]
+	},
+	{
+		"type": "cycle",
+		"from": "src/lib/profile/types.ts",
+		"to": "src/lib/review/types.ts",
+		"unresolvedTo": "#lib/review/types.ts",
+		"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"],
+		"rule": {
+			"severity": "error",
+			"name": "no-circular"
+		},
+		"cycle": [
+			{
+				"name": "src/lib/review/types.ts",
+				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/image-record.ts",
+				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/collection/types.ts",
+				"dependencyTypes": ["local", "type-only", "import"]
+			},
+			{
+				"name": "src/lib/profile/types.ts",
+				"dependencyTypes": ["aliased", "aliased-subpath-import", "local", "type-only", "import"]
+			}
+		]
+	}
+]
