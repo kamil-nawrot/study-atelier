@@ -11,6 +11,7 @@ on:
       - 'stylelint.config.js'
       - 'stylelint/**'
       - 'eslint.config.base.js'
+      - 'lint/**'
       - 'prettier.config.js'
       - 'design/**'
       - '.github/workflows/ui.yml'
