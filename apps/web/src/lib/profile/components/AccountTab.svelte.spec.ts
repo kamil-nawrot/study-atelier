@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { changePassword } from '#lib/auth/account.ts';
+import { changePassword, requestEmailChange } from '#lib/auth/account.ts';
 import { MIN_PASSWORD_LENGTH } from '#lib/auth/validation.ts';
 import { m } from '#lib/i18n/index.ts';
 import { TEST_EMAIL } from '#lib/testing/auth.ts';
 import AccountTab from './AccountTab.svelte';
 
-vi.mock('#lib/auth/account.ts', () => ({ changePassword: vi.fn() }));
+vi.mock('#lib/auth/account.ts', () => ({ changePassword: vi.fn(), requestEmailChange: vi.fn() }));
 
 const onchanged = vi.fn();
 
@@ -23,6 +23,56 @@ async function fillPasswords(current: string, next: string): Promise<void> {
 function submit(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('button', { name: m.settings.account.submit });
 }
+
+describe('AccountTab email', () => {
+	function emailSubmit(): ReturnType<typeof page.getByRole> {
+		return page.getByRole('button', { name: m.settings.account.emailSubmit });
+	}
+
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it('shows the current address and checks the new one before it calls the server', async () => {
+		render(AccountTab, { email: TEST_EMAIL, onchanged });
+		await expect.element(page.getByText(m.settings.account.currentEmail(TEST_EMAIL))).toBeVisible();
+		await emailSubmit().click();
+
+		await expect.element(page.getByText(m.validation.emailRequired)).toBeVisible();
+		expect(requestEmailChange).not.toHaveBeenCalled();
+	});
+
+	it('sends the links and says they went to both addresses', async () => {
+		vi.mocked(requestEmailChange).mockResolvedValue({ sent: true });
+		render(AccountTab, { email: TEST_EMAIL, onchanged });
+		await field(m.settings.account.newEmail).fill('new@example.com');
+		await emailSubmit().click();
+
+		expect(requestEmailChange).toHaveBeenCalledWith(TEST_EMAIL, 'new@example.com');
+		await expect.element(page.getByText(m.settings.account.emailSent)).toBeVisible();
+	});
+
+	it('shows a refused address under its field', async () => {
+		vi.mocked(requestEmailChange).mockResolvedValue({
+			sent: false,
+			error: m.authErrors.emailTaken
+		});
+		render(AccountTab, { email: TEST_EMAIL, onchanged });
+		await field(m.settings.account.newEmail).fill('taken@example.com');
+		await emailSubmit().click();
+
+		await expect.element(page.getByText(m.authErrors.emailTaken)).toBeVisible();
+		await expect.element(page.getByText(m.settings.account.emailSent)).not.toBeInTheDocument();
+	});
+
+	it('reminds that a change waits for the links', async () => {
+		render(AccountTab, { email: TEST_EMAIL, pendingEmail: 'new@example.com', onchanged });
+
+		await expect
+			.element(page.getByText(m.settings.account.emailPending('new@example.com')))
+			.toBeVisible();
+	});
+});
 
 describe('AccountTab', () => {
 	beforeEach(() => {

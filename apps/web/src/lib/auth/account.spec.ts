@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/index.ts';
-import { changePassword, signIn, signUp } from './account';
+import { changePassword, pendingEmailChange, requestEmailChange, signIn, signUp } from './account';
 
 const auth = vi.hoisted(() => ({
 	signInWithPassword: vi.fn(),
 	signUp: vi.fn(),
 	updateUser: vi.fn(),
+	getUser: vi.fn(),
 	signOut: vi.fn()
 }));
 
@@ -16,6 +17,7 @@ beforeEach(() => {
 	auth.signInWithPassword.mockReset();
 	auth.signUp.mockReset();
 	auth.updateUser.mockReset();
+	auth.getUser.mockReset();
 	auth.signOut.mockReset();
 });
 
@@ -161,5 +163,51 @@ describe('changePassword', () => {
 
 		expect(result).toEqual({ changed: false, error: m.authErrors.network });
 		expect(auth.signOut).not.toHaveBeenCalled();
+	});
+});
+
+describe('requestEmailChange', () => {
+	it('asks for links that return to the account tab', async () => {
+		auth.updateUser.mockResolvedValue({ error: null });
+		expect(await requestEmailChange('learner@example.com', ' new@example.com ')).toEqual({
+			sent: true
+		});
+		expect(auth.updateUser).toHaveBeenCalledWith(
+			{ email: 'new@example.com' },
+			{ emailRedirectTo: 'https://atelier.test/atelier/settings?tab=account&emailChanged=1' }
+		);
+	});
+
+	it('refuses the current address without calling the server', async () => {
+		expect(await requestEmailChange('learner@example.com', 'Learner@Example.com')).toEqual({
+			sent: false,
+			error: m.settings.account.sameEmail
+		});
+		expect(auth.updateUser).not.toHaveBeenCalled();
+	});
+
+	it('says that the address belongs to another account', async () => {
+		auth.updateUser.mockResolvedValue({ error: { code: 'email_exists', status: 422 } });
+		expect(await requestEmailChange('learner@example.com', 'taken@example.com')).toEqual({
+			sent: false,
+			error: m.authErrors.emailTaken
+		});
+	});
+});
+
+describe('pendingEmailChange', () => {
+	it('returns the address that waits for confirmation', async () => {
+		auth.getUser.mockResolvedValue({
+			data: { user: { new_email: 'new@example.com' } },
+			error: null
+		});
+		expect(await pendingEmailChange()).toBe('new@example.com');
+	});
+
+	it('returns nothing without a pending change or when the user cannot be read', async () => {
+		auth.getUser.mockResolvedValue({ data: { user: {} }, error: null });
+		expect(await pendingEmailChange()).toBeUndefined();
+		auth.getUser.mockResolvedValue({ data: { user: null }, error: { code: 'x' } });
+		expect(await pendingEmailChange()).toBeUndefined();
 	});
 });

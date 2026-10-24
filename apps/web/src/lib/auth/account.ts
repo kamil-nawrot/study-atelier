@@ -89,6 +89,38 @@ export async function changePassword(
 	return { changed: true };
 }
 
+export const EMAIL_CHANGED_PARAM = 'emailChanged';
+
+export function emailChangeRedirectUrl(): string {
+	return authRedirectUrl(`/atelier/settings?tab=account&${EMAIL_CHANGED_PARAM}=1`);
+}
+
+export type EmailChangeResult = {
+	sent: boolean;
+	error?: string;
+};
+
+export async function requestEmailChange(
+	currentEmail: string,
+	newEmail: string
+): Promise<EmailChangeResult> {
+	const email = newEmail.trim();
+	if (email.toLowerCase() === currentEmail.toLowerCase()) {
+		return { sent: false, error: m.settings.account.sameEmail };
+	}
+	const { error } = await supabase.auth.updateUser(
+		{ email },
+		{ emailRedirectTo: emailChangeRedirectUrl() }
+	);
+	return error ? { sent: false, error: authErrorMessage(error) } : { sent: true };
+}
+
+export async function pendingEmailChange(): Promise<string | undefined> {
+	const { data, error } = await supabase.auth.getUser();
+	if (error) return undefined;
+	return data.user.new_email ?? undefined;
+}
+
 export async function signOut(): Promise<void> {
 	await supabase.auth.signOut();
 }

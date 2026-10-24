@@ -11,6 +11,7 @@ const messagesByCode: Record<string, string> = {
 	email_not_confirmed: m.authErrors.emailNotConfirmed,
 	weak_password: m.authErrors.weakPassword,
 	same_password: m.authErrors.samePassword,
+	email_exists: m.authErrors.emailTaken,
 	over_request_rate_limit: m.authErrors.rateLimited,
 	over_email_send_rate_limit: m.authErrors.emailRateLimited,
 	email_address_invalid: m.validation.emailInvalid
