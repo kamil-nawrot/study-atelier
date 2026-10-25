@@ -8,7 +8,7 @@
 	import { noteExcerpt } from '#lib/chronicle/note-excerpt/note-excerpt.ts';
 	import { ticketDate, visitWeekday } from '#lib/chronicle/visit-date/visit-date.ts';
 	import TicketEdge from '#lib/chronicle/components/TicketEdge/TicketEdge.svelte';
-	import VisitThumbnails from '#lib/chronicle/components/VisitThumbnails/VisitThumbnails.svelte';
+	import VisitBackdrop from '#lib/chronicle/components/VisitBackdrop/VisitBackdrop.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
 
@@ -16,21 +16,12 @@
 		visit: Visit;
 		count: number;
 		linked?: boolean;
-		thumbnails?: WallArtwork[];
-		more?: number;
+		backdrop?: WallArtwork;
 		onnearscreen?: (artwork: WallArtwork) => void;
 		onimagefailed?: (artwork: WallArtwork) => void;
 	};
 
-	let {
-		visit,
-		count,
-		linked = false,
-		thumbnails = [],
-		more = 0,
-		onnearscreen,
-		onimagefailed
-	}: Props = $props();
+	let { visit, count, linked = false, backdrop, onnearscreen, onimagefailed }: Props = $props();
 
 	let header = $derived(!linked);
 	let date = $derived(ticketDate(visit.date, header));
@@ -96,7 +87,9 @@
 				<span class="caption">{m.chronicle.seenCount(count)}</span>
 			</p>
 		{:else}
-			<VisitThumbnails artworks={thumbnails} {more} {onimagefailed} {onnearscreen} />
+			{#if backdrop}
+				<VisitBackdrop artwork={backdrop} {onimagefailed} {onnearscreen} />
+			{/if}
 		{/if}
 	</div>
 </article>
@@ -196,9 +189,11 @@
 	}
 
 	.stub {
+		position: relative;
 		display: grid;
 		align-items: center;
 		min-width: 0;
+		min-height: var(--spacing-16);
 		padding: var(--spacing-4) var(--spacing-6);
 	}
 
@@ -215,7 +210,7 @@
 
 	@media (min-width: 768px) {
 		.ticket {
-			grid-template-columns: minmax(0, 1fr) auto minmax(0, 360px);
+			grid-template-columns: minmax(0, 1fr) auto minmax(0, 240px);
 		}
 
 		.main {

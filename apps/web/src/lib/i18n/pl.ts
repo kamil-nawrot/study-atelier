@@ -1123,8 +1123,6 @@ export const pl = {
 		seen: (count: number): string => `${workCount(count)} na żywo`,
 		seenCount: (count: number): string =>
 			`${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })} na żywo`,
-		more: (count: number): string => `+${count}`,
-		moreLabel: (count: number): string => `i ${workCount(count)} więcej`,
 		kind: 'Wizyta',
 		inYear: (year: number): string => `${year} roku`,
 		saved: (place: string, date: string): string => `Zapisano wizytę: ${place}, ${date}.`,

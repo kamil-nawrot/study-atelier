@@ -30,9 +30,8 @@ describe('VisitList', () => {
 			'2019'
 		]);
 		await expect.element(page.getByText(m.chronicle.seen(1))).toBeInTheDocument();
-		await expect
-			.element(page.getByRole('img', { name: 'Water Lilies, Test Painter' }))
-			.toBeVisible();
+		const backdrop = document.querySelector('[aria-hidden="true"] img');
+		expect(backdrop?.getAttribute('src')).toBe(lilies.image?.src);
 	});
 
 	it('opens only the newest year and lets the learner open the others', async () => {

@@ -16,8 +16,6 @@
 
 	let { visits, artworks, onnearscreen, onimagefailed }: Props = $props();
 
-	const THUMBNAILS = 3;
-
 	let years = $derived(visitsByYear(visits));
 	let opened = $derived(openYear(years));
 </script>
@@ -37,12 +35,11 @@
 						{@const seen = seenArtworks(visit, artworks)}
 						<li>
 							<VisitTicket
+								backdrop={seen.find((artwork) => artwork.hasImage)}
 								count={seen.length}
 								linked
-								more={seen.length - THUMBNAILS}
 								{onimagefailed}
 								{onnearscreen}
-								thumbnails={seen.slice(0, THUMBNAILS)}
 								{visit}
 							/>
 						</li>
