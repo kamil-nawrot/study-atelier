@@ -237,6 +237,22 @@ describe('FilterPanel', () => {
 		await expect.element(tag).toHaveAttribute('aria-pressed', 'true');
 	});
 
+	it('offers the artworks seen in person next to the favourites with their count', async () => {
+		render(FilterPanelHost, {
+			artworks: [...artworks, testArtwork(3, 'The Kiss', { seen: true })],
+			initial: emptyFilter(),
+			report: (next: CollectionFilter) => (state.current = next)
+		});
+
+		const tag = page.getByRole('button', {
+			name: new RegExp(`^${m.atelier.filters.fields.seen}.* 1$`)
+		});
+		await tag.click();
+
+		expect(state.current.seen).toBe(true);
+		await expect.element(tag).toHaveAttribute('aria-pressed', 'true');
+	});
+
 	it('shows the first values of every group and a button for the rest', async () => {
 		const many = Array.from({ length: 10 }, (_, index) =>
 			testArtwork(10 + index, `Work ${index}`, {

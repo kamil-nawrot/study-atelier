@@ -8,6 +8,7 @@ import {
 	emptyFilter,
 	filterOptions,
 	favouriteCount,
+	seenCount,
 	isEmptyFilter,
 	matchesFilter,
 	onlyFavourites,
@@ -16,6 +17,7 @@ import {
 	setYears,
 	tickedOptions,
 	toggleFavourites,
+	toggleSeen,
 	toggleOwnValue,
 	toggleTicked,
 	toggleValue
@@ -434,6 +436,54 @@ describe('favourites', () => {
 		expect(params.get('favourites')).toBe('1');
 		expect(filterFromParams(params)).toEqual(filter);
 		expect(filterToParams(emptyFilter()).has('favourites')).toBe(false);
+	});
+});
+
+describe('seen in person', () => {
+	const visited = [
+		testArtwork(1, 'Mona Lisa', { seen: true, favourite: true, eraCode: 'early_modern' }),
+		testArtwork(2, 'The Kiss', { seen: true, eraCode: 'modern' }),
+		testArtwork(3, 'Sunflowers', { eraCode: 'modern' })
+	];
+
+	it('shows only the artworks seen in person, also with the favourites', () => {
+		expect(
+			applyFilter(visited, filterWith({ seen: true })).map((artwork) => artwork.title)
+		).toEqual(['Mona Lisa', 'The Kiss']);
+		expect(
+			applyFilter(visited, filterWith({ seen: true, favourites: true })).map(
+				(artwork) => artwork.title
+			)
+		).toEqual(['Mona Lisa']);
+	});
+
+	it('counts the seen artworks the wall would show with the other filters', () => {
+		expect(seenCount(visited, emptyFilter())).toBe(2);
+		expect(seenCount(visited, filterWith({ eras: ['modern'] }))).toBe(1);
+	});
+
+	it('toggles and clears', () => {
+		const on = toggleSeen(emptyFilter());
+
+		expect(isEmptyFilter(on)).toBe(false);
+		expect(onlyFavourites(on)).toBe(false);
+		expect(clearField(on, 'seen')).toEqual(emptyFilter());
+	});
+
+	it('has a tag that names the field only and removes the choice', () => {
+		const [tag] = filterTags(filterWith({ seen: true }));
+
+		expect(tag).toEqual({ id: 'seen', field: 'seen', value: '' });
+		expect(tagLabel(tag)).toBe(m.atelier.filters.tagFields.seen);
+		expect(removeTag(filterWith({ seen: true }), tag)).toEqual(emptyFilter());
+	});
+
+	it('is kept in the address', () => {
+		const filter = filterWith({ seen: true });
+		const params = filterToParams(filter);
+
+		expect(params.get('seen')).toBe('1');
+		expect(filterFromParams(params)).toEqual(filter);
 	});
 });
 

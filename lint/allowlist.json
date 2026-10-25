@@ -137,7 +137,6 @@
 		"apps/web/src/lib/values/components/StylePeriodsField/StylePeriodsField.svelte",
 		"apps/web/src/lib/values/components/ValueForm/ValueForm.svelte",
 		"apps/web/src/lib/values/components/ValueView/ValueView.svelte",
-		"apps/web/src/lib/wall/components/FavouriteToggle/FavouriteToggle.svelte",
 		"apps/web/src/lib/wall/components/FilterSidePanel/FilterSidePanel.svelte",
 		"apps/web/src/lib/wall/components/GroupingChoice/GroupingChoice.svelte",
 		"apps/web/src/lib/wall/components/PeriodRail/PeriodRail.svelte",

@@ -110,6 +110,21 @@ describe('loadAtelier', () => {
 		expect(query.range).toHaveBeenCalledWith(0, 999);
 	});
 
+	it('marks an artwork seen on a visit', async () => {
+		query.range.mockResolvedValue({
+			data: [
+				row({ visit_artworks: [{ visit_id: 'visit-1' }] }),
+				row({ id: 'artwork-2', visit_artworks: [] })
+			],
+			error: null
+		});
+
+		const { artworks } = await loadAtelier();
+
+		expect(artworks.map((artwork) => artwork.seen)).toEqual([true, undefined]);
+		expect(query.select).toHaveBeenCalledWith(expect.stringContaining('visit_artworks(visit_id)'));
+	});
+
 	it('keeps asking for the next 1000 artworks until a page is not full', async () => {
 		const page = (from: number, count: number): Record<string, unknown>[] =>
 			Array.from({ length: count }, (_, index) =>
