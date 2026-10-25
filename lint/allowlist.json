@@ -1,14 +1,12 @@
 {
 	"lines": [
 		"apps/web/src/lib/images/components/ImageField/ImageField.svelte",
-		"apps/web/src/lib/values/components/ValueForm/ValueForm.svelte",
 		"apps/web/src/lib/wall/filter/filter.ts",
 		"apps/web/src/routes/(app)/atelier/new/page.svelte.spec.ts",
 		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte"
 	],
 	"script": [
 		"apps/web/src/lib/images/components/ImageField/ImageField.svelte",
-		"apps/web/src/lib/values/components/ValueForm/ValueForm.svelte",
 		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte"
 	],
 	"style": [
