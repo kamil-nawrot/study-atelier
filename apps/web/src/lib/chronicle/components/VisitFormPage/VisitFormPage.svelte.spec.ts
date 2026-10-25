@@ -37,7 +37,7 @@ describe('VisitFormPage', () => {
 			data: { visit: testVisit({ place: 'Orsay' }), artworks: [], places: ['Orsay'] }
 		});
 
-		await userEvent.click(page.getByRole('button', { name: m.chronicle.form.save, exact: true }));
+		await userEvent.click(page.getByRole('button', { name: m.common.save, exact: true }));
 
 		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
 		expect(goto).toHaveBeenCalledWith(`/atelier/chronicle/${VISIT_ID}`, {

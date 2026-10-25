@@ -89,7 +89,7 @@ describe('pin data', () => {
 
 		await expect(loadArtworkPins(12)).resolves.toEqual({
 			pins: [],
-			error: m.pins.errors.network
+			error: m.common.network
 		});
 	});
 
@@ -213,7 +213,7 @@ describe('pin data', () => {
 		expect(query.eq).toHaveBeenCalledWith('id', 'pin-1');
 
 		query.eq.mockResolvedValueOnce({ error: { code: '', message: 'Failed to fetch' } });
-		await expect(deletePin('pin-1')).resolves.toEqual({ error: m.pins.errors.network });
+		await expect(deletePin('pin-1')).resolves.toEqual({ error: m.common.network });
 	});
 
 	it('finds the first pin of every artwork with a glossary entry', async () => {
@@ -242,7 +242,7 @@ describe('pin data', () => {
 
 		await expect(loadEntryPins('term-1')).resolves.toEqual({
 			pins: [],
-			error: m.pins.errors.network
+			error: m.common.network
 		});
 	});
 });

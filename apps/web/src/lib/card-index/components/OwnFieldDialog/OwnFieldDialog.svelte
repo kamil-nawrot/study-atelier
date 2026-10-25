@@ -102,7 +102,7 @@
 		{/if}
 		<TextField
 			error={nameError}
-			label={m.ownFields.form.name}
+			label={m.common.name}
 			maxlength={FIELD_NAME_MAX_LENGTH}
 			bind:value={draft.name}
 		/>
@@ -131,13 +131,13 @@
 	</Form>
 	{#snippet footer()}
 		<Button onclick={() => (open = false)}>
-			{m.ownFields.form.cancel}
+			{m.common.cancel}
 		</Button>
 		<Button disabled={saving} form={formId} type="submit" variant="primary">
 			{#if edited}
-				{saving ? m.ownFields.form.saving : m.ownFields.form.save}
+				{saving ? m.common.saving : m.common.save}
 			{:else}
-				{saving ? m.ownFields.form.creating : m.ownFields.form.create}
+				{saving ? m.ownFields.form.creating : m.common.add}
 			{/if}
 		</Button>
 	{/snippet}

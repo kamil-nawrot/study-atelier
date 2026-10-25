@@ -1,6 +1,6 @@
 # 0066. Give every artwork type an icon and show types like eras
 
-- Status: accepted
+- Status: accepted; the label "Rzemiosło artystyczne" is superseded by [0131](0131-call-the-trash-archiwum-and-describe-work-in-progress-impersonally.md)
 - Date: 2026-10-16
 
 ## Context and problem statement

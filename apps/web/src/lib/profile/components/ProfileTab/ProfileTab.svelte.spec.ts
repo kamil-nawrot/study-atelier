@@ -173,7 +173,7 @@ describe('ProfileTab', () => {
 
 		await nameField().fill('Changed');
 		await page.getByRole('button', { name: m.settings.profile.removePhoto }).click();
-		await page.getByRole('button', { name: m.settings.profile.cancel }).click();
+		await page.getByRole('button', { name: m.common.cancel }).click();
 
 		await expect.element(nameField()).toHaveValue('Anna');
 		await expect
@@ -215,6 +215,6 @@ describe('ProfileTab', () => {
 		await expect
 			.element(page.getByRole('alertdialog', { name: m.artworkForm.discardTitle }))
 			.toBeVisible();
-		await expect.element(page.getByText(m.settings.profile.discardDescription)).toBeVisible();
+		await expect.element(page.getByText(m.common.discardDescription)).toBeVisible();
 	});
 });

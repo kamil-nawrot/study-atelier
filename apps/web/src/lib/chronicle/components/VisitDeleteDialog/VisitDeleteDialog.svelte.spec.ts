@@ -11,7 +11,7 @@ vi.mock('#lib/chronicle/chronicle-data/chronicle-data.ts', () => ({ deleteVisit:
 const remove = vi.mocked(deleteVisit);
 
 function confirmButton(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('button', { name: m.chronicle.deleteConfirm.confirm, exact: true });
+	return page.getByRole('button', { name: m.common.delete, exact: true });
 }
 
 describe('VisitDeleteDialog', () => {
@@ -37,13 +37,13 @@ describe('VisitDeleteDialog', () => {
 	});
 
 	it('keeps the dialog open with the error when the delete fails', async () => {
-		remove.mockResolvedValue({ error: m.chronicle.errors.network });
+		remove.mockResolvedValue({ error: m.common.network });
 		const ondeleted = vi.fn();
 		render(VisitDeleteDialog, { visit: testVisit(), open: true, ondeleted });
 
 		await userEvent.click(confirmButton());
 
-		await expect.element(page.getByText(m.chronicle.errors.network)).toBeInTheDocument();
+		await expect.element(page.getByText(m.common.network)).toBeInTheDocument();
 		expect(ondeleted).not.toHaveBeenCalled();
 	});
 });

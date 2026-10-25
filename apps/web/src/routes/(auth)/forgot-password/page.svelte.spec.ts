@@ -61,9 +61,7 @@ describe('forgot-password page', () => {
 
 		await submit(TEST_EMAIL);
 
-		await expect
-			.element(page.getByRole('button', { name: m.forgotPassword.submitting }))
-			.toBeDisabled();
+		await expect.element(page.getByRole('button', { name: m.common.sending })).toBeDisabled();
 	});
 
 	it('explains a rate limit and keeps the form', async () => {
@@ -85,6 +83,6 @@ describe('forgot-password page', () => {
 
 		await submit(TEST_EMAIL);
 
-		await expect.element(page.getByRole('alert')).toHaveTextContent(m.authErrors.network);
+		await expect.element(page.getByRole('alert')).toHaveTextContent(m.common.network);
 	});
 });

@@ -221,7 +221,7 @@
 	<ArtworkVisits {visits} />
 
 	<section class="notes" aria-labelledby="artwork-notes">
-		<h2 id="artwork-notes" class="caption">{m.artworkForm.notes}</h2>
+		<h2 id="artwork-notes" class="caption">{m.common.notes}</h2>
 		{#if artwork.notes.trim()}
 			<GlossaryNotes entries={glossary} links={noteLinks} value={artwork.notes} />
 		{:else}

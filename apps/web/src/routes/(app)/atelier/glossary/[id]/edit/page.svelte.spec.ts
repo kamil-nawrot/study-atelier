@@ -50,7 +50,7 @@ function renderEdit(
 }
 
 function nameField(): ReturnType<typeof page.getByRole> {
-	return page.getByLabelText(m.glossary.form.name);
+	return page.getByLabelText(m.common.name);
 }
 
 async function addSynonym(word: string): Promise<void> {
@@ -60,7 +60,7 @@ async function addSynonym(word: string): Promise<void> {
 }
 
 function saveButton(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('button', { name: m.glossary.form.save, exact: true });
+	return page.getByRole('button', { name: m.common.save, exact: true });
 }
 
 describe('edit glossary entry page', () => {
@@ -96,7 +96,7 @@ describe('edit glossary entry page', () => {
 			.element(page.getByRole('checkbox', { name: m.glossary.form.sortByOther }))
 			.not.toBeChecked();
 		await expect
-			.element(page.getByRole('link', { name: m.glossary.form.cancel }))
+			.element(page.getByRole('link', { name: m.common.cancel }))
 			.toHaveAttribute('href', `/atelier/glossary/${tympanum.id}`);
 	});
 
@@ -268,7 +268,7 @@ describe('edit glossary entry page', () => {
 		await expect
 			.element(page.getByRole('alertdialog', { name: m.glossary.replaceConfirm.title }))
 			.toBeVisible();
-		await page.getByRole('button', { name: m.glossary.replaceConfirm.replace }).click();
+		await page.getByRole('button', { name: m.common.replace }).click();
 
 		await expect
 			.element(page.getByLabelText(m.glossary.form.definition))
@@ -303,7 +303,7 @@ describe('edit glossary entry page', () => {
 		renderEdit(null, { notFound: true });
 
 		await expect.element(page.getByText(m.glossary.view.notFound)).toBeVisible();
-		expect(page.getByLabelText(m.glossary.form.name).elements()).toHaveLength(0);
+		expect(page.getByLabelText(m.common.name).elements()).toHaveLength(0);
 	});
 
 	it('writes the new definition of an entry that had none and searches for it', async () => {

@@ -126,14 +126,14 @@
 	{#snippet footer()}
 		{#if pin}
 			<Button disabled={busy !== undefined} onclick={remove} variant="danger">
-				{busy === 'deleting' ? m.pins.removing : m.pins.remove}
+				{busy === 'deleting' ? m.common.deleting : m.common.delete}
 			</Button>
 		{/if}
 		<Button onclick={() => (open = false)}>
-			{m.pins.cancel}
+			{m.common.cancel}
 		</Button>
 		<Button disabled={busy !== undefined} onclick={submit} variant="primary">
-			{busy === 'saving' ? m.pins.saving : m.pins.save}
+			{busy === 'saving' ? m.common.saving : m.common.save}
 		</Button>
 	{/snippet}
 </Dialog>

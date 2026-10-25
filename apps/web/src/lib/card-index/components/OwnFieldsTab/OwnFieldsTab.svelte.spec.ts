@@ -69,16 +69,16 @@ describe('OwnFieldsTab', () => {
 	it('refuses the name of a built-in field and adds a field with another name', async () => {
 		renderTab();
 		await page.getByRole('button', { name: m.ownFields.add }).click();
-		const name = page.getByRole('textbox', { name: m.ownFields.form.name });
+		const name = page.getByRole('textbox', { name: m.common.name });
 
 		await name.fill('Styl');
-		await page.getByRole('button', { name: m.ownFields.form.create, exact: true }).click();
+		await page.getByRole('button', { name: m.common.add, exact: true }).click();
 
 		await expect.element(page.getByText(m.ownFields.errors.builtInName('Styl'))).toBeVisible();
 		expect(query.insert).not.toHaveBeenCalled();
 
 		await name.fill('Source');
-		await page.getByRole('button', { name: m.ownFields.form.create, exact: true }).click();
+		await page.getByRole('button', { name: m.common.add, exact: true }).click();
 
 		expect(query.insert).toHaveBeenCalledWith({
 			name: 'Source',
@@ -117,7 +117,7 @@ describe('OwnFieldsTab', () => {
 		renderTab();
 
 		await menu('Lecture').click();
-		await page.getByRole('button', { name: m.ownFields.remove, exact: true }).click();
+		await page.getByRole('button', { name: m.common.delete, exact: true }).click();
 
 		const dialog = page.getByRole('alertdialog', {
 			name: m.ownFields.deleteConfirm.title('Lecture')
@@ -143,7 +143,7 @@ describe('OwnFieldsTab', () => {
 		});
 
 		await menu('Lecture').click();
-		await page.getByRole('button', { name: m.ownFields.remove, exact: true }).click();
+		await page.getByRole('button', { name: m.common.delete, exact: true }).click();
 		await page
 			.getByRole('alertdialog')
 			.getByRole('button', { name: m.ownFields.deleteConfirm.confirm })
@@ -160,15 +160,15 @@ describe('OwnFieldsTab', () => {
 			.nth(1)
 			.click();
 		await page.getByRole('button', { name: m.cardIndex.openValue('Angle', '1 dzieło') }).click();
-		await page.getByRole('textbox', { name: m.ownFields.value.name }).fill('angel');
+		await page.getByRole('textbox', { name: m.common.name }).fill('angel');
 
 		await expect
 			.element(page.getByText(m.ownFields.value.mergeHint('Angel', '2 dzieła')))
 			.toBeVisible();
-		await page.getByRole('button', { name: m.ownFields.value.merge, exact: true }).click();
+		await page.getByRole('button', { name: m.common.merge, exact: true }).click();
 		await page
 			.getByRole('alertdialog', { name: m.cardIndex.mergeConfirm.title('Angle', 'Angel') })
-			.getByRole('button', { name: m.cardIndex.mergeConfirm.confirm })
+			.getByRole('button', { name: m.common.merge })
 			.click();
 
 		expect(supabase.rpc).toHaveBeenCalledWith('merge_category_values', {

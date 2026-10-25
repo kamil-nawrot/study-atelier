@@ -155,16 +155,16 @@
 		</div>
 		<FormActions bind:height={barHeight}>
 			<Button disabled={formState.busy} onclick={cancel}>
-				{m.settings.preferences.cancel}
+				{m.common.cancel}
 			</Button>
 			<Button disabled={formState.busy} type="submit" variant="primary">
-				{formState.busy ? m.settings.preferences.saving : m.settings.preferences.save}
+				{formState.busy ? m.common.saving : m.settings.preferences.save}
 			</Button>
 		</FormActions>
 	</Form>
 </div>
 
-<DiscardDialog {changes} description={m.settings.preferences.discardDescription} />
+<DiscardDialog {changes} description={m.common.discardDescription} />
 
 <style>
 	.tab {

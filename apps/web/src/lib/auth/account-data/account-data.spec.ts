@@ -167,7 +167,7 @@ describe('changePassword', () => {
 
 		const result = await changePassword('learner@example.com', 'vermeer1', 'rembrandt2', true);
 
-		expect(result).toEqual({ changed: false, error: m.authErrors.network });
+		expect(result).toEqual({ changed: false, error: m.common.network });
 		expect(auth.signOut).not.toHaveBeenCalled();
 	});
 });

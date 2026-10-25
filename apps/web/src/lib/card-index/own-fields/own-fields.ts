@@ -35,7 +35,7 @@ export function builtInFieldNames(): string[] {
 		form.style,
 		form.material,
 		form.location,
-		form.notes
+		m.common.notes
 	];
 }
 

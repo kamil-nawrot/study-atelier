@@ -87,20 +87,20 @@
 	{#snippet bar()}
 		<BackLink fallbackHref={cardIndexPath} fallbackName={m.valuePage.back} />
 		{#if editHref}
-			<Button aria-label={m.valuePage.edit} compact href={editHref} icon={Pencil}>
-				{m.valuePage.edit}
+			<Button aria-label={m.common.edit} compact href={editHref} icon={Pencil}>
+				{m.common.edit}
 			</Button>
 		{/if}
 		{#if record && kind}
 			{#if canDelete(record)}
 				<Button
-					aria-label={m.valuePage.delete}
+					aria-label={m.common.delete}
 					compact
 					icon={Trash}
 					onclick={askToDelete}
 					variant="danger"
 				>
-					{m.valuePage.delete}
+					{m.common.delete}
 				</Button>
 			{:else}
 				<Tooltip
@@ -116,12 +116,12 @@
 						<Button
 							aria-describedby={describedby}
 							aria-disabled="true"
-							aria-label={m.valuePage.delete}
+							aria-label={m.common.delete}
 							compact
 							icon={Trash}
 							variant="danger"
 						>
-							{m.valuePage.delete}
+							{m.common.delete}
 						</Button>
 					{/snippet}
 				</Tooltip>
@@ -183,10 +183,10 @@
 	>
 		{#snippet footer()}
 			<Button onclick={() => (deleteOpen = false)}>
-				{m.cardIndex.deleteConfirm.back}
+				{m.common.back}
 			</Button>
 			<Button disabled={deleting} onclick={remove} variant="primary">
-				{deleting ? m.cardIndex.deleteConfirm.deleting : m.cardIndex.deleteConfirm.confirm}
+				{deleting ? m.common.deleting : m.common.delete}
 			</Button>
 		{/snippet}
 	</Dialog>

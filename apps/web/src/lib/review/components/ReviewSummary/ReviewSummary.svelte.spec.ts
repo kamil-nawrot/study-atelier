@@ -82,22 +82,22 @@ describe('ReviewSummary', () => {
 
 	it('inflects the minutes and the artworks waiting tomorrow, and shares the sentence with a free review', () => {
 		expect(m.review.summary(3, 1, 0)).toBe(
-			'Dziś udało się powtórzyć 3 dzieła, zajęło Ci to 1 minutę.'
+			'Dziś udało się powtórzyć 3 dzieła. Zajęło Ci to 1 minutę.'
 		);
 		expect(m.review.summary(1, 3, 0)).toBe(
-			'Dziś udało się powtórzyć 1 dzieło, zajęło Ci to 3 minuty.'
+			'Dziś udało się powtórzyć 1 dzieło. Zajęło Ci to 3 minuty.'
 		);
 		expect(m.review.summary(5, 5, 2)).toBe(
-			'Dziś udało się powtórzyć 5 dzieł, zajęło Ci to 5 minut. Jutro będą na Ciebie czekać 2 dzieła.'
+			'Dziś udało się powtórzyć 5 dzieł. Zajęło Ci to 5 minut. Jutro będą na Ciebie czekać 2 dzieła.'
 		);
 		expect(m.review.summary(1, 1, 1)).toContain('Jutro będzie na Ciebie czekać 1 dzieło.');
 		expect(m.review.freeSummary(5, 2)).toBe(
-			'Dziś udało się powtórzyć 5 dzieł, zajęło Ci to 2 minuty. Plan powtórek się nie zmienił.'
+			'Dziś udało się powtórzyć 5 dzieł. Zajęło Ci to 2 minuty. Plan powtórek się nie zmienił.'
 		);
 		expect(m.review.summary(1, 1, 12)).toContain('Jutro będzie na Ciebie czekać 12 dzieł.');
 		expect(m.review.summary(1, 1, 23)).toContain('Jutro będą na Ciebie czekać 23 dzieła.');
 		expect(m.review.summary(5, 22, 0)).toBe(
-			'Dziś udało się powtórzyć 5 dzieł, zajęło Ci to 22 minuty.'
+			'Dziś udało się powtórzyć 5 dzieł. Zajęło Ci to 22 minuty.'
 		);
 	});
 });

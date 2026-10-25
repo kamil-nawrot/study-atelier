@@ -151,7 +151,7 @@ Inside a module (example: `wall`):
 ## UI text
 
 - All UI text comes from the message dictionary in `lib/i18n` ([ADR-0015](../decisions/0015-typed-message-dictionaries-for-i18n.md)). Learner data and artwork titles are not UI text.
-- Keys are grouped by screen or domain in camelCase (`signIn`, `forgotPassword`, `authErrors`); text shared by several screens goes in `common`; texts for `packages/ui` go in `ui`.
+- Keys are grouped by screen or domain in camelCase (`signIn`, `forgotPassword`, `authErrors`); text shared by several screens goes in `common` (the actions "Anuluj", "Zapisz", "Usuń", "Wróć" and their progress forms, "Nazwa", "Notatki", the network error and the unsaved changes warning), so a module adds its own key only when its wording differs; texts for `packages/ui` go in `ui`.
 - A running state pairs with its action: `submit` and `submitting`, `resend` and `resending`. Alert titles end in `Title` (`errorTitle`, `sentTitle`).
 - A message with values is a function (`sent(email)`). Plural forms use `plural()` with `Intl.PluralRules`.
 - Adding a language takes three steps:

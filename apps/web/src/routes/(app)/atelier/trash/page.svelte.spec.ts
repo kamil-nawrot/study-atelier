@@ -91,13 +91,13 @@ describe('trash page', () => {
 	});
 
 	it('shows an alert when restoring fails and keeps the artwork', async () => {
-		vi.mocked(restoreArtwork).mockResolvedValue({ error: m.artworkErrors.network });
+		vi.mocked(restoreArtwork).mockResolvedValue({ error: m.common.network });
 		renderTrash();
 
 		await row('Night Watch').getByRole('button', { name: m.trash.restore }).click();
 
 		await expect.element(page.getByText(m.trash.actionErrorTitle)).toBeVisible();
-		await expect.element(page.getByText(m.artworkErrors.network)).toBeVisible();
+		await expect.element(page.getByText(m.common.network)).toBeVisible();
 		await expect.element(row('Night Watch')).toBeVisible();
 	});
 
@@ -121,7 +121,7 @@ describe('trash page', () => {
 		renderTrash();
 
 		await row('Night Watch').getByRole('button', { name: m.trash.deleteForever }).click();
-		await page.getByRole('button', { name: m.trash.cancel }).click();
+		await page.getByRole('button', { name: m.common.cancel }).click();
 
 		await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
 		expect(deletePermanently).not.toHaveBeenCalled();
@@ -129,7 +129,7 @@ describe('trash page', () => {
 	});
 
 	it('shows an error in the dialog when the permanent delete fails', async () => {
-		vi.mocked(deletePermanently).mockResolvedValue({ error: m.artworkErrors.network });
+		vi.mocked(deletePermanently).mockResolvedValue({ error: m.common.network });
 		renderTrash();
 
 		await row('Night Watch').getByRole('button', { name: m.trash.deleteForever }).click();
@@ -138,9 +138,7 @@ describe('trash page', () => {
 			.getByRole('button', { name: m.trash.deleteForever })
 			.click();
 
-		await expect
-			.element(page.getByRole('alertdialog').getByText(m.artworkErrors.network))
-			.toBeVisible();
+		await expect.element(page.getByRole('alertdialog').getByText(m.common.network)).toBeVisible();
 	});
 
 	it('says the trash is empty and what goes into it', async () => {

@@ -51,10 +51,10 @@
 >
 	{#snippet footer()}
 		<Button onclick={() => (open = false)}>
-			{m.chronicle.deleteConfirm.back}
+			{m.common.back}
 		</Button>
 		<Button disabled={deleting} onclick={remove} variant="primary">
-			{deleting ? m.chronicle.deleteConfirm.deleting : m.chronicle.deleteConfirm.confirm}
+			{deleting ? m.common.deleting : m.common.delete}
 		</Button>
 	{/snippet}
 </Dialog>

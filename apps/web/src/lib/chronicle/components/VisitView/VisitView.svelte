@@ -25,7 +25,7 @@
 
 	{#if visit.notes}
 		<div class="notes">
-			<Section aria-label={m.chronicle.view.notesTitle}>
+			<Section aria-label={m.common.notes}>
 				<GlossaryNotes entries={glossary} links={noteLinks} value={visit.notes} />
 			</Section>
 		</div>

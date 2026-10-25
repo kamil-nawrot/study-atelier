@@ -1,6 +1,6 @@
 # 0089. One search button and the word "obraz" in the image field
 
-- Status: accepted
+- Status: accepted; messages about a search in the first person are superseded by [0131](0131-call-the-trash-archiwum-and-describe-work-in-progress-impersonally.md)
 - Date: 2026-10-20
 
 ## Context and problem statement

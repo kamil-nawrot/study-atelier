@@ -109,10 +109,10 @@
 	</Form>
 	{#snippet footer()}
 		<Button onclick={() => (open = false)}>
-			{m.feedback.cancel}
+			{m.common.cancel}
 		</Button>
 		<Button disabled={sending} form={formId} type="submit" variant="primary">
-			{sending ? m.feedback.sending : m.feedback.send}
+			{sending ? m.common.sending : m.feedback.send}
 		</Button>
 	{/snippet}
 </Dialog>

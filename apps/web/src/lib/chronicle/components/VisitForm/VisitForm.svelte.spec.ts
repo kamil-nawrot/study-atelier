@@ -31,7 +31,7 @@ function renderForm(visit?: Visit): { onsaved: ReturnType<typeof vi.fn> } {
 }
 
 function saveButton(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('button', { name: m.chronicle.form.save, exact: true });
+	return page.getByRole('button', { name: m.common.save, exact: true });
 }
 
 async function pickPlace(name: string): Promise<void> {
@@ -142,13 +142,13 @@ describe('VisitForm', () => {
 	});
 
 	it('shows a failed save at the top of the form', async () => {
-		save.mockResolvedValue({ error: m.chronicle.errors.network });
+		save.mockResolvedValue({ error: m.common.network });
 		const { onsaved } = renderForm(testVisit({ place: 'Orsay' }));
 
 		await userEvent.click(saveButton());
 
 		await expect.element(page.getByText(m.chronicle.form.errorTitle)).toBeInTheDocument();
-		await expect.element(page.getByText(m.chronicle.errors.network)).toBeInTheDocument();
+		await expect.element(page.getByText(m.common.network)).toBeInTheDocument();
 		expect(onsaved).not.toHaveBeenCalled();
 	});
 });

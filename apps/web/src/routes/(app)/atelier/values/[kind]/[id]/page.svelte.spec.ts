@@ -139,17 +139,17 @@ describe('value page', () => {
 		renderValue(subjectOf('style-doric'));
 
 		await expect.element(page.getByText(m.valuePage.kinds.style.noNotes)).toBeVisible();
-		const editLinks = page.getByRole('link', { name: m.valuePage.edit });
+		const editLinks = page.getByRole('link', { name: m.common.edit });
 		expect(editLinks.elements()).toHaveLength(1);
 		await expect
-			.element(page.getByRole('banner').getByRole('link', { name: m.valuePage.edit }))
+			.element(page.getByRole('banner').getByRole('link', { name: m.common.edit }))
 			.toHaveAttribute('href', '/atelier/values/style/style-doric/edit');
 	});
 
 	it('labels the notes', async () => {
 		renderValue(subjectOf('style-doric'), { summary: '', notes: 'Fluted shafts.' });
 
-		await expect.element(page.getByRole('heading', { name: m.valuePage.notes })).toBeVisible();
+		await expect.element(page.getByRole('heading', { name: m.common.notes })).toBeVisible();
 	});
 
 	it('shows the artworks that use the value and no others', async () => {
@@ -211,7 +211,7 @@ describe('value page', () => {
 		renderValue(undefined, emptyValueDetails(), { error: m.valuePage.notFound, notFound: true });
 
 		await expect.element(page.getByText(m.valuePage.notFound)).toBeVisible();
-		expect(page.getByRole('link', { name: m.valuePage.edit }).elements()).toHaveLength(0);
+		expect(page.getByRole('link', { name: m.common.edit }).elements()).toHaveLength(0);
 	});
 
 	it('shows a loading error', async () => {
@@ -273,20 +273,20 @@ describe('value page', () => {
 				m.cardIndex.kinds.style.other
 			);
 
-			await page.getByRole('button', { name: m.valuePage.delete }).hover();
+			await page.getByRole('button', { name: m.common.delete }).hover();
 			await expect.element(page.getByRole('tooltip')).toHaveTextContent(blocked);
 		});
 
 		it('deletes an unused value from the top bar after the learner confirms', async () => {
 			renderValue(subjectOf('style-loose'));
 
-			await page.getByRole('banner').getByRole('button', { name: m.valuePage.delete }).click();
+			await page.getByRole('banner').getByRole('button', { name: m.common.delete }).click();
 			const confirm = page.getByRole('alertdialog', {
 				name: m.cardIndex.deleteConfirm.title('styl', 'Loose')
 			});
 			await expect.element(confirm.getByText(m.cardIndex.deleteConfirm.description)).toBeVisible();
 			expect(deleteValue).not.toHaveBeenCalled();
-			await confirm.getByRole('button', { name: m.cardIndex.deleteConfirm.confirm }).click();
+			await confirm.getByRole('button', { name: m.common.delete }).click();
 
 			expect(deleteValue).toHaveBeenCalledWith(expect.objectContaining({ id: 'style-loose' }));
 			expect(goto).toHaveBeenCalledWith('/atelier/values', {
@@ -299,11 +299,8 @@ describe('value page', () => {
 			vi.mocked(deleteValue).mockResolvedValue({ error: m.cardIndex.errors.changed });
 			renderValue(subjectOf('style-loose'));
 
-			await page.getByRole('banner').getByRole('button', { name: m.valuePage.delete }).click();
-			await page
-				.getByRole('alertdialog')
-				.getByRole('button', { name: m.cardIndex.deleteConfirm.confirm })
-				.click();
+			await page.getByRole('banner').getByRole('button', { name: m.common.delete }).click();
+			await page.getByRole('alertdialog').getByRole('button', { name: m.common.delete }).click();
 
 			await expect
 				.element(page.getByRole('alertdialog').getByText(m.cardIndex.errors.changed))
@@ -315,7 +312,7 @@ describe('value page', () => {
 			renderValue({ kind: 'era', code: 'antiquity' });
 
 			await expect.element(page.getByRole('heading', { level: 1 })).toBeVisible();
-			expect(page.getByRole('button', { name: m.valuePage.delete }).elements()).toHaveLength(0);
+			expect(page.getByRole('button', { name: m.common.delete }).elements()).toHaveLength(0);
 		});
 	});
 });

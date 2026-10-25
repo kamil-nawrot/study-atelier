@@ -19,7 +19,7 @@ export function validateRequiredPassword(password: string): string | undefined {
 export function validateNewPassword(password: string): string | undefined {
 	if (!password) return m.validation.passwordRequired;
 	if (password.length < MIN_PASSWORD_LENGTH) {
-		return m.validation.passwordTooShort(MIN_PASSWORD_LENGTH, password.length);
+		return m.validation.passwordTooShort(MIN_PASSWORD_LENGTH);
 	}
 	return undefined;
 }

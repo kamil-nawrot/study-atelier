@@ -49,7 +49,7 @@ describe('visit page', () => {
 			.element(page.getByRole('heading', { level: 1 }))
 			.toHaveTextContent('Musée d’Orsay');
 		await expect
-			.element(page.getByRole('link', { name: m.chronicle.view.edit }))
+			.element(page.getByRole('link', { name: m.common.edit }))
 			.toHaveAttribute('href', `/atelier/chronicle/${VISIT_ID}/edit`);
 		await expect.element(page.getByRole('link', { name: /Water Lilies/ })).toBeInTheDocument();
 	});
@@ -58,11 +58,9 @@ describe('visit page', () => {
 		vi.mocked(deleteVisit).mockResolvedValue({});
 		renderVisit(testVisit({ date: { on: '2024-10-12', precision: 'day' } }));
 
-		await userEvent.click(page.getByRole('button', { name: m.chronicle.view.delete }));
+		await userEvent.click(page.getByRole('button', { name: m.common.delete }));
 		await userEvent.click(
-			page
-				.getByRole('alertdialog')
-				.getByRole('button', { name: m.chronicle.deleteConfirm.confirm, exact: true })
+			page.getByRole('alertdialog').getByRole('button', { name: m.common.delete, exact: true })
 		);
 
 		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
@@ -80,9 +78,9 @@ describe('visit page', () => {
 	});
 
 	it('says when the artworks could not be loaded', async () => {
-		renderVisit(testVisit(), { artworksError: m.chronicle.errors.network });
+		renderVisit(testVisit(), { artworksError: m.common.network });
 
-		await expect.element(page.getByText(m.chronicle.errors.network)).toBeInTheDocument();
+		await expect.element(page.getByText(m.common.network)).toBeInTheDocument();
 	});
 
 	it('says that the visit does not exist', async () => {
@@ -90,7 +88,7 @@ describe('visit page', () => {
 
 		await expect.element(page.getByText(m.chronicle.errors.notFound)).toBeInTheDocument();
 		await expect
-			.element(page.getByRole('button', { name: m.chronicle.view.delete }))
+			.element(page.getByRole('button', { name: m.common.delete }))
 			.not.toBeInTheDocument();
 	});
 });
