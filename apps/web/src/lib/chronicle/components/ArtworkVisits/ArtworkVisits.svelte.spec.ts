@@ -12,7 +12,7 @@ describe('ArtworkVisits', () => {
 		});
 
 		await expect
-			.element(page.getByRole('heading', { name: m.chronicle.artworkVisits(2) }))
+			.element(page.getByRole('heading', { level: 2, name: m.chronicle.artworkVisits(2) }))
 			.toBeInTheDocument();
 		await expect.element(page.getByRole('link')).not.toBeInTheDocument();
 

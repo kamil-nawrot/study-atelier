@@ -49,8 +49,9 @@ export async function loadCategoryValues(): Promise<CategoryValuesResult> {
 			.is('deleted_at', null),
 		loadVisitPlaces()
 	]);
-	const failure = error ? collectionErrorMessage(error) : visits.error;
-	if (failure) return { values: emptyCategoryValues(), ownValues: {}, error: failure };
+	if (error) {
+		return { values: emptyCategoryValues(), ownValues: {}, error: collectionErrorMessage(error) };
+	}
 
 	const names = new Map<string, Set<string>>([['location', new Set(visits.places)]]);
 	for (const row of (data ?? []) as unknown as ArtworkValuesRow[]) {

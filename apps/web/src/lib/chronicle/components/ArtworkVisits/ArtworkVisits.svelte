@@ -13,22 +13,28 @@
 </script>
 
 {#if visits.length > 0}
-	<Disclosure
-		icon={Footprints}
-		level={3}
-		muted
-		open={false}
-		title={m.chronicle.artworkVisits(visits.length)}
-	>
-		<ul>
-			{#each visits as visit (visit.id)}
-				<li><SmallTicket {visit} /></li>
-			{/each}
-		</ul>
-	</Disclosure>
+	<div class="visits">
+		<Disclosure
+			icon={Footprints}
+			muted
+			open={false}
+			title={m.chronicle.artworkVisits(visits.length)}
+		>
+			<ul>
+				{#each visits as visit (visit.id)}
+					<li><SmallTicket {visit} /></li>
+				{/each}
+			</ul>
+		</Disclosure>
+	</div>
 {/if}
 
 <style>
+	.visits :global(h2) {
+		font-size: var(--font-size-md);
+		line-height: var(--line-height-md);
+	}
+
 	ul {
 		display: grid;
 		gap: var(--spacing-2);

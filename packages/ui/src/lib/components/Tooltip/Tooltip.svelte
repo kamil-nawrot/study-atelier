@@ -75,6 +75,15 @@
 		visibility: hidden;
 	}
 
+	.tooltip:hover .bubble {
+		transition: visibility 0s linear calc(var(--duration-short) * 2);
+	}
+
+	.tooltip:has(:global(:focus-visible)) .bubble,
+	.tooltip:has(:global([aria-expanded='true'])) .bubble {
+		transition: none;
+	}
+
 	@media (prefers-reduced-motion: no-preference) {
 		.bubble {
 			opacity: 0;
