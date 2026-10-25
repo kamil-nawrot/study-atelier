@@ -810,7 +810,7 @@ export const pl = {
 				`Epoki i style okresu „${merged}” dołączą do „${kept}”.`,
 			pageContent: (merged: string): string =>
 				`Podsumowanie, notatki i pozostałe informacje o „${merged}” zostaną usunięte.`,
-			irreversible: 'Tej akcji nie będzie można cofnąć!',
+			irreversible: 'Tej akcji nie będzie można cofnąć.',
 			back: 'Wróć',
 			confirm: 'Połącz',
 			merging: 'Łączenie…'
