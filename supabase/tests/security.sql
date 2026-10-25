@@ -131,6 +131,13 @@ insert into public.artwork_field_entries (artwork_id, field_id, field_kind, text
     from public.artworks as artwork cross join public.artwork_fields as field
     where field.name = 'Source';
 
+insert into public.category_values (category_code, name) values ('location', 'Visited museum');
+select public.save_visit(
+  jsonb_build_object('place_id', (select id from public.category_values where name = 'Visited museum'),
+    'visited_on', '2026-10-12', 'date_precision', 'day', 'notes', 'A note'),
+  array[(select id from public.artworks)]
+);
+
 reset role;
 
 do $$
@@ -145,6 +152,8 @@ declare
   a_merged uuid;
   a_lecture uuid;
   a_source uuid;
+  a_place uuid;
+  a_visit uuid;
 begin
   select id into a_artwork from public.artworks where owner_id = a;
   select id into a_image from public.artwork_images where owner_id = a limit 1;
@@ -153,6 +162,9 @@ begin
   select id into a_author from public.category_values where owner_id = a and name = 'Painter';
   select id into a_lecture from public.artwork_fields where owner_id = a and name = 'Lecture';
   select id into a_source from public.artwork_fields where owner_id = a and name = 'Source';
+  select id into a_place from public.category_values where owner_id = a and name = 'Visited museum';
+  select id into a_visit from public.visits where owner_id = a;
+  assert a_visit is not null, 'the visit of owner A was not created';
   assert a_artwork is not null and a_value is not null, 'fixture for owner A was not created';
   assert a_lecture is not null and a_source is not null, 'fields of owner A were not created';
 
@@ -170,6 +182,8 @@ begin
   assert (select count(*) from public.era_details) = 0, 'B reads era details of A';
   assert (select count(*) from public.glossary_entries) = 0, 'B reads glossary entries of A';
   assert (select count(*) from public.timeline_events) = 0, 'B reads timeline events of A';
+  assert (select count(*) from public.visits) = 0, 'B reads visits of A';
+  assert (select count(*) from public.visit_artworks) = 0, 'B reads the artworks of visits of A';
   assert (select count(*) from public.profiles) = 0, 'B reads the profile of A';
   assert (select count(*) from storage.objects) = 0, 'B reads image objects of A';
   assert (select count(*) from public.value_usage()) = 0, 'B sees value usage of A';
@@ -221,6 +235,12 @@ begin
     'B deletes field entries of A';
   assert security_test.affected('delete from public.timeline_events') = 0,
     'B deletes a timeline event of A';
+  assert security_test.affected('update public.visits set notes = ''x''') = 0,
+    'B updates a visit of A';
+  assert security_test.affected('delete from public.visits') = 0,
+    'B deletes a visit of A';
+  assert security_test.affected('delete from public.visit_artworks') = 0,
+    'B removes artworks from a visit of A';
 
   assert security_test.denied(format(
     'insert into public.artworks (owner_id, title, author_unknown) values (%L, ''Forged'', true)', a)),
@@ -307,6 +327,19 @@ begin
     'insert into public.artwork_pins (image_id, x, y, text) values (%L, 0.5, 0.5, ''Forged'')', a_image)),
     'B pins a detail on an image of A';
   assert security_test.affected('update public.artwork_pins set x = 0') = 0, 'B moves pins of A';
+  assert security_test.denied(format(
+    'insert into public.visits (place_id, visited_on, date_precision) values (%L, ''2026-10-12'', ''day'')', a_place)),
+    'B logs a visit to a place of A';
+  assert security_test.denied(format(
+    'insert into public.visits (owner_id, place_id, visited_on, date_precision) values (%L, %L, ''2026-10-12'', ''day'')',
+    a, a_place)),
+    'B inserts a visit owned by A';
+  assert security_test.denied(format(
+    'insert into public.visit_artworks (visit_id, artwork_id) values (%L, %L)', a_visit, a_artwork)),
+    'B adds an artwork to a visit of A';
+  assert security_test.denied(format(
+    'select public.save_visit(''{"visited_on": "2026-10-12", "date_precision": "day"}'', ''{}'', %L)', a_visit)),
+    'B overwrites a visit of A through save_visit';
   assert security_test.affected('delete from public.artwork_pins') = 0, 'B deletes pins of A';
 
   perform security_test.act_as(a);

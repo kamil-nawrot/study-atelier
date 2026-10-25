@@ -1050,6 +1050,85 @@ export type Database = {
         };
         Relationships: [];
       };
+      visit_artworks: {
+        Row: {
+          artwork_id: string;
+          owner_id: string;
+          visit_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          artwork_id: string;
+          owner_id?: string;
+          visit_id: string;
+        };
+        Update: {
+          artwork_id?: string;
+          owner_id?: string;
+          visit_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "visit_artworks_artwork_id_owner_id_fkey";
+            columns: ["artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "visit_artworks_visit_id_owner_id_fkey";
+            columns: ["visit_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "visits";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
+      visits: {
+        Row: {
+          category_code: string;
+          created_at: string;
+          date_precision: string;
+          id: string;
+          notes: string | null;
+          owner_id: string;
+          place_id: string;
+          updated_at: string;
+          visited_on: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          category_code?: string;
+          created_at?: string;
+          date_precision: string;
+          id?: string;
+          notes?: string | null;
+          owner_id?: string;
+          place_id: string;
+          updated_at?: string;
+          visited_on: string;
+        };
+        Update: {
+          category_code?: string;
+          created_at?: string;
+          date_precision?: string;
+          id?: string;
+          notes?: string | null;
+          owner_id?: string;
+          place_id?: string;
+          updated_at?: string;
+          visited_on?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "visits_place_id_owner_id_category_code_fkey";
+            columns: ["place_id", "owner_id", "category_code"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id", "category_code"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -1141,6 +1220,10 @@ export type Database = {
       save_value_details: {
         Args: { details: Json; target_value: string };
         Returns: undefined;
+      };
+      save_visit: {
+        Args: { artwork_ids: string[]; existing_id?: string; visit: Json };
+        Returns: string;
       };
       set_period_eras: {
         Args: { era_codes: string[]; move_to?: string; target_period: string };
