@@ -15,16 +15,19 @@
 	let { data }: Props = $props();
 
 	const timelinePath = resolve('/(app)/atelier/timeline');
+	const cardIndexPath = resolve('/(app)/atelier/values');
 
 	let form = $state<EventForm>();
 	let cameFromApp = false;
 	let cameFromTimeline = false;
+	let cameFromCardIndex = false;
 
 	let failed = $derived(data.error !== undefined || data.notFound === true);
 
 	afterNavigate(({ from }) => {
 		cameFromApp = arrivedFromApp(from);
 		cameFromTimeline = from?.url?.pathname === timelinePath;
+		cameFromCardIndex = from?.url?.pathname === cardIndexPath;
 	});
 
 	function goBack(event: MouseEvent): void {
@@ -35,8 +38,22 @@
 		return form?.confirmLeave() ?? Promise.resolve(true);
 	}
 
+	async function returnToCardIndex(draft: TimelineEventDraft): Promise<void> {
+		const options = {
+			replace: true,
+			refreshAll: true,
+			state: { valueMessage: m.timeline.saved(draft.name) }
+		};
+		addEventListener('popstate', () => void goto(cardIndexPath, options), { once: true });
+		history.back();
+	}
+
 	async function showSaved(draft: TimelineEventDraft): Promise<void> {
 		if (draft.yearTo === null) return;
+		if (cameFromCardIndex) {
+			await returnToCardIndex(draft);
+			return;
+		}
 		const options = {
 			replace: true,
 			refreshAll: true,

@@ -13,12 +13,14 @@
 	import { loadOwnValues } from '#lib/card-index/card-index-data/card-index-data.ts';
 	import { buildTimeline, valuesOf } from '#lib/card-index/card-index/card-index.ts';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
+	import CardIndexEvents from '#lib/card-index/components/CardIndexEvents/CardIndexEvents.svelte';
 	import CardIndexList from '#lib/card-index/components/CardIndexList/CardIndexList.svelte';
 	import CardIndexTimeline from '#lib/card-index/components/CardIndexTimeline/CardIndexTimeline.svelte';
 	import OwnFieldsTab from '#lib/card-index/components/OwnFieldsTab/OwnFieldsTab.svelte';
 	import { withOwnValues } from '#lib/card-index/own-fields/own-fields.ts';
 	import { loadOwnFields } from '#lib/card-index/own-fields-data/own-fields-data.ts';
 	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
+	import { formatDate } from '#lib/catalogue/years/years.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { PageProps, Snapshot } from './$types';
 
@@ -55,6 +57,14 @@
 	}
 
 	let timeline = $derived(buildTimeline(data.index));
+
+	let eventRecords = $derived(
+		data.events.map((event) => ({
+			id: event.id,
+			name: event.name,
+			note: formatDate(event.yearFrom, event.yearTo, event.yearApproximate) ?? ''
+		}))
+	);
 
 	let own = $derived({ fields: data.ownFields, error: data.ownFieldsError });
 
@@ -104,6 +114,8 @@
 						bind:query
 					/>
 				{/key}
+			{:else if tab === 'events'}
+				<CardIndexEvents entries={eventRecords} bind:query />
 			{:else if tab === 'own'}
 				<OwnFieldsTab error={own.error} fields={own.fields} onchanged={ownFieldsChanged} />
 			{/if}

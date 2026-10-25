@@ -733,7 +733,7 @@ export const pl = {
 	},
 	cardIndex: {
 		title: 'Kartoteka',
-		lead: 'Tu opisujesz i porządkujesz swoje epoki, okresy, style, autorów i miejsca. Możesz tutaj także utworzyć własne pola, które pozwolą dokładniej opisywać dzieła. Kliknij nazwę, która Cię interesuje, żeby zobaczyć szczegóły.',
+		lead: 'Tu opisujesz i porządkujesz swoje epoki, okresy, style, autorów, miejsca i wydarzenia. Możesz tutaj także utworzyć własne pola, które pozwolą dokładniej opisywać dzieła. Kliknij nazwę, która Cię interesuje, żeby zobaczyć szczegóły.',
 		loadErrorTitle: 'Nie udało się wczytać Kartoteki',
 		tabsLabel: 'Rodzaje wartości',
 		tabs: {
@@ -741,6 +741,7 @@ export const pl = {
 			material: 'Materiały',
 			author: 'Autorzy',
 			location: 'Miejsca',
+			events: 'Wydarzenia',
 			own: 'Własne pola'
 		},
 		emptyEra: 'W tej epoce nie ma jeszcze okresów.',
@@ -753,10 +754,13 @@ export const pl = {
 			author: 'Nie ma tu jeszcze autorów. Pojawią się, gdy wpiszesz ich przy dziele.',
 			location: 'Nie ma tu jeszcze miejsc. Pojawią się, gdy wpiszesz je przy dziele.'
 		},
+		emptyEvents: 'Nie ma tu jeszcze wydarzeń. Dodaj pierwsze, a pojawi się też w Kalendarium.',
+		eventsAdd: 'Dodaj wydarzenie',
 		search: {
 			material: 'Szukaj materiału',
 			author: 'Szukaj autora',
-			location: 'Szukaj miejsca'
+			location: 'Szukaj miejsca',
+			events: 'Szukaj wydarzenia'
 		},
 		noResults: (query: string): string =>
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment nazwy.`,
