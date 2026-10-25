@@ -129,6 +129,7 @@
 			pins={data.pins}
 			showPinsOnOpen={data.preferences?.viewShowPins}
 			summaries={data.summaries}
+			visits={data.visits}
 		/>
 	{:else}
 		<LoadFailure

@@ -14,6 +14,7 @@ import {
 	chosenValues,
 	clearField,
 	hasYears,
+	isFlagField,
 	setOwnText,
 	toggleOwnValue,
 	toggleTicked,
@@ -54,8 +55,8 @@ export function filterTags(
 				tags.push({ id: 'years', field, value: yearsParam(filter.yearFrom, filter.yearTo) });
 			continue;
 		}
-		if (field === 'favourites') {
-			if (filter.favourites) tags.push({ id: 'favourites', field, value: '' });
+		if (isFlagField(field)) {
+			if (filter[field]) tags.push({ id: field, field, value: '' });
 			continue;
 		}
 		for (const value of chosenValues(filter, field))
@@ -68,7 +69,7 @@ export function removeTag(filter: CollectionFilter, tag: FilterTag): CollectionF
 	if (tag.field === 'own') return toggleOwnValue(filter, tag.fieldId ?? '', tag.value);
 	if (tag.field === 'ownText') return setOwnText(filter, tag.fieldId ?? '', '');
 	if (tag.field === 'ticked') return toggleTicked(filter, tag.fieldId ?? '');
-	if (tag.field === 'years' || tag.field === 'favourites') return clearField(filter, tag.field);
+	if (tag.field === 'years' || isFlagField(tag.field)) return clearField(filter, tag.field);
 	return toggleValue(filter, tag.field, tag.value);
 }
 
@@ -85,7 +86,7 @@ export function tagParts(tag: FilterTag): TagParts {
 		return { field: '', value: tag.value };
 	}
 	const field = m.atelier.filters.tagFields[tag.field];
-	if (tag.field === 'favourites') return { field, value: '' };
+	if (isFlagField(tag.field)) return { field, value: '' };
 	if (tag.field !== 'years') return { field, value: optionLabel(tag.field, tag.value) };
 	const [from, to] = tag.value.split(RANGE_SEPARATOR).map((part) => (part ? Number(part) : null));
 	return { field, value: yearsLabel(from, to) };

@@ -2,7 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
-import { artworkNote, mockNotesMentions, valueNote } from '#lib/testing/mentions/mentions.ts';
+import {
+	artworkNote,
+	mockNotesMentions,
+	valueNote,
+	visitNote
+} from '#lib/testing/mentions/mentions.ts';
 import { loadMentions } from './mentions-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
@@ -27,6 +32,24 @@ describe('loadMentions', () => {
 		expect(mentions).toEqual([
 			{ href: '/atelier/values/author/author-phidias', name: 'Phidias', kind: 'Autor' },
 			{ href: '/atelier/3', name: '#0003 Doric temple', kind: m.mentions.artwork }
+		]);
+	});
+
+	it('lists the visits whose notes link to the page after the artworks', async () => {
+		mockNotesMentions([
+			visitNote('visit-1', 'Louvre · 12.10.2026', 'Przed [#0012](/atelier/12).'),
+			artworkNote(3, 'Doric temple', 'See [x](/atelier/12).')
+		]);
+
+		const mentions = await loadMentions('/atelier/12');
+
+		expect(mentions).toEqual([
+			{ href: '/atelier/3', name: '#0003 Doric temple', kind: m.mentions.artwork },
+			{
+				href: '/atelier/chronicle/visit-1',
+				name: 'Louvre · 12.10.2026',
+				kind: m.mentions.visit
+			}
 		]);
 	});
 

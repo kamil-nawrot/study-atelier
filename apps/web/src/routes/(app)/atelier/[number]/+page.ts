@@ -1,5 +1,6 @@
 import { resolve } from '$app/paths';
 import { loadArtwork } from '#lib/artworks/artwork-data/artwork-data.ts';
+import { loadArtworkVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { parseRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
 import { loadOwnFieldDefinitions } from '#lib/card-index/own-fields-data/own-fields-data.ts';
@@ -15,26 +16,40 @@ import type { PageLoad } from './$types';
 export const load: PageLoad = async ({ params }): Promise<LoadArtworkResult> => {
 	const number = parseRecordNumber(params.number);
 	if (number === null) return { error: m.artworkErrors.notFound, notFound: true };
-	const [result, mentions, summaries, own, loaded, loadedPins, loadedGlossary] = await Promise.all([
-		loadArtwork(number),
-		loadMentions(resolve('/(app)/atelier/[number]', { number: params.number })),
-		loadValueSummaries(number),
-		loadOwnFieldDefinitions(),
-		loadPreferences(),
-		loadArtworkPins(number),
-		loadGlossary()
-	]);
+	const [result, mentions, summaries, own, loaded, loadedPins, loadedGlossary, seen] =
+		await Promise.all([
+			loadArtwork(number),
+			loadMentions(resolve('/(app)/atelier/[number]', { number: params.number })),
+			loadValueSummaries(number),
+			loadOwnFieldDefinitions(),
+			loadPreferences(),
+			loadArtworkPins(number),
+			loadGlossary(),
+			loadArtworkVisits(number)
+		]);
+	const visits = seen.visits;
 	const preferences = loaded.preferences;
 	const ownFields = own.fields;
 	const glossary = result.artwork ? loadedGlossary.entries : undefined;
 	const pins = loadedPins.pins;
 	const pinsError = loadedPins.error;
 	if (!mentionsLinks(result.artwork?.notes)) {
-		return { ...result, mentions, summaries, glossary, pins, pinsError, ownFields, preferences };
+		return {
+			...result,
+			mentions,
+			visits,
+			summaries,
+			glossary,
+			pins,
+			pinsError,
+			ownFields,
+			preferences
+		};
 	}
 	return {
 		...result,
 		mentions,
+		visits,
 		summaries,
 		glossary,
 		pins,

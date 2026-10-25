@@ -19,6 +19,8 @@ export const EXPORT_TABLES: readonly ExportTable[] = [
 	{ table: 'artwork_field_entries', order: ['artwork_id', 'field_id'] },
 	{ table: 'glossary_entries', order: ['id'] },
 	{ table: 'timeline_events', order: ['id'] },
+	{ table: 'visits', order: ['id'] },
+	{ table: 'visit_artworks', order: ['visit_id', 'artwork_id'] },
 	{ table: 'review_cards', order: ['artwork_id', 'facet'] },
 	{ table: 'review_log', order: ['id'] }
 ];

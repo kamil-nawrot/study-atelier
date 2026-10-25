@@ -12,6 +12,7 @@ import { buildNoteLinks } from '#lib/notes/note-links/note-links.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
+import { testVisit, VISIT_ID } from '#lib/testing/chronicle/chronicle.ts';
 import type { Pin } from '#lib/pins/types/pin.ts';
 import { testEntry } from '#lib/testing/glossary/glossary.ts';
 import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
@@ -94,6 +95,17 @@ describe('artwork page', () => {
 		localStorage.clear();
 		sessionStorage.clear();
 		await page.viewport(1280, 800);
+	});
+
+	it('lists the visits the artwork was seen on under the information', async () => {
+		renderPage({ artwork: artwork(), visits: [testVisit()] });
+
+		await expect
+			.element(page.getByRole('heading', { name: m.chronicle.artworkVisits(1) }))
+			.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('link', { name: /Musée d’Orsay/ }))
+			.toHaveAttribute('href', `/atelier/chronicle/${VISIT_ID}`);
 	});
 
 	it('shows the type and the era as an icon with the name', async () => {

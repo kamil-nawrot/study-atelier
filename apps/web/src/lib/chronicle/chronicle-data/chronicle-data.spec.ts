@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { deleteVisit, loadVisit, loadVisits, saveVisit } from './chronicle-data.ts';
+import {
+	deleteVisit,
+	loadArtworkVisits,
+	loadVisit,
+	loadVisits,
+	saveVisit
+} from './chronicle-data.ts';
 import type { VisitDraft } from '#lib/chronicle/types/visit-draft.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
@@ -88,6 +94,24 @@ describe('loadVisits', () => {
 		chain({ data: null, error: { message: 'TypeError: Failed to fetch' } });
 
 		expect(await loadVisits()).toEqual({ visits: [], error: m.chronicle.errors.network });
+	});
+});
+
+describe('loadArtworkVisits', () => {
+	it('asks for the visits that hold the artwork, newest first', async () => {
+		const query = chain({ data: [row({ visit_artworks: [{ artwork_id: 'a1' }] })], error: null });
+
+		const result = await loadArtworkVisits(12);
+
+		expect(query.eq).toHaveBeenCalledWith('visit_artworks.artworks.record_number', 12);
+		expect(query.order).toHaveBeenCalledWith('visited_on', { ascending: false });
+		expect(result.visits.map((visit) => visit.place)).toEqual(['Musée d’Orsay']);
+	});
+
+	it('says when the visits cannot be loaded', async () => {
+		chain({ data: null, error: { message: 'TypeError: Failed to fetch' } });
+
+		expect(await loadArtworkVisits(12)).toEqual({ visits: [], error: m.chronicle.errors.network });
 	});
 });
 

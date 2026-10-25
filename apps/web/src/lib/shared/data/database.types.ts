@@ -1261,6 +1261,7 @@ export type Database = {
           category_code: string;
           id: string;
           name: string;
+          visit_count: number;
         }[];
       };
     };

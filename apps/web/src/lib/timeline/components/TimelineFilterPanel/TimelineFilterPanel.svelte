@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { Switch, ToggleTiles, type ChoiceTile } from '@study-atelier/ui';
 	import { artworkTypeTiles } from '#lib/catalogue/artwork-types/artwork-types.ts';
-	import FavouriteToggle from '#lib/wall/components/FavouriteToggle/FavouriteToggle.svelte';
+	import Heart from '@lucide/svelte/icons/heart';
+	import FlagToggle from '#lib/wall/components/FlagToggle/FlagToggle.svelte';
 	import FilterValues from '#lib/wall/components/FilterValues/FilterValues.svelte';
 	import { eraName } from '#lib/catalogue/eras/eras.ts';
 	import { UNKNOWN_AUTHOR } from '#lib/wall/filter/filter.ts';
@@ -105,8 +106,11 @@
 		/>
 	</section>
 
-	<FavouriteToggle
+	<FlagToggle
 		count={timelineFavouriteCount(artworks, filter)}
+		filled
+		icon={Heart}
+		label={m.atelier.filters.fields.favourites}
 		onclick={() => (filter = toggleTimelineFavourites(filter))}
 		pressed={filter.favourites}
 	/>

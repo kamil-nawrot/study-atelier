@@ -365,7 +365,15 @@ function visitsRoute(route, request, url) {
 	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
 	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
 	const id = url.searchParams.get('id');
-	const rows = id?.startsWith('eq.') ? VISITS.filter((row) => row.id === id.slice(3)) : VISITS;
+	const number = url.searchParams.get('visit_artworks.artworks.record_number');
+	const artworkId = number?.startsWith('eq.')
+		? `00000000-0000-4000-8000-${number.slice(3).padStart(12, '0')}`
+		: null;
+	const rows = VISITS.filter(
+		(row) =>
+			(!id?.startsWith('eq.') || row.id === id.slice(3)) &&
+			(!artworkId || row.visit_artworks.some((seen) => seen.artwork_id === artworkId))
+	);
 	if (!wantsObject) return json(route, rows);
 	return json(route, rows[0] ?? null);
 }

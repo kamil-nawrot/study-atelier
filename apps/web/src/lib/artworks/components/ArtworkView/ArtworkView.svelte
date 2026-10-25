@@ -14,6 +14,7 @@
 	import { emptyValueSummaries } from '#lib/card-index/value-summaries/value-summaries.ts';
 	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 	import type { Mention } from '#lib/notes/types/mention.ts';
+	import type { Visit } from '#lib/chronicle/types/visit.ts';
 	import type { Pin as PinRecord } from '#lib/pins/types/pin.ts';
 	import type { FlipDirection } from '#lib/wall/types/flip-direction.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -26,6 +27,7 @@
 		pins?: PinRecord[];
 		focusPin?: string;
 		mentions?: Mention[];
+		visits?: Visit[];
 		summaries?: ValueSummaries;
 		ownFields?: OwnFieldDefinition[];
 		showPinsOnOpen?: boolean;
@@ -43,6 +45,7 @@
 		pins = [],
 		focusPin,
 		mentions = [],
+		visits = [],
 		summaries = emptyValueSummaries(),
 		ownFields = [],
 		showPinsOnOpen = false,
@@ -81,6 +84,7 @@
 			onhide={() => setPanel(false)}
 			{ownFields}
 			{summaries}
+			{visits}
 		/>
 
 		<div class="strip">

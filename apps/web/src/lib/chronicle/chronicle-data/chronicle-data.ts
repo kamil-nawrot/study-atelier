@@ -70,6 +70,22 @@ export async function loadVisits(): Promise<VisitsResult> {
 	return { visits: rows.map(visitOf) };
 }
 
+export async function loadArtworkVisits(number: number): Promise<VisitsResult> {
+	const { rows, error } = await fetchAll<VisitRow>((from, to) =>
+		supabase
+			.from('visits')
+			.select(
+				'id, visited_on, date_precision, notes, category_values(name, location_details(place_type, country_code)), visit_artworks!inner(artwork_id, artworks!inner(record_number))'
+			)
+			.eq('visit_artworks.artworks.record_number', number)
+			.order('visited_on', { ascending: false })
+			.order('created_at', { ascending: false })
+			.range(from, to)
+	);
+	if (error) return { visits: [], error: chronicleErrorMessage(error) };
+	return { visits: rows.map(visitOf) };
+}
+
 export async function loadVisit(id: string): Promise<VisitResult> {
 	if (!isUuid(id)) return { notFound: true };
 	const { data, error } = await supabase

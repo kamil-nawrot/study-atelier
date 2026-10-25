@@ -5,5 +5,6 @@ export type CardIndexRecord = {
 	category: CategoryCode;
 	name: string;
 	count: number;
+	visits?: number;
 	sortName?: string;
 };

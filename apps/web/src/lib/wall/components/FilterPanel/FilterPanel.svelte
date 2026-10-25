@@ -13,6 +13,7 @@
 	import {
 		UNKNOWN_AUTHOR,
 		favouriteCount,
+		seenCount,
 		filterOptions,
 		hasOwnText,
 		ownFilterOptions,
@@ -20,6 +21,7 @@
 		setYears,
 		tickedOptions,
 		toggleFavourites,
+		toggleSeen,
 		toggleOwnValue,
 		toggleTicked,
 		toggleValue
@@ -30,7 +32,9 @@
 	import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-	import FavouriteToggle from '#lib/wall/components/FavouriteToggle/FavouriteToggle.svelte';
+	import Footprints from '@lucide/svelte/icons/footprints';
+	import Heart from '@lucide/svelte/icons/heart';
+	import FlagToggle from '#lib/wall/components/FlagToggle/FlagToggle.svelte';
 	import FilterValues from '#lib/wall/components/FilterValues/FilterValues.svelte';
 
 	type Props = {
@@ -107,11 +111,23 @@
 </script>
 
 <div class="panel">
-	<FavouriteToggle
-		count={favouriteCount(artworks, filter)}
-		onclick={() => (filter = toggleFavourites(filter))}
-		pressed={filter.favourites}
-	/>
+	<div class="flags">
+		<FlagToggle
+			count={favouriteCount(artworks, filter)}
+			filled
+			icon={Heart}
+			label={m.atelier.filters.fields.favourites}
+			onclick={() => (filter = toggleFavourites(filter))}
+			pressed={filter.favourites}
+		/>
+		<FlagToggle
+			count={seenCount(artworks, filter)}
+			icon={Footprints}
+			label={m.atelier.filters.fields.seen}
+			onclick={() => (filter = toggleSeen(filter))}
+			pressed={filter.seen}
+		/>
+	</div>
 
 	<ToggleTiles
 		label={m.atelier.filters.fields.eras}
@@ -240,6 +256,12 @@
 	.panel {
 		display: grid;
 		gap: var(--spacing-8);
+	}
+
+	.flags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-2);
 	}
 
 	.years,

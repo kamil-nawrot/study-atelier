@@ -135,6 +135,39 @@ begin
 
   delete from public.visits where id = visit;
   assert (select count(*) from public.visits) = 2, 'deleting a visit deletes another one';
+
+  assert (select visit_count from public.value_usage() where id = louvre) = 1,
+    'value_usage does not count the visits of a place';
+  assert (select visit_count from public.value_usage() where id = orsay) = 0,
+    'value_usage counts visits of another place';
+
+  delete from public.artwork_values where value_id = louvre;
+  rejected := false;
+  begin
+    perform public.delete_unused_value(louvre);
+  exception when restrict_violation then rejected := true;
+  end;
+  assert rejected, 'delete_unused_value deletes a place that a visit still uses';
+
+  visit := public.save_visit(
+    jsonb_build_object('visited_on', '2024-01-01', 'date_precision', 'year',
+      'notes', '[Louvre](/atelier/values/location/' || louvre || ')'),
+    'Louvre', '{}');
+  perform public.merge_category_values(louvre, orsay);
+  assert not exists (select 1 from public.visits where place_id = louvre),
+    'merging two places leaves visits at the merged one';
+  assert (select count(*) from public.visits where place_id = orsay) = 2,
+    'merging two places loses a visit';
+  assert (select notes from public.visits where id = visit) = '[Louvre](/atelier/values/location/' || orsay || ')',
+    'merging two places leaves a link to the merged one in the note of a visit';
+
+  assert (select title from public.notes_mentions('/atelier/values/location/' || orsay) where kind = 'visit')
+      = 'Orsay · 2024',
+    'notes_mentions does not name a visit whose note mentions a place';
+  update public.visits set visited_on = '2026-10-12', date_precision = 'day' where id = visit;
+  assert (select title from public.notes_mentions() where kind = 'visit' and id = visit::text)
+      = 'Orsay · 12.10.2026',
+    'notes_mentions does not give the day of a visit';
 end;
 $$;
 

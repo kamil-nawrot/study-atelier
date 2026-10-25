@@ -55,6 +55,7 @@ type ArtworkRow = {
 	deleted_at: string | null;
 	artwork_values: ArtworkValueRow[];
 	artwork_field_entries?: FieldEntryRow[];
+	visit_artworks?: { visit_id: string }[];
 };
 
 const ARTWORK_COLUMNS = [
@@ -70,7 +71,8 @@ const ARTWORK_COLUMNS = [
 	'favourite',
 	'deleted_at',
 	'artwork_values(position, category_values(category_code, name, author_details(sort_name)))',
-	'artwork_field_entries(field_id, text_value)'
+	'artwork_field_entries(field_id, text_value)',
+	'visit_artworks(visit_id)'
 ].join(', ');
 
 async function signedUrls(paths: string[]): Promise<Map<string, string>> {
@@ -132,6 +134,7 @@ function wallArtwork(row: ArtworkRow): WallArtwork {
 		location: valuesOf(row.artwork_values, 'location')[0] ?? null,
 		hasImage: main !== undefined,
 		favourite: row.favourite,
+		...(row.visit_artworks?.length ? { seen: true } : {}),
 		own: ownEntriesOf(row.artwork_values, row.artwork_field_entries),
 		image,
 		...(pendingImage ? { pendingImage } : {}),

@@ -4,7 +4,13 @@ import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts'
 import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
 import type { FilterField } from '#lib/catalogue/types/filter-field.ts';
 import type { MissingData } from '#lib/catalogue/types/missing-data.ts';
-import { FILTER_FIELDS, MISSING_DATA, emptyFilter, hasYears } from '#lib/wall/filter/filter.ts';
+import {
+	FILTER_FIELDS,
+	MISSING_DATA,
+	emptyFilter,
+	hasYears,
+	isFlagField
+} from '#lib/wall/filter/filter.ts';
 
 const PARAMS: Record<FilterField, string> = {
 	eras: 'era',
@@ -16,7 +22,8 @@ const PARAMS: Record<FilterField, string> = {
 	materials: 'material',
 	locations: 'location',
 	missing: 'missing',
-	favourites: 'favourites'
+	favourites: 'favourites',
+	seen: 'seen'
 };
 
 type Params = Pick<URLSearchParams, 'get' | 'getAll' | 'has' | 'keys'>;
@@ -49,8 +56,8 @@ export function filterToParams(filter: CollectionFilter): URLSearchParams {
 			if (hasYears(filter)) params.set(PARAMS.years, yearsParam(filter.yearFrom, filter.yearTo));
 			continue;
 		}
-		if (field === 'favourites') {
-			if (filter.favourites) params.set(PARAMS.favourites, FLAG_ON);
+		if (isFlagField(field)) {
+			if (filter[field]) params.set(PARAMS[field], FLAG_ON);
 			continue;
 		}
 		for (const value of filter[field]) params.append(PARAMS[field], value);
@@ -75,6 +82,7 @@ export function filterFromParams(params: Params): CollectionFilter {
 	return {
 		...emptyFilter(),
 		favourites: params.get(PARAMS.favourites) === FLAG_ON,
+		seen: params.get(PARAMS.seen) === FLAG_ON,
 		eras: uniqueValues(params, PARAMS.eras).filter(isEraCode),
 		types: uniqueValues(params, PARAMS.types).filter((value): value is ArtworkTypeCode =>
 			ARTWORK_TYPE_CODES.includes(value as ArtworkTypeCode)

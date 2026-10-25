@@ -23,6 +23,7 @@ type UsageRow = {
 	category_code: string;
 	name: string;
 	artwork_count: number;
+	visit_count?: number;
 };
 
 type SortNameRow = { value_id: string; sort_name: string };
@@ -91,6 +92,7 @@ export async function loadCardIndex(): Promise<CardIndexResult> {
 								category: row.category_code,
 								name: row.name,
 								count: row.artwork_count,
+								...(row.visit_count ? { visits: row.visit_count } : {}),
 								...(sortNameOf.get(row.id) ? { sortName: sortNameOf.get(row.id) } : {})
 							}
 						]

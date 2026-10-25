@@ -377,6 +377,7 @@ export const pl = {
 				locations: 'Miejsce',
 				missing: 'Do uzupełnienia',
 				favourites: 'Ulubione',
+				seen: 'Widziane na żywo',
 				ticked: 'Zaznaczone'
 			},
 			ownField: 'Własne pole',
@@ -390,7 +391,8 @@ export const pl = {
 				materials: 'Materiał',
 				locations: 'Miejsce',
 				missing: 'Do uzupełnienia',
-				favourites: 'Ulubione'
+				favourites: 'Ulubione',
+				seen: 'Widziane na żywo'
 			},
 			tag: (field: string, value: string): string => `${field} ${value}`,
 			unknownAuthor: 'Autor nieznany',
@@ -928,7 +930,8 @@ export const pl = {
 	},
 	mentions: {
 		heading: 'Wspominasz o tym w notatkach',
-		artwork: 'Dzieło'
+		artwork: 'Dzieło',
+		visit: 'Wizyta'
 	},
 	feedback: {
 		title: 'Zgłoś uwagę',
@@ -1124,6 +1127,7 @@ export const pl = {
 		seenCount: (count: number): string =>
 			`${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })} na żywo`,
 		kind: 'Wizyta',
+		artworkVisits: (count: number): string => `Widziane na żywo · ${visitCount(count)}`,
 		inYear: (year: number): string => `${year} roku`,
 		saved: (place: string, date: string): string => `Zapisano wizytę: ${place}, ${date}.`,
 		view: {

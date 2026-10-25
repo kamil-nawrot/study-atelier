@@ -1,37 +1,39 @@
 <script lang="ts">
-	import Heart from '@lucide/svelte/icons/heart';
+	import type { LucideIcon } from '@lucide/svelte';
 	import { Icon, ToggleTag } from '@study-atelier/ui';
-	import { m } from '#lib/i18n/i18n.ts';
 
 	type Props = {
+		icon: LucideIcon;
+		label: string;
 		count: number;
 		pressed: boolean;
+		filled?: boolean;
 		onclick: () => void;
 	};
 
-	let { count, pressed, onclick }: Props = $props();
+	let { icon, label, count, pressed, filled = false, onclick }: Props = $props();
 </script>
 
-<div class="favourites">
+<div class="flag" class:filled>
 	<ToggleTag {count} {onclick} {pressed}>
-		<Icon icon={Heart} size="sm" />
-		{m.atelier.filters.fields.favourites}
+		<Icon {icon} size="sm" />
+		{label}
 	</ToggleTag>
 </div>
 
 <style>
-	.favourites :global(.label) {
+	.flag :global(.label) {
 		display: inline-flex;
 		align-items: center;
 		gap: var(--spacing-2);
 	}
 
-	.favourites :global(svg) {
+	.flag :global(svg) {
 		width: var(--font-size-md);
 		height: var(--font-size-md);
 	}
 
-	.favourites :global([aria-pressed='true'] svg) {
+	.filled :global([aria-pressed='true'] svg) {
 		fill: currentColor;
 	}
 </style>

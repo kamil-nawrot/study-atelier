@@ -9,6 +9,7 @@ import type { FilterOption } from '#lib/catalogue/types/filter-option.ts';
 import type { MissingData } from '#lib/catalogue/types/missing-data.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { FilterValueField } from '#lib/wall/types/filter-value-field.ts';
+import type { FlagField } from '#lib/wall/types/flag-field.ts';
 
 type FilterSkip = FilterField | `own:${string}` | `ownText:${string}` | 'ticked';
 
@@ -16,6 +17,7 @@ export const UNKNOWN_AUTHOR = '';
 
 export const FILTER_FIELDS: readonly FilterField[] = [
 	'favourites',
+	'seen',
 	'eras',
 	'types',
 	'years',
@@ -32,6 +34,7 @@ export const MISSING_DATA: readonly MissingData[] = ['image', 'year', 'era', 'pe
 export function emptyFilter(): CollectionFilter {
 	return {
 		favourites: false,
+		seen: false,
 		eras: [],
 		types: [],
 		yearFrom: null,
@@ -61,9 +64,13 @@ export function hasYears(filter: CollectionFilter): boolean {
 	return filter.yearFrom !== null || filter.yearTo !== null;
 }
 
+export function isFlagField(field: string): field is FlagField {
+	return field === 'favourites' || field === 'seen';
+}
+
 function hasChoice(filter: CollectionFilter, field: FilterField): boolean {
 	if (field === 'years') return hasYears(filter);
-	if (field === 'favourites') return filter.favourites;
+	if (isFlagField(field)) return filter[field];
 	if (field === 'authors') return filter.authors.length > 0 || filter.unknownAuthor;
 	return filter[field].length > 0;
 }
@@ -129,6 +136,7 @@ export function chosenValues(filter: CollectionFilter, field: FilterValueField):
 
 function fieldMatches(artwork: WallArtwork, filter: CollectionFilter, field: FilterField): boolean {
 	if (field === 'favourites') return artwork.favourite;
+	if (field === 'seen') return artwork.seen === true;
 	if (field === 'years') {
 		if (artwork.yearTo === null) return false;
 		if (filter.yearFrom !== null && artwork.yearTo < filter.yearFrom) return false;
@@ -266,6 +274,15 @@ export function toggleFavourites(filter: CollectionFilter): CollectionFilter {
 	return { ...filter, favourites: !filter.favourites };
 }
 
+export function seenCount(artworks: WallArtwork[], filter: CollectionFilter): number {
+	return artworks.filter((artwork) => artwork.seen && matchesFilter(artwork, filter, 'seen'))
+		.length;
+}
+
+export function toggleSeen(filter: CollectionFilter): CollectionFilter {
+	return { ...filter, seen: !filter.seen };
+}
+
 export function onlyFavourites(filter: CollectionFilter): boolean {
 	return (
 		filter.favourites &&
@@ -300,6 +317,6 @@ export function clearField(filter: CollectionFilter, field: FilterField): Collec
 	const empty = emptyFilter();
 	if (field === 'years') return { ...filter, yearFrom: null, yearTo: null };
 	if (field === 'authors') return { ...filter, authors: [], unknownAuthor: false };
-	if (field === 'favourites') return { ...filter, favourites: false };
+	if (isFlagField(field)) return { ...filter, [field]: false };
 	return { ...filter, [field]: empty[field] };
 }
