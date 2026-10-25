@@ -561,6 +561,12 @@ export const VISITS = [
 	)
 ];
 
+for (const row of ARTWORKS) {
+	row.visit_artworks = VISITS.filter((visit) =>
+		visit.visit_artworks.some((seen) => seen.artwork_id === row.id)
+	).map((visit) => ({ visit_id: visit.id }));
+}
+
 export const TIMELINE_EVENTS = [
 	{
 		id: '00000000-0000-4000-8000-000000000301',

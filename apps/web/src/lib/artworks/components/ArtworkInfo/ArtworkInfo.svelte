@@ -16,6 +16,8 @@
 	import { formatDate, signedYear } from '#lib/catalogue/years/years.ts';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import ArtworkVisits from '#lib/chronicle/components/ArtworkVisits/ArtworkVisits.svelte';
+	import type { Visit } from '#lib/chronicle/types/visit.ts';
 	import MentionedIn from '#lib/notes/components/MentionedIn/MentionedIn.svelte';
 	import type { Mention } from '#lib/notes/types/mention.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -25,14 +27,24 @@
 		noteLinks?: NoteLinks;
 		glossary?: GlossaryEntry[];
 		mentions: Mention[];
+		visits: Visit[];
 		summaries: ValueSummaries;
 		ownFields: OwnFieldDefinition[];
 		closed: boolean;
 		onhide: () => void;
 	};
 
-	let { artwork, noteLinks, glossary, mentions, summaries, ownFields, closed, onhide }: Props =
-		$props();
+	let {
+		artwork,
+		noteLinks,
+		glossary,
+		mentions,
+		visits,
+		summaries,
+		ownFields,
+		closed,
+		onhide
+	}: Props = $props();
 
 	type ViewField = {
 		label: string;
@@ -205,6 +217,8 @@
 			</dd>
 		{/each}
 	</dl>
+
+	<ArtworkVisits {visits} />
 
 	<section class="notes" aria-labelledby="artwork-notes">
 		<h2 id="artwork-notes" class="caption">{m.artworkForm.notes}</h2>

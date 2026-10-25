@@ -2,13 +2,14 @@
 	import type { Snippet } from 'svelte';
 
 	type Props = {
+		small?: boolean;
 		children: Snippet;
 	};
 
-	let { children }: Props = $props();
+	let { small = false, children }: Props = $props();
 </script>
 
-<div class="stub">
+<div class="stub" class:small>
 	{@render children()}
 </div>
 
@@ -32,8 +33,21 @@
 				no-repeat;
 	}
 
+	.small {
+		--period: 20px;
+		--depth: 10px;
+
+		min-height: 0;
+		padding: var(--spacing-3) var(--spacing-4) var(--spacing-3)
+			calc(var(--spacing-4) + var(--depth));
+		mask:
+			var(--teeth-down) left top / var(--depth) var(--period) repeat-y,
+			linear-gradient(currentColor, currentColor) var(--depth) top / calc(100% - var(--depth)) 100%
+				no-repeat;
+	}
+
 	@media (min-width: 768px) {
-		.stub {
+		.stub:not(.small) {
 			min-height: 0;
 			padding: var(--spacing-8) var(--spacing-8) var(--spacing-8)
 				calc(var(--spacing-8) + var(--depth));
