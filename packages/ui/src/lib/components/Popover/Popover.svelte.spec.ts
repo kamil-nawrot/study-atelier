@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
@@ -18,6 +18,10 @@ function button(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('button', { name: 'Renaissance' });
 }
 
+afterEach(() => {
+	vi.useRealTimers();
+});
+
 describe('Popover', () => {
 	it('keeps the card hidden until the learner asks for it', async () => {
 		renderPopover();
@@ -34,6 +38,31 @@ describe('Popover', () => {
 		await userEvent.unhover(button());
 
 		await expect.element(button()).toHaveAttribute('aria-expanded', 'false');
+	});
+
+	it('waits a moment before opening on hover and stays shut when the pointer passes by', async () => {
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+		renderPopover();
+
+		await userEvent.hover(button());
+		vi.advanceTimersByTime(100);
+		expect(page.getByRole('tooltip').elements()).toHaveLength(0);
+		await userEvent.unhover(button());
+		vi.advanceTimersByTime(500);
+		await expect.element(button()).toHaveAttribute('aria-expanded', 'false');
+
+		await userEvent.hover(button());
+		vi.advanceTimersByTime(120);
+		await expect.element(button()).toHaveAttribute('aria-describedby');
+	});
+
+	it('opens at once on a click, without the hover delay', async () => {
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+		renderPopover();
+
+		await userEvent.click(button());
+
+		await expect.element(button()).toHaveAttribute('aria-expanded', 'true');
 	});
 
 	it('opens on a click, describes the trigger, and closes on a click outside', async () => {

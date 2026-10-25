@@ -32,6 +32,15 @@ describe('Tooltip', () => {
 			.toHaveTextContent('Two artworks still use this');
 	});
 
+	it('waits a moment before showing on hover', async () => {
+		renderTooltip();
+		const bubble = page.getByText('Two artworks still use this').element();
+
+		await userEvent.hover(page.getByRole('button', { name: 'Delete' }));
+		expect(getComputedStyle(bubble).visibility).toBe('hidden');
+		await expect.element(page.getByRole('tooltip')).toBeVisible();
+	});
+
 	it('shows the text when the control inside is focused with the keyboard', async () => {
 		renderTooltip();
 
@@ -82,6 +91,7 @@ describe('Tooltip', () => {
 
 		await userEvent.hover(page.getByRole('button', { name: 'Delete' }));
 
+		await expect.element(page.getByRole('tooltip')).toBeVisible();
 		const control = page.getByRole('button', { name: 'Delete' }).element().getBoundingClientRect();
 		const bubble = page.getByRole('tooltip').element().getBoundingClientRect();
 		expect(bubble.bottom).toBeLessThanOrEqual(control.top);
@@ -98,6 +108,7 @@ describe('Tooltip', () => {
 
 		await userEvent.hover(page.getByRole('button', { name: 'Delete' }));
 
+		await expect.element(page.getByRole('tooltip')).toBeVisible();
 		const control = page.getByRole('button', { name: 'Delete' }).element().getBoundingClientRect();
 		const bubble = page.getByRole('tooltip').element().getBoundingClientRect();
 		expect(bubble.top).toBeGreaterThanOrEqual(control.bottom);
@@ -109,6 +120,7 @@ describe('Tooltip', () => {
 
 		await userEvent.hover(page.getByRole('button', { name: 'Delete' }));
 
+		await expect.element(page.getByRole('tooltip')).toBeVisible();
 		const control = page.getByRole('button', { name: 'Delete' }).element().getBoundingClientRect();
 		const bubble = page.getByRole('tooltip').element().getBoundingClientRect();
 		expect(bubble.right).toBeLessThanOrEqual(control.left);
