@@ -131,3 +131,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0125](0125-send-the-auth-emails-through-gmail-smtp.md)                      | Send the auth emails through Gmail SMTP                                                  | accepted           |
 | [0126](0126-organise-the-web-app-in-feature-modules-with-enforced-limits.md) | Organise the web app in feature modules with enforced limits                             | accepted           |
 | [0127](0127-keep-the-value-page-in-a-values-module.md)                       | Keep the value page in a values module                                                   | accepted           |
+| [0128](0128-log-museum-visits-in-a-chronicle.md)                             | Log museum visits in a chronicle                                                         | accepted           |
