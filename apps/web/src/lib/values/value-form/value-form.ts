@@ -91,7 +91,10 @@ export function mergeDescription(
 		...(hasContent ? [mergeConfirm.pageContent(merged)] : []),
 		mergeConfirm.irreversible
 	];
-	if (record.count === 0) return [mergeConfirm.unused(merged), ...ending].join(' ');
+	const visits = record.visits ? [mergeConfirm.visits(merged, kept, record.visits)] : [];
+	if (record.count === 0) {
+		return [...(visits.length > 0 ? visits : [mergeConfirm.unused(merged)]), ...ending].join(' ');
+	}
 	if (record.category === 'period') {
 		return [
 			mergeConfirm.periodAssigned(merged, kept, record.count),
@@ -99,5 +102,9 @@ export function mergeDescription(
 			...ending
 		].join(' ');
 	}
-	return [mergeConfirm.assigned(merged, kept, record.count, kindGenitive), ...ending].join(' ');
+	return [
+		mergeConfirm.assigned(merged, kept, record.count, kindGenitive),
+		...visits,
+		...ending
+	].join(' ');
 }

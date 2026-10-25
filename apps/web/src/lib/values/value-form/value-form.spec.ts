@@ -57,4 +57,27 @@ describe('value form', () => {
 			[m.cardIndex.mergeConfirm.unused('Oil'), m.cardIndex.mergeConfirm.irreversible].join(' ')
 		);
 	});
+
+	it('says the visits of a place without artworks move to the kept place', () => {
+		const louvre = record({ category: 'location', name: 'Luwr', count: 0, visits: 2 });
+
+		expect(mergeDescription(louvre, record({ name: 'Louvre' }), 'miejsca', false)).toBe(
+			[
+				m.cardIndex.mergeConfirm.visits('Luwr', 'Louvre', 2),
+				m.cardIndex.mergeConfirm.irreversible
+			].join(' ')
+		);
+	});
+
+	it('says the visits move with the artworks of a place', () => {
+		const louvre = record({ category: 'location', name: 'Luwr', count: 3, visits: 1 });
+
+		expect(mergeDescription(louvre, record({ name: 'Louvre' }), 'miejsca', false)).toBe(
+			[
+				m.cardIndex.mergeConfirm.assigned('Luwr', 'Louvre', 3, 'miejsca'),
+				m.cardIndex.mergeConfirm.visits('Luwr', 'Louvre', 1),
+				m.cardIndex.mergeConfirm.irreversible
+			].join(' ')
+		);
+	});
 });
