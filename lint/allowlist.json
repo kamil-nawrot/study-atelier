@@ -10,7 +10,6 @@
 		"apps/web/src/lib/values/components/ValueForm/ValueForm.svelte",
 		"apps/web/src/lib/wall/filter/filter.ts",
 		"apps/web/src/routes/(app)/atelier/new/page.svelte.spec.ts",
-		"apps/web/src/routes/(app)/atelier/review/+page.svelte",
 		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte"
 	],
 	"script": [
@@ -21,7 +20,6 @@
 		"apps/web/src/lib/timeline/components/TimelineStage/TimelineStage.svelte",
 		"apps/web/src/lib/timeline/components/TimelineView/TimelineView.svelte",
 		"apps/web/src/lib/values/components/ValueForm/ValueForm.svelte",
-		"apps/web/src/routes/(app)/atelier/review/+page.svelte",
 		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte"
 	],
 	"style": [
@@ -41,7 +39,6 @@
 	"layout": [],
 	"route-script": [
 		"apps/web/src/routes/(app)/atelier/[number]/+page.svelte",
-		"apps/web/src/routes/(app)/atelier/review/+page.svelte",
 		"apps/web/src/routes/(app)/atelier/timeline/+page.svelte"
 	],
 	"storage": ["apps/web/src/lib/shared/navigation/back-places/back-places.ts"]
