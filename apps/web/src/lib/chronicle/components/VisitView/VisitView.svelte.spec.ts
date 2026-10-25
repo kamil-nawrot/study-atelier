@@ -20,7 +20,9 @@ describe('VisitView', () => {
 		await expect
 			.element(page.getByRole('heading', { name: m.chronicle.view.seenTitle }))
 			.toBeInTheDocument();
-		await expect.element(page.getByText(m.atelier.count(2), { exact: true })).toBeInTheDocument();
+		await expect
+			.element(page.getByText(m.atelier.count(2), { exact: true }))
+			.not.toBeInTheDocument();
 		await expect.element(page.getByRole('link', { name: /Water Lilies/ })).toBeInTheDocument();
 	});
 

@@ -44,24 +44,25 @@ describe('VisitForm', () => {
 		vi.clearAllMocks();
 	});
 
-	it('asks for a place and a date before saving', async () => {
+	it('asks for a place and a year before saving', async () => {
 		renderForm();
 
 		await userEvent.click(saveButton());
 
 		await expect.element(page.getByText(m.chronicle.form.placeRequired)).toBeInTheDocument();
-		await expect.element(page.getByText(m.chronicle.form.dateRequired)).toBeInTheDocument();
+		await expect.element(page.getByText(m.chronicle.form.yearRequired)).toBeInTheDocument();
 		expect(save).not.toHaveBeenCalled();
 	});
 
-	it('says how to write a date it cannot read', async () => {
+	it('asks for the month of a day', async () => {
 		renderForm();
 		await pickPlace('Orsay');
-		await page.getByLabelText(m.chronicle.form.date).fill('12 października');
+		await page.getByLabelText(m.chronicle.form.day).fill('12');
+		await page.getByLabelText(m.chronicle.form.year).fill('2026');
 
 		await userEvent.click(saveButton());
 
-		await expect.element(page.getByText(m.chronicle.form.dateInvalid)).toBeInTheDocument();
+		await expect.element(page.getByText(m.chronicle.form.monthRequired)).toBeInTheDocument();
 	});
 
 	it('ticks the artworks of the chosen place and saves the visit with them', async () => {
@@ -71,7 +72,8 @@ describe('VisitForm', () => {
 		await pickPlace('Orsay');
 		await expect.element(page.getByRole('checkbox', { name: 'Water Lilies' })).toBeChecked();
 		await userEvent.click(page.getByText('The Dance Class'));
-		await page.getByLabelText(m.chronicle.form.date).fill('10.2026');
+		await userEvent.selectOptions(page.getByLabelText(m.chronicle.form.month), 'październik');
+		await page.getByLabelText(m.chronicle.form.year).fill('2026');
 		await userEvent.click(saveButton());
 
 		await vi.waitFor(() => expect(onsaved).toHaveBeenCalled());
@@ -102,7 +104,10 @@ describe('VisitForm', () => {
 		save.mockResolvedValue({ id: VISIT_ID });
 		renderForm(testVisit({ place: 'Orsay', artworkIds: [dance.id, 'trashed'] }));
 
-		await expect.element(page.getByLabelText(m.chronicle.form.date)).toHaveValue('12.10.2026');
+		await expect.element(page.getByLabelText(m.chronicle.form.day)).toHaveValue('12');
+		await expect.element(page.getByLabelText(m.chronicle.form.month)).toHaveValue('10');
+		await expect.element(page.getByLabelText(m.chronicle.form.year)).toHaveValue('2026');
+		await expect.element(page.getByText(m.chronicle.form.placeHint)).not.toBeInTheDocument();
 		await expect.element(page.getByRole('checkbox', { name: 'Water Lilies' })).not.toBeChecked();
 		await expect.element(page.getByRole('checkbox', { name: 'The Dance Class' })).toBeChecked();
 		await userEvent.click(saveButton());

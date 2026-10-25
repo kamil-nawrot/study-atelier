@@ -84,7 +84,9 @@ describe('visitFormOf', () => {
 		expect(state).toEqual({
 			place: ['Musée d’Orsay'],
 			placeQuery: '',
-			dateText: '12.10.2026',
+			day: '12',
+			month: '10',
+			year: '2026',
 			notes: 'Lilie.',
 			chosen: ['artwork-1', 'artwork-4'],
 			extra: ['artwork-4']
@@ -120,28 +122,35 @@ describe('searchArtworks', () => {
 });
 
 describe('validateVisitForm', () => {
-	it('asks for a place and a date', () => {
+	it('asks for a place and at least a year', () => {
 		expect(validateVisitForm(form())).toEqual({
 			place: m.chronicle.form.placeRequired,
-			date: m.chronicle.form.dateRequired
+			year: m.chronicle.form.yearRequired
 		});
 	});
 
-	it('rejects a date it cannot read', () => {
-		expect(validateVisitForm(form({ place: ['Luwr'], dateText: '2026-10-12' }))).toEqual({
-			date: m.chronicle.form.dateInvalid
+	it('names the field of a date it cannot read', () => {
+		const place = ['Luwr'];
+		expect(validateVisitForm(form({ place, year: '26' }))).toEqual({
+			year: m.chronicle.form.yearInvalid
+		});
+		expect(validateVisitForm(form({ place, day: '12', year: '2026' }))).toEqual({
+			month: m.chronicle.form.monthRequired
+		});
+		expect(validateVisitForm(form({ place, day: '31', month: '2', year: '2026' }))).toEqual({
+			day: m.chronicle.form.dayInvalid
 		});
 	});
 
 	it('accepts a place and a month', () => {
-		expect(validateVisitForm(form({ place: ['Luwr'], dateText: '10.2026' }))).toEqual({});
+		expect(validateVisitForm(form({ place: ['Luwr'], month: '10', year: '2026' }))).toEqual({});
 	});
 });
 
 describe('draftOfVisitForm', () => {
 	it('keeps the artworks the form does not show', () => {
 		const draft = draftOfVisitForm(
-			form({ place: [' Luwr '], dateText: '2026', chosen: ['artwork-3'] }),
+			form({ place: [' Luwr '], year: '2026', chosen: ['artwork-3'] }),
 			['artwork-9', 'artwork-3']
 		);
 
@@ -156,12 +165,11 @@ describe('draftOfVisitForm', () => {
 
 describe('visitFormChanged', () => {
 	it('ignores the order of ticks and spaces around the date', () => {
-		const saved = form({ place: ['Luwr'], dateText: '2026', chosen: ['a', 'b'] });
+		const saved = form({ place: ['Luwr'], year: '2026', chosen: ['a', 'b'] });
 
-		expect(visitFormChanged({ ...saved, dateText: ' 2026 ', chosen: ['b', 'a'] }, saved)).toBe(
-			false
-		);
+		expect(visitFormChanged({ ...saved, year: ' 2026 ', chosen: ['b', 'a'] }, saved)).toBe(false);
 		expect(visitFormChanged({ ...saved, chosen: ['a'] }, saved)).toBe(true);
 		expect(visitFormChanged({ ...saved, notes: 'x' }, saved)).toBe(true);
+		expect(visitFormChanged({ ...saved, month: '3' }, saved)).toBe(true);
 	});
 });

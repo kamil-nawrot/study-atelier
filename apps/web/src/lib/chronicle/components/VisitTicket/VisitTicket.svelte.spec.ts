@@ -19,6 +19,8 @@ describe('VisitTicket', () => {
 			.element(page.getByRole('heading', { level: 3 }))
 			.toHaveTextContent('Musée d’Orsay');
 		await expect.element(page.getByText('12 października 2026')).toBeInTheDocument();
+		await expect.element(page.getByText('paź', { exact: true })).toBeInTheDocument();
+		await expect.element(page.getByText(/paź 2026/)).not.toBeInTheDocument();
 		await expect.element(page.getByText('Muzeum · Francja')).toBeInTheDocument();
 		await expect.element(page.getByText(m.chronicle.seen(6))).toBeInTheDocument();
 		await expect.element(page.getByText('Obok #0025 The Dance Class wisi.')).toBeInTheDocument();
@@ -33,6 +35,7 @@ describe('VisitTicket', () => {
 		await expect.element(page.getByRole('link')).not.toBeInTheDocument();
 		await expect.element(page.getByText(m.chronicle.kind)).toBeInTheDocument();
 		await expect.element(page.getByText('poniedziałek')).toBeInTheDocument();
+		await expect.element(page.getByText('paź 2026')).toBeInTheDocument();
 		await expect.element(page.getByText(m.chronicle.seenCount(2))).toBeInTheDocument();
 		await expect.element(page.getByText('Lilie wodne w owalnej sali.')).not.toBeInTheDocument();
 	});
@@ -48,7 +51,7 @@ describe('VisitTicket', () => {
 			linked: true
 		});
 
-		await expect.element(page.getByText('2019', { exact: true }).first()).toBeInTheDocument();
+		await expect.element(page.getByText('2019', { exact: true })).toBeInTheDocument();
 		await expect.element(page.getByText(/Francja/)).not.toBeInTheDocument();
 	});
 });

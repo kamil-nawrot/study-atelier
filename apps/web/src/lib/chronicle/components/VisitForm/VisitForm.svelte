@@ -5,7 +5,6 @@
 		Form,
 		FormActions,
 		NotesEditor,
-		TextField,
 		ValueField,
 		type NoteLinks
 	} from '@study-atelier/ui';
@@ -25,6 +24,7 @@
 		visitFormOf,
 		withPlaceArtworks
 	} from '#lib/chronicle/visit-form/visit-form.ts';
+	import VisitDateField from '#lib/chronicle/components/VisitDateField/VisitDateField.svelte';
 	import VisitArtworksField from '#lib/chronicle/components/VisitArtworksField/VisitArtworksField.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import type { PlaceStarter } from '#lib/card-index/types/place-starter.ts';
@@ -127,7 +127,7 @@
 		<div class="fields">
 			<ValueField
 				error={errors.place}
-				hint={m.chronicle.form.placeHint}
+				hint={existing ? undefined : m.chronicle.form.placeHint}
 				label={m.chronicle.form.place}
 				maxlength={VALUE_NAME_MAX_LENGTH}
 				options={placeOptions}
@@ -136,14 +136,7 @@
 				bind:values={form.place}
 			/>
 
-			<TextField
-				autocomplete="off"
-				error={errors.date}
-				inputmode="numeric"
-				label={m.chronicle.form.date}
-				placeholder={m.chronicle.form.datePlaceholder}
-				bind:value={form.dateText}
-			/>
+			<VisitDateField {errors} bind:day={form.day} bind:month={form.month} bind:year={form.year} />
 
 			<NotesEditor
 				hint={noteLinks ? m.artworkForm.notesLinkHint : undefined}

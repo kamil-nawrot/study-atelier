@@ -29,7 +29,7 @@ describe('visit edit page', () => {
 		await expect
 			.element(page.getByRole('heading', { level: 1, name: m.chronicle.form.editTitle }))
 			.toBeInTheDocument();
-		await expect.element(page.getByLabelText(m.chronicle.form.date)).toHaveValue('12.10.2026');
+		await expect.element(page.getByLabelText(m.chronicle.form.day)).toHaveValue('12');
 	});
 
 	it('says that the visit does not exist', async () => {

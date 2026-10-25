@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { visitsByYear } from './visit-list.ts';
+import { openYear, visitsByYear } from './visit-list.ts';
 import type { Visit } from '#lib/chronicle/types/visit.ts';
 import type { VisitDate } from '#lib/chronicle/types/visit-date.ts';
 
@@ -37,5 +37,29 @@ describe('visitsByYear', () => {
 
 	it('gives no years without visits', () => {
 		expect(visitsByYear([])).toEqual([]);
+	});
+});
+
+describe('openYear', () => {
+	const now = new Date(2026, 9, 25);
+
+	it('opens this year when it has visits', () => {
+		const years = visitsByYear([
+			visit('future', { on: '2027-01-01', precision: 'year' }),
+			visit('now', { on: '2026-03-01', precision: 'month' })
+		]);
+		expect(openYear(years, now)).toBe(2026);
+	});
+
+	it('opens the newest year otherwise', () => {
+		const years = visitsByYear([
+			visit('old', { on: '2019-01-01', precision: 'year' }),
+			visit('newer', { on: '2024-05-03', precision: 'day' })
+		]);
+		expect(openYear(years, now)).toBe(2024);
+	});
+
+	it('opens nothing without visits', () => {
+		expect(openYear([], now)).toBeUndefined();
 	});
 });

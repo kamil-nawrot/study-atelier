@@ -1,7 +1,7 @@
 import { valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
-import { parseVisitDate, visitDateText } from '#lib/chronicle/visit-date/visit-date.ts';
+import { dateFromParts, dateParts, isVisitDate } from '#lib/chronicle/visit-date/visit-date.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { Visit } from '#lib/chronicle/types/visit.ts';
 import type { VisitDraft } from '#lib/chronicle/types/visit-draft.ts';
@@ -21,7 +21,16 @@ export function placeArtworks(artworks: readonly WallArtwork[], place: string): 
 }
 
 export function emptyVisitForm(): VisitFormState {
-	return { place: [], placeQuery: '', dateText: '', notes: '', chosen: [], extra: [] };
+	return {
+		place: [],
+		placeQuery: '',
+		day: '',
+		month: '',
+		year: '',
+		notes: '',
+		chosen: [],
+		extra: []
+	};
 }
 
 export function visitFormOf(visit: Visit, artworks: readonly WallArtwork[]): VisitFormState {
@@ -30,7 +39,7 @@ export function visitFormOf(visit: Visit, artworks: readonly WallArtwork[]): Vis
 	return {
 		place: [visit.place],
 		placeQuery: '',
-		dateText: visitDateText(visit.date),
+		...dateParts(visit.date),
 		notes: visit.notes,
 		chosen: visit.artworkIds.filter((id) => known.has(id)),
 		extra: visit.artworkIds.filter((id) => known.has(id) && !atPlace.has(id))
@@ -81,14 +90,17 @@ export function searchArtworks(
 export function validateVisitForm(form: VisitFormState): VisitFormErrors {
 	const errors: VisitFormErrors = {};
 	if (placeOf(form) === '') errors.place = m.chronicle.form.placeRequired;
-	if (form.dateText.trim() === '') errors.date = m.chronicle.form.dateRequired;
-	else if (!parseVisitDate(form.dateText)) errors.date = m.chronicle.form.dateInvalid;
+	const date = dateFromParts(form);
+	if (date === 'yearMissing') errors.year = m.chronicle.form.yearRequired;
+	if (date === 'yearInvalid') errors.year = m.chronicle.form.yearInvalid;
+	if (date === 'monthMissing') errors.month = m.chronicle.form.monthRequired;
+	if (date === 'dayInvalid') errors.day = m.chronicle.form.dayInvalid;
 	return errors;
 }
 
 export function draftOfVisitForm(form: VisitFormState, kept: readonly string[] = []): VisitDraft {
-	const date = parseVisitDate(form.dateText);
-	if (!date) throw new Error('the visit form was not validated');
+	const date = dateFromParts(form);
+	if (!isVisitDate(date)) throw new Error('the visit form was not validated');
 	return {
 		place: placeOf(form),
 		date,
@@ -102,7 +114,9 @@ export function visitFormChanged(current: VisitFormState, saved: VisitFormState)
 		a.length === b.length && a.every((id) => b.includes(id));
 	return (
 		placeOf(current) !== placeOf(saved) ||
-		current.dateText.trim() !== saved.dateText.trim() ||
+		current.day.trim() !== saved.day.trim() ||
+		current.month !== saved.month ||
+		current.year.trim() !== saved.year.trim() ||
 		current.notes !== saved.notes ||
 		!sameSet(current.chosen, saved.chosen) ||
 		!sameSet(current.extra, saved.extra)

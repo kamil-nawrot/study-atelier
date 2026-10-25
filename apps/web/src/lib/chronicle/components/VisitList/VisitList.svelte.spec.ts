@@ -25,10 +25,28 @@ describe('VisitList', () => {
 		});
 
 		const years = page.getByRole('heading', { level: 2 }).elements();
-		expect(years.map((heading) => heading.textContent)).toEqual(['2026', '2019']);
+		expect(years.map((heading) => heading.textContent?.trim().slice(0, 4))).toEqual([
+			'2026',
+			'2019'
+		]);
 		await expect.element(page.getByText(m.chronicle.seen(1))).toBeInTheDocument();
 		await expect
 			.element(page.getByRole('img', { name: 'Water Lilies, Test Painter' }))
 			.toBeVisible();
+	});
+
+	it('opens only the newest year and lets the learner open the others', async () => {
+		render(VisitList, {
+			visits: [
+				testVisit({ id: 'old', place: 'Uffizi', date: { on: '2019-01-01', precision: 'year' } }),
+				testVisit({ id: 'new', date: { on: '2018-05-03', precision: 'day' }, place: 'Prado' })
+			],
+			artworks: new Map()
+		});
+
+		await expect.element(page.getByRole('link', { name: 'Uffizi' })).toBeVisible();
+		await expect.element(page.getByRole('link', { name: 'Prado' })).not.toBeInTheDocument();
+		await page.getByRole('heading', { name: /^2018/ }).click();
+		await expect.element(page.getByRole('link', { name: 'Prado' })).toBeVisible();
 	});
 });

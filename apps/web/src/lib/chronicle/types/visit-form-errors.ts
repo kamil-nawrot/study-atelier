@@ -1,4 +1,6 @@
 export type VisitFormErrors = {
 	place?: string;
-	date?: string;
+	day?: string;
+	month?: string;
+	year?: string;
 };

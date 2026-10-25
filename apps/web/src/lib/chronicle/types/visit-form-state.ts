@@ -1,7 +1,9 @@
 export type VisitFormState = {
 	place: string[];
 	placeQuery: string;
-	dateText: string;
+	day: string;
+	month: string;
+	year: string;
 	notes: string;
 	chosen: string[];
 	extra: string[];

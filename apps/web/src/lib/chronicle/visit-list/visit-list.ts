@@ -13,3 +13,8 @@ export function visitsByYear(visits: readonly Visit[]): VisitYear[] {
 	}
 	return years;
 }
+
+export function openYear(years: readonly VisitYear[], now = new Date()): number | undefined {
+	const current = now.getFullYear();
+	return years.find((group) => group.year === current)?.year ?? years[0]?.year;
+}

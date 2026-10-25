@@ -6,7 +6,7 @@
 	import { placeTypeIcon, placeTypeName } from '#lib/catalogue/place-types/place-types.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { noteExcerpt } from '#lib/chronicle/note-excerpt/note-excerpt.ts';
-	import { ticketDate, visitWeekday, visitYear } from '#lib/chronicle/visit-date/visit-date.ts';
+	import { ticketDate, visitWeekday } from '#lib/chronicle/visit-date/visit-date.ts';
 	import TicketEdge from '#lib/chronicle/components/TicketEdge/TicketEdge.svelte';
 	import VisitThumbnails from '#lib/chronicle/components/VisitThumbnails/VisitThumbnails.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -33,10 +33,7 @@
 	}: Props = $props();
 
 	let header = $derived(!linked);
-	let date = $derived(ticketDate(visit.date));
-	let dateSub = $derived(
-		header && visit.date.precision === 'day' ? `${date.sub} ${visitYear(visit.date)}` : date.sub
-	);
+	let date = $derived(ticketDate(visit.date, header));
 	let place = $derived(
 		[
 			visit.placeType ? placeTypeName(visit.placeType) : null,
@@ -53,8 +50,8 @@
 	<div class="main">
 		<time class="date" class:year={visit.date.precision === 'year'} datetime={visit.date.on}>
 			<span class="day" aria-hidden="true">{date.main}</span>
-			{#if dateSub}
-				<span class="month" aria-hidden="true">{dateSub}</span>
+			{#if date.sub}
+				<span class="month" aria-hidden="true">{date.sub}</span>
 			{/if}
 			<span class="visually-hidden">{date.label}</span>
 		</time>

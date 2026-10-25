@@ -32,12 +32,7 @@
 	{/if}
 
 	<section class="seen" aria-labelledby="visit-seen">
-		<div class="heading">
-			<h2 id="visit-seen">{m.chronicle.view.seenTitle}</h2>
-			{#if artworks.length > 0}
-				<span class="caption">{m.atelier.count(artworks.length)}</span>
-			{/if}
-		</div>
+		<h2 id="visit-seen">{m.chronicle.view.seenTitle}</h2>
 		{#if artworks.length > 0}
 			<ArtworkWall {artworks} {onimagefailed} {onnearscreen} />
 		{:else}
@@ -61,13 +56,5 @@
 		gap: var(--spacing-6);
 		padding-top: var(--spacing-6);
 		border-top: var(--border-width-hairline) solid var(--color-line);
-	}
-
-	.heading {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-		align-items: baseline;
-		gap: var(--spacing-4);
 	}
 </style>
