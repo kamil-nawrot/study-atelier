@@ -1,7 +1,6 @@
 {
 	"lines": [
 		"apps/web/src/lib/artworks/components/ArtworkForm/ArtworkForm.svelte",
-		"apps/web/src/lib/artworks/components/ArtworkView/ArtworkView.svelte",
 		"apps/web/src/lib/glossary/components/GlossaryForm/GlossaryForm.svelte",
 		"apps/web/src/lib/images/components/ImageField/ImageField.svelte",
 		"apps/web/src/lib/timeline/components/TimelineStage/TimelineStage.svelte",
@@ -13,7 +12,6 @@
 	],
 	"script": [
 		"apps/web/src/lib/artworks/components/ArtworkForm/ArtworkForm.svelte",
-		"apps/web/src/lib/artworks/components/ArtworkView/ArtworkView.svelte",
 		"apps/web/src/lib/glossary/components/GlossaryForm/GlossaryForm.svelte",
 		"apps/web/src/lib/images/components/ImageField/ImageField.svelte",
 		"apps/web/src/lib/timeline/components/TimelineStage/TimelineStage.svelte",
@@ -22,7 +20,6 @@
 		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte"
 	],
 	"style": [
-		"apps/web/src/lib/artworks/components/ArtworkView/ArtworkView.svelte",
 		"apps/web/src/lib/review/components/ReviewStart/ReviewStart.svelte",
 		"apps/web/src/lib/shell/AtelierLayout/AtelierLayout.svelte",
 		"apps/web/src/lib/timeline/components/TimelineStage/TimelineStage.svelte",
