@@ -511,6 +511,56 @@ function glossaryEntry(
 	};
 }
 
+function visit(number, place, placeType, countryCode, visitedOn, precision, notes, numbers) {
+	return {
+		id: `00000000-0000-4000-8000-000000000${String(500 + number)}`,
+		visited_on: visitedOn,
+		date_precision: precision,
+		notes,
+		category_values: {
+			name: place,
+			location_details: placeType ? [{ place_type: placeType, country_code: countryCode }] : []
+		},
+		visit_artworks: numbers.map((artworkNumber) => ({
+			artwork_id: `00000000-0000-4000-8000-${String(artworkNumber).padStart(12, '0')}`
+		}))
+	};
+}
+
+export const VISITS = [
+	visit(
+		1,
+		'Louvre',
+		'museum',
+		'FR',
+		'2026-10-12',
+		'day',
+		'Tłum przed [#0001 Mona Lisa](/atelier/1), ale warto było podejść bliżej. Skrzydło Richelieu prawie puste, a w salach holenderskich spokój i światło z okien.',
+		[1, 3, 9, 6, 7]
+	),
+	visit(
+		2,
+		'Notre-Dame de Paris',
+		'on_site',
+		'FR',
+		'2026-08-01',
+		'month',
+		'Po rekonstrukcji: rozeta południowa i nowa sygnaturka.',
+		[6]
+	),
+	visit(3, 'Belvedere', 'museum', 'AT', '2026-03-07', 'day', null, []),
+	visit(
+		4,
+		'Uffizi',
+		'museum',
+		'IT',
+		'2019-01-01',
+		'year',
+		'Pierwsza wizyta we Florencji, prawie nic nie pamiętam poza Botticellim.',
+		[9]
+	)
+];
+
 export const TIMELINE_EVENTS = [
 	{
 		id: '00000000-0000-4000-8000-000000000301',
