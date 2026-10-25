@@ -27,6 +27,7 @@ const query = {
 	is: vi.fn(),
 	not: vi.fn(),
 	order: vi.fn(),
+	limit: vi.fn(),
 	range: vi.fn()
 };
 const createSignedUrls = vi.fn();
@@ -94,6 +95,7 @@ describe('loadAtelier', () => {
 		query.is.mockReturnValue(query);
 		query.eq.mockReturnValue(query);
 		query.order.mockReturnValue(query);
+		query.limit.mockReturnValue(query);
 		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map());
 	});
 
@@ -107,6 +109,7 @@ describe('loadAtelier', () => {
 		expect(query.is).toHaveBeenCalledWith('deleted_at', null);
 		expect(query.order).toHaveBeenCalledWith('created_at', { ascending: false });
 		expect(query.order).toHaveBeenCalledWith('id', { ascending: false });
+		expect(query.limit).toHaveBeenCalledWith(1, { referencedTable: 'visit_artworks' });
 		expect(query.range).toHaveBeenCalledWith(0, 999);
 	});
 
@@ -694,6 +697,7 @@ describe('loadTrash', () => {
 		query.not.mockReturnValue(query);
 		query.eq.mockReturnValue(query);
 		query.order.mockReturnValue(query);
+		query.limit.mockReturnValue(query);
 		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map());
 	});
 
@@ -704,6 +708,7 @@ describe('loadTrash', () => {
 		expect(query.not).toHaveBeenCalledWith('deleted_at', 'is', null);
 		expect(query.order).toHaveBeenCalledWith('deleted_at', { ascending: false });
 		expect(query.order).toHaveBeenCalledWith('id', { ascending: false });
+		expect(query.limit).toHaveBeenCalledWith(1, { referencedTable: 'visit_artworks' });
 		expect(query.range).toHaveBeenCalledWith(0, 999);
 	});
 

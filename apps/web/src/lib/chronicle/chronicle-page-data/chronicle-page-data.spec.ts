@@ -54,8 +54,17 @@ describe('loadVisitPage', () => {
 		expect(loadAtelier).not.toHaveBeenCalled();
 	});
 
+	it('does not load the collection for a visit without artworks', async () => {
+		vi.mocked(loadVisit).mockResolvedValue({ visit: testVisit({ artworkIds: [] }) });
+
+		const data = await loadVisitPage('id');
+
+		expect(loadAtelier).not.toHaveBeenCalled();
+		expect(data.artworks).toEqual([]);
+	});
+
 	it('loads the note links only for a note that links, and the glossary for any note', async () => {
-		vi.mocked(loadVisit).mockResolvedValue({ visit: testVisit() });
+		vi.mocked(loadVisit).mockResolvedValue({ visit: testVisit({ artworkIds: [lilies.id] }) });
 
 		const data = await loadVisitPage('id');
 

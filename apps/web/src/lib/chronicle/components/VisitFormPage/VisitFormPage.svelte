@@ -73,6 +73,7 @@
 		{cancelHref}
 		noteLinks={data.noteLinks}
 		oncancel={goBack}
+		onimagefailed={(artwork) => images.failed(artwork)}
 		onnearscreen={(artwork) => images.request(artwork)}
 		onsaved={showSaved}
 		placeStarter={data.placeStarter}

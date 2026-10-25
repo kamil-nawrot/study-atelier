@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { WALL_MARGIN } from '#lib/wall/masonry/masonry.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 	type Props = {
@@ -11,18 +12,21 @@
 
 	function watchScreen(element: HTMLElement): (() => void) | void {
 		if (!artwork.pendingImage) return;
-		const observer = new IntersectionObserver(([entry]) => {
-			if (!entry.isIntersecting) return;
-			observer.disconnect();
-			onnearscreen?.(artwork);
-		});
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				if (!entry.isIntersecting) return;
+				observer.disconnect();
+				onnearscreen?.(artwork);
+			},
+			{ rootMargin: WALL_MARGIN }
+		);
 		observer.observe(element);
 		return () => observer.disconnect();
 	}
 </script>
 
 <span class="backdrop" {@attach watchScreen} aria-hidden="true">
-	{#if artwork.image && !artwork.imageUnavailable}
+	{#if artwork.image?.src && !artwork.imageUnavailable}
 		<img alt="" loading="lazy" onerror={() => onimagefailed?.(artwork)} src={artwork.image.src} />
 	{/if}
 </span>

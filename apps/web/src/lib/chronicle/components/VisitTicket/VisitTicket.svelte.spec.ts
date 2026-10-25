@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import '@study-atelier/ui/styles.css';
 import { m } from '#lib/i18n/i18n.ts';
 import { testVisit, VISIT_ID } from '#lib/testing/chronicle/chronicle.ts';
 import VisitTicket from './VisitTicket.svelte';
@@ -24,6 +25,16 @@ describe('VisitTicket', () => {
 		await expect.element(page.getByText('Muzeum · Francja')).toBeInTheDocument();
 		await expect.element(page.getByText(m.chronicle.seen(6))).toBeInTheDocument();
 		await expect.element(page.getByText('Obok #0025 The Dance Class wisi.')).toBeInTheDocument();
+	});
+
+	it('opens the visit from the stub too', async () => {
+		const { container } = await render(VisitTicket, { visit: testVisit(), count: 2, linked: true });
+
+		const stub = container.querySelector('.stub') as HTMLElement;
+		await expect.element(stub).toBeInTheDocument();
+		const box = stub.getBoundingClientRect();
+		const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
+		expect(hit?.closest('a')).toBe(container.querySelector('a'));
 	});
 
 	it('heads the visit view with the place, the weekday and the count in the stub', async () => {

@@ -42,6 +42,7 @@
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
 		onnearscreen?: (artwork: WallArtwork) => void;
+		onimagefailed?: (artwork: WallArtwork) => void;
 		onsaved: (draft: VisitDraft, id: string) => void | Promise<void>;
 	};
 
@@ -54,6 +55,7 @@
 		cancelHref,
 		oncancel,
 		onnearscreen,
+		onimagefailed,
 		onsaved
 	}: Props = $props();
 
@@ -93,11 +95,12 @@
 
 	$effect(() => {
 		const key = placeKey;
-		if (key === shownPlace) return;
+		if (key === '' || key === shownPlace) return;
 		shownPlace = key;
 		form = withPlaceArtworks(
 			untrack(() => form),
-			untrack(() => artworks)
+			untrack(() => artworks),
+			formState.saved
 		);
 	});
 
@@ -146,7 +149,7 @@
 				bind:value={form.notes}
 			/>
 
-			<VisitArtworksField {artworks} isNew={!existing} {onnearscreen} bind:form />
+			<VisitArtworksField {artworks} isNew={!existing} {onimagefailed} {onnearscreen} bind:form />
 		</div>
 
 		<FormActions>

@@ -223,6 +223,7 @@ export async function loadAtelier(): Promise<AtelierResult> {
 			.is('deleted_at', null)
 			.order('created_at', { ascending: false })
 			.order('id', { ascending: false })
+			.limit(1, { referencedTable: 'visit_artworks' })
 			.range(from, to)
 	);
 	if (error) return { artworks: [], error };
@@ -241,6 +242,7 @@ export async function loadTrash(): Promise<TrashResult> {
 			.not('deleted_at', 'is', null)
 			.order('deleted_at', { ascending: false })
 			.order('id', { ascending: false })
+			.limit(1, { referencedTable: 'visit_artworks' })
 			.range(from, to)
 	);
 	if (error) return { artworks: [], error };

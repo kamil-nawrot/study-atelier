@@ -17,6 +17,14 @@ describe('VisitBackdrop', () => {
 		expect(document.querySelector('[aria-hidden="true"] img')).toBeNull();
 	});
 
+	it('shows nothing while only the size of the image is known', () => {
+		render(VisitBackdrop, {
+			artwork: testArtwork(4, 'Pending', { image: { width: 40, height: 30 } })
+		});
+
+		expect(document.querySelector('[aria-hidden="true"] img')).toBeNull();
+	});
+
 	it('asks for the image once it comes near the screen', async () => {
 		const pending = testArtwork(3, 'Pending', {
 			image: undefined,

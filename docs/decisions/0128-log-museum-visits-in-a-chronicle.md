@@ -1,6 +1,6 @@
 # 0128. Log museum visits in a chronicle
 
-- Status: accepted
+- Status: accepted; the stub of the list ticket (point 5) is superseded by [0129](0129-show-one-faded-artwork-behind-the-ticket-stub.md)
 - Date: 2026-10-25
 
 ## Context and problem statement

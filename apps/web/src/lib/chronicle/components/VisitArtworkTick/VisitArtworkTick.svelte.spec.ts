@@ -27,6 +27,16 @@ describe('VisitArtworkTick', () => {
 		await expect.element(page.getByRole('checkbox', { name: 'Sketch' })).not.toBeChecked();
 	});
 
+	it('reports an image that failed to load', async () => {
+		const artwork = testArtwork(4, 'Expired', {
+			image: { src: 'http://localhost:1/expired.jpg', width: 40, height: 30 }
+		});
+		const onimagefailed = vi.fn();
+		render(VisitArtworkTick, { artwork, checked: true, ontoggle: vi.fn(), onimagefailed });
+
+		await vi.waitFor(() => expect(onimagefailed).toHaveBeenCalledWith(artwork), { timeout: 6000 });
+	});
+
 	it('asks for the image of a tick once it comes near the screen', async () => {
 		const pending = testArtwork(3, 'Pending', {
 			image: undefined,

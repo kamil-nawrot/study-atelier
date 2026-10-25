@@ -163,6 +163,7 @@
 
 	.place a::after {
 		position: absolute;
+		z-index: 1;
 		inset: 0;
 		content: '';
 	}
