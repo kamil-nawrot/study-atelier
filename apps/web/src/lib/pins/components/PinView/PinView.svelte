@@ -24,7 +24,7 @@
 	let source = $derived(artworkImageSource(image, PAGE_WIDTH));
 	let large = $derived(artworkLargeSource(image)?.src);
 	let ratio = $derived(image.width && image.height ? image.height / image.width : 1);
-	let size = $derived(Math.min(LOUPE_SIZE, room));
+	let size = $derived(room > 0 ? Math.min(LOUPE_SIZE, room) : LOUPE_SIZE);
 	let width = $derived(size / viewWidth);
 	let level = $derived(shownWidth ? loupeLevel(viewWidth, shownWidth) : undefined);
 </script>

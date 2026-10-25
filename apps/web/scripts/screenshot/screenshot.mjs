@@ -320,6 +320,15 @@ function pinsRoute(route, request, url) {
 			}))
 		);
 	}
+	const recordNumber = url.searchParams.get('artwork_images.artworks.record_number');
+	if (recordNumber) {
+		const artwork = ARTWORKS.find((row) => `eq.${row.record_number}` === recordNumber);
+		const imageIds = artwork?.artwork_images.map((image) => image.id) ?? [];
+		return json(
+			route,
+			ARTWORK_PINS.filter((row) => imageIds.includes(row.image_id))
+		);
+	}
 	const filter = url.searchParams.get('image_id') ?? '';
 	const ids = filter.startsWith('in.(') ? filter.slice(4, -1).split(',') : [];
 	return json(
