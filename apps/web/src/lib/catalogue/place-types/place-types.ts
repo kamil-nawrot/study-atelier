@@ -3,7 +3,7 @@ import House from '@lucide/svelte/icons/house';
 import MapPin from '@lucide/svelte/icons/map-pin';
 import Ticket from '@lucide/svelte/icons/ticket';
 import type { ChoiceTile } from '@study-atelier/ui';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import type { PlaceType } from '#lib/catalogue/types/place-type.ts';
 
 export const PLACE_TYPES: readonly PlaceType[] = [

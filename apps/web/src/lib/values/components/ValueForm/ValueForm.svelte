@@ -16,7 +16,7 @@
 		TextField
 	} from '@study-atelier/ui';
 	import type { ResolvedPathname } from '$app/types';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import {
 		loadValuePageContent,
 		saveValue

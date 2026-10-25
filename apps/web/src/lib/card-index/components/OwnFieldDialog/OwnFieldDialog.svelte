@@ -12,7 +12,7 @@
 		TextField,
 		type ChoiceTile
 	} from '@study-atelier/ui';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import {
 		FIELD_DESCRIPTION_MAX_LENGTH,
 		FIELD_NAME_MAX_LENGTH,

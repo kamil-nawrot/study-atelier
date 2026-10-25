@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { m } from '#lib/i18n/index.ts';
-import { testOwnFields } from '#lib/testing/own-fields.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { testOwnFields } from '#lib/testing/own-fields/own-fields.ts';
 import { fieldNameError, planOwnValueChange } from './own-fields.ts';
 
 describe('fieldNameError', () => {

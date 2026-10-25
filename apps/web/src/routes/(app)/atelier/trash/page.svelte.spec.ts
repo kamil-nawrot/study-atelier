@@ -5,10 +5,10 @@ import { invalidate } from '$app/navigation';
 import { findDuplicates } from '#lib/artworks/duplicates-data/duplicates-data.ts';
 import { deletePermanently, restoreArtwork } from '#lib/artworks/trash-data/trash-data.ts';
 import type { TrashArtwork } from '#lib/wall/types/trash-artwork.ts';
-import { m } from '#lib/i18n/index.ts';
-import { REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data/review-data.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
-import { testSession } from '#lib/testing/auth.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
 import TrashPage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidate: vi.fn() }));

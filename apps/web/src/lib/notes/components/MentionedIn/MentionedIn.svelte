@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import type { Mention } from '#lib/notes/mentions-data/mentions-data.ts';
 
 	type Props = {

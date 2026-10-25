@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { isRedirect } from '@sveltejs/kit';
 import type { Session } from '@supabase/supabase-js';
-import { autoFetch } from '#lib/profile/auto-fetch.svelte.ts';
-import { defaultPreferences } from '#lib/profile/preferences.ts';
-import { testSession } from '#lib/testing/auth.ts';
+import { autoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
+import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
 import { load } from './+layout';
 
 const reviewData = vi.hoisted(() => ({
@@ -18,18 +18,18 @@ const profileData = vi.hoisted(() => ({
 	loadProfile: vi.fn()
 }));
 
-vi.mock('#lib/profile/preferences-data.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/profile/preferences-data.ts')>()),
+vi.mock('#lib/profile/preferences-data/preferences-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/profile/preferences-data/preferences-data.ts')>()),
 	loadPreferences: preferencesData.loadPreferences
 }));
 
-vi.mock('#lib/profile/profile-data.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/profile/profile-data.ts')>()),
+vi.mock('#lib/profile/profile-data/profile-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/profile/profile-data/profile-data.ts')>()),
 	loadProfile: profileData.loadProfile
 }));
 
-vi.mock('#lib/review/review-data.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/review/review-data.ts')>()),
+vi.mock('#lib/review/review-data/review-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/review/review-data/review-data.ts')>()),
 	loadReviewCounts: reviewData.loadReviewCounts
 }));
 

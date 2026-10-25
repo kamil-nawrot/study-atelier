@@ -6,9 +6,9 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
-	import GlossaryList from '#lib/glossary/components/GlossaryList.svelte';
-	import type { GlossaryCategory } from '#lib/glossary/types.ts';
-	import { m } from '#lib/i18n/index.ts';
+	import GlossaryList from '#lib/glossary/components/GlossaryList/GlossaryList.svelte';
+	import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import type { PageProps, Snapshot } from './$types';
 
 	let { data }: PageProps = $props();

@@ -21,7 +21,7 @@
 	import type { FlipDirection } from '#lib/wall/types/flip-direction.ts';
 	import { neighboursIn, rememberedWallSequence } from '#lib/wall/wall-sequence/wall-sequence.ts';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import type { PageProps } from './$types';
 
 	let { data, params }: PageProps = $props();

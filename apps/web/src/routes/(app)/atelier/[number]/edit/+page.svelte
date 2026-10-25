@@ -9,7 +9,7 @@
 		formatRecordNumber,
 		parseRecordNumber
 	} from '#lib/catalogue/record-number/record-number.ts';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
 	import type { PageProps } from './$types';
 

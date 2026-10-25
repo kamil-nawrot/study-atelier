@@ -2,13 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
-import { m } from '#lib/i18n/index.ts';
-import { deleteGlossaryEntry } from '#lib/glossary/glossary-data.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { deleteGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
 import type { Mention } from '#lib/notes/mentions-data/mentions-data.ts';
-import type { GlossaryEntry, PinnedArtwork } from '#lib/glossary/types.ts';
+import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+import type { PinnedArtwork } from '#lib/glossary/types/pinned-artwork.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import { testEntry, testGlossary } from '#lib/testing/glossary.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import { testEntry, testGlossary } from '#lib/testing/glossary/glossary.ts';
 import { setBackPlace } from '#lib/shared/navigation/back/back.svelte.ts';
 import GlossaryEntryPage from './+page.svelte';
 
@@ -20,7 +21,7 @@ const navigation = vi.hoisted(() => ({
 
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
 vi.mock('$app/navigation', () => ({ afterNavigate: vi.fn(), goto: vi.fn() }));
-vi.mock('#lib/glossary/glossary-data.ts', () => ({ deleteGlossaryEntry: vi.fn() }));
+vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({ deleteGlossaryEntry: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));

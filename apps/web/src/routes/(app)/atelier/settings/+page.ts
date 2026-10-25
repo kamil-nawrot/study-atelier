@@ -1,7 +1,13 @@
-import { pendingEmailChange } from '#lib/auth/account.ts';
-import { ATELIER_EMPTY_DEPENDENCY, loadAtelierEmpty } from '#lib/import/import-data.ts';
-import { loadPreferences, PREFERENCES_DEPENDENCY } from '#lib/profile/preferences-data.ts';
-import { loadProfile, PROFILE_DEPENDENCY } from '#lib/profile/profile-data.ts';
+import { pendingEmailChange } from '#lib/auth/account-data/account-data.ts';
+import {
+	ATELIER_EMPTY_DEPENDENCY,
+	loadAtelierEmpty
+} from '#lib/data-transfer/import-data/import-data.ts';
+import {
+	loadPreferences,
+	PREFERENCES_DEPENDENCY
+} from '#lib/profile/preferences-data/preferences-data.ts';
+import { loadProfile, PROFILE_DEPENDENCY } from '#lib/profile/profile-data/profile-data.ts';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ depends }) => {

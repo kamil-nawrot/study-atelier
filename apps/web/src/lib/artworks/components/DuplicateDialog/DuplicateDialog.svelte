@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button, Dialog } from '@study-atelier/ui';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import type { DuplicateCheck } from '#lib/artworks/duplicate-check/duplicate-check.svelte.ts';
 	import { formatRecordNumbers } from '#lib/artworks/duplicates/duplicates.ts';
 

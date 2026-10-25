@@ -21,7 +21,7 @@
 	} from '#lib/card-index/value-pages/value-pages.ts';
 	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();

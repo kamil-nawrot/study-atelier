@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
-import { testCardIndex } from '#lib/testing/card-index.ts';
+import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
 import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
 import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.ts';
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';

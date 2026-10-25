@@ -8,11 +8,11 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { navigating } from '$app/state';
-	import { signOut } from '#lib/auth/account.ts';
-	import { m } from '#lib/i18n/index.ts';
+	import { signOut } from '#lib/auth/account-data/account-data.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import { nameCurrentPlace } from '#lib/shared/navigation/back/back.svelte.ts';
 	import { railExpanded, setRailExpanded } from '#lib/shell/rail/rail.svelte.ts';
-	import FeedbackDialog from '#lib/feedback/components/FeedbackDialog.svelte';
+	import FeedbackDialog from '#lib/feedback/components/FeedbackDialog/FeedbackDialog.svelte';
 	import AtelierMenu from '#lib/shell/AtelierMenu/AtelierMenu.svelte';
 
 	type Props = {

@@ -1,6 +1,6 @@
 import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
 import { describe, expect, it } from 'vitest';
-import { testCardIndex } from '#lib/testing/card-index.ts';
+import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
 import {
 	buildTimeline,
 	canDelete,

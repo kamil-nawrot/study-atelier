@@ -1,4 +1,4 @@
-import { locale, m } from '#lib/i18n/index.ts';
+import { locale, m } from '#lib/i18n/i18n.ts';
 
 export function formatDeletedOn(deletedAt: string, now = new Date()): string {
 	const date = new Date(deletedAt);

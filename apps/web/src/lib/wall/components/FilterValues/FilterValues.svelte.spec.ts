@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import FilterValues from './FilterValues.svelte';
 import '@study-atelier/ui/styles.css';
 

@@ -1,4 +1,4 @@
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { errorMessages } from '#lib/shared/data/errors/errors.ts';
 
 export const collectionErrorMessage = errorMessages({}, m.collectionErrors.network);

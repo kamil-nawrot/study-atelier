@@ -1,4 +1,4 @@
-import { currentSession, SESSION_DEPENDENCY } from '#lib/auth/session.ts';
+import { currentSession, SESSION_DEPENDENCY } from '#lib/auth/session-data/session-data.ts';
 import type { LayoutLoad } from './$types';
 
 export const ssr = false;

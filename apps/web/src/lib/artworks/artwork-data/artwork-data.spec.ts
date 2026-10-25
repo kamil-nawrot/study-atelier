@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { m } from '#lib/i18n/index.ts';
-import { ownImageUrl, removeOwnImage, uploadOwnImage } from '#lib/images/own-image.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import {
+	ownImageUrl,
+	removeOwnImage,
+	uploadOwnImage
+} from '#lib/images/own-image-data/own-image-data.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyArtworkInput } from '#lib/artworks/artwork-record/artwork-record.ts';
 import { loadArtwork, saveArtwork } from './artwork-data.ts';
@@ -10,7 +14,7 @@ import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn(), rpc: vi.fn() }
 }));
-vi.mock('#lib/images/own-image.ts', () => ({
+vi.mock('#lib/images/own-image-data/own-image-data.ts', () => ({
 	ownImageUrl: vi.fn(),
 	uploadOwnImage: vi.fn(),
 	removeOwnImage: vi.fn()

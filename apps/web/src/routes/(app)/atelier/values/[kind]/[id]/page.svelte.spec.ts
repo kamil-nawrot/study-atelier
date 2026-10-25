@@ -10,10 +10,10 @@ import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { emptyAuthorDetails } from '#lib/values/author-form/author-form.ts';
 import { emptyValueDetails } from '#lib/values/value-details/value-details.ts';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
-import { testCardIndex } from '#lib/testing/card-index.ts';
-import { testSession } from '#lib/testing/auth.ts';
+import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
 import ValuePage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({

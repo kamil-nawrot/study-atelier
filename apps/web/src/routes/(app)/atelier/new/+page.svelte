@@ -4,7 +4,7 @@
 	import ArtworkForm from '#lib/artworks/components/ArtworkForm/ArtworkForm.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import { arrivedFromApp, goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
 	import type { PageProps } from './$types';
 

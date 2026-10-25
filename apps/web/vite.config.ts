@@ -41,7 +41,7 @@ export default defineConfig({
 						instances: [{ browser: 'chromium', headless: true }]
 					},
 					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
-					setupFiles: ['src/lib/testing/ui-messages.ts']
+					setupFiles: ['src/lib/testing/ui-messages/ui-messages.ts']
 				}
 			}
 		]

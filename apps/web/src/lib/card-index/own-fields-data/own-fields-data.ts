@@ -1,4 +1,4 @@
-import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
+import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import type { OwnField } from '#lib/card-index/types/own-field.ts';

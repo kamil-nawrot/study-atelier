@@ -5,10 +5,10 @@ import { goto } from '$app/navigation';
 import type { OwnField } from '#lib/card-index/types/own-field.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 import { CARD_INDEX_SEARCH_MIN_VALUES } from '#lib/card-index/card-index/card-index.ts';
-import { m } from '#lib/i18n/index.ts';
-import { testCardIndex } from '#lib/testing/card-index.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import { testOwnFields } from '#lib/testing/own-fields.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import { testOwnFields } from '#lib/testing/own-fields/own-fields.ts';
 import ValuesPage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({

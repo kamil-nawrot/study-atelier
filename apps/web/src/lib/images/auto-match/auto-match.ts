@@ -1,5 +1,6 @@
-import { m } from '#lib/i18n/index.ts';
-import type { ImageCandidate, ImageSearchResult } from '#lib/images/types.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
+import type { ImageSearchResult } from '#lib/images/types/image-search-result.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 
 export const AUTO_MATCH_DELAY_MS = 600;

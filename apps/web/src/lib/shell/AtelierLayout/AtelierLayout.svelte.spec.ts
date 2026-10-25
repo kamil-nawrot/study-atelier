@@ -3,7 +3,7 @@ import { createRawSnippet } from 'svelte';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import '@study-atelier/ui/styles.css';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { setRailExpanded } from '#lib/shell/rail/rail.svelte.ts';
 import { setTheme } from '#lib/shell/theme/theme.svelte.ts';
 import AtelierLayout from './AtelierLayout.svelte';

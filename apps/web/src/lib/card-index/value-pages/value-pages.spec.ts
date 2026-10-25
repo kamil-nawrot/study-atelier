@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
-import { testCardIndex } from '#lib/testing/card-index.ts';
+import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
 import {
 	artworksOfValue,
 	findSubject,

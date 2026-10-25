@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { m } from '#lib/i18n/index.ts';
-import { findImageCandidates } from '#lib/images/image-search.ts';
-import { autoFetch } from '#lib/profile/auto-fetch.svelte.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { findImageCandidates } from '#lib/images/image-search/image-search.ts';
+import { autoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
 import { AUTO_MATCH_DELAY_MS } from '#lib/images/auto-match/auto-match.ts';
 import type { ImageFieldTexts } from '#lib/images/types/image-field-texts.ts';
 import ArtworkImages from './ArtworkImages.svelte';
 
-vi.mock('#lib/images/image-search.ts', () => ({ findImageCandidates: vi.fn() }));
+vi.mock('#lib/images/image-search/image-search.ts', () => ({ findImageCandidates: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));

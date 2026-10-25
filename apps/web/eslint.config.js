@@ -24,7 +24,6 @@ export default defineConfig(
 			]
 		}
 	},
-	...allowlisted('supabase', { 'no-restricted-imports': 'off' }),
 	{
 		files: ['src/**/*.ts', 'src/**/*.svelte'],
 		rules: {

@@ -3,7 +3,7 @@
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import X from '@lucide/svelte/icons/x';
 	import { ArtworkImage, Icon } from '@study-atelier/ui';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 
 	type Props = {
 		image?: { src?: string; srcset?: string; width?: number; height?: number };

@@ -1,14 +1,17 @@
 import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
-import { loadGlossary } from '#lib/glossary/glossary-data.ts';
-import { countTermPins } from '#lib/pins/pin-data.ts';
-import { loadPreferences, PREFERENCES_DEPENDENCY } from '#lib/profile/preferences-data.ts';
-import { startOfDay } from '#lib/review/queue.ts';
+import { loadGlossary } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { countTermPins } from '#lib/pins/pin-data/pin-data.ts';
+import {
+	loadPreferences,
+	PREFERENCES_DEPENDENCY
+} from '#lib/profile/preferences-data/preferences-data.ts';
+import { startOfDay } from '#lib/review/queue/queue.ts';
 import {
 	loadReviewCards,
 	loadReviewCounts,
 	loadReviewStreak,
 	waitingToday
-} from '#lib/review/review-data.ts';
+} from '#lib/review/review-data/review-data.ts';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ depends }) => {

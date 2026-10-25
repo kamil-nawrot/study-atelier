@@ -1,4 +1,4 @@
-import { locale } from '#lib/i18n/index.ts';
+import { locale } from '#lib/i18n/i18n.ts';
 import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
 import { valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';

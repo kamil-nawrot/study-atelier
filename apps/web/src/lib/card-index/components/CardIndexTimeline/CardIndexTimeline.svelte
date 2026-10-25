@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Icon } from '@study-atelier/ui';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
 	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
 	import type { CardIndexEntry } from '#lib/card-index/types/card-index-entry.ts';

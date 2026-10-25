@@ -20,14 +20,14 @@
 	} from '@study-atelier/ui';
 	import { MediaQuery } from 'svelte/reactivity';
 	import type { ResolvedPathname } from '$app/types';
-	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes.svelte';
-	import type { GlossaryEntry } from '#lib/glossary/types.ts';
-	import { m } from '#lib/i18n/index.ts';
-	import PinCard from '#lib/pins/components/PinCard.svelte';
-	import PinDialog from '#lib/pins/components/PinDialog.svelte';
-	import PinMarkers from '#lib/pins/components/PinMarkers.svelte';
-	import { pinsOfImage } from '#lib/pins/pin-layout.ts';
-	import type { Pin as PinRecord } from '#lib/pins/types.ts';
+	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
+	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import { m } from '#lib/i18n/i18n.ts';
+	import PinCard from '#lib/pins/components/PinCard/PinCard.svelte';
+	import PinDialog from '#lib/pins/components/PinDialog/PinDialog.svelte';
+	import PinMarkers from '#lib/pins/components/PinMarkers/PinMarkers.svelte';
+	import { pinsOfImage } from '#lib/pins/pin-layout/pin-layout.ts';
+	import type { Pin as PinRecord } from '#lib/pins/types/pin.ts';
 	import { LOUPE_MIN_RATIO } from '#lib/images/loupe/loupe.ts';
 	import {
 		artworkImageCredit,

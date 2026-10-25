@@ -1,4 +1,4 @@
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { ERA_CODES, eraName, isEraCode } from '#lib/catalogue/eras/eras.ts';
 import { byYear, groupByAuthor } from '#lib/wall/periods/periods.ts';
 import type { PeriodGroup } from '#lib/wall/types/period-group.ts';

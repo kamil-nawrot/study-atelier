@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { m } from '#lib/i18n/index.ts';
-import { removeOwnImage } from '#lib/images/own-image.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
 	deleteValue,
@@ -14,7 +14,7 @@ import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts'
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { rpc: vi.fn(), from: vi.fn() }
 }));
-vi.mock('#lib/images/own-image.ts', () => ({ removeOwnImage: vi.fn() }));
+vi.mock('#lib/images/own-image-data/own-image-data.ts', () => ({ removeOwnImage: vi.fn() }));
 
 const rpc = vi.mocked(supabase.rpc);
 

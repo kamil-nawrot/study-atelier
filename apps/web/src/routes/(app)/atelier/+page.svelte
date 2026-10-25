@@ -72,7 +72,7 @@
 	} from '#lib/wall/wall-order/wall-order.ts';
 	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
 	import { rememberWallSequence } from '#lib/wall/wall-sequence/wall-sequence.ts';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import type { PageProps, Snapshot } from './$types';
 
 	let { data }: PageProps = $props();

@@ -9,19 +9,22 @@
 	import { page } from '$app/state';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import FilterSidePanel from '#lib/wall/components/FilterSidePanel/FilterSidePanel.svelte';
-	import { m } from '#lib/i18n/index.ts';
-	import TimelineFilterPanel from '#lib/timeline/components/TimelineFilterPanel.svelte';
-	import TimelineView, { type TimelinePlace } from '#lib/timeline/components/TimelineView.svelte';
+	import { m } from '#lib/i18n/i18n.ts';
+	import TimelineFilterPanel from '#lib/timeline/components/TimelineFilterPanel/TimelineFilterPanel.svelte';
+	import TimelineView, {
+		type TimelinePlace
+	} from '#lib/timeline/components/TimelineView/TimelineView.svelte';
 	import {
 		applyTimelineFilter,
 		artworksIn,
 		emptyTimelineFilter,
 		isEmptyTimelineFilter,
 		timelineTags
-	} from '#lib/timeline/filter.ts';
-	import { eraOfYear, rememberEra, rememberedEra, startEra } from '#lib/timeline/start.ts';
-	import { entriesSpan, eraOf, spanOfYears } from '#lib/timeline/time.ts';
-	import type { TimelineEvent, TimelineFilter } from '#lib/timeline/types.ts';
+	} from '#lib/timeline/filter/filter.ts';
+	import { eraOfYear, rememberEra, rememberedEra, startEra } from '#lib/timeline/start/start.ts';
+	import { entriesSpan, eraOf, spanOfYears } from '#lib/timeline/time/time.ts';
+	import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
+	import type { TimelineFilter } from '#lib/timeline/types/timeline-filter.ts';
 	import type { PageProps, Snapshot } from './$types';
 
 	let { data }: PageProps = $props();

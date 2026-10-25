@@ -1,6 +1,6 @@
 import { resolve } from '$app/paths';
 import type { ResolvedPathname } from '$app/types';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { erasOfPeriod, findRecord, periodsOfStyle } from '#lib/card-index/card-index/card-index.ts';
 import { isEraCode } from '#lib/catalogue/eras/eras.ts';
 import type { ValueKind } from '#lib/card-index/types/value-kind.ts';

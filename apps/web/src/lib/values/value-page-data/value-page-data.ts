@@ -1,5 +1,5 @@
-import { loadGlossary } from '#lib/glossary/glossary-data.ts';
-import { m } from '#lib/i18n/index.ts';
+import { loadGlossary } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
 import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.ts';
 import { emptyCardIndex } from '#lib/card-index/card-index/card-index.ts';
@@ -8,7 +8,7 @@ import { loadNoteLinks, noteLinksFrom } from '#lib/notes/note-link-data/note-lin
 import { emptyValueDetails } from '#lib/values/value-details/value-details.ts';
 import { loadValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
 import { findSubject, isValueKind, subjectPath } from '#lib/card-index/value-pages/value-pages.ts';
-import type { GlossaryEntry } from '#lib/glossary/types.ts';
+import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 import type { NoteLinks } from '@study-atelier/ui';
 import type { Mention } from '#lib/notes/mentions-data/mentions-data.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';

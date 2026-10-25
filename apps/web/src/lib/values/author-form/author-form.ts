@@ -1,4 +1,4 @@
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { parseYear } from '#lib/artworks/artwork-form/artwork-form.ts';
 import { yearError } from '#lib/artworks/artwork-record/artwork-record.ts';
 import { signedYear } from '#lib/catalogue/years/years.ts';

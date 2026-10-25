@@ -1,4 +1,4 @@
-import type { ImageCandidate } from '#lib/images/types.ts';
+import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 
 export function imageFromCandidate(candidate: ImageCandidate): ArtworkImageInput {

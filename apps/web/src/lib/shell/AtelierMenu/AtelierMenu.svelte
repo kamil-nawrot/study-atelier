@@ -12,11 +12,14 @@
 	import { Count, Icon } from '@study-atelier/ui';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
-	import { m } from '#lib/i18n/index.ts';
-	import type { Profile } from '#lib/profile/types.ts';
-	import Avatar from '#lib/profile/components/Avatar.svelte';
-	import { followMenuProfile, shownMenuProfile } from '#lib/profile/menu-profile.svelte.ts';
-	import { avatarInitial } from '#lib/profile/profile.ts';
+	import { m } from '#lib/i18n/i18n.ts';
+	import type { Profile } from '#lib/profile/types/profile.ts';
+	import Avatar from '#lib/profile/components/Avatar/Avatar.svelte';
+	import {
+		followMenuProfile,
+		shownMenuProfile
+	} from '#lib/profile/menu-profile/menu-profile.svelte.ts';
+	import { avatarInitial } from '#lib/profile/profile/profile.ts';
 	import { currentTheme, setTheme } from '#lib/shell/theme/theme.svelte.ts';
 
 	type Props = {

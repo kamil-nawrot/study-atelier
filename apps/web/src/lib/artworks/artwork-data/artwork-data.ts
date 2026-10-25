@@ -1,7 +1,7 @@
-import { m } from '#lib/i18n/index.ts';
-import { removeOwnImage } from '#lib/images/own-image.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import type { Json } from '#lib/shared/data/database.types.ts';
-import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
+import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { ownEntriesOf, valuesOf } from '#lib/card-index/artwork-values/artwork-values.ts';
 import { signedYear } from '#lib/catalogue/years/years.ts';

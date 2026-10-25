@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { testOwnFields } from '#lib/testing/own-fields.ts';
+import { testOwnFields } from '#lib/testing/own-fields/own-fields.ts';
 import OwnFieldsTab from './OwnFieldsTab.svelte';
 import type { OwnField } from '#lib/card-index/types/own-field.ts';
 

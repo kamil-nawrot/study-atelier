@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyCategoryValues } from '#lib/card-index/category-values/category-values.ts';
 import { loadCategoryValues } from './category-values-data.ts';

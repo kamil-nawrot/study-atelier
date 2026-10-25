@@ -19,7 +19,7 @@
 	import { withOwnValues } from '#lib/card-index/own-fields/own-fields.ts';
 	import { loadOwnFields } from '#lib/card-index/own-fields-data/own-fields-data.ts';
 	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
-	import { m } from '#lib/i18n/index.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import type { PageProps, Snapshot } from './$types';
 
 	let { data }: PageProps = $props();

@@ -1,5 +1,5 @@
-import { failureMessage } from '#lib/auth/expired-session.svelte.ts';
-import { removeOwnImage } from '#lib/images/own-image.ts';
+import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
+import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { artworkErrorMessage } from '#lib/catalogue/errors/errors.ts';
 

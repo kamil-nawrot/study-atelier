@@ -1,4 +1,4 @@
-import { m } from '#lib/i18n/index.ts';
+import { m } from '#lib/i18n/i18n.ts';
 
 export function formatYear(year: number | null, approximate: boolean): string | undefined {
 	return year === null ? undefined : m.atelier.year(year, approximate);

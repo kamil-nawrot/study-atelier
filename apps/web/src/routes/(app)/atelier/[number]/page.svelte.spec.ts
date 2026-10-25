@@ -9,12 +9,12 @@ import { moveToTrash } from '#lib/artworks/trash-data/trash-data.ts';
 import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
 import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
 import { buildNoteLinks } from '#lib/notes/note-links/note-links.ts';
-import { m } from '#lib/i18n/index.ts';
-import { defaultPreferences } from '#lib/profile/preferences.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import type { Pin } from '#lib/pins/types.ts';
-import { testEntry } from '#lib/testing/glossary.ts';
-import { testCardIndex } from '#lib/testing/card-index.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import type { Pin } from '#lib/pins/types/pin.ts';
+import { testEntry } from '#lib/testing/glossary/glossary.ts';
+import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
 import ArtworkPage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({

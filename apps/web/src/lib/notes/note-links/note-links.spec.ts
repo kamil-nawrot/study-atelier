@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { m } from '#lib/i18n/index.ts';
-import { testCardIndex } from '#lib/testing/card-index.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
 import { buildNoteLinks } from './note-links.ts';
 
 const links = buildNoteLinks({
