@@ -1,10 +1,7 @@
 {
-	"lines": ["packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte"],
-	"script": ["packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte"],
-	"style": [
-		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte",
-		"packages/ui/src/lib/components/Primer/Primer.svelte"
-	],
+	"lines": [],
+	"script": [],
+	"style": [],
 	"complexity": [],
 	"layout": [],
 	"route-script": [],
