@@ -1,12 +1,18 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { ESLint } from 'eslint';
+import stylelint from 'stylelint';
 import {
 	blockLines,
 	countLines,
 	isTestFile,
 	limits,
 	lineLimit,
+	noEnums,
+	noKeyboardTyping,
+	noOuterMargin,
+	noRealTimeWait,
 	readAllowlist,
 	repositoryRoot
 } from './limits.js';
@@ -15,6 +21,10 @@ const packageDirectory = process.cwd();
 const packagePrefix = `${toPosix(path.relative(repositoryRoot, packageDirectory))}/`;
 const layoutIndex = process.argv.indexOf('--layout');
 const layoutRoot = layoutIndex === -1 ? null : `${packagePrefix}${process.argv[layoutIndex + 1]}`;
+const withStories = process.argv.includes('--stories');
+const { parse } = createRequire(path.join(packageDirectory, 'package.json'))('svelte/compiler');
+const TEXT_ATTRIBUTES = new Set(['aria-label', 'title', 'placeholder', 'alt']);
+const LETTER = /\p{L}/u;
 const allowlist = readAllowlist();
 const problems = [];
 
@@ -67,6 +77,66 @@ function checkSvelteBlocks(files) {
 				stale(kind, file, `its ${kind} block has ${lines} lines, within ${limits[kind]}`);
 			}
 		}
+	}
+}
+
+function isComponent(file) {
+	return /\/src\/lib\/(.*\/)?([A-Z]\w*)\/\2\.svelte$/.test(file) && !file.includes('/testing/');
+}
+
+function checkCompanions(files) {
+	const companions = [
+		['component-test', '.svelte.spec.ts', 'test'],
+		...(withStories ? [['component-story', '.stories.svelte', 'story']] : [])
+	];
+	const present = new Set(files);
+	for (const [kind, suffix, label] of companions) {
+		const allowed = new Set(existing(kind));
+		for (const file of files.filter(isComponent)) {
+			const companion = file.replace(/\.svelte$/, suffix);
+			const has = present.has(companion);
+			if (!has && !allowed.has(file)) {
+				problems.push(
+					`${file}: a component has its ${label} next to it, ${path.posix.basename(companion)}`
+				);
+			}
+			if (has && allowed.has(file)) stale(kind, file, `it has its ${label}`);
+		}
+	}
+}
+
+function literalTexts(node) {
+	if (!node || typeof node !== 'object') return [];
+	if (Array.isArray(node)) return node.flatMap(literalTexts);
+	if (node.type === 'Text') return LETTER.test(node.data) ? [node.data.trim()] : [];
+	if (node.type === 'Attribute') {
+		if (!TEXT_ATTRIBUTES.has(node.name) || !Array.isArray(node.value)) return [];
+		return node.value
+			.filter((part) => part.type === 'Text' && LETTER.test(part.data))
+			.map((part) => `${node.name}="${part.data}"`);
+	}
+	if (node.type === 'StyleDirective') return [];
+	return Object.entries(node).flatMap(([key, value]) =>
+		key === 'parent' ? [] : literalTexts(value)
+	);
+}
+
+function isUiTextChecked(file) {
+	return (
+		file.endsWith('.svelte') && !file.endsWith('.stories.svelte') && !file.includes('/testing/')
+	);
+}
+
+function checkUiTexts(files) {
+	const allowed = new Set(existing('ui-text'));
+	for (const file of files.filter(isUiTextChecked)) {
+		const texts = literalTexts(parse(read(file), { modern: true }).fragment);
+		if (texts.length > 0 && !allowed.has(file)) {
+			problems.push(
+				`${file}: UI text comes from the dictionary m, not the markup: ${texts.join(', ')}`
+			);
+		}
+		if (texts.length === 0 && allowed.has(file)) stale('ui-text', file, 'its markup holds no text');
 	}
 }
 
@@ -123,6 +193,22 @@ async function checkListedRule(kind, ruleId, setting, reason) {
 		if (!result.messages.some((message) => message.ruleId === ruleId)) {
 			stale(kind, toPosix(path.relative(repositoryRoot, result.filePath)), reason);
 		}
+	}
+}
+
+async function checkListedMargins() {
+	const config = {
+		extends: ['stylelint-config-html/svelte'],
+		rules: { 'declaration-property-value-allowed-list': { '/^margin/': [noOuterMargin] } }
+	};
+	for (const file of existing('margin')) {
+		const { results } = await stylelint.lint({
+			code: read(file),
+			codeFilename: absolute(file),
+			configBasedir: repositoryRoot,
+			config
+		});
+		if (results[0].warnings.length === 0) stale('margin', file, 'it sets no outer margin');
 	}
 }
 
@@ -187,6 +273,8 @@ const files = listFiles(`${packagePrefix}src`);
 checkSvelteBlocks(files);
 checkRouteScripts(files);
 checkMarkupComments(files);
+checkCompanions(files);
+checkUiTexts(files);
 checkListedLines();
 if (layoutRoot) checkLayout(files);
 await checkListedRule(
@@ -201,6 +289,19 @@ await checkListedRule(
 	['error', 'localStorage', 'sessionStorage'],
 	'it no longer uses localStorage or sessionStorage directly'
 );
+await checkListedRule(
+	'test-keyboard',
+	'no-restricted-properties',
+	['error', noKeyboardTyping],
+	'it no longer types with userEvent.keyboard'
+);
+await checkListedRule(
+	'test-waiting',
+	'no-restricted-syntax',
+	['error', noEnums, noRealTimeWait],
+	'it no longer waits real time'
+);
+await checkListedMargins();
 
 if (problems.length > 0) {
 	console.error(problems.join('\n'));

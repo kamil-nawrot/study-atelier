@@ -4,7 +4,16 @@ import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
 import ts from 'typescript-eslint';
 import studyAtelier from './lint/eslint-plugin.js';
-import { allowlisted, exemptFromLines, limits, testFiles } from './lint/limits.js';
+import {
+	allowlisted,
+	exemptFromLines,
+	limits,
+	noEnums,
+	noGotoInOnclick,
+	noKeyboardTyping,
+	noRealTimeWait,
+	testFiles
+} from './lint/limits.js';
 
 function maxLines(max) {
 	return ['error', { max, skipBlankLines: true }];
@@ -41,15 +50,26 @@ export default [
 		plugins: { 'study-atelier': studyAtelier },
 		rules: {
 			'study-atelier/no-comments': 'error',
-			'no-restricted-syntax': [
-				'error',
-				{
-					selector: 'TSEnumDeclaration',
-					message: 'Use a union of string literals instead of an enum'
-				}
-			]
+			'no-restricted-syntax': ['error', noEnums]
 		}
 	},
+	{
+		files: ['**/*.svelte'],
+		rules: { 'no-restricted-syntax': ['error', noEnums, noGotoInOnclick] }
+	},
+	{
+		files: testFiles,
+		rules: {
+			'no-restricted-syntax': ['error', noEnums, noRealTimeWait],
+			'no-restricted-properties': ['error', noKeyboardTyping]
+		}
+	},
+	{
+		files: ['**/NotesEditor/*.spec.ts'],
+		rules: { 'no-restricted-properties': 'off' }
+	},
+	...allowlisted('test-keyboard', { 'no-restricted-properties': 'off' }),
+	...allowlisted('test-waiting', { 'no-restricted-syntax': ['error', noEnums] }),
 	{
 		files: ['**/*.ts', '**/*.svelte'],
 		rules: {
