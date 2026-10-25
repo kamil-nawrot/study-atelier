@@ -16,5 +16,5 @@
 	],
 	"layout": [],
 	"route-script": [],
-	"storage": ["apps/web/src/lib/shared/navigation/back-places/back-places.ts"]
+	"storage": []
 }

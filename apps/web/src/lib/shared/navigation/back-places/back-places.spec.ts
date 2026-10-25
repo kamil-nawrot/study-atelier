@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { arrive, loadNames, named, saveNames } from './back-places.ts';
 import type { Names } from '#lib/shared/types/names.ts';
 import type { Place } from '#lib/shared/types/place.ts';
@@ -123,20 +123,24 @@ describe('named', () => {
 describe('loadNames and saveNames', () => {
 	it('keeps the names for the tab and survives broken storage', () => {
 		const items = new Map<string, string>();
-		const storage = {
+		vi.stubGlobal('sessionStorage', {
 			getItem: (key: string) => items.get(key) ?? null,
 			setItem: (key: string, value: string) => void items.set(key, value)
-		};
-		saveNames(withNames(), storage);
-		expect(loadNames(storage)).toEqual(withNames());
-		expect(loadNames({ getItem: () => '{broken' })).toEqual({});
-		expect(() =>
-			saveNames(withNames(), {
+		});
+		try {
+			saveNames(withNames());
+			expect(loadNames()).toEqual(withNames());
+			vi.stubGlobal('sessionStorage', { getItem: () => '{broken' });
+			expect(loadNames()).toEqual({});
+			vi.stubGlobal('sessionStorage', {
 				setItem: () => {
 					throw new Error('full');
 				}
-			})
-		).not.toThrow();
+			});
+			expect(() => saveNames(withNames())).not.toThrow();
+		} finally {
+			vi.unstubAllGlobals();
+		}
 	});
 
 	it('works when the browser blocks session storage', () => {
