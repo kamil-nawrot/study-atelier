@@ -200,6 +200,10 @@
 			padding: var(--spacing-8) var(--wall-inline) var(--spacing-12);
 		}
 
+		.content :global(header > .lead) {
+			max-width: 50%;
+		}
+
 		.fill .main {
 			display: flex;
 			flex-direction: column;
