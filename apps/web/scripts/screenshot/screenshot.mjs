@@ -63,6 +63,7 @@ const USAGE = `Usage: pnpm screenshot <path> [options]
   --steps <file>     run the default export of this module with the Playwright page before capturing,
                      for a flow across navigations (clicks, history.back())
   --repeat <n>       show every sample artwork n times, to have more to scroll through
+  --empty            show an atelier with no artworks, values, entries, events or visits
   --scroll           also record a GIF of scrolling the page from top to bottom (needs ffmpeg)
   --url <base>       use a running dev server instead of starting one
 `;
@@ -83,6 +84,7 @@ function parseArgs(argv) {
 		else if (arg === '--scroll') options.scroll = true;
 		else if (arg === '--full-page') options.fullPage = true;
 		else if (arg === '--signed-out') options.signedOut = true;
+		else if (arg === '--empty') options.empty = true;
 		else if (
 			[
 				'--out',
@@ -424,7 +426,9 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/rpc/review_session') {
 			return json(route, reviewSession(request.postDataJSON() ?? {}));
 		}
-		if (url.pathname === '/rest/v1/rpc/review_streak') return json(route, 5);
+		if (url.pathname === '/rest/v1/rpc/review_streak') {
+			return json(route, REVIEW_CARDS.length > 0 ? 5 : 0);
+		}
 		if (url.pathname === '/rest/v1/rpc/notes_mentions') {
 			return json(route, notesMentions(request.postDataJSON()?.needle));
 		}
@@ -745,6 +749,27 @@ function repeatArtworks(times) {
 	}
 }
 
+function emptyAtelier() {
+	for (const rows of [
+		ARTWORKS,
+		ARTWORK_PINS,
+		GLOSSARY_ENTRIES,
+		OWN_FIELD_USAGE,
+		OWN_FIELDS,
+		OWN_VALUE_USAGE,
+		PERIOD_ERA_USAGE,
+		REVIEW_CARDS,
+		STYLE_PERIOD_USAGE,
+		TIMELINE_EVENTS,
+		TRASHED,
+		VALUE_USAGE,
+		VISITS,
+		...Object.values(VALUE_DETAILS)
+	]) {
+		rows.length = 0;
+	}
+}
+
 async function recordScroll(browser, base, options, name) {
 	const viewport = VIEWPORTS[name];
 	const folder = path.join(options.out, `${options.name}-${name}-frames`);
@@ -838,6 +863,7 @@ async function main() {
 	options.name ??= options.route.replace(/^\/+|\/+$/g, '').replace(/[^a-z0-9]+/gi, '-') || 'home';
 	mkdirSync(options.out, { recursive: true });
 	if (options.repeat) repeatArtworks(Number(options.repeat));
+	if (options.empty) emptyAtelier();
 
 	const names = options.viewport === 'both' ? ['desktop', 'phone'] : [options.viewport];
 	if (names.some((name) => !(name in VIEWPORTS))) throw new Error(USAGE);
