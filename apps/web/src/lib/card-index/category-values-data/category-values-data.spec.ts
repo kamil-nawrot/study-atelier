@@ -108,15 +108,18 @@ describe('loadCategoryValues', () => {
 		expect(values.location).toEqual(['Kościół Mariacki', 'Luwr']);
 	});
 
-	it('returns no values and a message when the places of visits fail', async () => {
-		query.is.mockResolvedValue({ data: [], error: null });
+	it('keeps the values of artworks when the places of visits fail', async () => {
+		query.is.mockResolvedValue({
+			data: [{ artwork_values: [value('location', 'Luwr'), value('style', 'gotyk')] }],
+			error: null
+		});
 		visits.select.mockResolvedValue({ data: null, error: { code: 'XX000', message: 'boom' } });
 
-		await expect(loadCategoryValues()).resolves.toEqual({
-			values: emptyCategoryValues(),
-			ownValues: {},
-			error: m.common.unexpectedError
-		});
+		const result = await loadCategoryValues();
+
+		expect(result.error).toBeUndefined();
+		expect(result.values.location).toEqual(['Luwr']);
+		expect(result.values.style).toEqual(['gotyk']);
 	});
 
 	it('returns no values and a message when the request fails', async () => {

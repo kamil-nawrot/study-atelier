@@ -100,7 +100,7 @@
 		form = withPlaceArtworks(
 			untrack(() => form),
 			untrack(() => artworks),
-			formState.saved
+			untrack(() => formState.saved)
 		);
 	});
 
