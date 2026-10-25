@@ -20,8 +20,6 @@
 		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte"
 	],
 	"style": [
-		"apps/web/src/lib/review/components/ReviewStart/ReviewStart.svelte",
-		"apps/web/src/lib/shell/AtelierLayout/AtelierLayout.svelte",
 		"apps/web/src/lib/timeline/components/TimelineStage/TimelineStage.svelte",
 		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte",
 		"packages/ui/src/lib/components/Primer/Primer.svelte"
