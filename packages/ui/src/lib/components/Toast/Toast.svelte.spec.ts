@@ -58,6 +58,34 @@ describe('Toast', () => {
 		await expect.element(toast).not.toBeInTheDocument();
 	});
 
+	it('hides within a second once the pointer leaves, however long it stayed', async () => {
+		const { component } = await render(Toast, { duration: 5000 });
+
+		component.show('Artwork #0012 saved.');
+		const toast = page.getByText('Artwork #0012 saved.');
+		await userEvent.hover(toast);
+		vi.advanceTimersByTime(1000);
+
+		await userEvent.unhover(toast);
+		vi.advanceTimersByTime(900);
+		await expect.element(toast).toBeVisible();
+		vi.advanceTimersByTime(100);
+		await expect.element(toast).not.toBeInTheDocument();
+	});
+
+	it('keeps a shorter remaining time when the pointer leaves late', async () => {
+		const { component } = await render(Toast, { duration: 5000 });
+
+		component.show('Artwork #0012 saved.');
+		const toast = page.getByText('Artwork #0012 saved.');
+		vi.advanceTimersByTime(4700);
+		await userEvent.hover(toast);
+		await userEvent.unhover(toast);
+		vi.advanceTimersByTime(300);
+
+		await expect.element(toast).not.toBeInTheDocument();
+	});
+
 	it('stands above content fixed to the bottom of the screen', async () => {
 		await render(Toast, { offset: 80 });
 
