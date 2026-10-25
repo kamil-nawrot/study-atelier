@@ -1,0 +1,110 @@
+import { valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
+import { parseVisitDate, visitDateText } from '#lib/chronicle/visit-date/visit-date.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+import type { Visit } from '#lib/chronicle/types/visit.ts';
+import type { VisitDraft } from '#lib/chronicle/types/visit-draft.ts';
+import type { VisitFormErrors } from '#lib/chronicle/types/visit-form-errors.ts';
+import type { VisitFormState } from '#lib/chronicle/types/visit-form-state.ts';
+
+export const SEARCH_RESULTS = 8;
+
+export function placeOf(form: VisitFormState): string {
+	return form.place[0]?.trim() ?? '';
+}
+
+export function placeArtworks(artworks: readonly WallArtwork[], place: string): WallArtwork[] {
+	const key = valueKey(place);
+	if (key === '') return [];
+	return artworks.filter((artwork) => artwork.location && valueKey(artwork.location) === key);
+}
+
+export function emptyVisitForm(): VisitFormState {
+	return { place: [], placeQuery: '', dateText: '', notes: '', chosen: [], extra: [] };
+}
+
+export function visitFormOf(visit: Visit, artworks: readonly WallArtwork[]): VisitFormState {
+	const atPlace = new Set(placeArtworks(artworks, visit.place).map((artwork) => artwork.id));
+	const known = new Set(artworks.map((artwork) => artwork.id));
+	return {
+		place: [visit.place],
+		placeQuery: '',
+		dateText: visitDateText(visit.date),
+		notes: visit.notes,
+		chosen: visit.artworkIds.filter((id) => known.has(id)),
+		extra: visit.artworkIds.filter((id) => known.has(id) && !atPlace.has(id))
+	};
+}
+
+export function withPlaceArtworks(
+	form: VisitFormState,
+	artworks: readonly WallArtwork[]
+): VisitFormState {
+	const extra = new Set(form.extra);
+	const atPlace = placeArtworks(artworks, placeOf(form)).map((artwork) => artwork.id);
+	const kept = form.chosen.filter((id) => extra.has(id) && !atPlace.includes(id));
+	return {
+		...form,
+		chosen: [...atPlace, ...kept],
+		extra: form.extra.filter((id) => !atPlace.includes(id))
+	};
+}
+
+export function toggled(form: VisitFormState, id: string): VisitFormState {
+	const chosen = form.chosen.includes(id)
+		? form.chosen.filter((item) => item !== id)
+		: [...form.chosen, id];
+	return { ...form, chosen };
+}
+
+export function withExtra(form: VisitFormState, id: string): VisitFormState {
+	if (form.extra.includes(id)) return form;
+	return { ...form, extra: [...form.extra, id], chosen: [...form.chosen, id] };
+}
+
+export function searchArtworks(
+	artworks: readonly WallArtwork[],
+	query: string,
+	shown: ReadonlySet<string>
+): WallArtwork[] {
+	const key = normalizeForSearch(query.trim());
+	if (key === '') return [];
+	return artworks
+		.filter((artwork) => !shown.has(artwork.id))
+		.filter((artwork) =>
+			[artwork.title, ...artwork.authors].some((text) => normalizeForSearch(text).includes(key))
+		)
+		.slice(0, SEARCH_RESULTS);
+}
+
+export function validateVisitForm(form: VisitFormState): VisitFormErrors {
+	const errors: VisitFormErrors = {};
+	if (placeOf(form) === '') errors.place = m.chronicle.form.placeRequired;
+	if (form.dateText.trim() === '') errors.date = m.chronicle.form.dateRequired;
+	else if (!parseVisitDate(form.dateText)) errors.date = m.chronicle.form.dateInvalid;
+	return errors;
+}
+
+export function draftOfVisitForm(form: VisitFormState, kept: readonly string[] = []): VisitDraft {
+	const date = parseVisitDate(form.dateText);
+	if (!date) throw new Error('the visit form was not validated');
+	return {
+		place: placeOf(form),
+		date,
+		notes: form.notes,
+		artworkIds: [...new Set([...form.chosen, ...kept])]
+	};
+}
+
+export function visitFormChanged(current: VisitFormState, saved: VisitFormState): boolean {
+	const sameSet = (a: string[], b: string[]): boolean =>
+		a.length === b.length && a.every((id) => b.includes(id));
+	return (
+		placeOf(current) !== placeOf(saved) ||
+		current.dateText.trim() !== saved.dateText.trim() ||
+		current.notes !== saved.notes ||
+		!sameSet(current.chosen, saved.chosen) ||
+		!sameSet(current.extra, saved.extra)
+	);
+}

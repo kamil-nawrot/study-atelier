@@ -156,6 +156,7 @@ export const pl = {
 		cardIndex: 'Kartoteka',
 		glossary: 'Słowniczek',
 		timeline: 'Kalendarium',
+		chronicle: 'Kronika',
 		review: 'Powtórki',
 		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
 		trash: 'Kosz',
@@ -1108,6 +1109,78 @@ export const pl = {
 			network: 'Nie udało się połączyć. Sprawdź internet i spróbuj jeszcze raz.'
 		}
 	},
+	chronicle: {
+		title: 'Kronika',
+		lead: 'Dziennik Twoich wizyt: gdzie, kiedy i które dzieła udało się zobaczyć na żywo.',
+		count: (visits: number, seen: number): string =>
+			`${visitCount(visits)} · ${workCount(seen)} na żywo`,
+		add: 'Dodaj wizytę',
+		addShort: 'Dodaj',
+		empty:
+			'Kronika jest jeszcze pusta. Niedawno w muzeum? Zapisz tę wizytę, póki szczegóły są świeże.',
+		loadErrorTitle: 'Nie udało się wczytać kroniki',
+		back: 'Kronika',
+		seen: (count: number): string => `${workCount(count)} na żywo`,
+		seenCount: (count: number): string =>
+			`${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })} na żywo`,
+		more: (count: number): string => `+${count}`,
+		moreLabel: (count: number): string => `i ${workCount(count)} więcej`,
+		kind: 'Wizyta',
+		inYear: (year: number): string => `${year} roku`,
+		saved: (place: string, date: string): string => `Zapisano wizytę: ${place}, ${date}.`,
+		view: {
+			seenTitle: 'Widziane na żywo',
+			noArtworks: 'Do tej wizyty nie ma jeszcze dzieł. Kliknij „Edytuj”, żeby je zaznaczyć.',
+			notesTitle: 'Notatki',
+			edit: 'Edytuj',
+			delete: 'Usuń',
+			deleted: (date: string): string => `Usunięto wizytę z ${date}.`,
+			notFoundTitle: 'Nie ma takiej wizyty',
+			loadErrorTitle: 'Nie udało się wczytać wizyty'
+		},
+		deleteConfirm: {
+			title: (date: string): string => `Usunąć wizytę z ${date}?`,
+			description: 'Zniknie wizyta i jej notatka. Dzieła zostaną w kolekcji.',
+			back: 'Zostaw',
+			confirm: 'Usuń',
+			deleting: 'Usuwanie…'
+		},
+		form: {
+			newTitle: 'Nowa wizyta',
+			editTitle: 'Edycja wizyty',
+			place: 'Miejsce',
+			placeHint: 'Muzeum, galeria albo kościół. Dzieła, które tam są, zaznaczymy od razu.',
+			placeRequired: 'Wybierz, gdzie była wizyta.',
+			date: 'Data',
+			datePlaceholder: 'Np. 12.10.2026, 10.2026 albo 2026',
+			dateRequired: 'Wpisz, kiedy była wizyta.',
+			dateInvalid: 'Wpisz dzień jak 12.10.2026, miesiąc jak 10.2026 albo sam rok.',
+			notes: 'Notatki',
+			notesPlaceholder: 'Jak było? Co zaskoczyło?',
+			artworks: 'Dzieła',
+			ticked: 'Zaznaczyliśmy wszystko z tego miejsca. Odznacz to, czego tym razem nie było.',
+			search: 'Coś jeszcze? Szukaj w kolekcji',
+			noMatch: 'W kolekcji nie ma takiego dzieła.',
+			addArtwork: (title: string): string => `Dodaj „${title}”`,
+			fromPlace: 'Z tego miejsca',
+			fromElsewhere: 'Z innych miejsc',
+			noPlace: 'Wybierz miejsce, a pokażemy jego dzieła.',
+			placeEmpty:
+				'W kolekcji nie ma jeszcze dzieł z tego miejsca. Te zobaczone dodasz przez wyszukiwarkę.',
+			cancel: 'Anuluj',
+			save: 'Zapisz',
+			saving: 'Zapisywanie…',
+			errorTitle: 'Nie udało się zapisać wizyty',
+			discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.',
+			notFoundTitle: 'Nie ma takiej wizyty',
+			loadErrorTitle: 'Nie udało się wczytać wizyty'
+		},
+		errors: {
+			notFound: 'Nie ma takiej wizyty w kronice. Może została usunięta.',
+			invalid: 'Nie udało się zapisać wizyty. Sprawdź miejsce, datę i dzieła.',
+			network: 'Nie udało się połączyć. Sprawdź internet i spróbuj jeszcze raz.'
+		}
+	},
 	timeline: {
 		title: 'Kalendarium',
 		lead: 'Twoje dzieła i wydarzenia w prawdziwej skali czasu, epoka po epoce.',
@@ -1372,6 +1445,10 @@ function reviewedToday(count: number, minutes: number): string {
 
 function minuteCount(count: number): string {
 	return `${count} ${plural(count, { one: 'minutę', few: 'minuty', many: 'minut' })}`;
+}
+
+function visitCount(count: number): string {
+	return `${count} ${plural(count, { one: 'wizyta', few: 'wizyty', many: 'wizyt' })}`;
 }
 
 function workCount(count: number): string {
