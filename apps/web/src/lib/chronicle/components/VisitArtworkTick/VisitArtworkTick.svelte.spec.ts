@@ -26,4 +26,15 @@ describe('VisitArtworkTick', () => {
 
 		await expect.element(page.getByRole('checkbox', { name: 'Sketch' })).not.toBeChecked();
 	});
+
+	it('asks for the image of a tick once it comes near the screen', async () => {
+		const pending = testArtwork(3, 'Pending', {
+			image: undefined,
+			pendingImage: { sourceFile: 'Pending.jpg' }
+		});
+		const onnearscreen = vi.fn();
+		render(VisitArtworkTick, { artwork: pending, checked: true, ontoggle: vi.fn(), onnearscreen });
+
+		await vi.waitFor(() => expect(onnearscreen).toHaveBeenCalledWith(pending));
+	});
 });

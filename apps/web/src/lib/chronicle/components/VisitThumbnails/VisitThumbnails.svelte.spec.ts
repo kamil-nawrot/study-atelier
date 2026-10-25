@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/i18n.ts';
@@ -26,5 +26,16 @@ describe('VisitThumbnails', () => {
 
 		await expect.element(page.getByRole('img', { name: m.ui.noImage })).toBeInTheDocument();
 		await expect.element(page.getByText(m.chronicle.more(1))).not.toBeInTheDocument();
+	});
+
+	it('asks for the image of a thumbnail once it comes near the screen', async () => {
+		const pending = testArtwork(3, 'Pending', {
+			image: undefined,
+			pendingImage: { sourceFile: 'Pending.jpg' }
+		});
+		const onnearscreen = vi.fn();
+		render(VisitThumbnails, { artworks: [pending], more: 0, onnearscreen });
+
+		await vi.waitFor(() => expect(onnearscreen).toHaveBeenCalledWith(pending));
 	});
 });
