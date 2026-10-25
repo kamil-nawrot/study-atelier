@@ -35,6 +35,7 @@ Starts the dev server on port 5199, opens the route in Chromium at a desktop (14
 | `--script <file>`   | Run a JavaScript file in the page first, for example to mock an option; a relative path is read from `apps/web`, so pass an absolute one for a file elsewhere                    |
 | `--steps <file>`    | Run the default export of a JavaScript module with the Playwright `page` first, for a flow across navigations (clicks, `page.goBack()`); a relative path is read from `apps/web` |
 | `--repeat <n>`      | Show every sample artwork n times, to have more to scroll through                                                                                                                |
+| `--empty`           | Show an empty atelier: no artworks, values, glossary entries, events, visits or trash, for the empty states of the views                                                         |
 | `--scroll`          | Also write a GIF that scrolls the page from top to bottom (`<name>-<viewport>-scroll.gif`, needs ffmpeg)                                                                         |
 | `--url <base>`      | Use a dev server that is already running                                                                                                                                         |
 

@@ -247,11 +247,15 @@
 
 	<p class="visually-hidden" aria-live="polite">{spoken}</p>
 
+	{#if orientation === 'vertical' && showEvents && eraEvents.length === 0}
+		<p class="caption">{m.timeline.noEvents}</p>
+	{/if}
+
 	<div bind:clientWidth={width}>
 		<TimelineStage
 			artworkLanes={orientation === 'horizontal' ? artworkLanes.length : 0}
 			{era}
-			eventLanes={showEvents ? lanes : 0}
+			eventLanes={showEvents && (orientation === 'horizontal' || eraEvents.length > 0) ? lanes : 0}
 			onbackground={() => (selected = null)}
 			onkeypan={(share) => camera.panShare(share)}
 			onpan={(by) => camera.pan(by)}

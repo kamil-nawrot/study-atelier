@@ -1,7 +1,8 @@
 <script lang="ts">
+	import ImagesIcon from '@lucide/svelte/icons/images';
 	import Plus from '@lucide/svelte/icons/plus';
 	import { onMount } from 'svelte';
-	import { Alert, Button, Icon, Section, TextButton, Toast } from '@study-atelier/ui';
+	import { Alert, Button, EmptyState, Icon, Section, TextButton, Toast } from '@study-atelier/ui';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -107,18 +108,12 @@
 		{error}
 	</Alert>
 {:else if view.total === 0}
-	<div class="state">
-		<Section>
-			<h2>{m.atelier.emptyTitle}</h2>
-			<p class="lead">{m.atelier.empty}</p>
-			<div>
-				<Button href={addPath}>
-					<Icon icon={Plus} />
-					{m.atelier.addFirst}
-				</Button>
-			</div>
-		</Section>
-	</div>
+	<EmptyState icon={ImagesIcon} text={m.atelier.empty} title={m.atelier.emptyTitle}>
+		<Button href={addPath}>
+			<Icon icon={Plus} />
+			{m.atelier.addFirst}
+		</Button>
+	</EmptyState>
 {:else if view.shown.length === 0 && view.filtering}
 	{@render tags()}
 	{@render emptyState(

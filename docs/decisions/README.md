@@ -133,3 +133,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0127](0127-keep-the-value-page-in-a-values-module.md)                       | Keep the value page in a values module                                                   | accepted           |
 | [0128](0128-log-museum-visits-in-a-chronicle.md)                             | Log museum visits in a chronicle                                                         | accepted           |
 | [0129](0129-show-one-faded-artwork-behind-the-ticket-stub.md)                | Show one faded artwork behind the ticket stub                                            | accepted           |
+| [0130](0130-show-empty-views-in-one-centred-pattern.md)                      | Show empty views in one centred pattern                                                  | accepted           |

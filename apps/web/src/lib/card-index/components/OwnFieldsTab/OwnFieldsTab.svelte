@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Ellipsis from '@lucide/svelte/icons/ellipsis';
+	import ListTree from '@lucide/svelte/icons/list-tree';
 	import Plus from '@lucide/svelte/icons/plus';
 	import { tick } from 'svelte';
 	import {
@@ -7,6 +8,7 @@
 		Button,
 		Dialog,
 		Disclosure,
+		EmptyState,
 		Icon,
 		PopupButton,
 		TextButton
@@ -141,7 +143,7 @@
 		{/if}
 
 		{#if fields.length === 0}
-			<p class="lead">{m.ownFields.empty}</p>
+			<EmptyState icon={ListTree} text={m.ownFields.empty} />
 		{/if}
 
 		{#each fields as field, index (field.id)}

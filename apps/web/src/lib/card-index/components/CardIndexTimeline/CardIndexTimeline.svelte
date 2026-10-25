@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Icon } from '@study-atelier/ui';
+	import ListTree from '@lucide/svelte/icons/list-tree';
+	import { EmptyState, Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
 	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
@@ -13,10 +14,9 @@
 
 	let { timeline }: Props = $props();
 
+	let hasEras = $derived(timeline.eras.some((era) => era.periods.length > 0));
 	let isEmpty = $derived(
-		timeline.eras.every((era) => era.periods.length === 0) &&
-			timeline.periodsWithoutEra.length === 0 &&
-			timeline.stylesWithoutPeriod.length === 0
+		!hasEras && timeline.periodsWithoutEra.length === 0 && timeline.stylesWithoutPeriod.length === 0
 	);
 
 	function label(entry: CardIndexEntry): string {
@@ -50,51 +50,53 @@
 {/snippet}
 
 {#if isEmpty}
-	<p class="lead">{m.cardIndex.emptyTimeline}</p>
-{/if}
-
-<ol class="eras">
-	{#each timeline.eras as era (era.code)}
-		<li class="era">
-			<span class="marker" aria-hidden="true">
-				<Icon icon={eraIcon(era.code)} />
-			</span>
-			<div class="era-body">
-				<h2 class="era-name">
-					<a href={valuePath('era', era.code)}>{m.eras[era.code].name}</a>
-				</h2>
-				<span class="years">{m.eras[era.code].years}</span>
-				{#if era.periods.length > 0}
-					{@render periodList(era.periods)}
-				{:else}
-					<p class="empty">{m.cardIndex.emptyEra}</p>
-				{/if}
-			</div>
-		</li>
-	{/each}
-</ol>
-
-{#if timeline.periodsWithoutEra.length > 0}
-	<section class="group">
-		<h2 class="group-title">{m.cardIndex.periodsWithoutEra}</h2>
-		{@render periodList(timeline.periodsWithoutEra)}
-	</section>
-{/if}
-
-{#if timeline.stylesWithoutPeriod.length > 0}
-	<section class="group">
-		<h2 class="group-title">{m.cardIndex.stylesWithoutPeriod}</h2>
-		<ul class="styles">
-			{#each timeline.stylesWithoutPeriod as style (style.id)}
-				<li>
-					<a class="style" aria-label={label(style)} href={valuePath('style', style.id)}>
-						<span>{style.name}</span>
-						<span class="count">{style.count}</span>
-					</a>
+	<EmptyState icon={ListTree} text={m.cardIndex.emptyTimeline} />
+{:else}
+	{#if hasEras}
+		<ol class="eras">
+			{#each timeline.eras as era (era.code)}
+				<li class="era">
+					<span class="marker" aria-hidden="true">
+						<Icon icon={eraIcon(era.code)} />
+					</span>
+					<div class="era-body">
+						<h2 class="era-name">
+							<a href={valuePath('era', era.code)}>{m.eras[era.code].name}</a>
+						</h2>
+						<span class="years">{m.eras[era.code].years}</span>
+						{#if era.periods.length > 0}
+							{@render periodList(era.periods)}
+						{:else}
+							<p class="empty">{m.cardIndex.emptyEra}</p>
+						{/if}
+					</div>
 				</li>
 			{/each}
-		</ul>
-	</section>
+		</ol>
+	{/if}
+
+	{#if timeline.periodsWithoutEra.length > 0}
+		<section class="group">
+			<h2 class="group-title">{m.cardIndex.periodsWithoutEra}</h2>
+			{@render periodList(timeline.periodsWithoutEra)}
+		</section>
+	{/if}
+
+	{#if timeline.stylesWithoutPeriod.length > 0}
+		<section class="group">
+			<h2 class="group-title">{m.cardIndex.stylesWithoutPeriod}</h2>
+			<ul class="styles">
+				{#each timeline.stylesWithoutPeriod as style (style.id)}
+					<li>
+						<a class="style" aria-label={label(style)} href={valuePath('style', style.id)}>
+							<span>{style.name}</span>
+							<span class="count">{style.count}</span>
+						</a>
+					</li>
+				{/each}
+			</ul>
+		</section>
+	{/if}
 {/if}
 
 <style>

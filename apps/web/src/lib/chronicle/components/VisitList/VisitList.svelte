@@ -1,5 +1,8 @@
 <script lang="ts">
-	import { Disclosure } from '@study-atelier/ui';
+	import Footprints from '@lucide/svelte/icons/footprints';
+	import Plus from '@lucide/svelte/icons/plus';
+	import { Button, Disclosure, EmptyState, Icon } from '@study-atelier/ui';
+	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { seenArtworks } from '#lib/chronicle/seen/seen.ts';
 	import { openYear, visitsByYear } from '#lib/chronicle/visit-list/visit-list.ts';
@@ -21,7 +24,12 @@
 </script>
 
 {#if visits.length === 0}
-	<p class="empty">{m.chronicle.empty}</p>
+	<EmptyState icon={Footprints} text={m.chronicle.empty} title={m.chronicle.emptyTitle}>
+		<Button href={resolve('/(app)/atelier/chronicle/new')}>
+			<Icon icon={Plus} />
+			{m.chronicle.addFirst}
+		</Button>
+	</EmptyState>
 {:else}
 	<div class="years">
 		{#each years as group (group.year)}
@@ -68,10 +76,5 @@
 		.visits {
 			max-width: max(50%, var(--size-content-narrow));
 		}
-	}
-
-	.empty {
-		max-width: var(--size-content-default);
-		color: var(--color-fg-muted);
 	}
 </style>

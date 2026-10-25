@@ -1,5 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { busiestEra, eraOfYear, rememberEra, rememberedEra, startEra } from './start.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
+import {
+	busiestEra,
+	eraOfYear,
+	rememberEra,
+	rememberedEra,
+	startEra,
+	timelineIsEmpty
+} from './start.ts';
 
 function memoryStorage(): Pick<Storage, 'getItem' | 'setItem'> {
 	const items = new Map<string, string>();
@@ -57,5 +65,17 @@ describe('eraOfYear', () => {
 	it('takes a year before prehistory starts as prehistory and a future year as the last era', () => {
 		expect(eraOfYear(-43500)).toBe('prehistory');
 		expect(eraOfYear(3000)).toBe('contemporary');
+	});
+});
+
+describe('timelineIsEmpty', () => {
+	it('is empty without events and without an artwork that has a year', () => {
+		expect(timelineIsEmpty([testArtwork(1, 'Bez daty', { yearTo: null })], 0)).toBe(true);
+		expect(timelineIsEmpty([], 0)).toBe(true);
+	});
+
+	it('is not empty with an event or an artwork that has a year', () => {
+		expect(timelineIsEmpty([], 1)).toBe(false);
+		expect(timelineIsEmpty([testArtwork(2, 'Wenus', { yearTo: 1485 })], 0)).toBe(false);
 	});
 });

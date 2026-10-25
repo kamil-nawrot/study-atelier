@@ -13,9 +13,17 @@
 		wide: boolean;
 		panelOpen: boolean;
 		ondialog: () => void;
+		filters?: boolean;
 	};
 
-	let { filter, filtering, wide, panelOpen = $bindable(), ondialog }: Props = $props();
+	let {
+		filter,
+		filtering,
+		wide,
+		panelOpen = $bindable(),
+		ondialog,
+		filters = true
+	}: Props = $props();
 
 	let filtersLabel = $derived(
 		filtering
@@ -25,20 +33,22 @@
 </script>
 
 <div class="actions">
-	<Tooltip align="end" placement="bottom" text={filtersLabel}>
-		{#snippet children(id)}
-			<Button
-				aria-describedby={id}
-				aria-expanded={wide ? panelOpen : undefined}
-				aria-haspopup={wide ? undefined : 'dialog'}
-				aria-label={filtersLabel}
-				onclick={() => (wide ? (panelOpen = !panelOpen) : ondialog())}
-				variant={filtering ? 'primary' : 'secondary'}
-			>
-				<Icon icon={SlidersHorizontal} />
-			</Button>
-		{/snippet}
-	</Tooltip>
+	{#if filters}
+		<Tooltip align="end" placement="bottom" text={filtersLabel}>
+			{#snippet children(id)}
+				<Button
+					aria-describedby={id}
+					aria-expanded={wide ? panelOpen : undefined}
+					aria-haspopup={wide ? undefined : 'dialog'}
+					aria-label={filtersLabel}
+					onclick={() => (wide ? (panelOpen = !panelOpen) : ondialog())}
+					variant={filtering ? 'primary' : 'secondary'}
+				>
+					<Icon icon={SlidersHorizontal} />
+				</Button>
+			{/snippet}
+		</Tooltip>
+	{/if}
 	<Button href={resolve('/(app)/atelier/timeline/events/new')} variant="primary">
 		<Icon icon={Plus} size="sm" />
 		<span class="long">{m.timeline.add}</span>
