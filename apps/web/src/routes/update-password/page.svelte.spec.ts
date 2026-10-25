@@ -64,7 +64,7 @@ describe('update-password page', () => {
 			await expect.element(page.getByText(m.validation.passwordRequired)).toBeVisible();
 
 			await submit('short12');
-			await expect.element(page.getByText(m.validation.passwordTooShort(8, 7))).toBeVisible();
+			await expect.element(page.getByText(m.validation.passwordTooShort(8))).toBeVisible();
 
 			expect(updateUser).not.toHaveBeenCalled();
 		});

@@ -27,16 +27,9 @@ describe('validateRequiredPassword', () => {
 });
 
 describe('validateNewPassword', () => {
-	it('rejects a short password and says how long it is', () => {
-		expect(validateNewPassword('barok')).toBe('Hasło ma 5 znaków. Potrzeba co najmniej 8.');
-	});
-
-	it('uses the singular form for one character', () => {
-		expect(validateNewPassword('a')).toBe('Hasło ma 1 znak. Potrzeba co najmniej 8.');
-	});
-
-	it('uses the few form for two to four characters', () => {
-		expect(validateNewPassword('abc')).toBe('Hasło ma 3 znaki. Potrzeba co najmniej 8.');
+	it('rejects a short password and says the minimum length', () => {
+		expect(validateNewPassword('barok')).toBe('Twoje hasło musi mieć co najmniej 8 znaków.');
+		expect(validateNewPassword('a')).toBe(m.validation.passwordTooShort(8));
 	});
 
 	it('accepts eight characters', () => {

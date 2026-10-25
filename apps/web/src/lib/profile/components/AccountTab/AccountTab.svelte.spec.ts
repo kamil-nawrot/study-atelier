@@ -101,7 +101,7 @@ describe('AccountTab', () => {
 		await submit().click();
 
 		await expect
-			.element(page.getByText(m.validation.passwordTooShort(MIN_PASSWORD_LENGTH, 5)))
+			.element(page.getByText(m.validation.passwordTooShort(MIN_PASSWORD_LENGTH)))
 			.toBeVisible();
 		expect(changePassword).not.toHaveBeenCalled();
 	});

@@ -52,8 +52,10 @@ describe('sign-up page', () => {
 	it('rejects a password shorter than eight characters', async () => {
 		await submit(TEST_EMAIL, 'abc');
 
-		await expect.element(page.getByText(m.validation.passwordTooShort(8, 3))).toBeVisible();
-		await expect.element(page.getByText(m.validation.passwordHint(8))).not.toBeInTheDocument();
+		await expect.element(page.getByText(m.validation.passwordTooShort(8))).toBeVisible();
+		await expect
+			.element(page.getByText(m.validation.passwordHint(8), { exact: true }))
+			.not.toBeInTheDocument();
 		await expect.element(page.getByLabelText(m.common.password)).toHaveFocus();
 		expect(signUp).not.toHaveBeenCalled();
 	});
