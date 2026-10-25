@@ -51,6 +51,7 @@
 
 	.icon-button:hover:not(:disabled) {
 		border-bottom-width: var(--border-width-heavy);
+		padding-top: calc(var(--border-width-heavy) - var(--border-width-button));
 	}
 
 	.icon-button:disabled {
