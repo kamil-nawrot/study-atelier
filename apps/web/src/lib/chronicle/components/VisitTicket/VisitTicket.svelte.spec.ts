@@ -37,7 +37,7 @@ describe('VisitTicket', () => {
 		expect(hit?.closest('a')).toBe(container.querySelector('a'));
 	});
 
-	it('heads the visit view with the place, the weekday and the count in the stub', async () => {
+	it('heads the visit view with the place and the count in the stub', async () => {
 		render(VisitTicket, { visit: testVisit(), count: 2 });
 
 		await expect
@@ -45,7 +45,7 @@ describe('VisitTicket', () => {
 			.toHaveTextContent('Musée d’Orsay');
 		await expect.element(page.getByRole('link')).not.toBeInTheDocument();
 		await expect.element(page.getByText(m.chronicle.kind)).toBeInTheDocument();
-		await expect.element(page.getByText('poniedziałek')).toBeInTheDocument();
+		await expect.element(page.getByText('poniedziałek')).not.toBeInTheDocument();
 		await expect.element(page.getByText('paź 2026')).toBeInTheDocument();
 		await expect.element(page.getByText(m.chronicle.seenCount(2))).toBeInTheDocument();
 		await expect.element(page.getByText('Lilie wodne w owalnej sali.')).not.toBeInTheDocument();

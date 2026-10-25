@@ -103,6 +103,7 @@ describe('artwork page', () => {
 		await expect
 			.element(page.getByRole('heading', { name: m.chronicle.artworkVisits(1) }))
 			.toBeInTheDocument();
+		await page.getByRole('heading', { name: m.chronicle.artworkVisits(1) }).click();
 		await expect
 			.element(page.getByRole('link', { name: /Musée d’Orsay/ }))
 			.toHaveAttribute('href', `/atelier/chronicle/${VISIT_ID}`);

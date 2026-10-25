@@ -7,7 +7,6 @@ import {
 	ticketDate,
 	visitDateFrom,
 	visitDateName,
-	visitWeekday,
 	visitYear
 } from './visit-date.ts';
 
@@ -152,12 +151,5 @@ describe('visitDateFrom', () => {
 		expect(visitDateFrom({ on: '2026-10-12', precision: 'day' }, now)).toBe('12 października');
 		expect(visitDateFrom({ on: '2026-10-01', precision: 'month' }, now)).toBe('października 2026');
 		expect(visitDateFrom({ on: '2019-01-01', precision: 'year' }, now)).toBe('2019 roku');
-	});
-});
-
-describe('visitWeekday', () => {
-	it('names the weekday of a known day only', () => {
-		expect(visitWeekday({ on: '2026-10-12', precision: 'day' })).toBe('poniedziałek');
-		expect(visitWeekday({ on: '2026-10-01', precision: 'month' })).toBeUndefined();
 	});
 });

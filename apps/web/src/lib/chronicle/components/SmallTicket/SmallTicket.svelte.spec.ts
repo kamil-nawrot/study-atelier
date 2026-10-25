@@ -5,11 +5,11 @@ import { testVisit, VISIT_ID } from '#lib/testing/chronicle/chronicle.ts';
 import SmallTicket from './SmallTicket.svelte';
 
 describe('SmallTicket', () => {
-	it('links to the visit with its date, place and weekday', async () => {
+	it('links to the visit with its date and place', async () => {
 		render(SmallTicket, { visit: testVisit() });
 
 		const link = page.getByRole('link', {
-			name: /12 października 2026.*Musée d’Orsay.*poniedziałek/
+			name: /^12 października 2026.*Musée d’Orsay$/
 		});
 		await expect.element(link).toHaveAttribute('href', `/atelier/chronicle/${VISIT_ID}`);
 		await expect.element(page.getByText('paź 2026')).toBeInTheDocument();

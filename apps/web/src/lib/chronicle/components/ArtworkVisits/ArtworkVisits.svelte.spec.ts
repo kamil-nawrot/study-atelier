@@ -6,7 +6,7 @@ import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
 import ArtworkVisits from './ArtworkVisits.svelte';
 
 describe('ArtworkVisits', () => {
-	it('lists the visits of an artwork under a heading with their number', async () => {
+	it('lists the visits of an artwork under a heading with their number once opened', async () => {
 		render(ArtworkVisits, {
 			visits: [testVisit({ id: 'a' }), testVisit({ id: 'b', place: 'Luwr' })]
 		});
@@ -14,6 +14,10 @@ describe('ArtworkVisits', () => {
 		await expect
 			.element(page.getByRole('heading', { name: m.chronicle.artworkVisits(2) }))
 			.toBeInTheDocument();
+		await expect.element(page.getByRole('link')).not.toBeInTheDocument();
+
+		await page.getByText(m.chronicle.artworkVisits(2)).click();
+
 		expect(page.getByRole('link').elements()).toHaveLength(2);
 	});
 

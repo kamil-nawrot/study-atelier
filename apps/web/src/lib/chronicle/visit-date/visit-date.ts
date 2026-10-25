@@ -99,7 +99,3 @@ export function visitDateFrom(date: VisitDate, now = new Date()): string {
 		.find((part) => part.type === 'month')?.value;
 	return `${month} ${year}`;
 }
-
-export function visitWeekday(date: VisitDate): string | undefined {
-	return date.precision === 'day' ? format(date, { weekday: 'long' }) : undefined;
-}

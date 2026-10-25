@@ -6,7 +6,7 @@
 	import { placeTypeIcon, placeTypeName } from '#lib/catalogue/place-types/place-types.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { noteExcerpt } from '#lib/chronicle/note-excerpt/note-excerpt.ts';
-	import { ticketDate, visitWeekday } from '#lib/chronicle/visit-date/visit-date.ts';
+	import { ticketDate } from '#lib/chronicle/visit-date/visit-date.ts';
 	import TicketStub from '#lib/chronicle/components/TicketStub/TicketStub.svelte';
 	import VisitBackdrop from '#lib/chronicle/components/VisitBackdrop/VisitBackdrop.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -33,7 +33,6 @@
 			.filter((part) => part !== null)
 			.join(' · ')
 	);
-	let weekday = $derived(header ? visitWeekday(visit.date) : undefined);
 	let excerpt = $derived(header ? '' : noteExcerpt(visit.notes));
 </script>
 
@@ -63,9 +62,6 @@
 						{/if}
 						{place}
 					</span>
-				{/if}
-				{#if weekday}
-					<span class="part">{weekday}</span>
 				{/if}
 				{#if !header}
 					<span class="part">

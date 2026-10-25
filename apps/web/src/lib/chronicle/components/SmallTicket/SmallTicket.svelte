@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { ticketDate, visitWeekday } from '#lib/chronicle/visit-date/visit-date.ts';
+	import { ticketDate } from '#lib/chronicle/visit-date/visit-date.ts';
 	import TicketStub from '#lib/chronicle/components/TicketStub/TicketStub.svelte';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
 
@@ -11,7 +11,6 @@
 	let { visit }: Props = $props();
 
 	let date = $derived(ticketDate(visit.date));
-	let weekday = $derived(visitWeekday(visit.date));
 </script>
 
 <a class="ticket" href={resolve('/(app)/atelier/chronicle/[id]', { id: visit.id })}>
@@ -24,9 +23,6 @@
 	</span>
 	<TicketStub small>
 		<span class="place">{visit.place}</span>
-		{#if weekday}
-			<span class="caption">{weekday}</span>
-		{/if}
 	</TicketStub>
 </a>
 
