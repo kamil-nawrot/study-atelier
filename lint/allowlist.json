@@ -1,7 +1,7 @@
 {
 	"lines": [],
 	"script": [],
-	"style": ["packages/ui/src/lib/components/Primer/Primer.svelte"],
+	"style": [],
 	"complexity": [],
 	"layout": [],
 	"route-script": [],

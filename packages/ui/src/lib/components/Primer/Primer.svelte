@@ -1,7 +1,11 @@
+<script lang="ts">
+	import PrimerCoat from '../PrimerCoat/PrimerCoat.svelte';
+</script>
+
 <div class="primer" aria-hidden="true">
 	<div class="coats">
-		<div class="coat horizontal"></div>
-		<div class="coat vertical"></div>
+		<PrimerCoat direction="horizontal" />
+		<PrimerCoat direction="vertical" />
 	</div>
 </div>
 
@@ -23,34 +27,9 @@
 		animation: appear 0s var(--duration-loading-delay) both;
 	}
 
-	.coats,
-	.coat {
+	.coats {
 		position: absolute;
 		inset: 0;
-	}
-
-	.coat {
-		mask-image: var(--band), var(--band), var(--band), var(--band);
-		mask-repeat: no-repeat;
-		mask-size: 100% 100%;
-	}
-
-	.horizontal {
-		background: repeating-linear-gradient(180deg, var(--bristles));
-		mask-position:
-			0 0,
-			100% 33.333%,
-			0 66.667%,
-			100% 100%;
-	}
-
-	.vertical {
-		background: repeating-linear-gradient(90deg, var(--bristles));
-		mask-position:
-			0 0,
-			33.333% 100%,
-			66.667% 0,
-			100% 100%;
 	}
 
 	@keyframes appear {
@@ -67,14 +46,6 @@
 		.coats {
 			animation: fade 5.6s linear infinite;
 		}
-
-		.horizontal {
-			animation: horizontal-coat 5.6s linear infinite;
-		}
-
-		.vertical {
-			animation: vertical-coat 5.6s linear infinite;
-		}
 	}
 
 	@keyframes fade {
@@ -86,116 +57,6 @@
 		94%,
 		100% {
 			opacity: 0;
-		}
-	}
-
-	@keyframes horizontal-coat {
-		0%,
-		3% {
-			mask-size:
-				0 var(--band-width),
-				0 var(--band-width),
-				0 var(--band-width),
-				0 var(--band-width);
-		}
-
-		11%,
-		12% {
-			mask-size:
-				100% var(--band-width),
-				0 var(--band-width),
-				0 var(--band-width),
-				0 var(--band-width);
-		}
-
-		20%,
-		21% {
-			mask-size:
-				100% var(--band-width),
-				100% var(--band-width),
-				0 var(--band-width),
-				0 var(--band-width);
-		}
-
-		29%,
-		30% {
-			mask-size:
-				100% var(--band-width),
-				100% var(--band-width),
-				100% var(--band-width),
-				0 var(--band-width);
-		}
-
-		38%,
-		99.9% {
-			mask-size:
-				100% var(--band-width),
-				100% var(--band-width),
-				100% var(--band-width),
-				100% var(--band-width);
-		}
-
-		100% {
-			mask-size:
-				0 var(--band-width),
-				0 var(--band-width),
-				0 var(--band-width),
-				0 var(--band-width);
-		}
-	}
-
-	@keyframes vertical-coat {
-		0%,
-		40% {
-			mask-size:
-				var(--band-width) 0,
-				var(--band-width) 0,
-				var(--band-width) 0,
-				var(--band-width) 0;
-		}
-
-		48%,
-		49% {
-			mask-size:
-				var(--band-width) 100%,
-				var(--band-width) 0,
-				var(--band-width) 0,
-				var(--band-width) 0;
-		}
-
-		57%,
-		58% {
-			mask-size:
-				var(--band-width) 100%,
-				var(--band-width) 100%,
-				var(--band-width) 0,
-				var(--band-width) 0;
-		}
-
-		66%,
-		67% {
-			mask-size:
-				var(--band-width) 100%,
-				var(--band-width) 100%,
-				var(--band-width) 100%,
-				var(--band-width) 0;
-		}
-
-		75%,
-		99.9% {
-			mask-size:
-				var(--band-width) 100%,
-				var(--band-width) 100%,
-				var(--band-width) 100%,
-				var(--band-width) 100%;
-		}
-
-		100% {
-			mask-size:
-				var(--band-width) 0,
-				var(--band-width) 0,
-				var(--band-width) 0,
-				var(--band-width) 0;
 		}
 	}
 </style>
