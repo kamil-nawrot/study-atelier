@@ -1,17 +1,11 @@
 import { OWN_IMAGE_EXTENSIONS, isOwnImageType } from '#lib/images/bucket/bucket.ts';
 import { parseImageUrl } from '#lib/images/own-image/own-image.ts';
+import type { ClipboardContent } from '#lib/images/types/clipboard-content.ts';
+import type { PastedImage } from '#lib/images/types/pasted-image.ts';
 
-export type ClipboardContent = {
-	images: Blob[];
-	text: string;
-	html: string;
-};
+type ClipboardReadResult = { content: ClipboardContent } | { denied: true };
 
-export type PastedImage = { file: File } | { url: string };
-
-export type ClipboardReadResult = { content: ClipboardContent } | { denied: true };
-
-export type PasteShortcut = { keys: string[]; label: string };
+type PasteShortcut = { keys: string[]; label: string };
 
 export function pasteShortcut(): PasteShortcut {
 	const onMac = /mac|iphone|ipad/i.test(navigator.platform ?? '');

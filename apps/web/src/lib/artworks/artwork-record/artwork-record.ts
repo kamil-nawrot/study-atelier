@@ -2,6 +2,7 @@ import { m } from '#lib/i18n/i18n.ts';
 import { signedYear } from '#lib/catalogue/years/years.ts';
 import type { ArtworkFieldErrors } from '#lib/artworks/types/artwork-field-errors.ts';
 import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
+import type { YearsInput } from '#lib/artworks/types/years-input.ts';
 
 export function emptyArtworkInput(): ArtworkInput {
 	return {
@@ -43,12 +44,7 @@ export function isStoredYear(year: number): boolean {
 	return Number.isInteger(year) && year !== 0 && year >= -EARLIEST_YEAR && year <= LATEST_YEAR;
 }
 
-export type YearsInput = Pick<
-	ArtworkInput,
-	'yearFrom' | 'fromBeforeCommonEra' | 'yearTo' | 'toBeforeCommonEra' | 'yearApproximate'
->;
-
-export type YearsErrors = {
+type YearsErrors = {
 	yearFrom?: string;
 	yearTo?: string;
 };

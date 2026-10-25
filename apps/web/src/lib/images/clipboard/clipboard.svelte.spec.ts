@@ -3,9 +3,9 @@ import {
 	contentFromPasteEvent,
 	pasteShortcut,
 	pastedImageFrom,
-	readClipboard,
-	type ClipboardContent
+	readClipboard
 } from './clipboard.ts';
+import type { ClipboardContent } from '#lib/images/types/clipboard-content.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: {} }));
 

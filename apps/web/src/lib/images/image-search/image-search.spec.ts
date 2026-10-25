@@ -8,7 +8,7 @@ import {
 	rankArtworks,
 	romanNumeral
 } from './image-search.ts';
-import type { WikidataArtwork } from '#lib/images/wikidata/wikidata.ts';
+import type { WikidataArtwork } from '#lib/images/types/wikidata-artwork.ts';
 
 const fetchMock = vi.fn<typeof fetch>();
 

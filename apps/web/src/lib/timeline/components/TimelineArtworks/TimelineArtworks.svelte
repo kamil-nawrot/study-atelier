@@ -8,9 +8,11 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { ArtworkLane } from '#lib/timeline/types/artwork-lane.ts';
 	import { cutLabel } from '#lib/timeline/labels/labels.ts';
-	import { DOT_SIZE, marksIn, spread, type Mark } from '#lib/timeline/placement/placement.ts';
-	import { boxStyle, type StageGeometry } from '#lib/timeline/stage/stage.ts';
-	import type { Era } from '#lib/timeline/time/time.ts';
+	import { DOT_SIZE, marksIn, spread } from '#lib/timeline/placement/placement.ts';
+	import type { Mark } from '#lib/timeline/types/mark.ts';
+	import { boxStyle } from '#lib/timeline/stage/stage.ts';
+	import type { StageGeometry } from '#lib/timeline/types/stage-geometry.ts';
+	import type { Era } from '#lib/timeline/types/era.ts';
 
 	type Props = {
 		artworks: readonly WallArtwork[];

@@ -9,9 +9,9 @@ import {
 	imageOf,
 	storedImage,
 	uploadPath,
-	withPreview,
-	type ImageRow
+	withPreview
 } from '#lib/images/image-record/image-record.ts';
+import type { ImageRow } from '#lib/images/types/image-row.ts';
 import { isCountryCode } from '#lib/catalogue/countries/countries.ts';
 import { isPlaceType } from '#lib/catalogue/place-types/place-types.ts';
 import type { AuthorDetails } from '#lib/values/types/author-details.ts';
@@ -53,7 +53,7 @@ const AUTHOR_COLUMNS = [
 
 type DetailsQuery = PromiseLike<{ data: DetailsRow | null; error: ErrorLike | null }>;
 
-export type SaveDetailsResult = {
+type SaveDetailsResult = {
 	error?: string;
 };
 

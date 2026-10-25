@@ -2,7 +2,8 @@ import { strToU8, zipSync } from 'fflate';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FORMAT_NAME, FORMAT_VERSION } from '#lib/data-transfer/format/format.ts';
 import { m } from '#lib/i18n/i18n.ts';
-import { importArchive, type ImportProgress } from './import-atelier.ts';
+import { importArchive } from './import-atelier.ts';
+import type { ImportProgress } from '#lib/data-transfer/types/import-progress.ts';
 import {
 	currentOwnerId,
 	importAtelier,

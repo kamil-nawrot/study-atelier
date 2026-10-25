@@ -42,7 +42,7 @@ const ABBREVIATIONS = new Set([
 	'mln'
 ]);
 
-export type LetterGroup = {
+type LetterGroup = {
 	letter: string;
 	entries: GlossaryEntry[];
 };

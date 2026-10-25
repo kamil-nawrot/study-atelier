@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { downloadOwnImage, readAtelier } from '#lib/data-transfer/export-data/export-data.ts';
 import { exportAtelier } from './export-atelier.ts';
-import type { ExportProgress } from '#lib/data-transfer/format/format.ts';
+import type { ExportProgress } from '#lib/data-transfer/types/export-progress.ts';
 
 vi.mock('#lib/data-transfer/export-data/export-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/data-transfer/export-data/export-data.ts')>()),

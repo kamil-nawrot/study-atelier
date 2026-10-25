@@ -3,7 +3,7 @@ import data from './auth-artworks.json';
 
 const publicDomainLicenses = ['Public domain', 'CC0'];
 
-export type AuthArtwork = {
+type AuthArtwork = {
 	title: string;
 	artist: string;
 	date: string;

@@ -5,14 +5,12 @@ import {
 	removeUploads,
 	uploadImport
 } from '#lib/data-transfer/import-data/import-data.ts';
-import { parseArchive, type ParseFailure } from '#lib/data-transfer/parse/parse.ts';
+import { parseArchive } from '#lib/data-transfer/parse/parse.ts';
+import type { ParseFailure } from '#lib/data-transfer/types/parse-failure.ts';
 import { remapAtelier } from '#lib/data-transfer/remap/remap.ts';
+import type { ImportProgress } from '#lib/data-transfer/types/import-progress.ts';
 
-export type ImportProgress =
-	{ step: 'reading' } | { step: 'images'; done: number; total: number } | { step: 'saving' };
-
-export type ImportResult =
-	{ imported: true; error?: undefined } | { error: string; notEmpty?: boolean };
+type ImportResult = { imported: true; error?: undefined } | { error: string; notEmpty?: boolean };
 
 const FAILURES: Record<ParseFailure, () => string> = {
 	notZip: () => m.settings.data.importNotZip,

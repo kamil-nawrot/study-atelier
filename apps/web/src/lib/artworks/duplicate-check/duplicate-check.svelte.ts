@@ -1,4 +1,4 @@
-import { type TitleAndAuthors } from '#lib/artworks/duplicates/duplicates.ts';
+import type { TitleAndAuthors } from '#lib/artworks/types/title-and-authors.ts';
 import { findDuplicates } from '#lib/artworks/duplicates-data/duplicates-data.ts';
 import { pendingAnswer } from '#lib/shared/forms/pending-answer/pending-answer.ts';
 

@@ -4,9 +4,9 @@ import {
 	arrive,
 	loadNames,
 	named,
-	saveNames,
-	type Place
+	saveNames
 } from '#lib/shared/navigation/back-places/back-places.ts';
+import type { Place } from '#lib/shared/types/place.ts';
 
 let names = $state(loadNames());
 let current = $state<Place>();

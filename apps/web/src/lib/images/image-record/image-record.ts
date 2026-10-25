@@ -1,19 +1,7 @@
 import { ownImageUrl, uploadOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
-
-export type StoredImage = Exclude<ArtworkImageInput, { kind: 'file' }>;
-
-export type ImageRow = {
-	source_wikidata_id: string | null;
-	source_image_file: string | null;
-	source_image_licence: string | null;
-	source_image_licence_url: string | null;
-	source_image_attribution: string | null;
-	own_image_path: string | null;
-	own_image_url: string | null;
-	image_width: number | null;
-	image_height: number | null;
-};
+import type { StoredImage } from '#lib/images/types/stored-image.ts';
+import type { ImageRow } from '#lib/images/types/image-row.ts';
 
 export const IMAGE_COLUMNS = [
 	'source_wikidata_id',

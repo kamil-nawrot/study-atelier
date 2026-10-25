@@ -3,11 +3,9 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import { downloadBlob } from '#lib/data-transfer/download/download.ts';
 	import { exportAtelier } from '#lib/data-transfer/export-atelier/export-atelier.ts';
-	import {
-		importArchive,
-		type ImportProgress
-	} from '#lib/data-transfer/import-atelier/import-atelier.ts';
-	import type { ExportProgress } from '#lib/data-transfer/format/format.ts';
+	import { importArchive } from '#lib/data-transfer/import-atelier/import-atelier.ts';
+	import type { ImportProgress } from '#lib/data-transfer/types/import-progress.ts';
+	import type { ExportProgress } from '#lib/data-transfer/types/export-progress.ts';
 
 	type Props = {
 		atelierEmpty?: boolean;

@@ -1,6 +1,6 @@
 import type { Preferences } from '#lib/profile/types/preferences.ts';
 
-export type AutoFetchSource = 'image' | 'definition' | 'forms' | 'event';
+type AutoFetchSource = 'image' | 'definition' | 'forms' | 'event';
 
 export const autoFetch = $state<Record<AutoFetchSource, boolean>>({
 	image: true,

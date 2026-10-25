@@ -1,32 +1,17 @@
 import { parseYear } from '#lib/artworks/artwork-form/artwork-form.ts';
-import { validateYears, type YearsInput } from '#lib/artworks/artwork-record/artwork-record.ts';
+import { validateYears } from '#lib/artworks/artwork-record/artwork-record.ts';
+import type { YearsInput } from '#lib/artworks/types/years-input.ts';
 import { signedYear } from '#lib/catalogue/years/years.ts';
 import { m } from '#lib/i18n/i18n.ts';
-import type { WikipediaSource } from '#lib/shared/types/wikipedia-source.ts';
+
 import type { EventDates } from '#lib/timeline/types/event-dates.ts';
 import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 import type { TimelineEventDraft } from '#lib/timeline/types/timeline-event-draft.ts';
+import type { EventFormState } from '#lib/timeline/types/event-form-state.ts';
+import type { EventFormErrors } from '#lib/timeline/types/event-form-errors.ts';
 
 export const EVENT_NAME_MAX_LENGTH = 120;
 export const EVENT_DESCRIPTION_MAX_LENGTH = 300;
-
-export type EventFormState = {
-	name: string;
-	spanMode: boolean;
-	yearFrom: string;
-	fromBeforeCommonEra: boolean;
-	yearTo: string;
-	toBeforeCommonEra: boolean;
-	yearApproximate: boolean;
-	description: string;
-	source: WikipediaSource | null;
-};
-
-export type EventFormErrors = {
-	name?: string;
-	yearFrom?: string;
-	yearTo?: string;
-};
 
 export function emptyEventForm(): EventFormState {
 	return {

@@ -44,7 +44,7 @@
 		rememberArtworkPanel
 	} from '#lib/artworks/artwork-panel/artwork-panel.ts';
 	import { FLIP_DIRECTIONS, swipe } from '#lib/wall/flip/flip.ts';
-	import type { Mention } from '#lib/notes/mentions-data/mentions-data.ts';
+	import type { Mention } from '#lib/notes/types/mention.ts';
 	import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
 	import type { FlipDirection } from '#lib/wall/types/flip-direction.ts';
 	import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
@@ -52,10 +52,10 @@
 	import { valueKindName } from '#lib/card-index/value-pages/value-pages.ts';
 	import {
 		emptyValueSummaries,
-		summaryKey,
-		type ValueSummaries,
-		type ValueSummary
+		summaryKey
 	} from '#lib/card-index/value-summaries/value-summaries.ts';
+	import type { ValueSummaries } from '#lib/card-index/types/value-summaries.ts';
+	import type { ValueSummary } from '#lib/card-index/types/value-summary.ts';
 	import ImageViewer from '#lib/images/components/ImageViewer/ImageViewer.svelte';
 	import Loupe from '#lib/images/components/Loupe/Loupe.svelte';
 	import MentionedIn from '#lib/notes/components/MentionedIn/MentionedIn.svelte';

@@ -1,5 +1,5 @@
 import { m } from '#lib/i18n/i18n.ts';
-import type { Segment } from '#lib/timeline/axis/axis.ts';
+import type { Segment } from '#lib/timeline/types/segment.ts';
 
 export function cutLabel(text: string, cutBefore: boolean, cutAfter: boolean): string {
 	return `${cutBefore ? '‹ ' : ''}${text}${cutAfter ? ' ›' : ''}`;

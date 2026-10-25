@@ -4,14 +4,13 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import { axisKind, lineTimes, segments, tickYears } from '#lib/timeline/axis/axis.ts';
 	import { segmentLabel } from '#lib/timeline/labels/labels.ts';
-	import {
-		boxStyle,
-		stageGeometry,
-		stageSize,
-		type Orientation,
-		type StageGeometry
-	} from '#lib/timeline/stage/stage.ts';
-	import { timeOf, yearAt, type Era, type TimeSpan, type View } from '#lib/timeline/time/time.ts';
+	import { boxStyle, stageGeometry, stageSize } from '#lib/timeline/stage/stage.ts';
+	import type { Orientation } from '#lib/timeline/types/orientation.ts';
+	import type { StageGeometry } from '#lib/timeline/types/stage-geometry.ts';
+	import { timeOf, yearAt } from '#lib/timeline/time/time.ts';
+	import type { Era } from '#lib/timeline/types/era.ts';
+	import type { TimeSpan } from '#lib/timeline/types/time-span.ts';
+	import type { View } from '#lib/timeline/types/view.ts';
 
 	type Props = {
 		era: Era;

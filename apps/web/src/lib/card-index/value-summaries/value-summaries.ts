@@ -1,16 +1,5 @@
 import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
-import type { EraCode } from '#lib/catalogue/types/era-code.ts';
-
-export type ValueSummary = {
-	summary: string;
-	lifeYears?: string;
-};
-
-export type ValueSummaries = {
-	eras: Partial<Record<EraCode, ValueSummary>>;
-	values: Record<string, ValueSummary>;
-	countries: Record<string, string>;
-};
+import type { ValueSummaries } from '#lib/card-index/types/value-summaries.ts';
 
 export function emptyValueSummaries(): ValueSummaries {
 	return { eras: {}, values: {}, countries: {} };

@@ -1,9 +1,4 @@
-export type ExportTable = {
-	table: string;
-	order: string[];
-	ownedOnly?: boolean;
-};
-
+import type { ExportTable } from '#lib/data-transfer/types/export-table.ts';
 export const EXPORT_TABLES: readonly ExportTable[] = [
 	{ table: 'profiles', order: ['owner_id'] },
 	{ table: 'artworks', order: ['id'] },

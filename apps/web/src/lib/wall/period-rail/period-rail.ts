@@ -1,8 +1,8 @@
 import type { CurrentPeriod } from '#lib/wall/types/current-period.ts';
 
-export type RailState = 'past' | 'current' | 'upcoming';
+type RailState = 'past' | 'current' | 'upcoming';
 
-export type RailEntry = {
+type RailEntry = {
 	state: RailState;
 	offset: number;
 };

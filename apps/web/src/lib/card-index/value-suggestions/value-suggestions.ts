@@ -3,7 +3,7 @@ import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import type { StarterValue } from '#lib/card-index/types/starter-value.ts';
 import type { ValueSuggestion } from '#lib/card-index/types/value-suggestion.ts';
 
-export type SuggestionSource = {
+type SuggestionSource = {
 	query: string;
 	existing: readonly string[];
 	selected: readonly string[];

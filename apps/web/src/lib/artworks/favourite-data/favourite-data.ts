@@ -2,7 +2,7 @@ import { failureMessage } from '#lib/auth/expired-session-data/expired-session-d
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 
-export type FavouriteResult = {
+type FavouriteResult = {
 	error?: string;
 };
 

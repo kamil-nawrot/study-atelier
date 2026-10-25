@@ -4,7 +4,7 @@ import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
 import { deleteGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
-import type { Mention } from '#lib/notes/mentions-data/mentions-data.ts';
+import type { Mention } from '#lib/notes/types/mention.ts';
 import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 import type { PinnedArtwork } from '#lib/glossary/types/pinned-artwork.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';

@@ -21,9 +21,9 @@ type Case = (typeof CASES)[number];
 type GrammaticalNumber = 'lp' | 'lm';
 type Gender = 'mos' | 'mzw' | 'mrz' | 'ż' | 'n';
 
-export type Declension = Map<string, string[]>;
+type Declension = Map<string, string[]>;
 
-export type Noun = {
+type Noun = {
 	forms: Declension;
 	gender: Gender | null;
 };

@@ -3,8 +3,10 @@ import { IMAGES_BUCKET, ownThumbnailPath } from '#lib/images/bucket/bucket.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { m } from '#lib/i18n/i18n.ts';
-import type { AtelierData, ExportRow } from '#lib/data-transfer/format/format.ts';
-import { EXPORT_TABLES, type ExportTable } from '#lib/data-transfer/tables/tables.ts';
+import type { AtelierData } from '#lib/data-transfer/types/atelier-data.ts';
+import type { ExportRow } from '#lib/data-transfer/types/export-row.ts';
+import { EXPORT_TABLES } from '#lib/data-transfer/tables/tables.ts';
+import type { ExportTable } from '#lib/data-transfer/types/export-table.ts';
 
 type ReadResult = { data: AtelierData; error?: undefined } | { error: string };
 
@@ -13,8 +15,7 @@ type StorageErrorLike = {
 	statusCode?: string;
 };
 
-export type OwnImageDownload =
-	{ bytes: Uint8Array } | { missing: true } | { error: StorageErrorLike };
+type OwnImageDownload = { bytes: Uint8Array } | { missing: true } | { error: StorageErrorLike };
 
 const IMAGE_PATH_COLUMNS = ['own_image_path', 'avatar_path'];
 

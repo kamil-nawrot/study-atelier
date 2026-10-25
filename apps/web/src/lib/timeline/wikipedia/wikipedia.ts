@@ -1,27 +1,18 @@
-import {
-	WIKIDATA_API,
-	articleOf,
-	findPages,
-	type Page
-} from '#lib/glossary/wikipedia/wikipedia.ts';
+import { WIKIDATA_API, articleOf, findPages } from '#lib/glossary/wikipedia/wikipedia.ts';
+import type { Page } from '#lib/glossary/types/page.ts';
 import { isStoredYear } from '#lib/artworks/artwork-record/artwork-record.ts';
 import { fetchJson } from '#lib/images/wikimedia/wikimedia.ts';
 import { EVENT_DESCRIPTION_MAX_LENGTH } from '#lib/timeline/event-form/event-form.ts';
 import type { EventArticle } from '#lib/timeline/types/event-article.ts';
 import type { EventDates } from '#lib/timeline/types/event-dates.ts';
+import type { TimeStatement } from '#lib/timeline/types/time-statement.ts';
+import type { Claims } from '#lib/timeline/types/claims.ts';
 
 const ARTICLE_LIMIT = 5;
 const YEAR_PRECISION = 9;
 const START = 'P580';
 const END = 'P582';
 const POINT = 'P585';
-
-export type TimeStatement = {
-	rank?: 'preferred' | 'normal' | 'deprecated';
-	mainsnak?: { datavalue?: { value?: { time?: string; precision?: number } } };
-};
-
-export type Claims = Partial<Record<string, TimeStatement[]>>;
 
 type EntitiesResponse = { entities?: Record<string, { claims?: Claims }> };
 

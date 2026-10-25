@@ -1,18 +1,11 @@
-export type Place = {
-	name: string;
-	path: string;
-	previous?: Place;
-	steps?: number;
-};
-
-export type Names = Record<string, Place>;
-
-export type PageStop = {
+import type { Place } from '#lib/shared/types/place.ts';
+import type { Names } from '#lib/shared/types/names.ts';
+type PageStop = {
 	key: string;
 	route: string | null;
 };
 
-export type Arrival = {
+type Arrival = {
 	type: string;
 	from: PageStop | null;
 	to: PageStop;

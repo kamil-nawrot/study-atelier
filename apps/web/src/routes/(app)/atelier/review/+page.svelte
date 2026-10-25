@@ -16,16 +16,16 @@
 		formatWhen,
 		freeScopeOptions,
 		nextWaiting,
-		type ReviewScope,
 		sameScope,
 		scopeArtworks,
 		scopeOptions,
-		type ScopeChoice,
-		type SummaryGroup,
 		summaryGroups,
 		troubles,
 		waitingTomorrow
 	} from '#lib/review/overview/overview.ts';
+	import type { ReviewScope } from '#lib/review/types/review-scope.ts';
+	import type { ScopeChoice } from '#lib/review/types/scope-choice.ts';
+	import type { SummaryGroup } from '#lib/review/types/summary-group.ts';
 	import { offeredForms, quizzesPossible } from '#lib/review/forms/forms.ts';
 	import { missingArtworks, sessionCounts, startOfDay } from '#lib/review/queue/queue.ts';
 	import { QUIZ_TILE_SIZES, quizArtworks, sessionItems } from '#lib/review/quiz/quiz.ts';

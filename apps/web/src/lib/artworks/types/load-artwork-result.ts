@@ -2,8 +2,8 @@ import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 import type { NoteLinks } from '@study-atelier/ui';
 import type { Pin } from '#lib/pins/types/pin.ts';
 import type { Preferences } from '#lib/profile/types/preferences.ts';
-import type { Mention } from '#lib/notes/mentions-data/mentions-data.ts';
-import type { ValueSummaries } from '#lib/card-index/value-summaries/value-summaries.ts';
+import type { Mention } from '#lib/notes/types/mention.ts';
+import type { ValueSummaries } from '#lib/card-index/types/value-summaries.ts';
 import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 import type { ArtworkRecord } from './artwork-record.ts';
 

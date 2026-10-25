@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { m } from '#lib/i18n/i18n.ts';
-	import type { ValueSummary } from '#lib/card-index/value-summaries/value-summaries.ts';
+	import type { ValueSummary } from '#lib/card-index/types/value-summary.ts';
 
 	type Props = {
 		kind: string;

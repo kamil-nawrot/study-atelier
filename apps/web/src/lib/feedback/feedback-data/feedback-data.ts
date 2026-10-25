@@ -3,7 +3,7 @@ import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { feedbackErrorMessage } from '#lib/feedback/errors/errors.ts';
 import type { FeedbackDraft } from '#lib/feedback/types/feedback-draft.ts';
 
-export type FeedbackSendResult = {
+type FeedbackSendResult = {
 	error?: string;
 };
 

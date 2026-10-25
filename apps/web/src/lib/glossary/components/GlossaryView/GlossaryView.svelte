@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Icon } from '@study-atelier/ui';
 	import MentionedIn from '#lib/notes/components/MentionedIn/MentionedIn.svelte';
-	import type { Mention } from '#lib/notes/mentions-data/mentions-data.ts';
+	import type { Mention } from '#lib/notes/types/mention.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
 		glossaryCategoryIcon,

@@ -29,7 +29,7 @@ type ImageInfoResponse = {
 	};
 };
 
-export type CommonsFile = {
+type CommonsFile = {
 	thumbnailUrl: string;
 	width: number;
 	height: number;

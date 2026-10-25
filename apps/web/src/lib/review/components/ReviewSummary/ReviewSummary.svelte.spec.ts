@@ -4,7 +4,7 @@ import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { m } from '#lib/i18n/i18n.ts';
-import type { SummaryGroup } from '#lib/review/overview/overview.ts';
+import type { SummaryGroup } from '#lib/review/types/summary-group.ts';
 import ReviewSummary from './ReviewSummary.svelte';
 
 async function renderSummary(

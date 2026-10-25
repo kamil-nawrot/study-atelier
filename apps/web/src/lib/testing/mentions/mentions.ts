@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 
-export type TestMentionRow = {
+type TestMentionRow = {
 	kind: string;
 	id: string;
 	record_number: number | null;

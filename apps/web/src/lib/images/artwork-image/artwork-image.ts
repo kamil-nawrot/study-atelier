@@ -15,7 +15,7 @@ import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input
 
 export const LOUPE_MAX_LINKED_MEGAPIXELS = 40;
 
-export type ArtworkImageSource = {
+type ArtworkImageSource = {
 	src: string;
 	srcset?: string;
 	width?: number;

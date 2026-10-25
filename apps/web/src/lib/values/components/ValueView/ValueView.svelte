@@ -14,10 +14,10 @@
 	import {
 		subjectName,
 		valueKindName,
-		valuePath,
-		type ValueParent
+		valuePath
 	} from '#lib/card-index/value-pages/value-pages.ts';
-	import type { Mention } from '#lib/notes/mentions-data/mentions-data.ts';
+	import type { ValueParent } from '#lib/card-index/types/value-parent.ts';
+	import type { Mention } from '#lib/notes/types/mention.ts';
 	import type { ValueDetails } from '#lib/values/types/value-details.ts';
 	import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
 	import MentionedIn from '#lib/notes/components/MentionedIn/MentionedIn.svelte';

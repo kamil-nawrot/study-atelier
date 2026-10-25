@@ -1,6 +1,6 @@
 import { readStored, writeStored } from '#lib/shared/utils/storage/storage.ts';
 
-export type Theme = 'dark' | 'light';
+type Theme = 'dark' | 'light';
 
 export const DEFAULT_THEME: Theme = 'dark';
 export const THEME_SLOT = '<!--theme-->';

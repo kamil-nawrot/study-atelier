@@ -7,11 +7,8 @@ import {
 	ownThumbnailPath
 } from '#lib/images/bucket/bucket.ts';
 import { ownImageErrorMessage } from '#lib/images/errors/errors.ts';
-import {
-	type OwnImageUpload,
-	ownImagePath,
-	makeThumbnail
-} from '#lib/images/own-image/own-image.ts';
+import { ownImagePath, makeThumbnail } from '#lib/images/own-image/own-image.ts';
+import type { OwnImageUpload } from '#lib/images/types/own-image-upload.ts';
 
 export async function uploadOwnThumbnail(path: string, source: Blob): Promise<boolean> {
 	const thumbnail = await makeThumbnail(source);

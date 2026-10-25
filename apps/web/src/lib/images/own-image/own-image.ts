@@ -13,13 +13,10 @@ import {
 	ownImageFormats
 } from '#lib/images/bucket/bucket.ts';
 
-export type ImageSize = {
+type ImageSize = {
 	width: number;
 	height: number;
 };
-
-export type OwnImageUpload =
-	{ path: string; error?: undefined } | { path?: undefined; error: string };
 
 export function ownImageFileError(file: File): string | undefined {
 	if (!isOwnImageType(file.type)) return m.ownImageErrors.fileType(ownImageFormats());

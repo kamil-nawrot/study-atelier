@@ -1,6 +1,6 @@
 import { SIGNED_URL_SECONDS } from '#lib/images/bucket/bucket.ts';
 
-export type SignedImageUrl = {
+type SignedImageUrl = {
 	url: string;
 	signedAt: number;
 };

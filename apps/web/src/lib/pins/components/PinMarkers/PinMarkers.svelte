@@ -2,7 +2,8 @@
 	import type { Snippet } from 'svelte';
 	import { PopoverCard, PopoverState } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
-	import { fractionIn, nudged, type Fraction } from '#lib/pins/pin-layout/pin-layout.ts';
+	import { fractionIn, nudged } from '#lib/pins/pin-layout/pin-layout.ts';
+	import type { Fraction } from '#lib/pins/types/fraction.ts';
 	import type { Pin } from '#lib/pins/types/pin.ts';
 
 	type Props = {

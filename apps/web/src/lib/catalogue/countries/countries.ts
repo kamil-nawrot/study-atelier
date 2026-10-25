@@ -252,7 +252,7 @@ export const COUNTRY_CODES = [
 	'ZW'
 ] as const;
 
-export type CountryCode = (typeof COUNTRY_CODES)[number];
+type CountryCode = (typeof COUNTRY_CODES)[number];
 
 const countryNames = new Intl.DisplayNames('pl', { type: 'region' });
 const collator = new Intl.Collator('pl');

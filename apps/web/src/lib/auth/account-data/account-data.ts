@@ -4,7 +4,7 @@ import { authErrorMessage } from '#lib/auth/errors/errors.ts';
 import { authRedirectUrl } from '#lib/auth/redirects/redirects.ts';
 import { emailChangeRedirectUrl } from '#lib/auth/account/account.ts';
 
-export type SignUpResult = {
+type SignUpResult = {
 	error?: string;
 	accountExists?: boolean;
 	signedIn: boolean;
@@ -49,7 +49,7 @@ export async function updatePassword(password: string): Promise<string | undefin
 	return error ? authErrorMessage(error) : undefined;
 }
 
-export type PasswordChangeResult = {
+type PasswordChangeResult = {
 	changed: boolean;
 	currentError?: string;
 	newError?: string;
@@ -90,7 +90,7 @@ export async function changePassword(
 	return { changed: true };
 }
 
-export type EmailChangeResult = {
+type EmailChangeResult = {
 	sent: boolean;
 	error?: string;
 };

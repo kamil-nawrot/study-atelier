@@ -1,6 +1,7 @@
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
+import type { SessionInput } from '#lib/review/types/session-input.ts';
 
 export const SESSION_SIZE = 20;
 export const NEW_PER_DAY = 10;
@@ -9,16 +10,7 @@ export const SETTLED_STABILITY_DAYS = 7;
 export const RETRY_GAP_MIN = 3;
 export const RETRY_GAP_MAX = 5;
 
-export type SessionInput = {
-	artworks: WallArtwork[];
-	cards: Map<string, ReviewCard>;
-	now: Date;
-	newToday: number;
-	sessionSize?: number;
-	newPerDay?: number;
-};
-
-export type SessionCounts = {
+type SessionCounts = {
 	known: number;
 	fresh: number;
 };

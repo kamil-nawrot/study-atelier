@@ -4,14 +4,10 @@
 	import { resolve } from '$app/paths';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
-	import {
-		type AtelierKnowledge,
-		authorsOf,
-		type ReviewScope,
-		sameScope,
-		type ScopeChoice,
-		scopeKey
-	} from '#lib/review/overview/overview.ts';
+	import { authorsOf, sameScope, scopeKey } from '#lib/review/overview/overview.ts';
+	import type { AtelierKnowledge } from '#lib/review/types/atelier-knowledge.ts';
+	import type { ReviewScope } from '#lib/review/types/review-scope.ts';
+	import type { ScopeChoice } from '#lib/review/types/scope-choice.ts';
 	import { MIN_ARTWORKS } from '#lib/review/queue/queue.ts';
 	import type { ReviewForm } from '#lib/review/types/review-form.ts';
 

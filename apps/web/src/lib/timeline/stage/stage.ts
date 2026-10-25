@@ -1,6 +1,7 @@
-import { positionOf, type View } from '#lib/timeline/time/time.ts';
-
-export type Orientation = 'horizontal' | 'vertical';
+import { positionOf } from '#lib/timeline/time/time.ts';
+import type { View } from '#lib/timeline/types/view.ts';
+import type { Orientation } from '#lib/timeline/types/orientation.ts';
+import type { StageGeometry } from '#lib/timeline/types/stage-geometry.ts';
 
 export const NARROW_WIDTH = 768;
 export const ZONE_GAP = 8;
@@ -18,21 +19,7 @@ const VERTICAL_SHARE = 0.66;
 const VERTICAL_MIN = 440;
 const VERTICAL_MAX = 820;
 
-export type StageGeometry = {
-	orientation: Orientation;
-	length: number;
-	breadth: number;
-	view: View;
-	position: (time: number) => number;
-	lane: number;
-	eventsFrom: number;
-	eventsSize: number;
-	artworksFrom: number;
-	artworksSize: number;
-	artworkLane: number;
-};
-
-export type Box = {
+type Box = {
 	along: number;
 	across: number;
 	alongSize?: number;

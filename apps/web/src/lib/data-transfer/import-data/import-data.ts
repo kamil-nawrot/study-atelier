@@ -2,8 +2,8 @@ import { failureMessage } from '#lib/auth/expired-session-data/expired-session-d
 import { IMAGES_BUCKET } from '#lib/images/bucket/bucket.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import type { ExportRow } from '#lib/data-transfer/format/format.ts';
-import type { Upload } from '#lib/data-transfer/remap/remap.ts';
+import type { ExportRow } from '#lib/data-transfer/types/export-row.ts';
+import type { Upload } from '#lib/data-transfer/types/upload.ts';
 
 export const ATELIER_EMPTY_DEPENDENCY = 'atelier:empty';
 

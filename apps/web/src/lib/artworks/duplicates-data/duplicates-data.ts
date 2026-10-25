@@ -1,9 +1,7 @@
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import {
-	type TitleAndAuthors,
-	type DuplicateCandidate,
-	duplicateNumbers
-} from '#lib/artworks/duplicates/duplicates.ts';
+import { duplicateNumbers } from '#lib/artworks/duplicates/duplicates.ts';
+import type { TitleAndAuthors } from '#lib/artworks/types/title-and-authors.ts';
+import type { DuplicateCandidate } from '#lib/artworks/types/duplicate-candidate.ts';
 
 type CandidateRow = {
 	id: string;

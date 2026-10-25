@@ -1,14 +1,9 @@
 import { locale } from '#lib/i18n/i18n.ts';
 import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
-import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
+
 import { valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
-
-export type TitleAndAuthors = Pick<ArtworkInput, 'title' | 'authors'>;
-
-export type DuplicateCandidate = TitleAndAuthors & {
-	id: string;
-	number: number;
-};
+import type { TitleAndAuthors } from '#lib/artworks/types/title-and-authors.ts';
+import type { DuplicateCandidate } from '#lib/artworks/types/duplicate-candidate.ts';
 
 function authorKeys(authors: readonly string[]): string[] {
 	return [...new Set(authors.map(valueKey))].sort();
