@@ -63,6 +63,12 @@
 		list-style: none;
 	}
 
+	@media (min-width: 768px) {
+		.visits {
+			max-width: max(50%, var(--size-content-narrow));
+		}
+	}
+
 	.empty {
 		max-width: var(--size-content-default);
 		color: var(--color-fg-muted);

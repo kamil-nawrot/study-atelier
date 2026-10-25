@@ -7,7 +7,7 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import { noteExcerpt } from '#lib/chronicle/note-excerpt/note-excerpt.ts';
 	import { ticketDate, visitWeekday } from '#lib/chronicle/visit-date/visit-date.ts';
-	import TicketEdge from '#lib/chronicle/components/TicketEdge/TicketEdge.svelte';
+	import TicketStub from '#lib/chronicle/components/TicketStub/TicketStub.svelte';
 	import VisitBackdrop from '#lib/chronicle/components/VisitBackdrop/VisitBackdrop.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
@@ -79,8 +79,7 @@
 			{/if}
 		</div>
 	</div>
-	<TicketEdge />
-	<div class="stub">
+	<TicketStub>
 		{#if header}
 			<p class="count">
 				<span class="number">{count}</span>
@@ -91,14 +90,13 @@
 				<VisitBackdrop artwork={backdrop} {onimagefailed} {onnearscreen} />
 			{/if}
 		{/if}
-	</div>
+	</TicketStub>
 </article>
 
 <style>
 	.ticket {
 		position: relative;
 		display: grid;
-		background: var(--color-surface);
 	}
 
 	.main {
@@ -106,6 +104,7 @@
 		grid-template-columns: var(--spacing-12) minmax(0, 1fr);
 		gap: var(--spacing-4);
 		padding: var(--spacing-6);
+		background: var(--color-surface);
 	}
 
 	.date {
@@ -188,15 +187,6 @@
 		line-clamp: 2;
 	}
 
-	.stub {
-		position: relative;
-		display: grid;
-		align-items: center;
-		min-width: 0;
-		min-height: var(--spacing-16);
-		padding: var(--spacing-4) var(--spacing-6);
-	}
-
 	.count {
 		display: flex;
 		align-items: baseline;
@@ -210,7 +200,7 @@
 
 	@media (min-width: 768px) {
 		.ticket {
-			grid-template-columns: minmax(0, 1fr) auto minmax(0, 240px);
+			grid-template-columns: minmax(0, 1fr) minmax(0, 200px);
 		}
 
 		.main {
@@ -219,12 +209,8 @@
 			padding: var(--spacing-8);
 		}
 
-		.stub {
-			padding: var(--spacing-8);
-		}
-
 		.header {
-			grid-template-columns: minmax(0, 1fr) auto minmax(0, 200px);
+			grid-template-columns: minmax(0, 1fr) minmax(0, 180px);
 		}
 
 		.count {
