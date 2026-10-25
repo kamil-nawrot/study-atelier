@@ -74,4 +74,29 @@
 	.tooltip:has(:global([aria-expanded='true'])) .bubble {
 		visibility: hidden;
 	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.bubble {
+			opacity: 0;
+		}
+
+		.tooltip:hover .bubble {
+			opacity: 1;
+			transition:
+				opacity var(--duration-short) ease-out calc(var(--duration-short) * 2),
+				visibility var(--duration-short) linear calc(var(--duration-short) * 2);
+		}
+
+		.tooltip:has(:global(:focus-visible)) .bubble {
+			opacity: 1;
+			transition:
+				opacity var(--duration-short) ease-out,
+				visibility var(--duration-short) linear;
+		}
+
+		.tooltip:has(:global([aria-expanded='true'])) .bubble {
+			opacity: 0;
+			transition: none;
+		}
+	}
 </style>
