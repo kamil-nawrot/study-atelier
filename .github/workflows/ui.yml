@@ -16,6 +16,7 @@ on:
       - 'design/**'
       - '.github/workflows/ui.yml'
       - '.github/scripts/coverage-summary.mjs'
+      - '.github/scripts/coverage-ratchet.mjs'
   workflow_call:
 
 concurrency:
@@ -55,6 +56,9 @@ jobs:
       - name: Coverage summary
         if: ${{ !cancelled() && hashFiles('packages/ui/coverage/coverage-summary.json') != '' }}
         run: node .github/scripts/coverage-summary.mjs "UI library" packages/ui/coverage/coverage-summary.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Coverage thresholds only go up
+        run: node .github/scripts/coverage-ratchet.mjs packages/ui/vite.config.ts packages/ui/coverage/coverage-summary.json
 
       - name: Build Storybook
         run: pnpm --filter @study-atelier/ui build

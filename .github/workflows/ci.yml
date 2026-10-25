@@ -64,6 +64,9 @@ jobs:
         if: ${{ !cancelled() && hashFiles('apps/web/coverage/coverage-summary.json') != '' }}
         run: node .github/scripts/coverage-summary.mjs "Web app" apps/web/coverage/coverage-summary.json >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Coverage thresholds only go up
+        run: node .github/scripts/coverage-ratchet.mjs apps/web/vite.config.ts apps/web/coverage/coverage-summary.json
+
       - name: Build
         run: pnpm --filter @study-atelier/web build
 
