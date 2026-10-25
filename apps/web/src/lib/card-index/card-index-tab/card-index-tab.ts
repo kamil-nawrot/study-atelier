@@ -2,7 +2,14 @@ import { readStored, writeStored } from '#lib/shared/utils/storage/storage.ts';
 
 const TAB_KEY = 'study-atelier:card-index-tab';
 
-export const CARD_INDEX_TABS = ['timeline', 'material', 'author', 'location', 'own'] as const;
+export const CARD_INDEX_TABS = [
+	'timeline',
+	'material',
+	'author',
+	'location',
+	'events',
+	'own'
+] as const;
 
 type CardIndexTab = (typeof CARD_INDEX_TABS)[number];
 

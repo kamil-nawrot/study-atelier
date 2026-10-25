@@ -5,7 +5,7 @@
 	import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 	import type { ResolvedPathname } from '$app/types';
 
-	type ListedRecord = { id: string; name: string; count: number };
+	type ListedRecord = { id: string; name: string; count?: number; note?: string };
 
 	type Props = {
 		records: ListedRecord[];
@@ -26,7 +26,7 @@
 
 {#snippet label(record: ListedRecord)}
 	<span class="name">{record.name}</span>
-	<span class="count">{record.count}</span>
+	<span class="count">{record.note ?? record.count}</span>
 {/snippet}
 
 {#if records.length === 0}
@@ -46,7 +46,10 @@
 				{#if href}
 					<a
 						class="record"
-						aria-label={m.cardIndex.openValue(record.name, m.atelier.count(record.count))}
+						aria-label={m.cardIndex.openValue(
+							record.name,
+							record.note ?? m.atelier.count(record.count ?? 0)
+						)}
 						href={href(record.id)}
 					>
 						{@render label(record)}
@@ -54,7 +57,10 @@
 				{:else}
 					<button
 						class="record"
-						aria-label={m.cardIndex.openValue(record.name, m.atelier.count(record.count))}
+						aria-label={m.cardIndex.openValue(
+							record.name,
+							record.note ?? m.atelier.count(record.count ?? 0)
+						)}
 						onclick={() => onchoose?.(record.id)}
 						type="button"
 					>
@@ -111,5 +117,6 @@
 		font-size: var(--font-size-sm);
 		font-weight: var(--font-weight-regular);
 		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
 	}
 </style>
