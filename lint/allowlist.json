@@ -1,8 +1,5 @@
 {
-	"lines": [
-		"apps/web/src/routes/(app)/atelier/new/page.svelte.spec.ts",
-		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte"
-	],
+	"lines": ["packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte"],
 	"script": ["packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte"],
 	"style": [
 		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte",
