@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Check from '@lucide/svelte/icons/check';
 	import { ArtworkImage, Icon, NoImage } from '@study-atelier/ui';
+	import { WALL_MARGIN } from '#lib/wall/masonry/masonry.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 	type Props = {
@@ -8,17 +9,21 @@
 		checked: boolean;
 		ontoggle: (artwork: WallArtwork) => void;
 		onnearscreen?: (artwork: WallArtwork) => void;
+		onimagefailed?: (artwork: WallArtwork) => void;
 	};
 
-	let { artwork, checked, ontoggle, onnearscreen }: Props = $props();
+	let { artwork, checked, ontoggle, onnearscreen, onimagefailed }: Props = $props();
 
 	function watchScreen(element: HTMLElement): (() => void) | void {
 		if (!artwork.pendingImage) return;
-		const observer = new IntersectionObserver(([entry]) => {
-			if (!entry.isIntersecting) return;
-			observer.disconnect();
-			onnearscreen?.(artwork);
-		});
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				if (!entry.isIntersecting) return;
+				observer.disconnect();
+				onnearscreen?.(artwork);
+			},
+			{ rootMargin: WALL_MARGIN }
+		);
 		observer.observe(element);
 		return () => observer.disconnect();
 	}
@@ -31,6 +36,7 @@
 			<ArtworkImage
 				alt=""
 				height={artwork.image?.height}
+				onfailed={() => onimagefailed?.(artwork)}
 				src={artwork.image?.src}
 				surface="frame"
 				unavailable={artwork.imageUnavailable}

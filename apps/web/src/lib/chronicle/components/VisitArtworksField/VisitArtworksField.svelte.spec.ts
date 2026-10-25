@@ -63,6 +63,7 @@ describe('VisitArtworksField', () => {
 		const elsewhere = page.getByRole('group', { name: m.chronicle.form.fromElsewhere });
 		await expect.element(elsewhere.getByRole('checkbox', { name: 'The Kiss' })).toBeChecked();
 		await expect.element(page.getByRole('searchbox')).toHaveValue('');
+		await expect.element(page.getByRole('searchbox')).toHaveFocus();
 	});
 
 	it('says when the search finds nothing', async () => {

@@ -100,6 +100,30 @@ describe('VisitForm', () => {
 			.not.toBeInTheDocument();
 	});
 
+	it('keeps the unticked artworks when the same place is chosen again', async () => {
+		renderForm();
+
+		await pickPlace('Orsay');
+		await userEvent.click(page.getByRole('checkbox', { name: 'Water Lilies' }));
+		await userEvent.click(page.getByRole('button', { name: m.ui.valueField.remove('Orsay') }));
+		await pickPlace('Orsay');
+
+		await expect.element(page.getByRole('checkbox', { name: 'Water Lilies' })).not.toBeChecked();
+		await expect.element(page.getByRole('checkbox', { name: 'The Dance Class' })).toBeChecked();
+	});
+
+	it('shows the saved ticks again when an edited visit comes back to its place', async () => {
+		renderForm(testVisit({ place: 'Orsay', artworkIds: [dance.id] }));
+
+		await userEvent.click(page.getByRole('button', { name: m.ui.valueField.remove('Orsay') }));
+		await pickPlace('Belvedere');
+		await userEvent.click(page.getByRole('button', { name: m.ui.valueField.remove('Belvedere') }));
+		await pickPlace('Orsay');
+
+		await expect.element(page.getByRole('checkbox', { name: 'Water Lilies' })).not.toBeChecked();
+		await expect.element(page.getByRole('checkbox', { name: 'The Dance Class' })).toBeChecked();
+	});
+
 	it('shows a saved visit as it was and keeps its artworks in the trash', async () => {
 		save.mockResolvedValue({ id: VISIT_ID });
 		renderForm(testVisit({ place: 'Orsay', artworkIds: [dance.id, 'trashed'] }));

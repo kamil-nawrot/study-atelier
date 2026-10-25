@@ -48,15 +48,18 @@ export function visitFormOf(visit: Visit, artworks: readonly WallArtwork[]): Vis
 
 export function withPlaceArtworks(
 	form: VisitFormState,
-	artworks: readonly WallArtwork[]
+	artworks: readonly WallArtwork[],
+	saved?: VisitFormState
 ): VisitFormState {
 	const extra = new Set(form.extra);
-	const atPlace = placeArtworks(artworks, placeOf(form)).map((artwork) => artwork.id);
-	const kept = form.chosen.filter((id) => extra.has(id) && !atPlace.includes(id));
+	const atPlace = new Set(placeArtworks(artworks, placeOf(form)).map((artwork) => artwork.id));
+	const savedPlace = saved && valueKey(placeOf(saved)) === valueKey(placeOf(form));
+	const ticked = savedPlace ? saved.chosen.filter((id) => atPlace.has(id)) : [...atPlace];
+	const kept = form.chosen.filter((id) => extra.has(id) && !atPlace.has(id));
 	return {
 		...form,
-		chosen: [...atPlace, ...kept],
-		extra: form.extra.filter((id) => !atPlace.includes(id))
+		chosen: [...ticked, ...kept],
+		extra: form.extra.filter((id) => !atPlace.has(id))
 	};
 }
 

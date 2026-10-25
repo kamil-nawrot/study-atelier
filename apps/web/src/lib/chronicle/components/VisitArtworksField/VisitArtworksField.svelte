@@ -17,9 +17,10 @@
 		artworks: WallArtwork[];
 		isNew: boolean;
 		onnearscreen?: (artwork: WallArtwork) => void;
+		onimagefailed?: (artwork: WallArtwork) => void;
 	};
 
-	let { form = $bindable(), artworks, isNew, onnearscreen }: Props = $props();
+	let { form = $bindable(), artworks, isNew, onnearscreen, onimagefailed }: Props = $props();
 
 	const fieldId = $props.id();
 
@@ -31,6 +32,7 @@
 	let extra = $derived(form.extra.flatMap((id) => byId.get(id) ?? []));
 	let shown = $derived(new Set([...atPlace, ...extra].map((artwork) => artwork.id)));
 	let results = $derived(searchArtworks(artworks, query, shown));
+	let chosen = $derived(new Set(form.chosen));
 
 	function toggle(artwork: WallArtwork): void {
 		form = toggled(form, artwork.id);
@@ -39,6 +41,7 @@
 	function add(artwork: WallArtwork): void {
 		form = withExtra(form, artwork.id);
 		query = '';
+		document.getElementById(`${fieldId}-search`)?.focus();
 	}
 </script>
 
@@ -47,6 +50,7 @@
 
 	<div class="search">
 		<SearchField
+			id="{fieldId}-search"
 			label={m.chronicle.form.search}
 			placeholder={m.chronicle.form.search}
 			bind:value={query}
@@ -90,7 +94,8 @@
 				{#each atPlace as artwork (artwork.id)}
 					<VisitArtworkTick
 						{artwork}
-						checked={form.chosen.includes(artwork.id)}
+						checked={chosen.has(artwork.id)}
+						{onimagefailed}
 						{onnearscreen}
 						ontoggle={toggle}
 					/>
@@ -106,7 +111,8 @@
 				{#each extra as artwork (artwork.id)}
 					<VisitArtworkTick
 						{artwork}
-						checked={form.chosen.includes(artwork.id)}
+						checked={chosen.has(artwork.id)}
+						{onimagefailed}
 						{onnearscreen}
 						ontoggle={toggle}
 					/>
