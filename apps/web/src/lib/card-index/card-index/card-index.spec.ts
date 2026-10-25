@@ -205,4 +205,8 @@ describe('canDelete', () => {
 		expect(canDelete(record('style-loose'))).toBe(true);
 		expect(canDelete(record('style-doric'))).toBe(false);
 	});
+
+	it('keeps a place that a visit still uses', () => {
+		expect(canDelete({ ...record('style-loose'), visits: 2 })).toBe(false);
+	});
 });

@@ -17,6 +17,10 @@ export function valueNote(kind: string, id: string, notes: string): TestMentionR
 	return { kind, id, record_number: null, title: null, notes };
 }
 
+export function visitNote(id: string, title: string, notes: string): TestMentionRow {
+	return { kind: 'visit', id, record_number: null, title, notes };
+}
+
 export function mockNotesMentions(rows: TestMentionRow[], error: unknown = null): void {
 	vi.mocked(supabase.rpc).mockImplementation((() => ({
 		range: vi.fn().mockResolvedValue({ data: error ? null : rows, error })

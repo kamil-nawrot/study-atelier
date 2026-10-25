@@ -377,6 +377,7 @@ export const pl = {
 				locations: 'Miejsce',
 				missing: 'Do uzupełnienia',
 				favourites: 'Ulubione',
+				seen: 'Widziane na żywo',
 				ticked: 'Zaznaczone'
 			},
 			ownField: 'Własne pole',
@@ -390,7 +391,8 @@ export const pl = {
 				materials: 'Materiał',
 				locations: 'Miejsce',
 				missing: 'Do uzupełnienia',
-				favourites: 'Ulubione'
+				favourites: 'Ulubione',
+				seen: 'Widziane na żywo'
 			},
 			tag: (field: string, value: string): string => `${field} ${value}`,
 			unknownAuthor: 'Autor nieznany',
@@ -928,7 +930,8 @@ export const pl = {
 	},
 	mentions: {
 		heading: 'Wspominasz o tym w notatkach',
-		artwork: 'Dzieło'
+		artwork: 'Dzieło',
+		visit: 'Wizyta'
 	},
 	feedback: {
 		title: 'Zgłoś uwagę',

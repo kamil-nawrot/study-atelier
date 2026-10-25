@@ -91,6 +91,37 @@ describe('loadCardIndex', () => {
 		expect(supabase.from).toHaveBeenCalledWith('author_details');
 	});
 
+	it('keeps the number of visits of a place', async () => {
+		rpc.mockImplementation(((name: string) =>
+			rpcResult(
+				name === 'value_usage'
+					? [
+							{
+								id: 'l1',
+								category_code: 'location',
+								name: 'Louvre',
+								artwork_count: 0,
+								visit_count: 2
+							},
+							{
+								id: 'l2',
+								category_code: 'location',
+								name: 'Orsay',
+								artwork_count: 1,
+								visit_count: 0
+							}
+						]
+					: []
+			)) as never);
+
+		const { index } = await loadCardIndex();
+
+		expect(index.values).toEqual([
+			{ id: 'l1', category: 'location', name: 'Louvre', count: 0, visits: 2 },
+			{ id: 'l2', category: 'location', name: 'Orsay', count: 1 }
+		]);
+	});
+
 	it('maps the usage rows to the card index', async () => {
 		rpc.mockImplementation(((name: string) => {
 			if (name === 'value_usage') {

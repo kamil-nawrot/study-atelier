@@ -139,5 +139,5 @@ export function lockedPeriodIds(data: CardIndexData, styleId: string): Map<strin
 }
 
 export function canDelete(record: CardIndexRecord): boolean {
-	return record.count === 0;
+	return record.count === 0 && !record.visits;
 }

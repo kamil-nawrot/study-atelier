@@ -26,6 +26,8 @@ export const IMPORT_TABLES = [
 	'era_details',
 	'artwork_field_entries',
 	'timeline_events',
+	'visits',
+	'visit_artworks',
 	'review_cards',
 	'review_log'
 ] as const;
