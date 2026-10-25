@@ -561,6 +561,17 @@ export const VISITS = [
 	)
 ];
 
+for (const visit of VISITS) {
+	const name = visit.category_values.name;
+	const id = valueId('location', name);
+	let usage = VALUE_USAGE.find((row) => row.id === id);
+	if (!usage) {
+		usage = { id, category_code: 'location', name, artwork_count: 0, visit_count: 0 };
+		VALUE_USAGE.push(usage);
+	}
+	usage.visit_count = (usage.visit_count ?? 0) + 1;
+}
+
 for (const row of ARTWORKS) {
 	row.visit_artworks = VISITS.filter((visit) =>
 		visit.visit_artworks.some((seen) => seen.artwork_id === row.id)
