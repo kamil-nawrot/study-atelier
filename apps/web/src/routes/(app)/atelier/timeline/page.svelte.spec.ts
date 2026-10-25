@@ -260,6 +260,9 @@ describe('timeline page', () => {
 
 		await expect.element(page.getByText(m.timeline.emptyTitle)).toBeVisible();
 		await expect.element(stage()).not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: m.atelier.filters.button }))
+			.not.toBeInTheDocument();
 	});
 
 	it('says when there are no events yet', async () => {
@@ -443,6 +446,15 @@ describe('timeline page', () => {
 			.toHaveAttribute('aria-pressed', 'true');
 		expect(localStorage.getItem(ERA_KEY)).toBe('modern');
 		navigation.state = {};
+	});
+
+	it('says above the stage on a phone that there are no events yet', async () => {
+		await page.viewport(390, 844);
+		renderTimeline([testArtwork(1, 'Mona Lisa', { yearTo: 1519 })]);
+
+		await expect.element(stage()).toHaveAttribute('aria-orientation', 'vertical');
+		await expect.element(page.getByText(m.timeline.noEvents)).toBeVisible();
+		expect(stage().element().textContent).not.toContain(m.timeline.noEvents);
 	});
 
 	it('runs time from top to bottom on a phone', async () => {

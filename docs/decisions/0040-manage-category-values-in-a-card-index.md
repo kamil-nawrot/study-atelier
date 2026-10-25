@@ -1,6 +1,6 @@
 # 0040. Manage category values in a card index view
 
-- Status: accepted
+- Status: accepted; drawing the eras of an empty card index is superseded by [0130](0130-show-empty-views-in-one-centred-pattern.md)
 - Date: 2026-10-13
 
 ## Context and problem statement

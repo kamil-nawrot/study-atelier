@@ -88,10 +88,6 @@ export function artworksIn(artworks: readonly WallArtwork[], span: TimeSpan): Wa
 	);
 }
 
-export function timelineIsEmpty(artworks: readonly WallArtwork[], eventCount: number): boolean {
-	return eventCount === 0 && artworks.every((artwork) => artwork.yearTo === null);
-}
-
 export function lanesFull(filter: TimelineFilter): boolean {
 	return filter.lanes.length >= MAX_LANES;
 }

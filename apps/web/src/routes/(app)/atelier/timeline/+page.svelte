@@ -95,6 +95,7 @@
 			<TimelineTools
 				{filter}
 				{filtering}
+				filters={!data.empty}
 				ondialog={() => (dialogOpen = true)}
 				wide={wide.current}
 				bind:panelOpen
@@ -103,7 +104,7 @@
 	{/snippet}
 
 	{#snippet panel()}
-		{#if wide.current && !data.error}
+		{#if wide.current && !data.error && !data.empty}
 			<FilterSidePanel
 				{filtering}
 				onclear={() => (filter = emptyTimelineFilter())}
@@ -148,7 +149,7 @@
 	{/if}
 </AtelierLayout>
 
-{#if !wide.current && !data.error}
+{#if !wide.current && !data.error && !data.empty}
 	<TimelineFilterDialog
 		artworks={eraArtworks}
 		{era}

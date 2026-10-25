@@ -32,8 +32,8 @@ Layout of the empty state:
 Chosen option: 3 with the centred layout, because it tells "you start here from zero" apart from "this part has nothing yet", keeps the inviting start that the atelier already had, and the centred block reads as a deliberate state on a wide screen.
 
 - **A whole empty module** (the atelier, the glossary, the chronicle, Kalendarium with no dated artworks and no events, the trash, and the review before it has enough artworks) shows the library `EmptyState`, centred in the content with generous space above and below: the module's icon from the menu, large and muted, a title "… jest jeszcze pusty/pusta", one or two sentences on what the module holds and how to begin, and the module's first action as a secondary button ("Dodaj pierwsze dzieło"). The button repeats the action of the top bar, because on a phone the top bar shows only its icon. The trash has no button.
-- **An empty part of a page** (a tab of the card index, the events lane of Kalendarium) shows the same `EmptyState` without a title: a smaller icon and one muted sentence. A tab's own action ("Dodaj wydarzenie", "Dodaj pole") stays above the list on the right.
-- **An empty structure is not drawn**: when the periods and styles tab has no period at all, the axis of eras is replaced by the empty state; when Kalendarium has no dated artwork and no event, the timeline is replaced by the module's empty state. An era without periods among eras that have them, or the events lane when there are dated artworks, keeps its short line, horizontal also on a phone.
+- **An empty part of a page** (a tab of the card index) shows the same `EmptyState` without a title: a smaller icon and one or two muted sentences. A tab's own action ("Dodaj wydarzenie", "Dodaj pole") stays above the list on the right.
+- **An empty structure is not drawn**: when no era has a period, the periods and styles tab draws no axis of eras, only the empty state or the groups of periods without an era and styles without a period; when Kalendarium has no dated artwork and no event, the timeline is replaced by the module's empty state. An era without periods among eras that have them, or the events lane when there are dated artworks, keeps its short line; on a phone that line stands above the stage instead of turned sideways, and the empty lane takes no room.
 - The "nothing matches" states of a search or of filters are a separate family and stay as they are.
 
 ### Consequences
@@ -44,5 +44,6 @@ Chosen option: 3 with the centred layout, because it tells "you start here from 
 
 ## More information
 
+- Partly supersedes [ADR-0028](0028-trash-as-a-list-with-confirmed-deletes.md) (the empty trash), [ADR-0040](0040-manage-category-values-in-a-card-index.md) (the eras of an empty card index), [ADR-0071](0071-put-the-plan-first-on-the-review-start.md) (the start with too few artworks) and [ADR-0093](0093-show-the-collection-and-historical-events-on-a-timeline.md) (the empty event band).
 - Issue ATL-344, milestone 0.12; screenshots of every empty view and the mockups of both layouts are attached there.
 - The texts were agreed with the owner and live in the message dictionary.

@@ -110,6 +110,24 @@ describe('card index page', () => {
 		await expect.element(page.getByText(m.cardIndex.emptyTimeline)).toBeVisible();
 		expect(page.getByText(m.cardIndex.periodsWithoutEra).elements()).toHaveLength(0);
 		expect(page.getByText(m.cardIndex.stylesWithoutPeriod).elements()).toHaveLength(0);
+		expect(page.getByRole('heading', { name: m.eras.early_modern.name }).elements()).toHaveLength(
+			0
+		);
+	});
+
+	it('shows only the loose styles when no era has a period', async () => {
+		renderValues({
+			values: [{ id: 'style-loose', category: 'style', name: 'Loose', count: 0 }],
+			periodEras: [],
+			stylePeriods: []
+		});
+
+		await expect.element(openValue('Loose', 0)).toBeVisible();
+		expect(page.getByText(m.cardIndex.emptyTimeline).elements()).toHaveLength(0);
+		expect(page.getByRole('heading', { name: m.eras.early_modern.name }).elements()).toHaveLength(
+			0
+		);
+		expect(page.getByText(m.cardIndex.emptyEra).elements()).toHaveLength(0);
 	});
 
 	it('lists materials, authors and places alphabetically in their tabs', async () => {

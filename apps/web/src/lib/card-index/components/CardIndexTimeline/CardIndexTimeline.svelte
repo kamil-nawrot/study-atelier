@@ -14,10 +14,9 @@
 
 	let { timeline }: Props = $props();
 
+	let hasEras = $derived(timeline.eras.some((era) => era.periods.length > 0));
 	let isEmpty = $derived(
-		timeline.eras.every((era) => era.periods.length === 0) &&
-			timeline.periodsWithoutEra.length === 0 &&
-			timeline.stylesWithoutPeriod.length === 0
+		!hasEras && timeline.periodsWithoutEra.length === 0 && timeline.stylesWithoutPeriod.length === 0
 	);
 
 	function label(entry: CardIndexEntry): string {
@@ -53,26 +52,28 @@
 {#if isEmpty}
 	<EmptyState icon={ListTree} text={m.cardIndex.emptyTimeline} />
 {:else}
-	<ol class="eras">
-		{#each timeline.eras as era (era.code)}
-			<li class="era">
-				<span class="marker" aria-hidden="true">
-					<Icon icon={eraIcon(era.code)} />
-				</span>
-				<div class="era-body">
-					<h2 class="era-name">
-						<a href={valuePath('era', era.code)}>{m.eras[era.code].name}</a>
-					</h2>
-					<span class="years">{m.eras[era.code].years}</span>
-					{#if era.periods.length > 0}
-						{@render periodList(era.periods)}
-					{:else}
-						<p class="empty">{m.cardIndex.emptyEra}</p>
-					{/if}
-				</div>
-			</li>
-		{/each}
-	</ol>
+	{#if hasEras}
+		<ol class="eras">
+			{#each timeline.eras as era (era.code)}
+				<li class="era">
+					<span class="marker" aria-hidden="true">
+						<Icon icon={eraIcon(era.code)} />
+					</span>
+					<div class="era-body">
+						<h2 class="era-name">
+							<a href={valuePath('era', era.code)}>{m.eras[era.code].name}</a>
+						</h2>
+						<span class="years">{m.eras[era.code].years}</span>
+						{#if era.periods.length > 0}
+							{@render periodList(era.periods)}
+						{:else}
+							<p class="empty">{m.cardIndex.emptyEra}</p>
+						{/if}
+					</div>
+				</li>
+			{/each}
+		</ol>
+	{/if}
 
 	{#if timeline.periodsWithoutEra.length > 0}
 		<section class="group">

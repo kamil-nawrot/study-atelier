@@ -13,7 +13,6 @@ import {
 	removeTimelineTag,
 	tagLane,
 	timelineFavouriteCount,
-	timelineIsEmpty,
 	timelineTags,
 	toggleAuthor,
 	toggleLane,
@@ -54,18 +53,6 @@ const artworks = [nightWatch, teresa, calling, venus];
 
 const baroque = { field: 'periods', value: 'Barok' } as const;
 const tenebrism = { field: 'styles', value: 'Tenebryzm' } as const;
-
-describe('timelineIsEmpty', () => {
-	it('is empty without events and without an artwork that has a year', () => {
-		expect(timelineIsEmpty([testArtwork(1, 'Bez daty', { yearTo: null })], 0)).toBe(true);
-		expect(timelineIsEmpty([], 0)).toBe(true);
-	});
-
-	it('is not empty with an event or an artwork that has a year', () => {
-		expect(timelineIsEmpty([], 1)).toBe(false);
-		expect(timelineIsEmpty([testArtwork(2, 'Wenus', { yearTo: 1485 })], 0)).toBe(false);
-	});
-});
 
 describe('timeline filter', () => {
 	it('starts empty and shows every artwork', () => {

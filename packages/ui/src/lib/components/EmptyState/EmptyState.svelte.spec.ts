@@ -30,6 +30,6 @@ describe('EmptyState', () => {
 
 		await expect.element(page.getByText('Nie ma tu jeszcze materiałów.')).toBeVisible();
 		expect(page.getByRole('heading').elements()).toHaveLength(0);
-		expect(document.querySelector('.empty svg')?.getAttribute('aria-hidden')).toBe('true');
+		expect(page.getByRole('img').elements()).toHaveLength(0);
 	});
 });

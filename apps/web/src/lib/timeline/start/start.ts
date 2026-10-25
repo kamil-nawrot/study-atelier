@@ -1,5 +1,6 @@
 import { ERA_CODES, isEraCode } from '#lib/catalogue/eras/eras.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { readStored, writeStored } from '#lib/shared/utils/storage/storage.ts';
 import { entriesSpan, eras, timeOf } from '#lib/timeline/time/time.ts';
 
@@ -51,4 +52,8 @@ export function eraOfYear(year: number): EraCode {
 	const all = eras();
 	if (time < all[0].start) return all[0].code;
 	return (all.find((era) => time >= era.start && time < era.end) ?? all[all.length - 1]).code;
+}
+
+export function timelineIsEmpty(artworks: readonly WallArtwork[], eventCount: number): boolean {
+	return eventCount === 0 && artworks.every((artwork) => artwork.yearTo === null);
 }
