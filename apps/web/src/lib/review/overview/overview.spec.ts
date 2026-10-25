@@ -4,6 +4,7 @@ import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testReviewCard } from '#lib/testing/review/review.ts';
 import {
 	atelierKnowledge,
+	describeArtwork,
 	formatWhen,
 	freeScopeOptions,
 	nextWaiting,
@@ -226,5 +227,13 @@ describe('summary groups', () => {
 			[1, [1]],
 			[3, [2, 3]]
 		]);
+	});
+});
+
+describe('artwork description', () => {
+	it('joins the title with the authors', () => {
+		const artwork = testArtwork(1, 'Mona Lisa', { authors: ['Leonardo da Vinci'] });
+
+		expect(describeArtwork(artwork)).toBe('Mona Lisa, Leonardo da Vinci');
 	});
 });

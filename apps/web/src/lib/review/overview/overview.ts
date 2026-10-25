@@ -175,6 +175,10 @@ export function authorsOf(artwork: WallArtwork): string {
 	return artwork.authors.length > 0 ? artwork.authors.join(', ') : m.ui.unknownAuthor;
 }
 
+export function describeArtwork(artwork: WallArtwork): string {
+	return `${artwork.title}, ${authorsOf(artwork)}`;
+}
+
 export function formatWhen(date: Date, now: Date): string {
 	return relativeDays.format(daysBetween(now, date), 'day');
 }
