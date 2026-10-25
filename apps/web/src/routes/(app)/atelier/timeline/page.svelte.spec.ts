@@ -41,7 +41,10 @@ function renderTimeline(
 	error?: string,
 	events: TimelineEvent[] = []
 ): void {
-	render(TimelinePage, { data: { session: testSession(), artworks, events, error }, params: {} });
+	render(TimelinePage, {
+		data: { session: testSession(), artworks, events, error, empty: false },
+		params: {}
+	});
 }
 
 async function press(locator: ReturnType<typeof page.getByRole>): Promise<void> {
@@ -247,6 +250,16 @@ describe('timeline page', () => {
 		await expect
 			.element(page.getByRole('button', { name: 'Ogród rozkoszy, ‹ 1490–1510' }))
 			.toBeInTheDocument();
+	});
+
+	it('shows an empty Kalendarium instead of the timeline when nothing has a year', async () => {
+		render(TimelinePage, {
+			data: { session: testSession(), artworks: [], events: [], error: undefined, empty: true },
+			params: {}
+		});
+
+		await expect.element(page.getByText(m.timeline.emptyTitle)).toBeVisible();
+		await expect.element(stage()).not.toBeInTheDocument();
 	});
 
 	it('says when there are no events yet', async () => {
@@ -724,7 +737,7 @@ describe('timeline page', () => {
 		const artworks = [
 			testArtwork(1, 'Straż nocna', { yearTo: 1642, date: '1642', favourite: true })
 		];
-		const data = { session: testSession(), artworks, events: [], error: undefined };
+		const data = { session: testSession(), artworks, events: [], error: undefined, empty: false };
 		const first = await render(TimelinePage, { data, params: {} });
 		await page.getByRole('button', { name: 'Stulecie', exact: true }).click();
 		for (let press = 0; press < 2; press++)

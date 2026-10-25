@@ -9,6 +9,7 @@
 	import FilterSidePanel from '#lib/wall/components/FilterSidePanel/FilterSidePanel.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import TimelineFilterDialog from '#lib/timeline/components/TimelineFilterDialog/TimelineFilterDialog.svelte';
+	import TimelineEmpty from '#lib/timeline/components/TimelineEmpty/TimelineEmpty.svelte';
 	import TimelineFilterPanel from '#lib/timeline/components/TimelineFilterPanel/TimelineFilterPanel.svelte';
 	import TimelineTools from '#lib/timeline/components/TimelineTools/TimelineTools.svelte';
 	import TimelineView from '#lib/timeline/components/TimelineView/TimelineView.svelte';
@@ -129,6 +130,8 @@
 		<Alert title={m.timeline.loadErrorTitle} tone="danger">
 			{data.error}
 		</Alert>
+	{:else if data.empty}
+		<TimelineEmpty />
 	{:else}
 		<TimelineView
 			bind:this={timelineView}

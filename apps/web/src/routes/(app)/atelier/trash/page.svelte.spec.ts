@@ -143,13 +143,13 @@ describe('trash page', () => {
 			.toBeVisible();
 	});
 
-	it('says the trash is empty and links back to the atelier', async () => {
+	it('says the trash is empty and what goes into it', async () => {
 		renderTrash([]);
 
-		await expect.element(page.getByText(m.trash.emptyTitle)).toBeVisible();
 		await expect
-			.element(page.getByRole('link', { name: m.trash.back }))
-			.toHaveAttribute('href', '/atelier');
+			.element(page.getByRole('heading', { level: 2 }))
+			.toHaveTextContent(m.trash.emptyTitle);
+		await expect.element(page.getByText(m.trash.empty)).toBeVisible();
 	});
 
 	it('shows a load error in an alert', async () => {

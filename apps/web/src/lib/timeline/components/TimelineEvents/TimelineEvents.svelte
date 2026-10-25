@@ -60,11 +60,10 @@
 	}
 </script>
 
-{#if events.length === 0}
+{#if events.length === 0 && !vertical}
 	<p
 		style={boxStyle(geometry, { along: geometry.length / 2, across: geometry.eventsFrom })}
 		class="empty caption"
-		class:vertical
 	>
 		{m.timeline.noEvents}
 	</p>
@@ -128,12 +127,6 @@
 		z-index: 1;
 		padding-inline: var(--spacing-2);
 		transform: translateX(-50%);
-	}
-
-	.empty.vertical {
-		writing-mode: vertical-rl;
-		padding: var(--spacing-2) 0;
-		transform: translateY(-50%);
 	}
 
 	.ribbon,

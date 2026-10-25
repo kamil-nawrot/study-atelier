@@ -155,6 +155,9 @@ describe('review page', () => {
 	it('asks for more artworks with an image before the first session', async () => {
 		renderReview(collection(15));
 
+		await expect
+			.element(page.getByRole('heading', { name: m.review.tooFewTitle(20) }))
+			.toBeVisible();
 		await expect.element(page.getByText(m.review.tooFew(20, 5))).toBeVisible();
 		await expect
 			.element(page.getByRole('link', { name: m.atelier.add }))

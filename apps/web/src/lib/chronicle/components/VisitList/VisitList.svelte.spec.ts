@@ -12,7 +12,13 @@ describe('VisitList', () => {
 	it('invites to log the first visit when there is none', async () => {
 		render(VisitList, { visits: [], artworks: new Map() });
 
+		await expect
+			.element(page.getByRole('heading', { level: 2 }))
+			.toHaveTextContent(m.chronicle.emptyTitle);
 		await expect.element(page.getByText(m.chronicle.empty)).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('link', { name: m.chronicle.addFirst }))
+			.toHaveAttribute('href', '/atelier/chronicle/new');
 	});
 
 	it('groups visits under their years, newest first, and counts only artworks in the collection', async () => {

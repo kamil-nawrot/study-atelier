@@ -331,7 +331,7 @@ export const pl = {
 		add: 'Dodaj dzieło',
 		emptyTitle: 'Twoje atelier jest jeszcze puste',
 		empty:
-			'Dodaj pierwsze dzieło, które poznajesz w książce albo na wykładzie. Na początek wystarczą tytuł i autor.',
+			'Dodaj pierwsze dzieło, które rozpocznie Twoją kolekcję i zacznij tworzyć swoje własne atelier.',
 		addFirst: 'Dodaj pierwsze dzieło',
 		noResultsTitle: 'Nie ma tu takiego dzieła',
 		noResults: (query: string): string =>
@@ -557,8 +557,9 @@ export const pl = {
 			`Seria: ${days} ${plural(days, { one: 'dzień', few: 'dni', many: 'dni' })} z powtórkami z rzędu`,
 		allDoneTitle: 'Nic nowego do powtórki',
 		allDone: (when: string): string => `Kolejne dzieła będą na Ciebie czekać ${when}.`,
+		tooFewTitle: (minimum: number): string => `Powtórki ruszą przy ${minimum} dziełach`,
 		tooFew: (minimum: number, missing: number): string =>
-			`Powtórki będzie można rozpocząć, gdy w Twoim atelier znajdzie się przynajmniej ${minimum} dzieł z obrazami. Obecnie brakuje jeszcze ${missing}.`,
+			`Potrzebują co najmniej ${minimum} dzieł z obrazami. Brakuje jeszcze ${missing}.`,
 		options: 'Zmień zakres lub formę',
 		scope: 'Co powtarzamy?',
 		scopes: {
@@ -997,8 +998,9 @@ export const pl = {
 		back: 'Słowniczek',
 		add: 'Dodaj pojęcie',
 		addShort: 'Dodaj',
-		empty:
-			'Nie masz jeszcze żadnego pojęcia. Dodaj pierwsze, gdy trafisz na słowo, które chcesz zapamiętać.',
+		emptyTitle: 'Słowniczek jest jeszcze pusty',
+		empty: 'Dodaj pierwsze pojęcie, gdy trafisz na słowo, które chcesz zapamiętać.',
+		addFirst: 'Dodaj pierwsze pojęcie',
 		search: 'Szukaj pojęcia',
 		noResults: (query: string): string =>
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment.`,
@@ -1121,8 +1123,9 @@ export const pl = {
 			`${visitCount(visits)} · ${workCount(seen)} na żywo`,
 		add: 'Dodaj wizytę',
 		addShort: 'Dodaj',
-		empty:
-			'Kronika jest jeszcze pusta. Niedawno w muzeum? Zapisz tę wizytę, póki szczegóły są świeże.',
+		emptyTitle: 'Kronika jest jeszcze pusta',
+		empty: 'Uwiecznij swoje ostatnie spotkanie ze sztuką i zacznij budować kronikę swoich wizyt.',
+		addFirst: 'Dodaj pierwszą wizytę',
 		loadErrorTitle: 'Nie udało się wczytać kroniki',
 		back: 'Kronika',
 		seen: (count: number): string => `${workCount(count)} na żywo`,
@@ -1193,6 +1196,10 @@ export const pl = {
 	timeline: {
 		title: 'Kalendarium',
 		lead: 'Twoje dzieła i wydarzenia w prawdziwej skali czasu, epoka po epoce.',
+		emptyTitle: 'Kalendarium jest jeszcze puste',
+		empty:
+			'Zobaczysz tutaj wszystkie swoje dzieła umieszczone na osi czasu, a także wydarzenia i okresy historyczne, które dodasz.',
+		addFirst: 'Dodaj pierwsze wydarzenie',
 		add: 'Dodaj wydarzenie',
 		addShort: 'Dodaj',
 		saved: (name: string): string => `Zapisano wydarzenie „${name}”.`,
@@ -1269,7 +1276,7 @@ export const pl = {
 			deleting: 'Usuwanie…'
 		},
 		deleted: (name: string): string => `Usunięto wydarzenie „${name}”.`,
-		noEvents: 'Nie masz jeszcze żadnych dodanych wydarzeń',
+		noEvents: 'Nie ma tu jeszcze wydarzeń.',
 		hiddenEvents: (count: number): string =>
 			`${count} ${plural(count, { one: 'wydarzenie', few: 'wydarzenia', many: 'wydarzeń' })} poza widokiem. Przybliż, żeby je zobaczyć.`,
 		now: (year: string, parts: string[]): string => [year, ...parts].join(' · '),
@@ -1420,8 +1427,9 @@ export const pl = {
 	},
 	trash: {
 		title: 'Kosz',
-		emptyTitle: 'Kosz jest pusty.',
-		back: 'Wróć do atelier',
+		emptyTitle: 'Kosz jest pusty',
+		empty:
+			'Trafiają tu dzieła, które usuniesz z atelier. Stąd możesz je przywrócić albo usunąć na zawsze.',
 		loadErrorTitle: 'Nie udało się wczytać kosza',
 		actionErrorTitle: 'Nie udało się zmienić kosza',
 		deletedOn: (date: string): string => `w koszu od ${date}`,

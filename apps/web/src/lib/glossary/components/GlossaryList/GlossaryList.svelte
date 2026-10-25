@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { Icon, SearchField, ToggleTag } from '@study-atelier/ui';
+	import BookA from '@lucide/svelte/icons/book-a';
+	import Plus from '@lucide/svelte/icons/plus';
+	import { Button, EmptyState, Icon, SearchField, ToggleTag } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
@@ -37,7 +39,12 @@
 </script>
 
 {#if entries.length === 0}
-	<p class="lead">{m.glossary.empty}</p>
+	<EmptyState icon={BookA} text={m.glossary.empty} title={m.glossary.emptyTitle}>
+		<Button href={resolve('/(app)/atelier/glossary/new')}>
+			<Icon icon={Plus} />
+			{m.glossary.addFirst}
+		</Button>
+	</EmptyState>
 {:else}
 	<div class="filter">
 		{#if entries.length >= GLOSSARY_SEARCH_MIN_ENTRIES}

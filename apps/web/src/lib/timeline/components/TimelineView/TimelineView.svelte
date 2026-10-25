@@ -247,6 +247,10 @@
 
 	<p class="visually-hidden" aria-live="polite">{spoken}</p>
 
+	{#if orientation === 'vertical' && showEvents && eraEvents.length === 0}
+		<p class="caption">{m.timeline.noEvents}</p>
+	{/if}
+
 	<div bind:clientWidth={width}>
 		<TimelineStage
 			artworkLanes={orientation === 'horizontal' ? artworkLanes.length : 0}
