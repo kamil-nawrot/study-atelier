@@ -18,6 +18,18 @@ describe('LoupeLens', () => {
 		expect(glass.querySelector('.primer')).toBeNull();
 	});
 
+	it('shows an image the browser already holds at once', async () => {
+		const first = await render(LoupeLens, { ...PROPS, image: IMAGE });
+		const loaded = first.container.querySelector('.glass') as HTMLElement;
+		await expect.poll(() => loaded.getAttribute('aria-busy')).toBe('false');
+
+		const { container } = await render(LoupeLens, { ...PROPS, image: IMAGE });
+
+		const glass = container.querySelector('.glass') as HTMLElement;
+		expect(glass.getAttribute('aria-busy')).toBe('false');
+		expect(glass.style.backgroundImage).toContain('data:image/svg+xml');
+	});
+
 	it('stays primed while its image has not loaded', async () => {
 		const { container } = await render(LoupeLens, { ...PROPS, image: MISSING });
 
