@@ -72,7 +72,7 @@ export const pl = {
 	},
 	validation: {
 		emailRequired: 'Wpisz adres e-mail.',
-		emailInvalid: 'To nie wygląda na pełny adres e-mail. Przykład: vincent@art.com.',
+		emailInvalid: 'To nie wygląda na pełny adres e-mail. Przykład: vincent@przyklad.pl.',
 		passwordRequired: 'Wpisz hasło.',
 		passwordTooShort: (min: number): string =>
 			`Twoje hasło musi mieć co najmniej ${min} ${plural(min, { one: 'znak', few: 'znaki', many: 'znaków' })}.`,
