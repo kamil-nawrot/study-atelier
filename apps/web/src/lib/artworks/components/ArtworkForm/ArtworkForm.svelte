@@ -4,7 +4,6 @@
 		Button,
 		Checkbox,
 		ChoiceTiles,
-		FieldMessage,
 		Form,
 		FormActions,
 		NotesEditor,
@@ -35,14 +34,14 @@
 	} from '#lib/card-index/category-values/category-values.ts';
 	import { DuplicateCheck } from '#lib/artworks/duplicate-check/duplicate-check.svelte.ts';
 	import { sameTitleAndAuthors } from '#lib/artworks/duplicates/duplicates.ts';
-	import { eraTiles, isEraCode } from '#lib/catalogue/eras/eras.ts';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
-	import { OWN_TEXT_MAX_LENGTH } from '#lib/card-index/own-fields/own-fields.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
-	import { suggestValues, valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
+	import { suggestValues } from '#lib/card-index/value-suggestions/value-suggestions.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
+	import ArtworkEraFields from '#lib/artworks/components/ArtworkEraFields/ArtworkEraFields.svelte';
 	import ArtworkImages from '#lib/artworks/components/ArtworkImages/ArtworkImages.svelte';
+	import ArtworkOwnFields from '#lib/artworks/components/ArtworkOwnFields/ArtworkOwnFields.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 	import type { Pin } from '#lib/pins/types/pin.ts';
 	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
@@ -59,7 +58,6 @@
 	import type { ValueLinks } from '#lib/card-index/types/value-links.ts';
 	import type { ValueSuggestion } from '#lib/card-index/types/value-suggestion.ts';
 	import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
-	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 
 	type Props = {
 		artwork?: ArtworkRecord;
@@ -107,7 +105,6 @@
 		changeOwnTitle: m.artworkForm.changeOwnImageTitle,
 		remove: m.artworkForm.removeImage
 	};
-	const eraOptions = eraTiles();
 	const describedCategories: { code: 'material' | 'location'; label: string }[] = [
 		{ code: 'material', label: m.artworkForm.material },
 		{ code: 'location', label: m.artworkForm.location }
@@ -148,9 +145,6 @@
 		duplicateCheck.answer(false);
 	});
 
-	let periodLocked = $derived(form.eraCode === null);
-	let styleLocked = $derived(form.values.period.length === 0);
-
 	function suggestions(code: CategoryCode, existing: readonly string[]): ValueSuggestion[] {
 		return suggestValues({
 			query: form.queries[code],
@@ -166,66 +160,8 @@
 		return suggestions(code, categoryValues[code]);
 	}
 
-	function periodOptions(): ValueSuggestion[] {
-		return suggestions('period', form.eraCode ? valueLinks.periodsByEra[form.eraCode] : []);
-	}
-
-	function ownOptions(field: OwnFieldDefinition): ValueSuggestion[] {
-		return suggestValues({
-			query: form.ownQueries[field.id] ?? '',
-			existing: ownValues[field.id] ?? [],
-			selected: ownList(field)
-		});
-	}
-
-	function ownText(field: OwnFieldDefinition): string {
-		const entry = form.own?.[field.id];
-		return typeof entry === 'string' ? entry : '';
-	}
-
-	function ownList(field: OwnFieldDefinition): string[] {
-		const entry = form.own?.[field.id];
-		return Array.isArray(entry) ? entry : [];
-	}
-
-	function ownFlag(field: OwnFieldDefinition): boolean {
-		return form.own?.[field.id] === true;
-	}
-
-	function setOwn(field: OwnFieldDefinition, entry: string | string[] | boolean): void {
-		if (form.own) form.own[field.id] = entry;
-	}
-
-	function styleOptions(): ValueSuggestion[] {
-		const period = form.values.period[0];
-		return suggestions('style', period ? (valueLinks.stylesByPeriod[valueKey(period)] ?? []) : []);
-	}
-
-	function clearStyles(): void {
-		form.values.style = [];
-		form.queries.style = '';
-	}
-
-	function clearPeriod(): void {
-		form.values.period = [];
-		form.queries.period = '';
-		clearStyles();
-	}
-
-	function chooseEra(code: string | null): void {
-		const next: EraCode | null = isEraCode(code) ? code : null;
-		if (form.eraCode !== null && next !== form.eraCode) clearPeriod();
-		form.eraCode = next;
-	}
-
 	function chooseType(code: string | null): void {
 		form.typeCode = isArtworkTypeCode(code) ? code : '';
-	}
-
-	function choosePeriod(values: string[]): void {
-		const previous = form.values.period[0];
-		form.values.period = values;
-		if (previous !== undefined && previous !== values[0]) clearStyles();
 	}
 
 	function setAuthorUnknown(): void {
@@ -367,34 +303,7 @@
 				value={form.typeCode || null}
 			/>
 
-			<ChoiceTiles
-				clearable
-				label={m.artworkForm.era}
-				onchange={chooseEra}
-				options={eraOptions}
-				value={form.eraCode}
-			/>
-
-			<ValueField
-				label={m.artworkForm.period}
-				locked={periodLocked}
-				maxlength={VALUE_NAME_MAX_LENGTH}
-				options={periodOptions()}
-				placeholder={periodLocked ? m.artworkForm.periodLocked : undefined}
-				single
-				bind:query={form.queries.period}
-				bind:values={() => form.values.period, choosePeriod}
-			/>
-
-			<ValueField
-				label={m.artworkForm.style}
-				locked={styleLocked}
-				maxlength={VALUE_NAME_MAX_LENGTH}
-				options={styleOptions()}
-				placeholder={styleLocked ? m.artworkForm.styleLocked : undefined}
-				bind:query={form.queries.style}
-				bind:values={form.values.style}
-			/>
+			<ArtworkEraFields {valueLinks} bind:form />
 
 			{#each describedCategories as category (category.code)}
 				<ValueField
@@ -409,41 +318,12 @@
 			{/each}
 
 			{#if form.own}
-				{#each ownFields ?? [] as field (field.id)}
-					{#if field.kind === 'text'}
-						<TextField
-							autocomplete="off"
-							hint={field.description ?? undefined}
-							label={field.name}
-							maxlength={OWN_TEXT_MAX_LENGTH}
-							bind:value={() => ownText(field), (value) => setOwn(field, value)}
-						/>
-					{:else if field.kind === 'list'}
-						<ValueField
-							hint={field.description ?? undefined}
-							label={field.name}
-							maxlength={VALUE_NAME_MAX_LENGTH}
-							options={ownOptions(field)}
-							single={!field.multiple}
-							bind:query={
-								() => form.ownQueries[field.id] ?? '',
-								(query) => (form.ownQueries[field.id] = query)
-							}
-							bind:values={() => ownList(field), (values) => setOwn(field, values)}
-						/>
-					{:else}
-						<div class="group">
-							<Checkbox
-								aria-describedby={field.description ? `${titleId}-own-${field.id}` : undefined}
-								label={field.name}
-								bind:checked={() => ownFlag(field), (checked) => setOwn(field, checked)}
-							/>
-							{#if field.description}
-								<FieldMessage id="{titleId}-own-{field.id}" hint={field.description} />
-							{/if}
-						</div>
-					{/if}
-				{/each}
+				<ArtworkOwnFields
+					fields={ownFields ?? []}
+					idPrefix={titleId}
+					values={ownValues}
+					bind:form
+				/>
 			{/if}
 
 			<NotesEditor

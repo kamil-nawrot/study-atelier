@@ -1,6 +1,5 @@
 {
 	"lines": [
-		"apps/web/src/lib/artworks/components/ArtworkForm/ArtworkForm.svelte",
 		"apps/web/src/lib/glossary/components/GlossaryForm/GlossaryForm.svelte",
 		"apps/web/src/lib/images/components/ImageField/ImageField.svelte",
 		"apps/web/src/lib/values/components/ValueForm/ValueForm.svelte",
@@ -9,7 +8,6 @@
 		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte"
 	],
 	"script": [
-		"apps/web/src/lib/artworks/components/ArtworkForm/ArtworkForm.svelte",
 		"apps/web/src/lib/glossary/components/GlossaryForm/GlossaryForm.svelte",
 		"apps/web/src/lib/images/components/ImageField/ImageField.svelte",
 		"apps/web/src/lib/values/components/ValueForm/ValueForm.svelte",
