@@ -18,6 +18,8 @@ declare
   olympia uuid;
   visit uuid;
   starter uuid;
+  first uuid;
+  second uuid;
   rejected boolean;
 begin
   select id into mona_lisa from public.save_artwork(
@@ -168,6 +170,17 @@ begin
   assert (select title from public.notes_mentions() where kind = 'visit' and id = visit::text)
       = 'Orsay · 12.10.2026',
     'notes_mentions does not give the day of a visit';
+
+  first := public.save_visit('{"visited_on": "2020-01-01", "date_precision": "year", "notes": "Kolejka"}', 'Orsay', '{}');
+  second := public.save_visit('{"visited_on": "2020-01-01", "date_precision": "year", "notes": "Kolejka"}', 'Orsay', '{}');
+  update public.visits set visited_on = '2021-01-01' where id = greatest(first, second);
+  assert (
+    select array_agg(mention.id order by mention.position)
+      from public.notes_mentions('Kolejka')
+        with ordinality as mention (kind, id, record_number, title, notes, position)
+      where mention.kind = 'visit'
+  ) = array[greatest(first, second)::text, least(first, second)::text],
+    'notes_mentions does not list visits newest first';
 end;
 $$;
 
