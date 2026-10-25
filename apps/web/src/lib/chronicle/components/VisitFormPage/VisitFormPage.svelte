@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { LoadFailure, type NoteLinks } from '@study-atelier/ui';
+	import { LoadFailure } from '@study-atelier/ui';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { arrivedFromApp, goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
@@ -7,18 +7,11 @@
 	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
 	import { visitDateName } from '#lib/chronicle/visit-date/visit-date.ts';
 	import VisitForm from '#lib/chronicle/components/VisitForm/VisitForm.svelte';
-	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-	import type { PlaceStarter } from '#lib/card-index/types/place-starter.ts';
 	import type { VisitDraft } from '#lib/chronicle/types/visit-draft.ts';
-	import type { VisitResult } from '#lib/chronicle/types/visit-result.ts';
+	import type { VisitFormData } from '#lib/chronicle/types/visit-form-data.ts';
 
 	type Props = {
-		data: VisitResult & {
-			artworks: WallArtwork[];
-			places: string[];
-			placeStarter?: PlaceStarter;
-			noteLinks?: NoteLinks;
-		};
+		data: VisitFormData;
 	};
 
 	let { data }: Props = $props();
