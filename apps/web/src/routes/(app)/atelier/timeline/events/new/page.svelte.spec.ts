@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { goto } from '$app/navigation';
-import { m } from '#lib/i18n/index.ts';
-import { autoFetch } from '#lib/profile/auto-fetch.svelte.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import { saveTimelineEvent } from '#lib/timeline/timeline-data.ts';
-import type { EventArticle } from '#lib/timeline/types.ts';
-import { searchEvents } from '#lib/timeline/wikipedia.ts';
+import { afterNavigate, goto } from '$app/navigation';
+import { m } from '#lib/i18n/i18n.ts';
+import { autoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import { saveTimelineEvent } from '#lib/timeline/timeline-data/timeline-data.ts';
+import type { EventArticle } from '#lib/timeline/types/event-article.ts';
+import { searchEvents } from '#lib/timeline/wikipedia/wikipedia.ts';
 import NewEventPage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({
@@ -19,9 +19,11 @@ vi.mock('$app/state', () => ({
 	page: { url: new URL('http://localhost/atelier/timeline/events/new'), state: {}, data: {} },
 	navigating: { to: null }
 }));
-vi.mock('#lib/timeline/timeline-data.ts', () => ({ saveTimelineEvent: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
-vi.mock('#lib/timeline/wikipedia.ts', () => ({ searchEvents: vi.fn() }));
+vi.mock('#lib/timeline/timeline-data/timeline-data.ts', () => ({ saveTimelineEvent: vi.fn() }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
+vi.mock('#lib/timeline/wikipedia/wikipedia.ts', () => ({ searchEvents: vi.fn() }));
 
 const save = vi.mocked(saveTimelineEvent);
 const search = vi.mocked(searchEvents);
@@ -55,6 +57,8 @@ function saveButton(): ReturnType<typeof page.getByRole> {
 describe('new timeline event page', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
+		vi.restoreAllMocks();
+		vi.mocked(afterNavigate).mockReset();
 		search.mockResolvedValue([]);
 		autoFetch.event = true;
 		await page.viewport(1280, 800);
@@ -84,6 +88,29 @@ describe('new timeline event page', () => {
 		await expect.element(page.getByText(m.timeline.form.nameRequired)).toBeVisible();
 		await expect.element(page.getByText(m.timeline.form.yearRequired)).toBeVisible();
 		expect(save).not.toHaveBeenCalled();
+	});
+
+	it('returns to the card index with a message when it was opened from there', async () => {
+		save.mockResolvedValue({ id: 'event-1' });
+		vi.mocked(afterNavigate).mockImplementation((callback) =>
+			callback({ from: { url: new URL('http://localhost/atelier/values') } } as never)
+		);
+		vi.spyOn(history, 'back').mockImplementation(() =>
+			dispatchEvent(new PopStateEvent('popstate'))
+		);
+		renderNew();
+
+		await userEvent.fill(page.getByLabelText(m.timeline.form.name), 'Wojny napoleońskie');
+		await userEvent.fill(page.getByRole('textbox', { name: m.timeline.form.year }), '1803');
+		await saveButton().click();
+
+		await vi.waitFor(() =>
+			expect(goto).toHaveBeenCalledWith('/atelier/values', {
+				replace: true,
+				refreshAll: true,
+				state: { valueMessage: m.timeline.saved('Wojny napoleońskie') }
+			})
+		);
 	});
 
 	it('saves a period and returns to the timeline at it', async () => {

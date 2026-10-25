@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'supabase/**'
-      - 'apps/web/src/lib/database.types.ts'
+      - 'apps/web/src/lib/shared/data/database.types.ts'
       - '.github/workflows/migrations.yml'
   workflow_call:
 
@@ -34,8 +34,8 @@ jobs:
         run: |
           supabase gen types --lang typescript --local --schema public \
             | npx --yes prettier@3.9.10 --no-config --parser typescript > "$RUNNER_TEMP/database.types.ts"
-          diff --unified apps/web/src/lib/database.types.ts "$RUNNER_TEMP/database.types.ts" \
-            || { echo "::error::apps/web/src/lib/database.types.ts is stale. Run pnpm db:types and commit the result."; exit 1; }
+          diff --unified apps/web/src/lib/shared/data/database.types.ts "$RUNNER_TEMP/database.types.ts" \
+            || { echo "::error::apps/web/src/lib/shared/data/database.types.ts is stale. Run pnpm db:types and commit the result."; exit 1; }
       - name: Check row level security and grants
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/security.sql
 

@@ -1,0 +1,5 @@
+import { createClient } from '@supabase/supabase-js';
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from '$app/env/public';
+import type { Database } from '#lib/shared/data/database.types.ts';
+
+export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);

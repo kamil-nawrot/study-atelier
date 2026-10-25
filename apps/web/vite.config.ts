@@ -18,8 +18,9 @@ export default defineConfig({
 		coverage: {
 			provider: 'v8',
 			include: ['src/**/*.{ts,svelte}'],
-			exclude: ['src/**/*.{test,spec}.ts', 'src/lib/database.types.ts'],
-			reporter: ['text-summary', 'json-summary', 'html']
+			exclude: ['src/**/*.{test,spec}.ts', 'src/lib/shared/data/database.types.ts'],
+			reporter: ['text-summary', 'json-summary', 'html'],
+			thresholds: { statements: 94, branches: 86, functions: 95, lines: 95 }
 		},
 		projects: [
 			{
@@ -41,7 +42,7 @@ export default defineConfig({
 						instances: [{ browser: 'chromium', headless: true }]
 					},
 					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
-					setupFiles: ['src/lib/testing/ui-messages.ts']
+					setupFiles: ['src/lib/testing/ui-messages/ui-messages.ts']
 				}
 			}
 		]

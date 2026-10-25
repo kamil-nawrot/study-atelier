@@ -2,12 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
-import type { CardIndexData, OwnField } from '#lib/collection/types.ts';
-import { CARD_INDEX_SEARCH_MIN_VALUES } from '#lib/collection/card-index.ts';
-import { m } from '#lib/i18n/index.ts';
-import { testCardIndex } from '#lib/testing/card-index.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import { testOwnFields } from '#lib/testing/own-fields.ts';
+import type { OwnField } from '#lib/card-index/types/own-field.ts';
+import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
+import { CARD_INDEX_SEARCH_MIN_VALUES } from '#lib/card-index/card-index/card-index.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import { testOwnFields } from '#lib/testing/own-fields/own-fields.ts';
 import ValuesPage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -18,15 +19,30 @@ const navigation = vi.hoisted(() => ({
 
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidateAll: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 function renderValues(
 	index: CardIndexData = testCardIndex(),
 	error?: string,
-	ownFields: OwnField[] = []
+	ownFields: OwnField[] = [],
+	events: { id: string; name: string; yearFrom: number | null; yearTo: number }[] = []
 ): void {
 	render(ValuesPage, {
-		data: { session: testSession(), index, error, ownFields, ownFieldsError: undefined },
+		data: {
+			session: testSession(),
+			index,
+			error,
+			ownFields,
+			ownFieldsError: undefined,
+			events: events.map((event) => ({
+				...event,
+				yearApproximate: false,
+				description: '',
+				source: null
+			}))
+		},
 		params: {}
 	});
 }
@@ -109,6 +125,42 @@ describe('card index page', () => {
 		await expect.element(openValue('Athens', 2)).toBeVisible();
 	});
 
+	it('lists the timeline events by year with their dates and links to their edit forms', async () => {
+		renderValues(
+			testCardIndex(),
+			undefined,
+			[],
+			[
+				{ id: 'event-1', name: 'Congress of Vienna', yearFrom: 1814, yearTo: 1815 },
+				{ id: 'event-2', name: 'Battle of Hastings', yearFrom: null, yearTo: 1066 }
+			]
+		);
+
+		await page.getByRole('tab', { name: m.cardIndex.tabs.events }).click();
+		const link = page.getByRole('link', {
+			name: m.cardIndex.openValue('Congress of Vienna', m.atelier.span(1814, 1815, false))
+		});
+		await expect.element(link).toHaveAttribute('href', '/atelier/timeline/events/event-1/edit');
+		await expect
+			.element(
+				page.getByRole('link', {
+					name: m.cardIndex.openValue('Battle of Hastings', m.atelier.year(1066, false))
+				})
+			)
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: m.cardIndex.eventsAdd }))
+			.toHaveAttribute('href', '/atelier/timeline/events/new');
+	});
+
+	it('says when there are no events yet and still offers adding one', async () => {
+		renderValues();
+
+		await page.getByRole('tab', { name: m.cardIndex.tabs.events }).click();
+		await expect.element(page.getByText(m.cardIndex.emptyEvents)).toBeVisible();
+		await expect.element(page.getByRole('link', { name: m.cardIndex.eventsAdd })).toBeVisible();
+	});
+
 	it('searches a list ignoring case and diacritics, and says when nothing matches', async () => {
 		renderValues(withMaterials(CARD_INDEX_SEARCH_MIN_VALUES));
 		await page.getByRole('tab', { name: m.cardIndex.tabs.material }).click();
@@ -179,7 +231,8 @@ describe('card index page', () => {
 				index: testCardIndex(),
 				error: undefined,
 				ownFields: [],
-				ownFieldsError: m.collectionErrors.network
+				ownFieldsError: m.collectionErrors.network,
+				events: []
 			},
 			params: {}
 		});
@@ -266,7 +319,8 @@ describe('card index page', () => {
 				index,
 				error: undefined,
 				ownFields: [],
-				ownFieldsError: undefined
+				ownFieldsError: undefined,
+				events: []
 			},
 			params: {}
 		});
@@ -281,7 +335,8 @@ describe('card index page', () => {
 				index,
 				error: undefined,
 				ownFields: [],
-				ownFieldsError: undefined
+				ownFieldsError: undefined,
+				events: []
 			},
 			params: {}
 		});
@@ -303,7 +358,8 @@ describe('card index page', () => {
 				index,
 				error: undefined,
 				ownFields: [],
-				ownFieldsError: undefined
+				ownFieldsError: undefined,
+				events: []
 			},
 			params: {}
 		});
@@ -321,7 +377,8 @@ describe('card index page', () => {
 				index,
 				error: undefined,
 				ownFields: [],
-				ownFieldsError: undefined
+				ownFieldsError: undefined,
+				events: []
 			},
 			params: {}
 		});
@@ -341,7 +398,8 @@ describe('card index page', () => {
 				index: testCardIndex(),
 				error: undefined,
 				ownFields: [],
-				ownFieldsError: undefined
+				ownFieldsError: undefined,
+				events: []
 			},
 			params: {}
 		});

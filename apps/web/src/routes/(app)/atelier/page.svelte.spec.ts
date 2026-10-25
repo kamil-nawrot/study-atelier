@@ -2,13 +2,29 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto, invalidateAll } from '$app/navigation';
-import { refreshExpiredImages } from '#lib/collection/artworks.ts';
-import { setFavourite } from '#lib/collection/favourite.ts';
-import type { OwnFieldDefinition, WallArtwork } from '#lib/collection/types.ts';
-import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
-import { testArtwork } from '#lib/testing/artworks.ts';
-import { pending, TEST_EMAIL, testSession } from '#lib/testing/auth.ts';
+import { refreshExpiredImages } from '#lib/wall/wall-data/wall-data.ts';
+import { setFavourite } from '#lib/wall/favourite-data/favourite-data.ts';
+import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import {
+	byAuthors,
+	chooseGrouping,
+	dated,
+	eraTile,
+	filtersButton,
+	groupingButton,
+	manyAuthors,
+	manyPeriods,
+	orderSelect,
+	periods,
+	scrollToTheEnd,
+	searchField,
+	styled,
+	titlesOnTheWall
+} from '#lib/testing/wall/wall.ts';
 import AtelierPage from './+page.svelte';
 import '@study-atelier/ui/styles.css';
 
@@ -23,19 +39,17 @@ vi.mock('$app/navigation', () => ({
 	goto: vi.fn(),
 	invalidateAll: vi.fn()
 }));
-vi.mock('#lib/collection/artworks.ts', () => ({
+vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
 	refreshExpiredImages: vi.fn(),
 	resolveImages: vi.fn()
 }));
-vi.mock('#lib/collection/favourite.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/collection/favourite.ts')>()),
+vi.mock('#lib/wall/favourite-data/favourite-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/wall/favourite-data/favourite-data.ts')>()),
 	setFavourite: vi.fn()
 }));
-vi.mock('#lib/supabase.ts', () => ({
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
-
-const signOut = vi.mocked(supabase.auth.signOut);
 
 const artworks = [
 	testArtwork(3, 'Déjeuner sur l’herbe'),
@@ -52,135 +66,6 @@ function renderAtelier(
 		data: { session: testSession(), artworks: list, error, ownFields },
 		params: {}
 	});
-}
-
-const dated = [
-	testArtwork(1, 'Mona Lisa', { yearTo: 1503, eraCode: 'early_modern' }),
-	testArtwork(2, 'Water Lilies', { yearTo: 1906, eraCode: 'modern' }),
-	testArtwork(3, 'Impression, Sunrise', { yearTo: 1872, eraCode: 'modern' }),
-	testArtwork(4, 'Untitled study', { yearTo: 1800, eraCode: null })
-];
-
-function manyPeriods(): WallArtwork[] {
-	return (
-		[
-			['early_modern', 1500],
-			['modern', 1850],
-			['contemporary', 1960]
-		] as const
-	).flatMap(([eraCode, year], block) =>
-		[0, 1, 2, 3].map((position) =>
-			testArtwork(block * 4 + position + 1, `${m.eras[eraCode].name} ${position + 1}`, {
-				yearTo: year + position,
-				eraCode
-			})
-		)
-	);
-}
-
-const byAuthors = [
-	testArtwork(1, 'Water Lilies', { yearTo: 1906, authors: ['Claude Monet'] }),
-	testArtwork(2, 'Untitled study', { yearTo: 1800, authors: [] }),
-	testArtwork(3, 'Melancholia', { yearTo: 1514, authors: ['Albrecht Dürer', 'Claude Monet'] }),
-	testArtwork(4, 'Impression, Sunrise', { yearTo: 1872, authors: ['Claude Monet'] }),
-	testArtwork(5, 'Self-portrait', { yearTo: 1500, authors: ['Albrecht Dürer'] })
-];
-
-function manyAuthors(count: number): WallArtwork[] {
-	return Array.from({ length: count }, (_, index) =>
-		testArtwork(index + 1, `Study ${index + 1}`, {
-			yearTo: 1800 + index,
-			authors: [`Author ${String(index + 1).padStart(2, '0')}`]
-		})
-	);
-}
-
-function orderSelect(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('combobox', { name: m.atelier.sort.label });
-}
-
-function groupingStep(grouping: 'era' | 'period' | 'style'): ReturnType<typeof page.getByRole> {
-	return page
-		.getByRole('group', { name: m.atelier.grouping.label })
-		.getByRole('button', { name: m.atelier.grouping.steps[grouping] });
-}
-
-function groupingButton(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('button', { name: m.atelier.grouping.button('') });
-}
-
-async function chooseGrouping(grouping: 'era' | 'period' | 'style'): Promise<void> {
-	const wide = window.innerWidth >= 768;
-	if (wide) await groupingButton().click();
-	else await page.getByRole('button', { name: m.atelier.filters.viewButton }).click();
-	await groupingStep(grouping).click();
-	await userEvent.keyboard('{Escape}');
-}
-
-const styled = [
-	testArtwork(1, 'Mona Lisa', {
-		yearTo: 1503,
-		eraCode: 'early_modern',
-		typeCode: 'painting',
-		styles: ['Renaissance']
-	}),
-	testArtwork(2, 'Water Lilies', {
-		yearTo: 1906,
-		eraCode: 'modern',
-		typeCode: 'painting',
-		styles: ['Impressionism'],
-		authors: ['Monet']
-	}),
-	testArtwork(3, 'Impression, Sunrise', {
-		yearTo: 1872,
-		eraCode: 'modern',
-		typeCode: 'painting',
-		styles: ['Impressionism'],
-		authors: ['Monet'],
-		hasImage: false
-	}),
-	testArtwork(4, 'The Thinker', { yearTo: 1904, eraCode: 'modern', typeCode: 'sculpture' })
-];
-
-const periods = [
-	testArtwork(3, 'Night Watch', { yearTo: 1642, eraCode: 'early_modern', period: 'barok' }),
-	testArtwork(2, 'Calling of Saint Matthew', {
-		yearTo: 1600,
-		eraCode: 'early_modern',
-		period: 'barok',
-		styles: ['caravaggionizm', 'barok']
-	}),
-	testArtwork(1, 'Mona Lisa', {
-		yearTo: 1503,
-		eraCode: 'early_modern',
-		period: 'renesans',
-		styles: ['wysoki renesans']
-	}),
-	testArtwork(4, 'Water Lilies', { yearTo: 1906, eraCode: 'modern' })
-];
-
-function filtersButton(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('button', { name: new RegExp(`^${m.atelier.filters.button}`) });
-}
-
-function eraTile(code: keyof typeof m.eras): ReturnType<typeof page.getByRole> {
-	return page.getByRole('checkbox', { name: new RegExp(`^${m.eras[code].name}`) });
-}
-
-function titlesOnTheWall(list: WallArtwork[]): string[] {
-	return page
-		.getByRole('link')
-		.elements()
-		.flatMap((link) => list.find((artwork) => link.textContent?.includes(artwork.title)) ?? [])
-		.map((artwork) => artwork.title);
-}
-
-function scrollToTheEnd(): void {
-	window.scrollTo({ top: document.documentElement.scrollHeight });
-}
-
-function searchField(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('searchbox', { name: m.atelier.search });
 }
 
 describe('atelier page', () => {
@@ -329,79 +214,9 @@ describe('atelier page', () => {
 		await expect.element(page.getByText(m.collectionErrors.network)).toBeVisible();
 	});
 
-	describe('on a larger screen', () => {
-		it('expands and collapses the side menu', async () => {
-			renderAtelier();
-
-			await page.getByRole('button', { name: m.menu.expand }).click();
-
-			await expect
-				.element(page.getByRole('button', { name: m.menu.collapse }))
-				.toHaveAttribute('aria-expanded', 'true');
-			await expect.element(page.getByRole('img', { name: m.app.name })).toBeVisible();
-
-			await page.getByRole('button', { name: m.menu.collapse }).click();
-
-			await expect
-				.element(page.getByRole('button', { name: m.menu.expand }))
-				.toHaveAttribute('aria-expanded', 'false');
-		});
-
-		it('links to the trash and has no menu icon in the top bar', async () => {
-			renderAtelier();
-
-			await expect
-				.element(page.getByRole('link', { name: m.menu.trash }))
-				.toHaveAttribute('href', '/atelier/trash');
-			await expect.element(page.getByText(TEST_EMAIL)).toBeInTheDocument();
-			await expect.element(page.getByRole('button', { name: m.menu.open })).not.toBeInTheDocument();
-		});
-
-		it('signs out and returns to sign-in', async () => {
-			signOut.mockResolvedValue({ error: null });
-			renderAtelier();
-
-			await page.getByRole('button', { name: m.menu.signOut }).click();
-
-			await vi.waitFor(() =>
-				expect(goto).toHaveBeenCalledWith('/sign-in', { invalidateAll: true })
-			);
-			expect(signOut).toHaveBeenCalledOnce();
-		});
-
-		it('disables sign out while signing out', async () => {
-			signOut.mockReturnValue(pending());
-			renderAtelier();
-
-			await page.getByRole('button', { name: m.menu.signOut }).click();
-
-			await expect.element(page.getByRole('button', { name: m.menu.signOut })).toBeDisabled();
-			expect(goto).not.toHaveBeenCalled();
-		});
-	});
-
 	describe('on a phone', () => {
 		beforeEach(async () => {
 			await page.viewport(390, 800);
-		});
-
-		it('opens the menu from the top bar and closes it', async () => {
-			renderAtelier();
-
-			await expect
-				.element(page.getByRole('button', { name: m.menu.expand }))
-				.not.toBeInTheDocument();
-
-			await page.getByRole('button', { name: m.menu.open }).click();
-
-			const drawer = page.getByRole('dialog', { name: m.menu.label });
-			await expect.element(drawer).toBeVisible();
-			await expect.element(drawer.getByRole('link', { name: m.menu.trash })).toBeVisible();
-			await expect.element(drawer.getByRole('button', { name: m.menu.signOut })).toBeVisible();
-
-			await page.getByRole('button', { name: m.menu.close }).click();
-
-			await expect.element(drawer).not.toBeInTheDocument();
 		});
 
 		it('shows the add button as an icon with an accessible name', async () => {

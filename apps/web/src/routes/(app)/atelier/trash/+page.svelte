@@ -4,14 +4,15 @@
 	import { Alert, Button, Dialog, Section, Toast } from '@study-atelier/ui';
 	import { invalidate } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
-	import DuplicateDialog from '#lib/collection/components/DuplicateDialog.svelte';
-	import { DuplicateCheck } from '#lib/collection/duplicate-check.svelte.ts';
-	import { formatDeletedOn, formatRecordNumber } from '#lib/collection/format.ts';
-	import { deletePermanently, restoreArtwork } from '#lib/collection/trash.ts';
-	import type { TrashArtwork } from '#lib/collection/types.ts';
-	import { m } from '#lib/i18n/index.ts';
-	import { REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data.ts';
+	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
+	import DuplicateDialog from '#lib/artworks/components/DuplicateDialog/DuplicateDialog.svelte';
+	import { DuplicateCheck } from '#lib/artworks/duplicate-check/duplicate-check.svelte.ts';
+	import { formatDeletedOn } from '#lib/artworks/trash/trash.ts';
+	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
+	import { deletePermanently, restoreArtwork } from '#lib/artworks/trash-data/trash-data.ts';
+	import type { TrashArtwork } from '#lib/wall/types/trash-artwork.ts';
+	import { m } from '#lib/i18n/i18n.ts';
+	import { REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data/review-data.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();

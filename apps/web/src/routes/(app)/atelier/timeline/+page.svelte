@@ -1,27 +1,28 @@
 <script lang="ts">
-	import Plus from '@lucide/svelte/icons/plus';
-	import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
 	import { onMount, untrack } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
-	import { Alert, Button, Dialog, Icon, Toast, Tooltip } from '@study-atelier/ui';
+	import { Alert, Toast } from '@study-atelier/ui';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
-	import FilterSidePanel from '#lib/collection/components/FilterSidePanel.svelte';
-	import { m } from '#lib/i18n/index.ts';
-	import TimelineFilterPanel from '#lib/timeline/components/TimelineFilterPanel.svelte';
-	import TimelineView, { type TimelinePlace } from '#lib/timeline/components/TimelineView.svelte';
+	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
+	import FilterSidePanel from '#lib/wall/components/FilterSidePanel/FilterSidePanel.svelte';
+	import { m } from '#lib/i18n/i18n.ts';
+	import TimelineFilterDialog from '#lib/timeline/components/TimelineFilterDialog/TimelineFilterDialog.svelte';
+	import TimelineFilterPanel from '#lib/timeline/components/TimelineFilterPanel/TimelineFilterPanel.svelte';
+	import TimelineTools from '#lib/timeline/components/TimelineTools/TimelineTools.svelte';
+	import TimelineView from '#lib/timeline/components/TimelineView/TimelineView.svelte';
 	import {
 		applyTimelineFilter,
 		artworksIn,
 		emptyTimelineFilter,
-		isEmptyTimelineFilter,
-		timelineTags
-	} from '#lib/timeline/filter.ts';
-	import { eraOfYear, rememberEra, rememberedEra, startEra } from '#lib/timeline/start.ts';
-	import { entriesSpan, eraOf, spanOfYears } from '#lib/timeline/time.ts';
-	import type { TimelineEvent, TimelineFilter } from '#lib/timeline/types.ts';
+		isEmptyTimelineFilter
+	} from '#lib/timeline/filter/filter.ts';
+	import { eraOfYear, rememberEra, rememberedEra, startEra } from '#lib/timeline/start/start.ts';
+	import { entriesSpan, eraOf, spanOfYears } from '#lib/timeline/time/time.ts';
+	import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
+	import type { TimelineFilter } from '#lib/timeline/types/timeline-filter.ts';
+	import type { TimelinePlace } from '#lib/timeline/types/timeline-place.ts';
 	import type { PageProps, Snapshot } from './$types';
 
 	let { data }: PageProps = $props();
@@ -73,11 +74,6 @@
 	);
 	let matching = $derived(applyTimelineFilter(eraArtworks, filter).length);
 	let filtering = $derived(!isEmptyTimelineFilter(filter));
-	let filtersLabel = $derived(
-		filtering
-			? m.atelier.filters.buttonWithCount(timelineTags(filter).length)
-			: m.atelier.filters.button
-	);
 
 	async function removed(event: TimelineEvent): Promise<void> {
 		await invalidateAll();
@@ -95,27 +91,13 @@
 <AtelierLayout email={data.session.user.email ?? ''} title={m.timeline.title}>
 	{#snippet bar()}
 		{#if !data.error}
-			<div class="actions">
-				<Tooltip align="end" placement="bottom" text={filtersLabel}>
-					{#snippet children(id)}
-						<Button
-							aria-describedby={id}
-							aria-expanded={wide.current ? panelOpen : undefined}
-							aria-haspopup={wide.current ? undefined : 'dialog'}
-							aria-label={filtersLabel}
-							onclick={() => (wide.current ? (panelOpen = !panelOpen) : (dialogOpen = true))}
-							variant={filtering ? 'primary' : 'secondary'}
-						>
-							<Icon icon={SlidersHorizontal} />
-						</Button>
-					{/snippet}
-				</Tooltip>
-				<Button href={resolve('/(app)/atelier/timeline/events/new')} variant="primary">
-					<Icon icon={Plus} size="sm" />
-					<span class="long">{m.timeline.add}</span>
-					<span class="short">{m.timeline.addShort}</span>
-				</Button>
-			</div>
+			<TimelineTools
+				{filter}
+				{filtering}
+				ondialog={() => (dialogOpen = true)}
+				wide={wide.current}
+				bind:panelOpen
+			/>
 		{/if}
 	{/snippet}
 
@@ -164,54 +146,23 @@
 </AtelierLayout>
 
 {#if !wide.current && !data.error}
-	<Dialog title={m.atelier.filters.title} bind:open={dialogOpen}>
-		<TimelineFilterPanel
-			artworks={eraArtworks}
-			{era}
-			bind:filter
-			bind:readingArtworks
-			bind:showEvents
-		/>
-		{#snippet footer()}
-			<Button disabled={!filtering} onclick={() => (filter = emptyTimelineFilter())}>
-				{m.atelier.filters.clear}
-			</Button>
-			<Button onclick={() => (dialogOpen = false)} variant="primary">
-				{m.atelier.filters.showResults(matching)}
-			</Button>
-		{/snippet}
-	</Dialog>
+	<TimelineFilterDialog
+		artworks={eraArtworks}
+		{era}
+		{filtering}
+		{matching}
+		bind:open={dialogOpen}
+		bind:filter
+		bind:readingArtworks
+		bind:showEvents
+	/>
 {/if}
 
 <Toast bind:this={toast} />
 
 <style>
-	.actions {
-		display: flex;
-		gap: inherit;
-		margin-inline-start: auto;
-	}
-
 	header {
 		display: grid;
 		gap: var(--spacing-2);
-	}
-
-	.short {
-		display: inline;
-	}
-
-	.long {
-		display: none;
-	}
-
-	@media (min-width: 768px) {
-		.short {
-			display: none;
-		}
-
-		.long {
-			display: inline;
-		}
 	}
 </style>

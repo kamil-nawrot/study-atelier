@@ -2,11 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
-import { m } from '#lib/i18n/index.ts';
-import { GLOSSARY_SEARCH_MIN_ENTRIES } from '#lib/glossary/glossary.ts';
-import type { GlossaryEntry } from '#lib/glossary/types.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import { testEntry, testGlossary } from '#lib/testing/glossary.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { GLOSSARY_SEARCH_MIN_ENTRIES } from '#lib/glossary/glossary/glossary.ts';
+import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import { testEntry, testGlossary } from '#lib/testing/glossary/glossary.ts';
 import GlossaryPage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -17,7 +17,9 @@ const navigation = vi.hoisted(() => ({
 
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 function renderGlossary(entries: GlossaryEntry[] = testGlossary(), error?: string): void {
 	render(GlossaryPage, { data: { session: testSession(), entries, error }, params: {} });

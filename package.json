@@ -1,6 +1,6 @@
 {
 	"name": "study-atelier",
-	"version": "0.10.1",
+	"version": "0.11.0",
 	"private": true,
 	"type": "module",
 	"packageManager": "pnpm@10.28.0",
@@ -13,8 +13,8 @@
 		"tokens": "pnpm --filter @study-atelier/ui tokens",
 		"build": "pnpm -r build",
 		"check": "pnpm -r check",
-		"lint": "prettier --check \"**/*.md\" && pnpm -r lint",
-		"format": "prettier --write \"**/*.md\" && pnpm -r format",
+		"lint": "prettier --check \"**/*.md\" \"lint/**\" && pnpm -r lint",
+		"format": "prettier --write \"**/*.md\" \"lint/**\" && pnpm -r format",
 		"test": "pnpm -r test",
 		"screenshot": "pnpm --filter @study-atelier/web screenshot",
 		"db:start": "supabase start",
@@ -22,7 +22,7 @@
 		"db:reset": "supabase db reset",
 		"db:status": "supabase status",
 		"db:env": "supabase status -o env",
-		"db:types": "supabase gen types --lang typescript --local --schema public | prettier --no-config --parser typescript > apps/web/src/lib/database.types.ts"
+		"db:types": "supabase gen types --lang typescript --local --schema public | prettier --no-config --parser typescript > apps/web/src/lib/shared/data/database.types.ts"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",

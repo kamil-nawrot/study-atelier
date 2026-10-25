@@ -1,5 +1,5 @@
-import { loadAtelier } from '#lib/collection/artworks.ts';
-import { loadOwnFieldDefinitions } from '#lib/collection/own-fields.ts';
+import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
+import { loadOwnFieldDefinitions } from '#lib/card-index/own-fields-data/own-fields-data.ts';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async () => {

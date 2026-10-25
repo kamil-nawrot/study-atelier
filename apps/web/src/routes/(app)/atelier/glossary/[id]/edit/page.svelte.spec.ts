@@ -2,14 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
-import { m } from '#lib/i18n/index.ts';
-import { saveGlossaryEntry } from '#lib/glossary/glossary-data.ts';
-import { searchArticles } from '#lib/glossary/wikipedia.ts';
-import { fetchForms } from '#lib/glossary/wiktionary.ts';
-import type { GlossaryEntry } from '#lib/glossary/types.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import { testCardIndex } from '#lib/testing/card-index.ts';
-import { testArticle, testEntry, testGlossary } from '#lib/testing/glossary.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { saveGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { searchArticles } from '#lib/glossary/wikipedia/wikipedia.ts';
+import { fetchForms } from '#lib/glossary/wiktionary/wiktionary.ts';
+import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
+import { testArticle, testEntry, testGlossary } from '#lib/testing/glossary/glossary.ts';
 import EditGlossaryPage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({
@@ -17,16 +17,18 @@ vi.mock('$app/navigation', () => ({
 	beforeNavigate: vi.fn(),
 	goto: vi.fn()
 }));
-vi.mock('#lib/glossary/glossary-data.ts', () => ({ saveGlossaryEntry: vi.fn() }));
-vi.mock('#lib/glossary/wikipedia.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/glossary/wikipedia.ts')>()),
+vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({ saveGlossaryEntry: vi.fn() }));
+vi.mock('#lib/glossary/wikipedia/wikipedia.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/glossary/wikipedia/wikipedia.ts')>()),
 	searchArticles: vi.fn()
 }));
-vi.mock('#lib/glossary/wiktionary.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/glossary/wiktionary.ts')>()),
+vi.mock('#lib/glossary/wiktionary/wiktionary.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/glossary/wiktionary/wiktionary.ts')>()),
 	fetchForms: vi.fn()
 }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const entries = testGlossary();
 const tympanum = entries[0];

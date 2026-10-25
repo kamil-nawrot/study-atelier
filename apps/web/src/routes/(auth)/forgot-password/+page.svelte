@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { Alert, Button, Form, TextField } from '@study-atelier/ui';
-	import { requestPasswordReset } from '#lib/auth/account.ts';
-	import AuthLayout from '#lib/auth/components/AuthLayout.svelte';
-	import { validateEmail } from '#lib/auth/validation.ts';
-	import { m } from '#lib/i18n/index.ts';
+	import { requestPasswordReset } from '#lib/auth/account-data/account-data.ts';
+	import AuthLayout from '#lib/auth/components/AuthLayout/AuthLayout.svelte';
+	import { validateEmail } from '#lib/auth/validation/validation.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 
 	let email = $state('');
 	let emailError = $state<string>();

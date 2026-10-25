@@ -2,6 +2,23 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.11.0] - 2026-10-25
+
+The code of the app is reorganised into feature modules with enforced limits, and the card index lists the timeline events.
+
+### Added
+
+- The "Wydarzenia" tab in Kartoteka lists the learner's timeline events ordered by year; an event opens in the existing event form, "Dodaj wydarzenie" adds one, and the form returns to Kartoteka with a confirmation.
+
+### Changed
+
+- `apps/web/src/lib` is organised in feature modules over `shared` and `catalogue` (ADR-0126), and the value page lives in a values module (ADR-0127). Only `*-data.ts` files call Supabase.
+- `packages/ui` has a folder per component, and the oversized components (the notes editor, the primer, the artwork view, the forms, the wall filter, the quiz and the timeline) are split along what the learner sees.
+- Forms share one save flow: a `FormState` and an `error` in the library `Form`.
+- Lint and CI gate the size limits, module boundaries, UI texts taken from the dictionary, the tone of texts, component tests and coverage thresholds that only go up.
+
+No migrations.
+
 ## [0.10.1] - 2026-10-24
 
 Fixes of the settings view, of the overlay scrollbar and of returning to a list.
@@ -486,3 +503,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.9.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.9.1
 [0.10.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.10.0
 [0.10.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.10.1
+[0.11.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.11.0

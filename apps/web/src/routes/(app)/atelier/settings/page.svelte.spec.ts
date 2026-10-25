@@ -2,11 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto, invalidate } from '$app/navigation';
-import { m } from '#lib/i18n/index.ts';
-import { defaultPreferences } from '#lib/profile/preferences.ts';
-import { PREFERENCES_DEPENDENCY, savePreferences } from '#lib/profile/preferences-data.ts';
-import { PROFILE_DEPENDENCY, saveProfile } from '#lib/profile/profile-data.ts';
-import { testSession } from '#lib/testing/auth.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
+import {
+	PREFERENCES_DEPENDENCY,
+	savePreferences
+} from '#lib/profile/preferences-data/preferences-data.ts';
+import { PROFILE_DEPENDENCY, saveProfile } from '#lib/profile/profile-data/profile-data.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
 import SettingsPage from './+page.svelte';
 import '@study-atelier/ui/styles.css';
 
@@ -23,19 +26,21 @@ vi.mock('$app/navigation', () => ({
 	invalidate: vi.fn(),
 	invalidateAll: vi.fn()
 }));
-vi.mock('#lib/profile/preferences-data.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/profile/preferences-data.ts')>()),
+vi.mock('#lib/profile/preferences-data/preferences-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/profile/preferences-data/preferences-data.ts')>()),
 	savePreferences: vi.fn()
 }));
-vi.mock('#lib/profile/profile-data.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/profile/profile-data.ts')>()),
+vi.mock('#lib/profile/profile-data/profile-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/profile/profile-data/profile-data.ts')>()),
 	saveProfile: vi.fn()
 }));
-vi.mock('#lib/profile/avatar.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/profile/avatar.ts')>()),
+vi.mock('#lib/profile/avatar/avatar.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/profile/avatar/avatar.ts')>()),
 	avatarUrl: vi.fn().mockResolvedValue(undefined)
 }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const profile = { displayName: 'Anna', avatarPath: null };
 

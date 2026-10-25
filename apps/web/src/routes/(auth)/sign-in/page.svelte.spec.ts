@@ -2,14 +2,20 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
-import { sessionEnded } from '#lib/auth/expired-session.svelte.ts';
-import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
-import { apiError, networkError, pending, TEST_EMAIL, testSession } from '#lib/testing/auth.ts';
+import { sessionEnded } from '#lib/auth/expired-session/expired-session.svelte.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
+import {
+	apiError,
+	networkError,
+	pending,
+	TEST_EMAIL,
+	testSession
+} from '#lib/testing/auth/auth.ts';
 import SignInPage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signInWithPassword: vi.fn() } }
 }));
 

@@ -2,16 +2,21 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { invalidate } from '$app/navigation';
-import type { WallArtwork } from '#lib/collection/types.ts';
-import { m } from '#lib/i18n/index.ts';
-import { resolveImages } from '#lib/collection/artworks.ts';
-import { loadReviewDetails, loadSession, recordReview } from '#lib/review/review-data.ts';
-import type { ReviewCard, SessionRow } from '#lib/review/types.ts';
-import { defaultPreferences } from '#lib/profile/preferences.ts';
-import type { Preferences } from '#lib/profile/types.ts';
-import { testArtwork } from '#lib/testing/artworks.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import { testReviewCard } from '#lib/testing/review.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { resolveImages } from '#lib/wall/wall-data/wall-data.ts';
+import {
+	loadReviewDetails,
+	loadSession,
+	recordReview
+} from '#lib/review/review-data/review-data.ts';
+import type { ReviewCard } from '#lib/review/types/review-card.ts';
+import type { SessionRow } from '#lib/review/types/session-row.ts';
+import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
+import type { Preferences } from '#lib/profile/types/preferences.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import { testReviewCard } from '#lib/testing/review/review.ts';
 import ReviewPage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -22,15 +27,19 @@ const navigation = vi.hoisted(() => ({
 
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidate: vi.fn() }));
-vi.mock('#lib/collection/artworks.ts', () => ({ resolveImages: vi.fn().mockResolvedValue([]) }));
-vi.mock('#lib/review/review-data.ts', () => ({
+vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
+	resolveImages: vi.fn().mockResolvedValue([])
+}));
+vi.mock('#lib/review/review-data/review-data.ts', () => ({
 	REVIEW_COUNTS_DEPENDENCY: 'review:counts',
 	loadReviewDetails: vi.fn().mockResolvedValue({ details: new Map() }),
 	loadSession: vi.fn(),
 	recordReview: vi.fn(),
 	withPinPreviews: async (items: unknown) => items
 }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const DAY = 24 * 60 * 60 * 1000;
 

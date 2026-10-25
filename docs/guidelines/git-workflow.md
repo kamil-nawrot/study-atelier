@@ -43,6 +43,7 @@ Commit messages follow [Conventional Commits 1.0](https://www.conventionalcommit
 - Release pull requests have no Linear issue. The release is titled `chore(repo): release <version>` and the merge back `chore(repo): merge main into develop after release <version>`.
 - The description follows [`.github/pull_request_template.md`](../../.github/pull_request_template.md): Context, Changes, Review focus, Decisions. It is short and lists any docs or ADRs updated.
 - Claude creates pull requests with the [`study-atelier-pr-create`](../../.claude/skills/study-atelier-pr-create/SKILL.md) skill.
+- The `Pull request` workflow checks the title, the branch name and every commit of a pull request against these rules (each commit needs a Conventional Commits subject and a `Refs: ATL-n` footer; release, hotfix, merge-back and `design/tokens` branches are exempt from the commit check), with [`.github/scripts/check-pull-request.mjs`](../../.github/scripts/check-pull-request.mjs).
 - Screenshots of a change (desktop and phone, from `pnpm screenshot`, see [cloud-sessions.md](cloud-sessions.md)) are attached to the Linear issue, not to the pull request; the pull request description says they are there. Screenshots taken after review changes are added with a title that says so.
 - Before asking the owner for review, Claude reviews the pull request with the [`study-atelier-pr-review`](../../.claude/skills/study-atelier-pr-review/SKILL.md) skill and fixes blocking findings.
 - The owner reviews and merges. Claude keeps the pull request green and answers review comments.

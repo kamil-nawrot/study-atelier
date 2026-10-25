@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import '@study-atelier/ui/styles.css';
 import { render } from 'vitest-browser-svelte';
-import type { WallArtwork } from '#lib/collection/types.ts';
-import { m } from '#lib/i18n/index.ts';
-import { testArtwork } from '#lib/testing/artworks.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import type { TimelineEvent } from '#lib/timeline/types.ts';
-import { deleteTimelineEvent } from '#lib/timeline/timeline-data.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
+import { deleteTimelineEvent } from '#lib/timeline/timeline-data/timeline-data.ts';
 import { invalidateAll } from '$app/navigation';
 import TimelinePage from './+page.svelte';
 
@@ -19,8 +19,10 @@ const navigation = vi.hoisted(() => ({
 
 vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidateAll: vi.fn() }));
-vi.mock('#lib/timeline/timeline-data.ts', () => ({ deleteTimelineEvent: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/timeline/timeline-data/timeline-data.ts', () => ({ deleteTimelineEvent: vi.fn() }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const ERA_KEY = 'study-atelier:timeline-era';
 
