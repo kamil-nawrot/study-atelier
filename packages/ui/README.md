@@ -69,19 +69,20 @@ Every exported component has a row here; a pull request that adds a component ad
 
 ### Messages and overlays
 
-| Component       | Purpose                                                                                                      |
-| --------------- | ------------------------------------------------------------------------------------------------------------ |
-| `Alert`         | Status message with a coloured label bar: `danger`, `warning`, `success`                                     |
-| `LoadFailure`   | What a page shows instead of its content when it is not found or failed to load, with a button back          |
-| `Toast`         | Short confirmation floating above the content; disappears after 5 s; the newest message replaces the old one |
-| `Dialog`        | Modal over the scrim with title, body and footer actions; full screen on a phone; `small` for confirmations  |
-| `Popover`       | Text-like trigger that opens a card on click, hover or focus                                                 |
-| `PopoverCard`   | The card of a `Popover` or of a glossary term in notes; `interactive` holds a link                           |
-| `PopupButton`   | Button that opens a panel under it (role `dialog`), closed by a click outside, Escape or `close()`           |
-| `Tooltip`       | One short line above, below or to the left of a control, on hover and keyboard focus                         |
-| `LoadingScreen` | Full-screen first load: the logo mark with strokes in its window                                             |
-| `ProgressLine`  | Thin stroke along the bottom of the top bar while a navigation loads                                         |
-| `Primer`        | Faint strokes laid across an image window while the image loads                                              |
+| Component       | Purpose                                                                                                                        |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `Alert`         | Status message with a coloured label bar: `danger`, `warning`, `success`                                                       |
+| `EmptyState`    | What a view or a part of a page shows while it has nothing yet: the icon, an optional title, a sentence and an action, centred |
+| `LoadFailure`   | What a page shows instead of its content when it is not found or failed to load, with a button back                            |
+| `Toast`         | Short confirmation floating above the content; disappears after 5 s; the newest message replaces the old one                   |
+| `Dialog`        | Modal over the scrim with title, body and footer actions; full screen on a phone; `small` for confirmations                    |
+| `Popover`       | Text-like trigger that opens a card on click, hover or focus                                                                   |
+| `PopoverCard`   | The card of a `Popover` or of a glossary term in notes; `interactive` holds a link                                             |
+| `PopupButton`   | Button that opens a panel under it (role `dialog`), closed by a click outside, Escape or `close()`                             |
+| `Tooltip`       | One short line above, below or to the left of a control, on hover and keyboard focus                                           |
+| `LoadingScreen` | Full-screen first load: the logo mark with strokes in its window                                                               |
+| `ProgressLine`  | Thin stroke along the bottom of the top bar while a navigation loads                                                           |
+| `Primer`        | Faint strokes laid across an image window while the image loads                                                                |
 
 ### Text and structure
 
