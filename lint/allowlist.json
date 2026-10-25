@@ -92,7 +92,6 @@
 		"apps/web/src/lib/images/components/ImageField/ImageField.svelte",
 		"apps/web/src/lib/images/components/ImageSearchDialog/ImageSearchDialog.svelte",
 		"apps/web/src/lib/images/components/ImageViewer/ImageViewer.svelte",
-		"apps/web/src/lib/images/components/LoupeLens/LoupeLens.svelte",
 		"apps/web/src/lib/images/components/OwnImageDialog/OwnImageDialog.svelte",
 		"apps/web/src/lib/images/components/PasteKeys/PasteKeys.svelte",
 		"apps/web/src/lib/pins/components/PinMark/PinMark.svelte",

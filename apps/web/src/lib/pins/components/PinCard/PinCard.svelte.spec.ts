@@ -46,4 +46,29 @@ describe('PinCard', () => {
 		expect(container.querySelector('.lens')).not.toBeNull();
 		await expect.element(page.getByText('The rose window.')).toBeVisible();
 	});
+
+	it('keeps the view at full size when the card is as narrow as its text', async () => {
+		const host = document.createElement('div');
+		host.style.width = 'max-content';
+		host.hidden = true;
+		document.body.appendChild(host);
+		const { container } = await render(PinCard, {
+			target: host,
+			props: {
+				pin: { ...PIN, viewWidth: 0.1, text: 'pearl' },
+				image: {
+					kind: 'url',
+					url: `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="30"/>')}`,
+					width: 4000,
+					height: 3000
+				},
+				shownWidth: 550
+			}
+		});
+
+		host.hidden = false;
+		const lens = container.querySelector('.lens') as HTMLElement;
+		await expect.poll(() => lens.getBoundingClientRect().width).toBe(220);
+		host.remove();
+	});
 });
