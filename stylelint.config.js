@@ -1,9 +1,13 @@
 import motionNeedsNoPreference from './stylelint/motion-needs-no-preference.js';
 import visuallyHiddenInBase from './stylelint/visually-hidden-in-base.js';
+import { asGlob, noOuterMargin, readAllowlist } from './lint/limits.js';
 
 const literalColor =
 	'/(#[0-9a-fA-F]{3,8}\\b|\\b(rgb|rgba|hsl|hsla|hwb|lab|lch|oklab|oklch|color)\\()/';
 const literalLength = '/(^|[\\s(,*/+-])-?\\d*\\.?\\d+(px|rem|em|ch|vh|vw)\\b/';
+const fontFamily = { 'font-family': ['/^(inherit|var\\(--font-family-)/'] };
+const fontFamilyMessage = 'Set "font-family" to inherit or a --font-family-* token';
+const marginExceptions = (readAllowlist().margin ?? []).map(asGlob);
 
 const config = {
 	extends: ['stylelint-config-html/svelte'],
@@ -12,8 +16,13 @@ const config = {
 		'study-atelier/motion-needs-no-preference': true,
 		'study-atelier/visually-hidden-in-base': true,
 		'declaration-property-value-allowed-list': [
-			{ 'font-family': ['/^(inherit|var\\(--font-family-)/'] },
-			{ message: 'Set "font-family" to inherit or a --font-family-* token' }
+			{ ...fontFamily, '/^margin/': [noOuterMargin] },
+			{
+				message: (property) =>
+					property === 'font-family'
+						? fontFamilyMessage
+						: 'Elements set no outer margin of their own; space them with the gap of their parent'
+			}
 		],
 		'declaration-no-important': true,
 		'declaration-block-no-duplicate-properties': true,
@@ -91,7 +100,20 @@ const config = {
 				'study-atelier/visually-hidden-in-base': null,
 				'declaration-property-value-allowed-list': null
 			}
-		}
+		},
+		...(marginExceptions.length === 0
+			? []
+			: [
+					{
+						files: marginExceptions,
+						rules: {
+							'declaration-property-value-allowed-list': [
+								fontFamily,
+								{ message: fontFamilyMessage }
+							]
+						}
+					}
+				])
 	]
 };
 

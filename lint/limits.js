@@ -17,14 +17,42 @@ export const exemptFromLines = ['**/database.types.ts', '**/i18n/pl.ts', '**/cou
 
 export const testFiles = ['**/*.spec.ts', '**/*.test.ts'];
 
+export const noOuterMargin = '/^(0|auto)( (0|auto)){0,3}$/';
+
+export const noEnums = {
+	selector: 'TSEnumDeclaration',
+	message: 'Use a union of string literals instead of an enum'
+};
+
+export const noRealTimeWait = {
+	selector:
+		"AwaitExpression > NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+	message: 'Use fake timers or vi.waitFor instead of waiting real time'
+};
+
+export const noGotoInOnclick = {
+	selector: "SvelteAttribute[key.name='onclick'] CallExpression[callee.name='goto']",
+	message: 'Navigation is a link; call goto only after an action, not straight from onclick'
+};
+
+export const noKeyboardTyping = {
+	object: 'userEvent',
+	property: 'keyboard',
+	message: 'Type with fill(); userEvent.keyboard is for the notes editor'
+};
+
 const allowlistPath = path.join(repositoryRoot, 'lint', 'allowlist.json');
 
 export function readAllowlist() {
 	return JSON.parse(readFileSync(allowlistPath, 'utf8'));
 }
 
+export function asGlob(file) {
+	return file.replace(/[[\]()]/g, '[$&]');
+}
+
 export function allowlisted(kind, rules) {
-	const files = readAllowlist()[kind] ?? [];
+	const files = (readAllowlist()[kind] ?? []).map(asGlob);
 	return files.length === 0 ? [] : [{ basePath: repositoryRoot, files, rules }];
 }
 
