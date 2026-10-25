@@ -75,7 +75,7 @@
 	{/if}
 	{#snippet footer()}
 		<Button onclick={() => (open = false)}>
-			{m.glossary.articles.cancel}
+			{m.common.cancel}
 		</Button>
 		<Button
 			disabled={status !== 'found' || !chosen}

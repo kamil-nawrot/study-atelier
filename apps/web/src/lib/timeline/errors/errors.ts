@@ -8,5 +8,5 @@ export const timelineErrorMessage = errorMessages(
 		'23502': m.timeline.errors.invalid,
 		'23514': m.timeline.errors.invalid
 	},
-	m.timeline.errors.network
+	m.common.network
 );

@@ -9,7 +9,7 @@ describe('feedbackErrorMessage', () => {
 	});
 
 	it('maps a failed fetch to the network message', () => {
-		expect(feedbackErrorMessage({ message: 'Failed to fetch' })).toBe(m.feedback.errors.network);
+		expect(feedbackErrorMessage({ message: 'Failed to fetch' })).toBe(m.common.network);
 	});
 
 	it('falls back to the unexpected error', () => {

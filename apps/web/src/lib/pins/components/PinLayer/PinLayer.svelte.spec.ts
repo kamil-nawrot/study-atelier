@@ -48,7 +48,7 @@ describe('PinLayer', () => {
 
 		await page.getByRole('button', { name: m.pins.placeHere }).click();
 		await userEvent.fill(page.getByLabelText(m.pins.text), 'Pearl');
-		await page.getByRole('button', { name: m.pins.save }).click();
+		await page.getByRole('button', { name: m.common.save }).click();
 
 		expect(createPin).toHaveBeenCalledWith('image-1', expect.objectContaining({ text: 'Pearl' }));
 		await expect.element(page.getByRole('button', { name: 'Pinezka 1' })).toBeVisible();

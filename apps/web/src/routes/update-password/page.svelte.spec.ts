@@ -85,9 +85,7 @@ describe('update-password page', () => {
 
 			await submit('new-password-123');
 
-			await expect
-				.element(page.getByRole('button', { name: m.updatePassword.submitting }))
-				.toBeDisabled();
+			await expect.element(page.getByRole('button', { name: m.common.saving })).toBeDisabled();
 		});
 
 		it('explains that the new password must differ from the old one', async () => {
@@ -112,7 +110,7 @@ describe('update-password page', () => {
 
 			await submit('new-password-123');
 
-			await expect.element(page.getByRole('alert')).toHaveTextContent(m.authErrors.network);
+			await expect.element(page.getByRole('alert')).toHaveTextContent(m.common.network);
 		});
 	});
 });

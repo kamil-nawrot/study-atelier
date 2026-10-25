@@ -87,7 +87,7 @@
 			/>
 			<div class="actions">
 				<Button disabled={emailForm.busy} type="submit">
-					{emailForm.busy ? m.settings.account.emailSubmitting : m.settings.account.emailSubmit}
+					{emailForm.busy ? m.common.sending : m.settings.account.emailSubmit}
 				</Button>
 			</div>
 		</Form>

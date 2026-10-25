@@ -56,21 +56,21 @@
 		<BackLink fallbackHref={chroniclePath} fallbackName={m.chronicle.back} />
 		{#if visit}
 			<Button
-				aria-label={m.chronicle.view.edit}
+				aria-label={m.common.edit}
 				compact
 				href={resolve('/(app)/atelier/chronicle/[id]/edit', { id: visit.id })}
 				icon={Pencil}
 			>
-				{m.chronicle.view.edit}
+				{m.common.edit}
 			</Button>
 			<Button
-				aria-label={m.chronicle.view.delete}
+				aria-label={m.common.delete}
 				compact
 				icon={Trash}
 				onclick={() => (deleteOpen = true)}
 				variant="danger"
 			>
-				{m.chronicle.view.delete}
+				{m.common.delete}
 			</Button>
 		{/if}
 	{/snippet}

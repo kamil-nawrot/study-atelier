@@ -30,6 +30,6 @@ describe('VisitView', () => {
 		render(VisitView, { visit: testVisit({ notes: '' }), artworks: [] });
 
 		await expect.element(page.getByText(m.chronicle.view.noArtworks)).toBeInTheDocument();
-		await expect.element(page.getByLabelText(m.chronicle.view.notesTitle)).not.toBeInTheDocument();
+		await expect.element(page.getByLabelText(m.common.notes)).not.toBeInTheDocument();
 	});
 });

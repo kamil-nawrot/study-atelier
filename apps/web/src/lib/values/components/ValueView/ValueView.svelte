@@ -119,7 +119,7 @@
 			{/if}
 			{#if details.notes}
 				<section class="notes" aria-labelledby="value-notes">
-					<h2 id="value-notes" class="label">{m.valuePage.notes}</h2>
+					<h2 id="value-notes" class="label">{m.common.notes}</h2>
 					<GlossaryNotes entries={glossary} links={noteLinks} value={details.notes} />
 				</section>
 			{/if}

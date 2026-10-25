@@ -122,7 +122,7 @@ describe('add artwork page', () => {
 			}
 		} as never);
 
-		await page.getByRole('link', { name: m.artworkForm.cancel }).click();
+		await page.getByRole('link', { name: m.common.cancel }).click();
 
 		expect(go).toHaveBeenCalledWith(-1);
 		go.mockRestore();
@@ -133,7 +133,7 @@ describe('add artwork page', () => {
 		renderPage();
 		const callback = vi.mocked(afterNavigate).mock.calls[0][0];
 		callback({ from: { route: { id: null }, url: null } } as never);
-		const cancel = page.getByRole('link', { name: m.artworkForm.cancel });
+		const cancel = page.getByRole('link', { name: m.common.cancel });
 		const followed = new Promise<boolean>((resolve) =>
 			window.addEventListener(
 				'click',
@@ -161,13 +161,13 @@ describe('add artwork page', () => {
 		await expect.element(titleField()).toHaveValue('');
 		await expect.element(authorsField()).toBeVisible();
 		await expect.element(page.getByRole('textbox', { name: m.artworkForm.year })).toBeVisible();
-		await expect.element(page.getByRole('textbox', { name: m.artworkForm.notes })).toBeVisible();
+		await expect.element(page.getByRole('textbox', { name: m.common.notes })).toBeVisible();
 		await expect
 			.element(page.getByRole('button', { name: m.artworkForm.findImage }))
 			.toBeDisabled();
 		await expect.element(page.getByText(m.artworkForm.findImageHint)).toBeVisible();
 		await expect
-			.element(page.getByRole('link', { name: m.artworkForm.cancel }))
+			.element(page.getByRole('link', { name: m.common.cancel }))
 			.toHaveAttribute('href', '/atelier');
 		await expect
 			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
@@ -415,7 +415,7 @@ describe('add artwork page', () => {
 	it('saves formatted notes as Markdown', async () => {
 		renderPage();
 		await fillRequired();
-		await page.getByRole('textbox', { name: m.artworkForm.notes }).click();
+		await page.getByRole('textbox', { name: m.common.notes }).click();
 		await userEvent.keyboard('{Control>}b{/Control}');
 		await userEvent.keyboard('Light');
 		await userEvent.keyboard('{Control>}b{/Control}');
@@ -508,7 +508,7 @@ describe('add artwork page', () => {
 		await page.getByRole('textbox', { name: m.artworkForm.year }).fill('1658');
 		await page.getByText(m.artworkForm.yearApproximate, { exact: true }).click();
 		await page.getByRole('radio', { name: m.artworkTypes.painting, exact: true }).click();
-		await page.getByRole('textbox', { name: m.artworkForm.notes }).fill('Seen in Amsterdam.');
+		await page.getByRole('textbox', { name: m.common.notes }).fill('Seen in Amsterdam.');
 
 		await saveButton().click();
 
@@ -543,7 +543,7 @@ describe('add artwork page', () => {
 
 		await saveButton().click();
 
-		await expect.element(page.getByRole('button', { name: m.artworkForm.saving })).toBeDisabled();
+		await expect.element(page.getByRole('button', { name: m.common.saving })).toBeDisabled();
 		await expect
 			.element(page.getByRole('button', { name: m.artworkForm.saveAndNext }))
 			.toBeDisabled();
@@ -700,7 +700,7 @@ describe('add artwork page', () => {
 		document.querySelector('form')?.requestSubmit();
 		document.querySelector('form')?.requestSubmit();
 
-		await expect.element(page.getByRole('button', { name: m.artworkForm.saving })).toBeDisabled();
+		await expect.element(page.getByRole('button', { name: m.common.saving })).toBeDisabled();
 		expect(supabase.rpc).toHaveBeenCalledTimes(1);
 	});
 

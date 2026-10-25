@@ -53,7 +53,7 @@ describe('check-email page', () => {
 
 		await page.getByRole('button', { name: m.checkEmail.resend }).click();
 
-		await expect.element(page.getByRole('button', { name: m.checkEmail.resending })).toBeDisabled();
+		await expect.element(page.getByRole('button', { name: m.common.sending })).toBeDisabled();
 	});
 
 	it('explains why the link could not be resent', async () => {

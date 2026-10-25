@@ -642,7 +642,7 @@ describe('pasting an own image on the add artwork page', () => {
 
 	it('leaves a paste in the notes editor to the editor', async () => {
 		renderPage();
-		await page.getByRole('textbox', { name: m.artworkForm.notes }).click();
+		await page.getByRole('textbox', { name: m.common.notes }).click();
 
 		const event = paste(document.activeElement as Element, { file: await imageFile(40, 30) });
 
@@ -719,7 +719,7 @@ describe('pasting an own image on the add artwork page', () => {
 		paste(document.body, { file: await imageFile(40, 30) });
 		await page
 			.getByRole('alertdialog', { name: m.artworkForm.replaceImageTitle })
-			.getByRole('button', { name: m.artworkForm.replaceImage })
+			.getByRole('button', { name: m.common.replace })
 			.click();
 
 		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).toBeVisible();

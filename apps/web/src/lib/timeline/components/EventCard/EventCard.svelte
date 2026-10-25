@@ -41,11 +41,11 @@
 		<div class="actions">
 			<Button href={resolve('/(app)/atelier/timeline/events/[id]/edit', { id: event.id })}>
 				<Icon icon={Pencil} size="sm" />
-				{m.timeline.card.edit}
+				{m.common.edit}
 			</Button>
 			<Button onclick={ondelete} variant="danger">
 				<Icon icon={Trash} size="sm" />
-				{m.timeline.card.delete}
+				{m.common.delete}
 			</Button>
 		</div>
 	</div>
@@ -54,10 +54,8 @@
 	{/if}
 	{#if event.source}
 		<p class="caption">
-			{m.timeline.card.sourcePrefix}<a
-				href={event.source.url}
-				rel="external noreferrer"
-				target="_blank">„{event.source.title}”</a
+			{m.common.wikipediaSource}<a href={event.source.url} rel="external noreferrer" target="_blank"
+				>„{event.source.title}”</a
 			>,
 			<a href={WIKIPEDIA_LICENCE_URL} rel="external noreferrer" target="_blank"
 				>{event.source.licence}</a

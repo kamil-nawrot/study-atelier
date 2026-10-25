@@ -40,7 +40,7 @@ describe('artworkErrorMessage', () => {
 
 	it('explains a failed connection', () => {
 		expect(artworkErrorMessage({ code: '', message: 'TypeError: Failed to fetch' })).toBe(
-			m.artworkErrors.network
+			m.common.network
 		);
 	});
 
@@ -68,7 +68,7 @@ describe('cardIndexErrorMessage', () => {
 
 	it('explains a failed connection', () => {
 		expect(cardIndexErrorMessage({ code: '', message: 'TypeError: Failed to fetch' })).toBe(
-			m.cardIndex.errors.network
+			m.common.network
 		);
 	});
 

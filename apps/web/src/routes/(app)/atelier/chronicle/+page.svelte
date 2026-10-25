@@ -36,7 +36,7 @@
 				<Button href={resolve('/(app)/atelier/chronicle/new')} variant="primary">
 					<Icon icon={Plus} size="sm" />
 					<span class="long">{m.chronicle.add}</span>
-					<span class="short">{m.chronicle.addShort}</span>
+					<span class="short">{m.common.add}</span>
 				</Button>
 			</div>
 		{/if}

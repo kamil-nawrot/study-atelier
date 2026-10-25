@@ -274,9 +274,7 @@ describe('glossaryErrorMessage', () => {
 	it('picks a message by code and falls back to a general one', () => {
 		expect(glossaryErrorMessage({ code: 'PGRST116' })).toBe(m.glossary.errors.notFound);
 		expect(glossaryErrorMessage({ code: '23502' })).toBe(m.glossary.errors.invalid);
-		expect(glossaryErrorMessage({ message: 'TypeError: Failed to fetch' })).toBe(
-			m.glossary.errors.network
-		);
+		expect(glossaryErrorMessage({ message: 'TypeError: Failed to fetch' })).toBe(m.common.network);
 		expect(glossaryErrorMessage({ code: '99999' })).toBe(m.common.unexpectedError);
 	});
 });

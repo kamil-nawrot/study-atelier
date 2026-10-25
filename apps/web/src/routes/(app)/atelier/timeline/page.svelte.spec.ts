@@ -322,7 +322,7 @@ describe('timeline page', () => {
 		await expect.element(card.getByRole('button', { name: 'Straż nocna' })).toBeVisible();
 		await expect.element(card.getByRole('button', { name: 'Mona Lisa' })).not.toBeInTheDocument();
 		await expect
-			.element(card.getByRole('link', { name: m.timeline.card.edit }))
+			.element(card.getByRole('link', { name: m.common.edit }))
 			.toHaveAttribute('href', '/atelier/timeline/events/thirty/edit');
 
 		await card.getByRole('button', { name: m.timeline.card.showWhole }).click();
@@ -386,14 +386,14 @@ describe('timeline page', () => {
 		await press(
 			page
 				.getByRole('region', { name: m.timeline.card.event })
-				.getByRole('button', { name: m.timeline.card.delete })
+				.getByRole('button', { name: m.common.delete })
 		);
 		const dialog = page.getByRole('alertdialog');
 		await expect
 			.element(dialog.getByText(m.timeline.deleteConfirm.title('Pokój westfalski')))
 			.toBeVisible();
 		await expect.element(dialog.getByText(m.timeline.deleteConfirm.description)).toBeVisible();
-		await press(dialog.getByRole('button', { name: m.timeline.deleteConfirm.confirm }));
+		await press(dialog.getByRole('button', { name: m.common.delete }));
 
 		await vi.waitFor(() => expect(deleteTimelineEvent).toHaveBeenCalledWith('treaty'));
 		await vi.waitFor(() => expect(invalidateAll).toHaveBeenCalled());
@@ -408,12 +408,10 @@ describe('timeline page', () => {
 		await press(
 			page
 				.getByRole('region', { name: m.timeline.card.event })
-				.getByRole('button', { name: m.timeline.card.delete })
+				.getByRole('button', { name: m.common.delete })
 		);
 		await expect.element(page.getByRole('alertdialog')).toBeVisible();
-		await press(
-			page.getByRole('alertdialog').getByRole('button', { name: m.timeline.deleteConfirm.confirm })
-		);
+		await press(page.getByRole('alertdialog').getByRole('button', { name: m.common.delete }));
 
 		await expect
 			.element(page.getByRole('alertdialog').getByText(m.common.unexpectedError))

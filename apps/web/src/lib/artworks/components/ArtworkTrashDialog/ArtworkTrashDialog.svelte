@@ -50,7 +50,7 @@
 >
 	{#snippet footer()}
 		<Button onclick={() => (open = false)}>
-			{m.trash.cancel}
+			{m.common.cancel}
 		</Button>
 		<Button disabled={moving} onclick={trash} variant="primary">
 			{moving ? m.trash.moving : m.trash.move}

@@ -13,5 +13,5 @@ export const glossaryErrorMessage = errorMessages(
 		'23502': m.glossary.errors.invalid,
 		'23514': m.glossary.errors.invalid
 	},
-	m.glossary.errors.network
+	m.common.network
 );

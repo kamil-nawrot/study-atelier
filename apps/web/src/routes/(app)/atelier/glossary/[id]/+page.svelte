@@ -90,21 +90,21 @@
 		<BackLink fallbackHref={glossaryPath} fallbackName={m.glossary.back} />
 		{#if entry}
 			<Button
-				aria-label={m.glossary.view.edit}
+				aria-label={m.common.edit}
 				compact
 				href={resolve('/(app)/atelier/glossary/[id]/edit', { id: entry.id })}
 				icon={Pencil}
 			>
-				{m.glossary.view.edit}
+				{m.common.edit}
 			</Button>
 			<Button
-				aria-label={m.glossary.view.delete}
+				aria-label={m.common.delete}
 				compact
 				icon={Trash}
 				onclick={askToDelete}
 				variant="danger"
 			>
-				{m.glossary.view.delete}
+				{m.common.delete}
 			</Button>
 		{/if}
 	{/snippet}
@@ -154,10 +154,10 @@
 	>
 		{#snippet footer()}
 			<Button onclick={() => (deleteOpen = false)}>
-				{m.glossary.deleteConfirm.back}
+				{m.common.back}
 			</Button>
 			<Button disabled={deleting} onclick={remove} variant="primary">
-				{deleting ? m.glossary.deleteConfirm.deleting : m.glossary.deleteConfirm.confirm}
+				{deleting ? m.common.deleting : m.common.delete}
 			</Button>
 		{/snippet}
 	</Dialog>

@@ -128,7 +128,7 @@
 				<TextField
 					autocomplete="off"
 					error={nameError}
-					label={m.glossary.form.name}
+					label={m.common.name}
 					maxlength={NAME_MAX_LENGTH}
 					placeholder={m.glossary.form.namePlaceholder}
 					bind:value={form.name}
@@ -175,16 +175,16 @@
 
 		<FormActions>
 			<Button href={cancelHref} onclick={oncancel}>
-				{m.glossary.form.cancel}
+				{m.common.cancel}
 			</Button>
 			<Button disabled={formState.busy} type="submit" variant="primary">
-				{formState.busy ? m.glossary.form.saving : m.glossary.form.save}
+				{formState.busy ? m.common.saving : m.common.save}
 			</Button>
 		</FormActions>
 	</Form>
 </div>
 
-<DiscardDialog {changes} description={m.glossary.form.discardDescription} />
+<DiscardDialog {changes} description={m.common.discardDescription} />
 
 {#if form.category}
 	<ArticleDialog
@@ -213,7 +213,7 @@
 			{m.glossary.replaceConfirm.keep}
 		</Button>
 		<Button onclick={() => definition.confirmReplace()} variant="primary">
-			{m.glossary.replaceConfirm.replace}
+			{m.common.replace}
 		</Button>
 	{/snippet}
 </Dialog>

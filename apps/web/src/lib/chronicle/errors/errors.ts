@@ -9,5 +9,5 @@ export const chronicleErrorMessage = errorMessages(
 		'23503': m.chronicle.errors.invalid,
 		'23514': m.chronicle.errors.invalid
 	},
-	m.chronicle.errors.network
+	m.common.network
 );

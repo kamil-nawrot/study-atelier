@@ -94,7 +94,7 @@ describe('loadVisits', () => {
 	it('says when the chronicle cannot be reached', async () => {
 		chain({ data: null, error: { message: 'TypeError: Failed to fetch' } });
 
-		expect(await loadVisits()).toEqual({ visits: [], error: m.chronicle.errors.network });
+		expect(await loadVisits()).toEqual({ visits: [], error: m.common.network });
 	});
 });
 
@@ -113,7 +113,7 @@ describe('loadArtworkVisits', () => {
 	it('says when the visits cannot be loaded', async () => {
 		chain({ data: null, error: { message: 'TypeError: Failed to fetch' } });
 
-		expect(await loadArtworkVisits(12)).toEqual({ visits: [], error: m.chronicle.errors.network });
+		expect(await loadArtworkVisits(12)).toEqual({ visits: [], error: m.common.network });
 	});
 });
 

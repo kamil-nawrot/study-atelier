@@ -50,7 +50,24 @@ export const pl = {
 	common: {
 		email: 'E-mail',
 		password: 'Hasło',
+		name: 'Nazwa',
+		notes: 'Notatki',
+		add: 'Dodaj',
+		edit: 'Edytuj',
+		save: 'Zapisz',
+		saving: 'Zapisywanie…',
+		delete: 'Usuń',
+		deleting: 'Usuwanie…',
+		replace: 'Zastąp',
+		merge: 'Połącz',
+		cancel: 'Anuluj',
+		back: 'Wróć',
+		sending: 'Wysyłanie…',
 		backToSignIn: 'Wróć do logowania',
+		wikipediaSource: 'Na podstawie: Wikipedia, ',
+		discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.',
+		network:
+			'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie z internetem i spróbuj jeszcze raz.',
 		unexpectedError: 'Coś poszło nie tak. Spróbuj jeszcze raz za chwilę.'
 	},
 	validation: {
@@ -73,9 +90,7 @@ export const pl = {
 		emailTaken: 'Ten adres jest już przypisany do innego konta.',
 		rateLimited: 'Sporo prób w krótkim czasie. Odczekaj chwilę i spróbuj jeszcze raz.',
 		emailRateLimited:
-			'Kilka wiadomości jest już w drodze. Daj im chwilę, zanim poprosisz o kolejną.',
-		network:
-			'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie z internetem i spróbuj jeszcze raz.'
+			'Kilka wiadomości jest już w drodze. Daj im chwilę, zanim poprosisz o kolejną.'
 	},
 	artwork: {
 		credit: 'Wikimedia Commons, domena publiczna',
@@ -114,14 +129,12 @@ export const pl = {
 		sentNoEmail: 'Kliknij link z wiadomości, żeby potwierdzić konto.',
 		notReceived: 'Nic nie dotarło? Zajrzyj do spamu albo poproś o nowy link.',
 		resend: 'Wyślij link ponownie',
-		resending: 'Wysyłanie…',
 		resent: 'Wysłaliśmy nowy link.'
 	},
 	forgotPassword: {
 		title: 'Nie pamiętasz hasła?',
 		lead: 'Zdarza się. Podaj e-mail konta, a wyślemy link do ustawienia nowego hasła.',
 		submit: 'Wyślij link',
-		submitting: 'Wysyłanie…',
 		sentTitle: 'Sprawdź skrzynkę',
 		sent: (email: string): string =>
 			`Jeśli konto ${email} istnieje, wysłaliśmy na nie link do ustawienia nowego hasła.`,
@@ -132,7 +145,6 @@ export const pl = {
 		lead: 'Wybierz nowe hasło do swojego konta.',
 		newPassword: 'Nowe hasło',
 		submit: 'Zapisz hasło',
-		submitting: 'Zapisywanie…',
 		errorTitle: 'Nie udało się zapisać hasła',
 		expiredTitle: 'Link wygasł',
 		expired: 'Ten link już nie działa: wygasł albo został użyty. Poproś o nowy.',
@@ -193,22 +205,16 @@ export const pl = {
 			email: 'Adres e-mail',
 			emailHint: 'Adres podany przy rejestracji. Zmienisz go w zakładce „Konto”.',
 			nameTooLong: (max: number): string => `Imię może mieć najwyżej ${max} znaków.`,
-			cancel: 'Anuluj',
 			save: 'Zapisz profil',
-			saving: 'Zapisywanie…',
 			saved: 'Zapisano profil.',
 			errorTitle: 'Nie udało się zapisać profilu',
-			failed: 'Nie udało się zapisać profilu. Spróbuj jeszcze raz.',
-			network:
-				'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie z internetem i spróbuj jeszcze raz.',
-			discardDescription: 'Masz niezapisane zmiany w profilu. Jeśli wyjdziesz, znikną.'
+			failed: 'Nie udało się zapisać profilu. Spróbuj jeszcze raz.'
 		},
 		account: {
 			emailTitle: 'Adres e-mail',
 			currentEmail: (email: string): string => `Obecny adres: ${email}`,
 			newEmail: 'Nowy adres e-mail',
 			emailSubmit: 'Zmień adres',
-			emailSubmitting: 'Wysyłanie…',
 			sameEmail: 'To jest Twój obecny adres.',
 			emailSentTitle: 'Link wysłany',
 			emailSent: 'Wysłałem link na stary i na nowy adres. Kliknij oba, a zmiana wejdzie w życie.',
@@ -253,12 +259,9 @@ export const pl = {
 			fetchDefinition: 'Automatycznie uzupełniaj definicję hasła ze Słowniczka z Wikipedii',
 			fetchForms: 'Automatycznie podpowiadaj odmianę wyrazu z Wikisłownika dla hasła ze Słowniczka',
 			fetchEvent: 'Automatycznie uzupełniaj opis i daty wydarzenia z Wikipedii',
-			cancel: 'Anuluj',
 			save: 'Zapisz ustawienia',
-			saving: 'Zapisywanie…',
 			saved: 'Zapisano ustawienia.',
-			errorTitle: 'Nie udało się zapisać ustawień',
-			discardDescription: 'Masz niezapisane zmiany w ustawieniach. Jeśli wyjdziesz, znikną.'
+			errorTitle: 'Nie udało się zapisać ustawień'
 		},
 		data: {
 			exportTitle: 'Eksport',
@@ -447,11 +450,8 @@ export const pl = {
 		pasteHintForm: 'Obraz ze schowka możesz też wkleić tutaj:',
 		replaceImageTitle: 'Zastąpić obecny obraz?',
 		replaceImageDescription: 'Wklejony obraz zajmie jego miejsce.',
-		replaceImage: 'Zastąp',
 		keepImage: 'Zostaw obecny',
 		removeImageTitle: 'Usunąć obraz?',
-		removeImageConfirm: 'Usuń',
-		removeImageCancel: 'Anuluj',
 		imageUrl: 'Jeśli wolisz, podaj po prostu adres obrazka',
 		imageUrlPlaceholder: 'https://…',
 		useImageUrl: 'Użyj',
@@ -486,19 +486,14 @@ export const pl = {
 		material: 'Materiał',
 		location: 'Miejsce',
 		locationHint: 'Gdzie dzieło znajduje się teraz?',
-		notes: 'Notatki',
 		notesPlaceholder: 'Co warto zapamiętać? Skąd znasz to dzieło?',
 		notesLinkHint:
 			'Wpisz @, żeby dodać odnośnik do autora, epoki albo miejsca, albo #, żeby dodać odnośnik do dzieła.',
-		cancel: 'Anuluj',
 		saveAndNext: 'Zapisz i dodaj kolejne',
-		save: 'Zapisz',
-		saving: 'Zapisywanie…',
 		errorTitle: 'Nie udało się zapisać dzieła',
 		saved: (number: string): string => `Zapisano dzieło ${number}.`,
 		changesSaved: (number: string): string => `Zapisano zmiany w ${number}.`,
 		discardTitle: 'Odrzucić zmiany?',
-		discardDescription: 'Masz niezapisane zmiany w tym dziele. Jeśli wyjdziesz, znikną.',
 		keepEditing: 'Wróć do formularza',
 		discard: 'Odrzuć'
 	},
@@ -521,8 +516,6 @@ export const pl = {
 		previousImage: 'Poprzedni obraz',
 		nextImage: 'Następny obraz',
 		back: 'Atelier',
-		edit: 'Edytuj',
-		delete: 'Usuń',
 		addImage: 'Dodaj obraz',
 		information: 'Informacje',
 		showInformation: 'Pokaż informacje',
@@ -727,9 +720,7 @@ export const pl = {
 		invalid: 'Niektóre pola się nie zgadzają. Sprawdź je i zapisz jeszcze raz.',
 		conflict:
 			'Nie udało się zapisać, bo dane zmieniły się w międzyczasie. Odśwież stronę i spróbuj jeszcze raz.',
-		notFound: 'Nie ma takiego dzieła w Twoim atelier. Mogło trafić do Archiwum.',
-		network:
-			'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie z internetem i spróbuj jeszcze raz.'
+		notFound: 'Nie ma takiego dzieła w Twoim atelier. Mogło trafić do Archiwum.'
 	},
 	ownImageErrors: {
 		fileType: (formats: string): string =>
@@ -835,8 +826,6 @@ export const pl = {
 			pageContent: (merged: string): string =>
 				`Podsumowanie, notatki i pozostałe informacje o „${merged}” zostaną usunięte.`,
 			irreversible: 'Tej akcji nie będzie można cofnąć.',
-			back: 'Wróć',
-			confirm: 'Połącz',
 			merging: 'Łączenie…'
 		},
 		moveConfirm: {
@@ -849,21 +838,15 @@ export const pl = {
 				`${workCount(count)} z okresem „${period}” ${count === 1 ? 'jest' : 'są'} teraz w epoce ${from}. Wybierz epokę, do której ${count === 1 ? 'ma' : 'mają'} trafić po zapisie.`,
 			pick: 'Do której epoki mają trafić?',
 			pickRequired: 'Wybierz epokę.',
-			back: 'Wróć',
 			confirm: 'Zapisz i przenieś'
 		},
 		deleteConfirm: {
 			title: (kind: string, name: string): string => `Usunąć ${kind} „${name}”?`,
-			description: 'Żadne dzieło go nie używa, więc zniknie z Kartoteki razem z powiązaniami.',
-			back: 'Wróć',
-			confirm: 'Usuń',
-			deleting: 'Usuwanie…'
+			description: 'Żadne dzieło go nie używa, więc zniknie z Kartoteki razem z powiązaniami.'
 		},
 		merged: (name: string): string => `Połączono z „${name}”.`,
 		deleted: (name: string): string => `Usunięto „${name}”.`,
 		errors: {
-			network:
-				'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie z internetem i spróbuj jeszcze raz.',
 			notFound: 'Nie ma już takiej wartości. Odśwież stronę.',
 			changed: 'Coś zmieniło się w międzyczasie. Odśwież stronę i spróbuj jeszcze raz.'
 		}
@@ -892,24 +875,17 @@ export const pl = {
 		search: (name: string): string => `Szukaj w polu „${name}”`,
 		ticked: 'Tak',
 		menu: (name: string): string => `Działania pola „${name}”`,
-		edit: 'Edytuj',
 		moveUp: 'Przesuń wyżej',
 		moveDown: 'Przesuń niżej',
-		remove: 'Usuń',
 		form: {
 			newTitle: 'Nowe pole',
-			name: 'Nazwa',
 			description: 'Opis (opcjonalnie)',
 			descriptionHint:
 				'Wyjaśnienie, które może w przyszłości pomóc zdecydować, co wpisywać w tym polu.',
 			kind: 'Rodzaj',
 			kindFixed: 'Wybranego rodzaju nie będzie można zmienić po utworzeniu pola.',
 			multiple: 'Dzieło może mieć kilka wartości',
-			cancel: 'Anuluj',
-			create: 'Dodaj',
 			creating: 'Dodawanie…',
-			save: 'Zapisz',
-			saving: 'Zapisywanie…',
 			errorTitle: 'Nie udało się zapisać pola'
 		},
 		deleteConfirm: {
@@ -918,19 +894,12 @@ export const pl = {
 				count === 0
 					? 'Pole zniknie z formularza. Usunięcia nie będzie można cofnąć.'
 					: `Pole zniknie z formularza i z ${count} ${plural(count, { one: 'dzieła', few: 'dzieł', many: 'dzieł' })}, ${plural(count, { one: 'które ma', few: 'które mają', many: 'które mają' })} je uzupełnione. Usunięcia nie będzie można cofnąć.`,
-			back: 'Wróć',
-			confirm: 'Usuń pole',
-			deleting: 'Usuwanie…'
+			confirm: 'Usuń pole'
 		},
 		value: {
 			description: (field: string, count: string): string => `${field} · ${count}`,
-			name: 'Nazwa',
 			mergeHint: (name: string, count: string): string =>
 				`Masz już „${name}” (${count}). Zapisz, a połączę je w jeden.`,
-			cancel: 'Anuluj',
-			save: 'Zapisz',
-			saving: 'Zapisywanie…',
-			merge: 'Połącz',
 			kind: 'wartości',
 			errorTitle: 'Nie udało się zapisać wartości'
 		},
@@ -962,15 +931,12 @@ export const pl = {
 		descriptionLabel: 'Opis',
 		descriptionHint: 'Co się stało albo jak miałoby to działać? Nieobowiązkowe.',
 		send: 'Wyślij',
-		sending: 'Wysyłanie…',
-		cancel: 'Anuluj',
 		sent: 'Zgłoszenie wysłane.',
 		errorTitle: 'Nie udało się wysłać zgłoszenia',
 		errors: {
 			kindRequired: 'Wybierz, czy to błąd, czy pomysł.',
 			titleRequired: 'Wpisz tytuł zgłoszenia.',
-			invalid: 'Zgłoszenie jest niepoprawne. Sprawdź tytuł i opis.',
-			network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.'
+			invalid: 'Zgłoszenie jest niepoprawne. Sprawdź tytuł i opis.'
 		}
 	},
 	pins: {
@@ -989,11 +955,6 @@ export const pl = {
 		term: 'Pojęcie ze Słowniczka (opcjonalnie)',
 		termPlaceholder: 'Szukaj pojęcia',
 		text: 'Opis (opcjonalnie)',
-		remove: 'Usuń',
-		removing: 'Usuwanie…',
-		cancel: 'Anuluj',
-		save: 'Zapisz',
-		saving: 'Zapisywanie…',
 		loadFailed: 'Nie udało się wczytać pinezek.',
 		errorTitle: 'Nie udało się zapisać pinezki',
 		deleteErrorTitle: 'Nie udało się usunąć pinezki',
@@ -1001,8 +962,7 @@ export const pl = {
 			empty: 'Wybierz pojęcie albo wpisz opis.',
 			tooLong: (limit: number): string => `Opis może mieć najwyżej ${limit} znaków.`,
 			tooMany: (limit: number): string => `Na jednym obrazie zmieści się ${limit} pinezek.`,
-			notFound: 'Nie znaleziono tej pinezki. Odśwież stronę i spróbuj jeszcze raz.',
-			network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.'
+			notFound: 'Nie znaleziono tej pinezki. Odśwież stronę i spróbuj jeszcze raz.'
 		}
 	},
 	glossary: {
@@ -1012,7 +972,6 @@ export const pl = {
 		lead: 'Pojęcia i postaci, które chcesz zapamiętać. Ich definicje pojawią się w Twoich notatkach.',
 		back: 'Słowniczek',
 		add: 'Dodaj pojęcie',
-		addShort: 'Dodaj',
 		emptyTitle: 'Słowniczek jest jeszcze pusty',
 		empty: 'Dodaj pierwsze pojęcie, gdy trafisz na słowo, które chcesz zapamiętać.',
 		addFirst: 'Dodaj pierwsze pojęcie',
@@ -1038,10 +997,7 @@ export const pl = {
 			noDefinition: 'Nie dodano jeszcze definicji.',
 			mentionsHeading: 'Pojawia się w notatkach',
 			onArtworks: 'Na dziełach',
-			sourcePrefix: 'Na podstawie: Wikipedia, ',
 			licenceLink: 'CC BY-SA 4.0',
-			edit: 'Edytuj',
-			delete: 'Usuń',
 			notFoundTitle: 'Nie ma takiego pojęcia',
 			notFound: 'Nie ma takiego pojęcia w słowniczku. Może zostało usunięte.',
 			loadErrorTitle: 'Nie udało się wczytać tego pojęcia',
@@ -1051,15 +1007,11 @@ export const pl = {
 		deleteConfirm: {
 			title: (name: string): string => `Usunąć „${name}” ze słowniczka?`,
 			description:
-				'Definicji tego słowa nie będzie się dało podejrzeć w notatkach. Tej akcji nie będzie można cofnąć.',
-			back: 'Zostaw',
-			confirm: 'Usuń',
-			deleting: 'Usuwanie…'
+				'Definicji tego słowa nie będzie się dało podejrzeć w notatkach. Tej akcji nie będzie można cofnąć.'
 		},
 		form: {
 			newTitle: 'Nowe pojęcie',
 			editTitle: 'Edycja pojęcia',
-			name: 'Nazwa',
 			namePlaceholder: 'Np. tympanon, sfumato, Lorenzo Medici',
 			nameTaken: (name: string): string => `Masz już w Słowniczku pojęcie „${name}”.`,
 			category: 'Kategoria',
@@ -1075,7 +1027,6 @@ export const pl = {
 			searchDefinition: 'Szukaj w Wikipedii',
 			definitionManual: 'Napisz definicję własnymi słowami albo poszukaj jej w Wikipedii.',
 			definitionTooLong: (max: number): string => `Definicja może mieć najwyżej ${max} znaków.`,
-			sourcePrefix: 'Na podstawie: Wikipedia, ',
 			pickArticle: 'Wybierz inny artykuł',
 			removeSource: 'Usuń źródło',
 			sortByOther: 'Sortuj inaczej niż po nazwie',
@@ -1107,11 +1058,7 @@ export const pl = {
 				'Formy nie pokazują się pod nazwą. Dzięki nim pojęcie znajdzie się w notatkach także odmienione.',
 			authorWarningSuffix:
 				' jest już w Kartotece jako autor. Możesz dodać tę osobę także tutaj albo opisać na stronie autora.',
-			cancel: 'Anuluj',
-			save: 'Zapisz',
-			saving: 'Zapisywanie…',
-			errorTitle: 'Nie udało się zapisać pojęcia',
-			discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.'
+			errorTitle: 'Nie udało się zapisać pojęcia'
 		},
 		articles: {
 			title: 'Który to artykuł?',
@@ -1119,20 +1066,16 @@ export const pl = {
 				`Wyniki z Wikipedii dla „${name}” w kategorii ${category}. Wybierz ten, o który ci chodzi.`,
 			listLabel: 'Artykuły z Wikipedii',
 			searching: 'Wyszukiwanie w Wikipedii…',
-			cancel: 'Anuluj',
 			use: 'Użyj tego artykułu'
 		},
 		replaceConfirm: {
 			title: 'Zastąpić Twoją definicję?',
 			description: 'Definicja ma już Twoje zmiany. Tekst z nowego artykułu je zastąpi.',
-			keep: 'Zostaw moją',
-			replace: 'Zastąp'
+			keep: 'Zostaw moją'
 		},
 		errors: {
 			notFound: 'Nie ma takiego pojęcia w słowniczku. Może zostało usunięte.',
-			invalid: 'Nie udało się zapisać pojęcia. Sprawdź nazwę i definicję.',
-			network:
-				'Nie udało się połączyć. Sprawdź swoje połączenie z internetem i spróbuj jeszcze raz.'
+			invalid: 'Nie udało się zapisać pojęcia. Sprawdź nazwę i definicję.'
 		}
 	},
 	chronicle: {
@@ -1141,7 +1084,6 @@ export const pl = {
 		count: (visits: number, seen: number): string =>
 			`${visitCount(visits)} · ${workCount(seen)} na żywo`,
 		add: 'Dodaj wizytę',
-		addShort: 'Dodaj',
 		emptyTitle: 'Kronika jest jeszcze pusta',
 		empty: 'Uwiecznij swoje ostatnie spotkanie ze sztuką i zacznij budować kronikę swoich wizyt.',
 		addFirst: 'Dodaj pierwszą wizytę',
@@ -1157,19 +1099,13 @@ export const pl = {
 		view: {
 			seenTitle: 'Widziane na żywo',
 			noArtworks: 'Do tej wizyty nie ma jeszcze dzieł. Kliknij „Edytuj”, żeby je zaznaczyć.',
-			notesTitle: 'Notatki',
-			edit: 'Edytuj',
-			delete: 'Usuń',
 			deleted: (date: string): string => `Usunięto wizytę z ${date}.`,
 			notFoundTitle: 'Nie ma takiej wizyty',
 			loadErrorTitle: 'Nie udało się wczytać wizyty'
 		},
 		deleteConfirm: {
 			title: (date: string): string => `Usunąć wizytę z ${date}?`,
-			description: 'Zniknie wizyta i jej notatka. Dzieła zostaną w kolekcji.',
-			back: 'Zostaw',
-			confirm: 'Usuń',
-			deleting: 'Usuwanie…'
+			description: 'Zniknie wizyta i jej notatka. Dzieła zostaną w kolekcji.'
 		},
 		form: {
 			newTitle: 'Nowa wizyta',
@@ -1186,7 +1122,6 @@ export const pl = {
 			yearInvalid: 'Wpisz rok czterema cyframi, na przykład 2026.',
 			monthRequired: 'Do dnia wybierz miesiąc albo usuń dzień.',
 			dayInvalid: 'Taki dzień nie istnieje w tym miesiącu.',
-			notes: 'Notatki',
 			notesPlaceholder: 'Jak było? Co Cię zaskoczyło? Co warto zapamiętać?',
 			artworks: 'Dzieła',
 			ticked: 'Zaznaczyliśmy wszystko z tego miejsca. Odznacz to, czego tym razem nie było.',
@@ -1198,18 +1133,13 @@ export const pl = {
 			noPlace: 'Wybierz miejsce, a pokażemy jego dzieła.',
 			placeEmpty:
 				'W kolekcji nie ma jeszcze dzieł z tego miejsca. Te zobaczone dodasz przez wyszukiwarkę.',
-			cancel: 'Anuluj',
-			save: 'Zapisz',
-			saving: 'Zapisywanie…',
 			errorTitle: 'Nie udało się zapisać wizyty',
-			discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.',
 			notFoundTitle: 'Nie ma takiej wizyty',
 			loadErrorTitle: 'Nie udało się wczytać wizyty'
 		},
 		errors: {
 			notFound: 'Nie ma takiej wizyty w kronice. Może została usunięta.',
-			invalid: 'Nie udało się zapisać wizyty. Sprawdź miejsce, datę i dzieła.',
-			network: 'Nie udało się połączyć. Sprawdź internet i spróbuj jeszcze raz.'
+			invalid: 'Nie udało się zapisać wizyty. Sprawdź miejsce, datę i dzieła.'
 		}
 	},
 	timeline: {
@@ -1220,12 +1150,10 @@ export const pl = {
 			'Zobaczysz tutaj wszystkie swoje dzieła umieszczone na osi czasu, a także wydarzenia i okresy historyczne, które dodasz.',
 		addFirst: 'Dodaj pierwsze wydarzenie',
 		add: 'Dodaj wydarzenie',
-		addShort: 'Dodaj',
 		saved: (name: string): string => `Zapisano wydarzenie „${name}”.`,
 		form: {
 			newTitle: 'Nowe wydarzenie',
 			editTitle: 'Edycja wydarzenia',
-			name: 'Nazwa',
 			namePlaceholder: 'Np. wojny napoleońskie, chrzest Polski',
 			nameRequired: 'Wpisz nazwę wydarzenia.',
 			year: 'Rok',
@@ -1233,14 +1161,9 @@ export const pl = {
 			yearRequired: 'Wpisz rok wydarzenia.',
 			description: 'Opis',
 			descriptionPlaceholder: 'Co warto o nim pamiętać',
-			cancel: 'Anuluj',
-			save: 'Zapisz',
-			saving: 'Zapisywanie…',
 			errorTitle: 'Nie udało się zapisać wydarzenia',
-			discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.',
 			notFoundTitle: 'Nie ma takiego wydarzenia',
 			loadErrorTitle: 'Nie udało się wczytać wydarzenia',
-			sourcePrefix: 'Na podstawie: Wikipedia, ',
 			pickArticle: 'Wybierz inny artykuł',
 			searchArticles: 'Szukaj w Wikipedii',
 			removeSource: 'Usuń źródło'
@@ -1255,8 +1178,7 @@ export const pl = {
 		replaceConfirm: {
 			title: 'Zastąpić Twoje daty i opis?',
 			description: 'Daty albo opis mają już Twoje zmiany. Dane z nowego artykułu je zastąpią.',
-			keep: 'Zostaw moje',
-			replace: 'Zastąp'
+			keep: 'Zostaw moje'
 		},
 		loadErrorTitle: 'Nie udało się wczytać kalendarium',
 		strip: 'Pasek epok',
@@ -1282,17 +1204,11 @@ export const pl = {
 				`${years} ${plural(years, { one: 'rok', few: 'lata', many: 'lat' })}`,
 			artworksOfTime: 'Dzieła z tego czasu',
 			noArtworks: 'W tym czasie nie powstało żadne dzieło z Twojej kolekcji.',
-			showWhole: 'Pokaż cały okres na osi',
-			sourcePrefix: 'Na podstawie: Wikipedia, ',
-			edit: 'Edytuj',
-			delete: 'Usuń'
+			showWhole: 'Pokaż cały okres na osi'
 		},
 		deleteConfirm: {
 			title: (name: string): string => `Usunąć wydarzenie „${name}”?`,
-			description: 'Zniknie z Kalendarium. Żadne dzieło się nie zmieni.',
-			back: 'Wróć',
-			confirm: 'Usuń',
-			deleting: 'Usuwanie…'
+			description: 'Zniknie z Kalendarium. Żadne dzieło się nie zmieni.'
 		},
 		deleted: (name: string): string => `Usunięto wydarzenie „${name}”.`,
 		noEvents: 'Nie ma tu jeszcze wydarzeń.',
@@ -1330,15 +1246,11 @@ export const pl = {
 			`${numeral} tysiąclecie${beforeCommonEra ? ' p.n.e.' : ''}`,
 		errors: {
 			notFound: 'Nie ma takiego wydarzenia w Kalendarium. Może zostało usunięte.',
-			invalid: 'Nie udało się zapisać wydarzenia. Sprawdź nazwę i datę.',
-			network: 'Nie udało się połączyć. Sprawdź internet i spróbuj jeszcze raz.'
+			invalid: 'Nie udało się zapisać wydarzenia. Sprawdź nazwę i datę.'
 		}
 	},
 	valuePage: {
 		back: 'Kartoteka',
-		edit: 'Edytuj',
-		notes: 'Notatki',
-		delete: 'Usuń',
 		deleteBlocked: (demonstrative: string, count: string, other: string): string =>
 			`${demonstrative} ma jeszcze ${count}, więc nie da się go usunąć. Możesz go połączyć z ${other}.`,
 		header: (kind: string, count: string): string => `${kind} · ${count}`,
@@ -1383,7 +1295,6 @@ export const pl = {
 		}
 	},
 	valueForm: {
-		name: 'Nazwa',
 		nameRequired: 'Wpisz nazwę.',
 		mergeHint: (kind: string, name: string, count: string): string =>
 			`Masz już ${kind} „${name}” (${count}). Zapisz, a połączę je w jeden.`,
@@ -1399,19 +1310,14 @@ export const pl = {
 		removePeriod: (name: string): string => `Usuń okres ${name}`,
 		periodLocked: (period: string, count: number): string =>
 			`Nie uda się odpiąć okresu „${period}” od tego stylu, bo ${workCount(count)} w tym stylu ${count === 1 ? 'ma' : 'mają'} przypisany taki okres.`,
-		cancel: 'Anuluj',
-		save: 'Zapisz',
-		saving: 'Zapisywanie…',
 		editTitle: (kind: string, name: string): string => `Edytuj ${kind} „${name}”`,
 		eraAccusative: 'epokę',
 		summary: 'Podsumowanie',
 		summaryPlaceholder: 'Krótki opis do szybkiego podejrzenia przy oglądaniu dzieła.',
-		notes: 'Notatki',
 		notesPlaceholder: 'Wszystko, co warto zapamiętać',
 		notesLinkHint:
 			'Wpisz @, żeby dodać odnośnik do autora, epoki albo miejsca, albo #, żeby dodać odnośnik do dzieła.',
 		errorTitle: 'Nie udało się zapisać zmian',
-		discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.',
 		portrait: {
 			label: 'Portret',
 			find: 'Znajdź portret',
@@ -1456,7 +1362,6 @@ export const pl = {
 		restore: 'Przywróć',
 		restoring: 'Przywracanie…',
 		deleteForever: 'Usuń na zawsze',
-		cancel: 'Anuluj',
 		moveTitle: (number: string): string => `Przenieść ${number} do Archiwum?`,
 		moveDescription: 'Dzieło zniknie z atelier. Przywrócisz je z Archiwum.',
 		move: 'Przenieś do Archiwum',
@@ -1466,7 +1371,6 @@ export const pl = {
 		deleteTitle: (number: string): string => `Usunąć ${number} na zawsze?`,
 		deleteDescription: (number: string): string =>
 			`Dzieło ${number} i Twój obraz znikną bezpowrotnie.`,
-		deleting: 'Usuwanie…',
 		deleted: (number: string): string => `Usunięto ${number} na zawsze.`
 	}
 };

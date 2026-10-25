@@ -60,7 +60,7 @@ describe('chronicle page', () => {
 	});
 
 	it('says when the chronicle could not be loaded', async () => {
-		renderChronicle([], m.chronicle.errors.network);
+		renderChronicle([], m.common.network);
 
 		await expect.element(page.getByText(m.chronicle.loadErrorTitle)).toBeInTheDocument();
 		await expect.element(page.getByRole('link', { name: m.chronicle.add })).not.toBeInTheDocument();

@@ -161,10 +161,10 @@
 >
 	{#snippet footer()}
 		<Button onclick={() => (deleteOpen = false)}>
-			{m.trash.cancel}
+			{m.common.cancel}
 		</Button>
 		<Button disabled={busy !== undefined} onclick={confirmDelete} variant="primary">
-			{busy ? m.trash.deleting : m.trash.deleteForever}
+			{busy ? m.common.deleting : m.trash.deleteForever}
 		</Button>
 	{/snippet}
 </Dialog>

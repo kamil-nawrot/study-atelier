@@ -107,7 +107,7 @@ function titleField(): ReturnType<typeof page.getByRole> {
 }
 
 function saveButton(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('button', { name: m.artworkForm.save, exact: true });
+	return page.getByRole('button', { name: m.common.save, exact: true });
 }
 
 function savedArtworks(...titles: [number, string][]): void {
@@ -217,14 +217,14 @@ describe('edit artwork page', () => {
 			.element(page.getByRole('radio', { name: m.artworkTypes.painting, exact: true }))
 			.toBeChecked();
 		await expect
-			.element(page.getByRole('textbox', { name: m.artworkForm.notes }))
+			.element(page.getByRole('textbox', { name: m.common.notes }))
 			.toHaveTextContent('Seen in Amsterdam.');
 		await expect.element(page.getByRole('button', { name: m.artworkForm.findImage })).toBeEnabled();
 		await expect
 			.element(page.getByRole('button', { name: m.artworkForm.saveAndNext }))
 			.not.toBeInTheDocument();
 		await expect
-			.element(page.getByRole('link', { name: m.artworkForm.cancel }))
+			.element(page.getByRole('link', { name: m.common.cancel }))
 			.toHaveAttribute('href', '/atelier/7');
 		await expect
 			.element(page.getByRole('banner').getByRole('link', { name: artwork().title }))
@@ -447,7 +447,7 @@ describe('edit artwork page', () => {
 		renderPage();
 		arrive('/(app)/atelier');
 
-		await page.getByRole('link', { name: m.artworkForm.cancel }).click();
+		await page.getByRole('link', { name: m.common.cancel }).click();
 
 		expect(go).toHaveBeenCalledWith(-1);
 		go.mockRestore();
@@ -497,11 +497,11 @@ describe('edit artwork page', () => {
 		await page.getByRole('button', { name: m.artworkForm.removeImage }).click();
 		const dialog = page.getByRole('alertdialog', { name: m.artworkForm.removeImageTitle });
 		await expect.element(dialog).toHaveTextContent(m.pins.imagePins(1));
-		await dialog.getByRole('button', { name: m.artworkForm.removeImageCancel }).click();
+		await dialog.getByRole('button', { name: m.common.cancel }).click();
 		await expect.element(page.getByRole('button', { name: 'Pinezka 1' })).toBeVisible();
 
 		await page.getByRole('button', { name: m.artworkForm.removeImage }).click();
-		await dialog.getByRole('button', { name: m.artworkForm.removeImageConfirm }).click();
+		await dialog.getByRole('button', { name: m.common.delete }).click();
 		await expect.element(page.getByRole('button', { name: 'Pinezka 1' })).not.toBeInTheDocument();
 	});
 
@@ -516,7 +516,7 @@ describe('edit artwork page', () => {
 					id: 'image-0'
 				}
 			}),
-			pinsError: m.pins.errors.network
+			pinsError: m.common.network
 		});
 
 		await expect.element(page.getByText(m.pins.loadFailed)).toBeVisible();
@@ -578,12 +578,12 @@ describe('edit artwork page', () => {
 	});
 
 	it('says the artwork could not be loaded when the request failed', async () => {
-		renderPage({ error: m.artworkErrors.network });
+		renderPage({ error: m.common.network });
 
 		await expect
 			.element(page.getByRole('heading', { level: 1 }))
 			.toHaveTextContent(m.artworkForm.loadErrorTitle);
-		await expect.element(page.getByRole('alert')).toHaveTextContent(m.artworkErrors.network);
+		await expect.element(page.getByRole('alert')).toHaveTextContent(m.common.network);
 		await expect.element(titleField()).not.toBeInTheDocument();
 	});
 

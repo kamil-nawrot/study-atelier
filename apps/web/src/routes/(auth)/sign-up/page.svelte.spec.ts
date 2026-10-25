@@ -147,6 +147,6 @@ describe('sign-up page', () => {
 
 		await submit(TEST_EMAIL, 'correct-password');
 
-		await expect.element(page.getByRole('alert')).toHaveTextContent(m.authErrors.network);
+		await expect.element(page.getByRole('alert')).toHaveTextContent(m.common.network);
 	});
 });

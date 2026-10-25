@@ -143,7 +143,7 @@
 
 			<NotesEditor
 				hint={noteLinks ? m.artworkForm.notesLinkHint : undefined}
-				label={m.chronicle.form.notes}
+				label={m.common.notes}
 				links={noteLinks}
 				placeholder={m.chronicle.form.notesPlaceholder}
 				bind:value={form.notes}
@@ -154,16 +154,16 @@
 
 		<FormActions>
 			<Button href={cancelHref} onclick={oncancel}>
-				{m.chronicle.form.cancel}
+				{m.common.cancel}
 			</Button>
 			<Button disabled={formState.busy} type="submit" variant="primary">
-				{formState.busy ? m.chronicle.form.saving : m.chronicle.form.save}
+				{formState.busy ? m.common.saving : m.common.save}
 			</Button>
 		</FormActions>
 	</Form>
 </div>
 
-<DiscardDialog {changes} description={m.chronicle.form.discardDescription} />
+<DiscardDialog {changes} description={m.common.discardDescription} />
 
 <style>
 	.page {

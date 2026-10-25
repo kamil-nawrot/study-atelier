@@ -222,7 +222,7 @@
 									m.atelier.count(mergeTarget.count)
 								)
 							: undefined}
-						label={m.valueForm.name}
+						label={m.common.name}
 						maxlength={VALUE_NAME_MAX_LENGTH}
 						bind:value={form.name}
 					/>
@@ -268,7 +268,7 @@
 
 				<NotesEditor
 					hint={noteLinks ? m.valueForm.notesLinkHint : undefined}
-					label={m.valueForm.notes}
+					label={m.common.notes}
 					links={noteLinks}
 					placeholder={m.valueForm.notesPlaceholder}
 					bind:value={form.details.notes}
@@ -278,16 +278,16 @@
 
 		<FormActions>
 			<Button href={cancelHref} onclick={oncancel}>
-				{m.valueForm.cancel}
+				{m.common.cancel}
 			</Button>
 			<Button disabled={formState.busy} type="submit" variant="primary">
-				{formState.busy ? m.valueForm.saving : m.valueForm.save}
+				{formState.busy ? m.common.saving : m.common.save}
 			</Button>
 		</FormActions>
 	</Form>
 </div>
 
-<DiscardDialog {changes} description={m.valueForm.discardDescription} />
+<DiscardDialog {changes} description={m.common.discardDescription} />
 
 <Dialog
 	description={moveText}
@@ -306,7 +306,7 @@
 	{/if}
 	{#snippet footer()}
 		<Button onclick={() => (moveOpen = false)}>
-			{m.cardIndex.moveConfirm.back}
+			{m.common.back}
 		</Button>
 		<Button disabled={formState.busy} onclick={confirmMove} variant="primary">
 			{m.cardIndex.moveConfirm.confirm}
@@ -322,10 +322,10 @@
 >
 	{#snippet footer()}
 		<Button onclick={() => (mergeOpen = false)}>
-			{m.cardIndex.mergeConfirm.back}
+			{m.common.back}
 		</Button>
 		<Button disabled={formState.busy} onclick={save} variant="primary">
-			{formState.busy ? m.cardIndex.mergeConfirm.merging : m.cardIndex.mergeConfirm.confirm}
+			{formState.busy ? m.cardIndex.mergeConfirm.merging : m.common.merge}
 		</Button>
 	{/snippet}
 </Dialog>

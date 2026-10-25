@@ -45,7 +45,7 @@ export function authorsField(): ReturnType<typeof page.getByRole> {
 }
 
 export function saveButton(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('button', { name: m.artworkForm.save, exact: true });
+	return page.getByRole('button', { name: m.common.save, exact: true });
 }
 
 export type Leave = Parameters<Parameters<typeof beforeNavigate>[0]>[0];

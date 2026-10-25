@@ -47,7 +47,7 @@
 				<Button href={resolve('/(app)/atelier/glossary/new')} variant="primary">
 					<Icon icon={Plus} size="sm" />
 					<span class="long">{m.glossary.add}</span>
-					<span class="short">{m.glossary.addShort}</span>
+					<span class="short">{m.common.add}</span>
 				</Button>
 			</div>
 		{/if}

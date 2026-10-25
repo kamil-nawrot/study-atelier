@@ -52,7 +52,7 @@
 	<Button href={resolve('/(app)/atelier/timeline/events/new')} variant="primary">
 		<Icon icon={Plus} size="sm" />
 		<span class="long">{m.timeline.add}</span>
-		<span class="short">{m.timeline.addShort}</span>
+		<span class="short">{m.common.add}</span>
 	</Button>
 </div>
 

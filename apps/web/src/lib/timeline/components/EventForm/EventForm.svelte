@@ -213,7 +213,7 @@
 			<TextField
 				autocomplete="off"
 				error={errors.name}
-				label={m.timeline.form.name}
+				label={m.common.name}
 				maxlength={EVENT_NAME_MAX_LENGTH}
 				placeholder={m.timeline.form.namePlaceholder}
 				bind:value={form.name}
@@ -268,7 +268,7 @@
 				{#if form.source}
 					<div class="links">
 						<span class="caption">
-							{m.timeline.form.sourcePrefix}„{form.source.title}”, {form.source.licence}
+							{m.common.wikipediaSource}„{form.source.title}”, {form.source.licence}
 						</span>
 						<TextButton inline onclick={openArticles}>
 							{m.timeline.form.pickArticle}
@@ -283,16 +283,16 @@
 
 		<FormActions>
 			<Button href={cancelHref} onclick={oncancel}>
-				{m.timeline.form.cancel}
+				{m.common.cancel}
 			</Button>
 			<Button disabled={formState.busy} type="submit" variant="primary">
-				{formState.busy ? m.timeline.form.saving : m.timeline.form.save}
+				{formState.busy ? m.common.saving : m.common.save}
 			</Button>
 		</FormActions>
 	</Form>
 </div>
 
-<DiscardDialog {changes} description={m.timeline.form.discardDescription} />
+<DiscardDialog {changes} description={m.common.discardDescription} />
 
 <ArticleDialog
 	{articles}
@@ -317,7 +317,7 @@
 			{m.timeline.replaceConfirm.keep}
 		</Button>
 		<Button onclick={confirmReplace} variant="primary">
-			{m.timeline.replaceConfirm.replace}
+			{m.common.replace}
 		</Button>
 	{/snippet}
 </Dialog>
