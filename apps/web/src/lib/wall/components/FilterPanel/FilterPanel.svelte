@@ -15,7 +15,6 @@
 		favouriteCount,
 		filterOptions,
 		hasOwnText,
-		optionLabel,
 		ownFilterOptions,
 		setOwnText,
 		setYears,
@@ -25,6 +24,7 @@
 		toggleTicked,
 		toggleValue
 	} from '#lib/wall/filter/filter.ts';
+	import { optionLabel } from '#lib/wall/filter-tags/filter-tags.ts';
 	import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 	import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
 	import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';

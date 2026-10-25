@@ -1,18 +1,14 @@
 import { ARTWORK_TYPE_CODES } from '#lib/catalogue/artwork-types/artwork-types.ts';
 import { authorSortKeys, sortKeyOf } from '#lib/catalogue/author-sort/author-sort.ts';
-import { ERA_CODES, eraName, isEraCode } from '#lib/catalogue/eras/eras.ts';
-import { m } from '#lib/i18n/i18n.ts';
+import { ERA_CODES } from '#lib/catalogue/eras/eras.ts';
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
-import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
 import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
-import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 import type { FilterField } from '#lib/catalogue/types/filter-field.ts';
 import type { FilterOption } from '#lib/catalogue/types/filter-option.ts';
-import type { FilterTag } from '#lib/catalogue/types/filter-tag.ts';
 import type { MissingData } from '#lib/catalogue/types/missing-data.ts';
-import type { TagParts } from '#lib/catalogue/types/tag-parts.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+import type { FilterValueField } from '#lib/wall/types/filter-value-field.ts';
 
 type FilterSkip = FilterField | `own:${string}` | `ownText:${string}` | 'ticked';
 
@@ -32,32 +28,6 @@ export const FILTER_FIELDS: readonly FilterField[] = [
 ];
 
 export const MISSING_DATA: readonly MissingData[] = ['image', 'year', 'era', 'period', 'type'];
-
-type ValueField = Exclude<FilterField, 'years' | 'favourites'>;
-
-const NAME_FIELDS = ['authors', 'periods', 'styles', 'materials', 'locations'] as const;
-
-const PARAMS: Record<FilterField, string> = {
-	eras: 'era',
-	types: 'type',
-	years: 'year',
-	authors: 'author',
-	periods: 'period',
-	styles: 'style',
-	materials: 'material',
-	locations: 'location',
-	missing: 'missing',
-	favourites: 'favourites'
-};
-
-type Params = Pick<URLSearchParams, 'get' | 'getAll' | 'has' | 'keys'>;
-
-const UNKNOWN_AUTHOR_PARAM = 'unknown-author';
-const OWN_PARAM_PREFIX = 'field.';
-const OWN_TEXT_PARAM_PREFIX = 'text.';
-const TICKED_PARAM = 'ticked';
-const FLAG_ON = '1';
-const RANGE_SEPARATOR = '..';
 
 export function emptyFilter(): CollectionFilter {
 	return {
@@ -87,7 +57,7 @@ function hasOwnChoice(filter: CollectionFilter): boolean {
 	);
 }
 
-function hasYears(filter: CollectionFilter): boolean {
+export function hasYears(filter: CollectionFilter): boolean {
 	return filter.yearFrom !== null || filter.yearTo !== null;
 }
 
@@ -140,7 +110,7 @@ function missingOf(artwork: WallArtwork): MissingData[] {
 	});
 }
 
-function valuesOf(artwork: WallArtwork, field: ValueField): string[] {
+export function filterValuesOf(artwork: WallArtwork, field: FilterValueField): string[] {
 	if (field === 'eras') return artwork.eraCode ? [artwork.eraCode] : [];
 	if (field === 'types') return artwork.typeCode ? [artwork.typeCode] : [];
 	if (field === 'authors') return artwork.authors.length > 0 ? artwork.authors : [UNKNOWN_AUTHOR];
@@ -151,7 +121,7 @@ function valuesOf(artwork: WallArtwork, field: ValueField): string[] {
 	return missingOf(artwork);
 }
 
-function chosenValues(filter: CollectionFilter, field: ValueField): string[] {
+export function chosenValues(filter: CollectionFilter, field: FilterValueField): string[] {
 	if (field === 'authors')
 		return filter.unknownAuthor ? [...filter.authors, UNKNOWN_AUTHOR] : filter.authors;
 	return filter[field];
@@ -165,7 +135,7 @@ function fieldMatches(artwork: WallArtwork, filter: CollectionFilter, field: Fil
 		return filter.yearTo === null || (artwork.yearFrom ?? artwork.yearTo) <= filter.yearTo;
 	}
 	const chosen = chosenValues(filter, field);
-	return valuesOf(artwork, field).some((value) => chosen.includes(value));
+	return filterValuesOf(artwork, field).some((value) => chosen.includes(value));
 }
 
 export function matchesFilter(
@@ -188,7 +158,7 @@ export function applyFilter(artworks: WallArtwork[], filter: CollectionFilter): 
 
 const NAME_COLLATOR = new Intl.Collator('pl');
 
-function fixedOrder(field: ValueField): readonly string[] | undefined {
+function fixedOrder(field: FilterValueField): readonly string[] | undefined {
 	if (field === 'eras') return ERA_CODES;
 	if (field === 'types') return ARTWORK_TYPE_CODES;
 	if (field === 'missing') return MISSING_DATA;
@@ -198,12 +168,13 @@ function fixedOrder(field: ValueField): readonly string[] | undefined {
 export function filterOptions(
 	artworks: WallArtwork[],
 	filter: CollectionFilter,
-	field: ValueField
+	field: FilterValueField
 ): FilterOption[] {
 	const counts = new Map<string, number>();
 	for (const artwork of artworks) {
 		if (!matchesFilter(artwork, filter, field)) continue;
-		for (const value of valuesOf(artwork, field)) counts.set(value, (counts.get(value) ?? 0) + 1);
+		for (const value of filterValuesOf(artwork, field))
+			counts.set(value, (counts.get(value) ?? 0) + 1);
 	}
 	for (const value of chosenValues(filter, field)) counts.set(value, counts.get(value) ?? 0);
 
@@ -305,7 +276,7 @@ export function onlyFavourites(filter: CollectionFilter): boolean {
 
 export function toggleValue(
 	filter: CollectionFilter,
-	field: ValueField,
+	field: FilterValueField,
 	value: string
 ): CollectionFilter {
 	if (field === 'authors' && value === UNKNOWN_AUTHOR)
@@ -331,200 +302,4 @@ export function clearField(filter: CollectionFilter, field: FilterField): Collec
 	if (field === 'authors') return { ...filter, authors: [], unknownAuthor: false };
 	if (field === 'favourites') return { ...filter, favourites: false };
 	return { ...filter, [field]: empty[field] };
-}
-
-function ownTags(filter: CollectionFilter, fields: readonly OwnFieldDefinition[]): FilterTag[] {
-	const names = new Map(fields.map((field) => [field.id, field.name]));
-	const nameOf = (id: string): string => names.get(id) ?? m.atelier.filters.ownField;
-	const tag = (field: 'own' | 'ownText' | 'ticked', id: string, value: string): FilterTag => ({
-		id: `${field}:${id}${field === 'own' ? `:${value}` : ''}`,
-		field,
-		fieldId: id,
-		value,
-		parts: { field: nameOf(id), value }
-	});
-	return [
-		...Object.entries(filter.own).flatMap(([id, values]) =>
-			values.map((value) => tag('own', id, value))
-		),
-		...Object.entries(filter.ownTexts).flatMap(([id, text]) =>
-			text.trim() ? [tag('ownText', id, text.trim())] : []
-		),
-		...filter.ticked.map((id) => tag('ticked', id, ''))
-	];
-}
-
-export function filterTags(
-	filter: CollectionFilter,
-	fields: readonly OwnFieldDefinition[] = []
-): FilterTag[] {
-	const tags: FilterTag[] = [];
-	for (const field of FILTER_FIELDS) {
-		if (field === 'missing') tags.push(...ownTags(filter, fields));
-		if (field === 'years') {
-			if (hasYears(filter))
-				tags.push({ id: 'years', field, value: yearsParam(filter.yearFrom, filter.yearTo) });
-			continue;
-		}
-		if (field === 'favourites') {
-			if (filter.favourites) tags.push({ id: 'favourites', field, value: '' });
-			continue;
-		}
-		for (const value of chosenValues(filter, field))
-			tags.push({ id: `${field}:${value}`, field, value });
-	}
-	return tags;
-}
-
-export function removeTag(filter: CollectionFilter, tag: FilterTag): CollectionFilter {
-	if (tag.field === 'own') return toggleOwnValue(filter, tag.fieldId ?? '', tag.value);
-	if (tag.field === 'ownText') return setOwnText(filter, tag.fieldId ?? '', '');
-	if (tag.field === 'ticked') return toggleTicked(filter, tag.fieldId ?? '');
-	if (tag.field === 'years' || tag.field === 'favourites') return clearField(filter, tag.field);
-	return toggleValue(filter, tag.field, tag.value);
-}
-
-export function optionLabel(field: ValueField, value: string): string {
-	if (field === 'eras') return eraName(value as EraCode);
-	if (field === 'types') return m.artworkTypes[value as ArtworkTypeCode];
-	if (field === 'missing') return m.atelier.filters.missing[value as MissingData];
-	return value === UNKNOWN_AUTHOR ? m.atelier.filters.unknownAuthor : value;
-}
-
-export function tagParts(tag: FilterTag): TagParts {
-	if (tag.parts) return tag.parts;
-	if (tag.field === 'own' || tag.field === 'ownText' || tag.field === 'ticked') {
-		return { field: '', value: tag.value };
-	}
-	const field = m.atelier.filters.tagFields[tag.field];
-	if (tag.field === 'favourites') return { field, value: '' };
-	if (tag.field !== 'years') return { field, value: optionLabel(tag.field, tag.value) };
-	const [from, to] = tag.value.split(RANGE_SEPARATOR).map((part) => (part ? Number(part) : null));
-	return { field, value: yearsLabel(from, to) };
-}
-
-export function tagLabel(tag: FilterTag): string {
-	const { field, value } = tagParts(tag);
-	return value ? m.atelier.filters.tag(field, value) : field;
-}
-
-function yearsLabel(from: number | null, to: number | null): string {
-	if (from !== null && to !== null) return m.atelier.filters.yearsBetween(from, to);
-	if (from !== null) return m.atelier.filters.yearsFrom(from);
-	return m.atelier.filters.yearsTo(to as number);
-}
-
-function yearsParam(from: number | null, to: number | null): string {
-	return `${from ?? ''}${RANGE_SEPARATOR}${to ?? ''}`;
-}
-
-function parseYears(text: string): Pick<CollectionFilter, 'yearFrom' | 'yearTo'> {
-	const [from, to] = text.split(RANGE_SEPARATOR);
-	const parse = (part: string | undefined): number | null => {
-		if (!part || !/^-?\d+$/.test(part)) return null;
-		const year = Number(part);
-		return Number.isSafeInteger(year) ? year : null;
-	};
-	return { yearFrom: parse(from), yearTo: parse(to) };
-}
-
-export function filterToParams(filter: CollectionFilter): URLSearchParams {
-	const params = new URLSearchParams();
-	for (const field of FILTER_FIELDS) {
-		if (field === 'years') {
-			if (hasYears(filter)) params.set(PARAMS.years, yearsParam(filter.yearFrom, filter.yearTo));
-			continue;
-		}
-		if (field === 'favourites') {
-			if (filter.favourites) params.set(PARAMS.favourites, FLAG_ON);
-			continue;
-		}
-		for (const value of filter[field]) params.append(PARAMS[field], value);
-	}
-	for (const [id, values] of Object.entries(filter.own)) {
-		for (const value of values) params.append(`${OWN_PARAM_PREFIX}${id}`, value);
-	}
-	for (const [id, text] of Object.entries(filter.ownTexts)) {
-		if (text.trim()) params.set(`${OWN_TEXT_PARAM_PREFIX}${id}`, text);
-	}
-	for (const id of filter.ticked) params.append(TICKED_PARAM, id);
-	if (filter.unknownAuthor) params.set(UNKNOWN_AUTHOR_PARAM, FLAG_ON);
-	return params;
-}
-
-function uniqueValues(params: Params, name: string): string[] {
-	return [...new Set(params.getAll(name).filter((value) => value !== ''))];
-}
-
-export function filterFromParams(params: Params): CollectionFilter {
-	const years = params.get(PARAMS.years);
-	return {
-		...emptyFilter(),
-		favourites: params.get(PARAMS.favourites) === FLAG_ON,
-		eras: uniqueValues(params, PARAMS.eras).filter(isEraCode),
-		types: uniqueValues(params, PARAMS.types).filter((value): value is ArtworkTypeCode =>
-			ARTWORK_TYPE_CODES.includes(value as ArtworkTypeCode)
-		),
-		...(years ? parseYears(years) : {}),
-		authors: uniqueValues(params, PARAMS.authors),
-		unknownAuthor: params.get(UNKNOWN_AUTHOR_PARAM) === FLAG_ON,
-		periods: uniqueValues(params, PARAMS.periods),
-		styles: uniqueValues(params, PARAMS.styles),
-		materials: uniqueValues(params, PARAMS.materials),
-		locations: uniqueValues(params, PARAMS.locations),
-		missing: uniqueValues(params, PARAMS.missing).filter((value): value is MissingData =>
-			MISSING_DATA.includes(value as MissingData)
-		),
-		...ownFromParams(params)
-	};
-}
-
-function ownFromParams(params: Params): Pick<CollectionFilter, 'own' | 'ownTexts' | 'ticked'> {
-	const own: Record<string, string[]> = {};
-	const ownTexts: Record<string, string> = {};
-	for (const name of new Set(params.keys())) {
-		if (name.startsWith(OWN_PARAM_PREFIX)) {
-			own[name.slice(OWN_PARAM_PREFIX.length)] = uniqueValues(params, name);
-		} else if (name.startsWith(OWN_TEXT_PARAM_PREFIX)) {
-			ownTexts[name.slice(OWN_TEXT_PARAM_PREFIX.length)] = params.get(name) ?? '';
-		}
-	}
-	return { own, ownTexts, ticked: uniqueValues(params, TICKED_PARAM) };
-}
-
-export function pruneFilter(
-	filter: CollectionFilter,
-	artworks: WallArtwork[],
-	fields?: readonly OwnFieldDefinition[]
-): CollectionFilter {
-	const pruned = { ...filter };
-	for (const field of NAME_FIELDS) {
-		const existing = new Set(artworks.flatMap((artwork) => valuesOf(artwork, field)));
-		pruned[field] = filter[field].filter((value) => existing.has(value));
-	}
-	if (!fields) return pruned;
-	const ofKind = (kind: OwnFieldDefinition['kind']): Set<string> =>
-		new Set(fields.filter((field) => field.kind === kind).map((field) => field.id));
-	const lists = ofKind('list');
-	const texts = ofKind('text');
-	const flags = ofKind('flag');
-	pruned.own = Object.fromEntries(
-		Object.entries(filter.own)
-			.filter(([id]) => lists.has(id))
-			.map(([id, values]) => {
-				const existing = new Set(
-					artworks.flatMap((artwork) => {
-						const entry = artwork.own?.[id];
-						return Array.isArray(entry) ? entry : [];
-					})
-				);
-				return [id, values.filter((value) => existing.has(value))];
-			})
-			.filter(([, values]) => values.length > 0)
-	);
-	pruned.ownTexts = Object.fromEntries(
-		Object.entries(filter.ownTexts).filter(([id]) => texts.has(id))
-	);
-	pruned.ticked = filter.ticked.filter((id) => flags.has(id));
-	return pruned;
 }

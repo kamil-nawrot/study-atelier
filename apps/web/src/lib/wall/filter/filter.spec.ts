@@ -6,27 +6,23 @@ import {
 	applyFilter,
 	clearField,
 	emptyFilter,
-	filterFromParams,
 	filterOptions,
-	filterTags,
 	favouriteCount,
-	filterToParams,
 	isEmptyFilter,
 	matchesFilter,
 	onlyFavourites,
-	pruneFilter,
-	removeTag,
 	ownFilterOptions,
 	setOwnText,
 	setYears,
-	tagLabel,
-	tagParts,
 	tickedOptions,
 	toggleFavourites,
 	toggleOwnValue,
 	toggleTicked,
 	toggleValue
 } from './filter.ts';
+import { filterFromParams, filterToParams } from '#lib/wall/filter-params/filter-params.ts';
+import { filterTags, removeTag, tagLabel, tagParts } from '#lib/wall/filter-tags/filter-tags.ts';
+import { pruneFilter } from '#lib/wall/filter-prune/filter-prune.ts';
 import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';

@@ -9,7 +9,8 @@
 	import FilterTags from '#lib/wall/components/FilterTags/FilterTags.svelte';
 	import PeriodRail from '#lib/wall/components/PeriodRail/PeriodRail.svelte';
 	import WallSections from '#lib/wall/components/WallSections/WallSections.svelte';
-	import { onlyFavourites, removeTag } from '#lib/wall/filter/filter.ts';
+	import { onlyFavourites } from '#lib/wall/filter/filter.ts';
+	import { removeTag } from '#lib/wall/filter-tags/filter-tags.ts';
 	import { favouriteToast } from '#lib/wall/favourite/favourite.ts';
 	import type { WallView } from '#lib/wall/wall-view/wall-view.svelte.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
