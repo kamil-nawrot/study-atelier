@@ -17,6 +17,7 @@ import {
 	PERIOD_ERA_USAGE,
 	REVIEW_CARDS,
 	TIMELINE_EVENTS,
+	VISITS,
 	STYLE_PERIOD_USAGE,
 	VALUE_DETAILS,
 	VALUE_USAGE,
@@ -351,6 +352,15 @@ function glossaryRoute(route, request, url) {
 	);
 }
 
+function visitsRoute(route, request, url) {
+	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
+	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
+	const id = url.searchParams.get('id');
+	const rows = id?.startsWith('eq.') ? VISITS.filter((row) => row.id === id.slice(3)) : VISITS;
+	if (!wantsObject) return json(route, rows);
+	return json(route, rows[0] ?? null);
+}
+
 function profileRoute(route, request) {
 	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
 	if (request.method() !== 'GET') return json(route, wantsObject ? PROFILE : [PROFILE], 201);
@@ -410,6 +420,8 @@ async function mockSupabase(context) {
 			if (request.method() === 'PATCH') return json(route, { id: TIMELINE_EVENTS[0].id });
 			return json(route, TIMELINE_EVENTS);
 		}
+		if (url.pathname === '/rest/v1/visits') return visitsRoute(route, request, url);
+		if (url.pathname === '/rest/v1/rpc/save_visit') return json(route, VISITS[0].id);
 		if (url.pathname === '/rest/v1/catalogue_museums') return json(route, CATALOGUE_MUSEUMS);
 		if (
 			url.pathname === '/rest/v1/location_details' &&
