@@ -9,11 +9,7 @@
 		"packages/ui/src/lib/components/NotesEditor/NotesEditor.svelte",
 		"packages/ui/src/lib/components/Primer/Primer.svelte"
 	],
-	"complexity": [
-		"apps/web/src/lib/images/image-record/image-record.ts",
-		"apps/web/src/lib/values/value-details-data/value-details-data.ts",
-		"apps/web/src/lib/wall/wall-data/wall-data.ts"
-	],
+	"complexity": [],
 	"layout": [],
 	"route-script": [],
 	"storage": []

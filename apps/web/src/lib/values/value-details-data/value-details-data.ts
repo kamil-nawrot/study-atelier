@@ -12,6 +12,8 @@ import {
 	withPreview
 } from '#lib/images/image-record/image-record.ts';
 import type { ImageRow } from '#lib/images/types/image-row.ts';
+import type { StoredImage } from '#lib/images/types/stored-image.ts';
+import type { Json } from '#lib/shared/data/database.types.ts';
 import { isCountryCode } from '#lib/catalogue/countries/countries.ts';
 import { isPlaceType } from '#lib/catalogue/place-types/place-types.ts';
 import type { AuthorDetails } from '#lib/values/types/author-details.ts';
@@ -137,6 +139,30 @@ function authorColumns(author: AuthorDetails, image: ReturnType<typeof imageColu
 	};
 }
 
+function detailsPayload(
+	text: { summary: string; notes: string },
+	details: ValueDetails,
+	image: StoredImage | null
+): Json {
+	const { author, location } = details;
+	return {
+		...text,
+		...(author ? authorColumns(author, imageColumns(image)) : {}),
+		...(location ? { country_code: location.countryCode, place_type: location.placeType } : {})
+	};
+}
+
+async function removeReplacedUpload(
+	details: ValueDetails,
+	previous: ValueDetails | undefined,
+	image: StoredImage | null
+): Promise<void> {
+	const previousUpload = uploadPath(previous?.author?.image ?? null);
+	if (details.author && previousUpload && previousUpload !== uploadPath(image)) {
+		await removeOwnImage(previousUpload);
+	}
+}
+
 export async function saveValueDetails(
 	subject: ValueSubject,
 	details: ValueDetails,
@@ -155,25 +181,16 @@ export async function saveValueDetails(
 	const stored = author ? await storedImage(author.image) : { image: null };
 	if (stored.error !== undefined) return { error: stored.error };
 	const newUpload = author?.image?.kind === 'file' ? uploadPath(stored.image) : null;
-	const location = details.location;
-	const payload = {
-		...text,
-		...(author ? authorColumns(author, imageColumns(stored.image)) : {}),
-		...(location ? { country_code: location.countryCode, place_type: location.placeType } : {})
-	};
 
 	const { error } = await supabase.rpc('save_value_details', {
 		target_value: subject.record.id,
-		details: payload
+		details: detailsPayload(text, details, stored.image)
 	});
 	if (error) {
 		if (newUpload) await removeOwnImage(newUpload);
 		return { error: await failureMessage(error, cardIndexErrorMessage) };
 	}
 
-	const previousUpload = uploadPath(previous?.author?.image ?? null);
-	if (author && previousUpload && previousUpload !== uploadPath(stored.image)) {
-		await removeOwnImage(previousUpload);
-	}
+	await removeReplacedUpload(details, previous, stored.image);
 	return {};
 }
