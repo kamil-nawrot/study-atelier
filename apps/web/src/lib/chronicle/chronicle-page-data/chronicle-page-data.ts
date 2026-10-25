@@ -35,14 +35,14 @@ export async function loadVisitPage(id: string): Promise<VisitPageData> {
 	if (!result.visit) return { ...result, artworks: [] };
 	const notes = result.visit.notes;
 	const [atelier, noteLinks, glossary] = await Promise.all([
-		loadAtelier(),
+		result.visit.artworkIds.length > 0 ? loadAtelier() : undefined,
 		mentionsLinks(notes) ? loadNoteLinks() : undefined,
 		notes ? loadGlossary() : undefined
 	]);
 	return {
 		...result,
-		artworks: atelier.artworks,
-		artworksError: atelier.error,
+		artworks: atelier?.artworks ?? [],
+		artworksError: atelier?.error,
 		noteLinks,
 		glossary: glossary?.entries
 	};

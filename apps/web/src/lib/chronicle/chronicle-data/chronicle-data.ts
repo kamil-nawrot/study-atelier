@@ -64,6 +64,7 @@ export async function loadVisits(): Promise<VisitsResult> {
 			.select(VISIT_COLUMNS)
 			.order('visited_on', { ascending: false })
 			.order('created_at', { ascending: false })
+			.order('id', { ascending: false })
 			.range(from, to)
 	);
 	if (error) return { visits: [], error: chronicleErrorMessage(error) };
@@ -80,6 +81,7 @@ export async function loadArtworkVisits(number: number): Promise<VisitsResult> {
 			.eq('visit_artworks.artworks.record_number', number)
 			.order('visited_on', { ascending: false })
 			.order('created_at', { ascending: false })
+			.order('id', { ascending: false })
 			.range(from, to)
 	);
 	if (error) return { visits: [], error: chronicleErrorMessage(error) };
