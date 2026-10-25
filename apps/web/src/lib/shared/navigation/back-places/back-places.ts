@@ -1,3 +1,4 @@
+import { readStoredJson, writeStored } from '#lib/shared/utils/storage/storage.ts';
 import type { Place } from '#lib/shared/types/place.ts';
 import type { Names } from '#lib/shared/types/names.ts';
 type PageStop = {
@@ -48,19 +49,11 @@ export function named(names: Names, key: string, place: Place): Names {
 	return { ...names, [key]: place };
 }
 
-export function loadNames(storage?: Pick<Storage, 'getItem'>): Names {
-	try {
-		const saved = JSON.parse((storage ?? sessionStorage).getItem(STORAGE_KEY) ?? 'null') as unknown;
-		return saved !== null && typeof saved === 'object' ? (saved as Names) : {};
-	} catch {
-		return {};
-	}
+export function loadNames(): Names {
+	const saved = readStoredJson('session', STORAGE_KEY);
+	return saved !== null && typeof saved === 'object' ? (saved as Names) : {};
 }
 
-export function saveNames(names: Names, storage?: Pick<Storage, 'setItem'>): void {
-	try {
-		(storage ?? sessionStorage).setItem(STORAGE_KEY, JSON.stringify(names));
-	} catch {
-		return;
-	}
+export function saveNames(names: Names): void {
+	writeStored('session', STORAGE_KEY, JSON.stringify(names));
 }

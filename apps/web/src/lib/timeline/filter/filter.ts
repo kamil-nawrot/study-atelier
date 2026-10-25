@@ -2,13 +2,12 @@ import {
 	emptyFilter,
 	favouriteCount,
 	filterOptions,
-	filterTags,
 	isEmptyFilter,
 	matchesFilter,
-	removeTag,
 	toggleFavourites,
 	toggleValue
 } from '#lib/wall/filter/filter.ts';
+import { filterTags, removeTag } from '#lib/wall/filter-tags/filter-tags.ts';
 import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
 import type { FilterOption } from '#lib/catalogue/types/filter-option.ts';
 import type { FilterTag } from '#lib/catalogue/types/filter-tag.ts';

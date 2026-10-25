@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Tag, TextButton } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
-	import { tagLabel, tagParts } from '#lib/wall/filter/filter.ts';
+	import { tagLabel, tagParts } from '#lib/wall/filter-tags/filter-tags.ts';
 	import type { FilterTag } from '#lib/catalogue/types/filter-tag.ts';
 
 	type Props = {

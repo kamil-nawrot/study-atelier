@@ -5,15 +5,10 @@ import { goto } from '$app/navigation';
 import { resolve } from '$app/paths';
 import { page } from '$app/state';
 import type { ResolvedPathname } from '$app/types';
-import {
-	applyFilter,
-	emptyFilter,
-	filterFromParams,
-	filterTags,
-	filterToParams,
-	isEmptyFilter,
-	pruneFilter
-} from '#lib/wall/filter/filter.ts';
+import { applyFilter, emptyFilter, isEmptyFilter } from '#lib/wall/filter/filter.ts';
+import { filterFromParams, filterToParams } from '#lib/wall/filter-params/filter-params.ts';
+import { filterTags } from '#lib/wall/filter-tags/filter-tags.ts';
+import { pruneFilter } from '#lib/wall/filter-prune/filter-prune.ts';
 import { setFavourite } from '#lib/wall/favourite-data/favourite-data.ts';
 import {
 	groupingFromParams,

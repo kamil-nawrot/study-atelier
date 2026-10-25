@@ -15,13 +15,25 @@ export const IMAGE_COLUMNS = [
 	'image_height'
 ] as const;
 
+function commonsColumns(image: StoredImage | null): Partial<ImageRow> {
+	if (image?.kind !== 'commons') return {};
+	return {
+		source_wikidata_id: image.wikidataId,
+		source_image_file: image.file,
+		source_image_licence: image.licence,
+		source_image_licence_url: image.licenceUrl,
+		source_image_attribution: image.attribution
+	};
+}
+
 export function imageColumns(image: StoredImage | null): ImageRow {
 	return {
-		source_wikidata_id: image?.kind === 'commons' ? image.wikidataId : null,
-		source_image_file: image?.kind === 'commons' ? image.file : null,
-		source_image_licence: image?.kind === 'commons' ? image.licence : null,
-		source_image_licence_url: image?.kind === 'commons' ? image.licenceUrl : null,
-		source_image_attribution: image?.kind === 'commons' ? image.attribution : null,
+		source_wikidata_id: null,
+		source_image_file: null,
+		source_image_licence: null,
+		source_image_licence_url: null,
+		source_image_attribution: null,
+		...commonsColumns(image),
 		own_image_path: image?.kind === 'upload' ? image.path : null,
 		own_image_url: image?.kind === 'url' ? image.url : null,
 		image_width: image?.width ?? null,

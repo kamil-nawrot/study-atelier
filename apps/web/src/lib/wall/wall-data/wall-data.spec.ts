@@ -5,13 +5,8 @@ import { backfillThumbnails } from '#lib/images/thumbnail-backfill/thumbnail-bac
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { SIGNED_URL_SECONDS } from '#lib/images/bucket/bucket.ts';
-import {
-	DEFAULT_IMAGE_SIZE,
-	loadAtelier,
-	loadTrash,
-	refreshExpiredImages,
-	resolveImages
-} from './wall-data.ts';
+import { DEFAULT_IMAGE_SIZE } from '#lib/wall/tile-image/tile-image.ts';
+import { loadAtelier, loadTrash, refreshExpiredImages, resolveImages } from './wall-data.ts';
 import { resolvedImages } from '#lib/images/resolved-images/resolved-images.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 

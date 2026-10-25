@@ -1,16 +1,8 @@
-import type { ArtworkTileImage } from '@study-atelier/ui';
 import { IMAGES_BUCKET, SIGNED_URL_SECONDS, ownThumbnailPath } from '#lib/images/bucket/bucket.ts';
-import {
-	COMMONS_THUMBNAIL_WIDTHS,
-	commonsFileUrl,
-	commonsSrcset,
-	commonsThumbnailSrcset,
-	fetchCommonsThumbnails
-} from '#lib/images/commons/commons.ts';
+import { fetchCommonsThumbnails } from '#lib/images/commons/commons.ts';
 import { backfillThumbnails } from '#lib/images/thumbnail-backfill/thumbnail-backfill.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { artworkImageSource } from '#lib/images/artwork-image/artwork-image.ts';
 import {
 	authorSortNamesOf,
 	ownEntriesOf,
@@ -18,17 +10,25 @@ import {
 } from '#lib/card-index/artwork-values/artwork-values.ts';
 import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import { formatDate } from '#lib/catalogue/years/years.ts';
-import { tileSizes } from '#lib/wall/masonry/masonry.ts';
 import { resolvedImages } from '#lib/images/resolved-images/resolved-images.ts';
 import type { ArtworkValueRow } from '#lib/card-index/types/artwork-value-row.ts';
 import type { FieldEntryRow } from '#lib/card-index/types/field-entry-row.ts';
 import type { TrashArtwork } from '#lib/wall/types/trash-artwork.ts';
 import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
-import type { ImageSize } from '#lib/catalogue/types/image-size.ts';
 import type { PendingImage } from '#lib/catalogue/types/pending-image.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
+import type { MainImageRow } from '#lib/wall/types/main-image-row.ts';
+import {
+	DEFAULT_IMAGE_SIZE,
+	TILE_WIDTH,
+	commonsImage,
+	linkedImage,
+	ownImage,
+	pendingImageOf,
+	storedSize
+} from '#lib/wall/tile-image/tile-image.ts';
 
 type AtelierResult = {
 	artworks: WallArtwork[];
@@ -39,14 +39,6 @@ type AtelierResult = {
 type TrashResult = {
 	artworks: TrashArtwork[];
 	error?: string;
-};
-
-type MainImageRow = {
-	source_image_file: string | null;
-	own_image_path: string | null;
-	own_image_url: string | null;
-	image_width: number | null;
-	image_height: number | null;
 };
 
 type ArtworkRow = {
@@ -64,12 +56,6 @@ type ArtworkRow = {
 	artwork_values: ArtworkValueRow[];
 	artwork_field_entries?: FieldEntryRow[];
 };
-
-export const DEFAULT_IMAGE_SIZE: ImageSize = { width: 4, height: 5 };
-
-const TILE_SIZES = tileSizes();
-const TILE_WIDTH = 500;
-const TILE_MAX_IMAGE_WIDTH = 960;
 
 const ARTWORK_COLUMNS = [
 	'id',
@@ -115,59 +101,6 @@ async function wallImageUrls(paths: string[]): Promise<Map<string, string>> {
 	return urls;
 }
 
-function storedSize(image: MainImageRow | undefined): ImageSize | undefined {
-	return image?.image_width && image.image_height
-		? { width: image.image_width, height: image.image_height }
-		: undefined;
-}
-
-function thumbnailWidths(size: ImageSize | undefined): number[] {
-	const largest = Math.min(size?.width ?? TILE_WIDTH, TILE_MAX_IMAGE_WIDTH);
-	return COMMONS_THUMBNAIL_WIDTHS.filter((width) => width <= largest);
-}
-
-function commonsImage(
-	file: string,
-	thumbnailUrl: string | undefined,
-	size: ImageSize | undefined
-): ArtworkTileImage {
-	const widths = thumbnailWidths(size);
-	const srcset = thumbnailUrl
-		? commonsThumbnailSrcset(thumbnailUrl, TILE_WIDTH, widths)
-		: commonsSrcset(file, widths);
-	return {
-		src: thumbnailUrl ?? commonsFileUrl(file, TILE_WIDTH),
-		srcset: srcset || undefined,
-		sizes: TILE_SIZES,
-		...(size ?? DEFAULT_IMAGE_SIZE)
-	};
-}
-
-function ownImage(
-	src: string | undefined,
-	size: ImageSize | undefined
-): ArtworkTileImage | undefined {
-	return src ? { src, ...(size ?? DEFAULT_IMAGE_SIZE) } : undefined;
-}
-
-function linkedImage(
-	url: string | undefined,
-	size: ImageSize | undefined
-): ArtworkTileImage | undefined {
-	if (!url) return undefined;
-	const source = artworkImageSource(
-		{ kind: 'url', url, width: size?.width ?? null, height: size?.height ?? null },
-		TILE_WIDTH
-	);
-	if (!source?.srcset) return ownImage(url, size);
-	return {
-		src: source.src,
-		srcset: source.srcset,
-		sizes: TILE_SIZES,
-		...(size ?? DEFAULT_IMAGE_SIZE)
-	};
-}
-
 async function fetchAllRows(
 	page: Parameters<typeof fetchAll>[0]
 ): Promise<{ rows: ArtworkRow[]; error?: string }> {
@@ -178,13 +111,7 @@ async function fetchAllRows(
 function wallArtwork(row: ArtworkRow): WallArtwork {
 	const main = row.artwork_images[0];
 	const size = storedSize(main);
-	const pendingImage: PendingImage | undefined = main?.own_image_path
-		? { ownPath: main.own_image_path, size }
-		: main?.own_image_url
-			? undefined
-			: main?.source_image_file
-				? { sourceFile: main.source_image_file, size }
-				: undefined;
+	const pendingImage = pendingImageOf(main, size);
 	const image = pendingImage
 		? { ...(size ?? DEFAULT_IMAGE_SIZE) }
 		: linkedImage(main?.own_image_url ?? undefined, size);
