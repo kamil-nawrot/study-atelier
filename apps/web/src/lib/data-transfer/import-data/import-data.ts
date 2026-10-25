@@ -12,7 +12,8 @@ const FILLED_TABLES = [
 	'category_values',
 	'glossary_entries',
 	'timeline_events',
-	'artwork_fields'
+	'artwork_fields',
+	'visits'
 ] as const;
 
 export async function loadAtelierEmpty(): Promise<boolean | undefined> {

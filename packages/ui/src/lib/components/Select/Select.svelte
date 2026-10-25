@@ -15,6 +15,7 @@
 		error?: string;
 		icon?: LucideIcon;
 		compact?: boolean;
+		hideLabel?: boolean;
 	};
 
 	let {
@@ -26,6 +27,7 @@
 		error,
 		icon,
 		compact = false,
+		hideLabel = false,
 		id,
 		...rest
 	}: Props = $props();
@@ -37,7 +39,7 @@
 </script>
 
 <div class="field" class:compact>
-	<label class:visually-hidden={compact} for={selectId}>{label}</label>
+	<label class:visually-hidden={compact || hideLabel} for={selectId}>{label}</label>
 	<div class="control" class:invalid={!!error}>
 		{#if icon}
 			<span class="glyph">

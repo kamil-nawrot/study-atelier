@@ -10,7 +10,7 @@ export const cardIndexErrorMessage = errorMessages(
 		'23505': m.cardIndex.errors.changed,
 		'23514': m.cardIndex.errors.changed
 	},
-	m.cardIndex.errors.network
+	m.common.network
 );
 
 export const artworkErrorMessage = errorMessages(
@@ -22,5 +22,5 @@ export const artworkErrorMessage = errorMessages(
 		'23503': m.artworkErrors.conflict,
 		'23505': m.artworkErrors.conflict
 	},
-	m.artworkErrors.network
+	m.common.network
 );

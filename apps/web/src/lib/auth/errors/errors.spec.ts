@@ -13,9 +13,7 @@ describe('authErrorMessage', () => {
 	});
 
 	it('reports network failures', () => {
-		expect(authErrorMessage({ name: 'AuthRetryableFetchError', status: 0 })).toBe(
-			m.authErrors.network
-		);
+		expect(authErrorMessage({ name: 'AuthRetryableFetchError', status: 0 })).toBe(m.common.network);
 	});
 
 	it('treats an unknown 429 as rate limiting', () => {

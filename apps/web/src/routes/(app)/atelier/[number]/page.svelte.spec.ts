@@ -12,6 +12,7 @@ import { buildNoteLinks } from '#lib/notes/note-links/note-links.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
+import { testVisit, VISIT_ID } from '#lib/testing/chronicle/chronicle.ts';
 import type { Pin } from '#lib/pins/types/pin.ts';
 import { testEntry } from '#lib/testing/glossary/glossary.ts';
 import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
@@ -96,6 +97,18 @@ describe('artwork page', () => {
 		await page.viewport(1280, 800);
 	});
 
+	it('lists the visits the artwork was seen on under the information', async () => {
+		renderPage({ artwork: artwork(), visits: [testVisit()] });
+
+		await expect
+			.element(page.getByRole('heading', { name: m.chronicle.artworkVisits(1) }))
+			.toBeInTheDocument();
+		await page.getByRole('heading', { name: m.chronicle.artworkVisits(1) }).click();
+		await expect
+			.element(page.getByRole('link', { name: /Musée d’Orsay/ }))
+			.toHaveAttribute('href', `/atelier/chronicle/${VISIT_ID}`);
+	});
+
 	it('shows the type and the era as an icon with the name', async () => {
 		renderPage();
 
@@ -127,7 +140,7 @@ describe('artwork page', () => {
 			.element(page.getByText(m.artworkForm.ownImageUrlCredit('localhost')))
 			.not.toBeInTheDocument();
 		await expect
-			.element(page.getByRole('link', { name: m.artworkView.edit }))
+			.element(page.getByRole('link', { name: m.common.edit }))
 			.toHaveAttribute('href', '/atelier/42/edit');
 		await expect.element(backLink()).toHaveAttribute('href', '/atelier');
 	});
@@ -309,7 +322,7 @@ describe('artwork page', () => {
 
 		await page.getByRole('button', { name: m.artworkView.hideInformation }).click();
 		await expect.element(page.getByRole('heading', { level: 1 })).not.toBeInTheDocument();
-		await expect.element(page.getByRole('link', { name: m.artworkView.edit })).toBeVisible();
+		await expect.element(page.getByRole('link', { name: m.common.edit })).toBeVisible();
 
 		await page.getByRole('button', { name: m.artworkView.showInformation }).click();
 		await expect.element(page.getByRole('heading', { level: 1 })).toBeVisible();
@@ -438,7 +451,7 @@ describe('artwork page', () => {
 		rememberWall([7, 42, 30]);
 		renderPage();
 
-		await page.getByRole('button', { name: m.artworkView.delete }).click();
+		await page.getByRole('button', { name: m.common.delete }).click();
 		await expect.element(page.getByRole('alertdialog')).toBeVisible();
 		await userEvent.keyboard('{ArrowRight}');
 
@@ -468,11 +481,9 @@ describe('artwork page', () => {
 		await expect
 			.element(page.getByRole('link', { name: m.artworkForm.back }))
 			.toHaveAttribute('href', '/atelier');
+		await expect.element(page.getByRole('link', { name: m.common.edit })).not.toBeInTheDocument();
 		await expect
-			.element(page.getByRole('link', { name: m.artworkView.edit }))
-			.not.toBeInTheDocument();
-		await expect
-			.element(page.getByRole('button', { name: m.artworkView.delete }))
+			.element(page.getByRole('button', { name: m.common.delete }))
 			.not.toBeInTheDocument();
 	});
 
@@ -492,12 +503,12 @@ describe('artwork page', () => {
 	});
 
 	it('shows a load error in an alert', async () => {
-		renderPage({ error: m.artworkErrors.network });
+		renderPage({ error: m.common.network });
 
 		await expect
 			.element(page.getByRole('heading', { level: 1 }))
 			.toHaveTextContent(m.artworkForm.loadErrorTitle);
-		await expect.element(page.getByText(m.artworkErrors.network)).toBeVisible();
+		await expect.element(page.getByText(m.common.network)).toBeVisible();
 	});
 
 	it('confirms the saved changes once', async () => {
@@ -524,7 +535,7 @@ describe('artwork page', () => {
 		vi.mocked(moveToTrash).mockResolvedValue({});
 		renderPage();
 
-		await page.getByRole('button', { name: m.artworkView.delete }).click();
+		await page.getByRole('button', { name: m.common.delete }).click();
 		const dialog = page.getByRole('alertdialog', { name: m.trash.moveTitle('#0042') });
 		await expect.element(dialog).toBeVisible();
 		await expect.element(dialog.getByText(m.trash.moveDescription)).toBeVisible();
@@ -537,8 +548,8 @@ describe('artwork page', () => {
 	it('keeps the artwork when the learner cancels', async () => {
 		renderPage();
 
-		await page.getByRole('button', { name: m.artworkView.delete }).click();
-		await page.getByRole('button', { name: m.trash.cancel }).click();
+		await page.getByRole('button', { name: m.common.delete }).click();
+		await page.getByRole('button', { name: m.common.cancel }).click();
 
 		await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
 		expect(moveToTrash).not.toHaveBeenCalled();
@@ -546,14 +557,14 @@ describe('artwork page', () => {
 	});
 
 	it('shows an error in the dialog when moving to the trash fails', async () => {
-		vi.mocked(moveToTrash).mockResolvedValue({ error: m.artworkErrors.network });
+		vi.mocked(moveToTrash).mockResolvedValue({ error: m.common.network });
 		renderPage();
 
-		await page.getByRole('button', { name: m.artworkView.delete }).click();
+		await page.getByRole('button', { name: m.common.delete }).click();
 		await page.getByRole('button', { name: m.trash.move }).click();
 
 		const dialog = page.getByRole('alertdialog');
-		await expect.element(dialog.getByText(m.artworkErrors.network)).toBeVisible();
+		await expect.element(dialog.getByText(m.common.network)).toBeVisible();
 		expect(goto).not.toHaveBeenCalled();
 	});
 

@@ -34,6 +34,8 @@
 
 <Story name="Disabled" args={{ value: 'sculpture', disabled: true }} />
 
+<Story name="Hidden label" args={{ hideLabel: true, placeholder: 'Type' }} />
+
 <Story
 	name="Compact"
 	args={{

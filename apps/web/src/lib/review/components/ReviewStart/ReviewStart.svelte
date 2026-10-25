@@ -1,6 +1,8 @@
 <script lang="ts">
+	import Layers from '@lucide/svelte/icons/layers';
 	import Play from '@lucide/svelte/icons/play';
-	import { Alert, Button, Disclosure, Icon, Tag, ToggleTag } from '@study-atelier/ui';
+	import Plus from '@lucide/svelte/icons/plus';
+	import { Alert, Button, Disclosure, EmptyState, Icon, Tag, ToggleTag } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -73,7 +75,6 @@
 		<header class="intro">
 			{#if missing > 0}
 				<h1>{m.review.title}</h1>
-				<p class="lead">{m.review.tooFew(MIN_ARTWORKS, missing)}</p>
 			{:else if waiting > 0}
 				<h1>{m.review.waiting(waiting)}</h1>
 				<p class="lead">{m.review.plan(known, fresh)}</p>
@@ -91,11 +92,16 @@
 		</header>
 
 		{#if missing > 0}
-			<div class="go">
-				<Button href={resolve('/(app)/atelier/new')} variant="primary">
+			<EmptyState
+				icon={Layers}
+				text={m.review.tooFew(MIN_ARTWORKS, missing)}
+				title={m.review.tooFewTitle(MIN_ARTWORKS)}
+			>
+				<Button href={resolve('/(app)/atelier/new')}>
+					<Icon icon={Plus} />
 					{m.atelier.add}
 				</Button>
-			</div>
+			</EmptyState>
 		{:else if waiting > 0 || free}
 			{#if error}
 				<Alert title={m.review.startErrorTitle} tone="danger">{error}</Alert>

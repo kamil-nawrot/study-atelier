@@ -47,7 +47,7 @@ function renderNew(error?: string): void {
 }
 
 function nameField(): ReturnType<typeof page.getByRole> {
-	return page.getByLabelText(m.glossary.form.name);
+	return page.getByLabelText(m.common.name);
 }
 
 function definitionField(): ReturnType<typeof page.getByRole> {
@@ -55,7 +55,7 @@ function definitionField(): ReturnType<typeof page.getByRole> {
 }
 
 function saveButton(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('button', { name: m.glossary.form.save, exact: true });
+	return page.getByRole('button', { name: m.common.save, exact: true });
 }
 
 function category(name: string): ReturnType<typeof page.getByRole> {
@@ -106,7 +106,7 @@ describe('new glossary entry page', () => {
 		await expect.element(page.getByText(m.glossary.form.formsHint)).toBeVisible();
 		await expect.element(page.getByText(m.glossary.form.synonymsHint)).toBeVisible();
 		await expect
-			.element(page.getByRole('link', { name: m.glossary.form.cancel }))
+			.element(page.getByRole('link', { name: m.common.cancel }))
 			.toHaveAttribute('href', '/atelier/glossary');
 	});
 
@@ -145,14 +145,14 @@ describe('new glossary entry page', () => {
 
 	it('shows a failed save in an alert at the top of the form', async () => {
 		renderNew();
-		vi.mocked(saveGlossaryEntry).mockResolvedValue({ error: m.glossary.errors.network });
+		vi.mocked(saveGlossaryEntry).mockResolvedValue({ error: m.common.network });
 
 		await nameField().fill('Sfumato');
 		await category(m.glossary.categoryNames.technique).click();
 		await saveButton().click();
 
 		await expect.element(page.getByText(m.glossary.form.errorTitle)).toBeVisible();
-		await expect.element(page.getByText(m.glossary.errors.network)).toBeVisible();
+		await expect.element(page.getByText(m.common.network)).toBeVisible();
 		expect(goto).not.toHaveBeenCalled();
 	});
 
@@ -338,7 +338,7 @@ describe('new glossary entry page', () => {
 
 		await page.getByRole('button', { name: m.glossary.form.pickArticle }).click();
 		await page.getByRole('radio', { name: /^Transept/ }).click();
-		await page.getByRole('button', { name: m.glossary.articles.cancel }).click();
+		await page.getByRole('button', { name: m.common.cancel }).click();
 
 		await expect.element(definitionField()).toHaveValue(NAWA.extract);
 	});
@@ -366,7 +366,7 @@ describe('new glossary entry page', () => {
 		await page.getByRole('button', { name: m.glossary.form.pickArticle }).click();
 		await page.getByRole('radio', { name: /^Transept/ }).click();
 		await page.getByRole('button', { name: m.glossary.articles.use }).click();
-		await page.getByRole('button', { name: m.glossary.replaceConfirm.replace }).click();
+		await page.getByRole('button', { name: m.common.replace }).click();
 
 		await expect.element(definitionField()).toHaveValue(TRANSEPT.extract);
 		await expect.element(page.getByText(/„Transept”/)).toBeVisible();
@@ -603,14 +603,14 @@ describe('new glossary entry page', () => {
 		await expect
 			.element(page.getByRole('alertdialog', { name: m.artworkForm.discardTitle }))
 			.toBeVisible();
-		await expect.element(page.getByText(m.glossary.form.discardDescription)).toBeVisible();
+		await expect.element(page.getByText(m.common.discardDescription)).toBeVisible();
 	});
 
 	it('shows a load error instead of the form', async () => {
 		renderNew(m.common.unexpectedError);
 
 		await expect.element(page.getByText(m.common.unexpectedError)).toBeVisible();
-		expect(page.getByLabelText(m.glossary.form.name).elements()).toHaveLength(0);
+		expect(page.getByLabelText(m.common.name).elements()).toHaveLength(0);
 		await expect
 			.element(page.getByRole('main').getByRole('link', { name: m.glossary.back }))
 			.toHaveAttribute('href', '/atelier/glossary');

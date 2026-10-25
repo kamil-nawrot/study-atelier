@@ -24,6 +24,10 @@ export function isPlaceType(value: unknown): value is PlaceType {
 	return (PLACE_TYPES as readonly unknown[]).includes(value);
 }
 
+export function placeTypeIcon(type: PlaceType): typeof Ticket {
+	return PLACE_ICONS[type];
+}
+
 export function placeTypeName(type: PlaceType): string {
 	return m.valueForm.placeTypes[type];
 }

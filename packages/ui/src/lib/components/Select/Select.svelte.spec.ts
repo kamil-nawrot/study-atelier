@@ -24,6 +24,14 @@ describe('Select', () => {
 		expect(labels).toEqual(['Not chosen', 'Painting', 'Sculpture']);
 	});
 
+	it('keeps a hidden label as the name of the select', async () => {
+		render(Select, { label: 'Month', options: types, placeholder: 'Month', hideLabel: true });
+
+		await expect.element(page.getByRole('combobox', { name: 'Month' })).toBeVisible();
+		const label = document.querySelector('label');
+		expect(label?.getBoundingClientRect().width).toBeLessThanOrEqual(1);
+	});
+
 	it('lets the learner choose an option', async () => {
 		render(Select, { label: 'Type', options: types, placeholder: 'Not chosen' });
 

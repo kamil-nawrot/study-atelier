@@ -129,9 +129,7 @@ describe('Quiz', () => {
 		const { onnext } = renderQuiz('quiz_image', artworkQuiz, 0);
 
 		const status = page.getByRole('status');
-		await expect
-			.element(status)
-			.toHaveTextContent(`${m.review.quiz.wrong} ${milkmaid.title}. ${m.review.quiz.marked}`);
+		await expect.element(status).toHaveTextContent(`${m.review.quiz.wrong} ${milkmaid.title}.`);
 		await expect.element(status).toHaveTextContent(m.review.quiz.retry);
 		await expect
 			.element(page.getByRole('button', { name: new RegExp(m.review.quiz.rightOption) }))

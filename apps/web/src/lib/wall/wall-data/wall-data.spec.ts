@@ -27,6 +27,7 @@ const query = {
 	is: vi.fn(),
 	not: vi.fn(),
 	order: vi.fn(),
+	limit: vi.fn(),
 	range: vi.fn()
 };
 const createSignedUrls = vi.fn();
@@ -94,6 +95,7 @@ describe('loadAtelier', () => {
 		query.is.mockReturnValue(query);
 		query.eq.mockReturnValue(query);
 		query.order.mockReturnValue(query);
+		query.limit.mockReturnValue(query);
 		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map());
 	});
 
@@ -107,7 +109,23 @@ describe('loadAtelier', () => {
 		expect(query.is).toHaveBeenCalledWith('deleted_at', null);
 		expect(query.order).toHaveBeenCalledWith('created_at', { ascending: false });
 		expect(query.order).toHaveBeenCalledWith('id', { ascending: false });
+		expect(query.limit).toHaveBeenCalledWith(1, { referencedTable: 'visit_artworks' });
 		expect(query.range).toHaveBeenCalledWith(0, 999);
+	});
+
+	it('marks an artwork seen on a visit', async () => {
+		query.range.mockResolvedValue({
+			data: [
+				row({ visit_artworks: [{ visit_id: 'visit-1' }] }),
+				row({ id: 'artwork-2', visit_artworks: [] })
+			],
+			error: null
+		});
+
+		const { artworks } = await loadAtelier();
+
+		expect(artworks.map((artwork) => artwork.seen)).toEqual([true, undefined]);
+		expect(query.select).toHaveBeenCalledWith(expect.stringContaining('visit_artworks(visit_id)'));
 	});
 
 	it('keeps asking for the next 1000 artworks until a page is not full', async () => {
@@ -679,6 +697,7 @@ describe('loadTrash', () => {
 		query.not.mockReturnValue(query);
 		query.eq.mockReturnValue(query);
 		query.order.mockReturnValue(query);
+		query.limit.mockReturnValue(query);
 		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map());
 	});
 
@@ -689,6 +708,7 @@ describe('loadTrash', () => {
 		expect(query.not).toHaveBeenCalledWith('deleted_at', 'is', null);
 		expect(query.order).toHaveBeenCalledWith('deleted_at', { ascending: false });
 		expect(query.order).toHaveBeenCalledWith('id', { ascending: false });
+		expect(query.limit).toHaveBeenCalledWith(1, { referencedTable: 'visit_artworks' });
 		expect(query.range).toHaveBeenCalledWith(0, 999);
 	});
 

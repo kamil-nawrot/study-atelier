@@ -8,4 +8,5 @@ export type FilterField =
 	| 'materials'
 	| 'locations'
 	| 'missing'
-	| 'favourites';
+	| 'favourites'
+	| 'seen';

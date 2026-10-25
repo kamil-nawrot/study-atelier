@@ -15,7 +15,7 @@ const pinMessages = errorMessages(
 		P0002: m.pins.errors.notFound,
 		PGRST116: m.pins.errors.notFound
 	},
-	m.pins.errors.network
+	m.common.network
 );
 
 export function pinErrorMessage(error: PinError): string {

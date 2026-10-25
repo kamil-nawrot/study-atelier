@@ -1,4 +1,5 @@
-const CLOSE_DELAY = 200;
+const OPEN_DELAY = 120;
+const CLOSE_DELAY = 120;
 const FOCUSABLE =
 	'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
@@ -15,14 +16,17 @@ export class PopoverState {
 	interactive = false;
 	#pinned = false;
 	#closing: ReturnType<typeof setTimeout> | undefined;
+	#opening: ReturnType<typeof setTimeout> | undefined;
 
 	show(anchor: HTMLElement): void {
+		this.#cancelOpen();
 		this.#cancelClose();
 		this.anchor = anchor;
 		this.open = true;
 	}
 
 	hide(): void {
+		this.#cancelOpen();
 		this.#cancelClose();
 		this.open = false;
 		this.#pinned = false;
@@ -36,11 +40,19 @@ export class PopoverState {
 	}
 
 	pointerEnter(anchor: HTMLElement, event: PointerEvent): void {
-		if (event.pointerType === 'mouse') this.show(anchor);
+		if (event.pointerType !== 'mouse') return;
+		if (this.open) {
+			this.show(anchor);
+			return;
+		}
+		this.#cancelOpen();
+		this.#opening = setTimeout(() => this.show(anchor), OPEN_DELAY);
 	}
 
 	pointerLeave(event: PointerEvent): void {
-		if (event.pointerType !== 'mouse' || this.#pinned) return;
+		if (event.pointerType !== 'mouse') return;
+		this.#cancelOpen();
+		if (this.#pinned) return;
 		if (!this.interactive) {
 			this.open = false;
 			return;
@@ -112,6 +124,11 @@ export class PopoverState {
 		if (!focused) return false;
 		if (this.card?.contains(focused)) return true;
 		return focused === this.anchor && focused.matches(':focus-visible');
+	}
+
+	#cancelOpen(): void {
+		clearTimeout(this.#opening);
+		this.#opening = undefined;
 	}
 
 	#cancelClose(): void {

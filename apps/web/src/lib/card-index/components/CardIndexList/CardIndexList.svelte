@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { SearchField } from '@study-atelier/ui';
+	import ListTree from '@lucide/svelte/icons/list-tree';
+	import { EmptyState, SearchField } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { CARD_INDEX_SEARCH_MIN_VALUES } from '#lib/card-index/card-index/card-index.ts';
 	import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
@@ -30,7 +31,7 @@
 {/snippet}
 
 {#if records.length === 0}
-	<p class="lead">{empty}</p>
+	<EmptyState icon={ListTree} text={empty} />
 {:else}
 	{#if records.length >= CARD_INDEX_SEARCH_MIN_VALUES}
 		<div class="search">

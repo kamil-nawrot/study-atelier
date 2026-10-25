@@ -1,6 +1,6 @@
 # 0093. Show the collection and the learner's historical events on a timeline, one era at a time
 
-- Status: accepted
+- Status: accepted; the empty event band and the empty timeline are superseded by [0130](0130-show-empty-views-in-one-centred-pattern.md)
 - Date: 2026-10-20
 
 ## Context and problem statement

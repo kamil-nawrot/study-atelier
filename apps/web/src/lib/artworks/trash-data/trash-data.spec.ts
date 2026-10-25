@@ -48,7 +48,7 @@ describe('trash actions', () => {
 		query.eq.mockResolvedValue({ error: { message: 'TypeError: Failed to fetch' } });
 
 		await expect(restoreArtwork('artwork-1')).resolves.toEqual({
-			error: m.artworkErrors.network
+			error: m.common.network
 		});
 	});
 

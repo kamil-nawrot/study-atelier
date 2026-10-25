@@ -132,9 +132,9 @@ describe('glossary entry page', () => {
 		renderEntry();
 
 		await expect
-			.element(page.getByRole('link', { name: m.glossary.view.edit }))
+			.element(page.getByRole('link', { name: m.common.edit }))
 			.toHaveAttribute('href', '/atelier/glossary/a-tympanum/edit');
-		await expect.element(page.getByRole('button', { name: m.glossary.view.delete })).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.common.delete })).toBeVisible();
 		await expect
 			.element(page.getByRole('main').getByRole('link', { name: m.glossary.back }))
 			.not.toBeInTheDocument();
@@ -143,14 +143,14 @@ describe('glossary entry page', () => {
 	it('asks before deleting and keeps the entry when the learner stays', async () => {
 		renderEntry();
 
-		await page.getByRole('button', { name: m.glossary.view.delete }).click();
+		await page.getByRole('button', { name: m.common.delete }).click();
 
 		await expect
 			.element(page.getByRole('alertdialog', { name: m.glossary.deleteConfirm.title('Tympanum') }))
 			.toBeVisible();
 		await expect.element(page.getByText(m.glossary.deleteConfirm.description)).toBeVisible();
 
-		await page.getByRole('button', { name: m.glossary.deleteConfirm.back }).click();
+		await page.getByRole('button', { name: m.common.back }).click();
 
 		expect(deleteGlossaryEntry).not.toHaveBeenCalled();
 		expect(goto).not.toHaveBeenCalled();
@@ -159,11 +159,8 @@ describe('glossary entry page', () => {
 	it('deletes the entry and returns to the list with a toast', async () => {
 		renderEntry();
 
-		await page.getByRole('button', { name: m.glossary.view.delete }).click();
-		await page
-			.getByRole('alertdialog')
-			.getByRole('button', { name: m.glossary.deleteConfirm.confirm })
-			.click();
+		await page.getByRole('button', { name: m.common.delete }).click();
+		await page.getByRole('alertdialog').getByRole('button', { name: m.common.delete }).click();
 
 		expect(deleteGlossaryEntry).toHaveBeenCalledWith('a-tympanum');
 		expect(goto).toHaveBeenCalledWith('/atelier/glossary', {
@@ -176,11 +173,8 @@ describe('glossary entry page', () => {
 		vi.mocked(deleteGlossaryEntry).mockResolvedValue({ error: m.common.unexpectedError });
 		renderEntry();
 
-		await page.getByRole('button', { name: m.glossary.view.delete }).click();
-		await page
-			.getByRole('alertdialog')
-			.getByRole('button', { name: m.glossary.deleteConfirm.confirm })
-			.click();
+		await page.getByRole('button', { name: m.common.delete }).click();
+		await page.getByRole('alertdialog').getByRole('button', { name: m.common.delete }).click();
 
 		await expect.element(page.getByText(m.common.unexpectedError)).toBeVisible();
 		expect(goto).not.toHaveBeenCalled();
@@ -202,9 +196,7 @@ describe('glossary entry page', () => {
 		renderEntry(null, { notFound: true });
 
 		await expect.element(page.getByText(m.glossary.view.notFound)).toBeVisible();
-		await expect
-			.element(page.getByRole('link', { name: m.glossary.view.edit }))
-			.not.toBeInTheDocument();
+		await expect.element(page.getByRole('link', { name: m.common.edit })).not.toBeInTheDocument();
 	});
 
 	it('shows a load error', async () => {
@@ -279,7 +271,7 @@ describe('glossary entry page', () => {
 	});
 
 	it('says when the pins of the entry could not be loaded', async () => {
-		renderEntry(tympanum, { pinned: [], pinnedError: m.pins.errors.network });
+		renderEntry(tympanum, { pinned: [], pinnedError: m.common.network });
 
 		await expect.element(page.getByText(m.pins.loadFailed)).toBeVisible();
 	});

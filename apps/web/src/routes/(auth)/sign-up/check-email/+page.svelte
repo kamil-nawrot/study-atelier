@@ -36,7 +36,7 @@
 				<Alert tone="danger">{resendError}</Alert>
 			{/if}
 			<Button disabled={resending} fullWidth onclick={resend}>
-				{resending ? m.checkEmail.resending : m.checkEmail.resend}
+				{resending ? m.common.sending : m.checkEmail.resend}
 			</Button>
 		{/if}
 		<a href={resolve('/(auth)/sign-in')}>{m.common.backToSignIn}</a>

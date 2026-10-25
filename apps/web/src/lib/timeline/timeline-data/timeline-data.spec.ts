@@ -271,9 +271,7 @@ describe('timelineErrorMessage', () => {
 	it('picks a message by code and falls back to a general one', () => {
 		expect(timelineErrorMessage({ code: 'PGRST116' })).toBe(m.timeline.errors.notFound);
 		expect(timelineErrorMessage({ code: '23502' })).toBe(m.timeline.errors.invalid);
-		expect(timelineErrorMessage({ message: 'TypeError: Failed to fetch' })).toBe(
-			m.timeline.errors.network
-		);
+		expect(timelineErrorMessage({ message: 'TypeError: Failed to fetch' })).toBe(m.common.network);
 		expect(timelineErrorMessage({ code: '99999' })).toBe(m.common.unexpectedError);
 	});
 });

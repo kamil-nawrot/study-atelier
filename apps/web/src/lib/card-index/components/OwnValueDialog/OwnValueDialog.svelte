@@ -96,20 +96,20 @@
 			hint={mergeTarget
 				? m.ownFields.value.mergeHint(mergeTarget.name, m.atelier.count(mergeTarget.count))
 				: undefined}
-			label={m.ownFields.value.name}
+			label={m.common.name}
 			maxlength={VALUE_NAME_MAX_LENGTH}
 			bind:value={name}
 		/>
 	</Form>
 	{#snippet footer()}
 		<Button onclick={() => (open = false)}>
-			{m.ownFields.value.cancel}
+			{m.common.cancel}
 		</Button>
 		<Button disabled={saving} form={formId} type="submit" variant="primary">
 			{#if saving}
-				{m.ownFields.value.saving}
+				{m.common.saving}
 			{:else}
-				{mergeTarget ? m.ownFields.value.merge : m.ownFields.value.save}
+				{mergeTarget ? m.common.merge : m.common.save}
 			{/if}
 		</Button>
 	{/snippet}
@@ -123,10 +123,10 @@
 >
 	{#snippet footer()}
 		<Button onclick={() => (confirmOpen = false)}>
-			{m.cardIndex.mergeConfirm.back}
+			{m.common.back}
 		</Button>
 		<Button disabled={saving} onclick={save} variant="primary">
-			{saving ? m.cardIndex.mergeConfirm.merging : m.cardIndex.mergeConfirm.confirm}
+			{saving ? m.cardIndex.mergeConfirm.merging : m.common.merge}
 		</Button>
 	{/snippet}
 </Dialog>

@@ -1,6 +1,7 @@
 declare global {
 	namespace App {
 		interface PageState {
+			chronicleMessage?: string;
 			email?: string;
 			glossaryMessage?: string;
 			highlight?: number;

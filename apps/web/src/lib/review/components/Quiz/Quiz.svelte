@@ -90,7 +90,6 @@
 				<p class="verdict">
 					{m.review.quiz.wrong} <cite class="artwork-title">{picked.label}</cite>.
 				</p>
-				<p>{m.review.quiz.marked}</p>
 			{:else}
 				<p class="verdict">
 					{correct ? m.review.quiz.right : m.review.quiz.wrong}

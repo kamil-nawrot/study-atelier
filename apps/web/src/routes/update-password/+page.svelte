@@ -47,7 +47,7 @@
 				bind:value={password}
 			/>
 			<Button disabled={submitting} fullWidth type="submit" variant="primary">
-				{submitting ? m.updatePassword.submitting : m.updatePassword.submit}
+				{submitting ? m.common.saving : m.updatePassword.submit}
 			</Button>
 		</Form>
 	{:else}

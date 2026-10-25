@@ -37,7 +37,7 @@
 	{#if search.form.source}
 		<div class="links">
 			<span class="caption">
-				{m.glossary.form.sourcePrefix}„{search.form.source.title}”, {search.form.source.licence}
+				{m.common.wikipediaSource}„{search.form.source.title}”, {search.form.source.licence}
 			</span>
 			<TextButton inline onclick={() => search.openArticles()}>
 				{m.glossary.form.pickArticle}

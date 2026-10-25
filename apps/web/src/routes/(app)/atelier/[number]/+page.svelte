@@ -89,17 +89,17 @@
 					<Icon icon={Heart} size="sm" />
 				</span>
 			</Button>
-			<Button aria-label={m.artworkView.edit} compact href={editPath} icon={Pencil}>
-				{m.artworkView.edit}
+			<Button aria-label={m.common.edit} compact href={editPath} icon={Pencil}>
+				{m.common.edit}
 			</Button>
 			<Button
-				aria-label={m.artworkView.delete}
+				aria-label={m.common.delete}
 				compact
 				icon={Trash}
 				onclick={() => (trashOpen = true)}
 				variant="danger"
 			>
-				{m.artworkView.delete}
+				{m.common.delete}
 			</Button>
 		{/if}
 	{/snippet}
@@ -129,6 +129,7 @@
 			pins={data.pins}
 			showPinsOnOpen={data.preferences?.viewShowPins}
 			summaries={data.summaries}
+			visits={data.visits}
 		/>
 	{:else}
 		<LoadFailure

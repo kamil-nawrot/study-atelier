@@ -1,6 +1,6 @@
 # 0028. Move artworks to a trash shown as a list, and confirm every delete
 
-- Status: accepted
+- Status: accepted; the empty trash is superseded by [0130](0130-show-empty-views-in-one-centred-pattern.md); the name "Kosz" is superseded by [0131](0131-call-the-trash-archiwum-and-describe-work-in-progress-impersonally.md)
 - Date: 2026-10-12
 
 ## Context and problem statement

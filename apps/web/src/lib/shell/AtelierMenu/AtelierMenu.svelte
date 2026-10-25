@@ -1,6 +1,7 @@
 <script lang="ts">
 	import BookA from '@lucide/svelte/icons/book-a';
 	import CalendarRange from '@lucide/svelte/icons/calendar-range';
+	import Footprints from '@lucide/svelte/icons/footprints';
 	import ImagesIcon from '@lucide/svelte/icons/images';
 	import Layers from '@lucide/svelte/icons/layers';
 	import ListTree from '@lucide/svelte/icons/list-tree';
@@ -36,6 +37,7 @@
 	const cardIndexPath = resolve('/(app)/atelier/values');
 	const glossaryPath = resolve('/(app)/atelier/glossary');
 	const timelinePath = resolve('/(app)/atelier/timeline');
+	const chroniclePath = resolve('/(app)/atelier/chronicle');
 	const trashPath = resolve('/(app)/atelier/trash');
 	const settingsPath = resolve('/(app)/atelier/settings');
 	const reviewPath = resolve('/(app)/atelier/review');
@@ -107,6 +109,16 @@
 		<Icon icon={CalendarRange} />
 		<span class="label" class:visually-hidden={compact}>
 			{m.menu.timeline}
+		</span>
+	</a>
+	<a
+		class="item"
+		aria-current={page.url.pathname.startsWith(chroniclePath) ? 'page' : undefined}
+		href={chroniclePath}
+	>
+		<Icon icon={Footprints} />
+		<span class="label" class:visually-hidden={compact}>
+			{m.menu.chronicle}
 		</span>
 	</a>
 	<a

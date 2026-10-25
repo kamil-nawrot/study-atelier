@@ -19,7 +19,7 @@ const messagesByCode: Record<string, string> = {
 
 export function authErrorMessage(error: AuthErrorLike): string {
 	if (error.code && error.code in messagesByCode) return messagesByCode[error.code];
-	if (error.name === 'AuthRetryableFetchError') return m.authErrors.network;
+	if (error.name === 'AuthRetryableFetchError') return m.common.network;
 	if (error.status === 429) return m.authErrors.rateLimited;
 	return m.common.unexpectedError;
 }

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onDestroy, untrack } from 'svelte';
 	import ImageUp from '@lucide/svelte/icons/image-up';
-	import ImageMinus from '@lucide/svelte/icons/image-minus';
+	import Trash from '@lucide/svelte/icons/trash';
 	import { Button, Form, FormActions, IconButton, TextField } from '@study-atelier/ui';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
@@ -131,9 +131,10 @@
 						{#if hasAvatar}
 							<IconButton
 								disabled={formState.busy}
-								icon={ImageMinus}
+								icon={Trash}
 								label={m.settings.profile.removePhoto}
 								onclick={() => setAvatar({ kind: 'remove' })}
+								variant="danger"
 							/>
 						{/if}
 					</div>
@@ -170,16 +171,16 @@
 		</div>
 		<FormActions bind:height={barHeight}>
 			<Button disabled={formState.busy} onclick={cancel}>
-				{m.settings.profile.cancel}
+				{m.common.cancel}
 			</Button>
 			<Button disabled={formState.busy} type="submit" variant="primary">
-				{formState.busy ? m.settings.profile.saving : m.settings.profile.save}
+				{formState.busy ? m.common.saving : m.settings.profile.save}
 			</Button>
 		</FormActions>
 	</Form>
 </div>
 
-<DiscardDialog {changes} description={m.settings.profile.discardDescription} />
+<DiscardDialog {changes} description={m.common.discardDescription} />
 
 <style>
 	.tab {

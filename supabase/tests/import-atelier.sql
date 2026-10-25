@@ -53,6 +53,8 @@ begin
   insert into public.glossary_entries (name, category, definition) values ('Tenebrism', 'painting', 'Dark') returning id into term;
   insert into public.artwork_pins (image_id, x, y, glossary_entry_id) values (image, 0.25, 0.5, term);
   insert into public.timeline_events (name, year_to) values ('War', 1648);
+  perform public.save_visit('{"visited_on": "2026-10-12", "date_precision": "day", "notes": "Seen"}', 'Louvre',
+    array[first_artwork, third_artwork]);
 
   perform public.record_review(first_artwork,
     jsonb_build_object('due', now() + interval '3 days', 'stability', 3, 'difficulty', 5,
@@ -76,7 +78,7 @@ declare
     'artworks', 'artwork_images', 'glossary_entries', 'artwork_pins', 'artwork_fields',
     'category_values', 'artwork_values', 'period_eras', 'style_periods', 'author_details',
     'period_details', 'style_details', 'material_details', 'location_details', 'era_details',
-    'artwork_field_entries', 'timeline_events', 'review_cards', 'review_log'
+    'artwork_field_entries', 'timeline_events', 'visits', 'visit_artworks', 'review_cards', 'review_log'
   ];
   table_name text;
   rows jsonb;
@@ -140,8 +142,13 @@ begin
     and (select count(*) from public.timeline_events) = 1
     and (select count(*) from public.review_cards) = 1
     and (select count(*) from public.review_log) = 1
-    and (select count(*) from public.artwork_field_entries) = 1,
+    and (select count(*) from public.artwork_field_entries) = 1
+    and (select count(*) from public.visits) = 1
+    and (select count(*) from public.visit_artworks) = 2,
     'a table does not come back whole';
+  assert (select place.name from public.visits as visit
+      join public.category_values as place on place.id = visit.place_id) = 'Louvre',
+    'a visit does not keep its place';
   assert (select array_agg(name order by position) from public.artwork_fields) = '{Wykład,Widziane}',
     'the fields do not keep their order';
   assert (select count(*) from public.category_values as value

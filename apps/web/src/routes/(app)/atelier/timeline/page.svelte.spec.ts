@@ -41,7 +41,10 @@ function renderTimeline(
 	error?: string,
 	events: TimelineEvent[] = []
 ): void {
-	render(TimelinePage, { data: { session: testSession(), artworks, events, error }, params: {} });
+	render(TimelinePage, {
+		data: { session: testSession(), artworks, events, error, empty: false },
+		params: {}
+	});
 }
 
 async function press(locator: ReturnType<typeof page.getByRole>): Promise<void> {
@@ -249,6 +252,19 @@ describe('timeline page', () => {
 			.toBeInTheDocument();
 	});
 
+	it('shows an empty Kalendarium instead of the timeline when nothing has a year', async () => {
+		render(TimelinePage, {
+			data: { session: testSession(), artworks: [], events: [], error: undefined, empty: true },
+			params: {}
+		});
+
+		await expect.element(page.getByText(m.timeline.emptyTitle)).toBeVisible();
+		await expect.element(stage()).not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: m.atelier.filters.button }))
+			.not.toBeInTheDocument();
+	});
+
 	it('says when there are no events yet', async () => {
 		renderTimeline([testArtwork(1, 'Mona Lisa', { yearTo: 1519 })]);
 
@@ -306,7 +322,7 @@ describe('timeline page', () => {
 		await expect.element(card.getByRole('button', { name: 'Straż nocna' })).toBeVisible();
 		await expect.element(card.getByRole('button', { name: 'Mona Lisa' })).not.toBeInTheDocument();
 		await expect
-			.element(card.getByRole('link', { name: m.timeline.card.edit }))
+			.element(card.getByRole('link', { name: m.common.edit }))
 			.toHaveAttribute('href', '/atelier/timeline/events/thirty/edit');
 
 		await card.getByRole('button', { name: m.timeline.card.showWhole }).click();
@@ -370,14 +386,14 @@ describe('timeline page', () => {
 		await press(
 			page
 				.getByRole('region', { name: m.timeline.card.event })
-				.getByRole('button', { name: m.timeline.card.delete })
+				.getByRole('button', { name: m.common.delete })
 		);
 		const dialog = page.getByRole('alertdialog');
 		await expect
 			.element(dialog.getByText(m.timeline.deleteConfirm.title('Pokój westfalski')))
 			.toBeVisible();
 		await expect.element(dialog.getByText(m.timeline.deleteConfirm.description)).toBeVisible();
-		await press(dialog.getByRole('button', { name: m.timeline.deleteConfirm.confirm }));
+		await press(dialog.getByRole('button', { name: m.common.delete }));
 
 		await vi.waitFor(() => expect(deleteTimelineEvent).toHaveBeenCalledWith('treaty'));
 		await vi.waitFor(() => expect(invalidateAll).toHaveBeenCalled());
@@ -392,12 +408,10 @@ describe('timeline page', () => {
 		await press(
 			page
 				.getByRole('region', { name: m.timeline.card.event })
-				.getByRole('button', { name: m.timeline.card.delete })
+				.getByRole('button', { name: m.common.delete })
 		);
 		await expect.element(page.getByRole('alertdialog')).toBeVisible();
-		await press(
-			page.getByRole('alertdialog').getByRole('button', { name: m.timeline.deleteConfirm.confirm })
-		);
+		await press(page.getByRole('alertdialog').getByRole('button', { name: m.common.delete }));
 
 		await expect
 			.element(page.getByRole('alertdialog').getByText(m.common.unexpectedError))
@@ -430,6 +444,15 @@ describe('timeline page', () => {
 			.toHaveAttribute('aria-pressed', 'true');
 		expect(localStorage.getItem(ERA_KEY)).toBe('modern');
 		navigation.state = {};
+	});
+
+	it('says above the stage on a phone that there are no events yet', async () => {
+		await page.viewport(390, 844);
+		renderTimeline([testArtwork(1, 'Mona Lisa', { yearTo: 1519 })]);
+
+		await expect.element(stage()).toHaveAttribute('aria-orientation', 'vertical');
+		await expect.element(page.getByText(m.timeline.noEvents)).toBeVisible();
+		expect(stage().element().textContent).not.toContain(m.timeline.noEvents);
 	});
 
 	it('runs time from top to bottom on a phone', async () => {
@@ -724,7 +747,7 @@ describe('timeline page', () => {
 		const artworks = [
 			testArtwork(1, 'Straż nocna', { yearTo: 1642, date: '1642', favourite: true })
 		];
-		const data = { session: testSession(), artworks, events: [], error: undefined };
+		const data = { session: testSession(), artworks, events: [], error: undefined, empty: false };
 		const first = await render(TimelinePage, { data, params: {} });
 		await page.getByRole('button', { name: 'Stulecie', exact: true }).click();
 		for (let press = 0; press < 2; press++)

@@ -41,7 +41,7 @@
 			</div>
 			{#if entry.source}
 				<p class="caption">
-					{m.glossary.view.sourcePrefix}<a
+					{m.common.wikipediaSource}<a
 						href={entry.source.url}
 						rel="external noreferrer"
 						target="_blank">„{entry.source.title}”</a

@@ -7,6 +7,6 @@ type ErrorLike = {
 };
 
 export function profileErrorMessage(error: ErrorLike): string {
-	if (error.status === undefined && !error.code) return m.settings.profile.network;
+	if (error.status === undefined && !error.code) return m.common.network;
 	return m.settings.profile.failed;
 }

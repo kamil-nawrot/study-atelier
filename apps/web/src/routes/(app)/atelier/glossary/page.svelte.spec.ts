@@ -153,6 +153,9 @@ describe('glossary page', () => {
 		renderGlossary([]);
 
 		await expect.element(page.getByText(m.glossary.empty)).toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: m.glossary.addFirst }))
+			.toHaveAttribute('href', '/atelier/glossary/new');
 		await expect.element(page.getByText(m.glossary.count(0))).not.toBeInTheDocument();
 		expect(
 			page.getByRole('button', { name: m.glossary.categoryNames.person }).elements()

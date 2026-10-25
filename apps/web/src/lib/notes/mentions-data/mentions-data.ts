@@ -44,6 +44,14 @@ function artworkMentions(rows: MentionRow[], own: string): Mention[] {
 		.filter((mention) => mention.href !== own);
 }
 
+function visitMentions(rows: MentionRow[]): Mention[] {
+	return rows.map(({ id, title }) => ({
+		href: resolve('/(app)/atelier/chronicle/[id]', { id }),
+		name: title ?? '',
+		kind: m.mentions.visit
+	}));
+}
+
 async function valueMentions(
 	rows: MentionRow[],
 	own: string,
@@ -81,7 +89,7 @@ export async function loadNotesMentions(
 	if (error) return [];
 	const found = rows.filter((row) => matcher.test(row.notes));
 	const values = await valueMentions(
-		found.filter((row) => row.kind !== 'artwork'),
+		found.filter((row) => row.kind !== 'artwork' && row.kind !== 'visit'),
 		own,
 		index
 	);
@@ -90,7 +98,8 @@ export async function loadNotesMentions(
 		...artworkMentions(
 			found.filter((row) => row.kind === 'artwork'),
 			own
-		)
+		),
+		...visitMentions(found.filter((row) => row.kind === 'visit'))
 	];
 }
 

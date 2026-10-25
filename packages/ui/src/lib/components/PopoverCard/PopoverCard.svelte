@@ -102,4 +102,17 @@
 	.card[hidden] {
 		display: none;
 	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.card {
+			animation: enter var(--duration-short) ease-out;
+		}
+	}
+
+	@keyframes enter {
+		from {
+			opacity: 0;
+			transform: translateY(var(--spacing-1));
+		}
+	}
 </style>

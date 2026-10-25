@@ -101,7 +101,7 @@ describe('AccountTab', () => {
 		await submit().click();
 
 		await expect
-			.element(page.getByText(m.validation.passwordTooShort(MIN_PASSWORD_LENGTH, 5)))
+			.element(page.getByText(m.validation.passwordTooShort(MIN_PASSWORD_LENGTH)))
 			.toBeVisible();
 		expect(changePassword).not.toHaveBeenCalled();
 	});
@@ -132,13 +132,13 @@ describe('AccountTab', () => {
 	});
 
 	it('shows a general failure in an alert at the top', async () => {
-		vi.mocked(changePassword).mockResolvedValue({ changed: false, error: m.authErrors.network });
+		vi.mocked(changePassword).mockResolvedValue({ changed: false, error: m.common.network });
 		await fillPasswords('vermeer1', 'rembrandt2');
 		await submit().click();
 
 		await expect
 			.element(page.getByRole('alert').filter({ hasText: m.settings.account.errorTitle }))
-			.toHaveTextContent(m.authErrors.network);
+			.toHaveTextContent(m.common.network);
 	});
 
 	it('warns, instead of confirming, when the other devices stay signed in', async () => {

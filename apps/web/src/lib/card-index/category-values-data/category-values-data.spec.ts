@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyCategoryValues } from '#lib/card-index/category-values/category-values.ts';
-import { loadCategoryValues } from './category-values-data.ts';
+import { loadCategoryValues, loadVisitPlaces } from './category-values-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn() }
@@ -13,6 +13,10 @@ const query = {
 	is: vi.fn()
 };
 
+const visits = {
+	select: vi.fn()
+};
+
 function value(category_code: string, name: string): Record<string, unknown> {
 	return { category_values: { category_code, name } };
 }
@@ -20,8 +24,11 @@ function value(category_code: string, name: string): Record<string, unknown> {
 describe('loadCategoryValues', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.mocked(supabase.from).mockReturnValue(query as never);
+		vi.mocked(supabase.from).mockImplementation(
+			(table: string) => (table === 'visits' ? visits : query) as never
+		);
 		query.select.mockReturnValue(query);
+		visits.select.mockResolvedValue({ data: [], error: null });
 	});
 
 	it('reads values only through artworks outside the trash', async () => {
@@ -82,6 +89,39 @@ describe('loadCategoryValues', () => {
 		expect(ownValues).toEqual({ 'lecture-id': ['Baroque class', 'Renaissance class'] });
 	});
 
+	it('suggests the places of visits with the places of artworks', async () => {
+		query.is.mockResolvedValue({
+			data: [{ artwork_values: [value('location', 'Luwr')] }],
+			error: null
+		});
+		visits.select.mockResolvedValue({
+			data: [
+				{ category_values: { name: 'Kościół Mariacki' } },
+				{ category_values: { name: 'Luwr' } }
+			],
+			error: null
+		});
+
+		const { values } = await loadCategoryValues();
+
+		expect(visits.select).toHaveBeenCalledWith('category_values(name)');
+		expect(values.location).toEqual(['Kościół Mariacki', 'Luwr']);
+	});
+
+	it('keeps the values of artworks when the places of visits fail', async () => {
+		query.is.mockResolvedValue({
+			data: [{ artwork_values: [value('location', 'Luwr'), value('style', 'gotyk')] }],
+			error: null
+		});
+		visits.select.mockResolvedValue({ data: null, error: { code: 'XX000', message: 'boom' } });
+
+		const result = await loadCategoryValues();
+
+		expect(result.error).toBeUndefined();
+		expect(result.values.location).toEqual(['Luwr']);
+		expect(result.values.style).toEqual(['gotyk']);
+	});
+
 	it('returns no values and a message when the request fails', async () => {
 		query.is.mockResolvedValue({ data: null, error: { code: 'XX000', message: 'boom' } });
 
@@ -90,5 +130,25 @@ describe('loadCategoryValues', () => {
 			ownValues: {},
 			error: m.common.unexpectedError
 		});
+	});
+});
+
+describe('loadVisitPlaces', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		vi.mocked(supabase.from).mockReturnValue(visits as never);
+	});
+
+	it('names each place of a visit once', async () => {
+		visits.select.mockResolvedValue({
+			data: [
+				{ category_values: { name: 'Orsay' } },
+				{ category_values: { name: 'Orsay' } },
+				{ category_values: null }
+			],
+			error: null
+		});
+
+		await expect(loadVisitPlaces()).resolves.toEqual({ places: ['Orsay'] });
 	});
 });

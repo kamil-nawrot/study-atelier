@@ -1,6 +1,6 @@
 # 0071. Put the plan first on the review start
 
-- Status: accepted
+- Status: accepted; the start with too few artworks is superseded by [0130](0130-show-empty-views-in-one-centred-pattern.md)
 - Date: 2026-10-16
 
 ## Context and problem statement

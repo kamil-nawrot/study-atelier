@@ -17,6 +17,7 @@ import {
 	PERIOD_ERA_USAGE,
 	REVIEW_CARDS,
 	TIMELINE_EVENTS,
+	VISITS,
 	STYLE_PERIOD_USAGE,
 	VALUE_DETAILS,
 	VALUE_USAGE,
@@ -62,6 +63,7 @@ const USAGE = `Usage: pnpm screenshot <path> [options]
   --steps <file>     run the default export of this module with the Playwright page before capturing,
                      for a flow across navigations (clicks, history.back())
   --repeat <n>       show every sample artwork n times, to have more to scroll through
+  --empty            show an atelier with no artworks, values, entries, events or visits
   --scroll           also record a GIF of scrolling the page from top to bottom (needs ffmpeg)
   --url <base>       use a running dev server instead of starting one
 `;
@@ -82,6 +84,7 @@ function parseArgs(argv) {
 		else if (arg === '--scroll') options.scroll = true;
 		else if (arg === '--full-page') options.fullPage = true;
 		else if (arg === '--signed-out') options.signedOut = true;
+		else if (arg === '--empty') options.empty = true;
 		else if (
 			[
 				'--out',
@@ -320,6 +323,15 @@ function pinsRoute(route, request, url) {
 			}))
 		);
 	}
+	const recordNumber = url.searchParams.get('artwork_images.artworks.record_number');
+	if (recordNumber) {
+		const artwork = ARTWORKS.find((row) => `eq.${row.record_number}` === recordNumber);
+		const imageIds = artwork?.artwork_images.map((image) => image.id) ?? [];
+		return json(
+			route,
+			ARTWORK_PINS.filter((row) => imageIds.includes(row.image_id))
+		);
+	}
 	const filter = url.searchParams.get('image_id') ?? '';
 	const ids = filter.startsWith('in.(') ? filter.slice(4, -1).split(',') : [];
 	return json(
@@ -349,6 +361,23 @@ function glossaryRoute(route, request, url) {
 		{ code: 'PGRST116', message: 'The result contains 0 rows', details: null, hint: null },
 		406
 	);
+}
+
+function visitsRoute(route, request, url) {
+	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
+	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
+	const id = url.searchParams.get('id');
+	const number = url.searchParams.get('visit_artworks.artworks.record_number');
+	const artworkId = number?.startsWith('eq.')
+		? `00000000-0000-4000-8000-${number.slice(3).padStart(12, '0')}`
+		: null;
+	const rows = VISITS.filter(
+		(row) =>
+			(!id?.startsWith('eq.') || row.id === id.slice(3)) &&
+			(!artworkId || row.visit_artworks.some((seen) => seen.artwork_id === artworkId))
+	);
+	if (!wantsObject) return json(route, rows);
+	return json(route, rows[0] ?? null);
 }
 
 function profileRoute(route, request) {
@@ -397,7 +426,9 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/rpc/review_session') {
 			return json(route, reviewSession(request.postDataJSON() ?? {}));
 		}
-		if (url.pathname === '/rest/v1/rpc/review_streak') return json(route, 5);
+		if (url.pathname === '/rest/v1/rpc/review_streak') {
+			return json(route, REVIEW_CARDS.length > 0 ? 5 : 0);
+		}
 		if (url.pathname === '/rest/v1/rpc/notes_mentions') {
 			return json(route, notesMentions(request.postDataJSON()?.needle));
 		}
@@ -410,6 +441,8 @@ async function mockSupabase(context) {
 			if (request.method() === 'PATCH') return json(route, { id: TIMELINE_EVENTS[0].id });
 			return json(route, TIMELINE_EVENTS);
 		}
+		if (url.pathname === '/rest/v1/visits') return visitsRoute(route, request, url);
+		if (url.pathname === '/rest/v1/rpc/save_visit') return json(route, VISITS[0].id);
 		if (url.pathname === '/rest/v1/catalogue_museums') return json(route, CATALOGUE_MUSEUMS);
 		if (
 			url.pathname === '/rest/v1/location_details' &&
@@ -716,6 +749,27 @@ function repeatArtworks(times) {
 	}
 }
 
+function emptyAtelier() {
+	for (const rows of [
+		ARTWORKS,
+		ARTWORK_PINS,
+		GLOSSARY_ENTRIES,
+		OWN_FIELD_USAGE,
+		OWN_FIELDS,
+		OWN_VALUE_USAGE,
+		PERIOD_ERA_USAGE,
+		REVIEW_CARDS,
+		STYLE_PERIOD_USAGE,
+		TIMELINE_EVENTS,
+		TRASHED,
+		VALUE_USAGE,
+		VISITS,
+		...Object.values(VALUE_DETAILS)
+	]) {
+		rows.length = 0;
+	}
+}
+
 async function recordScroll(browser, base, options, name) {
 	const viewport = VIEWPORTS[name];
 	const folder = path.join(options.out, `${options.name}-${name}-frames`);
@@ -809,6 +863,7 @@ async function main() {
 	options.name ??= options.route.replace(/^\/+|\/+$/g, '').replace(/[^a-z0-9]+/gi, '-') || 'home';
 	mkdirSync(options.out, { recursive: true });
 	if (options.repeat) repeatArtworks(Number(options.repeat));
+	if (options.empty) emptyAtelier();
 
 	const names = options.viewport === 'both' ? ['desktop', 'phone'] : [options.viewport];
 	if (names.some((name) => !(name in VIEWPORTS))) throw new Error(USAGE);

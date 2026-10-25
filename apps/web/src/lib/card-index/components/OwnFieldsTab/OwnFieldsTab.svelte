@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Ellipsis from '@lucide/svelte/icons/ellipsis';
+	import ListTree from '@lucide/svelte/icons/list-tree';
 	import Plus from '@lucide/svelte/icons/plus';
 	import { tick } from 'svelte';
 	import {
@@ -7,6 +8,7 @@
 		Button,
 		Dialog,
 		Disclosure,
+		EmptyState,
 		Icon,
 		PopupButton,
 		TextButton
@@ -141,7 +143,7 @@
 		{/if}
 
 		{#if fields.length === 0}
-			<p class="lead">{m.ownFields.empty}</p>
+			<EmptyState icon={ListTree} text={m.ownFields.empty} />
 		{/if}
 
 		{#each fields as field, index (field.id)}
@@ -165,7 +167,7 @@
 						{/snippet}
 						<div class="menu">
 							<TextButton onclick={() => fromMenu(field, () => edit(field))}>
-								{m.ownFields.edit}
+								{m.common.edit}
 							</TextButton>
 							<TextButton
 								disabled={index === 0}
@@ -180,7 +182,7 @@
 								{m.ownFields.moveDown}
 							</TextButton>
 							<TextButton danger onclick={() => fromMenu(field, () => askDelete(field))}>
-								{m.ownFields.remove}
+								{m.common.delete}
 							</TextButton>
 						</div>
 					</PopupButton>
@@ -215,10 +217,10 @@
 >
 	{#snippet footer()}
 		<Button onclick={() => (deleteOpen = false)}>
-			{m.ownFields.deleteConfirm.back}
+			{m.common.back}
 		</Button>
 		<Button disabled={deleting} onclick={confirmDelete} variant="primary">
-			{deleting ? m.ownFields.deleteConfirm.deleting : m.ownFields.deleteConfirm.confirm}
+			{deleting ? m.common.deleting : m.ownFields.deleteConfirm.confirm}
 		</Button>
 	{/snippet}
 </Dialog>

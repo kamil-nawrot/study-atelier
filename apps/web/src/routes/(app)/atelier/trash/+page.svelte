@@ -1,9 +1,8 @@
 <script lang="ts">
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Trash from '@lucide/svelte/icons/trash-2';
-	import { Alert, Button, Dialog, Section, Toast } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, EmptyState, Toast } from '@study-atelier/ui';
 	import { invalidate } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import DuplicateDialog from '#lib/artworks/components/DuplicateDialog/DuplicateDialog.svelte';
 	import { DuplicateCheck } from '#lib/artworks/duplicate-check/duplicate-check.svelte.ts';
@@ -88,16 +87,7 @@
 			{data.error}
 		</Alert>
 	{:else if shown.length === 0}
-		<div class="state">
-			<Section>
-				<h2>{m.trash.emptyTitle}</h2>
-				<div>
-					<Button href={resolve('/(app)/atelier')}>
-						{m.trash.back}
-					</Button>
-				</div>
-			</Section>
-		</div>
+		<EmptyState icon={Trash} text={m.trash.empty} title={m.trash.emptyTitle} />
 	{:else}
 		{#if actionError}
 			<Alert title={m.trash.actionErrorTitle} tone="danger">
@@ -171,10 +161,10 @@
 >
 	{#snippet footer()}
 		<Button onclick={() => (deleteOpen = false)}>
-			{m.trash.cancel}
+			{m.common.cancel}
 		</Button>
 		<Button disabled={busy !== undefined} onclick={confirmDelete} variant="primary">
-			{busy ? m.trash.deleting : m.trash.deleteForever}
+			{busy ? m.common.deleting : m.trash.deleteForever}
 		</Button>
 	{/snippet}
 </Dialog>
@@ -194,10 +184,6 @@
 
 	.caption {
 		font-variant-numeric: tabular-nums;
-	}
-
-	.state {
-		max-width: var(--size-content-default);
 	}
 
 	ul {

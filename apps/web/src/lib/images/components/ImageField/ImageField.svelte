@@ -159,7 +159,7 @@
 			{m.artworkForm.keepImage}
 		</Button>
 		<Button onclick={() => input.replaceImage()} variant="primary">
-			{m.artworkForm.replaceImage}
+			{m.common.replace}
 		</Button>
 	{/snippet}
 </Dialog>
@@ -172,10 +172,10 @@
 >
 	{#snippet footer()}
 		<Button onclick={() => (removeOpen = false)}>
-			{m.artworkForm.removeImageCancel}
+			{m.common.cancel}
 		</Button>
 		<Button onclick={removeImage} variant="danger">
-			{m.artworkForm.removeImageConfirm}
+			{m.common.delete}
 		</Button>
 	{/snippet}
 </Dialog>

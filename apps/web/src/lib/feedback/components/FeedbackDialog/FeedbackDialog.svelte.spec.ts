@@ -55,7 +55,7 @@ describe('FeedbackDialog', () => {
 	});
 
 	it('keeps the text and shows an alert when sending fails', async () => {
-		send.mockResolvedValue({ error: m.feedback.errors.network });
+		send.mockResolvedValue({ error: m.common.network });
 		const { onsent } = renderDialog();
 
 		await userEvent.click(page.getByRole('radio', { name: m.feedback.bug }));
@@ -63,7 +63,7 @@ describe('FeedbackDialog', () => {
 		await userEvent.click(sendButton());
 
 		await expect.element(page.getByText(m.feedback.errorTitle)).toBeInTheDocument();
-		await expect.element(page.getByText(m.feedback.errors.network)).toBeInTheDocument();
+		await expect.element(page.getByText(m.common.network)).toBeInTheDocument();
 		await expect.element(page.getByLabelText(m.feedback.titleLabel)).toHaveValue('Broken filter');
 		expect(onsent).not.toHaveBeenCalled();
 	});

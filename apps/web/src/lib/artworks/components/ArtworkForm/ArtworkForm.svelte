@@ -328,7 +328,7 @@
 
 			<NotesEditor
 				hint={noteLinks ? m.artworkForm.notesLinkHint : undefined}
-				label={m.artworkForm.notes}
+				label={m.common.notes}
 				links={noteLinks}
 				placeholder={m.artworkForm.notesPlaceholder}
 				bind:value={form.notes}
@@ -338,22 +338,22 @@
 
 	<FormActions bind:height={barHeight}>
 		<Button href={cancelHref} onclick={oncancel}>
-			{m.artworkForm.cancel}
+			{m.common.cancel}
 		</Button>
 		{#if !artwork}
 			<Button disabled={formState.busy} onclick={saveAndAddNext}>
-				{formState.busy && savingNext ? m.artworkForm.saving : m.artworkForm.saveAndNext}
+				{formState.busy && savingNext ? m.common.saving : m.artworkForm.saveAndNext}
 			</Button>
 		{/if}
 		<Button disabled={formState.busy} type="submit" variant="primary">
-			{formState.busy && !savingNext ? m.artworkForm.saving : m.artworkForm.save}
+			{formState.busy && !savingNext ? m.common.saving : m.common.save}
 		</Button>
 	</FormActions>
 </Form>
 
 <Toast bind:this={toast} offset={barHeight} />
 
-<DiscardDialog {changes} description={m.artworkForm.discardDescription} />
+<DiscardDialog {changes} description={m.common.discardDescription} />
 
 <DuplicateDialog action="save" check={duplicateCheck} />
 

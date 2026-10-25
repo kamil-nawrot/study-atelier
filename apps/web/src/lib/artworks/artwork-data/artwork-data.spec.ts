@@ -346,7 +346,7 @@ describe('saveArtwork', () => {
 
 		await expect(saveArtwork(input({ image: pickedFile() }))).resolves.toMatchObject({
 			saved: false,
-			error: m.artworkErrors.network
+			error: m.common.network
 		});
 		expect(removeOwnImage).not.toHaveBeenCalled();
 	});
@@ -679,6 +679,6 @@ describe('loadArtwork', () => {
 			error: { code: '', message: 'TypeError: Failed to fetch' }
 		});
 
-		await expect(loadArtwork(7)).resolves.toEqual({ error: m.artworkErrors.network });
+		await expect(loadArtwork(7)).resolves.toEqual({ error: m.common.network });
 	});
 });
