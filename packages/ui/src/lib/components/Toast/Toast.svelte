@@ -29,14 +29,14 @@
 		timer = setTimeout(hide, remaining);
 	}
 
-	function pause(): void {
-		if (!message) return;
+	function pause(event: PointerEvent): void {
+		if (!message || event.pointerType !== 'mouse') return;
 		clearTimeout(timer);
 		remaining = Math.max(0, remaining - (Date.now() - startedAt));
 	}
 
-	function resume(): void {
-		if (!message) return;
+	function resume(event: PointerEvent): void {
+		if (!message || event.pointerType !== 'mouse') return;
 		remaining = Math.min(remaining, LEAVE_GRACE);
 		start();
 	}

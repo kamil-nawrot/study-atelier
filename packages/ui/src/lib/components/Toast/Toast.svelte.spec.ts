@@ -73,6 +73,21 @@ describe('Toast', () => {
 		await expect.element(toast).not.toBeInTheDocument();
 	});
 
+	it('keeps its whole time after a tap on a touch screen', async () => {
+		const { component } = await render(Toast, { duration: 5000 });
+
+		component.show('Artwork #0012 saved.');
+		const toast = page.getByText('Artwork #0012 saved.');
+		await expect.element(toast).toBeVisible();
+		const element = toast.element();
+		for (const type of ['pointerenter', 'pointerleave']) {
+			element.dispatchEvent(new PointerEvent(type, { pointerType: 'touch' }));
+		}
+		vi.advanceTimersByTime(4900);
+
+		await expect.element(toast).toBeVisible();
+	});
+
 	it('keeps a shorter remaining time when the pointer leaves late', async () => {
 		const { component } = await render(Toast, { duration: 5000 });
 
