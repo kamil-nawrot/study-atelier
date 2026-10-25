@@ -3,10 +3,9 @@ import { ERA_CODES, eraName, isEraCode } from '#lib/catalogue/eras/eras.ts';
 import { byYear, groupByAuthor } from '#lib/wall/periods/periods.ts';
 import type { PeriodGroup } from '#lib/wall/types/period-group.ts';
 import type { WallOrder } from '#lib/wall/types/wall-order.ts';
+import type { WallGrouping } from '#lib/wall/types/wall-grouping.ts';
 import type { WallSection } from '#lib/wall/types/wall-section.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-
-type WallGrouping = 'none' | 'era' | 'period' | 'style';
 
 export const WALL_GROUPINGS: readonly WallGrouping[] = ['none', 'era', 'period', 'style'];
 

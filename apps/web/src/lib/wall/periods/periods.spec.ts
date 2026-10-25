@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
-import { groupByAuthor } from './periods.ts';
+import { groupByAuthor, periodIndexes } from './periods.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 function numbers(groups: ReturnType<typeof groupByAuthor>): number[][] {
@@ -80,5 +80,20 @@ describe('groupByAuthor', () => {
 
 	it('returns nothing for an empty list', () => {
 		expect(groupByAuthor([])).toEqual([]);
+	});
+});
+
+describe('periodIndexes', () => {
+	it('gives every artwork the index of its group', () => {
+		const groups = groupByAuthor([
+			testArtwork(1, 'Water Lilies', { authors: ['Claude Monet'] }),
+			testArtwork(2, 'Melancholia', { authors: ['Albrecht Dürer'] }),
+			testArtwork(3, 'Impression, Sunrise', { authors: ['Claude Monet'] })
+		]);
+
+		const indexes = periodIndexes(groups);
+
+		expect([...indexes.values()]).toEqual([0, 1, 1]);
+		expect(indexes.get(groups[1].artworks[0].id)).toBe(1);
 	});
 });

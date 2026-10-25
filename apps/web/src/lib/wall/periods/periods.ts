@@ -68,3 +68,9 @@ export function groupByAuthor(artworks: WallArtwork[]): PeriodGroup[] {
 			)
 		);
 }
+
+export function periodIndexes(groups: PeriodGroup[]): Map<string, number> {
+	return new Map(
+		groups.flatMap((group, index) => group.artworks.map((artwork) => [artwork.id, index]))
+	);
+}
