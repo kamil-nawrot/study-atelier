@@ -24,6 +24,7 @@
 		const probe = new Image();
 		probe.onload = () => onready(source);
 		probe.src = source;
+		if (probe.complete && probe.naturalWidth > 0) onready(source);
 		return () => {
 			probe.onload = null;
 		};

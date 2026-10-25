@@ -23,16 +23,36 @@ type ArtworkValuesRow = {
 	artwork_values: { category_values: CategoryValueRow | null }[];
 };
 
-export async function loadCategoryValues(): Promise<CategoryValuesResult> {
-	const { data, error } = await supabase
-		.from('artworks')
-		.select('artwork_values(category_values(category_code, name))')
-		.is('deleted_at', null);
-	if (error) {
-		return { values: emptyCategoryValues(), ownValues: {}, error: collectionErrorMessage(error) };
-	}
+type VisitPlaceRow = {
+	category_values: { name: string } | null;
+};
 
-	const names = new Map<string, Set<string>>();
+type VisitPlacesResult = {
+	places: string[];
+	error?: string;
+};
+
+export async function loadVisitPlaces(): Promise<VisitPlacesResult> {
+	const { data, error } = await supabase.from('visits').select('category_values(name)');
+	if (error) return { places: [], error: collectionErrorMessage(error) };
+	const names = ((data ?? []) as unknown as VisitPlaceRow[]).flatMap(
+		(row) => row.category_values?.name ?? []
+	);
+	return { places: [...new Set(names)] };
+}
+
+export async function loadCategoryValues(): Promise<CategoryValuesResult> {
+	const [{ data, error }, visits] = await Promise.all([
+		supabase
+			.from('artworks')
+			.select('artwork_values(category_values(category_code, name))')
+			.is('deleted_at', null),
+		loadVisitPlaces()
+	]);
+	const failure = error ? collectionErrorMessage(error) : visits.error;
+	if (failure) return { values: emptyCategoryValues(), ownValues: {}, error: failure };
+
+	const names = new Map<string, Set<string>>([['location', new Set(visits.places)]]);
 	for (const row of (data ?? []) as unknown as ArtworkValuesRow[]) {
 		for (const { category_values: value } of row.artwork_values) {
 			if (!value) continue;

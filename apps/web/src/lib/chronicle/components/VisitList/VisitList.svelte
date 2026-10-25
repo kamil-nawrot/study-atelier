@@ -27,6 +27,7 @@
 		{#each years as group (group.year)}
 			<Disclosure
 				count={group.visits.length}
+				lazy
 				open={group.year === opened}
 				title={String(group.year)}
 			>

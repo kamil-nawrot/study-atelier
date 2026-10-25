@@ -60,10 +60,11 @@ beforeEach(() => {
 
 describe('loadVisits', () => {
 	it('reads the place, the date and the artworks of each visit', async () => {
-		chain({ data: [row()], error: null });
+		const query = chain({ data: [row()], error: null });
 
 		const result = await loadVisits();
 
+		expect(query.order).toHaveBeenLastCalledWith('id', { ascending: false });
 		expect(result.visits).toEqual([
 			{
 				id: ID,
@@ -105,6 +106,7 @@ describe('loadArtworkVisits', () => {
 
 		expect(query.eq).toHaveBeenCalledWith('visit_artworks.artworks.record_number', 12);
 		expect(query.order).toHaveBeenCalledWith('visited_on', { ascending: false });
+		expect(query.order).toHaveBeenLastCalledWith('id', { ascending: false });
 		expect(result.visits.map((visit) => visit.place)).toEqual(['Musée d’Orsay']);
 	});
 

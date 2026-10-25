@@ -66,6 +66,15 @@ describe('withPlaceArtworks', () => {
 		expect(next.extra).toEqual(['artwork-4', 'artwork-2']);
 	});
 
+	it('brings back the saved ticks when the saved place is chosen again', () => {
+		const saved = form({ place: ['Musée d’Orsay'], chosen: ['artwork-2', 'artwork-4'] });
+		const before = form({ place: ['musée d’orsay'], chosen: ['artwork-3'], extra: ['artwork-4'] });
+
+		const next = withPlaceArtworks(before, artworks, saved);
+
+		expect(next.chosen).toEqual(['artwork-2']);
+	});
+
 	it('moves an added artwork of the new place into its group', () => {
 		const next = withPlaceArtworks(
 			form({ place: ['Luwr'], chosen: ['artwork-3'], extra: ['artwork-3'] }),

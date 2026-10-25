@@ -813,6 +813,8 @@ export const pl = {
 				`Wszystkie dzieła z „${merged}” (${count}) przypiszą się do ${kind} „${kept}”.`,
 			periodAssigned: (merged: string, kept: string, count: number): string =>
 				`${workCount(count)} z „${merged}” ${count === 1 ? 'dostanie' : 'dostaną'} „${kept}”, a „${merged}” zniknie z Kartoteki.`,
+			visits: (merged: string, kept: string, count: number): string =>
+				`Wizyty w „${merged}” (${count}) przeniosą się do „${kept}”.`,
 			periodLinks: (merged: string, kept: string): string =>
 				`Epoki i style okresu „${merged}” dołączą do „${kept}”.`,
 			pageContent: (merged: string): string =>
