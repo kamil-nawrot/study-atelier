@@ -55,7 +55,12 @@ grant update (place_id, visited_on, date_precision, notes) on public.visits to a
 grant select, delete on public.visit_artworks to authenticated;
 grant insert (visit_id, artwork_id) on public.visit_artworks to authenticated;
 
-create function public.save_visit(visit jsonb, artwork_ids uuid[], existing_id uuid default null)
+create function public.save_visit(
+  visit jsonb,
+  place text,
+  artwork_ids uuid[],
+  existing_id uuid default null
+)
 returns uuid
 language plpgsql
 security invoker
@@ -63,16 +68,40 @@ set search_path = ''
 as $$
 declare
   input public.visits := jsonb_populate_record(null::public.visits, visit);
+  place_name text := btrim(coalesce(place, ''));
   wanted uuid[] := coalesce(artwork_ids, '{}');
+  saved_place uuid;
   saved_id uuid;
 begin
+  if place_name = '' then
+    raise exception 'a visit needs a place'
+      using errcode = 'not_null_violation';
+  end if;
+
+  with created as (
+    insert into public.category_values (category_code, name)
+      values ('location', place_name)
+      on conflict (owner_id, category_code, lower(name)) do nothing
+      returning id, name
+  )
+  insert into public.location_details (value_id, country_code, place_type, catalogue_wikidata_id)
+    select created.id, museum.country_code, 'museum', museum.wikidata_id
+      from created
+      join public.catalogue_museums as museum on lower(museum.name) = lower(created.name);
+
+  select value.id into saved_place
+    from public.category_values as value
+    where value.owner_id = (select auth.uid())
+      and value.category_code = 'location'
+      and lower(value.name) = lower(place_name);
+
   if existing_id is null then
     insert into public.visits (place_id, visited_on, date_precision, notes)
-      values (input.place_id, input.visited_on, input.date_precision, input.notes)
+      values (saved_place, input.visited_on, input.date_precision, input.notes)
       returning id into saved_id;
   else
     update public.visits as saved
-      set place_id = input.place_id,
+      set place_id = saved_place,
         visited_on = input.visited_on,
         date_precision = input.date_precision,
         notes = input.notes
@@ -96,5 +125,5 @@ begin
 end;
 $$;
 
-revoke all on function public.save_visit(jsonb, uuid[], uuid) from public, anon;
-grant execute on function public.save_visit(jsonb, uuid[], uuid) to authenticated;
+revoke all on function public.save_visit(jsonb, text, uuid[], uuid) from public, anon;
+grant execute on function public.save_visit(jsonb, text, uuid[], uuid) to authenticated;

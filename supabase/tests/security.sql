@@ -131,10 +131,8 @@ insert into public.artwork_field_entries (artwork_id, field_id, field_kind, text
     from public.artworks as artwork cross join public.artwork_fields as field
     where field.name = 'Source';
 
-insert into public.category_values (category_code, name) values ('location', 'Visited museum');
 select public.save_visit(
-  jsonb_build_object('place_id', (select id from public.category_values where name = 'Visited museum'),
-    'visited_on', '2026-10-12', 'date_precision', 'day', 'notes', 'A note'),
+  '{"visited_on": "2026-10-12", "date_precision": "day", "notes": "A note"}', 'Visited museum',
   array[(select id from public.artworks)]
 );
 
@@ -338,8 +336,13 @@ begin
     'insert into public.visit_artworks (visit_id, artwork_id) values (%L, %L)', a_visit, a_artwork)),
     'B adds an artwork to a visit of A';
   assert security_test.denied(format(
-    'select public.save_visit(''{"visited_on": "2026-10-12", "date_precision": "day"}'', ''{}'', %L)', a_visit)),
+    'select public.save_visit(''{"visited_on": "2026-10-12", "date_precision": "day"}'', ''Mine'', ''{}'', %L)',
+    a_visit)),
     'B overwrites a visit of A through save_visit';
+  assert security_test.denied(format(
+    'select public.save_visit(''{"visited_on": "2026-10-12", "date_precision": "day"}'', ''Mine'', ''{%s}'')',
+    a_artwork)),
+    'B adds an artwork of A to a visit through save_visit';
   assert security_test.affected('delete from public.artwork_pins') = 0, 'B deletes pins of A';
 
   perform security_test.act_as(a);

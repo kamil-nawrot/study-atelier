@@ -1222,7 +1222,12 @@ export type Database = {
         Returns: undefined;
       };
       save_visit: {
-        Args: { artwork_ids: string[]; existing_id?: string; visit: Json };
+        Args: {
+          artwork_ids: string[];
+          existing_id?: string;
+          place: string;
+          visit: Json;
+        };
         Returns: string;
       };
       set_period_eras: {
