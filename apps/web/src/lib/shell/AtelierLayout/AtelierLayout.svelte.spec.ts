@@ -3,7 +3,10 @@ import { createRawSnippet } from 'svelte';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import '@study-atelier/ui/styles.css';
+import { goto } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
+import { pending } from '#lib/testing/auth/auth.ts';
 import { setRailExpanded } from '#lib/shell/rail/rail.svelte.ts';
 import { setTheme } from '#lib/shell/theme/theme.svelte.ts';
 import AtelierLayout from './AtelierLayout.svelte';
@@ -25,6 +28,8 @@ vi.mock('$app/state', () => ({
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
+
+const signOut = vi.mocked(supabase.auth.signOut);
 
 function snippet(html: string): ReturnType<typeof createRawSnippet> {
 	return createRawSnippet(() => ({ render: () => html }));
@@ -311,5 +316,97 @@ describe('AtelierLayout account row', () => {
 			)
 			.toHaveAttribute('aria-current', 'page');
 		pageState.url = new URL('http://localhost/atelier');
+	});
+});
+
+describe('AtelierLayout menu', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		navigation.to = null;
+		pageState.data = {};
+	});
+
+	afterEach(() => {
+		setRailExpanded(false);
+	});
+
+	describe('on a larger screen', () => {
+		beforeEach(async () => {
+			await page.viewport(1280, 800);
+		});
+
+		it('expands and collapses the side menu', async () => {
+			renderLayout(views.empty);
+
+			await page.getByRole('button', { name: m.menu.expand }).click();
+
+			await expect
+				.element(page.getByRole('button', { name: m.menu.collapse }))
+				.toHaveAttribute('aria-expanded', 'true');
+			await expect.element(page.getByRole('img', { name: m.app.name })).toBeVisible();
+
+			await page.getByRole('button', { name: m.menu.collapse }).click();
+
+			await expect
+				.element(page.getByRole('button', { name: m.menu.expand }))
+				.toHaveAttribute('aria-expanded', 'false');
+		});
+
+		it('links to the trash and has no menu icon in the top bar', async () => {
+			renderLayout(views.empty);
+
+			await expect
+				.element(page.getByRole('link', { name: m.menu.trash }))
+				.toHaveAttribute('href', '/atelier/trash');
+			await expect.element(page.getByText('learner@example.com')).toBeInTheDocument();
+			await expect.element(page.getByRole('button', { name: m.menu.open })).not.toBeInTheDocument();
+		});
+
+		it('signs out and returns to sign-in', async () => {
+			signOut.mockResolvedValue({ error: null });
+			renderLayout(views.empty);
+
+			await page.getByRole('button', { name: m.menu.signOut }).click();
+
+			await vi.waitFor(() =>
+				expect(goto).toHaveBeenCalledWith('/sign-in', { invalidateAll: true })
+			);
+			expect(signOut).toHaveBeenCalledOnce();
+		});
+
+		it('disables sign out while signing out', async () => {
+			signOut.mockReturnValue(pending());
+			renderLayout(views.empty);
+
+			await page.getByRole('button', { name: m.menu.signOut }).click();
+
+			await expect.element(page.getByRole('button', { name: m.menu.signOut })).toBeDisabled();
+			expect(goto).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('on a phone', () => {
+		beforeEach(async () => {
+			await page.viewport(390, 800);
+		});
+
+		it('opens the menu from the top bar and closes it', async () => {
+			renderLayout(views.empty);
+
+			await expect
+				.element(page.getByRole('button', { name: m.menu.expand }))
+				.not.toBeInTheDocument();
+
+			await page.getByRole('button', { name: m.menu.open }).click();
+
+			const drawer = page.getByRole('dialog', { name: m.menu.label });
+			await expect.element(drawer).toBeVisible();
+			await expect.element(drawer.getByRole('link', { name: m.menu.trash })).toBeVisible();
+			await expect.element(drawer.getByRole('button', { name: m.menu.signOut })).toBeVisible();
+
+			await page.getByRole('button', { name: m.menu.close }).click();
+
+			await expect.element(drawer).not.toBeInTheDocument();
+		});
 	});
 });
