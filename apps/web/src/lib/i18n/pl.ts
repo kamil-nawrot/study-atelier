@@ -749,6 +749,24 @@ export const pl = {
 		quotaFull: (quotaMegabytes: string): string =>
 			`Ten plik nie zmieści się w ${quotaMegabytes} MB na Twoje zdjęcia. Dodaj obraz z linku albo usuń niepotrzebne zdjęcia. Miejsce zwolni się w ciągu doby.`
 	},
+	legal: {
+		terms: 'Regulamin',
+		privacy: 'Polityka prywatności',
+		linksLabel: 'Dokumenty',
+		version: (date: string): string => `Obowiązuje od ${date}.`,
+		consentAccept: 'Akceptuję',
+		consentTerms: 'Regulamin',
+		consentDeclare: 'i oświadczam, że zapoznałem(-am) się z',
+		consentPrivacy: 'Polityką prywatności',
+		consentRequired: 'Zaakceptuj Regulamin, żeby założyć konto.',
+		updateTitle: 'Regulamin i Polityka prywatności zostały zmienione',
+		updateDescription: (date: string): string =>
+			`Nowa wersja obowiązuje od ${date}. Przeczytaj zmiany i zaakceptuj Regulamin, żeby dalej korzystać z atelier. Jeśli nie akceptujesz zmian, możesz pobrać kopię atelier i usunąć konto w ustawieniach.`,
+		updateAccept: 'Akceptuję',
+		updateSettings: 'Przejdź do ustawień',
+		accepted: (date: string): string => `Zaakceptowana wersja Regulaminu: ${date}`,
+		acceptFailed: 'Nie udało się zapisać akceptacji. Spróbuj jeszcze raz.'
+	},
 	limits: {
 		artworks: (limit: number): string =>
 			`W atelier zmieści się ${limit} dzieł, razem z tymi w Archiwum. Usuń z Archiwum te, których już nie potrzebujesz, żeby dodać nowe.`,

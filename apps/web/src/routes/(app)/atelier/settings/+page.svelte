@@ -95,6 +95,7 @@
 						/>
 					{:else if tab === 'account'}
 						<AccountTab
+							acceptedLegalVersion={data.acceptedLegalVersion}
 							{email}
 							onchanged={(message) => toast.show(message)}
 							pendingEmail={data.pendingEmail}

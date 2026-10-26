@@ -15,11 +15,15 @@ export async function signIn(email: string, password: string): Promise<string | 
 	return error ? authErrorMessage(error) : undefined;
 }
 
-export async function signUp(email: string, password: string): Promise<SignUpResult> {
+export async function signUp(
+	email: string,
+	password: string,
+	metadata: Record<string, string> = {}
+): Promise<SignUpResult> {
 	const { data, error } = await supabase.auth.signUp({
 		email,
 		password,
-		options: { emailRedirectTo: authRedirectUrl('/') }
+		options: { emailRedirectTo: authRedirectUrl('/'), data: metadata }
 	});
 	if (error?.code === 'user_already_exists' || data.user?.identities?.length === 0) {
 		return { accountExists: true, signedIn: false };

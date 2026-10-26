@@ -10,11 +10,16 @@
 		validateNewPassword
 	} from '#lib/auth/validation/validation.ts';
 	import { m } from '#lib/i18n/i18n.ts';
+	import LegalConsent from '#lib/legal/components/LegalConsent/LegalConsent.svelte';
+	import LegalLinks from '#lib/legal/components/LegalLinks/LegalLinks.svelte';
+	import { LEGAL_VERSION } from '#lib/legal/version/version.ts';
 
 	let email = $state('');
 	let password = $state('');
 	let emailError = $state<string>();
 	let passwordError = $state<string>();
+	let consented = $state(false);
+	let consentError = $state<string>();
 	let formError = $state<string>();
 	let accountExists = $state(false);
 	let submitting = $state(false);
@@ -22,13 +27,14 @@
 	async function submit(): Promise<void> {
 		emailError = validateEmail(email);
 		passwordError = validateNewPassword(password);
+		consentError = consented ? undefined : m.legal.consentRequired;
 		formError = undefined;
 		accountExists = false;
-		if (emailError || passwordError) return;
+		if (emailError || passwordError || consentError) return;
 
 		submitting = true;
 		const address = email.trim();
-		const result = await signUp(address, password);
+		const result = await signUp(address, password, { legal_version: LEGAL_VERSION });
 		if (result.accountExists) {
 			accountExists = true;
 			submitting = false;
@@ -75,6 +81,7 @@
 			type="password"
 			bind:value={password}
 		/>
+		<LegalConsent error={consentError} bind:checked={consented} />
 		<Button disabled={submitting} fullWidth type="submit" variant="primary">
 			{submitting ? m.signUp.submitting : m.signUp.submit}
 		</Button>
@@ -83,6 +90,7 @@
 	{#snippet footer()}
 		<p>{m.signUp.haveAccount}</p>
 		<Button fullWidth href={resolve('/(auth)/sign-in')}>{m.signUp.toSignIn}</Button>
+		<LegalLinks />
 	{/snippet}
 </AuthLayout>
 

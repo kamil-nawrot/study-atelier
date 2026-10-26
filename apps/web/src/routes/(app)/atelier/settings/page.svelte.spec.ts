@@ -54,6 +54,7 @@ function renderSettings(error?: string, search = '', pendingEmail?: string): voi
 			atelierEmpty: true,
 			pendingEmail,
 			storageUsage: { usedBytes: 9_122_611, quotaBytes: 209_715_200 },
+			acceptedLegalVersion: '2026-10-26',
 			error
 		},
 		params: {}

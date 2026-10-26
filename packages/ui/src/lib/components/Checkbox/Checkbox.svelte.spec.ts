@@ -1,9 +1,24 @@
 import { describe, expect, it, vi } from 'vitest';
+import { createRawSnippet } from 'svelte';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import Checkbox from './Checkbox.svelte';
 
 describe('Checkbox', () => {
+	it('takes a label with links and keeps the links working', async () => {
+		const children = createRawSnippet(() => ({
+			render: () => '<span>I accept the <a href="/terms">terms</a></span>'
+		}));
+		render(Checkbox, { children });
+
+		await expect
+			.element(page.getByRole('checkbox', { name: 'I accept the terms' }))
+			.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('link', { name: 'terms' }))
+			.toHaveAttribute('href', '/terms');
+	});
+
 	it('is unchecked by default and named by its label', async () => {
 		render(Checkbox, { label: 'Remember me' });
 

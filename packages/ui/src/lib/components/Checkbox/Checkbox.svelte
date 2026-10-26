@@ -1,17 +1,23 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 
-	type Props = Omit<HTMLInputAttributes, 'type'> & {
-		label: string;
+	type Props = Omit<HTMLInputAttributes, 'type' | 'children'> & {
+		label?: string;
+		children?: Snippet;
 		checked?: boolean;
 	};
 
-	let { label, checked = $bindable(false), ...rest }: Props = $props();
+	let { label, children, checked = $bindable(false), ...rest }: Props = $props();
 </script>
 
 <label class="checkbox">
 	<input type="checkbox" bind:checked {...rest} />
-	{label}
+	{#if children}
+		<span>{@render children()}</span>
+	{:else}
+		{label}
+	{/if}
 </label>
 
 <style>
