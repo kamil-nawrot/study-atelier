@@ -11,6 +11,7 @@
 	let { sitekey = TURNSTILE_SITE_KEY, timeout = 15000 }: Props = $props();
 
 	let container = $state<HTMLDivElement>();
+	let interactive = $state(false);
 	let api: TurnstileApi | undefined;
 	let widgetId: string | undefined;
 	let token: string | undefined;
@@ -46,6 +47,12 @@
 					'error-callback': () => {
 						token = undefined;
 						settle(undefined);
+					},
+					'before-interactive-callback': () => {
+						interactive = true;
+					},
+					'after-interactive-callback': () => {
+						interactive = false;
 					}
 				});
 			})
@@ -81,11 +88,5 @@
 </script>
 
 {#if sitekey}
-	<div bind:this={container} class="turnstile"></div>
+	<div bind:this={container} class="turnstile" class:visually-hidden={!interactive}></div>
 {/if}
-
-<style>
-	.turnstile:empty {
-		display: none;
-	}
-</style>

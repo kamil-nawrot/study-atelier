@@ -74,6 +74,18 @@ describe('Turnstile', () => {
 		await expect(component.getToken()).resolves.toBeUndefined();
 	});
 
+	it('takes space in the form only while Cloudflare asks the learner', async () => {
+		const { container } = await render(Turnstile, { sitekey: 'site-key' });
+		await vi.waitFor(() => expect(options).toBeDefined());
+		const widget = container.querySelector('.turnstile');
+
+		expect(widget).toHaveClass('visually-hidden');
+		options?.['before-interactive-callback']();
+		await vi.waitFor(() => expect(widget).not.toHaveClass('visually-hidden'));
+		options?.['after-interactive-callback']();
+		await vi.waitFor(() => expect(widget).toHaveClass('visually-hidden'));
+	});
+
 	it('removes the widget when the form goes away', async () => {
 		const { unmount } = await render(Turnstile, { sitekey: 'site-key' });
 		await vi.waitFor(() => expect(options).toBeDefined());

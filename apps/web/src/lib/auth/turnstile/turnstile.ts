@@ -9,6 +9,8 @@ export type TurnstileOptions = {
 	callback: (token: string) => void;
 	'expired-callback': () => void;
 	'error-callback': () => void;
+	'before-interactive-callback': () => void;
+	'after-interactive-callback': () => void;
 };
 
 export type TurnstileApi = {
