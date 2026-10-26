@@ -780,6 +780,8 @@ export type Database = {
           fetch_event: boolean;
           fetch_forms: boolean;
           fetch_image: boolean;
+          legal_accepted_at: string | null;
+          legal_version: string | null;
           owner_id: string;
           review_form: string;
           review_free: boolean;
@@ -799,6 +801,8 @@ export type Database = {
           fetch_event?: boolean;
           fetch_forms?: boolean;
           fetch_image?: boolean;
+          legal_accepted_at?: string | null;
+          legal_version?: string | null;
           owner_id?: string;
           review_form?: string;
           review_free?: boolean;
@@ -817,6 +821,8 @@ export type Database = {
           fetch_event?: boolean;
           fetch_forms?: boolean;
           fetch_image?: boolean;
+          legal_accepted_at?: string | null;
+          legal_version?: string | null;
           owner_id?: string;
           review_form?: string;
           review_free?: boolean;
