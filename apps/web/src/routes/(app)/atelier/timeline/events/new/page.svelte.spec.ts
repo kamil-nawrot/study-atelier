@@ -17,7 +17,8 @@ vi.mock('$app/navigation', () => ({
 }));
 vi.mock('$app/state', () => ({
 	page: { url: new URL('http://localhost/atelier/timeline/events/new'), state: {}, data: {} },
-	navigating: { to: null }
+	navigating: { to: null },
+	updated: { current: false }
 }));
 vi.mock('#lib/timeline/timeline-data/timeline-data.ts', () => ({ saveTimelineEvent: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
