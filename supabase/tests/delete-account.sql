@@ -86,9 +86,12 @@ $$;
 
 reset role;
 
-insert into storage.objects (bucket_id, name) values
-  ('artwork-images', '00000000-0000-0000-0000-00000000000a/own.jpg'),
-  ('artwork-images', '00000000-0000-0000-0000-00000000000b/own.jpg');
+insert into storage.objects (bucket_id, name, created_at) values
+  ('artwork-images', '00000000-0000-0000-0000-00000000000a/own.jpg', now() - interval '2 days'),
+  ('artwork-images', '00000000-0000-0000-0000-00000000000b/own.jpg', now() - interval '2 days');
+
+update public.artwork_images
+  set source_wikidata_id = null, source_image_file = null, own_image_path = owner_id || '/own.jpg';
 
 do $$
 declare
@@ -109,22 +112,11 @@ begin
 end;
 $$;
 
-set local role authenticated;
-
 do $$
-declare
-  a constant uuid := '00000000-0000-0000-0000-00000000000a';
 begin
-  perform delete_test.act_as(a);
-  assert delete_test.failure('select public.delete_account()') = '55000',
-    'the account is deleted while its files are still stored';
+  assert not exists (select 1 from public.unused_images()), 'a file in use counts as unused';
 end;
 $$;
-
-reset role;
-
-select set_config('storage.allow_delete_query', 'true', true);
-delete from storage.objects where name = '00000000-0000-0000-0000-00000000000a/own.jpg';
 
 set local role authenticated;
 
@@ -172,6 +164,8 @@ begin
   end loop;
 
   assert exists (select 1 from storage.objects where name = b || '/own.jpg'), 'deleting A removed a file of B';
+  assert array(select public.unused_images()) = array[a || '/own.jpg'],
+    'the clean-up does not pick up the files of the deleted learner, or picks up those of B';
 end;
 $$;
 

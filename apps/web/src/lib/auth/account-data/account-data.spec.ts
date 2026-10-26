@@ -231,7 +231,7 @@ describe('deleteAccount', () => {
 		rpc.mockReset().mockResolvedValue({ error: null });
 	});
 
-	it('checks the password, removes the files, then deletes the account and signs out here', async () => {
+	it('checks the password, deletes the account, then removes the files and signs out here', async () => {
 		await expect(deleteAccount('learner@example.com', 'vermeer1')).resolves.toEqual({
 			deleted: true
 		});
@@ -242,8 +242,8 @@ describe('deleteAccount', () => {
 		});
 		expect(removeAllOwnFiles).toHaveBeenCalledWith('learner-1');
 		expect(rpc).toHaveBeenCalledWith('delete_account');
-		expect(vi.mocked(removeAllOwnFiles).mock.invocationCallOrder[0]).toBeLessThan(
-			rpc.mock.invocationCallOrder[0]
+		expect(rpc.mock.invocationCallOrder[0]).toBeLessThan(
+			vi.mocked(removeAllOwnFiles).mock.invocationCallOrder[0]
 		);
 		expect(auth.signOut).toHaveBeenCalledWith({ scope: 'local' });
 	});
@@ -259,23 +259,23 @@ describe('deleteAccount', () => {
 		expect(rpc).not.toHaveBeenCalled();
 	});
 
-	it('keeps the account when the files cannot be removed', async () => {
+	it('leaves files it could not remove to the daily clean-up once the account is gone', async () => {
 		vi.mocked(removeAllOwnFiles).mockResolvedValue(false);
 
 		await expect(deleteAccount('learner@example.com', 'vermeer1')).resolves.toEqual({
-			deleted: false,
-			error: m.settings.account.deleteFailed
+			deleted: true
 		});
-		expect(rpc).not.toHaveBeenCalled();
+		expect(auth.signOut).toHaveBeenCalledWith({ scope: 'local' });
 	});
 
-	it('stays signed in when the database refuses the deletion', async () => {
-		rpc.mockResolvedValue({ error: { code: '55000' } });
+	it('touches nothing and stays signed in when the database refuses the deletion', async () => {
+		rpc.mockResolvedValue({ error: { message: 'Failed to fetch' } });
 
 		await expect(deleteAccount('learner@example.com', 'vermeer1')).resolves.toEqual({
 			deleted: false,
 			error: m.settings.account.deleteFailed
 		});
+		expect(removeAllOwnFiles).not.toHaveBeenCalled();
 		expect(auth.signOut).not.toHaveBeenCalled();
 	});
 });

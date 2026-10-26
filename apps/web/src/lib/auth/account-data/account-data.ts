@@ -135,12 +135,9 @@ export async function deleteAccount(email: string, password: string): Promise<Ac
 		}
 		return { deleted: false, error: authErrorMessage(verified.error) };
 	}
-	const ownerId = verified.data.user.id;
-	if (!(await removeAllOwnFiles(ownerId))) {
-		return { deleted: false, error: m.settings.account.deleteFailed };
-	}
 	const { error } = await supabase.rpc('delete_account');
 	if (error) return { deleted: false, error: m.settings.account.deleteFailed };
+	await removeAllOwnFiles(verified.data.user.id);
 	await supabase.auth.signOut({ scope: 'local' });
 	return { deleted: true };
 }
