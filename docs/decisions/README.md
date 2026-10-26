@@ -137,3 +137,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0131](0131-call-the-trash-archiwum-and-describe-work-in-progress-impersonally.md) | Call the trash "Archiwum" and describe work in progress impersonally                     | accepted           |
 | [0132](0132-keep-the-minimum-password-length-at-8.md)                              | Keep the minimum password length at 8                                                    | accepted           |
 | [0133](0133-limit-the-storage-and-the-rows-of-one-account.md)                      | Limit the storage and the rows of one account                                            | accepted           |
+| [0135](0135-delete-the-account-with-the-password-and-a-database-function.md)       | Delete the account with the password and a database function                             | accepted           |
