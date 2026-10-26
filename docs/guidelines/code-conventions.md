@@ -185,6 +185,7 @@ Inside a module (example: `wall`):
 - `supabase/tests/review-session.sql` runs in the same job and checks the rules of `review_session` on a learner's own artworks, for example which artwork gets a quiz. A change to a session rule extends it. `review-streak.sql`, `notes-mentions.sql`, `artwork-images.sql`, `artwork-fields.sql` and `visits.sql` do the same for `review_streak`, `notes_mentions`, the other images of `save_artwork`, the learner's own artwork fields and `save_visit`.
 - A migration that changes the rules of a function comes with a test in `supabase/tests/` that fails against the previous version of the function and passes with the new one. Check both on the local stack before pushing.
 - The message of an assertion in `supabase/tests/` names the failure, not the state the assertion checks: `assert count = 2, 'save_artwork drops the entries it was not given'`. A reviewer reads it as the bug that would show if the assertion failed.
+- An assertion that a statement is refused fails only for the reason it checks. Storage's `protect_delete` trigger refuses every direct delete from `storage.objects` with the same SQLSTATE as row level security (`42501`), so a test of the Storage delete policy first sets `storage.allow_delete_query` to `true` for its transaction; without it the test passes whatever the policy says.
 
 ## Tests
 
