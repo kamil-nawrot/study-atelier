@@ -208,7 +208,9 @@ export const pl = {
 			save: 'Zapisz profil',
 			saved: 'Zapisano profil.',
 			errorTitle: 'Nie udało się zapisać profilu',
-			failed: 'Nie udało się zapisać profilu. Spróbuj jeszcze raz.'
+			failed: 'Nie udało się zapisać profilu. Spróbuj jeszcze raz.',
+			avatarQuotaFull:
+				'Brakuje miejsca na zdjęcia, więc awatara nie da się teraz zapisać. Usuń niepotrzebne zdjęcia dzieł. Miejsce zwolni się w ciągu doby.'
 		},
 		account: {
 			emailTitle: 'Adres e-mail',
@@ -294,6 +296,11 @@ export const pl = {
 			importFailed:
 				'Nie udało się wczytać atelier. Nic nie zostało zmienione, spróbuj jeszcze raz.',
 			importNotEmpty: 'Atelier nie jest już puste, więc nic nie zostało wczytane.',
+			importLimit:
+				'Ta kopia nie mieści się w limitach jednego atelier, więc nic nie zostało wczytane.',
+			storageTitle: 'Miejsce na zdjęcia',
+			storageUsage: (usedMegabytes: string, quotaMegabytes: string): string =>
+				`Twoje zdjęcia zajmują ${usedMegabytes} MB z ${quotaMegabytes} MB.`,
 			errorTitle: 'Nie udało się wyeksportować atelier',
 			failed:
 				'Spróbuj jeszcze raz. Jeśli problem się powtarza, spróbuj wykonać eksport na innym urządzeniu.',
@@ -738,7 +745,27 @@ export const pl = {
 		urlUnreadable:
 			'Nie udało się wczytać obrazka z tego adresu. Sprawdź, czy prowadzi wprost do obrazka.',
 		uploadNetwork: 'Nie udało się wysłać obrazu. Sprawdź internet i spróbuj jeszcze raz.',
-		uploadFailed: 'Nie udało się wysłać obrazu. Spróbuj jeszcze raz za chwilę.'
+		uploadFailed: 'Nie udało się wysłać obrazu. Spróbuj jeszcze raz za chwilę.',
+		quotaFull: (quotaMegabytes: string): string =>
+			`Ten plik nie zmieści się w ${quotaMegabytes} MB na Twoje zdjęcia. Dodaj obraz z linku albo usuń niepotrzebne zdjęcia. Miejsce zwolni się w ciągu doby.`
+	},
+	limits: {
+		artworks: (limit: number): string =>
+			`W atelier zmieści się ${limit} dzieł, razem z tymi w Archiwum. Usuń z Archiwum te, których już nie potrzebujesz, żeby dodać nowe.`,
+		categoryValues: (limit: number): string =>
+			`W Kartotece zmieści się ${limit} wartości. Usuń te, których nie ma przy żadnym dziele, żeby dodać nowe.`,
+		glossaryEntries: (limit: number): string =>
+			`W Słowniczku zmieści się ${limit} pojęć. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		timelineEvents: (limit: number): string =>
+			`W Kalendarium zmieści się ${limit} wydarzeń. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		visits: (limit: number): string =>
+			`W Kronice zmieści się ${limit} wizyt. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		artworkFields: (limit: number): string =>
+			`W atelier zmieści się ${limit} własnych pól. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		reviewAnswers: (limit: number): string =>
+			`W ciągu doby zmieści się ${limit} odpowiedzi w powtórkach. Zrób przerwę i wróć później.`,
+		feedback: (limit: number): string =>
+			`W ciągu doby można wysłać ${limit} zgłoszeń. Wróć z kolejnym później.`
 	},
 	cardIndex: {
 		title: 'Kartoteka',

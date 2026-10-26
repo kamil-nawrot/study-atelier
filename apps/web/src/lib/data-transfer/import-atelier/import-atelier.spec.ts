@@ -10,6 +10,11 @@ import {
 	removeUploads,
 	uploadImport
 } from '#lib/data-transfer/import-data/import-data.ts';
+import { loadStorageUsage } from '#lib/images/storage-usage-data/storage-usage-data.ts';
+
+vi.mock('#lib/images/storage-usage-data/storage-usage-data.ts', () => ({
+	loadStorageUsage: vi.fn()
+}));
 
 vi.mock('#lib/data-transfer/import-data/import-data.ts', () => ({
 	currentOwnerId: vi.fn(),
@@ -42,6 +47,7 @@ beforeEach(() => {
 	vi.mocked(currentOwnerId).mockResolvedValue(OWNER);
 	vi.mocked(uploadImport).mockResolvedValue(true);
 	vi.mocked(importAtelier).mockResolvedValue({});
+	vi.mocked(loadStorageUsage).mockResolvedValue(undefined);
 });
 
 describe('importArchive', () => {
@@ -62,6 +68,15 @@ describe('importArchive', () => {
 		const result = await importArchive(new Blob(['nope']), () => undefined);
 
 		expect(result).toEqual({ error: m.settings.data.importNotZip });
+		expect(uploadImport).not.toHaveBeenCalled();
+	});
+
+	it('uploads nothing when the images do not fit in the space left', async () => {
+		vi.mocked(loadStorageUsage).mockResolvedValue({ usedBytes: 100, quotaBytes: 100 });
+
+		const result = await importArchive(archive(), () => undefined);
+
+		expect(result).toEqual({ error: m.settings.data.importLimit });
 		expect(uploadImport).not.toHaveBeenCalled();
 	});
 

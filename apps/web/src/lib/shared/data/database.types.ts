@@ -1238,6 +1238,13 @@ export type Database = {
         Args: { period_ids: string[]; target_style: string };
         Returns: undefined;
       };
+      storage_usage: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          quota_bytes: number;
+          used_bytes: number;
+        }[];
+      };
       style_period_usage: {
         Args: Record<PropertyKey, never>;
         Returns: {

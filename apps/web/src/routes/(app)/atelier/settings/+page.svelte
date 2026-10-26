@@ -104,6 +104,7 @@
 							atelierEmpty={data.atelierEmpty}
 							onexported={(message) => toast.show(message)}
 							onimported={dataImported}
+							storageUsage={data.storageUsage}
 						/>
 					{:else}
 						{#key tab}
@@ -146,6 +147,7 @@
 	}
 
 	.panel {
+		container-type: inline-size;
 		display: flex;
 		flex-direction: column;
 		box-sizing: border-box;

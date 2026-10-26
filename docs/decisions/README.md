@@ -136,4 +136,5 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0130](0130-show-empty-views-in-one-centred-pattern.md)                            | Show empty views in one centred pattern                                                  | accepted           |
 | [0131](0131-call-the-trash-archiwum-and-describe-work-in-progress-impersonally.md) | Call the trash "Archiwum" and describe work in progress impersonally                     | accepted           |
 | [0132](0132-keep-the-minimum-password-length-at-8.md)                              | Keep the minimum password length at 8                                                    | accepted           |
+| [0133](0133-limit-the-storage-and-the-rows-of-one-account.md)                      | Limit the storage and the rows of one account                                            | accepted           |
 | [0134](0134-back-up-production-to-encrypted-github-artifacts.md)                   | Back up production to encrypted GitHub artifacts                                         | accepted           |

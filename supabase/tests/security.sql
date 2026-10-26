@@ -100,7 +100,8 @@ declare
     'keep_alive', 'value_usage', 'period_era_usage', 'style_period_usage', 'merge_category_values',
     'set_period_eras', 'set_style_periods', 'delete_unused_value', 'value_page_content', 'save_era_details',
     'save_value_details', 'record_review', 'review_counts', 'review_streak', 'notes_mentions', 'review_session',
-    'unused_images', 'move_artwork_field', 'artwork_field_usage', 'save_artwork', 'import_atelier', 'save_visit'
+    'unused_images', 'move_artwork_field', 'artwork_field_usage', 'save_artwork', 'import_atelier', 'save_visit',
+    'storage_usage'
   ];
   table_name text;
   routine record;
@@ -328,6 +329,7 @@ begin
   assert (select count(*) from public.visit_artworks) = 0, 'B reads the artworks of visits of A';
   assert (select count(*) from public.profiles) = 0, 'B reads the profile of A';
   assert (select count(*) from storage.objects) = 0, 'B reads image objects of A';
+  assert (select used_bytes from public.storage_usage()) = 0, 'B counts the files of A as used space';
   assert (select count(*) from public.value_usage()) = 0, 'B sees value usage of A';
   assert (select count(*) from public.artwork_fields) = 0, 'B reads artwork fields of A';
   assert (select count(*) from public.artwork_field_entries) = 0, 'B reads field entries of A';
@@ -857,6 +859,7 @@ begin
   assert security_test.denied(format('select public.move_artwork_field(%L, 1)', gen_random_uuid())),
     'anon executes move_artwork_field';
   assert security_test.denied('select public.notes_mentions()'), 'anon executes notes_mentions';
+  assert security_test.denied('select public.storage_usage()'), 'anon executes storage_usage';
   assert security_test.denied(format('select public.value_page_content(%L)', gen_random_uuid())),
     'anon executes value_page_content';
   assert security_test.denied('select public.save_artwork(''{}'', ''{}'')'), 'anon executes save_artwork';

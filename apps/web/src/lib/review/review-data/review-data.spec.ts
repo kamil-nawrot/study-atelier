@@ -188,6 +188,13 @@ describe('review data', () => {
 		});
 	});
 
+	it('says the daily limit of answers was reached', async () => {
+		rpc.mockResolvedValue({ error: { code: '53400', hint: 'review_log' } } as never);
+		await expect(recordReview(card, { mode: 'flashcard', rating: 2 })).resolves.toEqual({
+			error: m.limits.reviewAnswers(1000)
+		});
+	});
+
 	it('asks the database for a session of the chosen form and scope', async () => {
 		const rows = [{ artwork_id: 'artwork-1', mode: 'flashcard' }];
 		rpc.mockResolvedValue({ data: rows, error: null } as never);
