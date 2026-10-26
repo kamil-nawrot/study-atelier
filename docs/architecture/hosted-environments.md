@@ -57,6 +57,16 @@ The steps are the same for any provider: get the SMTP host, port, username and p
 
 Gmail allows about 500 mails a day and may put the mails in spam; moving to an own domain later changes only the SMTP settings.
 
+## Supabase Advisors
+
+The Security and Performance Advisors in the dashboard of each project are run before the app opens to more learners and after a release that changes the database. These findings stay on purpose; any other is fixed in a migration or filed as an issue:
+
+| Advisor  | Finding                                                                                | Why it stays                                                                                                                                                                                                                                 |
+| -------- | -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Security | `public.import_atelier` is a `security definer` function executable by `authenticated` | The import writes record numbers, dates and the review history that the learner's grants do not allow; it takes the owner from `auth.uid()` ([ADR-0122](../decisions/0122-import-an-atelier-into-an-empty-atelier-through-one-function.md)). |
+| Security | Leaked password protection is disabled                                                 | It needs Supabase Pro ([ADR-0132](../decisions/0132-keep-the-minimum-password-length-at-8.md)).                                                                                                                                              |
+| Security | `private.record_counters` has row level security on and no policy (INFO)               | Only the numbering trigger writes it, and the `private` schema is not exposed, so no API role needs a policy.                                                                                                                                |
+
 ## Releasing
 
 A merge to `main` applies pending migrations to the production database and deploys the production build. Review the new files in `supabase/migrations` before merging the release.
