@@ -8,6 +8,7 @@ import {
 } from '#lib/images/bucket/bucket.ts';
 import { ownImageErrorMessage } from '#lib/images/errors/errors.ts';
 import { ownImagePath, makeThumbnail } from '#lib/images/own-image/own-image.ts';
+import { quotaMessage } from '#lib/images/storage-usage-data/storage-usage-data.ts';
 import type { OwnImageUpload } from '#lib/images/types/own-image-upload.ts';
 
 export async function uploadOwnThumbnail(path: string, source: Blob): Promise<boolean> {
@@ -28,7 +29,8 @@ export async function uploadOwnImage(file: File): Promise<OwnImageUpload> {
 	const { error } = await supabase.storage
 		.from(IMAGES_BUCKET)
 		.upload(path, file, { contentType: file.type, upsert: false });
-	if (error) return { error: ownImageErrorMessage(error) };
+	if (error)
+		return { error: (await quotaMessage(error, file.size)) ?? ownImageErrorMessage(error) };
 	await uploadOwnThumbnail(path, file);
 	return { path };
 }

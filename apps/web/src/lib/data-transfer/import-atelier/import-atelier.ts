@@ -6,6 +6,7 @@ import {
 	uploadImport
 } from '#lib/data-transfer/import-data/import-data.ts';
 import { parseArchive } from '#lib/data-transfer/parse/parse.ts';
+import { loadStorageUsage } from '#lib/images/storage-usage-data/storage-usage-data.ts';
 import type { ParseFailure } from '#lib/data-transfer/types/parse-failure.ts';
 import { remapAtelier } from '#lib/data-transfer/remap/remap.ts';
 import type { ImportProgress } from '#lib/data-transfer/types/import-progress.ts';
@@ -35,6 +36,12 @@ export async function importArchive(
 		parsed.archive.images,
 		ownerId
 	);
+
+	const usage = await loadStorageUsage();
+	const uploadBytes = uploads.reduce((sum, upload) => sum + upload.bytes.byteLength, 0);
+	if (usage && usage.usedBytes + uploadBytes > usage.quotaBytes) {
+		return { error: m.settings.data.importLimit };
+	}
 
 	const uploaded: string[] = [];
 	for (const [index, upload] of uploads.entries()) {
