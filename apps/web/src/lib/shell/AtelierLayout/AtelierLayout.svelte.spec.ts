@@ -12,6 +12,7 @@ import { setTheme } from '#lib/shell/theme/theme.svelte.ts';
 import AtelierLayout from './AtelierLayout.svelte';
 
 const navigation = vi.hoisted(() => ({ to: null as object | null }));
+const version = vi.hoisted(() => ({ current: false }));
 const pageState = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier'),
 	data: {} as {
@@ -23,7 +24,8 @@ const pageState = vi.hoisted(() => ({
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 vi.mock('$app/state', () => ({
 	navigating: navigation,
-	page: pageState
+	page: pageState,
+	updated: version
 }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
@@ -54,6 +56,7 @@ describe('AtelierLayout', () => {
 	beforeEach(() => {
 		navigation.to = null;
 		pageState.data = {};
+		version.current = false;
 	});
 
 	afterEach(() => {
@@ -223,6 +226,16 @@ describe('AtelierLayout', () => {
 					.getByRole('link', { name: m.menu.review, exact: true })
 			)
 			.toBeInTheDocument();
+	});
+
+	it('asks to reload once a new version of the app is out', async () => {
+		version.current = true;
+		renderLayout(views.empty);
+
+		await expect
+			.element(page.getByRole('button', { name: m.newVersion.reload }))
+			.toBeInTheDocument();
+		await expect.element(page.getByText(m.newVersion.message)).toBeInTheDocument();
 	});
 
 	it('opens the feedback dialog from the menu', async () => {

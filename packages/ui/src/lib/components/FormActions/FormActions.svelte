@@ -9,7 +9,7 @@
 	let { height = $bindable(0), children }: Props = $props();
 </script>
 
-<footer class="actions" bind:offsetHeight={height}>
+<footer class="actions" data-action-bar bind:offsetHeight={height}>
 	{@render children()}
 </footer>
 

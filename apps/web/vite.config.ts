@@ -10,7 +10,8 @@ export default defineConfig({
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
-			adapter: adapter({ platformProxy: { persist: false } })
+			adapter: adapter({ platformProxy: { persist: false } }),
+			version: { pollInterval: 10 * 60 * 1000 }
 		})
 	],
 	test: {
