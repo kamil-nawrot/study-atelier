@@ -6,6 +6,8 @@ import {
 	deleteAccount,
 	pendingEmailChange,
 	requestEmailChange,
+	requestPasswordReset,
+	resendConfirmation,
 	signIn,
 	signUp
 } from './account-data.ts';
@@ -13,6 +15,8 @@ import {
 const auth = vi.hoisted(() => ({
 	signInWithPassword: vi.fn(),
 	signUp: vi.fn(),
+	resend: vi.fn(),
+	resetPasswordForEmail: vi.fn(),
 	updateUser: vi.fn(),
 	getUser: vi.fn(),
 	signOut: vi.fn()
@@ -38,6 +42,21 @@ describe('signIn', () => {
 		expect(await signIn('learner@example.com', 'vermeer1')).toBeUndefined();
 	});
 
+	it('passes the captcha token to Supabase', async () => {
+		auth.signInWithPassword.mockResolvedValue({ error: null });
+		await signIn('learner@example.com', 'vermeer1', 'token-1');
+		expect(auth.signInWithPassword).toHaveBeenCalledWith({
+			email: 'learner@example.com',
+			password: 'vermeer1',
+			options: { captchaToken: 'token-1' }
+		});
+	});
+
+	it('returns the captcha message when Supabase rejects the token', async () => {
+		auth.signInWithPassword.mockResolvedValue({ error: { code: 'captcha_failed' } });
+		expect(await signIn('learner@example.com', 'vermeer1')).toBe(m.authErrors.captchaFailed);
+	});
+
 	it('returns the mapped message when Supabase rejects the credentials', async () => {
 		auth.signInWithPassword.mockResolvedValue({ error: { code: 'invalid_credentials' } });
 		expect(await signIn('learner@example.com', 'wrong')).toBe(m.authErrors.invalidCredentials);
@@ -48,12 +67,16 @@ describe('signUp', () => {
 	it('asks for a confirmation link back to the app', async () => {
 		auth.signUp.mockResolvedValue({ data: { session: null }, error: null });
 		expect(
-			await signUp('learner@example.com', 'vermeer1', { legal_version: '2026-10-26' })
+			await signUp('learner@example.com', 'vermeer1', { legal_version: '2026-10-26' }, 'token-1')
 		).toEqual({ signedIn: false });
 		expect(auth.signUp).toHaveBeenCalledWith({
 			email: 'learner@example.com',
 			password: 'vermeer1',
-			options: { emailRedirectTo: 'https://atelier.test/', data: { legal_version: '2026-10-26' } }
+			options: {
+				emailRedirectTo: 'https://atelier.test/',
+				data: { legal_version: '2026-10-26' },
+				captchaToken: 'token-1'
+			}
 		});
 	});
 
@@ -85,6 +108,29 @@ describe('signUp', () => {
 	});
 });
 
+describe('resendConfirmation', () => {
+	it('passes the captcha token to Supabase', async () => {
+		auth.resend.mockResolvedValue({ error: null });
+		expect(await resendConfirmation('learner@example.com', 'token-1')).toBeUndefined();
+		expect(auth.resend).toHaveBeenCalledWith({
+			type: 'signup',
+			email: 'learner@example.com',
+			options: { emailRedirectTo: 'https://atelier.test/', captchaToken: 'token-1' }
+		});
+	});
+});
+
+describe('requestPasswordReset', () => {
+	it('passes the captcha token to Supabase', async () => {
+		auth.resetPasswordForEmail.mockResolvedValue({ error: null });
+		expect(await requestPasswordReset('learner@example.com', 'token-1')).toBeUndefined();
+		expect(auth.resetPasswordForEmail).toHaveBeenCalledWith('learner@example.com', {
+			redirectTo: 'https://atelier.test/update-password',
+			captchaToken: 'token-1'
+		});
+	});
+});
+
 describe('changePassword', () => {
 	beforeEach(() => {
 		auth.signInWithPassword.mockResolvedValue({ error: null });
@@ -93,12 +139,19 @@ describe('changePassword', () => {
 	});
 
 	it('checks the current password by signing in with it before setting the new one', async () => {
-		const result = await changePassword('learner@example.com', 'vermeer1', 'rembrandt2', false);
+		const result = await changePassword(
+			'learner@example.com',
+			'vermeer1',
+			'rembrandt2',
+			false,
+			'token-1'
+		);
 
 		expect(result).toEqual({ changed: true });
 		expect(auth.signInWithPassword).toHaveBeenCalledWith({
 			email: 'learner@example.com',
-			password: 'vermeer1'
+			password: 'vermeer1',
+			options: { captchaToken: 'token-1' }
 		});
 		expect(auth.updateUser).toHaveBeenCalledWith({ password: 'rembrandt2' });
 		expect(auth.signInWithPassword.mock.invocationCallOrder[0]).toBeLessThan(
@@ -234,13 +287,14 @@ describe('deleteAccount', () => {
 	});
 
 	it('checks the password, deletes the account, then removes the files and signs out here', async () => {
-		await expect(deleteAccount('learner@example.com', 'vermeer1')).resolves.toEqual({
+		await expect(deleteAccount('learner@example.com', 'vermeer1', 'token-1')).resolves.toEqual({
 			deleted: true
 		});
 
 		expect(auth.signInWithPassword).toHaveBeenCalledWith({
 			email: 'learner@example.com',
-			password: 'vermeer1'
+			password: 'vermeer1',
+			options: { captchaToken: 'token-1' }
 		});
 		expect(removeAllOwnFiles).toHaveBeenCalledWith('learner-1');
 		expect(rpc).toHaveBeenCalledWith('delete_account');

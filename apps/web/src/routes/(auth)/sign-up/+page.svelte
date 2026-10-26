@@ -4,6 +4,7 @@
 	import { Alert, Button, Form, TextField } from '@study-atelier/ui';
 	import { signUp } from '#lib/auth/account-data/account-data.ts';
 	import AuthLayout from '#lib/auth/components/AuthLayout/AuthLayout.svelte';
+	import Turnstile from '#lib/auth/components/Turnstile/Turnstile.svelte';
 	import {
 		MIN_PASSWORD_LENGTH,
 		validateEmail,
@@ -23,6 +24,7 @@
 	let formError = $state<string>();
 	let accountExists = $state(false);
 	let submitting = $state(false);
+	let turnstile = $state<Turnstile>();
 
 	async function submit(): Promise<void> {
 		emailError = validateEmail(email);
@@ -34,7 +36,13 @@
 
 		submitting = true;
 		const address = email.trim();
-		const result = await signUp(address, password, { legal_version: LEGAL_VERSION });
+		const result = await signUp(
+			address,
+			password,
+			{ legal_version: LEGAL_VERSION },
+			await turnstile?.getToken()
+		);
+		turnstile?.reset();
 		if (result.accountExists) {
 			accountExists = true;
 			submitting = false;
@@ -82,6 +90,7 @@
 			bind:value={password}
 		/>
 		<LegalConsent error={consentError} bind:checked={consented} />
+		<Turnstile bind:this={turnstile} />
 		<Button disabled={submitting} fullWidth type="submit" variant="primary">
 			{submitting ? m.signUp.submitting : m.signUp.submit}
 		</Button>

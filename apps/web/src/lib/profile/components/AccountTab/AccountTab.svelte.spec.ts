@@ -120,7 +120,13 @@ describe('AccountTab', () => {
 		await page.getByText(m.settings.account.signOutOthers).click();
 		await submit().click();
 
-		expect(changePassword).toHaveBeenCalledWith(TEST_EMAIL, 'vermeer1', 'rembrandt2', false);
+		expect(changePassword).toHaveBeenCalledWith(
+			TEST_EMAIL,
+			'vermeer1',
+			'rembrandt2',
+			false,
+			undefined
+		);
 		expect(onchanged).toHaveBeenCalledWith(m.settings.account.changed);
 		await expect.element(field(m.settings.account.currentPassword)).toHaveValue('');
 		await expect.element(field(m.settings.account.newPassword)).toHaveValue('');
@@ -214,7 +220,7 @@ describe('AccountTab deletion', () => {
 		await confirm().click();
 
 		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
-		expect(deleteAccount).toHaveBeenCalledWith(TEST_EMAIL, 'vermeer1');
+		expect(deleteAccount).toHaveBeenCalledWith(TEST_EMAIL, 'vermeer1', undefined);
 		expect(accountDeleted.value).toBe(true);
 	});
 });

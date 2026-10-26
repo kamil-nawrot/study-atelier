@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { deleteAccount } from '#lib/auth/account-data/account-data.ts';
+	import Turnstile from '#lib/auth/components/Turnstile/Turnstile.svelte';
 
 	type Props = {
 		email: string;
@@ -18,6 +19,7 @@
 	let passwordError = $state<string>();
 	let failure = $state<string>();
 	let deleting = $state(false);
+	let turnstile = $state<Turnstile>();
 
 	$effect(() => {
 		if (!open) return;
@@ -31,8 +33,9 @@
 		deleting = true;
 		passwordError = undefined;
 		failure = undefined;
-		const result = await deleteAccount(email, password);
+		const result = await deleteAccount(email, password, await turnstile?.getToken());
 		if (!result.deleted) {
+			turnstile?.reset();
 			deleting = false;
 			passwordError = result.passwordError;
 			failure = result.error;
@@ -60,6 +63,7 @@
 			type="password"
 			bind:value={password}
 		/>
+		<Turnstile bind:this={turnstile} />
 	</Form>
 	{#snippet footer()}
 		<Button onclick={() => (open = false)}>

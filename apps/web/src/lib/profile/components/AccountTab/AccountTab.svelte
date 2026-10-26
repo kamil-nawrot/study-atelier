@@ -4,6 +4,7 @@
 	import { resolve } from '$app/paths';
 	import { accountDeleted } from '#lib/auth/account-deleted/account-deleted.svelte.ts';
 	import { changePassword, requestEmailChange } from '#lib/auth/account-data/account-data.ts';
+	import Turnstile from '#lib/auth/components/Turnstile/Turnstile.svelte';
 	import {
 		MIN_PASSWORD_LENGTH,
 		validateEmail,
@@ -58,13 +59,22 @@
 		});
 	}
 
+	let turnstile = $state<Turnstile>();
+
 	function submit(): Promise<void> {
 		return passwordForm.run(async () => {
 			othersError = '';
 			currentError = validateRequiredPassword(currentPassword);
 			newError = validateNewPassword(newPassword);
 			if (currentError || newError) return;
-			const result = await changePassword(email, currentPassword, newPassword, signOutOthers);
+			const result = await changePassword(
+				email,
+				currentPassword,
+				newPassword,
+				signOutOthers,
+				await turnstile?.getToken()
+			);
+			turnstile?.reset();
 			currentError = result.currentError;
 			newError = result.newError;
 			if (result.error) passwordForm.error = result.error;
@@ -130,6 +140,7 @@
 				bind:value={newPassword}
 			/>
 			<Checkbox label={m.settings.account.signOutOthers} bind:checked={signOutOthers} />
+			<Turnstile bind:this={turnstile} />
 			<div class="actions">
 				<Button disabled={passwordForm.busy} type="submit">
 					{passwordForm.busy ? m.settings.account.submitting : m.settings.account.submit}
