@@ -44,6 +44,8 @@ Settings, Environments: `develop` and `production`, each with these secrets:
 
 Each environment may also have the variables `LEGAL_COMPANY`, `LEGAL_ADDRESS` and `LEGAL_NIP`: the business name, address and tax number of the provider, shown in the terms and the privacy policy ([ADR-0137](../decisions/0137-publish-the-terms-and-the-privacy-policy-and-store-their-acceptance.md)). They are public and end up in the build; without them the pages show `[FIRMA]`, `[ADRES]` and `[NIP]`.
 
+Each environment also has the variable `TURNSTILE_SITE_KEY`: the site key of the Turnstile widget ([Captcha](#captcha)). Without it the forms show no captcha.
+
 Deployment branches: `production` allows `main` and `develop`, `develop` allows `develop`. The scheduled keep-alive, the unused images clean-up and the weekly production backup run from the default branch, `develop`, so they need access to `production`; the consequence is that code merged to `develop` can read the production secrets, and only the owner merges.
 
 The same five names must not remain as repository secrets: an environment secret overrides a repository secret, but a missing one would silently fall back to it and point `develop` at production.
@@ -89,6 +91,17 @@ Develop, Gmail (before step 2):
 6. Check it on that environment's app: ask for a password reset to an address outside the Supabase team and see that the Polish mail arrives (look in spam too) and the link opens `/update-password`.
 
 Scaleway sends 300 mails a month for free and then charges €0.25 per 1,000; its mails pass SPF, DKIM and DMARC. Gmail allows about 500 mails a day and may put the mails in spam.
+
+## Captcha
+
+The auth forms send a Cloudflare Turnstile token to Supabase Auth ([ADR-0138](../decisions/0138-protect-the-auth-forms-with-cloudflare-turnstile.md)). One widget serves both environments:
+
+1. Cloudflare dashboard, Turnstile: add a widget `study-atelier` in the Managed mode with the hostnames `studyatelier.art`, `develop.study-atelier.pages.dev` and `localhost`. It gives a site key (public) and a secret key.
+2. GitHub, Settings, Environments: in `develop` and `production` add the variable `TURNSTILE_SITE_KEY` with the site key, then deploy both environments (a push to `develop`, a release for production) and check that the sign-in still works.
+3. Only after the deployment: Supabase, Authentication, Bot and Abuse Protection (Attack Protection in older dashboards), turn on captcha protection with the provider Turnstile and the secret key, in each project. In the other order every sign-in fails until the app sends tokens.
+4. Check on each environment: sign in, ask for a password reset, and change the password in the Konto tab.
+
+To switch the protection off, turn it off in Supabase first; the site key can stay. The local stack has no captcha, and `apps/web/.env` needs no key; to try the widget locally, set `TURNSTILE_SITE_KEY` there to the Cloudflare test key `1x00000000000000000000AA`.
 
 ## Supabase Advisors
 

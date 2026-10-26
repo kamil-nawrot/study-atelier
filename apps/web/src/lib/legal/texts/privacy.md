@@ -46,7 +46,7 @@
 
 1. Dane osobowe mogą być powierzane, na podstawie umowy powierzenia przetwarzania danych, następującym podmiotom przetwarzającym je w imieniu Administratora:
    1. Supabase Pte. Ltd. (Singapur) wraz z Supabase, Inc. (USA) – w zakresie bazy danych, uwierzytelniania i przechowywania plików; dane są przechowywane w centrum danych we Frankfurcie nad Menem, przy czym personel i podwykonawcy tego podmiotu mogą mieć do nich dostęp z państw spoza Europejskiego Obszaru Gospodarczego;
-   2. Cloudflare, Inc. (USA) – w zakresie hostingu Aplikacji oraz przekazywania korespondencji kierowanej na adres kontakt@studyatelier.art;
+   2. Cloudflare, Inc. (USA) – w zakresie hostingu Aplikacji, ochrony formularzy logowania, rejestracji, odzyskiwania hasła i potwierdzania hasła w ustawieniach przed automatycznymi nadużyciami (usługa Cloudflare Turnstile) oraz przekazywania korespondencji kierowanej na adres kontakt@studyatelier.art;
    3. Scaleway SAS (Paryż, Francja) – w zakresie wysyłania wiadomości poczty elektronicznej dotyczących Konta oraz odpowiedzi Administratora; dane są przechowywane w Unii Europejskiej;
    4. GitHub, Inc. (USA) – w zakresie wykonywania kopii zapasowych; dane są przetwarzane na infrastrukturze GitHub w czasie tworzenia kopii, a następnie przechowywane wyłącznie w postaci zaszyfrowanej kluczem, do którego dostęp ma tylko Administrator.
 2. Korzystając z funkcji, o której mowa w § 4 ust. 1 pkt 2, przeglądarka Użytkownika łączy się bezpośrednio z serwisami Wikimedia Foundation, Inc. (Wikipedia, Wikidata, Wikimedia Commons, Wikisłownik), a w przypadku obrazów dodanych z odnośnika – z serwerem wskazanym przez Użytkownika. Podmioty te przetwarzają adres IP Użytkownika i treść zapytania na zasadach określonych we własnych politykach prywatności. Serwery Wikimedia Foundation, Inc. mogą znajdować się poza EOG, w tym w Stanach Zjednoczonych Ameryki. Korespondencja kierowana na adres kontakt@studyatelier.art jest przechowywana w skrzynce poczty elektronicznej Administratora prowadzonej przez Google Ireland Limited.
@@ -82,7 +82,8 @@
 ### § 9. Pamięć przeglądarki
 
 1. Aplikacja zapisuje w pamięci przeglądarki Użytkownika (localStorage i sessionStorage) wyłącznie dane niezbędne do utrzymania sesji logowania oraz zapamiętania ustawień wyświetlania, w zakresie dozwolonym bez zgody na podstawie art. 399 ust. 3 ustawy z dnia 12 lipca 2024 r. – Prawo komunikacji elektronicznej.
-2. Aplikacja nie wykorzystuje plików cookies ani innych technologii w celach analitycznych, reklamowych lub śledzących.
+2. Na stronach z formularzami, o których mowa w § 5 ust. 1 pkt 2, skrypt Cloudflare Turnstile odczytuje z przeglądarki informacje techniczne (w szczególności adres IP, typ i ustawienia przeglądarki oraz sposób interakcji ze stroną) wyłącznie w celu odróżnienia Osoby od automatu, w zakresie niezbędnym do bezpiecznego świadczenia usługi, o którą Osoba wnosi, na podstawie art. 399 ust. 3 ustawy, o której mowa w ust. 1.
+3. Aplikacja nie wykorzystuje plików cookies ani innych technologii w celach analitycznych, reklamowych lub śledzących.
 
 ### § 10. Zmiany Polityki prywatności
 

@@ -14,7 +14,8 @@ const messagesByCode: Record<string, string> = {
 	email_exists: m.authErrors.emailTaken,
 	over_request_rate_limit: m.authErrors.rateLimited,
 	over_email_send_rate_limit: m.authErrors.emailRateLimited,
-	email_address_invalid: m.validation.emailInvalid
+	email_address_invalid: m.validation.emailInvalid,
+	captcha_failed: m.authErrors.captchaFailed
 };
 
 export function authErrorMessage(error: AuthErrorLike): string {

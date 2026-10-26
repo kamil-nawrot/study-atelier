@@ -74,7 +74,8 @@ describe('sign-in page', () => {
 		await vi.waitFor(() => expect(goto).toHaveBeenCalledWith('/atelier', { invalidateAll: true }));
 		expect(signInWithPassword).toHaveBeenCalledWith({
 			email: TEST_EMAIL,
-			password: 'correct-password'
+			password: 'correct-password',
+			options: { captchaToken: undefined }
 		});
 	});
 
