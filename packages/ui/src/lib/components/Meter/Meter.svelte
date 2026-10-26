@@ -25,7 +25,7 @@
 	.meter {
 		inline-size: 100%;
 		block-size: var(--spacing-1);
-		background: var(--color-surface);
+		background: var(--color-fg-muted);
 	}
 
 	.fill {
