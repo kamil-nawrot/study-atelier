@@ -1,4 +1,5 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import { IMAGES_BUCKET } from '#lib/images/bucket/bucket.ts';
 import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import { quotaMessage } from '#lib/images/storage-usage-data/storage-usage-data.ts';
@@ -44,7 +45,7 @@ async function uploadAvatar(image: Blob): Promise<{ path: string } | { error: st
 	if (error) {
 		return {
 			error:
-				(await quotaMessage(error, image.size)) ??
+				(await quotaMessage(error, image.size, () => m.settings.profile.avatarQuotaFull)) ??
 				(await failureMessage(error, profileErrorMessage))
 		};
 	}

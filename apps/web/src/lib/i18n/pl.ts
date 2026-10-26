@@ -208,7 +208,9 @@ export const pl = {
 			save: 'Zapisz profil',
 			saved: 'Zapisano profil.',
 			errorTitle: 'Nie udało się zapisać profilu',
-			failed: 'Nie udało się zapisać profilu. Spróbuj jeszcze raz.'
+			failed: 'Nie udało się zapisać profilu. Spróbuj jeszcze raz.',
+			avatarQuotaFull:
+				'Brakuje miejsca na zdjęcia, więc awatara nie da się teraz zapisać. Usuń niepotrzebne zdjęcia dzieł. Miejsce zwolni się w ciągu doby.'
 		},
 		account: {
 			emailTitle: 'Adres e-mail',

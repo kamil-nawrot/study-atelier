@@ -15,10 +15,11 @@ export async function loadStorageUsage(): Promise<StorageUsage | undefined> {
 
 export async function quotaMessage(
 	error: StorageErrorLike,
-	size: number
+	size: number,
+	messageFor: (quotaMegabytes: string) => string = m.ownImageErrors.quotaFull
 ): Promise<string | undefined> {
 	if (error.statusCode !== '403') return undefined;
 	const usage = await loadStorageUsage();
 	if (!usage || usage.usedBytes + size <= usage.quotaBytes) return undefined;
-	return m.ownImageErrors.quotaFull(megabytes(usage.quotaBytes));
+	return messageFor(megabytes(usage.quotaBytes));
 }

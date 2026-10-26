@@ -50,6 +50,14 @@ describe('quotaMessage', () => {
 		);
 	});
 
+	it('uses the message it is given for another kind of file', async () => {
+		usage(209_000_000, 209_715_200);
+
+		await expect(
+			quotaMessage({ statusCode: '403' }, 1_000_000, () => m.settings.profile.avatarQuotaFull)
+		).resolves.toBe(m.settings.profile.avatarQuotaFull);
+	});
+
 	it('leaves a refusal that is not about the quota to the other messages', async () => {
 		usage(1_000, 209_715_200);
 
