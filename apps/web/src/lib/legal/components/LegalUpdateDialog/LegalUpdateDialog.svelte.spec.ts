@@ -2,20 +2,18 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { tick } from 'svelte';
-import { goto, invalidate } from '$app/navigation';
+import { goto } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
-import { acceptLegal, LEGAL_DEPENDENCY } from '#lib/legal/legal-data/legal-data.ts';
+import { acceptedNow } from '#lib/legal/accepted/accepted.svelte.ts';
+import { acceptLegal } from '#lib/legal/legal-data/legal-data.ts';
 import { LEGAL_VERSION } from '#lib/legal/version/version.ts';
 import LegalUpdateDialog from './LegalUpdateDialog.svelte';
 
 const pageState = vi.hoisted(() => ({ url: new URL('http://localhost/atelier') }));
 
-vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidate: vi.fn() }));
+vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 vi.mock('$app/state', () => ({ page: pageState }));
-vi.mock('#lib/legal/legal-data/legal-data.ts', () => ({
-	acceptLegal: vi.fn(),
-	LEGAL_DEPENDENCY: 'legal:accepted'
-}));
+vi.mock('#lib/legal/legal-data/legal-data.ts', () => ({ acceptLegal: vi.fn() }));
 
 function dialog(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('alertdialog', { name: m.legal.updateTitle });
@@ -24,6 +22,7 @@ function dialog(): ReturnType<typeof page.getByRole> {
 beforeEach(() => {
 	vi.clearAllMocks();
 	pageState.url = new URL('http://localhost/atelier');
+	acceptedNow.version = null;
 });
 
 describe('LegalUpdateDialog', () => {
@@ -35,7 +34,17 @@ describe('LegalUpdateDialog', () => {
 		await page.getByRole('button', { name: m.legal.updateAccept }).click();
 
 		await expect.element(dialog()).not.toBeInTheDocument();
-		expect(invalidate).toHaveBeenCalledWith(LEGAL_DEPENDENCY);
+		expect(acceptedNow.version).toBe(LEGAL_VERSION);
+	});
+
+	it('does not ask again on the next page after the acceptance', async () => {
+		acceptedNow.version = LEGAL_VERSION;
+		const stale = Promise.resolve('2020-01-01');
+		render(LegalUpdateDialog, { accepted: stale });
+
+		await stale;
+		await tick();
+		await expect.element(dialog()).not.toBeInTheDocument();
 	});
 
 	it('stays quiet for the current version, an unknown answer and the settings', async () => {
