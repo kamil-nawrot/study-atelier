@@ -2,6 +2,36 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.12.0] - 2026-10-25
+
+The learner keeps a chronicle of museum visits and sees which artworks of the atelier they have seen in person, and every empty view now explains how to begin.
+
+### Added
+
+- "Kronika", a new item in the menu after "Kalendarium": a diary of visits to museums and other places, each with a place (from the place field and the starter museums), a date known to the day, the month or only the year, a note with links, and the artworks seen. The list groups the visits by year as tickets cut by a zigzag, with the first artwork seen as a faded backdrop; the newest year is open.
+- "Dodaj wizytę" ticks every artwork of the chosen place in a grid of thumbnails; an unticked one stays dimmed, and a search adds artworks from other places. The visit view shows the ticket, the note and a wall "Widziane na żywo".
+- The artwork view lists its visits in a collapsible section "Widziane na żywo · N wizyty", each a small ticket leading to the visit, and the wall filters by "Widziane na żywo".
+- Places used only by visits are suggested in the place fields, a place with visits cannot be deleted, merging two places moves their visits, visits are carried by the export and import of the atelier, and a visit whose note links to a value or an artwork appears under "Wspominasz o tym w notatkach".
+
+### Changed
+
+- Every empty view (Atelier, Słowniczek, Kronika, Kalendarium, Archiwum, Powtórki before 20 artworks and the tabs of Kartoteka) shows one centred pattern with the module's icon, a title, a sentence and the first action; empty axes of eras and of the timeline are no longer drawn.
+- The trash is called "Archiwum", status messages name the activity ("Wyszukiwanie…", "Zapisywanie…") instead of speaking in the first person, and the wording of the UI texts is revised throughout.
+- Toasts appear after a short delay with a small rise, wait while the mouse is over them and leave within a second after it; tooltips show after 320 ms on hover, and popovers open and close with a short delay.
+- The lead under a module's title takes at most half the width of the content on a desktop.
+- The UI library has an `EmptyState` component, and the dictionary shares common actions and messages in `common`.
+
+### Fixed
+
+- The view of the loupe in a pin popover keeps its full size and is primed while its image loads, and a loupe image the browser already holds shows at once.
+- The year badge of Kalendarium no longer covers toasts.
+- The avatar buttons in the settings keep their icons still on hover, and removing the photo looks like a delete.
+- A tap on a toast on a phone no longer shortens it.
+
+### Migrations run on production
+
+3 migrations run on production with this release and change no existing data: `20261025120000_visits` creates the `visits` and `visit_artworks` tables with row level security and the `save_visit` function; `20261025150000_visits_across_the_app` recreates `value_usage` with a visit count and replaces `delete_unused_value`, `merge_category_values`, `notes_mentions` and `import_atelier` so they know about visits, with the same arguments and the columns the previous code reads; `20261025180000_order_visit_mentions` lists the visits in `notes_mentions` newest first without changing its result columns.
+
 ## [0.11.0] - 2026-10-25
 
 The code of the app is reorganised into feature modules with enforced limits, and the card index lists the timeline events.
@@ -504,3 +534,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.10.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.10.0
 [0.10.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.10.1
 [0.11.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.11.0
+[0.12.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.12.0
