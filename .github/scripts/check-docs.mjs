@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
-const allowedMail = /@(example\.(com|org|test)|przyklad\.pl)$|^noreply@/i;
+const allowedMail = /@(example\.(com|org|test)|przyklad\.pl|studyatelier\.art)$|^noreply@/i;
 const mail = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 const link = /\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
 const problems = [];

@@ -138,7 +138,7 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 
 | Trigger           | Deployment                                   |
 | ----------------- | -------------------------------------------- |
-| Push to `main`    | Production at `study-atelier.pages.dev`      |
+| Push to `main`    | Production at `studyatelier.art`             |
 | Push to `develop` | Preview at `develop.study-atelier.pages.dev` |
 | Pull request      | Checks only, no deployment                   |
 

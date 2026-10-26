@@ -4,8 +4,29 @@ Two environments, each with its own Supabase project ([ADR-0037](../decisions/00
 
 | Environment  | Branch    | App                               | Supabase project                                |
 | ------------ | --------- | --------------------------------- | ----------------------------------------------- |
-| `production` | `main`    | `study-atelier.pages.dev`         | the original project, holds the real collection |
+| `production` | `main`    | `studyatelier.art`                | the original project, holds the real collection |
 | `develop`    | `develop` | `develop.study-atelier.pages.dev` | the second project, holds sample data           |
+
+## Domain
+
+Production is served at `https://studyatelier.art` ([ADR-0136](../decisions/0136-serve-production-on-studyatelier-art-and-send-its-emails-through-scaleway.md)). The domain is registered at Namecheap, whose nameservers point to Cloudflare, where all its DNS records live; Cloudflare Registrar does not offer `.art`, so the renewal is paid at Namecheap.
+
+- Cloudflare Pages, project `study-atelier`, Custom domains: `studyatelier.art` and `www.studyatelier.art`.
+- Rules, Redirect Rules: `www to root` sends `www.studyatelier.art` with a 301 to `https://studyatelier.art` with the same path and query.
+- Bulk Redirects (account level): `study-atelier.pages.dev` redirects with a 301 to `https://studyatelier.art`, keeping the path and query, without subdomains, so `develop.study-atelier.pages.dev` is untouched.
+- Supabase production, Authentication, URL Configuration: Site URL `https://studyatelier.art`, redirect URL `https://studyatelier.art/**`.
+- Email Routing: `kontakt@studyatelier.art` is forwarded to the owner's Gmail.
+
+DNS records of `studyatelier.art` besides those Pages adds:
+
+| Type | Name                                              | Value                                                                      | For                 |
+| ---- | ------------------------------------------------- | -------------------------------------------------------------------------- | ------------------- |
+| MX   | `@`                                               | `route1`, `route2`, `route3.mx.cloudflare.net` (added by Email Routing)    | Email Routing       |
+| TXT  | `@`                                               | `v=spf1 include:_spf.mx.cloudflare.net include:_spf.tem.scaleway.com ~all` | SPF for both        |
+| TXT  | `ea9ae5ff-17e1-4ae8-895a-52024b8f13a0._domainkey` | the DKIM key shown by Scaleway                                             | DKIM of Scaleway    |
+| TXT  | `_dmarc`                                          | `v=DMARC1; p=none; rua=mailto:kontakt@studyatelier.art`                    | DMARC, reports only |
+
+A domain has one SPF record: a new sender is added as another `include` to it, never as a second record. The MX record Scaleway suggests (`blackhole.tem.scaleway.com`) is not added, as it would break Email Routing.
 
 ## GitHub environments
 
@@ -36,7 +57,7 @@ The same five names must not remain as repository secrets: an environment secret
 
 ## Auth emails
 
-Supabase Auth sends the sign-up confirmation, the password reset and the email change through a custom SMTP server. The app and the repository know nothing about the provider: the code only calls `supabase.auth`, and the provider is four values in the dashboard (host, port, username, password) plus the sender address, so changing it never needs a code change. The current provider is a dedicated Gmail address ([ADR-0125](../decisions/0125-send-the-auth-emails-through-gmail-smtp.md), which replaced Brevo of ADR-0119). Nothing of this is applied by CI: the SMTP settings and the templates live in the dashboard of each Supabase project, so both projects are set up by hand and the credentials never reach the repository.
+Supabase Auth sends the sign-up confirmation, the password reset and the email change through a custom SMTP server. The app and the repository know nothing about the provider: the code only calls `supabase.auth`, and the provider is four values in the dashboard (host, port, username, password) plus the sender address, so changing it never needs a code change. Production sends through Scaleway Transactional Email from `kontakt@studyatelier.art` ([ADR-0136](../decisions/0136-serve-production-on-studyatelier-art-and-send-its-emails-through-scaleway.md)); develop sends through a dedicated Gmail address ([ADR-0125](../decisions/0125-send-the-auth-emails-through-gmail-smtp.md)). Nothing of this is applied by CI: the SMTP settings and the templates live in the dashboard of each Supabase project, so both projects are set up by hand and the credentials never reach the repository.
 
 The Polish texts are kept in [`supabase/templates`](../../supabase/templates) and the local stack (`supabase start`) uses the same files through [`supabase/config.toml`](../../supabase/config.toml), with the mails caught by the local inbox instead of sent. A change to a template is made in the file and pasted into the dashboard of `develop` and `production`.
 
@@ -48,16 +69,24 @@ The Polish texts are kept in [`supabase/templates`](../../supabase/templates) an
 
 ### Setting up a project
 
-The steps are the same for any provider: get the SMTP host, port, username and password and a verified sender address from it, then enter them in step 2. The current provider, Gmail:
+The steps are the same for any provider: get the SMTP host, port, username and password and a verified sender address from it, then enter them in step 2.
+
+Production, Scaleway (before step 2):
+
+1. Scaleway console, the owner's organisation, project `study-atelier`: Transactional Email, add the domain `studyatelier.art` in `fr-par`, add its SPF, DKIM and DMARC records in Cloudflare as in [Domain](#domain), and wait for the domain to be verified.
+2. IAM: an application `study-atelier-smtp`, a policy giving it Transactional Email permissions in the project `study-atelier`, and an API key of that application. The SMTP username is the Project ID of `study-atelier` and the password is the secret key, shown once.
+3. In step 2 below: host `smtp.tem.scaleway.com`, port `587`, sender `kontakt@studyatelier.art`. A typo in any field (even a trailing comma in the host) shows only as "Error sending recovery email" in the app; the cause is in Logs Explorer, `auth_logs`.
+
+Develop, Gmail (before step 2):
 
 1. Google: create a Gmail address for the app, sign in to it normally and send a few ordinary mails so a fresh account is not blocked, then turn on two-step verification and, under Security, App passwords, create an app password (16 characters, shown once). It is the SMTP password, not the password of the account.
-2. Supabase, Authentication, Emails, SMTP Settings: turn on custom SMTP and enter the sender email (the Gmail address), the sender name `Study Atelier`, the host `smtp.gmail.com`, the port `465`, the full Gmail address as the username and the app password as the password. Save.
+2. Supabase, Authentication, Emails, SMTP Settings: turn on custom SMTP and enter the sender email, the sender name `Study Atelier`, the host, the port, the username and the password of the provider. For Gmail: the Gmail address as sender and username, `smtp.gmail.com`, port `465`, the app password. Save.
 3. Supabase, Authentication, Emails, Templates: for each row of the table above set the subject and paste the whole file as the message body.
 4. Supabase, Authentication, Sign In / Providers, Email: keep "Confirm email" and "Secure email change" on, so a change of address needs a click in the old and in the new mailbox.
 5. Supabase, Authentication, Rate Limits: raise the emails per hour if the default is too low once the custom SMTP is on.
 6. Check it on that environment's app: ask for a password reset to an address outside the Supabase team and see that the Polish mail arrives (look in spam too) and the link opens `/update-password`.
 
-Gmail allows about 500 mails a day and may put the mails in spam; moving to an own domain later changes only the SMTP settings.
+Scaleway sends 300 mails a month for free and then charges €0.25 per 1,000; its mails pass SPF, DKIM and DMARC. Gmail allows about 500 mails a day and may put the mails in spam.
 
 ## Supabase Advisors
 
