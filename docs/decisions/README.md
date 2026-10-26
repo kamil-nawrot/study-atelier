@@ -135,3 +135,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0129](0129-show-one-faded-artwork-behind-the-ticket-stub.md)                      | Show one faded artwork behind the ticket stub                                            | accepted           |
 | [0130](0130-show-empty-views-in-one-centred-pattern.md)                            | Show empty views in one centred pattern                                                  | accepted           |
 | [0131](0131-call-the-trash-archiwum-and-describe-work-in-progress-impersonally.md) | Call the trash "Archiwum" and describe work in progress impersonally                     | accepted           |
+| [0132](0132-keep-the-minimum-password-length-at-8.md)                              | Keep the minimum password length at 8                                                    | accepted           |

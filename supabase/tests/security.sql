@@ -32,6 +32,52 @@ begin
 end;
 $$;
 
+create function security_test.untouched(statement text)
+returns boolean
+language plpgsql
+as $$
+declare
+  changed bigint;
+begin
+  execute statement;
+  get diagnostics changed = row_count;
+  return changed = 0;
+exception
+  when insufficient_privilege then
+    return true;
+end;
+$$;
+
+create function security_test.seen(statement text)
+returns bigint
+language plpgsql
+as $$
+declare
+  found bigint;
+begin
+  execute statement into found;
+  return found;
+exception
+  when insufficient_privilege then
+    return 0;
+end;
+$$;
+
+create function security_test.owned_tables()
+returns setof text
+language sql
+as $$
+  select format('public.%I', class.relname)
+    from pg_class as class
+    where class.relnamespace = 'public'::regnamespace
+      and class.relkind in ('r', 'p')
+      and exists (
+        select 1 from pg_attribute as attribute
+          where attribute.attrelid = class.oid and attribute.attname = 'owner_id' and not attribute.attisdropped
+      )
+    order by class.relname;
+$$;
+
 create function security_test.act_as(user_id uuid)
 returns void
 language sql
@@ -43,15 +89,70 @@ grant execute on all functions in schema security_test to anon, authenticated;
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000a', 'owner-a@example.test'),
-  ('00000000-0000-0000-0000-00000000000b', 'owner-b@example.test');
+  ('00000000-0000-0000-0000-00000000000b', 'owner-b@example.test'),
+  ('00000000-0000-0000-0000-00000000000c', 'owner-c@example.test');
 
 do $$
 declare
-  a constant uuid := '00000000-0000-0000-0000-00000000000a';
-  b constant uuid := '00000000-0000-0000-0000-00000000000b';
+  owner_rule constant text := '(owner_id = ( SELECT auth.uid() AS uid))';
+  folder_rule constant text := '(storage.foldername(name))[1] = (( SELECT auth.uid() AS uid))::text';
+  covered constant text[] := array[
+    'keep_alive', 'value_usage', 'period_era_usage', 'style_period_usage', 'merge_category_values',
+    'set_period_eras', 'set_style_periods', 'delete_unused_value', 'value_page_content', 'save_era_details',
+    'save_value_details', 'record_review', 'review_counts', 'review_streak', 'notes_mentions', 'review_session',
+    'unused_images', 'move_artwork_field', 'artwork_field_usage', 'save_artwork', 'import_atelier', 'save_visit'
+  ];
   table_name text;
   routine record;
+  policy record;
 begin
+  for policy in
+    select format('%I.%I', schemaname, tablename) as table_name, policyname, cmd, roles, qual, with_check
+      from pg_policies where schemaname = 'public'
+  loop
+    assert policy.roles = '{authenticated}'::name[],
+      format('the policy "%s" on %s is open to roles other than authenticated', policy.policyname, policy.table_name);
+    if policy.table_name in (select security_test.owned_tables()) and policy.table_name <> 'public.categories' then
+      assert coalesce(policy.qual, owner_rule) = owner_rule and coalesce(policy.with_check, owner_rule) = owner_rule,
+        format('the policy "%s" on %s does not keep rows to their owner', policy.policyname, policy.table_name);
+    else
+      assert policy.cmd = 'SELECT',
+        format('the policy "%s" lets learners change the shared table %s', policy.policyname, policy.table_name);
+    end if;
+  end loop;
+
+  for table_name in
+    select format('public.%I', relname) from pg_class
+      where relnamespace = 'public'::regnamespace and relkind in ('r', 'p')
+    except select security_test.owned_tables()
+  loop
+    assert not has_table_privilege('authenticated', table_name, 'insert,update,delete')
+      and not has_any_column_privilege('authenticated', table_name, 'insert,update'),
+      format('learners can write to the shared table %s', table_name);
+  end loop;
+
+  assert not exists (select 1 from storage.buckets where public), 'a storage bucket is public';
+  for policy in
+    select policyname, roles, qual, with_check from pg_policies where schemaname = 'storage' and tablename = 'objects'
+  loop
+    assert policy.roles = '{authenticated}'::name[],
+      format('the storage policy "%s" is open to roles other than authenticated', policy.policyname);
+    assert (policy.qual is null or strpos(policy.qual, folder_rule) > 0)
+      and (policy.with_check is null or strpos(policy.with_check, folder_rule) > 0),
+      format('the storage policy "%s" does not keep files to the folder of their owner', policy.policyname);
+  end loop;
+
+  for routine in
+    select p.oid::regprocedure as signature, p.proname
+      from pg_proc as p
+      where p.pronamespace = 'public'::regnamespace and not (p.proname = any (covered))
+  loop
+    raise exception '% has no case in supabase/tests/security.sql', routine.signature;
+  end loop;
+
+  assert not has_function_privilege('authenticated', 'public.unused_images()', 'execute'),
+    'learners can list the unused images of every atelier';
+
   for table_name in
     select relname from pg_class
       where relnamespace in ('public'::regnamespace, 'private'::regnamespace)
@@ -136,7 +237,31 @@ select public.save_visit(
   array[(select id from public.artworks)]
 );
 
+insert into public.category_values (category_code, name) values ('material', 'Oil on canvas'), ('author', 'Sculptor');
+insert into public.material_details (value_id, summary)
+  select id, 'Material summary' from public.category_values where name = 'Oil on canvas';
+insert into public.author_details (value_id, birth_year)
+  select id, 1400 from public.category_values where name = 'Sculptor';
+insert into public.style_details (value_id, summary)
+  select id, 'Style summary' from public.category_values where name = 'Tenebrism';
+insert into public.location_details (value_id, place_type)
+  select id, 'museum' from public.category_values where name = 'Visited museum';
+insert into public.feedback (kind, title) values ('idea', 'Owner A idea');
+
 reset role;
+
+do $$
+declare
+  a constant uuid := '00000000-0000-0000-0000-00000000000a';
+  table_name text;
+  found bigint;
+begin
+  for table_name in select security_test.owned_tables() loop
+    execute format('select count(*) from %s where owner_id = %L', table_name, a) into found;
+    assert found > 0, format('A has no row in %s, so nothing checks that B cannot reach it', table_name);
+  end loop;
+end;
+$$;
 
 do $$
 declare
@@ -152,6 +277,10 @@ declare
   a_source uuid;
   a_place uuid;
   a_visit uuid;
+  a_style uuid;
+  c constant uuid := '00000000-0000-0000-0000-00000000000c';
+  table_name text;
+  writable_column text;
 begin
   select id into a_artwork from public.artworks where owner_id = a;
   select id into a_image from public.artwork_images where owner_id = a limit 1;
@@ -162,12 +291,27 @@ begin
   select id into a_source from public.artwork_fields where owner_id = a and name = 'Source';
   select id into a_place from public.category_values where owner_id = a and name = 'Visited museum';
   select id into a_visit from public.visits where owner_id = a;
+  select id into a_style from public.category_values where owner_id = a and name = 'Tenebrism';
   assert a_visit is not null, 'the visit of owner A was not created';
   assert a_artwork is not null and a_value is not null, 'fixture for owner A was not created';
   assert a_lecture is not null and a_source is not null, 'fields of owner A were not created';
 
   set local role authenticated;
   perform security_test.act_as(b);
+
+  for table_name in select security_test.owned_tables() loop
+    assert security_test.seen(format('select count(*) from %s where owner_id = %L', table_name, a)) = 0,
+      format('B reads rows of A in %s', table_name);
+    select coalesce(min(quote_ident(attname)), 'owner_id') into writable_column
+      from pg_attribute
+      where attrelid = table_name::regclass and attnum > 0 and not attisdropped
+        and has_column_privilege('authenticated', attrelid, attname, 'update');
+    assert security_test.untouched(format(
+      'update %s set %s = %s where owner_id = %L', table_name, writable_column, writable_column, a)),
+      format('B updates rows of A in %s', table_name);
+    assert security_test.untouched(format('delete from %s where owner_id = %L', table_name, a)),
+      format('B deletes rows of A in %s', table_name);
+  end loop;
 
   assert (select count(*) from public.artworks) = 0, 'B reads artworks of A';
   assert (select count(*) from public.category_values) = 0, 'B reads category values of A';
@@ -344,6 +488,41 @@ begin
     a_artwork)),
     'B adds an artwork of A to a visit through save_visit';
   assert security_test.affected('delete from public.artwork_pins') = 0, 'B deletes pins of A';
+  assert (select count(*) from public.period_era_usage()) = 0, 'B sees the eras of the periods of A';
+  assert (select count(*) from public.style_period_usage()) = 0, 'B sees the periods of the styles of A';
+  assert security_test.denied(format('select public.set_style_periods(%L, ''{%s}'')', a_style, a_value)),
+    'B links a period to a style of A';
+
+  perform set_config('storage.allow_delete_query', 'true', true);
+  assert security_test.untouched(format(
+    'update storage.objects set metadata = metadata where name like %L', a || '/%')),
+    'B overwrites image objects of A';
+  assert security_test.untouched(format('delete from storage.objects where name like %L', a || '/%')),
+    'B deletes image objects of A';
+  perform set_config('storage.allow_delete_query', 'false', true);
+
+  perform security_test.act_as(c);
+
+  assert security_test.denied(format('select public.import_atelier(%L)', jsonb_build_object(
+    'artwork_values', jsonb_build_array(jsonb_build_object('artwork_id', a_artwork, 'value_id', a_value))))),
+    'C links values to an artwork of A through import_atelier';
+  assert security_test.denied(format('select public.import_atelier(%L)', jsonb_build_object(
+    'artwork_pins', jsonb_build_array(jsonb_build_object('image_id', a_image, 'x', 0.5, 'y', 0.5, 'text', 'Forged'))))),
+    'C pins a detail on an image of A through import_atelier';
+  assert security_test.denied(format('select public.import_atelier(%L)', jsonb_build_object(
+    'visit_artworks', jsonb_build_array(jsonb_build_object('visit_id', a_visit, 'artwork_id', a_artwork))))),
+    'C adds an artwork of A to a visit of A through import_atelier';
+  assert security_test.denied(format('select public.import_atelier(%L)', jsonb_build_object(
+    'artworks', jsonb_build_array(jsonb_build_object(
+      'id', '00000000-0000-0000-0000-0000000000c1', 'record_number', 1, 'title', 'Imported', 'author_unknown', true)),
+    'artwork_images', jsonb_build_array(jsonb_build_object(
+      'artwork_id', '00000000-0000-0000-0000-0000000000c1', 'position', 1,
+      'own_image_path', a || '/plan.jpg'))))),
+    'C points an imported image at a file of A';
+  assert security_test.denied(format('select public.import_atelier(%L)', jsonb_build_object(
+    'artworks', jsonb_build_array(jsonb_build_object(
+      'id', a_artwork, 'record_number', 1, 'title', 'Taken over', 'author_unknown', true))))),
+    'C takes over an artwork of A through import_atelier';
 
   perform security_test.act_as(a);
 
@@ -564,7 +743,8 @@ begin
   perform security_test.affected(format(
     'insert into public.style_details (value_id, summary) values (%L, ''Style summary'')', a_unlinked));
   perform public.delete_unused_value(a_unlinked);
-  assert (select count(*) from public.style_details) = 0, 'deleting a value keeps its details';
+  assert (select count(*) from public.style_details where value_id = a_unlinked) = 0,
+    'deleting a value keeps its details';
 
   assert (select has_content from public.value_page_content(a_value)), 'A does not see their page content';
   assert security_test.denied(format(
