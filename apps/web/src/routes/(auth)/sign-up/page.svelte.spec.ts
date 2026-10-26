@@ -3,6 +3,7 @@ import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
+import { LEGAL_VERSION } from '#lib/legal/version/version.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
 	apiError,
@@ -20,9 +21,14 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 
 const signUp = vi.mocked(supabase.auth.signUp);
 
-async function submit(email: string, password: string): Promise<void> {
+function consent(): ReturnType<typeof page.getByRole> {
+	return page.getByRole('checkbox', { name: m.legal.consentDeclare });
+}
+
+async function submit(email: string, password: string, accept = true): Promise<void> {
 	await page.getByLabelText(m.common.email).fill(email);
 	await page.getByLabelText(m.common.password).fill(password);
+	if (accept) (consent().element() as HTMLInputElement).click();
 	await page.getByRole('button', { name: m.signUp.submit }).click();
 }
 
@@ -71,8 +77,26 @@ describe('sign-up page', () => {
 		expect(signUp).toHaveBeenCalledWith({
 			email: TEST_EMAIL,
 			password: 'correct-password',
-			options: { emailRedirectTo: `${window.location.origin}/` }
+			options: {
+				emailRedirectTo: `${window.location.origin}/`,
+				data: { legal_version: LEGAL_VERSION }
+			}
 		});
+	});
+
+	it('requires the acceptance of the terms before it creates the account', async () => {
+		await submit(TEST_EMAIL, 'correct-password', false);
+
+		await expect.element(page.getByText(m.legal.consentRequired)).toBeVisible();
+		await expect.element(consent()).toHaveAttribute('aria-invalid', 'true');
+		expect(signUp).not.toHaveBeenCalled();
+	});
+
+	it('links both documents under the form', async () => {
+		const links = page.getByRole('navigation', { name: m.legal.linksLabel });
+
+		await expect.element(links.getByRole('link', { name: m.legal.terms })).toBeVisible();
+		await expect.element(links.getByRole('link', { name: m.legal.privacy })).toBeVisible();
 	});
 
 	it('opens the home page when sign-up returns a session', async () => {

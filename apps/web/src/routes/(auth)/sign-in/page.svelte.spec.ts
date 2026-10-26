@@ -149,3 +149,17 @@ describe('sign-in page after the account was deleted', () => {
 		accountDeleted.value = false;
 	});
 });
+
+describe('sign-in page documents', () => {
+	it('links the terms and the privacy policy under the form', async () => {
+		render(SignInPage);
+
+		const links = page.getByRole('navigation', { name: m.legal.linksLabel });
+		await expect
+			.element(links.getByRole('link', { name: m.legal.terms }))
+			.toHaveAttribute('href', '/terms');
+		await expect
+			.element(links.getByRole('link', { name: m.legal.privacy }))
+			.toHaveAttribute('href', '/privacy');
+	});
+});

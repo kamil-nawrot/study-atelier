@@ -28,7 +28,7 @@ function importProblem(source) {
 		return 'A relative import stays in its own folder; import from another folder through #lib/…';
 	}
 	if (source === '$lib' || source.startsWith('$lib/')) return 'Import through #lib/…, not $lib';
-	if (source.startsWith('#lib/') && !/\.[a-z]+$/.test(source)) {
+	if (source.startsWith('#lib/') && !/\.[a-z]+(\?[a-z]+)?$/.test(source)) {
 		return 'An import through #lib/… names the file with its extension';
 	}
 	return null;

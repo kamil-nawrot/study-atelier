@@ -8,6 +8,7 @@
 	import AuthLayout from '#lib/auth/components/AuthLayout/AuthLayout.svelte';
 	import { validateEmail, validateRequiredPassword } from '#lib/auth/validation/validation.ts';
 	import { m } from '#lib/i18n/i18n.ts';
+	import LegalLinks from '#lib/legal/components/LegalLinks/LegalLinks.svelte';
 
 	let email = $state('');
 	let password = $state('');
@@ -71,5 +72,6 @@
 	{#snippet footer()}
 		<p>{m.signIn.noAccount}</p>
 		<Button fullWidth href={resolve('/(auth)/sign-up')}>{m.signIn.toSignUp}</Button>
+		<LegalLinks />
 	{/snippet}
 </AuthLayout>

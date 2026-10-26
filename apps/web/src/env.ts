@@ -10,5 +10,25 @@ export const variables = defineEnvVars({
 		public: true,
 		static: true,
 		description: 'Publishable (client) API key of the Supabase project'
+	},
+	LEGAL_COMPANY: {
+		public: true,
+		static: true,
+		schema: (value) => value || undefined,
+		description: 'Business name of the service provider, shown in the terms and the privacy policy'
+	},
+	LEGAL_ADDRESS: {
+		public: true,
+		static: true,
+		schema: (value) => value || undefined,
+		description:
+			'Business address of the service provider, shown in the terms and the privacy policy'
+	},
+	LEGAL_NIP: {
+		public: true,
+		static: true,
+		schema: (value) => value || undefined,
+		description:
+			'Tax number (NIP) of the service provider, shown in the terms and the privacy policy'
 	}
 });

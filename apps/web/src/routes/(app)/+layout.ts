@@ -13,6 +13,7 @@ import {
 	PREFERENCES_DEPENDENCY
 } from '#lib/profile/preferences-data/preferences-data.ts';
 import { loadProfile, PROFILE_DEPENDENCY } from '#lib/profile/profile-data/profile-data.ts';
+import { loadAcceptedLegalVersion } from '#lib/legal/legal-data/legal-data.ts';
 import type { Profile } from '#lib/profile/types/profile.ts';
 import type { LayoutLoad } from './$types';
 
@@ -20,6 +21,7 @@ type AppLayoutData = {
 	session: Session;
 	reviewWaiting?: Promise<number>;
 	menuProfile?: Promise<Profile | undefined>;
+	acceptedLegalVersion?: Promise<string | null | undefined>;
 };
 
 async function ownProfile(): Promise<Profile | undefined> {
@@ -42,6 +44,7 @@ export const load: LayoutLoad = async ({ parent, depends }): Promise<AppLayoutDa
 	return {
 		session,
 		reviewWaiting: reviewWaiting(loaded.reviewNewPerDay),
-		menuProfile: ownProfile()
+		menuProfile: ownProfile(),
+		acceptedLegalVersion: loadAcceptedLegalVersion()
 	};
 };

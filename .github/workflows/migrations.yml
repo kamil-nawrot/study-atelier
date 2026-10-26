@@ -45,6 +45,9 @@ jobs:
       - name: Check account deletion
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/delete-account.sql
 
+      - name: Check legal acceptance
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/legal-acceptance.sql
+
       - name: Check review sessions
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/review-session.sql
 

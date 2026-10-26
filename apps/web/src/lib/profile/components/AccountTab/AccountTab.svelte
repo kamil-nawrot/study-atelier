@@ -12,15 +12,18 @@
 	} from '#lib/auth/validation/validation.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import AccountDeleteDialog from '#lib/profile/components/AccountDeleteDialog/AccountDeleteDialog.svelte';
+	import LegalLinks from '#lib/legal/components/LegalLinks/LegalLinks.svelte';
+	import { legalVersionDate } from '#lib/legal/version/version.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 
 	type Props = {
+		acceptedLegalVersion?: string | null;
 		email: string;
 		pendingEmail?: string;
 		onchanged: (message: string) => void;
 	};
 
-	let { email, pendingEmail, onchanged }: Props = $props();
+	let { acceptedLegalVersion, email, pendingEmail, onchanged }: Props = $props();
 
 	let deleteOpen = $state(false);
 
@@ -143,6 +146,13 @@
 			</Button>
 		</div>
 	</section>
+	<div class="legal">
+		{#if acceptedLegalVersion}
+			<span>{m.legal.accepted(legalVersionDate(acceptedLegalVersion))}</span>
+			<span aria-hidden="true">·</span>
+		{/if}
+		<LegalLinks />
+	</div>
 </div>
 
 <AccountDeleteDialog {email} ondeleted={accountGone} bind:open={deleteOpen} />
@@ -167,5 +177,13 @@
 
 	.actions {
 		display: flex;
+	}
+
+	.legal {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-2);
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-xs);
 	}
 </style>

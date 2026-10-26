@@ -30,7 +30,7 @@ Several Claude sessions may work at the same time. Before starting an issue, Cla
 
 ## End of a session
 
-Before a session's pull request is merged, once the owner's review comments are addressed, Claude runs the [`study-atelier-session-retro`](../../.claude/skills/study-atelier-session-retro/SKILL.md) skill: it proposes what the conversation and the session's pull request taught that is worth recording in the docs, the guidelines or the project memory, and records what the owner confirms in that same pull request.
+When Claude opens a session's pull request, before asking for review, Claude runs the [`study-atelier-session-retro`](../../.claude/skills/study-atelier-session-retro/SKILL.md) skill: it proposes what the conversation and the session's pull request taught that is worth recording in the docs, the guidelines or the project memory, and records what the owner confirms in that same pull request. The owner may merge as soon as CI passes, so the retro does not wait for the review; findings from the review itself are added in a short second round while the pull request is still open.
 
 ## Actions that need the owner's explicit approval
 

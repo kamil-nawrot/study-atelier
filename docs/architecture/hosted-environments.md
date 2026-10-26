@@ -42,6 +42,8 @@ Settings, Environments: `develop` and `production`, each with these secrets:
 
 `production` also has the variable (not a secret) `BACKUP_AGE_RECIPIENT`: the public `age` key the backups are encrypted to ([backups](backups.md)). Without it a release stops before migrating the production database.
 
+Each environment may also have the variables `LEGAL_COMPANY`, `LEGAL_ADDRESS` and `LEGAL_NIP`: the business name, address and tax number of the provider, shown in the terms and the privacy policy ([ADR-0137](../decisions/0137-publish-the-terms-and-the-privacy-policy-and-store-their-acceptance.md)). They are public and end up in the build; without them the pages show `[FIRMA]`, `[ADRES]` and `[NIP]`.
+
 Deployment branches: `production` allows `main` and `develop`, `develop` allows `develop`. The scheduled keep-alive, the unused images clean-up and the weekly production backup run from the default branch, `develop`, so they need access to `production`; the consequence is that code merged to `develop` can read the production secrets, and only the owner merges.
 
 The same five names must not remain as repository secrets: an environment secret overrides a repository secret, but a missing one would silently fall back to it and point `develop` at production.
