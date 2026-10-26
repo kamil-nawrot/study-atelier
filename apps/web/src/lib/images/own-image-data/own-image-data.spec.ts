@@ -8,7 +8,12 @@ import {
 	OWN_IMAGE_MAX_MEGABYTES,
 	SIGNED_URL_SECONDS
 } from '#lib/images/bucket/bucket.ts';
-import { ownImageUrl, removeOwnImage, uploadOwnImage } from './own-image-data.ts';
+import {
+	ownImageUrl,
+	removeAllOwnFiles,
+	removeOwnImage,
+	uploadOwnImage
+} from './own-image-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { getSession: vi.fn() }, storage: { from: vi.fn() } }
@@ -137,5 +142,45 @@ describe('ownImageUrl', () => {
 		bucket.createSignedUrl.mockResolvedValue({ data: null, error: new Error('Object not found') });
 
 		await expect(ownImageUrl('user-id/missing.png')).resolves.toBeUndefined();
+	});
+});
+
+describe('removeAllOwnFiles', () => {
+	type Bucket = { list: ReturnType<typeof vi.fn>; remove: ReturnType<typeof vi.fn> };
+
+	function bucketWith(pages: { name: string; id: string | null }[][]): Bucket {
+		const list = vi.fn();
+		for (const page of pages) list.mockResolvedValueOnce({ data: page, error: null });
+		const remove = vi.fn().mockResolvedValue({ data: [], error: null });
+		vi.mocked(supabase.storage.from).mockReturnValue({ list, remove } as never);
+		return { list, remove };
+	}
+
+	it('removes every file of the learner folder, page after page', async () => {
+		const full = Array.from({ length: 1000 }, (_, index) => ({
+			name: `${index}.jpg`,
+			id: `id-${index}`
+		}));
+		const bucket = bucketWith([full, [{ name: 'last.jpg', id: 'id-last' }]]);
+
+		await expect(removeAllOwnFiles('learner-1')).resolves.toBe(true);
+
+		expect(bucket.list).toHaveBeenCalledWith('learner-1', { limit: 1000 });
+		expect(bucket.remove).toHaveBeenCalledTimes(2);
+		expect(bucket.remove.mock.calls[1][0]).toEqual(['learner-1/last.jpg']);
+	});
+
+	it('leaves folders to the database check and stops when nothing is left', async () => {
+		const bucket = bucketWith([[{ name: 'nested', id: null }]]);
+
+		await expect(removeAllOwnFiles('learner-1')).resolves.toBe(true);
+		expect(bucket.remove).not.toHaveBeenCalled();
+	});
+
+	it('reports a failed listing', async () => {
+		const list = vi.fn().mockResolvedValue({ data: null, error: { message: 'down' } });
+		vi.mocked(supabase.storage.from).mockReturnValue({ list } as never);
+
+		await expect(removeAllOwnFiles('learner-1')).resolves.toBe(false);
 	});
 });

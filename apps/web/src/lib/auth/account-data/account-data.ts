@@ -3,6 +3,7 @@ import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { authErrorMessage } from '#lib/auth/errors/errors.ts';
 import { authRedirectUrl } from '#lib/auth/redirects/redirects.ts';
 import { emailChangeRedirectUrl } from '#lib/auth/account/account.ts';
+import { removeAllOwnFiles } from '#lib/images/own-image-data/own-image-data.ts';
 
 type SignUpResult = {
 	error?: string;
@@ -122,4 +123,25 @@ export async function pendingEmailChange(): Promise<string | undefined> {
 
 export async function signOut(): Promise<void> {
 	await supabase.auth.signOut();
+}
+
+type AccountDeleteResult = {
+	deleted: boolean;
+	passwordError?: string;
+	error?: string;
+};
+
+export async function deleteAccount(email: string, password: string): Promise<AccountDeleteResult> {
+	const verified = await supabase.auth.signInWithPassword({ email, password });
+	if (verified.error) {
+		if (verified.error.code === 'invalid_credentials') {
+			return { deleted: false, passwordError: m.settings.account.wrongCurrent };
+		}
+		return { deleted: false, error: authErrorMessage(verified.error) };
+	}
+	const { error } = await supabase.rpc('delete_account');
+	if (error) return { deleted: false, error: m.settings.account.deleteFailed };
+	await removeAllOwnFiles(verified.data.user.id);
+	await supabase.auth.signOut({ scope: 'local' });
+	return { deleted: true };
 }

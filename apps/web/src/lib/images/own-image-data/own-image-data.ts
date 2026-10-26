@@ -46,3 +46,21 @@ export async function ownImageUrl(path: string): Promise<string | undefined> {
 	if (error || !data) return undefined;
 	return data.signedUrl;
 }
+
+const LIST_PAGE = 1000;
+
+export async function removeAllOwnFiles(ownerId: string): Promise<boolean> {
+	for (;;) {
+		const { data, error } = await supabase.storage
+			.from(IMAGES_BUCKET)
+			.list(ownerId, { limit: LIST_PAGE });
+		if (error) return false;
+		const paths = data
+			.filter((entry) => Boolean(entry.id))
+			.map((entry) => `${ownerId}/${entry.name}`);
+		if (paths.length === 0) return true;
+		const removed = await supabase.storage.from(IMAGES_BUCKET).remove(paths);
+		if (removed.error) return false;
+		if (data.length < LIST_PAGE) return true;
+	}
+}

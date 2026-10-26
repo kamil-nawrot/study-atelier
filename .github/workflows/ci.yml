@@ -113,6 +113,25 @@ jobs:
         if: env.SUPABASE_CONFIGURED == 'true'
         with:
           version: 2.120.0
+      - name: Back up the production database before migrating
+        if: env.SUPABASE_CONFIGURED == 'true' && github.ref_name == 'main'
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          BACKUP_AGE_RECIPIENT: ${{ vars.BACKUP_AGE_RECIPIENT }}
+        run: |
+          .github/scripts/dump-database.sh "$RUNNER_TEMP/backup"
+          .github/scripts/encrypt-backup.sh "$RUNNER_TEMP/backup" "$RUNNER_TEMP/database-before-migrations.tar.gz.age"
+
+      - uses: actions/upload-artifact@v7
+        if: env.SUPABASE_CONFIGURED == 'true' && github.ref_name == 'main'
+        with:
+          name: database-before-migrations-${{ github.sha }}
+          path: ${{ runner.temp }}/database-before-migrations.tar.gz.age
+          retention-days: 30
+          if-no-files-found: error
+
       - name: Apply migrations
         if: env.SUPABASE_CONFIGURED == 'true'
         env:

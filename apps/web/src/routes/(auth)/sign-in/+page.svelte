@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { Alert, Button, Form, TextField } from '@study-atelier/ui';
+	import { accountDeleted } from '#lib/auth/account-deleted/account-deleted.svelte.ts';
 	import { sessionEnded } from '#lib/auth/expired-session/expired-session.svelte.ts';
 	import { signIn } from '#lib/auth/account-data/account-data.ts';
 	import AuthLayout from '#lib/auth/components/AuthLayout/AuthLayout.svelte';
@@ -21,6 +22,7 @@
 		passwordError = validateRequiredPassword(password);
 		formError = undefined;
 		sessionEnded.value = false;
+		accountDeleted.value = false;
 		if (emailError || passwordError) return;
 
 		submitting = true;
@@ -35,6 +37,9 @@
 
 <AuthLayout lead={m.signIn.lead} title={m.signIn.title}>
 	<Form onsubmit={submit}>
+		{#if accountDeleted.value && !formError}
+			<Alert tone="success">{m.settings.account.deleted}</Alert>
+		{/if}
 		{#if sessionEnded.value && !formError}
 			<Alert tone="warning">{m.authErrors.sessionEnded}</Alert>
 		{/if}

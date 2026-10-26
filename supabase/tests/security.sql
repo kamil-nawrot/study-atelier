@@ -101,7 +101,7 @@ declare
     'set_period_eras', 'set_style_periods', 'delete_unused_value', 'value_page_content', 'save_era_details',
     'save_value_details', 'record_review', 'review_counts', 'review_streak', 'notes_mentions', 'review_session',
     'unused_images', 'move_artwork_field', 'artwork_field_usage', 'save_artwork', 'import_atelier', 'save_visit',
-    'storage_usage'
+    'storage_usage', 'delete_account'
   ];
   table_name text;
   routine record;
@@ -180,7 +180,7 @@ begin
       or routine.proname = 'keep_alive',
       format('anon can execute %s', routine.signature);
     assert not routine.prosecdef
-      or routine.proname = 'import_atelier'
+      or routine.proname in ('import_atelier', 'delete_account')
       or not has_function_privilege('authenticated', routine.signature, 'execute'),
       format('authenticated can execute the security definer function %s', routine.signature);
   end loop;
@@ -860,6 +860,7 @@ begin
     'anon executes move_artwork_field';
   assert security_test.denied('select public.notes_mentions()'), 'anon executes notes_mentions';
   assert security_test.denied('select public.storage_usage()'), 'anon executes storage_usage';
+  assert security_test.denied('select public.delete_account()'), 'anon executes delete_account';
   assert security_test.denied(format('select public.value_page_content(%L)', gen_random_uuid())),
     'anon executes value_page_content';
   assert security_test.denied('select public.save_artwork(''{}'', ''{}'')'), 'anon executes save_artwork';

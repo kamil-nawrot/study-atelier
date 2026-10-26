@@ -1147,6 +1147,7 @@ export type Database = {
           field_id: string;
         }[];
       };
+      delete_account: { Args: Record<PropertyKey, never>; Returns: undefined };
       delete_unused_value: {
         Args: { target_value: string };
         Returns: undefined;
