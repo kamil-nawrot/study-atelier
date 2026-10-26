@@ -103,6 +103,7 @@ Every exported component has a row here; a pull request that adds a component ad
 | -------------- | ----------------------------------------------------------------------------------------------------- |
 | `ArtworkTile`  | An artwork on the wall: image or placeholder, title, authors, date, record number, era mark and heart |
 | `ArtworkImage` | Artwork image with `srcset`, loading primer and a message when it fails                               |
+| `Meter`        | Thin bar that fills with the share of a maximum, read by screen readers as a meter with its label     |
 | `NoImage`      | Placeholder for an artwork without an image: the catalogue cross                                      |
 | `Frame`        | Passe-partout frame for artworks: `list` or `view` size                                               |
 | `Logo`         | The mark with the wordmark                                                                            |

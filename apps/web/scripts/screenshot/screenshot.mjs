@@ -423,6 +423,11 @@ async function mockSupabase(context) {
 			const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
 			return json(route, wantsObject ? counts : [counts]);
 		}
+		if (url.pathname === '/rest/v1/rpc/storage_usage') {
+			const usage = { used_bytes: 9_122_611, quota_bytes: 209_715_200 };
+			const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
+			return json(route, wantsObject ? usage : [usage]);
+		}
 		if (url.pathname === '/rest/v1/rpc/review_session') {
 			return json(route, reviewSession(request.postDataJSON() ?? {}));
 		}

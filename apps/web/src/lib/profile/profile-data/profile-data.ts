@@ -1,6 +1,7 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { IMAGES_BUCKET } from '#lib/images/bucket/bucket.ts';
 import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
+import { quotaMessage } from '#lib/images/storage-usage-data/storage-usage-data.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import type { Database } from '#lib/shared/data/database.types.ts';
 import { avatarPathOf } from '#lib/profile/avatar/avatar.ts';
@@ -40,7 +41,13 @@ async function uploadAvatar(image: Blob): Promise<{ path: string } | { error: st
 	const { error } = await supabase.storage
 		.from(IMAGES_BUCKET)
 		.upload(path, image, { contentType: image.type, upsert: false });
-	if (error) return { error: await failureMessage(error, profileErrorMessage) };
+	if (error) {
+		return {
+			error:
+				(await quotaMessage(error, image.size)) ??
+				(await failureMessage(error, profileErrorMessage))
+		};
+	}
 	return { path };
 }
 
