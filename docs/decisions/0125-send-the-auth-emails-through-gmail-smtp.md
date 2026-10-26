@@ -1,6 +1,6 @@
 # 0125. Send the auth emails through Gmail SMTP
 
-- Status: accepted
+- Status: accepted; sending from production is superseded by [0136](0136-serve-production-on-studyatelier-art-and-send-its-emails-through-scaleway.md)
 - Date: 2026-10-24
 
 ## Context and problem statement
