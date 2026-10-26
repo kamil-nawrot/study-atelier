@@ -11,15 +11,17 @@ Two environments, each with its own Supabase project ([ADR-0037](../decisions/00
 
 Settings, Environments: `develop` and `production`, each with these secrets:
 
-| Secret                     | Value                                                                                                                                                                                |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `SUPABASE_URL`             | Project URL of that environment's project                                                                                                                                            |
-| `SUPABASE_PUBLISHABLE_KEY` | Publishable key of that project                                                                                                                                                      |
-| `SUPABASE_ACCESS_TOKEN`    | Personal access token with read access to Project Settings, API Keys and API Key Secrets for that project; it can be one token for both projects                                     |
-| `SUPABASE_DB_PASSWORD`     | Database password of that project                                                                                                                                                    |
-| `SUPABASE_SECRET_KEY`      | Secret key of that project (Project Settings, API Keys), used only by the unused images clean-up ([ADR-0090](../decisions/0090-clean-up-unused-images-daily-from-github-actions.md)) |
+| Secret                     | Value                                                                                                                                                                                                                                |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `SUPABASE_URL`             | Project URL of that environment's project                                                                                                                                                                                            |
+| `SUPABASE_PUBLISHABLE_KEY` | Publishable key of that project                                                                                                                                                                                                      |
+| `SUPABASE_ACCESS_TOKEN`    | Personal access token with read access to Project Settings, API Keys and API Key Secrets for that project; it can be one token for both projects                                                                                     |
+| `SUPABASE_DB_PASSWORD`     | Database password of that project                                                                                                                                                                                                    |
+| `SUPABASE_SECRET_KEY`      | Secret key of that project (Project Settings, API Keys), used by the unused images clean-up ([ADR-0090](../decisions/0090-clean-up-unused-images-daily-from-github-actions.md)) and the backup of the images ([backups](backups.md)) |
 
-Deployment branches: `production` allows `main` and `develop`, `develop` allows `develop`. The scheduled keep-alive and the unused images clean-up run from the default branch, `develop`, so they need access to `production`; the consequence is that code merged to `develop` can read the production secrets, and only the owner merges.
+`production` also has the variable (not a secret) `BACKUP_AGE_RECIPIENT`: the public `age` key the backups are encrypted to ([backups](backups.md)). Without it a release stops before migrating the production database.
+
+Deployment branches: `production` allows `main` and `develop`, `develop` allows `develop`. The scheduled keep-alive, the unused images clean-up and the weekly production backup run from the default branch, `develop`, so they need access to `production`; the consequence is that code merged to `develop` can read the production secrets, and only the owner merges.
 
 The same five names must not remain as repository secrets: an environment secret overrides a repository secret, but a missing one would silently fall back to it and point `develop` at production.
 
