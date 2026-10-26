@@ -33,6 +33,7 @@ import type { ReviewScope } from '#lib/review/types/review-scope.ts';
 import type { ReviewSource } from '#lib/review/types/review-source.ts';
 import type { ScopeChoice } from '#lib/review/types/scope-choice.ts';
 import type { SessionSummary } from '#lib/review/types/session-summary.ts';
+import { reportError } from '#lib/shared/monitoring/monitoring.ts';
 
 const PRELOAD_AHEAD = 2;
 const ALL_SCOPE: ReviewScope = { kind: 'all' };
@@ -188,7 +189,8 @@ export class ReviewFlow {
 		this.startError = undefined;
 		try {
 			this.startError = await this.#prepareSession();
-		} catch {
+		} catch (error) {
+			reportError(error);
 			this.startError = m.common.unexpectedError;
 		}
 		if (this.startError || !this.session) {

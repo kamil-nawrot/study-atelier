@@ -7,6 +7,7 @@
 	import favicon from '#lib/assets/favicon.svg';
 	import { SESSION_DEPENDENCY, watchSession } from '#lib/auth/session-data/session-data.ts';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { identifyLearner } from '#lib/shared/monitoring/monitoring.ts';
 	import {
 		currentBackPlace,
 		forgetRestoredBackPlace,
@@ -23,6 +24,8 @@
 	beforeNavigate(forgetRestoredBackPlace);
 	afterNavigate(recordArrival);
 	snapshot({ id: 'back-place', capture: currentBackPlace, restore: setBackPlace });
+
+	$effect(() => identifyLearner(data.session?.user.id));
 
 	onMount(() => {
 		hideLoadingScreen();

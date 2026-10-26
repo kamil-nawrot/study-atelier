@@ -142,3 +142,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0136](0136-serve-production-on-studyatelier-art-and-send-its-emails-through-scaleway.md) | Serve production on studyatelier.art and send its emails through Scaleway                | accepted           |
 | [0137](0137-publish-the-terms-and-the-privacy-policy-and-store-their-acceptance.md)       | Publish the terms and the privacy policy and store their acceptance                      | accepted           |
 | [0138](0138-protect-the-auth-forms-with-cloudflare-turnstile.md)                          | Protect the auth forms with Cloudflare Turnstile                                         | accepted           |
+| [0140](0140-report-browser-errors-to-sentry-and-watch-the-uptime.md)                      | Report browser errors to Sentry and watch the uptime                                     | accepted           |

@@ -1,4 +1,6 @@
 declare global {
+	const __APP_RELEASE__: string;
+
 	namespace App {
 		interface PageState {
 			chronicleMessage?: string;

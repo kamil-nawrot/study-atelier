@@ -1,10 +1,29 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
+import { reportError } from '#lib/shared/monitoring/monitoring.ts';
 import { errorMessages, isNetworkError, rowLimitMessage } from './errors.ts';
+
+vi.mock('#lib/shared/monitoring/monitoring.ts', () => ({ reportError: vi.fn() }));
 
 const messageOf = errorMessages({ P0002: 'Not found.' }, 'Offline.');
 
+beforeEach(() => {
+	vi.mocked(reportError).mockClear();
+});
+
 describe('errorMessages', () => {
+	it('reports only the errors it has no message for', () => {
+		const unknown = { code: 'XX000', message: 'internal error' };
+		expect(messageOf(unknown)).toBe(m.common.unexpectedError);
+		expect(reportError).toHaveBeenCalledWith(unknown);
+
+		vi.mocked(reportError).mockClear();
+		messageOf({ code: 'P0002', message: 'no rows' });
+		messageOf({ message: 'TypeError: Failed to fetch' });
+		messageOf({ code: '53400', hint: 'artworks' });
+		expect(reportError).not.toHaveBeenCalled();
+	});
+
 	it('picks the message of a known code', () => {
 		expect(messageOf({ code: 'P0002', message: 'no rows' })).toBe('Not found.');
 	});
