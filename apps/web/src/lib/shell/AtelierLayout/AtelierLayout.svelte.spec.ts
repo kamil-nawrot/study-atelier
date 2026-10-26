@@ -20,7 +20,7 @@ const pageState = vi.hoisted(() => ({
 	}
 }));
 
-vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
+vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidate: vi.fn() }));
 vi.mock('$app/state', () => ({
 	navigating: navigation,
 	page: pageState

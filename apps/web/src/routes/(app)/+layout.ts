@@ -13,10 +13,7 @@ import {
 	PREFERENCES_DEPENDENCY
 } from '#lib/profile/preferences-data/preferences-data.ts';
 import { loadProfile, PROFILE_DEPENDENCY } from '#lib/profile/profile-data/profile-data.ts';
-import {
-	LEGAL_DEPENDENCY,
-	loadAcceptedLegalVersion
-} from '#lib/legal/legal-data/legal-data.ts';
+import { LEGAL_DEPENDENCY, loadAcceptedLegalVersion } from '#lib/legal/legal-data/legal-data.ts';
 import type { Profile } from '#lib/profile/types/profile.ts';
 import type { LayoutLoad } from './$types';
 

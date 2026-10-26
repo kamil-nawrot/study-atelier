@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import { tick } from 'svelte';
 import { goto, invalidate } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
 import { acceptLegal, LEGAL_DEPENDENCY } from '#lib/legal/legal-data/legal-data.ts';
@@ -38,12 +39,14 @@ describe('LegalUpdateDialog', () => {
 	});
 
 	it('stays quiet for the current version, an unknown answer and the settings', async () => {
-		render(LegalUpdateDialog, { accepted: Promise.resolve(LEGAL_VERSION) });
-		render(LegalUpdateDialog, { accepted: Promise.resolve(undefined) });
+		const answers = [Promise.resolve(LEGAL_VERSION), Promise.resolve(undefined)];
+		for (const accepted of answers) render(LegalUpdateDialog, { accepted });
 		pageState.url = new URL('http://localhost/atelier/settings?tab=data');
-		render(LegalUpdateDialog, { accepted: Promise.resolve(null) });
+		const onSettings = Promise.resolve(null);
+		render(LegalUpdateDialog, { accepted: onSettings });
 
-		await new Promise((done) => setTimeout(done, 50));
+		await Promise.all([...answers, onSettings]);
+		await tick();
 		await expect.element(dialog()).not.toBeInTheDocument();
 	});
 

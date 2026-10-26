@@ -47,11 +47,13 @@ describe('signIn', () => {
 describe('signUp', () => {
 	it('asks for a confirmation link back to the app', async () => {
 		auth.signUp.mockResolvedValue({ data: { session: null }, error: null });
-		expect(await signUp('learner@example.com', 'vermeer1')).toEqual({ signedIn: false });
+		expect(
+			await signUp('learner@example.com', 'vermeer1', { legal_version: '2026-10-26' })
+		).toEqual({ signedIn: false });
 		expect(auth.signUp).toHaveBeenCalledWith({
 			email: 'learner@example.com',
 			password: 'vermeer1',
-			options: { emailRedirectTo: 'https://atelier.test/' }
+			options: { emailRedirectTo: 'https://atelier.test/', data: { legal_version: '2026-10-26' } }
 		});
 	});
 

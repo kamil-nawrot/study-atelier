@@ -470,7 +470,8 @@ export const PROFILE = {
 	fetch_image: true,
 	fetch_definition: true,
 	fetch_forms: true,
-	fetch_event: true
+	fetch_event: true,
+	legal_version: '2026-10-26'
 };
 
 export function fakeSession() {

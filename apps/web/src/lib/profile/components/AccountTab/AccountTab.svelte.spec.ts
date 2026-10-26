@@ -218,3 +218,12 @@ describe('AccountTab deletion', () => {
 		expect(accountDeleted.value).toBe(true);
 	});
 });
+
+describe('AccountTab documents', () => {
+	it('shows the accepted version of the terms with links to both documents', async () => {
+		render(AccountTab, { acceptedLegalVersion: '2026-10-26', email: TEST_EMAIL, onchanged });
+
+		await expect.element(page.getByText(m.legal.accepted('26.10.2026'))).toBeVisible();
+		await expect.element(page.getByRole('link', { name: m.legal.terms })).toBeVisible();
+	});
+});

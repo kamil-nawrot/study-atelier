@@ -21,12 +21,14 @@ export const variables = defineEnvVars({
 		public: true,
 		static: true,
 		schema: (value) => value || undefined,
-		description: 'Business address of the service provider, shown in the terms and the privacy policy'
+		description:
+			'Business address of the service provider, shown in the terms and the privacy policy'
 	},
 	LEGAL_NIP: {
 		public: true,
 		static: true,
 		schema: (value) => value || undefined,
-		description: 'Tax number (NIP) of the service provider, shown in the terms and the privacy policy'
+		description:
+			'Tax number (NIP) of the service provider, shown in the terms and the privacy policy'
 	}
 });
