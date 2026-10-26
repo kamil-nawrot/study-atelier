@@ -4,6 +4,7 @@
 	import { Alert, Button } from '@study-atelier/ui';
 	import { resendConfirmation } from '#lib/auth/account-data/account-data.ts';
 	import AuthLayout from '#lib/auth/components/AuthLayout/AuthLayout.svelte';
+	import Turnstile from '#lib/auth/components/Turnstile/Turnstile.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 
 	const email = page.state.email ?? '';
@@ -11,11 +12,13 @@
 	let resending = $state(false);
 	let resent = $state(false);
 	let resendError = $state<string>();
+	let turnstile = $state<Turnstile>();
 
 	async function resend(): Promise<void> {
 		resending = true;
 		resent = false;
-		resendError = await resendConfirmation(email);
+		resendError = await resendConfirmation(email, await turnstile?.getToken());
+		turnstile?.reset();
 		resending = false;
 		resent = !resendError;
 	}
@@ -35,6 +38,7 @@
 			{#if resendError}
 				<Alert tone="danger">{resendError}</Alert>
 			{/if}
+			<Turnstile bind:this={turnstile} />
 			<Button disabled={resending} fullWidth onclick={resend}>
 				{resending ? m.common.sending : m.checkEmail.resend}
 			</Button>

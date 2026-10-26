@@ -30,5 +30,11 @@ export const variables = defineEnvVars({
 		schema: (value) => value || undefined,
 		description:
 			'Tax number (NIP) of the service provider, shown in the terms and the privacy policy'
+	},
+	TURNSTILE_SITE_KEY: {
+		public: true,
+		static: true,
+		schema: (value) => value || undefined,
+		description: 'Cloudflare Turnstile site key; without it the auth forms show no captcha'
 	}
 });

@@ -38,6 +38,7 @@ jobs:
       LEGAL_COMPANY: ${{ vars.LEGAL_COMPANY }}
       LEGAL_ADDRESS: ${{ vars.LEGAL_ADDRESS }}
       LEGAL_NIP: ${{ vars.LEGAL_NIP }}
+      TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
     steps:
       - uses: actions/checkout@v7
 

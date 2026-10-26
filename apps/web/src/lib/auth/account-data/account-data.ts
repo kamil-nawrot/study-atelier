@@ -11,20 +11,29 @@ type SignUpResult = {
 	signedIn: boolean;
 };
 
-export async function signIn(email: string, password: string): Promise<string | undefined> {
-	const { error } = await supabase.auth.signInWithPassword({ email, password });
+export async function signIn(
+	email: string,
+	password: string,
+	captchaToken?: string
+): Promise<string | undefined> {
+	const { error } = await supabase.auth.signInWithPassword({
+		email,
+		password,
+		options: { captchaToken }
+	});
 	return error ? authErrorMessage(error) : undefined;
 }
 
 export async function signUp(
 	email: string,
 	password: string,
-	metadata: Record<string, string> = {}
+	metadata: Record<string, string> = {},
+	captchaToken?: string
 ): Promise<SignUpResult> {
 	const { data, error } = await supabase.auth.signUp({
 		email,
 		password,
-		options: { emailRedirectTo: authRedirectUrl('/'), data: metadata }
+		options: { emailRedirectTo: authRedirectUrl('/'), data: metadata, captchaToken }
 	});
 	if (error?.code === 'user_already_exists' || data.user?.identities?.length === 0) {
 		return { accountExists: true, signedIn: false };
@@ -33,18 +42,25 @@ export async function signUp(
 	return { signedIn: data.session !== null };
 }
 
-export async function resendConfirmation(email: string): Promise<string | undefined> {
+export async function resendConfirmation(
+	email: string,
+	captchaToken?: string
+): Promise<string | undefined> {
 	const { error } = await supabase.auth.resend({
 		type: 'signup',
 		email,
-		options: { emailRedirectTo: authRedirectUrl('/') }
+		options: { emailRedirectTo: authRedirectUrl('/'), captchaToken }
 	});
 	return error ? authErrorMessage(error) : undefined;
 }
 
-export async function requestPasswordReset(email: string): Promise<string | undefined> {
+export async function requestPasswordReset(
+	email: string,
+	captchaToken?: string
+): Promise<string | undefined> {
 	const { error } = await supabase.auth.resetPasswordForEmail(email, {
-		redirectTo: authRedirectUrl('/update-password')
+		redirectTo: authRedirectUrl('/update-password'),
+		captchaToken
 	});
 	return error ? authErrorMessage(error) : undefined;
 }
@@ -66,12 +82,17 @@ export async function changePassword(
 	email: string,
 	currentPassword: string,
 	newPassword: string,
-	signOutOthers: boolean
+	signOutOthers: boolean,
+	captchaToken?: string
 ): Promise<PasswordChangeResult> {
 	if (newPassword === currentPassword) {
 		return { changed: false, newError: m.settings.account.sameAsCurrent };
 	}
-	const verified = await supabase.auth.signInWithPassword({ email, password: currentPassword });
+	const verified = await supabase.auth.signInWithPassword({
+		email,
+		password: currentPassword,
+		options: { captchaToken }
+	});
 	if (verified.error) {
 		if (verified.error.code === 'invalid_credentials') {
 			return { changed: false, currentError: m.settings.account.wrongCurrent };
@@ -131,8 +152,16 @@ type AccountDeleteResult = {
 	error?: string;
 };
 
-export async function deleteAccount(email: string, password: string): Promise<AccountDeleteResult> {
-	const verified = await supabase.auth.signInWithPassword({ email, password });
+export async function deleteAccount(
+	email: string,
+	password: string,
+	captchaToken?: string
+): Promise<AccountDeleteResult> {
+	const verified = await supabase.auth.signInWithPassword({
+		email,
+		password,
+		options: { captchaToken }
+	});
 	if (verified.error) {
 		if (verified.error.code === 'invalid_credentials') {
 			return { deleted: false, passwordError: m.settings.account.wrongCurrent };

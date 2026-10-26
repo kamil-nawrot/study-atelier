@@ -90,7 +90,8 @@ export const pl = {
 		emailTaken: 'Ten adres jest już przypisany do innego konta.',
 		rateLimited: 'Sporo prób w krótkim czasie. Odczekaj chwilę i spróbuj jeszcze raz.',
 		emailRateLimited:
-			'Kilka wiadomości jest już w drodze. Daj im chwilę, zanim poprosisz o kolejną.'
+			'Kilka wiadomości jest już w drodze. Daj im chwilę, zanim poprosisz o kolejną.',
+		captchaFailed: 'Nie udało się potwierdzić, że to Ty, a nie automat. Spróbuj jeszcze raz.'
 	},
 	artwork: {
 		credit: 'Wikimedia Commons, domena publiczna',

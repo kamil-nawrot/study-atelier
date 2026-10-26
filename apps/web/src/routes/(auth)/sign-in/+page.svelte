@@ -6,6 +6,7 @@
 	import { sessionEnded } from '#lib/auth/expired-session/expired-session.svelte.ts';
 	import { signIn } from '#lib/auth/account-data/account-data.ts';
 	import AuthLayout from '#lib/auth/components/AuthLayout/AuthLayout.svelte';
+	import Turnstile from '#lib/auth/components/Turnstile/Turnstile.svelte';
 	import { validateEmail, validateRequiredPassword } from '#lib/auth/validation/validation.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import LegalLinks from '#lib/legal/components/LegalLinks/LegalLinks.svelte';
@@ -16,6 +17,7 @@
 	let passwordError = $state<string>();
 	let formError = $state<string>();
 	let submitting = $state(false);
+	let turnstile = $state<Turnstile>();
 
 	async function submit(): Promise<void> {
 		emailError = validateEmail(email);
@@ -26,7 +28,8 @@
 		if (emailError || passwordError) return;
 
 		submitting = true;
-		formError = await signIn(email.trim(), password);
+		formError = await signIn(email.trim(), password, await turnstile?.getToken());
+		turnstile?.reset();
 		if (formError) {
 			submitting = false;
 			return;
@@ -64,6 +67,7 @@
 				<a class="caption" href={resolve('/(auth)/forgot-password')}>{m.signIn.forgotPassword}</a>
 			{/snippet}
 		</TextField>
+		<Turnstile bind:this={turnstile} />
 		<Button disabled={submitting} fullWidth type="submit" variant="primary">
 			{submitting ? m.signIn.submitting : m.signIn.submit}
 		</Button>
