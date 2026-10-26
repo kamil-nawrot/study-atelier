@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
+import { removeAllOwnFiles } from '#lib/images/own-image-data/own-image-data.ts';
 import {
 	changePassword,
+	deleteAccount,
 	pendingEmailChange,
 	requestEmailChange,
 	signIn,
@@ -16,7 +18,10 @@ const auth = vi.hoisted(() => ({
 	signOut: vi.fn()
 }));
 
-vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: { auth } }));
+const rpc = vi.hoisted(() => vi.fn());
+
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: { auth, rpc } }));
+vi.mock('#lib/images/own-image-data/own-image-data.ts', () => ({ removeAllOwnFiles: vi.fn() }));
 
 beforeEach(() => {
 	vi.stubGlobal('window', { location: { origin: 'https://atelier.test' } });
@@ -215,5 +220,62 @@ describe('pendingEmailChange', () => {
 		expect(await pendingEmailChange()).toBeUndefined();
 		auth.getUser.mockResolvedValue({ data: { user: null }, error: { code: 'x' } });
 		expect(await pendingEmailChange()).toBeUndefined();
+	});
+});
+
+describe('deleteAccount', () => {
+	beforeEach(() => {
+		auth.signInWithPassword.mockResolvedValue({ data: { user: { id: 'learner-1' } }, error: null });
+		auth.signOut.mockResolvedValue({ error: null });
+		vi.mocked(removeAllOwnFiles).mockReset().mockResolvedValue(true);
+		rpc.mockReset().mockResolvedValue({ error: null });
+	});
+
+	it('checks the password, deletes the account, then removes the files and signs out here', async () => {
+		await expect(deleteAccount('learner@example.com', 'vermeer1')).resolves.toEqual({
+			deleted: true
+		});
+
+		expect(auth.signInWithPassword).toHaveBeenCalledWith({
+			email: 'learner@example.com',
+			password: 'vermeer1'
+		});
+		expect(removeAllOwnFiles).toHaveBeenCalledWith('learner-1');
+		expect(rpc).toHaveBeenCalledWith('delete_account');
+		expect(rpc.mock.invocationCallOrder[0]).toBeLessThan(
+			vi.mocked(removeAllOwnFiles).mock.invocationCallOrder[0]
+		);
+		expect(auth.signOut).toHaveBeenCalledWith({ scope: 'local' });
+	});
+
+	it('deletes nothing when the password is wrong', async () => {
+		auth.signInWithPassword.mockResolvedValue({ data: {}, error: { code: 'invalid_credentials' } });
+
+		await expect(deleteAccount('learner@example.com', 'wrong')).resolves.toEqual({
+			deleted: false,
+			passwordError: m.settings.account.wrongCurrent
+		});
+		expect(removeAllOwnFiles).not.toHaveBeenCalled();
+		expect(rpc).not.toHaveBeenCalled();
+	});
+
+	it('leaves files it could not remove to the daily clean-up once the account is gone', async () => {
+		vi.mocked(removeAllOwnFiles).mockResolvedValue(false);
+
+		await expect(deleteAccount('learner@example.com', 'vermeer1')).resolves.toEqual({
+			deleted: true
+		});
+		expect(auth.signOut).toHaveBeenCalledWith({ scope: 'local' });
+	});
+
+	it('touches nothing and stays signed in when the database refuses the deletion', async () => {
+		rpc.mockResolvedValue({ error: { message: 'Failed to fetch' } });
+
+		await expect(deleteAccount('learner@example.com', 'vermeer1')).resolves.toEqual({
+			deleted: false,
+			error: m.settings.account.deleteFailed
+		});
+		expect(removeAllOwnFiles).not.toHaveBeenCalled();
+		expect(auth.signOut).not.toHaveBeenCalled();
 	});
 });
