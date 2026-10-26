@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
+import { accountDeleted } from '#lib/auth/account-deleted/account-deleted.svelte.ts';
 import { sessionEnded } from '#lib/auth/expired-session/expired-session.svelte.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
@@ -135,5 +136,16 @@ describe('sign-in page after the session ended', () => {
 		await expect.element(page.getByText(m.authErrors.sessionEnded)).toBeVisible();
 
 		sessionEnded.value = false;
+	});
+});
+
+describe('sign-in page after the account was deleted', () => {
+	it('confirms the deletion until the learner signs in again', async () => {
+		accountDeleted.value = true;
+		render(SignInPage);
+
+		await expect.element(page.getByText(m.settings.account.deleted)).toBeVisible();
+
+		accountDeleted.value = false;
 	});
 });

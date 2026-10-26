@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { Alert, Button, Checkbox, Form, TextField } from '@study-atelier/ui';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import { accountDeleted } from '#lib/auth/account-deleted/account-deleted.svelte.ts';
 	import { changePassword, requestEmailChange } from '#lib/auth/account-data/account-data.ts';
 	import {
 		MIN_PASSWORD_LENGTH,
@@ -8,6 +11,7 @@
 		validateRequiredPassword
 	} from '#lib/auth/validation/validation.ts';
 	import { m } from '#lib/i18n/i18n.ts';
+	import AccountDeleteDialog from '#lib/profile/components/AccountDeleteDialog/AccountDeleteDialog.svelte';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 
 	type Props = {
@@ -17,6 +21,13 @@
 	};
 
 	let { email, pendingEmail, onchanged }: Props = $props();
+
+	let deleteOpen = $state(false);
+
+	async function accountGone(): Promise<void> {
+		accountDeleted.value = true;
+		await goto(resolve('/(auth)/sign-in'), { replaceState: true, invalidateAll: true });
+	}
 
 	let newEmail = $state('');
 	let emailFieldError = $state<string>();
@@ -123,7 +134,18 @@
 			</div>
 		</Form>
 	</section>
+	<section class="rule">
+		<h2>{m.settings.account.deleteTitle}</h2>
+		<p>{m.settings.account.deleteDescription}</p>
+		<div class="actions">
+			<Button onclick={() => (deleteOpen = true)} variant="danger">
+				{m.settings.account.deleteOpen}
+			</Button>
+		</div>
+	</section>
 </div>
+
+<AccountDeleteDialog {email} ondeleted={accountGone} bind:open={deleteOpen} />
 
 <style>
 	.account {

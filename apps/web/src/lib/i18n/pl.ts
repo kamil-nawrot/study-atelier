@@ -236,7 +236,20 @@ export const pl = {
 			errorTitle: 'Nie udało się zmienić hasła',
 			othersFailedTitle: 'Hasło zostało pomyślnie zmienione',
 			othersFailed:
-				'Nie udało się wylogować Cię na innych urządzeniach. Wyloguj się tam ręcznie albo zmień hasło jeszcze raz.'
+				'Nie udało się wylogować Cię na innych urządzeniach. Wyloguj się tam ręcznie albo zmień hasło jeszcze raz.',
+			deleteTitle: 'Usuń konto',
+			deleteDescription:
+				'Usunięcie konta usuwa na zawsze całe atelier: dzieła, zdjęcia, notatki, Słowniczek, Kalendarium, Kronikę i historię powtórek.',
+			deleteOpen: 'Usuń konto…',
+			deleteConfirmTitle: 'Usunąć konto na zawsze?',
+			deleteConfirmDescription:
+				'Konto i całe atelier znikną bezpowrotnie. Jeśli chcesz coś zachować, najpierw pobierz kopię w zakładce Dane.',
+			deleteToData: 'Przejdź do zakładki Dane',
+			deletePassword: 'Hasło',
+			deleteSubmit: 'Usuń konto',
+			deleting: 'Usuwanie konta…',
+			deleteFailed: 'Nie udało się usunąć konta. Nic nie zostało usunięte, spróbuj jeszcze raz.',
+			deleted: 'Konto zostało usunięte razem z całym atelier.'
 		},
 		preferences: {
 			sessionSize: 'Z ilu dzieł powinna składać się pojedyncza sesja?',
