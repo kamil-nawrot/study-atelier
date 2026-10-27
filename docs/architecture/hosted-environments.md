@@ -123,6 +123,27 @@ UptimeRobot:
 
 Cloudflare Web Analytics: Workers & Pages, `study-atelier`, Metrics, turn on Web Analytics. Cloudflare adds the script to the production pages without cookies; nothing in the repository changes.
 
+## Load and limits
+
+[`supabase/scale/measure.sh`](../../supabase/scale/measure.sh) checks the database for many accounts on the local stack. In one transaction that ends with `rollback`, it applies the migrations the local database lacks, seeds 3000 learners ([`seed.sql`](../../supabase/scale/seed.sql): 10 with 460 to 1000 artworks, 290 with 50, the rest with 5, with values, images, reviews, glossary entries, events and visits) and runs the main reads and writes as the learner with 1000 artworks, with `auto_explain` printing every plan, nested ones included ([`measure.sql`](../../supabase/scale/measure.sql)). Nothing stays in the local database. Run it after a migration that adds a table or a read: `supabase/scale/measure.sh 2> plans.txt > /dev/null`.
+
+Measured on 2026-10-27 (ATL-334), with about 36,000 artworks in all:
+
+| Read or write                                                              | Time          |
+| -------------------------------------------------------------------------- | ------------- |
+| The wall (60 artworks with image, values and visit), the trash             | 17 ms, 0 ms   |
+| `value_usage`, the other usage functions, `value_page_content`             | 1 to 9 ms     |
+| `review_counts`, `review_streak`, `review_session`                         | 11, 7, 199 ms |
+| `notes_mentions`, `storage_usage`, timeline, chronicle, glossary, values   | under 3 ms    |
+| Adding an artwork, a glossary entry, a review answer (with the row limits) | 1 to 2 ms     |
+| Deleting the account of the learner with 1000 artworks                     | 2.5 s         |
+
+Every read uses an index that starts with `owner_id` or with the id of the artwork; no plan scans another learner's rows, and every policy calls `(select auth.uid())`. `review_session` grows with the size of one atelier, not with the number of accounts. Deleting an account runs one foreign key check per deleted row, which is fine once per account.
+
+Cloudflare runs the Pages worker only for a full page load: the app has no server `load` and no `+server` routes, and `/_app/immutable/*` and `/_app/version.json` are static files outside the worker. The Free plan allows 100,000 worker requests a day, that is about 100,000 page loads; navigation inside the app, polling for a new version and the images do not count.
+
+Own images: signed URLs live for 24 hours and are kept on the device, and files uploaded since ATL-334 carry `Cache-Control: max-age=31536000`, so the wall downloads each of them at most once a day per device ([ADR-0141](../decisions/0141-cache-own-images-for-a-day-on-the-device.md)). Files uploaded before keep the one-hour header of Supabase's default; they are cached for an hour within the day and need no change.
+
 ## Supabase Advisors
 
 The Security and Performance Advisors in the dashboard of each project are run before the app opens to more learners and after a release that changes the database. These findings stay on purpose; any other is fixed in a migration or filed as an issue:

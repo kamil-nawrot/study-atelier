@@ -144,3 +144,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0138](0138-protect-the-auth-forms-with-cloudflare-turnstile.md)                          | Protect the auth forms with Cloudflare Turnstile                                         | accepted           |
 | [0139](0139-ask-the-learner-to-reload-after-a-new-release.md)                             | Ask the learner to reload after a new release                                            | accepted           |
 | [0140](0140-report-browser-errors-to-sentry-and-watch-the-uptime.md)                      | Report browser errors to Sentry and watch the uptime                                     | accepted           |
+| [0141](0141-cache-own-images-for-a-day-on-the-device.md)                                  | Cache own images for a day on the device                                                 | accepted           |

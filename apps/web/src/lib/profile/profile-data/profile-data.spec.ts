@@ -97,7 +97,11 @@ describe('saveProfile', () => {
 		const [path, body, options] = storage.upload.mock.calls[0];
 		expect(path).toMatch(new RegExp(`^${OWNER}/avatar-[0-9a-f-]{36}\\.jpg$`));
 		expect(body).toBe(image);
-		expect(options).toMatchObject({ contentType: 'image/jpeg', upsert: false });
+		expect(options).toMatchObject({
+			contentType: 'image/jpeg',
+			cacheControl: '31536000',
+			upsert: false
+		});
 		expect(upsert).toHaveBeenCalledWith({ display_name: 'Anna', avatar_path: path });
 		expect(storage.remove).toHaveBeenCalledWith([
 			current.avatarPath,
