@@ -11,6 +11,7 @@
 	import FeedbackDialog from '#lib/feedback/components/FeedbackDialog/FeedbackDialog.svelte';
 	import LegalUpdateDialog from '#lib/legal/components/LegalUpdateDialog/LegalUpdateDialog.svelte';
 	import AtelierDrawer from '#lib/shell/AtelierDrawer/AtelierDrawer.svelte';
+	import AnnouncementBanner from '#lib/shell/AnnouncementBanner/AnnouncementBanner.svelte';
 	import AtelierRail from '#lib/shell/AtelierRail/AtelierRail.svelte';
 	import NewVersionNotice from '#lib/shell/NewVersionNotice/NewVersionNotice.svelte';
 
@@ -86,6 +87,7 @@
 				<ProgressLine />
 			{/if}
 		</header>
+		<AnnouncementBanner />
 		{@render strip?.()}
 		<div class="body">
 			<main class="content" aria-busy={navigating.to !== null}>
