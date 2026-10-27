@@ -8,7 +8,8 @@ import FormPage from './+page.svelte';
 
 vi.mock('$app/state', () => ({
 	page: { url: new URL('http://localhost/atelier/chronicle'), state: {}, data: {} },
-	navigating: { to: null }
+	navigating: { to: null },
+	updated: { current: false }
 }));
 vi.mock('$app/navigation', () => ({
 	afterNavigate: vi.fn(),

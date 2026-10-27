@@ -4,7 +4,7 @@
 	import { Icon, ProgressLine, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { navigating, page } from '$app/state';
+	import { navigating, page, updated } from '$app/state';
 	import { signOut } from '#lib/auth/account-data/account-data.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { nameCurrentPlace } from '#lib/shared/navigation/back/back.svelte.ts';
@@ -12,6 +12,7 @@
 	import LegalUpdateDialog from '#lib/legal/components/LegalUpdateDialog/LegalUpdateDialog.svelte';
 	import AtelierDrawer from '#lib/shell/AtelierDrawer/AtelierDrawer.svelte';
 	import AtelierRail from '#lib/shell/AtelierRail/AtelierRail.svelte';
+	import NewVersionNotice from '#lib/shell/NewVersionNotice/NewVersionNotice.svelte';
 
 	type Props = {
 		title: string;
@@ -108,6 +109,7 @@
 	{/if}
 
 	<LegalUpdateDialog accepted={page.data.acceptedLegalVersion} />
+	<NewVersionNotice updated={updated.current} />
 </div>
 
 <style>

@@ -19,7 +19,11 @@ const navigation = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier/settings')
 }));
 
-vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
+vi.mock('$app/state', () => ({
+	page: navigation,
+	navigating: { to: null },
+	updated: { current: false }
+}));
 vi.mock('$app/navigation', () => ({
 	beforeNavigate: vi.fn(),
 	goto: vi.fn(),

@@ -17,7 +17,11 @@ const navigation = vi.hoisted(() => ({
 	data: {}
 }));
 
-vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
+vi.mock('$app/state', () => ({
+	page: navigation,
+	navigating: { to: null },
+	updated: { current: false }
+}));
 vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidateAll: vi.fn() }));
 vi.mock('#lib/timeline/timeline-data/timeline-data.ts', () => ({ deleteTimelineEvent: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({

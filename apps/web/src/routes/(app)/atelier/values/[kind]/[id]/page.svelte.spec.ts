@@ -22,7 +22,11 @@ const navigation = vi.hoisted(() => ({
 	data: {}
 }));
 
-vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
+vi.mock('$app/state', () => ({
+	page: navigation,
+	navigating: { to: null },
+	updated: { current: false }
+}));
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
 	refreshExpiredImages: vi.fn(),

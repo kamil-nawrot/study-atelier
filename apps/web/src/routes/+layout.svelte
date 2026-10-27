@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { PageScrollbar, setUiMessages } from '@study-atelier/ui';
 	import { onMount } from 'svelte';
-	import { afterNavigate, beforeNavigate, invalidate, snapshot } from '$app/navigation';
+	import { afterNavigate, beforeNavigate, invalidate, onNavigate, snapshot } from '$app/navigation';
+	import { updated } from '$app/state';
 	import appleTouchIcon from '#lib/assets/apple-touch-icon.png';
 	import faviconPng from '#lib/assets/favicon-32.png';
 	import favicon from '#lib/assets/favicon.svg';
@@ -14,6 +15,7 @@
 		recordArrival,
 		setBackPlace
 	} from '#lib/shared/navigation/back/back.svelte.ts';
+	import { loadNewVersion } from '#lib/shell/new-version/new-version.ts';
 	import { hideLoadingScreen } from '#lib/startup/loading-screen/loading-screen.ts';
 	import type { LayoutProps } from './$types';
 
@@ -23,6 +25,7 @@
 
 	beforeNavigate(forgetRestoredBackPlace);
 	afterNavigate(recordArrival);
+	onNavigate((navigation) => loadNewVersion(navigation, updated.current));
 	snapshot({ id: 'back-place', capture: currentBackPlace, restore: setBackPlace });
 
 	$effect(() => identifyLearner(data.session?.user.id));
