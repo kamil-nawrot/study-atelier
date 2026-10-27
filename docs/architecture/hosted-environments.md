@@ -144,6 +144,16 @@ Cloudflare runs the Pages worker only for a full page load: the app has no serve
 
 Own images: signed URLs live for 24 hours and are kept on the device, and files uploaded since ATL-334 carry `Cache-Control: max-age=31536000`, so the wall downloads each of them at most once a day per device ([ADR-0141](../decisions/0141-cache-own-images-for-a-day-on-the-device.md)). Files uploaded before keep the one-hour header of Supabase's default; they are cached for an hour within the day and need no change.
 
+## Feedback digest
+
+Every hour [`feedback-digest.yml`](../../.github/workflows/feedback-digest.yml) mails the new reports from "Zgłoś uwagę" in production to `kontakt@studyatelier.art`, which forwards to the owner ([ADR-0142](../decisions/0142-mail-new-feedback-to-the-owner-every-hour.md)). It needs, in the `production` environment:
+
+1. The secrets `SMTP_USERNAME` and `SMTP_PASSWORD`: the same Scaleway SMTP credentials as in [Auth emails](#auth-emails) (the Project ID and the secret key of `study-atelier-smtp`), or a second API key of that application.
+2. After the release that adds `feedback.notified_at`: the variable `FEEDBACK_DIGEST` set to `on`. Until then the job runs and skips the mail step.
+3. Check: send a report from the production app, run the workflow by hand (Actions, Feedback digest, Run workflow), and see one mail in the inbox and the report's `notified_at` set in the table editor.
+
+The log shows only the number of reports. Reports already in the table when the digest is turned on are mailed in the first run, at most 50 at a time.
+
 ## Supabase Advisors
 
 The Security and Performance Advisors in the dashboard of each project are run before the app opens to more learners and after a release that changes the database. These findings stay on purpose; any other is fixed in a migration or filed as an issue:

@@ -23,27 +23,36 @@ describe('sendFeedback', () => {
 	it('inserts the trimmed report', async () => {
 		const insert = insertResult({ error: null });
 
-		const result = await sendFeedback({
-			kind: 'bug',
-			title: '  Broken filter ',
-			description: ' Details '
-		});
+		const result = await sendFeedback(
+			{
+				kind: 'bug',
+				title: '  Broken filter ',
+				description: ' Details '
+			},
+			'Mozilla/5.0 Firefox/140.0'
+		);
 
 		expect(result).toEqual({});
 		expect(from).toHaveBeenCalledWith('feedback');
 		expect(insert).toHaveBeenCalledWith({
 			kind: 'bug',
 			title: 'Broken filter',
-			description: 'Details'
+			description: 'Details',
+			browser: 'Mozilla/5.0 Firefox/140.0'
 		});
 	});
 
-	it('stores an empty description as null', async () => {
+	it('stores an empty description and an unknown browser as null', async () => {
 		const insert = insertResult({ error: null });
 
-		await sendFeedback({ kind: 'idea', title: 'Dark mode', description: '  ' });
+		await sendFeedback({ kind: 'idea', title: 'Dark mode', description: '  ' }, '');
 
-		expect(insert).toHaveBeenCalledWith({ kind: 'idea', title: 'Dark mode', description: null });
+		expect(insert).toHaveBeenCalledWith({
+			kind: 'idea',
+			title: 'Dark mode',
+			description: null,
+			browser: null
+		});
 	});
 
 	it('reports a failed insert with a dictionary message', async () => {

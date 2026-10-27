@@ -535,27 +535,33 @@ export type Database = {
       };
       feedback: {
         Row: {
+          browser: string | null;
           created_at: string;
           description: string | null;
           id: string;
           kind: string;
+          notified_at: string | null;
           owner_id: string;
           title: string;
         };
         ComputedFields: never;
         Insert: {
+          browser?: string | null;
           created_at?: string;
           description?: string | null;
           id?: string;
           kind: string;
+          notified_at?: string | null;
           owner_id?: string;
           title: string;
         };
         Update: {
+          browser?: string | null;
           created_at?: string;
           description?: string | null;
           id?: string;
           kind?: string;
+          notified_at?: string | null;
           owner_id?: string;
           title?: string;
         };
