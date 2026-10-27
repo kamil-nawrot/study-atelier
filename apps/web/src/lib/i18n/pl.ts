@@ -162,7 +162,6 @@ export const pl = {
 		accountLabel: 'Konto',
 		title: 'Atelier do nauki historii sztuki',
 		text: 'Study Atelier to miejsce, w którym uczysz się historii sztuki, budując własną kolekcję dzieł. Zapisujesz dzieła, które poznajesz w muzeum, na wykładzie albo w książce, opisujesz je po swojemu i łączysz ze sobą. Z czasem powstaje z tego osobista baza wiedzy, do której zawsze możesz wrócić, a krótkie codzienne powtórki pomagają zapamiętać to, czego się uczysz.',
-		haveAccount: 'Masz już konto?',
 		signIn: 'Zaloguj się',
 		signUp: 'Załóż konto',
 		modulesTitle: 'Co znajdziesz w atelier',

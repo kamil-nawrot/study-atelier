@@ -15,8 +15,8 @@ describe('StartPage', () => {
 			.element(page.getByRole('link', { name: m.landing.signUp }).first())
 			.toHaveAttribute('href', '/sign-up');
 		await expect
-			.element(page.getByRole('link', { name: m.landing.signIn }).first())
-			.toHaveAttribute('href', '/sign-in');
+			.element(page.getByRole('link', { name: m.landing.signIn }))
+			.not.toBeInTheDocument();
 	});
 
 	it('describes every module of the atelier', async () => {
