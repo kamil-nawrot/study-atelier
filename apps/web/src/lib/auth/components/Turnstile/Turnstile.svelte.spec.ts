@@ -64,14 +64,25 @@ describe('Turnstile', () => {
 		await expect(next).resolves.toBe('token-2');
 	});
 
-	it('gives up without a token when the check fails or takes too long', async () => {
+	it('keeps waiting after a failed check and takes the token of the retry', async () => {
+		const { component } = await render(Turnstile, { sitekey: 'site-key' });
+		await vi.waitFor(() => expect(options).toBeDefined());
+		expect(options?.['retry-interval']).toBe(1500);
+
+		const token = component.getToken();
+		options?.['error-callback']();
+		options?.callback('token-after-retry');
+		await expect(token).resolves.toBe('token-after-retry');
+	});
+
+	it('restarts a failed check at once when the learner submits', async () => {
 		const { component } = await render(Turnstile, { sitekey: 'site-key', timeout: 50 });
 		await vi.waitFor(() => expect(options).toBeDefined());
 
-		const failed = component.getToken();
 		options?.['error-callback']();
-		await expect(failed).resolves.toBeUndefined();
-		await expect(component.getToken()).resolves.toBeUndefined();
+		const token = component.getToken();
+		expect(api.reset).toHaveBeenCalledWith('widget-1');
+		await expect(token).resolves.toBeUndefined();
 	});
 
 	it('takes space in the form only while Cloudflare asks the learner', async () => {
