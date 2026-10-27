@@ -9,7 +9,10 @@ import { acceptLegal } from '#lib/legal/legal-data/legal-data.ts';
 import { LEGAL_VERSION } from '#lib/legal/version/version.ts';
 import LegalUpdateDialog from './LegalUpdateDialog.svelte';
 
-const pageState = vi.hoisted(() => ({ url: new URL('http://localhost/atelier') }));
+const pageState = vi.hoisted(() => ({
+	url: new URL('http://localhost/atelier'),
+	data: { session: { user: { id: 'learner-a' } } }
+}));
 
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 vi.mock('$app/state', () => ({ page: pageState }));
@@ -23,6 +26,8 @@ beforeEach(() => {
 	vi.clearAllMocks();
 	pageState.url = new URL('http://localhost/atelier');
 	acceptedNow.version = null;
+	acceptedNow.learner = null;
+	pageState.data = { session: { user: { id: 'learner-a' } } };
 });
 
 describe('LegalUpdateDialog', () => {
@@ -39,12 +44,22 @@ describe('LegalUpdateDialog', () => {
 
 	it('does not ask again on the next page after the acceptance', async () => {
 		acceptedNow.version = LEGAL_VERSION;
+		acceptedNow.learner = 'learner-a';
 		const stale = Promise.resolve('2020-01-01');
 		render(LegalUpdateDialog, { accepted: stale });
 
 		await stale;
 		await tick();
 		await expect.element(dialog()).not.toBeInTheDocument();
+	});
+
+	it('still asks another learner who signs in in the same tab', async () => {
+		acceptedNow.version = LEGAL_VERSION;
+		acceptedNow.learner = 'learner-a';
+		pageState.data = { session: { user: { id: 'learner-b' } } };
+		render(LegalUpdateDialog, { accepted: Promise.resolve('2020-01-01') });
+
+		await expect.element(dialog()).toBeInTheDocument();
 	});
 
 	it('stays quiet for the current version, an unknown answer and the settings', async () => {

@@ -28,7 +28,12 @@
 
 	$effect(() => {
 		if (!accepted || page.url.pathname.startsWith(settingsPath)) return;
-		if (isCurrentLegalVersion(acceptedNow.version)) return;
+		if (
+			acceptedNow.learner === page.data.session?.user.id &&
+			isCurrentLegalVersion(acceptedNow.version)
+		) {
+			return;
+		}
 		let active = true;
 		void accepted.then((version) => {
 			if (active && version !== undefined && !isCurrentLegalVersion(version)) open = true;
@@ -45,6 +50,7 @@
 		accepting = false;
 		if (error) return;
 		acceptedNow.version = LEGAL_VERSION;
+		acceptedNow.learner = page.data.session?.user.id ?? null;
 		open = false;
 	}
 

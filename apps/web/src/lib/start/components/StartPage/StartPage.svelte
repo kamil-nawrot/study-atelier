@@ -24,55 +24,57 @@
 </svelte:head>
 
 <div class="start">
-	<section class="hero">
-		<figure class="stage">
-			<img class="backdrop" alt="" aria-hidden="true" src={imageUrl} />
-			<div class="artwork">
-				<Frame size="view">
-					<ArtworkImage alt="{artwork.title}, {artwork.artist}" src={imageUrl} surface="frame" />
-				</Frame>
-			</div>
-			<figcaption>
-				<cite class="artwork-title">{artwork.title}</cite>
-				<span>{artwork.artist}, {artwork.date}</span>
-				<span class="credit">{artwork.credit}</span>
-			</figcaption>
-		</figure>
+	<main class="content">
+		<section class="hero">
+			<figure class="stage">
+				<img class="backdrop" alt="" aria-hidden="true" src={imageUrl} />
+				<div class="artwork">
+					<Frame size="view">
+						<ArtworkImage alt="{artwork.title}, {artwork.artist}" src={imageUrl} surface="frame" />
+					</Frame>
+				</div>
+				<figcaption>
+					<cite class="artwork-title">{artwork.title}</cite>
+					<span>{artwork.artist}, {artwork.date}</span>
+					<span class="credit">{artwork.credit}</span>
+				</figcaption>
+			</figure>
 
-		<div class="panel">
-			<div class="intro">
-				<h1>{m.landing.title}</h1>
-				<p class="text">{m.landing.text}</p>
-				<div class="actions">
-					<Button href={signUp} variant="primary">{m.landing.signUp}</Button>
-					<p class="caption">
-						{m.landing.haveAccount}
-						<a href={signIn}>{m.landing.signIn}</a>
-					</p>
+			<div class="panel">
+				<div class="intro">
+					<h1>{m.landing.title}</h1>
+					<p class="text">{m.landing.text}</p>
+					<div class="actions">
+						<Button href={signUp} variant="primary">{m.landing.signUp}</Button>
+						<p class="caption">
+							{m.landing.haveAccount}
+							<a href={signIn}>{m.landing.signIn}</a>
+						</p>
+					</div>
 				</div>
 			</div>
-		</div>
-	</section>
+		</section>
 
-	<section class="modules" aria-labelledby="start-modules">
-		<h2 id="start-modules">{m.landing.modulesTitle}</h2>
-		<ul class="list">
-			{#each m.landing.modules as module, index (module.title)}
-				{@const Glyph = icons[index]}
-				<li class="module">
-					<Glyph
-						aria-hidden="true"
-						size={40}
-						stroke-linecap="square"
-						stroke-linejoin="miter"
-						strokeWidth={1.25}
-					/>
-					<h3>{module.title}</h3>
-					<p>{module.text}</p>
-				</li>
-			{/each}
-		</ul>
-	</section>
+		<section class="modules" aria-labelledby="start-modules">
+			<h2 id="start-modules">{m.landing.modulesTitle}</h2>
+			<ul class="list">
+				{#each m.landing.modules as module, index (module.title)}
+					{@const Glyph = icons[index]}
+					<li class="module">
+						<Glyph
+							aria-hidden="true"
+							size={40}
+							stroke-linecap="square"
+							stroke-linejoin="miter"
+							strokeWidth={1.25}
+						/>
+						<h3>{module.title}</h3>
+						<p>{module.text}</p>
+					</li>
+				{/each}
+			</ul>
+		</section>
+	</main>
 
 	<footer class="footer">
 		<LegalLinks />
@@ -82,6 +84,10 @@
 
 <style>
 	.start {
+		display: grid;
+	}
+
+	.content {
 		display: grid;
 	}
 
