@@ -15,7 +15,6 @@
 	const artwork = pickArtwork();
 	const imageUrl = commonsFileUrl(artwork.file, 1280);
 	const icons = [ImagesIcon, ListTree, BookA, CalendarRange, Footprints, Layers];
-	const signIn = resolve('/(auth)/sign-in');
 	const signUp = resolve('/(auth)/sign-up');
 </script>
 
@@ -46,10 +45,6 @@
 					<p class="text">{m.landing.text}</p>
 					<div class="actions">
 						<Button href={signUp} variant="primary">{m.landing.signUp}</Button>
-						<p class="caption">
-							{m.landing.haveAccount}
-							<a href={signIn}>{m.landing.signIn}</a>
-						</p>
 					</div>
 				</div>
 			</div>

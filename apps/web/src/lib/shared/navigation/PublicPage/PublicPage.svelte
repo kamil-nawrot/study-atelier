@@ -4,6 +4,7 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { publicActions } from '#lib/shared/navigation/public-actions/public-actions.ts';
 
 	type Props = {
 		children: Snippet;
@@ -11,10 +12,7 @@
 
 	let { children }: Props = $props();
 
-	const signIn = resolve('/(auth)/sign-in');
-	const signUp = resolve('/(auth)/sign-up');
-	let signedIn = $derived(Boolean(page.data.session));
-	let path = $derived(page.url.pathname);
+	let actions = $derived(publicActions(page.url.pathname, Boolean(page.data.session)));
 </script>
 
 <div class="public">
@@ -22,22 +20,23 @@
 		<a class="home" href={resolve('/(auth)')}>
 			<Logo label={m.app.name} size="sm" />
 		</a>
-		<nav class="account" aria-label={m.publicHeader.label}>
-			{#if signedIn}
-				<Button href={resolve('/(app)/atelier')} variant="primary">
-					{m.publicHeader.toAtelier}
-				</Button>
-			{:else}
-				{#if path !== signIn}
-					<a href={signIn}>{m.landing.signIn}</a>
+		{#if actions !== 'none'}
+			<nav class="account" aria-label={m.publicHeader.label}>
+				{#if actions === 'atelier'}
+					<Button href={resolve('/(app)/atelier')} variant="primary">
+						{m.publicHeader.toAtelier}
+					</Button>
+				{:else}
+					<a href={resolve('/(auth)/sign-in')}>{m.landing.signIn}</a>
+					{#if actions === 'account'}
+						<span class="sign-up">
+							<Button href={resolve('/(auth)/sign-up')} variant="primary">{m.landing.signUp}</Button
+							>
+						</span>
+					{/if}
 				{/if}
-				{#if path !== signUp}
-					<span class="sign-up" class:beside={path !== signIn}>
-						<Button href={signUp} variant="primary">{m.landing.signUp}</Button>
-					</span>
-				{/if}
-			{/if}
-		</nav>
+			</nav>
+		{/if}
 	</header>
 	{@render children()}
 </div>
@@ -73,7 +72,7 @@
 		white-space: nowrap;
 	}
 
-	.beside {
+	.sign-up {
 		display: none;
 	}
 
@@ -82,7 +81,7 @@
 			padding-inline: var(--spacing-6);
 		}
 
-		.beside {
+		.sign-up {
 			display: block;
 		}
 	}
