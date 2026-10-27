@@ -149,3 +149,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0143](0143-welcome-a-new-learner-on-the-empty-wall.md)                                   | Welcome a new learner on the empty wall                                                  | accepted           |
 | [0144](0144-describe-the-app-on-a-public-start-page.md)                                   | Describe the app on a public start page                                                  | accepted           |
 | [0145](0145-show-announcements-from-a-table.md)                                           | Show announcements from a table                                                          | accepted           |
+| [0146](0146-publish-the-legal-texts-without-a-lawyers-review.md)                          | Publish the legal texts without a lawyer's review                                        | accepted           |

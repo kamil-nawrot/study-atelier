@@ -5,7 +5,7 @@
    1. **Aplikacji** – należy przez to rozumieć aplikację internetową Study Atelier, dostępną pod adresem https://studyatelier.art;
    2. **Administratorze** – należy przez to rozumieć podmiot wskazany w § 2 ust. 1;
    3. **Użytkowniku** – należy przez to rozumieć osobę fizyczną, która założyła Konto;
-   4. **Osobie** – należy przez to rozumieć Użytkownika, osobę zaproszoną do korzystania z Aplikacji, osobę kontaktującą się z Administratorem, osobę zgłaszającą treść bezprawną oraz osobę odwiedzającą Aplikację;
+   4. **Osobie** – należy przez to rozumieć Użytkownika, osobę kontaktującą się z Administratorem, osobę zgłaszającą treść bezprawną oraz osobę odwiedzającą Aplikację;
    5. **Koncie** – należy przez to rozumieć indywidualne konto Użytkownika w Aplikacji;
    6. **Atelier** – należy przez to rozumieć treści zapisane przez Użytkownika w Aplikacji, w szczególności opisy dzieł, notatki, zdjęcia, pojęcia, wydarzenia, wizyty i historię powtórek;
    7. **Regulaminie** – należy przez to rozumieć Regulamin świadczenia usług drogą elektroniczną Study Atelier.
@@ -25,9 +25,8 @@
    4. treść zgłoszeń błędów i propozycji przesłanych za pomocą Aplikacji wraz z informacją o przeglądarce, z której je wysłano;
    5. informację o wersji i dacie akceptacji Regulaminu oraz zapoznania się z Polityką prywatności.
 2. Administrator przetwarza ponadto:
-   1. adres poczty elektronicznej osoby zaproszonej do korzystania z Aplikacji;
-   2. dane zawarte w korespondencji kierowanej do Administratora oraz w zgłoszeniach treści bezprawnych;
-   3. dane techniczne każdej Osoby korzystającej z Aplikacji, w szczególności adres IP, typ przeglądarki oraz czas żądań, zapisywane w dziennikach systemów podmiotów wskazanych w § 5 ust. 1.
+   1. dane zawarte w korespondencji kierowanej do Administratora oraz w zgłoszeniach treści bezprawnych;
+   2. dane techniczne każdej Osoby korzystającej z Aplikacji, w szczególności adres IP, typ przeglądarki oraz czas żądań, zapisywane w dziennikach systemów podmiotów wskazanych w § 5 ust. 1.
 3. Podanie adresu poczty elektronicznej i hasła jest dobrowolne, lecz niezbędne do założenia Konta i korzystania z Aplikacji. Podanie pozostałych danych jest dobrowolne.
 4. Treści Atelier nie są udostępniane innym Użytkownikom. Administrator i podmioty, o których mowa w § 5 ust. 1, mają do nich dostęp wyłącznie w zakresie niezbędnym do świadczenia usług, utrzymania Aplikacji, wykonywania kopii zapasowych lub wykonania obowiązków prawnych.
 
@@ -38,7 +37,7 @@
    2. udostępniania funkcji podpowiedzi z serwisów Wikimedia oraz wczytywania obrazów z adresów wskazanych przez Użytkownika, co wiąże się z przekazaniem tym serwisom adresu IP Użytkownika i treści zapytania – na podstawie art. 6 ust. 1 lit. b RODO; funkcja jest domyślnie włączona i można ją wyłączyć w ustawieniach Aplikacji (zakładka „Źródła”);
    3. zapewnienia bezpieczeństwa Aplikacji, wykrywania i usuwania błędów, wykonywania kopii zapasowych, przeciwdziałania nadużyciom oraz rozpatrywania zgłoszeń i reklamacji – na podstawie art. 6 ust. 1 lit. f RODO, przy czym prawnie uzasadnionym interesem Administratora jest zapewnienie prawidłowego i bezpiecznego działania Aplikacji;
    4. przechowywania potwierdzenia akceptacji Regulaminu w celu wykazania zawarcia umowy – na podstawie art. 6 ust. 1 lit. f RODO;
-   5. wysłania zaproszenia do korzystania z Aplikacji oraz prowadzenia korespondencji z Osobą – na podstawie art. 6 ust. 1 lit. f RODO, przy czym prawnie uzasadnionym interesem Administratora jest udostępnianie Aplikacji i udzielanie odpowiedzi;
+   5. prowadzenia korespondencji z Osobą – na podstawie art. 6 ust. 1 lit. f RODO, przy czym prawnie uzasadnionym interesem Administratora jest udzielanie odpowiedzi;
    6. ustalenia, dochodzenia lub obrony roszczeń – na podstawie art. 6 ust. 1 lit. f RODO.
 2. Administrator nie podejmuje wobec Osób decyzji opartych wyłącznie na zautomatyzowanym przetwarzaniu, w tym profilowaniu, i nie przetwarza danych w celach marketingowych.
 
@@ -56,7 +55,7 @@
 
 1. W związku z korzystaniem z usług podmiotów wskazanych w § 5 ust. 1 dane osobowe mogą być przekazywane poza Europejski Obszar Gospodarczy, w szczególności do Stanów Zjednoczonych Ameryki i Singapuru.
 2. Podstawą przekazania jest:
-   1. w przypadku [PODMIOTY OBJĘTE DPF] – decyzja wykonawcza Komisji (UE) 2023/1795 z dnia 10 lipca 2023 r. stwierdzająca odpowiedni stopień ochrony w ramach EU-US Data Privacy Framework (art. 45 RODO);
+   1. w przypadku Cloudflare, Inc., Functional Software, Inc. (Sentry) oraz GitHub, Inc. – decyzja wykonawcza Komisji (UE) 2023/1795 z dnia 10 lipca 2023 r. stwierdzająca odpowiedni stopień ochrony w ramach EU-US Data Privacy Framework (art. 45 RODO);
    2. w przypadku Supabase Pte. Ltd., Supabase, Inc. oraz pozostałych podmiotów – standardowe klauzule umowne przyjęte decyzją wykonawczą Komisji (UE) 2021/914 (art. 46 ust. 2 lit. c RODO).
 3. Kopię standardowych klauzul umownych można uzyskać, kontaktując się z Administratorem na adres wskazany w § 2 ust. 2.
 
@@ -65,8 +64,8 @@
 1. Dane Użytkownika, w tym zgłoszenia błędów i propozycji oraz potwierdzenie akceptacji Regulaminu, są przechowywane przez okres posiadania Konta.
 2. Po usunięciu Konta dane zapisane w bazie danych są usuwane niezwłocznie, a pliki przesłane przez Użytkownika, których nie udało się usunąć od razu – nie później niż w ciągu 48 godzin.
 3. Kopie zapasowe zawierające dane osobowe są przechowywane nie dłużej niż 30 dni od dnia ich wykonania. Dane usuniętego Konta mogą pozostawać w kopiach zapasowych do upływu tego okresu. W razie odtworzenia danych z kopii zapasowej dane usuniętych Kont są niezwłocznie ponownie usuwane.
-4. Dane techniczne w dziennikach systemów podmiotów, o których mowa w § 5 ust. 1, są przechowywane nie dłużej niż [X] dni.
-5. Adres osoby zaproszonej jest przechowywany do czasu założenia przez nią Konta, nie dłużej jednak niż [X] dni od wysłania zaproszenia. Korespondencja i zgłoszenia treści bezprawnych są przechowywane do czasu załatwienia sprawy, a następnie do upływu okresu przedawnienia roszczeń z nią związanych.
+4. Dane techniczne w dziennikach systemów podmiotów, o których mowa w § 5 ust. 1, są przechowywane nie dłużej niż 30 dni.
+5. Korespondencja i zgłoszenia treści bezprawnych są przechowywane do czasu załatwienia sprawy, a następnie do upływu okresu przedawnienia roszczeń z nią związanych.
 
 ### § 8. Prawa Osób
 

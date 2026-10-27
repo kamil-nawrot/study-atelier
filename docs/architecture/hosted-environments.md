@@ -118,7 +118,7 @@ Sentry:
 
 UptimeRobot:
 
-1. Create a free account and two HTTP(s) monitors at the 5 minute interval, alerting the owner's email: `https://studyatelier.art` and `https://<production project ref>.supabase.co/auth/v1/health` with the header `apikey` set to the publishable key. Without the header Supabase answers 401, which counts as down; if the free plan has no custom headers, keep only the app monitor and record that here.
+1. Create a free account and two HTTP(s) monitors at the 5 minute interval, alerting the owner's email: `https://studyatelier.art` and `https://<production project ref>.supabase.co/rest/v1/rpc/keep_alive?apikey=<publishable key>`. The free plan sends a `HEAD` request without custom headers, so the key goes in the query string (it is public), and `keep_alive` is the endpoint that answers `HEAD` with 200 while going through the gateway, PostgREST and the database; `/auth/v1/health` answers `HEAD` with 405. The alert email is the account's address, changed in the account settings.
 2. Check the alert once: pause and resume a monitor, or point a third monitor at a missing address and delete it after the email arrives.
 
 Cloudflare Web Analytics: Workers & Pages, `study-atelier`, Metrics, turn on Web Analytics. Cloudflare adds the script to the production pages without cookies; nothing in the repository changes.
