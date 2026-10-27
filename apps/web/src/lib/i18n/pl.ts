@@ -808,6 +808,11 @@ export const pl = {
 		quotaFull: (quotaMegabytes: string): string =>
 			`Ten plik nie zmieści się w ${quotaMegabytes} MB na Twoje zdjęcia. Dodaj obraz z linku albo usuń niepotrzebne zdjęcia. Miejsce zwolni się w ciągu doby.`
 	},
+	announcements: {
+		label: 'Komunikat',
+		dismiss: 'Zamknij',
+		dismissLabel: 'Zamknij komunikat'
+	},
 	newVersion: {
 		message: 'Pojawiła się nowa wersja aplikacji. Odśwież stronę, żeby z niej skorzystać.',
 		reload: 'Odśwież'

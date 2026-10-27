@@ -736,6 +736,11 @@ begin
       join public.category_values as value on value.id = details.value_id where value.name = 'Cellar'),
     'a place missing from the catalogue gets details';
   assert (select count(*) from public.catalogue_museums) > 100, 'A does not read the museum catalogue';
+  assert security_test.denied('insert into public.announcements (body) values (''Forged'')'),
+    'A adds an announcement';
+  assert security_test.denied('update public.announcements set body = ''Changed'''),
+    'A changes an announcement';
+  assert security_test.denied('delete from public.announcements'), 'A deletes announcements';
   assert security_test.denied('insert into public.catalogue_museums (wikidata_id, name, country_code) values (''Q1'', ''Forged'', ''FR'')'),
     'A adds a museum to the catalogue';
   assert security_test.denied('update public.catalogue_museums set country_code = ''PL'''),
@@ -857,6 +862,7 @@ begin
   assert security_test.denied('select * from public.era_details'), 'anon reads era details';
   assert security_test.denied('select * from public.author_details'), 'anon reads author details';
   assert security_test.denied('select * from public.catalogue_museums'), 'anon reads the museum catalogue';
+  assert security_test.denied('select * from public.announcements'), 'anon reads the announcements';
   assert security_test.denied('select * from public.glossary_entries'), 'anon reads glossary entries';
   assert security_test.denied('select * from public.profiles'), 'anon reads profiles';
   assert (select count(*) from storage.objects) = 0, 'anon reads image objects';

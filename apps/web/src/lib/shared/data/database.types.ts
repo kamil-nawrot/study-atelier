@@ -9,6 +9,34 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          body: string;
+          created_at: string;
+          ends_at: string | null;
+          id: string;
+          starts_at: string;
+          title: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          body: string;
+          created_at?: string;
+          ends_at?: string | null;
+          id?: string;
+          starts_at?: string;
+          title?: string | null;
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          ends_at?: string | null;
+          id?: string;
+          starts_at?: string;
+          title?: string | null;
+        };
+        Relationships: [];
+      };
       artwork_field_entries: {
         Row: {
           artwork_id: string;
