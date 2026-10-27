@@ -5,6 +5,7 @@ import {
 	isLimitedTable,
 	type LimitedTable
 } from '#lib/shared/data/limits/limits.ts';
+import { reportError } from '#lib/shared/monitoring/monitoring.ts';
 import type { ServiceError } from '#lib/shared/types/service-error.ts';
 
 const LIMIT_MESSAGES: Record<LimitedTable, (limit: number) => string> = {
@@ -40,6 +41,7 @@ export function errorMessages(
 		const limit = rowLimitMessage(error);
 		if (limit) return limit;
 		if (isNetworkError(error)) return network;
+		reportError(error);
 		return m.common.unexpectedError;
 	};
 }

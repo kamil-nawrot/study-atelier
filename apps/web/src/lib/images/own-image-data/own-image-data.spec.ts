@@ -60,6 +60,7 @@ describe('uploadOwnImage', () => {
 		expect(supabase.storage.from).toHaveBeenCalledWith(IMAGES_BUCKET);
 		expect(bucket.upload).toHaveBeenCalledWith(result.path, photo, {
 			contentType: 'image/png',
+			cacheControl: '31536000',
 			upsert: false
 		});
 	});
@@ -74,7 +75,7 @@ describe('uploadOwnImage', () => {
 		expect(bucket.upload).toHaveBeenLastCalledWith(
 			(result.path as string).replace('.png', '-thumb.jpg'),
 			small,
-			{ contentType: 'image/jpeg', upsert: false }
+			{ contentType: 'image/jpeg', cacheControl: '31536000', upsert: false }
 		);
 	});
 

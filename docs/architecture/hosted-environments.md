@@ -44,6 +44,8 @@ Settings, Environments: `develop` and `production`, each with these secrets:
 
 Each environment may also have the variables `LEGAL_COMPANY`, `LEGAL_ADDRESS` and `LEGAL_NIP`: the business name, address and tax number of the provider, shown in the terms and the privacy policy ([ADR-0137](../decisions/0137-publish-the-terms-and-the-privacy-policy-and-store-their-acceptance.md)). They are public and end up in the build; without them the pages show `[FIRMA]`, `[ADRES]` and `[NIP]`.
 
+Each environment also has the variable `SENTRY_DSN`, and `production` the variables `SENTRY_ORG` and `SENTRY_PROJECT` and the secret `SENTRY_AUTH_TOKEN` ([Monitoring](#monitoring)). Without them nothing is sent to Sentry.
+
 Each environment also has the variable `TURNSTILE_SITE_KEY`: the site key of the Turnstile widget ([Captcha](#captcha)). Without it the forms show no captcha.
 
 Deployment branches: `production` allows `main` and `develop`, `develop` allows `develop`. The scheduled keep-alive, the unused images clean-up and the weekly production backup run from the default branch, `develop`, so they need access to `production`; the consequence is that code merged to `develop` can read the production secrets, and only the owner merges.
@@ -102,6 +104,55 @@ The auth forms send a Cloudflare Turnstile token to Supabase Auth ([ADR-0138](..
 4. Check on each environment: sign in, ask for a password reset, and change the password in the Konto tab.
 
 To switch the protection off, turn it off in Supabase first; the site key can stay. The local stack has no captcha, and `apps/web/.env` needs no key; to try the widget locally, set `TURNSTILE_SITE_KEY` there to the Cloudflare test key `1x00000000000000000000AA`.
+
+## Monitoring
+
+Errors go to Sentry, outages to UptimeRobot, and production page views to Cloudflare Web Analytics ([ADR-0140](../decisions/0140-report-browser-errors-to-sentry-and-watch-the-uptime.md)). All three are free plans in the owner's name; no key reaches the repository or the chat.
+
+Sentry:
+
+1. Create an organisation on the Developer plan in the EU data region, then a project `study-atelier` for the platform Svelte. Its DSN is public.
+2. Project settings, Security & Privacy: turn on "Prevent storing of IP addresses" and keep the data scrubbers on. Alerts: an email on the first event of a new issue (the default).
+3. GitHub, Settings, Environments: add the variable `SENTRY_DSN` with the DSN in `develop` and `production` (one project serves both; events carry the environment). In `production` also add the variables `SENTRY_ORG` and `SENTRY_PROJECT` (the slugs) and the secret `SENTRY_AUTH_TOKEN`: an organisation auth token from Sentry, Settings, Auth Tokens, which can upload source maps.
+4. Check after the next push to `develop`: run `setTimeout(() => { throw new Error('Sentry check') })` in the browser console of the develop app and see the issue in Sentry with the environment `develop`, the release and no IP address.
+
+UptimeRobot:
+
+1. Create a free account and two HTTP(s) monitors at the 5 minute interval, alerting the owner's email: `https://studyatelier.art` and `https://<production project ref>.supabase.co/auth/v1/health` with the header `apikey` set to the publishable key. Without the header Supabase answers 401, which counts as down; if the free plan has no custom headers, keep only the app monitor and record that here.
+2. Check the alert once: pause and resume a monitor, or point a third monitor at a missing address and delete it after the email arrives.
+
+Cloudflare Web Analytics: Workers & Pages, `study-atelier`, Metrics, turn on Web Analytics. Cloudflare adds the script to the production pages without cookies; nothing in the repository changes.
+
+## Load and limits
+
+[`supabase/scale/measure.sh`](../../supabase/scale/measure.sh) checks the database for many accounts on the local stack. In one transaction that ends with `rollback`, it applies the migrations the local database lacks, seeds 3000 learners ([`seed.sql`](../../supabase/scale/seed.sql): 10 with 460 to 1000 artworks, 290 with 50, the rest with 5, with values, images, reviews, glossary entries, events and visits) and runs the main reads and writes as the learner with 1000 artworks, with `auto_explain` printing every plan, nested ones included ([`measure.sql`](../../supabase/scale/measure.sql)). Nothing stays in the local database. Run it after a migration that adds a table or a read: `supabase/scale/measure.sh 2> plans.txt > /dev/null`.
+
+Measured on 2026-10-27 (ATL-334), with about 36,000 artworks in all:
+
+| Read or write                                                              | Time          |
+| -------------------------------------------------------------------------- | ------------- |
+| The wall (60 artworks with image, values and visit), the trash             | 17 ms, 0 ms   |
+| `value_usage`, the other usage functions, `value_page_content`             | 1 to 9 ms     |
+| `review_counts`, `review_streak`, `review_session`                         | 11, 7, 199 ms |
+| `notes_mentions`, `storage_usage`, timeline, chronicle, glossary, values   | under 3 ms    |
+| Adding an artwork, a glossary entry, a review answer (with the row limits) | 1 to 2 ms     |
+| Deleting the account of the learner with 1000 artworks                     | 2.5 s         |
+
+Every read uses an index that starts with `owner_id` or with the id of the artwork; no plan scans another learner's rows, and every policy calls `(select auth.uid())`. `review_session` grows with the size of one atelier, not with the number of accounts. Deleting an account runs one foreign key check per deleted row, which is fine once per account.
+
+Cloudflare runs the Pages worker only for a full page load: the app has no server `load` and no `+server` routes, and `/_app/immutable/*` and `/_app/version.json` are static files outside the worker. The Free plan allows 100,000 worker requests a day, that is about 100,000 page loads; navigation inside the app, polling for a new version and the images do not count.
+
+Own images: signed URLs live for 24 hours and are kept on the device, and files uploaded since ATL-334 carry `Cache-Control: max-age=31536000`, so the wall downloads each of them at most once a day per device ([ADR-0141](../decisions/0141-cache-own-images-for-a-day-on-the-device.md)). Files uploaded before keep the one-hour header of Supabase's default; they are cached for an hour within the day and need no change.
+
+## Feedback digest
+
+Every hour [`feedback-digest.yml`](../../.github/workflows/feedback-digest.yml) mails the new reports from "Zgłoś uwagę" in production to `kontakt@studyatelier.art`, which forwards to the owner ([ADR-0142](../decisions/0142-mail-new-feedback-to-the-owner-every-hour.md)). It needs, in the `production` environment:
+
+1. The secrets `SMTP_USERNAME` and `SMTP_PASSWORD`: the same Scaleway SMTP credentials as in [Auth emails](#auth-emails) (the Project ID and the secret key of `study-atelier-smtp`), or a second API key of that application.
+2. After the release that adds `feedback.notified_at`: the variable `FEEDBACK_DIGEST` set to `on`. Until then the job runs and skips the mail step.
+3. Check: send a report from the production app, run the workflow by hand (Actions, Feedback digest, Run workflow), and see one mail in the inbox and the report's `notified_at` set in the table editor.
+
+The log shows only the number of reports. Reports already in the table when the digest is turned on are mailed in the first run, at most 50 at a time.
 
 ## Supabase Advisors
 

@@ -648,6 +648,14 @@ begin
   assert not security_test.denied(
     'insert into public.feedback (kind, title) values (''idea'', ''Dark mode'')'),
     'A cannot send feedback without a description';
+  assert not security_test.denied(
+    'insert into public.feedback (kind, title, browser) values (''bug'', ''Slow wall'', ''Firefox'')'),
+    'A cannot send the browser with feedback';
+  assert security_test.denied(
+    'insert into public.feedback (kind, title, notified_at) values (''bug'', ''Forged'', now())'),
+    'A marks feedback as already sent';
+  assert security_test.denied('update public.feedback set notified_at = now()'),
+    'A marks feedback as sent';
   assert security_test.denied('select * from public.feedback'), 'A reads feedback';
   assert security_test.denied('update public.feedback set title = ''x'''), 'A updates feedback';
   assert security_test.denied('delete from public.feedback'), 'A deletes feedback';

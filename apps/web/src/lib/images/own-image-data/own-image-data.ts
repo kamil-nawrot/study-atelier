@@ -3,6 +3,7 @@ import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
 	IMAGES_BUCKET,
 	OWN_THUMBNAIL_TYPE,
+	OWN_IMAGE_CACHE_SECONDS,
 	SIGNED_URL_SECONDS,
 	ownThumbnailPath
 } from '#lib/images/bucket/bucket.ts';
@@ -16,7 +17,11 @@ export async function uploadOwnThumbnail(path: string, source: Blob): Promise<bo
 	if (!thumbnail) return false;
 	const { error } = await supabase.storage
 		.from(IMAGES_BUCKET)
-		.upload(ownThumbnailPath(path), thumbnail, { contentType: OWN_THUMBNAIL_TYPE, upsert: false });
+		.upload(ownThumbnailPath(path), thumbnail, {
+			contentType: OWN_THUMBNAIL_TYPE,
+			cacheControl: String(OWN_IMAGE_CACHE_SECONDS),
+			upsert: false
+		});
 	return !error;
 }
 
@@ -26,9 +31,11 @@ export async function uploadOwnImage(file: File): Promise<OwnImageUpload> {
 	if (!ownerId) return { error: m.ownImageErrors.uploadFailed };
 
 	const path = ownImagePath(ownerId, file);
-	const { error } = await supabase.storage
-		.from(IMAGES_BUCKET)
-		.upload(path, file, { contentType: file.type, upsert: false });
+	const { error } = await supabase.storage.from(IMAGES_BUCKET).upload(path, file, {
+		contentType: file.type,
+		cacheControl: String(OWN_IMAGE_CACHE_SECONDS),
+		upsert: false
+	});
 	if (error)
 		return { error: (await quotaMessage(error, file.size)) ?? ownImageErrorMessage(error) };
 	await uploadOwnThumbnail(path, file);
