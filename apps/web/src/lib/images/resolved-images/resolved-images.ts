@@ -64,6 +64,7 @@ export class ResolvedImages {
 	}
 
 	rememberSignedUrls(urls: Map<string, string>, signedAt: number): void {
+		if (urls.size === 0) return;
 		for (const [path, url] of urls) this.#signedUrls.set(path, { url, signedAt });
 		this.#store(signedAt);
 	}
@@ -76,9 +77,12 @@ export class ResolvedImages {
 
 	#store(now: number): void {
 		if (!this.#learner) return;
+		const current = storedSignedUrls();
 		const urls: Record<string, SignedImageUrl> = {};
-		for (const [path, signed] of this.#signedUrls) {
-			if (isFresh(signed, now)) urls[path] = signed;
+		const others = current?.learner === this.#learner ? Object.entries(current.urls) : [];
+		for (const [path, signed] of [...others, ...this.#signedUrls]) {
+			const known = urls[path];
+			if (isFresh(signed, now) && (!known || known.signedAt < signed.signedAt)) urls[path] = signed;
 		}
 		const stored: StoredSignedUrls = { learner: this.#learner, urls };
 		writeStored('local', SIGNED_URLS_KEY, JSON.stringify(stored));

@@ -1,14 +1,23 @@
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import type { Announcement } from '#lib/shell/announcements/announcements.ts';
 
-export async function currentAnnouncements(): Promise<Announcement[]> {
+let loaded: Promise<Announcement[] | undefined> | undefined;
+
+async function fetchAnnouncements(): Promise<Announcement[] | undefined> {
 	try {
 		const { data, error } = await supabase
 			.from('announcements')
 			.select('id, title, body')
 			.order('starts_at', { ascending: false });
-		return error || !data ? [] : data;
+		return error || !data ? undefined : data;
 	} catch {
-		return [];
+		return undefined;
 	}
+}
+
+export async function currentAnnouncements(): Promise<Announcement[]> {
+	loaded ??= fetchAnnouncements();
+	const announcements = await loaded;
+	if (!announcements) loaded = undefined;
+	return announcements ?? [];
 }

@@ -15,6 +15,9 @@ const LIMIT_MESSAGES: Record<LimitedTable, (limit: number) => string> = {
 	timeline_events: m.limits.timelineEvents,
 	visits: m.limits.visits,
 	artwork_fields: m.limits.artworkFields,
+	artwork_values: m.limits.artworkValues,
+	visit_artworks: m.limits.visitArtworks,
+	artwork_field_entries: m.limits.artworkFieldEntries,
 	review_log: m.limits.reviewAnswers,
 	feedback: m.limits.feedback
 };

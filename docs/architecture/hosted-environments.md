@@ -152,6 +152,8 @@ Every hour [`feedback-digest.yml`](../../.github/workflows/feedback-digest.yml) 
 2. After the release that adds `feedback.notified_at`: the variable `FEEDBACK_DIGEST` set to `on`. Until then the job runs and skips the mail step.
 3. Check: send a report from the production app, run the workflow by hand (Actions, Feedback digest, Run workflow), and see one mail in the inbox and the report's `notified_at` set in the table editor.
 
+The digest marks the reports as mailed after the mail is sent, so a run that fails in between mails them again in the next hour; a report is never lost, but may come twice. The scheduled jobs use the environments with `deployment: false`, so they add no deployments to its history.
+
 The log shows only the number of reports. Reports already in the table when the digest is turned on are mailed in the first run, at most 50 at a time.
 
 ## Supabase Advisors

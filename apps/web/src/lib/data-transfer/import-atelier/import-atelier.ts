@@ -7,6 +7,12 @@ import {
 } from '#lib/data-transfer/import-data/import-data.ts';
 import { parseArchive } from '#lib/data-transfer/parse/parse.ts';
 import { loadStorageUsage } from '#lib/images/storage-usage-data/storage-usage-data.ts';
+import {
+	DAILY_LIMITED_TABLES,
+	ROW_LIMITS,
+	isLimitedTable
+} from '#lib/shared/data/limits/limits.ts';
+import type { ExportRow } from '#lib/data-transfer/types/export-row.ts';
 import type { ParseFailure } from '#lib/data-transfer/types/parse-failure.ts';
 import { remapAtelier } from '#lib/data-transfer/remap/remap.ts';
 import type { ImportProgress } from '#lib/data-transfer/types/import-progress.ts';
@@ -20,6 +26,16 @@ const FAILURES: Record<ParseFailure, () => string> = {
 	newer: () => m.settings.data.importNewer,
 	broken: () => m.settings.data.importBroken
 };
+
+function tooManyRows(payload: Record<string, ExportRow[]>): string | undefined {
+	for (const [table, rows] of Object.entries(payload)) {
+		if (!isLimitedTable(table) || DAILY_LIMITED_TABLES.has(table)) continue;
+		if (rows.length > ROW_LIMITS[table]) {
+			return m.settings.data.importTooMany(m.settings.data.importTables[table], ROW_LIMITS[table]);
+		}
+	}
+	return undefined;
+}
 
 export async function importArchive(
 	file: Blob,
@@ -36,6 +52,9 @@ export async function importArchive(
 		parsed.archive.images,
 		ownerId
 	);
+
+	const tooMany = tooManyRows(payload);
+	if (tooMany) return { error: tooMany };
 
 	const usage = await loadStorageUsage();
 	const uploadBytes = uploads.reduce((sum, upload) => sum + upload.bytes.byteLength, 0);

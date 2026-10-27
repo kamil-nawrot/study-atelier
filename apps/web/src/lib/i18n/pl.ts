@@ -345,6 +345,21 @@ export const pl = {
 			importNotEmpty: 'Atelier nie jest już puste, więc nic nie zostało wczytane.',
 			importLimit:
 				'Ta kopia nie mieści się w limitach jednego atelier, więc nic nie zostało wczytane.',
+			importTooMany: (what: string, limit: number): string =>
+				`Ta kopia ma więcej ${what}, niż zmieści jedno atelier (${limit}), więc nic nie zostało wczytane.`,
+			importTables: {
+				artworks: 'dzieł',
+				category_values: 'wartości w Kartotece',
+				glossary_entries: 'pojęć w Słowniczku',
+				timeline_events: 'wydarzeń w Kalendarium',
+				visits: 'wizyt w Kronice',
+				artwork_fields: 'własnych pól',
+				artwork_values: 'wartości przypisanych do dzieł',
+				visit_artworks: 'dzieł przypisanych do wizyt',
+				artwork_field_entries: 'wpisów we własnych polach',
+				review_log: 'odpowiedzi w powtórkach',
+				feedback: 'zgłoszeń'
+			},
 			storageTitle: 'Miejsce na zdjęcia',
 			storageUsage: (usedMegabytes: string, quotaMegabytes: string): string =>
 				`Twoje zdjęcia zajmują ${usedMegabytes} MB z ${quotaMegabytes} MB.`,
@@ -852,6 +867,12 @@ export const pl = {
 			`W Kronice zmieści się ${limit} wizyt. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
 		artworkFields: (limit: number): string =>
 			`W atelier zmieści się ${limit} własnych pól. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		artworkValues: (limit: number): string =>
+			`Dzieła w atelier mogą mieć razem ${limit} wartości z Kartoteki. Usuń z dzieł te, których już nie potrzebujesz, żeby dodać nowe.`,
+		visitArtworks: (limit: number): string =>
+			`Wizyty w Kronice mogą mieć razem ${limit} obejrzanych dzieł. Usuń z wizyt te, których już nie potrzebujesz, żeby dodać nowe.`,
+		artworkFieldEntries: (limit: number): string =>
+			`Dzieła w atelier mogą mieć razem ${limit} wpisów we własnych polach. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
 		reviewAnswers: (limit: number): string =>
 			`W ciągu doby zmieści się ${limit} odpowiedzi w powtórkach. Zrób przerwę i wróć później.`,
 		feedback: (limit: number): string =>

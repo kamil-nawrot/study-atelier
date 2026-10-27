@@ -1186,6 +1186,10 @@ export type Database = {
         Args: { target_value: string };
         Returns: undefined;
       };
+      deleted_account_images: {
+        Args: Record<PropertyKey, never>;
+        Returns: string[];
+      };
       import_atelier: { Args: { payload: Json }; Returns: Json };
       keep_alive: { Args: Record<PropertyKey, never>; Returns: string };
       merge_category_values: {
@@ -1279,6 +1283,7 @@ export type Database = {
         Args: { period_ids: string[]; target_style: string };
         Returns: undefined;
       };
+      storage_has_room: { Args: { adding: number }; Returns: boolean };
       storage_usage: {
         Args: Record<PropertyKey, never>;
         Returns: {

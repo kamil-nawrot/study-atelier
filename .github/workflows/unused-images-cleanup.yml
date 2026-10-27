@@ -19,7 +19,9 @@ jobs:
       fail-fast: false
       matrix:
         environment: ${{ fromJSON(github.event_name == 'schedule' && '["develop","production"]' || github.ref_name == 'main' && '["production"]' || '["develop"]') }}
-    environment: ${{ matrix.environment }}
+    environment:
+      name: ${{ matrix.environment }}
+      deployment: false
     steps:
       - uses: actions/checkout@v7
 

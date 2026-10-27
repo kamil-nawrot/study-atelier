@@ -2,10 +2,12 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { MAX_REMOVALS, cleanUp } from './clean-up-unused-images.mjs';
 
-function fakeApi(count) {
+function fakeApi(count, deletedCount = 0) {
 	const removed = [];
 	return {
 		removed,
+		deletedAccountImages: async () =>
+			Array.from({ length: deletedCount }, (_, index) => `gone/${index}.jpg`),
 		unusedImages: async () => Array.from({ length: count }, (_, index) => `owner/${index}.jpg`),
 		remove: async (_bucket, paths) => removed.push(...paths)
 	};
@@ -31,6 +33,13 @@ describe('cleanUp', () => {
 
 		await cleanUp(api, { allowMassDelete: true, log: () => {} });
 		assert.equal(api.removed.length, MAX_REMOVALS + 1);
+	});
+
+	it('removes the images of deleted accounts without counting them towards the limit', async () => {
+		const api = fakeApi(MAX_REMOVALS, MAX_REMOVALS + 1);
+
+		assert.deepEqual(await cleanUp(api, { log: () => {} }), { removed: 2 * MAX_REMOVALS + 1 });
+		assert.equal(api.removed.length, 2 * MAX_REMOVALS + 1);
 	});
 
 	it('calls no removal when nothing is unused', async () => {
