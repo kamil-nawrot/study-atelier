@@ -36,5 +36,17 @@ export const variables = defineEnvVars({
 		static: true,
 		schema: (value) => value || undefined,
 		description: 'Cloudflare Turnstile site key; without it the auth forms show no captcha'
+	},
+	SENTRY_DSN: {
+		public: true,
+		static: true,
+		schema: (value) => value || undefined,
+		description: 'Sentry DSN of the web app; without it no error is sent'
+	},
+	SENTRY_ENVIRONMENT: {
+		public: true,
+		static: true,
+		schema: (value) => value || undefined,
+		description: 'Environment name the errors are sent with: develop or production'
 	}
 });

@@ -1,4 +1,5 @@
 import { m } from '#lib/i18n/i18n.ts';
+import { reportError } from '#lib/shared/monitoring/monitoring.ts';
 
 type AuthErrorLike = {
 	code?: string;
@@ -22,5 +23,6 @@ export function authErrorMessage(error: AuthErrorLike): string {
 	if (error.code && error.code in messagesByCode) return messagesByCode[error.code];
 	if (error.name === 'AuthRetryableFetchError') return m.common.network;
 	if (error.status === 429) return m.authErrors.rateLimited;
+	reportError(error);
 	return m.common.unexpectedError;
 }

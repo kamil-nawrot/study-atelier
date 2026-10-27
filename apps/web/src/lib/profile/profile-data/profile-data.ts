@@ -1,6 +1,6 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { m } from '#lib/i18n/i18n.ts';
-import { IMAGES_BUCKET } from '#lib/images/bucket/bucket.ts';
+import { IMAGES_BUCKET, OWN_IMAGE_CACHE_SECONDS } from '#lib/images/bucket/bucket.ts';
 import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import { quotaMessage } from '#lib/images/storage-usage-data/storage-usage-data.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
@@ -39,9 +39,11 @@ async function uploadAvatar(image: Blob): Promise<{ path: string } | { error: st
 	const ownerId = data.session?.user.id;
 	if (!ownerId) return { error: profileErrorMessage({}) };
 	const path = avatarPathOf(ownerId);
-	const { error } = await supabase.storage
-		.from(IMAGES_BUCKET)
-		.upload(path, image, { contentType: image.type, upsert: false });
+	const { error } = await supabase.storage.from(IMAGES_BUCKET).upload(path, image, {
+		contentType: image.type,
+		cacheControl: String(OWN_IMAGE_CACHE_SECONDS),
+		upsert: false
+	});
 	if (error) {
 		return {
 			error:

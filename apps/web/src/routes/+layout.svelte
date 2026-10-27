@@ -8,6 +8,8 @@
 	import favicon from '#lib/assets/favicon.svg';
 	import { SESSION_DEPENDENCY, watchSession } from '#lib/auth/session-data/session-data.ts';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { resolvedImages } from '#lib/images/resolved-images/resolved-images.ts';
+	import { identifyLearner } from '#lib/shared/monitoring/monitoring.ts';
 	import {
 		currentBackPlace,
 		forgetRestoredBackPlace,
@@ -26,6 +28,9 @@
 	afterNavigate(recordArrival);
 	onNavigate((navigation) => loadNewVersion(navigation, updated.current));
 	snapshot({ id: 'back-place', capture: currentBackPlace, restore: setBackPlace });
+
+	$effect(() => resolvedImages.forLearner(data.session?.user.id));
+	$effect(() => identifyLearner(data.session?.user.id));
 
 	onMount(() => {
 		hideLoadingScreen();

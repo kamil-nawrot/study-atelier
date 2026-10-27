@@ -36,7 +36,7 @@
 1. Dane osobowe są przetwarzane w celu:
    1. zawarcia i wykonania umowy o świadczenie usług drogą elektroniczną na warunkach Regulaminu, w tym prowadzenia Konta i Atelier oraz przesyłania wiadomości dotyczących Konta – na podstawie art. 6 ust. 1 lit. b RODO;
    2. udostępniania funkcji podpowiedzi z serwisów Wikimedia oraz wczytywania obrazów z adresów wskazanych przez Użytkownika, co wiąże się z przekazaniem tym serwisom adresu IP Użytkownika i treści zapytania – na podstawie art. 6 ust. 1 lit. b RODO; funkcja jest domyślnie włączona i można ją wyłączyć w ustawieniach Aplikacji (zakładka „Źródła”);
-   3. zapewnienia bezpieczeństwa Aplikacji, wykonywania kopii zapasowych, przeciwdziałania nadużyciom oraz rozpatrywania zgłoszeń i reklamacji – na podstawie art. 6 ust. 1 lit. f RODO, przy czym prawnie uzasadnionym interesem Administratora jest zapewnienie prawidłowego i bezpiecznego działania Aplikacji;
+   3. zapewnienia bezpieczeństwa Aplikacji, wykrywania i usuwania błędów, wykonywania kopii zapasowych, przeciwdziałania nadużyciom oraz rozpatrywania zgłoszeń i reklamacji – na podstawie art. 6 ust. 1 lit. f RODO, przy czym prawnie uzasadnionym interesem Administratora jest zapewnienie prawidłowego i bezpiecznego działania Aplikacji;
    4. przechowywania potwierdzenia akceptacji Regulaminu w celu wykazania zawarcia umowy – na podstawie art. 6 ust. 1 lit. f RODO;
    5. wysłania zaproszenia do korzystania z Aplikacji oraz prowadzenia korespondencji z Osobą – na podstawie art. 6 ust. 1 lit. f RODO, przy czym prawnie uzasadnionym interesem Administratora jest udostępnianie Aplikacji i udzielanie odpowiedzi;
    6. ustalenia, dochodzenia lub obrony roszczeń – na podstawie art. 6 ust. 1 lit. f RODO.
@@ -46,9 +46,10 @@
 
 1. Dane osobowe mogą być powierzane, na podstawie umowy powierzenia przetwarzania danych, następującym podmiotom przetwarzającym je w imieniu Administratora:
    1. Supabase Pte. Ltd. (Singapur) wraz z Supabase, Inc. (USA) – w zakresie bazy danych, uwierzytelniania i przechowywania plików; dane są przechowywane w centrum danych we Frankfurcie nad Menem, przy czym personel i podwykonawcy tego podmiotu mogą mieć do nich dostęp z państw spoza Europejskiego Obszaru Gospodarczego;
-   2. Cloudflare, Inc. (USA) – w zakresie hostingu Aplikacji, ochrony formularzy logowania, rejestracji, odzyskiwania hasła i potwierdzania hasła w ustawieniach przed automatycznymi nadużyciami (usługa Cloudflare Turnstile) oraz przekazywania korespondencji kierowanej na adres kontakt@studyatelier.art;
+   2. Cloudflare, Inc. (USA) – w zakresie hostingu Aplikacji, ochrony formularzy logowania, rejestracji, odzyskiwania hasła i potwierdzania hasła w ustawieniach przed automatycznymi nadużyciami (usługa Cloudflare Turnstile), pomiaru liczby wyświetleń stron bez plików cookies (usługa Cloudflare Web Analytics) oraz przekazywania korespondencji kierowanej na adres kontakt@studyatelier.art;
    3. Scaleway SAS (Paryż, Francja) – w zakresie wysyłania wiadomości poczty elektronicznej dotyczących Konta, odpowiedzi Administratora oraz przekazywania Administratorowi zgłoszeń błędów i propozycji; dane są przechowywane w Unii Europejskiej;
-   4. GitHub, Inc. (USA) – w zakresie wykonywania kopii zapasowych oraz przekazywania Administratorowi zgłoszeń błędów i propozycji; dane są przetwarzane na infrastrukturze GitHub w czasie tworzenia kopii lub przekazywania zgłoszenia, a następnie przechowywane wyłącznie w postaci zaszyfrowanej kluczem, do którego dostęp ma tylko Administrator.
+   4. Functional Software, Inc., działająca jako Sentry (USA) – w zakresie zbierania raportów o błędach Aplikacji; raport obejmuje opis błędu, adres strony bez parametrów, typ przeglądarki i systemu, wersję Aplikacji oraz identyfikator Konta, nie obejmuje treści Atelier, adresu poczty elektronicznej ani adresu IP; dane są przechowywane w Unii Europejskiej;
+   5. GitHub, Inc. (USA) – w zakresie wykonywania kopii zapasowych oraz przekazywania Administratorowi zgłoszeń błędów i propozycji; dane są przetwarzane na infrastrukturze GitHub w czasie tworzenia kopii lub przekazywania zgłoszenia, a następnie przechowywane wyłącznie w postaci zaszyfrowanej kluczem, do którego dostęp ma tylko Administrator.
 2. Korzystając z funkcji, o której mowa w § 4 ust. 1 pkt 2, przeglądarka Użytkownika łączy się bezpośrednio z serwisami Wikimedia Foundation, Inc. (Wikipedia, Wikidata, Wikimedia Commons, Wikisłownik), a w przypadku obrazów dodanych z odnośnika – z serwerem wskazanym przez Użytkownika. Podmioty te przetwarzają adres IP Użytkownika i treść zapytania na zasadach określonych we własnych politykach prywatności. Serwery Wikimedia Foundation, Inc. mogą znajdować się poza EOG, w tym w Stanach Zjednoczonych Ameryki. Korespondencja kierowana na adres kontakt@studyatelier.art jest przechowywana w skrzynce poczty elektronicznej Administratora prowadzonej przez Google Ireland Limited.
 
 ### § 6. Przekazywanie danych poza Europejski Obszar Gospodarczy
@@ -83,7 +84,8 @@
 
 1. Aplikacja zapisuje w pamięci przeglądarki Użytkownika (localStorage i sessionStorage) wyłącznie dane niezbędne do utrzymania sesji logowania oraz zapamiętania ustawień wyświetlania, w zakresie dozwolonym bez zgody na podstawie art. 399 ust. 3 ustawy z dnia 12 lipca 2024 r. – Prawo komunikacji elektronicznej.
 2. Na stronach z formularzami, o których mowa w § 5 ust. 1 pkt 2, skrypt Cloudflare Turnstile odczytuje z przeglądarki informacje techniczne (w szczególności adres IP, typ i ustawienia przeglądarki oraz sposób interakcji ze stroną) wyłącznie w celu odróżnienia Osoby od automatu, w zakresie niezbędnym do bezpiecznego świadczenia usługi, o którą Osoba wnosi, na podstawie art. 399 ust. 3 ustawy, o której mowa w ust. 1.
-3. Aplikacja nie wykorzystuje plików cookies ani innych technologii w celach analitycznych, reklamowych lub śledzących.
+3. W razie błędu skrypt Sentry przesyła raport, o którym mowa w § 5 ust. 1 pkt 4, a skrypt Cloudflare Web Analytics przesyła informację o wyświetleniu strony (adres strony, typ przeglądarki i czas ładowania). Żaden z nich nie zapisuje niczego w pamięci przeglądarki ani nie rozpoznaje Osoby między wizytami.
+4. Aplikacja nie wykorzystuje plików cookies ani innych technologii w celach reklamowych lub śledzących.
 
 ### § 10. Zmiany Polityki prywatności
 
