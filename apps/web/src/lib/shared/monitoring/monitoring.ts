@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/svelte';
-import { asError, scrubBreadcrumb, scrubEvent } from '#lib/shared/monitoring/scrub.ts';
+import { asError, scrubBreadcrumb, scrubEvent } from '#lib/shared/monitoring/scrub/scrub.ts';
 
 type MonitoringOptions = {
 	dsn: string | undefined;
