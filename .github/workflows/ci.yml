@@ -63,8 +63,21 @@ jobs:
       - name: Type check
         run: pnpm --filter @study-atelier/web check
 
+      - name: Read the Playwright version
+        id: playwright
+        run: echo "version=$(pnpm --filter @study-atelier/web exec playwright --version | cut -d ' ' -f 2)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the Playwright browser
+        id: playwright-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
       - name: Install Playwright Chromium
-        run: pnpm --filter @study-atelier/web exec playwright install --with-deps --only-shell chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        timeout-minutes: 5
+        run: pnpm --filter @study-atelier/web exec playwright install --only-shell chromium
 
       - name: Unit and component tests with coverage
         run: pnpm --filter @study-atelier/web test:coverage
