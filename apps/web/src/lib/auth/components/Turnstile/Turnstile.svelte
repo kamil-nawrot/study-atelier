@@ -10,11 +10,14 @@
 
 	let { sitekey = TURNSTILE_SITE_KEY, timeout = 15000 }: Props = $props();
 
+	const RETRY_MS = 1500;
+
 	let container = $state<HTMLDivElement>();
 	let interactive = $state(false);
 	let api: TurnstileApi | undefined;
 	let widgetId: string | undefined;
 	let token: string | undefined;
+	let failed = false;
 	let waiting: ((value: string | undefined) => void)[] = [];
 
 	function settle(value: string | undefined): void {
@@ -39,6 +42,7 @@
 					language: locale,
 					callback: (value) => {
 						token = value;
+						failed = false;
 						settle(value);
 					},
 					'expired-callback': () => {
@@ -46,8 +50,9 @@
 					},
 					'error-callback': () => {
 						token = undefined;
-						settle(undefined);
+						failed = true;
 					},
+					'retry-interval': RETRY_MS,
 					'before-interactive-callback': () => {
 						interactive = true;
 					},
@@ -68,6 +73,10 @@
 	export function getToken(): Promise<string | undefined> {
 		if (!sitekey) return Promise.resolve(undefined);
 		if (token) return Promise.resolve(token);
+		if (failed && api && widgetId) {
+			failed = false;
+			api.reset(widgetId);
+		}
 		return new Promise((resolve) => {
 			const done = (value: string | undefined): void => {
 				clearTimeout(timer);
@@ -83,6 +92,7 @@
 
 	export function reset(): void {
 		token = undefined;
+		failed = false;
 		if (api && widgetId) api.reset(widgetId);
 	}
 </script>
