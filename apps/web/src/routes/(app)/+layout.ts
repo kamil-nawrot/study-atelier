@@ -36,10 +36,9 @@ async function reviewWaiting(newPerDay: number): Promise<number> {
 
 export const load: LayoutLoad = async ({ parent, depends }): Promise<AppLayoutData> => {
 	depends(REVIEW_COUNTS_DEPENDENCY, PROFILE_DEPENDENCY, PREFERENCES_DEPENDENCY);
-	const preferences = loadPreferences();
 	const { session } = await parent();
 	if (!session) redirect(307, resolve('/(auth)/sign-in'));
-	const loaded = (await preferences).preferences;
+	const loaded = (await loadPreferences()).preferences;
 	applyAutoFetch(loaded);
 	return {
 		session,
