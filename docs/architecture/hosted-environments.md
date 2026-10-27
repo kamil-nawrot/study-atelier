@@ -44,6 +44,8 @@ Settings, Environments: `develop` and `production`, each with these secrets:
 
 Each environment may also have the variables `LEGAL_COMPANY`, `LEGAL_ADDRESS` and `LEGAL_NIP`: the business name, address and tax number of the provider, shown in the terms and the privacy policy ([ADR-0137](../decisions/0137-publish-the-terms-and-the-privacy-policy-and-store-their-acceptance.md)). They are public and end up in the build; without them the pages show `[FIRMA]`, `[ADRES]` and `[NIP]`.
 
+Each environment also has the variable `SENTRY_DSN`, and `production` the variables `SENTRY_ORG` and `SENTRY_PROJECT` and the secret `SENTRY_AUTH_TOKEN` ([Monitoring](#monitoring)). Without them nothing is sent to Sentry.
+
 Each environment also has the variable `TURNSTILE_SITE_KEY`: the site key of the Turnstile widget ([Captcha](#captcha)). Without it the forms show no captcha.
 
 Deployment branches: `production` allows `main` and `develop`, `develop` allows `develop`. The scheduled keep-alive, the unused images clean-up and the weekly production backup run from the default branch, `develop`, so they need access to `production`; the consequence is that code merged to `develop` can read the production secrets, and only the owner merges.
@@ -102,6 +104,24 @@ The auth forms send a Cloudflare Turnstile token to Supabase Auth ([ADR-0138](..
 4. Check on each environment: sign in, ask for a password reset, and change the password in the Konto tab.
 
 To switch the protection off, turn it off in Supabase first; the site key can stay. The local stack has no captcha, and `apps/web/.env` needs no key; to try the widget locally, set `TURNSTILE_SITE_KEY` there to the Cloudflare test key `1x00000000000000000000AA`.
+
+## Monitoring
+
+Errors go to Sentry, outages to UptimeRobot, and production page views to Cloudflare Web Analytics ([ADR-0140](../decisions/0140-report-browser-errors-to-sentry-and-watch-the-uptime.md)). All three are free plans in the owner's name; no key reaches the repository or the chat.
+
+Sentry:
+
+1. Create an organisation on the Developer plan in the EU data region, then a project `study-atelier` for the platform Svelte. Its DSN is public.
+2. Project settings, Security & Privacy: turn on "Prevent storing of IP addresses" and keep the data scrubbers on. Alerts: an email on the first event of a new issue (the default).
+3. GitHub, Settings, Environments: add the variable `SENTRY_DSN` with the DSN in `develop` and `production` (one project serves both; events carry the environment). In `production` also add the variables `SENTRY_ORG` and `SENTRY_PROJECT` (the slugs) and the secret `SENTRY_AUTH_TOKEN`: an organisation auth token from Sentry, Settings, Auth Tokens, which can upload source maps.
+4. Check after the next push to `develop`: run `setTimeout(() => { throw new Error('Sentry check') })` in the browser console of the develop app and see the issue in Sentry with the environment `develop`, the release and no IP address.
+
+UptimeRobot:
+
+1. Create a free account and two HTTP(s) monitors at the 5 minute interval, alerting the owner's email: `https://studyatelier.art` and `https://<production project ref>.supabase.co/auth/v1/health` with the header `apikey` set to the publishable key. Without the header Supabase answers 401, which counts as down; if the free plan has no custom headers, keep only the app monitor and record that here.
+2. Check the alert once: pause and resume a monitor, or point a third monitor at a missing address and delete it after the email arrives.
+
+Cloudflare Web Analytics: Workers & Pages, `study-atelier`, Metrics, turn on Web Analytics. Cloudflare adds the script to the production pages without cookies; nothing in the repository changes.
 
 ## Supabase Advisors
 
