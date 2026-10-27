@@ -152,14 +152,43 @@ export const pl = {
 		requestNew: 'Wyślij nowy link'
 	},
 	landing: {
+		pageTitle: 'Study Atelier – atelier do nauki historii sztuki',
+		metaDescription:
+			'Study Atelier to miejsce, w którym uczysz się historii sztuki, budując własną kolekcję dzieł.',
+		accountLabel: 'Konto',
 		title: 'Atelier do nauki historii sztuki',
-		lead: 'Twoja własna kolekcja dzieł, budowana w trakcie nauki.',
-		description: [
-			'Każde dzieło dodajesz do swojej kolekcji samodzielnie i opisujesz według własnych preferencji. Dzięki temu możesz uczyć się i zapamiętywać szczegóły dotyczące dzieł sztuki, jednocześnie budując swoją kolekcję.',
-			'Z czasem powstaje z tego Twoja osobista baza wiedzy, do której możesz zawsze wrócić i rozwijać ją w dowolnym kierunku.'
-		],
+		text: 'Study Atelier to miejsce, w którym uczysz się historii sztuki, budując własną kolekcję dzieł. Zapisujesz dzieła, które poznajesz w muzeum, na wykładzie albo w książce, opisujesz je po swojemu i łączysz ze sobą. Z czasem powstaje z tego osobista baza wiedzy, do której zawsze możesz wrócić, a krótkie codzienne powtórki pomagają zapamiętać to, czego się uczysz.',
+		haveAccount: 'Masz już konto?',
 		signIn: 'Zaloguj się',
-		signUp: 'Załóż konto'
+		signUp: 'Załóż konto',
+		modulesTitle: 'Co znajdziesz w atelier',
+		modules: [
+			{
+				title: 'Atelier',
+				text: 'Wszystkie zebrane przez Ciebie dzieła prezentowane w formie estetycznej kolekcji. Możesz je dowolnie filtrować, a także grupować według epok i stylów, dzięki czemu Twoja kolekcja może stać się wygodnym źródłem wiedzy o sztuce.'
+			},
+			{
+				title: 'Kartoteka',
+				text: 'Gromadzi wszystkie wartości, których używasz do opisywania dzieł: epoki, style, autorów i miejsca. Pozwala nimi zarządzać i wprowadzać dodatkowe szczegóły, aby łatwo poszerzać swoją wiedzę o dodatkowe konteksty.'
+			},
+			{
+				title: 'Słowniczek',
+				text: 'Wszystkie pojęcia i postaci, które warto zapamiętać, możesz dodać do swojego osobistego słownika wraz z definicją. Dzięki temu będziesz w stanie lepiej je zapamiętać, a Twoje notatki o dziełach sztuki wzbogacą się o dodatkowe informacje.'
+			},
+			{
+				title: 'Kalendarium',
+				text: 'Jeśli chcesz zrozumieć sztukę w kontekście historycznym, możesz skorzystać z własnego kalendarium i nakładać na interaktywną oś czasu dzieła oraz wydarzenia i okresy historyczne, by badać wpływ dziejów świata na sztukę i odwrotnie.'
+			},
+			{
+				title: 'Kronika',
+				text: 'Twoje atelier może też posłużyć jako dziennik Twoich spotkań ze sztuką – możesz skorzystać z kroniki i zapisywać w niej swoje wizyty w muzeach czy galeriach. Dzięki temu Twoja kolekcja zyska dodatkowy, osobisty wymiar.'
+			},
+			{
+				title: 'Powtórki',
+				text: 'Jeśli chcesz efektywnie utrwalać swoją wiedzę o sztuce, możesz zmierzyć się z codziennymi wyzwaniami powtórkowymi, w których klasyczne fiszki i różnorodne quizy przeplatają się tak, by każde dzieło wracało do Ciebie wtedy, gdy zaczynasz je zapominać.'
+			}
+		],
+		contact: 'kontakt@studyatelier.art'
 	},
 	menu: {
 		label: 'Menu',
