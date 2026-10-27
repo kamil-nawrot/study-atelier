@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { HandleClientError } from '@sveltejs/kit';
+import type { HandleClientError } from '@sveltejs/kit/hooks';
 import { reportError } from '#lib/shared/monitoring/monitoring.ts';
 import { handleError } from './hooks.client.ts';
 
