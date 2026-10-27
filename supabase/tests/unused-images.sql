@@ -40,6 +40,14 @@ begin
     when insufficient_privilege then refused := true;
   end;
   assert refused, 'a signed-in learner can list the unused images';
+
+  refused := false;
+  begin
+    perform public.deleted_account_images();
+  exception
+    when insufficient_privilege then refused := true;
+  end;
+  assert refused, 'a signed-in learner can list the files of deleted accounts';
 end;
 $$;
 
@@ -57,7 +65,8 @@ insert into storage.objects (bucket_id, name, created_at) values
   ('artwork-images', '00000000-0000-0000-0000-00000000000a/avatar-22222222-2222-2222-2222-222222222222.jpg', now() - interval '3 days'),
   ('artwork-images', '00000000-0000-0000-0000-00000000000a/left.jpg', now() - interval '2 days'),
   ('artwork-images', '00000000-0000-0000-0000-00000000000a/left-thumb.jpg', now() - interval '2 days'),
-  ('artwork-images', '00000000-0000-0000-0000-00000000000a/fresh.jpg', now() - interval '1 hour');
+  ('artwork-images', '00000000-0000-0000-0000-00000000000a/fresh.jpg', now() - interval '1 hour'),
+  ('artwork-images', '00000000-0000-0000-0000-00000000000d/gone.jpg', now() - interval '1 hour');
 
 set local role service_role;
 
@@ -66,6 +75,9 @@ begin
   assert (select array_agg(path order by path) from public.unused_images() as unused (path)) =
     '{00000000-0000-0000-0000-00000000000a/avatar-22222222-2222-2222-2222-222222222222.jpg,00000000-0000-0000-0000-00000000000a/left-thumb.jpg,00000000-0000-0000-0000-00000000000a/left.jpg}',
     'unused_images does not list exactly the unused files older than a day, or lists the avatar in use';
+  assert (select array_agg(path) from public.deleted_account_images() as deleted (path)) =
+    '{00000000-0000-0000-0000-00000000000d/gone.jpg}',
+    'deleted_account_images does not list exactly the files of accounts that no longer exist';
 end;
 $$;
 

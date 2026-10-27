@@ -62,6 +62,9 @@ export function storageApi({ url, key, fetch = globalThis.fetch }) {
 	}
 
 	return {
+		async deletedAccountImages() {
+			return (await json('POST', '/rest/v1/rpc/deleted_account_images', {})).json();
+		},
 		async unusedImages() {
 			return (await json('POST', '/rest/v1/rpc/unused_images', {})).json();
 		},

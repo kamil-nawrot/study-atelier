@@ -5,10 +5,13 @@ export const BUCKET = 'artwork-images';
 export const MAX_REMOVALS = 100;
 
 export async function cleanUp(api, { allowMassDelete = false, log = console.log } = {}) {
+	const deleted = await api.deletedAccountImages();
+	log(`Images of deleted accounts: ${deleted.length}`);
+	if (deleted.length > 0) await api.remove(BUCKET, deleted);
 	const paths = await api.unusedImages();
 	log(`Unused images: ${paths.length}`);
 	for (const path of paths) log(path);
-	if (paths.length === 0) return { removed: 0 };
+	if (paths.length === 0) return { removed: deleted.length };
 	if (paths.length > MAX_REMOVALS && !allowMassDelete) {
 		throw new Error(
 			`Refusing to remove ${paths.length} images in one run (more than ${MAX_REMOVALS}). ` +
@@ -16,8 +19,8 @@ export async function cleanUp(api, { allowMassDelete = false, log = console.log 
 		);
 	}
 	await api.remove(BUCKET, paths);
-	log(`Removed: ${paths.length}`);
-	return { removed: paths.length };
+	log(`Removed: ${deleted.length + paths.length}`);
+	return { removed: deleted.length + paths.length };
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

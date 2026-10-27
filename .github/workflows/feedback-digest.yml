@@ -13,7 +13,9 @@ jobs:
     name: Mail the new feedback
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    environment: production
+    environment:
+      name: production
+      deployment: false
     steps:
       - uses: actions/checkout@v7
 

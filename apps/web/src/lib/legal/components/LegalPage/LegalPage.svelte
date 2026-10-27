@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { Notes, TextButton } from '@study-atelier/ui';
-	import { goto } from '$app/navigation';
+	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { arrivedFromApp } from '#lib/shared/navigation/history/history.ts';
 	import { legalText } from '#lib/legal/documents/documents.ts';
 	import LegalLinks from '#lib/legal/components/LegalLinks/LegalLinks.svelte';
 	import type { LegalDocument } from '#lib/legal/types/legal-document.ts';
@@ -17,8 +18,14 @@
 	let title = $derived(document === 'terms' ? m.legal.terms : m.legal.privacy);
 	let text = $derived(legalText(document));
 
+	let cameFromApp = false;
+
+	afterNavigate(({ from }) => {
+		cameFromApp = arrivedFromApp(from);
+	});
+
 	function back(): void {
-		if (history.length > 1) history.back();
+		if (cameFromApp) history.back();
 		else void goto(resolve('/(auth)'));
 	}
 </script>

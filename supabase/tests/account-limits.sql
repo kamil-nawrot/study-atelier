@@ -125,6 +125,50 @@ begin
       = '53400 feedback',
     'an account sends more than 20 feedback entries in a day';
 
+  reset role;
+  insert into public.artwork_values (artwork_id, value_id, owner_id)
+    select work.id, style.id, a
+      from (select id from public.artworks where owner_id = a) as work
+      cross join (select id from public.category_values where owner_id = a and category_code = 'style' limit 20) as style;
+  select id into artwork from public.artworks where owner_id = a limit 1;
+  set local role authenticated;
+  assert limits_test.failure(format(
+      'insert into public.artwork_values (artwork_id, value_id) values (%L, %L)', artwork, place))
+      = '53400 artwork_values',
+    'an account holds more than 100000 artwork values';
+
+  reset role;
+  insert into public.visit_artworks (visit_id, artwork_id, owner_id)
+    select visit.id, work.id, a
+      from (select id from public.visits where owner_id = a) as visit
+      cross join (select id from public.artworks where owner_id = a order by id limit 20) as work;
+  set local role authenticated;
+  assert limits_test.failure(format(
+      'insert into public.visit_artworks (visit_id, artwork_id) select %L, id from public.artworks where owner_id = %L order by id offset 20 limit 1',
+      (select id from public.visits where owner_id = a limit 1), a))
+      = '53400 visit_artworks',
+    'an account holds more than 20000 artworks seen on visits';
+
+  reset role;
+  insert into public.artwork_field_entries (artwork_id, field_id, owner_id, field_kind, text_value)
+    select work.id, field.id, a, 'text', 'Entry'
+      from (select id from public.artworks where owner_id = a order by id limit 1000) as work
+      cross join (select id from public.artwork_fields where owner_id = a) as field;
+  set local role authenticated;
+  assert limits_test.failure(format(
+      'insert into public.artwork_field_entries (artwork_id, field_id, field_kind, text_value) select id, %L, ''text'', ''Entry'' from public.artworks where owner_id = %L order by id offset 1000 limit 1',
+      (select id from public.artwork_fields where owner_id = a limit 1), a))
+      = '53400 artwork_field_entries',
+    'an account holds more than 100000 own field entries';
+
+  assert exists (
+      select 1 from pg_locks
+        where locktype = 'advisory' and pid = pg_backend_pid()
+          and classid = (hashtext('artwork_values')::bigint & 4294967295)::oid
+          and objid = (hashtext(a::text)::bigint & 4294967295)::oid
+    ),
+    'a row limit check does not lock the account for the rest of the transaction';
+
   perform limits_test.act_as(b);
   assert limits_test.failure('insert into public.artworks (title, author_unknown) values (''B work'', true)') is null,
     'the artworks of A count towards the limit of B';
@@ -164,6 +208,13 @@ begin
   assert limits_test.failure(format(
       'update storage.objects set metadata = ''{"contentLength": 5000}'' where name = ''%s/large.jpg''', a)) = '42501',
     'replacing a file can pass the quota';
+  assert exists (
+      select 1 from pg_locks
+        where locktype = 'advisory' and pid = pg_backend_pid()
+          and classid = (hashtext('storage.objects')::bigint & 4294967295)::oid
+          and objid = (hashtext(a::text)::bigint & 4294967295)::oid
+    ),
+    'a quota check does not lock the storage of the account for the rest of the transaction';
 
   perform limits_test.act_as(b);
 

@@ -13,7 +13,9 @@ jobs:
     name: Back up the production database and images
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment: production
+    environment:
+      name: production
+      deployment: false
     steps:
       - uses: actions/checkout@v7
 

@@ -71,4 +71,4 @@ The steps were rehearsed this way on 2026-10-26 with a dump of a local database:
 
 ## The guarded clean-up
 
-The unused images clean-up ([ADR-0090](../decisions/0090-clean-up-unused-images-daily-from-github-actions.md)) refuses to remove more than 100 files in one run: it lists them, removes nothing and fails. After checking the list, the owner runs the workflow by hand with "allow_mass_delete" ticked.
+The unused images clean-up ([ADR-0090](../decisions/0090-clean-up-unused-images-daily-from-github-actions.md)) refuses to remove more than 100 files in one run: it lists them, removes nothing and fails. After checking the list, the owner runs the workflow by hand with "allow_mass_delete" ticked. The files of deleted accounts, whose folder names no existing user, are removed first and do not count towards the 100; when no user exists at all, none are listed.

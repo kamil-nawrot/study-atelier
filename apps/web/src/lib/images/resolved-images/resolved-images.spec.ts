@@ -56,6 +56,31 @@ describe('ResolvedImages', () => {
 		expect(next.signedUrl('learner-1/own.jpg', 2000)?.url).toBe('https://example.com/signed');
 	});
 
+	it('keeps the urls another tab stored meanwhile', () => {
+		const first = new ResolvedImages();
+		const second = new ResolvedImages();
+		first.forLearner('learner-1', 1000);
+		second.forLearner('learner-1', 1000);
+
+		first.rememberSignedUrls(new Map([['learner-1/a.jpg', 'https://example.com/a']]), 1000);
+		second.rememberSignedUrls(new Map([['learner-1/b.jpg', 'https://example.com/b']]), 2000);
+
+		const next = new ResolvedImages();
+		next.forLearner('learner-1', 3000);
+		expect(next.signedUrl('learner-1/a.jpg', 3000)?.url).toBe('https://example.com/a');
+		expect(next.signedUrl('learner-1/b.jpg', 3000)?.url).toBe('https://example.com/b');
+	});
+
+	it('writes nothing for an empty batch', () => {
+		const images = new ResolvedImages();
+		images.forLearner('learner-1', 1000);
+		stored.delete(SIGNED_URLS_KEY);
+
+		images.rememberSignedUrls(new Map(), 2000);
+
+		expect(stored.has(SIGNED_URLS_KEY)).toBe(false);
+	});
+
 	it('drops the expired urls when it loads them', () => {
 		const first = new ResolvedImages();
 		first.forLearner('learner-1', 1000);

@@ -152,7 +152,10 @@ describe('removeAllOwnFiles', () => {
 	function bucketWith(pages: { name: string; id: string | null }[][]): Bucket {
 		const list = vi.fn();
 		for (const page of pages) list.mockResolvedValueOnce({ data: page, error: null });
-		const remove = vi.fn().mockResolvedValue({ data: [], error: null });
+		const remove = vi.fn(async (paths: string[]) => ({
+			data: paths.map((name) => ({ name })),
+			error: null
+		}));
 		vi.mocked(supabase.storage.from).mockReturnValue({ list, remove } as never);
 		return { list, remove };
 	}
@@ -176,6 +179,18 @@ describe('removeAllOwnFiles', () => {
 
 		await expect(removeAllOwnFiles('learner-1')).resolves.toBe(true);
 		expect(bucket.remove).not.toHaveBeenCalled();
+	});
+
+	it('stops when the storage removes nothing, instead of listing the same page again', async () => {
+		const full = Array.from({ length: 1000 }, (_, index) => ({
+			name: `${index}.jpg`,
+			id: `id-${index}`
+		}));
+		const bucket = bucketWith([full, full]);
+		bucket.remove.mockResolvedValue({ data: [], error: null });
+
+		await expect(removeAllOwnFiles('learner-1')).resolves.toBe(false);
+		expect(bucket.remove).toHaveBeenCalledOnce();
 	});
 
 	it('reports a failed listing', async () => {
