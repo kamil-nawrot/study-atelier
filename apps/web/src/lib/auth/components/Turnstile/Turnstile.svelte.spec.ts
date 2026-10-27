@@ -1,9 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
-import type { TurnstileApi, TurnstileOptions } from '#lib/auth/turnstile/turnstile.ts';
+import {
+	loadTurnstile,
+	type TurnstileApi,
+	type TurnstileOptions
+} from '#lib/auth/turnstile/turnstile.ts';
 import Turnstile from './Turnstile.svelte';
 
 type TurnstileWindow = Window & { turnstile?: TurnstileApi };
+
+vi.mock('#lib/auth/turnstile/turnstile.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/auth/turnstile/turnstile.ts')>()),
+	loadTurnstile: vi.fn()
+}));
 
 let options: TurnstileOptions | undefined;
 const api = {
@@ -20,6 +29,7 @@ beforeEach(() => {
 	api.render.mockClear();
 	api.reset.mockClear();
 	api.remove.mockClear();
+	vi.mocked(loadTurnstile).mockReset().mockResolvedValue(api);
 	(window as TurnstileWindow).turnstile = api;
 });
 
@@ -95,6 +105,29 @@ describe('Turnstile', () => {
 		await vi.waitFor(() => expect(widget).not.toHaveClass('visually-hidden'));
 		options?.['after-interactive-callback']();
 		await vi.waitFor(() => expect(widget).toHaveClass('visually-hidden'));
+	});
+
+	it('does not cut off a challenge the learner is solving', async () => {
+		const { component } = await render(Turnstile, { sitekey: 'site-key', timeout: 50 });
+		await vi.waitFor(() => expect(options).toBeDefined());
+
+		options?.['before-interactive-callback']();
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+		const token = component.getToken();
+		vi.advanceTimersByTime(200);
+		vi.useRealTimers();
+		options?.callback('token-after-click');
+		await expect(token).resolves.toBe('token-after-click');
+	});
+
+	it('sends the form at once when the script cannot load, and loads it again', async () => {
+		vi.mocked(loadTurnstile).mockRejectedValueOnce(new Error('blocked'));
+		const { component } = await render(Turnstile, { sitekey: 'site-key', timeout: 10_000 });
+		await vi.waitFor(() => expect(loadTurnstile).toHaveBeenCalledOnce());
+
+		await expect(component.getToken()).resolves.toBeUndefined();
+		await vi.waitFor(() => expect(loadTurnstile).toHaveBeenCalledTimes(2));
+		await vi.waitFor(() => expect(options).toBeDefined());
 	});
 
 	it('removes the widget when the form goes away', async () => {

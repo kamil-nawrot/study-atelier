@@ -3,4 +3,5 @@ Allow: /$
 Allow: /terms
 Allow: /privacy
 Allow: /og-image.png
+Allow: /_app/
 Disallow: /

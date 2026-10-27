@@ -10,6 +10,6 @@ export const init: ClientInit = () => {
 	takeOverLoadingScreen();
 };
 
-export const handleError: HandleClientError = ({ error }) => {
-	reportError(error);
+export const handleError: HandleClientError = ({ error, kind }) => {
+	if (kind === 'unknown') reportError(error);
 };

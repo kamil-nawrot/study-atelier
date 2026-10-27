@@ -395,7 +395,7 @@ describe('loadAtelier', () => {
 		expect(artworks[0].pendingImage).toEqual({ sourceFile: 'Test.jpg' });
 	});
 
-	it('reuses the signed url of an uploaded image on the next visit until it expires', async () => {
+	it('reuses the signed url of an uploaded image on the next visit until an hour before it expires', async () => {
 		vi.useFakeTimers({ now: 1_000_000, toFake: ['Date'] });
 		query.range.mockResolvedValue({
 			data: [row({ own_image_path: 'user-id/artwork-1/image.jpg' })],
@@ -409,9 +409,10 @@ describe('loadAtelier', () => {
 		});
 		await loadResolved();
 
-		vi.setSystemTime(1_000_000 + SIGNED_URL_SECONDS * 1000 - 1);
+		const reusable = (SIGNED_URL_SECONDS - 60 * 60) * 1000;
+		vi.setSystemTime(1_000_000 + reusable - 1);
 		const before = (await loadAtelier()).artworks[0];
-		vi.setSystemTime(1_000_000 + SIGNED_URL_SECONDS * 1000);
+		vi.setSystemTime(1_000_000 + reusable);
 		const after = (await loadAtelier()).artworks[0];
 		vi.useRealTimers();
 

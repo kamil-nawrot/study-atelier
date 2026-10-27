@@ -28,6 +28,15 @@ describe('errorMessages', () => {
 		expect(messageOf({ code: 'P0002', message: 'no rows' })).toBe('Not found.');
 	});
 
+	it('gives the network message for the offline errors of Safari and Firefox and an abort', () => {
+		expect(messageOf({ message: 'TypeError: Load failed' })).toBe('Offline.');
+		expect(
+			messageOf({ message: 'TypeError: NetworkError when attempting to fetch resource.' })
+		).toBe('Offline.');
+		expect(messageOf({ message: 'AbortError: signal is aborted without reason' })).toBe('Offline.');
+		expect(reportError).not.toHaveBeenCalled();
+	});
+
 	it('gives the network message for a failed fetch without a code', () => {
 		expect(messageOf({ message: 'TypeError: Failed to fetch' })).toBe('Offline.');
 		expect(isNetworkError({ message: 'Failed to fetch' })).toBe(true);

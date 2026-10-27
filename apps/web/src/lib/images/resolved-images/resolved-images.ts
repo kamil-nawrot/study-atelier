@@ -28,8 +28,10 @@ function storedSignedUrls(): StoredSignedUrls | undefined {
 	return { learner, urls: Object.fromEntries(valid) as Record<string, SignedImageUrl> };
 }
 
+const REUSE_MARGIN_MS = 60 * 60 * 1000;
+
 function isFresh(signed: SignedImageUrl, now: number): boolean {
-	return now - signed.signedAt < SIGNED_URL_SECONDS * 1000;
+	return now - signed.signedAt < SIGNED_URL_SECONDS * 1000 - REUSE_MARGIN_MS;
 }
 
 export class ResolvedImages {

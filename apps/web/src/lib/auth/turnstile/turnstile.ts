@@ -32,8 +32,14 @@ export function loadTurnstile(target: TurnstileWindow = window): Promise<Turnsti
 		const script = target.document.createElement('script');
 		script.src = SCRIPT_URL;
 		script.async = true;
-		script.onload = () =>
-			target.turnstile ? resolve(target.turnstile) : reject(new Error('turnstile'));
+		script.onload = () => {
+			if (target.turnstile) {
+				resolve(target.turnstile);
+				return;
+			}
+			loading.delete(target);
+			reject(new Error('turnstile'));
+		};
 		script.onerror = () => {
 			loading.delete(target);
 			reject(new Error('turnstile'));

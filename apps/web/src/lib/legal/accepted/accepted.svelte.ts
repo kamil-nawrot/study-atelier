@@ -1,1 +1,4 @@
-export const acceptedNow = $state({ version: null as string | null });
+export const acceptedNow = $state({
+	version: null as string | null,
+	learner: null as string | null
+});
