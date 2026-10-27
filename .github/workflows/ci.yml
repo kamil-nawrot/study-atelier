@@ -2,14 +2,18 @@ name: CI
 
 on:
   pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
+    paths:
+      - '**'
+      - '!docs/**'
+      - '!**/*.md'
+      - 'apps/web/src/**/*.md'
   push:
     branches: [develop, main]
-    paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
+    paths:
+      - '**'
+      - '!docs/**'
+      - '!**/*.md'
+      - 'apps/web/src/**/*.md'
 
 concurrency:
   group: ci-${{ github.ref }}
