@@ -103,6 +103,16 @@ The auth forms send a Cloudflare Turnstile token to Supabase Auth ([ADR-0138](..
 
 To switch the protection off, turn it off in Supabase first; the site key can stay. The local stack has no captcha, and `apps/web/.env` needs no key; to try the widget locally, set `TURNSTILE_SITE_KEY` there to the Cloudflare test key `1x00000000000000000000AA`.
 
+## Feedback digest
+
+Every hour [`feedback-digest.yml`](../../.github/workflows/feedback-digest.yml) mails the new reports from "Zgłoś uwagę" in production to `kontakt@studyatelier.art`, which forwards to the owner ([ADR-0142](../decisions/0142-mail-new-feedback-to-the-owner-every-hour.md)). It needs, in the `production` environment:
+
+1. The secrets `SMTP_USERNAME` and `SMTP_PASSWORD`: the same Scaleway SMTP credentials as in [Auth emails](#auth-emails) (the Project ID and the secret key of `study-atelier-smtp`), or a second API key of that application.
+2. After the release that adds `feedback.notified_at`: the variable `FEEDBACK_DIGEST` set to `on`. Until then the job runs and skips the mail step.
+3. Check: send a report from the production app, run the workflow by hand (Actions, Feedback digest, Run workflow), and see one mail in the inbox and the report's `notified_at` set in the table editor.
+
+The log shows only the number of reports. Reports already in the table when the digest is turned on are mailed in the first run, at most 50 at a time.
+
 ## Supabase Advisors
 
 The Security and Performance Advisors in the dashboard of each project are run before the app opens to more learners and after a release that changes the database. These findings stay on purpose; any other is fixed in a migration or filed as an issue:

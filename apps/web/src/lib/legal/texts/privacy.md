@@ -22,7 +22,7 @@
    1. adres poczty elektronicznej oraz hasło, przechowywane wyłącznie w postaci skrótu kryptograficznego;
    2. imię lub nazwę oraz zdjęcie lub grafikę profilową (awatar) – jeżeli Użytkownik je poda;
    3. treści Atelier, w tym zdjęcia przesłane przez Użytkownika;
-   4. treść zgłoszeń błędów i propozycji przesłanych za pomocą Aplikacji;
+   4. treść zgłoszeń błędów i propozycji przesłanych za pomocą Aplikacji wraz z informacją o przeglądarce, z której je wysłano;
    5. informację o wersji i dacie akceptacji Regulaminu oraz zapoznania się z Polityką prywatności.
 2. Administrator przetwarza ponadto:
    1. adres poczty elektronicznej osoby zaproszonej do korzystania z Aplikacji;
@@ -47,8 +47,8 @@
 1. Dane osobowe mogą być powierzane, na podstawie umowy powierzenia przetwarzania danych, następującym podmiotom przetwarzającym je w imieniu Administratora:
    1. Supabase Pte. Ltd. (Singapur) wraz z Supabase, Inc. (USA) – w zakresie bazy danych, uwierzytelniania i przechowywania plików; dane są przechowywane w centrum danych we Frankfurcie nad Menem, przy czym personel i podwykonawcy tego podmiotu mogą mieć do nich dostęp z państw spoza Europejskiego Obszaru Gospodarczego;
    2. Cloudflare, Inc. (USA) – w zakresie hostingu Aplikacji, ochrony formularzy logowania, rejestracji, odzyskiwania hasła i potwierdzania hasła w ustawieniach przed automatycznymi nadużyciami (usługa Cloudflare Turnstile) oraz przekazywania korespondencji kierowanej na adres kontakt@studyatelier.art;
-   3. Scaleway SAS (Paryż, Francja) – w zakresie wysyłania wiadomości poczty elektronicznej dotyczących Konta oraz odpowiedzi Administratora; dane są przechowywane w Unii Europejskiej;
-   4. GitHub, Inc. (USA) – w zakresie wykonywania kopii zapasowych; dane są przetwarzane na infrastrukturze GitHub w czasie tworzenia kopii, a następnie przechowywane wyłącznie w postaci zaszyfrowanej kluczem, do którego dostęp ma tylko Administrator.
+   3. Scaleway SAS (Paryż, Francja) – w zakresie wysyłania wiadomości poczty elektronicznej dotyczących Konta, odpowiedzi Administratora oraz przekazywania Administratorowi zgłoszeń błędów i propozycji; dane są przechowywane w Unii Europejskiej;
+   4. GitHub, Inc. (USA) – w zakresie wykonywania kopii zapasowych oraz przekazywania Administratorowi zgłoszeń błędów i propozycji; dane są przetwarzane na infrastrukturze GitHub w czasie tworzenia kopii lub przekazywania zgłoszenia, a następnie przechowywane wyłącznie w postaci zaszyfrowanej kluczem, do którego dostęp ma tylko Administrator.
 2. Korzystając z funkcji, o której mowa w § 4 ust. 1 pkt 2, przeglądarka Użytkownika łączy się bezpośrednio z serwisami Wikimedia Foundation, Inc. (Wikipedia, Wikidata, Wikimedia Commons, Wikisłownik), a w przypadku obrazów dodanych z odnośnika – z serwerem wskazanym przez Użytkownika. Podmioty te przetwarzają adres IP Użytkownika i treść zapytania na zasadach określonych we własnych politykach prywatności. Serwery Wikimedia Foundation, Inc. mogą znajdować się poza EOG, w tym w Stanach Zjednoczonych Ameryki. Korespondencja kierowana na adres kontakt@studyatelier.art jest przechowywana w skrzynce poczty elektronicznej Administratora prowadzonej przez Google Ireland Limited.
 
 ### § 6. Przekazywanie danych poza Europejski Obszar Gospodarczy
