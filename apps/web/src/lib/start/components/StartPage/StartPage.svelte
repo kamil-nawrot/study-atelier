@@ -5,7 +5,7 @@
 	import ImagesIcon from '@lucide/svelte/icons/images';
 	import Layers from '@lucide/svelte/icons/layers';
 	import ListTree from '@lucide/svelte/icons/list-tree';
-	import { ArtworkImage, Button, Frame, Logo } from '@study-atelier/ui';
+	import { ArtworkImage, Button, Frame } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { pickArtwork } from '#lib/auth/auth-artworks/auth-artworks.ts';
 	import { commonsFileUrl } from '#lib/images/commons/commons.ts';
@@ -40,10 +40,6 @@
 		</figure>
 
 		<div class="panel">
-			<header class="bar">
-				<Logo label={m.app.name} size="sm" />
-				<a href={signIn}>{m.landing.signIn}</a>
-			</header>
 			<div class="intro">
 				<h1>{m.landing.title}</h1>
 				<p class="text">{m.landing.text}</p>
@@ -155,14 +151,6 @@
 		padding: var(--spacing-6) var(--spacing-4) var(--spacing-12);
 	}
 
-	.bar {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--spacing-4);
-		white-space: nowrap;
-	}
-
 	.intro {
 		display: grid;
 		gap: var(--spacing-6);
@@ -232,13 +220,13 @@
 	@media (min-width: 768px) {
 		.hero {
 			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-			min-height: 100dvh;
+			min-height: calc(100dvh - var(--public-header-height));
 		}
 
 		.stage {
 			align-content: center;
 			height: auto;
-			min-height: 100dvh;
+			min-height: calc(100dvh - var(--public-header-height));
 			padding-bottom: var(--spacing-16);
 		}
 
@@ -253,9 +241,9 @@
 		}
 
 		.panel {
-			align-content: space-between;
-			max-width: calc(var(--size-content-narrow) + 2 * var(--spacing-12));
-			padding: var(--spacing-8) var(--spacing-12) var(--spacing-12);
+			align-content: center;
+			max-width: calc(var(--size-content-default) * 0.8 + 2 * var(--spacing-12));
+			padding: var(--spacing-12);
 		}
 	}
 </style>
