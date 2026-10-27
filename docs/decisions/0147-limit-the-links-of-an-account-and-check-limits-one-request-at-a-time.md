@@ -1,6 +1,6 @@
 # 0147. Limit the links of an account and check limits one request at a time
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-10-27
 
 ## Context and problem statement
@@ -20,7 +20,7 @@ The code review of release 0.13 found two gaps in the account limits of [ADR-013
 
 ## Decision outcome
 
-Proposed: limit the links per account with the same `private.limit_rows` trigger, and serialise the checks of one account.
+Chosen by the owner: limit the links per account with the same `private.limit_rows` trigger, and serialise the checks of one account.
 
 | Rows                              | Limit  |
 | --------------------------------- | ------ |
@@ -44,4 +44,4 @@ That is 20 values and 20 own field entries for each of 5000 artworks, and 20 art
 
 ## More information
 
-- Issue ATL-358. The numbers are a proposal for the owner to confirm.
+- Issue ATL-358.
