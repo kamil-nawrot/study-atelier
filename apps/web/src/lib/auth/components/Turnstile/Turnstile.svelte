@@ -18,6 +18,8 @@
 	let widgetId: string | undefined;
 	let token: string | undefined;
 	let failed = false;
+	let unavailable = false;
+	let attempt = $state(0);
 	let waiting: ((value: string | undefined) => void)[] = [];
 
 	function settle(value: string | undefined): void {
@@ -28,6 +30,7 @@
 
 	$effect(() => {
 		const element = container;
+		void attempt;
 		if (!sitekey || !element) return;
 		let active = true;
 		loadTurnstile()
@@ -61,7 +64,10 @@
 					}
 				});
 			})
-			.catch(() => settle(undefined));
+			.catch(() => {
+				unavailable = true;
+				settle(undefined);
+			});
 		return () => {
 			active = false;
 			if (api && widgetId) api.remove(widgetId);
@@ -73,6 +79,11 @@
 	export function getToken(): Promise<string | undefined> {
 		if (!sitekey) return Promise.resolve(undefined);
 		if (token) return Promise.resolve(token);
+		if (unavailable) {
+			unavailable = false;
+			attempt += 1;
+			return Promise.resolve(undefined);
+		}
 		if (failed && api && widgetId) {
 			failed = false;
 			api.reset(widgetId);
@@ -82,10 +93,16 @@
 				clearTimeout(timer);
 				resolve(value);
 			};
-			const timer = setTimeout(() => {
+			let timer: ReturnType<typeof setTimeout>;
+			const expire = (): void => {
+				if (interactive) {
+					timer = setTimeout(expire, timeout);
+					return;
+				}
 				waiting = waiting.filter((entry) => entry !== done);
 				resolve(undefined);
-			}, timeout);
+			};
+			timer = setTimeout(expire, timeout);
 			waiting.push(done);
 		});
 	}

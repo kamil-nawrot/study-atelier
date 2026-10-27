@@ -23,9 +23,9 @@ describe('ResolvedImages', () => {
 		expect(images.thumbnail('B.jpg')).toBeUndefined();
 	});
 
-	it('gives a signed url back only until it expires', () => {
+	it('gives a signed url back until an hour before it expires', () => {
 		const images = new ResolvedImages();
-		const lifetime = SIGNED_URL_SECONDS * 1000;
+		const lifetime = SIGNED_URL_SECONDS * 1000 - 60 * 60 * 1000;
 
 		images.rememberSignedUrls(new Map([['owner/own.jpg', 'https://example.com/signed']]), 1000);
 

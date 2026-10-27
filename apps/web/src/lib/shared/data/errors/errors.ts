@@ -19,8 +19,10 @@ const LIMIT_MESSAGES: Record<LimitedTable, (limit: number) => string> = {
 	feedback: m.limits.feedback
 };
 
+const NETWORK_FAILURE = /fetch|load failed|networkerror|aborterror|network connection/i;
+
 export function isNetworkError(error: ServiceError): boolean {
-	return !error.code && (error.message?.includes('fetch') ?? false);
+	return !error.code && NETWORK_FAILURE.test(error.message ?? '');
 }
 
 export function isRowLimitError(error: ServiceError): boolean {

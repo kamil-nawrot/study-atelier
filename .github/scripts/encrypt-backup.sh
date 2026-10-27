@@ -10,6 +10,7 @@ if [ -z "${BACKUP_AGE_RECIPIENT:-}" ]; then
 fi
 
 if ! command -v age > /dev/null; then
+  sudo apt-get update --quiet > /dev/null
   sudo apt-get install --yes --quiet age > /dev/null
 fi
 

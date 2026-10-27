@@ -24,6 +24,13 @@ describe('loadNewVersion', () => {
 		expect(location.assign).toHaveBeenCalledWith('https://atelier.test/atelier/glossary');
 	});
 
+	it('keeps a navigation of the app itself, with its state, in the app', () => {
+		const location = target();
+		expect(loadNewVersion({ to, type: 'goto' }, true, location)).toBeUndefined();
+		expect(location.assign).not.toHaveBeenCalled();
+		expect(location.replace).not.toHaveBeenCalled();
+	});
+
 	it('keeps the history entry when the learner goes back', () => {
 		const location = target();
 		loadNewVersion({ to, type: 'popstate' }, true, location);

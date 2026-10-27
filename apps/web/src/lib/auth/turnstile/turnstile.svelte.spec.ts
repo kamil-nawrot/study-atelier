@@ -45,6 +45,19 @@ describe('loadTurnstile', () => {
 		scripts(target)[1].dispatchEvent(new Event('load'));
 		await expect(second).resolves.toBe(api);
 	});
+
+	it('tries again when the script loads without Turnstile', async () => {
+		const target = fakeWindow();
+		const first = loadTurnstile(target);
+		scripts(target)[0].dispatchEvent(new Event('load'));
+		await expect(first).rejects.toThrow();
+
+		const second = loadTurnstile(target);
+		expect(scripts(target)).toHaveLength(2);
+		target.turnstile = api;
+		scripts(target)[1].dispatchEvent(new Event('load'));
+		await expect(second).resolves.toBe(api);
+	});
 });
 
 describe('pageTheme', () => {
