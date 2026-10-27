@@ -29,9 +29,6 @@ describe('AuthLayout', () => {
 		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Page title');
 		await expect.element(page.getByText('Short lead.')).toBeVisible();
 		await expect.element(page.getByText('Form content')).toBeVisible();
-		await expect
-			.element(page.getByRole('main').getByRole('img', { name: m.app.name }))
-			.toBeVisible();
 		await vi.waitFor(() => expect(document.title).toBe(m.app.pageTitle('Page title')));
 	});
 
@@ -47,8 +44,7 @@ describe('AuthLayout', () => {
 		await expect.element(caption).toHaveTextContent(artwork.title);
 		await expect.element(caption).toHaveTextContent(`${artwork.artist}, ${artwork.date}`);
 		await expect.element(caption).toHaveTextContent(artwork.credit);
-		await expect.element(page.getByRole('img', { name: m.app.name })).toBeVisible();
-		expect(page.getByRole('img').elements()).toHaveLength(2);
+		expect(page.getByRole('img').elements()).toHaveLength(1);
 	});
 
 	it('shows only the background behind the caption on a phone', async () => {

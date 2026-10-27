@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Logo, Notes, TextButton } from '@study-atelier/ui';
+	import { Notes, TextButton } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -28,10 +28,9 @@
 </svelte:head>
 
 <div class="page">
-	<header>
-		<a href={resolve('/(auth)')}><Logo label={m.app.name} size="sm" /></a>
-		<TextButton onclick={back}>{m.common.back}</TextButton>
-	</header>
+	<div class="back">
+		<TextButton inline onclick={back}>{m.common.back}</TextButton>
+	</div>
 	<main>
 		<h1>{title}</h1>
 		<p class="version">{m.legal.version(legalVersionDate(LEGAL_VERSION))}</p>
@@ -51,17 +50,6 @@
 		max-width: var(--size-content-default);
 		margin: 0 auto;
 		padding: var(--spacing-8) var(--spacing-4) var(--spacing-12);
-	}
-
-	header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--spacing-4);
-	}
-
-	header a {
-		color: inherit;
 	}
 
 	main {

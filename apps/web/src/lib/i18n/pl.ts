@@ -151,6 +151,10 @@ export const pl = {
 		expired: 'Ten link już nie działa: wygasł albo został użyty. Poproś o nowy.',
 		requestNew: 'Wyślij nowy link'
 	},
+	publicHeader: {
+		label: 'Konto',
+		toAtelier: 'Przejdź do atelier'
+	},
 	landing: {
 		pageTitle: 'Study Atelier – atelier do nauki historii sztuki',
 		metaDescription:
