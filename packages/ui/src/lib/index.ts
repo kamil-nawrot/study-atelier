@@ -20,6 +20,7 @@ export { default as LoadFailure } from './components/LoadFailure/LoadFailure.sve
 export { default as LoadingScreen } from './components/LoadingScreen/LoadingScreen.svelte';
 export { default as Logo } from './components/Logo/Logo.svelte';
 export { default as LogoMark } from './components/LogoMark/LogoMark.svelte';
+export { default as Meter } from './components/Meter/Meter.svelte';
 export { default as NoImage } from './components/NoImage/NoImage.svelte';
 export { default as Notes } from './components/Notes/Notes.svelte';
 export { default as PageScrollbar } from './components/PageScrollbar/PageScrollbar.svelte';

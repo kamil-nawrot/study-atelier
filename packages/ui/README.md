@@ -57,7 +57,7 @@ Every exported component has a row here; a pull request that adds a component ad
 | `Select`       | Labelled single choice from a fixed list on the native `select`, with hint and error; `compact` hides the label and shrinks to an icon on a phone, `hideLabel` only hides the label                       |
 | `SearchSelect` | Labelled single choice from a long list, filtered as the learner types (combobox)                                                                                                                         |
 | `ValueField`   | Category values as removable tags with a suggestion list (combobox); one value with `single`, at most `max`, `labelHidden`                                                                                |
-| `Checkbox`     | Labelled checkbox                                                                                                                                                                                         |
+| `Checkbox`     | Labelled checkbox; `children` replaces the text `label` when the label holds links                                                                                                                        |
 | `Switch`       | Labelled on/off switch (a native checkbox with `role="switch"`), for a setting that governs other fields                                                                                                  |
 | `ChoiceTiles`  | Single choice shown as tiles with an icon (era, artwork type), as a radio group; `clearable`                                                                                                              |
 | `ToggleTiles`  | Several choices shown as tiles with a count, for filters                                                                                                                                                  |
@@ -103,6 +103,7 @@ Every exported component has a row here; a pull request that adds a component ad
 | -------------- | ----------------------------------------------------------------------------------------------------- |
 | `ArtworkTile`  | An artwork on the wall: image or placeholder, title, authors, date, record number, era mark and heart |
 | `ArtworkImage` | Artwork image with `srcset`, loading primer and a message when it fails                               |
+| `Meter`        | Thin bar that fills with the share of a maximum, read by screen readers as a meter with its label     |
 | `NoImage`      | Placeholder for an artwork without an image: the catalogue cross                                      |
 | `Frame`        | Passe-partout frame for artworks: `list` or `view` size                                               |
 | `Logo`         | The mark with the wordmark                                                                            |

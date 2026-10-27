@@ -1,11 +1,12 @@
 import { m } from '#lib/i18n/i18n.ts';
+import { SIGNED_URL_SECONDS } from '#lib/images/bucket/bucket.ts';
 import { cropSquareJpeg, ownImageFileError } from '#lib/images/own-image/own-image.ts';
 import { ownImageUrl } from '#lib/images/own-image-data/own-image-data.ts';
 
 export const AVATAR_SIDE = 256;
 export const AVATAR_QUALITY = 0.9;
 
-const URL_LIFETIME_MS = 50 * 60 * 1000;
+const URL_LIFETIME_MS = (SIGNED_URL_SECONDS - 10 * 60) * 1000;
 
 const signedUrls = new Map<string, { url: string; expires: number }>();
 

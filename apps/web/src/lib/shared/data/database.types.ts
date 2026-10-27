@@ -9,6 +9,34 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          body: string;
+          created_at: string;
+          ends_at: string | null;
+          id: string;
+          starts_at: string;
+          title: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          body: string;
+          created_at?: string;
+          ends_at?: string | null;
+          id?: string;
+          starts_at?: string;
+          title?: string | null;
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          ends_at?: string | null;
+          id?: string;
+          starts_at?: string;
+          title?: string | null;
+        };
+        Relationships: [];
+      };
       artwork_field_entries: {
         Row: {
           artwork_id: string;
@@ -535,27 +563,33 @@ export type Database = {
       };
       feedback: {
         Row: {
+          browser: string | null;
           created_at: string;
           description: string | null;
           id: string;
           kind: string;
+          notified_at: string | null;
           owner_id: string;
           title: string;
         };
         ComputedFields: never;
         Insert: {
+          browser?: string | null;
           created_at?: string;
           description?: string | null;
           id?: string;
           kind: string;
+          notified_at?: string | null;
           owner_id?: string;
           title: string;
         };
         Update: {
+          browser?: string | null;
           created_at?: string;
           description?: string | null;
           id?: string;
           kind?: string;
+          notified_at?: string | null;
           owner_id?: string;
           title?: string;
         };
@@ -780,6 +814,8 @@ export type Database = {
           fetch_event: boolean;
           fetch_forms: boolean;
           fetch_image: boolean;
+          legal_accepted_at: string | null;
+          legal_version: string | null;
           owner_id: string;
           review_form: string;
           review_free: boolean;
@@ -799,6 +835,8 @@ export type Database = {
           fetch_event?: boolean;
           fetch_forms?: boolean;
           fetch_image?: boolean;
+          legal_accepted_at?: string | null;
+          legal_version?: string | null;
           owner_id?: string;
           review_form?: string;
           review_free?: boolean;
@@ -817,6 +855,8 @@ export type Database = {
           fetch_event?: boolean;
           fetch_forms?: boolean;
           fetch_image?: boolean;
+          legal_accepted_at?: string | null;
+          legal_version?: string | null;
           owner_id?: string;
           review_form?: string;
           review_free?: boolean;
@@ -1141,9 +1181,14 @@ export type Database = {
           field_id: string;
         }[];
       };
+      delete_account: { Args: Record<PropertyKey, never>; Returns: undefined };
       delete_unused_value: {
         Args: { target_value: string };
         Returns: undefined;
+      };
+      deleted_account_images: {
+        Args: Record<PropertyKey, never>;
+        Returns: string[];
       };
       import_atelier: { Args: { payload: Json }; Returns: Json };
       keep_alive: { Args: Record<PropertyKey, never>; Returns: string };
@@ -1237,6 +1282,14 @@ export type Database = {
       set_style_periods: {
         Args: { period_ids: string[]; target_style: string };
         Returns: undefined;
+      };
+      storage_has_room: { Args: { adding: number }; Returns: boolean };
+      storage_usage: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          quota_bytes: number;
+          used_bytes: number;
+        }[];
       };
       style_period_usage: {
         Args: Record<PropertyKey, never>;

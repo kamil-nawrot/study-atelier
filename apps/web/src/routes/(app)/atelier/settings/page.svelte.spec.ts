@@ -19,7 +19,11 @@ const navigation = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier/settings')
 }));
 
-vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
+vi.mock('$app/state', () => ({
+	page: navigation,
+	navigating: { to: null },
+	updated: { current: false }
+}));
 vi.mock('$app/navigation', () => ({
 	beforeNavigate: vi.fn(),
 	goto: vi.fn(),
@@ -53,6 +57,8 @@ function renderSettings(error?: string, search = '', pendingEmail?: string): voi
 			preferences: defaultPreferences,
 			atelierEmpty: true,
 			pendingEmail,
+			storageUsage: { usedBytes: 9_122_611, quotaBytes: 209_715_200 },
+			acceptedLegalVersion: '2026-10-26',
 			error
 		},
 		params: {}
@@ -189,6 +195,9 @@ describe('settings page', () => {
 		await expect
 			.element(page.getByRole('button', { name: m.settings.data.exportButton }))
 			.toBeVisible();
+		await expect
+			.element(page.getByRole('meter', { name: m.settings.data.storageUsage('8,7', '200') }))
+			.toHaveAttribute('aria-valuenow', '9122611');
 	});
 
 	it('saves the switches for the automatic fetching', async () => {

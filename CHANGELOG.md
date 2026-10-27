@@ -2,6 +2,36 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.13.0] - 2026-10-27
+
+The app is ready to open to other learners: it has a public start page, terms and a privacy policy, protected sign-up, account deletion and limits per account, and the owner is told about errors, downtime and new feedback.
+
+### Added
+
+- A public start page, "Atelier do nauki historii sztuki", describes the app and its modules before signing in, with share tags for links; the pages before signing in share a sticky header with "Zaloguj się" and "Załóż konto".
+- "Regulamin" and "Polityka prywatności" are published as pages linked from the sign-up and the footer; sign-up asks to accept them, the acceptance is stored with its version, and after a change of the texts a dialog asks to accept the new version or go to the settings.
+- The sign-up, sign-in and password reset forms are protected by Cloudflare Turnstile, which shows a challenge only when it is unsure.
+- "Usuń konto…" in the Konto tab deletes the account and the whole atelier after the password is entered, pointing to the Dane tab for a copy first.
+- One account holds at most 200 MB of own photos and fixed numbers of artworks, values, glossary entries, events, visits, own fields and their links, and a limited number of review answers and feedback entries a day; past a limit the save says how much fits and what to do. The Dane tab shows "Miejsce na zdjęcia: Twoje zdjęcia zajmują X MB z 200 MB.", and an import that does not fit loads nothing and names what is too much.
+- An empty atelier welcomes the learner with "Twoje atelier jest jeszcze puste" and three steps: "Dodaj dzieło", "Opisuj i łącz" and "Powtarzaj".
+- Announcements from the owner appear as a banner and can be closed on each device.
+- After a new release the app says "Pojawiła się nowa wersja aplikacji. Odśwież stronę, żeby z niej skorzystać." and reloads on the next link instead of breaking.
+
+### Changed
+
+- Production is served at studyatelier.art and the account emails are sent through Scaleway.
+- Own photos are kept on the device for a day, so the wall loads them once a day instead of every hour.
+- Internal: browser errors go to Sentry and the uptime is watched by UptimeRobot, production is dumped before every migration and backed up weekly off-site, new feedback is mailed to the owner every hour, the image clean-up refuses mass deletes and removes the files of deleted accounts, the limits are checked one request at a time, a security audit tightened the database, and CI caches its Playwright browser.
+
+### Fixed
+
+- Signing out no longer asks for the preferences without a session.
+- A failed Turnstile check is retried at once instead of keeping the sign-in waiting.
+
+### Migrations run on production
+
+6 migrations run on production with this release: `20261026100000_account_limits` adds `storage_usage`, the row limit triggers and a quota check to the storage policies, without changing data; `20261026120000_delete_account` adds the `delete_account` function; `20261026160000_legal_acceptance` adds `legal_version` and `legal_accepted_at` to `profiles` and records every existing account as having accepted the version of 2026-10-26, creating the missing profile rows; `20261027100000_feedback_digest` adds the empty `browser` and `notified_at` columns to `feedback`; `20261027120000_announcements` creates the `announcements` table, readable by signed-in learners; `20261027140000_serialised_limits` serialises the limit checks per account, limits the link tables with new `owner_id` indexes and adds `storage_has_room` and `deleted_account_images`. The previous code keeps working: it reads none of the new columns and every existing function keeps its arguments.
+
 ## [0.12.0] - 2026-10-25
 
 The learner keeps a chronicle of museum visits and sees which artworks of the atelier they have seen in person, and every empty view now explains how to begin.
@@ -535,3 +565,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.10.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.10.1
 [0.11.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.11.0
 [0.12.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.12.0
+[0.13.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.13.0

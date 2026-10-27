@@ -2,14 +2,18 @@ name: CI
 
 on:
   pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
+    paths:
+      - '**'
+      - '!docs/**'
+      - '!**/*.md'
+      - 'apps/web/src/**/*.md'
   push:
     branches: [develop, main]
-    paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
+    paths:
+      - '**'
+      - '!docs/**'
+      - '!**/*.md'
+      - 'apps/web/src/**/*.md'
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -35,6 +39,15 @@ jobs:
       CLOUDFLARE_CONFIGURED: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
       SUPABASE_URL: ${{ github.event_name == 'pull_request' && 'https://test.supabase.co' || secrets.SUPABASE_URL }}
       SUPABASE_PUBLISHABLE_KEY: ${{ github.event_name == 'pull_request' && 'test-key' || secrets.SUPABASE_PUBLISHABLE_KEY }}
+      LEGAL_COMPANY: ${{ vars.LEGAL_COMPANY }}
+      LEGAL_ADDRESS: ${{ vars.LEGAL_ADDRESS }}
+      LEGAL_NIP: ${{ vars.LEGAL_NIP }}
+      TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
+      SENTRY_DSN: ${{ vars.SENTRY_DSN }}
+      SENTRY_ENVIRONMENT: ${{ github.event_name == 'push' && (github.ref_name == 'main' && 'production' || 'develop') || '' }}
+      SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+      SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
+      SENTRY_AUTH_TOKEN: ${{ github.event_name == 'push' && github.ref_name == 'main' && secrets.SENTRY_AUTH_TOKEN || '' }}
     steps:
       - uses: actions/checkout@v7
 
@@ -54,8 +67,21 @@ jobs:
       - name: Type check
         run: pnpm --filter @study-atelier/web check
 
+      - name: Read the Playwright version
+        id: playwright
+        run: echo "version=$(pnpm --filter @study-atelier/web exec playwright --version | cut -d ' ' -f 2)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the Playwright browser
+        id: playwright-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
       - name: Install Playwright Chromium
-        run: pnpm --filter @study-atelier/web exec playwright install --with-deps --only-shell chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        timeout-minutes: 5
+        run: pnpm --filter @study-atelier/web exec playwright install --only-shell chromium
 
       - name: Unit and component tests with coverage
         run: pnpm --filter @study-atelier/web test:coverage
@@ -113,6 +139,25 @@ jobs:
         if: env.SUPABASE_CONFIGURED == 'true'
         with:
           version: 2.120.0
+      - name: Back up the production database before migrating
+        if: env.SUPABASE_CONFIGURED == 'true' && github.ref_name == 'main'
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          BACKUP_AGE_RECIPIENT: ${{ vars.BACKUP_AGE_RECIPIENT }}
+        run: |
+          .github/scripts/dump-database.sh "$RUNNER_TEMP/backup"
+          .github/scripts/encrypt-backup.sh "$RUNNER_TEMP/backup" "$RUNNER_TEMP/database-before-migrations.tar.gz.age"
+
+      - uses: actions/upload-artifact@v7
+        if: env.SUPABASE_CONFIGURED == 'true' && github.ref_name == 'main'
+        with:
+          name: database-before-migrations-${{ github.sha }}
+          path: ${{ runner.temp }}/database-before-migrations.tar.gz.age
+          retention-days: 30
+          if-no-files-found: error
+
       - name: Apply migrations
         if: env.SUPABASE_CONFIGURED == 'true'
         env:

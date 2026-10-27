@@ -393,7 +393,7 @@ describe('edit artwork page', () => {
 		await saveButton().click();
 
 		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
-		expect(supabase.from).not.toHaveBeenCalled();
+		expect(supabase.from).not.toHaveBeenCalledWith('artworks');
 	});
 
 	it('asks when the changed title matches another artwork, never itself', async () => {

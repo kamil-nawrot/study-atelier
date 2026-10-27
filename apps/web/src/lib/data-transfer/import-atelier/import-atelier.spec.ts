@@ -10,6 +10,11 @@ import {
 	removeUploads,
 	uploadImport
 } from '#lib/data-transfer/import-data/import-data.ts';
+import { loadStorageUsage } from '#lib/images/storage-usage-data/storage-usage-data.ts';
+
+vi.mock('#lib/images/storage-usage-data/storage-usage-data.ts', () => ({
+	loadStorageUsage: vi.fn()
+}));
 
 vi.mock('#lib/data-transfer/import-data/import-data.ts', () => ({
 	currentOwnerId: vi.fn(),
@@ -20,13 +25,14 @@ vi.mock('#lib/data-transfer/import-data/import-data.ts', () => ({
 
 const OWNER = '3f2c1d4e-5a6b-4c7d-8e9f-0a1b2c3d4e5f';
 
-function archive(): Blob {
+function archive(data: Record<string, unknown[]> = {}): Blob {
 	const file = {
 		format: FORMAT_NAME,
 		version: FORMAT_VERSION,
 		exportedAt: '',
 		data: {
-			artworks: [{ id: '11111111-1111-4111-8111-111111111111', own_image_path: 'old/a.jpg' }]
+			artworks: [{ id: '11111111-1111-4111-8111-111111111111', own_image_path: 'old/a.jpg' }],
+			...data
 		}
 	};
 	return new Blob([
@@ -42,6 +48,7 @@ beforeEach(() => {
 	vi.mocked(currentOwnerId).mockResolvedValue(OWNER);
 	vi.mocked(uploadImport).mockResolvedValue(true);
 	vi.mocked(importAtelier).mockResolvedValue({});
+	vi.mocked(loadStorageUsage).mockResolvedValue(undefined);
 });
 
 describe('importArchive', () => {
@@ -63,6 +70,34 @@ describe('importArchive', () => {
 
 		expect(result).toEqual({ error: m.settings.data.importNotZip });
 		expect(uploadImport).not.toHaveBeenCalled();
+	});
+
+	it('uploads nothing when the images do not fit in the space left', async () => {
+		vi.mocked(loadStorageUsage).mockResolvedValue({ usedBytes: 100, quotaBytes: 100 });
+
+		const result = await importArchive(archive(), () => undefined);
+
+		expect(result).toEqual({ error: m.settings.data.importLimit });
+		expect(uploadImport).not.toHaveBeenCalled();
+	});
+
+	it('names the rows over a limit and uploads nothing', async () => {
+		const terms = Array.from({ length: 2001 }, (_, index) => ({ id: String(index) }));
+
+		const result = await importArchive(archive({ glossary_entries: terms }), () => undefined);
+
+		expect(result).toEqual({
+			error: m.settings.data.importTooMany(m.settings.data.importTables.glossary_entries, 2000)
+		});
+		expect(uploadImport).not.toHaveBeenCalled();
+	});
+
+	it('leaves the daily limits to the database', async () => {
+		const answers = Array.from({ length: 1001 }, (_, index) => ({ id: String(index) }));
+
+		const result = await importArchive(archive({ review_log: answers }), () => undefined);
+
+		expect(result).toEqual({ imported: true });
 	});
 
 	it('removes the uploaded files when the import is refused', async () => {

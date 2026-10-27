@@ -1,17 +1,36 @@
+import { readFileSync } from 'node:fs';
 import { defineConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
 import adapter from '@sveltejs/adapter-cloudflare';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
+
+const { version } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
+const release = `study-atelier@${version}`;
+const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 
 export default defineConfig({
+	define: { __APP_RELEASE__: JSON.stringify(release) },
+	build: { sourcemap: sentryAuthToken ? 'hidden' : false },
 	plugins: [
 		sveltekit({
 			compilerOptions: {
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
-			adapter: adapter({ platformProxy: { persist: false } })
-		})
+			adapter: adapter({ platformProxy: { persist: false } }),
+			version: { pollInterval: 10 * 60 * 1000 }
+		}),
+		sentryAuthToken
+			? sentryVitePlugin({
+					org: process.env.SENTRY_ORG,
+					project: process.env.SENTRY_PROJECT,
+					authToken: sentryAuthToken,
+					release: { name: release, inject: false },
+					sourcemaps: { filesToDeleteAfterUpload: ['.svelte-kit/output/**/*.map'] },
+					telemetry: false
+				})
+			: []
 	],
 	test: {
 		expect: { requireAssertions: true },
@@ -42,7 +61,7 @@ export default defineConfig({
 						instances: [{ browser: 'chromium', headless: true }]
 					},
 					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
-					setupFiles: ['src/lib/testing/ui-messages/ui-messages.ts']
+					setupFiles: ['src/lib/testing/ui-messages/ui-messages.ts', 'src/lib/testing/env/env.ts']
 				}
 			}
 		]

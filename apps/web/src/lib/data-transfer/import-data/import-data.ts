@@ -1,6 +1,7 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
-import { IMAGES_BUCKET } from '#lib/images/bucket/bucket.ts';
+import { IMAGES_BUCKET, OWN_IMAGE_CACHE_SECONDS } from '#lib/images/bucket/bucket.ts';
 import { m } from '#lib/i18n/i18n.ts';
+import { isRowLimitError } from '#lib/shared/data/errors/errors.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import type { ExportRow } from '#lib/data-transfer/types/export-row.ts';
 import type { Upload } from '#lib/data-transfer/types/upload.ts';
@@ -32,9 +33,11 @@ export async function currentOwnerId(): Promise<string | undefined> {
 }
 
 export async function uploadImport(upload: Upload): Promise<boolean> {
-	const { error } = await supabase.storage
-		.from(IMAGES_BUCKET)
-		.upload(upload.path, upload.bytes, { contentType: upload.contentType, upsert: false });
+	const { error } = await supabase.storage.from(IMAGES_BUCKET).upload(upload.path, upload.bytes, {
+		contentType: upload.contentType,
+		cacheControl: String(OWN_IMAGE_CACHE_SECONDS),
+		upsert: false
+	});
 	return !error;
 }
 
@@ -49,5 +52,6 @@ export async function importAtelier(
 	const { error } = await supabase.rpc('import_atelier', { payload: payload as never });
 	if (!error) return {};
 	if (error.code === '55000') return { error: m.settings.data.importNotEmpty, notEmpty: true };
+	if (isRowLimitError(error)) return { error: m.settings.data.importLimit };
 	return { error: await failureMessage(error, () => m.settings.data.importFailed) };
 }

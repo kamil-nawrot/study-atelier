@@ -39,6 +39,18 @@ jobs:
       - name: Check row level security and grants
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/security.sql
 
+      - name: Check announcements
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/announcements.sql
+
+      - name: Check account limits
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/account-limits.sql
+
+      - name: Check account deletion
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/delete-account.sql
+
+      - name: Check legal acceptance
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/legal-acceptance.sql
+
       - name: Check review sessions
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/review-session.sql
 

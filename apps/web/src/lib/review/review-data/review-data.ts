@@ -4,6 +4,7 @@ import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import { IMAGE_COLUMNS, imageOf, withPreview } from '#lib/images/image-record/image-record.ts';
 import type { ImageRow } from '#lib/images/types/image-row.ts';
 import { m } from '#lib/i18n/i18n.ts';
+import { rowLimitMessage } from '#lib/shared/data/errors/errors.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import type { ReviewScope } from '#lib/review/types/review-scope.ts';
@@ -167,7 +168,14 @@ export async function recordReview(
 			answer_ms: answer.answerMs === undefined ? null : Math.round(answer.answerMs)
 		}
 	});
-	return error ? { error: await failureMessage(error, () => m.review.saveFailed) } : {};
+	return error
+		? {
+				error: await failureMessage(
+					error,
+					(failure) => rowLimitMessage(failure) ?? m.review.saveFailed
+				)
+			}
+		: {};
 }
 
 export async function loadReviewDetails(ids: string[]): Promise<ReviewDetailsResult> {

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { ArtworkImage, Frame, Logo, Section } from '@study-atelier/ui';
+	import { ArtworkImage, Frame, Section } from '@study-atelier/ui';
 	import { pickArtwork } from '#lib/auth/auth-artworks/auth-artworks.ts';
 	import { commonsFileUrl } from '#lib/images/commons/commons.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -38,7 +38,6 @@
 	</figure>
 
 	<main class="panel">
-		<Logo label={m.app.name} size="sm" />
 		<Section>
 			<h1>{title}</h1>
 			<p class="lead">{lead}</p>
@@ -55,7 +54,7 @@
 <style>
 	.auth {
 		display: grid;
-		min-height: 100dvh;
+		min-height: calc(100dvh - var(--public-header-height));
 	}
 
 	.stage {
@@ -135,9 +134,9 @@
 
 		.stage {
 			position: sticky;
-			top: 0;
+			top: var(--public-header-height);
 			align-content: center;
-			height: 100dvh;
+			height: calc(100dvh - var(--public-header-height));
 		}
 
 		.artwork {

@@ -5,7 +5,7 @@ description: At the end of a study-atelier session, find what the conversation a
 
 # study-atelier session retrospective
 
-Use this at the end of every session, before the work is merged: when the session's pull request has the owner's review comments addressed and waits only for the merge, so that confirmed findings ride in the same pull request. In a session without a pull request, use it before its thread is resolved. Also use it whenever the owner asks for a retrospective. The goal is that a fresh session never has to ask the owner again what this one already learned.
+Use this when the session's pull request is opened, before asking the owner for review, so that confirmed findings ride in the same pull request even if the owner merges as soon as CI passes; run a short second round for the findings of the owner's review while the pull request is still open. In a session without a pull request, use it before its thread is resolved. Also use it whenever the owner asks for a retrospective. The goal is that a fresh session never has to ask the owner again what this one already learned.
 
 Read [`docs/guidelines/documentation.md`](../../../docs/guidelines/documentation.md) first: its "Where things go" table decides where each finding belongs.
 

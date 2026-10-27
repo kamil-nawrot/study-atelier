@@ -90,7 +90,8 @@ export const pl = {
 		emailTaken: 'Ten adres jest już przypisany do innego konta.',
 		rateLimited: 'Sporo prób w krótkim czasie. Odczekaj chwilę i spróbuj jeszcze raz.',
 		emailRateLimited:
-			'Kilka wiadomości jest już w drodze. Daj im chwilę, zanim poprosisz o kolejną.'
+			'Kilka wiadomości jest już w drodze. Daj im chwilę, zanim poprosisz o kolejną.',
+		captchaFailed: 'Nie udało się potwierdzić, że to Ty, a nie automat. Spróbuj jeszcze raz.'
 	},
 	artwork: {
 		credit: 'Wikimedia Commons, domena publiczna',
@@ -150,15 +151,48 @@ export const pl = {
 		expired: 'Ten link już nie działa: wygasł albo został użyty. Poproś o nowy.',
 		requestNew: 'Wyślij nowy link'
 	},
+	publicHeader: {
+		label: 'Konto',
+		toAtelier: 'Przejdź do atelier'
+	},
 	landing: {
+		pageTitle: 'Study Atelier – atelier do nauki historii sztuki',
+		metaDescription:
+			'Study Atelier to miejsce, w którym uczysz się historii sztuki, budując własną kolekcję dzieł.',
+		accountLabel: 'Konto',
 		title: 'Atelier do nauki historii sztuki',
-		lead: 'Twoja własna kolekcja dzieł, budowana w trakcie nauki.',
-		description: [
-			'Każde dzieło dodajesz do swojej kolekcji samodzielnie i opisujesz według własnych preferencji. Dzięki temu możesz uczyć się i zapamiętywać szczegóły dotyczące dzieł sztuki, jednocześnie budując swoją kolekcję.',
-			'Z czasem powstaje z tego Twoja osobista baza wiedzy, do której możesz zawsze wrócić i rozwijać ją w dowolnym kierunku.'
-		],
+		text: 'Study Atelier to miejsce, w którym uczysz się historii sztuki, budując własną kolekcję dzieł. Zapisujesz dzieła, które poznajesz w muzeum, na wykładzie albo w książce, opisujesz je po swojemu i łączysz ze sobą. Z czasem powstaje z tego osobista baza wiedzy, do której zawsze możesz wrócić, a krótkie codzienne powtórki pomagają zapamiętać to, czego się uczysz.',
+		haveAccount: 'Masz już konto?',
 		signIn: 'Zaloguj się',
-		signUp: 'Załóż konto'
+		signUp: 'Załóż konto',
+		modulesTitle: 'Co znajdziesz w atelier',
+		modules: [
+			{
+				title: 'Atelier',
+				text: 'Wszystkie zebrane przez Ciebie dzieła prezentowane w formie estetycznej kolekcji. Możesz je dowolnie filtrować, a także grupować według epok i stylów, dzięki czemu Twoja kolekcja może stać się wygodnym źródłem wiedzy o sztuce.'
+			},
+			{
+				title: 'Kartoteka',
+				text: 'Gromadzi wszystkie wartości, których używasz do opisywania dzieł: epoki, style, autorów i miejsca. Pozwala nimi zarządzać i wprowadzać dodatkowe szczegóły, aby łatwo poszerzać swoją wiedzę o dodatkowe konteksty.'
+			},
+			{
+				title: 'Słowniczek',
+				text: 'Wszystkie pojęcia i postaci, które warto zapamiętać, możesz dodać do swojego osobistego słownika wraz z definicją. Dzięki temu będziesz w stanie lepiej je zapamiętać, a Twoje notatki o dziełach sztuki wzbogacą się o dodatkowe informacje.'
+			},
+			{
+				title: 'Kalendarium',
+				text: 'Jeśli chcesz zrozumieć sztukę w kontekście historycznym, możesz skorzystać z własnego kalendarium i nakładać na interaktywną oś czasu dzieła oraz wydarzenia i okresy historyczne, by badać wpływ dziejów świata na sztukę i odwrotnie.'
+			},
+			{
+				title: 'Kronika',
+				text: 'Twoje atelier może też posłużyć jako dziennik Twoich spotkań ze sztuką – możesz skorzystać z kroniki i zapisywać w niej swoje wizyty w muzeach czy galeriach. Dzięki temu Twoja kolekcja zyska dodatkowy, osobisty wymiar.'
+			},
+			{
+				title: 'Powtórki',
+				text: 'Jeśli chcesz efektywnie utrwalać swoją wiedzę o sztuce, możesz zmierzyć się z codziennymi wyzwaniami powtórkowymi, w których klasyczne fiszki i różnorodne quizy przeplatają się tak, by każde dzieło wracało do Ciebie wtedy, gdy zaczynasz je zapominać.'
+			}
+		],
+		contact: 'kontakt@studyatelier.art'
 	},
 	menu: {
 		label: 'Menu',
@@ -208,7 +242,9 @@ export const pl = {
 			save: 'Zapisz profil',
 			saved: 'Zapisano profil.',
 			errorTitle: 'Nie udało się zapisać profilu',
-			failed: 'Nie udało się zapisać profilu. Spróbuj jeszcze raz.'
+			failed: 'Nie udało się zapisać profilu. Spróbuj jeszcze raz.',
+			avatarQuotaFull:
+				'Brakuje miejsca na zdjęcia, więc awatara nie da się teraz zapisać. Usuń niepotrzebne zdjęcia dzieł. Miejsce zwolni się w ciągu doby.'
 		},
 		account: {
 			emailTitle: 'Adres e-mail',
@@ -234,7 +270,20 @@ export const pl = {
 			errorTitle: 'Nie udało się zmienić hasła',
 			othersFailedTitle: 'Hasło zostało pomyślnie zmienione',
 			othersFailed:
-				'Nie udało się wylogować Cię na innych urządzeniach. Wyloguj się tam ręcznie albo zmień hasło jeszcze raz.'
+				'Nie udało się wylogować Cię na innych urządzeniach. Wyloguj się tam ręcznie albo zmień hasło jeszcze raz.',
+			deleteTitle: 'Usuń konto',
+			deleteDescription:
+				'Usunięcie konta usuwa na zawsze całe atelier: dzieła, zdjęcia, notatki, Słowniczek, Kalendarium, Kronikę i historię powtórek.',
+			deleteOpen: 'Usuń konto…',
+			deleteConfirmTitle: 'Usunąć konto na zawsze?',
+			deleteConfirmDescription:
+				'Konto i całe atelier znikną bezpowrotnie. Jeśli chcesz coś zachować, najpierw pobierz kopię w zakładce Dane.',
+			deleteToData: 'Przejdź do zakładki Dane',
+			deletePassword: 'Hasło',
+			deleteSubmit: 'Usuń konto',
+			deleting: 'Usuwanie konta…',
+			deleteFailed: 'Nie udało się usunąć konta. Nic nie zostało usunięte, spróbuj jeszcze raz.',
+			deleted: 'Konto zostało usunięte razem z całym atelier.'
 		},
 		preferences: {
 			sessionSize: 'Z ilu dzieł powinna składać się pojedyncza sesja?',
@@ -294,6 +343,26 @@ export const pl = {
 			importFailed:
 				'Nie udało się wczytać atelier. Nic nie zostało zmienione, spróbuj jeszcze raz.',
 			importNotEmpty: 'Atelier nie jest już puste, więc nic nie zostało wczytane.',
+			importLimit:
+				'Ta kopia nie mieści się w limitach jednego atelier, więc nic nie zostało wczytane.',
+			importTooMany: (what: string, limit: number): string =>
+				`Ta kopia ma więcej ${what}, niż zmieści jedno atelier (${limit}), więc nic nie zostało wczytane.`,
+			importTables: {
+				artworks: 'dzieł',
+				category_values: 'wartości w Kartotece',
+				glossary_entries: 'pojęć w Słowniczku',
+				timeline_events: 'wydarzeń w Kalendarium',
+				visits: 'wizyt w Kronice',
+				artwork_fields: 'własnych pól',
+				artwork_values: 'wartości przypisanych do dzieł',
+				visit_artworks: 'dzieł przypisanych do wizyt',
+				artwork_field_entries: 'wpisów we własnych polach',
+				review_log: 'odpowiedzi w powtórkach',
+				feedback: 'zgłoszeń'
+			},
+			storageTitle: 'Miejsce na zdjęcia',
+			storageUsage: (usedMegabytes: string, quotaMegabytes: string): string =>
+				`Twoje zdjęcia zajmują ${usedMegabytes} MB z ${quotaMegabytes} MB.`,
 			errorTitle: 'Nie udało się wyeksportować atelier',
 			failed:
 				'Spróbuj jeszcze raz. Jeśli problem się powtarza, spróbuj wykonać eksport na innym urządzeniu.',
@@ -337,9 +406,25 @@ export const pl = {
 			label: 'Autorzy'
 		},
 		add: 'Dodaj dzieło',
-		emptyTitle: 'Twoje atelier jest jeszcze puste',
-		empty:
-			'Dodaj pierwsze dzieło, które rozpocznie Twoją kolekcję i zacznij tworzyć swoje własne atelier.',
+		welcome: {
+			title: 'Twoje atelier jest jeszcze puste',
+			text: 'Atelier to Twoja prywatna kolekcja dzieł, które poznajesz. Mogą to być obrazy zobaczone w muzeum, budowle z podróży albo rzeźby omawiane na wykładzie. Każde dzieło zapisujesz i opisujesz po swojemu. Z czasem z tych opisów powstaje mapa historii sztuki, którą tworzysz krok po kroku.',
+			howTitle: 'Jak to działa?',
+			steps: [
+				{
+					title: 'Dodaj dzieło',
+					text: 'Zacznij od tytułu i autora, czyli od tego, co zwykle zapamiętujesz najpierw. Obraz dzieła możesz wyszukać w Wikimedia Commons albo dodać własne zdjęcie, na przykład zrobione w muzeum. Datę powstania, epokę, styl czy technikę uzupełnisz od razu albo wtedy, gdy dowiesz się o dziele więcej.'
+				},
+				{
+					title: 'Opisuj i łącz',
+					text: 'Wszystko, co wpisujesz przy dziełach, trafia do Kartoteki. Tam widzisz, które dzieła łączy ten sam autor, styl, epoka albo miejsce. Nowe pojęcia możesz zapisać w Słowniczku, a w notatkach odsyłać do innych dzieł i do wartości z Kartoteki.'
+				},
+				{
+					title: 'Powtarzaj',
+					text: 'Kiedy w atelier zbierze się dwadzieścia dzieł z obrazami, możesz zacząć powtórki. To krótkie codzienne sesje: widzisz dzieło i sprawdzasz, czy pamiętasz, co to jest. Dzieła, które rozpoznajesz bez trudu, wracają rzadziej, a te sprawiające kłopot częściej. Dzięki temu nauka zajmuje kilka minut dziennie.'
+				}
+			]
+		},
 		addFirst: 'Dodaj pierwsze dzieło',
 		noResultsTitle: 'Nie udało się znaleźć żadnego pasującego dzieła',
 		noResults: (query: string): string =>
@@ -738,7 +823,60 @@ export const pl = {
 		urlUnreadable:
 			'Nie udało się wczytać obrazka z tego adresu. Sprawdź, czy prowadzi wprost do obrazka.',
 		uploadNetwork: 'Nie udało się wysłać obrazu. Sprawdź internet i spróbuj jeszcze raz.',
-		uploadFailed: 'Nie udało się wysłać obrazu. Spróbuj jeszcze raz za chwilę.'
+		uploadFailed: 'Nie udało się wysłać obrazu. Spróbuj jeszcze raz za chwilę.',
+		quotaFull: (quotaMegabytes: string): string =>
+			`Ten plik nie zmieści się w ${quotaMegabytes} MB na Twoje zdjęcia. Dodaj obraz z linku albo usuń niepotrzebne zdjęcia. Miejsce zwolni się w ciągu doby.`
+	},
+	announcements: {
+		label: 'Komunikat',
+		dismiss: 'Zamknij',
+		dismissLabel: 'Zamknij komunikat'
+	},
+	newVersion: {
+		message: 'Pojawiła się nowa wersja aplikacji. Odśwież stronę, żeby z niej skorzystać.',
+		reload: 'Odśwież'
+	},
+	legal: {
+		terms: 'Regulamin',
+		privacy: 'Polityka prywatności',
+		linksLabel: 'Dokumenty',
+		version: (date: string): string => `Obowiązuje od ${date}.`,
+		consentAccept: 'Akceptuję',
+		consentTerms: 'Regulamin',
+		consentDeclare: 'i oświadczam, że zapoznałem(-am) się z',
+		consentPrivacy: 'Polityką prywatności',
+		consentRequired: 'Zaakceptuj Regulamin, żeby założyć konto.',
+		updateTitle: 'Regulamin i Polityka prywatności zostały zmienione',
+		updateDescription: (date: string): string =>
+			`Nowa wersja obowiązuje od ${date}. Przeczytaj zmiany i zaakceptuj Regulamin, żeby dalej korzystać z atelier. Jeśli nie akceptujesz zmian, możesz pobrać kopię atelier i usunąć konto w ustawieniach.`,
+		updateAccept: 'Akceptuję',
+		updateSettings: 'Przejdź do ustawień',
+		accepted: (date: string): string => `Zaakceptowana wersja Regulaminu: ${date}`,
+		acceptFailed: 'Nie udało się zapisać akceptacji. Spróbuj jeszcze raz.'
+	},
+	limits: {
+		artworks: (limit: number): string =>
+			`W atelier zmieści się ${limit} dzieł, razem z tymi w Archiwum. Usuń z Archiwum te, których już nie potrzebujesz, żeby dodać nowe.`,
+		categoryValues: (limit: number): string =>
+			`W Kartotece zmieści się ${limit} wartości. Usuń te, których nie ma przy żadnym dziele, żeby dodać nowe.`,
+		glossaryEntries: (limit: number): string =>
+			`W Słowniczku zmieści się ${limit} pojęć. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		timelineEvents: (limit: number): string =>
+			`W Kalendarium zmieści się ${limit} wydarzeń. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		visits: (limit: number): string =>
+			`W Kronice zmieści się ${limit} wizyt. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		artworkFields: (limit: number): string =>
+			`W atelier zmieści się ${limit} własnych pól. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		artworkValues: (limit: number): string =>
+			`Dzieła w atelier mogą mieć razem ${limit} wartości z Kartoteki. Usuń z dzieł te, których już nie potrzebujesz, żeby dodać nowe.`,
+		visitArtworks: (limit: number): string =>
+			`Wizyty w Kronice mogą mieć razem ${limit} obejrzanych dzieł. Usuń z wizyt te, których już nie potrzebujesz, żeby dodać nowe.`,
+		artworkFieldEntries: (limit: number): string =>
+			`Dzieła w atelier mogą mieć razem ${limit} wpisów we własnych polach. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		reviewAnswers: (limit: number): string =>
+			`W ciągu doby zmieści się ${limit} odpowiedzi w powtórkach. Zrób przerwę i wróć później.`,
+		feedback: (limit: number): string =>
+			`W ciągu doby można wysłać ${limit} zgłoszeń. Wróć z kolejnym później.`
 	},
 	cardIndex: {
 		title: 'Kartoteka',
@@ -973,7 +1111,8 @@ export const pl = {
 		back: 'Słowniczek',
 		add: 'Dodaj pojęcie',
 		emptyTitle: 'Słowniczek jest jeszcze pusty',
-		empty: 'Dodaj pierwsze pojęcie, gdy trafisz na słowo, które chcesz zapamiętać.',
+		empty:
+			'Gdy trafisz na słowo, którego chcesz się nauczyć, zapisz je tutaj razem z definicją. Definicję możesz wpisać samodzielnie albo uzupełnić z Wikipedii. Kiedy to słowo pojawi się w notatkach przy dziełach, zobaczysz tam jego definicję.',
 		addFirst: 'Dodaj pierwsze pojęcie',
 		search: 'Szukaj pojęcia',
 		noResults: (query: string): string =>
@@ -1085,7 +1224,8 @@ export const pl = {
 			`${visitCount(visits)} · ${workCount(seen)} na żywo`,
 		add: 'Dodaj wizytę',
 		emptyTitle: 'Kronika jest jeszcze pusta',
-		empty: 'Uwiecznij swoje ostatnie spotkanie ze sztuką i zacznij budować kronikę swoich wizyt.',
+		empty:
+			'Zapisuj tu swoje wizyty w muzeach, galeriach i innych miejscach, gdzie spotykasz się ze sztuką. Przy każdej wizycie możesz zaznaczyć dzieła, które udało Ci się zobaczyć na żywo, i dodać notatkę z wrażeniami.',
 		addFirst: 'Dodaj pierwszą wizytę',
 		loadErrorTitle: 'Nie udało się wczytać kroniki',
 		back: 'Kronika',
@@ -1147,7 +1287,7 @@ export const pl = {
 		lead: 'Twoje dzieła i wydarzenia w prawdziwej skali czasu, epoka po epoce.',
 		emptyTitle: 'Kalendarium jest jeszcze puste',
 		empty:
-			'Zobaczysz tutaj wszystkie swoje dzieła umieszczone na osi czasu, a także wydarzenia i okresy historyczne, które dodasz.',
+			'Tutaj zobaczysz swoje dzieła na osi czasu, każde w roku swojego powstania. Dzieła pojawią się same, gdy wpiszesz im datę. Możesz też dodać wydarzenia i okresy historyczne, a ich opis i daty uzupełnić z Wikipedii, żeby widzieć, co działo się w tym samym czasie.',
 		addFirst: 'Dodaj pierwsze wydarzenie',
 		add: 'Dodaj wydarzenie',
 		saved: (name: string): string => `Zapisano wydarzenie „${name}”.`,

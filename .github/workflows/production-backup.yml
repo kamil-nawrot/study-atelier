@@ -1,0 +1,53 @@
+name: Production backup
+on:
+  schedule:
+    - cron: '17 4 * * 0'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: production-backup
+  cancel-in-progress: false
+jobs:
+  backup:
+    name: Back up the production database and images
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      deployment: false
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.120.0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Dump the database
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: .github/scripts/dump-database.sh "$RUNNER_TEMP/backup/database"
+
+      - name: Download the images
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: node .github/scripts/copy-bucket.mjs download "$RUNNER_TEMP/backup/images"
+
+      - name: Encrypt the backup
+        env:
+          BACKUP_AGE_RECIPIENT: ${{ vars.BACKUP_AGE_RECIPIENT }}
+        run: .github/scripts/encrypt-backup.sh "$RUNNER_TEMP/backup" "$RUNNER_TEMP/production-backup.tar.gz.age"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: production-backup-${{ github.run_id }}
+          path: ${{ runner.temp }}/production-backup.tar.gz.age
+          retention-days: 30
+          if-no-files-found: error

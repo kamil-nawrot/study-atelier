@@ -32,3 +32,6 @@ jobs:
 
       - name: Check the docs and e-mail addresses
         run: node .github/scripts/check-docs.mjs
+
+      - name: Test the workflow scripts
+        run: node --test '.github/scripts/**/*.test.mjs'

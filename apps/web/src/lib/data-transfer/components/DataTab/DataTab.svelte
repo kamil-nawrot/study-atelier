@@ -1,19 +1,31 @@
 <script lang="ts">
-	import { Alert, Button, FilePicker } from '@study-atelier/ui';
+	import { Alert, Button, FilePicker, Meter } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { downloadBlob } from '#lib/data-transfer/download/download.ts';
 	import { exportAtelier } from '#lib/data-transfer/export-atelier/export-atelier.ts';
 	import { importArchive } from '#lib/data-transfer/import-atelier/import-atelier.ts';
 	import type { ImportProgress } from '#lib/data-transfer/types/import-progress.ts';
 	import type { ExportProgress } from '#lib/data-transfer/types/export-progress.ts';
+	import { megabytes } from '#lib/images/storage-usage/storage-usage.ts';
+	import type { StorageUsage } from '#lib/images/types/storage-usage.ts';
 
 	type Props = {
 		atelierEmpty?: boolean;
 		onexported: (message: string) => void;
 		onimported: (message: string) => void | Promise<void>;
+		storageUsage?: StorageUsage;
 	};
 
-	let { atelierEmpty, onexported, onimported }: Props = $props();
+	let { atelierEmpty, onexported, onimported, storageUsage }: Props = $props();
+
+	let usageText = $derived(
+		storageUsage
+			? m.settings.data.storageUsage(
+					megabytes(storageUsage.usedBytes),
+					megabytes(storageUsage.quotaBytes)
+				)
+			: ''
+	);
 
 	const importHintId = $props.id();
 
@@ -77,7 +89,16 @@
 </script>
 
 <div class="data">
-	<section>
+	{#if storageUsage}
+		<section>
+			<h2>{m.settings.data.storageTitle}</h2>
+			<p>{usageText}</p>
+			<div class="usage">
+				<Meter label={usageText} max={storageUsage.quotaBytes} value={storageUsage.usedBytes} />
+			</div>
+		</section>
+	{/if}
+	<section class:rule={storageUsage}>
 		<h2>{m.settings.data.exportTitle}</h2>
 		{#if error}
 			<Alert title={m.settings.data.errorTitle} tone="danger">{error}</Alert>
@@ -136,6 +157,16 @@
 	.status {
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
+	}
+
+	.usage {
+		inline-size: 100%;
+	}
+
+	@media (min-width: 768px) {
+		.usage {
+			inline-size: 50cqi;
+		}
 	}
 
 	.actions {

@@ -95,6 +95,7 @@
 						/>
 					{:else if tab === 'account'}
 						<AccountTab
+							acceptedLegalVersion={data.acceptedLegalVersion}
 							{email}
 							onchanged={(message) => toast.show(message)}
 							pendingEmail={data.pendingEmail}
@@ -104,6 +105,7 @@
 							atelierEmpty={data.atelierEmpty}
 							onexported={(message) => toast.show(message)}
 							onimported={dataImported}
+							storageUsage={data.storageUsage}
 						/>
 					{:else}
 						{#key tab}
@@ -146,6 +148,7 @@
 	}
 
 	.panel {
+		container-type: inline-size;
 		display: flex;
 		flex-direction: column;
 		box-sizing: border-box;

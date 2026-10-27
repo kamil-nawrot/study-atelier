@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { changePassword, requestEmailChange } from '#lib/auth/account-data/account-data.ts';
+import { goto } from '$app/navigation';
+import {
+	changePassword,
+	deleteAccount,
+	requestEmailChange
+} from '#lib/auth/account-data/account-data.ts';
+import { accountDeleted } from '#lib/auth/account-deleted/account-deleted.svelte.ts';
 import { MIN_PASSWORD_LENGTH } from '#lib/auth/validation/validation.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { TEST_EMAIL } from '#lib/testing/auth/auth.ts';
@@ -9,8 +15,10 @@ import AccountTab from './AccountTab.svelte';
 
 vi.mock('#lib/auth/account-data/account-data.ts', () => ({
 	changePassword: vi.fn(),
+	deleteAccount: vi.fn(),
 	requestEmailChange: vi.fn()
 }));
+vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 
 const onchanged = vi.fn();
 
@@ -112,7 +120,13 @@ describe('AccountTab', () => {
 		await page.getByText(m.settings.account.signOutOthers).click();
 		await submit().click();
 
-		expect(changePassword).toHaveBeenCalledWith(TEST_EMAIL, 'vermeer1', 'rembrandt2', false);
+		expect(changePassword).toHaveBeenCalledWith(
+			TEST_EMAIL,
+			'vermeer1',
+			'rembrandt2',
+			false,
+			undefined
+		);
 		expect(onchanged).toHaveBeenCalledWith(m.settings.account.changed);
 		await expect.element(field(m.settings.account.currentPassword)).toHaveValue('');
 		await expect.element(field(m.settings.account.newPassword)).toHaveValue('');
@@ -154,5 +168,68 @@ describe('AccountTab', () => {
 			.toHaveTextContent(m.settings.account.othersFailed);
 		expect(onchanged).not.toHaveBeenCalled();
 		await expect.element(field(m.settings.account.newPassword)).toHaveValue('');
+	});
+});
+
+describe('AccountTab deletion', () => {
+	function confirm(): ReturnType<typeof page.getByRole> {
+		return page.getByRole('button', { name: m.settings.account.deleteSubmit, exact: true });
+	}
+
+	async function openDialog(): Promise<void> {
+		render(AccountTab, { email: TEST_EMAIL, onchanged });
+		await page.getByRole('button', { name: m.settings.account.deleteOpen }).click();
+	}
+
+	beforeEach(() => {
+		vi.clearAllMocks();
+		accountDeleted.value = false;
+	});
+
+	it('asks for the password and points to the export before deleting', async () => {
+		await openDialog();
+
+		const dialog = page.getByRole('alertdialog', { name: m.settings.account.deleteConfirmTitle });
+		await expect.element(dialog).toBeVisible();
+		await expect
+			.element(dialog.getByRole('link', { name: m.settings.account.deleteToData }))
+			.toHaveAttribute('href', '/atelier/settings?tab=data');
+		await expect.element(confirm()).toBeDisabled();
+	});
+
+	it('shows a wrong password under the field and keeps the learner signed in', async () => {
+		vi.mocked(deleteAccount).mockResolvedValue({
+			deleted: false,
+			passwordError: m.settings.account.wrongCurrent
+		});
+		await openDialog();
+
+		await field(m.settings.account.deletePassword).fill('wrong');
+		await confirm().click();
+
+		await expect.element(page.getByText(m.settings.account.wrongCurrent)).toBeVisible();
+		expect(goto).not.toHaveBeenCalled();
+		expect(accountDeleted.value).toBe(false);
+	});
+
+	it('leads to the sign-in page with the notice after the account is deleted', async () => {
+		vi.mocked(deleteAccount).mockResolvedValue({ deleted: true });
+		await openDialog();
+
+		await field(m.settings.account.deletePassword).fill('vermeer1');
+		await confirm().click();
+
+		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
+		expect(deleteAccount).toHaveBeenCalledWith(TEST_EMAIL, 'vermeer1', undefined);
+		expect(accountDeleted.value).toBe(true);
+	});
+});
+
+describe('AccountTab documents', () => {
+	it('shows the accepted version of the terms with links to both documents', async () => {
+		render(AccountTab, { acceptedLegalVersion: '2026-10-26', email: TEST_EMAIL, onchanged });
+
+		await expect.element(page.getByText(m.legal.accepted('26.10.2026'))).toBeVisible();
+		await expect.element(page.getByRole('link', { name: m.legal.terms })).toBeVisible();
 	});
 });
