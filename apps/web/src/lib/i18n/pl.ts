@@ -358,9 +358,25 @@ export const pl = {
 			label: 'Autorzy'
 		},
 		add: 'Dodaj dzieło',
-		emptyTitle: 'Twoje atelier jest jeszcze puste',
-		empty:
-			'Dodaj pierwsze dzieło, które rozpocznie Twoją kolekcję i zacznij tworzyć swoje własne atelier.',
+		welcome: {
+			title: 'Twoje atelier jest jeszcze puste',
+			text: 'Atelier to Twoja prywatna kolekcja dzieł, które poznajesz. Mogą to być obrazy zobaczone w muzeum, budowle z podróży albo rzeźby omawiane na wykładzie. Każde dzieło zapisujesz i opisujesz po swojemu. Z czasem z tych opisów powstaje mapa historii sztuki, którą tworzysz krok po kroku.',
+			howTitle: 'Jak to działa?',
+			steps: [
+				{
+					title: 'Dodaj dzieło',
+					text: 'Zacznij od tytułu i autora, czyli od tego, co zwykle zapamiętujesz najpierw. Obraz dzieła możesz wyszukać w Wikimedia Commons albo dodać własne zdjęcie, na przykład zrobione w muzeum. Datę powstania, epokę, styl czy technikę uzupełnisz od razu albo wtedy, gdy dowiesz się o dziele więcej.'
+				},
+				{
+					title: 'Opisuj i łącz',
+					text: 'Wszystko, co wpisujesz przy dziełach, trafia do Kartoteki. Tam widzisz, które dzieła łączy ten sam autor, styl, epoka albo miejsce. Nowe pojęcia możesz zapisać w Słowniczku, a w notatkach odsyłać do innych dzieł i do wartości z Kartoteki.'
+				},
+				{
+					title: 'Powtarzaj',
+					text: 'Kiedy w atelier zbierze się dwadzieścia dzieł z obrazami, możesz zacząć powtórki. To krótkie codzienne sesje: widzisz dzieło i sprawdzasz, czy pamiętasz, co to jest. Dzieła, które rozpoznajesz bez trudu, wracają rzadziej, a te sprawiające kłopot częściej. Dzięki temu nauka zajmuje kilka minut dziennie.'
+				}
+			]
+		},
 		addFirst: 'Dodaj pierwsze dzieło',
 		noResultsTitle: 'Nie udało się znaleźć żadnego pasującego dzieła',
 		noResults: (query: string): string =>
@@ -1036,7 +1052,8 @@ export const pl = {
 		back: 'Słowniczek',
 		add: 'Dodaj pojęcie',
 		emptyTitle: 'Słowniczek jest jeszcze pusty',
-		empty: 'Dodaj pierwsze pojęcie, gdy trafisz na słowo, które chcesz zapamiętać.',
+		empty:
+			'Gdy trafisz na słowo, którego chcesz się nauczyć, zapisz je tutaj razem z definicją. Definicję możesz wpisać samodzielnie albo uzupełnić z Wikipedii. Kiedy to słowo pojawi się w notatkach przy dziełach, zobaczysz tam jego definicję.',
 		addFirst: 'Dodaj pierwsze pojęcie',
 		search: 'Szukaj pojęcia',
 		noResults: (query: string): string =>
@@ -1148,7 +1165,8 @@ export const pl = {
 			`${visitCount(visits)} · ${workCount(seen)} na żywo`,
 		add: 'Dodaj wizytę',
 		emptyTitle: 'Kronika jest jeszcze pusta',
-		empty: 'Uwiecznij swoje ostatnie spotkanie ze sztuką i zacznij budować kronikę swoich wizyt.',
+		empty:
+			'Zapisuj tu swoje wizyty w muzeach, galeriach i innych miejscach, gdzie spotykasz się ze sztuką. Przy każdej wizycie możesz zaznaczyć dzieła, które udało Ci się zobaczyć na żywo, i dodać notatkę z wrażeniami.',
 		addFirst: 'Dodaj pierwszą wizytę',
 		loadErrorTitle: 'Nie udało się wczytać kroniki',
 		back: 'Kronika',
@@ -1210,7 +1228,7 @@ export const pl = {
 		lead: 'Twoje dzieła i wydarzenia w prawdziwej skali czasu, epoka po epoce.',
 		emptyTitle: 'Kalendarium jest jeszcze puste',
 		empty:
-			'Zobaczysz tutaj wszystkie swoje dzieła umieszczone na osi czasu, a także wydarzenia i okresy historyczne, które dodasz.',
+			'Tutaj zobaczysz swoje dzieła na osi czasu, każde w roku swojego powstania. Dzieła pojawią się same, gdy wpiszesz im datę. Możesz też dodać wydarzenia i okresy historyczne, a ich opis i daty uzupełnić z Wikipedii, żeby widzieć, co działo się w tym samym czasie.',
 		addFirst: 'Dodaj pierwsze wydarzenie',
 		add: 'Dodaj wydarzenie',
 		saved: (name: string): string => `Zapisano wydarzenie „${name}”.`,

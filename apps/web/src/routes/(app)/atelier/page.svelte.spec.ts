@@ -164,8 +164,11 @@ describe('atelier page', () => {
 		renderAtelier([]);
 
 		await expect
-			.element(page.getByRole('heading', { level: 2 }))
-			.toHaveTextContent(m.atelier.emptyTitle);
+			.element(page.getByRole('heading', { level: 2, name: m.atelier.welcome.title }))
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { level: 2, name: m.atelier.welcome.howTitle }))
+			.toBeVisible();
 		await expect
 			.element(page.getByRole('link', { name: m.atelier.addFirst }))
 			.toHaveAttribute('href', '/atelier/new');

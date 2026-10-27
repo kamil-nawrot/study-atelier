@@ -146,3 +146,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0140](0140-report-browser-errors-to-sentry-and-watch-the-uptime.md)                      | Report browser errors to Sentry and watch the uptime                                     | accepted           |
 | [0141](0141-cache-own-images-for-a-day-on-the-device.md)                                  | Cache own images for a day on the device                                                 | accepted           |
 | [0142](0142-mail-new-feedback-to-the-owner-every-hour.md)                                 | Mail new feedback to the owner every hour                                                | accepted           |
+| [0143](0143-welcome-a-new-learner-on-the-empty-wall.md)                                   | Welcome a new learner on the empty wall                                                  | accepted           |
