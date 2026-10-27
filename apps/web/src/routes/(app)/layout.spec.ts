@@ -44,6 +44,7 @@ function loadWith(session: Session | null): ReturnType<typeof load> {
 
 describe('(app) layout load', () => {
 	beforeEach(() => {
+		preferencesData.loadPreferences.mockClear();
 		profileData.loadProfile.mockResolvedValue({
 			profile: { displayName: 'Anna', avatarPath: null }
 		});
@@ -57,6 +58,7 @@ describe('(app) layout load', () => {
 		const error = await Promise.resolve(loadWith(null)).catch((thrown: unknown) => thrown);
 
 		expect(isRedirect(error) && error).toMatchObject({ status: 307, location: '/sign-in' });
+		expect(preferencesData.loadPreferences).not.toHaveBeenCalled();
 	});
 
 	it('passes the session on when signed in', async () => {
