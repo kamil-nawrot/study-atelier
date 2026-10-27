@@ -1,8 +1,6 @@
 <script lang="ts">
-	import ImagesIcon from '@lucide/svelte/icons/images';
-	import Plus from '@lucide/svelte/icons/plus';
 	import { onMount } from 'svelte';
-	import { Alert, Button, EmptyState, Icon, Section, TextButton, Toast } from '@study-atelier/ui';
+	import { Alert, Button, Section, TextButton, Toast } from '@study-atelier/ui';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -10,6 +8,7 @@
 	import FilterTags from '#lib/wall/components/FilterTags/FilterTags.svelte';
 	import PeriodRail from '#lib/wall/components/PeriodRail/PeriodRail.svelte';
 	import WallSections from '#lib/wall/components/WallSections/WallSections.svelte';
+	import WallWelcome from '#lib/wall/components/WallWelcome/WallWelcome.svelte';
 	import { onlyFavourites } from '#lib/wall/filter/filter.ts';
 	import { removeTag } from '#lib/wall/filter-tags/filter-tags.ts';
 	import { favouriteToast } from '#lib/wall/favourite/favourite.ts';
@@ -108,12 +107,7 @@
 		{error}
 	</Alert>
 {:else if view.total === 0}
-	<EmptyState icon={ImagesIcon} text={m.atelier.empty} title={m.atelier.emptyTitle}>
-		<Button href={addPath}>
-			<Icon icon={Plus} />
-			{m.atelier.addFirst}
-		</Button>
-	</EmptyState>
+	<WallWelcome {addPath} />
 {:else if view.shown.length === 0 && view.filtering}
 	{@render tags()}
 	{@render emptyState(
