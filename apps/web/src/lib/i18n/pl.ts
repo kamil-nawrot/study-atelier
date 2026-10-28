@@ -160,7 +160,8 @@ export const pl = {
 		metaDescription:
 			'Study Atelier to miejsce, w którym uczysz się historii sztuki, budując własną kolekcję dzieł.',
 		accountLabel: 'Konto',
-		title: 'Atelier do nauki historii sztuki',
+		title: 'Atelier do nauki',
+		titleAccent: 'historii sztuki',
 		text: 'Study Atelier to miejsce, w którym uczysz się historii sztuki, budując własną kolekcję dzieł. Zapisujesz dzieła, które poznajesz w muzeum, na wykładzie albo w książce, opisujesz je po swojemu i łączysz ze sobą. Z czasem powstaje z tego osobista baza wiedzy, do której zawsze możesz wrócić, a krótkie codzienne powtórki pomagają zapamiętać to, czego się uczysz.',
 		signIn: 'Zaloguj się',
 		signUp: 'Załóż konto',
@@ -191,6 +192,9 @@ export const pl = {
 				text: 'Jeśli chcesz efektywnie utrwalać swoją wiedzę o sztuce, możesz zmierzyć się z codziennymi wyzwaniami powtórkowymi, w których klasyczne fiszki i różnorodne quizy przeplatają się tak, by każde dzieło wracało do Ciebie wtedy, gdy zaczynasz je zapominać.'
 			}
 		],
+		closingTitle: 'Chcesz zbudować własną kolekcję sztuki?',
+		closingText:
+			'Otwórz atelier już teraz i daj swojej wiedzy o sztuce miejsce, w którym będzie mogła rosnąć.',
 		contact: 'kontakt@studyatelier.art'
 	},
 	menu: {

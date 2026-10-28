@@ -1,20 +1,16 @@
 <script lang="ts">
-	import BookA from '@lucide/svelte/icons/book-a';
-	import CalendarRange from '@lucide/svelte/icons/calendar-range';
-	import Footprints from '@lucide/svelte/icons/footprints';
-	import ImagesIcon from '@lucide/svelte/icons/images';
-	import Layers from '@lucide/svelte/icons/layers';
-	import ListTree from '@lucide/svelte/icons/list-tree';
-	import { ArtworkImage, Button, Frame } from '@study-atelier/ui';
+	import { Button } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
-	import { pickArtwork } from '#lib/auth/auth-artworks/auth-artworks.ts';
 	import { commonsFileUrl } from '#lib/images/commons/commons.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import LegalLinks from '#lib/legal/components/LegalLinks/LegalLinks.svelte';
+	import SalonWall from '#lib/start/components/SalonWall/SalonWall.svelte';
+	import { moduleArtworks, salonArtworks } from '#lib/start/salon/salon.ts';
 
-	const artwork = pickArtwork();
-	const imageUrl = commonsFileUrl(artwork.file, 1280);
-	const icons = [ImagesIcon, ListTree, BookA, CalendarRange, Footprints, Layers];
+	const MODULE_IMAGE_WIDTH = 960;
+
+	const salon = salonArtworks();
+	const pictures = moduleArtworks();
 	const signUp = resolve('/(auth)/sign-up');
 </script>
 
@@ -25,28 +21,11 @@
 <div class="start">
 	<main class="content">
 		<section class="hero">
-			<figure class="stage">
-				<img class="backdrop" alt="" aria-hidden="true" src={imageUrl} />
-				<div class="artwork">
-					<Frame size="view">
-						<ArtworkImage alt="{artwork.title}, {artwork.artist}" src={imageUrl} surface="frame" />
-					</Frame>
-				</div>
-				<figcaption>
-					<cite class="artwork-title">{artwork.title}</cite>
-					<span>{artwork.artist}, {artwork.date}</span>
-					<span class="credit">{artwork.credit}</span>
-				</figcaption>
-			</figure>
-
-			<div class="panel">
-				<div class="intro">
-					<h1>{m.landing.title}</h1>
-					<p class="text">{m.landing.text}</p>
-					<div class="actions">
-						<Button href={signUp} variant="primary">{m.landing.signUp}</Button>
-					</div>
-				</div>
+			<SalonWall artworks={salon} />
+			<div class="intro">
+				<h1>{m.landing.title} <em>{m.landing.titleAccent}</em></h1>
+				<p class="text">{m.landing.text}</p>
+				<Button href={signUp} variant="primary">{m.landing.signUp}</Button>
 			</div>
 		</section>
 
@@ -54,20 +33,26 @@
 			<h2 id="start-modules">{m.landing.modulesTitle}</h2>
 			<ul class="list">
 				{#each m.landing.modules as module, index (module.title)}
-					{@const Glyph = icons[index]}
-					<li class="module">
-						<Glyph
-							aria-hidden="true"
-							size={40}
-							stroke-linecap="square"
-							stroke-linejoin="miter"
-							strokeWidth={1.25}
+					{@const picture = pictures[index]}
+					<li style:--module-accent="var(--color-lane-{(index % 5) + 1})" class="module">
+						<img
+							alt="{picture.title}, {picture.artist}"
+							loading="lazy"
+							src={commonsFileUrl(picture.file, MODULE_IMAGE_WIDTH)}
 						/>
-						<h3>{module.title}</h3>
-						<p>{module.text}</p>
+						<div class="about">
+							<h3>{module.title}</h3>
+							<p>{module.text}</p>
+						</div>
 					</li>
 				{/each}
 			</ul>
+		</section>
+
+		<section class="closing" aria-labelledby="start-closing">
+			<h2 id="start-closing">{m.landing.closingTitle}</h2>
+			<p class="closing-text">{m.landing.closingText}</p>
+			<Button href={signUp} variant="primary">{m.landing.signUp}</Button>
 		</section>
 	</main>
 
@@ -78,94 +63,57 @@
 </div>
 
 <style>
-	.start {
-		display: grid;
-	}
-
+	.start,
 	.content {
 		display: grid;
 	}
 
 	.hero {
-		display: grid;
-	}
-
-	.stage {
 		position: relative;
 		display: grid;
-		justify-items: center;
-		height: 400px;
-		margin: 0;
+		place-items: center;
+		min-height: calc(100dvh - var(--public-header-height));
+		padding: var(--spacing-12) var(--spacing-4);
 		overflow: hidden;
 		background: var(--color-stage-bg);
 	}
 
-	.backdrop {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.stage::after {
+	.hero::after {
 		content: '';
 		position: absolute;
 		inset: 0;
-		background: var(--color-scrim);
-	}
-
-	.artwork {
-		display: none;
-		position: relative;
-		z-index: 1;
-	}
-
-	figcaption {
-		position: absolute;
-		z-index: 1;
-		right: var(--spacing-4);
-		bottom: var(--spacing-4);
-		left: var(--spacing-4);
-		display: grid;
-		color: var(--color-stage-fg);
-		font-size: var(--font-size-sm);
-		line-height: var(--line-height-sm);
-	}
-
-	figcaption span {
-		color: var(--color-stage-fg-muted);
-	}
-
-	.credit {
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-	}
-
-	.panel {
-		display: grid;
-		align-content: start;
-		gap: var(--spacing-12);
-		width: 100%;
-		max-width: calc(var(--size-content-narrow) + 2 * var(--spacing-4));
-		margin: 0 auto;
-		padding: var(--spacing-6) var(--spacing-4) var(--spacing-12);
+		background: radial-gradient(
+			ellipse 90% 45% at center,
+			var(--color-stage-bg) 50%,
+			var(--color-scrim) 100%
+		);
 	}
 
 	.intro {
+		position: relative;
+		z-index: 1;
 		display: grid;
+		justify-items: center;
 		gap: var(--spacing-6);
+		max-width: var(--size-content-default);
+		color: var(--color-stage-fg);
+		text-align: center;
+	}
+
+	h1 {
+		font-size: var(--font-size-2xl);
+		line-height: var(--line-height-2xl);
+		letter-spacing: var(--letter-spacing-tight);
+	}
+
+	h1 em {
+		font-family: var(--font-family-title);
+		font-weight: var(--font-weight-regular);
 	}
 
 	.text {
-		font-size: var(--font-size-lg);
-		line-height: var(--line-height-lg);
-	}
-
-	.actions {
-		display: grid;
-		justify-items: start;
-		gap: var(--spacing-3);
+		font-size: var(--font-size-md);
+		line-height: var(--line-height-md);
 	}
 
 	.modules,
@@ -185,7 +133,7 @@
 	.list {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
-		gap: var(--spacing-12);
+		gap: var(--spacing-6);
 		margin: 0;
 		padding: 0;
 		list-style: none;
@@ -193,14 +141,46 @@
 
 	.module {
 		display: grid;
-		align-content: start;
-		gap: var(--spacing-3);
-		color: var(--color-fg-muted);
+		grid-template-rows: auto 1fr;
+		border-top: var(--border-width-heavy) solid var(--module-accent);
+		background: var(--color-surface);
 	}
 
-	.module h3,
-	.module p {
-		color: var(--color-fg);
+	.module img {
+		width: 100%;
+		height: 180px;
+		object-fit: cover;
+	}
+
+	.about {
+		display: grid;
+		align-content: start;
+		gap: var(--spacing-2);
+		padding: var(--spacing-6);
+	}
+
+	.about p {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
+	}
+
+	.closing {
+		display: grid;
+		justify-items: center;
+		gap: var(--spacing-6);
+		padding: var(--spacing-16) var(--spacing-4);
+		background: var(--color-highlight);
+		color: var(--color-on-fg);
+		text-align: center;
+	}
+
+	.closing-text {
+		max-width: var(--size-content-default);
+		font-family: var(--font-family-title);
+		font-size: var(--font-size-lg);
+		font-style: italic;
+		line-height: var(--line-height-lg);
 	}
 
 	.footer {
@@ -209,7 +189,6 @@
 		justify-content: space-between;
 		gap: var(--spacing-3);
 		padding-block: var(--spacing-6) var(--spacing-8);
-		border-top: var(--border-width-hairline) solid var(--color-fg-muted);
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-xs);
 	}
@@ -220,31 +199,30 @@
 
 	@media (min-width: 768px) {
 		.hero {
-			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-			min-height: calc(100dvh - var(--public-header-height));
+			padding: var(--spacing-16) var(--spacing-6);
 		}
 
-		.stage {
-			align-content: center;
-			height: auto;
-			min-height: calc(100dvh - var(--public-header-height));
-			padding-bottom: var(--spacing-16);
+		.hero::after {
+			background: radial-gradient(
+				ellipse 55% 50% at center,
+				var(--color-stage-bg) 40%,
+				var(--color-scrim) 70%,
+				transparent 100%
+			);
 		}
 
-		.artwork {
-			display: block;
+		h1 {
+			font-size: var(--font-size-3xl);
+			line-height: var(--line-height-3xl);
 		}
 
-		.stage .artwork :global(img) {
-			width: auto;
-			max-height: min(64dvh, 720px);
-			max-width: min(36vw, 560px);
+		.text {
+			font-size: var(--font-size-lg);
+			line-height: var(--line-height-lg);
 		}
 
-		.panel {
-			align-content: center;
-			max-width: calc(var(--size-content-default) * 0.8 + 2 * var(--spacing-12));
-			padding: var(--spacing-12);
+		.modules {
+			padding-block: var(--spacing-24);
 		}
 	}
 </style>
