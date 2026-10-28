@@ -414,7 +414,7 @@ begin
   assert jsonb_array_length(asked) > 0, 'no author question was asked about the Umbrian artworks';
   assert not exists (
     select 1
-      from jsonb_array_elements(asked) as item
+      from jsonb_array_elements(asked) with ordinality as asked_item (item, place)
       cross join lateral (
         select (
           select string_agg(lower(btrim(name)), '|' order by lower(btrim(name)))
@@ -422,7 +422,7 @@ begin
         ) as authors_key
           from jsonb_array_elements(item -> 'options') as option
       ) as answer
-      group by item
+      group by asked_item.place
       having count(*) <> count(distinct answer.authors_key)
   ), 'an author question offers the same authors twice in another order';
 end;
