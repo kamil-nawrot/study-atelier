@@ -9,6 +9,9 @@ export function quizzesPossible(
 	termPins: number | undefined
 ): boolean {
 	if (kinds.includes('quiz_title') || kinds.includes('quiz_image')) return true;
+	if (kinds.includes('quiz_author') && artworks.some((artwork) => artwork.authors.length > 0)) {
+		return true;
+	}
 	if (kinds.includes('quiz_style') && artworks.some((artwork) => artwork.styles.length > 0)) {
 		return true;
 	}

@@ -10,6 +10,7 @@ export const REVIEW_FORMS: readonly ReviewForm[] = ['mixed', 'flashcards', 'quiz
 export const QUIZ_KINDS: readonly QuizMode[] = [
 	'quiz_image',
 	'quiz_title',
+	'quiz_author',
 	'quiz_style',
 	'quiz_pin'
 ];

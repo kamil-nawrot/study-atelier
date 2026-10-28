@@ -35,6 +35,11 @@ const styleQuiz: QuizData = {
 	options: ['Dutch Golden Age', 'Mannerism', 'Caravaggism', 'Rococo'].map((label) => ({ label }))
 };
 
+const authorQuiz: QuizData = {
+	answer: 3,
+	options: ['Rembrandt', 'Frans Hals', 'Jan Steen', 'Johannes Vermeer'].map((label) => ({ label }))
+};
+
 const termQuiz: QuizData = {
 	answer: 1,
 	options: ['Nave', 'Apse', 'Choir', 'Portal'].map((label) => ({ label }))
@@ -180,6 +185,29 @@ describe('Quiz', () => {
 
 		await page.getByRole('button', { name: /Caravaggism/ }).click();
 		expect(onanswer).toHaveBeenCalledWith(2);
+	});
+
+	it('asks who made the artwork without a hint', async () => {
+		await page.viewport(1280, 800);
+		const { onanswer } = renderQuiz('quiz_author', authorQuiz);
+
+		await expect
+			.element(page.getByRole('heading', { name: m.review.quiz.authorQuestion }))
+			.toBeVisible();
+		expect(document.querySelector('.lead')).toBeNull();
+
+		await page.getByRole('button', { name: /Frans Hals/ }).click();
+		expect(onanswer).toHaveBeenCalledWith(1);
+	});
+
+	it('names the right author with the title and the date after an author question', async () => {
+		await page.viewport(1280, 800);
+		renderQuiz('quiz_author', authorQuiz, 0);
+
+		await expect
+			.element(page.getByRole('status'))
+			.toHaveTextContent(`${m.review.quiz.wrong} Johannes Vermeer.`);
+		await expect.element(page.getByRole('status')).toHaveTextContent(`${answer.title}, ok. 1665.`);
 	});
 
 	it('asks what the marked place of a pinned image is', async () => {

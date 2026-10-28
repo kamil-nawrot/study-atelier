@@ -298,6 +298,7 @@ export const pl = {
 			kindLabels: {
 				quiz_image: 'Dopasowywanie dzieła do tytułu',
 				quiz_title: 'Dopasowywanie tytułu do dzieła',
+				quiz_author: 'Dopasowywanie autora do dzieła',
 				quiz_style: 'Dopasowywanie stylu do dzieła',
 				quiz_pin: 'Dopasowywanie detalu do definicji'
 			},
@@ -710,6 +711,7 @@ export const pl = {
 			imageAlt: (position: number): string => `Obraz ${position}`,
 			openImage: (position: number): string => `Powiększ obraz ${position}`,
 			titleQuestion: 'Jaki tytuł nosi to dzieło sztuki?',
+			authorQuestion: 'Kto jest autorem tego dzieła?',
 			styleQuestion: 'W jakim stylu powstało to dzieło?',
 			styleHint: 'Zwróć uwagę na formę, materiał i kompozycję.',
 			pinQuestion: 'Co to jest?',
