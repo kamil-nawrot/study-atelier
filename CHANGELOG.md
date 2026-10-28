@@ -2,6 +2,33 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.13.1] - 2026-10-28
+
+The review asks who made an artwork and about glossary definitions, the start page shows a wall of paintings, and forms show plainly when they fill fields from Wikipedia, Wikidata or Wiktionary.
+
+### Added
+
+- The review asks "Kto jest autorem tego dzieła?" with four sets of authors to choose from, the wrong ones from the closest artworks. "Dopasowywanie autora do dzieła" is a new quiz kind in the settings, on by default for new accounts; existing accounts switch it on themselves.
+- Sessions include extra questions from the glossary: "Jakie pojęcie opisuje ta definicja?" with the term hidden in its definition and four terms to choose from. They change no schedule; the settings ask "Ile pytań dodatkowych ze Słowniczka dołączać do sesji?" (1 to 3) and the review start has the switch "Dołącz definicje ze Słowniczka".
+
+### Changed
+
+- The start page shows a salon wall of framed public domain paintings behind the title, a card with an artwork for each module, and ends with "Chcesz zbudować własną kolekcję sztuki?" and "Załóż konto".
+- The pages before signing in show each account action once: "Zaloguj się" on the start page, only the logo above the forms, both actions on the legal pages.
+- While a form fills fields from Wikipedia, Wikidata or Wiktionary, those fields show faint lines and cannot be edited, "Wyszukiwanie w Wikipedii… Przerwij" says what is fetched, and saving waits until the search ends or is stopped. A search gives up after 20 seconds, an image from an address after 15. Text areas use the app's scrollbar.
+- Internal: a code review of the version, its fixes and tests, and the generated database types kept out of the repository's Prettier run.
+
+### Fixed
+
+- "Co to jest?" questions come up again for pins that keep a view of the loupe.
+- Quiz tiles show the title in up to two lines and the whole title with its authors in a tooltip, above the neighbouring tiles.
+- The inflected forms typed while Wiktionary answers are no longer overwritten, and an image found for an earlier title no longer fills a new artwork.
+- The author quiz never offers the same authors twice in another order.
+
+### Migrations run on production
+
+5 migrations run on production with this release: `20261028100000_author_review_quiz` allows the `quiz_author` answer mode and quiz kind, adds it to the default and to every profile's quiz kinds, and recreates `review_session` with the author quiz; `20261028120000_review_glossary_questions` adds `profiles.review_glossary_questions` (default 1); `20261028140000_view_pins_in_review` and `20261028160000_author_quiz_unique_sets` recreate `review_session` asking about pins with a loupe view and deduplicating author sets; `20261028180000_author_quiz_for_new_accounts` removes `quiz_author` again from the existing profiles, so learners keep the kinds they had. `review_session` keeps its arguments and result shape, so the previous app keeps working.
+
 ## [0.13.0] - 2026-10-27
 
 The app is ready to open to other learners: it has a public start page, terms and a privacy policy, protected sign-up, account deletion and limits per account, and the owner is told about errors, downtime and new feedback.
@@ -566,3 +593,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.11.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.11.0
 [0.12.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.12.0
 [0.13.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.13.0
+[0.13.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.13.1
