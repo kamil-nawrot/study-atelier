@@ -157,3 +157,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0151](0151-show-a-filling-field-with-text-sized-lines.md)                                | Show a filling field with text-sized lines                                               | accepted           |
 | [0152](0152-ask-who-made-the-artwork-in-the-review.md)                                    | Ask who made the artwork in the review                                                   | accepted           |
 | [0153](0153-add-glossary-definitions-to-the-review-as-extra-questions.md)                 | Add glossary definitions to the review as extra questions                                | accepted           |
+| [0154](0154-turn-the-author-quiz-on-only-for-new-accounts.md)                             | Turn the author quiz on only for new accounts                                            | accepted           |
