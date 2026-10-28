@@ -16,7 +16,7 @@
 	import { formatDate, signedYear } from '#lib/catalogue/years/years.ts';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
 	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
-	import ArtworkVisits from '#lib/chronicle/components/ArtworkVisits/ArtworkVisits.svelte';
+	import VisitsDisclosure from '#lib/chronicle/components/VisitsDisclosure/VisitsDisclosure.svelte';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
 	import MentionedIn from '#lib/notes/components/MentionedIn/MentionedIn.svelte';
 	import type { Mention } from '#lib/notes/types/mention.ts';
@@ -218,7 +218,7 @@
 		{/each}
 	</dl>
 
-	<ArtworkVisits {visits} />
+	<VisitsDisclosure title={m.chronicle.artworkVisits} {visits} />
 
 	<section class="notes" aria-labelledby="artwork-notes">
 		<h2 id="artwork-notes" class="caption">{m.common.notes}</h2>

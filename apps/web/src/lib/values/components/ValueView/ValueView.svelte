@@ -20,6 +20,8 @@
 	import type { Mention } from '#lib/notes/types/mention.ts';
 	import type { ValueDetails } from '#lib/values/types/value-details.ts';
 	import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
+	import VisitsDisclosure from '#lib/chronicle/components/VisitsDisclosure/VisitsDisclosure.svelte';
+	import type { Visit } from '#lib/chronicle/types/visit.ts';
 	import MentionedIn from '#lib/notes/components/MentionedIn/MentionedIn.svelte';
 
 	type Props = {
@@ -30,9 +32,19 @@
 		noteLinks?: NoteLinks;
 		glossary?: GlossaryEntry[];
 		mentions?: Mention[];
+		visits?: Visit[];
 	};
 
-	let { subject, parents, count, details, noteLinks, glossary, mentions = [] }: Props = $props();
+	let {
+		subject,
+		parents,
+		count,
+		details,
+		noteLinks,
+		glossary,
+		mentions = [],
+		visits = []
+	}: Props = $props();
 
 	const PORTRAIT_WIDTH = 500;
 
@@ -108,6 +120,13 @@
 				</p>
 			{/if}
 		</header>
+
+		<VisitsDisclosure
+			stub={(visit) =>
+				visit.artworkIds.length > 0 ? m.chronicle.seen(visit.artworkIds.length) : ''}
+			title={m.chronicle.placeVisits}
+			{visits}
+		/>
 
 		{#if empty}
 			<p class="empty">{m.valuePage.kinds[subject.kind].noNotes}</p>

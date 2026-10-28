@@ -1248,6 +1248,7 @@ export const pl = {
 			`${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })} na żywo`,
 		kind: 'Wizyta',
 		artworkVisits: (count: number): string => `Widziane na żywo · ${visitCount(count)}`,
+		placeVisits: (count: number): string => `Z Twojej kroniki · ${visitCount(count)}`,
 		inYear: (year: number): string => `${year} roku`,
 		saved: (place: string, date: string): string => `Zapisano wizytę: ${place}, ${date}.`,
 		view: {

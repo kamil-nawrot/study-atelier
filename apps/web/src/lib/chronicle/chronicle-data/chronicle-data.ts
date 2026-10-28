@@ -88,6 +88,21 @@ export async function loadArtworkVisits(number: number): Promise<VisitsResult> {
 	return { visits: rows.map(visitOf) };
 }
 
+export async function loadPlaceVisits(placeId: string): Promise<VisitsResult> {
+	const { rows, error } = await fetchAll<VisitRow>((from, to) =>
+		supabase
+			.from('visits')
+			.select(VISIT_COLUMNS)
+			.eq('place_id', placeId)
+			.order('visited_on', { ascending: false })
+			.order('created_at', { ascending: false })
+			.order('id', { ascending: false })
+			.range(from, to)
+	);
+	if (error) return { visits: [], error: chronicleErrorMessage(error) };
+	return { visits: rows.map(visitOf) };
+}
+
 export async function loadVisit(id: string): Promise<VisitResult> {
 	if (!isUuid(id)) return { notFound: true };
 	const { data, error } = await supabase

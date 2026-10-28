@@ -15,6 +15,23 @@ describe('SmallTicket', () => {
 		await expect.element(page.getByText('paź 2026')).toBeInTheDocument();
 	});
 
+	it('shows the given stub in place of the place', async () => {
+		render(SmallTicket, { visit: testVisit(), stub: '2 dzieła na żywo' });
+
+		await expect
+			.element(page.getByRole('link', { name: /^12 października 2026.*2 dzieła na żywo$/ }))
+			.toBeInTheDocument();
+		expect(page.getByText('Musée d’Orsay').elements()).toHaveLength(0);
+	});
+
+	it('leaves the stub empty for an empty text', async () => {
+		render(SmallTicket, { visit: testVisit(), stub: '' });
+
+		await expect
+			.element(page.getByRole('link', { name: /^12 października 2026$/ }))
+			.toBeInTheDocument();
+	});
+
 	it('shows only what is known of the date', async () => {
 		render(SmallTicket, { visit: testVisit({ date: { on: '2019-01-01', precision: 'year' } }) });
 
