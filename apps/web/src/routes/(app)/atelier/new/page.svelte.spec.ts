@@ -12,6 +12,11 @@ import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { pending, testSession } from '#lib/testing/auth/auth.ts';
 import {
+	answerRpc,
+	saveArtworkCalls,
+	savedCandidates
+} from '#lib/testing/duplicates/duplicates.ts';
+import {
 	linkedValues,
 	eraTile,
 	toggleSpan,
@@ -73,24 +78,14 @@ function renderPage(
 }
 
 function savedBefore(title: string, author: string, number = 5): void {
-	artworks.is.mockResolvedValue({
-		data: [
-			{
-				id: `artwork-${number}`,
-				record_number: number,
-				title,
-				artwork_values: [{ category_values: { category_code: 'author', name: author } }]
-			}
-		],
-		error: null
-	});
+	savedCandidates({ id: `artwork-${number}`, record_number: number, title, authors: [author] });
 }
 
 describe('add artwork page', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
 		answerNothingFromWikidata();
-		vi.mocked(supabase.rpc).mockReturnValue(rpcCall as never);
+		answerRpc(rpcCall);
 		rpcCall.single.mockResolvedValue({
 			data: { id: 'artwork-12', record_number: 12 },
 			error: null
@@ -185,7 +180,7 @@ describe('add artwork page', () => {
 		await expect.element(page.getByText(m.artworkErrors.titleRequired)).toBeVisible();
 		await expect.element(page.getByText(m.artworkErrors.authorRequired)).toBeVisible();
 		await expect.element(titleField()).toHaveFocus();
-		expect(supabase.rpc).not.toHaveBeenCalled();
+		expect(saveArtworkCalls()).toHaveLength(0);
 	});
 
 	it('rejects a year that is not a whole number', async () => {
@@ -196,7 +191,7 @@ describe('add artwork page', () => {
 		await saveButton().click();
 
 		await expect.element(page.getByText(m.artworkErrors.yearInvalid)).toBeVisible();
-		expect(supabase.rpc).not.toHaveBeenCalled();
+		expect(saveArtworkCalls()).toHaveLength(0);
 	});
 
 	it('switches the date to a year span and saves both of its years', async () => {
@@ -233,7 +228,7 @@ describe('add artwork page', () => {
 		await saveButton().click();
 
 		await expect.element(page.getByText(m.artworkErrors.spanOrder)).toBeVisible();
-		expect(supabase.rpc).not.toHaveBeenCalled();
+		expect(saveArtworkCalls()).toHaveLength(0);
 	});
 
 	it('keeps the end year as the year when the year span is switched off', async () => {
@@ -367,10 +362,7 @@ describe('add artwork page', () => {
 
 		await saveButton().click();
 
-		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as unknown as [
-			string,
-			Record<string, unknown>
-		];
+		const [, args] = saveArtworkCalls()[0] as unknown as [string, Record<string, unknown>];
 		expect(args.artwork).toMatchObject({ era_code: 'early_modern' });
 		expect(args.values_by_category).toMatchObject({
 			period: ['Dutch Golden Age'],
@@ -384,10 +376,7 @@ describe('add artwork page', () => {
 
 		await saveButton().click();
 
-		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as unknown as [
-			string,
-			Record<string, unknown>
-		];
+		const [, args] = saveArtworkCalls()[0] as unknown as [string, Record<string, unknown>];
 		expect(args.artwork).toMatchObject({ era_code: null });
 		expect(args.values_by_category).toMatchObject({ period: [], style: [] });
 	});
@@ -405,10 +394,7 @@ describe('add artwork page', () => {
 		await expect.element(sculpture).not.toBeChecked();
 		await saveButton().click();
 
-		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as unknown as [
-			string,
-			Record<string, unknown>
-		];
+		const [, args] = saveArtworkCalls()[0] as unknown as [string, Record<string, unknown>];
 		expect(args.artwork).toMatchObject({ type_code: null });
 	});
 
@@ -450,7 +436,7 @@ describe('add artwork page', () => {
 		await userEvent.click(museum);
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
 		expect(supabase.rpc).toHaveBeenCalledWith('save_artwork', {
 			artwork: expect.anything(),
 			values_by_category: expect.objectContaining({ location: ['Luwr'] }),
@@ -480,7 +466,7 @@ describe('add artwork page', () => {
 		await page.getByText('Seen in person', { exact: true }).click();
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
 		expect(supabase.rpc).toHaveBeenCalledWith(
 			'save_artwork',
 			expect.objectContaining({
@@ -495,7 +481,7 @@ describe('add artwork page', () => {
 		await fillRequired();
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
 		expect(supabase.rpc).toHaveBeenCalledWith(
 			'save_artwork',
 			expect.objectContaining({ field_entries: undefined })
@@ -581,7 +567,7 @@ describe('add artwork page', () => {
 		await expect.element(duplicateDialog()).not.toBeInTheDocument();
 		await expect.element(titleField()).toHaveValue('The Milkmaid');
 		await expect.element(saveButton()).toBeEnabled();
-		expect(supabase.rpc).not.toHaveBeenCalled();
+		expect(saveArtworkCalls()).toHaveLength(0);
 		expect(goto).not.toHaveBeenCalled();
 	});
 
@@ -596,7 +582,7 @@ describe('add artwork page', () => {
 		await vi.waitFor(() =>
 			expect(goto).toHaveBeenCalledWith('/atelier', { refreshAll: true, state: { highlight: 12 } })
 		);
-		expect(supabase.rpc).toHaveBeenCalledTimes(1);
+		expect(saveArtworkCalls()).toHaveLength(1);
 	});
 
 	it('asks the same way before saving and starting the next artwork', async () => {
@@ -619,8 +605,7 @@ describe('add artwork page', () => {
 		await saveButton().click();
 
 		await vi.waitFor(() => expect(goto).toHaveBeenCalled());
-		expect(supabase.from).toHaveBeenCalledWith('artworks');
-		expect(artworks.is).toHaveBeenCalledWith('deleted_at', null);
+		expect(supabase.rpc).toHaveBeenCalledWith('duplicate_candidates', { title: 'The Milkmaid' });
 	});
 
 	it('says when saving failed and lets the learner try again', async () => {
@@ -701,7 +686,7 @@ describe('add artwork page', () => {
 		document.querySelector('form')?.requestSubmit();
 
 		await expect.element(page.getByRole('button', { name: m.common.saving })).toBeDisabled();
-		expect(supabase.rpc).toHaveBeenCalledTimes(1);
+		expect(saveArtworkCalls()).toHaveLength(1);
 	});
 
 	it('enables the buttons again and says the artwork is saved when opening the next page fails', async () => {

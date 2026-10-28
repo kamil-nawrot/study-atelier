@@ -5,59 +5,60 @@ import { emptyCategoryValues } from '#lib/card-index/category-values/category-va
 import { loadCategoryValues, loadVisitPlaces } from './category-values-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
-	supabase: { from: vi.fn() }
+	supabase: { from: vi.fn(), rpc: vi.fn() }
 }));
 
-const query = {
-	select: vi.fn(),
-	is: vi.fn()
+const used = {
+	range: vi.fn()
 };
 
 const visits = {
 	select: vi.fn()
 };
 
-function value(category_code: string, name: string): Record<string, unknown> {
-	return { category_values: { category_code, name } };
+function value(category_code: string, name: string): Record<string, string> {
+	return { category_code, name };
 }
 
 describe('loadCategoryValues', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.mocked(supabase.from).mockImplementation(
-			(table: string) => (table === 'visits' ? visits : query) as never
-		);
-		query.select.mockReturnValue(query);
-		visits.select.mockResolvedValue({ data: [], error: null });
+		vi.mocked(supabase.rpc).mockReturnValue(used as never);
+		vi.mocked(supabase.from).mockReturnValue(visits as never);
 	});
 
-	it('reads values only through artworks outside the trash', async () => {
-		query.is.mockResolvedValue({ data: [], error: null });
+	it('asks the database for the values in use, page by page', async () => {
+		used.range.mockResolvedValue({ data: [], error: null });
 
 		await expect(loadCategoryValues()).resolves.toEqual({
 			values: emptyCategoryValues(),
 			ownValues: {}
 		});
-		expect(supabase.from).toHaveBeenCalledWith('artworks');
-		expect(query.select).toHaveBeenCalledWith(
-			'artwork_values(category_values(category_code, name))'
-		);
-		expect(query.is).toHaveBeenCalledWith('deleted_at', null);
+		expect(supabase.rpc).toHaveBeenCalledWith('used_category_values');
+		expect(used.range).toHaveBeenCalledWith(0, 999);
+		expect(supabase.from).not.toHaveBeenCalled();
 	});
 
-	it('groups values by category once each, in alphabetical order', async () => {
-		query.is.mockResolvedValue({
+	it('reads the next page when a page is full', async () => {
+		const page = Array.from({ length: 1000 }, (_, index) => value('author', `Painter ${index}`));
+		used.range
+			.mockResolvedValueOnce({ data: page, error: null })
+			.mockResolvedValueOnce({ data: [value('author', 'Zoe Painter')], error: null });
+
+		const { values } = await loadCategoryValues();
+
+		expect(used.range).toHaveBeenLastCalledWith(1000, 1999);
+		expect(values.author).toHaveLength(1001);
+	});
+
+	it('groups values by category in alphabetical order', async () => {
+		used.range.mockResolvedValue({
 			data: [
-				{ artwork_values: [value('author', 'Zoe Painter'), value('style', 'gotyk')] },
-				{
-					artwork_values: [
-						value('author', 'Ann Sculptor'),
-						value('author', 'Zoe Painter'),
-						value('location', 'Łódź'),
-						value('location', 'Lyon'),
-						{ category_values: null }
-					]
-				}
+				value('author', 'Zoe Painter'),
+				value('style', 'gotyk'),
+				value('author', 'Ann Sculptor'),
+				value('location', 'Łódź'),
+				value('location', 'Lyon')
 			],
 			error: null
 		});
@@ -75,10 +76,11 @@ describe('loadCategoryValues', () => {
 	});
 
 	it('collects the values of own lists apart, keyed by the field', async () => {
-		query.is.mockResolvedValue({
+		used.range.mockResolvedValue({
 			data: [
-				{ artwork_values: [value('lecture-id', 'Renaissance class'), value('style', 'gotyk')] },
-				{ artwork_values: [value('lecture-id', 'Baroque class')] }
+				value('lecture-id', 'Renaissance class'),
+				value('style', 'gotyk'),
+				value('lecture-id', 'Baroque class')
 			],
 			error: null
 		});
@@ -89,41 +91,8 @@ describe('loadCategoryValues', () => {
 		expect(ownValues).toEqual({ 'lecture-id': ['Baroque class', 'Renaissance class'] });
 	});
 
-	it('suggests the places of visits with the places of artworks', async () => {
-		query.is.mockResolvedValue({
-			data: [{ artwork_values: [value('location', 'Luwr')] }],
-			error: null
-		});
-		visits.select.mockResolvedValue({
-			data: [
-				{ category_values: { name: 'Kościół Mariacki' } },
-				{ category_values: { name: 'Luwr' } }
-			],
-			error: null
-		});
-
-		const { values } = await loadCategoryValues();
-
-		expect(visits.select).toHaveBeenCalledWith('category_values(name)');
-		expect(values.location).toEqual(['Kościół Mariacki', 'Luwr']);
-	});
-
-	it('keeps the values of artworks when the places of visits fail', async () => {
-		query.is.mockResolvedValue({
-			data: [{ artwork_values: [value('location', 'Luwr'), value('style', 'gotyk')] }],
-			error: null
-		});
-		visits.select.mockResolvedValue({ data: null, error: { code: 'XX000', message: 'boom' } });
-
-		const result = await loadCategoryValues();
-
-		expect(result.error).toBeUndefined();
-		expect(result.values.location).toEqual(['Luwr']);
-		expect(result.values.style).toEqual(['gotyk']);
-	});
-
 	it('returns no values and a message when the request fails', async () => {
-		query.is.mockResolvedValue({ data: null, error: { code: 'XX000', message: 'boom' } });
+		used.range.mockResolvedValue({ data: null, error: { code: 'XX000', message: 'boom' } });
 
 		await expect(loadCategoryValues()).resolves.toEqual({
 			values: emptyCategoryValues(),
