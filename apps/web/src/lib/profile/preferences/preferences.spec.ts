@@ -36,6 +36,7 @@ describe('preferences', () => {
 		expect(toggledKind([...QUIZ_KINDS], 'quiz_style', false)).toEqual([
 			'quiz_image',
 			'quiz_title',
+			'quiz_author',
 			'quiz_pin'
 		]);
 	});

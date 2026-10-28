@@ -80,7 +80,17 @@
 {#snippet feedback()}
 	<div class="feedback" role="status">
 		{#if answered && picked}
-			{#if item.mode === 'quiz_style' || item.mode === 'quiz_pin'}
+			{#if item.mode === 'quiz_author'}
+				<p class="verdict">
+					{correct ? m.review.quiz.right : m.review.quiz.wrong}
+					{quiz.options[quiz.answer].label}.
+				</p>
+				<p>
+					<cite class="artwork-title">{artwork.title}</cite>{artwork.date
+						? `, ${artwork.date}`
+						: ''}.
+				</p>
+			{:else if item.mode === 'quiz_style' || item.mode === 'quiz_pin'}
 				<p class="verdict">
 					{correct ? m.review.quiz.right : m.review.quiz.wrong}
 					{quiz.options[quiz.answer].label}.
@@ -149,6 +159,8 @@
 				{#if item.mode === 'quiz_image'}
 					{m.review.quiz.imageQuestion.start}
 					<cite class="artwork-title">{artwork.title}</cite>{m.review.quiz.imageQuestion.end}
+				{:else if item.mode === 'quiz_author'}
+					{m.review.quiz.authorQuestion}
 				{:else if item.mode === 'quiz_style'}
 					{m.review.quiz.styleQuestion}
 				{:else if item.mode === 'quiz_pin'}

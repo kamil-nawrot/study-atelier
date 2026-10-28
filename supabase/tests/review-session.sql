@@ -283,7 +283,8 @@ begin
   assert modes = array['quiz_title'],
     'a session scoped to a style does not fall back to the kinds that remain: ' || modes::text;
 
-  update public.profiles set review_quiz_kinds = array['quiz_title', 'quiz_image', 'quiz_style', 'quiz_pin'];
+  update public.profiles
+    set review_quiz_kinds = array['quiz_title', 'quiz_image', 'quiz_author', 'quiz_style', 'quiz_pin'];
 
   begin
     update public.profiles set review_quiz_kinds = '{}';
@@ -303,6 +304,75 @@ begin
   exception when check_violation then
     null;
   end;
+end;
+$$;
+
+do $$
+declare
+  day_start constant timestamptz := date_trunc('day', now());
+  authors constant jsonb := '[
+    ["Gentile Bellini", "Giovanni Bellini"], ["Giovanni Bellini"], ["Titian"], ["Giorgione"], ["Carpaccio"]
+  ]';
+  asked jsonb := '[]';
+  pair uuid;
+begin
+  for number in 0..4 loop
+    perform public.record_review(
+      (select saved.id from public.save_artwork(
+        jsonb_build_object('title', 'Venetian ' || number, 'era_code', 'early_modern'),
+        jsonb_build_object('author', authors -> number),
+        null,
+        jsonb_build_array(jsonb_build_object(
+          'source_wikidata_id', 'Q9' || number,
+          'source_image_file', 'Venetian_' || number || '.jpg'
+        ))
+      ) as saved),
+      jsonb_build_object('due', now() + interval '10 days', 'stability', 10, 'difficulty', 5,
+        'state', 2, 'reps', 2, 'lapses', 0, 'scheduled_days', 10, 'learning_steps', 0,
+        'last_review', now() - interval '1 day'),
+      '{"mode": "flashcard", "rating": 3}');
+  end loop;
+  select id into pair from public.artworks where title = 'Venetian 0';
+
+  for attempt in 1..30 loop
+    asked := asked || coalesce((
+      select jsonb_agg(item)
+        from jsonb_array_elements(public.review_session(day_start, 'quizzes', 'all', null, attempt)) as item
+        where item ->> 'mode' = 'quiz_author'
+    ), '[]');
+  end loop;
+
+  assert jsonb_array_length(asked) > 0, 'a session of quizzes never asks for the author';
+  assert not exists (
+    select 1 from jsonb_array_elements(asked) as item
+      join public.artworks as artwork on artwork.id = (item ->> 'artwork_id')::uuid
+      where artwork.title not like 'Venetian %'
+  ), 'an artwork with an unknown author is asked for its author';
+  assert not exists (
+    select 1 from jsonb_array_elements(asked) as item
+      where jsonb_array_length(item -> 'options') <> 4
+  ), 'an author question has other than four answers';
+  assert not exists (
+    select 1 from jsonb_array_elements(asked) as item,
+        jsonb_array_elements(item -> 'options') as option
+      where (item ->> 'artwork_id')::uuid = pair
+        and option ->> 'right' is null
+        and option ->> 'label' like '%Bellini%'
+  ), 'a wrong answer shares an author with the right one';
+  assert not exists (
+    select 1 from jsonb_array_elements(asked) as item,
+        jsonb_array_elements(item -> 'options') as option
+      where (item ->> 'artwork_id')::uuid = pair
+        and option ->> 'right' = 'true'
+        and option ->> 'label' <> 'Gentile Bellini, Giovanni Bellini'
+  ), 'the authors of one artwork are not one answer';
+
+  update public.profiles set review_quiz_kinds = array['quiz_title', 'quiz_image', 'quiz_style', 'quiz_pin'];
+  assert not exists (
+    select 1
+      from jsonb_array_elements(public.review_session(day_start, 'quizzes', 'all', null, 1)) as item
+      where item ->> 'mode' = 'quiz_author'
+  ), 'a session asks for the author when the profile switched it off';
 end;
 $$;
 

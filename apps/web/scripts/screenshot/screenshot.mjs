@@ -179,6 +179,10 @@ function inScope(row, kind, value) {
 	return true;
 }
 
+function rotated(modes, slot) {
+	return modes.slice(slot % modes.length).concat(modes.slice(0, slot % modes.length));
+}
+
 function quizFor(row, mode, pool) {
 	const others = pool.filter((other) => other.id !== row.id && other.title !== row.title);
 	if (mode === 'quiz_style') {
@@ -192,6 +196,21 @@ function quizFor(row, mode, pool) {
 			{ label: style, right: true },
 			...styles.slice(1, 3).map((label) => ({ label }))
 		];
+	}
+	if (mode === 'quiz_author') {
+		const authors = valuesOf(row, 'author');
+		const sets = [
+			...new Set(
+				others
+					.map((other) => valuesOf(other, 'author'))
+					.filter((set) => set.length > 0 && !set.some((name) => authors.includes(name)))
+					.map((set) => set.join(', '))
+			)
+		];
+		if (authors.length === 0 || sets.length < 3) return undefined;
+		const options = sets.slice(0, 3).map((label) => ({ label }));
+		options.splice(row.record_number % 4, 0, { label: authors.join(', '), right: true });
+		return options;
 	}
 	if (others.length < 3) return undefined;
 	const shares = (category, other) =>
@@ -268,13 +287,9 @@ function reviewSession({
 			form === 'flashcards'
 				? []
 				: form === 'quizzes'
-					? ['quiz_title', 'quiz_image', 'quiz_style']
-							.slice(slot % 3)
-							.concat(['quiz_title', 'quiz_image'].slice(0, slot % 3))
+					? rotated(['quiz_title', 'quiz_image', 'quiz_author', 'quiz_style'], slot)
 					: !card || card.state !== 2
-						? slot % 2 === 0
-							? ['quiz_title', 'quiz_image']
-							: ['quiz_image', 'quiz_title']
+						? rotated(['quiz_title', 'quiz_image', 'quiz_author'], slot)
 						: [];
 		for (const mode of modes) {
 			const options = quizFor(row, mode, pool);

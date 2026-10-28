@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { offeredForms, quizzesPossible } from './forms.ts';
 
-function artwork(styles: string[]): WallArtwork {
-	return { styles } as unknown as WallArtwork;
+function artwork(styles: string[], authors: string[] = []): WallArtwork {
+	return { styles, authors } as unknown as WallArtwork;
 }
 
 describe('quizzesPossible', () => {
@@ -15,6 +15,11 @@ describe('quizzesPossible', () => {
 	it('allows the style quiz only when an artwork has a style', () => {
 		expect(quizzesPossible(['quiz_style'], [artwork([])], 0)).toBe(false);
 		expect(quizzesPossible(['quiz_style'], [artwork(['Tenebrism'])], 0)).toBe(true);
+	});
+
+	it('allows the author quiz only when an artwork has a known author', () => {
+		expect(quizzesPossible(['quiz_author'], [artwork([])], 0)).toBe(false);
+		expect(quizzesPossible(['quiz_author'], [artwork([], ['Titian'])], 0)).toBe(true);
 	});
 
 	it('allows the pin quiz only when a pin names a glossary entry', () => {
