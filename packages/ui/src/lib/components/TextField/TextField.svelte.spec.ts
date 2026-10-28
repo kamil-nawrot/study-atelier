@@ -31,4 +31,13 @@ describe('TextField', () => {
 		await expect.element(page.getByRole('textbox', { name: 'From' })).toBeVisible();
 		expect(document.querySelector('label')).toBeNull();
 	});
+
+	it('locks the field and primes it while it is being filled', async () => {
+		render(TextField, { label: 'Year', filling: true });
+
+		const field = page.getByRole('textbox', { name: 'Year' });
+		await expect.element(field).toBeDisabled();
+		await expect.element(field).toHaveAttribute('aria-busy', 'true');
+		expect(document.querySelector('.primer')).not.toBeNull();
+	});
 });

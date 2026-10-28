@@ -153,3 +153,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0147](0147-limit-the-links-of-an-account-and-check-limits-one-request-at-a-time.md)      | Limit the links of an account and check limits one request at a time                     | accepted           |
 | [0148](0148-show-each-account-action-once-before-signing-in.md)                           | Show each account action once before signing in                                          | accepted           |
 | [0149](0149-hang-a-salon-wall-on-the-start-page.md)                                       | Hang a salon wall on the start page                                                      | accepted           |
+| [0150](0150-lock-the-fields-an-external-fetch-fills.md)                                   | Lock the fields an external fetch fills                                                  | accepted           |

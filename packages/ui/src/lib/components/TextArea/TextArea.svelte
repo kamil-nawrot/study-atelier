@@ -1,5 +1,6 @@
 <script lang="ts">
 	import FieldMessage from '../FieldMessage/FieldMessage.svelte';
+	import Primer from '../Primer/Primer.svelte';
 	import type { HTMLTextareaAttributes } from 'svelte/elements';
 
 	type Props = Omit<HTMLTextareaAttributes, 'value'> & {
@@ -8,6 +9,7 @@
 		hint?: string;
 		error?: string;
 		counter?: boolean;
+		filling?: boolean;
 	};
 
 	let {
@@ -16,6 +18,8 @@
 		hint,
 		error,
 		counter = false,
+		filling = false,
+		disabled,
 		id,
 		rows = 5,
 		maxlength,
@@ -36,15 +40,22 @@
 
 <div class="field">
 	<label for={inputId}>{label}</label>
-	<textarea
-		id={inputId}
-		class:invalid={!!error}
-		aria-describedby={describedBy}
-		aria-invalid={error ? true : undefined}
-		{maxlength}
-		{rows}
-		bind:value
-		{...rest}></textarea>
+	<div class="control">
+		<textarea
+			id={inputId}
+			class:invalid={!!error}
+			aria-busy={filling || undefined}
+			aria-describedby={describedBy}
+			aria-invalid={error ? true : undefined}
+			disabled={disabled || filling}
+			{maxlength}
+			{rows}
+			bind:value
+			{...rest}></textarea>
+		{#if filling}
+			<Primer />
+		{/if}
+	</div>
 	{#if message || counted}
 		<div class="messages">
 			{#if message}
@@ -73,6 +84,11 @@
 		font-size: var(--font-size-sm);
 		font-weight: var(--font-weight-medium);
 		line-height: var(--line-height-sm);
+	}
+
+	.control {
+		position: relative;
+		display: grid;
 	}
 
 	textarea {

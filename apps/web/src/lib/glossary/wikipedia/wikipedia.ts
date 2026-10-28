@@ -1,4 +1,4 @@
-import { fetchJson } from '#lib/images/wikimedia/wikimedia.ts';
+import { fetchJson, withDeadline } from '#lib/images/wikimedia/wikimedia.ts';
 import {
 	DEFINITION_MAX_LENGTH,
 	firstSentence,
@@ -151,10 +151,14 @@ export function articleOf(page: Page, max = DEFINITION_MAX_LENGTH): WikipediaArt
 	return [{ title: page.title, url, extract }];
 }
 
-export async function searchArticles(
+export function searchArticles(
 	name: string,
 	category: GlossaryCategory
 ): Promise<WikipediaArticle[]> {
+	return withDeadline(findArticles(name, category));
+}
+
+async function findArticles(name: string, category: GlossaryCategory): Promise<WikipediaArticle[]> {
 	const attempts =
 		category === 'person'
 			? [searchQuery(name, category, false)]

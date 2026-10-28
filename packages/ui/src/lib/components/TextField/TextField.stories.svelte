@@ -54,6 +54,8 @@
 
 <Story name="Disabled" args={{ value: 'name@example.com', disabled: true }} />
 
+<Story name="Filling" args={{ filling: true }} />
+
 <Story
 	name="With action"
 	args={{ label: 'Image address', type: 'url', placeholder: 'https://…', autocomplete: 'off' }}

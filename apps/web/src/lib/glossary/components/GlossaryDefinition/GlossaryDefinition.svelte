@@ -3,6 +3,7 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { DefinitionSearch } from '#lib/glossary/definition-search/definition-search.svelte.ts';
 	import { DEFINITION_MAX_LENGTH } from '#lib/glossary/glossary/glossary.ts';
+	import FillingStatus from '#lib/shared/forms/FillingStatus/FillingStatus.svelte';
 
 	type Props = {
 		search: DefinitionSearch;
@@ -13,6 +14,7 @@
 
 <div class="definition">
 	<TextArea
+		filling={search.filling}
 		hint={search.hint}
 		label={m.glossary.form.definition}
 		maxlength={DEFINITION_MAX_LENGTH}
@@ -20,6 +22,9 @@
 		rows={7}
 		bind:value={search.form.definition}
 	/>
+	{#if search.filling}
+		<FillingStatus message={m.glossary.form.definitionSearching} onstop={() => search.stop()} />
+	{/if}
 	{#if search.status === 'failed'}
 		<div class="links">
 			<TextButton inline onclick={() => search.search(true)}>

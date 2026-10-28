@@ -8,6 +8,7 @@ import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
 import type { ImageSearchQuery } from '#lib/images/types/image-search-query.ts';
 import type { ImageSearchResult } from '#lib/images/types/image-search-result.ts';
 import { searchWikidataArtworks, searchWikidataPeople } from '#lib/images/wikidata/wikidata.ts';
+import { withDeadline } from '#lib/images/wikimedia/wikimedia.ts';
 import type { SourceDate } from '#lib/images/types/source-date.ts';
 import type { WikidataArtwork } from '#lib/images/types/wikidata-artwork.ts';
 import type { WikidataPerson } from '#lib/images/types/wikidata-person.ts';
@@ -179,8 +180,8 @@ async function findPortraitCandidates(name: string): Promise<ImageCandidate[]> {
 export async function findImageCandidates(query: ImageSearchQuery): Promise<ImageSearchResult> {
 	try {
 		if (query.kind === 'person')
-			return { candidates: await findPortraitCandidates(query.name.trim()) };
-		return await findArtworkCandidates(query.title.trim(), query.authors);
+			return { candidates: await withDeadline(findPortraitCandidates(query.name.trim())) };
+		return await withDeadline(findArtworkCandidates(query.title.trim(), query.authors));
 	} catch (error) {
 		return { candidates: [], error: imageSearchErrorMessage(error) };
 	}

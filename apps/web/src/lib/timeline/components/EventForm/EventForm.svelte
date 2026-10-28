@@ -18,6 +18,7 @@
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import ArticleDialog from '#lib/glossary/components/ArticleDialog/ArticleDialog.svelte';
+	import FillingStatus from '#lib/shared/forms/FillingStatus/FillingStatus.svelte';
 	import { sourceOf } from '#lib/glossary/wikipedia/wikipedia.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { autoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
@@ -69,6 +70,8 @@
 	let pendingArticle = $state<EventArticle>();
 	let autoDescription = $state<string | null>(null);
 	let autoDates = $state<string | null>(null);
+	let filling = $state<{ dates: boolean; description: boolean } | null>(null);
+	let stoppedName = '';
 	let request = 0;
 
 	const formState = new FormState<EventFormState>(initial());
@@ -119,9 +122,14 @@
 		if (!name) return;
 		const current = ++request;
 		status = 'searching';
+		filling =
+			fill && replaceable()
+				? { dates: datesReplaceable(), description: descriptionReplaceable() }
+				: null;
 		try {
 			const found = await searchEvents(name);
 			if (current !== request || formState.busy) return;
+			filling = null;
 			articles = found;
 			articlesName = name;
 			status = found.length > 0 ? 'found' : 'none';
@@ -131,6 +139,7 @@
 			} else clearSuggestion();
 		} catch {
 			if (current !== request || formState.busy) return;
+			filling = null;
 			articles = [];
 			articlesName = '';
 			status = 'failed';
@@ -141,12 +150,19 @@
 		const name = query;
 		if (existing) return;
 		request += 1;
-		if (!name || !autoFetch.event) return;
+		untrack(() => (filling = null));
+		if (!name || !autoFetch.event || name === stoppedName) return;
 		const timer = setTimeout(() => {
 			if (!formState.busy && untrack(replaceable)) void search(true);
 		}, SEARCH_DELAY_MS);
 		return () => clearTimeout(timer);
 	});
+
+	function stopSearch(): void {
+		stoppedName = query;
+		request += 1;
+		filling = null;
+	}
 
 	async function openArticles(): Promise<void> {
 		articlesOpen = true;
@@ -225,13 +241,22 @@
 				title={form.spanMode ? m.timeline.form.spanTitle : m.timeline.form.year}
 			>
 				{#snippet aside()}
-					<Checkbox label={m.artworkForm.yearApproximate} bind:checked={form.yearApproximate} />
-					<Switch label={m.artworkForm.spanSwitch} bind:checked={form.spanMode} />
+					<Checkbox
+						disabled={filling?.dates}
+						label={m.artworkForm.yearApproximate}
+						bind:checked={form.yearApproximate}
+					/>
+					<Switch
+						disabled={filling?.dates}
+						label={m.artworkForm.spanSwitch}
+						bind:checked={form.spanMode}
+					/>
 				{/snippet}
 				{#if form.spanMode}
 					<YearInput
 						beforeCommonEraLabel={m.artworkForm.beforeCommonEraFrom}
 						error={errors.yearFrom}
+						filling={filling?.dates}
 						label={m.artworkForm.spanFrom}
 						placeholder={m.artworkForm.spanFrom}
 						bind:value={form.yearFrom}
@@ -242,6 +267,7 @@
 					id={yearToId}
 					beforeCommonEraLabel={form.spanMode ? m.artworkForm.beforeCommonEraTo : undefined}
 					error={errors.yearTo}
+					filling={filling?.dates}
 					label={form.spanMode ? m.artworkForm.spanTo : m.timeline.form.year}
 					placeholder={form.spanMode ? m.artworkForm.spanTo : undefined}
 					bind:value={form.yearTo}
@@ -252,12 +278,23 @@
 			<div class="description">
 				<TextArea
 					counter
+					filling={filling?.description}
 					label={m.timeline.form.description}
 					maxlength={EVENT_DESCRIPTION_MAX_LENGTH}
 					placeholder={m.timeline.form.descriptionPlaceholder}
 					rows={4}
 					bind:value={form.description}
 				/>
+				{#if filling}
+					<FillingStatus message={m.glossary.articles.searching} onstop={stopSearch} />
+				{:else if autoFetch.event && !existing && status === 'failed'}
+					<div class="links">
+						<span class="caption">{m.timeline.articles.failed}</span>
+						<TextButton inline onclick={() => search(true)}>
+							{m.glossary.form.searchAgain}
+						</TextButton>
+					</div>
+				{/if}
 				{#if !autoFetch.event && !form.source && form.name.trim() !== ''}
 					<div class="links">
 						<TextButton inline onclick={openArticles}>
@@ -285,7 +322,7 @@
 			<Button href={cancelHref} onclick={oncancel}>
 				{m.common.cancel}
 			</Button>
-			<Button disabled={formState.busy} type="submit" variant="primary">
+			<Button disabled={formState.busy || filling !== null} type="submit" variant="primary">
 				{formState.busy ? m.common.saving : m.common.save}
 			</Button>
 		</FormActions>

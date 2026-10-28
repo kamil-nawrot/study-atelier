@@ -1,7 +1,7 @@
 import { WIKIDATA_API, articleOf, findPages } from '#lib/glossary/wikipedia/wikipedia.ts';
 import type { Page } from '#lib/glossary/types/page.ts';
 import { isStoredYear } from '#lib/artworks/artwork-record/artwork-record.ts';
-import { fetchJson } from '#lib/images/wikimedia/wikimedia.ts';
+import { fetchJson, withDeadline } from '#lib/images/wikimedia/wikimedia.ts';
 import { EVENT_DESCRIPTION_MAX_LENGTH } from '#lib/timeline/event-form/event-form.ts';
 import type { EventArticle } from '#lib/timeline/types/event-article.ts';
 import type { EventDates } from '#lib/timeline/types/event-dates.ts';
@@ -84,7 +84,11 @@ async function claimsOf(pages: Page[]): Promise<Record<string, Claims>> {
 	);
 }
 
-export async function searchEvents(name: string): Promise<EventArticle[]> {
+export function searchEvents(name: string): Promise<EventArticle[]> {
+	return withDeadline(findEvents(name));
+}
+
+async function findEvents(name: string): Promise<EventArticle[]> {
 	const query = name.trim();
 	if (!query) return [];
 	const pages = await findPages(query);

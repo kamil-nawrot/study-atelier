@@ -331,4 +331,12 @@ describe('ValueField', () => {
 		const input = page.getByRole('combobox', { name: 'Authors' }).element();
 		expect(outlinedHeight(input, '.control')).toBe(controlHeight());
 	});
+
+	it('locks the values while the field is being filled', async () => {
+		render(ValueField, { label: 'Forms', values: ['nawy'], filling: true });
+
+		await expect.element(page.getByRole('combobox', { name: 'Forms' })).toBeDisabled();
+		await expect.element(page.getByRole('button', { name: /nawy/ })).not.toBeInTheDocument();
+		expect(document.querySelector('.primer')).not.toBeNull();
+	});
 });
