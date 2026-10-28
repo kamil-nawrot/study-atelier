@@ -63,7 +63,7 @@
 	.tiles-frame {
 		--tile-gap: var(--spacing-6);
 		--tile-band: calc(
-			var(--spacing-2) + var(--font-size-lg) * var(--line-height-lg) + var(--spacing-1) +
+			var(--spacing-2) + 2 * var(--font-size-lg) * var(--line-height-lg) + var(--spacing-1) +
 				var(--font-size-xs) * var(--line-height-xs) + var(--spacing-3)
 		);
 		--tile-chrome-x: calc(2 * var(--spacing-2) + 2 * var(--border-width-button));

@@ -143,6 +143,19 @@ describe('Quiz', () => {
 		expect(onnext).toHaveBeenCalledOnce();
 	});
 
+	it('shows the full title and its details on hover, as the tile cuts them short', async () => {
+		renderQuiz('quiz_image', artworkQuiz, 0);
+
+		const caption = page
+			.getByText(`Johannes Vermeer · 1900 · ${m.review.quiz.reasons.author}`)
+			.first();
+		await caption.hover();
+
+		await expect
+			.element(page.getByRole('tooltip').filter({ hasText: `Johannes Vermeer · 1900` }).first())
+			.toBeVisible();
+	});
+
 	it('asks for the title next to the image and confirms a right answer', async () => {
 		renderQuiz('quiz_title', artworkQuiz, 2);
 
