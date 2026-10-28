@@ -516,6 +516,7 @@ function glossaryEntry(
 function visit(number, place, placeType, countryCode, visitedOn, precision, notes, numbers) {
 	return {
 		id: `00000000-0000-4000-8000-000000000${String(500 + number)}`,
+		place_id: valueId('location', place),
 		visited_on: visitedOn,
 		date_precision: precision,
 		notes,

@@ -6,9 +6,12 @@
 
 	type Props = {
 		visit: Visit;
+		stub?: string;
 	};
 
-	let { visit }: Props = $props();
+	let { visit, stub }: Props = $props();
+
+	let text = $derived(stub ?? visit.place);
 
 	let date = $derived(ticketDate(visit.date));
 </script>
@@ -22,7 +25,9 @@
 		<span class="visually-hidden">{date.label}</span>
 	</span>
 	<TicketStub small>
-		<span class="place">{visit.place}</span>
+		{#if text}
+			<span class="place">{text}</span>
+		{/if}
 	</TicketStub>
 </a>
 

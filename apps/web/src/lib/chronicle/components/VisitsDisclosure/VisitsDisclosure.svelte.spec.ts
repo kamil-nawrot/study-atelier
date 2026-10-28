@@ -3,12 +3,13 @@ import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/i18n.ts';
 import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
-import ArtworkVisits from './ArtworkVisits.svelte';
+import VisitsDisclosure from './VisitsDisclosure.svelte';
 
-describe('ArtworkVisits', () => {
+describe('VisitsDisclosure', () => {
 	it('lists the visits of an artwork under a heading with their number once opened', async () => {
-		render(ArtworkVisits, {
-			visits: [testVisit({ id: 'a' }), testVisit({ id: 'b', place: 'Luwr' })]
+		render(VisitsDisclosure, {
+			visits: [testVisit({ id: 'a' }), testVisit({ id: 'b', place: 'Luwr' })],
+			title: m.chronicle.artworkVisits
 		});
 
 		await expect
@@ -22,7 +23,7 @@ describe('ArtworkVisits', () => {
 	});
 
 	it('shows nothing for an artwork without visits', async () => {
-		render(ArtworkVisits, { visits: [] });
+		render(VisitsDisclosure, { visits: [], title: m.chronicle.artworkVisits });
 
 		await expect.element(page.getByRole('heading')).not.toBeInTheDocument();
 	});

@@ -138,6 +138,7 @@
 			noteLinks={data.noteLinks}
 			{parents}
 			{subject}
+			visits={data.visits}
 		/>
 
 		<section class="artworks" aria-labelledby="value-artworks">

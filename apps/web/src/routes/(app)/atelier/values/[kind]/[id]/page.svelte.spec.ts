@@ -14,6 +14,8 @@ import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
+import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
+import type { Visit } from '#lib/chronicle/types/visit.ts';
 import ValuePage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -72,7 +74,7 @@ function subjectOf(id: string): ValueSubject {
 function renderValue(
 	subject: ValueSubject | undefined,
 	details: ValueDetails = emptyValueDetails(),
-	failure: { error?: string; notFound?: boolean } = {}
+	failure: { error?: string; notFound?: boolean; visits?: Visit[] } = {}
 ): void {
 	render(ValuePage, {
 		data: {
@@ -254,6 +256,29 @@ describe('value page', () => {
 		expect(page.getByRole('article').getByRole('img', { name: 'Phidias' }).elements()).toHaveLength(
 			0
 		);
+	});
+
+	it('lists the visits to a place with the artworks seen on each', async () => {
+		renderValue(subjectOf('location-athens'), emptyValueDetails(), {
+			visits: [
+				testVisit({ id: 'a', place: 'Athens', artworkIds: ['1', '2'] }),
+				testVisit({ id: 'b', place: 'Athens', date: { on: '2019-01-01', precision: 'year' } })
+			]
+		});
+
+		await page.getByText(m.chronicle.placeVisits(2)).click();
+
+		await expect
+			.element(page.getByRole('link', { name: /^12 października 2026.*2 dzieła na żywo$/ }))
+			.toHaveAttribute('href', '/atelier/chronicle/a');
+		await expect.element(page.getByRole('link', { name: /^2019$/ })).toBeInTheDocument();
+	});
+
+	it('shows no visits for a place without any', async () => {
+		renderValue(subjectOf('location-athens'));
+
+		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Athens');
+		expect(page.getByText(m.chronicle.placeVisits(0)).elements()).toHaveLength(0);
 	});
 
 	it('shows the type and the country of a place under its name', async () => {

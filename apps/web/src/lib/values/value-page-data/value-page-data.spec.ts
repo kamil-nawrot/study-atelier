@@ -7,10 +7,13 @@ import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.t
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
 import { loadNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
 import { loadValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
+import { loadPlaceVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
+import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
 import { loadValuePage } from './value-page-data.ts';
 
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({ loadAtelier: vi.fn() }));
 vi.mock('#lib/card-index/card-index-data/card-index-data.ts', () => ({ loadCardIndex: vi.fn() }));
+vi.mock('#lib/chronicle/chronicle-data/chronicle-data.ts', () => ({ loadPlaceVisits: vi.fn() }));
 vi.mock('#lib/notes/mentions-data/mentions-data.ts', () => ({ loadMentions: vi.fn() }));
 vi.mock('#lib/notes/note-link-data/note-link-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/notes/note-link-data/note-link-data.ts')>()),
@@ -47,6 +50,28 @@ describe('loadValuePage', () => {
 		expect(result.artworks).toEqual(artworks);
 		expect(result.details.summary).toBe('Plain capitals.');
 		expect(result.error).toBeUndefined();
+	});
+
+	it('loads the visits to a place on its page only', async () => {
+		const visits = [testVisit()];
+		vi.mocked(loadPlaceVisits).mockResolvedValue({ visits });
+
+		const place = await loadValuePage('location', 'location-athens', true);
+		const form = await loadValuePage('location', 'location-athens', false);
+		const style = await loadValuePage('style', 'style-doric', true);
+
+		expect(loadPlaceVisits).toHaveBeenCalledExactlyOnceWith('location-athens');
+		expect(place.visits).toEqual(visits);
+		expect(form.visits).toBeUndefined();
+		expect(style.visits).toBeUndefined();
+	});
+
+	it('shows an error when the visits of a place cannot be loaded', async () => {
+		vi.mocked(loadPlaceVisits).mockResolvedValue({ visits: [], error: 'Brak sieci.' });
+
+		const result = await loadValuePage('location', 'location-athens', true);
+
+		expect(result.error).toBe('Brak sieci.');
 	});
 
 	it('does not load the collection for the form', async () => {
