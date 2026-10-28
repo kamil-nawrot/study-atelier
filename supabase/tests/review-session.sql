@@ -224,12 +224,12 @@ begin
     'a session of flashcards asks what a pinned detail is';
 
   update public.artwork_pins set view_width = 0.2;
-  assert not exists (
+  assert exists (
     select 1
       from jsonb_array_elements(public.review_session(day_start, 'quizzes', 'all', null, 1)) as item
       where item ->> 'mode' = 'quiz_pin'
   ),
-    'a pin question is asked about a pin that keeps a view of the loupe';
+    'a pin that keeps a view of the loupe is never asked about';
   update public.artwork_pins set view_width = null;
 
   delete from public.glossary_entries where name in ('Choir', 'Portal', 'Fresco', 'Tondo');
