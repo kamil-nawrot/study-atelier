@@ -11,7 +11,7 @@ describe('SalonWall', () => {
 
 		const wall = page.getByRole('list', { includeHidden: true });
 		await expect.element(wall).toHaveAttribute('aria-hidden', 'true');
-		expect(document.querySelectorAll('.place img')).toHaveLength(artworks.length);
+		expect(document.querySelectorAll('.place img[loading="lazy"]')).toHaveLength(artworks.length);
 		expect(document.querySelector('.place img')?.getAttribute('src')).toContain(
 			encodeURIComponent(artworks[0].file)
 		);

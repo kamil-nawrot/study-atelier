@@ -28,6 +28,9 @@ describe('moduleArtworks', () => {
 
 		expect(artworks.map((artwork) => artwork.file)).toEqual([...MODULE_FILES]);
 		expect(artworks).toHaveLength(m.landing.modules.length);
-		for (const artwork of artworks) expect(artwork.credit).toBe(m.artwork.credit);
+		for (const artwork of artworks) {
+			expect(artwork.publicDomain).toBe(true);
+			expect(artwork.credit).toBe(m.artwork.credit);
+		}
 	});
 });
