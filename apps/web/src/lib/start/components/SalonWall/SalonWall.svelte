@@ -16,7 +16,12 @@
 	{#each artworks as artwork (artwork.file)}
 		<li class="place">
 			<Frame>
-				<img alt="" src={commonsFileUrl(artwork.file, SALON_WIDTH)} />
+				<img
+					alt=""
+					decoding="async"
+					loading="lazy"
+					src={commonsFileUrl(artwork.file, SALON_WIDTH)}
+				/>
 			</Frame>
 		</li>
 	{/each}
@@ -28,7 +33,7 @@
 		inset: calc(-1 * var(--spacing-12)) calc(-1 * var(--spacing-16));
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
-		grid-auto-rows: 90px;
+		grid-auto-rows: minmax(90px, 1fr);
 		grid-auto-flow: dense;
 		gap: var(--spacing-4);
 		margin: 0;
@@ -73,7 +78,7 @@
 	@media (min-width: 768px) {
 		.salon {
 			grid-template-columns: repeat(8, minmax(0, 1fr));
-			grid-auto-rows: 120px;
+			grid-auto-rows: minmax(120px, 1fr);
 			gap: var(--spacing-6);
 		}
 
