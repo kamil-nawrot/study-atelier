@@ -2,7 +2,16 @@
 	import Layers from '@lucide/svelte/icons/layers';
 	import Play from '@lucide/svelte/icons/play';
 	import Plus from '@lucide/svelte/icons/plus';
-	import { Alert, Button, Disclosure, EmptyState, Icon, Tag, ToggleTag } from '@study-atelier/ui';
+	import {
+		Alert,
+		Button,
+		Disclosure,
+		EmptyState,
+		Icon,
+		Switch,
+		Tag,
+		ToggleTag
+	} from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -28,9 +37,12 @@
 		starting: boolean;
 		streak: number;
 		free?: boolean;
+		definitions?: number;
+		definitionsOn?: boolean;
 		error?: string;
 		onscope: (scope: ReviewScope) => void;
 		onform: (form: ReviewForm) => void;
+		ondefinitions?: (on: boolean) => void;
 		onstart: () => void;
 	};
 
@@ -48,9 +60,12 @@
 		starting,
 		streak,
 		free = false,
+		definitions,
+		definitionsOn = false,
 		error,
 		onscope,
 		onform,
+		ondefinitions,
 		onstart
 	}: Props = $props();
 
@@ -150,6 +165,15 @@
 						</div>
 						<p class="caption">{m.review.formHints[form]}</p>
 					</section>
+					{#if definitions !== undefined}
+						<section class="choice">
+							<Switch
+								label={m.review.definitions}
+								bind:checked={() => definitionsOn, (on) => ondefinitions?.(on)}
+							/>
+							<p class="caption">{m.review.definitionsHint(definitions)}</p>
+						</section>
+					{/if}
 				</div>
 			</Disclosure>
 		{/if}

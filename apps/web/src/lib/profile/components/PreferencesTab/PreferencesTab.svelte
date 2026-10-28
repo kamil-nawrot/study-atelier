@@ -6,6 +6,7 @@
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
+		GLOSSARY_QUESTION_CHOICES,
 		NEW_PER_DAY_CHOICES,
 		preferencesChanged,
 		QUIZ_KINDS,
@@ -137,6 +138,23 @@
 					<span id={kindsHintId} class="hint" class:error={kindsError}>
 						{m.settings.preferences.kindsHint}
 					</span>
+				</div>
+				<div class="group" aria-labelledby="{formId}-glossary" role="group">
+					<span id="{formId}-glossary" class="label">
+						{m.settings.preferences.glossaryQuestions}
+					</span>
+					<div class="tags">
+						{#each GLOSSARY_QUESTION_CHOICES as option (option)}
+							<ToggleTag
+								bind:pressed={
+									() => draft.reviewGlossaryQuestions === option,
+									(pressed) => pressed && (draft.reviewGlossaryQuestions = option)
+								}
+							>
+								{option}
+							</ToggleTag>
+						{/each}
+					</div>
 				</div>
 				<Switch label={m.settings.preferences.free} bind:checked={draft.reviewFree} />
 			{:else if part === 'sources'}

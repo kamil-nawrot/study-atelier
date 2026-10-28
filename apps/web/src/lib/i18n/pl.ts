@@ -303,6 +303,7 @@ export const pl = {
 				quiz_pin: 'Dopasowywanie detalu do definicji'
 			},
 			kindsHint: 'Zostaw zaznaczony przynajmniej jeden rodzaj.',
+			glossaryQuestions: 'Ile pytań dodatkowych ze Słowniczka dołączać do sesji?',
 			free: 'Proponuj powtórkę swobodną po skończonym dniu',
 			showPins: 'Pokazuj pinezki od razu po otwarciu dzieła',
 			loupe: 'Włączaj lupę od razu po otwarciu dzieła',
@@ -669,6 +670,9 @@ export const pl = {
 				'Wyłącznie fiszki, w których samodzielnie przypominasz sobie informacje o dziele, a następnie odkrywasz kartę i oceniasz, jak Ci poszło.',
 			quizzes: 'Wyłącznie pytania, w których wybierasz poprawną spośród czterech odpowiedzi.'
 		},
+		definitions: 'Dołącz definicje ze Słowniczka',
+		definitionsHint: (count: number): string =>
+			`Pytania dodatkowe: ${count} ${plural(count, { one: 'losowa definicja', few: 'losowe definicje', many: 'losowych definicji' })}. Nie zmieniają planu powtórek.`,
 		start: 'Zacznij powtórkę',
 		free: 'Powtórka swobodna',
 		freeHint:
@@ -711,6 +715,10 @@ export const pl = {
 			styleQuestion: 'W jakim stylu powstało to dzieło?',
 			styleHint: 'Zwróć uwagę na formę, materiał i kompozycję.',
 			pinQuestion: 'Co to jest?',
+			definitionTag: 'Pytanie dodatkowe ze Słowniczka',
+			definitionQuestion: 'Jakie pojęcie opisuje ta definicja?',
+			maskedTerm: 'ukryte pojęcie',
+			definitionRetry: 'Wrócimy do niej za chwilę.',
 			pinHint: 'Wybierz pojęcie, które pasuje do zaznaczonego na zdjęciu miejsca.',
 			options: 'Odpowiedzi',
 			right: 'Tak, to',

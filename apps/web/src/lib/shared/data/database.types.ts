@@ -819,6 +819,7 @@ export type Database = {
           owner_id: string;
           review_form: string;
           review_free: boolean;
+          review_glossary_questions: number;
           review_new_per_day: number;
           review_quiz_kinds: string[];
           review_session_size: number;
@@ -840,6 +841,7 @@ export type Database = {
           owner_id?: string;
           review_form?: string;
           review_free?: boolean;
+          review_glossary_questions?: number;
           review_new_per_day?: number;
           review_quiz_kinds?: string[];
           review_session_size?: number;
@@ -860,6 +862,7 @@ export type Database = {
           owner_id?: string;
           review_form?: string;
           review_free?: boolean;
+          review_glossary_questions?: number;
           review_new_per_day?: number;
           review_quiz_kinds?: string[];
           review_session_size?: number;

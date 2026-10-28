@@ -34,7 +34,7 @@ Commit messages follow [Conventional Commits 1.0](https://www.conventionalcommit
 - Scopes follow the monorepo layout, for example `web`, `design`, `db`, `docs`, `ci`.
 - The description is imperative, lowercase, without a trailing period.
 - Breaking changes are marked with `!` after the type or a `BREAKING CHANGE:` footer.
-- Reference the Linear issue in the footer, for example `Refs: ATL-1`. Name only the pull request's own issue: Linear moves every issue a commit references, so naming another one marks it as started.
+- A commit may reference the Linear issue in the footer, for example `Refs: ATL-1`; it is not required, since the branch name already links the issue. Name only the pull request's own issue: Linear moves every issue a commit references, so naming another one marks it as started.
 
 ## Pull requests
 
@@ -43,7 +43,7 @@ Commit messages follow [Conventional Commits 1.0](https://www.conventionalcommit
 - Release pull requests have no Linear issue. The release is titled `chore(repo): release <version>` and the merge back `chore(repo): merge main into develop after release <version>`.
 - The description follows [`.github/pull_request_template.md`](../../.github/pull_request_template.md): Context, Changes, Review focus, Decisions. It is short and lists any docs or ADRs updated.
 - Claude creates pull requests with the [`study-atelier-pr-create`](../../.claude/skills/study-atelier-pr-create/SKILL.md) skill.
-- The `Pull request` workflow checks the title, the branch name and every commit of a pull request against these rules (each commit needs a Conventional Commits subject and a `Refs: ATL-n` footer; release, hotfix, merge-back and `design/tokens` branches are exempt from the commit check), with [`.github/scripts/check-pull-request.mjs`](../../.github/scripts/check-pull-request.mjs).
+- The `Pull request` workflow checks the title, the branch name and every commit of a pull request against these rules (each commit needs a Conventional Commits subject; release, hotfix, merge-back and `design/tokens` branches are exempt from the commit check), with [`.github/scripts/check-pull-request.mjs`](../../.github/scripts/check-pull-request.mjs).
 - Screenshots of a change (desktop and phone, from `pnpm screenshot`, see [cloud-sessions.md](cloud-sessions.md)) are attached to the Linear issue, not to the pull request; the pull request description says they are there. Screenshots taken after review changes are added with a title that says so.
 - Before asking the owner for review, Claude reviews the pull request with the [`study-atelier-pr-review`](../../.claude/skills/study-atelier-pr-review/SKILL.md) skill and fixes blocking findings.
 - The owner reviews and merges. Claude keeps the pull request green and answers review comments.

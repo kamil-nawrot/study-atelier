@@ -1,6 +1,5 @@
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
-import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { SessionInput } from '#lib/review/types/session-input.ts';
 
 export const SESSION_SIZE = 20;
@@ -62,12 +61,12 @@ export function sessionCounts({
 	return { known, fresh: Math.min(unseen, newAllowance(newToday, newPerDay), sessionSize - known) };
 }
 
-export function retryLater(
-	queue: ReviewItem[],
+export function retryLater<T>(
+	queue: T[],
 	position: number,
-	item: ReviewItem,
+	item: T,
 	random: () => number = Math.random
-): ReviewItem[] {
+): T[] {
 	const span = RETRY_GAP_MAX - RETRY_GAP_MIN + 1;
 	const gap = RETRY_GAP_MIN + Math.min(span - 1, Math.floor(random() * span));
 	const index = Math.min(position + 1 + gap, queue.length);

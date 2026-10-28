@@ -46,7 +46,7 @@ export { default as TextButton } from './components/TextButton/TextButton.svelte
 export { default as Tooltip } from './components/Tooltip/Tooltip.svelte';
 export { default as Toast } from './components/Toast/Toast.svelte';
 export { default as ValueField } from './components/ValueField/ValueField.svelte';
-export { mentionsTerm } from './notes-markdown/notes-markdown';
+export { maskedSegments, mentionsTerm } from './notes-markdown/notes-markdown';
 export { defaultUiMessages, setUiMessages } from './messages/messages';
 export {
 	overlayScrollbar,
@@ -67,6 +67,7 @@ export type { NoteLinkOption } from './types/note-link-option';
 export type { NoteLinks } from './types/note-links';
 export type { NoteLinkTrigger } from './types/note-link-trigger';
 export type { NoteTerm } from './types/note-term';
+export type { TextSegment } from './types/text-segment';
 export type { AlertTone } from './types/alert-tone';
 export type { UiMessages } from './types/ui-messages';
 export type { ScrollAxis } from './types/scroll-axis';

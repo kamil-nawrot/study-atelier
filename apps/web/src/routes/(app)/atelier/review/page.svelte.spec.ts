@@ -14,6 +14,7 @@ import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { SessionRow } from '#lib/review/types/session-row.ts';
 import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
 import type { Preferences } from '#lib/profile/types/preferences.ts';
+import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import { testReviewCard } from '#lib/testing/review/review.ts';
@@ -69,6 +70,17 @@ function flashcards(...numbers: number[]): SessionRow[] {
 	return numbers.map((number) => ({ artwork_id: `artwork-${number}`, mode: 'flashcard' }));
 }
 
+const terms: GlossaryEntry[] = ['Apse', 'Nave', 'Crypt', 'Choir'].map((name) => ({
+	id: name,
+	name,
+	category: 'architecture',
+	definition: `${name} is a part of a church.`,
+	synonyms: [],
+	forms: [],
+	sortName: null,
+	source: null
+}));
+
 function renderReview(
 	artworks: WallArtwork[],
 	reviewCards: Map<string, ReviewCard> = new Map(),
@@ -77,7 +89,8 @@ function renderReview(
 	streak = 0,
 	menu: { reviewWaiting?: Promise<number>; waiting?: number } = {},
 	preferences: Preferences = defaultPreferences,
-	termPins?: number
+	termPins?: number,
+	glossary: GlossaryEntry[] = []
 ): void {
 	render(ReviewPage, {
 		data: {
@@ -88,7 +101,7 @@ function renderReview(
 			streak,
 			waiting: undefined,
 			...menu,
-			glossary: [],
+			glossary,
 			preferences,
 			termPins,
 			error
@@ -264,6 +277,52 @@ describe('review page', () => {
 			.not.toBeInTheDocument();
 		await page.getByRole('button', { name: m.review.start }).click();
 		expect(loadSession).toHaveBeenCalledWith(expect.any(Date), 'mixed', { kind: 'all' });
+	});
+
+	it('adds the definitions of the preferences to a session unless they are switched off', async () => {
+		const artworks = collection(25);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 20), () => 5),
+			0,
+			undefined,
+			0,
+			{},
+			{ ...defaultPreferences, reviewGlossaryQuestions: 2 },
+			0,
+			terms
+		);
+
+		await page.getByText(m.review.options).click();
+		await expect.element(page.getByText(m.review.definitionsHint(2))).toBeVisible();
+		await page.getByRole('button', { name: m.review.start }).click();
+		await expect.element(page.getByText(m.review.progress(1, 6))).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { name: m.review.flashcard.question }))
+			.toBeVisible();
+	});
+
+	it('leaves the definitions out when they are switched off', async () => {
+		const artworks = collection(25);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 20), () => 5),
+			0,
+			undefined,
+			0,
+			{},
+			defaultPreferences,
+			0,
+			terms
+		);
+
+		await page.getByText(m.review.options).click();
+		await page.getByText(m.review.definitions).click();
+		await expect
+			.element(page.getByRole('switch', { name: m.review.definitions }))
+			.not.toBeChecked();
+		await page.getByRole('button', { name: m.review.start }).click();
+		await expect.element(page.getByText(m.review.progress(1, 4))).toBeVisible();
 	});
 
 	it('says in a free session that its answers are not saved', async () => {
