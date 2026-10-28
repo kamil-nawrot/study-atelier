@@ -11,6 +11,11 @@ import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definit
 import { m } from '#lib/i18n/i18n.ts';
 import { IMAGES_BUCKET } from '#lib/images/bucket/bucket.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
+import {
+	answerRpc,
+	saveArtworkCalls,
+	savedCandidates
+} from '#lib/testing/duplicates/duplicates.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import EditArtworkPage from './+page.svelte';
 
@@ -111,15 +116,14 @@ function saveButton(): ReturnType<typeof page.getByRole> {
 }
 
 function savedArtworks(...titles: [number, string][]): void {
-	artworks.is.mockResolvedValue({
-		data: titles.map(([number, title]) => ({
+	savedCandidates(
+		...titles.map(([number, title]) => ({
 			id: `artwork-${number}`,
 			record_number: number,
 			title,
-			artwork_values: [{ category_values: { category_code: 'author', name: 'Johannes Vermeer' } }]
-		})),
-		error: null
-	});
+			authors: ['Johannes Vermeer']
+		}))
+	);
 }
 
 function duplicateDialog(): ReturnType<typeof page.getByRole> {
@@ -151,7 +155,7 @@ function arrive(from: string | null): void {
 describe('edit artwork page', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
-		vi.mocked(supabase.rpc).mockReturnValue(rpcCall as never);
+		answerRpc(rpcCall);
 		rpcCall.single.mockResolvedValue({ data: { id: 'artwork-7', record_number: 7 }, error: null });
 		vi.mocked(supabase.storage.from).mockReturnValue(bucket as never);
 		bucket.remove.mockResolvedValue({ data: [], error: null });
@@ -277,8 +281,8 @@ describe('edit artwork page', () => {
 		await page.getByRole('button', { name: m.artworkForm.useImageUrl }).click();
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
-		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
+		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		const [, args] = saveArtworkCalls()[0] as [string, Record<string, never>];
 		expect(args.images).toEqual([
 			expect.objectContaining({ id: 'image-0', own_image_url: 'https://example.org/new.jpg' }),
 			expect.objectContaining({ id: 'image-1', own_image_url: 'https://example.com/plan.jpg' })
@@ -305,8 +309,8 @@ describe('edit artwork page', () => {
 		await page.getByRole('button', { name: m.artworkForm.setMainImage }).click();
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
-		const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
+		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		const [, args] = saveArtworkCalls()[0] as [string, Record<string, never>];
 		expect(args.images).toEqual([
 			expect.objectContaining({ id: 'image-1', own_image_url: 'https://example.com/plan.jpg' }),
 			expect.objectContaining({ id: 'image-0', own_image_url: 'https://example.com/facade.jpg' })
@@ -362,7 +366,7 @@ describe('edit artwork page', () => {
 		await page.getByRole('button', { name: m.ui.valueField.remove('Milk') }).click();
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
 		expect(supabase.rpc).toHaveBeenCalledWith(
 			'save_artwork',
 			expect.objectContaining({
@@ -392,7 +396,7 @@ describe('edit artwork page', () => {
 		await page.getByRole('textbox', { name: m.artworkForm.year }).fill('1660');
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
 		expect(supabase.from).not.toHaveBeenCalledWith('artworks');
 	});
 
@@ -410,7 +414,7 @@ describe('edit artwork page', () => {
 			);
 		await page.getByRole('button', { name: m.duplicateDialog.save.confirm }).click();
 
-		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
 	});
 
 	it('does not ask when only the artwork itself has the changed title', async () => {
@@ -420,7 +424,7 @@ describe('edit artwork page', () => {
 		await titleField().fill('the milkmaid ');
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
 		expect(duplicateDialog().query()).toBeNull();
 	});
 

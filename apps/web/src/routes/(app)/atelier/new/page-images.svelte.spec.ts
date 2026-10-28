@@ -16,6 +16,7 @@ import {
 	OWN_IMAGE_MAX_MEGABYTES
 } from '#lib/images/bucket/bucket.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
+import { answerRpc, saveArtworkCalls } from '#lib/testing/duplicates/duplicates.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import {
 	titleField,
@@ -80,7 +81,7 @@ describe('own images on the add artwork page', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
 		answerNothingFromWikidata();
-		vi.mocked(supabase.rpc).mockReturnValue(rpcCall as never);
+		answerRpc(rpcCall);
 		rpcCall.single.mockResolvedValue({
 			data: { id: 'artwork-12', record_number: 12 },
 			error: null
@@ -217,7 +218,7 @@ describe('own images on the add artwork page', () => {
 			.element(page.getByText(m.artworkForm.ownImageUrlCredit('example.com')))
 			.toBeVisible();
 		await expect.element(urlField()).not.toBeInTheDocument();
-		expect(supabase.rpc).not.toHaveBeenCalled();
+		expect(saveArtworkCalls()).toHaveLength(0);
 
 		await saveButton().click();
 
@@ -353,7 +354,7 @@ describe('own images on the add artwork page', () => {
 
 		await expect.element(page.getByText(m.ownImageErrors.uploadNetwork)).toBeVisible();
 		await expect.element(page.getByRole('img')).toBeVisible();
-		expect(supabase.rpc).not.toHaveBeenCalled();
+		expect(saveArtworkCalls()).toHaveLength(0);
 		expect(goto).not.toHaveBeenCalled();
 	});
 });
@@ -424,7 +425,7 @@ describe('image search on the add artwork page', () => {
 		vi.clearAllMocks();
 		fetchMock.mockReset();
 		vi.stubGlobal('fetch', fetchMock);
-		vi.mocked(supabase.rpc).mockReturnValue(rpcCall as never);
+		answerRpc(rpcCall);
 		artworks.select.mockReturnValue(artworks);
 		artworks.is.mockResolvedValue({ data: [], error: null });
 		rpcCall.single.mockResolvedValue({
@@ -511,7 +512,7 @@ describe('image search on the add artwork page', () => {
 
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(supabase.rpc).toHaveBeenCalled());
+		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
 		expect(supabase.rpc).toHaveBeenCalledWith(
 			'save_artwork',
 			expect.objectContaining({
