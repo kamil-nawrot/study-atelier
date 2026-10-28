@@ -7,7 +7,13 @@ describe('publicActions', () => {
 	});
 
 	it('leaves the forms alone, as each links to the other pages itself', () => {
-		for (const path of ['/sign-in', '/sign-up', '/forgot-password', '/sign-in/']) {
+		for (const path of [
+			'/sign-in',
+			'/sign-up',
+			'/sign-up/check-email',
+			'/forgot-password',
+			'/sign-in/'
+		]) {
 			expect(publicActions(path, false)).toBe('none');
 		}
 	});

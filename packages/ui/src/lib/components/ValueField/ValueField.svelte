@@ -72,7 +72,7 @@
 	let quiet = false;
 
 	const inactive = $derived(disabled || locked);
-	const expanded = $derived(open && !inactive && !full && ordered.length > 0);
+	const expanded = $derived(open && !inactive && !filling && !full && ordered.length > 0);
 	const activeIndex = $derived(Math.min(active, ordered.length - 1));
 
 	function optionId(option: ValueOption): string {
@@ -135,7 +135,7 @@
 			event.preventDefault();
 			event.stopPropagation();
 			open = false;
-		} else if (event.key === 'Backspace' && query === '' && values.length > 0) {
+		} else if (event.key === 'Backspace' && !filling && query === '' && values.length > 0) {
 			values = values.slice(0, -1);
 		}
 	}

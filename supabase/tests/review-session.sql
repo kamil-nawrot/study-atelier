@@ -376,4 +376,56 @@ begin
 end;
 $$;
 
+do $$
+declare
+  day_start constant timestamptz := date_trunc('day', now());
+  authors constant jsonb := '[
+    ["Raphael", "Giulio Romano"], ["Giulio Romano", "Raphael"], ["Perugino"], ["Pinturicchio"], ["Signorelli"]
+  ]';
+  asked jsonb := '[]';
+begin
+  for number in 0..4 loop
+    perform public.record_review(
+      (select saved.id from public.save_artwork(
+        jsonb_build_object('title', 'Umbrian ' || number, 'era_code', 'early_modern'),
+        jsonb_build_object('author', authors -> number, 'style', jsonb_build_array('Umbrian school')),
+        null,
+        jsonb_build_array(jsonb_build_object(
+          'source_wikidata_id', 'Q8' || number,
+          'source_image_file', 'Umbrian_' || number || '.jpg'
+        ))
+      ) as saved),
+      jsonb_build_object('due', now() + interval '10 days', 'stability', 10, 'difficulty', 5,
+        'state', 2, 'reps', 2, 'lapses', 0, 'scheduled_days', 10, 'learning_steps', 0,
+        'last_review', now() - interval '1 day'),
+      '{"mode": "flashcard", "rating": 3}');
+  end loop;
+  update public.profiles
+    set review_quiz_kinds = array['quiz_title', 'quiz_image', 'quiz_author', 'quiz_style', 'quiz_pin'];
+
+  for attempt in 1..120 loop
+    asked := asked || coalesce((
+      select jsonb_agg(item)
+        from jsonb_array_elements(public.review_session(day_start, 'quizzes', 'all', null, attempt)) as item
+        where item ->> 'mode' = 'quiz_author'
+    ), '[]');
+  end loop;
+
+  assert jsonb_array_length(asked) > 0, 'no author question was asked about the Umbrian artworks';
+  assert not exists (
+    select 1
+      from jsonb_array_elements(asked) as item
+      cross join lateral (
+        select (
+          select string_agg(lower(btrim(name)), '|' order by lower(btrim(name)))
+            from unnest(string_to_array(option ->> 'label', ', ')) as name
+        ) as authors_key
+          from jsonb_array_elements(item -> 'options') as option
+      ) as answer
+      group by item
+      having count(*) <> count(distinct answer.authors_key)
+  ), 'an author question offers the same authors twice in another order';
+end;
+$$;
+
 rollback;

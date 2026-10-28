@@ -5,6 +5,7 @@ export type PublicActions = 'none' | 'atelier' | 'signIn' | 'account';
 const FORM_PAGES: ReadonlySet<string> = new Set([
 	resolve('/(auth)/sign-in'),
 	resolve('/(auth)/sign-up'),
+	resolve('/(auth)/sign-up/check-email'),
 	resolve('/(auth)/forgot-password'),
 	resolve('/update-password')
 ]);

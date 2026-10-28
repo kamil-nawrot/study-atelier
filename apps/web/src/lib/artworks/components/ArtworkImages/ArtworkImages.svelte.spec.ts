@@ -91,6 +91,16 @@ describe('ArtworkImages automatic match', () => {
 		expect(search).toHaveBeenCalledTimes(1);
 	});
 
+	it('keeps the stop within reach while another image slot is shown', async () => {
+		search.mockReturnValue(new Promise(() => {}));
+		renderImages();
+
+		await vi.advanceTimersByTimeAsync(AUTO_MATCH_DELAY_MS + 100);
+		await page.getByRole('button', { name: m.artworkForm.addImage }).click();
+
+		await expect.element(page.getByRole('button', { name: m.common.stopFetch })).toBeVisible();
+	});
+
 	it('drops the answer for a title the learner has since changed', async () => {
 		let answer: (result: Awaited<ReturnType<typeof findImageCandidates>>) => void = () => {};
 		search.mockReturnValueOnce(new Promise((resolve) => (answer = resolve)));

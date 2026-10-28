@@ -83,8 +83,7 @@ export async function countTermPins(): Promise<number | undefined> {
 	const { count, error } = await supabase
 		.from('artwork_pins')
 		.select('id', { count: 'exact', head: true })
-		.not('glossary_entry_id', 'is', null)
-		.is('view_width', null);
+		.not('glossary_entry_id', 'is', null);
 	return error ? undefined : (count ?? 0);
 }
 
