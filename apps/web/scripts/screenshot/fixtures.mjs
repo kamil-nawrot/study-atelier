@@ -101,7 +101,7 @@ function artwork(number, title, authors, year, era, extra = {}) {
 		year_to: year,
 		year_approximate: false,
 		era_code: era,
-		author_unknown: false,
+		author_unknown: authors.length === 0,
 		type_code: 'painting',
 		notes: null,
 		favourite: false,
@@ -170,7 +170,7 @@ export const ARTWORKS = [
 		'period',
 		['Baroque']
 	),
-	artwork(4, 'Venus of Willendorf', ['Unknown'], -28000, 'prehistory', {
+	artwork(4, 'Venus of Willendorf', [], -28000, 'prehistory', {
 		...ownImage(4, 3, 4),
 		type_code: 'sculpture'
 	}),
@@ -463,7 +463,7 @@ export const PROFILE = {
 	review_session_size: 20,
 	review_new_per_day: 10,
 	review_form: 'mixed',
-	review_quiz_kinds: ['quiz_title', 'quiz_image', 'quiz_style', 'quiz_pin'],
+	review_quiz_kinds: ['quiz_title', 'quiz_image', 'quiz_author', 'quiz_style', 'quiz_pin'],
 	review_free: true,
 	view_show_pins: false,
 	view_loupe_on: false,
