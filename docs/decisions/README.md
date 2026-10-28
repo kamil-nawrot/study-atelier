@@ -152,3 +152,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0146](0146-publish-the-legal-texts-without-a-lawyers-review.md)                          | Publish the legal texts without a lawyer's review                                        | accepted           |
 | [0147](0147-limit-the-links-of-an-account-and-check-limits-one-request-at-a-time.md)      | Limit the links of an account and check limits one request at a time                     | accepted           |
 | [0148](0148-show-each-account-action-once-before-signing-in.md)                           | Show each account action once before signing in                                          | accepted           |
+| [0149](0149-hang-a-salon-wall-on-the-start-page.md)                                       | Hang a salon wall on the start page                                                      | accepted           |

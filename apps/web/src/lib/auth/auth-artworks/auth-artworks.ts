@@ -3,12 +3,14 @@ import data from './auth-artworks.json';
 
 const publicDomainLicenses = ['Public domain', 'CC0'];
 
-type AuthArtwork = {
+export type AuthArtwork = {
 	title: string;
 	artist: string;
 	date: string;
 	file: string;
 	credit: string;
+	kind: string;
+	publicDomain: boolean;
 };
 
 type ArtworkEntry = (typeof data)[number];
@@ -28,7 +30,9 @@ function toAuthArtwork(entry: ArtworkEntry): AuthArtwork {
 		credit:
 			photographer && !isPublicDomain
 				? m.artwork.photoCredit(photographer, entry.license)
-				: m.artwork.credit
+				: m.artwork.credit,
+		kind: entry.kind,
+		publicDomain: isPublicDomain
 	};
 }
 
