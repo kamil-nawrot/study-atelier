@@ -45,18 +45,19 @@ describe('pin data', () => {
 		query.eq.mockReturnValue(query);
 	});
 
-	it('counts the pins that name a glossary entry, and gives up quietly on an error', async () => {
+	it('counts the pins that name a glossary entry, with a loupe view or without, and gives up quietly on an error', async () => {
 		const counted = {
 			select: vi.fn(() => counted),
-			not: vi.fn(() => counted),
+			not: vi.fn(),
 			is: vi.fn()
 		};
 		vi.mocked(supabase.from).mockReturnValue(counted as never);
-		counted.is.mockResolvedValueOnce({ count: 3, error: null });
-		counted.is.mockResolvedValueOnce({ count: null, error: { message: 'x' } });
+		counted.not.mockResolvedValueOnce({ count: 3, error: null });
+		counted.not.mockResolvedValueOnce({ count: null, error: { message: 'x' } });
 
 		await expect(countTermPins()).resolves.toBe(3);
 		expect(counted.not).toHaveBeenCalledWith('glossary_entry_id', 'is', null);
+		expect(counted.is).not.toHaveBeenCalled();
 		await expect(countTermPins()).resolves.toBeUndefined();
 	});
 

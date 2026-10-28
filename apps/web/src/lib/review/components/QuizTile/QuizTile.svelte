@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Maximize2 from '@lucide/svelte/icons/maximize-2';
-	import { ArtworkImage, Icon } from '@study-atelier/ui';
+	import { ArtworkImage, Icon, Tooltip } from '@study-atelier/ui';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import QuizChoiceState from '#lib/review/components/QuizChoiceState/QuizChoiceState.svelte';
@@ -38,6 +38,7 @@
 					.join(' · ')
 			: ''
 	);
+	let fullCaption = $derived([option.label, details].filter(Boolean).join(' · '));
 </script>
 
 <li
@@ -84,8 +85,12 @@
 	{/if}
 	<p class="tile-caption">
 		{#if answered}
-			<cite class="artwork-title">{option.label}</cite>
-			<span class="caption">{details}</span>
+			<Tooltip text={fullCaption}>
+				<span class="caption-lines">
+					<cite class="artwork-title">{option.label}</cite>
+					<span class="caption">{details}</span>
+				</span>
+			</Tooltip>
 		{/if}
 	</p>
 </li>
@@ -217,14 +222,30 @@
 		padding: var(--spacing-2) 0 var(--spacing-3);
 	}
 
-	.tile-caption > * {
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+	.tile-caption > :global(.tooltip) {
+		display: grid;
+		min-width: 0;
 	}
 
-	.tile-caption .caption {
+	.caption-lines {
+		display: grid;
+		gap: var(--spacing-1);
+		min-width: 0;
+	}
+
+	.caption-lines .artwork-title {
+		display: -webkit-box;
+		overflow: hidden;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
+	}
+
+	.caption-lines .caption {
+		overflow: hidden;
 		color: var(--color-mat-fg-muted);
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	@media (min-width: 768px) {

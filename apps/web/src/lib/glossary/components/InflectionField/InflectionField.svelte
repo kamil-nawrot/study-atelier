@@ -18,6 +18,7 @@
 		offer?: FormsOffer;
 		message?: string;
 		onfetch?: () => void;
+		onstop?: () => void;
 	};
 
 	let {
@@ -28,7 +29,8 @@
 		status = 'idle',
 		offer,
 		message,
-		onfetch
+		onfetch,
+		onstop
 	}: Props = $props();
 
 	const id = $props.id();
@@ -43,7 +45,8 @@
 		failed: m.glossary.form.formsFailed
 	};
 
-	let open = $derived(expanded || forms.length === 0);
+	let filling = $derived(status === 'searching');
+	let open = $derived(expanded || forms.length === 0 || filling);
 	let summary = $derived(
 		message ??
 			(status === 'searching' || forms.length === 0
@@ -73,6 +76,9 @@
 				{#if action}
 					<button class="link" onclick={onfetch} type="button">{action}</button>
 				{/if}
+				{#if filling && onstop}
+					<button class="link" onclick={onstop} type="button">{m.common.stopFetch}</button>
+				{/if}
 				{#if forms.length > 0}
 					<button
 						class="link"
@@ -92,6 +98,7 @@
 		<div class="forms">
 			<ValueField
 				id={fieldId}
+				{filling}
 				label={m.glossary.form.forms}
 				labelHidden
 				{options}

@@ -9,7 +9,7 @@ import type { SessionRow } from '#lib/review/types/session-row.ts';
 
 export const QUIZ_TILE_SIZES = '(min-width: 768px) 25vw, 45vw';
 
-function shuffle<T>(values: T[], random: () => number): T[] {
+export function shuffle<T>(values: T[], random: () => number): T[] {
 	const shuffled = [...values];
 	for (let index = shuffled.length - 1; index > 0; index -= 1) {
 		const other = Math.min(index, Math.floor(random() * (index + 1)));

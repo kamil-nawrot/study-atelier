@@ -1,5 +1,8 @@
 <script lang="ts">
 	import FieldMessage from '../FieldMessage/FieldMessage.svelte';
+	import FillingLines from '../FillingLines/FillingLines.svelte';
+	import { overlayScrollbarBeside } from '../../overlay-scrollbar/overlay-scrollbar.ts';
+	import type { Snippet } from 'svelte';
 	import type { HTMLTextareaAttributes } from 'svelte/elements';
 
 	type Props = Omit<HTMLTextareaAttributes, 'value'> & {
@@ -8,6 +11,8 @@
 		hint?: string;
 		error?: string;
 		counter?: boolean;
+		filling?: boolean;
+		fillingNote?: Snippet;
 	};
 
 	let {
@@ -16,6 +21,9 @@
 		hint,
 		error,
 		counter = false,
+		filling = false,
+		fillingNote,
+		disabled,
 		id,
 		rows = 5,
 		maxlength,
@@ -36,15 +44,27 @@
 
 <div class="field">
 	<label for={inputId}>{label}</label>
-	<textarea
-		id={inputId}
-		class:invalid={!!error}
-		aria-describedby={describedBy}
-		aria-invalid={error ? true : undefined}
-		{maxlength}
-		{rows}
-		bind:value
-		{...rest}></textarea>
+	<div class="control" class:filling>
+		<textarea
+			id={inputId}
+			class:invalid={!!error}
+			{@attach overlayScrollbarBeside()}
+			aria-busy={filling || undefined}
+			aria-describedby={describedBy}
+			aria-invalid={error ? true : undefined}
+			{disabled}
+			{maxlength}
+			readonly={filling || undefined}
+			{rows}
+			bind:value
+			{...rest}></textarea>
+		{#if filling}
+			<FillingLines lines={Math.max(1, Math.min(4, Number(rows) - 2))} />
+			{#if fillingNote}
+				<div class="note">{@render fillingNote()}</div>
+			{/if}
+		{/if}
+	</div>
 	{#if message || counted}
 		<div class="messages">
 			{#if message}
@@ -75,6 +95,13 @@
 		line-height: var(--line-height-sm);
 	}
 
+	.control {
+		--filling-inset: var(--border-width-base);
+
+		position: relative;
+		display: grid;
+	}
+
 	textarea {
 		min-width: 0;
 		padding: var(--spacing-3);
@@ -98,6 +125,19 @@
 
 	.field:has(textarea:disabled) label {
 		color: var(--color-fg-muted);
+	}
+
+	.control.filling textarea,
+	.control.filling textarea::placeholder {
+		color: transparent;
+		caret-color: transparent;
+	}
+
+	.note {
+		position: absolute;
+		right: var(--spacing-3);
+		bottom: var(--spacing-2);
+		left: var(--spacing-3);
 	}
 
 	textarea:disabled {

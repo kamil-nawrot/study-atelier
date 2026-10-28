@@ -235,7 +235,7 @@ describe('new glossary entry page', () => {
 		expect(searchArticles).toHaveBeenCalledWith('nawa', 'architecture');
 	});
 
-	it('says it is searching while it waits for Wikipedia', async () => {
+	it('locks the definition and saving while it waits for Wikipedia', async () => {
 		renderNew();
 		vi.mocked(searchArticles).mockReturnValue(new Promise(() => {}));
 
@@ -243,9 +243,26 @@ describe('new glossary entry page', () => {
 		await category(m.glossary.categoryNames.architecture).click();
 		await vi.advanceTimersByTimeAsync(700);
 
+		await expect.element(definitionField()).toHaveAttribute('readonly');
 		await expect
-			.element(definitionField())
-			.toHaveAttribute('placeholder', m.glossary.form.definitionSearching);
+			.element(page.getByRole('status').filter({ hasText: m.glossary.form.definitionSearching }))
+			.toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.common.save })).toBeDisabled();
+	});
+
+	it('unlocks the definition when the learner stops the search', async () => {
+		renderNew();
+		vi.mocked(searchArticles).mockReturnValue(new Promise(() => {}));
+
+		await nameField().fill('nawa');
+		await category(m.glossary.categoryNames.architecture).click();
+		await vi.advanceTimersByTimeAsync(700);
+		await page.getByRole('button', { name: m.common.stopFetch }).click();
+		await vi.advanceTimersByTimeAsync(700);
+
+		await expect.element(definitionField()).not.toHaveAttribute('readonly');
+		await expect.element(page.getByRole('button', { name: m.common.save })).toBeEnabled();
+		expect(searchArticles).toHaveBeenCalledTimes(1);
 	});
 
 	it('searches again for the new name while the definition is still the fetched one', async () => {
@@ -453,6 +470,21 @@ describe('new glossary entry page', () => {
 		await expect
 			.element(page.getByRole('button', { name: m.glossary.form.hideForms, exact: true }))
 			.toHaveAttribute('aria-expanded', 'true');
+	});
+
+	it('locks the forms while Wiktionary answers, until the learner stops it', async () => {
+		vi.mocked(fetchForms).mockReturnValue(new Promise(() => {}));
+		renderNew();
+		await fillAndSearch([NAWA]);
+
+		const forms = page.getByRole('combobox', { name: m.glossary.form.forms });
+		await expect.element(forms).toHaveAttribute('readonly');
+		await expect.element(saveButton()).toBeDisabled();
+
+		await page.getByRole('button', { name: m.common.stopFetch }).click();
+
+		await expect.element(forms).not.toHaveAttribute('readonly');
+		await expect.element(saveButton()).toBeEnabled();
 	});
 
 	it('fills the forms from Wiktionary, collapsed behind their number, and saves them', async () => {

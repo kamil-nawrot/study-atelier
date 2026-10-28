@@ -7,6 +7,7 @@ export type Preferences = {
 	reviewForm: ReviewForm;
 	reviewQuizKinds: QuizMode[];
 	reviewFree: boolean;
+	reviewGlossaryQuestions: number;
 	viewShowPins: boolean;
 	viewLoupeOn: boolean;
 	fetchImage: boolean;

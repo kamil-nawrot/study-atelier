@@ -1,7 +1,7 @@
 <script lang="ts">
-	import ImageIcon from '@lucide/svelte/icons/image';
 	import { tick, untrack } from 'svelte';
-	import { Alert, ArtworkImage, Button, Dialog, Icon } from '@study-atelier/ui';
+	import { Alert, ArtworkImage, Button, Dialog, Primer } from '@study-atelier/ui';
+	import FillingStatus from '#lib/shared/forms/FillingStatus/FillingStatus.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { findImageCandidates } from '#lib/images/image-search/image-search.ts';
 	import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
@@ -85,10 +85,12 @@
 	bind:open
 >
 	{#if searching}
-		<p class="status" role="status">
-			<Icon icon={ImageIcon} />
-			{m.imageSearch.searching}
-		</p>
+		<div class="searching">
+			<div class="primed" aria-busy="true">
+				<Primer />
+			</div>
+			<FillingStatus message={m.imageSearch.searching} />
+		</div>
 	{:else if result.error}
 		<div class="error">
 			<Alert title={m.imageSearch.errorTitle} tone="danger">
@@ -133,10 +135,19 @@
 
 <style>
 	.status {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-3);
 		color: var(--color-fg-muted);
+	}
+
+	.searching {
+		display: grid;
+		gap: var(--spacing-3);
+	}
+
+	.primed {
+		position: relative;
+		height: 160px;
+		background: var(--color-surface);
+		color: var(--color-fg);
 	}
 
 	.error {

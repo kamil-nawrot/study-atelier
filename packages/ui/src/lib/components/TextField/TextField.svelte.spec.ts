@@ -31,4 +31,13 @@ describe('TextField', () => {
 		await expect.element(page.getByRole('textbox', { name: 'From' })).toBeVisible();
 		expect(document.querySelector('label')).toBeNull();
 	});
+
+	it('keeps the field read-only with one text-sized line while it is being filled', async () => {
+		render(TextField, { label: 'Year', filling: true });
+
+		const field = page.getByRole('textbox', { name: 'Year' });
+		await expect.element(field).toHaveAttribute('readonly');
+		await expect.element(field).toHaveAttribute('aria-busy', 'true');
+		expect(document.querySelectorAll('.filling-lines .line')).toHaveLength(1);
+	});
 });

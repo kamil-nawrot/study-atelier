@@ -35,6 +35,11 @@ const styleQuiz: QuizData = {
 	options: ['Dutch Golden Age', 'Mannerism', 'Caravaggism', 'Rococo'].map((label) => ({ label }))
 };
 
+const authorQuiz: QuizData = {
+	answer: 3,
+	options: ['Rembrandt', 'Frans Hals', 'Jan Steen', 'Johannes Vermeer'].map((label) => ({ label }))
+};
+
 const termQuiz: QuizData = {
 	answer: 1,
 	options: ['Nave', 'Apse', 'Choir', 'Portal'].map((label) => ({ label }))
@@ -143,6 +148,19 @@ describe('Quiz', () => {
 		expect(onnext).toHaveBeenCalledOnce();
 	});
 
+	it('shows the full title and its details on hover, as the tile cuts them short', async () => {
+		renderQuiz('quiz_image', artworkQuiz, 0);
+
+		const caption = page
+			.getByText(`Johannes Vermeer · 1900 · ${m.review.quiz.reasons.author}`)
+			.first();
+		await caption.hover();
+
+		await expect
+			.element(page.getByRole('tooltip').filter({ hasText: `Johannes Vermeer · 1900` }).first())
+			.toBeVisible();
+	});
+
 	it('asks for the title next to the image and confirms a right answer', async () => {
 		renderQuiz('quiz_title', artworkQuiz, 2);
 
@@ -180,6 +198,29 @@ describe('Quiz', () => {
 
 		await page.getByRole('button', { name: /Caravaggism/ }).click();
 		expect(onanswer).toHaveBeenCalledWith(2);
+	});
+
+	it('asks who made the artwork without a hint', async () => {
+		await page.viewport(1280, 800);
+		const { onanswer } = renderQuiz('quiz_author', authorQuiz);
+
+		await expect
+			.element(page.getByRole('heading', { name: m.review.quiz.authorQuestion }))
+			.toBeVisible();
+		expect(document.querySelector('.lead')).toBeNull();
+
+		await page.getByRole('button', { name: /Frans Hals/ }).click();
+		expect(onanswer).toHaveBeenCalledWith(1);
+	});
+
+	it('names the right author with the title and the date after an author question', async () => {
+		await page.viewport(1280, 800);
+		renderQuiz('quiz_author', authorQuiz, 0);
+
+		await expect
+			.element(page.getByRole('status'))
+			.toHaveTextContent(`${m.review.quiz.wrong} Johannes Vermeer.`);
+		await expect.element(page.getByRole('status')).toHaveTextContent(`${answer.title}, ok. 1665.`);
 	});
 
 	it('asks what the marked place of a pinned image is', async () => {

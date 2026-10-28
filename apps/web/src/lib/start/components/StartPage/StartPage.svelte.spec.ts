@@ -9,14 +9,16 @@ describe('StartPage', () => {
 		render(StartPage);
 
 		await expect
-			.element(page.getByRole('heading', { level: 1, name: m.landing.title }))
+			.element(
+				page.getByRole('heading', { level: 1, name: `${m.landing.title} ${m.landing.titleAccent}` })
+			)
 			.toBeVisible();
 		await expect
 			.element(page.getByRole('link', { name: m.landing.signUp }).first())
 			.toHaveAttribute('href', '/sign-up');
 		await expect
-			.element(page.getByRole('link', { name: m.landing.signIn }).first())
-			.toHaveAttribute('href', '/sign-in');
+			.element(page.getByRole('link', { name: m.landing.signIn }))
+			.not.toBeInTheDocument();
 	});
 
 	it('describes every module of the atelier', async () => {
@@ -30,6 +32,21 @@ describe('StartPage', () => {
 				.element(page.getByRole('heading', { level: 3, name: module.title }))
 				.toBeInTheDocument();
 		}
+	});
+
+	it('shows each module with an artwork and ends with an invitation to sign up', async () => {
+		render(StartPage);
+
+		await expect
+			.element(page.getByRole('img', { name: /Taras kawiarni w nocy/ }))
+			.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('heading', { level: 2, name: m.landing.closingTitle }))
+			.toBeInTheDocument();
+		await expect.element(page.getByText(m.landing.closingText)).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('link', { name: m.landing.signUp }).last())
+			.toHaveAttribute('href', '/sign-up');
 	});
 
 	it('links the terms, the privacy policy and the contact address', async () => {

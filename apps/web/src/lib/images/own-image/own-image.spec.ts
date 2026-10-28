@@ -23,7 +23,7 @@ function sized(source: File, size: number): File {
 	return source;
 }
 
-type ImageOutcome = { width: number; height: number } | 'error';
+type ImageOutcome = { width: number; height: number } | 'error' | 'never';
 
 function stubImage(outcomes: Record<string, ImageOutcome>): void {
 	vi.stubGlobal(
@@ -36,6 +36,7 @@ function stubImage(outcomes: Record<string, ImageOutcome>): void {
 
 			set src(value: string) {
 				const outcome = outcomes[value] ?? 'error';
+				if (outcome === 'never') return;
 				setTimeout(() => {
 					if (outcome === 'error') {
 						this.onerror?.();
@@ -121,6 +122,16 @@ describe('readImageSize', () => {
 		stubImage({});
 
 		await expect(readImageSize('https://example.com/missing.jpg')).rejects.toThrow();
+	});
+
+	it('gives up on an image that does not load within fifteen seconds', async () => {
+		vi.useFakeTimers();
+		stubImage({ 'https://example.com/slow.jpg': 'never' });
+
+		const failure = expect(readImageSize('https://example.com/slow.jpg')).rejects.toThrow();
+		await vi.advanceTimersByTimeAsync(15000);
+		await failure;
+		vi.useRealTimers();
 	});
 
 	it('fails when the image has no size', async () => {

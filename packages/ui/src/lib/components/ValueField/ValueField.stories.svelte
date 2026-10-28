@@ -79,3 +79,5 @@
 />
 
 <Story name="Disabled" args={{ label: 'Authors', values: ['Rembrandt'], disabled: true }} />
+
+<Story name="Filling" args={{ label: 'Forms', values: ['nawy'], filling: true }} />

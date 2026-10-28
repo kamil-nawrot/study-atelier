@@ -8,7 +8,7 @@
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import PinMark from '#lib/pins/components/PinMark/PinMark.svelte';
-	import { onControl, sessionKey } from '#lib/review/keys/keys.ts';
+	import { quizKey } from '#lib/review/keys/keys.ts';
 	import { authorsOf, describeArtwork } from '#lib/review/overview/overview.ts';
 	import type { Quiz } from '#lib/review/types/quiz.ts';
 	import type { ReviewDetails } from '#lib/review/types/review-details.ts';
@@ -54,24 +54,7 @@
 	}
 
 	function keydown(event: KeyboardEvent): void {
-		if (!sessionKey(event)) return;
-		if (event.key === 'Enter' && answered) {
-			if (onControl(event)) return;
-			event.preventDefault();
-			onnext();
-			return;
-		}
-		const choice = Number(event.key) - 1;
-		if (
-			!answered &&
-			!saving &&
-			Number.isInteger(choice) &&
-			choice >= 0 &&
-			choice < quiz.options.length
-		) {
-			event.preventDefault();
-			onanswer(choice);
-		}
+		quizKey(event, { answered, saving, options: quiz.options.length, onanswer, onnext });
 	}
 </script>
 
@@ -80,7 +63,17 @@
 {#snippet feedback()}
 	<div class="feedback" role="status">
 		{#if answered && picked}
-			{#if item.mode === 'quiz_style' || item.mode === 'quiz_pin'}
+			{#if item.mode === 'quiz_author'}
+				<p class="verdict">
+					{correct ? m.review.quiz.right : m.review.quiz.wrong}
+					{quiz.options[quiz.answer].label}.
+				</p>
+				<p>
+					<cite class="artwork-title">{artwork.title}</cite>{artwork.date
+						? `, ${artwork.date}`
+						: ''}.
+				</p>
+			{:else if item.mode === 'quiz_style' || item.mode === 'quiz_pin'}
 				<p class="verdict">
 					{correct ? m.review.quiz.right : m.review.quiz.wrong}
 					{quiz.options[quiz.answer].label}.
@@ -149,6 +142,8 @@
 				{#if item.mode === 'quiz_image'}
 					{m.review.quiz.imageQuestion.start}
 					<cite class="artwork-title">{artwork.title}</cite>{m.review.quiz.imageQuestion.end}
+				{:else if item.mode === 'quiz_author'}
+					{m.review.quiz.authorQuestion}
 				{:else if item.mode === 'quiz_style'}
 					{m.review.quiz.styleQuestion}
 				{:else if item.mode === 'quiz_pin'}

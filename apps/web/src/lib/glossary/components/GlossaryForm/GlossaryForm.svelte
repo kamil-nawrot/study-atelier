@@ -61,6 +61,7 @@
 
 	const formState = new FormState<GlossaryDraft>(initial());
 	const definition = new DefinitionSearch(() => form);
+	let formsFilling = $state(false);
 	definition.follow();
 
 	const changes = new UnsavedChanges(
@@ -170,14 +171,18 @@
 
 			<GlossaryDefinition search={definition} />
 
-			<GlossaryWordForms {existing} bind:form />
+			<GlossaryWordForms {existing} onfilling={(filling) => (formsFilling = filling)} bind:form />
 		</div>
 
 		<FormActions>
 			<Button href={cancelHref} onclick={oncancel}>
 				{m.common.cancel}
 			</Button>
-			<Button disabled={formState.busy} type="submit" variant="primary">
+			<Button
+				disabled={formState.busy || definition.filling || formsFilling}
+				type="submit"
+				variant="primary"
+			>
 				{formState.busy ? m.common.saving : m.common.save}
 			</Button>
 		</FormActions>

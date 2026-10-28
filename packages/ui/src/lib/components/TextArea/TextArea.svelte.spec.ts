@@ -46,4 +46,15 @@ describe('TextArea', () => {
 
 		await expect.element(page.getByText('5/', { exact: false })).not.toBeInTheDocument();
 	});
+
+	it('keeps the field still and read-only, with text-sized lines, while it is being filled', async () => {
+		render(TextArea, { label: 'Notes', filling: true, value: 'Old text' });
+
+		const field = page.getByRole('textbox', { name: 'Notes' });
+		await expect.element(field).toHaveAttribute('readonly');
+		await expect.element(field).toBeEnabled();
+		await expect.element(field).toHaveAttribute('aria-busy', 'true');
+		expect(document.querySelectorAll('.filling-lines .line').length).toBeGreaterThan(1);
+		expect(getComputedStyle(field.element()).color).toBe('rgba(0, 0, 0, 0)');
+	});
 });

@@ -19,6 +19,7 @@
 		artworkImageAlt,
 		artworkInputFromForm,
 		canSearchImage,
+		describedCategories,
 		emptyArtworkForm,
 		formHasChanges
 	} from '#lib/artworks/artwork-form/artwork-form.ts';
@@ -105,14 +106,10 @@
 		changeOwnTitle: m.artworkForm.changeOwnImageTitle,
 		remove: m.artworkForm.removeImage
 	};
-	const describedCategories: { code: 'material' | 'location'; label: string }[] = [
-		{ code: 'material', label: m.artworkForm.material },
-		{ code: 'location', label: m.artworkForm.location }
-	];
-
 	let form = $state(initialForm());
 	let fieldErrors = $state<ArtworkFieldErrors>({});
 	let savingNext = $state(false);
+	let imageMatching = $state(false);
 	let next = false;
 	let barHeight = $state(0);
 	let toast: Toast;
@@ -224,6 +221,7 @@
 			alt={imageAlt}
 			autoMatch={!artwork}
 			entries={glossary}
+			onmatching={(matching) => (imageMatching = matching)}
 			{pinsError}
 			query={{
 				kind: 'artwork',
@@ -341,11 +339,11 @@
 			{m.common.cancel}
 		</Button>
 		{#if !artwork}
-			<Button disabled={formState.busy} onclick={saveAndAddNext}>
+			<Button disabled={formState.busy || imageMatching} onclick={saveAndAddNext}>
 				{formState.busy && savingNext ? m.common.saving : m.artworkForm.saveAndNext}
 			</Button>
 		{/if}
-		<Button disabled={formState.busy} type="submit" variant="primary">
+		<Button disabled={formState.busy || imageMatching} type="submit" variant="primary">
 			{formState.busy && !savingNext ? m.common.saving : m.common.save}
 		</Button>
 	</FormActions>

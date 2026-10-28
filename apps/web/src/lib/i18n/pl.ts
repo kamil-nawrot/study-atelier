@@ -50,6 +50,7 @@ export const pl = {
 	common: {
 		email: 'E-mail',
 		password: 'Hasło',
+		stopFetch: 'Przerwij',
 		name: 'Nazwa',
 		notes: 'Notatki',
 		add: 'Dodaj',
@@ -160,9 +161,9 @@ export const pl = {
 		metaDescription:
 			'Study Atelier to miejsce, w którym uczysz się historii sztuki, budując własną kolekcję dzieł.',
 		accountLabel: 'Konto',
-		title: 'Atelier do nauki historii sztuki',
+		title: 'Atelier do nauki',
+		titleAccent: 'historii sztuki',
 		text: 'Study Atelier to miejsce, w którym uczysz się historii sztuki, budując własną kolekcję dzieł. Zapisujesz dzieła, które poznajesz w muzeum, na wykładzie albo w książce, opisujesz je po swojemu i łączysz ze sobą. Z czasem powstaje z tego osobista baza wiedzy, do której zawsze możesz wrócić, a krótkie codzienne powtórki pomagają zapamiętać to, czego się uczysz.',
-		haveAccount: 'Masz już konto?',
 		signIn: 'Zaloguj się',
 		signUp: 'Załóż konto',
 		modulesTitle: 'Co znajdziesz w atelier',
@@ -192,6 +193,9 @@ export const pl = {
 				text: 'Jeśli chcesz efektywnie utrwalać swoją wiedzę o sztuce, możesz zmierzyć się z codziennymi wyzwaniami powtórkowymi, w których klasyczne fiszki i różnorodne quizy przeplatają się tak, by każde dzieło wracało do Ciebie wtedy, gdy zaczynasz je zapominać.'
 			}
 		],
+		closingTitle: 'Chcesz zbudować własną kolekcję sztuki?',
+		closingText:
+			'Otwórz atelier już teraz i daj swojej wiedzy o sztuce miejsce, w którym będzie mogła rosnąć.',
 		contact: 'kontakt@studyatelier.art'
 	},
 	menu: {
@@ -294,10 +298,12 @@ export const pl = {
 			kindLabels: {
 				quiz_image: 'Dopasowywanie dzieła do tytułu',
 				quiz_title: 'Dopasowywanie tytułu do dzieła',
+				quiz_author: 'Dopasowywanie autora do dzieła',
 				quiz_style: 'Dopasowywanie stylu do dzieła',
 				quiz_pin: 'Dopasowywanie detalu do definicji'
 			},
 			kindsHint: 'Zostaw zaznaczony przynajmniej jeden rodzaj.',
+			glossaryQuestions: 'Ile pytań dodatkowych ze Słowniczka dołączać do sesji?',
 			free: 'Proponuj powtórkę swobodną po skończonym dniu',
 			showPins: 'Pokazuj pinezki od razu po otwarciu dzieła',
 			loupe: 'Włączaj lupę od razu po otwarciu dzieła',
@@ -664,6 +670,9 @@ export const pl = {
 				'Wyłącznie fiszki, w których samodzielnie przypominasz sobie informacje o dziele, a następnie odkrywasz kartę i oceniasz, jak Ci poszło.',
 			quizzes: 'Wyłącznie pytania, w których wybierasz poprawną spośród czterech odpowiedzi.'
 		},
+		definitions: 'Dołącz definicje ze Słowniczka',
+		definitionsHint: (count: number): string =>
+			`Pytania dodatkowe: ${count} ${plural(count, { one: 'losowa definicja', few: 'losowe definicje', many: 'losowych definicji' })}. Nie zmieniają planu powtórek.`,
 		start: 'Zacznij powtórkę',
 		free: 'Powtórka swobodna',
 		freeHint:
@@ -702,9 +711,14 @@ export const pl = {
 			imageAlt: (position: number): string => `Obraz ${position}`,
 			openImage: (position: number): string => `Powiększ obraz ${position}`,
 			titleQuestion: 'Jaki tytuł nosi to dzieło sztuki?',
+			authorQuestion: 'Kto jest autorem tego dzieła?',
 			styleQuestion: 'W jakim stylu powstało to dzieło?',
 			styleHint: 'Zwróć uwagę na formę, materiał i kompozycję.',
 			pinQuestion: 'Co to jest?',
+			definitionTag: 'Pytanie dodatkowe ze Słowniczka',
+			definitionQuestion: 'Jakie pojęcie opisuje ta definicja?',
+			maskedTerm: 'ukryte pojęcie',
+			definitionRetry: 'Wrócimy do niej za chwilę.',
 			pinHint: 'Wybierz pojęcie, które pasuje do zaznaczonego na zdjęciu miejsca.',
 			options: 'Odpowiedzi',
 			right: 'Tak, to',

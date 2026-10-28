@@ -5,10 +5,12 @@ import type { PreferencesPart } from '#lib/profile/types/preferences-part.ts';
 
 export const SESSION_SIZES = [10, 20, 30, 40] as const;
 export const NEW_PER_DAY_CHOICES = [5, 10, 15, 20] as const;
+export const GLOSSARY_QUESTION_CHOICES = [1, 2, 3] as const;
 export const REVIEW_FORMS: readonly ReviewForm[] = ['mixed', 'flashcards', 'quizzes'];
 export const QUIZ_KINDS: readonly QuizMode[] = [
 	'quiz_image',
 	'quiz_title',
+	'quiz_author',
 	'quiz_style',
 	'quiz_pin'
 ];
@@ -19,6 +21,7 @@ export const defaultPreferences: Preferences = {
 	reviewForm: 'mixed',
 	reviewQuizKinds: [...QUIZ_KINDS],
 	reviewFree: true,
+	reviewGlossaryQuestions: 1,
 	viewShowPins: false,
 	viewLoupeOn: false,
 	fetchImage: true,
@@ -28,7 +31,14 @@ export const defaultPreferences: Preferences = {
 };
 
 const PART_FIELDS: Record<PreferencesPart, readonly (keyof Preferences)[]> = {
-	review: ['reviewSessionSize', 'reviewNewPerDay', 'reviewForm', 'reviewQuizKinds', 'reviewFree'],
+	review: [
+		'reviewSessionSize',
+		'reviewNewPerDay',
+		'reviewForm',
+		'reviewQuizKinds',
+		'reviewFree',
+		'reviewGlossaryQuestions'
+	],
 	view: ['viewShowPins', 'viewLoupeOn'],
 	sources: ['fetchImage', 'fetchDefinition', 'fetchForms', 'fetchEvent']
 };

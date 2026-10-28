@@ -10,6 +10,7 @@
 		error?: string;
 		value: string;
 		beforeCommonEra: boolean;
+		filling?: boolean;
 	};
 
 	let {
@@ -19,7 +20,8 @@
 		beforeCommonEraLabel,
 		error,
 		value = $bindable(),
-		beforeCommonEra = $bindable()
+		beforeCommonEra = $bindable(),
+		filling = false
 	}: Props = $props();
 </script>
 
@@ -28,6 +30,7 @@
 		{id}
 		autocomplete="off"
 		{error}
+		{filling}
 		hideLabel
 		inputmode="numeric"
 		{label}
@@ -36,6 +39,7 @@
 	/>
 	<Checkbox
 		aria-label={beforeCommonEraLabel}
+		disabled={filling}
 		label={m.artworkForm.beforeCommonEra}
 		bind:checked={beforeCommonEra}
 	/>

@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { recordReview } from '#lib/review/review-data/review-data.ts';
 import { ReviewSession } from './review-session.svelte.ts';
+import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 
 vi.mock('#lib/review/review-data/review-data.ts', () => ({ recordReview: vi.fn() }));
@@ -24,6 +25,27 @@ function session(count: number, clock: { now: Date }): ReviewSession {
 		() => clock.now,
 		() => 0
 	);
+}
+
+function artworkSteps(review: ReviewSession): ReviewItem[] {
+	return review.queue as ReviewItem[];
+}
+
+function definition(name: string): DefinitionItem {
+	return {
+		mode: 'quiz_definition',
+		term: {
+			id: name,
+			name,
+			category: 'architecture',
+			definition: `${name} is a part of a church.`,
+			synonyms: [],
+			forms: [],
+			sortName: null,
+			source: null
+		},
+		quiz: { answer: 0, options: [name, 'Nave', 'Choir', 'Portal'].map((label) => ({ label })) }
+	};
 }
 
 describe('ReviewSession', () => {
@@ -58,8 +80,8 @@ describe('ReviewSession', () => {
 		review.reveal();
 		await review.rate(1);
 
-		expect(review.queue.map((item) => item.artwork.number)).toEqual([1, 2, 3, 4, 1, 5, 6]);
-		expect(review.queue[4].card?.reps).toBe(1);
+		expect(artworkSteps(review).map((item) => item.artwork.number)).toEqual([1, 2, 3, 4, 1, 5, 6]);
+		expect(artworkSteps(review)[4].card?.reps).toBe(1);
 	});
 
 	it('keeps the card on screen with the error when the answer is not saved', async () => {
@@ -133,7 +155,7 @@ describe('ReviewSession', () => {
 			expect.anything(),
 			expect.objectContaining({ rating: 1, correct: false })
 		);
-		const retry = review.queue[4];
+		const retry = artworkSteps(review)[4];
 		expect(retry.artwork.number).toBe(1);
 		expect(retry.quiz?.options[retry.quiz.answer].label).toBe('Artwork 1');
 	});
@@ -169,7 +191,35 @@ describe('ReviewSession', () => {
 		expect(recordReview).not.toHaveBeenCalled();
 		expect(review.position).toBe(1);
 		expect(review.answers).toHaveLength(1);
-		expect(review.queue.map((item) => item.artwork.number)).toEqual([1, 2, 3, 4, 1, 5, 6]);
+		expect(artworkSteps(review).map((item) => item.artwork.number)).toEqual([1, 2, 3, 4, 1, 5, 6]);
+	});
+
+	it('answers a definition without saving and brings a wrong one back later', async () => {
+		const review = new ReviewSession(
+			[definition('Apse'), ...items(5), definition('Crypt')],
+			new Map(),
+			() => start,
+			() => 0
+		);
+
+		await review.answer(1);
+		expect(recordReview).not.toHaveBeenCalled();
+		expect(review.chosen).toBe(1);
+		expect(review.answers).toHaveLength(0);
+		expect(review.queue).toHaveLength(8);
+		expect(review.queue[4]).toMatchObject({ mode: 'quiz_definition', term: { name: 'Apse' } });
+
+		review.proceed();
+		expect(review.position).toBe(1);
+		expect(review.next()).toBeDefined();
+	});
+
+	it('does not bring back a definition answered right', async () => {
+		const review = new ReviewSession([definition('Apse'), ...items(2)], new Map(), () => start);
+
+		await review.answer(0);
+		expect(review.queue).toHaveLength(3);
+		expect(review.next()).toBeUndefined();
 	});
 });
 

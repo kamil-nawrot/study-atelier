@@ -26,7 +26,7 @@ beforeEach(() => {
 });
 
 describe('PublicPage', () => {
-	it('offers signing in and signing up to a visitor, with the logo leading home', async () => {
+	it('offers only signing in on the start page, with the logo leading home', async () => {
 		await renderAt('/');
 
 		await expect.element(page.getByRole('link', { name: m.app.name })).toHaveAttribute('href', '/');
@@ -35,25 +35,28 @@ describe('PublicPage', () => {
 			.toHaveAttribute('href', '/sign-in');
 		await expect
 			.element(page.getByRole('link', { name: m.landing.signUp }))
-			.toHaveAttribute('href', '/sign-up');
+			.not.toBeInTheDocument();
 		await expect.element(page.getByText('Treść')).toBeVisible();
 	});
 
-	it('keeps only signing in beside the logo on a phone', async () => {
-		await renderAt('/');
-		await page.viewport(390, 844);
+	it('offers both account actions on a legal page and keeps only signing in on a phone', async () => {
+		await renderAt('/terms');
 
+		await expect
+			.element(page.getByRole('link', { name: m.landing.signUp }))
+			.toHaveAttribute('href', '/sign-up');
+		await page.viewport(390, 844);
 		await expect.element(page.getByRole('link', { name: m.landing.signIn })).toBeVisible();
 		await expect.element(page.getByText(m.landing.signUp)).not.toBeVisible();
 	});
 
-	it('leaves out the link to the page the visitor is on', async () => {
+	it('shows only the logo above a form', async () => {
 		await renderAt('/sign-in');
 
+		await expect.element(page.getByRole('link', { name: m.app.name })).toHaveAttribute('href', '/');
 		await expect
-			.element(page.getByRole('link', { name: m.landing.signIn }))
+			.element(page.getByRole('navigation', { name: m.publicHeader.label }))
 			.not.toBeInTheDocument();
-		await expect.element(page.getByRole('link', { name: m.landing.signUp })).toBeInTheDocument();
 	});
 
 	it('takes a signed-in learner back to the atelier instead', async () => {

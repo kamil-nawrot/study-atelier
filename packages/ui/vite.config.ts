@@ -32,7 +32,7 @@ export default defineConfig({
 			include: ['src/**/*.{ts,svelte}'],
 			exclude: ['src/**/*.{test,spec}.ts', 'src/**/*.stories.svelte', 'src/stories/**'],
 			reporter: ['text-summary', 'json-summary', 'html'],
-			thresholds: { statements: 95, branches: 85, functions: 96, lines: 96 }
+			thresholds: { statements: 96, branches: 85, functions: 96, lines: 96 }
 		},
 		projects: [
 			{

@@ -6,6 +6,7 @@
 	import { uiMessages } from '../../messages/messages';
 	import FieldMessage from '../FieldMessage/FieldMessage.svelte';
 	import Icon from '../Icon/Icon.svelte';
+	import FillingLines from '../FillingLines/FillingLines.svelte';
 
 	type Props = Omit<HTMLInputAttributes, 'type' | 'value'> & {
 		label: string;
@@ -18,6 +19,7 @@
 		hidePasswordLabel?: string;
 		labelAside?: Snippet;
 		action?: Snippet;
+		filling?: boolean;
 	};
 
 	let {
@@ -31,7 +33,9 @@
 		hidePasswordLabel = uiMessages().hidePassword,
 		labelAside,
 		action,
+		filling = false,
 		id,
+		disabled,
 		...rest
 	}: Props = $props();
 
@@ -52,16 +56,22 @@
 		</div>
 	{/if}
 	<div class="input-row">
-		<div class="control" class:invalid={!!error}>
+		<div class="control" class:filling class:invalid={!!error}>
 			<input
 				id={inputId}
+				aria-busy={filling || undefined}
 				aria-describedby={message ? messageId : undefined}
 				aria-invalid={error ? true : undefined}
 				aria-label={hideLabel ? label : undefined}
+				{disabled}
+				readonly={filling || undefined}
 				type={inputType}
 				bind:value
 				{...rest}
 			/>
+			{#if filling}
+				<FillingLines />
+			{/if}
 			{#if type === 'password'}
 				<button
 					class="reveal"
@@ -113,6 +123,7 @@
 	}
 
 	.control {
+		position: relative;
 		display: flex;
 		flex: 1;
 		min-width: 0;
@@ -149,6 +160,12 @@
 
 	input::placeholder {
 		color: var(--color-fg-muted);
+	}
+
+	.filling input,
+	.filling input::placeholder {
+		color: transparent;
+		caret-color: transparent;
 	}
 
 	input:disabled {

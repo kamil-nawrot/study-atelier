@@ -1,4 +1,4 @@
-import { fetchJson } from '#lib/images/wikimedia/wikimedia.ts';
+import { fetchJson, withDeadline } from '#lib/images/wikimedia/wikimedia.ts';
 import { cleanForms } from '#lib/glossary/glossary/glossary.ts';
 import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
 
@@ -270,7 +270,11 @@ async function twoWordForms(first: string, second: string): Promise<string[]> {
 	return [];
 }
 
-export async function fetchForms(name: string): Promise<string[]> {
+export function fetchForms(name: string): Promise<string[]> {
+	return withDeadline(findForms(name));
+}
+
+async function findForms(name: string): Promise<string[]> {
 	const words = wordsOf(name);
 	const phrase = words.join(' ');
 	let forms = formsOfPage(await sectionOf(phrase.toLocaleLowerCase('pl')));

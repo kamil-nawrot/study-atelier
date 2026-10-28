@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Alert } from '@study-atelier/ui';
 	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import DefinitionQuiz from '#lib/review/components/DefinitionQuiz/DefinitionQuiz.svelte';
 	import Flashcard from '#lib/review/components/Flashcard/Flashcard.svelte';
 	import Quiz from '#lib/review/components/Quiz/Quiz.svelte';
 	import ReviewStart from '#lib/review/components/ReviewStart/ReviewStart.svelte';
@@ -24,8 +25,15 @@
 {:else if flow.phase === 'session' && flow.session && flow.current}
 	{@const session = flow.session}
 	{@const current = flow.current}
-	{#key `${session.position}:${current.artwork.id}`}
-		{#if current.quiz}
+	{#key `${session.position}:${current.mode === 'quiz_definition' ? current.term.id : current.artwork.id}`}
+		{#if current.mode === 'quiz_definition'}
+			<DefinitionQuiz
+				chosen={session.chosen}
+				item={current}
+				onanswer={(choice) => flow.answer(choice)}
+				onnext={() => flow.proceed()}
+			/>
+		{:else if current.quiz}
 			<Quiz
 				chosen={session.chosen}
 				details={flow.details.get(current.artwork.id)}
@@ -65,6 +73,8 @@
 	/>
 {:else}
 	<ReviewStart
+		definitions={flow.definitionCount}
+		definitionsOn={flow.definitions}
 		error={flow.startError}
 		form={flow.activeForm}
 		forms={flow.forms}
@@ -74,6 +84,7 @@
 		known={flow.counts.known}
 		missing={flow.missing}
 		nextWhen={flow.nextDate ? formatWhen(flow.nextDate, flow.now) : undefined}
+		ondefinitions={(on) => (flow.definitions = on)}
 		onform={(chosen) => (flow.form = chosen)}
 		onscope={(chosen) => flow.chooseScope(chosen)}
 		onstart={() => flow.start()}

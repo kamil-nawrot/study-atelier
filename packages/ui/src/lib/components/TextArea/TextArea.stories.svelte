@@ -44,3 +44,5 @@
 />
 
 <Story name="Disabled" args={{ value: 'Seen in Delft in 2024.', disabled: true }} />
+
+<Story name="Filling" args={{ filling: true }} />

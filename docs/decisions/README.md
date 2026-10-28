@@ -151,3 +151,10 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0145](0145-show-announcements-from-a-table.md)                                           | Show announcements from a table                                                          | accepted           |
 | [0146](0146-publish-the-legal-texts-without-a-lawyers-review.md)                          | Publish the legal texts without a lawyer's review                                        | accepted           |
 | [0147](0147-limit-the-links-of-an-account-and-check-limits-one-request-at-a-time.md)      | Limit the links of an account and check limits one request at a time                     | accepted           |
+| [0148](0148-show-each-account-action-once-before-signing-in.md)                           | Show each account action once before signing in                                          | accepted           |
+| [0149](0149-hang-a-salon-wall-on-the-start-page.md)                                       | Hang a salon wall on the start page                                                      | accepted           |
+| [0150](0150-lock-the-fields-an-external-fetch-fills.md)                                   | Lock the fields an external fetch fills                                                  | accepted           |
+| [0151](0151-show-a-filling-field-with-text-sized-lines.md)                                | Show a filling field with text-sized lines                                               | accepted           |
+| [0152](0152-ask-who-made-the-artwork-in-the-review.md)                                    | Ask who made the artwork in the review                                                   | accepted           |
+| [0153](0153-add-glossary-definitions-to-the-review-as-extra-questions.md)                 | Add glossary definitions to the review as extra questions                                | accepted           |
+| [0154](0154-turn-the-author-quiz-on-only-for-new-accounts.md)                             | Turn the author quiz on only for new accounts                                            | accepted           |

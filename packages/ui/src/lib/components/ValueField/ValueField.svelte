@@ -9,6 +9,7 @@
 	import { uiMessages } from '../../messages/messages';
 	import FieldMessage from '../FieldMessage/FieldMessage.svelte';
 	import Icon from '../Icon/Icon.svelte';
+	import FillingLines from '../FillingLines/FillingLines.svelte';
 
 	type Props = {
 		label: string;
@@ -21,6 +22,7 @@
 		maxlength?: number;
 		disabled?: boolean;
 		locked?: boolean;
+		filling?: boolean;
 		hint?: string;
 		error?: string;
 		placeholder?: string;
@@ -38,6 +40,7 @@
 		maxlength,
 		disabled = false,
 		locked = false,
+		filling = false,
 		hint,
 		error,
 		placeholder,
@@ -69,7 +72,7 @@
 	let quiet = false;
 
 	const inactive = $derived(disabled || locked);
-	const expanded = $derived(open && !inactive && !full && ordered.length > 0);
+	const expanded = $derived(open && !inactive && !filling && !full && ordered.length > 0);
 	const activeIndex = $derived(Math.min(active, ordered.length - 1));
 
 	function optionId(option: ValueOption): string {
@@ -132,7 +135,7 @@
 			event.preventDefault();
 			event.stopPropagation();
 			open = false;
-		} else if (event.key === 'Backspace' && query === '' && values.length > 0) {
+		} else if (event.key === 'Backspace' && !filling && query === '' && values.length > 0) {
 			values = values.slice(0, -1);
 		}
 	}
@@ -172,14 +175,16 @@
 		bind:this={control}
 		class="control"
 		class:disabled={inactive}
+		class:filling
 		class:invalid={!!error}
+		aria-busy={filling || undefined}
 		onpointerdown={onfieldpointerdown}
 		role="presentation"
 	>
 		{#each values as value, index (value)}
 			<span class="value">
 				{value}
-				{#if !disabled}
+				{#if !disabled && !filling}
 					<button
 						class="remove"
 						aria-label={texts.remove(value)}
@@ -210,6 +215,7 @@
 			oninput={show}
 			{onkeydown}
 			placeholder={values.length === 0 ? placeholder : undefined}
+			readonly={filling || undefined}
 			role="combobox"
 			type="text"
 			bind:value={query}
@@ -249,6 +255,9 @@
 				{@render item(added, similar ? texts.addAnyway(added.name) : texts.add(added.name))}
 			{/if}
 		</ul>
+		{#if filling}
+			<FillingLines />
+		{/if}
 	</div>
 	{#if message}
 		<FieldMessage id={messageId} {error} {hint} />

@@ -166,17 +166,20 @@ describe('new timeline event page', () => {
 		expect(goto).not.toHaveBeenCalled();
 	});
 
-	it('fills the dates and the description from Wikipedia without a word before a match', async () => {
+	it('locks the dates, the description and saving while Wikipedia answers, then fills them', async () => {
 		let answer: (articles: EventArticle[]) => void = () => {};
 		search.mockReturnValue(new Promise((resolve) => (answer = resolve)));
 		renderNew();
 
 		await userEvent.fill(page.getByLabelText(m.common.name), 'Potop szwedzki');
 		await vi.waitFor(() => expect(search).toHaveBeenCalledWith('Potop szwedzki'));
-		await expect.element(page.getByText(/Szukam/)).not.toBeInTheDocument();
 		await expect
-			.element(page.getByRole('button', { name: m.timeline.form.pickArticle }))
-			.not.toBeInTheDocument();
+			.element(page.getByLabelText(m.timeline.form.description, { exact: true }))
+			.toHaveAttribute('readonly');
+		await expect
+			.element(page.getByRole('status').filter({ hasText: m.glossary.articles.searching }))
+			.toBeVisible();
+		await expect.element(saveButton()).toBeDisabled();
 		answer([deluge, vienna]);
 
 		await expect
@@ -222,18 +225,51 @@ describe('new timeline event page', () => {
 		await expect.element(page.getByText(deluge.title, { exact: true })).toBeVisible();
 	});
 
-	it('says nothing when Wikipedia finds nothing or does not answer', async () => {
-		search.mockRejectedValueOnce(new Error('offline'));
+	it('says nothing when Wikipedia finds nothing', async () => {
+		search.mockResolvedValueOnce([]);
 		renderNew();
 
 		await userEvent.fill(page.getByLabelText(m.common.name), 'Moje urodziny');
 		await vi.waitFor(() => expect(search).toHaveBeenCalled());
 
-		await expect.element(page.getByText(m.timeline.articles.failed)).not.toBeInTheDocument();
+		await expect.element(saveButton()).toBeEnabled();
 		await expect.element(page.getByText(m.timeline.articles.none)).not.toBeInTheDocument();
 		await expect
 			.element(page.getByRole('button', { name: m.timeline.form.pickArticle }))
 			.not.toBeInTheDocument();
+	});
+
+	it('unlocks the fields and offers another try when Wikipedia does not answer', async () => {
+		search.mockRejectedValueOnce(new Error('offline'));
+		renderNew();
+
+		await userEvent.fill(page.getByLabelText(m.common.name), 'Potop szwedzki');
+		await vi.waitFor(() => expect(search).toHaveBeenCalled());
+
+		await expect.element(page.getByText(m.timeline.articles.failed)).toBeVisible();
+		await expect
+			.element(page.getByLabelText(m.timeline.form.description, { exact: true }))
+			.not.toHaveAttribute('readonly');
+		search.mockResolvedValueOnce([deluge]);
+		await page.getByRole('button', { name: m.glossary.form.searchAgain }).click();
+
+		await expect
+			.element(page.getByLabelText(m.timeline.form.description, { exact: true }))
+			.toHaveValue('Najazd Szwecji na Rzeczpospolitą.');
+	});
+
+	it('stops the search and unlocks the fields on request', async () => {
+		search.mockReturnValue(new Promise(() => {}));
+		renderNew();
+
+		await userEvent.fill(page.getByLabelText(m.common.name), 'Potop szwedzki');
+		await vi.waitFor(() => expect(search).toHaveBeenCalled());
+		await page.getByRole('button', { name: m.common.stopFetch }).click();
+
+		await expect
+			.element(page.getByLabelText(m.timeline.form.description, { exact: true }))
+			.not.toHaveAttribute('readonly');
+		await expect.element(saveButton()).toBeEnabled();
 	});
 
 	it('does not search when the learner wrote both the dates and the description', async () => {
