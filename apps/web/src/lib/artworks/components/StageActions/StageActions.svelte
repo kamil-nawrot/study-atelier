@@ -30,7 +30,13 @@
 		<Tooltip
 			align="end"
 			placement="bottom"
-			text={loupeReady ? m.loupe.label : tooLarge ? m.loupe.tooLarge : m.loupe.unavailable}
+			text={loupeReady
+				? loupeActive
+					? m.loupe.leave
+					: m.loupe.label
+				: tooLarge
+					? m.loupe.tooLarge
+					: m.loupe.unavailable}
 		>
 			{#snippet children(id)}
 				<button
@@ -41,6 +47,7 @@
 					aria-disabled={!loupeReady}
 					aria-label={m.loupe.label}
 					aria-pressed={loupeReady ? loupeActive : undefined}
+					data-loupe-toggle
 					onclick={onloupe}
 					type="button"
 				>

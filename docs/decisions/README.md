@@ -159,3 +159,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0153](0153-add-glossary-definitions-to-the-review-as-extra-questions.md)                 | Add glossary definitions to the review as extra questions                                | accepted           |
 | [0154](0154-turn-the-author-quiz-on-only-for-new-accounts.md)                             | Turn the author quiz on only for new accounts                                            | accepted           |
 | [0155](0155-check-duplicates-and-list-used-values-in-the-database.md)                     | Check duplicates and list used values in the database                                    | accepted           |
+| [0156](0156-leave-the-loupe-with-a-right-click-or-a-click-beside-the-image.md)            | Leave the loupe with a right click or a click beside the image                           | accepted           |

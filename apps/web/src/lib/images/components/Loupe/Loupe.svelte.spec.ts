@@ -97,4 +97,41 @@ describe('Loupe', () => {
 
 		expect(onclose).toHaveBeenCalled();
 	});
+
+	it('switches off on a right click without the menu of the browser', () => {
+		const { onclose, layer } = renderLoupe();
+		const event = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+
+		layer.dispatchEvent(event);
+
+		expect(event.defaultPrevented).toBe(true);
+		expect(onclose).toHaveBeenCalled();
+	});
+
+	it('switches off on a click outside the image', () => {
+		const { onclose } = renderLoupe();
+
+		document.body.dispatchEvent(new PointerEvent('pointerdown', { button: 0, bubbles: true }));
+
+		expect(onclose).toHaveBeenCalled();
+	});
+
+	it('stays on for a click on the image, on its switch, with another button or in a dialog', () => {
+		const { onclose, layer } = renderLoupe();
+		const toggle = document.createElement('button');
+		toggle.dataset.loupeToggle = '';
+		const dialog = document.createElement('dialog');
+		document.body.appendChild(toggle);
+		document.body.appendChild(dialog);
+
+		layer.dispatchEvent(new PointerEvent('pointerdown', { button: 0, bubbles: true }));
+		toggle.dispatchEvent(new PointerEvent('pointerdown', { button: 0, bubbles: true }));
+		document.body.dispatchEvent(new PointerEvent('pointerdown', { button: 1, bubbles: true }));
+		dialog.show();
+		dialog.dispatchEvent(new PointerEvent('pointerdown', { button: 0, bubbles: true }));
+
+		expect(onclose).not.toHaveBeenCalled();
+		toggle.remove();
+		dialog.remove();
+	});
 });

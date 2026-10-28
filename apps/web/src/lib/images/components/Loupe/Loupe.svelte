@@ -55,6 +55,22 @@
 	function close(event: KeyboardEvent): void {
 		if (event.key === 'Escape' && !document.querySelector('dialog[open]')) onclose();
 	}
+
+	function leave(event: MouseEvent): void {
+		event.preventDefault();
+		onclose();
+	}
+
+	function closeOutside(node: HTMLElement): () => void {
+		const listener = (event: PointerEvent): void => {
+			const target = event.target as Element | null;
+			if (event.button !== 0 || !target || node.contains(target)) return;
+			if (target.closest('[data-loupe-toggle]') || document.querySelector('dialog[open]')) return;
+			onclose();
+		};
+		window.addEventListener('pointerdown', listener, true);
+		return () => window.removeEventListener('pointerdown', listener, true);
+	}
 </script>
 
 <svelte:window onkeydown={close} />
@@ -62,8 +78,10 @@
 <div
 	class="loupe"
 	{@attach zoom}
+	{@attach closeOutside}
 	aria-hidden="true"
 	onclick={pick}
+	oncontextmenu={leave}
 	onpointerdown={follow}
 	onpointerleave={() => (point = undefined)}
 	onpointermove={follow}
