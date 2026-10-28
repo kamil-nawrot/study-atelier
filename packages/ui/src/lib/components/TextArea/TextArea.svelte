@@ -1,6 +1,8 @@
 <script lang="ts">
 	import FieldMessage from '../FieldMessage/FieldMessage.svelte';
-	import Primer from '../Primer/Primer.svelte';
+	import FillingLines from '../FillingLines/FillingLines.svelte';
+	import { overlayScrollbarBeside } from '../../overlay-scrollbar/overlay-scrollbar.ts';
+	import type { Snippet } from 'svelte';
 	import type { HTMLTextareaAttributes } from 'svelte/elements';
 
 	type Props = Omit<HTMLTextareaAttributes, 'value'> & {
@@ -10,6 +12,7 @@
 		error?: string;
 		counter?: boolean;
 		filling?: boolean;
+		fillingNote?: Snippet;
 	};
 
 	let {
@@ -19,6 +22,7 @@
 		error,
 		counter = false,
 		filling = false,
+		fillingNote,
 		disabled,
 		id,
 		rows = 5,
@@ -40,20 +44,25 @@
 
 <div class="field">
 	<label for={inputId}>{label}</label>
-	<div class="control">
+	<div class="control" class:filling>
 		<textarea
 			id={inputId}
 			class:invalid={!!error}
+			{@attach overlayScrollbarBeside()}
 			aria-busy={filling || undefined}
 			aria-describedby={describedBy}
 			aria-invalid={error ? true : undefined}
-			disabled={disabled || filling}
+			{disabled}
 			{maxlength}
+			readonly={filling || undefined}
 			{rows}
 			bind:value
 			{...rest}></textarea>
 		{#if filling}
-			<Primer />
+			<FillingLines lines={Math.max(1, Math.min(4, Number(rows) - 2))} />
+			{#if fillingNote}
+				<div class="note">{@render fillingNote()}</div>
+			{/if}
 		{/if}
 	</div>
 	{#if message || counted}
@@ -87,6 +96,8 @@
 	}
 
 	.control {
+		--filling-inset: var(--border-width-base);
+
 		position: relative;
 		display: grid;
 	}
@@ -114,6 +125,19 @@
 
 	.field:has(textarea:disabled) label {
 		color: var(--color-fg-muted);
+	}
+
+	.control.filling textarea,
+	.control.filling textarea::placeholder {
+		color: transparent;
+		caret-color: transparent;
+	}
+
+	.note {
+		position: absolute;
+		right: var(--spacing-3);
+		bottom: var(--spacing-2);
+		left: var(--spacing-3);
 	}
 
 	textarea:disabled {

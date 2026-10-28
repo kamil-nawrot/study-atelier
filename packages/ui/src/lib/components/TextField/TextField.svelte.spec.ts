@@ -32,12 +32,12 @@ describe('TextField', () => {
 		expect(document.querySelector('label')).toBeNull();
 	});
 
-	it('locks the field and primes it while it is being filled', async () => {
+	it('keeps the field read-only with one text-sized line while it is being filled', async () => {
 		render(TextField, { label: 'Year', filling: true });
 
 		const field = page.getByRole('textbox', { name: 'Year' });
-		await expect.element(field).toBeDisabled();
+		await expect.element(field).toHaveAttribute('readonly');
 		await expect.element(field).toHaveAttribute('aria-busy', 'true');
-		expect(document.querySelector('.primer')).not.toBeNull();
+		expect(document.querySelectorAll('.filling-lines .line')).toHaveLength(1);
 	});
 });

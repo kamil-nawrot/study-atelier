@@ -1,4 +1,4 @@
-# 0152. Add glossary definitions to the review as extra questions
+# 0153. Add glossary definitions to the review as extra questions
 
 - Status: accepted
 - Date: 2026-10-28

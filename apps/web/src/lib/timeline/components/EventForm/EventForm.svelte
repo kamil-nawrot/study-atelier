@@ -284,10 +284,14 @@
 					placeholder={m.timeline.form.descriptionPlaceholder}
 					rows={4}
 					bind:value={form.description}
-				/>
-				{#if filling}
+				>
+					{#snippet fillingNote()}
+						<FillingStatus message={m.glossary.articles.searching} onstop={stopSearch} />
+					{/snippet}
+				</TextArea>
+				{#if filling && !filling.description}
 					<FillingStatus message={m.glossary.articles.searching} onstop={stopSearch} />
-				{:else if autoFetch.event && !existing && status === 'failed'}
+				{:else if !filling && autoFetch.event && !existing && status === 'failed'}
 					<div class="links">
 						<span class="caption">{m.timeline.articles.failed}</span>
 						<TextButton inline onclick={() => search(true)}>

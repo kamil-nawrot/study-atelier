@@ -243,7 +243,7 @@ describe('new glossary entry page', () => {
 		await category(m.glossary.categoryNames.architecture).click();
 		await vi.advanceTimersByTimeAsync(700);
 
-		await expect.element(definitionField()).toBeDisabled();
+		await expect.element(definitionField()).toHaveAttribute('readonly');
 		await expect
 			.element(page.getByRole('status').filter({ hasText: m.glossary.form.definitionSearching }))
 			.toBeVisible();
@@ -260,7 +260,7 @@ describe('new glossary entry page', () => {
 		await page.getByRole('button', { name: m.common.stopFetch }).click();
 		await vi.advanceTimersByTimeAsync(700);
 
-		await expect.element(definitionField()).toBeEnabled();
+		await expect.element(definitionField()).not.toHaveAttribute('readonly');
 		await expect.element(page.getByRole('button', { name: m.common.save })).toBeEnabled();
 		expect(searchArticles).toHaveBeenCalledTimes(1);
 	});
@@ -478,12 +478,12 @@ describe('new glossary entry page', () => {
 		await fillAndSearch([NAWA]);
 
 		const forms = page.getByRole('combobox', { name: m.glossary.form.forms });
-		await expect.element(forms).toBeDisabled();
+		await expect.element(forms).toHaveAttribute('readonly');
 		await expect.element(saveButton()).toBeDisabled();
 
 		await page.getByRole('button', { name: m.common.stopFetch }).click();
 
-		await expect.element(forms).toBeEnabled();
+		await expect.element(forms).not.toHaveAttribute('readonly');
 		await expect.element(saveButton()).toBeEnabled();
 	});
 
