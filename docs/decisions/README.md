@@ -154,4 +154,5 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0148](0148-show-each-account-action-once-before-signing-in.md)                           | Show each account action once before signing in                                          | accepted           |
 | [0149](0149-hang-a-salon-wall-on-the-start-page.md)                                       | Hang a salon wall on the start page                                                      | accepted           |
 | [0150](0150-lock-the-fields-an-external-fetch-fills.md)                                   | Lock the fields an external fetch fills                                                  | accepted           |
-| [0151](0151-ask-who-made-the-artwork-in-the-review.md)                                    | Ask who made the artwork in the review                                                   | accepted           |
+| [0151](0151-show-a-filling-field-with-text-sized-lines.md)                                | Show a filling field with text-sized lines                                               | accepted           |
+| [0152](0152-ask-who-made-the-artwork-in-the-review.md)                                    | Ask who made the artwork in the review                                                   | accepted           |

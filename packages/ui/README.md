@@ -51,12 +51,12 @@ Every exported component has a row here; a pull request that adds a component ad
 | `TextButton`   | Small underlined text action without a frame, read as part of a line ("Wyczyść filtry", "Zwiń wszystkie"); `inline` drops the inline padding for a column of texts, `danger` colours a delete             |
 | `Form`         | Form without browser validation; shows the form error at the top and focuses the first invalid field on submit                                                                                            |
 | `FormActions`  | Bar fixed to the bottom of the screen with a form's actions                                                                                                                                               |
-| `TextField`    | Labelled input with hint, error, password reveal, an `action` button beside the input and a primed, locked `filling` state                                                                                |
-| `TextArea`     | Labelled multi-line input with hint, error and a primed, locked `filling` state                                                                                                                           |
+| `TextField`    | Labelled input with hint, error, password reveal, an `action` button beside the input and a read-only `filling` state with `FillingLines`                                                                 |
+| `TextArea`     | Labelled multi-line input with hint, error, the overlay scrollbar and a read-only `filling` state with `FillingLines` and a `fillingNote`                                                                 |
 | `SearchField`  | Search input with a clear button, labelled for assistive technology only                                                                                                                                  |
 | `Select`       | Labelled single choice from a fixed list on the native `select`, with hint and error; `compact` hides the label and shrinks to an icon on a phone, `hideLabel` only hides the label                       |
 | `SearchSelect` | Labelled single choice from a long list, filtered as the learner types (combobox)                                                                                                                         |
-| `ValueField`   | Category values as removable tags with a suggestion list (combobox); one value with `single`, at most `max`, `labelHidden`, a primed, locked `filling` state                                              |
+| `ValueField`   | Category values as removable tags with a suggestion list (combobox); one value with `single`, at most `max`, `labelHidden`, a read-only `filling` state with `FillingLines`                               |
 | `Checkbox`     | Labelled checkbox; `children` replaces the text `label` when the label holds links                                                                                                                        |
 | `Switch`       | Labelled on/off switch (a native checkbox with `role="switch"`), for a setting that governs other fields                                                                                                  |
 | `ChoiceTiles`  | Single choice shown as tiles with an icon (era, artwork type), as a radio group; `clearable`                                                                                                              |
@@ -82,6 +82,7 @@ Every exported component has a row here; a pull request that adds a component ad
 | `Tooltip`       | One short line above, below or to the left of a control, on hover and keyboard focus                                           |
 | `LoadingScreen` | Full-screen first load: the logo mark with strokes in its window                                                               |
 | `ProgressLine`  | Thin stroke along the bottom of the top bar while a navigation loads                                                           |
+| `FillingLines`  | Faint text-sized lines that hold a field's place while it is being filled                                                      |
 | `Primer`        | Faint strokes laid across an image window while the image loads                                                                |
 
 ### Text and structure

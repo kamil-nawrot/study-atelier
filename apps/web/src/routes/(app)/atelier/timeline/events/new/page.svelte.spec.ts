@@ -175,7 +175,7 @@ describe('new timeline event page', () => {
 		await vi.waitFor(() => expect(search).toHaveBeenCalledWith('Potop szwedzki'));
 		await expect
 			.element(page.getByLabelText(m.timeline.form.description, { exact: true }))
-			.toBeDisabled();
+			.toHaveAttribute('readonly');
 		await expect
 			.element(page.getByRole('status').filter({ hasText: m.glossary.articles.searching }))
 			.toBeVisible();
@@ -249,7 +249,7 @@ describe('new timeline event page', () => {
 		await expect.element(page.getByText(m.timeline.articles.failed)).toBeVisible();
 		await expect
 			.element(page.getByLabelText(m.timeline.form.description, { exact: true }))
-			.toBeEnabled();
+			.not.toHaveAttribute('readonly');
 		search.mockResolvedValueOnce([deluge]);
 		await page.getByRole('button', { name: m.glossary.form.searchAgain }).click();
 
@@ -268,7 +268,7 @@ describe('new timeline event page', () => {
 
 		await expect
 			.element(page.getByLabelText(m.timeline.form.description, { exact: true }))
-			.toBeEnabled();
+			.not.toHaveAttribute('readonly');
 		await expect.element(saveButton()).toBeEnabled();
 	});
 
