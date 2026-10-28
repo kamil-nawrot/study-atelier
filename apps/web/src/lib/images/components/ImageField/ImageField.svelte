@@ -3,7 +3,7 @@
 	import Search from '@lucide/svelte/icons/search';
 	import Trash from '@lucide/svelte/icons/trash';
 	import { onDestroy, tick, type Snippet } from 'svelte';
-	import { ArtworkImage, Button, Dialog, Icon, NoImage } from '@study-atelier/ui';
+	import { ArtworkImage, Button, Dialog, Icon, NoImage, Primer } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ImageSearchDialog from '#lib/images/components/ImageSearchDialog/ImageSearchDialog.svelte';
 	import OwnImageDialog from '#lib/images/components/OwnImageDialog/OwnImageDialog.svelte';
@@ -31,6 +31,7 @@
 		status?: Snippet;
 		overlay?: Snippet;
 		removeWarning?: string;
+		filling?: boolean;
 	};
 
 	let {
@@ -44,7 +45,8 @@
 		slots,
 		status,
 		overlay,
-		removeWarning
+		removeWarning,
+		filling = false
 	}: Props = $props();
 
 	const id = $props.id();
@@ -105,6 +107,10 @@
 					/>
 					{@render overlay?.()}
 				</div>
+			{:else if filling}
+				<div class="primed" aria-busy="true">
+					<Primer />
+				</div>
 			{:else}
 				<NoImage />
 			{/if}
@@ -115,11 +121,11 @@
 	</figure>
 
 	<div class="image-actions">
-		<Button id={findImageId} disabled={!searchReady} onclick={openSearch}>
+		<Button id={findImageId} disabled={!searchReady || filling} onclick={openSearch}>
 			<Icon icon={Search} size="sm" />
 			{image?.kind === 'commons' ? texts.findOther : texts.find}
 		</Button>
-		<Button aria-haspopup="dialog" onclick={() => (input.dialogOpen = true)}>
+		<Button aria-haspopup="dialog" disabled={filling} onclick={() => (input.dialogOpen = true)}>
 			<Icon icon={ImagePlus} size="sm" />
 			{ownImage ? texts.changeOwn : texts.own}
 		</Button>
@@ -199,6 +205,13 @@
 
 	.frame {
 		position: relative;
+	}
+
+	.primed {
+		position: relative;
+		aspect-ratio: 4 / 5;
+		background: var(--color-mat-window);
+		color: var(--color-mat-fg);
 	}
 
 	.mat :global(img) {

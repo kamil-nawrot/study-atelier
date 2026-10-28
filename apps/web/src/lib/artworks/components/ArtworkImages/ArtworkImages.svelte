@@ -26,6 +26,7 @@
 	import { pinsOfImage } from '#lib/pins/pin-layout/pin-layout.ts';
 	import type { Pin } from '#lib/pins/types/pin.ts';
 	import { autoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
+	import FillingStatus from '#lib/shared/forms/FillingStatus/FillingStatus.svelte';
 
 	type Props = {
 		alt: string;
@@ -38,6 +39,7 @@
 		pins?: Pin[];
 		entries?: readonly GlossaryEntry[];
 		pinsError?: string;
+		onmatching?: (matching: boolean) => void;
 	};
 
 	let {
@@ -50,7 +52,8 @@
 		autoMatch = false,
 		pins = $bindable(),
 		entries = [],
-		pinsError
+		pinsError,
+		onmatching
 	}: Props = $props();
 
 	type MatchStatus = 'idle' | 'searching' | 'matched' | 'none' | 'failed';
@@ -74,6 +77,16 @@
 	);
 
 	$effect(() => {
+		onmatching?.(matchStatus === 'searching');
+	});
+
+	$effect(() => {
+		const typed = query.kind === 'artwork' ? matchKey(query.title, query.authors) : '';
+		untrack(() => {
+			if (matchStatus !== 'searching' || typed === searchedKey) return;
+			matchRequest += 1;
+			matchStatus = 'idle';
+		});
 		if (
 			!autoMatch ||
 			!autoFetch.image ||
@@ -262,7 +275,7 @@
 
 {#snippet matchStatusLine()}
 	{#if selected === 0 && matchStatus === 'searching'}
-		<p class="caption" aria-live="polite">{m.artworkForm.matchSearching}</p>
+		<FillingStatus message={m.artworkForm.matchSearching} onstop={stopMatch} />
 	{:else if matchShown}
 		<p class="caption" aria-live="polite">{matchLabel(pool[0])}</p>
 	{:else if selected === 0 && image === null && matchStatus === 'none'}
@@ -274,6 +287,7 @@
 
 <ImageField
 	{alt}
+	filling={selected === 0 && matchStatus === 'searching'}
 	onsearch={stopMatch}
 	overlay={pinLayer}
 	{query}

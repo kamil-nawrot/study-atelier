@@ -1,3 +1,4 @@
+import { m } from '#lib/i18n/i18n.ts';
 import { emptyCategoryValues } from '#lib/card-index/category-values/category-values.ts';
 import type { ArtworkFormState } from '#lib/artworks/types/artwork-form-state.ts';
 import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
@@ -125,3 +126,8 @@ export function artworkImageAlt(form: ArtworkFormState): string {
 	const authors = form.authorUnknown ? [] : form.values.author;
 	return [form.title.trim(), ...authors].filter((part) => part !== '').join(', ');
 }
+
+export const describedCategories: { code: 'material' | 'location'; label: string }[] = [
+	{ code: 'material', label: m.artworkForm.material },
+	{ code: 'location', label: m.artworkForm.location }
+];

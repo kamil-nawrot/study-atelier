@@ -9,6 +9,7 @@
 	import { uiMessages } from '../../messages/messages';
 	import FieldMessage from '../FieldMessage/FieldMessage.svelte';
 	import Icon from '../Icon/Icon.svelte';
+	import Primer from '../Primer/Primer.svelte';
 
 	type Props = {
 		label: string;
@@ -21,6 +22,7 @@
 		maxlength?: number;
 		disabled?: boolean;
 		locked?: boolean;
+		filling?: boolean;
 		hint?: string;
 		error?: string;
 		placeholder?: string;
@@ -38,6 +40,7 @@
 		maxlength,
 		disabled = false,
 		locked = false,
+		filling = false,
 		hint,
 		error,
 		placeholder,
@@ -68,7 +71,7 @@
 	let active = $state(0);
 	let quiet = false;
 
-	const inactive = $derived(disabled || locked);
+	const inactive = $derived(disabled || locked || filling);
 	const expanded = $derived(open && !inactive && !full && ordered.length > 0);
 	const activeIndex = $derived(Math.min(active, ordered.length - 1));
 
@@ -173,13 +176,14 @@
 		class="control"
 		class:disabled={inactive}
 		class:invalid={!!error}
+		aria-busy={filling || undefined}
 		onpointerdown={onfieldpointerdown}
 		role="presentation"
 	>
 		{#each values as value, index (value)}
 			<span class="value">
 				{value}
-				{#if !disabled}
+				{#if !disabled && !filling}
 					<button
 						class="remove"
 						aria-label={texts.remove(value)}
@@ -249,6 +253,9 @@
 				{@render item(added, similar ? texts.addAnyway(added.name) : texts.add(added.name))}
 			{/if}
 		</ul>
+		{#if filling}
+			<Primer />
+		{/if}
 	</div>
 	{#if message}
 		<FieldMessage id={messageId} {error} {hint} />

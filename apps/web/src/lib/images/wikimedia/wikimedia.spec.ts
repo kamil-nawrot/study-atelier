@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fetchJson, WikimediaError } from './wikimedia.ts';
+import { fetchJson, WikimediaError, withDeadline } from './wikimedia.ts';
 
 const fetchMock = vi.fn<typeof fetch>();
 
@@ -39,7 +39,7 @@ describe('fetchJson', () => {
 		expect(fetchMock).toHaveBeenCalledTimes(2);
 	});
 
-	it('gives up after thirty seconds without an answer and does not retry', async () => {
+	it('gives up after ten seconds without an answer and does not retry', async () => {
 		vi.stubGlobal('fetch', fetchMock);
 		const timeout = vi
 			.spyOn(AbortSignal, 'timeout')
@@ -47,7 +47,7 @@ describe('fetchJson', () => {
 		fetchMock.mockImplementation((_url, init) => Promise.reject(init?.signal?.reason));
 
 		await expect(fetchJson('https://example.org/api')).rejects.toEqual(new WikimediaError(504));
-		expect(timeout).toHaveBeenCalledWith(30000);
+		expect(timeout).toHaveBeenCalledWith(10000);
 		expect(fetchMock).toHaveBeenCalledOnce();
 		timeout.mockRestore();
 	});
@@ -61,6 +61,25 @@ describe('fetchJson', () => {
 		const failure = expect(result).rejects.toEqual(new WikimediaError(null));
 		await vi.runAllTimersAsync();
 
+		await failure;
+	});
+});
+
+describe('withDeadline', () => {
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it('passes the result on when the work ends in time', async () => {
+		await expect(withDeadline(Promise.resolve('found'))).resolves.toBe('found');
+	});
+
+	it('gives up on a search that takes more than twenty seconds in all', async () => {
+		vi.useFakeTimers();
+		const result = withDeadline(new Promise(() => undefined));
+		const failure = expect(result).rejects.toEqual(new WikimediaError(504));
+
+		await vi.advanceTimersByTimeAsync(20000);
 		await failure;
 	});
 });

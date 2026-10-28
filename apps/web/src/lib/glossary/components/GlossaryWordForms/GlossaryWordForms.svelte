@@ -16,9 +16,10 @@
 	type Props = {
 		form: GlossaryDraft;
 		existing?: GlossaryEntry;
+		onfilling?: (filling: boolean) => void;
 	};
 
-	let { form = $bindable(), existing }: Props = $props();
+	let { form = $bindable(), existing, onfilling }: Props = $props();
 
 	const SEARCH_DELAY_MS = 600;
 
@@ -32,6 +33,7 @@
 	let synonymForms = $state<Record<string, string[]>>({});
 	let synonymMessage = $state<string>();
 	let formsRequest = 0;
+	let stoppedName = '';
 	let knownSynonyms = untrack(() => [...form.synonyms]);
 
 	let synonymOptions = $derived(newOption(synonymsQuery, form.synonyms));
@@ -66,6 +68,12 @@
 			form.forms.length === 0 ||
 			(formsAutoFilled !== null && JSON.stringify(form.forms) === JSON.stringify(formsAutoFilled))
 		);
+	}
+
+	function stopForms(): void {
+		stoppedName = form.name.trim().toLocaleLowerCase('pl');
+		formsRequest += 1;
+		formsStatus = 'idle';
 	}
 
 	function setForms(forms: string[]): void {
@@ -137,10 +145,20 @@
 	});
 
 	$effect(() => {
+		onfilling?.(formsStatus === 'searching');
+	});
+
+	$effect(() => {
 		if (existing) return;
 		const name = form.name.trim();
 		const category = form.category;
+		untrack(() => {
+			if (formsStatus !== 'searching') return;
+			formsRequest += 1;
+			formsStatus = 'idle';
+		});
 		if (!name || !category) return;
+		if (name.toLocaleLowerCase('pl') === stoppedName) return;
 		if (!suggestsForms(name, category)) {
 			untrack(() => {
 				formsRequest += 1;
@@ -175,6 +193,7 @@
 	message={formsStatus === 'searching' ? undefined : synonymMessage}
 	offer={formsOffer}
 	onfetch={suggestForms}
+	onstop={stopForms}
 	options={formOptions}
 	status={formsShownStatus}
 	bind:expanded={formsExpanded}

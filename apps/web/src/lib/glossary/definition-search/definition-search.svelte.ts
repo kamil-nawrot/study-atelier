@@ -20,6 +20,8 @@ export class DefinitionSearch {
 	replaceOpen = $state(false);
 
 	#autoFilled = $state<string | null>(null);
+	#filling = $state(false);
+	#stoppedKey = '';
 	#articlesKey = $state('');
 	#pendingArticle = $state<WikipediaArticle>();
 	#request = 0;
@@ -40,9 +42,10 @@ export class DefinitionSearch {
 				? m.glossary.form.definitionFailed
 				: undefined
 	);
+	filling = $derived(this.status === 'searching' && this.#filling);
 	placeholder = $derived(
-		this.status === 'searching'
-			? m.glossary.form.definitionSearching
+		this.filling
+			? undefined
 			: autoFetch.definition
 				? m.glossary.form.definitionPending
 				: m.glossary.form.definitionManual
@@ -60,12 +63,26 @@ export class DefinitionSearch {
 		$effect(() => {
 			const name = this.form.name.trim();
 			const category = this.form.category;
+			untrack(() => this.#cancelFilling());
 			if (!name || !category || !autoFetch.definition) return;
+			if (keyOf(name, category) === this.#stoppedKey) return;
 			const timer = setTimeout(() => {
 				if (untrack(() => this.#replaceable())) void this.search(true);
 			}, SEARCH_DELAY_MS);
 			return () => clearTimeout(timer);
 		});
+	}
+
+	#cancelFilling(): void {
+		if (!this.filling) return;
+		this.#request += 1;
+		this.#filling = false;
+		this.status = 'idle';
+	}
+
+	stop(): void {
+		this.#stoppedKey = keyOf(this.form.name, this.form.category ?? '');
+		this.#cancelFilling();
 	}
 
 	#replaceable(): boolean {
@@ -84,9 +101,11 @@ export class DefinitionSearch {
 		if (!name || !category) return;
 		const current = ++this.#request;
 		this.status = 'searching';
+		this.#filling = fill && this.#replaceable();
 		try {
 			const found = await searchArticles(name, category);
 			if (current !== this.#request) return;
+			this.#filling = false;
 			this.articles = found;
 			this.#articlesKey = keyOf(name, category);
 			this.status = found.length > 0 ? 'found' : 'none';
@@ -100,6 +119,7 @@ export class DefinitionSearch {
 			}
 		} catch {
 			if (current !== this.#request) return;
+			this.#filling = false;
 			this.articles = [];
 			this.#articlesKey = '';
 			this.status = 'failed';

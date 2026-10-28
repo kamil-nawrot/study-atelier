@@ -43,17 +43,27 @@ export function parseImageUrl(text: string): { url: string } | { error: string }
 	return { url: url.href };
 }
 
+export const IMAGE_URL_TIMEOUT_SECONDS = 15;
+
 export function readImageSize(src: string): Promise<ImageSize> {
 	return new Promise((resolve, reject) => {
 		const image = new Image();
+		const timer = setTimeout(() => {
+			image.src = '';
+			reject(new Error('The image took too long to load'));
+		}, IMAGE_URL_TIMEOUT_SECONDS * 1000);
 		image.onload = () => {
+			clearTimeout(timer);
 			if (image.naturalWidth > 0 && image.naturalHeight > 0) {
 				resolve({ width: image.naturalWidth, height: image.naturalHeight });
 			} else {
 				reject(new Error('The image has no size'));
 			}
 		};
-		image.onerror = () => reject(new Error('The image did not load'));
+		image.onerror = () => {
+			clearTimeout(timer);
+			reject(new Error('The image did not load'));
+		};
 		image.src = src;
 	});
 }

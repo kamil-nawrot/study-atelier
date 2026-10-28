@@ -50,6 +50,7 @@ export const pl = {
 	common: {
 		email: 'E-mail',
 		password: 'Hasło',
+		stopFetch: 'Przerwij',
 		name: 'Nazwa',
 		notes: 'Notatki',
 		add: 'Dodaj',

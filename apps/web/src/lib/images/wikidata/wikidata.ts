@@ -1,4 +1,4 @@
-import { fetchJson } from '#lib/images/wikimedia/wikimedia.ts';
+import { fetchJson, SPARQL_TIMEOUT_SECONDS } from '#lib/images/wikimedia/wikimedia.ts';
 import type { SourceDate } from '#lib/images/types/source-date.ts';
 import type { WikidataArtwork } from '#lib/images/types/wikidata-artwork.ts';
 import type { WikidataPerson } from '#lib/images/types/wikidata-person.ts';
@@ -143,9 +143,11 @@ function toArtwork(binding: Binding): WikidataArtwork | null {
 
 export async function searchWikidataArtworks(title: string): Promise<WikidataArtwork[]> {
 	const params = new URLSearchParams({ query: artworkSearchQuery(title), format: 'json' });
-	const response = await fetchJson<SparqlResponse>(`${SPARQL_ENDPOINT}?${params}`, {
-		Accept: 'application/sparql-results+json'
-	});
+	const response = await fetchJson<SparqlResponse>(
+		`${SPARQL_ENDPOINT}?${params}`,
+		{ Accept: 'application/sparql-results+json' },
+		SPARQL_TIMEOUT_SECONDS
+	);
 	return (response.results?.bindings ?? []).flatMap((binding) => toArtwork(binding) ?? []);
 }
 
@@ -164,8 +166,10 @@ function toPerson(binding: PersonBinding): WikidataPerson | null {
 
 export async function searchWikidataPeople(name: string): Promise<WikidataPerson[]> {
 	const params = new URLSearchParams({ query: personSearchQuery(name), format: 'json' });
-	const response = await fetchJson<SparqlResponse<PersonBinding>>(`${SPARQL_ENDPOINT}?${params}`, {
-		Accept: 'application/sparql-results+json'
-	});
+	const response = await fetchJson<SparqlResponse<PersonBinding>>(
+		`${SPARQL_ENDPOINT}?${params}`,
+		{ Accept: 'application/sparql-results+json' },
+		SPARQL_TIMEOUT_SECONDS
+	);
 	return (response.results?.bindings ?? []).flatMap((binding) => toPerson(binding) ?? []);
 }
