@@ -428,6 +428,38 @@ async function mockSupabase(context) {
 			);
 		}
 		if (url.pathname === '/rest/v1/rpc/artwork_field_usage') return json(route, OWN_FIELD_USAGE);
+		if (url.pathname === '/rest/v1/rpc/used_category_values') {
+			const names = new Map(
+				[
+					...VALUE_USAGE.filter(
+						(row) => !OWN_FIELDS.some((field) => field.id === row.category_code)
+					),
+					...OWN_VALUE_USAGE,
+					...VISITS.map((visit) => ({
+						category_code: 'location',
+						name: visit.category_values.name
+					}))
+				].map((row) => [`${row.category_code}:${row.name}`, row])
+			);
+			return json(
+				route,
+				[...names.values()].map(({ category_code, name }) => ({ category_code, name }))
+			);
+		}
+		if (url.pathname === '/rest/v1/rpc/duplicate_candidates') {
+			const title = request.postDataJSON()?.title?.trim().toLowerCase();
+			return json(
+				route,
+				ARTWORKS.filter((row) => row.title.toLowerCase() === title).map((row) => ({
+					id: row.id,
+					record_number: row.record_number,
+					title: row.title,
+					authors: row.artwork_values
+						.filter(({ category_values: value }) => value.category_code === 'author')
+						.map(({ category_values: value }) => value.name)
+				}))
+			);
+		}
 		if (url.pathname === '/rest/v1/artwork_fields' && request.method() === 'GET') {
 			return json(route, OWN_FIELDS);
 		}

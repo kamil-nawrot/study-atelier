@@ -3,46 +3,44 @@ import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { findDuplicates } from './duplicates-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
-	supabase: { from: vi.fn() }
+	supabase: { rpc: vi.fn() }
 }));
 
-const query = {
-	select: vi.fn(),
-	is: vi.fn()
-};
+const rpc = vi.mocked(supabase.rpc);
 
 describe('findDuplicates', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.mocked(supabase.from).mockReturnValue(query as never);
-		query.select.mockReturnValue(query);
 	});
 
-	it('compares with artworks outside the trash', async () => {
-		query.is.mockResolvedValue({
+	it('asks the database for the artworks with the same title and compares their authors', async () => {
+		rpc.mockResolvedValue({
 			data: [
-				{
-					id: 'artwork-5',
-					record_number: 5,
-					title: 'Sunflowers',
-					artwork_values: [
-						{ category_values: { category_code: 'style', name: 'Post-Impressionism' } },
-						{ category_values: { category_code: 'author', name: 'Vincent van Gogh' } }
-					]
-				}
+				{ id: 'artwork-5', record_number: 5, title: 'Sunflowers', authors: ['Vincent van Gogh'] },
+				{ id: 'artwork-6', record_number: 6, title: 'sunflowers', authors: ['Paul Gauguin'] }
 			],
 			error: null
-		});
+		} as never);
 
 		await expect(
 			findDuplicates({ title: 'Sunflowers', authors: ['Vincent van Gogh'] })
 		).resolves.toEqual([5]);
-		expect(supabase.from).toHaveBeenCalledWith('artworks');
-		expect(query.is).toHaveBeenCalledWith('deleted_at', null);
+		expect(rpc).toHaveBeenCalledWith('duplicate_candidates', { title: 'Sunflowers' });
+	});
+
+	it('leaves out the artwork being edited', async () => {
+		rpc.mockResolvedValue({
+			data: [{ id: 'artwork-5', record_number: 5, title: 'Sunflowers', authors: [] }],
+			error: null
+		} as never);
+
+		await expect(
+			findDuplicates({ title: 'Sunflowers', authors: [] }, 'artwork-5')
+		).resolves.toEqual([]);
 	});
 
 	it('finds nothing when the artworks cannot be read', async () => {
-		query.is.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } });
+		rpc.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } } as never);
 
 		await expect(
 			findDuplicates({ title: 'Sunflowers', authors: ['Vincent van Gogh'] })
