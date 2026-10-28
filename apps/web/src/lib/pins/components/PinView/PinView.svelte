@@ -48,6 +48,7 @@
 	.view {
 		display: grid;
 		justify-items: center;
+		justify-self: center;
 		width: 100%;
 	}
 </style>
