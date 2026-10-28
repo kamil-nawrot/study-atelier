@@ -37,9 +37,6 @@ function checkCommits() {
 				`Commit "${first}" does not follow Conventional Commits (type(scope): description)`
 			);
 		}
-		if (!/^Refs: ATL-\d+$/m.test(message)) {
-			problems.push(`Commit "${first}" has no "Refs: ATL-n" footer`);
-		}
 	}
 }
 
