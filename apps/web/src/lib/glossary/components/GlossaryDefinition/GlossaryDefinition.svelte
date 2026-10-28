@@ -21,10 +21,11 @@
 		placeholder={search.placeholder}
 		rows={7}
 		bind:value={search.form.definition}
-	/>
-	{#if search.filling}
-		<FillingStatus message={m.glossary.form.definitionSearching} onstop={() => search.stop()} />
-	{/if}
+	>
+		{#snippet fillingNote()}
+			<FillingStatus message={m.glossary.form.definitionSearching} onstop={() => search.stop()} />
+		{/snippet}
+	</TextArea>
 	{#if search.status === 'failed'}
 		<div class="links">
 			<TextButton inline onclick={() => search.search(true)}>

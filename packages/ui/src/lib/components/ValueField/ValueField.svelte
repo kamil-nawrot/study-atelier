@@ -9,7 +9,7 @@
 	import { uiMessages } from '../../messages/messages';
 	import FieldMessage from '../FieldMessage/FieldMessage.svelte';
 	import Icon from '../Icon/Icon.svelte';
-	import Primer from '../Primer/Primer.svelte';
+	import FillingLines from '../FillingLines/FillingLines.svelte';
 
 	type Props = {
 		label: string;
@@ -71,7 +71,7 @@
 	let active = $state(0);
 	let quiet = false;
 
-	const inactive = $derived(disabled || locked || filling);
+	const inactive = $derived(disabled || locked);
 	const expanded = $derived(open && !inactive && !full && ordered.length > 0);
 	const activeIndex = $derived(Math.min(active, ordered.length - 1));
 
@@ -175,6 +175,7 @@
 		bind:this={control}
 		class="control"
 		class:disabled={inactive}
+		class:filling
 		class:invalid={!!error}
 		aria-busy={filling || undefined}
 		onpointerdown={onfieldpointerdown}
@@ -214,6 +215,7 @@
 			oninput={show}
 			{onkeydown}
 			placeholder={values.length === 0 ? placeholder : undefined}
+			readonly={filling || undefined}
 			role="combobox"
 			type="text"
 			bind:value={query}
@@ -254,7 +256,7 @@
 			{/if}
 		</ul>
 		{#if filling}
-			<Primer />
+			<FillingLines />
 		{/if}
 	</div>
 	{#if message}

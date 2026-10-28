@@ -6,7 +6,7 @@
 	import { uiMessages } from '../../messages/messages';
 	import FieldMessage from '../FieldMessage/FieldMessage.svelte';
 	import Icon from '../Icon/Icon.svelte';
-	import Primer from '../Primer/Primer.svelte';
+	import FillingLines from '../FillingLines/FillingLines.svelte';
 
 	type Props = Omit<HTMLInputAttributes, 'type' | 'value'> & {
 		label: string;
@@ -63,13 +63,14 @@
 				aria-describedby={message ? messageId : undefined}
 				aria-invalid={error ? true : undefined}
 				aria-label={hideLabel ? label : undefined}
-				disabled={disabled || filling}
+				{disabled}
+				readonly={filling || undefined}
 				type={inputType}
 				bind:value
 				{...rest}
 			/>
 			{#if filling}
-				<Primer />
+				<FillingLines />
 			{/if}
 			{#if type === 'password'}
 				<button
@@ -159,6 +160,12 @@
 
 	input::placeholder {
 		color: var(--color-fg-muted);
+	}
+
+	.filling input,
+	.filling input::placeholder {
+		color: transparent;
+		caret-color: transparent;
 	}
 
 	input:disabled {
