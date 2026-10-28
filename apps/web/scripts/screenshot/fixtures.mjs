@@ -465,6 +465,7 @@ export const PROFILE = {
 	review_form: 'mixed',
 	review_quiz_kinds: ['quiz_title', 'quiz_image', 'quiz_style', 'quiz_pin'],
 	review_free: true,
+	review_glossary_questions: 2,
 	view_show_pins: false,
 	view_loupe_on: false,
 	fetch_image: true,
@@ -683,7 +684,7 @@ export const GLOSSARY_ENTRIES = [
 		2,
 		'Apsyda',
 		'architecture',
-		'Półkolista lub wieloboczna część budowli zamykająca nawę, zwykle od wschodu.',
+		'Półkolista lub wieloboczna część budowli zamykająca nawę, zwykle od wschodu. W apsydzie stawiano ołtarz główny.',
 		['apsydy', 'apsydzie'],
 		'Apsyda'
 	),

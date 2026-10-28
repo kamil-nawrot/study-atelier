@@ -1,5 +1,6 @@
 import type { NoteLinks } from '../types/note-links';
 import type { NoteTerm } from '../types/note-term';
+import type { TextSegment } from '../types/text-segment';
 import DOMPurify from 'dompurify';
 import { Marked, type Tokens } from 'marked';
 import { isNoteLinkPath } from '../note-links/note-links';
@@ -158,4 +159,18 @@ export function renderText(source: string, terms: NoteTerm[] = []): string {
 
 export function mentionsTerm(source: string, term: NoteTerm): boolean {
 	return renderNotes(source, undefined, [term]).includes('<button');
+}
+
+export function maskedSegments(source: string, term: NoteTerm): TextSegment[] {
+	const segments: TextSegment[] = [];
+	let position = 0;
+	for (const match of matchesIn(source, [term])) {
+		if (match.start > position) {
+			segments.push({ text: source.slice(position, match.start), masked: false });
+		}
+		segments.push({ text: source.slice(match.start, match.end), masked: true });
+		position = match.end;
+	}
+	if (position < source.length) segments.push({ text: source.slice(position), masked: false });
+	return segments;
 }

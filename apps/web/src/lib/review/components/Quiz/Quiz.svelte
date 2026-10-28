@@ -8,7 +8,7 @@
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import PinMark from '#lib/pins/components/PinMark/PinMark.svelte';
-	import { onControl, sessionKey } from '#lib/review/keys/keys.ts';
+	import { quizKey } from '#lib/review/keys/keys.ts';
 	import { authorsOf, describeArtwork } from '#lib/review/overview/overview.ts';
 	import type { Quiz } from '#lib/review/types/quiz.ts';
 	import type { ReviewDetails } from '#lib/review/types/review-details.ts';
@@ -54,24 +54,7 @@
 	}
 
 	function keydown(event: KeyboardEvent): void {
-		if (!sessionKey(event)) return;
-		if (event.key === 'Enter' && answered) {
-			if (onControl(event)) return;
-			event.preventDefault();
-			onnext();
-			return;
-		}
-		const choice = Number(event.key) - 1;
-		if (
-			!answered &&
-			!saving &&
-			Number.isInteger(choice) &&
-			choice >= 0 &&
-			choice < quiz.options.length
-		) {
-			event.preventDefault();
-			onanswer(choice);
-		}
+		quizKey(event, { answered, saving, options: quiz.options.length, onanswer, onnext });
 	}
 </script>
 

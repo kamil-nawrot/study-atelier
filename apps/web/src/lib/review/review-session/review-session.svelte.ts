@@ -6,6 +6,7 @@ import { outcomes, quizRating } from '#lib/review/scheduler/scheduler.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { ReviewRating } from '#lib/review/types/review-rating.ts';
+import type { SessionStep } from '#lib/review/types/session-step.ts';
 
 type ReviewAnswerLog = {
 	item: ReviewItem;
@@ -13,7 +14,7 @@ type ReviewAnswerLog = {
 };
 
 export class ReviewSession {
-	queue = $state<ReviewItem[]>([]);
+	queue = $state<SessionStep[]>([]);
 	position = $state(0);
 	revealed = $state(false);
 	chosen = $state<number>();
@@ -28,7 +29,7 @@ export class ReviewSession {
 	#random: () => number;
 
 	constructor(
-		items: ReviewItem[],
+		items: SessionStep[],
 		cards: Map<string, ReviewCard>,
 		now: () => Date = currentDate,
 		random: () => number = Math.random,
@@ -43,7 +44,7 @@ export class ReviewSession {
 		this.#shownAt = this.startedAt;
 	}
 
-	get current(): ReviewItem | undefined {
+	get current(): SessionStep | undefined {
 		return this.queue[this.position];
 	}
 
@@ -61,7 +62,9 @@ export class ReviewSession {
 
 	next(): Record<ReviewRating, ReviewCard> | undefined {
 		const item = this.current;
-		return item ? outcomes(item.artwork.id, item.card, this.#now()) : undefined;
+		return item && item.mode !== 'quiz_definition'
+			? outcomes(item.artwork.id, item.card, this.#now())
+			: undefined;
 	}
 
 	reveal(): void {
@@ -70,7 +73,9 @@ export class ReviewSession {
 
 	async rate(rating: ReviewRating, scheduled?: ReviewCard): Promise<void> {
 		const item = this.current;
-		if (!item || item.quiz || !this.revealed || this.saving) return;
+		if (!item || item.mode === 'quiz_definition' || item.quiz || !this.revealed || this.saving) {
+			return;
+		}
 		if (await this.#save(item, rating, scheduled)) this.#advance();
 	}
 
@@ -78,6 +83,11 @@ export class ReviewSession {
 		const item = this.current;
 		if (!item?.quiz || this.chosen !== undefined || this.saving) return;
 		const correct = choice === item.quiz.answer;
+		if (item.mode === 'quiz_definition') {
+			if (!correct) this.#retry({ ...item, quiz: shuffleQuiz(item.quiz, this.#random) });
+			this.chosen = choice;
+			return;
+		}
 		if (await this.#save(item, quizRating(correct), undefined, correct)) this.chosen = choice;
 	}
 
@@ -114,9 +124,13 @@ export class ReviewSession {
 			const retry = item.quiz
 				? { ...item, card, quiz: shuffleQuiz(item.quiz, this.#random) }
 				: { ...item, card };
-			this.queue = retryLater(this.queue, this.position, retry, this.#random);
+			this.#retry(retry);
 		}
 		return true;
+	}
+
+	#retry(step: SessionStep): void {
+		this.queue = retryLater(this.queue, this.position, step, this.#random);
 	}
 
 	#advance(): void {

@@ -9,6 +9,7 @@
 	"test-keyboard": [
 		"apps/web/src/lib/pins/components/PinLayer/PinLayer.svelte.spec.ts",
 		"apps/web/src/lib/pins/components/PinMarkers/PinMarkers.svelte.spec.ts",
+		"apps/web/src/lib/review/components/DefinitionQuiz/DefinitionQuiz.svelte.spec.ts",
 		"apps/web/src/lib/review/components/Flashcard/Flashcard.svelte.spec.ts",
 		"apps/web/src/lib/review/components/Quiz/Quiz.svelte.spec.ts",
 		"apps/web/src/routes/(app)/atelier/[number]/page.svelte.spec.ts",

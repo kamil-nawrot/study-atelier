@@ -6,7 +6,7 @@
 	import { m } from '#lib/i18n/i18n.ts';
 
 	type Props = {
-		artwork: WallArtwork;
+		artwork?: WallArtwork;
 		image?: { src?: string; srcset?: string; width?: number; height?: number };
 		alt: string;
 		credit?: string;
@@ -20,7 +20,7 @@
 
 	let {
 		artwork,
-		image = artwork.image,
+		image = artwork?.image,
 		alt,
 		credit,
 		compact = false,
@@ -64,7 +64,7 @@
 						</span>
 					</span>
 				</button>
-			{:else if artwork.imageUnavailable}
+			{:else if artwork?.imageUnavailable}
 				<span class="mat">
 					<ArtworkImage {alt} unavailable />
 				</span>

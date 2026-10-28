@@ -14,16 +14,17 @@ import {
 	troubles,
 	waitingTomorrow
 } from '#lib/review/overview/overview.ts';
+import { definitionsOffered, sessionSteps } from '#lib/review/definitions/definitions.ts';
 import { offeredForms, quizzesPossible } from '#lib/review/forms/forms.ts';
 import { missingArtworks, sessionCounts, startOfDay } from '#lib/review/queue/queue.ts';
-import { QUIZ_TILE_SIZES, quizArtworks, sessionItems } from '#lib/review/quiz/quiz.ts';
+import { quizArtworks, sessionItems } from '#lib/review/quiz/quiz.ts';
 import {
 	loadReviewDetails,
 	loadSession,
 	REVIEW_COUNTS_DEPENDENCY,
 	withPinPreviews
 } from '#lib/review/review-data/review-data.ts';
-import { preload, withItemImages } from '#lib/review/review-images/review-images.ts';
+import { preloadSteps, withItemImages } from '#lib/review/review-images/review-images.ts';
 import { ReviewSession } from '#lib/review/review-session/review-session.svelte.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewDetails } from '#lib/review/types/review-details.ts';
@@ -54,6 +55,7 @@ export class ReviewFlow {
 	scope = $state<ReviewScope>(ALL_SCOPE);
 	form = $state<ReviewForm>('mixed');
 	freeRound = $state(0);
+	definitions = $state(true);
 	cards = $state.raw(mapOf<string, ReviewCard>());
 	newToday = $state(0);
 	now = $state(currentDate());
@@ -90,6 +92,11 @@ export class ReviewFlow {
 				this.#data().termPins
 			)
 		)
+	);
+	definitionCount = $derived(
+		definitionsOffered(this.#data().glossary)
+			? this.#data().preferences.reviewGlossaryQuestions
+			: undefined
 	);
 	activeForm = $derived(this.forms.includes(this.form) ? this.form : 'mixed');
 	limits = $derived({
@@ -150,13 +157,7 @@ export class ReviewFlow {
 		$effect(() => {
 			const session = this.session;
 			if (!session) return;
-			const ahead = session.queue.slice(session.position + 1, session.position + 1 + PRELOAD_AHEAD);
-			for (const item of ahead) {
-				preload(item.artwork);
-				for (const option of item.quiz?.options ?? []) {
-					if (option.artwork) preload(option.artwork, QUIZ_TILE_SIZES);
-				}
-			}
+			preloadSteps(session.queue.slice(session.position + 1, session.position + 1 + PRELOAD_AHEAD));
 		});
 
 		$effect(() => {
@@ -217,8 +218,13 @@ export class ReviewFlow {
 		if (found.error) return found.error;
 		this.details = found.details;
 		if (free) this.freeRound += 1;
+		const questions = this.definitions ? (this.definitionCount ?? 0) : 0;
 		this.session = new ReviewSession(
-			items.map((item) => withItemImages(item, (artwork) => this.withImage(artwork))),
+			sessionSteps(
+				items.map((item) => withItemImages(item, (artwork) => this.withImage(artwork))),
+				this.#data().glossary,
+				questions
+			),
 			this.cards,
 			undefined,
 			undefined,
