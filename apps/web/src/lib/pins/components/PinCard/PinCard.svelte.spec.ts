@@ -71,4 +71,31 @@ describe('PinCard', () => {
 		await expect.poll(() => lens.getBoundingClientRect().width).toBe(220);
 		host.remove();
 	});
+
+	it('centres the view in a card wider than the view', async () => {
+		const host = document.createElement('div');
+		host.style.width = '400px';
+		document.body.appendChild(host);
+		const { container } = await render(PinCard, {
+			target: host,
+			props: {
+				pin: { ...PIN, viewWidth: 0.1 },
+				image: {
+					kind: 'url',
+					url: `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="30"/>')}`,
+					width: 4000,
+					height: 3000
+				},
+				shownWidth: 550
+			}
+		});
+
+		const card = container.querySelector('.card') as HTMLElement;
+		const lens = container.querySelector('.lens') as HTMLElement;
+		const middle = (box: DOMRect): number => box.left + box.width / 2;
+		await expect
+			.poll(() => middle(lens.getBoundingClientRect()))
+			.toBeCloseTo(middle(card.getBoundingClientRect()), 0);
+		host.remove();
+	});
 });
