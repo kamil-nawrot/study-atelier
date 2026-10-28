@@ -1193,6 +1193,15 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: string[];
       };
+      duplicate_candidates: {
+        Args: { title: string };
+        Returns: {
+          authors: string[];
+          id: string;
+          record_number: number;
+          title: string;
+        }[];
+      };
       import_atelier: { Args: { payload: Json }; Returns: Json };
       keep_alive: { Args: Record<PropertyKey, never>; Returns: string };
       merge_category_values: {
@@ -1278,6 +1287,7 @@ export type Database = {
         };
         Returns: string;
       };
+      search_key: { Args: { value: string }; Returns: string };
       set_period_eras: {
         Args: { era_codes: string[]; move_to?: string; target_period: string };
         Returns: number;
@@ -1303,6 +1313,13 @@ export type Database = {
         }[];
       };
       unused_images: { Args: Record<PropertyKey, never>; Returns: string[] };
+      used_category_values: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          category_code: string;
+          name: string;
+        }[];
+      };
       value_page_content: {
         Args: { target_value: string };
         Returns: {
