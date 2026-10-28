@@ -55,7 +55,7 @@ function viewWidth(scroller: HTMLElement): number {
 	return Math.min(scroller.clientWidth, Math.floor(scroller.getBoundingClientRect().width) - edges);
 }
 
-function elementTarget(scroller: HTMLElement, axis: ScrollAxis): Target {
+function elementTarget(scroller: HTMLElement, axis: ScrollAxis, beside: boolean): Target {
 	const vertical = axis === 'y';
 	return {
 		view: () => (vertical ? viewHeight(scroller) : viewWidth(scroller)),
@@ -65,11 +65,20 @@ function elementTarget(scroller: HTMLElement, axis: ScrollAxis): Target {
 			if (vertical) scroller.scrollTop = position;
 			else scroller.scrollLeft = position;
 		},
-		origin: () => Math.floor(vertical ? scroller.scrollTop : scroller.scrollLeft),
+		origin: () =>
+			beside
+				? vertical
+					? scroller.offsetTop + scroller.clientTop
+					: scroller.offsetLeft + scroller.clientLeft
+				: Math.floor(vertical ? scroller.scrollTop : scroller.scrollLeft),
 		cross: () =>
-			vertical
-				? Math.floor(scroller.scrollLeft) + viewWidth(scroller)
-				: Math.floor(scroller.scrollTop) + viewHeight(scroller)
+			beside
+				? vertical
+					? scroller.offsetLeft + scroller.clientLeft + viewWidth(scroller)
+					: scroller.offsetTop + scroller.clientTop + viewHeight(scroller)
+				: vertical
+					? Math.floor(scroller.scrollLeft) + viewWidth(scroller)
+					: Math.floor(scroller.scrollTop) + viewHeight(scroller)
 	};
 }
 
@@ -91,7 +100,7 @@ function install(
 	axis: ScrollAxis,
 	page: boolean
 ): () => void {
-	const target = page ? pageTarget() : elementTarget(scroller, axis);
+	const target = page ? pageTarget() : elementTarget(scroller, axis, host !== scroller);
 	const vertical = axis === 'y';
 	const thumb = document.createElement('div');
 	thumb.className = `${THUMB_CLASS} ${axis}${page ? ' page' : ''}`;
@@ -99,8 +108,8 @@ function install(
 	thumb.hidden = true;
 	host.appendChild(thumb);
 	scroller.classList.add(OVERLAY_CLASS);
-	const positioned = !page && getComputedStyle(scroller).position === 'static';
-	if (positioned) scroller.style.position = 'relative';
+	const positioned = !page && getComputedStyle(host).position === 'static';
+	if (positioned) host.style.position = 'relative';
 
 	let frame = 0;
 	let hideTimer: ReturnType<typeof setTimeout> | undefined;
@@ -206,13 +215,20 @@ function install(
 		scroller.removeEventListener('pointerenter', enter);
 		scroller.removeEventListener('pointerleave', leave);
 		scroller.classList.remove(OVERLAY_CLASS);
-		if (positioned) scroller.style.removeProperty('position');
+		if (positioned) host.style.removeProperty('position');
 		thumb.remove();
 	};
 }
 
 export function overlayScrollbar(axis: ScrollAxis = 'y'): Attachment<HTMLElement> {
 	return (node) => (overlaysScrollbars() ? install(node, node, axis, false) : undefined);
+}
+
+export function overlayScrollbarBeside(axis: ScrollAxis = 'y'): Attachment<HTMLElement> {
+	return (node) =>
+		overlaysScrollbars() && node.parentElement
+			? install(node, node.parentElement, axis, false)
+			: undefined;
 }
 
 export function pageScrollbar(): (() => void) | undefined {

@@ -4,6 +4,7 @@ import { pageScrollbar } from './overlay-scrollbar.ts';
 import '../styles/tokens.css';
 import '../styles/base.css';
 import OverlayScrollArea from '../testing/OverlayScrollArea.svelte';
+import TextArea from '../components/TextArea/TextArea.svelte';
 
 function area(): HTMLElement {
 	return document.querySelector('[data-testid="area"]') as HTMLElement;
@@ -19,6 +20,19 @@ async function nextFrame(): Promise<void> {
 
 afterEach(() => {
 	vi.unstubAllGlobals();
+});
+
+describe('overlayScrollbarBeside', () => {
+	it('hides the native bar of a text area and draws the thumb in its frame', async () => {
+		await render(TextArea, { label: 'Notes', rows: 3, value: 'Line\n'.repeat(40) });
+		await nextFrame();
+
+		const field = document.querySelector('textarea') as HTMLTextAreaElement;
+		const drawn = field.parentElement?.querySelector('.overlay-scrollbar-thumb') as HTMLElement;
+		expect(field.classList.contains('overlay-scrollbar')).toBe(true);
+		expect(drawn.hidden).toBe(false);
+		expect(drawn.style.top).toBe(`${field.offsetTop + field.clientTop}px`);
+	});
 });
 
 describe('overlayScrollbar', () => {

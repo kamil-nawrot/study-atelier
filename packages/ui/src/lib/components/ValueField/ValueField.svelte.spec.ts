@@ -335,8 +335,8 @@ describe('ValueField', () => {
 	it('locks the values while the field is being filled', async () => {
 		render(ValueField, { label: 'Forms', values: ['nawy'], filling: true });
 
-		await expect.element(page.getByRole('combobox', { name: 'Forms' })).toBeDisabled();
+		await expect.element(page.getByRole('combobox', { name: 'Forms' })).toHaveAttribute('readonly');
 		await expect.element(page.getByRole('button', { name: /nawy/ })).not.toBeInTheDocument();
-		expect(document.querySelector('.primer')).not.toBeNull();
+		expect(document.querySelectorAll('.filling-lines .line')).toHaveLength(1);
 	});
 });
