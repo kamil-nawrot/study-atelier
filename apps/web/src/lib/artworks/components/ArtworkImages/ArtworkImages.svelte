@@ -274,7 +274,7 @@
 {/snippet}
 
 {#snippet matchStatusLine()}
-	{#if selected === 0 && matchStatus === 'searching'}
+	{#if matchStatus === 'searching'}
 		<FillingStatus message={m.artworkForm.matchSearching} onstop={stopMatch} />
 	{:else if matchShown}
 		<p class="caption" aria-live="polite">{matchLabel(pool[0])}</p>

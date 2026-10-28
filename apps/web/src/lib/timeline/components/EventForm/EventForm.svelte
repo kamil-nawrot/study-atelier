@@ -141,7 +141,6 @@
 			if (current !== request || formState.busy) return;
 			filling = null;
 			articles = [];
-			articlesName = '';
 			status = 'failed';
 		}
 	}
@@ -150,7 +149,8 @@
 		const name = query;
 		if (existing) return;
 		request += 1;
-		untrack(() => (filling = null));
+		filling = null;
+		status = 'idle';
 		if (!name || !autoFetch.event || name === stoppedName) return;
 		const timer = setTimeout(() => {
 			if (!formState.busy && untrack(replaceable)) void search(true);
@@ -162,6 +162,7 @@
 		stoppedName = query;
 		request += 1;
 		filling = null;
+		status = 'idle';
 	}
 
 	async function openArticles(): Promise<void> {

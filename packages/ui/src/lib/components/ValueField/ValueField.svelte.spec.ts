@@ -332,6 +332,23 @@ describe('ValueField', () => {
 		expect(outlinedHeight(input, '.control')).toBe(controlHeight());
 	});
 
+	it('ignores the keyboard while the field is being filled', async () => {
+		const options: ValueOption[] = [{ kind: 'existing', name: 'baroque' }];
+		const screen = await render(ValueField, {
+			label: 'Forms',
+			values: ['nawy', 'nawie'],
+			options,
+			filling: true
+		});
+
+		const input = page.getByRole('combobox', { name: 'Forms' });
+		await input.click({ force: true });
+		await userEvent.keyboard('{Backspace}{ArrowDown}{Enter}');
+
+		expect(screen.container.querySelectorAll('.value')).toHaveLength(2);
+		await expect.element(input).toHaveAttribute('aria-expanded', 'false');
+	});
+
 	it('locks the values while the field is being filled', async () => {
 		render(ValueField, { label: 'Forms', values: ['nawy'], filling: true });
 
