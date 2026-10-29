@@ -11,6 +11,7 @@
 		reachedTier,
 		settingOf
 	} from '#lib/career/exhibits/exhibits.ts';
+	import { curiosityOf } from '#lib/career/curiosities/curiosities.ts';
 	import { tierDate } from '#lib/career/tier-date/tier-date.ts';
 	import { roman } from '#lib/timeline/labels/labels.ts';
 	import type { Exhibit } from '#lib/career/types/exhibit.ts';
@@ -83,9 +84,22 @@
 		{/if}
 		{#if exhibit.tiers.length > 0}
 			<Disclosure level={3} open={false} plain title={m.career.tiers}>
-				<ol class="dates caption">
+				<ol class="dates">
 					{#each exhibit.tiers as unlocked (unlocked.tier)}
-						<li>{m.career.tierDate(roman(unlocked.tier), tierDate(unlocked.unlockedAt))}</li>
+						{@const curiosity = curiosityOf(exhibit.code, unlocked.tier)}
+						<li>
+							<span class="caption">
+								{m.career.tierDate(roman(unlocked.tier), tierDate(unlocked.unlockedAt))}
+							</span>
+							{#if curiosity}
+								<p>
+									{curiosity.text}
+									<a href={curiosity.source} rel="external noreferrer" target="_blank"
+										>{m.career.source}</a
+									>
+								</p>
+							{/if}
+						</li>
 					{/each}
 				</ol>
 			</Disclosure>
@@ -207,10 +221,15 @@
 		background: var(--color-case-gold);
 	}
 
+	.dates li {
+		display: grid;
+		gap: var(--spacing-1);
+	}
+
 	.dates {
 		padding: 0;
 		display: grid;
-		gap: var(--spacing-1);
+		gap: var(--spacing-3);
 		list-style: none;
 	}
 </style>

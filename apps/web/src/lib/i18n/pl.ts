@@ -1272,6 +1272,17 @@ export const pl = {
 		tiers: 'Zdobyte poziomy',
 		tierDate: (tier: string, date: string): string => `Poziom ${tier} · ${date}`,
 		hiddenName: 'Ukryty eksponat',
+		source: 'Źródło',
+		curiosities: {
+			collection: [
+				'Ashmolean w Oksfordzie otworzył się w 1683 roku i od początku wpuszczał zwiedzających z zewnątrz uniwersytetu. Uchodzi za jedno z pierwszych publicznych muzeów na świecie.',
+				'„Raj” Tintoretta w Pałacu Dożów w Wenecji ma około 22 na 9 metrów i uważa się go za jeden z największych obrazów olejnych na płótnie. Malowano go z pomocą warsztatu na osobnych kawałkach płótna, które potem zszyto w całość.'
+			],
+			grand_tour: [
+				'Muzeum Chichu na japońskiej wyspie Naoshima zbudowano niemal w całości pod ziemią. Pięć „Nenufarów” Moneta ogląda się tam wyłącznie w świetle dziennym.',
+				'Inhotim w brazylijskim stanie Minas Gerais to jedno z największych muzeów sztuki współczesnej pod gołym niebem. Pawilony i rzeźby stoją w ogrodzie botanicznym o powierzchni około 140 hektarów.'
+			]
+		},
 		ranks: {
 			masculine: [
 				'Zwiedzający',
