@@ -305,6 +305,27 @@ describe('timeline page', () => {
 		).toHaveLength(0);
 	});
 
+	it('cuts a long event name to 200 px and shows it whole in a tooltip', async () => {
+		const long = 'Pokój westfalski kończący wojnę trzydziestoletnią w Rzeszy';
+		renderTimeline([testArtwork(1, 'Mona Lisa', { yearTo: 1519 })], undefined, [
+			testEvent('treaty', long, null, 1648),
+			testEvent('america', 'Odkrycie Ameryki', null, 1492)
+		]);
+
+		const treaty = page.getByRole('button', { name: `${long}, 1648` });
+		await expect.element(treaty).toBeInTheDocument();
+		const name = treaty.element().querySelector('.name') as HTMLElement;
+		expect(name.getBoundingClientRect().width).toBeLessThanOrEqual(200);
+		expect(name.scrollWidth).toBeGreaterThan(name.clientWidth);
+		expect(treaty.element().querySelector('[role="tooltip"]')?.textContent).toBe(long);
+		expect(
+			page
+				.getByRole('button', { name: 'Odkrycie Ameryki, 1492' })
+				.element()
+				.querySelector('[role="tooltip"]')
+		).toBeNull();
+	});
+
 	it('opens the card of a chosen period with its artworks and its length', async () => {
 		renderTimeline(
 			[
