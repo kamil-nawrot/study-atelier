@@ -28,6 +28,12 @@
 	--color-mat-window: var(--color-neutral-150);
 	--color-mat-badge-bg: rgba(28, 26, 24, 0.45);
 	--color-mat-badge-fg: rgba(226, 223, 215, 0.8);
+	--color-case-velvet: var(--color-red-700);
+	--color-case-unlit: var(--color-neutral-600);
+	--color-case-iron: var(--color-neutral-400);
+	--color-case-bronze: var(--color-red-300);
+	--color-case-silver: var(--color-neutral-100);
+	--color-case-gold: var(--color-amber-300);
 	--font-family-ui: 'Schibsted Grotesk';
 	--font-family-title: 'Newsreader';
 	--font-weight-regular: 400;
