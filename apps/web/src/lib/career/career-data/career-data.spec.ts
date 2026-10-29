@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { loadPoints, loadUnlockedTiers, markTiersSeen, unlockExhibits } from './career-data.ts';
+import {
+	loadDisplayCase,
+	loadPoints,
+	loadUnlockedTiers,
+	markTiersSeen,
+	unlockExhibits
+} from './career-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { rpc: vi.fn(), from: vi.fn() }
@@ -107,5 +113,50 @@ describe('career data', () => {
 		await expect(markTiersSeen(new Date('2026-10-29T10:00:00Z'))).resolves.toEqual({});
 		expect(chain.update).toHaveBeenCalledWith({ seen_at: '2026-10-29T10:00:00.000Z' });
 		expect(chain.is).toHaveBeenCalledWith('seen_at', null);
+	});
+
+	it('unlocks the exhibits before it reads their tiers for the display case', async () => {
+		rpc.mockResolvedValue({
+			data: [{ exhibit: 'collection', value: 12, thresholds: [1, 10, 50] }],
+			error: null
+		} as never);
+		from.mockReturnValue(
+			query({
+				data: [
+					{ exhibit: 'collection', tier: 1, unlocked_at: '2026-10-01T10:00:00Z', seen_at: null }
+				],
+				error: null
+			}) as never
+		);
+		await expect(loadDisplayCase()).resolves.toEqual({
+			exhibits: [
+				{
+					code: 'collection',
+					value: 12,
+					thresholds: [1, 10, 50],
+					tiers: [
+						{
+							exhibit: 'collection',
+							tier: 1,
+							unlockedAt: new Date('2026-10-01T10:00:00Z'),
+							seenAt: undefined
+						}
+					]
+				}
+			]
+		});
+		expect(rpc.mock.invocationCallOrder[0]).toBeLessThan(from.mock.invocationCallOrder[0]);
+	});
+
+	it('shows no display case when the exhibits cannot be counted', async () => {
+		rpc.mockResolvedValue({
+			data: null,
+			error: { message: 'TypeError: Failed to fetch' }
+		} as never);
+		await expect(loadDisplayCase()).resolves.toEqual({
+			exhibits: [],
+			error: m.collectionErrors.network
+		});
+		expect(from).not.toHaveBeenCalled();
 	});
 });

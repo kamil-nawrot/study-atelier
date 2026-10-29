@@ -51,6 +51,10 @@ export function commonsFileUrl(file: string, width: number): string {
 	return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=${width}`;
 }
 
+export function commonsFilePage(file: string): string {
+	return `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(file.replaceAll(' ', '_'))}`;
+}
+
 export function commonsOriginalUrl(file: string): string {
 	return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}`;
 }

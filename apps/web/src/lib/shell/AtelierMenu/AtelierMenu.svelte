@@ -3,6 +3,7 @@
 	import CalendarRange from '@lucide/svelte/icons/calendar-range';
 	import Footprints from '@lucide/svelte/icons/footprints';
 	import ImagesIcon from '@lucide/svelte/icons/images';
+	import Landmark from '@lucide/svelte/icons/landmark';
 	import Layers from '@lucide/svelte/icons/layers';
 	import ListTree from '@lucide/svelte/icons/list-tree';
 	import LogOut from '@lucide/svelte/icons/log-out';
@@ -41,6 +42,7 @@
 	const trashPath = resolve('/(app)/atelier/trash');
 	const settingsPath = resolve('/(app)/atelier/settings');
 	const reviewPath = resolve('/(app)/atelier/review');
+	const displayCasePath = resolve('/(app)/atelier/display-case');
 
 	const light = $derived(currentTheme() === 'light');
 	const ownerId = $derived(page.data.session?.user.id);
@@ -147,6 +149,16 @@
 				<Count aria-hidden="true" value={waiting} />
 			{/if}
 		{/await}
+	</a>
+	<a
+		class="item"
+		aria-current={page.url.pathname === displayCasePath ? 'page' : undefined}
+		href={displayCasePath}
+	>
+		<Icon icon={Landmark} />
+		<span class="label" class:visually-hidden={compact}>
+			{m.menu.displayCase}
+		</span>
 	</a>
 </div>
 <div class="group">
