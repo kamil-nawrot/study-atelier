@@ -2,6 +2,7 @@ import { m } from '#lib/i18n/i18n.ts';
 import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import type { Json } from '#lib/shared/data/database.types.ts';
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
+import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { ownEntriesOf, valuesOf } from '#lib/card-index/artwork-values/artwork-values.ts';
 import { signedYear } from '#lib/catalogue/years/years.ts';
@@ -145,6 +146,7 @@ export async function saveArtwork(
 			field_entries: fieldEntries(input)
 		})
 		.single();
+	forgetCached();
 	if (error) {
 		if (error.code) await Promise.all(newUploads.map((path) => removeOwnImage(path)));
 		return {

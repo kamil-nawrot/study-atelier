@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
@@ -57,6 +58,8 @@ function authorCalls(portrait: string | null, actionError: unknown = null): void
 			? pageContent({ has_content: portrait !== null, own_image_path: portrait })
 			: rpcCall(actionError)) as never);
 }
+
+beforeEach(() => forgetCached());
 
 describe('loadCardIndex', () => {
 	beforeEach(() => {
