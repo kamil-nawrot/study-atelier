@@ -193,6 +193,7 @@ Inside a module (example: `wall`):
 
 - Unit tests (Vitest) cover every module with logic: validation, mapping, formatting and the domain functions that wrap Supabase (with the client mocked).
 - Coverage may not fall below the thresholds in `coverage.thresholds` of each package's `vite.config.ts`. When a change lifts a whole percent above a threshold, CI asks to raise it in the same change, so the thresholds only go up.
+- End-to-end tests (Playwright) live in `apps/web/e2e/` and run with `pnpm test:e2e` against the local Supabase, which must be started and have every migration applied. A test uses the `learner` fixture from `e2e/fixtures.ts`, a fresh account deleted after the test, and finds elements by role and by the texts of the message dictionary ([ADR-0159](../decisions/0159-end-to-end-tests-against-a-local-supabase.md)).
 - Components and pages have component tests named `<Name>.svelte.spec.ts` next to the component (for a route, `page.svelte.spec.ts` next to `+page.svelte`). They run in Chromium with Vitest browser mode; other tests run in Node ([ADR-0018](../decisions/0018-component-tests-in-vitest-browser-mode.md)).
 - Test names describe behaviour in a sentence ("rejects a short password and says how long it is").
 - Expected texts are read from `m`, and in `packages/ui` from `defaultUiMessages`. A literal string is used only when the text itself is under test, for example a plural form.
