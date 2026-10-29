@@ -4,6 +4,7 @@ import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { testOwnFields } from '#lib/testing/own-fields/own-fields.ts';
 import { withOwnValues } from '#lib/card-index/own-fields/own-fields.ts';
 import {
+	addOwnValue,
 	changeOwnValue,
 	createOwnField,
 	deleteOwnField,
@@ -174,6 +175,13 @@ describe('own field actions', () => {
 			merged_id: 'angle',
 			kept_id: 'angel'
 		});
+	});
+
+	it('adds a value to the list of a field', async () => {
+		await expect(addOwnValue(motifs, ' Putto ')).resolves.toEqual({});
+
+		expect(supabase.from).toHaveBeenCalledWith('category_values');
+		expect(query.insert).toHaveBeenCalledWith({ category_code: motifs.id, name: 'Putto' });
 	});
 
 	it('says something changed when another session took the name first', async () => {

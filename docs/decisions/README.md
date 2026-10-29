@@ -161,3 +161,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0155](0155-check-duplicates-and-list-used-values-in-the-database.md)                     | Check duplicates and list used values in the database                                    | accepted           |
 | [0156](0156-leave-the-loupe-with-a-right-click-or-a-click-beside-the-image.md)            | Leave the loupe with a right click or a click beside the image                           | accepted           |
 | [0157](0157-keep-the-collection-and-card-index-in-memory-between-views.md)                | Keep the collection and the card index in memory between views                           | accepted           |
+| [0158](0158-add-values-straight-from-the-card-index.md)                                   | Add values straight from the card index                                                  | accepted           |

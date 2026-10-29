@@ -11,6 +11,7 @@ import { cardIndexErrorMessage, collectionErrorMessage } from '#lib/catalogue/er
 import type { OwnValue } from '#lib/card-index/types/own-value.ts';
 import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 
 type CardIndexResult = {
@@ -202,6 +203,20 @@ export async function saveValue(changes: ValueChanges): Promise<CardIndexActionR
 	}
 
 	return {};
+}
+
+export async function createValue(
+	category: CategoryCode,
+	name: string
+): Promise<{ id?: string; error?: string }> {
+	const { data, error } = await supabase
+		.from('category_values')
+		.insert({ category_code: category, name: name.trim() })
+		.select('id')
+		.single();
+	forgetCached();
+	if (error) return { error: await failureMessage(error, cardIndexErrorMessage) };
+	return { id: data.id };
 }
 
 export function deleteValue(record: CardIndexRecord): Promise<CardIndexActionResult> {

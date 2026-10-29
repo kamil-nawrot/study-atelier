@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Tabs } from '@study-atelier/ui';
+	import Plus from '@lucide/svelte/icons/plus';
+	import { Button, Icon, Tabs } from '@study-atelier/ui';
 	import { CARD_INDEX_TABS } from '#lib/card-index/card-index-tab/card-index-tab.ts';
 	import { loadOwnValues } from '#lib/card-index/card-index-data/card-index-data.ts';
 	import { buildTimeline, valuesOf } from '#lib/card-index/card-index/card-index.ts';
@@ -15,7 +16,8 @@
 	import OwnFieldsTab from '#lib/card-index/components/OwnFieldsTab/OwnFieldsTab.svelte';
 	import { withOwnValues } from '#lib/card-index/own-fields/own-fields.ts';
 	import { loadOwnFields } from '#lib/card-index/own-fields-data/own-fields-data.ts';
-	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
+	import { newValuePath, valuePath } from '#lib/card-index/value-pages/value-pages.ts';
+	import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
 	import { countryName } from '#lib/catalogue/countries/countries.ts';
 	import { formatDate } from '#lib/catalogue/years/years.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -94,25 +96,42 @@
 	}
 </script>
 
+{#snippet adds(kinds: CategoryCode[])}
+	<div class="add">
+		{#each kinds as kind (kind)}
+			<Button href={newValuePath(kind)}>
+				<Icon icon={Plus} />
+				{m.cardIndex.add[kind]}
+			</Button>
+		{/each}
+	</div>
+{/snippet}
+
 <Tabs label={m.cardIndex.tabsLabel} {tabs} bind:value={() => tab, chooseTab}>
 	{#if tab === 'timeline'}
-		<CardIndexTimeline
-			{timeline}
-			bind:query
-			bind:sort={() => sorts.timeline, (sort) => setSort('timeline', sort)}
-		/>
+		<div class="tab">
+			{@render adds(['period', 'style'])}
+			<CardIndexTimeline
+				{timeline}
+				bind:query
+				bind:sort={() => sorts.timeline, (sort) => setSort('timeline', sort)}
+			/>
+		</div>
 	{:else if tab === 'material' || tab === 'author' || tab === 'location'}
 		{@const kind = tab}
 		{#key kind}
-			<CardIndexList
-				empty={m.cardIndex.emptyList[kind]}
-				href={(id) => valuePath(kind, id)}
-				records={listed(kind)}
-				searchLabel={m.cardIndex.search[kind]}
-				sorts={sortsOf(kind)}
-				bind:query
-				bind:sort={() => sorts[kind], (sort) => setSort(kind, sort)}
-			/>
+			<div class="tab">
+				{@render adds([kind])}
+				<CardIndexList
+					empty={m.cardIndex.emptyList[kind]}
+					href={(id) => valuePath(kind, id)}
+					records={listed(kind)}
+					searchLabel={m.cardIndex.search[kind]}
+					sorts={sortsOf(kind)}
+					bind:query
+					bind:sort={() => sorts[kind], (sort) => setSort(kind, sort)}
+				/>
+			</div>
 		{/key}
 	{:else if tab === 'events'}
 		<CardIndexEvents
@@ -124,3 +143,17 @@
 		<OwnFieldsTab error={own.error} fields={own.fields} onchanged={ownFieldsChanged} />
 	{/if}
 </Tabs>
+
+<style>
+	.tab {
+		display: grid;
+		gap: var(--spacing-6);
+	}
+
+	.add {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+		gap: var(--spacing-3);
+	}
+</style>

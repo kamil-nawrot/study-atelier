@@ -133,3 +133,9 @@ export function changeOwnValue(value: OwnValue, change: OwnValueChange): Promise
 	}
 	return Promise.resolve({});
 }
+
+export function addOwnValue(field: OwnField, name: string): Promise<ActionResult> {
+	return run(
+		supabase.from('category_values').insert({ category_code: field.id, name: name.trim() })
+	);
+}

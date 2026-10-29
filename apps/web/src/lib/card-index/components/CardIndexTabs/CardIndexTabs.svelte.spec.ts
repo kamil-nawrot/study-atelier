@@ -71,6 +71,25 @@ describe('CardIndexTabs', () => {
 			.toHaveValue('country');
 	});
 
+	it('offers to add a value on every tab of values', async () => {
+		renderTabs('timeline');
+
+		await expect
+			.element(page.getByRole('link', { name: m.cardIndex.add.period }))
+			.toHaveAttribute('href', '/atelier/values/period/new');
+		await expect
+			.element(page.getByRole('link', { name: m.cardIndex.add.style }))
+			.toHaveAttribute('href', '/atelier/values/style/new');
+	});
+
+	it('offers to add an author on the authors tab', async () => {
+		renderTabs('author');
+
+		await expect
+			.element(page.getByRole('link', { name: m.cardIndex.add.author }))
+			.toHaveAttribute('href', '/atelier/values/author/new');
+	});
+
 	it('finds a style in the timeline under its era and period', async () => {
 		renderTabs('timeline');
 

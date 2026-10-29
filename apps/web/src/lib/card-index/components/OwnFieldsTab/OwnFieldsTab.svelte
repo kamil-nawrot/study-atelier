@@ -23,6 +23,7 @@
 	} from '#lib/card-index/card-index-sort/card-index-sort.ts';
 	import OwnFieldDialog from '#lib/card-index/components/OwnFieldDialog/OwnFieldDialog.svelte';
 	import OwnValueDialog from '#lib/card-index/components/OwnValueDialog/OwnValueDialog.svelte';
+	import NewOwnValueDialog from '#lib/card-index/components/NewOwnValueDialog/NewOwnValueDialog.svelte';
 	import type { OwnField } from '#lib/card-index/types/own-field.ts';
 	import type { OwnValue } from '#lib/card-index/types/own-value.ts';
 
@@ -43,6 +44,7 @@
 	let deleteOpen = $state(false);
 	let deleting = $state(false);
 	let valueOpen = $state(false);
+	let newValueOpen = $state(false);
 	let valueField = $state<OwnField>();
 	let chosenValue = $state<OwnValue>();
 	let failure = $state<string>();
@@ -197,6 +199,17 @@
 					<p class="lead">{m.ownFields.noValues}</p>
 				{:else if field.kind === 'list'}
 					<Disclosure count={field.values.length} level={3} open={false} title={m.ownFields.values}>
+						<div class="add-value">
+							<Button
+								onclick={() => {
+									valueField = field;
+									newValueOpen = true;
+								}}
+							>
+								<Icon icon={Plus} />
+								{m.ownFields.addValue}
+							</Button>
+						</div>
 						<CardIndexList
 							empty={m.ownFields.noValues}
 							onchoose={(id) => chooseValue(field, id)}
@@ -216,6 +229,7 @@
 <OwnFieldDialog {edited} {fields} onsaved={onchanged} bind:open={fieldOpen} />
 
 <OwnValueDialog field={valueField} onsaved={valueSaved} value={chosenValue} bind:open={valueOpen} />
+<NewOwnValueDialog field={valueField} onsaved={valueSaved} bind:open={newValueOpen} />
 
 <Dialog
 	description={deleted ? m.ownFields.deleteConfirm.description(deleted.count) : undefined}
@@ -234,6 +248,11 @@
 </Dialog>
 
 <style>
+	.add-value {
+		display: flex;
+		justify-content: flex-end;
+	}
+
 	.own-fields {
 		display: grid;
 		gap: var(--spacing-8);

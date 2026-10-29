@@ -43,6 +43,9 @@ begin
     'used_category_values misses a place used only by a visit';
   assert (select count(*) from public.used_category_values() where category_code = 'author') = 2,
     'used_category_values repeats or misses an author';
+  insert into public.category_values (category_code, name) values ('material', 'Tempera');
+  assert exists (select 1 from public.used_category_values() where category_code = 'material' and name = 'Tempera'),
+    'used_category_values misses a value no artwork uses yet';
 end;
 $$;
 

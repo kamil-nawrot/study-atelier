@@ -4,6 +4,7 @@ import { m } from '#lib/i18n/i18n.ts';
 import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
+	createValue,
 	deleteValue,
 	loadCardIndex,
 	loadOwnValues,
@@ -444,6 +445,33 @@ describe('loadValuePageContent', () => {
 
 		await expect(loadValuePageContent('p1')).resolves.toEqual({
 			content: { hasContent: false, ownImagePath: undefined }
+		});
+	});
+});
+
+describe('createValue', () => {
+	beforeEach(() => vi.clearAllMocks());
+
+	it('adds a value of the category and gives its id', async () => {
+		const query = { insert: vi.fn(), select: vi.fn(), single: vi.fn() };
+		query.insert.mockReturnValue(query);
+		query.select.mockReturnValue(query);
+		query.single.mockResolvedValue({ data: { id: 'material-new' }, error: null });
+		vi.mocked(supabase.from).mockReturnValue(query as never);
+
+		await expect(createValue('material', ' Tempera ')).resolves.toEqual({ id: 'material-new' });
+		expect(query.insert).toHaveBeenCalledWith({ category_code: 'material', name: 'Tempera' });
+	});
+
+	it('says why a value could not be added', async () => {
+		const query = { insert: vi.fn(), select: vi.fn(), single: vi.fn() };
+		query.insert.mockReturnValue(query);
+		query.select.mockReturnValue(query);
+		query.single.mockResolvedValue({ data: null, error: { code: 'XX000', message: 'boom' } });
+		vi.mocked(supabase.from).mockReturnValue(query as never);
+
+		await expect(createValue('material', 'Tempera')).resolves.toEqual({
+			error: m.common.unexpectedError
 		});
 	});
 });
