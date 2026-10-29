@@ -1,9 +1,11 @@
 <script lang="ts">
+	import { Tooltip } from '@study-atelier/ui';
 	import { formatDate } from '#lib/catalogue/years/years.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { layEvents } from '#lib/timeline/event-lanes/event-lanes.ts';
 	import type { LaidEvent } from '#lib/timeline/types/laid-event.ts';
 	import { cutLabel } from '#lib/timeline/labels/labels.ts';
+	import { NAME_MAX_WIDTH } from '#lib/timeline/label-width/label-width.ts';
 	import { boxStyle } from '#lib/timeline/stage/stage.ts';
 	import type { StageGeometry } from '#lib/timeline/types/stage-geometry.ts';
 	import type { Era } from '#lib/timeline/types/era.ts';
@@ -16,12 +18,22 @@
 		lanes: number;
 		selected: string | null;
 		labelWidth: (event: TimelineEvent) => number;
+		nameCut?: (event: TimelineEvent) => boolean;
 		onselect: (event: TimelineEvent) => void;
 		layoutSpan?: number;
 	};
 
-	let { events, era, geometry, lanes, selected, labelWidth, onselect, layoutSpan }: Props =
-		$props();
+	let {
+		events,
+		era,
+		geometry,
+		lanes,
+		selected,
+		labelWidth,
+		nameCut = () => false,
+		onselect,
+		layoutSpan
+	}: Props = $props();
 
 	const VISIBLE_MARGIN = 400;
 	const MIN_RIBBON = 2;
@@ -58,7 +70,28 @@
 	function across(item: LaidEvent): number {
 		return geometry.eventsFrom + item.lane * geometry.lane;
 	}
+
+	function placement(item: LaidEvent): 'top' | 'bottom' | 'left' {
+		if (vertical) return 'left';
+		return item.lane === 0 ? 'bottom' : 'top';
+	}
 </script>
+
+{#snippet name(shown: (typeof visible)[number])}
+	{#if nameCut(shown.item.event)}
+		<Tooltip
+			align={shown.from > geometry.length / 2 ? 'end' : 'start'}
+			placement={placement(shown.item)}
+			text={shown.item.event.name}
+		>
+			<span style:max-inline-size="{NAME_MAX_WIDTH}px" class="name" aria-hidden="true"
+				>{label(shown.item)}</span
+			>
+		</Tooltip>
+	{:else}
+		<span class="name" aria-hidden="true">{label(shown.item)}</span>
+	{/if}
+{/snippet}
 
 {#if events.length === 0 && !vertical}
 	<p
@@ -82,7 +115,7 @@
 			type="button"
 		>
 			<span class="diamond" aria-hidden="true"></span>
-			<span class="name" aria-hidden="true">{label(shown.item)}</span>
+			{@render name(shown)}
 		</button>
 	{:else}
 		{@const from = Math.max(shown.from, -4)}
@@ -102,7 +135,7 @@
 			onclick={() => onselect(shown.item.event)}
 			type="button"
 		>
-			<span class="name" aria-hidden="true">{label(shown.item)}</span>
+			{@render name(shown)}
 		</button>
 	{/if}
 {/each}
@@ -165,6 +198,12 @@
 		border-left: 0;
 	}
 
+	.name {
+		box-sizing: content-box;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
 	.ribbon .name {
 		padding-inline: var(--spacing-2);
 	}
@@ -174,12 +213,14 @@
 		padding: var(--spacing-2) 0;
 	}
 
-	.ribbon.outside .name {
+	.ribbon.outside > .name,
+	.ribbon.outside > :global(.tooltip) {
 		position: absolute;
 		left: 100%;
 	}
 
-	.ribbon.vertical.outside .name {
+	.ribbon.vertical.outside > .name,
+	.ribbon.vertical.outside > :global(.tooltip) {
 		top: 100%;
 		left: auto;
 	}
@@ -214,6 +255,11 @@
 
 	.pin.selected .diamond {
 		background: var(--color-highlight);
+	}
+
+	.ribbon:hover,
+	.pin:hover {
+		z-index: 3;
 	}
 
 	.ribbon:focus-visible,

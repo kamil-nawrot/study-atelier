@@ -46,7 +46,7 @@
 		tagLane,
 		timelineTags
 	} from '#lib/timeline/filter/filter.ts';
-	import { labelWidth as measureLabel } from '#lib/timeline/label-width/label-width.ts';
+	import { labelCut, labelWidth as measureLabel } from '#lib/timeline/label-width/label-width.ts';
 	import EraStrip from '#lib/timeline/components/EraStrip/EraStrip.svelte';
 	import EventCard from '#lib/timeline/components/EventCard/EventCard.svelte';
 	import EventDeleteDialog from '#lib/timeline/components/EventDeleteDialog/EventDeleteDialog.svelte';
@@ -83,6 +83,7 @@
 	const NOW_SHARE = 40;
 	const SPOKEN_DELAY_MS = 500;
 	const labelWidth = (event: TimelineEvent): number => measureLabel(event.name);
+	const nameCut = (event: TimelineEvent): boolean => labelCut(event.name);
 
 	const start = untrack(() => {
 		const first = eraOf(initialEra, undefined, entriesSpan([...artworks, ...events]));
@@ -275,6 +276,7 @@
 						{labelWidth}
 						{lanes}
 						layoutSpan={camera.target.span}
+						{nameCut}
 						onselect={(event) => toggle('event', event.id)}
 						selected={selected?.kind === 'event' ? selected.id : null}
 					/>

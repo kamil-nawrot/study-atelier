@@ -596,7 +596,7 @@ export const TIMELINE_EVENTS = [
 	{
 		id: '00000000-0000-4000-8000-000000000302',
 		owner_id: USER.id,
-		name: 'Wystąpienie Lutra',
+		name: 'Wystąpienie Lutra i początek reformacji w Wittenberdze',
 		year_from: null,
 		year_to: 1517,
 		year_approximate: false,
