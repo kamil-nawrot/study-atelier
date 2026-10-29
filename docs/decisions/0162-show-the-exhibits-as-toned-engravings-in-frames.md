@@ -26,14 +26,13 @@ Chosen by the owner: the toned engravings in a frame.
 - The frame grows with the metal (a thin dark rim, bronze, silver, a gilded and a platinum frame), and a CSS light from above inside the frame gets stronger with it. An exhibit without a tier shows its image strongly blurred.
 - The description holds only the extra story and the curiosities, behind a quiet `StageButton` in the corner (the style of the loupe and pins buttons, now a library component); what an exhibit counts is in its counter under the bar ("191 z 250 dzieł w atelier", "… · najwyższy poziom" at the top), and a found hidden exhibit says what it was awarded for.
 - "Mona Lisa po powrocie" becomes a third hidden single-tier exhibit worth 50 points once; stored higher tiers are removed.
-- The objects follow the images: Świątynia della Tosse, Święty Hieronim w pracowni, Globus podróżnika, Teleskop Mathieu Laensbergha, Biblioteka w Lejdzie, Camera obscura z Encyklopedii and Puchar Nemezis.
+- The objects follow the images: Świątynia della Tosse, Święty Hieronim w pracowni, Globus podróżnika, Teleskop Mathieu Laensbergha, Biblioteka w Lejdzie, Camera obscura z Encyklopedii, Salon w Luwrze and Puchar Nemezis.
 
 ### Consequences
 
 - Good: the images look like toned prints and every exhibit reads the same way.
 - Good: no SVG filters and no line threshold to tune.
 - Bad: about 2 MB of WebP images in the app; a new object needs five prepared images.
-- Bad: "Przewodnik Baedekera" has no image yet and shows an empty frame.
 
 ## More information
 

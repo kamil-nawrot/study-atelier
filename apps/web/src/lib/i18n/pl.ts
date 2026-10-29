@@ -1360,8 +1360,9 @@ export const pl = {
 				awarded: 'Za dzieło zapomniane i utrwalone na nowo.'
 			},
 			chronicle: {
-				name: 'Przewodnik Baedekera',
-				about: 'Od XIX wieku przewodniki Baedekera prowadziły podróżnych po muzeach Europy.',
+				name: 'Salon w Luwrze',
+				about:
+					'Rycina Pietra Antonia Martiniego pokazuje paryski Salon w Luwrze w 1787 roku, gdzie obrazy wisiały od podłogi aż po sufit.',
 				count: counter('odwiedzonych miejsc')
 			},
 			grand_tour: {

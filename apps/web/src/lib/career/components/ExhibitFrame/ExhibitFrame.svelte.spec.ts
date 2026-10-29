@@ -14,7 +14,7 @@ describe('ExhibitFrame', () => {
 
 	it('keeps an empty frame for an exhibit without an engraving', async () => {
 		const { container } = await render(ExhibitFrame, {
-			props: { code: 'chronicle', metal: 'none' }
+			props: { code: 'unknown', metal: 'none' }
 		});
 
 		expect(container.querySelector('.frame.none')).not.toBeNull();

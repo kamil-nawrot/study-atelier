@@ -3,6 +3,11 @@ import type { ExhibitArt } from '#lib/career/types/exhibit-art.ts';
 import type { Metal } from '#lib/career/types/metal.ts';
 
 export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
+	chronicle: {
+		credit: 'Pietro Antonio Martini, „Exposition au Salon du Louvre en 1787”',
+		licence: 'CC0',
+		commonsFile: 'Exposition au Salon du Louvre en 1787 Met DP-15578-001.jpg'
+	},
 	collection: {
 		credit: 'Frontyspis „Musei Wormiani Historia”, 1655',
 		licence: 'domena publiczna',
