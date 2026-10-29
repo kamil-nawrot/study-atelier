@@ -153,6 +153,47 @@ describe('glossary page', () => {
 		await expect.element(page.getByText(m.glossary.noResults('qqq'))).toBeVisible();
 	});
 
+	it('offers an index of letters from twenty entries and jumps to a letter', async () => {
+		const entries = Array.from({ length: 26 * 3 }, (_, position) =>
+			testEntry(`entry-${position}`, `${String.fromCharCode(65 + (position % 26))}rch ${position}`)
+		);
+		renderGlossary(entries);
+		const index = page.getByRole('navigation', { name: m.glossary.letters });
+
+		await expect
+			.element(index.getByRole('button', { name: 'A', exact: true }))
+			.toHaveAttribute('aria-current', 'true');
+		await index.getByRole('button', { name: 'K', exact: true }).click();
+
+		await expect
+			.poll(() => document.getElementById('letter-K')?.getBoundingClientRect().top ?? 1000)
+			.toBeLessThan(120);
+		await expect
+			.element(index.getByRole('button', { name: 'K', exact: true }))
+			.toHaveAttribute('aria-current', 'true');
+	});
+
+	it('offers no index of letters below twenty entries', async () => {
+		renderGlossary(manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES - 1));
+
+		await expect.element(entryLink('Tympanum')).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('navigation', { name: m.glossary.letters }))
+			.not.toBeInTheDocument();
+	});
+
+	it('keeps in the index only the letters the search leaves', async () => {
+		renderGlossary([...manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES), testEntry('apse', 'Apsyda')]);
+
+		await page.getByRole('searchbox').fill('a');
+		const index = page.getByRole('navigation', { name: m.glossary.letters });
+
+		await expect.element(index.getByRole('button', { name: 'A', exact: true })).toBeInTheDocument();
+		await expect.element(index.getByRole('button', { name: 'T', exact: true })).toBeInTheDocument();
+		await page.getByRole('searchbox').fill('aps');
+		await expect.element(index).not.toBeInTheDocument();
+	});
+
 	it('says the glossary is empty and offers no categories', async () => {
 		renderGlossary([]);
 
