@@ -1119,6 +1119,7 @@ export const pl = {
 		}
 	},
 	glossary: {
+		letters: 'Litery',
 		title: 'Słowniczek',
 		count: (count: number): string =>
 			`${count} ${plural(count, { one: 'pojęcie', few: 'pojęcia', many: 'pojęć' })}`,
