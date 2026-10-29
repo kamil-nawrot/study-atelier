@@ -1,3 +1,5 @@
+import { fontLoads } from '#lib/timeline/font-load/font-load.svelte.ts';
+
 export const NAME_MAX_WIDTH = 200;
 
 const LABEL_FONT = 14;
@@ -5,17 +7,7 @@ const FALLBACK_CHAR = 8;
 
 let widths: Record<string, number> = {};
 let measure: CanvasRenderingContext2D | null | undefined;
-let fontsLoaded = $state(0);
-
-export function measureAgainWhenFontsLoad(fonts: FontFaceSet | undefined): void {
-	void fonts?.ready.then(() => {
-		widths = {};
-		measure = undefined;
-		fontsLoaded += 1;
-	});
-}
-
-if (typeof document !== 'undefined') measureAgainWhenFontsLoad(document.fonts);
+let measuredAfter = 0;
 
 function context(): CanvasRenderingContext2D | null {
 	if (measure === undefined) {
@@ -26,7 +18,11 @@ function context(): CanvasRenderingContext2D | null {
 }
 
 function measured(name: string): number {
-	void fontsLoaded;
+	if (measuredAfter !== fontLoads()) {
+		measuredAfter = fontLoads();
+		widths = {};
+		measure = undefined;
+	}
 	const known = widths[name];
 	if (known !== undefined) return known;
 	const canvas = context();

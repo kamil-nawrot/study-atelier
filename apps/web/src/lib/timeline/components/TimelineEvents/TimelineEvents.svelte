@@ -5,7 +5,7 @@
 	import { layEvents } from '#lib/timeline/event-lanes/event-lanes.ts';
 	import type { LaidEvent } from '#lib/timeline/types/laid-event.ts';
 	import { cutLabel } from '#lib/timeline/labels/labels.ts';
-	import { NAME_MAX_WIDTH } from '#lib/timeline/label-width/label-width.svelte.ts';
+	import { NAME_MAX_WIDTH } from '#lib/timeline/label-width/label-width.ts';
 	import { nameTooltipAlign } from '#lib/timeline/name-tooltip/name-tooltip.ts';
 	import { boxStyle } from '#lib/timeline/stage/stage.ts';
 	import type { StageGeometry } from '#lib/timeline/types/stage-geometry.ts';

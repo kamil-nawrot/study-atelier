@@ -1,11 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { flushSync } from 'svelte';
-import {
-	labelCut,
-	labelWidth,
-	measureAgainWhenFontsLoad,
-	NAME_MAX_WIDTH
-} from './label-width.svelte.ts';
+import { fontLoads } from '#lib/timeline/font-load/font-load.svelte.ts';
+import { labelCut, labelWidth, NAME_MAX_WIDTH } from './label-width.ts';
+
+vi.mock('#lib/timeline/font-load/font-load.svelte.ts', () => ({ fontLoads: vi.fn(() => 0) }));
 
 function canvas(charWidth: number): void {
 	vi.stubGlobal('document', {
@@ -32,20 +29,13 @@ describe('label width', () => {
 		expect(labelCut('x'.repeat(40))).toBe(true);
 	});
 
-	it('measures the names again once the web font has loaded', async () => {
+	it('measures the names again once the web font has loaded', () => {
 		canvas(10);
-		let loaded: () => void = () => {};
-		measureAgainWhenFontsLoad({
-			ready: new Promise<void>((done) => (loaded = done))
-		} as unknown as FontFaceSet);
 		expect(labelWidth('Unia')).toBe(54);
 
 		canvas(20);
 		expect(labelWidth('Unia')).toBe(54);
-		loaded();
-		await Promise.resolve();
-		await Promise.resolve();
-		flushSync();
+		vi.mocked(fontLoads).mockReturnValue(1);
 		expect(labelWidth('Unia')).toBe(94);
 	});
 });
