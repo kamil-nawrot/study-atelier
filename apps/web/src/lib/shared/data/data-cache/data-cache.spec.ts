@@ -76,10 +76,10 @@ describe('cached', () => {
 	it('never gives one learner the answer loaded for another', async () => {
 		cacheForLearner('learner-a');
 		forgetCached();
-		let finish: (value: { rows: string[] }) => void = () => {};
+		let finish: (value: { rows: string[]; error?: string }) => void = () => {};
 		const slow = cached(
 			'atelier',
-			() => new Promise<{ rows: string[] }>((done) => (finish = done))
+			() => new Promise<{ rows: string[]; error?: string }>((done) => (finish = done))
 		);
 		cacheForLearner(undefined);
 		cacheForLearner('learner-b');
