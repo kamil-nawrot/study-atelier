@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
+import '@study-atelier/ui/styles.css';
 import { render } from 'vitest-browser-svelte';
-import type { WallArtwork } from '#lib/collection/types.ts';
-import { m } from '#lib/i18n/index.ts';
-import { testArtwork } from '#lib/testing/artworks.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import type { TimelineEvent } from '#lib/timeline/types.ts';
-import { deleteTimelineEvent } from '#lib/timeline/timeline-data.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
+import { deleteTimelineEvent } from '#lib/timeline/timeline-data/timeline-data.ts';
 import { invalidateAll } from '$app/navigation';
 import TimelinePage from './+page.svelte';
 
@@ -16,10 +17,16 @@ const navigation = vi.hoisted(() => ({
 	data: {}
 }));
 
-vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
+vi.mock('$app/state', () => ({
+	page: navigation,
+	navigating: { to: null },
+	updated: { current: false }
+}));
 vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidateAll: vi.fn() }));
-vi.mock('#lib/timeline/timeline-data.ts', () => ({ deleteTimelineEvent: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/timeline/timeline-data/timeline-data.ts', () => ({ deleteTimelineEvent: vi.fn() }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const ERA_KEY = 'study-atelier:timeline-era';
 
@@ -38,7 +45,10 @@ function renderTimeline(
 	error?: string,
 	events: TimelineEvent[] = []
 ): void {
-	render(TimelinePage, { data: { session: testSession(), artworks, events, error }, params: {} });
+	render(TimelinePage, {
+		data: { session: testSession(), artworks, events, error, empty: false },
+		params: {}
+	});
 }
 
 async function press(locator: ReturnType<typeof page.getByRole>): Promise<void> {
@@ -246,13 +256,26 @@ describe('timeline page', () => {
 			.toBeInTheDocument();
 	});
 
+	it('shows an empty Kalendarium instead of the timeline when nothing has a year', async () => {
+		render(TimelinePage, {
+			data: { session: testSession(), artworks: [], events: [], error: undefined, empty: true },
+			params: {}
+		});
+
+		await expect.element(page.getByText(m.timeline.emptyTitle)).toBeVisible();
+		await expect.element(stage()).not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: m.atelier.filters.button }))
+			.not.toBeInTheDocument();
+	});
+
 	it('says when there are no events yet', async () => {
 		renderTimeline([testArtwork(1, 'Mona Lisa', { yearTo: 1519 })]);
 
 		await expect.element(page.getByText(m.timeline.noEvents)).toBeVisible();
 	});
 
-	it('shows the events of the era and names those at the reading line', async () => {
+	it('shows the events of the era and names those at the reading line only for a screen reader', async () => {
 		renderTimeline([testArtwork(1, 'Mona Lisa', { yearTo: 1519 })], undefined, [
 			testEvent('thirty', 'Wojna trzydziestoletnia', 1618, 1648),
 			testEvent('america', 'Odkrycie Ameryki', null, 1492),
@@ -268,11 +291,39 @@ describe('timeline page', () => {
 		await expect
 			.element(page.getByRole('button', { name: /Wojny napoleońskie/ }))
 			.not.toBeInTheDocument();
-		await expect
-			.element(
-				page.getByText(m.timeline.now('1640', [m.timeline.nowEvents('Wojna trzydziestoletnia')]))
+		const spoken = m.timeline.now('1640', [m.timeline.nowEvents('Wojna trzydziestoletnia')]);
+		await vi.waitFor(() =>
+			expect(document.querySelector('[aria-live="polite"].visually-hidden')?.textContent).toBe(
+				spoken
 			)
-			.toBeVisible();
+		);
+		expect(
+			[...document.querySelectorAll('p')].filter(
+				(paragraph) =>
+					paragraph.textContent === spoken && !paragraph.classList.contains('visually-hidden')
+			)
+		).toHaveLength(0);
+	});
+
+	it('cuts a long event name to 200 px and shows it whole in a tooltip', async () => {
+		const long = 'Pokój westfalski kończący wojnę trzydziestoletnią w Rzeszy';
+		renderTimeline([testArtwork(1, 'Mona Lisa', { yearTo: 1519 })], undefined, [
+			testEvent('treaty', long, null, 1648),
+			testEvent('america', 'Odkrycie Ameryki', null, 1492)
+		]);
+
+		const treaty = page.getByRole('button', { name: `${long}, 1648` });
+		await expect.element(treaty).toBeInTheDocument();
+		const name = treaty.element().querySelector('.name') as HTMLElement;
+		expect(name.getBoundingClientRect().width).toBeLessThanOrEqual(200);
+		expect(name.scrollWidth).toBeGreaterThan(name.clientWidth);
+		expect(treaty.element().querySelector('[role="tooltip"]')?.textContent).toBe(long);
+		expect(
+			page
+				.getByRole('button', { name: 'Odkrycie Ameryki, 1492' })
+				.element()
+				.querySelector('[role="tooltip"]')
+		).toBeNull();
 	});
 
 	it('opens the card of a chosen period with its artworks and its length', async () => {
@@ -296,7 +347,7 @@ describe('timeline page', () => {
 		await expect.element(card.getByRole('button', { name: 'Straż nocna' })).toBeVisible();
 		await expect.element(card.getByRole('button', { name: 'Mona Lisa' })).not.toBeInTheDocument();
 		await expect
-			.element(card.getByRole('link', { name: m.timeline.card.edit }))
+			.element(card.getByRole('link', { name: m.common.edit }))
 			.toHaveAttribute('href', '/atelier/timeline/events/thirty/edit');
 
 		await card.getByRole('button', { name: m.timeline.card.showWhole }).click();
@@ -360,14 +411,14 @@ describe('timeline page', () => {
 		await press(
 			page
 				.getByRole('region', { name: m.timeline.card.event })
-				.getByRole('button', { name: m.timeline.card.delete })
+				.getByRole('button', { name: m.common.delete })
 		);
 		const dialog = page.getByRole('alertdialog');
 		await expect
 			.element(dialog.getByText(m.timeline.deleteConfirm.title('Pokój westfalski')))
 			.toBeVisible();
 		await expect.element(dialog.getByText(m.timeline.deleteConfirm.description)).toBeVisible();
-		await press(dialog.getByRole('button', { name: m.timeline.deleteConfirm.confirm }));
+		await press(dialog.getByRole('button', { name: m.common.delete }));
 
 		await vi.waitFor(() => expect(deleteTimelineEvent).toHaveBeenCalledWith('treaty'));
 		await vi.waitFor(() => expect(invalidateAll).toHaveBeenCalled());
@@ -382,12 +433,10 @@ describe('timeline page', () => {
 		await press(
 			page
 				.getByRole('region', { name: m.timeline.card.event })
-				.getByRole('button', { name: m.timeline.card.delete })
+				.getByRole('button', { name: m.common.delete })
 		);
 		await expect.element(page.getByRole('alertdialog')).toBeVisible();
-		await press(
-			page.getByRole('alertdialog').getByRole('button', { name: m.timeline.deleteConfirm.confirm })
-		);
+		await press(page.getByRole('alertdialog').getByRole('button', { name: m.common.delete }));
 
 		await expect
 			.element(page.getByRole('alertdialog').getByText(m.common.unexpectedError))
@@ -420,6 +469,15 @@ describe('timeline page', () => {
 			.toHaveAttribute('aria-pressed', 'true');
 		expect(localStorage.getItem(ERA_KEY)).toBe('modern');
 		navigation.state = {};
+	});
+
+	it('says above the stage on a phone that there are no events yet', async () => {
+		await page.viewport(390, 844);
+		renderTimeline([testArtwork(1, 'Mona Lisa', { yearTo: 1519 })]);
+
+		await expect.element(stage()).toHaveAttribute('aria-orientation', 'vertical');
+		await expect.element(page.getByText(m.timeline.noEvents)).toBeVisible();
+		expect(stage().element().textContent).not.toContain(m.timeline.noEvents);
 	});
 
 	it('runs time from top to bottom on a phone', async () => {
@@ -532,13 +590,100 @@ describe('timeline page', () => {
 		const panel = page.getByRole('complementary', { name: m.atelier.filters.title });
 		await press(panel.getByRole('switch', { name: m.timeline.filters.readingArtworks }));
 		await press(page.getByRole('button', { name: 'Stulecie', exact: true }));
-		await expect.element(page.getByText(/dzieła: Straż nocna/)).toBeInTheDocument();
+		await expect.element(page.getByText(m.timeline.readingArtworks)).toBeVisible();
+		const title = page.getByRole('button', { name: 'Straż nocna', exact: true });
+		await expect.element(title).toBeVisible();
+		await title.click();
+		await expect
+			.element(page.getByRole('button', { name: 'Straż nocna, 1600–1700' }))
+			.toHaveAttribute('aria-pressed', 'true');
 
 		await press(panel.getByRole('switch', { name: m.timeline.filters.events }));
 		await expect
 			.element(page.getByRole('button', { name: /Wojna trzydziestoletnia/ }))
 			.not.toBeInTheDocument();
 		await expect.element(page.getByText(/w tym czasie/)).not.toBeInTheDocument();
+	});
+
+	it('names the year and speaks the artworks at the reading line when no event is there', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		renderTimeline([
+			testArtwork(1, 'Straż nocna', { yearFrom: 1600, yearTo: 1700, date: '1600–1700' })
+		]);
+		const live = (): string =>
+			document.querySelector('[aria-live="polite"].visually-hidden')?.textContent ?? '';
+
+		await press(page.getByRole('button', { name: m.atelier.filters.button }));
+		await press(
+			page
+				.getByRole('complementary', { name: m.atelier.filters.title })
+				.getByRole('switch', { name: m.timeline.filters.readingArtworks })
+		);
+		await press(page.getByRole('button', { name: 'Stulecie', exact: true }));
+
+		await expect
+			.element(page.getByRole('button', { name: 'Straż nocna', exact: true }))
+			.toBeVisible();
+		await vi.waitFor(() =>
+			expect(live()).toBe(m.timeline.now('1640', [m.timeline.nowArtworks('Straż nocna', -2)]))
+		);
+	});
+
+	it('lists a work that spans the reading line first and counts the rest', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		renderTimeline([
+			testArtwork(1, 'Straż nocna', { yearTo: 1642, date: '1642' }),
+			testArtwork(2, 'Las Meninas', { yearTo: 1638, date: '1638' }),
+			testArtwork(3, 'Ekstaza św. Teresy', { yearTo: 1641, date: '1641' }),
+			testArtwork(4, 'Pejzaż', { yearTo: 1639, date: '1639' }),
+			testArtwork(5, 'Kościół', { yearFrom: 1600, yearTo: 1700, date: '1600–1700' })
+		]);
+		await press(page.getByRole('button', { name: m.atelier.filters.button }));
+		await press(
+			page
+				.getByRole('complementary', { name: m.atelier.filters.title })
+				.getByRole('switch', { name: m.timeline.filters.readingArtworks })
+		);
+		await press(page.getByRole('button', { name: 'Stulecie', exact: true }));
+		await expect.element(stage()).toHaveAttribute('aria-valuenow', '1640');
+
+		const row = page.getByRole('list').filter({ hasText: 'Kościół' });
+		await expect.element(row).toBeVisible();
+		const titles = Array.from(row.element().querySelectorAll('cite'), (cite) => cite.textContent);
+		expect(titles).toHaveLength(3);
+		expect(titles[0]).toBe('Kościół');
+		await expect.element(page.getByText(m.timeline.readingMore(2), { exact: true })).toBeVisible();
+	});
+
+	it('leaves room around the artworks at the reading line for the focus outline', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		renderTimeline([
+			testArtwork(1, 'Straż nocna', { yearFrom: 1600, yearTo: 1700, date: '1600–1700' })
+		]);
+		await press(page.getByRole('button', { name: m.atelier.filters.button }));
+		await press(
+			page
+				.getByRole('complementary', { name: m.atelier.filters.title })
+				.getByRole('switch', { name: m.timeline.filters.readingArtworks })
+		);
+		await press(page.getByRole('button', { name: 'Stulecie', exact: true }));
+		const title = page.getByRole('button', { name: 'Straż nocna', exact: true });
+		await expect.element(title).toBeVisible();
+
+		const row = document.querySelector('.reading-artworks') as HTMLElement;
+		const outline = title.element().getBoundingClientRect();
+		const box = row.getBoundingClientRect();
+		const reach =
+			2 *
+				parseFloat(
+					getComputedStyle(document.documentElement).getPropertyValue('--border-width-base')
+				) +
+			parseFloat(
+				getComputedStyle(document.documentElement).getPropertyValue('--border-width-hairline')
+			);
+		expect(outline.top - reach).toBeGreaterThanOrEqual(box.top);
+		expect(outline.bottom + reach).toBeLessThanOrEqual(box.bottom);
+		expect(outline.left - reach).toBeGreaterThanOrEqual(box.left);
 	});
 
 	it('forgets a chosen event when the events are hidden', async () => {
@@ -605,5 +750,56 @@ describe('timeline page', () => {
 		await expect.element(stage()).toHaveAttribute('aria-valuenow', '1740');
 		expect(live()).toContain('Wojna trzydziestoletnia');
 		await vi.waitFor(() => expect(live()).not.toContain('Wojna trzydziestoletnia'));
+	});
+
+	it('says so under the stage when no artwork is at the reading line', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		renderTimeline([testArtwork(1, 'Straż nocna', { yearTo: 1642, date: '1642' })]);
+
+		await press(page.getByRole('button', { name: m.atelier.filters.button }));
+		await press(
+			page
+				.getByRole('complementary', { name: m.atelier.filters.title })
+				.getByRole('switch', { name: m.timeline.filters.readingArtworks })
+		);
+		await press(page.getByRole('button', { name: 'Pokolenie', exact: true }));
+
+		await expect.element(page.getByText(m.timeline.readingArtworksNone)).toBeVisible();
+	});
+
+	it('comes back at the same era, scale, place and filters', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		const artworks = [
+			testArtwork(1, 'Straż nocna', { yearTo: 1642, date: '1642', favourite: true })
+		];
+		const data = { session: testSession(), artworks, events: [], error: undefined, empty: false };
+		const first = await render(TimelinePage, { data, params: {} });
+		await page.getByRole('button', { name: 'Stulecie', exact: true }).click();
+		for (let press = 0; press < 2; press++)
+			stage()
+				.element()
+				.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+		await expect.element(stage()).toHaveAttribute('aria-valuenow', '1690');
+		await press(page.getByRole('button', { name: m.atelier.filters.button }));
+		await press(
+			page
+				.getByRole('complementary', { name: m.atelier.filters.title })
+				.getByRole('button', { name: /Ulubione/ })
+		);
+		const saved = first.component.snapshot.capture();
+		first.unmount();
+
+		localStorage.setItem(ERA_KEY, 'modern');
+		const second = await render(TimelinePage, { data, params: {} });
+		second.component.snapshot.restore(saved);
+
+		await expectEra('Nowożytność');
+		await expect.element(stage()).toHaveAttribute('aria-valuenow', '1690');
+		await expect
+			.element(page.getByRole('button', { name: 'Stulecie', exact: true }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect
+			.element(page.getByRole('list', { name: m.atelier.filters.activeLabel }))
+			.toHaveTextContent(m.atelier.filters.fields.favourites);
 	});
 });

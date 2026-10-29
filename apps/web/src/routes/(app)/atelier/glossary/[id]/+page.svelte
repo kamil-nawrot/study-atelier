@@ -1,16 +1,19 @@
 <script lang="ts">
-	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
-	import { Alert, Button, Dialog, Icon, Section, Toast } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, LoadFailure, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
-	import GlossaryView from '#lib/glossary/components/GlossaryView.svelte';
-	import { deleteGlossaryEntry } from '#lib/glossary/glossary-data.ts';
-	import { m } from '#lib/i18n/index.ts';
+	import ArtworkWall from '#lib/wall/components/ArtworkWall/ArtworkWall.svelte';
+	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
+	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
+	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+	import GlossaryView from '#lib/glossary/components/GlossaryView/GlossaryView.svelte';
+	import { deleteGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
+	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
+	import { m } from '#lib/i18n/i18n.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -22,7 +25,18 @@
 	let deleting = $state(false);
 	let deleteError = $state<string>();
 
+	const images = new WallImages();
+
 	let entry = $derived(data.entry);
+	let pinned = $derived(data.pinned ?? []);
+	let pinIds = $derived(new Map(pinned.map((item) => [item.artwork.id, item.pinId])));
+	let artworks = $derived(images.apply(pinned.map((item) => item.artwork)));
+
+	$effect.pre(() => {
+		void data.pinned;
+		images.reset();
+	});
+
 	let title = $derived(
 		entry
 			? entry.name
@@ -30,6 +44,12 @@
 				? m.glossary.view.notFoundTitle
 				: m.glossary.view.loadErrorTitle
 	);
+
+	function pinnedHref(artwork: WallArtwork): string {
+		const path = resolve('/(app)/atelier/[number]', { number: String(artwork.number) });
+		const pinId = pinIds.get(artwork.id);
+		return pinId ? `${path}?pin=${encodeURIComponent(pinId)}` : path;
+	}
 
 	onMount(() => {
 		const message = page.state.glossaryMessage;
@@ -67,46 +87,52 @@
 
 <AtelierLayout email={data.session.user.email ?? ''} {title}>
 	{#snippet bar()}
-		<a class="back" href={glossaryPath}>
-			<Icon icon={ArrowLeft} />
-			{m.glossary.back}
-		</a>
+		<BackLink fallbackHref={glossaryPath} fallbackName={m.glossary.back} />
 		{#if entry}
 			<Button
-				aria-label={m.glossary.view.edit}
+				aria-label={m.common.edit}
+				compact
 				href={resolve('/(app)/atelier/glossary/[id]/edit', { id: entry.id })}
+				icon={Pencil}
 			>
-				<Icon icon={Pencil} size="sm" />
-				<span class="label">
-					{m.glossary.view.edit}
-				</span>
+				{m.common.edit}
 			</Button>
-			<Button aria-label={m.glossary.view.delete} onclick={askToDelete} variant="danger">
-				<Icon icon={Trash} size="sm" />
-				<span class="label">
-					{m.glossary.view.delete}
-				</span>
+			<Button
+				aria-label={m.common.delete}
+				compact
+				icon={Trash}
+				onclick={askToDelete}
+				variant="danger"
+			>
+				{m.common.delete}
 			</Button>
 		{/if}
 	{/snippet}
 
 	{#if entry}
 		<GlossaryView entries={data.glossary} {entry} mentions={data.mentions} />
+		{#if data.pinnedError}
+			<Alert tone="danger">{m.pins.loadFailed}</Alert>
+		{/if}
+		{#if artworks.length > 0}
+			<section class="artworks" aria-labelledby="glossary-artworks">
+				<h2 id="glossary-artworks">{m.glossary.view.onArtworks}</h2>
+				<ArtworkWall
+					{artworks}
+					hrefOf={pinnedHref}
+					onimagefailed={(artwork) => images.failed(artwork)}
+					onnearscreen={(artwork) => images.request(artwork)}
+				/>
+			</section>
+		{/if}
 	{:else}
-		<Section>
-			{#if data.notFound}
-				<p class="lead">{m.glossary.view.notFound}</p>
-			{:else}
-				<Alert title={m.glossary.view.loadErrorTitle} tone="danger">
-					{data.error}
-				</Alert>
-			{/if}
-		</Section>
-		<div>
-			<Button href={glossaryPath}>
-				{m.glossary.back}
-			</Button>
-		</div>
+		<LoadFailure
+			backHref={glossaryPath}
+			backLabel={m.glossary.back}
+			errorTitle={m.glossary.view.loadErrorTitle}
+			message={data.notFound ? m.glossary.view.notFound : (data.error ?? '')}
+			notFound={data.notFound === true}
+		/>
 	{/if}
 </AtelierLayout>
 
@@ -128,34 +154,30 @@
 	>
 		{#snippet footer()}
 			<Button onclick={() => (deleteOpen = false)}>
-				{m.glossary.deleteConfirm.back}
+				{m.common.back}
 			</Button>
 			<Button disabled={deleting} onclick={remove} variant="primary">
-				{deleting ? m.glossary.deleteConfirm.deleting : m.glossary.deleteConfirm.confirm}
+				{deleting ? m.common.deleting : m.common.delete}
 			</Button>
 		{/snippet}
 	</Dialog>
 {/if}
 
 <style>
-	.back {
-		display: flex;
-		flex: 1;
-		align-items: center;
-		gap: var(--spacing-2);
-		color: var(--color-fg);
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-medium);
-		text-decoration: none;
+	.artworks {
+		display: grid;
+		gap: var(--spacing-6);
+		margin-top: var(--spacing-8);
+		padding-top: var(--spacing-6);
+		border-top: var(--border-width-hairline) solid var(--color-line);
 	}
 
-	.label {
-		display: none;
-	}
-
-	@media (min-width: 768px) {
-		.label {
-			display: inline;
-		}
+	h2 {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-xs);
+		font-weight: var(--font-weight-regular);
+		line-height: var(--line-height-xs);
+		letter-spacing: var(--letter-spacing-wide);
+		text-transform: uppercase;
 	}
 </style>

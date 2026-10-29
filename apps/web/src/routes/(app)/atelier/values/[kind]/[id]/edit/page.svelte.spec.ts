@@ -2,14 +2,19 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { beforeNavigate, goto } from '$app/navigation';
-import { loadValuePageContent, saveValue } from '#lib/collection/card-index-data.ts';
-import { findRecord } from '#lib/collection/card-index.ts';
-import type { ValueDetails, ValueSubject } from '#lib/collection/types.ts';
-import { emptyAuthorDetails } from '#lib/collection/author-form.ts';
-import { emptyValueDetails, saveValueDetails } from '#lib/collection/value-details.ts';
-import { m } from '#lib/i18n/index.ts';
-import { testCardIndex } from '#lib/testing/card-index.ts';
-import { testSession } from '#lib/testing/auth.ts';
+import {
+	loadValuePageContent,
+	saveValue
+} from '#lib/card-index/card-index-data/card-index-data.ts';
+import { findRecord } from '#lib/card-index/card-index/card-index.ts';
+import type { ValueDetails } from '#lib/values/types/value-details.ts';
+import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
+import { emptyAuthorDetails } from '#lib/values/author-form/author-form.ts';
+import { emptyValueDetails } from '#lib/values/value-details/value-details.ts';
+import { saveValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
 import EditValuePage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({
@@ -17,15 +22,20 @@ vi.mock('$app/navigation', () => ({
 	beforeNavigate: vi.fn(),
 	goto: vi.fn()
 }));
-vi.mock('#lib/collection/card-index-data.ts', () => ({
+vi.mock('#lib/card-index/card-index-data/card-index-data.ts', () => ({
+	createValue: vi.fn(),
 	saveValue: vi.fn(),
 	loadValuePageContent: vi.fn()
 }));
-vi.mock('#lib/collection/value-details.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/collection/value-details.ts')>()),
+vi.mock('#lib/values/value-details-data/value-details-data.ts', async (importOriginal) => ({
+	...(await importOriginal<
+		typeof import('#lib/values/value-details-data/value-details-data.ts')
+	>()),
 	saveValueDetails: vi.fn()
 }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 function subjectOf(id: string): ValueSubject {
 	const record = findRecord(testCardIndex(), id);
@@ -52,11 +62,11 @@ function renderEdit(
 }
 
 function saveButton(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('button', { name: m.valueForm.save, exact: true });
+	return page.getByRole('button', { name: m.common.save, exact: true });
 }
 
 function nameField(): ReturnType<typeof page.getByRole> {
-	return page.getByLabelText(m.valueForm.name);
+	return page.getByLabelText(m.common.name);
 }
 
 type Leave = Parameters<Parameters<typeof beforeNavigate>[0]>[0];
@@ -137,26 +147,26 @@ describe('edit value page', () => {
 	});
 
 	it('shows an error at the top when saving fails and stays on the form', async () => {
-		vi.mocked(saveValue).mockResolvedValue({ error: m.cardIndex.errors.network });
+		vi.mocked(saveValue).mockResolvedValue({ error: m.common.network });
 		renderEdit(subjectOf('style-doric'));
 
 		await nameField().fill('Doric order');
 		await saveButton().click();
 
 		await expect.element(page.getByText(m.valueForm.errorTitle)).toBeVisible();
-		await expect.element(page.getByText(m.cardIndex.errors.network)).toBeVisible();
+		await expect.element(page.getByText(m.common.network)).toBeVisible();
 		expect(goto).not.toHaveBeenCalled();
 	});
 
 	it('does not change the name when saving the details fails', async () => {
-		vi.mocked(saveValueDetails).mockResolvedValue({ error: m.cardIndex.errors.network });
+		vi.mocked(saveValueDetails).mockResolvedValue({ error: m.common.network });
 		renderEdit(subjectOf('style-doric'));
 
 		await nameField().fill('Doric order');
 		await page.getByLabelText(m.valueForm.summary).fill('Plain capitals.');
 		await saveButton().click();
 
-		await expect.element(page.getByText(m.cardIndex.errors.network)).toBeVisible();
+		await expect.element(page.getByText(m.common.network)).toBeVisible();
 		expect(saveValue).not.toHaveBeenCalled();
 	});
 
@@ -170,7 +180,7 @@ describe('edit value page', () => {
 		await expect
 			.element(page.getByRole('alertdialog', { name: m.artworkForm.discardTitle }))
 			.toBeVisible();
-		await expect.element(page.getByText(m.valueForm.discardDescription)).toBeVisible();
+		await expect.element(page.getByText(m.common.discardDescription)).toBeVisible();
 	});
 
 	it('leaves without asking when nothing changed', async () => {
@@ -187,14 +197,14 @@ describe('edit value page', () => {
 		await expect
 			.element(page.getByLabelText(m.valueForm.summary))
 			.toHaveAttribute('placeholder', m.valueForm.summaryPlaceholder);
-		expect(page.getByRole('button', { name: m.valuePage.delete }).elements()).toHaveLength(0);
+		expect(page.getByRole('button', { name: m.common.delete }).elements()).toHaveLength(0);
 	});
 
 	it('links Anuluj back to the value page', async () => {
 		renderEdit(subjectOf('material-marble'));
 
 		await expect
-			.element(page.getByRole('link', { name: m.valueForm.cancel }))
+			.element(page.getByRole('link', { name: m.common.cancel }))
 			.toHaveAttribute('href', '/atelier/values/material/material-marble');
 	});
 
@@ -269,7 +279,7 @@ describe('edit value page', () => {
 				)
 				.toBeVisible();
 			expect(saveValue).not.toHaveBeenCalled();
-			await confirm.getByRole('button', { name: m.cardIndex.mergeConfirm.confirm }).click();
+			await confirm.getByRole('button', { name: m.common.merge }).click();
 
 			expect(saveValue).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -289,10 +299,7 @@ describe('edit value page', () => {
 			await page.getByLabelText(m.valueForm.summary).fill('Typed here.');
 			await nameField().fill('Ionic');
 			await saveButton().click();
-			await page
-				.getByRole('alertdialog')
-				.getByRole('button', { name: m.cardIndex.mergeConfirm.confirm })
-				.click();
+			await page.getByRole('alertdialog').getByRole('button', { name: m.common.merge }).click();
 
 			expect(saveValue).toHaveBeenCalled();
 			expect(saveValueDetails).not.toHaveBeenCalled();
@@ -325,17 +332,17 @@ describe('edit value page', () => {
 		});
 
 		it('shows an error and does not ask to merge when the page content cannot be read', async () => {
-			vi.mocked(loadValuePageContent).mockResolvedValue({ error: m.cardIndex.errors.network });
+			vi.mocked(loadValuePageContent).mockResolvedValue({ error: m.common.network });
 			await renameTo('style-doric', 'Ionic');
 
-			await expect.element(page.getByText(m.cardIndex.errors.network)).toBeVisible();
+			await expect.element(page.getByText(m.common.network)).toBeVisible();
 			await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
 			expect(saveValue).not.toHaveBeenCalled();
 		});
 
 		it('keeps the form when the learner backs out of a merge', async () => {
 			await renameTo('style-doric', 'Ionic');
-			await page.getByRole('button', { name: m.cardIndex.mergeConfirm.back }).click();
+			await page.getByRole('button', { name: m.common.back }).click();
 
 			expect(saveValue).not.toHaveBeenCalled();
 			await expect.element(nameField()).toHaveValue('Ionic');

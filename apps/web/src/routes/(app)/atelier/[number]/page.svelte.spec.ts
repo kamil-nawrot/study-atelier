@@ -1,14 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { afterNavigate, goto, preloadData } from '$app/navigation';
-import { setFavourite } from '#lib/collection/favourite.ts';
-import { moveToTrash } from '#lib/collection/trash.ts';
-import type { ArtworkRecord, LoadArtworkResult } from '#lib/collection/types.ts';
-import { buildNoteLinks } from '#lib/collection/note-links.ts';
-import { m } from '#lib/i18n/index.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import { testCardIndex } from '#lib/testing/card-index.ts';
+import '@study-atelier/ui/styles.css';
+import { goto, preloadData } from '$app/navigation';
+import { setBackPlace } from '#lib/shared/navigation/back/back.svelte.ts';
+import { setFavourite } from '#lib/wall/favourite-data/favourite-data.ts';
+import { moveToTrash } from '#lib/artworks/trash-data/trash-data.ts';
+import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
+import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
+import { buildNoteLinks } from '#lib/notes/note-links/note-links.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import { testVisit, VISIT_ID } from '#lib/testing/chronicle/chronicle.ts';
+import type { Pin } from '#lib/pins/types/pin.ts';
+import { testEntry } from '#lib/testing/glossary/glossary.ts';
+import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
 import ArtworkPage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -17,20 +24,27 @@ const navigation = vi.hoisted(() => ({
 	data: {}
 }));
 
-vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
+vi.mock('$app/state', () => ({
+	page: navigation,
+	navigating: { to: null },
+	updated: { current: false }
+}));
 vi.mock('$app/navigation', () => ({
 	afterNavigate: vi.fn(),
 	goto: vi.fn(),
 	preloadData: vi.fn()
 }));
-vi.mock('#lib/collection/trash.ts', () => ({ moveToTrash: vi.fn() }));
-vi.mock('#lib/collection/favourite.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/collection/favourite.ts')>()),
+vi.mock('#lib/artworks/trash-data/trash-data.ts', () => ({ moveToTrash: vi.fn() }));
+vi.mock('#lib/wall/favourite-data/favourite-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/wall/favourite-data/favourite-data.ts')>()),
 	setFavourite: vi.fn()
 }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const IMAGE = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50"/>')}`;
+const WIDE_IMAGE = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="40"/>')}`;
 
 function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 	return {
@@ -74,11 +88,6 @@ function arrow(name: string): ReturnType<typeof page.getByRole> {
 	return page.getByRole('link', { name });
 }
 
-function arrivedFrom(route: string): void {
-	for (const [callback] of vi.mocked(afterNavigate).mock.calls)
-		callback({ from: { route: { id: route } } } as never);
-}
-
 function details(label: string): ReturnType<typeof page.getByRole> {
 	return page.getByRole('definition').filter({ has: page.getByText(label) });
 }
@@ -90,6 +99,18 @@ describe('artwork page', () => {
 		localStorage.clear();
 		sessionStorage.clear();
 		await page.viewport(1280, 800);
+	});
+
+	it('lists the visits the artwork was seen on under the information', async () => {
+		renderPage({ artwork: artwork(), visits: [testVisit()] });
+
+		await expect
+			.element(page.getByRole('heading', { name: m.chronicle.artworkVisits(1) }))
+			.toBeInTheDocument();
+		await page.getByRole('heading', { name: m.chronicle.artworkVisits(1) }).click();
+		await expect
+			.element(page.getByRole('link', { name: /Musée d’Orsay/ }))
+			.toHaveAttribute('href', `/atelier/chronicle/${VISIT_ID}`);
 	});
 
 	it('shows the type and the era as an icon with the name', async () => {
@@ -123,7 +144,7 @@ describe('artwork page', () => {
 			.element(page.getByText(m.artworkForm.ownImageUrlCredit('localhost')))
 			.not.toBeInTheDocument();
 		await expect
-			.element(page.getByRole('link', { name: m.artworkView.edit }))
+			.element(page.getByRole('link', { name: m.common.edit }))
 			.toHaveAttribute('href', '/atelier/42/edit');
 		await expect.element(backLink()).toHaveAttribute('href', '/atelier');
 	});
@@ -163,6 +184,33 @@ describe('artwork page', () => {
 			.toHaveAttribute('href', '/atelier/12');
 		await expect.element(page.getByText('gone')).toBeVisible();
 		await expect.element(page.getByRole('link', { name: 'gone' })).not.toBeInTheDocument();
+	});
+
+	it('shows the filled own fields after the place and hides the empty and unticked ones', async () => {
+		renderPage({
+			artwork: artwork({
+				own: { motifs: ['Angel', 'Lily'], source: 'Gombrich', note: '', seen: true, exam: false }
+			}),
+			ownFields: [
+				{ id: 'motifs', name: 'Motifs', description: null, kind: 'list', multiple: true },
+				{ id: 'source', name: 'Source', description: null, kind: 'text', multiple: false },
+				{ id: 'note', name: 'Note', description: null, kind: 'text', multiple: false },
+				{ id: 'seen', name: 'Seen in person', description: null, kind: 'flag', multiple: false },
+				{ id: 'exam', name: 'For the exam', description: null, kind: 'flag', multiple: false }
+			]
+		});
+
+		const terms = page
+			.getByRole('term')
+			.elements()
+			.map((term) => term.textContent?.trim());
+		expect(terms.slice(-3)).toEqual(['Motifs', 'Source', 'Seen in person']);
+		await expect.element(page.getByText('Angel', { exact: true })).toBeVisible();
+		await expect.element(page.getByText('Lily', { exact: true })).toBeVisible();
+		await expect.element(page.getByText('Gombrich')).toBeVisible();
+		await expect.element(page.getByText(m.ownFields.ticked, { exact: true })).toBeVisible();
+		expect(page.getByText('For the exam').elements()).toHaveLength(0);
+		expect(page.getByText('Note', { exact: true }).elements()).toHaveLength(0);
 	});
 
 	it('marks the fields the learner has not filled in', async () => {
@@ -278,7 +326,7 @@ describe('artwork page', () => {
 
 		await page.getByRole('button', { name: m.artworkView.hideInformation }).click();
 		await expect.element(page.getByRole('heading', { level: 1 })).not.toBeInTheDocument();
-		await expect.element(page.getByRole('link', { name: m.artworkView.edit })).toBeVisible();
+		await expect.element(page.getByRole('link', { name: m.common.edit })).toBeVisible();
 
 		await page.getByRole('button', { name: m.artworkView.showInformation }).click();
 		await expect.element(page.getByRole('heading', { level: 1 })).toBeVisible();
@@ -290,28 +338,68 @@ describe('artwork page', () => {
 			.toBeVisible();
 	});
 
-	it('goes back to the wall through history when it came from there', async () => {
-		const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
+	it('goes back through history to the place it was opened from, named after it', async () => {
+		const go = vi.spyOn(history, 'go').mockImplementation(() => undefined);
+		setBackPlace({ name: 'Kalendarium', path: '/atelier/timeline' });
 		renderPage();
-		vi.mocked(afterNavigate).mock.calls[0][0]({
-			from: { route: { id: '/(app)/atelier' } }
-		} as never);
 
-		await backLink().click();
+		const link = page.getByRole('banner').getByRole('link', { name: 'Kalendarium' });
+		await expect.element(link).toBeVisible();
+		(link.element() as HTMLElement).click();
 
-		expect(back).toHaveBeenCalled();
-		back.mockRestore();
+		expect(go).toHaveBeenCalledWith(-1);
+		go.mockRestore();
+		setBackPlace(undefined);
 	});
 
 	it('links to the previous and next artwork of the wall the learner came from', async () => {
-		rememberWall([7, 42, 30], 'epoka=early_modern');
+		rememberWall([7, 42, 30], 'era=early_modern');
 		renderPage();
 
 		await expect.element(arrow(m.artworkView.previous)).toHaveAttribute('href', '/atelier/7');
 		await expect.element(arrow(m.artworkView.next)).toHaveAttribute('href', '/atelier/30');
 		await expect.element(arrow(m.artworkView.next)).toHaveAttribute('data-sveltekit-replacestate');
-		await expect.element(backLink()).toHaveAttribute('href', '/atelier?epoka=early_modern');
+		await expect.element(backLink()).toHaveAttribute('href', '/atelier?era=early_modern');
 		expect(preloadData).toHaveBeenCalledWith('/atelier/30');
+	});
+
+	it('keeps the first screen of every artwork the same height on a phone', async () => {
+		await page.viewport(390, 844);
+		rememberWall([7, 42, 30]);
+		const artworks = [
+			artwork(),
+			artwork({
+				title: 'Portrait of Giovanni Arnolfini and his wife in their chamber in Bruges',
+				authors: ['Jan van Eyck', 'Hubert van Eyck', 'Petrus Christus', 'Workshop of Ghent'],
+				image: { kind: 'url', url: WIDE_IMAGE, width: 80, height: 40 },
+				images: [{ kind: 'url', url: IMAGE, width: 40, height: 50 }]
+			}),
+			artwork({ image: null })
+		];
+		const screens = [];
+
+		for (const record of artworks) {
+			const view = await render(ArtworkPage, {
+				data: { session: testSession(), artwork: record },
+				params: { number: '42' }
+			});
+			await expect.element(arrow(m.artworkView.next)).toBeVisible();
+			const stage = document.querySelector('.stage')!.getBoundingClientRect();
+			const next = arrow(m.artworkView.next).element().getBoundingClientRect();
+			const image = document.querySelector('.stage .mat')!.getBoundingClientRect();
+			const type = page.getByText(m.artworkForm.type, { exact: true }).element();
+			screens.push({
+				stage: stage.height,
+				arrow: next.top,
+				fitsStage: image.bottom <= stage.bottom,
+				typeBelowFold: Math.round(type.getBoundingClientRect().top) >= window.innerHeight
+			});
+			await view.unmount();
+		}
+
+		expect(new Set(screens.map((screen) => screen.stage)).size).toBe(1);
+		expect(new Set(screens.map((screen) => screen.arrow)).size).toBe(1);
+		expect(screens.every((screen) => screen.fitsStage && screen.typeBelowFold)).toBe(true);
 	});
 
 	it('dims the arrow at either end of the wall', async () => {
@@ -324,7 +412,7 @@ describe('artwork page', () => {
 	});
 
 	it('has no arrows for an artwork the wall did not show', async () => {
-		rememberWall([7, 30], 'epoka=early_modern');
+		rememberWall([7, 30], 'era=early_modern');
 		renderPage();
 
 		await expect.element(page.getByRole('heading', { level: 1 })).toBeVisible();
@@ -367,7 +455,7 @@ describe('artwork page', () => {
 		rememberWall([7, 42, 30]);
 		renderPage();
 
-		await page.getByRole('button', { name: m.artworkView.delete }).click();
+		await page.getByRole('button', { name: m.common.delete }).click();
 		await expect.element(page.getByRole('alertdialog')).toBeVisible();
 		await userEvent.keyboard('{ArrowRight}');
 
@@ -387,19 +475,6 @@ describe('artwork page', () => {
 		expect(goto).toHaveBeenCalledWith('/atelier/30', { replace: true, reset: false });
 	});
 
-	it('still goes back to the wall through history after flipping through artworks', async () => {
-		const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
-		rememberWall([7, 42, 30]);
-		renderPage();
-		arrivedFrom('/(app)/atelier');
-		arrivedFrom('/(app)/atelier/[number]');
-
-		await backLink().click();
-
-		expect(back).toHaveBeenCalled();
-		back.mockRestore();
-	});
-
 	it('shows a not-found state for an unknown record number', async () => {
 		renderPage({ error: m.artworkErrors.notFound, notFound: true });
 
@@ -410,19 +485,17 @@ describe('artwork page', () => {
 		await expect
 			.element(page.getByRole('link', { name: m.artworkForm.back }))
 			.toHaveAttribute('href', '/atelier');
+		await expect.element(page.getByRole('link', { name: m.common.edit })).not.toBeInTheDocument();
 		await expect
-			.element(page.getByRole('link', { name: m.artworkView.edit }))
-			.not.toBeInTheDocument();
-		await expect
-			.element(page.getByRole('button', { name: m.artworkView.delete }))
+			.element(page.getByRole('button', { name: m.common.delete }))
 			.not.toBeInTheDocument();
 	});
 
 	it('keeps the filter of the wall on the way back from an artwork that is gone', async () => {
-		rememberWall([7, 42, 30], 'epoka=early_modern');
+		rememberWall([7, 42, 30], 'era=early_modern');
 		renderPage({ error: m.artworkErrors.notFound, notFound: true });
 
-		await expect.element(backLink()).toHaveAttribute('href', '/atelier?epoka=early_modern');
+		await expect.element(backLink()).toHaveAttribute('href', '/atelier?era=early_modern');
 	});
 
 	it('names a record number that is not a number as it was typed', async () => {
@@ -434,12 +507,12 @@ describe('artwork page', () => {
 	});
 
 	it('shows a load error in an alert', async () => {
-		renderPage({ error: m.artworkErrors.network });
+		renderPage({ error: m.common.network });
 
 		await expect
 			.element(page.getByRole('heading', { level: 1 }))
 			.toHaveTextContent(m.artworkForm.loadErrorTitle);
-		await expect.element(page.getByText(m.artworkErrors.network)).toBeVisible();
+		await expect.element(page.getByText(m.common.network)).toBeVisible();
 	});
 
 	it('confirms the saved changes once', async () => {
@@ -466,7 +539,7 @@ describe('artwork page', () => {
 		vi.mocked(moveToTrash).mockResolvedValue({});
 		renderPage();
 
-		await page.getByRole('button', { name: m.artworkView.delete }).click();
+		await page.getByRole('button', { name: m.common.delete }).click();
 		const dialog = page.getByRole('alertdialog', { name: m.trash.moveTitle('#0042') });
 		await expect.element(dialog).toBeVisible();
 		await expect.element(dialog.getByText(m.trash.moveDescription)).toBeVisible();
@@ -479,8 +552,8 @@ describe('artwork page', () => {
 	it('keeps the artwork when the learner cancels', async () => {
 		renderPage();
 
-		await page.getByRole('button', { name: m.artworkView.delete }).click();
-		await page.getByRole('button', { name: m.trash.cancel }).click();
+		await page.getByRole('button', { name: m.common.delete }).click();
+		await page.getByRole('button', { name: m.common.cancel }).click();
 
 		await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
 		expect(moveToTrash).not.toHaveBeenCalled();
@@ -488,14 +561,14 @@ describe('artwork page', () => {
 	});
 
 	it('shows an error in the dialog when moving to the trash fails', async () => {
-		vi.mocked(moveToTrash).mockResolvedValue({ error: m.artworkErrors.network });
+		vi.mocked(moveToTrash).mockResolvedValue({ error: m.common.network });
 		renderPage();
 
-		await page.getByRole('button', { name: m.artworkView.delete }).click();
+		await page.getByRole('button', { name: m.common.delete }).click();
 		await page.getByRole('button', { name: m.trash.move }).click();
 
 		const dialog = page.getByRole('alertdialog');
-		await expect.element(dialog.getByText(m.artworkErrors.network)).toBeVisible();
+		await expect.element(dialog.getByText(m.common.network)).toBeVisible();
 		expect(goto).not.toHaveBeenCalled();
 	});
 
@@ -598,6 +671,178 @@ describe('artwork page', () => {
 			await expect.element(page.getByText('Mauritshuis')).toBeVisible();
 			expect(page.getByRole('button', { name: 'Mauritshuis' }).elements()).toHaveLength(0);
 			expect(page.getByRole('button', { name: 'Oil' }).elements()).toHaveLength(0);
+		});
+	});
+
+	describe('pins', () => {
+		const PIN: Pin = {
+			id: 'pin-1',
+			imageId: 'image-1',
+			x: 0.25,
+			y: 0.75,
+			glossaryEntryId: 'entry-1',
+			text: 'The sitter’s turban.'
+		};
+
+		function renderWithPins(pins: Pin[] = [PIN]): void {
+			renderPage({
+				artwork: artwork({
+					image: { kind: 'url', url: IMAGE, width: 40, height: 50, id: 'image-1' }
+				}),
+				glossary: [testEntry('entry-1', 'Turban')],
+				pins
+			});
+		}
+
+		it('hides the markers until the switch is on and then shows a pin next to it on a tap', async () => {
+			renderWithPins();
+
+			await expect
+				.element(page.getByRole('button', { name: 'Pinezka 1: Turban' }))
+				.not.toBeInTheDocument();
+			await page.getByRole('button', { name: m.pins.switchLabel(1) }).click();
+			const marker = page.getByRole('button', { name: 'Pinezka 1: Turban' });
+			await marker.click();
+
+			const card = page.getByRole('dialog', { name: 'Pinezka 1: Turban' });
+			await expect.element(card).toHaveTextContent('Turban is a test definition.');
+			await expect.element(card).toHaveTextContent('The sitter’s turban.');
+			await expect.element(marker).toHaveAttribute('aria-expanded', 'true');
+
+			await userEvent.keyboard('{Escape}');
+			await expect.element(card).not.toBeInTheDocument();
+		});
+
+		it('shows the markers at once when the preferences ask for it', async () => {
+			renderPage({
+				artwork: artwork({
+					image: { kind: 'url', url: IMAGE, width: 40, height: 50, id: 'image-1' }
+				}),
+				glossary: [testEntry('entry-1', 'Turban')],
+				pins: [PIN],
+				preferences: { ...defaultPreferences, viewShowPins: true }
+			});
+
+			await expect.element(page.getByRole('button', { name: 'Pinezka 1: Turban' })).toBeVisible();
+			await expect
+				.element(page.getByRole('button', { name: m.pins.switchLabel(1) }))
+				.toHaveAttribute('aria-pressed', 'true');
+		});
+
+		it('shows a pin while the pointer rests on it', async () => {
+			renderWithPins();
+
+			await page.getByRole('button', { name: m.pins.switchLabel(1) }).click();
+			await page.getByRole('button', { name: 'Pinezka 1: Turban' }).hover();
+
+			await expect
+				.element(page.getByRole('dialog', { name: 'Pinezka 1: Turban' }))
+				.toHaveTextContent('The sitter’s turban.');
+		});
+
+		it('offers the switch only when the image has pins', async () => {
+			renderWithPins([]);
+
+			await expect
+				.element(page.getByRole('button', { name: m.pins.switchLabel(0) }))
+				.not.toBeInTheDocument();
+		});
+
+		it('opens the image of the pin from the address with the pins shown', async () => {
+			navigation.url = new URL('http://localhost/atelier/42?pin=pin-2');
+			renderPage({
+				artwork: artwork({
+					image: { kind: 'url', url: IMAGE, width: 40, height: 50, id: 'image-1' },
+					images: [{ kind: 'url', url: IMAGE, width: 40, height: 50, id: 'image-2' }]
+				}),
+				glossary: [testEntry('entry-1', 'Turban')],
+				pins: [PIN, { ...PIN, id: 'pin-2', imageId: 'image-2', glossaryEntryId: null }]
+			});
+
+			await expect
+				.element(page.getByRole('button', { name: m.artworkForm.imageSlot(2, 2) }))
+				.toHaveAttribute('aria-pressed', 'true');
+			await expect.element(page.getByRole('button', { name: 'Pinezka 1' })).toBeVisible();
+			navigation.url = new URL('http://localhost/atelier/42');
+		});
+	});
+
+	describe('loupe', () => {
+		function loupeButton(): ReturnType<typeof page.getByRole> {
+			return page.getByRole('button', { name: m.loupe.label });
+		}
+
+		it('switches the loupe on for a large image and keeps the image from opening full screen', async () => {
+			renderPage({
+				artwork: artwork({ image: { kind: 'url', url: IMAGE, width: 4000, height: 5000 } })
+			});
+
+			await loupeButton().click();
+			await expect.element(loupeButton()).toHaveAttribute('aria-pressed', 'true');
+			(document.querySelector('.loupe') as HTMLElement).click();
+			await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+
+			await userEvent.keyboard('{Escape}');
+			await expect.element(loupeButton()).toHaveAttribute('aria-pressed', 'false');
+			expect(document.querySelector('.loupe')).toBeNull();
+		});
+
+		it('says how to leave the loupe and switches it off on a click beside the image', async () => {
+			renderPage({
+				artwork: artwork({ image: { kind: 'url', url: IMAGE, width: 4000, height: 5000 } })
+			});
+
+			await loupeButton().click();
+			await expect.element(page.getByRole('tooltip')).toHaveTextContent(m.loupe.leave);
+			document.body.dispatchEvent(new PointerEvent('pointerdown', { button: 0, bubbles: true }));
+
+			await expect.element(loupeButton()).toHaveAttribute('aria-pressed', 'false');
+			expect(document.querySelector('.loupe')).toBeNull();
+		});
+
+		it('switches the loupe on at once when the preferences ask for it', async () => {
+			renderPage({
+				artwork: artwork({ image: { kind: 'url', url: IMAGE, width: 4000, height: 5000 } }),
+				preferences: { ...defaultPreferences, viewLoupeOn: true }
+			});
+
+			await expect.element(loupeButton()).toHaveAttribute('aria-pressed', 'true');
+		});
+
+		it('opens a new pin with the view of the loupe on a click', async () => {
+			renderPage({
+				artwork: artwork({
+					image: { kind: 'url', url: IMAGE, width: 4000, height: 5000, id: 'image-1' }
+				}),
+				pins: []
+			});
+
+			await loupeButton().click();
+			const layer = document.querySelector('.loupe') as HTMLElement;
+			const rect = layer.getBoundingClientRect();
+			layer.dispatchEvent(
+				new PointerEvent('pointermove', {
+					pointerType: 'mouse',
+					clientX: rect.left + rect.width / 2,
+					clientY: rect.top + rect.height / 2,
+					bubbles: true
+				})
+			);
+			layer.click();
+
+			const dialog = page.getByRole('dialog');
+			await expect.element(dialog).toHaveTextContent(m.pins.newTitle);
+			await expect.element(dialog).toHaveTextContent(/Widok lupy \(\d+(,\d)?×\)/);
+		});
+
+		it('dims the loupe and says why for an image that is not larger than shown', async () => {
+			renderPage();
+
+			await expect.element(loupeButton()).toHaveAttribute('aria-disabled', 'true');
+			await expect.element(page.getByRole('tooltip')).toHaveTextContent(m.loupe.unavailable);
+			(loupeButton().element() as HTMLElement).click();
+			await expect.element(loupeButton()).not.toHaveAttribute('aria-pressed');
+			expect(document.querySelector('.loupe')).toBeNull();
 		});
 	});
 });

@@ -1,17 +1,16 @@
 <script lang="ts">
-	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
-	import { Alert, Button, Dialog, Icon, Section, Toast, Tooltip } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, LoadFailure, Toast, Tooltip } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { deleteValue } from '#lib/collection/card-index-data.ts';
-	import { canDelete } from '#lib/collection/card-index.ts';
-	import ArtworkWall from '#lib/collection/components/ArtworkWall.svelte';
-	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
-	import ValueView from '#lib/collection/components/ValueView.svelte';
+	import { deleteValue } from '#lib/card-index/card-index-data/card-index-data.ts';
+	import { canDelete } from '#lib/card-index/card-index/card-index.ts';
+	import ArtworkWall from '#lib/wall/components/ArtworkWall/ArtworkWall.svelte';
+	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
+	import ValueView from '#lib/values/components/ValueView/ValueView.svelte';
 	import {
 		artworksOfValue,
 		subjectId,
@@ -19,9 +18,10 @@
 		subjectPath,
 		valueEditPath,
 		valueParents
-	} from '#lib/collection/value-pages.ts';
-	import { WallImages } from '#lib/collection/wall-images.svelte.ts';
-	import { m } from '#lib/i18n/index.ts';
+	} from '#lib/card-index/value-pages/value-pages.ts';
+	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
+	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
+	import { m } from '#lib/i18n/i18n.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -85,25 +85,22 @@
 
 <AtelierLayout email={data.session.user.email ?? ''} {title}>
 	{#snippet bar()}
-		<a class="back" href={cardIndexPath}>
-			<Icon icon={ArrowLeft} />
-			{m.valuePage.back}
-		</a>
+		<BackLink fallbackHref={cardIndexPath} fallbackName={m.valuePage.back} />
 		{#if editHref}
-			<Button aria-label={m.valuePage.edit} href={editHref}>
-				<Icon icon={Pencil} size="sm" />
-				<span class="label">
-					{m.valuePage.edit}
-				</span>
+			<Button aria-label={m.common.edit} compact href={editHref} icon={Pencil}>
+				{m.common.edit}
 			</Button>
 		{/if}
 		{#if record && kind}
 			{#if canDelete(record)}
-				<Button aria-label={m.valuePage.delete} onclick={askToDelete} variant="danger">
-					<Icon icon={Trash} size="sm" />
-					<span class="label">
-						{m.valuePage.delete}
-					</span>
+				<Button
+					aria-label={m.common.delete}
+					compact
+					icon={Trash}
+					onclick={askToDelete}
+					variant="danger"
+				>
+					{m.common.delete}
 				</Button>
 			{:else}
 				<Tooltip
@@ -119,13 +116,12 @@
 						<Button
 							aria-describedby={describedby}
 							aria-disabled="true"
-							aria-label={m.valuePage.delete}
+							aria-label={m.common.delete}
+							compact
+							icon={Trash}
 							variant="danger"
 						>
-							<Icon icon={Trash} size="sm" />
-							<span class="label">
-								{m.valuePage.delete}
-							</span>
+							{m.common.delete}
 						</Button>
 					{/snippet}
 				</Tooltip>
@@ -142,6 +138,7 @@
 			noteLinks={data.noteLinks}
 			{parents}
 			{subject}
+			visits={data.visits}
 		/>
 
 		<section class="artworks" aria-labelledby="value-artworks">
@@ -160,20 +157,12 @@
 			{/if}
 		</section>
 	{:else}
-		<Section>
-			{#if data.notFound}
-				<p class="lead">{data.error}</p>
-			{:else}
-				<Alert tone="danger">
-					{data.error}
-				</Alert>
-			{/if}
-		</Section>
-		<div>
-			<Button href={cardIndexPath}>
-				{m.valuePage.back}
-			</Button>
-		</div>
+		<LoadFailure
+			backHref={cardIndexPath}
+			backLabel={m.valuePage.back}
+			message={data.error ?? ''}
+			notFound={data.notFound === true}
+		/>
 	{/if}
 </AtelierLayout>
 
@@ -195,31 +184,16 @@
 	>
 		{#snippet footer()}
 			<Button onclick={() => (deleteOpen = false)}>
-				{m.cardIndex.deleteConfirm.back}
+				{m.common.back}
 			</Button>
 			<Button disabled={deleting} onclick={remove} variant="primary">
-				{deleting ? m.cardIndex.deleteConfirm.deleting : m.cardIndex.deleteConfirm.confirm}
+				{deleting ? m.common.deleting : m.common.delete}
 			</Button>
 		{/snippet}
 	</Dialog>
 {/if}
 
 <style>
-	.back {
-		display: flex;
-		flex: 1;
-		align-items: center;
-		gap: var(--spacing-2);
-		color: var(--color-fg);
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-medium);
-		text-decoration: none;
-	}
-
-	.label {
-		display: none;
-	}
-
 	.artworks {
 		display: grid;
 		gap: var(--spacing-6);
@@ -245,11 +219,5 @@
 	.empty {
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
-	}
-
-	@media (min-width: 768px) {
-		.label {
-			display: inline;
-		}
 	}
 </style>

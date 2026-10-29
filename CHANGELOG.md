@@ -2,6 +2,264 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.14.0] - 2026-10-29
+
+The card index can be searched, sorted and filled with new values, the glossary jumps to a letter, place pages list the visits, and the loupe and the timeline are easier to use.
+
+### Added
+
+- Every tab of "Kartoteka" has a search field, and a "Sortuj" select next to it: "Według nazwy", "Według liczby dzieł", "Według lat życia" for authors, "Według kraju" for places (with the country next to the name) and "Według daty" for events. The choice is kept on the device for each tab.
+- Values can be added in "Kartoteka": "Dodaj materiał", "Dodaj autora", "Dodaj miejsce", "Dodaj okres" and "Dodaj styl" open the value's form with its details, and each own list has "Dodaj wartość". A value no artwork uses yet is suggested in the artwork form.
+- A place page lists the visits to it from "Kronika" under "Z Twojej kroniki · 3 wizyty", each ticket with the number of artworks seen.
+- "Słowniczek" has an index of letters at the right edge from twenty entries; a letter scrolls to its section.
+
+### Changed
+
+- The loupe is switched off also with a right click on the image or a click beside it, and its icon says so: "Wyłącz lupę: Esc, prawy przycisk albo kliknięcie obok".
+- Event names longer than 200 px are cut with an ellipsis on the timeline and shown whole in a tooltip, so they no longer push other events into lower lanes.
+- The view of the loupe stands in the middle of a pin's card.
+- Moving between the wall, the timeline, the review, the chronicle and the value pages no longer loads the whole collection again, until something is saved, another tab saves, or the tab was hidden for more than ten minutes.
+- Internal: the duplicate check and the value suggestions are answered by the database instead of reading the whole collection, end-to-end tests with Playwright against a local Supabase run on every pull request, and a code review of the version with its fixes.
+
+### Migrations run on production
+
+2 migrations run on production with this release and change no existing data: `20261028200000_values_and_duplicates_in_the_database` adds `search_key`, an index on the artworks' title key outside the trash, and the functions `duplicate_candidates` and `used_category_values`; `20261029100000_suggest_values_without_artworks` replaces `used_category_values` with the same signature so values no artwork uses yet are suggested. Nothing the previous app calls changes.
+
+## [0.13.1] - 2026-10-28
+
+The review asks who made an artwork and about glossary definitions, the start page shows a wall of paintings, and forms show plainly when they fill fields from Wikipedia, Wikidata or Wiktionary.
+
+### Added
+
+- The review asks "Kto jest autorem tego dzieła?" with four sets of authors to choose from, the wrong ones from the closest artworks. "Dopasowywanie autora do dzieła" is a new quiz kind in the settings, on by default for new accounts; existing accounts switch it on themselves.
+- Sessions include extra questions from the glossary: "Jakie pojęcie opisuje ta definicja?" with the term hidden in its definition and four terms to choose from. They change no schedule; the settings ask "Ile pytań dodatkowych ze Słowniczka dołączać do sesji?" (1 to 3) and the review start has the switch "Dołącz definicje ze Słowniczka".
+
+### Changed
+
+- The start page shows a salon wall of framed public domain paintings behind the title, a card with an artwork for each module, and ends with "Chcesz zbudować własną kolekcję sztuki?" and "Załóż konto".
+- The pages before signing in show each account action once: "Zaloguj się" on the start page, only the logo above the forms, both actions on the legal pages.
+- While a form fills fields from Wikipedia, Wikidata or Wiktionary, those fields show faint lines and cannot be edited, "Wyszukiwanie w Wikipedii… Przerwij" says what is fetched, and saving waits until the search ends or is stopped. A search gives up after 20 seconds, an image from an address after 15. Text areas use the app's scrollbar.
+- Internal: a code review of the version, its fixes and tests, and the generated database types kept out of the repository's Prettier run.
+
+### Fixed
+
+- "Co to jest?" questions come up again for pins that keep a view of the loupe.
+- Quiz tiles show the title in up to two lines and the whole title with its authors in a tooltip, above the neighbouring tiles.
+- The inflected forms typed while Wiktionary answers are no longer overwritten, and an image found for an earlier title no longer fills a new artwork.
+- The author quiz never offers the same authors twice in another order.
+
+### Migrations run on production
+
+5 migrations run on production with this release: `20261028100000_author_review_quiz` allows the `quiz_author` answer mode and quiz kind, adds it to the default and to every profile's quiz kinds, and recreates `review_session` with the author quiz; `20261028120000_review_glossary_questions` adds `profiles.review_glossary_questions` (default 1); `20261028140000_view_pins_in_review` and `20261028160000_author_quiz_unique_sets` recreate `review_session` asking about pins with a loupe view and deduplicating author sets; `20261028180000_author_quiz_for_new_accounts` removes `quiz_author` again from the existing profiles, so learners keep the kinds they had. `review_session` keeps its arguments and result shape, so the previous app keeps working.
+
+## [0.13.0] - 2026-10-27
+
+The app is ready to open to other learners: it has a public start page, terms and a privacy policy, protected sign-up, account deletion and limits per account, and the owner is told about errors, downtime and new feedback.
+
+### Added
+
+- A public start page, "Atelier do nauki historii sztuki", describes the app and its modules before signing in, with share tags for links; the pages before signing in share a sticky header with "Zaloguj się" and "Załóż konto".
+- "Regulamin" and "Polityka prywatności" are published as pages linked from the sign-up and the footer; sign-up asks to accept them, the acceptance is stored with its version, and after a change of the texts a dialog asks to accept the new version or go to the settings.
+- The sign-up, sign-in and password reset forms are protected by Cloudflare Turnstile, which shows a challenge only when it is unsure.
+- "Usuń konto…" in the Konto tab deletes the account and the whole atelier after the password is entered, pointing to the Dane tab for a copy first.
+- One account holds at most 200 MB of own photos and fixed numbers of artworks, values, glossary entries, events, visits, own fields and their links, and a limited number of review answers and feedback entries a day; past a limit the save says how much fits and what to do. The Dane tab shows "Miejsce na zdjęcia: Twoje zdjęcia zajmują X MB z 200 MB.", and an import that does not fit loads nothing and names what is too much.
+- An empty atelier welcomes the learner with "Twoje atelier jest jeszcze puste" and three steps: "Dodaj dzieło", "Opisuj i łącz" and "Powtarzaj".
+- Announcements from the owner appear as a banner and can be closed on each device.
+- After a new release the app says "Pojawiła się nowa wersja aplikacji. Odśwież stronę, żeby z niej skorzystać." and reloads on the next link instead of breaking.
+
+### Changed
+
+- Production is served at studyatelier.art and the account emails are sent through Scaleway.
+- Own photos are kept on the device for a day, so the wall loads them once a day instead of every hour.
+- Internal: browser errors go to Sentry and the uptime is watched by UptimeRobot, production is dumped before every migration and backed up weekly off-site, new feedback is mailed to the owner every hour, the image clean-up refuses mass deletes and removes the files of deleted accounts, the limits are checked one request at a time, a security audit tightened the database, and CI caches its Playwright browser.
+
+### Fixed
+
+- Signing out no longer asks for the preferences without a session.
+- A failed Turnstile check is retried at once instead of keeping the sign-in waiting.
+
+### Migrations run on production
+
+6 migrations run on production with this release: `20261026100000_account_limits` adds `storage_usage`, the row limit triggers and a quota check to the storage policies, without changing data; `20261026120000_delete_account` adds the `delete_account` function; `20261026160000_legal_acceptance` adds `legal_version` and `legal_accepted_at` to `profiles` and records every existing account as having accepted the version of 2026-10-26, creating the missing profile rows; `20261027100000_feedback_digest` adds the empty `browser` and `notified_at` columns to `feedback`; `20261027120000_announcements` creates the `announcements` table, readable by signed-in learners; `20261027140000_serialised_limits` serialises the limit checks per account, limits the link tables with new `owner_id` indexes and adds `storage_has_room` and `deleted_account_images`. The previous code keeps working: it reads none of the new columns and every existing function keeps its arguments.
+
+## [0.12.0] - 2026-10-25
+
+The learner keeps a chronicle of museum visits and sees which artworks of the atelier they have seen in person, and every empty view now explains how to begin.
+
+### Added
+
+- "Kronika", a new item in the menu after "Kalendarium": a diary of visits to museums and other places, each with a place (from the place field and the starter museums), a date known to the day, the month or only the year, a note with links, and the artworks seen. The list groups the visits by year as tickets cut by a zigzag, with the first artwork seen as a faded backdrop; the newest year is open.
+- "Dodaj wizytę" ticks every artwork of the chosen place in a grid of thumbnails; an unticked one stays dimmed, and a search adds artworks from other places. The visit view shows the ticket, the note and a wall "Widziane na żywo".
+- The artwork view lists its visits in a collapsible section "Widziane na żywo · N wizyty", each a small ticket leading to the visit, and the wall filters by "Widziane na żywo".
+- Places used only by visits are suggested in the place fields, a place with visits cannot be deleted, merging two places moves their visits, visits are carried by the export and import of the atelier, and a visit whose note links to a value or an artwork appears under "Wspominasz o tym w notatkach".
+
+### Changed
+
+- Every empty view (Atelier, Słowniczek, Kronika, Kalendarium, Archiwum, Powtórki before 20 artworks and the tabs of Kartoteka) shows one centred pattern with the module's icon, a title, a sentence and the first action; empty axes of eras and of the timeline are no longer drawn.
+- The trash is called "Archiwum", status messages name the activity ("Wyszukiwanie…", "Zapisywanie…") instead of speaking in the first person, and the wording of the UI texts is revised throughout.
+- Toasts appear after a short delay with a small rise, wait while the mouse is over them and leave within a second after it; tooltips show after 320 ms on hover, and popovers open and close with a short delay.
+- The lead under a module's title takes at most half the width of the content on a desktop.
+- The UI library has an `EmptyState` component, and the dictionary shares common actions and messages in `common`.
+
+### Fixed
+
+- The view of the loupe in a pin popover keeps its full size and is primed while its image loads, and a loupe image the browser already holds shows at once.
+- The year badge of Kalendarium no longer covers toasts.
+- The avatar buttons in the settings keep their icons still on hover, and removing the photo looks like a delete.
+- A tap on a toast on a phone no longer shortens it.
+
+### Migrations run on production
+
+3 migrations run on production with this release and change no existing data: `20261025120000_visits` creates the `visits` and `visit_artworks` tables with row level security and the `save_visit` function; `20261025150000_visits_across_the_app` recreates `value_usage` with a visit count and replaces `delete_unused_value`, `merge_category_values`, `notes_mentions` and `import_atelier` so they know about visits, with the same arguments and the columns the previous code reads; `20261025180000_order_visit_mentions` lists the visits in `notes_mentions` newest first without changing its result columns.
+
+## [0.11.0] - 2026-10-25
+
+The code of the app is reorganised into feature modules with enforced limits, and the card index lists the timeline events.
+
+### Added
+
+- The "Wydarzenia" tab in Kartoteka lists the learner's timeline events ordered by year; an event opens in the existing event form, "Dodaj wydarzenie" adds one, and the form returns to Kartoteka with a confirmation.
+
+### Changed
+
+- `apps/web/src/lib` is organised in feature modules over `shared` and `catalogue` (ADR-0126), and the value page lives in a values module (ADR-0127). Only `*-data.ts` files call Supabase.
+- `packages/ui` has a folder per component, and the oversized components (the notes editor, the primer, the artwork view, the forms, the wall filter, the quiz and the timeline) are split along what the learner sees.
+- Forms share one save flow: a `FormState` and an `error` in the library `Form`.
+- Lint and CI gate the size limits, module boundaries, UI texts taken from the dictionary, the tone of texts, component tests and coverage thresholds that only go up.
+
+No migrations.
+
+## [0.10.1] - 2026-10-24
+
+Fixes of the settings view, of the overlay scrollbar and of returning to a list.
+
+### Changed
+
+- The "Profil" tab of the settings has the avatar in the left column and the fields in the right one from 768 px; on a phone they stay stacked.
+
+### Fixed
+
+- A panel with its own scroll, such as the notes in the artwork view, can no longer be scrolled past its content with a touchpad on a scaled screen.
+- The settings tabs without a save bar ("Konto", "Dane" and "Źródła") keep the space below their content on smaller screens.
+- Going back to the glossary list restores the place the learner left, also when the list is filtered or searched.
+- Going back to a searched list in the card index restores the place the learner left.
+
+No migrations.
+
+## [0.10.0] - 2026-10-24
+
+The learner gets a settings view with a profile, an account section, preferences and a copy of the whole atelier.
+
+### Added
+
+- "Ustawienia", opened from the avatar row at the top of the menu, which shows the avatar, the name and the email address. The tabs are "Profil", "Konto", "Powtórki", "Widok dzieła", "Dane" and "Źródła", and the chosen tab is kept in the address.
+- A profile with a name and a photo as the avatar: the photo is cropped to a square and made 256 px in the browser, and without it the avatar is the first letter of the name. The profile is visible only to the learner.
+- Password change in "Konto" with the current password and a new one of at least 8 characters, signing out the other devices by default.
+- Email change in "Konto": a link goes to the old and to the new address, and the change takes effect after both are clicked. The Auth emails (sign-up confirmation, password reset, email change) are in Polish and are sent through the SMTP of a dedicated Gmail address (ADR-0125).
+- Review preferences in "Powtórki": the number of artworks in a session, the number of new artworks a day, the form the review starts with, the kinds of quiz that are asked, and whether the free review is offered. The quiz form "Quizy" is offered only when a quiz can be asked.
+- Artwork view preferences in "Widok dzieła": whether the pins are shown and the loupe is switched on when an artwork opens.
+- Export in "Dane": the whole atelier as one ZIP file with `atelier.json` and the learner's own image files, including the trash, the review history, own fields, pins, the glossary and the timeline events.
+- Import in "Dane": a ZIP made by the export is loaded into an empty atelier with the same record numbers, dates, notes and links; a failed import changes nothing.
+- Switches in "Źródła" for the fetching that starts by itself: the image of a new artwork, the definition of a glossary term, its forms from Wiktionary, and the description and dates of an event.
+- Removing an image that holds pins in the artwork form first asks "Usunąć obraz?" and says how many pins go.
+
+### Changed
+
+- The side menu keeps its state across navigation, and its account row keeps a stable height with the email address as a tooltip.
+- The profile photo buttons use the icons `image-up` and `image-minus`.
+
+### Fixed
+
+- A linked `upload.wikimedia.org` image never offers its original on a HiDPI screen, in the stage, the full-screen viewer, the wall, the review cards or the quiz tiles.
+- The own field order survives an import, and an export stops with a message instead of silently leaving out an own image it cannot download.
+- "Anuluj" in a form opened directly leaves to the list instead of the app, and the event form no longer fails on a direct entry.
+- Fixes from the code reviews of 0.8 and 0.9: pin and loupe findings and a hint for the 10-pin limit.
+
+## [0.9.1] - 2026-10-23
+
+A fix of the artwork view for a very large image and of the loupe of a huge Commons file.
+
+### Fixed
+
+- The artwork view no longer freezes on an image given as a link to a file on `upload.wikimedia.org`: the page shows a thumbnail of the nearest Commons width instead of decoding the whole original, and the loupe takes the 3840 px thumbnail.
+- The loupe of a Commons file wider than 3840 px takes the 3840 px thumbnail instead of an original that the browser may not load, so it shows real detail up to that width.
+- The loupe is not offered for an image over 40 MP from any other link; its tooltip says that the image is too large.
+
+## [0.9.0] - 2026-10-23
+
+The learner marks details on the image of an artwork with pins, looks at them closely through a loupe, and meets them again in the glossary and in the review.
+
+### Added
+
+- Pins on the image of an artwork. In the artwork form the learner taps the picture of a saved image to place a pin, drags it to move it and changes or deletes it; a pin is saved at once and has a glossary entry, a text of at most 300 characters, or both, with at most 10 pins on an image.
+- In the artwork view an icon with the number of pins shows or hides them on the image. Pointing at a pin, focusing it or tapping it opens its card next to it with the entry's name and definition, "Otwórz w Słowniczku" and the learner's text.
+- A pin stays on its image when the images are reordered or the picture is replaced, and goes with its image when the image is removed.
+- "Na dziełach" on the page of a glossary entry lists the artworks whose pins carry the entry; each tile leads to the artwork.
+- The review asks "Co to jest?": the image with a pin marked and four glossary terms, the distractors from the same category first. It is asked about artworks with a pin that has an entry, at most on every third question of a quiz session and never in flashcards.
+- The loupe on a larger screen with a mouse: the magnifier icon "Lupa" in the corner of the stage turns the cursor over the image into a circle that enlarges what is under it. The mouse wheel changes the level up to the full resolution of the source, and Escape or "Lupa" switches it off. It is offered only for an image at least 1.5 times wider than shown on the page; for a smaller one the icon is dimmed and its tooltip says why.
+- A click on the image while the loupe is on makes a pin that keeps the view of the loupe. Its card shows that view in a circle on any screen, and the artwork form can remove the view.
+
+### Changed
+
+- On a phone the first screen of an artwork has the same height for every artwork: a stage of a fixed height with the image fitted inside, then the number, the title and the authors with the date. The fields from "Typ" down start below the fold, and the arrows to the previous and next artwork stay at the same height.
+- Internal: every image of an artwork, the main one included, is a row of one table with a stable id, so that a pin keeps its image whatever happens to the order; fixes from the code review of the version.
+
+## [0.8.0] - 2026-10-22
+
+The learner can define their own artwork fields, fill them in with every artwork, see them in the artwork view and filter the wall by them.
+
+### Added
+
+- Own fields in a new Kartoteka tab "Własne pola", at the right of the tabs: "Dodaj pole" asks for a name, an optional description and a kind, "Tekst", "Lista" (one or several values with suggestions) or "Zaznaczenie"; the kind cannot change afterwards. A name cannot repeat another own field or a built-in one ("Dzieło ma już wbudowane pole „Styl”."). Each field has a "…" menu to rename it, move it up or down, or delete it after a confirmation that names how many artworks lose it.
+- The values of an own list are listed in the tab under "Wartości" with their number of artworks, closed at first; renaming a value to another one's name merges the two after a confirmation.
+- The artwork form shows the own fields after "Miejsce", with their description as the hint, and the artwork view shows the filled ones: a list as tags, a text as text, a ticked field as "Tak".
+- The "Filtry" panel of the wall offers the own fields after "Miejsce": the values of a list, a search inside a text field, and the ticked fields in one section "Zaznaczone"; the filter stays in the address.
+
+### Changed
+
+- The arrow in the top bar of a form names where it leads ("← Mona Lisa", "← Atelier", "← Słowniczek") instead of the form's title, which is no longer shown.
+- Kalendarium has no line above the timeline any more ("1640 · w tym czasie: …"), so the timeline does not move while panning; a screen reader still hears the events at the reading line.
+- Internal: tab and text button variants in the component library, `BackHeading` removed, and fixes from the code review of the version.
+
+### Fixed
+
+- After saving an edit, the back arrow returns to the page before the artwork, value or entry in one step instead of showing the same page again.
+- A new glossary entry's arrow names Słowniczek, not the page before it.
+- The "Widok" dialog of the wall fits the width of a phone instead of scrolling sideways.
+
+### Migrations run on production
+
+Two migrations run on production with this release and change no existing data: `artwork_fields` creates the `artwork_fields` and `artwork_field_entries` tables with their policies and grants, lets `categories` hold a learner's own list categories (an optional owner and field, a read policy for the shared ones and the learner's own, the position unique only among the shared ones), makes `category_values` follow a deleted category, and replaces `save_artwork` with a version that takes optional field entries and replaces only the categories it is given, so the calls of the previous version, which send all five categories, keep working; `artwork_field_position_default` gives the position of an own field a default.
+
+## [0.7.1] - 2026-10-21
+
+The way back now leads where the learner came from, scrollbars no longer move the page, and free reviews draw a new set of artworks every time.
+
+### Added
+
+- The arrow in the top bar of an artwork, a value or a glossary entry goes back to the place the learner came from and names it ("← Kalendarium", "← Leonardo da Vinci"), also after the browser's back and forward buttons; a page opened directly links to its list. The modules have no back arrow, and the menu moves between them.
+- The wall, Słowniczek, Kartoteka and Kalendarium keep the learner's place, search and filters when the learner comes back to them.
+- On a larger screen, thin overlay scrollbars in the app's colours replace the native ones, so they take no space and never shift the content; they widen under the pointer and while dragged.
+
+### Changed
+
+- Every free review round draws up to 20 of the artworks already reviewed at random, so no two rounds are the same; the caption reads "Dodatkowa runda losowo wybranych dzieł, które już powtarzasz.".
+- The artworks at the reading line of Kalendarium stand in a row under the timeline, the nearest first, so the timeline no longer jumps while panning.
+- The review quizzes call the artwork "dzieło" ("W jakim stylu powstało to dzieło?"), because the collection also holds buildings and sculptures.
+- The wall's address names its filters in English (`era`, `style`, `favourites`, …); an old or unknown parameter is ignored instead of breaking the page.
+- Every form has the width of the artwork form, the event form included; the top bar keeps the way back on the left and the actions on the right.
+- Internal: shared top bar pieces and a not-found block in the component library, a Markdown check in CI, and fixes from the code review of the version.
+
+### Fixed
+
+- The review counter in the menu now updates after a review round and after a restore from the trash.
+- Going back from a glossary entry returns to the place in the list instead of its top.
+- A panel with an overlay scrollbar no longer scrolls past its content.
+
+### Migrations run on production
+
+One migration runs on production with this release and changes no existing data: `draw_free_review_rounds_at_random` replaces `review_session` with the same signature, drawing free rounds at random, so the calls of the previous version keep working.
+
 ## [0.7.0] - 2026-10-21
 
 A new module, "Kalendarium", shows the learner's artworks and their own historical events at true scale on a timeline, one era at a time.
@@ -349,3 +607,14 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.6.2]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.6.2
 [0.6.3]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.6.3
 [0.7.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.7.0
+[0.7.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.7.1
+[0.8.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.8.0
+[0.9.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.9.0
+[0.9.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.9.1
+[0.10.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.10.0
+[0.10.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.10.1
+[0.11.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.11.0
+[0.12.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.12.0
+[0.13.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.13.0
+[0.13.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.13.1
+[0.14.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.14.0

@@ -2,14 +2,23 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { invalidate } from '$app/navigation';
-import type { WallArtwork } from '#lib/collection/types.ts';
-import { m } from '#lib/i18n/index.ts';
-import { resolveImages } from '#lib/collection/artworks.ts';
-import { loadReviewDetails, loadSession, recordReview } from '#lib/review/review-data.ts';
-import type { ReviewCard, SessionRow } from '#lib/review/types.ts';
-import { testArtwork } from '#lib/testing/artworks.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import { testReviewCard } from '#lib/testing/review.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { resolveImages } from '#lib/wall/wall-data/wall-data.ts';
+import {
+	loadReviewDetails,
+	loadSession,
+	recordFreeAnswers,
+	recordReview
+} from '#lib/review/review-data/review-data.ts';
+import type { ReviewCard } from '#lib/review/types/review-card.ts';
+import type { SessionRow } from '#lib/review/types/session-row.ts';
+import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
+import type { Preferences } from '#lib/profile/types/preferences.ts';
+import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import { testReviewCard } from '#lib/testing/review/review.ts';
 import ReviewPage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -18,16 +27,26 @@ const navigation = vi.hoisted(() => ({
 	data: {}
 }));
 
-vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
+vi.mock('$app/state', () => ({
+	page: navigation,
+	navigating: { to: null },
+	updated: { current: false }
+}));
 vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidate: vi.fn() }));
-vi.mock('#lib/collection/artworks.ts', () => ({ resolveImages: vi.fn().mockResolvedValue([]) }));
-vi.mock('#lib/review/review-data.ts', () => ({
+vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
+	resolveImages: vi.fn().mockResolvedValue([])
+}));
+vi.mock('#lib/review/review-data/review-data.ts', () => ({
 	REVIEW_COUNTS_DEPENDENCY: 'review:counts',
 	loadReviewDetails: vi.fn().mockResolvedValue({ details: new Map() }),
 	loadSession: vi.fn(),
-	recordReview: vi.fn()
+	recordFreeAnswers: vi.fn(),
+	recordReview: vi.fn(),
+	withPinPreviews: async (items: unknown) => items
 }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -53,12 +72,27 @@ function flashcards(...numbers: number[]): SessionRow[] {
 	return numbers.map((number) => ({ artwork_id: `artwork-${number}`, mode: 'flashcard' }));
 }
 
+const terms: GlossaryEntry[] = ['Apse', 'Nave', 'Crypt', 'Choir'].map((name) => ({
+	id: name,
+	name,
+	category: 'architecture',
+	definition: `${name} is a part of a church.`,
+	synonyms: [],
+	forms: [],
+	sortName: null,
+	source: null
+}));
+
 function renderReview(
 	artworks: WallArtwork[],
 	reviewCards: Map<string, ReviewCard> = new Map(),
 	newToday = 0,
 	error?: string,
-	streak = 0
+	streak = 0,
+	menu: { reviewWaiting?: Promise<number>; waiting?: number } = {},
+	preferences: Preferences = defaultPreferences,
+	termPins?: number,
+	glossary: GlossaryEntry[] = []
 ): void {
 	render(ReviewPage, {
 		data: {
@@ -67,7 +101,11 @@ function renderReview(
 			cards: reviewCards,
 			newToday,
 			streak,
-			glossary: [],
+			waiting: undefined,
+			...menu,
+			glossary,
+			preferences,
+			termPins,
 			error
 		},
 		params: {}
@@ -104,7 +142,7 @@ describe('review page', () => {
 		await expect.element(page.getByText(m.review.how)).toBeVisible();
 		await expect
 			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
-			.toHaveAttribute('href', '/atelier');
+			.not.toBeInTheDocument();
 	});
 
 	it('tells how many days in a row there were reviews', async () => {
@@ -136,6 +174,9 @@ describe('review page', () => {
 	it('asks for more artworks with an image before the first session', async () => {
 		renderReview(collection(15));
 
+		await expect
+			.element(page.getByRole('heading', { name: m.review.tooFewTitle(20) }))
+			.toBeVisible();
 		await expect.element(page.getByText(m.review.tooFew(20, 5))).toBeVisible();
 		await expect
 			.element(page.getByRole('link', { name: m.atelier.add }))
@@ -156,7 +197,7 @@ describe('review page', () => {
 		await expect.element(page.getByText(m.review.allDone('jutro'))).toBeVisible();
 	});
 
-	it('offers a free review once today is done and saves none of its answers', async () => {
+	it('offers a free review once today is done and counts its answers without saving them', async () => {
 		const artworks = collection(20);
 		renderReview(
 			artworks,
@@ -176,9 +217,115 @@ describe('review page', () => {
 
 		await expect.element(page.getByText(m.review.freeSummary(2, 1))).toBeVisible();
 		expect(recordReview).not.toHaveBeenCalled();
+		expect(recordFreeAnswers).toHaveBeenCalledWith(expect.any(Date), 2);
 		expect(invalidate).not.toHaveBeenCalled();
 		await page.getByRole('button', { name: m.review.freeNextRound }).click();
 		expect(loadSession).toHaveBeenLastCalledWith(expect.any(Date), 'mixed', { kind: 'all' }, 1);
+	});
+
+	it('does not offer a free review when the preferences switch it off', async () => {
+		const artworks = collection(20);
+		renderReview(
+			artworks,
+			cards(artworks, () => 6),
+			0,
+			undefined,
+			0,
+			{},
+			{ ...defaultPreferences, reviewFree: false }
+		);
+
+		await expect.element(page.getByRole('heading', { name: m.review.allDoneTitle })).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.review.free })).not.toBeInTheDocument();
+	});
+
+	it('opens with the form and the limits of the preferences', async () => {
+		const artworks = collection(25);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 20), () => 5),
+			0,
+			undefined,
+			0,
+			{},
+			{ ...defaultPreferences, reviewForm: 'quizzes', reviewNewPerDay: 5 }
+		);
+
+		await expect.element(page.getByText(m.review.plan(0, 5))).toBeVisible();
+		await page.getByText(m.review.options).click();
+		await expect
+			.element(page.getByRole('button', { name: m.review.forms.quizzes }))
+			.toHaveAttribute('aria-pressed', 'true');
+	});
+
+	it('leaves out "Quizy" and starts mixed when no quiz kind can be asked', async () => {
+		const artworks = collection(25);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 20), () => 5),
+			0,
+			undefined,
+			0,
+			{},
+			{ ...defaultPreferences, reviewForm: 'quizzes', reviewQuizKinds: ['quiz_pin'] },
+			0
+		);
+
+		await page.getByText(m.review.options).click();
+		await expect
+			.element(page.getByRole('button', { name: m.review.forms.mixed }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect
+			.element(page.getByRole('button', { name: m.review.forms.quizzes }))
+			.not.toBeInTheDocument();
+		await page.getByRole('button', { name: m.review.start }).click();
+		expect(loadSession).toHaveBeenCalledWith(expect.any(Date), 'mixed', { kind: 'all' });
+	});
+
+	it('adds the definitions of the preferences to a session unless they are switched off', async () => {
+		const artworks = collection(25);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 20), () => 5),
+			0,
+			undefined,
+			0,
+			{},
+			{ ...defaultPreferences, reviewGlossaryQuestions: 2 },
+			0,
+			terms
+		);
+
+		await page.getByText(m.review.options).click();
+		await expect.element(page.getByText(m.review.definitionsHint(2))).toBeVisible();
+		await page.getByRole('button', { name: m.review.start }).click();
+		await expect.element(page.getByText(m.review.progress(1, 6))).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { name: m.review.flashcard.question }))
+			.toBeVisible();
+	});
+
+	it('leaves the definitions out when they are switched off', async () => {
+		const artworks = collection(25);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 20), () => 5),
+			0,
+			undefined,
+			0,
+			{},
+			defaultPreferences,
+			0,
+			terms
+		);
+
+		await page.getByText(m.review.options).click();
+		await page.getByText(m.review.definitions).click();
+		await expect
+			.element(page.getByRole('switch', { name: m.review.definitions }))
+			.not.toBeChecked();
+		await page.getByRole('button', { name: m.review.start }).click();
+		await expect.element(page.getByText(m.review.progress(1, 4))).toBeVisible();
 	});
 
 	it('says in a free session that its answers are not saved', async () => {
@@ -272,7 +419,7 @@ describe('review page', () => {
 		expect(hard.querySelectorAll('ul.column li')).toHaveLength(1);
 		await expect
 			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
-			.toHaveAttribute('href', '/atelier');
+			.not.toBeInTheDocument();
 		expect(invalidate).toHaveBeenCalledWith('review:counts');
 	});
 
@@ -406,5 +553,24 @@ describe('review page', () => {
 
 		await expect.element(page.getByText(m.common.unexpectedError)).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.review.start })).toBeEnabled();
+	});
+
+	it('refreshes the menu count when it differs from the counts the page loaded', async () => {
+		renderReview(collection(6), new Map(), 0, undefined, 0, {
+			reviewWaiting: Promise.resolve(3),
+			waiting: 0
+		});
+
+		await vi.waitFor(() => expect(invalidate).toHaveBeenCalledWith('review:counts'));
+	});
+
+	it('leaves the menu count alone when it matches the page', async () => {
+		renderReview(collection(6), new Map(), 0, undefined, 0, {
+			reviewWaiting: Promise.resolve(2),
+			waiting: 2
+		});
+
+		await new Promise((resolve) => setTimeout(resolve, 100));
+		expect(invalidate).not.toHaveBeenCalled();
 	});
 });

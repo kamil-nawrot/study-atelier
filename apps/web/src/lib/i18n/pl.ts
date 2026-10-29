@@ -43,23 +43,42 @@ export const pl = {
 			remove: (name: string): string => `Usuń ${name}`
 		},
 		searchSelect: {
-			empty: 'Nic nie pasuje',
+			empty: 'Brak pasujących wartości',
 			clear: (label: string): string => `Wyczyść: ${label}`
 		}
 	},
 	common: {
 		email: 'E-mail',
 		password: 'Hasło',
+		stopFetch: 'Przerwij',
+		name: 'Nazwa',
+		notes: 'Notatki',
+		add: 'Dodaj',
+		edit: 'Edytuj',
+		save: 'Zapisz',
+		saving: 'Zapisywanie…',
+		delete: 'Usuń',
+		deleting: 'Usuwanie…',
+		replace: 'Zastąp',
+		merge: 'Połącz',
+		cancel: 'Anuluj',
+		back: 'Wróć',
+		sending: 'Wysyłanie…',
 		backToSignIn: 'Wróć do logowania',
+		wikipediaSource: 'Na podstawie: Wikipedia, ',
+		discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.',
+		network:
+			'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie z internetem i spróbuj jeszcze raz.',
 		unexpectedError: 'Coś poszło nie tak. Spróbuj jeszcze raz za chwilę.'
 	},
 	validation: {
 		emailRequired: 'Wpisz adres e-mail.',
-		emailInvalid: 'To nie wygląda na pełny adres e-mail. Przykład: anna@przyklad.pl.',
+		emailInvalid: 'To nie wygląda na pełny adres e-mail. Przykład: vincent@przyklad.pl.',
 		passwordRequired: 'Wpisz hasło.',
-		passwordTooShort: (min: number, length: number): string =>
-			`Hasło ma ${length} ${plural(length, { one: 'znak', few: 'znaki', many: 'znaków' })}. Potrzeba co najmniej ${min}.`,
-		passwordHint: (min: number): string => `Co najmniej ${min} znaków.`
+		passwordTooShort: (min: number): string =>
+			`Twoje hasło musi mieć co najmniej ${min} ${plural(min, { one: 'znak', few: 'znaki', many: 'znaków' })}.`,
+		passwordHint: (min: number): string =>
+			`Co najmniej ${min} ${plural(min, { one: 'znak', few: 'znaki', many: 'znaków' })}.`
 	},
 	authErrors: {
 		sessionEnded: 'Twoja sesja wygasła. Zaloguj się jeszcze raz.',
@@ -69,10 +88,11 @@ export const pl = {
 			'Ten adres nie jest jeszcze potwierdzony. Kliknij link z wiadomości, którą wysłaliśmy po rejestracji.',
 		weakPassword: 'To hasło łatwo odgadnąć. Wybierz dłuższe, najlepiej z cyframi i znakami.',
 		samePassword: 'Nowe hasło musi być inne niż obecne.',
+		emailTaken: 'Ten adres jest już przypisany do innego konta.',
 		rateLimited: 'Sporo prób w krótkim czasie. Odczekaj chwilę i spróbuj jeszcze raz.',
 		emailRateLimited:
 			'Kilka wiadomości jest już w drodze. Daj im chwilę, zanim poprosisz o kolejną.',
-		network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.'
+		captchaFailed: 'Nie udało się potwierdzić, że to Ty, a nie automat. Spróbuj jeszcze raz.'
 	},
 	artwork: {
 		credit: 'Wikimedia Commons, domena publiczna',
@@ -94,7 +114,7 @@ export const pl = {
 	},
 	signUp: {
 		title: 'Załóż konto',
-		lead: 'Załóż konto i zbieraj dzieła, które poznajesz, we własnym atelier.',
+		lead: 'Załóż konto i buduj swoją prywatną kolekcję dzieł sztuki we własnym atelier.',
 		submit: 'Załóż konto',
 		submitting: 'Zakładanie konta…',
 		errorTitle: 'Nie udało się założyć konta',
@@ -111,14 +131,12 @@ export const pl = {
 		sentNoEmail: 'Kliknij link z wiadomości, żeby potwierdzić konto.',
 		notReceived: 'Nic nie dotarło? Zajrzyj do spamu albo poproś o nowy link.',
 		resend: 'Wyślij link ponownie',
-		resending: 'Wysyłanie…',
 		resent: 'Wysłaliśmy nowy link.'
 	},
 	forgotPassword: {
 		title: 'Nie pamiętasz hasła?',
 		lead: 'Zdarza się. Podaj e-mail konta, a wyślemy link do ustawienia nowego hasła.',
 		submit: 'Wyślij link',
-		submitting: 'Wysyłanie…',
 		sentTitle: 'Sprawdź skrzynkę',
 		sent: (email: string): string =>
 			`Jeśli konto ${email} istnieje, wysłaliśmy na nie link do ustawienia nowego hasła.`,
@@ -129,21 +147,56 @@ export const pl = {
 		lead: 'Wybierz nowe hasło do swojego konta.',
 		newPassword: 'Nowe hasło',
 		submit: 'Zapisz hasło',
-		submitting: 'Zapisywanie…',
 		errorTitle: 'Nie udało się zapisać hasła',
 		expiredTitle: 'Link wygasł',
 		expired: 'Ten link już nie działa: wygasł albo został użyty. Poproś o nowy.',
 		requestNew: 'Wyślij nowy link'
 	},
+	publicHeader: {
+		label: 'Konto',
+		toAtelier: 'Przejdź do atelier'
+	},
 	landing: {
-		title: 'Atelier do nauki historii sztuki',
-		lead: 'Twoja własna kolekcja dzieł, budowana w trakcie nauki.',
-		description: [
-			'Każde dzieło opisujesz sam: tytuł, autora, datę, styl i swoje notatki. Samo wpisywanie jest częścią nauki.',
-			'Z czasem powstaje z tego Twoja baza wiedzy, do której łatwo wrócić i którą łatwo przeszukać.'
-		],
+		pageTitle: 'Study Atelier – atelier do nauki historii sztuki',
+		metaDescription:
+			'Study Atelier to miejsce, w którym uczysz się historii sztuki, budując własną kolekcję dzieł.',
+		accountLabel: 'Konto',
+		title: 'Atelier do nauki',
+		titleAccent: 'historii sztuki',
+		text: 'Study Atelier to miejsce, w którym uczysz się historii sztuki, budując własną kolekcję dzieł. Zapisujesz dzieła, które poznajesz w muzeum, na wykładzie albo w książce, opisujesz je po swojemu i łączysz ze sobą. Z czasem powstaje z tego osobista baza wiedzy, do której zawsze możesz wrócić, a krótkie codzienne powtórki pomagają zapamiętać to, czego się uczysz.',
 		signIn: 'Zaloguj się',
-		signUp: 'Załóż konto'
+		signUp: 'Załóż konto',
+		modulesTitle: 'Co znajdziesz w atelier',
+		modules: [
+			{
+				title: 'Atelier',
+				text: 'Wszystkie zebrane przez Ciebie dzieła prezentowane w formie estetycznej kolekcji. Możesz je dowolnie filtrować, a także grupować według epok i stylów, dzięki czemu Twoja kolekcja może stać się wygodnym źródłem wiedzy o sztuce.'
+			},
+			{
+				title: 'Kartoteka',
+				text: 'Gromadzi wszystkie wartości, których używasz do opisywania dzieł: epoki, style, autorów i miejsca. Pozwala nimi zarządzać i wprowadzać dodatkowe szczegóły, aby łatwo poszerzać swoją wiedzę o dodatkowe konteksty.'
+			},
+			{
+				title: 'Słowniczek',
+				text: 'Wszystkie pojęcia i postaci, które warto zapamiętać, możesz dodać do swojego osobistego słownika wraz z definicją. Dzięki temu będziesz w stanie lepiej je zapamiętać, a Twoje notatki o dziełach sztuki wzbogacą się o dodatkowe informacje.'
+			},
+			{
+				title: 'Kalendarium',
+				text: 'Jeśli chcesz zrozumieć sztukę w kontekście historycznym, możesz skorzystać z własnego kalendarium i nakładać na interaktywną oś czasu dzieła oraz wydarzenia i okresy historyczne, by badać wpływ dziejów świata na sztukę i odwrotnie.'
+			},
+			{
+				title: 'Kronika',
+				text: 'Twoje atelier może też posłużyć jako dziennik Twoich spotkań ze sztuką – możesz skorzystać z kroniki i zapisywać w niej swoje wizyty w muzeach czy galeriach. Dzięki temu Twoja kolekcja zyska dodatkowy, osobisty wymiar.'
+			},
+			{
+				title: 'Powtórki',
+				text: 'Jeśli chcesz efektywnie utrwalać swoją wiedzę o sztuce, możesz zmierzyć się z codziennymi wyzwaniami powtórkowymi, w których klasyczne fiszki i różnorodne quizy przeplatają się tak, by każde dzieło wracało do Ciebie wtedy, gdy zaczynasz je zapominać.'
+			}
+		],
+		closingTitle: 'Chcesz zbudować własną kolekcję sztuki?',
+		closingText:
+			'Otwórz atelier już teraz i daj swojej wiedzy o sztuce miejsce, w którym będzie mogła rosnąć.',
+		contact: 'kontakt@studyatelier.art'
 	},
 	menu: {
 		label: 'Menu',
@@ -155,13 +208,173 @@ export const pl = {
 		cardIndex: 'Kartoteka',
 		glossary: 'Słowniczek',
 		timeline: 'Kalendarium',
+		chronicle: 'Kronika',
 		review: 'Powtórki',
 		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
-		trash: 'Kosz',
+		trash: 'Archiwum',
+		settings: 'Ustawienia',
+		settingsLink: (name: string, email: string): string =>
+			name === email ? `Ustawienia, ${email}` : `Ustawienia, ${name}, ${email}`,
 		feedback: 'Zgłoś uwagę',
 		lightTheme: 'Jasny motyw',
 		darkTheme: 'Ciemny motyw',
 		signOut: 'Wyloguj się'
+	},
+	settings: {
+		title: 'Ustawienia',
+		lead: 'Tutaj możesz zmienić swoje dane oraz zarządzać preferencjami dotyczącymi funkcjonowania Twojego atelier.',
+		tabsLabel: 'Części ustawień',
+		tabs: {
+			profile: 'Profil',
+			account: 'Konto',
+			review: 'Powtórki',
+			view: 'Widok dzieła',
+			sources: 'Źródła',
+			data: 'Dane'
+		},
+		loadErrorTitle: 'Nie udało się wczytać ustawień',
+		profile: {
+			avatarAlt: 'Twoje zdjęcie',
+			addPhoto: 'Dodaj zdjęcie',
+			changePhoto: 'Zmień zdjęcie',
+			photoHint: 'Zdjęcie zostanie automatycznie dopasowane do rozmiaru awatara',
+			removePhoto: 'Usuń zdjęcie',
+			name: 'Imię',
+			email: 'Adres e-mail',
+			emailHint: 'Adres podany przy rejestracji. Zmienisz go w zakładce „Konto”.',
+			nameTooLong: (max: number): string => `Imię może mieć najwyżej ${max} znaków.`,
+			save: 'Zapisz profil',
+			saved: 'Zapisano profil.',
+			errorTitle: 'Nie udało się zapisać profilu',
+			failed: 'Nie udało się zapisać profilu. Spróbuj jeszcze raz.',
+			avatarQuotaFull:
+				'Brakuje miejsca na zdjęcia, więc awatara nie da się teraz zapisać. Usuń niepotrzebne zdjęcia dzieł. Miejsce zwolni się w ciągu doby.'
+		},
+		account: {
+			emailTitle: 'Adres e-mail',
+			currentEmail: (email: string): string => `Obecny adres: ${email}`,
+			newEmail: 'Nowy adres e-mail',
+			emailSubmit: 'Zmień adres',
+			sameEmail: 'To jest Twój obecny adres.',
+			emailSentTitle: 'Link wysłany',
+			emailSent: 'Wysłałem link na stary i na nowy adres. Kliknij oba, a zmiana wejdzie w życie.',
+			emailPending: (email: string): string =>
+				`Czeka na potwierdzenie zmiany na ${email}. Kliknij w linki, które zostały wysłane na stary i na nowy adres, aby dokończyć procedurę.`,
+			emailChanged: 'Adres e-mail został pomyślnie zmieniony.',
+			emailErrorTitle: 'Nie udało się zmienić adresu',
+			passwordTitle: 'Zmiana hasła',
+			currentPassword: 'Obecne hasło',
+			newPassword: 'Nowe hasło',
+			signOutOthers: 'Wyloguj mnie na innych urządzeniach',
+			submit: 'Zmień hasło',
+			submitting: 'Zmienianie…',
+			wrongCurrent: 'To nie jest Twoje obecne hasło.',
+			sameAsCurrent: 'Nowe hasło musi być inne niż obecne.',
+			changed: 'Hasło zostało pomyślnie zmienione.',
+			errorTitle: 'Nie udało się zmienić hasła',
+			othersFailedTitle: 'Hasło zostało pomyślnie zmienione',
+			othersFailed:
+				'Nie udało się wylogować Cię na innych urządzeniach. Wyloguj się tam ręcznie albo zmień hasło jeszcze raz.',
+			deleteTitle: 'Usuń konto',
+			deleteDescription:
+				'Usunięcie konta usuwa na zawsze całe atelier: dzieła, zdjęcia, notatki, Słowniczek, Kalendarium, Kronikę i historię powtórek.',
+			deleteOpen: 'Usuń konto…',
+			deleteConfirmTitle: 'Usunąć konto na zawsze?',
+			deleteConfirmDescription:
+				'Konto i całe atelier znikną bezpowrotnie. Jeśli chcesz coś zachować, najpierw pobierz kopię w zakładce Dane.',
+			deleteToData: 'Przejdź do zakładki Dane',
+			deletePassword: 'Hasło',
+			deleteSubmit: 'Usuń konto',
+			deleting: 'Usuwanie konta…',
+			deleteFailed: 'Nie udało się usunąć konta. Nic nie zostało usunięte, spróbuj jeszcze raz.',
+			deleted: 'Konto zostało usunięte razem z całym atelier.'
+		},
+		preferences: {
+			sessionSize: 'Z ilu dzieł powinna składać się pojedyncza sesja?',
+			newPerDay: 'Ile nowych dzieł powinno codziennie dołączać do puli powtórek?',
+			form: 'Jaka powinna być domyślna forma powtórek?',
+			formHint: 'Zmienisz ją też na starcie powtórki.',
+			kinds: 'Jakich elementów mogą dotyczyć quizy powtórkowe?',
+			kindLabels: {
+				quiz_image: 'Dopasowywanie dzieła do tytułu',
+				quiz_title: 'Dopasowywanie tytułu do dzieła',
+				quiz_author: 'Dopasowywanie autora do dzieła',
+				quiz_style: 'Dopasowywanie stylu do dzieła',
+				quiz_pin: 'Dopasowywanie detalu do definicji'
+			},
+			kindsHint: 'Zostaw zaznaczony przynajmniej jeden rodzaj.',
+			glossaryQuestions: 'Ile pytań dodatkowych ze Słowniczka dołączać do sesji?',
+			free: 'Proponuj powtórkę swobodną po skończonym dniu',
+			showPins: 'Pokazuj pinezki od razu po otwarciu dzieła',
+			loupe: 'Włączaj lupę od razu po otwarciu dzieła',
+			sourcesHint:
+				'Jeśli zaznaczysz opcję, materiały dotyczące danej wartości będą pobierać się automatycznie po uzupełnieniu potrzebnych do pobrania szczegółów. ' +
+				'Po wyłączeniu nadal możesz korzystać z podpowiedzi, używając odpowiedniego przycisku w formularzu.',
+			fetchImage: 'Automatycznie szukaj zdjęcia nowego dzieła w Wikidata i Commons',
+			fetchDefinition: 'Automatycznie uzupełniaj definicję hasła ze Słowniczka z Wikipedii',
+			fetchForms: 'Automatycznie podpowiadaj odmianę wyrazu z Wikisłownika dla hasła ze Słowniczka',
+			fetchEvent: 'Automatycznie uzupełniaj opis i daty wydarzenia z Wikipedii',
+			save: 'Zapisz ustawienia',
+			saved: 'Zapisano ustawienia.',
+			errorTitle: 'Nie udało się zapisać ustawień'
+		},
+		data: {
+			exportTitle: 'Eksport',
+			exportDescription:
+				'Pobierz całe atelier w jednym pliku ZIP: dzieła z notatkami, własne zdjęcia, pinezki, Słowniczek, Kalendarium, a także Archiwum i historię powtórek.',
+			exportHint:
+				'Zdjęcia z Wikimedia Commons i z linków pozostaną odnośnikami. Duże atelier lepiej wyeksportować na komputerze.',
+			exportButton: 'Pobierz atelier',
+			reading: 'Zbieranie dzieł…',
+			images: (done: number, total: number): string => `Zdjęcia: ${done} z ${total}`,
+			packing: 'Pakowanie pliku…',
+			exported: 'Plik z atelier został pomyślnie pobrany.',
+			importTitle: 'Import',
+			importDescription:
+				'Wczytaj plik z eksportu do pustego atelier. Dzieła, a także harmonogram powtórek zostaną takie same jak w kopii.',
+			importHint:
+				'Import niczego nie łączy ani nie nadpisuje, dlatego działa tylko w pustym atelier.',
+			importButton: 'Wybierz plik ZIP',
+			importFilled: 'W tym atelier już coś jest, więc nie można wczytać kopii.',
+			importReading: 'Odczytywanie pliku…',
+			importSaving: 'Zapisywanie atelier…',
+			imported: 'Atelier zostało pomyślnie wczytane.',
+			importErrorTitle: 'Nie udało się wczytać pliku',
+			importNotZip: 'To nie jest plik ZIP.',
+			importNoData: 'W tym pliku nie ma atelier.json, więc to nie wygląda na eksport z Atelier.',
+			importNotAtelier: 'Ten plik nie pochodzi z eksportu Atelier.',
+			importNewer:
+				'Ten plik pochodzi z nowszej wersji Atelier. Odśwież aplikację i spróbuj jeszcze raz.',
+			importBroken: 'Nie udało się odczytać tego pliku. Jest uszkodzony albo niepełny.',
+			importFailed:
+				'Nie udało się wczytać atelier. Nic nie zostało zmienione, spróbuj jeszcze raz.',
+			importNotEmpty: 'Atelier nie jest już puste, więc nic nie zostało wczytane.',
+			importLimit:
+				'Ta kopia nie mieści się w limitach jednego atelier, więc nic nie zostało wczytane.',
+			importTooMany: (what: string, limit: number): string =>
+				`Ta kopia ma więcej ${what}, niż zmieści jedno atelier (${limit}), więc nic nie zostało wczytane.`,
+			importTables: {
+				artworks: 'dzieł',
+				category_values: 'wartości w Kartotece',
+				glossary_entries: 'pojęć w Słowniczku',
+				timeline_events: 'wydarzeń w Kalendarium',
+				visits: 'wizyt w Kronice',
+				artwork_fields: 'własnych pól',
+				artwork_values: 'wartości przypisanych do dzieł',
+				visit_artworks: 'dzieł przypisanych do wizyt',
+				artwork_field_entries: 'wpisów we własnych polach',
+				review_log: 'odpowiedzi w powtórkach',
+				feedback: 'zgłoszeń'
+			},
+			storageTitle: 'Miejsce na zdjęcia',
+			storageUsage: (usedMegabytes: string, quotaMegabytes: string): string =>
+				`Twoje zdjęcia zajmują ${usedMegabytes} MB z ${quotaMegabytes} MB.`,
+			errorTitle: 'Nie udało się wyeksportować atelier',
+			failed:
+				'Spróbuj jeszcze raz. Jeśli problem się powtarza, spróbuj wykonać eksport na innym urządzeniu.',
+			imageFailed:
+				'Nie udało się pobrać jednego z Twoich zdjęć, a bez niego kopia byłaby niepełna. Spróbuj jeszcze raz.'
+		}
 	},
 	atelier: {
 		title: 'Atelier',
@@ -180,7 +393,7 @@ export const pl = {
 			label: 'Grupuj',
 			button: (levels: string): string => `Grupowanie: ${levels}`,
 			off: 'wyłączone',
-			hint: 'Kliknij jeszcze raz najniższy poziom, żeby go wyłączyć.',
+			hint: 'Kliknij jeszcze raz na najniższy zaznaczony poziom, żeby go wyłączyć.',
 			steps: {
 				era: 'Epoka',
 				period: 'Okres',
@@ -199,16 +412,32 @@ export const pl = {
 			label: 'Autorzy'
 		},
 		add: 'Dodaj dzieło',
-		emptyTitle: 'Twoje atelier jest jeszcze puste',
-		empty:
-			'Dodaj pierwsze dzieło, które poznajesz w książce albo na wykładzie. Na początek wystarczą tytuł i autor.',
+		welcome: {
+			title: 'Twoje atelier jest jeszcze puste',
+			text: 'Atelier to Twoja prywatna kolekcja dzieł, które poznajesz. Mogą to być obrazy zobaczone w muzeum, budowle z podróży albo rzeźby omawiane na wykładzie. Każde dzieło zapisujesz i opisujesz po swojemu. Z czasem z tych opisów powstaje mapa historii sztuki, którą tworzysz krok po kroku.',
+			howTitle: 'Jak to działa?',
+			steps: [
+				{
+					title: 'Dodaj dzieło',
+					text: 'Zacznij od tytułu i autora, czyli od tego, co zwykle zapamiętujesz najpierw. Obraz dzieła możesz wyszukać w Wikimedia Commons albo dodać własne zdjęcie, na przykład zrobione w muzeum. Datę powstania, epokę, styl czy technikę uzupełnisz od razu albo wtedy, gdy dowiesz się o dziele więcej.'
+				},
+				{
+					title: 'Opisuj i łącz',
+					text: 'Wszystko, co wpisujesz przy dziełach, trafia do Kartoteki. Tam widzisz, które dzieła łączy ten sam autor, styl, epoka albo miejsce. Nowe pojęcia możesz zapisać w Słowniczku, a w notatkach odsyłać do innych dzieł i do wartości z Kartoteki.'
+				},
+				{
+					title: 'Powtarzaj',
+					text: 'Kiedy w atelier zbierze się dwadzieścia dzieł z obrazami, możesz zacząć powtórki. To krótkie codzienne sesje: widzisz dzieło i sprawdzasz, czy pamiętasz, co to jest. Dzieła, które rozpoznajesz bez trudu, wracają rzadziej, a te sprawiające kłopot częściej. Dzięki temu nauka zajmuje kilka minut dziennie.'
+				}
+			]
+		},
 		addFirst: 'Dodaj pierwsze dzieło',
-		noResultsTitle: 'Nie ma tu takiego dzieła',
+		noResultsTitle: 'Nie udało się znaleźć żadnego pasującego dzieła',
 		noResults: (query: string): string =>
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu lub nazwiska.`,
 		clearSearch: 'Wyczyść wyszukiwanie',
 		loadErrorTitle: 'Nie udało się wczytać atelier',
-		imagesUnavailableTitle: 'Nie wszystkie obrazy się wczytały',
+		imagesUnavailableTitle: 'Nie wszystkie obrazy wczytały się poprawnie',
 		imagesUnavailable: 'Część zdjęć nie jest teraz dostępna. Spróbuj jeszcze raz za chwilę.',
 		retryImages: 'Spróbuj ponownie',
 		year: (year: number, approximate: boolean): string =>
@@ -228,12 +457,13 @@ export const pl = {
 			viewButton: 'Widok',
 			viewTitle: 'Widok',
 			closePanel: 'Zamknij filtry',
-			activeLabel: 'Włączone filtry',
+			activeLabel: 'Aktywne filtry',
 			clear: 'Wyczyść filtry',
 			removeTag: (label: string): string => `Usuń filtr: ${label}`,
-			noResultsTitle: 'Nic tu nie pasuje',
-			noResults: 'Żadne dzieło nie pasuje do tych filtrów.',
-			noFavourites: 'Nie ma jeszcze ulubionych dzieł.',
+			noResultsTitle: 'Nie udało się znaleźć żadnego pasującego dzieła',
+			noResults:
+				'Żadne dzieło nie pasuje do wybranych przez Ciebie filtrów. Spróbuj zmienić kryteria filtrowania i wyszukać jeszcze raz.',
+			noFavourites: 'Nie masz jeszcze żadnych ulubionych dzieł.',
 			showResults: (count: number): string =>
 				`Pokaż ${count} ${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })}`,
 			fields: {
@@ -246,8 +476,11 @@ export const pl = {
 				materials: 'Materiał',
 				locations: 'Miejsce',
 				missing: 'Do uzupełnienia',
-				favourites: 'Ulubione'
+				favourites: 'Ulubione',
+				seen: 'Widziane na żywo',
+				ticked: 'Zaznaczone'
 			},
+			ownField: 'Własne pole',
 			tagFields: {
 				eras: 'Epoka',
 				types: 'Typ',
@@ -258,7 +491,8 @@ export const pl = {
 				materials: 'Materiał',
 				locations: 'Miejsce',
 				missing: 'Do uzupełnienia',
-				favourites: 'Ulubione'
+				favourites: 'Ulubione',
+				seen: 'Widziane na żywo'
 			},
 			tag: (field: string, value: string): string => `${field} ${value}`,
 			unknownAuthor: 'Autor nieznany',
@@ -286,7 +520,6 @@ export const pl = {
 		newTitle: 'Nowe dzieło',
 		editTitle: (number: string): string => `Edytuj dzieło ${number}`,
 		back: 'Wróć do atelier',
-		goBack: 'Wróć',
 		notFoundTitle: (number: string): string => `Nie ma dzieła ${number}`,
 		loadErrorTitle: 'Nie udało się wczytać dzieła',
 		image: 'Obraz',
@@ -295,21 +528,21 @@ export const pl = {
 		setMainImage: 'Ustaw jako główne',
 		imageSlot: (number: number, count: number): string => `Obraz ${number} z ${count}`,
 		findImage: 'Znajdź obraz',
-		ownImage: 'Dodaj własne',
-		changeOwnImage: 'Zmień własne',
+		ownImage: 'Dodaj własny',
+		changeOwnImage: 'Zmień własny',
 		ownImageTitle: 'Dodaj własny obraz',
 		changeOwnImageTitle: 'Zmień własny obraz',
 		removeImage: 'Usuń obraz',
 		chooseFile: 'Wybierz plik z dysku',
 		fileHint: (formats: string, maxMegabytes: number): string =>
-			`${formats}. Większe niż ${maxMegabytes} MB zmniejszę.`,
+			`Akceptowalne formaty zdjęć to: ${formats}. Pliki większe niż ${maxMegabytes} MB zostaną automatycznie zmniejszone.`,
 		pasteFromClipboard: 'Wklej ze schowka',
 		pasteHintLead: 'Masz obraz w schowku? Po prostu naciśnij',
 		pasteHintForm: 'Obraz ze schowka możesz też wkleić tutaj:',
 		replaceImageTitle: 'Zastąpić obecny obraz?',
 		replaceImageDescription: 'Wklejony obraz zajmie jego miejsce.',
-		replaceImage: 'Zastąp',
-		keepImage: 'Zostaw obecne',
+		keepImage: 'Zostaw obecny',
+		removeImageTitle: 'Usunąć obraz?',
 		imageUrl: 'Jeśli wolisz, podaj po prostu adres obrazka',
 		imageUrlPlaceholder: 'https://…',
 		useImageUrl: 'Użyj',
@@ -319,9 +552,10 @@ export const pl = {
 			`Twój obraz z adresu ${host}, widoczny tylko dla Ciebie.`,
 		findImageHint: 'Wpisz tytuł i autora, żeby znaleźć obraz.',
 		chooseOtherImage: 'Wybierz inny',
-		matchSearching: 'Szukam obrazu w Wikidata…',
+		matchSearching: 'Wyszukiwanie obrazu w Wikidata…',
 		matchFound: (details: string): string => `Z Wikidata: ${details}`,
-		matchNone: 'Nie znalazłem tego dzieła w Wikidata. Poszukaj sam albo dodaj własny obraz.',
+		matchNone:
+			'Nie udało się odnaleźć tego dzieła w Wikidata. Dodaj własny obraz z linku lub bezpośrednio z komputera.',
 		title: 'Tytuł',
 		authors: 'Autorzy',
 		authorUnknown: 'Autor nieznany',
@@ -342,20 +576,15 @@ export const pl = {
 		styleLocked: 'Najpierw wybierz okres.',
 		material: 'Materiał',
 		location: 'Miejsce',
-		locationHint: 'Gdzie dzieło jest teraz?',
-		notes: 'Notatki',
-		notesPlaceholder: 'Co warto zapamiętać, skąd znasz to dzieło',
+		locationHint: 'Gdzie dzieło znajduje się teraz?',
+		notesPlaceholder: 'Co warto zapamiętać? Skąd znasz to dzieło?',
 		notesLinkHint:
 			'Wpisz @, żeby dodać odnośnik do autora, epoki albo miejsca, albo #, żeby dodać odnośnik do dzieła.',
-		cancel: 'Anuluj',
 		saveAndNext: 'Zapisz i dodaj kolejne',
-		save: 'Zapisz',
-		saving: 'Zapisywanie…',
 		errorTitle: 'Nie udało się zapisać dzieła',
 		saved: (number: string): string => `Zapisano dzieło ${number}.`,
 		changesSaved: (number: string): string => `Zapisano zmiany w ${number}.`,
 		discardTitle: 'Odrzucić zmiany?',
-		discardDescription: 'Masz niezapisane zmiany w tym dziele. Jeśli wyjdziesz, znikną.',
 		keepEditing: 'Wróć do formularza',
 		discard: 'Odrzuć'
 	},
@@ -370,7 +599,7 @@ export const pl = {
 		},
 		restore: {
 			advice: 'Jeśli to inne dzieło, po prostu je przywróć.',
-			back: 'Zostaw w koszu',
+			back: 'Zostaw w Archiwum',
 			confirm: 'Przywróć mimo to'
 		}
 	},
@@ -378,8 +607,6 @@ export const pl = {
 		previousImage: 'Poprzedni obraz',
 		nextImage: 'Następny obraz',
 		back: 'Atelier',
-		edit: 'Edytuj',
-		delete: 'Usuń',
 		addImage: 'Dodaj obraz',
 		information: 'Informacje',
 		showInformation: 'Pokaż informacje',
@@ -389,6 +616,13 @@ export const pl = {
 		empty: 'Nie wpisano',
 		previous: 'Poprzednie dzieło',
 		next: 'Następne dzieło'
+	},
+	loupe: {
+		label: 'Lupa',
+		leave: 'Wyłącz lupę: Esc, prawy przycisk albo kliknięcie obok',
+		unavailable: 'Rozdzielczość tego obrazu jest zbyt mała, żeby można było skorzystać z lupy.',
+		tooLarge: 'Ten obraz z adresu jest zbyt duży, żeby można było skorzystać z lupy.',
+		level: (level: number): string => `${level.toLocaleString('pl', { maximumFractionDigits: 1 })}×`
 	},
 	favourite: {
 		add: 'Dodaj do ulubionych',
@@ -400,7 +634,7 @@ export const pl = {
 	review: {
 		title: 'Powtórki',
 		loadErrorTitle: 'Nie udało się wczytać powtórek',
-		startErrorTitle: 'Nie udało się zacząć powtórki',
+		startErrorTitle: 'Nie udało się rozpocząć sesji powtórkowej',
 		waiting: (count: number): string => `Na dziś do powtórki zaplanowane masz ${workCount(count)}`,
 		plan: (known: number, fresh: number): string =>
 			[
@@ -415,8 +649,10 @@ export const pl = {
 			`Seria: ${days} ${plural(days, { one: 'dzień', few: 'dni', many: 'dni' })} z powtórkami z rzędu`,
 		allDoneTitle: 'Nic nowego do powtórki',
 		allDone: (when: string): string => `Kolejne dzieła będą na Ciebie czekać ${when}.`,
+		tooFewTitle: (minimum: number): string =>
+			`Powtórki staną się dostępne przy ${minimum} dziełach`,
 		tooFew: (minimum: number, missing: number): string =>
-			`Powtórki będzie można rozpocząć, gdy w Twoim atelier znajdzie się przynajmniej ${minimum} dzieł z obrazami. Obecnie brakuje jeszcze ${missing}.`,
+			`Sesje powtórkowe potrzebują co najmniej ${minimum} dzieł z obrazami w Twoim atelier. Obecnie brakuje ich jeszcze ${missing}.`,
 		options: 'Zmień zakres lub formę',
 		scope: 'Co powtarzamy?',
 		scopes: {
@@ -429,51 +665,65 @@ export const pl = {
 			quizzes: 'Quizy'
 		},
 		formHints: {
-			mixed: 'Fiszki i quizy, dobrane do tego, jak dobrze znasz dzieło.',
-			flashcards: 'Przypominasz sobie dzieło, odkrywasz kartę i oceniasz, jak Ci poszło.',
-			quizzes: 'Wybierasz jedną z czterech odpowiedzi.'
+			mixed:
+				'Domyślny tryb łączący quizy dla dzieł, które dopiero zaczynasz powtarzać, i fiszki dla takich, które możesz pamiętać już całkiem dobrze.',
+			flashcards:
+				'Wyłącznie fiszki, w których samodzielnie przypominasz sobie informacje o dziele, a następnie odkrywasz kartę i oceniasz, jak Ci poszło.',
+			quizzes: 'Wyłącznie pytania, w których wybierasz poprawną spośród czterech odpowiedzi.'
 		},
+		definitions: 'Dołącz definicje ze Słowniczka',
+		definitionsHint: (count: number): string =>
+			`Pytania dodatkowe: ${count} ${plural(count, { one: 'losowa definicja', few: 'losowe definicje', many: 'losowych definicji' })}. Nie zmieniają planu powtórek.`,
 		start: 'Zacznij powtórkę',
 		free: 'Powtórka swobodna',
 		freeHint:
-			'Dodatkowa runda dzieł, które znasz najsłabiej. Nie zmienia planu powtórek ani serii.',
+			'Dodatkowa runda losowo wybranych dzieł, które już powtarzasz. Nie zmienia planu powtórek ani nie wpływa na obecną serię.',
 		freeTag: 'Tryb swobodny',
 		howTitle: 'Jak działają powtórki?',
 		how: 'Do puli codziennie dobierane są nowe dzieła, które dodasz do atelier, a także takie, które wymagają powtórki. Im lepiej pamiętasz dzieło, tym rzadziej będzie pojawiać się w kolejnych dniach.',
 		knowledge: 'Jak dobrze znasz swoje atelier?',
 		knowledgeGroups: {
 			settled: { label: 'Utrwalone', hint: 'Pamiętasz je dłużej niż tydzień.' },
-			learning: { label: 'W trakcie nauki', hint: 'Już powtarzane, jeszcze się utrwalają.' },
+			learning: {
+				label: 'W trakcie nauki',
+				hint: 'Powtórki rozpoczęte, ale jeszcze się utrwalają.'
+			},
 			fresh: { label: 'Nowe', hint: 'Czekają na pierwszą powtórkę.' }
 		},
 		troubles: 'Ostatnio sprawiały kłopot',
 		stop: 'Przerwij',
 		stopTitle: 'Przerwać teraz?',
-		stopDescription: 'Twoje odpowiedzi do tej pory są zapisane.',
+		stopDescription: 'Twoje odpowiedzi do tej pory są już zapisane.',
 		freeStopDescription: 'Odpowiedzi w powtórce swobodnej nie są zapisywane.',
 		keepGoing: 'Powtarzaj dalej',
 		progress: (position: number, total: number): string => `${position} z ${total}`,
 		progressLabel: 'Postęp powtórki',
 		flashcard: {
-			question: 'Poznajesz?',
-			hint: 'Spróbuj przypomnieć sobie tytuł, autora, czas i styl, zanim odkryjesz kartę.',
+			question: 'Czy poznajesz to dzieło?',
+			hint: 'Spróbuj przypomnieć sobie jak najwięcej szczegółów dotyczących tego dzieła sztuki: tytuł, autora, czas i styl, w którym powstało. Następnie odkryj kartę z informacjami i oceń, jak dobrze je pamiętasz.',
 			imageAlt: 'Dzieło do rozpoznania',
 			reveal: 'Odkryj kartę',
-			rate: 'Jak dobrze to pamiętasz?',
+			rate: 'Jak dobrze pamiętasz to dzieło?',
 			notes: 'Twoja notatka'
 		},
 		quiz: {
-			imageQuestion: { start: 'Gdzie jest', end: '?' },
-			imageHint: 'Wybierz właściwy obraz.',
+			imageQuestion: { start: 'Gdzie znajduje się', end: '?' },
+			imageHint: 'Wybierz właściwe dzieło.',
 			imageAlt: (position: number): string => `Obraz ${position}`,
 			openImage: (position: number): string => `Powiększ obraz ${position}`,
-			titleQuestion: 'Jaki to tytuł?',
-			styleQuestion: 'W jakim stylu powstał ten obraz?',
-			styleHint: 'Zwróć uwagę na światło, kolor i kompozycję.',
+			titleQuestion: 'Jaki tytuł nosi to dzieło sztuki?',
+			authorQuestion: 'Kto jest autorem tego dzieła?',
+			styleQuestion: 'W jakim stylu powstało to dzieło?',
+			styleHint: 'Zwróć uwagę na formę, materiał i kompozycję.',
+			pinQuestion: 'Co to jest?',
+			definitionTag: 'Pytanie dodatkowe ze Słowniczka',
+			definitionQuestion: 'Jakie pojęcie opisuje ta definicja?',
+			maskedTerm: 'ukryte pojęcie',
+			definitionRetry: 'Wrócimy do niej za chwilę.',
+			pinHint: 'Wybierz pojęcie, które pasuje do zaznaczonego na zdjęciu miejsca.',
 			options: 'Odpowiedzi',
 			right: 'Tak, to',
 			wrong: 'Nie, to',
-			marked: 'Dobra odpowiedź jest zaznaczona.',
 			retry: 'Wrócimy do niego za chwilę.',
 			rightOption: 'dobra odpowiedź',
 			chosenOption: 'Twój wybór',
@@ -515,26 +765,26 @@ export const pl = {
 	imageSearch: {
 		title: 'Które to dzieło?',
 		description: (title: string, authors: string): string =>
-			`Wyniki z Wikidata dla „${title}”${authors ? `, ${authors}` : ''}. Kliknij to, które dodajesz.`,
-		searching: 'Szukam w Wikidata…',
+			`Wyniki z Wikidata dla „${title}”${authors ? `, ${authors}` : ''}. Kliknij ten, który pasuje do dodawanego przez Ciebie dzieła.`,
+		searching: 'Wyszukiwanie w Wikidata…',
 		empty:
-			'Nie znalazłem w Wikidata dzieła o takim tytule. Sprawdź pisownię albo dodaj własny obraz.',
+			'Nie udało się odnaleźć w Wikidata dzieła o takim tytule. Sprawdź pisownię albo dodaj własny obraz.',
 		none: 'Żadne z tych',
 		errorTitle: 'Nie udało się przeszukać Wikidata',
-		retry: 'Szukaj jeszcze raz',
+		retry: 'Wyszukaj jeszcze raz',
 		century: (century: string, beforeCommonEra: boolean): string =>
 			`${century} w.${beforeCommonEra ? ' p.n.e.' : ''}`,
 		personTitle: 'Który to autor?',
 		personDescription: (name: string): string =>
 			`Wyniki z Wikidata dla „${name}”. Kliknij portret, który chcesz dodać.`,
 		personEmpty:
-			'Nie znalazłem w Wikidata portretu osoby o takiej nazwie. Sprawdź pisownię albo dodaj własny portret.',
+			'Nie udało się odnaleźć w Wikidata portretu takiej osoby. Sprawdź pisownię albo dodaj własny portret.',
 		personNone: 'Żaden z tych'
 	},
 	imageSearchErrors: {
 		rateLimited: 'Wikidata dostaje teraz sporo zapytań. Odczekaj chwilę i spróbuj jeszcze raz.',
 		network: 'Nie udało się połączyć z Wikidata. Sprawdź internet i spróbuj jeszcze raz.',
-		failed: 'Wikidata nie odpowiedziała jak trzeba. Spróbuj jeszcze raz za chwilę.'
+		failed: 'Wikidata nie odpowiedziała poprawnie. Spróbuj jeszcze raz za chwilę.'
 	},
 	artworkTypes: {
 		architecture: 'Architektura',
@@ -542,7 +792,7 @@ export const pl = {
 		sculpture: 'Rzeźba',
 		drawing: 'Rysunek',
 		printmaking: 'Grafika',
-		applied_arts: 'Rzemiosło artystyczne',
+		applied_arts: 'Sztuka użytkowa',
 		photography: 'Fotografia',
 		other: 'Inne'
 	},
@@ -555,11 +805,12 @@ export const pl = {
 		contemporary: { name: 'współczesność', years: 'od 1945' }
 	},
 	collectionErrors: {
-		network: 'Nie udało się połączyć z serwerem. Sprawdź internet i odśwież stronę.'
+		network:
+			'Nie udało się połączyć z serwerem. Sprawdź swoje połączenie z internetem i odśwież stronę.'
 	},
 	artworkErrors: {
 		titleRequired: 'Wpisz tytuł dzieła.',
-		authorRequired: 'Dodaj autora albo zaznacz „Autor nieznany”.',
+		authorRequired: 'Dodaj autora albo zaznacz opcję „Autor nieznany”.',
 		yearRequired: 'Wpisz rok, żeby zaznaczyć „p.n.e.” albo „ok.”.',
 		spanEndRequired: 'Wpisz rok końcowy.',
 		spanOrder: 'Rok końcowy nie może być wcześniejszy niż początkowy.',
@@ -569,15 +820,14 @@ export const pl = {
 		invalid: 'Niektóre pola się nie zgadzają. Sprawdź je i zapisz jeszcze raz.',
 		conflict:
 			'Nie udało się zapisać, bo dane zmieniły się w międzyczasie. Odśwież stronę i spróbuj jeszcze raz.',
-		notFound: 'Nie ma takiego dzieła w Twoim atelier. Mogło trafić do kosza.',
-		network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.'
+		notFound: 'Nie ma takiego dzieła w Twoim atelier. Mogło trafić do Archiwum.'
 	},
 	ownImageErrors: {
 		fileType: (formats: string): string =>
-			`Tego pliku nie da się dodać jako obrazu. Wybierz ${formats}.`,
+			`Tego pliku nie da się dodać jako obrazu. Wybierz zdjęcie w jednym z akceptowanych formatów: ${formats}.`,
 		fileTooLarge: (maxMegabytes: number): string =>
 			`Ten plik ma więcej niż ${maxMegabytes} MB. Wybierz mniejszy.`,
-		shrinkFailed: 'Nie udało mi się zmniejszyć tego obrazu. Wybierz mniejszy.',
+		shrinkFailed: 'Nie udało się zmniejszyć tego obrazu. Wybierz mniejszy.',
 		fileUnreadable: 'Nie udało się otworzyć tego obrazu. Wybierz inny plik.',
 		clipboardEmpty:
 			'W schowku nie ma teraz obrazu. Skopiuj go albo zrób zrzut ekranu i spróbuj jeszcze raz.',
@@ -588,33 +838,107 @@ export const pl = {
 		urlUnreadable:
 			'Nie udało się wczytać obrazka z tego adresu. Sprawdź, czy prowadzi wprost do obrazka.',
 		uploadNetwork: 'Nie udało się wysłać obrazu. Sprawdź internet i spróbuj jeszcze raz.',
-		uploadFailed: 'Nie udało się wysłać obrazu. Spróbuj jeszcze raz za chwilę.'
+		uploadFailed: 'Nie udało się wysłać obrazu. Spróbuj jeszcze raz za chwilę.',
+		quotaFull: (quotaMegabytes: string): string =>
+			`Ten plik nie zmieści się w ${quotaMegabytes} MB na Twoje zdjęcia. Dodaj obraz z linku albo usuń niepotrzebne zdjęcia. Miejsce zwolni się w ciągu doby.`
+	},
+	announcements: {
+		label: 'Komunikat',
+		dismiss: 'Zamknij',
+		dismissLabel: 'Zamknij komunikat'
+	},
+	newVersion: {
+		message: 'Pojawiła się nowa wersja aplikacji. Odśwież stronę, żeby z niej skorzystać.',
+		reload: 'Odśwież'
+	},
+	legal: {
+		terms: 'Regulamin',
+		privacy: 'Polityka prywatności',
+		linksLabel: 'Dokumenty',
+		version: (date: string): string => `Obowiązuje od ${date}.`,
+		consentAccept: 'Akceptuję',
+		consentTerms: 'Regulamin',
+		consentDeclare: 'i oświadczam, że zapoznałem(-am) się z',
+		consentPrivacy: 'Polityką prywatności',
+		consentRequired: 'Zaakceptuj Regulamin, żeby założyć konto.',
+		updateTitle: 'Regulamin i Polityka prywatności zostały zmienione',
+		updateDescription: (date: string): string =>
+			`Nowa wersja obowiązuje od ${date}. Przeczytaj zmiany i zaakceptuj Regulamin, żeby dalej korzystać z atelier. Jeśli nie akceptujesz zmian, możesz pobrać kopię atelier i usunąć konto w ustawieniach.`,
+		updateAccept: 'Akceptuję',
+		updateSettings: 'Przejdź do ustawień',
+		accepted: (date: string): string => `Zaakceptowana wersja Regulaminu: ${date}`,
+		acceptFailed: 'Nie udało się zapisać akceptacji. Spróbuj jeszcze raz.'
+	},
+	limits: {
+		artworks: (limit: number): string =>
+			`W atelier zmieści się ${limit} dzieł, razem z tymi w Archiwum. Usuń z Archiwum te, których już nie potrzebujesz, żeby dodać nowe.`,
+		categoryValues: (limit: number): string =>
+			`W Kartotece zmieści się ${limit} wartości. Usuń te, których nie ma przy żadnym dziele, żeby dodać nowe.`,
+		glossaryEntries: (limit: number): string =>
+			`W Słowniczku zmieści się ${limit} pojęć. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		timelineEvents: (limit: number): string =>
+			`W Kalendarium zmieści się ${limit} wydarzeń. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		visits: (limit: number): string =>
+			`W Kronice zmieści się ${limit} wizyt. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		artworkFields: (limit: number): string =>
+			`W atelier zmieści się ${limit} własnych pól. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		artworkValues: (limit: number): string =>
+			`Dzieła w atelier mogą mieć razem ${limit} wartości z Kartoteki. Usuń z dzieł te, których już nie potrzebujesz, żeby dodać nowe.`,
+		visitArtworks: (limit: number): string =>
+			`Wizyty w Kronice mogą mieć razem ${limit} obejrzanych dzieł. Usuń z wizyt te, których już nie potrzebujesz, żeby dodać nowe.`,
+		artworkFieldEntries: (limit: number): string =>
+			`Dzieła w atelier mogą mieć razem ${limit} wpisów we własnych polach. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		reviewAnswers: (limit: number): string =>
+			`W ciągu doby zmieści się ${limit} odpowiedzi w powtórkach. Zrób przerwę i wróć później.`,
+		feedback: (limit: number): string =>
+			`W ciągu doby można wysłać ${limit} zgłoszeń. Wróć z kolejnym później.`
 	},
 	cardIndex: {
 		title: 'Kartoteka',
-		lead: 'Tu opisujesz i porządkujesz swoje epoki, okresy, style, autorów i miejsca. Kliknij nazwę, która Cię interesuje, żeby zobaczyć szczegóły.',
+		lead: 'Tu opisujesz i porządkujesz swoje epoki, okresy, style, autorów, miejsca i wydarzenia. Możesz tutaj także utworzyć własne pola, które pozwolą dokładniej opisywać dzieła. Kliknij nazwę, która Cię interesuje, żeby zobaczyć szczegóły.',
 		loadErrorTitle: 'Nie udało się wczytać Kartoteki',
 		tabsLabel: 'Rodzaje wartości',
 		tabs: {
 			timeline: 'Okresy i style',
 			material: 'Materiały',
 			author: 'Autorzy',
-			location: 'Miejsca'
+			location: 'Miejsca',
+			events: 'Wydarzenia',
+			own: 'Własne pola'
 		},
 		emptyEra: 'W tej epoce nie ma jeszcze okresów.',
 		periodsWithoutEra: 'Okresy bez epoki',
 		stylesWithoutPeriod: 'Style bez okresu',
 		emptyTimeline:
-			'Nie ma tu jeszcze okresów ani stylów. Pojawią się, gdy wpiszesz je przy dziele.',
+			'Nie ma tu jeszcze okresów ani stylów. Dodaj pierwszy tutaj albo wpisz go przy dziele.',
 		emptyList: {
-			material: 'Nie ma tu jeszcze materiałów. Pojawią się, gdy wpiszesz je przy dziele.',
-			author: 'Nie ma tu jeszcze autorów. Pojawią się, gdy wpiszesz ich przy dziele.',
-			location: 'Nie ma tu jeszcze miejsc. Pojawią się, gdy wpiszesz je przy dziele.'
+			material: 'Nie ma tu jeszcze materiałów. Dodaj pierwszy tutaj albo wpisz go przy dziele.',
+			author: 'Nie ma tu jeszcze autorów. Dodaj pierwszego tutaj albo wpisz go przy dziele.',
+			location: 'Nie ma tu jeszcze miejsc. Dodaj pierwsze tutaj albo wpisz je przy dziele.'
 		},
+		emptyEvents: 'Nie ma tu jeszcze wydarzeń. Dodaj pierwsze, a pojawi się też w Kalendarium.',
+		eventsAdd: 'Dodaj wydarzenie',
 		search: {
 			material: 'Szukaj materiału',
 			author: 'Szukaj autora',
-			location: 'Szukaj miejsca'
+			location: 'Szukaj miejsca',
+			events: 'Szukaj wydarzenia',
+			timeline: 'Szukaj okresu lub stylu'
+		},
+		sortLabel: 'Sortuj',
+		add: {
+			material: 'Dodaj materiał',
+			author: 'Dodaj autora',
+			location: 'Dodaj miejsce',
+			period: 'Dodaj okres',
+			style: 'Dodaj styl'
+		},
+		sorts: {
+			name: 'Według nazwy',
+			count: 'Według liczby dzieł',
+			life: 'Według lat życia',
+			country: 'Według kraju',
+			date: 'Według daty'
 		},
 		noResults: (query: string): string =>
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment nazwy.`,
@@ -659,18 +983,18 @@ export const pl = {
 		mergeConfirm: {
 			title: (merged: string, kept: string): string => `Połączyć „${merged}” z „${kept}”?`,
 			unused: (merged: string): string =>
-				`Żadne dzieło nie ma teraz „${merged}”, więc zmieni się tylko Kartoteka: „${merged}” z niej zniknie.`,
+				`Żadne dzieło nie ma teraz przypisanej wartości „${merged}”, więc zmieni się tylko Kartoteka: „${merged}” z niej zniknie.`,
 			assigned: (merged: string, kept: string, count: number, kind: string): string =>
-				`Wszystkie dzieła z „${merged}” (${count}) przypiszą się do ${kind} „${kept}”.`,
+				`Wszystkie dzieła z wartością „${merged}” (${count}) przypiszą się do ${kind} „${kept}”.`,
 			periodAssigned: (merged: string, kept: string, count: number): string =>
-				`${workCount(count)} z „${merged}” ${count === 1 ? 'dostanie' : 'dostaną'} „${kept}”, a „${merged}” zniknie z Kartoteki.`,
+				`${workCount(count)} z „${merged}” ${count === 1 ? 'przypisze' : 'przypiszą'} się do „${kept}”, a „${merged}” zniknie z Kartoteki.`,
+			visits: (merged: string, kept: string, count: number): string =>
+				`Wizyty w „${merged}” (${count}) przeniosą się do „${kept}”.`,
 			periodLinks: (merged: string, kept: string): string =>
 				`Epoki i style okresu „${merged}” dołączą do „${kept}”.`,
 			pageContent: (merged: string): string =>
 				`Podsumowanie, notatki i pozostałe informacje o „${merged}” zostaną usunięte.`,
-			irreversible: 'Tej akcji nie będzie można cofnąć!',
-			back: 'Wróć',
-			confirm: 'Połącz',
+			irreversible: 'Tej akcji nie będzie można cofnąć.',
 			merging: 'Łączenie…'
 		},
 		moveConfirm: {
@@ -683,27 +1007,91 @@ export const pl = {
 				`${workCount(count)} z okresem „${period}” ${count === 1 ? 'jest' : 'są'} teraz w epoce ${from}. Wybierz epokę, do której ${count === 1 ? 'ma' : 'mają'} trafić po zapisie.`,
 			pick: 'Do której epoki mają trafić?',
 			pickRequired: 'Wybierz epokę.',
-			back: 'Wróć',
 			confirm: 'Zapisz i przenieś'
 		},
 		deleteConfirm: {
 			title: (kind: string, name: string): string => `Usunąć ${kind} „${name}”?`,
-			description: 'Żadne dzieło go nie używa, więc zniknie z Kartoteki razem z powiązaniami.',
-			back: 'Wróć',
-			confirm: 'Usuń',
-			deleting: 'Usuwanie…'
+			description: 'Żadne dzieło go nie używa, więc zniknie z Kartoteki razem z powiązaniami.'
 		},
 		merged: (name: string): string => `Połączono z „${name}”.`,
 		deleted: (name: string): string => `Usunięto „${name}”.`,
 		errors: {
-			network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.',
 			notFound: 'Nie ma już takiej wartości. Odśwież stronę.',
 			changed: 'Coś zmieniło się w międzyczasie. Odśwież stronę i spróbuj jeszcze raz.'
 		}
 	},
+	ownFields: {
+		empty:
+			'Nie masz jeszcze żadnych własnych pól. Dodaj pole, aby zobaczyć je przy wszystkich swoich dziełach.',
+		intro:
+			'Własne pola to dodatkowe informacje, które będzie można uzupełniać przy dziełach. Każde z nich pojawi się przy edycji istniejących dzieł oraz przy dodawaniu nowych. Ich wypełnianie zawsze będzie opcjonalne.',
+		add: 'Dodaj pole',
+		kinds: {
+			text: 'Tekst',
+			list: 'Lista',
+			flag: 'Zaznaczenie'
+		},
+		kindNotes: {
+			text: 'dowolna treść',
+			list: 'jedna lub wiele wartości',
+			flag: 'pole do zaznaczania'
+		},
+		oneValue: 'jedna wartość',
+		manyValues: 'kilka wartości',
+		summary: (parts: string[]): string => parts.join(' · '),
+		noValues: 'Nie ma tu jeszcze wartości. Dodaj pierwszą tutaj albo wpisz ją przy dziele.',
+		addValue: 'Dodaj wartość',
+		newValueTitle: (field: string): string => `Nowa wartość pola „${field}”`,
+		added: (name: string): string => `Dodano wartość „${name}”.`,
+		valueExists: (name: string): string => `Masz już wartość „${name}”.`,
+		values: 'Wartości',
+		search: (name: string): string => `Szukaj w polu „${name}”`,
+		ticked: 'Tak',
+		menu: (name: string): string => `Działania pola „${name}”`,
+		moveUp: 'Przesuń wyżej',
+		moveDown: 'Przesuń niżej',
+		form: {
+			newTitle: 'Nowe pole',
+			description: 'Opis (opcjonalnie)',
+			descriptionHint:
+				'Wyjaśnienie, które może w przyszłości pomóc zdecydować, co wpisywać w tym polu.',
+			kind: 'Rodzaj',
+			kindFixed: 'Wybranego rodzaju nie będzie można zmienić po utworzeniu pola.',
+			multiple: 'Dzieło może mieć kilka wartości',
+			creating: 'Dodawanie…',
+			errorTitle: 'Nie udało się zapisać pola'
+		},
+		deleteConfirm: {
+			title: (name: string): string => `Usunąć pole „${name}”?`,
+			description: (count: number): string =>
+				count === 0
+					? 'Pole zniknie z formularza. Usunięcia nie będzie można cofnąć.'
+					: `Pole zniknie z formularza i z ${count} ${plural(count, { one: 'dzieła', few: 'dzieł', many: 'dzieł' })}, ${plural(count, { one: 'które ma', few: 'które mają', many: 'które mają' })} je uzupełnione. Usunięcia nie będzie można cofnąć.`,
+			confirm: 'Usuń pole'
+		},
+		value: {
+			description: (field: string, count: string): string => `${field} · ${count}`,
+			mergeHint: (name: string, count: string): string =>
+				`Masz już „${name}” (${count}). Zapisz, a połączę je w jeden.`,
+			kind: 'wartości',
+			errorTitle: 'Nie udało się zapisać wartości'
+		},
+		errorTitle: 'Nie udało się zmienić pola',
+		loadErrorTitle: 'Nie udało się wczytać własnych pól',
+		created: (name: string): string => `Dodano pole „${name}”.`,
+		saved: (name: string): string => `Zapisano „${name}”.`,
+		deleted: (name: string): string => `Usunięto pole „${name}”.`,
+		errors: {
+			nameRequired: 'Wpisz nazwę.',
+			builtInName: (name: string): string =>
+				`Dzieło ma już wbudowane pole „${name}”. Wybierz inną nazwę.`,
+			ownName: (name: string): string => `Masz już pole „${name}”.`
+		}
+	},
 	mentions: {
 		heading: 'Wspominasz o tym w notatkach',
-		artwork: 'Dzieło'
+		artwork: 'Dzieło',
+		visit: 'Wizyta'
 	},
 	feedback: {
 		title: 'Zgłoś uwagę',
@@ -716,27 +1104,52 @@ export const pl = {
 		descriptionLabel: 'Opis',
 		descriptionHint: 'Co się stało albo jak miałoby to działać? Nieobowiązkowe.',
 		send: 'Wyślij',
-		sending: 'Wysyłanie…',
-		cancel: 'Anuluj',
 		sent: 'Zgłoszenie wysłane.',
 		errorTitle: 'Nie udało się wysłać zgłoszenia',
 		errors: {
 			kindRequired: 'Wybierz, czy to błąd, czy pomysł.',
 			titleRequired: 'Wpisz tytuł zgłoszenia.',
-			invalid: 'Zgłoszenie jest niepoprawne. Sprawdź tytuł i opis.',
-			network: 'Nie udało się połączyć z serwerem. Sprawdź internet i spróbuj jeszcze raz.'
+			invalid: 'Zgłoszenie jest niepoprawne. Sprawdź tytuł i opis.'
+		}
+	},
+	pins: {
+		switchLabel: (count: number): string => `Pinezki (${count})`,
+		editorNote: 'Pinezki zapisują się od razu, niezależnie od przycisku „Zapisz”.',
+		editHint:
+			'Wskaż miejsce na obrazie, żeby dodać pinezkę. Przeciągnij pinezkę, żeby ją przesunąć.',
+		imagePins: (count: number): string => `Jego pinezki (${count}) usuną się po zapisaniu.`,
+		placeHere: 'Dodaj pinezkę w tym miejscu',
+		marker: (number: number, name?: string, view = false): string =>
+			`${name ? `Pinezka ${number}: ${name}` : `Pinezka ${number}`}${view ? ', widok lupy' : ''}`,
+		view: (level?: string): string => (level ? `Widok lupy (${level})` : 'Widok lupy'),
+		removeView: 'Usuń widok',
+		newTitle: 'Nowa pinezka',
+		title: 'Pinezka',
+		term: 'Pojęcie ze Słowniczka (opcjonalnie)',
+		termPlaceholder: 'Szukaj pojęcia',
+		text: 'Opis (opcjonalnie)',
+		loadFailed: 'Nie udało się wczytać pinezek.',
+		errorTitle: 'Nie udało się zapisać pinezki',
+		deleteErrorTitle: 'Nie udało się usunąć pinezki',
+		errors: {
+			empty: 'Wybierz pojęcie albo wpisz opis.',
+			tooLong: (limit: number): string => `Opis może mieć najwyżej ${limit} znaków.`,
+			tooMany: (limit: number): string => `Na jednym obrazie zmieści się ${limit} pinezek.`,
+			notFound: 'Nie znaleziono tej pinezki. Odśwież stronę i spróbuj jeszcze raz.'
 		}
 	},
 	glossary: {
+		letters: 'Litery',
 		title: 'Słowniczek',
 		count: (count: number): string =>
 			`${count} ${plural(count, { one: 'pojęcie', few: 'pojęcia', many: 'pojęć' })}`,
 		lead: 'Pojęcia i postaci, które chcesz zapamiętać. Ich definicje pojawią się w Twoich notatkach.',
 		back: 'Słowniczek',
 		add: 'Dodaj pojęcie',
-		addShort: 'Dodaj',
+		emptyTitle: 'Słowniczek jest jeszcze pusty',
 		empty:
-			'Nie masz jeszcze żadnego pojęcia. Dodaj pierwsze, gdy trafisz na słowo, które chcesz zapamiętać.',
+			'Gdy trafisz na słowo, którego chcesz się nauczyć, zapisz je tutaj razem z definicją. Definicję możesz wpisać samodzielnie albo uzupełnić z Wikipedii. Kiedy to słowo pojawi się w notatkach przy dziełach, zobaczysz tam jego definicję.',
+		addFirst: 'Dodaj pierwsze pojęcie',
 		search: 'Szukaj pojęcia',
 		noResults: (query: string): string =>
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment.`,
@@ -758,10 +1171,8 @@ export const pl = {
 			also: (forms: string): string => `też: ${forms}`,
 			noDefinition: 'Nie dodano jeszcze definicji.',
 			mentionsHeading: 'Pojawia się w notatkach',
-			sourcePrefix: 'Na podstawie: Wikipedia, ',
+			onArtworks: 'Na dziełach',
 			licenceLink: 'CC BY-SA 4.0',
-			edit: 'Edytuj',
-			delete: 'Usuń',
 			notFoundTitle: 'Nie ma takiego pojęcia',
 			notFound: 'Nie ma takiego pojęcia w słowniczku. Może zostało usunięte.',
 			loadErrorTitle: 'Nie udało się wczytać tego pojęcia',
@@ -770,46 +1181,45 @@ export const pl = {
 		},
 		deleteConfirm: {
 			title: (name: string): string => `Usunąć „${name}” ze słowniczka?`,
-			description: 'Słowo w notatkach straci tło i dymek. Tego nie da się cofnąć.',
-			back: 'Zostaw',
-			confirm: 'Usuń',
-			deleting: 'Usuwanie…'
+			description:
+				'Definicji tego słowa nie będzie się dało podejrzeć w notatkach. Tej akcji nie będzie można cofnąć.'
 		},
 		form: {
 			newTitle: 'Nowe pojęcie',
 			editTitle: 'Edycja pojęcia',
-			goBack: 'Wróć do słowniczka',
-			name: 'Nazwa',
 			namePlaceholder: 'Np. tympanon, sfumato, Lorenzo Medici',
-			nameTaken: (name: string): string => `Masz już pojęcie „${name}”.`,
+			nameTaken: (name: string): string => `Masz już w Słowniczku pojęcie „${name}”.`,
 			category: 'Kategoria',
 			categoryRequired: 'Wybierz kategorię.',
 			definition: 'Definicja',
-			definitionPending: 'Wpisz nazwę i wybierz kategorię, a poszukam definicji w Wikipedii.',
-			definitionSearching: 'Szukam w Wikipedii…',
+			definitionPending:
+				'Wpisz nazwę i wybierz kategorię, aby spróbować wyszukać definicję w Wikipedii.',
+			definitionSearching: 'Wyszukiwanie w Wikipedii…',
 			definitionNone: 'Wikipedia nie zna tego słowa. Napisz definicję własnymi słowami.',
 			definitionFailed:
 				'Nie udało się połączyć z Wikipedią. Możesz napisać definicję własnymi słowami albo spróbować jeszcze raz.',
 			searchAgain: 'Szukaj jeszcze raz',
+			searchDefinition: 'Szukaj w Wikipedii',
+			definitionManual: 'Napisz definicję własnymi słowami albo poszukaj jej w Wikipedii.',
 			definitionTooLong: (max: number): string => `Definicja może mieć najwyżej ${max} znaków.`,
-			sourcePrefix: 'Na podstawie: Wikipedia, ',
 			pickArticle: 'Wybierz inny artykuł',
 			removeSource: 'Usuń źródło',
 			sortByOther: 'Sortuj inaczej niż po nazwie',
 			sortName: 'Sortuj jako',
 			sortNamePlaceholder: 'np. Medici, Lorenzo',
-			sortNameHint: 'Według tego pojęcie trafi pod właściwą literę.',
+			sortNameHint: 'Według tej wartości pojęcie trafi pod właściwą literę.',
 			synonyms: 'Synonimy',
 			synonymsHint:
-				'Inne nazwy tego samego. Pokażą się pod nazwą, a ich odmiana trafi do „Odmiany”. Każdą zatwierdzasz Enterem.',
-			synonymsFull: 'Najwyżej 3 synonimy. Usuń któryś, żeby dodać inny.',
+				'Inne nazwy tego pojęcia, będą używane przy wyszukiwaniu wystąpień w notatkach.',
+			synonymsFull: 'Możesz dodać najwyżej 3 synonimy.',
 			forms: 'Odmiana',
 			formsCount: (count: number): string =>
 				`${count} ${plural(count, { one: 'forma', few: 'formy', many: 'form' })}`,
 			showForms: 'Pokaż formy',
 			hideForms: 'Zwiń',
-			formsSearching: 'Szukam odmiany w Wikisłowniku…',
-			synonymFormsSearching: (word: string): string => `Szukam odmiany „${word}” w Wikisłowniku…`,
+			formsSearching: 'Wyszukiwanie odmiany w Wikisłowniku…',
+			synonymFormsSearching: (word: string): string =>
+				`Wyszukiwanie odmiany „${word}” w Wikisłowniku…`,
 			synonymFormsNone: (word: string): string =>
 				`Nie udało się odszukać „${word}” w słowniku. Możesz dopisać formy samodzielnie.`,
 			formsSkipped: 'Odmianę tego pojęcia musisz dopisać samodzielnie.',
@@ -822,45 +1232,105 @@ export const pl = {
 			formsHint:
 				'Formy nie pokazują się pod nazwą. Dzięki nim pojęcie znajdzie się w notatkach także odmienione.',
 			authorWarningSuffix:
-				' jest już w Kartotece jako autor. Możesz dodać ją także tutaj albo opisać na stronie autora.',
-			cancel: 'Anuluj',
-			save: 'Zapisz',
-			saving: 'Zapisywanie…',
-			errorTitle: 'Nie udało się zapisać pojęcia',
-			discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.'
+				' jest już w Kartotece jako autor. Możesz dodać tę osobę także tutaj albo opisać na stronie autora.',
+			errorTitle: 'Nie udało się zapisać pojęcia'
 		},
 		articles: {
 			title: 'Który to artykuł?',
 			description: (name: string, category: string): string =>
 				`Wyniki z Wikipedii dla „${name}” w kategorii ${category}. Wybierz ten, o który ci chodzi.`,
 			listLabel: 'Artykuły z Wikipedii',
-			searching: 'Szukam w Wikipedii…',
-			cancel: 'Anuluj',
+			searching: 'Wyszukiwanie w Wikipedii…',
 			use: 'Użyj tego artykułu'
 		},
 		replaceConfirm: {
 			title: 'Zastąpić Twoją definicję?',
 			description: 'Definicja ma już Twoje zmiany. Tekst z nowego artykułu je zastąpi.',
-			keep: 'Zostaw moją',
-			replace: 'Zastąp'
+			keep: 'Zostaw moją'
 		},
 		errors: {
 			notFound: 'Nie ma takiego pojęcia w słowniczku. Może zostało usunięte.',
-			invalid: 'Nie udało się zapisać pojęcia. Sprawdź nazwę i definicję.',
-			network: 'Nie udało się połączyć. Sprawdź internet i spróbuj jeszcze raz.'
+			invalid: 'Nie udało się zapisać pojęcia. Sprawdź nazwę i definicję.'
+		}
+	},
+	chronicle: {
+		title: 'Kronika',
+		lead: 'Dziennik Twoich wizyt w muzeach i innych spotkań ze sztuką. Możesz tutaj zapisać, gdzie i kiedy udało Ci się zobaczyć dzieła z Twojej kolekcji na żywo.',
+		count: (visits: number, seen: number): string =>
+			`${visitCount(visits)} · ${workCount(seen)} na żywo`,
+		add: 'Dodaj wizytę',
+		emptyTitle: 'Kronika jest jeszcze pusta',
+		empty:
+			'Zapisuj tu swoje wizyty w muzeach, galeriach i innych miejscach, gdzie spotykasz się ze sztuką. Przy każdej wizycie możesz zaznaczyć dzieła, które udało Ci się zobaczyć na żywo, i dodać notatkę z wrażeniami.',
+		addFirst: 'Dodaj pierwszą wizytę',
+		loadErrorTitle: 'Nie udało się wczytać kroniki',
+		back: 'Kronika',
+		seen: (count: number): string => `${workCount(count)} na żywo`,
+		seenCount: (count: number): string =>
+			`${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })} na żywo`,
+		kind: 'Wizyta',
+		artworkVisits: (count: number): string => `Widziane na żywo · ${visitCount(count)}`,
+		placeVisits: (count: number): string => `Z Twojej kroniki · ${visitCount(count)}`,
+		inYear: (year: number): string => `${year} roku`,
+		saved: (place: string, date: string): string => `Zapisano wizytę: ${place}, ${date}.`,
+		view: {
+			seenTitle: 'Widziane na żywo',
+			noArtworks: 'Do tej wizyty nie ma jeszcze dzieł. Kliknij „Edytuj”, żeby je zaznaczyć.',
+			deleted: (date: string): string => `Usunięto wizytę z ${date}.`,
+			notFoundTitle: 'Nie ma takiej wizyty',
+			loadErrorTitle: 'Nie udało się wczytać wizyty'
+		},
+		deleteConfirm: {
+			title: (date: string): string => `Usunąć wizytę z ${date}?`,
+			description: 'Zniknie wizyta i jej notatka. Dzieła zostaną w kolekcji.'
+		},
+		form: {
+			newTitle: 'Nowa wizyta',
+			editTitle: 'Edycja wizyty',
+			place: 'Miejsce',
+			placeHint: 'Muzeum, galeria albo kościół. Dzieła, które tam są, zaznaczymy od razu.',
+			placeRequired: 'Wybierz, gdzie była wizyta.',
+			date: 'Data',
+			dateHint: 'Wystarczy sam rok, jeśli dokładniej nie pamiętasz.',
+			day: 'Dzień',
+			month: 'Miesiąc',
+			year: 'Rok',
+			yearRequired: 'Wpisz, w którym roku była wizyta.',
+			yearInvalid: 'Wpisz rok czterema cyframi, na przykład 2026.',
+			monthRequired: 'Do dnia wybierz miesiąc albo usuń dzień.',
+			dayInvalid: 'Taki dzień nie istnieje w tym miesiącu.',
+			notesPlaceholder: 'Jak było? Co Cię zaskoczyło? Co warto zapamiętać?',
+			artworks: 'Dzieła',
+			ticked: 'Zaznaczyliśmy wszystko z tego miejsca. Odznacz to, czego tym razem nie było.',
+			search: 'Udało się zobaczyć coś jeszcze? Szukaj w całej kolekcji',
+			noMatch: 'W kolekcji nie ma takiego dzieła.',
+			addArtwork: (title: string): string => `Dodaj „${title}”`,
+			fromPlace: 'Z tego miejsca',
+			fromElsewhere: 'Z innych miejsc',
+			noPlace: 'Wybierz miejsce, a pokażemy jego dzieła.',
+			placeEmpty:
+				'W kolekcji nie ma jeszcze dzieł z tego miejsca. Te zobaczone dodasz przez wyszukiwarkę.',
+			errorTitle: 'Nie udało się zapisać wizyty',
+			notFoundTitle: 'Nie ma takiej wizyty',
+			loadErrorTitle: 'Nie udało się wczytać wizyty'
+		},
+		errors: {
+			notFound: 'Nie ma takiej wizyty w kronice. Może została usunięta.',
+			invalid: 'Nie udało się zapisać wizyty. Sprawdź miejsce, datę i dzieła.'
 		}
 	},
 	timeline: {
 		title: 'Kalendarium',
 		lead: 'Twoje dzieła i wydarzenia w prawdziwej skali czasu, epoka po epoce.',
+		emptyTitle: 'Kalendarium jest jeszcze puste',
+		empty:
+			'Tutaj zobaczysz swoje dzieła na osi czasu, każde w roku swojego powstania. Dzieła pojawią się same, gdy wpiszesz im datę. Możesz też dodać wydarzenia i okresy historyczne, a ich opis i daty uzupełnić z Wikipedii, żeby widzieć, co działo się w tym samym czasie.',
+		addFirst: 'Dodaj pierwsze wydarzenie',
 		add: 'Dodaj wydarzenie',
-		addShort: 'Dodaj',
 		saved: (name: string): string => `Zapisano wydarzenie „${name}”.`,
 		form: {
 			newTitle: 'Nowe wydarzenie',
 			editTitle: 'Edycja wydarzenia',
-			goBack: 'Wróć do kalendarium',
-			name: 'Nazwa',
 			namePlaceholder: 'Np. wojny napoleońskie, chrzest Polski',
 			nameRequired: 'Wpisz nazwę wydarzenia.',
 			year: 'Rok',
@@ -868,15 +1338,11 @@ export const pl = {
 			yearRequired: 'Wpisz rok wydarzenia.',
 			description: 'Opis',
 			descriptionPlaceholder: 'Co warto o nim pamiętać',
-			cancel: 'Anuluj',
-			save: 'Zapisz',
-			saving: 'Zapisywanie…',
 			errorTitle: 'Nie udało się zapisać wydarzenia',
-			discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.',
 			notFoundTitle: 'Nie ma takiego wydarzenia',
 			loadErrorTitle: 'Nie udało się wczytać wydarzenia',
-			sourcePrefix: 'Na podstawie: Wikipedia, ',
 			pickArticle: 'Wybierz inny artykuł',
+			searchArticles: 'Szukaj w Wikipedii',
 			removeSource: 'Usuń źródło'
 		},
 		articles: {
@@ -889,8 +1355,7 @@ export const pl = {
 		replaceConfirm: {
 			title: 'Zastąpić Twoje daty i opis?',
 			description: 'Daty albo opis mają już Twoje zmiany. Dane z nowego artykułu je zastąpią.',
-			keep: 'Zostaw moje',
-			replace: 'Zastąp'
+			keep: 'Zostaw moje'
 		},
 		loadErrorTitle: 'Nie udało się wczytać kalendarium',
 		strip: 'Pasek epok',
@@ -915,32 +1380,29 @@ export const pl = {
 			length: (years: number): string =>
 				`${years} ${plural(years, { one: 'rok', few: 'lata', many: 'lat' })}`,
 			artworksOfTime: 'Dzieła z tego czasu',
-			noArtworks: 'W tym czasie nie masz żadnego dzieła.',
-			showWhole: 'Pokaż cały okres na osi',
-			sourcePrefix: 'Na podstawie: Wikipedia, ',
-			edit: 'Edytuj',
-			delete: 'Usuń'
+			noArtworks: 'W tym czasie nie powstało żadne dzieło z Twojej kolekcji.',
+			showWhole: 'Pokaż cały okres na osi'
 		},
 		deleteConfirm: {
 			title: (name: string): string => `Usunąć wydarzenie „${name}”?`,
-			description: 'Zniknie z kalendarium. Żadne dzieło się nie zmieni.',
-			back: 'Wróć',
-			confirm: 'Usuń',
-			deleting: 'Usuwanie…'
+			description: 'Zniknie z Kalendarium. Żadne dzieło się nie zmieni.'
 		},
 		deleted: (name: string): string => `Usunięto wydarzenie „${name}”.`,
-		noEvents: 'Nie masz jeszcze żadnych dodanych wydarzeń',
+		noEvents: 'Nie ma tu jeszcze wydarzeń.',
 		hiddenEvents: (count: number): string =>
 			`${count} ${plural(count, { one: 'wydarzenie', few: 'wydarzenia', many: 'wydarzeń' })} poza widokiem. Przybliż, żeby je zobaczyć.`,
 		now: (year: string, parts: string[]): string => [year, ...parts].join(' · '),
 		nowEvents: (events: string): string => `w tym czasie: ${events}`,
 		nowArtworks: (titles: string, more: number): string =>
 			`dzieła: ${titles}${more > 0 ? ` (+${more})` : ''}`,
+		readingArtworks: 'W linii czytania:',
+		readingArtworksNone: 'W linii czytania nie ma dzieł.',
+		readingMore: (count: number): string => `(+${count})`,
 		lane: (name: string, count: number): string => `${name} · ${count}`,
 		filters: {
 			lanes: 'Okresy i style',
 			lanesHint: (era: string): string => `Wybierz maksymalnie 5 z epoki ${era}.`,
-			lanesFull: 'Wybrano 5. Odznacz któryś, żeby wybrać inny.',
+			lanesFull: 'Wybrano maksymalną liczbę okresów i stylów. Odznacz któryś, żeby wybrać inny.',
 			periods: 'Okresy',
 			styles: 'Style',
 			types: 'Typ dzieła',
@@ -960,16 +1422,12 @@ export const pl = {
 		millennium: (numeral: string, beforeCommonEra: boolean): string =>
 			`${numeral} tysiąclecie${beforeCommonEra ? ' p.n.e.' : ''}`,
 		errors: {
-			notFound: 'Nie ma takiego wydarzenia w kalendarium. Może zostało usunięte.',
-			invalid: 'Nie udało się zapisać wydarzenia. Sprawdź nazwę i datę.',
-			network: 'Nie udało się połączyć. Sprawdź internet i spróbuj jeszcze raz.'
+			notFound: 'Nie ma takiego wydarzenia w Kalendarium. Może zostało usunięte.',
+			invalid: 'Nie udało się zapisać wydarzenia. Sprawdź nazwę i datę.'
 		}
 	},
 	valuePage: {
 		back: 'Kartoteka',
-		edit: 'Edytuj',
-		notes: 'Notatki',
-		delete: 'Usuń',
 		deleteBlocked: (demonstrative: string, count: string, other: string): string =>
 			`${demonstrative} ma jeszcze ${count}, więc nie da się go usunąć. Możesz go połączyć z ${other}.`,
 		header: (kind: string, count: string): string => `${kind} · ${count}`,
@@ -1014,7 +1472,6 @@ export const pl = {
 		}
 	},
 	valueForm: {
-		name: 'Nazwa',
 		nameRequired: 'Wpisz nazwę.',
 		mergeHint: (kind: string, name: string, count: string): string =>
 			`Masz już ${kind} „${name}” (${count}). Zapisz, a połączę je w jeden.`,
@@ -1030,20 +1487,23 @@ export const pl = {
 		removePeriod: (name: string): string => `Usuń okres ${name}`,
 		periodLocked: (period: string, count: number): string =>
 			`Nie uda się odpiąć okresu „${period}” od tego stylu, bo ${workCount(count)} w tym stylu ${count === 1 ? 'ma' : 'mają'} przypisany taki okres.`,
-		cancel: 'Anuluj',
-		save: 'Zapisz',
-		saving: 'Zapisywanie…',
 		editTitle: (kind: string, name: string): string => `Edytuj ${kind} „${name}”`,
+		newTitles: {
+			material: 'Nowy materiał',
+			author: 'Nowy autor',
+			location: 'Nowe miejsce',
+			period: 'Nowy okres',
+			style: 'Nowy styl'
+		},
+		exists: (kind: string, name: string): string => `Masz już ${kind} „${name}”.`,
+		created: (kind: string, name: string): string => `Dodano ${kind} „${name}”.`,
 		eraAccusative: 'epokę',
-		goBack: 'Wróć do strony',
 		summary: 'Podsumowanie',
 		summaryPlaceholder: 'Krótki opis do szybkiego podejrzenia przy oglądaniu dzieła.',
-		notes: 'Notatki',
 		notesPlaceholder: 'Wszystko, co warto zapamiętać',
 		notesLinkHint:
 			'Wpisz @, żeby dodać odnośnik do autora, epoki albo miejsca, albo #, żeby dodać odnośnik do dzieła.',
 		errorTitle: 'Nie udało się zapisać zmian',
-		discardDescription: 'Masz niezapisane zmiany. Jeśli wyjdziesz, znikną.',
 		portrait: {
 			label: 'Portret',
 			find: 'Znajdź portret',
@@ -1077,27 +1537,26 @@ export const pl = {
 		}
 	},
 	trash: {
-		title: 'Kosz',
-		emptyTitle: 'Kosz jest pusty.',
-		back: 'Wróć do atelier',
-		loadErrorTitle: 'Nie udało się wczytać kosza',
-		actionErrorTitle: 'Nie udało się zmienić kosza',
-		deletedOn: (date: string): string => `w koszu od ${date}`,
+		title: 'Archiwum',
+		emptyTitle: 'Archiwum jest puste',
+		empty:
+			'Trafiają tu dzieła, które usuniesz z atelier. Stąd możesz je przywrócić albo usunąć na zawsze.',
+		loadErrorTitle: 'Nie udało się wczytać Archiwum',
+		actionErrorTitle: 'Nie udało się zmienić Archiwum',
+		deletedOn: (date: string): string => `w Archiwum od ${date}`,
 		today: 'dziś',
 		restore: 'Przywróć',
 		restoring: 'Przywracanie…',
 		deleteForever: 'Usuń na zawsze',
-		cancel: 'Anuluj',
-		moveTitle: (number: string): string => `Przenieść ${number} do kosza?`,
-		moveDescription: 'Dzieło zniknie z atelier. Przywrócisz je z kosza.',
-		move: 'Przenieś do kosza',
+		moveTitle: (number: string): string => `Przenieść ${number} do Archiwum?`,
+		moveDescription: 'Dzieło zniknie z atelier. Przywrócisz je z Archiwum.',
+		move: 'Przenieś do Archiwum',
 		moving: 'Przenoszenie…',
-		moved: (number: string): string => `Przeniesiono ${number} do kosza.`,
+		moved: (number: string): string => `Przeniesiono ${number} do Archiwum.`,
 		restored: (number: string): string => `Przywrócono ${number}.`,
 		deleteTitle: (number: string): string => `Usunąć ${number} na zawsze?`,
 		deleteDescription: (number: string): string =>
-			`Dzieło i Twój obraz znikną bezpowrotnie. Numer ${number} nie wróci do użycia.`,
-		deleting: 'Usuwanie…',
+			`Dzieło ${number} i Twój obraz znikną bezpowrotnie.`,
 		deleted: (number: string): string => `Usunięto ${number} na zawsze.`
 	}
 };
@@ -1107,11 +1566,15 @@ type PluralForms = Record<'one' | 'few' | 'many', string>;
 const pluralRules = new Intl.PluralRules('pl');
 
 function reviewedToday(count: number, minutes: number): string {
-	return `Dziś udało się powtórzyć ${workCount(count)}, zajęło Ci to ${minuteCount(minutes)}.`;
+	return `Dziś udało się powtórzyć ${workCount(count)}. Zajęło Ci to ${minuteCount(minutes)}.`;
 }
 
 function minuteCount(count: number): string {
 	return `${count} ${plural(count, { one: 'minutę', few: 'minuty', many: 'minut' })}`;
+}
+
+function visitCount(count: number): string {
+	return `${count} ${plural(count, { one: 'wizyta', few: 'wizyty', many: 'wizyt' })}`;
 }
 
 function workCount(count: number): string {

@@ -1,16 +1,17 @@
 <script lang="ts">
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Trash from '@lucide/svelte/icons/trash-2';
-	import { Alert, Button, Dialog, Icon, Section, Toast } from '@study-atelier/ui';
-	import { resolve } from '$app/paths';
-	import AtelierBackLink from '#lib/collection/components/AtelierBackLink.svelte';
-	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
-	import DuplicateDialog from '#lib/collection/components/DuplicateDialog.svelte';
-	import { DuplicateCheck } from '#lib/collection/duplicate-check.svelte.ts';
-	import { formatDeletedOn, formatRecordNumber } from '#lib/collection/format.ts';
-	import { deletePermanently, restoreArtwork } from '#lib/collection/trash.ts';
-	import type { TrashArtwork } from '#lib/collection/types.ts';
-	import { m } from '#lib/i18n/index.ts';
+	import { Alert, Button, Dialog, EmptyState, Toast } from '@study-atelier/ui';
+	import { invalidate } from '$app/navigation';
+	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
+	import DuplicateDialog from '#lib/artworks/components/DuplicateDialog/DuplicateDialog.svelte';
+	import { DuplicateCheck } from '#lib/artworks/duplicate-check/duplicate-check.svelte.ts';
+	import { formatDeletedOn } from '#lib/artworks/trash/trash.ts';
+	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
+	import { deletePermanently, restoreArtwork } from '#lib/artworks/trash-data/trash-data.ts';
+	import type { TrashArtwork } from '#lib/wall/types/trash-artwork.ts';
+	import { m } from '#lib/i18n/i18n.ts';
+	import { REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data/review-data.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -46,6 +47,7 @@
 			return;
 		}
 		removed.push(artwork.id);
+		void invalidate(REVIEW_COUNTS_DEPENDENCY);
 		toast.show(m.trash.restored(formatRecordNumber(artwork.number)));
 	}
 
@@ -60,7 +62,7 @@
 		if (!artwork || busy) return;
 		busy = artwork.id;
 		deleteError = undefined;
-		const { error } = await deletePermanently(artwork.id, artwork.ownImagePath);
+		const { error } = await deletePermanently(artwork.id);
 		busy = undefined;
 		if (error) {
 			deleteError = error;
@@ -73,10 +75,6 @@
 </script>
 
 <AtelierLayout email={data.session.user.email ?? ''} title={m.trash.title}>
-	{#snippet bar()}
-		<AtelierBackLink />
-	{/snippet}
-
 	<header>
 		<h1>{m.trash.title}</h1>
 		{#if shown.length > 0}
@@ -89,16 +87,7 @@
 			{data.error}
 		</Alert>
 	{:else if shown.length === 0}
-		<div class="state">
-			<Section>
-				<h2>{m.trash.emptyTitle}</h2>
-				<div>
-					<Button href={resolve('/(app)/atelier')}>
-						{m.trash.back}
-					</Button>
-				</div>
-			</Section>
-		</div>
+		<EmptyState icon={Trash} text={m.trash.empty} title={m.trash.emptyTitle} />
 	{:else}
 		{#if actionError}
 			<Alert title={m.trash.actionErrorTitle} tone="danger">
@@ -133,20 +122,22 @@
 					<div class="actions">
 						<Button
 							aria-label={m.trash.restore}
+							compact
 							disabled={busy === artwork.id}
+							icon={RotateCcw}
 							onclick={() => restore(artwork)}
 						>
-							<Icon icon={RotateCcw} size="sm" />
-							<span class="label">{m.trash.restore}</span>
+							{m.trash.restore}
 						</Button>
 						<Button
 							aria-label={m.trash.deleteForever}
+							compact
 							disabled={busy === artwork.id}
+							icon={Trash}
 							onclick={() => askToDelete(artwork)}
 							variant="danger"
 						>
-							<Icon icon={Trash} size="sm" />
-							<span class="label">{m.trash.deleteForever}</span>
+							{m.trash.deleteForever}
 						</Button>
 					</div>
 				</li>
@@ -170,10 +161,10 @@
 >
 	{#snippet footer()}
 		<Button onclick={() => (deleteOpen = false)}>
-			{m.trash.cancel}
+			{m.common.cancel}
 		</Button>
 		<Button disabled={busy !== undefined} onclick={confirmDelete} variant="primary">
-			{busy ? m.trash.deleting : m.trash.deleteForever}
+			{busy ? m.common.deleting : m.trash.deleteForever}
 		</Button>
 	{/snippet}
 </Dialog>
@@ -193,10 +184,6 @@
 
 	.caption {
 		font-variant-numeric: tabular-nums;
-	}
-
-	.state {
-		max-width: var(--size-content-default);
 	}
 
 	ul {
@@ -258,15 +245,5 @@
 	.actions {
 		display: flex;
 		gap: var(--spacing-2);
-	}
-
-	.label {
-		display: none;
-	}
-
-	@media (min-width: 768px) {
-		.label {
-			display: inline;
-		}
 	}
 </style>

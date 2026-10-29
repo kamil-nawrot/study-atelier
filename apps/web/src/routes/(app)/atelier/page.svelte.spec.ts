@@ -2,13 +2,29 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto, invalidateAll } from '$app/navigation';
-import { refreshExpiredImages } from '#lib/collection/artworks.ts';
-import { setFavourite } from '#lib/collection/favourite.ts';
-import type { WallArtwork } from '#lib/collection/types.ts';
-import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
-import { testArtwork } from '#lib/testing/artworks.ts';
-import { pending, TEST_EMAIL, testSession } from '#lib/testing/auth.ts';
+import { refreshExpiredImages } from '#lib/wall/wall-data/wall-data.ts';
+import { setFavourite } from '#lib/wall/favourite-data/favourite-data.ts';
+import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import {
+	byAuthors,
+	chooseGrouping,
+	dated,
+	eraTile,
+	filtersButton,
+	groupingButton,
+	manyAuthors,
+	manyPeriods,
+	orderSelect,
+	periods,
+	scrollToTheEnd,
+	searchField,
+	styled,
+	titlesOnTheWall
+} from '#lib/testing/wall/wall.ts';
 import AtelierPage from './+page.svelte';
 import '@study-atelier/ui/styles.css';
 
@@ -18,24 +34,26 @@ const navigation = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier')
 }));
 
-vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
+vi.mock('$app/state', () => ({
+	page: navigation,
+	navigating: { to: null },
+	updated: { current: false }
+}));
 vi.mock('$app/navigation', () => ({
 	goto: vi.fn(),
 	invalidateAll: vi.fn()
 }));
-vi.mock('#lib/collection/artworks.ts', () => ({
+vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
 	refreshExpiredImages: vi.fn(),
 	resolveImages: vi.fn()
 }));
-vi.mock('#lib/collection/favourite.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/collection/favourite.ts')>()),
+vi.mock('#lib/wall/favourite-data/favourite-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/wall/favourite-data/favourite-data.ts')>()),
 	setFavourite: vi.fn()
 }));
-vi.mock('#lib/supabase.ts', () => ({
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
-
-const signOut = vi.mocked(supabase.auth.signOut);
 
 const artworks = [
 	testArtwork(3, 'Déjeuner sur l’herbe'),
@@ -43,137 +61,15 @@ const artworks = [
 	testArtwork(1, 'Night Watch', { image: undefined })
 ];
 
-function renderAtelier(list: WallArtwork[] = artworks, error?: string): void {
-	render(AtelierPage, { data: { session: testSession(), artworks: list, error }, params: {} });
-}
-
-const dated = [
-	testArtwork(1, 'Mona Lisa', { yearTo: 1503, eraCode: 'early_modern' }),
-	testArtwork(2, 'Water Lilies', { yearTo: 1906, eraCode: 'modern' }),
-	testArtwork(3, 'Impression, Sunrise', { yearTo: 1872, eraCode: 'modern' }),
-	testArtwork(4, 'Untitled study', { yearTo: 1800, eraCode: null })
-];
-
-function manyPeriods(): WallArtwork[] {
-	return (
-		[
-			['early_modern', 1500],
-			['modern', 1850],
-			['contemporary', 1960]
-		] as const
-	).flatMap(([eraCode, year], block) =>
-		[0, 1, 2, 3].map((position) =>
-			testArtwork(block * 4 + position + 1, `${m.eras[eraCode].name} ${position + 1}`, {
-				yearTo: year + position,
-				eraCode
-			})
-		)
-	);
-}
-
-const byAuthors = [
-	testArtwork(1, 'Water Lilies', { yearTo: 1906, authors: ['Claude Monet'] }),
-	testArtwork(2, 'Untitled study', { yearTo: 1800, authors: [] }),
-	testArtwork(3, 'Melancholia', { yearTo: 1514, authors: ['Albrecht Dürer', 'Claude Monet'] }),
-	testArtwork(4, 'Impression, Sunrise', { yearTo: 1872, authors: ['Claude Monet'] }),
-	testArtwork(5, 'Self-portrait', { yearTo: 1500, authors: ['Albrecht Dürer'] })
-];
-
-function manyAuthors(count: number): WallArtwork[] {
-	return Array.from({ length: count }, (_, index) =>
-		testArtwork(index + 1, `Study ${index + 1}`, {
-			yearTo: 1800 + index,
-			authors: [`Author ${String(index + 1).padStart(2, '0')}`]
-		})
-	);
-}
-
-function orderSelect(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('combobox', { name: m.atelier.sort.label });
-}
-
-function groupingStep(grouping: 'era' | 'period' | 'style'): ReturnType<typeof page.getByRole> {
-	return page
-		.getByRole('group', { name: m.atelier.grouping.label })
-		.getByRole('button', { name: m.atelier.grouping.steps[grouping] });
-}
-
-function groupingButton(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('button', { name: m.atelier.grouping.button('') });
-}
-
-async function chooseGrouping(grouping: 'era' | 'period' | 'style'): Promise<void> {
-	const wide = window.innerWidth >= 768;
-	if (wide) await groupingButton().click();
-	else await page.getByRole('button', { name: m.atelier.filters.viewButton }).click();
-	await groupingStep(grouping).click();
-	await userEvent.keyboard('{Escape}');
-}
-
-const styled = [
-	testArtwork(1, 'Mona Lisa', {
-		yearTo: 1503,
-		eraCode: 'early_modern',
-		typeCode: 'painting',
-		styles: ['Renaissance']
-	}),
-	testArtwork(2, 'Water Lilies', {
-		yearTo: 1906,
-		eraCode: 'modern',
-		typeCode: 'painting',
-		styles: ['Impressionism'],
-		authors: ['Monet']
-	}),
-	testArtwork(3, 'Impression, Sunrise', {
-		yearTo: 1872,
-		eraCode: 'modern',
-		typeCode: 'painting',
-		styles: ['Impressionism'],
-		authors: ['Monet'],
-		hasImage: false
-	}),
-	testArtwork(4, 'The Thinker', { yearTo: 1904, eraCode: 'modern', typeCode: 'sculpture' })
-];
-
-const periods = [
-	testArtwork(3, 'Night Watch', { yearTo: 1642, eraCode: 'early_modern', period: 'barok' }),
-	testArtwork(2, 'Calling of Saint Matthew', {
-		yearTo: 1600,
-		eraCode: 'early_modern',
-		period: 'barok',
-		styles: ['caravaggionizm', 'barok']
-	}),
-	testArtwork(1, 'Mona Lisa', {
-		yearTo: 1503,
-		eraCode: 'early_modern',
-		period: 'renesans',
-		styles: ['wysoki renesans']
-	}),
-	testArtwork(4, 'Water Lilies', { yearTo: 1906, eraCode: 'modern' })
-];
-
-function filtersButton(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('button', { name: new RegExp(`^${m.atelier.filters.button}`) });
-}
-
-function eraTile(code: keyof typeof m.eras): ReturnType<typeof page.getByRole> {
-	return page.getByRole('checkbox', { name: new RegExp(`^${m.eras[code].name}`) });
-}
-
-function titlesOnTheWall(list: WallArtwork[]): string[] {
-	return page
-		.getByRole('link')
-		.elements()
-		.flatMap((link) => list.find((artwork) => link.textContent?.includes(artwork.title)) ?? [])
-		.map((artwork) => artwork.title);
-}
-
-function scrollToTheEnd(): void {
-	window.scrollTo({ top: document.documentElement.scrollHeight });
-}
-
-function searchField(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('searchbox', { name: m.atelier.search });
+function renderAtelier(
+	list: WallArtwork[] = artworks,
+	error?: string,
+	ownFields: OwnFieldDefinition[] = []
+): void {
+	render(AtelierPage, {
+		data: { session: testSession(), artworks: list, error, ownFields },
+		params: {}
+	});
 }
 
 describe('atelier page', () => {
@@ -268,8 +164,11 @@ describe('atelier page', () => {
 		renderAtelier([]);
 
 		await expect
-			.element(page.getByRole('heading', { level: 2 }))
-			.toHaveTextContent(m.atelier.emptyTitle);
+			.element(page.getByRole('heading', { level: 2, name: m.atelier.welcome.title }))
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { level: 2, name: m.atelier.welcome.howTitle }))
+			.toBeVisible();
 		await expect
 			.element(page.getByRole('link', { name: m.atelier.addFirst }))
 			.toHaveAttribute('href', '/atelier/new');
@@ -322,79 +221,9 @@ describe('atelier page', () => {
 		await expect.element(page.getByText(m.collectionErrors.network)).toBeVisible();
 	});
 
-	describe('on a larger screen', () => {
-		it('expands and collapses the side menu', async () => {
-			renderAtelier();
-
-			await page.getByRole('button', { name: m.menu.expand }).click();
-
-			await expect
-				.element(page.getByRole('button', { name: m.menu.collapse }))
-				.toHaveAttribute('aria-expanded', 'true');
-			await expect.element(page.getByRole('img', { name: m.app.name })).toBeVisible();
-
-			await page.getByRole('button', { name: m.menu.collapse }).click();
-
-			await expect
-				.element(page.getByRole('button', { name: m.menu.expand }))
-				.toHaveAttribute('aria-expanded', 'false');
-		});
-
-		it('links to the trash and has no menu icon in the top bar', async () => {
-			renderAtelier();
-
-			await expect
-				.element(page.getByRole('link', { name: m.menu.trash }))
-				.toHaveAttribute('href', '/atelier/trash');
-			await expect.element(page.getByText(TEST_EMAIL)).toBeInTheDocument();
-			await expect.element(page.getByRole('button', { name: m.menu.open })).not.toBeInTheDocument();
-		});
-
-		it('signs out and returns to sign-in', async () => {
-			signOut.mockResolvedValue({ error: null });
-			renderAtelier();
-
-			await page.getByRole('button', { name: m.menu.signOut }).click();
-
-			await vi.waitFor(() =>
-				expect(goto).toHaveBeenCalledWith('/sign-in', { invalidateAll: true })
-			);
-			expect(signOut).toHaveBeenCalledOnce();
-		});
-
-		it('disables sign out while signing out', async () => {
-			signOut.mockReturnValue(pending());
-			renderAtelier();
-
-			await page.getByRole('button', { name: m.menu.signOut }).click();
-
-			await expect.element(page.getByRole('button', { name: m.menu.signOut })).toBeDisabled();
-			expect(goto).not.toHaveBeenCalled();
-		});
-	});
-
 	describe('on a phone', () => {
 		beforeEach(async () => {
 			await page.viewport(390, 800);
-		});
-
-		it('opens the menu from the top bar and closes it', async () => {
-			renderAtelier();
-
-			await expect
-				.element(page.getByRole('button', { name: m.menu.expand }))
-				.not.toBeInTheDocument();
-
-			await page.getByRole('button', { name: m.menu.open }).click();
-
-			const drawer = page.getByRole('dialog', { name: m.menu.label });
-			await expect.element(drawer).toBeVisible();
-			await expect.element(drawer.getByRole('link', { name: m.menu.trash })).toBeVisible();
-			await expect.element(drawer.getByRole('button', { name: m.menu.signOut })).toBeVisible();
-
-			await page.getByRole('button', { name: m.menu.close }).click();
-
-			await expect.element(drawer).not.toBeInTheDocument();
 		});
 
 		it('shows the add button as an icon with an accessible name', async () => {
@@ -437,7 +266,7 @@ describe('atelier page', () => {
 
 		it('remembers the order on the device', async () => {
 			const view = await render(AtelierPage, {
-				data: { session: testSession(), artworks: dated },
+				data: { session: testSession(), artworks: dated, ownFields: [] },
 				params: {}
 			});
 			await userEvent.selectOptions(orderSelect(), m.atelier.sort.year);
@@ -483,7 +312,7 @@ describe('atelier page', () => {
 				'Untitled study'
 			]);
 			await expect.element(page.getByText(m.atelier.count(4))).toBeVisible();
-			expect(vi.mocked(goto)).toHaveBeenLastCalledWith('/atelier?grupuj=epoka', {
+			expect(vi.mocked(goto)).toHaveBeenLastCalledWith('/atelier?group=era', {
 				replace: true,
 				reset: false
 			});
@@ -555,7 +384,7 @@ describe('atelier page', () => {
 
 			await vi.waitFor(() =>
 				expect(JSON.parse(sessionStorage.getItem('study-atelier:wall-sequence') ?? 'null')).toEqual(
-					{ query: 'grupuj=styl', numbers: [1, 2, 3, 4] }
+					{ query: 'group=style', numbers: [1, 2, 3, 4] }
 				)
 			);
 		});
@@ -639,7 +468,7 @@ describe('atelier page', () => {
 
 		it('remembers the order on the device', async () => {
 			const view = await render(AtelierPage, {
-				data: { session: testSession(), artworks: byAuthors },
+				data: { session: testSession(), artworks: byAuthors, ownFields: [] },
 				params: {}
 			});
 			await userEvent.selectOptions(orderSelect(), m.atelier.sort.author);
@@ -863,14 +692,14 @@ describe('atelier page', () => {
 
 			await eraTile('modern').click();
 
-			expect(goto).toHaveBeenLastCalledWith('/atelier?epoka=modern', {
+			expect(goto).toHaveBeenLastCalledWith('/atelier?era=modern', {
 				replace: true,
 				reset: false
 			});
 		});
 
 		it('reads the filter from the address', async () => {
-			navigation.url = new URL('http://localhost/atelier?epoka=modern&styl=Impressionism');
+			navigation.url = new URL('http://localhost/atelier?era=modern&style=Impressionism');
 			renderAtelier(styled);
 
 			expect(titlesOnTheWall(styled)).toEqual(['Water Lilies', 'Impression, Sunrise']);
@@ -880,15 +709,24 @@ describe('atelier page', () => {
 		});
 
 		it('ignores values in the address that no artwork has', async () => {
-			navigation.url = new URL('http://localhost/atelier?styl=Gone&epoka=nope');
+			navigation.url = new URL('http://localhost/atelier?style=Gone&era=nope');
 			renderAtelier(styled);
 
 			expect(titlesOnTheWall(styled)).toHaveLength(4);
 			await expect.element(page.getByText(m.atelier.count(4))).toBeVisible();
 		});
 
+		it('opens a link saved with the old Polish names as the whole wall', async () => {
+			navigation.url = new URL('http://localhost/atelier?epoka=modern&grupuj=epoka&ulubione=1');
+			renderAtelier(styled);
+
+			expect(titlesOnTheWall(styled)).toHaveLength(4);
+			await expect.element(page.getByText(m.atelier.count(4))).toBeVisible();
+			await expect.element(filtersButton()).toHaveAccessibleName(m.atelier.filters.button);
+		});
+
 		it('remembers the artworks it shows, in their order, for the artwork view', async () => {
-			navigation.url = new URL('http://localhost/atelier?epoka=modern');
+			navigation.url = new URL('http://localhost/atelier?era=modern');
 			renderAtelier(styled);
 			const shownNumbers = (): number[] =>
 				titlesOnTheWall(styled).map(
@@ -898,12 +736,12 @@ describe('atelier page', () => {
 				JSON.parse(sessionStorage.getItem('study-atelier:wall-sequence') ?? 'null');
 
 			await expect.element(page.getByText(m.atelier.filteredCount(3, 4))).toBeVisible();
-			expect(remembered()).toEqual({ query: 'epoka=modern', numbers: shownNumbers() });
+			expect(remembered()).toEqual({ query: 'era=modern', numbers: shownNumbers() });
 
 			await searchField().fill('impression');
 
 			await expect.element(page.getByText(m.atelier.filteredCount(1, 4))).toBeVisible();
-			expect(remembered()).toEqual({ query: 'epoka=modern', numbers: [3] });
+			expect(remembered()).toEqual({ query: 'era=modern', numbers: [3] });
 		});
 
 		it('has no filter button when the atelier is empty', async () => {
@@ -927,6 +765,18 @@ describe('atelier page', () => {
 					.toBeVisible();
 				await expect.element(orderSelect()).toBeVisible();
 				await expect.element(eraTile('modern')).toBeVisible();
+			});
+
+			it('keeps the view dialog within the width of the screen', async () => {
+				renderAtelier(styled);
+				await page.getByRole('button', { name: m.atelier.filters.viewButton }).click();
+				await expect.element(orderSelect()).toBeVisible();
+
+				const body = page
+					.getByRole('dialog', { name: m.atelier.filters.viewTitle })
+					.element()
+					.querySelector('.body');
+				expect(body?.scrollWidth).toBe(body?.clientWidth);
 			});
 
 			it('shows how many artworks the filters leave and closes with that button', async () => {

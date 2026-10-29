@@ -1,24 +1,28 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { findDuplicates } from '#lib/collection/duplicates.ts';
-import { deletePermanently, restoreArtwork } from '#lib/collection/trash.ts';
-import type { TrashArtwork } from '#lib/collection/types.ts';
-import { m } from '#lib/i18n/index.ts';
-import { testArtwork } from '#lib/testing/artworks.ts';
-import { testSession } from '#lib/testing/auth.ts';
+import { invalidate } from '$app/navigation';
+import { findDuplicates } from '#lib/artworks/duplicates-data/duplicates-data.ts';
+import { deletePermanently, restoreArtwork } from '#lib/artworks/trash-data/trash-data.ts';
+import type { TrashArtwork } from '#lib/wall/types/trash-artwork.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data/review-data.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
 import TrashPage from './+page.svelte';
 
-vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
-vi.mock('#lib/collection/trash.ts', () => ({
+vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidate: vi.fn() }));
+vi.mock('#lib/artworks/trash-data/trash-data.ts', () => ({
 	restoreArtwork: vi.fn(),
 	deletePermanently: vi.fn()
 }));
-vi.mock('#lib/collection/duplicates.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/collection/duplicates.ts')>()),
+vi.mock('#lib/artworks/duplicates-data/duplicates-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/artworks/duplicates-data/duplicates-data.ts')>()),
 	findDuplicates: vi.fn()
 }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const today = new Date().toISOString();
 
@@ -69,7 +73,7 @@ describe('trash page', () => {
 		await expect.element(row('Night Watch').getByText('Test Painter · 1900')).toBeVisible();
 		await expect
 			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
-			.toHaveAttribute('href', '/atelier');
+			.not.toBeInTheDocument();
 	});
 
 	it('restores an artwork without asking when no other artwork matches', async () => {
@@ -83,16 +87,17 @@ describe('trash page', () => {
 		await expect.element(page.getByText(m.trash.restored('#0007'))).toBeVisible();
 		await expect.element(row('Night Watch')).not.toBeInTheDocument();
 		await expect.element(page.getByText(m.atelier.count(1))).toBeVisible();
+		expect(invalidate).toHaveBeenCalledWith(REVIEW_COUNTS_DEPENDENCY);
 	});
 
 	it('shows an alert when restoring fails and keeps the artwork', async () => {
-		vi.mocked(restoreArtwork).mockResolvedValue({ error: m.artworkErrors.network });
+		vi.mocked(restoreArtwork).mockResolvedValue({ error: m.common.network });
 		renderTrash();
 
 		await row('Night Watch').getByRole('button', { name: m.trash.restore }).click();
 
 		await expect.element(page.getByText(m.trash.actionErrorTitle)).toBeVisible();
-		await expect.element(page.getByText(m.artworkErrors.network)).toBeVisible();
+		await expect.element(page.getByText(m.common.network)).toBeVisible();
 		await expect.element(row('Night Watch')).toBeVisible();
 	});
 
@@ -107,7 +112,7 @@ describe('trash page', () => {
 		await expect.element(dialog.getByText(m.trash.deleteDescription('#0042'))).toBeVisible();
 		await dialog.getByRole('button', { name: m.trash.deleteForever }).click();
 
-		expect(deletePermanently).toHaveBeenCalledWith('artwork-42', 'owner/pearl.jpg');
+		expect(deletePermanently).toHaveBeenCalledWith('artwork-42');
 		await expect.element(page.getByText(m.trash.deleted('#0042'))).toBeVisible();
 		await expect.element(row('Girl with a Pearl Earring')).not.toBeInTheDocument();
 	});
@@ -116,7 +121,7 @@ describe('trash page', () => {
 		renderTrash();
 
 		await row('Night Watch').getByRole('button', { name: m.trash.deleteForever }).click();
-		await page.getByRole('button', { name: m.trash.cancel }).click();
+		await page.getByRole('button', { name: m.common.cancel }).click();
 
 		await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
 		expect(deletePermanently).not.toHaveBeenCalled();
@@ -124,7 +129,7 @@ describe('trash page', () => {
 	});
 
 	it('shows an error in the dialog when the permanent delete fails', async () => {
-		vi.mocked(deletePermanently).mockResolvedValue({ error: m.artworkErrors.network });
+		vi.mocked(deletePermanently).mockResolvedValue({ error: m.common.network });
 		renderTrash();
 
 		await row('Night Watch').getByRole('button', { name: m.trash.deleteForever }).click();
@@ -133,18 +138,16 @@ describe('trash page', () => {
 			.getByRole('button', { name: m.trash.deleteForever })
 			.click();
 
-		await expect
-			.element(page.getByRole('alertdialog').getByText(m.artworkErrors.network))
-			.toBeVisible();
+		await expect.element(page.getByRole('alertdialog').getByText(m.common.network)).toBeVisible();
 	});
 
-	it('says the trash is empty and links back to the atelier', async () => {
+	it('says the trash is empty and what goes into it', async () => {
 		renderTrash([]);
 
-		await expect.element(page.getByText(m.trash.emptyTitle)).toBeVisible();
 		await expect
-			.element(page.getByRole('link', { name: m.trash.back }))
-			.toHaveAttribute('href', '/atelier');
+			.element(page.getByRole('heading', { level: 2 }))
+			.toHaveTextContent(m.trash.emptyTitle);
+		await expect.element(page.getByText(m.trash.empty)).toBeVisible();
 	});
 
 	it('shows a load error in an alert', async () => {

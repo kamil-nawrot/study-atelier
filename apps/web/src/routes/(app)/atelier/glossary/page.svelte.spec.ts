@@ -2,11 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
-import { m } from '#lib/i18n/index.ts';
-import { GLOSSARY_SEARCH_MIN_ENTRIES } from '#lib/glossary/glossary.ts';
-import type { GlossaryEntry } from '#lib/glossary/types.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import { testEntry, testGlossary } from '#lib/testing/glossary.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { GLOSSARY_SEARCH_MIN_ENTRIES } from '#lib/glossary/glossary/glossary.ts';
+import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import { testEntry, testGlossary } from '#lib/testing/glossary/glossary.ts';
 import GlossaryPage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -15,9 +15,15 @@ const navigation = vi.hoisted(() => ({
 	data: {}
 }));
 
-vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
+vi.mock('$app/state', () => ({
+	page: navigation,
+	navigating: { to: null },
+	updated: { current: false }
+}));
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 function renderGlossary(entries: GlossaryEntry[] = testGlossary(), error?: string): void {
 	render(GlossaryPage, { data: { session: testSession(), entries, error }, params: {} });
@@ -147,10 +153,54 @@ describe('glossary page', () => {
 		await expect.element(page.getByText(m.glossary.noResults('qqq'))).toBeVisible();
 	});
 
+	it('offers an index of letters from twenty entries and jumps to a letter', async () => {
+		const entries = Array.from({ length: 26 * 3 }, (_, position) =>
+			testEntry(`entry-${position}`, `${String.fromCharCode(65 + (position % 26))}rch ${position}`)
+		);
+		renderGlossary(entries);
+		const index = page.getByRole('navigation', { name: m.glossary.letters });
+
+		await expect
+			.element(index.getByRole('button', { name: 'A', exact: true }))
+			.toHaveAttribute('aria-current', 'true');
+		await index.getByRole('button', { name: 'K', exact: true }).click();
+
+		await expect
+			.poll(() => document.getElementById('letter-K')?.getBoundingClientRect().top ?? 1000)
+			.toBeLessThan(120);
+		await expect
+			.element(index.getByRole('button', { name: 'K', exact: true }))
+			.toHaveAttribute('aria-current', 'true');
+	});
+
+	it('offers no index of letters below twenty entries', async () => {
+		renderGlossary(manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES - 1));
+
+		await expect.element(entryLink('Tympanum')).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('navigation', { name: m.glossary.letters }))
+			.not.toBeInTheDocument();
+	});
+
+	it('keeps in the index only the letters the search leaves', async () => {
+		renderGlossary([...manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES), testEntry('apse', 'Apsyda')]);
+
+		await page.getByRole('searchbox').fill('a');
+		const index = page.getByRole('navigation', { name: m.glossary.letters });
+
+		await expect.element(index.getByRole('button', { name: 'A', exact: true })).toBeInTheDocument();
+		await expect.element(index.getByRole('button', { name: 'T', exact: true })).toBeInTheDocument();
+		await page.getByRole('searchbox').fill('aps');
+		await expect.element(index).not.toBeInTheDocument();
+	});
+
 	it('says the glossary is empty and offers no categories', async () => {
 		renderGlossary([]);
 
 		await expect.element(page.getByText(m.glossary.empty)).toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: m.glossary.addFirst }))
+			.toHaveAttribute('href', '/atelier/glossary/new');
 		await expect.element(page.getByText(m.glossary.count(0))).not.toBeInTheDocument();
 		expect(
 			page.getByRole('button', { name: m.glossary.categoryNames.person }).elements()
@@ -175,5 +225,57 @@ describe('glossary page', () => {
 			shallow: true,
 			replace: true
 		});
+	});
+
+	it('keeps the search and the chosen categories when the learner comes back', async () => {
+		const first = await render(GlossaryPage, {
+			data: { session: testSession(), entries: manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES) },
+			params: {}
+		});
+		await userEvent.fill(page.getByRole('searchbox', { name: m.glossary.search }), 'Tymp');
+		const saved = first.component.snapshot.capture();
+		first.unmount();
+
+		const second = await render(GlossaryPage, {
+			data: { session: testSession(), entries: manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES) },
+			params: {}
+		});
+		second.component.snapshot.restore(saved);
+
+		await expect
+			.element(page.getByRole('searchbox', { name: m.glossary.search }))
+			.toHaveValue('Tymp');
+		await expect.element(entryLink('Term 1')).not.toBeInTheDocument();
+		expect(saved).toEqual({ query: 'Tymp', chosen: [], scroll: 0 });
+	});
+
+	it('scrolls back to the saved place after the restored filter moved the page', async () => {
+		const entries = Array.from({ length: 80 }, (_, position) =>
+			testEntry(`entry-${position}`, `Term ${String(position).padStart(2, '0')}`, {
+				category: position % 2 === 0 ? 'architecture' : 'painting'
+			})
+		);
+		const first = await render(GlossaryPage, {
+			data: { session: testSession(), entries },
+			params: {}
+		});
+		await page.getByRole('button', { name: `${m.glossary.categoryNames.painting} 40` }).click();
+		await expect.element(entryLink('Term 00')).not.toBeInTheDocument();
+		const place = Math.round((document.documentElement.scrollHeight - window.innerHeight) / 2);
+		window.scrollTo({ top: place, behavior: 'instant' });
+		const saved = first.component.snapshot.capture();
+		first.unmount();
+
+		const second = await render(GlossaryPage, {
+			data: { session: testSession(), entries },
+			params: {}
+		});
+		window.scrollTo({ top: place, behavior: 'instant' });
+		second.component.snapshot.restore(saved);
+		window.scrollTo({ top: place / 2, behavior: 'instant' });
+
+		await expect.element(entryLink('Term 00')).not.toBeInTheDocument();
+		await expect.poll(() => window.scrollY).toBe(place);
+		expect(saved).toEqual({ query: '', chosen: ['painting'], scroll: place });
 	});
 });

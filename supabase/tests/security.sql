@@ -32,6 +32,52 @@ begin
 end;
 $$;
 
+create function security_test.untouched(statement text)
+returns boolean
+language plpgsql
+as $$
+declare
+  changed bigint;
+begin
+  execute statement;
+  get diagnostics changed = row_count;
+  return changed = 0;
+exception
+  when insufficient_privilege then
+    return true;
+end;
+$$;
+
+create function security_test.seen(statement text)
+returns bigint
+language plpgsql
+as $$
+declare
+  found bigint;
+begin
+  execute statement into found;
+  return found;
+exception
+  when insufficient_privilege then
+    return 0;
+end;
+$$;
+
+create function security_test.owned_tables()
+returns setof text
+language sql
+as $$
+  select format('public.%I', class.relname)
+    from pg_class as class
+    where class.relnamespace = 'public'::regnamespace
+      and class.relkind in ('r', 'p')
+      and exists (
+        select 1 from pg_attribute as attribute
+          where attribute.attrelid = class.oid and attribute.attname = 'owner_id' and not attribute.attisdropped
+      )
+    order by class.relname;
+$$;
+
 create function security_test.act_as(user_id uuid)
 returns void
 language sql
@@ -43,15 +89,74 @@ grant execute on all functions in schema security_test to anon, authenticated;
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000a', 'owner-a@example.test'),
-  ('00000000-0000-0000-0000-00000000000b', 'owner-b@example.test');
+  ('00000000-0000-0000-0000-00000000000b', 'owner-b@example.test'),
+  ('00000000-0000-0000-0000-00000000000c', 'owner-c@example.test');
 
 do $$
 declare
-  a constant uuid := '00000000-0000-0000-0000-00000000000a';
-  b constant uuid := '00000000-0000-0000-0000-00000000000b';
+  owner_rule constant text := '(owner_id = ( SELECT auth.uid() AS uid))';
+  folder_rule constant text := '(storage.foldername(name))[1] = (( SELECT auth.uid() AS uid))::text';
+  covered constant text[] := array[
+    'keep_alive', 'value_usage', 'period_era_usage', 'style_period_usage', 'merge_category_values',
+    'set_period_eras', 'set_style_periods', 'delete_unused_value', 'value_page_content', 'save_era_details',
+    'save_value_details', 'record_review', 'review_counts', 'review_streak', 'notes_mentions', 'review_session',
+    'unused_images', 'move_artwork_field', 'artwork_field_usage', 'save_artwork', 'import_atelier', 'save_visit',
+    'storage_usage', 'delete_account', 'storage_has_room', 'deleted_account_images', 'search_key',
+    'duplicate_candidates', 'used_category_values', 'learner_points', 'unlock_exhibits', 'record_free_answers'
+  ];
   table_name text;
   routine record;
+  policy record;
 begin
+  for policy in
+    select format('%I.%I', schemaname, tablename) as table_name, policyname, cmd, roles, qual, with_check
+      from pg_policies where schemaname = 'public'
+  loop
+    assert policy.roles = '{authenticated}'::name[],
+      format('the policy "%s" on %s is open to roles other than authenticated', policy.policyname, policy.table_name);
+    if policy.table_name in (select security_test.owned_tables()) and policy.table_name <> 'public.categories' then
+      assert coalesce(policy.qual, owner_rule) = owner_rule and coalesce(policy.with_check, owner_rule) = owner_rule,
+        format('the policy "%s" on %s does not keep rows to their owner', policy.policyname, policy.table_name);
+    else
+      assert policy.cmd = 'SELECT',
+        format('the policy "%s" lets learners change the shared table %s', policy.policyname, policy.table_name);
+    end if;
+  end loop;
+
+  for table_name in
+    select format('public.%I', relname) from pg_class
+      where relnamespace = 'public'::regnamespace and relkind in ('r', 'p')
+    except select security_test.owned_tables()
+  loop
+    assert not has_table_privilege('authenticated', table_name, 'insert,update,delete')
+      and not has_any_column_privilege('authenticated', table_name, 'insert,update'),
+      format('learners can write to the shared table %s', table_name);
+  end loop;
+
+  assert not exists (select 1 from storage.buckets where public), 'a storage bucket is public';
+  for policy in
+    select policyname, roles, qual, with_check from pg_policies where schemaname = 'storage' and tablename = 'objects'
+  loop
+    assert policy.roles = '{authenticated}'::name[],
+      format('the storage policy "%s" is open to roles other than authenticated', policy.policyname);
+    assert (policy.qual is null or strpos(policy.qual, folder_rule) > 0)
+      and (policy.with_check is null or strpos(policy.with_check, folder_rule) > 0),
+      format('the storage policy "%s" does not keep files to the folder of their owner', policy.policyname);
+  end loop;
+
+  for routine in
+    select p.oid::regprocedure as signature, p.proname
+      from pg_proc as p
+      where p.pronamespace = 'public'::regnamespace and not (p.proname = any (covered))
+  loop
+    raise exception '% has no case in supabase/tests/security.sql', routine.signature;
+  end loop;
+
+  assert not has_function_privilege('authenticated', 'public.unused_images()', 'execute'),
+    'learners can list the unused images of every atelier';
+  assert not has_function_privilege('authenticated', 'public.deleted_account_images()', 'execute'),
+    'learners can list the files of deleted accounts';
+
   for table_name in
     select relname from pg_class
       where relnamespace in ('public'::regnamespace, 'private'::regnamespace)
@@ -77,7 +182,9 @@ begin
     assert not has_function_privilege('anon', routine.signature, 'execute')
       or routine.proname = 'keep_alive',
       format('anon can execute %s', routine.signature);
-    assert not routine.prosecdef or not has_function_privilege('authenticated', routine.signature, 'execute'),
+    assert not routine.prosecdef
+      or routine.proname in ('import_atelier', 'delete_account', 'storage_has_room', 'unlock_exhibits')
+      or not has_function_privilege('authenticated', routine.signature, 'execute'),
       format('authenticated can execute the security definer function %s', routine.signature);
   end loop;
 
@@ -107,6 +214,10 @@ insert into public.glossary_entries (name, category, definition, forms)
   values ('Tympanum', 'architecture', 'A definition', '{tympana}');
 insert into public.timeline_events (name, year_from, year_to, description)
   values ('Thirty Years'' War', 1618, 1648, 'A description');
+insert into public.profiles (display_name) values ('Owner A');
+
+insert into public.artwork_pins (image_id, x, y, text)
+  select id, 0.5, 0.5, 'A pin' from public.artwork_images;
 
 insert into storage.objects (bucket_id, name)
   values ('artwork-images', '00000000-0000-0000-0000-00000000000a/work.jpg');
@@ -117,39 +228,120 @@ select public.record_review(
   '{"mode": "quiz_title", "rating": 2, "correct": true, "answer_ms": 4200}'
 );
 
+select public.record_free_answers('2026-10-16T00:00:00Z', 20);
+select count(*) from public.unlock_exhibits('UTC');
+
+insert into public.artwork_fields (name, kind) values ('Lecture', 'list'), ('Source', 'text');
+insert into public.category_values (category_code, name)
+  select id::text, 'Baroque class' from public.artwork_fields where name = 'Lecture';
+insert into public.artwork_field_entries (artwork_id, field_id, field_kind, text_value)
+  select artwork.id, field.id, 'text', 'A source'
+    from public.artworks as artwork cross join public.artwork_fields as field
+    where field.name = 'Source';
+
+select public.save_visit(
+  '{"visited_on": "2026-10-12", "date_precision": "day", "notes": "A note"}', 'Visited museum',
+  array[(select id from public.artworks)]
+);
+
+insert into public.category_values (category_code, name) values ('material', 'Oil on canvas'), ('author', 'Sculptor');
+insert into public.material_details (value_id, summary)
+  select id, 'Material summary' from public.category_values where name = 'Oil on canvas';
+insert into public.author_details (value_id, birth_year)
+  select id, 1400 from public.category_values where name = 'Sculptor';
+insert into public.style_details (value_id, summary)
+  select id, 'Style summary' from public.category_values where name = 'Tenebrism';
+insert into public.location_details (value_id, place_type)
+  select id, 'museum' from public.category_values where name = 'Visited museum';
+insert into public.feedback (kind, title) values ('idea', 'Owner A idea');
+
 reset role;
+
+do $$
+declare
+  a constant uuid := '00000000-0000-0000-0000-00000000000a';
+  table_name text;
+  found bigint;
+begin
+  for table_name in select security_test.owned_tables() loop
+    execute format('select count(*) from %s where owner_id = %L', table_name, a) into found;
+    assert found > 0, format('A has no row in %s, so nothing checks that B cannot reach it', table_name);
+  end loop;
+end;
+$$;
 
 do $$
 declare
   a constant uuid := '00000000-0000-0000-0000-00000000000a';
   b constant uuid := '00000000-0000-0000-0000-00000000000b';
   a_artwork uuid;
+  a_image uuid;
   a_value uuid;
   a_unlinked uuid;
   a_author uuid;
   a_merged uuid;
+  a_lecture uuid;
+  a_source uuid;
+  a_place uuid;
+  a_visit uuid;
+  a_style uuid;
+  c constant uuid := '00000000-0000-0000-0000-00000000000c';
+  table_name text;
+  writable_column text;
 begin
   select id into a_artwork from public.artworks where owner_id = a;
+  select id into a_image from public.artwork_images where owner_id = a limit 1;
   select id into a_value from public.category_values where owner_id = a and category_code = 'period';
   select id into a_unlinked from public.category_values where owner_id = a and name = 'Unlinked';
   select id into a_author from public.category_values where owner_id = a and name = 'Painter';
+  select id into a_lecture from public.artwork_fields where owner_id = a and name = 'Lecture';
+  select id into a_source from public.artwork_fields where owner_id = a and name = 'Source';
+  select id into a_place from public.category_values where owner_id = a and name = 'Visited museum';
+  select id into a_visit from public.visits where owner_id = a;
+  select id into a_style from public.category_values where owner_id = a and name = 'Tenebrism';
+  assert a_visit is not null, 'the visit of owner A was not created';
   assert a_artwork is not null and a_value is not null, 'fixture for owner A was not created';
+  assert a_lecture is not null and a_source is not null, 'fields of owner A were not created';
 
   set local role authenticated;
   perform security_test.act_as(b);
+
+  for table_name in select security_test.owned_tables() loop
+    assert security_test.seen(format('select count(*) from %s where owner_id = %L', table_name, a)) = 0,
+      format('B reads rows of A in %s', table_name);
+    select coalesce(min(quote_ident(attname)), 'owner_id') into writable_column
+      from pg_attribute
+      where attrelid = table_name::regclass and attnum > 0 and not attisdropped
+        and has_column_privilege('authenticated', attrelid, attname, 'update');
+    assert security_test.untouched(format(
+      'update %s set %s = %s where owner_id = %L', table_name, writable_column, writable_column, a)),
+      format('B updates rows of A in %s', table_name);
+    assert security_test.untouched(format('delete from %s where owner_id = %L', table_name, a)),
+      format('B deletes rows of A in %s', table_name);
+  end loop;
 
   assert (select count(*) from public.artworks) = 0, 'B reads artworks of A';
   assert (select count(*) from public.category_values) = 0, 'B reads category values of A';
   assert (select count(*) from public.artwork_values) = 0, 'B reads artwork values of A';
   assert (select count(*) from public.artwork_images) = 0, 'B reads artwork images of A';
+  assert (select count(*) from public.artwork_pins) = 0, 'B reads pins of A';
   assert (select count(*) from public.period_eras) = 0, 'B reads period eras of A';
   assert (select count(*) from public.style_periods) = 0, 'B reads style periods of A';
   assert (select count(*) from public.period_details) = 0, 'B reads period details of A';
   assert (select count(*) from public.era_details) = 0, 'B reads era details of A';
   assert (select count(*) from public.glossary_entries) = 0, 'B reads glossary entries of A';
   assert (select count(*) from public.timeline_events) = 0, 'B reads timeline events of A';
+  assert (select count(*) from public.visits) = 0, 'B reads visits of A';
+  assert (select count(*) from public.visit_artworks) = 0, 'B reads the artworks of visits of A';
+  assert (select count(*) from public.profiles) = 0, 'B reads the profile of A';
   assert (select count(*) from storage.objects) = 0, 'B reads image objects of A';
+  assert (select used_bytes from public.storage_usage()) = 0, 'B counts the files of A as used space';
   assert (select count(*) from public.value_usage()) = 0, 'B sees value usage of A';
+  assert (select count(*) from public.used_category_values()) = 0, 'B lists the used values of A';
+  assert (select count(*) from public.artwork_fields) = 0, 'B reads artwork fields of A';
+  assert (select count(*) from public.artwork_field_entries) = 0, 'B reads field entries of A';
+  assert (select count(*) from public.artwork_field_usage()) = 0, 'B sees field usage of A';
+  assert (select count(*) from public.categories) = 5, 'B reads the categories of the fields of A';
   assert (select count(*) from public.notes_mentions()) = 0, 'B sees the notes of A';
   assert not (select has_content from public.value_page_content(a_value)),
     'B sees the page content of a value of A';
@@ -159,6 +351,9 @@ begin
   assert (select due + new_available + new_today + with_image from public.review_counts('2026-10-16T00:00:00Z')) = 0,
     'B counts reviews of A';
   assert public.review_streak('2026-10-16T00:00:00Z', 'UTC') = 0, 'B counts the review streak of A';
+  assert public.learner_points() = 0, 'B counts the points of A';
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'collection') = 0,
+    'B counts the exhibits of A';
   assert public.review_session('2026-10-16T00:00:00Z') = '[]'::jsonb, 'B builds a session of A';
   assert public.review_session('2026-10-16T00:00:00Z', 'mixed', 'all', null, 0) = '[]'::jsonb,
     'B builds a free session of A';
@@ -184,8 +379,22 @@ begin
     'B deletes a glossary entry of A';
   assert security_test.affected('update public.timeline_events set name = ''x''') = 0,
     'B updates a timeline event of A';
+  assert security_test.affected('update public.profiles set display_name = ''x''') = 0,
+    'B updates the profile of A';
+  assert security_test.affected('update public.artwork_fields set name = ''x''') = 0,
+    'B renames an artwork field of A';
+  assert security_test.affected('delete from public.artwork_fields') = 0,
+    'B deletes an artwork field of A';
+  assert security_test.affected('delete from public.artwork_field_entries') = 0,
+    'B deletes field entries of A';
   assert security_test.affected('delete from public.timeline_events') = 0,
     'B deletes a timeline event of A';
+  assert security_test.affected('update public.visits set notes = ''x''') = 0,
+    'B updates a visit of A';
+  assert security_test.affected('delete from public.visits') = 0,
+    'B deletes a visit of A';
+  assert security_test.affected('delete from public.visit_artworks') = 0,
+    'B removes artworks from a visit of A';
 
   assert security_test.denied(format(
     'insert into public.artworks (owner_id, title, author_unknown) values (%L, ''Forged'', true)', a)),
@@ -200,11 +409,37 @@ begin
     'insert into public.timeline_events (owner_id, name, year_to) values (%L, ''Forged'', 1500)', a)),
     'B inserts a timeline event owned by A';
   assert security_test.denied(format(
+    'insert into public.profiles (owner_id, display_name) values (%L, ''Forged'')', a)),
+    'B inserts a profile owned by A';
+  assert security_test.denied(format(
+    'insert into public.profiles (avatar_path) values (%L)', a || '/avatar-' || gen_random_uuid() || '.jpg')),
+    'B sets an avatar in the folder of A';
+  assert security_test.denied(format(
     'insert into public.feedback (owner_id, kind, title) values (%L, ''bug'', ''Forged'')', a)),
     'B sends feedback owned by A';
   assert security_test.denied(format(
     'insert into public.period_eras (value_id, era_code) values (%L, ''modern'')', a_value)),
     'B adds an era to a period of A';
+  assert security_test.denied(format(
+    'insert into public.category_values (category_code, name) values (%L, ''Forged'')', a_lecture)),
+    'B adds a value to a list field of A';
+  assert security_test.denied(format(
+    'insert into public.artwork_field_entries (artwork_id, field_id, field_kind, text_value) values (%L, %L, ''text'', ''Forged'')',
+    a_artwork, a_source)),
+    'B fills in a field of A';
+  assert security_test.denied(format(
+    'insert into public.artwork_fields (owner_id, name, kind) values (%L, ''Forged'', ''text'')', a)),
+    'B inserts an artwork field owned by A';
+  assert security_test.denied(format('select public.move_artwork_field(%L, 1)', a_lecture)),
+    'B moves an artwork field of A';
+  perform public.save_artwork('{"title": "B work", "author_unknown": true}',
+    jsonb_build_object('author', '[]'::jsonb), null, null, jsonb_build_object(a_source::text, 'Forged'));
+  assert (select count(*) from public.artwork_field_entries) = 0,
+    'B fills in a field of A through save_artwork';
+  perform public.save_artwork('{"title": "B list", "author_unknown": true}',
+    jsonb_build_object('author', '[]'::jsonb, a_lecture::text, '["Forged"]'::jsonb));
+  assert not exists (select 1 from public.category_values where name = 'Forged'),
+    'B adds a value to a list field of A through save_artwork';
   assert security_test.denied(format(
     'insert into public.style_details (value_id, summary) values (%L, ''Forged'')', a_unlinked)),
     'B adds details to a value of A';
@@ -234,10 +469,7 @@ begin
     'insert into storage.objects (bucket_id, name) values (''artwork-images'', ''loose.jpg'')'),
     'B uploads outside of any folder';
   assert security_test.denied(format(
-    'insert into public.artworks (title, author_unknown, own_image_path) values (''Borrowed'', true, ''%s/work.jpg'')', a)),
-    'B points an artwork at an image of A';
-  assert security_test.denied(format(
-    'insert into public.artwork_images (artwork_id, position, own_image_url) values (%L, 2, ''https://example.com/b.jpg'')',
+    'insert into public.artwork_images (artwork_id, position, own_image_url) values (%L, 1, ''https://example.com/b.jpg'')',
     a_artwork)),
     'B adds an image to an artwork of A';
   assert security_test.denied(format(
@@ -245,10 +477,92 @@ begin
     a)),
     'B points an extra image at an image of A';
   assert security_test.affected('delete from public.artwork_images') = 0, 'B deletes artwork images of A';
+  assert security_test.denied(format(
+    'insert into public.artwork_pins (image_id, x, y, text) values (%L, 0.5, 0.5, ''Forged'')', a_image)),
+    'B pins a detail on an image of A';
+  assert security_test.affected('update public.artwork_pins set x = 0') = 0, 'B moves pins of A';
+  assert security_test.denied(format(
+    'insert into public.visits (place_id, visited_on, date_precision) values (%L, ''2026-10-12'', ''day'')', a_place)),
+    'B logs a visit to a place of A';
+  assert security_test.denied(format(
+    'insert into public.visits (owner_id, place_id, visited_on, date_precision) values (%L, %L, ''2026-10-12'', ''day'')',
+    a, a_place)),
+    'B inserts a visit owned by A';
+  assert security_test.denied(format(
+    'insert into public.visit_artworks (visit_id, artwork_id) values (%L, %L)', a_visit, a_artwork)),
+    'B adds an artwork to a visit of A';
+  assert security_test.denied(format(
+    'select public.save_visit(''{"visited_on": "2026-10-12", "date_precision": "day"}'', ''Mine'', ''{}'', %L)',
+    a_visit)),
+    'B overwrites a visit of A through save_visit';
+  assert security_test.denied(format(
+    'select public.save_visit(''{"visited_on": "2026-10-12", "date_precision": "day"}'', ''Mine'', ''{%s}'')',
+    a_artwork)),
+    'B adds an artwork of A to a visit through save_visit';
+  assert security_test.affected('delete from public.artwork_pins') = 0, 'B deletes pins of A';
+  assert (select count(*) from public.period_era_usage()) = 0, 'B sees the eras of the periods of A';
+  assert (select count(*) from public.style_period_usage()) = 0, 'B sees the periods of the styles of A';
+  assert security_test.denied(format('select public.set_style_periods(%L, ''{%s}'')', a_style, a_value)),
+    'B links a period to a style of A';
+
+  perform set_config('storage.allow_delete_query', 'true', true);
+  assert security_test.untouched(format(
+    'update storage.objects set metadata = metadata where name like %L', a || '/%')),
+    'B overwrites image objects of A';
+  assert security_test.untouched(format('delete from storage.objects where name like %L', a || '/%')),
+    'B deletes image objects of A';
+  perform set_config('storage.allow_delete_query', 'false', true);
+
+  perform security_test.act_as(c);
+
+  assert security_test.denied(format('select public.import_atelier(%L)', jsonb_build_object(
+    'artwork_values', jsonb_build_array(jsonb_build_object('artwork_id', a_artwork, 'value_id', a_value))))),
+    'C links values to an artwork of A through import_atelier';
+  assert security_test.denied(format('select public.import_atelier(%L)', jsonb_build_object(
+    'artwork_pins', jsonb_build_array(jsonb_build_object('image_id', a_image, 'x', 0.5, 'y', 0.5, 'text', 'Forged'))))),
+    'C pins a detail on an image of A through import_atelier';
+  assert security_test.denied(format('select public.import_atelier(%L)', jsonb_build_object(
+    'visit_artworks', jsonb_build_array(jsonb_build_object('visit_id', a_visit, 'artwork_id', a_artwork))))),
+    'C adds an artwork of A to a visit of A through import_atelier';
+  assert security_test.denied(format('select public.import_atelier(%L)', jsonb_build_object(
+    'artworks', jsonb_build_array(jsonb_build_object(
+      'id', '00000000-0000-0000-0000-0000000000c1', 'record_number', 1, 'title', 'Imported', 'author_unknown', true)),
+    'artwork_images', jsonb_build_array(jsonb_build_object(
+      'artwork_id', '00000000-0000-0000-0000-0000000000c1', 'position', 1,
+      'own_image_path', a || '/plan.jpg'))))),
+    'C points an imported image at a file of A';
+  assert security_test.denied(format('select public.import_atelier(%L)', jsonb_build_object(
+    'artworks', jsonb_build_array(jsonb_build_object(
+      'id', a_artwork, 'record_number', 1, 'title', 'Taken over', 'author_unknown', true))))),
+    'C takes over an artwork of A through import_atelier';
 
   perform security_test.act_as(a);
 
   assert (select count(*) from public.glossary_entries) = 1, 'A does not see their glossary entry';
+  assert (select display_name from public.profiles) = 'Owner A', 'A does not see their profile';
+  assert not security_test.denied('update public.profiles set display_name = ''Renamed A'''),
+    'A cannot rename themselves';
+  assert security_test.denied('update public.profiles set display_name = '''''),
+    'A gives themselves an empty name';
+  assert security_test.denied('update public.profiles set display_name = '' Padded '''),
+    'A gives themselves a padded name';
+  assert security_test.denied(format('update public.profiles set display_name = %L', repeat('x', 61))),
+    'A gives themselves a name over 60 characters';
+  assert security_test.denied('update public.profiles set avatar_path = ''elsewhere/photo.jpg'''),
+    'A points the avatar at a path that is not an avatar';
+  assert security_test.denied(format(
+    'update public.profiles set avatar_path = %L', b || '/avatar-' || gen_random_uuid() || '.jpg')),
+    'A points the avatar at the folder of B';
+  assert not security_test.denied(format(
+    'update public.profiles set avatar_path = %L', a || '/avatar-' || gen_random_uuid() || '.jpg')),
+    'A cannot set their own avatar';
+  assert not security_test.denied(
+    'insert into public.profiles (display_name) values (''Upserted A'') on conflict (owner_id) do update set display_name = excluded.display_name'),
+    'A cannot save their existing profile with an upsert';
+  assert (select display_name from public.profiles) = 'Upserted A', 'the upsert of A does not change their name';
+  assert security_test.denied('update public.profiles set owner_id = gen_random_uuid()'),
+    'A moves their profile to another owner';
+  assert security_test.denied('delete from public.profiles'), 'A deletes their profile';
   assert not security_test.denied(
     'insert into public.glossary_entries (name, category, forms) values (''Sfumato'', ''technique'', ''{sfumata,sfumatem}'')'),
     'A cannot add a glossary entry';
@@ -344,6 +658,14 @@ begin
   assert not security_test.denied(
     'insert into public.feedback (kind, title) values (''idea'', ''Dark mode'')'),
     'A cannot send feedback without a description';
+  assert not security_test.denied(
+    'insert into public.feedback (kind, title, browser) values (''bug'', ''Slow wall'', ''Firefox'')'),
+    'A cannot send the browser with feedback';
+  assert security_test.denied(
+    'insert into public.feedback (kind, title, notified_at) values (''bug'', ''Forged'', now())'),
+    'A marks feedback as already sent';
+  assert security_test.denied('update public.feedback set notified_at = now()'),
+    'A marks feedback as sent';
   assert security_test.denied('select * from public.feedback'), 'A reads feedback';
   assert security_test.denied('update public.feedback set title = ''x'''), 'A updates feedback';
   assert security_test.denied('delete from public.feedback'), 'A deletes feedback';
@@ -424,6 +746,11 @@ begin
       join public.category_values as value on value.id = details.value_id where value.name = 'Cellar'),
     'a place missing from the catalogue gets details';
   assert (select count(*) from public.catalogue_museums) > 100, 'A does not read the museum catalogue';
+  assert security_test.denied('insert into public.announcements (body) values (''Forged'')'),
+    'A adds an announcement';
+  assert security_test.denied('update public.announcements set body = ''Changed'''),
+    'A changes an announcement';
+  assert security_test.denied('delete from public.announcements'), 'A deletes announcements';
   assert security_test.denied('insert into public.catalogue_museums (wikidata_id, name, country_code) values (''Q1'', ''Forged'', ''FR'')'),
     'A adds a museum to the catalogue';
   assert security_test.denied('update public.catalogue_museums set country_code = ''PL'''),
@@ -441,7 +768,8 @@ begin
   perform security_test.affected(format(
     'insert into public.style_details (value_id, summary) values (%L, ''Style summary'')', a_unlinked));
   perform public.delete_unused_value(a_unlinked);
-  assert (select count(*) from public.style_details) = 0, 'deleting a value keeps its details';
+  assert (select count(*) from public.style_details where value_id = a_unlinked) = 0,
+    'deleting a value keeps its details';
 
   assert (select has_content from public.value_page_content(a_value)), 'A does not see their page content';
   assert security_test.denied(format(
@@ -483,6 +811,30 @@ begin
 
   assert security_test.denied('insert into public.categories (code, multiple, position) values (''forged'', true, 99)'),
     'A adds a category';
+  assert security_test.denied('update public.categories set multiple = false'),
+    'A changes a category';
+  assert security_test.denied('update public.artwork_fields set kind = ''flag'''),
+    'A changes the kind of an artwork field';
+  assert security_test.denied('update public.artwork_fields set multiple = true'),
+    'A changes the number of values of an artwork field';
+  assert security_test.denied('update public.artwork_fields set owner_id = gen_random_uuid()'),
+    'A changes the owner of an artwork field';
+  assert security_test.denied(format(
+    'insert into public.artwork_field_entries (artwork_id, field_id, field_kind) values (%L, %L, ''flag'')',
+    a_artwork, a_lecture)),
+    'A ticks a list field';
+  assert security_test.denied(
+    'insert into public.artwork_fields (name, kind) values (''Padded '', ''text'')'),
+    'A adds an artwork field with a padded name';
+  assert security_test.denied(format(
+    'insert into public.artwork_fields (name, kind) values (%L, ''text'')', repeat('x', 61))),
+    'A adds an artwork field with a name over 60 characters';
+  assert security_test.denied(format(
+    'insert into public.artwork_fields (name, description, kind) values (''Long'', %L, ''text'')', repeat('x', 151))),
+    'A adds an artwork field with a description over 150 characters';
+  assert security_test.denied(
+    'insert into public.artwork_fields (name, kind) values (''Number'', ''number'')'),
+    'A adds an artwork field of an unknown kind';
   assert security_test.denied('update public.eras set position = 99'), 'A changes an era';
   assert security_test.denied('insert into public.artwork_types (code, position) values (''forged'', 99)'),
     'A adds an artwork type';
@@ -507,22 +859,35 @@ begin
   assert (select count(*) from public.review_cards) = 1, 'a second review adds a card instead of updating it';
   assert (select reps from public.review_cards) = 2, 'record_review does not update the card';
   assert (select count(*) from public.review_log) = 2, 'record_review does not log every answer';
-  assert (select with_image from public.review_counts('2026-10-16T00:00:00Z')) = 0,
-    'review_counts counts an artwork without an image';
+  assert (select with_image from public.review_counts('2026-10-16T00:00:00Z')) = 1,
+    'review_counts does not count an artwork with a main image';
   assert (select count(*) from storage.objects) = 1, 'A does not see their own image object';
 
   reset role;
   set local role anon;
 
   assert security_test.denied('select * from public.artworks'), 'anon reads artworks';
+  assert security_test.denied('select * from public.artwork_pins'), 'anon reads artwork pins';
   assert security_test.denied('select * from public.eras'), 'anon reads eras';
   assert security_test.denied('select * from public.era_details'), 'anon reads era details';
   assert security_test.denied('select * from public.author_details'), 'anon reads author details';
   assert security_test.denied('select * from public.catalogue_museums'), 'anon reads the museum catalogue';
+  assert security_test.denied('select * from public.announcements'), 'anon reads the announcements';
   assert security_test.denied('select * from public.glossary_entries'), 'anon reads glossary entries';
+  assert security_test.denied('select * from public.profiles'), 'anon reads profiles';
   assert (select count(*) from storage.objects) = 0, 'anon reads image objects';
   assert security_test.denied('select public.value_usage()'), 'anon executes value_usage';
+  assert security_test.denied('select public.used_category_values()'), 'anon executes used_category_values';
+  assert security_test.denied('select public.duplicate_candidates(''x'')'), 'anon executes duplicate_candidates';
+  assert security_test.denied('select * from public.artwork_fields'), 'anon reads artwork fields';
+  assert security_test.denied('select * from public.artwork_field_entries'), 'anon reads field entries';
+  assert security_test.denied('select public.artwork_field_usage()'), 'anon executes artwork_field_usage';
+  assert security_test.denied(format('select public.move_artwork_field(%L, 1)', gen_random_uuid())),
+    'anon executes move_artwork_field';
   assert security_test.denied('select public.notes_mentions()'), 'anon executes notes_mentions';
+  assert security_test.denied('select public.storage_usage()'), 'anon executes storage_usage';
+  assert security_test.denied('select public.delete_account()'), 'anon executes delete_account';
+  assert security_test.denied('select public.storage_has_room(1)'), 'anon executes storage_has_room';
   assert security_test.denied(format('select public.value_page_content(%L)', gen_random_uuid())),
     'anon executes value_page_content';
   assert security_test.denied('select public.save_artwork(''{}'', ''{}'')'), 'anon executes save_artwork';
@@ -530,6 +895,9 @@ begin
   assert security_test.denied('select public.review_counts(now())'), 'anon executes review_counts';
   assert security_test.denied('select public.review_session(now())'), 'anon executes review_session';
   assert security_test.denied('select public.review_streak(now(), ''UTC'')'), 'anon executes review_streak';
+  assert security_test.denied('select public.learner_points()'), 'anon executes learner_points';
+  assert security_test.denied('select public.unlock_exhibits(''UTC'')'), 'anon executes unlock_exhibits';
+  assert security_test.denied('select public.record_free_answers(now(), 1)'), 'anon executes record_free_answers';
   assert security_test.denied('select public.save_era_details(''antiquity'', ''{}'')'),
     'anon executes save_era_details';
   assert (select public.keep_alive()) is not null, 'anon cannot execute keep_alive';

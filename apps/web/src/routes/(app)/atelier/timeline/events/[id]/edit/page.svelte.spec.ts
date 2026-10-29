@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { m } from '#lib/i18n/index.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import { searchEvents } from '#lib/timeline/wikipedia.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import { searchEvents } from '#lib/timeline/wikipedia/wikipedia.ts';
 import EditEventPage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({
@@ -13,11 +13,16 @@ vi.mock('$app/navigation', () => ({
 }));
 vi.mock('$app/state', () => ({
 	page: { url: new URL('http://localhost/atelier/timeline/events/e/edit'), state: {}, data: {} },
-	navigating: { to: null }
+	navigating: { to: null },
+	updated: { current: false }
 }));
-vi.mock('#lib/timeline/timeline-data.ts', () => ({ saveTimelineEvent: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
-vi.mock('#lib/timeline/wikipedia.ts', () => ({ searchEvents: vi.fn().mockResolvedValue([]) }));
+vi.mock('#lib/timeline/timeline-data/timeline-data.ts', () => ({ saveTimelineEvent: vi.fn() }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
+vi.mock('#lib/timeline/wikipedia/wikipedia.ts', () => ({
+	searchEvents: vi.fn().mockResolvedValue([])
+}));
 
 describe('edit timeline event page', () => {
 	beforeEach(async () => {
@@ -44,7 +49,7 @@ describe('edit timeline event page', () => {
 		await expect
 			.element(page.getByRole('heading', { level: 1 }))
 			.toHaveTextContent(m.timeline.form.editTitle);
-		await expect.element(page.getByLabelText(m.timeline.form.name)).toHaveValue('Pax Romana');
+		await expect.element(page.getByLabelText(m.common.name)).toHaveValue('Pax Romana');
 		await expect
 			.element(page.getByRole('textbox', { name: m.artworkForm.spanFrom }))
 			.toHaveValue('27');
@@ -63,7 +68,7 @@ describe('edit timeline event page', () => {
 		});
 
 		await expect.element(page.getByText(m.timeline.errors.notFound)).toBeVisible();
-		await expect.element(page.getByLabelText(m.timeline.form.name)).not.toBeInTheDocument();
+		await expect.element(page.getByLabelText(m.common.name)).not.toBeInTheDocument();
 	});
 
 	it('does not search Wikipedia by itself for an event without a description', async () => {
@@ -83,7 +88,7 @@ describe('edit timeline event page', () => {
 			params: { id: 'e' }
 		});
 
-		await expect.element(page.getByLabelText(m.timeline.form.name)).toHaveValue('Chrzest Polski');
+		await expect.element(page.getByLabelText(m.common.name)).toHaveValue('Chrzest Polski');
 		await new Promise((resolve) => setTimeout(resolve, 900));
 		expect(searchEvents).not.toHaveBeenCalled();
 	});

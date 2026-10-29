@@ -1,12 +1,11 @@
 <script lang="ts">
-	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
-	import { Icon } from '@study-atelier/ui';
 	import { afterNavigate, goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import ArtworkForm from '#lib/collection/components/ArtworkForm.svelte';
-	import AtelierLayout from '#lib/collection/components/AtelierLayout.svelte';
-	import { goBackThroughHistory } from '#lib/collection/history.ts';
-	import { m } from '#lib/i18n/index.ts';
+	import ArtworkForm from '#lib/artworks/components/ArtworkForm/ArtworkForm.svelte';
+	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
+	import { arrivedFromApp, goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
+	import { m } from '#lib/i18n/i18n.ts';
+	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -14,14 +13,14 @@
 	const atelierPath = resolve('/(app)/atelier');
 
 	let form: ArtworkForm;
-	let cameFromAtelier = false;
+	let cameFromApp = false;
 
 	afterNavigate(({ from }) => {
-		cameFromAtelier = from?.route.id === '/(app)/atelier';
+		cameFromApp = arrivedFromApp(from);
 	});
 
-	function backToAtelier(event: MouseEvent): void {
-		goBackThroughHistory(event, cameFromAtelier);
+	function goBack(event: MouseEvent): void {
+		goBackThroughHistory(event, cameFromApp);
 	}
 
 	async function showSaved(number: number, next: boolean): Promise<void> {
@@ -39,12 +38,8 @@
 	title={m.artworkForm.newTitle}
 >
 	{#snippet bar()}
-		<div class="heading">
-			<a class="back" aria-label={m.artworkForm.back} href={atelierPath} onclick={backToAtelier}>
-				<Icon icon={ArrowLeft} />
-			</a>
-			<h1>{m.artworkForm.newTitle}</h1>
-		</div>
+		<BackLink fallbackHref={atelierPath} fallbackName={m.artworkView.back} />
+		<h1 class="visually-hidden">{m.artworkForm.newTitle}</h1>
 	{/snippet}
 
 	<ArtworkForm
@@ -52,32 +47,11 @@
 		cancelHref={atelierPath}
 		categoryValues={data.values}
 		noteLinks={data.noteLinks}
-		oncancel={backToAtelier}
+		oncancel={goBack}
 		onsaved={showSaved}
+		ownFields={data.ownFields}
+		ownValues={data.ownValues}
 		placeStarter={data.placeStarter}
 		valueLinks={data.links}
 	/>
 </AtelierLayout>
-
-<style>
-	.heading {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-		min-width: 0;
-	}
-
-	.back {
-		display: grid;
-		place-items: center;
-		flex: none;
-		padding-block: var(--spacing-2);
-		color: var(--color-fg);
-	}
-
-	h1 {
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-medium);
-		line-height: var(--line-height-sm);
-	}
-</style>

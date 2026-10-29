@@ -1,16 +1,18 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { Alert, Button, Form, TextField } from '@study-atelier/ui';
-	import { requestPasswordReset } from '#lib/auth/account.ts';
-	import AuthLayout from '#lib/auth/components/AuthLayout.svelte';
-	import { validateEmail } from '#lib/auth/validation.ts';
-	import { m } from '#lib/i18n/index.ts';
+	import { requestPasswordReset } from '#lib/auth/account-data/account-data.ts';
+	import AuthLayout from '#lib/auth/components/AuthLayout/AuthLayout.svelte';
+	import Turnstile from '#lib/auth/components/Turnstile/Turnstile.svelte';
+	import { validateEmail } from '#lib/auth/validation/validation.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 
 	let email = $state('');
 	let emailError = $state<string>();
 	let formError = $state<string>();
 	let sentTo = $state<string>();
 	let submitting = $state(false);
+	let turnstile = $state<Turnstile>();
 
 	async function submit(): Promise<void> {
 		emailError = validateEmail(email);
@@ -19,7 +21,8 @@
 
 		submitting = true;
 		const address = email.trim();
-		formError = await requestPasswordReset(address);
+		formError = await requestPasswordReset(address, await turnstile?.getToken());
+		turnstile?.reset();
 		submitting = false;
 		if (!formError) sentTo = address;
 	}
@@ -44,8 +47,9 @@
 				type="email"
 				bind:value={email}
 			/>
+			<Turnstile bind:this={turnstile} />
 			<Button disabled={submitting} fullWidth type="submit" variant="primary">
-				{submitting ? m.forgotPassword.submitting : m.forgotPassword.submit}
+				{submitting ? m.common.sending : m.forgotPassword.submit}
 			</Button>
 		</Form>
 	{/if}

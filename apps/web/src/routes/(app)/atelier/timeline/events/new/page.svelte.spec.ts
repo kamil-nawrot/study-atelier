@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { goto } from '$app/navigation';
-import { m } from '#lib/i18n/index.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import { saveTimelineEvent } from '#lib/timeline/timeline-data.ts';
-import type { EventArticle } from '#lib/timeline/types.ts';
-import { searchEvents } from '#lib/timeline/wikipedia.ts';
+import { afterNavigate, goto } from '$app/navigation';
+import { m } from '#lib/i18n/i18n.ts';
+import { autoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import { saveTimelineEvent } from '#lib/timeline/timeline-data/timeline-data.ts';
+import type { EventArticle } from '#lib/timeline/types/event-article.ts';
+import { searchEvents } from '#lib/timeline/wikipedia/wikipedia.ts';
 import NewEventPage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({
@@ -16,11 +17,14 @@ vi.mock('$app/navigation', () => ({
 }));
 vi.mock('$app/state', () => ({
 	page: { url: new URL('http://localhost/atelier/timeline/events/new'), state: {}, data: {} },
-	navigating: { to: null }
+	navigating: { to: null },
+	updated: { current: false }
 }));
-vi.mock('#lib/timeline/timeline-data.ts', () => ({ saveTimelineEvent: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
-vi.mock('#lib/timeline/wikipedia.ts', () => ({ searchEvents: vi.fn() }));
+vi.mock('#lib/timeline/timeline-data/timeline-data.ts', () => ({ saveTimelineEvent: vi.fn() }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
+vi.mock('#lib/timeline/wikipedia/wikipedia.ts', () => ({ searchEvents: vi.fn() }));
 
 const save = vi.mocked(saveTimelineEvent);
 const search = vi.mocked(searchEvents);
@@ -48,13 +52,16 @@ function renderNew(): void {
 }
 
 function saveButton(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('button', { name: m.timeline.form.save, exact: true });
+	return page.getByRole('button', { name: m.common.save, exact: true });
 }
 
 describe('new timeline event page', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
+		vi.restoreAllMocks();
+		vi.mocked(afterNavigate).mockReset();
 		search.mockResolvedValue([]);
+		autoFetch.event = true;
 		await page.viewport(1280, 800);
 	});
 
@@ -64,13 +71,13 @@ describe('new timeline event page', () => {
 		await expect
 			.element(page.getByRole('heading', { level: 1 }))
 			.toHaveTextContent(m.timeline.form.newTitle);
-		await expect.element(page.getByLabelText(m.timeline.form.name)).toBeVisible();
+		await expect.element(page.getByLabelText(m.common.name)).toBeVisible();
 		await expect.element(page.getByRole('group', { name: m.timeline.form.year })).toBeVisible();
 		await expect
 			.element(page.getByLabelText(m.timeline.form.description, { exact: true }))
 			.toBeVisible();
 		await expect
-			.element(page.getByRole('link', { name: m.timeline.form.cancel }))
+			.element(page.getByRole('link', { name: m.common.cancel }))
 			.toHaveAttribute('href', '/atelier/timeline');
 	});
 
@@ -84,11 +91,34 @@ describe('new timeline event page', () => {
 		expect(save).not.toHaveBeenCalled();
 	});
 
+	it('returns to the card index with a message when it was opened from there', async () => {
+		save.mockResolvedValue({ id: 'event-1' });
+		vi.mocked(afterNavigate).mockImplementation((callback) =>
+			callback({ from: { url: new URL('http://localhost/atelier/values') } } as never)
+		);
+		vi.spyOn(history, 'back').mockImplementation(() =>
+			dispatchEvent(new PopStateEvent('popstate'))
+		);
+		renderNew();
+
+		await userEvent.fill(page.getByLabelText(m.common.name), 'Wojny napoleońskie');
+		await userEvent.fill(page.getByRole('textbox', { name: m.timeline.form.year }), '1803');
+		await saveButton().click();
+
+		await vi.waitFor(() =>
+			expect(goto).toHaveBeenCalledWith('/atelier/values', {
+				replace: true,
+				refreshAll: true,
+				state: { valueMessage: m.timeline.saved('Wojny napoleońskie') }
+			})
+		);
+	});
+
 	it('saves a period and returns to the timeline at it', async () => {
 		save.mockResolvedValue({ id: 'event-1' });
 		renderNew();
 
-		await userEvent.fill(page.getByLabelText(m.timeline.form.name), 'Wojny napoleońskie');
+		await userEvent.fill(page.getByLabelText(m.common.name), 'Wojny napoleońskie');
 		await page.getByText(m.artworkForm.spanSwitch, { exact: true }).click();
 		await userEvent.fill(page.getByRole('textbox', { name: m.artworkForm.spanFrom }), '1803');
 		await userEvent.fill(page.getByRole('textbox', { name: m.artworkForm.spanTo }), '1815');
@@ -126,7 +156,7 @@ describe('new timeline event page', () => {
 		save.mockResolvedValue({ error: m.timeline.errors.invalid });
 		renderNew();
 
-		await userEvent.fill(page.getByLabelText(m.timeline.form.name), 'Narodziny Jezusa');
+		await userEvent.fill(page.getByLabelText(m.common.name), 'Narodziny Jezusa');
 		await userEvent.fill(page.getByRole('textbox', { name: m.timeline.form.year }), '4');
 		await page.getByText(m.artworkForm.beforeCommonEra, { exact: true }).click();
 		await saveButton().click();
@@ -136,17 +166,20 @@ describe('new timeline event page', () => {
 		expect(goto).not.toHaveBeenCalled();
 	});
 
-	it('fills the dates and the description from Wikipedia without a word before a match', async () => {
+	it('locks the dates, the description and saving while Wikipedia answers, then fills them', async () => {
 		let answer: (articles: EventArticle[]) => void = () => {};
 		search.mockReturnValue(new Promise((resolve) => (answer = resolve)));
 		renderNew();
 
-		await userEvent.fill(page.getByLabelText(m.timeline.form.name), 'Potop szwedzki');
+		await userEvent.fill(page.getByLabelText(m.common.name), 'Potop szwedzki');
 		await vi.waitFor(() => expect(search).toHaveBeenCalledWith('Potop szwedzki'));
-		await expect.element(page.getByText(/Szukam/)).not.toBeInTheDocument();
 		await expect
-			.element(page.getByRole('button', { name: m.timeline.form.pickArticle }))
-			.not.toBeInTheDocument();
+			.element(page.getByLabelText(m.timeline.form.description, { exact: true }))
+			.toHaveAttribute('readonly');
+		await expect
+			.element(page.getByRole('status').filter({ hasText: m.glossary.articles.searching }))
+			.toBeVisible();
+		await expect.element(saveButton()).toBeDisabled();
 		answer([deluge, vienna]);
 
 		await expect
@@ -159,7 +192,7 @@ describe('new timeline event page', () => {
 			.element(page.getByLabelText(m.timeline.form.description, { exact: true }))
 			.toHaveValue('Najazd Szwecji na Rzeczpospolitą.');
 		await expect
-			.element(page.getByText(`${m.timeline.form.sourcePrefix}„Potop szwedzki”, CC BY-SA 4.0`))
+			.element(page.getByText(`${m.common.wikipediaSource}„Potop szwedzki”, CC BY-SA 4.0`))
 			.toBeVisible();
 
 		save.mockResolvedValue({ id: 'event-1' });
@@ -177,18 +210,66 @@ describe('new timeline event page', () => {
 		);
 	});
 
-	it('says nothing when Wikipedia finds nothing or does not answer', async () => {
-		search.mockRejectedValueOnce(new Error('offline'));
+	it('does not search Wikipedia by itself when the learner switched it off, but does on request', async () => {
+		autoFetch.event = false;
+		search.mockResolvedValue([deluge]);
 		renderNew();
 
-		await userEvent.fill(page.getByLabelText(m.timeline.form.name), 'Moje urodziny');
+		await userEvent.fill(page.getByLabelText(m.common.name), 'Potop szwedzki');
+		await new Promise((resolve) => setTimeout(resolve, 900));
+
+		expect(search).not.toHaveBeenCalled();
+		await page.getByRole('button', { name: m.timeline.form.searchArticles }).click();
+
+		await vi.waitFor(() => expect(search).toHaveBeenCalledWith('Potop szwedzki'));
+		await expect.element(page.getByText(deluge.title, { exact: true })).toBeVisible();
+	});
+
+	it('says nothing when Wikipedia finds nothing', async () => {
+		search.mockResolvedValueOnce([]);
+		renderNew();
+
+		await userEvent.fill(page.getByLabelText(m.common.name), 'Moje urodziny');
 		await vi.waitFor(() => expect(search).toHaveBeenCalled());
 
-		await expect.element(page.getByText(m.timeline.articles.failed)).not.toBeInTheDocument();
+		await expect.element(saveButton()).toBeEnabled();
 		await expect.element(page.getByText(m.timeline.articles.none)).not.toBeInTheDocument();
 		await expect
 			.element(page.getByRole('button', { name: m.timeline.form.pickArticle }))
 			.not.toBeInTheDocument();
+	});
+
+	it('unlocks the fields and offers another try when Wikipedia does not answer', async () => {
+		search.mockRejectedValueOnce(new Error('offline'));
+		renderNew();
+
+		await userEvent.fill(page.getByLabelText(m.common.name), 'Potop szwedzki');
+		await vi.waitFor(() => expect(search).toHaveBeenCalled());
+
+		await expect.element(page.getByText(m.timeline.articles.failed)).toBeVisible();
+		await expect
+			.element(page.getByLabelText(m.timeline.form.description, { exact: true }))
+			.not.toHaveAttribute('readonly');
+		search.mockResolvedValueOnce([deluge]);
+		await page.getByRole('button', { name: m.glossary.form.searchAgain }).click();
+
+		await expect
+			.element(page.getByLabelText(m.timeline.form.description, { exact: true }))
+			.toHaveValue('Najazd Szwecji na Rzeczpospolitą.');
+	});
+
+	it('stops the search and unlocks the fields on request', async () => {
+		search.mockReturnValue(new Promise(() => {}));
+		renderNew();
+
+		await userEvent.fill(page.getByLabelText(m.common.name), 'Potop szwedzki');
+		await vi.waitFor(() => expect(search).toHaveBeenCalled());
+		await page.getByRole('button', { name: m.common.stopFetch }).click();
+
+		await expect
+			.element(page.getByLabelText(m.timeline.form.description, { exact: true }))
+			.not.toHaveAttribute('readonly');
+		await expect.element(saveButton()).toBeEnabled();
 	});
 
 	it('does not search when the learner wrote both the dates and the description', async () => {
@@ -200,7 +281,7 @@ describe('new timeline event page', () => {
 			'Mój opis.'
 		);
 		await userEvent.fill(page.getByRole('textbox', { name: m.timeline.form.year }), '1684');
-		await userEvent.fill(page.getByLabelText(m.timeline.form.name), 'Odsiecz wiedeńska');
+		await userEvent.fill(page.getByLabelText(m.common.name), 'Odsiecz wiedeńska');
 		await new Promise((resolve) => setTimeout(resolve, 900));
 		expect(search).not.toHaveBeenCalled();
 
@@ -216,7 +297,7 @@ describe('new timeline event page', () => {
 		search.mockResolvedValue([deluge, vienna]);
 		renderNew();
 
-		await userEvent.fill(page.getByLabelText(m.timeline.form.name), 'Potop szwedzki');
+		await userEvent.fill(page.getByLabelText(m.common.name), 'Potop szwedzki');
 		await page.getByRole('button', { name: m.timeline.form.pickArticle }).click();
 		const dialog = page.getByRole('dialog');
 		await expect.element(dialog.getByText('1683', { exact: true })).toBeVisible();
@@ -243,7 +324,7 @@ describe('new timeline event page', () => {
 		search.mockResolvedValue([deluge, vienna]);
 		renderNew();
 
-		await userEvent.fill(page.getByLabelText(m.timeline.form.name), 'Potop szwedzki');
+		await userEvent.fill(page.getByLabelText(m.common.name), 'Potop szwedzki');
 		await expect
 			.element(page.getByRole('button', { name: m.timeline.form.pickArticle }))
 			.toBeVisible();
@@ -264,9 +345,9 @@ describe('new timeline event page', () => {
 		search.mockReturnValue(new Promise((resolve) => (answer = resolve)));
 		renderNew();
 
-		await userEvent.fill(page.getByLabelText(m.timeline.form.name), 'Potop szwedzki');
+		await userEvent.fill(page.getByLabelText(m.common.name), 'Potop szwedzki');
 		await vi.waitFor(() => expect(search).toHaveBeenCalled());
-		await userEvent.clear(page.getByLabelText(m.timeline.form.name));
+		await userEvent.clear(page.getByLabelText(m.common.name));
 		answer([deluge]);
 
 		await new Promise((resolve) => setTimeout(resolve, 300));
@@ -279,7 +360,7 @@ describe('new timeline event page', () => {
 		search.mockResolvedValueOnce([deluge]).mockResolvedValue([]);
 		renderNew();
 
-		await userEvent.fill(page.getByLabelText(m.timeline.form.name), 'Potop szwedzki');
+		await userEvent.fill(page.getByLabelText(m.common.name), 'Potop szwedzki');
 		await expect
 			.element(page.getByRole('button', { name: m.timeline.form.pickArticle }))
 			.toBeVisible();
@@ -287,14 +368,14 @@ describe('new timeline event page', () => {
 			page.getByLabelText(m.timeline.form.description, { exact: true }),
 			'Najazd Szwecji na Polskę.'
 		);
-		await userEvent.fill(page.getByLabelText(m.timeline.form.name), 'Potop szwedzki 1655');
+		await userEvent.fill(page.getByLabelText(m.common.name), 'Potop szwedzki 1655');
 		await vi.waitFor(() => expect(search).toHaveBeenCalledTimes(2));
 
 		await expect
 			.element(page.getByRole('textbox', { name: m.artworkForm.spanTo }))
 			.not.toBeInTheDocument();
 		await expect
-			.element(page.getByText(`${m.timeline.form.sourcePrefix}„Potop szwedzki”, CC BY-SA 4.0`))
+			.element(page.getByText(`${m.common.wikipediaSource}„Potop szwedzki”, CC BY-SA 4.0`))
 			.toBeVisible();
 	});
 });

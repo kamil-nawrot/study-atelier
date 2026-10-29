@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { isRedirect } from '@sveltejs/kit';
 import type { Session } from '@supabase/supabase-js';
-import { testSession } from '#lib/testing/auth.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
 import { load } from './+layout';
 
 type LoadEvent = Parameters<typeof load>[0];

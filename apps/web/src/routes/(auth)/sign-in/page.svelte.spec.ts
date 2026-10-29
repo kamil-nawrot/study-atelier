@@ -2,14 +2,21 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
-import { sessionEnded } from '#lib/auth/expired-session.svelte.ts';
-import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
-import { apiError, networkError, pending, TEST_EMAIL, testSession } from '#lib/testing/auth.ts';
+import { accountDeleted } from '#lib/auth/account-deleted/account-deleted.svelte.ts';
+import { sessionEnded } from '#lib/auth/expired-session/expired-session.svelte.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
+import {
+	apiError,
+	networkError,
+	pending,
+	TEST_EMAIL,
+	testSession
+} from '#lib/testing/auth/auth.ts';
 import SignInPage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signInWithPassword: vi.fn() } }
 }));
 
@@ -67,7 +74,8 @@ describe('sign-in page', () => {
 		await vi.waitFor(() => expect(goto).toHaveBeenCalledWith('/atelier', { invalidateAll: true }));
 		expect(signInWithPassword).toHaveBeenCalledWith({
 			email: TEST_EMAIL,
-			password: 'correct-password'
+			password: 'correct-password',
+			options: { captchaToken: undefined }
 		});
 	});
 
@@ -102,7 +110,7 @@ describe('sign-in page', () => {
 
 		await submit(TEST_EMAIL, 'correct-password');
 
-		await expect.element(page.getByRole('alert')).toHaveTextContent(m.authErrors.network);
+		await expect.element(page.getByRole('alert')).toHaveTextContent(m.common.network);
 	});
 
 	it('clears the previous error on the next attempt', async () => {
@@ -129,5 +137,30 @@ describe('sign-in page after the session ended', () => {
 		await expect.element(page.getByText(m.authErrors.sessionEnded)).toBeVisible();
 
 		sessionEnded.value = false;
+	});
+});
+
+describe('sign-in page after the account was deleted', () => {
+	it('confirms the deletion until the learner signs in again', async () => {
+		accountDeleted.value = true;
+		render(SignInPage);
+
+		await expect.element(page.getByText(m.settings.account.deleted)).toBeVisible();
+
+		accountDeleted.value = false;
+	});
+});
+
+describe('sign-in page documents', () => {
+	it('links the terms and the privacy policy under the form', async () => {
+		render(SignInPage);
+
+		const links = page.getByRole('navigation', { name: m.legal.linksLabel });
+		await expect
+			.element(links.getByRole('link', { name: m.legal.terms }))
+			.toHaveAttribute('href', '/terms');
+		await expect
+			.element(links.getByRole('link', { name: m.legal.privacy }))
+			.toHaveAttribute('href', '/privacy');
 	});
 });

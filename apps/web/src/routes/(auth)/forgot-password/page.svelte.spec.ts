@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
-import { apiError, networkError, pending, TEST_EMAIL } from '#lib/testing/auth.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
+import { apiError, networkError, pending, TEST_EMAIL } from '#lib/testing/auth/auth.ts';
 import ForgotPasswordPage from './+page.svelte';
 
-vi.mock('#lib/supabase.ts', () => ({
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { resetPasswordForEmail: vi.fn() } }
 }));
 
@@ -61,9 +61,7 @@ describe('forgot-password page', () => {
 
 		await submit(TEST_EMAIL);
 
-		await expect
-			.element(page.getByRole('button', { name: m.forgotPassword.submitting }))
-			.toBeDisabled();
+		await expect.element(page.getByRole('button', { name: m.common.sending })).toBeDisabled();
 	});
 
 	it('explains a rate limit and keeps the form', async () => {
@@ -85,6 +83,6 @@ describe('forgot-password page', () => {
 
 		await submit(TEST_EMAIL);
 
-		await expect.element(page.getByRole('alert')).toHaveTextContent(m.authErrors.network);
+		await expect.element(page.getByRole('alert')).toHaveTextContent(m.common.network);
 	});
 });

@@ -2,14 +2,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { beforeNavigate, goto } from '$app/navigation';
-import { m } from '#lib/i18n/index.ts';
-import { saveGlossaryEntry } from '#lib/glossary/glossary-data.ts';
-import { searchArticles } from '#lib/glossary/wikipedia.ts';
-import { fetchForms } from '#lib/glossary/wiktionary.ts';
-import type { WikipediaArticle } from '#lib/glossary/types.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import { testCardIndex } from '#lib/testing/card-index.ts';
-import { testArticle, testEntry } from '#lib/testing/glossary.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { saveGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { searchArticles } from '#lib/glossary/wikipedia/wikipedia.ts';
+import { fetchForms } from '#lib/glossary/wiktionary/wiktionary.ts';
+import type { WikipediaArticle } from '#lib/glossary/types/wikipedia-article.ts';
+import { autoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
+import { testArticle, testEntry } from '#lib/testing/glossary/glossary.ts';
 import NewGlossaryPage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({
@@ -17,16 +18,18 @@ vi.mock('$app/navigation', () => ({
 	beforeNavigate: vi.fn(),
 	goto: vi.fn()
 }));
-vi.mock('#lib/glossary/glossary-data.ts', () => ({ saveGlossaryEntry: vi.fn() }));
-vi.mock('#lib/glossary/wikipedia.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/glossary/wikipedia.ts')>()),
+vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({ saveGlossaryEntry: vi.fn() }));
+vi.mock('#lib/glossary/wikipedia/wikipedia.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/glossary/wikipedia/wikipedia.ts')>()),
 	searchArticles: vi.fn()
 }));
-vi.mock('#lib/glossary/wiktionary.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/glossary/wiktionary.ts')>()),
+vi.mock('#lib/glossary/wiktionary/wiktionary.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/glossary/wiktionary/wiktionary.ts')>()),
 	fetchForms: vi.fn()
 }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const NAWA = testArticle('Nawa', 'Nawa to podłużna część wnętrza kościoła.');
 const TRANSEPT = testArticle('Transept', 'Transept to nawa poprzeczna.');
@@ -44,7 +47,7 @@ function renderNew(error?: string): void {
 }
 
 function nameField(): ReturnType<typeof page.getByRole> {
-	return page.getByLabelText(m.glossary.form.name);
+	return page.getByLabelText(m.common.name);
 }
 
 function definitionField(): ReturnType<typeof page.getByRole> {
@@ -52,7 +55,7 @@ function definitionField(): ReturnType<typeof page.getByRole> {
 }
 
 function saveButton(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('button', { name: m.glossary.form.save, exact: true });
+	return page.getByRole('button', { name: m.common.save, exact: true });
 }
 
 function category(name: string): ReturnType<typeof page.getByRole> {
@@ -81,6 +84,8 @@ describe('new glossary entry page', () => {
 
 	afterEach(() => {
 		vi.useRealTimers();
+		autoFetch.definition = true;
+		autoFetch.forms = true;
 	});
 
 	it('titles the page and the form and lays out the fields', async () => {
@@ -101,7 +106,7 @@ describe('new glossary entry page', () => {
 		await expect.element(page.getByText(m.glossary.form.formsHint)).toBeVisible();
 		await expect.element(page.getByText(m.glossary.form.synonymsHint)).toBeVisible();
 		await expect
-			.element(page.getByRole('link', { name: m.glossary.form.cancel }))
+			.element(page.getByRole('link', { name: m.common.cancel }))
 			.toHaveAttribute('href', '/atelier/glossary');
 	});
 
@@ -140,14 +145,14 @@ describe('new glossary entry page', () => {
 
 	it('shows a failed save in an alert at the top of the form', async () => {
 		renderNew();
-		vi.mocked(saveGlossaryEntry).mockResolvedValue({ error: m.glossary.errors.network });
+		vi.mocked(saveGlossaryEntry).mockResolvedValue({ error: m.common.network });
 
 		await nameField().fill('Sfumato');
 		await category(m.glossary.categoryNames.technique).click();
 		await saveButton().click();
 
 		await expect.element(page.getByText(m.glossary.form.errorTitle)).toBeVisible();
-		await expect.element(page.getByText(m.glossary.errors.network)).toBeVisible();
+		await expect.element(page.getByText(m.common.network)).toBeVisible();
 		expect(goto).not.toHaveBeenCalled();
 	});
 
@@ -170,6 +175,48 @@ describe('new glossary entry page', () => {
 			.toBeVisible();
 	});
 
+	it('does not search Wikipedia by itself when the learner switched it off, but does on request', async () => {
+		autoFetch.definition = false;
+		renderNew();
+
+		await fillAndSearch([NAWA]);
+
+		expect(searchArticles).not.toHaveBeenCalled();
+		await expect.element(definitionField()).toHaveValue('');
+		await page.getByRole('button', { name: m.glossary.form.searchDefinition }).click();
+		await vi.advanceTimersByTimeAsync(0);
+
+		expect(searchArticles).toHaveBeenCalledWith('nawa', 'architecture');
+		await expect.element(definitionField()).toHaveValue(NAWA.extract);
+	});
+
+	it('does not ask Wiktionary by itself when the learner switched it off, but does on request', async () => {
+		autoFetch.forms = false;
+		vi.mocked(fetchForms).mockResolvedValue(['nawy']);
+		renderNew();
+
+		await fillAndSearch([NAWA]);
+
+		expect(fetchForms).not.toHaveBeenCalled();
+		await page.getByRole('button', { name: m.glossary.form.formsFetch }).click();
+		await vi.advanceTimersByTimeAsync(0);
+
+		expect(fetchForms).toHaveBeenCalledWith('nawa');
+		await expect.element(page.getByText(m.glossary.form.formsCount(1))).toBeVisible();
+	});
+
+	it('does not ask Wiktionary for the forms of a synonym when the learner switched it off', async () => {
+		autoFetch.forms = false;
+		renderNew();
+		await fillAndSearch([NAWA]);
+
+		await page.getByRole('combobox', { name: m.glossary.form.synonyms }).fill('korpus');
+		await page.getByRole('option', { name: /korpus/ }).click();
+		await vi.advanceTimersByTimeAsync(700);
+
+		expect(fetchForms).not.toHaveBeenCalled();
+	});
+
 	it('waits for the learner to stop typing before it searches', async () => {
 		renderNew();
 		vi.mocked(searchArticles).mockResolvedValue([NAWA]);
@@ -188,7 +235,7 @@ describe('new glossary entry page', () => {
 		expect(searchArticles).toHaveBeenCalledWith('nawa', 'architecture');
 	});
 
-	it('says it is searching while it waits for Wikipedia', async () => {
+	it('locks the definition and saving while it waits for Wikipedia', async () => {
 		renderNew();
 		vi.mocked(searchArticles).mockReturnValue(new Promise(() => {}));
 
@@ -196,9 +243,26 @@ describe('new glossary entry page', () => {
 		await category(m.glossary.categoryNames.architecture).click();
 		await vi.advanceTimersByTimeAsync(700);
 
+		await expect.element(definitionField()).toHaveAttribute('readonly');
 		await expect
-			.element(definitionField())
-			.toHaveAttribute('placeholder', m.glossary.form.definitionSearching);
+			.element(page.getByRole('status').filter({ hasText: m.glossary.form.definitionSearching }))
+			.toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.common.save })).toBeDisabled();
+	});
+
+	it('unlocks the definition when the learner stops the search', async () => {
+		renderNew();
+		vi.mocked(searchArticles).mockReturnValue(new Promise(() => {}));
+
+		await nameField().fill('nawa');
+		await category(m.glossary.categoryNames.architecture).click();
+		await vi.advanceTimersByTimeAsync(700);
+		await page.getByRole('button', { name: m.common.stopFetch }).click();
+		await vi.advanceTimersByTimeAsync(700);
+
+		await expect.element(definitionField()).not.toHaveAttribute('readonly');
+		await expect.element(page.getByRole('button', { name: m.common.save })).toBeEnabled();
+		expect(searchArticles).toHaveBeenCalledTimes(1);
 	});
 
 	it('searches again for the new name while the definition is still the fetched one', async () => {
@@ -291,7 +355,7 @@ describe('new glossary entry page', () => {
 
 		await page.getByRole('button', { name: m.glossary.form.pickArticle }).click();
 		await page.getByRole('radio', { name: /^Transept/ }).click();
-		await page.getByRole('button', { name: m.glossary.articles.cancel }).click();
+		await page.getByRole('button', { name: m.common.cancel }).click();
 
 		await expect.element(definitionField()).toHaveValue(NAWA.extract);
 	});
@@ -319,7 +383,7 @@ describe('new glossary entry page', () => {
 		await page.getByRole('button', { name: m.glossary.form.pickArticle }).click();
 		await page.getByRole('radio', { name: /^Transept/ }).click();
 		await page.getByRole('button', { name: m.glossary.articles.use }).click();
-		await page.getByRole('button', { name: m.glossary.replaceConfirm.replace }).click();
+		await page.getByRole('button', { name: m.common.replace }).click();
 
 		await expect.element(definitionField()).toHaveValue(TRANSEPT.extract);
 		await expect.element(page.getByText(/„Transept”/)).toBeVisible();
@@ -406,6 +470,21 @@ describe('new glossary entry page', () => {
 		await expect
 			.element(page.getByRole('button', { name: m.glossary.form.hideForms, exact: true }))
 			.toHaveAttribute('aria-expanded', 'true');
+	});
+
+	it('locks the forms while Wiktionary answers, until the learner stops it', async () => {
+		vi.mocked(fetchForms).mockReturnValue(new Promise(() => {}));
+		renderNew();
+		await fillAndSearch([NAWA]);
+
+		const forms = page.getByRole('combobox', { name: m.glossary.form.forms });
+		await expect.element(forms).toHaveAttribute('readonly');
+		await expect.element(saveButton()).toBeDisabled();
+
+		await page.getByRole('button', { name: m.common.stopFetch }).click();
+
+		await expect.element(forms).not.toHaveAttribute('readonly');
+		await expect.element(saveButton()).toBeEnabled();
 	});
 
 	it('fills the forms from Wiktionary, collapsed behind their number, and saves them', async () => {
@@ -556,14 +635,14 @@ describe('new glossary entry page', () => {
 		await expect
 			.element(page.getByRole('alertdialog', { name: m.artworkForm.discardTitle }))
 			.toBeVisible();
-		await expect.element(page.getByText(m.glossary.form.discardDescription)).toBeVisible();
+		await expect.element(page.getByText(m.common.discardDescription)).toBeVisible();
 	});
 
 	it('shows a load error instead of the form', async () => {
 		renderNew(m.common.unexpectedError);
 
 		await expect.element(page.getByText(m.common.unexpectedError)).toBeVisible();
-		expect(page.getByLabelText(m.glossary.form.name).elements()).toHaveLength(0);
+		expect(page.getByLabelText(m.common.name).elements()).toHaveLength(0);
 		await expect
 			.element(page.getByRole('main').getByRole('link', { name: m.glossary.back }))
 			.toHaveAttribute('href', '/atelier/glossary');

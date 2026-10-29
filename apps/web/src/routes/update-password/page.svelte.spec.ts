@@ -3,13 +3,13 @@ import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import type { Session } from '@supabase/supabase-js';
 import { goto } from '$app/navigation';
-import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
-import { apiError, networkError, pending, testSession } from '#lib/testing/auth.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
+import { apiError, networkError, pending, testSession } from '#lib/testing/auth/auth.ts';
 import UpdatePasswordPage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { updateUser: vi.fn() } }
 }));
 
@@ -64,7 +64,7 @@ describe('update-password page', () => {
 			await expect.element(page.getByText(m.validation.passwordRequired)).toBeVisible();
 
 			await submit('short12');
-			await expect.element(page.getByText(m.validation.passwordTooShort(8, 7))).toBeVisible();
+			await expect.element(page.getByText(m.validation.passwordTooShort(8))).toBeVisible();
 
 			expect(updateUser).not.toHaveBeenCalled();
 		});
@@ -85,9 +85,7 @@ describe('update-password page', () => {
 
 			await submit('new-password-123');
 
-			await expect
-				.element(page.getByRole('button', { name: m.updatePassword.submitting }))
-				.toBeDisabled();
+			await expect.element(page.getByRole('button', { name: m.common.saving })).toBeDisabled();
 		});
 
 		it('explains that the new password must differ from the old one', async () => {
@@ -112,7 +110,7 @@ describe('update-password page', () => {
 
 			await submit('new-password-123');
 
-			await expect.element(page.getByRole('alert')).toHaveTextContent(m.authErrors.network);
+			await expect.element(page.getByRole('alert')).toHaveTextContent(m.common.network);
 		});
 	});
 });

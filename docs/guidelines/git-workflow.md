@@ -2,19 +2,19 @@
 
 ## Branches (gitflow)
 
-| Branch | Purpose | Created from | Merged into |
-| --- | --- | --- | --- |
-| `main` | Released, production state | | |
-| `develop` | Integration branch for the next release | `main` | `main` (via release) |
-| `feature/<issue>-<slug>` | One Linear issue that adds or changes behaviour, docs or tooling | `develop` | `develop` |
-| `bugfix/<issue>-<slug>` | One Linear issue with the `Bug` label that is not urgent for production | `develop` | `develop` |
-| `release/<version>` | Release preparation | `develop` | `main` and `develop` |
-| `hotfix/<version>` | Urgent production fix | `main` | `main` and `develop` |
-| `chore/merge-main-after-release-<version>` | Brings a release or hotfix back into `develop` | `main` | `develop` |
-| `design/tokens` | Design tokens synced by the Tokens Studio Figma plugin ([details](design-tokens.md)) | `develop` | `develop` |
+| Branch                                     | Purpose                                                                              | Created from | Merged into          |
+| ------------------------------------------ | ------------------------------------------------------------------------------------ | ------------ | -------------------- |
+| `main`                                     | Released, production state                                                           |              |                      |
+| `develop`                                  | Integration branch for the next release                                              | `main`       | `main` (via release) |
+| `feature/<issue>-<slug>`                   | One Linear issue that adds or changes behaviour, docs or tooling                     | `develop`    | `develop`            |
+| `bugfix/<issue>-<slug>`                    | One Linear issue with the `Bug` label that is not urgent for production              | `develop`    | `develop`            |
+| `release/<version>`                        | Release preparation                                                                  | `develop`    | `main` and `develop` |
+| `hotfix/<version>`                         | Urgent production fix                                                                | `main`       | `main` and `develop` |
+| `chore/merge-main-after-release-<version>` | Brings a release or hotfix back into `develop`                                       | `main`       | `develop`            |
+| `design/tokens`                            | Design tokens synced by the Tokens Studio Figma plugin ([details](design-tokens.md)) | `develop`    | `develop`            |
 
 - `develop` is the repository's default branch, so new pull requests target it and scheduled workflows run from it.
-- Branch names are lowercase. `feature/*` and `bugfix/*` branches include the Linear issue key, for example `feature/atl-1-docs-foundation` or `bugfix/atl-103-artwork-form-save-and-leave`.
+- Branch names are lowercase. `feature/*` and `bugfix/*` branches include the Linear issue key, for example `feature/atl-1-docs-foundation` or `bugfix/atl-103-artwork-form-save-and-leave`. The slug after the key has only lowercase letters, digits and hyphens, so a version is written without dots (`bugfix/atl-326-fix-012-review-bugs`, not `0.12`); the Conventions check rejects any other branch name.
 - A bug that cannot wait for the next release is a `hotfix/<version>` cut from `main` instead (see [Hotfixes](#hotfixes)).
 - Nobody pushes directly to `main` or `develop`. The only exception was the initial commit of the empty repository.
 
@@ -34,7 +34,7 @@ Commit messages follow [Conventional Commits 1.0](https://www.conventionalcommit
 - Scopes follow the monorepo layout, for example `web`, `design`, `db`, `docs`, `ci`.
 - The description is imperative, lowercase, without a trailing period.
 - Breaking changes are marked with `!` after the type or a `BREAKING CHANGE:` footer.
-- Reference the Linear issue in the footer, for example `Refs: ATL-1`. Name only the pull request's own issue: Linear moves every issue a commit references, so naming another one marks it as started.
+- A commit may reference the Linear issue in the footer, for example `Refs: ATL-1`; it is not required, since the branch name already links the issue. Name only the pull request's own issue: Linear moves every issue a commit references, so naming another one marks it as started.
 
 ## Pull requests
 
@@ -43,6 +43,7 @@ Commit messages follow [Conventional Commits 1.0](https://www.conventionalcommit
 - Release pull requests have no Linear issue. The release is titled `chore(repo): release <version>` and the merge back `chore(repo): merge main into develop after release <version>`.
 - The description follows [`.github/pull_request_template.md`](../../.github/pull_request_template.md): Context, Changes, Review focus, Decisions. It is short and lists any docs or ADRs updated.
 - Claude creates pull requests with the [`study-atelier-pr-create`](../../.claude/skills/study-atelier-pr-create/SKILL.md) skill.
+- The `Pull request` workflow checks the title, the branch name and every commit of a pull request against these rules (each commit needs a Conventional Commits subject; release, hotfix, merge-back and `design/tokens` branches are exempt from the commit check), with [`.github/scripts/check-pull-request.mjs`](../../.github/scripts/check-pull-request.mjs).
 - Screenshots of a change (desktop and phone, from `pnpm screenshot`, see [cloud-sessions.md](cloud-sessions.md)) are attached to the Linear issue, not to the pull request; the pull request description says they are there. Screenshots taken after review changes are added with a title that says so.
 - Before asking the owner for review, Claude reviews the pull request with the [`study-atelier-pr-review`](../../.claude/skills/study-atelier-pr-review/SKILL.md) skill and fixes blocking findings.
 - The owner reviews and merges. Claude keeps the pull request green and answers review comments.

@@ -1,0 +1,70 @@
+name: End-to-end
+
+on:
+  pull_request:
+    paths:
+      - 'apps/web/**'
+      - 'packages/ui/**'
+      - 'supabase/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/e2e.yml'
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: End-to-end
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.120.0
+
+      - name: Start local Supabase and apply migrations
+        run: supabase start
+
+      - name: Read the Playwright version
+        id: playwright
+        run: echo "version=$(pnpm --filter @study-atelier/web exec playwright --version | cut -d ' ' -f 2)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the Playwright browser
+        id: playwright-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+      - name: Install Playwright Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        timeout-minutes: 5
+        run: pnpm --filter @study-atelier/web exec playwright install --only-shell chromium
+
+      - name: End-to-end tests
+        run: pnpm --filter @study-atelier/web test:e2e
+
+      - name: Keep the traces of failed tests
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-traces
+          path: apps/web/test-results
+          retention-days: 7
+
+      - name: Stop local Supabase
+        if: always()
+        run: supabase stop --no-backup

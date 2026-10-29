@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'supabase/**'
-      - 'apps/web/src/lib/database.types.ts'
+      - 'apps/web/src/lib/shared/data/database.types.ts'
       - '.github/workflows/migrations.yml'
   workflow_call:
 
@@ -34,16 +34,34 @@ jobs:
         run: |
           supabase gen types --lang typescript --local --schema public \
             | npx --yes prettier@3.9.10 --no-config --parser typescript > "$RUNNER_TEMP/database.types.ts"
-          diff --unified apps/web/src/lib/database.types.ts "$RUNNER_TEMP/database.types.ts" \
-            || { echo "::error::apps/web/src/lib/database.types.ts is stale. Run pnpm db:types and commit the result."; exit 1; }
+          diff --unified apps/web/src/lib/shared/data/database.types.ts "$RUNNER_TEMP/database.types.ts" \
+            || { echo "::error::apps/web/src/lib/shared/data/database.types.ts is stale. Run pnpm db:types and commit the result."; exit 1; }
       - name: Check row level security and grants
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/security.sql
+
+      - name: Check announcements
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/announcements.sql
+
+      - name: Check account limits
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/account-limits.sql
+
+      - name: Check account deletion
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/delete-account.sql
+
+      - name: Check legal acceptance
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/legal-acceptance.sql
 
       - name: Check review sessions
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/review-session.sql
 
       - name: Check review streaks
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/review-streak.sql
+
+      - name: Check points
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/points.sql
+
+      - name: Check exhibits
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/exhibits.sql
 
       - name: Check note mentions
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/notes-mentions.sql
@@ -53,6 +71,21 @@ jobs:
 
       - name: Check unused images
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/unused-images.sql
+
+      - name: Check artwork fields
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/artwork-fields.sql
+
+      - name: Check atelier import
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/import-atelier.sql
+
+      - name: Check artwork pins
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/artwork-pins.sql
+
+      - name: Check visits
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/visits.sql
+
+      - name: Check duplicates and used values
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/values-and-duplicates.sql
 
       - name: Stop local Supabase
         if: always()

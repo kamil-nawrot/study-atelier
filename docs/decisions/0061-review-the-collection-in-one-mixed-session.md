@@ -36,7 +36,7 @@ Chosen option: 1, because it makes reviewing one daily step, mixes eras and styl
   - "Gdzie jest {tytuł}?": four images, pick the one with that title (mockups 07 and 08);
   - "Jaki to tytuł?": one image, four titles (mockup 09);
   - "W jakim stylu powstał ten obraz?": one image, four styles from the learner's card index (mockup 10).
-  The answer is shown at once: the right one marked, a wrong pick named with why it was close ("ten sam autor", "styl", "okres"), and "Wrócimy do niego za chwilę." when it was wrong. "Następne" (Enter) goes on. Chronology is left for after 0.5.
+    The answer is shown at once: the right one marked, a wrong pick named with why it was close ("ten sam autor", "styl", "okres"), and "Wrócimy do niego za chwilę." when it was wrong. "Następne" (Enter) goes on. Chronology is left for after 0.5.
 - Distractors: other artworks from the same scope, scored by what they share with the answer (style 4, author 3, period 2, type 2, era 1, a year at most 50 years apart 1, place 1); three are drawn at random from the eight best. Artworks without an image, in the trash or with the same title as the answer are never distractors.
 - Hiding the answer: until it is revealed, nothing on the screen names the artwork, neither the image credit, the record number, the title as alternative text nor the address.
 - Minimum: a session starts only when the chosen scope has at least 20 artworks with an image; otherwise the start says "Dodaj jeszcze n dzieł ze zdjęciem, żeby zacząć powtórki z tego zakresu." A quiz of a kind is asked only when four sensible answers exist (for the style quiz, four styles); otherwise the artwork gets a flashcard.

@@ -49,14 +49,14 @@ Chosen, decided by the owner in ATL-138 and ATL-140: the fixed `category_code` c
 
 ### Texts per kind
 
-| Kind | Heading of the artworks | No notes | No artworks |
-| --- | --- | --- | --- |
-| era | Dzieła z tej epoki | Nie masz jeszcze notatek o tej epoce. | Nie posiadasz w swojej kolekcji żadnego dzieła z tej epoki. |
-| period | Dzieła z tego okresu | Nie masz jeszcze notatek o tym okresie. | Nie posiadasz w swojej kolekcji żadnego dzieła z tego okresu. |
-| style | Dzieła w tym stylu | Nie masz jeszcze notatek o tym stylu. | Nie posiadasz w swojej kolekcji żadnego dzieła w tym stylu. |
+| Kind     | Heading of the artworks | No notes                                  | No artworks                                                      |
+| -------- | ----------------------- | ----------------------------------------- | ---------------------------------------------------------------- |
+| era      | Dzieła z tej epoki      | Nie masz jeszcze notatek o tej epoce.     | Nie posiadasz w swojej kolekcji żadnego dzieła z tej epoki.      |
+| period   | Dzieła z tego okresu    | Nie masz jeszcze notatek o tym okresie.   | Nie posiadasz w swojej kolekcji żadnego dzieła z tego okresu.    |
+| style    | Dzieła w tym stylu      | Nie masz jeszcze notatek o tym stylu.     | Nie posiadasz w swojej kolekcji żadnego dzieła w tym stylu.      |
 | material | Dzieła z tego materiału | Nie masz jeszcze notatek o tym materiale. | Nie posiadasz w swojej kolekcji żadnego dzieła z tego materiału. |
-| author | Dzieła tego autora | Nie masz jeszcze notatek o tym autorze. | Nie posiadasz w swojej kolekcji żadnego dzieła tego autora. |
-| location | Dzieła z tego miejsca | Nie masz jeszcze notatek o tym miejscu. | Nie posiadasz w swojej kolekcji żadnego dzieła z tego miejsca. |
+| author   | Dzieła tego autora      | Nie masz jeszcze notatek o tym autorze.   | Nie posiadasz w swojej kolekcji żadnego dzieła tego autora.      |
+| location | Dzieła z tego miejsca   | Nie masz jeszcze notatek o tym miejscu.   | Nie posiadasz w swojej kolekcji żadnego dzieła z tego miejsca.   |
 
 The header of a page shows the kind and the number of artworks with the plural forms of the app ("Autor · 1 dzieło", "Okres · 5 dzieł").
 

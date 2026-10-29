@@ -2,12 +2,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
-import type { CardIndexData } from '#lib/collection/types.ts';
-import { CARD_INDEX_SEARCH_MIN_VALUES } from '#lib/collection/card-index.ts';
-import { m } from '#lib/i18n/index.ts';
-import { testCardIndex } from '#lib/testing/card-index.ts';
-import { testSession } from '#lib/testing/auth.ts';
+import type { OwnField } from '#lib/card-index/types/own-field.ts';
+import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import { testOwnFields } from '#lib/testing/own-fields/own-fields.ts';
 import ValuesPage from './+page.svelte';
+
+const MANY_VALUES = 20;
 
 const navigation = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier/values'),
@@ -15,12 +18,38 @@ const navigation = vi.hoisted(() => ({
 	data: {}
 }));
 
-vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
-vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('$app/state', () => ({
+	page: navigation,
+	navigating: { to: null },
+	updated: { current: false }
+}));
+vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidateAll: vi.fn() }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
-function renderValues(index: CardIndexData = testCardIndex(), error?: string): void {
-	render(ValuesPage, { data: { session: testSession(), index, error }, params: {} });
+function renderValues(
+	index: CardIndexData = testCardIndex(),
+	error?: string,
+	ownFields: OwnField[] = [],
+	events: { id: string; name: string; yearFrom: number | null; yearTo: number }[] = []
+): void {
+	render(ValuesPage, {
+		data: {
+			session: testSession(),
+			index,
+			error,
+			ownFields,
+			ownFieldsError: undefined,
+			events: events.map((event) => ({
+				...event,
+				yearApproximate: false,
+				description: '',
+				source: null
+			}))
+		},
+		params: {}
+	});
 }
 
 function withMaterials(count: number): CardIndexData {
@@ -86,6 +115,24 @@ describe('card index page', () => {
 		await expect.element(page.getByText(m.cardIndex.emptyTimeline)).toBeVisible();
 		expect(page.getByText(m.cardIndex.periodsWithoutEra).elements()).toHaveLength(0);
 		expect(page.getByText(m.cardIndex.stylesWithoutPeriod).elements()).toHaveLength(0);
+		expect(page.getByRole('heading', { name: m.eras.early_modern.name }).elements()).toHaveLength(
+			0
+		);
+	});
+
+	it('shows only the loose styles when no era has a period', async () => {
+		renderValues({
+			values: [{ id: 'style-loose', category: 'style', name: 'Loose', count: 0 }],
+			periodEras: [],
+			stylePeriods: []
+		});
+
+		await expect.element(openValue('Loose', 0)).toBeVisible();
+		expect(page.getByText(m.cardIndex.emptyTimeline).elements()).toHaveLength(0);
+		expect(page.getByRole('heading', { name: m.eras.early_modern.name }).elements()).toHaveLength(
+			0
+		);
+		expect(page.getByText(m.cardIndex.emptyEra).elements()).toHaveLength(0);
 	});
 
 	it('lists materials, authors and places alphabetically in their tabs', async () => {
@@ -101,8 +148,44 @@ describe('card index page', () => {
 		await expect.element(openValue('Athens', 2)).toBeVisible();
 	});
 
+	it('lists the timeline events by year with their dates and links to their edit forms', async () => {
+		renderValues(
+			testCardIndex(),
+			undefined,
+			[],
+			[
+				{ id: 'event-1', name: 'Congress of Vienna', yearFrom: 1814, yearTo: 1815 },
+				{ id: 'event-2', name: 'Battle of Hastings', yearFrom: null, yearTo: 1066 }
+			]
+		);
+
+		await page.getByRole('tab', { name: m.cardIndex.tabs.events }).click();
+		const link = page.getByRole('link', {
+			name: m.cardIndex.openValue('Congress of Vienna', m.atelier.span(1814, 1815, false))
+		});
+		await expect.element(link).toHaveAttribute('href', '/atelier/timeline/events/event-1/edit');
+		await expect
+			.element(
+				page.getByRole('link', {
+					name: m.cardIndex.openValue('Battle of Hastings', m.atelier.year(1066, false))
+				})
+			)
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: m.cardIndex.eventsAdd }))
+			.toHaveAttribute('href', '/atelier/timeline/events/new');
+	});
+
+	it('says when there are no events yet and still offers adding one', async () => {
+		renderValues();
+
+		await page.getByRole('tab', { name: m.cardIndex.tabs.events }).click();
+		await expect.element(page.getByText(m.cardIndex.emptyEvents)).toBeVisible();
+		await expect.element(page.getByRole('link', { name: m.cardIndex.eventsAdd })).toBeVisible();
+	});
+
 	it('searches a list ignoring case and diacritics, and says when nothing matches', async () => {
-		renderValues(withMaterials(CARD_INDEX_SEARCH_MIN_VALUES));
+		renderValues(withMaterials(MANY_VALUES));
 		await page.getByRole('tab', { name: m.cardIndex.tabs.material }).click();
 		const search = page.getByRole('searchbox', { name: m.cardIndex.search.material });
 
@@ -116,19 +199,23 @@ describe('card index page', () => {
 		expect(items.elements()).toHaveLength(0);
 	});
 
-	it('offers the search only from the minimum number of values, filtered or not', async () => {
-		renderValues(withMaterials(CARD_INDEX_SEARCH_MIN_VALUES - 1));
+	it('offers the search on every tab however few values it has', async () => {
+		renderValues(withMaterials(2));
 
+		await expect
+			.element(page.getByRole('searchbox', { name: m.cardIndex.search.timeline }))
+			.toBeVisible();
 		await page.getByRole('tab', { name: m.cardIndex.tabs.material }).click();
 
-		await expect.element(page.getByRole('tabpanel').getByRole('listitem').first()).toBeVisible();
-		expect(page.getByRole('searchbox').elements()).toHaveLength(0);
+		await expect
+			.element(page.getByRole('searchbox', { name: m.cardIndex.search.material }))
+			.toBeVisible();
 	});
 
 	it('starts each tab with an empty search', async () => {
-		const index = withMaterials(CARD_INDEX_SEARCH_MIN_VALUES);
+		const index = withMaterials(MANY_VALUES);
 		index.values.push(
-			...Array.from({ length: CARD_INDEX_SEARCH_MIN_VALUES }, (_, position) => ({
+			...Array.from({ length: MANY_VALUES }, (_, position) => ({
 				id: `author-${position}`,
 				category: 'author' as const,
 				name: `Author ${position}`,
@@ -155,6 +242,48 @@ describe('card index page', () => {
 		expect(page.getByRole('searchbox').elements()).toHaveLength(0);
 	});
 
+	it('shows the learner own fields in their tab', async () => {
+		renderValues(testCardIndex(), undefined, testOwnFields());
+
+		await page.getByRole('tab', { name: m.cardIndex.tabs.own }).click();
+
+		await expect.element(page.getByRole('heading', { name: 'Motifs' })).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.ownFields.add })).toBeVisible();
+	});
+
+	it('offers to add a value to a list field, also to one without values', async () => {
+		const [lecture, motifs] = testOwnFields();
+		renderValues(testCardIndex(), undefined, [{ ...lecture, values: [] }, motifs]);
+
+		await page.getByRole('tab', { name: m.cardIndex.tabs.own }).click();
+
+		await expect.element(page.getByText(m.ownFields.noValues)).toBeVisible();
+		expect(page.getByRole('button', { name: m.ownFields.addValue }).elements()).toHaveLength(2);
+	});
+
+	it('keeps the other tabs and says so in its tab when the own fields could not be loaded', async () => {
+		render(ValuesPage, {
+			data: {
+				session: testSession(),
+				index: testCardIndex(),
+				error: undefined,
+				ownFields: [],
+				ownFieldsError: m.collectionErrors.network,
+				events: []
+			},
+			params: {}
+		});
+
+		await page.getByRole('tab', { name: m.cardIndex.tabs.own }).click();
+
+		await expect.element(page.getByText(m.ownFields.loadErrorTitle)).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.ownFields.add }))
+			.not.toBeInTheDocument();
+		await page.getByRole('tab', { name: m.cardIndex.tabs.material }).click();
+		await expect.element(page.getByText(m.ownFields.loadErrorTitle)).not.toBeInTheDocument();
+	});
+
 	it('shows a loading error instead of the tabs', async () => {
 		renderValues(testCardIndex(), m.collectionErrors.network);
 
@@ -163,12 +292,12 @@ describe('card index page', () => {
 		expect(page.getByRole('tablist').elements()).toHaveLength(0);
 	});
 
-	it('links back to the atelier', async () => {
+	it('has no link back to the atelier, the menu moves between modules', async () => {
 		renderValues();
 
 		await expect
 			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
-			.toHaveAttribute('href', '/atelier');
+			.not.toBeInTheDocument();
 	});
 
 	it('links each value to its page', async () => {
@@ -216,6 +345,106 @@ describe('card index page', () => {
 
 		await expect
 			.element(page.getByRole('tab', { name: m.cardIndex.tabs.location }))
+			.toHaveAttribute('aria-selected', 'true');
+	});
+
+	it('keeps the tab and the search when the learner comes back', async () => {
+		const index = withMaterials(MANY_VALUES);
+		const first = await render(ValuesPage, {
+			data: {
+				session: testSession(),
+				index,
+				error: undefined,
+				ownFields: [],
+				ownFieldsError: undefined,
+				events: []
+			},
+			params: {}
+		});
+		await page.getByRole('tab', { name: m.cardIndex.tabs.material }).click();
+		await page.getByRole('searchbox', { name: m.cardIndex.search.material }).fill('marb');
+		const saved = first.component.snapshot.capture();
+		first.unmount();
+
+		const second = await render(ValuesPage, {
+			data: {
+				session: testSession(),
+				index,
+				error: undefined,
+				ownFields: [],
+				ownFieldsError: undefined,
+				events: []
+			},
+			params: {}
+		});
+		second.component.snapshot.restore(saved);
+
+		await expect
+			.element(page.getByRole('tab', { name: m.cardIndex.tabs.material }))
+			.toHaveAttribute('aria-selected', 'true');
+		await expect
+			.element(page.getByRole('searchbox', { name: m.cardIndex.search.material }))
+			.toHaveValue('marb');
+	});
+
+	it('scrolls back to the saved place after the restored search moved the page', async () => {
+		const index = withMaterials(150);
+		const first = await render(ValuesPage, {
+			data: {
+				session: testSession(),
+				index,
+				error: undefined,
+				ownFields: [],
+				ownFieldsError: undefined,
+				events: []
+			},
+			params: {}
+		});
+		await page.getByRole('tab', { name: m.cardIndex.tabs.material }).click();
+		await page.getByRole('searchbox', { name: m.cardIndex.search.material }).fill('1');
+		await expect.element(openValue('Material 2', 1)).not.toBeInTheDocument();
+		const place = Math.round((document.documentElement.scrollHeight - window.innerHeight) / 2);
+		window.scrollTo({ top: place, behavior: 'instant' });
+		const saved = first.component.snapshot.capture();
+		first.unmount();
+
+		const second = await render(ValuesPage, {
+			data: {
+				session: testSession(),
+				index,
+				error: undefined,
+				ownFields: [],
+				ownFieldsError: undefined,
+				events: []
+			},
+			params: {}
+		});
+		window.scrollTo({ top: place, behavior: 'instant' });
+		second.component.snapshot.restore(saved);
+		window.scrollTo({ top: place / 2, behavior: 'instant' });
+
+		await expect.element(openValue('Material 2', 1)).not.toBeInTheDocument();
+		await expect.poll(() => window.scrollY).toBe(place);
+		expect(saved).toEqual({ tab: 'material', query: '1', scroll: place });
+	});
+
+	it('ignores a snapshot with a tab it does not know', async () => {
+		const shown = await render(ValuesPage, {
+			data: {
+				session: testSession(),
+				index: testCardIndex(),
+				error: undefined,
+				ownFields: [],
+				ownFieldsError: undefined,
+				events: []
+			},
+			params: {}
+		});
+
+		shown.component.snapshot.restore({ tab: 'colours', query: 'x' });
+
+		await expect
+			.element(page.getByRole('tab', { name: m.cardIndex.tabs.timeline }))
 			.toHaveAttribute('aria-selected', 'true');
 	});
 });

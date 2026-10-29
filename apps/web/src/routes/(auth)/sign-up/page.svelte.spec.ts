@@ -2,21 +2,33 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
-import { m } from '#lib/i18n/index.ts';
-import { supabase } from '#lib/supabase.ts';
-import { apiError, networkError, pending, TEST_EMAIL, testSession } from '#lib/testing/auth.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { LEGAL_VERSION } from '#lib/legal/version/version.ts';
+import { supabase } from '#lib/shared/data/supabase/supabase.ts';
+import {
+	apiError,
+	networkError,
+	pending,
+	TEST_EMAIL,
+	testSession
+} from '#lib/testing/auth/auth.ts';
 import SignUpPage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signUp: vi.fn() } }
 }));
 
 const signUp = vi.mocked(supabase.auth.signUp);
 
-async function submit(email: string, password: string): Promise<void> {
+function consent(): ReturnType<typeof page.getByRole> {
+	return page.getByRole('checkbox', { name: m.legal.consentDeclare });
+}
+
+async function submit(email: string, password: string, accept = true): Promise<void> {
 	await page.getByLabelText(m.common.email).fill(email);
 	await page.getByLabelText(m.common.password).fill(password);
+	if (accept) (consent().element() as HTMLInputElement).click();
 	await page.getByRole('button', { name: m.signUp.submit }).click();
 }
 
@@ -46,8 +58,10 @@ describe('sign-up page', () => {
 	it('rejects a password shorter than eight characters', async () => {
 		await submit(TEST_EMAIL, 'abc');
 
-		await expect.element(page.getByText(m.validation.passwordTooShort(8, 3))).toBeVisible();
-		await expect.element(page.getByText(m.validation.passwordHint(8))).not.toBeInTheDocument();
+		await expect.element(page.getByText(m.validation.passwordTooShort(8))).toBeVisible();
+		await expect
+			.element(page.getByText(m.validation.passwordHint(8), { exact: true }))
+			.not.toBeInTheDocument();
 		await expect.element(page.getByLabelText(m.common.password)).toHaveFocus();
 		expect(signUp).not.toHaveBeenCalled();
 	});
@@ -63,8 +77,26 @@ describe('sign-up page', () => {
 		expect(signUp).toHaveBeenCalledWith({
 			email: TEST_EMAIL,
 			password: 'correct-password',
-			options: { emailRedirectTo: `${window.location.origin}/` }
+			options: {
+				emailRedirectTo: `${window.location.origin}/`,
+				data: { legal_version: LEGAL_VERSION }
+			}
 		});
+	});
+
+	it('requires the acceptance of the terms before it creates the account', async () => {
+		await submit(TEST_EMAIL, 'correct-password', false);
+
+		await expect.element(page.getByText(m.legal.consentRequired)).toBeVisible();
+		await expect.element(consent()).toHaveAttribute('aria-invalid', 'true');
+		expect(signUp).not.toHaveBeenCalled();
+	});
+
+	it('links both documents under the form', async () => {
+		const links = page.getByRole('navigation', { name: m.legal.linksLabel });
+
+		await expect.element(links.getByRole('link', { name: m.legal.terms })).toBeVisible();
+		await expect.element(links.getByRole('link', { name: m.legal.privacy })).toBeVisible();
 	});
 
 	it('opens the home page when sign-up returns a session', async () => {
@@ -139,6 +171,6 @@ describe('sign-up page', () => {
 
 		await submit(TEST_EMAIL, 'correct-password');
 
-		await expect.element(page.getByRole('alert')).toHaveTextContent(m.authErrors.network);
+		await expect.element(page.getByRole('alert')).toHaveTextContent(m.common.network);
 	});
 });

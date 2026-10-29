@@ -1,0 +1,171 @@
+<script lang="ts">
+	import { ArtworkTile } from '@study-atelier/ui';
+	import { MediaQuery } from 'svelte/reactivity';
+	import { innerWidth } from 'svelte/reactivity/window';
+	import { resolve } from '$app/paths';
+	import { eraIcon, eraName } from '#lib/catalogue/eras/eras.ts';
+	import {
+		columnCount,
+		distribute,
+		NO_IMAGE_RATIO,
+		WALL_MARGIN,
+		WALL_PART,
+		WIDE_MIN_WIDTH
+	} from '#lib/wall/masonry/masonry.ts';
+	import { m } from '#lib/i18n/i18n.ts';
+	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+
+	type Props = {
+		artworks: WallArtwork[];
+		highlight?: number;
+		periodIndexes?: ReadonlyMap<string, number>;
+		inset?: number;
+		element?: HTMLElement;
+		rendered?: number;
+		onfavourite?: (artwork: WallArtwork) => void;
+		onimagefailed?: (artwork: WallArtwork) => void;
+		onnearscreen?: (artwork: WallArtwork) => void;
+		hrefOf?: (artwork: WallArtwork) => string;
+	};
+
+	let {
+		artworks,
+		highlight,
+		periodIndexes,
+		inset = 0,
+		element = $bindable(),
+		rendered = $bindable(WALL_PART),
+		onfavourite,
+		onimagefailed,
+		onnearscreen,
+		hrefOf
+	}: Props = $props();
+
+	const VISIBLE_RATIO = 0.2;
+
+	const wide = new MediaQuery(`min-width: ${WIDE_MIN_WIDTH}px`);
+
+	let count = $derived(columnCount(wide.current, innerWidth.current ?? 0));
+	let columns = $derived(
+		distribute(artworks.slice(0, rendered), count, (artwork) =>
+			artwork.image ? artwork.image.height / artwork.image.width : NO_IMAGE_RATIO
+		)
+	);
+
+	function watchScreen(artwork: WallArtwork): (element: HTMLElement) => (() => void) | void {
+		return (element) => {
+			if (!artwork.pendingImage) return;
+			const observer = new IntersectionObserver(
+				([entry]) => {
+					if (!entry.isIntersecting) return;
+					observer.disconnect();
+					onnearscreen?.(artwork);
+				},
+				{ rootMargin: WALL_MARGIN }
+			);
+			observer.observe(element);
+			return () => observer.disconnect();
+		};
+	}
+
+	function watchVisible(inset: number): (element: HTMLElement) => () => void {
+		return (element) => {
+			const bar = parseFloat(getComputedStyle(element).getPropertyValue('--bar-height')) || 0;
+			const observer = new IntersectionObserver(
+				([entry]) => element.classList.toggle('faded', entry.intersectionRatio < VISIBLE_RATIO),
+				{
+					rootMargin: `-${bar + inset}px 0px 0px 0px`,
+					threshold: [0, VISIBLE_RATIO - 0.01, VISIBLE_RATIO, 1]
+				}
+			);
+			observer.observe(element);
+			return () => observer.disconnect();
+		};
+	}
+
+	function watchEnd(element: HTMLElement): () => void {
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				if (entry.isIntersecting) rendered += WALL_PART;
+			},
+			{ rootMargin: WALL_MARGIN }
+		);
+		observer.observe(element);
+		return () => observer.disconnect();
+	}
+</script>
+
+<div bind:this={element} class="wall">
+	{#each columns as column, index (index)}
+		<ul class="column">
+			{#each column as artwork (artwork.id)}
+				<li
+					class:highlight={artwork.number === highlight}
+					{@attach watchScreen(artwork)}
+					{@attach watchVisible(inset)}
+					data-period={periodIndexes?.get(artwork.id)}
+				>
+					<ArtworkTile
+						authors={artwork.authors}
+						date={artwork.date}
+						favourite={artwork.favourite}
+						favouriteLabel={artwork.favourite ? m.favourite.remove : m.favourite.add}
+						href={hrefOf?.(artwork) ??
+							resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
+						image={artwork.image}
+						imageUnavailable={artwork.imageUnavailable}
+						mark={artwork.eraCode ? eraIcon(artwork.eraCode) : undefined}
+						markLabel={artwork.eraCode ? eraName(artwork.eraCode) : undefined}
+						number={artwork.number}
+						onfavourite={onfavourite && (() => onfavourite(artwork))}
+						onimagefailed={() => onimagefailed?.(artwork)}
+						title={artwork.title}
+					/>
+				</li>
+			{/each}
+		</ul>
+	{/each}
+</div>
+{#if rendered < artworks.length}
+	{#key rendered}
+		<div {@attach watchEnd}></div>
+	{/key}
+{/if}
+
+<style>
+	.wall {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--spacing-6);
+	}
+
+	.column {
+		display: grid;
+		flex: 1;
+		gap: var(--spacing-6);
+		min-width: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	li {
+		outline: var(--border-width-button) solid transparent;
+		outline-offset: var(--spacing-2);
+	}
+
+	li.highlight {
+		outline-color: var(--color-fg);
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		li {
+			transition:
+				opacity calc(var(--duration-short) * 4) ease,
+				outline-color var(--duration-short) ease-out;
+		}
+
+		li:global(.faded) {
+			opacity: 0;
+		}
+	}
+</style>

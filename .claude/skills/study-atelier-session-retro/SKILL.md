@@ -5,7 +5,7 @@ description: At the end of a study-atelier session, find what the conversation a
 
 # study-atelier session retrospective
 
-Use this at the end of every session, before the work is merged: when the session's pull request has the owner's review comments addressed and waits only for the merge, so that confirmed findings ride in the same pull request. In a session without a pull request, use it before its thread is resolved. Also use it whenever the owner asks for a retrospective. The goal is that a fresh session never has to ask the owner again what this one already learned.
+Use this when the session's pull request is opened, before asking the owner for review, so that confirmed findings ride in the same pull request even if the owner merges as soon as CI passes; run a short second round for the findings of the owner's review while the pull request is still open. In a session without a pull request, use it before its thread is resolved. Also use it whenever the owner asks for a retrospective. The goal is that a fresh session never has to ask the owner again what this one already learned.
 
 Read [`docs/guidelines/documentation.md`](../../../docs/guidelines/documentation.md) first: its "Where things go" table decides where each finding belongs.
 
@@ -44,17 +44,17 @@ Then classify it:
 
 ## 4. Pick the destination
 
-| Finding | Destination |
-| --- | --- |
-| A decision and its reason | a new ADR in `docs/decisions/` from the template, added to the index; check open pull requests for numbers already taken |
-| What the app should do | `docs/product/requirements.md` (a new R-n with its version; never renumber) |
-| A domain term | `docs/product/glossary.md` |
-| How the app speaks to the learner | `docs/product/voice-and-tone.md` |
-| A coding standard | `docs/guidelines/code-conventions.md`, or `ui-patterns.md` for how views and components look and behave |
-| A rule for how work flows | the matching file in `docs/guidelines/`, or a repo skill when it is a step of a skill |
-| A rule a linter or CI could check | the guideline, plus a Linear issue to enforce it (ask first) |
-| How the owner wants Claude to work, project facts, open threads, anything outside the repository | project memory |
-| An idea for later | a Linear issue with the [`study-atelier-idea`](../study-atelier-idea/SKILL.md) skill |
+| Finding                                                                                          | Destination                                                                                                              |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| A decision and its reason                                                                        | a new ADR in `docs/decisions/` from the template, added to the index; check open pull requests for numbers already taken |
+| What the app should do                                                                           | `docs/product/requirements.md` (a new R-n with its version; never renumber)                                              |
+| A domain term                                                                                    | `docs/product/glossary.md`                                                                                               |
+| How the app speaks to the learner                                                                | `docs/product/voice-and-tone.md`                                                                                         |
+| A coding standard                                                                                | `docs/guidelines/code-conventions.md`, or `ui-patterns.md` for how views and components look and behave                  |
+| A rule for how work flows                                                                        | the matching file in `docs/guidelines/`, or a repo skill when it is a step of a skill                                    |
+| A rule a linter or CI could check                                                                | the guideline, plus a Linear issue to enforce it (ask first)                                                             |
+| How the owner wants Claude to work, project facts, open threads, anything outside the repository | project memory                                                                                                           |
+| An idea for later                                                                                | a Linear issue with the [`study-atelier-idea`](../study-atelier-idea/SKILL.md) skill                                     |
 
 A rule goes into the repository when it applies to the code or docs; memory only holds what the repository cannot. Do not record the same rule in both: memory links to the doc instead.
 

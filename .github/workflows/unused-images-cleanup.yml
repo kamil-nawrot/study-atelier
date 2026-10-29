@@ -3,7 +3,13 @@ on:
   schedule:
     - cron: '43 3 * * *'
   workflow_dispatch:
-permissions: {}
+    inputs:
+      allow_mass_delete:
+        description: Remove more than 100 images in one run
+        type: boolean
+        default: false
+permissions:
+  contents: read
 jobs:
   clean-up:
     name: Clean up ${{ matrix.environment }} images
@@ -13,32 +19,19 @@ jobs:
       fail-fast: false
       matrix:
         environment: ${{ fromJSON(github.event_name == 'schedule' && '["develop","production"]' || github.ref_name == 'main' && '["production"]' || '["develop"]') }}
-    environment: ${{ matrix.environment }}
+    environment:
+      name: ${{ matrix.environment }}
+      deployment: false
     steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
       - name: Remove images no artwork or author uses
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-        run: |
-          if ! paths=$(curl --fail-with-body --silent --show-error --retry 3 \
-            --request POST "$SUPABASE_URL/rest/v1/rpc/unused_images" \
-            --header "apikey: $SUPABASE_SECRET_KEY" \
-            --header "Content-Type: application/json" \
-            --data '{}'); then
-            echo "$paths"
-            exit 1
-          fi
-          count=$(jq 'length' <<< "$paths")
-          echo "Unused images: $count"
-          jq -r '.[]' <<< "$paths"
-          if [ "$count" -gt 0 ]; then
-            if ! removed=$(curl --fail-with-body --silent --show-error --retry 3 \
-              --request DELETE "$SUPABASE_URL/storage/v1/object/artwork-images" \
-              --header "apikey: $SUPABASE_SECRET_KEY" \
-              --header "Content-Type: application/json" \
-              --data "$(jq '{prefixes: .}' <<< "$paths")"); then
-              echo "$removed"
-              exit 1
-            fi
-            echo "Removed: $count"
-          fi
+          ALLOW_MASS_DELETE: ${{ inputs.allow_mass_delete }}
+        run: node .github/scripts/clean-up-unused-images.mjs

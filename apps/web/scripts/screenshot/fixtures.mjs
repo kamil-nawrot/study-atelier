@@ -3,7 +3,7 @@ export const IMAGE_HOST = 'https://images.mock.test';
 
 const COMMONS_SIZES = {
 	'Mona_Lisa.jpg': [4, 6],
-	'The_Starry_Night.jpg': [5, 4],
+	'The_Starry_Night.jpg': [4000, 3200],
 	'Girl_with_a_Pearl_Earring.jpg': [4, 5],
 	'Portrait_of_Leonardo.jpg': [3, 4],
 	'Self-portrait_in_red_chalk.jpg': [2, 3]
@@ -26,8 +26,9 @@ export function imageSvg(seed, width = 4, height = 5) {
 	let hash = 0;
 	for (const char of String(seed)) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
 	const [dark, light] = PALETTE[hash % PALETTE.length];
-	const w = width * 100;
-	const h = height * 100;
+	const scale = width >= 100 ? 1 : 100;
+	const w = width * scale;
+	const h = height * scale;
 	return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${dark}"/><stop offset="1" stop-color="${light}"/></linearGradient></defs><rect width="${w}" height="${h}" fill="url(#g)"/><circle cx="${w * 0.62}" cy="${h * 0.38}" r="${Math.min(w, h) * 0.18}" fill="${light}" fill-opacity="0.55"/></svg>`;
 }
 
@@ -38,7 +39,10 @@ function extraImage() {
 		source_image_licence: null,
 		source_image_licence_url: null,
 		source_image_attribution: null,
-		own_image_path: null
+		own_image_path: null,
+		own_image_url: null,
+		image_width: null,
+		image_height: null
 	};
 }
 
@@ -63,7 +67,32 @@ function commonsImage(file) {
 	};
 }
 
+const IMAGE_KEYS = [
+	'source_wikidata_id',
+	'source_image_file',
+	'source_image_licence',
+	'source_image_licence_url',
+	'source_image_attribution',
+	'own_image_path',
+	'own_image_url',
+	'image_width',
+	'image_height'
+];
+
 function artwork(number, title, authors, year, era, extra = {}) {
+	const { artwork_images: others = [], ...fields } = extra;
+	const main = Object.fromEntries(
+		Object.entries(fields).filter(([key]) => IMAGE_KEYS.includes(key))
+	);
+	const rest = Object.fromEntries(
+		Object.entries(fields).filter(([key]) => !IMAGE_KEYS.includes(key))
+	);
+	const imageId = (position) =>
+		`00000000-0000-4000-9000-${String(number).padStart(9, '0')}${String(position).padStart(3, '0')}`;
+	const images = [
+		...(Object.keys(main).length > 0 ? [{ position: 0, ...extraImage(), ...main }] : []),
+		...others
+	].map((image) => ({ id: imageId(image.position), ...image }));
 	return {
 		id: `00000000-0000-4000-8000-${String(number).padStart(12, '0')}`,
 		record_number: number,
@@ -72,26 +101,17 @@ function artwork(number, title, authors, year, era, extra = {}) {
 		year_to: year,
 		year_approximate: false,
 		era_code: era,
-		author_unknown: false,
+		author_unknown: authors.length === 0,
 		type_code: 'painting',
 		notes: null,
-		source_wikidata_id: null,
-		source_image_file: null,
-		source_image_licence: null,
-		source_image_licence_url: null,
-		source_image_attribution: null,
-		own_image_path: null,
-		own_image_url: null,
-		image_width: null,
-		image_height: null,
 		favourite: false,
 		deleted_at: null,
 		artwork_values: authors.map((name, position) => ({
 			position,
 			category_values: { category_code: 'author', name }
 		})),
-		artwork_images: [],
-		...extra
+		artwork_images: images,
+		...rest
 	};
 }
 
@@ -111,23 +131,34 @@ export const ARTWORKS = [
 		withValues(
 			withValues(
 				withValues(
-					artwork(1, 'Mona Lisa', ['Leonardo da Vinci'], 1503, 'early_modern', {
-						...commonsImage('Mona_Lisa.jpg'),
-						year_approximate: true,
-						notes:
-							'Sample note about the sfumato technique, see [Leonardo da Vinci](/atelier/values/author/author-leonardo-da-vinci) and compare [#0009 The Birth of Venus](/atelier/9).'
-					}),
-					'period',
-					['Renaissance']
+					withValues(
+						artwork(1, 'Mona Lisa', ['Leonardo da Vinci'], 1503, 'early_modern', {
+							...commonsImage('Mona_Lisa.jpg'),
+							year_approximate: true,
+							notes:
+								'Sample note about the sfumato technique, see [Leonardo da Vinci](/atelier/values/author/author-leonardo-da-vinci) and compare [#0009 The Birth of Venus](/atelier/9).',
+							artwork_field_entries: [
+								{
+									field_id: '00000000-0000-4000-8000-000000000403',
+									text_value: 'Gombrich, s. 300'
+								},
+								{ field_id: '00000000-0000-4000-8000-000000000404', text_value: null }
+							]
+						}),
+						'period',
+						['Renaissance']
+					),
+					'style',
+					['High Renaissance']
 				),
-				'style',
-				['High Renaissance']
+				'material',
+				['Oil on poplar']
 			),
-			'material',
-			['Oil on poplar']
+			'location',
+			['Louvre']
 		),
-		'location',
-		['Louvre']
+		'00000000-0000-4000-8000-000000000402',
+		['portret', 'pejzaż']
 	),
 	artwork(2, 'The Starry Night', ['Vincent van Gogh'], 1889, 'modern', {
 		...commonsImage('The_Starry_Night.jpg')
@@ -139,7 +170,7 @@ export const ARTWORKS = [
 		'period',
 		['Baroque']
 	),
-	artwork(4, 'Venus of Willendorf', ['Unknown'], -28000, 'prehistory', {
+	artwork(4, 'Venus of Willendorf', [], -28000, 'prehistory', {
 		...ownImage(4, 3, 4),
 		type_code: 'sculpture'
 	}),
@@ -426,6 +457,24 @@ export const USER = {
 	created_at: '2026-01-01T00:00:00Z'
 };
 
+export const PROFILE = {
+	display_name: 'Anna',
+	avatar_path: null,
+	review_session_size: 20,
+	review_new_per_day: 10,
+	review_form: 'mixed',
+	review_quiz_kinds: ['quiz_title', 'quiz_image', 'quiz_author', 'quiz_style', 'quiz_pin'],
+	review_free: true,
+	review_glossary_questions: 2,
+	view_show_pins: false,
+	view_loupe_on: false,
+	fetch_image: true,
+	fetch_definition: true,
+	fetch_forms: true,
+	fetch_event: true,
+	legal_version: '2026-10-26'
+};
+
 export function fakeSession() {
 	return {
 		access_token: 'fake-access-token',
@@ -464,6 +513,74 @@ function glossaryEntry(
 	};
 }
 
+function visit(number, place, placeType, countryCode, visitedOn, precision, notes, numbers) {
+	return {
+		id: `00000000-0000-4000-8000-000000000${String(500 + number)}`,
+		place_id: valueId('location', place),
+		visited_on: visitedOn,
+		date_precision: precision,
+		notes,
+		category_values: {
+			name: place,
+			location_details: placeType ? [{ place_type: placeType, country_code: countryCode }] : []
+		},
+		visit_artworks: numbers.map((artworkNumber) => ({
+			artwork_id: `00000000-0000-4000-8000-${String(artworkNumber).padStart(12, '0')}`
+		}))
+	};
+}
+
+export const VISITS = [
+	visit(
+		1,
+		'Louvre',
+		'museum',
+		'FR',
+		'2026-10-12',
+		'day',
+		'Tłum przed [#0001 Mona Lisa](/atelier/1), ale warto było podejść bliżej. Skrzydło Richelieu prawie puste, a w salach holenderskich spokój i światło z okien.',
+		[1, 3, 9, 6, 7]
+	),
+	visit(
+		2,
+		'Notre-Dame de Paris',
+		'on_site',
+		'FR',
+		'2026-08-01',
+		'month',
+		'Po rekonstrukcji: rozeta południowa i nowa sygnaturka.',
+		[6]
+	),
+	visit(3, 'Belvedere', 'museum', 'AT', '2026-03-07', 'day', null, []),
+	visit(
+		4,
+		'Uffizi',
+		'museum',
+		'IT',
+		'2019-01-01',
+		'year',
+		'Pierwsza wizyta we Florencji, prawie nic nie pamiętam poza Botticellim.',
+		[9]
+	)
+];
+
+for (const visit of VISITS) {
+	const name = visit.category_values.name;
+	const id = valueId('location', name);
+	let usage = VALUE_USAGE.find((row) => row.id === id);
+	if (!usage) {
+		usage = { id, category_code: 'location', name, artwork_count: 0, visit_count: 0 };
+		VALUE_USAGE.push(usage);
+	}
+	usage.visit_count = (usage.visit_count ?? 0) + 1;
+}
+
+for (const row of ARTWORKS) {
+	row.visit_artworks = VISITS.filter((visit) =>
+		visit.visit_artworks.some((seen) => seen.artwork_id === row.id)
+	).map((visit) => ({ visit_id: visit.id }));
+}
+
 export const TIMELINE_EVENTS = [
 	{
 		id: '00000000-0000-4000-8000-000000000301',
@@ -479,7 +596,7 @@ export const TIMELINE_EVENTS = [
 	{
 		id: '00000000-0000-4000-8000-000000000302',
 		owner_id: USER.id,
-		name: 'Wystąpienie Lutra',
+		name: 'Wystąpienie Lutra i początek reformacji w Wittenberdze',
 		year_from: null,
 		year_to: 1517,
 		year_approximate: false,
@@ -568,7 +685,7 @@ export const GLOSSARY_ENTRIES = [
 		2,
 		'Apsyda',
 		'architecture',
-		'Półkolista lub wieloboczna część budowli zamykająca nawę, zwykle od wschodu.',
+		'Półkolista lub wieloboczna część budowli zamykająca nawę, zwykle od wschodu. W apsydzie stawiano ołtarz główny.',
 		['apsydy', 'apsydzie'],
 		'Apsyda'
 	),
@@ -840,3 +957,78 @@ const ADJECTIVE_ROWS = [
 export const WIKTIONARY_TABLES = {
 	krzyżowy: `<table class="wikitable odmiana adj"><tr><th rowspan="2">[[przypadek]]</th><th colspan="4">liczba pojedyncza</th><th colspan="2">liczba mnoga</th></tr><tr><td class="forma">mos/mzw</td><td class="forma">mrz</td><td class="forma">ż</td><td class="forma">n</td><td class="forma">mos</td><td class="forma">nmos</td></tr>${ADJECTIVE_ROWS.map(([label, cells]) => `<tr><td class="forma">[[${label}]]</td>${cells}</tr>`).join('')}</table>`
 };
+
+export const OWN_FIELDS = [
+	{
+		id: '00000000-0000-4000-8000-000000000401',
+		name: 'Wykład',
+		description: null,
+		kind: 'list',
+		multiple: false
+	},
+	{
+		id: '00000000-0000-4000-8000-000000000402',
+		name: 'Motywy',
+		description: 'Co przedstawia dzieło',
+		kind: 'list',
+		multiple: true
+	},
+	{
+		id: '00000000-0000-4000-8000-000000000403',
+		name: 'Źródło',
+		description: 'Podręcznik i strona',
+		kind: 'text',
+		multiple: false
+	},
+	{
+		id: '00000000-0000-4000-8000-000000000404',
+		name: 'Widziane na żywo',
+		description: null,
+		kind: 'flag',
+		multiple: false
+	}
+];
+
+export const OWN_VALUE_USAGE = [
+	['00000000-0000-4000-8000-000000000401', 'Sztuka renesansu', 3],
+	['00000000-0000-4000-8000-000000000401', 'Barok – ćwiczenia', 2],
+	['00000000-0000-4000-8000-000000000402', 'portret', 2],
+	['00000000-0000-4000-8000-000000000402', 'pejzaż', 1],
+	['00000000-0000-4000-8000-000000000402', 'Aniol', 1],
+	['00000000-0000-4000-8000-000000000402', 'Anioł', 2]
+].map(([field, name, count], index) => ({
+	id: `00000000-0000-4000-8000-0000000005${String(index).padStart(2, '0')}`,
+	category_code: field,
+	name,
+	artwork_count: count
+}));
+
+export const OWN_FIELD_USAGE = [
+	{ field_id: '00000000-0000-4000-8000-000000000401', artwork_count: 5 },
+	{ field_id: '00000000-0000-4000-8000-000000000402', artwork_count: 4 },
+	{ field_id: '00000000-0000-4000-8000-000000000403', artwork_count: 2 },
+	{ field_id: '00000000-0000-4000-8000-000000000404', artwork_count: 3 }
+];
+
+function pin(artworkNumber, number, x, y, glossaryNumber, text, viewWidth = null) {
+	const row = ARTWORKS.find((artwork) => artwork.record_number === artworkNumber);
+	return {
+		id: `00000000-0000-4000-a000-${String(number).padStart(12, '0')}`,
+		image_id: row.artwork_images.find((image) => image.position === 0).id,
+		x,
+		y,
+		glossary_entry_id: glossaryNumber
+			? `00000000-0000-4000-9000-${String(glossaryNumber).padStart(12, '0')}`
+			: null,
+		text,
+		view_width: viewWidth,
+		created_at: '2026-10-22T10:00:00Z'
+	};
+}
+
+export const ARTWORK_PINS = [
+	pin(6, 1, 0.62, 0.34, 2, 'Półkolista część chóru, widoczna od wschodu.'),
+	pin(6, 2, 0.3, 0.55, null, 'Rozeta, której szkło pochodzi z XIII wieku.'),
+	pin(6, 3, 0.48, 0.2, 5, null),
+	pin(2, 4, 0.62, 0.38, null, 'Księżyc w nowiu otoczony poświatą.', 0.12)
+];

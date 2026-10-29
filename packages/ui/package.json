@@ -1,7 +1,7 @@
 {
 	"name": "@study-atelier/ui",
 	"private": true,
-	"version": "0.7.0",
+	"version": "0.14.0",
 	"type": "module",
 	"exports": {
 		".": {
@@ -17,7 +17,7 @@
 		"storybook": "storybook dev -p 6006",
 		"build": "storybook build --quiet -o storybook-static",
 		"check": "node scripts/build-tokens.ts --check && svelte-check --tsconfig ./tsconfig.json",
-		"lint": "prettier --check . && eslint . && stylelint --config ../../stylelint.config.js \"src/**/*.{css,svelte}\"",
+		"lint": "prettier --check . && eslint . && stylelint --config ../../stylelint.config.js \"src/**/*.{css,svelte}\" && node ../../lint/check-limits.js --stories",
 		"format": "prettier --write .",
 		"test": "vitest --run",
 		"test:coverage": "vitest --run --coverage"

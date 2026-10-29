@@ -1,11 +1,17 @@
-import { loadArtwork } from '#lib/collection/artwork-record.ts';
-import { emptyCategoryValues, loadCategoryValues } from '#lib/collection/category-values.ts';
-import { loadNoteLinks } from '#lib/collection/note-link-data.ts';
-import { emptyPlaceStarter, loadPlaceStarter } from '#lib/collection/place-starter.ts';
-import { emptyValueLinks, loadValueLinks } from '#lib/collection/value-links.ts';
-import { parseRecordNumber } from '#lib/collection/format.ts';
-import { m } from '#lib/i18n/index.ts';
-import type { LoadArtworkResult } from '#lib/collection/types.ts';
+import { loadArtwork } from '#lib/artworks/artwork-data/artwork-data.ts';
+import { emptyCategoryValues } from '#lib/card-index/category-values/category-values.ts';
+import { loadCategoryValues } from '#lib/card-index/category-values-data/category-values-data.ts';
+import { loadNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
+import { loadOwnFieldDefinitions } from '#lib/card-index/own-fields-data/own-fields-data.ts';
+import { emptyPlaceStarter } from '#lib/card-index/place-starter/place-starter.ts';
+import { loadPlaceStarter } from '#lib/card-index/place-starter-data/place-starter-data.ts';
+import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
+import { loadValueLinks } from '#lib/card-index/value-links-data/value-links-data.ts';
+import { parseRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
+import { loadGlossary } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { loadArtworkPins } from '#lib/pins/pin-data/pin-data.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ params }) => {
@@ -15,17 +21,37 @@ export const load: PageLoad = async ({ params }) => {
 		return {
 			...missing,
 			values: emptyCategoryValues(),
+			ownValues: {},
+			ownFields: undefined,
 			links: emptyValueLinks(),
 			noteLinks: undefined,
-			placeStarter: emptyPlaceStarter()
+			placeStarter: emptyPlaceStarter(),
+			pins: [],
+			pinsError: undefined,
+			glossary: []
 		};
 	}
-	const [result, categories, linked, noteLinks, placeStarter] = await Promise.all([
-		loadArtwork(number),
-		loadCategoryValues(),
-		loadValueLinks(),
-		loadNoteLinks(),
-		loadPlaceStarter()
-	]);
-	return { ...result, values: categories.values, links: linked.links, noteLinks, placeStarter };
+	const [result, categories, linked, noteLinks, placeStarter, own, pins, glossary] =
+		await Promise.all([
+			loadArtwork(number),
+			loadCategoryValues(),
+			loadValueLinks(),
+			loadNoteLinks(),
+			loadPlaceStarter(),
+			loadOwnFieldDefinitions(),
+			loadArtworkPins(number),
+			loadGlossary()
+		]);
+	return {
+		...result,
+		pins: pins.pins,
+		pinsError: pins.error,
+		glossary: glossary.entries,
+		values: categories.values,
+		ownValues: categories.ownValues,
+		ownFields: own.error ? undefined : own.fields,
+		links: linked.links,
+		noteLinks,
+		placeStarter
+	};
 };

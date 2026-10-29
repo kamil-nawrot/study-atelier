@@ -5,18 +5,19 @@
 - All documentation is written in English, in Markdown, inside [`docs/`](../).
 - Docs change in the same pull request as the code or decision they describe.
 - Prefer short, specific pages over long ones. Link instead of repeating.
+- Every Markdown file in the repository (docs, `CHANGELOG.md`, `CLAUDE.md`, skills) is formatted with Prettier: `pnpm format` formats them with the code and `pnpm lint` checks them. The `Docs` workflow runs only the Markdown check (job `Markdown`) on every pull request that changes Markdown, because the `CI` workflow skips pull requests that change only docs. A table that Prettier realigns after an edit is an expected part of the diff.
 
 ## Where things go
 
-| You want to record | Put it in |
-| --- | --- |
-| A decision (business or technical) and why it was made | a new ADR in `docs/decisions/` |
-| What the app should do | `docs/product/requirements.md` |
-| A domain term | `docs/product/glossary.md` |
-| How the app speaks to the learner | `docs/product/voice-and-tone.md` |
-| How the system is structured | `docs/architecture/` |
-| A rule for working in the repository | `docs/guidelines/` |
-| A library component and what it is for | its row in `packages/ui/README.md`, in the pull request that adds or changes it |
+| You want to record                                     | Put it in                                                                       |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| A decision (business or technical) and why it was made | a new ADR in `docs/decisions/`                                                  |
+| What the app should do                                 | `docs/product/requirements.md`                                                  |
+| A domain term                                          | `docs/product/glossary.md`                                                      |
+| How the app speaks to the learner                      | `docs/product/voice-and-tone.md`                                                |
+| How the system is structured                           | `docs/architecture/`                                                            |
+| A rule for working in the repository                   | `docs/guidelines/`                                                              |
+| A library component and what it is for                 | its row in `packages/ui/README.md`, in the pull request that adds or changes it |
 
 ## Architecture Decision Records
 
@@ -27,6 +28,7 @@
 - Accepted ADRs are not rewritten. A changed decision gets a new ADR that supersedes the old one, and the old one's status is updated.
 - Corrections that leave the decision unchanged are allowed in an accepted ADR: typos, broken links, facts found to be wrong, and removal of personal data.
 - Every new ADR is added to the index in [`decisions/README.md`](../decisions/README.md).
+- The `Pull request` workflow runs [`.github/scripts/check-docs.mjs`](../../.github/scripts/check-docs.mjs): every relative link in a Markdown file resolves, every ADR is in the index and no two share a number, and no tracked file holds an e-mail address other than an `example.com`, `example.org` or `example.test` address, the `przyklad.pl` sample in the UI texts, a role address of the app's own domain `studyatelier.art` and `noreply` attribution lines.
 
 ## Architecture
 

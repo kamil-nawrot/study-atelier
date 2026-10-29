@@ -1,0 +1,337 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { m } from '#lib/i18n/i18n.ts';
+import { removeAllOwnFiles } from '#lib/images/own-image-data/own-image-data.ts';
+import {
+	changePassword,
+	deleteAccount,
+	pendingEmailChange,
+	requestEmailChange,
+	requestPasswordReset,
+	resendConfirmation,
+	signIn,
+	signUp
+} from './account-data.ts';
+
+const auth = vi.hoisted(() => ({
+	signInWithPassword: vi.fn(),
+	signUp: vi.fn(),
+	resend: vi.fn(),
+	resetPasswordForEmail: vi.fn(),
+	updateUser: vi.fn(),
+	getUser: vi.fn(),
+	signOut: vi.fn()
+}));
+
+const rpc = vi.hoisted(() => vi.fn());
+
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: { auth, rpc } }));
+vi.mock('#lib/images/own-image-data/own-image-data.ts', () => ({ removeAllOwnFiles: vi.fn() }));
+
+beforeEach(() => {
+	vi.stubGlobal('window', { location: { origin: 'https://atelier.test' } });
+	auth.signInWithPassword.mockReset();
+	auth.signUp.mockReset();
+	auth.updateUser.mockReset();
+	auth.getUser.mockReset();
+	auth.signOut.mockReset();
+});
+
+describe('signIn', () => {
+	it('returns nothing when Supabase accepts the credentials', async () => {
+		auth.signInWithPassword.mockResolvedValue({ error: null });
+		expect(await signIn('learner@example.com', 'vermeer1')).toBeUndefined();
+	});
+
+	it('passes the captcha token to Supabase', async () => {
+		auth.signInWithPassword.mockResolvedValue({ error: null });
+		await signIn('learner@example.com', 'vermeer1', 'token-1');
+		expect(auth.signInWithPassword).toHaveBeenCalledWith({
+			email: 'learner@example.com',
+			password: 'vermeer1',
+			options: { captchaToken: 'token-1' }
+		});
+	});
+
+	it('returns the captcha message when Supabase rejects the token', async () => {
+		auth.signInWithPassword.mockResolvedValue({ error: { code: 'captcha_failed' } });
+		expect(await signIn('learner@example.com', 'vermeer1')).toBe(m.authErrors.captchaFailed);
+	});
+
+	it('returns the mapped message when Supabase rejects the credentials', async () => {
+		auth.signInWithPassword.mockResolvedValue({ error: { code: 'invalid_credentials' } });
+		expect(await signIn('learner@example.com', 'wrong')).toBe(m.authErrors.invalidCredentials);
+	});
+});
+
+describe('signUp', () => {
+	it('asks for a confirmation link back to the app', async () => {
+		auth.signUp.mockResolvedValue({ data: { session: null }, error: null });
+		expect(
+			await signUp('learner@example.com', 'vermeer1', { legal_version: '2026-10-26' }, 'token-1')
+		).toEqual({ signedIn: false });
+		expect(auth.signUp).toHaveBeenCalledWith({
+			email: 'learner@example.com',
+			password: 'vermeer1',
+			options: {
+				emailRedirectTo: 'https://atelier.test/',
+				data: { legal_version: '2026-10-26' },
+				captchaToken: 'token-1'
+			}
+		});
+	});
+
+	it('reports a signed-in user when confirmation is off', async () => {
+		auth.signUp.mockResolvedValue({ data: { session: {} }, error: null });
+		expect(await signUp('learner@example.com', 'vermeer1')).toEqual({ signedIn: true });
+	});
+
+	it('reports an existing account when Supabase hides it behind a user without identities', async () => {
+		auth.signUp.mockResolvedValue({
+			data: { user: { identities: [] }, session: null },
+			error: null
+		});
+		expect(await signUp('learner@example.com', 'vermeer1')).toEqual({
+			accountExists: true,
+			signedIn: false
+		});
+	});
+
+	it('reports an existing account when Supabase rejects the email as taken', async () => {
+		auth.signUp.mockResolvedValue({
+			data: { user: null, session: null },
+			error: { code: 'user_already_exists', status: 422 }
+		});
+		expect(await signUp('learner@example.com', 'vermeer1')).toEqual({
+			accountExists: true,
+			signedIn: false
+		});
+	});
+});
+
+describe('resendConfirmation', () => {
+	it('passes the captcha token to Supabase', async () => {
+		auth.resend.mockResolvedValue({ error: null });
+		expect(await resendConfirmation('learner@example.com', 'token-1')).toBeUndefined();
+		expect(auth.resend).toHaveBeenCalledWith({
+			type: 'signup',
+			email: 'learner@example.com',
+			options: { emailRedirectTo: 'https://atelier.test/', captchaToken: 'token-1' }
+		});
+	});
+});
+
+describe('requestPasswordReset', () => {
+	it('passes the captcha token to Supabase', async () => {
+		auth.resetPasswordForEmail.mockResolvedValue({ error: null });
+		expect(await requestPasswordReset('learner@example.com', 'token-1')).toBeUndefined();
+		expect(auth.resetPasswordForEmail).toHaveBeenCalledWith('learner@example.com', {
+			redirectTo: 'https://atelier.test/update-password',
+			captchaToken: 'token-1'
+		});
+	});
+});
+
+describe('changePassword', () => {
+	beforeEach(() => {
+		auth.signInWithPassword.mockResolvedValue({ error: null });
+		auth.updateUser.mockResolvedValue({ error: null });
+		auth.signOut.mockResolvedValue({ error: null });
+	});
+
+	it('checks the current password by signing in with it before setting the new one', async () => {
+		const result = await changePassword(
+			'learner@example.com',
+			'vermeer1',
+			'rembrandt2',
+			false,
+			'token-1'
+		);
+
+		expect(result).toEqual({ changed: true });
+		expect(auth.signInWithPassword).toHaveBeenCalledWith({
+			email: 'learner@example.com',
+			password: 'vermeer1',
+			options: { captchaToken: 'token-1' }
+		});
+		expect(auth.updateUser).toHaveBeenCalledWith({ password: 'rembrandt2' });
+		expect(auth.signInWithPassword.mock.invocationCallOrder[0]).toBeLessThan(
+			auth.updateUser.mock.invocationCallOrder[0]
+		);
+	});
+
+	it('signs out the other devices only when asked to', async () => {
+		await changePassword('learner@example.com', 'vermeer1', 'rembrandt2', false);
+		expect(auth.signOut).not.toHaveBeenCalled();
+
+		await changePassword('learner@example.com', 'vermeer1', 'rembrandt2', true);
+		expect(auth.signOut).toHaveBeenCalledExactlyOnceWith({ scope: 'others' });
+	});
+
+	it('says when the other devices could not be signed out after the change', async () => {
+		auth.signOut.mockResolvedValue({ error: { status: 500 } });
+
+		const result = await changePassword('learner@example.com', 'vermeer1', 'rembrandt2', true);
+
+		expect(result).toEqual({ changed: true, othersError: m.settings.account.othersFailed });
+	});
+
+	it('reports a wrong current password under that field and changes nothing', async () => {
+		auth.signInWithPassword.mockResolvedValue({
+			error: { code: 'invalid_credentials', status: 400 }
+		});
+
+		const result = await changePassword('learner@example.com', 'wrong', 'rembrandt2', true);
+
+		expect(result).toEqual({ changed: false, currentError: m.settings.account.wrongCurrent });
+		expect(auth.updateUser).not.toHaveBeenCalled();
+		expect(auth.signOut).not.toHaveBeenCalled();
+	});
+
+	it('does not sign anyone out when the server refuses the check with an authorization error', async () => {
+		auth.signInWithPassword.mockResolvedValue({
+			error: { code: 'invalid_credentials', status: 401 }
+		});
+
+		const result = await changePassword('learner@example.com', 'wrong', 'rembrandt2', true);
+
+		expect(result.currentError).toBe(m.settings.account.wrongCurrent);
+		expect(auth.signOut).not.toHaveBeenCalled();
+	});
+
+	it('rejects a new password equal to the current one without calling the server', async () => {
+		const result = await changePassword('learner@example.com', 'vermeer1', 'vermeer1', true);
+
+		expect(result).toEqual({ changed: false, newError: m.settings.account.sameAsCurrent });
+		expect(auth.signInWithPassword).not.toHaveBeenCalled();
+	});
+
+	it('reports a password the server calls the same under the new password field', async () => {
+		auth.updateUser.mockResolvedValue({ error: { code: 'same_password', status: 422 } });
+
+		const result = await changePassword('learner@example.com', 'vermeer1', 'rembrandt2', true);
+
+		expect(result).toEqual({ changed: false, newError: m.settings.account.sameAsCurrent });
+		expect(auth.signOut).not.toHaveBeenCalled();
+	});
+
+	it('reports a weak password under the new password field', async () => {
+		auth.updateUser.mockResolvedValue({ error: { code: 'weak_password', status: 422 } });
+
+		const result = await changePassword('learner@example.com', 'vermeer1', 'rembrandt2', true);
+
+		expect(result).toEqual({ changed: false, newError: m.authErrors.weakPassword });
+	});
+
+	it('shows a general message when the network fails and keeps the session', async () => {
+		auth.signInWithPassword.mockResolvedValue({ error: { name: 'AuthRetryableFetchError' } });
+
+		const result = await changePassword('learner@example.com', 'vermeer1', 'rembrandt2', true);
+
+		expect(result).toEqual({ changed: false, error: m.common.network });
+		expect(auth.signOut).not.toHaveBeenCalled();
+	});
+});
+
+describe('requestEmailChange', () => {
+	it('asks for links that return to the account tab', async () => {
+		auth.updateUser.mockResolvedValue({ error: null });
+		expect(await requestEmailChange('learner@example.com', ' new@example.com ')).toEqual({
+			sent: true
+		});
+		expect(auth.updateUser).toHaveBeenCalledWith(
+			{ email: 'new@example.com' },
+			{ emailRedirectTo: 'https://atelier.test/atelier/settings?tab=account&emailChanged=1' }
+		);
+	});
+
+	it('refuses the current address without calling the server', async () => {
+		expect(await requestEmailChange('learner@example.com', 'Learner@Example.com')).toEqual({
+			sent: false,
+			error: m.settings.account.sameEmail
+		});
+		expect(auth.updateUser).not.toHaveBeenCalled();
+	});
+
+	it('says that the address belongs to another account', async () => {
+		auth.updateUser.mockResolvedValue({ error: { code: 'email_exists', status: 422 } });
+		expect(await requestEmailChange('learner@example.com', 'taken@example.com')).toEqual({
+			sent: false,
+			error: m.authErrors.emailTaken
+		});
+	});
+});
+
+describe('pendingEmailChange', () => {
+	it('returns the address that waits for confirmation', async () => {
+		auth.getUser.mockResolvedValue({
+			data: { user: { new_email: 'new@example.com' } },
+			error: null
+		});
+		expect(await pendingEmailChange()).toBe('new@example.com');
+	});
+
+	it('returns nothing without a pending change or when the user cannot be read', async () => {
+		auth.getUser.mockResolvedValue({ data: { user: {} }, error: null });
+		expect(await pendingEmailChange()).toBeUndefined();
+		auth.getUser.mockResolvedValue({ data: { user: null }, error: { code: 'x' } });
+		expect(await pendingEmailChange()).toBeUndefined();
+	});
+});
+
+describe('deleteAccount', () => {
+	beforeEach(() => {
+		auth.signInWithPassword.mockResolvedValue({ data: { user: { id: 'learner-1' } }, error: null });
+		auth.signOut.mockResolvedValue({ error: null });
+		vi.mocked(removeAllOwnFiles).mockReset().mockResolvedValue(true);
+		rpc.mockReset().mockResolvedValue({ error: null });
+	});
+
+	it('checks the password, deletes the account, then removes the files and signs out here', async () => {
+		await expect(deleteAccount('learner@example.com', 'vermeer1', 'token-1')).resolves.toEqual({
+			deleted: true
+		});
+
+		expect(auth.signInWithPassword).toHaveBeenCalledWith({
+			email: 'learner@example.com',
+			password: 'vermeer1',
+			options: { captchaToken: 'token-1' }
+		});
+		expect(removeAllOwnFiles).toHaveBeenCalledWith('learner-1');
+		expect(rpc).toHaveBeenCalledWith('delete_account');
+		expect(rpc.mock.invocationCallOrder[0]).toBeLessThan(
+			vi.mocked(removeAllOwnFiles).mock.invocationCallOrder[0]
+		);
+		expect(auth.signOut).toHaveBeenCalledWith({ scope: 'local' });
+	});
+
+	it('deletes nothing when the password is wrong', async () => {
+		auth.signInWithPassword.mockResolvedValue({ data: {}, error: { code: 'invalid_credentials' } });
+
+		await expect(deleteAccount('learner@example.com', 'wrong')).resolves.toEqual({
+			deleted: false,
+			passwordError: m.settings.account.wrongCurrent
+		});
+		expect(removeAllOwnFiles).not.toHaveBeenCalled();
+		expect(rpc).not.toHaveBeenCalled();
+	});
+
+	it('leaves files it could not remove to the daily clean-up once the account is gone', async () => {
+		vi.mocked(removeAllOwnFiles).mockResolvedValue(false);
+
+		await expect(deleteAccount('learner@example.com', 'vermeer1')).resolves.toEqual({
+			deleted: true
+		});
+		expect(auth.signOut).toHaveBeenCalledWith({ scope: 'local' });
+	});
+
+	it('touches nothing and stays signed in when the database refuses the deletion', async () => {
+		rpc.mockResolvedValue({ error: { message: 'Failed to fetch' } });
+
+		await expect(deleteAccount('learner@example.com', 'vermeer1')).resolves.toEqual({
+			deleted: false,
+			error: m.settings.account.deleteFailed
+		});
+		expect(removeAllOwnFiles).not.toHaveBeenCalled();
+		expect(auth.signOut).not.toHaveBeenCalled();
+	});
+});

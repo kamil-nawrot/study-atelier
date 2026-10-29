@@ -1,17 +1,23 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
 import {
+	ARTWORK_PINS,
 	ARTWORKS,
 	CATALOGUE_MUSEUMS,
 	GLOSSARY_ENTRIES,
+	OWN_FIELD_USAGE,
+	OWN_FIELDS,
+	OWN_VALUE_USAGE,
+	PROFILE,
 	ARTWORK_SEARCH,
 	PEOPLE,
 	PERIOD_ERA_USAGE,
 	REVIEW_CARDS,
 	TIMELINE_EVENTS,
+	VISITS,
 	STYLE_PERIOD_USAGE,
 	VALUE_DETAILS,
 	VALUE_USAGE,
@@ -54,7 +60,10 @@ const USAGE = `Usage: pnpm screenshot <path> [options]
   --wait <selector>  wait for this selector before capturing
   --type <text>      click the notes editor and type this text before capturing
   --script <file>    run this JavaScript file in the page before capturing, for example to mock a variant
+  --steps <file>     run the default export of this module with the Playwright page before capturing,
+                     for a flow across navigations (clicks, history.back())
   --repeat <n>       show every sample artwork n times, to have more to scroll through
+  --empty            show an atelier with no artworks, values, entries, events or visits
   --scroll           also record a GIF of scrolling the page from top to bottom (needs ffmpeg)
   --url <base>       use a running dev server instead of starting one
 `;
@@ -75,6 +84,7 @@ function parseArgs(argv) {
 		else if (arg === '--scroll') options.scroll = true;
 		else if (arg === '--full-page') options.fullPage = true;
 		else if (arg === '--signed-out') options.signedOut = true;
+		else if (arg === '--empty') options.empty = true;
 		else if (
 			[
 				'--out',
@@ -83,6 +93,7 @@ function parseArgs(argv) {
 				'--wait',
 				'--url',
 				'--script',
+				'--steps',
 				'--type',
 				'--repeat'
 			].includes(arg)
@@ -138,7 +149,7 @@ function filteredRows(url) {
 }
 
 function hasImage(row) {
-	return Boolean(row.source_image_file || row.own_image_path || row.own_image_url);
+	return row.artwork_images.some((image) => image.position === 0);
 }
 
 function reviewCounts(dayStartText) {
@@ -168,6 +179,10 @@ function inScope(row, kind, value) {
 	return true;
 }
 
+function rotated(modes, slot) {
+	return modes.slice(slot % modes.length).concat(modes.slice(0, slot % modes.length));
+}
+
 function quizFor(row, mode, pool) {
 	const others = pool.filter((other) => other.id !== row.id && other.title !== row.title);
 	if (mode === 'quiz_style') {
@@ -181,6 +196,21 @@ function quizFor(row, mode, pool) {
 			{ label: style, right: true },
 			...styles.slice(1, 3).map((label) => ({ label }))
 		];
+	}
+	if (mode === 'quiz_author') {
+		const authors = valuesOf(row, 'author');
+		const sets = [
+			...new Set(
+				others
+					.map((other) => valuesOf(other, 'author'))
+					.filter((set) => set.length > 0 && !set.some((name) => authors.includes(name)))
+					.map((set) => set.join(', '))
+			)
+		];
+		if (authors.length === 0 || sets.length < 3) return undefined;
+		const options = sets.slice(0, 3).map((label) => ({ label }));
+		options.splice(row.record_number % 4, 0, { label: authors.join(', '), right: true });
+		return options;
 	}
 	if (others.length < 3) return undefined;
 	const shares = (category, other) =>
@@ -200,6 +230,30 @@ function quizFor(row, mode, pool) {
 	}));
 	options.splice(row.record_number % 4, 0, { artwork_id: row.id, label: row.title, right: true });
 	return options;
+}
+
+function pinQuizFor(row) {
+	const images = row.artwork_images ?? [];
+	const pin = ARTWORK_PINS.find(
+		(candidate) =>
+			candidate.glossary_entry_id && images.some((image) => image.id === candidate.image_id)
+	);
+	if (!pin) return undefined;
+	const term = GLOSSARY_ENTRIES.find((entry) => entry.id === pin.glossary_entry_id);
+	const others = GLOSSARY_ENTRIES.filter((entry) => entry.id !== term.id).sort(
+		(a, b) => Number(b.category === term.category) - Number(a.category === term.category)
+	);
+	const image = images.find((candidate) => candidate.id === pin.image_id);
+	return {
+		artwork_id: row.id,
+		mode: 'quiz_pin',
+		options: [
+			{ label: others[0].name },
+			{ label: term.name, right: true },
+			...others.slice(1, 3).map((entry) => ({ label: entry.name }))
+		],
+		pin: { x: pin.x, y: pin.y, image }
+	};
 }
 
 function reviewSession({
@@ -227,17 +281,15 @@ function reviewSession({
 	);
 	return (freeRound === undefined ? [...due, ...fresh] : free).map((row, slot) => {
 		const card = cardOf(row);
+		const pinQuiz = form === 'flashcards' ? undefined : pinQuizFor(row);
+		if (pinQuiz) return pinQuiz;
 		const modes =
 			form === 'flashcards'
 				? []
 				: form === 'quizzes'
-					? ['quiz_title', 'quiz_image', 'quiz_style']
-							.slice(slot % 3)
-							.concat(['quiz_title', 'quiz_image'].slice(0, slot % 3))
+					? rotated(['quiz_title', 'quiz_image', 'quiz_author', 'quiz_style'], slot)
 					: !card || card.state !== 2
-						? slot % 2 === 0
-							? ['quiz_title', 'quiz_image']
-							: ['quiz_image', 'quiz_title']
+						? rotated(['quiz_title', 'quiz_image', 'quiz_author'], slot)
 						: [];
 		for (const mode of modes) {
 			const options = quizFor(row, mode, pool);
@@ -269,6 +321,40 @@ function notesMentions(needle) {
 	);
 }
 
+function pinsRoute(route, request, url) {
+	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
+	if (request.method() !== 'GET') return json(route, [ARTWORK_PINS[0]], 201);
+	const entry = url.searchParams.get('glossary_entry_id');
+	if (entry) {
+		return json(
+			route,
+			ARTWORK_PINS.filter((row) => `eq.${row.glossary_entry_id}` === entry).map((row) => ({
+				id: row.id,
+				artwork_images: {
+					artwork_id: ARTWORKS.find((artwork) =>
+						artwork.artwork_images.some((image) => image.id === row.image_id)
+					).id
+				}
+			}))
+		);
+	}
+	const recordNumber = url.searchParams.get('artwork_images.artworks.record_number');
+	if (recordNumber) {
+		const artwork = ARTWORKS.find((row) => `eq.${row.record_number}` === recordNumber);
+		const imageIds = artwork?.artwork_images.map((image) => image.id) ?? [];
+		return json(
+			route,
+			ARTWORK_PINS.filter((row) => imageIds.includes(row.image_id))
+		);
+	}
+	const filter = url.searchParams.get('image_id') ?? '';
+	const ids = filter.startsWith('in.(') ? filter.slice(4, -1).split(',') : [];
+	return json(
+		route,
+		ARTWORK_PINS.filter((row) => ids.includes(row.image_id))
+	);
+}
+
 function glossaryRoute(route, request, url) {
 	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
 	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
@@ -292,6 +378,31 @@ function glossaryRoute(route, request, url) {
 	);
 }
 
+function visitsRoute(route, request, url) {
+	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
+	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
+	const id = url.searchParams.get('id');
+	const placeId = url.searchParams.get('place_id');
+	const number = url.searchParams.get('visit_artworks.artworks.record_number');
+	const artworkId = number?.startsWith('eq.')
+		? `00000000-0000-4000-8000-${number.slice(3).padStart(12, '0')}`
+		: null;
+	const rows = VISITS.filter(
+		(row) =>
+			(!id?.startsWith('eq.') || row.id === id.slice(3)) &&
+			(!placeId?.startsWith('eq.') || row.place_id === placeId.slice(3)) &&
+			(!artworkId || row.visit_artworks.some((seen) => seen.artwork_id === artworkId))
+	);
+	if (!wantsObject) return json(route, rows);
+	return json(route, rows[0] ?? null);
+}
+
+function profileRoute(route, request) {
+	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
+	if (request.method() !== 'GET') return json(route, wantsObject ? PROFILE : [PROFILE], 201);
+	return json(route, wantsObject ? PROFILE : [PROFILE]);
+}
+
 async function mockSupabase(context) {
 	await context.route(`${SUPABASE_URL}/**`, async (route) => {
 		const request = route.request();
@@ -304,7 +415,56 @@ async function mockSupabase(context) {
 			return json(route, { ...fakeSession(), user: USER });
 		}
 		if (url.pathname.startsWith('/storage/v1/')) return json(route, []);
-		if (url.pathname === '/rest/v1/rpc/value_usage') return json(route, VALUE_USAGE);
+		if (url.pathname === '/rest/v1/rpc/value_usage') {
+			const codes = url.searchParams.get('category_code');
+			return json(
+				route,
+				codes
+					? OWN_VALUE_USAGE.filter((row) => codes.includes(row.category_code))
+					: [
+							...VALUE_USAGE.filter(
+								(row) => !OWN_FIELDS.some((field) => field.id === row.category_code)
+							),
+							...OWN_VALUE_USAGE
+						]
+			);
+		}
+		if (url.pathname === '/rest/v1/rpc/artwork_field_usage') return json(route, OWN_FIELD_USAGE);
+		if (url.pathname === '/rest/v1/rpc/used_category_values') {
+			const names = new Map(
+				[
+					...VALUE_USAGE.filter(
+						(row) => !OWN_FIELDS.some((field) => field.id === row.category_code)
+					),
+					...OWN_VALUE_USAGE,
+					...VISITS.map((visit) => ({
+						category_code: 'location',
+						name: visit.category_values.name
+					}))
+				].map((row) => [`${row.category_code}:${row.name}`, row])
+			);
+			return json(
+				route,
+				[...names.values()].map(({ category_code, name }) => ({ category_code, name }))
+			);
+		}
+		if (url.pathname === '/rest/v1/rpc/duplicate_candidates') {
+			const title = request.postDataJSON()?.title?.trim().toLowerCase();
+			return json(
+				route,
+				ARTWORKS.filter((row) => row.title.toLowerCase() === title).map((row) => ({
+					id: row.id,
+					record_number: row.record_number,
+					title: row.title,
+					authors: row.artwork_values
+						.filter(({ category_values: value }) => value.category_code === 'author')
+						.map(({ category_values: value }) => value.name)
+				}))
+			);
+		}
+		if (url.pathname === '/rest/v1/artwork_fields' && request.method() === 'GET') {
+			return json(route, OWN_FIELDS);
+		}
 		if (url.pathname === '/rest/v1/rpc/period_era_usage') return json(route, PERIOD_ERA_USAGE);
 		if (url.pathname === '/rest/v1/rpc/style_period_usage') return json(route, STYLE_PERIOD_USAGE);
 		if (url.pathname === '/rest/v1/rpc/review_counts') {
@@ -312,10 +472,17 @@ async function mockSupabase(context) {
 			const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
 			return json(route, wantsObject ? counts : [counts]);
 		}
+		if (url.pathname === '/rest/v1/rpc/storage_usage') {
+			const usage = { used_bytes: 9_122_611, quota_bytes: 209_715_200 };
+			const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
+			return json(route, wantsObject ? usage : [usage]);
+		}
 		if (url.pathname === '/rest/v1/rpc/review_session') {
 			return json(route, reviewSession(request.postDataJSON() ?? {}));
 		}
-		if (url.pathname === '/rest/v1/rpc/review_streak') return json(route, 5);
+		if (url.pathname === '/rest/v1/rpc/review_streak') {
+			return json(route, REVIEW_CARDS.length > 0 ? 5 : 0);
+		}
 		if (url.pathname === '/rest/v1/rpc/notes_mentions') {
 			return json(route, notesMentions(request.postDataJSON()?.needle));
 		}
@@ -323,11 +490,18 @@ async function mockSupabase(context) {
 			return route.fulfill({ status: 204, headers: corsHeaders() });
 		}
 		if (url.pathname === '/rest/v1/review_cards') return json(route, REVIEW_CARDS);
-		if (url.pathname === '/rest/v1/timeline_events') return json(route, TIMELINE_EVENTS);
+		if (url.pathname === '/rest/v1/timeline_events') {
+			if (request.method() === 'POST') return json(route, { id: TIMELINE_EVENTS[0].id }, 201);
+			if (request.method() === 'PATCH') return json(route, { id: TIMELINE_EVENTS[0].id });
+			return json(route, TIMELINE_EVENTS);
+		}
+		if (url.pathname === '/rest/v1/visits') return visitsRoute(route, request, url);
+		if (url.pathname === '/rest/v1/rpc/save_visit') return json(route, VISITS[0].id);
 		if (url.pathname === '/rest/v1/catalogue_museums') return json(route, CATALOGUE_MUSEUMS);
 		if (
 			url.pathname === '/rest/v1/location_details' &&
-			url.searchParams.get('country_code') === 'not.is.null'
+			url.searchParams.get('country_code') === 'not.is.null' &&
+			url.searchParams.get('select') !== 'value_id,country_code'
 		) {
 			const names = new Map(
 				ARTWORKS.flatMap((row) => row.artwork_values).map(({ category_values: value }) => [
@@ -345,6 +519,8 @@ async function mockSupabase(context) {
 					}))
 			);
 		}
+		if (url.pathname === '/rest/v1/artwork_pins') return pinsRoute(route, request, url);
+		if (url.pathname === '/rest/v1/profiles') return profileRoute(route, request);
 		if (url.pathname === '/rest/v1/glossary_entries') return glossaryRoute(route, request, url);
 		if (url.pathname.startsWith('/rest/v1/rpc/')) {
 			return json(route, { id: ARTWORKS[0].id, record_number: ARTWORKS[0].record_number });
@@ -366,6 +542,22 @@ async function mockSupabase(context) {
 			return json(route, values);
 		}
 		const detailsTable = url.pathname.replace('/rest/v1/', '');
+		if (url.searchParams.get('select') === 'value_id,sort_name,birth_year') {
+			return json(
+				route,
+				VALUE_DETAILS.author_details.map(({ value_id, sort_name, birth_year }) => ({
+					value_id,
+					sort_name: sort_name ?? null,
+					birth_year: birth_year ?? null
+				}))
+			);
+		}
+		if (url.searchParams.get('select') === 'value_id,country_code') {
+			return json(
+				route,
+				VALUE_DETAILS.location_details.filter((row) => row.country_code)
+			);
+		}
 		if (detailsTable in VALUE_DETAILS) {
 			const [column, filter] = [...url.searchParams].find(([key]) => key !== 'select') ?? [];
 			return json(
@@ -374,8 +566,12 @@ async function mockSupabase(context) {
 			);
 		}
 		if (url.pathname === '/rest/v1/artworks') {
+			const imagePosition = url.searchParams.get('artwork_images.position');
 			const rows = filteredRows(url).map((row) => ({
 				...row,
+				artwork_images: row.artwork_images.filter(
+					(image) => imagePosition === null || imagePosition === `eq.${image.position}`
+				),
 				artwork_values: row.artwork_values.map((link) => ({
 					...link,
 					category_values: {
@@ -592,6 +788,10 @@ async function capture(browser, base, options, name) {
 	await page.goto(new URL(options.route, base).href, { waitUntil: 'networkidle' });
 	if (options.wait) await page.waitForSelector(options.wait);
 	if (options.script) await page.evaluate(readFileSync(path.resolve(options.script), 'utf8'));
+	if (options.steps) {
+		const { default: steps } = await import(pathToFileURL(path.resolve(options.steps)).href);
+		await steps(page);
+	}
 	if (options.type) {
 		const editor = page.locator('.ProseMirror').first();
 		await editor.scrollIntoViewIfNeeded();
@@ -617,6 +817,27 @@ function repeatArtworks(times) {
 				record_number: row.record_number + copy * 1000
 			});
 		}
+	}
+}
+
+function emptyAtelier() {
+	for (const rows of [
+		ARTWORKS,
+		ARTWORK_PINS,
+		GLOSSARY_ENTRIES,
+		OWN_FIELD_USAGE,
+		OWN_FIELDS,
+		OWN_VALUE_USAGE,
+		PERIOD_ERA_USAGE,
+		REVIEW_CARDS,
+		STYLE_PERIOD_USAGE,
+		TIMELINE_EVENTS,
+		TRASHED,
+		VALUE_USAGE,
+		VISITS,
+		...Object.values(VALUE_DETAILS)
+	]) {
+		rows.length = 0;
 	}
 }
 
@@ -713,6 +934,7 @@ async function main() {
 	options.name ??= options.route.replace(/^\/+|\/+$/g, '').replace(/[^a-z0-9]+/gi, '-') || 'home';
 	mkdirSync(options.out, { recursive: true });
 	if (options.repeat) repeatArtworks(Number(options.repeat));
+	if (options.empty) emptyAtelier();
 
 	const names = options.viewport === 'both' ? ['desktop', 'phone'] : [options.viewport];
 	if (names.some((name) => !(name in VIEWPORTS))) throw new Error(USAGE);

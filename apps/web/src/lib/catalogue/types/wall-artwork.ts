@@ -1,0 +1,31 @@
+import type { ArtworkTileImage } from '@study-atelier/ui';
+import type { ArtworkTypeCode } from './artwork-type-code.ts';
+import type { EraCode } from './era-code.ts';
+import type { OwnEntries } from './own-entries.ts';
+import type { PendingImage } from './pending-image.ts';
+
+export type WallArtwork = {
+	id: string;
+	number: number;
+	title: string;
+	authors: string[];
+	authorSortNames?: (string | null)[];
+	date?: string;
+	yearFrom: number | null;
+	yearTo: number | null;
+	eraCode: EraCode | null;
+	typeCode: ArtworkTypeCode | null;
+	period: string | null;
+	styles: string[];
+	materials: string[];
+	location: string | null;
+	hasImage: boolean;
+	favourite: boolean;
+	seen?: boolean;
+	own?: OwnEntries;
+	image?: ArtworkTileImage;
+	imageUnavailable?: boolean;
+	pendingImage?: PendingImage;
+	ownImagePath?: string | null;
+	imageSignedAt?: number;
+};

@@ -10,5 +10,43 @@ export const variables = defineEnvVars({
 		public: true,
 		static: true,
 		description: 'Publishable (client) API key of the Supabase project'
+	},
+	LEGAL_COMPANY: {
+		public: true,
+		static: true,
+		schema: (value) => value || undefined,
+		description: 'Business name of the service provider, shown in the terms and the privacy policy'
+	},
+	LEGAL_ADDRESS: {
+		public: true,
+		static: true,
+		schema: (value) => value || undefined,
+		description:
+			'Business address of the service provider, shown in the terms and the privacy policy'
+	},
+	LEGAL_NIP: {
+		public: true,
+		static: true,
+		schema: (value) => value || undefined,
+		description:
+			'Tax number (NIP) of the service provider, shown in the terms and the privacy policy'
+	},
+	TURNSTILE_SITE_KEY: {
+		public: true,
+		static: true,
+		schema: (value) => value || undefined,
+		description: 'Cloudflare Turnstile site key; without it the auth forms show no captcha'
+	},
+	SENTRY_DSN: {
+		public: true,
+		static: true,
+		schema: (value) => value || undefined,
+		description: 'Sentry DSN of the web app; without it no error is sent'
+	},
+	SENTRY_ENVIRONMENT: {
+		public: true,
+		static: true,
+		schema: (value) => value || undefined,
+		description: 'Environment name the errors are sent with: develop or production'
 	}
 });

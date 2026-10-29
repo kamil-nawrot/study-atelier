@@ -50,16 +50,16 @@ Chosen: a fixed list of eras on top, a single period under it, and styles under 
 
 ### Migration of existing data
 
-| Current period value | Era | Okres |
-| --- | --- | --- |
-| prehistoria, with a second value such as paleolit or neolit | prehistoria | the second value |
-| starożytność | starożytność | empty |
-| średniowiecze | średniowiecze | empty |
-| renesans, barok, oświecenie | nowożytność | the value |
-| XIX wiek | nowoczesność | empty |
-| modernizm | nowoczesność | the value |
-| sztuka współczesna | współczesność | empty |
-| any other value | from the artwork's year, by the years above; none without a year | the value |
+| Current period value                                        | Era                                                              | Okres            |
+| ----------------------------------------------------------- | ---------------------------------------------------------------- | ---------------- |
+| prehistoria, with a second value such as paleolit or neolit | prehistoria                                                      | the second value |
+| starożytność                                                | starożytność                                                     | empty            |
+| średniowiecze                                               | średniowiecze                                                    | empty            |
+| renesans, barok, oświecenie                                 | nowożytność                                                      | the value        |
+| XIX wiek                                                    | nowoczesność                                                     | empty            |
+| modernizm                                                   | nowoczesność                                                     | the value        |
+| sztuka współczesna                                          | współczesność                                                    | empty            |
+| any other value                                             | from the artwork's year, by the years above; none without a year | the value        |
 
 Matching is case-insensitive. A value equal to an era name only sets the era. When an artwork has more than one period value, the first sets the era and the next one that is not an era name becomes the Okres. Every style of an artwork is linked to its Okres when it has one. An artwork with a style but no Okres keeps its style; in the edit form the locked Styl field shows it and lets the learner remove it.
 

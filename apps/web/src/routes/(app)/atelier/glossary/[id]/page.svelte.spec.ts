@@ -2,12 +2,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
-import { m } from '#lib/i18n/index.ts';
-import { deleteGlossaryEntry } from '#lib/glossary/glossary-data.ts';
-import type { Mention } from '#lib/collection/mentions.ts';
-import type { GlossaryEntry } from '#lib/glossary/types.ts';
-import { testSession } from '#lib/testing/auth.ts';
-import { testEntry, testGlossary } from '#lib/testing/glossary.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { deleteGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
+import type { Mention } from '#lib/notes/types/mention.ts';
+import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+import type { PinnedArtwork } from '#lib/glossary/types/pinned-artwork.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
+import { testSession } from '#lib/testing/auth/auth.ts';
+import { testEntry, testGlossary } from '#lib/testing/glossary/glossary.ts';
+import { setBackPlace } from '#lib/shared/navigation/back/back.svelte.ts';
 import GlossaryEntryPage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -16,10 +19,16 @@ const navigation = vi.hoisted(() => ({
 	data: {}
 }));
 
-vi.mock('$app/state', () => ({ page: navigation, navigating: { to: null } }));
-vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
-vi.mock('#lib/glossary/glossary-data.ts', () => ({ deleteGlossaryEntry: vi.fn() }));
-vi.mock('#lib/supabase.ts', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
+vi.mock('$app/state', () => ({
+	page: navigation,
+	navigating: { to: null },
+	updated: { current: false }
+}));
+vi.mock('$app/navigation', () => ({ afterNavigate: vi.fn(), goto: vi.fn() }));
+vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({ deleteGlossaryEntry: vi.fn() }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
+}));
 
 const tympanum = testGlossary()[0];
 
@@ -30,12 +39,18 @@ function renderEntry(
 		notFound?: boolean;
 		mentions?: Mention[];
 		glossary?: GlossaryEntry[];
+		pinned?: PinnedArtwork[];
+		pinnedError?: string;
 	} = {}
 ): void {
 	render(GlossaryEntryPage, {
 		data: { session: testSession(), entry: entry ?? undefined, ...failure },
 		params: { id: entry?.id ?? 'unknown' }
 	});
+}
+
+function cameFrom(name: string, path: string): void {
+	setBackPlace({ name, path });
 }
 
 describe('glossary entry page', () => {
@@ -121,9 +136,9 @@ describe('glossary entry page', () => {
 		renderEntry();
 
 		await expect
-			.element(page.getByRole('link', { name: m.glossary.view.edit }))
+			.element(page.getByRole('link', { name: m.common.edit }))
 			.toHaveAttribute('href', '/atelier/glossary/a-tympanum/edit');
-		await expect.element(page.getByRole('button', { name: m.glossary.view.delete })).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.common.delete })).toBeVisible();
 		await expect
 			.element(page.getByRole('main').getByRole('link', { name: m.glossary.back }))
 			.not.toBeInTheDocument();
@@ -132,14 +147,14 @@ describe('glossary entry page', () => {
 	it('asks before deleting and keeps the entry when the learner stays', async () => {
 		renderEntry();
 
-		await page.getByRole('button', { name: m.glossary.view.delete }).click();
+		await page.getByRole('button', { name: m.common.delete }).click();
 
 		await expect
 			.element(page.getByRole('alertdialog', { name: m.glossary.deleteConfirm.title('Tympanum') }))
 			.toBeVisible();
 		await expect.element(page.getByText(m.glossary.deleteConfirm.description)).toBeVisible();
 
-		await page.getByRole('button', { name: m.glossary.deleteConfirm.back }).click();
+		await page.getByRole('button', { name: m.common.back }).click();
 
 		expect(deleteGlossaryEntry).not.toHaveBeenCalled();
 		expect(goto).not.toHaveBeenCalled();
@@ -148,11 +163,8 @@ describe('glossary entry page', () => {
 	it('deletes the entry and returns to the list with a toast', async () => {
 		renderEntry();
 
-		await page.getByRole('button', { name: m.glossary.view.delete }).click();
-		await page
-			.getByRole('alertdialog')
-			.getByRole('button', { name: m.glossary.deleteConfirm.confirm })
-			.click();
+		await page.getByRole('button', { name: m.common.delete }).click();
+		await page.getByRole('alertdialog').getByRole('button', { name: m.common.delete }).click();
 
 		expect(deleteGlossaryEntry).toHaveBeenCalledWith('a-tympanum');
 		expect(goto).toHaveBeenCalledWith('/atelier/glossary', {
@@ -165,11 +177,8 @@ describe('glossary entry page', () => {
 		vi.mocked(deleteGlossaryEntry).mockResolvedValue({ error: m.common.unexpectedError });
 		renderEntry();
 
-		await page.getByRole('button', { name: m.glossary.view.delete }).click();
-		await page
-			.getByRole('alertdialog')
-			.getByRole('button', { name: m.glossary.deleteConfirm.confirm })
-			.click();
+		await page.getByRole('button', { name: m.common.delete }).click();
+		await page.getByRole('alertdialog').getByRole('button', { name: m.common.delete }).click();
 
 		await expect.element(page.getByText(m.common.unexpectedError)).toBeVisible();
 		expect(goto).not.toHaveBeenCalled();
@@ -191,14 +200,83 @@ describe('glossary entry page', () => {
 		renderEntry(null, { notFound: true });
 
 		await expect.element(page.getByText(m.glossary.view.notFound)).toBeVisible();
-		await expect
-			.element(page.getByRole('link', { name: m.glossary.view.edit }))
-			.not.toBeInTheDocument();
+		await expect.element(page.getByRole('link', { name: m.common.edit })).not.toBeInTheDocument();
 	});
 
 	it('shows a load error', async () => {
 		renderEntry(null, { error: m.common.unexpectedError });
 
 		await expect.element(page.getByText(m.common.unexpectedError)).toBeVisible();
+	});
+
+	it('goes back to the list through history when the entry was opened from it', async () => {
+		const go = vi.spyOn(history, 'go').mockImplementation(() => undefined);
+		cameFrom('Słowniczek', '/atelier/glossary');
+		renderEntry();
+
+		const link = page.getByRole('banner').getByRole('link', { name: 'Słowniczek' });
+		await expect.element(link).toBeVisible();
+		(link.element() as HTMLElement).click();
+
+		expect(go).toHaveBeenCalledWith(-1);
+		go.mockRestore();
+	});
+
+	it('names the arrow after the artwork the entry was opened from', async () => {
+		cameFrom('Straż nocna', '/atelier/7');
+		renderEntry();
+
+		await expect
+			.element(page.getByRole('banner').getByRole('link', { name: 'Straż nocna' }))
+			.toHaveAttribute('href', '/atelier/7');
+	});
+
+	it('links to the top of the glossary when the entry was opened from elsewhere', async () => {
+		const go = vi.spyOn(history, 'go').mockImplementation(() => undefined);
+		setBackPlace(undefined);
+		renderEntry();
+		let followed = false;
+		const stop = (event: Event): void => {
+			followed = !event.defaultPrevented;
+			event.preventDefault();
+		};
+		window.addEventListener('click', stop);
+
+		const link = document.querySelector('a.back') as HTMLAnchorElement;
+		expect(link.getAttribute('href')).toBe('/atelier/glossary');
+		link.click();
+
+		window.removeEventListener('click', stop);
+		expect(followed).toBe(true);
+		expect(go).not.toHaveBeenCalled();
+		go.mockRestore();
+	});
+
+	it('lists the artworks whose pins carry the entry and leads to the pin', async () => {
+		renderEntry(tympanum, {
+			pinned: [{ artwork: testArtwork(12, 'Saint-Trophime'), pinId: 'pin-7' }]
+		});
+
+		await expect
+			.element(page.getByRole('heading', { name: m.glossary.view.onArtworks }))
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: /Saint-Trophime/ }))
+			.toHaveAttribute('href', '/atelier/12?pin=pin-7');
+	});
+
+	it('leaves out the artworks without pins of the entry', async () => {
+		renderEntry(tympanum, { pinned: [] });
+
+		await expect.element(page.getByRole('heading', { level: 1 })).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { name: m.glossary.view.onArtworks }))
+			.not.toBeInTheDocument();
+	});
+
+	it('says when the pins of the entry could not be loaded', async () => {
+		renderEntry(tympanum, { pinned: [], pinnedError: m.common.network });
+
+		await expect.element(page.getByText(m.pins.loadFailed)).toBeVisible();
 	});
 });
