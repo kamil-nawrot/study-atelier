@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
@@ -66,6 +66,10 @@ function countsCall(data: unknown, error: unknown = null): void {
 describe('review data', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
 	});
 
 	it('loads the review cards by artwork', async () => {
@@ -148,7 +152,9 @@ describe('review data', () => {
 		expect(waitingToday({ due: 0, newAvailable: 19, newToday: 0, withImage: 19 })).toBe(0);
 	});
 
-	it('records a flashcard rating with the next state of the card', async () => {
+	it('records a flashcard rating with the next state of the card and the day of the answer', async () => {
+		vi.useFakeTimers({ toFake: ['Date'] });
+		vi.setSystemTime(new Date(2026, 9, 29, 14, 30));
 		rpc.mockResolvedValue({ error: null } as never);
 		await expect(
 			recordReview(card, { mode: 'flashcard', rating: 3, answerMs: 2500.4 })
@@ -166,7 +172,9 @@ describe('review data', () => {
 				learning_steps: 0,
 				last_review: '2026-10-13T08:00:00.000Z'
 			},
-			answer: { mode: 'flashcard', rating: 3, correct: null, answer_ms: 2500 }
+			answer: { mode: 'flashcard', rating: 3, correct: null, answer_ms: 2500 },
+			day_start: new Date(2026, 9, 29).toISOString(),
+			time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone
 		});
 	});
 

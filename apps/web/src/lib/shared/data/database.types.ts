@@ -805,6 +805,40 @@ export type Database = {
           },
         ];
       };
+      point_events: {
+        Row: {
+          day_start: string | null;
+          id: number;
+          item_id: string | null;
+          kind: string;
+          occurred_at: string;
+          owner_id: string;
+          plan_share: number | null;
+          streak_days: number | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          day_start?: string | null;
+          id?: never;
+          item_id?: string | null;
+          kind: string;
+          occurred_at?: string;
+          owner_id?: string;
+          plan_share?: number | null;
+          streak_days?: number | null;
+        };
+        Update: {
+          day_start?: string | null;
+          id?: never;
+          item_id?: string | null;
+          kind?: string;
+          occurred_at?: string;
+          owner_id?: string;
+          plan_share?: number | null;
+          streak_days?: number | null;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           avatar_path: string | null;
@@ -1207,6 +1241,7 @@ export type Database = {
       };
       import_atelier: { Args: { payload: Json }; Returns: Json };
       keep_alive: { Args: Record<PropertyKey, never>; Returns: string };
+      learner_points: { Args: Record<PropertyKey, never>; Returns: number };
       merge_category_values: {
         Args: { kept_id: string; merged_id: string };
         Returns: undefined;
@@ -1234,7 +1269,13 @@ export type Database = {
         }[];
       };
       record_review: {
-        Args: { answer: Json; card: Json; target_artwork: string };
+        Args: {
+          answer: Json;
+          card: Json;
+          day_start?: string;
+          target_artwork: string;
+          time_zone?: string;
+        };
         Returns: undefined;
       };
       review_counts: {

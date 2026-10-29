@@ -8,7 +8,7 @@ import { rowLimitMessage } from '#lib/shared/data/errors/errors.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import type { ReviewScope } from '#lib/review/types/review-scope.ts';
-import { MIN_ARTWORKS, newAllowance } from '#lib/review/queue/queue.ts';
+import { MIN_ARTWORKS, newAllowance, startOfDay } from '#lib/review/queue/queue.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewCounts } from '#lib/review/types/review-counts.ts';
 import type { ReviewForm } from '#lib/review/types/review-form.ts';
@@ -166,7 +166,9 @@ export async function recordReview(
 			rating: answer.rating,
 			correct: answer.mode === 'flashcard' ? null : (answer.correct ?? false),
 			answer_ms: answer.answerMs === undefined ? null : Math.round(answer.answerMs)
-		}
+		},
+		day_start: startOfDay(new Date()).toISOString(),
+		time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone
 	});
 	return error
 		? {

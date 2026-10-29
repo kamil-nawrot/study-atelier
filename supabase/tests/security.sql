@@ -102,7 +102,7 @@ declare
     'save_value_details', 'record_review', 'review_counts', 'review_streak', 'notes_mentions', 'review_session',
     'unused_images', 'move_artwork_field', 'artwork_field_usage', 'save_artwork', 'import_atelier', 'save_visit',
     'storage_usage', 'delete_account', 'storage_has_room', 'deleted_account_images', 'search_key',
-    'duplicate_candidates', 'used_category_values'
+    'duplicate_candidates', 'used_category_values', 'learner_points'
   ];
   table_name text;
   routine record;
@@ -348,6 +348,7 @@ begin
   assert (select due + new_available + new_today + with_image from public.review_counts('2026-10-16T00:00:00Z')) = 0,
     'B counts reviews of A';
   assert public.review_streak('2026-10-16T00:00:00Z', 'UTC') = 0, 'B counts the review streak of A';
+  assert public.learner_points() = 0, 'B counts the points of A';
   assert public.review_session('2026-10-16T00:00:00Z') = '[]'::jsonb, 'B builds a session of A';
   assert public.review_session('2026-10-16T00:00:00Z', 'mixed', 'all', null, 0) = '[]'::jsonb,
     'B builds a free session of A';
@@ -889,6 +890,7 @@ begin
   assert security_test.denied('select public.review_counts(now())'), 'anon executes review_counts';
   assert security_test.denied('select public.review_session(now())'), 'anon executes review_session';
   assert security_test.denied('select public.review_streak(now(), ''UTC'')'), 'anon executes review_streak';
+  assert security_test.denied('select public.learner_points()'), 'anon executes learner_points';
   assert security_test.denied('select public.save_era_details(''antiquity'', ''{}'')'),
     'anon executes save_era_details';
   assert (select public.keep_alive()) is not null, 'anon cannot execute keep_alive';
