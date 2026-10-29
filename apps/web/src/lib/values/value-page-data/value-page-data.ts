@@ -45,13 +45,13 @@ async function loadPageExtras(
 	subject: ValueSubject,
 	index: CardIndexData,
 	withArtworks: boolean
-): Promise<{ mentions?: Mention[]; visits?: Visit[]; error?: string }> {
+): Promise<{ mentions?: Mention[]; visits?: Visit[] }> {
 	if (!withArtworks) return {};
 	const [mentions, places] = await Promise.all([
 		loadMentions(subjectPath(subject), index),
 		subject.kind === 'location' ? loadPlaceVisits(subject.record.id) : Promise.resolve(undefined)
 	]);
-	return { mentions, visits: places?.visits, error: places?.error };
+	return { mentions, visits: places?.error ? undefined : places?.visits };
 }
 
 export async function loadValuePage(
@@ -76,8 +76,7 @@ export async function loadValuePage(
 		loadValueDetails(subject),
 		loadPageExtras(subject, cardIndex.index, withArtworks)
 	]);
-	const detailsError = error ?? extras.error;
-	if (detailsError) return failed(detailsError);
+	if (error) return failed(error);
 
 	const glossary = withArtworks && details.notes ? (await loadGlossary()).entries : undefined;
 	const noteLinks =

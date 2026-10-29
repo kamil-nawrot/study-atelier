@@ -54,6 +54,15 @@ describe('LetterIndex', () => {
 		expect(scroll).toHaveBeenCalledWith(expect.objectContaining({ block: 'start' }));
 	});
 
+	it('moves the focus to the heading of a chosen letter', async () => {
+		list = sections('A', 'B', 'C');
+		render(LetterIndex, { letters: ['A', 'B', 'C'] });
+
+		await page.getByRole('button', { name: 'C' }).click();
+
+		expect(document.activeElement?.id).toBe('letter-C');
+	});
+
 	it('marks the letter whose section reached the top while scrolling', async () => {
 		list = sections('A', 'B', 'C');
 		render(LetterIndex, { letters: ['A', 'B', 'C'] });

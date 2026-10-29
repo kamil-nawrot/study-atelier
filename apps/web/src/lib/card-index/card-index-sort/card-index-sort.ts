@@ -58,11 +58,13 @@ function missingLast<T>(
 	return compare(a, b);
 }
 
+const COLLATOR = new Intl.Collator(locale);
+
 const COMPARE: Record<CardIndexSort, (a: SortableRecord, b: SortableRecord) => number> = {
 	name: () => 0,
 	count: (a, b) => (b.count ?? 0) - (a.count ?? 0),
 	life: (a, b) => missingLast(a.birthYear, b.birthYear, (x, y) => x - y),
-	country: (a, b) => missingLast(a.country, b.country, (x, y) => x.localeCompare(y, locale)),
+	country: (a, b) => missingLast(a.country, b.country, COLLATOR.compare),
 	date: (a, b) => missingLast(a.year, b.year, (x, y) => x - y)
 };
 

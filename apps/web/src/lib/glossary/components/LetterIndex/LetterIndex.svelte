@@ -46,6 +46,9 @@
 		current = letter;
 		const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		section(letter)?.scrollIntoView({ block: 'start', behavior: smooth ? 'smooth' : 'instant' });
+		const heading = document.getElementById(`letter-${letter}`);
+		heading?.setAttribute('tabindex', '-1');
+		heading?.focus({ preventScroll: true });
 	}
 
 	$effect(() => {

@@ -66,12 +66,13 @@ describe('loadValuePage', () => {
 		expect(style.visits).toBeUndefined();
 	});
 
-	it('shows an error when the visits of a place cannot be loaded', async () => {
+	it('shows the place without its visits when they cannot be loaded', async () => {
 		vi.mocked(loadPlaceVisits).mockResolvedValue({ visits: [], error: 'Brak sieci.' });
 
 		const result = await loadValuePage('location', 'location-athens', true);
 
-		expect(result.error).toBe('Brak sieci.');
+		expect(result.error).toBeUndefined();
+		expect(result.visits).toBeUndefined();
 	});
 
 	it('does not load the collection for the form', async () => {

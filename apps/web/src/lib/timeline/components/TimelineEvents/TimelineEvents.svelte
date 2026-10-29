@@ -5,7 +5,8 @@
 	import { layEvents } from '#lib/timeline/event-lanes/event-lanes.ts';
 	import type { LaidEvent } from '#lib/timeline/types/laid-event.ts';
 	import { cutLabel } from '#lib/timeline/labels/labels.ts';
-	import { NAME_MAX_WIDTH } from '#lib/timeline/label-width/label-width.ts';
+	import { NAME_MAX_WIDTH } from '#lib/timeline/label-width/label-width.svelte.ts';
+	import { nameTooltipAlign } from '#lib/timeline/name-tooltip/name-tooltip.ts';
 	import { boxStyle } from '#lib/timeline/stage/stage.ts';
 	import type { StageGeometry } from '#lib/timeline/types/stage-geometry.ts';
 	import type { Era } from '#lib/timeline/types/era.ts';
@@ -77,7 +78,11 @@
 	}
 
 	function align(shown: (typeof visible)[number]): 'start' | 'end' {
-		return !vertical && shown.from > geometry.length / 2 ? 'end' : 'start';
+		return nameTooltipAlign(
+			{ from: shown.from, to: shown.to, inside: shown.item.inside },
+			geometry.length,
+			vertical
+		);
 	}
 </script>
 

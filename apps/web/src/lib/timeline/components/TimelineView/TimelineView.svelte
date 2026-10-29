@@ -46,7 +46,10 @@
 		tagLane,
 		timelineTags
 	} from '#lib/timeline/filter/filter.ts';
-	import { labelCut, labelWidth as measureLabel } from '#lib/timeline/label-width/label-width.ts';
+	import {
+		labelCut,
+		labelWidth as measureLabel
+	} from '#lib/timeline/label-width/label-width.svelte.ts';
 	import EraStrip from '#lib/timeline/components/EraStrip/EraStrip.svelte';
 	import EventCard from '#lib/timeline/components/EventCard/EventCard.svelte';
 	import EventDeleteDialog from '#lib/timeline/components/EventDeleteDialog/EventDeleteDialog.svelte';

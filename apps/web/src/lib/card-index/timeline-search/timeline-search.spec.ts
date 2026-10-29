@@ -53,6 +53,13 @@ describe('narrowTimeline', () => {
 		expect(names(result)).toEqual(['Gotyk', 'Gotyk płomienisty', 'Płomienisty bez okresu']);
 	});
 
+	it('keeps a whole era whose name matches', () => {
+		const result = narrowTimeline(timeline, 'średnio', 'name');
+
+		expect(result.eras.map((era) => era.code)).toEqual(['middle_ages']);
+		expect(names(result)).toEqual(['Gotyk', 'Gotyk płomienisty', 'Gotyk promienisty', 'Romanizm']);
+	});
+
 	it('keeps all styles of a matching period', () => {
 		expect(names(narrowTimeline(timeline, 'romanizm', 'name'))).toEqual(['Romanizm']);
 		expect(names(narrowTimeline(timeline, 'gotyk', 'name'))).toEqual([

@@ -50,16 +50,18 @@
 	{/snippet}
 
 	{#if subject}
-		<ValueForm
-			bind:this={form}
-			cancelHref={cardIndexPath}
-			details={data.details}
-			index={data.index}
-			noteLinks={data.noteLinks}
-			oncancel={goBack}
-			onsaved={showSaved}
-			{subject}
-		/>
+		{#key subject.kind}
+			<ValueForm
+				bind:this={form}
+				cancelHref={cardIndexPath}
+				details={data.details}
+				index={data.index}
+				noteLinks={data.noteLinks}
+				oncancel={goBack}
+				onsaved={showSaved}
+				{subject}
+			/>
+		{/key}
 	{:else}
 		<LoadFailure
 			backHref={cardIndexPath}

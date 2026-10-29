@@ -3,8 +3,19 @@ export const NAME_MAX_WIDTH = 200;
 const LABEL_FONT = 14;
 const FALLBACK_CHAR = 8;
 
-const widths = new Map<string, number>();
+let widths: Record<string, number> = {};
 let measure: CanvasRenderingContext2D | null | undefined;
+let fontsLoaded = $state(0);
+
+export function measureAgainWhenFontsLoad(fonts: FontFaceSet | undefined): void {
+	void fonts?.ready.then(() => {
+		widths = {};
+		measure = undefined;
+		fontsLoaded += 1;
+	});
+}
+
+if (typeof document !== 'undefined') measureAgainWhenFontsLoad(document.fonts);
 
 function context(): CanvasRenderingContext2D | null {
 	if (measure === undefined) {
@@ -15,11 +26,12 @@ function context(): CanvasRenderingContext2D | null {
 }
 
 function measured(name: string): number {
-	const known = widths.get(name);
+	void fontsLoaded;
+	const known = widths[name];
 	if (known !== undefined) return known;
 	const canvas = context();
 	const width = canvas ? canvas.measureText(name).width + LABEL_FONT : name.length * FALLBACK_CHAR;
-	widths.set(name, width);
+	widths[name] = width;
 	return width;
 }
 
