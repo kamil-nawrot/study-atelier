@@ -7,7 +7,7 @@
    3. **Użytkowniku** – należy przez to rozumieć osobę fizyczną, która założyła Konto;
    4. **Osobie** – należy przez to rozumieć Użytkownika, osobę kontaktującą się z Administratorem, osobę zgłaszającą treść bezprawną oraz osobę odwiedzającą Aplikację;
    5. **Koncie** – należy przez to rozumieć indywidualne konto Użytkownika w Aplikacji;
-   6. **Atelier** – należy przez to rozumieć treści zapisane przez Użytkownika w Aplikacji, w szczególności opisy dzieł, notatki, zdjęcia, pojęcia, wydarzenia, wizyty i historię powtórek;
+   6. **Atelier** – należy przez to rozumieć treści zapisane przez Użytkownika w Aplikacji, w szczególności opisy dzieł, notatki, zdjęcia, pojęcia, wydarzenia, wizyty i historię powtórek oraz wyliczane na ich podstawie punkty, stopnie i osiągnięcia;
    7. **Regulaminie** – należy przez to rozumieć Regulamin świadczenia usług drogą elektroniczną Study Atelier.
 
 ### § 2. Administrator danych
