@@ -183,7 +183,7 @@ begin
       or routine.proname = 'keep_alive',
       format('anon can execute %s', routine.signature);
     assert not routine.prosecdef
-      or routine.proname in ('import_atelier', 'delete_account', 'storage_has_room')
+      or routine.proname in ('import_atelier', 'delete_account', 'storage_has_room', 'unlock_exhibits')
       or not has_function_privilege('authenticated', routine.signature, 'execute'),
       format('authenticated can execute the security definer function %s', routine.signature);
   end loop;
