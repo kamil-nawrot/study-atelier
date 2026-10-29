@@ -26,6 +26,7 @@ function details(authors: unknown[] = [], places: unknown[] = [], error: unknown
 			select: vi.fn(),
 			not: vi.fn(),
 			or: vi.fn(),
+			order: vi.fn(),
 			range: vi
 				.fn()
 				.mockResolvedValue({ data: table === 'author_details' ? authors : places, error })
@@ -33,6 +34,7 @@ function details(authors: unknown[] = [], places: unknown[] = [], error: unknown
 		query.select.mockReturnValue(query);
 		query.not.mockReturnValue(query);
 		query.or.mockReturnValue(query);
+		query.order.mockReturnValue(query);
 		return query;
 	}) as never);
 }

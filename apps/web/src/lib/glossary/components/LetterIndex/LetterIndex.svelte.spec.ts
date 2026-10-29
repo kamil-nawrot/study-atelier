@@ -65,4 +65,37 @@ describe('LetterIndex', () => {
 			.element(page.getByRole('button', { name: 'B' }))
 			.toHaveAttribute('aria-current', 'true');
 	});
+
+	it('marks the last letter when the page cannot scroll any further', async () => {
+		list = sections('A', 'B', 'C');
+		(list.children[1] as HTMLElement).style.height = '40px';
+		(list.children[2] as HTMLElement).style.height = '40px';
+		render(LetterIndex, { letters: ['A', 'B', 'C'] });
+
+		window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' });
+		window.dispatchEvent(new Event('scroll'));
+
+		await expect
+			.element(page.getByRole('button', { name: 'C' }))
+			.toHaveAttribute('aria-current', 'true');
+	});
+
+	it('marks the chosen letter until the learner scrolls on their own', async () => {
+		list = sections('A', 'B', 'C');
+		(list.children[2] as HTMLElement).style.height = '40px';
+		render(LetterIndex, { letters: ['A', 'B', 'C'] });
+
+		await page.getByRole('button', { name: 'B' }).click();
+		window.dispatchEvent(new Event('scroll'));
+		await expect
+			.element(page.getByRole('button', { name: 'B' }))
+			.toHaveAttribute('aria-current', 'true');
+
+		window.dispatchEvent(new WheelEvent('wheel'));
+		window.scrollTo({ top: 0, behavior: 'instant' });
+		window.dispatchEvent(new Event('scroll'));
+		await expect
+			.element(page.getByRole('button', { name: 'A' }))
+			.toHaveAttribute('aria-current', 'true');
+	});
 });

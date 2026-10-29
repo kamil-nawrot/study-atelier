@@ -71,19 +71,19 @@
 		return geometry.eventsFrom + item.lane * geometry.lane;
 	}
 
-	function placement(item: LaidEvent): 'top' | 'bottom' | 'left' {
-		if (vertical) return 'left';
-		return item.lane === 0 ? 'bottom' : 'top';
+	function placement(shown: (typeof visible)[number]): 'top' | 'bottom' {
+		if (vertical) return shown.from > geometry.length / 2 ? 'top' : 'bottom';
+		return shown.item.lane === 0 ? 'bottom' : 'top';
+	}
+
+	function align(shown: (typeof visible)[number]): 'start' | 'end' {
+		return !vertical && shown.from > geometry.length / 2 ? 'end' : 'start';
 	}
 </script>
 
 {#snippet name(shown: (typeof visible)[number])}
 	{#if nameCut(shown.item.event)}
-		<Tooltip
-			align={shown.from > geometry.length / 2 ? 'end' : 'start'}
-			placement={placement(shown.item)}
-			text={shown.item.event.name}
-		>
+		<Tooltip align={align(shown)} placement={placement(shown)} text={shown.item.event.name}>
 			<span style:max-inline-size="{NAME_MAX_WIDTH}px" class="name" aria-hidden="true"
 				>{label(shown.item)}</span
 			>

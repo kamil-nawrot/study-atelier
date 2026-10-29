@@ -64,6 +64,7 @@
 		untrack(() => initialValueForm(record, index, details));
 
 	let form = $state<ValueFormFields>(initialForm());
+	let created = $state<ValueSubject>();
 	let nameError = $state<string>();
 	let authorErrors = $state<AuthorFieldErrors>({});
 	let moveTo = $state('');
@@ -159,7 +160,7 @@
 		return formState.run(async () => {
 			const snapshot = $state.snapshot(form);
 			const result = await saveValueForm({
-				subject,
+				subject: created ?? subject,
 				form: snapshot,
 				saved: formState.saved,
 				details,
@@ -170,6 +171,7 @@
 			});
 			mergeOpen = false;
 			if (result.error !== undefined) {
+				created = result.created ?? created;
 				formState.error = result.error;
 				return;
 			}

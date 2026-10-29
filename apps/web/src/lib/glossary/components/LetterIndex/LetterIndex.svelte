@@ -11,23 +11,39 @@
 
 	let nav = $state<HTMLElement>();
 	let current = $state<string>();
+	let chosen: string | undefined;
 
 	function section(letter: string): HTMLElement | null {
 		return document.getElementById(`letter-${letter}`)?.parentElement ?? null;
 	}
 
+	function atBottom(): boolean {
+		const page = document.documentElement;
+		return window.scrollY > 0 && window.scrollY + window.innerHeight >= page.scrollHeight - 1;
+	}
+
 	function follow(): void {
 		if (!nav) return;
+		if (chosen !== undefined && letters.includes(chosen)) {
+			current = chosen;
+			return;
+		}
 		const line = (parseFloat(getComputedStyle(nav).getPropertyValue('--bar-height')) || 0) + REACH;
 		let reached = letters[0];
 		for (const letter of letters) {
 			const top = section(letter)?.getBoundingClientRect().top;
 			if (top !== undefined && top <= line) reached = letter;
 		}
-		current = reached;
+		current = atBottom() ? letters.at(-1) : reached;
+	}
+
+	function release(): void {
+		chosen = undefined;
 	}
 
 	function jump(letter: string): void {
+		chosen = letter;
+		current = letter;
 		const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		section(letter)?.scrollIntoView({ block: 'start', behavior: smooth ? 'smooth' : 'instant' });
 	}
@@ -39,7 +55,13 @@
 	});
 </script>
 
-<svelte:window onresize={follow} onscroll={follow} />
+<svelte:window
+	onkeydown={release}
+	onresize={follow}
+	onscroll={follow}
+	ontouchstart={release}
+	onwheel={release}
+/>
 
 <nav bind:this={nav} class="index" aria-label={m.glossary.letters}>
 	<ol>

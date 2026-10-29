@@ -251,6 +251,16 @@ describe('card index page', () => {
 		await expect.element(page.getByRole('button', { name: m.ownFields.add })).toBeVisible();
 	});
 
+	it('offers to add a value to a list field, also to one without values', async () => {
+		const [lecture, motifs] = testOwnFields();
+		renderValues(testCardIndex(), undefined, [{ ...lecture, values: [] }, motifs]);
+
+		await page.getByRole('tab', { name: m.cardIndex.tabs.own }).click();
+
+		await expect.element(page.getByText(m.ownFields.noValues)).toBeVisible();
+		expect(page.getByRole('button', { name: m.ownFields.addValue }).elements()).toHaveLength(2);
+	});
+
 	it('keeps the other tabs and says so in its tab when the own fields could not be loaded', async () => {
 		render(ValuesPage, {
 			data: {

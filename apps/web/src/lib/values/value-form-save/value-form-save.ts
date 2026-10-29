@@ -23,7 +23,8 @@ type ValueFormSave = {
 };
 
 type ValueFormSaveResult =
-	{ error: string } | { error?: undefined; path: ResolvedPathname; message: string };
+	| { error: string; created?: ValueSubject }
+	| { error?: undefined; path: ResolvedPathname; message: string };
 
 async function created(subject: ValueSubject, name: string): Promise<ValueSubject | string> {
 	if (subject.kind === 'era' || subject.record.id !== '') return subject;
@@ -37,11 +38,13 @@ export async function saveValueForm(input: ValueFormSave): Promise<ValueFormSave
 	const creating = input.subject.kind !== 'era' && input.subject.record.id === '';
 	const subject = await created(input.subject, input.name);
 	if (typeof subject === 'string') return { error: subject };
+	const fail = (error: string): ValueFormSaveResult =>
+		creating ? { error, created: subject } : { error };
 
 	const details = valueFormDetails(form);
 	if (!mergeTarget && valueDetailsChanged(details, valueFormDetails(input.saved))) {
 		const result = await saveValueDetails(subject, details, input.details);
-		if (result.error) return { error: result.error };
+		if (result.error) return fail(result.error);
 	}
 
 	if (subject.kind !== 'era') {
@@ -54,7 +57,7 @@ export async function saveValueForm(input: ValueFormSave): Promise<ValueFormSave
 			periodIds: record.category === 'style' && input.linksChanged ? form.periodIds : undefined,
 			mergeInto: mergeTarget
 		});
-		if (result.error) return { error: result.error };
+		if (result.error) return fail(result.error);
 		if (mergeTarget) {
 			return {
 				path: valuePath(record.category, mergeTarget.id),

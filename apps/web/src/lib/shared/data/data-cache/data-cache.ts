@@ -11,10 +11,16 @@ export function cached<T extends { error?: unknown }>(
 ): Promise<T> {
 	const kept = entries.get(key);
 	if (kept) return kept as Promise<T>;
-	const loading = load().then((result) => {
-		if (result.error !== undefined && entries.get(key) === loading) entries.delete(key);
-		return result;
-	});
+	const loading = load().then(
+		(result) => {
+			if (result.error !== undefined && entries.get(key) === loading) entries.delete(key);
+			return result;
+		},
+		(error: unknown) => {
+			if (entries.get(key) === loading) entries.delete(key);
+			throw error;
+		}
+	);
 	entries.set(key, loading);
 	return loading;
 }
@@ -26,8 +32,9 @@ export function forgetCached(): void {
 
 export function cacheForLearner(id: string | undefined): void {
 	if (id === learner) return;
+	const switched = learner !== undefined;
 	learner = id;
-	entries.clear();
+	if (switched) entries.clear();
 }
 
 export function watchCache(now: () => number = Date.now): () => void {

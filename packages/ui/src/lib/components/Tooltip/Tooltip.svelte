@@ -44,6 +44,7 @@
 		color: var(--color-fg);
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
+		white-space: normal;
 		visibility: hidden;
 		pointer-events: none;
 	}

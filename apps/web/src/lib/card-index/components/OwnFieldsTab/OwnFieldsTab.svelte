@@ -195,31 +195,38 @@
 						</div>
 					</PopupButton>
 				</header>
-				{#if field.kind === 'list' && field.values.length === 0}
-					<p class="lead">{m.ownFields.noValues}</p>
-				{:else if field.kind === 'list'}
-					<Disclosure count={field.values.length} level={3} open={false} title={m.ownFields.values}>
-						<div class="add-value">
-							<Button
-								onclick={() => {
-									valueField = field;
-									newValueOpen = true;
-								}}
-							>
-								<Icon icon={Plus} />
-								{m.ownFields.addValue}
-							</Button>
-						</div>
-						<CardIndexList
-							empty={m.ownFields.noValues}
-							onchoose={(id) => chooseValue(field, id)}
-							records={field.values}
-							searchLabel={m.ownFields.search(field.name)}
-							sorts={sortsOf('own')}
-							bind:sort={() => sort, (value) => rememberSort('own', (sort = value))}
-							bind:query={() => queries[field.id] ?? '', (query) => (queries[field.id] = query)}
-						/>
-					</Disclosure>
+				{#if field.kind === 'list'}
+					<div class="add-value">
+						<Button
+							onclick={() => {
+								valueField = field;
+								newValueOpen = true;
+							}}
+						>
+							<Icon icon={Plus} />
+							{m.ownFields.addValue}
+						</Button>
+					</div>
+					{#if field.values.length === 0}
+						<p class="lead">{m.ownFields.noValues}</p>
+					{:else}
+						<Disclosure
+							count={field.values.length}
+							level={3}
+							open={false}
+							title={m.ownFields.values}
+						>
+							<CardIndexList
+								empty={m.ownFields.noValues}
+								onchoose={(id) => chooseValue(field, id)}
+								records={field.values}
+								searchLabel={m.ownFields.search(field.name)}
+								sorts={sortsOf('own')}
+								bind:sort={() => sort, (value) => rememberSort('own', (sort = value))}
+								bind:query={() => queries[field.id] ?? '', (query) => (queries[field.id] = query)}
+							/>
+						</Disclosure>
+					{/if}
 				{/if}
 			</section>
 		{/each}

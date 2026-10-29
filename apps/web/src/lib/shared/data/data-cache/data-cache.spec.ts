@@ -41,6 +41,16 @@ describe('cached', () => {
 		await expect(cached('atelier', load)).resolves.toEqual({ rows: [1] });
 	});
 
+	it('keeps no load that threw', async () => {
+		const load = vi
+			.fn()
+			.mockRejectedValueOnce(new Error('boom'))
+			.mockResolvedValueOnce({ rows: [1] });
+
+		await expect(cached('atelier', load)).rejects.toThrow('boom');
+		await expect(cached('atelier', load)).resolves.toEqual({ rows: [1] });
+	});
+
 	it('loads again after a write', async () => {
 		const load = vi.fn().mockResolvedValue({ rows: [] });
 
@@ -49,6 +59,18 @@ describe('cached', () => {
 		await cached('atelier', load);
 
 		expect(load).toHaveBeenCalledTimes(2);
+	});
+
+	it('keeps what was loaded before the first learner is known', async () => {
+		cacheForLearner(undefined);
+		forgetCached();
+		const load = vi.fn().mockResolvedValue({ rows: [] });
+
+		await cached('atelier', load);
+		cacheForLearner('learner-a');
+		await cached('atelier', load);
+
+		expect(load).toHaveBeenCalledTimes(1);
 	});
 
 	it('loads again for another learner, not for the same one', async () => {
