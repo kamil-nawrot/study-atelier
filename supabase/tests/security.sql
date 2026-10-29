@@ -102,7 +102,7 @@ declare
     'save_value_details', 'record_review', 'review_counts', 'review_streak', 'notes_mentions', 'review_session',
     'unused_images', 'move_artwork_field', 'artwork_field_usage', 'save_artwork', 'import_atelier', 'save_visit',
     'storage_usage', 'delete_account', 'storage_has_room', 'deleted_account_images', 'search_key',
-    'duplicate_candidates', 'used_category_values', 'learner_points'
+    'duplicate_candidates', 'used_category_values', 'learner_points', 'unlock_exhibits', 'record_free_answers'
   ];
   table_name text;
   routine record;
@@ -228,6 +228,9 @@ select public.record_review(
   '{"mode": "quiz_title", "rating": 2, "correct": true, "answer_ms": 4200}'
 );
 
+select public.record_free_answers('2026-10-16T00:00:00Z', 20);
+select count(*) from public.unlock_exhibits('UTC');
+
 insert into public.artwork_fields (name, kind) values ('Lecture', 'list'), ('Source', 'text');
 insert into public.category_values (category_code, name)
   select id::text, 'Baroque class' from public.artwork_fields where name = 'Lecture';
@@ -349,6 +352,8 @@ begin
     'B counts reviews of A';
   assert public.review_streak('2026-10-16T00:00:00Z', 'UTC') = 0, 'B counts the review streak of A';
   assert public.learner_points() = 0, 'B counts the points of A';
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'collection') = 0,
+    'B counts the exhibits of A';
   assert public.review_session('2026-10-16T00:00:00Z') = '[]'::jsonb, 'B builds a session of A';
   assert public.review_session('2026-10-16T00:00:00Z', 'mixed', 'all', null, 0) = '[]'::jsonb,
     'B builds a free session of A';
@@ -891,6 +896,8 @@ begin
   assert security_test.denied('select public.review_session(now())'), 'anon executes review_session';
   assert security_test.denied('select public.review_streak(now(), ''UTC'')'), 'anon executes review_streak';
   assert security_test.denied('select public.learner_points()'), 'anon executes learner_points';
+  assert security_test.denied('select public.unlock_exhibits(''UTC'')'), 'anon executes unlock_exhibits';
+  assert security_test.denied('select public.record_free_answers(now(), 1)'), 'anon executes record_free_answers';
   assert security_test.denied('select public.save_era_details(''antiquity'', ''{}'')'),
     'anon executes save_era_details';
   assert (select public.keep_alive()) is not null, 'anon cannot execute keep_alive';

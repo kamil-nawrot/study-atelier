@@ -21,6 +21,7 @@ import { quizArtworks, sessionItems } from '#lib/review/quiz/quiz.ts';
 import {
 	loadReviewDetails,
 	loadSession,
+	recordFreeAnswers,
 	REVIEW_COUNTS_DEPENDENCY,
 	withPinPreviews
 } from '#lib/review/review-data/review-data.ts';
@@ -271,6 +272,7 @@ export class ReviewFlow {
 		}
 		this.now = currentDate();
 		const answered = answeredArtworks(session);
+		if (session.free && answered > 0) void recordFreeAnswers(startOfDay(this.now), answered);
 		this.summary = {
 			count: answered,
 			minutes: session.minutes,
