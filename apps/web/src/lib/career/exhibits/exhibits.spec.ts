@@ -7,7 +7,6 @@ import {
 	metalOf,
 	nextThreshold,
 	reachedTier,
-	settingOf,
 	withTiers
 } from './exhibits.ts';
 
@@ -42,36 +41,39 @@ describe('exhibits', () => {
 		expect(nextThreshold(exhibit({ value: 120 }))).toBeUndefined();
 	});
 
-	it('casts the object in a nobler metal as the tiers rise, with a glow at the top', () => {
+	it('casts the engraving in a nobler metal as the tiers rise, platinum at the top', () => {
 		expect([0, 1, 2, 3, 4, 5].map((tier) => metalOf(tier, 5))).toEqual([
 			'none',
-			'iron',
+			'bronze',
 			'bronze',
 			'silver',
 			'gold',
-			'glow'
+			'platinum'
 		]);
 		expect([1, 2, 3, 4, 5, 6, 7, 8, 9].map((tier) => metalOf(tier, 9))).toEqual([
-			'iron',
-			'iron',
+			'bronze',
 			'bronze',
 			'bronze',
 			'silver',
 			'silver',
+			'silver',
 			'gold',
 			'gold',
-			'glow'
+			'platinum'
 		]);
-		expect(metalOf(1, 1)).toBe('glow');
+		expect(metalOf(1, 1)).toBe('platinum');
 	});
 
-	it('adds one detail of the setting per tier up to five', () => {
-		expect([0, 3, 7].map(settingOf)).toEqual([0, 3, 5]);
+	it('never counts more tiers than an exhibit has', () => {
+		expect(
+			reachedTier(exhibit({ thresholds: [1], value: 3, tiers: [unlocked(1), unlocked(2)] }))
+		).toBe(1);
 	});
 
 	it('hides the easter eggs until they are found', () => {
 		expect(isHidden(exhibit({ code: 'night_watch', value: 0, thresholds: [1] }))).toBe(true);
 		expect(isHidden(exhibit({ code: 'night_watch', value: 1, thresholds: [1] }))).toBe(false);
+		expect(isHidden(exhibit({ code: 'back_from_storage', value: 0, thresholds: [1] }))).toBe(true);
 		expect(isHidden(exhibit({ value: 0 }))).toBe(false);
 	});
 

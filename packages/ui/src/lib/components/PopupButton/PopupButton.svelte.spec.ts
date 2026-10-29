@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import Info from '@lucide/svelte/icons/info';
 import { createRawSnippet } from 'svelte';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
@@ -78,5 +79,16 @@ describe('PopupButton', () => {
 		await userEvent.hover(button());
 
 		await expect.element(page.getByRole('tooltip')).toHaveTextContent('Grouping: era');
+	});
+
+	it('opens from a quiet stage button when it has a stage icon', async () => {
+		render(PopupButton, { label: 'About', stageIcon: Info, children: panel });
+
+		const about = page.getByRole('button', { name: 'About' });
+		await expect.element(about).toHaveStyle({ opacity: '0.6' });
+		await about.click();
+
+		await expect.element(about).toHaveAttribute('aria-expanded', 'true');
+		await expect.element(page.getByRole('button', { name: 'Era' })).toBeVisible();
 	});
 });

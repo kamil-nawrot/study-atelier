@@ -1,1 +1,1 @@
-export type Metal = 'none' | 'iron' | 'bronze' | 'silver' | 'gold' | 'glow';
+export type Metal = 'none' | 'bronze' | 'silver' | 'gold' | 'platinum';

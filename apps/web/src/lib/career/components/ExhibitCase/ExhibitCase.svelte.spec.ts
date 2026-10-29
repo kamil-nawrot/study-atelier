@@ -31,7 +31,7 @@ describe('ExhibitCase', () => {
 			.element(page.getByRole('heading', { level: 3 }))
 			.toHaveTextContent(m.career.exhibits.collection.name);
 		await expect.element(page.getByText(m.career.tier('II', 'V'))).toBeVisible();
-		await expect.element(page.getByText(m.career.progress(24, 50))).toBeVisible();
+		await expect.element(page.getByText(m.career.exhibits.collection.count(24, 50))).toBeVisible();
 		await expect
 			.element(page.getByRole('meter', { name: m.career.exhibits.collection.name }))
 			.toHaveAttribute('aria-valuemax', '50');
@@ -78,7 +78,7 @@ describe('ExhibitCase', () => {
 	it('says when the top tier is reached', async () => {
 		render(ExhibitCase, { props: { exhibit: exhibit({ value: 300 }) } });
 
-		await expect.element(page.getByText(m.career.top)).toBeVisible();
+		await expect.element(page.getByText(m.career.exhibits.collection.count(300))).toBeVisible();
 		await expect.element(page.getByRole('meter')).not.toBeInTheDocument();
 	});
 
@@ -90,10 +90,30 @@ describe('ExhibitCase', () => {
 		await expect
 			.element(page.getByRole('heading', { level: 3 }))
 			.toHaveTextContent(m.career.hiddenName);
-		await page.getByRole('button', { name: m.career.about }).click();
 		await expect.element(page.getByText(m.career.exhibits.night_watch.hint)).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.career.about }))
+			.not.toBeInTheDocument();
 		await expect
 			.element(page.getByText(m.career.exhibits.night_watch.name))
 			.not.toBeInTheDocument();
+	});
+
+	it('says what a found easter egg was awarded for', async () => {
+		render(ExhibitCase, {
+			props: {
+				exhibit: exhibit({
+					code: 'back_from_storage',
+					value: 1,
+					thresholds: [1],
+					tiers: [{ ...unlocked(1), exhibit: 'back_from_storage' }]
+				})
+			}
+		});
+
+		await expect
+			.element(page.getByRole('heading', { level: 3 }))
+			.toHaveTextContent(m.career.exhibits.back_from_storage.name);
+		await expect.element(page.getByText(m.career.exhibits.back_from_storage.awarded)).toBeVisible();
 	});
 });

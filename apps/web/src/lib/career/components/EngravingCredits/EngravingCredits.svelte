@@ -20,7 +20,7 @@
 			<Icon icon={ImageIcon} size="sm" />
 		{/snippet}
 		<ul class="credits caption">
-			{#each sources as art (art.file)}
+			{#each sources as art (art.commonsFile)}
 				<li>
 					<a href={commonsFilePage(art.commonsFile)} rel="external noreferrer" target="_blank"
 						>{art.credit}</a

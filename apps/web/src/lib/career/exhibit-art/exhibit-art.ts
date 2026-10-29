@@ -1,66 +1,84 @@
+import type { asset } from '$app/paths';
 import type { ExhibitArt } from '#lib/career/types/exhibit-art.ts';
+import type { Metal } from '#lib/career/types/metal.ts';
 
 export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
+	chronicle: {
+		credit: 'Pietro Antonio Martini, „Exposition au Salon du Louvre en 1787”',
+		licence: 'CC0',
+		commonsFile: 'Exposition au Salon du Louvre en 1787 Met DP-15578-001.jpg'
+	},
 	collection: {
-		file: 'exhibits/collection.jpg',
 		credit: 'Frontyspis „Musei Wormiani Historia”, 1655',
 		licence: 'domena publiczna',
 		commonsFile: '1655 - Frontispiece of Museum Wormiani Historia.jpg'
 	},
+	eras: {
+		credit: 'Giovanni Battista Piranesi, „Veduta interna del Tempio della Tosse”',
+		licence: 'CC0',
+		commonsFile:
+			'Interieur van de Tempio della Tosse bij Tivoli Veduta interna del Tempio della Tosse (titel op object) Gezichten op Rome (serietitel) Vedute di Roma disegnate ed incise da Giambattista Piranesi architetto Ve(nez)iano , RP-P-OB-39.365.jpg'
+	},
+	memory: {
+		credit: 'Albrecht Dürer, „Święty Hieronim w pracowni”, 1514',
+		licence: 'CC0',
+		commonsFile: 'Albrecht Dürer, Saint Jerome in His Study, 1514, NGA 6642.jpg'
+	},
 	regular: {
-		file: 'exhibits/regular.jpg',
 		credit: 'Albrecht Dürer, „Melencolia I”, 1514',
 		licence: 'CC0',
 		commonsFile: 'Albrecht Dürer, Melencolia I, 1514, NGA 6640.jpg'
 	},
 	back_from_storage: {
-		file: 'exhibits/back_from_storage.jpg',
 		credit: 'Luigi Calamatta według Leonarda da Vinci, „Mona Lisa”, 1858',
 		licence: 'domena publiczna',
 		commonsFile: 'Joconde de Calamatta.jpg'
 	},
-	chronicle: {
-		file: 'exhibits/chronicle.jpg',
-		credit: 'Karl Baedeker, „Greece. Handbook for Travellers”, 1894',
-		licence: 'domena publiczna',
-		commonsFile: 'Title page - Baedeker Karl - 1894.jpg'
-	},
 	grand_tour: {
-		file: 'exhibits/grand_tour.jpg',
-		credit: 'Jean-Baptiste Nolin według Vincenza Coronellego, „Le Globe terrestre”',
-		licence: 'domena publiczna',
+		credit: '„Sphaerarum artificialium typica repraesentatio”, tło uzupełnione',
+		licence: 'CC0',
 		commonsFile:
-			'Le Globe Terrestre represente en deux plans-hemispheres. Par P. Coronelli Cosmographe, etc. Corrigé et augmenté par le Sr. (IA dr le-globe-terrestre-represente-en-deux-plans-hemispheres-par-p-coronelli-c-14353004).jpg'
+			'Hemelglobe, armillarium en aardglobe Sphaerarum artificialium typica repraesentatio (titel op object), RP-P-AO-29-19-1.jpg'
+	},
+	seen_live: {
+		credit: '„Mathieu Laensbergh patrzy przez teleskop”, plansza z „L’Artiste”',
+		licence: 'CC0',
+		commonsFile:
+			'Mathieu Laensbergh kijkt door een telescoop naar de sterrenhemel, RP-P-1944-162.jpg'
 	},
 	timeline: {
-		file: 'exhibits/timeline.jpg',
 		credit: 'Praski orloj, rycina z 1837 roku',
 		licence: 'domena publiczna',
 		commonsFile: 'Orloj 1837.jpg'
 	},
 	glossary: {
-		file: 'exhibits/glossary.jpg',
-		credit:
-			'Benoît-Louis Prévost według Charles’a-Nicolasa Cochina, frontyspis „Encyklopedii”, 1772',
-		licence: 'domena publiczna',
-		commonsFile: 'Encyclopedie frontispice full.jpg'
+		credit: 'Biblioteka uniwersytetu w Lejdzie w 1610 roku',
+		licence: 'CC0',
+		commonsFile: 'De Bibliotheek in 1610, Objectnr PV PV14002.15.jpg'
 	},
 	own_eye: {
-		file: 'exhibits/own_eye.jpg',
-		credit: 'Camera obscura, plansza z „Encyklopedii” Diderota i d’Alemberta, 1763',
+		credit: 'Camera obscura, plansza z „Encyklopedii” Diderota i d’Alemberta, tło uzupełnione',
 		licence: 'domena publiczna',
 		commonsFile: 'Camera obscura.png'
 	},
 	night_watch: {
-		file: 'exhibits/night_watch.jpg',
 		credit: '„Straż nocna” według Rembrandta, rycina z 1847 roku',
 		licence: 'CC0',
 		commonsFile: 'Nachtwacht, RP-P-OB-54.954.jpg'
+	},
+	marathon: {
+		credit: 'Albrecht Dürer, „Nemezis”, ok. 1501–1502, tło uzupełnione',
+		licence: 'CC0',
+		commonsFile: 'Albrecht Dürer, Nemesis (The Great Fortune), c. 1501-1502, NGA 6603.jpg'
 	}
 };
 
 export function artOf(code: string): ExhibitArt | undefined {
 	return EXHIBIT_ART[code];
+}
+
+export function imageOf(code: string, metal: Metal): Parameters<typeof asset>[0] {
+	return `exhibits/${code}/${metal}.webp` as Parameters<typeof asset>[0];
 }
 
 export function credits(codes: readonly string[]): ExhibitArt[] {
