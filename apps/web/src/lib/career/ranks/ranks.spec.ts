@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { progressToNext, rankOf } from './ranks.ts';
+import { progressToNext, rankName, rankOf } from './ranks.ts';
 
 describe('ranks', () => {
 	it('starts every learner at the first rank', () => {
@@ -21,5 +21,11 @@ describe('ranks', () => {
 		expect(progressToNext(1500)).toBe(0.5);
 		expect(progressToNext(50)).toBe(0);
 		expect(progressToNext(90000)).toBe(1);
+	});
+
+	it('names a rank in the form the learner chose', () => {
+		expect(rankName(5, 'masculine')).toBe('Znawca');
+		expect(rankName(5, 'feminine')).toBe('Znawczyni');
+		expect(rankName(12, 'feminine')).toBe('Dyrektorka muzeum');
 	});
 });

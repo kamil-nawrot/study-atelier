@@ -17,6 +17,9 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { Profile } from '#lib/profile/types/profile.ts';
 	import Avatar from '#lib/profile/components/Avatar/Avatar.svelte';
+	import NewMark from '#lib/career/components/NewMark/NewMark.svelte';
+	import RankLink from '#lib/career/components/RankLink/RankLink.svelte';
+	import { career } from '#lib/career/career-state/career-state.svelte.ts';
 	import {
 		followMenuProfile,
 		shownMenuProfile
@@ -47,7 +50,13 @@
 	const light = $derived(currentTheme() === 'light');
 	const ownerId = $derived(page.data.session?.user.id);
 
+	const careerShown = $derived(page.data.careerShown !== false);
+
 	$effect(() => followMenuProfile(page.data.menuProfile, ownerId));
+
+	$effect(() => {
+		if (careerShown && page.url.pathname) void career.refresh();
+	});
 </script>
 
 {#snippet account(profile?: Profile)}
@@ -57,7 +66,16 @@
 		aria-label={compact ? m.menu.settingsLink(profile?.displayName ?? email, email) : undefined}
 		href={settingsPath}
 	>
-		<Avatar initial={avatarInitial(profile, email)} medium={!compact} path={profile?.avatarPath} />
+		<span class="icon">
+			<Avatar
+				initial={avatarInitial(profile, email)}
+				medium={!compact}
+				path={profile?.avatarPath}
+			/>
+			{#if careerShown}
+				<NewMark flash={career.rankFlash} shown={career.hasNewRank} />
+			{/if}
+		</span>
 		<span class="who" class:visually-hidden={compact}>
 			{#if profile?.displayName}
 				<span class="label">{profile.displayName}</span>
@@ -72,6 +90,16 @@
 <div class="group">
 	<div class="account-group">
 		{@render account(shownMenuProfile(ownerId))}
+		{#if careerShown && !compact && career.standing}
+			<div class="rank">
+				<RankLink
+					flash={career.rankFlash}
+					form={shownMenuProfile(ownerId)?.rankForm ?? 'masculine'}
+					isNew={career.hasNewRank}
+					points={career.standing.points}
+				/>
+			</div>
+		{/if}
 	</div>
 	<a
 		class="item"
@@ -150,16 +178,24 @@
 			{/if}
 		{/await}
 	</a>
-	<a
-		class="item"
-		aria-current={page.url.pathname === displayCasePath ? 'page' : undefined}
-		href={displayCasePath}
-	>
-		<Icon icon={Landmark} />
-		<span class="label" class:visually-hidden={compact}>
-			{m.menu.displayCase}
-		</span>
-	</a>
+	{#if careerShown}
+		<a
+			class="item"
+			aria-current={page.url.pathname === displayCasePath ? 'page' : undefined}
+			href={displayCasePath}
+		>
+			<span class="icon">
+				<Icon icon={Landmark} />
+				<NewMark flash={career.tierFlash} shown={career.hasNewTiers} />
+			</span>
+			<span class="label" class:visually-hidden={compact}>
+				{m.menu.displayCase}
+				{#if career.hasNewTiers}
+					<span class="visually-hidden">, {m.career.new}</span>
+				{/if}
+			</span>
+		</a>
+	{/if}
 </div>
 <div class="group">
 	<a
@@ -228,6 +264,11 @@
 		margin-bottom: var(--spacing-2);
 		padding-bottom: var(--spacing-2);
 		border-bottom: var(--border-width-hairline) solid var(--color-tag);
+	}
+
+	.rank {
+		display: grid;
+		padding: 0 var(--spacing-4) var(--spacing-1) calc(var(--spacing-3) + var(--border-width-button));
 	}
 
 	.account {

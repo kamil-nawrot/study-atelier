@@ -7,7 +7,7 @@ import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import type { Database } from '#lib/shared/data/database.types.ts';
 import { avatarPathOf } from '#lib/profile/avatar/avatar.ts';
 import { profileErrorMessage } from '#lib/profile/errors/errors.ts';
-import { emptyProfile, normalizedName } from '#lib/profile/profile/profile.ts';
+import { emptyProfile, normalizedName, rankFormOf } from '#lib/profile/profile/profile.ts';
 import type { Profile } from '#lib/profile/types/profile.ts';
 import type { ProfileDraft } from '#lib/profile/types/profile-draft.ts';
 
@@ -20,12 +20,20 @@ type ProfileSaveResult = { profile: Profile; error?: undefined } | { error: stri
 
 export const PROFILE_DEPENDENCY = 'profile:own';
 
-type Row = Pick<Database['public']['Tables']['profiles']['Row'], 'display_name' | 'avatar_path'>;
+type Row = Pick<
+	Database['public']['Tables']['profiles']['Row'],
+	'display_name' | 'avatar_path' | 'rank_form'
+>;
 
-const COLUMNS = 'display_name, avatar_path';
+const COLUMNS = 'display_name, avatar_path, rank_form';
 
 function profileOf(row: Row | null): Profile {
-	return row ? { displayName: row.display_name, avatarPath: row.avatar_path } : emptyProfile;
+	if (!row) return emptyProfile;
+	return {
+		displayName: row.display_name,
+		avatarPath: row.avatar_path,
+		rankForm: rankFormOf(row.rank_form)
+	};
 }
 
 export async function loadProfile(): Promise<ProfileResult> {
@@ -69,7 +77,11 @@ export async function saveProfile(
 	}
 	const { data, error } = await supabase
 		.from('profiles')
-		.upsert({ display_name: normalizedName(draft.name), avatar_path: avatarPath })
+		.upsert({
+			display_name: normalizedName(draft.name),
+			avatar_path: avatarPath,
+			rank_form: draft.rankForm
+		})
 		.select(COLUMNS)
 		.single();
 	if (error) {

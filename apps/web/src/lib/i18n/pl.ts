@@ -211,6 +211,7 @@ export const pl = {
 		chronicle: 'Kronika',
 		review: 'Powtórki',
 		displayCase: 'Gablota',
+		displayCaseNew: 'Gablota, nowe',
 		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
 		trash: 'Archiwum',
 		settings: 'Ustawienia',
@@ -241,6 +242,9 @@ export const pl = {
 			photoHint: 'Zdjęcie zostanie automatycznie dopasowane do rozmiaru awatara',
 			removePhoto: 'Usuń zdjęcie',
 			name: 'Imię',
+			rankForm: 'Forma stopni',
+			rankFormMasculine: 'Kustosz',
+			rankFormFeminine: 'Kustoszka',
 			email: 'Adres e-mail',
 			emailHint: 'Adres podany przy rejestracji. Zmienisz go w zakładce „Konto”.',
 			nameTooLong: (max: number): string => `Imię może mieć najwyżej ${max} znaków.`,
@@ -306,6 +310,8 @@ export const pl = {
 			kindsHint: 'Zostaw zaznaczony przynajmniej jeden rodzaj.',
 			glossaryQuestions: 'Ile pytań dodatkowych ze Słowniczka dołączać do sesji?',
 			free: 'Proponuj powtórkę swobodną po skończonym dniu',
+			careerShown: 'Pokazuj stopień i Gablotę',
+			careerShownHint: 'Punkty i eksponaty liczą się dalej, także gdy są ukryte.',
 			showPins: 'Pokazuj pinezki od razu po otwarciu dzieła',
 			loupe: 'Włączaj lupę od razu po otwarciu dzieła',
 			sourcesHint:
@@ -1266,6 +1272,48 @@ export const pl = {
 		tiers: 'Zdobyte poziomy',
 		tierDate: (tier: string, date: string): string => `Poziom ${tier} · ${date}`,
 		hiddenName: 'Ukryty eksponat',
+		ranks: {
+			masculine: [
+				'Zwiedzający',
+				'Bywalec',
+				'Miłośnik sztuki',
+				'Kolekcjoner',
+				'Znawca',
+				'Asystent muzealny',
+				'Adiunkt',
+				'Kustosz',
+				'Starszy kustosz',
+				'Główny kurator',
+				'Wicedyrektor',
+				'Dyrektor muzeum'
+			],
+			feminine: [
+				'Zwiedzająca',
+				'Bywalczyni',
+				'Miłośniczka sztuki',
+				'Kolekcjonerka',
+				'Znawczyni',
+				'Asystentka muzealna',
+				'Adiunktka',
+				'Kustoszka',
+				'Starsza kustoszka',
+				'Główna kuratorka',
+				'Wicedyrektorka',
+				'Dyrektorka muzeum'
+			]
+		},
+		rankLabel: (rank: string, points: number): string => `Stopień: ${rank}, ${pointCount(points)}`,
+		rankTip: (points: number, next: string, missing: number): string =>
+			`${pointCount(points)} · do stopnia ${next} brakuje ${missing}`,
+		roundPlan: (points: number, streak: number, bonus: number): string =>
+			`Za dzisiejszy plan: ${pointCount(points)}${
+				streak > 1
+					? ` (seria ${streak} ${plural(streak, { one: 'dzień', few: 'dni', many: 'dni' })}${bonus > 0 ? `, premia ${bonus}%` : ''})`
+					: ''
+			}.`,
+		roundTier: (tier: string, exhibit: string): string =>
+			`W Gablocie zapalił się poziom ${tier}: ${exhibit}.`,
+		roundRank: (rank: string): string => `Nowy stopień: ${rank}.`,
 		credits: 'Ryciny',
 		recoloured: 'kolory zmienione',
 		exhibits: {
@@ -1656,6 +1704,10 @@ function reviewedToday(count: number, minutes: number): string {
 
 function minuteCount(count: number): string {
 	return `${count} ${plural(count, { one: 'minutę', few: 'minuty', many: 'minut' })}`;
+}
+
+function pointCount(count: number): string {
+	return `${count} ${plural(count, { one: 'punkt', few: 'punkty', many: 'punktów' })}`;
 }
 
 function visitCount(count: number): string {

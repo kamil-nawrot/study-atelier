@@ -1,3 +1,5 @@
+import { m } from '#lib/i18n/i18n.ts';
+import type { RankForm } from '#lib/profile/types/rank-form.ts';
 import type { Rank } from '#lib/career/types/rank.ts';
 
 export const RANK_THRESHOLDS = [
@@ -16,4 +18,9 @@ export function rankOf(points: number): Rank {
 export function progressToNext(points: number): number {
 	const { floor, next } = rankOf(points);
 	return next === undefined ? 1 : (points - floor) / (next - floor);
+}
+
+export function rankName(level: number, form: RankForm): string {
+	const names = m.career.ranks[form];
+	return names[Math.min(Math.max(level, 1), names.length) - 1];
 }

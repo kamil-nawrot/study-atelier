@@ -49,28 +49,34 @@ describe('loadProfile', () => {
 		selecting({ data: { display_name: 'Anna', avatar_path: 'a/avatar-1.jpg' }, error: null });
 
 		expect(await loadProfile()).toEqual({
-			profile: { displayName: 'Anna', avatarPath: 'a/avatar-1.jpg' }
+			profile: { displayName: 'Anna', avatarPath: 'a/avatar-1.jpg', rankForm: 'masculine' as const }
 		});
 	});
 
 	it('gives an empty profile to a learner without a row', async () => {
 		selecting({ data: null, error: null });
 
-		expect(await loadProfile()).toEqual({ profile: { displayName: null, avatarPath: null } });
+		expect(await loadProfile()).toEqual({
+			profile: { displayName: null, avatarPath: null, rankForm: 'masculine' as const }
+		});
 	});
 
 	it('gives an empty profile and a message when the read fails', async () => {
 		selecting({ data: null, error: { code: '500', status: 500 } });
 
 		expect(await loadProfile()).toEqual({
-			profile: { displayName: null, avatarPath: null },
+			profile: { displayName: null, avatarPath: null, rankForm: 'masculine' as const },
 			error: m.settings.profile.failed
 		});
 	});
 });
 
 describe('saveProfile', () => {
-	const current = { displayName: 'Anna', avatarPath: `${OWNER}/avatar-old.jpg` };
+	const current = {
+		displayName: 'Anna',
+		avatarPath: `${OWNER}/avatar-old.jpg`,
+		rankForm: 'masculine' as const
+	};
 
 	it('saves a trimmed name and keeps the photo', async () => {
 		const upsert = upserting({
@@ -78,10 +84,23 @@ describe('saveProfile', () => {
 			error: null
 		});
 
-		const result = await saveProfile({ name: '  Ania ', avatar: { kind: 'keep' } }, current);
+		const result = await saveProfile(
+			{ name: '  Ania ', avatar: { kind: 'keep' }, rankForm: 'masculine' },
+			current
+		);
 
-		expect(upsert).toHaveBeenCalledWith({ display_name: 'Ania', avatar_path: current.avatarPath });
-		expect(result).toEqual({ profile: { displayName: 'Ania', avatarPath: current.avatarPath } });
+		expect(upsert).toHaveBeenCalledWith({
+			display_name: 'Ania',
+			avatar_path: current.avatarPath,
+			rank_form: 'masculine'
+		});
+		expect(result).toEqual({
+			profile: {
+				displayName: 'Ania',
+				avatarPath: current.avatarPath,
+				rankForm: 'masculine' as const
+			}
+		});
 		expect(storage.upload).not.toHaveBeenCalled();
 		expect(storage.remove).not.toHaveBeenCalled();
 	});
@@ -92,7 +111,10 @@ describe('saveProfile', () => {
 			error: null
 		});
 
-		await saveProfile({ name: 'Anna', avatar: { kind: 'replace', image } }, current);
+		await saveProfile(
+			{ name: 'Anna', avatar: { kind: 'replace', image }, rankForm: 'masculine' },
+			current
+		);
 
 		const [path, body, options] = storage.upload.mock.calls[0];
 		expect(path).toMatch(new RegExp(`^${OWNER}/avatar-[0-9a-f-]{36}\\.jpg$`));
@@ -102,7 +124,11 @@ describe('saveProfile', () => {
 			cacheControl: '31536000',
 			upsert: false
 		});
-		expect(upsert).toHaveBeenCalledWith({ display_name: 'Anna', avatar_path: path });
+		expect(upsert).toHaveBeenCalledWith({
+			display_name: 'Anna',
+			avatar_path: path,
+			rank_form: 'masculine'
+		});
 		expect(storage.remove).toHaveBeenCalledWith([
 			current.avatarPath,
 			`${OWNER}/avatar-old-thumb.jpg`
@@ -112,24 +138,38 @@ describe('saveProfile', () => {
 	it('clears the path and removes the file when the photo is removed', async () => {
 		const upsert = upserting({ data: { display_name: 'Anna', avatar_path: null }, error: null });
 
-		await saveProfile({ name: 'Anna', avatar: { kind: 'remove' } }, current);
+		await saveProfile({ name: 'Anna', avatar: { kind: 'remove' }, rankForm: 'masculine' }, current);
 
-		expect(upsert).toHaveBeenCalledWith({ display_name: 'Anna', avatar_path: null });
+		expect(upsert).toHaveBeenCalledWith({
+			display_name: 'Anna',
+			avatar_path: null,
+			rank_form: 'masculine'
+		});
 		expect(storage.remove).toHaveBeenCalledTimes(1);
 	});
 
 	it('stores an empty name as nothing', async () => {
 		const upsert = upserting({ data: { display_name: null, avatar_path: null }, error: null });
 
-		await saveProfile({ name: '  ', avatar: { kind: 'keep' } }, { ...current, avatarPath: null });
+		await saveProfile(
+			{ name: '  ', avatar: { kind: 'keep' }, rankForm: 'masculine' },
+			{ ...current, avatarPath: null }
+		);
 
-		expect(upsert).toHaveBeenCalledWith({ display_name: null, avatar_path: null });
+		expect(upsert).toHaveBeenCalledWith({
+			display_name: null,
+			avatar_path: null,
+			rank_form: 'masculine'
+		});
 	});
 
 	it('removes the uploaded photo and keeps the old one when the row is not saved', async () => {
 		upserting({ data: null, error: { code: '23514', status: 400 } });
 
-		const result = await saveProfile({ name: 'Anna', avatar: { kind: 'replace', image } }, current);
+		const result = await saveProfile(
+			{ name: 'Anna', avatar: { kind: 'replace', image }, rankForm: 'masculine' },
+			current
+		);
 
 		expect(result).toEqual({ error: m.settings.profile.failed });
 		const uploaded = storage.upload.mock.calls[0][0];
@@ -140,7 +180,10 @@ describe('saveProfile', () => {
 	it('does not write the row when the upload fails', async () => {
 		storage.upload.mockResolvedValue({ error: { status: 413, statusCode: '413' } });
 
-		const result = await saveProfile({ name: 'Anna', avatar: { kind: 'replace', image } }, current);
+		const result = await saveProfile(
+			{ name: 'Anna', avatar: { kind: 'replace', image }, rankForm: 'masculine' },
+			current
+		);
 
 		expect(result).toHaveProperty('error');
 		expect(from).not.toHaveBeenCalled();
@@ -149,7 +192,10 @@ describe('saveProfile', () => {
 	it('signs the learner out when the session has ended', async () => {
 		upserting({ data: null, error: { code: 'PGRST301', status: 401 } });
 
-		const result = await saveProfile({ name: 'Anna', avatar: { kind: 'keep' } }, current);
+		const result = await saveProfile(
+			{ name: 'Anna', avatar: { kind: 'keep' }, rankForm: 'masculine' },
+			current
+		);
 
 		expect(result).toEqual({ error: m.authErrors.sessionEnded });
 		expect(signOut).toHaveBeenCalled();

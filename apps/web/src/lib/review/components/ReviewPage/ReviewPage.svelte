@@ -9,15 +9,17 @@
 	import { formatWhen } from '#lib/review/overview/overview.ts';
 	import type { ReviewFlow } from '#lib/review/review-flow/review-flow.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
+	import type { RankForm } from '#lib/profile/types/rank-form.ts';
 
 	type Props = {
 		flow: ReviewFlow;
 		error?: string;
 		glossary?: GlossaryEntry[];
 		streak: number;
+		rankForm?: RankForm;
 	};
 
-	let { flow, error, glossary, streak }: Props = $props();
+	let { flow, error, glossary, streak, rankForm }: Props = $props();
 </script>
 
 {#if error}
@@ -69,6 +71,7 @@
 		nextRound={flow.waiting}
 		onfree={() => flow.start()}
 		onnext={() => flow.start()}
+		{rankForm}
 		tomorrow={flow.summary.tomorrow}
 	/>
 {:else}

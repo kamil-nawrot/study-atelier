@@ -889,6 +889,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_path: string | null;
+          career_shown: boolean;
           created_at: string;
           display_name: string | null;
           fetch_definition: boolean;
@@ -898,6 +899,8 @@ export type Database = {
           legal_accepted_at: string | null;
           legal_version: string | null;
           owner_id: string;
+          rank_form: string;
+          rank_seen: number;
           review_form: string;
           review_free: boolean;
           review_glossary_questions: number;
@@ -911,6 +914,7 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           avatar_path?: string | null;
+          career_shown?: boolean;
           created_at?: string;
           display_name?: string | null;
           fetch_definition?: boolean;
@@ -920,6 +924,8 @@ export type Database = {
           legal_accepted_at?: string | null;
           legal_version?: string | null;
           owner_id?: string;
+          rank_form?: string;
+          rank_seen?: number;
           review_form?: string;
           review_free?: boolean;
           review_glossary_questions?: number;
@@ -932,6 +938,7 @@ export type Database = {
         };
         Update: {
           avatar_path?: string | null;
+          career_shown?: boolean;
           created_at?: string;
           display_name?: string | null;
           fetch_definition?: boolean;
@@ -941,6 +948,8 @@ export type Database = {
           legal_accepted_at?: string | null;
           legal_version?: string | null;
           owner_id?: string;
+          rank_form?: string;
+          rank_seen?: number;
           review_form?: string;
           review_free?: boolean;
           review_glossary_questions?: number;
