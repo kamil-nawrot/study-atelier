@@ -1,6 +1,6 @@
 # 0078. Show a streak of days with reviews on the review start
 
-- Status: accepted
+- Status: superseded by [0161](0161-keep-the-streak-on-a-day-with-nothing-to-review.md)
 - Date: 2026-10-17
 
 ## Context and problem statement

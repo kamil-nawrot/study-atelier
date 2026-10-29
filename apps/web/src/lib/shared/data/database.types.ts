@@ -934,6 +934,7 @@ export type Database = {
           answer_ms: number | null;
           artwork_id: string;
           correct: boolean | null;
+          due_before: string | null;
           facet: string;
           id: number;
           mode: string;
@@ -946,6 +947,7 @@ export type Database = {
           answer_ms?: number | null;
           artwork_id: string;
           correct?: boolean | null;
+          due_before?: string | null;
           facet?: string;
           id?: never;
           mode: string;
@@ -957,6 +959,7 @@ export type Database = {
           answer_ms?: number | null;
           artwork_id?: string;
           correct?: boolean | null;
+          due_before?: string | null;
           facet?: string;
           id?: never;
           mode?: string;
