@@ -85,6 +85,12 @@
 		.frame {
 			--frame-scale: 1;
 		}
+
+		.corner {
+			top: var(--spacing-2);
+			right: var(--spacing-2);
+			left: auto;
+		}
 	}
 
 	.picture {
@@ -164,7 +170,7 @@
 
 	.corner {
 		position: absolute;
-		top: var(--spacing-2);
-		right: var(--spacing-2);
+		top: var(--spacing-1);
+		left: var(--spacing-1);
 	}
 </style>
