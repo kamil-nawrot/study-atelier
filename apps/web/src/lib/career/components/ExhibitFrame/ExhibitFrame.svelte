@@ -27,58 +27,70 @@
 
 <style>
 	.frame {
+		--frame-scale: 0.67;
 		position: relative;
 		display: grid;
 		aspect-ratio: 10 / 13;
-		padding: var(--spacing-1);
-		border: var(--border-width-hairline) solid var(--color-case-unlit);
+		border-style: solid;
+		border-color: transparent;
+		border-width: calc(var(--frame-width) * var(--frame-scale));
+		border-image-repeat: stretch;
 		background: var(--color-stage-bg);
 	}
 
+	.none {
+		--frame-width: calc(var(--spacing-1) * 1.75);
+		border-image-source: url('/exhibits/frames/none.png');
+		border-image-slice: 14;
+	}
+
 	.bronze {
-		padding: var(--spacing-3);
-		border: none;
-		background: linear-gradient(
-			135deg,
-			color-mix(in srgb, var(--color-case-bronze) 55%, var(--color-stage-bg)),
-			color-mix(in srgb, var(--color-case-bronze) 25%, var(--color-stage-bg)) 60%,
-			color-mix(in srgb, var(--color-case-bronze) 45%, var(--color-stage-bg))
-		);
+		--frame-width: var(--spacing-3);
+		border-image-source: url('/exhibits/frames/bronze.png');
+		border-image-slice: 24;
 	}
 
 	.silver {
-		padding: var(--spacing-3);
-		border: var(--border-width-base) solid var(--color-case-iron);
-		background: linear-gradient(
-			135deg,
-			var(--color-case-iron),
-			color-mix(in srgb, var(--color-case-iron) 50%, var(--color-stage-bg)) 50%,
-			var(--color-case-iron)
-		);
+		--frame-width: calc(var(--spacing-3) + var(--border-width-base));
+		border-image-source: url('/exhibits/frames/silver.png');
+		border-image-slice: 28;
 	}
 
 	.gold {
-		padding: var(--spacing-4);
-		border: var(--border-width-heavy) double var(--color-case-gold);
-		background: linear-gradient(
-			135deg,
-			var(--color-case-gold),
-			color-mix(in srgb, var(--color-case-gold) 45%, var(--color-stage-bg)) 45%,
-			var(--color-case-gold) 70%,
-			color-mix(in srgb, var(--color-case-gold) 55%, var(--color-stage-bg))
-		);
+		--frame-width: calc(var(--spacing-4) + var(--border-width-base));
+		border-image-source: url('/exhibits/frames/gold.png');
+		border-image-slice: 36;
 	}
 
 	.platinum {
-		padding: var(--spacing-4);
-		border: var(--border-width-heavy) double var(--color-case-silver);
-		background: linear-gradient(
-			135deg,
-			var(--color-case-silver),
-			var(--color-case-iron) 40%,
-			var(--color-case-silver) 65%,
-			var(--color-case-iron)
+		--frame-width: calc(var(--spacing-4) + var(--spacing-1));
+		border-image-source: url('/exhibits/frames/platinum.png');
+		border-image-slice: 40;
+	}
+
+	.platinum::before {
+		position: absolute;
+		inset: calc(-1 * (var(--frame-width) * var(--frame-scale) + var(--spacing-8)));
+		z-index: -1;
+		background: radial-gradient(
+			closest-side,
+			color-mix(in srgb, var(--color-case-silver) 45%, transparent) 55%,
+			transparent
 		);
+		content: '';
+		pointer-events: none;
+	}
+
+	@media (min-width: 768px) {
+		.frame {
+			--frame-scale: 1;
+		}
+
+		.corner {
+			top: var(--spacing-2);
+			right: var(--spacing-2);
+			left: auto;
+		}
 	}
 
 	.picture {
@@ -158,7 +170,7 @@
 
 	.corner {
 		position: absolute;
-		top: var(--spacing-2);
-		right: var(--spacing-2);
+		top: var(--spacing-1);
+		left: var(--spacing-1);
 	}
 </style>
