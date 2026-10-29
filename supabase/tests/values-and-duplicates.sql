@@ -18,6 +18,10 @@ declare
 begin
   assert public.search_key('  Łódź   ŻÓŁW  Église ') = 'lodz zolw eglise',
     'search_key keeps case, marks, ł or extra spaces';
+  assert public.search_key('Dama' || chr(160) || 'z' || chr(8239) || 'gronostajem') = 'dama z gronostajem',
+    'search_key keeps no-break spaces apart from spaces';
+  assert has_function_privilege('service_role', 'public.search_key(text)', 'execute'),
+    'admin writes to artworks cannot compute the title key';
 
   select id into mona_lisa from public.save_artwork(
     '{"title": "Mona Lisa"}', '{"author": ["Leonardo da Vinci"], "material": ["Oil"]}');

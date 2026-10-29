@@ -493,6 +493,7 @@ async function mockSupabase(context) {
 		}
 		if (url.pathname === '/rest/v1/review_cards') return json(route, REVIEW_CARDS);
 		if (url.pathname === '/rest/v1/rpc/unlock_exhibits') return json(route, EXHIBITS);
+		if (url.pathname === '/rest/v1/rpc/learner_points') return json(route, 1846);
 		if (url.pathname === '/rest/v1/exhibit_tiers') {
 			return request.method() === 'PATCH' ? json(route, []) : json(route, EXHIBIT_TIERS);
 		}

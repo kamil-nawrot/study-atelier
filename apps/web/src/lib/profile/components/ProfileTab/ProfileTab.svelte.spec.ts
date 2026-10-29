@@ -22,8 +22,12 @@ vi.mock('#lib/profile/avatar/avatar.ts', async (importOriginal) => ({
 
 const onsaved = vi.fn();
 
-const empty: Profile = { displayName: null, avatarPath: null };
-const named: Profile = { displayName: 'Anna', avatarPath: 'owner/avatar-1.jpg' };
+const empty: Profile = { displayName: null, avatarPath: null, rankForm: 'masculine' };
+const named: Profile = {
+	displayName: 'Anna',
+	avatarPath: 'owner/avatar-1.jpg',
+	rankForm: 'masculine'
+};
 
 function renderTab(profile: Profile = empty): void {
 	render(ProfileTab, { email: TEST_EMAIL, onsaved, profile });
@@ -94,6 +98,19 @@ describe('ProfileTab', () => {
 			.toBeVisible();
 	});
 
+	it('saves the form of the ranks the learner chose', async () => {
+		vi.mocked(saveProfile).mockResolvedValue({ profile: { ...empty, rankForm: 'feminine' } });
+		renderTab();
+
+		await page.getByLabelText(m.settings.profile.rankForm).selectOptions('feminine');
+		await save().click();
+
+		expect(saveProfile).toHaveBeenCalledWith(
+			{ name: '', avatar: { kind: 'keep' }, rankForm: 'feminine' },
+			expect.anything()
+		);
+	});
+
 	it('saves the name and tells the page', async () => {
 		vi.mocked(saveProfile).mockResolvedValue({ profile: { ...empty, displayName: 'Ania' } });
 		renderTab();
@@ -102,7 +119,7 @@ describe('ProfileTab', () => {
 		await save().click();
 
 		expect(saveProfile).toHaveBeenCalledWith(
-			{ name: 'Ania', avatar: { kind: 'keep' } },
+			{ name: 'Ania', avatar: { kind: 'keep' }, rankForm: 'masculine' },
 			expect.objectContaining({ displayName: null })
 		);
 		expect(onsaved).toHaveBeenCalledWith(
@@ -134,7 +151,7 @@ describe('ProfileTab', () => {
 		await save().click();
 
 		expect(saveProfile).toHaveBeenCalledWith(
-			{ name: '', avatar: { kind: 'replace', image } },
+			{ name: '', avatar: { kind: 'replace', image }, rankForm: 'masculine' },
 			expect.anything()
 		);
 	});
@@ -163,7 +180,7 @@ describe('ProfileTab', () => {
 		await save().click();
 
 		expect(saveProfile).toHaveBeenCalledWith(
-			{ name: 'Anna', avatar: { kind: 'remove' } },
+			{ name: 'Anna', avatar: { kind: 'remove' }, rankForm: 'masculine' },
 			expect.anything()
 		);
 	});

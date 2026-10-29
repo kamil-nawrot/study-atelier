@@ -13,6 +13,8 @@
 	import AtelierDrawer from '#lib/shell/AtelierDrawer/AtelierDrawer.svelte';
 	import AnnouncementBanner from '#lib/shell/AnnouncementBanner/AnnouncementBanner.svelte';
 	import AtelierRail from '#lib/shell/AtelierRail/AtelierRail.svelte';
+	import NewMark from '#lib/career/components/NewMark/NewMark.svelte';
+	import { career } from '#lib/career/career-state/career-state.svelte.ts';
 	import NewVersionNotice from '#lib/shell/NewVersionNotice/NewVersionNotice.svelte';
 
 	type Props = {
@@ -81,6 +83,12 @@
 				type="button"
 			>
 				<Icon icon={Menu} />
+				{#if page.data.careerShown !== false}
+					<NewMark
+						flash={career.tierFlash + career.rankFlash}
+						shown={career.hasNewTiers || career.hasNewRank}
+					/>
+				{/if}
 			</button>
 			{@render bar?.()}
 			{#if navigating.to}
@@ -148,6 +156,7 @@
 	}
 
 	.burger {
+		position: relative;
 		display: flex;
 		flex: none;
 		align-items: center;

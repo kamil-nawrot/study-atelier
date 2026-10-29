@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Button, Disclosure } from '@study-atelier/ui';
 	import ArtworkWall from '#lib/wall/components/ArtworkWall/ArtworkWall.svelte';
+	import RoundCareer from '#lib/career/components/RoundCareer/RoundCareer.svelte';
+	import type { RankForm } from '#lib/profile/types/rank-form.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { SummaryGroup } from '#lib/review/types/summary-group.ts';
 
@@ -11,6 +13,7 @@
 		groups: SummaryGroup[];
 		nextRound: number;
 		free?: boolean;
+		rankForm?: RankForm;
 		freeOpen?: boolean;
 		onnext: () => void;
 		onfree?: () => void;
@@ -23,6 +26,7 @@
 		groups,
 		nextRound,
 		free = false,
+		rankForm,
 		freeOpen = false,
 		onnext,
 		onfree
@@ -36,6 +40,9 @@
 			<p class="lead">
 				{free ? m.review.freeSummary(count, minutes) : m.review.summary(count, minutes, tomorrow)}
 			</p>
+			{#if !free && rankForm}
+				<RoundCareer form={rankForm} />
+			{/if}
 		</div>
 		<div class="actions">
 			{#if free}

@@ -46,7 +46,7 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
 
-const profile = { displayName: 'Anna', avatarPath: null };
+const profile = { displayName: 'Anna', avatarPath: null, rankForm: 'masculine' as const };
 
 function renderSettings(error?: string, search = '', pendingEmail?: string): void {
 	navigation.url = new URL(`http://localhost/atelier/settings${search}`);

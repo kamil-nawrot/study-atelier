@@ -73,6 +73,24 @@ describe('cached', () => {
 		expect(load).toHaveBeenCalledTimes(1);
 	});
 
+	it('never gives one learner the answer loaded for another', async () => {
+		cacheForLearner('learner-a');
+		forgetCached();
+		let finish: (value: { rows: string[]; error?: string }) => void = () => {};
+		const slow = cached(
+			'atelier',
+			() => new Promise<{ rows: string[]; error?: string }>((done) => (finish = done))
+		);
+		cacheForLearner(undefined);
+		cacheForLearner('learner-b');
+		const load = vi.fn().mockResolvedValue({ rows: ['b'] });
+
+		finish({ rows: ['a'] });
+		await slow;
+
+		await expect(cached('atelier', load)).resolves.toEqual({ rows: ['b'] });
+	});
+
 	it('loads again for another learner, not for the same one', async () => {
 		const load = vi.fn().mockResolvedValue({ rows: [] });
 

@@ -12,16 +12,31 @@ import {
 
 describe('avatarInitial', () => {
 	it('takes the first letter of the name in capitals', () => {
-		expect(avatarInitial({ displayName: 'łukasz', avatarPath: null }, 'a@example.com')).toBe('Ł');
+		expect(
+			avatarInitial(
+				{ displayName: 'łukasz', avatarPath: null, rankForm: 'masculine' as const },
+				'a@example.com'
+			)
+		).toBe('Ł');
 	});
 
 	it('falls back to the first letter of the email without a name', () => {
-		expect(avatarInitial({ displayName: null, avatarPath: null }, 'anna@example.com')).toBe('A');
+		expect(
+			avatarInitial(
+				{ displayName: null, avatarPath: null, rankForm: 'masculine' as const },
+				'anna@example.com'
+			)
+		).toBe('A');
 		expect(avatarInitial(undefined, 'anna@example.com')).toBe('A');
 	});
 
 	it('falls back to the email when the name is only spaces', () => {
-		expect(avatarInitial({ displayName: '  ', avatarPath: null }, 'zofia@example.com')).toBe('Z');
+		expect(
+			avatarInitial(
+				{ displayName: '  ', avatarPath: null, rankForm: 'masculine' as const },
+				'zofia@example.com'
+			)
+		).toBe('Z');
 	});
 });
 
@@ -48,7 +63,11 @@ describe('validateDisplayName', () => {
 });
 
 describe('profileDraftChanged', () => {
-	const saved = profileDraftOf({ displayName: 'Anna', avatarPath: null });
+	const saved = profileDraftOf({
+		displayName: 'Anna',
+		avatarPath: null,
+		rankForm: 'masculine' as const
+	});
 
 	it('sees no change in the same draft or in a name that differs only in spacing', () => {
 		expect(profileDraftChanged(saved, saved)).toBe(false);
@@ -76,13 +95,17 @@ describe('showsAvatar', () => {
 	const image = new Blob(['a'], { type: 'image/jpeg' });
 
 	it('shows the saved photo until it is removed', () => {
-		const profile = { displayName: null, avatarPath: 'owner/avatar-1.jpg' };
+		const profile = {
+			displayName: null,
+			avatarPath: 'owner/avatar-1.jpg',
+			rankForm: 'masculine' as const
+		};
 		expect(showsAvatar(profile, { kind: 'keep' })).toBe(true);
 		expect(showsAvatar(profile, { kind: 'remove' })).toBe(false);
 	});
 
 	it('shows a new photo and shows none for a profile without one', () => {
-		const profile = { displayName: null, avatarPath: null };
+		const profile = { displayName: null, avatarPath: null, rankForm: 'masculine' as const };
 		expect(showsAvatar(profile, { kind: 'replace', image })).toBe(true);
 		expect(showsAvatar(profile, { kind: 'keep' })).toBe(false);
 	});

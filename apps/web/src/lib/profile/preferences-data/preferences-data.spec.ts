@@ -16,6 +16,7 @@ const row = {
 	review_form: 'quizzes',
 	review_quiz_kinds: ['quiz_pin', 'quiz_image'],
 	review_free: false,
+	career_shown: true,
 	review_glossary_questions: 2,
 	view_show_pins: true,
 	view_loupe_on: true,
@@ -38,6 +39,7 @@ describe('preferencesOf', () => {
 			reviewQuizKinds: ['quiz_image', 'quiz_pin'],
 			reviewFree: false,
 			reviewGlossaryQuestions: 2,
+			careerShown: true,
 			viewShowPins: true,
 			viewLoupeOn: true,
 			fetchImage: false,
@@ -103,6 +105,7 @@ describe('savePreferences', () => {
 			review_form: 'mixed',
 			review_quiz_kinds: defaultPreferences.reviewQuizKinds,
 			review_free: false,
+			career_shown: true,
 			review_glossary_questions: 1
 		});
 		expect(result).toEqual({ preferences: preferencesOf(row) });
