@@ -1,11 +1,14 @@
 import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
+import { withTiers } from '#lib/career/exhibits/exhibits.ts';
+import type { Exhibit } from '#lib/career/types/exhibit.ts';
 import type { ExhibitProgress } from '#lib/career/types/exhibit-progress.ts';
 import type { UnlockedTier } from '#lib/career/types/unlocked-tier.ts';
 
 type PointsResult = { points: number; error?: string };
 type ExhibitsResult = { exhibits: ExhibitProgress[]; error?: string };
 type TiersResult = { tiers: UnlockedTier[]; error?: string };
+type DisplayCaseResult = { exhibits: Exhibit[]; error?: string };
 
 export async function loadPoints(): Promise<PointsResult> {
 	const { data, error } = await supabase.rpc('learner_points');
@@ -46,4 +49,12 @@ export async function markTiersSeen(now: Date = new Date()): Promise<{ error?: s
 		.update({ seen_at: now.toISOString() })
 		.is('seen_at', null);
 	return error ? { error: collectionErrorMessage(error) } : {};
+}
+
+export async function loadDisplayCase(): Promise<DisplayCaseResult> {
+	const counted = await unlockExhibits();
+	if (counted.error) return { exhibits: [], error: counted.error };
+	const unlocked = await loadUnlockedTiers();
+	if (unlocked.error) return { exhibits: [], error: unlocked.error };
+	return { exhibits: withTiers(counted.exhibits, unlocked.tiers) };
 }
