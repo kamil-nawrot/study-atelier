@@ -36,11 +36,9 @@
 	}: Props = $props();
 
 	let term = $derived(normalizeForSearch(query));
+	let sorted = $derived(sortRecords(records, sort));
 	let matching = $derived(
-		sortRecords(
-			term ? records.filter((record) => normalizeForSearch(record.name).includes(term)) : records,
-			sort
-		)
+		term ? sorted.filter((record) => normalizeForSearch(record.name).includes(term)) : sorted
 	);
 </script>
 
