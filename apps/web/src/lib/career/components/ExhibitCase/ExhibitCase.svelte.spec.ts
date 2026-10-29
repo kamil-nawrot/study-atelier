@@ -24,18 +24,38 @@ function exhibit(overrides: Partial<Exhibit> = {}): Exhibit {
 }
 
 describe('ExhibitCase', () => {
-	it('names the exhibit, says what it counts and how far the next tier is', async () => {
+	it('names the exhibit and says how far the next tier is', async () => {
 		render(ExhibitCase, { props: { exhibit: exhibit() } });
 
 		await expect
 			.element(page.getByRole('heading', { level: 3 }))
 			.toHaveTextContent(m.career.exhibits.collection.name);
-		await expect.element(page.getByText(m.career.exhibits.collection.about)).toBeVisible();
 		await expect.element(page.getByText(m.career.tier('II', 'V'))).toBeVisible();
 		await expect.element(page.getByText(m.career.progress(24, 50))).toBeVisible();
 		await expect
 			.element(page.getByRole('meter', { name: m.career.exhibits.collection.name }))
 			.toHaveAttribute('aria-valuemax', '50');
+	});
+
+	it('keeps the description and the curiosities behind the button in the corner', async () => {
+		render(ExhibitCase, { props: { exhibit: exhibit() } });
+
+		const about = page.getByText(m.career.exhibits.collection.about);
+		await expect.element(about).not.toBeVisible();
+		await page.getByRole('button', { name: m.career.about }).click();
+		await expect.element(about).toBeVisible();
+		await expect.element(page.getByText(m.career.curiosities.collection[1])).toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: m.career.source }).nth(1))
+			.toHaveAttribute('href', 'https://www.savevenice.org/project/jacopo-tintoretto-paradise');
+	});
+
+	it('gives the date of an unlocked tier on its lamp', async () => {
+		render(ExhibitCase, { props: { exhibit: exhibit() } });
+
+		const lamp = page.getByRole('button', { name: m.career.tierLabel('II') }).element();
+		const tooltip = document.getElementById(lamp.getAttribute('aria-describedby') ?? '');
+		expect(tooltip?.textContent).toBe(m.career.tierDate('II', '2 października 2026'));
 	});
 
 	it('marks a tier not seen yet as new', async () => {
@@ -46,30 +66,13 @@ describe('ExhibitCase', () => {
 		await expect.element(page.getByText(m.career.new)).toBeVisible();
 	});
 
-	it('lists the dates of the unlocked tiers', async () => {
-		render(ExhibitCase, { props: { exhibit: exhibit() } });
-
-		await page.getByText(m.career.tiers).click();
-		await expect
-			.element(page.getByText(m.career.tierDate('II', '2 października 2026')))
-			.toBeVisible();
-	});
-
-	it('reveals the curiosity of each unlocked tier with its source', async () => {
-		render(ExhibitCase, { props: { exhibit: exhibit() } });
-
-		await page.getByText(m.career.tiers).click();
-		await expect.element(page.getByText(m.career.curiosities.collection[1])).toBeVisible();
-		await expect
-			.element(page.getByRole('link', { name: m.career.source }).nth(1))
-			.toHaveAttribute('href', 'https://www.savevenice.org/project/jacopo-tintoretto-paradise');
-	});
-
 	it('says that the exhibit has no tier yet', async () => {
 		render(ExhibitCase, { props: { exhibit: exhibit({ value: 0, tiers: [] }) } });
 
 		await expect.element(page.getByText(m.career.noTier)).toBeVisible();
-		await expect.element(page.getByText(m.career.tiers)).not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: m.career.tierLabel('I') }))
+			.not.toBeInTheDocument();
 	});
 
 	it('says when the top tier is reached', async () => {
@@ -87,10 +90,10 @@ describe('ExhibitCase', () => {
 		await expect
 			.element(page.getByRole('heading', { level: 3 }))
 			.toHaveTextContent(m.career.hiddenName);
+		await page.getByRole('button', { name: m.career.about }).click();
 		await expect.element(page.getByText(m.career.exhibits.night_watch.hint)).toBeVisible();
 		await expect
 			.element(page.getByText(m.career.exhibits.night_watch.name))
 			.not.toBeInTheDocument();
-		await expect.element(page.getByRole('meter')).not.toBeInTheDocument();
 	});
 });

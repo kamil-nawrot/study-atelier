@@ -23,6 +23,7 @@ vi.mock('#lib/career/career-state/career-state.svelte.ts', () => ({
 	career: {
 		markSeen: vi.fn(),
 		refresh: vi.fn().mockResolvedValue(undefined),
+		standing: { points: 1846, newTiers: 0, rankSeen: 5 },
 		hasNewTiers: false,
 		hasNewRank: false,
 		tierFlash: 0,
@@ -59,6 +60,10 @@ describe('display case page', () => {
 		await expect.element(page.getByText(m.career.lead)).toBeVisible();
 		await expect.element(page.getByText(m.career.new)).toBeVisible();
 		expect(career.markSeen).toHaveBeenCalledOnce();
+		await expect
+			.element(page.getByText(m.career.rankProgress(1846, 2000, 'Asystent muzealny')))
+			.toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.career.credits })).toBeVisible();
 	});
 
 	it('says when the display case could not be loaded and marks nothing', async () => {

@@ -1269,7 +1269,6 @@ export const pl = {
 		tier: (tier: string, total: string): string => `Poziom ${tier} z ${total}`,
 		noTier: 'Jeszcze bez poziomu',
 		new: 'Nowe',
-		tiers: 'Zdobyte poziomy',
 		tierDate: (tier: string, date: string): string => `Poziom ${tier} · ${date}`,
 		hiddenName: 'Ukryty eksponat',
 		source: 'Źródło',
@@ -1314,6 +1313,11 @@ export const pl = {
 			]
 		},
 		rankLabel: (rank: string, points: number): string => `Stopień: ${rank}, ${pointCount(points)}`,
+		rankProgress: (points: number, next: number, rank: string): string =>
+			`${points} z ${pointCount(next)} do stopnia ${rank}`,
+		rankTop: (points: number): string => `${pointCount(points)} · najwyższy stopień`,
+		about: 'O eksponacie',
+		tierLabel: (tier: string): string => `Poziom ${tier}`,
 		rankTip: (points: number, next: string, missing: number): string =>
 			`${pointCount(points)} · do stopnia ${next} brakuje ${missing}`,
 		roundPlan: (points: number, streak: number, bonus: number): string =>

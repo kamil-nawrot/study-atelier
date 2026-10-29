@@ -18,16 +18,4 @@ describe('DisplayCase', () => {
 		await expect.element(names.nth(0)).toHaveTextContent(m.career.exhibits.collection.name);
 		await expect.element(names.nth(1)).toHaveTextContent(m.career.exhibits.eras.name);
 	});
-
-	it('credits the engravings it shows', async () => {
-		render(DisplayCase, { props: { exhibits } });
-
-		await expect.element(page.getByRole('heading', { name: m.career.credits })).toBeVisible();
-		await expect
-			.element(page.getByRole('link', { name: /Musei Wormiani Historia/ }))
-			.toHaveAttribute(
-				'href',
-				'https://commons.wikimedia.org/wiki/File:1655_-_Frontispiece_of_Museum_Wormiani_Historia.jpg'
-			);
-	});
 });

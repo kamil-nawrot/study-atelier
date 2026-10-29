@@ -295,13 +295,25 @@ describe('AtelierLayout account row', () => {
 		await expect.element(link).toHaveTextContent('A');
 	});
 
-	it('shows the whole email in a tooltip under the name', async () => {
+	it('shows the name without the email, which stays in the tooltip of the name', async () => {
 		pageState.data = { menuProfile: Promise.resolve({ displayName: 'Anna', avatarPath: null }) };
 		renderLayout(views.empty);
 
 		await expect
-			.element(page.getByText('learner@example.com', { exact: true }))
+			.element(page.getByText('Anna', { exact: true }))
 			.toHaveAttribute('title', 'learner@example.com');
+		await expect
+			.element(page.getByText('learner@example.com', { exact: true }))
+			.not.toBeInTheDocument();
+	});
+
+	it('shows the email in place of a name the learner has not given', async () => {
+		pageState.data = { menuProfile: Promise.resolve({ displayName: null, avatarPath: null }) };
+		renderLayout(views.empty);
+
+		await expect
+			.element(page.getByText('learner@example.com', { exact: true }))
+			.toBeInTheDocument();
 	});
 
 	it('keeps the name while the profile loads again after a navigation', async () => {

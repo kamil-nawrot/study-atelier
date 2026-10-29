@@ -1,8 +1,5 @@
 <script lang="ts">
-	import { m } from '#lib/i18n/i18n.ts';
 	import ExhibitCase from '#lib/career/components/ExhibitCase/ExhibitCase.svelte';
-	import { credits } from '#lib/career/exhibit-art/exhibit-art.ts';
-	import { commonsFilePage } from '#lib/images/commons/commons.ts';
 	import type { Exhibit } from '#lib/career/types/exhibit.ts';
 
 	type Props = {
@@ -13,8 +10,6 @@
 
 	const METALS = ['none', 'iron', 'bronze', 'silver', 'gold', 'glow'] as const;
 	const LINES = '0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.4 -1.4 -1.4 0 1.9';
-
-	let sources = $derived(credits(exhibits.map((exhibit) => exhibit.code)));
 </script>
 
 <svg class="filters" aria-hidden="true">
@@ -32,22 +27,6 @@
 		<li><ExhibitCase {exhibit} /></li>
 	{/each}
 </ul>
-
-{#if sources.length > 0}
-	<footer>
-		<h2>{m.career.credits}</h2>
-		<ul class="credits caption">
-			{#each sources as art (art.file)}
-				<li>
-					<a href={commonsFilePage(art.commonsFile)} rel="external noreferrer" target="_blank"
-						>{art.credit}</a
-					>
-					· {art.licence} · {m.career.recoloured}
-				</li>
-			{/each}
-		</ul>
-	</footer>
-{/if}
 
 <style>
 	.filters {
@@ -87,21 +66,5 @@
 
 	.exhibits > li {
 		display: grid;
-	}
-
-	footer {
-		display: grid;
-		gap: var(--spacing-2);
-	}
-
-	.credits {
-		padding: 0;
-		display: grid;
-		gap: var(--spacing-1);
-		list-style: none;
-	}
-
-	a {
-		color: inherit;
 	}
 </style>
