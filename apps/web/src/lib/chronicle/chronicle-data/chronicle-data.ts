@@ -1,6 +1,7 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { chronicleErrorMessage } from '#lib/chronicle/errors/errors.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
+import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { isUuid } from '#lib/shared/utils/ids/ids.ts';
 import type { DatePrecision } from '#lib/chronicle/types/date-precision.ts';
@@ -126,11 +127,13 @@ export async function saveVisit(draft: VisitDraft, existingId?: string): Promise
 		artwork_ids: draft.artworkIds,
 		...(existingId ? { existing_id: existingId } : {})
 	});
+	forgetCached();
 	if (error) return { error: await failureMessage(error, chronicleErrorMessage) };
 	return { id: data };
 }
 
 export async function deleteVisit(id: string): Promise<VisitDeleteResult> {
 	const { error } = await supabase.from('visits').delete().eq('id', id);
+	forgetCached();
 	return error ? { error: await failureMessage(error, chronicleErrorMessage) } : {};
 }

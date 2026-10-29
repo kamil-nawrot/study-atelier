@@ -2,6 +2,7 @@ import { failureMessage } from '#lib/auth/expired-session-data/expired-session-d
 import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import type { ServiceError } from '#lib/shared/types/service-error.ts';
+import { cached, forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyCardIndex } from '#lib/card-index/card-index/card-index.ts';
 import { isCategoryCode } from '#lib/card-index/category-values/category-values.ts';
@@ -62,7 +63,11 @@ export async function loadOwnValues(): Promise<{ ownValues: OwnValue[]; error?: 
 	return { ownValues: ownValuesOf(rows) };
 }
 
-export async function loadCardIndex(): Promise<CardIndexResult> {
+export function loadCardIndex(): Promise<CardIndexResult> {
+	return cached('card-index', fetchCardIndex);
+}
+
+async function fetchCardIndex(): Promise<CardIndexResult> {
 	const [values, periodEras, stylePeriods, sortNames] = await Promise.all([
 		fetchAll<UsageRow>((from, to) => supabase.rpc('value_usage').range(from, to)),
 		fetchAll<PeriodEraRow>((from, to) => supabase.rpc('period_era_usage').range(from, to)),
@@ -127,6 +132,7 @@ async function run(
 	call: PromiseLike<{ error: ServiceError | null }>
 ): Promise<CardIndexActionResult> {
 	const { error } = await call;
+	forgetCached();
 	return error ? { error: await failureMessage(error, cardIndexErrorMessage) } : {};
 }
 

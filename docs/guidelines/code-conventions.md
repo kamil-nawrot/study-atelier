@@ -164,6 +164,7 @@ Inside a module (example: `wall`):
 - Every error from Supabase or another service goes through a mapping function in `lib/<domain>/errors.ts`, which picks a dictionary message by error code and falls back to a general message. `error.message` is never shown to the learner.
 - A database error is mapped by a function built with `errorMessages` from `#lib/shared/data/errors/errors.ts`, given the module's table of codes and its network message; the factory alone decides what counts as a network error. Errors of other shapes (auth, storage, Wikimedia) keep their own mapping in the module.
 - Domain functions return the mapped message, so views only show it.
+- A domain function that writes artworks, values, own fields, visits or the whole atelier calls `forgetCached()` from `lib/shared/data/data-cache/data-cache.ts` after the write, so the collection and the card index kept in memory are loaded again ([ADR-0157](../decisions/0157-keep-the-collection-and-card-index-in-memory-between-views.md)).
 - A domain function that writes passes the error through `failureMessage` from `lib/auth/expired-session-data/expired-session-data.ts`: an authorization error (HTTP 401 or a `PGRST301`..`PGRST303` code) signs the learner out and returns the session-ended message; any other error goes to the domain's mapping function.
 
 ## External services

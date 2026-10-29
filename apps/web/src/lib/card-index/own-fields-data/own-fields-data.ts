@@ -1,4 +1,5 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
+import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import type { OwnField } from '#lib/card-index/types/own-field.ts';
@@ -86,6 +87,7 @@ function cleanDescription(input: string): string | null {
 
 async function run(call: PromiseLike<{ error: { code?: string } | null }>): Promise<ActionResult> {
 	const { error } = await call;
+	forgetCached();
 	return error ? { error: await failureMessage(error, cardIndexErrorMessage) } : {};
 }
 
