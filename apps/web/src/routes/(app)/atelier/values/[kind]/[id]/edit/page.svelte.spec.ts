@@ -23,6 +23,7 @@ vi.mock('$app/navigation', () => ({
 	goto: vi.fn()
 }));
 vi.mock('#lib/card-index/card-index-data/card-index-data.ts', () => ({
+	createValue: vi.fn(),
 	saveValue: vi.fn(),
 	loadValuePageContent: vi.fn()
 }));
