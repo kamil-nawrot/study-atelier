@@ -163,3 +163,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0157](0157-keep-the-collection-and-card-index-in-memory-between-views.md)                | Keep the collection and the card index in memory between views                           | accepted           |
 | [0158](0158-add-values-straight-from-the-card-index.md)                                   | Add values straight from the card index                                                  | accepted           |
 | [0159](0159-end-to-end-tests-against-a-local-supabase.md)                                 | End-to-end tests against a local Supabase                                                | accepted           |
+| [0160](0160-gamify-learning-as-a-museum-career.md)                                        | Gamify learning as a museum career                                                       | accepted           |
