@@ -162,3 +162,4 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0156](0156-leave-the-loupe-with-a-right-click-or-a-click-beside-the-image.md)            | Leave the loupe with a right click or a click beside the image                           | accepted           |
 | [0157](0157-keep-the-collection-and-card-index-in-memory-between-views.md)                | Keep the collection and the card index in memory between views                           | accepted           |
 | [0158](0158-add-values-straight-from-the-card-index.md)                                   | Add values straight from the card index                                                  | accepted           |
+| [0159](0159-end-to-end-tests-against-a-local-supabase.md)                                 | End-to-end tests against a local Supabase                                                | accepted           |

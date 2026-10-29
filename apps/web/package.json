@@ -16,11 +16,13 @@
 		"test:unit": "vitest",
 		"test": "vitest --run",
 		"test:coverage": "vitest --run --coverage",
+		"test:e2e": "playwright test",
 		"gen": "wrangler types --env-file /dev/null",
 		"screenshot": "node scripts/screenshot/screenshot.mjs"
 	},
 	"devDependencies": {
 		"@lucide/svelte": "^1.55.0",
+		"@playwright/test": "^1.64.0",
 		"@sentry/vite-plugin": "^5.4.1",
 		"@study-atelier/ui": "workspace:*",
 		"@sveltejs/adapter-cloudflare": "^8.0.0",
