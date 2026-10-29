@@ -80,6 +80,8 @@ begin
     perform public.record_review(artwork,
       '{"due": "2026-10-30T00:00:00Z", "stability": 1, "difficulty": 1, "state": 2, "reps": 1, "lapses": 0, "scheduled_days": 1, "learning_steps": 0}',
       '{"mode": "flashcard", "rating": 3}');
+    perform public.record_free_answers('2026-10-29T00:00:00Z', 20);
+    perform public.unlock_exhibits('UTC');
   end loop;
 end;
 $$;
