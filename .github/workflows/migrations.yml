@@ -60,6 +60,9 @@ jobs:
       - name: Check points
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/points.sql
 
+      - name: Check exhibits
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/exhibits.sql
+
       - name: Check note mentions
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/notes-mentions.sql
 

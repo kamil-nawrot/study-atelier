@@ -7,6 +7,7 @@ import {
 	loadReviewDetails,
 	loadReviewStreak,
 	loadSession,
+	recordFreeAnswers,
 	recordReview,
 	waitingToday,
 	withPinPreviews
@@ -187,6 +188,15 @@ describe('review data', () => {
 				answer: { mode: 'quiz_image', rating: 1, correct: false, answer_ms: null }
 			})
 		);
+	});
+
+	it('adds the answers of a free round to the day', async () => {
+		rpc.mockResolvedValue({ error: null } as never);
+		await recordFreeAnswers(new Date('2026-10-28T23:00:00.000Z'), 20);
+		expect(rpc).toHaveBeenCalledWith('record_free_answers', {
+			day_start: '2026-10-28T23:00:00.000Z',
+			answers: 20
+		});
 	});
 
 	it('returns the message to show when an answer cannot be saved', async () => {

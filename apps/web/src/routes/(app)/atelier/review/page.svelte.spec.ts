@@ -8,6 +8,7 @@ import { resolveImages } from '#lib/wall/wall-data/wall-data.ts';
 import {
 	loadReviewDetails,
 	loadSession,
+	recordFreeAnswers,
 	recordReview
 } from '#lib/review/review-data/review-data.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
@@ -39,6 +40,7 @@ vi.mock('#lib/review/review-data/review-data.ts', () => ({
 	REVIEW_COUNTS_DEPENDENCY: 'review:counts',
 	loadReviewDetails: vi.fn().mockResolvedValue({ details: new Map() }),
 	loadSession: vi.fn(),
+	recordFreeAnswers: vi.fn(),
 	recordReview: vi.fn(),
 	withPinPreviews: async (items: unknown) => items
 }));
@@ -195,7 +197,7 @@ describe('review page', () => {
 		await expect.element(page.getByText(m.review.allDone('jutro'))).toBeVisible();
 	});
 
-	it('offers a free review once today is done and saves none of its answers', async () => {
+	it('offers a free review once today is done and counts its answers without saving them', async () => {
 		const artworks = collection(20);
 		renderReview(
 			artworks,
@@ -215,6 +217,7 @@ describe('review page', () => {
 
 		await expect.element(page.getByText(m.review.freeSummary(2, 1))).toBeVisible();
 		expect(recordReview).not.toHaveBeenCalled();
+		expect(recordFreeAnswers).toHaveBeenCalledWith(expect.any(Date), 2);
 		expect(invalidate).not.toHaveBeenCalled();
 		await page.getByRole('button', { name: m.review.freeNextRound }).click();
 		expect(loadSession).toHaveBeenLastCalledWith(expect.any(Date), 'mixed', { kind: 'all' }, 1);

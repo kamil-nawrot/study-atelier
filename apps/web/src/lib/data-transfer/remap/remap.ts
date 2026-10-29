@@ -30,7 +30,9 @@ export const IMPORT_TABLES = [
 	'visit_artworks',
 	'review_cards',
 	'review_log',
-	'point_events'
+	'point_events',
+	'exhibit_tiers',
+	'free_review_days'
 ] as const;
 
 const UUID = new RegExp(UUID_PATTERN, 'g');

@@ -138,6 +138,10 @@ export async function loadReviewStreak(dayStart: Date): Promise<ReviewStreakResu
 	return { days: data };
 }
 
+export async function recordFreeAnswers(dayStart: Date, answers: number): Promise<void> {
+	await supabase.rpc('record_free_answers', { day_start: dayStart.toISOString(), answers });
+}
+
 export function waitingToday(counts: ReviewCounts, newPerDay?: number): number {
 	if (counts.withImage < MIN_ARTWORKS) return 0;
 	const fresh = Math.min(counts.newAvailable, newAllowance(counts.newToday, newPerDay));

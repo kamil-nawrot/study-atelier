@@ -561,6 +561,31 @@ export type Database = {
         };
         Relationships: [];
       };
+      exhibit_tiers: {
+        Row: {
+          exhibit: string;
+          owner_id: string;
+          seen_at: string | null;
+          tier: number;
+          unlocked_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          exhibit: string;
+          owner_id?: string;
+          seen_at?: string | null;
+          tier: number;
+          unlocked_at?: string;
+        };
+        Update: {
+          exhibit?: string;
+          owner_id?: string;
+          seen_at?: string | null;
+          tier?: number;
+          unlocked_at?: string;
+        };
+        Relationships: [];
+      };
       feedback: {
         Row: {
           browser: string | null;
@@ -592,6 +617,25 @@ export type Database = {
           notified_at?: string | null;
           owner_id?: string;
           title?: string;
+        };
+        Relationships: [];
+      };
+      free_review_days: {
+        Row: {
+          answers: number;
+          day_start: string;
+          owner_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          answers: number;
+          day_start: string;
+          owner_id?: string;
+        };
+        Update: {
+          answers?: number;
+          day_start?: string;
+          owner_id?: string;
         };
         Relationships: [];
       };
@@ -807,6 +851,7 @@ export type Database = {
       };
       point_events: {
         Row: {
+          code: string | null;
           day_start: string | null;
           id: number;
           item_id: string | null;
@@ -818,6 +863,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          code?: string | null;
           day_start?: string | null;
           id?: never;
           item_id?: string | null;
@@ -828,6 +874,7 @@ export type Database = {
           streak_days?: number | null;
         };
         Update: {
+          code?: string | null;
           day_start?: string | null;
           id?: never;
           item_id?: string | null;
@@ -1268,6 +1315,10 @@ export type Database = {
           period_id: string;
         }[];
       };
+      record_free_answers: {
+        Args: { answers: number; day_start: string };
+        Returns: undefined;
+      };
       record_review: {
         Args: {
           answer: Json;
@@ -1354,6 +1405,14 @@ export type Database = {
           artwork_count: number;
           period_id: string;
           style_id: string;
+        }[];
+      };
+      unlock_exhibits: {
+        Args: { time_zone: string };
+        Returns: {
+          exhibit: string;
+          thresholds: number[];
+          value: number;
         }[];
       };
       unused_images: { Args: Record<PropertyKey, never>; Returns: string[] };
