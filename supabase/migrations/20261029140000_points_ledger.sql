@@ -32,6 +32,7 @@ create policy "Owners update their plan days"
   using (owner_id = (select auth.uid()))
   with check (owner_id = (select auth.uid()));
 
+revoke all on public.point_events from anon, authenticated;
 grant select on public.point_events to authenticated;
 grant insert (kind, day_start, plan_share, streak_days) on public.point_events to authenticated;
 grant update (plan_share, streak_days, occurred_at) on public.point_events to authenticated;
