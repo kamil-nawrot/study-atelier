@@ -1,11 +1,14 @@
 <script lang="ts">
+	import type { LucideIcon } from '@lucide/svelte';
 	import type { Snippet } from 'svelte';
 	import Button from '../Button/Button.svelte';
+	import StageButton from '../StageButton/StageButton.svelte';
 	import Tooltip from '../Tooltip/Tooltip.svelte';
 
 	type Props = {
 		label: string;
-		trigger: Snippet;
+		trigger?: Snippet;
+		stageIcon?: LucideIcon;
 		children: Snippet;
 		disabled?: boolean;
 		align?: 'start' | 'end';
@@ -15,6 +18,7 @@
 	let {
 		label,
 		trigger,
+		stageIcon,
 		children,
 		disabled = false,
 		align = 'start',
@@ -59,10 +63,22 @@
 			onclick={() => (open = !open)}
 			{onkeydown}
 		>
-			{@render trigger()}
+			{@render trigger?.()}
 		</Button>
 	{/snippet}
-	{#if tooltip}
+	{#if stageIcon}
+		<StageButton
+			active={open}
+			aria-controls={panelId}
+			aria-expanded={open}
+			aria-haspopup="dialog"
+			{disabled}
+			icon={stageIcon}
+			{label}
+			onclick={() => (open = !open)}
+			{onkeydown}
+		/>
+	{:else if tooltip}
 		<Tooltip {align} placement="bottom" text={label}>
 			{#snippet children(id)}
 				{@render control(id)}

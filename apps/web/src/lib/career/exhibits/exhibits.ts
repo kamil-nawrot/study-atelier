@@ -3,10 +3,8 @@ import type { ExhibitProgress } from '#lib/career/types/exhibit-progress.ts';
 import type { Metal } from '#lib/career/types/metal.ts';
 import type { UnlockedTier } from '#lib/career/types/unlocked-tier.ts';
 
-const METALS: readonly Metal[] = ['iron', 'bronze', 'silver', 'gold', 'glow'];
-const HIDDEN = new Set(['night_watch', 'marathon']);
-
-export const SETTING_STEPS = 5;
+const METALS: readonly Metal[] = ['bronze', 'silver', 'gold'];
+const HIDDEN = new Set(['night_watch', 'marathon', 'back_from_storage']);
 
 export function withTiers(progress: ExhibitProgress[], tiers: UnlockedTier[]): Exhibit[] {
 	return progress.map(({ exhibit, value, thresholds }) => ({
@@ -20,7 +18,7 @@ export function withTiers(progress: ExhibitProgress[], tiers: UnlockedTier[]): E
 export function reachedTier(exhibit: Exhibit): number {
 	const stored = Math.max(0, ...exhibit.tiers.map((tier) => tier.tier));
 	const counted = exhibit.thresholds.filter((threshold) => exhibit.value >= threshold).length;
-	return Math.max(stored, counted);
+	return Math.min(Math.max(stored, counted), exhibit.thresholds.length);
 }
 
 export function nextThreshold(exhibit: Exhibit): number | undefined {
@@ -29,12 +27,8 @@ export function nextThreshold(exhibit: Exhibit): number | undefined {
 
 export function metalOf(tier: number, total: number): Metal {
 	if (tier <= 0) return 'none';
-	if (tier >= total) return 'glow';
-	return METALS[Math.floor(((tier - 1) * (METALS.length - 1)) / (total - 1))];
-}
-
-export function settingOf(tier: number): number {
-	return Math.min(tier, SETTING_STEPS);
+	if (tier >= total) return 'platinum';
+	return METALS[Math.floor(((tier - 1) * METALS.length) / (total - 1))];
 }
 
 export function isHidden(exhibit: Exhibit): boolean {

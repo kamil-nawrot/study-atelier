@@ -6,7 +6,7 @@ import EngravingCredits from './EngravingCredits.svelte';
 
 describe('EngravingCredits', () => {
 	it('keeps the credits of the engravings behind a button', async () => {
-		render(EngravingCredits, { props: { codes: ['collection', 'eras'] } });
+		render(EngravingCredits, { props: { codes: ['collection', 'chronicle'] } });
 
 		const panel = page.getByRole('dialog', { name: m.career.credits, includeHidden: true });
 		await expect.element(panel).not.toBeVisible();
@@ -21,7 +21,7 @@ describe('EngravingCredits', () => {
 	});
 
 	it('shows nothing when no engraving is shown', async () => {
-		render(EngravingCredits, { props: { codes: ['eras'] } });
+		render(EngravingCredits, { props: { codes: ['chronicle'] } });
 
 		await expect.element(page.getByRole('button')).not.toBeInTheDocument();
 	});

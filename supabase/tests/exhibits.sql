@@ -111,4 +111,35 @@ begin
 end;
 $$;
 
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-00000000000d', 'owner-d@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-00000000000d", "role": "authenticated"}', true);
+
+do $$
+declare
+  work uuid;
+begin
+  perform public.save_artwork(
+    jsonb_build_object('title', 'Returned', 'author_unknown', true, 'era_code', 'modern'),
+    '{}', null,
+    '[{"source_wikidata_id": "Q99", "source_image_file": "Returned.jpg"}]');
+  select id into work from public.artworks where title = 'Returned';
+  perform public.record_review(work,
+    jsonb_build_object('due', '2026-12-30T00:00:00Z', 'stability', 9, 'difficulty', 5, 'state', 2, 'reps', 4,
+      'lapses', 1, 'scheduled_days', 9, 'learning_steps', 0, 'last_review', now()),
+    jsonb_build_object('mode', 'flashcard', 'rating', 3));
+
+  assert (select thresholds from public.unlock_exhibits('UTC') where exhibit = 'back_from_storage') = array[1],
+    'the Mona Lisa has more than one tier';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'back_from_storage') = array[1]::smallint[],
+    'an artwork forgotten and settled again does not unlock the Mona Lisa';
+  assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'back_from_storage') = 1,
+    'the Mona Lisa gives no bonus';
+end;
+$$;
+
 rollback;

@@ -1264,8 +1264,6 @@ export const pl = {
 		title: 'Gablota',
 		lead: 'W Gablocie zbierasz eksponaty za to, co robisz w atelier. Każdy eksponat ma kilka poziomów, a kolejny zdobywasz po przekroczeniu jego progu, na przykład przy 50 dziełach w atelier albo muzeach w trzech krajach. Zdobytego poziomu nie tracisz, nawet jeśli później coś usuniesz.',
 		loadErrorTitle: 'Nie udało się wczytać Gabloty',
-		progress: (value: number, next: number): string => `${value} z ${next}`,
-		top: 'Najwyższy poziom',
 		tier: (tier: string, total: string): string => `Poziom ${tier} z ${total}`,
 		noTier: 'Jeszcze bez poziomu',
 		new: 'Nowe',
@@ -1335,69 +1333,77 @@ export const pl = {
 			collection: {
 				name: 'Gabinet Olego Worma',
 				about:
-					'Liczy dzieła w Twoim atelier, bez Archiwum. Kopenhaski gabinet osobliwości Olego Worma, znany z ryciny z 1655 roku, był jednym z pierwowzorów muzeum.'
+					'Kopenhaski gabinet osobliwości Olego Worma, znany z ryciny z 1655 roku, był jednym z pierwowzorów muzeum.',
+				count: counter('dzieł w atelier')
 			},
 			eras: {
-				name: 'Kamień z Rosetty',
-				about:
-					'Liczy epoki, z których pochodzą Twoje dzieła, od prehistorii po sztukę współczesną. Ten sam tekst zapisany na kamieniu trzema pismami otworzył drogę do odczytania hieroglifów.'
+				name: 'Świątynia della Tosse',
+				about: 'Piranesi utrwalał na rycinach ruiny starożytnego Rzymu.',
+				count: counter('epok w Twoich dziełach')
 			},
 			memory: {
-				name: 'Teatr pamięci Fludda',
+				name: 'Święty Hieronim w pracowni',
 				about:
-					'Liczy dzieła utrwalone, czyli takie, które pamiętasz dłużej niż tydzień. Robert Fludd przedstawił sztukę pamięci jako teatr, w którym każde miejsce przechowuje wspomnienie.'
+					'Dürer wyrył uczonego pogrążonego w lekturze w 1514 roku, w tym samym roku co „Melancholię I”.',
+				count: counter('dzieł utrwalonych w pamięci')
 			},
 			regular: {
 				name: 'Klepsydra z „Melancholii I”',
 				about:
-					'Liczy najdłuższą serię dni z powtórkami, jaką udało Ci się utrzymać. Dzień, w którym nic nie czekało na powtórkę, nie przerywa serii. Klepsydra wisi na ścianie w miedziorycie Dürera z 1514 roku.'
+					'Klepsydra wisi na ścianie w miedziorycie Dürera z 1514 roku. Dzień, w którym nic nie czekało na powtórkę, nie przerywa serii.',
+				count: counter('dni', 'najdłuższa seria: ')
 			},
 			back_from_storage: {
 				name: 'Mona Lisa po powrocie',
-				about:
-					'Liczy dzieła, które wypadły Ci z pamięci, a potem zostały utrwalone na nowo. Mona Lisa zniknęła z Luwru w 1911 roku i wróciła tam po ponad dwóch latach.'
+				about: 'Mona Lisa zniknęła z Luwru w 1911 roku i wróciła tam po ponad dwóch latach.',
+				hint: 'Zdarza się, że dzieło wypada z pamięci, a potem do niej wraca.',
+				awarded: 'Za dzieło zapomniane i utrwalone na nowo.'
 			},
 			chronicle: {
 				name: 'Przewodnik Baedekera',
-				about:
-					'Liczy miejsca odwiedzone w Kronice. Od XIX wieku przewodniki Baedekera prowadziły podróżnych po muzeach Europy.'
+				about: 'Od XIX wieku przewodniki Baedekera prowadziły podróżnych po muzeach Europy.',
+				count: counter('odwiedzonych miejsc')
 			},
 			grand_tour: {
-				name: 'Globus Coronellego',
+				name: 'Globus podróżnika',
 				about:
-					'Liczy kraje, w których leżą miejsca z Twojej Kroniki, o ile mają wpisany kraj. Vincenzo Coronelli zbudował dla Ludwika XIV globusy o średnicy blisko czterech metrów.'
+					'W XVIII wieku młodzi Europejczycy odbywali Grand Tour, podróż po zabytkach i kolekcjach kontynentu.',
+				count: counter('krajów z odwiedzonymi miejscami')
 			},
 			seen_live: {
-				name: 'Luneta Galileusza',
+				name: 'Teleskop Mathieu Laensbergha',
 				about:
-					'Liczy dzieła oznaczone w Kronice jako zobaczone na żywo. Przez swoją lunetę Galileusz zobaczył na własne oczy góry na Księżycu i księżyce Jowisza.'
+					'Pod imieniem „mistrza Mathieu Laensbergha” od XVII wieku ukazuje się almanach z Liège, nazywany przepowiadaczem z Liège.',
+				count: counter('dzieł zobaczonych na żywo')
 			},
 			timeline: {
 				name: 'Praski orloj',
-				about:
-					'Liczy wydarzenia dodane do Kalendarium. Zegar astronomiczny na praskim rynku odmierza czas od 1410 roku.'
+				about: 'Zegar astronomiczny na praskim rynku odmierza czas od 1410 roku.',
+				count: counter('wydarzeń w Kalendarium')
 			},
 			glossary: {
-				name: 'Encyklopedia Diderota',
+				name: 'Biblioteka w Lejdzie',
 				about:
-					'Liczy pojęcia zapisane w Słowniczku. Wielka encyklopedia oświecenia zebrała tysiące haseł i rycin z całej ówczesnej wiedzy.'
+					'Rycina z 1610 roku pokazuje bibliotekę uniwersytetu w Lejdzie, w której księgi przykuwano łańcuchami do pulpitów.',
+				count: counter('pojęć w Słowniczku')
 			},
 			own_eye: {
-				name: 'Camera obscura Canaletta',
+				name: 'Camera obscura z Encyklopedii',
 				about:
-					'Liczy Twoje własne zdjęcia dzieł. Na długo przed fotografią malarze, wśród nich zapewne Canaletto, odwzorowywali widoki w ciemni optycznej.'
+					'Plansza z Encyklopedii Diderota pokazuje ciemnię optyczną, w której na długo przed fotografią odrysowywano widoki.',
+				count: counter('własnych zdjęć dzieł')
 			},
 			night_watch: {
 				name: 'Straż nocna',
-				about:
-					'Za powtórkę między północą a czwartą rano. Rembrandt namalował „Straż nocną” w 1642 roku.',
-				hint: 'Niektórzy uczą się wtedy, gdy muzea są od dawna zamknięte.'
+				about: 'Rembrandt namalował „Straż nocną” w 1642 roku.',
+				hint: 'Niektórzy uczą się wtedy, gdy muzea są od dawna zamknięte.',
+				awarded: 'Za powtórkę między północą a czwartą rano.'
 			},
 			marathon: {
-				name: 'Puchar Bréala',
-				about:
-					'Za tysiąc dzieł w powtórkach swobodnych jednego dnia. Michel Bréal ufundował srebrny puchar dla zwycięzcy pierwszego olimpijskiego maratonu w 1896 roku.',
-				hint: 'Wytrwałość w powtórkach swobodnych bywa nagradzana.'
+				name: 'Puchar Nemezis',
+				about: 'Na miedziorycie Dürera bogini Nemezis szybuje nad światem z pucharem w dłoni.',
+				hint: 'Wytrwałość w powtórkach swobodnych bywa nagradzana.',
+				awarded: 'Za tysiąc dzieł w powtórkach swobodnych jednego dnia.'
 			}
 		}
 	},
@@ -1719,6 +1725,13 @@ function reviewedToday(count: number, minutes: number): string {
 
 function minuteCount(count: number): string {
 	return `${count} ${plural(count, { one: 'minutę', few: 'minuty', many: 'minut' })}`;
+}
+
+function counter(unit: string, before = ''): (value: number, next?: number) => string {
+	return (value, next) =>
+		next === undefined
+			? `${before}${value} ${unit} · najwyższy poziom`
+			: `${before}${value} z ${next} ${unit}`;
 }
 
 function pointCount(count: number): string {
