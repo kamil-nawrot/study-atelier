@@ -26,14 +26,18 @@ async function createLearner(request: APIRequestContext): Promise<Learner> {
 		headers: ADMIN_HEADERS,
 		data: { owner_id: id, legal_version: LEGAL_VERSION }
 	});
-	if (!profile.ok()) throw new Error(`Creating the test profile failed with ${profile.status()}`);
+	if (!profile.ok()) {
+		await removeLearner(request, id);
+		throw new Error(`Creating the test profile failed with ${profile.status()}`);
+	}
 	return { id, email, password };
 }
 
-async function removeLearner(request: APIRequestContext, learner: Learner): Promise<void> {
-	await request.delete(`${supabase.url}/auth/v1/admin/users/${learner.id}`, {
+async function removeLearner(request: APIRequestContext, id: string): Promise<void> {
+	const removed = await request.delete(`${supabase.url}/auth/v1/admin/users/${id}`, {
 		headers: ADMIN_HEADERS
 	});
+	if (!removed.ok()) throw new Error(`Removing the test learner failed with ${removed.status()}`);
 }
 
 export async function signIn(page: Page, learner: Learner): Promise<void> {
@@ -48,7 +52,7 @@ export const test = base.extend<{ learner: Learner }>({
 	learner: async ({ request }, use) => {
 		const learner = await createLearner(request);
 		await use(learner);
-		await removeLearner(request, learner);
+		await removeLearner(request, learner.id);
 	},
 	page: async ({ page }, use) => {
 		await page.route(EXTERNAL_SOURCES, (route) => route.abort());

@@ -9,19 +9,20 @@ export function cached<T extends { error?: unknown }>(
 	key: string,
 	load: () => Promise<T>
 ): Promise<T> {
-	const kept = entries.get(key);
+	const entry = `${learner ?? ''}:${key}`;
+	const kept = entries.get(entry);
 	if (kept) return kept as Promise<T>;
 	const loading = load().then(
 		(result) => {
-			if (result.error !== undefined && entries.get(key) === loading) entries.delete(key);
+			if (result.error !== undefined && entries.get(entry) === loading) entries.delete(entry);
 			return result;
 		},
 		(error: unknown) => {
-			if (entries.get(key) === loading) entries.delete(key);
+			if (entries.get(entry) === loading) entries.delete(entry);
 			throw error;
 		}
 	);
-	entries.set(key, loading);
+	entries.set(entry, loading);
 	return loading;
 }
 
@@ -34,7 +35,15 @@ export function cacheForLearner(id: string | undefined): void {
 	if (id === learner) return;
 	const switched = learner !== undefined;
 	learner = id;
-	if (switched) entries.clear();
+	if (switched) {
+		entries.clear();
+		return;
+	}
+	for (const [entry, loading] of [...entries]) {
+		if (!entry.startsWith(':')) continue;
+		entries.delete(entry);
+		entries.set(`${id ?? ''}${entry}`, loading);
+	}
 }
 
 export function watchCache(now: () => number = Date.now): () => void {
