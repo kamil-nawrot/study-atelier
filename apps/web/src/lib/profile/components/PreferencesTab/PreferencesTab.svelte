@@ -157,6 +157,14 @@
 					</div>
 				</div>
 				<Switch label={m.settings.preferences.free} bind:checked={draft.reviewFree} />
+				<div class="career">
+					<Switch
+						aria-describedby="career-shown-hint"
+						label={m.settings.preferences.careerShown}
+						bind:checked={draft.careerShown}
+					/>
+					<p id="career-shown-hint" class="hint">{m.settings.preferences.careerShownHint}</p>
+				</div>
 			{:else if part === 'sources'}
 				<p class="hint">{m.settings.preferences.sourcesHint}</p>
 				<Switch label={m.settings.preferences.fetchImage} bind:checked={draft.fetchImage} />
@@ -230,6 +238,11 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--spacing-2);
+	}
+
+	.career {
+		display: grid;
+		gap: var(--spacing-1);
 	}
 
 	.hint {

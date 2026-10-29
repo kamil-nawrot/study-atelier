@@ -3,14 +3,14 @@
 	import { Alert } from '@study-atelier/ui';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import DisplayCase from '#lib/career/components/DisplayCase/DisplayCase.svelte';
-	import { markTiersSeen } from '#lib/career/career-data/career-data.ts';
+	import { career } from '#lib/career/career-state/career-state.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
 	onMount(() => {
-		if (!data.error) void markTiersSeen();
+		if (!data.error) void career.markSeen();
 	});
 </script>
 

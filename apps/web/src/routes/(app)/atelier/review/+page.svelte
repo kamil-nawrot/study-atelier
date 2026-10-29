@@ -8,6 +8,7 @@
 	import { REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data/review-data.ts';
 	import { ReviewFlow } from '#lib/review/review-flow/review-flow.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { shownMenuProfile } from '#lib/profile/menu-profile/menu-profile.svelte.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -37,7 +38,15 @@
 		{/if}
 	{/snippet}
 
-	<ReviewPage error={data.error} {flow} glossary={data.glossary} streak={data.streak} />
+	<ReviewPage
+		error={data.error}
+		{flow}
+		glossary={data.glossary}
+		rankForm={data.careerShown === false
+			? undefined
+			: (shownMenuProfile(data.session.user.id)?.rankForm ?? 'masculine')}
+		streak={data.streak}
+	/>
 </AtelierLayout>
 
 <Dialog
