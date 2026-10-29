@@ -19,15 +19,21 @@ vi.mock('#lib/images/own-image-data/own-image-data.ts', () => ({ removeOwnImage:
 
 const rpc = vi.mocked(supabase.rpc);
 
-function sortNames(rows: unknown[] = [], error: unknown = null): void {
-	const query = {
-		select: vi.fn(),
-		not: vi.fn(),
-		range: vi.fn().mockResolvedValue({ data: rows, error })
-	};
-	query.select.mockReturnValue(query);
-	query.not.mockReturnValue(query);
-	vi.mocked(supabase.from).mockReturnValue(query as never);
+function details(authors: unknown[] = [], places: unknown[] = [], error: unknown = null): void {
+	vi.mocked(supabase.from).mockImplementation(((table: string) => {
+		const query = {
+			select: vi.fn(),
+			not: vi.fn(),
+			or: vi.fn(),
+			range: vi
+				.fn()
+				.mockResolvedValue({ data: table === 'author_details' ? authors : places, error })
+		};
+		query.select.mockReturnValue(query);
+		query.not.mockReturnValue(query);
+		query.or.mockReturnValue(query);
+		return query;
+	}) as never);
 }
 
 function rpcResult(rows: unknown[], error: unknown = null): never {
@@ -64,11 +70,11 @@ beforeEach(() => forgetCached());
 describe('loadCardIndex', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		sortNames();
+		details();
 	});
 
 	it('gives authors their sort names', async () => {
-		sortNames([{ value_id: 'a1', sort_name: 'Vinci, Leonardo da' }]);
+		details([{ value_id: 'a1', sort_name: 'Vinci, Leonardo da' }]);
 		rpc.mockImplementation(((name: string) =>
 			rpcResult(
 				name === 'value_usage'
@@ -92,6 +98,30 @@ describe('loadCardIndex', () => {
 			{ id: 'a2', category: 'author', name: 'Andy Warhol', count: 1 }
 		]);
 		expect(supabase.from).toHaveBeenCalledWith('author_details');
+	});
+
+	it('gives authors their year of birth and places their country', async () => {
+		details(
+			[{ value_id: 'a1', sort_name: null, birth_year: 1452 }],
+			[{ value_id: 'l1', country_code: 'FR' }]
+		);
+		rpc.mockImplementation(((name: string) =>
+			rpcResult(
+				name === 'value_usage'
+					? [
+							{ id: 'a1', category_code: 'author', name: 'Leonardo da Vinci', artwork_count: 1 },
+							{ id: 'l1', category_code: 'location', name: 'Luwr', artwork_count: 2 }
+						]
+					: []
+			)) as never);
+
+		const { index } = await loadCardIndex();
+
+		expect(index.values).toEqual([
+			{ id: 'a1', category: 'author', name: 'Leonardo da Vinci', count: 1, birthYear: 1452 },
+			{ id: 'l1', category: 'location', name: 'Luwr', count: 2, countryCode: 'FR' }
+		]);
+		expect(supabase.from).toHaveBeenCalledWith('location_details');
 	});
 
 	it('keeps the number of visits of a place', async () => {

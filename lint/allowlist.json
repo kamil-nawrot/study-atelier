@@ -37,7 +37,6 @@
 	"margin": [
 		"apps/web/src/lib/artworks/components/ArtworkInfo/ArtworkInfo.svelte",
 		"apps/web/src/lib/auth/components/AuthLayout/AuthLayout.svelte",
-		"apps/web/src/lib/card-index/components/CardIndexList/CardIndexList.svelte",
 		"apps/web/src/lib/card-index/components/CardIndexTimeline/CardIndexTimeline.svelte",
 		"apps/web/src/lib/glossary/components/ArticleDialog/ArticleDialog.svelte",
 		"apps/web/src/lib/glossary/components/GlossaryForm/GlossaryForm.svelte",

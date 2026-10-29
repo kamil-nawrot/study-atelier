@@ -922,7 +922,16 @@ export const pl = {
 			material: 'Szukaj materiału',
 			author: 'Szukaj autora',
 			location: 'Szukaj miejsca',
-			events: 'Szukaj wydarzenia'
+			events: 'Szukaj wydarzenia',
+			timeline: 'Szukaj okresu lub stylu'
+		},
+		sortLabel: 'Sortuj',
+		sorts: {
+			name: 'Według nazwy',
+			count: 'Według liczby dzieł',
+			life: 'Według lat życia',
+			country: 'Według kraju',
+			date: 'Według daty'
 		},
 		noResults: (query: string): string =>
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment nazwy.`,

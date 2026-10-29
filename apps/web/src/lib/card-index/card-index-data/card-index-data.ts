@@ -27,7 +27,9 @@ type UsageRow = {
 	visit_count?: number;
 };
 
-type SortNameRow = { value_id: string; sort_name: string };
+type AuthorRow = { value_id: string; sort_name: string | null; birth_year: number | null };
+
+type PlaceRow = { value_id: string; country_code: string };
 
 type PeriodEraRow = { period_id: string; era_code: string; artwork_count: number };
 
@@ -63,29 +65,52 @@ export async function loadOwnValues(): Promise<{ ownValues: OwnValue[]; error?: 
 	return { ownValues: ownValuesOf(rows) };
 }
 
+function valueDetails(
+	authors: readonly AuthorRow[],
+	places: readonly PlaceRow[]
+): Map<string, Partial<CardIndexRecord>> {
+	const details = new Map<string, Partial<CardIndexRecord>>();
+	for (const author of authors) {
+		details.set(author.value_id, {
+			...(author.sort_name ? { sortName: author.sort_name } : {}),
+			...(author.birth_year !== null ? { birthYear: author.birth_year } : {})
+		});
+	}
+	for (const place of places) details.set(place.value_id, { countryCode: place.country_code });
+	return details;
+}
+
 export function loadCardIndex(): Promise<CardIndexResult> {
 	return cached('card-index', fetchCardIndex);
 }
 
 async function fetchCardIndex(): Promise<CardIndexResult> {
-	const [values, periodEras, stylePeriods, sortNames] = await Promise.all([
+	const [values, periodEras, stylePeriods, authors, places] = await Promise.all([
 		fetchAll<UsageRow>((from, to) => supabase.rpc('value_usage').range(from, to)),
 		fetchAll<PeriodEraRow>((from, to) => supabase.rpc('period_era_usage').range(from, to)),
 		fetchAll<StylePeriodRow>((from, to) => supabase.rpc('style_period_usage').range(from, to)),
-		fetchAll<SortNameRow>((from, to) =>
+		fetchAll<AuthorRow>((from, to) =>
 			supabase
 				.from('author_details')
-				.select('value_id, sort_name')
-				.not('sort_name', 'is', null)
+				.select('value_id, sort_name, birth_year')
+				.or('sort_name.not.is.null,birth_year.not.is.null')
+				.range(from, to)
+		),
+		fetchAll<PlaceRow>((from, to) =>
+			supabase
+				.from('location_details')
+				.select('value_id, country_code')
+				.not('country_code', 'is', null)
 				.range(from, to)
 		)
 	]);
-	const error = values.error ?? periodEras.error ?? stylePeriods.error ?? sortNames.error;
-	const sortNameOf = new Map(sortNames.rows.map((row) => [row.value_id, row.sort_name]));
+	const error =
+		values.error ?? periodEras.error ?? stylePeriods.error ?? authors.error ?? places.error;
 	if (error) {
 		return { index: emptyCardIndex(), ownValues: [], error: collectionErrorMessage(error) };
 	}
 
+	const details = valueDetails(authors.rows, places.rows);
 	return {
 		ownValues: ownValuesOf(values.rows),
 		index: {
@@ -98,7 +123,7 @@ async function fetchCardIndex(): Promise<CardIndexResult> {
 								name: row.name,
 								count: row.artwork_count,
 								...(row.visit_count ? { visits: row.visit_count } : {}),
-								...(sortNameOf.get(row.id) ? { sortName: sortNameOf.get(row.id) } : {})
+								...details.get(row.id)
 							}
 						]
 					: []

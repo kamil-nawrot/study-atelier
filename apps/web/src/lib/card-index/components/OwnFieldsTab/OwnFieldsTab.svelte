@@ -16,6 +16,11 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import { deleteOwnField, moveOwnField } from '#lib/card-index/own-fields-data/own-fields-data.ts';
 	import CardIndexList from '#lib/card-index/components/CardIndexList/CardIndexList.svelte';
+	import {
+		rememberSort,
+		rememberedSort,
+		sortsOf
+	} from '#lib/card-index/card-index-sort/card-index-sort.ts';
 	import OwnFieldDialog from '#lib/card-index/components/OwnFieldDialog/OwnFieldDialog.svelte';
 	import OwnValueDialog from '#lib/card-index/components/OwnValueDialog/OwnValueDialog.svelte';
 	import type { OwnField } from '#lib/card-index/types/own-field.ts';
@@ -31,6 +36,7 @@
 
 	let menus = $state<Record<string, PopupButton>>({});
 	let queries = $state<Record<string, string>>({});
+	let sort = $state(rememberedSort('own'));
 	let fieldOpen = $state(false);
 	let edited = $state<OwnField>();
 	let deleted = $state<OwnField>();
@@ -196,6 +202,8 @@
 							onchoose={(id) => chooseValue(field, id)}
 							records={field.values}
 							searchLabel={m.ownFields.search(field.name)}
+							sorts={sortsOf('own')}
+							bind:sort={() => sort, (value) => rememberSort('own', (sort = value))}
 							bind:query={() => queries[field.id] ?? '', (query) => (queries[field.id] = query)}
 						/>
 					</Disclosure>
