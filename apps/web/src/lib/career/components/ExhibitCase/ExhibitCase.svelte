@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Disclosure, Meter, Tag } from '@study-atelier/ui';
+	import Info from '@lucide/svelte/icons/info';
+	import { Icon, Meter, PopupButton, Tag, Tooltip } from '@study-atelier/ui';
 	import { asset } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { artOf } from '#lib/career/exhibit-art/exhibit-art.ts';
@@ -30,6 +31,16 @@
 	let hidden = $derived(isHidden(exhibit));
 	let setting = $derived(settingOf(tier));
 	let name = $derived(hidden ? m.career.hiddenName : texts.name);
+	let curiosities = $derived(
+		exhibit.tiers.flatMap((unlocked) => {
+			const curiosity = curiosityOf(exhibit.code, unlocked.tier);
+			return curiosity ? [{ tier: unlocked.tier, ...curiosity }] : [];
+		})
+	);
+
+	function dateOf(level: number): Date | undefined {
+		return exhibit.tiers.find((unlocked) => unlocked.tier === level)?.unlockedAt;
+	}
 </script>
 
 <article class="exhibit">
@@ -53,6 +64,25 @@
 				<span class="plaque">{name}</span>
 			{/if}
 		</span>
+		<div class="corner">
+			<PopupButton align="end" label={m.career.about} tooltip>
+				{#snippet trigger()}
+					<Icon icon={Info} size="sm" />
+				{/snippet}
+				<div class="about">
+					<p>{hidden && 'hint' in texts ? texts.hint : texts.about}</p>
+					{#each curiosities as curiosity (curiosity.tier)}
+						<p>
+							<span class="caption">{m.career.tierLabel(roman(curiosity.tier))}</span>
+							{curiosity.text}
+							<a href={curiosity.source} rel="external noreferrer" target="_blank"
+								>{m.career.source}</a
+							>
+						</p>
+					{/each}
+				</div>
+			</PopupButton>
+		</div>
 	</div>
 	<div class="label">
 		<header>
@@ -67,13 +97,28 @@
 				<Tag>{m.career.new}</Tag>
 			{/if}
 		</header>
-		<p>{hidden && 'hint' in texts ? texts.hint : texts.about}</p>
 		<p class="caption">
 			{tier > 0 ? m.career.tier(roman(tier), roman(total)) : m.career.noTier}
 		</p>
-		<ol class="lamps" aria-hidden="true">
+		<ol class="lamps">
 			{#each exhibit.thresholds as threshold, index (threshold)}
-				<li class:on={index < tier}></li>
+				{@const unlockedAt = dateOf(index + 1)}
+				<li>
+					{#if unlockedAt}
+						<Tooltip text={m.career.tierDate(roman(index + 1), tierDate(unlockedAt))}>
+							{#snippet children(id)}
+								<button
+									class="lamp on"
+									aria-describedby={id}
+									aria-label={m.career.tierLabel(roman(index + 1))}
+									type="button"
+								></button>
+							{/snippet}
+						</Tooltip>
+					{:else}
+						<span class="lamp" class:on={index < tier} aria-hidden="true"></span>
+					{/if}
+				</li>
 			{/each}
 		</ol>
 		{#if next === undefined}
@@ -81,28 +126,6 @@
 		{:else if !hidden}
 			<Meter label={name} max={next} value={exhibit.value} />
 			<p class="caption">{m.career.progress(exhibit.value, next)}</p>
-		{/if}
-		{#if exhibit.tiers.length > 0}
-			<Disclosure level={3} open={false} plain title={m.career.tiers}>
-				<ol class="dates">
-					{#each exhibit.tiers as unlocked (unlocked.tier)}
-						{@const curiosity = curiosityOf(exhibit.code, unlocked.tier)}
-						<li>
-							<span class="caption">
-								{m.career.tierDate(roman(unlocked.tier), tierDate(unlocked.unlockedAt))}
-							</span>
-							{#if curiosity}
-								<p>
-									{curiosity.text}
-									<a href={curiosity.source} rel="external noreferrer" target="_blank"
-										>{m.career.source}</a
-									>
-								</p>
-							{/if}
-						</li>
-					{/each}
-				</ol>
-			</Disclosure>
 		{/if}
 	</div>
 </article>
@@ -116,6 +139,7 @@
 
 	.vitrine {
 		position: relative;
+		isolation: isolate;
 		display: grid;
 		place-items: end center;
 		block-size: 15rem;
@@ -211,25 +235,32 @@
 	}
 
 	.lamps li {
+		display: flex;
+	}
+
+	.lamp {
+		display: block;
+		padding: 0;
 		inline-size: var(--spacing-3);
 		block-size: var(--spacing-3);
 		border: var(--border-width-hairline) solid var(--color-fg-muted);
 	}
 
-	.lamps .on {
+	.lamp.on {
 		border-color: var(--color-case-gold);
 		background: var(--color-case-gold);
 	}
 
-	.dates li {
-		display: grid;
-		gap: var(--spacing-1);
+	.corner {
+		position: absolute;
+		top: var(--spacing-2);
+		right: var(--spacing-2);
+		z-index: 2;
 	}
 
-	.dates {
-		padding: 0;
+	.about {
 		display: grid;
 		gap: var(--spacing-3);
-		list-style: none;
+		inline-size: min(var(--size-content-narrow), calc(100vw - var(--spacing-12)));
 	}
 </style>

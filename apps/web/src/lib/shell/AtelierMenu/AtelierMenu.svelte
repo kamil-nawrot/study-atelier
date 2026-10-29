@@ -18,7 +18,9 @@
 	import type { Profile } from '#lib/profile/types/profile.ts';
 	import Avatar from '#lib/profile/components/Avatar/Avatar.svelte';
 	import NewMark from '#lib/career/components/NewMark/NewMark.svelte';
-	import RankLink from '#lib/career/components/RankLink/RankLink.svelte';
+	import RankRing from '#lib/career/components/RankRing/RankRing.svelte';
+	import RankTitle from '#lib/career/components/RankTitle/RankTitle.svelte';
+	import { progressToNext } from '#lib/career/ranks/ranks.ts';
 	import { career } from '#lib/career/career-state/career-state.svelte.ts';
 	import {
 		followMenuProfile,
@@ -67,21 +69,29 @@
 		href={settingsPath}
 	>
 		<span class="icon">
-			<Avatar
-				initial={avatarInitial(profile, email)}
-				medium={!compact}
-				path={profile?.avatarPath}
-			/>
+			{#if careerShown && career.standing}
+				<RankRing progress={progressToNext(career.standing.points)}>
+					<Avatar
+						initial={avatarInitial(profile, email)}
+						medium={!compact}
+						path={profile?.avatarPath}
+					/>
+				</RankRing>
+			{:else}
+				<Avatar
+					initial={avatarInitial(profile, email)}
+					medium={!compact}
+					path={profile?.avatarPath}
+				/>
+			{/if}
 			{#if careerShown}
 				<NewMark flash={career.rankFlash} shown={career.hasNewRank} />
 			{/if}
 		</span>
 		<span class="who" class:visually-hidden={compact}>
-			{#if profile?.displayName}
-				<span class="label">{profile.displayName}</span>
-				<span class="label email" title={email}>{email}</span>
-			{:else}
-				<span class="label">{email}</span>
+			<span class="label" title={email}>{profile?.displayName || email}</span>
+			{#if careerShown && career.standing}
+				<RankTitle form={profile?.rankForm ?? 'masculine'} points={career.standing.points} />
 			{/if}
 		</span>
 	</a>
@@ -90,16 +100,6 @@
 <div class="group">
 	<div class="account-group">
 		{@render account(shownMenuProfile(ownerId))}
-		{#if careerShown && !compact && career.standing}
-			<div class="rank">
-				<RankLink
-					flash={career.rankFlash}
-					form={shownMenuProfile(ownerId)?.rankForm ?? 'masculine'}
-					isNew={career.hasNewRank}
-					points={career.standing.points}
-				/>
-			</div>
-		{/if}
 	</div>
 	<a
 		class="item"
@@ -266,11 +266,6 @@
 		border-bottom: var(--border-width-hairline) solid var(--color-tag);
 	}
 
-	.rank {
-		display: grid;
-		padding: 0 var(--spacing-4) var(--spacing-1) calc(var(--spacing-3) + var(--border-width-button));
-	}
-
 	.account {
 		min-height: calc(40px + 2 * var(--spacing-2));
 	}
@@ -294,11 +289,6 @@
 	.who {
 		display: grid;
 		min-width: 0;
-	}
-
-	.email {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
 	}
 
 	.label {

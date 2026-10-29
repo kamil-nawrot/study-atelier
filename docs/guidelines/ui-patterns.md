@@ -65,7 +65,7 @@ How views and components look and behave, so every new screen stays consistent w
 | Artwork title                               | `cite.artwork-title` | Newsreader italic, `lg` |
 
 - Every page has one `h1`. The page title in the browser tab is built with `m.app.pageTitle(title)`.
-- Newsreader is used only for artwork titles.
+- Newsreader is used only for artwork titles and, by the owner's decision, for the learner's rank in the menu and the display case.
 
 ## Element defaults
 
