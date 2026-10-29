@@ -93,3 +93,16 @@ export async function loadValuePage(
 		visits: extras.visits
 	};
 }
+
+export async function loadNewValuePage(kind: string): Promise<ValuePageResult> {
+	if (!isValueKind(kind) || kind === 'era') return failed(m.valuePage.notFound, true);
+	const [cardIndex, noteLinks] = await Promise.all([loadCardIndex(), loadNoteLinks()]);
+	if (cardIndex.error) return failed(cardIndex.error);
+	return {
+		subject: { kind, record: { id: '', category: kind, name: '', count: 0 } },
+		index: cardIndex.index,
+		artworks: [],
+		details: emptyValueDetails(),
+		noteLinks
+	};
+}
