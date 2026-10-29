@@ -55,6 +55,16 @@ describe('ExhibitCase', () => {
 			.toBeVisible();
 	});
 
+	it('reveals the curiosity of each unlocked tier with its source', async () => {
+		render(ExhibitCase, { props: { exhibit: exhibit() } });
+
+		await page.getByText(m.career.tiers).click();
+		await expect.element(page.getByText(m.career.curiosities.collection[1])).toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: m.career.source }).nth(1))
+			.toHaveAttribute('href', 'https://www.savevenice.org/project/jacopo-tintoretto-paradise');
+	});
+
 	it('says that the exhibit has no tier yet', async () => {
 		render(ExhibitCase, { props: { exhibit: exhibit({ value: 0, tiers: [] }) } });
 
