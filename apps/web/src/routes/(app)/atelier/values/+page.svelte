@@ -1,37 +1,22 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
-	import { Alert, Tabs, Toast } from '@study-atelier/ui';
+	import { Alert, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import {
-		CARD_INDEX_TABS,
 		isCardIndexTab,
 		rememberCardIndexTab,
 		rememberedCardIndexTab
 	} from '#lib/card-index/card-index-tab/card-index-tab.ts';
-	import { loadOwnValues } from '#lib/card-index/card-index-data/card-index-data.ts';
-	import { buildTimeline, valuesOf } from '#lib/card-index/card-index/card-index.ts';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
-	import CardIndexEvents from '#lib/card-index/components/CardIndexEvents/CardIndexEvents.svelte';
-	import CardIndexList from '#lib/card-index/components/CardIndexList/CardIndexList.svelte';
-	import CardIndexTimeline from '#lib/card-index/components/CardIndexTimeline/CardIndexTimeline.svelte';
-	import OwnFieldsTab from '#lib/card-index/components/OwnFieldsTab/OwnFieldsTab.svelte';
-	import { withOwnValues } from '#lib/card-index/own-fields/own-fields.ts';
-	import { loadOwnFields } from '#lib/card-index/own-fields-data/own-fields-data.ts';
-	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
-	import { formatDate } from '#lib/catalogue/years/years.ts';
+	import CardIndexTabs from '#lib/card-index/components/CardIndexTabs/CardIndexTabs.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { PageProps, Snapshot } from './$types';
 
 	let { data }: PageProps = $props();
 
 	const cardIndexPath = resolve('/(app)/atelier/values');
-	const tabs = CARD_INDEX_TABS.map((value) => ({
-		value,
-		label: m.cardIndex.tabs[value],
-		end: value === 'own'
-	}));
 
 	let toast: Toast;
 	let tab = $state<string>(rememberedCardIndexTab());
@@ -50,32 +35,6 @@
 			void tick().then(() => window.scrollTo({ top: scroll, behavior: 'instant' }));
 		}
 	};
-
-	function chooseTab(next: string): void {
-		if (next !== tab) query = '';
-		tab = next;
-	}
-
-	let timeline = $derived(buildTimeline(data.index));
-
-	let eventRecords = $derived(
-		data.events.map((event) => ({
-			id: event.id,
-			name: event.name,
-			note: formatDate(event.yearFrom, event.yearTo, event.yearApproximate) ?? ''
-		}))
-	);
-
-	let own = $derived({ fields: data.ownFields, error: data.ownFieldsError });
-
-	async function ownFieldsChanged(message?: string): Promise<void> {
-		const [definitions, values] = await Promise.all([loadOwnFields(), loadOwnValues()]);
-		own = {
-			fields: withOwnValues(definitions.fields, values.ownValues),
-			error: definitions.error ?? values.error
-		};
-		if (message) toast.show(message);
-	}
 
 	$effect(() => {
 		rememberCardIndexTab(tab);
@@ -100,26 +59,15 @@
 			{data.error}
 		</Alert>
 	{:else}
-		<Tabs label={m.cardIndex.tabsLabel} {tabs} bind:value={() => tab, chooseTab}>
-			{#if tab === 'timeline'}
-				<CardIndexTimeline {timeline} />
-			{:else if tab === 'material' || tab === 'author' || tab === 'location'}
-				{@const kind = tab}
-				{#key kind}
-					<CardIndexList
-						empty={m.cardIndex.emptyList[kind]}
-						href={(id) => valuePath(kind, id)}
-						records={valuesOf(data.index, kind)}
-						searchLabel={m.cardIndex.search[kind]}
-						bind:query
-					/>
-				{/key}
-			{:else if tab === 'events'}
-				<CardIndexEvents entries={eventRecords} bind:query />
-			{:else if tab === 'own'}
-				<OwnFieldsTab error={own.error} fields={own.fields} onchanged={ownFieldsChanged} />
-			{/if}
-		</Tabs>
+		<CardIndexTabs
+			events={data.events}
+			index={data.index}
+			onmessage={(message) => toast.show(message)}
+			ownFields={data.ownFields}
+			ownFieldsError={data.ownFieldsError}
+			bind:tab
+			bind:query
+		/>
 	{/if}
 </AtelierLayout>
 

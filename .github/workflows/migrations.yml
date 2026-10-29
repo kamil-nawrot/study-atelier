@@ -78,6 +78,9 @@ jobs:
       - name: Check visits
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/visits.sql
 
+      - name: Check duplicates and used values
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/values-and-duplicates.sql
+
       - name: Stop local Supabase
         if: always()
         run: supabase stop --no-backup

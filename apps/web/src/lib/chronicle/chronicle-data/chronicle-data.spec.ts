@@ -4,6 +4,7 @@ import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
 	deleteVisit,
 	loadArtworkVisits,
+	loadPlaceVisits,
 	loadVisit,
 	loadVisits,
 	saveVisit
@@ -114,6 +115,24 @@ describe('loadArtworkVisits', () => {
 		chain({ data: null, error: { message: 'TypeError: Failed to fetch' } });
 
 		expect(await loadArtworkVisits(12)).toEqual({ visits: [], error: m.common.network });
+	});
+});
+
+describe('loadPlaceVisits', () => {
+	it('asks for the visits to the place, newest first', async () => {
+		const query = chain({ data: [row()], error: null });
+
+		const result = await loadPlaceVisits('place-1');
+
+		expect(query.eq).toHaveBeenCalledWith('place_id', 'place-1');
+		expect(query.order).toHaveBeenCalledWith('visited_on', { ascending: false });
+		expect(result.visits.map((visit) => visit.artworkIds)).toEqual([['a1', 'a2']]);
+	});
+
+	it('says when the visits cannot be loaded', async () => {
+		chain({ data: null, error: { message: 'TypeError: Failed to fetch' } });
+
+		expect(await loadPlaceVisits('place-1')).toEqual({ visits: [], error: m.common.network });
 	});
 });
 

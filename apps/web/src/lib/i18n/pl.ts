@@ -619,6 +619,7 @@ export const pl = {
 	},
 	loupe: {
 		label: 'Lupa',
+		leave: 'Wyłącz lupę: Esc, prawy przycisk albo kliknięcie obok',
 		unavailable: 'Rozdzielczość tego obrazu jest zbyt mała, żeby można było skorzystać z lupy.',
 		tooLarge: 'Ten obraz z adresu jest zbyt duży, żeby można było skorzystać z lupy.',
 		level: (level: number): string => `${level.toLocaleString('pl', { maximumFractionDigits: 1 })}×`
@@ -909,11 +910,11 @@ export const pl = {
 		periodsWithoutEra: 'Okresy bez epoki',
 		stylesWithoutPeriod: 'Style bez okresu',
 		emptyTimeline:
-			'Nie ma tu jeszcze okresów ani stylów. Pojawią się, gdy wpiszesz je przy dziele.',
+			'Nie ma tu jeszcze okresów ani stylów. Dodaj pierwszy tutaj albo wpisz go przy dziele.',
 		emptyList: {
-			material: 'Nie ma tu jeszcze materiałów. Pojawią się, gdy wpiszesz je przy dziele.',
-			author: 'Nie ma tu jeszcze autorów. Pojawią się, gdy wpiszesz ich przy dziele.',
-			location: 'Nie ma tu jeszcze miejsc. Pojawią się, gdy wpiszesz je przy dziele.'
+			material: 'Nie ma tu jeszcze materiałów. Dodaj pierwszy tutaj albo wpisz go przy dziele.',
+			author: 'Nie ma tu jeszcze autorów. Dodaj pierwszego tutaj albo wpisz go przy dziele.',
+			location: 'Nie ma tu jeszcze miejsc. Dodaj pierwsze tutaj albo wpisz je przy dziele.'
 		},
 		emptyEvents: 'Nie ma tu jeszcze wydarzeń. Dodaj pierwsze, a pojawi się też w Kalendarium.',
 		eventsAdd: 'Dodaj wydarzenie',
@@ -921,7 +922,23 @@ export const pl = {
 			material: 'Szukaj materiału',
 			author: 'Szukaj autora',
 			location: 'Szukaj miejsca',
-			events: 'Szukaj wydarzenia'
+			events: 'Szukaj wydarzenia',
+			timeline: 'Szukaj okresu lub stylu'
+		},
+		sortLabel: 'Sortuj',
+		add: {
+			material: 'Dodaj materiał',
+			author: 'Dodaj autora',
+			location: 'Dodaj miejsce',
+			period: 'Dodaj okres',
+			style: 'Dodaj styl'
+		},
+		sorts: {
+			name: 'Według nazwy',
+			count: 'Według liczby dzieł',
+			life: 'Według lat życia',
+			country: 'Według kraju',
+			date: 'Według daty'
 		},
 		noResults: (query: string): string =>
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment nazwy.`,
@@ -1022,7 +1039,11 @@ export const pl = {
 		oneValue: 'jedna wartość',
 		manyValues: 'kilka wartości',
 		summary: (parts: string[]): string => parts.join(' · '),
-		noValues: 'Nie ma tu jeszcze wartości. Pojawią się, gdy wpiszesz je przy dziele.',
+		noValues: 'Nie ma tu jeszcze wartości. Dodaj pierwszą tutaj albo wpisz ją przy dziele.',
+		addValue: 'Dodaj wartość',
+		newValueTitle: (field: string): string => `Nowa wartość pola „${field}”`,
+		added: (name: string): string => `Dodano wartość „${name}”.`,
+		valueExists: (name: string): string => `Masz już wartość „${name}”.`,
 		values: 'Wartości',
 		search: (name: string): string => `Szukaj w polu „${name}”`,
 		ticked: 'Tak',
@@ -1118,6 +1139,7 @@ export const pl = {
 		}
 	},
 	glossary: {
+		letters: 'Litery',
 		title: 'Słowniczek',
 		count: (count: number): string =>
 			`${count} ${plural(count, { one: 'pojęcie', few: 'pojęcia', many: 'pojęć' })}`,
@@ -1248,6 +1270,7 @@ export const pl = {
 			`${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })} na żywo`,
 		kind: 'Wizyta',
 		artworkVisits: (count: number): string => `Widziane na żywo · ${visitCount(count)}`,
+		placeVisits: (count: number): string => `Z Twojej kroniki · ${visitCount(count)}`,
 		inYear: (year: number): string => `${year} roku`,
 		saved: (place: string, date: string): string => `Zapisano wizytę: ${place}, ${date}.`,
 		view: {
@@ -1465,6 +1488,15 @@ export const pl = {
 		periodLocked: (period: string, count: number): string =>
 			`Nie uda się odpiąć okresu „${period}” od tego stylu, bo ${workCount(count)} w tym stylu ${count === 1 ? 'ma' : 'mają'} przypisany taki okres.`,
 		editTitle: (kind: string, name: string): string => `Edytuj ${kind} „${name}”`,
+		newTitles: {
+			material: 'Nowy materiał',
+			author: 'Nowy autor',
+			location: 'Nowe miejsce',
+			period: 'Nowy okres',
+			style: 'Nowy styl'
+		},
+		exists: (kind: string, name: string): string => `Masz już ${kind} „${name}”.`,
+		created: (kind: string, name: string): string => `Dodano ${kind} „${name}”.`,
 		eraAccusative: 'epokę',
 		summary: 'Podsumowanie',
 		summaryPlaceholder: 'Krótki opis do szybkiego podejrzenia przy oglądaniu dzieła.',

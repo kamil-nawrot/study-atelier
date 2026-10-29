@@ -126,4 +126,15 @@ describe('Tooltip', () => {
 		expect(bubble.right).toBeLessThanOrEqual(control.left);
 		expect(bubble.top + bubble.height / 2).toBeCloseTo(control.top + control.height / 2, 0);
 	});
+
+	it('wraps its text even inside an element that does not wrap', async () => {
+		const host = document.createElement('div');
+		host.style.whiteSpace = 'nowrap';
+		document.body.appendChild(host);
+		render(Tooltip, { target: host, props: { text: 'A long name', children: button } });
+
+		const bubble = host.querySelector('[role="tooltip"]') as HTMLElement;
+		expect(getComputedStyle(bubble).whiteSpace).toBe('normal');
+		host.remove();
+	});
 });

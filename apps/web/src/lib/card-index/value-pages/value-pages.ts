@@ -7,6 +7,7 @@ import type { ValueKind } from '#lib/card-index/types/value-kind.ts';
 import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
+import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
 
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { ValueParent } from '#lib/card-index/types/value-parent.ts';
@@ -32,6 +33,10 @@ export function valuePath(kind: ValueKind, id: string): ResolvedPathname {
 
 export function valueEditPath(kind: ValueKind, id: string): ResolvedPathname {
 	return resolve('/(app)/atelier/values/[kind]/[id]/edit', { kind, id });
+}
+
+export function newValuePath(kind: CategoryCode): ResolvedPathname {
+	return resolve('/(app)/atelier/values/[kind]/new', { kind });
 }
 
 export function subjectPath(subject: ValueSubject): ResolvedPathname {

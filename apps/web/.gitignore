@@ -24,3 +24,7 @@ vite.config.ts.timestamp-*
 
 # Test coverage
 /coverage
+
+# End-to-end tests
+/test-results
+/playwright-report

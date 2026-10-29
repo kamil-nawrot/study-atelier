@@ -158,3 +158,8 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0152](0152-ask-who-made-the-artwork-in-the-review.md)                                    | Ask who made the artwork in the review                                                   | accepted           |
 | [0153](0153-add-glossary-definitions-to-the-review-as-extra-questions.md)                 | Add glossary definitions to the review as extra questions                                | accepted           |
 | [0154](0154-turn-the-author-quiz-on-only-for-new-accounts.md)                             | Turn the author quiz on only for new accounts                                            | accepted           |
+| [0155](0155-check-duplicates-and-list-used-values-in-the-database.md)                     | Check duplicates and list used values in the database                                    | accepted           |
+| [0156](0156-leave-the-loupe-with-a-right-click-or-a-click-beside-the-image.md)            | Leave the loupe with a right click or a click beside the image                           | accepted           |
+| [0157](0157-keep-the-collection-and-card-index-in-memory-between-views.md)                | Keep the collection and the card index in memory between views                           | accepted           |
+| [0158](0158-add-values-straight-from-the-card-index.md)                                   | Add values straight from the card index                                                  | accepted           |
+| [0159](0159-end-to-end-tests-against-a-local-supabase.md)                                 | End-to-end tests against a local Supabase                                                | accepted           |

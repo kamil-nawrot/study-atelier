@@ -516,6 +516,7 @@ function glossaryEntry(
 function visit(number, place, placeType, countryCode, visitedOn, precision, notes, numbers) {
 	return {
 		id: `00000000-0000-4000-8000-000000000${String(500 + number)}`,
+		place_id: valueId('location', place),
 		visited_on: visitedOn,
 		date_precision: precision,
 		notes,
@@ -595,7 +596,7 @@ export const TIMELINE_EVENTS = [
 	{
 		id: '00000000-0000-4000-8000-000000000302',
 		owner_id: USER.id,
-		name: 'Wystąpienie Lutra',
+		name: 'Wystąpienie Lutra i początek reformacji w Wittenberdze',
 		year_from: null,
 		year_to: 1517,
 		year_approximate: false,

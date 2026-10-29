@@ -382,6 +382,7 @@ function visitsRoute(route, request, url) {
 	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
 	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
 	const id = url.searchParams.get('id');
+	const placeId = url.searchParams.get('place_id');
 	const number = url.searchParams.get('visit_artworks.artworks.record_number');
 	const artworkId = number?.startsWith('eq.')
 		? `00000000-0000-4000-8000-${number.slice(3).padStart(12, '0')}`
@@ -389,6 +390,7 @@ function visitsRoute(route, request, url) {
 	const rows = VISITS.filter(
 		(row) =>
 			(!id?.startsWith('eq.') || row.id === id.slice(3)) &&
+			(!placeId?.startsWith('eq.') || row.place_id === placeId.slice(3)) &&
 			(!artworkId || row.visit_artworks.some((seen) => seen.artwork_id === artworkId))
 	);
 	if (!wantsObject) return json(route, rows);
@@ -428,6 +430,38 @@ async function mockSupabase(context) {
 			);
 		}
 		if (url.pathname === '/rest/v1/rpc/artwork_field_usage') return json(route, OWN_FIELD_USAGE);
+		if (url.pathname === '/rest/v1/rpc/used_category_values') {
+			const names = new Map(
+				[
+					...VALUE_USAGE.filter(
+						(row) => !OWN_FIELDS.some((field) => field.id === row.category_code)
+					),
+					...OWN_VALUE_USAGE,
+					...VISITS.map((visit) => ({
+						category_code: 'location',
+						name: visit.category_values.name
+					}))
+				].map((row) => [`${row.category_code}:${row.name}`, row])
+			);
+			return json(
+				route,
+				[...names.values()].map(({ category_code, name }) => ({ category_code, name }))
+			);
+		}
+		if (url.pathname === '/rest/v1/rpc/duplicate_candidates') {
+			const title = request.postDataJSON()?.title?.trim().toLowerCase();
+			return json(
+				route,
+				ARTWORKS.filter((row) => row.title.toLowerCase() === title).map((row) => ({
+					id: row.id,
+					record_number: row.record_number,
+					title: row.title,
+					authors: row.artwork_values
+						.filter(({ category_values: value }) => value.category_code === 'author')
+						.map(({ category_values: value }) => value.name)
+				}))
+			);
+		}
 		if (url.pathname === '/rest/v1/artwork_fields' && request.method() === 'GET') {
 			return json(route, OWN_FIELDS);
 		}
@@ -466,7 +500,8 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/catalogue_museums') return json(route, CATALOGUE_MUSEUMS);
 		if (
 			url.pathname === '/rest/v1/location_details' &&
-			url.searchParams.get('country_code') === 'not.is.null'
+			url.searchParams.get('country_code') === 'not.is.null' &&
+			url.searchParams.get('select') !== 'value_id,country_code'
 		) {
 			const names = new Map(
 				ARTWORKS.flatMap((row) => row.artwork_values).map(({ category_values: value }) => [
@@ -507,6 +542,22 @@ async function mockSupabase(context) {
 			return json(route, values);
 		}
 		const detailsTable = url.pathname.replace('/rest/v1/', '');
+		if (url.searchParams.get('select') === 'value_id,sort_name,birth_year') {
+			return json(
+				route,
+				VALUE_DETAILS.author_details.map(({ value_id, sort_name, birth_year }) => ({
+					value_id,
+					sort_name: sort_name ?? null,
+					birth_year: birth_year ?? null
+				}))
+			);
+		}
+		if (url.searchParams.get('select') === 'value_id,country_code') {
+			return json(
+				route,
+				VALUE_DETAILS.location_details.filter((row) => row.country_code)
+			);
+		}
 		if (detailsTable in VALUE_DETAILS) {
 			const [column, filter] = [...url.searchParams].find(([key]) => key !== 'select') ?? [];
 			return json(

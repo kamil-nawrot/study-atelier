@@ -4,7 +4,7 @@ import { beforeNavigate } from '$app/navigation';
 import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
 import type { ValueLinks } from '#lib/card-index/types/value-links.ts';
 import { m } from '#lib/i18n/i18n.ts';
-import { supabase } from '#lib/shared/data/supabase/supabase.ts';
+import { saveArtworkCalls } from '#lib/testing/duplicates/duplicates.ts';
 
 export function linkedValues(): ValueLinks {
 	const links = emptyValueLinks();
@@ -126,7 +126,7 @@ export function urlField(): ReturnType<typeof page.getByRole> {
 }
 
 export function savedImages(): Record<string, unknown>[] {
-	const [, args] = vi.mocked(supabase.rpc).mock.calls[0] as [string, Record<string, never>];
+	const [, args] = saveArtworkCalls()[0] as [string, Record<string, never>];
 	return args.images;
 }
 

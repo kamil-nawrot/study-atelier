@@ -1,4 +1,5 @@
 import { locale } from '#lib/i18n/i18n.ts';
+import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import type { CategoryValues } from '#lib/card-index/types/category-values.ts';
@@ -17,10 +18,6 @@ type CategoryValuesResult = {
 type CategoryValueRow = {
 	category_code: string;
 	name: string;
-};
-
-type ArtworkValuesRow = {
-	artwork_values: { category_values: CategoryValueRow | null }[];
 };
 
 type VisitPlaceRow = {
@@ -42,25 +39,16 @@ export async function loadVisitPlaces(): Promise<VisitPlacesResult> {
 }
 
 export async function loadCategoryValues(): Promise<CategoryValuesResult> {
-	const [{ data, error }, visits] = await Promise.all([
-		supabase
-			.from('artworks')
-			.select('artwork_values(category_values(category_code, name))')
-			.is('deleted_at', null),
-		loadVisitPlaces()
-	]);
+	const { rows, error } = await fetchAll<CategoryValueRow>((from, to) =>
+		supabase.rpc('used_category_values').range(from, to)
+	);
 	if (error) {
 		return { values: emptyCategoryValues(), ownValues: {}, error: collectionErrorMessage(error) };
 	}
 
-	const names = new Map<string, Set<string>>([['location', new Set(visits.places)]]);
-	for (const row of (data ?? []) as unknown as ArtworkValuesRow[]) {
-		for (const { category_values: value } of row.artwork_values) {
-			if (!value) continue;
-			const set = names.get(value.category_code) ?? new Set<string>();
-			set.add(value.name);
-			names.set(value.category_code, set);
-		}
+	const names = new Map<string, string[]>();
+	for (const value of rows) {
+		names.set(value.category_code, [...(names.get(value.category_code) ?? []), value.name]);
 	}
 
 	const sorted = (code: string): string[] =>

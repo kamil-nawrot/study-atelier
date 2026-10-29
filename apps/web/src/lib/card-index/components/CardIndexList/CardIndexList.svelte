@@ -1,82 +1,102 @@
 <script lang="ts">
 	import ListTree from '@lucide/svelte/icons/list-tree';
-	import { EmptyState, SearchField } from '@study-atelier/ui';
+	import { EmptyState } from '@study-atelier/ui';
+	import CardIndexTools from '#lib/card-index/components/CardIndexTools/CardIndexTools.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
-	import { CARD_INDEX_SEARCH_MIN_VALUES } from '#lib/card-index/card-index/card-index.ts';
+	import {
+		sortRecords,
+		type CardIndexSort,
+		type SortableRecord
+	} from '#lib/card-index/card-index-sort/card-index-sort.ts';
 	import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 	import type { ResolvedPathname } from '$app/types';
 
-	type ListedRecord = { id: string; name: string; count?: number; note?: string };
+	type ListedRecord = SortableRecord & { id: string; note?: string; detail?: string };
 
 	type Props = {
 		records: ListedRecord[];
 		empty: string;
 		searchLabel: string;
 		query?: string;
+		sorts?: CardIndexSort[];
+		sort?: CardIndexSort;
 		href?: (id: string) => ResolvedPathname;
 		onchoose?: (id: string) => void;
 	};
 
-	let { records, empty, searchLabel, query = $bindable(''), href, onchoose }: Props = $props();
+	let {
+		records,
+		empty,
+		searchLabel,
+		query = $bindable(''),
+		sorts = [],
+		sort = $bindable('name'),
+		href,
+		onchoose
+	}: Props = $props();
 
 	let term = $derived(normalizeForSearch(query));
 	let matching = $derived(
-		term ? records.filter((record) => normalizeForSearch(record.name).includes(term)) : records
+		sortRecords(
+			term ? records.filter((record) => normalizeForSearch(record.name).includes(term)) : records,
+			sort
+		)
 	);
 </script>
 
 {#snippet label(record: ListedRecord)}
 	<span class="name">{record.name}</span>
+	{#if record.detail}
+		<span class="detail">{record.detail}</span>
+	{/if}
 	<span class="count">{record.note ?? record.count}</span>
 {/snippet}
 
 {#if records.length === 0}
 	<EmptyState icon={ListTree} text={empty} />
 {:else}
-	{#if records.length >= CARD_INDEX_SEARCH_MIN_VALUES}
-		<div class="search">
-			<SearchField label={searchLabel} placeholder={searchLabel} bind:value={query} />
-		</div>
-	{/if}
-	{#if matching.length === 0}
-		<p class="lead">{m.cardIndex.noResults(query.trim())}</p>
-	{/if}
-	<ul>
-		{#each matching as record (record.id)}
-			<li>
-				{#if href}
-					<a
-						class="record"
-						aria-label={m.cardIndex.openValue(
-							record.name,
-							record.note ?? m.atelier.count(record.count ?? 0)
-						)}
-						href={href(record.id)}
-					>
-						{@render label(record)}
-					</a>
-				{:else}
-					<button
-						class="record"
-						aria-label={m.cardIndex.openValue(
-							record.name,
-							record.note ?? m.atelier.count(record.count ?? 0)
-						)}
-						onclick={() => onchoose?.(record.id)}
-						type="button"
-					>
-						{@render label(record)}
-					</button>
-				{/if}
-			</li>
-		{/each}
-	</ul>
+	<div class="listing">
+		<CardIndexTools {searchLabel} {sorts} bind:query bind:sort />
+		{#if matching.length === 0}
+			<p class="lead">{m.cardIndex.noResults(query.trim())}</p>
+		{/if}
+		<ul>
+			{#each matching as record (record.id)}
+				<li>
+					{#if href}
+						<a
+							class="record"
+							aria-label={m.cardIndex.openValue(
+								record.name,
+								record.note ?? m.atelier.count(record.count ?? 0)
+							)}
+							href={href(record.id)}
+						>
+							{@render label(record)}
+						</a>
+					{:else}
+						<button
+							class="record"
+							aria-label={m.cardIndex.openValue(
+								record.name,
+								record.note ?? m.atelier.count(record.count ?? 0)
+							)}
+							onclick={() => onchoose?.(record.id)}
+							type="button"
+						>
+							{@render label(record)}
+						</button>
+					{/if}
+				</li>
+			{/each}
+		</ul>
+	</div>
 {/if}
 
 <style>
-	.search {
-		max-width: var(--size-content-default);
-		margin-block-end: var(--spacing-6);
+	.listing {
+		display: grid;
+		gap: var(--spacing-6);
 	}
 
 	ul {
@@ -111,6 +131,12 @@
 		text-decoration: underline;
 		text-decoration-thickness: var(--border-width-hairline);
 		text-underline-offset: 0.2em;
+	}
+
+	.detail {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-md);
+		font-weight: var(--font-weight-regular);
 	}
 
 	.count {

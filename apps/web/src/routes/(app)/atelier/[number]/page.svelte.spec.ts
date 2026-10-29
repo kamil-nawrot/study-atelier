@@ -787,6 +787,19 @@ describe('artwork page', () => {
 			expect(document.querySelector('.loupe')).toBeNull();
 		});
 
+		it('says how to leave the loupe and switches it off on a click beside the image', async () => {
+			renderPage({
+				artwork: artwork({ image: { kind: 'url', url: IMAGE, width: 4000, height: 5000 } })
+			});
+
+			await loupeButton().click();
+			await expect.element(page.getByRole('tooltip')).toHaveTextContent(m.loupe.leave);
+			document.body.dispatchEvent(new PointerEvent('pointerdown', { button: 0, bubbles: true }));
+
+			await expect.element(loupeButton()).toHaveAttribute('aria-pressed', 'false');
+			expect(document.querySelector('.loupe')).toBeNull();
+		});
+
 		it('switches the loupe on at once when the preferences ask for it', async () => {
 			renderPage({
 				artwork: artwork({ image: { kind: 'url', url: IMAGE, width: 4000, height: 5000 } }),

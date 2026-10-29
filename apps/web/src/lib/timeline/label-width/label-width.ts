@@ -1,3 +1,5 @@
+export const NAME_MAX_WIDTH = 200;
+
 const LABEL_FONT = 14;
 const FALLBACK_CHAR = 8;
 
@@ -12,11 +14,19 @@ function context(): CanvasRenderingContext2D | null {
 	return measure;
 }
 
-export function labelWidth(name: string): number {
+function measured(name: string): number {
 	const known = widths.get(name);
 	if (known !== undefined) return known;
 	const canvas = context();
 	const width = canvas ? canvas.measureText(name).width + LABEL_FONT : name.length * FALLBACK_CHAR;
 	widths.set(name, width);
 	return width;
+}
+
+export function labelWidth(name: string): number {
+	return Math.min(measured(name), NAME_MAX_WIDTH + LABEL_FONT);
+}
+
+export function labelCut(name: string): boolean {
+	return measured(name) > NAME_MAX_WIDTH + LABEL_FONT;
 }

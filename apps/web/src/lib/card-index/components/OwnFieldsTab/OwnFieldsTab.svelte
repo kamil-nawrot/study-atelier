@@ -16,8 +16,14 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import { deleteOwnField, moveOwnField } from '#lib/card-index/own-fields-data/own-fields-data.ts';
 	import CardIndexList from '#lib/card-index/components/CardIndexList/CardIndexList.svelte';
+	import {
+		rememberSort,
+		rememberedSort,
+		sortsOf
+	} from '#lib/card-index/card-index-sort/card-index-sort.ts';
 	import OwnFieldDialog from '#lib/card-index/components/OwnFieldDialog/OwnFieldDialog.svelte';
 	import OwnValueDialog from '#lib/card-index/components/OwnValueDialog/OwnValueDialog.svelte';
+	import NewOwnValueDialog from '#lib/card-index/components/NewOwnValueDialog/NewOwnValueDialog.svelte';
 	import type { OwnField } from '#lib/card-index/types/own-field.ts';
 	import type { OwnValue } from '#lib/card-index/types/own-value.ts';
 
@@ -31,12 +37,14 @@
 
 	let menus = $state<Record<string, PopupButton>>({});
 	let queries = $state<Record<string, string>>({});
+	let sort = $state(rememberedSort('own'));
 	let fieldOpen = $state(false);
 	let edited = $state<OwnField>();
 	let deleted = $state<OwnField>();
 	let deleteOpen = $state(false);
 	let deleting = $state(false);
 	let valueOpen = $state(false);
+	let newValueOpen = $state(false);
 	let valueField = $state<OwnField>();
 	let chosenValue = $state<OwnValue>();
 	let failure = $state<string>();
@@ -187,18 +195,38 @@
 						</div>
 					</PopupButton>
 				</header>
-				{#if field.kind === 'list' && field.values.length === 0}
-					<p class="lead">{m.ownFields.noValues}</p>
-				{:else if field.kind === 'list'}
-					<Disclosure count={field.values.length} level={3} open={false} title={m.ownFields.values}>
-						<CardIndexList
-							empty={m.ownFields.noValues}
-							onchoose={(id) => chooseValue(field, id)}
-							records={field.values}
-							searchLabel={m.ownFields.search(field.name)}
-							bind:query={() => queries[field.id] ?? '', (query) => (queries[field.id] = query)}
-						/>
-					</Disclosure>
+				{#if field.kind === 'list'}
+					<div class="add-value">
+						<Button
+							onclick={() => {
+								valueField = field;
+								newValueOpen = true;
+							}}
+						>
+							<Icon icon={Plus} />
+							{m.ownFields.addValue}
+						</Button>
+					</div>
+					{#if field.values.length === 0}
+						<p class="lead">{m.ownFields.noValues}</p>
+					{:else}
+						<Disclosure
+							count={field.values.length}
+							level={3}
+							open={false}
+							title={m.ownFields.values}
+						>
+							<CardIndexList
+								empty={m.ownFields.noValues}
+								onchoose={(id) => chooseValue(field, id)}
+								records={field.values}
+								searchLabel={m.ownFields.search(field.name)}
+								sorts={sortsOf('own')}
+								bind:sort={() => sort, (value) => rememberSort('own', (sort = value))}
+								bind:query={() => queries[field.id] ?? '', (query) => (queries[field.id] = query)}
+							/>
+						</Disclosure>
+					{/if}
 				{/if}
 			</section>
 		{/each}
@@ -208,6 +236,7 @@
 <OwnFieldDialog {edited} {fields} onsaved={onchanged} bind:open={fieldOpen} />
 
 <OwnValueDialog field={valueField} onsaved={valueSaved} value={chosenValue} bind:open={valueOpen} />
+<NewOwnValueDialog field={valueField} onsaved={valueSaved} bind:open={newValueOpen} />
 
 <Dialog
 	description={deleted ? m.ownFields.deleteConfirm.description(deleted.count) : undefined}
@@ -226,6 +255,11 @@
 </Dialog>
 
 <style>
+	.add-value {
+		display: flex;
+		justify-content: flex-end;
+	}
+
 	.own-fields {
 		display: grid;
 		gap: var(--spacing-8);

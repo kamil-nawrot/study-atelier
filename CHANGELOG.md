@@ -2,6 +2,29 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.14.0] - 2026-10-29
+
+The card index can be searched, sorted and filled with new values, the glossary jumps to a letter, place pages list the visits, and the loupe and the timeline are easier to use.
+
+### Added
+
+- Every tab of "Kartoteka" has a search field, and a "Sortuj" select next to it: "Według nazwy", "Według liczby dzieł", "Według lat życia" for authors, "Według kraju" for places (with the country next to the name) and "Według daty" for events. The choice is kept on the device for each tab.
+- Values can be added in "Kartoteka": "Dodaj materiał", "Dodaj autora", "Dodaj miejsce", "Dodaj okres" and "Dodaj styl" open the value's form with its details, and each own list has "Dodaj wartość". A value no artwork uses yet is suggested in the artwork form.
+- A place page lists the visits to it from "Kronika" under "Z Twojej kroniki · 3 wizyty", each ticket with the number of artworks seen.
+- "Słowniczek" has an index of letters at the right edge from twenty entries; a letter scrolls to its section.
+
+### Changed
+
+- The loupe is switched off also with a right click on the image or a click beside it, and its icon says so: "Wyłącz lupę: Esc, prawy przycisk albo kliknięcie obok".
+- Event names longer than 200 px are cut with an ellipsis on the timeline and shown whole in a tooltip, so they no longer push other events into lower lanes.
+- The view of the loupe stands in the middle of a pin's card.
+- Moving between the wall, the timeline, the review, the chronicle and the value pages no longer loads the whole collection again, until something is saved, another tab saves, or the tab was hidden for more than ten minutes.
+- Internal: the duplicate check and the value suggestions are answered by the database instead of reading the whole collection, end-to-end tests with Playwright against a local Supabase run on every pull request, and a code review of the version with its fixes.
+
+### Migrations run on production
+
+2 migrations run on production with this release and change no existing data: `20261028200000_values_and_duplicates_in_the_database` adds `search_key`, an index on the artworks' title key outside the trash, and the functions `duplicate_candidates` and `used_category_values`; `20261029100000_suggest_values_without_artworks` replaces `used_category_values` with the same signature so values no artwork uses yet are suggested. Nothing the previous app calls changes.
+
 ## [0.13.1] - 2026-10-28
 
 The review asks who made an artwork and about glossary definitions, the start page shows a wall of paintings, and forms show plainly when they fill fields from Wikipedia, Wikidata or Wiktionary.
@@ -594,3 +617,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.12.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.12.0
 [0.13.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.13.0
 [0.13.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.13.1
+[0.14.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.14.0

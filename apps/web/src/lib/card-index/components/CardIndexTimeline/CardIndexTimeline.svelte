@@ -4,20 +4,32 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
 	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
+	import CardIndexTools from '#lib/card-index/components/CardIndexTools/CardIndexTools.svelte';
+	import { narrowTimeline } from '#lib/card-index/timeline-search/timeline-search.ts';
+	import { sortsOf, type CardIndexSort } from '#lib/card-index/card-index-sort/card-index-sort.ts';
 	import type { CardIndexEntry } from '#lib/card-index/types/card-index-entry.ts';
 	import type { CardIndexPeriod } from '#lib/card-index/types/card-index-period.ts';
 	import type { CardIndexTimeline } from '#lib/card-index/types/card-index-timeline.ts';
 
 	type Props = {
 		timeline: CardIndexTimeline;
+		query?: string;
+		sort?: CardIndexSort;
 	};
 
-	let { timeline }: Props = $props();
+	let { timeline: full, query = $bindable(''), sort = $bindable('name') }: Props = $props();
 
+	let timeline = $derived(narrowTimeline(full, query, sort));
+	let isEmpty = $derived(!filled(full));
 	let hasEras = $derived(timeline.eras.some((era) => era.periods.length > 0));
-	let isEmpty = $derived(
-		!hasEras && timeline.periodsWithoutEra.length === 0 && timeline.stylesWithoutPeriod.length === 0
-	);
+
+	function filled(shown: CardIndexTimeline): boolean {
+		return (
+			shown.eras.some((era) => era.periods.length > 0) ||
+			shown.periodsWithoutEra.length > 0 ||
+			shown.stylesWithoutPeriod.length > 0
+		);
+	}
 
 	function label(entry: CardIndexEntry): string {
 		return m.cardIndex.openValue(entry.name, m.atelier.count(entry.count));
@@ -52,54 +64,70 @@
 {#if isEmpty}
 	<EmptyState icon={ListTree} text={m.cardIndex.emptyTimeline} />
 {:else}
-	{#if hasEras}
-		<ol class="eras">
-			{#each timeline.eras as era (era.code)}
-				<li class="era">
-					<span class="marker" aria-hidden="true">
-						<Icon icon={eraIcon(era.code)} />
-					</span>
-					<div class="era-body">
-						<h2 class="era-name">
-							<a href={valuePath('era', era.code)}>{m.eras[era.code].name}</a>
-						</h2>
-						<span class="years">{m.eras[era.code].years}</span>
-						{#if era.periods.length > 0}
-							{@render periodList(era.periods)}
-						{:else}
-							<p class="empty">{m.cardIndex.emptyEra}</p>
-						{/if}
-					</div>
-				</li>
-			{/each}
-		</ol>
-	{/if}
-
-	{#if timeline.periodsWithoutEra.length > 0}
-		<section class="group">
-			<h2 class="group-title">{m.cardIndex.periodsWithoutEra}</h2>
-			{@render periodList(timeline.periodsWithoutEra)}
-		</section>
-	{/if}
-
-	{#if timeline.stylesWithoutPeriod.length > 0}
-		<section class="group">
-			<h2 class="group-title">{m.cardIndex.stylesWithoutPeriod}</h2>
-			<ul class="styles">
-				{#each timeline.stylesWithoutPeriod as style (style.id)}
-					<li>
-						<a class="style" aria-label={label(style)} href={valuePath('style', style.id)}>
-							<span>{style.name}</span>
-							<span class="count">{style.count}</span>
-						</a>
+	<div class="timeline">
+		<CardIndexTools
+			searchLabel={m.cardIndex.search.timeline}
+			sorts={sortsOf('timeline')}
+			bind:query
+			bind:sort
+		/>
+		{#if !filled(timeline)}
+			<p class="lead">{m.cardIndex.noResults(query.trim())}</p>
+		{/if}
+		{#if hasEras}
+			<ol class="eras">
+				{#each timeline.eras as era (era.code)}
+					<li class="era">
+						<span class="marker" aria-hidden="true">
+							<Icon icon={eraIcon(era.code)} />
+						</span>
+						<div class="era-body">
+							<h2 class="era-name">
+								<a href={valuePath('era', era.code)}>{m.eras[era.code].name}</a>
+							</h2>
+							<span class="years">{m.eras[era.code].years}</span>
+							{#if era.periods.length > 0}
+								{@render periodList(era.periods)}
+							{:else}
+								<p class="empty">{m.cardIndex.emptyEra}</p>
+							{/if}
+						</div>
 					</li>
 				{/each}
-			</ul>
-		</section>
-	{/if}
+			</ol>
+		{/if}
+
+		{#if timeline.periodsWithoutEra.length > 0}
+			<section class="group">
+				<h2 class="group-title">{m.cardIndex.periodsWithoutEra}</h2>
+				{@render periodList(timeline.periodsWithoutEra)}
+			</section>
+		{/if}
+
+		{#if timeline.stylesWithoutPeriod.length > 0}
+			<section class="group">
+				<h2 class="group-title">{m.cardIndex.stylesWithoutPeriod}</h2>
+				<ul class="styles">
+					{#each timeline.stylesWithoutPeriod as style (style.id)}
+						<li>
+							<a class="style" aria-label={label(style)} href={valuePath('style', style.id)}>
+								<span>{style.name}</span>
+								<span class="count">{style.count}</span>
+							</a>
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
+	</div>
 {/if}
 
 <style>
+	.timeline {
+		display: grid;
+		gap: var(--spacing-6);
+	}
+
 	ol,
 	ul {
 		margin: 0;

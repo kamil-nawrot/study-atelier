@@ -15,10 +15,7 @@
 	} from '@study-atelier/ui';
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/i18n.ts';
-	import {
-		loadValuePageContent,
-		saveValue
-	} from '#lib/card-index/card-index-data/card-index-data.ts';
+	import { loadValuePageContent } from '#lib/card-index/card-index-data/card-index-data.ts';
 	import { planEraMove, planNameChange } from '#lib/card-index/card-index/card-index.ts';
 	import { validateAuthorForm } from '#lib/values/author-form/author-form.ts';
 	import { VALUE_NAME_MAX_LENGTH } from '#lib/card-index/category-values/category-values.ts';
@@ -27,21 +24,15 @@
 	import { isPlaceType, placeTiles } from '#lib/catalogue/place-types/place-types.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
-	import { valueDetailsChanged } from '#lib/values/value-details/value-details.ts';
-	import { saveValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
+	import { saveValueForm } from '#lib/values/value-form-save/value-form-save.ts';
 	import {
 		initialValueForm,
 		mergeDescription,
 		moveDescription,
 		sameItems,
-		valueFormChanged,
-		valueFormDetails
+		valueFormChanged
 	} from '#lib/values/value-form/value-form.ts';
-	import {
-		SUMMARY_MAX_LENGTH,
-		subjectPath,
-		valuePath
-	} from '#lib/card-index/value-pages/value-pages.ts';
+	import { SUMMARY_MAX_LENGTH } from '#lib/card-index/value-pages/value-pages.ts';
 	import type { AuthorFieldErrors } from '#lib/values/types/author-field-errors.ts';
 	import type { ValueDetails } from '#lib/values/types/value-details.ts';
 	import type { ValueFormFields } from '#lib/values/types/value-form-fields.ts';
@@ -73,6 +64,7 @@
 		untrack(() => initialValueForm(record, index, details));
 
 	let form = $state<ValueFormFields>(initialForm());
+	let created = $state<ValueSubject>();
 	let nameError = $state<string>();
 	let authorErrors = $state<AuthorFieldErrors>({});
 	let moveTo = $state('');
@@ -88,8 +80,10 @@
 	);
 
 	let kind = $derived(record ? m.cardIndex.kinds[record.category] : undefined);
+	let creating = $derived(record?.id === '');
 	let change = $derived(record ? planNameChange(record, form.name, index) : undefined);
-	let mergeTarget = $derived(change?.kind === 'merge' ? change.target : undefined);
+	let existing = $derived(change?.kind === 'merge' ? change.target : undefined);
+	let mergeTarget = $derived(creating ? undefined : existing);
 	let eraMove = $derived(
 		record?.category === 'period'
 			? planEraMove(index, record.id, form.eraCodes)
@@ -118,7 +112,12 @@
 	function submit(): void {
 		if (formState.busy) return;
 		formState.error = '';
-		nameError = change?.kind === 'empty' ? m.valueForm.nameRequired : undefined;
+		nameError =
+			change?.kind === 'empty'
+				? m.valueForm.nameRequired
+				: creating && existing && kind
+					? m.valueForm.exists(kind.accusative, existing.name)
+					: undefined;
 		authorErrors = form.author ? validateAuthorForm(form.author) : {};
 		if (nameError || Object.keys(authorErrors).length > 0) return;
 		if (needsMove) {
@@ -160,40 +159,24 @@
 	function save(): Promise<void> {
 		return formState.run(async () => {
 			const snapshot = $state.snapshot(form);
-			const target = mergeTarget;
-			if (
-				!target &&
-				valueDetailsChanged(valueFormDetails(snapshot), valueFormDetails(formState.saved))
-			) {
-				const result = await saveValueDetails(subject, valueFormDetails(snapshot), details);
-				if (result.error) {
-					mergeOpen = false;
-					formState.error = result.error;
-					return;
-				}
-			}
-			if (record) {
-				const result = await saveValue({
-					record,
-					name: change?.kind === 'rename' ? change.name : record.name,
-					eraCodes: record.category === 'period' && linksChanged ? snapshot.eraCodes : undefined,
-					moveTo: moveTo ? (moveTo as EraCode) : undefined,
-					periodIds: record.category === 'style' && linksChanged ? snapshot.periodIds : undefined,
-					mergeInto: target
-				});
-				if (result.error) {
-					mergeOpen = false;
-					formState.error = result.error;
-					return;
-				}
+			const result = await saveValueForm({
+				subject: created ?? subject,
+				form: snapshot,
+				saved: formState.saved,
+				details,
+				name: change?.kind === 'rename' ? change.name : (record?.name ?? ''),
+				mergeTarget,
+				moveTo: moveTo ? (moveTo as EraCode) : undefined,
+				linksChanged
+			});
+			mergeOpen = false;
+			if (result.error !== undefined) {
+				created = result.created ?? created;
+				formState.error = result.error;
+				return;
 			}
 			formState.saved = snapshot;
-			mergeOpen = false;
-			if (target && record) {
-				await onsaved(valuePath(record.category, target.id), m.cardIndex.merged(target.name));
-			} else {
-				await onsaved(subjectPath(subject), m.valuePage.saved);
-			}
+			await onsaved(result.path, result.message);
 		});
 	}
 </script>

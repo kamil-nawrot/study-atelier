@@ -16,6 +16,7 @@
 		groupByLetter,
 		leadSentences
 	} from '#lib/glossary/glossary/glossary.ts';
+	import LetterIndex from '#lib/glossary/components/LetterIndex/LetterIndex.svelte';
 	import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
 	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 
@@ -30,6 +31,7 @@
 	let counts = $derived(countByCategory(entries));
 	let matching = $derived(filterEntries(entries, new Set(chosen), query));
 	let groups = $derived(groupByLetter(matching));
+	let indexed = $derived(entries.length >= GLOSSARY_SEARCH_MIN_ENTRIES && groups.length > 1);
 
 	function toggle(category: GlossaryCategory): void {
 		chosen = chosen.includes(category)
@@ -74,7 +76,11 @@
 		<p class="lead">{m.glossary.noResults(query.trim())}</p>
 	{/if}
 
-	<div class="groups">
+	{#if indexed}
+		<LetterIndex letters={groups.map((group) => group.letter)} />
+	{/if}
+
+	<div class="groups" class:indexed>
 		{#each groups as group (group.letter)}
 			<section class="group" aria-labelledby={`letter-${group.letter}`}>
 				<h2 id={`letter-${group.letter}`}>{group.letter}</h2>
@@ -131,10 +137,15 @@
 		gap: var(--spacing-12);
 	}
 
+	.groups.indexed {
+		padding-right: var(--spacing-8);
+	}
+
 	.group {
 		display: grid;
 		align-content: start;
 		gap: var(--spacing-4);
+		scroll-margin-top: calc(var(--bar-height) + var(--spacing-4));
 	}
 
 	h2 {

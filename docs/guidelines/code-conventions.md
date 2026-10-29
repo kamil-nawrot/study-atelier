@@ -164,6 +164,7 @@ Inside a module (example: `wall`):
 - Every error from Supabase or another service goes through a mapping function in `lib/<domain>/errors.ts`, which picks a dictionary message by error code and falls back to a general message. `error.message` is never shown to the learner.
 - A database error is mapped by a function built with `errorMessages` from `#lib/shared/data/errors/errors.ts`, given the module's table of codes and its network message; the factory alone decides what counts as a network error. Errors of other shapes (auth, storage, Wikimedia) keep their own mapping in the module.
 - Domain functions return the mapped message, so views only show it.
+- A domain function that writes artworks, values, own fields, visits or the whole atelier calls `forgetCached()` from `lib/shared/data/data-cache/data-cache.ts` after the write, so the collection and the card index kept in memory are loaded again ([ADR-0157](../decisions/0157-keep-the-collection-and-card-index-in-memory-between-views.md)).
 - A domain function that writes passes the error through `failureMessage` from `lib/auth/expired-session-data/expired-session-data.ts`: an authorization error (HTTP 401 or a `PGRST301`..`PGRST303` code) signs the learner out and returns the session-ended message; any other error goes to the domain's mapping function.
 
 ## External services
@@ -192,6 +193,7 @@ Inside a module (example: `wall`):
 
 - Unit tests (Vitest) cover every module with logic: validation, mapping, formatting and the domain functions that wrap Supabase (with the client mocked).
 - Coverage may not fall below the thresholds in `coverage.thresholds` of each package's `vite.config.ts`. When a change lifts a whole percent above a threshold, CI asks to raise it in the same change, so the thresholds only go up.
+- End-to-end tests (Playwright) live in `apps/web/e2e/` and run with `pnpm test:e2e` against the local Supabase, which must be started and have every migration applied. A test uses the `learner` fixture from `e2e/fixtures.ts`, a fresh account deleted after the test, and finds elements by role and by the texts of the message dictionary ([ADR-0159](../decisions/0159-end-to-end-tests-against-a-local-supabase.md)).
 - Components and pages have component tests named `<Name>.svelte.spec.ts` next to the component (for a route, `page.svelte.spec.ts` next to `+page.svelte`). They run in Chromium with Vitest browser mode; other tests run in Node ([ADR-0018](../decisions/0018-component-tests-in-vitest-browser-mode.md)).
 - Test names describe behaviour in a sentence ("rejects a short password and says how long it is").
 - Expected texts are read from `m`, and in `packages/ui` from `defaultUiMessages`. A literal string is used only when the text itself is under test, for example a plural form.

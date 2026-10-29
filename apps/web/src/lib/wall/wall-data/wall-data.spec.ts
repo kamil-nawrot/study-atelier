@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { IMAGES_BUCKET } from '#lib/images/bucket/bucket.ts';
 import { fetchCommonsThumbnails } from '#lib/images/commons/commons.ts';
 import { backfillThumbnails } from '#lib/images/thumbnail-backfill/thumbnail-backfill.ts';
@@ -84,6 +85,8 @@ async function loadResolved(): Promise<WallArtwork[]> {
 	const resolved = new Map((await resolveImages(artworks)).map((artwork) => [artwork.id, artwork]));
 	return artworks.map((artwork) => resolved.get(artwork.id) ?? artwork);
 }
+
+beforeEach(() => forgetCached());
 
 describe('loadAtelier', () => {
 	beforeEach(() => {

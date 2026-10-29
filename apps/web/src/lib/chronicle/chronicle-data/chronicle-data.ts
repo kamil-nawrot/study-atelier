@@ -1,6 +1,7 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { chronicleErrorMessage } from '#lib/chronicle/errors/errors.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
+import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { isUuid } from '#lib/shared/utils/ids/ids.ts';
 import type { DatePrecision } from '#lib/chronicle/types/date-precision.ts';
@@ -88,6 +89,21 @@ export async function loadArtworkVisits(number: number): Promise<VisitsResult> {
 	return { visits: rows.map(visitOf) };
 }
 
+export async function loadPlaceVisits(placeId: string): Promise<VisitsResult> {
+	const { rows, error } = await fetchAll<VisitRow>((from, to) =>
+		supabase
+			.from('visits')
+			.select(VISIT_COLUMNS)
+			.eq('place_id', placeId)
+			.order('visited_on', { ascending: false })
+			.order('created_at', { ascending: false })
+			.order('id', { ascending: false })
+			.range(from, to)
+	);
+	if (error) return { visits: [], error: chronicleErrorMessage(error) };
+	return { visits: rows.map(visitOf) };
+}
+
 export async function loadVisit(id: string): Promise<VisitResult> {
 	if (!isUuid(id)) return { notFound: true };
 	const { data, error } = await supabase
@@ -111,11 +127,13 @@ export async function saveVisit(draft: VisitDraft, existingId?: string): Promise
 		artwork_ids: draft.artworkIds,
 		...(existingId ? { existing_id: existingId } : {})
 	});
+	forgetCached();
 	if (error) return { error: await failureMessage(error, chronicleErrorMessage) };
 	return { id: data };
 }
 
 export async function deleteVisit(id: string): Promise<VisitDeleteResult> {
 	const { error } = await supabase.from('visits').delete().eq('id', id);
+	forgetCached();
 	return error ? { error: await failureMessage(error, chronicleErrorMessage) } : {};
 }

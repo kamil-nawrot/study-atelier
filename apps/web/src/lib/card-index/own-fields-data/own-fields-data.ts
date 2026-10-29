@@ -1,4 +1,5 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
+import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import type { OwnField } from '#lib/card-index/types/own-field.ts';
@@ -86,6 +87,7 @@ function cleanDescription(input: string): string | null {
 
 async function run(call: PromiseLike<{ error: { code?: string } | null }>): Promise<ActionResult> {
 	const { error } = await call;
+	forgetCached();
 	return error ? { error: await failureMessage(error, cardIndexErrorMessage) } : {};
 }
 
@@ -130,4 +132,10 @@ export function changeOwnValue(value: OwnValue, change: OwnValueChange): Promise
 		return run(supabase.from('category_values').update({ name: change.name }).eq('id', value.id));
 	}
 	return Promise.resolve({});
+}
+
+export function addOwnValue(field: OwnField, name: string): Promise<ActionResult> {
+	return run(
+		supabase.from('category_values').insert({ category_code: field.id, name: name.trim() })
+	);
 }
