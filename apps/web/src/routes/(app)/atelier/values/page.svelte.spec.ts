@@ -4,12 +4,13 @@ import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
 import type { OwnField } from '#lib/card-index/types/own-field.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
-import { CARD_INDEX_SEARCH_MIN_VALUES } from '#lib/card-index/card-index/card-index.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import { testOwnFields } from '#lib/testing/own-fields/own-fields.ts';
 import ValuesPage from './+page.svelte';
+
+const MANY_VALUES = 20;
 
 const navigation = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier/values'),
@@ -184,7 +185,7 @@ describe('card index page', () => {
 	});
 
 	it('searches a list ignoring case and diacritics, and says when nothing matches', async () => {
-		renderValues(withMaterials(CARD_INDEX_SEARCH_MIN_VALUES));
+		renderValues(withMaterials(MANY_VALUES));
 		await page.getByRole('tab', { name: m.cardIndex.tabs.material }).click();
 		const search = page.getByRole('searchbox', { name: m.cardIndex.search.material });
 
@@ -198,19 +199,23 @@ describe('card index page', () => {
 		expect(items.elements()).toHaveLength(0);
 	});
 
-	it('offers the search only from the minimum number of values, filtered or not', async () => {
-		renderValues(withMaterials(CARD_INDEX_SEARCH_MIN_VALUES - 1));
+	it('offers the search on every tab however few values it has', async () => {
+		renderValues(withMaterials(2));
 
+		await expect
+			.element(page.getByRole('searchbox', { name: m.cardIndex.search.timeline }))
+			.toBeVisible();
 		await page.getByRole('tab', { name: m.cardIndex.tabs.material }).click();
 
-		await expect.element(page.getByRole('tabpanel').getByRole('listitem').first()).toBeVisible();
-		expect(page.getByRole('searchbox').elements()).toHaveLength(0);
+		await expect
+			.element(page.getByRole('searchbox', { name: m.cardIndex.search.material }))
+			.toBeVisible();
 	});
 
 	it('starts each tab with an empty search', async () => {
-		const index = withMaterials(CARD_INDEX_SEARCH_MIN_VALUES);
+		const index = withMaterials(MANY_VALUES);
 		index.values.push(
-			...Array.from({ length: CARD_INDEX_SEARCH_MIN_VALUES }, (_, position) => ({
+			...Array.from({ length: MANY_VALUES }, (_, position) => ({
 				id: `author-${position}`,
 				category: 'author' as const,
 				name: `Author ${position}`,
@@ -334,7 +339,7 @@ describe('card index page', () => {
 	});
 
 	it('keeps the tab and the search when the learner comes back', async () => {
-		const index = withMaterials(CARD_INDEX_SEARCH_MIN_VALUES);
+		const index = withMaterials(MANY_VALUES);
 		const first = await render(ValuesPage, {
 			data: {
 				session: testSession(),

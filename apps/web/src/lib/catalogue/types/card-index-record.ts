@@ -7,4 +7,6 @@ export type CardIndexRecord = {
 	count: number;
 	visits?: number;
 	sortName?: string;
+	birthYear?: number;
+	countryCode?: string;
 };

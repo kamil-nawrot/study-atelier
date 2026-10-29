@@ -500,7 +500,8 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/catalogue_museums') return json(route, CATALOGUE_MUSEUMS);
 		if (
 			url.pathname === '/rest/v1/location_details' &&
-			url.searchParams.get('country_code') === 'not.is.null'
+			url.searchParams.get('country_code') === 'not.is.null' &&
+			url.searchParams.get('select') !== 'value_id,country_code'
 		) {
 			const names = new Map(
 				ARTWORKS.flatMap((row) => row.artwork_values).map(({ category_values: value }) => [
@@ -541,6 +542,22 @@ async function mockSupabase(context) {
 			return json(route, values);
 		}
 		const detailsTable = url.pathname.replace('/rest/v1/', '');
+		if (url.searchParams.get('select') === 'value_id,sort_name,birth_year') {
+			return json(
+				route,
+				VALUE_DETAILS.author_details.map(({ value_id, sort_name, birth_year }) => ({
+					value_id,
+					sort_name: sort_name ?? null,
+					birth_year: birth_year ?? null
+				}))
+			);
+		}
+		if (url.searchParams.get('select') === 'value_id,country_code') {
+			return json(
+				route,
+				VALUE_DETAILS.location_details.filter((row) => row.country_code)
+			);
+		}
 		if (detailsTable in VALUE_DETAILS) {
 			const [column, filter] = [...url.searchParams].find(([key]) => key !== 'select') ?? [];
 			return json(
