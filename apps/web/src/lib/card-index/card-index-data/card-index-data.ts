@@ -95,6 +95,7 @@ async function fetchCardIndex(): Promise<CardIndexResult> {
 				.from('author_details')
 				.select('value_id, sort_name, birth_year')
 				.or('sort_name.not.is.null,birth_year.not.is.null')
+				.order('value_id')
 				.range(from, to)
 		),
 		fetchAll<PlaceRow>((from, to) =>
@@ -102,6 +103,7 @@ async function fetchCardIndex(): Promise<CardIndexResult> {
 				.from('location_details')
 				.select('value_id, country_code')
 				.not('country_code', 'is', null)
+				.order('value_id')
 				.range(from, to)
 		)
 	]);

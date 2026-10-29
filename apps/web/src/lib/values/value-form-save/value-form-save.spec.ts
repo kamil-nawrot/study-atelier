@@ -67,6 +67,34 @@ describe('saveValueForm', () => {
 		});
 	});
 
+	it('gives back the created value when its details then fail, so it is not created again', async () => {
+		vi.mocked(saveValueDetails).mockResolvedValue({ error: 'Brak sieci.' });
+
+		const result = await saveValueForm({
+			subject: newPeriod,
+			form: fields({ name: 'Manieryzm', details: { summary: 'Po renesansie.', notes: '' } }),
+			saved: fields(),
+			details: { summary: '', notes: '' },
+			name: 'Manieryzm',
+			linksChanged: false
+		});
+
+		expect(result).toEqual({
+			error: 'Brak sieci.',
+			created: { kind: 'period', record: expect.objectContaining({ id: 'period-new' }) }
+		});
+		const again = await saveValueForm({
+			subject: result.error !== undefined && result.created ? result.created : newPeriod,
+			form: fields({ name: 'Manieryzm', details: { summary: 'Po renesansie.', notes: '' } }),
+			saved: fields(),
+			details: { summary: '', notes: '' },
+			name: 'Manieryzm',
+			linksChanged: false
+		});
+		expect(createValue).toHaveBeenCalledTimes(1);
+		expect(again.error).toBe('Brak sieci.');
+	});
+
 	it('stops with the error when the value cannot be created', async () => {
 		vi.mocked(createValue).mockResolvedValue({ error: 'Brak sieci.' });
 
