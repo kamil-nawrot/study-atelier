@@ -2,6 +2,7 @@ import { failureMessage } from '#lib/auth/expired-session-data/expired-session-d
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import type { Database } from '#lib/shared/data/database.types.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
+import { noteWrite } from '#lib/shared/data/writes/writes.ts';
 import {
 	sourceColumns,
 	sourceFromRow
@@ -94,6 +95,7 @@ export async function saveGlossaryEntry(
 		if (isNameTakenError(error)) return { nameTaken: true };
 		return { error: await failureMessage(error, glossaryErrorMessage) };
 	}
+	noteWrite();
 	return { id: data.id };
 }
 

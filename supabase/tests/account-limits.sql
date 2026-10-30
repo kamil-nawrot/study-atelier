@@ -238,4 +238,34 @@ begin
 end;
 $$;
 
+do $$
+declare
+  b constant uuid := '00000000-0000-0000-0000-00000000000b';
+begin
+  reset role;
+  insert into public.point_events (owner_id, kind, day_start, plan_share, streak_days)
+    select b, 'plan_day', timestamptz '2000-01-01' + n * interval '1 day', 1, 1
+      from generate_series(1, 60000 - (select count(*) from public.point_events where owner_id = b)) as n;
+  insert into public.free_review_days (owner_id, day_start, answers)
+    select b, timestamptz '2000-01-01' + n * interval '1 day', 1 from generate_series(1, 10000) as n;
+  insert into public.exhibit_tiers (owner_id, exhibit, tier)
+    select b, 'collection', n from generate_series(1, 200) as n;
+  assert limits_test.failure(format(
+      'insert into public.exhibit_tiers (owner_id, exhibit, tier) values (%L, ''eras'', 1)', b))
+      = '53400 exhibit_tiers',
+    'an account holds more than 200 exhibit tiers';
+  set local role authenticated;
+  perform limits_test.act_as(b);
+
+  assert limits_test.failure(
+    'insert into public.point_events (kind, day_start, plan_share, streak_days) values (''plan_day'', ''1990-01-01'', 1, 1)')
+      = '53400 point_events',
+    'an account holds more than 60000 point events';
+  assert limits_test.failure(
+    'insert into public.free_review_days (day_start, answers) values (''1990-01-01'', 1)')
+      = '53400 free_review_days',
+    'an account records more than 10000 days of free reviews';
+end;
+$$;
+
 rollback;

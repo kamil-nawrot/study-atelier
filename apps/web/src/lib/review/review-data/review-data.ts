@@ -7,8 +7,9 @@ import { m } from '#lib/i18n/i18n.ts';
 import { rowLimitMessage } from '#lib/shared/data/errors/errors.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
+import { noteWrite } from '#lib/shared/data/writes/writes.ts';
 import type { ReviewScope } from '#lib/review/types/review-scope.ts';
-import { MIN_ARTWORKS, newAllowance } from '#lib/review/queue/queue.ts';
+import { MIN_ARTWORKS, newAllowance, startOfDay } from '#lib/review/queue/queue.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewCounts } from '#lib/review/types/review-counts.ts';
 import type { ReviewForm } from '#lib/review/types/review-form.ts';
@@ -138,6 +139,14 @@ export async function loadReviewStreak(dayStart: Date): Promise<ReviewStreakResu
 	return { days: data };
 }
 
+export async function recordFreeAnswers(dayStart: Date, answers: number): Promise<void> {
+	const { error } = await supabase.rpc('record_free_answers', {
+		day_start: dayStart.toISOString(),
+		answers
+	});
+	if (!error) noteWrite();
+}
+
 export function waitingToday(counts: ReviewCounts, newPerDay?: number): number {
 	if (counts.withImage < MIN_ARTWORKS) return 0;
 	const fresh = Math.min(counts.newAvailable, newAllowance(counts.newToday, newPerDay));
@@ -166,16 +175,17 @@ export async function recordReview(
 			rating: answer.rating,
 			correct: answer.mode === 'flashcard' ? null : (answer.correct ?? false),
 			answer_ms: answer.answerMs === undefined ? null : Math.round(answer.answerMs)
-		}
+		},
+		day_start: startOfDay(new Date()).toISOString(),
+		time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone
 	});
-	return error
-		? {
-				error: await failureMessage(
-					error,
-					(failure) => rowLimitMessage(failure) ?? m.review.saveFailed
-				)
-			}
-		: {};
+	if (!error) {
+		noteWrite();
+		return {};
+	}
+	return {
+		error: await failureMessage(error, (failure) => rowLimitMessage(failure) ?? m.review.saveFailed)
+	};
 }
 
 export async function loadReviewDetails(ids: string[]): Promise<ReviewDetailsResult> {

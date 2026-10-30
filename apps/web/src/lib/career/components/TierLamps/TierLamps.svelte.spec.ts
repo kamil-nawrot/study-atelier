@@ -1,0 +1,90 @@
+import { describe, expect, it } from 'vitest';
+import { page } from 'vitest/browser';
+import { render } from 'vitest-browser-svelte';
+import '@study-atelier/ui/styles.css';
+import { m } from '#lib/i18n/i18n.ts';
+import type { UnlockedTier } from '#lib/career/types/unlocked-tier.ts';
+import TierLamps from './TierLamps.svelte';
+
+const unlocked = (tier: number, seen = true): UnlockedTier => ({
+	exhibit: 'collection',
+	tier,
+	unlockedAt: new Date(2026, 9, tier),
+	seenAt: seen ? new Date(2026, 9, 20) : undefined
+});
+
+const NAME = 'Gabinet Olego Worma';
+
+function renderLamps(tiers: UnlockedTier[], code = 'collection'): void {
+	render(TierLamps, {
+		props: {
+			name: NAME,
+			exhibit: { code, value: 24, thresholds: [1, 10, 50, 100, 250], tiers },
+			tier: tiers.length
+		}
+	});
+}
+
+function ring(level: string): string {
+	const lamp = page.getByRole('button', { name: m.career.tierOf(level, NAME) }).element();
+	return getComputedStyle(lamp.firstElementChild as Element).outlineStyle;
+}
+
+describe('TierLamps', () => {
+	it('opens the date and the curiosity of an unlocked tier from its lamp', async () => {
+		renderLamps([unlocked(1), unlocked(2)]);
+
+		await page.getByRole('button', { name: m.career.tierOf('II', NAME) }).click();
+
+		const tier = page.getByRole('dialog', { name: m.career.tierOf('II', NAME) });
+		await expect.element(tier).toHaveTextContent(m.career.tierDate('II', '2 października 2026'));
+		await expect.element(tier).toHaveTextContent(m.career.curiosities.collection[1]);
+		await expect
+			.element(tier.getByRole('link', { name: m.career.source }))
+			.toHaveAttribute(
+				'href',
+				'https://www.visitmuve.it/en/galleria-delle-opere/tintoretto-paradise/'
+			);
+	});
+
+	it('shows only one tier at a time', async () => {
+		renderLamps([unlocked(1), unlocked(2)]);
+
+		await page.getByRole('button', { name: m.career.tierOf('I', NAME) }).click();
+		await page.getByRole('button', { name: m.career.tierOf('II', NAME) }).click();
+
+		await expect
+			.element(page.getByRole('dialog'))
+			.toHaveAccessibleName(m.career.tierOf('II', NAME));
+	});
+
+	it('gives only the date of a tier without a curiosity', async () => {
+		renderLamps([unlocked(1), unlocked(2), unlocked(3)], 'unknown');
+
+		await page.getByRole('button', { name: m.career.tierOf('III', NAME) }).click();
+
+		await expect
+			.element(page.getByRole('dialog'))
+			.toHaveTextContent(m.career.tierDate('III', '3 października 2026'));
+		await expect.element(page.getByRole('link')).not.toBeInTheDocument();
+	});
+
+	it('rings the lamp of a new tier that brings a curiosity', async () => {
+		renderLamps([unlocked(1), unlocked(2, false)]);
+
+		expect(ring('II')).toBe('solid');
+		expect(ring('I')).toBe('none');
+	});
+
+	it('leaves the lamp of a new tier without a curiosity plain', async () => {
+		renderLamps([unlocked(1, false)], 'unknown');
+
+		expect(ring('I')).toBe('none');
+	});
+
+	it('leaves the lamps of tiers not reached dark and silent', async () => {
+		renderLamps([unlocked(1)]);
+
+		await expect.element(page.getByRole('button')).toHaveAccessibleName(m.career.tierOf('I', NAME));
+	});
+});

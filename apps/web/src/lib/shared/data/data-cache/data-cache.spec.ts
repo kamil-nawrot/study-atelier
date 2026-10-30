@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { onWrite } from '#lib/shared/data/writes/writes.ts';
 import { cacheForLearner, cached, forgetCached, watchCache } from './data-cache.ts';
 
 const page = Object.assign(new EventTarget(), { visibilityState: 'visible' });
@@ -61,6 +62,33 @@ describe('cached', () => {
 		expect(load).toHaveBeenCalledTimes(2);
 	});
 
+	it('tells the listeners of writes that something was written', () => {
+		const listener = vi.fn();
+		const stop = onWrite(listener);
+		forgetCached();
+		stop();
+
+		expect(listener).toHaveBeenCalledOnce();
+	});
+
+	it('keeps no failed answer of a load started before the first learner is known', async () => {
+		cacheForLearner(undefined);
+		forgetCached();
+		let answer: (value: { error?: string }) => void = () => {};
+		const load = vi
+			.fn()
+			.mockReturnValueOnce(new Promise((resolve) => (answer = resolve)))
+			.mockResolvedValue({ rows: [] });
+
+		const first = cached('atelier', load);
+		cacheForLearner('learner-a');
+		answer({ error: 'Brak połączenia' });
+		await first;
+		await cached('atelier', load);
+
+		expect(load).toHaveBeenCalledTimes(2);
+	});
+
 	it('keeps what was loaded before the first learner is known', async () => {
 		cacheForLearner(undefined);
 		forgetCached();
@@ -71,6 +99,24 @@ describe('cached', () => {
 		await cached('atelier', load);
 
 		expect(load).toHaveBeenCalledTimes(1);
+	});
+
+	it('never gives one learner the answer loaded for another', async () => {
+		cacheForLearner('learner-a');
+		forgetCached();
+		let finish: (value: { rows: string[]; error?: string }) => void = () => {};
+		const slow = cached(
+			'atelier',
+			() => new Promise<{ rows: string[]; error?: string }>((done) => (finish = done))
+		);
+		cacheForLearner(undefined);
+		cacheForLearner('learner-b');
+		const load = vi.fn().mockResolvedValue({ rows: ['b'] });
+
+		finish({ rows: ['a'] });
+		await slow;
+
+		await expect(cached('atelier', load)).resolves.toEqual({ rows: ['b'] });
 	});
 
 	it('loads again for another learner, not for the same one', async () => {

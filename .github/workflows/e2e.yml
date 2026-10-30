@@ -9,6 +9,9 @@ on:
       - 'pnpm-lock.yaml'
       - '.github/workflows/e2e.yml'
 
+permissions:
+  contents: read
+
 concurrency:
   group: e2e-${{ github.ref }}
   cancel-in-progress: true
@@ -36,7 +39,7 @@ jobs:
           version: 2.120.0
 
       - name: Start local Supabase and apply migrations
-        run: supabase start
+        run: supabase start -x studio,imgproxy,logflare,vector,edge-runtime,realtime
 
       - name: Read the Playwright version
         id: playwright

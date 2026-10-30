@@ -14,6 +14,7 @@ import {
 	troubles,
 	waitingTomorrow
 } from '#lib/review/overview/overview.ts';
+import { answeredArtworks, FreeAnswers } from '#lib/review/free-answers/free-answers.ts';
 import { definitionsOffered, sessionSteps } from '#lib/review/definitions/definitions.ts';
 import { offeredForms, quizzesPossible } from '#lib/review/forms/forms.ts';
 import { missingArtworks, sessionCounts, startOfDay } from '#lib/review/queue/queue.ts';
@@ -47,10 +48,6 @@ function mapOf<K, V>(entries: Iterable<readonly [K, V]> = []): Map<K, V> {
 	return new Map(entries);
 }
 
-function answeredArtworks(session: ReviewSession): number {
-	return new Set(session.answers.map((answer) => answer.item.artwork.id)).size;
-}
-
 export class ReviewFlow {
 	scope = $state<ReviewScope>(ALL_SCOPE);
 	form = $state<ReviewForm>('mixed');
@@ -68,6 +65,7 @@ export class ReviewFlow {
 	details = $state.raw(mapOf<string, ReviewDetails>());
 
 	#stopAfterSave = false;
+	#free = new FreeAnswers();
 	#resolved = $state.raw(mapOf<string, WallArtwork>());
 	#outcomes = $state<Record<ReviewRating, ReviewCard>>();
 	readonly #source: () => ReviewSource;
@@ -219,6 +217,7 @@ export class ReviewFlow {
 		this.details = found.details;
 		if (free) this.freeRound += 1;
 		const questions = this.definitions ? (this.definitionCount ?? 0) : 0;
+		this.#free = new FreeAnswers();
 		this.session = new ReviewSession(
 			sessionSteps(
 				items.map((item) => withItemImages(item, (artwork) => this.withImage(artwork))),
@@ -245,6 +244,7 @@ export class ReviewFlow {
 		const active = this.session;
 		if (!active) return;
 		await active.rate(rating, this.#outcomes?.[rating]);
+		this.#free.record(active, startOfDay(currentDate()));
 		if (active === this.session && (active.finished || this.#stopAfterSave)) this.#finish();
 	}
 
@@ -252,6 +252,7 @@ export class ReviewFlow {
 		const active = this.session;
 		if (!active) return;
 		await active.answer(choice);
+		this.#free.record(active, startOfDay(currentDate()));
 		if (active === this.session && this.#stopAfterSave) this.#finish();
 	}
 
@@ -271,6 +272,7 @@ export class ReviewFlow {
 		}
 		this.now = currentDate();
 		const answered = answeredArtworks(session);
+		this.#free.record(session, startOfDay(this.now));
 		this.summary = {
 			count: answered,
 			minutes: session.minutes,

@@ -16,9 +16,9 @@ export default defineConfig({
 	},
 	projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
 	webServer: {
-		command: `vite dev --port ${PORT} --strictPort`,
+		command: `vite build && vite preview --port ${PORT} --strictPort`,
 		url: `http://localhost:${PORT}`,
-		timeout: 120_000,
+		timeout: 300_000,
 		env: {
 			SUPABASE_URL: supabase.url,
 			SUPABASE_PUBLISHABLE_KEY: supabase.publishableKey

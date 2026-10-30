@@ -210,6 +210,8 @@ export const pl = {
 		timeline: 'Kalendarium',
 		chronicle: 'Kronika',
 		review: 'Powtórki',
+		displayCase: 'Gablota',
+		displayCaseNew: 'Gablota, nowe',
 		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
 		trash: 'Archiwum',
 		settings: 'Ustawienia',
@@ -240,6 +242,9 @@ export const pl = {
 			photoHint: 'Zdjęcie zostanie automatycznie dopasowane do rozmiaru awatara',
 			removePhoto: 'Usuń zdjęcie',
 			name: 'Imię',
+			rankForm: 'Forma stopni',
+			rankFormMasculine: 'Kustosz',
+			rankFormFeminine: 'Kustoszka',
 			email: 'Adres e-mail',
 			emailHint: 'Adres podany przy rejestracji. Zmienisz go w zakładce „Konto”.',
 			nameTooLong: (max: number): string => `Imię może mieć najwyżej ${max} znaków.`,
@@ -305,6 +310,8 @@ export const pl = {
 			kindsHint: 'Zostaw zaznaczony przynajmniej jeden rodzaj.',
 			glossaryQuestions: 'Ile pytań dodatkowych ze Słowniczka dołączać do sesji?',
 			free: 'Proponuj powtórkę swobodną po skończonym dniu',
+			careerShown: 'Pokazuj stopień i Gablotę',
+			careerShownHint: 'Punkty i eksponaty liczą się dalej, także gdy są ukryte.',
 			showPins: 'Pokazuj pinezki od razu po otwarciu dzieła',
 			loupe: 'Włączaj lupę od razu po otwarciu dzieła',
 			sourcesHint:
@@ -1253,6 +1260,241 @@ export const pl = {
 			invalid: 'Nie udało się zapisać pojęcia. Sprawdź nazwę i definicję.'
 		}
 	},
+	career: {
+		title: 'Gablota',
+		lead: 'Sala z eksponatami, które udało Ci się zgromadzić, rozwijając swoje atelier. Każdy eksponat pokazuje Twoje postępy w innej dziedzinie nauki i kolekcjonowania. Niektóre są ukryte i odsłonią się dopiero wtedy, gdy spełnisz warunek ukryty w zagadce.',
+		loadErrorTitle: 'Nie udało się wczytać Gabloty',
+		tier: (tier: string, total: string): string => `Poziom ${tier} z ${total}`,
+		new: 'Nowe',
+		tierDate: (tier: string, date: string): string => `Poziom ${tier} · ${date}`,
+		hiddenName: 'Ukryty eksponat',
+		exhibitsHeading: 'Eksponaty',
+		newRank: 'nowy stopień',
+		newCuriosity: 'nowa ciekawostka',
+		source: 'Źródło',
+		curiosities: {
+			collection: [
+				'Ashmolean w Oksfordzie otworzył się w 1683 roku i od początku wpuszczał zwiedzających z zewnątrz uniwersytetu. Uchodzi za jedno z pierwszych publicznych muzeów na świecie.',
+				'„Raj” Tintoretta w Pałacu Dożów w Wenecji ma około 24,5 na 7,6 metra i uważa się go za jeden z największych obrazów na płótnie. Tintoretto malował go w latach 1588–1592 razem z synem Domenikiem i warsztatem.',
+				'Anna Maria Luisa, ostatnia z Medyceuszy, w „Pakcie rodzinnym” z 1737 roku zapisała zbiory rodu miastu Florencji. W 1769 roku Galerię Uffizi otwarto dla publiczności jako muzeum.',
+				'Hans Sloane zapisał swoją ogromną kolekcję osobliwości narodowi brytyjskiemu w zamian za 20 000 funtów dla spadkobierców. W tym samym 1753 roku założono British Museum, częściowo po to, żeby ją pomieścić.',
+				'Muzea Kapitolińskie w Rzymie liczą swoje dzieje od 1471 roku, gdy papież Sykstus IV podarował mieszkańcom miasta grupę posągów z brązu. To jedne z najstarszych publicznych muzeów na świecie.',
+				'Prado otwarto w Madrycie 19 listopada 1819 roku jako Królewskie Muzeum Malarstwa i Rzeźby, z 311 obrazami. Dziś ma około 8000 obrazów, z których 1700 wisi w budynku Villanuevy.',
+				'Panel „Sprawiedliwi sędziowie” z Ołtarza Gandawskiego skradziono z katedry św. Bawona w nocy 10 kwietnia 1934 roku i nigdy go nie odnaleziono. W ołtarzu jest dziś kopia, a śledztwo wciąż trwa.',
+				"„Salvator Mundi” przypisywany Leonardowi da Vinci sprzedano w 1958 roku za 45 funtów jako kopię. W 2017 roku w domu aukcyjnym Christie's w Nowym Jorku osiągnął 450,3 miliona dolarów, najwyższą cenę zapłaconą za obraz.",
+				'18 marca 1990 roku dwaj mężczyźni przebrani za policjantów wynieśli z Muzeum Isabelli Stewart Gardner w Bostonie 13 dzieł, wartych dziś ponad 500 milionów dolarów. To największa kradzież dzieł sztuki w historii, a puste ramy wciąż wiszą w muzeum.'
+			],
+			eras: [
+				'Herkulanum zaczęto systematycznie badać w 1738 roku na polecenie króla Neapolu Karola Burbona. Kopano szyby i tunele, żeby przebić się przez około 20 metrów zastygłego materiału wulkanicznego do ulic antycznego miasta.',
+				'Gdy w styczniu 1506 roku w winnicy na rzymskim Eskwilinie odkopano grupę marmurowych rzeźb, papież Juliusz II wysłał tam Michała Anioła i Giuliana da Sangallo. Sangallo miał od razu rozpoznać „Laokoona”, którego opisał Pliniusz.',
+				'Jaskinię Lascaux odkrył w 1940 roku 18-letni Marcel Ravidat, którego pies Robot natrafił na dziurę pod wywróconym drzewem. Po latach udostępniania dwutlenek węgla, ciepło i wilgoć od zwiedzających uszkodziły malowidła i w 1963 roku jaskinię zamknięto.',
+				'Malowane bizony na sklepieniu jaskini Altamira zauważyła w 1879 roku córka badacza Marcelina Sanza de Sautuoli. Większość uczonych odrzuciła ich prehistoryczny wiek, który uznano dopiero w 1902 roku.',
+				"Terakotową armię odkryto w 1974 roku pod Xi'an. Wojownicy byli pierwotnie malowani, ale po wydobyciu z ziemi farba potrafi zniknąć w ciągu kilku minut."
+			],
+			memory: [
+				'Według antycznej opowieści sala bankietowa zawaliła się na gości tuż po wyjściu poety Symonidesa z Keos. Ciał nie dało się rozpoznać, ale Symonides odtworzył w pamięci, kto przy którym miejscu stołu siedział.',
+				'Jezuita Matteo Ricci napisał w 1596 roku po chińsku „Zachodnią metodę pamięci” dla kandydatów do egzaminów urzędniczych. Jako obrazy do rozmieszczania w wyobrażonych budowlach wybrał chińskie znaki.',
+				'Whistler przyglądał się nocą Tamizie, a potem odwracał się plecami i recytował szczegóły widoku towarzyszowi, który poprawiał jego pomyłki. Swoje „Nokturny” malował później w pracowni z tego, co zostało w pamięci.',
+				'Aby Warburg od 1924 roku przypinał na 63 tablicach obciągniętych czarnym płótnem 971 reprodukcji dzieł i nazwał ten atlas „Mnemosyne”. Nie skończył go przed śmiercią w 1929 roku, a z oryginalnych tablic zostały tylko fotografie.',
+				'Franco Magnani wyjechał z toskańskiego Pontito w 1958 roku, mając 24 lata. Później namalował ponad 100 widoków rodzinnej wsi, wszystkie wyłącznie z pamięci.',
+				'Stephen Wiltshire po 20 minutach lotu helikopterem nad Nowym Jorkiem narysował panoramę miasta na płótnie długim na około 6 metrów. Nie korzystał przy tym ze zdjęć, tylko z pamięci.',
+				'Widoki Warszawy Bernarda Bellotta posłużyły po 1945 roku do odbudowy miasta, także z jego zmyśleniami. Jaszczurki i goryl jedzący banana na dachu Pałacu Branickich nigdy go nie zdobiły, a stoją tam dziś, bo namalował je Bellotto.'
+			],
+			regular: [
+				'Wit Stwosz pracował nad ołtarzem dla kościoła Mariackiego w Krakowie od 1477 do 1489 roku. Ponad 200 figur wyrzeźbił w drewnie lipowym, konstrukcję zrobiono z dębu, a tło z modrzewia.',
+				"„Źródło” Ingres zaczął malować w 1820 roku, a skończył dopiero w 1856, 36 lat później. Dziś obraz wisi w Musée d'Orsay.",
+				'Ghiberti robił pierwsze brązowe drzwi florenckiego baptysterium ponad 20 lat, a kolejne 27 lat. Te drugie Michał Anioł uznał za godne, by być bramą raju, i tak się je dziś nazywa.',
+				'„Bramę piekieł” państwo francuskie zamówiło u Rodina w 1880 roku do muzeum, które nigdy nie powstało, bo w jego miejscu zaplanowano dworzec. Rodin pracował nad nią latami, ale w brązie odlano ją dopiero po jego śmierci.',
+				'Simon Rodia budował Wieże Watts w Los Angeles przez 33 lata, od 1921 do 1954 roku. Uchodzą za największą budowlę wzniesioną przez jedną osobę, a stalowe pręty łączył drutem i zaprawą, bez spawania.',
+				'Listonosz Ferdinand Cheval potknął się w 1879 roku o kamień dziwnego kształtu i zaczął zbierać kamienie na trasie z listami. Przez 33 lata zbudował z nich Pałac Idealny, a sam doliczył się 93 000 godzin pracy.',
+				'Budowę katedry w Mediolanie zaczęto w 1386 roku. Jej fasadę dopełniły dopiero brązowe drzwi, które powstawały między 1909 a 1965 rokiem.',
+				'Kamień węgielny pod katedrę w Kolonii położono w 1248 roku, a po 1520 roku budowa stanęła na ponad 300 lat. Gdy ją wznowiono, bardzo dokładnie trzymano się średniowiecznego planu fasady.'
+			],
+			back_from_storage: [
+				'Po kradzieży „Mony Lisy” w 1911 roku poeta Guillaume Apollinaire spędził tydzień w areszcie, bo powiązano go z figurkami skradzionymi wcześniej z Luwru. Wskazał wtedy na swojego przyjaciela, Pabla Picassa.'
+			],
+			chronicle: [
+				'Paryskie wystawy żyjących artystów nazwano Salonami od sali Luwru, w której je urządzano, czyli Salon Carré. Mimo nazwy sala jest prostokątna, a „carré” oznacza tu tylko, że ma proste kąty.',
+				'Luwr otwarto jako muzeum 10 sierpnia 1793 roku. W tygodniu wpuszczano do niego artystów, którzy przychodzili tam się uczyć, a zwykła publiczność mogła wejść tylko w niedzielę.',
+				'Wystawa Vermeera w Rijksmuseum w 2023 roku zebrała 28 z 37 jego dzieł. Przez 16 tygodni obejrzało ją 650 000 osób ze 113 krajów, choć muzeum celowo ograniczało liczbę wejść.',
+				'Wystawę skarbów Tutanchamona w British Museum w 1972 roku obejrzało 1 694 117 osób. Kolejka ciągnęła się codziennie od sali na pierwszym piętrze przez całe muzeum aż na chodnik przed budynkiem.',
+				'Na wystawę Walentina Sierowa w moskiewskiej Galerii Tretiakowskiej w 2016 roku ludzie stali godzinami w kolejce na mrozie. Muzeum wydłużyło godziny otwarcia, a w namiotach przy kolejce rozdawano kaszę gryczaną i herbatę.',
+				'Po kradzieży „Mony Lisy” w 1911 roku Luwr zostawił po niej puste miejsce na ścianie. Tłumy przychodziły oglądać samą pustą ścianę, a wśród nich był Franz Kafka ze swoim przyjacielem Maxem Brodem.'
+			],
+			grand_tour: [
+				'Muzeum Chichu na japońskiej wyspie Naoshima zbudowano niemal w całości pod ziemią. Pięć „Nenufarów” Moneta ogląda się tam wyłącznie w świetle dziennym.',
+				'Inhotim w brazylijskim stanie Minas Gerais to jedno z największych muzeów sztuki współczesnej pod gołym niebem. Pawilony i rzeźby stoją w ogrodzie botanicznym, a zwiedzający mogą chodzić po około 140 hektarach.',
+				'Muzeum Zeitz MOCAA w Kapsztadzie urządzono w silosie zbożowym z lat 20. XX wieku. Wycięte w jego środku atrium ma kształt wzorowany na pojedynczym ziarnie kukurydzy, a światło wpada przez rury o średnicy 5,5 metra.',
+				'Cisternerne we Frederiksbergu w Kopenhadze to podziemny zbiornik wody pitnej z lat 1856–1859, dziś przestrzeń sztuki. Co roku wystawę tworzy tam inny artysta albo architekt, a wilgotność wynosi stale prawie 100%.',
+				'Muzeum MONA w Hobart na Tasmanii wykuto w piaskowcowym klifie na nadrzecznej posiadłości Moorilla. Założył je kolekcjoner David Walsh, który majątek zbił na hazardzie.',
+				'Podwodne muzeum MUSA u wybrzeży Cancún i Isla Mujeres w Meksyku to ponad 500 rzeźb naturalnej wielkości na głębokości od 4 do 8 metrów. Rzeźby są sztuczną rafą i odciągają nurków od przeciążonej rafy naturalnej.'
+			],
+			seen_live: [
+				'Do „Mony Lisy” Leonardo wybrał dużą deskę, około 79 na 53 cm, żeby przedstawić modelkę w naturalnej wielkości. W 1956 roku rzucony w dzieło kamień rozbił chroniącą je szybę i lekko uszkodził lewy łokieć.',
+				'„Mleczarka” Vermeera z Rijksmuseum ma tylko 45,5 na 41 cm.',
+				'Tkanina z Bayeux ma prawie 70 metrów długości i tylko 50 cm wysokości. W muzeum w Bayeux ogląda się ją w zaciemnionej sali, w której oświetlone jest wyłącznie samo dzieło.',
+				'„Straż nocną” Rembrandta obcięto w 1715 roku przy przenosinach do amsterdamskiego ratusza, z trzech stron, najbardziej z lewej. Odcięte pasy płótna się nie zachowały, a pełną kompozycję znamy z kopii przypisywanej Gerritowi Lundensowi.',
+				'Wersje „Krzyku” w muzeum MUNCH w Oslo powstały na papierze i tekturze, więc żadna nie może wisieć na stałe. Pokazuje się je na zmianę w ciągu dnia, a dwie pozostałe odpoczywają w tym czasie w ciemności.',
+				'Art Institute of Chicago ma 3 odbitki „Wielkiej fali w Kanagawie” Hokusaia, ale zwykle pokazuje ją tylko przez 3 miesiące co 4 lata. Przez resztę czasu drzeworyt odpoczywa w magazynie.'
+			],
+			timeline: [
+				'Nad lustrem w „Portrecie małżonków Arnolfinich” Jan van Eyck wypisał ozdobnym pismem „Johannes de eyck fuit hic 1434”, czyli „Jan van Eyck był tutaj. 1434”.',
+				'Badanie drewna 294 obrazów na desce Jordaensa, van Dycka i ich kręgu pokazało, że ponad 71% desek pochodziło z handlu drewnem bałtyckim. Dąb o prostych włóknach sprowadzano wtedy z Polski i innych krajów nad Bałtykiem.',
+				'W ostatnim wersie czterowiersza na ramie „Ołtarza gandawskiego” wyróżniono kilka liter. Suma ich wartości jako cyfr rzymskich daje 1432, rok, w którym 6 maja ołtarz ustawiono w katedrze św. Bawona.',
+				'Trzech „etruskich” wojowników z terakoty Metropolitan Museum przestało uważać za starożytnych, gdy jeden z twórców, Fioravanti, przyniósł kciuk z wypalonej gliny, który latami trzymał u siebie. Pasował idealnie do dłoni jednej z figur.',
+				'Malowidło w jaskini Leang Karampuang na Sulawesi ma co najmniej 51 200 lat i przedstawia postaci podobne do ludzi obok świni. Wiek ustalono laserem, badając kryształy węglanu wapnia, które narosły na nim później.'
+			],
+			glossary: [
+				'Nazwa impresjonizmu pochodzi od „Impresji, wschodu słońca” Moneta. Krytycy wyśmiali to dzieło na pierwszej wystawie grupy w Paryżu w 1874 roku, a jego tytuł zrobili obelgą dla całego ruchu.',
+				'Słowo „barok” było początkowo pogardliwe. Może pochodzić od portugalskiego „barroco”, czyli perły o nieregularnym kształcie.',
+				'Sfumato to „przydymiona” jakość malarstwa, która rozmywa kontury, tak że postaci wyłaniają się z ciemnego tła. Leonardo da Vinci radził w niedokończonym traktacie o malarstwie malować „bez linii”.',
+				'Nazwa kubizmu wzięła się najpewniej z uwagi krytyka Louisa Vauxcellesa. W 1908 roku napisał o dziełach Braque’a wystawionych w Paryżu, że sprowadzają wszystko do geometrycznych zarysów, do sześcianów.',
+				'Słowo „gotycki” ukuli włoscy pisarze późnego renesansu jako synonim „barbarzyńskiego”. Przypisywali ten styl Gotom, którzy zniszczyli Cesarstwo Rzymskie.',
+				'Groteska wzięła nazwę od włoskiego „grottesco”. Jej wzory podpatrzono w starożytnych dekoracjach odkrytych pod koniec XV wieku w podziemnych salach, czyli grotach, Złotego Domu Nerona w Rzymie.',
+				'Secesję Włosi nazywali między innymi „Stile Liberty”, od londyńskiego domu towarowego Liberty & Co. Niemcy mówili „Jugendstil”, od monachijskiego pisma „Die Jugend”.'
+			],
+			own_eye: [
+				'Camera lucida pozwalała rysownikowi widzieć jednocześnie widok i kartkę, na której rysował. Opatentował ją w 1807 roku William Hyde Wollaston.',
+				'Canaletto długo uchodził za malarza, który rysował Wenecję w plenerze z camera obscura. Badanie jego dopracowanych rysunków w podczerwieni wskazuje jednak, że powstawały w pracowni na podstawie szkiców z natury.',
+				'William Henry Fox Talbot w podróży poślubnej próbował narysować jezioro Como za pomocą camera lucida. Twierdził później, że fotografię wynalazł, bo słabo rysował i go to frustrowało.',
+				'Najstarsza zachowana fotografia wykonana camera obscura to heliografia Niépce’a z 1827 roku. Powstała na cynowej płycie pokrytej światłoczułym bitumem i naświetlała się przez kilka dni.',
+				'Na zdjęciu paryskiego bulwaru, które Daguerre zrobił około 1838 roku, ruchliwa ulica wygląda na pustą, bo naświetlanie trwało 10 minut. Został na nim tylko mężczyzna, który stał w miejscu, bo czyszczono mu buty.'
+			],
+			night_watch: [
+				'Właściwy tytuł „Straży nocnej” to „Kompania strzelców dzielnicy II pod dowództwem kapitana Fransa Banninck Cocqa”. Nazwą „Nachtwacht” określa się to dzieło dopiero od końca XVIII wieku.'
+			],
+			marathon: [
+				'Pejzaż w dolnej części „Nemezis” Dürera rozpoznano jako miasteczko Klausen (Chiusa) w Tyrolu. Samą boginię Dürer zbudował według kanonu proporcji Witruwiusza.'
+			]
+		},
+		ranks: {
+			masculine: [
+				'Zwiedzający',
+				'Bywalec',
+				'Miłośnik sztuki',
+				'Kolekcjoner',
+				'Znawca',
+				'Asystent muzealny',
+				'Adiunkt',
+				'Kustosz',
+				'Starszy kustosz',
+				'Główny kurator',
+				'Wicedyrektor',
+				'Dyrektor muzeum'
+			],
+			feminine: [
+				'Zwiedzająca',
+				'Bywalczyni',
+				'Miłośniczka sztuki',
+				'Kolekcjonerka',
+				'Znawczyni',
+				'Asystentka muzealna',
+				'Adiunktka',
+				'Kustoszka',
+				'Starsza kustoszka',
+				'Główna kuratorka',
+				'Wicedyrektorka',
+				'Dyrektorka muzeum'
+			]
+		},
+		rankLabel: (rank: string, points: number): string => `Stopień: ${rank}, ${pointCount(points)}`,
+		rankProgress: (points: number, next: number): string => `${points} z ${pointCount(next)}`,
+		rankTop: (points: number): string => `${pointCount(points)} · najwyższy stopień`,
+		about: 'O eksponacie',
+		aboutOf: (exhibit: string): string => `O eksponacie: ${exhibit}`,
+		tierOf: (tier: string, exhibit: string): string => `Poziom ${tier}: ${exhibit}`,
+		rankTip: (points: number, next: string, missing: number): string =>
+			`${pointCount(points)} · do stopnia ${next} brakuje ${missing}`,
+		roundPlan: (points: number, streak: number, bonus: number): string =>
+			`Za dzisiejszy plan: ${pointCount(points)}${
+				streak > 1
+					? ` (seria ${streak} ${plural(streak, { one: 'dzień', few: 'dni', many: 'dni' })}${bonus > 0 ? `, premia ${bonus}%` : ''})`
+					: ''
+			}.`,
+		roundTier: (tier: string, exhibit: string): string =>
+			`W Gablocie zapalił się poziom ${tier}: ${exhibit}.`,
+		roundRank: (rank: string): string => `Nowy stopień: ${rank}.`,
+		credits: 'Ryciny',
+		recoloured: 'kolory zmienione',
+		exhibits: {
+			collection: {
+				name: 'Gabinet Olego Worma',
+				about:
+					'Kopenhaski gabinet osobliwości Olego Worma, znany z ryciny z 1655 roku, był jednym z pierwowzorów muzeum.',
+				count: counter('dzieł w atelier')
+			},
+			eras: {
+				name: 'Świątynia della Tosse',
+				about: 'Piranesi utrwalał na rycinach ruiny starożytnego Rzymu.',
+				count: counter('epok w Twoich dziełach')
+			},
+			memory: {
+				name: 'Święty Hieronim w pracowni',
+				about:
+					'Dürer wyrył uczonego pogrążonego w lekturze w 1514 roku, w tym samym roku co „Melancholię I”.',
+				count: counter('dzieł utrwalonych w pamięci')
+			},
+			regular: {
+				name: 'Klepsydra z „Melancholii I”',
+				about:
+					'Klepsydra wisi na ścianie w miedziorycie Dürera z 1514 roku. Dzień, w którym nic nie czekało na powtórkę, nie przerywa serii.',
+				count: counter('dni', 'najdłuższa seria: ')
+			},
+			back_from_storage: {
+				name: 'Mona Lisa po powrocie',
+				about: 'Mona Lisa zniknęła z Luwru w 1911 roku i wróciła tam po ponad dwóch latach.',
+				hint: 'Zdarza się, że dzieło wypada z pamięci, a potem do niej wraca.',
+				awarded: 'Za dzieło zapomniane i utrwalone na nowo.'
+			},
+			chronicle: {
+				name: 'Salon w Luwrze',
+				about:
+					'Rycina Pietra Antonia Martiniego pokazuje paryski Salon w Luwrze w 1787 roku, gdzie obrazy wisiały od podłogi aż po sufit.',
+				count: counter('odwiedzonych miejsc')
+			},
+			grand_tour: {
+				name: 'Globus podróżnika',
+				about:
+					'W XVIII wieku młodzi Europejczycy odbywali Grand Tour, podróż po zabytkach i kolekcjach kontynentu.',
+				count: counter('krajów z odwiedzonymi miejscami')
+			},
+			seen_live: {
+				name: 'Teleskop Mathieu Laensbergha',
+				about:
+					'Od XVII wieku w Liège wydawano almanach z przepowiedniami, podpisany imieniem zmyślonego astrologa, „mistrza Mathieu Laensbergha”.',
+				count: counter('dzieł zobaczonych na żywo')
+			},
+			timeline: {
+				name: 'Praski orloj',
+				about: 'Zegar astronomiczny na praskim rynku odmierza czas od 1410 roku.',
+				count: counter('wydarzeń w Kalendarium')
+			},
+			glossary: {
+				name: 'Biblioteka w Lejdzie',
+				about:
+					'Rycina z 1610 roku pokazuje bibliotekę uniwersytetu w Lejdzie, w której księgi przykuwano łańcuchami do pulpitów.',
+				count: counter('pojęć w Słowniczku')
+			},
+			own_eye: {
+				name: 'Camera obscura z Encyklopedii',
+				about:
+					'Plansza z Encyklopedii Diderota pokazuje ciemnię optyczną, w której na długo przed fotografią odrysowywano widoki.',
+				count: counter('własnych zdjęć dzieł')
+			},
+			night_watch: {
+				name: 'Straż nocna',
+				about: 'Rembrandt namalował „Straż nocną” w 1642 roku.',
+				hint: 'Niektórzy uczą się wtedy, gdy muzea są od dawna zamknięte.',
+				awarded: 'Za powtórkę między północą a czwartą rano.'
+			},
+			marathon: {
+				name: 'Puchar Nemezis',
+				about: 'Na miedziorycie Dürera bogini Nemezis szybuje nad światem z pucharem w dłoni.',
+				hint: 'Bogowie przyglądają się tym, którzy nie wiedzą, kiedy przestać.',
+				awarded: 'Za tysiąc dzieł w powtórkach swobodnych jednego dnia.'
+			}
+		}
+	},
 	chronicle: {
 		title: 'Kronika',
 		lead: 'Dziennik Twoich wizyt w muzeach i innych spotkań ze sztuką. Możesz tutaj zapisać, gdzie i kiedy udało Ci się zobaczyć dzieła z Twojej kolekcji na żywo.',
@@ -1571,6 +1813,17 @@ function reviewedToday(count: number, minutes: number): string {
 
 function minuteCount(count: number): string {
 	return `${count} ${plural(count, { one: 'minutę', few: 'minuty', many: 'minut' })}`;
+}
+
+function counter(unit: string, before = ''): (value: number, next?: number) => string {
+	return (value, next) =>
+		next === undefined
+			? `${before}${value} ${unit} · najwyższy poziom`
+			: `${before}${value} z ${next} ${unit}`;
+}
+
+function pointCount(count: number): string {
+	return `${count} ${plural(count, { one: 'punkt', few: 'punkty', many: 'punktów' })}`;
 }
 
 function visitCount(count: number): string {

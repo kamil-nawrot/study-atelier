@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import Info from '@lucide/svelte/icons/info';
 import { createRawSnippet } from 'svelte';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
@@ -78,5 +79,95 @@ describe('PopupButton', () => {
 		await userEvent.hover(button());
 
 		await expect.element(page.getByRole('tooltip')).toHaveTextContent('Grouping: era');
+	});
+
+	it('opens from a quiet stage button when it has a stage icon', async () => {
+		render(PopupButton, { label: 'About', stageIcon: Info, children: panel });
+
+		const about = page.getByRole('button', { name: 'About' });
+		await expect.element(about).toHaveStyle({ opacity: '0.6' });
+		await about.click();
+
+		await expect.element(about).toHaveAttribute('aria-expanded', 'true');
+		await expect.element(page.getByRole('button', { name: 'Era' })).toBeVisible();
+	});
+
+	it('opens from a bare button and places its panel under the container', async () => {
+		const mark = createRawSnippet(() => ({ render: () => '<span>II</span>' }));
+		render(PopupButton, { label: 'Tier II', trigger: mark, children: panel, bare: true });
+
+		const tier = page.getByRole('button', { name: 'Tier II' });
+		await expect.element(tier).toHaveStyle({ borderStyle: 'none' });
+		await tier.click();
+
+		await expect.element(tier).toHaveAttribute('aria-expanded', 'true');
+		const popup = tier.element().parentElement;
+		expect(popup && getComputedStyle(popup).position).toBe('static');
+	});
+
+	it('opens on hover with a mouse and closes when the pointer leaves', async () => {
+		render(PopupButton, { label: 'Grouping: era', trigger, children: panel, hover: true });
+
+		await userEvent.hover(button());
+		await expect.element(page.getByRole('dialog', { name: 'Grouping: era' })).toBeVisible();
+
+		await userEvent.unhover(button());
+		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+	});
+
+	it('stays open when pinned with the keyboard just after the pointer left', async () => {
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+		render(PopupButton, { label: 'Grouping: era', trigger, children: panel, hover: true });
+
+		await userEvent.hover(button());
+		await userEvent.unhover(button());
+		button().element().focus();
+		await userEvent.keyboard('{Enter}');
+		vi.advanceTimersByTime(300);
+		vi.useRealTimers();
+
+		await expect.element(page.getByRole('dialog', { name: 'Grouping: era' })).toBeVisible();
+	});
+
+	it('closes a panel opened on hover with Escape', async () => {
+		render(PopupButton, { label: 'Grouping: era', trigger, children: panel, hover: true });
+
+		await userEvent.hover(button());
+		await expect.element(page.getByRole('dialog', { name: 'Grouping: era' })).toBeVisible();
+		await userEvent.keyboard('{Escape}');
+
+		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+	});
+
+	it('stays open after a click on a hovered button', async () => {
+		render(PopupButton, { label: 'Grouping: era', trigger, children: panel, hover: true });
+
+		await userEvent.hover(button());
+		await button().click();
+		await userEvent.unhover(button());
+
+		await expect.element(page.getByRole('dialog', { name: 'Grouping: era' })).toBeVisible();
+	});
+
+	it('opens its panel above the button when placed on top', async () => {
+		render(PopupButton, { label: 'Grouping: era', trigger, children: panel, placement: 'top' });
+
+		await button().click();
+
+		const dialog = document.querySelector('[role="dialog"]') as Element;
+		expect(dialog.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+			button().element().getBoundingClientRect().top
+		);
+	});
+
+	it('shows a panel opened on hover after a short delay, like a tooltip', async () => {
+		render(PopupButton, { label: 'Grouping: era', trigger, children: panel, hover: true });
+
+		await userEvent.hover(button());
+
+		const dialog = document.querySelector('[role="dialog"]') as Element;
+		expect(getComputedStyle(dialog).animationName).toMatch(/hover-reveal/);
+		await button().click();
+		expect(getComputedStyle(dialog).animationName).toBe('none');
 	});
 });

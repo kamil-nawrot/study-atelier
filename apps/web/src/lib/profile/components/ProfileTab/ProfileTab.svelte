@@ -2,7 +2,7 @@
 	import { onDestroy, untrack } from 'svelte';
 	import ImageUp from '@lucide/svelte/icons/image-up';
 	import Trash from '@lucide/svelte/icons/trash';
-	import { Button, Form, FormActions, IconButton, TextField } from '@study-atelier/ui';
+	import { Button, Form, FormActions, IconButton, Select, TextField } from '@study-atelier/ui';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
@@ -10,10 +10,11 @@
 	import { OWN_IMAGE_ACCEPT } from '#lib/images/bucket/bucket.ts';
 	import { cropAvatar } from '#lib/profile/avatar/avatar.ts';
 	import {
-		avatarInitial,
 		DISPLAY_NAME_MAX_LENGTH,
+		avatarInitial,
 		profileDraftChanged,
 		profileDraftOf,
+		rankFormOf,
 		showsAvatar,
 		validateDisplayName
 	} from '#lib/profile/profile/profile.ts';
@@ -39,6 +40,7 @@
 
 	let name = $state(untrack(() => profileDraftOf(profile).name));
 	let avatar = $state.raw<AvatarChange>({ kind: 'keep' });
+	let rankForm = $state<string>(untrack(() => profile.rankForm));
 	let previewUrl = $state<string>();
 	let nameError = $state<string>();
 	let photoError = $state<string>();
@@ -46,7 +48,7 @@
 	let fileInput = $state<HTMLInputElement>();
 
 	const changes = new UnsavedChanges<ProfileDraft>(
-		() => ({ name, avatar }),
+		() => ({ name, avatar, rankForm: rankFormOf(rankForm) }),
 		() => profileDraftOf(formState.saved),
 		profileDraftChanged
 	);
@@ -78,6 +80,7 @@
 	function cancel(): void {
 		setAvatar({ kind: 'keep' });
 		name = profileDraftOf(formState.saved).name;
+		rankForm = formState.saved.rankForm;
 		nameError = undefined;
 		photoError = undefined;
 		formState.error = '';
@@ -87,7 +90,10 @@
 		return formState.run(async () => {
 			nameError = validateDisplayName(name);
 			if (nameError) return;
-			const result = await saveProfile({ name, avatar }, formState.saved);
+			const result = await saveProfile(
+				{ name, avatar, rankForm: rankFormOf(rankForm) },
+				formState.saved
+			);
 			if (result.error !== undefined) {
 				formState.error = result.error;
 				return;
@@ -158,6 +164,14 @@
 					label={m.settings.profile.name}
 					maxlength={DISPLAY_NAME_MAX_LENGTH * 2}
 					bind:value={name}
+				/>
+				<Select
+					label={m.settings.profile.rankForm}
+					options={[
+						{ value: 'masculine', label: m.settings.profile.rankFormMasculine },
+						{ value: 'feminine', label: m.settings.profile.rankFormFeminine }
+					]}
+					bind:value={rankForm}
 				/>
 				<TextField
 					disabled

@@ -2,10 +2,11 @@ import { m } from '#lib/i18n/i18n.ts';
 import type { AvatarChange } from '#lib/profile/types/avatar-change.ts';
 import type { Profile } from '#lib/profile/types/profile.ts';
 import type { ProfileDraft } from '#lib/profile/types/profile-draft.ts';
+import type { RankForm } from '#lib/profile/types/rank-form.ts';
 
 export const DISPLAY_NAME_MAX_LENGTH = 60;
 
-export const emptyProfile: Profile = { displayName: null, avatarPath: null };
+export const emptyProfile: Profile = { displayName: null, avatarPath: null, rankForm: 'masculine' };
 
 export function validateDisplayName(name: string): string | undefined {
 	if (name.trim().length > DISPLAY_NAME_MAX_LENGTH) {
@@ -19,13 +20,17 @@ export function normalizedName(name: string): string | null {
 	return trimmed === '' ? null : trimmed;
 }
 
-export function avatarInitial(profile: Profile | undefined, email: string): string {
+export function rankFormOf(value: string | null): RankForm {
+	return value === 'feminine' ? 'feminine' : 'masculine';
+}
+
+export function avatarInitial(profile: Partial<Profile> | undefined, email: string): string {
 	const source = profile?.displayName?.trim() || email.trim();
 	return Array.from(source)[0]?.toLocaleUpperCase('pl') ?? '';
 }
 
 export function profileDraftOf(profile: Profile): ProfileDraft {
-	return { name: profile.displayName ?? '', avatar: { kind: 'keep' } };
+	return { name: profile.displayName ?? '', avatar: { kind: 'keep' }, rankForm: profile.rankForm };
 }
 
 function sameAvatar(left: AvatarChange, right: AvatarChange): boolean {
@@ -36,6 +41,7 @@ function sameAvatar(left: AvatarChange, right: AvatarChange): boolean {
 export function profileDraftChanged(current: ProfileDraft, reference: ProfileDraft): boolean {
 	return (
 		normalizedName(current.name) !== normalizedName(reference.name) ||
+		current.rankForm !== reference.rankForm ||
 		!sameAvatar(current.avatar, reference.avatar)
 	);
 }

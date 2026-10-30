@@ -22,6 +22,7 @@ type AppLayoutData = {
 	reviewWaiting?: Promise<number>;
 	menuProfile?: Promise<Profile | undefined>;
 	acceptedLegalVersion?: Promise<string | null | undefined>;
+	careerShown?: boolean;
 };
 
 async function ownProfile(): Promise<Profile | undefined> {
@@ -44,6 +45,7 @@ export const load: LayoutLoad = async ({ parent, depends }): Promise<AppLayoutDa
 		session,
 		reviewWaiting: reviewWaiting(loaded.reviewNewPerDay),
 		menuProfile: ownProfile(),
-		acceptedLegalVersion: loadAcceptedLegalVersion()
+		acceptedLegalVersion: loadAcceptedLegalVersion(),
+		careerShown: loaded.careerShown
 	};
 };

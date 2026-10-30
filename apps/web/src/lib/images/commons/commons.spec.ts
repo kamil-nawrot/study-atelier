@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+	commonsFilePage,
 	commonsFileUrl,
 	commonsSrcset,
 	commonsThumbnailSrcset,
@@ -225,5 +226,13 @@ describe('fetchCommonsFiles', () => {
 
 		await expect(fetchCommonsFiles([], 330)).resolves.toEqual(new Map());
 		expect(fetchMock).not.toHaveBeenCalled();
+	});
+});
+
+describe('commons file page', () => {
+	it('links to the description page of a file', () => {
+		expect(commonsFilePage('Albrecht Dürer, Melencolia I, 1514.jpg')).toBe(
+			'https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_Melencolia_I%2C_1514.jpg'
+		);
 	});
 });

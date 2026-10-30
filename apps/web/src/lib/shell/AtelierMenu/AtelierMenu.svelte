@@ -3,6 +3,7 @@
 	import CalendarRange from '@lucide/svelte/icons/calendar-range';
 	import Footprints from '@lucide/svelte/icons/footprints';
 	import ImagesIcon from '@lucide/svelte/icons/images';
+	import Landmark from '@lucide/svelte/icons/landmark';
 	import Layers from '@lucide/svelte/icons/layers';
 	import ListTree from '@lucide/svelte/icons/list-tree';
 	import LogOut from '@lucide/svelte/icons/log-out';
@@ -16,6 +17,11 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { Profile } from '#lib/profile/types/profile.ts';
 	import Avatar from '#lib/profile/components/Avatar/Avatar.svelte';
+	import NewMark from '#lib/career/components/NewMark/NewMark.svelte';
+	import RankRing from '#lib/career/components/RankRing/RankRing.svelte';
+	import RankTitle from '#lib/career/components/RankTitle/RankTitle.svelte';
+	import { progressToNext, rankName, rankOf } from '#lib/career/ranks/ranks.ts';
+	import { career } from '#lib/career/career-state/career-state.svelte.ts';
 	import {
 		followMenuProfile,
 		shownMenuProfile
@@ -41,27 +47,64 @@
 	const trashPath = resolve('/(app)/atelier/trash');
 	const settingsPath = resolve('/(app)/atelier/settings');
 	const reviewPath = resolve('/(app)/atelier/review');
+	const displayCasePath = resolve('/(app)/atelier/display-case');
 
 	const light = $derived(currentTheme() === 'light');
 	const ownerId = $derived(page.data.session?.user.id);
 
+	const careerShown = $derived(page.data.careerShown !== false);
+
 	$effect(() => followMenuProfile(page.data.menuProfile, ownerId));
+
+	function accountLabel(profile: Profile | undefined): string {
+		const parts = [m.menu.settingsLink(profile?.displayName || email, email)];
+		if (careerShown && career.standing) {
+			parts.push(rankName(rankOf(career.standing.points).level, profile?.rankForm ?? 'masculine'));
+			if (career.hasNewRank) parts.push(m.career.newRank);
+		}
+		return parts.join(', ');
+	}
+
+	$effect(() => {
+		career.forLearner(ownerId);
+		if (careerShown && page.url.pathname) career.refreshIfStale();
+	});
 </script>
 
 {#snippet account(profile?: Profile)}
 	<a
 		class="item account"
 		aria-current={page.url.pathname === settingsPath ? 'page' : undefined}
-		aria-label={compact ? m.menu.settingsLink(profile?.displayName ?? email, email) : undefined}
+		aria-label={compact ? accountLabel(profile) : undefined}
 		href={settingsPath}
 	>
-		<Avatar initial={avatarInitial(profile, email)} medium={!compact} path={profile?.avatarPath} />
-		<span class="who" class:visually-hidden={compact}>
-			{#if profile?.displayName}
-				<span class="label">{profile.displayName}</span>
-				<span class="label email" title={email}>{email}</span>
+		<span class="icon">
+			{#if careerShown && career.standing}
+				<RankRing progress={progressToNext(career.standing.points)}>
+					<Avatar
+						initial={avatarInitial(profile, email)}
+						medium={!compact}
+						path={profile?.avatarPath}
+					/>
+				</RankRing>
 			{:else}
-				<span class="label">{email}</span>
+				<Avatar
+					initial={avatarInitial(profile, email)}
+					medium={!compact}
+					path={profile?.avatarPath}
+				/>
+			{/if}
+			{#if careerShown}
+				<NewMark flash={career.rankFlash} shown={career.hasNewRank} />
+			{/if}
+		</span>
+		<span class="who" class:visually-hidden={compact}>
+			<span class="label" title={email}>{profile?.displayName || email}</span>
+			{#if careerShown && career.standing}
+				<RankTitle form={profile?.rankForm ?? 'masculine'} points={career.standing.points} />
+				{#if career.hasNewRank}
+					<span class="visually-hidden">, {m.career.newRank}</span>
+				{/if}
 			{/if}
 		</span>
 	</a>
@@ -148,6 +191,24 @@
 			{/if}
 		{/await}
 	</a>
+	{#if careerShown}
+		<a
+			class="item"
+			aria-current={page.url.pathname === displayCasePath ? 'page' : undefined}
+			href={displayCasePath}
+		>
+			<span class="icon">
+				<Icon icon={Landmark} />
+				<NewMark flash={career.tierFlash} shown={career.hasNewTiers} />
+			</span>
+			<span class="label" class:visually-hidden={compact}>
+				{m.menu.displayCase}
+				{#if career.hasNewTiers}
+					<span class="visually-hidden">, {m.career.new}</span>
+				{/if}
+			</span>
+		</a>
+	{/if}
 </div>
 <div class="group">
 	<a
@@ -241,11 +302,6 @@
 	.who {
 		display: grid;
 		min-width: 0;
-	}
-
-	.email {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
 	}
 
 	.label {

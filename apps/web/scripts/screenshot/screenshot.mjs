@@ -31,6 +31,8 @@ import {
 	WIKIDATA_DATES,
 	WIKIDATA_HUMANS,
 	WIKIPEDIA_PAGES,
+	EXHIBITS,
+	EXHIBIT_TIERS,
 	commonsSize,
 	fakeSession,
 	imageSvg
@@ -490,6 +492,11 @@ async function mockSupabase(context) {
 			return route.fulfill({ status: 204, headers: corsHeaders() });
 		}
 		if (url.pathname === '/rest/v1/review_cards') return json(route, REVIEW_CARDS);
+		if (url.pathname === '/rest/v1/rpc/unlock_exhibits') return json(route, EXHIBITS);
+		if (url.pathname === '/rest/v1/rpc/learner_points') return json(route, 1846);
+		if (url.pathname === '/rest/v1/exhibit_tiers') {
+			return request.method() === 'PATCH' ? json(route, []) : json(route, EXHIBIT_TIERS);
+		}
 		if (url.pathname === '/rest/v1/timeline_events') {
 			if (request.method() === 'POST') return json(route, { id: TIMELINE_EVENTS[0].id }, 201);
 			if (request.method() === 'PATCH') return json(route, { id: TIMELINE_EVENTS[0].id });

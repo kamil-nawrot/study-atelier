@@ -186,7 +186,7 @@
 		<div class="columns" class:author={form.author}>
 			{#if form.author && record}
 				<ImageField
-					alt={record.name}
+					alt={form.name.trim() || record.name}
 					query={{ kind: 'person', name: form.name }}
 					searchReady={form.name.trim() !== ''}
 					texts={m.valueForm.portrait}

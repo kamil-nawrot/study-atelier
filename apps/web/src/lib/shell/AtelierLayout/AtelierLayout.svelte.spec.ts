@@ -197,6 +197,22 @@ describe('AtelierLayout', () => {
 		);
 	});
 
+	it('links to the display case right after the reviews', async () => {
+		await page.viewport(1280, 800);
+		renderLayout(views.empty);
+
+		const rail = page.getByRole('navigation', { name: m.menu.label });
+		await expect
+			.element(rail.getByRole('link', { name: m.menu.displayCase }))
+			.toHaveAttribute('href', '/atelier/display-case');
+		const names = [...rail.element().querySelectorAll('a')].map((item) =>
+			item.querySelector('.label')?.textContent?.trim()
+		);
+		expect(names.findIndex((name) => name?.startsWith(m.menu.review)) + 1).toBe(
+			names.indexOf(m.menu.displayCase)
+		);
+	});
+
 	it('keeps the rail expanded in a layout rendered by the next page', async () => {
 		await page.viewport(1280, 800);
 		const first = await render(AtelierLayout, {
@@ -279,13 +295,25 @@ describe('AtelierLayout account row', () => {
 		await expect.element(link).toHaveTextContent('A');
 	});
 
-	it('shows the whole email in a tooltip under the name', async () => {
+	it('shows the name without the email, which stays in the tooltip of the name', async () => {
 		pageState.data = { menuProfile: Promise.resolve({ displayName: 'Anna', avatarPath: null }) };
 		renderLayout(views.empty);
 
 		await expect
-			.element(page.getByText('learner@example.com', { exact: true }))
+			.element(page.getByText('Anna', { exact: true }))
 			.toHaveAttribute('title', 'learner@example.com');
+		await expect
+			.element(page.getByText('learner@example.com', { exact: true }))
+			.not.toBeInTheDocument();
+	});
+
+	it('shows the email in place of a name the learner has not given', async () => {
+		pageState.data = { menuProfile: Promise.resolve({ displayName: null, avatarPath: null }) };
+		renderLayout(views.empty);
+
+		await expect
+			.element(page.getByText('learner@example.com', { exact: true }))
+			.toBeInTheDocument();
 	});
 
 	it('keeps the name while the profile loads again after a navigation', async () => {

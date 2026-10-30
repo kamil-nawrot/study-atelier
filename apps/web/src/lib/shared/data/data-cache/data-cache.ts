@@ -1,3 +1,5 @@
+import { noteWrite } from '#lib/shared/data/writes/writes.ts';
+
 const CHANNEL = 'study-atelier:data-cache';
 const FORGET_AFTER_HIDDEN_MS = 10 * 60 * 1000;
 
@@ -9,38 +11,57 @@ export function cached<T extends { error?: unknown }>(
 	key: string,
 	load: () => Promise<T>
 ): Promise<T> {
-	const kept = entries.get(key);
+	const entry = `${learner ?? ''}:${key}`;
+	const kept = entries.get(entry);
 	if (kept) return kept as Promise<T>;
-	const loading = load().then(
+	const loading: Promise<T> = load().then(
 		(result) => {
-			if (result.error !== undefined && entries.get(key) === loading) entries.delete(key);
+			if (result.error !== undefined) evict(loading);
 			return result;
 		},
 		(error: unknown) => {
-			if (entries.get(key) === loading) entries.delete(key);
+			evict(loading);
 			throw error;
 		}
 	);
-	entries.set(key, loading);
+	entries.set(entry, loading);
 	return loading;
+}
+
+function evict(loading: Promise<unknown>): void {
+	for (const [entry, kept] of entries) if (kept === loading) entries.delete(entry);
 }
 
 export function forgetCached(): void {
 	entries.clear();
 	channel?.postMessage('forget');
+	noteWrite();
 }
 
 export function cacheForLearner(id: string | undefined): void {
 	if (id === learner) return;
 	const switched = learner !== undefined;
 	learner = id;
-	if (switched) entries.clear();
+	if (switched) {
+		entries.clear();
+		return;
+	}
+	for (const [entry, loading] of [...entries]) {
+		if (!entry.startsWith(':')) continue;
+		entries.delete(entry);
+		entries.set(`${id ?? ''}${entry}`, loading);
+	}
 }
 
 export function watchCache(now: () => number = Date.now): () => void {
 	let hiddenAt: number | undefined;
 	channel = typeof BroadcastChannel === 'undefined' ? undefined : new BroadcastChannel(CHANNEL);
-	if (channel) channel.onmessage = () => entries.clear();
+	if (channel) {
+		channel.onmessage = () => {
+			entries.clear();
+			noteWrite();
+		};
+	}
 
 	const visibility = (): void => {
 		if (document.visibilityState === 'hidden') {

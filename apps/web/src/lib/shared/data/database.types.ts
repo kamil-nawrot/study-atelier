@@ -561,6 +561,31 @@ export type Database = {
         };
         Relationships: [];
       };
+      exhibit_tiers: {
+        Row: {
+          exhibit: string;
+          owner_id: string;
+          seen_at: string | null;
+          tier: number;
+          unlocked_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          exhibit: string;
+          owner_id?: string;
+          seen_at?: string | null;
+          tier: number;
+          unlocked_at?: string;
+        };
+        Update: {
+          exhibit?: string;
+          owner_id?: string;
+          seen_at?: string | null;
+          tier?: number;
+          unlocked_at?: string;
+        };
+        Relationships: [];
+      };
       feedback: {
         Row: {
           browser: string | null;
@@ -592,6 +617,25 @@ export type Database = {
           notified_at?: string | null;
           owner_id?: string;
           title?: string;
+        };
+        Relationships: [];
+      };
+      free_review_days: {
+        Row: {
+          answers: number;
+          day_start: string;
+          owner_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          answers: number;
+          day_start: string;
+          owner_id?: string;
+        };
+        Update: {
+          answers?: number;
+          day_start?: string;
+          owner_id?: string;
         };
         Relationships: [];
       };
@@ -805,9 +849,47 @@ export type Database = {
           },
         ];
       };
+      point_events: {
+        Row: {
+          code: string | null;
+          day_start: string | null;
+          id: number;
+          item_id: string | null;
+          kind: string;
+          occurred_at: string;
+          owner_id: string;
+          plan_share: number | null;
+          streak_days: number | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          code?: string | null;
+          day_start?: string | null;
+          id?: never;
+          item_id?: string | null;
+          kind: string;
+          occurred_at?: string;
+          owner_id?: string;
+          plan_share?: number | null;
+          streak_days?: number | null;
+        };
+        Update: {
+          code?: string | null;
+          day_start?: string | null;
+          id?: never;
+          item_id?: string | null;
+          kind?: string;
+          occurred_at?: string;
+          owner_id?: string;
+          plan_share?: number | null;
+          streak_days?: number | null;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           avatar_path: string | null;
+          career_shown: boolean;
           created_at: string;
           display_name: string | null;
           fetch_definition: boolean;
@@ -817,6 +899,8 @@ export type Database = {
           legal_accepted_at: string | null;
           legal_version: string | null;
           owner_id: string;
+          rank_form: string;
+          rank_seen: number;
           review_form: string;
           review_free: boolean;
           review_glossary_questions: number;
@@ -830,6 +914,7 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           avatar_path?: string | null;
+          career_shown?: boolean;
           created_at?: string;
           display_name?: string | null;
           fetch_definition?: boolean;
@@ -839,6 +924,8 @@ export type Database = {
           legal_accepted_at?: string | null;
           legal_version?: string | null;
           owner_id?: string;
+          rank_form?: string;
+          rank_seen?: number;
           review_form?: string;
           review_free?: boolean;
           review_glossary_questions?: number;
@@ -851,6 +938,7 @@ export type Database = {
         };
         Update: {
           avatar_path?: string | null;
+          career_shown?: boolean;
           created_at?: string;
           display_name?: string | null;
           fetch_definition?: boolean;
@@ -860,6 +948,8 @@ export type Database = {
           legal_accepted_at?: string | null;
           legal_version?: string | null;
           owner_id?: string;
+          rank_form?: string;
+          rank_seen?: number;
           review_form?: string;
           review_free?: boolean;
           review_glossary_questions?: number;
@@ -934,6 +1024,7 @@ export type Database = {
           answer_ms: number | null;
           artwork_id: string;
           correct: boolean | null;
+          due_before: string | null;
           facet: string;
           id: number;
           mode: string;
@@ -946,6 +1037,7 @@ export type Database = {
           answer_ms?: number | null;
           artwork_id: string;
           correct?: boolean | null;
+          due_before?: string | null;
           facet?: string;
           id?: never;
           mode: string;
@@ -957,6 +1049,7 @@ export type Database = {
           answer_ms?: number | null;
           artwork_id?: string;
           correct?: boolean | null;
+          due_before?: string | null;
           facet?: string;
           id?: never;
           mode?: string;
@@ -1204,6 +1297,7 @@ export type Database = {
       };
       import_atelier: { Args: { payload: Json }; Returns: Json };
       keep_alive: { Args: Record<PropertyKey, never>; Returns: string };
+      learner_points: { Args: Record<PropertyKey, never>; Returns: number };
       merge_category_values: {
         Args: { kept_id: string; merged_id: string };
         Returns: undefined;
@@ -1230,8 +1324,18 @@ export type Database = {
           period_id: string;
         }[];
       };
+      record_free_answers: {
+        Args: { answers: number; day_start: string };
+        Returns: undefined;
+      };
       record_review: {
-        Args: { answer: Json; card: Json; target_artwork: string };
+        Args: {
+          answer: Json;
+          card: Json;
+          day_start?: string;
+          target_artwork: string;
+          time_zone?: string;
+        };
         Returns: undefined;
       };
       review_counts: {
@@ -1310,6 +1414,14 @@ export type Database = {
           artwork_count: number;
           period_id: string;
           style_id: string;
+        }[];
+      };
+      unlock_exhibits: {
+        Args: { time_zone: string };
+        Returns: {
+          exhibit: string;
+          thresholds: number[];
+          value: number;
         }[];
       };
       unused_images: { Args: Record<PropertyKey, never>; Returns: string[] };
