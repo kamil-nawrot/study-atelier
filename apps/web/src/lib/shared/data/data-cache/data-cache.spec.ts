@@ -61,6 +61,24 @@ describe('cached', () => {
 		expect(load).toHaveBeenCalledTimes(2);
 	});
 
+	it('keeps no failed answer of a load started before the first learner is known', async () => {
+		cacheForLearner(undefined);
+		forgetCached();
+		let answer: (value: { error?: string }) => void = () => {};
+		const load = vi
+			.fn()
+			.mockReturnValueOnce(new Promise((resolve) => (answer = resolve)))
+			.mockResolvedValue({ rows: [] });
+
+		const first = cached('atelier', load);
+		cacheForLearner('learner-a');
+		answer({ error: 'Brak połączenia' });
+		await first;
+		await cached('atelier', load);
+
+		expect(load).toHaveBeenCalledTimes(2);
+	});
+
 	it('keeps what was loaded before the first learner is known', async () => {
 		cacheForLearner(undefined);
 		forgetCached();

@@ -57,4 +57,40 @@ describe('career state', () => {
 		expect(markRankSeen).toHaveBeenCalledWith(5);
 		expect([career.hasNewTiers, career.hasNewRank]).toEqual([false, false]);
 	});
+
+	it('does not count the first rank as a promotion', async () => {
+		const career = new CareerState();
+		standing.mockResolvedValue({ standing: { points: 0, newTiers: 0, rankSeen: 0 } });
+		await career.refresh();
+
+		expect(career.hasNewRank).toBe(false);
+	});
+
+	it('ignores a standing loaded before the tiers were marked as seen', async () => {
+		const career = new CareerState();
+		standing.mockResolvedValue({ standing: { points: 60, newTiers: 1, rankSeen: 2 } });
+		await career.refresh();
+		let answer: (value: Awaited<ReturnType<typeof loadStanding>>) => void = () => {};
+		standing.mockReturnValue(new Promise((resolve) => (answer = resolve)));
+		const late = career.refresh();
+		await career.markSeen();
+		answer({ standing: { points: 60, newTiers: 1, rankSeen: 2 } });
+		await late;
+
+		expect(career.hasNewTiers).toBe(false);
+		expect(career.tierFlash).toBe(0);
+	});
+
+	it('forgets the standing of another learner', async () => {
+		const career = new CareerState();
+		career.forLearner('learner-a');
+		standing.mockResolvedValue({ standing: { points: 1846, newTiers: 2, rankSeen: 5 } });
+		await career.refresh();
+		career.forLearner('learner-b');
+
+		expect(career.standing).toBeUndefined();
+		standing.mockResolvedValue({ standing: { points: 4000, newTiers: 3, rankSeen: 7 } });
+		await career.refresh();
+		expect([career.tierFlash, career.rankFlash]).toEqual([0, 0]);
+	});
 });

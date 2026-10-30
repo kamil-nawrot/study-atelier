@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import Info from '@lucide/svelte/icons/info';
 import { createRawSnippet } from 'svelte';
 import { page, userEvent } from 'vitest/browser';
@@ -112,6 +112,30 @@ describe('PopupButton', () => {
 		await expect.element(page.getByRole('dialog', { name: 'Grouping: era' })).toBeVisible();
 
 		await userEvent.unhover(button());
+		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+	});
+
+	it('stays open when pinned with the keyboard just after the pointer left', async () => {
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+		render(PopupButton, { label: 'Grouping: era', trigger, children: panel, hover: true });
+
+		await userEvent.hover(button());
+		await userEvent.unhover(button());
+		button().element().focus();
+		await userEvent.keyboard('{Enter}');
+		vi.advanceTimersByTime(300);
+		vi.useRealTimers();
+
+		await expect.element(page.getByRole('dialog', { name: 'Grouping: era' })).toBeVisible();
+	});
+
+	it('closes a panel opened on hover with Escape', async () => {
+		render(PopupButton, { label: 'Grouping: era', trigger, children: panel, hover: true });
+
+		await userEvent.hover(button());
+		await expect.element(page.getByRole('dialog', { name: 'Grouping: era' })).toBeVisible();
+		await userEvent.keyboard('{Escape}');
+
 		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
 	});
 

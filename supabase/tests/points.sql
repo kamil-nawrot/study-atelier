@@ -136,4 +136,16 @@ begin
 end;
 $$;
 
+do $$
+begin
+  perform public.record_review('20000000-0000-0000-0000-000000000001',
+    jsonb_build_object('due', '2026-11-20T00:00:00Z', 'stability', 1, 'difficulty', 5, 'state', 1, 'reps', 1,
+      'lapses', 0, 'scheduled_days', 1, 'learning_steps', 0, 'last_review', now()),
+    jsonb_build_object('mode', 'flashcard', 'rating', 3),
+    date_trunc('day', now()) + interval '1 day', 'UTC');
+  assert (select plan_share from public.point_events where kind = 'plan_day') = 0,
+    'an answer before the day of the device starts does not count as nothing done';
+end;
+$$;
+
 rollback;

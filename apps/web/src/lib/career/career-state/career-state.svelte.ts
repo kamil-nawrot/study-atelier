@@ -11,12 +11,27 @@ export class CareerState {
 	readonly rank = $derived(this.standing ? rankOf(this.standing.points).level : undefined);
 	readonly hasNewTiers = $derived((this.standing?.newTiers ?? 0) > 0);
 	readonly hasNewRank = $derived(
-		this.standing !== undefined && this.rank !== undefined && this.rank > this.standing.rankSeen
+		this.standing !== undefined &&
+			this.rank !== undefined &&
+			this.rank > Math.max(this.standing.rankSeen, 1)
 	);
 
+	#owner: string | undefined;
+	#requests = 0;
+
+	forLearner(owner: string | undefined): void {
+		if (owner === this.#owner) return;
+		this.#owner = owner;
+		this.#requests += 1;
+		this.standing = undefined;
+		this.tierFlash = 0;
+		this.rankFlash = 0;
+	}
+
 	async refresh(): Promise<void> {
+		const request = ++this.#requests;
 		const { standing } = await loadStanding().catch(() => ({ standing: undefined }));
-		if (!standing) return;
+		if (!standing || request !== this.#requests) return;
 		const before = this.standing;
 		if (before && standing.newTiers > before.newTiers) this.tierFlash += 1;
 		if (before && rankOf(standing.points).level > rankOf(before.points).level) this.rankFlash += 1;
@@ -28,6 +43,7 @@ export class CareerState {
 		const standing = this.standing;
 		if (!standing) return;
 		const rank = rankOf(standing.points).level;
+		this.#requests += 1;
 		this.standing = { ...standing, newTiers: 0, rankSeen: Math.max(rank, standing.rankSeen) };
 		await Promise.all([markTiersSeen(), rank > standing.rankSeen ? markRankSeen(rank) : undefined]);
 	}

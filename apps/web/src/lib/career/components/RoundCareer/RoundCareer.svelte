@@ -49,7 +49,7 @@
 				{m.career.roundTier(roman(unlocked.tier), exhibitName(unlocked.exhibit))}
 			</p>
 		{/each}
-		{#if rank > round.rankSeen}
+		{#if rank > Math.max(round.rankSeen, 1)}
 			<p class="caption">{m.career.roundRank(rankName(rank, form))}</p>
 		{/if}
 	</div>

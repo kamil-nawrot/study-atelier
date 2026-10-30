@@ -57,6 +57,7 @@
 	$effect(() => followMenuProfile(page.data.menuProfile, ownerId));
 
 	$effect(() => {
+		career.forLearner(ownerId);
 		if (careerShown && page.url.pathname) void career.refresh();
 	});
 </script>
