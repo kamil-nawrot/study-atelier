@@ -57,3 +57,14 @@
 		</PopupButton>
 	</div>
 </Story>
+
+<Story name="Hover and top">
+	<div style="padding-top: var(--spacing-24)">
+		<PopupButton hover label="Sources" placement="top">
+			{#snippet trigger()}
+				Sources
+			{/snippet}
+			<p>Opens on hover with a mouse, above its button.</p>
+		</PopupButton>
+	</div>
+</Story>

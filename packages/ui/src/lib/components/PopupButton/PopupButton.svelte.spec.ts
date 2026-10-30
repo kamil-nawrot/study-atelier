@@ -104,4 +104,35 @@ describe('PopupButton', () => {
 		const popup = tier.element().parentElement;
 		expect(popup && getComputedStyle(popup).position).toBe('static');
 	});
+
+	it('opens on hover with a mouse and closes when the pointer leaves', async () => {
+		render(PopupButton, { label: 'Grouping: era', trigger, children: panel, hover: true });
+
+		await userEvent.hover(button());
+		await expect.element(page.getByRole('dialog', { name: 'Grouping: era' })).toBeVisible();
+
+		await userEvent.unhover(button());
+		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+	});
+
+	it('stays open after a click on a hovered button', async () => {
+		render(PopupButton, { label: 'Grouping: era', trigger, children: panel, hover: true });
+
+		await userEvent.hover(button());
+		await button().click();
+		await userEvent.unhover(button());
+
+		await expect.element(page.getByRole('dialog', { name: 'Grouping: era' })).toBeVisible();
+	});
+
+	it('opens its panel above the button when placed on top', async () => {
+		render(PopupButton, { label: 'Grouping: era', trigger, children: panel, placement: 'top' });
+
+		await button().click();
+
+		const dialog = page.getByRole('dialog', { name: 'Grouping: era' }).element();
+		expect(dialog.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+			button().element().getBoundingClientRect().top
+		);
+	});
 });

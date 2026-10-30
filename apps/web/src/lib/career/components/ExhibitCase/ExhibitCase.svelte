@@ -43,8 +43,13 @@
 
 <article class="exhibit">
 	<ExhibitFrame code={exhibit.code} {metal} numeral={tier > 0 ? roman(tier) : undefined}>
-		{#if !hidden}
-			<PopupButton align={wide.current ? 'end' : 'start'} label={m.career.about} stageIcon={Info}>
+		{#if tier > 0}
+			<PopupButton
+				align={wide.current ? 'end' : 'start'}
+				hover
+				label={m.career.about}
+				stageIcon={Info}
+			>
 				<p class="about">{texts.about}</p>
 			</PopupButton>
 		{/if}

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { LucideIcon } from '@lucide/svelte';
 	import type { Snippet } from 'svelte';
+	import { MediaQuery } from 'svelte/reactivity';
 	import Button from '../Button/Button.svelte';
 	import StageButton from '../StageButton/StageButton.svelte';
 	import Tooltip from '../Tooltip/Tooltip.svelte';
@@ -14,6 +15,8 @@
 		align?: 'start' | 'end';
 		tooltip?: boolean;
 		bare?: boolean;
+		placement?: 'bottom' | 'top';
+		hover?: boolean;
 	};
 
 	let {
@@ -24,18 +27,51 @@
 		disabled = false,
 		align = 'start',
 		tooltip = false,
-		bare = false
+		bare = false,
+		placement = 'bottom',
+		hover = false
 	}: Props = $props();
 
 	const id = $props.id();
 	const panelId = `${id}-panel`;
 
+	const pointer = new MediaQuery('(hover: hover) and (pointer: fine)');
+
 	let open = $state(false);
+	let pinned = $state(false);
 	let root: HTMLElement | undefined = $state();
+	let leaving: ReturnType<typeof setTimeout> | undefined;
+
+	let hovering = $derived(hover && pointer.current && !disabled);
 
 	export function close(): void {
-		open = false;
+		hide();
 		root?.querySelector<HTMLElement>('[aria-haspopup]')?.focus();
+	}
+
+	function hide(): void {
+		open = false;
+		pinned = false;
+	}
+
+	function toggle(): void {
+		if (hovering && open && !pinned) {
+			pinned = true;
+			return;
+		}
+		open = !open;
+		pinned = open;
+	}
+
+	function onpointerenter(): void {
+		if (!hovering) return;
+		clearTimeout(leaving);
+		open = true;
+	}
+
+	function onpointerleave(): void {
+		if (!hovering || pinned) return;
+		leaving = setTimeout(() => (open = false), 150);
 	}
 
 	function onkeydown(event: KeyboardEvent): void {
@@ -46,14 +82,22 @@
 
 	function closeOutside(element: HTMLElement): () => void {
 		const pointerdown = (event: PointerEvent): void => {
-			if (open && !element.contains(event.target as Node)) open = false;
+			if (open && !element.contains(event.target as Node)) hide();
 		};
 		document.addEventListener('pointerdown', pointerdown);
 		return () => document.removeEventListener('pointerdown', pointerdown);
 	}
 </script>
 
-<div bind:this={root} class="popup" class:bare {@attach closeOutside}>
+<div
+	bind:this={root}
+	class="popup"
+	class:bare
+	{@attach closeOutside}
+	{onpointerenter}
+	{onpointerleave}
+	role="presentation"
+>
 	{#snippet control(describedby?: string)}
 		<Button
 			aria-controls={panelId}
@@ -62,7 +106,7 @@
 			aria-haspopup="dialog"
 			aria-label={label}
 			{disabled}
-			onclick={() => (open = !open)}
+			onclick={toggle}
 			{onkeydown}
 		>
 			{@render trigger?.()}
@@ -76,7 +120,7 @@
 			aria-haspopup="dialog"
 			aria-label={label}
 			{disabled}
-			onclick={() => (open = !open)}
+			onclick={toggle}
 			{onkeydown}
 			type="button"
 		>
@@ -91,7 +135,7 @@
 			{disabled}
 			icon={stageIcon}
 			{label}
-			onclick={() => (open = !open)}
+			onclick={toggle}
 			{onkeydown}
 		/>
 	{:else if tooltip}
@@ -107,6 +151,7 @@
 		id={panelId}
 		class="panel"
 		class:end={align === 'end'}
+		class:top={placement === 'top'}
 		aria-label={label}
 		hidden={!open}
 		{onkeydown}
@@ -148,6 +193,11 @@
 	.panel.end {
 		right: 0;
 		left: auto;
+	}
+
+	.panel.top {
+		top: auto;
+		bottom: calc(100% + var(--spacing-2));
 	}
 
 	.panel[hidden] {

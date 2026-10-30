@@ -31,6 +31,7 @@
 				<PopupButton
 					align={wide.current ? 'start' : 'end'}
 					bare
+					hover
 					label={m.career.tierLabel(roman(level))}
 				>
 					{#snippet trigger()}

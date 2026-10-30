@@ -51,6 +51,11 @@
 		gap: var(--spacing-4);
 	}
 
+	header {
+		padding-bottom: var(--spacing-8);
+		border-bottom: var(--border-width-hairline) solid var(--color-line);
+	}
+
 	@media (min-width: 768px) {
 		.intro {
 			grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);

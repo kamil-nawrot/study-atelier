@@ -16,9 +16,9 @@
 
 {#if sources.length > 0}
 	<footer class="footer">
-		<PopupButton bare label={m.career.credits}>
+		<PopupButton align="end" bare label={m.career.credits} placement="top">
 			{#snippet trigger()}
-				<Icon icon={ImageIcon} size="sm" />
+				<span class="mark"><Icon icon={ImageIcon} size="sm" /></span>
 			{/snippet}
 			<ul class="credits caption">
 				{#each sources as art (art.commonsFile)}
@@ -38,9 +38,20 @@
 	.footer {
 		position: relative;
 		display: flex;
+		justify-content: flex-end;
 		padding-block-start: var(--spacing-3);
 		border-block-start: var(--border-width-hairline) solid var(--color-line);
+	}
+
+	.mark {
+		display: flex;
 		color: var(--color-fg-muted);
+		opacity: 0.6;
+	}
+
+	.mark:hover,
+	.footer:focus-within .mark {
+		opacity: 1;
 	}
 
 	.credits {
