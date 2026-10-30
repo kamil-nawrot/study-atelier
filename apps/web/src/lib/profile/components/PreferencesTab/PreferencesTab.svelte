@@ -217,7 +217,8 @@
 		max-width: var(--size-content-default);
 	}
 
-	.fields > :global(.switch) {
+	.fields > :global(.switch),
+	.career > :global(.switch) {
 		display: flex;
 		justify-content: space-between;
 	}

@@ -428,12 +428,19 @@ describe('edit value page', () => {
 			renderEdit(subjectOf('period-classical'));
 
 			await page.getByLabelText(m.valueForm.addEra).selectOptions(m.eras.middle_ages.name);
+			await expect
+				.element(page.getByRole('button', { name: m.valueForm.removeEra(m.eras.middle_ages.name) }))
+				.toBeVisible();
 			await page
 				.getByRole('button', { name: m.valueForm.removeEra(m.eras.antiquity.name) })
 				.click();
+			await expect
+				.element(page.getByRole('button', { name: m.valueForm.removeEra(m.eras.antiquity.name) }))
+				.not.toBeInTheDocument();
 			await saveButton().click();
 
 			const confirm = page.getByRole('alertdialog', { name: m.cardIndex.moveConfirm.title });
+			await expect.element(confirm.getByLabelText(m.cardIndex.moveConfirm.pick)).toBeVisible();
 			await confirm.getByRole('button', { name: m.cardIndex.moveConfirm.confirm }).click();
 			await expect.element(confirm.getByText(m.cardIndex.moveConfirm.pickRequired)).toBeVisible();
 			expect(saveValue).not.toHaveBeenCalled();

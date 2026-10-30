@@ -2,6 +2,34 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.15.0] - 2026-10-30
+
+Learning in the atelier becomes a museum career: points and ranks for the work done, and a display case of exhibits with a curiosity at every tier.
+
+### Added
+
+- Points for the plan of the day, with a bonus for the streak, and for every artwork, definition, event and visit added and every artwork settled in memory. They lead through twelve ranks, from "Zwiedzający" or "Zwiedzająca" to "Dyrektor muzeum" or "Dyrektorka muzeum", in the form chosen under "Forma stopni" in the profile.
+- The menu shows the learner's name with the rank under it, and the avatar's ring fills on the way to the next rank. A new rank marks the avatar and a new tier marks "Gablota" with a gold mark that flashes once.
+- "Gablota" after "Powtórki": the rank with a gold bar to the next one beside the lead, and thirteen exhibits as toned engravings in frames whose metal follows the tier, from bronze to platinum, with the tier in Roman numerals on the engraving. Three exhibits are hidden behind a riddle until they are found. The lamps of the tiers open the date each was reached and a curiosity with its source; a quiet button in the corner tells the story of the object.
+- The summary of a review round says how many points the day's plan gave, which tiers lit up today and the new rank.
+- "Pokazuj stopień i Gablotę" in the review settings hides the rank and the display case, while points and exhibits keep counting. The privacy policy mentions the points, ranks and achievements.
+
+### Changed
+
+- A day with nothing to review no longer breaks the review streak.
+- The artwork form loads its suggestions when a field first needs them, so it opens with 4 requests instead of 16, and moving between views no longer reloads the career.
+- Tooltips and panels opened on hover appear after the same short delay and fade in.
+- Internal: a code review of the version with its fixes, row limits for the new tables, and tests for the points, exhibits and streak.
+
+### Fixed
+
+- An answer given just after midnight with the device's clock ahead of the server is saved instead of failing.
+- Search finds titles and names that contain unusual spaces.
+
+### Migrations run on production
+
+9 migrations run on production with this release. `20261029120000_keep_the_streak_on_days_without_a_plan` adds `review_log.due_before` and replaces `record_review` and `review_streak` with the same signatures. `20261029140000_points_ledger` creates `point_events`, `learner_points` and the triggers that record points, fills the ledger from every account's existing artworks, definitions, events, visits and settled cards, and replaces `record_review` with two more arguments (`day_start`, `time_zone`), so the previous app's three-argument call no longer exists and the release must ship together with the app. `20261029160000_tiered_exhibits` creates `exhibit_tiers`, `free_review_days`, `record_free_answers` and `unlock_exhibits` and unlocks every account's tiers from its data. `20261029180000_rank_form_and_career_switch` adds `profiles.rank_form`, `career_shown` and `rank_seen` with defaults. `20261029200000_search_key_unicode_spaces` replaces `search_key` and reindexes the title key. `20261029220000_mona_lisa_hidden_exhibit` makes the returned Mona Lisa a single-tier hidden exhibit and unlocks again. `20261030100000_fix_the_0_15_review_findings` and `20261030140000_compute_the_streak_once_a_day` replace `record_review` with the same signature and add row limits to the three new tables; `20261030120000_index_point_events_by_owner` adds an index.
+
 ## [0.14.0] - 2026-10-29
 
 The card index can be searched, sorted and filled with new values, the glossary jumps to a letter, place pages list the visits, and the loupe and the timeline are easier to use.
@@ -618,3 +646,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.13.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.13.0
 [0.13.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.13.1
 [0.14.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.14.0
+[0.15.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.15.0
