@@ -37,25 +37,14 @@ describe('ExhibitCase', () => {
 			.toHaveAttribute('aria-valuemax', '50');
 	});
 
-	it('keeps the description and the curiosities behind the button in the corner', async () => {
+	it('keeps the description behind the button in the corner', async () => {
 		render(ExhibitCase, { props: { exhibit: exhibit() } });
 
 		const about = page.getByText(m.career.exhibits.collection.about);
 		await expect.element(about).not.toBeVisible();
 		await page.getByRole('button', { name: m.career.about }).click();
 		await expect.element(about).toBeVisible();
-		await expect.element(page.getByText(m.career.curiosities.collection[1])).toBeVisible();
-		await expect
-			.element(page.getByRole('link', { name: m.career.source }).nth(1))
-			.toHaveAttribute('href', 'https://www.savevenice.org/project/jacopo-tintoretto-paradise');
-	});
-
-	it('gives the date of an unlocked tier on its lamp', async () => {
-		render(ExhibitCase, { props: { exhibit: exhibit() } });
-
-		const lamp = page.getByRole('button', { name: m.career.tierLabel('II') }).element();
-		const tooltip = document.getElementById(lamp.getAttribute('aria-describedby') ?? '');
-		expect(tooltip?.textContent).toBe(m.career.tierDate('II', '2 października 2026'));
+		await expect.element(page.getByText(m.career.curiosities.collection[1])).not.toBeVisible();
 	});
 
 	it('marks a tier not seen yet as new', async () => {

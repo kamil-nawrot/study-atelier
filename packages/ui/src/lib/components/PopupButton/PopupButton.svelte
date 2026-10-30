@@ -13,6 +13,7 @@
 		disabled?: boolean;
 		align?: 'start' | 'end';
 		tooltip?: boolean;
+		bare?: boolean;
 	};
 
 	let {
@@ -22,7 +23,8 @@
 		children,
 		disabled = false,
 		align = 'start',
-		tooltip = false
+		tooltip = false,
+		bare = false
 	}: Props = $props();
 
 	const id = $props.id();
@@ -51,7 +53,7 @@
 	}
 </script>
 
-<div bind:this={root} class="popup" {@attach closeOutside}>
+<div bind:this={root} class="popup" class:bare {@attach closeOutside}>
 	{#snippet control(describedby?: string)}
 		<Button
 			aria-controls={panelId}
@@ -66,7 +68,21 @@
 			{@render trigger?.()}
 		</Button>
 	{/snippet}
-	{#if stageIcon}
+	{#if bare}
+		<button
+			class="trigger"
+			aria-controls={panelId}
+			aria-expanded={open}
+			aria-haspopup="dialog"
+			aria-label={label}
+			{disabled}
+			onclick={() => (open = !open)}
+			{onkeydown}
+			type="button"
+		>
+			{@render trigger?.()}
+		</button>
+	{:else if stageIcon}
 		<StageButton
 			active={open}
 			aria-controls={panelId}
@@ -105,6 +121,18 @@
 	.popup {
 		position: relative;
 		display: flex;
+	}
+
+	.popup.bare {
+		position: static;
+	}
+
+	.trigger {
+		display: flex;
+		padding: 0;
+		border: none;
+		background: none;
+		cursor: pointer;
 	}
 
 	.panel {

@@ -91,4 +91,17 @@ describe('PopupButton', () => {
 		await expect.element(about).toHaveAttribute('aria-expanded', 'true');
 		await expect.element(page.getByRole('button', { name: 'Era' })).toBeVisible();
 	});
+
+	it('opens from a bare button and places its panel under the container', async () => {
+		const mark = createRawSnippet(() => ({ render: () => '<span>II</span>' }));
+		render(PopupButton, { label: 'Tier II', trigger: mark, children: panel, bare: true });
+
+		const tier = page.getByRole('button', { name: 'Tier II' });
+		await expect.element(tier).toHaveStyle({ borderStyle: 'none' });
+		await tier.click();
+
+		await expect.element(tier).toHaveAttribute('aria-expanded', 'true');
+		const popup = tier.element().parentElement;
+		expect(popup && getComputedStyle(popup).position).toBe('static');
+	});
 });

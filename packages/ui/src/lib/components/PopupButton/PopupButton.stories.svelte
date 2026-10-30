@@ -36,3 +36,24 @@
 		</PopupButton>
 	</div>
 </Story>
+
+<Story name="Bare">
+	<div style="position: relative; display: flex; gap: var(--spacing-1)">
+		<PopupButton bare label="Tier I">
+			{#snippet trigger()}
+				<span
+					style="inline-size: var(--spacing-3); block-size: var(--spacing-3); background: var(--color-fg)"
+				></span>
+			{/snippet}
+			<p>A curiosity of the first tier.</p>
+		</PopupButton>
+		<PopupButton bare label="Tier II">
+			{#snippet trigger()}
+				<span
+					style="inline-size: var(--spacing-3); block-size: var(--spacing-3); background: var(--color-fg)"
+				></span>
+			{/snippet}
+			<p>A curiosity of the second tier.</p>
+		</PopupButton>
+	</div>
+</Story>
