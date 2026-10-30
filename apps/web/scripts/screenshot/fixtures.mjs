@@ -1056,6 +1056,9 @@ export const EXHIBIT_TIERS = EXHIBITS.flatMap(({ exhibit, value, thresholds }) =
 			exhibit,
 			tier: index + 1,
 			unlocked_at: `2026-10-${String(12 + index).padStart(2, '0')}T10:00:00Z`,
-			seen_at: exhibit === 'glossary' && index === 4 ? null : '2026-10-29T10:00:00Z'
+			seen_at:
+				(exhibit === 'glossary' && index === 4) || (exhibit === 'collection' && index === 1)
+					? null
+					: '2026-10-29T10:00:00Z'
 		}))
 );
