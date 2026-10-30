@@ -78,11 +78,18 @@
 
 	@media (prefers-reduced-motion: no-preference) {
 		.tooltip:hover .bubble {
-			animation: var(--hover-reveal);
+			animation: hover-reveal var(--duration-short) ease-out var(--hover-reveal-delay) backwards;
 		}
 
 		.tooltip:has(:global(:focus-visible)) .bubble {
-			animation: none;
+			animation-name: none;
+		}
+	}
+
+	@keyframes hover-reveal {
+		from {
+			opacity: 0;
+			visibility: hidden;
 		}
 	}
 </style>

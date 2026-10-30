@@ -142,7 +142,7 @@ describe('PopupButton', () => {
 		await userEvent.hover(button());
 
 		const dialog = document.querySelector('[role="dialog"]') as Element;
-		expect(getComputedStyle(dialog).animationName).toBe('hover-reveal');
+		expect(getComputedStyle(dialog).animationName).toMatch(/hover-reveal/);
 		await button().click();
 		expect(getComputedStyle(dialog).animationName).toBe('none');
 	});

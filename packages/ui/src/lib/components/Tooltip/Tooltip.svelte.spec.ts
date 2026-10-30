@@ -145,6 +145,6 @@ describe('Tooltip', () => {
 
 		expect(
 			getComputedStyle(document.querySelector('[role="tooltip"]') as Element).animationName
-		).toBe('hover-reveal');
+		).toMatch(/hover-reveal/);
 	});
 });

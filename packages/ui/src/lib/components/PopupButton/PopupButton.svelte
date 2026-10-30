@@ -207,7 +207,14 @@
 
 	@media (prefers-reduced-motion: no-preference) {
 		.panel.delayed {
-			animation: var(--hover-reveal);
+			animation: hover-reveal var(--duration-short) ease-out var(--hover-reveal-delay) backwards;
+		}
+	}
+
+	@keyframes hover-reveal {
+		from {
+			opacity: 0;
+			visibility: hidden;
 		}
 	}
 
