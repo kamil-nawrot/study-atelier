@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import '@study-atelier/ui/styles.css';
 import { m } from '#lib/i18n/i18n.ts';
 import type { Exhibit } from '#lib/career/types/exhibit.ts';
 import type { UnlockedTier } from '#lib/career/types/unlocked-tier.ts';
@@ -60,6 +61,9 @@ describe('ExhibitCase', () => {
 		render(ExhibitCase, { props: { exhibit: exhibit({ value: 0, tiers: [] }) } });
 
 		expect(document.querySelector('.numeral')).toBeNull();
+		await expect
+			.element(page.getByRole('button', { name: m.career.about }))
+			.not.toBeInTheDocument();
 		await expect
 			.element(page.getByRole('button', { name: m.career.tierLabel('I') }))
 			.not.toBeInTheDocument();
