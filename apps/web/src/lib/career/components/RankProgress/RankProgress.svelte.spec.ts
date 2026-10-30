@@ -9,9 +9,8 @@ describe('RankProgress', () => {
 		render(RankProgress, { props: { points: 1846, form: 'masculine' } });
 
 		await expect.element(page.getByText('Znawca', { exact: true })).toBeVisible();
-		await expect
-			.element(page.getByText(m.career.rankProgress(1846, 2000, 'Asystent muzealny')))
-			.toBeVisible();
+		await expect.element(page.getByText('Asystent muzealny', { exact: true })).toBeVisible();
+		await expect.element(page.getByText(m.career.rankProgress(1846, 2000))).toBeVisible();
 		await expect
 			.element(page.getByRole('meter', { name: 'Znawca' }))
 			.toHaveAttribute('aria-valuenow', '846');

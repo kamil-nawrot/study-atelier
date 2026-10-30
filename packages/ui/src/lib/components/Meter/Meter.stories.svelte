@@ -13,3 +13,5 @@
 <Story name="Default" />
 
 <Story name="Full" args={{ value: 200, label: 'Twoje zdjęcia zajmują 200 MB z 200 MB.' }} />
+
+<Story name="Gold" args={{ value: 846, max: 1000, label: 'Znawca', tone: 'gold' }} />

@@ -20,4 +20,12 @@ describe('ExhibitFrame', () => {
 		expect(container.querySelector('.frame.none')).not.toBeNull();
 		expect(container.querySelector('img')).toBeNull();
 	});
+
+	it('puts the numeral of the tier on the engraving', async () => {
+		const { container } = await render(ExhibitFrame, {
+			props: { code: 'memory', metal: 'bronze', numeral: 'II' }
+		});
+
+		expect(container.querySelector('.picture .numeral')?.textContent).toBe('II');
+	});
 });

@@ -40,7 +40,8 @@ const exhibits: Exhibit[] = [
 		value: 24,
 		thresholds: [1, 10, 50],
 		tiers: [{ exhibit: 'collection', tier: 1, unlockedAt: new Date(2026, 9, 1) }]
-	}
+	},
+	{ code: 'marathon', value: 0, thresholds: [1000], tiers: [] }
 ];
 
 function renderDisplayCase(error?: string): void {
@@ -60,10 +61,17 @@ describe('display case page', () => {
 		await expect.element(page.getByText(m.career.lead)).toBeVisible();
 		await expect.element(page.getByText(m.career.new)).toBeVisible();
 		expect(career.markSeen).toHaveBeenCalledOnce();
-		await expect
-			.element(page.getByText(m.career.rankProgress(1846, 2000, 'Asystent muzealny')))
-			.toBeVisible();
+		await expect.element(page.getByText(m.career.rankProgress(1846, 2000))).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.career.credits })).toBeVisible();
+	});
+
+	it('leaves the engraving of a hidden exhibit out of the credits', async () => {
+		renderDisplayCase();
+
+		await page.getByRole('button', { name: m.career.credits }).click();
+
+		await expect.element(page.getByRole('link', { name: /Musei Wormiani/ })).toBeVisible();
+		await expect.element(page.getByRole('link', { name: /Nemezis/ })).not.toBeInTheDocument();
 	});
 
 	it('says when the display case could not be loaded and marks nothing', async () => {

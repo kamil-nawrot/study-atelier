@@ -1265,7 +1265,6 @@ export const pl = {
 		lead: 'W Gablocie zbierasz eksponaty za to, co robisz w atelier. Każdy eksponat ma kilka poziomów, a kolejny zdobywasz po przekroczeniu jego progu, na przykład przy 50 dziełach w atelier albo muzeach w trzech krajach. Zdobytego poziomu nie tracisz, nawet jeśli później coś usuniesz.',
 		loadErrorTitle: 'Nie udało się wczytać Gabloty',
 		tier: (tier: string, total: string): string => `Poziom ${tier} z ${total}`,
-		noTier: 'Jeszcze bez poziomu',
 		new: 'Nowe',
 		tierDate: (tier: string, date: string): string => `Poziom ${tier} · ${date}`,
 		hiddenName: 'Ukryty eksponat',
@@ -1311,8 +1310,7 @@ export const pl = {
 			]
 		},
 		rankLabel: (rank: string, points: number): string => `Stopień: ${rank}, ${pointCount(points)}`,
-		rankProgress: (points: number, next: number, rank: string): string =>
-			`${points} z ${pointCount(next)} do stopnia ${rank}`,
+		rankProgress: (points: number, next: number): string => `${points} z ${pointCount(next)}`,
 		rankTop: (points: number): string => `${pointCount(points)} · najwyższy stopień`,
 		about: 'O eksponacie',
 		tierLabel: (tier: string): string => `Poziom ${tier}`,
@@ -1403,7 +1401,7 @@ export const pl = {
 			marathon: {
 				name: 'Puchar Nemezis',
 				about: 'Na miedziorycie Dürera bogini Nemezis szybuje nad światem z pucharem w dłoni.',
-				hint: 'Wytrwałość w powtórkach swobodnych bywa nagradzana.',
+				hint: 'Bogowie przyglądają się tym, którzy nie wiedzą, kiedy przestać.',
 				awarded: 'Za tysiąc dzieł w powtórkach swobodnych jednego dnia.'
 			}
 		}
