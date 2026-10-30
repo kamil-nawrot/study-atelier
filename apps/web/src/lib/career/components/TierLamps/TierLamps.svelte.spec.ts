@@ -13,10 +13,10 @@ const unlocked = (tier: number, seen = true): UnlockedTier => ({
 	seenAt: seen ? new Date(2026, 9, 20) : undefined
 });
 
-function renderLamps(tiers: UnlockedTier[]): void {
+function renderLamps(tiers: UnlockedTier[], code = 'collection'): void {
 	render(TierLamps, {
 		props: {
-			exhibit: { code: 'collection', value: 24, thresholds: [1, 10, 50, 100, 250], tiers },
+			exhibit: { code, value: 24, thresholds: [1, 10, 50, 100, 250], tiers },
 			tier: tiers.length
 		}
 	});
@@ -38,7 +38,7 @@ describe('TierLamps', () => {
 		await expect.element(tier).toHaveTextContent(m.career.curiosities.collection[1]);
 		await expect
 			.element(tier.getByRole('link', { name: m.career.source }))
-			.toHaveAttribute('href', 'https://www.savevenice.org/project/jacopo-tintoretto-paradise');
+			.toHaveAttribute('href', 'https://www.visitmuve.it/en/galleria-delle-opere/tintoretto-paradise/');
 	});
 
 	it('shows only one tier at a time', async () => {
@@ -51,7 +51,7 @@ describe('TierLamps', () => {
 	});
 
 	it('gives only the date of a tier without a curiosity', async () => {
-		renderLamps([unlocked(1), unlocked(2), unlocked(3)]);
+		renderLamps([unlocked(1), unlocked(2), unlocked(3)], 'unknown');
 
 		await page.getByRole('button', { name: m.career.tierLabel('III'), exact: true }).click();
 
@@ -62,11 +62,16 @@ describe('TierLamps', () => {
 	});
 
 	it('rings the lamp of a new tier that brings a curiosity', async () => {
-		renderLamps([unlocked(1), unlocked(2, false), unlocked(3, false)]);
+		renderLamps([unlocked(1), unlocked(2, false)]);
 
 		expect(ring('II')).toBe('solid');
 		expect(ring('I')).toBe('none');
-		expect(ring('III')).toBe('none');
+	});
+
+	it('leaves the lamp of a new tier without a curiosity plain', async () => {
+		renderLamps([unlocked(1, false)], 'unknown');
+
+		expect(ring('I')).toBe('none');
 	});
 
 	it('leaves the lamps of tiers not reached dark and silent', async () => {
