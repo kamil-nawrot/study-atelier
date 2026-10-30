@@ -23,6 +23,28 @@ The app talks to the learner the way a museum curator talks to a visitor: it kno
 - Buttons name the action ("Wyślij link"), not a generic "OK".
 - A hint may talk to the learner like a person ("Masz obraz w schowku? Po prostu naciśnij Ctrl+V.", "Jeśli wolisz, podaj po prostu adres obrazka"), as long as it stays short and says what to do.
 
+## Curiosities
+
+Each tier of an exhibit in "Gablota" reveals one curiosity on the exhibit's theme.
+
+- One or two sentences, at most about 250 characters, in the plain voice above; titles of works in „…”, numbers as digits, no "Czy wiesz, że".
+- Each curiosity has one source: a single page of a museum or another institution, Britannica, Smarthistory, a university or major press, never Wikipedia, Wikimedia, Wikidata or Wiktionary. The page is opened and states every fact of the text; the text claims no more than the source and hedges only when the source does.
+- The owner approves every text before it ships.
+
+| Exhibit                       | Theme                                               |
+| ----------------------------- | --------------------------------------------------- |
+| Gabinet Olego Worma           | records and firsts of art history and museums       |
+| Świątynia della Tosse         | rediscoveries of the past                           |
+| Święty Hieronim w pracowni    | memory in art history                               |
+| Klepsydra z „Melancholii I”   | works that took years or centuries to make          |
+| Salon w Luwrze                | stories of museum visiting and exhibitions          |
+| Globus podróżnika             | little-known or unusual museums around the world    |
+| Teleskop Mathieu Laensbergha  | what surprises when a famous work is seen in person |
+| Praski orloj                  | how artworks are dated                              |
+| Biblioteka w Lejdzie          | where the names of styles and techniques come from  |
+| Camera obscura z Encyklopedii | optics, devices and the image                       |
+| Hidden exhibits               | one story about the work itself                     |
+
 ## Examples
 
 | Instead of                                | Write                                                                       |
