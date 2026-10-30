@@ -29,7 +29,7 @@
 			new Date(today.getFullYear(), today.getMonth(), today.getDate())
 		).catch(() => ({ round: undefined }));
 		round = loaded.round;
-		void career.refresh();
+		void career.refresh({ counted: true });
 	});
 </script>
 

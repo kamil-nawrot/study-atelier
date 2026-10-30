@@ -1,7 +1,10 @@
 import { rankOf } from '#lib/career/ranks/ranks.ts';
 import { loadStanding, markRankSeen } from '#lib/career/standing-data/standing-data.ts';
 import { markTiersSeen } from '#lib/career/career-data/career-data.ts';
+import { onWrite } from '#lib/shared/data/writes/writes.ts';
 import type { Standing } from '#lib/career/types/standing.ts';
+
+const STALE_AFTER_MS = 10 * 60 * 1000;
 
 export class CareerState {
 	standing = $state<Standing>();
@@ -18,19 +21,34 @@ export class CareerState {
 
 	#owner: string | undefined;
 	#requests = 0;
+	#refreshedAt: number | undefined;
+	#wrote = false;
 
 	forLearner(owner: string | undefined): void {
 		if (owner === this.#owner) return;
 		this.#owner = owner;
 		this.#requests += 1;
+		this.#refreshedAt = undefined;
 		this.standing = undefined;
 		this.tierFlash = 0;
 		this.rankFlash = 0;
 	}
 
-	async refresh(): Promise<void> {
+	noteWrite(): void {
+		this.#wrote = true;
+	}
+
+	refreshIfStale(now: number = Date.now()): void {
+		const fresh = this.#refreshedAt !== undefined && now - this.#refreshedAt < STALE_AFTER_MS;
+		if (fresh && !this.#wrote) return;
+		void this.refresh({ now });
+	}
+
+	async refresh({ counted = false, now = Date.now() } = {}): Promise<void> {
 		const request = ++this.#requests;
-		const { standing } = await loadStanding().catch(() => ({ standing: undefined }));
+		this.#refreshedAt = now;
+		this.#wrote = false;
+		const { standing } = await loadStanding(counted).catch(() => ({ standing: undefined }));
 		if (!standing || request !== this.#requests) return;
 		const before = this.standing;
 		if (before && standing.newTiers > before.newTiers) this.tierFlash += 1;
@@ -39,7 +57,7 @@ export class CareerState {
 	}
 
 	async markSeen(): Promise<void> {
-		if (!this.standing) await this.refresh();
+		if (!this.standing) await this.refresh({ counted: true });
 		const standing = this.standing;
 		if (!standing) return;
 		const rank = rankOf(standing.points).level;
@@ -50,3 +68,5 @@ export class CareerState {
 }
 
 export const career = new CareerState();
+
+onWrite(() => career.noteWrite());

@@ -1,3 +1,5 @@
+import { noteWrite } from '#lib/shared/data/writes/writes.ts';
+
 const CHANNEL = 'study-atelier:data-cache';
 const FORGET_AFTER_HIDDEN_MS = 10 * 60 * 1000;
 
@@ -33,6 +35,7 @@ function evict(loading: Promise<unknown>): void {
 export function forgetCached(): void {
 	entries.clear();
 	channel?.postMessage('forget');
+	noteWrite();
 }
 
 export function cacheForLearner(id: string | undefined): void {
@@ -53,7 +56,12 @@ export function cacheForLearner(id: string | undefined): void {
 export function watchCache(now: () => number = Date.now): () => void {
 	let hiddenAt: number | undefined;
 	channel = typeof BroadcastChannel === 'undefined' ? undefined : new BroadcastChannel(CHANNEL);
-	if (channel) channel.onmessage = () => entries.clear();
+	if (channel) {
+		channel.onmessage = () => {
+			entries.clear();
+			noteWrite();
+		};
+	}
 
 	const visibility = (): void => {
 		if (document.visibilityState === 'hidden') {

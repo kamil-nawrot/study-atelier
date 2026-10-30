@@ -93,4 +93,28 @@ describe('career state', () => {
 		await career.refresh();
 		expect([career.tierFlash, career.rankFlash]).toEqual([0, 0]);
 	});
+
+	it('loads again on a navigation only after a write or ten minutes', async () => {
+		const career = new CareerState();
+		standing.mockResolvedValue({ standing: { points: 60, newTiers: 0, rankSeen: 2 } });
+		career.refreshIfStale(0);
+		career.refreshIfStale(60_000);
+		expect(standing).toHaveBeenCalledOnce();
+
+		career.noteWrite();
+		career.refreshIfStale(120_000);
+		career.refreshIfStale(180_000);
+		expect(standing).toHaveBeenCalledTimes(2);
+
+		career.refreshIfStale(120_000 + 10 * 60_000);
+		expect(standing).toHaveBeenCalledTimes(3);
+	});
+
+	it('skips counting the exhibits when they were just counted', async () => {
+		const career = new CareerState();
+		standing.mockResolvedValue({ standing: { points: 60, newTiers: 0, rankSeen: 2 } });
+		await career.refresh({ counted: true });
+
+		expect(standing).toHaveBeenCalledWith(true);
+	});
 });
