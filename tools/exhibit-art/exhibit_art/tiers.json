@@ -1,0 +1,10 @@
+{
+  "output": { "width": 400, "height": 520 },
+  "tiers": [
+    { "name": "none", "ramp": ["#211F1C", "#25231F", "#292723", "#2D2A26", "#312E2A"] },
+    { "name": "bronze", "ramp": ["#22140A", "#4E3018", "#83562D", "#B07C4C", "#D9B48A"] },
+    { "name": "silver", "ramp": ["#2A2B2E", "#5F6166", "#9C9EA2", "#CDCED0", "#F4F3EF"] },
+    { "name": "gold", "ramp": ["#2E2008", "#644A12", "#A27E2A", "#D2AE52", "#F4E2A2"] },
+    { "name": "platinum", "ramp": ["#283039", "#5E6873", "#9AA6B2", "#D3DBE3", "#FFFFFF"] }
+  ]
+}
