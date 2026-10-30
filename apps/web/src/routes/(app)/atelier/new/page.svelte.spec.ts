@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { afterNavigate, goto, invalidateAll } from '$app/navigation';
-import { emptyCategoryValues } from '#lib/card-index/category-values/category-values.ts';
+import { suggest } from '#lib/testing/form-suggestions/form-suggestions.ts';
 import { emptyPlaceStarter } from '#lib/card-index/place-starter/place-starter.ts';
 import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
 import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
@@ -35,6 +35,10 @@ import {
 } from '#lib/testing/add-artwork/add-artwork.ts';
 import AddArtworkPage from './+page.svelte';
 
+vi.mock('#lib/artworks/form-suggestions/form-suggestions.svelte.ts', async () => ({
+	FormSuggestions: (await import('#lib/testing/form-suggestions/form-suggestions.ts'))
+		.FakeFormSuggestions
+}));
 vi.mock('$app/navigation', () => ({
 	afterNavigate: vi.fn(),
 	beforeNavigate: vi.fn(),
@@ -63,15 +67,11 @@ function renderPage(
 	ownFields?: OwnFieldDefinition[],
 	ownValues: Record<string, string[]> = {}
 ): void {
+	suggest({ ownValues, valueLinks: links, placeStarter });
 	screen = render(AddArtworkPage, {
 		data: {
 			session: testSession(),
-			values: emptyCategoryValues(),
-			ownValues,
-			ownFields,
-			links,
-			noteLinks: undefined,
-			placeStarter
+			ownFields
 		},
 		params: {}
 	});
