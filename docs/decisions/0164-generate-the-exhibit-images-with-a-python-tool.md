@@ -1,4 +1,4 @@
-# 0163. Generate the exhibit images with a Python tool
+# 0164. Generate the exhibit images with a Python tool
 
 - Status: accepted
 - Date: 2026-10-30

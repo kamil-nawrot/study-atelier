@@ -1,6 +1,6 @@
 # exhibit-art
 
-Turns an engraving into the images of a display case exhibit: one image per tier (`none`, `bronze`, `silver`, `gold`, `platinum`), 400 × 520 px. Why it is a Python tool: [ADR-0163](../../docs/decisions/0163-generate-the-exhibit-images-with-a-python-tool.md). How the display case uses the images: [ADR-0162](../../docs/decisions/0162-show-the-exhibits-as-toned-engravings-in-frames.md).
+Turns an engraving into the images of a display case exhibit: one image per tier (`none`, `bronze`, `silver`, `gold`, `platinum`), 400 × 520 px. Why it is a Python tool: [ADR-0164](../../docs/decisions/0164-generate-the-exhibit-images-with-a-python-tool.md). How the display case uses the images: [ADR-0162](../../docs/decisions/0162-show-the-exhibits-as-toned-engravings-in-frames.md).
 
 The same input always gives the same output: the generated hatching uses fixed seeds. Regenerating the manifest reproduces the images in the app.
 
