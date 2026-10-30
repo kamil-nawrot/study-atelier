@@ -25,7 +25,7 @@ The app talks to the learner the way a museum curator talks to a visitor: it kno
 
 ## Curiosities
 
-Each tier of an exhibit in "Gablota" reveals one curiosity on the exhibit's theme.
+Each tier of an exhibit in "Ekspozycja" reveals one curiosity on the exhibit's theme.
 
 - One or two sentences, at most about 250 characters, in the plain voice above; titles of works in „…”, numbers as digits, no "Czy wiesz, że".
 - Each curiosity has one source: a single page of a museum or another institution, Britannica, Smarthistory, a university or major press, never Wikipedia, Wikimedia, Wikidata or Wiktionary. The page is opened and states every fact of the text; the text claims no more than the source and hedges only when the source does.

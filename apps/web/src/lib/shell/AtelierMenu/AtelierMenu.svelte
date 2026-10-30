@@ -3,7 +3,6 @@
 	import CalendarRange from '@lucide/svelte/icons/calendar-range';
 	import Footprints from '@lucide/svelte/icons/footprints';
 	import ImagesIcon from '@lucide/svelte/icons/images';
-	import Landmark from '@lucide/svelte/icons/landmark';
 	import Layers from '@lucide/svelte/icons/layers';
 	import ListTree from '@lucide/svelte/icons/list-tree';
 	import LogOut from '@lucide/svelte/icons/log-out';
@@ -11,6 +10,7 @@
 	import Moon from '@lucide/svelte/icons/moon';
 	import Sun from '@lucide/svelte/icons/sun';
 	import Trash from '@lucide/svelte/icons/trash-2';
+	import Trophy from '@lucide/svelte/icons/trophy';
 	import { Count, Icon } from '@study-atelier/ui';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
@@ -198,7 +198,7 @@
 			href={displayCasePath}
 		>
 			<span class="icon">
-				<Icon icon={Landmark} />
+				<Icon icon={Trophy} />
 				<NewMark flash={career.tierFlash} shown={career.hasNewTiers} />
 			</span>
 			<span class="label" class:visually-hidden={compact}>
