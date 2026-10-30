@@ -137,4 +137,14 @@ describe('Tooltip', () => {
 		expect(getComputedStyle(bubble).whiteSpace).toBe('normal');
 		host.remove();
 	});
+
+	it('reveals itself on hover the same way as a panel opened on hover', async () => {
+		renderTooltip();
+
+		await userEvent.hover(page.getByRole('button'));
+
+		expect(
+			getComputedStyle(document.querySelector('[role="tooltip"]') as Element).animationName
+		).toMatch(/hover-reveal/);
+	});
 });

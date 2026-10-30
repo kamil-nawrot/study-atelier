@@ -1262,7 +1262,7 @@ export const pl = {
 	},
 	career: {
 		title: 'Gablota',
-		lead: 'W Gablocie zbierasz eksponaty za to, co robisz w atelier. Każdy eksponat ma kilka poziomów, a kolejny zdobywasz po przekroczeniu jego progu, na przykład przy 50 dziełach w atelier albo muzeach w trzech krajach. Zdobytego poziomu nie tracisz, nawet jeśli później coś usuniesz.',
+		lead: 'Sala z eksponatami, które udało Ci się zgromadzić, rozwijając swoje atelier. Każdy eksponat pokazuje Twoje postępy w innej dziedzinie nauki i kolekcjonowania. Niektóre są ukryte i odsłonią się dopiero wtedy, gdy spełnisz warunek ukryty w zagadce.',
 		loadErrorTitle: 'Nie udało się wczytać Gabloty',
 		tier: (tier: string, total: string): string => `Poziom ${tier} z ${total}`,
 		new: 'Nowe',

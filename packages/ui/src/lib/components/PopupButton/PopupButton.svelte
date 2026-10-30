@@ -39,6 +39,7 @@
 
 	let open = $state(false);
 	let pinned = $state(false);
+	let hovered = $state(false);
 	let root: HTMLElement | undefined = $state();
 	let leaving: ReturnType<typeof setTimeout> | undefined;
 
@@ -52,9 +53,11 @@
 	function hide(): void {
 		open = false;
 		pinned = false;
+		hovered = false;
 	}
 
 	function toggle(): void {
+		hovered = false;
 		if (hovering && open && !pinned) {
 			pinned = true;
 			return;
@@ -66,12 +69,13 @@
 	function onpointerenter(): void {
 		if (!hovering) return;
 		clearTimeout(leaving);
+		if (!open) hovered = true;
 		open = true;
 	}
 
 	function onpointerleave(): void {
 		if (!hovering || pinned) return;
-		leaving = setTimeout(() => (open = false), 150);
+		leaving = setTimeout(hide, 150);
 	}
 
 	function onkeydown(event: KeyboardEvent): void {
@@ -150,6 +154,7 @@
 	<div
 		id={panelId}
 		class="panel"
+		class:delayed={hovered}
 		class:end={align === 'end'}
 		class:top={placement === 'top'}
 		aria-label={label}
@@ -198,6 +203,19 @@
 	.panel.top {
 		top: auto;
 		bottom: calc(100% + var(--spacing-2));
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.panel.delayed {
+			animation: hover-reveal var(--duration-short) ease-out var(--hover-reveal-delay) backwards;
+		}
+	}
+
+	@keyframes hover-reveal {
+		from {
+			opacity: 0;
+			visibility: hidden;
+		}
 	}
 
 	.panel[hidden] {

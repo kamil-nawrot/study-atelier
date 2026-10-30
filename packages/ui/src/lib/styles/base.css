@@ -6,6 +6,7 @@
 
 :root {
 	--cursor-zoom-in: url('./cursor-zoom-in.svg') 11 11, pointer;
+	--hover-reveal-delay: calc(var(--duration-short) * 2);
 }
 
 html {
