@@ -87,8 +87,8 @@
 	}
 
 	.lamp.fresh {
-		outline: var(--border-width-hairline) solid var(--color-case-gold);
-		outline-offset: var(--border-width-hairline);
+		border-color: color-mix(in srgb, var(--color-case-gold) 45%, var(--color-case-silver));
+		background: color-mix(in srgb, var(--color-case-gold) 45%, var(--color-case-silver));
 	}
 
 	.tier {

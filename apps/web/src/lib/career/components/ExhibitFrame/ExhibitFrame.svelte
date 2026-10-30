@@ -9,10 +9,11 @@
 		code: string;
 		metal: Metal;
 		numeral?: string;
+		mark?: string;
 		children?: Snippet;
 	};
 
-	let { code, metal, numeral, children }: Props = $props();
+	let { code, metal, numeral, mark, children }: Props = $props();
 </script>
 
 <div class="frame {metal}">
@@ -22,7 +23,7 @@
 		{/if}
 		<span class="light"></span>
 		{#if numeral}
-			<TierNumeral {metal} {numeral} />
+			<TierNumeral {mark} {metal} {numeral} />
 		{/if}
 	</div>
 	{#if children}

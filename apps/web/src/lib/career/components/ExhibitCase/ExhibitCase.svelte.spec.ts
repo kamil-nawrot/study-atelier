@@ -54,7 +54,8 @@ describe('ExhibitCase', () => {
 			props: { exhibit: exhibit({ tiers: [unlocked(1), unlocked(2, false)] }) }
 		});
 
-		await expect.element(page.getByText(m.career.new)).toBeVisible();
+		expect(document.querySelector('.band .mark')?.textContent?.trim()).toBe(m.career.new);
+		expect(document.querySelector('header .visually-hidden')?.textContent).toBe(m.career.new);
 	});
 
 	it('puts no numeral on an exhibit without a tier', async () => {
