@@ -12,18 +12,22 @@ export function cached<T extends { error?: unknown }>(
 	const entry = `${learner ?? ''}:${key}`;
 	const kept = entries.get(entry);
 	if (kept) return kept as Promise<T>;
-	const loading = load().then(
+	const loading: Promise<T> = load().then(
 		(result) => {
-			if (result.error !== undefined && entries.get(entry) === loading) entries.delete(entry);
+			if (result.error !== undefined) evict(loading);
 			return result;
 		},
 		(error: unknown) => {
-			if (entries.get(entry) === loading) entries.delete(entry);
+			evict(loading);
 			throw error;
 		}
 	);
 	entries.set(entry, loading);
 	return loading;
+}
+
+function evict(loading: Promise<unknown>): void {
+	for (const [entry, kept] of entries) if (kept === loading) entries.delete(entry);
 }
 
 export function forgetCached(): void {

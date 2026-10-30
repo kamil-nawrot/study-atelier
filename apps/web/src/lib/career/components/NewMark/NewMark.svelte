@@ -1,15 +1,19 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
+
 	type Props = {
 		shown: boolean;
 		flash: number;
 	};
 
 	let { shown, flash }: Props = $props();
+
+	const mounted = untrack(() => flash);
 </script>
 
 {#if shown}
 	{#key flash}
-		<span class="mark" class:flash={flash > 0} aria-hidden="true"></span>
+		<span class="mark" class:flash={flash > mounted} aria-hidden="true"></span>
 	{/key}
 {/if}
 

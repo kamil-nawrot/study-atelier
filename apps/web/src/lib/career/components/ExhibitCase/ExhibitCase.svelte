@@ -84,6 +84,7 @@
 
 <style>
 	.exhibit {
+		container-type: inline-size;
 		display: grid;
 		grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
 		align-items: start;
@@ -99,6 +100,12 @@
 
 	.about {
 		inline-size: min(var(--size-content-narrow), calc(100vw - var(--spacing-24)));
+	}
+
+	@media (min-width: 768px) {
+		.about {
+			inline-size: calc(100cqi - var(--spacing-16));
+		}
 	}
 
 	.label {

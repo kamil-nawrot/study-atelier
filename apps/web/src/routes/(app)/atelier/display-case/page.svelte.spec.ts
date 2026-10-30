@@ -22,6 +22,7 @@ vi.mock('$app/navigation', () => ({ afterNavigate: vi.fn(), goto: vi.fn() }));
 vi.mock('#lib/career/career-state/career-state.svelte.ts', () => ({
 	career: {
 		markSeen: vi.fn(),
+		forLearner: vi.fn(),
 		refresh: vi.fn().mockResolvedValue(undefined),
 		standing: { points: 1846, newTiers: 0, rankSeen: 5 },
 		hasNewTiers: false,

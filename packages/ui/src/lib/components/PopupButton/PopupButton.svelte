@@ -51,12 +51,14 @@
 	}
 
 	function hide(): void {
+		clearTimeout(leaving);
 		open = false;
 		pinned = false;
 		hovered = false;
 	}
 
 	function toggle(): void {
+		clearTimeout(leaving);
 		hovered = false;
 		if (hovering && open && !pinned) {
 			pinned = true;
@@ -66,15 +68,15 @@
 		pinned = open;
 	}
 
-	function onpointerenter(): void {
-		if (!hovering) return;
+	function onpointerenter(event: PointerEvent): void {
+		if (!hovering || event.pointerType !== 'mouse') return;
 		clearTimeout(leaving);
 		if (!open) hovered = true;
 		open = true;
 	}
 
-	function onpointerleave(): void {
-		if (!hovering || pinned) return;
+	function onpointerleave(event: PointerEvent): void {
+		if (!open || pinned || event.pointerType !== 'mouse') return;
 		leaving = setTimeout(hide, 150);
 	}
 
@@ -88,8 +90,16 @@
 		const pointerdown = (event: PointerEvent): void => {
 			if (open && !element.contains(event.target as Node)) hide();
 		};
+		const keydown = (event: KeyboardEvent): void => {
+			if (event.key === 'Escape' && open && !element.contains(document.activeElement)) hide();
+		};
 		document.addEventListener('pointerdown', pointerdown);
-		return () => document.removeEventListener('pointerdown', pointerdown);
+		document.addEventListener('keydown', keydown);
+		return () => {
+			clearTimeout(leaving);
+			document.removeEventListener('pointerdown', pointerdown);
+			document.removeEventListener('keydown', keydown);
+		};
 	}
 </script>
 

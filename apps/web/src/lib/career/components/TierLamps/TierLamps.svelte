@@ -59,6 +59,7 @@
 <style>
 	.lamps {
 		position: relative;
+		container-type: inline-size;
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--spacing-1);
@@ -95,7 +96,7 @@
 
 	@media (min-width: 768px) {
 		.tier {
-			inline-size: min(var(--size-content-narrow), calc(100vw - var(--spacing-24)));
+			inline-size: calc(100cqi - var(--spacing-8) - 2 * var(--border-width-base));
 		}
 	}
 </style>
