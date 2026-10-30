@@ -16,14 +16,17 @@
 </script>
 
 <section class="rank">
-	<p class="name">{name}</p>
+	<div class="ends">
+		<p class="name">{name}</p>
+		{#if rank.next !== undefined}
+			<p class="caption">{rankName(rank.level + 1, form)}</p>
+		{/if}
+	</div>
 	{#if rank.next === undefined}
 		<p class="caption">{m.career.rankTop(points)}</p>
 	{:else}
-		<Meter label={name} max={rank.next - rank.floor} value={points - rank.floor} />
-		<p class="caption">
-			{m.career.rankProgress(points, rank.next, rankName(rank.level + 1, form))}
-		</p>
+		<Meter label={name} max={rank.next - rank.floor} tone="gold" value={points - rank.floor} />
+		<p class="caption">{m.career.rankProgress(points, rank.next)}</p>
 	{/if}
 </section>
 
@@ -31,7 +34,15 @@
 	.rank {
 		display: grid;
 		gap: var(--spacing-2);
-		max-inline-size: var(--size-content-narrow);
+		align-content: end;
+	}
+
+	.ends {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: var(--spacing-2) var(--spacing-4);
 	}
 
 	.name {

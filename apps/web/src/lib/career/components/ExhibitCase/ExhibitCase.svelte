@@ -42,7 +42,7 @@
 </script>
 
 <article class="exhibit">
-	<ExhibitFrame code={exhibit.code} {metal}>
+	<ExhibitFrame code={exhibit.code} {metal} numeral={tier > 0 ? roman(tier) : undefined}>
 		{#if !hidden}
 			<PopupButton align={wide.current ? 'end' : 'start'} label={m.career.about} stageIcon={Info}>
 				<p class="about">{texts.about}</p>
@@ -62,10 +62,12 @@
 				<Tag>{m.career.new}</Tag>
 			{/if}
 		</header>
-		<p class="caption">
-			{tier > 0 ? m.career.tier(roman(tier), roman(total)) : m.career.noTier}
-		</p>
-		<TierLamps {exhibit} {tier} />
+		{#if tier > 0}
+			<p class="visually-hidden">{m.career.tier(roman(tier), roman(total))}</p>
+		{/if}
+		{#if !hidden}
+			<TierLamps {exhibit} {tier} />
+		{/if}
 		{#if next !== undefined && texts.count && !hidden}
 			<Meter label={name} max={next} value={exhibit.value} />
 		{/if}

@@ -1,16 +1,18 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { asset } from '$app/paths';
+	import TierNumeral from '#lib/career/components/TierNumeral/TierNumeral.svelte';
 	import { artOf, imageOf } from '#lib/career/exhibit-art/exhibit-art.ts';
 	import type { Metal } from '#lib/career/types/metal.ts';
 
 	type Props = {
 		code: string;
 		metal: Metal;
+		numeral?: string;
 		children?: Snippet;
 	};
 
-	let { code, metal, children }: Props = $props();
+	let { code, metal, numeral, children }: Props = $props();
 </script>
 
 <div class="frame {metal}">
@@ -19,6 +21,9 @@
 			<img class="engraving" alt="" src={asset(imageOf(code, metal))} />
 		{/if}
 		<span class="light"></span>
+		{#if numeral}
+			<TierNumeral {metal} {numeral} />
+		{/if}
 	</div>
 	{#if children}
 		<div class="corner">{@render children()}</div>

@@ -30,7 +30,8 @@ describe('ExhibitCase', () => {
 		await expect
 			.element(page.getByRole('heading', { level: 3 }))
 			.toHaveTextContent(m.career.exhibits.collection.name);
-		await expect.element(page.getByText(m.career.tier('II', 'V'))).toBeVisible();
+		await expect.element(page.getByText(m.career.tier('II', 'V'))).toBeInTheDocument();
+		expect(document.querySelector('.numeral')?.textContent).toBe('II');
 		await expect.element(page.getByText(m.career.exhibits.collection.count(24, 50))).toBeVisible();
 		await expect
 			.element(page.getByRole('meter', { name: m.career.exhibits.collection.name }))
@@ -55,10 +56,10 @@ describe('ExhibitCase', () => {
 		await expect.element(page.getByText(m.career.new)).toBeVisible();
 	});
 
-	it('says that the exhibit has no tier yet', async () => {
+	it('puts no numeral on an exhibit without a tier', async () => {
 		render(ExhibitCase, { props: { exhibit: exhibit({ value: 0, tiers: [] }) } });
 
-		await expect.element(page.getByText(m.career.noTier)).toBeVisible();
+		expect(document.querySelector('.numeral')).toBeNull();
 		await expect
 			.element(page.getByRole('button', { name: m.career.tierLabel('I') }))
 			.not.toBeInTheDocument();
@@ -86,6 +87,7 @@ describe('ExhibitCase', () => {
 		await expect
 			.element(page.getByText(m.career.exhibits.night_watch.name))
 			.not.toBeInTheDocument();
+		expect(document.querySelector('.lamps')).toBeNull();
 	});
 
 	it('says what a found easter egg was awarded for', async () => {

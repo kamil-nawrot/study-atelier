@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import '../../styles/index.css';
 import Meter from './Meter.svelte';
 
 describe('Meter', () => {
@@ -19,5 +20,17 @@ describe('Meter', () => {
 		const meter = page.getByRole('meter', { name: 'Ponad limit' });
 		await expect.element(meter).toHaveAttribute('aria-valuenow', '200');
 		expect(meter.element().querySelector('span')?.style.inlineSize).toBe('100%');
+	});
+
+	it('fills in the gold of the display case with the gold tone', async () => {
+		render(Meter, { value: 50, max: 100, label: 'Znawca', tone: 'gold' });
+
+		const fill = page.getByRole('meter', { name: 'Znawca' }).element().querySelector('span');
+		const gold = document.body.appendChild(document.createElement('span'));
+		gold.style.backgroundColor = 'var(--color-case-gold)';
+		expect(fill && getComputedStyle(fill).backgroundColor).toBe(
+			getComputedStyle(gold).backgroundColor
+		);
+		gold.remove();
 	});
 });

@@ -15,24 +15,34 @@
 </script>
 
 {#if sources.length > 0}
-	<PopupButton align="end" label={m.career.credits} tooltip>
-		{#snippet trigger()}
-			<Icon icon={ImageIcon} size="sm" />
-		{/snippet}
-		<ul class="credits caption">
-			{#each sources as art (art.commonsFile)}
-				<li>
-					<a href={commonsFilePage(art.commonsFile)} rel="external noreferrer" target="_blank"
-						>{art.credit}</a
-					>
-					· {art.licence} · {m.career.recoloured}
-				</li>
-			{/each}
-		</ul>
-	</PopupButton>
+	<footer class="footer">
+		<PopupButton bare label={m.career.credits}>
+			{#snippet trigger()}
+				<Icon icon={ImageIcon} size="sm" />
+			{/snippet}
+			<ul class="credits caption">
+				{#each sources as art (art.commonsFile)}
+					<li>
+						<a href={commonsFilePage(art.commonsFile)} rel="external noreferrer" target="_blank"
+							>{art.credit}</a
+						>
+						· {art.licence} · {m.career.recoloured}
+					</li>
+				{/each}
+			</ul>
+		</PopupButton>
+	</footer>
 {/if}
 
 <style>
+	.footer {
+		position: relative;
+		display: flex;
+		padding-block-start: var(--spacing-3);
+		border-block-start: var(--border-width-hairline) solid var(--color-line);
+		color: var(--color-fg-muted);
+	}
+
 	.credits {
 		display: grid;
 		gap: var(--spacing-1);
