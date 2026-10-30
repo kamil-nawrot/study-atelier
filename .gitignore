@@ -26,3 +26,10 @@ coverage/
 
 # Screenshots
 tmp/
+
+# Python tools
+__pycache__/
+*.egg-info/
+.venv/
+.pytest_cache/
+tools/exhibit-art/.cache/
