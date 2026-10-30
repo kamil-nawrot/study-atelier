@@ -61,7 +61,7 @@ describe('display case page', () => {
 
 		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent(m.career.title);
 		await expect.element(page.getByText(m.career.lead)).toBeVisible();
-		await expect.element(page.getByText(m.career.new)).toBeVisible();
+		await expect.element(page.getByText(m.career.new).first()).toBeVisible();
 		expect(career.markSeen).toHaveBeenCalledOnce();
 		await expect.element(page.getByText(m.career.rankProgress(1846, 2000))).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.career.credits })).toBeVisible();
