@@ -9,10 +9,11 @@
 
 	type Props = {
 		exhibit: Exhibit;
+		name: string;
 		tier: number;
 	};
 
-	let { exhibit, tier }: Props = $props();
+	let { exhibit, name, tier }: Props = $props();
 
 	const wide = new MediaQuery('min-width: 768px');
 
@@ -32,7 +33,9 @@
 					align={wide.current ? 'start' : 'end'}
 					bare
 					hover
-					label={m.career.tierLabel(roman(level))}
+					label={curiosity && !unlocked.seenAt
+						? `${m.career.tierOf(roman(level), name)}, ${m.career.newCuriosity}`
+						: m.career.tierOf(roman(level), name)}
 				>
 					{#snippet trigger()}
 						<span class="lamp on" class:fresh={curiosity && !unlocked.seenAt}></span>

@@ -20,7 +20,7 @@
 	import NewMark from '#lib/career/components/NewMark/NewMark.svelte';
 	import RankRing from '#lib/career/components/RankRing/RankRing.svelte';
 	import RankTitle from '#lib/career/components/RankTitle/RankTitle.svelte';
-	import { progressToNext } from '#lib/career/ranks/ranks.ts';
+	import { progressToNext, rankName, rankOf } from '#lib/career/ranks/ranks.ts';
 	import { career } from '#lib/career/career-state/career-state.svelte.ts';
 	import {
 		followMenuProfile,
@@ -56,6 +56,15 @@
 
 	$effect(() => followMenuProfile(page.data.menuProfile, ownerId));
 
+	function accountLabel(profile: Profile | undefined): string {
+		const parts = [m.menu.settingsLink(profile?.displayName || email, email)];
+		if (careerShown && career.standing) {
+			parts.push(rankName(rankOf(career.standing.points).level, profile?.rankForm ?? 'masculine'));
+			if (career.hasNewRank) parts.push(m.career.newRank);
+		}
+		return parts.join(', ');
+	}
+
 	$effect(() => {
 		career.forLearner(ownerId);
 		if (careerShown && page.url.pathname) career.refreshIfStale();
@@ -66,7 +75,7 @@
 	<a
 		class="item account"
 		aria-current={page.url.pathname === settingsPath ? 'page' : undefined}
-		aria-label={compact ? m.menu.settingsLink(profile?.displayName ?? email, email) : undefined}
+		aria-label={compact ? accountLabel(profile) : undefined}
 		href={settingsPath}
 	>
 		<span class="icon">
@@ -93,6 +102,9 @@
 			<span class="label" title={email}>{profile?.displayName || email}</span>
 			{#if careerShown && career.standing}
 				<RankTitle form={profile?.rankForm ?? 'masculine'} points={career.standing.points} />
+				{#if career.hasNewRank}
+					<span class="visually-hidden">, {m.career.newRank}</span>
+				{/if}
 			{/if}
 		</span>
 	</a>

@@ -47,7 +47,7 @@
 			<PopupButton
 				align={wide.current ? 'end' : 'start'}
 				hover
-				label={m.career.about}
+				label={m.career.aboutOf(name)}
 				stageIcon={Info}
 			>
 				<p class="about">{texts.about}</p>
@@ -71,7 +71,7 @@
 			<p class="visually-hidden">{m.career.tier(roman(tier), roman(total))}</p>
 		{/if}
 		{#if !hidden}
-			<TierLamps {exhibit} {tier} />
+			<TierLamps {name} {exhibit} {tier} />
 		{/if}
 		{#if next !== undefined && texts.count && !hidden}
 			<Meter label={name} max={next} value={exhibit.value} />

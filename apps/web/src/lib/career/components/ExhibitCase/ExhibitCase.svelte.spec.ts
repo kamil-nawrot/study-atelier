@@ -65,7 +65,9 @@ describe('ExhibitCase', () => {
 			.element(page.getByRole('button', { name: m.career.about }))
 			.not.toBeInTheDocument();
 		await expect
-			.element(page.getByRole('button', { name: m.career.tierLabel('I') }))
+			.element(
+				page.getByRole('button', { name: m.career.tierOf('I', m.career.exhibits.collection.name) })
+			)
 			.not.toBeInTheDocument();
 	});
 

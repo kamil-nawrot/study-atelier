@@ -1268,6 +1268,9 @@ export const pl = {
 		new: 'Nowe',
 		tierDate: (tier: string, date: string): string => `Poziom ${tier} · ${date}`,
 		hiddenName: 'Ukryty eksponat',
+		exhibitsHeading: 'Eksponaty',
+		newRank: 'nowy stopień',
+		newCuriosity: 'nowa ciekawostka',
 		source: 'Źródło',
 		curiosities: {
 			collection: [
@@ -1398,7 +1401,8 @@ export const pl = {
 		rankProgress: (points: number, next: number): string => `${points} z ${pointCount(next)}`,
 		rankTop: (points: number): string => `${pointCount(points)} · najwyższy stopień`,
 		about: 'O eksponacie',
-		tierLabel: (tier: string): string => `Poziom ${tier}`,
+		aboutOf: (exhibit: string): string => `O eksponacie: ${exhibit}`,
+		tierOf: (tier: string, exhibit: string): string => `Poziom ${tier}: ${exhibit}`,
 		rankTip: (points: number, next: string, missing: number): string =>
 			`${pointCount(points)} · do stopnia ${next} brakuje ${missing}`,
 		roundPlan: (points: number, streak: number, bonus: number): string =>
