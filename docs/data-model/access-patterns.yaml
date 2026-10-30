@@ -1,0 +1,283 @@
+# Step 1 of the data model: access patterns.
+# What the app shows or changes, independent of today's tables.
+# today.whole: data fetched in full although the view shows a part of it.
+# Measured 2026-10-30 (spike ATL-403), 1000-artwork account.
+
+legend:
+  scope: { one: a single row, few: rows picked by id or filter, all: the whole set is shown }
+  frequency:
+    {
+      start: every app start,
+      view: every visit of the view,
+      flip: every arrow step,
+      hover: on pointer or tap,
+      key: per keystroke,
+      write: on save
+    }
+
+reads:
+  - id: R01
+    name: Shell
+    route: (app)/+layout
+    shows: menu profile, review counter, career standing, announcements, legal version
+    needs: [profile(one), review_counts(agg), career_standing(agg), announcements(few)]
+    scope: one
+    frequency: start
+    today: { requests: 10, whole: [], note: 'profiles read 4x, career 4 requests incl. a write' }
+
+  - id: R02
+    name: Wall
+    route: /atelier
+    shows: every artwork as a tile, filters
+    needs:
+      [artwork(all, tile columns), image(first), values(filter facets), own_field_definitions(all)]
+    scope: all
+    frequency: view
+    today: { requests: 2, whole: [artworks], note: 'justified: the view shows all (ADR-0041/0042)' }
+
+  - id: R03
+    name: Artwork page
+    route: /atelier/[number]
+    shows: one artwork, its images, pins, values with summaries, visits, notes with links and marked terms, mentions of it
+    needs:
+      - artwork(one, by record_number)
+      - images(of artwork)
+      - pins(of artwork) -> term(name)
+      - values(of artwork) + value summary
+      - visits(of artwork)
+      - note link targets(only ids in the note)
+      - term index(all, light) for marking
+      - term definition(one) # on hover, see R04
+      - mentions(edges pointing at this artwork)
+      - own_field_definitions(all)
+    scope: one
+    frequency: view, flip
+    today:
+      requests: 27 cold / 18 per flip
+      whole:
+        [
+          glossary_entries select *,
+          artworks (note links),
+          card index (note links),
+          notes of every table (mentions LIKE)
+        ]
+
+  - id: R04
+    name: Term tooltip
+    route: inside any note
+    shows: definition and source of one term
+    needs: [term(one, by id)]
+    scope: one
+    frequency: hover
+    today:
+      {
+        requests: 0,
+        whole: [glossary_entries],
+        note: 'served from the whole table loaded by the page'
+      }
+
+  - id: R05
+    name: Note link labels
+    route: inside any note
+    shows: current name of each @artwork / #value link
+    needs: [artwork(few, by ids in note), value(few, by ids in note) + parent name]
+    scope: few
+    frequency: view
+    today: { requests: 6, whole: [artworks, card index] }
+
+  - id: R06
+    name: Link suggestions
+    route: note editor, after @ or #
+    shows: up to 8 matches for 2+ typed characters
+    needs: [artwork|value search(few, by phrase, limit 8)]
+    scope: few
+    frequency: key
+    today:
+      {
+        requests: 0 per key,
+        whole: [artworks, card index],
+        note: 'preloaded in full with the editor'
+      }
+
+  - id: R07
+    name: Value page
+    route: /atelier/values/[kind]/[id]
+    shows: one author/period/style/material/place with details, its artworks, visits (places), mentions
+    needs:
+      [
+        value(one) + details,
+        artworks(of value,
+        tile columns),
+        visits(of place),
+        mentions(of value),
+        note link targets,
+        term index
+      ]
+    scope: one
+    frequency: view
+    today: { requests: 19 cold / 8 warm, whole: [artworks, card index, glossary_entries] }
+
+  - id: R08
+    name: Card index
+    route: /atelier/values
+    shows: every value per category with usage counts, era/period/style tree
+    needs:
+      [
+        values(all) + usage counts,
+        period_eras(all),
+        style_periods(all),
+        own field values(all),
+        timeline events(all)
+      ]
+    scope: all
+    frequency: view
+    today: { requests: 7, whole: [], note: 'justified; 5 queries could be one' }
+
+  - id: R09
+    name: Glossary list
+    route: /atelier/glossary
+    shows: every term with category and first sentence of definition
+    needs: [term(all, name, category, definition lead)]
+    scope: all
+    frequency: view
+    today: { requests: 1, whole: [], note: 'select * incl. full definitions and sources' }
+
+  - id: R10
+    name: Glossary entry
+    route: /atelier/glossary/[id]
+    shows: one term, artworks pinned with it, notes that mention it
+    needs:
+      [term(one), artworks(pinned with term), mentions(notes containing term forms), term index]
+    scope: one
+    frequency: view
+    today:
+      { requests: 13, whole: [artworks, glossary_entries, notes of every table without filter] }
+
+  - id: R11
+    name: Timeline
+    route: /atelier/timeline
+    shows: every dated artwork and event
+    needs: [artwork(all, dated, tile columns), timeline_event(all)]
+    scope: all
+    frequency: view
+    today: { requests: 2, whole: [], note: 'justified' }
+
+  - id: R12
+    name: Chronicle
+    route: /atelier/chronicle
+    shows: every visit with place and excerpt
+    needs: [visit(all) + place name + artwork count]
+    scope: all
+    frequency: view
+    today: { requests: 2, whole: [artworks] }
+
+  - id: R13
+    name: Visit page
+    route: /atelier/chronicle/[id]
+    shows: one visit, its artworks, notes
+    needs: [visit(one) + place, artworks(of visit, tile columns), note link targets, term index]
+    scope: one
+    frequency: view
+    today: { requests: 19, whole: [artworks, card index, glossary_entries] }
+
+  - id: R14
+    name: Review session
+    route: /atelier/review
+    shows: due cards, questions about artworks and term definitions
+    needs:
+      [
+        review_cards(due),
+        artwork facts(of drawn cards),
+        term definitions(of drawn terms),
+        counts,
+        streak,
+        preferences
+      ]
+    scope: few
+    frequency: view
+    today: { requests: 17, whole: [artworks, glossary_entries], note: 'review_session 332 ms' }
+
+  - id: R15
+    name: Display case
+    route: /atelier/display-case
+    shows: exhibits, tiers, points
+    needs: [career_standing(agg), exhibit_tiers(all)]
+    scope: all
+    frequency: view
+    today: { requests: 5, whole: [] }
+
+  - id: R16
+    name: Forms
+    route: artwork / visit / value / term edit and new
+    shows: the edited record plus suggestion lists
+    needs:
+      [
+        record(one),
+        suggestions(few,
+        by phrase),
+        museum catalogue(search),
+        own_field_definitions(all)
+      ]
+    scope: one
+    frequency: view, key
+    today: { requests: 8-19, whole: [artworks, card index, catalogue_museums 721 rows] }
+
+  - id: R17
+    name: Settings and export
+    route: /atelier/settings
+    shows: profile, preferences, storage, export/import
+    needs: [profile(one), storage_usage(agg), atelier_empty(agg), export(all tables)]
+    scope: one
+    frequency: view
+    today: { requests: 20, whole: [], note: 'profiles read 6x, 6 HEAD counts' }
+
+writes:
+  - id: W01
+    name: Save artwork
+    changes: [artwork, images, values, own field entries, notes]
+    side_effects: [card index counts, wall, timeline, review facts]
+    frequency: write
+  - id: W02
+    name: Save a note (any owner)
+    changes: [note body]
+    side_effects: [links from the note, term occurrences in the note, mentions of targets]
+    frequency: write
+  - id: W03
+    name: Rename or merge a value
+    changes: [value name, artwork_values, details]
+    side_effects:
+      [labels of every note link to it (today rewritten in text, migration 20261015190000)]
+    frequency: write
+  - id: W04
+    name: Add or edit a term (name, synonyms, forms)
+    changes: [term]
+    side_effects: [marking in every note, mentions on the entry page]
+    frequency: write
+  - id: W05
+    name: Delete or trash an artwork, value, term, visit
+    changes: [the row]
+    side_effects: [dangling note links, pins, visits, review cards]
+    frequency: write
+  - id: W06
+    name: Import an atelier export
+    changes: [all owner tables]
+    side_effects: [must accept every older export format]
+    frequency: rare
+
+relations:
+  # Every relation the app shows, whether stored or computed today.
+  - { from: artwork, to: value, kind: has_value, stored: artwork_values }
+  - { from: period, to: era, kind: in_era, stored: period_eras }
+  - { from: style, to: period, kind: in_period, stored: style_periods }
+  - { from: visit, to: place, kind: at_place, stored: visits.place_id }
+  - { from: visit, to: artwork, kind: saw, stored: visit_artworks }
+  - { from: pin, to: term, kind: pinned_term, stored: artwork_pins.glossary_entry_id }
+  - { from: note, to: artwork, kind: links_to, stored: 'no, markdown text ](/atelier/n)' }
+  - { from: note, to: value, kind: links_to, stored: 'no, markdown text ](/atelier/values/…)' }
+  - {
+      from: note,
+      to: term,
+      kind: mentions_term,
+      stored: 'no, matched in the browser on name+synonyms+forms'
+    }
+  - { from: target, to: note, kind: mentioned_in, stored: 'no, notes_mentions LIKE over 8 tables' }

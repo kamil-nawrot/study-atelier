@@ -9,15 +9,16 @@
 
 ## Where things go
 
-| You want to record                                     | Put it in                                                                       |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------- |
-| A decision (business or technical) and why it was made | a new ADR in `docs/decisions/`                                                  |
-| What the app should do                                 | `docs/product/requirements.md`                                                  |
-| A domain term                                          | `docs/product/glossary.md`                                                      |
-| How the app speaks to the learner                      | `docs/product/voice-and-tone.md`                                                |
-| How the system is structured                           | `docs/architecture/`                                                            |
-| A rule for working in the repository                   | `docs/guidelines/`                                                              |
-| A library component and what it is for                 | its row in `packages/ui/README.md`, in the pull request that adds or changes it |
+| You want to record                                     | Put it in                                                                                             |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| A decision (business or technical) and why it was made | a new ADR in `docs/decisions/`                                                                        |
+| What the app should do                                 | `docs/product/requirements.md`                                                                        |
+| A domain term                                          | `docs/product/glossary.md`                                                                            |
+| How the app speaks to the learner                      | `docs/product/voice-and-tone.md`                                                                      |
+| How the system is structured                           | `docs/architecture/`                                                                                  |
+| What the app reads and writes, and the database model  | `docs/data-model/` ([ADR-0165](../decisions/0165-model-the-database-from-the-app-access-patterns.md)) |
+| A rule for working in the repository                   | `docs/guidelines/`                                                                                    |
+| A library component and what it is for                 | its row in `packages/ui/README.md`, in the pull request that adds or changes it                       |
 
 ## Architecture Decision Records
 

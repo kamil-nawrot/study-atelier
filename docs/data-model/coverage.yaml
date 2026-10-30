@@ -1,0 +1,219 @@
+# Step 4 of the data model: coverage, cost and loss.
+# changes: what target.dbml changes against current.dbml, what it costs and what it gives up.
+# patterns: how each access pattern of access-patterns.yaml is served before and after.
+# Effort: S up to half a day, M one or two days, L more. Request counts after the change are estimates.
+
+changes:
+  - id: M1
+    name: Store note links as rows
+    tables: [note_links]
+    serves: [R03, R05, R07, R13, W03, W05]
+    how: >
+      A trigger on every notes column (artworks, the five *_details tables, era_details, visits)
+      reads the links ](/atelier/<number>) and ](/atelier/values/<kind>/<id>) out of the Markdown and
+      replaces the rows of that note. The Markdown stays the source; the rows can always be rebuilt from it.
+    cost:
+      - {
+          item: 'migration: table, RLS, row limit, extract function, triggers on 8 columns',
+          effort: M
+        }
+      - { item: 'backfill of every existing note in the same migration', effort: S }
+      - { item: 'rebuild_note_index() for drift and for import', effort: S }
+      - {
+          item: 'notes_mentions reads note_links instead of LIKE over 8 tables (ADR-0082 superseded)',
+          effort: S
+        }
+      - {
+          item: 'SQL tests: extraction, cascade on delete, trash, merge, import of an old export',
+          effort: M
+        }
+      - { item: 'database.types.ts by hand, screenshot mocks for the new reads', effort: S }
+    loses:
+      - 'Every note save does more work: delete and insert of its link rows inside the save transaction.'
+      - 'A link to a record number that does not exist is not stored; it starts to count only after the note is saved again.'
+      - 'The link pattern lives in two places: the editor that writes it and the SQL that reads it. A change to the link format needs both.'
+      - 'Four source and three target columns instead of one polymorphic pair: more columns and partial indexes, in exchange for real foreign keys and cascades.'
+    keeps:
+      - 'Notes stay Markdown; the export format does not change, because note_links is derived and not exported.'
+      - 'merge_category_values still rewrites the link text; the trigger then moves the rows.'
+
+  - id: M2
+    name: Store term mentions as rows
+    tables: [term_mentions]
+    serves: [R03, R04, R07, R10, R13, W04]
+    how: >
+      A trigger matches a saved note, or a saved term definition, against the owner's terms; a trigger
+      on glossary_entries matches a saved term (name, synonyms, forms) against every note of the owner.
+      Views then ask for the terms of one note, or the notes of one term, by id.
+    cost:
+      - {
+          item: 'migration: table, RLS, row limit, match function, triggers on 8 notes columns and on glossary_entries',
+          effort: M
+        }
+      - {
+          item: 'a match rule in SQL equal to termPattern in packages/ui notes-markdown (case-insensitive, between non-letter and non-digit characters)',
+          effort: M
+        }
+      - {
+          item: 'parity tests: the same cases run against the TypeScript and the SQL rule (Polish letters, hyphens, multi-word phrases)',
+          effort: M
+        }
+      - { item: 'backfill and rebuild, as in M1', effort: S }
+      - {
+          item: 'glossary mentions, artwork page and flashcards read term_mentions; definition loaded only for the terms found',
+          effort: M
+        }
+    loses:
+      - 'Two implementations of one rule. The editor still marks terms live while the learner types, so the browser keeps a light term index (id, name, synonyms, forms) and its own matcher.'
+      - 'Saving a term rescans every note of the account: about 1000 artworks plus values, at most a fraction of a second, but on every term save.'
+      - 'Saving a note matches it against every term: hundreds of patterns per save.'
+      - 'The SQL rule depends on the database locale for what counts as a letter; a difference against the browser marks a term in one place and not the other.'
+    keeps:
+      - 'Word forms stay explicit lists from Wiktionary; no stemming is added.'
+
+  - id: M3
+    name: Drop the unused author portrait source column
+    tables: [author_details]
+    serves: []
+    how: 'Drop author_details.own_image_source_url and its handling in save_value_details.'
+    cost:
+      - { item: 'migration, function update, database.types.ts', effort: S }
+      - { item: 'import_atelier ignores the column in older exports', effort: S }
+    loses:
+      - 'Nothing the app shows; older exports carry a value that is no longer kept.'
+
+  - id: M4
+    name: Index the foreign keys behind cascading deletes
+    tables: [artwork_pins, category_values]
+    serves: []
+    how: 'Index artwork_pins(owner_id) and category_values(category_code).'
+    cost:
+      - { item: 'migration', effort: S }
+    loses:
+      - 'Two more indexes to write on insert.'
+
+alternatives:
+  - id: A1
+    name: Filter the notes in the database on read (report D1 b)
+    instead_of: [M1, M2]
+    cost: S
+    gives: 'notes_mentions takes the needles (forms and synonyms) and returns names; no notes reach the browser in bulk.'
+    loses: 'Every view still scans the notes of 8 tables with LIKE; the terms of one note are still found in the browser from the whole glossary.'
+  - id: A2
+    name: One notes table for every subject
+    instead_of: 'the 8 notes columns'
+    cost: L
+    gives: 'One source column instead of four in M1 and M2.'
+    loses: 'Notes leave the row they describe; every save function, the export format and import of older exports change.'
+  - id: A3
+    name: Notes as editor JSON with id-bearing link nodes
+    instead_of: 'Markdown notes'
+    cost: L
+    gives: 'Nothing over M1: the Markdown links already carry the record number or value id.'
+    loses: 'Plain-text notes in the export; a conversion of every note.'
+  - id: A4
+    name: A graph database next to Postgres
+    instead_of: [M1, M2]
+    cost: L
+    gives: 'Traversals over many hops, which no view needs.'
+    loses: 'A second store to sync, no Row Level Security, no Supabase hosting.'
+
+patterns:
+  # today: requests measured on 2026-10-30. target: after M1, M2 and the query tasks named in also.
+  - { id: R01, today: 10, target: 5, model: none, also: [T1, T2] }
+  - { id: R02, today: 2, target: 2, model: none, also: [] }
+  - id: R03
+    today: '27 cold / 18 per flip'
+    target: 'about 7 cold / 3 per flip'
+    model: [M1, M2]
+    also: [Z2, T1, T4]
+    reads_after:
+      - 'artwork by record_number with images'
+      - 'pins with term name'
+      - 'value summaries, visits'
+      - 'note_links where source_artwork_id = id, joined to target names (link labels)'
+      - 'note_links where target_artwork_id = id, joined to source names (mentions)'
+      - 'term_mentions where source_artwork_id = id, joined to term definitions (marking and tooltips)'
+    no_longer:
+      [glossary_entries select *, artworks for labels, card index for labels, notes of every table]
+  - {
+      id: R04,
+      today: '0, from the whole glossary',
+      target: "0, definitions come with the note's terms",
+      model: [M2],
+      also: []
+    }
+  - { id: R05, today: 6, target: 'part of R03', model: [M1], also: [Z2] }
+  - {
+      id: R06,
+      today: 'whole artworks and card index',
+      target: '1 search per pause in typing',
+      model: none,
+      also: [Z3]
+    }
+  - { id: R07, today: '19 cold / 8 warm', target: 'about 6', model: [M1, M2], also: [Z4] }
+  - { id: R08, today: 7, target: 7, model: none, also: [T9] }
+  - { id: R09, today: 1, target: 1, model: none, also: [Z1] }
+  - id: R10
+    today: 13
+    target: 'about 4'
+    model: [M2]
+    also: [Z5]
+    reads_after:
+      - 'term by id'
+      - 'artworks pinned with the term'
+      - 'term_mentions where term_id = id, joined to source names'
+    no_longer: [artworks, glossary_entries, notes of every table]
+  - { id: R11, today: 2, target: 2, model: none, also: [] }
+  - { id: R12, today: 2, target: 2, model: none, also: [] }
+  - { id: R13, today: 19, target: 'about 5', model: [M1, M2], also: [Z5] }
+  - { id: R14, today: 17, target: 'about 10', model: none, also: [Z1, T1, T14] }
+  - { id: R15, today: 5, target: 3, model: none, also: [T2] }
+  - { id: R16, today: '8-19', target: 'about 5', model: none, also: [Z3, T3'] }
+  - { id: R17, today: 20, target: 'about 12', model: none, also: [T1, T11] }
+
+writes:
+  - {
+      id: W01,
+      today: 'save_artwork',
+      after: 'save_artwork + M1 and M2 triggers on the notes',
+      model: [M1, M2]
+    }
+  - {
+      id: W02,
+      today: 'one update',
+      after: 'one update + delete and insert of link and mention rows',
+      model: [M1, M2]
+    }
+  - {
+      id: W03,
+      today: 'merge rewrites link text',
+      after: 'the same; the trigger moves the rows',
+      model: [M1]
+    }
+  - {
+      id: W04,
+      today: 'one row',
+      after: 'one row + a rescan of every note of the account',
+      model: [M2]
+    }
+  - {
+      id: W05,
+      today: 'links in text dangle',
+      after: 'rows go with the deleted subject; trash keeps them',
+      model: [M1, M2]
+    }
+  - {
+      id: W06,
+      today: 'import_atelier',
+      after: 'import_atelier with triggers off, then one rebuild',
+      model: [M1, M2]
+    }
+
+decisions:
+  - id: D1
+    question: 'M1 and M2 (rows) or A1 (filter on read)?'
+    recommended: 'M1 now, M2 after the parity tests show the SQL rule matches the browser'
+  - id: D2
+    question: 'Keep current.dbml in step with the migrations by a check in CI?'
+    recommended: 'yes, in the job that already applies the migrations to a local Supabase'

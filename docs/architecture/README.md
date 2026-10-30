@@ -28,6 +28,8 @@ To be described with C4 container and component diagrams.
 
 ### Data model
 
+The model is worked out from the app's queries in [data-model/](../data-model/README.md); the schema as the migrations build it is in [current.dbml](../data-model/current.dbml).
+
 The atelier lives in Supabase Postgres ([ADR-0014](../decisions/0014-artwork-collection-data-model.md)):
 
 - `artworks`: one row per artwork, with its per-learner record number, its era (`era_code`), image references the width and height of its current image and its favourite flag (`favourite`, [ADR-0058](../decisions/0058-mark-artworks-as-favourites-with-a-heart.md)) ([ADR-0022](../decisions/0022-add-and-edit-an-artwork-in-one-full-form.md), [ADR-0038](../decisions/0038-chain-era-period-and-style.md)).
