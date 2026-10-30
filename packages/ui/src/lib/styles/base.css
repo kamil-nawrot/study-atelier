@@ -8,6 +8,20 @@
 	--cursor-zoom-in: url('./cursor-zoom-in.svg') 11 11, pointer;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+	:root {
+		--hover-reveal: hover-reveal var(--duration-short) ease-out calc(var(--duration-short) * 2)
+			backwards;
+	}
+}
+
+@keyframes hover-reveal {
+	from {
+		opacity: 0;
+		visibility: hidden;
+	}
+}
+
 html {
 	background: var(--color-bg);
 	color: var(--color-fg);

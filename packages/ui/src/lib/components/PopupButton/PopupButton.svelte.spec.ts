@@ -130,9 +130,20 @@ describe('PopupButton', () => {
 
 		await button().click();
 
-		const dialog = page.getByRole('dialog', { name: 'Grouping: era' }).element();
+		const dialog = document.querySelector('[role="dialog"]') as Element;
 		expect(dialog.getBoundingClientRect().bottom).toBeLessThanOrEqual(
 			button().element().getBoundingClientRect().top
 		);
+	});
+
+	it('shows a panel opened on hover after a short delay, like a tooltip', async () => {
+		render(PopupButton, { label: 'Grouping: era', trigger, children: panel, hover: true });
+
+		await userEvent.hover(button());
+
+		const dialog = document.querySelector('[role="dialog"]') as Element;
+		expect(getComputedStyle(dialog).animationName).toBe('hover-reveal');
+		await button().click();
+		expect(getComputedStyle(dialog).animationName).toBe('none');
 	});
 });

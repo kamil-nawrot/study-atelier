@@ -76,37 +76,13 @@
 		visibility: hidden;
 	}
 
-	.tooltip:hover .bubble {
-		transition: visibility 0s linear calc(var(--duration-short) * 2);
-	}
-
-	.tooltip:has(:global(:focus-visible)) .bubble,
-	.tooltip:has(:global([aria-expanded='true'])) .bubble {
-		transition: none;
-	}
-
 	@media (prefers-reduced-motion: no-preference) {
-		.bubble {
-			opacity: 0;
-		}
-
 		.tooltip:hover .bubble {
-			opacity: 1;
-			transition:
-				opacity var(--duration-short) ease-out calc(var(--duration-short) * 2),
-				visibility var(--duration-short) linear calc(var(--duration-short) * 2);
+			animation: var(--hover-reveal);
 		}
 
 		.tooltip:has(:global(:focus-visible)) .bubble {
-			opacity: 1;
-			transition:
-				opacity var(--duration-short) ease-out,
-				visibility var(--duration-short) linear;
-		}
-
-		.tooltip:has(:global([aria-expanded='true'])) .bubble {
-			opacity: 0;
-			transition: none;
+			animation: none;
 		}
 	}
 </style>
