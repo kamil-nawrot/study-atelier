@@ -7,7 +7,6 @@
 		Form,
 		FormActions,
 		NotesEditor,
-		type NoteLinks,
 		Switch,
 		TextField,
 		Toast,
@@ -33,6 +32,7 @@
 		takesOneValue,
 		VALUE_NAME_MAX_LENGTH
 	} from '#lib/card-index/category-values/category-values.ts';
+	import type { FormSuggestions } from '#lib/artworks/form-suggestions/form-suggestions.svelte.ts';
 	import { DuplicateCheck } from '#lib/artworks/duplicate-check/duplicate-check.svelte.ts';
 	import { sameTitleAndAuthors } from '#lib/artworks/duplicates/duplicates.ts';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
@@ -43,7 +43,6 @@
 	import ArtworkEraFields from '#lib/artworks/components/ArtworkEraFields/ArtworkEraFields.svelte';
 	import ArtworkImages from '#lib/artworks/components/ArtworkImages/ArtworkImages.svelte';
 	import ArtworkOwnFields from '#lib/artworks/components/ArtworkOwnFields/ArtworkOwnFields.svelte';
-	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 	import type { Pin } from '#lib/pins/types/pin.ts';
 	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
 	import YearInput from '#lib/shared/forms/YearInput/YearInput.svelte';
@@ -52,25 +51,17 @@
 	import type { ArtworkFormState } from '#lib/artworks/types/artwork-form-state.ts';
 	import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
 	import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
-	import type { CategoryValues } from '#lib/card-index/types/category-values.ts';
 	import type { ImageFieldTexts } from '#lib/images/types/image-field-texts.ts';
 	import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
-	import type { PlaceStarter } from '#lib/card-index/types/place-starter.ts';
-	import type { ValueLinks } from '#lib/card-index/types/value-links.ts';
 	import type { ValueSuggestion } from '#lib/card-index/types/value-suggestion.ts';
 	import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
 
 	type Props = {
 		artwork?: ArtworkRecord;
-		categoryValues: CategoryValues;
-		valueLinks: ValueLinks;
-		placeStarter?: PlaceStarter;
-		noteLinks?: NoteLinks;
+		suggestions: FormSuggestions;
 		ownFields?: OwnFieldDefinition[];
-		ownValues?: Record<string, string[]>;
 		pins?: Pin[];
 		pinsError?: string;
-		glossary?: GlossaryEntry[];
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
 		onsaved: (number: number, next: boolean) => void | Promise<void>;
@@ -78,15 +69,10 @@
 
 	let {
 		artwork,
-		categoryValues,
-		valueLinks,
-		placeStarter,
-		noteLinks,
+		suggestions,
 		ownFields,
-		ownValues = {},
 		pins = [],
 		pinsError,
-		glossary = [],
 		cancelHref,
 		oncancel,
 		onsaved
@@ -142,19 +128,24 @@
 		duplicateCheck.answer(false);
 	});
 
-	function suggestions(code: CategoryCode, existing: readonly string[]): ValueSuggestion[] {
+	function suggestionsFor(code: CategoryCode, existing: readonly string[]): ValueSuggestion[] {
 		return suggestValues({
 			query: form.queries[code],
 			existing,
 			selected: form.values[code],
-			...(code === 'location' && placeStarter
-				? { starter: placeStarter.museums, notes: placeStarter.notes }
+			...(code === 'location'
+				? { starter: suggestions.placeStarter.museums, notes: suggestions.placeStarter.notes }
 				: {})
 		});
 	}
 
+	function wantSuggestions(event: FocusEvent): void {
+		const target = event.target as HTMLElement;
+		if (target.matches('[role="combobox"], [contenteditable="true"]')) void suggestions.load();
+	}
+
 	function options(code: CategoryCode): ValueSuggestion[] {
-		return suggestions(code, categoryValues[code]);
+		return suggestionsFor(code, suggestions.categoryValues[code]);
 	}
 
 	function chooseType(code: string | null): void {
@@ -216,11 +207,11 @@
 </script>
 
 <Form error={formState.error} errorTitle={m.artworkForm.errorTitle} onsubmit={submit}>
-	<div class="columns">
+	<div class="columns" onfocusin={wantSuggestions}>
 		<ArtworkImages
 			alt={imageAlt}
 			autoMatch={!artwork}
-			entries={glossary}
+			entries={suggestions.glossary}
 			onmatching={(matching) => (imageMatching = matching)}
 			{pinsError}
 			query={{
@@ -301,7 +292,7 @@
 				value={form.typeCode || null}
 			/>
 
-			<ArtworkEraFields {valueLinks} bind:form />
+			<ArtworkEraFields valueLinks={suggestions.valueLinks} bind:form />
 
 			{#each describedCategories as category (category.code)}
 				<ValueField
@@ -319,15 +310,15 @@
 				<ArtworkOwnFields
 					fields={ownFields ?? []}
 					idPrefix={titleId}
-					values={ownValues}
+					values={suggestions.ownValues}
 					bind:form
 				/>
 			{/if}
 
 			<NotesEditor
-				hint={noteLinks ? m.artworkForm.notesLinkHint : undefined}
+				hint={m.artworkForm.notesLinkHint}
 				label={m.common.notes}
-				links={noteLinks}
+				links={suggestions.noteLinks}
 				placeholder={m.artworkForm.notesPlaceholder}
 				bind:value={form.notes}
 			/>

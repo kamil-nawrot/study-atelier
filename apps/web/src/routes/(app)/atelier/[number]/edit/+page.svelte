@@ -3,6 +3,7 @@
 	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import ArtworkForm from '#lib/artworks/components/ArtworkForm/ArtworkForm.svelte';
+	import { FormSuggestions } from '#lib/artworks/form-suggestions/form-suggestions.svelte.ts';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import { arrivedFromApp, goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
 	import {
@@ -20,6 +21,9 @@
 	let form = $state<ArtworkForm>();
 	let cameFromApp = false;
 
+	let suggestions = $derived(
+		new FormSuggestions({ glossary: data.glossary, noteLinks: data.noteLinks })
+	);
 	let number = $derived(parseRecordNumber(params.number));
 	let label = $derived(number === null ? params.number : formatRecordNumber(number));
 	let artworkPath = $derived(resolve('/(app)/atelier/[number]', { number: params.number }));
@@ -63,17 +67,12 @@
 				bind:this={form}
 				artwork={data.artwork}
 				cancelHref={artworkPath}
-				categoryValues={data.values}
-				glossary={data.glossary}
-				noteLinks={data.noteLinks}
 				oncancel={goBack}
 				onsaved={showSaved}
 				ownFields={data.ownFields}
-				ownValues={data.ownValues}
 				pins={data.pins}
 				pinsError={data.pinsError}
-				placeStarter={data.placeStarter}
-				valueLinks={data.links}
+				{suggestions}
 			/>
 		{/key}
 	{:else}
