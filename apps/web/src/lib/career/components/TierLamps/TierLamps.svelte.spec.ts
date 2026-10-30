@@ -38,7 +38,10 @@ describe('TierLamps', () => {
 		await expect.element(tier).toHaveTextContent(m.career.curiosities.collection[1]);
 		await expect
 			.element(tier.getByRole('link', { name: m.career.source }))
-			.toHaveAttribute('href', 'https://www.visitmuve.it/en/galleria-delle-opere/tintoretto-paradise/');
+			.toHaveAttribute(
+				'href',
+				'https://www.visitmuve.it/en/galleria-delle-opere/tintoretto-paradise/'
+			);
 	});
 
 	it('shows only one tier at a time', async () => {
