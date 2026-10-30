@@ -217,7 +217,7 @@ describe('review page', () => {
 
 		await expect.element(page.getByText(m.review.freeSummary(2, 1))).toBeVisible();
 		expect(recordReview).not.toHaveBeenCalled();
-		expect(recordFreeAnswers).toHaveBeenCalledWith(expect.any(Date), 2);
+		expect(vi.mocked(recordFreeAnswers).mock.calls.map(([, answers]) => answers)).toEqual([1, 1]);
 		expect(invalidate).not.toHaveBeenCalled();
 		await page.getByRole('button', { name: m.review.freeNextRound }).click();
 		expect(loadSession).toHaveBeenLastCalledWith(expect.any(Date), 'mixed', { kind: 'all' }, 1);

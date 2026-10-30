@@ -13,9 +13,12 @@ const unlocked = (tier: number, seen = true): UnlockedTier => ({
 	seenAt: seen ? new Date(2026, 9, 20) : undefined
 });
 
+const NAME = 'Gabinet Olego Worma';
+
 function renderLamps(tiers: UnlockedTier[], code = 'collection'): void {
 	render(TierLamps, {
 		props: {
+			name: NAME,
 			exhibit: { code, value: 24, thresholds: [1, 10, 50, 100, 250], tiers },
 			tier: tiers.length
 		}
@@ -23,7 +26,7 @@ function renderLamps(tiers: UnlockedTier[], code = 'collection'): void {
 }
 
 function ring(level: string): string {
-	const lamp = page.getByRole('button', { name: m.career.tierLabel(level), exact: true }).element();
+	const lamp = page.getByRole('button', { name: m.career.tierOf(level, NAME) }).element();
 	return getComputedStyle(lamp.firstElementChild as Element).outlineStyle;
 }
 
@@ -31,9 +34,9 @@ describe('TierLamps', () => {
 	it('opens the date and the curiosity of an unlocked tier from its lamp', async () => {
 		renderLamps([unlocked(1), unlocked(2)]);
 
-		await page.getByRole('button', { name: m.career.tierLabel('II'), exact: true }).click();
+		await page.getByRole('button', { name: m.career.tierOf('II', NAME) }).click();
 
-		const tier = page.getByRole('dialog', { name: m.career.tierLabel('II') });
+		const tier = page.getByRole('dialog', { name: m.career.tierOf('II', NAME) });
 		await expect.element(tier).toHaveTextContent(m.career.tierDate('II', '2 października 2026'));
 		await expect.element(tier).toHaveTextContent(m.career.curiosities.collection[1]);
 		await expect
@@ -47,16 +50,18 @@ describe('TierLamps', () => {
 	it('shows only one tier at a time', async () => {
 		renderLamps([unlocked(1), unlocked(2)]);
 
-		await page.getByRole('button', { name: m.career.tierLabel('I'), exact: true }).click();
-		await page.getByRole('button', { name: m.career.tierLabel('II'), exact: true }).click();
+		await page.getByRole('button', { name: m.career.tierOf('I', NAME) }).click();
+		await page.getByRole('button', { name: m.career.tierOf('II', NAME) }).click();
 
-		await expect.element(page.getByRole('dialog')).toHaveAccessibleName(m.career.tierLabel('II'));
+		await expect
+			.element(page.getByRole('dialog'))
+			.toHaveAccessibleName(m.career.tierOf('II', NAME));
 	});
 
 	it('gives only the date of a tier without a curiosity', async () => {
 		renderLamps([unlocked(1), unlocked(2), unlocked(3)], 'unknown');
 
-		await page.getByRole('button', { name: m.career.tierLabel('III'), exact: true }).click();
+		await page.getByRole('button', { name: m.career.tierOf('III', NAME) }).click();
 
 		await expect
 			.element(page.getByRole('dialog'))
@@ -80,6 +85,6 @@ describe('TierLamps', () => {
 	it('leaves the lamps of tiers not reached dark and silent', async () => {
 		renderLamps([unlocked(1)]);
 
-		await expect.element(page.getByRole('button')).toHaveAccessibleName(m.career.tierLabel('I'));
+		await expect.element(page.getByRole('button')).toHaveAccessibleName(m.career.tierOf('I', NAME));
 	});
 });
