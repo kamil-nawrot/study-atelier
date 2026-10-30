@@ -11,8 +11,8 @@ describe('curiosities', () => {
 	});
 
 	it('has none for a tier or an exhibit without one', () => {
-		expect(curiosityOf('grand_tour', 6)).toBeUndefined();
-		expect(curiosityOf('marathon', 1)).toBeUndefined();
+		expect(curiosityOf('grand_tour', 7)).toBeUndefined();
+		expect(curiosityOf('unknown', 1)).toBeUndefined();
 	});
 
 	it('has a source for every curiosity', () => {

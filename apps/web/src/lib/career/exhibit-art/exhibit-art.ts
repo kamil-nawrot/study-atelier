@@ -30,7 +30,7 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		commonsFile: 'Albrecht Dürer, Melencolia I, 1514, NGA 6640.jpg'
 	},
 	back_from_storage: {
-		credit: 'Luigi Calamatta według Leonarda da Vinci, „Mona Lisa”, 1858',
+		credit: 'Luigi Calamatta według Leonarda da Vinci, „Mona Lisa”, 1857',
 		licence: 'domena publiczna',
 		commonsFile: 'Joconde de Calamatta.jpg'
 	},
@@ -62,7 +62,7 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		commonsFile: 'Camera obscura.png'
 	},
 	night_watch: {
-		credit: '„Straż nocna” według Rembrandta, rycina z 1847 roku',
+		credit: 'William Unger według Rembrandta, „Straż nocna”, XIX wiek',
 		licence: 'CC0',
 		commonsFile: 'Nachtwacht, RP-P-OB-54.954.jpg'
 	},
