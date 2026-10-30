@@ -19,9 +19,11 @@ async function rankSeen(): Promise<number | undefined> {
 	return error ? undefined : (data?.rank_seen ?? 0);
 }
 
-export async function loadStanding(): Promise<StandingResult> {
-	const unlocked = await unlockExhibits();
-	if (unlocked.error) return { error: unlocked.error };
+export async function loadStanding(counted = false): Promise<StandingResult> {
+	if (!counted) {
+		const unlocked = await unlockExhibits();
+		if (unlocked.error) return { error: unlocked.error };
+	}
 	const [points, tiers, seen] = await Promise.all([loadPoints(), newTiers(), rankSeen()]);
 	if (points.error || tiers === undefined || seen === undefined) {
 		return { error: points.error ?? collectionErrorMessage({}) };

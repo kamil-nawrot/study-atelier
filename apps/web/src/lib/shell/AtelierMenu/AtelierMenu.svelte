@@ -58,7 +58,7 @@
 
 	$effect(() => {
 		career.forLearner(ownerId);
-		if (careerShown && page.url.pathname) void career.refresh();
+		if (careerShown && page.url.pathname) career.refreshIfStale();
 	});
 </script>
 

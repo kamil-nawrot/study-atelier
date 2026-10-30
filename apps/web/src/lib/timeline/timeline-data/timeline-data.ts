@@ -1,5 +1,6 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
+import { noteWrite } from '#lib/shared/data/writes/writes.ts';
 import type { Database } from '#lib/shared/data/database.types.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import {
@@ -84,6 +85,7 @@ export async function saveTimelineEvent(
 		: supabase.from('timeline_events').insert(write).select('id').single();
 	const { data, error } = await call;
 	if (error) return { error: await failureMessage(error, timelineErrorMessage) };
+	noteWrite();
 	return { id: data.id };
 }
 

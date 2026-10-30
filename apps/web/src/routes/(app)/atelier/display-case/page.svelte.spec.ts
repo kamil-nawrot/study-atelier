@@ -23,6 +23,7 @@ vi.mock('#lib/career/career-state/career-state.svelte.ts', () => ({
 	career: {
 		markSeen: vi.fn(),
 		forLearner: vi.fn(),
+		refreshIfStale: vi.fn(),
 		refresh: vi.fn().mockResolvedValue(undefined),
 		standing: { points: 1846, newTiers: 0, rankSeen: 5 },
 		hasNewTiers: false,

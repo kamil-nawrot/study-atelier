@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { onWrite } from '#lib/shared/data/writes/writes.ts';
 import { cacheForLearner, cached, forgetCached, watchCache } from './data-cache.ts';
 
 const page = Object.assign(new EventTarget(), { visibilityState: 'visible' });
@@ -59,6 +60,15 @@ describe('cached', () => {
 		await cached('atelier', load);
 
 		expect(load).toHaveBeenCalledTimes(2);
+	});
+
+	it('tells the listeners of writes that something was written', () => {
+		const listener = vi.fn();
+		const stop = onWrite(listener);
+		forgetCached();
+		stop();
+
+		expect(listener).toHaveBeenCalledOnce();
 	});
 
 	it('keeps no failed answer of a load started before the first learner is known', async () => {

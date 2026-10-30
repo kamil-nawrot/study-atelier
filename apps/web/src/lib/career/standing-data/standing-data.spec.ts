@@ -65,6 +65,18 @@ describe('standing data', () => {
 		expect(chains.exhibit_tiers.gte).not.toHaveBeenCalled();
 	});
 
+	it('reads the standing without counting the exhibits again when they were just counted', async () => {
+		tables({
+			exhibit_tiers: { data: [], error: null },
+			profiles: { data: { rank_seen: 4 }, error: null }
+		});
+
+		await expect(loadStanding(true)).resolves.toEqual({
+			standing: { points: 1846, newTiers: 0, rankSeen: 4 }
+		});
+		expect(unlockExhibits).not.toHaveBeenCalled();
+	});
+
 	it('counts a learner without a profile as having seen no rank', async () => {
 		tables({ exhibit_tiers: { data: [], error: null }, profiles: { data: null, error: null } });
 
