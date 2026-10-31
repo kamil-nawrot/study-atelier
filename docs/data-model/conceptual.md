@@ -57,7 +57,7 @@ Each relation of [access-patterns.yaml](access-patterns.yaml) `relations`, with 
 | note links to subject          | only as Markdown text `](/atelier/…)` | "Wspomniane w" on R03, R07, R13           |
 | note mentions term             | nowhere; matched in the browser       | "Pojawia się w notatkach" on R10          |
 
-The last two rows are the only relations that are not stored. Every view that needs them in reverse has to read the notes of the whole atelier, which is the main finding of [ATL-403](https://linear.app/kamil-nawrot/issue/ATL-403).
+The last two rows are the only relations that are not stored. Today the views that read them in reverse load whole tables for names or every note of the atelier, which is the main finding of [ATL-403](https://linear.app/kamil-nawrot/issue/ATL-403). The model stores note links as rows (M1) and keeps term mentions computed, filtered in the database by the term's phrases (Q2).
 
 ## What the model must keep
 

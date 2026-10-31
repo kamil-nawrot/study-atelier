@@ -544,7 +544,6 @@ Ref visits_owner_id_fkey: visits.owner_id > auth.users.id [delete: cascade]
 Ref visits_place_id_owner_id_category_code_fkey: visits.(place_id, owner_id, category_code) > category_values.(id, owner_id, category_code)
 
 Table note_links {
-  id uuid [pk, default: `gen_random_uuid()`]
   owner_id uuid [not null, default: `auth.uid()`]
   source_artwork_id uuid
   source_value_id uuid
@@ -555,21 +554,22 @@ Table note_links {
   target_era_code text
 
   indexes {
-    (source_artwork_id, source_value_id, source_era_code, source_visit_id, target_artwork_id, target_value_id, target_era_code) [name: 'note_links_key', unique, note: 'nulls not distinct']
+    (owner_id, source_artwork_id, source_value_id, source_era_code, source_visit_id, target_artwork_id, target_value_id, target_era_code) [name: 'note_links_key', unique, note: 'nulls not distinct']
+    source_artwork_id [name: 'note_links_source_artwork_idx', note: 'where (source_artwork_id IS NOT NULL)']
     source_value_id [name: 'note_links_source_value_idx', note: 'where (source_value_id IS NOT NULL)']
     (owner_id, source_era_code) [name: 'note_links_source_era_idx', note: 'where (source_era_code IS NOT NULL)']
     source_visit_id [name: 'note_links_source_visit_idx', note: 'where (source_visit_id IS NOT NULL)']
     target_artwork_id [name: 'note_links_target_artwork_idx', note: 'where (target_artwork_id IS NOT NULL)']
     target_value_id [name: 'note_links_target_value_idx', note: 'where (target_value_id IS NOT NULL)']
     (owner_id, target_era_code) [name: 'note_links_target_era_idx', note: 'where (target_era_code IS NOT NULL)']
-    owner_id [name: 'note_links_owner_id_idx']
   }
   Note: '''
   M1. One row per link from a note to a subject, extracted from the Markdown by a trigger on every notes column.
   check: num_nonnulls(source_artwork_id, source_value_id, source_era_code, source_visit_id) = 1
   check: num_nonnulls(target_artwork_id, target_value_id, target_era_code) = 1
-  Written only by the triggers (no insert, update or delete grant); select for the owner. RLS on.
-  Row limit per account (private.limit_rows, ADR-0133).
+  Written only by private security definer functions (no insert, update or delete grant); select for the owner. RLS on.
+  The trigger never aborts a note save: candidates are format-checked and joined to their targets of the same owner.
+  No limit_rows; at most 200 links per note.
   '''
 }
 
