@@ -12,7 +12,7 @@ The database is modelled from the queries the app makes, not from the tables it 
 
 ## Proposed rules
 
-These rules are proposals until the owner accepts them with the decisions D1 and D2 of [coverage.yaml](coverage.yaml).
+These rules are proposals until the owner accepts them with the model (decision D1 of [coverage.yaml](coverage.yaml) is taken, D2 is open).
 
 - A view reads what it shows. A pattern with scope `one` or `few` takes the narrowing parameter (id, number, phrase) to the database; only a pattern with scope `all` reads a whole table.
 - A relation a view reads in reverse ("what points at this") is stored as rows, not found by scanning text.

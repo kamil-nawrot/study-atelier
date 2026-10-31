@@ -1,4 +1,4 @@
-// Target schema: current.dbml with the changes M1-M4 of coverage.yaml.
+// Target schema: current.dbml with the schema changes M1, M3 and M4 of coverage.yaml.
 // Every change carries a note naming it; the rest is the same as current.dbml.
 
 Table auth.users {
@@ -573,34 +573,6 @@ Table note_links {
   '''
 }
 
-Table term_mentions {
-  id uuid [pk, default: `gen_random_uuid()`]
-  owner_id uuid [not null, default: `auth.uid()`]
-  term_id uuid [not null]
-  source_artwork_id uuid
-  source_value_id uuid
-  source_era_code text
-  source_visit_id uuid
-  source_term_id uuid
-
-  indexes {
-    (term_id, source_artwork_id, source_value_id, source_era_code, source_visit_id, source_term_id) [name: 'term_mentions_key', unique, note: 'nulls not distinct']
-    source_artwork_id [name: 'term_mentions_source_artwork_idx', note: 'where (source_artwork_id IS NOT NULL)']
-    source_value_id [name: 'term_mentions_source_value_idx', note: 'where (source_value_id IS NOT NULL)']
-    (owner_id, source_era_code) [name: 'term_mentions_source_era_idx', note: 'where (source_era_code IS NOT NULL)']
-    source_visit_id [name: 'term_mentions_source_visit_idx', note: 'where (source_visit_id IS NOT NULL)']
-    source_term_id [name: 'term_mentions_source_term_idx', note: 'where (source_term_id IS NOT NULL)']
-    owner_id [name: 'term_mentions_owner_id_idx']
-  }
-  Note: '''
-  M2. One row per term found in a note or in another term's definition.
-  check: num_nonnulls(source_artwork_id, source_value_id, source_era_code, source_visit_id, source_term_id) = 1
-  Filled by triggers: a saved note is matched against the owner's terms; a saved term (name, synonyms, forms) is matched against all notes of the owner.
-  Matching follows the browser rule: case-insensitive, phrase between non-letter, non-digit characters.
-  Written only by the triggers; select for the owner. RLS on. Row limit per account.
-  '''
-}
-
 Ref note_links_source_artwork_fkey: note_links.(source_artwork_id, owner_id) > artworks.(id, owner_id) [delete: cascade]
 Ref note_links_source_value_fkey: note_links.(source_value_id, owner_id) > category_values.(id, owner_id) [delete: cascade]
 Ref note_links_source_era_fkey: note_links.(owner_id, source_era_code) > era_details.(owner_id, era_code) [delete: cascade]
@@ -609,10 +581,3 @@ Ref note_links_target_artwork_fkey: note_links.(target_artwork_id, owner_id) > a
 Ref note_links_target_value_fkey: note_links.(target_value_id, owner_id) > category_values.(id, owner_id) [delete: cascade]
 Ref note_links_target_era_fkey: note_links.target_era_code > eras.code
 Ref note_links_owner_id_fkey: note_links.owner_id > auth.users.id [delete: cascade]
-Ref term_mentions_term_fkey: term_mentions.(term_id, owner_id) > glossary_entries.(id, owner_id) [delete: cascade]
-Ref term_mentions_source_artwork_fkey: term_mentions.(source_artwork_id, owner_id) > artworks.(id, owner_id) [delete: cascade]
-Ref term_mentions_source_value_fkey: term_mentions.(source_value_id, owner_id) > category_values.(id, owner_id) [delete: cascade]
-Ref term_mentions_source_era_fkey: term_mentions.(owner_id, source_era_code) > era_details.(owner_id, era_code) [delete: cascade]
-Ref term_mentions_source_visit_fkey: term_mentions.(source_visit_id, owner_id) > visits.(id, owner_id) [delete: cascade]
-Ref term_mentions_source_term_fkey: term_mentions.(source_term_id, owner_id) > glossary_entries.(id, owner_id) [delete: cascade]
-Ref term_mentions_owner_id_fkey: term_mentions.owner_id > auth.users.id [delete: cascade]
