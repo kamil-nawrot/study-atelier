@@ -147,9 +147,11 @@ changes:
 bugs:
   # Found by the review; they exist today, independent of the model, and are filed separately.
   - id: B1
+    issue: ATL-404
     name: merge_category_values skips era_details.notes
     effect: 'links to a merged value in an era note point at a deleted id; after M1 the cascade would drop their rows while the text stays'
   - id: B2
+    issue: ATL-405
     name: Saving or deleting a glossary term does not clear the data cache
     effect: "cached('glossary') in the artwork form and edit page stays stale after a term edit, also in other tabs"
 
