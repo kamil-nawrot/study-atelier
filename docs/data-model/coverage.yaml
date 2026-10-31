@@ -2,7 +2,8 @@
 # changes: what the model changes (M: schema in target.dbml, Q: queries and cache without a schema change),
 # what each change costs and what it gives up.
 # patterns: how each access pattern of access-patterns.yaml is served before and after.
-# Effort: S up to half a day, M one or two days, L more. Request counts after the change are estimates.
+# Cost is counted in pull requests and risk, not in days: in this project a change of this size is one
+# pull request in one thread, reviewed the same day. Request counts after the change are estimates.
 
 changes:
   - id: M1
@@ -10,26 +11,20 @@ changes:
     kind: schema
     tables: [note_links]
     serves: [R03, R05, R07, R13, W03, W05]
+    pull_requests: 1
+    risk: medium
+    risk_because: 'a trigger on 8 notes columns and a backfill of every existing note on production'
     how: >
       A trigger on every notes column (artworks, the five *_details tables, era_details, visits)
       reads the links ](/atelier/<number>) and ](/atelier/values/<kind>/<id>) out of the Markdown and
       replaces the rows of that note. The Markdown stays the source; the rows can always be rebuilt from it.
     cost:
-      - {
-          item: 'migration: table, RLS, row limit, extract function, triggers on 8 columns',
-          effort: M
-        }
-      - { item: 'backfill of every existing note in the same migration', effort: S }
-      - { item: 'rebuild_note_index() for drift and for import', effort: S }
-      - {
-          item: "notes_mentions answers 'Wspomniane w' from note_links instead of LIKE over 8 tables (ADR-0082 superseded)",
-          effort: S
-        }
-      - {
-          item: 'SQL tests: extraction, cascade on delete, trash, merge, import of an old export',
-          effort: M
-        }
-      - { item: 'database.types.ts by hand, screenshot mocks for the new reads', effort: S }
+      - 'migration: table, RLS, row limit, extract function, triggers on 8 columns'
+      - 'backfill of every existing note in the same migration'
+      - 'rebuild_note_index() for drift and for import'
+      - "notes_mentions answers 'Wspomniane w' from note_links instead of LIKE over 8 tables (ADR-0082 superseded)"
+      - 'SQL tests: extraction, cascade on delete, trash, merge, import of an old export'
+      - 'database.types.ts by hand, screenshot mocks for the new reads'
     loses:
       - 'Every note save does more work: delete and insert of its link rows inside the save transaction.'
       - 'A link to a record number that does not exist is not stored; it starts to count only after the note is saved again.'
@@ -45,6 +40,9 @@ changes:
     tables: []
     serves: [R03, R04, R07, R13, R16]
     requires: [T8]
+    pull_requests: 2
+    risk: medium
+    risk_because: 'T8 must forget exactly the keys a write changes; a missed key shows stale data'
     how: >
       The terms to mark (id, name, synonyms, forms, category) are loaded once per session through
       cached('glossary-index') and dropped only by a glossary write (add, edit, delete). Every view that shows
@@ -53,19 +51,10 @@ changes:
       for the session. Rule: what a tooltip shows may load on hover when it is one row by id, with no filtering
       in the app.
     cost:
-      - { item: 'loadTermIndex through cached() wherever a note or flashcard is shown', effort: S }
-      - {
-          item: 'loadTermDefinition(id) on hover, remembered per session; the note component shows a loading state in the tooltip',
-          effort: S
-        }
-      - {
-          item: 'T8: a write forgets only the cache keys it changes, so a favourite or a visit does not drop the index',
-          effort: M
-        }
-      - {
-          item: 'tests: one index request per session, one definition request per term, a glossary write refreshes both',
-          effort: S
-        }
+      - 'loadTermIndex through cached() wherever a note or flashcard is shown'
+      - 'loadTermDefinition(id) on hover, remembered per session; the note component shows a loading state in the tooltip'
+      - 'T8: a write forgets only the cache keys it changes, so a favourite or a visit does not drop the index'
+      - 'tests: one index request per session, one definition request per term, a glossary write refreshes both'
     loses:
       - 'The first hover of each term waits for one request before the definition shows.'
       - 'A change made on another device shows after a reload. Other tabs of the same browser follow at once, because forgetCached is broadcast.'
@@ -79,19 +68,16 @@ changes:
     kind: query
     tables: []
     serves: [R10]
+    pull_requests: 1
+    risk: low
+    risk_because: 'one function parameter and its escaping'
     how: >
       notes_mentions takes the term's phrases (name, synonyms, forms) and returns only the notes that contain
       one of them (notes ilike any(...)), with the title or name of each. The browser confirms the exact match
       on those few notes with the same rule as today, because ilike also finds a phrase inside a longer word.
     cost:
-      - {
-          item: 'migration: needles text[] parameter on notes_mentions, escaping as today',
-          effort: S
-        }
-      - {
-          item: 'loadGlossaryMentions passes the phrases; SQL test for the filter and the escaping',
-          effort: S
-        }
+      - 'migration: needles text[] parameter on notes_mentions, escaping as today'
+      - 'loadGlossaryMentions passes the phrases; SQL test for the filter and the escaping'
     loses:
       - 'The notes of 8 tables are still scanned on every opening of an entry page; a few thousand rows of one account, milliseconds today.'
       - "A term with a short form (for example 'łuk' inside 'łukowy') returns notes the browser then discards."
@@ -104,10 +90,13 @@ changes:
     kind: schema
     tables: [author_details]
     serves: []
+    pull_requests: 1
+    risk: low
+    risk_because: 'one small migration, shared with M4'
     how: 'Drop author_details.own_image_source_url and its handling in save_value_details.'
     cost:
-      - { item: 'migration, function update, database.types.ts', effort: S }
-      - { item: 'import_atelier ignores the column in older exports', effort: S }
+      - 'migration, function update, database.types.ts'
+      - 'import_atelier ignores the column in older exports'
     loses:
       - 'Nothing the app shows; older exports carry a value that is no longer kept.'
 
@@ -116,9 +105,12 @@ changes:
     kind: schema
     tables: [artwork_pins, category_values]
     serves: []
+    pull_requests: 0
+    risk: low
+    risk_because: 'goes in the M3 pull request'
     how: 'Index artwork_pins(owner_id) and category_values(category_code).'
     cost:
-      - { item: 'migration', effort: S }
+      - 'migration'
     loses:
       - 'Two more indexes to write on insert.'
 
@@ -126,31 +118,31 @@ alternatives:
   - id: A1
     name: Store term mentions as rows (M2 of the first proposal)
     instead_of: [Q2]
-    cost: L
+    size: large
     gives: 'The entry page reads its mentions by term id without scanning notes.'
     loses: 'The matching rule in SQL and in the browser, parity tests, a rescan of every note on each term save, and a match against every term on each note save. Worth it only if Q2 becomes slow.'
   - id: A2
     name: One notes table for every subject
     instead_of: 'the 8 notes columns'
-    cost: L
+    size: large
     gives: 'One source column instead of four in M1.'
     loses: 'Notes leave the row they describe; every save function, the export format and import of older exports change.'
   - id: A3
     name: Notes as editor JSON with id-bearing link nodes
     instead_of: 'Markdown notes'
-    cost: L
+    size: large
     gives: 'Nothing over M1: the Markdown links already carry the record number or value id.'
     loses: 'Plain-text notes in the export; a conversion of every note.'
   - id: A4
     name: A graph database next to Postgres
     instead_of: [M1]
-    cost: L
+    size: large
     gives: 'Traversals over many hops, which no view needs.'
     loses: 'A second store to sync, no Row Level Security, no Supabase hosting.'
   - id: A5
     name: The whole glossary with definitions in the cache
     instead_of: [Q1]
-    cost: S
+    size: small
     gives: 'A tooltip opens with no request.'
     loses: 'An estimated 150-600 kB per session for 300 terms (read-only query 11 measures it), also when no note is opened.'
 
