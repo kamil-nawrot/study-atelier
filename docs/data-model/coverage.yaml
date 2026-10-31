@@ -40,35 +40,39 @@ changes:
       - 'merge_category_values still rewrites the link text; the trigger then moves the rows.'
 
   - id: Q1
-    name: Keep the whole glossary in the cache and match terms in the browser
+    name: Keep a light term index in the cache and load a definition on hover
     kind: query
     tables: []
-    serves: [R03, R04, R07, R13, R14, R16]
+    serves: [R03, R04, R07, R13, R16]
     requires: [T8]
     how: >
-      The glossary is loaded once per session through cached('glossary') with its definitions and sources,
-      and dropped only by a glossary write (add, edit, delete). Every view that shows a note loads only that
-      note and marks its terms with the cached list, as the browser does today; tooltips read the definition
-      from the same cache, so a hover makes no request.
+      The terms to mark (id, name, synonyms, forms, category) are loaded once per session through
+      cached('glossary-index') and dropped only by a glossary write (add, edit, delete). Every view that shows
+      a note loads only that note and marks its terms with the cached index, as the browser does today.
+      A tooltip loads the definition and source of its one term by id on the first hover or tap and keeps it
+      for the session. Rule: what a tooltip shows may load on hover when it is one row by id, with no filtering
+      in the app.
     cost:
+      - { item: 'loadTermIndex through cached() wherever a note or flashcard is shown', effort: S }
       - {
-          item: 'loadGlossary through cached() wherever a note or flashcard is shown; the entry page reads its entry from the cache',
+          item: 'loadTermDefinition(id) on hover, remembered per session; the note component shows a loading state in the tooltip',
           effort: S
         }
       - {
-          item: 'T8: a write forgets only the cache keys it changes, so a favourite or a visit does not drop the glossary',
+          item: 'T8: a write forgets only the cache keys it changes, so a favourite or a visit does not drop the index',
           effort: M
         }
       - {
-          item: 'tests: one glossary request per session, a glossary write refreshes it, other tabs follow',
+          item: 'tests: one index request per session, one definition request per term, a glossary write refreshes both',
           effort: S
         }
     loses:
-      - 'The whole glossary with definitions travels once per session, also when the learner opens no note: an estimated 150-600 kB for 300 terms (read-only query 11 measures it).'
+      - 'The first hover of each term waits for one request before the definition shows.'
       - 'A change made on another device shows after a reload. Other tabs of the same browser follow at once, because forgetCached is broadcast.'
-      - 'Until T8 lands, every write drops the cached glossary and the next note view downloads it again.'
+      - 'Until T8 lands, every write drops the cached index and the next note view loads it again (small, without definitions).'
     keeps:
       - 'One matching rule, in packages/ui notes-markdown, for viewing and for the live marking in the editor.'
+      - 'The glossary list (R09) still reads the whole table, because it shows every term with its definition lead.'
 
   - id: Q2
     name: Filter note mentions of a term in the database
@@ -144,11 +148,11 @@ alternatives:
     gives: 'Traversals over many hops, which no view needs.'
     loses: 'A second store to sync, no Row Level Security, no Supabase hosting.'
   - id: A5
-    name: A light term index in the cache and a definition fetched on hover (Z1 of the report)
+    name: The whole glossary with definitions in the cache
     instead_of: [Q1]
-    cost: M
-    gives: 'A smaller download per session.'
-    loses: 'A request on every first hover of a term, and two loaders for the glossary.'
+    cost: S
+    gives: 'A tooltip opens with no request.'
+    loses: 'An estimated 150-600 kB per session for 300 terms (read-only query 11 measures it), also when no note is opened.'
 
 patterns:
   # today: requests measured on 2026-10-30. target: after M1, Q1, Q2 and the query tasks named in also.
@@ -165,7 +169,7 @@ patterns:
       - 'value summaries, visits'
       - 'note_links where source_artwork_id = id, joined to target names (link labels)'
       - 'note_links where target_artwork_id = id, joined to source names (mentions)'
-      - 'terms marked from the cached glossary; tooltips from the same cache'
+      - 'terms marked from the cached index; a tooltip loads its definition by id on hover'
     no_longer:
       [
         glossary_entries select * per view,
@@ -176,7 +180,7 @@ patterns:
   - {
       id: R04,
       today: '0, from the whole glossary loaded by the page',
-      target: '0, from the cached glossary',
+      target: '1 by id on the first hover of a term, then remembered',
       model: [Q1],
       also: []
     }
@@ -190,21 +194,21 @@ patterns:
     }
   - { id: R07, today: '19 cold / 8 warm', target: 'about 6', model: [M1, Q1], also: [Z4] }
   - { id: R08, today: 7, target: 7, model: none, also: [T9] }
-  - { id: R09, today: 1, target: '1, the same cache as Q1', model: [Q1], also: [] }
+  - { id: R09, today: 1, target: 1, model: none, also: [] }
   - id: R10
     today: 13
     target: 'about 4'
-    model: [Q2, Q1]
+    model: [Q2]
     also: [Z5]
     reads_after:
-      - 'term from the cached glossary'
+      - 'term by id'
       - 'artworks pinned with the term'
       - 'notes_mentions(needles) returns only the notes containing a phrase; the browser confirms the exact match'
     no_longer: [artworks, glossary_entries, notes of every table]
   - { id: R11, today: 2, target: 2, model: none, also: [] }
   - { id: R12, today: 2, target: 2, model: none, also: [] }
   - { id: R13, today: 19, target: 'about 5', model: [M1, Q1], also: [Z5] }
-  - { id: R14, today: 17, target: 'about 10', model: [Q1], also: [T1, T14] }
+  - { id: R14, today: 17, target: 'about 10', model: none, also: [Z1, T1, T14] }
   - { id: R15, today: 5, target: 3, model: none, also: [T2] }
   - { id: R16, today: '8-19', target: 'about 5', model: [Q1], also: [Z3, T3'] }
   - { id: R17, today: 20, target: 'about 12', model: none, also: [T1, T11] }
@@ -231,7 +235,7 @@ writes:
   - {
       id: W04,
       today: 'one row',
-      after: 'one row; the cached glossary is dropped in every tab and loaded again',
+      after: 'one row; the cached term index is dropped in every tab and loaded again',
       model: [Q1]
     }
   - {
@@ -249,8 +253,8 @@ writes:
 
 decisions:
   - id: D1
-    question: 'How are term mentions served: rows (A1) or the cached glossary plus a filter in the database (Q1, Q2)?'
-    decided: 'Q1 and Q2; A1 only if Q2 becomes slow (owner, 2026-10-31)'
+    question: 'How are term mentions served: rows (A1) or a cached term index plus a filter in the database (Q1, Q2)?'
+    decided: 'Q1 and Q2; A1 only if Q2 becomes slow. A tooltip loads its content on hover when it is one row by id (owner, 2026-10-31)'
   - id: D2
     question: 'Keep current.dbml in step with the migrations by a check in CI?'
     recommended: 'yes, in the job that already applies the migrations to a local Supabase'

@@ -24,7 +24,7 @@ The review of the API communication and the database model ([ATL-403](https://li
 Chosen by the owner: option 2, because the model lives with the code, each step is reviewable as data, and the target schema is a diff against the current one.
 
 - [`docs/data-model/`](../data-model/README.md) holds the four steps. `current.dbml` is generated from the migrations; `target.dbml` is the current schema with the proposed changes, each marked with its id from `coverage.yaml`.
-- The first model is in the same folder: note links stored as rows (M1), the whole glossary kept in the browser cache with terms matched there (Q1), and the mentions of a term filtered in the database (Q2). Term mentions stored as rows stay an alternative for when the filter grows slow (decision D1 of `coverage.yaml`). Building any of it is a separate issue with its own ADR.
+- The first model is in the same folder: note links stored as rows (M1), a light term index kept in the browser cache with terms matched there and a definition loaded by id on hover (Q1), and the mentions of a term filtered in the database (Q2). Term mentions stored as rows stay an alternative for when the filter grows slow (decision D1 of `coverage.yaml`). Building any of it is a separate issue with its own ADR.
 
 ### Consequences
 

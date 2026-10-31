@@ -15,6 +15,7 @@ The database is modelled from the queries the app makes, not from the tables it 
 These rules are proposals until the owner accepts them with the model (decision D1 of [coverage.yaml](coverage.yaml) is taken, D2 is open).
 
 - A view reads what it shows. A pattern with scope `one` or `few` takes the narrowing parameter (id, number, phrase) to the database; only a pattern with scope `all` reads a whole table.
+- What a tooltip shows may load on hover, when it is one row read by id with no filtering in the app.
 - A relation a view reads in reverse ("what points at this") is stored as rows, not found by scanning text.
 - A new view or write adds its pattern to step 1 in the same pull request, and a schema change updates `current.dbml`.
 - A change of the model goes through step 4 before an ADR: the patterns it serves, its cost, its losses and the alternatives.
