@@ -12,7 +12,7 @@ The database is modelled from the queries the app makes, not from the tables it 
 
 ## Proposed rules
 
-These rules are proposals until the owner accepts the model. Decision D1 of [coverage.yaml](coverage.yaml) is taken; D2 to D4 are open. The model was reviewed by four independent reviewers on 2026-10-31 and their findings are folded into the files.
+These rules are proposals until the owner accepts the model. Decisions D1 and D4 of [coverage.yaml](coverage.yaml) are taken; D2 and D3 are open. The model was reviewed on 2026-10-31 by two rounds of four independent reviewers; the findings that change the design are folded into the files.
 
 - A view reads what it shows. A pattern with scope `one` or `few` takes the narrowing parameter (id, number, phrase) to the database; only a pattern with scope `all` reads a whole table.
 - What a tooltip shows may load on hover, when it is one row read by id with no filtering in the app.

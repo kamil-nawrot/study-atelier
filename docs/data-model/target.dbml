@@ -162,6 +162,10 @@ Table author_details {
   image_width integer
   image_height integer
   updated_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    owner_id [name: 'author_details_owner_idx', note: 'M4']
+  }
   Note: 'RLS on'
 }
 
@@ -285,6 +289,7 @@ Table glossary_entries {
   updated_at "timestamp with time zone" [not null, default: `now()`]
   synonyms "text[]" [not null, default: `'{}'::text[]`]
   sort_name text
+  has_definition boolean [not null, note: 'Q1: generated always as (coalesce(btrim(definition), \'\') <> \'\') stored']
 
   indexes {
     (id, owner_id) [unique]
@@ -303,6 +308,10 @@ Table location_details {
   place_type text
   updated_at "timestamp with time zone" [not null, default: `now()`]
   catalogue_wikidata_id text
+
+  indexes {
+    owner_id [name: 'location_details_owner_idx', note: 'M4']
+  }
   Note: 'RLS on'
 }
 
@@ -313,6 +322,10 @@ Table material_details {
   summary text
   notes text
   updated_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    owner_id [name: 'material_details_owner_idx', note: 'M4']
+  }
   Note: 'RLS on'
 }
 
@@ -323,6 +336,10 @@ Table period_details {
   summary text
   notes text
   updated_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    owner_id [name: 'period_details_owner_idx', note: 'M4']
+  }
   Note: 'RLS on'
 }
 
@@ -432,6 +449,10 @@ Table style_details {
   summary text
   notes text
   updated_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    owner_id [name: 'style_details_owner_idx', note: 'M4']
+  }
   Note: 'RLS on'
 }
 
@@ -544,6 +565,7 @@ Ref visits_owner_id_fkey: visits.owner_id > auth.users.id [delete: cascade]
 Ref visits_place_id_owner_id_category_code_fkey: visits.(place_id, owner_id, category_code) > category_values.(id, owner_id, category_code)
 
 Table note_links {
+  id bigint [pk, increment, note: 'generated always as identity']
   owner_id uuid [not null, default: `auth.uid()`]
   source_artwork_id uuid
   source_value_id uuid
@@ -567,9 +589,12 @@ Table note_links {
   M1. One row per link from a note to a subject, extracted from the Markdown by a trigger on every notes column.
   check: num_nonnulls(source_artwork_id, source_value_id, source_era_code, source_visit_id) = 1
   check: num_nonnulls(target_artwork_id, target_value_id, target_era_code) = 1
-  Written only by private security definer functions (no insert, update or delete grant); select for the owner. RLS on.
-  The trigger never aborts a note save: candidates are format-checked and joined to their targets of the same owner.
-  No limit_rows; at most 200 links per note.
+  Written only by private security definer functions; revoke all from anon and authenticated, then select for the owner. RLS on.
+  Filled by two AFTER row triggers per notes table: on INSERT, and on UPDATE OF notes when it is distinct (null deletes the rows).
+  Every delete and insert of the trigger filters by the owner_id of the row, because it bypasses RLS and era codes are shared.
+  The trigger never aborts a note save: candidates are format-checked, joined to their targets of the same owner with
+  for key share, and any exception is caught, counted and leaves the note without rows until the next save or rebuild.
+  No limit_rows; at most 200 links per note. A visit is a source, never a target.
   '''
 }
 

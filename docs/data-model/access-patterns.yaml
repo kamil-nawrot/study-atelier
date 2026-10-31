@@ -202,7 +202,7 @@ reads:
   - id: R13
     name: Visit page
     route: /atelier/chronicle/[id]
-    shows: one visit, its artworks, notes, mentions of it
+    shows: one visit, its artworks, its notes with links and marked terms (a visit is never a link target, so it has no mentions)
     needs:
       - 'visit: one, with place'
       - 'artworks: of the visit, tile columns'

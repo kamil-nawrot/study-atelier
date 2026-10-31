@@ -36,4 +36,4 @@ Chosen by the owner: option 2, because the model lives with the code, each step 
 ## More information
 
 - Report of the API and database review (Polish): attached to ATL-403 in Linear.
-- The model was reviewed by four independent reviewers (code, database, cache and app behaviour, process) on 2026-10-31; their findings are folded into `coverage.yaml`.
+- The model was reviewed on 2026-10-31 by two rounds of four independent reviewers (code, database, cache and app behaviour, process), the second without knowing the first; the findings that change the design are folded into `coverage.yaml`.
