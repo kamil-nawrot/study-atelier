@@ -1,0 +1,422 @@
+# Step 4 of the data model: coverage, cost and loss.
+# changes: what the model changes (M: schema in target.dbml, Q: queries and cache without a schema change),
+# what each change costs and what it gives up.
+# Cost is counted in pull requests and risk, not in days: in this project a change of this size is one
+# pull request in one thread, reviewed the same day.
+# patterns: how each access pattern of access-patterns.yaml is served before and after. Request counts are
+# the view's own requests on a cold start, without the shell (R01); targets are estimates until the first
+# delivery step measures them.
+# Reviewed on 2026-10-31 by four independent reviewers; their findings are folded in.
+
+changes:
+  - id: M1
+    name: Store note links as rows
+    kind: schema
+    tables: [note_links]
+    serves: [R03, R05, R07, R13, R16, W03, W05, W17]
+    requires: [B1]
+    pull_requests: 1
+    risk: medium
+    risk_because: 'a trigger on 8 notes columns that must never abort a save, and a backfill of every note on production'
+    how: >
+      A trigger on every notes column (artworks, the five *_details tables, era_details, visits) reads the links
+      ](/atelier/<number>) and ](/atelier/values/<kind>/<id>) out of the Markdown and replaces the rows of that
+      note. The Markdown stays the source; the rows can always be rebuilt from it. "Wspomniane w" and the link
+      labels read note_links; notes_mentions is left to the term mentions (Q2).
+    design:
+      - 'Unique key (owner_id, every source column, every target column) with nulls not distinct; no surrogate id. Era codes are shared by all accounts, so a key without owner_id collides.'
+      - 'The trigger function lives in private, is security definer with search_path empty, runs only WHEN old.notes IS DISTINCT FROM new.notes, and takes owner_id from the row (auth.uid() is null in the backfill and the import).'
+      - 'It never aborts the save: candidates are checked for format before any cast (record number length, uuid shape, the kind whitelist of the editor), and rows are inserted only through joins to artworks, category_values (with the kind matching category_code) and eras filtered by the same owner, with distinct targets.'
+      - 'Links inside code spans are extracted too, as the LIKE scan does today; accepted.'
+      - 'Every read of note_links filters trashed artworks on both sides, as the labels and mentions do today.'
+      - 'import_atelier skips the trigger through the existing study_atelier.importing setting and calls private.rebuild_note_links(owner) at its end, because it inserts artworks before values, eras and visits.'
+      - 'Row limit: no limit_rows on note_links; instead at most 200 links per note, extra links are ignored. A limit hit would otherwise abort a note save with a generic error.'
+    cost:
+      - 'migration: table, RLS (select for the owner, no write grant), extract function, triggers on 8 columns'
+      - 'backfill per owner through private.rebuild_note_links, in the same migration'
+      - 'note_link_mentions(target) for "Wspomniane w"; link labels read note_links joined to names'
+      - 'import_atelier: skip during import, rebuild at the end'
+      - "SQL tests: extraction, malformed links, other owners' ids, era links of two accounts, cascade on delete, trash and restore, merge, import of an old export; added to migrations.yml"
+      - 'security.sql fixture gets a note with a link (it asserts a row in every owned table)'
+      - 'database.types.ts generated, not written by hand (CI compares it byte for byte)'
+      - 'screenshot fixtures and mocks for the new reads'
+    rollout:
+      - 'The migration ships alone and is backward compatible: the old reads keep working while the table fills.'
+      - 'A verification query after the backfill compares link rows with a LIKE count per owner.'
+      - 'A dry run on a copy of production in DEV (/mnt/project-files/prod-to-dev) before the release.'
+      - 'The app switches its reads in the next pull request. Rollback: revert the app change; the table and trigger can stay.'
+    loses:
+      - 'Every note save does more work: delete and insert of its link rows inside the save transaction.'
+      - 'A link to a record number that does not exist is not stored; it starts to count only after the note is saved again.'
+      - 'The link grammar lives in two places: the editor that writes it and the SQL that reads it. A change to the link format needs both.'
+      - 'Four source and three target columns instead of one polymorphic pair: more columns and partial indexes, in exchange for real foreign keys and cascades.'
+    keeps:
+      - 'Notes stay Markdown; the export format does not change, because note_links is derived and not exported.'
+
+  - id: Q1
+    name: Keep a light term index in the cache and load a definition on hover
+    kind: query
+    tables: []
+    serves: [R03, R04, R07, R10, R13, R14, R16]
+    requires: [B2, T8]
+    pull_requests: 2
+    risk: medium
+    risk_because: 'T8 must forget exactly the keys a write changes; a missed key shows stale data'
+    how: >
+      The terms to mark (id, name, synonyms, forms, category, has_definition) are loaded once per session through
+      cached('glossary-index'), which replaces today's cached('glossary'). Every view that shows a note loads only
+      that note and marks its terms with the cached index. A tooltip shows the name and category from the index at
+      once and loads the definition and source of its one term by id into cached('glossary-term:<id>') on the first
+      hover, focus or tap. Review draws definition questions from the index and loads the definitions of the drawn
+      terms in one request before the session. Rule: what a tooltip shows may load on hover when it is one row by id,
+      with no filtering in the app.
+    design:
+      - 'The index is awaited in the page load, so marked terms do not shift the layout.'
+      - 'The cache drops the index and the definitions on a glossary write (B2, T8 with forget by prefix), on account switch, after the 10-minute break and on import.'
+      - 'Tooltip: a placeholder of fixed height while loading, re-placed when its content changes, aria-busy and a polite live region so screen readers hear the definition, loading starts on pointerover or focusin, and states for a deleted term and for a failed load. A loaded definition does not change the terms passed to the note, so the open popover does not close.'
+      - 'The pin card loads the definition of its term when opened; the pin dialog lists terms from the index.'
+      - 'The term form loads its entry by id instead of taking it from the whole list.'
+    cost:
+      - 'loadTermIndex through cached() wherever a note, definition or flashcard is shown'
+      - 'loadTermDefinition(id) and the tooltip states in GlossaryTermCard; the loader is passed into packages/ui, which keeps no Supabase access (ADR-0126)'
+      - 'review: has_definition in the index, definitions of the drawn terms in one request'
+      - 'pins and the term form as in design'
+      - 'tests: one index request per session, one definition request per term, a glossary write refreshes both, other tabs follow; component tests of the tooltip states'
+      - 'screenshot mocks: the glossary mock honours select= and id=in.'
+    loses:
+      - 'The first hover or tap of each term waits for one request before the definition shows; on a phone every first tap shows the placeholder.'
+      - 'A change made on another device shows after a reload. Other tabs of the same browser follow at once, because forgetCached is broadcast.'
+    keeps:
+      - 'One matching rule, termPattern in packages/ui notes-markdown. The notes editor marks no terms today and the model does not add it.'
+      - 'The glossary list (R09) still reads the whole table, because it shows every term with its definition lead.'
+
+  - id: Q2
+    name: Filter note mentions of a term in the database
+    kind: query
+    tables: []
+    serves: [R10]
+    pull_requests: 1
+    risk: low
+    risk_because: 'one function signature and its escaping'
+    how: >
+      notes_mentions(needles text[]) returns only the notes that contain one of the term's phrases (name, synonyms,
+      forms) with ilike any(...), with the title of each artwork and the name of each value, so the entry page no
+      longer loads the card index. The browser confirms the exact match on those notes with termPattern, because
+      ilike also finds a phrase inside a longer word. The old notes_mentions(needle text) is dropped in the same
+      migration, so no ambiguous overload is left; null or an empty array returns no rows.
+    cost:
+      - 'migration: new signature, old one dropped, escaping of %, _ and \ as today'
+      - 'loadGlossaryMentions passes the phrases; SQL test for the filter, the escaping and the empty array'
+      - 'screenshot mock of notes_mentions takes needles'
+    loses:
+      - 'The notes of 8 tables are still scanned on every opening of an entry page; a few thousand rows of one account, milliseconds today.'
+      - 'The request count of R10 does not drop; the payload does, from every note of the account to the matching ones.'
+      - 'Era names live in the app texts, so an era mention still gets its name in the browser.'
+    keeps:
+      - 'No new table and no write cost: adding a term matches old notes at once.'
+      - 'If the scan grows slow, a pg_trgm index on the notes columns speeds up ilike without changing the model.'
+
+  - id: M3
+    name: Drop the unused author portrait source column
+    kind: schema
+    tables: [author_details]
+    serves: []
+    pull_requests: 1
+    risk: low
+    risk_because: 'one small migration, shared with M4'
+    how: 'Drop author_details.own_image_source_url and rewrite save_value_details, its only reader, in the same migration.'
+    cost:
+      - 'migration with the function rewrite, database.types.ts generated'
+    loses:
+      - 'Nothing the app shows; import already ignores unknown columns of older exports.'
+
+  - id: M4
+    name: Index the foreign keys behind cascading deletes
+    kind: schema
+    tables: [artwork_pins, category_values]
+    serves: [W11, W16]
+    pull_requests: 0
+    risk: low
+    risk_because: 'goes in the M3 pull request'
+    how: 'Index artwork_pins(owner_id) and category_values(category_code).'
+    cost:
+      - 'migration'
+    loses:
+      - 'Two more indexes to write on insert.'
+
+bugs:
+  # Found by the review; they exist today, independent of the model, and are filed separately.
+  - id: B1
+    issue: ATL-404
+    name: merge_category_values skips era_details.notes
+    effect: 'links to a merged value in an era note point at a deleted id; after M1 the cascade would drop their rows while the text stays'
+  - id: B2
+    issue: ATL-405
+    name: Saving or deleting a glossary term does not clear the data cache
+    effect: "cached('glossary') in the artwork form and edit page stays stale after a term edit, also in other tabs"
+
+tasks:
+  # Query tasks of the ATL-403 report, section 9, kept here so the ids are defined in the repo.
+  Z1:
+    {
+      name: 'Mark terms from a light index and load a definition on hover',
+      status: 'folded into Q1'
+    }
+  Z2:
+    {
+      name: 'Resolve note links by the ids the note holds',
+      status: 'after M1 only for unsaved editor text'
+    }
+  Z3: { name: 'Search the note link suggestions in the database', status: planned }
+  Z4: { name: 'Load a value page with its own artworks only', status: planned }
+  Z5: { name: 'Load only the artworks a glossary entry or a visit shows', status: planned }
+  Z6: { name: 'Write the narrow-query rule into the conventions', status: planned }
+  T1: { name: 'Read the own profile once per app start', status: planned }
+  T2: { name: 'Load the career standing with one database function', status: planned }
+  T3':
+    { name: 'Cache own field definitions, era summaries and the museum catalogue', status: planned }
+  T4: { name: 'Preload only the core of the next artwork', status: 'option open, D3' }
+  T5: { name: 'Page every list query past 1000 rows (bug)', status: planned }
+  T7: { name: 'Remember Commons thumbnail URLs on the device', status: planned }
+  T8:
+    {
+      name: 'Forget only the cache keys a write changes',
+      status: 'planned, own ADR amending ADR-0157; delivers the write-to-keys map, keys nested in other selects (atelier holds value names and visits), forget by prefix, and a broadcast that names the keys'
+    }
+  T9: { name: 'Load the card index with one database function', status: planned }
+  T10: { name: 'Index FKs and drop the unused portrait column', status: 'is M3 and M4' }
+  T11:
+    {
+      name: 'One emptiness check, batched signed URLs, no layout reload on token refresh',
+      status: planned
+    }
+  T12: { name: 'Make the scale seed run with the row limits', status: planned }
+  T13: { name: 'Compact wall payload', status: 'after the measurement' }
+  T14: { name: 'Build the review session facts without a subquery per artwork', status: planned }
+
+out_of_scope:
+  - 'E2: remembering Wikidata and Wikipedia search results; only if 429 errors come back'
+  - '5.3: a counter instead of count(*) in limit_rows; only if pg_stat_statements shows it'
+  - 'Live term marking in the notes editor'
+  - 'The chronicle loads the whole collection for its artwork counts; acceptable while the view shows all visits'
+
+delivery:
+  # Pull requests in order; each is one thread. Request counts are re-measured after each.
+  - 'P0: pnpm screenshot --log-requests and a baseline per view, shell and view apart, with payload sizes'
+  - 'B1 and B2 (bugs)'
+  - 'T5 (bug)'
+  - 'T1 + T2'
+  - 'Q2'
+  - 'T8 with its ADR'
+  - 'Q1 (two PRs: index and tooltip, then review and pins)'
+  - 'Z4, Z5'
+  - 'M1 migration, then M1 reads with an ADR superseding ADR-0082'
+  - 'Z2 remainder, Z3'
+  - 'T4 after D3'
+  - "M3 + M4, T3', T7, T9, T11, T12, T14, T13 after the measurement"
+  - 'ATL-395 (fewer database requests) is covered by Z1, Z2, T1 and T4 and closes with them'
+
+adrs_to_change:
+  - {
+      adr: '0082',
+      by: [M1, Q2],
+      how: 'superseded: mentions from note_links and a filtered notes_mentions'
+    }
+  - { adr: '0157', by: [T8, Q1], how: 'amended: keyed forgetting and the glossary keys' }
+  - { adr: '0042', by: [Z4, Z5], how: 'amended: the whole collection only in views that show it' }
+  - { adr: '0048', by: [T4], how: 'amended if the preload is narrowed' }
+  - { adr: '0053', by: [M1, Z3], how: 'amended: link labels and suggestions from the database' }
+  - { adr: '0126', by: [Q1], how: 'respected: the definition loader is passed into packages/ui' }
+
+alternatives:
+  - id: X1
+    name: Store term mentions as rows (M2 of the first proposal)
+    instead_of: [Q2]
+    size: large
+    gives: 'The entry page reads its mentions by term id without scanning notes.'
+    loses: 'The matching rule in SQL and in the browser with parity tests, a rescan of every note on each term save, and a match against every term on each note save. Worth it only if Q2 becomes slow.'
+  - id: X2
+    name: One notes table for every subject
+    instead_of: ['the 8 notes columns']
+    size: large
+    gives: 'One source column instead of four in M1.'
+    loses: 'Notes leave the row they describe; every save function, the export format and import of older exports change.'
+  - id: X3
+    name: Notes as editor JSON with id-bearing link nodes
+    instead_of: ['Markdown notes']
+    size: large
+    gives: 'Nothing over M1: the Markdown links already carry the record number or value id.'
+    loses: 'Plain-text notes in the export; a conversion of every note.'
+  - id: X4
+    name: A graph database next to Postgres
+    instead_of: [M1]
+    size: large
+    gives: 'Traversals over many hops, which no view needs.'
+    loses: 'A second store to sync, no Row Level Security, no Supabase hosting.'
+  - id: X5
+    name: The whole glossary with definitions in the cache
+    instead_of: [Q1]
+    size: small
+    gives: 'A tooltip opens with no request.'
+    loses: 'An estimated 150-600 kB per session for 300 terms (read-only query 11 measures it), also when no note is opened.'
+  - id: X6
+    name: Load the definitions of the terms marked in the open note in one request
+    instead_of: ['the hover load of Q1']
+    size: small
+    gives: 'No wait on the first hover or tap, which matters on a phone; still read by ids with no filtering in the app.'
+    loses: 'One request per note view even when no tooltip is opened; definitions of terms the learner never points at.'
+
+patterns:
+  - { id: R01, today: 10, target: 5, model: none, also: [T1, T2] }
+  - { id: R02, today: 2, target: 2, model: none, also: [T13] }
+  - id: R03
+    today: '17 cold / 18 per flip'
+    target: 'about 7 cold / about 6 per flip (5 with T4)'
+    model: [M1, Q1]
+    also: [T3', T4]
+    reads_after:
+      - 'artwork by record_number with images'
+      - 'pins with term name'
+      - 'value summaries, visits'
+      - 'note_links where the artwork is the source, joined to target names (link labels)'
+      - 'note_links where the artwork is the target, joined to source names, trash filtered (mentions)'
+      - 'terms marked from the cached index; a tooltip loads its definition by id on hover'
+    no_longer:
+      ['glossary_entries select * per view', 'artworks for labels', 'card index for labels']
+  - {
+      id: R04,
+      today: '0, from the whole glossary loaded by the page',
+      target: '1 by id on the first hover of a term, then remembered (0 with X6)',
+      model: [Q1],
+      also: []
+    }
+  - { id: R05, today: 6, target: 'part of R03', model: [M1], also: [Z2] }
+  - {
+      id: R06,
+      today: 'whole artworks and card index',
+      target: '1 search per pause in typing',
+      model: none,
+      also: [Z3]
+    }
+  - { id: R07, today: '9 cold / 8 warm', target: 'about 5', model: [M1, Q1], also: [Z4] }
+  - { id: R08, today: 7, target: 7, model: none, also: [T9] }
+  - { id: R09, today: 1, target: 1, model: none, also: [] }
+  - id: R10
+    today: 3
+    target: '3, with a payload of the matching notes instead of every note'
+    model: [Q1, Q2]
+    also: [Z5]
+    reads_after:
+      - 'term by id; terms in its definition marked from the cached index'
+      - 'artworks pinned with the term'
+      - 'notes_mentions(needles) returns only the notes containing a phrase, with titles and names; the browser confirms the exact match'
+    no_longer: [artworks, glossary_entries, card index, notes of every table]
+  - { id: R11, today: 2, target: 2, model: none, also: [] }
+  - { id: R12, today: 2, target: 2, model: none, also: [] }
+  - { id: R13, today: 9, target: 'about 4', model: [M1, Q1], also: [Z5] }
+  - { id: R14, today: 7, target: 'about 5', model: [Q1], also: [T1, T14] }
+  - { id: R15, today: 5, target: 3, model: none, also: [T2] }
+  - {
+      id: R16,
+      today: '0 / 8 / 9',
+      target: 'about 4 for an edit form',
+      model: [M1, Q1],
+      also: [Z3, T3']
+    }
+  - { id: R17, today: 10, target: 'about 4', model: none, also: [T1, T11] }
+  - { id: R18, today: 1, target: 1, model: none, also: [] }
+  - { id: R19, today: 1, target: 1, model: none, also: [] }
+  - { id: R20, today: 4, target: 1, model: none, also: [T2] }
+
+writes:
+  - {
+      id: W01,
+      today: 'save_artwork',
+      after: 'save_artwork + the M1 trigger on the notes',
+      model: [M1]
+    }
+  - {
+      id: W02,
+      today: 'one update',
+      after: 'one update + delete and insert of its link rows',
+      model: [M1]
+    }
+  - {
+      id: W03,
+      today: 'merge rewrites link hrefs in 7 of 8 notes columns',
+      after: 'all 8 (B1); the trigger moves the rows',
+      model: [M1]
+    }
+  - {
+      id: W04,
+      today: 'one row; no cache cleared',
+      after: 'one row; the cached index and definitions are dropped in every tab',
+      model: [Q1]
+    }
+  - {
+      id: W05,
+      today: 'links in text dangle',
+      after: 'link rows go with the deleted subject; trash keeps them and reads filter them',
+      model: [M1]
+    }
+  - {
+      id: W06,
+      today: 'import_atelier',
+      after: 'import_atelier with the trigger skipped, then one rebuild per owner',
+      model: [M1]
+    }
+  - { id: W07, today: 'one row', after: 'unchanged', model: none }
+  - { id: W08, today: 'record_review', after: 'unchanged', model: none }
+  - {
+      id: W09,
+      today: 'one update; forgets every cache key',
+      after: 'forgets only the wall key (T8)',
+      model: none
+    }
+  - { id: W10, today: 'one row', after: 'unchanged', model: none }
+  - {
+      id: W11,
+      today: 'own field functions',
+      after: 'cascade delete uses the M4 index',
+      model: [M4]
+    }
+  - {
+      id: W12,
+      today: 'set_period_eras, set_style_periods, delete_unused_value',
+      after: 'unchanged; delete_unused_value still ignores note links, which then lose their row',
+      model: none
+    }
+  - { id: W13, today: 'profile updates', after: 'unchanged', model: none }
+  - {
+      id: W14,
+      today: 'unlock_exhibits on every start',
+      after: 'inside one career function (T2)',
+      model: none
+    }
+  - { id: W15, today: 'one row', after: 'unchanged', model: none }
+  - {
+      id: W16,
+      today: 'delete_account',
+      after: 'cascade from auth.users uses the M4 index on artwork_pins',
+      model: [M4]
+    }
+  - {
+      id: W17,
+      today: 'one update or delete',
+      after: 'link rows stay through the trash and return on restore',
+      model: [M1]
+    }
+
+decisions:
+  - id: D1
+    question: 'How are term mentions served: rows (X1) or a cached term index plus a filter in the database (Q1, Q2)?'
+    decided: 'Q1 and Q2; X1 only if Q2 becomes slow. A tooltip loads its content on hover when it is one row by id (owner, 2026-10-31)'
+  - id: D2
+    question: 'Keep current.dbml in step with the migrations by a check in CI?'
+    recommended: 'yes: commit the generator and run it in the job that already applies the migrations to a local Supabase'
+  - id: D3
+    question: 'Next artwork preload (T4): code only, the core only, or as today?'
+    recommended: 'the core only (artwork and first image), the rest after the flip'
+  - id: D4
+    question: 'Tooltip definitions: load on hover (Q1) or with the note in one request (X6)?'
+    recommended: 'on hover; revisit X6 if the first tap on a phone feels slow'

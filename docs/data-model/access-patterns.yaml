@@ -1,0 +1,427 @@
+# Step 1 of the data model: access patterns.
+# What the app shows or changes, independent of today's tables.
+# today.whole: data fetched in full although the view shows a part of it.
+# today.requests: Supabase requests of the view itself on a cold start, without the 10 requests of the
+# shell (R01), from the spike ATL-403 measurement of 2026-10-30 on the screenshot fixtures (24 artworks).
+# Wikimedia calls and image files are not counted. The first delivery step re-measures them (coverage.yaml).
+
+legend:
+  scope: { one: a single row, few: rows picked by id or filter, all: the whole set is shown }
+  frequency:
+    start: every app start
+    view: every visit of the view
+    flip: every arrow step
+    hover: on pointer or tap
+    key: per keystroke
+    write: on save
+
+reads:
+  - id: R01
+    name: Shell
+    route: (app)/+layout
+    shows: menu profile, review counter, career standing, announcements, legal version
+    needs:
+      - profile (one)
+      - review_counts (aggregate)
+      - career_standing (aggregate)
+      - announcements (few)
+    scope: one
+    frequency: start
+    today:
+      requests: 10
+      whole: []
+      note: 'profiles read 4x; career is 4 requests including the unlock_exhibits write (W14); reloads on invalidation and after a write'
+
+  - id: R02
+    name: Wall
+    route: /atelier
+    shows: every artwork as a tile, filters
+    needs:
+      - 'artworks: all, tile columns'
+      - 'image: first of each'
+      - 'values: filter facets'
+      - 'own field definitions: all'
+    scope: all
+    frequency: view
+    today: { requests: 2, whole: [artworks], note: 'justified: the view shows all (ADR-0041/0042)' }
+
+  - id: R03
+    name: Artwork page
+    route: /atelier/[number]
+    shows: one artwork, its images, pins, values with summaries, visits, notes with links and marked terms, mentions of it
+    needs:
+      - 'artwork: one, by record_number'
+      - 'images: of the artwork'
+      - 'pins: of the artwork, each with its term name; the pin card shows the term definition when opened'
+      - 'term picker in the pin dialog: every term name (light index)'
+      - 'values: of the artwork, with summaries (era summaries included)'
+      - 'visits: of the artwork'
+      - 'note link labels: only the ids in the note'
+      - 'term index: all, light, for marking'
+      - 'term definition: one, on hover (R04)'
+      - 'mentions: notes linking to this artwork'
+      - 'own field definitions: all'
+    scope: one
+    frequency: view, flip
+    today:
+      requests: '17 cold / 18 per flip (most of a flip is the preloadData of the next artwork)'
+      whole:
+        - glossary_entries select *
+        - artworks (note link labels)
+        - card index (note link labels)
+      note: 'mentions are already filtered in the database by the artwork path (notes_mentions needle); era_details and artwork_fields are re-read on every flip'
+
+  - id: R04
+    name: Term tooltip
+    route: inside any note, definition or flashcard
+    shows: name, category, definition and source of one term
+    needs:
+      - 'term: one, by id'
+    scope: one
+    frequency: hover
+    today:
+      requests: 0
+      whole: [glossary_entries]
+      note: 'served from the whole table loaded by the page'
+
+  - id: R05
+    name: Note link labels
+    route: inside any note and every notes editor
+    shows: current name of each '#' artwork and '@' value link
+    needs:
+      - 'artworks: few, by the record numbers in the note'
+      - 'values: few, by the ids in the note'
+    scope: few
+    frequency: view
+    today:
+      {
+        requests: 6,
+        whole: [artworks, card index],
+        note: 'labels resolve live, so a rename rewrites nothing'
+      }
+
+  - id: R06
+    name: Link suggestions
+    route: note editor, after '#' or '@'
+    shows: up to 8 matches for 2+ typed characters
+    needs:
+      - 'artworks or values: few, by phrase, limit 8'
+    scope: few
+    frequency: key
+    today:
+      requests: '0 per key'
+      whole: [artworks, card index]
+      note: 'preloaded in full with the editor; era suggestions and record-number prefix matching stay in the browser'
+
+  - id: R07
+    name: Value page
+    route: /atelier/values/[kind]/[id]
+    shows: one author, period, style, material or place with details, its artworks, visits (places), mentions
+    needs:
+      - 'value: one, with details'
+      - 'artworks: of the value, tile columns'
+      - 'visits: of the place'
+      - 'mentions: notes linking to the value'
+      - 'note link labels'
+      - 'term index'
+    scope: one
+    frequency: view
+    today: { requests: '9 cold / 8 warm', whole: [artworks, card index, glossary_entries] }
+
+  - id: R08
+    name: Card index
+    route: /atelier/values
+    shows: every value per category with usage counts, era/period/style tree
+    needs:
+      - 'values: all, with usage counts'
+      - 'period_eras: all'
+      - 'style_periods: all'
+      - 'own field values: all'
+      - 'timeline events: all'
+    scope: all
+    frequency: view
+    today: { requests: 7, whole: [], note: 'justified; 5 queries could be one (T9)' }
+
+  - id: R09
+    name: Glossary list
+    route: /atelier/glossary
+    shows: every term with category and first sentence of definition
+    needs:
+      - 'terms: all, with name, category and definition lead'
+    scope: all
+    frequency: view
+    today: { requests: 1, whole: [], note: 'select * incl. full definitions and sources' }
+
+  - id: R10
+    name: Glossary entry
+    route: /atelier/glossary/[id]
+    shows: one term with the other terms marked in its definition, artworks pinned with it, notes that mention it
+    needs:
+      - 'term: one'
+      - 'term index: for marking the definition'
+      - 'artworks: pinned with the term'
+      - 'mentions: notes containing a phrase of the term, with titles and names'
+    scope: one
+    frequency: view
+    today:
+      requests: 3
+      whole:
+        [
+          artworks,
+          glossary_entries,
+          card index (value names of mentions),
+          notes of every table without filter
+        ]
+
+  - id: R11
+    name: Timeline
+    route: /atelier/timeline
+    shows: every dated artwork and event
+    needs:
+      - 'artworks: all dated, tile columns'
+      - 'timeline events: all'
+    scope: all
+    frequency: view
+    today: { requests: 2, whole: [], note: 'justified' }
+
+  - id: R12
+    name: Chronicle
+    route: /atelier/chronicle
+    shows: every visit with place and excerpt
+    needs:
+      - 'visits: all, with place name and artwork count'
+    scope: all
+    frequency: view
+    today:
+      {
+        requests: 2,
+        whole: [artworks],
+        note: 'excerpts show the stored link text, not current names'
+      }
+
+  - id: R13
+    name: Visit page
+    route: /atelier/chronicle/[id]
+    shows: one visit, its artworks, notes, mentions of it
+    needs:
+      - 'visit: one, with place'
+      - 'artworks: of the visit, tile columns'
+      - 'note link labels'
+      - 'term index'
+    scope: one
+    frequency: view
+    today: { requests: 9, whole: [artworks, card index, glossary_entries] }
+
+  - id: R14
+    name: Review session
+    route: /atelier/review
+    shows: due cards, flashcards with marked notes, questions about artworks and term definitions
+    needs:
+      - 'review cards: due'
+      - 'artwork facts: of the drawn cards'
+      - 'term index with a has-definition flag: to draw definition questions'
+      - 'term definitions: of the drawn terms'
+      - 'counts, streak, preferences'
+    scope: few
+    frequency: view
+    today:
+      requests: 7
+      whole: [artworks, glossary_entries, review_cards]
+      note: 'review_session takes 332 ms at 1000 artworks (T14)'
+
+  - id: R15
+    name: Display case
+    route: /atelier/display-case
+    shows: exhibits, tiers, points
+    needs:
+      - 'career standing (aggregate)'
+      - 'exhibit tiers: all'
+    scope: all
+    frequency: view
+    today: { requests: 5, whole: [] }
+
+  - id: R16
+    name: Forms
+    route: artwork, visit, value, term and timeline event edit and new
+    shows: the edited record, its notes with link labels, suggestion lists
+    needs:
+      - 'record: one'
+      - 'note link labels: only the ids in the notes'
+      - 'suggestions: few, by phrase'
+      - 'museum catalogue: search'
+      - 'own field definitions: all'
+      - 'term: one by id (term form)'
+    scope: one
+    frequency: view, key
+    today:
+      requests: '0 new artwork / 8 artwork edit / 9 visit new'
+      whole:
+        [
+          artworks,
+          card index,
+          catalogue_museums 721 rows,
+          glossary_entries (term form takes its entry from the list)
+        ]
+
+  - id: R17
+    name: Settings and export
+    route: /atelier/settings
+    shows: profile, preferences, storage, export/import
+    needs:
+      - 'profile: one'
+      - 'storage usage (aggregate)'
+      - 'atelier empty (aggregate)'
+      - 'export: all tables'
+    scope: one
+    frequency: view
+    today: { requests: 10, whole: [], note: 'profiles read 6x, 6 HEAD counts' }
+
+  - id: R18
+    name: Trash
+    route: /atelier/trash
+    shows: every trashed artwork
+    needs:
+      - 'artworks: all trashed, tile columns'
+    scope: all
+    frequency: view
+    today: { requests: 1, whole: [], note: 'justified' }
+
+  - id: R19
+    name: Duplicate check
+    route: artwork form, on save
+    shows: artworks that look like the one being saved
+    needs:
+      - 'duplicate_candidates: few, by title and authors'
+    scope: few
+    frequency: write
+    today: { requests: 1, whole: [] }
+
+  - id: R20
+    name: Career after a review round
+    route: /atelier/review, end of round
+    shows: points and new tiers
+    needs:
+      - 'career standing (aggregate)'
+    scope: one
+    frequency: view
+    today: { requests: 4, whole: [], note: 'the same 4 requests as in the shell (T2)' }
+
+writes:
+  - id: W01
+    name: Save artwork
+    changes: [artwork, images, values, own field entries, notes]
+    side_effects: [card index counts, wall, timeline, review facts]
+    frequency: write
+  - id: W02
+    name: Save a note (any of the 8 notes columns)
+    changes: [note body]
+    side_effects: [links from the note, term occurrences in the note, mentions of targets]
+    frequency: write
+  - id: W03
+    name: Merge two values
+    changes: [artwork_values, visits, links, details]
+    side_effects:
+      - 'link hrefs to the merged value are rewritten in 7 notes columns; era_details.notes is skipped today (a bug)'
+      - 'a rename rewrites nothing, because labels resolve live'
+    frequency: write
+  - id: W04
+    name: Add, edit or delete a term (name, synonyms, forms, definition)
+    changes: [term]
+    side_effects:
+      - 'marking in every note, definition and flashcard'
+      - 'mentions on the entry page'
+      - 'today neither save nor delete clears the data cache (a bug)'
+    frequency: write
+  - id: W05
+    name: Delete or trash an artwork, value, term, visit
+    changes: [the row]
+    side_effects: [dangling note links, pins, visits, review cards]
+    frequency: write
+  - id: W06
+    name: Import an atelier export
+    changes: [all owner tables]
+    side_effects: [must accept every older export format]
+    frequency: rare
+  - id: W07
+    name: Save or delete a pin
+    changes: [artwork_pins]
+    side_effects: [term pins on the entry page, pin quizzes in review]
+    frequency: write
+  - id: W08
+    name: Answer in review
+    changes: [review_cards, review_log, free_review_days, point_events]
+    side_effects: [counters, streak, career points]
+    frequency: write
+  - id: W09
+    name: Toggle favourite
+    changes: [artworks.favourite]
+    side_effects: [wall filter]
+    frequency: write
+  - id: W10
+    name: Save or delete a timeline event
+    changes: [timeline_events]
+    side_effects: [timeline, card index events]
+    frequency: write
+  - id: W11
+    name: Change own fields and own values
+    changes: [artwork_fields, categories, category_values, artwork_field_entries]
+    side_effects: [form fields, card index, merge of own values, move_artwork_field]
+    frequency: write
+  - id: W12
+    name: Link periods to eras and styles to periods, delete an unused value
+    changes: [period_eras, style_periods, category_values]
+    side_effects: [artwork eras moved, card index tree]
+    frequency: write
+  - id: W13
+    name: Save profile, preferences, legal acceptance, seen rank
+    changes: [profiles]
+    side_effects: [shell, review settings]
+    frequency: write
+  - id: W14
+    name: Unlock exhibits
+    changes: [exhibit_tiers, point_events]
+    side_effects: [runs on the read path of the shell and after writes]
+    frequency: start
+  - id: W15
+    name: Send feedback
+    changes: [feedback]
+    side_effects: []
+    frequency: rare
+  - id: W16
+    name: Delete the account
+    changes: [every owner table, storage]
+    side_effects: [cascades from auth.users]
+    frequency: rare
+  - id: W17
+    name: Restore or purge from the trash
+    changes: [artworks.deleted_at, artworks]
+    side_effects: [links and mentions come back on restore; purge cascades]
+    frequency: write
+
+relations:
+  # Every relation the app shows, whether stored or computed today.
+  - { from: artwork, to: value, kind: has_value, stored: artwork_values }
+  - { from: period, to: era, kind: in_era, stored: period_eras }
+  - { from: style, to: period, kind: in_period, stored: style_periods }
+  - { from: visit, to: place, kind: at_place, stored: visits.place_id }
+  - { from: visit, to: artwork, kind: saw, stored: visit_artworks }
+  - { from: pin, to: term, kind: pinned_term, stored: artwork_pins.glossary_entry_id }
+  - { from: note, to: artwork, kind: links_to, stored: 'no, Markdown text ](/atelier/n)' }
+  - {
+      from: note,
+      to: value,
+      kind: links_to,
+      stored: 'no, Markdown text ](/atelier/values/kind/id)'
+    }
+  - {
+      from: note,
+      to: term,
+      kind: mentions_term,
+      stored: 'no, matched in the browser on name, synonyms and forms'
+    }
+  - {
+      from: target,
+      to: note,
+      kind: mentioned_in,
+      stored: 'no, notes_mentions LIKE over 8 notes columns'
+    }
