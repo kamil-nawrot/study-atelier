@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
+import { cached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
 	deleteGlossaryEntry,
@@ -49,6 +50,12 @@ function chain(result: unknown): Record<string, ReturnType<typeof vi.fn>> {
 	query.then = vi.fn((resolve: (value: unknown) => unknown) => resolve(result));
 	from.mockReturnValue(query as never);
 	return query;
+}
+
+async function keepsGlossaryCached(): Promise<boolean> {
+	const reload = vi.fn().mockResolvedValue({ entries: [], error: undefined });
+	await cached('glossary', reload);
+	return reload.mock.calls.length === 0;
 }
 
 const draft: GlossaryDraft = {
@@ -223,6 +230,24 @@ describe('saveGlossaryEntry', () => {
 		expect(query.insert).toHaveBeenNthCalledWith(2, expect.objectContaining({ sort_name: null }));
 	});
 
+	it('forgets the cached glossary after a save', async () => {
+		chain({ data: { id: ID }, error: null });
+		await cached('glossary', async () => ({ entries: [], error: undefined }));
+
+		await saveGlossaryEntry(draft);
+
+		expect(await keepsGlossaryCached()).toBe(false);
+	});
+
+	it('keeps the cached glossary when a save fails', async () => {
+		chain({ data: null, error: { code: '23514' } });
+		await cached('glossary', async () => ({ entries: [], error: undefined }));
+
+		await saveGlossaryEntry(draft);
+
+		expect(await keepsGlossaryCached()).toBe(true);
+	});
+
 	it('says the name is taken when the unique name is violated', async () => {
 		chain({ data: null, error: { code: '23505' } });
 
@@ -263,10 +288,21 @@ describe('deleteGlossaryEntry', () => {
 		expect(query.eq).toHaveBeenCalledWith('id', ID);
 	});
 
-	it('gives a message when deleting fails', async () => {
+	it('forgets the cached glossary after a delete', async () => {
+		chain({ error: null });
+		await cached('glossary', async () => ({ entries: [], error: undefined }));
+
+		await deleteGlossaryEntry(ID);
+
+		expect(await keepsGlossaryCached()).toBe(false);
+	});
+
+	it('gives a message when deleting fails and keeps the cached glossary', async () => {
 		chain({ error: { code: '500' } });
+		await cached('glossary', async () => ({ entries: [], error: undefined }));
 
 		expect(await deleteGlossaryEntry(ID)).toEqual({ error: m.common.unexpectedError });
+		expect(await keepsGlossaryCached()).toBe(true);
 	});
 });
 
