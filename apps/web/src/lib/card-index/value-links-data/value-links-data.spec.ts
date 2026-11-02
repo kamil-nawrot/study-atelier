@@ -80,12 +80,14 @@ describe('buildValueLinks', () => {
 });
 
 describe('loadValueLinks', () => {
-	function table(result: { data: unknown; error: unknown }): unknown {
-		const select = vi.fn().mockReturnValue({
-			in: vi.fn().mockResolvedValue(result),
-			then: (resolve: (value: unknown) => void) => resolve(result)
-		});
-		return { select };
+	function table(
+		...pages: { data: unknown; error: unknown }[]
+	): Record<string, ReturnType<typeof vi.fn>> {
+		const chain: Record<string, ReturnType<typeof vi.fn>> = {};
+		for (const name of ['select', 'in', 'order']) chain[name] = vi.fn().mockReturnValue(chain);
+		chain.range = vi.fn();
+		for (const page of pages) chain.range.mockResolvedValueOnce(page);
+		return chain;
 	}
 
 	beforeEach(() => {
@@ -109,6 +111,27 @@ describe('loadValueLinks', () => {
 		expect(supabase.from).toHaveBeenCalledWith('category_values');
 		expect(supabase.from).toHaveBeenCalledWith('period_eras');
 		expect(supabase.from).toHaveBeenCalledWith('style_periods');
+	});
+
+	it('reads past the first 1000 links', async () => {
+		const periodEras = table(
+			{
+				data: Array.from({ length: 1000 }, () => ({ value_id: 'none', era_code: 'modern' })),
+				error: null
+			},
+			{ data: [{ value_id: 'p1', era_code: 'early_modern' }], error: null }
+		);
+		vi.mocked(supabase.from).mockImplementation(((name: string) => {
+			if (name === 'category_values') return table({ data: values, error: null });
+			if (name === 'period_eras') return periodEras;
+			return table({ data: [], error: null });
+		}) as never);
+
+		const { links } = await loadValueLinks();
+
+		expect(periodEras.range).toHaveBeenNthCalledWith(2, 1000, 1999);
+		expect(periodEras.order).toHaveBeenCalledWith('value_id');
+		expect(links.periodsByEra.early_modern).toEqual(['Baroque']);
 	});
 
 	it('returns no links and a message when a request fails', async () => {
