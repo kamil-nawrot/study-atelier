@@ -1,10 +1,7 @@
 import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
 import { loadGlossary } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { countTermPins } from '#lib/pins/pin-data/pin-data.ts';
-import {
-	loadPreferences,
-	PREFERENCES_DEPENDENCY
-} from '#lib/profile/preferences-data/preferences-data.ts';
+import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
 import { startOfDay } from '#lib/review/queue/queue.ts';
 import {
 	loadReviewCards,
@@ -14,27 +11,25 @@ import {
 } from '#lib/review/review-data/review-data.ts';
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = async ({ depends }) => {
-	depends(PREFERENCES_DEPENDENCY);
+export const load: PageLoad = async ({ parent }) => {
 	const dayStart = startOfDay(new Date());
-	const [atelier, review, counts, streak, glossary, prefs, termPins] = await Promise.all([
+	const [atelier, review, counts, streak, glossary, layout, termPins] = await Promise.all([
 		loadAtelier(),
 		loadReviewCards(),
 		loadReviewCounts(dayStart),
 		loadReviewStreak(dayStart),
 		loadGlossary(),
-		loadPreferences(),
+		parent(),
 		countTermPins()
 	]);
+	const preferences = layout.preferences ?? defaultPreferences;
 	return {
 		artworks: atelier.artworks,
 		cards: review.cards,
 		newToday: counts.counts?.newToday ?? 0,
-		waiting: counts.counts
-			? waitingToday(counts.counts, prefs.preferences.reviewNewPerDay)
-			: undefined,
+		waiting: counts.counts ? waitingToday(counts.counts, preferences.reviewNewPerDay) : undefined,
 		streak: streak.days,
-		preferences: prefs.preferences,
+		preferences,
 		termPins,
 		glossary: glossary.entries,
 		error: atelier.error ?? review.error ?? counts.error

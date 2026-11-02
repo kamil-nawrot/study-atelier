@@ -4,32 +4,26 @@ import {
 	loadAtelierEmpty
 } from '#lib/data-transfer/import-data/import-data.ts';
 import { loadStorageUsage } from '#lib/images/storage-usage-data/storage-usage-data.ts';
-import {
-	loadPreferences,
-	PREFERENCES_DEPENDENCY
-} from '#lib/profile/preferences-data/preferences-data.ts';
-import { loadProfile, PROFILE_DEPENDENCY } from '#lib/profile/profile-data/profile-data.ts';
-import { loadAcceptedLegalVersion } from '#lib/legal/legal-data/legal-data.ts';
+import { loadOwnProfile } from '#lib/profile/own-profile-data/own-profile-data.ts';
+import { PREFERENCES_DEPENDENCY } from '#lib/profile/preferences-data/preferences-data.ts';
+import { PROFILE_DEPENDENCY } from '#lib/profile/profile-data/profile-data.ts';
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = async ({ depends }) => {
+export const load: PageLoad = async ({ depends, parent }) => {
 	depends(PROFILE_DEPENDENCY, PREFERENCES_DEPENDENCY, ATELIER_EMPTY_DEPENDENCY);
-	const [profile, preferences, atelierEmpty, pendingEmail, storageUsage, acceptedLegalVersion] =
-		await Promise.all([
-			loadProfile(),
-			loadPreferences(),
-			loadAtelierEmpty(),
-			pendingEmailChange(),
-			loadStorageUsage(),
-			loadAcceptedLegalVersion()
-		]);
+	const [own, atelierEmpty, pendingEmail, storageUsage] = await Promise.all([
+		parent().then((layout) => layout.ownProfile ?? loadOwnProfile()),
+		loadAtelierEmpty(),
+		pendingEmailChange(),
+		loadStorageUsage()
+	]);
 	return {
-		profile: profile.profile,
-		preferences: preferences.preferences,
+		profile: own.profile,
+		preferences: own.preferences,
 		atelierEmpty,
 		pendingEmail,
 		storageUsage,
-		acceptedLegalVersion: acceptedLegalVersion ?? null,
-		error: profile.error ?? preferences.error
+		acceptedLegalVersion: own.legalVersion ?? null,
+		error: own.error
 	};
 };

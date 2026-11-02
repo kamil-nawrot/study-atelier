@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { loadProfile, saveProfile } from './profile-data.ts';
+import { saveProfile } from './profile-data.ts';
 
 const OWNER = '3f2c1d4e-5a6b-4c7d-8e9f-0a1b2c3d4e5f';
 
@@ -21,12 +21,6 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 const from = vi.mocked(supabase.from);
 const signOut = vi.mocked(supabase.auth.signOut);
 
-function selecting(result: unknown): void {
-	from.mockReturnValue({
-		select: () => ({ maybeSingle: () => Promise.resolve(result) })
-	} as never);
-}
-
 function upserting(result: unknown): ReturnType<typeof vi.fn> {
 	const upsert = vi.fn(() => ({ select: () => ({ single: () => Promise.resolve(result) }) }));
 	from.mockReturnValue({ upsert } as never);
@@ -42,33 +36,6 @@ beforeEach(() => {
 	} as never);
 	storage.upload.mockResolvedValue({ error: null });
 	storage.remove.mockResolvedValue({ error: null });
-});
-
-describe('loadProfile', () => {
-	it('reads the name and the avatar path', async () => {
-		selecting({ data: { display_name: 'Anna', avatar_path: 'a/avatar-1.jpg' }, error: null });
-
-		expect(await loadProfile()).toEqual({
-			profile: { displayName: 'Anna', avatarPath: 'a/avatar-1.jpg', rankForm: 'masculine' as const }
-		});
-	});
-
-	it('gives an empty profile to a learner without a row', async () => {
-		selecting({ data: null, error: null });
-
-		expect(await loadProfile()).toEqual({
-			profile: { displayName: null, avatarPath: null, rankForm: 'masculine' as const }
-		});
-	});
-
-	it('gives an empty profile and a message when the read fails', async () => {
-		selecting({ data: null, error: { code: '500', status: 500 } });
-
-		expect(await loadProfile()).toEqual({
-			profile: { displayName: null, avatarPath: null, rankForm: 'masculine' as const },
-			error: m.settings.profile.failed
-		});
-	});
 });
 
 describe('saveProfile', () => {

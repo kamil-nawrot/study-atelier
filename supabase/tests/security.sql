@@ -102,7 +102,8 @@ declare
     'save_value_details', 'record_review', 'review_counts', 'review_streak', 'notes_mentions', 'term_mentions', 'review_session',
     'unused_images', 'move_artwork_field', 'artwork_field_usage', 'save_artwork', 'import_atelier', 'save_visit',
     'storage_usage', 'delete_account', 'storage_has_room', 'deleted_account_images', 'search_key',
-    'duplicate_candidates', 'used_category_values', 'learner_points', 'unlock_exhibits', 'record_free_answers'
+    'duplicate_candidates', 'used_category_values', 'learner_points', 'unlock_exhibits', 'record_free_answers',
+    'career_standing'
   ];
   table_name text;
   routine record;
