@@ -1280,6 +1280,14 @@ export type Database = {
           field_id: string;
         }[];
       };
+      career_standing: {
+        Args: { time_zone: string; unlock: boolean };
+        Returns: {
+          new_tiers: number;
+          points: number;
+          rank_seen: number;
+        }[];
+      };
       delete_account: { Args: Record<PropertyKey, never>; Returns: undefined };
       delete_unused_value: {
         Args: { target_value: string };
@@ -1417,6 +1425,16 @@ export type Database = {
           artwork_count: number;
           period_id: string;
           style_id: string;
+        }[];
+      };
+      term_mentions: {
+        Args: { needles: string[] };
+        Returns: {
+          id: string;
+          kind: string;
+          notes: string;
+          record_number: number;
+          title: string;
         }[];
       };
       unlock_exhibits: {
