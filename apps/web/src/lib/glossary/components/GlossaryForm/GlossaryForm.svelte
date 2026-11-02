@@ -36,13 +36,14 @@
 	} from '#lib/glossary/glossary/glossary.ts';
 	import type { GlossaryDraft } from '#lib/glossary/types/glossary-draft.ts';
 	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import ArticleDialog from '#lib/glossary/components/ArticleDialog/ArticleDialog.svelte';
 	import GlossaryDefinition from '#lib/glossary/components/GlossaryDefinition/GlossaryDefinition.svelte';
 	import GlossaryWordForms from '#lib/glossary/components/GlossaryWordForms/GlossaryWordForms.svelte';
 
 	type Props = {
 		entry?: GlossaryEntry;
-		entries: GlossaryEntry[];
+		entries: GlossaryTerm[];
 		index: CardIndexData;
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;

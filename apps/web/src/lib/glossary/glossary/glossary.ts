@@ -128,11 +128,11 @@ export function sameName(a: string, b: string): boolean {
 	return normalizeForSearch(a) === normalizeForSearch(b);
 }
 
-export function findNameConflict(
-	entries: readonly GlossaryEntry[],
+export function findNameConflict<T extends Pick<GlossaryEntry, 'id' | 'name'>>(
+	entries: readonly T[],
 	name: string,
 	exceptId?: string
-): GlossaryEntry | undefined {
+): T | undefined {
 	if (!name.trim()) return undefined;
 	return entries.find((entry) => entry.id !== exceptId && sameName(entry.name, name));
 }

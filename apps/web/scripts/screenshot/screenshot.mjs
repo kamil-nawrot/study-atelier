@@ -372,7 +372,9 @@ function glossaryRoute(route, request, url) {
 	const rows = (
 		id?.startsWith('eq.')
 			? GLOSSARY_ENTRIES.filter((row) => row.id === id.slice(3))
-			: GLOSSARY_ENTRIES
+			: id?.startsWith('in.(')
+				? GLOSSARY_ENTRIES.filter((row) => id.slice(4, -1).split(',').includes(row.id))
+				: GLOSSARY_ENTRIES
 	)
 		.map((row) => ({ ...row, has_definition: Boolean(row.definition?.trim()) }))
 		.map((row) =>

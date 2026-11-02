@@ -1,26 +1,27 @@
-import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import { shuffle, shuffleQuiz } from '#lib/review/quiz/quiz.ts';
+import type { DefinedTerm } from '#lib/review/types/defined-term.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { SessionStep } from '#lib/review/types/session-step.ts';
 
 export const MIN_DEFINITION_TERMS = 4;
 
-function nameKey(entry: GlossaryEntry): string {
-	return entry.name.trim().toLocaleLowerCase('pl');
+function nameKey(term: GlossaryTerm): string {
+	return term.name.trim().toLocaleLowerCase('pl');
 }
 
-function defined(glossary: readonly GlossaryEntry[]): GlossaryEntry[] {
-	return glossary.filter((entry) => entry.definition.trim() !== '');
+function defined(glossary: readonly GlossaryTerm[]): GlossaryTerm[] {
+	return glossary.filter((term) => term.hasDefinition);
 }
 
-export function definitionsOffered(glossary: readonly GlossaryEntry[]): boolean {
+export function definitionsOffered(glossary: readonly GlossaryTerm[]): boolean {
 	return new Set(defined(glossary).map(nameKey)).size >= MIN_DEFINITION_TERMS;
 }
 
 function wrongNames(
-	term: GlossaryEntry,
-	glossary: readonly GlossaryEntry[],
+	term: GlossaryTerm,
+	glossary: readonly GlossaryTerm[],
 	random: () => number
 ): string[] {
 	const others = shuffle(
@@ -31,24 +32,30 @@ function wrongNames(
 	return [...names.values()].slice(0, 3);
 }
 
-export function definitionItems(
-	glossary: readonly GlossaryEntry[],
+export function drawnTerms(
+	glossary: readonly GlossaryTerm[],
 	count: number,
 	random: () => number = Math.random
-): DefinitionItem[] {
+): GlossaryTerm[] {
 	if (!definitionsOffered(glossary)) return [];
-	return shuffle(defined(glossary), random)
-		.slice(0, count)
-		.map((term) => {
-			const options = [term.name, ...wrongNames(term, glossary, random)].map((label) => ({
-				label
-			}));
-			return {
-				mode: 'quiz_definition' as const,
-				term,
-				quiz: shuffleQuiz({ options, answer: 0 }, random)
-			};
-		});
+	return shuffle(defined(glossary), random).slice(0, count);
+}
+
+export function definitionItems(
+	drawn: readonly DefinedTerm[],
+	glossary: readonly GlossaryTerm[],
+	random: () => number = Math.random
+): DefinitionItem[] {
+	return drawn.map((term) => {
+		const options = [term.name, ...wrongNames(term, glossary, random)].map((label) => ({
+			label
+		}));
+		return {
+			mode: 'quiz_definition' as const,
+			term,
+			quiz: shuffleQuiz({ options, answer: 0 }, random)
+		};
+	});
 }
 
 export function withDefinitions(
@@ -63,11 +70,12 @@ export function withDefinitions(
 	}, items);
 }
 
-export function sessionSteps(
-	items: ReviewItem[],
-	glossary: readonly GlossaryEntry[],
-	count: number,
-	random: () => number = Math.random
-): SessionStep[] {
-	return withDefinitions(items, definitionItems(glossary, count, random), random);
+export function withDefinitionsOf(
+	drawn: readonly GlossaryTerm[],
+	definitions: ReadonlyMap<string, string>
+): DefinedTerm[] {
+	return drawn.flatMap((term) => {
+		const definition = definitions.get(term.id);
+		return definition ? [{ ...term, definition }] : [];
+	});
 }

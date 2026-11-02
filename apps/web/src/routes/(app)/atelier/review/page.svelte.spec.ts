@@ -20,6 +20,7 @@ import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import { testReviewCard } from '#lib/testing/review/review.ts';
 import ReviewPage from './+page.svelte';
+import { loadTermDefinitions } from '#lib/glossary/glossary-data/glossary-data.ts';
 
 const navigation = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier/review'),
@@ -35,6 +36,10 @@ vi.mock('$app/state', () => ({
 vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidate: vi.fn() }));
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
 	resolveImages: vi.fn().mockResolvedValue([])
+}));
+vi.mock('#lib/glossary/glossary-data/glossary-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/glossary/glossary-data/glossary-data.ts')>()),
+	loadTermDefinitions: vi.fn()
 }));
 vi.mock('#lib/review/review-data/review-data.ts', () => ({
 	REVIEW_COUNTS_DEPENDENCY: 'review:counts',
@@ -121,6 +126,11 @@ describe('review page', () => {
 			.mockReset()
 			.mockResolvedValue({ rows: flashcards(1, 2, 20, 21) });
 		vi.mocked(invalidate).mockClear();
+		vi.mocked(loadTermDefinitions)
+			.mockReset()
+			.mockImplementation(async (ids) => ({
+				definitions: new Map(ids.map((id) => [id, `${id} is a part of a church.`]))
+			}));
 		await page.viewport(1280, 800);
 	});
 
@@ -304,6 +314,31 @@ describe('review page', () => {
 		await expect
 			.element(page.getByRole('heading', { name: m.review.flashcard.question }))
 			.toBeVisible();
+	});
+
+	it('loads the definitions of the drawn terms in one request and runs without them when it fails', async () => {
+		vi.mocked(loadTermDefinitions).mockResolvedValue({
+			definitions: new Map(),
+			error: 'Brak sieci.'
+		});
+		const artworks = collection(25);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 20), () => 5),
+			0,
+			undefined,
+			0,
+			{},
+			{ ...defaultPreferences, reviewGlossaryQuestions: 2 },
+			0,
+			terms
+		);
+
+		await page.getByRole('button', { name: m.review.start }).click();
+
+		await expect.element(page.getByText(m.review.progress(1, 4))).toBeVisible();
+		expect(loadTermDefinitions).toHaveBeenCalledOnce();
+		expect(vi.mocked(loadTermDefinitions).mock.calls[0][0]).toHaveLength(2);
 	});
 
 	it('leaves the definitions out when they are switched off', async () => {
