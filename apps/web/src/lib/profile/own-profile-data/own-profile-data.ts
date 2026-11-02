@@ -10,7 +10,7 @@ import { PROFILE_COLUMNS, profileOf } from '#lib/profile/profile-data/profile-da
 import type { Preferences } from '#lib/profile/types/preferences.ts';
 import type { Profile } from '#lib/profile/types/profile.ts';
 
-type OwnProfileResult = {
+export type OwnProfileResult = {
 	preferences: Preferences;
 	profile: Profile;
 	legalVersion: string | null | undefined;

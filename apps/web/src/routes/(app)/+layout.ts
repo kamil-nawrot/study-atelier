@@ -8,7 +8,10 @@ import {
 	waitingToday
 } from '#lib/review/review-data/review-data.ts';
 import { applyAutoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
-import { loadOwnProfile } from '#lib/profile/own-profile-data/own-profile-data.ts';
+import {
+	loadOwnProfile,
+	type OwnProfileResult
+} from '#lib/profile/own-profile-data/own-profile-data.ts';
 import { PREFERENCES_DEPENDENCY } from '#lib/profile/preferences-data/preferences-data.ts';
 import { PROFILE_DEPENDENCY } from '#lib/profile/profile-data/profile-data.ts';
 import type { Preferences } from '#lib/profile/types/preferences.ts';
@@ -22,6 +25,7 @@ type AppLayoutData = {
 	acceptedLegalVersion?: Promise<string | null | undefined>;
 	careerShown?: boolean;
 	preferences?: Preferences;
+	ownProfile?: OwnProfileResult;
 };
 
 async function reviewWaiting(newPerDay: number): Promise<number> {
@@ -42,6 +46,7 @@ export const load: LayoutLoad = async ({ parent, depends }): Promise<AppLayoutDa
 		menuProfile: Promise.resolve(own.error ? undefined : own.profile),
 		acceptedLegalVersion: Promise.resolve(own.legalVersion),
 		careerShown: loaded.careerShown,
-		preferences: loaded
+		preferences: loaded,
+		ownProfile: own
 	};
 };

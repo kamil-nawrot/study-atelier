@@ -119,6 +119,7 @@ describe('(app) layout load', () => {
 
 		expect(ownProfileData.loadOwnProfile).toHaveBeenCalledTimes(1);
 		expect(data).toMatchObject({ preferences: defaultPreferences });
+		expect(data.ownProfile).toMatchObject({ legalVersion: '2026-10-27' });
 		await expect(data.acceptedLegalVersion).resolves.toBe('2026-10-27');
 	});
 });

@@ -9,10 +9,10 @@ import { PREFERENCES_DEPENDENCY } from '#lib/profile/preferences-data/preference
 import { PROFILE_DEPENDENCY } from '#lib/profile/profile-data/profile-data.ts';
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = async ({ depends }) => {
+export const load: PageLoad = async ({ depends, parent }) => {
 	depends(PROFILE_DEPENDENCY, PREFERENCES_DEPENDENCY, ATELIER_EMPTY_DEPENDENCY);
 	const [own, atelierEmpty, pendingEmail, storageUsage] = await Promise.all([
-		loadOwnProfile(),
+		parent().then((layout) => layout.ownProfile ?? loadOwnProfile()),
 		loadAtelierEmpty(),
 		pendingEmailChange(),
 		loadStorageUsage()
