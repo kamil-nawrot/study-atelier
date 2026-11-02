@@ -223,18 +223,30 @@ export async function loadAtelier(): Promise<AtelierResult> {
 	};
 }
 
-async function fetchAtelier(): Promise<AtelierResult> {
-	const { rows, error } = await fetchAllRows((from, to) =>
-		supabase
-			.from('artworks')
-			.select(ARTWORK_COLUMNS)
+function fetchWallRows(ids?: readonly string[]): Promise<{ rows: ArtworkRow[]; error?: string }> {
+	return fetchAllRows((from, to) => {
+		const query = supabase.from('artworks').select(ARTWORK_COLUMNS);
+		return (ids ? query.in('id', [...ids]) : query)
 			.eq('artwork_images.position', 0)
 			.is('deleted_at', null)
 			.order('created_at', { ascending: false })
 			.order('id', { ascending: false })
 			.limit(1, { referencedTable: 'visit_artworks' })
-			.range(from, to)
-	);
+			.range(from, to);
+	});
+}
+
+export async function loadArtworksById(ids: readonly string[]): Promise<AtelierResult> {
+	if (ids.length === 0) return { artworks: [] };
+	const { rows, error } = await fetchWallRows(ids);
+	if (error) return { artworks: [], error };
+	return {
+		artworks: rows.map(wallArtwork).map((artwork) => rememberedArtwork(artwork) ?? artwork)
+	};
+}
+
+async function fetchAtelier(): Promise<AtelierResult> {
+	const { rows, error } = await fetchWallRows();
 	if (error) return { artworks: [], error };
 
 	return { artworks: rows.map(wallArtwork) };

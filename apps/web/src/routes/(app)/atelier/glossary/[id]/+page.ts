@@ -1,4 +1,4 @@
-import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
+import { loadArtworksById } from '#lib/wall/wall-data/wall-data.ts';
 import { loadGlossaryMentions } from '#lib/glossary/glossary-mentions/glossary-mentions.ts';
 import { loadGlossaryEntry, loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
 import type { GlossaryEntryResult } from '#lib/glossary/types/glossary-entry-result.ts';
@@ -10,7 +10,7 @@ async function loadPinned(entryId: string): Promise<{ pinned: PinnedArtwork[]; e
 	const { pins, error } = await loadEntryPins(entryId);
 	if (error) return { pinned: [], error };
 	if (pins.length === 0) return { pinned: [] };
-	const atelier = await loadAtelier();
+	const atelier = await loadArtworksById(pins.map((pin) => pin.artworkId));
 	if (atelier.error) return { pinned: [], error: atelier.error };
 	const pinIds = new Map(pins.map((pin) => [pin.artworkId, pin.pinId]));
 	return {
