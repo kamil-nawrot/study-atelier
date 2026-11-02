@@ -2,7 +2,7 @@
 	import { Alert, Button, Tag } from '@study-atelier/ui';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
-	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { onControl, sessionKey } from '#lib/review/keys/keys.ts';
 	import { authorsOf } from '#lib/review/overview/overview.ts';
@@ -15,7 +15,7 @@
 	type Props = {
 		item: ReviewItem;
 		details?: ReviewDetails;
-		glossary?: GlossaryEntry[];
+		glossary?: GlossaryTerm[];
 		revealed: boolean;
 		saving: boolean;
 		error?: string;

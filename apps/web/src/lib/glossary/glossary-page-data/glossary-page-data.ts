@@ -1,15 +1,18 @@
 import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.ts';
 import { emptyCardIndex } from '#lib/card-index/card-index/card-index.ts';
-import { loadGlossary } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { loadGlossaryEntry, loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
 import type { GlossaryFormResult } from '#lib/glossary/types/glossary-form-result.ts';
 
 export async function loadGlossaryForm(id?: string): Promise<GlossaryFormResult> {
-	const [glossary, cardIndex] = await Promise.all([loadGlossary(), loadCardIndex()]);
-	const error = glossary.error ?? cardIndex.error;
+	const [glossary, found, cardIndex] = await Promise.all([
+		loadTermIndex(),
+		id ? loadGlossaryEntry(id) : undefined,
+		loadCardIndex()
+	]);
+	const error = glossary.error ?? found?.error ?? cardIndex.error;
 	if (error) return { entries: [], index: emptyCardIndex(), error };
-	const entry = id ? glossary.entries.find((candidate) => candidate.id === id) : undefined;
-	if (id && !entry) {
-		return { entries: glossary.entries, index: cardIndex.index, notFound: true };
+	if (found && !found.entry) {
+		return { entries: glossary.terms, index: cardIndex.index, notFound: true };
 	}
-	return { entry, entries: glossary.entries, index: cardIndex.index };
+	return { entry: found?.entry, entries: glossary.terms, index: cardIndex.index };
 }

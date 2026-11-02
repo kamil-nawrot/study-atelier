@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Alert } from '@study-atelier/ui';
-	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import DefinitionQuiz from '#lib/review/components/DefinitionQuiz/DefinitionQuiz.svelte';
 	import Flashcard from '#lib/review/components/Flashcard/Flashcard.svelte';
 	import Quiz from '#lib/review/components/Quiz/Quiz.svelte';
@@ -14,7 +14,7 @@
 	type Props = {
 		flow: ReviewFlow;
 		error?: string;
-		glossary?: GlossaryEntry[];
+		glossary?: GlossaryTerm[];
 		streak: number;
 		rankForm?: RankForm;
 	};

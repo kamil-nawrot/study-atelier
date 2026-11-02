@@ -121,6 +121,22 @@ export function loadTermDefinition(id: string): Promise<TermDefinitionResult> {
 	return cached(`${cacheKeys.glossary}:${id}`, () => fetchTermDefinition(id));
 }
 
+export async function loadTermDefinitions(
+	ids: readonly string[]
+): Promise<{ definitions: Map<string, string>; error?: string }> {
+	if (ids.length === 0) return { definitions: new Map() };
+	const { data, error } = await supabase
+		.from('glossary_entries')
+		.select('id, definition')
+		.in('id', [...ids]);
+	if (error) return { definitions: new Map(), error: glossaryErrorMessage(error) };
+	return {
+		definitions: new Map(
+			data.flatMap((row) => (row.definition ? [[row.id, row.definition] as const] : []))
+		)
+	};
+}
+
 export async function loadGlossaryEntry(id: string): Promise<GlossaryEntryResult> {
 	if (!isUuid(id)) return { notFound: true };
 	const { data, error } = await supabase

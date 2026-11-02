@@ -7,6 +7,7 @@ import {
 	loadGlossary,
 	loadGlossaryEntry,
 	loadTermDefinition,
+	loadTermDefinitions,
 	loadTermIndex,
 	saveGlossaryEntry
 } from './glossary-data.ts';
@@ -174,6 +175,40 @@ describe('loadTermDefinition', () => {
 		await loadTermDefinition(ID);
 
 		expect(query.maybeSingle).toHaveBeenCalledTimes(2);
+	});
+});
+
+describe('loadTermDefinitions', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it('reads the definitions of the given terms in one request', async () => {
+		const query = chain({ data: [{ id: ID, definition: 'A definition.' }], error: null });
+		query.in = vi
+			.fn()
+			.mockResolvedValue({ data: [{ id: ID, definition: 'A definition.' }], error: null });
+
+		const result = await loadTermDefinitions([ID, 'gone']);
+
+		expect(query.select).toHaveBeenCalledWith('id, definition');
+		expect(query.in).toHaveBeenCalledWith('id', [ID, 'gone']);
+		expect(result).toEqual({ definitions: new Map([[ID, 'A definition.']]) });
+	});
+
+	it('sends no request without terms', async () => {
+		await expect(loadTermDefinitions([])).resolves.toEqual({ definitions: new Map() });
+		expect(from).not.toHaveBeenCalled();
+	});
+
+	it('gives a message and no definitions when loading fails', async () => {
+		const query = chain({ data: null, error: { code: '500', message: 'boom' } });
+		query.in = vi.fn().mockResolvedValue({ data: null, error: { code: '500', message: 'boom' } });
+
+		await expect(loadTermDefinitions([ID])).resolves.toEqual({
+			definitions: new Map(),
+			error: glossaryErrorMessage({ code: '500', message: 'boom' })
+		});
 	});
 });
 

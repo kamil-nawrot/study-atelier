@@ -15,7 +15,14 @@ import {
 	waitingTomorrow
 } from '#lib/review/overview/overview.ts';
 import { answeredArtworks, FreeAnswers } from '#lib/review/free-answers/free-answers.ts';
-import { definitionsOffered, sessionSteps } from '#lib/review/definitions/definitions.ts';
+import {
+	definitionItems,
+	definitionsOffered,
+	drawnTerms,
+	withDefinitions,
+	withDefinitionsOf
+} from '#lib/review/definitions/definitions.ts';
+import { loadTermDefinitions } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { offeredForms, quizzesPossible } from '#lib/review/forms/forms.ts';
 import { missingArtworks, sessionCounts, startOfDay } from '#lib/review/queue/queue.ts';
 import { quizArtworks, sessionItems } from '#lib/review/quiz/quiz.ts';
@@ -209,20 +216,21 @@ export class ReviewFlow {
 		if (loaded.error || items.length === 0) return loaded.error;
 		const artworks = items.map((item) => item.artwork);
 		const shown = [...artworks, ...quizArtworks(items)];
-		const [, found] = await Promise.all([
+		const glossary = this.#data().glossary;
+		const drawn = drawnTerms(glossary, this.definitions ? (this.definitionCount ?? 0) : 0);
+		const [, found, defined] = await Promise.all([
 			this.#resolveInto(shown.filter((artwork) => artwork.pendingImage)),
-			loadReviewDetails(artworks.map((artwork) => artwork.id))
+			loadReviewDetails(artworks.map((artwork) => artwork.id)),
+			loadTermDefinitions(drawn.map((term) => term.id))
 		]);
 		if (found.error) return found.error;
 		this.details = found.details;
 		if (free) this.freeRound += 1;
-		const questions = this.definitions ? (this.definitionCount ?? 0) : 0;
 		this.#free = new FreeAnswers();
 		this.session = new ReviewSession(
-			sessionSteps(
+			withDefinitions(
 				items.map((item) => withItemImages(item, (artwork) => this.withImage(artwork))),
-				this.#data().glossary,
-				questions
+				definitionItems(withDefinitionsOf(drawn, defined.definitions), glossary)
 			),
 			this.cards,
 			undefined,

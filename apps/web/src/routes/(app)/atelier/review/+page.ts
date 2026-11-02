@@ -1,5 +1,5 @@
 import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
-import { loadGlossary } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { countTermPins } from '#lib/pins/pin-data/pin-data.ts';
 import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
 import { startOfDay } from '#lib/review/queue/queue.ts';
@@ -18,7 +18,7 @@ export const load: PageLoad = async ({ parent }) => {
 		loadReviewCards(),
 		loadReviewCounts(dayStart),
 		loadReviewStreak(dayStart),
-		loadGlossary(),
+		loadTermIndex(),
 		parent(),
 		countTermPins()
 	]);
@@ -31,7 +31,7 @@ export const load: PageLoad = async ({ parent }) => {
 		streak: streak.days,
 		preferences,
 		termPins,
-		glossary: glossary.entries,
+		glossary: glossary.terms,
 		error: atelier.error ?? review.error ?? counts.error
 	};
 };
