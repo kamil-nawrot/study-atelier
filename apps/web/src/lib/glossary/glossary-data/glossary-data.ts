@@ -2,7 +2,7 @@ import { failureMessage } from '#lib/auth/expired-session-data/expired-session-d
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import type { Database } from '#lib/shared/data/database.types.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
-import { noteWrite } from '#lib/shared/data/writes/writes.ts';
+import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import {
 	sourceColumns,
 	sourceFromRow
@@ -95,11 +95,13 @@ export async function saveGlossaryEntry(
 		if (isNameTakenError(error)) return { nameTaken: true };
 		return { error: await failureMessage(error, glossaryErrorMessage) };
 	}
-	noteWrite();
+	forgetCached();
 	return { id: data.id };
 }
 
 export async function deleteGlossaryEntry(id: string): Promise<GlossaryDeleteResult> {
 	const { error } = await supabase.from('glossary_entries').delete().eq('id', id);
-	return error ? { error: await failureMessage(error, glossaryErrorMessage) } : {};
+	if (error) return { error: await failureMessage(error, glossaryErrorMessage) };
+	forgetCached();
+	return {};
 }

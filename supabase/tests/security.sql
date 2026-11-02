@@ -783,6 +783,8 @@ begin
     where id = a_artwork;
   update public.period_details set notes = format('Also [Merged](/atelier/values/period/%s).', a_merged)
     where value_id = a_value;
+  update public.era_details set notes = format('Era [Merged](/atelier/values/period/%s).', a_merged)
+    where era_code = 'early_modern';
   perform public.merge_category_values(a_merged, a_value);
   assert (select notes from public.artworks where id = a_artwork)
       = format('See [Merged](/atelier/values/period/%s) and [x](/atelier/12).', a_value),
@@ -790,6 +792,9 @@ begin
   assert (select notes from public.period_details where value_id = a_value)
       = format('Also [Merged](/atelier/values/period/%s).', a_value),
     'merging rewrites links to the merged value in value notes';
+  assert (select notes from public.era_details where era_code = 'early_modern')
+      = format('Era [Merged](/atelier/values/period/%s).', a_value),
+    'merging rewrites links to the merged value in era notes';
   assert (select array_agg(summary) from public.period_details) = array['Period summary'],
     'merging keeps the details of the merged value or drops those of the kept one';
 
