@@ -1,4 +1,5 @@
 import { locale } from '#lib/i18n/i18n.ts';
+import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { isEraCode } from '#lib/catalogue/eras/eras.ts';
 import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
@@ -63,17 +64,33 @@ export function buildValueLinks(
 
 export async function loadValueLinks(): Promise<ValueLinksResult> {
 	const [values, periodEras, stylePeriods] = await Promise.all([
-		supabase
-			.from('category_values')
-			.select('id, category_code, name')
-			.in('category_code', ['period', 'style']),
-		supabase.from('period_eras').select('value_id, era_code'),
-		supabase.from('style_periods').select('style_id, period_id')
+		fetchAll<ValueRow>((from, to) =>
+			supabase
+				.from('category_values')
+				.select('id, category_code, name')
+				.in('category_code', ['period', 'style'])
+				.order('id')
+				.range(from, to)
+		),
+		fetchAll<PeriodEraRow>((from, to) =>
+			supabase
+				.from('period_eras')
+				.select('value_id, era_code')
+				.order('value_id')
+				.order('era_code')
+				.range(from, to)
+		),
+		fetchAll<StylePeriodRow>((from, to) =>
+			supabase
+				.from('style_periods')
+				.select('style_id, period_id')
+				.order('style_id')
+				.order('period_id')
+				.range(from, to)
+		)
 	]);
 	const error = values.error ?? periodEras.error ?? stylePeriods.error;
 	if (error) return { links: emptyValueLinks(), error: collectionErrorMessage(error) };
 
-	return {
-		links: buildValueLinks(values.data ?? [], periodEras.data ?? [], stylePeriods.data ?? [])
-	};
+	return { links: buildValueLinks(values.rows, periodEras.rows, stylePeriods.rows) };
 }

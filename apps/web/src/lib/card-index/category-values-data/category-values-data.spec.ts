@@ -13,7 +13,9 @@ const used = {
 };
 
 const visits = {
-	select: vi.fn()
+	select: vi.fn(),
+	order: vi.fn(),
+	range: vi.fn()
 };
 
 function value(category_code: string, name: string): Record<string, string> {
@@ -106,10 +108,12 @@ describe('loadVisitPlaces', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		vi.mocked(supabase.from).mockReturnValue(visits as never);
+		visits.select.mockReturnValue(visits);
+		visits.order.mockReturnValue(visits);
 	});
 
 	it('names each place of a visit once', async () => {
-		visits.select.mockResolvedValue({
+		visits.range.mockResolvedValueOnce({
 			data: [
 				{ category_values: { name: 'Orsay' } },
 				{ category_values: { name: 'Orsay' } },
@@ -119,5 +123,27 @@ describe('loadVisitPlaces', () => {
 		});
 
 		await expect(loadVisitPlaces()).resolves.toEqual({ places: ['Orsay'] });
+		expect(visits.order).toHaveBeenCalledWith('id');
+	});
+
+	it('reads past the first 1000 visits', async () => {
+		visits.range
+			.mockResolvedValueOnce({
+				data: Array.from({ length: 1000 }, () => ({ category_values: { name: 'Orsay' } })),
+				error: null
+			})
+			.mockResolvedValueOnce({ data: [{ category_values: { name: 'Prado' } }], error: null });
+
+		await expect(loadVisitPlaces()).resolves.toEqual({ places: ['Orsay', 'Prado'] });
+		expect(visits.range).toHaveBeenNthCalledWith(2, 1000, 1999);
+	});
+
+	it('gives a message when the read fails', async () => {
+		visits.range.mockResolvedValueOnce({ data: null, error: { code: 'XX000', message: 'boom' } });
+
+		await expect(loadVisitPlaces()).resolves.toEqual({
+			places: [],
+			error: m.common.unexpectedError
+		});
 	});
 });
