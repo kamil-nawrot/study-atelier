@@ -591,9 +591,10 @@ Table note_links {
   check: num_nonnulls(target_artwork_id, target_value_id, target_era_code) = 1
   Written only by private security definer functions; revoke all from anon and authenticated, then select for the owner. RLS on.
   Filled by two AFTER row triggers per notes table: on INSERT, and on UPDATE OF notes when it is distinct (null deletes the rows).
+  The five value details tables also have an AFTER DELETE trigger, since a details row can go while its value stays.
   Every delete and insert of the trigger filters by the owner_id of the row, because it bypasses RLS and era codes are shared.
   The trigger never aborts a note save: candidates are format-checked, joined to their targets of the same owner with
-  for key share, and any exception is caught, counted and leaves the note without rows until the next save or rebuild.
+  for key share, and any exception is caught, counted and leaves the rows the note had until the next save or rebuild.
   No limit_rows; at most 200 links per note. A visit is a source, never a target.
   '''
 }

@@ -241,7 +241,7 @@ insert into public.artwork_field_entries (artwork_id, field_id, field_kind, text
     where field.name = 'Source';
 
 select public.save_visit(
-  '{"visited_on": "2026-10-12", "date_precision": "day", "notes": "A note"}', 'Visited museum',
+  '{"visited_on": "2026-10-12", "date_precision": "day", "notes": "A note on [x](/atelier/1)"}', 'Visited museum',
   array[(select id from public.artworks)]
 );
 

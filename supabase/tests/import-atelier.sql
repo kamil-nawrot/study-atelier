@@ -133,6 +133,11 @@ begin
   assert (select notes from public.artworks where title = 'Girl')
       = '[Vermeer](/atelier/values/author/' || vermeer || ') and [#0001](/atelier/1)',
     'a link to a value in a note does not follow the new id';
+  assert (select array_agg(coalesce(link.target_value_id = vermeer, false) order by link.target_value_id nulls first)
+      from public.note_links as link
+      join public.artworks as source on source.id = link.source_artwork_id
+      where source.title = 'Girl') = '{false,true}',
+    'the import does not store the links of a note, or stores them before the values exist';
   assert (select count(*) from public.style_periods) = 1
     and (select count(*) from public.author_details) = 1
     and (select count(*) from public.artwork_values) = 3
