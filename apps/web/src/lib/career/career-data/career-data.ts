@@ -5,18 +5,9 @@ import type { Exhibit } from '#lib/career/types/exhibit.ts';
 import type { ExhibitProgress } from '#lib/career/types/exhibit-progress.ts';
 import type { UnlockedTier } from '#lib/career/types/unlocked-tier.ts';
 
-type PointsResult = { points: number; error?: string };
 type ExhibitsResult = { exhibits: ExhibitProgress[]; error?: string };
 type TiersResult = { tiers: UnlockedTier[]; error?: string };
 type DisplayCaseResult = { exhibits: Exhibit[]; error?: string };
-
-export async function loadPoints(): Promise<PointsResult> {
-	const { data, error } = await supabase.rpc('learner_points');
-	if (error || typeof data !== 'number') {
-		return { points: 0, error: collectionErrorMessage(error ?? {}) };
-	}
-	return { points: data };
-}
 
 export async function unlockExhibits(): Promise<ExhibitsResult> {
 	const { data, error } = await supabase.rpc('unlock_exhibits', {
