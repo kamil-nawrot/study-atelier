@@ -7,10 +7,13 @@ import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 import {
 	findSubject,
+	isValueKind,
 	subjectName,
 	subjectPath,
-	valueKindName
+	valueKindName,
+	valuePath
 } from '#lib/card-index/value-pages/value-pages.ts';
+import { isEraCode } from '#lib/catalogue/eras/eras.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { resolve } from '$app/paths';
 import type { Mention } from '#lib/notes/types/mention.ts';
@@ -73,7 +76,40 @@ async function valueMentions(
 				: [];
 		})
 		.filter((mention) => mention.href !== own)
-		.sort((a, b) => normalizeForSearch(a.name).localeCompare(normalizeForSearch(b.name), 'pl'));
+		.sort(byName);
+}
+
+function byName(a: Mention, b: Mention): number {
+	return normalizeForSearch(a.name).localeCompare(normalizeForSearch(b.name), 'pl');
+}
+
+function namedValueMentions(rows: MentionRow[]): Mention[] {
+	return rows
+		.flatMap(({ kind, id, title }) => {
+			if (!isValueKind(kind)) return [];
+			if (kind === 'era') {
+				return isEraCode(id)
+					? [{ href: valuePath(kind, id), name: m.eras[id].name, kind: valueKindName(kind) }]
+					: [];
+			}
+			return [{ href: valuePath(kind, id), name: title ?? '', kind: valueKindName(kind) }];
+		})
+		.sort(byName);
+}
+
+function isValueRow(row: MentionRow): boolean {
+	return row.kind !== 'artwork' && row.kind !== 'visit';
+}
+
+function withArtworksAndVisits(values: Mention[], found: MentionRow[], own: string): Mention[] {
+	return [
+		...values,
+		...artworkMentions(
+			found.filter((row) => row.kind === 'artwork'),
+			own
+		),
+		...visitMentions(found.filter((row) => row.kind === 'visit'))
+	];
 }
 
 export async function loadNotesMentions(
@@ -88,19 +124,20 @@ export async function loadNotesMentions(
 	);
 	if (error) return [];
 	const found = rows.filter((row) => matcher.test(row.notes));
-	const values = await valueMentions(
-		found.filter((row) => row.kind !== 'artwork' && row.kind !== 'visit'),
-		own,
-		index
+	const values = await valueMentions(found.filter(isValueRow), own, index);
+	return withArtworksAndVisits(values, found, own);
+}
+
+export async function loadTermMentions(
+	phrases: string[],
+	test: (notes: string) => boolean
+): Promise<Mention[]> {
+	const { rows, error } = await fetchAll<MentionRow>((from, to) =>
+		supabase.rpc('term_mentions', { needles: phrases }).range(from, to)
 	);
-	return [
-		...values,
-		...artworkMentions(
-			found.filter((row) => row.kind === 'artwork'),
-			own
-		),
-		...visitMentions(found.filter((row) => row.kind === 'visit'))
-	];
+	if (error) return [];
+	const found = rows.filter((row) => test(row.notes));
+	return withArtworksAndVisits(namedValueMentions(found.filter(isValueRow)), found, '');
 }
 
 export async function loadMentions(

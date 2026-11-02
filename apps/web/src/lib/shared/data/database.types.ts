@@ -1424,6 +1424,16 @@ export type Database = {
           style_id: string;
         }[];
       };
+      term_mentions: {
+        Args: { needles: string[] };
+        Returns: {
+          id: string;
+          kind: string;
+          notes: string;
+          record_number: number;
+          title: string;
+        }[];
+      };
       unlock_exhibits: {
         Args: { time_zone: string };
         Returns: {
