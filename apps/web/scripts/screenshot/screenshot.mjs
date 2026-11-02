@@ -147,6 +147,17 @@ function filteredRows(url) {
 		const ids = id.slice(4, -1).split(',');
 		rows = [...ARTWORKS, ...TRASHED].filter((row) => ids.includes(row.id));
 	}
+	const era = params.get('era_code');
+	if (era?.startsWith('eq.')) rows = rows.filter((row) => row.era_code === era.slice(3));
+	const value = params.get('valued.value_id');
+	if (value?.startsWith('eq.')) {
+		rows = rows.filter((row) =>
+			row.artwork_values.some(
+				({ category_values: linked }) =>
+					valueId(linked.category_code, linked.name) === value.slice(3)
+			)
+		);
+	}
 	return rows;
 }
 

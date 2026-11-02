@@ -223,10 +223,24 @@ export async function loadAtelier(): Promise<AtelierResult> {
 	};
 }
 
-function fetchWallRows(ids?: readonly string[]): Promise<{ rows: ArtworkRow[]; error?: string }> {
+type WallFilter = { ids: readonly string[] } | { eraCode: string } | { valueId: string };
+
+function fetchWallRows(filter?: WallFilter): Promise<{ rows: ArtworkRow[]; error?: string }> {
 	return fetchAllRows((from, to) => {
-		const query = supabase.from('artworks').select(ARTWORK_COLUMNS);
-		return (ids ? query.in('id', [...ids]) : query)
+		const byValue = filter && 'valueId' in filter;
+		const query = supabase
+			.from('artworks')
+			.select(
+				byValue ? `${ARTWORK_COLUMNS}, valued:artwork_values!inner(value_id)` : ARTWORK_COLUMNS
+			);
+		const filtered = !filter
+			? query
+			: 'ids' in filter
+				? query.in('id', [...filter.ids])
+				: 'eraCode' in filter
+					? query.eq('era_code', filter.eraCode)
+					: query.eq('valued.value_id', filter.valueId);
+		return filtered
 			.eq('artwork_images.position', 0)
 			.is('deleted_at', null)
 			.order('created_at', { ascending: false })
@@ -236,13 +250,23 @@ function fetchWallRows(ids?: readonly string[]): Promise<{ rows: ArtworkRow[]; e
 	});
 }
 
-export async function loadArtworksById(ids: readonly string[]): Promise<AtelierResult> {
-	if (ids.length === 0) return { artworks: [] };
-	const { rows, error } = await fetchWallRows(ids);
+async function loadWall(filter: WallFilter): Promise<AtelierResult> {
+	const { rows, error } = await fetchWallRows(filter);
 	if (error) return { artworks: [], error };
 	return {
 		artworks: rows.map(wallArtwork).map((artwork) => rememberedArtwork(artwork) ?? artwork)
 	};
+}
+
+export function loadArtworksOfValue(
+	value: { eraCode: string } | { valueId: string }
+): Promise<AtelierResult> {
+	return loadWall(value);
+}
+
+export async function loadArtworksById(ids: readonly string[]): Promise<AtelierResult> {
+	if (ids.length === 0) return { artworks: [] };
+	return loadWall({ ids });
 }
 
 async function fetchAtelier(): Promise<AtelierResult> {

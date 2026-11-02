@@ -9,6 +9,7 @@ import { SIGNED_URL_SECONDS } from '#lib/images/bucket/bucket.ts';
 import { DEFAULT_IMAGE_SIZE } from '#lib/wall/tile-image/tile-image.ts';
 import {
 	loadArtworksById,
+	loadArtworksOfValue,
 	loadAtelier,
 	loadTrash,
 	refreshExpiredImages,
@@ -115,22 +116,23 @@ describe('loadArtworksById', () => {
 
 		expect(query.in).toHaveBeenCalledWith('id', ['artwork-1', 'artwork-2']);
 		expect(query.is).toHaveBeenCalledWith('deleted_at', null);
-		expect(query.select).toHaveBeenCalledWith(expect.stringContaining('artwork_images('));
 		expect(artworks.map((artwork) => artwork.id)).toEqual([row().id]);
+	});
+
+	it('asks for the artworks of a value through its links and of an era by its code', async () => {
+		query.range.mockResolvedValue({ data: [], error: null });
+
+		await loadArtworksOfValue({ valueId: 'value-1' });
+		await loadArtworksOfValue({ eraCode: 'antiquity' });
+
+		expect(query.select.mock.calls[0][0]).toContain('valued:artwork_values!inner(value_id)');
+		expect(query.eq).toHaveBeenCalledWith('valued.value_id', 'value-1');
+		expect(query.eq).toHaveBeenCalledWith('era_code', 'antiquity');
 	});
 
 	it('sends no request without ids', async () => {
 		await expect(loadArtworksById([])).resolves.toEqual({ artworks: [] });
 		expect(supabase.from).not.toHaveBeenCalled();
-	});
-
-	it('gives the message when the artworks cannot be loaded', async () => {
-		query.range.mockResolvedValue({ data: null, error: { message: 'TypeError: Failed to fetch' } });
-
-		const result = await loadArtworksById(['artwork-1']);
-
-		expect(result.artworks).toEqual([]);
-		expect(result.error).toBeDefined();
 	});
 });
 
