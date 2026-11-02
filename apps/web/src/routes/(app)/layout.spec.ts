@@ -10,23 +10,22 @@ const reviewData = vi.hoisted(() => ({
 	loadReviewCounts: vi.fn()
 }));
 
-const preferencesData = vi.hoisted(() => ({
-	loadPreferences: vi.fn()
+const ownProfileData = vi.hoisted(() => ({
+	loadOwnProfile: vi.fn()
 }));
 
-const profileData = vi.hoisted(() => ({
-	loadProfile: vi.fn()
+vi.mock('#lib/profile/own-profile-data/own-profile-data.ts', () => ({
+	loadOwnProfile: ownProfileData.loadOwnProfile
 }));
 
-vi.mock('#lib/profile/preferences-data/preferences-data.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/profile/preferences-data/preferences-data.ts')>()),
-	loadPreferences: preferencesData.loadPreferences
-}));
-
-vi.mock('#lib/profile/profile-data/profile-data.ts', async (importOriginal) => ({
-	...(await importOriginal<typeof import('#lib/profile/profile-data/profile-data.ts')>()),
-	loadProfile: profileData.loadProfile
-}));
+function own(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+	return {
+		preferences: defaultPreferences,
+		profile: { displayName: 'Anna', avatarPath: null },
+		legalVersion: '2026-10-27',
+		...overrides
+	};
+}
 
 vi.mock('#lib/review/review-data/review-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/review/review-data/review-data.ts')>()),
@@ -44,11 +43,8 @@ function loadWith(session: Session | null): ReturnType<typeof load> {
 
 describe('(app) layout load', () => {
 	beforeEach(() => {
-		preferencesData.loadPreferences.mockClear();
-		profileData.loadProfile.mockResolvedValue({
-			profile: { displayName: 'Anna', avatarPath: null }
-		});
-		preferencesData.loadPreferences.mockResolvedValue({ preferences: defaultPreferences });
+		ownProfileData.loadOwnProfile.mockReset();
+		ownProfileData.loadOwnProfile.mockResolvedValue(own());
 		reviewData.loadReviewCounts.mockResolvedValue({
 			counts: { due: 4, newAvailable: 30, newToday: 3, withImage: 40 }
 		});
@@ -58,7 +54,7 @@ describe('(app) layout load', () => {
 		const error = await Promise.resolve(loadWith(null)).catch((thrown: unknown) => thrown);
 
 		expect(isRedirect(error) && error).toMatchObject({ status: 307, location: '/sign-in' });
-		expect(preferencesData.loadPreferences).not.toHaveBeenCalled();
+		expect(ownProfileData.loadOwnProfile).not.toHaveBeenCalled();
 	});
 
 	it('passes the session on when signed in', async () => {
@@ -74,9 +70,9 @@ describe('(app) layout load', () => {
 	});
 
 	it('counts the new artworks up to the limit of the preferences', async () => {
-		preferencesData.loadPreferences.mockResolvedValue({
-			preferences: { ...defaultPreferences, reviewNewPerDay: 20 }
-		});
+		ownProfileData.loadOwnProfile.mockResolvedValue(
+			own({ preferences: { ...defaultPreferences, reviewNewPerDay: 20 } })
+		);
 
 		const { reviewWaiting } = (await loadWith(testSession())) ?? {};
 
@@ -84,9 +80,9 @@ describe('(app) layout load', () => {
 	});
 
 	it('applies the switches for the automatic fetching before the page shows', async () => {
-		preferencesData.loadPreferences.mockResolvedValue({
-			preferences: { ...defaultPreferences, fetchImage: false, fetchEvent: false }
-		});
+		ownProfileData.loadOwnProfile.mockResolvedValue(
+			own({ preferences: { ...defaultPreferences, fetchImage: false, fetchEvent: false } })
+		);
 
 		await loadWith(testSession());
 
@@ -109,13 +105,21 @@ describe('(app) layout load', () => {
 	});
 
 	it('shows the email in the menu when the profile cannot be read', async () => {
-		profileData.loadProfile.mockResolvedValue({
-			profile: { displayName: null, avatarPath: null },
-			error: 'Failed'
-		});
+		ownProfileData.loadOwnProfile.mockResolvedValue(
+			own({ profile: { displayName: null, avatarPath: null }, error: 'Failed' })
+		);
 
 		const { menuProfile } = (await loadWith(testSession())) ?? {};
 
 		await expect(menuProfile).resolves.toBeUndefined();
+	});
+
+	it('reads the profile row once for the menu, the preferences and the accepted terms', async () => {
+		const data = (await loadWith(testSession())) ?? {};
+
+		expect(ownProfileData.loadOwnProfile).toHaveBeenCalledTimes(1);
+		expect(data).toMatchObject({ preferences: defaultPreferences });
+		expect(data.ownProfile).toMatchObject({ legalVersion: '2026-10-27' });
+		await expect(data.acceptedLegalVersion).resolves.toBe('2026-10-27');
 	});
 });

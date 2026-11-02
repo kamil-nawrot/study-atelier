@@ -54,7 +54,7 @@ When a view needs data the mock does not return yet, extend `mockSupabase` in `s
 
 ### Measuring requests
 
-`--log-requests` counts what the app asks Supabase for, so a change that should save requests can show it ([ATL-403](https://linear.app/kamil-nawrot/issue/ATL-403)). Every page starts cold: no data cache, the shell loads too. A request counts as shell when it reads a table or function of the menu and the career (`profiles`, `review_counts`, `learner_points`, `unlock_exhibits`, `exhibit_tiers`, `point_events`, `announcements`), so on the settings and display case views part of the view is counted as shell. Request counts are the app's; payload sizes come from the mocked sample data and only compare runs with each other. A flow with `--steps` lists its requests under `steps`, for example the second artwork of a flip.
+`--log-requests` counts what the app asks Supabase for, so a change that should save requests can show it ([ATL-403](https://linear.app/kamil-nawrot/issue/ATL-403)). Every page starts cold: no data cache, the shell loads too. A request counts as shell when it reads a table or function of the menu and the career (`profiles`, `review_counts`, `learner_points`, `career_standing`, `unlock_exhibits`, `exhibit_tiers`, `point_events`, `announcements`), so on the settings and display case views part of the view is counted as shell. Request counts are the app's; payload sizes come from the mocked sample data and only compare runs with each other. A flow with `--steps` lists its requests under `steps`, for example the second artwork of a flip.
 
 ### Gotchas
 

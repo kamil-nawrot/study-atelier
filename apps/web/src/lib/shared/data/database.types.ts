@@ -1280,6 +1280,14 @@ export type Database = {
           field_id: string;
         }[];
       };
+      career_standing: {
+        Args: { time_zone: string; unlock: boolean };
+        Returns: {
+          new_tiers: number;
+          points: number;
+          rank_seen: number;
+        }[];
+      };
       delete_account: { Args: Record<PropertyKey, never>; Returns: undefined };
       delete_unused_value: {
         Args: { target_value: string };
