@@ -1,13 +1,10 @@
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { loadPoints, unlockExhibits } from '#lib/career/career-data/career-data.ts';
 import { loadRoundCareer, loadStanding, markRankSeen } from './standing-data.ts';
 
-vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: { from: vi.fn() } }));
-vi.mock('#lib/career/career-data/career-data.ts', () => ({
-	loadPoints: vi.fn(),
-	unlockExhibits: vi.fn()
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { from: vi.fn(), rpc: vi.fn() }
 }));
 
 type QueryChain = {
@@ -36,6 +33,7 @@ function query(result: unknown): QueryChain {
 }
 
 const from = vi.mocked(supabase.from);
+const rpc = vi.mocked(supabase.rpc);
 
 function tables(results: Record<string, unknown>): Record<string, QueryChain> {
 	const chains = Object.fromEntries(
@@ -45,62 +43,39 @@ function tables(results: Record<string, unknown>): Record<string, QueryChain> {
 	return chains;
 }
 
+function standing(row: unknown, error: unknown = null): void {
+	rpc.mockResolvedValue({ data: row ? [row] : [], error } as never);
+}
+
 describe('standing data', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.mocked(unlockExhibits).mockResolvedValue({ exhibits: [] });
-		vi.mocked(loadPoints).mockResolvedValue({ points: 1846 });
+		standing({ points: 1846, new_tiers: 1, rank_seen: 4 });
 	});
 
-	it('unlocks the exhibits first and then reads the points, the new tiers and the rank seen', async () => {
-		const chains = tables({
-			exhibit_tiers: { data: [{ exhibit: 'collection', tier: 4 }], error: null },
-			profiles: { data: { rank_seen: 4 }, error: null }
-		});
-
+	it('unlocks the exhibits and reads the standing in one request', async () => {
 		await expect(loadStanding()).resolves.toEqual({
 			standing: { points: 1846, newTiers: 1, rankSeen: 4 }
 		});
-		expect(chains.exhibit_tiers.is).toHaveBeenCalledWith('seen_at', null);
-		expect(chains.exhibit_tiers.gte).not.toHaveBeenCalled();
-	});
-
-	it('reads the standing without counting the exhibits again when they were just counted', async () => {
-		tables({
-			exhibit_tiers: { data: [], error: null },
-			profiles: { data: { rank_seen: 4 }, error: null }
+		expect(rpc).toHaveBeenCalledTimes(1);
+		expect(rpc).toHaveBeenCalledWith('career_standing', {
+			time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+			unlock: true
 		});
-
-		await expect(loadStanding(true)).resolves.toEqual({
-			standing: { points: 1846, newTiers: 0, rankSeen: 4 }
-		});
-		expect(unlockExhibits).not.toHaveBeenCalled();
-	});
-
-	it('counts a learner without a profile as having seen no rank', async () => {
-		tables({ exhibit_tiers: { data: [], error: null }, profiles: { data: null, error: null } });
-
-		await expect(loadStanding()).resolves.toEqual({
-			standing: { points: 1846, newTiers: 0, rankSeen: 0 }
-		});
-	});
-
-	it('gives no standing when the exhibits cannot be unlocked', async () => {
-		vi.mocked(unlockExhibits).mockResolvedValue({
-			exhibits: [],
-			error: m.collectionErrors.network
-		});
-
-		await expect(loadStanding()).resolves.toEqual({ error: m.collectionErrors.network });
 		expect(from).not.toHaveBeenCalled();
 	});
 
-	it('gives no standing when a read fails', async () => {
-		tables({
-			exhibit_tiers: { data: null, error: { message: 'boom' } },
-			profiles: { data: { rank_seen: 4 }, error: null }
-		});
+	it('does not count the exhibits again when they were just counted', async () => {
+		await loadStanding(true);
 
+		expect(rpc).toHaveBeenCalledWith('career_standing', expect.objectContaining({ unlock: false }));
+	});
+
+	it('gives no standing when the request fails or returns nothing', async () => {
+		standing(null, { message: 'TypeError: Failed to fetch' });
+		await expect(loadStanding()).resolves.toEqual({ error: m.collectionErrors.network });
+
+		standing(null);
 		expect((await loadStanding()).standing).toBeUndefined();
 	});
 
@@ -108,8 +83,7 @@ describe('standing data', () => {
 		const day = new Date('2026-10-28T23:00:00Z');
 		const chains = tables({
 			point_events: { data: { plan_share: 1, streak_days: 12 }, error: null },
-			exhibit_tiers: { data: [{ exhibit: 'collection', tier: 4 }], error: null },
-			profiles: { data: { rank_seen: 4 }, error: null }
+			exhibit_tiers: { data: [{ exhibit: 'collection', tier: 4 }], error: null }
 		});
 
 		await expect(loadRoundCareer(day)).resolves.toEqual({
@@ -120,34 +94,32 @@ describe('standing data', () => {
 				rankSeen: 4
 			}
 		});
+		expect(rpc).toHaveBeenCalledWith('career_standing', expect.objectContaining({ unlock: true }));
 		expect(chains.point_events.eq).toHaveBeenCalledWith('day_start', day.toISOString());
+		expect(chains.exhibit_tiers.is).toHaveBeenCalledWith('seen_at', null);
 		expect(chains.exhibit_tiers.gte).toHaveBeenCalledWith('unlocked_at', day.toISOString());
 	});
 
 	it('has no plan in the round summary on a day without one', async () => {
 		tables({
 			point_events: { data: null, error: null },
-			exhibit_tiers: { data: [], error: null },
-			profiles: { data: { rank_seen: 5 }, error: null }
+			exhibit_tiers: { data: [], error: null }
 		});
 
 		expect((await loadRoundCareer(new Date())).round?.plan).toBeUndefined();
 	});
 
 	it('gives no round summary when something fails', async () => {
-		vi.mocked(unlockExhibits).mockResolvedValue({
-			exhibits: [],
-			error: m.collectionErrors.network
-		});
+		standing(null, { message: 'TypeError: Failed to fetch' });
 		await expect(loadRoundCareer(new Date())).resolves.toEqual({
 			error: m.collectionErrors.network
 		});
+		expect(from).not.toHaveBeenCalled();
 
-		vi.mocked(unlockExhibits).mockResolvedValue({ exhibits: [] });
+		standing({ points: 1846, new_tiers: 0, rank_seen: 5 });
 		tables({
 			point_events: { data: null, error: { message: 'boom' } },
-			exhibit_tiers: { data: [], error: null },
-			profiles: { data: { rank_seen: 5 }, error: null }
+			exhibit_tiers: { data: [], error: null }
 		});
 		expect((await loadRoundCareer(new Date())).round).toBeUndefined();
 	});

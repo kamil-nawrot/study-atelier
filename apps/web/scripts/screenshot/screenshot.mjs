@@ -497,7 +497,12 @@ async function mockSupabase(context) {
 		}
 		if (url.pathname === '/rest/v1/review_cards') return json(route, REVIEW_CARDS);
 		if (url.pathname === '/rest/v1/rpc/unlock_exhibits') return json(route, EXHIBITS);
-		if (url.pathname === '/rest/v1/rpc/learner_points') return json(route, 1846);
+		if (url.pathname === '/rest/v1/rpc/career_standing') {
+			const newTiers = EXHIBIT_TIERS.filter((row) => !row.seen_at).length;
+			return json(route, [
+				{ points: 1846, new_tiers: newTiers, rank_seen: PROFILE.rank_seen ?? 0 }
+			]);
+		}
 		if (url.pathname === '/rest/v1/exhibit_tiers') {
 			return request.method() === 'PATCH' ? json(route, []) : json(route, EXHIBIT_TIERS);
 		}
