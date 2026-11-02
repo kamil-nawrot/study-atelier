@@ -12,11 +12,6 @@ import type { PreferencesPart } from '#lib/profile/types/preferences-part.ts';
 import type { QuizMode } from '#lib/review/types/quiz-mode.ts';
 import type { ReviewForm } from '#lib/review/types/review-form.ts';
 
-type PreferencesResult = {
-	preferences: Preferences;
-	error?: string;
-};
-
 type PreferencesSaveResult = { preferences: Preferences; error?: undefined } | { error: string };
 
 export const PREFERENCES_DEPENDENCY = 'preferences:own';
@@ -38,7 +33,7 @@ type Row = Pick<
 	| 'fetch_event'
 >;
 
-const COLUMNS =
+export const PREFERENCES_COLUMNS =
 	'review_session_size, review_new_per_day, review_form, review_quiz_kinds, review_free, review_glossary_questions, career_shown, view_show_pins, view_loupe_on, fetch_image, fetch_definition, fetch_forms, fetch_event';
 
 export function preferencesOf(row: Row | null): Preferences {
@@ -62,12 +57,6 @@ export function preferencesOf(row: Row | null): Preferences {
 		fetchForms: row.fetch_forms,
 		fetchEvent: row.fetch_event
 	};
-}
-
-export async function loadPreferences(): Promise<PreferencesResult> {
-	const { data, error } = await supabase.from('profiles').select(COLUMNS).maybeSingle();
-	if (error) return { preferences: defaultPreferences, error: profileErrorMessage(error) };
-	return { preferences: preferencesOf(data) };
 }
 
 function columnsOf(part: PreferencesPart, preferences: Preferences): Partial<Row> {
@@ -100,7 +89,7 @@ export async function savePreferences(
 	const { data, error } = await supabase
 		.from('profiles')
 		.upsert(columnsOf(part, draft))
-		.select(COLUMNS)
+		.select(PREFERENCES_COLUMNS)
 		.single();
 	if (error) return { error: await failureMessage(error, profileErrorMessage) };
 	return { preferences: preferencesOf(data) };
