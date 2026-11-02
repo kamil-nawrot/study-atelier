@@ -103,7 +103,7 @@ declare
     'unused_images', 'move_artwork_field', 'artwork_field_usage', 'save_artwork', 'import_atelier', 'save_visit',
     'storage_usage', 'delete_account', 'storage_has_room', 'deleted_account_images', 'search_key',
     'duplicate_candidates', 'used_category_values', 'learner_points', 'unlock_exhibits', 'record_free_answers',
-    'career_standing'
+    'career_standing', 'note_link_mentions', 'note_link_labels'
   ];
   table_name text;
   routine record;
@@ -345,6 +345,10 @@ begin
   assert (select count(*) from public.categories) = 5, 'B reads the categories of the fields of A';
   assert (select count(*) from public.notes_mentions()) = 0, 'B sees the notes of A';
   assert (select count(*) from public.term_mentions(array['a'])) = 0, 'B finds the term mentions of A';
+  assert (select count(*) from public.note_link_mentions(artwork_number => 1)) = 0,
+    'B finds the note links of A';
+  assert (select count(*) from public.note_link_labels(visit_id => a_visit)) = 0,
+    'B reads the note link labels of A';
   assert not (select has_content from public.value_page_content(a_value)),
     'B sees the page content of a value of A';
   assert (select count(*) from public.eras) = 6, 'B cannot read the shared eras';

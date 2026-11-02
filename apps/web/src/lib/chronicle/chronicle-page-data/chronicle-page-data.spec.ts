@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { loadVisit, loadVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
-import { loadNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
+import { loadNoteLinkLabels } from '#lib/notes/note-link-data/note-link-data.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
 import { loadArtworksById, loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
@@ -14,7 +14,7 @@ vi.mock('#lib/chronicle/chronicle-data/chronicle-data.ts', () => ({
 vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({ loadTermIndex: vi.fn() }));
 vi.mock('#lib/notes/note-link-data/note-link-data.ts', async (original) => ({
 	...(await original<object>()),
-	loadNoteLinks: vi.fn()
+	loadNoteLinkLabels: vi.fn()
 }));
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
 	loadArtworksById: vi.fn(),
@@ -28,7 +28,7 @@ beforeEach(() => {
 	vi.mocked(loadAtelier).mockResolvedValue({ artworks: [lilies] });
 	vi.mocked(loadArtworksById).mockResolvedValue({ artworks: [lilies] });
 	vi.mocked(loadTermIndex).mockResolvedValue({ terms: [] });
-	vi.mocked(loadNoteLinks).mockResolvedValue(undefined);
+	vi.mocked(loadNoteLinkLabels).mockResolvedValue(undefined);
 });
 
 describe('loadChronicle', () => {
@@ -72,7 +72,7 @@ describe('loadVisitPage', () => {
 
 		const data = await loadVisitPage('id');
 
-		expect(loadNoteLinks).not.toHaveBeenCalled();
+		expect(loadNoteLinkLabels).not.toHaveBeenCalled();
 		expect(loadTermIndex).toHaveBeenCalled();
 		expect(loadArtworksById).toHaveBeenCalledWith([lilies.id]);
 		expect(loadAtelier).not.toHaveBeenCalled();
@@ -85,7 +85,7 @@ describe('loadVisitPage', () => {
 			visit: testVisit({ notes: 'Obok [#0001 Water Lilies](/atelier/1).' })
 		});
 		await loadVisitPage('id');
-		expect(loadNoteLinks).toHaveBeenCalled();
+		expect(loadNoteLinkLabels).toHaveBeenCalledExactlyOnceWith({ visitId: 'id' });
 
 		vi.clearAllMocks();
 		vi.mocked(loadArtworksById).mockResolvedValue({ artworks: [] });

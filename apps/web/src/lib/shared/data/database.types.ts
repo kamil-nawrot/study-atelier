@@ -1404,6 +1404,29 @@ export type Database = {
         Args: { direction: number; target_field: string };
         Returns: undefined;
       };
+      note_link_labels: {
+        Args: {
+          artwork_number?: number;
+          era_code?: string;
+          value_id?: string;
+          visit_id?: string;
+        };
+        Returns: {
+          id: string;
+          kind: string;
+          record_number: number;
+          title: string;
+        }[];
+      };
+      note_link_mentions: {
+        Args: { artwork_number?: number; era_code?: string; value_id?: string };
+        Returns: {
+          id: string;
+          kind: string;
+          record_number: number;
+          title: string;
+        }[];
+      };
       notes_mentions: {
         Args: { needle?: string };
         Returns: {

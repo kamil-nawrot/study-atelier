@@ -5,7 +5,7 @@ import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
 import { loadArtworksOfValue } from '#lib/wall/wall-data/wall-data.ts';
 import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.ts';
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
-import { loadNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
+import { loadNoteLinkLabels, loadNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
 import { loadValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
 import { loadPlaceVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
@@ -20,7 +20,8 @@ vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({
 vi.mock('#lib/notes/mentions-data/mentions-data.ts', () => ({ loadMentions: vi.fn() }));
 vi.mock('#lib/notes/note-link-data/note-link-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/notes/note-link-data/note-link-data.ts')>()),
-	loadNoteLinks: vi.fn()
+	loadNoteLinks: vi.fn(),
+	loadNoteLinkLabels: vi.fn()
 }));
 vi.mock('#lib/values/value-details-data/value-details-data.ts', async (importOriginal) => ({
 	...(await importOriginal<
@@ -92,12 +93,12 @@ describe('loadValuePage', () => {
 		expect(result.subject).toEqual({ kind: 'era', code: 'antiquity' });
 	});
 
-	it('loads the note links on the page only for notes that link', async () => {
+	it('loads the note link labels on the page only for notes that link', async () => {
 		const noteLinks = { suggest: vi.fn(), resolve: vi.fn() };
-		vi.mocked(loadNoteLinks).mockResolvedValue(noteLinks);
+		vi.mocked(loadNoteLinkLabels).mockResolvedValue(noteLinks);
 
 		const plain = await loadValuePage('style', 'style-doric', true);
-		expect(loadNoteLinks).not.toHaveBeenCalled();
+		expect(loadNoteLinkLabels).not.toHaveBeenCalled();
 		expect(plain.noteLinks).toBeUndefined();
 
 		vi.mocked(loadValueDetails).mockResolvedValue({
@@ -105,7 +106,8 @@ describe('loadValuePage', () => {
 		});
 		const linking = await loadValuePage('style', 'style-doric', true);
 
-		expect(loadNoteLinks).toHaveBeenCalledOnce();
+		expect(loadNoteLinkLabels).toHaveBeenCalledExactlyOnceWith({ valueId: 'style-doric' });
+		expect(loadNoteLinks).not.toHaveBeenCalled();
 		expect(linking.noteLinks).toBe(noteLinks);
 	});
 
@@ -117,7 +119,10 @@ describe('loadValuePage', () => {
 		const form = await loadValuePage('style', 'style-doric', false);
 
 		expect(page.mentions).toEqual([mention]);
-		expect(loadMentions).toHaveBeenCalledTimes(1);
+		expect(loadMentions).toHaveBeenCalledExactlyOnceWith(
+			{ valueId: 'style-doric' },
+			'/atelier/values/style/style-doric'
+		);
 		expect(form.mentions).toBeUndefined();
 	});
 
