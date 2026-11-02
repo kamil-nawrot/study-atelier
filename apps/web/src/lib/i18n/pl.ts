@@ -1172,7 +1172,10 @@ export const pl = {
 		},
 		card: {
 			source: 'Na podstawie Wikipedii, CC BY-SA 4.0',
-			open: 'Otwórz w Słowniczku'
+			open: 'Otwórz w Słowniczku',
+			loading: 'Wczytuję definicję…',
+			failed: 'Nie udało się wczytać definicji. Spróbuj otworzyć ją jeszcze raz.',
+			deleted: 'Tego hasła nie ma już w Słowniczku.'
 		},
 		view: {
 			also: (forms: string): string => `też: ${forms}`,

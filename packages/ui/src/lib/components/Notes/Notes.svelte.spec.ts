@@ -173,6 +173,18 @@ describe('Notes', () => {
 			await expect.element(button).toHaveAttribute('aria-expanded', 'false');
 		});
 
+		it('renders the card of a term only while it is open', async () => {
+			renderTerms('The sfumato technique');
+			const button = page.getByRole('button', { name: 'sfumato' });
+
+			expect(document.body.textContent).not.toContain('card of sfumato');
+			await button.click();
+			await expect.element(page.getByRole('tooltip')).toHaveTextContent('card of sfumato');
+			await userEvent.keyboard('{Escape}');
+
+			await expect.poll(() => document.body.textContent).not.toContain('card of sfumato');
+		});
+
 		it('marks terms in plain text without reading it as Markdown', () => {
 			render(Notes, { value: '**sfumato**\n1. tympanum', terms, termCard, plain: true });
 			const root = document.querySelector('.notes') as HTMLElement;

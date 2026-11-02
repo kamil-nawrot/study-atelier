@@ -1,15 +1,16 @@
 import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 import type { WikipediaArticle } from '#lib/glossary/types/wikipedia-article.ts';
+import type { TermDefinitionResult } from '#lib/glossary/types/term-definition-result.ts';
 
 export function testEntry(
 	id: string,
 	name: string,
 	overrides: Partial<GlossaryEntry> = {}
 ): GlossaryEntry {
-	return {
+	const entry = {
 		id,
 		name,
-		category: 'architecture',
+		category: 'architecture' as const,
 		definition: `${name} is a test definition. It has a second sentence.`,
 		synonyms: [],
 		forms: [],
@@ -17,6 +18,7 @@ export function testEntry(
 		source: null,
 		...overrides
 	};
+	return { ...entry, hasDefinition: overrides.hasDefinition ?? entry.definition.trim() !== '' };
 }
 
 export function testArticle(
@@ -44,4 +46,9 @@ export function testGlossary(): GlossaryEntry[] {
 		testEntry('a-lorenzo', 'Lorenzo Medici', { category: 'person' }),
 		testEntry('a-lukowy', 'Łuk', { category: 'architecture' })
 	];
+}
+
+export async function testTermDefinition(id: string): Promise<TermDefinitionResult> {
+	const entry = testGlossary().find((candidate) => candidate.id === id);
+	return entry ? { definition: entry.definition, source: entry.source } : { notFound: true };
 }

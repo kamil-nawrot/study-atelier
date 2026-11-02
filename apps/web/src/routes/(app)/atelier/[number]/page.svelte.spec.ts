@@ -35,6 +35,13 @@ vi.mock('$app/navigation', () => ({
 	preloadData: vi.fn()
 }));
 vi.mock('#lib/artworks/trash-data/trash-data.ts', () => ({ moveToTrash: vi.fn() }));
+vi.mock('#lib/glossary/glossary-data/glossary-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/glossary/glossary-data/glossary-data.ts')>()),
+	loadTermDefinition: vi.fn(async () => ({
+		definition: 'Turban is a test definition.',
+		source: null
+	}))
+}));
 vi.mock('#lib/wall/favourite-data/favourite-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/wall/favourite-data/favourite-data.ts')>()),
 	setFavourite: vi.fn()

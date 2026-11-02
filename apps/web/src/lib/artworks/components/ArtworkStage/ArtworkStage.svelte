@@ -8,7 +8,7 @@
 	import StageActions from '#lib/artworks/components/StageActions/StageActions.svelte';
 	import StageGallery from '#lib/artworks/components/StageGallery/StageGallery.svelte';
 	import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
-	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import {
 		artworkImageCredit,
 		artworkImageSource,
@@ -30,7 +30,7 @@
 	type Props = {
 		artwork: ArtworkRecord;
 		editHref: string;
-		glossary?: GlossaryEntry[];
+		glossary?: GlossaryTerm[];
 		pins: PinRecord[];
 		focusPin?: string;
 		showPinsOnOpen: boolean;

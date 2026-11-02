@@ -79,6 +79,7 @@ const terms: GlossaryEntry[] = ['Apse', 'Nave', 'Crypt', 'Choir'].map((name) => 
 	definition: `${name} is a part of a church.`,
 	synonyms: [],
 	forms: [],
+	hasDefinition: true,
 	sortName: null,
 	source: null
 }));

@@ -5,14 +5,14 @@
 	import ArtworkWall from '#lib/wall/components/ArtworkWall/ArtworkWall.svelte';
 	import VisitTicket from '#lib/chronicle/components/VisitTicket/VisitTicket.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
 
 	type Props = {
 		visit: Visit;
 		artworks: WallArtwork[];
 		noteLinks?: NoteLinks;
-		glossary?: GlossaryEntry[];
+		glossary?: GlossaryTerm[];
 		onnearscreen?: (artwork: WallArtwork) => void;
 		onimagefailed?: (artwork: WallArtwork) => void;
 	};

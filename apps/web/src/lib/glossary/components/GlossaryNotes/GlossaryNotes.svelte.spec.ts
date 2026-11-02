@@ -1,11 +1,18 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/i18n.ts';
-import { testEntry, testGlossary } from '#lib/testing/glossary/glossary.ts';
+import { loadTermDefinition } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { testEntry, testGlossary, testTermDefinition } from '#lib/testing/glossary/glossary.ts';
 import GlossaryNotes from './GlossaryNotes.svelte';
 
+vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({ loadTermDefinition: vi.fn() }));
+
 describe('GlossaryNotes', () => {
+	beforeEach(() => {
+		vi.mocked(loadTermDefinition).mockReset().mockImplementation(testTermDefinition);
+	});
+
 	it('marks a word of the glossary and shows its card on a click', async () => {
 		render(GlossaryNotes, {
 			entries: testGlossary(),
@@ -67,6 +74,68 @@ describe('GlossaryNotes', () => {
 
 		await expect.element(page.getByRole('tooltip')).toHaveTextContent('Tympanum');
 		expect(page.getByRole('link').elements()).toHaveLength(0);
+	});
+
+	it('loads the definition of a term only when its card opens', async () => {
+		render(GlossaryNotes, {
+			entries: testGlossary(),
+			value: 'The tympana and the abacus.'
+		});
+		expect(loadTermDefinition).not.toHaveBeenCalled();
+
+		await page.getByRole('button', { name: 'tympana' }).click();
+
+		await expect
+			.element(page.getByRole('dialog'))
+			.toHaveTextContent('Tympanum is a test definition.');
+		expect(loadTermDefinition).toHaveBeenCalledExactlyOnceWith('a-tympanum');
+	});
+
+	it('shows a placeholder while the definition loads', async () => {
+		vi.mocked(loadTermDefinition).mockReturnValue(new Promise(() => {}));
+		render(GlossaryNotes, { entries: testGlossary(), value: 'The tympana.' });
+
+		await page.getByRole('button', { name: 'tympana' }).click();
+
+		await expect.element(page.getByRole('dialog')).toHaveTextContent(m.glossary.card.loading);
+	});
+
+	it('says so when the definition cannot be loaded, and tries again on the next opening', async () => {
+		vi.mocked(loadTermDefinition).mockResolvedValueOnce({ error: 'Brak sieci.' });
+		render(GlossaryNotes, { entries: testGlossary(), value: 'The tympana.' });
+		const term = page.getByRole('button', { name: 'tympana' });
+
+		await term.click();
+		await expect.element(page.getByRole('dialog')).toHaveTextContent(m.glossary.card.failed);
+		await term.click();
+		await term.click();
+
+		await expect
+			.element(page.getByRole('dialog'))
+			.toHaveTextContent('Tympanum is a test definition.');
+		expect(loadTermDefinition).toHaveBeenCalledTimes(2);
+	});
+
+	it('says so when the term was deleted meanwhile, without the link to it', async () => {
+		vi.mocked(loadTermDefinition).mockResolvedValue({ notFound: true });
+		render(GlossaryNotes, { entries: testGlossary(), value: 'The tympana.' });
+
+		await page.getByRole('button', { name: 'tympana' }).click();
+
+		await expect.element(page.getByRole('dialog')).toHaveTextContent(m.glossary.card.deleted);
+		expect(page.getByRole('link').elements()).toHaveLength(0);
+	});
+
+	it('loads nothing for a term without a definition', async () => {
+		render(GlossaryNotes, {
+			entries: [testEntry('a-fresco', 'Fresco', { definition: '' })],
+			value: 'A wall painted in fresco.'
+		});
+
+		await page.getByRole('button', { name: 'fresco' }).click();
+
+		await expect.element(page.getByRole('dialog')).toHaveTextContent('Fresco');
+		expect(loadTermDefinition).not.toHaveBeenCalled();
 	});
 
 	it('shows the note as it is when the glossary is empty', async () => {

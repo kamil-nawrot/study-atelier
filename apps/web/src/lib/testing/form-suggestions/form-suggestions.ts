@@ -5,14 +5,14 @@ import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
 import type { CategoryValues } from '#lib/card-index/types/category-values.ts';
 import type { PlaceStarter } from '#lib/card-index/types/place-starter.ts';
 import type { ValueLinks } from '#lib/card-index/types/value-links.ts';
-import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 
 type Suggested = {
 	categoryValues?: CategoryValues;
 	ownValues?: Record<string, string[]>;
 	valueLinks?: ValueLinks;
 	placeStarter?: PlaceStarter;
-	glossary?: GlossaryEntry[];
+	glossary?: GlossaryTerm[];
 };
 
 export const suggested: Suggested = {};
@@ -24,10 +24,10 @@ export class FakeFormSuggestions {
 	ownValues = suggested.ownValues ?? {};
 	valueLinks = suggested.valueLinks ?? emptyValueLinks();
 	placeStarter = suggested.placeStarter ?? emptyPlaceStarter();
-	glossary: GlossaryEntry[];
+	glossary: GlossaryTerm[];
 	noteLinks = undefined;
 
-	constructor({ glossary }: { glossary?: GlossaryEntry[] } = {}) {
+	constructor({ glossary }: { glossary?: GlossaryTerm[] } = {}) {
 		this.glossary = glossary ?? suggested.glossary ?? [];
 	}
 

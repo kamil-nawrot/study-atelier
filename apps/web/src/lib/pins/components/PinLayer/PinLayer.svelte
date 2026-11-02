@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
-	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { movePin } from '#lib/pins/pin-data/pin-data.ts';
 	import { fractionIn, pinsOfImage } from '#lib/pins/pin-layout/pin-layout.ts';
@@ -13,7 +13,7 @@
 	type Props = {
 		imageId: string;
 		pins: Pin[];
-		entries: readonly GlossaryEntry[];
+		entries: readonly GlossaryTerm[];
 		image?: ArtworkImageInput | null;
 		onfailure: (message?: string) => void;
 	};

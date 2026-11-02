@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { loadVisit, loadVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
-import { loadGlossary } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { loadNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
@@ -11,7 +11,7 @@ vi.mock('#lib/chronicle/chronicle-data/chronicle-data.ts', () => ({
 	loadVisit: vi.fn(),
 	loadVisits: vi.fn()
 }));
-vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({ loadGlossary: vi.fn() }));
+vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({ loadTermIndex: vi.fn() }));
 vi.mock('#lib/notes/note-link-data/note-link-data.ts', async (original) => ({
 	...(await original<object>()),
 	loadNoteLinks: vi.fn()
@@ -23,7 +23,7 @@ const lilies = testArtwork(1, 'Water Lilies');
 beforeEach(() => {
 	vi.clearAllMocks();
 	vi.mocked(loadAtelier).mockResolvedValue({ artworks: [lilies] });
-	vi.mocked(loadGlossary).mockResolvedValue({ entries: [] });
+	vi.mocked(loadTermIndex).mockResolvedValue({ terms: [] });
 	vi.mocked(loadNoteLinks).mockResolvedValue(undefined);
 });
 
@@ -69,7 +69,7 @@ describe('loadVisitPage', () => {
 		const data = await loadVisitPage('id');
 
 		expect(loadNoteLinks).not.toHaveBeenCalled();
-		expect(loadGlossary).toHaveBeenCalled();
+		expect(loadTermIndex).toHaveBeenCalled();
 		expect(data.artworks).toEqual([lilies]);
 		expect(data.glossary).toEqual([]);
 	});
@@ -85,6 +85,6 @@ describe('loadVisitPage', () => {
 		vi.mocked(loadAtelier).mockResolvedValue({ artworks: [] });
 		vi.mocked(loadVisit).mockResolvedValue({ visit: testVisit({ notes: '' }) });
 		await loadVisitPage('id');
-		expect(loadGlossary).not.toHaveBeenCalled();
+		expect(loadTermIndex).not.toHaveBeenCalled();
 	});
 });
