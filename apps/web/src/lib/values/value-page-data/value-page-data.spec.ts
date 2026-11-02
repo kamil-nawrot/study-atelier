@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
-import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
+import { loadArtworksOfValue } from '#lib/wall/wall-data/wall-data.ts';
 import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.ts';
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
 import { loadNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
@@ -11,9 +11,12 @@ import { loadPlaceVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts
 import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
 import { loadValuePage } from './value-page-data.ts';
 
-vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({ loadAtelier: vi.fn() }));
+vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({ loadArtworksOfValue: vi.fn() }));
 vi.mock('#lib/card-index/card-index-data/card-index-data.ts', () => ({ loadCardIndex: vi.fn() }));
 vi.mock('#lib/chronicle/chronicle-data/chronicle-data.ts', () => ({ loadPlaceVisits: vi.fn() }));
+vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({
+	loadTermIndex: vi.fn(async () => ({ terms: [] }))
+}));
 vi.mock('#lib/notes/mentions-data/mentions-data.ts', () => ({ loadMentions: vi.fn() }));
 vi.mock('#lib/notes/note-link-data/note-link-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/notes/note-link-data/note-link-data.ts')>()),
@@ -32,7 +35,7 @@ describe('loadValuePage', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		vi.mocked(loadCardIndex).mockResolvedValue({ index: testCardIndex(), ownValues: [] });
-		vi.mocked(loadAtelier).mockResolvedValue({ artworks });
+		vi.mocked(loadArtworksOfValue).mockResolvedValue({ artworks });
 		vi.mocked(loadNoteLinks).mockResolvedValue(undefined);
 		vi.mocked(loadMentions).mockResolvedValue([]);
 		vi.mocked(loadValueDetails).mockResolvedValue({
@@ -40,9 +43,10 @@ describe('loadValuePage', () => {
 		});
 	});
 
-	it('loads the value, the collection and the details', async () => {
+	it('loads the value, its own artworks and the details', async () => {
 		const result = await loadValuePage('style', 'style-doric', true);
 
+		expect(loadArtworksOfValue).toHaveBeenCalledWith({ valueId: 'style-doric' });
 		expect(result.subject).toEqual({
 			kind: 'style',
 			record: expect.objectContaining({ id: 'style-doric' })
@@ -75,19 +79,34 @@ describe('loadValuePage', () => {
 		expect(result.visits).toBeUndefined();
 	});
 
-	it('does not load the collection for the form', async () => {
+	it('filters the artworks of an era by its code', async () => {
+		await loadValuePage('era', 'antiquity', true);
+
+		expect(loadArtworksOfValue).toHaveBeenCalledWith({ eraCode: 'antiquity' });
+	});
+
+	it('does not load the artworks for the form', async () => {
 		const result = await loadValuePage('era', 'antiquity', false);
 
-		expect(loadAtelier).not.toHaveBeenCalled();
+		expect(loadArtworksOfValue).not.toHaveBeenCalled();
 		expect(result.subject).toEqual({ kind: 'era', code: 'antiquity' });
 	});
 
-	it('resolves note links from the loaded collection on the page', async () => {
-		const result = await loadValuePage('style', 'style-doric', true);
+	it('loads the note links on the page only for notes that link', async () => {
+		const noteLinks = { suggest: vi.fn(), resolve: vi.fn() };
+		vi.mocked(loadNoteLinks).mockResolvedValue(noteLinks);
 
+		const plain = await loadValuePage('style', 'style-doric', true);
 		expect(loadNoteLinks).not.toHaveBeenCalled();
-		expect(result.noteLinks?.resolve('/atelier/1')).toBe('#0001 Parthenon');
-		expect(result.noteLinks?.resolve('/atelier/values/style/style-doric')).toBe('Doric');
+		expect(plain.noteLinks).toBeUndefined();
+
+		vi.mocked(loadValueDetails).mockResolvedValue({
+			details: { summary: '', notes: 'See [x](/atelier/1).' }
+		});
+		const linking = await loadValuePage('style', 'style-doric', true);
+
+		expect(loadNoteLinks).toHaveBeenCalledOnce();
+		expect(linking.noteLinks).toBe(noteLinks);
 	});
 
 	it('loads the mentions of the value on the page only', async () => {
@@ -122,7 +141,10 @@ describe('loadValuePage', () => {
 	});
 
 	it('reports a failed load', async () => {
-		vi.mocked(loadAtelier).mockResolvedValue({ artworks: [], error: m.collectionErrors.network });
+		vi.mocked(loadArtworksOfValue).mockResolvedValue({
+			artworks: [],
+			error: m.collectionErrors.network
+		});
 
 		await expect(loadValuePage('style', 'style-doric', true)).resolves.toMatchObject({
 			error: m.collectionErrors.network,
