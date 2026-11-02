@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
+import { cached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { setFavourite } from './favourite-data.ts';
 
@@ -22,6 +23,20 @@ describe('favourite', () => {
 		expect(supabase.from).toHaveBeenCalledWith('artworks');
 		expect(query.update).toHaveBeenCalledWith({ favourite: true });
 		expect(query.eq).toHaveBeenCalledWith('id', 'artwork-1');
+	});
+
+	it('forgets the cached collection and keeps the card index', async () => {
+		const atelier = vi.fn().mockResolvedValue({ artworks: [] });
+		const cardIndex = vi.fn().mockResolvedValue({ index: {} });
+		await cached('atelier', atelier);
+		await cached('card-index', cardIndex);
+
+		await setFavourite('artwork-1', true);
+		await cached('atelier', atelier);
+		await cached('card-index', cardIndex);
+
+		expect(atelier).toHaveBeenCalledTimes(2);
+		expect(cardIndex).toHaveBeenCalledTimes(1);
 	});
 
 	it('clears the marker', async () => {

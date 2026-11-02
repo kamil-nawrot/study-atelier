@@ -1,6 +1,6 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
-import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
+import { cacheKeys, forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyAuthorDetails } from '#lib/values/author-form/author-form.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
@@ -175,7 +175,7 @@ export async function saveValueDetails(
 			target_era: subject.code,
 			details: text
 		});
-		forgetCached();
+		forgetCached([cacheKeys.atelier, cacheKeys.cardIndex]);
 		return error ? { error: await failureMessage(error, cardIndexErrorMessage) } : {};
 	}
 
@@ -188,7 +188,7 @@ export async function saveValueDetails(
 		target_value: subject.record.id,
 		details: detailsPayload(text, details, stored.image)
 	});
-	forgetCached();
+	forgetCached([cacheKeys.atelier, cacheKeys.cardIndex]);
 	if (error) {
 		if (newUpload) await removeOwnImage(newUpload);
 		return { error: await failureMessage(error, cardIndexErrorMessage) };

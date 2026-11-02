@@ -2,7 +2,7 @@ import { IMAGES_BUCKET, SIGNED_URL_SECONDS, ownThumbnailPath } from '#lib/images
 import { fetchCommonsThumbnails } from '#lib/images/commons/commons.ts';
 import { backfillThumbnails } from '#lib/images/thumbnail-backfill/thumbnail-backfill.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
-import { cached } from '#lib/shared/data/data-cache/data-cache.ts';
+import { cacheKeys, cached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
 	authorSortNamesOf,
@@ -216,7 +216,7 @@ export async function refreshExpiredImages(
 }
 
 export async function loadAtelier(): Promise<AtelierResult> {
-	const atelier = await cached('atelier', fetchAtelier);
+	const atelier = await cached(cacheKeys.atelier, fetchAtelier);
 	if (atelier.error) return atelier;
 	return {
 		artworks: atelier.artworks.map((artwork) => rememberedArtwork(artwork) ?? artwork)
