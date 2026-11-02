@@ -362,6 +362,7 @@ describe('add artwork page', () => {
 
 		await saveButton().click();
 
+		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
 		const [, args] = saveArtworkCalls()[0] as unknown as [string, Record<string, unknown>];
 		expect(args.artwork).toMatchObject({ era_code: 'early_modern' });
 		expect(args.values_by_category).toMatchObject({
@@ -376,6 +377,7 @@ describe('add artwork page', () => {
 
 		await saveButton().click();
 
+		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
 		const [, args] = saveArtworkCalls()[0] as unknown as [string, Record<string, unknown>];
 		expect(args.artwork).toMatchObject({ era_code: null });
 		expect(args.values_by_category).toMatchObject({ period: [], style: [] });
@@ -394,6 +396,7 @@ describe('add artwork page', () => {
 		await expect.element(sculpture).not.toBeChecked();
 		await saveButton().click();
 
+		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
 		const [, args] = saveArtworkCalls()[0] as unknown as [string, Record<string, unknown>];
 		expect(args.artwork).toMatchObject({ type_code: null });
 	});
