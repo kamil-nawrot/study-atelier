@@ -13,8 +13,13 @@ export function artworkNote(number: number, title: string, notes: string): TestM
 	return { kind: 'artwork', id: `artwork-${number}`, record_number: number, title, notes };
 }
 
-export function valueNote(kind: string, id: string, notes: string): TestMentionRow {
-	return { kind, id, record_number: null, title: null, notes };
+export function valueNote(
+	kind: string,
+	id: string,
+	notes: string,
+	name: string | null = null
+): TestMentionRow {
+	return { kind, id, record_number: null, title: name, notes };
 }
 
 export function visitNote(id: string, title: string, notes: string): TestMentionRow {
