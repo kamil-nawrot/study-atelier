@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
@@ -37,6 +37,7 @@ import {
 	fakeSession,
 	imageSvg
 } from './fixtures.mjs';
+import { logRequests, summarise } from './request-log.mjs';
 
 const WEB_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const REPO_DIR = path.resolve(WEB_DIR, '../..');
@@ -67,6 +68,8 @@ const USAGE = `Usage: pnpm screenshot <path> [options]
   --repeat <n>       show every sample artwork n times, to have more to scroll through
   --empty            show an atelier with no artworks, values, entries, events or visits
   --scroll           also record a GIF of scrolling the page from top to bottom (needs ffmpeg)
+  --log-requests     write the Supabase requests of each viewport to <name>-<viewport>-requests.json
+                     and print them per phase (load, steps), shell and view, with their payload sizes
   --url <base>       use a running dev server instead of starting one
 `;
 
@@ -87,6 +90,7 @@ function parseArgs(argv) {
 		else if (arg === '--full-page') options.fullPage = true;
 		else if (arg === '--signed-out') options.signedOut = true;
 		else if (arg === '--empty') options.empty = true;
+		else if (arg === '--log-requests') options.logRequests = true;
 		else if (
 			[
 				'--out',
@@ -759,7 +763,11 @@ function fallbackExecutable() {
 	for (const root of [process.env.PLAYWRIGHT_BROWSERS_PATH, '/opt/pw-browsers']) {
 		if (!root || !existsSync(root)) continue;
 		const folder = readdirSync(root).find((entry) => /^chromium-\d+$/.test(entry));
-		if (folder) return path.join(root, folder, 'chrome-linux/chrome');
+		if (!folder) continue;
+		const executable = ['chrome-linux', 'chrome-linux64']
+			.map((build) => path.join(root, folder, build, 'chrome'))
+			.find((candidate) => existsSync(candidate));
+		if (executable) return executable;
 	}
 	return undefined;
 }
@@ -803,10 +811,12 @@ async function capture(browser, base, options, name) {
 		}
 	);
 	const page = await context.newPage();
+	const requests = options.logRequests ? logRequests(page) : undefined;
 	await page.goto(new URL(options.route, base).href, { waitUntil: 'networkidle' });
 	if (options.wait) await page.waitForSelector(options.wait);
 	if (options.script) await page.evaluate(readFileSync(path.resolve(options.script), 'utf8'));
 	if (options.steps) {
+		requests?.setPhase('steps');
 		const { default: steps } = await import(pathToFileURL(path.resolve(options.steps)).href);
 		await steps(page);
 	}
@@ -821,6 +831,15 @@ async function capture(browser, base, options, name) {
 	await page.waitForTimeout(400);
 	const file = path.join(options.out, `${options.name}-${name}.png`);
 	await page.screenshot({ path: file, fullPage: Boolean(options.fullPage) });
+	if (requests) {
+		const entries = await requests.finish();
+		const log = path.join(options.out, `${options.name}-${name}-requests.json`);
+		writeFileSync(
+			log,
+			`${JSON.stringify({ route: options.route, viewport: name, entries }, null, 2)}\n`
+		);
+		process.stdout.write(summarise(name, entries));
+	}
 	await context.close();
 	return file;
 }

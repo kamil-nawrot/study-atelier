@@ -37,6 +37,7 @@ Starts the dev server on port 5199, opens the route in Chromium at a desktop (14
 | `--repeat <n>`      | Show every sample artwork n times, to have more to scroll through                                                                                                                |
 | `--empty`           | Show an empty atelier: no artworks, values, glossary entries, events, visits or trash, for the empty states of the views                                                         |
 | `--scroll`          | Also write a GIF that scrolls the page from top to bottom (`<name>-<viewport>-scroll.gif`, needs ffmpeg)                                                                         |
+| `--log-requests`    | Write the Supabase requests of each viewport to `<name>-<viewport>-requests.json` and print them per phase (the load, then `--steps`), shell and view, with payload sizes        |
 | `--url <base>`      | Use a dev server that is already running                                                                                                                                         |
 
 Combine desktop and phone shots into one image when attaching to a thread: a thread accepts at most 24 attachments.
@@ -50,6 +51,10 @@ All of it lives in [`apps/web/scripts/screenshot/`](../../apps/web/scripts/scree
 - **Data**: twenty-four sample artworks, enough to start a review session (plus one in the trash), with English titles and no personal data. Add or change rows in `fixtures.mjs` to show another state, for example an artwork with a long title or a very wide image.
 
 When a view needs data the mock does not return yet, extend `mockSupabase` in `screenshot.mjs` rather than writing a one-off script in the session. If the app's queries change shape (for example a new column), update the sample rows in the same pull request.
+
+### Measuring requests
+
+`--log-requests` counts what the app asks Supabase for, so a change that should save requests can show it ([ATL-403](https://linear.app/kamil-nawrot/issue/ATL-403)). Every page starts cold: no data cache, the shell loads too. A request counts as shell when it reads a table or function of the menu and the career (`profiles`, `review_counts`, `learner_points`, `unlock_exhibits`, `exhibit_tiers`, `point_events`, `announcements`), so on the settings and display case views part of the view is counted as shell. Request counts are the app's; payload sizes come from the mocked sample data and only compare runs with each other. A flow with `--steps` lists its requests under `steps`, for example the second artwork of a flip.
 
 ### Gotchas
 
