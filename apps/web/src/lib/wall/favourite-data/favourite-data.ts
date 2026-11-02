@@ -1,6 +1,6 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { m } from '#lib/i18n/i18n.ts';
-import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
+import { cacheKeys, forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 
 type FavouriteResult = {
@@ -9,6 +9,6 @@ type FavouriteResult = {
 
 export async function setFavourite(id: string, favourite: boolean): Promise<FavouriteResult> {
 	const { error } = await supabase.from('artworks').update({ favourite }).eq('id', id);
-	forgetCached();
+	forgetCached([cacheKeys.atelier]);
 	return error ? { error: await failureMessage(error, () => m.favourite.failed) } : {};
 }

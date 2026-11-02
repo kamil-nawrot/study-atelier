@@ -3,12 +3,24 @@ import { noteWrite } from '#lib/shared/data/writes/writes.ts';
 const CHANNEL = 'study-atelier:data-cache';
 const FORGET_AFTER_HIDDEN_MS = 10 * 60 * 1000;
 
+export const cacheKeys = {
+	atelier: 'atelier',
+	cardIndex: 'card-index',
+	categoryValues: 'category-values',
+	valueLinks: 'value-links',
+	glossary: 'glossary'
+} as const;
+
+export type CacheKey = (typeof cacheKeys)[keyof typeof cacheKeys];
+
+type ForgetMessage = { keys?: readonly CacheKey[] };
+
 const entries = new Map<string, Promise<unknown>>();
 let learner: string | undefined;
 let channel: BroadcastChannel | undefined;
 
 export function cached<T extends { error?: unknown }>(
-	key: string,
+	key: CacheKey | `${CacheKey}:${string}`,
 	load: () => Promise<T>
 ): Promise<T> {
 	const entry = `${learner ?? ''}:${key}`;
@@ -32,9 +44,26 @@ function evict(loading: Promise<unknown>): void {
 	for (const [entry, kept] of entries) if (kept === loading) entries.delete(entry);
 }
 
-export function forgetCached(): void {
-	entries.clear();
-	channel?.postMessage('forget');
+function keyOf(entry: string): string {
+	return entry.slice(entry.indexOf(':') + 1);
+}
+
+function forget(keys: readonly CacheKey[] | undefined): void {
+	if (keys === undefined) {
+		entries.clear();
+		return;
+	}
+	for (const entry of [...entries.keys()]) {
+		const key = keyOf(entry);
+		if (keys.some((forgotten) => key === forgotten || key.startsWith(`${forgotten}:`))) {
+			entries.delete(entry);
+		}
+	}
+}
+
+export function forgetCached(keys?: readonly CacheKey[]): void {
+	forget(keys);
+	channel?.postMessage({ keys } satisfies ForgetMessage);
 	noteWrite();
 }
 
@@ -57,8 +86,13 @@ export function watchCache(now: () => number = Date.now): () => void {
 	let hiddenAt: number | undefined;
 	channel = typeof BroadcastChannel === 'undefined' ? undefined : new BroadcastChannel(CHANNEL);
 	if (channel) {
-		channel.onmessage = () => {
-			entries.clear();
+		channel.onmessage = (event: MessageEvent<unknown>) => {
+			const message = event.data;
+			forget(
+				typeof message === 'object' && message !== null
+					? (message as ForgetMessage).keys
+					: undefined
+			);
 			noteWrite();
 		};
 	}

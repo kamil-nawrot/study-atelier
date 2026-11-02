@@ -2,7 +2,7 @@ import { failureMessage } from '#lib/auth/expired-session-data/expired-session-d
 import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import type { ServiceError } from '#lib/shared/types/service-error.ts';
-import { cached, forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
+import { cacheKeys, cached, forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyCardIndex } from '#lib/card-index/card-index/card-index.ts';
 import { isCategoryCode } from '#lib/card-index/category-values/category-values.ts';
@@ -82,7 +82,7 @@ function valueDetails(
 }
 
 export function loadCardIndex(): Promise<CardIndexResult> {
-	return cached('card-index', fetchCardIndex);
+	return cached(cacheKeys.cardIndex, fetchCardIndex);
 }
 
 async function fetchCardIndex(): Promise<CardIndexResult> {
@@ -160,7 +160,12 @@ async function run(
 	call: PromiseLike<{ error: ServiceError | null }>
 ): Promise<CardIndexActionResult> {
 	const { error } = await call;
-	forgetCached();
+	forgetCached([
+		cacheKeys.atelier,
+		cacheKeys.cardIndex,
+		cacheKeys.categoryValues,
+		cacheKeys.valueLinks
+	]);
 	return error ? { error: await failureMessage(error, cardIndexErrorMessage) } : {};
 }
 
@@ -216,7 +221,12 @@ export async function createValue(
 		.insert({ category_code: category, name: name.trim() })
 		.select('id')
 		.single();
-	forgetCached();
+	forgetCached([
+		cacheKeys.atelier,
+		cacheKeys.cardIndex,
+		cacheKeys.categoryValues,
+		cacheKeys.valueLinks
+	]);
 	if (error) return { error: await failureMessage(error, cardIndexErrorMessage) };
 	return { id: data.id };
 }
