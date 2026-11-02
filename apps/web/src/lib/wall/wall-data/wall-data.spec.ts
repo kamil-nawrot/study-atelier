@@ -7,7 +7,13 @@ import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { SIGNED_URL_SECONDS } from '#lib/images/bucket/bucket.ts';
 import { DEFAULT_IMAGE_SIZE } from '#lib/wall/tile-image/tile-image.ts';
-import { loadAtelier, loadTrash, refreshExpiredImages, resolveImages } from './wall-data.ts';
+import {
+	loadArtworksById,
+	loadAtelier,
+	loadTrash,
+	refreshExpiredImages,
+	resolveImages
+} from './wall-data.ts';
 import { resolvedImages } from '#lib/images/resolved-images/resolved-images.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
@@ -24,6 +30,7 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 
 const query = {
 	select: vi.fn(),
+	in: vi.fn(),
 	eq: vi.fn(),
 	is: vi.fn(),
 	not: vi.fn(),
@@ -87,6 +94,45 @@ async function loadResolved(): Promise<WallArtwork[]> {
 }
 
 beforeEach(() => forgetCached());
+
+describe('loadArtworksById', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		resolvedImages.clear();
+		vi.mocked(supabase.from).mockReturnValue(query as never);
+		query.select.mockReturnValue(query);
+		query.in.mockReturnValue(query);
+		query.is.mockReturnValue(query);
+		query.eq.mockReturnValue(query);
+		query.order.mockReturnValue(query);
+		query.limit.mockReturnValue(query);
+	});
+
+	it('asks only for the given artworks outside the trash, in the columns of the wall', async () => {
+		query.range.mockResolvedValue({ data: [row()], error: null });
+
+		const { artworks } = await loadArtworksById(['artwork-1', 'artwork-2']);
+
+		expect(query.in).toHaveBeenCalledWith('id', ['artwork-1', 'artwork-2']);
+		expect(query.is).toHaveBeenCalledWith('deleted_at', null);
+		expect(query.select).toHaveBeenCalledWith(expect.stringContaining('artwork_images('));
+		expect(artworks.map((artwork) => artwork.id)).toEqual([row().id]);
+	});
+
+	it('sends no request without ids', async () => {
+		await expect(loadArtworksById([])).resolves.toEqual({ artworks: [] });
+		expect(supabase.from).not.toHaveBeenCalled();
+	});
+
+	it('gives the message when the artworks cannot be loaded', async () => {
+		query.range.mockResolvedValue({ data: null, error: { message: 'TypeError: Failed to fetch' } });
+
+		const result = await loadArtworksById(['artwork-1']);
+
+		expect(result.artworks).toEqual([]);
+		expect(result.error).toBeDefined();
+	});
+});
 
 describe('loadAtelier', () => {
 	beforeEach(() => {
