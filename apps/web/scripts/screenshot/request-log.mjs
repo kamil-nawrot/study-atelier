@@ -4,6 +4,7 @@ const SHELL = new Set([
 	'profiles',
 	'review_counts',
 	'learner_points',
+	'career_standing',
 	'unlock_exhibits',
 	'exhibit_tiers',
 	'point_events',

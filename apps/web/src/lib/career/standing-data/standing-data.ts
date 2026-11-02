@@ -1,6 +1,5 @@
 import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { loadPoints, unlockExhibits } from '#lib/career/career-data/career-data.ts';
 import type { RoundCareer } from '#lib/career/types/round-career.ts';
 import type { Standing } from '#lib/career/types/standing.ts';
 
@@ -14,39 +13,34 @@ async function newTiers(since?: Date): Promise<{ exhibit: string; tier: number }
 	return error || !data ? undefined : data;
 }
 
-async function rankSeen(): Promise<number | undefined> {
-	const { data, error } = await supabase.from('profiles').select('rank_seen').maybeSingle();
-	return error ? undefined : (data?.rank_seen ?? 0);
+async function standingOf(unlock: boolean): Promise<StandingResult> {
+	const { data, error } = await supabase.rpc('career_standing', {
+		time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+		unlock
+	});
+	const row = data?.[0];
+	if (error || !row) return { error: collectionErrorMessage(error ?? {}) };
+	return { standing: { points: row.points, newTiers: row.new_tiers, rankSeen: row.rank_seen } };
 }
 
-export async function loadStanding(counted = false): Promise<StandingResult> {
-	if (!counted) {
-		const unlocked = await unlockExhibits();
-		if (unlocked.error) return { error: unlocked.error };
-	}
-	const [points, tiers, seen] = await Promise.all([loadPoints(), newTiers(), rankSeen()]);
-	if (points.error || tiers === undefined || seen === undefined) {
-		return { error: points.error ?? collectionErrorMessage({}) };
-	}
-	return { standing: { points: points.points, newTiers: tiers.length, rankSeen: seen } };
+export function loadStanding(counted = false): Promise<StandingResult> {
+	return standingOf(!counted);
 }
 
 export async function loadRoundCareer(dayStart: Date): Promise<RoundResult> {
-	const unlocked = await unlockExhibits();
-	if (unlocked.error) return { error: unlocked.error };
-	const [plan, tiers, points, seen] = await Promise.all([
+	const { standing, error } = await standingOf(true);
+	if (!standing) return { error };
+	const [plan, tiers] = await Promise.all([
 		supabase
 			.from('point_events')
 			.select('plan_share, streak_days')
 			.eq('kind', 'plan_day')
 			.eq('day_start', dayStart.toISOString())
 			.maybeSingle(),
-		newTiers(dayStart),
-		loadPoints(),
-		rankSeen()
+		newTiers(dayStart)
 	]);
-	if (plan.error || tiers === undefined || points.error || seen === undefined) {
-		return { error: points.error ?? collectionErrorMessage(plan.error ?? {}) };
+	if (plan.error || tiers === undefined) {
+		return { error: collectionErrorMessage(plan.error ?? {}) };
 	}
 	return {
 		round: {
@@ -54,8 +48,8 @@ export async function loadRoundCareer(dayStart: Date): Promise<RoundResult> {
 				? { share: plan.data.plan_share ?? 0, streak: plan.data.streak_days ?? 0 }
 				: undefined,
 			tiers,
-			points: points.points,
-			rankSeen: seen
+			points: standing.points,
+			rankSeen: standing.rankSeen
 		}
 	};
 }

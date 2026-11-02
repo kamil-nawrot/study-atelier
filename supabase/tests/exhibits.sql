@@ -28,6 +28,11 @@ begin
         'source_image_file', 'Work' || number || '.jpg')));
   end loop;
 
+  assert (select new_tiers from public.career_standing('UTC', false)) = 0,
+    'career_standing unlocks tiers when asked not to';
+  assert (select new_tiers from public.career_standing('UTC', true)) > 0,
+    'career_standing does not unlock the tiers of new artworks';
+
   assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC')) = array[
     'back_from_storage', 'chronicle', 'collection', 'eras', 'glossary', 'grand_tour', 'marathon', 'memory',
     'night_watch', 'own_eye', 'regular', 'seen_live', 'timeline'
@@ -37,6 +42,16 @@ begin
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'eras') = array[1]::smallint[],
     'artworks of two eras do not unlock the first tier of eras';
   assert (select count(*) from public.exhibit_tiers where seen_at is not null) = 0, 'a new tier is already seen';
+  assert (select new_tiers from public.career_standing('UTC', false))
+      = (select count(*) from public.exhibit_tiers where seen_at is null),
+    'career_standing does not count the tiers not seen yet';
+  assert (select points from public.career_standing('UTC', false)) = public.learner_points(),
+    'career_standing does not give the points of the ledger';
+  assert (select rank_seen from public.career_standing('UTC', false)) = 0,
+    'career_standing gives a seen rank to a learner without a profile';
+  insert into public.profiles (rank_seen) values (3);
+  assert (select rank_seen from public.career_standing('UTC', false)) = 3,
+    'career_standing does not give the seen rank';
 
   delete from public.artworks where title in ('Work 9', 'Work 10', 'Work 8', 'Work 7', 'Work 6');
   perform public.unlock_exhibits('UTC');

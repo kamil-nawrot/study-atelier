@@ -11,11 +11,6 @@ import { emptyProfile, normalizedName, rankFormOf } from '#lib/profile/profile/p
 import type { Profile } from '#lib/profile/types/profile.ts';
 import type { ProfileDraft } from '#lib/profile/types/profile-draft.ts';
 
-type ProfileResult = {
-	profile: Profile;
-	error?: string;
-};
-
 type ProfileSaveResult = { profile: Profile; error?: undefined } | { error: string };
 
 export const PROFILE_DEPENDENCY = 'profile:own';
@@ -25,21 +20,15 @@ type Row = Pick<
 	'display_name' | 'avatar_path' | 'rank_form'
 >;
 
-const COLUMNS = 'display_name, avatar_path, rank_form';
+export const PROFILE_COLUMNS = 'display_name, avatar_path, rank_form';
 
-function profileOf(row: Row | null): Profile {
+export function profileOf(row: Row | null): Profile {
 	if (!row) return emptyProfile;
 	return {
 		displayName: row.display_name,
 		avatarPath: row.avatar_path,
 		rankForm: rankFormOf(row.rank_form)
 	};
-}
-
-export async function loadProfile(): Promise<ProfileResult> {
-	const { data, error } = await supabase.from('profiles').select(COLUMNS).maybeSingle();
-	if (error) return { profile: emptyProfile, error: profileErrorMessage(error) };
-	return { profile: profileOf(data) };
 }
 
 async function uploadAvatar(image: Blob): Promise<{ path: string } | { error: string }> {
@@ -82,7 +71,7 @@ export async function saveProfile(
 			avatar_path: avatarPath,
 			rank_form: draft.rankForm
 		})
-		.select(COLUMNS)
+		.select(PROFILE_COLUMNS)
 		.single();
 	if (error) {
 		if (uploaded) await removeOwnImage(uploaded);

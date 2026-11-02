@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { loadPreferences, preferencesOf, savePreferences } from './preferences-data.ts';
+import { preferencesOf, savePreferences } from './preferences-data.ts';
 import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
@@ -61,29 +61,6 @@ describe('preferencesOf', () => {
 		});
 		expect(preferences.reviewForm).toBe('mixed');
 		expect(preferences.reviewQuizKinds).toEqual(defaultPreferences.reviewQuizKinds);
-	});
-});
-
-describe('loadPreferences', () => {
-	it('reads the preferences of the learner', async () => {
-		from.mockReturnValue({
-			select: () => ({ maybeSingle: () => Promise.resolve({ data: row, error: null }) })
-		} as never);
-
-		expect((await loadPreferences()).preferences.reviewSessionSize).toBe(30);
-	});
-
-	it('gives the defaults and a message when the read fails', async () => {
-		from.mockReturnValue({
-			select: () => ({
-				maybeSingle: () => Promise.resolve({ data: null, error: { code: '500', message: 'x' } })
-			})
-		} as never);
-
-		expect(await loadPreferences()).toEqual({
-			preferences: defaultPreferences,
-			error: m.settings.profile.failed
-		});
 	});
 });
 
