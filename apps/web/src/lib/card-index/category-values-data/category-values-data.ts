@@ -30,11 +30,11 @@ type VisitPlacesResult = {
 };
 
 export async function loadVisitPlaces(): Promise<VisitPlacesResult> {
-	const { data, error } = await supabase.from('visits').select('category_values(name)');
-	if (error) return { places: [], error: collectionErrorMessage(error) };
-	const names = ((data ?? []) as unknown as VisitPlaceRow[]).flatMap(
-		(row) => row.category_values?.name ?? []
+	const { rows, error } = await fetchAll<VisitPlaceRow>((from, to) =>
+		supabase.from('visits').select('category_values(name)').order('id').range(from, to)
 	);
+	if (error) return { places: [], error: collectionErrorMessage(error) };
+	const names = rows.flatMap((row) => row.category_values?.name ?? []);
 	return { places: [...new Set(names)] };
 }
 
