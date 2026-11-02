@@ -15,7 +15,7 @@
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import { formatDate, signedYear } from '#lib/catalogue/years/years.ts';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
-	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import VisitsDisclosure from '#lib/chronicle/components/VisitsDisclosure/VisitsDisclosure.svelte';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
 	import MentionedIn from '#lib/notes/components/MentionedIn/MentionedIn.svelte';
@@ -25,7 +25,7 @@
 	type Props = {
 		artwork: ArtworkRecord;
 		noteLinks?: NoteLinks;
-		glossary?: GlossaryEntry[];
+		glossary?: GlossaryTerm[];
 		mentions: Mention[];
 		visits: Visit[];
 		summaries: ValueSummaries;

@@ -1,13 +1,13 @@
 <script lang="ts">
 	import GlossaryTermCard from '#lib/glossary/components/GlossaryTermCard/GlossaryTermCard.svelte';
-	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 	import type { Pin } from '#lib/pins/types/pin.ts';
 	import PinView from '#lib/pins/components/PinView/PinView.svelte';
 
 	type Props = {
 		pin: Pin;
-		entry?: GlossaryEntry;
+		entry?: GlossaryTerm;
 		image?: ArtworkImageInput | null;
 		shownWidth?: number;
 	};
@@ -21,7 +21,7 @@
 	{/if}
 	{#if entry}
 		<div class="entry">
-			<GlossaryTermCard {entry} linked />
+			<GlossaryTermCard linked term={entry} />
 		</div>
 	{/if}
 	{#if pin.text}

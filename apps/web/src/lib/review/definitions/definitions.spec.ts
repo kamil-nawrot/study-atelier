@@ -17,6 +17,7 @@ function entry(
 		definition,
 		synonyms: [],
 		forms: [],
+		hasDefinition: true,
 		sortName: null,
 		source: null
 	};

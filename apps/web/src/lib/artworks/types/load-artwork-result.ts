@@ -1,4 +1,4 @@
-import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import type { NoteLinks } from '@study-atelier/ui';
 import type { Pin } from '#lib/pins/types/pin.ts';
 import type { Preferences } from '#lib/profile/types/preferences.ts';
@@ -13,7 +13,7 @@ export type LoadArtworkResult = {
 	pins?: Pin[];
 	pinsError?: string;
 	noteLinks?: NoteLinks;
-	glossary?: GlossaryEntry[];
+	glossary?: GlossaryTerm[];
 	mentions?: Mention[];
 	visits?: Visit[];
 	summaries?: ValueSummaries;

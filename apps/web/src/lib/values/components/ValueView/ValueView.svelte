@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { ArtworkImage, Icon, type NoteLinks, Section } from '@study-atelier/ui';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
-	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
 		artworkImageCredit,
@@ -30,7 +30,7 @@
 		count: number;
 		details: ValueDetails;
 		noteLinks?: NoteLinks;
-		glossary?: GlossaryEntry[];
+		glossary?: GlossaryTerm[];
 		mentions?: Mention[];
 		visits?: Visit[];
 	};

@@ -6,7 +6,7 @@ import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
 import { loadOwnFieldDefinitions } from '#lib/card-index/own-fields-data/own-fields-data.ts';
 import { loadValueSummaries } from '#lib/card-index/value-summaries-data/value-summaries-data.ts';
 import { loadNoteLinks, mentionsLinks } from '#lib/notes/note-link-data/note-link-data.ts';
-import { loadGlossary } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { loadPreferences } from '#lib/profile/preferences-data/preferences-data.ts';
 import { loadArtworkPins } from '#lib/pins/pin-data/pin-data.ts';
@@ -24,13 +24,13 @@ export const load: PageLoad = async ({ params }): Promise<LoadArtworkResult> => 
 			loadOwnFieldDefinitions(),
 			loadPreferences(),
 			loadArtworkPins(number),
-			loadGlossary(),
+			loadTermIndex(),
 			loadArtworkVisits(number)
 		]);
 	const visits = seen.visits;
 	const preferences = loaded.preferences;
 	const ownFields = own.fields;
-	const glossary = result.artwork ? loadedGlossary.entries : undefined;
+	const glossary = result.artwork ? loadedGlossary.terms : undefined;
 	const pins = loadedPins.pins;
 	const pinsError = loadedPins.error;
 	if (!mentionsLinks(result.artwork?.notes)) {

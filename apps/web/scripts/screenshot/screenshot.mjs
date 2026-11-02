@@ -368,9 +368,18 @@ function glossaryRoute(route, request, url) {
 		);
 	}
 	const id = url.searchParams.get('id');
-	const rows = id?.startsWith('eq.')
-		? GLOSSARY_ENTRIES.filter((row) => row.id === id.slice(3))
-		: GLOSSARY_ENTRIES;
+	const select = url.searchParams.get('select') ?? '*';
+	const rows = (
+		id?.startsWith('eq.')
+			? GLOSSARY_ENTRIES.filter((row) => row.id === id.slice(3))
+			: GLOSSARY_ENTRIES
+	)
+		.map((row) => ({ ...row, has_definition: Boolean(row.definition?.trim()) }))
+		.map((row) =>
+			select === '*'
+				? row
+				: Object.fromEntries(select.split(',').map((column) => [column.trim(), row[column.trim()]]))
+		);
 	if (!wantsObject) return json(route, rows);
 	if (rows.length === 1) return json(route, rows[0]);
 	return json(

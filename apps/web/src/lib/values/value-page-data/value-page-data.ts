@@ -1,5 +1,5 @@
 import { loadPlaceVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
-import { loadGlossary } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
 import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.ts';
@@ -9,7 +9,7 @@ import { loadNoteLinks, noteLinksFrom } from '#lib/notes/note-link-data/note-lin
 import { emptyValueDetails } from '#lib/values/value-details/value-details.ts';
 import { loadValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
 import { findSubject, isValueKind, subjectPath } from '#lib/card-index/value-pages/value-pages.ts';
-import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import type { NoteLinks } from '@study-atelier/ui';
 import type { Visit } from '#lib/chronicle/types/visit.ts';
 import type { Mention } from '#lib/notes/types/mention.ts';
@@ -24,7 +24,7 @@ type ValuePageResult = {
 	artworks: WallArtwork[];
 	details: ValueDetails;
 	noteLinks?: NoteLinks;
-	glossary?: GlossaryEntry[];
+	glossary?: GlossaryTerm[];
 	mentions?: Mention[];
 	visits?: Visit[];
 	notFound?: boolean;
@@ -78,7 +78,7 @@ export async function loadValuePage(
 	]);
 	if (error) return failed(error);
 
-	const glossary = withArtworks && details.notes ? (await loadGlossary()).entries : undefined;
+	const glossary = withArtworks && details.notes ? (await loadTermIndex()).terms : undefined;
 	const noteLinks =
 		editorLinks ?? (withArtworks ? noteLinksFrom(cardIndex.index, atelier.artworks) : undefined);
 	return {

@@ -25,7 +25,10 @@ vi.mock('$app/state', () => ({
 	updated: { current: false }
 }));
 vi.mock('$app/navigation', () => ({ afterNavigate: vi.fn(), goto: vi.fn() }));
-vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({ deleteGlossaryEntry: vi.fn() }));
+vi.mock('#lib/glossary/glossary-data/glossary-data.ts', async () => ({
+	deleteGlossaryEntry: vi.fn(),
+	loadTermDefinition: vi.fn((await import('#lib/testing/glossary/glossary.ts')).testTermDefinition)
+}));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));

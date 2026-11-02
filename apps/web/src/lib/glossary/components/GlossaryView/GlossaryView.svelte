@@ -8,12 +8,13 @@
 		glossaryCategoryName
 	} from '#lib/glossary/categories/categories.ts';
 	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import { WIKIPEDIA_LICENCE_URL } from '#lib/glossary/wikipedia/wikipedia.ts';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
 
 	type Props = {
 		entry: GlossaryEntry;
-		entries?: GlossaryEntry[];
+		entries?: readonly GlossaryTerm[];
 		mentions?: Mention[];
 	};
 

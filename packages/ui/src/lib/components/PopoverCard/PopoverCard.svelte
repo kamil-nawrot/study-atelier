@@ -43,6 +43,13 @@
 		if (popover.open && popover.anchor) void place();
 	});
 
+	$effect(() => {
+		if (!card || !popover.open || typeof ResizeObserver === 'undefined') return;
+		const observer = new ResizeObserver(() => void place());
+		observer.observe(card);
+		return () => observer.disconnect();
+	});
+
 	function onwindowchange(): void {
 		if (popover.open) void place();
 	}

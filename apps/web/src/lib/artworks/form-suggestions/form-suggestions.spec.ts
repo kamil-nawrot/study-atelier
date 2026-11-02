@@ -5,7 +5,7 @@ import { emptyPlaceStarter } from '#lib/card-index/place-starter/place-starter.t
 import { loadPlaceStarter } from '#lib/card-index/place-starter-data/place-starter-data.ts';
 import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
 import { loadValueLinks } from '#lib/card-index/value-links-data/value-links-data.ts';
-import { loadGlossary } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { loadNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
 import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import type { NoteLinks } from '@study-atelier/ui';
@@ -20,7 +20,7 @@ vi.mock('#lib/card-index/value-links-data/value-links-data.ts', () => ({
 vi.mock('#lib/card-index/place-starter-data/place-starter-data.ts', () => ({
 	loadPlaceStarter: vi.fn()
 }));
-vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({ loadGlossary: vi.fn() }));
+vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({ loadTermIndex: vi.fn() }));
 vi.mock('#lib/notes/note-link-data/note-link-data.ts', () => ({ loadNoteLinks: vi.fn() }));
 
 const links = { minQueryLength: 1 } as unknown as NoteLinks;
@@ -36,7 +36,7 @@ describe('form suggestions', () => {
 		});
 		vi.mocked(loadValueLinks).mockResolvedValue({ links: emptyValueLinks() });
 		vi.mocked(loadPlaceStarter).mockResolvedValue(emptyPlaceStarter());
-		vi.mocked(loadGlossary).mockResolvedValue({ entries: [entry] });
+		vi.mocked(loadTermIndex).mockResolvedValue({ terms: [entry] });
 		vi.mocked(loadNoteLinks).mockResolvedValue(links);
 	});
 

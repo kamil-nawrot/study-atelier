@@ -115,7 +115,7 @@
 
 {#if termCard}
 	<PopoverCard id={cardId} {interactive} labelledby={termId} {popover}>
-		{#if activeTerm}
+		{#if activeTerm && popover.open}
 			{@render termCard(activeTerm)}
 		{/if}
 	</PopoverCard>

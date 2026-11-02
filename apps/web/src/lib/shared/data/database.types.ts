@@ -645,6 +645,7 @@ export type Database = {
           created_at: string;
           definition: string | null;
           forms: string[];
+          has_definition: boolean | null;
           id: string;
           name: string;
           owner_id: string;
@@ -662,6 +663,7 @@ export type Database = {
           created_at?: string;
           definition?: string | null;
           forms?: string[];
+          has_definition?: never;
           id?: string;
           name: string;
           owner_id?: string;
@@ -678,6 +680,7 @@ export type Database = {
           created_at?: string;
           definition?: string | null;
           forms?: string[];
+          has_definition?: never;
           id?: string;
           name?: string;
           owner_id?: string;
