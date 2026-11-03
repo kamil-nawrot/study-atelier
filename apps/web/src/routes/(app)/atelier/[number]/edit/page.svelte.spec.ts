@@ -79,7 +79,7 @@ function renderPage(
 			pins: [],
 			pinsError: undefined,
 			glossary: [],
-			noteLinks: undefined,
+			noteLinks: { suggest: () => [], resolve: () => undefined },
 			...result
 		},
 		params: { number }
