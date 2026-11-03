@@ -1,5 +1,5 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
-import { cacheKeys, forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
+import { cacheKeys, cached, forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import type { OwnField } from '#lib/card-index/types/own-field.ts';
@@ -56,7 +56,11 @@ function fieldsQuery(): PromiseLike<{
 		.order('position');
 }
 
-export async function loadOwnFieldDefinitions(): Promise<OwnFieldDefinitionsResult> {
+export function loadOwnFieldDefinitions(): Promise<OwnFieldDefinitionsResult> {
+	return cached(cacheKeys.ownFields, fetchOwnFieldDefinitions);
+}
+
+async function fetchOwnFieldDefinitions(): Promise<OwnFieldDefinitionsResult> {
 	const { data, error } = await fieldsQuery();
 	if (error) return { fields: [], error: collectionErrorMessage(error) };
 	return {
@@ -87,7 +91,12 @@ function cleanDescription(input: string): string | null {
 
 async function run(call: PromiseLike<{ error: { code?: string } | null }>): Promise<ActionResult> {
 	const { error } = await call;
-	forgetCached([cacheKeys.atelier, cacheKeys.cardIndex, cacheKeys.categoryValues]);
+	forgetCached([
+		cacheKeys.atelier,
+		cacheKeys.cardIndex,
+		cacheKeys.categoryValues,
+		cacheKeys.ownFields
+	]);
 	return error ? { error: await failureMessage(error, cardIndexErrorMessage) } : {};
 }
 

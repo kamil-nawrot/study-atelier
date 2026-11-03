@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
+import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { testOwnFields } from '#lib/testing/own-fields/own-fields.ts';
 import { withOwnValues } from '#lib/card-index/own-fields/own-fields.ts';
@@ -104,6 +105,7 @@ describe('loadOwnFields', () => {
 describe('loadOwnFieldDefinitions', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		forgetCached();
 		vi.mocked(supabase.from).mockReturnValue(query as never);
 		query.select.mockReturnValue(query);
 	});
@@ -119,6 +121,19 @@ describe('loadOwnFieldDefinitions', () => {
 		});
 		expect(query.order).toHaveBeenCalledWith('position');
 		expect(rpc).not.toHaveBeenCalled();
+	});
+
+	it('keeps the fields until a change to the own fields forgets them', async () => {
+		query.order.mockResolvedValue({ data: [], error: null });
+		query.insert.mockResolvedValue({ error: null });
+
+		await loadOwnFieldDefinitions();
+		await loadOwnFieldDefinitions();
+		expect(query.order).toHaveBeenCalledTimes(1);
+
+		await createOwnField({ name: 'Source', description: '', kind: 'text', multiple: false });
+		await loadOwnFieldDefinitions();
+		expect(query.order).toHaveBeenCalledTimes(2);
 	});
 });
 

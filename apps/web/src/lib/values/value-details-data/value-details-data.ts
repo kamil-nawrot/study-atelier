@@ -175,7 +175,7 @@ export async function saveValueDetails(
 			target_era: subject.code,
 			details: text
 		});
-		forgetCached([cacheKeys.atelier, cacheKeys.cardIndex]);
+		forgetCached([cacheKeys.atelier, cacheKeys.cardIndex, cacheKeys.eraSummaries]);
 		return error ? { error: await failureMessage(error, cardIndexErrorMessage) } : {};
 	}
 
