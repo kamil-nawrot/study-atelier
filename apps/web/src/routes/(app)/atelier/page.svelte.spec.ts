@@ -116,6 +116,9 @@ describe('atelier page', () => {
 			.toHaveTextContent(m.atelier.title);
 		await expect.element(page.getByText(m.atelier.count(3))).toBeVisible();
 		await expect
+			.element(page.getByRole('link', { name: m.statistics.wallLink(m.atelier.count(3)) }))
+			.toHaveAttribute('href', '/atelier/statistics');
+		await expect
 			.element(page.getByRole('link', { name: /Déjeuner sur l’herbe/ }))
 			.toHaveAttribute('href', '/atelier/3');
 		await expect.element(page.getByText('Starry Night')).toBeVisible();

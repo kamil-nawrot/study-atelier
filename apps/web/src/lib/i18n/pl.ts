@@ -1498,6 +1498,46 @@ export const pl = {
 			}
 		}
 	},
+	statistics: {
+		title: 'Statystyki',
+		lead: 'Twoja kolekcja w liczbach. Możesz tutaj ocenić, jak rozkłada się w poszczególnych kategoriach, a także poznać ciekawe fakty na temat obecnego stanu atelier.',
+		back: 'Atelier',
+		wallLink: (count: string): string => `Statystyki, ${count}`,
+		loadError: 'Nie udało się wczytać statystyk. Sprawdź internet i spróbuj jeszcze raz.',
+		emptyTitle: 'Statystyki pojawią się wraz z pierwszym dziełem',
+		empty:
+			'Tutaj zobaczysz swoją kolekcję w liczbach: jak rozkłada się na epoki, typy i style, kto jest na pierwszym planie i jak przybywa nabytków.',
+		addArtwork: 'Dodaj dzieło',
+		holdings: {
+			title: 'Stan zbiorów',
+			artworks: (count: number): string =>
+				plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' }),
+			authors: (count: number): string =>
+				plural(count, { one: 'autor', few: 'autorów', many: 'autorów' }),
+			places: (count: number): string =>
+				plural(count, { one: 'miejsce', few: 'miejsca', many: 'miejsc' }),
+			seen: (count: number): string =>
+				plural(count, {
+					one: 'dzieło widziane na żywo',
+					few: 'dzieła widziane na żywo',
+					many: 'dzieł widzianych na żywo'
+				}),
+			terms: (count: number): string =>
+				plural(count, {
+					one: 'hasło w Słowniczku',
+					few: 'hasła w Słowniczku',
+					many: 'haseł w Słowniczku'
+				}),
+			events: (count: number): string =>
+				plural(count, {
+					one: 'wydarzenie w Kalendarium',
+					few: 'wydarzenia w Kalendarium',
+					many: 'wydarzeń w Kalendarium'
+				}),
+			visits: (count: number): string =>
+				plural(count, { one: 'wizyta w Kronice', few: 'wizyty w Kronice', many: 'wizyt w Kronice' })
+		}
+	},
 	chronicle: {
 		title: 'Kronika',
 		lead: 'Dziennik Twoich wizyt w muzeach i innych spotkań ze sztuką. Możesz tutaj zapisać, gdzie i kiedy udało Ci się zobaczyć dzieła z Twojej kolekcji na żywo.',

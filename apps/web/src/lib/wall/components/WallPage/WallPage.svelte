@@ -7,6 +7,7 @@
 	import ArtworkWall from '#lib/wall/components/ArtworkWall/ArtworkWall.svelte';
 	import FilterTags from '#lib/wall/components/FilterTags/FilterTags.svelte';
 	import PeriodRail from '#lib/wall/components/PeriodRail/PeriodRail.svelte';
+	import WallCount from '#lib/wall/components/WallCount/WallCount.svelte';
 	import WallSections from '#lib/wall/components/WallSections/WallSections.svelte';
 	import WallWelcome from '#lib/wall/components/WallWelcome/WallWelcome.svelte';
 	import { onlyFavourites } from '#lib/wall/filter/filter.ts';
@@ -93,11 +94,11 @@
 					{view.collapsed.size > 0 ? m.atelier.grouping.expandAll : m.atelier.grouping.collapseAll}
 				</TextButton>
 			{/if}
-			<span class="caption">
-				{searching || view.filtering || view.shown.length < view.total
+			<WallCount
+				count={searching || view.filtering || view.shown.length < view.total
 					? m.atelier.filteredCount(view.shown.length, view.total)
 					: m.atelier.count(view.total)}
-			</span>
+			/>
 		</div>
 	{/if}
 </header>
@@ -189,10 +190,6 @@
 		justify-content: space-between;
 		align-items: baseline;
 		gap: var(--spacing-4);
-	}
-
-	.caption {
-		font-variant-numeric: tabular-nums;
 	}
 
 	.state {
