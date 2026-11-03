@@ -16,9 +16,9 @@
 	{#each rows as row (row.key)}
 		<li class:muted={row.muted}>
 			{#if row.href}
-				<a class="name" href={row.href}>{row.name}</a>
+				<a class="name" href={row.href} title={row.name}>{row.name}</a>
 			{:else}
-				<span class="name">{row.name}</span>
+				<span class="name" title={row.name}>{row.name}</span>
 			{/if}
 			<span class="track" aria-hidden="true">
 				<span style:width="{(100 * row.count) / scale}%" class="fill"></span>
@@ -44,7 +44,10 @@
 	}
 
 	.name {
-		overflow-wrap: anywhere;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.track {

@@ -3,24 +3,28 @@
 	import { Button, EmptyState } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
+	import AcquisitionsSection from '#lib/statistics/components/AcquisitionsSection/AcquisitionsSection.svelte';
 	import BlanksSection from '#lib/statistics/components/BlanksSection/BlanksSection.svelte';
 	import CompositionSection from '#lib/statistics/components/CompositionSection/CompositionSection.svelte';
 	import ForegroundSection from '#lib/statistics/components/ForegroundSection/ForegroundSection.svelte';
+	import MemorySection from '#lib/statistics/components/MemorySection/MemorySection.svelte';
 	import OdditiesSection from '#lib/statistics/components/OdditiesSection/OdditiesSection.svelte';
 	import HoldingsSection from '#lib/statistics/components/HoldingsSection/HoldingsSection.svelte';
 	import { dimensionsOf } from '#lib/statistics/dimensions/dimensions.ts';
 	import { holdingsOf } from '#lib/statistics/holdings/holdings.ts';
 	import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+	import type { ReviewCard } from '#lib/review/types/review-card.ts';
 	import type { CollectionStatistics } from '#lib/statistics/types/collection-statistics.ts';
 
 	type Props = {
 		artworks: WallArtwork[];
 		statistics: CollectionStatistics;
 		ownFields?: OwnFieldDefinition[];
+		cards?: Map<string, ReviewCard>;
 	};
 
-	let { artworks, statistics, ownFields }: Props = $props();
+	let { artworks, statistics, ownFields, cards = new Map() }: Props = $props();
 
 	let holdings = $derived(holdingsOf(artworks));
 	let dimensions = $derived(dimensionsOf(ownFields));
@@ -41,6 +45,10 @@
 		<ForegroundSection {artworks} {dimensions} />
 		<BlanksSection {artworks} />
 		<OdditiesSection {artworks} {statistics} />
+		<MemorySection {artworks} {cards} {statistics} />
+		{#if statistics.growth}
+			<AcquisitionsSection growth={statistics.growth} />
+		{/if}
 	</div>
 {/if}
 
@@ -48,7 +56,7 @@
 	.view {
 		display: grid;
 		gap: var(--spacing-12);
-		max-width: var(--size-content-default);
+		max-width: var(--size-content-wide);
 	}
 
 	header {

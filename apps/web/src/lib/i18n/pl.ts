@@ -1607,6 +1607,30 @@ export const pl = {
 			datesLater: 'Rekordy dat pojawią się, gdy co najmniej dwa dzieła będą miały rok powstania.',
 			noneYet: 'Rekordy pojawią się, gdy dzieła i autorzy będą mieli więcej szczegółów.'
 		},
+		memory: {
+			title: 'W pamięci',
+			quiz: 'Poprawne odpowiedzi w quizach',
+			quizShare: (correct: number, all: number): string =>
+				`${correct} ${all >= 100 && all < 200 ? 'ze' : 'z'} ${all}`,
+			quizLater: (count: number): string =>
+				`Odsetek poprawnych odpowiedzi pojawi się po 20 odpowiedziach w quizach. Na razie jest ich ${count}.`,
+			mostReviewed: 'Najczęściej w powtórkach',
+			forgotten: 'Najczęściej zapominane',
+			times: (count: number): string =>
+				`${count} ${plural(count, { one: 'raz', few: 'razy', many: 'razy' })}`,
+			stable: 'Najmocniej utrwalone: ',
+			stableIn: (days: number): string =>
+				`, wróci w powtórkach za ${days} ${plural(days, { one: 'dzień', few: 'dni', many: 'dni' })}.`,
+			noCards: 'Statystyki powtórek pojawią się po pierwszej powtórce.'
+		},
+		acquisitions: {
+			title: 'Nabytki',
+			caption: (unit: 'day' | 'week' | 'month', first: string): string =>
+				`Dzieła dodane w kolejnych ${{ day: 'dniach', week: 'tygodniach', month: 'miesiącach' }[unit]}, od pierwszego dzieła ${first}.`,
+			column: (when: string, count: number): string => `${when}: ${workCount(count)}`,
+			weekFrom: (day: string): string => `od ${day}`,
+			chart: 'Dzieła dodane w czasie'
+		},
 		foreground: {
 			title: 'Na pierwszym planie',
 			tabsLabel: 'Ranking',
