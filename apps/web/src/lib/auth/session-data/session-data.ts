@@ -10,11 +10,15 @@ export async function currentSession(): Promise<Session | null> {
 	return session;
 }
 
+function sessionLearner(session: Session | null | undefined): string | undefined {
+	return session ? `${session.user.id} ${session.user.email ?? ''}` : undefined;
+}
+
 export function watchSession(current: () => Session | null, onChange: () => void): () => void {
 	const {
 		data: { subscription }
 	} = supabase.auth.onAuthStateChange((_event, session) => {
-		if (session?.access_token !== current()?.access_token) {
+		if (sessionLearner(session) !== sessionLearner(current())) {
 			onChange();
 		}
 	});

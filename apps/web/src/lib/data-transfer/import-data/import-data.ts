@@ -9,23 +9,9 @@ import type { Upload } from '#lib/data-transfer/types/upload.ts';
 
 export const ATELIER_EMPTY_DEPENDENCY = 'atelier:empty';
 
-const FILLED_TABLES = [
-	'artworks',
-	'category_values',
-	'glossary_entries',
-	'timeline_events',
-	'artwork_fields',
-	'visits'
-] as const;
-
 export async function loadAtelierEmpty(): Promise<boolean | undefined> {
-	const results = await Promise.all(
-		FILLED_TABLES.map((table) =>
-			supabase.from(table).select('*', { count: 'exact', head: true }).limit(1)
-		)
-	);
-	if (results.some((result) => result.error)) return undefined;
-	return results.every((result) => (result.count ?? 0) === 0);
+	const { data, error } = await supabase.rpc('atelier_empty');
+	return error ? undefined : data;
 }
 
 export async function currentOwnerId(): Promise<string | undefined> {

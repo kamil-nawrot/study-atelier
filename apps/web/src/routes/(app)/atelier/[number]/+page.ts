@@ -13,7 +13,7 @@ import { loadArtworkPins } from '#lib/pins/pin-data/pin-data.ts';
 import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = async ({ params, parent }): Promise<LoadArtworkResult> => {
+export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadArtworkResult> => {
 	const number = parseRecordNumber(params.number);
 	if (number === null) return { error: m.artworkErrors.notFound, notFound: true };
 	const [result, mentions, summaries, own, layout, loadedPins, loadedGlossary, seen] =
@@ -25,7 +25,7 @@ export const load: PageLoad = async ({ params, parent }): Promise<LoadArtworkRes
 			),
 			loadValueSummaries(number),
 			loadOwnFieldDefinitions(),
-			parent(),
+			untrack(() => parent()),
 			loadArtworkPins(number),
 			loadTermIndex(),
 			loadArtworkVisits(number)

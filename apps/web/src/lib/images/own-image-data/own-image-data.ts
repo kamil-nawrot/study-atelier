@@ -54,6 +54,19 @@ export async function ownImageUrl(path: string): Promise<string | undefined> {
 	return data.signedUrl;
 }
 
+export async function ownImageUrls(paths: string[]): Promise<Map<string, string>> {
+	if (paths.length === 0) return new Map();
+	const { data, error } = await supabase.storage
+		.from(IMAGES_BUCKET)
+		.createSignedUrls(paths, SIGNED_URL_SECONDS);
+	if (error || !data) return new Map();
+	return new Map(
+		data
+			.filter((entry) => entry.path && entry.signedUrl && !entry.error)
+			.map((entry) => [entry.path as string, entry.signedUrl as string])
+	);
+}
+
 const LIST_PAGE = 1000;
 
 export async function removeAllOwnFiles(ownerId: string): Promise<boolean> {

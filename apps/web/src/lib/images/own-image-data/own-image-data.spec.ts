@@ -10,6 +10,7 @@ import {
 } from '#lib/images/bucket/bucket.ts';
 import {
 	ownImageUrl,
+	ownImageUrls,
 	removeAllOwnFiles,
 	removeOwnImage,
 	uploadOwnImage
@@ -19,7 +20,12 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { getSession: vi.fn() }, storage: { from: vi.fn() } }
 }));
 
-const bucket = { upload: vi.fn(), remove: vi.fn(), createSignedUrl: vi.fn() };
+const bucket = {
+	upload: vi.fn(),
+	remove: vi.fn(),
+	createSignedUrl: vi.fn(),
+	createSignedUrls: vi.fn()
+};
 
 function file(type: string, size = 100, name = 'photo'): File {
 	return new File([new Uint8Array(size)], name, { type });
@@ -143,6 +149,44 @@ describe('ownImageUrl', () => {
 		bucket.createSignedUrl.mockResolvedValue({ data: null, error: new Error('Object not found') });
 
 		await expect(ownImageUrl('user-id/missing.png')).resolves.toBeUndefined();
+	});
+});
+
+describe('ownImageUrls', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		vi.mocked(supabase.storage.from).mockReturnValue(bucket as never);
+	});
+
+	it('signs several files in one request and leaves out the ones that fail', async () => {
+		bucket.createSignedUrls.mockResolvedValue({
+			data: [
+				{
+					path: 'user-id/a.png',
+					signedUrl: 'https://storage.example.com/signed/a.png',
+					error: null
+				},
+				{ path: 'user-id/b.png', signedUrl: '', error: 'Object not found' }
+			],
+			error: null
+		});
+
+		const urls = await ownImageUrls(['user-id/a.png', 'user-id/b.png']);
+
+		expect(urls).toEqual(new Map([['user-id/a.png', 'https://storage.example.com/signed/a.png']]));
+		expect(bucket.createSignedUrls).toHaveBeenCalledOnce();
+		expect(bucket.createSignedUrls).toHaveBeenCalledWith(
+			['user-id/a.png', 'user-id/b.png'],
+			SIGNED_URL_SECONDS
+		);
+	});
+
+	it('asks nothing for no files and returns nothing when the request fails', async () => {
+		await expect(ownImageUrls([])).resolves.toEqual(new Map());
+		expect(bucket.createSignedUrls).not.toHaveBeenCalled();
+
+		bucket.createSignedUrls.mockResolvedValue({ data: null, error: new Error('Network') });
+		await expect(ownImageUrls(['user-id/a.png'])).resolves.toEqual(new Map());
 	});
 });
 

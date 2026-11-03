@@ -1,4 +1,5 @@
-import { IMAGES_BUCKET, SIGNED_URL_SECONDS, ownThumbnailPath } from '#lib/images/bucket/bucket.ts';
+import { SIGNED_URL_SECONDS, ownThumbnailPath } from '#lib/images/bucket/bucket.ts';
+import { ownImageUrls } from '#lib/images/own-image-data/own-image-data.ts';
 import { fetchCommonsThumbnails } from '#lib/images/commons/commons.ts';
 import { backfillThumbnails } from '#lib/images/thumbnail-backfill/thumbnail-backfill.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
@@ -76,21 +77,8 @@ const ARTWORK_COLUMNS = [
 	'visit_artworks(visit_id)'
 ].join(', ');
 
-async function signedUrls(paths: string[]): Promise<Map<string, string>> {
-	if (paths.length === 0) return new Map();
-	const { data, error } = await supabase.storage
-		.from(IMAGES_BUCKET)
-		.createSignedUrls(paths, SIGNED_URL_SECONDS);
-	if (error || !data) return new Map();
-	return new Map(
-		data
-			.filter((entry) => entry.path && entry.signedUrl && !entry.error)
-			.map((entry) => [entry.path as string, entry.signedUrl as string])
-	);
-}
-
 async function wallImageUrls(paths: string[]): Promise<Map<string, string>> {
-	const thumbnails = await signedUrls(paths.map(ownThumbnailPath));
+	const thumbnails = await ownImageUrls(paths.map(ownThumbnailPath));
 	const urls = new Map<string, string>();
 	const withoutThumbnail: string[] = [];
 	for (const path of paths) {
@@ -98,7 +86,7 @@ async function wallImageUrls(paths: string[]): Promise<Map<string, string>> {
 		if (thumbnail) urls.set(path, thumbnail);
 		else withoutThumbnail.push(path);
 	}
-	const originals = await signedUrls(withoutThumbnail);
+	const originals = await ownImageUrls(withoutThumbnail);
 	for (const [path, url] of originals) urls.set(path, url);
 	backfillThumbnails(originals);
 	return urls;

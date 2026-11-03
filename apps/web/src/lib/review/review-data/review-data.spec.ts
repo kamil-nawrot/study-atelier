@@ -347,10 +347,11 @@ describe('review data', () => {
 	});
 
 	it('signs the own image of a pin question and leaves the other items as they are', async () => {
-		const createSignedUrl = vi
-			.fn()
-			.mockResolvedValue({ data: { signedUrl: 'https://signed.test/pin.jpg' }, error: null });
-		vi.mocked(supabase.storage.from).mockReturnValue({ createSignedUrl } as never);
+		const createSignedUrls = vi.fn().mockResolvedValue({
+			data: [{ path: 'owner/pin.jpg', signedUrl: 'https://signed.test/pin.jpg', error: null }],
+			error: null
+		});
+		vi.mocked(supabase.storage.from).mockReturnValue({ createSignedUrls } as never);
 		const flashcard: ReviewItem = {
 			artwork: testArtwork(1, 'Lily'),
 			card: null,
@@ -378,6 +379,6 @@ describe('review data', () => {
 			height: 600,
 			previewUrl: 'https://signed.test/pin.jpg'
 		});
-		expect(createSignedUrl).toHaveBeenCalledWith('owner/pin.jpg', expect.any(Number));
+		expect(createSignedUrls).toHaveBeenCalledWith(['owner/pin.jpg'], expect.any(Number));
 	});
 });
