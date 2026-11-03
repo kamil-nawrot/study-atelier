@@ -4,11 +4,12 @@
 	type Props = {
 		rows: BarRow[];
 		faint?: boolean;
+		max?: number;
 	};
 
-	let { rows, faint = false }: Props = $props();
+	let { rows, faint = false, max }: Props = $props();
 
-	let max = $derived(Math.max(1, ...rows.map((row) => row.count)));
+	let scale = $derived(max ?? Math.max(1, ...rows.map((row) => row.count)));
 </script>
 
 <ul class:faint>
@@ -20,7 +21,7 @@
 				<span class="name">{row.name}</span>
 			{/if}
 			<span class="track" aria-hidden="true">
-				<span style:width="{(100 * row.count) / max}%" class="fill"></span>
+				<span style:width="{(100 * row.count) / scale}%" class="fill"></span>
 			</span>
 			<span class="count">{row.count}</span>
 		</li>
