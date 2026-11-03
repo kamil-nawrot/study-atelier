@@ -4,7 +4,7 @@ import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { loadNoteLinkLabels } from '#lib/notes/note-link-data/note-link-data.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
-import { loadArtworksById, loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
+import { loadArtworksOfVisit, loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
 import { loadChronicle, loadVisitPage } from './chronicle-page-data.ts';
 
 vi.mock('#lib/chronicle/chronicle-data/chronicle-data.ts', () => ({
@@ -17,7 +17,7 @@ vi.mock('#lib/notes/note-link-data/note-link-data.ts', async (original) => ({
 	loadNoteLinkLabels: vi.fn()
 }));
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
-	loadArtworksById: vi.fn(),
+	loadArtworksOfVisit: vi.fn(),
 	loadAtelier: vi.fn()
 }));
 
@@ -26,7 +26,7 @@ const lilies = testArtwork(1, 'Water Lilies');
 beforeEach(() => {
 	vi.clearAllMocks();
 	vi.mocked(loadAtelier).mockResolvedValue({ artworks: [lilies] });
-	vi.mocked(loadArtworksById).mockResolvedValue({ artworks: [lilies] });
+	vi.mocked(loadArtworksOfVisit).mockResolvedValue({ artworks: [lilies] });
 	vi.mocked(loadTermIndex).mockResolvedValue({ terms: [] });
 	vi.mocked(loadNoteLinkLabels).mockResolvedValue(undefined);
 });
@@ -58,12 +58,12 @@ describe('loadVisitPage', () => {
 		expect(loadAtelier).not.toHaveBeenCalled();
 	});
 
-	it('does not load the collection for a visit without artworks', async () => {
+	it('shows no artworks for a visit without artworks', async () => {
 		vi.mocked(loadVisit).mockResolvedValue({ visit: testVisit({ artworkIds: [] }) });
 
 		const data = await loadVisitPage('id');
 
-		expect(loadArtworksById).not.toHaveBeenCalled();
+		expect(loadAtelier).not.toHaveBeenCalled();
 		expect(data.artworks).toEqual([]);
 	});
 
@@ -74,7 +74,7 @@ describe('loadVisitPage', () => {
 
 		expect(loadNoteLinkLabels).not.toHaveBeenCalled();
 		expect(loadTermIndex).toHaveBeenCalled();
-		expect(loadArtworksById).toHaveBeenCalledWith([lilies.id]);
+		expect(loadArtworksOfVisit).toHaveBeenCalledWith('id');
 		expect(loadAtelier).not.toHaveBeenCalled();
 		expect(data.artworks).toEqual([lilies]);
 		expect(data.glossary).toEqual([]);
@@ -88,7 +88,7 @@ describe('loadVisitPage', () => {
 		expect(loadNoteLinkLabels).toHaveBeenCalledExactlyOnceWith({ visitId: 'id' });
 
 		vi.clearAllMocks();
-		vi.mocked(loadArtworksById).mockResolvedValue({ artworks: [] });
+		vi.mocked(loadArtworksOfVisit).mockResolvedValue({ artworks: [] });
 		vi.mocked(loadVisit).mockResolvedValue({ visit: testVisit({ notes: '' }) });
 		await loadVisitPage('id');
 		expect(loadTermIndex).not.toHaveBeenCalled();

@@ -93,7 +93,7 @@ export const NoteLinkSuggestion = Extension.create<NoteLinkSuggestionOptions>({
 				pluginKey,
 				char: trigger,
 				allowSpaces: true,
-				items: ({ query }) => options.items(trigger, query),
+				items: ({ query, signal }) => options.items(trigger, query, signal),
 				command: ({ editor: target, range, props }) => insertLink(target, range, props),
 				render: () => {
 					const show = (

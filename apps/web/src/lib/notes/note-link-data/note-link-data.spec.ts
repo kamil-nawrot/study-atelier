@@ -92,6 +92,23 @@ describe('loadEditorNoteLinks', () => {
 		expect(await suggested(links, 'dor')).toEqual(['/atelier/values/style/style-doric']);
 	});
 
+	it('cancels the search request with the signal of the editor', async () => {
+		const abortSignal = vi.fn().mockResolvedValue({ data: [], error: null });
+		vi.mocked(supabase.rpc).mockReturnValue({ abortSignal } as never);
+		const links = await loadEditorNoteLinks();
+		const controller = new AbortController();
+
+		const options = links.suggest('#', 'dor', controller.signal);
+		await vi.advanceTimersByTimeAsync(150);
+
+		expect(await options).toEqual([]);
+		expect(supabase.rpc).toHaveBeenCalledWith('note_link_suggestions', {
+			link_trigger: '#',
+			phrase: 'dor'
+		});
+		expect(abortSignal).toHaveBeenCalledWith(controller.signal);
+	});
+
 	it('keeps suggesting the eras when the search fails', async () => {
 		vi.mocked(supabase.rpc).mockResolvedValue({
 			data: null,

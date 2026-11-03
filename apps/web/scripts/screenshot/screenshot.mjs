@@ -153,6 +153,23 @@ function filteredRows(url) {
 	}
 	const era = params.get('era_code');
 	if (era?.startsWith('eq.')) rows = rows.filter((row) => row.era_code === era.slice(3));
+	const term = params.get('pinned.artwork_pins.glossary_entry_id');
+	if (term?.startsWith('eq.')) {
+		rows = rows.filter((row) =>
+			ARTWORK_PINS.some(
+				(pin) =>
+					pin.glossary_entry_id === term.slice(3) &&
+					row.artwork_images.some((image) => image.id === pin.image_id)
+			)
+		);
+	}
+	const visit = params.get('seen.visit_id');
+	if (visit?.startsWith('eq.')) {
+		const seen = VISITS.find((candidate) => candidate.id === visit.slice(3));
+		rows = rows.filter((row) =>
+			(seen?.visit_artworks ?? []).some((link) => link.artwork_id === row.id)
+		);
+	}
 	const value = params.get('valued.value_id');
 	if (value?.startsWith('eq.')) {
 		rows = rows.filter((row) =>

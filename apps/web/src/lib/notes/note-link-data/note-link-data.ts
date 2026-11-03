@@ -56,12 +56,11 @@ export async function loadNoteLinkLabels(source: NoteLinkSource): Promise<NoteLi
 
 async function searchNoteLinks(
 	trigger: NoteLinkTrigger,
-	phrase: string
+	phrase: string,
+	signal?: AbortSignal
 ): Promise<NoteLinkOption[]> {
-	const { data, error } = await supabase.rpc('note_link_suggestions', {
-		link_trigger: trigger,
-		phrase
-	});
+	const request = supabase.rpc('note_link_suggestions', { link_trigger: trigger, phrase });
+	const { data, error } = await (signal ? request.abortSignal(signal) : request);
 	const options = error
 		? []
 		: (data as NoteLinkSuggestionRow[])
