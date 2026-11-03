@@ -83,6 +83,19 @@ describe('review scopes', () => {
 		]);
 	});
 
+	it('offers the artworks seen in person right after the whole collection, with the same thresholds', () => {
+		const seen = large(22, { eraCode: 'modern', seen: true });
+		const few = large(19, { eraCode: 'contemporary', seen: true });
+
+		expect(scopeOptions(seen, cardsFor(dueToday(seen.slice(0, 10))), now)).toEqual([
+			{ kind: 'all' },
+			{ kind: 'seen' },
+			{ kind: 'era', code: 'modern' }
+		]);
+		expect(scopeOptions(few, cardsFor(dueToday(few)), now)).toEqual([{ kind: 'all' }]);
+		expect(scopeArtworks([...seen, ...large(3, {})], { kind: 'seen' })).toHaveLength(22);
+	});
+
 	it('leaves out a scope with fewer than 20 artworks with an image, however many are due', () => {
 		const ancient = large(15, { eraCode: 'antiquity' });
 		const unseen = large(25, { eraCode: 'antiquity', hasImage: false });
