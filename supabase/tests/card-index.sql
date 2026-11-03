@@ -30,7 +30,7 @@ begin
   select id into leonardo from public.category_values where category_code = 'author' and name = 'Leonardo da Vinci';
   select id into louvre from public.category_values where category_code = 'location' and name = 'Louvre';
   select id into renaissance from public.category_values where category_code = 'period' and name = 'Renaissance';
-  insert into public.author_details (value_id, sort_name, birth_year) values (leonardo, 'Leonardo', 1452);
+  perform public.save_value_details(leonardo, '{"sort_name": "Leonardo", "birth_year": 1452}');
   insert into public.location_details (value_id, country_code) values (louvre, 'FR');
   perform public.set_period_eras(renaissance, array['early_modern', 'middle_ages']);
   perform public.set_style_periods(
