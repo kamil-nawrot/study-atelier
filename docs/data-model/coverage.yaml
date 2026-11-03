@@ -224,7 +224,7 @@ tasks:
     }
   T4: { name: 'Preload only the core of the next artwork', status: 'option open, D3' }
   T5: { name: 'Page every list query past 1000 rows (bug)', status: 'done in 0.16, ATL-407' }
-  T7: { name: 'Remember Commons thumbnail URLs on the device', status: planned }
+  T7: { name: 'Remember Commons thumbnail URLs on the device', status: 'done, ATL-428, ADR-0172' }
   T8:
     {
       name: 'Forget only the cache keys a write changes',
