@@ -1575,6 +1575,38 @@ export const pl = {
 				value: 'bez wartości'
 			}
 		},
+		blanks: {
+			title: 'Białe plamy',
+			lead: 'Dzieła, którym brakuje obrazu, roku, epoki, okresu albo typu.'
+		},
+		oddities: {
+			title: 'Osobliwości',
+			oldest: 'Najstarsze dzieło',
+			newest: 'Najmłodsze dzieło',
+			longestBuilt: 'Powstawało najdłużej',
+			longestLived: 'Najdłużej żyjący autor',
+			versatile: 'Najbardziej wszechstronny autor',
+			materials: 'Najwięcej materiałów u jednego autora',
+			pins: 'Najwięcej pinezek',
+			visit: 'Najwięcej dzieł z jednej wizyty',
+			years: (count: number): string =>
+				`${count} ${plural(count, { one: 'rok', few: 'lata', many: 'lat' })}`,
+			materialCount: (count: number): string =>
+				`${count} ${plural(count, { one: 'materiał', few: 'materiały', many: 'materiałów' })}`,
+			pinCount: (count: number): string =>
+				`${count} ${plural(count, { one: 'pinezka', few: 'pinezki', many: 'pinezek' })}`,
+			artworkCount: (count: number): string => workCount(count),
+			list: (items: string[]): string =>
+				items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} i ${items.at(-1)}`,
+			tiedArtworks: (count: number): string =>
+				`i ${count} ${plural(count, { one: 'inne', few: 'inne', many: 'innych' })}`,
+			tiedAuthors: (count: number): string =>
+				`i ${count} ${plural(count, { one: 'inny', few: 'innych', many: 'innych' })}`,
+			tiedVisits: (count: number): string =>
+				`i ${count} ${plural(count, { one: 'inna', few: 'inne', many: 'innych' })}`,
+			datesLater: 'Rekordy dat pojawią się, gdy co najmniej dwa dzieła będą miały rok powstania.',
+			noneYet: 'Rekordy pojawią się, gdy dzieła i autorzy będą mieli więcej szczegółów.'
+		},
 		foreground: {
 			title: 'Na pierwszym planie',
 			tabsLabel: 'Ranking',

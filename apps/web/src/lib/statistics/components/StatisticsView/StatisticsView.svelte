@@ -3,8 +3,10 @@
 	import { Button, EmptyState } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
+	import BlanksSection from '#lib/statistics/components/BlanksSection/BlanksSection.svelte';
 	import CompositionSection from '#lib/statistics/components/CompositionSection/CompositionSection.svelte';
 	import ForegroundSection from '#lib/statistics/components/ForegroundSection/ForegroundSection.svelte';
+	import OdditiesSection from '#lib/statistics/components/OdditiesSection/OdditiesSection.svelte';
 	import HoldingsSection from '#lib/statistics/components/HoldingsSection/HoldingsSection.svelte';
 	import { dimensionsOf } from '#lib/statistics/dimensions/dimensions.ts';
 	import { holdingsOf } from '#lib/statistics/holdings/holdings.ts';
@@ -37,6 +39,8 @@
 		<HoldingsSection {holdings} {statistics} />
 		<CompositionSection {artworks} {dimensions} />
 		<ForegroundSection {artworks} {dimensions} />
+		<BlanksSection {artworks} />
+		<OdditiesSection {artworks} {statistics} />
 	</div>
 {/if}
 
