@@ -5,6 +5,7 @@ import {
 	removeOwnImage,
 	uploadOwnImage
 } from '#lib/images/own-image-data/own-image-data.ts';
+import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyAuthorDetails } from '#lib/values/author-form/author-form.ts';
 import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
@@ -12,6 +13,10 @@ import { loadValueDetails, saveValueDetails } from './value-details-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { rpc: vi.fn(), from: vi.fn() }
+}));
+vi.mock('#lib/shared/data/data-cache/data-cache.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/shared/data/data-cache/data-cache.ts')>()),
+	forgetCached: vi.fn()
 }));
 vi.mock('#lib/images/own-image-data/own-image-data.ts', () => ({
 	uploadOwnImage: vi.fn(),
@@ -96,6 +101,24 @@ describe('saveValueDetails', () => {
 			target_era: 'antiquity',
 			details: { summary: 'Greece and Rome.', notes: '' }
 		});
+	});
+
+	it('forgets only what reads the details of each kind', async () => {
+		const location: ValueSubject = {
+			kind: 'location',
+			record: { id: 'l1', category: 'location', name: 'Louvre', count: 1 }
+		};
+		await saveValueDetails(style, { summary: 'x', notes: '' });
+		await saveValueDetails(era, { summary: 'x', notes: '' });
+		await saveValueDetails(author, { summary: 'x', notes: '', author: emptyAuthorDetails() });
+		await saveValueDetails(location, { summary: 'x', notes: '' });
+
+		expect(vi.mocked(forgetCached).mock.calls).toEqual([
+			[[]],
+			[['era-summaries']],
+			[['atelier', 'card-index']],
+			[['card-index']]
+		]);
 	});
 
 	it('reports a failed save', async () => {
