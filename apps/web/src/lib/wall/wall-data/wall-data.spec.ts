@@ -8,7 +8,8 @@ import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { SIGNED_URL_SECONDS } from '#lib/images/bucket/bucket.ts';
 import { DEFAULT_IMAGE_SIZE } from '#lib/wall/tile-image/tile-image.ts';
 import {
-	loadArtworksById,
+	loadArtworksOfTerm,
+	loadArtworksOfVisit,
 	loadArtworksOfValue,
 	loadAtelier,
 	loadTrash,
@@ -31,7 +32,6 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 
 const query = {
 	select: vi.fn(),
-	in: vi.fn(),
 	eq: vi.fn(),
 	is: vi.fn(),
 	not: vi.fn(),
@@ -96,43 +96,43 @@ async function loadResolved(): Promise<WallArtwork[]> {
 
 beforeEach(() => forgetCached());
 
-describe('loadArtworksById', () => {
+describe('loadArtworksOfValue', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		resolvedImages.clear();
 		vi.mocked(supabase.from).mockReturnValue(query as never);
 		query.select.mockReturnValue(query);
-		query.in.mockReturnValue(query);
 		query.is.mockReturnValue(query);
 		query.eq.mockReturnValue(query);
 		query.order.mockReturnValue(query);
 		query.limit.mockReturnValue(query);
 	});
 
-	it('asks only for the given artworks outside the trash, in the columns of the wall', async () => {
+	it('asks for the artworks pinned with a term outside the trash, in the columns of the wall', async () => {
 		query.range.mockResolvedValue({ data: [row()], error: null });
 
-		const { artworks } = await loadArtworksById(['artwork-1', 'artwork-2']);
+		const { artworks } = await loadArtworksOfTerm('term-1');
 
-		expect(query.in).toHaveBeenCalledWith('id', ['artwork-1', 'artwork-2']);
+		expect(query.select.mock.calls[0][0]).toContain(
+			'pinned:artwork_images!inner(artwork_pins!inner(glossary_entry_id))'
+		);
+		expect(query.eq).toHaveBeenCalledWith('pinned.artwork_pins.glossary_entry_id', 'term-1');
 		expect(query.is).toHaveBeenCalledWith('deleted_at', null);
 		expect(artworks.map((artwork) => artwork.id)).toEqual([row().id]);
 	});
 
-	it('asks for the artworks of a value through its links and of an era by its code', async () => {
+	it('asks for the artworks of a value or a visit through their links and of an era by its code', async () => {
 		query.range.mockResolvedValue({ data: [], error: null });
 
 		await loadArtworksOfValue({ valueId: 'value-1' });
 		await loadArtworksOfValue({ eraCode: 'antiquity' });
+		await loadArtworksOfVisit('visit-1');
 
 		expect(query.select.mock.calls[0][0]).toContain('valued:artwork_values!inner(value_id)');
+		expect(query.select.mock.calls[2][0]).toContain('seen:visit_artworks!inner(visit_id)');
+		expect(query.eq).toHaveBeenCalledWith('seen.visit_id', 'visit-1');
 		expect(query.eq).toHaveBeenCalledWith('valued.value_id', 'value-1');
 		expect(query.eq).toHaveBeenCalledWith('era_code', 'antiquity');
-	});
-
-	it('sends no request without ids', async () => {
-		await expect(loadArtworksById([])).resolves.toEqual({ artworks: [] });
-		expect(supabase.from).not.toHaveBeenCalled();
 	});
 });
 

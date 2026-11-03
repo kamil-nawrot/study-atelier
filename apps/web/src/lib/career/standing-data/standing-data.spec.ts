@@ -111,10 +111,11 @@ describe('standing data', () => {
 
 	it('gives no round summary when something fails', async () => {
 		standing(null, { message: 'TypeError: Failed to fetch' });
+		tables({ point_events: { data: null, error: null } });
 		await expect(loadRoundCareer(new Date())).resolves.toEqual({
 			error: m.collectionErrors.network
 		});
-		expect(from).not.toHaveBeenCalled();
+		expect(from).not.toHaveBeenCalledWith('exhibit_tiers');
 
 		standing({ points: 1846, new_tiers: 0, rank_seen: 5 });
 		tables({
