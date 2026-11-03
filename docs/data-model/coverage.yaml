@@ -202,7 +202,10 @@ tasks:
   T1: { name: 'Read the own profile once per app start', status: planned }
   T2: { name: 'Load the career standing with one database function', status: planned }
   T3':
-    { name: 'Cache own field definitions, era summaries and the museum catalogue', status: planned }
+    {
+      name: 'Cache own field definitions, era summaries and the museum catalogue',
+      status: 'done, ATL-423, ADR-0170'
+    }
   T4: { name: 'Preload only the core of the next artwork', status: 'option open, D3' }
   T5: { name: 'Page every list query past 1000 rows (bug)', status: planned }
   T7: { name: 'Remember Commons thumbnail URLs on the device', status: planned }

@@ -1,3 +1,4 @@
+import { cacheKeys, cached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { countryName, isCountryCode } from '#lib/catalogue/countries/countries.ts';
 import { formatLifeYears } from '#lib/catalogue/years/years.ts';
@@ -11,6 +12,10 @@ import type { ValueSummary } from '#lib/card-index/types/value-summary.ts';
 import type { ValueSummaries } from '#lib/card-index/types/value-summaries.ts';
 
 type SummaryRow = { summary: string | null };
+
+type EraSummaryRow = { era_code: string; summary: string | null };
+
+type EraSummariesResult = { rows: EraSummaryRow[]; error?: unknown };
 
 type AuthorSummaryRow = SummaryRow & {
 	birth_year: number | null;
@@ -48,10 +53,15 @@ function valueSummary(row: ValueRow): [string, ValueSummary] | null {
 	];
 }
 
+async function fetchEraSummaries(): Promise<EraSummariesResult> {
+	const { data, error } = await supabase.from('era_details').select('era_code, summary');
+	return error ? { rows: [], error } : { rows: data ?? [] };
+}
+
 export async function loadValueSummaries(number: number): Promise<ValueSummaries> {
 	const [values, eras] = await Promise.all([
 		supabase.from('artwork_values').select(VALUE_COLUMNS).eq('artworks.record_number', number),
-		supabase.from('era_details').select('era_code, summary')
+		cached(cacheKeys.eraSummaries, fetchEraSummaries)
 	]);
 	if (values.error || eras.error) return emptyValueSummaries();
 	const summaries = emptyValueSummaries();
@@ -63,7 +73,7 @@ export async function loadValueSummaries(number: number): Promise<ValueSummaries
 			place?.category_code === 'location' ? place.location_details?.[0]?.country_code : null;
 		if (place && isCountryCode(code)) summaries.countries[place.name] = countryName(code);
 	}
-	for (const era of eras.data ?? []) {
+	for (const era of eras.rows) {
 		if (era.summary) summaries.eras[era.era_code as EraCode] = { summary: era.summary };
 	}
 	return summaries;

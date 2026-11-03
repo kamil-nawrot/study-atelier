@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyPlaceStarter } from '#lib/card-index/place-starter/place-starter.ts';
 import { loadPlaceStarter } from './place-starter-data.ts';
@@ -27,6 +28,7 @@ function serve(museums: Query, places: Query): void {
 describe('loadPlaceStarter', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		forgetCached();
 	});
 
 	it('reads the catalogue and the countries of the places the learner has', async () => {
@@ -85,6 +87,18 @@ describe('loadPlaceStarter', () => {
 		expect(places.order).toHaveBeenCalledWith('value_id');
 		expect(starter.museums.at(-1)?.name).toBe('Prado');
 		expect(starter.notes.last).toBe('Hiszpania');
+	});
+
+	it('keeps the museum catalogue for the next form and reads the own places again', async () => {
+		const museums = query({ data: [], error: null });
+		const places = query({ data: [], error: null }, { data: [], error: null });
+		serve(museums, places);
+
+		await loadPlaceStarter();
+		await loadPlaceStarter();
+
+		expect(museums.range).toHaveBeenCalledTimes(1);
+		expect(places.range).toHaveBeenCalledTimes(2);
 	});
 
 	it('falls back to nothing when a read fails', async () => {

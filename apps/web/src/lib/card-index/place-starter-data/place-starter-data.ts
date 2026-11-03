@@ -1,4 +1,6 @@
+import type { ServiceError } from '#lib/shared/types/service-error.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
+import { cacheKeys, cached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { countryName } from '#lib/catalogue/countries/countries.ts';
 import type { PlaceStarter } from '#lib/card-index/types/place-starter.ts';
@@ -16,15 +18,19 @@ type PlaceRow = {
 	category_values: { name: string } | null;
 };
 
+function fetchMuseums(): Promise<{ rows: MuseumRow[]; error?: ServiceError }> {
+	return fetchAll<MuseumRow>((from, to) =>
+		supabase
+			.from('catalogue_museums')
+			.select('name, english_name, country_code')
+			.order('wikidata_id')
+			.range(from, to)
+	);
+}
+
 export async function loadPlaceStarter(): Promise<PlaceStarter> {
 	const [museums, places] = await Promise.all([
-		fetchAll<MuseumRow>((from, to) =>
-			supabase
-				.from('catalogue_museums')
-				.select('name, english_name, country_code')
-				.order('wikidata_id')
-				.range(from, to)
-		),
+		cached(cacheKeys.museums, fetchMuseums),
 		fetchAll<PlaceRow>((from, to) =>
 			supabase
 				.from('location_details')
