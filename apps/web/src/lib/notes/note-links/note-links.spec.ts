@@ -99,7 +99,24 @@ describe('editorNoteLinks', () => {
 
 		await expect(first).resolves.toEqual([]);
 		await expect(last).resolves.toEqual([ermine]);
-		expect(search).toHaveBeenCalledExactlyOnceWith('#', 'ermi');
+		expect(search).toHaveBeenCalledExactlyOnceWith('#', 'ermi', undefined);
+	});
+
+	it('passes the signal of the editor on and skips a search cancelled while typing', async () => {
+		const search = vi.fn(async () => [ermine]);
+		const links = editorNoteLinks(search);
+		const cancelled = new AbortController();
+		const current = new AbortController();
+
+		const first = links.suggest('#', 'ermine', cancelled.signal);
+		cancelled.abort();
+		await vi.advanceTimersByTimeAsync(150);
+		const second = links.suggest('#', 'ermine', current.signal);
+		await vi.advanceTimersByTimeAsync(150);
+
+		await expect(first).resolves.toEqual([]);
+		await expect(second).resolves.toEqual([ermine]);
+		expect(search).toHaveBeenCalledExactlyOnceWith('#', 'ermine', current.signal);
 	});
 
 	it('gives the labels of the note and of the inserted suggestions', async () => {

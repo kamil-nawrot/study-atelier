@@ -7,7 +7,11 @@ import { isValueKind, valueKindName, valuePath } from '#lib/card-index/value-pag
 import { m } from '#lib/i18n/i18n.ts';
 import type { NoteLinkSuggestionRow } from '#lib/notes/types/note-link-suggestion-row.ts';
 
-type SearchNoteLinks = (trigger: NoteLinkTrigger, phrase: string) => Promise<NoteLinkOption[]>;
+type SearchNoteLinks = (
+	trigger: NoteLinkTrigger,
+	phrase: string,
+	signal?: AbortSignal
+) => Promise<NoteLinkOption[]>;
 
 const SUGGESTION_LIMIT = 8;
 const MIN_QUERY_LENGTH = 2;
@@ -85,13 +89,13 @@ export function editorNoteLinks(
 	let latest = 0;
 	return {
 		minQueryLength: MIN_QUERY_LENGTH,
-		suggest: (trigger, query) => {
+		suggest: (trigger, query, signal) => {
 			const phrase = query.trim();
 			if (phrase.length < MIN_QUERY_LENGTH) return [];
 			const call = ++latest;
 			return typingPause().then(async () => {
-				if (call !== latest) return [];
-				const options = await search(trigger, phrase);
+				if (call !== latest || signal?.aborted) return [];
+				const options = await search(trigger, phrase, signal);
 				for (const option of options) known.set(option.href, option.name);
 				return options;
 			});

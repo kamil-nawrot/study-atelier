@@ -1,7 +1,7 @@
 import { loadVisit, loadVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { loadNoteLinkLabels, mentionsLinks } from '#lib/notes/note-link-data/note-link-data.ts';
-import { loadArtworksById, loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
+import { loadArtworksOfVisit, loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
 import type { NoteLinks } from '@study-atelier/ui';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
@@ -31,11 +31,12 @@ export async function loadChronicle(): Promise<ChronicleData> {
 }
 
 export async function loadVisitPage(id: string): Promise<VisitPageData> {
+	const seen = loadArtworksOfVisit(id);
 	const result = await loadVisit(id);
 	if (!result.visit) return { ...result, artworks: [] };
 	const notes = result.visit.notes;
 	const [atelier, noteLinks, glossary] = await Promise.all([
-		result.visit.artworkIds.length > 0 ? loadArtworksById(result.visit.artworkIds) : undefined,
+		result.visit.artworkIds.length > 0 ? seen : undefined,
 		mentionsLinks(notes) ? loadNoteLinkLabels({ visitId: id }) : undefined,
 		notes ? loadTermIndex() : undefined
 	]);

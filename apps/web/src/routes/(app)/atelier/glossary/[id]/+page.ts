@@ -1,4 +1,4 @@
-import { loadArtworksById } from '#lib/wall/wall-data/wall-data.ts';
+import { loadArtworksOfTerm } from '#lib/wall/wall-data/wall-data.ts';
 import { loadGlossaryMentions } from '#lib/glossary/glossary-mentions/glossary-mentions.ts';
 import { loadGlossaryEntry, loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
 import type { GlossaryEntryResult } from '#lib/glossary/types/glossary-entry-result.ts';
@@ -7,10 +7,11 @@ import { loadEntryPins } from '#lib/pins/pin-data/pin-data.ts';
 import type { PageLoad } from './$types';
 
 async function loadPinned(entryId: string): Promise<{ pinned: PinnedArtwork[]; error?: string }> {
-	const { pins, error } = await loadEntryPins(entryId);
+	const [{ pins, error }, atelier] = await Promise.all([
+		loadEntryPins(entryId),
+		loadArtworksOfTerm(entryId)
+	]);
 	if (error) return { pinned: [], error };
-	if (pins.length === 0) return { pinned: [] };
-	const atelier = await loadArtworksById(pins.map((pin) => pin.artworkId));
 	if (atelier.error) return { pinned: [], error: atelier.error };
 	const pinIds = new Map(pins.map((pin) => [pin.artworkId, pin.pinId]));
 	return {
@@ -22,12 +23,13 @@ async function loadPinned(entryId: string): Promise<{ pinned: PinnedArtwork[]; e
 }
 
 export const load: PageLoad = async ({ params }): Promise<GlossaryEntryResult> => {
+	const pinnedLoad = loadPinned(params.id);
 	const result = await loadGlossaryEntry(params.id);
 	if (!result.entry) return result;
 	const [mentions, glossary, pinned] = await Promise.all([
 		loadGlossaryMentions(result.entry),
 		result.entry.definition ? loadTermIndex() : undefined,
-		loadPinned(result.entry.id)
+		pinnedLoad
 	]);
 	return {
 		...result,

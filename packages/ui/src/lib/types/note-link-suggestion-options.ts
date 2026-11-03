@@ -3,7 +3,11 @@ import type { NoteLinkOption } from './note-link-option';
 import type { SuggestionState } from './suggestion-state';
 
 export type NoteLinkSuggestionOptions = {
-	items: (trigger: NoteLinkTrigger, query: string) => NoteLinkOption[] | Promise<NoteLinkOption[]>;
+	items: (
+		trigger: NoteLinkTrigger,
+		query: string,
+		signal?: AbortSignal
+	) => NoteLinkOption[] | Promise<NoteLinkOption[]>;
 	onChange: (trigger: NoteLinkTrigger, state: SuggestionState | null) => void;
 	onKeyDown: (event: KeyboardEvent) => boolean;
 };
