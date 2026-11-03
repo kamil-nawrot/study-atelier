@@ -35,7 +35,7 @@
 	import type { FormSuggestions } from '#lib/artworks/form-suggestions/form-suggestions.svelte.ts';
 	import { DuplicateCheck } from '#lib/artworks/duplicate-check/duplicate-check.svelte.ts';
 	import { EraCheck } from '#lib/artworks/era-check/era-check.svelte.ts';
-	import { sameEraAndYears, yearOutsideEra } from '#lib/artworks/era-fit/era-fit.ts';
+	import { datedOf } from '#lib/artworks/era-fit/era-fit.ts';
 	import { sameTitleAndAuthors } from '#lib/artworks/duplicates/duplicates.ts';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
@@ -124,11 +124,6 @@
 		return changes.confirmLeave();
 	}
 
-	async function confirmEra(input: ArtworkInput): Promise<boolean> {
-		if (!yearOutsideEra(input) || (artwork && sameEraAndYears(input, artwork))) return true;
-		return eraCheck.confirm();
-	}
-
 	async function confirmDuplicate(input: ArtworkInput): Promise<boolean> {
 		if (artwork && sameTitleAndAuthors(input, artwork)) return true;
 		return duplicateCheck.confirm(input, artwork?.id);
@@ -184,7 +179,7 @@
 			fieldErrors = validateArtwork(input);
 			if (Object.keys(fieldErrors).length > 0) return;
 			checked = input;
-			if (!(await confirmEra(input))) return;
+			if (!(await eraCheck.ask(input, artwork))) return;
 			if (!(await confirmDuplicate(input))) return;
 			const result = await saveArtwork(
 				input,
@@ -361,8 +356,8 @@
 	approximate={checked?.yearApproximate ?? false}
 	check={eraCheck}
 	eraCode={checked?.eraCode ?? null}
-	yearFrom={checked?.yearFrom ?? null}
-	yearTo={checked?.yearTo ?? null}
+	yearFrom={checked ? datedOf(checked).yearFrom : null}
+	yearTo={checked ? datedOf(checked).yearTo : null}
 />
 <DuplicateDialog action="save" check={duplicateCheck} />
 

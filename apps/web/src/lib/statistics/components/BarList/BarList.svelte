@@ -32,6 +32,7 @@
 	ul {
 		display: grid;
 		gap: var(--spacing-2);
+		padding: 0;
 		list-style: none;
 	}
 

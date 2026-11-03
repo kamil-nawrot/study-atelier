@@ -1,4 +1,5 @@
 import { authorSortKeys, sortKeyOf } from '#lib/catalogue/author-sort/author-sort.ts';
+import { yearsBetween } from '#lib/catalogue/years/years.ts';
 import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
@@ -83,7 +84,8 @@ export function odditiesOf(
 	const dated = artworks.filter((artwork) => artwork.yearTo !== null);
 	const ranged = dated.filter(
 		(artwork) =>
-			artwork.yearFrom !== null && (artwork.yearTo as number) - artwork.yearFrom >= LONG_BUILT_FROM
+			artwork.yearFrom !== null &&
+			yearsBetween(artwork.yearFrom, artwork.yearTo as number) >= LONG_BUILT_FROM
 	);
 	const facts = authorFacts(artworks);
 	const keys = authorSortKeys(artworks);
@@ -97,7 +99,7 @@ export function odditiesOf(
 			: {}),
 		longestBuilt: best(
 			ranged,
-			(artwork) => (artwork.yearTo as number) - (artwork.yearFrom as number),
+			(artwork) => yearsBetween(artwork.yearFrom as number, artwork.yearTo as number),
 			true
 		),
 		versatile: versatile && {

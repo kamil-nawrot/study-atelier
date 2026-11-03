@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { sameEraAndYears, yearOutsideEra } from './era-fit.ts';
+import { datedOf, sameEraAndYears, yearOutsideEra } from './era-fit.ts';
+import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 
 function outside(
@@ -47,5 +48,33 @@ describe('sameEraAndYears', () => {
 		expect(sameEraAndYears(saved, { ...saved, yearTo: 1651 })).toBe(false);
 		expect(sameEraAndYears(saved, { ...saved, yearFrom: 1600 })).toBe(false);
 		expect(sameEraAndYears(saved, { ...saved, eraCode: 'early_modern' })).toBe(false);
+	});
+});
+
+describe('datedOf', () => {
+	it('signs the years the form keeps with their p.n.e. flags', () => {
+		const input = {
+			eraCode: 'antiquity',
+			yearFrom: 500,
+			fromBeforeCommonEra: true,
+			yearTo: 20,
+			toBeforeCommonEra: false
+		} as ArtworkInput;
+
+		expect(datedOf(input)).toEqual({ eraCode: 'antiquity', yearFrom: -500, yearTo: 20 });
+		expect(
+			yearOutsideEra(
+				datedOf({
+					...input,
+					eraCode: 'prehistory',
+					yearFrom: null,
+					yearTo: 20000,
+					toBeforeCommonEra: true
+				})
+			)
+		).toBe(false);
+		expect(sameEraAndYears(datedOf(input), datedOf({ ...input, fromBeforeCommonEra: false }))).toBe(
+			false
+		);
 	});
 });

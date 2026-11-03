@@ -11,7 +11,11 @@
 	let { artwork, detail }: Props = $props();
 </script>
 
-<a class="row" href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}>
+<a
+	class="row"
+	class:detailed={detail !== undefined}
+	href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
+>
 	<span class="thumbnail">
 		{#if artwork.image?.src}
 			<img
@@ -35,11 +39,15 @@
 <style>
 	.row {
 		display: grid;
-		grid-template-columns: var(--spacing-16) minmax(0, 1fr) auto;
+		grid-template-columns: var(--spacing-16) minmax(0, 1fr);
 		gap: var(--spacing-3);
 		align-items: center;
 		color: inherit;
 		text-decoration: none;
+	}
+
+	.detailed {
+		grid-template-columns: var(--spacing-16) minmax(0, 1fr) auto;
 	}
 
 	.thumbnail {
