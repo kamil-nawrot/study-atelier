@@ -96,6 +96,9 @@ jobs:
       - name: Check the term mentions
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/term-mentions.sql
 
+      - name: Check the collection statistics
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/collection-statistics.sql
+
       - name: Stop local Supabase
         if: always()
         run: supabase stop --no-backup
