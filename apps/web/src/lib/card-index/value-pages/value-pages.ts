@@ -61,6 +61,11 @@ export function findSubject(
 	return record && record.category === kind ? { kind: record.category, record } : undefined;
 }
 
+export function routeSubject(kind: ValueKind, id: string): ValueSubject | undefined {
+	if (kind === 'era') return isEraCode(id) ? { kind, code: id } : undefined;
+	return { kind, record: { id, category: kind, name: '', count: 0 } };
+}
+
 export function valueKindName(kind: ValueKind): string {
 	return kind === 'era' ? m.valuePage.eraKind : m.cardIndex.kinds[kind].name;
 }

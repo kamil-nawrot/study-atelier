@@ -97,7 +97,7 @@ declare
   owner_rule constant text := '(owner_id = ( SELECT auth.uid() AS uid))';
   folder_rule constant text := '(storage.foldername(name))[1] = (( SELECT auth.uid() AS uid))::text';
   covered constant text[] := array[
-    'keep_alive', 'value_usage', 'period_era_usage', 'style_period_usage', 'merge_category_values',
+    'keep_alive', 'value_usage', 'card_index', 'period_era_usage', 'style_period_usage', 'merge_category_values',
     'set_period_eras', 'set_style_periods', 'delete_unused_value', 'value_page_content', 'save_era_details',
     'save_value_details', 'record_review', 'review_counts', 'review_streak', 'notes_mentions', 'term_mentions', 'review_session',
     'unused_images', 'move_artwork_field', 'artwork_field_usage', 'save_artwork', 'import_atelier', 'save_visit',
@@ -339,6 +339,7 @@ begin
   assert (select used_bytes from public.storage_usage()) = 0, 'B counts the files of A as used space';
   assert public.atelier_empty(), 'B sees the atelier of A as filled';
   assert (select count(*) from public.value_usage()) = 0, 'B sees value usage of A';
+  assert jsonb_array_length(public.card_index() -> 'values') = 0, 'B sees the card index of A';
   assert (select count(*) from public.used_category_values()) = 0, 'B lists the used values of A';
   assert (select count(*) from public.artwork_fields) = 0, 'B reads artwork fields of A';
   assert (select count(*) from public.artwork_field_entries) = 0, 'B reads field entries of A';
@@ -892,6 +893,7 @@ begin
   assert security_test.denied('select * from public.profiles'), 'anon reads profiles';
   assert (select count(*) from storage.objects) = 0, 'anon reads image objects';
   assert security_test.denied('select public.value_usage()'), 'anon executes value_usage';
+  assert security_test.denied('select public.card_index()'), 'anon executes card_index';
   assert security_test.denied('select public.used_category_values()'), 'anon executes used_category_values';
   assert security_test.denied('select public.duplicate_candidates(''x'')'), 'anon executes duplicate_candidates';
   assert security_test.denied('select * from public.artwork_fields'), 'anon reads artwork fields';

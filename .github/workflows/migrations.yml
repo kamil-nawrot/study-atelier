@@ -90,6 +90,9 @@ jobs:
       - name: Check duplicates and used values
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/values-and-duplicates.sql
 
+      - name: Check the card index
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/card-index.sql
+
       - name: Check the empty atelier
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/atelier-empty.sql
 

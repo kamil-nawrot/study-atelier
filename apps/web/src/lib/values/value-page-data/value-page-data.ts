@@ -16,6 +16,7 @@ import { loadValueDetails } from '#lib/values/value-details-data/value-details-d
 import {
 	findSubject,
 	isValueKind,
+	routeSubject,
 	subjectId,
 	subjectPath
 } from '#lib/card-index/value-pages/value-pages.ts';
@@ -74,17 +75,19 @@ export async function loadValuePage(
 ): Promise<ValuePageResult> {
 	if (!isValueKind(kind)) return failed(m.valuePage.notFound, true);
 
-	const cardIndex = await loadCardIndex();
-	if (cardIndex.error) return failed(cardIndex.error);
+	const route = routeSubject(kind, id);
+	if (!route) return failed(m.valuePage.notFound, true);
 
+	const [cardIndex, { details, error }, extras, own] = await Promise.all([
+		loadCardIndex(),
+		loadValueDetails(route),
+		loadPageExtras(route, withArtworks),
+		withArtworks ? loadArtworksOfValue(valueFilter(route)) : Promise.resolve({ artworks: [] })
+	]);
+	if (cardIndex.error) return failed(cardIndex.error);
 	const subject = findSubject(cardIndex.index, kind, id);
 	if (!subject) return failed(m.valuePage.notFound, true);
 
-	const [{ details, error }, extras, own] = await Promise.all([
-		loadValueDetails(subject),
-		loadPageExtras(subject, withArtworks),
-		withArtworks ? loadArtworksOfValue(valueFilter(subject)) : Promise.resolve({ artworks: [] })
-	]);
 	const loadError = error ?? ('error' in own ? own.error : undefined);
 	if (loadError) return failed(loadError);
 

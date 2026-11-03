@@ -580,6 +580,27 @@ async function mockSupabase(context) {
 						]
 			);
 		}
+		if (url.pathname === '/rest/v1/rpc/card_index') {
+			const values = [
+				...VALUE_USAGE.filter((row) => !OWN_FIELDS.some((field) => field.id === row.category_code)),
+				...OWN_VALUE_USAGE
+			].map((row) => {
+				const author = VALUE_DETAILS.author_details.find((detail) => detail.value_id === row.id);
+				const place = VALUE_DETAILS.location_details.find((detail) => detail.value_id === row.id);
+				return {
+					visit_count: 0,
+					...row,
+					...(author?.sort_name ? { sort_name: author.sort_name } : {}),
+					...(author?.birth_year ? { birth_year: author.birth_year } : {}),
+					...(place?.country_code ? { country_code: place.country_code } : {})
+				};
+			});
+			return json(route, {
+				values,
+				period_eras: PERIOD_ERA_USAGE,
+				style_periods: STYLE_PERIOD_USAGE
+			});
+		}
 		if (url.pathname === '/rest/v1/rpc/artwork_field_usage') return json(route, OWN_FIELD_USAGE);
 		if (url.pathname === '/rest/v1/rpc/used_category_values') {
 			const names = new Map(

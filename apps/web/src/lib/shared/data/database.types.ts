@@ -1368,6 +1368,7 @@ export type Database = {
         }[];
       };
       atelier_empty: { Args: Record<PropertyKey, never>; Returns: boolean };
+      card_index: { Args: Record<PropertyKey, never>; Returns: Json };
       career_standing: {
         Args: { time_zone: string; unlock: boolean };
         Returns: {
