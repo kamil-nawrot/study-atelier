@@ -28,10 +28,6 @@ type UsageRow = {
 	visit_count?: number;
 };
 
-type AuthorRow = { value_id: string; sort_name: string | null; birth_year: number | null };
-
-type PlaceRow = { value_id: string; country_code: string };
-
 type PeriodEraRow = { period_id: string; era_code: string; artwork_count: number };
 
 type StylePeriodRow = { style_id: string; period_id: string; artwork_count: number };
@@ -66,79 +62,54 @@ export async function loadOwnValues(): Promise<{ ownValues: OwnValue[]; error?: 
 	return { ownValues: ownValuesOf(rows) };
 }
 
-function valueDetails(
-	authors: readonly AuthorRow[],
-	places: readonly PlaceRow[]
-): Map<string, Partial<CardIndexRecord>> {
-	const details = new Map<string, Partial<CardIndexRecord>>();
-	for (const author of authors) {
-		details.set(author.value_id, {
-			...(author.sort_name ? { sortName: author.sort_name } : {}),
-			...(author.birth_year !== null ? { birthYear: author.birth_year } : {})
-		});
-	}
-	for (const place of places) details.set(place.value_id, { countryCode: place.country_code });
-	return details;
-}
-
 export function loadCardIndex(): Promise<CardIndexResult> {
 	return cached(cacheKeys.cardIndex, fetchCardIndex);
 }
 
+type CardIndexRow = {
+	values: (UsageRow & {
+		sort_name?: string;
+		birth_year?: number;
+		country_code?: string;
+	})[];
+	period_eras: PeriodEraRow[];
+	style_periods: StylePeriodRow[];
+};
+
+function recordOf(row: CardIndexRow['values'][number]): CardIndexRecord[] {
+	if (!isCategoryCode(row.category_code)) return [];
+	return [
+		{
+			id: row.id,
+			category: row.category_code,
+			name: row.name,
+			count: row.artwork_count,
+			...(row.visit_count ? { visits: row.visit_count } : {}),
+			...(row.sort_name ? { sortName: row.sort_name } : {}),
+			...(row.birth_year === undefined ? {} : { birthYear: row.birth_year }),
+			...(row.country_code ? { countryCode: row.country_code } : {})
+		}
+	];
+}
+
 async function fetchCardIndex(): Promise<CardIndexResult> {
-	const [values, periodEras, stylePeriods, authors, places] = await Promise.all([
-		fetchAll<UsageRow>((from, to) => supabase.rpc('value_usage').range(from, to)),
-		fetchAll<PeriodEraRow>((from, to) => supabase.rpc('period_era_usage').range(from, to)),
-		fetchAll<StylePeriodRow>((from, to) => supabase.rpc('style_period_usage').range(from, to)),
-		fetchAll<AuthorRow>((from, to) =>
-			supabase
-				.from('author_details')
-				.select('value_id, sort_name, birth_year')
-				.or('sort_name.not.is.null,birth_year.not.is.null')
-				.order('value_id')
-				.range(from, to)
-		),
-		fetchAll<PlaceRow>((from, to) =>
-			supabase
-				.from('location_details')
-				.select('value_id, country_code')
-				.not('country_code', 'is', null)
-				.order('value_id')
-				.range(from, to)
-		)
-	]);
-	const error =
-		values.error ?? periodEras.error ?? stylePeriods.error ?? authors.error ?? places.error;
+	const { data, error } = await supabase.rpc('card_index');
 	if (error) {
 		return { index: emptyCardIndex(), ownValues: [], error: collectionErrorMessage(error) };
 	}
-
-	const details = valueDetails(authors.rows, places.rows);
+	const rows = data as unknown as CardIndexRow;
 	return {
-		ownValues: ownValuesOf(values.rows),
+		ownValues: ownValuesOf(rows.values),
 		index: {
-			values: values.rows.flatMap((row): CardIndexRecord[] =>
-				isCategoryCode(row.category_code)
-					? [
-							{
-								id: row.id,
-								category: row.category_code,
-								name: row.name,
-								count: row.artwork_count,
-								...(row.visit_count ? { visits: row.visit_count } : {}),
-								...details.get(row.id)
-							}
-						]
-					: []
-			),
-			periodEras: periodEras.rows
+			values: rows.values.flatMap(recordOf),
+			periodEras: rows.period_eras
 				.filter((row) => isEraCode(row.era_code))
 				.map((row) => ({
 					periodId: row.period_id,
 					eraCode: row.era_code as EraCode,
 					count: row.artwork_count
 				})),
-			stylePeriods: stylePeriods.rows.map((row) => ({
+			stylePeriods: rows.style_periods.map((row) => ({
 				styleId: row.style_id,
 				periodId: row.period_id,
 				count: row.artwork_count

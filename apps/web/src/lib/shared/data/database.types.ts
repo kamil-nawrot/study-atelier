@@ -1367,6 +1367,7 @@ export type Database = {
           field_id: string;
         }[];
       };
+      card_index: { Args: Record<PropertyKey, never>; Returns: Json };
       career_standing: {
         Args: { time_zone: string; unlock: boolean };
         Returns: {

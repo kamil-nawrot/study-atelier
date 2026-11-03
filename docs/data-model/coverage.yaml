@@ -228,7 +228,7 @@ tasks:
       name: 'Forget only the cache keys a write changes',
       status: 'done in 0.16, ATL-413, ADR-0166'
     }
-  T9: { name: 'Load the card index with one database function', status: planned }
+  T9: { name: 'Load the card index with one database function', status: 'done, ATL-424' }
   T10: { name: 'Index FKs and drop the unused portrait column', status: 'is M3 and M4' }
   T11:
     {
