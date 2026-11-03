@@ -8,7 +8,7 @@ How a Claude Code cloud session gets a working environment and how it takes scre
 
 - runs `pnpm install`;
 - exports `SUPABASE_URL=https://abcd.supabase.co` and `SUPABASE_PUBLISHABLE_KEY=dummy`, because `pnpm build`, `pnpm test` and the dev server fail with `env_invalid` without them (the tests and screenshots never call a real Supabase project);
-- when the Chromium headless shell in `/opt/pw-browsers` is an older build than the one Playwright expects, builds a folder with symlinks under `~/.cache/study-atelier/pw-browsers` that Vitest accepts, and points `PLAYWRIGHT_BROWSERS_PATH` at it. Nothing is downloaded: never run `playwright install` in a cloud session.
+- when the Chromium headless shell in `/opt/pw-browsers` is an older build than the one Playwright expects, builds a folder with symlinks under `~/.cache/study-atelier/pw-browsers` that Vitest accepts, and points `PLAYWRIGHT_BROWSERS_PATH` at it. It links the shell from either layout of the installed build, `chrome-headless-shell-linux64/chrome-headless-shell` or the older `chrome-linux/headless_shell`. Nothing is downloaded: never run `playwright install` in a cloud session.
 
 After the hook, `pnpm lint`, `pnpm check`, `pnpm test` and `pnpm build` work without extra steps. The hook is registered in [`.claude/settings.json`](../../.claude/settings.json) and only takes effect for sessions started after it is on the default branch.
 

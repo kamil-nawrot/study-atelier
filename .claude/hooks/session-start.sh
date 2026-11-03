@@ -35,13 +35,18 @@ fi
 
 BROWSERS_PATH="${SOURCE_BROWSERS}"
 if [ -n "${available_dir}" ] && [ "${available_dir}" != "${expected_dir}" ]; then
-  source_shell="${SOURCE_BROWSERS}/${available_dir}/chrome-linux"
+  source_shell="${SOURCE_BROWSERS}/${available_dir}/chrome-headless-shell-linux64"
+  source_binary="${source_shell}/chrome-headless-shell"
+  if [ ! -x "${source_binary}" ]; then
+    source_shell="${SOURCE_BROWSERS}/${available_dir}/chrome-linux"
+    source_binary="${source_shell}/headless_shell"
+  fi
   target="${COMPAT_BROWSERS}/${expected_dir}/chrome-headless-shell-linux64"
   mkdir -p "${target}"
   for entry in "${source_shell}"/*; do
     ln -sfn "${entry}" "${target}/$(basename "${entry}")"
   done
-  ln -sfn "${source_shell}/headless_shell" "${target}/chrome-headless-shell"
+  ln -sfn "${source_binary}" "${target}/chrome-headless-shell"
   touch "${COMPAT_BROWSERS}/${expected_dir}/INSTALLATION_COMPLETE"
   for other in "${SOURCE_BROWSERS}"/*; do
     case "$(basename "${other}")" in
