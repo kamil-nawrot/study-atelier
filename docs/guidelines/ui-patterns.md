@@ -249,6 +249,7 @@ How views and components look and behave, so every new screen stays consistent w
 - "Statystyki" has no item in the menu: the artwork count over the wall is its way in, a link of the count and the `chart-column` icon (`WallCount`) with a `Tooltip` "Statystyki", muted like a caption and in `--color-fg` on hover ([ADR-0171](../decisions/0171-show-statistics-of-the-collection-from-the-wall.md)).
 - The view is a detail page in one column at `--size-content-default`: "← Atelier" in the top bar, the `h1` with the lead, then the sections in the order and with the names of [ADR-0175](../decisions/0175-design-the-statistics-view.md), each an `h2` over a hairline in `--color-tag`, in the monochrome theme tokens.
 - "Stan zbiorów" is a `dl` of four numbers in a row, the number bold over its label, `xl` over `sm` from 768 px and `lg` over `xs` on a phone, the labels wrapping.
+- The counts of "Kompozycja" and "Na pierwszym planie" come from the wall's own `filterValuesOf` and link through `wallHref`, which writes the matching wall filter, so a count and the wall it opens always agree. An artwork without an author counts as "Autor nieznany", as on the wall. The bars are `BarList` (name, bar, number; on a phone the bar under the name), the table `CrossTable` (cells shaded with `color-mix` of `--color-fg`, the first column sticky, sideways scrolling in its own box), the two tag rows `ToggleTag` groups side by side from 768 px.
 
 ## Glossary
 

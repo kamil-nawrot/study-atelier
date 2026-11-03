@@ -1536,6 +1536,55 @@ export const pl = {
 				}),
 			visits: (count: number): string =>
 				plural(count, { one: 'wizyta w Kronice', few: 'wizyty w Kronice', many: 'wizyt w Kronice' })
+		},
+		composition: {
+			title: 'Kompozycja',
+			groupBy: 'Grupuj dzieła według',
+			secondBy: 'Dodatkowy wymiar grupowania',
+			noSecond: 'brak',
+			rest: (values: number): string => `pozostałe (${values})`,
+			total: 'Razem',
+			zero: '·',
+			tooEarly: (count: number): string =>
+				`Rozkład pojawi się, gdy w atelier znajdzie się przynajmniej 20 dzieł. Obecnie jest ich ${count}.`,
+			clipped: (parts: string[]): string =>
+				`Tabela pokazuje ${parts.join(' i ')} przypisanych do dzieł.`,
+			clippedPart: (shown: number, values: string, all: number): string =>
+				`${shown} najczęściej występujących ${values} spośród ${all}`,
+			values: {
+				eras: 'epok',
+				types: 'typów',
+				periods: 'okresów',
+				styles: 'stylów',
+				materials: 'materiałów',
+				authors: 'autorów',
+				locations: 'miejsc'
+			} as Record<string, string>,
+			ownValues: (field: string): string => `wartości pola „${field}”`,
+			none: {
+				style: 'bez stylu',
+				material: 'bez materiału',
+				location: 'bez miejsca',
+				value: 'bez wartości'
+			}
+		},
+		foreground: {
+			title: 'Na pierwszym planie',
+			tabsLabel: 'Ranking',
+			tabs: { authors: 'Autorzy', locations: 'Miejsca', styles: 'Style', materials: 'Materiały' },
+			single: (single: number, values: number, kind: string): string =>
+				`${single} ${values >= 100 && values < 200 ? 'ze' : 'z'} ${values} ${kind} ma w atelier jedno dzieło.`,
+			kinds: { authors: 'autorów', locations: 'miejsc', styles: 'stylów', materials: 'materiałów' },
+			tooEarly: {
+				authors:
+					'Ranking autorów pojawi się, gdy co najmniej trzech autorów będzie miało przypisane przynajmniej dwa dzieła.',
+				locations:
+					'Ranking miejsc pojawi się, gdy co najmniej trzy miejsca będą miały przypisane przynajmniej dwa dzieła.',
+				styles:
+					'Ranking stylów pojawi się, gdy co najmniej trzy style będą miały przypisane przynajmniej dwa dzieła.',
+				materials:
+					'Ranking materiałów pojawi się, gdy co najmniej trzy materiały będą miały przypisane przynajmniej dwa dzieła.'
+			}
 		}
 	},
 	chronicle: {

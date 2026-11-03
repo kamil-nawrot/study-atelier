@@ -23,7 +23,9 @@ describe('StatisticsView', () => {
 		await expect
 			.element(page.getByRole('heading', { level: 2, name: m.statistics.holdings.title }))
 			.toBeVisible();
-		await expect.element(page.getByText(m.statistics.holdings.authors(1))).toBeVisible();
+		await expect
+			.element(page.getByText(m.statistics.holdings.authors(1), { exact: true }))
+			.toBeVisible();
 	});
 
 	it('shows the empty state with a way to add the first artwork', async () => {
