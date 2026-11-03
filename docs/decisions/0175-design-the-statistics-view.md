@@ -62,5 +62,5 @@ The collection comes first, then its curiosities, then learning and time. The wa
 
 ## More information
 
-- Amends [ADR-0171](0171-show-statistics-of-the-collection-from-the-wall.md): the section names; the rest stands.
+- Amends [ADR-0171](0171-show-statistics-of-the-collection-from-the-wall.md): the section names, and an author in Osobliwości leads to the wall filtered by that author instead of the value page; the rest stands.
 - Spike ATL-434, step 10; built in ATL-437 to ATL-440.
