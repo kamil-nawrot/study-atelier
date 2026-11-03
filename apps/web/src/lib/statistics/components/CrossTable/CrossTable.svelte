@@ -33,7 +33,7 @@
 			<tr>
 				<td></td>
 				{#each table.columns as column (column.value)}
-					<th scope="col">{columns.nameOf(column.value)}</th>
+					<th scope="col" title={columns.nameOf(column.value)}>{columns.nameOf(column.value)}</th>
 				{/each}
 				<th class="total" scope="col">{texts.total}</th>
 			</tr>
@@ -41,7 +41,7 @@
 		<tbody>
 			{#each table.rows as row (row.value)}
 				<tr>
-					<th scope="row">{rows.nameOf(row.value)}</th>
+					<th scope="row" title={rows.nameOf(row.value)}>{rows.nameOf(row.value)}</th>
 					{#each table.columns as column (column.value)}
 						{@const count = table.cells.get(cellKey(row.value, column.value)) ?? 0}
 						{#if count === 0}
@@ -90,9 +90,12 @@
 	}
 
 	thead th {
+		min-width: 5rem;
+		max-width: 10rem;
 		font-weight: var(--font-weight-medium);
 		color: var(--color-fg-muted);
 		vertical-align: bottom;
+		overflow-wrap: break-word;
 	}
 
 	tbody th,
@@ -101,9 +104,13 @@
 		position: sticky;
 		inset-inline-start: 0;
 		background: var(--color-bg);
+		min-width: 8rem;
+		max-width: 16rem;
+		overflow: hidden;
 		text-align: start;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 		font-weight: var(--font-weight-regular);
-		overflow-wrap: anywhere;
 	}
 
 	td[style] {

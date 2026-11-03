@@ -34,7 +34,13 @@ const statistics: CollectionStatistics = {
 
 function renderStatistics(artworks: WallArtwork[], error?: string): void {
 	render(StatisticsPage, {
-		data: { session: testSession(), artworks, statistics: error ? undefined : statistics, error },
+		data: {
+			session: testSession(),
+			artworks,
+			cards: new Map(),
+			statistics: error ? undefined : statistics,
+			error
+		},
 		params: {}
 	});
 }

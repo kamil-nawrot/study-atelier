@@ -20,6 +20,7 @@
 	{#if data.statistics && !data.error}
 		<StatisticsView
 			artworks={data.artworks}
+			cards={data.cards}
 			ownFields={data.ownFields}
 			statistics={data.statistics}
 		/>
