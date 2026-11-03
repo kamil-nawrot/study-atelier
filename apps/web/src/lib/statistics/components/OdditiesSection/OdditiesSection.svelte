@@ -2,7 +2,7 @@
 	import { resolve } from '$app/paths';
 	import type { ResolvedPathname } from '$app/types';
 	import { ARTWORK_TYPE_CODES } from '#lib/catalogue/artwork-types/artwork-types.ts';
-	import { formatDate, formatLifeYears } from '#lib/catalogue/years/years.ts';
+	import { formatDate, formatLifeYears, yearsBetween } from '#lib/catalogue/years/years.ts';
 	import { visitDateName } from '#lib/chronicle/visit-date/visit-date.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { wallHref } from '#lib/statistics/dimensions/dimensions.ts';
@@ -76,7 +76,7 @@
 				authorItem(
 					texts.longestLived,
 					lived.name,
-					`${formatLifeYears(lived.birthYear, lived.deathYear, lived.yearsApproximate)}, ${texts.years(lived.deathYear - lived.birthYear)}`,
+					`${formatLifeYears(lived.birthYear, lived.deathYear, lived.yearsApproximate)}, ${texts.years(yearsBetween(lived.birthYear, lived.deathYear))}`,
 					lived.tied
 				)
 			);

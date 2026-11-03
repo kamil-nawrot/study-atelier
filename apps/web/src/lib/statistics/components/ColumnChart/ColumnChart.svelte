@@ -9,27 +9,31 @@
 
 	let { columns, label, describe }: Props = $props();
 
-	const WIDTH = 640;
+	const FALLBACK_WIDTH = 640;
 	const HEIGHT = 200;
 	const LEFT = 36;
 	const BOTTOM = 24;
 	const TOP = 8;
 
 	let active = $state<number>();
+	let measured = $state(0);
+
+	let width = $derived(measured > 0 ? measured : FALLBACK_WIDTH);
 
 	let ticks = $derived(ticksOf(Math.max(1, ...columns.map((column) => column.added))));
 	let top = $derived(ticks[ticks.length - 1]);
-	let step = $derived((WIDTH - LEFT) / Math.max(1, columns.length));
+	let step = $derived((width - LEFT) / Math.max(1, columns.length));
+	let barWidth = $derived(Math.min(step * 0.7, 48));
 
 	function y(value: number): number {
 		return TOP + (HEIGHT - TOP - BOTTOM) * (1 - value / top);
 	}
 </script>
 
-<div class="chart">
-	<svg aria-label={label} role="group" viewBox="0 0 {WIDTH} {HEIGHT}">
+<div class="chart" bind:clientWidth={measured}>
+	<svg aria-label={label} role="group" viewBox="0 0 {width} {HEIGHT}">
 		{#each ticks as tick (tick)}
-			<line class="grid" x1={LEFT} x2={WIDTH} y1={y(tick)} y2={y(tick)} />
+			<line class="grid" x1={LEFT} x2={width} y1={y(tick)} y2={y(tick)} />
 			<text class="tick" text-anchor="end" x={LEFT - 8} y={y(tick) + 4}>{tick}</text>
 		{/each}
 		{#each columns as column, index (column.start)}
@@ -48,8 +52,8 @@
 					onpointerleave={() => (active = undefined)}
 					role="button"
 					tabindex="0"
-					width={step * 0.7}
-					x={x + step * 0.15}
+					width={barWidth}
+					x={x + (step - barWidth) / 2}
 					y={y(column.added)}
 				/>
 			{/if}
@@ -61,7 +65,7 @@
 	</svg>
 	{#if active !== undefined}
 		<span
-			style:left="{((LEFT + (active + 0.5) * step) / WIDTH) * 100}%"
+			style:left="{((LEFT + (active + 0.5) * step) / width) * 100}%"
 			style:top="{(y(columns[active].added) / HEIGHT) * 100}%"
 			class="tooltip"
 			aria-hidden="true">{describe(columns[active])}</span

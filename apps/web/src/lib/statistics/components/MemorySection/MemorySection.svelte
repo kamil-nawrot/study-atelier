@@ -127,6 +127,7 @@
 	ul {
 		display: grid;
 		gap: var(--spacing-3);
+		padding: 0;
 		list-style: none;
 	}
 

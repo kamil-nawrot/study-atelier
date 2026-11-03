@@ -22,6 +22,15 @@ describe('odditiesOf', () => {
 		expect(oddities.longestBuilt?.value).toBe(632);
 	});
 
+	it('counts a span across the common era without a year zero', () => {
+		const oddities = odditiesOf(
+			[work(1, 'Across', { yearFrom: -5, yearTo: 5 }), work(2, 'Later', { yearTo: 100 })],
+			ARTWORK_TYPE_CODES
+		);
+
+		expect(oddities.longestBuilt).toBeUndefined();
+	});
+
 	it('waits for two dated artworks and a span of ten years', () => {
 		const oddities = odditiesOf(
 			[work(1, 'Short', { yearFrom: 1500, yearTo: 1505 }), work(2, 'Undated', { yearTo: null })],

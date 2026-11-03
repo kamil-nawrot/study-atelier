@@ -118,6 +118,23 @@ describe('the numbers and the wall', () => {
 		}
 	});
 
+	it('keeps both own fields when a cell crosses two of them', () => {
+		const source: OwnFieldDefinition = { ...technique, id: 'source', name: 'Źródło' };
+		const crossed = [
+			testArtwork(1, 'A', { own: { technique: ['Carving'], source: ['Book'] } }),
+			testArtwork(2, 'B', { own: { technique: ['Carving'], source: ['Film'] } }),
+			testArtwork(3, 'C', { own: { technique: ['Painting'], source: ['Book'] } })
+		];
+		const both = dimensionsOf([technique, source]);
+		const rows = both.find((each) => each.key === 'own:technique') as Dimension;
+		const columns = both.find((each) => each.key === 'own:source') as Dimension;
+		const href = wallHref(rows.filterOf('Carving'), columns.filterOf('Book')) as string;
+
+		expect(
+			applyFilter(crossed, filterFromParams(new URL(href, 'http://localhost').searchParams))
+		).toHaveLength(1);
+	});
+
 	it('opens the wall on as many artworks as each cell of a table counts', () => {
 		const table = crossTableOf(artworks, dimension('types'), dimension('materials'));
 		for (const row of table.rows) {

@@ -82,5 +82,6 @@ export function wallHref(
 ): ResolvedPathname | undefined {
 	if (parts.some((part) => part === undefined)) return undefined;
 	const filter: CollectionFilter = Object.assign(emptyFilter(), ...parts);
+	filter.own = Object.assign({}, ...parts.map((part) => part?.own ?? {}));
 	return `${resolve('/(app)/atelier')}?${filterToParams(filter).toString()}` as ResolvedPathname;
 }

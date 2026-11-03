@@ -131,6 +131,40 @@ describe('the year and the era on the add artwork page', () => {
 		expect(saveArtworkCalls()).toHaveLength(0);
 	});
 
+	it('reads a year before the common era with its sign', async () => {
+		renderPage();
+		await fillRequired();
+		await page.getByRole('textbox', { name: m.artworkForm.year }).fill('500');
+		await page.getByText(m.artworkForm.beforeCommonEra, { exact: true }).first().click();
+		await userEvent.click(eraTile('antiquity'));
+
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(saveArtworkCalls()).toHaveLength(1));
+		expect(eraDialog().query()).toBeNull();
+	});
+
+	it('names a year before the common era in the question', async () => {
+		renderPage();
+		await fillRequired();
+		await page.getByRole('textbox', { name: m.artworkForm.year }).fill('1200');
+		await page.getByText(m.artworkForm.beforeCommonEra, { exact: true }).first().click();
+		await userEvent.click(eraTile('middle_ages'));
+
+		await saveButton().click();
+
+		await expect
+			.element(eraDialog())
+			.toHaveAccessibleDescription(
+				m.eraDialog.description(
+					'1200 p.n.e.',
+					false,
+					m.eras.middle_ages.name,
+					m.eras.middle_ages.years
+				)
+			);
+	});
+
 	it('saves a year within its era without asking', async () => {
 		renderPage();
 		await fillRequired();
