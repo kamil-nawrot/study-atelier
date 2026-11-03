@@ -24,6 +24,7 @@ The wall shows a Commons image through a thumbnail URL that it asks the Commons 
 Chosen as step T7 of the data model plan of ATL-403: `localStorage` with the learner's id, for a week.
 
 - `ResolvedImages` stores the thumbnail URLs under `study-atelier:commons-thumbnails` the same way as the signed URLs: with the learner's id, merged with what another tab stored meanwhile, dropping the ones older than seven days when it loads or saves them. Signing out, or another learner signing in, clears them.
+- Both stores share one shape, `{ learner, urls: { name: { url, at } } }`: the signed URLs stored before 0.17 under `signedAt` are dropped once and signed again.
 - A tile whose stored URL no longer loads falls back as before; after a week the URL is asked for again.
 
 ### Consequences

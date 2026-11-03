@@ -29,7 +29,7 @@ Chosen by the owner in ATL-430: preload only the artwork record, and leave the w
 
 ### Consequences
 
-- Good: an opening costs one request more instead of about five, and a flip still finds the record and the URLs of its own images ready.
+- Good: an opening costs one request more (two when the next artwork has own images, whose URLs are signed) instead of about five, and a flip still finds the record and the URLs of its own images ready.
 - Bad: after a flip the pins, the notes' links and the side panel wait for their own requests.
 
 ## More information

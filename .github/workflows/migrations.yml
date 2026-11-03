@@ -93,6 +93,9 @@ jobs:
       - name: Check the empty atelier
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/atelier-empty.sql
 
+      - name: Check the term mentions
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/term-mentions.sql
+
       - name: Stop local Supabase
         if: always()
         run: supabase stop --no-backup

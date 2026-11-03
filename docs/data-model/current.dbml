@@ -158,7 +158,6 @@ Table author_details {
   source_image_attribution text
   own_image_path text
   own_image_url text
-  own_image_source_url text
   image_width integer
   image_height integer
   updated_at "timestamp with time zone" [not null, default: `now()`]
