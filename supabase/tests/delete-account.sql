@@ -63,7 +63,7 @@ begin
     insert into public.glossary_entries (name, category) values ('Tympanum', 'architecture');
     insert into public.timeline_events (name, year_to) values ('War', 1648);
     insert into public.profiles (display_name) values ('Learner');
-    insert into public.era_details (era_code, summary) values ('early_modern', 'Era');
+    insert into public.era_details (era_code, summary, notes) values ('early_modern', 'Era', 'See [x](/atelier/1).');
     insert into public.feedback (kind, title) values ('idea', 'An idea');
     perform public.save_visit('{"visited_on": "2026-10-12", "date_precision": "day"}', 'Museum', array[artwork]);
     insert into public.artwork_fields (name, kind) values ('Lecture', 'list');
@@ -87,6 +87,9 @@ end;
 $$;
 
 reset role;
+
+insert into private.note_link_failures (owner_id, error_code, message)
+  select id, 'XX000', 'A failure' from auth.users;
 
 insert into storage.objects (bucket_id, name, created_at) values
   ('artwork-images', '00000000-0000-0000-0000-00000000000a/own.jpg', now() - interval '2 days'),

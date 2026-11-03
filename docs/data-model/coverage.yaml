@@ -24,15 +24,15 @@ changes:
       A trigger on every notes column (artworks, the five *_details tables, era_details, visits) reads the links
       ](/atelier/<number>) and ](/atelier/values/<kind>/<id>) out of the Markdown and replaces the rows of that
       note. The Markdown stays the source; the rows can always be rebuilt from it. "Wspomniane w" and the link
-      labels read note_links; notes_mentions(needle text) is dropped only in the reads pull request, after
-      the app no longer calls it. Visits are sources of links, not targets: no view shows mentions of a visit.
+      labels read note_links; notes_mentions(needle text) is dropped in a later release, once no deployed
+      bundle calls it. Visits are sources of links, not targets: no view shows mentions of a visit.
     design:
-      - 'Unique key (owner_id, every source column, every target column) with nulls not distinct; no surrogate id. Era codes are shared by all accounts, so a key without owner_id collides.'
+      - 'Unique key (owner_id, every source column, every target column) with nulls not distinct. Era codes are shared by all accounts, so a key without owner_id collides.'
       - 'Primary key: id bigint generated always as identity; the unique key above stays for the rebuild.'
-      - 'Two AFTER row triggers per table: one on INSERT when new.notes is not null, one on UPDATE OF notes WHEN old.notes IS DISTINCT FROM new.notes (a change to null deletes the rows). Notes arrive by insert in save_artwork, save_visit and the *_details upserts.'
+      - 'Two AFTER row triggers per table: one on INSERT when new.notes is not null, one on UPDATE OF notes WHEN old.notes IS DISTINCT FROM new.notes (a change to null deletes the rows). Notes arrive by insert in save_artwork, save_visit and the *_details upserts. The five value details tables also get an AFTER DELETE trigger, because a learner may delete a details row while its value stays.'
       - 'The trigger function lives in private, is security definer with search_path empty, and takes owner_id from the row (auth.uid() is null in the backfill and the import). Because it bypasses Row Level Security, every delete and insert it makes filters by that owner_id; era codes are shared by all accounts.'
       - 'It never aborts the save: candidates are checked for format before any cast (record number length, uuid shape, the kind whitelist of the editor), and rows are inserted only through joins to artworks, category_values (with the kind matching category_code) and eras filtered by the same owner, with distinct targets. Targets are locked with for key share, so a target deleted by another tab cannot fail the foreign key check.'
-      - 'Safety net: the trigger body catches any exception, writes nothing for that note and lets the save go on; a later save or a rebuild fills the rows. Every swallowed exception is counted in a private table, so a silent failure shows in a query.'
+      - 'Safety net: the trigger body catches any exception, leaves the rows the note had and lets the save go on; a later save or a rebuild fills the rows. Every swallowed exception is counted in a private table, so a silent failure shows in a query.'
       - 'Links inside code spans are extracted too, as the LIKE scan does today; accepted.'
       - 'Every read of note_links filters trashed artworks on both sides, as the labels and mentions do today.'
       - 'import_atelier skips the trigger through the existing study_atelier.importing setting and calls private.rebuild_note_links(owner) at its end, because it inserts artworks before values, eras and visits.'
@@ -48,11 +48,11 @@ changes:
       - 'database.types.ts generated, not written by hand (CI compares it byte for byte)'
       - 'screenshot fixtures and mocks for the new reads'
     rollout:
-      - 'Release N, pull request 1: the migration alone, backward compatible. It creates the table and the triggers first, then backfills every owner through private.rebuild_note_links in the same transaction, so no save falls between the two.'
+      - 'One release (0.16), two pull requests. Pull request 1: the migration alone, backward compatible. It creates the table and the triggers first, then backfills every owner through private.rebuild_note_links in the same transaction, so no save falls between the two, and fails if any note could not be stored.'
       - 'Verification after the backfill: a second rebuild into a temporary table must equal note_links row for row; a LIKE count is only a sanity check, because it cannot see the format checks.'
       - 'Before the release: read-only queries on production (notes with links per table, links per note, links to missing targets), and a dry run of the migration on a copy of production in DEV, following docs/guidelines/hosted-environments.md.'
-      - 'Release N+1, pull request 2: the app reads note_links and note_link_mentions; notes_mentions(needle text) is dropped in this release, when no deployed bundle calls it.'
-      - 'Rollback: a prepared migration that drops the triggers (the table stays and the old reads keep working until release N+1). After N+1, revert the app and keep the old function until the fix ships.'
+      - 'Pull request 2, same release: the app reads note_links and note_link_mentions. notes_mentions(needle text) stays in the database and is dropped in a later release, when no deployed bundle calls it (ADR-0139).'
+      - 'Rollback: a prepared migration that drops the triggers (the table stays). Because notes_mentions stays, reverting the app reads brings back the old mentions at once.'
     loses:
       - 'Every note save does more work: delete and insert of its link rows inside the save transaction.'
       - 'A link to a record number that does not exist is not stored; it starts to count only after the note is saved again.'
@@ -238,8 +238,8 @@ delivery:
   - 'T8 with its ADR'
   - 'Q1 (two PRs: index and tooltip, then review and pins)'
   - 'Z4, Z5'
-  - 'M1 migration with the backfill (release N)'
-  - 'M1 reads, dropping notes_mentions(needle text), with an ADR superseding ADR-0082 (release N+1)'
+  - 'M1 migration with the backfill (0.16)'
+  - 'M1 reads with an ADR superseding ADR-0082 (0.16); notes_mentions(needle text) dropped in a later release'
   - 'Z2 remainder, Z3'
   - 'T4 after D3'
   - "M4 before Q2 if the measurement shows the scan; M3 + the rest of M4, T3', T7, T9, T11, T12, T14, T13 after the measurement"

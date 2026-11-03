@@ -782,6 +782,93 @@ export type Database = {
           },
         ];
       };
+      note_links: {
+        Row: {
+          id: number;
+          owner_id: string;
+          source_artwork_id: string | null;
+          source_era_code: string | null;
+          source_value_id: string | null;
+          source_visit_id: string | null;
+          target_artwork_id: string | null;
+          target_era_code: string | null;
+          target_value_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          id?: never;
+          owner_id?: string;
+          source_artwork_id?: string | null;
+          source_era_code?: string | null;
+          source_value_id?: string | null;
+          source_visit_id?: string | null;
+          target_artwork_id?: string | null;
+          target_era_code?: string | null;
+          target_value_id?: string | null;
+        };
+        Update: {
+          id?: never;
+          owner_id?: string;
+          source_artwork_id?: string | null;
+          source_era_code?: string | null;
+          source_value_id?: string | null;
+          source_visit_id?: string | null;
+          target_artwork_id?: string | null;
+          target_era_code?: string | null;
+          target_value_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "note_links_source_artwork_fkey";
+            columns: ["source_artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "note_links_source_era_fkey";
+            columns: ["owner_id", "source_era_code"];
+            isOneToOne: false;
+            referencedRelation: "era_details";
+            referencedColumns: ["owner_id", "era_code"];
+          },
+          {
+            foreignKeyName: "note_links_source_value_fkey";
+            columns: ["source_value_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "note_links_source_visit_fkey";
+            columns: ["source_visit_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "visits";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "note_links_target_artwork_fkey";
+            columns: ["target_artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "note_links_target_era_code_fkey";
+            columns: ["target_era_code"];
+            isOneToOne: false;
+            referencedRelation: "eras";
+            referencedColumns: ["code"];
+          },
+          {
+            foreignKeyName: "note_links_target_value_fkey";
+            columns: ["target_value_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
       period_details: {
         Row: {
           category_code: string;
