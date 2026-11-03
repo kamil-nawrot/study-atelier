@@ -427,6 +427,26 @@ describe('edit artwork page', () => {
 		expect(duplicateDialog().query()).toBeNull();
 	});
 
+	it('does not ask about the era when neither the era nor the year changed', async () => {
+		renderPage({ artwork: artwork({ eraCode: 'middle_ages' }) });
+
+		await titleField().fill('The Milkmaid, detail');
+		await saveButton().click();
+
+		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		expect(page.getByRole('alertdialog', { name: m.eraDialog.title }).query()).toBeNull();
+	});
+
+	it('asks about the era once the year changes', async () => {
+		renderPage({ artwork: artwork({ eraCode: 'middle_ages' }) });
+
+		await page.getByRole('textbox', { name: m.artworkForm.year }).fill('1660');
+		await saveButton().click();
+
+		await expect.element(page.getByRole('alertdialog', { name: m.eraDialog.title })).toBeVisible();
+		expect(saveArtworkCalls()).toHaveLength(0);
+	});
+
 	it('removes the uploaded file after the image is removed and saved', async () => {
 		renderPage({
 			artwork: artwork({

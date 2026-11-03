@@ -145,6 +145,7 @@ How views and components look and behave, so every new screen stays consistent w
 - `size="small"` is for a confirmation such as "Odrzucić zmiany?": a short question as the title, the consequence as the `description`, and two buttons in the footer, the safe one first and the one that confirms as `primary`. It has no close button; Escape answers with the safe choice.
 - A dialog that edits one item of a list is the default size: the item's name as the title, its kind and use as the `description`, its fields in the body, and in the footer the danger action on the left with the safe and the primary action on the right. A change that touches other records, such as merging two values, asks again in a small `Dialog` that names how many records change ([ADR-0040](../decisions/0040-manage-category-values-in-a-card-index.md)). An item with long text, such as a category value with its notes, is edited in a form on its own page like an artwork instead ([ADR-0049](../decisions/0049-give-every-category-value-a-page-of-its-own.md)).
 - A dialog does not close when the learner clicks the scrim, so a choice is never lost by a stray click.
+- Questions on saving an artwork come one at a time in a fixed order: the year outside its era (`EraDialog`, [ADR-0176](../decisions/0176-ask-before-saving-a-year-outside-its-era.md)) before a duplicate title (`DuplicateDialog`); going back from one ends the save.
 
 ## Filters
 
