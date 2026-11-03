@@ -6,7 +6,7 @@ import { loadPlaceStarter } from '#lib/card-index/place-starter-data/place-start
 import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
 import { loadValueLinks } from '#lib/card-index/value-links-data/value-links-data.ts';
 import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
-import { loadNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
+import { loadEditorNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
 import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import type { NoteLinks } from '@study-atelier/ui';
 import { FormSuggestions } from './form-suggestions.svelte.ts';
@@ -21,7 +21,7 @@ vi.mock('#lib/card-index/place-starter-data/place-starter-data.ts', () => ({
 	loadPlaceStarter: vi.fn()
 }));
 vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({ loadTermIndex: vi.fn() }));
-vi.mock('#lib/notes/note-link-data/note-link-data.ts', () => ({ loadNoteLinks: vi.fn() }));
+vi.mock('#lib/notes/note-link-data/note-link-data.ts', () => ({ loadEditorNoteLinks: vi.fn() }));
 
 const links = { minQueryLength: 1 } as unknown as NoteLinks;
 const entry = { id: 'entry-1', name: 'Sfumato' } as never;
@@ -37,7 +37,7 @@ describe('form suggestions', () => {
 		vi.mocked(loadValueLinks).mockResolvedValue({ links: emptyValueLinks() });
 		vi.mocked(loadPlaceStarter).mockResolvedValue(emptyPlaceStarter());
 		vi.mocked(loadTermIndex).mockResolvedValue({ terms: [entry] });
-		vi.mocked(loadNoteLinks).mockResolvedValue(links);
+		vi.mocked(loadEditorNoteLinks).mockResolvedValue(links);
 	});
 
 	it('loads nothing until it is first needed, then everything once', async () => {
@@ -65,7 +65,7 @@ describe('form suggestions', () => {
 		const suggestions = new FormSuggestions({ noteLinks: given });
 		await suggestions.load();
 
-		expect(loadNoteLinks).not.toHaveBeenCalled();
+		expect(loadEditorNoteLinks).not.toHaveBeenCalled();
 		expect(suggestions.noteLinks).toBe(given);
 	});
 

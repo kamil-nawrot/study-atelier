@@ -1,139 +1,109 @@
 import type { NoteLinkOption, NoteLinks, NoteLinkTrigger } from '@study-atelier/ui';
 import { resolve } from '$app/paths';
-import { ERA_CODES } from '#lib/catalogue/eras/eras.ts';
+import { ERA_CODES, isEraCode } from '#lib/catalogue/eras/eras.ts';
 import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
-import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
-import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
-import {
-	findSubject,
-	subjectName,
-	subjectPath,
-	valueKindName,
-	valueParents
-} from '#lib/card-index/value-pages/value-pages.ts';
-import type { NoteLinkArtwork } from '#lib/notes/types/note-link-artwork.ts';
+import { isValueKind, valueKindName, valuePath } from '#lib/card-index/value-pages/value-pages.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import type { NoteLinkSuggestionRow } from '#lib/notes/types/note-link-suggestion-row.ts';
+
+type SearchNoteLinks = (trigger: NoteLinkTrigger, phrase: string) => Promise<NoteLinkOption[]>;
 
 const SUGGESTION_LIMIT = 8;
 const MIN_QUERY_LENGTH = 2;
-
-type NoteLinkSources = {
-	index: CardIndexData;
-	artworks: NoteLinkArtwork[];
-};
-
-type Candidate = {
-	option: NoteLinkOption;
-	key: string;
-	number?: number;
-};
-
-function valueCandidates(index: CardIndexData): Candidate[] {
-	const subjects: ValueSubject[] = [
-		...ERA_CODES.map((code): ValueSubject => ({ kind: 'era', code })),
-		...index.values.map((record): ValueSubject => ({ kind: record.category, record }))
-	];
-	return subjects.map((subject) => {
-		const name = subjectName(subject);
-		const parents = valueParents(index, subject).map((parent) => parent.name);
-		return {
-			option: {
-				href: subjectPath(subject),
-				name,
-				detail: [valueKindName(subject.kind), ...parents].join(' · ')
-			},
-			key: normalizeForSearch(name)
-		};
-	});
-}
-
-function artworkCandidates(artworks: NoteLinkArtwork[]): Candidate[] {
-	return artworks.map((artwork) => ({
-		option: {
-			href: resolve('/(app)/atelier/[number]', { number: String(artwork.number) }),
-			name: `${formatRecordNumber(artwork.number)} ${artwork.title}`,
-			detail: artwork.authors.join(', ')
-		},
-		key: normalizeForSearch(`${artwork.title} ${artwork.authors.join(' ')}`),
-		number: artwork.number
-	}));
-}
-
-function rank(candidate: Candidate, term: string): number {
-	if (candidate.key.startsWith(term)) return 0;
-	if (candidate.key.includes(term)) return 1;
-	return 2;
-}
-
-function matchValues(candidates: Candidate[], query: string): NoteLinkOption[] {
-	const term = normalizeForSearch(query);
-	return candidates
-		.filter((candidate) => term === '' || candidate.key.includes(term))
-		.sort(
-			(a, b) =>
-				rank(a, term) - rank(b, term) || a.key.localeCompare(b.key, 'pl', { sensitivity: 'base' })
-		)
-		.slice(0, SUGGESTION_LIMIT)
-		.map((candidate) => candidate.option);
-}
-
-function matchArtworks(candidates: Candidate[], query: string): NoteLinkOption[] {
-	const term = normalizeForSearch(query);
-	const digits = /^\d+$/.test(term) ? String(Number(term)) : null;
-	const numbered = (candidate: Candidate): boolean =>
-		digits !== null && String(candidate.number).startsWith(digits);
-	return candidates
-		.filter((candidate) => term === '' || numbered(candidate) || candidate.key.includes(term))
-		.sort((a, b) => {
-			if (numbered(a) !== numbered(b)) return numbered(a) ? -1 : 1;
-			if (numbered(a)) return (a.number as number) - (b.number as number);
-			return rank(a, term) - rank(b, term) || (b.number as number) - (a.number as number);
-		})
-		.slice(0, SUGGESTION_LIMIT)
-		.map((candidate) => candidate.option);
-}
-
-function resolveValue(index: CardIndexData, kind: string, id: string): string | undefined {
-	const subject = findSubject(index, kind, id);
-	return subject && subjectName(subject);
-}
-
+const TYPING_PAUSE_MS = 150;
 const ARTWORK_HREF = /^\/atelier\/(\d+)$/;
 
 function artworkHref(number: number): string {
 	return resolve('/(app)/atelier/[number]', { number: String(number) });
 }
 
+function linkKey(href: string): string {
+	const artwork = ARTWORK_HREF.exec(href);
+	return artwork ? artworkHref(Number(artwork[1])) : href;
+}
+
+function rank(name: string, term: string): number {
+	return normalizeForSearch(name).startsWith(term) ? 0 : 1;
+}
+
+function eraOptions(term: string): NoteLinkOption[] {
+	return ERA_CODES.filter((code) => normalizeForSearch(m.eras[code].name).includes(term)).map(
+		(code) => ({
+			href: valuePath('era', code),
+			name: m.eras[code].name,
+			detail: valueKindName('era')
+		})
+	);
+}
+
+function parentName(kind: string, parent: string): string {
+	return kind === 'period' && isEraCode(parent) ? m.eras[parent].name : parent;
+}
+
+export function suggestionOption(row: NoteLinkSuggestionRow): NoteLinkOption | undefined {
+	if (row.kind === 'artwork' && row.record_number !== null) {
+		return {
+			href: artworkHref(row.record_number),
+			name: `${formatRecordNumber(row.record_number)} ${row.title ?? ''}`,
+			detail: row.authors.join(', ')
+		};
+	}
+	if (!isValueKind(row.kind) || row.kind === 'era') return undefined;
+	const kind = row.kind;
+	return {
+		href: valuePath(kind, row.id),
+		name: row.title ?? '',
+		detail: [valueKindName(kind), ...row.parents.map((parent) => parentName(kind, parent))].join(
+			' · '
+		)
+	};
+}
+
+export function withEras(phrase: string, values: NoteLinkOption[]): NoteLinkOption[] {
+	const term = normalizeForSearch(phrase);
+	return [...eraOptions(term), ...values]
+		.sort(
+			(a, b) =>
+				rank(a.name, term) - rank(b.name, term) ||
+				normalizeForSearch(a.name).localeCompare(normalizeForSearch(b.name), 'pl', {
+					sensitivity: 'base'
+				})
+		)
+		.slice(0, SUGGESTION_LIMIT);
+}
+
+function typingPause(): Promise<void> {
+	return new Promise((done) => setTimeout(done, TYPING_PAUSE_MS));
+}
+
+export function editorNoteLinks(
+	search: SearchNoteLinks,
+	labels: ReadonlyMap<string, string> = new Map()
+): NoteLinks {
+	const known = new Map(labels);
+	let latest = 0;
+	return {
+		minQueryLength: MIN_QUERY_LENGTH,
+		suggest: (trigger, query) => {
+			const phrase = query.trim();
+			if (phrase.length < MIN_QUERY_LENGTH) return [];
+			const call = ++latest;
+			return typingPause().then(async () => {
+				if (call !== latest) return [];
+				const options = await search(trigger, phrase);
+				for (const option of options) known.set(option.href, option.name);
+				return options;
+			});
+		},
+		resolve: (href) => known.get(linkKey(href))
+	};
+}
+
 export function labelledNoteLinks(labels: ReadonlyMap<string, string>): NoteLinks {
 	return {
 		minQueryLength: MIN_QUERY_LENGTH,
 		suggest: (): NoteLinkOption[] => [],
-		resolve: (href: string): string | undefined => {
-			const artwork = ARTWORK_HREF.exec(href);
-			return labels.get(artwork ? artworkHref(Number(artwork[1])) : href);
-		}
-	};
-}
-
-export function buildNoteLinks(sources: NoteLinkSources): NoteLinks {
-	const values = valueCandidates(sources.index);
-	const artworks = artworkCandidates(sources.artworks);
-	const artworkNames = new Map(
-		sources.artworks.map((artwork) => [
-			String(artwork.number),
-			`${formatRecordNumber(artwork.number)} ${artwork.title}`
-		])
-	);
-
-	return {
-		minQueryLength: MIN_QUERY_LENGTH,
-		suggest: (trigger: NoteLinkTrigger, query: string): NoteLinkOption[] =>
-			trigger === '@' ? matchValues(values, query) : matchArtworks(artworks, query),
-		resolve: (href: string): string | undefined => {
-			const artwork = ARTWORK_HREF.exec(href);
-			if (artwork) return artworkNames.get(String(Number(artwork[1])));
-			const value = /^\/atelier\/values\/([a-z]+)\/([A-Za-z0-9_-]+)$/.exec(href);
-			return value ? resolveValue(sources.index, value[1], value[2]) : undefined;
-		}
+		resolve: (href: string): string | undefined => labels.get(linkKey(href))
 	};
 }

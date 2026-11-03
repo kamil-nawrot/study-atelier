@@ -382,6 +382,55 @@ function noteLinkMentions(args) {
 		.map(({ kind, id, record_number, title }) => ({ kind, id, record_number, title }));
 }
 
+const SUGGESTED_KINDS = ['period', 'style', 'material', 'author', 'location'];
+
+function searchKey(text) {
+	return text
+		.normalize('NFD')
+		.replace(/\p{Diacritic}/gu, '')
+		.toLowerCase();
+}
+
+function noteLinkSuggestions({ link_trigger: trigger, phrase }) {
+	const term = searchKey(phrase ?? '');
+	if (trigger === '#') {
+		return ARTWORKS.filter((row) => !row.deleted_at)
+			.map((row) => {
+				const authors = row.artwork_values
+					.map(({ category_values: value }) => value)
+					.filter((value) => value.category_code === 'author')
+					.map((value) => value.name);
+				return { row, authors, key: searchKey(`${row.title} ${authors.join(' ')}`) };
+			})
+			.filter(
+				({ row, key }) =>
+					(/^\d+$/.test(term) && String(row.record_number).startsWith(String(Number(term)))) ||
+					key.includes(term)
+			)
+			.slice(0, 8)
+			.map(({ row, authors }) => ({
+				kind: 'artwork',
+				id: row.id,
+				record_number: row.record_number,
+				title: row.title,
+				authors,
+				parents: []
+			}));
+	}
+	return VALUE_USAGE.filter(
+		(value) => SUGGESTED_KINDS.includes(value.category_code) && searchKey(value.name).includes(term)
+	)
+		.slice(0, 8)
+		.map((value) => ({
+			kind: value.category_code,
+			id: value.id,
+			record_number: null,
+			title: value.name,
+			authors: [],
+			parents: []
+		}));
+}
+
 function noteLinkLabels(args) {
 	const source = linkingNotes().find((row) =>
 		args.artwork_number !== undefined
@@ -593,6 +642,9 @@ async function mockSupabase(context) {
 		}
 		if (url.pathname === '/rest/v1/rpc/note_link_labels') {
 			return json(route, noteLinkLabels(request.postDataJSON() ?? {}));
+		}
+		if (url.pathname === '/rest/v1/rpc/note_link_suggestions') {
+			return json(route, noteLinkSuggestions(request.postDataJSON() ?? {}));
 		}
 		if (url.pathname === '/rest/v1/rpc/term_mentions') {
 			return json(route, termMentions(request.postDataJSON()?.needles));

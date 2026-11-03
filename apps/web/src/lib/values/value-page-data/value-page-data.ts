@@ -6,8 +6,8 @@ import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.t
 import { emptyCardIndex } from '#lib/card-index/card-index/card-index.ts';
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
 import {
+	loadEditorNoteLinks,
 	loadNoteLinkLabels,
-	loadNoteLinks,
 	mentionsLinks
 } from '#lib/notes/note-link-data/note-link-data.ts';
 import { valueLinkTarget } from '#lib/notes/note-link-target/note-link-target.ts';
@@ -74,10 +74,7 @@ export async function loadValuePage(
 ): Promise<ValuePageResult> {
 	if (!isValueKind(kind)) return failed(m.valuePage.notFound, true);
 
-	const [cardIndex, editorLinks] = await Promise.all([
-		loadCardIndex(),
-		withArtworks ? Promise.resolve(undefined) : loadNoteLinks()
-	]);
+	const cardIndex = await loadCardIndex();
 	if (cardIndex.error) return failed(cardIndex.error);
 
 	const subject = findSubject(cardIndex.index, kind, id);
@@ -91,18 +88,17 @@ export async function loadValuePage(
 	const loadError = error ?? ('error' in own ? own.error : undefined);
 	if (loadError) return failed(loadError);
 
+	const target = mentionsLinks(details.notes) ? valueLinkTarget(subject) : undefined;
 	const [glossary, noteLinks] = await Promise.all([
 		withArtworks && details.notes ? loadTermIndex() : undefined,
-		withArtworks && mentionsLinks(details.notes)
-			? loadNoteLinkLabels(valueLinkTarget(subject))
-			: undefined
+		withArtworks ? target && loadNoteLinkLabels(target) : loadEditorNoteLinks(target)
 	]);
 	return {
 		subject,
 		index: cardIndex.index,
 		artworks: own.artworks,
 		details,
-		noteLinks: editorLinks ?? noteLinks,
+		noteLinks,
 		glossary: glossary?.terms,
 		mentions: extras.mentions,
 		visits: extras.visits
@@ -111,7 +107,7 @@ export async function loadValuePage(
 
 export async function loadNewValuePage(kind: string): Promise<ValuePageResult> {
 	if (!isValueKind(kind) || kind === 'era') return failed(m.valuePage.notFound, true);
-	const [cardIndex, noteLinks] = await Promise.all([loadCardIndex(), loadNoteLinks()]);
+	const [cardIndex, noteLinks] = await Promise.all([loadCardIndex(), loadEditorNoteLinks()]);
 	if (cardIndex.error) return failed(cardIndex.error);
 	return {
 		subject: { kind, record: { id: '', category: kind, name: '', count: 0 } },

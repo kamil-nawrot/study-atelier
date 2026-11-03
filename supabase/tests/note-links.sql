@@ -141,6 +141,28 @@ begin
 end;
 $$;
 
+do $$
+begin
+  assert (select array_agg(record_number::text || ':' || title || ':' || array_to_string(authors, ','))
+      from public.note_link_suggestions('#', 'carav')) = array['2:Second:Caravaggio'],
+    'note_link_suggestions does not find an artwork by its author';
+  assert (select array_agg(record_number) from public.note_link_suggestions('#', '')) = array[3, 2, 1],
+    'note_link_suggestions does not list the newest artworks first without a phrase';
+  assert (select (array_agg(record_number))[1] from public.note_link_suggestions('#', '02')) = 2,
+    'note_link_suggestions does not put the artwork with the record number first';
+  assert (select count(*) from public.note_link_suggestions('#', '%')) = 0,
+    'a percent sign in the phrase matches as a wildcard';
+  assert (select array_agg(kind || ':' || title) from public.note_link_suggestions('@', 'CARAVÁGGIO'))
+      = array['author:Caravaggio'],
+    'note_link_suggestions does not find a value regardless of case and diacritics';
+  assert (select count(*) from public.note_link_suggestions('@', 'b period')) = 0,
+    'note_link_suggestions gives a value of another account';
+  assert (select count(*) from public.note_link_suggestions('@', 'second')) = 0
+    and (select count(*) from public.note_link_suggestions('#', 'baroque')) = 0,
+    'note_link_suggestions mixes artworks and values';
+end;
+$$;
+
 reset role;
 
 do $$
@@ -183,6 +205,8 @@ begin
     'moving an artwork to the trash drops the links to it';
   assert (select count(*) from public.note_link_labels(value_id => baroque)) = 0,
     'note_link_labels gives a label for an artwork in the trash';
+  assert (select count(*) from public.note_link_suggestions('#', 'first')) = 0,
+    'note_link_suggestions suggests an artwork in the trash';
   update public.artworks set notes = '[x](/atelier/2)' where id = first;
   assert (select count(*) from public.note_link_mentions(artwork_number => 2) where id = first::text) = 0,
     'note_link_mentions gives a note of an artwork in the trash';
