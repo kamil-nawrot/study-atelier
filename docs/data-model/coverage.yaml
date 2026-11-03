@@ -237,7 +237,7 @@ tasks:
     }
   T12: { name: 'Make the scale seed run with the row limits', status: planned }
   T13: { name: 'Compact wall payload', status: 'after the measurement' }
-  T14: { name: 'Build the review session facts without a subquery per artwork', status: planned }
+  T14: { name: 'Build the review session facts without a subquery per artwork', status: 'done, ATL-426' }
 
 out_of_scope:
   - 'E2: remembering Wikidata and Wikipedia search results; only if 429 errors come back'
