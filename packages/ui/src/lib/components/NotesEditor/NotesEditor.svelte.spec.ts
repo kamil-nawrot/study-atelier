@@ -189,6 +189,34 @@ describe('NotesEditor', () => {
 			await expect.element(page.getByRole('option', { name: /barok/ })).toBeInTheDocument();
 		});
 
+		it('lists suggestions that arrive later and keeps the list while the next ones load', async () => {
+			const pending: Array<() => void> = [];
+			const later: NoteLinks = {
+				...links,
+				suggest: (trigger, query) =>
+					new Promise((done) => {
+						pending.push(() => done(links.suggest(trigger, query) as never));
+					})
+			};
+			render(NotesEditorValue, { links: later });
+
+			await userEvent.click(page.getByRole('textbox', { name: 'Notes' }));
+			await userEvent.keyboard('@ba');
+			await expect.poll(() => pending.length).toBeGreaterThan(0);
+			await expect.element(page.getByText('No matching value.')).not.toBeInTheDocument();
+			pending.splice(0).forEach((finish) => finish());
+			await expect.element(page.getByRole('option', { name: /barok/ })).toBeInTheDocument();
+
+			await userEvent.keyboard('r');
+			await expect.poll(() => pending.length).toBeGreaterThan(0);
+			await expect.element(page.getByRole('option', { name: /barok/ })).toBeInTheDocument();
+			pending.splice(0).forEach((finish) => finish());
+			await expect
+				.element(page.getByRole('option', { name: /Fra Bartolommeo/ }))
+				.toBeInTheDocument();
+			await expect.element(page.getByRole('option', { name: /barok/ })).toBeInTheDocument();
+		});
+
 		it('lists artworks after # and picks one by a click', async () => {
 			render(NotesEditorValue, { links });
 

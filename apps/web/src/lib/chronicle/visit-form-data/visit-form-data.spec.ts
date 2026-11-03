@@ -4,7 +4,7 @@ import { loadPlaceStarter } from '#lib/card-index/place-starter-data/place-start
 import { emptyPlaceStarter } from '#lib/card-index/place-starter/place-starter.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { loadVisit } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
-import { loadNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
+import { loadEditorNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
 import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
 import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
 import { loadVisitForm } from './visit-form-data.ts';
@@ -16,7 +16,10 @@ vi.mock('#lib/card-index/place-starter-data/place-starter-data.ts', () => ({
 	loadPlaceStarter: vi.fn()
 }));
 vi.mock('#lib/chronicle/chronicle-data/chronicle-data.ts', () => ({ loadVisit: vi.fn() }));
-vi.mock('#lib/notes/note-link-data/note-link-data.ts', () => ({ loadNoteLinks: vi.fn() }));
+vi.mock('#lib/notes/note-link-data/note-link-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/notes/note-link-data/note-link-data.ts')>()),
+	loadEditorNoteLinks: vi.fn()
+}));
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({ loadAtelier: vi.fn() }));
 
 beforeEach(() => {
@@ -24,7 +27,7 @@ beforeEach(() => {
 	vi.mocked(loadAtelier).mockResolvedValue({ artworks: [] });
 	vi.mocked(loadVisitPlaces).mockResolvedValue({ places: ['Orsay'] });
 	vi.mocked(loadPlaceStarter).mockResolvedValue(emptyPlaceStarter());
-	vi.mocked(loadNoteLinks).mockResolvedValue(undefined);
+	vi.mocked(loadEditorNoteLinks).mockResolvedValue(undefined);
 });
 
 describe('loadVisitForm', () => {
@@ -59,5 +62,14 @@ describe('loadVisitForm', () => {
 
 		expect(data.visit).toEqual(testVisit());
 		expect(data.error).toBe('offline');
+	});
+
+	it('loads the labels of the note links only for a visit whose notes link', async () => {
+		await loadVisitForm();
+		expect(loadEditorNoteLinks).toHaveBeenLastCalledWith(undefined);
+
+		vi.mocked(loadVisit).mockResolvedValue({ visit: testVisit({ notes: 'See [x](/atelier/1).' }) });
+		await loadVisitForm('id');
+		expect(loadEditorNoteLinks).toHaveBeenLastCalledWith({ visitId: 'id' });
 	});
 });

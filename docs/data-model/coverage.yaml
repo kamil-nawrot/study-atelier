@@ -195,7 +195,7 @@ tasks:
       name: 'Resolve note links by the ids the note holds',
       status: 'after M1 only for unsaved editor text'
     }
-  Z3: { name: 'Search the note link suggestions in the database', status: planned }
+  Z3: { name: 'Search the note link suggestions in the database', status: 'done, ADR-0169' }
   Z4: { name: 'Load a value page with its own artworks only', status: planned }
   Z5: { name: 'Load only the artworks a glossary entry or a visit shows', status: planned }
   Z6: { name: 'Write the narrow-query rule into the conventions', status: planned }

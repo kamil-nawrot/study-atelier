@@ -5,7 +5,10 @@ import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
 import { loadArtworksOfValue } from '#lib/wall/wall-data/wall-data.ts';
 import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.ts';
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
-import { loadNoteLinkLabels, loadNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
+import {
+	loadNoteLinkLabels,
+	loadEditorNoteLinks
+} from '#lib/notes/note-link-data/note-link-data.ts';
 import { loadValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
 import { loadPlaceVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
@@ -20,7 +23,7 @@ vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({
 vi.mock('#lib/notes/mentions-data/mentions-data.ts', () => ({ loadMentions: vi.fn() }));
 vi.mock('#lib/notes/note-link-data/note-link-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/notes/note-link-data/note-link-data.ts')>()),
-	loadNoteLinks: vi.fn(),
+	loadEditorNoteLinks: vi.fn(),
 	loadNoteLinkLabels: vi.fn()
 }));
 vi.mock('#lib/values/value-details-data/value-details-data.ts', async (importOriginal) => ({
@@ -37,7 +40,7 @@ describe('loadValuePage', () => {
 		vi.clearAllMocks();
 		vi.mocked(loadCardIndex).mockResolvedValue({ index: testCardIndex(), ownValues: [] });
 		vi.mocked(loadArtworksOfValue).mockResolvedValue({ artworks });
-		vi.mocked(loadNoteLinks).mockResolvedValue(undefined);
+		vi.mocked(loadEditorNoteLinks).mockResolvedValue(undefined);
 		vi.mocked(loadMentions).mockResolvedValue([]);
 		vi.mocked(loadValueDetails).mockResolvedValue({
 			details: { summary: 'Plain capitals.', notes: '' }
@@ -107,7 +110,7 @@ describe('loadValuePage', () => {
 		const linking = await loadValuePage('style', 'style-doric', true);
 
 		expect(loadNoteLinkLabels).toHaveBeenCalledExactlyOnceWith({ valueId: 'style-doric' });
-		expect(loadNoteLinks).not.toHaveBeenCalled();
+		expect(loadEditorNoteLinks).not.toHaveBeenCalled();
 		expect(linking.noteLinks).toBe(noteLinks);
 	});
 
@@ -128,7 +131,7 @@ describe('loadValuePage', () => {
 
 	it('loads the sources of note links for the form', async () => {
 		const noteLinks = { suggest: vi.fn(), resolve: vi.fn() };
-		vi.mocked(loadNoteLinks).mockResolvedValue(noteLinks);
+		vi.mocked(loadEditorNoteLinks).mockResolvedValue(noteLinks);
 
 		const result = await loadValuePage('style', 'style-doric', false);
 

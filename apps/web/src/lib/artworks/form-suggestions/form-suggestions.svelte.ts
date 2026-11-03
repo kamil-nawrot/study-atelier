@@ -5,7 +5,7 @@ import { loadPlaceStarter } from '#lib/card-index/place-starter-data/place-start
 import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
 import { loadValueLinks } from '#lib/card-index/value-links-data/value-links-data.ts';
 import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
-import { loadNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
+import { loadEditorNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
 import { cacheKeys, cached } from '#lib/shared/data/data-cache/data-cache.ts';
 import type { CategoryValues } from '#lib/card-index/types/category-values.ts';
 import type { PlaceStarter } from '#lib/card-index/types/place-starter.ts';
@@ -44,7 +44,7 @@ export class FormSuggestions {
 			cached(cacheKeys.valueLinks, loadValueLinks),
 			loadPlaceStarter(),
 			loadTermIndex(),
-			this.noteLinks ?? loadNoteLinks()
+			this.noteLinks ?? loadEditorNoteLinks()
 		]);
 		this.categoryValues = categories.values;
 		this.ownValues = categories.ownValues;

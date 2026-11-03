@@ -53,18 +53,21 @@
 	let suggestion = $state.raw<SuggestionState | null>(null);
 	let selected = $state(0);
 
+	function keptWhileLoading(next: SuggestionState): SuggestionState {
+		return next.loading && next.items.length === 0 && suggestion?.trigger === next.trigger
+			? { ...next, items: suggestion.items }
+			: next;
+	}
+
 	function updateSuggestion(trigger: NoteLinkTrigger, next: SuggestionState | null): void {
-		if (next === null) {
+		if (next === null || next.query.trim().length < (links?.minQueryLength ?? 0)) {
 			if (suggestion?.trigger === trigger) suggestion = null;
 			return;
 		}
-		if (next.query.trim().length < (links?.minQueryLength ?? 0)) {
-			if (suggestion?.trigger === trigger) suggestion = null;
-			return;
-		}
-		if (suggestion?.trigger !== trigger || suggestion.items.length !== next.items.length)
+		const kept = keptWhileLoading(next);
+		if (suggestion?.trigger !== trigger || suggestion.items.length !== kept.items.length)
 			selected = 0;
-		suggestion = next;
+		suggestion = kept;
 	}
 
 	function chooseWithKey(event: KeyboardEvent): boolean {

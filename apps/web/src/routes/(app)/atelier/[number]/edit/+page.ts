@@ -2,7 +2,7 @@ import { loadArtwork } from '#lib/artworks/artwork-data/artwork-data.ts';
 import { loadOwnFieldDefinitions } from '#lib/card-index/own-fields-data/own-fields-data.ts';
 import { parseRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
-import { loadNoteLinks, mentionsLinks } from '#lib/notes/note-link-data/note-link-data.ts';
+import { loadEditorNoteLinks, mentionsLinks } from '#lib/notes/note-link-data/note-link-data.ts';
 import { loadArtworkPins } from '#lib/pins/pin-data/pin-data.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
@@ -21,7 +21,9 @@ export const load: PageLoad = async ({ params }) => {
 	]);
 	const [glossary, noteLinks] = await Promise.all([
 		pins.pins.some((pin) => pin.glossaryEntryId) ? loadTermIndex() : undefined,
-		mentionsLinks(result.artwork?.notes) ? loadNoteLinks() : undefined
+		loadEditorNoteLinks(
+			mentionsLinks(result.artwork?.notes) ? { artworkNumber: number } : undefined
+		)
 	]);
 	return {
 		...result,

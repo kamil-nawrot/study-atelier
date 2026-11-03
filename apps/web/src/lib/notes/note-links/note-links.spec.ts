@@ -1,89 +1,127 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { NoteLinkOption } from '@study-atelier/ui';
 import { m } from '#lib/i18n/i18n.ts';
-import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
-import { buildNoteLinks } from './note-links.ts';
+import { editorNoteLinks, labelledNoteLinks, suggestionOption, withEras } from './note-links.ts';
 
-const links = buildNoteLinks({
-	index: testCardIndex(),
-	artworks: [
-		{ number: 7, title: 'Lady with an Ermine', authors: ['Leonardo da Vinci'] },
-		{ number: 12, title: 'Calling of Saint Matthew', authors: ['Caravaggio'] },
-		{ number: 120, title: 'Untitled', authors: [] }
-	]
+const ermine: NoteLinkOption = {
+	href: '/atelier/7',
+	name: '#0007 Lady with an Ermine',
+	detail: 'Leonardo da Vinci'
+};
+
+describe('suggestionOption', () => {
+	it('shows an artwork by its record number and title, with its authors', () => {
+		expect(
+			suggestionOption({
+				kind: 'artwork',
+				id: 'a1',
+				record_number: 7,
+				title: 'Lady with an Ermine',
+				authors: ['Leonardo da Vinci', 'Workshop'],
+				parents: []
+			})
+		).toEqual({ ...ermine, detail: 'Leonardo da Vinci, Workshop' });
+	});
+
+	it('shows a value with its kind and parents, and eras by their names', () => {
+		const option = suggestionOption({
+			kind: 'period',
+			id: 'p1',
+			record_number: null,
+			title: 'Baroque',
+			authors: [],
+			parents: ['early_modern']
+		});
+		expect(option).toEqual({
+			href: '/atelier/values/period/p1',
+			name: 'Baroque',
+			detail: expect.stringContaining(m.eras.early_modern.name)
+		});
+	});
+
+	it('skips a row of an unknown kind', () => {
+		expect(
+			suggestionOption({
+				kind: 'unknown',
+				id: 'x',
+				record_number: null,
+				title: 'X',
+				authors: [],
+				parents: []
+			})
+		).toBeUndefined();
+	});
 });
 
-describe('suggesting values', () => {
-	it('asks for two characters before listing', () => {
-		expect(links.minQueryLength).toBe(2);
-	});
-
-	it('lists values of every kind with their kind and parents', () => {
-		const options = links.suggest('@', 'dor');
-		expect(options).toEqual([
-			{
-				href: '/atelier/values/style/style-doric',
-				name: 'Doric',
-				detail: expect.stringContaining('Classical')
-			}
-		]);
-	});
-
-	it('offers the eras by their names', () => {
+describe('withEras', () => {
+	it('adds the eras whose names match, before the values that only contain the phrase', () => {
 		const name = m.eras.early_modern.name;
-		const options = links.suggest('@', name.slice(0, 4));
-		expect(options.map((option) => option.href)).toContain('/atelier/values/era/early_modern');
-	});
-
-	it('ignores case and diacritics', () => {
-		expect(links.suggest('@', 'PHIDIAS').map((option) => option.name)).toEqual(['Phidias']);
-	});
-
-	it('finds nothing for an unknown name', () => {
-		expect(links.suggest('@', 'zzz')).toEqual([]);
+		const inner = { href: '/atelier/values/style/s1', name: `Late ${name}`, detail: '' };
+		const options = withEras(name, [inner]);
+		expect(options[0]?.href).toBe('/atelier/values/era/early_modern');
+		expect(options.at(-1)).toBe(inner);
 	});
 
 	it('limits the list', () => {
-		expect(links.suggest('@', '').length).toBeLessThanOrEqual(8);
+		const values = Array.from({ length: 10 }, (_, index) => ({
+			href: `/atelier/values/author/a${index}`,
+			name: `Author ${index}`,
+			detail: ''
+		}));
+		expect(withEras('author', values)).toHaveLength(8);
 	});
 });
 
-describe('suggesting artworks', () => {
-	it('finds an artwork by title and shows its authors', () => {
-		expect(links.suggest('#', 'ermine')).toEqual([
-			{ href: '/atelier/7', name: '#0007 Lady with an Ermine', detail: 'Leonardo da Vinci' }
-		]);
+describe('editorNoteLinks', () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
 	});
 
-	it('finds an artwork by author', () => {
-		expect(links.suggest('#', 'caravaggio').map((option) => option.href)).toEqual(['/atelier/12']);
+	afterEach(() => {
+		vi.useRealTimers();
 	});
 
-	it('finds artworks by the start of their record number, lowest first', () => {
-		expect(links.suggest('#', '12').map((option) => option.href)).toEqual([
-			'/atelier/12',
-			'/atelier/120'
-		]);
+	it('asks for two characters before searching', () => {
+		const search = vi.fn();
+		const links = editorNoteLinks(search);
+		expect(links.minQueryLength).toBe(2);
+		expect(links.suggest('#', ' e ')).toEqual([]);
+		expect(search).not.toHaveBeenCalled();
 	});
 
-	it('finds nothing for an unknown title', () => {
-		expect(links.suggest('#', 'zzz')).toEqual([]);
-	});
-});
+	it('searches after a pause in typing, only for the last phrase', async () => {
+		const search = vi.fn(async () => [ermine]);
+		const links = editorNoteLinks(search);
 
-describe('resolving addresses', () => {
-	it('gives the current name of a value', () => {
-		expect(links.resolve('/atelier/values/author/author-phidias')).toBe('Phidias');
-		expect(links.resolve('/atelier/values/era/early_modern')).toBe(m.eras.early_modern.name);
-	});
+		const first = links.suggest('#', 'er');
+		const last = links.suggest('#', 'ermi');
+		await vi.advanceTimersByTimeAsync(150);
 
-	it('gives the record number and title of an artwork', () => {
-		expect(links.resolve('/atelier/12')).toBe('#0012 Calling of Saint Matthew');
+		await expect(first).resolves.toEqual([]);
+		await expect(last).resolves.toEqual([ermine]);
+		expect(search).toHaveBeenCalledExactlyOnceWith('#', 'ermi');
 	});
 
-	it('gives nothing for a missing value or artwork', () => {
-		expect(links.resolve('/atelier/values/author/gone')).toBeUndefined();
-		expect(links.resolve('/atelier/values/style/author-phidias')).toBeUndefined();
-		expect(links.resolve('/atelier/values/era/unknown')).toBeUndefined();
+	it('gives the labels of the note and of the inserted suggestions', async () => {
+		const links = editorNoteLinks(
+			vi.fn(async () => [ermine]),
+			new Map([['/atelier/values/author/a1', 'Phidias']])
+		);
+		const suggested = links.suggest('#', 'ermine');
+		await vi.advanceTimersByTimeAsync(150);
+		await suggested;
+
+		expect(links.resolve('/atelier/values/author/a1')).toBe('Phidias');
+		expect(links.resolve('/atelier/0007')).toBe(ermine.name);
 		expect(links.resolve('/atelier/99')).toBeUndefined();
+	});
+});
+
+describe('labelledNoteLinks', () => {
+	it('gives the labels and suggests nothing', () => {
+		const links = labelledNoteLinks(new Map([['/atelier/12', '#0012 Calling of Saint Matthew']]));
+		expect(links.resolve('/atelier/12')).toBe('#0012 Calling of Saint Matthew');
+		expect(links.resolve('/atelier/values/author/gone')).toBeUndefined();
+		expect(links.suggest('#', 'calling')).toEqual([]);
 	});
 });

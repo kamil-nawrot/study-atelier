@@ -1427,6 +1427,17 @@ export type Database = {
           title: string;
         }[];
       };
+      note_link_suggestions: {
+        Args: { link_trigger: string; phrase: string };
+        Returns: {
+          authors: string[];
+          id: string;
+          kind: string;
+          parents: string[];
+          record_number: number;
+          title: string;
+        }[];
+      };
       notes_mentions: {
         Args: { needle?: string };
         Returns: {
