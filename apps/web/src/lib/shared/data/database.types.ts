@@ -1367,6 +1367,7 @@ export type Database = {
           field_id: string;
         }[];
       };
+      atelier_empty: { Args: Record<PropertyKey, never>; Returns: boolean };
       career_standing: {
         Args: { time_zone: string; unlock: boolean };
         Returns: {

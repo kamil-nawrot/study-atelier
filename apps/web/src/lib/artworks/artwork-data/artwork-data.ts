@@ -13,7 +13,7 @@ import {
 	imageRecord,
 	storedImage,
 	uploadPath,
-	withPreview
+	withPreviews
 } from '#lib/images/image-record/image-record.ts';
 import type { ImageRow } from '#lib/images/types/image-row.ts';
 import type { StoredImage } from '#lib/images/types/stored-image.ts';
@@ -212,9 +212,7 @@ export async function loadArtwork(number: number): Promise<LoadArtworkResult> {
 	if (error) return { error: artworkErrorMessage(error) };
 	if (!data) return { error: m.artworkErrors.notFound, notFound: true };
 	const artwork = artworkRecordFromRow(data as unknown as ArtworkRecordRow);
-	const [image, ...images] = await Promise.all(
-		[artwork.image, ...artwork.images].map((item) => withPreview(item))
-	);
+	const [image, ...images] = await withPreviews([artwork.image, ...artwork.images]);
 	return {
 		artwork: {
 			...artwork,

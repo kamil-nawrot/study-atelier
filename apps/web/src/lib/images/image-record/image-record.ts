@@ -1,4 +1,8 @@
-import { ownImageUrl, uploadOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
+import {
+	ownImageUrl,
+	ownImageUrls,
+	uploadOwnImage
+} from '#lib/images/own-image-data/own-image-data.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import type { StoredImage } from '#lib/images/types/stored-image.ts';
 import type { ImageRow } from '#lib/images/types/image-row.ts';
@@ -91,4 +95,15 @@ export async function withPreview(
 ): Promise<ArtworkImageInput | null> {
 	if (image?.kind !== 'upload') return image;
 	return { ...image, previewUrl: await ownImageUrl(image.path) };
+}
+
+export async function withPreviews(
+	images: (ArtworkImageInput | null)[]
+): Promise<(ArtworkImageInput | null)[]> {
+	const paths = images.map(uploadPath).filter((path): path is string => path !== null);
+	if (paths.length === 0) return images;
+	const urls = await ownImageUrls(paths);
+	return images.map((image) =>
+		image?.kind === 'upload' ? { ...image, previewUrl: urls.get(image.path) } : image
+	);
 }

@@ -40,18 +40,39 @@ describe('session', () => {
 		await expect(currentSession()).resolves.toBeNull();
 	});
 
-	it('reports sign-in, sign-out and token changes', () => {
+	it('reports sign-in and sign-out', () => {
 		let current: Session | null = null;
 		const onChange = vi.fn();
 		watchSession(() => current, onChange);
 
 		emit('SIGNED_IN', testSession('first'));
 		current = testSession('first');
-		emit('TOKEN_REFRESHED', testSession('second'));
-		current = testSession('second');
 		emit('SIGNED_OUT', null);
 
-		expect(onChange).toHaveBeenCalledTimes(3);
+		expect(onChange).toHaveBeenCalledTimes(2);
+	});
+
+	it('ignores a refreshed token of the same learner', () => {
+		const onChange = vi.fn();
+		watchSession(() => testSession('first'), onChange);
+
+		emit('TOKEN_REFRESHED', testSession('second'));
+
+		expect(onChange).not.toHaveBeenCalled();
+	});
+
+	it('reports a changed email or another learner', () => {
+		const onChange = vi.fn();
+		watchSession(() => testSession(), onChange);
+		const changedEmail = testSession();
+		changedEmail.user = { ...changedEmail.user, email: 'new@example.com' };
+		const otherLearner = testSession();
+		otherLearner.user = { ...otherLearner.user, id: 'other-user-id' };
+
+		emit('USER_UPDATED', changedEmail);
+		emit('SIGNED_IN', otherLearner);
+
+		expect(onChange).toHaveBeenCalledTimes(2);
 	});
 
 	it('ignores events that keep the same session', () => {

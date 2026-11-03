@@ -1,7 +1,7 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { artworkImageCredit } from '#lib/images/artwork-image/artwork-image.ts';
 import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
-import { IMAGE_COLUMNS, imageOf, withPreview } from '#lib/images/image-record/image-record.ts';
+import { IMAGE_COLUMNS, imageOf, withPreviews } from '#lib/images/image-record/image-record.ts';
 import type { ImageRow } from '#lib/images/types/image-row.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { rowLimitMessage } from '#lib/shared/data/errors/errors.ts';
@@ -210,13 +210,11 @@ export async function loadReviewDetails(ids: string[]): Promise<ReviewDetailsRes
 }
 
 export async function withPinPreviews(items: ReviewItem[]): Promise<ReviewItem[]> {
-	return Promise.all(
-		items.map(async (item) => {
-			if (!item.pin) return item;
-			const image = (await withPreview(item.pin.image)) ?? item.pin.image;
-			return { ...item, pin: { ...item.pin, image } };
-		})
-	);
+	const images = await withPreviews(items.map((item) => item.pin?.image ?? null));
+	return items.map((item, index) => {
+		const image = images[index];
+		return item.pin && image ? { ...item, pin: { ...item.pin, image } } : item;
+	});
 }
 
 function scopeArgs(scope: ReviewScope): { scope_kind: string; scope_value?: string } {

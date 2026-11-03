@@ -233,7 +233,7 @@ tasks:
   T11:
     {
       name: 'One emptiness check, batched signed URLs, no layout reload on token refresh',
-      status: planned
+      status: 'done, ATL-425'
     }
   T12: { name: 'Make the scale seed run with the row limits', status: planned }
   T13: { name: 'Compact wall payload', status: 'after the measurement' }

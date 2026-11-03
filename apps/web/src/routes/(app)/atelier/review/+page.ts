@@ -11,7 +11,7 @@ import {
 } from '#lib/review/review-data/review-data.ts';
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = async ({ parent }) => {
+export const load: PageLoad = async ({ parent, untrack }) => {
 	const dayStart = startOfDay(new Date());
 	const [atelier, review, counts, streak, glossary, layout, termPins] = await Promise.all([
 		loadAtelier(),
@@ -19,7 +19,7 @@ export const load: PageLoad = async ({ parent }) => {
 		loadReviewCounts(dayStart),
 		loadReviewStreak(dayStart),
 		loadTermIndex(),
-		parent(),
+		untrack(() => parent()),
 		countTermPins()
 	]);
 	const preferences = layout.preferences ?? defaultPreferences;
