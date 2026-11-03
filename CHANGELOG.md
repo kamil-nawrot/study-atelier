@@ -2,6 +2,29 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.16.0] - 2026-11-03
+
+The app asks the database for less: views load only the rows they show, links in notes are stored as rows, and the display case gets its final name.
+
+### Changed
+
+- The display case is called "Ekspozycja", with a trophy icon, and every exhibit is named as an object or a place, for example "Pracownia Świętego Hieronima" and "Mona Lisa". The badge, the band of numerals, the new lamp and the bars are polished.
+- In "Kartoteka" the add buttons sit in one row with search and sort.
+- A value page, a glossary entry and a visit load only the artworks they show, and the career standing, the own profile and the glossary marks are each read in one call. Saving forgets only the cached data the save changed.
+- Links in notes are stored as rows in the database. Mentions on value and glossary pages and the labels of links are read from them, and the suggestions after "@" and "#" are searched in the database, so the artwork form opens with fewer requests and less data (an artwork's edit form: 16 requests and 9 kB instead of 20 and 38 kB).
+- Internal: a data model built from the access patterns, a log of a view's Supabase requests in `pnpm screenshot`, a code review of the version with its fixes, and steadier browser tests under load.
+
+### Fixed
+
+- Merging two values also rewrites the links in era notes.
+- A glossary save or delete refreshes the views that show it.
+- "Kartoteka" reads past 1000 rows.
+- Enter or Tab while suggestions are still loading picks nothing instead of the previous suggestion, a failed search shows the eras instead of an error, and a glossary definition that loads is announced to screen readers.
+
+### Migrations run on production
+
+8 migrations run on production with this release. `20261101080000_merge_rewrites_era_notes` replaces `merge_category_values` with the same signature. `20261101090000_career_standing`, `20261102090000_term_mentions`, `20261102120000_note_link_reads` and `20261103090000_note_link_suggestions` add the functions `career_standing`, `term_mentions`, `note_link_mentions`, `note_link_labels` and `note_link_suggestions`. `20261102100000_glossary_has_definition` adds the generated column `glossary_entries.has_definition`. `20261102110000_note_links` creates `note_links` with its triggers and fills it from every account's notes. `20261103100000_note_link_fixes` makes the triggers run on every update, drops a duplicate index and rebuilds the links in one statement. Nothing the previous app calls is dropped or changed.
+
 ## [0.15.0] - 2026-10-30
 
 Learning in the atelier becomes a museum career: points and ranks for the work done, and a display case of exhibits with a curiosity at every tier.
@@ -647,3 +670,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.13.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.13.1
 [0.14.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.14.0
 [0.15.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.15.0
+[0.16.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.16.0
