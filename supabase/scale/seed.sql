@@ -1,3 +1,17 @@
+do $$
+declare
+  limit_trigger record;
+begin
+  for limit_trigger in
+    select tgrelid::regclass as table_name, tgname as name
+      from pg_trigger
+      where tgname like '%\_limit\_rows' and not tgisinternal
+  loop
+    execute format('alter table %s disable trigger %I', limit_trigger.table_name, limit_trigger.name);
+  end loop;
+end
+$$;
+
 create temporary table scale_learners on commit drop as
 select
   n,
@@ -39,6 +53,8 @@ update public.artworks
 set deleted_at = now() - interval '3 days'
 where record_number % 50 = 0
   and owner_id in (select id from scale_learners);
+
+analyze public.category_values, public.artworks;
 
 insert into public.artwork_values (artwork_id, value_id, owner_id, position)
 select a.id, v.id, a.owner_id, 0
@@ -111,5 +127,19 @@ join lateral (
   limit 10
 ) a on true
 where vi.owner_id in (select id from scale_learners);
+
+do $$
+declare
+  limit_trigger record;
+begin
+  for limit_trigger in
+    select tgrelid::regclass as table_name, tgname as name
+      from pg_trigger
+      where tgname like '%\_limit\_rows' and not tgisinternal
+  loop
+    execute format('alter table %s enable trigger %I', limit_trigger.table_name, limit_trigger.name);
+  end loop;
+end
+$$;
 
 analyze;

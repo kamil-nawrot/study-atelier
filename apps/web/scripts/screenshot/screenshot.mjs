@@ -153,6 +153,23 @@ function filteredRows(url) {
 	}
 	const era = params.get('era_code');
 	if (era?.startsWith('eq.')) rows = rows.filter((row) => row.era_code === era.slice(3));
+	const term = params.get('pinned.artwork_pins.glossary_entry_id');
+	if (term?.startsWith('eq.')) {
+		rows = rows.filter((row) =>
+			ARTWORK_PINS.some(
+				(pin) =>
+					pin.glossary_entry_id === term.slice(3) &&
+					row.artwork_images.some((image) => image.id === pin.image_id)
+			)
+		);
+	}
+	const visit = params.get('seen.visit_id');
+	if (visit?.startsWith('eq.')) {
+		const seen = VISITS.find((candidate) => candidate.id === visit.slice(3));
+		rows = rows.filter((row) =>
+			(seen?.visit_artworks ?? []).some((link) => link.artwork_id === row.id)
+		);
+	}
 	const value = params.get('valued.value_id');
 	if (value?.startsWith('eq.')) {
 		rows = rows.filter((row) =>
@@ -580,6 +597,27 @@ async function mockSupabase(context) {
 						]
 			);
 		}
+		if (url.pathname === '/rest/v1/rpc/card_index') {
+			const values = [
+				...VALUE_USAGE.filter((row) => !OWN_FIELDS.some((field) => field.id === row.category_code)),
+				...OWN_VALUE_USAGE
+			].map((row) => {
+				const author = VALUE_DETAILS.author_details.find((detail) => detail.value_id === row.id);
+				const place = VALUE_DETAILS.location_details.find((detail) => detail.value_id === row.id);
+				return {
+					visit_count: 0,
+					...row,
+					...(author?.sort_name ? { sort_name: author.sort_name } : {}),
+					...(author?.birth_year ? { birth_year: author.birth_year } : {}),
+					...(place?.country_code ? { country_code: place.country_code } : {})
+				};
+			});
+			return json(route, {
+				values,
+				period_eras: PERIOD_ERA_USAGE,
+				style_periods: STYLE_PERIOD_USAGE
+			});
+		}
 		if (url.pathname === '/rest/v1/rpc/artwork_field_usage') return json(route, OWN_FIELD_USAGE);
 		if (url.pathname === '/rest/v1/rpc/used_category_values') {
 			const names = new Map(
@@ -623,6 +661,7 @@ async function mockSupabase(context) {
 			const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
 			return json(route, wantsObject ? counts : [counts]);
 		}
+		if (url.pathname === '/rest/v1/rpc/atelier_empty') return json(route, false);
 		if (url.pathname === '/rest/v1/rpc/storage_usage') {
 			const usage = { used_bytes: 9_122_611, quota_bytes: 209_715_200 };
 			const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
@@ -633,9 +672,6 @@ async function mockSupabase(context) {
 		}
 		if (url.pathname === '/rest/v1/rpc/review_streak') {
 			return json(route, REVIEW_CARDS.length > 0 ? 5 : 0);
-		}
-		if (url.pathname === '/rest/v1/rpc/notes_mentions') {
-			return json(route, notesMentions(request.postDataJSON()?.needle));
 		}
 		if (url.pathname === '/rest/v1/rpc/note_link_mentions') {
 			return json(route, noteLinkMentions(request.postDataJSON() ?? {}));

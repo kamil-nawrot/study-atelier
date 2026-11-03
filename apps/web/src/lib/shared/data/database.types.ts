@@ -355,7 +355,6 @@ export type Database = {
           image_width: number | null;
           notes: string | null;
           own_image_path: string | null;
-          own_image_source_url: string | null;
           own_image_url: string | null;
           owner_id: string;
           sort_name: string | null;
@@ -378,7 +377,6 @@ export type Database = {
           image_width?: number | null;
           notes?: string | null;
           own_image_path?: string | null;
-          own_image_source_url?: string | null;
           own_image_url?: string | null;
           owner_id?: string;
           sort_name?: string | null;
@@ -400,7 +398,6 @@ export type Database = {
           image_width?: number | null;
           notes?: string | null;
           own_image_path?: string | null;
-          own_image_source_url?: string | null;
           own_image_url?: string | null;
           owner_id?: string;
           sort_name?: string | null;
@@ -1367,6 +1364,8 @@ export type Database = {
           field_id: string;
         }[];
       };
+      atelier_empty: { Args: Record<PropertyKey, never>; Returns: boolean };
+      card_index: { Args: Record<PropertyKey, never>; Returns: Json };
       career_standing: {
         Args: { time_zone: string; unlock: boolean };
         Returns: {
@@ -1434,16 +1433,6 @@ export type Database = {
           id: string;
           kind: string;
           parents: string[];
-          record_number: number;
-          title: string;
-        }[];
-      };
-      notes_mentions: {
-        Args: { needle?: string };
-        Returns: {
-          id: string;
-          kind: string;
-          notes: string;
           record_number: number;
           title: string;
         }[];

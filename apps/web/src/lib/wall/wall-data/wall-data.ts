@@ -1,4 +1,5 @@
-import { IMAGES_BUCKET, SIGNED_URL_SECONDS, ownThumbnailPath } from '#lib/images/bucket/bucket.ts';
+import { SIGNED_URL_SECONDS, ownThumbnailPath } from '#lib/images/bucket/bucket.ts';
+import { ownImageUrls } from '#lib/images/own-image-data/own-image-data.ts';
 import { fetchCommonsThumbnails } from '#lib/images/commons/commons.ts';
 import { backfillThumbnails } from '#lib/images/thumbnail-backfill/thumbnail-backfill.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
@@ -76,21 +77,8 @@ const ARTWORK_COLUMNS = [
 	'visit_artworks(visit_id)'
 ].join(', ');
 
-async function signedUrls(paths: string[]): Promise<Map<string, string>> {
-	if (paths.length === 0) return new Map();
-	const { data, error } = await supabase.storage
-		.from(IMAGES_BUCKET)
-		.createSignedUrls(paths, SIGNED_URL_SECONDS);
-	if (error || !data) return new Map();
-	return new Map(
-		data
-			.filter((entry) => entry.path && entry.signedUrl && !entry.error)
-			.map((entry) => [entry.path as string, entry.signedUrl as string])
-	);
-}
-
 async function wallImageUrls(paths: string[]): Promise<Map<string, string>> {
-	const thumbnails = await signedUrls(paths.map(ownThumbnailPath));
+	const thumbnails = await ownImageUrls(paths.map(ownThumbnailPath));
 	const urls = new Map<string, string>();
 	const withoutThumbnail: string[] = [];
 	for (const path of paths) {
@@ -98,7 +86,7 @@ async function wallImageUrls(paths: string[]): Promise<Map<string, string>> {
 		if (thumbnail) urls.set(path, thumbnail);
 		else withoutThumbnail.push(path);
 	}
-	const originals = await signedUrls(withoutThumbnail);
+	const originals = await ownImageUrls(withoutThumbnail);
 	for (const [path, url] of originals) urls.set(path, url);
 	backfillThumbnails(originals);
 	return urls;
@@ -223,23 +211,30 @@ export async function loadAtelier(): Promise<AtelierResult> {
 	};
 }
 
-type WallFilter = { ids: readonly string[] } | { eraCode: string } | { valueId: string };
+type WallFilter =
+	{ eraCode: string } | { valueId: string } | { termId: string } | { visitId: string };
+
+const FILTER_EMBEDS: Record<string, string> = {
+	valueId: 'valued:artwork_values!inner(value_id)',
+	termId: 'pinned:artwork_images!inner(artwork_pins!inner(glossary_entry_id))',
+	visitId: 'seen:visit_artworks!inner(visit_id)'
+};
+
+const FILTER_COLUMNS: Record<string, string> = {
+	eraCode: 'era_code',
+	valueId: 'valued.value_id',
+	termId: 'pinned.artwork_pins.glossary_entry_id',
+	visitId: 'seen.visit_id'
+};
 
 function fetchWallRows(filter?: WallFilter): Promise<{ rows: ArtworkRow[]; error?: string }> {
+	const [name, value] = filter ? Object.entries(filter)[0] : [];
+	const embed = name ? FILTER_EMBEDS[name] : undefined;
 	return fetchAllRows((from, to) => {
-		const byValue = filter && 'valueId' in filter;
 		const query = supabase
 			.from('artworks')
-			.select(
-				byValue ? `${ARTWORK_COLUMNS}, valued:artwork_values!inner(value_id)` : ARTWORK_COLUMNS
-			);
-		const filtered = !filter
-			? query
-			: 'ids' in filter
-				? query.in('id', [...filter.ids])
-				: 'eraCode' in filter
-					? query.eq('era_code', filter.eraCode)
-					: query.eq('valued.value_id', filter.valueId);
+			.select(embed ? `${ARTWORK_COLUMNS}, ${embed}` : ARTWORK_COLUMNS);
+		const filtered = name ? query.eq(FILTER_COLUMNS[name], value as string) : query;
 		return filtered
 			.eq('artwork_images.position', 0)
 			.is('deleted_at', null)
@@ -264,9 +259,12 @@ export function loadArtworksOfValue(
 	return loadWall(value);
 }
 
-export async function loadArtworksById(ids: readonly string[]): Promise<AtelierResult> {
-	if (ids.length === 0) return { artworks: [] };
-	return loadWall({ ids });
+export function loadArtworksOfTerm(termId: string): Promise<AtelierResult> {
+	return loadWall({ termId });
+}
+
+export function loadArtworksOfVisit(visitId: string): Promise<AtelierResult> {
+	return loadWall({ visitId });
 }
 
 async function fetchAtelier(): Promise<AtelierResult> {

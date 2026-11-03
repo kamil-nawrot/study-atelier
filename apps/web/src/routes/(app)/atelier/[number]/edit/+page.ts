@@ -14,16 +14,18 @@ export const load: PageLoad = async ({ params }) => {
 		const missing: LoadArtworkResult = { error: m.artworkErrors.notFound, notFound: true };
 		return { ...missing, ownFields: undefined, pins: [], pinsError: undefined };
 	}
-	const [result, own, pins] = await Promise.all([
-		loadArtwork(number),
+	const [{ result, noteLinks }, own, { pins, glossary }] = await Promise.all([
+		loadArtwork(number).then(async (result) => ({
+			result,
+			noteLinks: await loadEditorNoteLinks(
+				mentionsLinks(result.artwork?.notes) ? { artworkNumber: number } : undefined
+			)
+		})),
 		loadOwnFieldDefinitions(),
-		loadArtworkPins(number)
-	]);
-	const [glossary, noteLinks] = await Promise.all([
-		pins.pins.some((pin) => pin.glossaryEntryId) ? loadTermIndex() : undefined,
-		loadEditorNoteLinks(
-			mentionsLinks(result.artwork?.notes) ? { artworkNumber: number } : undefined
-		)
+		loadArtworkPins(number).then(async (pins) => ({
+			pins,
+			glossary: pins.pins.some((pin) => pin.glossaryEntryId) ? await loadTermIndex() : undefined
+		}))
 	]);
 	return {
 		...result,

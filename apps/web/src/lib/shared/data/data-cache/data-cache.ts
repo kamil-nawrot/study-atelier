@@ -8,7 +8,10 @@ export const cacheKeys = {
 	cardIndex: 'card-index',
 	categoryValues: 'category-values',
 	valueLinks: 'value-links',
-	glossary: 'glossary'
+	glossary: 'glossary',
+	ownFields: 'own-fields',
+	eraSummaries: 'era-summaries',
+	museums: 'museums'
 } as const;
 
 export type CacheKey = (typeof cacheKeys)[keyof typeof cacheKeys];

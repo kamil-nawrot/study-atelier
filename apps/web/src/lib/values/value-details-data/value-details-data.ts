@@ -1,6 +1,6 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
-import { cacheKeys, forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
+import { cacheKeys, forgetCached, type CacheKey } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyAuthorDetails } from '#lib/values/author-form/author-form.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
@@ -21,6 +21,7 @@ import type { AuthorDetails } from '#lib/values/types/author-details.ts';
 import type { LocationDetails } from '#lib/values/types/location-details.ts';
 import type { ValueDetails } from '#lib/values/types/value-details.ts';
 import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
+import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
 import { emptyValueDetails } from '#lib/values/value-details/value-details.ts';
 
 type ValueDetailsResult = {
@@ -164,6 +165,11 @@ async function removeReplacedUpload(
 	}
 }
 
+const DETAILS_KEYS: Partial<Record<CategoryCode, readonly CacheKey[]>> = {
+	author: [cacheKeys.atelier, cacheKeys.cardIndex],
+	location: [cacheKeys.cardIndex]
+};
+
 export async function saveValueDetails(
 	subject: ValueSubject,
 	details: ValueDetails,
@@ -175,7 +181,7 @@ export async function saveValueDetails(
 			target_era: subject.code,
 			details: text
 		});
-		forgetCached([cacheKeys.atelier, cacheKeys.cardIndex]);
+		forgetCached([cacheKeys.eraSummaries]);
 		return error ? { error: await failureMessage(error, cardIndexErrorMessage) } : {};
 	}
 
@@ -188,7 +194,7 @@ export async function saveValueDetails(
 		target_value: subject.record.id,
 		details: detailsPayload(text, details, stored.image)
 	});
-	forgetCached([cacheKeys.atelier, cacheKeys.cardIndex]);
+	forgetCached(DETAILS_KEYS[subject.kind] ?? []);
 	if (error) {
 		if (newUpload) await removeOwnImage(newUpload);
 		return { error: await failureMessage(error, cardIndexErrorMessage) };

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { summaryKey } from '#lib/card-index/value-summaries/value-summaries.ts';
 import { loadValueSummaries } from './value-summaries-data.ts';
@@ -19,6 +20,7 @@ function respond(values: unknown, eras: unknown, error: unknown = null): void {
 describe('loadValueSummaries', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		forgetCached();
 	});
 
 	it('keeps the summaries of the artwork values and the eras, with the years of an author and the country of a place', async () => {
@@ -77,6 +79,18 @@ describe('loadValueSummaries', () => {
 		});
 		expect(summaries.eras).toEqual({ early_modern: { summary: 'Early modern.' } });
 		expect(summaries.countries).toEqual({ Louvre: 'Francja' });
+	});
+
+	it('reads the era summaries once for the artworks that follow', async () => {
+		respond([], [{ era_code: 'early_modern', summary: 'Early modern.' }]);
+
+		await loadValueSummaries(1);
+		const next = await loadValueSummaries(2);
+
+		expect(
+			vi.mocked(supabase.from).mock.calls.filter(([table]) => table === 'era_details')
+		).toHaveLength(1);
+		expect(next.eras).toEqual({ early_modern: { summary: 'Early modern.' } });
 	});
 
 	it('gives no summaries when the request fails', async () => {

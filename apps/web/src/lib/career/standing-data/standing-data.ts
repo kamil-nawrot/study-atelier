@@ -28,17 +28,15 @@ export function loadStanding(counted = false): Promise<StandingResult> {
 }
 
 export async function loadRoundCareer(dayStart: Date): Promise<RoundResult> {
-	const { standing, error } = await standingOf(true);
+	const planRead = supabase
+		.from('point_events')
+		.select('plan_share, streak_days')
+		.eq('kind', 'plan_day')
+		.eq('day_start', dayStart.toISOString())
+		.maybeSingle();
+	const [{ standing, error }, plan] = await Promise.all([standingOf(true), planRead]);
 	if (!standing) return { error };
-	const [plan, tiers] = await Promise.all([
-		supabase
-			.from('point_events')
-			.select('plan_share, streak_days')
-			.eq('kind', 'plan_day')
-			.eq('day_start', dayStart.toISOString())
-			.maybeSingle(),
-		newTiers(dayStart)
-	]);
+	const tiers = await newTiers(dayStart);
 	if (plan.error || tiers === undefined) {
 		return { error: collectionErrorMessage(plan.error ?? {}) };
 	}

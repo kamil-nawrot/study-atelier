@@ -131,7 +131,7 @@
 				Markdown,
 				NoteLink,
 				NoteLinkSuggestion.configure({
-					items: (trigger, query) => links?.suggest(trigger, query) ?? [],
+					items: (trigger, query, signal) => links?.suggest(trigger, query, signal) ?? [],
 					onChange: updateSuggestion,
 					onKeyDown: chooseWithKey
 				})

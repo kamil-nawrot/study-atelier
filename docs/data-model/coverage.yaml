@@ -12,6 +12,7 @@
 changes:
   - id: M1
     name: Store note links as rows
+    status: 'done in 0.16, ATL-419, ADR-0168; notes_mentions dropped in 0.17, ATL-429'
     kind: schema
     tables: [note_links]
     serves: [R03, R05, R07, R13, R16, W03, W05, W17]
@@ -63,6 +64,7 @@ changes:
 
   - id: Q1
     name: Keep a light term index in the cache and load a definition on hover
+    status: 'done in 0.16, ATL-414 and ATL-415'
     kind: query
     tables: []
     serves: [R03, R04, R07, R10, R13, R14, R16]
@@ -105,6 +107,7 @@ changes:
 
   - id: Q2
     name: Filter note mentions of a term in the database
+    status: 'done in 0.16, ATL-412'
     kind: query
     tables: []
     serves: [R10]
@@ -137,6 +140,7 @@ changes:
 
   - id: M3
     name: Drop the unused author portrait source column
+    status: 'done, ATL-427'
     kind: schema
     tables: [author_details]
     serves: []
@@ -151,6 +155,7 @@ changes:
 
   - id: M4
     name: Index the foreign keys behind cascading deletes
+    status: 'done, ATL-427'
     kind: schema
     tables:
       [
@@ -176,10 +181,12 @@ bugs:
   # Found by the review; they exist today, independent of the model, and are filed separately.
   - id: B1
     issue: ATL-404
+    status: 'done in 0.16'
     name: merge_category_values skips era_details.notes
     effect: 'links to a merged value in an era note point at a deleted id; after M1 the cascade would drop their rows while the text stays'
   - id: B2
     issue: ATL-405
+    status: 'done in 0.16'
     name: Saving or deleting a glossary term does not clear the data cache
     effect: "cached('glossary') in the artwork form and edit page stays stale after a term edit, also in other tabs"
 
@@ -196,31 +203,47 @@ tasks:
       status: 'after M1 only for unsaved editor text'
     }
   Z3: { name: 'Search the note link suggestions in the database', status: 'done, ADR-0169' }
-  Z4: { name: 'Load a value page with its own artworks only', status: planned }
-  Z5: { name: 'Load only the artworks a glossary entry or a visit shows', status: planned }
-  Z6: { name: 'Write the narrow-query rule into the conventions', status: planned }
-  T1: { name: 'Read the own profile once per app start', status: planned }
-  T2: { name: 'Load the career standing with one database function', status: planned }
+  Z4:
+    {
+      name: 'Load a value page with its own artworks only',
+      status: 'done in 0.16, ATL-416, ADR-0167'
+    }
+  Z5:
+    {
+      name: 'Load only the artworks a glossary entry or a visit shows',
+      status: 'done in 0.16, ATL-417, ADR-0167'
+    }
+  Z6: { name: 'Write the narrow-query rule into the conventions', status: 'done, ATL-422' }
+  T1: { name: 'Read the own profile once per app start', status: 'done in 0.16, ATL-410' }
+  T2:
+    { name: 'Load the career standing with one database function', status: 'done in 0.16, ATL-411' }
   T3':
-    { name: 'Cache own field definitions, era summaries and the museum catalogue', status: planned }
-  T4: { name: 'Preload only the core of the next artwork', status: 'option open, D3' }
-  T5: { name: 'Page every list query past 1000 rows (bug)', status: planned }
-  T7: { name: 'Remember Commons thumbnail URLs on the device', status: planned }
+    {
+      name: 'Cache own field definitions, era summaries and the museum catalogue',
+      status: 'done, ATL-423, ADR-0170'
+    }
+  T4: { name: 'Preload only the core of the next artwork', status: 'done, ATL-430, ADR-0173' }
+  T5: { name: 'Page every list query past 1000 rows (bug)', status: 'done in 0.16, ATL-407' }
+  T7: { name: 'Remember Commons thumbnail URLs on the device', status: 'done, ATL-428, ADR-0172' }
   T8:
     {
       name: 'Forget only the cache keys a write changes',
-      status: 'planned, own ADR amending ADR-0157; delivers the write-to-keys map, keys nested in other selects (atelier holds value names and visits), forget by prefix, and a broadcast that names the keys'
+      status: 'done in 0.16, ATL-413, ADR-0166'
     }
-  T9: { name: 'Load the card index with one database function', status: planned }
-  T10: { name: 'Index FKs and drop the unused portrait column', status: 'is M3 and M4' }
+  T9: { name: 'Load the card index with one database function', status: 'done, ATL-424' }
+  T10: { name: 'Index FKs and drop the unused portrait column', status: 'done, ATL-427' }
   T11:
     {
       name: 'One emptiness check, batched signed URLs, no layout reload on token refresh',
-      status: planned
+      status: 'done, ATL-425'
     }
-  T12: { name: 'Make the scale seed run with the row limits', status: planned }
-  T13: { name: 'Compact wall payload', status: 'after the measurement' }
-  T14: { name: 'Build the review session facts without a subquery per artwork', status: planned }
+  T12: { name: 'Make the scale seed run with the row limits', status: 'done, ATL-427' }
+  T13: { name: 'Compact wall payload', status: 'dropped after the measurement, ATL-430' }
+  T14:
+    {
+      name: 'Build the review session facts without a subquery per artwork',
+      status: 'done, ATL-426'
+    }
 
 out_of_scope:
   - 'E2: remembering Wikidata and Wikipedia search results; only if 429 errors come back'
@@ -249,7 +272,7 @@ adrs_to_change:
   - { adr: '0082', by: [M1, Q2], how: 'superseded: mentions from note_links and term_mentions' }
   - { adr: '0157', by: [T8, Q1], how: 'amended: keyed forgetting and the glossary keys' }
   - { adr: '0042', by: [Z4, Z5], how: 'amended: the whole collection only in views that show it' }
-  - { adr: '0048', by: [T4], how: 'amended if the preload is narrowed' }
+  - { adr: '0048', by: [T4], how: 'amended by ADR-0173: only the core of the next artwork' }
   - { adr: '0053', by: [M1, Z3], how: 'amended: link labels and suggestions from the database' }
   - { adr: '0126', by: [Q1], how: 'respected: the definition loader is passed into packages/ui' }
 
@@ -441,7 +464,7 @@ decisions:
     recommended: 'yes: commit the generator and run it in the job that already applies the migrations to a local Supabase'
   - id: D3
     question: 'Next artwork preload (T4): code only, the core only, or as today?'
-    recommended: 'the core only (artwork and first image), the rest after the flip'
+    decided: 'the core only (the artwork record), the rest after the flip; T13 dropped (owner, 2026-11-03, ATL-430)'
   - id: D4
     question: 'Tooltip definitions: load on hover (Q1) or with the note in one request (X6)?'
     decided: 'on hover, by the tooltip rule of D1 (owner, 2026-10-31); X6 only if the first tap on a phone feels slow'

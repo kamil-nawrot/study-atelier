@@ -71,9 +71,6 @@ select * from public.review_streak(date_trunc('day', now()), 'Europe/Warsaw');
 do $$ begin raise notice '### review_session'; end $$;
 select count(*) from public.review_session(date_trunc('day', now()), 'mixed', 'all', null, 0);
 
-do $$ begin raise notice '### notes_mentions'; end $$;
-select count(*) from public.notes_mentions('Dzieło 1');
-
 do $$ begin raise notice '### storage_usage'; end $$;
 select public.storage_usage();
 

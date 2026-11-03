@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SIGNED_URL_SECONDS } from '#lib/images/bucket/bucket.ts';
-import { ResolvedImages, SIGNED_URLS_KEY } from './resolved-images.ts';
+import { ResolvedImages, SIGNED_URLS_KEY, THUMBNAILS_KEY } from './resolved-images.ts';
 
 const stored = new Map<string, string>();
 
@@ -105,6 +105,34 @@ describe('ResolvedImages', () => {
 
 		images.forLearner(undefined, 2000);
 		expect(images.signedUrl('learner-1/own.jpg', 2000)).toBeUndefined();
+	});
+
+	it('keeps the Commons thumbnails of the learner for a week on this device', () => {
+		const week = 7 * 24 * 60 * 60 * 1000;
+		const first = new ResolvedImages();
+		first.forLearner('learner-1', 1000);
+		first.rememberThumbnails(new Map([['A.jpg', 'https://example.com/a.jpg']]), 1000);
+
+		const next = new ResolvedImages();
+		next.forLearner('learner-1', 2000);
+		expect(next.thumbnail('A.jpg', 1000 + week - 1)).toBe('https://example.com/a.jpg');
+		expect(next.thumbnail('A.jpg', 1000 + week)).toBeUndefined();
+
+		const later = new ResolvedImages();
+		later.forLearner('learner-1', 1000 + week);
+		expect(later.thumbnail('A.jpg', 1000)).toBeUndefined();
+	});
+
+	it('never gives the stored thumbnails to another learner', () => {
+		const first = new ResolvedImages();
+		first.forLearner('learner-1', 1000);
+		first.rememberThumbnails(new Map([['A.jpg', 'https://example.com/a.jpg']]), 1000);
+
+		const other = new ResolvedImages();
+		other.forLearner('learner-2', 2000);
+
+		expect(other.thumbnail('A.jpg', 2000)).toBeUndefined();
+		expect(stored.has(THUMBNAILS_KEY)).toBe(false);
 	});
 
 	it('forgets everything when cleared', () => {

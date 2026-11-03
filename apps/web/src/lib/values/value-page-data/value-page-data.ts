@@ -16,6 +16,7 @@ import { loadValueDetails } from '#lib/values/value-details-data/value-details-d
 import {
 	findSubject,
 	isValueKind,
+	routeSubject,
 	subjectId,
 	subjectPath
 } from '#lib/card-index/value-pages/value-pages.ts';
@@ -67,6 +68,25 @@ async function loadPageExtras(
 	return { mentions, visits: places?.error ? undefined : places?.visits };
 }
 
+type LoadedDetails = Awaited<ReturnType<typeof loadValueDetails>>;
+type NoteExtras = {
+	noteLinks?: NoteLinks;
+	glossary?: Awaited<ReturnType<typeof loadTermIndex>>;
+};
+
+async function withNoteExtras(
+	loaded: LoadedDetails,
+	route: ValueSubject,
+	withArtworks: boolean
+): Promise<LoadedDetails & NoteExtras> {
+	const target = mentionsLinks(loaded.details.notes) ? valueLinkTarget(route) : undefined;
+	const [glossary, noteLinks] = await Promise.all([
+		withArtworks && loaded.details.notes ? loadTermIndex() : undefined,
+		withArtworks ? target && loadNoteLinkLabels(target) : loadEditorNoteLinks(target)
+	]);
+	return { ...loaded, noteLinks, glossary };
+}
+
 export async function loadValuePage(
 	kind: string,
 	id: string,
@@ -74,25 +94,22 @@ export async function loadValuePage(
 ): Promise<ValuePageResult> {
 	if (!isValueKind(kind)) return failed(m.valuePage.notFound, true);
 
-	const cardIndex = await loadCardIndex();
-	if (cardIndex.error) return failed(cardIndex.error);
+	const route = routeSubject(kind, id);
+	if (!route) return failed(m.valuePage.notFound, true);
 
+	const [cardIndex, { details, error, noteLinks, glossary }, extras, own] = await Promise.all([
+		loadCardIndex(),
+		loadValueDetails(route).then((loaded) => withNoteExtras(loaded, route, withArtworks)),
+		loadPageExtras(route, withArtworks),
+		withArtworks ? loadArtworksOfValue(valueFilter(route)) : Promise.resolve({ artworks: [] })
+	]);
+	if (cardIndex.error) return failed(cardIndex.error);
 	const subject = findSubject(cardIndex.index, kind, id);
 	if (!subject) return failed(m.valuePage.notFound, true);
 
-	const [{ details, error }, extras, own] = await Promise.all([
-		loadValueDetails(subject),
-		loadPageExtras(subject, withArtworks),
-		withArtworks ? loadArtworksOfValue(valueFilter(subject)) : Promise.resolve({ artworks: [] })
-	]);
 	const loadError = error ?? ('error' in own ? own.error : undefined);
 	if (loadError) return failed(loadError);
 
-	const target = mentionsLinks(details.notes) ? valueLinkTarget(subject) : undefined;
-	const [glossary, noteLinks] = await Promise.all([
-		withArtworks && details.notes ? loadTermIndex() : undefined,
-		withArtworks ? target && loadNoteLinkLabels(target) : loadEditorNoteLinks(target)
-	]);
 	return {
 		subject,
 		index: cardIndex.index,

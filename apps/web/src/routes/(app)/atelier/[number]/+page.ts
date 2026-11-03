@@ -1,5 +1,5 @@
 import { resolve } from '$app/paths';
-import { loadArtwork } from '#lib/artworks/artwork-data/artwork-data.ts';
+import { artworkCore } from '#lib/artworks/artwork-preload/artwork-preload.ts';
 import { loadArtworkVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { parseRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
@@ -13,42 +13,42 @@ import { loadArtworkPins } from '#lib/pins/pin-data/pin-data.ts';
 import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = async ({ params, parent }): Promise<LoadArtworkResult> => {
+export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadArtworkResult> => {
 	const number = parseRecordNumber(params.number);
 	if (number === null) return { error: m.artworkErrors.notFound, notFound: true };
-	const [result, mentions, summaries, own, layout, loadedPins, loadedGlossary, seen] =
-		await Promise.all([
-			loadArtwork(number),
-			loadMentions(
-				{ artworkNumber: number },
-				resolve('/(app)/atelier/[number]', { number: String(number) })
-			),
-			loadValueSummaries(number),
-			loadOwnFieldDefinitions(),
-			parent(),
-			loadArtworkPins(number),
-			loadTermIndex(),
-			loadArtworkVisits(number)
-		]);
+	const [
+		{ result, noteLinks },
+		mentions,
+		summaries,
+		own,
+		layout,
+		loadedPins,
+		loadedGlossary,
+		seen
+	] = await Promise.all([
+		artworkCore(number).then(async (result) => ({
+			result,
+			noteLinks: mentionsLinks(result.artwork?.notes)
+				? await loadNoteLinkLabels({ artworkNumber: number })
+				: undefined
+		})),
+		loadMentions(
+			{ artworkNumber: number },
+			resolve('/(app)/atelier/[number]', { number: String(number) })
+		),
+		loadValueSummaries(number),
+		loadOwnFieldDefinitions(),
+		untrack(() => parent()),
+		loadArtworkPins(number),
+		loadTermIndex(),
+		loadArtworkVisits(number)
+	]);
 	const visits = seen.visits;
 	const preferences = layout.preferences ?? defaultPreferences;
 	const ownFields = own.fields;
 	const glossary = result.artwork ? loadedGlossary.terms : undefined;
 	const pins = loadedPins.pins;
 	const pinsError = loadedPins.error;
-	if (!mentionsLinks(result.artwork?.notes)) {
-		return {
-			...result,
-			mentions,
-			visits,
-			summaries,
-			glossary,
-			pins,
-			pinsError,
-			ownFields,
-			preferences
-		};
-	}
 	return {
 		...result,
 		mentions,
@@ -59,6 +59,6 @@ export const load: PageLoad = async ({ params, parent }): Promise<LoadArtworkRes
 		pinsError,
 		ownFields,
 		preferences,
-		noteLinks: await loadNoteLinkLabels({ artworkNumber: number })
+		...(noteLinks ? { noteLinks } : {})
 	};
 };

@@ -63,9 +63,6 @@ jobs:
       - name: Check exhibits
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/exhibits.sql
 
-      - name: Check note mentions
-        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/notes-mentions.sql
-
       - name: Check note links
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/note-links.sql
 
@@ -89,6 +86,15 @@ jobs:
 
       - name: Check duplicates and used values
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/values-and-duplicates.sql
+
+      - name: Check the card index
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/card-index.sql
+
+      - name: Check the empty atelier
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/atelier-empty.sql
+
+      - name: Check the term mentions
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/term-mentions.sql
 
       - name: Stop local Supabase
         if: always()

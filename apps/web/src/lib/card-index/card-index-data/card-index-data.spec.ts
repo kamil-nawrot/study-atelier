@@ -20,25 +20,6 @@ vi.mock('#lib/images/own-image-data/own-image-data.ts', () => ({ removeOwnImage:
 
 const rpc = vi.mocked(supabase.rpc);
 
-function details(authors: unknown[] = [], places: unknown[] = [], error: unknown = null): void {
-	vi.mocked(supabase.from).mockImplementation(((table: string) => {
-		const query = {
-			select: vi.fn(),
-			not: vi.fn(),
-			or: vi.fn(),
-			order: vi.fn(),
-			range: vi
-				.fn()
-				.mockResolvedValue({ data: table === 'author_details' ? authors : places, error })
-		};
-		query.select.mockReturnValue(query);
-		query.not.mockReturnValue(query);
-		query.or.mockReturnValue(query);
-		query.order.mockReturnValue(query);
-		return query;
-	}) as never);
-}
-
 function rpcResult(rows: unknown[], error: unknown = null): never {
 	return { range: vi.fn().mockResolvedValue({ data: rows, error }) } as never;
 }
@@ -70,23 +51,49 @@ function authorCalls(portrait: string | null, actionError: unknown = null): void
 
 beforeEach(() => forgetCached());
 
+function cardIndexRows(
+	values: Record<string, unknown>[],
+	periodEras: unknown[] = [],
+	stylePeriods: unknown[] = []
+): void {
+	rpc.mockResolvedValue({
+		data: {
+			values: values.map((value) => ({ visit_count: 0, ...value })),
+			period_eras: periodEras,
+			style_periods: stylePeriods
+		},
+		error: null
+	} as never);
+}
+
 describe('loadCardIndex', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		details();
 	});
 
-	it('gives authors their sort names', async () => {
-		details([{ value_id: 'a1', sort_name: 'Vinci, Leonardo da' }]);
-		rpc.mockImplementation(((name: string) =>
-			rpcResult(
-				name === 'value_usage'
-					? [
-							{ id: 'a1', category_code: 'author', name: 'Leonardo da Vinci', artwork_count: 1 },
-							{ id: 'a2', category_code: 'author', name: 'Andy Warhol', artwork_count: 1 }
-						]
-					: []
-			)) as never);
+	it('reads the whole card index with one call', async () => {
+		cardIndexRows([]);
+
+		await loadCardIndex();
+
+		expect(rpc).toHaveBeenCalledTimes(1);
+		expect(rpc).toHaveBeenCalledWith('card_index');
+		expect(supabase.from).not.toHaveBeenCalled();
+	});
+
+	it('gives authors their sort names and year of birth and places their country', async () => {
+		cardIndexRows([
+			{
+				id: 'a1',
+				category_code: 'author',
+				name: 'Leonardo da Vinci',
+				artwork_count: 1,
+				sort_name: 'Vinci, Leonardo da',
+				birth_year: 1452
+			},
+			{ id: 'a2', category_code: 'author', name: 'Andy Warhol', artwork_count: 1 },
+			{ id: 'l1', category_code: 'location', name: 'Luwr', artwork_count: 2, country_code: 'FR' }
+		]);
 
 		const { index } = await loadCardIndex();
 
@@ -96,59 +103,19 @@ describe('loadCardIndex', () => {
 				category: 'author',
 				name: 'Leonardo da Vinci',
 				count: 1,
-				sortName: 'Vinci, Leonardo da'
+				sortName: 'Vinci, Leonardo da',
+				birthYear: 1452
 			},
-			{ id: 'a2', category: 'author', name: 'Andy Warhol', count: 1 }
-		]);
-		expect(supabase.from).toHaveBeenCalledWith('author_details');
-	});
-
-	it('gives authors their year of birth and places their country', async () => {
-		details(
-			[{ value_id: 'a1', sort_name: null, birth_year: 1452 }],
-			[{ value_id: 'l1', country_code: 'FR' }]
-		);
-		rpc.mockImplementation(((name: string) =>
-			rpcResult(
-				name === 'value_usage'
-					? [
-							{ id: 'a1', category_code: 'author', name: 'Leonardo da Vinci', artwork_count: 1 },
-							{ id: 'l1', category_code: 'location', name: 'Luwr', artwork_count: 2 }
-						]
-					: []
-			)) as never);
-
-		const { index } = await loadCardIndex();
-
-		expect(index.values).toEqual([
-			{ id: 'a1', category: 'author', name: 'Leonardo da Vinci', count: 1, birthYear: 1452 },
+			{ id: 'a2', category: 'author', name: 'Andy Warhol', count: 1 },
 			{ id: 'l1', category: 'location', name: 'Luwr', count: 2, countryCode: 'FR' }
 		]);
-		expect(supabase.from).toHaveBeenCalledWith('location_details');
 	});
 
 	it('keeps the number of visits of a place', async () => {
-		rpc.mockImplementation(((name: string) =>
-			rpcResult(
-				name === 'value_usage'
-					? [
-							{
-								id: 'l1',
-								category_code: 'location',
-								name: 'Louvre',
-								artwork_count: 0,
-								visit_count: 2
-							},
-							{
-								id: 'l2',
-								category_code: 'location',
-								name: 'Orsay',
-								artwork_count: 1,
-								visit_count: 0
-							}
-						]
-					: []
-			)) as never);
+		cardIndexRows([
+			{ id: 'l1', category_code: 'location', name: 'Louvre', artwork_count: 0, visit_count: 2 },
+			{ id: 'l2', category_code: 'location', name: 'Orsay', artwork_count: 1, visit_count: 0 }
+		]);
 
 		const { index } = await loadCardIndex();
 
@@ -158,21 +125,15 @@ describe('loadCardIndex', () => {
 		]);
 	});
 
-	it('maps the usage rows to the card index', async () => {
-		rpc.mockImplementation(((name: string) => {
-			if (name === 'value_usage') {
-				return rpcResult([
-					{ id: 'p1', category_code: 'period', name: 'Classical', artwork_count: 2 }
-				]);
-			}
-			if (name === 'period_era_usage') {
-				return rpcResult([
-					{ period_id: 'p1', era_code: 'antiquity', artwork_count: 2 },
-					{ period_id: 'p1', era_code: 'unknown', artwork_count: 0 }
-				]);
-			}
-			return rpcResult([{ style_id: 's1', period_id: 'p1', artwork_count: 1 }]);
-		}) as never);
+	it('maps the eras of the periods and the periods of the styles', async () => {
+		cardIndexRows(
+			[{ id: 'p1', category_code: 'period', name: 'Classical', artwork_count: 2 }],
+			[
+				{ period_id: 'p1', era_code: 'antiquity', artwork_count: 2 },
+				{ period_id: 'p1', era_code: 'unknown', artwork_count: 0 }
+			],
+			[{ style_id: 's1', period_id: 'p1', artwork_count: 1 }]
+		);
 
 		await expect(loadCardIndex()).resolves.toEqual({
 			index: {
@@ -185,20 +146,15 @@ describe('loadCardIndex', () => {
 	});
 
 	it('keeps the values of the learner own list fields apart from the card index', async () => {
-		rpc.mockImplementation(((name: string) =>
-			rpcResult(
-				name === 'value_usage'
-					? [
-							{ id: 'p1', category_code: 'period', name: 'Classical', artwork_count: 2 },
-							{
-								id: 'f1',
-								category_code: '7d1c3a52-1b4e-4c55-9d1e-0f2a7b6c8e90',
-								name: 'Annunciation',
-								artwork_count: 1
-							}
-						]
-					: []
-			)) as never);
+		cardIndexRows([
+			{ id: 'p1', category_code: 'period', name: 'Classical', artwork_count: 2 },
+			{
+				id: 'f1',
+				category_code: '7d1c3a52-1b4e-4c55-9d1e-0f2a7b6c8e90',
+				name: 'Annunciation',
+				artwork_count: 1
+			}
+		]);
 
 		const { index, ownValues } = await loadCardIndex();
 
@@ -214,20 +170,17 @@ describe('loadCardIndex', () => {
 	});
 
 	it('loads only the values of own list fields without the rest of the card index', async () => {
-		rpc.mockImplementation(((name: string) =>
-			rpcResult(
-				name === 'value_usage'
-					? [
-							{ id: 'p1', category_code: 'period', name: 'Classical', artwork_count: 2 },
-							{ id: 'f1', category_code: 'field-id', name: 'Annunciation', artwork_count: 1 }
-						]
-					: []
-			)) as never);
+		rpc.mockReturnValue(
+			rpcResult([
+				{ id: 'p1', category_code: 'period', name: 'Classical', artwork_count: 2 },
+				{ id: 'f1', category_code: 'field-id', name: 'Annunciation', artwork_count: 1 }
+			])
+		);
 
 		await expect(loadOwnValues()).resolves.toEqual({
 			ownValues: [{ id: 'f1', fieldId: 'field-id', name: 'Annunciation', count: 1 }]
 		});
-		expect(rpc).toHaveBeenCalledTimes(1);
+		expect(rpc).toHaveBeenCalledWith('value_usage');
 	});
 
 	it('reports a failure to load the values of own list fields', async () => {
@@ -239,36 +192,8 @@ describe('loadCardIndex', () => {
 		expect(error).toBeDefined();
 	});
 
-	it('reads every page of 1000 rows', async () => {
-		const row = (n: number): Record<string, unknown> => ({
-			id: `v${n}`,
-			category_code: 'author',
-			name: `Author ${n}`,
-			artwork_count: 0
-		});
-		const pages = [Array.from({ length: 1000 }, (_, n) => row(n)), [row(1000)]];
-		const valueRanges: [number, number][] = [];
-		rpc.mockImplementation(((name: string) => {
-			if (name !== 'value_usage') return rpcResult([]);
-			return {
-				range: vi.fn((from: number, to: number) => {
-					valueRanges.push([from, to]);
-					return Promise.resolve({ data: pages[valueRanges.length - 1], error: null });
-				})
-			};
-		}) as never);
-
-		const { index } = await loadCardIndex();
-
-		expect(index.values).toHaveLength(1001);
-		expect(valueRanges).toEqual([
-			[0, 999],
-			[1000, 1999]
-		]);
-	});
-
 	it('reports a failed request with an empty index', async () => {
-		rpc.mockImplementation((() => rpcResult([], { message: 'Failed to fetch' })) as never);
+		rpc.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } } as never);
 
 		const result = await loadCardIndex();
 
