@@ -244,6 +244,12 @@ How views and components look and behave, so every new screen stays consistent w
 - The filter panel of the wall has "Widziane na żywo" with the `footprints` icon and its count next to "Ulubione", both a `FlagToggle` (the heart filled when pressed, the footprints not); it is kept in the address as `seen=1` and has a tag that names the field only. There is no "not yet" choice.
 - A visit whose note links to a value or an artwork is listed under "Wspominasz o tym w notatkach" as "Wizyta" with its place and its date as far as it is known ("Louvre · 12.10.2026"). A place with visits counts as used in the card index, so it has no "Usuń" until its visits are gone, merging two places moves their visits, and the place fields of the visit and artwork forms suggest it even when no artwork has it.
 
+## Statistics
+
+- "Statystyki" has no item in the menu: the artwork count over the wall is its way in, a link of the count and the `chart-column` icon (`WallCount`) with a `Tooltip` "Statystyki", muted like a caption and in `--color-fg` on hover ([ADR-0171](../decisions/0171-show-statistics-of-the-collection-from-the-wall.md)).
+- The view is a detail page in one column at `--size-content-default`: "← Atelier" in the top bar, the `h1` with the lead, then the sections in the order and with the names of [ADR-0175](../decisions/0175-design-the-statistics-view.md), each an `h2` over a hairline in `--color-tag`, in the monochrome theme tokens.
+- "Stan zbiorów" is a `dl` of four numbers in a row, the number bold over its label, `xl` over `sm` from 768 px and `lg` over `xs` on a phone, the labels wrapping.
+
 ## Glossary
 
 - The glossary ([ADR-0074](../decisions/0074-keep-a-glossary-of-terms-with-definitions-from-wikipedia.md)) is "Słowniczek" in the menu ([ADR-0080](../decisions/0080-keep-the-glossary-name-slowniczek.md)), after "Kartoteka", with the icon `book-a`. Its six categories each have an icon used nowhere else (`person-standing`, `drafting-compass`, `paintbrush`, `cuboid`, `pipette`, `lightbulb`) (defined in `lib/glossary/categories/categories.ts`); `categories.spec.ts` checks them against the eras, the types of place, the artwork types and the menu.
