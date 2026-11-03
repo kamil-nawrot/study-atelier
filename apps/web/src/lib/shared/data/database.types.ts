@@ -1374,6 +1374,7 @@ export type Database = {
           rank_seen: number;
         }[];
       };
+      collection_statistics: { Args: Record<PropertyKey, never>; Returns: Json };
       delete_account: { Args: Record<PropertyKey, never>; Returns: undefined };
       delete_unused_value: {
         Args: { target_value: string };
