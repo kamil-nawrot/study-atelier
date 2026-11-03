@@ -100,6 +100,16 @@ describe('GlossaryNotes', () => {
 		await expect.element(page.getByRole('dialog')).toHaveTextContent(m.glossary.card.loading);
 	});
 
+	it('announces the definition once it has loaded', async () => {
+		render(GlossaryNotes, { entries: testGlossary(), value: 'The tympana.' });
+
+		await page.getByRole('button', { name: 'tympana' }).click();
+
+		await expect
+			.element(page.getByRole('dialog').getByRole('status'))
+			.toHaveTextContent('Tympanum is a test definition.');
+	});
+
 	it('says so when the definition cannot be loaded, and tries again on the next opening', async () => {
 		vi.mocked(loadTermDefinition).mockResolvedValueOnce({ error: 'Brak sieci.' });
 		render(GlossaryNotes, { entries: testGlossary(), value: 'The tympana.' });

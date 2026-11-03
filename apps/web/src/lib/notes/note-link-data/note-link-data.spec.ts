@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { mockNotesMentions, valueNote, artworkNote } from '#lib/testing/mentions/mentions.ts';
-import { loadNoteLinkLabels } from './note-link-data.ts';
+import { loadEditorNoteLinks, loadNoteLinkLabels } from './note-link-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn(), rpc: vi.fn() }
@@ -47,5 +47,61 @@ describe('loadNoteLinkLabels', () => {
 		mockNotesMentions([], { message: 'failed' });
 
 		await expect(loadNoteLinkLabels({ eraCode: 'modern' })).resolves.toBeUndefined();
+	});
+});
+
+describe('loadEditorNoteLinks', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		vi.useFakeTimers();
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	async function suggested(
+		links: Awaited<ReturnType<typeof loadEditorNoteLinks>>,
+		phrase: string
+	): Promise<string[]> {
+		const options = links.suggest('@', phrase);
+		await vi.advanceTimersByTimeAsync(150);
+		return (await options).map((option) => option.href);
+	}
+
+	it('still suggests links when the labels of the note cannot be read', async () => {
+		vi.mocked(supabase.rpc).mockImplementation(((name: string) =>
+			name === 'note_link_labels'
+				? { range: vi.fn().mockResolvedValue({ data: null, error: { message: 'failed' } }) }
+				: Promise.resolve({
+						data: [
+							{
+								kind: 'style',
+								id: 'style-doric',
+								record_number: null,
+								title: 'Doric',
+								authors: [],
+								parents: []
+							}
+						],
+						error: null
+					})) as never);
+
+		const links = await loadEditorNoteLinks({ valueId: 'style-doric' });
+
+		expect(await suggested(links, 'dor')).toEqual(['/atelier/values/style/style-doric']);
+	});
+
+	it('keeps suggesting the eras when the search fails', async () => {
+		vi.mocked(supabase.rpc).mockResolvedValue({
+			data: null,
+			error: { message: 'offline' }
+		} as never);
+
+		const links = await loadEditorNoteLinks();
+
+		expect(await suggested(links, m.eras.antiquity.name)).toEqual([
+			'/atelier/values/era/antiquity'
+		]);
 	});
 });

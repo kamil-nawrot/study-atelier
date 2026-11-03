@@ -297,4 +297,18 @@ begin
 end;
 $$;
 
+alter table public.note_links drop constraint links_test_refused;
+
+do $$
+declare
+  a constant uuid := '00000000-0000-0000-0000-00000000000a';
+begin
+  update public.artworks set notes = notes where owner_id = a and title = 'Second';
+  assert (select array_agg(link.target_era_code) from public.note_links as link
+      join public.artworks as source on source.id = link.source_artwork_id
+      where source.owner_id = a and source.title = 'Second') = array['modern'],
+    'saving a note again without a change does not store the links a failed save missed';
+end;
+$$;
+
 rollback;
