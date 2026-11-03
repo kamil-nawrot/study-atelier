@@ -163,24 +163,26 @@ begin
   assert (select notes from public.visits where id = visit) = '[Louvre](/atelier/values/location/' || orsay || ')',
     'merging two places leaves a link to the merged one in the note of a visit';
 
-  assert (select title from public.notes_mentions('/atelier/values/location/' || orsay) where kind = 'visit')
+  assert (select title from public.note_link_mentions(value_id => orsay) where kind = 'visit')
       = 'Orsay · 2024',
-    'notes_mentions does not name a visit whose note mentions a place';
+    'note_link_mentions does not name a visit whose note links a place';
   update public.visits set visited_on = '2026-10-12', date_precision = 'day' where id = visit;
-  assert (select title from public.notes_mentions() where kind = 'visit' and id = visit::text)
+  assert (select title from public.note_link_mentions(value_id => orsay) where kind = 'visit' and id = visit::text)
       = 'Orsay · 12.10.2026',
-    'notes_mentions does not give the day of a visit';
+    'note_link_mentions does not give the day of a visit';
 
-  first := public.save_visit('{"visited_on": "2020-01-01", "date_precision": "year", "notes": "Kolejka"}', 'Orsay', '{}');
-  second := public.save_visit('{"visited_on": "2020-01-01", "date_precision": "year", "notes": "Kolejka"}', 'Orsay', '{}');
+  first := public.save_visit(jsonb_build_object('visited_on', '2020-01-01', 'date_precision', 'year',
+    'notes', '[Orsay](/atelier/values/location/' || orsay || ')'), 'Orsay', '{}');
+  second := public.save_visit(jsonb_build_object('visited_on', '2020-01-01', 'date_precision', 'year',
+    'notes', '[Orsay](/atelier/values/location/' || orsay || ')'), 'Orsay', '{}');
   update public.visits set visited_on = '2021-01-01' where id = greatest(first, second);
   assert (
     select array_agg(mention.id order by mention.position)
-      from public.notes_mentions('Kolejka')
-        with ordinality as mention (kind, id, record_number, title, notes, position)
-      where mention.kind = 'visit'
+      from public.note_link_mentions(value_id => orsay)
+        with ordinality as mention (kind, id, record_number, title, position)
+      where mention.kind = 'visit' and mention.id in (first::text, second::text)
   ) = array[greatest(first, second)::text, least(first, second)::text],
-    'notes_mentions does not list visits newest first';
+    'note_link_mentions does not list visits newest first';
 end;
 $$;
 
