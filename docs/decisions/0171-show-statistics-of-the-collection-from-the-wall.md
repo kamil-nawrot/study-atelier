@@ -62,13 +62,13 @@ Below a threshold a section or a part says in one sentence when it will appear. 
 - Good: the gaps of a large collection show at once, and every number leads to its artworks.
 - Good: one small request per visit; arriving from the wall needs no request for the collection.
 - Good: the reviews section reuses the review start's groups and hints, so a term has one meaning.
-- Bad: two artworks of different authors with the same name count as one author, as on the wall, because `WallArtwork.authors` holds names.
 - Bad: the statistics depend on the collection's columns; a dimension the wall does not load (the country of a place) is not offered.
 - Bad: a new section or record needs a change of the database function or of the browser counts, with its own threshold and texts.
 
 ## More information
 
 - Spike ATL-434 with every decision and the accepted UI texts in its comments; the prototype is linked there.
+- Corrected on 2026-11-03: a consequence said two authors with the same name would count as one; the unique index `category_values_name_key` on the owner, the kind and the lower-cased name makes that impossible, so it was removed (ATL-441).
 - Corrected on 2026-11-03 after a review of the decisions against the code (ATL-434, step 9): the review groups had been placed in the database function, though the review start already counts them in the browser, and the tie rule named the record number also for authors and visits, which have none.
 - Built in ATL-436 (the database function), ATL-437 (the view, the summary and the way in from the wall), ATL-438 (the distribution and the rankings), ATL-439 (the reviews and how the atelier grows) and ATL-440 (what is left to fill in and the records).
 - The tests name the boundary cases: an artwork with several styles, without an era or a type, in the trash, with "Autor nieznany", with an own multi-value list field.
