@@ -595,6 +595,13 @@ export const pl = {
 		keepEditing: 'Wróć do formularza',
 		discard: 'Odrzuć'
 	},
+	eraDialog: {
+		title: 'Rok nie pasuje do epoki',
+		description: (date: string, range: boolean, era: string, years: string): string =>
+			`${range ? 'Lata powstania' : 'Rok powstania'} ${date} ${range ? 'nie mieszczą' : 'nie mieści'} się w epoce „${era}” (${years}). Jeśli tak ma być, po prostu zapisz dzieło.`,
+		back: 'Wróć do formularza',
+		confirm: 'Zapisz mimo to'
+	},
 	duplicateDialog: {
 		title: 'Masz już takie dzieło',
 		description: (numbers: string, count: number, advice: string): string =>
