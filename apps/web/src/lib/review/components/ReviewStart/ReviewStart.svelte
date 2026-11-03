@@ -75,6 +75,8 @@
 		switch (option.kind) {
 			case 'all':
 				return m.review.scopes.all;
+			case 'seen':
+				return m.atelier.filters.fields.seen;
 			case 'era': {
 				const name = m.eras[option.code].name;
 				return name.charAt(0).toLocaleUpperCase('pl') + name.slice(1);
