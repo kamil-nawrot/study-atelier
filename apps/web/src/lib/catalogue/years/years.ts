@@ -9,6 +9,10 @@ export function signedYear(year: number | null, beforeCommonEra: boolean): numbe
 	return beforeCommonEra ? -year : year;
 }
 
+export function yearsBetween(from: number, to: number): number {
+	return to - from - (from < 0 && to > 0 ? 1 : 0);
+}
+
 export function formatDate(
 	yearFrom: number | null,
 	yearTo: number | null,

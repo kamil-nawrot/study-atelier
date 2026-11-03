@@ -34,6 +34,8 @@
 	} from '#lib/card-index/category-values/category-values.ts';
 	import type { FormSuggestions } from '#lib/artworks/form-suggestions/form-suggestions.svelte.ts';
 	import { DuplicateCheck } from '#lib/artworks/duplicate-check/duplicate-check.svelte.ts';
+	import { EraCheck } from '#lib/artworks/era-check/era-check.svelte.ts';
+	import { datedOf } from '#lib/artworks/era-fit/era-fit.ts';
 	import { sameTitleAndAuthors } from '#lib/artworks/duplicates/duplicates.ts';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
@@ -47,6 +49,7 @@
 	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
 	import YearInput from '#lib/shared/forms/YearInput/YearInput.svelte';
 	import DuplicateDialog from '#lib/artworks/components/DuplicateDialog/DuplicateDialog.svelte';
+	import EraDialog from '#lib/artworks/components/EraDialog/EraDialog.svelte';
 	import type { ArtworkFieldErrors } from '#lib/artworks/types/artwork-field-errors.ts';
 	import type { ArtworkFormState } from '#lib/artworks/types/artwork-form-state.ts';
 	import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
@@ -106,6 +109,8 @@
 		formHasChanges
 	);
 	const duplicateCheck = new DuplicateCheck();
+	const eraCheck = new EraCheck();
+	let checked = $state<ArtworkInput>();
 
 	let imageSearchReady = $derived(canSearchImage(form));
 	let imageAlt = $derived(artworkImageAlt(form));
@@ -125,6 +130,7 @@
 	}
 
 	onDestroy(() => {
+		eraCheck.answer(false);
 		duplicateCheck.answer(false);
 	});
 
@@ -172,6 +178,8 @@
 			const input = artworkInputFromForm(snapshot);
 			fieldErrors = validateArtwork(input);
 			if (Object.keys(fieldErrors).length > 0) return;
+			checked = input;
+			if (!(await eraCheck.ask(input, artwork))) return;
 			if (!(await confirmDuplicate(input))) return;
 			const result = await saveArtwork(
 				input,
@@ -344,6 +352,13 @@
 
 <DiscardDialog {changes} description={m.common.discardDescription} />
 
+<EraDialog
+	approximate={checked?.yearApproximate ?? false}
+	check={eraCheck}
+	eraCode={checked?.eraCode ?? null}
+	yearFrom={checked ? datedOf(checked).yearFrom : null}
+	yearTo={checked ? datedOf(checked).yearTo : null}
+/>
 <DuplicateDialog action="save" check={duplicateCheck} />
 
 <style>

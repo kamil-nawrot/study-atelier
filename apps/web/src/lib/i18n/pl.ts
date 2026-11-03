@@ -595,6 +595,13 @@ export const pl = {
 		keepEditing: 'Wróć do formularza',
 		discard: 'Odrzuć'
 	},
+	eraDialog: {
+		title: 'Rok nie pasuje do epoki',
+		description: (date: string, range: boolean, era: string, years: string): string =>
+			`${range ? 'Lata powstania' : 'Rok powstania'} ${date} ${range ? 'nie mieszczą' : 'nie mieści'} się w epoce „${era}” (${years}). Jeśli tak ma być, po prostu zapisz dzieło.`,
+		back: 'Wróć do formularza',
+		confirm: 'Zapisz mimo to'
+	},
 	duplicateDialog: {
 		title: 'Masz już takie dzieło',
 		description: (numbers: string, count: number, advice: string): string =>
@@ -1495,6 +1502,151 @@ export const pl = {
 				about: 'Na miedziorycie Dürera bogini Nemezis szybuje nad światem z pucharem w dłoni.',
 				hint: 'Bogowie przyglądają się tym, którzy nie wiedzą, kiedy przestać.',
 				awarded: 'Za tysiąc dzieł w powtórkach swobodnych jednego dnia.'
+			}
+		}
+	},
+	statistics: {
+		title: 'Statystyki',
+		lead: 'Twoja kolekcja w liczbach. Możesz tutaj ocenić, jak rozkłada się w poszczególnych kategoriach, a także poznać ciekawe fakty na temat obecnego stanu atelier.',
+		back: 'Atelier',
+		wallLink: (count: string): string => `Statystyki, ${count}`,
+		loadError: 'Nie udało się wczytać statystyk. Sprawdź internet i spróbuj jeszcze raz.',
+		emptyTitle: 'Statystyki pojawią się wraz z pierwszym dziełem',
+		empty:
+			'Tutaj zobaczysz swoją kolekcję w liczbach: jak rozkłada się na epoki, typy i style, kto jest na pierwszym planie i jak przybywa nabytków.',
+		addArtwork: 'Dodaj dzieło',
+		holdings: {
+			title: 'Stan zbiorów',
+			artworks: (count: number): string =>
+				plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' }),
+			authors: (count: number): string =>
+				plural(count, { one: 'autor', few: 'autorów', many: 'autorów' }),
+			places: (count: number): string =>
+				plural(count, { one: 'miejsce', few: 'miejsca', many: 'miejsc' }),
+			seen: (count: number): string =>
+				plural(count, {
+					one: 'dzieło widziane na żywo',
+					few: 'dzieła widziane na żywo',
+					many: 'dzieł widzianych na żywo'
+				}),
+			terms: (count: number): string =>
+				plural(count, {
+					one: 'hasło w Słowniczku',
+					few: 'hasła w Słowniczku',
+					many: 'haseł w Słowniczku'
+				}),
+			events: (count: number): string =>
+				plural(count, {
+					one: 'wydarzenie w Kalendarium',
+					few: 'wydarzenia w Kalendarium',
+					many: 'wydarzeń w Kalendarium'
+				}),
+			visits: (count: number): string =>
+				plural(count, { one: 'wizyta w Kronice', few: 'wizyty w Kronice', many: 'wizyt w Kronice' })
+		},
+		composition: {
+			title: 'Kompozycja',
+			groupBy: 'Grupuj dzieła według',
+			secondBy: 'Dodatkowy wymiar grupowania',
+			noSecond: 'brak',
+			rest: (values: number): string => `pozostałe (${values})`,
+			total: 'Razem',
+			zero: '·',
+			tooEarly: (count: number): string =>
+				`Rozkład pojawi się, gdy w atelier znajdzie się przynajmniej 20 dzieł. Obecnie jest ich ${count}.`,
+			clipped: (parts: string[]): string =>
+				`Tabela pokazuje ${parts.join(' i ')} przypisanych do dzieł.`,
+			clippedPart: (shown: number, values: string, all: number): string =>
+				`${shown} najczęściej występujących ${values} spośród ${all}`,
+			values: {
+				eras: 'epok',
+				types: 'typów',
+				periods: 'okresów',
+				styles: 'stylów',
+				materials: 'materiałów',
+				authors: 'autorów',
+				locations: 'miejsc'
+			} as Record<string, string>,
+			ownValues: (field: string): string => `wartości pola „${field}”`,
+			none: {
+				style: 'bez stylu',
+				material: 'bez materiału',
+				location: 'bez miejsca',
+				value: 'bez wartości'
+			}
+		},
+		blanks: {
+			title: 'Białe plamy',
+			lead: 'Dzieła, którym brakuje obrazu, roku, epoki, okresu albo typu.'
+		},
+		oddities: {
+			title: 'Osobliwości',
+			oldest: 'Najstarsze dzieło',
+			newest: 'Najmłodsze dzieło',
+			longestBuilt: 'Powstawało najdłużej',
+			longestLived: 'Najdłużej żyjący autor',
+			versatile: 'Najbardziej wszechstronny autor',
+			materials: 'Najwięcej materiałów u jednego autora',
+			pins: 'Najwięcej pinezek',
+			visit: 'Najwięcej dzieł z jednej wizyty',
+			years: (count: number): string =>
+				`${count} ${plural(count, { one: 'rok', few: 'lata', many: 'lat' })}`,
+			materialCount: (count: number): string =>
+				`${count} ${plural(count, { one: 'materiał', few: 'materiały', many: 'materiałów' })}`,
+			pinCount: (count: number): string =>
+				`${count} ${plural(count, { one: 'pinezka', few: 'pinezki', many: 'pinezek' })}`,
+			artworkCount: (count: number): string => workCount(count),
+			list: (items: string[]): string =>
+				items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} i ${items.at(-1)}`,
+			tiedArtworks: (count: number): string =>
+				`i ${count} ${plural(count, { one: 'inne', few: 'inne', many: 'innych' })}`,
+			tiedAuthors: (count: number): string =>
+				`i ${count} ${plural(count, { one: 'inny', few: 'innych', many: 'innych' })}`,
+			tiedVisits: (count: number): string =>
+				`i ${count} ${plural(count, { one: 'inna', few: 'inne', many: 'innych' })}`,
+			datesLater: 'Rekordy dat pojawią się, gdy co najmniej dwa dzieła będą miały rok powstania.',
+			noneYet: 'Rekordy pojawią się, gdy dzieła i autorzy będą mieli więcej szczegółów.'
+		},
+		memory: {
+			title: 'W pamięci',
+			quiz: 'Poprawne odpowiedzi w quizach',
+			quizShare: (correct: number, all: number): string =>
+				`${correct} ${all >= 100 && all < 200 ? 'ze' : 'z'} ${all}`,
+			quizLater: (count: number): string =>
+				`Odsetek poprawnych odpowiedzi pojawi się po 20 odpowiedziach w quizach. Na razie jest ich ${count}.`,
+			mostReviewed: 'Najczęściej w powtórkach',
+			forgotten: 'Najczęściej zapominane',
+			times: (count: number): string =>
+				`${count} ${plural(count, { one: 'raz', few: 'razy', many: 'razy' })}`,
+			stable: 'Najmocniej utrwalone: ',
+			stableIn: (days: number): string =>
+				`, wróci w powtórkach za ${days} ${plural(days, { one: 'dzień', few: 'dni', many: 'dni' })}.`,
+			noCards: 'Statystyki powtórek pojawią się po pierwszej powtórce.'
+		},
+		acquisitions: {
+			title: 'Nabytki',
+			caption: (unit: 'day' | 'week' | 'month', first: string): string =>
+				`Dzieła dodane w kolejnych ${{ day: 'dniach', week: 'tygodniach', month: 'miesiącach' }[unit]}, od pierwszego dzieła ${first}.`,
+			column: (when: string, count: number): string => `${when}: ${workCount(count)}`,
+			weekFrom: (day: string): string => `od ${day}`,
+			chart: 'Dzieła dodane w czasie'
+		},
+		foreground: {
+			title: 'Na pierwszym planie',
+			tabsLabel: 'Ranking',
+			tabs: { authors: 'Autorzy', locations: 'Miejsca', styles: 'Style', materials: 'Materiały' },
+			single: (single: number, values: number, kind: string): string =>
+				`${single} ${values >= 100 && values < 200 ? 'ze' : 'z'} ${values} ${kind} ma w atelier jedno dzieło.`,
+			kinds: { authors: 'autorów', locations: 'miejsc', styles: 'stylów', materials: 'materiałów' },
+			tooEarly: {
+				authors:
+					'Ranking autorów pojawi się, gdy co najmniej trzech autorów będzie miało przypisane przynajmniej dwa dzieła.',
+				locations:
+					'Ranking miejsc pojawi się, gdy co najmniej trzy miejsca będą miały przypisane przynajmniej dwa dzieła.',
+				styles:
+					'Ranking stylów pojawi się, gdy co najmniej trzy style będą miały przypisane przynajmniej dwa dzieła.',
+				materials:
+					'Ranking materiałów pojawi się, gdy co najmniej trzy materiały będą miały przypisane przynajmniej dwa dzieła.'
 			}
 		}
 	},

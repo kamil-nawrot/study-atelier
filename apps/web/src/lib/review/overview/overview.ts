@@ -55,6 +55,7 @@ export function scopeOptions(
 ): ReviewScope[] {
 	const pool = reviewableArtworks(artworks);
 	const narrower: ReviewScope[] = [
+		{ kind: 'seen' },
 		...ERA_CODES.map((code): ReviewScope => ({ kind: 'era', code })),
 		...valuesWithEnough(pool, (artwork) => (artwork.period ? [artwork.period] : [])).map(
 			(name): ReviewScope => ({ kind: 'period', name })
@@ -80,6 +81,7 @@ export function freeScopeOptions(
 	const reviewed = reviewableArtworks(artworks).filter((artwork) => cards.has(artwork.id));
 	if (reviewed.length === 0) return [];
 	const narrower: ReviewScope[] = [
+		{ kind: 'seen' },
 		...ERA_CODES.map((code): ReviewScope => ({ kind: 'era', code })),
 		...valuesWithEnough(reviewed, (artwork) => (artwork.period ? [artwork.period] : [])).map(
 			(name): ReviewScope => ({ kind: 'period', name })
@@ -100,7 +102,8 @@ export function freeScopeOptions(
 export function scopeKey(scope: ReviewScope): string {
 	switch (scope.kind) {
 		case 'all':
-			return 'all';
+		case 'seen':
+			return scope.kind;
 		case 'era':
 			return `era:${scope.code}`;
 		default:
@@ -116,6 +119,8 @@ export function scopeArtworks(artworks: WallArtwork[], scope: ReviewScope): Wall
 	switch (scope.kind) {
 		case 'all':
 			return artworks;
+		case 'seen':
+			return artworks.filter((artwork) => artwork.seen === true);
 		case 'era':
 			return artworks.filter((artwork) => artwork.eraCode === scope.code);
 		case 'period':

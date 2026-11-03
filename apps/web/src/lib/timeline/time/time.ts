@@ -1,5 +1,5 @@
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
-import { ERA_CODES } from '#lib/catalogue/eras/eras.ts';
+import { ERA_CODES, ERA_START_YEARS } from '#lib/catalogue/eras/eras.ts';
 import type { TimeSpan } from '#lib/timeline/types/time-span.ts';
 import type { View } from '#lib/timeline/types/view.ts';
 import type { Era } from '#lib/timeline/types/era.ts';
@@ -10,15 +10,6 @@ type DatedItem = {
 };
 
 const PREHISTORY_ROUNDING = 1000;
-
-const ERA_STARTS: Record<EraCode, number> = {
-	prehistory: -40000,
-	antiquity: -3000,
-	middle_ages: 476,
-	early_modern: 1492,
-	modern: 1789,
-	contemporary: 1945
-};
 
 export function timeOf(year: number): number {
 	return year < 0 ? year + 1 : year;
@@ -52,7 +43,7 @@ export function entriesSpan(items: readonly DatedItem[]): TimeSpan | undefined {
 }
 
 function prehistoryStart(entries: TimeSpan | undefined): number {
-	const fixed = timeOf(ERA_STARTS.prehistory);
+	const fixed = timeOf(ERA_START_YEARS.prehistory);
 	if (!entries || entries.start >= fixed) return fixed;
 	return Math.floor(entries.start / PREHISTORY_ROUNDING) * PREHISTORY_ROUNDING;
 }
@@ -63,8 +54,8 @@ export function eras(currentYear: number = new Date().getFullYear(), entries?: T
 		const next = ERA_CODES[index + 1];
 		return {
 			code,
-			start: index === 0 ? prehistoryStart(entries) : timeOf(ERA_STARTS[code]),
-			end: next ? timeOf(ERA_STARTS[next]) : Math.max(now, entries?.end ?? now)
+			start: index === 0 ? prehistoryStart(entries) : timeOf(ERA_START_YEARS[code]),
+			end: next ? timeOf(ERA_START_YEARS[next]) : Math.max(now, entries?.end ?? now)
 		};
 	});
 }

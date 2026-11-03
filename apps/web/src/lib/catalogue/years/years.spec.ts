@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
-import { formatDate, formatLifeYears, formatYear, formatYearRange, signedYear } from './years.ts';
+import {
+	formatDate,
+	formatLifeYears,
+	formatYear,
+	formatYearRange,
+	signedYear,
+	yearsBetween
+} from './years.ts';
 
 describe('formatYear', () => {
 	it('has no date without a year', () => {
@@ -73,5 +80,13 @@ describe('formatLifeYears', () => {
 
 	it('writes nothing without years', () => {
 		expect(formatLifeYears(null, null, false)).toBeUndefined();
+	});
+});
+
+describe('yearsBetween', () => {
+	it('counts the years without a year zero', () => {
+		expect(yearsBetween(1248, 1880)).toBe(632);
+		expect(yearsBetween(-5, 5)).toBe(9);
+		expect(yearsBetween(-63, -10)).toBe(53);
 	});
 });

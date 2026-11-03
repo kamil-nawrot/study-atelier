@@ -218,7 +218,7 @@ export async function withPinPreviews(items: ReviewItem[]): Promise<ReviewItem[]
 }
 
 function scopeArgs(scope: ReviewScope): { scope_kind: string; scope_value?: string } {
-	if (scope.kind === 'all') return { scope_kind: 'all' };
+	if (scope.kind === 'all' || scope.kind === 'seen') return { scope_kind: scope.kind };
 	if (scope.kind === 'era') return { scope_kind: 'era', scope_value: scope.code };
 	return { scope_kind: scope.kind, scope_value: scope.name };
 }

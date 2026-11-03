@@ -428,4 +428,42 @@ begin
 end;
 $$;
 
+do $$
+declare
+  day_start constant timestamptz := date_trunc('day', now());
+  visited uuid[];
+  session jsonb;
+begin
+  select array_agg(id) into visited from (
+    select artwork.id from public.artworks as artwork
+      join public.artwork_images as image on image.artwork_id = artwork.id and image.position = 0
+      where artwork.deleted_at is null
+      order by artwork.record_number
+      limit 19
+  ) as chosen;
+  perform public.save_visit('{"visited_on": "2026-10-01", "date_precision": "day"}', 'Prado', visited);
+
+  assert jsonb_array_length(public.review_session(day_start, 'mixed', 'seen')) = 0,
+    'a session of the artworks seen in person starts with fewer than 20 of them';
+
+  select array_agg(id) into visited from (
+    select artwork.id from public.artworks as artwork
+      join public.artwork_images as image on image.artwork_id = artwork.id and image.position = 0
+      where artwork.deleted_at is null
+      order by artwork.record_number
+      limit 25
+  ) as chosen;
+  perform public.save_visit('{"visited_on": "2026-10-02", "date_precision": "day"}', 'Prado', visited);
+
+  session := public.review_session(day_start, 'mixed', 'seen');
+  assert jsonb_array_length(session) > 0, 'a session of the artworks seen in person is empty';
+  assert not exists (
+    select 1 from jsonb_array_elements(session) as item
+      where not exists (
+        select 1 from public.visit_artworks as seen where seen.artwork_id = (item ->> 'artwork_id')::uuid
+      )
+  ), 'a session of the artworks seen in person asks about an artwork not seen';
+end;
+$$;
+
 rollback;

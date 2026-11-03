@@ -306,6 +306,23 @@ reads:
     frequency: view
     today: { requests: 4, whole: [], note: 'the same 4 requests as in the shell (T2)' }
 
+  - id: R21
+    name: Statistics
+    route: /atelier/statistics
+    shows: the collection in numbers, its distribution, rankings, gaps, records, reviews and growth
+    needs:
+      - 'artworks: all, tile columns (the cached collection of the wall)'
+      - 'review cards: all (as on the review start)'
+      - 'collection_statistics (aggregate): answer sums, additions per day, week or month, counts of terms, events and visits, records from other tables'
+    scope: all
+    frequency: view
+    today:
+      {
+        requests: 0,
+        whole: [],
+        note: 'new in 0.18 (ADR-0171); arriving from the wall needs only the aggregate and the cards'
+      }
+
 writes:
   - id: W01
     name: Save artwork

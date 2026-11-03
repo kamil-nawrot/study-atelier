@@ -662,6 +662,9 @@ async function mockSupabase(context) {
 			return json(route, wantsObject ? counts : [counts]);
 		}
 		if (url.pathname === '/rest/v1/rpc/atelier_empty') return json(route, false);
+		if (url.pathname === '/rest/v1/rpc/collection_statistics') {
+			return json(route, collectionStatistics());
+		}
 		if (url.pathname === '/rest/v1/rpc/storage_usage') {
 			const usage = { used_bytes: 9_122_611, quota_bytes: 209_715_200 };
 			const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
@@ -1042,6 +1045,64 @@ function repeatArtworks(times) {
 			});
 		}
 	}
+}
+
+function collectionStatistics() {
+	const day = 24 * 60 * 60 * 1000;
+	const today = new Date(new Date().toISOString().slice(0, 10));
+	const first = new Date(today.getTime() - 13 * day);
+	const pins = new Map();
+	for (const row of ARTWORK_PINS) pins.set(row.image_id, (pins.get(row.image_id) ?? 0) + 1);
+	const [pinnedImage, pinCount] = [...pins].sort((a, b) => b[1] - a[1])[0] ?? [];
+	const pinned = ARTWORKS.find((row) =>
+		row.artwork_images.some((image) => image.id === pinnedImage)
+	);
+	const visit = [...VISITS].sort((a, b) => b.visit_artworks.length - a.visit_artworks.length)[0];
+	return {
+		terms: GLOSSARY_ENTRIES.length,
+		events: TIMELINE_EVENTS.length,
+		visits: VISITS.length,
+		quiz_answers: REVIEW_CARDS.length > 0 ? 106 : 0,
+		correct_answers: REVIEW_CARDS.length > 0 ? 83 : 0,
+		most_reviewed: REVIEW_CARDS.slice(0, 4).map((card, index) => ({
+			artwork_id: card.artwork_id,
+			times: 12 - index * 2
+		})),
+		growth:
+			ARTWORKS.length > 0
+				? {
+						unit: 'day',
+						first_day: first.toISOString().slice(0, 10),
+						buckets: Array.from({ length: 14 }, (_, index) => ({
+							start: new Date(first.getTime() + index * day).toISOString().slice(0, 10),
+							added: index === 0 ? Math.ceil(ARTWORKS.length / 2) : index % 3 === 0 ? 2 : 0
+						}))
+					}
+				: null,
+		authors_with_years: ARTWORKS.length > 0 ? 2 : 0,
+		longest_lived:
+			ARTWORKS.length > 0
+				? {
+						value_id: valueId('author', 'Rembrandt'),
+						name: 'Rembrandt',
+						birth_year: 1606,
+						death_year: 1669,
+						years_approximate: false,
+						tied: 0
+					}
+				: null,
+		most_pinned: pinned ? { artwork_id: pinned.id, pins: pinCount, tied: 0 } : null,
+		largest_visit: visit
+			? {
+					visit_id: visit.id,
+					place: visit.category_values.name,
+					visited_on: visit.visited_on,
+					date_precision: visit.date_precision,
+					artworks: visit.visit_artworks.length,
+					tied: 0
+				}
+			: null
+	};
 }
 
 function emptyAtelier() {
