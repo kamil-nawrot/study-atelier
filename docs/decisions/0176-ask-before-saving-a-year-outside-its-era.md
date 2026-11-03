@@ -26,6 +26,7 @@ Chosen by the owner, in ATL-442: a question on save.
 - On saving the artwork form (new and edit), with an era and a year, a small `Dialog` "Rok nie pasuje do epoki" asks when the year has no year in common with the era: "Rok powstania 1650 nie mieści się w epoce „średniowiecze” (476–1492). Jeśli tak ma być, po prostu zapisz dzieło." ("Lata powstania 1650–1700 nie mieszczą się…" for a range), with "Wróć do formularza" and "Zapisz mimo to".
 - An era spans the years of its text, closed at both ends, so a boundary year (476, 1492, 1789, 1945) belongs to both eras; prehistory has no lower bound and the contemporary era no upper bound. A range that shares a year with the era passes; "ok." gives no tolerance.
 - With a year outside the era and a duplicate title, the era is asked first; "Zapisz mimo to" leads on to the duplicate question, "Wróć do formularza" ends there.
+- When editing, it asks only if the era or a year changed, like the duplicate question, so an artwork saved on purpose with a year outside its era does not ask again at every edit.
 - Restoring from Archiwum and importing do not ask.
 
 ### Consequences

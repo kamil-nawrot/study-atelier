@@ -20,3 +20,7 @@ export function yearOutsideEra({ eraCode, yearFrom, yearTo }: Dated): boolean {
 	const [start, end] = ERA_SPANS[eraCode];
 	return yearTo < start || (yearFrom ?? yearTo) > end;
 }
+
+export function sameEraAndYears(a: Dated, b: Dated): boolean {
+	return a.eraCode === b.eraCode && a.yearFrom === b.yearFrom && a.yearTo === b.yearTo;
+}

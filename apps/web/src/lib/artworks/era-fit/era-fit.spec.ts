@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { yearOutsideEra } from './era-fit.ts';
+import { sameEraAndYears, yearOutsideEra } from './era-fit.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 
 function outside(
@@ -37,5 +37,15 @@ describe('yearOutsideEra', () => {
 	it('does not ask without an era or a year', () => {
 		expect(outside(null, 1650)).toBe(false);
 		expect(outside('middle_ages', null)).toBe(false);
+	});
+});
+
+describe('sameEraAndYears', () => {
+	it('tells whether the era or a year changed', () => {
+		const saved = { eraCode: 'middle_ages' as const, yearFrom: null, yearTo: 1650 };
+		expect(sameEraAndYears(saved, { ...saved })).toBe(true);
+		expect(sameEraAndYears(saved, { ...saved, yearTo: 1651 })).toBe(false);
+		expect(sameEraAndYears(saved, { ...saved, yearFrom: 1600 })).toBe(false);
+		expect(sameEraAndYears(saved, { ...saved, eraCode: 'early_modern' })).toBe(false);
 	});
 });
