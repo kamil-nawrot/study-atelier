@@ -163,6 +163,55 @@ begin
 end;
 $$;
 
+do $$
+declare
+  baroque uuid := (select id from public.category_values where name = 'Baroque');
+  tenebrism uuid;
+begin
+  perform public.save_visit(
+    '{"visited_on": "2026-10-20", "date_precision": "day", "notes": "Again [first](/atelier/1)"}', 'Museum', '{}'
+  );
+  update public.artworks set notes = 'See [first](/atelier/1)' where title = 'Second';
+  assert (select array_agg(kind || ':' || coalesce(record_number::text, title))
+      from public.note_link_mentions(artwork_number => 1))
+      = array['artwork:2', 'period:Baroque', 'visit:Museum · 20.10.2026', 'visit:Museum · 12.10.2026'],
+    format('note_link_mentions does not order the notes by kind, record number and newest visit: %s',
+      (select array_agg(kind || ':' || coalesce(record_number::text, title))
+        from public.note_link_mentions(artwork_number => 1)));
+  update public.artworks set notes = null where title = 'Second';
+  delete from public.visits where visited_on = '2026-10-20';
+
+  perform public.save_value_details(baroque, '{"notes": "Compare [second](/atelier/2)"}');
+  perform public.save_era_details('antiquity', '{"notes": "Now [third](/atelier/3)"}');
+  assert links_test.targets('Baroque') = '{#2}' and links_test.targets('antiquity') = '{#3}',
+    'saving the details of a value or an era again does not replace their links';
+  perform public.save_value_details(baroque, '{"notes": "Compare [first](/atelier/1)"}');
+  perform public.save_era_details('antiquity', '{"notes": "A on [x](/atelier/values/era/modern) [y](/atelier/2)"}');
+
+  insert into public.period_eras (value_id, era_code) values (baroque, 'modern'), (baroque, 'early_modern');
+  insert into public.category_values (category_code, name) values ('style', 'Tenebrism') returning id into tenebrism;
+  insert into public.style_periods (style_id, period_id) values (tenebrism, baroque);
+  insert into public.category_values (category_code, name) values ('style', 'Anti Baroque');
+  assert (select array_agg(kind || ':' || title || ':' || array_to_string(parents, ','))
+      from public.note_link_suggestions('@', 'baroque'))
+      = array['period:Baroque:early_modern,modern', 'style:Anti Baroque:'],
+    format('note_link_suggestions does not put the value starting with the phrase first with its eras: %s',
+      (select array_agg(kind || ':' || title || ':' || array_to_string(parents, ','))
+        from public.note_link_suggestions('@', 'baroque')));
+  assert (select parents from public.note_link_suggestions('@', 'tenebr')) = array['Baroque'],
+    'note_link_suggestions does not give the periods of a style';
+  delete from public.category_values where id = tenebrism or name = 'Anti Baroque';
+  delete from public.period_eras where value_id = baroque;
+
+  perform public.save_artwork('{"title": "A second look", "author_unknown": true}', '{}');
+  assert (select array_agg(record_number) from public.note_link_suggestions('#', 'second')) = array[2, 4],
+    'note_link_suggestions does not put the artwork whose title starts with the phrase first';
+  assert (select (array_agg(record_number))[1] from public.note_link_suggestions('#', '0003')) = 3,
+    'note_link_suggestions does not read a record number with leading zeros';
+  delete from public.artworks where title = 'A second look';
+end;
+$$;
+
 reset role;
 
 do $$
@@ -213,10 +262,14 @@ begin
   update public.artworks set deleted_at = null where id = first;
   assert links_test.targets('Baroque') = '{#1}', 'a restored artwork loses the links to it';
 
-  update public.artworks set notes = '[author](/atelier/values/author/' || caravaggio || ')' where title = 'First';
+  update public.artworks set notes = '[author](/atelier/values/author/' || upper(caravaggio::text) || ')'
+    where title = 'First';
   perform public.save_artwork('{"title": "Third", "author_unknown": false}', '{"author": ["Merisi"]}');
   perform public.merge_category_values(caravaggio, (select id from public.category_values where name = 'Merisi'));
   assert links_test.targets('First') = '{Merisi}', 'a merge does not move the links to the kept value';
+  assert (select notes from public.artworks where title = 'First')
+      = '[author](/atelier/values/author/' || (select id from public.category_values where name = 'Merisi') || ')',
+    'a merge does not rewrite a link written in upper case';
 
   delete from public.period_details where value_id = baroque;
   assert links_test.targets('Baroque') = '{}', 'deleting the notes of a value keeps their links';
@@ -248,13 +301,19 @@ begin
   insert into public.category_values (owner_id, category_code, name)
     select a, 'style', 'Style ' || n from generate_series(1, 210) as n;
   update public.artworks
-    set notes = (select string_agg('[s](/atelier/values/style/' || id || ')', ' ')
-      from public.category_values where owner_id = a and category_code = 'style')
+    set notes = (select string_agg('[s](/atelier/values/style/' || id || ')', ' ' order by substr(name, 7)::integer)
+      from public.category_values where owner_id = a and category_code = 'style') || ' [last](/atelier/2)'
     where owner_id = a and title = 'Linking';
   assert (select count(*) from public.note_links as link
       join public.artworks as source on source.id = link.source_artwork_id
       where source.title = 'Linking') = 200,
     'a note stores more than 200 links';
+  assert (select array_agg(value.name order by value.name) from public.note_links as link
+      join public.artworks as source on source.id = link.source_artwork_id
+      join public.category_values as value on value.id = link.target_value_id
+      where source.title = 'Linking' and value.name in ('Style 1', 'Style 200', 'Style 201'))
+      = array['Style 1', 'Style 200'],
+    'a note over the limit does not keep its first 200 links';
 
   perform set_config('study_atelier.importing', 'on', true);
   update public.artworks set notes = '[none](/atelier/2)' where owner_id = a and title = 'Second';
