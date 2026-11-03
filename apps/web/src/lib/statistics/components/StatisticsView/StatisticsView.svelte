@@ -3,19 +3,25 @@
 	import { Button, EmptyState } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
+	import CompositionSection from '#lib/statistics/components/CompositionSection/CompositionSection.svelte';
+	import ForegroundSection from '#lib/statistics/components/ForegroundSection/ForegroundSection.svelte';
 	import HoldingsSection from '#lib/statistics/components/HoldingsSection/HoldingsSection.svelte';
+	import { dimensionsOf } from '#lib/statistics/dimensions/dimensions.ts';
 	import { holdingsOf } from '#lib/statistics/holdings/holdings.ts';
+	import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import type { CollectionStatistics } from '#lib/statistics/types/collection-statistics.ts';
 
 	type Props = {
 		artworks: WallArtwork[];
 		statistics: CollectionStatistics;
+		ownFields?: OwnFieldDefinition[];
 	};
 
-	let { artworks, statistics }: Props = $props();
+	let { artworks, statistics, ownFields }: Props = $props();
 
 	let holdings = $derived(holdingsOf(artworks));
+	let dimensions = $derived(dimensionsOf(ownFields));
 </script>
 
 {#if artworks.length === 0}
@@ -29,6 +35,8 @@
 			<p class="lead">{m.statistics.lead}</p>
 		</header>
 		<HoldingsSection {holdings} {statistics} />
+		<CompositionSection {artworks} {dimensions} />
+		<ForegroundSection {artworks} {dimensions} />
 	</div>
 {/if}
 

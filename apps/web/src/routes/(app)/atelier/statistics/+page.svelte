@@ -18,7 +18,11 @@
 	{/snippet}
 
 	{#if data.statistics && !data.error}
-		<StatisticsView artworks={data.artworks} statistics={data.statistics} />
+		<StatisticsView
+			artworks={data.artworks}
+			ownFields={data.ownFields}
+			statistics={data.statistics}
+		/>
 	{:else}
 		<LoadFailure
 			backHref={atelierPath}
