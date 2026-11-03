@@ -48,7 +48,7 @@ const rpcCall = { single: vi.fn() };
 
 function renderPage(): void {
 	suggest({ ownValues: {}, valueLinks: emptyValueLinks(), placeStarter: emptyPlaceStarter() });
-	render(AddArtworkPage, { data: { session: testSession() }, params: {} });
+	render(AddArtworkPage, { data: { session: testSession(), ownFields: undefined }, params: {} });
 }
 
 function eraDialog(): ReturnType<typeof page.getByRole> {
