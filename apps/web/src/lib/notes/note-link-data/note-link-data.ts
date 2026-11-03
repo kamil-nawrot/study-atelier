@@ -62,15 +62,15 @@ async function searchNoteLinks(
 		link_trigger: trigger,
 		phrase
 	});
-	if (error) return [];
-	const options = (data as NoteLinkSuggestionRow[])
-		.map(suggestionOption)
-		.filter((option) => option !== undefined);
+	const options = error
+		? []
+		: (data as NoteLinkSuggestionRow[])
+				.map(suggestionOption)
+				.filter((option) => option !== undefined);
 	return trigger === '@' ? withEras(phrase, options) : options;
 }
 
-export async function loadEditorNoteLinks(source?: NoteLinkSource): Promise<NoteLinks | undefined> {
-	if (!source) return editorNoteLinks(searchNoteLinks);
-	const labels = await loadLabels(source);
-	return labels && editorNoteLinks(searchNoteLinks, labels);
+export async function loadEditorNoteLinks(source?: NoteLinkSource): Promise<NoteLinks> {
+	const labels = source && (await loadLabels(source));
+	return editorNoteLinks(searchNoteLinks, labels);
 }

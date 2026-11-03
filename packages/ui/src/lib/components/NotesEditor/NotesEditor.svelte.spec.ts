@@ -217,6 +217,35 @@ describe('NotesEditor', () => {
 			await expect.element(page.getByRole('option', { name: /barok/ })).toBeInTheDocument();
 		});
 
+		it('picks nothing with Enter until the suggestions for the typed text arrive', async () => {
+			const pending: Array<() => void> = [];
+			const later: NoteLinks = {
+				...links,
+				suggest: (trigger, query) =>
+					new Promise((done) => {
+						pending.push(() => done(links.suggest(trigger, query) as never));
+					})
+			};
+			render(NotesEditorValue, { links: later });
+
+			await userEvent.click(page.getByRole('textbox', { name: 'Notes' }));
+			await userEvent.keyboard('@ba');
+			await expect.poll(() => pending.length).toBeGreaterThan(0);
+			pending.splice(0).forEach((finish) => finish());
+			await expect.element(page.getByRole('option', { name: /barok/ })).toBeInTheDocument();
+
+			await userEvent.keyboard('rt{Enter}');
+			await expect.element(page.getByRole('status')).toHaveTextContent('@bart');
+			await expect.element(page.getByRole('status')).not.toHaveTextContent('/atelier/');
+			pending.splice(0).forEach((finish) => finish());
+			await expect.element(page.getByRole('option', { name: /barok/ })).not.toBeInTheDocument();
+			await userEvent.keyboard('{Enter}');
+
+			await expect
+				.element(page.getByRole('status'))
+				.toHaveTextContent(String.raw`[Fra Bartolommeo](/atelier/values/author/a1)`);
+		});
+
 		it('lists artworks after # and picks one by a click', async () => {
 			render(NotesEditorValue, { links });
 

@@ -27,7 +27,7 @@ beforeEach(() => {
 	vi.mocked(loadAtelier).mockResolvedValue({ artworks: [] });
 	vi.mocked(loadVisitPlaces).mockResolvedValue({ places: ['Orsay'] });
 	vi.mocked(loadPlaceStarter).mockResolvedValue(emptyPlaceStarter());
-	vi.mocked(loadEditorNoteLinks).mockResolvedValue(undefined);
+	vi.mocked(loadEditorNoteLinks).mockResolvedValue({ suggest: vi.fn(), resolve: vi.fn() });
 });
 
 describe('loadVisitForm', () => {

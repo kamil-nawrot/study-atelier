@@ -40,22 +40,24 @@
 	{glossaryCategoryName(term.category)}
 </span>
 <span class="name">{term.name}</span>
-{#if term.hasDefinition}
-	{#if !result}
-		<span class="message loading">{m.glossary.card.loading}</span>
-	{:else if result.notFound}
-		<span class="message">{m.glossary.card.deleted}</span>
-	{:else if result.error}
-		<span class="message">{m.glossary.card.failed}</span>
-	{:else}
-		{#if result.definition}
-			<span class="definition">{result.definition}</span>
-		{/if}
-		{#if result.source}
-			<span class="source">{m.glossary.card.source}</span>
+<span class="answer" role="status">
+	{#if term.hasDefinition}
+		{#if !result}
+			<span class="message loading">{m.glossary.card.loading}</span>
+		{:else if result.notFound}
+			<span class="message">{m.glossary.card.deleted}</span>
+		{:else if result.error}
+			<span class="message">{m.glossary.card.failed}</span>
+		{:else}
+			{#if result.definition}
+				<span class="definition">{result.definition}</span>
+			{/if}
+			{#if result.source}
+				<span class="source">{m.glossary.card.source}</span>
+			{/if}
 		{/if}
 	{/if}
-{/if}
+</span>
 {#if linked && !result?.notFound}
 	<a class="open" href={resolve('/(app)/atelier/glossary/[id]', { id: term.id })}>
 		{m.glossary.card.open}
@@ -80,6 +82,10 @@
 		font-size: var(--font-size-xl);
 		font-style: italic;
 		line-height: var(--line-height-xl);
+	}
+
+	.answer {
+		display: contents;
 	}
 
 	.definition {

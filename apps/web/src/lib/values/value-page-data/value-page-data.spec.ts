@@ -40,7 +40,7 @@ describe('loadValuePage', () => {
 		vi.clearAllMocks();
 		vi.mocked(loadCardIndex).mockResolvedValue({ index: testCardIndex(), ownValues: [] });
 		vi.mocked(loadArtworksOfValue).mockResolvedValue({ artworks });
-		vi.mocked(loadEditorNoteLinks).mockResolvedValue(undefined);
+		vi.mocked(loadEditorNoteLinks).mockResolvedValue({ suggest: vi.fn(), resolve: vi.fn() });
 		vi.mocked(loadMentions).mockResolvedValue([]);
 		vi.mocked(loadValueDetails).mockResolvedValue({
 			details: { summary: 'Plain capitals.', notes: '' }
