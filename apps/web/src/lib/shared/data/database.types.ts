@@ -355,7 +355,6 @@ export type Database = {
           image_width: number | null;
           notes: string | null;
           own_image_path: string | null;
-          own_image_source_url: string | null;
           own_image_url: string | null;
           owner_id: string;
           sort_name: string | null;
@@ -378,7 +377,6 @@ export type Database = {
           image_width?: number | null;
           notes?: string | null;
           own_image_path?: string | null;
-          own_image_source_url?: string | null;
           own_image_url?: string | null;
           owner_id?: string;
           sort_name?: string | null;
@@ -400,7 +398,6 @@ export type Database = {
           image_width?: number | null;
           notes?: string | null;
           own_image_path?: string | null;
-          own_image_source_url?: string | null;
           own_image_url?: string | null;
           owner_id?: string;
           sort_name?: string | null;

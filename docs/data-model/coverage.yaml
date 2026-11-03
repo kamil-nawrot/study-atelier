@@ -140,6 +140,7 @@ changes:
 
   - id: M3
     name: Drop the unused author portrait source column
+    status: 'done, ATL-427'
     kind: schema
     tables: [author_details]
     serves: []
@@ -154,6 +155,7 @@ changes:
 
   - id: M4
     name: Index the foreign keys behind cascading deletes
+    status: 'done, ATL-427'
     kind: schema
     tables:
       [
@@ -229,13 +231,13 @@ tasks:
       status: 'done in 0.16, ATL-413, ADR-0166'
     }
   T9: { name: 'Load the card index with one database function', status: 'done, ATL-424' }
-  T10: { name: 'Index FKs and drop the unused portrait column', status: 'is M3 and M4' }
+  T10: { name: 'Index FKs and drop the unused portrait column', status: 'done, ATL-427' }
   T11:
     {
       name: 'One emptiness check, batched signed URLs, no layout reload on token refresh',
       status: 'done, ATL-425'
     }
-  T12: { name: 'Make the scale seed run with the row limits', status: planned }
+  T12: { name: 'Make the scale seed run with the row limits', status: 'done, ATL-427' }
   T13: { name: 'Compact wall payload', status: 'after the measurement' }
   T14: { name: 'Build the review session facts without a subquery per artwork', status: planned }
 
