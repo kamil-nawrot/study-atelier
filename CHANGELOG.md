@@ -2,6 +2,25 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.18.0] - 2026-11-03
+
+The atelier gets a statistics view of the whole collection, opened from the artwork count on the wall, and the review can be narrowed to the artworks seen in person.
+
+### Added
+
+- "Statystyki", opened from the artwork count over the wall ("292 dzieła" with a chart icon): "Stan zbiorów" with the numbers of artworks, authors, places, artworks seen in person, glossary terms, events and visits; "Kompozycja", the artworks grouped by era, type, period, style, material, author, place or an own list field, as bars or, with "Dodatkowy wymiar grupowania", as a table; "Na pierwszym planie", the top authors, places, styles and materials; "Białe plamy", the artworks without an image, a year, an era, a period or a type; "Osobliwości", such as the oldest artwork, the one built longest and the most versatile author; "W pamięci", the review groups, the share of correct quiz answers and the artworks reviewed and forgotten most often; and "Nabytki", the artworks added per day, week or month. Every count opens the wall with the matching filter, and each section says when it will appear in a small atelier.
+- "Widziane na żywo" in "Co powtarzamy?" narrows a review round to the artworks of the visits in Kronika, from 20 of them.
+- Saving an artwork whose year does not fall within its era asks first ("Rok nie pasuje do epoki"); on edit only after the era or a year changed.
+
+### Changed
+
+- The review start's panel and the statistics share the groups "Utrwalone", "W trakcie nauki" and "Nowe" and the rows of artworks with thumbnails.
+- Internal: a database function for the statistics, the era boundaries in one place, the session start hook of cloud sessions links the installed Chromium, `pnpm screenshot` covers the statistics, and a code review of the version with its fixes.
+
+### Migrations run on production
+
+3 migrations run on production with this release and change no existing data. `20261103180000_collection_statistics` adds the function `collection_statistics`, and `20261103200000_collection_statistics_spans` replaces it with the same signature (lifespans without a year zero, the additions grouped once). `20261103190000_review_seen_in_person_scope` replaces `review_session` with the same signature and accepts the new scope `seen`; the 0.17 app's calls keep working.
+
 ## [0.17.0] - 2026-11-03
 
 The data model refactor is finished: the views ask the database for fewer and lighter requests, and nothing reloads on a token refresh.
@@ -693,4 +712,5 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.14.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.14.0
 [0.15.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.15.0
 [0.17.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.17.0
+[0.18.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.18.0
 [0.16.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.16.0
