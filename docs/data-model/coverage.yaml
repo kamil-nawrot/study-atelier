@@ -12,7 +12,7 @@
 changes:
   - id: M1
     name: Store note links as rows
-    status: 'done in 0.16, ATL-419, ADR-0168; notes_mentions is dropped by ATL-429'
+    status: 'done in 0.16, ATL-419, ADR-0168; notes_mentions dropped in 0.17, ATL-429'
     kind: schema
     tables: [note_links]
     serves: [R03, R05, R07, R13, R16, W03, W05, W17]

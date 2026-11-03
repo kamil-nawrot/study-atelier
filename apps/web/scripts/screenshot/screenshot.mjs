@@ -656,9 +656,6 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/rpc/review_streak') {
 			return json(route, REVIEW_CARDS.length > 0 ? 5 : 0);
 		}
-		if (url.pathname === '/rest/v1/rpc/notes_mentions') {
-			return json(route, notesMentions(request.postDataJSON()?.needle));
-		}
 		if (url.pathname === '/rest/v1/rpc/note_link_mentions') {
 			return json(route, noteLinkMentions(request.postDataJSON() ?? {}));
 		}
