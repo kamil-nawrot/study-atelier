@@ -128,11 +128,13 @@ describe('edit value page', () => {
 		await saveButton().click();
 
 		expect(saveValueDetails).not.toHaveBeenCalled();
-		expect(saveValue).toHaveBeenCalledWith(
-			expect.objectContaining({
-				record: expect.objectContaining({ id: 'style-doric' }),
-				name: 'Doric order'
-			})
+		await vi.waitFor(() =>
+			expect(saveValue).toHaveBeenCalledWith(
+				expect.objectContaining({
+					record: expect.objectContaining({ id: 'style-doric' }),
+					name: 'Doric order'
+				})
+			)
 		);
 	});
 
@@ -281,11 +283,13 @@ describe('edit value page', () => {
 			expect(saveValue).not.toHaveBeenCalled();
 			await confirm.getByRole('button', { name: m.common.merge }).click();
 
-			expect(saveValue).toHaveBeenCalledWith(
-				expect.objectContaining({
-					record: expect.objectContaining({ id: 'style-doric' }),
-					mergeInto: expect.objectContaining({ id: 'style-ionic' })
-				})
+			await vi.waitFor(() =>
+				expect(saveValue).toHaveBeenCalledWith(
+					expect.objectContaining({
+						record: expect.objectContaining({ id: 'style-doric' }),
+						mergeInto: expect.objectContaining({ id: 'style-ionic' })
+					})
+				)
 			);
 			expect(goto).toHaveBeenCalledWith('/atelier/values/style/style-ionic', {
 				replace: true,
@@ -301,7 +305,7 @@ describe('edit value page', () => {
 			await saveButton().click();
 			await page.getByRole('alertdialog').getByRole('button', { name: m.common.merge }).click();
 
-			expect(saveValue).toHaveBeenCalled();
+			await vi.waitFor(() => expect(saveValue).toHaveBeenCalled());
 			expect(saveValueDetails).not.toHaveBeenCalled();
 		});
 
@@ -390,8 +394,10 @@ describe('edit value page', () => {
 			await page.getByLabelText(m.valueForm.addEra).selectOptions(m.eras.middle_ages.name);
 			await saveButton().click();
 
-			expect(saveValue).toHaveBeenCalledWith(
-				expect.objectContaining({ eraCodes: ['antiquity', 'middle_ages', 'early_modern'] })
+			await vi.waitFor(() =>
+				expect(saveValue).toHaveBeenCalledWith(
+					expect.objectContaining({ eraCodes: ['antiquity', 'middle_ages', 'early_modern'] })
+				)
 			);
 		});
 
@@ -419,8 +425,10 @@ describe('edit value page', () => {
 			expect(saveValue).not.toHaveBeenCalled();
 			await confirm.getByRole('button', { name: m.cardIndex.moveConfirm.confirm }).click();
 
-			expect(saveValue).toHaveBeenCalledWith(
-				expect.objectContaining({ eraCodes: ['early_modern'] })
+			await vi.waitFor(() =>
+				expect(saveValue).toHaveBeenCalledWith(
+					expect.objectContaining({ eraCodes: ['early_modern'] })
+				)
 			);
 		});
 
@@ -449,11 +457,13 @@ describe('edit value page', () => {
 				.selectOptions(m.eras.middle_ages.name);
 			await confirm.getByRole('button', { name: m.cardIndex.moveConfirm.confirm }).click();
 
-			expect(saveValue).toHaveBeenCalledWith(
-				expect.objectContaining({
-					eraCodes: ['middle_ages', 'early_modern'],
-					moveTo: 'middle_ages'
-				})
+			await vi.waitFor(() =>
+				expect(saveValue).toHaveBeenCalledWith(
+					expect.objectContaining({
+						eraCodes: ['middle_ages', 'early_modern'],
+						moveTo: 'middle_ages'
+					})
+				)
 			);
 		});
 
@@ -489,8 +499,10 @@ describe('edit value page', () => {
 			await page.getByRole('button', { name: m.valueForm.removePeriod('Gothic') }).click();
 			await saveButton().click();
 
-			expect(saveValue).toHaveBeenCalledWith(
-				expect.objectContaining({ periodIds: ['period-classical'] })
+			await vi.waitFor(() =>
+				expect(saveValue).toHaveBeenCalledWith(
+					expect.objectContaining({ periodIds: ['period-classical'] })
+				)
 			);
 		});
 

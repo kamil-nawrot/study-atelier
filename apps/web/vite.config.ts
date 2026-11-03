@@ -55,6 +55,8 @@ export default defineConfig({
 				extends: './vite.config.ts',
 				test: {
 					name: 'client',
+					testTimeout: 30_000,
+					expect: { requireAssertions: true, poll: { timeout: 5_000 } },
 					browser: {
 						enabled: true,
 						provider: playwright(),

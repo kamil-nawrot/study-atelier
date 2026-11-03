@@ -457,8 +457,9 @@ describe('add artwork page', () => {
 		renderPage(emptyValueLinks(), emptyPlaceStarter(), fields, { lecture: ['Baroque class'] });
 		await fillRequired();
 
-		const location = page.getByRole('combobox', { name: m.artworkForm.location }).element();
 		const source = page.getByRole('textbox', { name: 'Source' });
+		await expect.element(source).toBeVisible();
+		const location = page.getByRole('combobox', { name: m.artworkForm.location }).element();
 		expect(
 			location.compareDocumentPosition(source.element()) & Node.DOCUMENT_POSITION_FOLLOWING
 		).toBeTruthy();
