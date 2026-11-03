@@ -30,12 +30,13 @@ Each tier of an exhibit in "Ekspozycja" reveals one curiosity on the exhibit's t
 - One or two sentences, at most about 250 characters, in the plain voice above; titles of works in „…”, numbers as digits, no "Czy wiesz, że".
 - Each curiosity has one source: a single page of a museum or another institution, Britannica, Smarthistory, a university or major press, never Wikipedia, Wikimedia, Wikidata or Wiktionary. The page is opened and states every fact of the text; the text claims no more than the source and hedges only when the source does.
 - The owner approves every text before it ships.
+- Every exhibit is named as an object or a place ("Pracownia Świętego Hieronima", "Globus podróżnika"), never as a scene or an event. The credit under an engraving keeps the real title of the work.
 
 | Exhibit                       | Theme                                               |
 | ----------------------------- | --------------------------------------------------- |
 | Gabinet Olego Worma           | records and firsts of art history and museums       |
 | Świątynia della Tosse         | rediscoveries of the past                           |
-| Święty Hieronim w pracowni    | memory in art history                               |
+| Pracownia Świętego Hieronima  | memory in art history                               |
 | Klepsydra z „Melancholii I”   | works that took years or centuries to make          |
 | Salon w Luwrze                | stories of museum visiting and exhibitions          |
 | Globus podróżnika             | little-known or unusual museums around the world    |

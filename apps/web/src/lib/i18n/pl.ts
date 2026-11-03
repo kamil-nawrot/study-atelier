@@ -1432,7 +1432,7 @@ export const pl = {
 				count: counter('epok w Twoich dziełach')
 			},
 			memory: {
-				name: 'Święty Hieronim w pracowni',
+				name: 'Pracownia Świętego Hieronima',
 				about:
 					'Dürer wyrył uczonego pogrążonego w lekturze w 1514 roku, w tym samym roku co „Melancholię I”.',
 				count: counter('dzieł utrwalonych w pamięci')
@@ -1444,7 +1444,7 @@ export const pl = {
 				count: counter('dni', 'najdłuższa seria: ')
 			},
 			back_from_storage: {
-				name: 'Mona Lisa po powrocie',
+				name: 'Mona Lisa',
 				about: 'Mona Lisa zniknęła z Luwru w 1911 roku i wróciła tam po ponad dwóch latach.',
 				hint: 'Zdarza się, że dzieło wypada z pamięci, a potem do niej wraca.',
 				awarded: 'Za dzieło zapomniane i utrwalone na nowo.'
