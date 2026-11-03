@@ -711,6 +711,6 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.13.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.13.1
 [0.14.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.14.0
 [0.15.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.15.0
+[0.16.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.16.0
 [0.17.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.17.0
 [0.18.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.18.0
-[0.16.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.16.0
