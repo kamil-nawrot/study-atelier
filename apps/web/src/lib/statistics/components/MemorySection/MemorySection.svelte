@@ -4,7 +4,12 @@
 	import ArtworkRow from '#lib/review/components/ArtworkRow/ArtworkRow.svelte';
 	import KnowledgeBar from '#lib/review/components/KnowledgeBar/KnowledgeBar.svelte';
 	import { atelierKnowledge } from '#lib/review/overview/overview.ts';
-	import { mostForgotten, mostReviewed, mostStable } from '#lib/statistics/memory/memory.ts';
+	import {
+		mostForgotten,
+		mostReviewed,
+		mostStable,
+		type CountedArtwork
+	} from '#lib/statistics/memory/memory.ts';
 	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import type { ReviewCard } from '#lib/review/types/review-card.ts';
@@ -32,8 +37,14 @@
 		for (const { artwork } of [...reviewed, ...forgotten]) images.request(artwork);
 	});
 
-	function shown(artwork: WallArtwork): WallArtwork {
-		return images.apply([artwork])[0];
+	let lists = $derived([
+		{ title: texts.mostReviewed, rows: shownRows(reviewed) },
+		{ title: texts.forgotten, rows: shownRows(forgotten) }
+	]);
+
+	function shownRows(rows: CountedArtwork[]): CountedArtwork[] {
+		const artworks = images.apply(rows.map((row) => row.artwork));
+		return rows.map((row, index) => ({ ...row, artwork: artworks[index] }));
 	}
 </script>
 
@@ -58,14 +69,14 @@
 		{/if}
 		{#if reviewed.length > 0 || forgotten.length > 0}
 			<div class="lists">
-				{#each [{ title: texts.mostReviewed, rows: reviewed }, { title: texts.forgotten, rows: forgotten }] as list (list.title)}
+				{#each lists as list (list.title)}
 					{#if list.rows.length > 0}
 						<div class="list">
 							<h3>{list.title}</h3>
 							<ul>
 								{#each list.rows as row (row.artwork.id)}
 									<li>
-										<ArtworkRow artwork={shown(row.artwork)} detail={texts.times(row.count)} />
+										<ArtworkRow artwork={row.artwork} detail={texts.times(row.count)} />
 									</li>
 								{/each}
 							</ul>

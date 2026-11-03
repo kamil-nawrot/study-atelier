@@ -1,3 +1,4 @@
+import { ERA_CODES, ERA_START_YEARS } from '#lib/catalogue/eras/eras.ts';
 import { signedYear } from '#lib/catalogue/years/years.ts';
 import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
@@ -8,18 +9,15 @@ export type Dated = {
 	yearTo: number | null;
 };
 
-const ERA_SPANS: Record<EraCode, [number, number]> = {
-	prehistory: [-Infinity, -3000],
-	antiquity: [-3000, 476],
-	middle_ages: [476, 1492],
-	early_modern: [1492, 1789],
-	modern: [1789, 1945],
-	contemporary: [1945, Infinity]
-};
+function spanOf(code: EraCode): [number, number] {
+	const index = ERA_CODES.indexOf(code);
+	const next = ERA_CODES[index + 1];
+	return [index === 0 ? -Infinity : ERA_START_YEARS[code], next ? ERA_START_YEARS[next] : Infinity];
+}
 
 export function yearOutsideEra({ eraCode, yearFrom, yearTo }: Dated): boolean {
 	if (eraCode === null || yearTo === null) return false;
-	const [start, end] = ERA_SPANS[eraCode];
+	const [start, end] = spanOf(eraCode);
 	return yearTo < start || (yearFrom ?? yearTo) > end;
 }
 

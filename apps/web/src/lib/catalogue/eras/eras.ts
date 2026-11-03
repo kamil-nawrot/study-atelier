@@ -27,6 +27,15 @@ const ERA_ICONS: Record<EraCode, LucideIcon> = {
 	contemporary: Smartphone
 };
 
+export const ERA_START_YEARS: Record<EraCode, number> = {
+	prehistory: -40000,
+	antiquity: -3000,
+	middle_ages: 476,
+	early_modern: 1492,
+	modern: 1789,
+	contemporary: 1945
+};
+
 export function isEraCode(value: unknown): value is EraCode {
 	return ERA_CODES.includes(value as EraCode);
 }

@@ -23,15 +23,25 @@ export type CrossTable = {
 	total: number;
 };
 
-export function countValues(artworks: readonly WallArtwork[], dimension: Dimension): Counted[] {
+function tally(
+	artworks: readonly WallArtwork[],
+	dimension: Dimension
+): { counted: Counted[]; none: number } {
 	const counts = new Map<string, number>();
+	let none = 0;
 	for (const artwork of artworks) {
-		for (const value of dimension.valuesOf(artwork))
-			counts.set(value, (counts.get(value) ?? 0) + 1);
+		const values = dimension.valuesOf(artwork);
+		if (values.length === 0) none += 1;
+		for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1);
 	}
-	return [...counts]
+	const counted = [...counts]
 		.map(([value, count]) => ({ value, count }))
 		.sort((a, b) => b.count - a.count || a.value.localeCompare(b.value, 'pl'));
+	return { counted, none };
+}
+
+export function countValues(artworks: readonly WallArtwork[], dimension: Dimension): Counted[] {
+	return tally(artworks, dimension).counted;
 }
 
 function inOrder(counted: Counted[], dimension: Dimension): Counted[] {
@@ -41,7 +51,7 @@ function inOrder(counted: Counted[], dimension: Dimension): Counted[] {
 }
 
 export function barsOf(artworks: readonly WallArtwork[], dimension: Dimension): Bars {
-	const all = countValues(artworks, dimension);
+	const { counted: all, none } = tally(artworks, dimension);
 	const counted = all.filter((row) => row.value !== UNKNOWN_AUTHOR);
 	const rest = counted.slice(BAR_ROWS);
 	return {
@@ -51,7 +61,7 @@ export function barsOf(artworks: readonly WallArtwork[], dimension: Dimension): 
 			rest.length > 0
 				? { values: rest.length, count: rest.reduce((sum, row) => sum + row.count, 0) }
 				: null,
-		none: artworks.filter((artwork) => dimension.valuesOf(artwork).length === 0).length
+		none
 	};
 }
 

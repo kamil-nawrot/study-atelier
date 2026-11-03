@@ -31,10 +31,11 @@
 	);
 	let columnDimension = $derived(dimensions.find((dimension) => dimension.key === second));
 
-	let bars = $derived(barsOf(artworks, rowDimension));
+	let bars = $derived(columnDimension ? undefined : barsOf(artworks, rowDimension));
 	let table = $derived(columnDimension && crossTableOf(artworks, rowDimension, columnDimension));
 
 	let barRows = $derived.by((): BarRow[] => {
+		if (!bars) return [];
 		const rows: BarRow[] = bars.rows.map((row) => ({
 			key: row.value,
 			name: rowDimension.nameOf(row.value),
