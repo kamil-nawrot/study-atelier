@@ -1,4 +1,4 @@
-import { goto, preloadData } from '$app/navigation';
+import { goto } from '$app/navigation';
 import { resolve } from '$app/paths';
 import type { ResolvedPathname } from '$app/types';
 import { keyDirection } from '#lib/wall/flip/flip.ts';
@@ -38,9 +38,10 @@ export class ArtworkFlip {
 			: resolve('/(app)/atelier')
 	);
 
-	follow(): void {
+	follow(preload: (number: number) => void): void {
 		$effect(() => {
-			if (this.links?.next) void preloadData(this.links.next);
+			const next = this.neighbours?.next;
+			if (next !== null && next !== undefined) preload(next);
 		});
 	}
 

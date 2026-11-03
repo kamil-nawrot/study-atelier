@@ -222,7 +222,7 @@ tasks:
       name: 'Cache own field definitions, era summaries and the museum catalogue',
       status: 'done, ATL-423, ADR-0170'
     }
-  T4: { name: 'Preload only the core of the next artwork', status: 'option open, D3' }
+  T4: { name: 'Preload only the core of the next artwork', status: 'done, ATL-430, ADR-0173' }
   T5: { name: 'Page every list query past 1000 rows (bug)', status: 'done in 0.16, ATL-407' }
   T7: { name: 'Remember Commons thumbnail URLs on the device', status: 'done, ATL-428, ADR-0172' }
   T8:
@@ -238,7 +238,7 @@ tasks:
       status: 'done, ATL-425'
     }
   T12: { name: 'Make the scale seed run with the row limits', status: 'done, ATL-427' }
-  T13: { name: 'Compact wall payload', status: 'after the measurement' }
+  T13: { name: 'Compact wall payload', status: 'dropped after the measurement, ATL-430' }
   T14:
     {
       name: 'Build the review session facts without a subquery per artwork',
@@ -272,7 +272,7 @@ adrs_to_change:
   - { adr: '0082', by: [M1, Q2], how: 'superseded: mentions from note_links and term_mentions' }
   - { adr: '0157', by: [T8, Q1], how: 'amended: keyed forgetting and the glossary keys' }
   - { adr: '0042', by: [Z4, Z5], how: 'amended: the whole collection only in views that show it' }
-  - { adr: '0048', by: [T4], how: 'amended if the preload is narrowed' }
+  - { adr: '0048', by: [T4], how: 'amended by ADR-0173: only the core of the next artwork' }
   - { adr: '0053', by: [M1, Z3], how: 'amended: link labels and suggestions from the database' }
   - { adr: '0126', by: [Q1], how: 'respected: the definition loader is passed into packages/ui' }
 
@@ -464,7 +464,7 @@ decisions:
     recommended: 'yes: commit the generator and run it in the job that already applies the migrations to a local Supabase'
   - id: D3
     question: 'Next artwork preload (T4): code only, the core only, or as today?'
-    recommended: 'the core only (artwork and first image), the rest after the flip'
+    decided: 'the core only (the artwork record), the rest after the flip; T13 dropped (owner, 2026-11-03, ATL-430)'
   - id: D4
     question: 'Tooltip definitions: load on hover (Q1) or with the note in one request (X6)?'
     decided: 'on hover, by the tooltip rule of D1 (owner, 2026-10-31); X6 only if the first tap on a phone feels slow'

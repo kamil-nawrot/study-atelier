@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import '@study-atelier/ui/styles.css';
-import { goto, preloadData } from '$app/navigation';
+import { goto } from '$app/navigation';
+import { preloadArtwork } from '#lib/artworks/artwork-preload/artwork-preload.ts';
 import { setBackPlace } from '#lib/shared/navigation/back/back.svelte.ts';
 import { setFavourite } from '#lib/wall/favourite-data/favourite-data.ts';
 import { moveToTrash } from '#lib/artworks/trash-data/trash-data.ts';
@@ -30,9 +31,9 @@ vi.mock('$app/state', () => ({
 }));
 vi.mock('$app/navigation', () => ({
 	afterNavigate: vi.fn(),
-	goto: vi.fn(),
-	preloadData: vi.fn()
+	goto: vi.fn()
 }));
+vi.mock('#lib/artworks/artwork-preload/artwork-preload.ts', () => ({ preloadArtwork: vi.fn() }));
 vi.mock('#lib/artworks/trash-data/trash-data.ts', () => ({ moveToTrash: vi.fn() }));
 vi.mock('#lib/glossary/glossary-data/glossary-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/glossary/glossary-data/glossary-data.ts')>()),
@@ -368,7 +369,7 @@ describe('artwork page', () => {
 		await expect.element(arrow(m.artworkView.next)).toHaveAttribute('href', '/atelier/30');
 		await expect.element(arrow(m.artworkView.next)).toHaveAttribute('data-sveltekit-replacestate');
 		await expect.element(backLink()).toHaveAttribute('href', '/atelier?era=early_modern');
-		expect(preloadData).toHaveBeenCalledWith('/atelier/30');
+		expect(preloadArtwork).toHaveBeenCalledWith(30);
 	});
 
 	it('keeps the first screen of every artwork the same height on a phone', async () => {
@@ -434,7 +435,7 @@ describe('artwork page', () => {
 
 		await expect.element(page.getByRole('heading', { level: 1 })).toBeVisible();
 		await expect.element(arrow(m.artworkView.previous)).not.toBeInTheDocument();
-		expect(preloadData).not.toHaveBeenCalled();
+		expect(preloadArtwork).not.toHaveBeenCalled();
 	});
 
 	it('goes to the neighbours with the arrow keys in place of the current artwork', async () => {

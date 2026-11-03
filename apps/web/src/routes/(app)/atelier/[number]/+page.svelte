@@ -7,6 +7,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import { preloadArtwork } from '#lib/artworks/artwork-preload/artwork-preload.ts';
 	import ArtworkTrashDialog from '#lib/artworks/components/ArtworkTrashDialog/ArtworkTrashDialog.svelte';
 	import ArtworkView from '#lib/artworks/components/ArtworkView/ArtworkView.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
@@ -49,7 +50,7 @@
 		() => number,
 		() => trashOpen
 	);
-	flip.follow();
+	flip.follow(preloadArtwork);
 
 	onMount(() => {
 		const saved = page.state.saved;

@@ -1,5 +1,5 @@
 import { resolve } from '$app/paths';
-import { loadArtwork } from '#lib/artworks/artwork-data/artwork-data.ts';
+import { artworkCore } from '#lib/artworks/artwork-preload/artwork-preload.ts';
 import { loadArtworkVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { parseRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
@@ -18,7 +18,7 @@ export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadA
 	if (number === null) return { error: m.artworkErrors.notFound, notFound: true };
 	const [result, mentions, summaries, own, layout, loadedPins, loadedGlossary, seen] =
 		await Promise.all([
-			loadArtwork(number),
+			artworkCore(number),
 			loadMentions(
 				{ artworkNumber: number },
 				resolve('/(app)/atelier/[number]', { number: String(number) })
