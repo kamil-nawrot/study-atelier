@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
@@ -37,6 +37,7 @@ import {
 	fakeSession,
 	imageSvg
 } from './fixtures.mjs';
+import { logRequests, summarise } from './request-log.mjs';
 
 const WEB_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const REPO_DIR = path.resolve(WEB_DIR, '../..');
@@ -67,6 +68,8 @@ const USAGE = `Usage: pnpm screenshot <path> [options]
   --repeat <n>       show every sample artwork n times, to have more to scroll through
   --empty            show an atelier with no artworks, values, entries, events or visits
   --scroll           also record a GIF of scrolling the page from top to bottom (needs ffmpeg)
+  --log-requests     write the Supabase requests of each viewport to <name>-<viewport>-requests.json
+                     and print them per phase (load, steps), shell and view, with their payload sizes
   --url <base>       use a running dev server instead of starting one
 `;
 
@@ -87,6 +90,7 @@ function parseArgs(argv) {
 		else if (arg === '--full-page') options.fullPage = true;
 		else if (arg === '--signed-out') options.signedOut = true;
 		else if (arg === '--empty') options.empty = true;
+		else if (arg === '--log-requests') options.logRequests = true;
 		else if (
 			[
 				'--out',
@@ -146,6 +150,17 @@ function filteredRows(url) {
 	if (id?.startsWith('in.(')) {
 		const ids = id.slice(4, -1).split(',');
 		rows = [...ARTWORKS, ...TRASHED].filter((row) => ids.includes(row.id));
+	}
+	const era = params.get('era_code');
+	if (era?.startsWith('eq.')) rows = rows.filter((row) => row.era_code === era.slice(3));
+	const value = params.get('valued.value_id');
+	if (value?.startsWith('eq.')) {
+		rows = rows.filter((row) =>
+			row.artwork_values.some(
+				({ category_values: linked }) =>
+					valueId(linked.category_code, linked.name) === value.slice(3)
+			)
+		);
 	}
 	return rows;
 }
@@ -323,6 +338,129 @@ function notesMentions(needle) {
 	);
 }
 
+function termMentions(needles) {
+	const phrases = (needles ?? []).map((phrase) => phrase.trim().toLowerCase()).filter(Boolean);
+	const names = new Map(VALUE_USAGE.map((value) => [value.id, value.name]));
+	return notesMentions(undefined)
+		.map((row) => (row.kind === 'artwork' ? row : { ...row, title: names.get(row.id) ?? null }))
+		.filter((row) => phrases.some((phrase) => row.notes.toLowerCase().includes(phrase)));
+}
+
+const LINK_PATTERN = /\]\(\/atelier\/(?:(\d{1,9})|values\/([a-z]+)\/([A-Za-z0-9_-]+))\)/g;
+
+function linkTargets(notes) {
+	return [...(notes ?? '').matchAll(LINK_PATTERN)].map(([, number, kind, id]) =>
+		number ? { kind: 'artwork', number: Number(number) } : { kind, id }
+	);
+}
+
+function linkingNotes() {
+	const names = new Map(VALUE_USAGE.map((value) => [value.id, value.name]));
+	const visits = VISITS.map((row) => ({
+		kind: 'visit',
+		id: row.id,
+		record_number: null,
+		title: `${row.category_values.name} · ${row.visited_on.split('-').reverse().join('.')}`,
+		notes: row.notes
+	}));
+	return [...notesMentions(undefined), ...visits].map((row) =>
+		row.kind === 'artwork' || row.kind === 'visit'
+			? row
+			: { ...row, title: names.get(row.id) ?? null }
+	);
+}
+
+function linksTo(target, args) {
+	if (args.artwork_number !== undefined) return target.number === args.artwork_number;
+	if (args.value_id !== undefined) return target.kind !== 'era' && target.id === args.value_id;
+	return target.kind === 'era' && target.id === args.era_code;
+}
+
+function noteLinkMentions(args) {
+	return linkingNotes()
+		.filter((row) => row.notes && linkTargets(row.notes).some((target) => linksTo(target, args)))
+		.map(({ kind, id, record_number, title }) => ({ kind, id, record_number, title }));
+}
+
+const SUGGESTED_KINDS = ['period', 'style', 'material', 'author', 'location'];
+
+function searchKey(text) {
+	return text
+		.normalize('NFD')
+		.replace(/\p{Diacritic}/gu, '')
+		.toLowerCase();
+}
+
+function noteLinkSuggestions({ link_trigger: trigger, phrase }) {
+	const term = searchKey(phrase ?? '');
+	if (trigger === '#') {
+		return ARTWORKS.filter((row) => !row.deleted_at)
+			.map((row) => {
+				const authors = row.artwork_values
+					.map(({ category_values: value }) => value)
+					.filter((value) => value.category_code === 'author')
+					.map((value) => value.name);
+				return { row, authors, key: searchKey(`${row.title} ${authors.join(' ')}`) };
+			})
+			.filter(
+				({ row, key }) =>
+					(/^\d+$/.test(term) && String(row.record_number).startsWith(String(Number(term)))) ||
+					key.includes(term)
+			)
+			.slice(0, 8)
+			.map(({ row, authors }) => ({
+				kind: 'artwork',
+				id: row.id,
+				record_number: row.record_number,
+				title: row.title,
+				authors,
+				parents: []
+			}));
+	}
+	return VALUE_USAGE.filter(
+		(value) => SUGGESTED_KINDS.includes(value.category_code) && searchKey(value.name).includes(term)
+	)
+		.slice(0, 8)
+		.map((value) => ({
+			kind: value.category_code,
+			id: value.id,
+			record_number: null,
+			title: value.name,
+			authors: [],
+			parents: []
+		}));
+}
+
+function noteLinkLabels(args) {
+	const source = linkingNotes().find((row) =>
+		args.artwork_number !== undefined
+			? row.record_number === args.artwork_number
+			: row.id === (args.value_id ?? args.era_code ?? args.visit_id)
+	);
+	const names = new Map(VALUE_USAGE.map((value) => [value.id, value]));
+	return linkTargets(source?.notes).flatMap((target) => {
+		if (target.kind === 'artwork') {
+			const artwork = ARTWORKS.find((row) => row.record_number === target.number);
+			return artwork
+				? [
+						{
+							kind: 'artwork',
+							id: artwork.id,
+							record_number: artwork.record_number,
+							title: artwork.title
+						}
+					]
+				: [];
+		}
+		if (target.kind === 'era')
+			return [{ kind: 'era', id: target.id, record_number: null, title: null }];
+		const value = names.get(target.id);
+		return value
+			? [{ kind: value.category_code, id: value.id, record_number: null, title: value.name }]
+			: [];
+	});
+}
+
 function pinsRoute(route, request, url) {
 	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
 	if (request.method() !== 'GET') return json(route, [ARTWORK_PINS[0]], 201);
@@ -368,9 +506,20 @@ function glossaryRoute(route, request, url) {
 		);
 	}
 	const id = url.searchParams.get('id');
-	const rows = id?.startsWith('eq.')
-		? GLOSSARY_ENTRIES.filter((row) => row.id === id.slice(3))
-		: GLOSSARY_ENTRIES;
+	const select = url.searchParams.get('select') ?? '*';
+	const rows = (
+		id?.startsWith('eq.')
+			? GLOSSARY_ENTRIES.filter((row) => row.id === id.slice(3))
+			: id?.startsWith('in.(')
+				? GLOSSARY_ENTRIES.filter((row) => id.slice(4, -1).split(',').includes(row.id))
+				: GLOSSARY_ENTRIES
+	)
+		.map((row) => ({ ...row, has_definition: Boolean(row.definition?.trim()) }))
+		.map((row) =>
+			select === '*'
+				? row
+				: Object.fromEntries(select.split(',').map((column) => [column.trim(), row[column.trim()]]))
+		);
 	if (!wantsObject) return json(route, rows);
 	if (rows.length === 1) return json(route, rows[0]);
 	return json(
@@ -488,12 +637,29 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/rpc/notes_mentions') {
 			return json(route, notesMentions(request.postDataJSON()?.needle));
 		}
+		if (url.pathname === '/rest/v1/rpc/note_link_mentions') {
+			return json(route, noteLinkMentions(request.postDataJSON() ?? {}));
+		}
+		if (url.pathname === '/rest/v1/rpc/note_link_labels') {
+			return json(route, noteLinkLabels(request.postDataJSON() ?? {}));
+		}
+		if (url.pathname === '/rest/v1/rpc/note_link_suggestions') {
+			return json(route, noteLinkSuggestions(request.postDataJSON() ?? {}));
+		}
+		if (url.pathname === '/rest/v1/rpc/term_mentions') {
+			return json(route, termMentions(request.postDataJSON()?.needles));
+		}
 		if (url.pathname === '/rest/v1/rpc/record_review') {
 			return route.fulfill({ status: 204, headers: corsHeaders() });
 		}
 		if (url.pathname === '/rest/v1/review_cards') return json(route, REVIEW_CARDS);
 		if (url.pathname === '/rest/v1/rpc/unlock_exhibits') return json(route, EXHIBITS);
-		if (url.pathname === '/rest/v1/rpc/learner_points') return json(route, 1846);
+		if (url.pathname === '/rest/v1/rpc/career_standing') {
+			const newTiers = EXHIBIT_TIERS.filter((row) => !row.seen_at).length;
+			return json(route, [
+				{ points: 1846, new_tiers: newTiers, rank_seen: PROFILE.rank_seen ?? 0 }
+			]);
+		}
 		if (url.pathname === '/rest/v1/exhibit_tiers') {
 			return request.method() === 'PATCH' ? json(route, []) : json(route, EXHIBIT_TIERS);
 		}
@@ -748,7 +914,11 @@ function fallbackExecutable() {
 	for (const root of [process.env.PLAYWRIGHT_BROWSERS_PATH, '/opt/pw-browsers']) {
 		if (!root || !existsSync(root)) continue;
 		const folder = readdirSync(root).find((entry) => /^chromium-\d+$/.test(entry));
-		if (folder) return path.join(root, folder, 'chrome-linux/chrome');
+		if (!folder) continue;
+		const executable = ['chrome-linux', 'chrome-linux64']
+			.map((build) => path.join(root, folder, build, 'chrome'))
+			.find((candidate) => existsSync(candidate));
+		if (executable) return executable;
 	}
 	return undefined;
 }
@@ -792,10 +962,12 @@ async function capture(browser, base, options, name) {
 		}
 	);
 	const page = await context.newPage();
+	const requests = options.logRequests ? logRequests(page) : undefined;
 	await page.goto(new URL(options.route, base).href, { waitUntil: 'networkidle' });
 	if (options.wait) await page.waitForSelector(options.wait);
 	if (options.script) await page.evaluate(readFileSync(path.resolve(options.script), 'utf8'));
 	if (options.steps) {
+		requests?.setPhase('steps');
 		const { default: steps } = await import(pathToFileURL(path.resolve(options.steps)).href);
 		await steps(page);
 	}
@@ -810,6 +982,15 @@ async function capture(browser, base, options, name) {
 	await page.waitForTimeout(400);
 	const file = path.join(options.out, `${options.name}-${name}.png`);
 	await page.screenshot({ path: file, fullPage: Boolean(options.fullPage) });
+	if (requests) {
+		const entries = await requests.finish();
+		const log = path.join(options.out, `${options.name}-${name}-requests.json`);
+		writeFileSync(
+			log,
+			`${JSON.stringify({ route: options.route, viewport: name, entries }, null, 2)}\n`
+		);
+		process.stdout.write(summarise(name, entries));
+	}
 	await context.close();
 	return file;
 }

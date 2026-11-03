@@ -99,10 +99,11 @@ declare
   covered constant text[] := array[
     'keep_alive', 'value_usage', 'period_era_usage', 'style_period_usage', 'merge_category_values',
     'set_period_eras', 'set_style_periods', 'delete_unused_value', 'value_page_content', 'save_era_details',
-    'save_value_details', 'record_review', 'review_counts', 'review_streak', 'notes_mentions', 'review_session',
+    'save_value_details', 'record_review', 'review_counts', 'review_streak', 'notes_mentions', 'term_mentions', 'review_session',
     'unused_images', 'move_artwork_field', 'artwork_field_usage', 'save_artwork', 'import_atelier', 'save_visit',
     'storage_usage', 'delete_account', 'storage_has_room', 'deleted_account_images', 'search_key',
-    'duplicate_candidates', 'used_category_values', 'learner_points', 'unlock_exhibits', 'record_free_answers'
+    'duplicate_candidates', 'used_category_values', 'learner_points', 'unlock_exhibits', 'record_free_answers',
+    'career_standing', 'note_link_mentions', 'note_link_labels', 'note_link_suggestions'
   ];
   table_name text;
   routine record;
@@ -240,7 +241,7 @@ insert into public.artwork_field_entries (artwork_id, field_id, field_kind, text
     where field.name = 'Source';
 
 select public.save_visit(
-  '{"visited_on": "2026-10-12", "date_precision": "day", "notes": "A note"}', 'Visited museum',
+  '{"visited_on": "2026-10-12", "date_precision": "day", "notes": "A note on [x](/atelier/1)"}', 'Visited museum',
   array[(select id from public.artworks)]
 );
 
@@ -343,6 +344,14 @@ begin
   assert (select count(*) from public.artwork_field_usage()) = 0, 'B sees field usage of A';
   assert (select count(*) from public.categories) = 5, 'B reads the categories of the fields of A';
   assert (select count(*) from public.notes_mentions()) = 0, 'B sees the notes of A';
+  assert (select count(*) from public.term_mentions(array['a'])) = 0, 'B finds the term mentions of A';
+  assert (select count(*) from public.note_link_mentions(artwork_number => 1)) = 0,
+    'B finds the note links of A';
+  assert (select count(*) from public.note_link_labels(visit_id => a_visit)) = 0,
+    'B reads the note link labels of A';
+  assert (select count(*) from public.note_link_suggestions('#', '')) = 0
+    and (select count(*) from public.note_link_suggestions('@', '')) = 0,
+    'B gets link suggestions from A';
   assert not (select has_content from public.value_page_content(a_value)),
     'B sees the page content of a value of A';
   assert (select count(*) from public.eras) = 6, 'B cannot read the shared eras';
@@ -782,6 +791,8 @@ begin
     where id = a_artwork;
   update public.period_details set notes = format('Also [Merged](/atelier/values/period/%s).', a_merged)
     where value_id = a_value;
+  update public.era_details set notes = format('Era [Merged](/atelier/values/period/%s).', a_merged)
+    where era_code = 'early_modern';
   perform public.merge_category_values(a_merged, a_value);
   assert (select notes from public.artworks where id = a_artwork)
       = format('See [Merged](/atelier/values/period/%s) and [x](/atelier/12).', a_value),
@@ -789,6 +800,9 @@ begin
   assert (select notes from public.period_details where value_id = a_value)
       = format('Also [Merged](/atelier/values/period/%s).', a_value),
     'merging rewrites links to the merged value in value notes';
+  assert (select notes from public.era_details where era_code = 'early_modern')
+      = format('Era [Merged](/atelier/values/period/%s).', a_value),
+    'merging rewrites links to the merged value in era notes';
   assert (select array_agg(summary) from public.period_details) = array['Period summary'],
     'merging keeps the details of the merged value or drops those of the kept one';
 

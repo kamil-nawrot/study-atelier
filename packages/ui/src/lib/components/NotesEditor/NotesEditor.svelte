@@ -53,27 +53,31 @@
 	let suggestion = $state.raw<SuggestionState | null>(null);
 	let selected = $state(0);
 
+	function keptWhileLoading(next: SuggestionState): SuggestionState {
+		return next.loading && next.items.length === 0 && suggestion?.trigger === next.trigger
+			? { ...next, items: suggestion.items }
+			: next;
+	}
+
 	function updateSuggestion(trigger: NoteLinkTrigger, next: SuggestionState | null): void {
-		if (next === null) {
+		if (next === null || next.query.trim().length < (links?.minQueryLength ?? 0)) {
 			if (suggestion?.trigger === trigger) suggestion = null;
 			return;
 		}
-		if (next.query.trim().length < (links?.minQueryLength ?? 0)) {
-			if (suggestion?.trigger === trigger) suggestion = null;
-			return;
-		}
-		if (suggestion?.trigger !== trigger || suggestion.items.length !== next.items.length)
-			selected = 0;
-		suggestion = next;
+		const kept = keptWhileLoading(next);
+		if (suggestion?.trigger !== trigger || suggestion.items !== kept.items) selected = 0;
+		suggestion = kept;
 	}
 
 	function chooseWithKey(event: KeyboardEvent): boolean {
-		if (!suggestion || suggestion.items.length === 0) return false;
+		if (!suggestion) return false;
+		const picks = event.key === 'Enter' || event.key === 'Tab';
+		if (suggestion.loading && picks) return true;
+		if (suggestion.items.length === 0) return false;
 		const count = suggestion.items.length;
 		if (event.key === 'ArrowDown') selected = (selected + 1) % count;
 		else if (event.key === 'ArrowUp') selected = (selected - 1 + count) % count;
-		else if (event.key === 'Enter' || event.key === 'Tab')
-			suggestion.choose(suggestion.items[selected]);
+		else if (picks) suggestion.choose(suggestion.items[selected]);
 		else return false;
 		return true;
 	}

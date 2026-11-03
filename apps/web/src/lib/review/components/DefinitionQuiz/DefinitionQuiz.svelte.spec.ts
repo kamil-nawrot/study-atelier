@@ -14,8 +14,7 @@ const item: DefinitionItem = {
 		definition: 'Absyda zamyka nawę kościoła. W apsydzie stoi ołtarz.',
 		synonyms: ['apsyda'],
 		forms: ['apsydzie'],
-		sortName: null,
-		source: null
+		hasDefinition: true
 	},
 	quiz: {
 		answer: 0,

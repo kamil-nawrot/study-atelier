@@ -25,9 +25,17 @@ function renderLamps(tiers: UnlockedTier[], code = 'collection'): void {
 	});
 }
 
-function ring(level: string): string {
+function shade(level: string): string {
 	const lamp = page.getByRole('button', { name: m.career.tierOf(level, NAME) }).element();
-	return getComputedStyle(lamp.firstElementChild as Element).outlineStyle;
+	return getComputedStyle(lamp.firstElementChild as Element).backgroundColor;
+}
+
+function gold(): string {
+	const probe = document.body.appendChild(document.createElement('span'));
+	probe.style.backgroundColor = 'var(--color-case-gold)';
+	const color = getComputedStyle(probe).backgroundColor;
+	probe.remove();
+	return color;
 }
 
 describe('TierLamps', () => {
@@ -69,17 +77,17 @@ describe('TierLamps', () => {
 		await expect.element(page.getByRole('link')).not.toBeInTheDocument();
 	});
 
-	it('rings the lamp of a new tier that brings a curiosity', async () => {
+	it('lights the lamp of a new tier that brings a curiosity in a lighter gold', async () => {
 		renderLamps([unlocked(1), unlocked(2, false)]);
 
-		expect(ring('II')).toBe('solid');
-		expect(ring('I')).toBe('none');
+		expect(shade('I')).toBe(gold());
+		expect(shade('II')).not.toBe(gold());
 	});
 
 	it('leaves the lamp of a new tier without a curiosity plain', async () => {
 		renderLamps([unlocked(1, false)], 'unknown');
 
-		expect(ring('I')).toBe('none');
+		expect(shade('I')).toBe(gold());
 	});
 
 	it('leaves the lamps of tiers not reached dark and silent', async () => {

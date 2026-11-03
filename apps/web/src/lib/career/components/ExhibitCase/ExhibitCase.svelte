@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Info from '@lucide/svelte/icons/info';
-	import { Meter, PopupButton, Tag } from '@study-atelier/ui';
+	import { Meter, PopupButton } from '@study-atelier/ui';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ExhibitFrame from '#lib/career/components/ExhibitFrame/ExhibitFrame.svelte';
@@ -42,7 +42,12 @@
 </script>
 
 <article class="exhibit">
-	<ExhibitFrame code={exhibit.code} {metal} numeral={tier > 0 ? roman(tier) : undefined}>
+	<ExhibitFrame
+		code={exhibit.code}
+		mark={hasNewTier(exhibit) ? m.career.new : undefined}
+		{metal}
+		numeral={tier > 0 ? roman(tier) : undefined}
+	>
 		{#if tier > 0}
 			<PopupButton
 				align={wide.current ? 'end' : 'start'}
@@ -64,7 +69,7 @@
 				{/if}
 			</h3>
 			{#if hasNewTier(exhibit)}
-				<Tag>{m.career.new}</Tag>
+				<span class="visually-hidden">{m.career.new}</span>
 			{/if}
 		</header>
 		{#if tier > 0}
@@ -74,7 +79,7 @@
 			<TierLamps {name} {exhibit} {tier} />
 		{/if}
 		{#if next !== undefined && texts.count && !hidden}
-			<Meter label={name} max={next} value={exhibit.value} />
+			<Meter label={name} max={next} track="dim" value={exhibit.value} />
 		{/if}
 		{#if summary}
 			<p class="caption">{summary}</p>

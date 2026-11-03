@@ -75,6 +75,7 @@ Conversational, as in the card index ([voice and tone](../product/voice-and-tone
 
 ## More information
 
+- [ADR-0169](0169-search-note-link-suggestions-in-the-database.md) moves the search of the suggestions into the database and [ADR-0168](0168-read-note-mentions-and-link-labels-from-stored-links.md) reads the link labels from stored links; the rest stands.
 - Design issue ATL-145; build issues ATL-146 (links) and ATL-147 ("Wspomniane w"). Requirements R-70 to R-72.
 - Allows links in notes, which [ADR-0029](0029-format-notes-with-a-visual-markdown-editor.md) left out; the rest of ADR-0029 stands. Values in the artwork view and the card index stay without links ([ADR-0047](0047-no-links-from-values-into-a-filtered-wall.md), ADR-0049).
 - The Markdown round trip was checked on a throwaway branch with TipTap's Mention extension: its own Markdown form (`[@ id="…" label="…"]`) is not readable outside the app, so the build writes plain links instead.

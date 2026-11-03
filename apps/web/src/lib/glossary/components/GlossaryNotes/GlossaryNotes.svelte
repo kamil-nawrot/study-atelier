@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { Notes, type NoteLinks } from '@study-atelier/ui';
 	import { noteTermsOf } from '#lib/glossary/note-terms/note-terms.ts';
-	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import GlossaryTermCard from '#lib/glossary/components/GlossaryTermCard/GlossaryTermCard.svelte';
 
 	type Props = {
 		value: string;
 		links?: NoteLinks;
-		entries?: GlossaryEntry[];
+		entries?: readonly GlossaryTerm[];
 		linked?: boolean;
 		plain?: boolean;
 	};
@@ -19,9 +19,9 @@
 
 <Notes interactive={linked} {links} {plain} {terms} {value}>
 	{#snippet termCard(id)}
-		{@const entry = entries.find((candidate) => candidate.id === id)}
-		{#if entry}
-			<GlossaryTermCard {entry} {linked} />
+		{@const term = entries.find((candidate) => candidate.id === id)}
+		{#if term}
+			<GlossaryTermCard {linked} {term} />
 		{/if}
 	{/snippet}
 </Notes>

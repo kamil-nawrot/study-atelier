@@ -1,13 +1,8 @@
 import type { WikipediaSource } from '#lib/shared/types/wikipedia-source.ts';
-import type { GlossaryCategory } from './glossary-category.ts';
+import type { GlossaryTerm } from './glossary-term.ts';
 
-export type GlossaryEntry = {
-	id: string;
-	name: string;
-	category: GlossaryCategory;
+export type GlossaryEntry = GlossaryTerm & {
 	definition: string;
-	synonyms: string[];
-	forms: string[];
 	sortName: string | null;
 	source: WikipediaSource | null;
 };

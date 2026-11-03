@@ -7,29 +7,59 @@
 		glossaryCategoryIcon,
 		glossaryCategoryName
 	} from '#lib/glossary/categories/categories.ts';
-	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import { loadTermDefinition } from '#lib/glossary/glossary-data/glossary-data.ts';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
+	import type { TermDefinitionResult } from '#lib/glossary/types/term-definition-result.ts';
 
 	type Props = {
-		entry: GlossaryEntry;
+		term: GlossaryTerm;
 		linked?: boolean;
 	};
 
-	let { entry, linked = false }: Props = $props();
+	let { term, linked = false }: Props = $props();
+
+	let loaded = $state<{ id: string; result: TermDefinitionResult }>();
+
+	const result = $derived(loaded?.id === term.id ? loaded.result : undefined);
+
+	$effect(() => {
+		const id = term.id;
+		if (!term.hasDefinition) return;
+		let current = true;
+		void loadTermDefinition(id).then((answer) => {
+			if (current) loaded = { id, result: answer };
+		});
+		return () => {
+			current = false;
+		};
+	});
 </script>
 
 <span class="kind">
-	<Icon icon={glossaryCategoryIcon(entry.category)} size="sm" />
-	{glossaryCategoryName(entry.category)}
+	<Icon icon={glossaryCategoryIcon(term.category)} size="sm" />
+	{glossaryCategoryName(term.category)}
 </span>
-<span class="name">{entry.name}</span>
-{#if entry.definition}
-	<span class="definition">{entry.definition}</span>
-{/if}
-{#if entry.source}
-	<span class="source">{m.glossary.card.source}</span>
-{/if}
-{#if linked}
-	<a class="open" href={resolve('/(app)/atelier/glossary/[id]', { id: entry.id })}>
+<span class="name">{term.name}</span>
+<span class="answer" role="status">
+	{#if term.hasDefinition}
+		{#if !result}
+			<span class="message loading">{m.glossary.card.loading}</span>
+		{:else if result.notFound}
+			<span class="message">{m.glossary.card.deleted}</span>
+		{:else if result.error}
+			<span class="message">{m.glossary.card.failed}</span>
+		{:else}
+			{#if result.definition}
+				<span class="definition">{result.definition}</span>
+			{/if}
+			{#if result.source}
+				<span class="source">{m.glossary.card.source}</span>
+			{/if}
+		{/if}
+	{/if}
+</span>
+{#if linked && !result?.notFound}
+	<a class="open" href={resolve('/(app)/atelier/glossary/[id]', { id: term.id })}>
 		{m.glossary.card.open}
 		<Icon icon={ArrowRight} size="sm" />
 	</a>
@@ -54,10 +84,24 @@
 		line-height: var(--line-height-xl);
 	}
 
+	.answer {
+		display: contents;
+	}
+
 	.definition {
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
 		white-space: pre-line;
+	}
+
+	.message {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
+	}
+
+	.loading {
+		min-height: calc(var(--line-height-sm) * 3em);
 	}
 
 	.source {

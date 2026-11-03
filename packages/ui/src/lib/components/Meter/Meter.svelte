@@ -4,15 +4,17 @@
 		max: number;
 		label: string;
 		tone?: 'plain' | 'gold';
+		track?: 'muted' | 'dim';
 	};
 
-	let { value, max, label, tone = 'plain' }: Props = $props();
+	let { value, max, label, tone = 'plain', track = 'muted' }: Props = $props();
 
 	let filled = $derived(max > 0 ? Math.min(Math.max(value / max, 0), 1) * 100 : 0);
 </script>
 
 <div
 	class="meter"
+	class:dim={track === 'dim'}
 	class:gold={tone === 'gold'}
 	aria-label={label}
 	aria-valuemax={max}
@@ -34,6 +36,10 @@
 		display: block;
 		block-size: 100%;
 		background: var(--color-fg);
+	}
+
+	.dim {
+		background: var(--color-tag);
 	}
 
 	.gold .fill {

@@ -1,10 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
+import { cached, forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
 	deleteGlossaryEntry,
 	loadGlossary,
 	loadGlossaryEntry,
+	loadTermDefinition,
+	loadTermDefinitions,
+	loadTermIndex,
 	saveGlossaryEntry
 } from './glossary-data.ts';
 import { glossaryErrorMessage } from '#lib/glossary/errors/errors.ts';
@@ -51,6 +55,12 @@ function chain(result: unknown): Record<string, ReturnType<typeof vi.fn>> {
 	return query;
 }
 
+async function keepsGlossaryCached(): Promise<boolean> {
+	const reload = vi.fn().mockResolvedValue({ entries: [], error: undefined });
+	await cached('glossary', reload);
+	return reload.mock.calls.length === 0;
+}
+
 const draft: GlossaryDraft = {
 	name: '  Tympanum ',
 	category: 'architecture',
@@ -66,6 +76,141 @@ const draft: GlossaryDraft = {
 		fetchedOn: '2026-10-17'
 	}
 };
+
+describe('loadTermIndex', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		forgetCached();
+	});
+
+	it('reads only the columns that mark the terms, once per session', async () => {
+		const query = chain({
+			data: [
+				{ ...row(), has_definition: true },
+				{ ...row({ id: 'other', category: 'music' }), has_definition: true }
+			],
+			error: null
+		});
+
+		const first = await loadTermIndex();
+		await loadTermIndex();
+
+		expect(query.select).toHaveBeenCalledWith(
+			'id, name, category, synonyms, forms, has_definition'
+		);
+		expect(query.select).toHaveBeenCalledOnce();
+		expect(first.terms).toEqual([
+			{
+				id: ID,
+				name: 'Tympanum',
+				category: 'architecture',
+				synonyms: ['tympan'],
+				forms: ['tympana'],
+				hasDefinition: true
+			}
+		]);
+	});
+
+	it('reads the index again after a glossary write', async () => {
+		const query = chain({ data: [], error: null });
+		await loadTermIndex();
+
+		await deleteGlossaryEntry(ID);
+		await loadTermIndex();
+
+		expect(query.range).toHaveBeenCalledTimes(2);
+	});
+});
+
+describe('loadTermDefinition', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		forgetCached();
+	});
+
+	it('reads the definition and the source of one term by id, once', async () => {
+		const query = chain({ data: row(), error: null });
+
+		const result = await loadTermDefinition(ID);
+		await loadTermDefinition(ID);
+
+		expect(query.select).toHaveBeenCalledWith(
+			'definition, source_title, source_url, source_licence, source_fetched_on'
+		);
+		expect(query.eq).toHaveBeenCalledWith('id', ID);
+		expect(query.maybeSingle).toHaveBeenCalledOnce();
+		expect(result).toEqual({
+			definition: 'A definition.',
+			source: {
+				title: 'Tympanum',
+				url: 'https://pl.wikipedia.org/wiki/Tympanum',
+				licence: 'CC BY-SA 4.0',
+				fetchedOn: '2026-10-17'
+			}
+		});
+	});
+
+	it('says when the term no longer exists', async () => {
+		chain({ data: null, error: null });
+
+		await expect(loadTermDefinition(ID)).resolves.toEqual({ notFound: true });
+	});
+
+	it('keeps no failed load, so the next opening tries again', async () => {
+		const query = chain({ data: null, error: { code: '500', message: 'boom' } });
+
+		await expect(loadTermDefinition(ID)).resolves.toEqual({
+			error: glossaryErrorMessage({ code: '500', message: 'boom' })
+		});
+		await loadTermDefinition(ID);
+
+		expect(query.maybeSingle).toHaveBeenCalledTimes(2);
+	});
+
+	it('forgets the definitions after a glossary write', async () => {
+		const query = chain({ data: row(), error: null });
+		await loadTermDefinition(ID);
+
+		await deleteGlossaryEntry(ID);
+		await loadTermDefinition(ID);
+
+		expect(query.maybeSingle).toHaveBeenCalledTimes(2);
+	});
+});
+
+describe('loadTermDefinitions', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it('reads the definitions of the given terms in one request', async () => {
+		const query = chain({ data: [{ id: ID, definition: 'A definition.' }], error: null });
+		query.in = vi
+			.fn()
+			.mockResolvedValue({ data: [{ id: ID, definition: 'A definition.' }], error: null });
+
+		const result = await loadTermDefinitions([ID, 'gone']);
+
+		expect(query.select).toHaveBeenCalledWith('id, definition');
+		expect(query.in).toHaveBeenCalledWith('id', [ID, 'gone']);
+		expect(result).toEqual({ definitions: new Map([[ID, 'A definition.']]) });
+	});
+
+	it('sends no request without terms', async () => {
+		await expect(loadTermDefinitions([])).resolves.toEqual({ definitions: new Map() });
+		expect(from).not.toHaveBeenCalled();
+	});
+
+	it('gives a message and no definitions when loading fails', async () => {
+		const query = chain({ data: null, error: { code: '500', message: 'boom' } });
+		query.in = vi.fn().mockResolvedValue({ data: null, error: { code: '500', message: 'boom' } });
+
+		await expect(loadTermDefinitions([ID])).resolves.toEqual({
+			definitions: new Map(),
+			error: glossaryErrorMessage({ code: '500', message: 'boom' })
+		});
+	});
+});
 
 describe('loadGlossary', () => {
 	beforeEach(() => {
@@ -101,6 +246,7 @@ describe('loadGlossary', () => {
 				definition: 'A definition.',
 				synonyms: ['tympan'],
 				forms: ['tympana'],
+				hasDefinition: true,
 				sortName: null,
 				source: {
 					title: 'Tympanum',
@@ -116,6 +262,7 @@ describe('loadGlossary', () => {
 				definition: '',
 				synonyms: ['tympan'],
 				forms: ['tympana'],
+				hasDefinition: false,
 				sortName: 'Tympanum, the',
 				source: null
 			}
@@ -223,6 +370,24 @@ describe('saveGlossaryEntry', () => {
 		expect(query.insert).toHaveBeenNthCalledWith(2, expect.objectContaining({ sort_name: null }));
 	});
 
+	it('forgets the cached glossary after a save', async () => {
+		chain({ data: { id: ID }, error: null });
+		await cached('glossary', async () => ({ entries: [], error: undefined }));
+
+		await saveGlossaryEntry(draft);
+
+		expect(await keepsGlossaryCached()).toBe(false);
+	});
+
+	it('keeps the cached glossary when a save fails', async () => {
+		chain({ data: null, error: { code: '23514' } });
+		await cached('glossary', async () => ({ entries: [], error: undefined }));
+
+		await saveGlossaryEntry(draft);
+
+		expect(await keepsGlossaryCached()).toBe(true);
+	});
+
 	it('says the name is taken when the unique name is violated', async () => {
 		chain({ data: null, error: { code: '23505' } });
 
@@ -263,10 +428,21 @@ describe('deleteGlossaryEntry', () => {
 		expect(query.eq).toHaveBeenCalledWith('id', ID);
 	});
 
-	it('gives a message when deleting fails', async () => {
+	it('forgets the cached glossary after a delete', async () => {
+		chain({ error: null });
+		await cached('glossary', async () => ({ entries: [], error: undefined }));
+
+		await deleteGlossaryEntry(ID);
+
+		expect(await keepsGlossaryCached()).toBe(false);
+	});
+
+	it('gives a message when deleting fails and keeps the cached glossary', async () => {
 		chain({ error: { code: '500' } });
+		await cached('glossary', async () => ({ entries: [], error: undefined }));
 
 		expect(await deleteGlossaryEntry(ID)).toEqual({ error: m.common.unexpectedError });
+		expect(await keepsGlossaryCached()).toBe(true);
 	});
 });
 

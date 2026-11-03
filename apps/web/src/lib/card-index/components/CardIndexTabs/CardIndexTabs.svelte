@@ -97,21 +97,23 @@
 </script>
 
 {#snippet adds(kinds: CategoryCode[])}
-	<div class="add">
-		{#each kinds as kind (kind)}
-			<Button href={newValuePath(kind)}>
-				<Icon icon={Plus} />
-				{m.cardIndex.add[kind]}
-			</Button>
-		{/each}
-	</div>
+	{#each kinds as kind (kind)}
+		<Button href={newValuePath(kind)}>
+			<Icon icon={Plus} />
+			{m.cardIndex.add[kind]}
+		</Button>
+	{/each}
+{/snippet}
+
+{#snippet periodAdds()}
+	{@render adds(['period', 'style'])}
 {/snippet}
 
 <Tabs label={m.cardIndex.tabsLabel} {tabs} bind:value={() => tab, chooseTab}>
 	{#if tab === 'timeline'}
 		<div class="tab">
-			{@render adds(['period', 'style'])}
 			<CardIndexTimeline
+				actions={periodAdds}
 				{timeline}
 				bind:query
 				bind:sort={() => sorts.timeline, (sort) => setSort('timeline', sort)}
@@ -119,10 +121,13 @@
 		</div>
 	{:else if tab === 'material' || tab === 'author' || tab === 'location'}
 		{@const kind = tab}
+		{#snippet kindAdds()}
+			{@render adds([kind])}
+		{/snippet}
 		{#key kind}
 			<div class="tab">
-				{@render adds([kind])}
 				<CardIndexList
+					actions={kindAdds}
 					empty={m.cardIndex.emptyList[kind]}
 					href={(id) => valuePath(kind, id)}
 					records={listed(kind)}
@@ -148,12 +153,5 @@
 	.tab {
 		display: grid;
 		gap: var(--spacing-6);
-	}
-
-	.add {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: flex-end;
-		gap: var(--spacing-3);
 	}
 </style>

@@ -12,7 +12,7 @@
 	import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 	import type { ValueSummaries } from '#lib/card-index/types/value-summaries.ts';
 	import { emptyValueSummaries } from '#lib/card-index/value-summaries/value-summaries.ts';
-	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import type { Mention } from '#lib/notes/types/mention.ts';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
 	import type { Pin as PinRecord } from '#lib/pins/types/pin.ts';
@@ -23,7 +23,7 @@
 		artwork: ArtworkRecord;
 		editHref: string;
 		noteLinks?: NoteLinks;
-		glossary?: GlossaryEntry[];
+		glossary?: GlossaryTerm[];
 		pins?: PinRecord[];
 		focusPin?: string;
 		mentions?: Mention[];

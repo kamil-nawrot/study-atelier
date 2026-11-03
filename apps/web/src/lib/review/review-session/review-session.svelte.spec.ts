@@ -41,8 +41,7 @@ function definition(name: string): DefinitionItem {
 			definition: `${name} is a part of a church.`,
 			synonyms: [],
 			forms: [],
-			sortName: null,
-			source: null
+			hasDefinition: true
 		},
 		quiz: { answer: 0, options: [name, 'Nave', 'Choir', 'Portal'].map((label) => ({ label })) }
 	};

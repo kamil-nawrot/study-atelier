@@ -645,6 +645,7 @@ export type Database = {
           created_at: string;
           definition: string | null;
           forms: string[];
+          has_definition: boolean | null;
           id: string;
           name: string;
           owner_id: string;
@@ -662,6 +663,7 @@ export type Database = {
           created_at?: string;
           definition?: string | null;
           forms?: string[];
+          has_definition?: never;
           id?: string;
           name: string;
           owner_id?: string;
@@ -678,6 +680,7 @@ export type Database = {
           created_at?: string;
           definition?: string | null;
           forms?: string[];
+          has_definition?: never;
           id?: string;
           name?: string;
           owner_id?: string;
@@ -776,6 +779,93 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "category_values";
             referencedColumns: ["id", "owner_id", "category_code"];
+          },
+        ];
+      };
+      note_links: {
+        Row: {
+          id: number;
+          owner_id: string;
+          source_artwork_id: string | null;
+          source_era_code: string | null;
+          source_value_id: string | null;
+          source_visit_id: string | null;
+          target_artwork_id: string | null;
+          target_era_code: string | null;
+          target_value_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          id?: never;
+          owner_id?: string;
+          source_artwork_id?: string | null;
+          source_era_code?: string | null;
+          source_value_id?: string | null;
+          source_visit_id?: string | null;
+          target_artwork_id?: string | null;
+          target_era_code?: string | null;
+          target_value_id?: string | null;
+        };
+        Update: {
+          id?: never;
+          owner_id?: string;
+          source_artwork_id?: string | null;
+          source_era_code?: string | null;
+          source_value_id?: string | null;
+          source_visit_id?: string | null;
+          target_artwork_id?: string | null;
+          target_era_code?: string | null;
+          target_value_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "note_links_source_artwork_fkey";
+            columns: ["source_artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "note_links_source_era_fkey";
+            columns: ["owner_id", "source_era_code"];
+            isOneToOne: false;
+            referencedRelation: "era_details";
+            referencedColumns: ["owner_id", "era_code"];
+          },
+          {
+            foreignKeyName: "note_links_source_value_fkey";
+            columns: ["source_value_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "note_links_source_visit_fkey";
+            columns: ["source_visit_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "visits";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "note_links_target_artwork_fkey";
+            columns: ["target_artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "note_links_target_era_code_fkey";
+            columns: ["target_era_code"];
+            isOneToOne: false;
+            referencedRelation: "eras";
+            referencedColumns: ["code"];
+          },
+          {
+            foreignKeyName: "note_links_target_value_fkey";
+            columns: ["target_value_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id"];
           },
         ];
       };
@@ -1277,6 +1367,14 @@ export type Database = {
           field_id: string;
         }[];
       };
+      career_standing: {
+        Args: { time_zone: string; unlock: boolean };
+        Returns: {
+          new_tiers: number;
+          points: number;
+          rank_seen: number;
+        }[];
+      };
       delete_account: { Args: Record<PropertyKey, never>; Returns: undefined };
       delete_unused_value: {
         Args: { target_value: string };
@@ -1305,6 +1403,40 @@ export type Database = {
       move_artwork_field: {
         Args: { direction: number; target_field: string };
         Returns: undefined;
+      };
+      note_link_labels: {
+        Args: {
+          artwork_number?: number;
+          era_code?: string;
+          value_id?: string;
+          visit_id?: string;
+        };
+        Returns: {
+          id: string;
+          kind: string;
+          record_number: number;
+          title: string;
+        }[];
+      };
+      note_link_mentions: {
+        Args: { artwork_number?: number; era_code?: string; value_id?: string };
+        Returns: {
+          id: string;
+          kind: string;
+          record_number: number;
+          title: string;
+        }[];
+      };
+      note_link_suggestions: {
+        Args: { link_trigger: string; phrase: string };
+        Returns: {
+          authors: string[];
+          id: string;
+          kind: string;
+          parents: string[];
+          record_number: number;
+          title: string;
+        }[];
       };
       notes_mentions: {
         Args: { needle?: string };
@@ -1414,6 +1546,16 @@ export type Database = {
           artwork_count: number;
           period_id: string;
           style_id: string;
+        }[];
+      };
+      term_mentions: {
+        Args: { needles: string[] };
+        Returns: {
+          id: string;
+          kind: string;
+          notes: string;
+          record_number: number;
+          title: string;
         }[];
       };
       unlock_exhibits: {

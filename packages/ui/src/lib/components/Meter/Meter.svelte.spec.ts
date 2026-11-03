@@ -33,4 +33,14 @@ describe('Meter', () => {
 		);
 		gold.remove();
 	});
+
+	it('lays a dim track under the fill when asked', async () => {
+		render(Meter, { value: 50, max: 100, label: 'Dzieła', track: 'dim' });
+
+		const meter = page.getByRole('meter', { name: 'Dzieła' }).element();
+		const tag = document.body.appendChild(document.createElement('span'));
+		tag.style.backgroundColor = 'var(--color-tag)';
+		expect(getComputedStyle(meter).backgroundColor).toBe(getComputedStyle(tag).backgroundColor);
+		tag.remove();
+	});
 });

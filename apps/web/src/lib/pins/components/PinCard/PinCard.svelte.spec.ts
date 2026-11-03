@@ -1,8 +1,15 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { testEntry } from '#lib/testing/glossary/glossary.ts';
 import PinCard from './PinCard.svelte';
+
+vi.mock('#lib/glossary/glossary-data/glossary-data.ts', async () => ({
+	loadTermDefinition: vi.fn(async () => ({
+		definition: 'Rose window is a test definition.',
+		source: null
+	}))
+}));
 
 const PIN = {
 	id: 'pin-1',
@@ -22,6 +29,7 @@ describe('PinCard', () => {
 
 		await expect.element(page.getByText('The rose window.')).toBeVisible();
 		await expect.element(page.getByText('Rose window', { exact: true })).toBeVisible();
+		await expect.element(page.getByText('Rose window is a test definition.')).toBeVisible();
 	});
 
 	it('shows only the text of a pin without a term', async () => {

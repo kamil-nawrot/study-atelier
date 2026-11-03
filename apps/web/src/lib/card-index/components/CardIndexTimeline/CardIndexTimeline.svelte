@@ -4,6 +4,7 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
 	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
+	import type { Snippet } from 'svelte';
 	import CardIndexTools from '#lib/card-index/components/CardIndexTools/CardIndexTools.svelte';
 	import { narrowTimeline } from '#lib/card-index/timeline-search/timeline-search.ts';
 	import { sortsOf, type CardIndexSort } from '#lib/card-index/card-index-sort/card-index-sort.ts';
@@ -15,9 +16,15 @@
 		timeline: CardIndexTimeline;
 		query?: string;
 		sort?: CardIndexSort;
+		actions?: Snippet;
 	};
 
-	let { timeline: full, query = $bindable(''), sort = $bindable('name') }: Props = $props();
+	let {
+		timeline: full,
+		query = $bindable(''),
+		sort = $bindable('name'),
+		actions
+	}: Props = $props();
 
 	let timeline = $derived(narrowTimeline(full, query, sort));
 	let isEmpty = $derived(!filled(full));
@@ -62,10 +69,14 @@
 {/snippet}
 
 {#if isEmpty}
+	{#if actions}
+		<div class="solo">{@render actions()}</div>
+	{/if}
 	<EmptyState icon={ListTree} text={m.cardIndex.emptyTimeline} />
 {:else}
 	<div class="timeline">
 		<CardIndexTools
+			{actions}
 			searchLabel={m.cardIndex.search.timeline}
 			sorts={sortsOf('timeline')}
 			bind:query
@@ -123,6 +134,13 @@
 {/if}
 
 <style>
+	.solo {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+		gap: var(--spacing-3);
+	}
+
 	.timeline {
 		display: grid;
 		gap: var(--spacing-6);

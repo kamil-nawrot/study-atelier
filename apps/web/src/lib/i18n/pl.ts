@@ -210,8 +210,8 @@ export const pl = {
 		timeline: 'Kalendarium',
 		chronicle: 'Kronika',
 		review: 'Powtórki',
-		displayCase: 'Gablota',
-		displayCaseNew: 'Gablota, nowe',
+		displayCase: 'Ekspozycja',
+		displayCaseNew: 'Ekspozycja, nowe',
 		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
 		trash: 'Archiwum',
 		settings: 'Ustawienia',
@@ -310,7 +310,7 @@ export const pl = {
 			kindsHint: 'Zostaw zaznaczony przynajmniej jeden rodzaj.',
 			glossaryQuestions: 'Ile pytań dodatkowych ze Słowniczka dołączać do sesji?',
 			free: 'Proponuj powtórkę swobodną po skończonym dniu',
-			careerShown: 'Pokazuj stopień i Gablotę',
+			careerShown: 'Pokazuj stopień i Ekspozycję',
 			careerShownHint: 'Punkty i eksponaty liczą się dalej, także gdy są ukryte.',
 			showPins: 'Pokazuj pinezki od razu po otwarciu dzieła',
 			loupe: 'Włączaj lupę od razu po otwarciu dzieła',
@@ -1172,7 +1172,10 @@ export const pl = {
 		},
 		card: {
 			source: 'Na podstawie Wikipedii, CC BY-SA 4.0',
-			open: 'Otwórz w Słowniczku'
+			open: 'Otwórz w Słowniczku',
+			loading: 'Wczytuję definicję…',
+			failed: 'Nie udało się wczytać definicji. Spróbuj otworzyć ją jeszcze raz.',
+			deleted: 'Tego hasła nie ma już w Słowniczku.'
 		},
 		view: {
 			also: (forms: string): string => `też: ${forms}`,
@@ -1261,9 +1264,9 @@ export const pl = {
 		}
 	},
 	career: {
-		title: 'Gablota',
+		title: 'Ekspozycja',
 		lead: 'Sala z eksponatami, które udało Ci się zgromadzić, rozwijając swoje atelier. Każdy eksponat pokazuje Twoje postępy w innej dziedzinie nauki i kolekcjonowania. Niektóre są ukryte i odsłonią się dopiero wtedy, gdy spełnisz warunek ukryty w zagadce.',
-		loadErrorTitle: 'Nie udało się wczytać Gabloty',
+		loadErrorTitle: 'Nie udało się wczytać Ekspozycji',
 		tier: (tier: string, total: string): string => `Poziom ${tier} z ${total}`,
 		new: 'Nowe',
 		tierDate: (tier: string, date: string): string => `Poziom ${tier} · ${date}`,
@@ -1429,7 +1432,7 @@ export const pl = {
 				count: counter('epok w Twoich dziełach')
 			},
 			memory: {
-				name: 'Święty Hieronim w pracowni',
+				name: 'Pracownia Świętego Hieronima',
 				about:
 					'Dürer wyrył uczonego pogrążonego w lekturze w 1514 roku, w tym samym roku co „Melancholię I”.',
 				count: counter('dzieł utrwalonych w pamięci')
@@ -1441,7 +1444,7 @@ export const pl = {
 				count: counter('dni', 'najdłuższa seria: ')
 			},
 			back_from_storage: {
-				name: 'Mona Lisa po powrocie',
+				name: 'Mona Lisa',
 				about: 'Mona Lisa zniknęła z Luwru w 1911 roku i wróciła tam po ponad dwóch latach.',
 				hint: 'Zdarza się, że dzieło wypada z pamięci, a potem do niej wraca.',
 				awarded: 'Za dzieło zapomniane i utrwalone na nowo.'

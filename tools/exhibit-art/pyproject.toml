@@ -1,0 +1,25 @@
+[project]
+name = "exhibit-art"
+version = "0.1.0"
+description = "Turns an engraving into the tier images of a display case exhibit."
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.26", "scipy>=1.11", "pillow>=10.0"]
+
+[project.optional-dependencies]
+test = ["pytest>=8.0"]
+
+[project.scripts]
+exhibit-art = "exhibit_art.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["exhibit_art"]
+
+[tool.setuptools.package-data]
+exhibit_art = ["tiers.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

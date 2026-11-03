@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import ListTree from '@lucide/svelte/icons/list-tree';
 	import { EmptyState } from '@study-atelier/ui';
 	import CardIndexTools from '#lib/card-index/components/CardIndexTools/CardIndexTools.svelte';
@@ -22,6 +23,7 @@
 		sort?: CardIndexSort;
 		href?: (id: string) => ResolvedPathname;
 		onchoose?: (id: string) => void;
+		actions?: Snippet;
 	};
 
 	let {
@@ -32,7 +34,8 @@
 		sorts = [],
 		sort = $bindable('name'),
 		href,
-		onchoose
+		onchoose,
+		actions
 	}: Props = $props();
 
 	let term = $derived(normalizeForSearch(query));
@@ -51,10 +54,13 @@
 {/snippet}
 
 {#if records.length === 0}
+	{#if actions}
+		<div class="solo">{@render actions()}</div>
+	{/if}
 	<EmptyState icon={ListTree} text={empty} />
 {:else}
 	<div class="listing">
-		<CardIndexTools {searchLabel} {sorts} bind:query bind:sort />
+		<CardIndexTools {actions} {searchLabel} {sorts} bind:query bind:sort />
 		{#if matching.length === 0}
 			<p class="lead">{m.cardIndex.noResults(query.trim())}</p>
 		{/if}
@@ -92,6 +98,13 @@
 {/if}
 
 <style>
+	.solo {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+		gap: var(--spacing-3);
+	}
+
 	.listing {
 		display: grid;
 		gap: var(--spacing-6);

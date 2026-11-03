@@ -62,6 +62,34 @@ describe('cached', () => {
 		expect(load).toHaveBeenCalledTimes(2);
 	});
 
+	it('forgets only the keys a write names and what is kept under them', async () => {
+		const atelier = vi.fn().mockResolvedValue({ rows: [] });
+		const glossary = vi.fn().mockResolvedValue({ entries: [] });
+		const term = vi.fn().mockResolvedValue({ entry: {} });
+
+		await cached('atelier', atelier);
+		await cached('glossary', glossary);
+		await cached('glossary:term-1', term);
+		forgetCached(['glossary']);
+		await cached('atelier', atelier);
+		await cached('glossary', glossary);
+		await cached('glossary:term-1', term);
+
+		expect(atelier).toHaveBeenCalledTimes(1);
+		expect(glossary).toHaveBeenCalledTimes(2);
+		expect(term).toHaveBeenCalledTimes(2);
+	});
+
+	it('does not take a key that only starts like a forgotten one', async () => {
+		const load = vi.fn().mockResolvedValue({ rows: [] });
+
+		await cached('card-index', load);
+		forgetCached(['atelier', 'category-values']);
+		await cached('card-index', load);
+
+		expect(load).toHaveBeenCalledTimes(1);
+	});
+
 	it('tells the listeners of writes that something was written', () => {
 		const listener = vi.fn();
 		const stop = onWrite(listener);
@@ -172,6 +200,36 @@ describe('watchCache', () => {
 		await cached('atelier', load);
 
 		expect(load).toHaveBeenCalledTimes(2);
+	});
+
+	it('forgets only the keys another tab names', async () => {
+		const atelier = vi.fn().mockResolvedValue({ rows: [] });
+		const glossary = vi.fn().mockResolvedValue({ entries: [] });
+		await cached('atelier', atelier);
+		await cached('glossary', glossary);
+		const other = new BroadcastChannel('study-atelier:data-cache');
+
+		other.postMessage({ keys: ['glossary'] });
+		await vi.waitFor(async () => {
+			await cached('glossary', glossary);
+			expect(glossary).toHaveBeenCalledTimes(2);
+		});
+		await cached('atelier', atelier);
+		expect(atelier).toHaveBeenCalledTimes(1);
+		other.close();
+	});
+
+	it('forgets everything when another tab names no keys', async () => {
+		const load = vi.fn().mockResolvedValue({ rows: [] });
+		await cached('atelier', load);
+		const other = new BroadcastChannel('study-atelier:data-cache');
+
+		other.postMessage({});
+		await vi.waitFor(async () => {
+			await cached('atelier', load);
+			expect(load).toHaveBeenCalledTimes(2);
+		});
+		other.close();
 	});
 
 	it('forgets the answers when another tab writes', async () => {

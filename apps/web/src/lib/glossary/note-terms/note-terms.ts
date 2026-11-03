@@ -1,9 +1,9 @@
 import type { NoteTerm } from '@study-atelier/ui';
-import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 
-export function noteTermsOf(entries: GlossaryEntry[]): NoteTerm[] {
-	return entries.map((entry) => ({
-		id: entry.id,
-		phrases: [entry.name, ...entry.synonyms, ...entry.forms]
+export function noteTermsOf(terms: readonly GlossaryTerm[]): NoteTerm[] {
+	return terms.map((term) => ({
+		id: term.id,
+		phrases: [term.name, ...term.synonyms, ...term.forms]
 	}));
 }

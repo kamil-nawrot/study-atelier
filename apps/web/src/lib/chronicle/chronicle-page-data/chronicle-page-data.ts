@@ -1,10 +1,10 @@
 import { loadVisit, loadVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
-import { loadGlossary } from '#lib/glossary/glossary-data/glossary-data.ts';
-import { loadNoteLinks, mentionsLinks } from '#lib/notes/note-link-data/note-link-data.ts';
-import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
+import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { loadNoteLinkLabels, mentionsLinks } from '#lib/notes/note-link-data/note-link-data.ts';
+import { loadArtworksById, loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
 import type { NoteLinks } from '@study-atelier/ui';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import type { Visit } from '#lib/chronicle/types/visit.ts';
 import type { VisitResult } from '#lib/chronicle/types/visit-result.ts';
 
@@ -18,7 +18,7 @@ type VisitPageData = VisitResult & {
 	artworks: WallArtwork[];
 	artworksError?: string;
 	noteLinks?: NoteLinks;
-	glossary?: GlossaryEntry[];
+	glossary?: GlossaryTerm[];
 };
 
 export async function loadChronicle(): Promise<ChronicleData> {
@@ -35,15 +35,15 @@ export async function loadVisitPage(id: string): Promise<VisitPageData> {
 	if (!result.visit) return { ...result, artworks: [] };
 	const notes = result.visit.notes;
 	const [atelier, noteLinks, glossary] = await Promise.all([
-		result.visit.artworkIds.length > 0 ? loadAtelier() : undefined,
-		mentionsLinks(notes) ? loadNoteLinks() : undefined,
-		notes ? loadGlossary() : undefined
+		result.visit.artworkIds.length > 0 ? loadArtworksById(result.visit.artworkIds) : undefined,
+		mentionsLinks(notes) ? loadNoteLinkLabels({ visitId: id }) : undefined,
+		notes ? loadTermIndex() : undefined
 	]);
 	return {
 		...result,
 		artworks: atelier?.artworks ?? [],
 		artworksError: atelier?.error,
 		noteLinks,
-		glossary: glossary?.entries
+		glossary: glossary?.terms
 	};
 }

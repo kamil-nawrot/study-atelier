@@ -15,3 +15,5 @@
 <Story name="Full" args={{ value: 200, label: 'Twoje zdjęcia zajmują 200 MB z 200 MB.' }} />
 
 <Story name="Gold" args={{ value: 846, max: 1000, label: 'Znawca', tone: 'gold' }} />
+
+<Story name="Dim track" args={{ value: 191, max: 250, label: 'Dzieła w atelier', track: 'dim' }} />

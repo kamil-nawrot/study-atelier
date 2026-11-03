@@ -1,15 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
-import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
-import { definitionItems, definitionsOffered, withDefinitions } from './definitions.ts';
+import type { DefinedTerm } from '#lib/review/types/defined-term.ts';
+import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
+import {
+	definitionItems,
+	definitionsOffered,
+	drawnTerms,
+	withDefinitions,
+	withDefinitionsOf
+} from './definitions.ts';
 
 function entry(
 	name: string,
 	category: GlossaryCategory,
 	definition = `About ${name}.`
-): GlossaryEntry {
+): DefinedTerm {
 	return {
 		id: name,
 		name,
@@ -17,9 +24,17 @@ function entry(
 		definition,
 		synonyms: [],
 		forms: [],
-		sortName: null,
-		source: null
+		hasDefinition: definition.trim() !== ''
 	};
+}
+
+function drawnItems(count: number, random: () => number = Math.random): DefinitionItem[] {
+	const drawn = drawnTerms(glossary, count, random);
+	return definitionItems(
+		withDefinitionsOf(drawn, new Map(glossary.map((term) => [term.id, term.definition]))),
+		glossary,
+		random
+	);
 }
 
 const glossary = [
@@ -51,9 +66,32 @@ describe('definitionsOffered', () => {
 	});
 });
 
+describe('drawnTerms', () => {
+	it('draws the asked number of terms with a definition', () => {
+		const drawn = drawnTerms([...glossary, entry('Portal', 'architecture', '')], 10, () => 0);
+
+		expect(drawn).toHaveLength(6);
+		expect(drawn.every((term) => term.hasDefinition)).toBe(true);
+	});
+
+	it('draws nothing with fewer than four defined terms', () => {
+		expect(drawnTerms(glossary.slice(0, 3), 2)).toEqual([]);
+	});
+});
+
+describe('withDefinitionsOf', () => {
+	it('gives the drawn terms their definitions and leaves out a term that has none any more', () => {
+		const drawn = glossary.slice(0, 2);
+
+		expect(withDefinitionsOf(drawn, new Map([['Apse', 'A recess.']]))).toEqual([
+			{ ...glossary[0], definition: 'A recess.' }
+		]);
+	});
+});
+
 describe('definitionItems', () => {
-	it('draws the asked number of terms with three other terms of the same category first', () => {
-		const drawn = definitionItems(glossary, 2, () => 0);
+	it('asks about each drawn term with three other terms of the same category first', () => {
+		const drawn = drawnItems(2, () => 0);
 
 		expect(drawn).toHaveLength(2);
 		for (const item of drawn) {
@@ -65,15 +103,11 @@ describe('definitionItems', () => {
 			}
 		}
 	});
-
-	it('draws nothing with fewer than four defined terms', () => {
-		expect(definitionItems(glossary.slice(0, 3), 2)).toEqual([]);
-	});
 });
 
 describe('withDefinitions', () => {
 	it('never puts a definition first and keeps every artwork in order', () => {
-		const definitions = definitionItems(glossary, 3, () => 0);
+		const definitions = drawnItems(3, () => 0);
 		const steps = withDefinitions(items(4), definitions, () => 0);
 
 		expect(steps).toHaveLength(7);
@@ -84,6 +118,6 @@ describe('withDefinitions', () => {
 	});
 
 	it('adds nothing to an empty session', () => {
-		expect(withDefinitions([], definitionItems(glossary, 2))).toEqual([]);
+		expect(withDefinitions([], drawnItems(2))).toEqual([]);
 	});
 });

@@ -4,17 +4,17 @@ import { emptyPlaceStarter } from '#lib/card-index/place-starter/place-starter.t
 import { loadPlaceStarter } from '#lib/card-index/place-starter-data/place-starter-data.ts';
 import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
 import { loadValueLinks } from '#lib/card-index/value-links-data/value-links-data.ts';
-import { loadGlossary } from '#lib/glossary/glossary-data/glossary-data.ts';
-import { loadNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
-import { cached } from '#lib/shared/data/data-cache/data-cache.ts';
+import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { loadEditorNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
+import { cacheKeys, cached } from '#lib/shared/data/data-cache/data-cache.ts';
 import type { CategoryValues } from '#lib/card-index/types/category-values.ts';
 import type { PlaceStarter } from '#lib/card-index/types/place-starter.ts';
 import type { ValueLinks } from '#lib/card-index/types/value-links.ts';
-import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import type { NoteLinks } from '@study-atelier/ui';
 
 type Preloaded = {
-	glossary?: GlossaryEntry[];
+	glossary?: GlossaryTerm[];
 	noteLinks?: NoteLinks;
 };
 
@@ -23,7 +23,7 @@ export class FormSuggestions {
 	ownValues = $state.raw<Record<string, string[]>>({});
 	valueLinks = $state.raw<ValueLinks>(emptyValueLinks());
 	placeStarter = $state.raw<PlaceStarter>(emptyPlaceStarter());
-	glossary = $state.raw<GlossaryEntry[]>([]);
+	glossary = $state.raw<GlossaryTerm[]>([]);
 	noteLinks = $state.raw<NoteLinks>();
 
 	#loading: Promise<void> | undefined;
@@ -40,17 +40,17 @@ export class FormSuggestions {
 
 	async #loadAll(): Promise<void> {
 		const [categories, linked, starter, glossary, noteLinks] = await Promise.all([
-			cached('category-values', loadCategoryValues),
-			cached('value-links', loadValueLinks),
+			cached(cacheKeys.categoryValues, loadCategoryValues),
+			cached(cacheKeys.valueLinks, loadValueLinks),
 			loadPlaceStarter(),
-			cached('glossary', loadGlossary),
-			this.noteLinks ?? loadNoteLinks()
+			loadTermIndex(),
+			this.noteLinks ?? loadEditorNoteLinks()
 		]);
 		this.categoryValues = categories.values;
 		this.ownValues = categories.ownValues;
 		this.valueLinks = linked.links;
 		this.placeStarter = starter;
-		if (!glossary.error) this.glossary = glossary.entries;
+		if (!glossary.error) this.glossary = glossary.terms;
 		this.noteLinks = noteLinks;
 		if (categories.error || linked.error || glossary.error || !noteLinks) this.#loading = undefined;
 	}

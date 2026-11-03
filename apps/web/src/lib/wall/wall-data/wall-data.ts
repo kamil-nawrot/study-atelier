@@ -2,7 +2,7 @@ import { IMAGES_BUCKET, SIGNED_URL_SECONDS, ownThumbnailPath } from '#lib/images
 import { fetchCommonsThumbnails } from '#lib/images/commons/commons.ts';
 import { backfillThumbnails } from '#lib/images/thumbnail-backfill/thumbnail-backfill.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
-import { cached } from '#lib/shared/data/data-cache/data-cache.ts';
+import { cacheKeys, cached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
 	authorSortNamesOf,
@@ -216,25 +216,61 @@ export async function refreshExpiredImages(
 }
 
 export async function loadAtelier(): Promise<AtelierResult> {
-	const atelier = await cached('atelier', fetchAtelier);
+	const atelier = await cached(cacheKeys.atelier, fetchAtelier);
 	if (atelier.error) return atelier;
 	return {
 		artworks: atelier.artworks.map((artwork) => rememberedArtwork(artwork) ?? artwork)
 	};
 }
 
-async function fetchAtelier(): Promise<AtelierResult> {
-	const { rows, error } = await fetchAllRows((from, to) =>
-		supabase
+type WallFilter = { ids: readonly string[] } | { eraCode: string } | { valueId: string };
+
+function fetchWallRows(filter?: WallFilter): Promise<{ rows: ArtworkRow[]; error?: string }> {
+	return fetchAllRows((from, to) => {
+		const byValue = filter && 'valueId' in filter;
+		const query = supabase
 			.from('artworks')
-			.select(ARTWORK_COLUMNS)
+			.select(
+				byValue ? `${ARTWORK_COLUMNS}, valued:artwork_values!inner(value_id)` : ARTWORK_COLUMNS
+			);
+		const filtered = !filter
+			? query
+			: 'ids' in filter
+				? query.in('id', [...filter.ids])
+				: 'eraCode' in filter
+					? query.eq('era_code', filter.eraCode)
+					: query.eq('valued.value_id', filter.valueId);
+		return filtered
 			.eq('artwork_images.position', 0)
 			.is('deleted_at', null)
 			.order('created_at', { ascending: false })
 			.order('id', { ascending: false })
 			.limit(1, { referencedTable: 'visit_artworks' })
-			.range(from, to)
-	);
+			.range(from, to);
+	});
+}
+
+async function loadWall(filter: WallFilter): Promise<AtelierResult> {
+	const { rows, error } = await fetchWallRows(filter);
+	if (error) return { artworks: [], error };
+	return {
+		artworks: rows.map(wallArtwork).map((artwork) => rememberedArtwork(artwork) ?? artwork)
+	};
+}
+
+export function loadArtworksOfValue(
+	value: { eraCode: string } | { valueId: string }
+): Promise<AtelierResult> {
+	return loadWall(value);
+}
+
+export async function loadArtworksById(ids: readonly string[]): Promise<AtelierResult> {
+	if (ids.length === 0) return { artworks: [] };
+	return loadWall({ ids });
+}
+
+async function fetchAtelier(): Promise<AtelierResult> {
+	const { rows, error } = await fetchWallRows();
 	if (error) return { artworks: [], error };
 
 	return { artworks: rows.map(wallArtwork) };

@@ -21,7 +21,7 @@
 	import type { ImageFieldTexts } from '#lib/images/types/image-field-texts.ts';
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 	import ImageField from '#lib/images/components/ImageField/ImageField.svelte';
-	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import PinLayer from '#lib/pins/components/PinLayer/PinLayer.svelte';
 	import { pinsOfImage } from '#lib/pins/pin-layout/pin-layout.ts';
 	import type { Pin } from '#lib/pins/types/pin.ts';
@@ -37,7 +37,7 @@
 		images: (ArtworkImageInput | null)[];
 		autoMatch?: boolean;
 		pins?: Pin[];
-		entries?: readonly GlossaryEntry[];
+		entries?: readonly GlossaryTerm[];
 		pinsError?: string;
 		onmatching?: (matching: boolean) => void;
 	};

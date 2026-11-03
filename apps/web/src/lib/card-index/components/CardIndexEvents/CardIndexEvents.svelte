@@ -15,32 +15,20 @@
 	let { entries, query = $bindable(''), sort = $bindable('name') }: Props = $props();
 </script>
 
-<div class="events">
-	<div class="add">
-		<Button href={resolve('/(app)/atelier/timeline/events/new')}>
-			<Icon icon={Plus} />
-			{m.cardIndex.eventsAdd}
-		</Button>
-	</div>
-	<CardIndexList
-		empty={m.cardIndex.emptyEvents}
-		href={(id) => resolve('/(app)/atelier/timeline/events/[id]/edit', { id })}
-		records={entries}
-		searchLabel={m.cardIndex.search.events}
-		sorts={sortsOf('events')}
-		bind:query
-		bind:sort
-	/>
-</div>
+{#snippet adds()}
+	<Button href={resolve('/(app)/atelier/timeline/events/new')}>
+		<Icon icon={Plus} />
+		{m.cardIndex.eventsAdd}
+	</Button>
+{/snippet}
 
-<style>
-	.events {
-		display: grid;
-		gap: var(--spacing-6);
-	}
-
-	.add {
-		display: flex;
-		justify-content: flex-end;
-	}
-</style>
+<CardIndexList
+	actions={adds}
+	empty={m.cardIndex.emptyEvents}
+	href={(id) => resolve('/(app)/atelier/timeline/events/[id]/edit', { id })}
+	records={entries}
+	searchLabel={m.cardIndex.search.events}
+	sorts={sortsOf('events')}
+	bind:query
+	bind:sort
+/>
