@@ -2,6 +2,28 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.17.0] - 2026-11-03
+
+The data model refactor is finished: the views ask the database for fewer and lighter requests, and nothing reloads on a token refresh.
+
+### Changed
+
+- Opening an artwork reads in advance only the record of the next artwork of the wall, not its whole page, so an opening costs 14 requests instead of 18 and flipping forward still shows the next record at once.
+- The card index loads with one database call, the settings ask once whether the atelier is empty, and a review session builds its facts in one query (about 1.2 s down to under 0.15 s on a large collection).
+- Pages no longer reload when the session token refreshes, own images on the wall and in the settings are signed in one batch, the own fields, era summaries and museums stay in memory between views, and Commons thumbnails are remembered on the device for a week.
+- The artworks of a glossary term or a visit are filtered in the database, the labels of note links load as soon as the note does, and a search for a link stops when the learner types on.
+- Saving the details of an era, a period, a style or a material no longer reloads the wall and the card index.
+- Internal: the foreign keys used by deletes have indexes, the rule that a view takes its narrowing parameter to the database is in the conventions, the scale seed runs in under 30 s, and a code review of the version with its fixes.
+
+### Fixed
+
+- A note with more than 200 links keeps its first 200 rather than an arbitrary set.
+- Merging two values also rewrites a link to the merged value written in upper case.
+
+### Migrations run on production
+
+6 migrations run on production with this release. `20261103120000_card_index_function` and `20261103130000_atelier_empty_function` add the functions `card_index` and `atelier_empty`. `20261103140000_review_session_facts` replaces `review_session` with the same signature. `20261103150000_index_foreign_keys_drop_portrait_source` adds foreign key indexes, replaces `save_value_details` with the same signature and drops the unused column `author_details.own_image_source_url` (empty on production). `20261103160000_drop_notes_mentions` drops `notes_mentions`, which the app has not called since 0.16. `20261103170000_order_note_links_and_merge_any_case` replaces `private.note_link_targets` and `merge_category_values` with the same signatures. Nothing the 0.16 app calls is dropped or changed in signature.
+
 ## [0.16.0] - 2026-11-03
 
 The app asks the database for less: views load only the rows they show, links in notes are stored as rows, and the display case gets its final name.
@@ -670,4 +692,5 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.13.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.13.1
 [0.14.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.14.0
 [0.15.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.15.0
+[0.17.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.17.0
 [0.16.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.16.0
