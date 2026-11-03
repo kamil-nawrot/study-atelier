@@ -5,7 +5,7 @@ import { parseRecordNumber } from '#lib/catalogue/record-number/record-number.ts
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
 import { loadOwnFieldDefinitions } from '#lib/card-index/own-fields-data/own-fields-data.ts';
 import { loadValueSummaries } from '#lib/card-index/value-summaries-data/value-summaries-data.ts';
-import { loadNoteLinks, mentionsLinks } from '#lib/notes/note-link-data/note-link-data.ts';
+import { loadNoteLinkLabels, mentionsLinks } from '#lib/notes/note-link-data/note-link-data.ts';
 import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
@@ -19,7 +19,10 @@ export const load: PageLoad = async ({ params, parent }): Promise<LoadArtworkRes
 	const [result, mentions, summaries, own, layout, loadedPins, loadedGlossary, seen] =
 		await Promise.all([
 			loadArtwork(number),
-			loadMentions(resolve('/(app)/atelier/[number]', { number: params.number })),
+			loadMentions(
+				{ artworkNumber: number },
+				resolve('/(app)/atelier/[number]', { number: String(number) })
+			),
 			loadValueSummaries(number),
 			loadOwnFieldDefinitions(),
 			parent(),
@@ -56,6 +59,6 @@ export const load: PageLoad = async ({ params, parent }): Promise<LoadArtworkRes
 		pinsError,
 		ownFields,
 		preferences,
-		noteLinks: await loadNoteLinks()
+		noteLinks: await loadNoteLinkLabels({ artworkNumber: number })
 	};
 };

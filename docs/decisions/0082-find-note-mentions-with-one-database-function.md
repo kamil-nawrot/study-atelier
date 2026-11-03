@@ -1,6 +1,6 @@
 # 0082. Find note mentions with one database function
 
-- Status: accepted
+- Status: superseded by [0168](0168-read-note-mentions-and-link-labels-from-stored-links.md)
 - Date: 2026-10-17
 
 ## Context and problem statement

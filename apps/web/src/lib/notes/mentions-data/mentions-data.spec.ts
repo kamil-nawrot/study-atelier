@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
+import { valueKindName } from '#lib/card-index/value-pages/value-pages.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
 import {
 	artworkNote,
 	mockNotesMentions,
@@ -19,29 +19,49 @@ describe('loadMentions', () => {
 
 	it('lists the values and the artworks whose notes link to the page', async () => {
 		mockNotesMentions([
-			valueNote('author', 'author-phidias', 'Built in [Doric](/atelier/values/style/style-doric).'),
-			artworkNote(3, 'Doric temple', 'See [x](/atelier/values/style/style-doric).')
+			valueNote('author', 'author-phidias', '', 'Phidias'),
+			artworkNote(3, 'Doric temple', '')
 		]);
 
-		const mentions = await loadMentions('/atelier/values/style/style-doric', testCardIndex());
+		const mentions = await loadMentions(
+			{ valueId: 'style-doric' },
+			'/atelier/values/style/style-doric'
+		);
 
 		expect(supabase.rpc).toHaveBeenCalledTimes(1);
-		expect(supabase.rpc).toHaveBeenCalledWith('notes_mentions', {
-			needle: '](/atelier/values/style/style-doric)'
-		});
+		expect(supabase.rpc).toHaveBeenCalledWith('note_link_mentions', { value_id: 'style-doric' });
 		expect(mentions).toEqual([
-			{ href: '/atelier/values/author/author-phidias', name: 'Phidias', kind: 'Autor' },
+			{
+				href: '/atelier/values/author/author-phidias',
+				name: 'Phidias',
+				kind: valueKindName('author')
+			},
 			{ href: '/atelier/3', name: '#0003 Doric temple', kind: m.mentions.artwork }
+		]);
+	});
+
+	it('names an era from the app texts', async () => {
+		mockNotesMentions([valueNote('era', 'antiquity', '')]);
+
+		const mentions = await loadMentions({ artworkNumber: 12 }, '/atelier/12');
+
+		expect(supabase.rpc).toHaveBeenCalledWith('note_link_mentions', { artwork_number: 12 });
+		expect(mentions).toEqual([
+			{
+				href: '/atelier/values/era/antiquity',
+				name: m.eras.antiquity.name,
+				kind: valueKindName('era')
+			}
 		]);
 	});
 
 	it('lists the visits whose notes link to the page after the artworks', async () => {
 		mockNotesMentions([
-			visitNote('visit-1', 'Louvre · 12.10.2026', 'Przed [#0012](/atelier/12).'),
-			artworkNote(3, 'Doric temple', 'See [x](/atelier/12).')
+			visitNote('visit-1', 'Louvre · 12.10.2026', ''),
+			artworkNote(3, 'Doric temple', '')
 		]);
 
-		const mentions = await loadMentions('/atelier/12');
+		const mentions = await loadMentions({ artworkNumber: 12 }, '/atelier/12');
 
 		expect(mentions).toEqual([
 			{ href: '/atelier/3', name: '#0003 Doric temple', kind: m.mentions.artwork },
@@ -53,28 +73,26 @@ describe('loadMentions', () => {
 		]);
 	});
 
-	it('does not match a longer record number or the page itself', async () => {
+	it('leaves out the page itself', async () => {
 		mockNotesMentions([
-			artworkNote(5, 'Other', 'See [x](/atelier/120).'),
-			artworkNote(6, 'Linking', 'See [x](/atelier/12).'),
-			artworkNote(12, 'Itself', 'See [x](/atelier/12).')
+			artworkNote(6, 'Linking', ''),
+			artworkNote(12, 'Itself', ''),
+			valueNote('era', 'modern', '')
 		]);
 
-		const mentions = await loadMentions('/atelier/12');
+		const artwork = await loadMentions({ artworkNumber: 12 }, '/atelier/12');
+		const era = await loadMentions({ eraCode: 'modern' }, '/atelier/values/era/modern');
 
-		expect(mentions.map((mention) => mention.href)).toEqual(['/atelier/6']);
+		expect(artwork.map((mention) => mention.href)).toEqual([
+			'/atelier/values/era/modern',
+			'/atelier/6'
+		]);
+		expect(era.map((mention) => mention.href)).toEqual(['/atelier/6', '/atelier/12']);
 	});
 
-	it('gives nothing when no note links there, without loading the card index', async () => {
-		mockNotesMentions([]);
-
-		await expect(loadMentions('/atelier/12')).resolves.toEqual([]);
-		expect(supabase.rpc).toHaveBeenCalledTimes(1);
-	});
-
-	it('gives nothing when the search fails', async () => {
+	it('gives nothing when the read fails', async () => {
 		mockNotesMentions([], { message: 'failed' });
 
-		await expect(loadMentions('/atelier/12')).resolves.toEqual([]);
+		await expect(loadMentions({ artworkNumber: 12 }, '/atelier/12')).resolves.toEqual([]);
 	});
 });

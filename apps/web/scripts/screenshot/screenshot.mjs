@@ -346,6 +346,72 @@ function termMentions(needles) {
 		.filter((row) => phrases.some((phrase) => row.notes.toLowerCase().includes(phrase)));
 }
 
+const LINK_PATTERN = /\]\(\/atelier\/(?:(\d{1,9})|values\/([a-z]+)\/([A-Za-z0-9_-]+))\)/g;
+
+function linkTargets(notes) {
+	return [...(notes ?? '').matchAll(LINK_PATTERN)].map(([, number, kind, id]) =>
+		number ? { kind: 'artwork', number: Number(number) } : { kind, id }
+	);
+}
+
+function linkingNotes() {
+	const names = new Map(VALUE_USAGE.map((value) => [value.id, value.name]));
+	const visits = VISITS.map((row) => ({
+		kind: 'visit',
+		id: row.id,
+		record_number: null,
+		title: `${row.category_values.name} · ${row.visited_on.split('-').reverse().join('.')}`,
+		notes: row.notes
+	}));
+	return [...notesMentions(undefined), ...visits].map((row) =>
+		row.kind === 'artwork' || row.kind === 'visit'
+			? row
+			: { ...row, title: names.get(row.id) ?? null }
+	);
+}
+
+function linksTo(target, args) {
+	if (args.artwork_number !== undefined) return target.number === args.artwork_number;
+	if (args.value_id !== undefined) return target.kind !== 'era' && target.id === args.value_id;
+	return target.kind === 'era' && target.id === args.era_code;
+}
+
+function noteLinkMentions(args) {
+	return linkingNotes()
+		.filter((row) => row.notes && linkTargets(row.notes).some((target) => linksTo(target, args)))
+		.map(({ kind, id, record_number, title }) => ({ kind, id, record_number, title }));
+}
+
+function noteLinkLabels(args) {
+	const source = linkingNotes().find((row) =>
+		args.artwork_number !== undefined
+			? row.record_number === args.artwork_number
+			: row.id === (args.value_id ?? args.era_code ?? args.visit_id)
+	);
+	const names = new Map(VALUE_USAGE.map((value) => [value.id, value]));
+	return linkTargets(source?.notes).flatMap((target) => {
+		if (target.kind === 'artwork') {
+			const artwork = ARTWORKS.find((row) => row.record_number === target.number);
+			return artwork
+				? [
+						{
+							kind: 'artwork',
+							id: artwork.id,
+							record_number: artwork.record_number,
+							title: artwork.title
+						}
+					]
+				: [];
+		}
+		if (target.kind === 'era')
+			return [{ kind: 'era', id: target.id, record_number: null, title: null }];
+		const value = names.get(target.id);
+		return value
+			? [{ kind: value.category_code, id: value.id, record_number: null, title: value.name }]
+			: [];
+	});
+}
+
 function pinsRoute(route, request, url) {
 	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
 	if (request.method() !== 'GET') return json(route, [ARTWORK_PINS[0]], 201);
@@ -521,6 +587,12 @@ async function mockSupabase(context) {
 		}
 		if (url.pathname === '/rest/v1/rpc/notes_mentions') {
 			return json(route, notesMentions(request.postDataJSON()?.needle));
+		}
+		if (url.pathname === '/rest/v1/rpc/note_link_mentions') {
+			return json(route, noteLinkMentions(request.postDataJSON() ?? {}));
+		}
+		if (url.pathname === '/rest/v1/rpc/note_link_labels') {
+			return json(route, noteLinkLabels(request.postDataJSON() ?? {}));
 		}
 		if (url.pathname === '/rest/v1/rpc/term_mentions') {
 			return json(route, termMentions(request.postDataJSON()?.needles));

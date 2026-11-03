@@ -98,6 +98,23 @@ function resolveValue(index: CardIndexData, kind: string, id: string): string | 
 	return subject && subjectName(subject);
 }
 
+const ARTWORK_HREF = /^\/atelier\/(\d+)$/;
+
+function artworkHref(number: number): string {
+	return resolve('/(app)/atelier/[number]', { number: String(number) });
+}
+
+export function labelledNoteLinks(labels: ReadonlyMap<string, string>): NoteLinks {
+	return {
+		minQueryLength: MIN_QUERY_LENGTH,
+		suggest: (): NoteLinkOption[] => [],
+		resolve: (href: string): string | undefined => {
+			const artwork = ARTWORK_HREF.exec(href);
+			return labels.get(artwork ? artworkHref(Number(artwork[1])) : href);
+		}
+	};
+}
+
 export function buildNoteLinks(sources: NoteLinkSources): NoteLinks {
 	const values = valueCandidates(sources.index);
 	const artworks = artworkCandidates(sources.artworks);
@@ -113,7 +130,7 @@ export function buildNoteLinks(sources: NoteLinkSources): NoteLinks {
 		suggest: (trigger: NoteLinkTrigger, query: string): NoteLinkOption[] =>
 			trigger === '@' ? matchValues(values, query) : matchArtworks(artworks, query),
 		resolve: (href: string): string | undefined => {
-			const artwork = /^\/atelier\/(\d+)$/.exec(href);
+			const artwork = ARTWORK_HREF.exec(href);
 			if (artwork) return artworkNames.get(String(Number(artwork[1])));
 			const value = /^\/atelier\/values\/([a-z]+)\/([A-Za-z0-9_-]+)$/.exec(href);
 			return value ? resolveValue(sources.index, value[1], value[2]) : undefined;

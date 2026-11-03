@@ -113,6 +113,34 @@ begin
 end;
 $$;
 
+do $$
+declare
+  baroque uuid := (select id from public.category_values where name = 'Baroque');
+begin
+  assert (select array_agg(kind || ':' || coalesce(title, id) order by kind)
+      from public.note_link_mentions(artwork_number => 1)) = array['period:Baroque', 'visit:Museum · 12.10.2026'],
+    format('note_link_mentions does not give the notes that link an artwork: %s',
+      (select array_agg(kind || ':' || coalesce(title, id)) from public.note_link_mentions(artwork_number => 1)));
+  assert (select array_agg(kind || ':' || id) from public.note_link_mentions(era_code => 'modern'))
+      = array['era:antiquity'],
+    'note_link_mentions does not give the notes that link an era, or gives those of another account';
+  assert (select count(*) from public.note_link_mentions(value_id => baroque)) = 0,
+    'note_link_mentions gives a value nobody links';
+  assert (select count(*) from public.note_link_mentions()) = 0, 'note_link_mentions without a target gives rows';
+  assert (select array_agg(kind || ':' || coalesce(record_number::text, id) || ':' || coalesce(title, '') order by kind)
+      from public.note_link_labels(era_code => 'antiquity')) = array['artwork:2:Second', 'era:modern:'],
+    'note_link_labels does not give the targets of a note';
+  assert (select array_agg(kind || ':' || title) from public.note_link_labels(value_id => baroque))
+      = array['artwork:First'],
+    'note_link_labels does not give the targets of the notes of a value';
+  assert (select array_agg(record_number) from public.note_link_labels(
+      visit_id => (select id from public.visits))) = array[1],
+    'note_link_labels does not give the targets of the notes of a visit';
+  assert (select count(*) from public.note_link_labels(artwork_number => 3)) = 0,
+    'note_link_labels gives a link to a value of another category';
+end;
+$$;
+
 reset role;
 
 do $$
@@ -153,6 +181,11 @@ begin
   update public.artworks set deleted_at = now() where id = first;
   assert links_test.targets('Baroque') = '{#1}' and links_test.targets('Museum') = '{#1}',
     'moving an artwork to the trash drops the links to it';
+  assert (select count(*) from public.note_link_labels(value_id => baroque)) = 0,
+    'note_link_labels gives a label for an artwork in the trash';
+  update public.artworks set notes = '[x](/atelier/2)' where id = first;
+  assert (select count(*) from public.note_link_mentions(artwork_number => 2) where id = first::text) = 0,
+    'note_link_mentions gives a note of an artwork in the trash';
   update public.artworks set deleted_at = null where id = first;
   assert links_test.targets('Baroque') = '{#1}', 'a restored artwork loses the links to it';
 

@@ -5,7 +5,12 @@ import { loadArtworksOfValue } from '#lib/wall/wall-data/wall-data.ts';
 import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.ts';
 import { emptyCardIndex } from '#lib/card-index/card-index/card-index.ts';
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
-import { loadNoteLinks, mentionsLinks } from '#lib/notes/note-link-data/note-link-data.ts';
+import {
+	loadNoteLinkLabels,
+	loadNoteLinks,
+	mentionsLinks
+} from '#lib/notes/note-link-data/note-link-data.ts';
+import { valueLinkTarget } from '#lib/notes/note-link-target/note-link-target.ts';
 import { emptyValueDetails } from '#lib/values/value-details/value-details.ts';
 import { loadValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
 import {
@@ -52,12 +57,11 @@ function valueFilter(subject: ValueSubject): { eraCode: string } | { valueId: st
 
 async function loadPageExtras(
 	subject: ValueSubject,
-	index: CardIndexData,
 	withArtworks: boolean
 ): Promise<{ mentions?: Mention[]; visits?: Visit[] }> {
 	if (!withArtworks) return {};
 	const [mentions, places] = await Promise.all([
-		loadMentions(subjectPath(subject), index),
+		loadMentions(valueLinkTarget(subject), subjectPath(subject)),
 		subject.kind === 'location' ? loadPlaceVisits(subject.record.id) : Promise.resolve(undefined)
 	]);
 	return { mentions, visits: places?.error ? undefined : places?.visits };
@@ -81,7 +85,7 @@ export async function loadValuePage(
 
 	const [{ details, error }, extras, own] = await Promise.all([
 		loadValueDetails(subject),
-		loadPageExtras(subject, cardIndex.index, withArtworks),
+		loadPageExtras(subject, withArtworks),
 		withArtworks ? loadArtworksOfValue(valueFilter(subject)) : Promise.resolve({ artworks: [] })
 	]);
 	const loadError = error ?? ('error' in own ? own.error : undefined);
@@ -89,7 +93,9 @@ export async function loadValuePage(
 
 	const [glossary, noteLinks] = await Promise.all([
 		withArtworks && details.notes ? loadTermIndex() : undefined,
-		withArtworks && mentionsLinks(details.notes) ? loadNoteLinks() : undefined
+		withArtworks && mentionsLinks(details.notes)
+			? loadNoteLinkLabels(valueLinkTarget(subject))
+			: undefined
 	]);
 	return {
 		subject,
