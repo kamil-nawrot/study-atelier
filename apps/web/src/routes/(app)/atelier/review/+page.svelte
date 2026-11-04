@@ -8,7 +8,7 @@
 	import { REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data/review-data.ts';
 	import { ReviewFlow } from '#lib/review/review-flow/review-flow.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
-	import { guardLeaving } from '#lib/shared/navigation/leave-guard/leave-guard.ts';
+	import { guardLeaving } from '#lib/shared/navigation/leave-guard/leave-guard.svelte.ts';
 	import { shownMenuProfile } from '#lib/profile/menu-profile/menu-profile.svelte.ts';
 	import type { PageProps } from './$types';
 

@@ -1,5 +1,5 @@
 import { onDestroy } from 'svelte';
-import { guardLeaving } from '#lib/shared/navigation/leave-guard/leave-guard.ts';
+import { guardLeaving } from '#lib/shared/navigation/leave-guard/leave-guard.svelte.ts';
 import { pendingAnswer } from '#lib/shared/forms/pending-answer/pending-answer.ts';
 
 export class UnsavedChanges<T> {

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { beforeNavigate, goto } from '$app/navigation';
+import { goto } from '$app/navigation';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { m } from '#lib/i18n/i18n.ts';

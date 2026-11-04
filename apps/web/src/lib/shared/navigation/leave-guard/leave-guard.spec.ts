@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { beforeNavigate, goto } from '$app/navigation';
-import { guardLeaving } from './leave-guard.ts';
+import { guardLeaving } from './leave-guard.svelte.ts';
 
 vi.mock('$app/navigation', () => ({ beforeNavigate: vi.fn(), goto: vi.fn() }));
 
