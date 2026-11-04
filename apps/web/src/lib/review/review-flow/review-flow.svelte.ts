@@ -274,9 +274,17 @@ export class ReviewFlow {
 	}
 
 	async answer(choice: number): Promise<void> {
+		await this.#quizAnswer((active) => active.answer(choice));
+	}
+
+	async typeTitle(picked: readonly string[]): Promise<void> {
+		await this.#quizAnswer((active) => active.typeTitle(picked));
+	}
+
+	async #quizAnswer(act: (active: ReviewSession) => Promise<void>): Promise<void> {
 		const active = this.session;
 		if (!active) return;
-		await active.answer(choice);
+		await act(active);
 		this.#free.record(active, startOfDay(currentDate()));
 		if (active === this.session && this.stop.afterSave) this.#finish();
 	}

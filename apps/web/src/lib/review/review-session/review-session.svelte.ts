@@ -27,6 +27,7 @@ export class ReviewSession {
 	position = $state(0);
 	revealed = $state(false);
 	chosen = $state<number>();
+	typed = $state<readonly string[]>();
 	saving = $state(false);
 	error = $state<string>();
 	answers = $state<ReviewAnswerLog[]>([]);
@@ -110,6 +111,7 @@ export class ReviewSession {
 			item.mode === 'quiz_definition' ||
 			item.mode === 'year' ||
 			item.mode === 'order' ||
+			item.mode === 'quiz_typed' ||
 			item.quiz ||
 			!this.revealed ||
 			this.saving
@@ -182,6 +184,13 @@ export class ReviewSession {
 		this.orderAnswers.push(right);
 	}
 
+	async typeTitle(picked: readonly string[]): Promise<void> {
+		const item = this.current;
+		if (item?.mode !== 'quiz_typed' || this.typed !== undefined || this.saving) return;
+		const correct = picked.includes(item.artwork.id);
+		if (await this.#save(item, correct ? 3 : 1, undefined, correct)) this.typed = picked;
+	}
+
 	proceed(): void {
 		const item = this.current;
 		if (!item) return;
@@ -190,7 +199,9 @@ export class ReviewSession {
 				? this.guessed !== undefined
 				: item.mode === 'order'
 					? this.ordered !== undefined
-					: item.quiz && this.chosen !== undefined
+					: item.mode === 'quiz_typed'
+						? this.typed !== undefined
+						: item.quiz && this.chosen !== undefined
 		) {
 			this.#advance();
 		}
@@ -238,6 +249,7 @@ export class ReviewSession {
 		this.position += 1;
 		this.revealed = false;
 		this.chosen = undefined;
+		this.typed = undefined;
 		this.guessed = undefined;
 		this.ordered = undefined;
 		this.#shownAt = this.#now().getTime();

@@ -12,7 +12,8 @@
 		QUIZ_KINDS,
 		REVIEW_FORMS,
 		SESSION_SIZES,
-		toggledKind
+		toggledKind,
+		hasArtworkQuiz
 	} from '#lib/profile/preferences/preferences.ts';
 	import { savePreferences } from '#lib/profile/preferences-data/preferences-data.ts';
 	import type { Preferences } from '#lib/profile/types/preferences.ts';
@@ -54,7 +55,7 @@
 
 	function submit(): Promise<void> {
 		return formState.run(async () => {
-			kindsError = part === 'review' && draft.reviewQuizKinds.length === 0;
+			kindsError = part === 'review' && !hasArtworkQuiz(draft.reviewQuizKinds);
 			if (kindsError) return;
 			const result = await savePreferences(part, draft);
 			if (result.error !== undefined) {

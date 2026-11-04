@@ -386,7 +386,7 @@ Table profiles {
   review_session_size smallint [not null, default: `20`]
   review_new_per_day smallint [not null, default: `10`]
   review_form text [not null, default: `'mixed'::text`]
-  review_quiz_kinds "text[]" [not null, default: `ARRAY['quiz_title'::text, 'quiz_image'::text, 'quiz_author'::text, 'quiz_style'::text, 'quiz_pin'::text]`]
+  review_quiz_kinds "text[]" [not null, default: `ARRAY['quiz_title'::text, 'quiz_image'::text, 'quiz_author'::text, 'quiz_style'::text, 'quiz_pin'::text, 'quiz_typed'::text]`]
   review_free boolean [not null, default: `true`]
   view_show_pins boolean [not null, default: `false`]
   view_loupe_on boolean [not null, default: `false`]

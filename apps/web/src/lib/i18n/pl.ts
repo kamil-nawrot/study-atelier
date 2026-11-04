@@ -305,7 +305,8 @@ export const pl = {
 				quiz_title: 'Dopasowywanie tytułu do dzieła',
 				quiz_author: 'Dopasowywanie autora do dzieła',
 				quiz_style: 'Dopasowywanie stylu do dzieła',
-				quiz_pin: 'Dopasowywanie detalu do definicji'
+				quiz_pin: 'Dopasowywanie detalu do definicji',
+				quiz_typed: 'Wpisywanie tytułu dzieła z pamięci'
 			},
 			kindsHint: 'Zostaw zaznaczony przynajmniej jeden rodzaj.',
 			glossaryQuestions: 'Ile pytań dodatkowych ze Słowniczka dołączać do sesji?',
@@ -731,6 +732,11 @@ export const pl = {
 			styleQuestion: 'W jakim stylu powstało to dzieło?',
 			styleHint: 'Zwróć uwagę na formę, materiał i kompozycję.',
 			pinQuestion: 'Co to jest?',
+			typedQuestion: 'Jak nazywa się to dzieło?',
+			typedHint: 'Zacznij wpisywać tytuł, a następnie wybierz pasującą podpowiedź z listy.',
+			typedLabel: 'Tytuł dzieła',
+			typedEmpty: 'Żadne dzieło w atelier nie ma takiego tytułu.',
+			typedCheck: 'Sprawdź tytuł',
 			definitionTag: 'Pytanie dodatkowe ze Słowniczka',
 			definitionQuestion: 'Jakie pojęcie opisuje ta definicja?',
 			maskedTerm: 'ukryte pojęcie',

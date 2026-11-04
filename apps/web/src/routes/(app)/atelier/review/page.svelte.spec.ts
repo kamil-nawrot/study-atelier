@@ -553,6 +553,32 @@ describe('review page', () => {
 		await expect.element(page.getByText(m.review.summary(1, 1, 0))).toBeVisible();
 	});
 
+	it('asks for the title typed from memory and saves the artwork picked', async () => {
+		const artworks = collection(21);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 19), (index) => (index < 1 ? -1 : 6))
+		);
+		vi.mocked(loadSession).mockResolvedValue({
+			rows: [{ artwork_id: 'artwork-12', mode: 'quiz_typed', options: [] }]
+		});
+
+		await page.getByRole('button', { name: m.review.start }).click();
+		await page.getByRole('combobox', { name: m.review.quiz.typedLabel }).fill('artwork 12');
+		await page.getByRole('option', { name: 'Artwork 12' }).click();
+		await page.getByRole('button', { name: m.review.quiz.typedCheck }).click();
+
+		expect(recordReview).toHaveBeenCalledWith(
+			expect.objectContaining({ artworkId: 'artwork-12' }),
+			expect.objectContaining({ mode: 'quiz_typed', rating: 3, correct: true })
+		);
+		await vi.waitFor(() =>
+			expect(document.querySelector('.feedback')?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+				`${m.review.quiz.right} Artwork 12, Test Painter.`
+			)
+		);
+	});
+
 	it('asks before stopping a session that has answers and keeps them', async () => {
 		const artworks = collection(21);
 		renderReview(
