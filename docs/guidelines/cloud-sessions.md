@@ -40,6 +40,8 @@ Starts the dev server on port 5199, opens the route in Chromium at a desktop (14
 | `--log-requests`    | Write the Supabase requests of each viewport to `<name>-<viewport>-requests.json` and print them per phase (the load, then `--steps`), shell and view, with payload sizes        |
 | `--url <base>`      | Use a dev server that is already running                                                                                                                                         |
 
+A question that a review session places at random, such as the year question, is reached with the steps in `scripts/screenshot/steps/`: `reachQuestion(page, heading)` from `review-until.mjs` starts a session and answers until that question shows, and `review-year.mjs` and `review-year-answered.mjs` capture the year question before and after its answer, for example `pnpm screenshot /atelier/review --steps scripts/screenshot/steps/review-year.mjs --combine`. A new question kind adds its own steps file next to them.
+
 Combine desktop and phone shots into one image when attaching to a thread: a thread accepts at most 24 attachments.
 
 ### What is mocked
