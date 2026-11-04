@@ -257,7 +257,10 @@
 	@media (min-width: 768px) {
 		.image {
 			position: sticky;
-			top: min(var(--spacing-24), calc(100vh - var(--image-height) - var(--spacing-24)));
+			top: min(
+				calc(var(--bar-height) + var(--spacing-4)),
+				calc(100dvh - var(--image-height) - var(--spacing-24))
+			);
 			align-self: start;
 		}
 
