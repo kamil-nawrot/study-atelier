@@ -1,7 +1,7 @@
 import { SvelteMap } from 'svelte/reactivity';
-import { currentDate, retryLater } from '#lib/review/queue/queue.ts';
+import { currentDate, retryLater, startOfDay } from '#lib/review/queue/queue.ts';
 import { shuffleQuiz } from '#lib/review/quiz/quiz.ts';
-import { recordReview } from '#lib/review/review-data/review-data.ts';
+import { recordReview, recordRightAnswer } from '#lib/review/review-data/review-data.ts';
 import { outcomes, quizRating } from '#lib/review/scheduler/scheduler.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
@@ -25,6 +25,7 @@ export class ReviewSession {
 	readonly startedAt: number;
 	readonly free: boolean;
 	#shownAt: number;
+	#missed = new Set<string>();
 	#now: () => Date;
 	#random: () => number;
 
@@ -84,7 +85,12 @@ export class ReviewSession {
 		if (!item?.quiz || this.chosen !== undefined || this.saving) return;
 		const correct = choice === item.quiz.answer;
 		if (item.mode === 'quiz_definition') {
-			if (!correct) this.#retry({ ...item, quiz: shuffleQuiz(item.quiz, this.#random) });
+			if (!correct) {
+				this.#missed.add(item.term.id);
+				this.#retry({ ...item, quiz: shuffleQuiz(item.quiz, this.#random) });
+			} else if (!this.free && !this.#missed.has(item.term.id)) {
+				void recordRightAnswer(startOfDay(this.#now()));
+			}
 			this.chosen = choice;
 			return;
 		}

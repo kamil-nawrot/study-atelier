@@ -61,6 +61,11 @@ begin
       'state', 2, 'reps', 2, 'lapses', 0, 'scheduled_days', 3, 'learning_steps', 0,
       'last_review', now() - interval '1 day'),
     '{"mode": "flashcard", "rating": 3}');
+  perform public.record_review(first_artwork,
+    jsonb_build_object('due', now() + interval '5 days', 'stability', 4, 'difficulty', 5,
+      'state', 2, 'reps', 1, 'lapses', 0, 'scheduled_days', 5, 'learning_steps', 0,
+      'last_review', now()),
+    '{"facet": "date", "mode": "year", "rating": 3, "correct": true}');
 end;
 $$;
 
@@ -145,12 +150,15 @@ begin
     and (select count(*) from public.artwork_pins) = 1
     and (select count(*) from public.glossary_entries) = 1
     and (select count(*) from public.timeline_events) = 1
-    and (select count(*) from public.review_cards) = 1
-    and (select count(*) from public.review_log) = 1
+    and (select count(*) from public.review_cards) = 2
+    and (select count(*) from public.review_log) = 2
     and (select count(*) from public.artwork_field_entries) = 1
     and (select count(*) from public.visits) = 1
     and (select count(*) from public.visit_artworks) = 2,
     'a table does not come back whole';
+  assert (select stability from public.review_cards where facet = 'date') = 4
+    and (select mode from public.review_log where facet = 'date') = 'year',
+    'the date card or its answer does not survive the import';
   assert (select place.name from public.visits as visit
       join public.category_values as place on place.id = visit.place_id) = 'Louvre',
     'a visit does not keep its place';

@@ -8,6 +8,7 @@ import {
 	loadReviewStreak,
 	loadSession,
 	recordFreeAnswers,
+	recordRightAnswer,
 	recordReview,
 	waitingToday,
 	withPinPreviews
@@ -48,13 +49,18 @@ const card: ReviewCard = {
 	lastReview: new Date('2026-10-13T08:00:00.000Z')
 };
 
-function cardsQuery(rows: unknown[], error: unknown = null): { range: ReturnType<typeof vi.fn> } {
+function cardsQuery(
+	rows: unknown[],
+	error: unknown = null
+): { range: ReturnType<typeof vi.fn>; eq: ReturnType<typeof vi.fn> } {
 	const query = {
 		select: vi.fn(),
+		eq: vi.fn(),
 		order: vi.fn(),
 		range: vi.fn().mockResolvedValue({ data: rows, error })
 	};
 	query.select.mockReturnValue(query);
+	query.eq.mockReturnValue(query);
 	query.order.mockReturnValue(query);
 	vi.mocked(supabase.from).mockReturnValue(query as never);
 	return query;
@@ -73,11 +79,12 @@ describe('review data', () => {
 		vi.useRealTimers();
 	});
 
-	it('loads the review cards by artwork', async () => {
-		cardsQuery([row]);
+	it('loads the recognition cards by artwork, without the cards of the year questions', async () => {
+		const query = cardsQuery([row]);
 		const { cards, error } = await loadReviewCards();
 		expect(error).toBeUndefined();
 		expect(supabase.from).toHaveBeenCalledWith('review_cards');
+		expect(query.eq).toHaveBeenCalledWith('facet', 'recognise');
 		expect(cards.get('artwork-1')).toEqual(card);
 	});
 
@@ -197,6 +204,12 @@ describe('review data', () => {
 			day_start: '2026-10-28T23:00:00.000Z',
 			answers: 20
 		});
+	});
+
+	it('adds a right answer to the day', async () => {
+		rpc.mockResolvedValue({ error: null } as never);
+		await recordRightAnswer(new Date('2026-10-28T23:00:00.000Z'));
+		expect(rpc).toHaveBeenCalledWith('record_right_answer', { day_start: '2026-10-28T23:00:00.000Z' });
 	});
 
 	it('returns the message to show when an answer cannot be saved', async () => {

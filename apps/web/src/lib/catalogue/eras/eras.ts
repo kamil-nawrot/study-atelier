@@ -36,6 +36,11 @@ export const ERA_START_YEARS: Record<EraCode, number> = {
 	contemporary: 1945
 };
 
+export function eraYears(code: EraCode, today: Date = new Date()): [number, number] {
+	const next = ERA_CODES[ERA_CODES.indexOf(code) + 1];
+	return [ERA_START_YEARS[code], next ? ERA_START_YEARS[next] : today.getFullYear()];
+}
+
 export function isEraCode(value: unknown): value is EraCode {
 	return ERA_CODES.includes(value as EraCode);
 }

@@ -938,6 +938,7 @@ export type Database = {
       };
       point_events: {
         Row: {
+          answers: number | null;
           code: string | null;
           day_start: string | null;
           id: number;
@@ -950,6 +951,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          answers?: number | null;
           code?: string | null;
           day_start?: string | null;
           id?: never;
@@ -961,6 +963,7 @@ export type Database = {
           streak_days?: number | null;
         };
         Update: {
+          answers?: number | null;
           code?: string | null;
           day_start?: string | null;
           id?: never;
@@ -1463,6 +1466,7 @@ export type Database = {
         };
         Returns: undefined;
       };
+      record_right_answer: { Args: { day_start: string }; Returns: undefined };
       review_counts: {
         Args: { day_start: string };
         Returns: {
@@ -1479,6 +1483,7 @@ export type Database = {
           scope_kind?: string;
           scope_value?: string;
           session_form?: string;
+          time_questions?: boolean;
         };
         Returns: Json;
       };
