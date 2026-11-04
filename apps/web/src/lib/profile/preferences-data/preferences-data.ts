@@ -5,6 +5,7 @@ import { profileErrorMessage } from '#lib/profile/errors/errors.ts';
 import {
 	defaultPreferences,
 	QUIZ_KINDS,
+	hasArtworkQuiz,
 	REVIEW_FORMS
 } from '#lib/profile/preferences/preferences.ts';
 import type { Preferences } from '#lib/profile/types/preferences.ts';
@@ -46,8 +47,9 @@ export function preferencesOf(row: Row | null): Preferences {
 		reviewForm: REVIEW_FORMS.includes(row.review_form as ReviewForm)
 			? (row.review_form as ReviewForm)
 			: defaultPreferences.reviewForm,
-		reviewQuizKinds:
-			kinds.length > 0 ? (kinds as QuizMode[]) : [...defaultPreferences.reviewQuizKinds],
+		reviewQuizKinds: hasArtworkQuiz(kinds)
+			? (kinds as QuizMode[])
+			: [...defaultPreferences.reviewQuizKinds],
 		reviewFree: row.review_free,
 		reviewGlossaryQuestions: row.review_glossary_questions,
 		reviewTimeQuestions: row.review_time_questions,

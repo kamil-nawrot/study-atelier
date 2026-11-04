@@ -164,6 +164,50 @@ describe('ReviewSession', () => {
 		expect(retry.quiz?.options[retry.quiz.answer].label).toBe('Artwork 1');
 	});
 
+	it('rates a typed title as known when the right artwork is picked', async () => {
+		const typed: ReviewItem[] = items(6).map((item) => ({ ...item, mode: 'quiz_typed' }));
+		const review = new ReviewSession(
+			typed,
+			new Map(),
+			() => start,
+			() => 0
+		);
+
+		await review.typeTitle(['artwork-2', 'artwork-1']);
+
+		expect(recordReview).toHaveBeenCalledWith(
+			expect.objectContaining({ artworkId: 'artwork-1' }),
+			expect.objectContaining({ mode: 'quiz_typed', rating: 3, correct: true })
+		);
+		expect(review.typed).toEqual(['artwork-2', 'artwork-1']);
+		await review.typeTitle(['artwork-3']);
+		expect(recordReview).toHaveBeenCalledTimes(1);
+		await review.rate(3);
+		expect(recordReview).toHaveBeenCalledTimes(1);
+
+		review.proceed();
+		expect(review.position).toBe(1);
+		expect(review.typed).toBeUndefined();
+	});
+
+	it('asks a wrong typed title again later', async () => {
+		const typed: ReviewItem[] = items(6).map((item) => ({ ...item, mode: 'quiz_typed' }));
+		const review = new ReviewSession(
+			typed,
+			new Map(),
+			() => start,
+			() => 0
+		);
+
+		await review.typeTitle(['artwork-2']);
+
+		expect(recordReview).toHaveBeenCalledWith(
+			expect.anything(),
+			expect.objectContaining({ mode: 'quiz_typed', rating: 1, correct: false })
+		);
+		expect(artworkSteps(review)[4]).toMatchObject({ mode: 'quiz_typed', artwork: { number: 1 } });
+	});
+
 	it('does not rate a quiz like a flashcard', async () => {
 		const review = new ReviewSession(
 			quizItems(1),

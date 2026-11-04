@@ -57,6 +57,7 @@ export function sessionItems(
 		const artwork = artworks.get(row.artwork_id);
 		if (!artwork) return [];
 		const card = cards.get(row.artwork_id) ?? null;
+		if (row.mode === 'quiz_typed') return [{ artwork, card, mode: 'quiz_typed' }];
 		const quiz = row.mode === 'flashcard' ? undefined : quizOf(row, artworks);
 		const pin = row.mode === 'quiz_pin' ? pinOf(row) : undefined;
 		if (!quiz || (row.mode === 'quiz_pin' && !pin)) return [{ artwork, card, mode: 'flashcard' }];

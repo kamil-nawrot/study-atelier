@@ -57,6 +57,9 @@ jobs:
       - name: Check review questions about time
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/review-time-questions.sql
 
+      - name: Check the typed title in the review
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/review-typed-title.sql
+
       - name: Check review streaks
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/review-streak.sql
 

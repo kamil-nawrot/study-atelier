@@ -1,3 +1,13 @@
+export async function typeTitle(page) {
+	await page.getByRole('combobox', { name: 'Tytuł dzieła' }).fill('the');
+}
+
+export async function answerTitle(page) {
+	await typeTitle(page);
+	await page.getByRole('option').first().click();
+	await page.getByRole('button', { name: 'Sprawdź tytuł' }).click();
+}
+
 export async function reachQuestion(page, heading) {
 	await page.getByRole('button', { name: 'Zacznij powtórkę' }).click();
 	const question = page.getByRole('heading', { name: heading });
@@ -7,6 +17,12 @@ export async function reachQuestion(page, heading) {
 		const check = page.getByRole('button', { name: /^Sprawdź (rok|kolejność)$/ });
 		if (await check.isVisible()) {
 			await check.click();
+			await page.getByRole('button', { name: 'Następne' }).click();
+			continue;
+		}
+		const title = page.getByRole('combobox', { name: 'Tytuł dzieła' });
+		if (await title.isVisible()) {
+			await answerTitle(page);
 			await page.getByRole('button', { name: 'Następne' }).click();
 			continue;
 		}

@@ -111,6 +111,16 @@ describe('session items', () => {
 		]);
 	});
 
+	it('asks for the typed title without options', () => {
+		const items = sessionItems(
+			[{ artwork_id: 'artwork-1', mode: 'quiz_typed', options: [] }],
+			byId,
+			new Map()
+		);
+
+		expect(items).toEqual([{ artwork: byId.get('artwork-1'), card: null, mode: 'quiz_typed' }]);
+	});
+
 	it('asks what a pinned detail is with the image and the place of the pin', () => {
 		const [item] = sessionItems([pinQuiz], byId, new Map());
 

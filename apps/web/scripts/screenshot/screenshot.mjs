@@ -314,10 +314,15 @@ function reviewSession({
 		{ length: Math.min(20, known.length) },
 		(_, index) => known[(index + (freeRound ?? 0) * 20) % known.length]
 	);
+	let settled = 0;
 	const items = (freeRound === undefined ? [...due, ...fresh] : free).map((row, slot) => {
 		const card = cardOf(row);
 		const pinQuiz = form === 'flashcards' ? undefined : pinQuizFor(row);
 		if (pinQuiz) return pinQuiz;
+		if (form !== 'flashcards' && card?.state === 2 && card.stability >= 7) {
+			settled += 1;
+			if (settled % 3 === 0) return { artwork_id: row.id, mode: 'quiz_typed', options: [] };
+		}
 		const modes =
 			form === 'flashcards'
 				? []

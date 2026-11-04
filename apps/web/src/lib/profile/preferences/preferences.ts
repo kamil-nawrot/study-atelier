@@ -12,8 +12,13 @@ export const QUIZ_KINDS: readonly QuizMode[] = [
 	'quiz_title',
 	'quiz_author',
 	'quiz_style',
-	'quiz_pin'
+	'quiz_pin',
+	'quiz_typed'
 ];
+
+export function hasArtworkQuiz(kinds: readonly QuizMode[]): boolean {
+	return kinds.some((kind) => kind !== 'quiz_typed');
+}
 
 export const defaultPreferences: Preferences = {
 	reviewSessionSize: 20,

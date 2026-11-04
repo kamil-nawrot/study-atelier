@@ -277,12 +277,12 @@ function reviewCard(number, dueInDays, stability, state, lapses = 0) {
 
 export const REVIEW_CARDS = [
 	reviewCard(1, -1, 4, 2),
-	reviewCard(2, 9, 21, 2),
+	reviewCard(2, -1, 21, 2),
 	reviewCard(3, -2, 3, 3, 1),
-	reviewCard(4, 15, 30, 2),
+	reviewCard(4, -1, 30, 2),
 	reviewCard(5, 4, 12, 2),
 	reviewCard(6, 0, 2, 2),
-	reviewCard(7, 20, 40, 2),
+	reviewCard(7, -1, 40, 2),
 	reviewCard(9, -1, 5, 2),
 	reviewCard(12, 0, 1, 3, 2),
 	reviewCard(13, 6, 10, 2),
@@ -463,7 +463,14 @@ export const PROFILE = {
 	review_session_size: 20,
 	review_new_per_day: 10,
 	review_form: 'mixed',
-	review_quiz_kinds: ['quiz_title', 'quiz_image', 'quiz_author', 'quiz_style', 'quiz_pin'],
+	review_quiz_kinds: [
+		'quiz_title',
+		'quiz_image',
+		'quiz_author',
+		'quiz_style',
+		'quiz_pin',
+		'quiz_typed'
+	],
 	review_free: true,
 	review_glossary_questions: 2,
 	review_time_questions: true,

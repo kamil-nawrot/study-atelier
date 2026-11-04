@@ -4,6 +4,7 @@
 	import DefinitionQuiz from '#lib/review/components/DefinitionQuiz/DefinitionQuiz.svelte';
 	import Flashcard from '#lib/review/components/Flashcard/Flashcard.svelte';
 	import Quiz from '#lib/review/components/Quiz/Quiz.svelte';
+	import TypedTitle from '#lib/review/components/TypedTitle/TypedTitle.svelte';
 	import ReviewStart from '#lib/review/components/ReviewStart/ReviewStart.svelte';
 	import OrderGuess from '#lib/review/components/OrderGuess/OrderGuess.svelte';
 	import ReviewSummary from '#lib/review/components/ReviewSummary/ReviewSummary.svelte';
@@ -59,6 +60,17 @@
 				onguess={(year) => flow.guess(year)}
 				onnext={() => flow.proceed()}
 				saving={session.saving}
+			/>
+		{:else if current.mode === 'quiz_typed'}
+			<TypedTitle
+				artworks={[...flow.artworksById.values()]}
+				details={flow.details.get(current.artwork.id)}
+				error={session.error}
+				item={current}
+				onanswer={(picked) => flow.typeTitle(picked)}
+				onnext={() => flow.proceed()}
+				saving={session.saving}
+				typed={session.typed}
 			/>
 		{:else if current.quiz}
 			<Quiz
