@@ -367,7 +367,7 @@ writes:
   - id: W08
     name: Answer in review
     changes: [review_cards, review_log, free_review_days, point_events]
-    side_effects: [counters, streak, career points]
+    side_effects: [counters, streak, career points, a point for a right answer about time or a definition]
     frequency: write
   - id: W09
     name: Toggle favourite

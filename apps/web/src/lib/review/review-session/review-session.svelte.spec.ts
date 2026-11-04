@@ -1,11 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
-import { recordReview } from '#lib/review/review-data/review-data.ts';
+import { recordReview, recordRightAnswer } from '#lib/review/review-data/review-data.ts';
 import { ReviewSession } from './review-session.svelte.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 
-vi.mock('#lib/review/review-data/review-data.ts', () => ({ recordReview: vi.fn() }));
+vi.mock('#lib/review/review-data/review-data.ts', () => ({
+	recordReview: vi.fn(),
+	recordRightAnswer: vi.fn()
+}));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: {} }));
 
 const start = new Date(2026, 9, 16, 9, 0);
@@ -50,6 +53,7 @@ function definition(name: string): DefinitionItem {
 describe('ReviewSession', () => {
 	beforeEach(() => {
 		vi.mocked(recordReview).mockReset().mockResolvedValue({});
+		vi.mocked(recordRightAnswer).mockReset().mockResolvedValue();
 	});
 
 	it('rates only a revealed card and saves the new state with the time it took', async () => {
@@ -219,6 +223,40 @@ describe('ReviewSession', () => {
 		await review.answer(0);
 		expect(review.queue).toHaveLength(3);
 		expect(review.next()).toBeUndefined();
+	});
+
+	it('gives a point for a definition answered right the first time it is asked', async () => {
+		const review = new ReviewSession(
+			[definition('Apse'), ...items(5), definition('Crypt')],
+			new Map(),
+			() => start,
+			() => 0
+		);
+
+		await review.answer(0);
+		expect(recordRightAnswer).toHaveBeenCalledExactlyOnceWith(new Date(2026, 9, 16));
+
+		review.proceed();
+		vi.mocked(recordRightAnswer).mockClear();
+		review.position = 6;
+		await review.answer(1);
+		review.proceed();
+		await review.answer(0);
+		expect(review.queue[review.position]).toMatchObject({ term: { name: 'Crypt' } });
+		expect(recordRightAnswer).not.toHaveBeenCalled();
+	});
+
+	it('gives no point for a definition in a free round', async () => {
+		const review = new ReviewSession(
+			[definition('Apse'), ...items(2)],
+			new Map(),
+			() => start,
+			() => 0,
+			true
+		);
+
+		await review.answer(0);
+		expect(recordRightAnswer).not.toHaveBeenCalled();
 	});
 });
 

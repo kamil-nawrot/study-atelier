@@ -106,7 +106,12 @@ function reviewCard(row: CardRow): ReviewCard {
 
 export async function loadReviewCards(): Promise<ReviewCardsResult> {
 	const { rows, error } = await fetchAll<CardRow>((from, to) =>
-		supabase.from('review_cards').select(CARD_COLUMNS).order('artwork_id').range(from, to)
+		supabase
+			.from('review_cards')
+			.select(CARD_COLUMNS)
+			.eq('facet', 'recognise')
+			.order('artwork_id')
+			.range(from, to)
 	);
 	if (error) return { cards: new Map(), error: collectionErrorMessage(error) };
 	return { cards: new Map(rows.map((row) => [row.artwork_id, reviewCard(row)])) };
@@ -143,6 +148,13 @@ export async function recordFreeAnswers(dayStart: Date, answers: number): Promis
 	const { error } = await supabase.rpc('record_free_answers', {
 		day_start: dayStart.toISOString(),
 		answers
+	});
+	if (!error) noteWrite();
+}
+
+export async function recordRightAnswer(dayStart: Date): Promise<void> {
+	const { error } = await supabase.rpc('record_right_answer', {
+		day_start: dayStart.toISOString()
 	});
 	if (!error) noteWrite();
 }

@@ -5,7 +5,7 @@
 
 ## Context and problem statement
 
-The year question of the review ([ADR-0178](0178-ask-for-the-year-and-the-chronological-order-in-the-review.md)) rates a guess "Wiem" within 5% of the era's length, which is about 15 years in the modern era. A guess on the very year is rarer and worth noticing, and the owner wants an exhibit of the display case ([ADR-0160](0160-gamify-learning-as-a-museum-career.md), [ADR-0162](0162-show-the-exhibits-as-toned-engravings-in-frames.md)) to count such hits. The recording of ADR-0179 (ATL-478, not on `develop` yet) keeps only the rating of a year answer, which cannot tell an exact hit from a near one. What counts as an exact hit, how is it recorded, and how does the exhibit look and read?
+The year question of the review ([ADR-0178](0178-ask-for-the-year-and-the-chronological-order-in-the-review.md)) rates a guess "Wiem" within 5% of the era's length, which is about 15 years in the modern era. A guess on the very year is rarer and worth noticing, and the owner wants an exhibit of the display case ([ADR-0160](0160-gamify-learning-as-a-museum-career.md), [ADR-0162](0162-show-the-exhibits-as-toned-engravings-in-frames.md)) to count such hits. The recording of [ADR-0179](0179-draw-the-questions-about-time-and-give-a-point-for-a-right-answer.md) keeps only the rating of a year answer, which cannot tell an exact hit from a near one. What counts as an exact hit, how is it recorded, and how does the exhibit look and read?
 
 ## Decision drivers
 
