@@ -2050,8 +2050,8 @@ function minuteCount(count: number): string {
 	return `${count} ${plural(count, { one: 'minutę', few: 'minuty', many: 'minut' })}`;
 }
 
-function counter(unit: string): (value: number, next?: number) => string {
-	return (value, next) => (next === undefined ? `${value} ${unit}` : `${value} z ${next} ${unit}`);
+function counter(unit: string): (next?: number) => string {
+	return (next) => (next === undefined ? unit : `z ${next} ${unit}`);
 }
 
 function pointCount(count: number): string {
