@@ -4,7 +4,7 @@ import type { Metal } from '#lib/career/types/metal.ts';
 import type { UnlockedTier } from '#lib/career/types/unlocked-tier.ts';
 
 const METALS: readonly Metal[] = ['bronze', 'silver', 'gold'];
-const HIDDEN = new Set(['night_watch', 'marathon', 'back_from_storage']);
+const HIDDEN = new Set(['night_watch', 'marathon', 'back_from_storage', 'mouth_of_truth']);
 
 export function withTiers(progress: ExhibitProgress[], tiers: UnlockedTier[]): Exhibit[] {
 	return progress.map(({ exhibit, value, thresholds }) => ({

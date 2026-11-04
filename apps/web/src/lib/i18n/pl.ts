@@ -1459,6 +1459,9 @@ export const pl = {
 			],
 			marathon: [
 				'Pejzaż w dolnej części „Nemezis” Dürera rozpoznano jako miasteczko Klausen (Chiusa) w Tyrolu. Samą boginię Dürer zbudował według kanonu proporcji Witruwiusza.'
+			],
+			mouth_of_truth: [
+				'Pencz pokazał na rycinie legendę o kobiecie oskarżonej o zdradę. Z dłonią w lwiej paszczy przysięgła, że leżała tylko w ramionach męża i błazna. Lew jej nie ugryzł, bo mówiła prawdę, tyle że błazen był jej kochankiem.'
 			]
 		},
 		ranks: {
@@ -1586,6 +1589,13 @@ export const pl = {
 				about: 'Na miedziorycie Dürera bogini Nemezis szybuje nad światem z pucharem w dłoni.',
 				hint: 'Bogowie przyglądają się tym, którzy nie wiedzą, kiedy przestać.',
 				awarded: 'Za tysiąc dzieł w powtórkach swobodnych jednego dnia.'
+			},
+			mouth_of_truth: {
+				name: 'Paszcza prawdy',
+				about:
+					'Georg Pencz wyrył w latach 1533–1534 kobietę, która przysięga na swoją niewinność z dłonią w paszczy kamiennego lwa.',
+				hint: 'Lew nie gryzie tych, którzy mają coś do powiedzenia.',
+				awarded: 'Za pierwszy zgłoszony pomysł.'
 			}
 		}
 	},

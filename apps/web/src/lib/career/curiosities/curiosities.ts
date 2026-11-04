@@ -98,7 +98,8 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 		'https://www.guinnessworldrecords.com/world-records/107088-first-photograph-of-a-human'
 	],
 	night_watch: ['https://www.rijksmuseum.nl/en/collection/SK-C-5'],
-	marathon: ['https://collections.tepapa.govt.nz/object/41358']
+	marathon: ['https://collections.tepapa.govt.nz/object/41358'],
+	mouth_of_truth: ['https://lucascranach.org/en/DE_BStGS-GNMN_Gm1108/']
 };
 
 export function curiosityOf(exhibit: string, tier: number): Curiosity | undefined {
