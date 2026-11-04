@@ -150,11 +150,16 @@ describe('settings page', () => {
 
 		await page.getByRole('button', { name: '30' }).click();
 		await page.getByRole('switch', { name: m.settings.preferences.timeQuestions }).click();
+		await page.getByRole('switch', { name: m.settings.preferences.noteQuestions }).click();
 		await page.getByRole('button', { name: m.settings.preferences.save }).click();
 
 		expect(savePreferences).toHaveBeenCalledWith(
 			'review',
-			expect.objectContaining({ reviewSessionSize: 30, reviewTimeQuestions: true })
+			expect.objectContaining({
+				reviewSessionSize: 30,
+				reviewTimeQuestions: true,
+				reviewNoteQuestions: true
+			})
 		);
 		expect(invalidate).toHaveBeenCalledWith(PREFERENCES_DEPENDENCY);
 		await expect.element(page.getByText(m.settings.preferences.saved)).toBeVisible();

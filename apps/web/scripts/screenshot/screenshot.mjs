@@ -695,6 +695,12 @@ async function mockSupabase(context) {
 			return json(route, wantsObject ? counts : [counts]);
 		}
 		if (url.pathname === '/rest/v1/rpc/atelier_empty') return json(route, false);
+		if (url.pathname === '/rest/v1/rpc/note_gap_artwork') {
+			const excluded = request.postDataJSON()?.excluded ?? [];
+			const row = ARTWORKS.find((artwork) => hasImage(artwork) && !excluded.includes(artwork.id));
+			const notes = 'Apsyda zamyka nawę od wschodu.\n\nNad ołtarzem głowica z szerokim abakusem.';
+			return json(route, row ? { id: row.id, notes } : null);
+		}
 		if (url.pathname === '/rest/v1/rpc/collection_statistics') {
 			return json(route, collectionStatistics());
 		}

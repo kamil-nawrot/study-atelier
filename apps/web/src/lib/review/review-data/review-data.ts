@@ -238,6 +238,16 @@ function scopeArgs(scope: ReviewScope): { scope_kind: string; scope_value?: stri
 	return { scope_kind: scope.kind, scope_value: scope.name };
 }
 
+export async function loadNoteGap(
+	scope: ReviewScope,
+	excluded: string[]
+): Promise<{ id: string; notes: string } | undefined> {
+	const { data, error } = await supabase.rpc('note_gap_artwork', { ...scopeArgs(scope), excluded });
+	if (error || !data || typeof data !== 'object' || Array.isArray(data)) return undefined;
+	const { id, notes } = data as { id?: unknown; notes?: unknown };
+	return typeof id === 'string' && typeof notes === 'string' ? { id, notes } : undefined;
+}
+
 export async function loadSession(
 	dayStart: Date,
 	form: ReviewForm,

@@ -2,6 +2,7 @@
 	import { Alert } from '@study-atelier/ui';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import DefinitionQuiz from '#lib/review/components/DefinitionQuiz/DefinitionQuiz.svelte';
+	import NoteGapQuiz from '#lib/review/components/NoteGapQuiz/NoteGapQuiz.svelte';
 	import Flashcard from '#lib/review/components/Flashcard/Flashcard.svelte';
 	import Quiz from '#lib/review/components/Quiz/Quiz.svelte';
 	import TypedTitle from '#lib/review/components/TypedTitle/TypedTitle.svelte';
@@ -47,6 +48,14 @@
 		{:else if current.mode === 'quiz_definition'}
 			<DefinitionQuiz
 				chosen={session.chosen}
+				item={current}
+				onanswer={(choice) => flow.answer(choice)}
+				onnext={() => flow.proceed()}
+			/>
+		{:else if current.mode === 'note_gap'}
+			<NoteGapQuiz
+				chosen={session.chosen}
+				details={flow.details.get(current.artwork.id)}
 				item={current}
 				onanswer={(choice) => flow.answer(choice)}
 				onnext={() => flow.proceed()}
@@ -102,7 +111,7 @@
 		freeOpen={flow.freeOpen}
 		groups={flow.summary.groups.map((group) => ({
 			...group,
-			artworks: group.artworks.map((artwork) => flow.withImage(artwork))
+			artworks: group.artworks.map((artwork) => flow.images.withImage(artwork))
 		}))}
 		minutes={flow.summary.minutes}
 		nextRound={flow.waiting}

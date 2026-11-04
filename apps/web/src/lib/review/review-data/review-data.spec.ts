@@ -6,6 +6,7 @@ import {
 	loadReviewCounts,
 	loadReviewDetails,
 	loadReviewStreak,
+	loadNoteGap,
 	loadSession,
 	recordFreeAnswers,
 	recordRightAnswer,
@@ -291,6 +292,25 @@ describe('review data', () => {
 			free_round: 2,
 			time_questions: true
 		});
+	});
+
+	it('draws the artwork of a note gap in the scope, without the shown ones', async () => {
+		rpc.mockResolvedValue({ data: { id: 'artwork-3', notes: 'Tympanon.' }, error: null } as never);
+
+		await expect(loadNoteGap({ kind: 'era', code: 'modern' }, ['artwork-1'])).resolves.toEqual({
+			id: 'artwork-3',
+			notes: 'Tympanon.'
+		});
+		expect(rpc).toHaveBeenCalledWith('note_gap_artwork', {
+			scope_kind: 'era',
+			scope_value: 'modern',
+			excluded: ['artwork-1']
+		});
+
+		rpc.mockResolvedValue({ data: null, error: null } as never);
+		await expect(loadNoteGap({ kind: 'all' }, [])).resolves.toBeUndefined();
+		rpc.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } } as never);
+		await expect(loadNoteGap({ kind: 'all' }, [])).resolves.toBeUndefined();
 	});
 
 	it('returns a message when a session cannot be built', async () => {

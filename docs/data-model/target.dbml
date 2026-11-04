@@ -401,6 +401,7 @@ Table profiles {
   career_shown boolean [not null, default: `true`]
   rank_seen smallint [not null, default: `0`]
   review_time_questions boolean [not null, default: `false`]
+  review_note_questions boolean [not null, default: `false`]
   Note: 'RLS on'
 }
 

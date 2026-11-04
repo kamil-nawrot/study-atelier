@@ -7,6 +7,7 @@ import { m } from '#lib/i18n/i18n.ts';
 import { resolveImages } from '#lib/wall/wall-data/wall-data.ts';
 import {
 	loadReviewDetails,
+	loadNoteGap,
 	loadSession,
 	recordFreeAnswers,
 	recordReview,
@@ -45,6 +46,7 @@ vi.mock('#lib/glossary/glossary-data/glossary-data.ts', async (importOriginal) =
 vi.mock('#lib/review/review-data/review-data.ts', () => ({
 	REVIEW_COUNTS_DEPENDENCY: 'review:counts',
 	loadReviewDetails: vi.fn().mockResolvedValue({ details: new Map() }),
+	loadNoteGap: vi.fn(),
 	loadSession: vi.fn(),
 	recordFreeAnswers: vi.fn(),
 	recordRightAnswer: vi.fn().mockResolvedValue(undefined),
@@ -305,7 +307,13 @@ describe('review page', () => {
 			.element(page.getByRole('button', { name: m.review.forms.quizzes }))
 			.not.toBeInTheDocument();
 		await page.getByRole('button', { name: m.review.start }).click();
-		expect(loadSession).toHaveBeenCalledWith(expect.any(Date), 'mixed', { kind: 'all' }, false);
+		expect(loadSession).toHaveBeenCalledWith(
+			expect.any(Date),
+			'mixed',
+			{ kind: 'all' },
+			false,
+			undefined
+		);
 	});
 
 	it('asks for the questions about time only when the preferences turn them on', async () => {
@@ -322,7 +330,13 @@ describe('review page', () => {
 
 		await page.getByRole('button', { name: m.review.start }).click();
 
-		expect(loadSession).toHaveBeenCalledWith(expect.any(Date), 'mixed', { kind: 'all' }, true);
+		expect(loadSession).toHaveBeenCalledWith(
+			expect.any(Date),
+			'mixed',
+			{ kind: 'all' },
+			true,
+			undefined
+		);
 	});
 
 	it('adds the definitions of the preferences to a session unless they are switched off', async () => {
@@ -470,7 +484,8 @@ describe('review page', () => {
 			expect.any(Date),
 			'flashcards',
 			{ kind: 'all' },
-			false
+			false,
+			undefined
 		);
 
 		for (const rating of [3, 2, 3, 3] as const) {
@@ -577,6 +592,36 @@ describe('review page', () => {
 				`${m.review.quiz.right} Artwork 12, Test Painter.`
 			)
 		);
+	});
+
+	it('asks for a term hidden in the own note when the switch is on', async () => {
+		const artworks = collection(25);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 20), () => 5),
+			0,
+			undefined,
+			0,
+			{},
+			{ ...defaultPreferences, reviewNoteQuestions: true },
+			0,
+			terms.map((term) => ({ ...term, hasDefinition: false }))
+		);
+		vi.mocked(loadSession).mockResolvedValue({ rows: flashcards(1) });
+		vi.mocked(loadNoteGap).mockResolvedValue({ id: 'artwork-12', notes: 'The apse is round.' });
+
+		await page.getByRole('button', { name: m.review.start }).click();
+		await page.getByRole('button', { name: m.review.flashcard.reveal }).click();
+		await page.getByRole('button', { name: new RegExp(`^${m.review.ratings[3]}`) }).click();
+		await expect
+			.element(page.getByRole('heading', { name: m.review.quiz.noteQuestion }))
+			.toBeVisible();
+		vi.mocked(recordRightAnswer).mockClear();
+		await page.getByRole('button', { name: /Apse/ }).click();
+
+		expect(loadNoteGap).toHaveBeenCalledWith({ kind: 'all' }, ['artwork-1']);
+		await expect.element(page.getByText('apse', { exact: true })).toBeVisible();
+		expect(recordRightAnswer).toHaveBeenCalledOnce();
 	});
 
 	it('asks before stopping a session that has answers and keeps them', async () => {

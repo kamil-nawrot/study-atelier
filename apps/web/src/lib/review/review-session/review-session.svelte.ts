@@ -11,6 +11,12 @@ import { boundsOf, yearOutcome, yearsOf } from '#lib/review/year-guess/year-gues
 import { ORDER_SIZE, placedRight } from '#lib/review/order-guess/order-guess.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
+const EXTRA_MODES = new Set(['quiz_definition', 'note_gap', 'year', 'order']);
+
+function artworkItem(step: SessionStep | undefined): step is ReviewItem {
+	return step !== undefined && !EXTRA_MODES.has(step.mode);
+}
+
 type ReviewAnswerLog = {
 	item: ReviewItem;
 	rating: ReviewRating;
@@ -95,9 +101,7 @@ export class ReviewSession {
 
 	next(): Record<ReviewRating, ReviewCard> | undefined {
 		const item = this.current;
-		return item && item.mode !== 'quiz_definition' && item.mode !== 'year' && item.mode !== 'order'
-			? outcomes(item.artwork.id, item.card, this.#now())
-			: undefined;
+		return artworkItem(item) ? outcomes(item.artwork.id, item.card, this.#now()) : undefined;
 	}
 
 	reveal(): void {
@@ -107,10 +111,7 @@ export class ReviewSession {
 	async rate(rating: ReviewRating, scheduled?: ReviewCard): Promise<void> {
 		const item = this.current;
 		if (
-			!item ||
-			item.mode === 'quiz_definition' ||
-			item.mode === 'year' ||
-			item.mode === 'order' ||
+			!artworkItem(item) ||
 			item.mode === 'quiz_typed' ||
 			item.quiz ||
 			!this.revealed ||
@@ -134,11 +135,12 @@ export class ReviewSession {
 			return;
 		}
 		const correct = choice === item.quiz.answer;
-		if (item.mode === 'quiz_definition') {
+		if (item.mode === 'quiz_definition' || item.mode === 'note_gap') {
+			const key = item.mode === 'note_gap' ? `${item.artwork.id}:${item.term.id}` : item.term.id;
 			if (!correct) {
-				this.#missed.add(item.term.id);
+				this.#missed.add(key);
 				this.#retry({ ...item, quiz: shuffleQuiz(item.quiz, this.#random) });
-			} else if (!this.free && !this.#missed.has(item.term.id)) {
+			} else if (!this.free && !this.#missed.has(key)) {
 				void recordRightAnswer(startOfDay(this.#now()));
 			}
 			this.chosen = choice;
