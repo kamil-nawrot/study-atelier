@@ -1522,13 +1522,13 @@ export const pl = {
 				name: 'Strzała putta',
 				about:
 					'Amsterdamski rytownik Reinier Vinkeles wyrył postać putta, który ogląda strzałę wbitą w sam środek tarczy.',
-				count: counter('trafień co do roku')
+				count: counter('perfekcyjnych datowań dzieł')
 			},
 			regular: {
 				name: 'Klepsydra melancholii',
 				about:
 					'Klepsydra zdobi ścianę w „Melancholii I”, miedziorycie Albrechta Dürera z 1514 roku.',
-				count: counter('dni', 'najdłuższa seria: ')
+				count: counter('dni w najdłuższej serii powtórek')
 			},
 			back_from_storage: {
 				name: 'Uśmiech Mony Lisy',
@@ -1547,7 +1547,7 @@ export const pl = {
 				name: 'Globus podróżnika',
 				about:
 					'Plansza „Sphaerarum artificialium typica repraesentatio” przedstawia globus ziemski, globus nieba i sferę armilarną.',
-				count: counter('krajów z odwiedzonymi miejscami')
+				count: counter('odwiedzonych krajów')
 			},
 			seen_live: {
 				name: 'Teleskop Mathieu Laensbergha',
@@ -1571,7 +1571,7 @@ export const pl = {
 				name: 'Camera obscura z Encyklopedii',
 				about:
 					'Plansza z „Encyklopedii” Diderota i d’Alemberta pokazuje ciemnię optyczną, dzięki której na długo przed fotografią artyści przenosili na papier krajobrazy i budowle.',
-				count: counter('własnych zdjęć dzieł')
+				count: counter('dodanych przez Ciebie zdjęć')
 			},
 			night_watch: {
 				name: 'Straż nocna',
@@ -2050,11 +2050,8 @@ function minuteCount(count: number): string {
 	return `${count} ${plural(count, { one: 'minutę', few: 'minuty', many: 'minut' })}`;
 }
 
-function counter(unit: string, before = ''): (value: number, next?: number) => string {
-	return (value, next) =>
-		next === undefined
-			? `${before}${value} ${unit} · najwyższy poziom`
-			: `${before}${value} z ${next} ${unit}`;
+function counter(unit: string): (value: number, next?: number) => string {
+	return (value, next) => (next === undefined ? `${value} ${unit}` : `${value} z ${next} ${unit}`);
 }
 
 function pointCount(count: number): string {

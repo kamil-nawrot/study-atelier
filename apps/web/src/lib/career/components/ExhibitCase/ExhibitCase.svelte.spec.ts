@@ -76,6 +76,11 @@ describe('ExhibitCase', () => {
 		render(ExhibitCase, { props: { exhibit: exhibit({ value: 300 }) } });
 
 		await expect.element(page.getByText(m.career.exhibits.collection.count(300))).toBeVisible();
+		expect(m.career.exhibits.collection.count(300)).toBe('300 dzieł w atelier');
+		expect(m.career.exhibits.collection.count(24, 50)).toBe('24 z 50 dzieł w atelier');
+		expect(m.career.exhibits.regular.count(14, 30)).toBe(
+			'14 z 30 dni w najdłuższej serii powtórek'
+		);
 		await expect.element(page.getByRole('meter')).not.toBeInTheDocument();
 	});
 
