@@ -30,6 +30,11 @@ jobs:
           BASE_REF: ${{ github.base_ref }}
         run: node .github/scripts/check-pull-request.mjs
 
+      - name: Check the order of new migrations
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: node .github/scripts/check-migration-order.mjs
+
       - name: Check the docs and e-mail addresses
         run: node .github/scripts/check-docs.mjs
 
