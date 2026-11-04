@@ -4,4 +4,5 @@ export type Profile = {
 	displayName: string | null;
 	avatarPath: string | null;
 	rankForm: RankForm;
+	careerShown: boolean;
 };

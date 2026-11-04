@@ -42,30 +42,33 @@ describe('saveProfile', () => {
 	const current = {
 		displayName: 'Anna',
 		avatarPath: `${OWNER}/avatar-old.jpg`,
-		rankForm: 'masculine' as const
+		rankForm: 'masculine' as const,
+		careerShown: true
 	};
 
 	it('saves a trimmed name and keeps the photo', async () => {
 		const upsert = upserting({
-			data: { display_name: 'Ania', avatar_path: current.avatarPath },
+			data: { display_name: 'Ania', avatar_path: current.avatarPath, career_shown: false },
 			error: null
 		});
 
 		const result = await saveProfile(
-			{ name: '  Ania ', avatar: { kind: 'keep' }, rankForm: 'masculine' },
+			{ name: '  Ania ', avatar: { kind: 'keep' }, rankForm: 'masculine', careerShown: false },
 			current
 		);
 
 		expect(upsert).toHaveBeenCalledWith({
 			display_name: 'Ania',
 			avatar_path: current.avatarPath,
-			rank_form: 'masculine'
+			rank_form: 'masculine',
+			career_shown: false
 		});
 		expect(result).toEqual({
 			profile: {
 				displayName: 'Ania',
 				avatarPath: current.avatarPath,
-				rankForm: 'masculine' as const
+				rankForm: 'masculine' as const,
+				careerShown: false
 			}
 		});
 		expect(storage.upload).not.toHaveBeenCalled();
@@ -74,12 +77,17 @@ describe('saveProfile', () => {
 
 	it('uploads a new photo into the learner folder and removes the old one', async () => {
 		const upsert = upserting({
-			data: { display_name: 'Anna', avatar_path: 'saved' },
+			data: { display_name: 'Anna', avatar_path: 'saved', career_shown: true },
 			error: null
 		});
 
 		await saveProfile(
-			{ name: 'Anna', avatar: { kind: 'replace', image }, rankForm: 'masculine' },
+			{
+				name: 'Anna',
+				avatar: { kind: 'replace', image },
+				rankForm: 'masculine',
+				careerShown: true
+			},
 			current
 		);
 
@@ -94,7 +102,8 @@ describe('saveProfile', () => {
 		expect(upsert).toHaveBeenCalledWith({
 			display_name: 'Anna',
 			avatar_path: path,
-			rank_form: 'masculine'
+			rank_form: 'masculine',
+			career_shown: true
 		});
 		expect(storage.remove).toHaveBeenCalledWith([
 			current.avatarPath,
@@ -103,30 +112,41 @@ describe('saveProfile', () => {
 	});
 
 	it('clears the path and removes the file when the photo is removed', async () => {
-		const upsert = upserting({ data: { display_name: 'Anna', avatar_path: null }, error: null });
+		const upsert = upserting({
+			data: { display_name: 'Anna', avatar_path: null, career_shown: true },
+			error: null
+		});
 
-		await saveProfile({ name: 'Anna', avatar: { kind: 'remove' }, rankForm: 'masculine' }, current);
+		await saveProfile(
+			{ name: 'Anna', avatar: { kind: 'remove' }, rankForm: 'masculine', careerShown: true },
+			current
+		);
 
 		expect(upsert).toHaveBeenCalledWith({
 			display_name: 'Anna',
 			avatar_path: null,
-			rank_form: 'masculine'
+			rank_form: 'masculine',
+			career_shown: true
 		});
 		expect(storage.remove).toHaveBeenCalledTimes(1);
 	});
 
 	it('stores an empty name as nothing', async () => {
-		const upsert = upserting({ data: { display_name: null, avatar_path: null }, error: null });
+		const upsert = upserting({
+			data: { display_name: null, avatar_path: null, career_shown: true },
+			error: null
+		});
 
 		await saveProfile(
-			{ name: '  ', avatar: { kind: 'keep' }, rankForm: 'masculine' },
+			{ name: '  ', avatar: { kind: 'keep' }, rankForm: 'masculine', careerShown: true },
 			{ ...current, avatarPath: null }
 		);
 
 		expect(upsert).toHaveBeenCalledWith({
 			display_name: null,
 			avatar_path: null,
-			rank_form: 'masculine'
+			rank_form: 'masculine',
+			career_shown: true
 		});
 	});
 
@@ -134,7 +154,12 @@ describe('saveProfile', () => {
 		upserting({ data: null, error: { code: '23514', status: 400 } });
 
 		const result = await saveProfile(
-			{ name: 'Anna', avatar: { kind: 'replace', image }, rankForm: 'masculine' },
+			{
+				name: 'Anna',
+				avatar: { kind: 'replace', image },
+				rankForm: 'masculine',
+				careerShown: true
+			},
 			current
 		);
 
@@ -148,7 +173,12 @@ describe('saveProfile', () => {
 		storage.upload.mockResolvedValue({ error: { status: 413, statusCode: '413' } });
 
 		const result = await saveProfile(
-			{ name: 'Anna', avatar: { kind: 'replace', image }, rankForm: 'masculine' },
+			{
+				name: 'Anna',
+				avatar: { kind: 'replace', image },
+				rankForm: 'masculine',
+				careerShown: true
+			},
 			current
 		);
 
@@ -160,7 +190,7 @@ describe('saveProfile', () => {
 		upserting({ data: null, error: { code: 'PGRST301', status: 401 } });
 
 		const result = await saveProfile(
-			{ name: 'Anna', avatar: { kind: 'keep' }, rankForm: 'masculine' },
+			{ name: 'Anna', avatar: { kind: 'keep' }, rankForm: 'masculine', careerShown: true },
 			current
 		);
 

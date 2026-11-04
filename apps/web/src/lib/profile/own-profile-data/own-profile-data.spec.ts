@@ -28,6 +28,7 @@ const row = {
 	review_form: 'quizzes',
 	review_quiz_kinds: ['quiz_image'],
 	review_free: false,
+	review_glossary_on: true,
 	review_glossary_questions: 2,
 	review_note_questions: false,
 	review_time_questions: false,
@@ -56,8 +57,12 @@ describe('loadOwnProfile', () => {
 
 		expect(supabase.from).toHaveBeenCalledTimes(1);
 		expect(query.select).toHaveBeenCalledWith(expect.stringContaining('legal_version'));
-		expect(own.preferences).toMatchObject({ reviewSessionSize: 30, careerShown: false });
-		expect(own.profile).toMatchObject({ displayName: 'Anna', avatarPath: null });
+		expect(own.preferences).toMatchObject({ reviewSessionSize: 30, reviewGlossaryOn: true });
+		expect(own.profile).toMatchObject({
+			displayName: 'Anna',
+			avatarPath: null,
+			careerShown: false
+		});
 		expect(own.legalVersion).toBe('2026-10-27');
 		expect(own.error).toBeUndefined();
 	});
