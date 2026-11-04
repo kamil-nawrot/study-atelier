@@ -58,6 +58,7 @@
 		(next) => (image = next)
 	);
 	let removeOpen = $state(false);
+	let height = $state(0);
 
 	let preview = $derived(artworkImageSource(image, COMMONS_PREVIEW_WIDTH));
 	let credit = $derived(artworkImageCredit(image));
@@ -91,7 +92,12 @@
 
 <svelte:window onpaste={(event) => input.handlePaste(event)} />
 
-<section class="image" aria-label={texts.label}>
+<section
+	style:--image-height="{height}px"
+	class="image"
+	aria-label={texts.label}
+	bind:offsetHeight={height}
+>
 	{@render slots?.()}
 	<figure class="picture">
 		<div class="mat">
@@ -251,7 +257,8 @@
 	@media (min-width: 768px) {
 		.image {
 			position: sticky;
-			top: var(--spacing-24);
+			top: min(var(--spacing-24), calc(100vh - var(--image-height) - var(--spacing-24)));
+			align-self: start;
 		}
 
 		.image-actions > :global(*) {
