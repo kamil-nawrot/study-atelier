@@ -653,17 +653,17 @@ export const pl = {
 		loadErrorTitle: 'Nie udało się wczytać powtórek',
 		startErrorTitle: 'Nie udało się rozpocząć sesji powtórkowej',
 		waiting: (count: number): string => `Na dziś do powtórki zaplanowane masz ${workCount(count)}`,
-		plan: (known: number, fresh: number): string =>
-			[
-				known > 0
-					? `${known} ${plural(known, { one: 'powracające', few: 'powracające', many: 'powracających' })}`
-					: '',
-				fresh > 0 ? `${fresh} ${plural(fresh, { one: 'nowe', few: 'nowe', many: 'nowych' })}` : ''
-			]
-				.filter(Boolean)
-				.join(' i '),
-		streak: (days: number): string =>
-			`Seria: ${days} ${plural(days, { one: 'dzień', few: 'dni', many: 'dni' })} z powtórkami z rzędu`,
+		planKnown: (count: number): string =>
+			`${count} ${plural(count, { one: 'powracające', few: 'powracające', many: 'powracających' })}`,
+		planFresh: (count: number): string =>
+			`${count} ${plural(count, { one: 'nowe', few: 'nowe', many: 'nowych' })}`,
+		streakCaption: 'Twoja seria powtórek',
+		streakDays: (days: number): string =>
+			plural(days, { one: 'dzień z rzędu', few: 'dni z rzędu', many: 'dni z rzędu' }),
+		weekdays: ['nd', 'pn', 'wt', 'śr', 'cz', 'pt', 'sb'],
+		today: 'dziś',
+		streakWeek: (days: number, today: boolean): string =>
+			`Ostatni tydzień: powtórki przez ${days} ${plural(days, { one: 'dzień', few: 'dni', many: 'dni' })} z rzędu, ${today ? 'także dziś' : 'dziś jeszcze bez powtórki'}.`,
 		allDoneTitle: 'Nic nowego do powtórki',
 		allDone: (when: string): string => `Kolejne dzieła będą na Ciebie czekać ${when}.`,
 		tooFewTitle: (minimum: number): string =>
@@ -817,18 +817,20 @@ export const pl = {
 			trueOrder: 'Prawdziwa kolejność',
 			axis: 'Oś z czterema dziełami w ich prawdziwych odstępach'
 		},
-		timeSummary: (
-			years: { asked: number; hit: number },
-			orders: { asked: number; right: number }
-		): string => {
-			const parts = [
-				years.asked > 0
-					? `rok trafiony ${years.hit} z ${years.asked} ${years.asked === 1 ? 'razu' : 'razy'}`
-					: '',
-				orders.asked > 0 ? `kolejność ${orders.right} z ${orders.asked}` : ''
-			].filter(Boolean);
-			return `Pytania o czas: ${parts.join(', ')}.`;
+		roundTitle: (count: number, minutes: number): string =>
+			`${count} ${plural(count, { one: 'dzieło powtórzone', few: 'dzieła powtórzone', many: 'dzieł powtórzonych' })} w ${minuteCount(minutes)}`,
+		roundLines: {
+			years: 'Trafiony rok powstania:',
+			orders: 'Poprawnie chronologicznie ułożone dzieła:',
+			definitions: 'Poprawnie odgadnięte pojęcia:',
+			notes: 'Poprawnie uzupełnione luki w notatkach:'
 		},
+		roundScore: (right: number, asked: number): string => `${right}/${asked}`,
+		tomorrowStart: (count: number): string =>
+			`Jutro ${plural(count, { one: 'będzie', few: 'będą', many: 'będzie' })} czekać na Ciebie`,
+		tomorrowEnd: (count: number): string =>
+			`${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })} do powtórki`,
+		freePlan: 'Plan powtórek się nie zmienił.',
 		ratings: {
 			1: 'Nie wiem',
 			2: 'Prawie',
@@ -837,18 +839,11 @@ export const pl = {
 		saveErrorTitle: 'Nie udało się zapisać odpowiedzi',
 		saveFailed: 'Nie udało się zapisać odpowiedzi. Spróbuj jeszcze raz.',
 		done: 'Gotowe',
-		summary: (count: number, minutes: number, tomorrow: number): string =>
-			reviewedToday(count, minutes) +
-			(tomorrow > 0
-				? ` Jutro ${plural(tomorrow, { one: 'będzie', few: 'będą', many: 'będzie' })} na Ciebie czekać ${workCount(tomorrow)}.`
-				: ''),
 		groups: {
 			1: 'Do poprawki',
 			2: 'Prawie',
 			3: 'Opanowane'
 		},
-		freeSummary: (count: number, minutes: number): string =>
-			`${reviewedToday(count, minutes)} Plan powtórek się nie zmienił.`,
 		nextRound: (count: number): string => `Następna runda (${count})`,
 		freeNextRound: 'Kolejna runda swobodna'
 	},
@@ -1499,15 +1494,9 @@ export const pl = {
 		tierOf: (tier: string, exhibit: string): string => `Poziom ${tier}: ${exhibit}`,
 		rankTip: (points: number, next: string, missing: number): string =>
 			`${pointCount(points)} · do stopnia ${next} brakuje ${missing}`,
-		roundPlan: (points: number, streak: number, bonus: number): string =>
-			`Za dzisiejszy plan: ${pointCount(points)}${
-				streak > 1
-					? ` (seria ${streak} ${plural(streak, { one: 'dzień', few: 'dni', many: 'dni' })}${bonus > 0 ? `, premia ${bonus}%` : ''})`
-					: ''
-			}.`,
-		roundTier: (tier: string, exhibit: string): string =>
-			`W Gablocie zapalił się poziom ${tier}: ${exhibit}.`,
-		roundRank: (rank: string): string => `Nowy stopień: ${rank}.`,
+		roundTier: 'Nowy eksponat na Ekspozycji:',
+		roundTierName: (exhibit: string, tier: string): string => `${exhibit} · ${tier}`,
+		roundRank: 'Nowy stopień:',
 		credits: 'Ryciny',
 		recoloured: 'kolory zmienione',
 		exhibits: {
@@ -2051,10 +2040,6 @@ export const pl = {
 type PluralForms = Record<'one' | 'few' | 'many', string>;
 
 const pluralRules = new Intl.PluralRules('pl');
-
-function reviewedToday(count: number, minutes: number): string {
-	return `Dziś udało się powtórzyć ${workCount(count)}. Zajęło Ci to ${minuteCount(minutes)}.`;
-}
 
 function minuteCount(count: number): string {
 	return `${count} ${plural(count, { one: 'minutę', few: 'minuty', many: 'minut' })}`;

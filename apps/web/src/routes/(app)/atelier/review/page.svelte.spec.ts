@@ -151,7 +151,8 @@ describe('review page', () => {
 		);
 
 		await expect.element(page.getByRole('heading', { name: m.review.waiting(9) })).toBeVisible();
-		await expect.element(page.getByText(m.review.plan(4, 5))).toBeVisible();
+		await expect.element(page.getByText(m.review.planKnown(4))).toBeVisible();
+		await expect.element(page.getByText(m.review.planFresh(5))).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.review.start })).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.review.free })).not.toBeInTheDocument();
 		await expect.element(page.getByRole('heading', { name: m.review.howTitle })).toBeVisible();
@@ -164,14 +165,16 @@ describe('review page', () => {
 	it('tells how many days in a row there were reviews', async () => {
 		renderReview(collection(25), new Map(), 0, undefined, 5);
 
-		await expect.element(page.getByText(m.review.streak(5))).toBeVisible();
+		await expect.element(page.getByText(m.review.streakCaption)).toBeVisible();
+		await expect.element(page.getByText(m.review.streakDays(5), { exact: true })).toBeVisible();
+		await expect.element(page.getByText(m.review.streakWeek(5, false))).toBeInTheDocument();
 	});
 
 	it('says nothing about a streak when there is none', async () => {
 		renderReview(collection(25));
 
 		await expect.element(page.getByRole('heading', { name: m.review.waiting(10) })).toBeVisible();
-		await expect.element(page.getByText(m.review.streak(0))).not.toBeInTheDocument();
+		await expect.element(page.getByText(m.review.streakCaption)).not.toBeInTheDocument();
 	});
 
 	it('shows why the reviews could not be loaded', async () => {
@@ -237,7 +240,10 @@ describe('review page', () => {
 			await page.getByRole('button', { name: new RegExp(`^${m.review.ratings[rating]}`) }).click();
 		}
 
-		await expect.element(page.getByText(m.review.freeSummary(2, 1))).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { level: 1, name: m.review.roundTitle(2, 1) }))
+			.toBeVisible();
+		await expect.element(page.getByText(m.review.freePlan)).toBeVisible();
 		expect(recordReview).not.toHaveBeenCalled();
 		expect(vi.mocked(recordFreeAnswers).mock.calls.map(([, answers]) => answers)).toEqual([1, 1]);
 		expect(invalidate).not.toHaveBeenCalled();
@@ -279,7 +285,7 @@ describe('review page', () => {
 			{ ...defaultPreferences, reviewForm: 'quizzes', reviewNewPerDay: 5 }
 		);
 
-		await expect.element(page.getByText(m.review.plan(0, 5))).toBeVisible();
+		await expect.element(page.getByText(m.review.planFresh(5))).toBeVisible();
 		await page.getByText(m.review.options).click();
 		await expect
 			.element(page.getByRole('button', { name: m.review.forms.quizzes }))
@@ -493,7 +499,7 @@ describe('review page', () => {
 			await page.getByRole('button', { name: new RegExp(`^${m.review.ratings[rating]}`) }).click();
 		}
 
-		await expect.element(page.getByRole('heading', { name: m.review.done })).toBeVisible();
+		await expect.element(page.getByRole('heading', { level: 1, name: /powtórzon/ })).toBeVisible();
 		expect(recordReview).toHaveBeenCalledTimes(4);
 		await expect
 			.element(page.getByRole('heading', { name: new RegExp(m.review.groups[3]) }))
@@ -561,11 +567,12 @@ describe('review page', () => {
 			expect.objectContaining({ mode: 'year', rating: 1, correct: false })
 		);
 		expect(recordRightAnswer).toHaveBeenCalledOnce();
-		await expect.element(page.getByRole('heading', { name: m.review.done })).toBeVisible();
+		await expect.element(page.getByRole('heading', { level: 1, name: /powtórzon/ })).toBeVisible();
+		await expect.element(page.getByText(m.review.roundLines.years)).toBeVisible();
+		await expect.element(page.getByText(m.review.roundLines.orders)).toBeVisible();
 		await expect
-			.element(page.getByText(m.review.timeSummary({ asked: 1, hit: 0 }, { asked: 1, right: 1 })))
+			.element(page.getByRole('heading', { level: 1, name: m.review.roundTitle(1, 1) }))
 			.toBeVisible();
-		await expect.element(page.getByText(m.review.summary(1, 1, 0))).toBeVisible();
 	});
 
 	it('asks for the title typed from memory and saves the artwork picked', async () => {
@@ -641,8 +648,10 @@ describe('review page', () => {
 		await expect.element(dialog.getByText(m.review.stopDescription)).toBeVisible();
 		await dialog.getByRole('button', { name: m.review.stop }).click();
 
-		await expect.element(page.getByRole('heading', { name: m.review.done })).toBeVisible();
-		await expect.element(page.getByText(m.review.summary(1, 1, 0))).toBeVisible();
+		await expect.element(page.getByRole('heading', { level: 1, name: /powtórzon/ })).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { level: 1, name: m.review.roundTitle(1, 1) }))
+			.toBeVisible();
 	});
 
 	it('keeps the answer still being saved when the session is stopped', async () => {
@@ -669,8 +678,10 @@ describe('review page', () => {
 			.click();
 		saved({});
 
-		await expect.element(page.getByRole('heading', { name: m.review.done })).toBeVisible();
-		await expect.element(page.getByText(m.review.summary(2, 1, 0))).toBeVisible();
+		await expect.element(page.getByRole('heading', { level: 1, name: /powtórzon/ })).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { level: 1, name: m.review.roundTitle(2, 1) }))
+			.toBeVisible();
 	});
 
 	it('asks new artworks as quizzes, shows the answer at once and goes on with Enter', async () => {

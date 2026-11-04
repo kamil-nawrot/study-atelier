@@ -1,8 +1,11 @@
 <script lang="ts">
+	import Award from '@lucide/svelte/icons/award';
+	import Trophy from '@lucide/svelte/icons/trophy';
 	import { onMount } from 'svelte';
+	import { Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { career } from '#lib/career/career-state/career-state.svelte.ts';
-	import { planPoints, streakBonus } from '#lib/career/plan-points/plan-points.ts';
+	import { metalOf } from '#lib/career/exhibits/exhibits.ts';
 	import { rankName, rankOf } from '#lib/career/ranks/ranks.ts';
 	import { loadRoundCareer } from '#lib/career/standing-data/standing-data.ts';
 	import { roman } from '#lib/timeline/labels/labels.ts';
@@ -19,6 +22,19 @@
 	let round = $state<RoundCareer>();
 	let rank = $derived(round ? rankOf(round.points).level : 0);
 
+	const METAL_COLOURS = {
+		none: 'gold',
+		bronze: 'bronze',
+		silver: 'silver',
+		gold: 'gold',
+		platinum: 'silver'
+	} as const;
+
+	function colourOf(tier: number, tiers: number | null): string {
+		const metal = tiers ? metalOf(tier, tiers) : 'gold';
+		return `var(--color-case-${METAL_COLOURS[metal]})`;
+	}
+
 	function exhibitName(code: string): string {
 		return m.career.exhibits[code as keyof typeof m.career.exhibits]?.name ?? code;
 	}
@@ -34,30 +50,53 @@
 </script>
 
 {#if round}
-	<div class="round">
-		{#if round.plan}
-			<p class="caption">
-				{m.career.roundPlan(
-					planPoints(round.plan.share, round.plan.streak),
-					round.plan.streak,
-					Math.round(streakBonus(round.plan.streak) * 100)
-				)}
-			</p>
-		{/if}
+	<ul class="career">
 		{#each round.tiers as unlocked (`${unlocked.exhibit}-${unlocked.tier}`)}
-			<p class="caption">
-				{m.career.roundTier(roman(unlocked.tier), exhibitName(unlocked.exhibit))}
-			</p>
+			<li>
+				<Icon icon={Trophy} />
+				<span>
+					{m.career.roundTier}
+					<strong style:color={colourOf(unlocked.tier, unlocked.tiers)}>
+						{m.career.roundTierName(exhibitName(unlocked.exhibit), roman(unlocked.tier))}
+					</strong>
+				</span>
+			</li>
 		{/each}
 		{#if rank > Math.max(round.rankSeen, 1)}
-			<p class="caption">{m.career.roundRank(rankName(rank, form))}</p>
+			<li>
+				<Icon icon={Award} />
+				<span>
+					{m.career.roundRank}
+					<strong class="rank">{rankName(rank, form)}</strong>
+				</span>
+			</li>
 		{/if}
-	</div>
+	</ul>
 {/if}
 
 <style>
-	.round {
+	.career {
 		display: grid;
-		gap: var(--spacing-1);
+		gap: var(--spacing-2);
+		list-style: none;
+	}
+
+	.career:empty {
+		display: none;
+	}
+
+	li {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-3);
+	}
+
+	li > :global(svg) {
+		flex: none;
+		color: var(--color-fg-muted);
+	}
+
+	.rank {
+		color: var(--color-case-gold);
 	}
 </style>

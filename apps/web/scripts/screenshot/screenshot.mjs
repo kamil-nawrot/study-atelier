@@ -742,7 +742,12 @@ async function mockSupabase(context) {
 			]);
 		}
 		if (url.pathname === '/rest/v1/exhibit_tiers') {
-			return request.method() === 'PATCH' ? json(route, []) : json(route, EXHIBIT_TIERS);
+			if (request.method() === 'PATCH') return json(route, []);
+			const unseen = url.searchParams.get('seen_at') === 'is.null';
+			return json(
+				route,
+				unseen ? EXHIBIT_TIERS.filter((row) => row.seen_at === null) : EXHIBIT_TIERS
+			);
 		}
 		if (url.pathname === '/rest/v1/timeline_events') {
 			if (request.method() === 'POST') return json(route, { id: TIMELINE_EVENTS[0].id }, 201);

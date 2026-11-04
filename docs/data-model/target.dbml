@@ -238,6 +238,7 @@ Table exhibit_tiers {
   owner_id uuid [not null, default: `auth.uid()`]
   exhibit text [not null]
   tier smallint [not null]
+  tiers smallint
   unlocked_at "timestamp with time zone" [not null, default: `now()`]
   seen_at "timestamp with time zone"
 

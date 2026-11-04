@@ -1068,6 +1068,7 @@ export const EXHIBIT_TIERS = EXHIBITS.flatMap(({ exhibit, value, thresholds }) =
 		.map((_, index) => ({
 			exhibit,
 			tier: index + 1,
+			tiers: thresholds.length,
 			unlocked_at: `2026-10-${String(12 + index).padStart(2, '0')}T10:00:00Z`,
 			seen_at:
 				(exhibit === 'glossary' && index === 4) || (exhibit === 'collection' && index === 1)

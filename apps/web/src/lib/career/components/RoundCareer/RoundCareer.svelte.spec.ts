@@ -18,22 +18,29 @@ describe('RoundCareer', () => {
 		vi.clearAllMocks();
 	});
 
-	it('sums up the day for the career: plan points, lit tiers and a new rank', async () => {
+	it('names the new exhibits in the colour of their metal and a new rank, without plan points', async () => {
 		round.mockResolvedValue({
 			round: {
 				plan: { share: 1, streak: 12 },
-				tiers: [{ exhibit: 'collection', tier: 4 }],
+				tiers: [
+					{ exhibit: 'collection', tier: 4, tiers: 9 },
+					{ exhibit: 'eras', tier: 1, tiers: 5 }
+				],
 				points: 1846,
 				rankSeen: 4
 			}
 		});
 		render(RoundCareer, { props: { form: 'masculine', now: () => new Date(2026, 9, 29, 18) } });
 
-		await expect.element(page.getByText(m.career.roundPlan(15, 12, 50))).toBeVisible();
-		await expect
-			.element(page.getByText(m.career.roundTier('IV', m.career.exhibits.collection.name)))
-			.toBeVisible();
-		await expect.element(page.getByText(m.career.roundRank('Znawca'))).toBeVisible();
+		const collection = page.getByText(
+			m.career.roundTierName(m.career.exhibits.collection.name, 'IV')
+		);
+		await expect.element(collection).toBeVisible();
+		expect(collection.element().getAttribute('style')).toContain('--color-case-silver');
+		const eras = page.getByText(m.career.roundTierName(m.career.exhibits.eras.name, 'I'));
+		expect(eras.element().getAttribute('style')).toContain('--color-case-bronze');
+		await expect.element(page.getByText('Znawca')).toBeVisible();
+		await expect.element(page.getByText(/pkt/)).not.toBeInTheDocument();
 		expect(round).toHaveBeenCalledWith(new Date(2026, 9, 29));
 	});
 
@@ -41,16 +48,16 @@ describe('RoundCareer', () => {
 		round.mockRejectedValue(new TypeError('Failed to fetch'));
 		render(RoundCareer, { props: { form: 'masculine' } });
 
-		await expect.element(page.getByText(/Za dzisiejszy plan/)).not.toBeInTheDocument();
+		await expect.element(page.getByText(m.career.roundTier)).not.toBeInTheDocument();
 	});
 
-	it('says nothing more than the plan when nothing else happened', async () => {
+	it('says nothing when no exhibit and no rank came with the round', async () => {
 		round.mockResolvedValue({
 			round: { plan: { share: 0.5, streak: 1 }, tiers: [], points: 1846, rankSeen: 5 }
 		});
 		render(RoundCareer, { props: { form: 'feminine' } });
 
-		await expect.element(page.getByText(m.career.roundPlan(5, 1, 0))).toBeVisible();
-		await expect.element(page.getByText(/Nowy stopień/)).not.toBeInTheDocument();
+		await expect.element(page.getByText(m.career.roundRank)).not.toBeInTheDocument();
+		expect(document.querySelectorAll('.career li')).toHaveLength(0);
 	});
 });
