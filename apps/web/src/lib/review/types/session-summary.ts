@@ -6,4 +6,5 @@ export type SessionSummary = {
 	tomorrow: number;
 	groups: SummaryGroup[];
 	free: boolean;
+	years: { asked: number; hit: number };
 };

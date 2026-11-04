@@ -28,6 +28,18 @@ function group(name: string): HTMLDetailsElement {
 }
 
 describe('ReviewSummary', () => {
+	it('gives the year questions a line of their own only when some were asked', async () => {
+		await renderSummary([], { years: { asked: 3, hit: 2 } });
+		await expect.element(page.getByText(m.review.timeSummary(2, 3))).toBeInTheDocument();
+		expect(m.review.timeSummary(1, 1)).toBe('Pytania o czas: rok trafiony 1 z 1 razu.');
+		expect(m.review.timeSummary(2, 3)).toBe('Pytania o czas: rok trafiony 2 z 3 razy.');
+	});
+
+	it('leaves the line out without year questions', async () => {
+		await renderSummary([], { years: { asked: 0, hit: 0 } });
+		await expect.element(page.getByText(/Pytania o czas/)).not.toBeInTheDocument();
+	});
+
 	it('opens the artworks to improve and collapses the others', async () => {
 		await renderSummary([
 			{ rating: 1, artworks: [testArtwork(1, 'Artwork 1')] },

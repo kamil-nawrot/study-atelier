@@ -206,6 +206,17 @@ describe('review data', () => {
 		});
 	});
 
+	it('saves a year answer on the date facet', async () => {
+		rpc.mockResolvedValue({ error: null } as never);
+		await recordReview(card, { mode: 'year', rating: 2, correct: true });
+		expect(rpc).toHaveBeenCalledWith(
+			'record_review',
+			expect.objectContaining({
+				answer: { facet: 'date', mode: 'year', rating: 2, correct: true, answer_ms: null }
+			})
+		);
+	});
+
 	it('adds a right answer to the day', async () => {
 		rpc.mockResolvedValue({ error: null } as never);
 		await recordRightAnswer(new Date('2026-10-28T23:00:00.000Z'));
@@ -242,7 +253,8 @@ describe('review data', () => {
 			day_start: '2026-10-15T22:00:00.000Z',
 			session_form: 'quizzes',
 			scope_kind: 'style',
-			scope_value: 'Caravaggism'
+			scope_value: 'Caravaggism',
+			time_questions: true
 		});
 
 		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'mixed', {
@@ -257,14 +269,16 @@ describe('review data', () => {
 		expect(rpc).toHaveBeenLastCalledWith('review_session', {
 			day_start: '2026-10-15T22:00:00.000Z',
 			session_form: 'mixed',
-			scope_kind: 'all'
+			scope_kind: 'all',
+			time_questions: true
 		});
 		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'flashcards', { kind: 'all' }, 2);
 		expect(rpc).toHaveBeenLastCalledWith('review_session', {
 			day_start: '2026-10-15T22:00:00.000Z',
 			session_form: 'flashcards',
 			scope_kind: 'all',
-			free_round: 2
+			free_round: 2,
+			time_questions: true
 		});
 	});
 

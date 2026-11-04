@@ -295,7 +295,8 @@ function reviewSession({
 	session_form: form = 'mixed',
 	scope_kind: kind = 'all',
 	scope_value: value,
-	free_round: freeRound
+	free_round: freeRound,
+	time_questions: timeQuestions = false
 } = {}) {
 	const dayEnd = new Date(dayStartText ?? Date.now()).getTime() + 24 * 60 * 60 * 1000;
 	const pool = ARTWORKS.filter((row) => hasImage(row) && inScope(row, kind, value));
@@ -313,7 +314,7 @@ function reviewSession({
 		{ length: Math.min(20, known.length) },
 		(_, index) => known[(index + (freeRound ?? 0) * 20) % known.length]
 	);
-	return (freeRound === undefined ? [...due, ...fresh] : free).map((row, slot) => {
+	const items = (freeRound === undefined ? [...due, ...fresh] : free).map((row, slot) => {
 		const card = cardOf(row);
 		const pinQuiz = form === 'flashcards' ? undefined : pinQuizFor(row);
 		if (pinQuiz) return pinQuiz;
@@ -331,6 +332,13 @@ function reviewSession({
 		}
 		return { artwork_id: row.id, mode: 'flashcard' };
 	});
+	if (!timeQuestions || items.length === 0) return items;
+	const asked = new Set(items.map((item) => item.artwork_id));
+	const dated = pool.find(
+		(row) => cardOf(row) && row.era_code && row.year_to !== null && !asked.has(row.id)
+	);
+	if (!dated) return items;
+	return [items[0], { artwork_id: dated.id, mode: 'year', card: null }, ...items.slice(1)];
 }
 
 function notesMentions(needle) {
@@ -687,6 +695,9 @@ async function mockSupabase(context) {
 		}
 		if (url.pathname === '/rest/v1/rpc/term_mentions') {
 			return json(route, termMentions(request.postDataJSON()?.needles));
+		}
+		if (url.pathname === '/rest/v1/rpc/record_right_answer') {
+			return route.fulfill({ status: 204, headers: corsHeaders() });
 		}
 		if (url.pathname === '/rest/v1/rpc/record_review') {
 			return route.fulfill({ status: 204, headers: corsHeaders() });

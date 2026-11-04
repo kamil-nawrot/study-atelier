@@ -19,12 +19,16 @@ import {
 	definitionItems,
 	definitionsOffered,
 	drawnTerms,
-	withDefinitions,
 	withDefinitionsOf
 } from '#lib/review/definitions/definitions.ts';
 import { loadTermDefinitions } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { offeredForms, quizzesPossible } from '#lib/review/forms/forms.ts';
-import { missingArtworks, sessionCounts, startOfDay } from '#lib/review/queue/queue.ts';
+import {
+	missingArtworks,
+	sessionCounts,
+	startOfDay,
+	withExtraSteps
+} from '#lib/review/queue/queue.ts';
 import { quizArtworks, sessionItems } from '#lib/review/quiz/quiz.ts';
 import {
 	loadReviewDetails,
@@ -43,6 +47,7 @@ import type { ReviewSource } from '#lib/review/types/review-source.ts';
 import type { ScopeChoice } from '#lib/review/types/scope-choice.ts';
 import type { SessionSummary } from '#lib/review/types/session-summary.ts';
 import { reportError } from '#lib/shared/monitoring/monitoring.ts';
+import { yearItems } from '#lib/review/year-guess/year-guess.ts';
 
 const PRELOAD_AHEAD = 2;
 const ALL_SCOPE: ReviewScope = { kind: 'all' };
@@ -214,7 +219,8 @@ export class ReviewFlow {
 			: await loadSession(dayStart, this.activeForm, this.activeScope);
 		const items = await withPinPreviews(sessionItems(loaded.rows, this.artworksById, this.cards));
 		if (loaded.error || items.length === 0) return loaded.error;
-		const artworks = items.map((item) => item.artwork);
+		const years = yearItems(loaded.rows, this.artworksById, currentDate());
+		const artworks = [...items, ...years].map((item) => item.artwork);
 		const shown = [...artworks, ...quizArtworks(items)];
 		const glossary = this.#data().glossary;
 		const drawn = drawnTerms(glossary, this.definitions ? (this.definitionCount ?? 0) : 0);
@@ -228,9 +234,12 @@ export class ReviewFlow {
 		if (free) this.freeRound += 1;
 		this.#free = new FreeAnswers();
 		this.session = new ReviewSession(
-			withDefinitions(
+			withExtraSteps(
 				items.map((item) => withItemImages(item, (artwork) => this.withImage(artwork))),
-				definitionItems(withDefinitionsOf(drawn, defined.definitions), glossary)
+				[
+					...definitionItems(withDefinitionsOf(drawn, defined.definitions), glossary),
+					...years.map((year) => ({ ...year, artwork: this.withImage(year.artwork) }))
+				]
 			),
 			this.cards,
 			undefined,
@@ -264,6 +273,13 @@ export class ReviewFlow {
 		if (active === this.session && this.#stopAfterSave) this.#finish();
 	}
 
+	async guess(year: number): Promise<void> {
+		const active = this.session;
+		if (!active) return;
+		await active.guess(year);
+		if (active === this.session && this.#stopAfterSave) this.#finish();
+	}
+
 	proceed(): void {
 		if (!this.session) return;
 		this.session.proceed();
@@ -286,16 +302,18 @@ export class ReviewFlow {
 			minutes: session.minutes,
 			tomorrow: session.free ? 0 : waitingTomorrow(this.scoped, this.cards, this.now, this.limits),
 			groups: summaryGroups(session.answers),
-			free: session.free
+			free: session.free,
+			years: session.years
 		};
 		if (!session.free) void invalidate(REVIEW_COUNTS_DEPENDENCY);
 		this.session = undefined;
-		this.phase = answered > 0 ? 'summary' : 'start';
+		this.phase = answered + session.years.asked > 0 ? 'summary' : 'start';
 	}
 
 	askToStop(): void {
-		if (this.session && this.session.answers.length > 0) this.stopOpen = true;
-		else this.#finish();
+		if (this.session && this.session.answers.length + this.session.years.asked > 0) {
+			this.stopOpen = true;
+		} else this.#finish();
 	}
 
 	stop(): void {

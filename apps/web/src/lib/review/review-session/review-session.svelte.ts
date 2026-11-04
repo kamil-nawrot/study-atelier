@@ -7,9 +7,16 @@ import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { ReviewRating } from '#lib/review/types/review-rating.ts';
 import type { SessionStep } from '#lib/review/types/session-step.ts';
+import { boundsOf, yearOutcome, yearsOf } from '#lib/review/year-guess/year-guess.ts';
 
 type ReviewAnswerLog = {
 	item: ReviewItem;
+	rating: ReviewRating;
+};
+
+type YearAnswerLog = {
+	artworkId: string;
+	guess: number;
 	rating: ReviewRating;
 };
 
@@ -21,6 +28,8 @@ export class ReviewSession {
 	saving = $state(false);
 	error = $state<string>();
 	answers = $state<ReviewAnswerLog[]>([]);
+	guessed = $state<number>();
+	yearAnswers = $state<YearAnswerLog[]>([]);
 	readonly cards: Map<string, ReviewCard>;
 	readonly startedAt: number;
 	readonly free: boolean;
@@ -57,13 +66,20 @@ export class ReviewSession {
 		return this.answers.filter((answer) => answer.item.card === null).length;
 	}
 
+	get years(): { asked: number; hit: number } {
+		return {
+			asked: this.yearAnswers.length,
+			hit: this.yearAnswers.filter((answer) => answer.rating > 1).length
+		};
+	}
+
 	get minutes(): number {
 		return Math.max(1, Math.round((this.#now().getTime() - this.startedAt) / 60000));
 	}
 
 	next(): Record<ReviewRating, ReviewCard> | undefined {
 		const item = this.current;
-		return item && item.mode !== 'quiz_definition'
+		return item && item.mode !== 'quiz_definition' && item.mode !== 'year'
 			? outcomes(item.artwork.id, item.card, this.#now())
 			: undefined;
 	}
@@ -74,7 +90,14 @@ export class ReviewSession {
 
 	async rate(rating: ReviewRating, scheduled?: ReviewCard): Promise<void> {
 		const item = this.current;
-		if (!item || item.mode === 'quiz_definition' || item.quiz || !this.revealed || this.saving) {
+		if (
+			!item ||
+			item.mode === 'quiz_definition' ||
+			item.mode === 'year' ||
+			item.quiz ||
+			!this.revealed ||
+			this.saving
+		) {
 			return;
 		}
 		if (await this.#save(item, rating, scheduled)) this.#advance();
@@ -82,7 +105,9 @@ export class ReviewSession {
 
 	async answer(choice: number): Promise<void> {
 		const item = this.current;
-		if (!item?.quiz || this.chosen !== undefined || this.saving) return;
+		if (!item || item.mode === 'year' || !item.quiz || this.chosen !== undefined || this.saving) {
+			return;
+		}
 		const correct = choice === item.quiz.answer;
 		if (item.mode === 'quiz_definition') {
 			if (!correct) {
@@ -97,8 +122,38 @@ export class ReviewSession {
 		if (await this.#save(item, quizRating(correct), undefined, correct)) this.chosen = choice;
 	}
 
+	async guess(year: number): Promise<void> {
+		const item = this.current;
+		if (item?.mode !== 'year' || this.guessed !== undefined || this.saving) return;
+		const now = this.#now();
+		const years = yearsOf(item.artwork);
+		const bounds = boundsOf(item.artwork, now);
+		if (!years || !bounds) return;
+		const { rating } = yearOutcome(year, years, bounds);
+		if (!this.free) {
+			this.saving = true;
+			this.error = undefined;
+			const { error } = await recordReview(outcomes(item.artwork.id, item.card, now)[rating], {
+				mode: 'year',
+				rating,
+				correct: rating > 1,
+				answerMs: now.getTime() - this.#shownAt
+			});
+			this.saving = false;
+			if (error) {
+				this.error = error;
+				return;
+			}
+		}
+		this.guessed = year;
+		this.yearAnswers.push({ artworkId: item.artwork.id, guess: year, rating });
+	}
+
 	proceed(): void {
-		if (this.current?.quiz && this.chosen !== undefined) this.#advance();
+		const item = this.current;
+		if (!item) return;
+		const answered = item.mode === 'year' ? this.guessed !== undefined : this.chosen !== undefined;
+		if (answered && (item.mode === 'year' || item.quiz)) this.#advance();
 	}
 
 	async #save(
@@ -143,6 +198,7 @@ export class ReviewSession {
 		this.position += 1;
 		this.revealed = false;
 		this.chosen = undefined;
+		this.guessed = undefined;
 		this.#shownAt = this.#now().getTime();
 	}
 }

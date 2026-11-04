@@ -2,8 +2,6 @@ import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import { shuffle, shuffleQuiz } from '#lib/review/quiz/quiz.ts';
 import type { DefinedTerm } from '#lib/review/types/defined-term.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
-import type { ReviewItem } from '#lib/review/types/review-item.ts';
-import type { SessionStep } from '#lib/review/types/session-step.ts';
 
 export const MIN_DEFINITION_TERMS = 4;
 
@@ -56,18 +54,6 @@ export function definitionItems(
 			quiz: shuffleQuiz({ options, answer: 0 }, random)
 		};
 	});
-}
-
-export function withDefinitions(
-	items: ReviewItem[],
-	definitions: DefinitionItem[],
-	random: () => number = Math.random
-): SessionStep[] {
-	if (items.length === 0) return items;
-	return definitions.reduce<SessionStep[]>((steps, definition) => {
-		const index = 1 + Math.min(steps.length - 1, Math.floor(random() * steps.length));
-		return [...steps.slice(0, index), definition, ...steps.slice(index)];
-	}, items);
 }
 
 export function withDefinitionsOf(

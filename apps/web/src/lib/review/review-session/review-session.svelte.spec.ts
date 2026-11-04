@@ -4,6 +4,7 @@ import { recordReview, recordRightAnswer } from '#lib/review/review-data/review-
 import { ReviewSession } from './review-session.svelte.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
+import type { YearItem } from '#lib/review/types/year-item.ts';
 
 vi.mock('#lib/review/review-data/review-data.ts', () => ({
 	recordReview: vi.fn(),
@@ -246,6 +247,59 @@ describe('ReviewSession', () => {
 		expect(recordRightAnswer).not.toHaveBeenCalled();
 	});
 
+	it('saves a year guess on the date card with its rating and moves on', async () => {
+		const dated = yearStep(1503, 1519);
+		const review = new ReviewSession(
+			[...items(2), dated],
+			new Map(),
+			() => start,
+			() => 0
+		);
+		review.position = 2;
+
+		await review.guess(1540);
+
+		expect(recordReview).toHaveBeenCalledWith(
+			expect.objectContaining({ artworkId: dated.artwork.id }),
+			expect.objectContaining({ mode: 'year', rating: 2, correct: true })
+		);
+		expect(review.guessed).toBe(1540);
+		expect(review.years).toEqual({ asked: 1, hit: 1 });
+		expect(review.answers).toHaveLength(0);
+		expect(review.cards.has(dated.artwork.id)).toBe(false);
+		expect(review.queue).toHaveLength(3);
+
+		review.proceed();
+		expect(review.finished).toBe(true);
+		expect(review.guessed).toBeUndefined();
+	});
+
+	it('keeps a year question when its guess cannot be saved', async () => {
+		vi.mocked(recordReview).mockResolvedValue({ error: 'Not saved.' });
+		const review = new ReviewSession([yearStep(null, 1503)], new Map(), () => start);
+
+		await review.guess(1400);
+
+		expect(review.error).toBe('Not saved.');
+		expect(review.guessed).toBeUndefined();
+		expect(review.years).toEqual({ asked: 0, hit: 0 });
+	});
+
+	it('counts a far year guess in a free round without saving it', async () => {
+		const review = new ReviewSession(
+			[yearStep(null, 1503)],
+			new Map(),
+			() => start,
+			() => 0,
+			true
+		);
+
+		await review.guess(1700);
+
+		expect(recordReview).not.toHaveBeenCalled();
+		expect(review.years).toEqual({ asked: 1, hit: 0 });
+	});
+
 	it('gives no point for a definition in a free round', async () => {
 		const review = new ReviewSession(
 			[definition('Apse'), ...items(2)],
@@ -259,6 +313,14 @@ describe('ReviewSession', () => {
 		expect(recordRightAnswer).not.toHaveBeenCalled();
 	});
 });
+
+function yearStep(yearFrom: number | null, yearTo: number): YearItem {
+	return {
+		mode: 'year',
+		artwork: testArtwork(9, 'Mona Lisa', { eraCode: 'early_modern', yearFrom, yearTo }),
+		card: null
+	};
+}
 
 function quizItems(count: number): ReviewItem[] {
 	return items(count).map((item) => ({
