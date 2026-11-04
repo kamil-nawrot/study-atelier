@@ -8,6 +8,7 @@
 	import { REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data/review-data.ts';
 	import { ReviewFlow } from '#lib/review/review-flow/review-flow.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { guardLeaving } from '#lib/shared/navigation/leave-guard/leave-guard.ts';
 	import { shownMenuProfile } from '#lib/profile/menu-profile/menu-profile.svelte.ts';
 	import type { PageProps } from './$types';
 
@@ -15,6 +16,11 @@
 
 	const flow = new ReviewFlow(() => data);
 	flow.follow();
+	guardLeaving({
+		blocks: () => flow.stop.guarded,
+		asking: () => flow.stop.asking,
+		confirm: () => flow.stop.confirm()
+	});
 
 	onMount(() => {
 		void refreshMenuCount();
@@ -28,13 +34,14 @@
 </script>
 
 <AtelierLayout
+	confirmLeave={() => flow.stop.confirm()}
 	email={data.session.user.email ?? ''}
 	fill={flow.phase === 'session'}
 	title={m.review.title}
 >
 	{#snippet bar()}
 		{#if flow.phase === 'session' && flow.session}
-			<ReviewSessionBar onstop={() => flow.askToStop()} session={flow.session} />
+			<ReviewSessionBar onstop={() => void flow.stop.confirm()} session={flow.session} />
 		{/if}
 	{/snippet}
 
@@ -51,13 +58,13 @@
 
 <Dialog
 	description={flow.session?.free ? m.review.freeStopDescription : m.review.stopDescription}
-	onclose={() => (flow.stopOpen = false)}
+	onclose={() => flow.stop.answer(false)}
 	size="small"
 	title={m.review.stopTitle}
-	bind:open={flow.stopOpen}
+	bind:open={flow.stop.open}
 >
 	{#snippet footer()}
-		<Button onclick={() => (flow.stopOpen = false)}>{m.review.keepGoing}</Button>
-		<Button onclick={() => flow.stop()} variant="primary">{m.review.stop}</Button>
+		<Button onclick={() => flow.stop.answer(false)}>{m.review.keepGoing}</Button>
+		<Button onclick={() => flow.stop.answer(true)} variant="primary">{m.review.stop}</Button>
 	{/snippet}
 </Dialog>

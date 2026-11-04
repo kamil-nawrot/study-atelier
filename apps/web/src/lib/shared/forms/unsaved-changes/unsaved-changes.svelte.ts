@@ -1,6 +1,5 @@
 import { onDestroy } from 'svelte';
-import { beforeNavigate, goto } from '$app/navigation';
-import type { ResolvedPathname } from '$app/types';
+import { guardLeaving } from '#lib/shared/navigation/leave-guard/leave-guard.ts';
 import { pendingAnswer } from '#lib/shared/forms/pending-answer/pending-answer.ts';
 
 export class UnsavedChanges<T> {
@@ -16,22 +15,14 @@ export class UnsavedChanges<T> {
 		this.#current = current;
 		this.#saved = saved;
 		this.#differ = differ;
-		beforeNavigate((navigation) => {
-			if (this.#leaveAllowed()) {
+		guardLeaving({
+			blocks: () => {
+				if (!this.#leaveAllowed()) return this.#changed();
 				this.#discarded = null;
-				return;
-			}
-			if (!this.#changed()) return;
-			navigation.cancel();
-			const url = navigation.to?.url;
-			if (navigation.type === 'leave' || !url || this.#question.pending) return;
-			const target = `${url.pathname}${url.search}${url.hash}` as ResolvedPathname;
-			const popstate = navigation.type === 'popstate' ? navigation.delta : null;
-			void this.confirmLeave().then((discard) => {
-				if (!discard) return;
-				if (popstate === null) void goto(target);
-				else history.go(popstate);
-			});
+				return false;
+			},
+			asking: () => this.#question.pending,
+			confirm: () => this.confirmLeave()
 		});
 		onDestroy(() => this.#question.answer(false));
 	}

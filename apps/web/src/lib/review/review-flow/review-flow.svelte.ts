@@ -37,6 +37,7 @@ import {
 	withPinPreviews
 } from '#lib/review/review-data/review-data.ts';
 import { preloadSteps, withItemImages } from '#lib/review/review-images/review-images.ts';
+import { ReviewStop } from '#lib/review/review-stop/review-stop.svelte.ts';
 import { ReviewSession } from '#lib/review/review-session/review-session.svelte.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewDetails } from '#lib/review/types/review-details.ts';
@@ -73,10 +74,12 @@ export class ReviewFlow {
 	summary = $state<SessionSummary>();
 	starting = $state(false);
 	startError = $state<string>();
-	stopOpen = $state(false);
 	details = $state.raw(mapOf<string, ReviewDetails>());
+	readonly stop = new ReviewStop(
+		() => this.session,
+		() => this.#finish()
+	);
 
-	#stopAfterSave = false;
 	#free = new FreeAnswers();
 	#resolved = $state.raw(mapOf<string, WallArtwork>());
 	#outcomes = $state<Record<ReviewRating, ReviewCard>>();
@@ -262,7 +265,7 @@ export class ReviewFlow {
 		if (!active) return;
 		await active.rate(rating, this.#outcomes?.[rating]);
 		this.#free.record(active, startOfDay(currentDate()));
-		if (active === this.session && (active.finished || this.#stopAfterSave)) this.#finish();
+		if (active === this.session && (active.finished || this.stop.afterSave)) this.#finish();
 	}
 
 	async answer(choice: number): Promise<void> {
@@ -270,14 +273,14 @@ export class ReviewFlow {
 		if (!active) return;
 		await active.answer(choice);
 		this.#free.record(active, startOfDay(currentDate()));
-		if (active === this.session && this.#stopAfterSave) this.#finish();
+		if (active === this.session && this.stop.afterSave) this.#finish();
 	}
 
 	async guess(year: number): Promise<void> {
 		const active = this.session;
 		if (!active) return;
 		await active.guess(year);
-		if (active === this.session && this.#stopAfterSave) this.#finish();
+		if (active === this.session && this.stop.afterSave) this.#finish();
 	}
 
 	proceed(): void {
@@ -287,7 +290,7 @@ export class ReviewFlow {
 	}
 
 	#finish(): void {
-		this.#stopAfterSave = false;
+		this.stop.reset();
 		const session = this.session;
 		if (!session) return;
 		if (!session.free) {
@@ -308,17 +311,5 @@ export class ReviewFlow {
 		if (!session.free) void invalidate(REVIEW_COUNTS_DEPENDENCY);
 		this.session = undefined;
 		this.phase = answered + session.years.asked > 0 ? 'summary' : 'start';
-	}
-
-	askToStop(): void {
-		if (this.session && this.session.answers.length + this.session.years.asked > 0) {
-			this.stopOpen = true;
-		} else this.#finish();
-	}
-
-	stop(): void {
-		this.stopOpen = false;
-		if (this.session?.saving) this.#stopAfterSave = true;
-		else this.#finish();
 	}
 }
