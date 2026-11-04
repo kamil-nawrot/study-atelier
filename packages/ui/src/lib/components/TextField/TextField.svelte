@@ -13,7 +13,7 @@
 		hideLabel?: boolean;
 		value?: string;
 		type?: 'text' | 'email' | 'password' | 'search' | 'url' | 'tel';
-		hint?: string;
+		hint?: string | Snippet;
 		error?: string;
 		showPasswordLabel?: string;
 		hidePasswordLabel?: string;

@@ -43,4 +43,11 @@ describe('Meter', () => {
 		expect(getComputedStyle(meter).backgroundColor).toBe(getComputedStyle(tag).backgroundColor);
 		tag.remove();
 	});
+
+	it('is twice as thick in the thick size', async () => {
+		render(Meter, { value: 50, max: 100, label: 'Zdjęcia', size: 'thick' });
+
+		const meter = page.getByRole('meter', { name: 'Zdjęcia' }).element();
+		expect(getComputedStyle(meter).blockSize).toBe('8px');
+	});
 });
