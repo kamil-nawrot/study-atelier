@@ -58,7 +58,6 @@
 		align-items: center;
 		gap: var(--spacing-2);
 		margin: 0;
-		padding: 0;
 		list-style: none;
 	}
 

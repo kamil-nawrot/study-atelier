@@ -144,7 +144,6 @@
 		flex: 1;
 		gap: var(--spacing-6);
 		min-width: 0;
-		padding: 0;
 		list-style: none;
 	}
 

@@ -135,7 +135,6 @@
 		grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
 		gap: var(--spacing-6);
 		margin: 0;
-		padding: 0;
 		list-style: none;
 	}
 

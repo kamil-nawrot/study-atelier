@@ -82,7 +82,6 @@
 		position: relative;
 		height: calc(max(var(--h1) + var(--h3), var(--h2) + var(--h4)) + var(--tile-gap));
 		margin: 0;
-		padding: 0;
 		list-style: none;
 	}
 

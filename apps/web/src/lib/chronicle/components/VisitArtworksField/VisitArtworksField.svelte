@@ -146,7 +146,6 @@
 
 	.results {
 		display: grid;
-		padding: 0;
 		border: var(--border-width-hairline) solid var(--color-line);
 		list-style: none;
 	}

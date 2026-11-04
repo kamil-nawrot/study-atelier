@@ -129,7 +129,6 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--spacing-2) var(--spacing-4);
-		padding: 0;
 		list-style: none;
 	}
 
