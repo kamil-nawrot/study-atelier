@@ -1422,6 +1422,14 @@ export type Database = {
         Args: { direction: number; target_field: string };
         Returns: undefined;
       };
+      note_gap_artwork: {
+        Args: {
+          excluded?: string[];
+          scope_kind?: string;
+          scope_value?: string;
+        };
+        Returns: Json;
+      };
       note_link_labels: {
         Args: {
           artwork_number?: number;
@@ -1444,10 +1452,6 @@ export type Database = {
           record_number: number;
           title: string;
         }[];
-      };
-      note_gap_artwork: {
-        Args: { excluded?: string[]; scope_kind?: string; scope_value?: string };
-        Returns: Json;
       };
       note_link_suggestions: {
         Args: { link_trigger: string; phrase: string };
