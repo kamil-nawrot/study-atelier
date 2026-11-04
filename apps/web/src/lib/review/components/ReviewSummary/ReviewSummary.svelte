@@ -11,6 +11,7 @@
 		minutes: number;
 		tomorrow: number;
 		groups: SummaryGroup[];
+		years?: { asked: number; hit: number };
 		nextRound: number;
 		free?: boolean;
 		rankForm?: RankForm;
@@ -24,6 +25,7 @@
 		minutes,
 		tomorrow,
 		groups,
+		years,
 		nextRound,
 		free = false,
 		rankForm,
@@ -40,6 +42,9 @@
 			<p class="lead">
 				{free ? m.review.freeSummary(count, minutes) : m.review.summary(count, minutes, tomorrow)}
 			</p>
+			{#if years && years.asked > 0}
+				<p>{m.review.timeSummary(years.hit, years.asked)}</p>
+			{/if}
 			{#if !free && rankForm}
 				<RoundCareer form={rankForm} />
 			{/if}

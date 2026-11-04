@@ -6,6 +6,7 @@
 	import Quiz from '#lib/review/components/Quiz/Quiz.svelte';
 	import ReviewStart from '#lib/review/components/ReviewStart/ReviewStart.svelte';
 	import ReviewSummary from '#lib/review/components/ReviewSummary/ReviewSummary.svelte';
+	import YearGuess from '#lib/review/components/YearGuess/YearGuess.svelte';
 	import { formatWhen } from '#lib/review/overview/overview.ts';
 	import type { ReviewFlow } from '#lib/review/review-flow/review-flow.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -34,6 +35,16 @@
 				item={current}
 				onanswer={(choice) => flow.answer(choice)}
 				onnext={() => flow.proceed()}
+			/>
+		{:else if current.mode === 'year'}
+			<YearGuess
+				details={flow.details.get(current.artwork.id)}
+				error={session.error}
+				guessed={session.guessed}
+				item={current}
+				onguess={(year) => flow.guess(year)}
+				onnext={() => flow.proceed()}
+				saving={session.saving}
 			/>
 		{:else if current.quiz}
 			<Quiz
@@ -73,6 +84,7 @@
 		onnext={() => flow.start()}
 		{rankForm}
 		tomorrow={flow.summary.tomorrow}
+		years={flow.summary.years}
 	/>
 {:else}
 	<ReviewStart

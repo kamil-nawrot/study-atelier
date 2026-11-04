@@ -19,6 +19,7 @@ export function preloadSteps(steps: SessionStep[]): void {
 	for (const step of steps) {
 		if (step.mode === 'quiz_definition') continue;
 		preload(step.artwork);
+		if (step.mode === 'year') continue;
 		for (const option of step.quiz?.options ?? []) {
 			if (option.artwork) preload(option.artwork, QUIZ_TILE_SIZES);
 		}

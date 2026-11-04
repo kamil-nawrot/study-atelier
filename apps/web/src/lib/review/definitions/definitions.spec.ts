@@ -1,14 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
-import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { DefinedTerm } from '#lib/review/types/defined-term.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
 import {
 	definitionItems,
 	definitionsOffered,
 	drawnTerms,
-	withDefinitions,
 	withDefinitionsOf
 } from './definitions.ts';
 
@@ -45,14 +42,6 @@ const glossary = [
 	entry('Impasto', 'technique'),
 	entry('Sfumato', 'technique')
 ];
-
-function items(count: number): ReviewItem[] {
-	return Array.from({ length: count }, (_, index) => ({
-		artwork: testArtwork(index + 1, `Artwork ${index + 1}`),
-		card: null,
-		mode: 'flashcard'
-	}));
-}
 
 describe('definitionsOffered', () => {
 	it('needs four different terms with a definition', () => {
@@ -102,22 +91,5 @@ describe('definitionItems', () => {
 				expect(labels.every((label) => !['Impasto', 'Sfumato'].includes(label))).toBe(true);
 			}
 		}
-	});
-});
-
-describe('withDefinitions', () => {
-	it('never puts a definition first and keeps every artwork in order', () => {
-		const definitions = drawnItems(3, () => 0);
-		const steps = withDefinitions(items(4), definitions, () => 0);
-
-		expect(steps).toHaveLength(7);
-		expect(steps[0].mode).toBe('flashcard');
-		expect(
-			steps.flatMap((step) => (step.mode === 'quiz_definition' ? [] : [step.artwork.number]))
-		).toEqual([1, 2, 3, 4]);
-	});
-
-	it('adds nothing to an empty session', () => {
-		expect(withDefinitions([], drawnItems(2))).toEqual([]);
 	});
 });

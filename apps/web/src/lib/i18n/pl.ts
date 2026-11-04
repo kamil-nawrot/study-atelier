@@ -753,6 +753,39 @@ export const pl = {
 				period: 'Ten sam okres'
 			}
 		},
+		year: {
+			tag: 'Odgadnij datę powstania',
+			question: 'Kiedy powstało to dzieło?',
+			hint: (era: string, years: string): string =>
+				`Dzieło pochodzi z ${era} (${years}). Gdzie je umieścisz?`,
+			eras: {
+				prehistory: 'prehistorii',
+				antiquity: 'starożytności',
+				middle_ages: 'średniowiecza',
+				early_modern: 'nowożytności',
+				modern: 'nowoczesności',
+				contemporary: 'współczesności'
+			},
+			slider: 'Rok powstania dzieła',
+			check: 'Sprawdź rok',
+			results: {
+				3: (when: string): string => `Świetne wyczucie: dzieło powstało ${when}.`,
+				2: (when: string): string => `Blisko. Dzieło powstało ${when}.`,
+				1: (when: string): string => `Tym razem daleko. Dzieło powstało ${when}.`
+			},
+			when: (years: string, span: boolean): string =>
+				span ? `w latach ${years}` : `w roku ${years}`,
+			miss: (guess: string, years: number, late: boolean): string =>
+				`Strzał w rok ${guess} to o ${years} ${plural(years, { one: 'rok', few: 'lata', many: 'lat' })} za ${late ? 'późno' : 'wcześnie'}.`,
+			inside: (guess: string, span: boolean): string =>
+				span
+					? `Twój rok ${guess} mieści się w latach powstania.`
+					: `Strzał w rok ${guess} to dokładnie ten rok.`,
+			guessMark: (guess: string): string => `Twój strzał: ${guess}`,
+			axis: 'Oś epoki z prawdziwymi latami dzieła i Twoim strzałem'
+		},
+		timeSummary: (hit: number, asked: number): string =>
+			`Pytania o czas: rok trafiony ${hit} z ${asked} ${asked === 1 ? 'razu' : 'razy'}.`,
 		ratings: {
 			1: 'Nie wiem',
 			2: 'Prawie',

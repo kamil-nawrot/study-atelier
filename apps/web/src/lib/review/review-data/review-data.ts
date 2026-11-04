@@ -26,7 +26,7 @@ type ReviewSessionResult = {
 };
 
 type ReviewAnswer = {
-	mode: ReviewMode;
+	mode: ReviewMode | 'year';
 	rating: ReviewRating;
 	correct?: boolean;
 	answerMs?: number;
@@ -183,6 +183,7 @@ export async function recordReview(
 			last_review: card.lastReview?.toISOString() ?? null
 		},
 		answer: {
+			...(answer.mode === 'year' ? { facet: 'date' } : {}),
 			mode: answer.mode,
 			rating: answer.rating,
 			correct: answer.mode === 'flashcard' ? null : (answer.correct ?? false),
@@ -245,7 +246,8 @@ export async function loadSession(
 		day_start: dayStart.toISOString(),
 		session_form: form,
 		...scopeArgs(scope),
-		...(freeRound === undefined ? {} : { free_round: freeRound })
+		...(freeRound === undefined ? {} : { free_round: freeRound }),
+		time_questions: true
 	});
 	if (error || !Array.isArray(data)) {
 		return { rows: [], error: await failureMessage(error ?? {}, collectionErrorMessage) };
