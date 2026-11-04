@@ -251,10 +251,12 @@ describe('review data', () => {
 		rpc.mockResolvedValue({ data: rows, error: null } as never);
 
 		await expect(
-			loadSession(new Date('2026-10-15T22:00:00.000Z'), 'quizzes', {
-				kind: 'style',
-				name: 'Caravaggism'
-			})
+			loadSession(
+				new Date('2026-10-15T22:00:00.000Z'),
+				'quizzes',
+				{ kind: 'style', name: 'Caravaggism' },
+				true
+			)
 		).resolves.toEqual({ rows });
 		expect(rpc).toHaveBeenCalledWith('review_session', {
 			day_start: '2026-10-15T22:00:00.000Z',
@@ -264,22 +266,24 @@ describe('review data', () => {
 			time_questions: true
 		});
 
-		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'mixed', {
-			kind: 'era',
-			code: 'modern'
-		});
+		await loadSession(
+			new Date('2026-10-15T22:00:00.000Z'),
+			'mixed',
+			{ kind: 'era', code: 'modern' },
+			true
+		);
 		expect(rpc).toHaveBeenLastCalledWith(
 			'review_session',
 			expect.objectContaining({ scope_kind: 'era', scope_value: 'modern' })
 		);
-		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'mixed', { kind: 'all' });
+		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'mixed', { kind: 'all' }, false);
 		expect(rpc).toHaveBeenLastCalledWith('review_session', {
 			day_start: '2026-10-15T22:00:00.000Z',
 			session_form: 'mixed',
 			scope_kind: 'all',
-			time_questions: true
+			time_questions: false
 		});
-		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'flashcards', { kind: 'all' }, 2);
+		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'flashcards', { kind: 'all' }, true, 2);
 		expect(rpc).toHaveBeenLastCalledWith('review_session', {
 			day_start: '2026-10-15T22:00:00.000Z',
 			session_form: 'flashcards',
@@ -294,7 +298,7 @@ describe('review data', () => {
 			data: null,
 			error: { message: 'TypeError: Failed to fetch' }
 		} as never);
-		await expect(loadSession(new Date(), 'mixed', { kind: 'all' })).resolves.toEqual({
+		await expect(loadSession(new Date(), 'mixed', { kind: 'all' }, false)).resolves.toEqual({
 			rows: [],
 			error: m.collectionErrors.network
 		});

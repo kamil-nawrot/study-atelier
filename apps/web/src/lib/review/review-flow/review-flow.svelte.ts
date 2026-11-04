@@ -221,9 +221,10 @@ export class ReviewFlow {
 	async #prepareSession(): Promise<string | undefined> {
 		const free = this.freeOpen;
 		const dayStart = startOfDay(currentDate());
+		const askTime = this.#data().preferences.reviewTimeQuestions;
 		const loaded = free
-			? await loadSession(dayStart, this.activeForm, this.activeScope, this.freeRound)
-			: await loadSession(dayStart, this.activeForm, this.activeScope);
+			? await loadSession(dayStart, this.activeForm, this.activeScope, askTime, this.freeRound)
+			: await loadSession(dayStart, this.activeForm, this.activeScope, askTime);
 		const items = await withPinPreviews(sessionItems(loaded.rows, this.artworksById, this.cards));
 		if (loaded.error || items.length === 0) return loaded.error;
 		const times = timeQuestions(loaded.rows, this.artworksById, currentDate());

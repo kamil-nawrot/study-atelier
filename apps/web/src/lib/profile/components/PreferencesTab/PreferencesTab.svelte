@@ -156,8 +156,16 @@
 						{/each}
 					</div>
 				</div>
+				<div class="described">
+					<Switch
+						aria-describedby="time-questions-hint"
+						label={m.settings.preferences.timeQuestions}
+						bind:checked={draft.reviewTimeQuestions}
+					/>
+					<p id="time-questions-hint" class="hint">{m.settings.preferences.timeQuestionsHint}</p>
+				</div>
 				<Switch label={m.settings.preferences.free} bind:checked={draft.reviewFree} />
-				<div class="career">
+				<div class="described">
 					<Switch
 						aria-describedby="career-shown-hint"
 						label={m.settings.preferences.careerShown}
@@ -218,7 +226,7 @@
 	}
 
 	.fields > :global(.switch),
-	.career > :global(.switch) {
+	.described > :global(.switch) {
 		display: flex;
 		justify-content: space-between;
 	}
@@ -241,7 +249,7 @@
 		gap: var(--spacing-2);
 	}
 
-	.career {
+	.described {
 		display: grid;
 		gap: var(--spacing-1);
 	}

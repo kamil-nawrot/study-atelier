@@ -18,6 +18,7 @@ const row = {
 	review_free: false,
 	career_shown: true,
 	review_glossary_questions: 2,
+	review_time_questions: true,
 	view_show_pins: true,
 	view_loupe_on: true,
 	fetch_image: false,
@@ -39,6 +40,7 @@ describe('preferencesOf', () => {
 			reviewQuizKinds: ['quiz_image', 'quiz_pin'],
 			reviewFree: false,
 			reviewGlossaryQuestions: 2,
+			reviewTimeQuestions: true,
 			careerShown: true,
 			viewShowPins: true,
 			viewLoupeOn: true,
@@ -83,7 +85,8 @@ describe('savePreferences', () => {
 			review_quiz_kinds: defaultPreferences.reviewQuizKinds,
 			review_free: false,
 			career_shown: true,
-			review_glossary_questions: 1
+			review_glossary_questions: 1,
+			review_time_questions: false
 		});
 		expect(result).toEqual({ preferences: preferencesOf(row) });
 	});

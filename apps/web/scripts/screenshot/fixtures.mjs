@@ -466,6 +466,7 @@ export const PROFILE = {
 	review_quiz_kinds: ['quiz_title', 'quiz_image', 'quiz_author', 'quiz_style', 'quiz_pin'],
 	review_free: true,
 	review_glossary_questions: 2,
+	review_time_questions: true,
 	career_shown: true,
 	rank_form: 'masculine',
 	rank_seen: 5,
