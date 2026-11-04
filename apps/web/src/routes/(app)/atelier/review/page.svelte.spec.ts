@@ -9,7 +9,8 @@ import {
 	loadReviewDetails,
 	loadSession,
 	recordFreeAnswers,
-	recordReview
+	recordReview,
+	recordRightAnswer
 } from '#lib/review/review-data/review-data.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { SessionRow } from '#lib/review/types/session-row.ts';
@@ -123,6 +124,7 @@ describe('review page', () => {
 	beforeEach(async () => {
 		vi.useFakeTimers({ now: new Date(2026, 9, 16, 21, 30), toFake: ['Date'] });
 		vi.mocked(recordReview).mockReset().mockResolvedValue({});
+		vi.mocked(recordRightAnswer).mockClear();
 		vi.mocked(loadSession)
 			.mockReset()
 			.mockResolvedValue({ rows: flashcards(1, 2, 20, 21) });
@@ -460,10 +462,14 @@ describe('review page', () => {
 		expect(invalidate).toHaveBeenCalledWith('review:counts');
 	});
 
-	it('asks the year of a reviewed artwork on top of the session and counts it in the summary', async () => {
+	it('asks the year and the order on top of the session and counts them in the summary', async () => {
 		const artworks = collection(21).map((artwork) =>
-			artwork.number === 5
-				? { ...artwork, eraCode: 'early_modern' as const, yearTo: 1503 }
+			artwork.number <= 5
+				? {
+						...artwork,
+						eraCode: 'early_modern' as const,
+						yearTo: artwork.number === 5 ? 1503 : 1400 + artwork.number * 100
+					}
 				: artwork
 		);
 		renderReview(
@@ -479,23 +485,37 @@ describe('review page', () => {
 		});
 
 		await page.getByRole('button', { name: m.review.start }).click();
-		await expect.element(page.getByText(m.review.progress(1, 2))).toBeVisible();
+		await expect.element(page.getByText(m.review.progress(1, 3))).toBeVisible();
 		await page.getByRole('button', { name: m.review.flashcard.reveal }).click();
 		await page.getByRole('button', { name: new RegExp(`^${m.review.ratings[3]}`) }).click();
 
-		await expect.element(page.getByRole('heading', { name: m.review.year.question })).toBeVisible();
-		await page.getByRole('button', { name: m.review.year.check }).click();
-		await expect
-			.element(page.getByText(m.review.year.results[1](m.review.year.when('1503', false))))
-			.toBeVisible();
-		expect(recordReview).toHaveBeenLastCalledWith(
+		for (let step = 2; step <= 3; step += 1) {
+			await expect.element(page.getByText(m.review.progress(step, 3))).toBeVisible();
+			const year = page.getByRole('heading', { name: m.review.year.question });
+			if (year.query()) {
+				await page.getByRole('button', { name: m.review.year.check }).click();
+				await expect
+					.element(page.getByText(m.review.year.results[1](m.review.year.when('1503', false))))
+					.toBeVisible();
+			} else {
+				await expect
+					.element(page.getByRole('heading', { name: m.review.order.question }))
+					.toBeVisible();
+				await page.getByRole('button', { name: m.review.order.check }).click();
+				await expect.element(page.getByText(m.review.order.right)).toBeVisible();
+			}
+			await page.getByRole('button', { name: m.review.quiz.next }).click();
+		}
+
+		expect(recordReview).toHaveBeenCalledWith(
 			expect.objectContaining({ artworkId: 'artwork-5' }),
 			expect.objectContaining({ mode: 'year', rating: 1, correct: false })
 		);
-
-		await page.getByRole('button', { name: m.review.quiz.next }).click();
+		expect(recordRightAnswer).toHaveBeenCalledOnce();
 		await expect.element(page.getByRole('heading', { name: m.review.done })).toBeVisible();
-		await expect.element(page.getByText(m.review.timeSummary(0, 1))).toBeVisible();
+		await expect
+			.element(page.getByText(m.review.timeSummary({ asked: 1, hit: 0 }, { asked: 1, right: 1 })))
+			.toBeVisible();
 		await expect.element(page.getByText(m.review.summary(1, 1, 0))).toBeVisible();
 	});
 

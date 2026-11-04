@@ -28,15 +28,24 @@ function group(name: string): HTMLDetailsElement {
 }
 
 describe('ReviewSummary', () => {
-	it('gives the year questions a line of their own only when some were asked', async () => {
-		await renderSummary([], { years: { asked: 3, hit: 2 } });
-		await expect.element(page.getByText(m.review.timeSummary(2, 3))).toBeInTheDocument();
-		expect(m.review.timeSummary(1, 1)).toBe('Pytania o czas: rok trafiony 1 z 1 razu.');
-		expect(m.review.timeSummary(2, 3)).toBe('Pytania o czas: rok trafiony 2 z 3 razy.');
+	it('gives the questions about time a line of their own only when some were asked', async () => {
+		const years = { asked: 3, hit: 2 };
+		const orders = { asked: 2, right: 1 };
+		await renderSummary([], { years, orders });
+		await expect.element(page.getByText(m.review.timeSummary(years, orders))).toBeInTheDocument();
+		expect(m.review.timeSummary(years, orders)).toBe(
+			'Pytania o czas: rok trafiony 2 z 3 razy, kolejność 1 z 2.'
+		);
+		expect(m.review.timeSummary({ asked: 1, hit: 1 }, { asked: 0, right: 0 })).toBe(
+			'Pytania o czas: rok trafiony 1 z 1 razu.'
+		);
+		expect(m.review.timeSummary({ asked: 0, hit: 0 }, { asked: 1, right: 0 })).toBe(
+			'Pytania o czas: kolejność 0 z 1.'
+		);
 	});
 
-	it('leaves the line out without year questions', async () => {
-		await renderSummary([], { years: { asked: 0, hit: 0 } });
+	it('leaves the line out without questions about time', async () => {
+		await renderSummary([]);
 		await expect.element(page.getByText(/Pytania o czas/)).not.toBeInTheDocument();
 	});
 

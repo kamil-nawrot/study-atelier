@@ -337,8 +337,28 @@ function reviewSession({
 	const dated = pool.find(
 		(row) => cardOf(row) && row.era_code && row.year_to !== null && !asked.has(row.id)
 	);
-	if (!dated) return items;
-	return [items[0], { artwork_id: dated.id, mode: 'year', card: null }, ...items.slice(1)];
+	const spaced = [];
+	for (const row of [...pool].sort((a, b) => (a.year_to ?? 0) - (b.year_to ?? 0))) {
+		const last = spaced.at(-1);
+		if (row.year_to === null) continue;
+		if (!last || row.year_to - (last.year_to ?? 0) >= 30) spaced.push(row);
+	}
+	const order =
+		spaced.length >= 4
+			? [
+					{
+						mode: 'order',
+						artwork_ids: [spaced[2], spaced[0], spaced[3], spaced[1]].map((row) => row.id)
+					}
+				]
+			: [];
+	if (!dated) return [items[0], ...order, ...items.slice(1)];
+	return [
+		items[0],
+		{ artwork_id: dated.id, mode: 'year', card: null },
+		...order,
+		...items.slice(1)
+	];
 }
 
 function notesMentions(needle) {

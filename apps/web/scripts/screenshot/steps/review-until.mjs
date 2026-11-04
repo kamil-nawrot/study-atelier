@@ -4,6 +4,12 @@ export async function reachQuestion(page, heading) {
 	for (let step = 0; step < 80; step += 1) {
 		await page.waitForTimeout(400);
 		if (await question.isVisible()) return;
+		const check = page.getByRole('button', { name: /^Sprawdź (rok|kolejność)$/ });
+		if (await check.isVisible()) {
+			await check.click();
+			await page.getByRole('button', { name: 'Następne' }).click();
+			continue;
+		}
 		const reveal = page.getByRole('button', { name: 'Odkryj kartę' });
 		if (await reveal.isVisible()) {
 			await reveal.click();
