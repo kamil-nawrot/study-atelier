@@ -34,7 +34,7 @@ vi.mock('$app/state', () => ({
 	navigating: { to: null },
 	updated: { current: false }
 }));
-vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidate: vi.fn() }));
+vi.mock('$app/navigation', () => ({ beforeNavigate: vi.fn(), goto: vi.fn(), invalidate: vi.fn() }));
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
 	resolveImages: vi.fn().mockResolvedValue([])
 }));
