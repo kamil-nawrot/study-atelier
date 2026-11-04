@@ -71,5 +71,5 @@ Chosen by the owner in ATL-480: any year inside the span, tiers 1, 5, 25, 50, 10
 
 ## More information
 
-- Issue ATL-480; built after ATL-478, which adds the `date` facet and `record_review` for year answers, and ATL-446, the year question card.
+- Designed in ATL-480 and built in ATL-481, after ATL-478, which adds the `date` facet and `record_review` for year answers, and ATL-446, the year question card.
 - Curiosities checked and left out: Beltracchi's forgery given away by titanium white (the source does not give the claimed year), the Pompeii charcoal inscription of 17 October (the date is still disputed) and the radiocarbon dating of the Shroud of Turin.
