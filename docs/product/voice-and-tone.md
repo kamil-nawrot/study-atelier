@@ -32,6 +32,7 @@ Each tier of an exhibit in "Ekspozycja" reveals one curiosity on the exhibit's t
 - A curiosity first says what its subject is (a Viking ship burial, a forger, a map bought as medieval) and only then gives the fact, so it reads without knowing the subject.
 - The owner approves every text before it ships.
 - Every exhibit is named as an object or a place ("Pracownia Świętego Hieronima", "Globus podróżnika"), never as a scene or an event. The credit under an engraving keeps the real title of the work.
+- The hint of a hidden exhibit is a riddle, not an instruction: it points the way through an image or the motif of its engraving and keeps the secret ("Lew nie gryzie tych, którzy mają coś do powiedzenia.", "Bogowie przyglądają się tym, którzy nie wiedzą, kiedy przestać."), never by naming the action or the place in the app.
 
 | Exhibit                       | Theme                                                                   |
 | ----------------------------- | ----------------------------------------------------------------------- |
