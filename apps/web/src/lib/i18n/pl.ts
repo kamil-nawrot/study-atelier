@@ -1503,59 +1503,62 @@ export const pl = {
 			collection: {
 				name: 'Gabinet Olego Worma',
 				about:
-					'Kopenhaski gabinet osobliwości Olego Worma, znany z ryciny z 1655 roku, był jednym z pierwowzorów muzeum.',
+					'Frontyspis księgi „Musei Wormiani Historia” z 1655 roku pokazuje kopenhaski gabinet osobliwości Olego Worma, jeden z pierwowzorów muzeum.',
 				count: counter('dzieł w atelier')
 			},
 			eras: {
 				name: 'Świątynia della Tosse',
-				about: 'Piranesi utrwalał na rycinach ruiny starożytnego Rzymu.',
+				about:
+					'Giovanni Battista Piranesi wyrył wnętrze ruin świątyni della Tosse pod Tivoli, jednej z wielu starożytnych budowli, które utrwalał na rycinach.',
 				count: counter('epok w Twoich dziełach')
 			},
 			memory: {
 				name: 'Pracownia Świętego Hieronima',
 				about:
-					'Dürer wyrył uczonego pogrążonego w lekturze w 1514 roku, w tym samym roku co „Melancholię I”.',
+					'Albrecht Dürer wyrył w 1514 roku świętego Hieronima pogrążonego w lekturze w zacisznej pracowni.',
 				count: counter('dzieł utrwalonych w pamięci')
 			},
 			bullseye: {
 				name: 'Strzała Vinkelesa',
 				about:
-					'Reinier Vinkeles (1741–1816), amsterdamski rytownik, wyrył putta, który ogląda strzałę wbitą w sam środek tarczy.',
+					'Amsterdamski rytownik Reinier Vinkeles wyrył postać putta, który ogląda strzałę wbitą w sam środek tarczy.',
 				count: counter('trafień co do roku')
 			},
 			regular: {
 				name: 'Klepsydra z „Melancholii I”',
 				about:
-					'Klepsydra wisi na ścianie w miedziorycie Dürera z 1514 roku. Dzień, w którym nic nie czekało na powtórkę, nie przerywa serii.',
+					'Klepsydra zdobi ścianę w „Melancholii I”, miedziorycie Albrechta Dürera z 1514 roku.',
 				count: counter('dni', 'najdłuższa seria: ')
 			},
 			back_from_storage: {
 				name: 'Mona Lisa',
-				about: 'Mona Lisa zniknęła z Luwru w 1911 roku i wróciła tam po ponad dwóch latach.',
+				about:
+					'Luigi Calamatta wyrył w 1857 roku „Mona Lisę” na podstawie dzieła Leonarda – obraz, który zniknął z Luwru w 1911 roku i wrócił tam po ponad dwóch latach.',
 				hint: 'Zdarza się, że dzieło wypada z pamięci, a potem do niej wraca.',
 				awarded: 'Za dzieło zapomniane i utrwalone na nowo.'
 			},
 			chronicle: {
 				name: 'Salon w Luwrze',
 				about:
-					'Rycina Pietra Antonia Martiniego pokazuje paryski Salon w Luwrze w 1787 roku, gdzie obrazy wisiały od podłogi aż po sufit.',
+					'Pietro Antonio Martini wyrył paryski Salon w Luwrze w 1787 roku, gdzie obrazy wisiały od podłogi aż po sufit.',
 				count: counter('odwiedzonych miejsc')
 			},
 			grand_tour: {
 				name: 'Globus podróżnika',
 				about:
-					'W XVIII wieku młodzi Europejczycy odbywali Grand Tour, podróż po zabytkach i kolekcjach kontynentu.',
+					'Plansza „Sphaerarum artificialium typica repraesentatio” przedstawia globus ziemski, globus nieba i sferę armilarną.',
 				count: counter('krajów z odwiedzonymi miejscami')
 			},
 			seen_live: {
 				name: 'Teleskop Mathieu Laensbergha',
 				about:
-					'Od XVII wieku w Liège wydawano almanach z przepowiedniami, podpisany imieniem zmyślonego astrologa, „mistrza Mathieu Laensbergha”.',
+					'Plansza z pisma „L’Artiste” pokazuje przy teleskopie Mathieu Laensbergha, zmyślonego astrologa, którego imieniem podpisywano almanachy z Liège.',
 				count: counter('dzieł zobaczonych na żywo')
 			},
 			timeline: {
 				name: 'Praski orloj',
-				about: 'Zegar astronomiczny na praskim rynku odmierza czas od 1410 roku.',
+				about:
+					'Rycina z 1837 roku pokazuje praski orloj, zegar astronomiczny, który odmierza czas na Starym Mieście od 1410 roku.',
 				count: counter('wydarzeń w Kalendarium')
 			},
 			glossary: {
@@ -1567,18 +1570,20 @@ export const pl = {
 			own_eye: {
 				name: 'Camera obscura z Encyklopedii',
 				about:
-					'Plansza z Encyklopedii Diderota pokazuje ciemnię optyczną, w której na długo przed fotografią odrysowywano widoki.',
+					'Plansza z „Encyklopedii” Diderota i d’Alemberta pokazuje ciemnię optyczną, dzięki której na długo przed fotografią artyści przenosili na papier krajobrazy i budowle.',
 				count: counter('własnych zdjęć dzieł')
 			},
 			night_watch: {
 				name: 'Straż nocna',
-				about: 'Rembrandt namalował „Straż nocną” w 1642 roku.',
+				about:
+					'William Unger wyrył w XIX wieku „Straż nocną” na podstawie obrazu Rembrandta z 1642 roku.',
 				hint: 'Niektórzy uczą się wtedy, gdy muzea są od dawna zamknięte.',
 				awarded: 'Za powtórkę między północą a czwartą rano.'
 			},
 			marathon: {
 				name: 'Puchar Nemezis',
-				about: 'Na miedziorycie Dürera bogini Nemezis szybuje nad światem z pucharem w dłoni.',
+				about:
+					'Na miedziorycie Albrechta Dürera z początku XVI wieku bogini Nemezis szybuje nad światem z pucharem w dłoni.',
 				hint: 'Bogowie przyglądają się tym, którzy nie wiedzą, kiedy przestać.',
 				awarded: 'Za tysiąc dzieł w powtórkach swobodnych jednego dnia.'
 			}
