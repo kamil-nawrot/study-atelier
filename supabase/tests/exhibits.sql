@@ -41,6 +41,10 @@ begin
     'ten artworks do not unlock the first two tiers of the collection';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'eras') = array[1]::smallint[],
     'artworks of two eras do not unlock the first tier of eras';
+  assert (select array_agg(distinct tiers) from public.exhibit_tiers where exhibit = 'collection') = array[9]::smallint[],
+    'a lit tier does not keep how many tiers its exhibit has';
+  assert (select tiers from public.exhibit_tiers where exhibit = 'eras') = 5,
+    'a lit tier of the eras does not keep its five tiers';
   assert (select count(*) from public.exhibit_tiers where seen_at is not null) = 0, 'a new tier is already seen';
   assert (select new_tiers from public.career_standing('UTC', false))
       = (select count(*) from public.exhibit_tiers where seen_at is null),

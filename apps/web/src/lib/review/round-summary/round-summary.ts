@@ -11,6 +11,8 @@ export function roundSummary(session: ReviewSession, tomorrow: number): SessionS
 		groups: summaryGroups(session.answers),
 		free: session.free,
 		years: session.years,
-		orders: session.orders
+		orders: session.orders,
+		definitions: session.extraScore('quiz_definition'),
+		notes: session.extraScore('note_gap')
 	};
 }

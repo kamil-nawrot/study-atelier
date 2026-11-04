@@ -41,11 +41,13 @@ export class ReviewSession {
 	yearAnswers = $state<YearAnswerLog[]>([]);
 	ordered = $state<WallArtwork[]>();
 	orderAnswers = $state<boolean[]>([]);
+	extraAnswers = $state<{ mode: 'quiz_definition' | 'note_gap'; right: boolean }[]>([]);
 	readonly cards: Map<string, ReviewCard>;
 	readonly startedAt: number;
 	readonly free: boolean;
 	#shownAt: number;
 	#missed = new SvelteSet<string>();
+	#asked = new SvelteSet<string>();
 	#now: () => Date;
 	#random: () => number;
 
@@ -95,6 +97,11 @@ export class ReviewSession {
 		};
 	}
 
+	extraScore(mode: 'quiz_definition' | 'note_gap'): { asked: number; right: number } {
+		const answers = this.extraAnswers.filter((answer) => answer.mode === mode);
+		return { asked: answers.length, right: answers.filter((answer) => answer.right).length };
+	}
+
 	get minutes(): number {
 		return Math.max(1, Math.round((this.#now().getTime() - this.startedAt) / 60000));
 	}
@@ -137,6 +144,10 @@ export class ReviewSession {
 		const correct = choice === item.quiz.answer;
 		if (item.mode === 'quiz_definition' || item.mode === 'note_gap') {
 			const key = item.mode === 'note_gap' ? `${item.artwork.id}:${item.term.id}` : item.term.id;
+			if (!this.#asked.has(key)) {
+				this.#asked.add(key);
+				this.extraAnswers.push({ mode: item.mode, right: correct });
+			}
 			if (!correct) {
 				this.#missed.add(key);
 				this.#retry({ ...item, quiz: shuffleQuiz(item.quiz, this.#random) });

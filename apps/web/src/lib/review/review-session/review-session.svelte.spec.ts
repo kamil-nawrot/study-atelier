@@ -245,6 +245,9 @@ describe('ReviewSession', () => {
 		);
 		await first.answer(0);
 		expect(recordRightAnswer).toHaveBeenCalledOnce();
+		expect(review.extraScore('note_gap')).toEqual({ asked: 1, right: 0 });
+		expect(first.extraScore('note_gap')).toEqual({ asked: 1, right: 1 });
+		expect(first.extraScore('quiz_definition')).toEqual({ asked: 0, right: 0 });
 	});
 
 	it('does not rate a quiz like a flashcard', async () => {

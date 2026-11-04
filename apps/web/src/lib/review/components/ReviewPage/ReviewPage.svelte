@@ -107,6 +107,7 @@
 {:else if flow.phase === 'summary' && flow.summary}
 	<ReviewSummary
 		count={flow.summary.count}
+		definitions={flow.summary.definitions}
 		free={flow.summary.free}
 		freeOpen={flow.freeOpen}
 		groups={flow.summary.groups.map((group) => ({
@@ -115,6 +116,7 @@
 		}))}
 		minutes={flow.summary.minutes}
 		nextRound={flow.waiting}
+		notes={flow.summary.notes}
 		onfree={() => flow.start()}
 		onnext={() => flow.start()}
 		orders={flow.summary.orders}
@@ -139,6 +141,7 @@
 		onform={(chosen) => (flow.form = chosen)}
 		onscope={(chosen) => flow.chooseScope(chosen)}
 		onstart={() => flow.start()}
+		reviewedToday={flow.reviewedToday}
 		scope={flow.activeScope}
 		scopes={flow.scopes}
 		starting={flow.starting}

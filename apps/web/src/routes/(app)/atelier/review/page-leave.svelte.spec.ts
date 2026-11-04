@@ -130,7 +130,7 @@ describe('leaving the review page', () => {
 		await stopDialog().getByRole('button', { name: m.review.stop }).click();
 
 		await vi.waitFor(() => expect(goto).toHaveBeenCalledWith('/atelier/values'));
-		await expect.element(page.getByRole('heading', { name: m.review.done })).toBeVisible();
+		await expect.element(page.getByRole('heading', { level: 1, name: /powtórzon/ })).toBeVisible();
 		expect(leave('link', VALUES).cancel).not.toHaveBeenCalled();
 	});
 
@@ -179,7 +179,7 @@ describe('leaving the review page', () => {
 		await startAndAnswer();
 		await rateCard(3);
 		await rateCard(4);
-		await expect.element(page.getByRole('heading', { name: m.review.done })).toBeVisible();
+		await expect.element(page.getByRole('heading', { level: 1, name: /powtórzon/ })).toBeVisible();
 
 		expect(leave('link', VALUES).cancel).not.toHaveBeenCalled();
 		expect(leave('leave').cancel).not.toHaveBeenCalled();

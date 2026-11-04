@@ -6,8 +6,8 @@ import type { Standing } from '#lib/career/types/standing.ts';
 type StandingResult = { standing?: Standing; error?: string };
 type RoundResult = { round?: RoundCareer; error?: string };
 
-async function newTiers(since?: Date): Promise<{ exhibit: string; tier: number }[] | undefined> {
-	let query = supabase.from('exhibit_tiers').select('exhibit, tier').is('seen_at', null);
+async function newTiers(since?: Date): Promise<RoundCareer['tiers'] | undefined> {
+	let query = supabase.from('exhibit_tiers').select('exhibit, tier, tiers').is('seen_at', null);
 	if (since) query = query.gte('unlocked_at', since.toISOString());
 	const { data, error } = await query.order('unlocked_at').order('exhibit').order('tier');
 	return error || !data ? undefined : data;

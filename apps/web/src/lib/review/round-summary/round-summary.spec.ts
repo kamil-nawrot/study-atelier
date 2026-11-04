@@ -39,7 +39,9 @@ describe('roundSummary', () => {
 			groups: [{ rating: 3, artworks: [works[0]] }],
 			free: false,
 			years: { asked: 1, hit: 1 },
-			orders: { asked: 1, right: 1 }
+			orders: { asked: 1, right: 1 },
+			definitions: { asked: 0, right: 0 },
+			notes: { asked: 0, right: 0 }
 		});
 	});
 

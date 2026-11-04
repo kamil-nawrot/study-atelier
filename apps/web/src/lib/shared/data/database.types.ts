@@ -564,6 +564,7 @@ export type Database = {
           owner_id: string;
           seen_at: string | null;
           tier: number;
+          tiers: number | null;
           unlocked_at: string;
         };
         ComputedFields: never;
@@ -572,6 +573,7 @@ export type Database = {
           owner_id?: string;
           seen_at?: string | null;
           tier: number;
+          tiers?: number | null;
           unlocked_at?: string;
         };
         Update: {
@@ -579,6 +581,7 @@ export type Database = {
           owner_id?: string;
           seen_at?: string | null;
           tier?: number;
+          tiers?: number | null;
           unlocked_at?: string;
         };
         Relationships: [];
