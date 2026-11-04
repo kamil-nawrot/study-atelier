@@ -153,7 +153,9 @@ export async function recordFreeAnswers(dayStart: Date, answers: number): Promis
 }
 
 export async function recordRightAnswer(dayStart: Date): Promise<void> {
-	const { error } = await supabase.rpc('record_right_answer', { day_start: dayStart.toISOString() });
+	const { error } = await supabase.rpc('record_right_answer', {
+		day_start: dayStart.toISOString()
+	});
 	if (!error) noteWrite();
 }
 

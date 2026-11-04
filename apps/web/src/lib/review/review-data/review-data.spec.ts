@@ -209,7 +209,9 @@ describe('review data', () => {
 	it('adds a right answer to the day', async () => {
 		rpc.mockResolvedValue({ error: null } as never);
 		await recordRightAnswer(new Date('2026-10-28T23:00:00.000Z'));
-		expect(rpc).toHaveBeenCalledWith('record_right_answer', { day_start: '2026-10-28T23:00:00.000Z' });
+		expect(rpc).toHaveBeenCalledWith('record_right_answer', {
+			day_start: '2026-10-28T23:00:00.000Z'
+		});
 	});
 
 	it('returns the message to show when an answer cannot be saved', async () => {

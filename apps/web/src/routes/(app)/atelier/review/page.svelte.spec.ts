@@ -46,6 +46,7 @@ vi.mock('#lib/review/review-data/review-data.ts', () => ({
 	loadReviewDetails: vi.fn().mockResolvedValue({ details: new Map() }),
 	loadSession: vi.fn(),
 	recordFreeAnswers: vi.fn(),
+	recordRightAnswer: vi.fn().mockResolvedValue(undefined),
 	recordReview: vi.fn(),
 	withPinPreviews: async (items: unknown) => items
 }));

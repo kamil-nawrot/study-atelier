@@ -1,4 +1,4 @@
-import { SvelteMap } from 'svelte/reactivity';
+import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 import { currentDate, retryLater, startOfDay } from '#lib/review/queue/queue.ts';
 import { shuffleQuiz } from '#lib/review/quiz/quiz.ts';
 import { recordReview, recordRightAnswer } from '#lib/review/review-data/review-data.ts';
@@ -25,7 +25,7 @@ export class ReviewSession {
 	readonly startedAt: number;
 	readonly free: boolean;
 	#shownAt: number;
-	#missed = new Set<string>();
+	#missed = new SvelteSet<string>();
 	#now: () => Date;
 	#random: () => number;
 
