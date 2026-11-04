@@ -1519,19 +1519,19 @@ export const pl = {
 				count: counter('dzieł utrwalonych w pamięci')
 			},
 			bullseye: {
-				name: 'Strzała Vinkelesa',
+				name: 'Strzała putta',
 				about:
 					'Amsterdamski rytownik Reinier Vinkeles wyrył postać putta, który ogląda strzałę wbitą w sam środek tarczy.',
 				count: counter('trafień co do roku')
 			},
 			regular: {
-				name: 'Klepsydra z „Melancholii I”',
+				name: 'Klepsydra melancholii',
 				about:
 					'Klepsydra zdobi ścianę w „Melancholii I”, miedziorycie Albrechta Dürera z 1514 roku.',
 				count: counter('dni', 'najdłuższa seria: ')
 			},
 			back_from_storage: {
-				name: 'Mona Lisa',
+				name: 'Uśmiech Mony Lisy',
 				about:
 					'Luigi Calamatta wyrył w 1857 roku „Mona Lisę” na podstawie dzieła Leonarda – obraz, który zniknął z Luwru w 1911 roku i wrócił tam po ponad dwóch latach.',
 				hint: 'Zdarza się, że dzieło wypada z pamięci, a potem do niej wraca.',
