@@ -66,7 +66,6 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--spacing-1);
-		padding: 0;
 		list-style: none;
 	}
 

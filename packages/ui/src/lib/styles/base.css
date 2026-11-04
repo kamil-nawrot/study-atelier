@@ -34,6 +34,11 @@ dd {
 	margin: 0;
 }
 
+ul,
+ol {
+	padding: 0;
+}
+
 h1 {
 	font-size: var(--font-size-xl);
 	font-weight: var(--font-weight-bold);

@@ -68,7 +68,6 @@
 		flex: none;
 		gap: var(--spacing-1);
 		margin: 0;
-		padding: 0;
 		list-style: none;
 	}
 
