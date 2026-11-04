@@ -1343,6 +1343,14 @@ export const pl = {
 				'Stephen Wiltshire po 20 minutach lotu helikopterem nad Nowym Jorkiem narysował panoramę miasta na płótnie długim na około 6 metrów. Nie korzystał przy tym ze zdjęć, tylko z pamięci.',
 				'Widoki Warszawy Bernarda Bellotta posłużyły po 1945 roku do odbudowy miasta, także z jego zmyśleniami. Jaszczurki i goryl jedzący banana na dachu Pałacu Branickich nigdy go nie zdobiły, a stoją tam dziś, bo namalował je Bellotto.'
 			],
+			bullseye: [
+				'Na autoportrecie z 1500 roku, który wisi w monachijskiej Alte Pinakothek, Albrecht Dürer umieścił łaciński napis: „Ja, Albrecht Dürer z Norymbergi, przedstawiłem się we właściwych barwach w wieku 28 lat”.',
+				'„Pejzaż” z Gabinetu Rysunków i Rycin Galerii Uffizi, datowany na 5 sierpnia 1473 roku, to pierwsze pewnie datowane dzieło Leonarda da Vinci. Artysta, urodzony w 1452 roku w Vinci, miał wtedy niewiele ponad 20 lat.',
+				'Johann Jacob Diesbach uzyskał w Berlinie błękit pruski, próbując zrobić czerwony lak. Kronika z epoki wskazuje rok 1706, a już w 1709 roku Pieter van der Werff użył nowego pigmentu w obrazie „Złożenie do grobu”.',
+				'Wolfgang Beltracchi przez 14 lat sprzedawał własne obrazy jako dzieła znanych artystów. Zdradził go „Czerwony obraz z końmi”, rzekomo Heinricha Campendonka z 1914 roku: biel tytanowa w jego farbie w 1914 roku jeszcze nie istniała.',
+				'Mapa Winlandii, którą Uniwersytet Yale ogłosił w 1965 roku jako XV-wieczną, okazała się fałszerstwem. Jej linie i napisy wykonano tuszem z anatazem, formą dwutlenku tytanu stosowaną dopiero od lat 20. XX wieku, choć pergamin pochodzi z lat około 1400–1460.',
+				'Obraz w stylu ludowym podpisany „Sarah Honn” i datowany „5 maja 1866” namalowano na XIX-wiecznym płótnie. Zdradził go olej w farbie, z nadmiarem węgla-14 z prób jądrowych. Fałszerz Robert Trotter przyznał, że namalował go w 1985 roku.'
+			],
 			regular: [
 				'Wit Stwosz pracował nad ołtarzem dla kościoła Mariackiego w Krakowie od 1477 do 1489 roku. Ponad 200 figur wyrzeźbił w drewnie lipowym, konstrukcję zrobiono z dębu, a tło z modrzewia.',
 				"„Źródło” Ingres zaczął malować w 1820 roku, a skończył dopiero w 1856, 36 lat później. Dziś obraz wisi w Musée d'Orsay.",
@@ -1476,6 +1484,12 @@ export const pl = {
 				about:
 					'Dürer wyrył uczonego pogrążonego w lekturze w 1514 roku, w tym samym roku co „Melancholię I”.',
 				count: counter('dzieł utrwalonych w pamięci')
+			},
+			bullseye: {
+				name: 'Strzała Vinkelesa',
+				about:
+					'Reinier Vinkeles (1741–1816), amsterdamski rytownik, wyrył putta, który ogląda strzałę wbitą w sam środek tarczy.',
+				count: counter('trafień co do roku')
 			},
 			regular: {
 				name: 'Klepsydra z „Melancholii I”',

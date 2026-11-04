@@ -34,9 +34,9 @@ begin
     'career_standing does not unlock the tiers of new artworks';
 
   assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC')) = array[
-    'back_from_storage', 'chronicle', 'collection', 'eras', 'glossary', 'grand_tour', 'marathon', 'memory',
-    'night_watch', 'own_eye', 'regular', 'seen_live', 'timeline'
-  ], 'the exhibits are not the agreed thirteen';
+    'back_from_storage', 'bullseye', 'chronicle', 'collection', 'eras', 'glossary', 'grand_tour', 'marathon',
+    'memory', 'night_watch', 'own_eye', 'regular', 'seen_live', 'timeline'
+  ], 'the exhibits are not the agreed fourteen';
   assert (select array_agg(tier order by tier) from public.exhibit_tiers where exhibit = 'collection') = array[1, 2]::smallint[],
     'ten artworks do not unlock the first two tiers of the collection';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'eras') = array[1]::smallint[],

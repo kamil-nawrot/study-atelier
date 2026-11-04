@@ -137,7 +137,8 @@ export class ReviewSession {
 				mode: 'year',
 				rating,
 				correct: rating > 1,
-				answerMs: now.getTime() - this.#shownAt
+				answerMs: now.getTime() - this.#shownAt,
+				guessedYear: year
 			});
 			this.saving = false;
 			if (error) {

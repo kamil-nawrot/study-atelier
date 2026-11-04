@@ -208,11 +208,18 @@ describe('review data', () => {
 
 	it('saves a year answer on the date facet', async () => {
 		rpc.mockResolvedValue({ error: null } as never);
-		await recordReview(card, { mode: 'year', rating: 2, correct: true });
+		await recordReview(card, { mode: 'year', rating: 2, correct: true, guessedYear: -120 });
 		expect(rpc).toHaveBeenCalledWith(
 			'record_review',
 			expect.objectContaining({
-				answer: { facet: 'date', mode: 'year', rating: 2, correct: true, answer_ms: null }
+				answer: {
+					facet: 'date',
+					mode: 'year',
+					rating: 2,
+					correct: true,
+					answer_ms: null,
+					guessed_year: -120
+				}
 			})
 		);
 	});

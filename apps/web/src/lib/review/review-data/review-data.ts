@@ -30,6 +30,7 @@ type ReviewAnswer = {
 	rating: ReviewRating;
 	correct?: boolean;
 	answerMs?: number;
+	guessedYear?: number;
 };
 
 type ReviewCardsResult = {
@@ -187,7 +188,8 @@ export async function recordReview(
 			mode: answer.mode,
 			rating: answer.rating,
 			correct: answer.mode === 'flashcard' ? null : (answer.correct ?? false),
-			answer_ms: answer.answerMs === undefined ? null : Math.round(answer.answerMs)
+			answer_ms: answer.answerMs === undefined ? null : Math.round(answer.answerMs),
+			...(answer.guessedYear === undefined ? {} : { guessed_year: answer.guessedYear })
 		},
 		day_start: startOfDay(new Date()).toISOString(),
 		time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone

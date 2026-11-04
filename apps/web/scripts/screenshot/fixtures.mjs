@@ -1040,6 +1040,7 @@ export const EXHIBITS = [
 	{ exhibit: 'collection', value: 191, thresholds: [1, 10, 50, 100, 250, 500, 1000, 2500, 5000] },
 	{ exhibit: 'eras', value: 5, thresholds: [2, 3, 4, 5, 6] },
 	{ exhibit: 'memory', value: 55, thresholds: [1, 25, 100, 250, 500, 1000, 2500] },
+	{ exhibit: 'bullseye', value: 7, thresholds: [1, 5, 25, 50, 100, 250] },
 	{ exhibit: 'regular', value: 14, thresholds: [3, 7, 14, 30, 60, 100, 200, 365] },
 	{ exhibit: 'back_from_storage', value: 0, thresholds: [1] },
 	{ exhibit: 'chronicle', value: 2, thresholds: [1, 5, 10, 25, 50, 100] },
