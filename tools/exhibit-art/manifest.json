@@ -12,7 +12,8 @@
     "glossary": "leiden-university-library-1610",
     "own_eye": "encyclopedie-chambre-obscure",
     "night_watch": "night-watch-engraving-1847",
-    "marathon": "durer-nemesis-cup"
+    "marathon": "durer-nemesis-cup",
+    "bullseye": "vinkeles-putto-arrow-in-bullseye-close"
   },
   "variants": [
     {
@@ -449,6 +450,78 @@
       "background": "wall",
       "pad": true,
       "wall_darken": 0.72
+    },
+    {
+      "exhibit": "bullseye",
+      "variant": "vinkeles-putto-arrow-in-bullseye-close",
+      "status": "chosen",
+      "commons_file": "Putto bekijkt een pijl in de roos van een schietschijf, RP-P-1905-5949.jpg",
+      "licence": "CC0",
+      "credit": "Reinier Vinkeles, Putto looking at an arrow in the bullseye of a target, Rijksmuseum",
+      "crop": [
+        0.3,
+        0.13,
+        0.62,
+        0.385
+      ]
+    },
+    {
+      "exhibit": "bullseye",
+      "variant": "vinkeles-putto-arrow-in-bullseye",
+      "status": "alternative",
+      "commons_file": "Putto bekijkt een pijl in de roos van een schietschijf, RP-P-1905-5949.jpg",
+      "licence": "CC0",
+      "credit": "Reinier Vinkeles, Putto looking at an arrow in the bullseye of a target, Rijksmuseum",
+      "crop": [
+        0.3,
+        0.1,
+        0.7,
+        0.418
+      ]
+    },
+    {
+      "exhibit": "bullseye",
+      "variant": "durer-apollo-aiming",
+      "status": "alternative",
+      "commons_file": "Albrecht Dürer, Apollo and Diana, 1504-1505, NGA 6604.jpg",
+      "licence": "CC0",
+      "credit": "Albrecht Dürer, Apollo and Diana, 1504–1505",
+      "crop": [
+        0.05,
+        0.005,
+        0.98,
+        0.763
+      ]
+    },
+    {
+      "exhibit": "bullseye",
+      "variant": "archers-shooting-at-a-herm",
+      "status": "alternative",
+      "commons_file": "Naked archers shooting at a target attached to a herm, Cupid sleeping below, possibly an allegory related to vice MET DP873626.jpg",
+      "licence": "CC0",
+      "credit": "After Michelangelo, Archers shooting at a herm, c. 1540, Metropolitan Museum of Art",
+      "crop": [
+        0.075,
+        0.1,
+        0.495,
+        0.833
+      ]
+    },
+    {
+      "exhibit": "bullseye",
+      "variant": "tycho-mural-quadrant",
+      "status": "alternative",
+      "commons_file": "Mauerquadrant.jpg",
+      "licence": "Public domain",
+      "credit": "Tycho Brahe’s mural quadrant, Astronomiae instauratae mechanica, 1598",
+      "crop": [
+        0.4,
+        0.36,
+        0.88,
+        0.785
+      ],
+      "gamma": 0.9,
+      "cap": 1.0
     }
   ]
 }

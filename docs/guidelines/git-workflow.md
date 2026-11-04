@@ -31,7 +31,7 @@ Commit messages follow [Conventional Commits 1.0](https://www.conventionalcommit
 ```
 
 - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
-- Scopes follow the monorepo layout, for example `web`, `design`, `db`, `docs`, `ci`.
+- Scopes follow the monorepo layout, for example `web`, `design`, `db`, `docs`, `ci`, and `tools` for `tools/`.
 - The description is imperative, lowercase, without a trailing period.
 - Breaking changes are marked with `!` after the type or a `BREAKING CHANGE:` footer.
 - A commit may reference the Linear issue in the footer, for example `Refs: ATL-1`; it is not required, since the branch name already links the issue. Name only the pull request's own issue: Linear moves every issue a commit references, so naming another one marks it as started.

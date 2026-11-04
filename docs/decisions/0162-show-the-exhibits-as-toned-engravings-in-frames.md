@@ -36,4 +36,4 @@ Chosen by the owner: the toned engravings in a frame.
 
 ## More information
 
-ATL-389. Supersedes the look of the exhibits in ADR-0160; the rest of ADR-0160 stands. Source images and their licences: `design/exhibits/sources.json`.
+ATL-389. Supersedes the look of the exhibits in ADR-0160; the rest of ADR-0160 stands. Source images and their licences: [`tools/exhibit-art/manifest.json`](../../tools/exhibit-art/manifest.json).
