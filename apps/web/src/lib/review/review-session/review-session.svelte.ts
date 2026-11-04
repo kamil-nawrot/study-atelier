@@ -8,6 +8,8 @@ import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { ReviewRating } from '#lib/review/types/review-rating.ts';
 import type { SessionStep } from '#lib/review/types/session-step.ts';
 import { boundsOf, yearOutcome, yearsOf } from '#lib/review/year-guess/year-guess.ts';
+import { ORDER_SIZE, placedRight } from '#lib/review/order-guess/order-guess.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 type ReviewAnswerLog = {
 	item: ReviewItem;
@@ -30,6 +32,8 @@ export class ReviewSession {
 	answers = $state<ReviewAnswerLog[]>([]);
 	guessed = $state<number>();
 	yearAnswers = $state<YearAnswerLog[]>([]);
+	ordered = $state<WallArtwork[]>();
+	orderAnswers = $state<boolean[]>([]);
 	readonly cards: Map<string, ReviewCard>;
 	readonly startedAt: number;
 	readonly free: boolean;
@@ -73,13 +77,24 @@ export class ReviewSession {
 		};
 	}
 
+	get anyAnswer(): boolean {
+		return this.answers.length + this.yearAnswers.length + this.orderAnswers.length > 0;
+	}
+
+	get orders(): { asked: number; right: number } {
+		return {
+			asked: this.orderAnswers.length,
+			right: this.orderAnswers.filter(Boolean).length
+		};
+	}
+
 	get minutes(): number {
 		return Math.max(1, Math.round((this.#now().getTime() - this.startedAt) / 60000));
 	}
 
 	next(): Record<ReviewRating, ReviewCard> | undefined {
 		const item = this.current;
-		return item && item.mode !== 'quiz_definition' && item.mode !== 'year'
+		return item && item.mode !== 'quiz_definition' && item.mode !== 'year' && item.mode !== 'order'
 			? outcomes(item.artwork.id, item.card, this.#now())
 			: undefined;
 	}
@@ -94,6 +109,7 @@ export class ReviewSession {
 			!item ||
 			item.mode === 'quiz_definition' ||
 			item.mode === 'year' ||
+			item.mode === 'order' ||
 			item.quiz ||
 			!this.revealed ||
 			this.saving
@@ -105,7 +121,14 @@ export class ReviewSession {
 
 	async answer(choice: number): Promise<void> {
 		const item = this.current;
-		if (!item || item.mode === 'year' || !item.quiz || this.chosen !== undefined || this.saving) {
+		if (
+			!item ||
+			item.mode === 'year' ||
+			item.mode === 'order' ||
+			!item.quiz ||
+			this.chosen !== undefined ||
+			this.saving
+		) {
 			return;
 		}
 		const correct = choice === item.quiz.answer;
@@ -137,7 +160,8 @@ export class ReviewSession {
 				mode: 'year',
 				rating,
 				correct: rating > 1,
-				answerMs: now.getTime() - this.#shownAt
+				answerMs: now.getTime() - this.#shownAt,
+				guessedYear: year
 			});
 			this.saving = false;
 			if (error) {
@@ -149,11 +173,27 @@ export class ReviewSession {
 		this.yearAnswers.push({ artworkId: item.artwork.id, guess: year, rating });
 	}
 
+	checkOrder(placed: WallArtwork[]): void {
+		const item = this.current;
+		if (item?.mode !== 'order' || this.ordered !== undefined) return;
+		const right = placedRight(placed) === ORDER_SIZE;
+		if (right && !this.free) void recordRightAnswer(startOfDay(this.#now()));
+		this.ordered = placed;
+		this.orderAnswers.push(right);
+	}
+
 	proceed(): void {
 		const item = this.current;
 		if (!item) return;
-		const answered = item.mode === 'year' ? this.guessed !== undefined : this.chosen !== undefined;
-		if (answered && (item.mode === 'year' || item.quiz)) this.#advance();
+		if (
+			item.mode === 'year'
+				? this.guessed !== undefined
+				: item.mode === 'order'
+					? this.ordered !== undefined
+					: item.quiz && this.chosen !== undefined
+		) {
+			this.#advance();
+		}
 	}
 
 	async #save(
@@ -199,6 +239,7 @@ export class ReviewSession {
 		this.revealed = false;
 		this.chosen = undefined;
 		this.guessed = undefined;
+		this.ordered = undefined;
 		this.#shownAt = this.#now().getTime();
 	}
 }

@@ -10,11 +10,11 @@ import {
 	sameScope,
 	scopeArtworks,
 	scopeOptions,
-	summaryGroups,
 	troubles,
 	waitingTomorrow
 } from '#lib/review/overview/overview.ts';
-import { answeredArtworks, FreeAnswers } from '#lib/review/free-answers/free-answers.ts';
+import { FreeAnswers } from '#lib/review/free-answers/free-answers.ts';
+import { roundSummary } from '#lib/review/round-summary/round-summary.ts';
 import {
 	definitionItems,
 	definitionsOffered,
@@ -48,7 +48,11 @@ import type { ReviewSource } from '#lib/review/types/review-source.ts';
 import type { ScopeChoice } from '#lib/review/types/scope-choice.ts';
 import type { SessionSummary } from '#lib/review/types/session-summary.ts';
 import { reportError } from '#lib/shared/monitoring/monitoring.ts';
-import { yearItems } from '#lib/review/year-guess/year-guess.ts';
+import {
+	timeArtworks,
+	timeQuestions,
+	withTimeImages
+} from '#lib/review/time-questions/time-questions.ts';
 
 const PRELOAD_AHEAD = 2;
 const ALL_SCOPE: ReviewScope = { kind: 'all' };
@@ -222,8 +226,8 @@ export class ReviewFlow {
 			: await loadSession(dayStart, this.activeForm, this.activeScope);
 		const items = await withPinPreviews(sessionItems(loaded.rows, this.artworksById, this.cards));
 		if (loaded.error || items.length === 0) return loaded.error;
-		const years = yearItems(loaded.rows, this.artworksById, currentDate());
-		const artworks = [...items, ...years].map((item) => item.artwork);
+		const times = timeQuestions(loaded.rows, this.artworksById, currentDate());
+		const artworks = [...items.map((item) => item.artwork), ...timeArtworks(times)];
 		const shown = [...artworks, ...quizArtworks(items)];
 		const glossary = this.#data().glossary;
 		const drawn = drawnTerms(glossary, this.definitions ? (this.definitionCount ?? 0) : 0);
@@ -241,7 +245,7 @@ export class ReviewFlow {
 				items.map((item) => withItemImages(item, (artwork) => this.withImage(artwork))),
 				[
 					...definitionItems(withDefinitionsOf(drawn, defined.definitions), glossary),
-					...years.map((year) => ({ ...year, artwork: this.withImage(year.artwork) }))
+					...times.map((step) => withTimeImages(step, (artwork) => this.withImage(artwork)))
 				]
 			),
 			this.cards,
@@ -298,18 +302,13 @@ export class ReviewFlow {
 			this.newToday += session.started;
 		}
 		this.now = currentDate();
-		const answered = answeredArtworks(session);
 		this.#free.record(session, startOfDay(this.now));
-		this.summary = {
-			count: answered,
-			minutes: session.minutes,
-			tomorrow: session.free ? 0 : waitingTomorrow(this.scoped, this.cards, this.now, this.limits),
-			groups: summaryGroups(session.answers),
-			free: session.free,
-			years: session.years
-		};
+		this.summary = roundSummary(
+			session,
+			session.free ? 0 : waitingTomorrow(this.scoped, this.cards, this.now, this.limits)
+		);
 		if (!session.free) void invalidate(REVIEW_COUNTS_DEPENDENCY);
 		this.session = undefined;
-		this.phase = answered + session.years.asked > 0 ? 'summary' : 'start';
+		this.phase = session.anyAnswer ? 'summary' : 'start';
 	}
 }

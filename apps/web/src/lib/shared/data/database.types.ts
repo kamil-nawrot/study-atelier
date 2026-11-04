@@ -1116,11 +1116,13 @@ export type Database = {
           correct: boolean | null;
           due_before: string | null;
           facet: string;
+          guessed_year: number | null;
           id: number;
           mode: string;
           owner_id: string;
           rating: number;
           reviewed_at: string;
+          year_miss: number | null;
         };
         ComputedFields: never;
         Insert: {
@@ -1129,11 +1131,13 @@ export type Database = {
           correct?: boolean | null;
           due_before?: string | null;
           facet?: string;
+          guessed_year?: number | null;
           id?: never;
           mode: string;
           owner_id?: string;
           rating: number;
           reviewed_at?: string;
+          year_miss?: number | null;
         };
         Update: {
           answer_ms?: number | null;
@@ -1141,11 +1145,13 @@ export type Database = {
           correct?: boolean | null;
           due_before?: string | null;
           facet?: string;
+          guessed_year?: number | null;
           id?: never;
           mode?: string;
           owner_id?: string;
           rating?: number;
           reviewed_at?: string;
+          year_miss?: number | null;
         };
         Relationships: [
           {

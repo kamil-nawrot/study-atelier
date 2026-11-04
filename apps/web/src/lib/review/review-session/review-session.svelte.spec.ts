@@ -261,7 +261,7 @@ describe('ReviewSession', () => {
 
 		expect(recordReview).toHaveBeenCalledWith(
 			expect.objectContaining({ artworkId: dated.artwork.id }),
-			expect.objectContaining({ mode: 'year', rating: 2, correct: true })
+			expect.objectContaining({ mode: 'year', rating: 2, correct: true, guessedYear: 1540 })
 		);
 		expect(review.guessed).toBe(1540);
 		expect(review.years).toEqual({ asked: 1, hit: 1 });
@@ -298,6 +298,51 @@ describe('ReviewSession', () => {
 
 		expect(recordReview).not.toHaveBeenCalled();
 		expect(review.years).toEqual({ asked: 1, hit: 0 });
+	});
+
+	it('gives a point for a whole order put right and counts every order answer', () => {
+		const works = [1, 2, 3, 4].map((number) =>
+			testArtwork(20 + number, `Work ${number}`, { yearTo: 1400 + number * 100 })
+		);
+		const review = new ReviewSession(
+			[
+				{ mode: 'order', artworks: [...works].reverse() },
+				{ mode: 'order', artworks: [...works].reverse() }
+			],
+			new Map(),
+			() => start,
+			() => 0
+		);
+
+		review.checkOrder(works);
+		expect(recordRightAnswer).toHaveBeenCalledExactlyOnceWith(new Date(2026, 9, 16));
+		expect(review.ordered).toEqual(works);
+		review.proceed();
+		expect(review.ordered).toBeUndefined();
+
+		review.checkOrder([works[1], works[0], works[2], works[3]]);
+		review.checkOrder(works);
+		expect(recordRightAnswer).toHaveBeenCalledOnce();
+		expect(review.orders).toEqual({ asked: 2, right: 1 });
+		expect(review.answers).toHaveLength(0);
+		expect(review.anyAnswer).toBe(true);
+	});
+
+	it('gives no point for an order in a free round', () => {
+		const works = [1, 2, 3, 4].map((number) =>
+			testArtwork(20 + number, `Work ${number}`, { yearTo: 1400 + number * 100 })
+		);
+		const review = new ReviewSession(
+			[{ mode: 'order', artworks: works }],
+			new Map(),
+			() => start,
+			() => 0,
+			true
+		);
+
+		review.checkOrder(works);
+		expect(recordRightAnswer).not.toHaveBeenCalled();
+		expect(review.orders).toEqual({ asked: 1, right: 1 });
 	});
 
 	it('gives no point for a definition in a free round', async () => {

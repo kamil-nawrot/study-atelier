@@ -7,4 +7,5 @@ export type SessionSummary = {
 	groups: SummaryGroup[];
 	free: boolean;
 	years: { asked: number; hit: number };
+	orders: { asked: number; right: number };
 };

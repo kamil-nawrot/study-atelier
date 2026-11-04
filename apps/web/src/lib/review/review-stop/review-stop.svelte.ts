@@ -27,8 +27,7 @@ export class ReviewStop {
 	}
 
 	#answered(): boolean {
-		const session = this.#session();
-		return !!session && session.answers.length + session.years.asked > 0;
+		return !!this.#session()?.anyAnswer;
 	}
 
 	confirm(): Promise<boolean> {
