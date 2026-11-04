@@ -8,6 +8,7 @@
 	import type { ExportProgress } from '#lib/data-transfer/types/export-progress.ts';
 	import { megabytes } from '#lib/images/storage-usage/storage-usage.ts';
 	import type { StorageUsage } from '#lib/images/types/storage-usage.ts';
+	import SettingsSection from '#lib/profile/components/SettingsSection/SettingsSection.svelte';
 
 	type Props = {
 		atelierEmpty?: boolean;
@@ -90,16 +91,24 @@
 
 <div class="data">
 	{#if storageUsage}
-		<section>
-			<h2>{m.settings.data.storageTitle}</h2>
-			<p>{usageText}</p>
+		<SettingsSection title={m.settings.data.storageTitle}>
+			<p>
+				{m.settings.data.storageUsageStart}
+				<strong>{m.settings.data.storageUsed(megabytes(storageUsage.usedBytes))}</strong>
+				{m.settings.data.storageUsageEnd(megabytes(storageUsage.quotaBytes))}
+			</p>
 			<div class="usage">
-				<Meter label={usageText} max={storageUsage.quotaBytes} value={storageUsage.usedBytes} />
+				<Meter
+					label={usageText}
+					max={storageUsage.quotaBytes}
+					size="thick"
+					track="dim"
+					value={storageUsage.usedBytes}
+				/>
 			</div>
-		</section>
+		</SettingsSection>
 	{/if}
-	<section class:rule={storageUsage}>
-		<h2>{m.settings.data.exportTitle}</h2>
+	<SettingsSection rule={!!storageUsage} title={m.settings.data.exportTitle}>
 		{#if error}
 			<Alert title={m.settings.data.errorTitle} tone="danger">{error}</Alert>
 		{/if}
@@ -111,9 +120,8 @@
 			</Button>
 			<span class="status" aria-live="polite">{status}</span>
 		</div>
-	</section>
-	<section class="rule">
-		<h2>{m.settings.data.importTitle}</h2>
+	</SettingsSection>
+	<SettingsSection rule title={m.settings.data.importTitle}>
 		{#if importError}
 			<Alert title={m.settings.data.importErrorTitle} tone="danger">{importError}</Alert>
 		{/if}
@@ -131,7 +139,7 @@
 			/>
 			<span class="status" aria-live="polite">{importStatus}</span>
 		</div>
-	</section>
+	</SettingsSection>
 </div>
 
 <style>
@@ -139,18 +147,6 @@
 		display: grid;
 		gap: var(--spacing-8);
 		width: 100%;
-		max-width: var(--size-content-default);
-	}
-
-	section {
-		display: grid;
-		gap: var(--spacing-4);
-		justify-items: start;
-	}
-
-	.rule {
-		padding-top: var(--spacing-8);
-		border-top: var(--border-width-hairline) solid var(--color-line);
 	}
 
 	.hint,

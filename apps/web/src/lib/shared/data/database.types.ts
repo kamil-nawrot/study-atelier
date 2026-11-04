@@ -996,6 +996,7 @@ export type Database = {
           rank_seen: number;
           review_form: string;
           review_free: boolean;
+          review_glossary_on: boolean;
           review_glossary_questions: number;
           review_new_per_day: number;
           review_note_questions: boolean;
@@ -1023,6 +1024,7 @@ export type Database = {
           rank_seen?: number;
           review_form?: string;
           review_free?: boolean;
+          review_glossary_on?: boolean;
           review_glossary_questions?: number;
           review_new_per_day?: number;
           review_note_questions?: boolean;
@@ -1049,6 +1051,7 @@ export type Database = {
           rank_seen?: number;
           review_form?: string;
           review_free?: boolean;
+          review_glossary_on?: boolean;
           review_glossary_questions?: number;
           review_new_per_day?: number;
           review_note_questions?: boolean;

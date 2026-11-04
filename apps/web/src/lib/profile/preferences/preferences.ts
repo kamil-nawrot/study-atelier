@@ -26,10 +26,10 @@ export const defaultPreferences: Preferences = {
 	reviewForm: 'mixed',
 	reviewQuizKinds: [...QUIZ_KINDS],
 	reviewFree: true,
+	reviewGlossaryOn: true,
 	reviewGlossaryQuestions: 1,
 	reviewNoteQuestions: false,
 	reviewTimeQuestions: false,
-	careerShown: true,
 	viewShowPins: false,
 	viewLoupeOn: false,
 	fetchImage: true,
@@ -45,10 +45,10 @@ const PART_FIELDS: Record<PreferencesPart, readonly (keyof Preferences)[]> = {
 		'reviewForm',
 		'reviewQuizKinds',
 		'reviewFree',
+		'reviewGlossaryOn',
 		'reviewGlossaryQuestions',
 		'reviewNoteQuestions',
-		'reviewTimeQuestions',
-		'careerShown'
+		'reviewTimeQuestions'
 	],
 	view: ['viewShowPins', 'viewLoupeOn'],
 	sources: ['fetchImage', 'fetchDefinition', 'fetchForms', 'fetchEvent']

@@ -126,8 +126,6 @@
 	/>
 {:else}
 	<ReviewStart
-		definitions={flow.definitionCount}
-		definitionsOn={flow.definitions}
 		error={flow.startError}
 		form={flow.activeForm}
 		forms={flow.forms}
@@ -137,7 +135,6 @@
 		known={flow.counts.known}
 		missing={flow.missing}
 		nextWhen={flow.nextDate ? formatWhen(flow.nextDate, flow.now) : undefined}
-		ondefinitions={(on) => (flow.definitions = on)}
 		onform={(chosen) => (flow.form = chosen)}
 		onscope={(chosen) => flow.chooseScope(chosen)}
 		onstart={() => flow.start()}

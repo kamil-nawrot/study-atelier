@@ -6,7 +6,12 @@ import type { RankForm } from '#lib/profile/types/rank-form.ts';
 
 export const DISPLAY_NAME_MAX_LENGTH = 60;
 
-export const emptyProfile: Profile = { displayName: null, avatarPath: null, rankForm: 'masculine' };
+export const emptyProfile: Profile = {
+	displayName: null,
+	avatarPath: null,
+	rankForm: 'masculine',
+	careerShown: true
+};
 
 export function validateDisplayName(name: string): string | undefined {
 	if (name.trim().length > DISPLAY_NAME_MAX_LENGTH) {
@@ -30,7 +35,12 @@ export function avatarInitial(profile: Partial<Profile> | undefined, email: stri
 }
 
 export function profileDraftOf(profile: Profile): ProfileDraft {
-	return { name: profile.displayName ?? '', avatar: { kind: 'keep' }, rankForm: profile.rankForm };
+	return {
+		name: profile.displayName ?? '',
+		avatar: { kind: 'keep' },
+		rankForm: profile.rankForm,
+		careerShown: profile.careerShown
+	};
 }
 
 function sameAvatar(left: AvatarChange, right: AvatarChange): boolean {
@@ -42,6 +52,7 @@ export function profileDraftChanged(current: ProfileDraft, reference: ProfileDra
 	return (
 		normalizedName(current.name) !== normalizedName(reference.name) ||
 		current.rankForm !== reference.rankForm ||
+		current.careerShown !== reference.careerShown ||
 		!sameAvatar(current.avatar, reference.avatar)
 	);
 }

@@ -403,6 +403,7 @@ Table profiles {
   rank_seen smallint [not null, default: `0`]
   review_time_questions boolean [not null, default: `false`]
   review_note_questions boolean [not null, default: `false`]
+  review_glossary_on boolean [not null, default: `true`]
   Note: 'RLS on'
 }
 

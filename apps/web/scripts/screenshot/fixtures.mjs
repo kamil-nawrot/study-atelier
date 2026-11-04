@@ -472,6 +472,7 @@ export const PROFILE = {
 		'quiz_typed'
 	],
 	review_free: true,
+	review_glossary_on: true,
 	review_glossary_questions: 2,
 	review_note_questions: true,
 	review_time_questions: true,

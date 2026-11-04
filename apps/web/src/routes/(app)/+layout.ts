@@ -45,7 +45,7 @@ export const load: LayoutLoad = async ({ parent, depends }): Promise<AppLayoutDa
 		reviewWaiting: reviewWaiting(loaded.reviewNewPerDay),
 		menuProfile: Promise.resolve(own.error ? undefined : own.profile),
 		acceptedLegalVersion: Promise.resolve(own.legalVersion),
-		careerShown: loaded.careerShown,
+		careerShown: own.profile.careerShown,
 		preferences: loaded,
 		ownProfile: own
 	};

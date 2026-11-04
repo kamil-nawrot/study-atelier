@@ -17,17 +17,18 @@ export const PROFILE_DEPENDENCY = 'profile:own';
 
 type Row = Pick<
 	Database['public']['Tables']['profiles']['Row'],
-	'display_name' | 'avatar_path' | 'rank_form'
+	'display_name' | 'avatar_path' | 'rank_form' | 'career_shown'
 >;
 
-export const PROFILE_COLUMNS = 'display_name, avatar_path, rank_form';
+export const PROFILE_COLUMNS = 'display_name, avatar_path, rank_form, career_shown';
 
 export function profileOf(row: Row | null): Profile {
 	if (!row) return emptyProfile;
 	return {
 		displayName: row.display_name,
 		avatarPath: row.avatar_path,
-		rankForm: rankFormOf(row.rank_form)
+		rankForm: rankFormOf(row.rank_form),
+		careerShown: row.career_shown
 	};
 }
 
@@ -69,7 +70,8 @@ export async function saveProfile(
 		.upsert({
 			display_name: normalizedName(draft.name),
 			avatar_path: avatarPath,
-			rank_form: draft.rankForm
+			rank_form: draft.rankForm,
+			career_shown: draft.careerShown
 		})
 		.select(PROFILE_COLUMNS)
 		.single();
