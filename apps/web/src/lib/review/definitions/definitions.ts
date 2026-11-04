@@ -17,7 +17,7 @@ export function definitionsOffered(glossary: readonly GlossaryTerm[]): boolean {
 	return new Set(defined(glossary).map(nameKey)).size >= MIN_DEFINITION_TERMS;
 }
 
-function wrongNames(
+export function wrongNames(
 	term: GlossaryTerm,
 	glossary: readonly GlossaryTerm[],
 	random: () => number

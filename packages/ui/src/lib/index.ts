@@ -47,7 +47,7 @@ export { default as TextButton } from './components/TextButton/TextButton.svelte
 export { default as Tooltip } from './components/Tooltip/Tooltip.svelte';
 export { default as Toast } from './components/Toast/Toast.svelte';
 export { default as ValueField } from './components/ValueField/ValueField.svelte';
-export { maskedSegments, mentionsTerm } from './notes-markdown/notes-markdown';
+export { maskedSegments, mentionsTerm, noteText } from './notes-markdown/notes-markdown';
 export { defaultUiMessages, setUiMessages } from './messages/messages';
 export {
 	overlayScrollbar,

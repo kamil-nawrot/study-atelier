@@ -60,6 +60,9 @@ jobs:
       - name: Check the typed title in the review
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/review-typed-title.sql
 
+      - name: Check the gap in a note
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/note-gap.sql
+
       - name: Check review streaks
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/review-streak.sql
 

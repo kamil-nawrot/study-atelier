@@ -3,6 +3,7 @@ import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { recordReview, recordRightAnswer } from '#lib/review/review-data/review-data.ts';
 import { ReviewSession } from './review-session.svelte.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
+import type { NoteGapItem } from '#lib/review/types/note-gap-item.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { YearItem } from '#lib/review/types/year-item.ts';
 
@@ -206,6 +207,44 @@ describe('ReviewSession', () => {
 			expect.objectContaining({ mode: 'quiz_typed', rating: 1, correct: false })
 		);
 		expect(artworkSteps(review)[4]).toMatchObject({ mode: 'quiz_typed', artwork: { number: 1 } });
+	});
+
+	it('asks a note gap again after a wrong answer and gives a point only for a first right one', async () => {
+		vi.mocked(recordRightAnswer).mockClear();
+		const gap: NoteGapItem = {
+			mode: 'note_gap',
+			artwork: testArtwork(9, 'Portal'),
+			term: definition('Tympanon').term,
+			segments: [{ text: 'Tympanon', masked: true }],
+			quiz: {
+				answer: 0,
+				options: ['Tympanon', 'Nave', 'Choir', 'Portal'].map((label) => ({ label }))
+			}
+		};
+		const review = new ReviewSession(
+			[gap, ...items(5)],
+			new Map(),
+			() => start,
+			() => 0
+		);
+
+		await review.answer(1);
+		expect(recordReview).not.toHaveBeenCalled();
+		expect(review.queue.filter((step) => step.mode === 'note_gap')).toHaveLength(2);
+		review.proceed();
+		const retry = review.queue.findIndex((step, index) => index > 0 && step.mode === 'note_gap');
+		review.position = retry;
+		await review.answer(0);
+		expect(recordRightAnswer).not.toHaveBeenCalled();
+
+		const first = new ReviewSession(
+			[gap, ...items(2)],
+			new Map(),
+			() => start,
+			() => 0
+		);
+		await first.answer(0);
+		expect(recordRightAnswer).toHaveBeenCalledOnce();
 	});
 
 	it('does not rate a quiz like a flashcard', async () => {

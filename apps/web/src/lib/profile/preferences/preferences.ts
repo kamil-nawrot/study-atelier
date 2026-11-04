@@ -27,6 +27,7 @@ export const defaultPreferences: Preferences = {
 	reviewQuizKinds: [...QUIZ_KINDS],
 	reviewFree: true,
 	reviewGlossaryQuestions: 1,
+	reviewNoteQuestions: false,
 	reviewTimeQuestions: false,
 	careerShown: true,
 	viewShowPins: false,
@@ -45,6 +46,7 @@ const PART_FIELDS: Record<PreferencesPart, readonly (keyof Preferences)[]> = {
 		'reviewQuizKinds',
 		'reviewFree',
 		'reviewGlossaryQuestions',
+		'reviewNoteQuestions',
 		'reviewTimeQuestions',
 		'careerShown'
 	],

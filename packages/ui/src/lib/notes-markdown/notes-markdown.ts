@@ -157,6 +157,13 @@ export function renderText(source: string, terms: NoteTerm[] = []): string {
 	return terms.length === 0 ? html : markTerms(html, terms);
 }
 
+export function noteText(source: string): string {
+	const template = document.createElement('template');
+	template.innerHTML = renderNotes(source);
+	for (const lineBreak of template.content.querySelectorAll('br')) lineBreak.replaceWith(' ');
+	return (template.content.textContent ?? '').replace(/\s+/g, ' ').trim();
+}
+
 export function mentionsTerm(source: string, term: NoteTerm): boolean {
 	return renderNotes(source, undefined, [term]).includes('<button');
 }

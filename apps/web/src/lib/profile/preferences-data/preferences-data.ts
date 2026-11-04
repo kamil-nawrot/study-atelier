@@ -25,6 +25,7 @@ type Row = Pick<
 	| 'review_quiz_kinds'
 	| 'review_free'
 	| 'review_glossary_questions'
+	| 'review_note_questions'
 	| 'review_time_questions'
 	| 'career_shown'
 	| 'view_show_pins'
@@ -36,7 +37,7 @@ type Row = Pick<
 >;
 
 export const PREFERENCES_COLUMNS =
-	'review_session_size, review_new_per_day, review_form, review_quiz_kinds, review_free, review_glossary_questions, review_time_questions, career_shown, view_show_pins, view_loupe_on, fetch_image, fetch_definition, fetch_forms, fetch_event';
+	'review_session_size, review_new_per_day, review_form, review_quiz_kinds, review_free, review_glossary_questions, review_note_questions, review_time_questions, career_shown, view_show_pins, view_loupe_on, fetch_image, fetch_definition, fetch_forms, fetch_event';
 
 export function preferencesOf(row: Row | null): Preferences {
 	if (!row) return defaultPreferences;
@@ -52,6 +53,7 @@ export function preferencesOf(row: Row | null): Preferences {
 			: [...defaultPreferences.reviewQuizKinds],
 		reviewFree: row.review_free,
 		reviewGlossaryQuestions: row.review_glossary_questions,
+		reviewNoteQuestions: row.review_note_questions,
 		reviewTimeQuestions: row.review_time_questions,
 		careerShown: row.career_shown,
 		viewShowPins: row.view_show_pins,
@@ -82,6 +84,7 @@ function columnsOf(part: PreferencesPart, preferences: Preferences): Partial<Row
 		review_quiz_kinds: preferences.reviewQuizKinds,
 		review_free: preferences.reviewFree,
 		review_glossary_questions: preferences.reviewGlossaryQuestions,
+		review_note_questions: preferences.reviewNoteQuestions,
 		review_time_questions: preferences.reviewTimeQuestions,
 		career_shown: preferences.careerShown
 	};

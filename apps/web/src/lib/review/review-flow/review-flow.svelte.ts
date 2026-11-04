@@ -1,6 +1,4 @@
-import { untrack } from 'svelte';
 import { invalidate } from '$app/navigation';
-import { resolveImages } from '#lib/wall/wall-data/wall-data.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import {
@@ -37,6 +35,8 @@ import {
 	withPinPreviews
 } from '#lib/review/review-data/review-data.ts';
 import { preloadSteps, withItemImages } from '#lib/review/review-images/review-images.ts';
+import { drawNoteGap } from '#lib/review/note-gap/note-gap.ts';
+import { ResolvedImages } from '#lib/review/resolved-images/resolved-images.svelte.ts';
 import { ReviewStop } from '#lib/review/review-stop/review-stop.svelte.ts';
 import { ReviewSession } from '#lib/review/review-session/review-session.svelte.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
@@ -79,13 +79,13 @@ export class ReviewFlow {
 	starting = $state(false);
 	startError = $state<string>();
 	details = $state.raw(mapOf<string, ReviewDetails>());
+	readonly images = new ResolvedImages();
 	readonly stop = new ReviewStop(
 		() => this.session,
 		() => this.#finish()
 	);
 
 	#free = new FreeAnswers();
-	#resolved = $state.raw(mapOf<string, WallArtwork>());
 	#outcomes = $state<Record<ReviewRating, ReviewCard>>();
 	readonly #source: () => ReviewSource;
 
@@ -148,9 +148,7 @@ export class ReviewFlow {
 	);
 	artworksById = $derived(mapOf(this.#data().artworks.map((artwork) => [artwork.id, artwork])));
 	knowledge = $derived(atelierKnowledge(this.#data().artworks, this.cards));
-	hard = $derived(
-		troubles(this.#data().artworks, this.cards).map((artwork) => this.withImage(artwork))
-	);
+	hard = $derived(troubles(this.#data().artworks, this.cards).map(this.images.withImage));
 	current = $derived(this.session?.current);
 
 	#counts(artworks: WallArtwork[]): ReturnType<typeof sessionCounts> {
@@ -164,12 +162,7 @@ export class ReviewFlow {
 	}
 
 	follow(): void {
-		$effect(() => {
-			const pending = troubles(this.#data().artworks, this.cards).filter(
-				(artwork) => artwork.pendingImage && !untrack(() => this.#resolved.has(artwork.id))
-			);
-			if (pending.length > 0) void this.#resolveInto(pending);
-		});
+		this.images.follow(() => troubles(this.#data().artworks, this.cards));
 
 		$effect(() => {
 			const session = this.session;
@@ -181,19 +174,6 @@ export class ReviewFlow {
 			void this.session?.position;
 			window.scrollTo(0, 0);
 		});
-	}
-
-	withImage(artwork: WallArtwork): WallArtwork {
-		return this.#resolved.get(artwork.id) ?? artwork;
-	}
-
-	async #resolveInto(artworks: WallArtwork[]): Promise<void> {
-		const found = await resolveImages(artworks);
-		if (found.length === 0) return;
-		this.#resolved = mapOf([
-			...this.#resolved,
-			...found.map((artwork) => [artwork.id, artwork] as const)
-		]);
 	}
 
 	chooseScope(scope: ReviewScope): void {
@@ -221,10 +201,15 @@ export class ReviewFlow {
 	async #prepareSession(): Promise<string | undefined> {
 		const free = this.freeOpen;
 		const dayStart = startOfDay(currentDate());
-		const askTime = this.#data().preferences.reviewTimeQuestions;
-		const loaded = free
-			? await loadSession(dayStart, this.activeForm, this.activeScope, askTime, this.freeRound)
-			: await loadSession(dayStart, this.activeForm, this.activeScope, askTime);
+		const { reviewTimeQuestions, reviewNoteQuestions } = this.#data().preferences;
+		const round = free ? this.freeRound : undefined;
+		const loaded = await loadSession(
+			dayStart,
+			this.activeForm,
+			this.activeScope,
+			reviewTimeQuestions,
+			round
+		);
 		const items = await withPinPreviews(sessionItems(loaded.rows, this.artworksById, this.cards));
 		if (loaded.error || items.length === 0) return loaded.error;
 		const times = timeQuestions(loaded.rows, this.artworksById, currentDate());
@@ -232,9 +217,17 @@ export class ReviewFlow {
 		const shown = [...artworks, ...quizArtworks(items)];
 		const glossary = this.#data().glossary;
 		const drawn = drawnTerms(glossary, this.definitions ? (this.definitionCount ?? 0) : 0);
+		const gaps = await drawNoteGap(
+			reviewNoteQuestions,
+			this.activeScope,
+			shown,
+			this.artworksById,
+			glossary
+		);
+		const gapArtworks = gaps.map((gap) => gap.artwork);
 		const [, found, defined] = await Promise.all([
-			this.#resolveInto(shown.filter((artwork) => artwork.pendingImage)),
-			loadReviewDetails(artworks.map((artwork) => artwork.id)),
+			this.images.resolve([...shown, ...gapArtworks]),
+			loadReviewDetails([...artworks, ...gapArtworks].map((artwork) => artwork.id)),
 			loadTermDefinitions(drawn.map((term) => term.id))
 		]);
 		if (found.error) return found.error;
@@ -243,10 +236,11 @@ export class ReviewFlow {
 		this.#free = new FreeAnswers();
 		this.session = new ReviewSession(
 			withExtraSteps(
-				items.map((item) => withItemImages(item, (artwork) => this.withImage(artwork))),
+				items.map((item) => withItemImages(item, this.images.withImage)),
 				[
 					...definitionItems(withDefinitionsOf(drawn, defined.definitions), glossary),
-					...times.map((step) => withTimeImages(step, (artwork) => this.withImage(artwork)))
+					...gaps.map((gap) => ({ ...gap, artwork: this.images.withImage(gap.artwork) })),
+					...times.map((step) => withTimeImages(step, this.images.withImage))
 				]
 			),
 			this.cards,

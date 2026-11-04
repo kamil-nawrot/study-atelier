@@ -104,7 +104,7 @@ declare
     'storage_usage', 'delete_account', 'storage_has_room', 'deleted_account_images', 'search_key',
     'duplicate_candidates', 'used_category_values', 'learner_points', 'unlock_exhibits', 'record_free_answers',
     'career_standing', 'note_link_mentions', 'note_link_labels', 'note_link_suggestions', 'atelier_empty',
-    'collection_statistics', 'record_right_answer'
+    'collection_statistics', 'record_right_answer', 'note_gap_artwork'
   ];
   table_name text;
   routine record;
@@ -371,6 +371,7 @@ begin
   assert public.review_session('2026-10-16T00:00:00Z') = '[]'::jsonb, 'B builds a session of A';
   assert public.review_session('2026-10-16T00:00:00Z', 'mixed', 'all', null, 0) = '[]'::jsonb,
     'B builds a free session of A';
+  assert public.note_gap_artwork() is null, 'B draws a note gap of A';
 
   assert security_test.affected(format('update public.artworks set title = ''x'' where id = %L', a_artwork)) = 0,
     'B updates an artwork of A';
@@ -915,6 +916,7 @@ begin
   assert security_test.denied('select * from public.review_cards'), 'anon reads review cards';
   assert security_test.denied('select public.review_counts(now())'), 'anon executes review_counts';
   assert security_test.denied('select public.review_session(now())'), 'anon executes review_session';
+  assert security_test.denied('select public.note_gap_artwork()'), 'anon executes note_gap_artwork';
   assert security_test.denied('select public.review_streak(now(), ''UTC'')'), 'anon executes review_streak';
   assert security_test.denied('select public.learner_points()'), 'anon executes learner_points';
   assert security_test.denied('select public.unlock_exhibits(''UTC'')'), 'anon executes unlock_exhibits';

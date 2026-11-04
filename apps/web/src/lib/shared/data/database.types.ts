@@ -995,6 +995,7 @@ export type Database = {
           review_free: boolean;
           review_glossary_questions: number;
           review_new_per_day: number;
+          review_note_questions: boolean;
           review_quiz_kinds: string[];
           review_session_size: number;
           review_time_questions: boolean;
@@ -1021,6 +1022,7 @@ export type Database = {
           review_free?: boolean;
           review_glossary_questions?: number;
           review_new_per_day?: number;
+          review_note_questions?: boolean;
           review_quiz_kinds?: string[];
           review_session_size?: number;
           review_time_questions?: boolean;
@@ -1046,6 +1048,7 @@ export type Database = {
           review_free?: boolean;
           review_glossary_questions?: number;
           review_new_per_day?: number;
+          review_note_questions?: boolean;
           review_quiz_kinds?: string[];
           review_session_size?: number;
           review_time_questions?: boolean;
@@ -1418,6 +1421,14 @@ export type Database = {
       move_artwork_field: {
         Args: { direction: number; target_field: string };
         Returns: undefined;
+      };
+      note_gap_artwork: {
+        Args: {
+          excluded?: string[];
+          scope_kind?: string;
+          scope_value?: string;
+        };
+        Returns: Json;
       };
       note_link_labels: {
         Args: {
