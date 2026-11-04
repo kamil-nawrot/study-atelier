@@ -346,8 +346,10 @@ Table point_events {
   streak_days integer
   occurred_at "timestamp with time zone" [not null, default: `now()`]
   code text
+  answers integer
 
   indexes {
+    (owner_id, day_start) [name: 'point_events_answers_idx', unique, note: 'where (kind = \'right_answers\'::text)']
     (owner_id, code) [name: 'point_events_code_idx', unique, note: 'where (kind = \'easter_egg\'::text)']
     (owner_id, day_start) [name: 'point_events_day_idx', unique, note: 'where (kind = \'plan_day\'::text)']
     (owner_id, kind, item_id) [name: 'point_events_item_idx', unique, note: 'where (item_id IS NOT NULL)']
