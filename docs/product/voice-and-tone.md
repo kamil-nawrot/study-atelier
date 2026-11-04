@@ -27,9 +27,9 @@ The app talks to the learner the way a museum curator talks to a visitor: it kno
 
 Each tier of an exhibit in "Ekspozycja" reveals one curiosity on the exhibit's theme.
 
-- One or two sentences, at most about 250 characters, in the plain voice above; titles of works in „…”, numbers as digits, no "Czy wiesz, że".
+- At most three sentences and about 350 characters, in the plain voice above; titles of works in „…”, numbers as digits, no "Czy wiesz, że".
 - Each curiosity has one source: a single page of a museum or another institution, Britannica, Smarthistory, a university or major press, never Wikipedia, Wikimedia, Wikidata or Wiktionary. The page is opened and states every fact of the text; the text claims no more than the source and hedges only when the source does.
-- A curiosity first says what its subject is (a Viking ship burial, a forger, a map bought as medieval) and only then gives the fact, so it reads without knowing the subject.
+- A curiosity first says what its subject is (a Viking ship burial, a forger, a map bought as medieval) and only then gives the fact, so it reads without knowing the subject; a person, place or term the learner may not know gets a few words of who or what it is, and a bare number or name gets what makes it worth telling.
 - The owner approves every text before it ships.
 - Every exhibit is named as an object or a place, then whose or where it is, after what its engraving shows ("Pracownia Świętego Hieronima", "Globus podróżnika", "Strzała putta"), never as a scene or an event, nor after the engraver or the title of a work ([ADR-0185](../decisions/0185-name-each-exhibit-after-what-its-engraving-shows.md)). The credit under an engraving keeps the real title of the work.
 
