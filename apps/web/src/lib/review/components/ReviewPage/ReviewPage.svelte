@@ -5,6 +5,7 @@
 	import Flashcard from '#lib/review/components/Flashcard/Flashcard.svelte';
 	import Quiz from '#lib/review/components/Quiz/Quiz.svelte';
 	import ReviewStart from '#lib/review/components/ReviewStart/ReviewStart.svelte';
+	import OrderGuess from '#lib/review/components/OrderGuess/OrderGuess.svelte';
 	import ReviewSummary from '#lib/review/components/ReviewSummary/ReviewSummary.svelte';
 	import YearGuess from '#lib/review/components/YearGuess/YearGuess.svelte';
 	import { formatWhen } from '#lib/review/overview/overview.ts';
@@ -28,8 +29,21 @@
 {:else if flow.phase === 'session' && flow.session && flow.current}
 	{@const session = flow.session}
 	{@const current = flow.current}
-	{#key `${session.position}:${current.mode === 'quiz_definition' ? current.term.id : current.artwork.id}`}
-		{#if current.mode === 'quiz_definition'}
+	{@const id =
+		current.mode === 'order'
+			? current.artworks[0].id
+			: current.mode === 'quiz_definition'
+				? current.term.id
+				: current.artwork.id}
+	{#key `${session.position}:${id}`}
+		{#if current.mode === 'order'}
+			<OrderGuess
+				item={current}
+				oncheck={(placed) => session.checkOrder(placed)}
+				onnext={() => flow.proceed()}
+				ordered={session.ordered}
+			/>
+		{:else if current.mode === 'quiz_definition'}
 			<DefinitionQuiz
 				chosen={session.chosen}
 				item={current}
@@ -82,6 +96,7 @@
 		nextRound={flow.waiting}
 		onfree={() => flow.start()}
 		onnext={() => flow.start()}
+		orders={flow.summary.orders}
 		{rankForm}
 		tomorrow={flow.summary.tomorrow}
 		years={flow.summary.years}

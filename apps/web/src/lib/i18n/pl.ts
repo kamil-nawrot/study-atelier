@@ -784,8 +784,40 @@ export const pl = {
 			guessMark: (guess: string): string => `Twój strzał: ${guess}`,
 			axis: 'Oś epoki z prawdziwymi latami dzieła i Twoim strzałem'
 		},
-		timeSummary: (hit: number, asked: number): string =>
-			`Pytania o czas: rok trafiony ${hit} z ${asked} ${asked === 1 ? 'razu' : 'razy'}.`,
+		order: {
+			tag: 'Ułóż chronologicznie',
+			question: 'W jakiej kolejności powstały te dzieła?',
+			hint: 'Przeciągaj obrazy tak, aby ułożyć je w kolejności od najstarszego do najnowszego',
+			keyboardHint:
+				'Z klawiatury: wybierz obraz Tabem, chwyć Spacją, przesuń strzałkami i puść Spacją.',
+			oldest: 'Najstarsze',
+			newest: 'Najnowsze',
+			imageAlt: 'Dzieło do ułożenia',
+			place: (place: number, of: number): string => `Dzieło na miejscu ${place} z ${of}`,
+			lifted: 'Chwycone. Strzałki przesuwają, Spacja puszcza, Escape przerywa.',
+			moved: (place: number, of: number): string => `Miejsce ${place} z ${of}.`,
+			dropped: (place: number): string => `Odłożone na miejscu ${place}.`,
+			check: 'Sprawdź kolejność',
+			shouldBe: (place: number): string => `powinno być ${place}`,
+			right: 'Świetnie, kolejność się zgadza.',
+			some: (right: number, of: number): string =>
+				`Prawie: ${right} z ${of} dzieł ${right === 1 ? 'trafiło' : 'trafiły'} na swoje miejsce.`,
+			none: 'Tym razem żadne dzieło nie trafiło na swoje miejsce.',
+			trueOrder: 'Prawdziwa kolejność',
+			axis: 'Oś z czterema dziełami w ich prawdziwych odstępach'
+		},
+		timeSummary: (
+			years: { asked: number; hit: number },
+			orders: { asked: number; right: number }
+		): string => {
+			const parts = [
+				years.asked > 0
+					? `rok trafiony ${years.hit} z ${years.asked} ${years.asked === 1 ? 'razu' : 'razy'}`
+					: '',
+				orders.asked > 0 ? `kolejność ${orders.right} z ${orders.asked}` : ''
+			].filter(Boolean);
+			return `Pytania o czas: ${parts.join(', ')}.`;
+		},
 		ratings: {
 			1: 'Nie wiem',
 			2: 'Prawie',
