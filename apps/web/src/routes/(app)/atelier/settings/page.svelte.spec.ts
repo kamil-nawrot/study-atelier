@@ -148,9 +148,6 @@ describe('settings page', () => {
 		});
 		renderSettings(undefined, '?tab=review');
 
-		await expect
-			.element(page.getByRole('switch', { name: m.settings.preferences.timeQuestions }))
-			.toHaveAccessibleDescription(m.settings.preferences.timeQuestionsHint);
 		await page.getByRole('button', { name: '30' }).click();
 		await page.getByRole('switch', { name: m.settings.preferences.timeQuestions }).click();
 		await page.getByRole('button', { name: m.settings.preferences.save }).click();

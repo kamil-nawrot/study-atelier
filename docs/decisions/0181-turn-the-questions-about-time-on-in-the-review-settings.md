@@ -24,7 +24,7 @@ The year and order questions ([ADR-0178](0178-ask-for-the-year-and-the-chronolog
 
 Chosen by the owner in ATL-479: a separate switch under the glossary questions, one for both questions about time, off by default, because they are extra questions like the glossary definitions rather than quiz kinds about an artwork, and the summary of a round already gives them one line.
 
-- "Powtórki" in the settings has a switch "Dołączaj do sesji pytania o czas powstania dzieł" with the hint "Odgadywanie roku na suwaku i układanie czterech dzieł w kolejności chronologicznej.", stored in `profiles.review_time_questions`.
+- "Powtórki" in the settings has a switch "Dołączaj do sesji pytania o rok powstania i kolejność dzieł", without a hint like "Proponuj powtórkę swobodną po skończonym dniu", stored in `profiles.review_time_questions`.
 - With the switch off the app asks `review_session` without `time_questions`, so the session draws no year or order question, in a free round too.
 - The gap in a note (ATL-447) gets its own switch of the same kind, also off by default.
 
