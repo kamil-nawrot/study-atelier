@@ -24,6 +24,11 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		licence: 'CC0',
 		commonsFile: 'Albrecht Dürer, Saint Jerome in His Study, 1514, NGA 6642.jpg'
 	},
+	bullseye: {
+		credit: 'Reinier Vinkeles, „Putto ogląda strzałę w dziesiątce tarczy”',
+		licence: 'CC0',
+		commonsFile: 'Putto bekijkt een pijl in de roos van een schietschijf, RP-P-1905-5949.jpg'
+	},
 	regular: {
 		credit: 'Albrecht Dürer, „Melencolia I”, 1514',
 		licence: 'CC0',

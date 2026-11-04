@@ -261,7 +261,7 @@ describe('ReviewSession', () => {
 
 		expect(recordReview).toHaveBeenCalledWith(
 			expect.objectContaining({ artworkId: dated.artwork.id }),
-			expect.objectContaining({ mode: 'year', rating: 2, correct: true })
+			expect.objectContaining({ mode: 'year', rating: 2, correct: true, guessedYear: 1540 })
 		);
 		expect(review.guessed).toBe(1540);
 		expect(review.years).toEqual({ asked: 1, hit: 1 });

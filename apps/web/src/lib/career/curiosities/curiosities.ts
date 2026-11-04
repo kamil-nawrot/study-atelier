@@ -29,6 +29,14 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 		'https://www.cbsnews.com/news/wiltshires-new-york-memory-revealed/',
 		'https://notesfrompoland.com/2022/09/21/bellotto-the-18th-century-artist-who-helped-warsaw-rise-from-the-ashes-of-wwii/'
 	],
+	bullseye: [
+		'https://www.sammlung.pinakothek.de/en/artwork/Qlx2QpQ4Xq',
+		'https://www.finestresullarte.info/arte-e-artisti/paesaggio-leonardo-da-vinci-analisi-scientifiche',
+		'https://blog.nationalmuseum.ch/en/2026/03/the-swiss-alchemist-who-invented-a-new-shade-of-blue/',
+		'https://www.thenationalnews.com/not-picture-perfect-1.433913',
+		'https://news.yale.edu/2021/09/01/analysis-unlocks-secret-vinland-map-its-fake',
+		'https://www.sciencedaily.com/releases/2019/06/190604131221.htm'
+	],
 	regular: [
 		'https://dzieje.pl/dziedzictwo-kulturowe/symboliczne-przekazanie-nagrody-europa-nostra-za-konserwacje-oltarza-wita',
 		'https://mini-site.louvre.fr/ingres/1.4.6_en.html',
