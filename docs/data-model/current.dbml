@@ -381,6 +381,7 @@ Table profiles {
   rank_form text [not null, default: `'masculine'::text`]
   career_shown boolean [not null, default: `true`]
   rank_seen smallint [not null, default: `0`]
+  review_time_questions boolean [not null, default: `false`]
   Note: 'RLS on'
 }
 

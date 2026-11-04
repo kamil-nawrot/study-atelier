@@ -309,6 +309,7 @@ export const pl = {
 			},
 			kindsHint: 'Zostaw zaznaczony przynajmniej jeden rodzaj.',
 			glossaryQuestions: 'Ile pytań dodatkowych ze Słowniczka dołączać do sesji?',
+			timeQuestions: 'Dołączaj do sesji pytania o rok powstania i kolejność dzieł',
 			free: 'Proponuj powtórkę swobodną po skończonym dniu',
 			careerShown: 'Pokazuj stopień i Ekspozycję',
 			careerShownHint: 'Punkty i eksponaty liczą się dalej, także gdy są ukryte.',

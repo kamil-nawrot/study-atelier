@@ -156,6 +156,10 @@
 						{/each}
 					</div>
 				</div>
+				<Switch
+					label={m.settings.preferences.timeQuestions}
+					bind:checked={draft.reviewTimeQuestions}
+				/>
 				<Switch label={m.settings.preferences.free} bind:checked={draft.reviewFree} />
 				<div class="career">
 					<Switch

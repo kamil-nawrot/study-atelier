@@ -149,11 +149,12 @@ describe('settings page', () => {
 		renderSettings(undefined, '?tab=review');
 
 		await page.getByRole('button', { name: '30' }).click();
+		await page.getByRole('switch', { name: m.settings.preferences.timeQuestions }).click();
 		await page.getByRole('button', { name: m.settings.preferences.save }).click();
 
 		expect(savePreferences).toHaveBeenCalledWith(
 			'review',
-			expect.objectContaining({ reviewSessionSize: 30 })
+			expect.objectContaining({ reviewSessionSize: 30, reviewTimeQuestions: true })
 		);
 		expect(invalidate).toHaveBeenCalledWith(PREFERENCES_DEPENDENCY);
 		await expect.element(page.getByText(m.settings.preferences.saved)).toBeVisible();

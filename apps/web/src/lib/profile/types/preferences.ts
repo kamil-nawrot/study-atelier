@@ -8,6 +8,7 @@ export type Preferences = {
 	reviewQuizKinds: QuizMode[];
 	reviewFree: boolean;
 	reviewGlossaryQuestions: number;
+	reviewTimeQuestions: boolean;
 	careerShown: boolean;
 	viewShowPins: boolean;
 	viewLoupeOn: boolean;

@@ -29,6 +29,7 @@ const row = {
 	review_quiz_kinds: ['quiz_image'],
 	review_free: false,
 	review_glossary_questions: 2,
+	review_time_questions: false,
 	career_shown: false,
 	view_show_pins: true,
 	view_loupe_on: false,
