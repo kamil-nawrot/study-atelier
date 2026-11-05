@@ -1,21 +1,16 @@
 <script lang="ts">
-	import { Tag } from '@study-atelier/ui';
 	import type { Metal } from '#lib/career/types/metal.ts';
 
 	type Props = {
 		numeral: string;
 		metal: Metal;
-		mark?: string;
 	};
 
-	let { numeral, metal, mark }: Props = $props();
+	let { numeral, metal }: Props = $props();
 </script>
 
 <span class="band" aria-hidden="true">
 	<span class="numeral {metal}">{numeral}</span>
-	{#if mark}
-		<span class="mark"><Tag>{mark}</Tag></span>
-	{/if}
 </span>
 
 <style>
@@ -39,11 +34,6 @@
 		font-family: var(--font-family-title), Georgia, serif;
 		font-size: var(--font-size-lg);
 		line-height: var(--line-height-lg);
-	}
-
-	.mark {
-		display: flex;
-		grid-column: 3;
 	}
 
 	.bronze {

@@ -160,6 +160,35 @@ describe('PopupButton', () => {
 		);
 	});
 
+	it('turns its panel above the button only when there is no room below', async () => {
+		const host = document.createElement('div');
+		host.style.cssText = 'position: fixed; left: 0; bottom: 0;';
+		document.body.append(host);
+		render(PopupButton, {
+			target: host,
+			props: { label: 'Grouping: era', trigger, children: panel, placement: 'auto' }
+		});
+
+		await button().click();
+
+		const dialog = document.querySelector('[role="dialog"]') as Element;
+		await expect
+			.poll(() => dialog.getBoundingClientRect().bottom)
+			.toBeLessThanOrEqual(button().element().getBoundingClientRect().top);
+		host.remove();
+	});
+
+	it('keeps its panel under the button when there is room below', async () => {
+		render(PopupButton, { label: 'Grouping: era', trigger, children: panel, placement: 'auto' });
+
+		await button().click();
+
+		const dialog = document.querySelector('[role="dialog"]') as Element;
+		expect(dialog.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+			button().element().getBoundingClientRect().bottom
+		);
+	});
+
 	it('shows a panel opened on hover after a short delay, like a tooltip', async () => {
 		render(PopupButton, { label: 'Grouping: era', trigger, children: panel, hover: true });
 

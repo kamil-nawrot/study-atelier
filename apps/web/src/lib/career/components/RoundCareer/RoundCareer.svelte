@@ -2,6 +2,7 @@
 	import Award from '@lucide/svelte/icons/award';
 	import Trophy from '@lucide/svelte/icons/trophy';
 	import { onMount } from 'svelte';
+	import { resolve } from '$app/paths';
 	import { Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { career } from '#lib/career/career-state/career-state.svelte.ts';
@@ -56,9 +57,13 @@
 				<Icon icon={Trophy} />
 				<span>
 					{m.career.roundTier}
-					<strong style:color={colourOf(unlocked.tier, unlocked.tiers)}>
+					<a
+						style:color={colourOf(unlocked.tier, unlocked.tiers)}
+						class="exhibit"
+						href={resolve('/(app)/atelier/display-case')}
+					>
 						{m.career.roundTierName(exhibitName(unlocked.exhibit), roman(unlocked.tier))}
-					</strong>
+					</a>
 				</span>
 			</li>
 		{/each}
@@ -94,6 +99,10 @@
 	li > :global(svg) {
 		flex: none;
 		color: var(--color-fg-muted);
+	}
+
+	.exhibit {
+		font-weight: var(--font-weight-bold);
 	}
 
 	.rank {

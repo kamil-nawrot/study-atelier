@@ -63,8 +63,9 @@ describe('YearGuess', () => {
 	it('says how close a guess after the span was and names the artwork', async () => {
 		const { onnext } = renderGuess(item(1503, 1519), { guessed: 1540 });
 
+		await expect.element(page.getByText(m.review.year.results[2])).toBeInTheDocument();
 		await expect
-			.element(page.getByText(m.review.year.results[2](m.review.year.when('1503–1519', true))))
+			.element(page.getByText(m.review.year.made(m.review.year.when('1503–1519', true))))
 			.toBeInTheDocument();
 		await expect.element(page.getByText(m.review.year.miss('1540', 21, true))).toBeInTheDocument();
 		await expect.element(page.getByText('Mona Lisa')).toBeInTheDocument();
@@ -78,9 +79,7 @@ describe('YearGuess', () => {
 	it('knows a guess inside the span', async () => {
 		renderGuess(item(1503, 1519), { guessed: 1510 });
 
-		await expect
-			.element(page.getByText(m.review.year.results[3](m.review.year.when('1503–1519', true))))
-			.toBeInTheDocument();
+		await expect.element(page.getByText(m.review.year.results[3])).toBeInTheDocument();
 		await expect.element(page.getByText(m.review.year.inside('1510', true))).toBeInTheDocument();
 	});
 
@@ -88,7 +87,7 @@ describe('YearGuess', () => {
 		renderGuess(item(null, 1503), { guessed: 1449 });
 
 		await expect
-			.element(page.getByText(m.review.year.results[1](m.review.year.when('1503', false))))
+			.element(page.getByText(m.review.year.made(m.review.year.when('1503', false))))
 			.toBeInTheDocument();
 		await expect.element(page.getByText(m.review.year.miss('1449', 54, false))).toBeInTheDocument();
 	});

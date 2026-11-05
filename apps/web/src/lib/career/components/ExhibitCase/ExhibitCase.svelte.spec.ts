@@ -55,7 +55,10 @@ describe('ExhibitCase', () => {
 			props: { exhibit: exhibit({ tiers: [unlocked(1), unlocked(2, false)] }) }
 		});
 
-		expect(document.querySelector('.band .mark')?.textContent?.trim()).toBe(m.career.new);
+		const mark = document.querySelector('.picture > .mark');
+		expect(mark?.textContent?.trim()).toBe(m.career.new);
+		expect(mark?.getAttribute('aria-hidden')).toBe('true');
+		expect(document.querySelector('.band')?.textContent?.trim()).toBe('II');
 		expect(document.querySelector('header .visually-hidden')?.textContent).toBe(m.career.new);
 	});
 

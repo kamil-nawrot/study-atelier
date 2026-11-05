@@ -36,6 +36,13 @@ describe('RoundCareer', () => {
 		);
 		await expect.element(collection).toBeVisible();
 		expect(collection.element().getAttribute('style')).toContain('--color-case-silver');
+		await expect
+			.element(
+				page.getByRole('link', {
+					name: m.career.roundTierName(m.career.exhibits.collection.name, 'IV')
+				})
+			)
+			.toHaveAttribute('href', '/atelier/display-case');
 		const eras = page.getByText(m.career.roundTierName(m.career.exhibits.eras.name, 'I'));
 		expect(eras.element().getAttribute('style')).toContain('--color-case-bronze');
 		await expect.element(page.getByText('Znawca')).toBeVisible();

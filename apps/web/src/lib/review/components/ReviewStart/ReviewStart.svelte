@@ -124,7 +124,7 @@
 			<div class="go">
 				<Button disabled={starting} onclick={onstart} variant="primary">
 					<Icon icon={Play} size="sm" />
-					{waiting > 0 ? m.review.start : m.review.free}
+					{starting ? m.review.preparing : waiting > 0 ? m.review.start : m.review.free}
 				</Button>
 				{#if waiting === 0}
 					<p class="caption">{m.review.freeHint}</p>

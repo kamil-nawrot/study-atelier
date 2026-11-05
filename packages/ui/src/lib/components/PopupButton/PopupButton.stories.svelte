@@ -58,6 +58,17 @@
 	</div>
 </Story>
 
+<Story name="Auto at the bottom">
+	<div style="position: fixed; bottom: var(--spacing-4)">
+		<PopupButton label="Sources" placement="auto">
+			{#snippet trigger()}
+				Sources
+			{/snippet}
+			<p>Opens above its button when there is no room below.</p>
+		</PopupButton>
+	</div>
+</Story>
+
 <Story name="Hover and top">
 	<div style="padding-top: var(--spacing-24)">
 		<PopupButton hover label="Sources" placement="top">

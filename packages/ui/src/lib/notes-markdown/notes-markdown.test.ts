@@ -13,6 +13,16 @@ describe('maskedSegments', () => {
 		]);
 	});
 
+	it('masks a phrase of several words across other spaces and in another case', () => {
+		const vault = { id: 'vault', phrases: ['sklepienie  krzyżowe'] };
+
+		expect(maskedSegments('Nad nawą SKLEPIENIE\nKrzyżowe.', vault)).toEqual([
+			{ text: 'Nad nawą ', masked: false },
+			{ text: 'SKLEPIENIE\nKrzyżowe', masked: true },
+			{ text: '.', masked: false }
+		]);
+	});
+
 	it('leaves a word that only contains the term', () => {
 		expect(maskedSegments('Absydalny plan.', apse)).toEqual([
 			{ text: 'Absydalny plan.', masked: false }

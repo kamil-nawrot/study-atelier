@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { LucideIcon } from '@lucide/svelte';
-	import type { Snippet } from 'svelte';
+	import { tick, type Snippet } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 	import Button from '../Button/Button.svelte';
 	import StageButton from '../StageButton/StageButton.svelte';
@@ -15,7 +15,7 @@
 		align?: 'start' | 'end';
 		tooltip?: boolean;
 		bare?: boolean;
-		placement?: 'bottom' | 'top';
+		placement?: 'bottom' | 'top' | 'auto';
 		hover?: boolean;
 	};
 
@@ -41,9 +41,25 @@
 	let pinned = $state(false);
 	let hovered = $state(false);
 	let root: HTMLElement | undefined = $state();
+	let panel: HTMLElement | undefined = $state();
+	let flipped = $state(false);
 	let leaving: ReturnType<typeof setTimeout> | undefined;
 
 	let hovering = $derived(hover && pointer.current && !disabled);
+
+	async function place(): Promise<void> {
+		flipped = false;
+		if (placement !== 'auto' || !open) return;
+		await tick();
+		flipped = open && panel !== undefined && lacksRoomBelow(panel);
+	}
+
+	function lacksRoomBelow(element: HTMLElement): boolean {
+		const below = element.getBoundingClientRect();
+		const anchor = (element.offsetParent ?? root)?.getBoundingClientRect();
+		if (!anchor || below.bottom <= window.innerHeight) return false;
+		return anchor.top - (below.top - anchor.bottom) - below.height >= 0;
+	}
 
 	export function close(): void {
 		hide();
@@ -66,13 +82,16 @@
 		}
 		open = !open;
 		pinned = open;
+		void place();
 	}
 
 	function onpointerenter(event: PointerEvent): void {
 		if (!hovering || event.pointerType !== 'mouse') return;
 		clearTimeout(leaving);
-		if (!open) hovered = true;
+		if (open) return;
+		hovered = true;
 		open = true;
+		void place();
 	}
 
 	function onpointerleave(event: PointerEvent): void {
@@ -162,11 +181,12 @@
 		{@render control()}
 	{/if}
 	<div
+		bind:this={panel}
 		id={panelId}
 		class="panel"
 		class:delayed={hovered}
 		class:end={align === 'end'}
-		class:top={placement === 'top'}
+		class:top={placement === 'top' || flipped}
 		aria-label={label}
 		hidden={!open}
 		{onkeydown}

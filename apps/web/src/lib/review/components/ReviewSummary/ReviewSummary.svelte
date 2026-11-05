@@ -27,6 +27,7 @@
 		free?: boolean;
 		rankForm?: RankForm;
 		freeOpen?: boolean;
+		starting?: boolean;
 		onnext: () => void;
 		onfree?: () => void;
 	};
@@ -44,6 +45,7 @@
 		free = false,
 		rankForm,
 		freeOpen = false,
+		starting = false,
 		onnext,
 		onfree
 	}: Props = $props();
@@ -119,11 +121,17 @@
 		</div>
 		<div class="actions">
 			{#if free}
-				<Button onclick={onfree} variant="primary">{m.review.freeNextRound}</Button>
+				<Button disabled={starting} onclick={onfree} variant="primary">
+					{starting ? m.review.preparing : m.review.freeNextRound}
+				</Button>
 			{:else if nextRound > 0}
-				<Button onclick={onnext} variant="primary">{m.review.nextRound(nextRound)}</Button>
+				<Button disabled={starting} onclick={onnext} variant="primary">
+					{starting ? m.review.preparing : m.review.nextRound(nextRound)}
+				</Button>
 			{:else if freeOpen}
-				<Button onclick={onfree} variant="primary">{m.review.free}</Button>
+				<Button disabled={starting} onclick={onfree} variant="primary">
+					{starting ? m.review.preparing : m.review.free}
+				</Button>
 			{/if}
 		</div>
 	</header>

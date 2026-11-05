@@ -192,6 +192,15 @@ describe('review page', () => {
 		await expect.element(page.getByText(m.review.streakWeek(6, true))).toBeInTheDocument();
 	});
 
+	it('says the round is being prepared until its session is ready', async () => {
+		renderReview(collection(25));
+		vi.mocked(loadSession).mockReturnValueOnce(new Promise(() => {}));
+
+		await page.getByRole('button', { name: m.review.start }).click();
+
+		await expect.element(page.getByRole('button', { name: m.review.preparing })).toBeDisabled();
+	});
+
 	it('says nothing about a streak when there is none', async () => {
 		renderReview(collection(25));
 
@@ -566,9 +575,7 @@ describe('review page', () => {
 			const year = page.getByRole('heading', { name: m.review.year.question });
 			if (year.query()) {
 				await page.getByRole('button', { name: m.review.year.check }).click();
-				await expect
-					.element(page.getByText(m.review.year.results[1](m.review.year.when('1503', false))))
-					.toBeVisible();
+				await expect.element(page.getByText(m.review.year.results[1])).toBeVisible();
 			} else {
 				await expect
 					.element(page.getByRole('heading', { name: m.review.order.question }))

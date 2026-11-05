@@ -8,14 +8,5 @@ describe('TierNumeral', () => {
 
 		expect(container.querySelector('.numeral.silver')?.textContent).toBe('IV');
 		expect(container.querySelector('.band')?.getAttribute('aria-hidden')).toBe('true');
-		expect(container.querySelector('.mark')).toBeNull();
-	});
-
-	it('puts a mark beside the numeral', async () => {
-		const { container } = await render(TierNumeral, {
-			props: { numeral: 'II', metal: 'bronze', mark: 'Nowe' }
-		});
-
-		expect(container.querySelector('.band .mark')?.textContent?.trim()).toBe('Nowe');
 	});
 });
