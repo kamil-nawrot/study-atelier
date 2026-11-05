@@ -1360,59 +1360,59 @@ export const pl = {
 		source: 'Źródło',
 		curiosities: {
 			collection: [
-				'Ashmolean w Oksfordzie otworzył się w 1683 roku i od początku wpuszczał zwiedzających z zewnątrz uniwersytetu. Uchodzi za jedno z pierwszych publicznych muzeów na świecie.',
+				'Muzeum Ashmolean w Oksfordzie otworzyło się w 1683 roku i od początku wpuszczało zwiedzających spoza uniwersytetu. Uchodzi za jedno z pierwszych publicznych muzeów na świecie.',
 				'„Raj” Tintoretta w Pałacu Dożów w Wenecji ma około 24,5 na 7,6 metra i uważa się go za jeden z największych obrazów na płótnie. Tintoretto malował go w latach 1588–1592 razem z synem Domenikiem i warsztatem.',
-				'Anna Maria Luisa, ostatnia z Medyceuszy, w „Pakcie rodzinnym” z 1737 roku zapisała zbiory rodu miastu Florencji. W 1769 roku Galerię Uffizi otwarto dla publiczności jako muzeum.',
-				'Hans Sloane zapisał swoją ogromną kolekcję osobliwości narodowi brytyjskiemu w zamian za 20 000 funtów dla spadkobierców. W tym samym 1753 roku założono British Museum, częściowo po to, żeby ją pomieścić.',
+				'Anna Maria Luisa, ostatnia z Medyceuszy, rodu wielkich książąt Toskanii, w „Pakcie rodzinnym” z 1737 roku zapisała zbiory rodu Florencji – pod warunkiem, że nigdy jej nie opuszczą i będą służyć publiczności. W 1769 roku Galerię Uffizi otwarto jako muzeum w dzisiejszym rozumieniu.',
+				'Londyński lekarz Hans Sloane zgromadził jedną z największych prywatnych kolekcji roślin, zwierząt, starożytności i monet, którą zapisał narodowi brytyjskiemu w zamian za 20 000 funtów dla spadkobierców. W roku jego śmierci, 1753, założono British Museum, częściowo po to, żeby ją pomieścić.',
 				'Muzea Kapitolińskie w Rzymie liczą swoje dzieje od 1471 roku, gdy papież Sykstus IV podarował mieszkańcom miasta grupę posągów z brązu. To jedne z najstarszych publicznych muzeów na świecie.',
 				'Prado otwarto w Madrycie 19 listopada 1819 roku jako Królewskie Muzeum Malarstwa i Rzeźby, z 311 obrazami. Dziś ma około 8000 obrazów, z których 1700 wisi w budynku Villanuevy.',
-				'Panel „Sprawiedliwi sędziowie” z Ołtarza Gandawskiego skradziono z katedry św. Bawona w nocy 10 kwietnia 1934 roku i nigdy go nie odnaleziono. W ołtarzu jest dziś kopia, a śledztwo wciąż trwa.',
+				'Panel „Sprawiedliwi sędziowie” z XV-wiecznego Ołtarza Gandawskiego braci van Eyck skradziono z katedry św. Bawona w nocy 10 kwietnia 1934 roku i nigdy go nie odnaleziono. W ołtarzu jest dziś kopia, a śledztwo wciąż trwa.',
 				"„Salvator Mundi” przypisywany Leonardowi da Vinci sprzedano w 1958 roku za 45 funtów jako kopię. W 2017 roku w domu aukcyjnym Christie's w Nowym Jorku osiągnął 450,3 miliona dolarów, najwyższą cenę zapłaconą za obraz.",
-				'18 marca 1990 roku dwaj mężczyźni przebrani za policjantów wynieśli z Muzeum Isabelli Stewart Gardner w Bostonie 13 dzieł, wartych dziś ponad 500 milionów dolarów. To największa kradzież dzieł sztuki w historii, a puste ramy wciąż wiszą w muzeum.'
+				'Największą kradzież dzieł sztuki w historii popełniono 18 marca 1990 roku w Muzeum Isabelli Stewart Gardner w Bostonie: dwaj mężczyźni przebrani za policjantów wynieśli 13 dzieł, wartych dziś ponad 500 milionów dolarów. Puste ramy wciąż wiszą w muzeum.'
 			],
 			eras: [
-				'Herkulanum zaczęto systematycznie badać w 1738 roku na polecenie króla Neapolu Karola Burbona. Kopano szyby i tunele, żeby przebić się przez około 20 metrów zastygłego materiału wulkanicznego do ulic antycznego miasta.',
-				'Gdy w styczniu 1506 roku w winnicy na rzymskim Eskwilinie odkopano grupę marmurowych rzeźb, papież Juliusz II wysłał tam Michała Anioła i Giuliana da Sangallo. Sangallo miał od razu rozpoznać „Laokoona”, którego opisał Pliniusz.',
-				'Jaskinię Lascaux odkrył w 1940 roku 18-letni Marcel Ravidat, którego pies Robot natrafił na dziurę pod wywróconym drzewem. Po latach udostępniania dwutlenek węgla, ciepło i wilgoć od zwiedzających uszkodziły malowidła i w 1963 roku jaskinię zamknięto.',
+				'Antyczne miasto Herkulanum, ukryte pod około 20 metrami materiału wulkanicznego, zaczęto systematycznie badać w 1738 roku na polecenie króla Neapolu Karola Burbona. Żeby dotrzeć do jego ulic, kopano szyby i tunele.',
+				'Gdy w styczniu 1506 roku w winnicy na rzymskim Eskwilinie odkopano marmurową grupę – mężczyznę z dwoma synami w splotach węży morskich – papież Juliusz II wysłał tam Michała Anioła i Giuliana da Sangallo. Sangallo miał od razu rozpoznać „Laokoona”, znanego dotąd tylko z opisu Pliniusza Starszego w I-wiecznej „Historii naturalnej”.',
+				'Jaskinię Lascaux w Dordonii, z około 600 prehistorycznymi malowidłami, odkrył w 1940 roku 18-letni Marcel Ravidat, którego pies Robot natrafił na dziurę pod wywróconym drzewem. Dwutlenek węgla, ciepło i wilgoć od zwiedzających uszkodziły malowidła, więc w 1963 roku jaskinię zamknięto, a od lat 80. ogląda się jej repliki.',
 				'Malowane bizony na sklepieniu jaskini Altamira zauważyła w 1879 roku córka badacza Marcelina Sanza de Sautuoli. Większość uczonych odrzuciła ich prehistoryczny wiek, który uznano dopiero w 1902 roku.',
-				"Terakotową armię odkryto w 1974 roku pod Xi'an. Wojownicy byli pierwotnie malowani, ale po wydobyciu z ziemi farba potrafi zniknąć w ciągu kilku minut."
+				"Terakotową armię, pochowaną przy grobowcu pierwszego cesarza Chin, odkryto w 1974 roku pod Xi'an i odkopano z niej już ponad 1500 figur naturalnej wielkości. Wojownicy byli pierwotnie malowani, ale po wydobyciu z ziemi farba znikała nieraz w ciągu kilku minut."
 			],
 			memory: [
-				'Według antycznej opowieści sala bankietowa zawaliła się na gości tuż po wyjściu poety Symonidesa z Keos. Ciał nie dało się rozpoznać, ale Symonides odtworzył w pamięci, kto przy którym miejscu stołu siedział.',
-				'Jezuita Matteo Ricci napisał w 1596 roku po chińsku „Zachodnią metodę pamięci” dla kandydatów do egzaminów urzędniczych. Jako obrazy do rozmieszczania w wyobrażonych budowlach wybrał chińskie znaki.',
-				'Whistler przyglądał się nocą Tamizie, a potem odwracał się plecami i recytował szczegóły widoku towarzyszowi, który poprawiał jego pomyłki. Swoje „Nokturny” malował później w pracowni z tego, co zostało w pamięci.',
-				'Aby Warburg od 1924 roku przypinał na 63 tablicach obciągniętych czarnym płótnem 971 reprodukcji dzieł i nazwał ten atlas „Mnemosyne”. Nie skończył go przed śmiercią w 1929 roku, a z oryginalnych tablic zostały tylko fotografie.',
-				'Franco Magnani wyjechał z toskańskiego Pontito w 1958 roku, mając 24 lata. Później namalował ponad 100 widoków rodzinnej wsi, wszystkie wyłącznie z pamięci.',
-				'Stephen Wiltshire po 20 minutach lotu helikopterem nad Nowym Jorkiem narysował panoramę miasta na płótnie długim na około 6 metrów. Nie korzystał przy tym ze zdjęć, tylko z pamięci.',
-				'Widoki Warszawy Bernarda Bellotta posłużyły po 1945 roku do odbudowy miasta, także z jego zmyśleniami. Jaszczurki i goryl jedzący banana na dachu Pałacu Branickich nigdy go nie zdobiły, a stoją tam dziś, bo namalował je Bellotto.'
+				'Cyceron opisał legendę o greckim poecie Symonidesie, który wyszedł z sali bankietowej tuż przed zawaleniem się stropu. Ciał gości nie dało się rozpoznać, ale Symonides, idąc w myślach wzdłuż stołu, przypomniał sobie, kto gdzie siedział. Tak miała powstać metoda loci: zapamiętywanie rzeczy przez rozmieszczanie ich obrazów w wyobrażonych miejscach.',
+				'Włoski jezuita Matteo Ricci, słynący z niezwykłej pamięci, napisał w 1596 roku „Zachodnią metodę pamięci”, żeby pomóc Chińczykom w nauce do egzaminów urzędniczych. Metoda polegała na rozmieszczaniu obrazów w wyobrażonych budowlach, a jako obrazy Ricci wybrał chińskie znaki.',
+				'Malarz James Whistler długo przyglądał się nocą Tamizie w Londynie, a potem odwracał się plecami i recytował szczegóły widoku towarzyszowi, który poprawiał jego pomyłki. Swoje „Nokturny”, prawie abstrakcyjne obrazy nocnej rzeki, malował dopiero następnego dnia w pracowni z tego, co zostało mu w pamięci.',
+				'Uczony Aby Warburg od 1924 roku rozkładał na 63 drewnianych tablicach obciągniętych czarnym płótnem 971 reprodukcji dzieł, zestawiając obok siebie obrazy z różnych epok. Chciał pokazać, jak motywy ze starożytności powracają w późniejszej sztuce. Atlasu „Mnemosyne” nie skończył przed śmiercią w 1929 roku, a z tablic zostały tylko czarno-białe fotografie.',
+				'Malarz samouk Franco Magnani wyjechał z toskańskiego Pontito w 1958 roku, mając 24 lata. Później namalował ponad 100 widoków rodzinnej wsi, wszystkie wyłącznie z pamięci.',
+				'Artysta Stephen Wiltshire, u którego w dzieciństwie zdiagnozowano autyzm, po 20 minutach lotu helikopterem nad Nowym Jorkiem narysował panoramę miasta na płótnie długim na około 6 metrów. Nie korzystał przy tym ze zdjęć, tylko z pamięci.',
+				'Wenecki malarz Bernardo Bellotto, zwany Canalettem, namalował dla króla Stanisława Augusta widoki Warszawy, które po 1945 roku posłużyły do odbudowy miasta – razem z tym, co dodał od siebie. Jaszczurki i goryl jedzący banana na dachu Pałacu Branickich nigdy go nie zdobiły, a stoją tam dziś, bo namalował je Bellotto.'
 			],
 			bullseye: [
 				'Na autoportrecie z 1500 roku, który wisi w monachijskiej Alte Pinakothek, Albrecht Dürer umieścił łaciński napis: „Ja, Albrecht Dürer z Norymbergi, przedstawiłem się we właściwych barwach w wieku 28 lat”.',
 				'„Pejzaż” z Gabinetu Rysunków i Rycin Galerii Uffizi, datowany na 5 sierpnia 1473 roku, to pierwsze pewnie datowane dzieło Leonarda da Vinci. Artysta, urodzony w 1452 roku w Vinci, miał wtedy niewiele ponad 20 lat.',
-				'Johann Jacob Diesbach uzyskał w Berlinie błękit pruski, próbując zrobić czerwony lak. Kronika z epoki wskazuje rok 1706, a już w 1709 roku Pieter van der Werff użył nowego pigmentu w obrazie „Złożenie do grobu”.',
+				'Szwajcarski specjalista od barw Johann Jacob Diesbach uzyskał w Berlinie błękit pruski przypadkiem: próbował zrobić czerwony lak, a wyszedł mu głęboki błękit. Kronika z epoki podaje 1706 jako rok wynalezienia barwnika, a już w 1709 roku Pieter van der Werff użył go w obrazie „Złożenie do grobu”.',
 				'Wolfgang Beltracchi przez 14 lat sprzedawał własne obrazy jako dzieła znanych artystów. Zdradził go „Czerwony obraz z końmi”, rzekomo Heinricha Campendonka z 1914 roku: biel tytanowa w jego farbie w 1914 roku jeszcze nie istniała.',
-				'Mapa Winlandii, którą Uniwersytet Yale ogłosił w 1965 roku jako XV-wieczną, okazała się fałszerstwem. Jej linie i napisy wykonano tuszem z anatazem, formą dwutlenku tytanu stosowaną dopiero od lat 20. XX wieku, choć pergamin pochodzi z lat około 1400–1460.',
-				'Obraz w stylu ludowym podpisany „Sarah Honn” i datowany „5 maja 1866” namalowano na XIX-wiecznym płótnie. Zdradził go olej w farbie, z nadmiarem węgla-14 z prób jądrowych. Fałszerz Robert Trotter przyznał, że namalował go w 1985 roku.'
+				'Mapa Winlandii, którą Uniwersytet Yale ogłosił w 1965 roku jako XV-wieczną, miała dowodzić, że wikingowie dotarli do Ameryki Północnej przed Kolumbem, ale okazała się fałszerstwem z XX wieku. Jej linie i napisy wykonano tuszem z anatazem, formą dwutlenku tytanu stosowaną dopiero od lat 20. XX wieku, choć pergamin pochodzi z lat około 1400–1460.',
+				'Obraz w stylu amerykańskiego malarstwa ludowego, podpisany „Sarah Honn” i datowany „5 maja 1866”, namalowano na XIX-wiecznym płótnie. Zdradził go olej w farbie: nadmiar izotopu węgla powstałego w wyniku prób jądrowych pokazał, że nasiona na ten olej zebrano w latach 1958–1961 albo 1983–1989. Fałszerz Robert Trotter przyznał, że namalował obraz w 1985 roku.'
 			],
 			regular: [
-				'Wit Stwosz pracował nad ołtarzem dla kościoła Mariackiego w Krakowie od 1477 do 1489 roku. Ponad 200 figur wyrzeźbił w drewnie lipowym, konstrukcję zrobiono z dębu, a tło z modrzewia.',
-				"„Źródło” Ingres zaczął malować w 1820 roku, a skończył dopiero w 1856, 36 lat później. Dziś obraz wisi w Musée d'Orsay.",
-				'Ghiberti robił pierwsze brązowe drzwi florenckiego baptysterium ponad 20 lat, a kolejne 27 lat. Te drugie Michał Anioł uznał za godne, by być bramą raju, i tak się je dziś nazywa.',
+				'Rzeźbiarz z Norymbergi Wit Stwosz pracował nad ołtarzem dla kościoła Mariackiego w Krakowie, jednym z największych gotyckich ołtarzy na świecie, od 1477 do 1489 roku. Ponad 200 figur wyrzeźbił w drewnie lipowym, konstrukcję zrobiono z dębu, a tło z modrzewia.',
+				"Malarz Jean-Auguste-Dominique Ingres pracował nad obrazem „Źródło” od 1820 do 1856 roku, czyli 36 lat, i skończył go, mając 76 lat. Dziś obraz wisi w Musée d'Orsay.",
+				'Lorenzo Ghiberti, jeden z najważniejszych artystów wczesnego renesansu, pracował ze swoim warsztatem nad pierwszymi brązowymi drzwiami florenckiego baptysterium ponad 20 lat, a nad kolejnymi 27 lat. Te drugie Michał Anioł uznał za godne, by być bramą raju, i tak się je dziś nazywa.',
 				'„Bramę piekieł” państwo francuskie zamówiło u Rodina w 1880 roku do muzeum, które nigdy nie powstało, bo w jego miejscu zaplanowano dworzec. Rodin pracował nad nią latami, ale w brązie odlano ją dopiero po jego śmierci.',
 				'Simon Rodia budował Wieże Watts w Los Angeles przez 33 lata, od 1921 do 1954 roku. Uchodzą za największą budowlę wzniesioną przez jedną osobę, a stalowe pręty łączył drutem i zaprawą, bez spawania.',
 				'Listonosz Ferdinand Cheval potknął się w 1879 roku o kamień dziwnego kształtu i zaczął zbierać kamienie na trasie z listami. Przez 33 lata zbudował z nich Pałac Idealny, a sam doliczył się 93 000 godzin pracy.',
-				'Budowę katedry w Mediolanie zaczęto w 1386 roku. Jej fasadę dopełniły dopiero brązowe drzwi, które powstawały między 1909 a 1965 rokiem.',
-				'Kamień węgielny pod katedrę w Kolonii położono w 1248 roku, a po 1520 roku budowa stanęła na ponad 300 lat. Gdy ją wznowiono, bardzo dokładnie trzymano się średniowiecznego planu fasady.'
+				'Budowę barcelońskiej Sagrada Família zaczęto w 1882 roku, a rok później przejął ją Antoni Gaudí, który od 1914 roku zajmował się już tylko nią, aż do śmierci w 1926 roku. Za jego życia ukończono jedną wieżę, a zewnętrzną część wieży Jezusa Chrystusa skończono dopiero w lutym 2026 roku.',
+				'Kamień węgielny pod katedrę w Kolonii położono w 1248 roku, a po 1520 roku budowa stanęła na ponad 300 lat. Wznowiono ją w XIX wieku i ukończono w 1880 roku, bardzo dokładnie trzymając się średniowiecznego planu fasady.'
 			],
 			back_from_storage: [
-				'Po kradzieży „Mony Lisy” w 1911 roku poeta Guillaume Apollinaire spędził tydzień w areszcie, bo powiązano go z figurkami skradzionymi wcześniej z Luwru. Wskazał wtedy na swojego przyjaciela, Pabla Picassa.'
+				'Po kradzieży „Mony Lisy” w 1911 roku poeta Guillaume Apollinaire spędził tydzień w areszcie, bo policja powiązała go z egipskimi figurkami skradzionymi wcześniej z Luwru. Wskazał wtedy na swojego przyjaciela, Pabla Picassa, ale obaj byli niewinni: obraz ukradł pracownik Luwru Vincenzo Peruggia.'
 			],
 			chronicle: [
 				'Paryskie wystawy żyjących artystów nazwano Salonami od sali Luwru, w której je urządzano, czyli Salon Carré. Mimo nazwy sala jest prostokątna, a „carré” oznacza tu tylko, że ma proste kąty.',
 				'Luwr otwarto jako muzeum 10 sierpnia 1793 roku. W tygodniu wpuszczano do niego artystów, którzy przychodzili tam się uczyć, a zwykła publiczność mogła wejść tylko w niedzielę.',
-				'Wystawa Vermeera w Rijksmuseum w 2023 roku zebrała 28 z 37 jego dzieł. Przez 16 tygodni obejrzało ją 650 000 osób ze 113 krajów, choć muzeum celowo ograniczało liczbę wejść.',
+				'Wystawa Vermeera w Rijksmuseum w 2023 roku zebrała 28 z 37 jego dzieł, więcej niż kiedykolwiek wcześniej. Przez 16 tygodni obejrzało ją 650 000 osób ze 113 krajów, choć muzeum celowo ograniczało liczbę wejść.',
 				'Wystawę skarbów Tutanchamona w British Museum w 1972 roku obejrzało 1 694 117 osób. Kolejka ciągnęła się codziennie od sali na pierwszym piętrze przez całe muzeum aż na chodnik przed budynkiem.',
-				'Na wystawę Walentina Sierowa w moskiewskiej Galerii Tretiakowskiej w 2016 roku ludzie stali godzinami w kolejce na mrozie. Muzeum wydłużyło godziny otwarcia, a w namiotach przy kolejce rozdawano kaszę gryczaną i herbatę.',
+				'W oczekiwaniu na wystawę Walentina Sierowa, rosyjskiego portrecisty artystów, arystokratów i carów, w moskiewskiej Galerii Tretiakowskiej w 2016 roku ludzie stali godzinami w kolejce na mrozie. Muzeum wydłużyło godziny otwarcia, w namiotach przy kolejce rozdawano kaszę gryczaną i herbatę, a wystawę obejrzało 440 000 osób.',
 				'Po kradzieży „Mony Lisy” w 1911 roku Luwr zostawił po niej puste miejsce na ścianie. Tłumy przychodziły oglądać samą pustą ścianę, a wśród nich był Franz Kafka ze swoim przyjacielem Maxem Brodem.'
 			],
 			grand_tour: [
@@ -1425,40 +1425,40 @@ export const pl = {
 			],
 			seen_live: [
 				'Do „Mony Lisy” Leonardo wybrał dużą deskę, około 79 na 53 cm, żeby przedstawić modelkę w naturalnej wielkości. W 1956 roku rzucony w dzieło kamień rozbił chroniącą je szybę i lekko uszkodził lewy łokieć.',
-				'„Mleczarka” Vermeera z Rijksmuseum ma tylko 45,5 na 41 cm.',
-				'Tkanina z Bayeux ma prawie 70 metrów długości i tylko 50 cm wysokości. W muzeum w Bayeux ogląda się ją w zaciemnionej sali, w której oświetlone jest wyłącznie samo dzieło.',
+				'„Mleczarka” Vermeera z Rijksmuseum, obraz służącej nalewającej mleko, ma tylko 45,5 na 41 cm. Światło na przedmiotach Vermeer oddał na nim setkami drobnych kolorowych kropek.',
+				'Tkanina z Bayeux, XI-wieczna opowieść o podboju Anglii przez księcia Normandii w 1066 roku, ma prawie 70 metrów długości i tylko 50 cm wysokości. W muzeum w Bayeux ogląda się ją w zaciemnionej sali, w której oświetlone jest wyłącznie samo dzieło.',
 				'„Straż nocną” Rembrandta obcięto w 1715 roku przy przenosinach do amsterdamskiego ratusza, z trzech stron, najbardziej z lewej. Odcięte pasy płótna się nie zachowały, a pełną kompozycję znamy z kopii przypisywanej Gerritowi Lundensowi.',
 				'Wersje „Krzyku” w muzeum MUNCH w Oslo powstały na papierze i tekturze, więc żadna nie może wisieć na stałe. Pokazuje się je na zmianę w ciągu dnia, a dwie pozostałe odpoczywają w tym czasie w ciemności.',
 				'Art Institute of Chicago ma 3 odbitki „Wielkiej fali w Kanagawie” Hokusaia, ale zwykle pokazuje ją tylko przez 3 miesiące co 4 lata. Przez resztę czasu drzeworyt odpoczywa w magazynie.'
 			],
 			timeline: [
 				'Nad lustrem w „Portrecie małżonków Arnolfinich” Jan van Eyck wypisał ozdobnym pismem „Johannes de eyck fuit hic 1434”, czyli „Jan van Eyck był tutaj. 1434”.',
-				'Badanie drewna 294 obrazów na desce Jordaensa, van Dycka i ich kręgu pokazało, że ponad 71% desek pochodziło z handlu drewnem bałtyckim. Dąb o prostych włóknach sprowadzano wtedy z Polski i innych krajów nad Bałtykiem.',
+				'Słoje drewna pozwalają ustalić najwcześniejszy możliwy rok ścięcia drzewa, a więc i powstania deski pod obrazem. Takie badanie 294 obrazów na desce Jordaensa, van Dycka, ich warsztatów i kopistów pokazało, że 71% desek pochodziło z dębu bałtyckiego. Drewno to sprowadzano wtedy z Polski i innych krajów nad Bałtykiem.',
 				'W ostatnim wersie czterowiersza na ramie „Ołtarza gandawskiego” wyróżniono kilka liter. Suma ich wartości jako cyfr rzymskich daje 1432, rok, w którym 6 maja ołtarz ustawiono w katedrze św. Bawona.',
-				'Trzech „etruskich” wojowników z terakoty Metropolitan Museum przestało uważać za starożytnych, gdy jeden z twórców, Fioravanti, przyniósł kciuk z wypalonej gliny, który latami trzymał u siebie. Pasował idealnie do dłoni jednej z figur.',
+				'W 1933 roku Metropolitan Museum wystawiło trzy posągi wojowników z terakoty jako dzieła etruskie. W 1961 roku muzeum przyznało, że nie są starożytne, gdy jeden z ich twórców, Alfredo Fioravanti, przyniósł kciuk z wypalonej gliny, który latami trzymał u siebie. Pasował idealnie do dłoni jednego z posągów.',
 				'Malowidło w jaskini Leang Karampuang na Sulawesi ma co najmniej 51 200 lat i przedstawia postaci podobne do ludzi obok świni. Wiek ustalono laserem, badając kryształy węglanu wapnia, które narosły na nim później.'
 			],
 			glossary: [
 				'Nazwa impresjonizmu pochodzi od „Impresji, wschodu słońca” Moneta. Krytycy wyśmiali to dzieło na pierwszej wystawie grupy w Paryżu w 1874 roku, a jego tytuł zrobili obelgą dla całego ruchu.',
-				'Słowo „barok” było początkowo pogardliwe. Może pochodzić od portugalskiego „barroco”, czyli perły o nieregularnym kształcie.',
+				'Słowo „barok”, którym określa się dramatyczną, pełną rozmachu sztukę XVII wieku, było początkowo pogardliwe. Może pochodzić od portugalskiego „barroco”, czyli perły o nieregularnym kształcie.',
 				'Sfumato to „przydymiona” jakość malarstwa, która rozmywa kontury, tak że postaci wyłaniają się z ciemnego tła. Leonardo da Vinci radził w niedokończonym traktacie o malarstwie malować „bez linii”.',
 				'Nazwa kubizmu wzięła się najpewniej z uwagi krytyka Louisa Vauxcellesa. W 1908 roku napisał o dziełach Braque’a wystawionych w Paryżu, że sprowadzają wszystko do geometrycznych zarysów, do sześcianów.',
 				'Słowo „gotycki” ukuli włoscy pisarze późnego renesansu jako synonim „barbarzyńskiego”. Przypisywali ten styl Gotom, którzy zniszczyli Cesarstwo Rzymskie.',
-				'Groteska wzięła nazwę od włoskiego „grottesco”. Jej wzory podpatrzono w starożytnych dekoracjach odkrytych pod koniec XV wieku w podziemnych salach, czyli grotach, Złotego Domu Nerona w Rzymie.',
+				'Groteska, rodzaj ornamentu, wzięła nazwę od włoskiego „grottesco”. Jej wzory podpatrzono w starożytnych dekoracjach odkrytych pod koniec XV wieku w podziemnych salach, czyli grotach, Złotego Domu Nerona w Rzymie. Pod kierunkiem Rafaela ozdobiono nią potem loggie Pałacu Watykańskiego.',
 				'Secesję Włosi nazywali między innymi „Stile Liberty”, od londyńskiego domu towarowego Liberty & Co. Niemcy mówili „Jugendstil”, od monachijskiego pisma „Die Jugend”.'
 			],
 			own_eye: [
-				'Camera lucida pozwalała rysownikowi widzieć jednocześnie widok i kartkę, na której rysował. Opatentował ją w 1807 roku William Hyde Wollaston.',
+				'Camera lucida, przyrząd optyczny opatentowany w 1807 roku przez Williama Hyde’a Wollastona, pozwalała rysownikowi widzieć jednocześnie widok i kartkę. Widok nakładał się na papier, więc wystarczyło go obrysować.',
 				'Canaletto długo uchodził za malarza, który rysował Wenecję w plenerze z camera obscura. Badanie jego dopracowanych rysunków w podczerwieni wskazuje jednak, że powstawały w pracowni na podstawie szkiców z natury.',
 				'William Henry Fox Talbot w podróży poślubnej próbował narysować jezioro Como za pomocą camera lucida. Twierdził później, że fotografię wynalazł, bo słabo rysował i go to frustrowało.',
 				'Najstarsza zachowana fotografia wykonana camera obscura to heliografia Niépce’a z 1827 roku. Powstała na cynowej płycie pokrytej światłoczułym bitumem i naświetlała się przez kilka dni.',
 				'Na zdjęciu paryskiego bulwaru, które Daguerre zrobił około 1838 roku, ruchliwa ulica wygląda na pustą, bo naświetlanie trwało 10 minut. Został na nim tylko mężczyzna, który stał w miejscu, bo czyszczono mu buty.'
 			],
 			night_watch: [
-				'Właściwy tytuł „Straży nocnej” to „Kompania strzelców dzielnicy II pod dowództwem kapitana Fransa Banninck Cocqa”. Nazwą „Nachtwacht” określa się to dzieło dopiero od końca XVIII wieku.'
+				'„Straż nocna” Rembrandta z 1642 roku pokazuje oddział strzelców, który na rozkaz dowódcy ustawia się do wymarszu. Jej właściwy tytuł to „Kompania strzelców dzielnicy II pod dowództwem kapitana Fransa Banninck Cocqa”, a nazwą „Nachtwacht” określa się ją dopiero od końca XVIII wieku.'
 			],
 			marathon: [
-				'Pejzaż w dolnej części „Nemezis” Dürera rozpoznano jako miasteczko Klausen (Chiusa) w Tyrolu. Samą boginię Dürer zbudował według kanonu proporcji Witruwiusza.'
+				'Pejzaż w dolnej części „Nemezis” Dürera rozpoznano jako miasteczko Klausen (Chiusa), które artysta mijał w drodze z Norymbergi do Wenecji. Boginię zbudował według kanonu proporcji Witruwiusza, starożytnego autorytetu, ale celowo nadał jej cięższą i mniej urodziwą sylwetkę.'
 			]
 		},
 		ranks: {
@@ -1508,59 +1508,62 @@ export const pl = {
 			collection: {
 				name: 'Gabinet Olego Worma',
 				about:
-					'Kopenhaski gabinet osobliwości Olego Worma, znany z ryciny z 1655 roku, był jednym z pierwowzorów muzeum.',
+					'Frontyspis księgi „Musei Wormiani Historia” z 1655 roku pokazuje kopenhaski gabinet osobliwości Olego Worma, jeden z pierwowzorów muzeum.',
 				count: counter('dzieł w atelier')
 			},
 			eras: {
 				name: 'Świątynia della Tosse',
-				about: 'Piranesi utrwalał na rycinach ruiny starożytnego Rzymu.',
+				about:
+					'Giovanni Battista Piranesi wyrył wnętrze ruin świątyni della Tosse pod Tivoli, jednej z wielu starożytnych budowli, które utrwalał na rycinach.',
 				count: counter('epok w Twoich dziełach')
 			},
 			memory: {
 				name: 'Pracownia Świętego Hieronima',
 				about:
-					'Dürer wyrył uczonego pogrążonego w lekturze w 1514 roku, w tym samym roku co „Melancholię I”.',
+					'Albrecht Dürer wyrył w 1514 roku świętego Hieronima pogrążonego w lekturze w zacisznej pracowni.',
 				count: counter('dzieł utrwalonych w pamięci')
 			},
 			bullseye: {
-				name: 'Strzała Vinkelesa',
+				name: 'Strzała putta',
 				about:
-					'Reinier Vinkeles (1741–1816), amsterdamski rytownik, wyrył putta, który ogląda strzałę wbitą w sam środek tarczy.',
-				count: counter('trafień co do roku')
+					'Amsterdamski rytownik Reinier Vinkeles wyrył postać putta, który ogląda strzałę wbitą w sam środek tarczy.',
+				count: counter('perfekcyjnych datowań dzieł')
 			},
 			regular: {
-				name: 'Klepsydra z „Melancholii I”',
+				name: 'Klepsydra melancholii',
 				about:
-					'Klepsydra wisi na ścianie w miedziorycie Dürera z 1514 roku. Dzień, w którym nic nie czekało na powtórkę, nie przerywa serii.',
-				count: counter('dni', 'najdłuższa seria: ')
+					'Klepsydra zdobi ścianę w „Melancholii I”, miedziorycie Albrechta Dürera z 1514 roku.',
+				count: counter('dni w najdłuższej serii powtórek')
 			},
 			back_from_storage: {
-				name: 'Mona Lisa',
-				about: 'Mona Lisa zniknęła z Luwru w 1911 roku i wróciła tam po ponad dwóch latach.',
+				name: 'Uśmiech Mony Lisy',
+				about:
+					'Luigi Calamatta wyrył w 1857 roku „Mona Lisę” na podstawie dzieła Leonarda – obraz, który zniknął z Luwru w 1911 roku i wrócił tam po ponad dwóch latach.',
 				hint: 'Zdarza się, że dzieło wypada z pamięci, a potem do niej wraca.',
 				awarded: 'Za dzieło zapomniane i utrwalone na nowo.'
 			},
 			chronicle: {
 				name: 'Salon w Luwrze',
 				about:
-					'Rycina Pietra Antonia Martiniego pokazuje paryski Salon w Luwrze w 1787 roku, gdzie obrazy wisiały od podłogi aż po sufit.',
+					'Pietro Antonio Martini wyrył paryski Salon w Luwrze w 1787 roku, gdzie obrazy wisiały od podłogi aż po sufit.',
 				count: counter('odwiedzonych miejsc')
 			},
 			grand_tour: {
 				name: 'Globus podróżnika',
 				about:
-					'W XVIII wieku młodzi Europejczycy odbywali Grand Tour, podróż po zabytkach i kolekcjach kontynentu.',
-				count: counter('krajów z odwiedzonymi miejscami')
+					'Plansza „Sphaerarum artificialium typica repraesentatio” przedstawia globus ziemski, globus nieba i sferę armilarną.',
+				count: counter('odwiedzonych krajów')
 			},
 			seen_live: {
 				name: 'Teleskop Mathieu Laensbergha',
 				about:
-					'Od XVII wieku w Liège wydawano almanach z przepowiedniami, podpisany imieniem zmyślonego astrologa, „mistrza Mathieu Laensbergha”.',
+					'Plansza z pisma „L’Artiste” pokazuje przy teleskopie Mathieu Laensbergha, zmyślonego astrologa, którego imieniem podpisywano almanachy z Liège.',
 				count: counter('dzieł zobaczonych na żywo')
 			},
 			timeline: {
 				name: 'Praski orloj',
-				about: 'Zegar astronomiczny na praskim rynku odmierza czas od 1410 roku.',
+				about:
+					'Rycina z 1837 roku pokazuje praski orloj, zegar astronomiczny, który odmierza czas na Starym Mieście od 1410 roku.',
 				count: counter('wydarzeń w Kalendarium')
 			},
 			glossary: {
@@ -1572,18 +1575,20 @@ export const pl = {
 			own_eye: {
 				name: 'Camera obscura z Encyklopedii',
 				about:
-					'Plansza z Encyklopedii Diderota pokazuje ciemnię optyczną, w której na długo przed fotografią odrysowywano widoki.',
-				count: counter('własnych zdjęć dzieł')
+					'Plansza z „Encyklopedii” Diderota i d’Alemberta pokazuje ciemnię optyczną, dzięki której na długo przed fotografią artyści przenosili na papier krajobrazy i budowle.',
+				count: counter('dodanych przez Ciebie zdjęć')
 			},
 			night_watch: {
 				name: 'Straż nocna',
-				about: 'Rembrandt namalował „Straż nocną” w 1642 roku.',
+				about:
+					'William Unger wyrył w XIX wieku „Straż nocną” na podstawie obrazu Rembrandta z 1642 roku.',
 				hint: 'Niektórzy uczą się wtedy, gdy muzea są od dawna zamknięte.',
 				awarded: 'Za powtórkę między północą a czwartą rano.'
 			},
 			marathon: {
 				name: 'Puchar Nemezis',
-				about: 'Na miedziorycie Dürera bogini Nemezis szybuje nad światem z pucharem w dłoni.',
+				about:
+					'Na miedziorycie Albrechta Dürera z początku XVI wieku bogini Nemezis szybuje nad światem z pucharem w dłoni.',
 				hint: 'Bogowie przyglądają się tym, którzy nie wiedzą, kiedy przestać.',
 				awarded: 'Za tysiąc dzieł w powtórkach swobodnych jednego dnia.'
 			}
@@ -2050,11 +2055,8 @@ function minuteCount(count: number): string {
 	return `${count} ${plural(count, { one: 'minutę', few: 'minuty', many: 'minut' })}`;
 }
 
-function counter(unit: string, before = ''): (value: number, next?: number) => string {
-	return (value, next) =>
-		next === undefined
-			? `${before}${value} ${unit} · najwyższy poziom`
-			: `${before}${value} z ${next} ${unit}`;
+function counter(unit: string): (next?: number) => string {
+	return (next) => (next === undefined ? unit : `z ${next} ${unit}`);
 }
 
 function pointCount(count: number): string {
