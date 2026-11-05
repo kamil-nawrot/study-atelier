@@ -5,30 +5,25 @@ import { goto, invalidateAll } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { testOwnFields } from '#lib/testing/own-fields/own-fields.ts';
-import OwnFieldPage from './OwnFieldPage.svelte';
-import type { OwnFieldPageData } from '#lib/card-index/own-field-pages/own-field-pages.ts';
+import OwnFieldView from './OwnFieldView.svelte';
+import type { OwnField } from '#lib/card-index/types/own-field.ts';
 
-vi.mock('$app/state', () => ({
-	page: { url: new URL('http://localhost/atelier/fields/motifs'), state: {}, data: {} },
-	navigating: { to: null },
-	updated: { current: false }
-}));
 vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidateAll: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
-	supabase: { from: vi.fn(), rpc: vi.fn(), auth: { signOut: vi.fn() } }
+	supabase: { from: vi.fn(), rpc: vi.fn() }
 }));
+
+type View = { edit: () => void; askDelete: () => void };
 
 const query = { insert: vi.fn(), update: vi.fn(), delete: vi.fn(), eq: vi.fn() };
 
-function renderPage(data: Partial<OwnFieldPageData> = {}): void {
+async function renderView(field?: OwnField): Promise<View> {
 	const fields = testOwnFields();
-	render(OwnFieldPage, {
-		email: 'learner@example.com',
-		data: { field: fields[1], fields, ...data }
-	});
+	const screen = await render(OwnFieldView, { field: field ?? fields[1], fields });
+	return screen.component as unknown as View;
 }
 
-describe('OwnFieldPage', () => {
+describe('OwnFieldView', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		vi.mocked(supabase.from).mockReturnValue(query as never);
@@ -39,7 +34,7 @@ describe('OwnFieldPage', () => {
 	});
 
 	it('lists the values of a list field as links to their pages', async () => {
-		renderPage();
+		await renderView();
 
 		await expect.element(page.getByRole('heading', { level: 1, name: 'Motifs' })).toBeVisible();
 		await expect.element(page.getByText(m.ownFields.page.valueCount(2))).toBeVisible();
@@ -49,8 +44,7 @@ describe('OwnFieldPage', () => {
 	});
 
 	it('says a field that is not a list has no values', async () => {
-		const fields = testOwnFields();
-		renderPage({ field: fields[2] });
+		await renderView(testOwnFields()[2]);
 
 		await expect.element(page.getByText(m.ownFields.page.noList)).toBeVisible();
 		await expect
@@ -59,7 +53,7 @@ describe('OwnFieldPage', () => {
 	});
 
 	it('adds a value and reloads the page', async () => {
-		renderPage();
+		await renderView();
 		await page.getByRole('button', { name: m.ownFields.addValue }).click();
 		await page.getByRole('textbox', { name: m.common.name }).fill('Lion');
 		await page.getByRole('button', { name: m.common.save, exact: true }).click();
@@ -70,8 +64,8 @@ describe('OwnFieldPage', () => {
 	});
 
 	it('edits the field in its form', async () => {
-		renderPage();
-		await page.getByRole('button', { name: m.common.edit }).click();
+		const view = await renderView();
+		view.edit();
 		await page.getByRole('textbox', { name: m.common.name }).fill('Subjects');
 		await page.getByRole('button', { name: m.common.save, exact: true }).click();
 
@@ -80,8 +74,8 @@ describe('OwnFieldPage', () => {
 	});
 
 	it('deletes the field after a confirmation and returns to the card index', async () => {
-		renderPage();
-		await page.getByRole('button', { name: m.common.delete }).click();
+		const view = await renderView();
+		view.askDelete();
 
 		const dialog = page.getByRole('alertdialog', {
 			name: m.ownFields.deleteConfirm.title('Motifs')
@@ -100,17 +94,11 @@ describe('OwnFieldPage', () => {
 
 	it('keeps the field and says why when deleting fails', async () => {
 		query.eq.mockResolvedValue({ error: { code: 'XX000' } });
-		renderPage();
-		await page.getByRole('button', { name: m.common.delete }).click();
+		const view = await renderView();
+		view.askDelete();
 		await page.getByRole('button', { name: m.ownFields.deleteConfirm.confirm }).click();
 
 		await expect.element(page.getByText(m.ownFields.errorTitle)).toBeVisible();
 		expect(goto).not.toHaveBeenCalled();
-	});
-
-	it('says the field does not exist', async () => {
-		renderPage({ field: undefined, error: m.ownFields.page.notFound, notFound: true });
-
-		await expect.element(page.getByText(m.ownFields.page.notFound)).toBeVisible();
 	});
 });

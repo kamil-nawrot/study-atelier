@@ -6,18 +6,9 @@ import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testOwnFields } from '#lib/testing/own-fields/own-fields.ts';
-import OwnValuePage from './OwnValuePage.svelte';
-import type { OwnValuePageData } from '#lib/card-index/own-field-pages/own-field-pages.ts';
+import OwnValueView from './OwnValueView.svelte';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
-vi.mock('$app/state', () => ({
-	page: {
-		url: new URL('http://localhost/atelier/fields/motifs/values/angle'),
-		state: {},
-		data: {}
-	},
-	navigating: { to: null },
-	updated: { current: false }
-}));
 vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidateAll: vi.fn() }));
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
 	refreshExpiredImages: vi.fn(),
@@ -25,26 +16,20 @@ vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
 	loadArtworksOfValue: vi.fn()
 }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
-	supabase: { from: vi.fn(), rpc: vi.fn(), auth: { signOut: vi.fn() } }
+	supabase: { from: vi.fn(), rpc: vi.fn() }
 }));
 
 const query = { update: vi.fn(), eq: vi.fn() };
 
-function renderPage(data: Partial<OwnValuePageData> = {}): void {
-	const fields = testOwnFields();
-	render(OwnValuePage, {
-		email: 'learner@example.com',
-		data: {
-			field: fields[1],
-			value: fields[1].values[1],
-			fields,
-			artworks: [testArtwork(1, 'Annunciation')],
-			...data
-		}
-	});
+async function renderView(
+	artworks: WallArtwork[] = [testArtwork(1, 'Annunciation')]
+): Promise<{ edit: () => void }> {
+	const [, motifs] = testOwnFields();
+	const screen = await render(OwnValueView, { field: motifs, value: motifs.values[1], artworks });
+	return screen.component as unknown as { edit: () => void };
 }
 
-describe('OwnValuePage', () => {
+describe('OwnValueView', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		vi.mocked(supabase.from).mockReturnValue(query as never);
@@ -54,7 +39,7 @@ describe('OwnValuePage', () => {
 	});
 
 	it('names the field and shows the artworks with the value', async () => {
-		renderPage();
+		await renderView();
 
 		await expect.element(page.getByRole('heading', { level: 1, name: 'Angle' })).toBeVisible();
 		await expect
@@ -64,14 +49,14 @@ describe('OwnValuePage', () => {
 	});
 
 	it('says no artwork has the value yet', async () => {
-		renderPage({ artworks: [] });
+		await renderView([]);
 
 		await expect.element(page.getByText(m.ownFields.page.noArtworks)).toBeVisible();
 	});
 
 	it('renames the value and reloads the page', async () => {
-		renderPage();
-		await page.getByRole('button', { name: m.common.edit }).click();
+		const view = await renderView();
+		view.edit();
 		await page.getByRole('textbox', { name: m.common.name }).fill('Corner');
 		await page.getByRole('button', { name: m.common.save, exact: true }).click();
 
@@ -81,8 +66,8 @@ describe('OwnValuePage', () => {
 	});
 
 	it('merges into another value after a confirmation and opens the kept value', async () => {
-		renderPage();
-		await page.getByRole('button', { name: m.common.edit }).click();
+		const view = await renderView();
+		view.edit();
 		await page.getByRole('textbox', { name: m.common.name }).fill('angel');
 
 		await expect
@@ -101,11 +86,5 @@ describe('OwnValuePage', () => {
 		await vi.waitFor(() =>
 			expect(goto).toHaveBeenCalledWith('/atelier/fields/motifs/values/angel', { replace: true })
 		);
-	});
-
-	it('says the value does not exist', async () => {
-		renderPage({ value: undefined, error: m.ownFields.page.notFound, notFound: true });
-
-		await expect.element(page.getByText(m.ownFields.page.notFound)).toBeVisible();
 	});
 });
