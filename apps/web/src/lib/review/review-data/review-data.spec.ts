@@ -294,23 +294,25 @@ describe('review data', () => {
 		});
 	});
 
-	it('draws the artwork of a note gap in the scope, without the shown ones', async () => {
-		rpc.mockResolvedValue({ data: { id: 'artwork-3', notes: 'Tympanon.' }, error: null } as never);
+	it('draws the candidates of a note gap in the scope, without the shown ones', async () => {
+		rpc.mockResolvedValue({
+			data: [{ id: 'artwork-3', notes: 'Tympanon.' }, { id: 'artwork-4' }],
+			error: null
+		} as never);
 
-		await expect(loadNoteGap({ kind: 'era', code: 'modern' }, ['artwork-1'])).resolves.toEqual({
-			id: 'artwork-3',
-			notes: 'Tympanon.'
-		});
+		await expect(loadNoteGap({ kind: 'era', code: 'modern' }, ['artwork-1'])).resolves.toEqual([
+			{ id: 'artwork-3', notes: 'Tympanon.' }
+		]);
 		expect(rpc).toHaveBeenCalledWith('note_gap_artwork', {
 			scope_kind: 'era',
 			scope_value: 'modern',
 			excluded: ['artwork-1']
 		});
 
-		rpc.mockResolvedValue({ data: null, error: null } as never);
-		await expect(loadNoteGap({ kind: 'all' }, [])).resolves.toBeUndefined();
+		rpc.mockResolvedValue({ data: [], error: null } as never);
+		await expect(loadNoteGap({ kind: 'all' }, [])).resolves.toEqual([]);
 		rpc.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } } as never);
-		await expect(loadNoteGap({ kind: 'all' }, [])).resolves.toBeUndefined();
+		await expect(loadNoteGap({ kind: 'all' }, [])).resolves.toEqual([]);
 	});
 
 	it('returns a message when a session cannot be built', async () => {

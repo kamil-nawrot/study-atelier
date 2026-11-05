@@ -19,6 +19,13 @@ describe('outOfOrder', () => {
 		assert.equal(outOfOrder(['20261105110000_other.sql'], onBase).length, 1);
 	});
 
+	it('accepts an older migration already on main, as a hotfix merged back', () => {
+		assert.deepEqual(
+			outOfOrder(['20261105100000_hotfix.sql'], onBase, ['20261105100000_hotfix.sql']),
+			[]
+		);
+	});
+
 	it('accepts anything when the base branch has no migrations', () => {
 		assert.deepEqual(outOfOrder(['20261105100000_note_gap.sql'], []), []);
 	});

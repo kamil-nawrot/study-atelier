@@ -19,11 +19,10 @@
 		flow: ReviewFlow;
 		error?: string;
 		glossary?: GlossaryTerm[];
-		streak: number;
 		rankForm?: RankForm;
 	};
 
-	let { flow, error, glossary, streak, rankForm }: Props = $props();
+	let { flow, error, glossary, rankForm }: Props = $props();
 </script>
 
 {#if error}
@@ -142,7 +141,7 @@
 		scope={flow.activeScope}
 		scopes={flow.scopes}
 		starting={flow.starting}
-		{streak}
+		streak={flow.streak}
 		troubles={flow.hard}
 	/>
 {/if}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { testReviewCard } from '#lib/testing/review/review.ts';
-import { reviewedSince, streakWeek } from './streak-week.ts';
+import { reviewedSince, streakWeek, streakWithToday } from './streak-week.ts';
 
 const wednesday = new Date(2026, 10, 4, 21, 0);
 
@@ -42,5 +42,24 @@ describe('reviewedSince', () => {
 		expect(reviewedSince([testReviewCard('c', wednesday, { lastReview: null })], dayStart)).toBe(
 			false
 		);
+	});
+});
+
+describe('streakWithToday', () => {
+	const dayStart = new Date(2026, 10, 4);
+	const yesterday = testReviewCard('a', wednesday, { lastReview: new Date(2026, 10, 3, 20, 0) });
+	const today = testReviewCard('b', wednesday, { lastReview: new Date(2026, 10, 4, 8, 0) });
+
+	it('adds today when the first round of the day was reviewed after the page loaded', () => {
+		expect(streakWithToday({ streak: 5, cards: new Map([['a', yesterday]]) }, true, dayStart)).toBe(
+			6
+		);
+	});
+
+	it('keeps the loaded streak when today was already in it or nothing was reviewed', () => {
+		expect(streakWithToday({ streak: 6, cards: new Map([['b', today]]) }, true, dayStart)).toBe(6);
+		expect(
+			streakWithToday({ streak: 5, cards: new Map([['a', yesterday]]) }, false, dayStart)
+		).toBe(5);
 	});
 });

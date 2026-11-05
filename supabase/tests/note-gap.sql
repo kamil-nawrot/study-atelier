@@ -41,6 +41,7 @@ declare
   tympanum uuid;
   modern uuid;
   plain uuid;
+  heading uuid;
   drawn jsonb;
 begin
   insert into public.glossary_entries (name, category, forms)
@@ -48,22 +49,23 @@ begin
   tympanum := pg_temp.add_work(1, 'middle_ages', E'## Portal\nThe TYMPANA of the west front.');
   modern := pg_temp.add_work(2, 'modern', 'A tympanum (c. 1130).');
   plain := pg_temp.add_work(3, 'middle_ages', 'Tympanumlike, without the term.');
+  heading := pg_temp.add_work(5, 'middle_ages', E'# Tympanum\nA portal of the west front.');
   perform pg_temp.add_work(4, 'middle_ages', 'A lunette, a term of another learner.');
 
   drawn := public.note_gap_artwork('all', null, '{}');
-  assert drawn ->> 'id' in (tympanum::text, modern::text),
-    'the note gap draws an artwork whose note holds no term: ' || coalesce(drawn::text, 'null');
-  assert (public.note_gap_artwork('all', null, array[tympanum, modern])) is null,
+  assert (select array_agg(listed ->> 'id' order by listed ->> 'id') from jsonb_array_elements(drawn) as listed)
+      = (select array_agg(id::text order by id::text) from unnest(array[tympanum, modern]) as id),
+    'the note gap draws an artwork whose note holds no term or only a heading: ' || drawn::text;
+  assert public.note_gap_artwork('all', null, array[tympanum, modern]) = '[]',
     'the note gap draws an artwork the session shows';
-  assert public.note_gap_artwork('era', 'modern', '{}') ->> 'id' = modern::text,
-    'the note gap leaves the scope of the session';
-  assert public.note_gap_artwork('era', 'modern', '{}') ->> 'notes' = 'A tympanum (c. 1130).',
-    'the note gap does not return the note';
-  assert public.note_gap_artwork('style', 'Baroque', '{}') is null,
+  assert public.note_gap_artwork('era', 'modern', '{}')
+      = jsonb_build_array(jsonb_build_object('id', modern, 'notes', 'A tympanum (c. 1130).')),
+    'the note gap leaves the scope of the session or does not return the note';
+  assert public.note_gap_artwork('style', 'Baroque', '{}') = '[]',
     'the note gap finds an artwork outside the style';
 
   update public.artworks set deleted_at = now() where id in (tympanum, modern);
-  assert public.note_gap_artwork('all', null, '{}') is null,
+  assert public.note_gap_artwork('all', null, '{}') = '[]',
     'the note gap draws a deleted artwork';
 end;
 $$;

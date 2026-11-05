@@ -170,6 +170,28 @@ describe('review page', () => {
 		await expect.element(page.getByText(m.review.streakWeek(5, false))).toBeInTheDocument();
 	});
 
+	it('counts today in the streak once a round has been reviewed', async () => {
+		const artworks = collection(25);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 20), () => 5),
+			0,
+			undefined,
+			5
+		);
+		vi.mocked(loadSession)
+			.mockResolvedValueOnce({ rows: flashcards(1) })
+			.mockResolvedValueOnce({ rows: [], error: 'boom' });
+
+		await page.getByRole('button', { name: m.review.start }).click();
+		await page.getByRole('button', { name: m.review.flashcard.reveal }).click();
+		await page.getByRole('button', { name: new RegExp(`^${m.review.ratings[3]}`) }).click();
+		await page.getByRole('button', { name: /^Następna runda/ }).click();
+
+		await expect.element(page.getByText(m.review.streakDays(6), { exact: true })).toBeVisible();
+		await expect.element(page.getByText(m.review.streakWeek(6, true))).toBeInTheDocument();
+	});
+
 	it('says nothing about a streak when there is none', async () => {
 		renderReview(collection(25));
 
@@ -610,7 +632,7 @@ describe('review page', () => {
 			terms.map((term) => ({ ...term, hasDefinition: false }))
 		);
 		vi.mocked(loadSession).mockResolvedValue({ rows: flashcards(1) });
-		vi.mocked(loadNoteGap).mockResolvedValue({ id: 'artwork-12', notes: 'The apse is round.' });
+		vi.mocked(loadNoteGap).mockResolvedValue([{ id: 'artwork-12', notes: 'The apse is round.' }]);
 
 		await page.getByRole('button', { name: m.review.start }).click();
 		await page.getByRole('button', { name: m.review.flashcard.reveal }).click();

@@ -7,6 +7,7 @@ export type ReviewSource = {
 	artworks: WallArtwork[];
 	cards: Map<string, ReviewCard>;
 	newToday: number;
+	streak: number;
 	preferences: Preferences;
 	termPins: number | undefined;
 	glossary: GlossaryTerm[];

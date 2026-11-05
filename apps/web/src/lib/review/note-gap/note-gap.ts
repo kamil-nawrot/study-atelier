@@ -60,11 +60,14 @@ export async function drawNoteGap(
 	glossary: readonly GlossaryTerm[]
 ): Promise<NoteGapItem[]> {
 	if (!enabled || glossary.length < 4) return [];
-	const found = await loadNoteGap(
+	const candidates = await loadNoteGap(
 		scope,
 		shown.map((artwork) => artwork.id)
 	);
-	const artwork = found && artworks.get(found.id);
-	const item = artwork && noteGapItem(artwork, found.notes, glossary);
-	return item ? [item] : [];
+	for (const candidate of candidates) {
+		const artwork = artworks.get(candidate.id);
+		const item = artwork && noteGapItem(artwork, candidate.notes, glossary);
+		if (item) return [item];
+	}
+	return [];
 }

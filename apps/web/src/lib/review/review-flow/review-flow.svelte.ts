@@ -36,7 +36,7 @@ import {
 } from '#lib/review/review-data/review-data.ts';
 import { preloadSteps, withItemImages } from '#lib/review/review-images/review-images.ts';
 import { drawNoteGap } from '#lib/review/note-gap/note-gap.ts';
-import { reviewedSince } from '#lib/review/streak-week/streak-week.ts';
+import { reviewedSince, streakWithToday } from '#lib/review/streak-week/streak-week.ts';
 import { ResolvedImages } from '#lib/review/resolved-images/resolved-images.svelte.ts';
 import { ReviewStop } from '#lib/review/review-stop/review-stop.svelte.ts';
 import { ReviewSession } from '#lib/review/review-session/review-session.svelte.ts';
@@ -148,7 +148,8 @@ export class ReviewFlow {
 	);
 	artworksById = $derived(mapOf(this.#data().artworks.map((artwork) => [artwork.id, artwork])));
 	knowledge = $derived(atelierKnowledge(this.#data().artworks, this.cards));
-	reviewedToday = $derived(reviewedSince(this.#data().cards.values(), startOfDay(this.now)));
+	reviewedToday = $derived(reviewedSince(this.cards.values(), startOfDay(this.now)));
+	streak = $derived(streakWithToday(this.#data(), this.reviewedToday, startOfDay(this.now)));
 	hard = $derived(troubles(this.#data().artworks, this.cards).map(this.images.withImage));
 	current = $derived(this.session?.current);
 
@@ -218,6 +219,8 @@ export class ReviewFlow {
 		const shown = [...artworks, ...quizArtworks(items)];
 		const glossary = this.#data().glossary;
 		const drawn = drawnTerms(glossary, this.definitionCount ?? 0);
+		const shownImages = this.images.resolve(shown);
+		const definedRead = loadTermDefinitions(drawn.map((term) => term.id));
 		const gaps = await drawNoteGap(
 			reviewNoteQuestions,
 			this.activeScope,
@@ -226,10 +229,11 @@ export class ReviewFlow {
 			glossary
 		);
 		const gapArtworks = gaps.map((gap) => gap.artwork);
-		const [, found, defined] = await Promise.all([
-			this.images.resolve([...shown, ...gapArtworks]),
+		const [, , found, defined] = await Promise.all([
+			shownImages,
+			this.images.resolve(gapArtworks),
 			loadReviewDetails([...artworks, ...gapArtworks].map((artwork) => artwork.id)),
-			loadTermDefinitions(drawn.map((term) => term.id))
+			definedRead
 		]);
 		if (found.error) return found.error;
 		this.details = found.details;

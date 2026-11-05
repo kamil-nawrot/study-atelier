@@ -21,7 +21,6 @@ describe('RoundCareer', () => {
 	it('names the new exhibits in the colour of their metal and a new rank, without plan points', async () => {
 		round.mockResolvedValue({
 			round: {
-				plan: { share: 1, streak: 12 },
 				tiers: [
 					{ exhibit: 'collection', tier: 4, tiers: 9 },
 					{ exhibit: 'eras', tier: 1, tiers: 5 }
@@ -53,7 +52,7 @@ describe('RoundCareer', () => {
 
 	it('says nothing when no exhibit and no rank came with the round', async () => {
 		round.mockResolvedValue({
-			round: { plan: { share: 0.5, streak: 1 }, tiers: [], points: 1846, rankSeen: 5 }
+			round: { tiers: [], points: 1846, rankSeen: 5 }
 		});
 		render(RoundCareer, { props: { form: 'feminine' } });
 

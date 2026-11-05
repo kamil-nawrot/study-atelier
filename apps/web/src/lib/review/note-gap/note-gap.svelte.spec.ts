@@ -74,7 +74,7 @@ describe('drawNoteGap', () => {
 	const artworks = new Map([[chartres.id, chartres]]);
 
 	it('asks the database for an artwork the session does not show', async () => {
-		vi.mocked(loadNoteGap).mockResolvedValue({ id: chartres.id, notes });
+		vi.mocked(loadNoteGap).mockResolvedValue([{ id: chartres.id, notes }]);
 		const shown = [testArtwork(2, 'Shown')];
 
 		const gaps = await drawNoteGap(true, { kind: 'all' }, shown, artworks, glossary);
@@ -83,8 +83,19 @@ describe('drawNoteGap', () => {
 		expect(gaps.map((gap) => gap.artwork)).toEqual([chartres]);
 	});
 
+	it('takes the next candidate when the note of the first one has no gap', async () => {
+		vi.mocked(loadNoteGap).mockResolvedValue([
+			{ id: chartres.id, notes: '# Tympanon\n\nBez pojęć.' },
+			{ id: chartres.id, notes }
+		]);
+
+		const gaps = await drawNoteGap(true, { kind: 'all' }, [], artworks, glossary);
+
+		expect(gaps.map((gap) => gap.artwork)).toEqual([chartres]);
+	});
+
 	it('asks nothing while the switch is off or the database finds no note', async () => {
-		vi.mocked(loadNoteGap).mockClear().mockResolvedValue(undefined);
+		vi.mocked(loadNoteGap).mockClear().mockResolvedValue([]);
 
 		expect(await drawNoteGap(false, { kind: 'all' }, [], artworks, glossary)).toEqual([]);
 		expect(loadNoteGap).not.toHaveBeenCalled();
