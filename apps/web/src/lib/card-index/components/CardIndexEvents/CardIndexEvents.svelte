@@ -5,6 +5,7 @@
 	import { Button, Icon } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { eventPath } from '#lib/timeline/event-page/event-page.ts';
 	import CardIndexList from '#lib/card-index/components/CardIndexList/CardIndexList.svelte';
 	import { sortsOf, type CardIndexSort } from '#lib/card-index/card-index-sort/card-index-sort.ts';
 
@@ -35,7 +36,7 @@
 <CardIndexList
 	actions={adds}
 	empty={m.cardIndex.emptyEvents}
-	href={(id) => resolve('/(app)/atelier/timeline/events/[id]/edit', { id })}
+	href={eventPath}
 	{records}
 	searchLabel={m.cardIndex.search.events}
 	sorts={sortsOf('events')}

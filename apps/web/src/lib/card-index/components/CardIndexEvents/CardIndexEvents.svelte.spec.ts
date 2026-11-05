@@ -11,7 +11,7 @@ const events = [
 ];
 
 describe('card index events', () => {
-	it('lists the events by name with their dates, each leading to its edit form', async () => {
+	it('lists the events by name with their dates, each leading to its page', async () => {
 		render(CardIndexEvents, { entries: events });
 
 		const items = page.getByRole('listitem');
@@ -21,7 +21,7 @@ describe('card index events', () => {
 			.element(
 				page.getByRole('link', { name: m.cardIndex.openValue('Battle of Hastings', '1066') })
 			)
-			.toHaveAttribute('href', '/atelier/timeline/events/event-2/edit');
+			.toHaveAttribute('href', '/atelier/timeline/events/event-2');
 	});
 
 	it('offers adding an event, also when there are none', async () => {

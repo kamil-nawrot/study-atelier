@@ -148,7 +148,7 @@ describe('card index page', () => {
 		await expect.element(openValue('Athens', 2)).toBeVisible();
 	});
 
-	it('lists the timeline events by year with their dates and links to their edit forms', async () => {
+	it('lists the timeline events by year with their dates and links to their pages', async () => {
 		renderValues(
 			testCardIndex(),
 			undefined,
@@ -163,7 +163,7 @@ describe('card index page', () => {
 		const link = page.getByRole('link', {
 			name: m.cardIndex.openValue('Congress of Vienna', m.atelier.span(1814, 1815, false))
 		});
-		await expect.element(link).toHaveAttribute('href', '/atelier/timeline/events/event-1/edit');
+		await expect.element(link).toHaveAttribute('href', '/atelier/timeline/events/event-1');
 		await expect
 			.element(
 				page.getByRole('link', {
