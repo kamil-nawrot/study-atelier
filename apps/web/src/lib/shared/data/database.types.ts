@@ -1381,16 +1381,16 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      artwork_field_type_impact: {
+        Args: { target_field: string; type_codes: string[] };
+        Returns: number;
+      };
       artwork_field_usage: {
         Args: Record<PropertyKey, never>;
         Returns: {
           artwork_count: number;
           field_id: string;
         }[];
-      };
-      artwork_field_type_impact: {
-        Args: { target_field: string; type_codes: string[] };
-        Returns: number;
       };
       atelier_empty: { Args: Record<PropertyKey, never>; Returns: boolean };
       card_index: { Args: Record<PropertyKey, never>; Returns: Json };
