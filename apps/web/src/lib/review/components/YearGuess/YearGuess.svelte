@@ -123,7 +123,7 @@
 		<div class="intro" class:answered>
 			<p class="caption">{m.review.year.tag}</p>
 			<h1 bind:this={heading} id="quiz-heading" tabindex="-1">{m.review.year.question}</h1>
-			<p class="lead">{m.review.year.hint(eraName, m.atelier.span(bounds[0], bounds[1], false))}</p>
+			<p class="lead">{m.review.year.hint(eraName, m.atelier.eraSpan(bounds[0], bounds[1]))}</p>
 		</div>
 		{#if wide.current}
 			{@render guess()}

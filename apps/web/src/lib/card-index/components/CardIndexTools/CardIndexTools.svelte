@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
 	import { SearchField, Select } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { CardIndexSort } from '#lib/card-index/card-index-sort/card-index-sort.ts';
@@ -28,6 +29,7 @@
 	{#if options.length > 1}
 		<Select
 			hideLabel
+			icon={ArrowUpDown}
 			label={m.cardIndex.sortLabel}
 			{options}
 			bind:value={() => sort, (value) => (sort = value as CardIndexSort)}
@@ -54,7 +56,7 @@
 
 	@media (min-width: 768px) {
 		.tools {
-			grid-template-columns: minmax(0, var(--size-content-default)) auto minmax(0, 1fr);
+			grid-template-columns: minmax(0, 1fr) auto auto;
 			align-items: start;
 		}
 

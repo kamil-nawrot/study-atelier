@@ -99,4 +99,21 @@ describe('CardIndexTabs', () => {
 		await expect.element(page.getByRole('link', { name: /^Classical/ }).first()).toBeVisible();
 		await expect.element(page.getByRole('link', { name: /^Ionic/ })).not.toBeInTheDocument();
 	});
+
+	it('shows the type of a place after its name and the number of artworks in words', async () => {
+		renderTabs(
+			'location',
+			withValues({
+				id: 'l-louvre',
+				category: 'location',
+				name: 'Louvre',
+				count: 2,
+				placeType: 'museum'
+			})
+		);
+
+		const louvre = page.getByRole('listitem').filter({ hasText: 'Louvre' });
+		await expect.element(louvre.getByTitle(m.valueForm.placeTypes.museum)).toBeInTheDocument();
+		await expect.element(louvre).toHaveTextContent(m.atelier.count(2));
+	});
 });

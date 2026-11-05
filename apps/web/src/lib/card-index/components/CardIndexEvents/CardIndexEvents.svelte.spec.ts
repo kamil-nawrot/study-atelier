@@ -5,7 +5,7 @@ import { m } from '#lib/i18n/i18n.ts';
 import CardIndexEvents from './CardIndexEvents.svelte';
 
 const events = [
-	{ id: 'event-1', name: 'Congress of Vienna', note: '1814–1815', year: 1814 },
+	{ id: 'event-1', name: 'Congress of Vienna', note: '1814–1815', year: 1814, span: true },
 	{ id: 'event-2', name: 'Battle of Hastings', note: '1066', year: 1066 },
 	{ id: 'event-3', name: 'Undated meeting', note: '' }
 ];
@@ -63,5 +63,26 @@ describe('card index events', () => {
 		);
 
 		await expect.element(page.getByRole('listitem')).toHaveTextContent('Fall of Constantinople');
+	});
+
+	it('marks an event of one year and an event over a span with their own icons', async () => {
+		render(CardIndexEvents, { entries: events });
+
+		await expect
+			.element(
+				page
+					.getByRole('listitem')
+					.filter({ hasText: 'Congress of Vienna' })
+					.getByTitle(m.cardIndex.eventKinds.span)
+			)
+			.toBeInTheDocument();
+		await expect
+			.element(
+				page
+					.getByRole('listitem')
+					.filter({ hasText: 'Battle of Hastings' })
+					.getByTitle(m.cardIndex.eventKinds.single)
+			)
+			.toBeInTheDocument();
 	});
 });
