@@ -557,6 +557,7 @@ export const pl = {
 		changeOwnImageTitle: 'Zmień własny obraz',
 		removeImage: 'Usuń obraz',
 		chooseFile: 'Wybierz plik z dysku',
+		takePhoto: 'Zrób zdjęcie',
 		fileHint: (formats: string, maxMegabytes: number): string =>
 			`Akceptowalne formaty zdjęć to: ${formats}. Pliki większe niż ${maxMegabytes} MB zostaną automatycznie zmniejszone.`,
 		pasteFromClipboard: 'Wklej ze schowka',

@@ -153,6 +153,37 @@ describe('own images on the add artwork page', () => {
 		);
 	});
 
+	it('offers the camera first on a touch screen, without the keyboard shortcut', async () => {
+		const real = window.matchMedia.bind(window);
+		const coarse = real('(min-width: 0px)');
+		Object.defineProperty(coarse, 'matches', { value: true });
+		const media = vi
+			.spyOn(window, 'matchMedia')
+			.mockImplementation((query) => (query === '(pointer: coarse)' ? coarse : real(query)));
+		renderPage();
+
+		await openOwnImage();
+
+		const camera = page.getByRole('button', { name: m.artworkForm.takePhoto });
+		await expect.element(camera).toBeVisible();
+		const actions = camera.element().parentElement?.querySelectorAll('button') ?? [];
+		expect(actions[0]?.textContent?.trim()).toBe(m.artworkForm.takePhoto);
+		expect(document.querySelector('input[capture="environment"]')).not.toBeNull();
+		await expect.element(page.getByText(m.artworkForm.pasteHintLead)).not.toBeInTheDocument();
+		media.mockRestore();
+	});
+
+	it('offers no camera with a mouse', async () => {
+		renderPage();
+
+		await openOwnImage();
+
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.takePhoto }))
+			.not.toBeInTheDocument();
+		await expect.element(page.getByText(m.artworkForm.pasteHintLead)).toBeVisible();
+	});
+
 	it('clears the dialog when it is closed without an image', async () => {
 		renderPage();
 		await openOwnImage();
