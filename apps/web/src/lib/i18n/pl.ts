@@ -224,6 +224,7 @@ export const pl = {
 	},
 	settings: {
 		title: 'Ustawienia',
+		back: 'Atelier',
 		lead: 'Tutaj możesz zmienić swoje dane oraz zarządzać preferencjami dotyczącymi funkcjonowania Twojego atelier.',
 		tabsLabel: 'Części ustawień',
 		tabs: {
@@ -239,14 +240,14 @@ export const pl = {
 			avatarAlt: 'Twoje zdjęcie',
 			addPhoto: 'Dodaj zdjęcie',
 			changePhoto: 'Zmień zdjęcie',
-			photoHint: 'Zdjęcie zostanie automatycznie dopasowane do rozmiaru awatara',
 			removePhoto: 'Usuń zdjęcie',
 			name: 'Imię',
 			rankForm: 'Forma stopni',
 			rankFormMasculine: 'Kustosz',
 			rankFormFeminine: 'Kustoszka',
-			email: 'Adres e-mail',
-			emailHint: 'Adres podany przy rejestracji. Zmienisz go w zakładce „Konto”.',
+			careerShown: 'Pokazuj stopień i Ekspozycję',
+			careerShownHint:
+				'Po wyłączeniu ani postęp, ani eksponaty nie będą widoczne w atelier, ale nadal będą zliczane, więc w każdej chwili możesz je ponownie włączyć.',
 			nameTooLong: (max: number): string => `Imię może mieć najwyżej ${max} znaków.`,
 			save: 'Zapisz profil',
 			saved: 'Zapisano profil.',
@@ -256,8 +257,8 @@ export const pl = {
 				'Brakuje miejsca na zdjęcia, więc awatara nie da się teraz zapisać. Usuń niepotrzebne zdjęcia dzieł. Miejsce zwolni się w ciągu doby.'
 		},
 		account: {
-			emailTitle: 'Adres e-mail',
-			currentEmail: (email: string): string => `Obecny adres: ${email}`,
+			emailTitle: 'Zmiana adresu e-mail',
+			currentEmail: 'Obecny adres:',
 			newEmail: 'Nowy adres e-mail',
 			emailSubmit: 'Zmień adres',
 			sameEmail: 'To jest Twój obecny adres.',
@@ -295,11 +296,14 @@ export const pl = {
 			deleted: 'Konto zostało usunięte razem z całym atelier.'
 		},
 		preferences: {
-			sessionSize: 'Z ilu dzieł powinna składać się pojedyncza sesja?',
-			newPerDay: 'Ile nowych dzieł powinno codziennie dołączać do puli powtórek?',
-			form: 'Jaka powinna być domyślna forma powtórek?',
+			sessionTitle: 'Sesja',
+			sessionSize: 'Dzieła w jednej sesji',
+			newPerDay: 'Nowe dzieła dziennie',
+			form: 'Domyślna forma',
 			formHint: 'Zmienisz ją też na starcie powtórki.',
-			kinds: 'Jakich elementów mogą dotyczyć quizy powtórkowe?',
+			free: 'Powtórka swobodna',
+			freeHint: 'Gdy skończysz powtórki na dziś, pojawi się propozycja kolejnej rundy.',
+			quizzesTitle: 'Quizy',
 			kindLabels: {
 				quiz_image: 'Dopasowywanie dzieła do tytułu',
 				quiz_title: 'Dopasowywanie tytułu do dzieła',
@@ -309,18 +313,19 @@ export const pl = {
 				quiz_typed: 'Wpisywanie tytułu dzieła z pamięci'
 			},
 			kindsHint: 'Zostaw zaznaczony przynajmniej jeden rodzaj.',
-			glossaryQuestions: 'Ile pytań dodatkowych ze Słowniczka dołączać do sesji?',
-			noteQuestions: 'Dołączaj do sesji pytania z luką w moich notatkach',
-			timeQuestions: 'Dołączaj do sesji pytania o rok powstania i kolejność dzieł',
-			free: 'Proponuj powtórkę swobodną po skończonym dniu',
-			careerShown: 'Pokazuj stopień i Ekspozycję',
-			careerShownHint: 'Punkty i eksponaty liczą się dalej, także gdy są ukryte.',
+			extraTitle: 'Pytania dodatkowe',
+			glossaryOn: 'Pytania ze Słowniczka',
+			glossaryQuestions: 'Liczba pytań w sesji',
+			noteQuestions: 'Luka w Twoich notatkach',
+			timeQuestions: 'Rok powstania i kolejność dzieł',
+			viewHint:
+				'Ustaw, co powinno być widoczne w widoku dzieła zaraz po otwarciu. Pinezki i lupę możesz też zawsze włączyć, korzystając z przycisków w prawym górnym rogu głównego panelu dzieła.',
 			showPins: 'Pokazuj pinezki od razu po otwarciu dzieła',
 			loupe: 'Włączaj lupę od razu po otwarciu dzieła',
 			sourcesHint:
 				'Jeśli zaznaczysz opcję, materiały dotyczące danej wartości będą pobierać się automatycznie po uzupełnieniu potrzebnych do pobrania szczegółów. ' +
 				'Po wyłączeniu nadal możesz korzystać z podpowiedzi, używając odpowiedniego przycisku w formularzu.',
-			fetchImage: 'Automatycznie szukaj zdjęcia nowego dzieła w Wikidata i Commons',
+			fetchImage: 'Automatycznie szukaj obrazu nowego dzieła w Wikidata i Commons',
 			fetchDefinition: 'Automatycznie uzupełniaj definicję hasła ze Słowniczka z Wikipedii',
 			fetchForms: 'Automatycznie podpowiadaj odmianę wyrazu z Wikisłownika dla hasła ze Słowniczka',
 			fetchEvent: 'Automatycznie uzupełniaj opis i daty wydarzenia z Wikipedii',
@@ -379,6 +384,9 @@ export const pl = {
 			storageTitle: 'Miejsce na zdjęcia',
 			storageUsage: (usedMegabytes: string, quotaMegabytes: string): string =>
 				`Twoje zdjęcia zajmują ${usedMegabytes} MB z ${quotaMegabytes} MB.`,
+			storageUsageStart: 'Twoje zdjęcia zajmują',
+			storageUsed: (usedMegabytes: string): string => `${usedMegabytes} MB`,
+			storageUsageEnd: (quotaMegabytes: string): string => `z ${quotaMegabytes} MB.`,
 			errorTitle: 'Nie udało się wyeksportować atelier',
 			failed:
 				'Spróbuj jeszcze raz. Jeśli problem się powtarza, spróbuj wykonać eksport na innym urządzeniu.',
@@ -688,9 +696,6 @@ export const pl = {
 				'Wyłącznie fiszki, w których samodzielnie przypominasz sobie informacje o dziele, a następnie odkrywasz kartę i oceniasz, jak Ci poszło.',
 			quizzes: 'Wyłącznie pytania, w których wybierasz poprawną spośród czterech odpowiedzi.'
 		},
-		definitions: 'Dołącz definicje ze Słowniczka',
-		definitionsHint: (count: number): string =>
-			`Pytania dodatkowe: ${count} ${plural(count, { one: 'losowa definicja', few: 'losowe definicje', many: 'losowych definicji' })}. Nie zmieniają planu powtórek.`,
 		start: 'Zacznij powtórkę',
 		free: 'Powtórka swobodna',
 		freeHint:

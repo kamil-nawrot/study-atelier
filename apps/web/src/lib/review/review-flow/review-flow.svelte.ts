@@ -70,7 +70,6 @@ export class ReviewFlow {
 	scope = $state<ReviewScope>(ALL_SCOPE);
 	form = $state<ReviewForm>('mixed');
 	freeRound = $state(0);
-	definitions = $state(true);
 	cards = $state.raw(mapOf<string, ReviewCard>());
 	newToday = $state(0);
 	now = $state(currentDate());
@@ -112,7 +111,7 @@ export class ReviewFlow {
 		)
 	);
 	definitionCount = $derived(
-		definitionsOffered(this.#data().glossary)
+		this.#data().preferences.reviewGlossaryOn && definitionsOffered(this.#data().glossary)
 			? this.#data().preferences.reviewGlossaryQuestions
 			: undefined
 	);
@@ -218,7 +217,7 @@ export class ReviewFlow {
 		const artworks = [...items.map((item) => item.artwork), ...timeArtworks(times)];
 		const shown = [...artworks, ...quizArtworks(items)];
 		const glossary = this.#data().glossary;
-		const drawn = drawnTerms(glossary, this.definitions ? (this.definitionCount ?? 0) : 0);
+		const drawn = drawnTerms(glossary, this.definitionCount ?? 0);
 		const gaps = await drawNoteGap(
 			reviewNoteQuestions,
 			this.activeScope,

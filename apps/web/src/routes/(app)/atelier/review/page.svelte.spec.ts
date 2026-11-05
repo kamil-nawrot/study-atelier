@@ -345,7 +345,7 @@ describe('review page', () => {
 		);
 	});
 
-	it('adds the definitions of the preferences to a session unless they are switched off', async () => {
+	it('adds as many definitions to a session as the preferences ask for', async () => {
 		const artworks = collection(25);
 		renderReview(
 			artworks,
@@ -359,8 +359,6 @@ describe('review page', () => {
 			terms
 		);
 
-		await page.getByText(m.review.options).click();
-		await expect.element(page.getByText(m.review.definitionsHint(2))).toBeVisible();
 		await page.getByRole('button', { name: m.review.start }).click();
 		await expect.element(page.getByText(m.review.progress(1, 6))).toBeVisible();
 		await expect
@@ -393,7 +391,7 @@ describe('review page', () => {
 		expect(vi.mocked(loadTermDefinitions).mock.calls[0][0]).toHaveLength(2);
 	});
 
-	it('leaves the definitions out when they are switched off', async () => {
+	it('leaves the definitions out when the preferences switch them off', async () => {
 		const artworks = collection(25);
 		renderReview(
 			artworks,
@@ -402,16 +400,13 @@ describe('review page', () => {
 			undefined,
 			0,
 			{},
-			defaultPreferences,
+			{ ...defaultPreferences, reviewGlossaryOn: false, reviewGlossaryQuestions: 2 },
 			0,
 			terms
 		);
 
 		await page.getByText(m.review.options).click();
-		await page.getByText(m.review.definitions).click();
-		await expect
-			.element(page.getByRole('switch', { name: m.review.definitions }))
-			.not.toBeChecked();
+		expect(page.getByRole('switch').elements()).toHaveLength(0);
 		await page.getByRole('button', { name: m.review.start }).click();
 		await expect.element(page.getByText(m.review.progress(1, 4))).toBeVisible();
 	});

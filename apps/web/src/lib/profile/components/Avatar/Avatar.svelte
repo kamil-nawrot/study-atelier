@@ -62,8 +62,9 @@
 	}
 
 	.large {
-		width: 256px;
-		height: 256px;
+		width: 100%;
+		height: auto;
+		aspect-ratio: 1;
 		border-color: transparent;
 		background: var(--color-tag);
 		font-size: var(--font-size-3xl);

@@ -16,4 +16,9 @@
 
 <Story name="Gold" args={{ value: 846, max: 1000, label: 'Znawca', tone: 'gold' }} />
 
+<Story
+	name="Thick"
+	args={{ size: 'thick', track: 'dim', label: 'Twoje zdjęcia zajmują 8,7 MB z 200 MB.' }}
+/>
+
 <Story name="Dim track" args={{ value: 191, max: 250, label: 'Dzieła w atelier', track: 'dim' }} />

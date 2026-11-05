@@ -1,6 +1,6 @@
 # 0153. Add glossary definitions to the review as extra questions
 
-- Status: accepted
+- Status: accepted; the switch at the review start is superseded by [0186](0186-tidy-up-the-settings-view.md)
 - Date: 2026-10-28
 
 ## Context and problem statement

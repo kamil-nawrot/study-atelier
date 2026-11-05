@@ -1,7 +1,9 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	type Props = {
 		id: string;
-		hint?: string;
+		hint?: string | Snippet;
 		error?: string;
 		live?: boolean;
 	};
@@ -10,7 +12,13 @@
 </script>
 
 <span {id} class="message" class:error={!!error} aria-live={live ? 'polite' : undefined}>
-	{error || hint || ''}
+	{#if error}
+		{error}
+	{:else if typeof hint === 'function'}
+		{@render hint()}
+	{:else}
+		{hint ?? ''}
+	{/if}
 </span>
 
 <style>

@@ -13,6 +13,7 @@
 	} from '#lib/auth/validation/validation.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import AccountDeleteDialog from '#lib/profile/components/AccountDeleteDialog/AccountDeleteDialog.svelte';
+	import SettingsSection from '#lib/profile/components/SettingsSection/SettingsSection.svelte';
 	import LegalLinks from '#lib/legal/components/LegalLinks/LegalLinks.svelte';
 	import { legalVersionDate } from '#lib/legal/version/version.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
@@ -91,8 +92,7 @@
 </script>
 
 <div class="account">
-	<section>
-		<h2>{m.settings.account.emailTitle}</h2>
+	<SettingsSection title={m.settings.account.emailTitle}>
 		<Form onsubmit={submitEmail}>
 			{#if emailSent || pendingEmail}
 				<Alert title={m.settings.account.emailSentTitle} tone="success">
@@ -104,20 +104,22 @@
 			<TextField
 				autocomplete="email"
 				error={emailFieldError}
-				hint={m.settings.account.currentEmail(email)}
 				label={m.settings.account.newEmail}
 				type="email"
 				bind:value={newEmail}
-			/>
+			>
+				{#snippet hint()}
+					{m.settings.account.currentEmail} <strong>{email}</strong>
+				{/snippet}
+			</TextField>
 			<div class="actions">
 				<Button disabled={emailForm.busy} type="submit">
 					{emailForm.busy ? m.common.sending : m.settings.account.emailSubmit}
 				</Button>
 			</div>
 		</Form>
-	</section>
-	<section class="rule">
-		<h2>{m.settings.account.passwordTitle}</h2>
+	</SettingsSection>
+	<SettingsSection rule title={m.settings.account.passwordTitle}>
 		<Form error={passwordForm.error} errorTitle={m.settings.account.errorTitle} onsubmit={submit}>
 			{#if othersError}
 				<Alert title={m.settings.account.othersFailedTitle} tone="warning">
@@ -147,16 +149,15 @@
 				</Button>
 			</div>
 		</Form>
-	</section>
-	<section class="rule">
-		<h2>{m.settings.account.deleteTitle}</h2>
+	</SettingsSection>
+	<SettingsSection rule title={m.settings.account.deleteTitle}>
 		<p>{m.settings.account.deleteDescription}</p>
 		<div class="actions">
 			<Button onclick={() => (deleteOpen = true)} variant="danger">
 				{m.settings.account.deleteOpen}
 			</Button>
 		</div>
-	</section>
+	</SettingsSection>
 	<div class="legal">
 		{#if acceptedLegalVersion}
 			<span>{m.legal.accepted(legalVersionDate(acceptedLegalVersion))}</span>
@@ -173,17 +174,6 @@
 		display: grid;
 		gap: var(--spacing-8);
 		width: 100%;
-		max-width: var(--size-content-default);
-	}
-
-	section {
-		display: grid;
-		gap: var(--spacing-6);
-	}
-
-	.rule {
-		padding-top: var(--spacing-8);
-		border-top: var(--border-width-hairline) solid var(--color-line);
 	}
 
 	.actions {

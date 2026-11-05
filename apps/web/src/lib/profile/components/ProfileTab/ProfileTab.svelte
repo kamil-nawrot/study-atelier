@@ -2,7 +2,15 @@
 	import { onDestroy, untrack } from 'svelte';
 	import ImageUp from '@lucide/svelte/icons/image-up';
 	import Trash from '@lucide/svelte/icons/trash';
-	import { Button, Form, FormActions, IconButton, Select, TextField } from '@study-atelier/ui';
+	import {
+		Button,
+		Form,
+		FormActions,
+		IconButton,
+		Select,
+		Switch,
+		TextField
+	} from '@study-atelier/ui';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
@@ -41,6 +49,7 @@
 	let name = $state(untrack(() => profileDraftOf(profile).name));
 	let avatar = $state.raw<AvatarChange>({ kind: 'keep' });
 	let rankForm = $state<string>(untrack(() => profile.rankForm));
+	let careerShown = $state(untrack(() => profile.careerShown));
 	let previewUrl = $state<string>();
 	let nameError = $state<string>();
 	let photoError = $state<string>();
@@ -48,7 +57,7 @@
 	let fileInput = $state<HTMLInputElement>();
 
 	const changes = new UnsavedChanges<ProfileDraft>(
-		() => ({ name, avatar, rankForm: rankFormOf(rankForm) }),
+		() => ({ name, avatar, rankForm: rankFormOf(rankForm), careerShown }),
 		() => profileDraftOf(formState.saved),
 		profileDraftChanged
 	);
@@ -81,6 +90,7 @@
 		setAvatar({ kind: 'keep' });
 		name = profileDraftOf(formState.saved).name;
 		rankForm = formState.saved.rankForm;
+		careerShown = formState.saved.careerShown;
 		nameError = undefined;
 		photoError = undefined;
 		formState.error = '';
@@ -91,7 +101,7 @@
 			nameError = validateDisplayName(name);
 			if (nameError) return;
 			const result = await saveProfile(
-				{ name, avatar, rankForm: rankFormOf(rankForm) },
+				{ name, avatar, rankForm: rankFormOf(rankForm), careerShown },
 				formState.saved
 			);
 			if (result.error !== undefined) {
@@ -145,13 +155,13 @@
 						{/if}
 					</div>
 				</div>
-				<span id={hintId} class="hint" class:error={photoError}>
-					{photoError ?? m.settings.profile.photoHint}
-				</span>
+				{#if photoError}
+					<span id={hintId} class="error" role="alert">{photoError}</span>
+				{/if}
 				<input
 					bind:this={fileInput}
 					accept={OWN_IMAGE_ACCEPT}
-					aria-describedby={hintId}
+					aria-describedby={photoError ? hintId : undefined}
 					hidden
 					onchange={pick}
 					type="file"
@@ -165,21 +175,22 @@
 					maxlength={DISPLAY_NAME_MAX_LENGTH * 2}
 					bind:value={name}
 				/>
+				<div class="described">
+					<Switch
+						aria-describedby="{formId}-career-hint"
+						label={m.settings.profile.careerShown}
+						bind:checked={careerShown}
+					/>
+					<p id="{formId}-career-hint" class="hint">{m.settings.profile.careerShownHint}</p>
+				</div>
 				<Select
+					disabled={!careerShown}
 					label={m.settings.profile.rankForm}
 					options={[
 						{ value: 'masculine', label: m.settings.profile.rankFormMasculine },
 						{ value: 'feminine', label: m.settings.profile.rankFormFeminine }
 					]}
 					bind:value={rankForm}
-				/>
-				<TextField
-					disabled
-					hint={m.settings.profile.emailHint}
-					label={m.settings.profile.email}
-					readonly
-					type="email"
-					value={email}
 				/>
 			</div>
 		</div>
@@ -230,7 +241,7 @@
 
 	@media (min-width: 768px) {
 		.fields {
-			grid-template-columns: max-content minmax(0, var(--size-content-narrow));
+			grid-template-columns: repeat(2, minmax(0, var(--size-content-narrow)));
 			justify-content: start;
 			column-gap: var(--spacing-12);
 			max-width: none;
@@ -240,7 +251,6 @@
 
 	.photo {
 		display: grid;
-		justify-items: start;
 		gap: var(--spacing-3);
 	}
 
@@ -251,6 +261,8 @@
 	}
 
 	.mat {
+		flex: 1;
+		min-width: 0;
 		padding: var(--spacing-4);
 		border: var(--border-width-hairline) solid var(--color-line);
 		background: var(--color-surface);
@@ -262,6 +274,16 @@
 		gap: var(--spacing-3);
 	}
 
+	.described {
+		display: grid;
+		gap: var(--spacing-1);
+	}
+
+	.described > :global(.switch) {
+		display: flex;
+		justify-content: space-between;
+	}
+
 	.hint {
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
@@ -269,5 +291,6 @@
 
 	.error {
 		color: var(--color-danger);
+		font-size: var(--font-size-sm);
 	}
 </style>

@@ -14,7 +14,12 @@ describe('avatarInitial', () => {
 	it('takes the first letter of the name in capitals', () => {
 		expect(
 			avatarInitial(
-				{ displayName: 'łukasz', avatarPath: null, rankForm: 'masculine' as const },
+				{
+					displayName: 'łukasz',
+					avatarPath: null,
+					rankForm: 'masculine' as const,
+					careerShown: true
+				},
 				'a@example.com'
 			)
 		).toBe('Ł');
@@ -23,7 +28,7 @@ describe('avatarInitial', () => {
 	it('falls back to the first letter of the email without a name', () => {
 		expect(
 			avatarInitial(
-				{ displayName: null, avatarPath: null, rankForm: 'masculine' as const },
+				{ displayName: null, avatarPath: null, rankForm: 'masculine' as const, careerShown: true },
 				'anna@example.com'
 			)
 		).toBe('A');
@@ -33,7 +38,7 @@ describe('avatarInitial', () => {
 	it('falls back to the email when the name is only spaces', () => {
 		expect(
 			avatarInitial(
-				{ displayName: '  ', avatarPath: null, rankForm: 'masculine' as const },
+				{ displayName: '  ', avatarPath: null, rankForm: 'masculine' as const, careerShown: true },
 				'zofia@example.com'
 			)
 		).toBe('Z');
@@ -66,7 +71,8 @@ describe('profileDraftChanged', () => {
 	const saved = profileDraftOf({
 		displayName: 'Anna',
 		avatarPath: null,
-		rankForm: 'masculine' as const
+		rankForm: 'masculine' as const,
+		careerShown: true
 	});
 
 	it('sees no change in the same draft or in a name that differs only in spacing', () => {
@@ -98,14 +104,20 @@ describe('showsAvatar', () => {
 		const profile = {
 			displayName: null,
 			avatarPath: 'owner/avatar-1.jpg',
-			rankForm: 'masculine' as const
+			rankForm: 'masculine' as const,
+			careerShown: true
 		};
 		expect(showsAvatar(profile, { kind: 'keep' })).toBe(true);
 		expect(showsAvatar(profile, { kind: 'remove' })).toBe(false);
 	});
 
 	it('shows a new photo and shows none for a profile without one', () => {
-		const profile = { displayName: null, avatarPath: null, rankForm: 'masculine' as const };
+		const profile = {
+			displayName: null,
+			avatarPath: null,
+			rankForm: 'masculine' as const,
+			careerShown: true
+		};
 		expect(showsAvatar(profile, { kind: 'replace', image })).toBe(true);
 		expect(showsAvatar(profile, { kind: 'keep' })).toBe(false);
 	});

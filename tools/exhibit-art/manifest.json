@@ -13,7 +13,8 @@
     "own_eye": "encyclopedie-chambre-obscure",
     "night_watch": "night-watch-engraving-1847",
     "marathon": "durer-nemesis-cup",
-    "bullseye": "vinkeles-putto-arrow-in-bullseye-close"
+    "bullseye": "vinkeles-putto-arrow-in-bullseye-close",
+    "mouth_of_truth": "pencz-mouth-of-truth"
   },
   "variants": [
     {
@@ -522,6 +523,62 @@
       ],
       "gamma": 0.9,
       "cap": 1.0
+    },
+    {
+      "exhibit": "mouth_of_truth",
+      "variant": "pencz-mouth-of-truth",
+      "status": "chosen",
+      "commons_file": "Georg Pencz - The Mouth of Truth - 1922.150 - Cleveland Museum of Art.jpg",
+      "licence": "CC0",
+      "credit": "Georg Pencz, The Mouth of Truth, c. 1533–1534, Cleveland Museum of Art",
+      "crop": [
+        0.37,
+        0.17,
+        0.735,
+        0.894225
+      ]
+    },
+    {
+      "exhibit": "mouth_of_truth",
+      "variant": "pencz-mouth-of-truth-close",
+      "status": "alternative",
+      "commons_file": "Georg Pencz - The Mouth of Truth - 1922.150 - Cleveland Museum of Art.jpg",
+      "licence": "CC0",
+      "credit": "Georg Pencz, The Mouth of Truth, c. 1533–1534, Cleveland Museum of Art",
+      "crop": [
+        0.385,
+        0.33,
+        0.615,
+        0.786327
+      ]
+    },
+    {
+      "exhibit": "mouth_of_truth",
+      "variant": "lucas-mouth-of-truth-close",
+      "status": "alternative",
+      "commons_file": "Lucas van Leyden, The Mouth of Truth, c. 1512, NGA 8626.jpg",
+      "licence": "CC0",
+      "credit": "Lucas van Leyden, The Mouth of Truth, c. 1512, National Gallery of Art",
+      "crop": [
+        0.2,
+        0.4,
+        0.6,
+        0.787578
+      ]
+    },
+    {
+      "exhibit": "mouth_of_truth",
+      "variant": "lucas-mouth-of-truth",
+      "status": "alternative",
+      "commons_file": "Lucas van Leyden, The Mouth of Truth, c. 1512, NGA 8626.jpg",
+      "licence": "CC0",
+      "credit": "Lucas van Leyden, The Mouth of Truth, c. 1512, National Gallery of Art",
+      "crop": [
+        0.02,
+        0.2,
+        0.62,
+        0.781366
+      ]
     }
   ]
 }
