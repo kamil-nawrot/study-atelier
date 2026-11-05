@@ -120,6 +120,7 @@
 		onnext={() => flow.start()}
 		orders={flow.summary.orders}
 		{rankForm}
+		starting={flow.starting}
 		tomorrow={flow.summary.tomorrow}
 		years={flow.summary.years}
 	/>
