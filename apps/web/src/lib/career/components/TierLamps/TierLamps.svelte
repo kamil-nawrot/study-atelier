@@ -33,6 +33,7 @@
 					align={wide.current ? 'start' : 'end'}
 					bare
 					hover
+					placement="auto"
 					label={curiosity && !unlocked.seenAt
 						? `${m.career.tierOf(roman(level), name)}, ${m.career.newCuriosity}`
 						: m.career.tierOf(roman(level), name)}
