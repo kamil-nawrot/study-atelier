@@ -52,7 +52,6 @@
 		rankForm={data.careerShown === false
 			? undefined
 			: (shownMenuProfile(data.session.user.id)?.rankForm ?? 'masculine')}
-		streak={data.streak}
 	/>
 </AtelierLayout>
 
