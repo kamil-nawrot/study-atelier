@@ -518,14 +518,13 @@ function pinsRoute(route, request, url) {
 	if (entry) {
 		return json(
 			route,
-			ARTWORK_PINS.filter((row) => `eq.${row.glossary_entry_id}` === entry).map((row) => ({
-				id: row.id,
-				artwork_images: {
-					artwork_id: ARTWORKS.find((artwork) =>
-						artwork.artwork_images.some((image) => image.id === row.image_id)
-					).id
-				}
-			}))
+			ARTWORK_PINS.filter((row) => `eq.${row.glossary_entry_id}` === entry).map((row) => {
+				const artwork = ARTWORKS.find((candidate) =>
+					candidate.artwork_images.some((image) => image.id === row.image_id)
+				);
+				const image = artwork.artwork_images.find((candidate) => candidate.id === row.image_id);
+				return { ...row, artwork_images: { ...image, artwork_id: artwork.id } };
+			})
 		);
 	}
 	const recordNumber = url.searchParams.get('artwork_images.artworks.record_number');
@@ -614,6 +613,25 @@ async function mockSupabase(context) {
 		if (url.pathname.startsWith('/auth/v1/user')) return json(route, USER);
 		if (url.pathname.startsWith('/auth/v1/')) {
 			return json(route, { ...fakeSession(), user: USER });
+		}
+		if (url.pathname === '/storage/v1/object/sign/artwork-images' && request.method() === 'POST') {
+			const { paths = [] } = request.postDataJSON() ?? {};
+			return json(
+				route,
+				paths.map((path) => ({
+					path,
+					signedURL: `/object/sign/artwork-images/${path}?token=mock`,
+					error: null
+				}))
+			);
+		}
+		if (url.pathname.startsWith('/storage/v1/object/sign/')) {
+			return route.fulfill({
+				status: 200,
+				contentType: 'image/svg+xml',
+				headers: corsHeaders(),
+				body: imageSvg(url.pathname, 1, 1)
+			});
 		}
 		if (url.pathname.startsWith('/storage/v1/')) return json(route, []);
 		if (url.pathname === '/rest/v1/rpc/value_usage') {

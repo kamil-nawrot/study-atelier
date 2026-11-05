@@ -35,6 +35,34 @@ const row = {
 	text: null
 };
 
+function entryPinRow(
+	id: string,
+	artworkId: string,
+	extra: { view_width?: number; crop_path?: string } = {}
+): Record<string, unknown> {
+	return {
+		id,
+		x: 0.4,
+		y: 0.6,
+		text: 'Apsyda',
+		view_width: extra.view_width ?? null,
+		crop_path: extra.crop_path ?? null,
+		artwork_images: {
+			id: 'image-1',
+			artwork_id: artworkId,
+			source_wikidata_id: null,
+			source_image_file: null,
+			source_image_licence: null,
+			source_image_licence_url: null,
+			source_image_attribution: null,
+			own_image_path: 'owner/main.jpg',
+			own_image_url: null,
+			image_width: 800,
+			image_height: 600
+		}
+	};
+}
+
 describe('pin data', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -220,9 +248,9 @@ describe('pin data', () => {
 	it('finds the first pin of every artwork with a glossary entry', async () => {
 		query.order.mockReturnValueOnce(query).mockResolvedValueOnce({
 			data: [
-				{ id: 'pin-1', artwork_images: { artwork_id: 'artwork-1' } },
-				{ id: 'pin-2', artwork_images: { artwork_id: 'artwork-2' } },
-				{ id: 'pin-3', artwork_images: { artwork_id: 'artwork-1' } }
+				entryPinRow('pin-1', 'artwork-1'),
+				entryPinRow('pin-2', 'artwork-2'),
+				entryPinRow('pin-3', 'artwork-1')
 			],
 			error: null
 		});
@@ -231,9 +259,38 @@ describe('pin data', () => {
 			pins: [
 				{ artworkId: 'artwork-1', pinId: 'pin-1' },
 				{ artworkId: 'artwork-2', pinId: 'pin-2' }
-			]
+			],
+			fragments: []
 		});
 		expect(query.eq).toHaveBeenCalledWith('glossary_entry_id', 'term-1');
+	});
+
+	it('keeps every pin of a glossary entry with a loupe view as a fragment', async () => {
+		query.order.mockReturnValueOnce(query).mockResolvedValueOnce({
+			data: [
+				entryPinRow('pin-1', 'artwork-1', { view_width: 0.1, crop_path: 'owner/pin-1-crop-a.jpg' }),
+				entryPinRow('pin-2', 'artwork-1', { view_width: 0.2 }),
+				entryPinRow('pin-3', 'artwork-2')
+			],
+			error: null
+		});
+
+		const { fragments } = await loadEntryPins('term-1');
+
+		expect(fragments).toEqual([
+			{
+				pinId: 'pin-1',
+				artworkId: 'artwork-1',
+				x: 0.4,
+				y: 0.6,
+				viewWidth: 0.1,
+				text: 'Apsyda',
+				image: { kind: 'upload', path: 'owner/main.jpg', width: 800, height: 600, id: 'image-1' },
+				cropPath: 'owner/pin-1-crop-a.jpg'
+			},
+			expect.objectContaining({ pinId: 'pin-2', viewWidth: 0.2 })
+		]);
+		expect(fragments[1]).not.toHaveProperty('cropPath');
 	});
 
 	it('reports a failure to find the pins of a glossary entry', async () => {
@@ -243,6 +300,7 @@ describe('pin data', () => {
 
 		await expect(loadEntryPins('term-1')).resolves.toEqual({
 			pins: [],
+			fragments: [],
 			error: m.common.network
 		});
 	});
