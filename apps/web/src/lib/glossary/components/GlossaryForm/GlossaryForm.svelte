@@ -15,6 +15,7 @@
 	import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
+	import { LiveErrors } from '#lib/shared/forms/live-errors/live-errors.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
 	import { resolve } from '$app/paths';
@@ -57,8 +58,6 @@
 	const initial = (): GlossaryDraft => (existing ? draftOf(existing) : emptyDraft());
 
 	let form = $state<GlossaryDraft>(initial());
-	let nameError = $state<string>();
-	let categoryError = $state<string>();
 
 	const formState = new FormState<GlossaryDraft>(initial());
 	const definition = new DefinitionSearch(() => form);
@@ -75,27 +74,28 @@
 
 	function chooseCategory(value: string | null): void {
 		form.category = isGlossaryCategory(value) ? value : null;
-		categoryError = undefined;
 	}
 
 	export function confirmLeave(): Promise<boolean> {
 		return changes.confirmLeave();
 	}
 
-	function validate(name: string): boolean {
-		nameError = !name
-			? m.valueForm.nameRequired
-			: findNameConflict(entries, name, existing?.id)
-				? m.glossary.form.nameTaken(name)
-				: undefined;
-		categoryError = form.category ? undefined : m.glossary.form.categoryRequired;
-		return !nameError && !categoryError;
-	}
+	const errors = new LiveErrors<{ name?: string; category?: string }>(() => {
+		const name = form.name.trim();
+		return {
+			name: !name
+				? m.valueForm.nameRequired
+				: findNameConflict(entries, name, existing?.id)
+					? m.glossary.form.nameTaken(name)
+					: undefined,
+			category: form.category ? undefined : m.glossary.form.categoryRequired
+		};
+	});
 
 	function submit(): Promise<void> {
 		return formState.run(async () => {
 			const name = form.name.trim();
-			if (!validate(name)) return;
+			if (!errors.check()) return;
 			const snapshot = $state.snapshot(form);
 			const result = await saveGlossaryEntry(
 				{
@@ -107,7 +107,7 @@
 				existing?.id
 			);
 			if (result.nameTaken) {
-				nameError = m.glossary.form.nameTaken(name);
+				errors.add({ name: m.glossary.form.nameTaken(name) }, () => form.name.trim());
 				return;
 			}
 			if (result.error || !result.id) {
@@ -129,7 +129,7 @@
 			<div class="name">
 				<TextField
 					autocomplete="off"
-					error={nameError}
+					error={errors.current.name}
 					label={m.common.name}
 					maxlength={NAME_MAX_LENGTH}
 					placeholder={m.glossary.form.namePlaceholder}
@@ -165,8 +165,8 @@
 					options={tiles}
 					value={form.category}
 				/>
-				{#if categoryError}
-					<span class="error">{categoryError}</span>
+				{#if errors.current.category}
+					<span class="error">{errors.current.category}</span>
 				{/if}
 			</div>
 

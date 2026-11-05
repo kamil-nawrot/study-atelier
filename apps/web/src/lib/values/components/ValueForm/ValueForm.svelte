@@ -23,6 +23,7 @@
 	import { eraName } from '#lib/catalogue/eras/eras.ts';
 	import { isPlaceType, placeTiles } from '#lib/catalogue/place-types/place-types.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
+	import { LiveErrors } from '#lib/shared/forms/live-errors/live-errors.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { saveValueForm } from '#lib/values/value-form-save/value-form-save.ts';
 	import {
@@ -65,8 +66,6 @@
 
 	let form = $state<ValueFormFields>(initialForm());
 	let created = $state<ValueSubject>();
-	let nameError = $state<string>();
-	let authorErrors = $state<AuthorFieldErrors>({});
 	let moveTo = $state('');
 	let moveOpen = $state(false);
 	let moveError = $state<string>();
@@ -83,6 +82,15 @@
 	let creating = $derived(record?.id === '');
 	let change = $derived(record ? planNameChange(record, form.name, index) : undefined);
 	let existing = $derived(change?.kind === 'merge' ? change.target : undefined);
+	const errors = new LiveErrors<{ name?: string; author?: AuthorFieldErrors }>(() => ({
+		name:
+			change?.kind === 'empty'
+				? m.valueForm.nameRequired
+				: creating && existing && kind
+					? m.valueForm.exists(kind.accusative, existing.name)
+					: undefined,
+		author: form.author ? validateAuthorForm(form.author) : undefined
+	}));
 	let mergeTarget = $derived(creating ? undefined : existing);
 	let eraMove = $derived(
 		record?.category === 'period'
@@ -112,14 +120,7 @@
 	function submit(): void {
 		if (formState.busy) return;
 		formState.error = '';
-		nameError =
-			change?.kind === 'empty'
-				? m.valueForm.nameRequired
-				: creating && existing && kind
-					? m.valueForm.exists(kind.accusative, existing.name)
-					: undefined;
-		authorErrors = form.author ? validateAuthorForm(form.author) : {};
-		if (nameError || Object.keys(authorErrors).length > 0) return;
+		if (!errors.check()) return;
 		if (needsMove) {
 			moveError = undefined;
 			moveOpen = true;
@@ -197,7 +198,7 @@
 				{#if record && kind}
 					<TextField
 						autocomplete="off"
-						error={nameError}
+						error={errors.current.name}
 						hint={mergeTarget
 							? m.valueForm.mergeHint(
 									kind.accusative,
@@ -229,7 +230,7 @@
 				{/if}
 
 				{#if form.author}
-					<AuthorLifeFields errors={authorErrors} bind:author={form.author} />
+					<AuthorLifeFields errors={errors.current.author ?? {}} bind:author={form.author} />
 				{/if}
 
 				{#if record?.category === 'period'}

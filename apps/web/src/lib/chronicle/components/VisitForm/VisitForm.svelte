@@ -12,6 +12,7 @@
 	import { suggestValues, valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
+	import { LiveErrors } from '#lib/shared/forms/live-errors/live-errors.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { saveVisit } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
@@ -71,7 +72,7 @@
 			: emptyVisitForm();
 
 	let form = $state<VisitFormState>(initial());
-	let errors = $state<VisitFormErrors>({});
+	const errors = new LiveErrors<VisitFormErrors>(() => validateVisitForm(form));
 
 	const formState = new FormState<VisitFormState>(initial());
 	const changes = new UnsavedChanges(
@@ -110,8 +111,7 @@
 
 	function submit(): Promise<void> {
 		return formState.run(async () => {
-			errors = validateVisitForm(form);
-			if (Object.keys(errors).length > 0) return;
+			if (!errors.check()) return;
 			const snapshot = $state.snapshot(form);
 			const draft = draftOfVisitForm(snapshot, kept);
 			const result = await saveVisit(draft, existing?.id);
@@ -129,7 +129,7 @@
 	<Form error={formState.error} errorTitle={m.chronicle.form.errorTitle} onsubmit={submit}>
 		<div class="fields">
 			<ValueField
-				error={errors.place}
+				error={errors.current.place}
 				hint={existing ? undefined : m.chronicle.form.placeHint}
 				label={m.chronicle.form.place}
 				maxlength={VALUE_NAME_MAX_LENGTH}
@@ -139,7 +139,12 @@
 				bind:values={form.place}
 			/>
 
-			<VisitDateField {errors} bind:day={form.day} bind:month={form.month} bind:year={form.year} />
+			<VisitDateField
+				errors={errors.current}
+				bind:day={form.day}
+				bind:month={form.month}
+				bind:year={form.year}
+			/>
 
 			<NotesEditor
 				hint={noteLinks ? m.artworkForm.notesLinkHint : undefined}
