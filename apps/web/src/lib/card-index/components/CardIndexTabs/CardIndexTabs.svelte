@@ -23,6 +23,7 @@
 	import { placeTypeIcon, placeTypeName } from '#lib/catalogue/place-types/place-types.ts';
 	import { formatDate } from '#lib/catalogue/years/years.ts';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { isSpan } from '#lib/timeline/event-page/event-page.ts';
 	import type { OwnField } from '#lib/card-index/types/own-field.ts';
 	import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 	import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
@@ -75,10 +76,6 @@
 		}))
 	);
 	let own = $derived({ fields: ownFields, error: ownFieldsError });
-
-	function isSpan(event: TimelineEvent): boolean {
-		return event.yearFrom !== null && event.yearFrom !== event.yearTo;
-	}
 
 	function chooseTab(next: string): void {
 		if (next !== tab) query = '';

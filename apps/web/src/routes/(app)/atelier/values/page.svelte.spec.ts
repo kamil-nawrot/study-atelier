@@ -148,7 +148,7 @@ describe('card index page', () => {
 		await expect.element(openValue('Athens', 2)).toBeVisible();
 	});
 
-	it('lists the timeline events by year with their dates and links to their edit forms', async () => {
+	it('lists the timeline events by year with their dates and links to their pages', async () => {
 		renderValues(
 			testCardIndex(),
 			undefined,
@@ -163,7 +163,7 @@ describe('card index page', () => {
 		const link = page.getByRole('link', {
 			name: m.cardIndex.openValue('Congress of Vienna', m.atelier.span(1814, 1815, false))
 		});
-		await expect.element(link).toHaveAttribute('href', '/atelier/timeline/events/event-1/edit');
+		await expect.element(link).toHaveAttribute('href', '/atelier/timeline/events/event-1');
 		await expect
 			.element(
 				page.getByRole('link', {
@@ -242,23 +242,15 @@ describe('card index page', () => {
 		expect(page.getByRole('searchbox').elements()).toHaveLength(0);
 	});
 
-	it('shows the learner own fields in their tab', async () => {
+	it('lists the learner own fields as links to their pages', async () => {
 		renderValues(testCardIndex(), undefined, testOwnFields());
 
 		await page.getByRole('tab', { name: m.cardIndex.tabs.own }).click();
 
-		await expect.element(page.getByRole('heading', { name: 'Motifs' })).toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: m.cardIndex.openValue('Motifs', '3 dzieła') }))
+			.toHaveAttribute('href', '/atelier/fields/motifs');
 		await expect.element(page.getByRole('button', { name: m.ownFields.add })).toBeVisible();
-	});
-
-	it('offers to add a value to a list field, also to one without values', async () => {
-		const [lecture, motifs] = testOwnFields();
-		renderValues(testCardIndex(), undefined, [{ ...lecture, values: [] }, motifs]);
-
-		await page.getByRole('tab', { name: m.cardIndex.tabs.own }).click();
-
-		await expect.element(page.getByText(m.ownFields.noValues)).toBeVisible();
-		expect(page.getByRole('button', { name: m.ownFields.addValue }).elements()).toHaveLength(2);
 	});
 
 	it('keeps the other tabs and says so in its tab when the own fields could not be loaded', async () => {

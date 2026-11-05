@@ -771,6 +771,8 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/timeline_events') {
 			if (request.method() === 'POST') return json(route, { id: TIMELINE_EVENTS[0].id }, 201);
 			if (request.method() === 'PATCH') return json(route, { id: TIMELINE_EVENTS[0].id });
+			const id = url.searchParams.get('id')?.replace(/^eq\./, '');
+			if (id) return json(route, TIMELINE_EVENTS.find((row) => row.id === id) ?? null);
 			return json(route, TIMELINE_EVENTS);
 		}
 		if (url.pathname === '/rest/v1/visits') return visitsRoute(route, request, url);

@@ -619,6 +619,19 @@ export const pl = {
 		back: 'Wróć do formularza',
 		confirm: 'Zapisz mimo to'
 	},
+	fieldTypeDialog: {
+		title: (count: number): string =>
+			count === 1 ? 'Usunąć wartość pola?' : 'Usunąć wartości pól?',
+		description: (names: string[], type: string | null): string => {
+			const target = type ? `typu „${type}”` : 'dzieł bez typu';
+			const listed = names.map((name) => `„${name}”`).join(', ');
+			return names.length === 1
+				? `Pole ${listed} nie dotyczy ${target}, więc jego wartość zostanie usunięta z tego dzieła.`
+				: `Pola ${listed} nie dotyczą ${target}, więc ich wartości zostaną usunięte z tego dzieła.`;
+		},
+		back: 'Wróć do formularza',
+		confirm: 'Usuń i zapisz'
+	},
 	duplicateDialog: {
 		title: 'Masz już takie dzieło',
 		description: (numbers: string, count: number, advice: string): string =>
@@ -1123,7 +1136,25 @@ export const pl = {
 		empty:
 			'Nie masz jeszcze żadnych własnych pól. Dodaj pole, aby zobaczyć je przy wszystkich swoich dziełach.',
 		intro:
-			'Własne pola to dodatkowe informacje, które będzie można uzupełniać przy dziełach. Każde z nich pojawi się przy edycji istniejących dzieł oraz przy dodawaniu nowych. Ich wypełnianie zawsze będzie opcjonalne.',
+			'Własne pola to dodatkowe informacje przy dziełach. Każde pole może dotyczyć wszystkich typów dzieł albo tylko wybranych.',
+		reorder: 'Zmień kolejność',
+		reorderDone: 'Gotowe',
+		reorderHint: 'W tej kolejności pola stoją w formularzu dzieła.',
+		moveFieldUp: (name: string): string => `Przesuń „${name}” wyżej`,
+		moveFieldDown: (name: string): string => `Przesuń „${name}” niżej`,
+		page: {
+			kind: 'Własne pole',
+			appliesTo: 'Dotyczy dzieł typu',
+			allTypes: 'Wszystkie typy',
+			noList: 'To pole nie ma listy wartości, wpisujesz je przy dziele.',
+			valueCount: (count: number): string =>
+				`${count} ${plural(count, { one: 'wartość', few: 'wartości', many: 'wartości' })}`,
+			notFoundTitle: 'Nie ma takiego pola',
+			notFound: 'Nie ma takiego pola ani wartości. Może zostały usunięte albo połączone z inną.',
+			valueKind: (field: string): string => `Wartość pola „${field}”`,
+			artworks: 'Dzieła z tą wartością',
+			noArtworks: 'Żadne dzieło nie ma jeszcze tej wartości.'
+		},
 		add: 'Dodaj pole',
 		kinds: {
 			text: 'Tekst',
@@ -1146,9 +1177,6 @@ export const pl = {
 		values: 'Wartości',
 		search: (name: string): string => `Szukaj w polu „${name}”`,
 		ticked: 'Tak',
-		menu: (name: string): string => `Działania pola „${name}”`,
-		moveUp: 'Przesuń wyżej',
-		moveDown: 'Przesuń niżej',
 		form: {
 			newTitle: 'Nowe pole',
 			description: 'Opis (opcjonalnie)',
@@ -1157,6 +1185,14 @@ export const pl = {
 			kind: 'Rodzaj',
 			kindFixed: 'Wybranego rodzaju nie będzie można zmienić po utworzeniu pola.',
 			multiple: 'Dzieło może mieć kilka wartości',
+			limited: 'Tylko dla wybranych typów dzieł',
+			types: 'Typy dzieł',
+			typesHint: 'Pole pojawi się tylko przy dziełach tych typów.',
+			typesRequired: 'Wybierz co najmniej jeden typ dzieł.',
+			narrowTitle: 'Część wartości zniknie',
+			narrowDescription: (count: number): string =>
+				`Pole jest uzupełnione w ${count} ${plural(count, { one: 'dziele, które nie ma', few: 'dziełach, które nie mają', many: 'dziełach, które nie mają' })} żadnego z wybranych typów. Po zapisaniu te wartości zostaną usunięte.`,
+			narrowConfirm: 'Usuń wartości i zapisz',
 			creating: 'Dodawanie…',
 			errorTitle: 'Nie udało się zapisać pola'
 		},

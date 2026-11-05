@@ -8,7 +8,8 @@ import type { OwnFieldInput } from '#lib/card-index/types/own-field-input.ts';
 import type { OwnFieldKind } from '#lib/card-index/types/own-field-kind.ts';
 import type { OwnValue } from '#lib/card-index/types/own-value.ts';
 import type { OwnValueChange } from '#lib/card-index/types/own-value-change.ts';
-import { OWN_FIELD_KINDS } from '#lib/card-index/own-fields/own-fields.ts';
+import { OWN_FIELD_KINDS, chosenTypes } from '#lib/card-index/own-fields/own-fields.ts';
+import { isArtworkTypeCode } from '#lib/catalogue/artwork-types/artwork-types.ts';
 
 type OwnFieldDefinitionsResult = {
 	fields: OwnFieldDefinition[];
@@ -26,6 +27,7 @@ type FieldRow = {
 	description: string | null;
 	kind: string;
 	multiple: boolean;
+	type_codes: string[];
 };
 
 type UsageRow = { field_id: string; artwork_count: number };
@@ -42,7 +44,8 @@ function definitionOf(row: FieldRow): OwnFieldDefinition {
 		name: row.name,
 		description: row.description,
 		kind: row.kind as OwnFieldKind,
-		multiple: row.multiple
+		multiple: row.multiple,
+		typeCodes: (row.type_codes ?? []).filter(isArtworkTypeCode)
 	};
 }
 
@@ -52,7 +55,7 @@ function fieldsQuery(): PromiseLike<{
 }> {
 	return supabase
 		.from('artwork_fields')
-		.select('id, name, description, kind, multiple')
+		.select('id, name, description, kind, multiple, type_codes')
 		.order('position');
 }
 
@@ -106,21 +109,38 @@ export function createOwnField(input: OwnFieldInput): Promise<ActionResult> {
 			name: input.name.trim(),
 			description: cleanDescription(input.description),
 			kind: input.kind,
-			multiple: input.kind === 'list' && input.multiple
+			multiple: input.kind === 'list' && input.multiple,
+			type_codes: chosenTypes(input)
 		})
 	);
 }
 
 export function updateOwnField(
 	field: OwnField,
-	input: Pick<OwnFieldInput, 'name' | 'description'>
+	input: Pick<OwnFieldInput, 'name' | 'description' | 'limited' | 'typeCodes'>
 ): Promise<ActionResult> {
 	return run(
 		supabase
 			.from('artwork_fields')
-			.update({ name: input.name.trim(), description: cleanDescription(input.description) })
+			.update({
+				name: input.name.trim(),
+				description: cleanDescription(input.description),
+				type_codes: chosenTypes(input)
+			})
 			.eq('id', field.id)
 	);
+}
+
+export async function countArtworksOutsideTypes(
+	field: OwnField,
+	input: Pick<OwnFieldInput, 'limited' | 'typeCodes'>
+): Promise<{ count: number; error?: string }> {
+	const { data, error } = await supabase.rpc('artwork_field_type_impact', {
+		target_field: field.id,
+		type_codes: chosenTypes(input)
+	});
+	if (error) return { count: 0, error: await failureMessage(error, cardIndexErrorMessage) };
+	return { count: data ?? 0 };
 }
 
 export function moveOwnField(field: OwnField, direction: -1 | 1): Promise<ActionResult> {

@@ -467,9 +467,30 @@ describe('add artwork page', () => {
 
 	it('shows the own fields after the place and saves what the learner filled in', async () => {
 		const fields: OwnFieldDefinition[] = [
-			{ id: 'lecture', name: 'Lecture', description: null, kind: 'list', multiple: false },
-			{ id: 'source', name: 'Source', description: 'Book and page', kind: 'text', multiple: false },
-			{ id: 'seen', name: 'Seen in person', description: null, kind: 'flag', multiple: false }
+			{
+				id: 'lecture',
+				name: 'Lecture',
+				description: null,
+				kind: 'list',
+				multiple: false,
+				typeCodes: []
+			},
+			{
+				id: 'source',
+				name: 'Source',
+				description: 'Book and page',
+				kind: 'text',
+				multiple: false,
+				typeCodes: []
+			},
+			{
+				id: 'seen',
+				name: 'Seen in person',
+				description: null,
+				kind: 'flag',
+				multiple: false,
+				typeCodes: []
+			}
 		];
 		renderPage(emptyValueLinks(), emptyPlaceStarter(), fields, { lecture: ['Baroque class'] });
 		await fillRequired();
