@@ -1135,7 +1135,25 @@ export const pl = {
 		empty:
 			'Nie masz jeszcze żadnych własnych pól. Dodaj pole, aby zobaczyć je przy wszystkich swoich dziełach.',
 		intro:
-			'Własne pola to dodatkowe informacje, które będzie można uzupełniać przy dziełach. Każde z nich pojawi się przy edycji istniejących dzieł oraz przy dodawaniu nowych. Ich wypełnianie zawsze będzie opcjonalne.',
+			'Własne pola to dodatkowe informacje przy dziełach. Każde pole może dotyczyć wszystkich typów dzieł albo tylko wybranych.',
+		reorder: 'Zmień kolejność',
+		reorderDone: 'Gotowe',
+		reorderHint: 'W tej kolejności pola stoją w formularzu dzieła.',
+		moveFieldUp: (name: string): string => `Przesuń „${name}” wyżej`,
+		moveFieldDown: (name: string): string => `Przesuń „${name}” niżej`,
+		page: {
+			kind: 'Własne pole',
+			appliesTo: 'Dotyczy dzieł typu',
+			allTypes: 'Wszystkie typy',
+			noList: 'To pole nie ma listy wartości, wpisujesz je przy dziele.',
+			valueCount: (count: number): string =>
+				`${count} ${plural(count, { one: 'wartość', few: 'wartości', many: 'wartości' })}`,
+			notFoundTitle: 'Nie ma takiego pola',
+			notFound: 'Nie ma takiego pola ani wartości. Może zostały usunięte albo połączone z inną.',
+			valueKind: (field: string): string => `Wartość pola „${field}”`,
+			artworks: 'Dzieła z tą wartością',
+			noArtworks: 'Żadne dzieło nie ma jeszcze tej wartości.'
+		},
 		add: 'Dodaj pole',
 		kinds: {
 			text: 'Tekst',
@@ -1158,9 +1176,6 @@ export const pl = {
 		values: 'Wartości',
 		search: (name: string): string => `Szukaj w polu „${name}”`,
 		ticked: 'Tak',
-		menu: (name: string): string => `Działania pola „${name}”`,
-		moveUp: 'Przesuń wyżej',
-		moveDown: 'Przesuń niżej',
 		form: {
 			newTitle: 'Nowe pole',
 			description: 'Opis (opcjonalnie)',
