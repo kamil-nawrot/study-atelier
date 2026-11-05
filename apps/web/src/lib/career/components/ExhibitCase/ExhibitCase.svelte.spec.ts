@@ -33,7 +33,8 @@ describe('ExhibitCase', () => {
 			.toHaveTextContent(m.career.exhibits.collection.name);
 		await expect.element(page.getByText(m.career.tier('II', 'V'))).toBeInTheDocument();
 		expect(document.querySelector('.numeral')?.textContent).toBe('II');
-		await expect.element(page.getByText(m.career.exhibits.collection.count(24, 50))).toBeVisible();
+		await expect.element(page.getByText(m.career.exhibits.collection.count(50))).toBeVisible();
+		expect(document.querySelector('.caption strong')?.textContent).toBe('24');
 		await expect
 			.element(page.getByRole('meter', { name: m.career.exhibits.collection.name }))
 			.toHaveAttribute('aria-valuemax', '50');
@@ -75,7 +76,10 @@ describe('ExhibitCase', () => {
 	it('says when the top tier is reached', async () => {
 		render(ExhibitCase, { props: { exhibit: exhibit({ value: 300 }) } });
 
-		await expect.element(page.getByText(m.career.exhibits.collection.count(300))).toBeVisible();
+		await expect.element(page.getByText(m.career.exhibits.collection.count())).toBeVisible();
+		expect(m.career.exhibits.collection.count()).toBe('dzieł w atelier');
+		expect(m.career.exhibits.collection.count(50)).toBe('z 50 dzieł w atelier');
+		expect(m.career.exhibits.regular.count(30)).toBe('z 30 dni w najdłuższej serii powtórek');
 		await expect.element(page.getByRole('meter')).not.toBeInTheDocument();
 	});
 

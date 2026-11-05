@@ -36,9 +36,7 @@
 	let hidden = $derived(isHidden(exhibit));
 	let metal = $derived(metalOf(tier, total));
 	let name = $derived(hidden ? m.career.hiddenName : texts.name);
-	let summary = $derived(
-		hidden ? texts.hint : texts.count ? texts.count(exhibit.value, next) : texts.awarded
-	);
+	let summary = $derived(hidden ? texts.hint : texts.count ? undefined : texts.awarded);
 </script>
 
 <article class="exhibit">
@@ -83,6 +81,8 @@
 		{/if}
 		{#if summary}
 			<p class="caption">{summary}</p>
+		{:else if texts.count && !hidden}
+			<p class="caption"><strong>{exhibit.value}</strong> {texts.count(next)}</p>
 		{/if}
 	</div>
 </article>

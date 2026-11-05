@@ -3,5 +3,5 @@ export type ExhibitTexts = {
 	about: string;
 	hint?: string;
 	awarded?: string;
-	count?: (value: number, next?: number) => string;
+	count?: (next?: number) => string;
 };

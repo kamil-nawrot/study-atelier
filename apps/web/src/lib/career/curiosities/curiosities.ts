@@ -44,7 +44,7 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 		'https://www.phillipscollection.org/blog/2019-01-29-rodins-gates-hell',
 		'https://www.wattstowers.org/about-us',
 		'https://www.facteurcheval.com/en/history/',
-		'https://www.duomomilano.it/en/art-and-culture/the-cathedral/',
+		'https://sagradafamilia.org/en/history-of-the-temple',
 		'https://www.koelner-dom.de/erleben/geschichte'
 	],
 	back_from_storage: [
