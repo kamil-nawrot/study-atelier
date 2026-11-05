@@ -2,6 +2,35 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.19.0] - 2026-11-05
+
+The review asks about the whole atelier, not only the artworks of the day: when an artwork was made, in what order, which term is missing from the learner's own note and what an artwork is called, typed from memory.
+
+### Added
+
+- "Kiedy powstało to dzieło?": the learner guesses the year of an artwork on a slider along its era and sees the true years and the guess on the era's axis; the year of each artwork has its own review schedule.
+- "W jakiej kolejności powstały te dzieła?": the learner drags four artworks into order from the oldest to the newest.
+- Two to four year and order questions are added to a session on top of its artworks, switched on under "Rok powstania i kolejność dzieł" in the review settings (off by default).
+- "Jakiego pojęcia brakuje w Twojej notatce?": once a session, the passage of the learner's own note with a glossary term hidden and four terms to choose from, switched on under "Luka w Twoich notatkach" (off by default).
+- "Jak nazywa się to dzieło?": every third settled artwork is named by typing the start of its title and picking it from suggestions with their authors, as the quiz kind "Wpisywanie tytułu dzieła z pamięci" (on by default for new accounts only).
+- Two exhibits in "Ekspozycja": "Strzała putta" for exact hits in the year question, and the hidden "Paszcza prawdy" for the first idea sent through "Zgłoś uwagę".
+
+### Changed
+
+- The review start shows the streak as a large number of days in a row with the last seven days, and the round summary leads with the result ("19 dzieł powtórzonych w 12 minut"), the right answers of the extra questions and how many artworks wait tomorrow, with new exhibits and ranks beside them.
+- The settings share one section pattern: "Powtórki" is split into "Sesja", "Quizy" and "Pytania dodatkowe", the glossary questions are switched on there instead of at the review start, and "Pokazuj stopień i Ekspozycję" moves to "Profil".
+- Every exhibit is named and described after what its engraving shows, its counter reads like "191 z 250 dzieł w atelier", and every curiosity says what its subject is before the fact.
+- The image column of the artwork form stays in view while the form scrolls.
+- Internal: a check that a new migration is newer than the newest on the base branch, the list padding reset in the library's base styles, and a code review of the version with its fixes.
+
+### Fixed
+
+- Leaving a running review session through the menu asks first ("Przerwać teraz?"), as the stop button does.
+
+### Migrations run on production
+
+11 migrations run on production with this release. `20261104090000_date_review_facet` lets review cards and answers have the facet `date`, adds `record_right_answer` and the `answers` points, and replaces `record_review`, `review_counts`, `review_streak` and the career functions with the same signatures. `20261104100000_review_time_questions` replaces `review_session` with a version that takes an optional `time_questions`, so the 0.18 app's call without it still works. `20261104110000_bullseye_exhibit` adds the guessed year to review answers and the "Strzała putta" exhibit. `20261104150000_review_time_questions_preference`, `20261105120000_note_gap_question` and `20261105140000_review_glossary_on` add the review switches to profiles (the glossary one on by default), and the second adds `note_gap_artwork`. `20261105090000_typed_title_quiz` allows the typed title answer and makes it a default quiz kind, and `20261105110000_typed_title_for_new_accounts` takes it back out of existing profiles, so they end as they were. `20261105130000_exhibit_tier_counts` adds the number of tiers to unlocked tiers and fills it for existing rows. `20261105150000_mouth_of_truth_exhibit` adds the "Paszcza prawdy" exhibit, and `20261105160000_simplify_review_draws` replaces `review_session` and `note_gap_artwork` with the same signatures.
+
 ## [0.18.0] - 2026-11-03
 
 The atelier gets a statistics view of the whole collection, opened from the artwork count on the wall, and the review can be narrowed to the artworks seen in person.
@@ -714,3 +743,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.16.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.16.0
 [0.17.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.17.0
 [0.18.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.18.0
+[0.19.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.19.0
