@@ -7,6 +7,9 @@ import { pinErrorMessage } from '#lib/pins/errors/errors.ts';
 import { MAX_PIN_TEXT } from '#lib/pins/pin-limits/pin-limits.ts';
 import type { Pin } from '#lib/pins/types/pin.ts';
 import type { EntryPin } from '#lib/pins/types/entry-pin.ts';
+import type { PinFragment } from '#lib/pins/types/pin-fragment.ts';
+import { IMAGE_COLUMNS, imageOf } from '#lib/images/image-record/image-record.ts';
+import type { ImageRow } from '#lib/images/types/image-row.ts';
 
 type PinDraft = {
 	x: number;
@@ -32,8 +35,15 @@ type PinActionResult = {
 
 type EntryPinsResult = {
 	pins: EntryPin[];
+	fragments: PinFragment[];
 	error?: string;
 };
+
+type EntryPinRow = Pick<Row, 'id' | 'x' | 'y' | 'text' | 'view_width' | 'crop_path'> & {
+	artwork_images: ImageRow & { id: string; artwork_id: string };
+};
+
+const ENTRY_PIN_COLUMNS = `id, x, y, text, view_width, crop_path, artwork_images!inner(id, artwork_id, ${IMAGE_COLUMNS.join(', ')})`;
 
 type Row = Database['public']['Tables']['artwork_pins']['Row'];
 
@@ -143,15 +153,30 @@ export async function deletePin(id: string): Promise<PinActionResult> {
 export async function loadEntryPins(entryId: string): Promise<EntryPinsResult> {
 	const { data, error } = await supabase
 		.from('artwork_pins')
-		.select('id, artwork_images!inner(artwork_id)')
+		.select(ENTRY_PIN_COLUMNS)
 		.eq('glossary_entry_id', entryId)
 		.order('created_at')
 		.order('id');
-	if (error) return { pins: [], error: pinErrorMessage(error) };
+	if (error) return { pins: [], fragments: [], error: pinErrorMessage(error) };
 	const firstPins = new Map<string, string>();
-	for (const row of data) {
+	const fragments: PinFragment[] = [];
+	for (const row of data as unknown as EntryPinRow[]) {
 		const artworkId = row.artwork_images.artwork_id;
 		if (!firstPins.has(artworkId)) firstPins.set(artworkId, row.id);
+		if (row.view_width === null) continue;
+		fragments.push({
+			pinId: row.id,
+			artworkId,
+			x: row.x,
+			y: row.y,
+			viewWidth: row.view_width,
+			text: row.text ?? '',
+			image: imageOf(row.artwork_images),
+			...(row.crop_path ? { cropPath: row.crop_path } : {})
+		});
 	}
-	return { pins: [...firstPins].map(([artworkId, pinId]) => ({ artworkId, pinId })) };
+	return {
+		pins: [...firstPins].map(([artworkId, pinId]) => ({ artworkId, pinId })),
+		fragments
+	};
 }
