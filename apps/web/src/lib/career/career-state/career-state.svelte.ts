@@ -23,6 +23,7 @@ export class CareerState {
 	#requests = 0;
 	#refreshedAt: number | undefined;
 	#wrote = false;
+	#pending: Promise<void> | undefined;
 
 	forLearner(owner: string | undefined): void {
 		if (owner === this.#owner) return;
@@ -44,7 +45,13 @@ export class CareerState {
 		void this.refresh({ now });
 	}
 
-	async refresh({ counted = false, now = Date.now() } = {}): Promise<void> {
+	refresh({ counted = false, now = Date.now() } = {}): Promise<void> {
+		const pending = this.#load(counted, now);
+		this.#pending = pending;
+		return pending;
+	}
+
+	async #load(counted: boolean, now: number): Promise<void> {
 		const request = ++this.#requests;
 		this.#refreshedAt = now;
 		this.#wrote = false;
@@ -57,6 +64,7 @@ export class CareerState {
 	}
 
 	async markSeen(): Promise<void> {
+		if (!this.standing) await this.#pending;
 		if (!this.standing) await this.refresh({ counted: true });
 		const standing = this.standing;
 		if (!standing) return;
