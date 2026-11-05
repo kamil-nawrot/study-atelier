@@ -2,6 +2,28 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.19.1] - 2026-11-05
+
+Review rounds start and flashcards turn over quickly again with a large glossary, and the year and order questions, the round summary and "Ekspozycja" read more clearly.
+
+### Changed
+
+- While a round is being prepared, the button that started it reads "Przygotowywanie rundy…" and cannot be clicked again, on the review start and in the summary.
+- The year answer shows the real year or years under the axis, opposite the guess, with clearer bands of "Prawie" and "Wiem" in the dark theme, and the result reads only the verdict ("Blisko.") and how far the guess was.
+- The four artworks of the order question hang from the "Najstarsze – Najnowsze" line, and the keyboard hint is left to screen readers.
+- The name of a new exhibit in the round summary leads to "Ekspozycja".
+- The "Nowe" badge of an exhibit sits in the top right corner of its engraving.
+
+### Fixed
+
+- Starting a round with "Luka w Twoich notatkach" on took several seconds with a large glossary; finding the note now takes a fraction of that.
+- "Odkryj kartę" took seconds with a large glossary; the terms of the note are marked many times faster.
+- A curiosity opened from an exhibit in the last row no longer stretches the page: it opens above its lamp when there is no room below.
+
+### Migrations run on production
+
+1 migration runs on production with this release and changes no existing data: `20261105170000_note_gap_one_pattern` replaces `note_gap_artwork` with the same signature and result, matching each note once against all glossary phrases, so the 0.19.0 app keeps working.
+
 ## [0.19.0] - 2026-11-05
 
 The review asks about the whole atelier, not only the artworks of the day: when an artwork was made, in what order, which term is missing from the learner's own note and what an artwork is called, typed from memory.
@@ -744,3 +766,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.17.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.17.0
 [0.18.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.18.0
 [0.19.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.19.0
+[0.19.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.19.1
