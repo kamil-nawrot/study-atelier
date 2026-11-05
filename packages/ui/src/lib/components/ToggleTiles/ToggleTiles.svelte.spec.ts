@@ -63,4 +63,23 @@ describe('ToggleTiles', () => {
 		await vi.waitFor(() => expect(top('Third 5')).toBeGreaterThan(top('First to 100 3')));
 		expect(top('Second 100–200 0')).toBe(top('First to 100 3'));
 	});
+
+	it('uses fewer columns in a narrow container when told to', async () => {
+		const four = [...options, { value: 'four', label: 'Fourth', count: 1 }];
+		const top = (name: string): number =>
+			page.getByRole('checkbox', { name }).element().getBoundingClientRect().top;
+		const box = document.createElement('div');
+		box.style.width = '320px';
+		document.body.append(box);
+
+		render(ToggleTiles, {
+			target: box,
+			props: { label: 'Type', options: four, columns: 4, narrowColumns: 2 }
+		});
+
+		await expect.element(page.getByRole('checkbox', { name: 'Fourth 1' })).toBeVisible();
+		expect(top('Second 100–200 0')).toBe(top('First to 100 3'));
+		expect(top('Third 5')).toBeGreaterThan(top('First to 100 3'));
+		box.remove();
+	});
 });

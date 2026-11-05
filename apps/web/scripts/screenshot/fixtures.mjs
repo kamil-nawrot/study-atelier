@@ -977,28 +977,32 @@ export const OWN_FIELDS = [
 		name: 'Wykład',
 		description: null,
 		kind: 'list',
-		multiple: false
+		multiple: false,
+		type_codes: []
 	},
 	{
 		id: '00000000-0000-4000-8000-000000000402',
 		name: 'Motywy',
 		description: 'Co przedstawia dzieło',
 		kind: 'list',
-		multiple: true
+		multiple: true,
+		type_codes: ['painting', 'sculpture']
 	},
 	{
 		id: '00000000-0000-4000-8000-000000000403',
 		name: 'Źródło',
 		description: 'Podręcznik i strona',
 		kind: 'text',
-		multiple: false
+		multiple: false,
+		type_codes: []
 	},
 	{
 		id: '00000000-0000-4000-8000-000000000404',
 		name: 'Widziane na żywo',
 		description: null,
 		kind: 'flag',
-		multiple: false
+		multiple: false,
+		type_codes: []
 	}
 ];
 

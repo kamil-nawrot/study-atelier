@@ -2,6 +2,7 @@ import { ARTWORK_TYPE_CODES } from '#lib/catalogue/artwork-types/artwork-types.t
 import { authorSortKeys, sortKeyOf } from '#lib/catalogue/author-sort/author-sort.ts';
 import { ERA_CODES } from '#lib/catalogue/eras/eras.ts';
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
+import { fieldApplies } from '#lib/card-index/own-fields/own-fields.ts';
 import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
 import type { FilterField } from '#lib/catalogue/types/filter-field.ts';
@@ -216,6 +217,20 @@ export function ownFilterOptions(
 	}
 	for (const value of filter.own[fieldId] ?? []) counts.set(value, counts.get(value) ?? 0);
 	return [...counts].map(([value, count]) => ({ value, count })).sort(byCountAndName);
+}
+
+export function fieldsForTypes(
+	fields: readonly OwnFieldDefinition[],
+	filter: CollectionFilter
+): OwnFieldDefinition[] {
+	return fields.filter(
+		(field) =>
+			filter.types.length === 0 ||
+			filter.types.some((code) => fieldApplies(field, code)) ||
+			(filter.own[field.id] ?? []).length > 0 ||
+			(filter.ownTexts[field.id] ?? '') !== '' ||
+			filter.ticked.includes(field.id)
+	);
 }
 
 export function tickedOptions(

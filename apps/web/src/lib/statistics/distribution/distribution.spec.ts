@@ -12,7 +12,8 @@ const technique: OwnFieldDefinition = {
 	name: 'Technika',
 	description: null,
 	kind: 'list',
-	multiple: true
+	multiple: true,
+	typeCodes: []
 };
 
 const artworks = [

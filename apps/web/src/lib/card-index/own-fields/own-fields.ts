@@ -1,7 +1,10 @@
 import { m } from '#lib/i18n/i18n.ts';
 import { compareSortKeys } from '#lib/catalogue/author-sort/author-sort.ts';
 import { valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
+import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
 import type { OwnField } from '#lib/card-index/types/own-field.ts';
+import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
+import type { OwnFieldInput } from '#lib/card-index/types/own-field-input.ts';
 import type { OwnFieldKind } from '#lib/card-index/types/own-field-kind.ts';
 import type { OwnValue } from '#lib/card-index/types/own-value.ts';
 import type { OwnValueChange } from '#lib/card-index/types/own-value-change.ts';
@@ -54,6 +57,28 @@ export function fieldNameError(
 	);
 	if (own) return m.ownFields.errors.ownName(own.name);
 	return undefined;
+}
+
+export function chosenTypes(
+	input: Pick<OwnFieldInput, 'limited' | 'typeCodes'>
+): ArtworkTypeCode[] {
+	return input.limited ? [...input.typeCodes] : [];
+}
+
+export function fieldApplies(
+	field: Pick<OwnFieldDefinition, 'typeCodes'>,
+	typeCode: ArtworkTypeCode | '' | null
+): boolean {
+	return field.typeCodes.length === 0 || (!!typeCode && field.typeCodes.includes(typeCode));
+}
+
+export function narrowsTypes(
+	field: Pick<OwnFieldDefinition, 'typeCodes'>,
+	input: Pick<OwnFieldInput, 'limited' | 'typeCodes'>
+): boolean {
+	const next = chosenTypes(input);
+	if (next.length === 0) return false;
+	return field.typeCodes.length === 0 || field.typeCodes.some((code) => !next.includes(code));
 }
 
 export function planOwnValueChange(

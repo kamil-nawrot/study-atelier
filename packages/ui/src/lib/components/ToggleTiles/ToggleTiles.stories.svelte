@@ -37,3 +37,5 @@
 />
 
 <Story name="Two columns" args={{ columns: 2 }} />
+
+<Story name="Fewer columns when narrow" args={{ columns: 4, narrowColumns: 2 }} />

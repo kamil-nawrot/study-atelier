@@ -19,6 +19,7 @@
 		ownFilterOptions,
 		setOwnText,
 		setYears,
+		fieldsForTypes,
 		tickedOptions,
 		toggleFavourites,
 		toggleSeen,
@@ -47,6 +48,7 @@
 
 	let { artworks, filter = $bindable(), ownFields = [] }: Props = $props();
 
+	let shownFields = $derived(fieldsForTypes(ownFields, filter));
 	let fieldNames = $derived(new Map(ownFields.map((field) => [field.id, field.name])));
 
 	let eraTilesWithCounts = $derived(withCounts(eraTiles(), 'eras'));
@@ -208,7 +210,7 @@
 		title={m.atelier.filters.fields.locations}
 	/>
 
-	{#each ownFields as field (field.id)}
+	{#each shownFields as field (field.id)}
 		{#if field.kind === 'list'}
 			<FilterValues
 				name={(value) => value}
@@ -239,7 +241,7 @@
 		name={(id) => fieldNames.get(id) ?? ''}
 		chosen={filter.ticked}
 		onchoose={(id) => (filter = toggleTicked(filter, id))}
-		options={tickedOptions(artworks, filter, ownFields)}
+		options={tickedOptions(artworks, filter, shownFields)}
 		title={m.atelier.filters.fields.ticked}
 	/>
 

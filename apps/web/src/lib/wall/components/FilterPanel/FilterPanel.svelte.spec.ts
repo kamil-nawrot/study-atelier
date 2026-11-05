@@ -278,10 +278,38 @@ describe('FilterPanel', () => {
 
 	it('offers the own fields after the places, with a search for a text and the ticks last', async () => {
 		const fields: OwnFieldDefinition[] = [
-			{ id: 'lecture', name: 'Lecture', description: null, kind: 'list', multiple: false },
-			{ id: 'source', name: 'Source', description: null, kind: 'text', multiple: false },
-			{ id: 'seen', name: 'Seen in person', description: null, kind: 'flag', multiple: false },
-			{ id: 'empty', name: 'Never filled', description: null, kind: 'text', multiple: false }
+			{
+				id: 'lecture',
+				name: 'Lecture',
+				description: null,
+				kind: 'list',
+				multiple: false,
+				typeCodes: []
+			},
+			{
+				id: 'source',
+				name: 'Source',
+				description: null,
+				kind: 'text',
+				multiple: false,
+				typeCodes: []
+			},
+			{
+				id: 'seen',
+				name: 'Seen in person',
+				description: null,
+				kind: 'flag',
+				multiple: false,
+				typeCodes: []
+			},
+			{
+				id: 'empty',
+				name: 'Never filled',
+				description: null,
+				kind: 'text',
+				multiple: false,
+				typeCodes: []
+			}
 		];
 		const withOwn = [
 			testArtwork(1, 'Mona Lisa', {

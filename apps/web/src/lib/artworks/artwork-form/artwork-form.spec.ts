@@ -5,8 +5,10 @@ import {
 	artworkInputFromForm,
 	canSearchImage,
 	emptyArtworkForm,
+	filledFieldsOutsideType,
 	formHasChanges,
-	parseYear
+	parseYear,
+	withoutFieldsOutsideType
 } from './artwork-form.ts';
 import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
 import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
@@ -152,9 +154,23 @@ describe('artworkFormFromRecord', () => {
 
 describe('own fields in the form', () => {
 	const fields: OwnFieldDefinition[] = [
-		{ id: 'lecture', name: 'Lecture', description: null, kind: 'list', multiple: false },
-		{ id: 'source', name: 'Source', description: null, kind: 'text', multiple: false },
-		{ id: 'seen', name: 'Seen', description: null, kind: 'flag', multiple: false }
+		{
+			id: 'lecture',
+			name: 'Lecture',
+			description: null,
+			kind: 'list',
+			multiple: false,
+			typeCodes: []
+		},
+		{
+			id: 'source',
+			name: 'Source',
+			description: null,
+			kind: 'text',
+			multiple: false,
+			typeCodes: []
+		},
+		{ id: 'seen', name: 'Seen', description: null, kind: 'flag', multiple: false, typeCodes: [] }
 	];
 
 	it('starts every own field empty when the fields are known', () => {
@@ -309,5 +325,54 @@ describe('year span in the form', () => {
 		expect(artworkInputFromForm(form)).toEqual(
 			expect.objectContaining({ yearFrom: null, fromBeforeCommonEra: false, yearTo: 20 })
 		);
+	});
+});
+
+describe('own fields limited to artwork types', () => {
+	const fields: OwnFieldDefinition[] = [
+		{
+			id: 'order',
+			name: 'Order',
+			description: null,
+			kind: 'list',
+			multiple: false,
+			typeCodes: ['architecture']
+		},
+		{
+			id: 'medium',
+			name: 'Medium',
+			description: null,
+			kind: 'text',
+			multiple: false,
+			typeCodes: ['painting']
+		},
+		{ id: 'seen', name: 'Seen', description: null, kind: 'flag', multiple: false, typeCodes: [] }
+	];
+
+	it('lists only the filled fields that do not apply to the chosen type', () => {
+		const own = { order: ['Doric'], medium: '', seen: true };
+
+		expect(filledFieldsOutsideType(own, fields, 'painting').map((field) => field.id)).toEqual([
+			'order'
+		]);
+		expect(filledFieldsOutsideType(own, fields, 'architecture')).toEqual([]);
+		expect(filledFieldsOutsideType(undefined, fields, 'painting')).toEqual([]);
+	});
+
+	it('treats a limited field as outside when no type is chosen', () => {
+		expect(
+			filledFieldsOutsideType({ order: ['Doric'] }, fields, '').map((field) => field.id)
+		).toEqual(['order']);
+	});
+
+	it('empties the entries of fields outside the type and keeps the rest', () => {
+		const own = { order: ['Doric'], medium: 'Oil', seen: true, gone: 'Deleted field' };
+
+		expect(withoutFieldsOutsideType(own, fields, 'painting')).toEqual({
+			order: [],
+			medium: 'Oil',
+			seen: true,
+			gone: 'Deleted field'
+		});
 	});
 });
