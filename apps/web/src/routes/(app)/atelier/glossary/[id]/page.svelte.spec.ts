@@ -294,7 +294,7 @@ describe('glossary entry page', () => {
 					number: 12,
 					title: 'Saint-Trophime',
 					text: 'Chrystus w mandorli',
-					thumbnail: { x: 0.5, y: 0.3, ratio: 1 }
+					thumbnail: { left: -450, top: -250, width: 1000, height: 1000 }
 				}
 			]
 		});

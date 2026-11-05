@@ -66,21 +66,16 @@
 						<span class="lens">
 							{#if fragment.crop && !failed.has(fragment.pinId)}
 								<img alt="" onerror={() => cropFailed(fragment)} src={fragment.crop} />
-							{:else}
-								<span
-									style:aspect-ratio={thumbnail.ratio}
-									class="whole"
-									class:tall={thumbnail.ratio < 1}
-								>
-									{#if thumbnail.src}
-										<img alt="" src={thumbnail.src} />
-									{/if}
-									<span
-										style:left="{thumbnail.x * 100}%"
-										style:top="{thumbnail.y * 100}%"
-										class="point"
-									></span>
-								</span>
+							{:else if thumbnail.src}
+								<img
+									style:left="{thumbnail.left}%"
+									style:top="{thumbnail.top}%"
+									style:width="{thumbnail.width}%"
+									style:height="{thumbnail.height}%"
+									class="view"
+									alt=""
+									src={thumbnail.src}
+								/>
 							{/if}
 							<svg class="ring" aria-hidden="true" viewBox="0 0 100 100">
 								<circle cx="50" cy="50" r="49" />
@@ -181,31 +176,17 @@
 		vector-effect: non-scaling-stroke;
 	}
 
-	.lens > img,
-	.whole img {
+	.lens > img {
 		display: block;
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
 	}
 
-	.whole {
-		position: relative;
-		width: 100%;
-	}
-
-	.whole.tall {
-		width: auto;
-		height: 100%;
-	}
-
-	.point {
+	.lens > img.view {
 		position: absolute;
-		width: var(--spacing-3);
-		height: var(--spacing-3);
-		border: var(--border-width-base) solid var(--color-mat-bg);
-		background: var(--color-mat-badge-bg);
-		translate: -50% -50%;
+		max-width: none;
+		object-fit: fill;
 	}
 
 	a:hover .ring,

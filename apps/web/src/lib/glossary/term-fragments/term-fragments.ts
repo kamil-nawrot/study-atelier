@@ -4,9 +4,11 @@ import { ownImageUrls } from '#lib/images/own-image-data/own-image-data.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { FragmentThumbnail } from '#lib/glossary/types/fragment-thumbnail.ts';
 import type { TermFragment } from '#lib/glossary/types/term-fragment.ts';
+import { pinCropRect } from '#lib/pins/pin-crop-rect/pin-crop-rect.ts';
 import type { PinFragment } from '#lib/pins/types/pin-fragment.ts';
 
-const THUMBNAIL_WIDTH = 320;
+const MEDIUM_WIDTH = 960;
+const SCALE = 1000;
 
 function thumbnailPath(fragment: PinFragment): string | undefined {
 	return fragment.image?.kind === 'upload' ? ownThumbnailPath(fragment.image.path) : undefined;
@@ -14,14 +16,17 @@ function thumbnailPath(fragment: PinFragment): string | undefined {
 
 function thumbnailOf(fragment: PinFragment, urls: Map<string, string>): FragmentThumbnail {
 	const path = thumbnailPath(fragment);
-	const src = path ? urls.get(path) : artworkImageSource(fragment.image, THUMBNAIL_WIDTH)?.src;
-	const width = fragment.image?.width;
-	const height = fragment.image?.height;
+	const src = path ? urls.get(path) : artworkImageSource(fragment.image, MEDIUM_WIDTH)?.src;
+	const { width, height } = fragment.image ?? {};
+	const imageWidth = width && height ? (SCALE * width) / height : SCALE;
+	const rect = pinCropRect(fragment, imageWidth, SCALE) ?? { left: 0, top: 0, side: SCALE };
+	const percent = (value: number): number => (100 * value) / rect.side;
 	return {
 		...(src ? { src } : {}),
-		x: fragment.x,
-		y: fragment.y,
-		ratio: width && height ? width / height : 1
+		left: -percent(rect.left),
+		top: -percent(rect.top),
+		width: percent(imageWidth),
+		height: percent(SCALE)
 	};
 }
 

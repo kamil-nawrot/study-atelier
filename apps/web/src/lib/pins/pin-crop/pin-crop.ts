@@ -1,28 +1,15 @@
 import { artworkImageSource, artworkLargeSource } from '#lib/images/artwork-image/artwork-image.ts';
 import { savePinCrop } from '#lib/pins/pin-crop-data/pin-crop-data.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
+import { pinCropRect } from '#lib/pins/pin-crop-rect/pin-crop-rect.ts';
 import type { Pin } from '#lib/pins/types/pin.ts';
 
 export const PIN_CROP_SIDE = 320;
 const PIN_CROP_QUALITY = 0.85;
 const FALLBACK_WIDTH = 960;
 
-type Rect = { left: number; top: number; side: number };
-
 const attempted = new Set<string>();
 let queue: Promise<void> = Promise.resolve();
-
-export function pinCropRect(
-	pin: Pick<Pin, 'x' | 'y' | 'viewWidth'>,
-	width: number,
-	height: number
-): Rect | undefined {
-	if (!pin.viewWidth || width <= 0 || height <= 0) return undefined;
-	const side = Math.max(1, Math.min(pin.viewWidth * width, width, height));
-	const clamp = (centre: number, extent: number): number =>
-		Math.min(Math.max(centre - side / 2, 0), extent - side);
-	return { left: clamp(pin.x * width, width), top: clamp(pin.y * height, height), side };
-}
 
 export async function cutPinCrop(
 	source: Blob,

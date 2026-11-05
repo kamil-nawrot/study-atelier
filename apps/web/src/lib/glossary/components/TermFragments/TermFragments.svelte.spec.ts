@@ -15,7 +15,7 @@ function fragment(index: number, extra: Partial<TermFragment> = {}): TermFragmen
 		title: `Katedra ${index}`,
 		text: `Apsyda ${index}`,
 		crop: PIXEL,
-		thumbnail: { src: PIXEL, x: 0.25, y: 0.75, ratio: 2 },
+		thumbnail: { src: PIXEL, left: -200, top: -325, width: 1000, height: 500 },
 		...extra
 	};
 }
@@ -45,19 +45,21 @@ describe('TermFragments', () => {
 		expect(document.querySelector('.lens > img')?.getAttribute('src')).toBe(PIXEL);
 	});
 
-	it('shows the artwork with the point marked while the pin has no crop', async () => {
+	it('cuts the view of the pin from the medium image while the pin has no crop', async () => {
 		show([fragment(3, { crop: undefined })]);
 
 		await expect.element(page.getByRole('link', { name: /Katedra 3/ })).toBeVisible();
-		const point = document.querySelector<HTMLElement>('.point');
-		expect(point?.style.left).toBe('25%');
-		expect(point?.style.top).toBe('75%');
+		const view = document.querySelector<HTMLElement>('img.view');
+		expect(view?.style.left).toBe('-200%');
+		expect(view?.style.top).toBe('-325%');
+		expect(view?.style.width).toBe('1000%');
+		expect(view?.style.height).toBe('500%');
 	});
 
-	it('falls back to the point when the crop does not load', async () => {
+	it('falls back to the view of the pin when the crop does not load', async () => {
 		show([fragment(4, { crop: 'https://storage.invalid/missing.jpg' })]);
 
-		await expect.poll(() => document.querySelector('.point')).not.toBeNull();
+		await expect.poll(() => document.querySelector('img.view')).not.toBeNull();
 	});
 
 	it('leaves out a hint for a pin without text', async () => {
