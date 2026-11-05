@@ -93,10 +93,12 @@
 							<Icon icon={eraIcon(era.code)} />
 						</span>
 						<div class="era-body">
-							<h2 class="era-name">
-								<a href={valuePath('era', era.code)}>{m.eras[era.code].name}</a>
-							</h2>
-							<span class="years">{m.eras[era.code].years}</span>
+							<div class="era-head">
+								<h2 class="era-name">
+									<a href={valuePath('era', era.code)}>{m.eras[era.code].name}</a>
+								</h2>
+								<span class="years">{m.eras[era.code].years}</span>
+							</div>
 							{#if era.periods.length > 0}
 								{@render periodList(era.periods)}
 							{:else}
@@ -200,11 +202,20 @@
 		line-height: var(--line-height-2xl);
 	}
 
+	.era-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--spacing-2) var(--spacing-3);
+	}
+
 	.years {
-		margin-top: calc(-1 * var(--spacing-2));
-		color: var(--color-fg-muted);
+		padding: 0 var(--spacing-2);
+		border: var(--border-width-hairline) solid var(--color-line);
+		color: var(--color-fg);
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
+		white-space: nowrap;
 	}
 
 	.empty {

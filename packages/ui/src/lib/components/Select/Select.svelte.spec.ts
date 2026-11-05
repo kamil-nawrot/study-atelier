@@ -106,4 +106,16 @@ describe('Select', () => {
 		await page.viewport(1280, 800);
 		expect(control?.getBoundingClientRect().width).toBeGreaterThan(controlHeight());
 	});
+
+	it('shows the icon before the chosen text when not compact', async () => {
+		render(Select, { label: 'Order', options: types, icon: ArrowUpDown, value: 'painting' });
+		const select = page.getByRole('combobox', { name: 'Order' }).element();
+		const glyph = select.closest('.control')?.querySelector('.glyph svg');
+
+		await page.viewport(1280, 800);
+		expect(glyph?.getBoundingClientRect().width).toBeGreaterThan(0);
+		expect(glyph?.getBoundingClientRect().right ?? 0).toBeLessThan(
+			select.getBoundingClientRect().left + parseFloat(getComputedStyle(select).paddingLeft)
+		);
+	});
 });

@@ -468,6 +468,11 @@ export const pl = {
 			const year = (value: number): string => (value < 0 ? `${-value} p.n.e.` : `${value} n.e.`);
 			return `${prefix}${year(from)} – ${year(to)}`;
 		},
+		eraSpan: (from: number, to: number): string => {
+			if (from < 0 && to < 0) return `${-from} – ${-to} p.n.e.`;
+			const year = (value: number): string => (value < 0 ? `${-value} p.n.e.` : `${value}`);
+			return `${year(from)} – ${year(to)}`;
+		},
 		filters: {
 			title: 'Filtry',
 			button: 'Filtry',
@@ -890,10 +895,10 @@ export const pl = {
 	},
 	eras: {
 		prehistory: { name: 'prehistoria', years: 'do 3000 p.n.e.' },
-		antiquity: { name: 'starożytność', years: 'do 476' },
-		middle_ages: { name: 'średniowiecze', years: '476–1492' },
-		early_modern: { name: 'nowożytność', years: '1492–1789' },
-		modern: { name: 'nowoczesność', years: '1789–1945' },
+		antiquity: { name: 'starożytność', years: '3000 p.n.e. – 476' },
+		middle_ages: { name: 'średniowiecze', years: '476 – 1492' },
+		early_modern: { name: 'nowożytność', years: '1492 – 1789' },
+		modern: { name: 'nowoczesność', years: '1789 – 1945' },
 		contemporary: { name: 'współczesność', years: 'od 1945' }
 	},
 	collectionErrors: {
@@ -987,7 +992,7 @@ export const pl = {
 	},
 	cardIndex: {
 		title: 'Kartoteka',
-		lead: 'Tu opisujesz i porządkujesz swoje epoki, okresy, style, autorów, miejsca i wydarzenia. Możesz tutaj także utworzyć własne pola, które pozwolą dokładniej opisywać dzieła. Kliknij nazwę, która Cię interesuje, żeby zobaczyć szczegóły.',
+		lead: 'Tu porządkujesz swoje epoki, okresy, style, autorów, miejsca i wydarzenia. Możesz też dodać własne pola, żeby dokładniej opisywać dzieła.',
 		loadErrorTitle: 'Nie udało się wczytać Kartoteki',
 		tabsLabel: 'Rodzaje wartości',
 		tabs: {
@@ -1010,6 +1015,7 @@ export const pl = {
 		},
 		emptyEvents: 'Nie ma tu jeszcze wydarzeń. Dodaj pierwsze, a pojawi się też w Kalendarium.',
 		eventsAdd: 'Dodaj wydarzenie',
+		eventKinds: { single: 'Wydarzenie jednego roku', span: 'Okres' },
 		search: {
 			material: 'Szukaj materiału',
 			author: 'Szukaj autora',

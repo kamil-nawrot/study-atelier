@@ -40,7 +40,7 @@
 
 <div class="field" class:compact>
 	<label class:visually-hidden={compact || hideLabel} for={selectId}>{label}</label>
-	<div class="control" class:invalid={!!error}>
+	<div class="control" class:invalid={!!error} class:with-icon={!!icon}>
 		{#if icon}
 			<span class="glyph">
 				<Icon {icon} />
@@ -141,7 +141,19 @@
 	}
 
 	.glyph {
-		display: none;
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		display: grid;
+		place-content: center;
+		padding: 0 var(--spacing-3);
+		color: var(--color-fg-muted);
+		pointer-events: none;
+	}
+
+	.with-icon select {
+		padding-left: var(--spacing-12);
 	}
 
 	@media (max-width: 767.98px) {
@@ -150,12 +162,9 @@
 		}
 
 		.compact .glyph {
-			position: absolute;
-			inset: 0;
-			display: grid;
-			place-content: center;
+			right: 0;
+			padding: 0;
 			color: var(--color-fg);
-			pointer-events: none;
 		}
 
 		.compact select {

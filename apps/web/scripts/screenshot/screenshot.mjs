@@ -642,7 +642,8 @@ async function mockSupabase(context) {
 					...row,
 					...(author?.sort_name ? { sort_name: author.sort_name } : {}),
 					...(author?.birth_year ? { birth_year: author.birth_year } : {}),
-					...(place?.country_code ? { country_code: place.country_code } : {})
+					...(place?.country_code ? { country_code: place.country_code } : {}),
+					...(place?.place_type ? { place_type: place.place_type } : {})
 				};
 			});
 			return json(route, {

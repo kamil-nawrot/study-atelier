@@ -52,3 +52,11 @@ describe('the Polish dictionary', () => {
 		).toEqual([]);
 	});
 });
+
+describe('era span', () => {
+	it('writes era years with a spaced dash and without "n.e."', () => {
+		expect(m.atelier.eraSpan(-3000, 476)).toBe('3000 p.n.e. – 476');
+		expect(m.atelier.eraSpan(1492, 1789)).toBe('1492 – 1789');
+		expect(m.atelier.eraSpan(-40000, -3000)).toBe('40000 – 3000 p.n.e.');
+	});
+});

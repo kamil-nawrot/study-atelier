@@ -137,7 +137,7 @@
 		<div class="intro">
 			<p>{m.ownFields.intro}</p>
 			<div class="add">
-				<Button id={addButtonId} onclick={add}>
+				<Button id={addButtonId} onclick={add} variant="primary">
 					<Icon icon={Plus} />
 					{m.ownFields.add}
 				</Button>

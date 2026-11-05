@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import '../../styles/index.css';
 import Tabs from './Tabs.svelte';
 
 const panel = createRawSnippet(() => ({ render: () => '<p>Panel content</p>' }));
@@ -97,5 +98,40 @@ describe('Tabs', () => {
 		await expect
 			.element(page.getByRole('tab', { name: 'Materials' }))
 			.toHaveAttribute('tabindex', '-1');
+	});
+
+	it('joins the selected tab to a framed panel', async () => {
+		render(Tabs, { label: 'Kinds', tabs, framed: true, children: panel });
+
+		const tab = page.getByRole('tab', { name: 'Periods' }).element();
+		const panelBox = page.getByRole('tabpanel').element();
+		const tabStyle = getComputedStyle(tab);
+		const panelStyle = getComputedStyle(panelBox);
+		expect(tabStyle.borderLeftStyle).toBe('solid');
+		expect(tabStyle.borderBottomColor).toBe(tabStyle.backgroundColor);
+		expect(panelStyle.borderLeftStyle).toBe('solid');
+		expect(panelStyle.borderTopStyle).toBe('none');
+		expect(panelBox.getBoundingClientRect().top).toBeCloseTo(tab.getBoundingClientRect().bottom, 0);
+	});
+
+	it('scrolls the selected tab into view in a narrow list', async () => {
+		await page.viewport(320, 800);
+		render(Tabs, {
+			label: 'Kinds',
+			tabs: [
+				{ value: 'periods', label: 'Periods and styles' },
+				{ value: 'materials', label: 'Materials and techniques' },
+				{ value: 'authors', label: 'Authors and workshops' },
+				{ value: 'places', label: 'Places and collections' }
+			],
+			value: 'places',
+			children: panel
+		});
+
+		const list = page.getByRole('tablist').element().getBoundingClientRect();
+		const places = page.getByRole('tab', { name: 'Places and collections' });
+		await expect
+			.poll(() => places.element().getBoundingClientRect().right)
+			.toBeLessThanOrEqual(list.right + 1);
 	});
 });

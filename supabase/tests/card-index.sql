@@ -31,7 +31,7 @@ begin
   select id into louvre from public.category_values where category_code = 'location' and name = 'Louvre';
   select id into renaissance from public.category_values where category_code = 'period' and name = 'Renaissance';
   perform public.save_value_details(leonardo, '{"sort_name": "Leonardo", "birth_year": 1452}');
-  insert into public.location_details (value_id, country_code) values (louvre, 'FR');
+  insert into public.location_details (value_id, country_code, place_type) values (louvre, 'FR', 'museum');
   perform public.set_period_eras(renaissance, array['early_modern', 'middle_ages']);
   perform public.set_style_periods(
     (select id from public.category_values where category_code = 'style' and name = 'Sfumato'),
@@ -53,8 +53,8 @@ begin
     @> '{"artwork_count": 2, "sort_name": "Leonardo", "birth_year": 1452}',
     'card_index drops the trash from the count or the sort name and birth year of an author';
   assert (select item from jsonb_array_elements(index -> 'values') as item where (item ->> 'id')::uuid = louvre)
-    @> '{"visit_count": 1, "country_code": "FR"}',
-    'card_index drops the visits or the country of a place';
+    @> '{"visit_count": 1, "country_code": "FR", "place_type": "museum"}',
+    'card_index drops the visits, the country or the type of a place';
   assert (select not (item ? 'country_code') from jsonb_array_elements(index -> 'values') as item
       where (item ->> 'id')::uuid = renaissance),
     'card_index gives a period the details of another value';
