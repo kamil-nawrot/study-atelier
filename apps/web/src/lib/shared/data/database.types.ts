@@ -87,6 +87,7 @@ export type Database = {
           name: string;
           owner_id: string;
           position: number;
+          type_codes: string[];
           updated_at: string;
         };
         ComputedFields: never;
@@ -99,6 +100,7 @@ export type Database = {
           name: string;
           owner_id?: string;
           position?: number;
+          type_codes?: string[];
           updated_at?: string;
         };
         Update: {
@@ -110,6 +112,7 @@ export type Database = {
           name?: string;
           owner_id?: string;
           position?: number;
+          type_codes?: string[];
           updated_at?: string;
         };
         Relationships: [];
@@ -1384,6 +1387,10 @@ export type Database = {
           artwork_count: number;
           field_id: string;
         }[];
+      };
+      artwork_field_type_impact: {
+        Args: { target_field: string; type_codes: string[] };
+        Returns: number;
       };
       atelier_empty: { Args: Record<PropertyKey, never>; Returns: boolean };
       card_index: { Args: Record<PropertyKey, never>; Returns: Json };

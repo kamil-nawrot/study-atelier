@@ -7,6 +7,9 @@ import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definit
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import type { OwnEntries } from '#lib/catalogue/types/own-entries.ts';
 import type { OwnEntry } from '#lib/catalogue/types/own-entry.ts';
+import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
+import type { ImageFieldTexts } from '#lib/images/types/image-field-texts.ts';
+import { fieldApplies } from '#lib/card-index/own-fields/own-fields.ts';
 
 export const MAX_ARTWORK_IMAGES = 5;
 
@@ -24,6 +27,32 @@ function ownEntries(fields: readonly OwnFieldDefinition[], saved: OwnEntries = {
 					? Array.isArray(entry)
 					: typeof entry === (field.kind === 'flag' ? 'boolean' : 'string');
 			return [field.id, fits ? structuredClone(entry) : emptyEntry(field)];
+		})
+	);
+}
+
+function filled(entry: OwnEntry | undefined): boolean {
+	if (Array.isArray(entry)) return entry.length > 0;
+	return typeof entry === 'string' ? entry.trim() !== '' : entry === true;
+}
+
+export function filledFieldsOutsideType(
+	own: OwnEntries | undefined,
+	fields: readonly OwnFieldDefinition[],
+	typeCode: ArtworkTypeCode | '' | null
+): OwnFieldDefinition[] {
+	return fields.filter((field) => !fieldApplies(field, typeCode) && filled(own?.[field.id]));
+}
+
+export function withoutFieldsOutsideType(
+	own: OwnEntries,
+	fields: readonly OwnFieldDefinition[],
+	typeCode: ArtworkTypeCode | '' | null
+): OwnEntries {
+	return Object.fromEntries(
+		Object.entries(own).map(([id, entry]) => {
+			const field = fields.find((candidate) => candidate.id === id);
+			return [id, field && !fieldApplies(field, typeCode) ? emptyEntry(field) : entry];
 		})
 	);
 }
@@ -131,3 +160,18 @@ export const describedCategories: { code: 'material' | 'location'; label: string
 	{ code: 'material', label: m.artworkForm.material },
 	{ code: 'location', label: m.artworkForm.location }
 ];
+
+export function artworkImageTexts(): ImageFieldTexts {
+	const texts = m.artworkForm;
+	return {
+		label: texts.image,
+		find: texts.findImage,
+		findOther: texts.chooseOtherImage,
+		findHint: texts.findImageHint,
+		own: texts.ownImage,
+		changeOwn: texts.changeOwnImage,
+		ownTitle: texts.ownImageTitle,
+		changeOwnTitle: texts.changeOwnImageTitle,
+		remove: texts.removeImage
+	};
+}

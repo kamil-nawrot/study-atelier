@@ -489,10 +489,38 @@ describe('seen in person', () => {
 
 describe('own fields', () => {
 	const fields: OwnFieldDefinition[] = [
-		{ id: 'lecture', name: 'Lecture', description: null, kind: 'list', multiple: false },
-		{ id: 'source', name: 'Source', description: null, kind: 'text', multiple: false },
-		{ id: 'seen', name: 'Seen in person', description: null, kind: 'flag', multiple: false },
-		{ id: 'exam', name: 'For the exam', description: null, kind: 'flag', multiple: false }
+		{
+			id: 'lecture',
+			name: 'Lecture',
+			description: null,
+			kind: 'list',
+			multiple: false,
+			typeCodes: []
+		},
+		{
+			id: 'source',
+			name: 'Source',
+			description: null,
+			kind: 'text',
+			multiple: false,
+			typeCodes: []
+		},
+		{
+			id: 'seen',
+			name: 'Seen in person',
+			description: null,
+			kind: 'flag',
+			multiple: false,
+			typeCodes: []
+		},
+		{
+			id: 'exam',
+			name: 'For the exam',
+			description: null,
+			kind: 'flag',
+			multiple: false,
+			typeCodes: []
+		}
 	];
 	const own: WallArtwork[] = [
 		testArtwork(1, 'Annunciation', {

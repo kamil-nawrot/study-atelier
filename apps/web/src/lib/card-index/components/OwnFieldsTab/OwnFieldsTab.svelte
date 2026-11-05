@@ -14,6 +14,7 @@
 		TextButton
 	} from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { artworkTypeIcon } from '#lib/catalogue/artwork-types/artwork-types.ts';
 	import { deleteOwnField, moveOwnField } from '#lib/card-index/own-fields-data/own-fields-data.ts';
 	import CardIndexList from '#lib/card-index/components/CardIndexList/CardIndexList.svelte';
 	import {
@@ -158,7 +159,12 @@
 			<section aria-labelledby="field-{field.id}">
 				<header>
 					<div class="heading">
-						<h2 id="field-{field.id}" tabindex="-1">{field.name}</h2>
+						<div class="title">
+							<h2 id="field-{field.id}" tabindex="-1">{field.name}</h2>
+							{#each field.typeCodes as code (code)}
+								<Icon icon={artworkTypeIcon(code)} label={m.artworkTypes[code]} size="sm" />
+							{/each}
+						</div>
 						<p class="caption">{summary(field)}</p>
 						{#if field.description}
 							<p class="caption">{field.description}</p>
@@ -305,6 +311,18 @@
 	.heading {
 		display: grid;
 		gap: var(--spacing-1);
+	}
+
+	.title {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--spacing-2);
+		color: var(--color-fg-muted);
+	}
+
+	h2 {
+		color: var(--color-fg);
 	}
 
 	h2,

@@ -201,11 +201,46 @@ describe('artwork page', () => {
 				own: { motifs: ['Angel', 'Lily'], source: 'Gombrich', note: '', seen: true, exam: false }
 			}),
 			ownFields: [
-				{ id: 'motifs', name: 'Motifs', description: null, kind: 'list', multiple: true },
-				{ id: 'source', name: 'Source', description: null, kind: 'text', multiple: false },
-				{ id: 'note', name: 'Note', description: null, kind: 'text', multiple: false },
-				{ id: 'seen', name: 'Seen in person', description: null, kind: 'flag', multiple: false },
-				{ id: 'exam', name: 'For the exam', description: null, kind: 'flag', multiple: false }
+				{
+					id: 'motifs',
+					name: 'Motifs',
+					description: null,
+					kind: 'list',
+					multiple: true,
+					typeCodes: []
+				},
+				{
+					id: 'source',
+					name: 'Source',
+					description: null,
+					kind: 'text',
+					multiple: false,
+					typeCodes: []
+				},
+				{
+					id: 'note',
+					name: 'Note',
+					description: null,
+					kind: 'text',
+					multiple: false,
+					typeCodes: []
+				},
+				{
+					id: 'seen',
+					name: 'Seen in person',
+					description: null,
+					kind: 'flag',
+					multiple: false,
+					typeCodes: []
+				},
+				{
+					id: 'exam',
+					name: 'For the exam',
+					description: null,
+					kind: 'flag',
+					multiple: false,
+					typeCodes: []
+				}
 			]
 		});
 

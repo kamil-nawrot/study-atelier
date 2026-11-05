@@ -84,9 +84,64 @@ describe('OwnFieldsTab', () => {
 			name: 'Source',
 			description: null,
 			kind: 'text',
-			multiple: false
+			multiple: false,
+			type_codes: []
 		});
 		expect(onchanged).toHaveBeenCalledWith(m.ownFields.created('Source'));
+	});
+
+	it('limits a new field to the chosen artwork types', async () => {
+		renderTab();
+		await page.getByRole('button', { name: m.ownFields.add }).click();
+		await page.getByRole('textbox', { name: m.common.name }).fill('Order');
+		await page.getByText(m.ownFields.form.limited).click();
+		await page.getByRole('button', { name: m.common.add, exact: true }).click();
+
+		await expect.element(page.getByText(m.ownFields.form.typesRequired)).toBeVisible();
+		expect(query.insert).not.toHaveBeenCalled();
+
+		await page.getByRole('checkbox', { name: m.artworkTypes.architecture }).click();
+		await page.getByRole('button', { name: m.common.add, exact: true }).click();
+
+		expect(query.insert).toHaveBeenCalledWith(
+			expect.objectContaining({ name: 'Order', type_codes: ['architecture'] })
+		);
+	});
+
+	it('shows the icons of the types a field is limited to', async () => {
+		const fields = testOwnFields();
+		fields[0].typeCodes = ['architecture', 'painting'];
+		renderTab(fields);
+
+		await expect
+			.element(page.getByRole('img', { name: m.artworkTypes.architecture }))
+			.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('img', { name: m.artworkTypes.painting }))
+			.toBeInTheDocument();
+	});
+
+	it('asks before narrowing the types of a field filled on other artworks', async () => {
+		vi.mocked(supabase.rpc).mockResolvedValue({ data: 2, error: null } as never);
+		renderTab();
+		await menu('Lecture').click();
+		await page.getByRole('button', { name: m.common.edit }).click();
+		await page.getByText(m.ownFields.form.limited).click();
+		await page.getByRole('checkbox', { name: m.artworkTypes.painting }).click();
+		await page.getByRole('button', { name: m.common.save, exact: true }).click();
+
+		expect(supabase.rpc).toHaveBeenCalledWith('artwork_field_type_impact', {
+			target_field: 'lecture',
+			type_codes: ['painting']
+		});
+		await expect.element(page.getByText(m.ownFields.form.narrowDescription(2))).toBeVisible();
+		expect(query.update).not.toHaveBeenCalled();
+
+		await page.getByRole('button', { name: m.ownFields.form.narrowConfirm }).click();
+
+		expect(query.update).toHaveBeenCalledWith(
+			expect.objectContaining({ type_codes: ['painting'] })
+		);
 	});
 
 	it('asks whether a list takes several values only for a list', async () => {

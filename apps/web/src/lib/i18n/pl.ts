@@ -618,6 +618,19 @@ export const pl = {
 		back: 'Wróć do formularza',
 		confirm: 'Zapisz mimo to'
 	},
+	fieldTypeDialog: {
+		title: (count: number): string =>
+			count === 1 ? 'Usunąć wartość pola?' : 'Usunąć wartości pól?',
+		description: (names: string[], type: string | null): string => {
+			const target = type ? `typu „${type}”` : 'dzieł bez typu';
+			const listed = names.map((name) => `„${name}”`).join(', ');
+			return names.length === 1
+				? `Pole ${listed} nie dotyczy ${target}, więc jego wartość zostanie usunięta z tego dzieła.`
+				: `Pola ${listed} nie dotyczą ${target}, więc ich wartości zostaną usunięte z tego dzieła.`;
+		},
+		back: 'Wróć do formularza',
+		confirm: 'Usuń i zapisz'
+	},
 	duplicateDialog: {
 		title: 'Masz już takie dzieło',
 		description: (numbers: string, count: number, advice: string): string =>
@@ -1156,6 +1169,14 @@ export const pl = {
 			kind: 'Rodzaj',
 			kindFixed: 'Wybranego rodzaju nie będzie można zmienić po utworzeniu pola.',
 			multiple: 'Dzieło może mieć kilka wartości',
+			limited: 'Tylko dla wybranych typów dzieł',
+			types: 'Typy dzieł',
+			typesHint: 'Pole pojawi się tylko przy dziełach tych typów.',
+			typesRequired: 'Wybierz co najmniej jeden typ dzieł.',
+			narrowTitle: 'Część wartości zniknie',
+			narrowDescription: (count: number): string =>
+				`Pole jest uzupełnione w ${count} ${plural(count, { one: 'dziele, które nie ma', few: 'dziełach, które nie mają', many: 'dziełach, które nie mają' })} żadnego z wybranych typów. Po zapisaniu te wartości zostaną usunięte.`,
+			narrowConfirm: 'Usuń wartości i zapisz',
 			creating: 'Dodawanie…',
 			errorTitle: 'Nie udało się zapisać pola'
 		},
