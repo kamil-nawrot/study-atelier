@@ -12,7 +12,23 @@ import {
 	ownValuePath
 } from './own-field-pages.ts';
 
-vi.mock('#lib/card-index/card-index-data/card-index-data.ts', () => ({ loadOwnValues: vi.fn() }));
+vi.mock('#lib/card-index/card-index-data/card-index-data.ts', () => ({
+	loadOwnValues: vi.fn(),
+	loadCardIndex: vi.fn(async () => ({
+		index: { values: [], periodEras: [], stylePeriods: [] },
+		ownValues: []
+	}))
+}));
+vi.mock('#lib/relations/relations-data/relations-data.ts', () => ({
+	loadRelations: vi.fn(async ({ kind }: { kind: string }) => ({
+		kind,
+		years: [],
+		groups: [],
+		types: [],
+		total: 0
+	}))
+}));
+
 vi.mock('#lib/card-index/own-fields-data/own-fields-data.ts', () => ({ loadOwnFields: vi.fn() }));
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({ loadArtworksOfValue: vi.fn() }));
 

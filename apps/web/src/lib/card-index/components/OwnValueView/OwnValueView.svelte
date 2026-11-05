@@ -2,7 +2,9 @@
 	import { Toast } from '@study-atelier/ui';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { m } from '#lib/i18n/i18n.ts';
-	import ArtworkWall from '#lib/wall/components/ArtworkWall/ArtworkWall.svelte';
+	import RelationsBand from '#lib/relations/components/RelationsBand/RelationsBand.svelte';
+	import type { Relations } from '#lib/relations/types/relations.ts';
+	import ArtworksSection from '#lib/wall/components/ArtworksSection/ArtworksSection.svelte';
 	import OwnValueDialog from '#lib/card-index/components/OwnValueDialog/OwnValueDialog.svelte';
 	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
 	import { ownValuePath } from '#lib/card-index/own-field-pages/own-field-pages.ts';
@@ -14,9 +16,10 @@
 		field: OwnField;
 		value: OwnValue;
 		artworks: WallArtwork[];
+		relations?: Relations;
 	};
 
-	let { field, value, artworks: loaded }: Props = $props();
+	let { field, value, artworks: loaded, relations }: Props = $props();
 
 	const images = new WallImages();
 
@@ -52,21 +55,16 @@
 		<h1>{value.name}</h1>
 	</header>
 
-	<section class="artworks" aria-labelledby="value-artworks">
-		<header>
-			<h2 id="value-artworks">{m.ownFields.page.artworks}</h2>
-			<span class="count">{m.atelier.count(artworks.length)}</span>
-		</header>
-		{#if artworks.length === 0}
-			<p class="empty">{m.ownFields.page.noArtworks}</p>
-		{:else}
-			<ArtworkWall
-				{artworks}
-				onimagefailed={(artwork) => images.failed(artwork)}
-				onnearscreen={(artwork) => images.request(artwork)}
-			/>
-		{/if}
-	</section>
+	{#if relations}
+		<RelationsBand {relations} />
+	{/if}
+
+	<ArtworksSection
+		{artworks}
+		empty={m.ownFields.page.noArtworks}
+		{images}
+		title={m.ownFields.page.artworks}
+	/>
 </div>
 
 <Toast bind:this={toast} />
@@ -98,31 +96,5 @@
 		font-style: italic;
 		font-weight: var(--font-weight-regular);
 		line-height: var(--line-height-3xl);
-	}
-
-	.artworks {
-		display: grid;
-		gap: var(--spacing-6);
-		padding-top: var(--spacing-6);
-		border-top: var(--border-width-hairline) solid var(--color-line);
-	}
-
-	.artworks header {
-		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: var(--spacing-4);
-	}
-
-	h2 {
-		font-size: var(--font-size-lg);
-		font-weight: var(--font-weight-bold);
-		line-height: var(--line-height-lg);
-	}
-
-	.count,
-	.empty {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-sm);
 	}
 </style>

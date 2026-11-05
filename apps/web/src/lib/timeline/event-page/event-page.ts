@@ -4,10 +4,12 @@ import { artworksIn } from '#lib/timeline/filter/filter.ts';
 import { spanOfYears } from '#lib/timeline/time/time.ts';
 import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+import type { Relations } from '#lib/relations/types/relations.ts';
 
 export type EventPageData = {
 	event?: TimelineEvent;
 	artworks: WallArtwork[];
+	relations?: Relations;
 	error?: string;
 	notFound?: boolean;
 };

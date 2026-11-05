@@ -13,7 +13,12 @@ import {
 import { valueLinkTarget } from '#lib/notes/note-link-target/note-link-target.ts';
 import { emptyValueDetails } from '#lib/values/value-details/value-details.ts';
 import { loadValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
+import { eraYears } from '#lib/catalogue/eras/eras.ts';
+import { loadRelations } from '#lib/relations/relations-data/relations-data.ts';
+import type { Relations } from '#lib/relations/types/relations.ts';
+import type { YearSpan } from '#lib/relations/types/year-span.ts';
 import {
+	artworksOfValue,
 	findSubject,
 	isValueKind,
 	routeSubject,
@@ -38,6 +43,7 @@ type ValuePageResult = {
 	glossary?: GlossaryTerm[];
 	mentions?: Mention[];
 	visits?: Visit[];
+	relations?: Relations;
 	notFound?: boolean;
 	error?: string;
 };
@@ -66,6 +72,16 @@ async function loadPageExtras(
 		subject.kind === 'location' ? loadPlaceVisits(subject.record.id) : Promise.resolve(undefined)
 	]);
 	return { mentions, visits: places?.error ? undefined : places?.visits };
+}
+
+function subjectBounds(subject: ValueSubject, details: ValueDetails): YearSpan | undefined {
+	if (subject.kind === 'era') {
+		const [from, to] = eraYears(subject.code);
+		return { from, to };
+	}
+	const author = details.author;
+	if (!author || author.birthYear === null || author.deathYear === null) return undefined;
+	return { from: author.birthYear, to: author.deathYear };
 }
 
 type LoadedDetails = Awaited<ReturnType<typeof loadValueDetails>>;
@@ -110,6 +126,15 @@ export async function loadValuePage(
 	const loadError = error ?? ('error' in own ? own.error : undefined);
 	if (loadError) return failed(loadError);
 
+	const relations = withArtworks
+		? await loadRelations({
+				kind: subject.kind,
+				artworks: artworksOfValue(own.artworks, subject),
+				index: cardIndex.index,
+				bounds: subjectBounds(subject, details)
+			})
+		: undefined;
+
 	return {
 		subject,
 		index: cardIndex.index,
@@ -118,7 +143,8 @@ export async function loadValuePage(
 		noteLinks,
 		glossary: glossary?.terms,
 		mentions: extras.mentions,
-		visits: extras.visits
+		visits: extras.visits,
+		relations
 	};
 }
 

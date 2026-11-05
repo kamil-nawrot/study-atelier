@@ -55,7 +55,6 @@
 		"apps/web/src/lib/wall/components/WallTools/WallTools.svelte",
 		"apps/web/src/routes/(app)/atelier/glossary/[id]/+page.svelte",
 		"apps/web/src/routes/(app)/atelier/settings/+page.svelte",
-		"apps/web/src/routes/(app)/atelier/values/[kind]/[id]/+page.svelte",
 		"packages/ui/src/lib/components/ChoiceTiles/ChoiceTiles.svelte",
 		"packages/ui/src/lib/components/Disclosure/Disclosure.svelte",
 		"packages/ui/src/lib/components/NotesToolbar/NotesToolbar.svelte",

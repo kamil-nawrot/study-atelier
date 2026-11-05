@@ -35,7 +35,13 @@
 	{/snippet}
 
 	{#if data.field && data.value}
-		<OwnValueView bind:this={view} artworks={data.artworks} field={data.field} value={data.value} />
+		<OwnValueView
+			bind:this={view}
+			artworks={data.artworks}
+			field={data.field}
+			relations={data.relations}
+			value={data.value}
+		/>
 	{:else}
 		<LoadFailure
 			backHref={cardIndexPath}

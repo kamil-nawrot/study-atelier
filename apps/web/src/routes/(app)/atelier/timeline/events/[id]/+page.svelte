@@ -42,7 +42,12 @@
 	{/snippet}
 
 	{#if data.event}
-		<EventView bind:this={view} artworks={data.artworks} event={data.event} />
+		<EventView
+			bind:this={view}
+			artworks={data.artworks}
+			event={data.event}
+			relations={data.relations}
+		/>
 	{:else}
 		<LoadFailure
 			backHref={timelinePath}

@@ -9,7 +9,9 @@
 	import { formatDate } from '#lib/catalogue/years/years.ts';
 	import { WIKIPEDIA_LICENCE_URL } from '#lib/glossary/wikipedia/wikipedia.ts';
 	import { m } from '#lib/i18n/i18n.ts';
-	import ArtworkWall from '#lib/wall/components/ArtworkWall/ArtworkWall.svelte';
+	import RelationsBand from '#lib/relations/components/RelationsBand/RelationsBand.svelte';
+	import type { Relations } from '#lib/relations/types/relations.ts';
+	import ArtworksSection from '#lib/wall/components/ArtworksSection/ArtworksSection.svelte';
 	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
 	import EventDeleteDialog from '#lib/timeline/components/EventDeleteDialog/EventDeleteDialog.svelte';
 	import { yearsLong } from '#lib/timeline/event-lanes/event-lanes.ts';
@@ -20,9 +22,10 @@
 	type Props = {
 		event: TimelineEvent;
 		artworks: WallArtwork[];
+		relations?: Relations;
 	};
 
-	let { event, artworks: loaded }: Props = $props();
+	let { event, artworks: loaded, relations }: Props = $props();
 
 	const images = new WallImages();
 
@@ -93,21 +96,16 @@
 		</div>
 	{/if}
 
-	<section class="artworks" aria-labelledby="event-artworks">
-		<header class="section-head">
-			<h2 id="event-artworks">{m.timeline.card.artworksOfTime}</h2>
-			<span class="count">{m.atelier.count(artworks.length)}</span>
-		</header>
-		{#if artworks.length === 0}
-			<p class="empty">{m.timeline.card.noArtworks}</p>
-		{:else}
-			<ArtworkWall
-				{artworks}
-				onimagefailed={(artwork) => images.failed(artwork)}
-				onnearscreen={(artwork) => images.request(artwork)}
-			/>
-		{/if}
-	</section>
+	{#if relations}
+		<RelationsBand {relations} />
+	{/if}
+
+	<ArtworksSection
+		{artworks}
+		empty={m.timeline.card.noArtworks}
+		{images}
+		title={m.timeline.card.artworksOfTime}
+	/>
 </div>
 
 <Toast bind:this={toast} />
@@ -150,31 +148,8 @@
 		line-height: var(--line-height-3xl);
 	}
 
-	.caption,
-	.count,
-	.empty {
+	.caption {
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
-	}
-
-	.artworks {
-		display: grid;
-		gap: var(--spacing-6);
-		padding-top: var(--spacing-6);
-		border-top: var(--border-width-hairline) solid var(--color-line);
-	}
-
-	.section-head {
-		display: flex;
-		max-width: none;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: var(--spacing-4);
-	}
-
-	h2 {
-		font-size: var(--font-size-lg);
-		font-weight: var(--font-weight-bold);
-		line-height: var(--line-height-lg);
 	}
 </style>

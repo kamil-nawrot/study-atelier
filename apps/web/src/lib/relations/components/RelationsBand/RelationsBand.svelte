@@ -1,0 +1,222 @@
+<script lang="ts">
+	import { Disclosure, Icon, Meter } from '@study-atelier/ui';
+	import { resolve } from '$app/paths';
+	import { artworkTypeIcon } from '#lib/catalogue/artwork-types/artwork-types.ts';
+	import { formatDate } from '#lib/catalogue/years/years.ts';
+	import { m } from '#lib/i18n/i18n.ts';
+	import TimeSpan from '#lib/relations/components/TimeSpan/TimeSpan.svelte';
+	import type { Relations } from '#lib/relations/types/relations.ts';
+
+	type Props = {
+		relations: Relations;
+	};
+
+	let { relations }: Props = $props();
+
+	let timed = $derived(relations.years.length > 0 || relations.bounds !== undefined);
+	let events = $derived(relations.events ?? []);
+	let progress = $derived(relations.total > 0 && relations.mastered !== undefined);
+	let shown = $derived(
+		timed || relations.groups.length > 0 || relations.types.length > 0 || events.length > 0
+	);
+</script>
+
+{#if shown}
+	<div class="relations">
+		<Disclosure level={2} title={m.relations.title}>
+			<div class="band">
+				<div class="column wide">
+					{#if timed}
+						<TimeSpan
+							bounds={relations.bounds}
+							{events}
+							kind={relations.kind}
+							years={relations.years}
+						/>
+					{/if}
+					{#if relations.groups.length > 0}
+						<section class="part" aria-labelledby="relations-together">
+							<h3 id="relations-together" class="label">
+								{relations.kind === 'era' ? m.relations.hierarchy : m.relations.together}
+							</h3>
+							{#each relations.groups as group (group.label)}
+								<div class="group">
+									<span class="caption">{group.label}</span>
+									<ul class="values">
+										{#each group.values as value (value.id)}
+											<li>
+												<a class="value" href={value.href}
+													>{value.name}<span class="count">{value.count}</span></a
+												>
+											</li>
+										{/each}
+									</ul>
+								</div>
+							{/each}
+						</section>
+					{/if}
+				</div>
+				<div class="column">
+					{#if progress}
+						<section class="part" aria-labelledby="relations-progress">
+							<h3 id="relations-progress" class="label">{m.relations.progress}</h3>
+							<p>{m.relations.mastered(relations.mastered ?? 0, relations.total)}</p>
+							<Meter
+								label={m.relations.progress}
+								max={relations.total}
+								track="dim"
+								value={relations.mastered ?? 0}
+							/>
+						</section>
+					{/if}
+					{#if relations.types.length > 0}
+						<section class="part" aria-labelledby="relations-types">
+							<h3 id="relations-types" class="label">{m.relations.types}</h3>
+							<ul class="types">
+								{#each relations.types as type (type.code)}
+									<li>
+										<Icon icon={artworkTypeIcon(type.code)} size="sm" />
+										{m.artworkTypes[type.code]}
+										<span class="count">{type.count}</span>
+									</li>
+								{/each}
+							</ul>
+						</section>
+					{/if}
+					{#if events.length > 0}
+						<section class="part" aria-labelledby="relations-events">
+							<h3 id="relations-events" class="label">
+								{relations.kind === 'event' ? m.relations.otherEvents : m.relations.sameTime}
+							</h3>
+							<ul class="events">
+								{#each events as event (event.id)}
+									<li>
+										<a href={resolve('/(app)/atelier/timeline/events/[id]', { id: event.id })}
+											>{event.name}</a
+										>
+										<span class="count"
+											>{formatDate(event.yearFrom, event.yearTo, event.yearApproximate)}</span
+										>
+									</li>
+								{/each}
+							</ul>
+						</section>
+					{/if}
+				</div>
+			</div>
+		</Disclosure>
+	</div>
+{/if}
+
+<style>
+	.relations {
+		padding-top: var(--spacing-6);
+		border-top: var(--border-width-hairline) solid var(--color-line);
+	}
+
+	.band,
+	.column,
+	.part,
+	.group {
+		display: grid;
+		align-content: start;
+	}
+
+	.band,
+	.column {
+		gap: var(--spacing-8);
+	}
+
+	.part {
+		gap: var(--spacing-3);
+	}
+
+	.group {
+		gap: var(--spacing-2);
+	}
+
+	.label {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-xs);
+		font-weight: var(--font-weight-regular);
+		line-height: var(--line-height-xs);
+		letter-spacing: var(--letter-spacing-wide);
+		text-transform: uppercase;
+	}
+
+	.caption,
+	.count {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
+	}
+
+	ul {
+		list-style: none;
+	}
+
+	.values {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-2);
+	}
+
+	.value {
+		display: inline-flex;
+		align-items: baseline;
+		gap: var(--spacing-2);
+		padding: var(--spacing-1) var(--spacing-3);
+		background: var(--color-tag);
+		color: var(--color-fg);
+		text-decoration: none;
+	}
+
+	.value:hover {
+		text-decoration: underline;
+	}
+
+	.types {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-2) var(--spacing-6);
+	}
+
+	.types li {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--spacing-2);
+	}
+
+	.events {
+		border-top: var(--border-width-hairline) solid var(--color-line);
+	}
+
+	.events li {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: var(--spacing-3);
+		padding-block: var(--spacing-2);
+		border-bottom: var(--border-width-hairline) solid var(--color-line);
+	}
+
+	.events a {
+		color: var(--color-fg);
+		text-decoration: none;
+	}
+
+	.events a:hover {
+		text-decoration: underline;
+	}
+
+	.events .count {
+		flex-shrink: 0;
+	}
+
+	@media (min-width: 768px) {
+		.band {
+			grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+			gap: var(--spacing-8) var(--spacing-12);
+		}
+	}
+</style>
