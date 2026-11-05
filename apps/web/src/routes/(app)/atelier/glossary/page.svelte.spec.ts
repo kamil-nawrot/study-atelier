@@ -43,7 +43,68 @@ describe('glossary page', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
 		navigation.state = {};
+		localStorage.clear();
 		await page.viewport(1280, 800);
+	});
+
+	it('lists the newest entries first without letters when sorted by the date of adding', async () => {
+		renderGlossary([
+			...manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES),
+			testEntry('apse', 'Apsyda', { createdAt: '2026-11-05T10:00:00Z' })
+		]);
+
+		await page
+			.getByRole('combobox', { name: m.glossary.sortLabel })
+			.selectOptions(m.glossary.sorts.recent);
+
+		await expect
+			.poll(() =>
+				page
+					.getByRole('link', { name: /^(Apsyda|Tympanum|Term)/ })
+					.elements()
+					.map((link) => link.getAttribute('href'))
+					.at(0)
+			)
+			.toBe('/atelier/glossary/apse');
+		expect(page.getByRole('heading', { level: 2 }).elements()).toHaveLength(0);
+		await expect
+			.element(page.getByRole('navigation', { name: m.glossary.letters }))
+			.not.toBeInTheDocument();
+		expect(localStorage.getItem('study-atelier:glossary-sort')).toBe('recent');
+	});
+
+	it('opens in the order the learner picked last time', async () => {
+		localStorage.setItem('study-atelier:glossary-sort', 'recent');
+		renderGlossary();
+
+		await expect
+			.element(page.getByRole('combobox', { name: m.glossary.sortLabel }))
+			.toHaveValue('recent');
+		expect(page.getByRole('heading', { level: 2 }).elements()).toHaveLength(0);
+	});
+
+	it('keeps the letter of a group in view below the bar on desktop', async () => {
+		renderGlossary();
+
+		const letter = page.getByRole('heading', { level: 2, name: 'A' }).element();
+
+		expect(getComputedStyle(letter).position).toBe('sticky');
+	});
+
+	it('starts the index of letters at the list on a phone, below the search field', async () => {
+		await page.viewport(390, 844);
+		renderGlossary(
+			Array.from({ length: 26 }, (_, position) =>
+				testEntry(`entry-${position}`, `${String.fromCharCode(65 + position)}rch`)
+			)
+		);
+		const index = page.getByRole('navigation', { name: m.glossary.letters });
+
+		await expect.element(index).toBeInTheDocument();
+		const search = page.getByRole('searchbox').element().getBoundingClientRect();
+		await expect
+			.poll(() => index.element().getBoundingClientRect().top)
+			.toBeGreaterThan(search.bottom);
 	});
 
 	it('shows the title, the lead and the add button as the one primary action', async () => {

@@ -1,7 +1,8 @@
 <script lang="ts">
+	import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
 	import BookA from '@lucide/svelte/icons/book-a';
 	import Plus from '@lucide/svelte/icons/plus';
-	import { Button, EmptyState, Icon, SearchField, ToggleTag } from '@study-atelier/ui';
+	import { Button, EmptyState, Icon, SearchField, Select, ToggleTag } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
@@ -13,9 +14,16 @@
 		countByCategory,
 		filterEntries,
 		GLOSSARY_SEARCH_MIN_ENTRIES,
-		groupByLetter,
-		leadSentences
+		groupByLetter
 	} from '#lib/glossary/glossary/glossary.ts';
+	import {
+		GLOSSARY_SORTS,
+		newestFirst,
+		rememberedGlossarySort,
+		rememberGlossarySort,
+		type GlossarySort
+	} from '#lib/glossary/glossary-sort/glossary-sort.ts';
+	import GlossaryRow from '#lib/glossary/components/GlossaryRow/GlossaryRow.svelte';
 	import LetterIndex from '#lib/glossary/components/LetterIndex/LetterIndex.svelte';
 	import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
 	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
@@ -28,15 +36,26 @@
 
 	let { entries, query = $bindable(''), chosen = $bindable([]) }: Props = $props();
 
+	let sort = $state<GlossarySort>(rememberedGlossarySort());
+
+	const sorts = GLOSSARY_SORTS.map((value) => ({ value, label: m.glossary.sorts[value] }));
+
 	let counts = $derived(countByCategory(entries));
 	let matching = $derived(filterEntries(entries, new Set(chosen), query));
-	let groups = $derived(groupByLetter(matching));
+	let recent = $derived(sort === 'recent');
+	let groups = $derived(recent ? [] : groupByLetter(matching));
+	let newest = $derived(recent ? newestFirst(matching) : []);
 	let indexed = $derived(entries.length >= GLOSSARY_SEARCH_MIN_ENTRIES && groups.length > 1);
 
 	function toggle(category: GlossaryCategory): void {
 		chosen = chosen.includes(category)
 			? chosen.filter((item) => item !== category)
 			: [...chosen, category];
+	}
+
+	function choose(value: string): void {
+		sort = value === 'recent' ? 'recent' : 'name';
+		rememberGlossarySort(sort);
 	}
 </script>
 
@@ -49,9 +68,22 @@
 	</EmptyState>
 {:else}
 	<div class="filter">
-		{#if entries.length >= GLOSSARY_SEARCH_MIN_ENTRIES}
-			<div class="search">
-				<SearchField label={m.glossary.search} placeholder={m.glossary.search} bind:value={query} />
+		{#if entries.length > 1}
+			<div class="tools">
+				{#if entries.length >= GLOSSARY_SEARCH_MIN_ENTRIES}
+					<SearchField
+						label={m.glossary.search}
+						placeholder={m.glossary.search}
+						bind:value={query}
+					/>
+				{/if}
+				<Select
+					hideLabel
+					icon={ArrowUpDown}
+					label={m.glossary.sortLabel}
+					options={sorts}
+					bind:value={() => sort, choose}
+				/>
 			</div>
 		{/if}
 
@@ -80,31 +112,26 @@
 		<LetterIndex letters={groups.map((group) => group.letter)} />
 	{/if}
 
-	<div class="groups" class:indexed>
-		{#each groups as group (group.letter)}
-			<section class="group" aria-labelledby={`letter-${group.letter}`}>
-				<h2 id={`letter-${group.letter}`}>{group.letter}</h2>
-				<ul>
-					{#each group.entries as entry (entry.id)}
-						<li>
-							<a href={resolve('/(app)/atelier/glossary/[id]', { id: entry.id })}>
-								<span class="head">
-									<span class="name">{entry.name}</span>
-									<span class="category">
-										<Icon icon={glossaryCategoryIcon(entry.category)} size="sm" />
-										{glossaryCategoryName(entry.category)}
-									</span>
-								</span>
-								{#if entry.definition}
-									<span class="sentence">{leadSentences(entry.definition)}</span>
-								{/if}
-							</a>
-						</li>
-					{/each}
-				</ul>
-			</section>
-		{/each}
-	</div>
+	{#if recent}
+		<ul class="newest">
+			{#each newest as entry (entry.id)}
+				<li><GlossaryRow {entry} /></li>
+			{/each}
+		</ul>
+	{:else}
+		<div class="groups" class:indexed>
+			{#each groups as group (group.letter)}
+				<section class="group" aria-labelledby={`letter-${group.letter}`}>
+					<h2 id={`letter-${group.letter}`}>{group.letter}</h2>
+					<ul>
+						{#each group.entries as entry (entry.id)}
+							<li><GlossaryRow {entry} /></li>
+						{/each}
+					</ul>
+				</section>
+			{/each}
+		</div>
+	{/if}
 {/if}
 
 <style>
@@ -117,18 +144,19 @@
 		display: grid;
 		gap: var(--spacing-4);
 		margin: var(--spacing-4) 0;
-		padding-bottom: var(--spacing-8);
+		padding-bottom: var(--spacing-6);
 		border-bottom: var(--border-width-hairline) solid var(--color-line);
+	}
+
+	.tools {
+		display: grid;
+		gap: var(--spacing-4);
 	}
 
 	.categories {
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--spacing-2);
-	}
-
-	.search {
-		max-width: var(--size-content-default);
 	}
 
 	.groups {
@@ -158,61 +186,19 @@
 		line-height: var(--line-height-2xl);
 	}
 
-	.group ul {
+	.group ul,
+	.newest {
 		display: grid;
-		gap: var(--spacing-8);
+		gap: var(--spacing-2);
 		max-width: var(--size-content-default);
 	}
 
-	a {
-		display: grid;
-		gap: var(--spacing-1);
-		color: var(--color-fg);
-		text-decoration: none;
-	}
-
-	.head {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: baseline;
-		gap: var(--spacing-1) var(--spacing-3);
-	}
-
-	.name {
-		font-size: var(--font-size-lg);
-		font-weight: var(--font-weight-bold);
-		line-height: var(--line-height-lg);
-	}
-
-	a:hover .name {
-		text-decoration: underline;
-		text-decoration-thickness: var(--border-width-hairline);
-		text-underline-offset: 0.2em;
-	}
-
-	.category {
-		display: inline-flex;
-		align-items: baseline;
-		gap: var(--spacing-1);
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-sm);
-		line-height: var(--line-height-sm);
-	}
-
-	.category :global(svg) {
-		align-self: center;
-	}
-
-	.sentence {
-		display: -webkit-box;
-		overflow: hidden;
-		color: var(--color-fg-muted);
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
-		line-clamp: 2;
-	}
-
 	@media (min-width: 768px) {
+		.tools {
+			grid-template-columns: minmax(0, var(--size-content-default)) auto;
+			justify-content: start;
+		}
+
 		.group {
 			grid-template-columns: 80px minmax(0, 1fr);
 			gap: 0;
@@ -228,6 +214,10 @@
 		}
 
 		h2 {
+			position: sticky;
+			top: calc(var(--bar-height) + var(--spacing-8));
+			align-self: start;
+			padding-top: var(--spacing-3);
 			padding-bottom: 0;
 			border-bottom: none;
 		}

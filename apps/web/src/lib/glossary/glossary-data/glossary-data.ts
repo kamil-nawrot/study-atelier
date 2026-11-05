@@ -56,7 +56,8 @@ function entryOf(row: Row): GlossaryEntry | undefined {
 		forms: row.forms,
 		hasDefinition: (row.definition ?? '').trim() !== '',
 		sortName: row.sort_name,
-		source: sourceFromRow(row)
+		source: sourceFromRow(row),
+		createdAt: row.created_at
 	};
 }
 

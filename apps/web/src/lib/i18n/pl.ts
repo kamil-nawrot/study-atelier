@@ -1252,6 +1252,11 @@ export const pl = {
 		noResults: (query: string): string =>
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment.`,
 		categories: 'Kategorie',
+		sortLabel: 'Sortuj',
+		sorts: {
+			name: 'Alfabetycznie',
+			recent: 'Ostatnio dodane'
+		},
 		loadErrorTitle: 'Nie udało się wczytać słowniczka',
 		categoryNames: {
 			person: 'Osoba',
