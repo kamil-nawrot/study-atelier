@@ -68,14 +68,27 @@ function escapeRegExp(text: string): string {
 	return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
 }
 
+const patterns = new Map<string, RegExp>();
+
+function folded(text: string): string {
+	return text.toLowerCase().replace(/\s+/g, ' ');
+}
+
 function termPattern(phrase: string): RegExp {
-	return new RegExp(`(?<![\\p{L}\\p{N}])${escapeRegExp(phrase.trim())}(?![\\p{L}\\p{N}])`, 'giu');
+	let pattern = patterns.get(phrase);
+	if (!pattern) {
+		pattern = new RegExp(`(?<![\\p{L}\\p{N}])${escapeRegExp(phrase)}(?![\\p{L}\\p{N}])`, 'giu');
+		patterns.set(phrase, pattern);
+	}
+	return pattern;
 }
 
 function matchesIn(text: string, terms: NoteTerm[]): TermMatch[] {
+	const haystack = folded(text);
 	const found = terms.flatMap(({ id, phrases }) =>
 		phrases
-			.filter((phrase) => phrase.trim() !== '')
+			.map((phrase) => phrase.trim())
+			.filter((phrase) => phrase !== '' && haystack.includes(folded(phrase)))
 			.flatMap((phrase) =>
 				[...text.matchAll(termPattern(phrase))].map((match) => ({
 					start: match.index,
