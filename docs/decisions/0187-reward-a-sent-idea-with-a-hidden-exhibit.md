@@ -5,13 +5,13 @@
 
 ## Context and problem statement
 
-The learner sends bugs and ideas through "Zgłoś uwagę" in the menu ([ADR-0076](0076-collect-feedback-in-a-table-from-a-menu-dialog.md)). The owner wants to thank a learner who sends an idea with a hidden single-tier exhibit of the display case, like "Straż nocna", "Puchar Nemezis" and the Mona Lisa ([ADR-0160](0160-gamify-learning-as-a-museum-career.md), [ADR-0162](0162-show-the-exhibits-as-toned-engravings-in-frames.md)). What counts, how is it counted, which engraving does it show and how does it read?
+The learner sends bugs and ideas through "Zgłoś uwagę" in the menu ([ADR-0076](0076-collect-feedback-in-a-table-from-a-menu-dialog.md)). The owner wants to thank a learner who sends an idea with a hidden single-tier exhibit of the display case, like "Straż nocna", "Puchar Nemezis" and "Uśmiech Mony Lisy" ([ADR-0160](0160-gamify-learning-as-a-museum-career.md), [ADR-0162](0162-show-the-exhibits-as-toned-engravings-in-frames.md)). What counts, how is it counted, which engraving does it show and how does it read?
 
 ## Decision drivers
 
 - Exhibits are counted from the learner's data and unlocked retroactively; an unlocked tier stays unlocked.
 - The learner cannot read the `feedback` table, and the export does not carry it.
-- The engraving comes from a public-domain or CC0 source and is named after what it shows (ADR-0185, in pull request #539).
+- The engraving comes from a public-domain or CC0 source and is named after what it shows ([ADR-0185](0185-name-each-exhibit-after-what-its-engraving-shows.md)).
 - A hidden exhibit keeps its secret until found, but its hint still points the way.
 
 ## Considered options
