@@ -6,6 +6,8 @@ import {
 } from '#lib/images/bucket/bucket.ts';
 import type { Pin } from '#lib/pins/types/pin.ts';
 
+const SAME_PLACE_TOLERANCE = 1e-9;
+
 export function pinCropPath(ownerId: string, pinId: string): string {
 	return `${ownerId}/${pinId}-crop-${crypto.randomUUID().slice(0, 8)}.jpg`;
 }
@@ -25,8 +27,11 @@ export async function savePinCrop(pin: Pin, crop: Blob): Promise<boolean> {
 		.from('artwork_pins')
 		.update({ crop_path: path })
 		.eq('id', pin.id)
-		.eq('x', pin.x)
-		.eq('y', pin.y)
-		.eq('view_width', pin.viewWidth);
+		.gte('x', pin.x - SAME_PLACE_TOLERANCE)
+		.lte('x', pin.x + SAME_PLACE_TOLERANCE)
+		.gte('y', pin.y - SAME_PLACE_TOLERANCE)
+		.lte('y', pin.y + SAME_PLACE_TOLERANCE)
+		.gte('view_width', pin.viewWidth - SAME_PLACE_TOLERANCE)
+		.lte('view_width', pin.viewWidth + SAME_PLACE_TOLERANCE);
 	return !error;
 }
