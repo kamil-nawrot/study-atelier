@@ -62,6 +62,24 @@ describe('ExhibitCase', () => {
 		expect(document.querySelector('header .visually-hidden')?.textContent).toBe(m.career.new);
 	});
 
+	it.each([1280, 390])(
+		'keeps the button in the corner off the new badge at %i px',
+		async (width) => {
+			await page.viewport(width, 800);
+			render(ExhibitCase, {
+				props: { exhibit: exhibit({ tiers: [unlocked(1), unlocked(2, false)] }) }
+			});
+
+			const corner = document.querySelector('.corner')!.getBoundingClientRect();
+			const button = page.getByRole('button', { name: m.career.about }).element();
+			const mark = document.querySelector('.picture > .mark')!.getBoundingClientRect();
+			const hit = document.elementFromPoint(mark.left + mark.width / 2, mark.top + mark.height / 2);
+
+			expect(corner.width).toBe(button.getBoundingClientRect().width);
+			expect(hit?.closest('.mark')).not.toBeNull();
+		}
+	);
+
 	it('puts no numeral on an exhibit without a tier', async () => {
 		render(ExhibitCase, { props: { exhibit: exhibit({ value: 0, tiers: [] }) } });
 
