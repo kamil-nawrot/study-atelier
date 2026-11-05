@@ -575,9 +575,7 @@ describe('review page', () => {
 			const year = page.getByRole('heading', { name: m.review.year.question });
 			if (year.query()) {
 				await page.getByRole('button', { name: m.review.year.check }).click();
-				await expect
-					.element(page.getByText(m.review.year.results[1](m.review.year.when('1503', false))))
-					.toBeVisible();
+				await expect.element(page.getByText(m.review.year.results[1])).toBeVisible();
 			} else {
 				await expect
 					.element(page.getByRole('heading', { name: m.review.order.question }))

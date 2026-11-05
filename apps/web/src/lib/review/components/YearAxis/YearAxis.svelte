@@ -5,10 +5,11 @@
 	type Props = {
 		bounds: Years;
 		years: Years;
+		yearsText: string;
 		guess: number;
 	};
 
-	let { bounds, years, guess }: Props = $props();
+	let { bounds, years, yearsText, guess }: Props = $props();
 
 	function percent(year: number): string {
 		return `${placeOf(year, bounds) * 100}%`;
@@ -38,6 +39,9 @@
 		{/if}
 		<span style:left={percent(guess)} class="guess"></span>
 	</div>
+	<div class="labels">
+		<span style:left={percent((years[0] + years[1]) / 2)} class="real-label">{yearsText}</span>
+	</div>
 	<div class="ends">
 		<span>{m.atelier.year(bounds[0], false)}</span>
 		<span>{m.atelier.year(bounds[1], false)}</span>
@@ -59,7 +63,8 @@
 		line-height: var(--line-height-md);
 	}
 
-	.guess-label {
+	.guess-label,
+	.real-label {
 		position: absolute;
 		translate: -50% 0;
 		white-space: nowrap;
@@ -83,11 +88,11 @@
 	}
 
 	.close {
-		background: var(--color-surface);
+		background: color-mix(in srgb, var(--color-fg) 14%, transparent);
 	}
 
 	.know {
-		background: var(--color-tag);
+		background: color-mix(in srgb, var(--color-fg) 30%, transparent);
 	}
 
 	.real {

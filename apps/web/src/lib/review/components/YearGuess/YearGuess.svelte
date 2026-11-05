@@ -78,7 +78,7 @@
 
 {#snippet guess()}
 	{#if guessed !== undefined}
-		<YearAxis {bounds} guess={guessed} {years} />
+		<YearAxis {bounds} guess={guessed} {years} {yearsText} />
 	{:else}
 		<YearSlider {bounds} disabled={saving} oncheck={check} bind:value />
 	{/if}
@@ -131,7 +131,10 @@
 		<div class="feedback" role="status">
 			{#if outcome && guessed !== undefined}
 				<p class="verdict">
-					{m.review.year.results[outcome.rating](m.review.year.when(yearsText, span))}
+					{m.review.year.results[outcome.rating]}
+					<span class="visually-hidden"
+						>{m.review.year.made(m.review.year.when(yearsText, span))}</span
+					>
 				</p>
 				<p>
 					{outcome.direction === 'inside'

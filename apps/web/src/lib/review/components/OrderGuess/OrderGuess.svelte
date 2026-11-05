@@ -75,7 +75,7 @@
 			<p class="caption">{m.review.order.tag}</p>
 			<h1 bind:this={heading} id="quiz-heading" tabindex="-1">{m.review.order.question}</h1>
 			<p class="lead">{m.review.order.hint}</p>
-			<p class="caption keys">{m.review.order.keyboardHint}</p>
+			<p class="visually-hidden">{m.review.order.keyboardHint}</p>
 		</div>
 		<div class="feedback" role="status">
 			{#if ordered}
@@ -126,11 +126,5 @@
 		display: grid;
 		gap: var(--spacing-1);
 		padding-left: var(--spacing-6);
-	}
-
-	@media (max-width: 767.98px) {
-		.keys {
-			display: none;
-		}
 	}
 </style>
