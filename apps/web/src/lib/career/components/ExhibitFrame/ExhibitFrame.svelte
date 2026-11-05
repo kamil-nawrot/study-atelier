@@ -95,12 +95,6 @@
 		.frame {
 			--frame-scale: 1;
 		}
-
-		.corner {
-			top: var(--spacing-2);
-			right: var(--spacing-2);
-			left: auto;
-		}
 	}
 
 	.picture {
