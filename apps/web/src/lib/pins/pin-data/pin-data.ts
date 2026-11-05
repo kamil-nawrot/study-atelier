@@ -37,10 +37,13 @@ type EntryPinsResult = {
 
 type Row = Database['public']['Tables']['artwork_pins']['Row'];
 
-const COLUMNS = 'id, image_id, x, y, glossary_entry_id, text, view_width';
+const COLUMNS = 'id, image_id, x, y, glossary_entry_id, text, view_width, crop_path';
 
 function pinOf(
-	row: Pick<Row, 'id' | 'image_id' | 'x' | 'y' | 'glossary_entry_id' | 'text' | 'view_width'>
+	row: Pick<
+		Row,
+		'id' | 'image_id' | 'x' | 'y' | 'glossary_entry_id' | 'text' | 'view_width' | 'crop_path'
+	>
 ): Pin {
 	return {
 		id: row.id,
@@ -49,7 +52,8 @@ function pinOf(
 		y: row.y,
 		glossaryEntryId: row.glossary_entry_id,
 		text: row.text ?? '',
-		...(row.view_width ? { viewWidth: row.view_width } : {})
+		...(row.view_width ? { viewWidth: row.view_width } : {}),
+		...(row.crop_path ? { cropPath: row.crop_path } : {})
 	};
 }
 
