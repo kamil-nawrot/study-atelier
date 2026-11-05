@@ -40,6 +40,7 @@
 	import { sameTitleAndAuthors } from '#lib/artworks/duplicates/duplicates.ts';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
+	import { LiveErrors } from '#lib/shared/forms/live-errors/live-errors.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { suggestValues } from '#lib/card-index/value-suggestions/value-suggestions.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
@@ -89,7 +90,9 @@
 	const typeTiles = artworkTypeTiles();
 	const imageTexts = artworkImageTexts();
 	let form = $state(initialForm());
-	let fieldErrors = $state<ArtworkFieldErrors>({});
+	const fieldErrors = new LiveErrors<ArtworkFieldErrors>(() =>
+		validateArtwork(artworkInputFromForm($state.snapshot(form)))
+	);
 	let savingNext = $state(false);
 	let imageMatching = $state(false);
 	let next = false;
@@ -174,8 +177,7 @@
 			savingNext = andNext;
 			const snapshot = $state.snapshot(form);
 			const input = artworkInputFromForm(snapshot);
-			fieldErrors = validateArtwork(input);
-			if (Object.keys(fieldErrors).length > 0) return;
+			if (!fieldErrors.check()) return;
 			checked = input;
 			if (!(await fieldTypeCheck.confirm(input, ownFields ?? []))) return;
 			if (!(await eraCheck.ask(input, artwork))) return;
@@ -185,7 +187,6 @@
 				artwork ? { id: artwork.id, image: artwork.image, images: artwork.images } : undefined
 			);
 			if (!result.saved) {
-				fieldErrors = result.fieldErrors;
 				formState.error = result.error ?? '';
 				return;
 			}
@@ -237,7 +238,7 @@
 			<TextField
 				id={titleId}
 				autocomplete="off"
-				error={fieldErrors.title}
+				error={fieldErrors.current.title}
 				label={m.artworkForm.title}
 				bind:value={form.title}
 			/>
@@ -245,7 +246,7 @@
 			<div class="group">
 				<ValueField
 					disabled={form.authorUnknown}
-					error={fieldErrors.authors}
+					error={fieldErrors.current.authors}
 					label={m.artworkForm.authors}
 					maxlength={VALUE_NAME_MAX_LENGTH}
 					options={options('author')}
@@ -271,7 +272,7 @@
 				{#if form.spanMode}
 					<YearInput
 						beforeCommonEraLabel={m.artworkForm.beforeCommonEraFrom}
-						error={fieldErrors.yearFrom}
+						error={fieldErrors.current.yearFrom}
 						label={m.artworkForm.spanFrom}
 						placeholder={m.artworkForm.spanFrom}
 						bind:value={form.yearFrom}
@@ -281,7 +282,7 @@
 				<YearInput
 					id={yearToId}
 					beforeCommonEraLabel={form.spanMode ? m.artworkForm.beforeCommonEraTo : undefined}
-					error={fieldErrors.yearTo}
+					error={fieldErrors.current.yearTo}
 					label={form.spanMode ? m.artworkForm.spanTo : m.artworkForm.year}
 					placeholder={form.spanMode ? m.artworkForm.spanTo : undefined}
 					bind:value={form.yearTo}

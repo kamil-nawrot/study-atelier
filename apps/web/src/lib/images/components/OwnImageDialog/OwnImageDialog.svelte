@@ -1,7 +1,9 @@
 <script lang="ts">
+	import Camera from '@lucide/svelte/icons/camera';
 	import Clipboard from '@lucide/svelte/icons/clipboard';
 	import Upload from '@lucide/svelte/icons/upload';
 	import { Button, Dialog, FieldMessage, FilePicker, Icon, TextField } from '@study-atelier/ui';
+	import { MediaQuery } from 'svelte/reactivity';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
 		OWN_IMAGE_ACCEPT,
@@ -21,17 +23,30 @@
 	const id = $props.id();
 	const fileMessageId = `${id}-file`;
 	const fileHint = m.artworkForm.fileHint(ownImageFormats(), OWN_IMAGE_MAX_MEGABYTES);
+	const touch = new MediaQuery('(pointer: coarse)');
 </script>
 
 <Dialog onclose={() => input.resetOwnImage()} {title} bind:open={input.dialogOpen}>
 	<div class="own-image">
 		<div class="paste-area">
-			<Icon icon={Clipboard} />
-			<p class="paste-lead">
-				{m.artworkForm.pasteHintLead}
-				<PasteKeys />
-			</p>
+			{#if !touch.current}
+				<Icon icon={Clipboard} />
+				<p class="paste-lead">
+					{m.artworkForm.pasteHintLead}
+					<PasteKeys />
+				</p>
+			{/if}
 			<div class="paste-actions">
+				{#if touch.current}
+					<FilePicker
+						accept={OWN_IMAGE_ACCEPT}
+						capture="environment"
+						describedby={fileMessageId}
+						icon={Camera}
+						label={m.artworkForm.takePhoto}
+						onpick={(file) => input.pickFile(file)}
+					/>
+				{/if}
 				<Button
 					aria-describedby={fileMessageId}
 					disabled={input.pasting}

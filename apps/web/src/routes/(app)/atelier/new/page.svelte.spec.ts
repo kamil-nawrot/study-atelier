@@ -231,6 +231,23 @@ describe('add artwork page', () => {
 		expect(saveArtworkCalls()).toHaveLength(0);
 	});
 
+	it('drops the error of a year span as soon as the end year is corrected', async () => {
+		renderPage();
+		await fillRequired();
+		await toggleSpan();
+		await page.getByRole('textbox', { name: m.artworkForm.spanFrom }).fill('1519');
+		const end = page.getByRole('textbox', { name: m.artworkForm.spanTo });
+		await end.fill('1503');
+		await saveButton().click();
+		await expect.element(page.getByText(m.artworkErrors.spanOrder)).toBeVisible();
+
+		await end.fill('1525');
+
+		await expect.element(page.getByText(m.artworkErrors.spanOrder)).not.toBeInTheDocument();
+		await end.fill('1500');
+		await expect.element(page.getByText(m.artworkErrors.spanOrder)).toBeVisible();
+	});
+
 	it('keeps the end year as the year when the year span is switched off', async () => {
 		renderPage();
 		await toggleSpan();

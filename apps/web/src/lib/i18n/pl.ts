@@ -557,6 +557,7 @@ export const pl = {
 		changeOwnImageTitle: 'Zmień własny obraz',
 		removeImage: 'Usuń obraz',
 		chooseFile: 'Wybierz plik z dysku',
+		takePhoto: 'Zrób zdjęcie',
 		fileHint: (formats: string, maxMegabytes: number): string =>
 			`Akceptowalne formaty zdjęć to: ${formats}. Pliki większe niż ${maxMegabytes} MB zostaną automatycznie zmniejszone.`,
 		pasteFromClipboard: 'Wklej ze schowka',
@@ -1288,6 +1289,11 @@ export const pl = {
 		noResults: (query: string): string =>
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment.`,
 		categories: 'Kategorie',
+		sortLabel: 'Sortuj',
+		sorts: {
+			name: 'Alfabetycznie',
+			recent: 'Ostatnio dodane'
+		},
 		loadErrorTitle: 'Nie udało się wczytać słowniczka',
 		categoryNames: {
 			person: 'Osoba',

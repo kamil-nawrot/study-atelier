@@ -16,6 +16,7 @@
 	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
 	import YearInput from '#lib/shared/forms/YearInput/YearInput.svelte';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
+	import { LiveErrors } from '#lib/shared/forms/live-errors/live-errors.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import ArticleDialog from '#lib/glossary/components/ArticleDialog/ArticleDialog.svelte';
 	import FillingStatus from '#lib/shared/forms/FillingStatus/FillingStatus.svelte';
@@ -61,7 +62,7 @@
 	const initial = (): EventFormState => (existing ? eventFormOf(existing) : emptyEventForm());
 
 	let form = $state<EventFormState>(initial());
-	let errors = $state<EventFormErrors>({});
+	const errors = new LiveErrors<EventFormErrors>(() => validateEventForm(form));
 	let status = $state<SearchStatus>('idle');
 	let articles = $state<EventArticle[]>([]);
 	let articlesName = $state('');
@@ -208,8 +209,7 @@
 
 	function submit(): Promise<void> {
 		return formState.run(async () => {
-			errors = validateEventForm(form);
-			if (Object.keys(errors).length > 0) return;
+			if (!errors.check()) return;
 			request += 1;
 			const snapshot = $state.snapshot(form);
 			const draft = draftOfEventForm(snapshot);
@@ -229,7 +229,7 @@
 		<div class="fields">
 			<TextField
 				autocomplete="off"
-				error={errors.name}
+				error={errors.current.name}
 				label={m.common.name}
 				maxlength={EVENT_NAME_MAX_LENGTH}
 				placeholder={m.timeline.form.namePlaceholder}
@@ -256,7 +256,7 @@
 				{#if form.spanMode}
 					<YearInput
 						beforeCommonEraLabel={m.artworkForm.beforeCommonEraFrom}
-						error={errors.yearFrom}
+						error={errors.current.yearFrom}
 						filling={filling?.dates}
 						label={m.artworkForm.spanFrom}
 						placeholder={m.artworkForm.spanFrom}
@@ -267,7 +267,7 @@
 				<YearInput
 					id={yearToId}
 					beforeCommonEraLabel={form.spanMode ? m.artworkForm.beforeCommonEraTo : undefined}
-					error={errors.yearTo}
+					error={errors.current.yearTo}
 					filling={filling?.dates}
 					label={form.spanMode ? m.artworkForm.spanTo : m.timeline.form.year}
 					placeholder={form.spanMode ? m.artworkForm.spanTo : undefined}

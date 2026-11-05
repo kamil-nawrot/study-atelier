@@ -253,7 +253,8 @@ describe('loadGlossary', () => {
 					url: 'https://pl.wikipedia.org/wiki/Tympanum',
 					licence: 'CC BY-SA 4.0',
 					fetchedOn: '2026-10-17'
-				}
+				},
+				createdAt: '2026-10-17T00:00:00Z'
 			},
 			{
 				id: 'other',
@@ -264,7 +265,8 @@ describe('loadGlossary', () => {
 				forms: ['tympana'],
 				hasDefinition: false,
 				sortName: 'Tympanum, the',
-				source: null
+				source: null,
+				createdAt: '2026-10-17T00:00:00Z'
 			}
 		]);
 	});
