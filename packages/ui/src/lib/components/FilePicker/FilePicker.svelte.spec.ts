@@ -28,6 +28,12 @@ describe('FilePicker', () => {
 		expect(input().hidden).toBe(true);
 	});
 
+	it('asks the phone for its camera when it captures', async () => {
+		render(FilePicker, { label: 'Take a photo', capture: 'environment', onpick: vi.fn() });
+
+		expect(input().getAttribute('capture')).toBe('environment');
+	});
+
 	it('hands over the picked file and clears the input, so the same file can be picked again', async () => {
 		const onpick = vi.fn();
 		render(FilePicker, { label: 'Choose a file', onpick });
