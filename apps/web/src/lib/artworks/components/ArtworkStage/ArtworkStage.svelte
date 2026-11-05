@@ -21,6 +21,7 @@
 	import PinCard from '#lib/pins/components/PinCard/PinCard.svelte';
 	import PinDialog from '#lib/pins/components/PinDialog/PinDialog.svelte';
 	import PinMarkers from '#lib/pins/components/PinMarkers/PinMarkers.svelte';
+	import { ensurePinCrops } from '#lib/pins/pin-crop/pin-crop.ts';
 	import { pinsOfImage } from '#lib/pins/pin-layout/pin-layout.ts';
 	import type { Pin as PinRecord } from '#lib/pins/types/pin.ts';
 	import { swipe } from '#lib/wall/flip/flip.ts';
@@ -114,6 +115,10 @@
 		newPin = spot;
 		newPinOpen = true;
 	}
+
+	$effect(() => {
+		ensurePinCrops(gallery, allPins);
+	});
 
 	function pinSaved(pin: PinRecord): void {
 		allPins = [...allPins, pin];

@@ -177,6 +177,7 @@ export type Database = {
       artwork_pins: {
         Row: {
           created_at: string;
+          crop_path: string | null;
           glossary_entry_id: string | null;
           id: string;
           image_id: string;
@@ -189,6 +190,7 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           created_at?: string;
+          crop_path?: string | null;
           glossary_entry_id?: string | null;
           id?: string;
           image_id: string;
@@ -200,6 +202,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          crop_path?: string | null;
           glossary_entry_id?: string | null;
           id?: string;
           image_id?: string;

@@ -6,4 +6,5 @@ export type Pin = {
 	glossaryEntryId: string | null;
 	text: string;
 	viewWidth?: number;
+	cropPath?: string;
 };

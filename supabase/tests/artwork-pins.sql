@@ -125,6 +125,21 @@ begin
   end;
   assert rejected, 'a view wider than the image is stored';
 
+  update public.artwork_pins set crop_path = 'crop-1.jpg' where id = viewed;
+  update public.artwork_pins set text = 'Mirror' where id = viewed;
+  assert (select crop_path from public.artwork_pins where id = viewed) = 'crop-1.jpg',
+    'changing the text of a pin forgets its crop';
+  update public.artwork_pins set x = 0.6 where id = viewed;
+  assert (select crop_path from public.artwork_pins where id = viewed) is null,
+    'moving a pin keeps the crop of its old view';
+  update public.artwork_pins set crop_path = 'crop-2.jpg' where id = viewed;
+  update public.artwork_pins set view_width = 0.3, crop_path = 'crop-3.jpg' where id = viewed;
+  assert (select crop_path from public.artwork_pins where id = viewed) = 'crop-3.jpg',
+    'a crop saved with a new view is not kept';
+  update public.artwork_pins set view_width = null where id = viewed;
+  assert (select crop_path from public.artwork_pins where id = viewed) is null,
+    'a pin without a view keeps a crop';
+
   delete from public.glossary_entries where id = term;
   assert exists (select 1 from public.artwork_pins where id = viewed),
     'deleting an entry drops a pin that keeps a view';
