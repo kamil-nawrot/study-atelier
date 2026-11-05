@@ -786,10 +786,11 @@ export const pl = {
 			slider: 'Rok powstania dzieła',
 			check: 'Sprawdź rok',
 			results: {
-				3: (when: string): string => `Świetne wyczucie: dzieło powstało ${when}.`,
-				2: (when: string): string => `Blisko. Dzieło powstało ${when}.`,
-				1: (when: string): string => `Tym razem daleko. Dzieło powstało ${when}.`
+				3: 'Świetne wyczucie.',
+				2: 'Blisko.',
+				1: 'Tym razem daleko.'
 			},
+			made: (when: string): string => `Dzieło powstało ${when}.`,
 			when: (years: string, span: boolean): string =>
 				span ? `w latach ${years}` : `w roku ${years}`,
 			miss: (guess: string, years: number, late: boolean): string =>

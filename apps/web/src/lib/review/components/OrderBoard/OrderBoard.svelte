@@ -184,7 +184,7 @@
 		.tiles {
 			grid-column: 1 / -1;
 			grid-template-columns: repeat(4, minmax(0, 1fr));
-			align-items: center;
+			align-items: start;
 		}
 
 		.handle {
