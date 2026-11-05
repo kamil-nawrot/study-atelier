@@ -697,6 +697,7 @@ export const pl = {
 			quizzes: 'Wyłącznie pytania, w których wybierasz poprawną spośród czterech odpowiedzi.'
 		},
 		start: 'Zacznij powtórkę',
+		preparing: 'Przygotowywanie rundy…',
 		free: 'Powtórka swobodna',
 		freeHint:
 			'Dodatkowa runda losowo wybranych dzieł, które już powtarzasz. Nie zmienia planu powtórek ani nie wpływa na obecną serię.',

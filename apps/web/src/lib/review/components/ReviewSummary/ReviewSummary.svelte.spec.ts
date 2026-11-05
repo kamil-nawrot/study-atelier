@@ -120,6 +120,18 @@ describe('ReviewSummary', () => {
 		expect(onfree).toHaveBeenCalled();
 	});
 
+	it('says the next round is being prepared and takes no second click', async () => {
+		await renderSummary([{ rating: 3, artworks: [testArtwork(3, 'Artwork 3')] }], {
+			nextRound: 4,
+			starting: true
+		});
+
+		await expect.element(page.getByRole('button', { name: m.review.preparing })).toBeDisabled();
+		await expect
+			.element(page.getByRole('button', { name: m.review.nextRound(4) }))
+			.not.toBeInTheDocument();
+	});
+
 	it('offers another free round after a free review and says the plan did not change', async () => {
 		await renderSummary([{ rating: 3, artworks: [testArtwork(3, 'Artwork 3')] }], {
 			free: true,
