@@ -79,49 +79,31 @@ describe('standing data', () => {
 		expect((await loadStanding()).standing).toBeUndefined();
 	});
 
-	it('reads the plan of the day and the tiers lit since its start for the round summary', async () => {
+	it('reads the tiers lit since the start of the day for the round summary', async () => {
 		const day = new Date('2026-10-28T23:00:00Z');
 		const chains = tables({
-			point_events: { data: { plan_share: 1, streak_days: 12 }, error: null },
 			exhibit_tiers: { data: [{ exhibit: 'collection', tier: 4 }], error: null }
 		});
 
 		await expect(loadRoundCareer(day)).resolves.toEqual({
-			round: {
-				plan: { share: 1, streak: 12 },
-				tiers: [{ exhibit: 'collection', tier: 4 }],
-				points: 1846,
-				rankSeen: 4
-			}
+			round: { tiers: [{ exhibit: 'collection', tier: 4 }], points: 1846, rankSeen: 4 }
 		});
 		expect(rpc).toHaveBeenCalledWith('career_standing', expect.objectContaining({ unlock: true }));
-		expect(chains.point_events.eq).toHaveBeenCalledWith('day_start', day.toISOString());
+		expect(from).not.toHaveBeenCalledWith('point_events');
 		expect(chains.exhibit_tiers.is).toHaveBeenCalledWith('seen_at', null);
 		expect(chains.exhibit_tiers.gte).toHaveBeenCalledWith('unlocked_at', day.toISOString());
 	});
 
-	it('has no plan in the round summary on a day without one', async () => {
-		tables({
-			point_events: { data: null, error: null },
-			exhibit_tiers: { data: [], error: null }
-		});
-
-		expect((await loadRoundCareer(new Date())).round?.plan).toBeUndefined();
-	});
-
 	it('gives no round summary when something fails', async () => {
 		standing(null, { message: 'TypeError: Failed to fetch' });
-		tables({ point_events: { data: null, error: null } });
+		tables({ exhibit_tiers: { data: [], error: null } });
 		await expect(loadRoundCareer(new Date())).resolves.toEqual({
 			error: m.collectionErrors.network
 		});
 		expect(from).not.toHaveBeenCalledWith('exhibit_tiers');
 
 		standing({ points: 1846, new_tiers: 0, rank_seen: 5 });
-		tables({
-			point_events: { data: null, error: { message: 'boom' } },
-			exhibit_tiers: { data: [], error: null }
-		});
+		tables({ exhibit_tiers: { data: null, error: { message: 'boom' } } });
 		expect((await loadRoundCareer(new Date())).round).toBeUndefined();
 	});
 

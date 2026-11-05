@@ -7,9 +7,11 @@ import { m } from '#lib/i18n/i18n.ts';
 import { resolveImages } from '#lib/wall/wall-data/wall-data.ts';
 import {
 	loadReviewDetails,
+	loadNoteGap,
 	loadSession,
 	recordFreeAnswers,
-	recordReview
+	recordReview,
+	recordRightAnswer
 } from '#lib/review/review-data/review-data.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { SessionRow } from '#lib/review/types/session-row.ts';
@@ -33,7 +35,7 @@ vi.mock('$app/state', () => ({
 	navigating: { to: null },
 	updated: { current: false }
 }));
-vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidate: vi.fn() }));
+vi.mock('$app/navigation', () => ({ beforeNavigate: vi.fn(), goto: vi.fn(), invalidate: vi.fn() }));
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
 	resolveImages: vi.fn().mockResolvedValue([])
 }));
@@ -44,8 +46,10 @@ vi.mock('#lib/glossary/glossary-data/glossary-data.ts', async (importOriginal) =
 vi.mock('#lib/review/review-data/review-data.ts', () => ({
 	REVIEW_COUNTS_DEPENDENCY: 'review:counts',
 	loadReviewDetails: vi.fn().mockResolvedValue({ details: new Map() }),
+	loadNoteGap: vi.fn(),
 	loadSession: vi.fn(),
 	recordFreeAnswers: vi.fn(),
+	recordRightAnswer: vi.fn().mockResolvedValue(undefined),
 	recordReview: vi.fn(),
 	withPinPreviews: async (items: unknown) => items
 }));
@@ -122,6 +126,7 @@ describe('review page', () => {
 	beforeEach(async () => {
 		vi.useFakeTimers({ now: new Date(2026, 9, 16, 21, 30), toFake: ['Date'] });
 		vi.mocked(recordReview).mockReset().mockResolvedValue({});
+		vi.mocked(recordRightAnswer).mockClear();
 		vi.mocked(loadSession)
 			.mockReset()
 			.mockResolvedValue({ rows: flashcards(1, 2, 20, 21) });
@@ -146,7 +151,8 @@ describe('review page', () => {
 		);
 
 		await expect.element(page.getByRole('heading', { name: m.review.waiting(9) })).toBeVisible();
-		await expect.element(page.getByText(m.review.plan(4, 5))).toBeVisible();
+		await expect.element(page.getByText(m.review.planKnown(4))).toBeVisible();
+		await expect.element(page.getByText(m.review.planFresh(5))).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.review.start })).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.review.free })).not.toBeInTheDocument();
 		await expect.element(page.getByRole('heading', { name: m.review.howTitle })).toBeVisible();
@@ -159,14 +165,38 @@ describe('review page', () => {
 	it('tells how many days in a row there were reviews', async () => {
 		renderReview(collection(25), new Map(), 0, undefined, 5);
 
-		await expect.element(page.getByText(m.review.streak(5))).toBeVisible();
+		await expect.element(page.getByText(m.review.streakCaption)).toBeVisible();
+		await expect.element(page.getByText(m.review.streakDays(5), { exact: true })).toBeVisible();
+		await expect.element(page.getByText(m.review.streakWeek(5, false))).toBeInTheDocument();
+	});
+
+	it('counts today in the streak once a round has been reviewed', async () => {
+		const artworks = collection(25);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 20), () => 5),
+			0,
+			undefined,
+			5
+		);
+		vi.mocked(loadSession)
+			.mockResolvedValueOnce({ rows: flashcards(1) })
+			.mockResolvedValueOnce({ rows: [], error: 'boom' });
+
+		await page.getByRole('button', { name: m.review.start }).click();
+		await page.getByRole('button', { name: m.review.flashcard.reveal }).click();
+		await page.getByRole('button', { name: new RegExp(`^${m.review.ratings[3]}`) }).click();
+		await page.getByRole('button', { name: /^Następna runda/ }).click();
+
+		await expect.element(page.getByText(m.review.streakDays(6), { exact: true })).toBeVisible();
+		await expect.element(page.getByText(m.review.streakWeek(6, true))).toBeInTheDocument();
 	});
 
 	it('says nothing about a streak when there is none', async () => {
 		renderReview(collection(25));
 
 		await expect.element(page.getByRole('heading', { name: m.review.waiting(10) })).toBeVisible();
-		await expect.element(page.getByText(m.review.streak(0))).not.toBeInTheDocument();
+		await expect.element(page.getByText(m.review.streakCaption)).not.toBeInTheDocument();
 	});
 
 	it('shows why the reviews could not be loaded', async () => {
@@ -218,7 +248,13 @@ describe('review page', () => {
 
 		await expect.element(page.getByText(m.review.freeHint)).toBeVisible();
 		await page.getByRole('button', { name: m.review.free }).click();
-		expect(loadSession).toHaveBeenLastCalledWith(expect.any(Date), 'mixed', { kind: 'all' }, 0);
+		expect(loadSession).toHaveBeenLastCalledWith(
+			expect.any(Date),
+			'mixed',
+			{ kind: 'all' },
+			false,
+			0
+		);
 		await expect.element(page.getByText(m.review.freeTag)).toBeVisible();
 
 		for (const rating of [3, 3] as const) {
@@ -226,12 +262,21 @@ describe('review page', () => {
 			await page.getByRole('button', { name: new RegExp(`^${m.review.ratings[rating]}`) }).click();
 		}
 
-		await expect.element(page.getByText(m.review.freeSummary(2, 1))).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { level: 1, name: m.review.roundTitle(2, 1) }))
+			.toBeVisible();
+		await expect.element(page.getByText(m.review.freePlan)).toBeVisible();
 		expect(recordReview).not.toHaveBeenCalled();
 		expect(vi.mocked(recordFreeAnswers).mock.calls.map(([, answers]) => answers)).toEqual([1, 1]);
 		expect(invalidate).not.toHaveBeenCalled();
 		await page.getByRole('button', { name: m.review.freeNextRound }).click();
-		expect(loadSession).toHaveBeenLastCalledWith(expect.any(Date), 'mixed', { kind: 'all' }, 1);
+		expect(loadSession).toHaveBeenLastCalledWith(
+			expect.any(Date),
+			'mixed',
+			{ kind: 'all' },
+			false,
+			1
+		);
 	});
 
 	it('does not offer a free review when the preferences switch it off', async () => {
@@ -262,7 +307,7 @@ describe('review page', () => {
 			{ ...defaultPreferences, reviewForm: 'quizzes', reviewNewPerDay: 5 }
 		);
 
-		await expect.element(page.getByText(m.review.plan(0, 5))).toBeVisible();
+		await expect.element(page.getByText(m.review.planFresh(5))).toBeVisible();
 		await page.getByText(m.review.options).click();
 		await expect
 			.element(page.getByRole('button', { name: m.review.forms.quizzes }))
@@ -290,10 +335,39 @@ describe('review page', () => {
 			.element(page.getByRole('button', { name: m.review.forms.quizzes }))
 			.not.toBeInTheDocument();
 		await page.getByRole('button', { name: m.review.start }).click();
-		expect(loadSession).toHaveBeenCalledWith(expect.any(Date), 'mixed', { kind: 'all' });
+		expect(loadSession).toHaveBeenCalledWith(
+			expect.any(Date),
+			'mixed',
+			{ kind: 'all' },
+			false,
+			undefined
+		);
 	});
 
-	it('adds the definitions of the preferences to a session unless they are switched off', async () => {
+	it('asks for the questions about time only when the preferences turn them on', async () => {
+		const artworks = collection(25);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 20), () => 5),
+			0,
+			undefined,
+			0,
+			{},
+			{ ...defaultPreferences, reviewTimeQuestions: true }
+		);
+
+		await page.getByRole('button', { name: m.review.start }).click();
+
+		expect(loadSession).toHaveBeenCalledWith(
+			expect.any(Date),
+			'mixed',
+			{ kind: 'all' },
+			true,
+			undefined
+		);
+	});
+
+	it('adds as many definitions to a session as the preferences ask for', async () => {
 		const artworks = collection(25);
 		renderReview(
 			artworks,
@@ -307,8 +381,6 @@ describe('review page', () => {
 			terms
 		);
 
-		await page.getByText(m.review.options).click();
-		await expect.element(page.getByText(m.review.definitionsHint(2))).toBeVisible();
 		await page.getByRole('button', { name: m.review.start }).click();
 		await expect.element(page.getByText(m.review.progress(1, 6))).toBeVisible();
 		await expect
@@ -341,7 +413,7 @@ describe('review page', () => {
 		expect(vi.mocked(loadTermDefinitions).mock.calls[0][0]).toHaveLength(2);
 	});
 
-	it('leaves the definitions out when they are switched off', async () => {
+	it('leaves the definitions out when the preferences switch them off', async () => {
 		const artworks = collection(25);
 		renderReview(
 			artworks,
@@ -350,16 +422,13 @@ describe('review page', () => {
 			undefined,
 			0,
 			{},
-			defaultPreferences,
+			{ ...defaultPreferences, reviewGlossaryOn: false, reviewGlossaryQuestions: 2 },
 			0,
 			terms
 		);
 
 		await page.getByText(m.review.options).click();
-		await page.getByText(m.review.definitions).click();
-		await expect
-			.element(page.getByRole('switch', { name: m.review.definitions }))
-			.not.toBeChecked();
+		expect(page.getByRole('switch').elements()).toHaveLength(0);
 		await page.getByRole('button', { name: m.review.start }).click();
 		await expect.element(page.getByText(m.review.progress(1, 4))).toBeVisible();
 	});
@@ -434,14 +503,20 @@ describe('review page', () => {
 		await page.getByRole('button', { name: m.review.forms.flashcards }).click();
 		await page.getByRole('button', { name: m.review.start }).click();
 		await expect.element(page.getByText(m.review.progress(1, 4))).toBeVisible();
-		expect(loadSession).toHaveBeenCalledWith(expect.any(Date), 'flashcards', { kind: 'all' });
+		expect(loadSession).toHaveBeenCalledWith(
+			expect.any(Date),
+			'flashcards',
+			{ kind: 'all' },
+			false,
+			undefined
+		);
 
 		for (const rating of [3, 2, 3, 3] as const) {
 			await page.getByRole('button', { name: m.review.flashcard.reveal }).click();
 			await page.getByRole('button', { name: new RegExp(`^${m.review.ratings[rating]}`) }).click();
 		}
 
-		await expect.element(page.getByRole('heading', { name: m.review.done })).toBeVisible();
+		await expect.element(page.getByRole('heading', { level: 1, name: /powtórzon/ })).toBeVisible();
 		expect(recordReview).toHaveBeenCalledTimes(4);
 		await expect
 			.element(page.getByRole('heading', { name: new RegExp(m.review.groups[3]) }))
@@ -457,6 +532,120 @@ describe('review page', () => {
 			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
 			.not.toBeInTheDocument();
 		expect(invalidate).toHaveBeenCalledWith('review:counts');
+	});
+
+	it('asks the year and the order on top of the session and counts them in the summary', async () => {
+		const artworks = collection(21).map((artwork) =>
+			artwork.number <= 5
+				? {
+						...artwork,
+						eraCode: 'early_modern' as const,
+						yearTo: artwork.number === 5 ? 1503 : 1400 + artwork.number * 100
+					}
+				: artwork
+		);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 19), (index) => (index < 1 ? -1 : 6))
+		);
+		vi.mocked(loadSession).mockResolvedValue({
+			rows: [
+				...flashcards(1),
+				{ artwork_id: 'artwork-5', mode: 'year', card: null },
+				{ mode: 'order', artwork_ids: ['artwork-1', 'artwork-2', 'artwork-3', 'artwork-4'] }
+			]
+		});
+
+		await page.getByRole('button', { name: m.review.start }).click();
+		await expect.element(page.getByText(m.review.progress(1, 3))).toBeVisible();
+		await page.getByRole('button', { name: m.review.flashcard.reveal }).click();
+		await page.getByRole('button', { name: new RegExp(`^${m.review.ratings[3]}`) }).click();
+
+		for (let step = 2; step <= 3; step += 1) {
+			await expect.element(page.getByText(m.review.progress(step, 3))).toBeVisible();
+			const year = page.getByRole('heading', { name: m.review.year.question });
+			if (year.query()) {
+				await page.getByRole('button', { name: m.review.year.check }).click();
+				await expect
+					.element(page.getByText(m.review.year.results[1](m.review.year.when('1503', false))))
+					.toBeVisible();
+			} else {
+				await expect
+					.element(page.getByRole('heading', { name: m.review.order.question }))
+					.toBeVisible();
+				await page.getByRole('button', { name: m.review.order.check }).click();
+				await expect.element(page.getByText(m.review.order.right)).toBeVisible();
+			}
+			await page.getByRole('button', { name: m.review.quiz.next }).click();
+		}
+
+		expect(recordReview).toHaveBeenCalledWith(
+			expect.objectContaining({ artworkId: 'artwork-5' }),
+			expect.objectContaining({ mode: 'year', rating: 1, correct: false })
+		);
+		expect(recordRightAnswer).toHaveBeenCalledOnce();
+		await expect.element(page.getByRole('heading', { level: 1, name: /powtórzon/ })).toBeVisible();
+		await expect.element(page.getByText(m.review.roundLines.years)).toBeVisible();
+		await expect.element(page.getByText(m.review.roundLines.orders)).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { level: 1, name: m.review.roundTitle(1, 1) }))
+			.toBeVisible();
+	});
+
+	it('asks for the title typed from memory and saves the artwork picked', async () => {
+		const artworks = collection(21);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 19), (index) => (index < 1 ? -1 : 6))
+		);
+		vi.mocked(loadSession).mockResolvedValue({
+			rows: [{ artwork_id: 'artwork-12', mode: 'quiz_typed', options: [] }]
+		});
+
+		await page.getByRole('button', { name: m.review.start }).click();
+		await page.getByRole('combobox', { name: m.review.quiz.typedLabel }).fill('artwork 12');
+		await page.getByRole('option', { name: 'Artwork 12' }).click();
+		await page.getByRole('button', { name: m.review.quiz.typedCheck }).click();
+
+		expect(recordReview).toHaveBeenCalledWith(
+			expect.objectContaining({ artworkId: 'artwork-12' }),
+			expect.objectContaining({ mode: 'quiz_typed', rating: 3, correct: true })
+		);
+		await vi.waitFor(() =>
+			expect(document.querySelector('.feedback')?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+				`${m.review.quiz.right} Artwork 12, Test Painter.`
+			)
+		);
+	});
+
+	it('asks for a term hidden in the own note when the switch is on', async () => {
+		const artworks = collection(25);
+		renderReview(
+			artworks,
+			cards(artworks.slice(0, 20), () => 5),
+			0,
+			undefined,
+			0,
+			{},
+			{ ...defaultPreferences, reviewNoteQuestions: true },
+			0,
+			terms.map((term) => ({ ...term, hasDefinition: false }))
+		);
+		vi.mocked(loadSession).mockResolvedValue({ rows: flashcards(1) });
+		vi.mocked(loadNoteGap).mockResolvedValue([{ id: 'artwork-12', notes: 'The apse is round.' }]);
+
+		await page.getByRole('button', { name: m.review.start }).click();
+		await page.getByRole('button', { name: m.review.flashcard.reveal }).click();
+		await page.getByRole('button', { name: new RegExp(`^${m.review.ratings[3]}`) }).click();
+		await expect
+			.element(page.getByRole('heading', { name: m.review.quiz.noteQuestion }))
+			.toBeVisible();
+		vi.mocked(recordRightAnswer).mockClear();
+		await page.getByRole('button', { name: /Apse/ }).click();
+
+		expect(loadNoteGap).toHaveBeenCalledWith({ kind: 'all' }, ['artwork-1']);
+		await expect.element(page.getByText('apse', { exact: true })).toBeVisible();
+		expect(recordRightAnswer).toHaveBeenCalledOnce();
 	});
 
 	it('asks before stopping a session that has answers and keeps them', async () => {
@@ -476,8 +665,10 @@ describe('review page', () => {
 		await expect.element(dialog.getByText(m.review.stopDescription)).toBeVisible();
 		await dialog.getByRole('button', { name: m.review.stop }).click();
 
-		await expect.element(page.getByRole('heading', { name: m.review.done })).toBeVisible();
-		await expect.element(page.getByText(m.review.summary(1, 1, 0))).toBeVisible();
+		await expect.element(page.getByRole('heading', { level: 1, name: /powtórzon/ })).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { level: 1, name: m.review.roundTitle(1, 1) }))
+			.toBeVisible();
 	});
 
 	it('keeps the answer still being saved when the session is stopped', async () => {
@@ -504,8 +695,10 @@ describe('review page', () => {
 			.click();
 		saved({});
 
-		await expect.element(page.getByRole('heading', { name: m.review.done })).toBeVisible();
-		await expect.element(page.getByText(m.review.summary(2, 1, 0))).toBeVisible();
+		await expect.element(page.getByRole('heading', { level: 1, name: /powtórzon/ })).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { level: 1, name: m.review.roundTitle(2, 1) }))
+			.toBeVisible();
 	});
 
 	it('asks new artworks as quizzes, shows the answer at once and goes on with Enter', async () => {

@@ -52,7 +52,6 @@
 		display: grid;
 		gap: var(--spacing-8);
 		margin: 0;
-		padding: 0;
 		list-style: none;
 	}
 

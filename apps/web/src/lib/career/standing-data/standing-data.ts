@@ -6,8 +6,8 @@ import type { Standing } from '#lib/career/types/standing.ts';
 type StandingResult = { standing?: Standing; error?: string };
 type RoundResult = { round?: RoundCareer; error?: string };
 
-async function newTiers(since?: Date): Promise<{ exhibit: string; tier: number }[] | undefined> {
-	let query = supabase.from('exhibit_tiers').select('exhibit, tier').is('seen_at', null);
+async function newTiers(since?: Date): Promise<RoundCareer['tiers'] | undefined> {
+	let query = supabase.from('exhibit_tiers').select('exhibit, tier, tiers').is('seen_at', null);
 	if (since) query = query.gte('unlocked_at', since.toISOString());
 	const { data, error } = await query.order('unlocked_at').order('exhibit').order('tier');
 	return error || !data ? undefined : data;
@@ -28,28 +28,11 @@ export function loadStanding(counted = false): Promise<StandingResult> {
 }
 
 export async function loadRoundCareer(dayStart: Date): Promise<RoundResult> {
-	const planRead = supabase
-		.from('point_events')
-		.select('plan_share, streak_days')
-		.eq('kind', 'plan_day')
-		.eq('day_start', dayStart.toISOString())
-		.maybeSingle();
-	const [{ standing, error }, plan] = await Promise.all([standingOf(true), planRead]);
+	const { standing, error } = await standingOf(true);
 	if (!standing) return { error };
 	const tiers = await newTiers(dayStart);
-	if (plan.error || tiers === undefined) {
-		return { error: collectionErrorMessage(plan.error ?? {}) };
-	}
-	return {
-		round: {
-			plan: plan.data
-				? { share: plan.data.plan_share ?? 0, streak: plan.data.streak_days ?? 0 }
-				: undefined,
-			tiers,
-			points: standing.points,
-			rankSeen: standing.rankSeen
-		}
-	};
+	if (tiers === undefined) return { error: collectionErrorMessage({}) };
+	return { round: { tiers, points: standing.points, rankSeen: standing.rankSeen } };
 }
 
 export async function markRankSeen(rank: number): Promise<{ error?: string }> {

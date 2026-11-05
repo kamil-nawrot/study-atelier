@@ -29,6 +29,16 @@
 	}}
 />
 
+<Story name="With a formatted hint" args={{ label: 'New email' }}>
+	{#snippet template(args)}
+		<TextField {...args}>
+			{#snippet hint()}
+				Current address: <strong>name@example.com</strong>
+			{/snippet}
+		</TextField>
+	{/snippet}
+</Story>
+
 <Story
 	name="With error"
 	args={{

@@ -238,6 +238,7 @@ Table exhibit_tiers {
   owner_id uuid [not null, default: `auth.uid()`]
   exhibit text [not null]
   tier smallint [not null]
+  tiers smallint
   unlocked_at "timestamp with time zone" [not null, default: `now()`]
   seen_at "timestamp with time zone"
 
@@ -365,8 +366,10 @@ Table point_events {
   streak_days integer
   occurred_at "timestamp with time zone" [not null, default: `now()`]
   code text
+  answers integer
 
   indexes {
+    (owner_id, day_start) [name: 'point_events_answers_idx', unique, note: 'where (kind = \'right_answers\'::text)']
     (owner_id, code) [name: 'point_events_code_idx', unique, note: 'where (kind = \'easter_egg\'::text)']
     (owner_id, day_start) [name: 'point_events_day_idx', unique, note: 'where (kind = \'plan_day\'::text)']
     (owner_id, kind, item_id) [name: 'point_events_item_idx', unique, note: 'where (item_id IS NOT NULL)']
@@ -384,7 +387,7 @@ Table profiles {
   review_session_size smallint [not null, default: `20`]
   review_new_per_day smallint [not null, default: `10`]
   review_form text [not null, default: `'mixed'::text`]
-  review_quiz_kinds "text[]" [not null, default: `ARRAY['quiz_title'::text, 'quiz_image'::text, 'quiz_author'::text, 'quiz_style'::text, 'quiz_pin'::text]`]
+  review_quiz_kinds "text[]" [not null, default: `ARRAY['quiz_title'::text, 'quiz_image'::text, 'quiz_author'::text, 'quiz_style'::text, 'quiz_pin'::text, 'quiz_typed'::text]`]
   review_free boolean [not null, default: `true`]
   view_show_pins boolean [not null, default: `false`]
   view_loupe_on boolean [not null, default: `false`]
@@ -398,6 +401,9 @@ Table profiles {
   rank_form text [not null, default: `'masculine'::text`]
   career_shown boolean [not null, default: `true`]
   rank_seen smallint [not null, default: `0`]
+  review_time_questions boolean [not null, default: `false`]
+  review_note_questions boolean [not null, default: `false`]
+  review_glossary_on boolean [not null, default: `true`]
   Note: 'RLS on'
 }
 
@@ -434,6 +440,8 @@ Table review_log {
   answer_ms integer
   reviewed_at "timestamp with time zone" [not null, default: `now()`]
   due_before "timestamp with time zone"
+  guessed_year integer
+  year_miss integer
 
   indexes {
     (artwork_id, reviewed_at) [name: 'review_log_artwork_id_reviewed_at_idx']

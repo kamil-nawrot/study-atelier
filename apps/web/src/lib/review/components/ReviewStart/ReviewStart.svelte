@@ -2,16 +2,9 @@
 	import Layers from '@lucide/svelte/icons/layers';
 	import Play from '@lucide/svelte/icons/play';
 	import Plus from '@lucide/svelte/icons/plus';
-	import {
-		Alert,
-		Button,
-		Disclosure,
-		EmptyState,
-		Icon,
-		Switch,
-		Tag,
-		ToggleTag
-	} from '@study-atelier/ui';
+	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
+	import Sprout from '@lucide/svelte/icons/sprout';
+	import { Alert, Button, Disclosure, EmptyState, Icon, ToggleTag } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -19,6 +12,7 @@
 	import type { AtelierKnowledge } from '#lib/review/types/atelier-knowledge.ts';
 	import type { ReviewScope } from '#lib/review/types/review-scope.ts';
 	import ReviewKnowledge from '#lib/review/components/ReviewKnowledge/ReviewKnowledge.svelte';
+	import ReviewStreak from '#lib/review/components/ReviewStreak/ReviewStreak.svelte';
 	import type { ScopeChoice } from '#lib/review/types/scope-choice.ts';
 	import { MIN_ARTWORKS } from '#lib/review/queue/queue.ts';
 	import type { ReviewForm } from '#lib/review/types/review-form.ts';
@@ -36,13 +30,11 @@
 		troubles: WallArtwork[];
 		starting: boolean;
 		streak: number;
+		reviewedToday?: boolean;
 		free?: boolean;
-		definitions?: number;
-		definitionsOn?: boolean;
 		error?: string;
 		onscope: (scope: ReviewScope) => void;
 		onform: (form: ReviewForm) => void;
-		ondefinitions?: (on: boolean) => void;
 		onstart: () => void;
 	};
 
@@ -59,13 +51,11 @@
 		troubles,
 		starting,
 		streak,
+		reviewedToday = false,
 		free = false,
-		definitions,
-		definitionsOn = false,
 		error,
 		onscope,
 		onform,
-		ondefinitions,
 		onstart
 	}: Props = $props();
 
@@ -94,7 +84,14 @@
 				<h1>{m.review.title}</h1>
 			{:else if waiting > 0}
 				<h1>{m.review.waiting(waiting)}</h1>
-				<p class="lead">{m.review.plan(known, fresh)}</p>
+				<p class="lead plan">
+					{#if known > 0}
+						<span class="part"><Icon icon={RotateCcw} size="sm" />{m.review.planKnown(known)}</span>
+					{/if}
+					{#if fresh > 0}
+						<span class="part"><Icon icon={Sprout} size="sm" />{m.review.planFresh(fresh)}</span>
+					{/if}
+				</p>
 			{:else}
 				<h1>{m.review.allDoneTitle}</h1>
 				{#if nextWhen}
@@ -102,9 +99,9 @@
 				{/if}
 			{/if}
 			{#if streak > 0}
-				<p class="streak">
-					<Tag>{m.review.streak(streak)}</Tag>
-				</p>
+				<div class="streak">
+					<ReviewStreak {reviewedToday} {streak} />
+				</div>
 			{/if}
 		</header>
 
@@ -167,15 +164,6 @@
 						</div>
 						<p class="caption">{m.review.formHints[form]}</p>
 					</section>
-					{#if definitions !== undefined}
-						<section class="choice">
-							<Switch
-								label={m.review.definitions}
-								bind:checked={() => definitionsOn, (on) => ondefinitions?.(on)}
-							/>
-							<p class="caption">{m.review.definitionsHint(definitions)}</p>
-						</section>
-					{/if}
 				</div>
 			</Disclosure>
 		{/if}
@@ -210,7 +198,19 @@
 	}
 
 	.streak {
-		padding-top: var(--spacing-2);
+		padding-top: var(--spacing-4);
+	}
+
+	.plan {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-1) var(--spacing-6);
+	}
+
+	.part {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--spacing-2);
 	}
 
 	.how {

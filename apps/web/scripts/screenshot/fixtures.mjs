@@ -277,12 +277,12 @@ function reviewCard(number, dueInDays, stability, state, lapses = 0) {
 
 export const REVIEW_CARDS = [
 	reviewCard(1, -1, 4, 2),
-	reviewCard(2, 9, 21, 2),
+	reviewCard(2, -1, 21, 2),
 	reviewCard(3, -2, 3, 3, 1),
-	reviewCard(4, 15, 30, 2),
+	reviewCard(4, -1, 30, 2),
 	reviewCard(5, 4, 12, 2),
 	reviewCard(6, 0, 2, 2),
-	reviewCard(7, 20, 40, 2),
+	reviewCard(7, -1, 40, 2),
 	reviewCard(9, -1, 5, 2),
 	reviewCard(12, 0, 1, 3, 2),
 	reviewCard(13, 6, 10, 2),
@@ -463,9 +463,19 @@ export const PROFILE = {
 	review_session_size: 20,
 	review_new_per_day: 10,
 	review_form: 'mixed',
-	review_quiz_kinds: ['quiz_title', 'quiz_image', 'quiz_author', 'quiz_style', 'quiz_pin'],
+	review_quiz_kinds: [
+		'quiz_title',
+		'quiz_image',
+		'quiz_author',
+		'quiz_style',
+		'quiz_pin',
+		'quiz_typed'
+	],
 	review_free: true,
+	review_glossary_on: true,
 	review_glossary_questions: 2,
+	review_note_questions: true,
+	review_time_questions: true,
 	career_shown: true,
 	rank_form: 'masculine',
 	rank_seen: 5,
@@ -1040,6 +1050,7 @@ export const EXHIBITS = [
 	{ exhibit: 'collection', value: 191, thresholds: [1, 10, 50, 100, 250, 500, 1000, 2500, 5000] },
 	{ exhibit: 'eras', value: 5, thresholds: [2, 3, 4, 5, 6] },
 	{ exhibit: 'memory', value: 55, thresholds: [1, 25, 100, 250, 500, 1000, 2500] },
+	{ exhibit: 'bullseye', value: 7, thresholds: [1, 5, 25, 50, 100, 250] },
 	{ exhibit: 'regular', value: 14, thresholds: [3, 7, 14, 30, 60, 100, 200, 365] },
 	{ exhibit: 'back_from_storage', value: 0, thresholds: [1] },
 	{ exhibit: 'chronicle', value: 2, thresholds: [1, 5, 10, 25, 50, 100] },
@@ -1058,6 +1069,7 @@ export const EXHIBIT_TIERS = EXHIBITS.flatMap(({ exhibit, value, thresholds }) =
 		.map((_, index) => ({
 			exhibit,
 			tier: index + 1,
+			tiers: thresholds.length,
 			unlocked_at: `2026-10-${String(12 + index).padStart(2, '0')}T10:00:00Z`,
 			seen_at:
 				(exhibit === 'glossary' && index === 4) || (exhibit === 'collection' && index === 1)

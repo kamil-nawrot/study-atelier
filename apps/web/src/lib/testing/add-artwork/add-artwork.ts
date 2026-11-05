@@ -1,6 +1,5 @@
 import { vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
-import { beforeNavigate } from '$app/navigation';
 import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
 import type { ValueLinks } from '#lib/card-index/types/value-links.ts';
 import { m } from '#lib/i18n/i18n.ts';
@@ -46,20 +45,6 @@ export function authorsField(): ReturnType<typeof page.getByRole> {
 
 export function saveButton(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('button', { name: m.common.save, exact: true });
-}
-
-export type Leave = Parameters<Parameters<typeof beforeNavigate>[0]>[0];
-
-export function leave(type: 'link' | 'popstate' | 'leave' = 'link'): Leave {
-	const navigation = {
-		type,
-		to: type === 'leave' ? null : { url: new URL('http://localhost/atelier/trash') },
-		delta: type === 'popstate' ? -1 : undefined,
-		cancel: vi.fn()
-	};
-	const guard = vi.mocked(beforeNavigate).mock.calls[0][0];
-	guard(navigation as unknown as Leave);
-	return navigation as unknown as Leave;
 }
 
 export async function imageFile(width: number, height: number, padding = 0): Promise<File> {

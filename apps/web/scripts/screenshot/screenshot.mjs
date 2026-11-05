@@ -295,7 +295,8 @@ function reviewSession({
 	session_form: form = 'mixed',
 	scope_kind: kind = 'all',
 	scope_value: value,
-	free_round: freeRound
+	free_round: freeRound,
+	time_questions: timeQuestions = false
 } = {}) {
 	const dayEnd = new Date(dayStartText ?? Date.now()).getTime() + 24 * 60 * 60 * 1000;
 	const pool = ARTWORKS.filter((row) => hasImage(row) && inScope(row, kind, value));
@@ -313,10 +314,15 @@ function reviewSession({
 		{ length: Math.min(20, known.length) },
 		(_, index) => known[(index + (freeRound ?? 0) * 20) % known.length]
 	);
-	return (freeRound === undefined ? [...due, ...fresh] : free).map((row, slot) => {
+	let settled = 0;
+	const items = (freeRound === undefined ? [...due, ...fresh] : free).map((row, slot) => {
 		const card = cardOf(row);
 		const pinQuiz = form === 'flashcards' ? undefined : pinQuizFor(row);
 		if (pinQuiz) return pinQuiz;
+		if (form !== 'flashcards' && card?.state === 2 && card.stability >= 7) {
+			settled += 1;
+			if (settled % 3 === 0) return { artwork_id: row.id, mode: 'quiz_typed', options: [] };
+		}
 		const modes =
 			form === 'flashcards'
 				? []
@@ -331,6 +337,33 @@ function reviewSession({
 		}
 		return { artwork_id: row.id, mode: 'flashcard' };
 	});
+	if (!timeQuestions || items.length === 0) return items;
+	const asked = new Set(items.map((item) => item.artwork_id));
+	const dated = pool.find(
+		(row) => cardOf(row) && row.era_code && row.year_to !== null && !asked.has(row.id)
+	);
+	const spaced = [];
+	for (const row of [...pool].sort((a, b) => (a.year_to ?? 0) - (b.year_to ?? 0))) {
+		const last = spaced.at(-1);
+		if (row.year_to === null) continue;
+		if (!last || row.year_to - (last.year_to ?? 0) >= 30) spaced.push(row);
+	}
+	const order =
+		spaced.length >= 4
+			? [
+					{
+						mode: 'order',
+						artwork_ids: [spaced[2], spaced[0], spaced[3], spaced[1]].map((row) => row.id)
+					}
+				]
+			: [];
+	if (!dated) return [items[0], ...order, ...items.slice(1)];
+	return [
+		items[0],
+		{ artwork_id: dated.id, mode: 'year', card: null },
+		...order,
+		...items.slice(1)
+	];
 }
 
 function notesMentions(needle) {
@@ -662,6 +695,12 @@ async function mockSupabase(context) {
 			return json(route, wantsObject ? counts : [counts]);
 		}
 		if (url.pathname === '/rest/v1/rpc/atelier_empty') return json(route, false);
+		if (url.pathname === '/rest/v1/rpc/note_gap_artwork') {
+			const excluded = request.postDataJSON()?.excluded ?? [];
+			const row = ARTWORKS.find((artwork) => hasImage(artwork) && !excluded.includes(artwork.id));
+			const notes = 'Apsyda zamyka nawę od wschodu.\n\nNad ołtarzem głowica z szerokim abakusem.';
+			return json(route, row ? { id: row.id, notes } : null);
+		}
 		if (url.pathname === '/rest/v1/rpc/collection_statistics') {
 			return json(route, collectionStatistics());
 		}
@@ -688,6 +727,9 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/rpc/term_mentions') {
 			return json(route, termMentions(request.postDataJSON()?.needles));
 		}
+		if (url.pathname === '/rest/v1/rpc/record_right_answer') {
+			return route.fulfill({ status: 204, headers: corsHeaders() });
+		}
 		if (url.pathname === '/rest/v1/rpc/record_review') {
 			return route.fulfill({ status: 204, headers: corsHeaders() });
 		}
@@ -700,7 +742,12 @@ async function mockSupabase(context) {
 			]);
 		}
 		if (url.pathname === '/rest/v1/exhibit_tiers') {
-			return request.method() === 'PATCH' ? json(route, []) : json(route, EXHIBIT_TIERS);
+			if (request.method() === 'PATCH') return json(route, []);
+			const unseen = url.searchParams.get('seen_at') === 'is.null';
+			return json(
+				route,
+				unseen ? EXHIBIT_TIERS.filter((row) => row.seen_at === null) : EXHIBIT_TIERS
+			);
 		}
 		if (url.pathname === '/rest/v1/timeline_events') {
 			if (request.method() === 'POST') return json(route, { id: TIMELINE_EVENTS[0].id }, 201);

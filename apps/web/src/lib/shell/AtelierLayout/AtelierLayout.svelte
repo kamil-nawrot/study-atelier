@@ -57,6 +57,11 @@
 		feedbackOpen = true;
 	}
 
+	function feedbackSent(): void {
+		toast?.show(m.feedback.sent);
+		if (page.data.careerShown !== false) void career.refresh();
+	}
+
 	async function submitSignOut(): Promise<void> {
 		drawer.close();
 		if (confirmLeave && !(await confirmLeave())) return;
@@ -114,7 +119,7 @@
 	/>
 
 	{#if feedbackUsed}
-		<FeedbackDialog onsent={() => toast?.show(m.feedback.sent)} bind:open={feedbackOpen} />
+		<FeedbackDialog onsent={feedbackSent} bind:open={feedbackOpen} />
 		<Toast bind:this={toast} />
 	{/if}
 

@@ -44,9 +44,10 @@ describe('AccountTab email', () => {
 		vi.clearAllMocks();
 	});
 
-	it('shows the current address and checks the new one before it calls the server', async () => {
+	it('shows the current address in bold and checks the new one before it calls the server', async () => {
 		render(AccountTab, { email: TEST_EMAIL, onchanged });
-		await expect.element(page.getByText(m.settings.account.currentEmail(TEST_EMAIL))).toBeVisible();
+		await expect.element(page.getByText(m.settings.account.currentEmail)).toBeVisible();
+		await expect.element(page.getByText(TEST_EMAIL)).toHaveProperty('tagName', 'STRONG');
 		await emailSubmit().click();
 
 		await expect.element(page.getByText(m.validation.emailRequired)).toBeVisible();

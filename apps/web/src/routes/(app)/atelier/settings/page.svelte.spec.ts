@@ -46,7 +46,12 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
 
-const profile = { displayName: 'Anna', avatarPath: null, rankForm: 'masculine' as const };
+const profile = {
+	displayName: 'Anna',
+	avatarPath: null,
+	rankForm: 'masculine' as const,
+	careerShown: true
+};
 
 function renderSettings(error?: string, search = '', pendingEmail?: string): void {
 	navigation.url = new URL(`http://localhost/atelier/settings${search}`);
@@ -82,6 +87,14 @@ describe('settings page', () => {
 			.element(page.getByRole('tab', { name: m.settings.tabs.profile }))
 			.toHaveAttribute('aria-selected', 'true');
 		await expect.element(page.getByLabelText(m.settings.profile.name)).toHaveValue('Anna');
+	});
+
+	it('leads back to the atelier when it was opened directly', async () => {
+		renderSettings();
+
+		await expect
+			.element(page.getByRole('link', { name: m.settings.back }).first())
+			.toHaveAttribute('href', '/atelier');
 	});
 
 	it('opens the tab named in the address', async () => {
@@ -149,14 +162,45 @@ describe('settings page', () => {
 		renderSettings(undefined, '?tab=review');
 
 		await page.getByRole('button', { name: '30' }).click();
+		await page.getByRole('switch', { name: m.settings.preferences.timeQuestions }).click();
+		await page.getByRole('switch', { name: m.settings.preferences.noteQuestions }).click();
 		await page.getByRole('button', { name: m.settings.preferences.save }).click();
 
 		expect(savePreferences).toHaveBeenCalledWith(
 			'review',
-			expect.objectContaining({ reviewSessionSize: 30 })
+			expect.objectContaining({
+				reviewSessionSize: 30,
+				reviewTimeQuestions: true,
+				reviewNoteQuestions: true
+			})
 		);
 		expect(invalidate).toHaveBeenCalledWith(PREFERENCES_DEPENDENCY);
 		await expect.element(page.getByText(m.settings.preferences.saved)).toBeVisible();
+	});
+
+	it('groups the review preferences and disables the count while the glossary questions are off', async () => {
+		vi.mocked(savePreferences).mockResolvedValue({
+			preferences: { ...defaultPreferences, reviewGlossaryOn: false }
+		});
+		renderSettings(undefined, '?tab=review');
+
+		for (const title of [
+			m.settings.preferences.sessionTitle,
+			m.settings.preferences.quizzesTitle,
+			m.settings.preferences.extraTitle
+		]) {
+			await expect.element(page.getByRole('heading', { name: title })).toBeVisible();
+		}
+		const counts = page.getByRole('group', { name: m.settings.preferences.glossaryQuestions });
+		await expect.element(counts.getByRole('button', { name: '2' })).toBeEnabled();
+		await page.getByRole('switch', { name: m.settings.preferences.glossaryOn }).click();
+		await expect.element(counts.getByRole('button', { name: '2' })).toBeDisabled();
+		await page.getByRole('button', { name: m.settings.preferences.save }).click();
+
+		expect(savePreferences).toHaveBeenCalledWith(
+			'review',
+			expect.objectContaining({ reviewGlossaryOn: false })
+		);
 	});
 
 	it('does not save the review preferences without a kind of question', async () => {

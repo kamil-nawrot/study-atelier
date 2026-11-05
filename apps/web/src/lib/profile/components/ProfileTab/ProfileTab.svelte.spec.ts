@@ -22,11 +22,17 @@ vi.mock('#lib/profile/avatar/avatar.ts', async (importOriginal) => ({
 
 const onsaved = vi.fn();
 
-const empty: Profile = { displayName: null, avatarPath: null, rankForm: 'masculine' };
+const empty: Profile = {
+	displayName: null,
+	avatarPath: null,
+	rankForm: 'masculine',
+	careerShown: true
+};
 const named: Profile = {
 	displayName: 'Anna',
 	avatarPath: 'owner/avatar-1.jpg',
-	rankForm: 'masculine'
+	rankForm: 'masculine',
+	careerShown: true
 };
 
 function renderTab(profile: Profile = empty): void {
@@ -54,19 +60,17 @@ describe('ProfileTab', () => {
 		URL.revokeObjectURL = vi.fn();
 	});
 
-	it('shows the email read-only with the reason it cannot be changed', async () => {
+	it('leaves the email to the account tab', async () => {
 		renderTab(named);
 
-		const email = page.getByLabelText(m.settings.profile.email);
-		await expect.element(email).toHaveValue(TEST_EMAIL);
-		await expect.element(email).toBeDisabled();
-		await expect.element(page.getByText(m.settings.profile.emailHint)).toBeVisible();
+		await expect.element(nameField()).toBeVisible();
+		expect(page.getByRole('textbox', { name: /e-mail/i }).elements()).toHaveLength(0);
+		expect(page.getByText(TEST_EMAIL).elements()).toHaveLength(0);
 	});
 
-	it('explains that the photo is fitted to the avatar and names the photo buttons by icon', async () => {
+	it('names the photo buttons by icon', async () => {
 		renderTab(named);
 
-		await expect.element(page.getByText(m.settings.profile.photoHint)).toBeVisible();
 		await expect
 			.element(page.getByRole('button', { name: m.settings.profile.changePhoto }))
 			.toHaveTextContent('');
@@ -99,14 +103,33 @@ describe('ProfileTab', () => {
 	});
 
 	it('saves the form of the ranks the learner chose', async () => {
-		vi.mocked(saveProfile).mockResolvedValue({ profile: { ...empty, rankForm: 'feminine' } });
+		vi.mocked(saveProfile).mockResolvedValue({
+			profile: { ...empty, rankForm: 'feminine', careerShown: true }
+		});
 		renderTab();
 
 		await page.getByLabelText(m.settings.profile.rankForm).selectOptions('feminine');
 		await save().click();
 
 		expect(saveProfile).toHaveBeenCalledWith(
-			{ name: '', avatar: { kind: 'keep' }, rankForm: 'feminine' },
+			{ name: '', avatar: { kind: 'keep' }, rankForm: 'feminine', careerShown: true },
+			expect.anything()
+		);
+	});
+
+	it('disables the form of the ranks while the rank and the display case are hidden', async () => {
+		vi.mocked(saveProfile).mockResolvedValue({ profile: { ...empty, careerShown: false } });
+		renderTab();
+
+		const rankForm = page.getByLabelText(m.settings.profile.rankForm);
+		await expect.element(rankForm).toBeEnabled();
+		await page.getByText(m.settings.profile.careerShown).click();
+		await expect.element(rankForm).toBeDisabled();
+		await expect.element(page.getByText(m.settings.profile.careerShownHint)).toBeVisible();
+		await save().click();
+
+		expect(saveProfile).toHaveBeenCalledWith(
+			{ name: '', avatar: { kind: 'keep' }, rankForm: 'masculine', careerShown: false },
 			expect.anything()
 		);
 	});
@@ -119,7 +142,7 @@ describe('ProfileTab', () => {
 		await save().click();
 
 		expect(saveProfile).toHaveBeenCalledWith(
-			{ name: 'Ania', avatar: { kind: 'keep' }, rankForm: 'masculine' },
+			{ name: 'Ania', avatar: { kind: 'keep' }, rankForm: 'masculine', careerShown: true },
 			expect.objectContaining({ displayName: null })
 		);
 		expect(onsaved).toHaveBeenCalledWith(
@@ -151,7 +174,7 @@ describe('ProfileTab', () => {
 		await save().click();
 
 		expect(saveProfile).toHaveBeenCalledWith(
-			{ name: '', avatar: { kind: 'replace', image }, rankForm: 'masculine' },
+			{ name: '', avatar: { kind: 'replace', image }, rankForm: 'masculine', careerShown: true },
 			expect.anything()
 		);
 	});
@@ -180,7 +203,7 @@ describe('ProfileTab', () => {
 		await save().click();
 
 		expect(saveProfile).toHaveBeenCalledWith(
-			{ name: 'Anna', avatar: { kind: 'remove' }, rankForm: 'masculine' },
+			{ name: 'Anna', avatar: { kind: 'remove' }, rankForm: 'masculine', careerShown: true },
 			expect.anything()
 		);
 	});

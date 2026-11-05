@@ -12,8 +12,13 @@ export const QUIZ_KINDS: readonly QuizMode[] = [
 	'quiz_title',
 	'quiz_author',
 	'quiz_style',
-	'quiz_pin'
+	'quiz_pin',
+	'quiz_typed'
 ];
+
+export function hasArtworkQuiz(kinds: readonly QuizMode[]): boolean {
+	return kinds.some((kind) => kind !== 'quiz_typed');
+}
 
 export const defaultPreferences: Preferences = {
 	reviewSessionSize: 20,
@@ -21,8 +26,10 @@ export const defaultPreferences: Preferences = {
 	reviewForm: 'mixed',
 	reviewQuizKinds: [...QUIZ_KINDS],
 	reviewFree: true,
+	reviewGlossaryOn: true,
 	reviewGlossaryQuestions: 1,
-	careerShown: true,
+	reviewNoteQuestions: false,
+	reviewTimeQuestions: false,
 	viewShowPins: false,
 	viewLoupeOn: false,
 	fetchImage: true,
@@ -38,8 +45,10 @@ const PART_FIELDS: Record<PreferencesPart, readonly (keyof Preferences)[]> = {
 		'reviewForm',
 		'reviewQuizKinds',
 		'reviewFree',
+		'reviewGlossaryOn',
 		'reviewGlossaryQuestions',
-		'careerShown'
+		'reviewNoteQuestions',
+		'reviewTimeQuestions'
 	],
 	view: ['viewShowPins', 'viewLoupeOn'],
 	sources: ['fetchImage', 'fetchDefinition', 'fetchForms', 'fetchEvent']

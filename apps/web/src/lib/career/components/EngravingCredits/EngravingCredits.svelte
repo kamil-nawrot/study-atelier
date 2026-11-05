@@ -58,7 +58,6 @@
 		display: grid;
 		gap: var(--spacing-1);
 		inline-size: min(var(--size-content-narrow), calc(100vw - var(--spacing-16)));
-		padding: 0;
 		list-style: none;
 	}
 </style>

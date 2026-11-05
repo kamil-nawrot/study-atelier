@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
-import { ERA_CODES, eraName, eraTiles, isEraCode } from './eras.ts';
+import { ERA_CODES, eraName, eraTiles, eraYears, isEraCode } from './eras.ts';
 
 describe('ERA_CODES', () => {
 	it('lists the six eras from the oldest to the newest', () => {
@@ -12,6 +12,20 @@ describe('ERA_CODES', () => {
 			'modern',
 			'contemporary'
 		]);
+	});
+});
+
+describe('eraYears', () => {
+	const today = new Date('2026-11-04T12:00:00.000Z');
+
+	it('spans an era from its first year to the first year of the next one', () => {
+		expect(eraYears('early_modern', today)).toEqual([1492, 1789]);
+		expect(eraYears('antiquity', today)).toEqual([-3000, 476]);
+	});
+
+	it('starts prehistory at 40 000 BCE and ends the contemporary era in the current year', () => {
+		expect(eraYears('prehistory', today)).toEqual([-40000, -3000]);
+		expect(eraYears('contemporary', today)).toEqual([1945, 2026]);
 	});
 });
 

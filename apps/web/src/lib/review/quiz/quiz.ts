@@ -5,7 +5,10 @@ import type { QuizOption } from '#lib/review/types/quiz-option.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { ReviewPin } from '#lib/review/types/review-pin.ts';
+import type { ReviewMode } from '#lib/review/types/review-mode.ts';
 import type { SessionRow } from '#lib/review/types/session-row.ts';
+
+type ArtworkRow = Extract<SessionRow, { mode: ReviewMode }>;
 
 export const QUIZ_TILE_SIZES = '(min-width: 768px) 25vw, 45vw';
 
@@ -24,7 +27,7 @@ export function shuffleQuiz(quiz: Quiz, random: () => number = Math.random): Qui
 	return { options, answer: options.indexOf(right) };
 }
 
-function quizOf(row: SessionRow, artworks: Map<string, WallArtwork>): Quiz | undefined {
+function quizOf(row: ArtworkRow, artworks: Map<string, WallArtwork>): Quiz | undefined {
 	const options: QuizOption[] = [];
 	for (const option of row.options ?? []) {
 		const artwork = option.artwork_id ? artworks.get(option.artwork_id) : undefined;
@@ -39,7 +42,7 @@ function quizOf(row: SessionRow, artworks: Map<string, WallArtwork>): Quiz | und
 	return answer === -1 ? undefined : { options, answer };
 }
 
-function pinOf(row: SessionRow): ReviewPin | undefined {
+function pinOf(row: ArtworkRow): ReviewPin | undefined {
 	const image = row.pin ? imageOf(row.pin.image) : null;
 	return row.pin && image ? { x: row.pin.x, y: row.pin.y, image } : undefined;
 }
@@ -50,9 +53,11 @@ export function sessionItems(
 	cards: Map<string, ReviewCard>
 ): ReviewItem[] {
 	return rows.flatMap((row): ReviewItem[] => {
+		if (row.mode === 'year' || row.mode === 'order') return [];
 		const artwork = artworks.get(row.artwork_id);
 		if (!artwork) return [];
 		const card = cards.get(row.artwork_id) ?? null;
+		if (row.mode === 'quiz_typed') return [{ artwork, card, mode: 'quiz_typed' }];
 		const quiz = row.mode === 'flashcard' ? undefined : quizOf(row, artworks);
 		const pin = row.mode === 'quiz_pin' ? pinOf(row) : undefined;
 		if (!quiz || (row.mode === 'quiz_pin' && !pin)) return [{ artwork, card, mode: 'flashcard' }];

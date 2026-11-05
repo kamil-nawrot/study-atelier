@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { defaultPreferences, preferencesChanged, QUIZ_KINDS, toggledKind } from './preferences.ts';
+import {
+	defaultPreferences,
+	hasArtworkQuiz,
+	preferencesChanged,
+	QUIZ_KINDS,
+	toggledKind
+} from './preferences.ts';
 
 describe('preferences', () => {
 	it('defaults to the numbers the reviews used before', () => {
@@ -37,7 +43,14 @@ describe('preferences', () => {
 			'quiz_image',
 			'quiz_title',
 			'quiz_author',
-			'quiz_pin'
+			'quiz_pin',
+			'quiz_typed'
 		]);
+	});
+
+	it('needs a quiz kind other than the typed title', () => {
+		expect(hasArtworkQuiz(['quiz_typed'])).toBe(false);
+		expect(hasArtworkQuiz([])).toBe(false);
+		expect(hasArtworkQuiz(['quiz_typed', 'quiz_style'])).toBe(true);
 	});
 });

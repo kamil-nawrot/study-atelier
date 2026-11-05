@@ -6,8 +6,10 @@ import {
 	loadReviewCounts,
 	loadReviewDetails,
 	loadReviewStreak,
+	loadNoteGap,
 	loadSession,
 	recordFreeAnswers,
+	recordRightAnswer,
 	recordReview,
 	waitingToday,
 	withPinPreviews
@@ -48,13 +50,18 @@ const card: ReviewCard = {
 	lastReview: new Date('2026-10-13T08:00:00.000Z')
 };
 
-function cardsQuery(rows: unknown[], error: unknown = null): { range: ReturnType<typeof vi.fn> } {
+function cardsQuery(
+	rows: unknown[],
+	error: unknown = null
+): { range: ReturnType<typeof vi.fn>; eq: ReturnType<typeof vi.fn> } {
 	const query = {
 		select: vi.fn(),
+		eq: vi.fn(),
 		order: vi.fn(),
 		range: vi.fn().mockResolvedValue({ data: rows, error })
 	};
 	query.select.mockReturnValue(query);
+	query.eq.mockReturnValue(query);
 	query.order.mockReturnValue(query);
 	vi.mocked(supabase.from).mockReturnValue(query as never);
 	return query;
@@ -73,11 +80,12 @@ describe('review data', () => {
 		vi.useRealTimers();
 	});
 
-	it('loads the review cards by artwork', async () => {
-		cardsQuery([row]);
+	it('loads the recognition cards by artwork, without the cards of the year questions', async () => {
+		const query = cardsQuery([row]);
 		const { cards, error } = await loadReviewCards();
 		expect(error).toBeUndefined();
 		expect(supabase.from).toHaveBeenCalledWith('review_cards');
+		expect(query.eq).toHaveBeenCalledWith('facet', 'recognise');
 		expect(cards.get('artwork-1')).toEqual(card);
 	});
 
@@ -199,6 +207,32 @@ describe('review data', () => {
 		});
 	});
 
+	it('saves a year answer on the date facet', async () => {
+		rpc.mockResolvedValue({ error: null } as never);
+		await recordReview(card, { mode: 'year', rating: 2, correct: true, guessedYear: -120 });
+		expect(rpc).toHaveBeenCalledWith(
+			'record_review',
+			expect.objectContaining({
+				answer: {
+					facet: 'date',
+					mode: 'year',
+					rating: 2,
+					correct: true,
+					answer_ms: null,
+					guessed_year: -120
+				}
+			})
+		);
+	});
+
+	it('adds a right answer to the day', async () => {
+		rpc.mockResolvedValue({ error: null } as never);
+		await recordRightAnswer(new Date('2026-10-28T23:00:00.000Z'));
+		expect(rpc).toHaveBeenCalledWith('record_right_answer', {
+			day_start: '2026-10-28T23:00:00.000Z'
+		});
+	});
+
 	it('returns the message to show when an answer cannot be saved', async () => {
 		rpc.mockResolvedValue({ error: { message: 'TypeError: Failed to fetch' } } as never);
 		await expect(recordReview(card, { mode: 'flashcard', rating: 2 })).resolves.toEqual({
@@ -218,39 +252,67 @@ describe('review data', () => {
 		rpc.mockResolvedValue({ data: rows, error: null } as never);
 
 		await expect(
-			loadSession(new Date('2026-10-15T22:00:00.000Z'), 'quizzes', {
-				kind: 'style',
-				name: 'Caravaggism'
-			})
+			loadSession(
+				new Date('2026-10-15T22:00:00.000Z'),
+				'quizzes',
+				{ kind: 'style', name: 'Caravaggism' },
+				true
+			)
 		).resolves.toEqual({ rows });
 		expect(rpc).toHaveBeenCalledWith('review_session', {
 			day_start: '2026-10-15T22:00:00.000Z',
 			session_form: 'quizzes',
 			scope_kind: 'style',
-			scope_value: 'Caravaggism'
+			scope_value: 'Caravaggism',
+			time_questions: true
 		});
 
-		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'mixed', {
-			kind: 'era',
-			code: 'modern'
-		});
+		await loadSession(
+			new Date('2026-10-15T22:00:00.000Z'),
+			'mixed',
+			{ kind: 'era', code: 'modern' },
+			true
+		);
 		expect(rpc).toHaveBeenLastCalledWith(
 			'review_session',
 			expect.objectContaining({ scope_kind: 'era', scope_value: 'modern' })
 		);
-		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'mixed', { kind: 'all' });
+		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'mixed', { kind: 'all' }, false);
 		expect(rpc).toHaveBeenLastCalledWith('review_session', {
 			day_start: '2026-10-15T22:00:00.000Z',
 			session_form: 'mixed',
-			scope_kind: 'all'
+			scope_kind: 'all',
+			time_questions: false
 		});
-		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'flashcards', { kind: 'all' }, 2);
+		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'flashcards', { kind: 'all' }, true, 2);
 		expect(rpc).toHaveBeenLastCalledWith('review_session', {
 			day_start: '2026-10-15T22:00:00.000Z',
 			session_form: 'flashcards',
 			scope_kind: 'all',
-			free_round: 2
+			free_round: 2,
+			time_questions: true
 		});
+	});
+
+	it('draws the candidates of a note gap in the scope, without the shown ones', async () => {
+		rpc.mockResolvedValue({
+			data: [{ id: 'artwork-3', notes: 'Tympanon.' }, { id: 'artwork-4' }],
+			error: null
+		} as never);
+
+		await expect(loadNoteGap({ kind: 'era', code: 'modern' }, ['artwork-1'])).resolves.toEqual([
+			{ id: 'artwork-3', notes: 'Tympanon.' }
+		]);
+		expect(rpc).toHaveBeenCalledWith('note_gap_artwork', {
+			scope_kind: 'era',
+			scope_value: 'modern',
+			excluded: ['artwork-1']
+		});
+
+		rpc.mockResolvedValue({ data: [], error: null } as never);
+		await expect(loadNoteGap({ kind: 'all' }, [])).resolves.toEqual([]);
+		rpc.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } } as never);
+		await expect(loadNoteGap({ kind: 'all' }, [])).resolves.toEqual([]);
 	});
 
 	it('returns a message when a session cannot be built', async () => {
@@ -258,7 +320,7 @@ describe('review data', () => {
 			data: null,
 			error: { message: 'TypeError: Failed to fetch' }
 		} as never);
-		await expect(loadSession(new Date(), 'mixed', { kind: 'all' })).resolves.toEqual({
+		await expect(loadSession(new Date(), 'mixed', { kind: 'all' }, false)).resolves.toEqual({
 			rows: [],
 			error: m.collectionErrors.network
 		});

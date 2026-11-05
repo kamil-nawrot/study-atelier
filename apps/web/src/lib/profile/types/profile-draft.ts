@@ -5,4 +5,5 @@ export type ProfileDraft = {
 	name: string;
 	avatar: AvatarChange;
 	rankForm: RankForm;
+	careerShown: boolean;
 };

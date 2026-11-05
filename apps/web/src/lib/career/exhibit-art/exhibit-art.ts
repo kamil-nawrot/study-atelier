@@ -24,6 +24,11 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		licence: 'CC0',
 		commonsFile: 'Albrecht Dürer, Saint Jerome in His Study, 1514, NGA 6642.jpg'
 	},
+	bullseye: {
+		credit: 'Reinier Vinkeles, „Putto ogląda strzałę w dziesiątce tarczy”',
+		licence: 'CC0',
+		commonsFile: 'Putto bekijkt een pijl in de roos van een schietschijf, RP-P-1905-5949.jpg'
+	},
 	regular: {
 		credit: 'Albrecht Dürer, „Melencolia I”, 1514',
 		licence: 'CC0',
@@ -70,6 +75,11 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		credit: 'Albrecht Dürer, „Nemezis”, ok. 1501–1502, tło uzupełnione',
 		licence: 'CC0',
 		commonsFile: 'Albrecht Dürer, Nemesis (The Great Fortune), c. 1501-1502, NGA 6603.jpg'
+	},
+	mouth_of_truth: {
+		credit: 'Georg Pencz, „Usta prawdy”, 1533–1534',
+		licence: 'CC0',
+		commonsFile: 'Georg Pencz - The Mouth of Truth - 1922.150 - Cleveland Museum of Art.jpg'
 	}
 };
 

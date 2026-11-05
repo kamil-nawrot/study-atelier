@@ -1,15 +1,30 @@
-import { SvelteMap } from 'svelte/reactivity';
-import { currentDate, retryLater } from '#lib/review/queue/queue.ts';
+import { SvelteMap, SvelteSet } from 'svelte/reactivity';
+import { currentDate, retryLater, startOfDay } from '#lib/review/queue/queue.ts';
 import { shuffleQuiz } from '#lib/review/quiz/quiz.ts';
-import { recordReview } from '#lib/review/review-data/review-data.ts';
+import { recordReview, recordRightAnswer } from '#lib/review/review-data/review-data.ts';
 import { outcomes, quizRating } from '#lib/review/scheduler/scheduler.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { ReviewRating } from '#lib/review/types/review-rating.ts';
 import type { SessionStep } from '#lib/review/types/session-step.ts';
+import { boundsOf, yearOutcome, yearsOf } from '#lib/review/year-guess/year-guess.ts';
+import { ORDER_SIZE, placedRight } from '#lib/review/order-guess/order-guess.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+
+const EXTRA_MODES = new Set(['quiz_definition', 'note_gap', 'year', 'order']);
+
+function artworkItem(step: SessionStep | undefined): step is ReviewItem {
+	return step !== undefined && !EXTRA_MODES.has(step.mode);
+}
 
 type ReviewAnswerLog = {
 	item: ReviewItem;
+	rating: ReviewRating;
+};
+
+type YearAnswerLog = {
+	artworkId: string;
+	guess: number;
 	rating: ReviewRating;
 };
 
@@ -18,13 +33,21 @@ export class ReviewSession {
 	position = $state(0);
 	revealed = $state(false);
 	chosen = $state<number>();
+	typed = $state<readonly string[]>();
 	saving = $state(false);
 	error = $state<string>();
 	answers = $state<ReviewAnswerLog[]>([]);
+	guessed = $state<number>();
+	yearAnswers = $state<YearAnswerLog[]>([]);
+	ordered = $state<WallArtwork[]>();
+	orderAnswers = $state<boolean[]>([]);
+	extraAnswers = $state<{ mode: 'quiz_definition' | 'note_gap'; right: boolean }[]>([]);
 	readonly cards: Map<string, ReviewCard>;
 	readonly startedAt: number;
 	readonly free: boolean;
 	#shownAt: number;
+	#missed = new SvelteSet<string>();
+	#asked = new SvelteSet<string>();
 	#now: () => Date;
 	#random: () => number;
 
@@ -56,15 +79,36 @@ export class ReviewSession {
 		return this.answers.filter((answer) => answer.item.card === null).length;
 	}
 
+	get years(): { asked: number; hit: number } {
+		return {
+			asked: this.yearAnswers.length,
+			hit: this.yearAnswers.filter((answer) => answer.rating > 1).length
+		};
+	}
+
+	get anyAnswer(): boolean {
+		return this.answers.length + this.yearAnswers.length + this.orderAnswers.length > 0;
+	}
+
+	get orders(): { asked: number; right: number } {
+		return {
+			asked: this.orderAnswers.length,
+			right: this.orderAnswers.filter(Boolean).length
+		};
+	}
+
+	extraScore(mode: 'quiz_definition' | 'note_gap'): { asked: number; right: number } {
+		const answers = this.extraAnswers.filter((answer) => answer.mode === mode);
+		return { asked: answers.length, right: answers.filter((answer) => answer.right).length };
+	}
+
 	get minutes(): number {
 		return Math.max(1, Math.round((this.#now().getTime() - this.startedAt) / 60000));
 	}
 
 	next(): Record<ReviewRating, ReviewCard> | undefined {
 		const item = this.current;
-		return item && item.mode !== 'quiz_definition'
-			? outcomes(item.artwork.id, item.card, this.#now())
-			: undefined;
+		return artworkItem(item) ? outcomes(item.artwork.id, item.card, this.#now()) : undefined;
 	}
 
 	reveal(): void {
@@ -73,7 +117,13 @@ export class ReviewSession {
 
 	async rate(rating: ReviewRating, scheduled?: ReviewCard): Promise<void> {
 		const item = this.current;
-		if (!item || item.mode === 'quiz_definition' || item.quiz || !this.revealed || this.saving) {
+		if (
+			!artworkItem(item) ||
+			item.mode === 'quiz_typed' ||
+			item.quiz ||
+			!this.revealed ||
+			this.saving
+		) {
 			return;
 		}
 		if (await this.#save(item, rating, scheduled)) this.#advance();
@@ -81,18 +131,93 @@ export class ReviewSession {
 
 	async answer(choice: number): Promise<void> {
 		const item = this.current;
-		if (!item?.quiz || this.chosen !== undefined || this.saving) return;
+		if (
+			!item ||
+			item.mode === 'year' ||
+			item.mode === 'order' ||
+			!item.quiz ||
+			this.chosen !== undefined ||
+			this.saving
+		) {
+			return;
+		}
 		const correct = choice === item.quiz.answer;
-		if (item.mode === 'quiz_definition') {
-			if (!correct) this.#retry({ ...item, quiz: shuffleQuiz(item.quiz, this.#random) });
+		if (item.mode === 'quiz_definition' || item.mode === 'note_gap') {
+			const key = item.mode === 'note_gap' ? `${item.artwork.id}:${item.term.id}` : item.term.id;
+			if (!this.#asked.has(key)) {
+				this.#asked.add(key);
+				this.extraAnswers.push({ mode: item.mode, right: correct });
+			}
+			if (!correct) {
+				this.#missed.add(key);
+				this.#retry({ ...item, quiz: shuffleQuiz(item.quiz, this.#random) });
+			} else if (!this.free && !this.#missed.has(key)) {
+				void recordRightAnswer(startOfDay(this.#now()));
+			}
 			this.chosen = choice;
 			return;
 		}
 		if (await this.#save(item, quizRating(correct), undefined, correct)) this.chosen = choice;
 	}
 
+	async guess(year: number): Promise<void> {
+		const item = this.current;
+		if (item?.mode !== 'year' || this.guessed !== undefined || this.saving) return;
+		const now = this.#now();
+		const years = yearsOf(item.artwork);
+		const bounds = boundsOf(item.artwork, now);
+		if (!years || !bounds) return;
+		const { rating } = yearOutcome(year, years, bounds);
+		if (!this.free) {
+			this.saving = true;
+			this.error = undefined;
+			const { error } = await recordReview(outcomes(item.artwork.id, item.card, now)[rating], {
+				mode: 'year',
+				rating,
+				correct: rating > 1,
+				answerMs: now.getTime() - this.#shownAt,
+				guessedYear: year
+			});
+			this.saving = false;
+			if (error) {
+				this.error = error;
+				return;
+			}
+		}
+		this.guessed = year;
+		this.yearAnswers.push({ artworkId: item.artwork.id, guess: year, rating });
+	}
+
+	checkOrder(placed: WallArtwork[]): void {
+		const item = this.current;
+		if (item?.mode !== 'order' || this.ordered !== undefined) return;
+		const right = placedRight(placed) === ORDER_SIZE;
+		if (right && !this.free) void recordRightAnswer(startOfDay(this.#now()));
+		this.ordered = placed;
+		this.orderAnswers.push(right);
+	}
+
+	async typeTitle(picked: readonly string[]): Promise<void> {
+		const item = this.current;
+		if (item?.mode !== 'quiz_typed' || this.typed !== undefined || this.saving) return;
+		const correct = picked.includes(item.artwork.id);
+		if (await this.#save(item, correct ? 3 : 1, undefined, correct)) this.typed = picked;
+	}
+
 	proceed(): void {
-		if (this.current?.quiz && this.chosen !== undefined) this.#advance();
+		const item = this.current;
+		if (!item) return;
+		if (
+			item.mode === 'year'
+				? this.guessed !== undefined
+				: item.mode === 'order'
+					? this.ordered !== undefined
+					: item.mode === 'quiz_typed'
+						? this.typed !== undefined
+						: item.quiz && this.chosen !== undefined
+		) {
+			this.#advance();
+		}
 	}
 
 	async #save(
@@ -137,6 +262,9 @@ export class ReviewSession {
 		this.position += 1;
 		this.revealed = false;
 		this.chosen = undefined;
+		this.typed = undefined;
+		this.guessed = undefined;
+		this.ordered = undefined;
 		this.#shownAt = this.#now().getTime();
 	}
 }

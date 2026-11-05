@@ -26,13 +26,13 @@ import {
 	titleField,
 	authorsField,
 	saveButton,
-	leave,
 	duplicateDialog,
 	addValue,
 	fillRequired,
 	deferred,
 	answerNothingFromWikidata
 } from '#lib/testing/add-artwork/add-artwork.ts';
+import { leave } from '#lib/testing/navigation/navigation.ts';
 import AddArtworkPage from './+page.svelte';
 
 vi.mock('#lib/artworks/form-suggestions/form-suggestions.svelte.ts', async () => ({

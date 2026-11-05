@@ -26,10 +26,11 @@ type ReviewSessionResult = {
 };
 
 type ReviewAnswer = {
-	mode: ReviewMode;
+	mode: ReviewMode | 'year';
 	rating: ReviewRating;
 	correct?: boolean;
 	answerMs?: number;
+	guessedYear?: number;
 };
 
 type ReviewCardsResult = {
@@ -106,7 +107,12 @@ function reviewCard(row: CardRow): ReviewCard {
 
 export async function loadReviewCards(): Promise<ReviewCardsResult> {
 	const { rows, error } = await fetchAll<CardRow>((from, to) =>
-		supabase.from('review_cards').select(CARD_COLUMNS).order('artwork_id').range(from, to)
+		supabase
+			.from('review_cards')
+			.select(CARD_COLUMNS)
+			.eq('facet', 'recognise')
+			.order('artwork_id')
+			.range(from, to)
 	);
 	if (error) return { cards: new Map(), error: collectionErrorMessage(error) };
 	return { cards: new Map(rows.map((row) => [row.artwork_id, reviewCard(row)])) };
@@ -147,6 +153,13 @@ export async function recordFreeAnswers(dayStart: Date, answers: number): Promis
 	if (!error) noteWrite();
 }
 
+export async function recordRightAnswer(dayStart: Date): Promise<void> {
+	const { error } = await supabase.rpc('record_right_answer', {
+		day_start: dayStart.toISOString()
+	});
+	if (!error) noteWrite();
+}
+
 export function waitingToday(counts: ReviewCounts, newPerDay?: number): number {
 	if (counts.withImage < MIN_ARTWORKS) return 0;
 	const fresh = Math.min(counts.newAvailable, newAllowance(counts.newToday, newPerDay));
@@ -171,10 +184,12 @@ export async function recordReview(
 			last_review: card.lastReview?.toISOString() ?? null
 		},
 		answer: {
+			...(answer.mode === 'year' ? { facet: 'date' } : {}),
 			mode: answer.mode,
 			rating: answer.rating,
 			correct: answer.mode === 'flashcard' ? null : (answer.correct ?? false),
-			answer_ms: answer.answerMs === undefined ? null : Math.round(answer.answerMs)
+			answer_ms: answer.answerMs === undefined ? null : Math.round(answer.answerMs),
+			...(answer.guessedYear === undefined ? {} : { guessed_year: answer.guessedYear })
 		},
 		day_start: startOfDay(new Date()).toISOString(),
 		time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -223,17 +238,32 @@ function scopeArgs(scope: ReviewScope): { scope_kind: string; scope_value?: stri
 	return { scope_kind: scope.kind, scope_value: scope.name };
 }
 
+export async function loadNoteGap(
+	scope: ReviewScope,
+	excluded: string[]
+): Promise<{ id: string; notes: string }[]> {
+	const { data, error } = await supabase.rpc('note_gap_artwork', { ...scopeArgs(scope), excluded });
+	if (error || !Array.isArray(data)) return [];
+	return data.flatMap((candidate) => {
+		if (typeof candidate !== 'object' || candidate === null || Array.isArray(candidate)) return [];
+		const { id, notes } = candidate;
+		return typeof id === 'string' && typeof notes === 'string' ? [{ id, notes }] : [];
+	});
+}
+
 export async function loadSession(
 	dayStart: Date,
 	form: ReviewForm,
 	scope: ReviewScope,
+	timeQuestions: boolean,
 	freeRound?: number
 ): Promise<ReviewSessionResult> {
 	const { data, error } = await supabase.rpc('review_session', {
 		day_start: dayStart.toISOString(),
 		session_form: form,
 		...scopeArgs(scope),
-		...(freeRound === undefined ? {} : { free_round: freeRound })
+		...(freeRound === undefined ? {} : { free_round: freeRound }),
+		time_questions: timeQuestions
 	});
 	if (error || !Array.isArray(data)) {
 		return { rows: [], error: await failureMessage(error ?? {}, collectionErrorMessage) };

@@ -34,13 +34,17 @@ begin
     'career_standing does not unlock the tiers of new artworks';
 
   assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC')) = array[
-    'back_from_storage', 'chronicle', 'collection', 'eras', 'glossary', 'grand_tour', 'marathon', 'memory',
-    'night_watch', 'own_eye', 'regular', 'seen_live', 'timeline'
-  ], 'the exhibits are not the agreed thirteen';
+    'back_from_storage', 'bullseye', 'chronicle', 'collection', 'eras', 'glossary', 'grand_tour', 'marathon',
+    'memory', 'mouth_of_truth', 'night_watch', 'own_eye', 'regular', 'seen_live', 'timeline'
+  ], 'the exhibits are not the agreed fifteen';
   assert (select array_agg(tier order by tier) from public.exhibit_tiers where exhibit = 'collection') = array[1, 2]::smallint[],
     'ten artworks do not unlock the first two tiers of the collection';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'eras') = array[1]::smallint[],
     'artworks of two eras do not unlock the first tier of eras';
+  assert (select array_agg(distinct tiers) from public.exhibit_tiers where exhibit = 'collection') = array[9]::smallint[],
+    'a lit tier does not keep how many tiers its exhibit has';
+  assert (select tiers from public.exhibit_tiers where exhibit = 'eras') = 5,
+    'a lit tier of the eras does not keep its five tiers';
   assert (select count(*) from public.exhibit_tiers where seen_at is not null) = 0, 'a new tier is already seen';
   assert (select new_tiers from public.career_standing('UTC', false))
       = (select count(*) from public.exhibit_tiers where seen_at is null),
@@ -154,6 +158,25 @@ begin
     'an artwork forgotten and settled again does not unlock the Mona Lisa';
   assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'back_from_storage') = 1,
     'the Mona Lisa gives no bonus';
+end;
+$$;
+
+do $$
+begin
+  insert into public.feedback (kind, title) values ('bug', 'A bug');
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'mouth_of_truth') = 0,
+    'a bug report counts as an idea';
+  assert not exists (select 1 from public.exhibit_tiers where exhibit = 'mouth_of_truth'),
+    'a bug report unlocks the mouth of truth';
+
+  insert into public.feedback (kind, title) values ('idea', 'An idea'), ('idea', 'Another idea');
+  assert (select thresholds from public.unlock_exhibits('UTC') where exhibit = 'mouth_of_truth') = array[1],
+    'the mouth of truth has more than one tier';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'mouth_of_truth') = array[1]::smallint[],
+    'an idea does not unlock the mouth of truth';
+  perform public.unlock_exhibits('UTC');
+  assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'mouth_of_truth') = 1,
+    'the mouth of truth does not give its bonus once';
 end;
 $$;
 

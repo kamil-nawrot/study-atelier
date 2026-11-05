@@ -160,7 +160,6 @@
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		align-items: start;
 		gap: var(--spacing-4);
-		padding: 0;
 		list-style: none;
 	}
 

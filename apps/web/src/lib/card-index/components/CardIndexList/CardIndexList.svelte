@@ -114,7 +114,6 @@
 		display: grid;
 		gap: var(--spacing-4);
 		margin: 0;
-		padding: 0;
 		list-style: none;
 	}
 

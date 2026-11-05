@@ -28,6 +28,60 @@ function group(name: string): HTMLDetailsElement {
 }
 
 describe('ReviewSummary', () => {
+	it('heads the round with its count and time and splits its ratings on a bar', async () => {
+		await renderSummary(
+			[
+				{ rating: 1, artworks: [testArtwork(1, 'Artwork 1')] },
+				{ rating: 3, artworks: [testArtwork(3, 'Artwork 3'), testArtwork(4, 'Artwork 4')] }
+			],
+			{ count: 3, minutes: 12 }
+		);
+
+		await expect
+			.element(page.getByRole('heading', { level: 1, name: m.review.roundTitle(3, 12) }))
+			.toBeVisible();
+		expect(m.review.roundTitle(3, 12)).toBe('3 dzieła powtórzone w 12 minut');
+		expect(m.review.roundTitle(1, 1)).toBe('1 dzieło powtórzone w 1 minutę');
+		expect(m.review.roundTitle(19, 22)).toBe('19 dzieł powtórzonych w 22 minuty');
+		expect(
+			[...document.querySelectorAll('.legend li')].map((item) =>
+				item.textContent?.replace(/\s+/g, ' ').trim()
+			)
+		).toEqual([`${m.review.groups[3]} 2`, `${m.review.groups[2]} 0`, `${m.review.groups[1]} 1`]);
+	});
+
+	it('gives each kind of extra question a line only when it was asked, and the day after it', async () => {
+		await renderSummary([], {
+			years: { asked: 3, hit: 2 },
+			orders: { asked: 0, right: 0 },
+			definitions: { asked: 3, right: 1 },
+			notes: { asked: 1, right: 1 },
+			tomorrow: 12
+		});
+
+		const lines = [...document.querySelectorAll('.lines li')].map((line) =>
+			line.textContent?.replace(/\s+/g, ' ').trim()
+		);
+		expect(lines).toEqual([
+			`${m.review.roundLines.years} 2/3`,
+			`${m.review.roundLines.definitions} 1/3`,
+			`${m.review.roundLines.notes} 1/1`,
+			'Jutro będzie czekać na Ciebie 12 dzieł do powtórki'
+		]);
+		expect(`${m.review.tomorrowStart(2)} 2 ${m.review.tomorrowEnd(2)}`).toBe(
+			'Jutro będą czekać na Ciebie 2 dzieła do powtórki'
+		);
+		expect(`${m.review.tomorrowStart(1)} 1 ${m.review.tomorrowEnd(1)}`).toBe(
+			'Jutro będzie czekać na Ciebie 1 dzieło do powtórki'
+		);
+	});
+
+	it('keeps to the heading without extra questions and with nothing tomorrow', async () => {
+		await renderSummary([]);
+
+		expect(document.querySelectorAll('.lines li')).toHaveLength(0);
+	});
+
 	it('opens the artworks to improve and collapses the others', async () => {
 		await renderSummary([
 			{ rating: 1, artworks: [testArtwork(1, 'Artwork 1')] },
@@ -73,31 +127,10 @@ describe('ReviewSummary', () => {
 			nextRound: 4
 		});
 
-		await expect.element(page.getByText(m.review.freeSummary(3, 1))).toBeVisible();
+		await expect.element(page.getByText(m.review.freePlan)).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.review.freeNextRound })).toBeVisible();
 		await expect
 			.element(page.getByRole('button', { name: m.review.nextRound(4) }))
 			.not.toBeInTheDocument();
-	});
-
-	it('inflects the minutes and the artworks waiting tomorrow, and shares the sentence with a free review', () => {
-		expect(m.review.summary(3, 1, 0)).toBe(
-			'Dziś udało się powtórzyć 3 dzieła. Zajęło Ci to 1 minutę.'
-		);
-		expect(m.review.summary(1, 3, 0)).toBe(
-			'Dziś udało się powtórzyć 1 dzieło. Zajęło Ci to 3 minuty.'
-		);
-		expect(m.review.summary(5, 5, 2)).toBe(
-			'Dziś udało się powtórzyć 5 dzieł. Zajęło Ci to 5 minut. Jutro będą na Ciebie czekać 2 dzieła.'
-		);
-		expect(m.review.summary(1, 1, 1)).toContain('Jutro będzie na Ciebie czekać 1 dzieło.');
-		expect(m.review.freeSummary(5, 2)).toBe(
-			'Dziś udało się powtórzyć 5 dzieł. Zajęło Ci to 2 minuty. Plan powtórek się nie zmienił.'
-		);
-		expect(m.review.summary(1, 1, 12)).toContain('Jutro będzie na Ciebie czekać 12 dzieł.');
-		expect(m.review.summary(1, 1, 23)).toContain('Jutro będą na Ciebie czekać 23 dzieła.');
-		expect(m.review.summary(5, 22, 0)).toBe(
-			'Dziś udało się powtórzyć 5 dzieł. Zajęło Ci to 22 minuty.'
-		);
 	});
 });

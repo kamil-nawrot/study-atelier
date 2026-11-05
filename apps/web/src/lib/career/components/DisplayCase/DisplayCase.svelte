@@ -19,7 +19,6 @@
 
 <style>
 	.exhibits {
-		padding: 0;
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
 		gap: var(--spacing-6);

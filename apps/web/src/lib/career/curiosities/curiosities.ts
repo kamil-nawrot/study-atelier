@@ -29,6 +29,14 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 		'https://www.cbsnews.com/news/wiltshires-new-york-memory-revealed/',
 		'https://notesfrompoland.com/2022/09/21/bellotto-the-18th-century-artist-who-helped-warsaw-rise-from-the-ashes-of-wwii/'
 	],
+	bullseye: [
+		'https://www.sammlung.pinakothek.de/en/artwork/Qlx2QpQ4Xq',
+		'https://www.finestresullarte.info/arte-e-artisti/paesaggio-leonardo-da-vinci-analisi-scientifiche',
+		'https://blog.nationalmuseum.ch/en/2026/03/the-swiss-alchemist-who-invented-a-new-shade-of-blue/',
+		'https://www.thenationalnews.com/not-picture-perfect-1.433913',
+		'https://news.yale.edu/2021/09/01/analysis-unlocks-secret-vinland-map-its-fake',
+		'https://www.sciencedaily.com/releases/2019/06/190604131221.htm'
+	],
 	regular: [
 		'https://dzieje.pl/dziedzictwo-kulturowe/symboliczne-przekazanie-nagrody-europa-nostra-za-konserwacje-oltarza-wita',
 		'https://mini-site.louvre.fr/ingres/1.4.6_en.html',
@@ -36,7 +44,7 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 		'https://www.phillipscollection.org/blog/2019-01-29-rodins-gates-hell',
 		'https://www.wattstowers.org/about-us',
 		'https://www.facteurcheval.com/en/history/',
-		'https://www.duomomilano.it/en/art-and-culture/the-cathedral/',
+		'https://sagradafamilia.org/en/history-of-the-temple',
 		'https://www.koelner-dom.de/erleben/geschichte'
 	],
 	back_from_storage: [
@@ -90,7 +98,8 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 		'https://www.guinnessworldrecords.com/world-records/107088-first-photograph-of-a-human'
 	],
 	night_watch: ['https://www.rijksmuseum.nl/en/collection/SK-C-5'],
-	marathon: ['https://collections.tepapa.govt.nz/object/41358']
+	marathon: ['https://collections.tepapa.govt.nz/object/41358'],
+	mouth_of_truth: ['https://lucascranach.org/en/DE_BStGS-GNMN_Gm1108/']
 };
 
 export function curiosityOf(exhibit: string, tier: number): Curiosity | undefined {

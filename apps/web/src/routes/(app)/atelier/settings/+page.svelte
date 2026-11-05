@@ -8,6 +8,7 @@
 	import type { ResolvedPathname } from '$app/types';
 	import { EMAIL_CHANGED_PARAM } from '#lib/auth/account/account.ts';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
+	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import DataTab from '#lib/data-transfer/components/DataTab/DataTab.svelte';
 	import AccountTab from '#lib/profile/components/AccountTab/AccountTab.svelte';
@@ -23,6 +24,7 @@
 	let { data }: PageProps = $props();
 
 	const settingsPath = resolve('/(app)/atelier/settings');
+	const atelierPath = resolve('/(app)/atelier');
 	const tabs = SETTINGS_TABS.map((value) => ({ value, label: m.settings.tabs[value] }));
 
 	let toast: Toast;
@@ -72,6 +74,10 @@
 	{email}
 	title={m.settings.title}
 >
+	{#snippet bar()}
+		<BackLink fallbackHref={atelierPath} fallbackName={m.settings.back} />
+	{/snippet}
+
 	<div class="page" class:bar={tab !== 'account' && tab !== 'data'}>
 		<header>
 			<h1>{m.settings.title}</h1>
@@ -129,6 +135,7 @@
 <style>
 	header {
 		display: grid;
+		gap: var(--spacing-2);
 	}
 
 	.page {

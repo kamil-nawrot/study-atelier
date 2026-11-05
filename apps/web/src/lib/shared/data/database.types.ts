@@ -564,6 +564,7 @@ export type Database = {
           owner_id: string;
           seen_at: string | null;
           tier: number;
+          tiers: number | null;
           unlocked_at: string;
         };
         ComputedFields: never;
@@ -572,6 +573,7 @@ export type Database = {
           owner_id?: string;
           seen_at?: string | null;
           tier: number;
+          tiers?: number | null;
           unlocked_at?: string;
         };
         Update: {
@@ -579,6 +581,7 @@ export type Database = {
           owner_id?: string;
           seen_at?: string | null;
           tier?: number;
+          tiers?: number | null;
           unlocked_at?: string;
         };
         Relationships: [];
@@ -938,6 +941,7 @@ export type Database = {
       };
       point_events: {
         Row: {
+          answers: number | null;
           code: string | null;
           day_start: string | null;
           id: number;
@@ -950,6 +954,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          answers?: number | null;
           code?: string | null;
           day_start?: string | null;
           id?: never;
@@ -961,6 +966,7 @@ export type Database = {
           streak_days?: number | null;
         };
         Update: {
+          answers?: number | null;
           code?: string | null;
           day_start?: string | null;
           id?: never;
@@ -990,10 +996,13 @@ export type Database = {
           rank_seen: number;
           review_form: string;
           review_free: boolean;
+          review_glossary_on: boolean;
           review_glossary_questions: number;
           review_new_per_day: number;
+          review_note_questions: boolean;
           review_quiz_kinds: string[];
           review_session_size: number;
+          review_time_questions: boolean;
           updated_at: string;
           view_loupe_on: boolean;
           view_show_pins: boolean;
@@ -1015,10 +1024,13 @@ export type Database = {
           rank_seen?: number;
           review_form?: string;
           review_free?: boolean;
+          review_glossary_on?: boolean;
           review_glossary_questions?: number;
           review_new_per_day?: number;
+          review_note_questions?: boolean;
           review_quiz_kinds?: string[];
           review_session_size?: number;
+          review_time_questions?: boolean;
           updated_at?: string;
           view_loupe_on?: boolean;
           view_show_pins?: boolean;
@@ -1039,10 +1051,13 @@ export type Database = {
           rank_seen?: number;
           review_form?: string;
           review_free?: boolean;
+          review_glossary_on?: boolean;
           review_glossary_questions?: number;
           review_new_per_day?: number;
+          review_note_questions?: boolean;
           review_quiz_kinds?: string[];
           review_session_size?: number;
+          review_time_questions?: boolean;
           updated_at?: string;
           view_loupe_on?: boolean;
           view_show_pins?: boolean;
@@ -1113,11 +1128,13 @@ export type Database = {
           correct: boolean | null;
           due_before: string | null;
           facet: string;
+          guessed_year: number | null;
           id: number;
           mode: string;
           owner_id: string;
           rating: number;
           reviewed_at: string;
+          year_miss: number | null;
         };
         ComputedFields: never;
         Insert: {
@@ -1126,11 +1143,13 @@ export type Database = {
           correct?: boolean | null;
           due_before?: string | null;
           facet?: string;
+          guessed_year?: number | null;
           id?: never;
           mode: string;
           owner_id?: string;
           rating: number;
           reviewed_at?: string;
+          year_miss?: number | null;
         };
         Update: {
           answer_ms?: number | null;
@@ -1138,11 +1157,13 @@ export type Database = {
           correct?: boolean | null;
           due_before?: string | null;
           facet?: string;
+          guessed_year?: number | null;
           id?: never;
           mode?: string;
           owner_id?: string;
           rating?: number;
           reviewed_at?: string;
+          year_miss?: number | null;
         };
         Relationships: [
           {
@@ -1407,6 +1428,14 @@ export type Database = {
         Args: { direction: number; target_field: string };
         Returns: undefined;
       };
+      note_gap_artwork: {
+        Args: {
+          excluded?: string[];
+          scope_kind?: string;
+          scope_value?: string;
+        };
+        Returns: Json;
+      };
       note_link_labels: {
         Args: {
           artwork_number?: number;
@@ -1463,6 +1492,7 @@ export type Database = {
         };
         Returns: undefined;
       };
+      record_right_answer: { Args: { day_start: string }; Returns: undefined };
       review_counts: {
         Args: { day_start: string };
         Returns: {
@@ -1479,6 +1509,7 @@ export type Database = {
           scope_kind?: string;
           scope_value?: string;
           session_form?: string;
+          time_questions?: boolean;
         };
         Returns: Json;
       };

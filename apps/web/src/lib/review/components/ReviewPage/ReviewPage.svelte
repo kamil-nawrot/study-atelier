@@ -2,10 +2,14 @@
 	import { Alert } from '@study-atelier/ui';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import DefinitionQuiz from '#lib/review/components/DefinitionQuiz/DefinitionQuiz.svelte';
+	import NoteGapQuiz from '#lib/review/components/NoteGapQuiz/NoteGapQuiz.svelte';
 	import Flashcard from '#lib/review/components/Flashcard/Flashcard.svelte';
 	import Quiz from '#lib/review/components/Quiz/Quiz.svelte';
+	import TypedTitle from '#lib/review/components/TypedTitle/TypedTitle.svelte';
 	import ReviewStart from '#lib/review/components/ReviewStart/ReviewStart.svelte';
+	import OrderGuess from '#lib/review/components/OrderGuess/OrderGuess.svelte';
 	import ReviewSummary from '#lib/review/components/ReviewSummary/ReviewSummary.svelte';
+	import YearGuess from '#lib/review/components/YearGuess/YearGuess.svelte';
 	import { formatWhen } from '#lib/review/overview/overview.ts';
 	import type { ReviewFlow } from '#lib/review/review-flow/review-flow.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -15,11 +19,10 @@
 		flow: ReviewFlow;
 		error?: string;
 		glossary?: GlossaryTerm[];
-		streak: number;
 		rankForm?: RankForm;
 	};
 
-	let { flow, error, glossary, streak, rankForm }: Props = $props();
+	let { flow, error, glossary, rankForm }: Props = $props();
 </script>
 
 {#if error}
@@ -27,13 +30,55 @@
 {:else if flow.phase === 'session' && flow.session && flow.current}
 	{@const session = flow.session}
 	{@const current = flow.current}
-	{#key `${session.position}:${current.mode === 'quiz_definition' ? current.term.id : current.artwork.id}`}
-		{#if current.mode === 'quiz_definition'}
+	{@const id =
+		current.mode === 'order'
+			? current.artworks[0].id
+			: current.mode === 'quiz_definition'
+				? current.term.id
+				: current.artwork.id}
+	{#key `${session.position}:${id}`}
+		{#if current.mode === 'order'}
+			<OrderGuess
+				item={current}
+				oncheck={(placed) => session.checkOrder(placed)}
+				onnext={() => flow.proceed()}
+				ordered={session.ordered}
+			/>
+		{:else if current.mode === 'quiz_definition'}
 			<DefinitionQuiz
 				chosen={session.chosen}
 				item={current}
 				onanswer={(choice) => flow.answer(choice)}
 				onnext={() => flow.proceed()}
+			/>
+		{:else if current.mode === 'note_gap'}
+			<NoteGapQuiz
+				chosen={session.chosen}
+				details={flow.details.get(current.artwork.id)}
+				item={current}
+				onanswer={(choice) => flow.answer(choice)}
+				onnext={() => flow.proceed()}
+			/>
+		{:else if current.mode === 'year'}
+			<YearGuess
+				details={flow.details.get(current.artwork.id)}
+				error={session.error}
+				guessed={session.guessed}
+				item={current}
+				onguess={(year) => flow.guess(year)}
+				onnext={() => flow.proceed()}
+				saving={session.saving}
+			/>
+		{:else if current.mode === 'quiz_typed'}
+			<TypedTitle
+				artworks={[...flow.artworksById.values()]}
+				details={flow.details.get(current.artwork.id)}
+				error={session.error}
+				item={current}
+				onanswer={(picked) => flow.typeTitle(picked)}
+				onnext={() => flow.proceed()}
+				saving={session.saving}
+				typed={session.typed}
 			/>
 		{:else if current.quiz}
 			<Quiz
@@ -61,23 +106,25 @@
 {:else if flow.phase === 'summary' && flow.summary}
 	<ReviewSummary
 		count={flow.summary.count}
+		definitions={flow.summary.definitions}
 		free={flow.summary.free}
 		freeOpen={flow.freeOpen}
 		groups={flow.summary.groups.map((group) => ({
 			...group,
-			artworks: group.artworks.map((artwork) => flow.withImage(artwork))
+			artworks: group.artworks.map((artwork) => flow.images.withImage(artwork))
 		}))}
 		minutes={flow.summary.minutes}
 		nextRound={flow.waiting}
+		notes={flow.summary.notes}
 		onfree={() => flow.start()}
 		onnext={() => flow.start()}
+		orders={flow.summary.orders}
 		{rankForm}
 		tomorrow={flow.summary.tomorrow}
+		years={flow.summary.years}
 	/>
 {:else}
 	<ReviewStart
-		definitions={flow.definitionCount}
-		definitionsOn={flow.definitions}
 		error={flow.startError}
 		form={flow.activeForm}
 		forms={flow.forms}
@@ -87,14 +134,14 @@
 		known={flow.counts.known}
 		missing={flow.missing}
 		nextWhen={flow.nextDate ? formatWhen(flow.nextDate, flow.now) : undefined}
-		ondefinitions={(on) => (flow.definitions = on)}
 		onform={(chosen) => (flow.form = chosen)}
 		onscope={(chosen) => flow.chooseScope(chosen)}
 		onstart={() => flow.start()}
+		reviewedToday={flow.reviewedToday}
 		scope={flow.activeScope}
 		scopes={flow.scopes}
 		starting={flow.starting}
-		{streak}
+		streak={flow.streak}
 		troubles={flow.hard}
 	/>
 {/if}
