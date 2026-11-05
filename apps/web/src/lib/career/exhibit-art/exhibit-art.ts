@@ -75,6 +75,11 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		credit: 'Albrecht Dürer, „Nemezis”, ok. 1501–1502, tło uzupełnione',
 		licence: 'CC0',
 		commonsFile: 'Albrecht Dürer, Nemesis (The Great Fortune), c. 1501-1502, NGA 6603.jpg'
+	},
+	mouth_of_truth: {
+		credit: 'Georg Pencz, „Usta prawdy”, 1533–1534',
+		licence: 'CC0',
+		commonsFile: 'Georg Pencz - The Mouth of Truth - 1922.150 - Cleveland Museum of Art.jpg'
 	}
 };
 

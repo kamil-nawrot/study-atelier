@@ -6,6 +6,8 @@ import '@study-atelier/ui/styles.css';
 import { goto } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
+import { career } from '#lib/career/career-state/career-state.svelte.ts';
+import { sendFeedback } from '#lib/feedback/feedback-data/feedback-data.ts';
 import { pending } from '#lib/testing/auth/auth.ts';
 import { setRailExpanded } from '#lib/shell/rail/rail.svelte.ts';
 import { setTheme } from '#lib/shell/theme/theme.svelte.ts';
@@ -30,6 +32,8 @@ vi.mock('$app/state', () => ({
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
+
+vi.mock('#lib/feedback/feedback-data/feedback-data.ts', () => ({ sendFeedback: vi.fn() }));
 
 const signOut = vi.mocked(supabase.auth.signOut);
 
@@ -261,6 +265,22 @@ describe('AtelierLayout', () => {
 		await userEvent.click(page.getByRole('button', { name: m.menu.feedback }));
 
 		await expect.element(page.getByRole('dialog', { name: m.feedback.title })).toBeInTheDocument();
+	});
+
+	it('refreshes the career after a report is sent, so a new exhibit flashes at once', async () => {
+		vi.mocked(sendFeedback).mockResolvedValue({});
+		const refresh = vi.spyOn(career, 'refresh').mockResolvedValue();
+		await page.viewport(1280, 800);
+		renderLayout(views.empty);
+
+		await userEvent.click(page.getByRole('button', { name: m.menu.feedback }));
+		await userEvent.click(page.getByRole('radio', { name: m.feedback.idea }));
+		await userEvent.type(page.getByLabelText(m.feedback.titleLabel), 'Dark mode for notes');
+		await userEvent.click(page.getByRole('button', { name: m.feedback.send }));
+
+		await vi.waitFor(() => expect(refresh).toHaveBeenCalledOnce());
+		await expect.element(page.getByText(m.feedback.sent)).toBeInTheDocument();
+		refresh.mockRestore();
 	});
 });
 
