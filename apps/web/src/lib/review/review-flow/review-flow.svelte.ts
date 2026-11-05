@@ -36,7 +36,7 @@ import {
 } from '#lib/review/review-data/review-data.ts';
 import { preloadSteps, withItemImages } from '#lib/review/review-images/review-images.ts';
 import { drawNoteGap } from '#lib/review/note-gap/note-gap.ts';
-import { reviewedSince } from '#lib/review/streak-week/streak-week.ts';
+import { reviewedSince, streakWithToday } from '#lib/review/streak-week/streak-week.ts';
 import { ResolvedImages } from '#lib/review/resolved-images/resolved-images.svelte.ts';
 import { ReviewStop } from '#lib/review/review-stop/review-stop.svelte.ts';
 import { ReviewSession } from '#lib/review/review-session/review-session.svelte.ts';
@@ -149,12 +149,7 @@ export class ReviewFlow {
 	artworksById = $derived(mapOf(this.#data().artworks.map((artwork) => [artwork.id, artwork])));
 	knowledge = $derived(atelierKnowledge(this.#data().artworks, this.cards));
 	reviewedToday = $derived(reviewedSince(this.cards.values(), startOfDay(this.now)));
-	streak = $derived(
-		this.#data().streak +
-			(this.reviewedToday && !reviewedSince(this.#data().cards.values(), startOfDay(this.now))
-				? 1
-				: 0)
-	);
+	streak = $derived(streakWithToday(this.#data(), this.reviewedToday, startOfDay(this.now)));
 	hard = $derived(troubles(this.#data().artworks, this.cards).map(this.images.withImage));
 	current = $derived(this.session?.current);
 
