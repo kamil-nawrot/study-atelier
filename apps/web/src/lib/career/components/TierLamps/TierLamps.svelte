@@ -33,10 +33,10 @@
 					align={wide.current ? 'start' : 'end'}
 					bare
 					hover
-					placement="auto"
 					label={curiosity && !unlocked.seenAt
 						? `${m.career.tierOf(roman(level), name)}, ${m.career.newCuriosity}`
 						: m.career.tierOf(roman(level), name)}
+					placement="auto"
 				>
 					{#snippet trigger()}
 						<span class="lamp on" class:fresh={curiosity && !unlocked.seenAt}></span>
