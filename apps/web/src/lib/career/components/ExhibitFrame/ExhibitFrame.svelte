@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Tag } from '@study-atelier/ui';
 	import type { Snippet } from 'svelte';
 	import { asset } from '$app/paths';
 	import TierNumeral from '#lib/career/components/TierNumeral/TierNumeral.svelte';
@@ -23,7 +24,10 @@
 		{/if}
 		<span class="light"></span>
 		{#if numeral}
-			<TierNumeral {mark} {metal} {numeral} />
+			<TierNumeral {metal} {numeral} />
+		{/if}
+		{#if mark}
+			<span class="mark" aria-hidden="true"><Tag>{mark}</Tag></span>
 		{/if}
 	</div>
 	{#if children}
@@ -172,6 +176,13 @@
 				color-mix(in srgb, var(--color-case-silver) 15%, transparent),
 				transparent 70%
 			);
+	}
+
+	.mark {
+		position: absolute;
+		top: var(--spacing-2);
+		right: var(--spacing-2);
+		display: flex;
 	}
 
 	.corner {
