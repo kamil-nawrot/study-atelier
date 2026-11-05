@@ -11,7 +11,7 @@
 		open?: boolean;
 		field?: OwnField;
 		value?: OwnValue;
-		onsaved: (message: string) => Promise<void>;
+		onsaved: (message: string, kept?: OwnValue) => Promise<void>;
 	};
 
 	let { open = $bindable(false), field, value, onsaved }: Props = $props();
@@ -56,11 +56,9 @@
 			return;
 		}
 		open = false;
-		await onsaved(
-			change.kind === 'merge'
-				? m.cardIndex.merged(change.target.name)
-				: m.ownFields.saved(name.trim())
-		);
+		if (change.kind === 'merge')
+			await onsaved(m.cardIndex.merged(change.target.name), change.target);
+		else await onsaved(m.ownFields.saved(name.trim()));
 	}
 
 	function submit(): void {
