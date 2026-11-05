@@ -11,6 +11,7 @@
 
 	let nav = $state<HTMLElement>();
 	let current = $state<string>();
+	let top = $state<number>();
 	let chosen: string | undefined;
 
 	function section(letter: string): HTMLElement | null {
@@ -28,7 +29,10 @@
 			current = chosen;
 			return;
 		}
-		const line = (parseFloat(getComputedStyle(nav).getPropertyValue('--bar-height')) || 0) + REACH;
+		const bar = parseFloat(getComputedStyle(nav).getPropertyValue('--bar-height')) || 0;
+		const line = bar + REACH;
+		const start = section(letters[0])?.getBoundingClientRect().top;
+		top = start === undefined ? undefined : Math.max(bar, start);
 		let reached = letters[0];
 		for (const letter of letters) {
 			const top = section(letter)?.getBoundingClientRect().top;
@@ -66,7 +70,12 @@
 	onwheel={release}
 />
 
-<nav bind:this={nav} class="index" aria-label={m.glossary.letters}>
+<nav
+	bind:this={nav}
+	style:top={top === undefined ? undefined : `${top}px`}
+	class="index"
+	aria-label={m.glossary.letters}
+>
 	<ol>
 		{#each letters as letter (letter)}
 			<li>
@@ -89,7 +98,7 @@
 		bottom: 0;
 		z-index: 1;
 		display: flex;
-		align-items: center;
+		align-items: flex-start;
 	}
 
 	ol {

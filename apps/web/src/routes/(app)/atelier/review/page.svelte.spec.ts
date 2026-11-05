@@ -90,7 +90,8 @@ const terms: GlossaryEntry[] = ['Apse', 'Nave', 'Crypt', 'Choir'].map((name) => 
 	forms: [],
 	hasDefinition: true,
 	sortName: null,
-	source: null
+	source: null,
+	createdAt: '2026-10-17T10:00:00Z'
 }));
 
 function renderReview(
