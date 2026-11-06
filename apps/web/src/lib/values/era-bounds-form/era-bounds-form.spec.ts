@@ -6,6 +6,7 @@ import {
 	eraHasEnd,
 	eraHasStart,
 	junctionsOf,
+	newlyOutside,
 	neighbourNotes,
 	validateEraBounds
 } from './era-bounds-form.ts';
@@ -91,5 +92,21 @@ describe('neighbourNotes', () => {
 			[]
 		);
 		expect(neighbourNotes('early_modern', DEFAULT_ERA_JUNCTIONS, undefined)).toEqual([]);
+	});
+});
+
+describe('newlyOutside', () => {
+	it('counts only the artworks the change pushes outside their era, in any era', () => {
+		const moved = [-3000, 476, 1520, 1789, 1945];
+		const artworks = [
+			{ eraCode: 'early_modern' as const, yearFrom: null, yearTo: 1503 },
+			{ eraCode: 'early_modern' as const, yearFrom: null, yearTo: 1450 },
+			{ eraCode: 'middle_ages' as const, yearFrom: null, yearTo: 1510 },
+			{ eraCode: 'early_modern' as const, yearFrom: null, yearTo: 1600 },
+			{ eraCode: 'middle_ages' as const, yearFrom: null, yearTo: 1485 }
+		];
+
+		expect(newlyOutside(artworks, DEFAULT_ERA_JUNCTIONS, moved)).toBe(1);
+		expect(newlyOutside(artworks, DEFAULT_ERA_JUNCTIONS, [-3000, 476, 1480, 1789, 1945])).toBe(1);
 	});
 });

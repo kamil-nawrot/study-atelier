@@ -1,6 +1,12 @@
 import { resolve } from '$app/paths';
 import type { ResolvedPathname } from '$app/types';
-import { ERA_CODES, eraEndYear, eraName, eraStartYear } from '#lib/catalogue/eras/eras.ts';
+import {
+	ERA_CODES,
+	eraEndYear,
+	eraName,
+	eraStartYear,
+	yearOutsideEra
+} from '#lib/catalogue/eras/eras.ts';
 import { PREHISTORY_START } from '#lib/catalogue/era-bounds/era-bounds.svelte.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 import { m } from '#lib/i18n/i18n.ts';
@@ -117,4 +123,16 @@ export function neighbourNotes(
 export function outsideEraHref(code: EraCode): ResolvedPathname {
 	const filter = { ...emptyFilter(), eras: [code], missing: ['outsideEra' as const] };
 	return `${resolve('/(app)/atelier')}?${filterToParams(filter).toString()}` as ResolvedPathname;
+}
+
+type Dated = Parameters<typeof yearOutsideEra>[0];
+
+export function newlyOutside(
+	artworks: readonly Dated[],
+	saved: readonly number[],
+	next: readonly number[]
+): number {
+	return artworks.filter(
+		(artwork) => yearOutsideEra(artwork, next) && !yearOutsideEra(artwork, saved)
+	).length;
 }
