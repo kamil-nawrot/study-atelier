@@ -4,6 +4,7 @@ import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
 import type { ValueLinks } from '#lib/card-index/types/value-links.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { saveArtworkCalls } from '#lib/testing/duplicates/duplicates.ts';
+import { eraYearsText } from '#lib/catalogue/eras/eras.ts';
 
 export function linkedValues(): ValueLinks {
 	const links = emptyValueLinks();
@@ -14,7 +15,7 @@ export function linkedValues(): ValueLinks {
 }
 
 export function eraTile(code: keyof typeof m.eras): ReturnType<typeof page.getByRole> {
-	return page.getByRole('radio', { name: `${m.eras[code].name} ${m.eras[code].years}` });
+	return page.getByRole('radio', { name: `${m.eras[code].name} ${eraYearsText(code)}` });
 }
 
 export async function toggleSpan(): Promise<void> {

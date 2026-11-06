@@ -15,6 +15,10 @@ import { saveValueDetails } from '#lib/values/value-details-data/value-details-d
 import { m } from '#lib/i18n/i18n.ts';
 import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
+import { saveEraBounds } from '#lib/profile/era-bounds-data/era-bounds-data.ts';
+import { applyEraBounds, eraJunctions } from '#lib/catalogue/era-bounds/era-bounds.svelte.ts';
+import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
+import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import EditValuePage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({
@@ -33,6 +37,8 @@ vi.mock('#lib/values/value-details-data/value-details-data.ts', async (importOri
 	>()),
 	saveValueDetails: vi.fn()
 }));
+vi.mock('#lib/profile/era-bounds-data/era-bounds-data.ts', () => ({ saveEraBounds: vi.fn() }));
+vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({ loadAtelier: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
@@ -89,6 +95,47 @@ describe('edit value page', () => {
 		vi.mocked(saveValue).mockResolvedValue({});
 		vi.mocked(saveValueDetails).mockResolvedValue({});
 		vi.mocked(loadValuePageContent).mockResolvedValue({ content: { hasContent: false } });
+		vi.mocked(saveEraBounds).mockResolvedValue({});
+		vi.mocked(loadAtelier).mockResolvedValue({ artworks: [] } as never);
+		applyEraBounds(null);
+	});
+
+	it('moves the end of an era and the start of the next one together', async () => {
+		renderEdit({ kind: 'era', code: 'early_modern' });
+
+		await page.getByLabelText(m.eraBounds.end, { exact: true }).fill('1800');
+		await expect
+			.element(
+				page.getByText(m.eraBounds.nextMoves(m.eras.modern.name, m.atelier.year(1800, false)))
+			)
+			.toBeVisible();
+		await saveButton().click();
+
+		expect(saveEraBounds).toHaveBeenCalledWith([-3000, 476, 1492, 1800, 1945]);
+		expect(eraJunctions()).toEqual([-3000, 476, 1492, 1800, 1945]);
+	});
+
+	it('asks before leaving artworks outside the changed era', async () => {
+		vi.mocked(loadAtelier).mockResolvedValue({
+			artworks: [
+				{ ...testArtwork(1, 'Mona Lisa'), eraCode: 'early_modern', yearFrom: 1503, yearTo: 1503 }
+			]
+		} as never);
+		renderEdit({ kind: 'era', code: 'early_modern' });
+
+		await page.getByLabelText(m.eraBounds.start, { exact: true }).fill('1520');
+		await saveButton().click();
+
+		await expect.element(page.getByText(m.eraBounds.confirm.description(1))).toBeVisible();
+		expect(saveEraBounds).not.toHaveBeenCalled();
+		await page
+			.getByRole('alertdialog')
+			.getByRole('button', { name: m.eraBounds.confirm.save })
+			.click();
+
+		await vi.waitFor(() =>
+			expect(saveEraBounds).toHaveBeenCalledWith([-3000, 476, 1520, 1789, 1945])
+		);
 	});
 
 	it('names the value in the title and fills the form', async () => {

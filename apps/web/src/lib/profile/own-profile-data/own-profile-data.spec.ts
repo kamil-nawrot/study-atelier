@@ -42,7 +42,8 @@ const row = {
 	display_name: 'Anna',
 	avatar_path: null,
 	rank_form: 'feminine',
-	legal_version: '2026-10-27'
+	legal_version: '2026-10-27',
+	era_bounds: [-3000, 476, 1560, 1789, 1945]
 };
 
 describe('loadOwnProfile', () => {
@@ -64,6 +65,7 @@ describe('loadOwnProfile', () => {
 			careerShown: false
 		});
 		expect(own.legalVersion).toBe('2026-10-27');
+		expect(own.eraBounds).toEqual([-3000, 476, 1560, 1789, 1945]);
 		expect(own.error).toBeUndefined();
 	});
 
@@ -73,7 +75,8 @@ describe('loadOwnProfile', () => {
 		await expect(loadOwnProfile()).resolves.toEqual({
 			preferences: defaultPreferences,
 			profile: emptyProfile,
-			legalVersion: null
+			legalVersion: null,
+			eraBounds: null
 		});
 	});
 

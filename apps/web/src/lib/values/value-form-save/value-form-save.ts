@@ -3,6 +3,8 @@ import { m } from '#lib/i18n/i18n.ts';
 import { createValue, saveValue } from '#lib/card-index/card-index-data/card-index-data.ts';
 import { subjectPath, valuePath } from '#lib/card-index/value-pages/value-pages.ts';
 import { valueDetailsChanged } from '#lib/values/value-details/value-details.ts';
+import { applyEraBounds } from '#lib/catalogue/era-bounds/era-bounds.svelte.ts';
+import { saveEraBounds } from '#lib/profile/era-bounds-data/era-bounds-data.ts';
 import { saveValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
 import { valueFormDetails } from '#lib/values/value-form/value-form.ts';
 import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
@@ -20,6 +22,7 @@ type ValueFormSave = {
 	mergeTarget?: CardIndexRecord;
 	moveTo?: EraCode;
 	linksChanged: boolean;
+	junctions?: number[];
 };
 
 type ValueFormSaveResult =
@@ -33,6 +36,14 @@ async function created(subject: ValueSubject, name: string): Promise<ValueSubjec
 	return { kind: subject.kind, record: { ...subject.record, id: result.id, name } };
 }
 
+async function savedBounds(junctions: number[] | undefined): Promise<string | undefined> {
+	if (!junctions) return undefined;
+	const result = await saveEraBounds(junctions);
+	if (result.error) return result.error;
+	applyEraBounds(junctions);
+	return undefined;
+}
+
 export async function saveValueForm(input: ValueFormSave): Promise<ValueFormSaveResult> {
 	const { form, mergeTarget } = input;
 	const creating = input.subject.kind !== 'era' && input.subject.record.id === '';
@@ -40,6 +51,9 @@ export async function saveValueForm(input: ValueFormSave): Promise<ValueFormSave
 	if (typeof subject === 'string') return { error: subject };
 	const fail = (error: string): ValueFormSaveResult =>
 		creating ? { error, created: subject } : { error };
+
+	const boundsError = await savedBounds(input.junctions);
+	if (boundsError) return fail(boundsError);
 
 	const details = valueFormDetails(form);
 	if (!mergeTarget && valueDetailsChanged(details, valueFormDetails(input.saved))) {

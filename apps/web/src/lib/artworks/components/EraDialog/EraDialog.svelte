@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { eraYearsText } from '#lib/catalogue/eras/eras.ts';
 	import { Button, Dialog } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { formatDate } from '#lib/catalogue/years/years.ts';
@@ -22,7 +23,7 @@
 					formatDate(yearFrom, yearTo, approximate) ?? '',
 					yearFrom !== null && yearFrom !== yearTo,
 					m.eras[eraCode].name,
-					m.eras[eraCode].years
+					eraYearsText(eraCode)
 				)
 	);
 </script>

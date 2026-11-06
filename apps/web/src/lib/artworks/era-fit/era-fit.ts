@@ -1,4 +1,4 @@
-import { ERA_CODES, ERA_START_YEARS } from '#lib/catalogue/eras/eras.ts';
+import { yearOutsideEra as outsideEra } from '#lib/catalogue/eras/eras.ts';
 import { signedYear } from '#lib/catalogue/years/years.ts';
 import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
@@ -9,16 +9,8 @@ export type Dated = {
 	yearTo: number | null;
 };
 
-function spanOf(code: EraCode): [number, number] {
-	const index = ERA_CODES.indexOf(code);
-	const next = ERA_CODES[index + 1];
-	return [index === 0 ? -Infinity : ERA_START_YEARS[code], next ? ERA_START_YEARS[next] : Infinity];
-}
-
-export function yearOutsideEra({ eraCode, yearFrom, yearTo }: Dated): boolean {
-	if (eraCode === null || yearTo === null) return false;
-	const [start, end] = spanOf(eraCode);
-	return yearTo < start || (yearFrom ?? yearTo) > end;
+export function yearOutsideEra(dated: Dated): boolean {
+	return outsideEra(dated);
 }
 
 export function datedOf(input: ArtworkInput): Dated {

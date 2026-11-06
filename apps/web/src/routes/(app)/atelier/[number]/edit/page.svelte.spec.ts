@@ -16,6 +16,7 @@ import {
 } from '#lib/testing/duplicates/duplicates.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import EditArtworkPage from './+page.svelte';
+import { eraYearsText } from '#lib/catalogue/eras/eras.ts';
 
 vi.mock('#lib/artworks/form-suggestions/form-suggestions.svelte.ts', async () => ({
 	FormSuggestions: (await import('#lib/testing/form-suggestions/form-suggestions.ts'))
@@ -174,7 +175,7 @@ describe('edit artwork page', () => {
 
 		const era = m.eras.early_modern;
 		await expect
-			.element(page.getByRole('radio', { name: `${era.name} ${era.years}` }))
+			.element(page.getByRole('radio', { name: `${era.name} ${eraYearsText('early_modern')}` }))
 			.toBeChecked();
 		await expect.element(page.getByText('Dutch Golden Age', { exact: true })).toBeVisible();
 		await expect.element(page.getByText('Delft school', { exact: true })).toBeVisible();
@@ -197,7 +198,7 @@ describe('edit artwork page', () => {
 		await expect.element(page.getByText('Pointillism', { exact: true })).toBeVisible();
 
 		await userEvent.click(
-			page.getByRole('radio', { name: `${m.eras.modern.name} ${m.eras.modern.years}` })
+			page.getByRole('radio', { name: `${m.eras.modern.name} ${eraYearsText('modern')}` })
 		);
 
 		await expect.element(page.getByText('Pointillism', { exact: true })).toBeVisible();

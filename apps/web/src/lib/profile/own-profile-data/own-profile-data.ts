@@ -14,10 +14,11 @@ export type OwnProfileResult = {
 	preferences: Preferences;
 	profile: Profile;
 	legalVersion: string | null | undefined;
+	eraBounds: number[] | null;
 	error?: string;
 };
 
-const COLUMNS = `${PREFERENCES_COLUMNS}, ${PROFILE_COLUMNS}, legal_version` as const;
+const COLUMNS = `${PREFERENCES_COLUMNS}, ${PROFILE_COLUMNS}, legal_version, era_bounds` as const;
 
 export async function loadOwnProfile(): Promise<OwnProfileResult> {
 	const { data, error } = await supabase.from('profiles').select(COLUMNS).maybeSingle();
@@ -26,12 +27,14 @@ export async function loadOwnProfile(): Promise<OwnProfileResult> {
 			preferences: defaultPreferences,
 			profile: emptyProfile,
 			legalVersion: undefined,
+			eraBounds: null,
 			error: profileErrorMessage(error)
 		};
 	}
 	return {
 		preferences: preferencesOf(data),
 		profile: profileOf(data),
-		legalVersion: data?.legal_version ?? null
+		legalVersion: data?.legal_version ?? null,
+		eraBounds: data?.era_bounds ?? null
 	};
 }

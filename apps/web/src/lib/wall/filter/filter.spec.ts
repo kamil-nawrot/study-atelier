@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
+import { applyEraBounds } from '#lib/catalogue/era-bounds/era-bounds.svelte.ts';
 import {
 	UNKNOWN_AUTHOR,
 	applyFilter,
@@ -134,6 +135,10 @@ describe('applyFilter', () => {
 		expect(numbers(filterWith({ missing: ['period'] }))).toEqual([3, 4]);
 		expect(numbers(filterWith({ missing: ['type'] }))).toEqual([4]);
 		expect(numbers(filterWith({ missing: ['image', 'year'] }))).toEqual([3, 4]);
+		expect(numbers(filterWith({ missing: ['outsideEra'] }))).toEqual([]);
+		applyEraBounds([-3000, 476, 1520, 1789, 1945]);
+		expect(numbers(filterWith({ missing: ['outsideEra'] }))).toEqual([2]);
+		applyEraBounds(null);
 	});
 });
 
