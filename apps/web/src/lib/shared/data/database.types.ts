@@ -1433,6 +1433,7 @@ export type Database = {
       import_atelier: { Args: { payload: Json }; Returns: Json };
       keep_alive: { Args: Record<PropertyKey, never>; Returns: string };
       learner_points: { Args: Record<PropertyKey, never>; Returns: number };
+      mastered_artworks: { Args: { artwork_ids: string[] }; Returns: number };
       merge_category_values: {
         Args: { kept_id: string; merged_id: string };
         Returns: undefined;

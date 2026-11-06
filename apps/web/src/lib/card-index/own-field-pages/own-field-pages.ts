@@ -1,7 +1,6 @@
 import { resolve } from '$app/paths';
 import type { ResolvedPathname } from '$app/types';
 import { m } from '#lib/i18n/i18n.ts';
-import { loadOwnValues } from '#lib/card-index/card-index-data/card-index-data.ts';
 import { loadOwnFields } from '#lib/card-index/own-fields-data/own-fields-data.ts';
 import { withOwnValues } from '#lib/card-index/own-fields/own-fields.ts';
 import { loadArtworksOfValue } from '#lib/wall/wall-data/wall-data.ts';
@@ -34,10 +33,10 @@ export function ownValuePath(fieldId: string, valueId: string): ResolvedPathname
 }
 
 export async function loadOwnFieldPage(id: string): Promise<OwnFieldPageData> {
-	const [definitions, values] = await Promise.all([loadOwnFields(), loadOwnValues()]);
-	const error = definitions.error ?? values.error;
+	const [definitions, cardIndex] = await Promise.all([loadOwnFields(), loadCardIndex()]);
+	const error = definitions.error ?? cardIndex.error;
 	if (error) return { fields: [], error };
-	const fields = withOwnValues(definitions.fields, values.ownValues);
+	const fields = withOwnValues(definitions.fields, cardIndex.ownValues);
 	const field = fields.find((candidate) => candidate.id === id);
 	return field ? { field, fields } : { fields, error: m.ownFields.page.notFound, notFound: true };
 }
@@ -56,8 +55,10 @@ export async function loadOwnValuePage(
 	if (!value)
 		return { fields: page.fields, artworks: [], error: m.ownFields.page.notFound, notFound: true };
 	if ('error' in own && own.error) return { fields: page.fields, artworks: [], error: own.error };
-	const relations = cardIndex.error
-		? undefined
-		: await loadRelations({ kind: 'own', artworks: own.artworks, index: cardIndex.index });
+	const relations = await loadRelations({
+		kind: 'own',
+		artworks: own.artworks,
+		index: cardIndex.index
+	});
 	return { ...page, value, artworks: own.artworks, relations };
 }

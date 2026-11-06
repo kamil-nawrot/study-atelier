@@ -2,7 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { loadRelations } from './relations-data.ts';
 
-const calls = vi.hoisted(() => ({ filters: [] as string[] }));
+const calls = vi.hoisted(() => ({
+	filters: [] as string[],
+	rpcs: [] as { name: string; args: unknown }[]
+}));
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => {
 	function query(table: string): Record<string, unknown> {
@@ -24,31 +27,32 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => {
 			order: () => builder,
 			range: () => builder,
 			then: (resolve: (value: unknown) => void) =>
-				resolve(
-					table === 'review_cards'
-						? { data: [{ artwork_id: 'artwork-1' }, { artwork_id: 'other' }], error: null }
-						: {
-								data: [
-									{
-										id: 'e1',
-										name: 'Odkrycie Ameryki',
-										year_from: null,
-										year_to: 1492,
-										year_approximate: false
-									}
-								],
-								error: null
-							}
-				)
+				resolve({
+					data: [
+						{
+							id: 'e1',
+							name: 'Odkrycie Ameryki',
+							year_from: null,
+							year_to: 1492,
+							year_approximate: false
+						}
+					],
+					error: null
+				})
 		};
 		return builder;
 	}
-	return { supabase: { from: query } };
+	function rpc(name: string, args: unknown): Promise<unknown> {
+		calls.rpcs.push({ name, args });
+		return Promise.resolve({ data: 1, error: null });
+	}
+	return { supabase: { from: query, rpc } };
 });
 
 describe('loadRelations', () => {
 	beforeEach(() => {
 		calls.filters = [];
+		calls.rpcs = [];
 	});
 
 	it('reads the events of the time and the mastered artworks', async () => {
@@ -70,7 +74,9 @@ describe('loadRelations', () => {
 		expect(relations.events?.map((event) => event.name)).toEqual(['Odkrycie Ameryki']);
 		expect(calls.filters).toContain('timeline_events.year_to>=1450');
 		expect(calls.filters).toContain('timeline_events.id!=self');
-		expect(calls.filters).toContain('review_cards.stability>=7');
+		expect(calls.rpcs).toEqual([
+			{ name: 'mastered_artworks', args: { artwork_ids: artworks.map((artwork) => artwork.id) } }
+		]);
 	});
 
 	it('reads no events for a material', async () => {
@@ -83,5 +89,6 @@ describe('loadRelations', () => {
 		expect(relations.events).toBeUndefined();
 		expect(relations.mastered).toBe(0);
 		expect(calls.filters).toEqual([]);
+		expect(calls.rpcs).toEqual([]);
 	});
 });

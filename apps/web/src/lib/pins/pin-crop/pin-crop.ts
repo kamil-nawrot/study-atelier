@@ -12,16 +12,10 @@ const FALLBACK_WIDTH = 960;
 const attempted = new Set<string>();
 let queue: Promise<void> = Promise.resolve();
 
-export async function cutPinCrop(
-	source: Blob,
+async function cropOf(
+	bitmap: ImageBitmap,
 	pin: Pick<Pin, 'x' | 'y' | 'viewWidth'>
 ): Promise<Blob | undefined> {
-	let bitmap: ImageBitmap;
-	try {
-		bitmap = await createImageBitmap(source);
-	} catch {
-		return undefined;
-	}
 	try {
 		const rect = pinCropRect(pin, bitmap.width, bitmap.height);
 		if (!rect) return undefined;
@@ -49,6 +43,25 @@ export async function cutPinCrop(
 		return blob ?? undefined;
 	} catch {
 		return undefined;
+	}
+}
+
+async function bitmapOf(source: Blob): Promise<ImageBitmap | undefined> {
+	try {
+		return await createImageBitmap(source);
+	} catch {
+		return undefined;
+	}
+}
+
+export async function cutPinCrop(
+	source: Blob,
+	pin: Pick<Pin, 'x' | 'y' | 'viewWidth'>
+): Promise<Blob | undefined> {
+	const bitmap = await bitmapOf(source);
+	if (!bitmap) return undefined;
+	try {
+		return await cropOf(bitmap, pin);
 	} finally {
 		bitmap.close();
 	}
@@ -70,14 +83,22 @@ function cropSource(image: ArtworkImageInput): CropSource | undefined {
 	return src === undefined ? undefined : () => Promise.resolve(src);
 }
 
-async function makeCrop(pin: Pin, source: CropSource): Promise<void> {
+async function makeCrops(pins: readonly Pin[], source: CropSource): Promise<void> {
 	try {
 		const src = await source();
 		if (!src) return;
 		const response = await fetch(src, { mode: 'cors' });
 		if (!response.ok) return;
-		const crop = await cutPinCrop(await response.blob(), pin);
-		if (crop) await savePinCrop(pin, crop);
+		const bitmap = await bitmapOf(await response.blob());
+		if (!bitmap) return;
+		try {
+			for (const pin of pins) {
+				const crop = await cropOf(bitmap, pin);
+				if (crop) await savePinCrop(pin, crop);
+			}
+		} finally {
+			bitmap.close();
+		}
 	} catch {
 		return;
 	}
@@ -87,14 +108,20 @@ export function ensurePinCrops(
 	images: readonly (ArtworkImageInput | null)[],
 	pins: readonly Pin[]
 ): void {
+	const waiting = new Map<string, { source: CropSource; pins: Pin[] }>();
 	for (const pin of pins) {
 		if (pin.viewWidth === undefined || pin.cropPath) continue;
 		const key = `${pin.id}:${pin.x}:${pin.y}:${pin.viewWidth}`;
 		if (attempted.has(key)) continue;
 		const image = images.find((candidate) => candidate?.id === pin.imageId);
-		const source = image ? cropSource(image) : undefined;
+		const source = waiting.get(pin.imageId)?.source ?? (image ? cropSource(image) : undefined);
 		if (!source) continue;
 		attempted.add(key);
-		queue = queue.then(() => makeCrop(pin, source));
+		const group = waiting.get(pin.imageId) ?? { source, pins: [] };
+		group.pins.push(pin);
+		waiting.set(pin.imageId, group);
+	}
+	for (const { source, pins: imagePins } of waiting.values()) {
+		queue = queue.then(() => makeCrops(imagePins, source));
 	}
 }

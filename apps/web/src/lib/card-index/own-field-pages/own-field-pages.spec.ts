@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
-import { loadOwnValues } from '#lib/card-index/card-index-data/card-index-data.ts';
+import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.ts';
 import { loadOwnFields } from '#lib/card-index/own-fields-data/own-fields-data.ts';
 import { loadArtworksOfValue } from '#lib/wall/wall-data/wall-data.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
@@ -12,13 +12,9 @@ import {
 	ownValuePath
 } from './own-field-pages.ts';
 
-vi.mock('#lib/card-index/card-index-data/card-index-data.ts', () => ({
-	loadOwnValues: vi.fn(),
-	loadCardIndex: vi.fn(async () => ({
-		index: { values: [], periodEras: [], stylePeriods: [] },
-		ownValues: []
-	}))
-}));
+vi.mock('#lib/card-index/card-index-data/card-index-data.ts', () => ({ loadCardIndex: vi.fn() }));
+
+const emptyIndex = { values: [], periodEras: [], stylePeriods: [] };
 vi.mock('#lib/relations/relations-data/relations-data.ts', () => ({
 	loadRelations: vi.fn(async ({ kind }: { kind: string }) => ({
 		kind,
@@ -39,7 +35,8 @@ describe('own field pages', () => {
 		vi.mocked(loadOwnFields).mockResolvedValue({
 			fields: fields.map((field) => ({ ...field, values: [] }))
 		});
-		vi.mocked(loadOwnValues).mockResolvedValue({
+		vi.mocked(loadCardIndex).mockResolvedValue({
+			index: emptyIndex,
 			ownValues: fields.flatMap((field) => field.values)
 		});
 		vi.mocked(loadArtworksOfValue).mockResolvedValue({
@@ -65,7 +62,11 @@ describe('own field pages', () => {
 			error: m.ownFields.page.notFound
 		});
 
-		vi.mocked(loadOwnValues).mockResolvedValue({ ownValues: [], error: 'No connection' });
+		vi.mocked(loadCardIndex).mockResolvedValue({
+			index: emptyIndex,
+			ownValues: [],
+			error: 'No connection'
+		});
 		await expect(loadOwnFieldPage('motifs')).resolves.toEqual({
 			fields: [],
 			error: 'No connection'
