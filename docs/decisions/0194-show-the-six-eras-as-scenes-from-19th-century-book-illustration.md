@@ -144,4 +144,4 @@ All six share one theme: how the artworks of the era were made, through material
 
 ## More information
 
-Designed in ATL-522 from the idea ATL-513. The WebP images go to `apps/web/static/exhibits/<era code>/` with `exhibit-art publish --only <era code>` once the exhibits exist in the app and the database.
+Designed in ATL-522 from the idea ATL-513; the build, with the counting, is ATL-539. The WebP images go to `apps/web/static/exhibits/<era code>/` with `exhibit-art publish --only <era code>` once the exhibits exist in the app and the database.
