@@ -49,6 +49,16 @@ Chosen by the owner in ATL-525.
 
 The curiosity avoids the words "alegoria" and "frontyspis", which the owner found unclear. The story of Peter the Great kneeling before the cabinet is left out: it is Vincent's own account, retold by a visitor, and the Princeton page does not tell it.
 
+### Counting
+
+Settled with the owner in ATL-533.
+
+- The exhibit `pinacotheca` counts the most pins on one image of an artwork outside the trash. It has one tier, at 10 (`MAX_PINS_PER_IMAGE`), and gives 50 points once as an easter egg, like the other hidden exhibits.
+- Pins and images are deleted for good, so only the pins an image holds now count: a learner who went down from 10 pins to 9 before the release gets the exhibit only on reaching 10 again. Once unlocked, it stays, like every tier.
+- An image of an artwork in the trash does not count, like the images of "Własne oko"; it counts again once the artwork is restored.
+- Its place is 16, at the end of the display case after "Paszcza prawdy". The place only orders the display case and is not stored, so the exhibits added later can renumber it.
+- The career is refreshed right after a new pin fills an image, so the menu icon flashes while the learner is still on the image, as after a sent idea for "Paszcza prawdy". Other pin saves do not refresh it.
+
 ### Consequences
 
 - Good: the needle of Embroidery and the pinned drawers keep the owner's first idea of a pincushion, and the name plays on the pins in "pinakoteka".
@@ -57,4 +67,4 @@ The curiosity avoids the words "alegoria" and "frontyspis", which the owner foun
 
 ## More information
 
-Designed in ATL-525 from the idea ATL-516; the build, with the counting, is ATL-533. The WebP images go to `apps/web/static/exhibits/pinacotheca/` with `exhibit-art publish --only pinacotheca` once the exhibit exists in the app and the database.
+Designed in ATL-525 from the idea ATL-516; built, with the counting, in ATL-533. The WebP images go to `apps/web/static/exhibits/pinacotheca/` with `exhibit-art publish --only pinacotheca` once the exhibit exists in the app and the database.
