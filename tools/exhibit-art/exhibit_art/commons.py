@@ -42,9 +42,9 @@ def file_url(commons_file: str, max_width: int = MAX_WIDTH) -> str:
     return url.replace("thumb.wikimedia.org", "upload.wikimedia.org").split("?")[0]
 
 
-def download(commons_file: str, target: Path, max_width: int = MAX_WIDTH) -> Path:
+def download(commons_file: str | None, target: Path, max_width: int = MAX_WIDTH, source_url: str | None = None) -> Path:
     if target.exists():
         return target
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_bytes(_get(file_url(commons_file, max_width)))
+    target.write_bytes(_get(source_url or file_url(commons_file, max_width)))
     return target

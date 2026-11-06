@@ -23,6 +23,31 @@ def test_source_name_is_ascii_and_keeps_the_extension() -> None:
     assert source_name("Camera obscura.PNG") == "Camera-obscura.png"
 
 
+def test_a_variant_can_come_from_a_museum_page(tmp_path: Path) -> None:
+    item = {
+        "exhibit": "figure_alphabet",
+        "variant": "letter-a",
+        "status": "chosen",
+        "source_url": "https://example.org/media/images/originals/5229067.20035329.jpg",
+        "source_page": "https://example.org/object/1",
+        "licence": "Public Domain Mark 1.0",
+        "credit": "c",
+        "crop": [0, 0, 1, 1],
+    }
+    path = tmp_path / "manifest.json"
+    path.write_text(json.dumps({"variants": [item]}))
+    [variant] = load_manifest(path, tmp_path)
+    assert variant.commons_file is None
+    assert variant.source_page == "https://example.org/object/1"
+    assert variant.job.source.name == "5229067-20035329.jpg"
+    path.write_text(json.dumps({"variants": [{**item, "source_page": None}]}))
+    with pytest.raises(ValueError):
+        load_manifest(path, tmp_path)
+    path.write_text(json.dumps({"variants": [{**item, "commons_file": "a.jpg"}]}))
+    with pytest.raises(ValueError):
+        load_manifest(path, tmp_path)
+
+
 def test_duplicate_variants_are_rejected(tmp_path: Path) -> None:
     item = {
         "exhibit": "regular",
