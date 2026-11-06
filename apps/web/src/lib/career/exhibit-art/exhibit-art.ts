@@ -1,6 +1,7 @@
 import type { asset } from '$app/paths';
 import type { ExhibitArt } from '#lib/career/types/exhibit-art.ts';
 import type { Metal } from '#lib/career/types/metal.ts';
+import { commonsFilePage } from '#lib/images/commons/commons.ts';
 
 export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 	chronicle: {
@@ -118,6 +119,34 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		credit: '„Pinacoteca 1”, plansza z katalogu Levinusa Vincenta, 1719',
 		licence: 'domena publiczna',
 		commonsFile: 'Vincent, Levinus (1715) Wondertooneel der natuur -Tome 2- 0293.jpg'
+	},
+	vasari_lives: {
+		credit:
+			'Strona tytułowa „Żywotów najwybitniejszych malarzy, rzeźbiarzy i architektów” Giorgia Vasariego, Florencja 1568',
+		licence: 'domena publiczna',
+		commonsFile: 'Vite.jpg'
+	},
+	hortus_cliffortianus: {
+		credit: 'Jan Wandelaar, frontyspis „Hortus Cliffortianus” Karola Linneusza, 1738',
+		licence: 'domena publiczna',
+		commonsFile: 'Linnaeus Hortus Cliffortianus frontispiece.jpg'
+	},
+	trevi_fountain: {
+		credit: 'Giovanni Battista Piranesi, „Widok Fontanny di Trevi”, ok. 1751',
+		licence: 'CC0',
+		commonsFile:
+			"Trevifontein te Rome Veduta della vasta Fontana di Trevi anticamente detta l'Acqua Vergine (titel op object) Gezichten op Rome (serietitel) Vedute di Roma disegnate ed incise da Giambattista Piranesi architetto Ve(nez, RP-P-1941-600.jpg"
+	},
+	seven_league_boots: {
+		credit: 'Gustave Doré, ilustracja do „Tomcia Palucha” Charles’a Perraulta, 1862',
+		licence: 'domena publiczna',
+		commonsFile: 'Le Petit Poucet (136548020).jpg'
+	},
+	figure_alphabet: {
+		credit:
+			'Israhel van Meckenem według Mistrza E.S., litera A z „Alfabetu figuralnego”, ostatnia tercja XV wieku',
+		licence: 'domena publiczna',
+		page: 'https://id.smb.museum/object/1543315'
 	}
 };
 
@@ -127,6 +156,10 @@ export function artOf(code: string): ExhibitArt | undefined {
 
 export function imageOf(code: string, metal: Metal): Parameters<typeof asset>[0] {
 	return `exhibits/${code}/${metal}.webp` as Parameters<typeof asset>[0];
+}
+
+export function pageOf(art: ExhibitArt): string {
+	return 'page' in art ? art.page : commonsFilePage(art.commonsFile);
 }
 
 export function credits(codes: readonly string[]): ExhibitArt[] {

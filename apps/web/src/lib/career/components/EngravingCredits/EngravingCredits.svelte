@@ -2,8 +2,7 @@
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import { Icon, PopupButton } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
-	import { credits } from '#lib/career/exhibit-art/exhibit-art.ts';
-	import { commonsFilePage } from '#lib/images/commons/commons.ts';
+	import { credits, pageOf } from '#lib/career/exhibit-art/exhibit-art.ts';
 
 	type Props = {
 		codes: string[];
@@ -21,11 +20,9 @@
 				<span class="mark"><Icon icon={ImageIcon} size="sm" /></span>
 			{/snippet}
 			<ul class="credits caption">
-				{#each sources as art (art.commonsFile)}
+				{#each sources as art (art.credit)}
 					<li>
-						<a href={commonsFilePage(art.commonsFile)} rel="external noreferrer" target="_blank"
-							>{art.credit}</a
-						>
+						<a href={pageOf(art)} rel="external noreferrer" target="_blank">{art.credit}</a>
 						· {art.licence} · {m.career.recoloured}
 					</li>
 				{/each}

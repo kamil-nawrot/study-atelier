@@ -76,6 +76,12 @@ describe('exhibits', () => {
 		expect(isHidden(exhibit({ code: 'back_from_storage', value: 0, thresholds: [1] }))).toBe(true);
 		expect(isHidden(exhibit({ code: 'mouth_of_truth', value: 0, thresholds: [1] }))).toBe(true);
 		expect(isHidden(exhibit({ code: 'pinacotheca', value: 9, thresholds: [10] }))).toBe(true);
+		expect(isHidden(exhibit({ code: 'trevi_fountain', value: 1, thresholds: [2] }))).toBe(true);
+		expect(isHidden(exhibit({ code: 'seven_league_boots', value: 2, thresholds: [3] }))).toBe(true);
+		expect(isHidden(exhibit({ code: 'figure_alphabet', value: 22, thresholds: [23] }))).toBe(true);
+		expect(
+			isHidden(exhibit({ code: 'vasari_lives', value: 0, thresholds: [1, 3, 5, 10, 20] }))
+		).toBe(false);
 		expect(isHidden(exhibit({ value: 0 }))).toBe(false);
 	});
 

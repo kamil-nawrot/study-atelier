@@ -1617,6 +1617,30 @@ export const pl = {
 			],
 			pinacotheca: [
 				'Przy szufladach z owadami w gabinecie Levinusa Vincenta, kupca tkanin, pracowała jego żona Joanna van Breda, chwalona za ich artyzm; porównywano je do wzorów haftu. Na rycinie otwierającej katalog ich zbiorów kobieta uosabiająca Haft wyszywa igłą wzór w jednej z szuflad. Naprzeciw niej postać Malarstwa trzyma pędzel, wzór i drugą szufladę.'
+			],
+			vasari_lives: [
+				'„Żywoty najwybitniejszych malarzy, rzeźbiarzy i architektów” Giorgia Vasariego, zbiór biografii artystów, ukazały się po raz pierwszy w 1550 roku. W drugim wydaniu z 1568 roku Vasari dodał portrety artystów, jedne z pierwszych przykładów takich wizerunków. Książka do dziś jest jednym z najważniejszych źródeł do badań nad artystami tamtej epoki.',
+				'W katalogu grafik Rembrandta z 1751 roku, opracowanym przez Edme-François Gersainta, jego akwaforta z 1636 roku figuruje jako portret Menasseha ben Izraela, autora książki „Piedra Gloriosa”. Kolejni autorzy katalogów powtarzali to bez sprawdzania, choć badacze od dawna twierdzą, że to wcale nie on.',
+				'Johannes Vermeer, nazywany Sfinksem z Delftu, pozostawił po sobie wyjątkowo mało dzieł: Rijksmuseum liczy jego dorobek na 37 obrazów. Na wystawę w 2023 roku muzeum zgromadziło co najmniej 28 z nich, wypożyczonych z Europy, Stanów Zjednoczonych i Japonii.',
+				'Muzeum Wiktorii i Alberta w Londynie przechowuje pięć notesów Leonarda da Vinci, oprawionych w trzy tomy nazywane Kodeksem Forstera. Między zapisanymi pismem lustrzanym notatkami o geometrii, ciężarach i hydraulice są w nich szkice końskich nóg i notatki związane zapewne z „Ostatnią Wieczerzą”.',
+				'Pablo Picasso to według Księgi rekordów Guinnessa najpłodniejszy malarz w historii. W ciągu 75 lat pracy stworzył około 13 500 obrazów i projektów, 100 000 grafik, 34 000 ilustracji książkowych oraz 300 rzeźb i ceramik.'
+			],
+			hortus_cliffortianus: [
+				'Muzeum Ennigaldi, córki babilońskiego króla Nabonida i arcykapłanki boga księżyca, powstało w Ur około 530 roku p.n.e. i uchodzi za najstarsze na świecie. W 1925 roku Leonard Woolley rozpoznał je po etykietach: przy każdym przedmiocie leżał gliniany cylinder z napisami w czterech językach, objaśniającymi przedmiot i jego historię.',
+				'Portret matki Jamesa Whistlera, amerykańskiego malarza dzielącego karierę między Londyn i Paryż, ma podwójny tytuł: „Aranżacja w szarości i czerni nr 1” i „Portret matki artysty”. Wkrótce potem Whistler dawał swoim obrazom już tylko muzyczne podtytuły, bo ważniejsza była dla niego harmonia niż temat.',
+				'Poradnik pisania tekstów w Muzeum Wiktorii i Alberta zaleca, by zwykła etykieta dzieła miała 50–60 słów, a jej pierwsze zdanie w miarę możliwości mniej niż 16. Powód: według Getty Museum zwiedzający bez przygotowania patrzy na obiekt krócej niż 30 sekund, więc najważniejsza informacja musi paść od razu.',
+				'Iconclass, system klasyfikacji tego, co przedstawiają obrazy, wymyślił Henri van de Waal, profesor historii sztuki na uniwersytecie w Lejdzie, który pracował nad nim od lat 40. XX wieku. Dziś wiele muzeów i bibliotek opisuje nim tematy dzieł w swoich zbiorach.',
+				'Melvil Dewey od 1873 roku pracował w bibliotece Amherst College nad systemem porządkowania książek i katalogów kartkowych. Pierwsze wydanie jego klasyfikacji z 1876 roku liczyło mniej niż 50 stron, a 23. wydanie z 2011 roku ma cztery tomy. Sama Biblioteka Kongresu z tego systemu nie korzysta.',
+				'W marcu 2021 roku Luwr po raz pierwszy udostępnił w sieci całą swoją kolekcję. Jego nowa baza miała na start ponad 482 000 wpisów, również o dziełach z magazynów i tych wypożyczonych na długo innym instytucjom we Francji.'
+			],
+			trevi_fountain: [
+				'Fontanna di Trevi to wylot akweduktu Aqua Virgo, który Agryppa, zięć cesarza Augusta, otworzył w 19 roku p.n.e. Według legendy nazwę dała mu dziewczyna, która wskazała źródła żołnierzom szukającym wody. To jedyny z jedenastu głównych akweduktów starożytnego Rzymu, który działa nieprzerwanie do dziś.'
+			],
+			seven_league_boots: [
+				'W baśni Charles’a Perraulta buty olbrzyma były zaczarowane: rosły i malały, dopasowując się do nóg tego, kto je włożył. Według jednego z dwóch zakończeń Tomcio został w nich królewskim gońcem i jeszcze tego samego wieczoru przyniósł królowi wieści od armii oddalonej o dwieście mil.'
+			],
+			figure_alphabet: [
+				'O Mistrzu E.S. wiadomo niewiele, a przydomek zawdzięcza inicjałom, które pojawiają się na jego późniejszych pracach. Na to, że był z wykształcenia złotnikiem, wskazują punce – złotnicze narzędzia wbijane młotkiem w płytę, którymi wybijał wzory drobnych kwiatków i kółek. Jego figuralny alfabet przetrwał w 23 rzadkich, pojedynczych odbitkach.'
 			]
 		},
 		ranks: {
@@ -1799,6 +1823,39 @@ export const pl = {
 					'Plansza z katalogu Levinusa Vincenta z 1719 roku pokazuje szuflady jego haarlemskiego gabinetu, w których owady przypinano drobnymi szpilkami według wzoru rozrysowanego na siatce.',
 				hint: 'Motyle nie odlecą, jeśli tylko dobrze je przyszpilić.',
 				awarded: 'Za komplet pinezek na jednym obrazie.'
+			},
+			vasari_lives: {
+				name: 'Księga Vasariego',
+				about:
+					'Strona tytułowa drugiego wydania „Żywotów” Giorgia Vasariego, wydrukowanego we Florencji w 1568 roku razem z drzeworytowymi portretami artystów.',
+				count: counter('autorów z co najmniej 10 dziełami')
+			},
+			hortus_cliffortianus: {
+				name: 'Ogród Clifforta',
+				about:
+					'Jan Wandelaar wyrył w 1738 roku frontyspis „Hortus Cliffortianus”, katalogu roślin z ogrodu George’a Clifforta opisanego przez Karola Linneusza.',
+				count: counter('opisanych wartości w Kartotece')
+			},
+			trevi_fountain: {
+				name: 'Fontanna di Trevi',
+				about:
+					'Giovanni Battista Piranesi wyrył Fontannę di Trevi około 1751 roku, jedenaście lat przed jej ukończeniem, z posągiem Oceana w centralnej niszy.',
+				hint: 'Prawdziwy wielbiciel zawsze wraca do źródła.',
+				awarded: 'Za dzieło zobaczone na żywo podczas dwóch wizyt.'
+			},
+			seven_league_boots: {
+				name: 'Siedmiomilowe buty',
+				about:
+					'Na drzeworycie według Gustave’a Doré z 1862 roku Tomcio Paluch ściąga śpiącemu olbrzymowi siedmiomilowe buty.',
+				hint: 'Olbrzymowi wystarczy jeden krok, sprytnemu – jeden dzień.',
+				awarded: 'Za trzy muzea odwiedzone jednego dnia.'
+			},
+			figure_alphabet: {
+				name: 'Alfabet Mistrza E.S.',
+				about:
+					'Israhel van Meckenem wyrył w ostatniej tercji XV wieku literę A z figuralnego alfabetu Mistrza E.S., ułożoną z lwa, psów, ptaków i człowieka.',
+				hint: 'Prawdziwy znawca zgłębił sztukę od A do Z.',
+				awarded: 'Za pojęcia w Słowniczku na każdą literę alfabetu.'
 			}
 		}
 	},
