@@ -1,0 +1,158 @@
+<script lang="ts">
+	import { Alert, ArtworkTile, SearchField } from '@study-atelier/ui';
+	import { onMount } from 'svelte';
+	import { eraIcon, eraName } from '#lib/catalogue/eras/eras.ts';
+	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+	import { compareHref } from '#lib/compare/compare-address/compare-address.ts';
+	import { filterForComparison } from '#lib/compare/compare-search/compare-search.ts';
+	import type { CompareSides } from '#lib/compare/types/compare-sides.ts';
+	import { WALL_PART } from '#lib/wall/masonry/masonry.ts';
+	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
+	import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
+	import { m } from '#lib/i18n/i18n.ts';
+
+	type Props = {
+		sides: CompareSides;
+		empty: keyof CompareSides;
+		other?: { title: string };
+	};
+
+	let { sides, empty, other }: Props = $props();
+
+	const images = new WallImages();
+
+	let artworks = $state<WallArtwork[]>();
+	let error = $state<string>();
+	let query = $state('');
+	let rendered = $state(WALL_PART);
+
+	let matching = $derived(
+		filterForComparison(images.apply(artworks ?? []), query, [sides.left, sides.right])
+	);
+	let shown = $derived(matching.slice(0, rendered));
+	let question = $derived(other ? m.compare.question(other.title) : m.compare.questionEmpty);
+
+	onMount(async () => {
+		const result = await loadAtelier();
+		artworks = result.artworks;
+		error = result.error;
+	});
+
+	$effect(() => {
+		void query;
+		rendered = WALL_PART;
+	});
+
+	function hrefOf(artwork: WallArtwork): string {
+		return compareHref({ ...sides, [empty]: artwork.number });
+	}
+
+	function watchScreen(artwork: WallArtwork): (element: HTMLElement) => (() => void) | void {
+		return (element) => {
+			if (!artwork.pendingImage) return;
+			const observer = new IntersectionObserver(([entry]) => {
+				if (!entry.isIntersecting) return;
+				observer.disconnect();
+				images.request(artwork);
+			});
+			observer.observe(element);
+			return () => observer.disconnect();
+		};
+	}
+
+	function watchEnd(element: HTMLElement): () => void {
+		const observer = new IntersectionObserver(([entry]) => {
+			if (entry.isIntersecting) rendered += WALL_PART;
+		});
+		observer.observe(element);
+		return () => observer.disconnect();
+	}
+</script>
+
+<section class="picker" data-sveltekit-replacestate>
+	<h2>{question}</h2>
+	<SearchField label={m.compare.search} placeholder={m.compare.search} bind:value={query} />
+	{#if error}
+		<Alert title={m.atelier.loadErrorTitle} tone="danger">
+			{error}
+		</Alert>
+	{:else if artworks === undefined}
+		<p class="note">{m.compare.loadingAtelier}</p>
+	{:else if matching.length === 0}
+		<div class="note">
+			<h3>{m.atelier.noResultsTitle}</h3>
+			<p>{m.atelier.noResults(query.trim())}</p>
+		</div>
+	{:else}
+		<ul class="tiles">
+			{#each shown as artwork (artwork.id)}
+				<li {@attach watchScreen(artwork)}>
+					<ArtworkTile
+						authors={artwork.authors}
+						date={artwork.date}
+						href={hrefOf(artwork)}
+						image={artwork.image}
+						imageUnavailable={artwork.imageUnavailable}
+						mark={artwork.eraCode ? eraIcon(artwork.eraCode) : undefined}
+						markLabel={artwork.eraCode ? eraName(artwork.eraCode) : undefined}
+						number={artwork.number}
+						onimagefailed={() => images.failed(artwork)}
+						title={artwork.title}
+					/>
+				</li>
+			{/each}
+		</ul>
+		{#if rendered < matching.length}
+			{#key rendered}
+				<div {@attach watchEnd}></div>
+			{/key}
+		{/if}
+	{/if}
+</section>
+
+<style>
+	.picker {
+		display: grid;
+		align-content: start;
+		gap: var(--spacing-4);
+		min-width: 0;
+		padding: var(--spacing-6) var(--spacing-4);
+		border: var(--border-width-hairline) dashed var(--color-line);
+		background: var(--color-bg);
+		color: var(--color-fg);
+	}
+
+	h2 {
+		margin: 0;
+		font-size: var(--font-size-lg);
+		font-weight: var(--font-weight-medium);
+		line-height: var(--line-height-lg);
+	}
+
+	.note {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
+	}
+
+	.note h3,
+	.note p {
+		margin: 0;
+	}
+
+	.tiles {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		align-items: start;
+		gap: var(--spacing-4);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	@media (max-width: 767.98px) {
+		.tiles {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+</style>

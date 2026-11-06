@@ -19,6 +19,7 @@ export type LoadArtworkResult = {
 	summaries?: ValueSummaries;
 	ownFields?: OwnFieldDefinition[];
 	preferences?: Preferences;
+	atelierCount?: number;
 	error?: string;
 	notFound?: boolean;
 };

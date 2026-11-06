@@ -669,6 +669,20 @@ export const pl = {
 		tooLarge: 'Ten obraz z adresu jest zbyt duży, żeby można było skorzystać z lupy.',
 		level: (level: number): string => `${level.toLocaleString('pl', { maximumFractionDigits: 1 })}×`
 	},
+	compare: {
+		label: 'Porównaj',
+		title: 'Porównanie',
+		unavailable: 'Do porównania potrzebne są co najmniej dwa dzieła.',
+		question: (title: string): string => `Z czym porównać ${title}?`,
+		questionEmpty: 'Które dzieła chcesz porównać?',
+		search: 'Szukaj po tytule, autorze lub numerze',
+		change: 'Zmień dzieło',
+		swap: 'Zamień strony',
+		loupeBoth: 'Lupa pokazuje to samo miejsce na obu obrazach',
+		more: 'Pokaż więcej dzieł',
+		loadFailedTitle: 'Nie udało się wczytać porównania',
+		loadingAtelier: 'Wczytywanie atelier…'
+	},
 	palette: {
 		label: 'Paleta barw',
 		hide: 'Ukryj paletę barw',

@@ -1,13 +1,15 @@
 <script lang="ts">
+	import Columns2 from '@lucide/svelte/icons/columns-2';
 	import Heart from '@lucide/svelte/icons/heart';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
-	import { Alert, Button, Icon, LoadFailure, Toast } from '@study-atelier/ui';
+	import { Alert, Button, Icon, LoadFailure, Toast, Tooltip } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { preloadArtwork } from '#lib/artworks/artwork-preload/artwork-preload.ts';
+	import { compareHref } from '#lib/compare/compare-address/compare-address.ts';
 	import ArtworkTrashDialog from '#lib/artworks/components/ArtworkTrashDialog/ArtworkTrashDialog.svelte';
 	import ArtworkView from '#lib/artworks/components/ArtworkView/ArtworkView.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
@@ -38,6 +40,8 @@
 	let label = $derived(number === null ? params.number : formatRecordNumber(number));
 	let artworkPath = $derived(resolve('/(app)/atelier/[number]', { number: params.number }));
 	let editPath = $derived(resolve('/(app)/atelier/[number]/edit', { number: params.number }));
+	let comparePath = $derived(compareHref({ left: number, right: null }));
+	let canCompare = $derived(data.atelierCount === undefined || data.atelierCount >= 2);
 	let title = $derived(
 		data.artwork
 			? data.artwork.title
@@ -90,6 +94,25 @@
 					<Icon icon={Heart} size="sm" />
 				</span>
 			</Button>
+			{#if canCompare}
+				<Button aria-label={m.compare.label} compact href={comparePath} icon={Columns2}>
+					{m.compare.label}
+				</Button>
+			{:else}
+				<Tooltip align="end" placement="bottom" text={m.compare.unavailable}>
+					{#snippet children(describedby)}
+						<Button
+							aria-describedby={describedby}
+							aria-disabled="true"
+							aria-label={m.compare.label}
+							compact
+							icon={Columns2}
+						>
+							{m.compare.label}
+						</Button>
+					{/snippet}
+				</Tooltip>
+			{/if}
 			<Button aria-label={m.common.edit} compact href={editPath} icon={Pencil}>
 				{m.common.edit}
 			</Button>
