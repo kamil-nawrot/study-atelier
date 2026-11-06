@@ -1,4 +1,5 @@
-import { filterValuesOf, MISSING_DATA } from '#lib/wall/filter/filter.ts';
+import { filterValuesOf } from '#lib/wall/filter/filter.ts';
+import { MISSING_DATA } from '#lib/wall/missing-data/missing-data.ts';
 import type { MissingData } from '#lib/catalogue/types/missing-data.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 

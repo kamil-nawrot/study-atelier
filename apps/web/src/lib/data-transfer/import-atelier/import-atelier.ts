@@ -6,6 +6,8 @@ import {
 	uploadImport
 } from '#lib/data-transfer/import-data/import-data.ts';
 import { parseArchive } from '#lib/data-transfer/parse/parse.ts';
+import { validJunctions } from '#lib/catalogue/era-bounds/era-bounds.svelte.ts';
+import { saveEraBounds } from '#lib/profile/era-bounds-data/era-bounds-data.ts';
 import { loadStorageUsage } from '#lib/images/storage-usage-data/storage-usage-data.ts';
 import {
 	DAILY_LIMITED_TABLES,
@@ -26,6 +28,11 @@ const FAILURES: Record<ParseFailure, () => string> = {
 	newer: () => m.settings.data.importNewer,
 	broken: () => m.settings.data.importBroken
 };
+
+function importedEraBounds(data: Record<string, ExportRow[]>): number[] | undefined {
+	const bounds = data.profiles?.[0]?.era_bounds;
+	return Array.isArray(bounds) && validJunctions(bounds) ? (bounds as number[]) : undefined;
+}
 
 function tooManyRows(payload: Record<string, ExportRow[]>): string | undefined {
 	for (const [table, rows] of Object.entries(payload)) {
@@ -79,5 +86,7 @@ export async function importArchive(
 		await removeUploads(uploaded);
 		return { error: result.error, notEmpty: result.notEmpty };
 	}
+	const bounds = importedEraBounds(parsed.archive.file.data);
+	if (bounds) await saveEraBounds(bounds);
 	return { imported: true };
 }

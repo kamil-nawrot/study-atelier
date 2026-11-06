@@ -991,6 +991,7 @@ export type Database = {
           career_shown: boolean;
           created_at: string;
           display_name: string | null;
+          era_bounds: number[] | null;
           fetch_definition: boolean;
           fetch_event: boolean;
           fetch_forms: boolean;
@@ -1019,6 +1020,7 @@ export type Database = {
           career_shown?: boolean;
           created_at?: string;
           display_name?: string | null;
+          era_bounds?: number[] | null;
           fetch_definition?: boolean;
           fetch_event?: boolean;
           fetch_forms?: boolean;
@@ -1046,6 +1048,7 @@ export type Database = {
           career_shown?: boolean;
           created_at?: string;
           display_name?: string | null;
+          era_bounds?: number[] | null;
           fetch_definition?: boolean;
           fetch_event?: boolean;
           fetch_forms?: boolean;

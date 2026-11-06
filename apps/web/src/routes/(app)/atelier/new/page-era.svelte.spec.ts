@@ -22,6 +22,7 @@ import {
 	answerNothingFromWikidata
 } from '#lib/testing/add-artwork/add-artwork.ts';
 import AddArtworkPage from './+page.svelte';
+import { eraYearsText } from '#lib/catalogue/eras/eras.ts';
 
 vi.mock('#lib/artworks/form-suggestions/form-suggestions.svelte.ts', async () => ({
 	FormSuggestions: (await import('#lib/testing/form-suggestions/form-suggestions.ts'))
@@ -92,7 +93,12 @@ describe('the year and the era on the add artwork page', () => {
 		await expect
 			.element(eraDialog())
 			.toHaveAccessibleDescription(
-				m.eraDialog.description('1300', false, m.eras.early_modern.name, m.eras.early_modern.years)
+				m.eraDialog.description(
+					'1300',
+					false,
+					m.eras.early_modern.name,
+					eraYearsText('early_modern')
+				)
 			);
 		await page.getByRole('button', { name: m.eraDialog.back }).click();
 
@@ -160,7 +166,7 @@ describe('the year and the era on the add artwork page', () => {
 					'1200 p.n.e.',
 					false,
 					m.eras.middle_ages.name,
-					m.eras.middle_ages.years
+					eraYearsText('middle_ages')
 				)
 			);
 	});

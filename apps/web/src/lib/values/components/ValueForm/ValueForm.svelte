@@ -42,6 +42,10 @@
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import ImageField from '#lib/images/components/ImageField/ImageField.svelte';
+	import EraBoundsField from '#lib/values/components/EraBoundsField/EraBoundsField.svelte';
+	import { validateEraBounds } from '#lib/values/era-bounds-form/era-bounds-form.ts';
+	import { eraJunctions } from '#lib/catalogue/era-bounds/era-bounds.svelte.ts';
+	import type { EraBoundsErrors } from '#lib/values/types/era-bounds-errors.ts';
 	import AuthorLifeFields from '#lib/values/components/AuthorLifeFields/AuthorLifeFields.svelte';
 	import PeriodErasField from '#lib/values/components/PeriodErasField/PeriodErasField.svelte';
 	import StylePeriodsField from '#lib/values/components/StylePeriodsField/StylePeriodsField.svelte';
@@ -61,8 +65,10 @@
 	const countries = countryOptions();
 	const placeOptions = placeTiles();
 	const record = untrack(() => (subject.kind === 'era' ? undefined : subject.record));
+	const era = untrack(() => (subject.kind === 'era' ? subject.code : undefined));
 	const initialForm = (): ValueFormFields =>
-		untrack(() => initialValueForm(record, index, details));
+		untrack(() => initialValueForm(record, index, details, era));
+	let eraField = $state<EraBoundsField>();
 
 	let form = $state<ValueFormFields>(initialForm());
 	let created = $state<ValueSubject>();
@@ -82,14 +88,20 @@
 	let creating = $derived(record?.id === '');
 	let change = $derived(record ? planNameChange(record, form.name, index) : undefined);
 	let existing = $derived(change?.kind === 'merge' ? change.target : undefined);
-	const errors = new LiveErrors<{ name?: string; author?: AuthorFieldErrors }>(() => ({
+	const errors = new LiveErrors<{
+		name?: string;
+		author?: AuthorFieldErrors;
+		eraBounds?: EraBoundsErrors;
+	}>(() => ({
 		name:
 			change?.kind === 'empty'
 				? m.valueForm.nameRequired
 				: creating && existing && kind
 					? m.valueForm.exists(kind.accusative, existing.name)
 					: undefined,
-		author: form.author ? validateAuthorForm(form.author) : undefined
+		author: form.author ? validateAuthorForm(form.author) : undefined,
+		eraBounds:
+			era && form.eraBounds ? validateEraBounds(era, form.eraBounds, eraJunctions()) : undefined
 	}));
 	let mergeTarget = $derived(creating ? undefined : existing);
 	let eraMove = $derived(
@@ -117,10 +129,11 @@
 		return changes.confirmLeave();
 	}
 
-	function submit(): void {
+	async function submit(): Promise<void> {
 		if (formState.busy) return;
 		formState.error = '';
 		if (!errors.check()) return;
+		if (eraField && !(await eraField.confirmChange())) return;
 		if (needsMove) {
 			moveError = undefined;
 			moveOpen = true;
@@ -168,7 +181,8 @@
 				name: change?.kind === 'rename' ? change.name : (record?.name ?? ''),
 				mergeTarget,
 				moveTo: moveTo ? (moveTo as EraCode) : undefined,
-				linksChanged
+				linksChanged,
+				junctions: eraField?.changedJunctions()
 			});
 			mergeOpen = false;
 			if (result.error !== undefined) {
@@ -226,6 +240,15 @@
 						onchange={choosePlaceType}
 						options={placeOptions}
 						value={form.location.placeType}
+					/>
+				{/if}
+
+				{#if era && form.eraBounds}
+					<EraBoundsField
+						bind:this={eraField}
+						code={era}
+						errors={errors.current.eraBounds ?? {}}
+						bind:bounds={form.eraBounds}
 					/>
 				{/if}
 

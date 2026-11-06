@@ -8,7 +8,7 @@
 		artworkImageSource
 	} from '#lib/images/artwork-image/artwork-image.ts';
 	import { countryName } from '#lib/catalogue/countries/countries.ts';
-	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
+	import { eraIcon, eraYearsText } from '#lib/catalogue/eras/eras.ts';
 	import { placeTypeName } from '#lib/catalogue/place-types/place-types.ts';
 	import { formatLifeYears } from '#lib/catalogue/years/years.ts';
 	import {
@@ -99,7 +99,7 @@
 			</p>
 			<h1>{title}</h1>
 			{#if subject.kind === 'era'}
-				<p class="caption">{m.eras[subject.code].years}</p>
+				<p class="caption">{eraYearsText(subject.code)}</p>
 			{/if}
 			{#if lifeYears}
 				<p class="caption">{lifeYears}</p>

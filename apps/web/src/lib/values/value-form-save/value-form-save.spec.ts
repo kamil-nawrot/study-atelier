@@ -21,6 +21,7 @@ function fields(overrides: Partial<ValueFormFields> = {}): ValueFormFields {
 		details: { summary: '', notes: '' },
 		author: null,
 		location: null,
+		eraBounds: null,
 		...overrides
 	};
 }

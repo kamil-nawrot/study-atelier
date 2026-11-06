@@ -2,7 +2,7 @@
 	import ListTree from '@lucide/svelte/icons/list-tree';
 	import { EmptyState, Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
-	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
+	import { eraIcon, eraYearsText } from '#lib/catalogue/eras/eras.ts';
 	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
 	import type { Snippet } from 'svelte';
 	import CardIndexTools from '#lib/card-index/components/CardIndexTools/CardIndexTools.svelte';
@@ -97,7 +97,7 @@
 								<h2 class="era-name">
 									<a href={valuePath('era', era.code)}>{m.eras[era.code].name}</a>
 								</h2>
-								<span class="years">{m.eras[era.code].years}</span>
+								<span class="years">{eraYearsText(era.code)}</span>
 							</div>
 							{#if era.periods.length > 0}
 								{@render periodList(era.periods)}

@@ -11,6 +11,9 @@ import {
 	uploadImport
 } from '#lib/data-transfer/import-data/import-data.ts';
 import { loadStorageUsage } from '#lib/images/storage-usage-data/storage-usage-data.ts';
+import { saveEraBounds } from '#lib/profile/era-bounds-data/era-bounds-data.ts';
+
+vi.mock('#lib/profile/era-bounds-data/era-bounds-data.ts', () => ({ saveEraBounds: vi.fn() }));
 
 vi.mock('#lib/images/storage-usage-data/storage-usage-data.ts', () => ({
 	loadStorageUsage: vi.fn()
@@ -52,6 +55,19 @@ beforeEach(() => {
 });
 
 describe('importArchive', () => {
+	it('brings back the era bounds of the learner when the archive has valid ones', async () => {
+		await importArchive(
+			archive({ profiles: [{ era_bounds: [-3000, 476, 1560, 1789, 1945] }] }),
+			() => {}
+		);
+		expect(saveEraBounds).toHaveBeenCalledExactlyOnceWith([-3000, 476, 1560, 1789, 1945]);
+
+		vi.mocked(saveEraBounds).mockClear();
+		await importArchive(archive({ profiles: [{ era_bounds: [1, 2] }] }), () => {});
+		await importArchive(archive({ profiles: [{ era_bounds: null }] }), () => {});
+		expect(saveEraBounds).not.toHaveBeenCalled();
+	});
+
 	it('uploads the own files, then imports the rows and reports the steps', async () => {
 		const steps: ImportProgress[] = [];
 

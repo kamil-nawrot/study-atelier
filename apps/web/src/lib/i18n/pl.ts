@@ -524,7 +524,8 @@ export const pl = {
 				year: 'bez roku',
 				era: 'bez epoki',
 				period: 'bez okresu',
-				type: 'bez typu'
+				type: 'bez typu',
+				outsideEra: 'rok poza epoką'
 			},
 			yearFrom: 'Od',
 			yearTo: 'Do',
@@ -907,13 +908,42 @@ export const pl = {
 		photography: 'Fotografia',
 		other: 'Inne'
 	},
+	eraBounds: {
+		title: 'Lata epoki',
+		hint: 'Zmieniaj je tylko wtedy, gdy Twój kurs datuje epoki inaczej. Granica przesuwa się razem z sąsiednią epoką.',
+		start: 'Początek',
+		end: 'Koniec',
+		startBeforeCommonEra: 'Początek p.n.e.',
+		endBeforeCommonEra: 'Koniec p.n.e.',
+		restore: 'Przywróć domyślne',
+		yearRequired: 'Wpisz rok.',
+		after: (year: string): string => `Rok musi być późniejszy niż ${year}.`,
+		before: (year: string): string => `Rok musi być wcześniejszy niż ${year}.`,
+		afterStart: 'Koniec musi być później niż początek.',
+		previousMoves: (era: string, year: string): string =>
+			`Razem z tym ${era} skończy się w ${year}.`,
+		nextMoves: (era: string, year: string): string => `Razem z tym ${era} zacznie się w ${year}.`,
+		confirm: {
+			title: 'Zapisać nowe granice?',
+			description: (count: number): string =>
+				`Po zmianie ${plural(count, { one: 'jedno dzieło będzie', few: `${count} dzieła będą`, many: `${count} dzieł będzie` })} poza swoją epoką. Zostaną w niej, ale nie trafią do pytań o czas, dopóki rok i epoka znów nie będą do siebie pasować.`,
+			save: 'Zapisz'
+		},
+		outside: (count: number): string =>
+			`${plural(count, { one: 'Jedno dzieło z tej epoki ma', few: `${count} dzieła z tej epoki mają`, many: `${count} dzieł z tej epoki ma` })} rok poza jej granicami.`,
+		showOutside: 'Pokaż je na ścianie'
+	},
+	eraYears: {
+		until: (year: string): string => `do ${year}`,
+		from: (year: string): string => `od ${year}`
+	},
 	eras: {
-		prehistory: { name: 'prehistoria', years: 'do 3000 p.n.e.' },
-		antiquity: { name: 'starożytność', years: '3000 p.n.e. – 476' },
-		middle_ages: { name: 'średniowiecze', years: '476 – 1492' },
-		early_modern: { name: 'nowożytność', years: '1492 – 1789' },
-		modern: { name: 'nowoczesność', years: '1789 – 1945' },
-		contemporary: { name: 'współczesność', years: 'od 1945' }
+		prehistory: { name: 'prehistoria' },
+		antiquity: { name: 'starożytność' },
+		middle_ages: { name: 'średniowiecze' },
+		early_modern: { name: 'nowożytność' },
+		modern: { name: 'nowoczesność' },
+		contemporary: { name: 'współczesność' }
 	},
 	collectionErrors: {
 		network:
