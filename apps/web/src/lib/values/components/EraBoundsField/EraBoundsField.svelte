@@ -4,7 +4,6 @@
 		DEFAULT_ERA_JUNCTIONS,
 		eraJunctions
 	} from '#lib/catalogue/era-bounds/era-bounds.svelte.ts';
-	import { yearOutsideEra } from '#lib/catalogue/eras/eras.ts';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
@@ -14,6 +13,7 @@
 		eraHasEnd,
 		eraHasStart,
 		junctionsOf,
+		newlyOutside,
 		neighbourNotes
 	} from '#lib/values/era-bounds-form/era-bounds-form.ts';
 	import type { EraBoundsErrors } from '#lib/values/types/era-bounds-errors.ts';
@@ -28,6 +28,7 @@
 
 	let { code, bounds = $bindable(), errors }: Props = $props();
 
+	let shown = $state(false);
 	let confirmOpen = $state(false);
 	let outside = $state(0);
 	let answer: ((confirmed: boolean) => void) | undefined;
@@ -45,7 +46,7 @@
 		const next = changedJunctions();
 		if (!next) return true;
 		const { artworks } = await loadAtelier();
-		outside = artworks.filter((artwork) => yearOutsideEra(artwork, next)).length;
+		outside = newlyOutside(artworks, eraJunctions(), next);
 		if (outside === 0) return true;
 		confirmOpen = true;
 		return new Promise((resolve) => (answer = resolve));
@@ -58,41 +59,47 @@
 	}
 </script>
 
-<div class="bounds">
-	<YearGroup columns title={m.eraBounds.title}>
-		{#snippet aside()}
-			{#if !atDefaults}
-				<TextButton inline onclick={() => (bounds = { ...defaults })}>
-					{m.eraBounds.restore}
-				</TextButton>
+{#if !shown}
+	<div class="toggle">
+		<TextButton inline onclick={() => (shown = true)}>{m.eraBounds.open}</TextButton>
+	</div>
+{:else}
+	<div class="bounds">
+		<YearGroup columns title={m.eraBounds.title}>
+			{#snippet aside()}
+				{#if !atDefaults}
+					<TextButton inline onclick={() => (bounds = { ...defaults })}>
+						{m.eraBounds.restore}
+					</TextButton>
+				{/if}
+			{/snippet}
+			{#if eraHasStart(code)}
+				<YearInput
+					beforeCommonEraLabel={m.eraBounds.startBeforeCommonEra}
+					error={errors.start}
+					label={m.eraBounds.start}
+					placeholder={m.eraBounds.start}
+					bind:value={bounds.startYear}
+					bind:beforeCommonEra={bounds.startBeforeCommonEra}
+				/>
 			{/if}
-		{/snippet}
-		{#if eraHasStart(code)}
-			<YearInput
-				beforeCommonEraLabel={m.eraBounds.startBeforeCommonEra}
-				error={errors.start}
-				label={m.eraBounds.start}
-				placeholder={m.eraBounds.start}
-				bind:value={bounds.startYear}
-				bind:beforeCommonEra={bounds.startBeforeCommonEra}
-			/>
-		{/if}
-		{#if eraHasEnd(code)}
-			<YearInput
-				beforeCommonEraLabel={m.eraBounds.endBeforeCommonEra}
-				error={errors.end}
-				label={m.eraBounds.end}
-				placeholder={m.eraBounds.end}
-				bind:value={bounds.endYear}
-				bind:beforeCommonEra={bounds.endBeforeCommonEra}
-			/>
-		{/if}
-	</YearGroup>
-	<p class="hint">{m.eraBounds.hint}</p>
-	{#each notes as note (note)}
-		<p class="note">{note}</p>
-	{/each}
-</div>
+			{#if eraHasEnd(code)}
+				<YearInput
+					beforeCommonEraLabel={m.eraBounds.endBeforeCommonEra}
+					error={errors.end}
+					label={m.eraBounds.end}
+					placeholder={m.eraBounds.end}
+					bind:value={bounds.endYear}
+					bind:beforeCommonEra={bounds.endBeforeCommonEra}
+				/>
+			{/if}
+		</YearGroup>
+		<p class="hint">{m.eraBounds.hint}</p>
+		{#each notes as note (note)}
+			<p class="note">{note}</p>
+		{/each}
+	</div>
+{/if}
 
 <Dialog
 	description={m.eraBounds.confirm.description(outside)}

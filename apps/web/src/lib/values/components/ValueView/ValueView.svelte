@@ -23,6 +23,8 @@
 	import VisitsDisclosure from '#lib/chronicle/components/VisitsDisclosure/VisitsDisclosure.svelte';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
 	import MentionedIn from '#lib/notes/components/MentionedIn/MentionedIn.svelte';
+	import EraOutsideNote from '#lib/values/components/EraOutsideNote/EraOutsideNote.svelte';
+	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 	type Props = {
 		subject: ValueSubject;
@@ -33,6 +35,7 @@
 		glossary?: GlossaryTerm[];
 		mentions?: Mention[];
 		visits?: Visit[];
+		artworks?: WallArtwork[];
 	};
 
 	let {
@@ -43,7 +46,8 @@
 		noteLinks,
 		glossary,
 		mentions = [],
-		visits = []
+		visits = [],
+		artworks = []
 	}: Props = $props();
 
 	const PORTRAIT_WIDTH = 500;
@@ -99,7 +103,10 @@
 			</p>
 			<h1>{title}</h1>
 			{#if subject.kind === 'era'}
-				<p class="caption">{eraYearsText(subject.code)}</p>
+				<p class="caption years">
+					{eraYearsText(subject.code)}
+					<EraOutsideNote {artworks} code={subject.code} />
+				</p>
 			{/if}
 			{#if lifeYears}
 				<p class="caption">{lifeYears}</p>
@@ -149,6 +156,12 @@
 </article>
 
 <style>
+	.years {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+	}
+
 	article,
 	header,
 	.notes {

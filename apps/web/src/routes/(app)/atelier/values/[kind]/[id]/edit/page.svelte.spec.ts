@@ -103,6 +103,7 @@ describe('edit value page', () => {
 	it('moves the end of an era and the start of the next one together', async () => {
 		renderEdit({ kind: 'era', code: 'early_modern' });
 
+		await page.getByRole('button', { name: m.eraBounds.open }).click();
 		await page.getByLabelText(m.eraBounds.end, { exact: true }).fill('1800');
 		await expect
 			.element(
@@ -123,6 +124,7 @@ describe('edit value page', () => {
 		} as never);
 		renderEdit({ kind: 'era', code: 'early_modern' });
 
+		await page.getByRole('button', { name: m.eraBounds.open }).click();
 		await page.getByLabelText(m.eraBounds.start, { exact: true }).fill('1520');
 		await saveButton().click();
 
