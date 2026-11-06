@@ -55,6 +55,10 @@ All of it lives in [`apps/web/scripts/screenshot/`](../../apps/web/scripts/scree
 
 When a view needs data the mock does not return yet, extend `mockSupabase` in `screenshot.mjs` rather than writing a one-off script in the session. If the app's queries change shape (for example a new column), update the sample rows in the same pull request.
 
+### Mockups of a new view
+
+A design thread can draw a view that does not exist yet in the app itself, so the mockup uses the real tokens, library components and mocked data. Put the mockup on a temporary route (for example `apps/web/src/routes/atelier/mock-exhibitions/+page.svelte`) or make temporary edits to an existing view, capture it with `pnpm screenshot`, and never commit it: move the route to `tmp/` (ignored by git) and revert the edits with `git checkout` before the documentation commit. Several variants of one decision fit on one route behind a query parameter, read in the page, for example `?v=b`.
+
 ### Measuring requests
 
 `--log-requests` counts what the app asks Supabase for, so a change that should save requests can show it ([ATL-403](https://linear.app/kamil-nawrot/issue/ATL-403)). Every page starts cold: no data cache, the shell loads too. A request counts as shell when it reads a table or function of the menu and the career (`profiles`, `review_counts`, `learner_points`, `career_standing`, `unlock_exhibits`, `exhibit_tiers`, `point_events`, `announcements`), so on the settings and display case views part of the view is counted as shell. Request counts are the app's; payload sizes come from the mocked sample data and only compare runs with each other. A flow with `--steps` lists its requests under `steps`, for example the second artwork of a flip.
@@ -63,3 +67,4 @@ When a view needs data the mock does not return yet, extend `mockSupabase` in `s
 
 - Do not kill the dev server with `pkill -f 'vite dev'` from a command whose own text contains the same pattern: it kills the shell. The script stops the server it started by itself.
 - `pnpm check` rewrites `.svelte-kit` env; a dev server that was already running then signs the fake session out. Start the screenshot after the check, or let the script start its own server.
+- `--combine` with `--full-page` writes a broken image (1000 x 1000) when the desktop and phone pages have different heights. Until [ATL-549](https://linear.app/kamil-nawrot/issue/ATL-549) is fixed, capture each viewport with `--full-page` alone and put them side by side yourself.
