@@ -27,7 +27,8 @@
     "vasari_lives": "vasari-title-page",
     "figure_alphabet": "meckenem-letter-a-smb-mount-close",
     "hortus_cliffortianus": "wandelaar-wide",
-    "candle_moths": "van-der-vinne-candle"
+    "candle_moths": "van-der-vinne-candle",
+    "amateur_magnifier": "daumier-amateur-figure"
   },
   "variants": [
     {
@@ -1141,6 +1142,51 @@
         0.02,
         0.68,
         0.72
+      ]
+    },
+    {
+      "exhibit": "amateur_magnifier",
+      "status": "alternative",
+      "source_url": "https://iiif.micr.io/RUCAs/full/max/0/default.jpg",
+      "source_page": "https://www.rijksmuseum.nl/en/collection/RP-P-2015-26-183",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Honoré Daumier, Un véritable amateur, Les Bons Bourgeois no. 66, Le Charivari, 16 May 1847, Rijksmuseum RP-P-2015-26-183",
+      "variant": "daumier-amateur",
+      "crop": [
+        0.1,
+        0.1,
+        0.91,
+        0.843
+      ]
+    },
+    {
+      "exhibit": "amateur_magnifier",
+      "status": "chosen",
+      "source_url": "https://iiif.micr.io/RUCAs/full/max/0/default.jpg",
+      "source_page": "https://www.rijksmuseum.nl/en/collection/RP-P-2015-26-183",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Honoré Daumier, Un véritable amateur, Les Bons Bourgeois no. 66, Le Charivari, 16 May 1847, Rijksmuseum RP-P-2015-26-183",
+      "variant": "daumier-amateur-figure",
+      "crop": [
+        0.26,
+        0.21,
+        0.876,
+        0.775
+      ]
+    },
+    {
+      "exhibit": "amateur_magnifier",
+      "status": "alternative",
+      "source_url": "https://iiif.micr.io/RUCAs/full/max/0/default.jpg",
+      "source_page": "https://www.rijksmuseum.nl/en/collection/RP-P-2015-26-183",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Honoré Daumier, Un véritable amateur, Les Bons Bourgeois no. 66, Le Charivari, 16 May 1847, Rijksmuseum RP-P-2015-26-183",
+      "variant": "daumier-amateur-close",
+      "crop": [
+        0.47,
+        0.2,
+        0.83,
+        0.53
       ]
     }
   ]

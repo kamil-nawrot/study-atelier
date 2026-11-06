@@ -37,17 +37,17 @@ exhibit-art publish --out ../../apps/web/static/exhibits
 
 `manifest.json` lists every variant made so far, chosen, alternative and rejected, so none has to be prepared again by hand. `app` names the variant shown in the app for each exhibit.
 
-| Field                       | Meaning                                                                                                                                                                  |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `exhibit`, `variant`        | The exhibit code used in the app and a name for this crop                                                                                                                |
-| `status`                    | `chosen`, `alternative` or `rejected`                                                                                                                                    |
-| `commons_file`              | The file name on Wikimedia Commons, without `File:`                                                                                                                      |
-| `source_url`, `source_page` | Instead of `commons_file`, for an engraving not on Commons: the direct address of the museum's public-domain image and the page of its object, which the credits link to |
-| `licence`, `credit`         | What the credits need                                                                                                                                                    |
-| `crop`                      | `[x0, y0, x1, y1]` as fractions of the source, so the crop does not depend on the downloaded size; keep the ratio near 10:13                                             |
-| `background`                | `scene` (default), `wall` or `wall-detect`, see below                                                                                                                    |
-| `gamma`, `cap`              | Tone settings: gamma above 1 darkens the mid-tones, `cap` lowers the brightest tone (defaults 1.25 and 0.95)                                                             |
-| `pad`, `wall_darken`        | Pad a narrow crop with paper to 10:13 before rendering, and darken the generated wall (1 keeps it)                                                                       |
+| Field                       | Meaning                                                                                                                                                                                                                                       |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `exhibit`, `variant`        | The exhibit code used in the app and a name for this crop                                                                                                                                                                                     |
+| `status`                    | `chosen`, `alternative` or `rejected`                                                                                                                                                                                                         |
+| `commons_file`              | The file name on Wikimedia Commons, without `File:`                                                                                                                                                                                           |
+| `source_url`, `source_page` | Instead of `commons_file`, for an engraving not on Commons: the direct address of the museum's public-domain image and the page of its object, which the credits link to; the source file is named after the last part of that page's address |
+| `licence`, `credit`         | What the credits need                                                                                                                                                                                                                         |
+| `crop`                      | `[x0, y0, x1, y1]` as fractions of the source, so the crop does not depend on the downloaded size; keep the ratio near 10:13                                                                                                                  |
+| `background`                | `scene` (default), `wall` or `wall-detect`, see below                                                                                                                                                                                         |
+| `gamma`, `cap`              | Tone settings: gamma above 1 darkens the mid-tones, `cap` lowers the brightest tone (defaults 1.25 and 0.95)                                                                                                                                  |
+| `pad`, `wall_darken`        | Pad a narrow crop with paper to 10:13 before rendering, and darken the generated wall (1 keeps it)                                                                                                                                            |
 
 ## How an image is made
 
