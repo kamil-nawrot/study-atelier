@@ -177,6 +177,37 @@ changes:
     loses:
       - 'Seven more indexes to write on insert.'
 
+  - id: M5
+    name: Store exhibitions as one JSON document with rows of their artworks, and the palette per image
+    status: 'accepted 2026-11-06, ADR-0200; built in ATL-542, ATL-543 and ATL-454 (0.21)'
+    kind: schema
+    tables: [exhibitions, exhibition_artworks, artwork_images]
+    serves: [R03, R22, R23, R24, R25, W05, W06, W17, W18, W19, W20, W21, W22]
+    pull_requests: 3
+    risk: medium
+    risk_because: 'a new document format checked in SQL, autosave with a revision, and a new kind in Archiwum, the export and the import'
+    how: >
+      The document is TipTap JSON in exhibitions.document, saved whole by save_exhibition(id, title, document, revision).
+      The function checks the block whitelist and the limits, checks that every artworkId belongs to the owner, stores the
+      document, raises the revision and replaces the exhibition_artworks rows in one transaction, so "Na wystawach" and the
+      list cover are indexed reads (the rule of M1). The palette of an image is computed in the browser once and stored in
+      artwork_images.palette.
+    design:
+      - 'Blocks: text, heading, quote, artwork, closeUp, columns > column{2,3}; artwork attrs artworkId, imageId, palette, paletteOnly, note; closeUp attrs artworkId, imageId, x, y, viewWidth.'
+      - 'References by uuid: import_atelier keeps the ids, so an export round trip keeps every reference.'
+      - 'A purge cascades exhibition_artworks; the document keeps the id and the view shows the NoImage frame.'
+      - 'exhibitions.deleted_at puts an exhibition in Archiwum; reads of the list and of "Na wystawach" leave it out.'
+      - 'Limits: 200 exhibitions per owner (Archiwum counted), 300 blocks, 100 artworks and 512 KB of JSON per exhibition.'
+      - 'import_atelier inserts exhibitions and rebuilds exhibition_artworks at its end; an older export has none.'
+    cost:
+      - 'migration: two tables, RLS, limits, save_exhibition, exhibition_list, artwork_images.palette, export and import'
+      - 'SQL tests: save, stale revision, foreign artwork refused, purged artwork kept without a row, limits, Archiwum of an artwork and of an exhibition, purge, import of an old and a new export'
+      - 'database.types.ts generated, screenshot mocks for the new reads'
+    loses:
+      - 'The document is JSON, harder to read in an export than the Markdown of a note.'
+      - 'Every autosave sends the whole document.'
+      - 'The block format lives in the editor and in the whitelist of save_exhibition.'
+
 bugs:
   # Found by the review; they exist today, independent of the model, and are filed separately.
   - id: B1
@@ -375,6 +406,16 @@ patterns:
   - { id: R18, today: 1, target: 1, model: none, also: [] }
   - { id: R19, today: 1, target: 1, model: none, also: [] }
   - { id: R20, today: 4, target: 1, model: none, also: [T2] }
+  - { id: R22, today: 'new', target: 1, model: [M5], also: [] }
+  - { id: R23, today: 'new', target: '2-3', model: [M5], also: [] }
+  - { id: R24, today: 'new', target: 'R23 + 1 recent + 1 per search pause', model: [M5], also: [] }
+  - {
+      id: R25,
+      today: 'new',
+      target: '0 inside the artwork page RPC, else 1',
+      model: [M5],
+      also: []
+    }
 
 writes:
   - {
@@ -454,6 +495,16 @@ writes:
       after: 'link rows stay through the trash and return on restore',
       model: [M1]
     }
+  - { id: W18, today: 'new', after: 'one insert', model: [M5] }
+  - {
+      id: W19,
+      today: 'new',
+      after: 'save_exhibition: document and its exhibition_artworks rows',
+      model: [M5]
+    }
+  - { id: W20, today: 'new', after: 'one update of deleted_at', model: [M5] }
+  - { id: W21, today: 'new', after: 'one update or delete, cascades its rows', model: [M5] }
+  - { id: W22, today: 'new', after: 'one update of artwork_images.palette', model: [M5] }
 
 decisions:
   - id: D1
