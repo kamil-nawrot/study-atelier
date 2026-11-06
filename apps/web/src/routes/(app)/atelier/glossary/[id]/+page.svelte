@@ -10,6 +10,7 @@
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+	import TermFragments from '#lib/glossary/components/TermFragments/TermFragments.svelte';
 	import GlossaryView from '#lib/glossary/components/GlossaryView/GlossaryView.svelte';
 	import { deleteGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
@@ -114,6 +115,11 @@
 		{#if data.pinnedError}
 			<Alert tone="danger">{m.pins.loadFailed}</Alert>
 		{/if}
+		{#if data.fragments && data.fragments.length > 0}
+			<div class="fragments">
+				<TermFragments fragments={data.fragments} />
+			</div>
+		{/if}
 		{#if artworks.length > 0}
 			<section class="artworks" aria-labelledby="glossary-artworks">
 				<h2 id="glossary-artworks">{m.glossary.view.onArtworks}</h2>
@@ -164,6 +170,10 @@
 {/if}
 
 <style>
+	.fragments {
+		margin-top: var(--spacing-8);
+	}
+
 	.artworks {
 		display: grid;
 		gap: var(--spacing-6);

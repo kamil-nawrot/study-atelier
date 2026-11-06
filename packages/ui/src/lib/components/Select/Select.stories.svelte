@@ -46,3 +46,14 @@
 		value: 'painting'
 	}}
 />
+
+<Story
+	name="With icon"
+	args={{
+		label: 'Order',
+		icon: ArrowUpDown,
+		hideLabel: true,
+		placeholder: undefined,
+		value: 'painting'
+	}}
+/>

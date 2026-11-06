@@ -10,14 +10,25 @@
 		label: string;
 		tabs: readonly TabOption[];
 		value?: string;
+		framed?: boolean;
 		children: Snippet;
 	};
 
-	let { label, tabs, value = $bindable(), children }: Props = $props();
+	let { label, tabs, value = $bindable(), framed = false, children }: Props = $props();
 
 	const id = $props.id();
 
 	let active = $derived(tabs.find((tab) => tab.value === value) ?? tabs[0]);
+	let list = $state<HTMLElement>();
+
+	$effect(() => {
+		const tab = list && document.getElementById(tabId(active));
+		if (!list || !tab) return;
+		const start = tab.offsetLeft - list.offsetLeft;
+		const end = start + tab.offsetWidth;
+		if (start < list.scrollLeft) list.scrollLeft = start;
+		else if (end > list.scrollLeft + list.clientWidth) list.scrollLeft = end - list.clientWidth;
+	});
 
 	function tabId(tab: TabOption): string {
 		return `${id}-tab-${tab.value}`;
@@ -40,8 +51,14 @@
 	}
 </script>
 
-<div class="tabs">
-	<div class="list" {@attach overlayScrollbar('x')} aria-label={label} role="tablist">
+<div class="tabs" class:framed>
+	<div
+		bind:this={list}
+		class="list"
+		{@attach overlayScrollbar('x')}
+		aria-label={label}
+		role="tablist"
+	>
 		{#each tabs as tab, index (tab.value)}
 			<button
 				id={tabId(tab)}
@@ -103,6 +120,40 @@
 	.tab[aria-selected='true'] {
 		border-bottom-color: var(--color-fg);
 		color: var(--color-fg);
+	}
+
+	.framed {
+		gap: 0;
+	}
+
+	.framed .list {
+		gap: 0;
+		border-bottom: none;
+		background: linear-gradient(var(--color-line), var(--color-line)) bottom / 100%
+			var(--border-width-hairline) no-repeat;
+	}
+
+	.framed .tab {
+		padding: var(--spacing-3) var(--spacing-4);
+		border: var(--border-width-hairline) solid transparent;
+	}
+
+	.framed .tab[aria-selected='true'] {
+		border-color: var(--color-line);
+		border-bottom-color: var(--color-bg);
+		background: var(--color-bg);
+	}
+
+	.framed .panel {
+		padding: var(--spacing-4);
+		border: var(--border-width-hairline) solid var(--color-line);
+		border-top: none;
+	}
+
+	@media (min-width: 768px) {
+		.framed .panel {
+			padding: var(--spacing-8);
+		}
 	}
 
 	.panel:focus-visible {

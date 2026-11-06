@@ -4,13 +4,8 @@ import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts'
 import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
 import type { FilterField } from '#lib/catalogue/types/filter-field.ts';
 import type { MissingData } from '#lib/catalogue/types/missing-data.ts';
-import {
-	FILTER_FIELDS,
-	MISSING_DATA,
-	emptyFilter,
-	hasYears,
-	isFlagField
-} from '#lib/wall/filter/filter.ts';
+import { FILTER_FIELDS, emptyFilter, hasYears, isFlagField } from '#lib/wall/filter/filter.ts';
+import { MISSING_DATA } from '#lib/wall/missing-data/missing-data.ts';
 
 const PARAMS: Record<FilterField, string> = {
 	eras: 'era',

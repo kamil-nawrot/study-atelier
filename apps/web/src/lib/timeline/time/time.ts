@@ -1,5 +1,5 @@
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
-import { ERA_CODES, ERA_START_YEARS } from '#lib/catalogue/eras/eras.ts';
+import { ERA_CODES, eraEndYear, eraStartYear } from '#lib/catalogue/eras/eras.ts';
 import type { TimeSpan } from '#lib/timeline/types/time-span.ts';
 import type { View } from '#lib/timeline/types/view.ts';
 import type { Era } from '#lib/timeline/types/era.ts';
@@ -43,7 +43,7 @@ export function entriesSpan(items: readonly DatedItem[]): TimeSpan | undefined {
 }
 
 function prehistoryStart(entries: TimeSpan | undefined): number {
-	const fixed = timeOf(ERA_START_YEARS.prehistory);
+	const fixed = timeOf(eraStartYear('prehistory'));
 	if (!entries || entries.start >= fixed) return fixed;
 	return Math.floor(entries.start / PREHISTORY_ROUNDING) * PREHISTORY_ROUNDING;
 }
@@ -54,8 +54,10 @@ export function eras(currentYear: number = new Date().getFullYear(), entries?: T
 		const next = ERA_CODES[index + 1];
 		return {
 			code,
-			start: index === 0 ? prehistoryStart(entries) : timeOf(ERA_START_YEARS[code]),
-			end: next ? timeOf(ERA_START_YEARS[next]) : Math.max(now, entries?.end ?? now)
+			start: index === 0 ? prehistoryStart(entries) : timeOf(eraStartYear(code)),
+			end: next
+				? timeOf(eraEndYear(code) ?? eraStartYear(next))
+				: Math.max(now, entries?.end ?? now)
 		};
 	});
 }

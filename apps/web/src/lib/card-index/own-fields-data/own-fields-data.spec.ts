@@ -53,7 +53,9 @@ describe('loadOwnFields', () => {
 					name: 'Source',
 					description: 'Book and page',
 					kind: 'text',
-					multiple: false
+					multiple: false,
+					limited: false,
+					typeCodes: []
 				}
 			],
 			error: null
@@ -112,12 +114,30 @@ describe('loadOwnFieldDefinitions', () => {
 
 	it('reads the fields in their order without counts or values', async () => {
 		query.order.mockResolvedValue({
-			data: [{ id: 'seen', name: 'Seen', description: null, kind: 'flag', multiple: false }],
+			data: [
+				{
+					id: 'seen',
+					name: 'Seen',
+					description: null,
+					kind: 'flag',
+					multiple: false,
+					type_codes: ['painting']
+				}
+			],
 			error: null
 		});
 
 		await expect(loadOwnFieldDefinitions()).resolves.toEqual({
-			fields: [{ id: 'seen', name: 'Seen', description: null, kind: 'flag', multiple: false }]
+			fields: [
+				{
+					id: 'seen',
+					name: 'Seen',
+					description: null,
+					kind: 'flag',
+					multiple: false,
+					typeCodes: ['painting']
+				}
+			]
 		});
 		expect(query.order).toHaveBeenCalledWith('position');
 		expect(rpc).not.toHaveBeenCalled();
@@ -131,7 +151,14 @@ describe('loadOwnFieldDefinitions', () => {
 		await loadOwnFieldDefinitions();
 		expect(query.order).toHaveBeenCalledTimes(1);
 
-		await createOwnField({ name: 'Source', description: '', kind: 'text', multiple: false });
+		await createOwnField({
+			name: 'Source',
+			description: '',
+			kind: 'text',
+			multiple: false,
+			limited: false,
+			typeCodes: []
+		});
 		await loadOwnFieldDefinitions();
 		expect(query.order).toHaveBeenCalledTimes(2);
 	});
@@ -151,21 +178,38 @@ describe('own field actions', () => {
 	});
 
 	it('creates a field with a trimmed name and no empty description', async () => {
-		await createOwnField({ name: ' Source ', description: '  ', kind: 'text', multiple: true });
+		await createOwnField({
+			name: ' Source ',
+			description: '  ',
+			kind: 'text',
+			multiple: true,
+			limited: false,
+			typeCodes: []
+		});
 
 		expect(supabase.from).toHaveBeenCalledWith('artwork_fields');
 		expect(query.insert).toHaveBeenCalledWith({
 			name: 'Source',
 			description: null,
 			kind: 'text',
-			multiple: false
+			multiple: false,
+			type_codes: []
 		});
 	});
 
 	it('changes the name and the description of a field', async () => {
-		await updateOwnField(lecture, { name: 'Course', description: 'Which course' });
+		await updateOwnField(lecture, {
+			name: 'Course',
+			description: 'Which course',
+			limited: true,
+			typeCodes: ['architecture']
+		});
 
-		expect(query.update).toHaveBeenCalledWith({ name: 'Course', description: 'Which course' });
+		expect(query.update).toHaveBeenCalledWith({
+			name: 'Course',
+			description: 'Which course',
+			type_codes: ['architecture']
+		});
 		expect(query.eq).toHaveBeenCalledWith('id', 'lecture');
 	});
 
@@ -203,7 +247,14 @@ describe('own field actions', () => {
 		query.insert.mockResolvedValue({ error: { code: '23505', message: 'duplicate key' } });
 
 		await expect(
-			createOwnField({ name: 'Source', description: '', kind: 'text', multiple: false })
+			createOwnField({
+				name: 'Source',
+				description: '',
+				kind: 'text',
+				multiple: false,
+				limited: false,
+				typeCodes: []
+			})
 		).resolves.toEqual({ error: m.cardIndex.errors.changed });
 	});
 });

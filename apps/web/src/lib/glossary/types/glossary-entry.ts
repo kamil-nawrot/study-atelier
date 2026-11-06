@@ -5,4 +5,5 @@ export type GlossaryEntry = GlossaryTerm & {
 	definition: string;
 	sortName: string | null;
 	source: WikipediaSource | null;
+	createdAt: string;
 };

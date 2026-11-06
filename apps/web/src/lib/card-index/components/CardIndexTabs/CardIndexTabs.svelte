@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { LucideIcon } from '@lucide/svelte';
 	import Plus from '@lucide/svelte/icons/plus';
 	import { Button, Icon, Tabs } from '@study-atelier/ui';
 	import { CARD_INDEX_TABS } from '#lib/card-index/card-index-tab/card-index-tab.ts';
@@ -19,14 +20,21 @@
 	import { newValuePath, valuePath } from '#lib/card-index/value-pages/value-pages.ts';
 	import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
 	import { countryName } from '#lib/catalogue/countries/countries.ts';
+	import { placeTypeIcon, placeTypeName } from '#lib/catalogue/place-types/place-types.ts';
 	import { formatDate } from '#lib/catalogue/years/years.ts';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { isSpan } from '#lib/timeline/event-page/event-page.ts';
 	import type { OwnField } from '#lib/card-index/types/own-field.ts';
 	import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 	import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
 	import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 
-	type ListedValue = CardIndexRecord & { country?: string; detail?: string };
+	type ListedValue = CardIndexRecord & {
+		country?: string;
+		detail?: string;
+		icon?: LucideIcon;
+		iconLabel?: string;
+	};
 
 	type Props = {
 		index: CardIndexData;
@@ -63,7 +71,8 @@
 			id: event.id,
 			name: event.name,
 			note: formatDate(event.yearFrom, event.yearTo, event.yearApproximate) ?? '',
-			year: event.yearFrom ?? event.yearTo ?? undefined
+			year: event.yearFrom ?? event.yearTo ?? undefined,
+			span: isSpan(event)
 		}))
 	);
 	let own = $derived({ fields: ownFields, error: ownFieldsError });
@@ -79,10 +88,15 @@
 	}
 
 	function listed(kind: 'material' | 'author' | 'location'): ListedValue[] {
-		const byCountry = kind === 'location' && sorts.location === 'country';
 		return valuesOf(index, kind).map((record) => {
 			const country = record.countryCode ? countryName(record.countryCode) : undefined;
-			return { ...record, country, detail: byCountry ? country : undefined };
+			const type = record.placeType;
+			return {
+				...record,
+				country,
+				detail: kind === 'location' ? country : undefined,
+				...(type ? { icon: placeTypeIcon(type), iconLabel: placeTypeName(type) } : {})
+			};
 		});
 	}
 
@@ -98,7 +112,7 @@
 
 {#snippet adds(kinds: CategoryCode[])}
 	{#each kinds as kind (kind)}
-		<Button href={newValuePath(kind)}>
+		<Button href={newValuePath(kind)} variant="primary">
 			<Icon icon={Plus} />
 			{m.cardIndex.add[kind]}
 		</Button>
@@ -109,7 +123,7 @@
 	{@render adds(['period', 'style'])}
 {/snippet}
 
-<Tabs label={m.cardIndex.tabsLabel} {tabs} bind:value={() => tab, chooseTab}>
+<Tabs framed label={m.cardIndex.tabsLabel} {tabs} bind:value={() => tab, chooseTab}>
 	{#if tab === 'timeline'}
 		<div class="tab">
 			<CardIndexTimeline

@@ -8,9 +8,10 @@
 	import { page } from '$app/state';
 	import { deleteValue } from '#lib/card-index/card-index-data/card-index-data.ts';
 	import { canDelete } from '#lib/card-index/card-index/card-index.ts';
-	import ArtworkWall from '#lib/wall/components/ArtworkWall/ArtworkWall.svelte';
+	import ArtworksSection from '#lib/wall/components/ArtworksSection/ArtworksSection.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import ValueView from '#lib/values/components/ValueView/ValueView.svelte';
+	import RelationsBand from '#lib/relations/components/RelationsBand/RelationsBand.svelte';
 	import {
 		artworksOfValue,
 		subjectId,
@@ -130,32 +131,30 @@
 	{/snippet}
 
 	{#if subject && editHref}
-		<ValueView
-			count={artworks.length}
-			details={data.details}
-			glossary={data.glossary}
-			mentions={data.mentions}
-			noteLinks={data.noteLinks}
-			{parents}
-			{subject}
-			visits={data.visits}
-		/>
+		<div class="page">
+			<ValueView
+				{artworks}
+				count={artworks.length}
+				details={data.details}
+				glossary={data.glossary}
+				mentions={data.mentions}
+				noteLinks={data.noteLinks}
+				{parents}
+				{subject}
+				visits={data.visits}
+			/>
 
-		<section class="artworks" aria-labelledby="value-artworks">
-			<header>
-				<h2 id="value-artworks">{m.valuePage.kinds[subject.kind].artworks}</h2>
-				<span class="count">{m.atelier.count(artworks.length)}</span>
-			</header>
-			{#if artworks.length === 0}
-				<p class="empty">{m.valuePage.kinds[subject.kind].noArtworks}</p>
-			{:else}
-				<ArtworkWall
-					{artworks}
-					onimagefailed={(artwork) => images.failed(artwork)}
-					onnearscreen={(artwork) => images.request(artwork)}
-				/>
+			{#if data.relations}
+				<RelationsBand relations={data.relations} />
 			{/if}
-		</section>
+
+			<ArtworksSection
+				{artworks}
+				empty={m.valuePage.kinds[subject.kind].noArtworks}
+				{images}
+				title={m.valuePage.kinds[subject.kind].artworks}
+			/>
+		</div>
 	{:else}
 		<LoadFailure
 			backHref={cardIndexPath}
@@ -194,30 +193,8 @@
 {/if}
 
 <style>
-	.artworks {
+	.page {
 		display: grid;
 		gap: var(--spacing-6);
-		margin-top: var(--spacing-6);
-		padding-top: var(--spacing-6);
-		border-top: var(--border-width-hairline) solid var(--color-line);
-	}
-
-	.artworks header {
-		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: var(--spacing-4);
-	}
-
-	h2 {
-		font-size: var(--font-size-lg);
-		font-weight: var(--font-weight-bold);
-		line-height: var(--line-height-lg);
-	}
-
-	.count,
-	.empty {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-sm);
 	}
 </style>

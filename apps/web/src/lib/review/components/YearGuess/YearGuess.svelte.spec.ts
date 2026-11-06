@@ -42,7 +42,7 @@ describe('YearGuess', () => {
 			.element(page.getByRole('heading', { name: m.review.year.question }))
 			.toBeInTheDocument();
 		await expect
-			.element(page.getByText(m.review.year.hint('nowożytności', '1492–1789')))
+			.element(page.getByText(m.review.year.hint('nowożytności', '1492 – 1789')))
 			.toBeInTheDocument();
 		await expect
 			.element(page.getByRole('img', { name: m.review.flashcard.imageAlt }))

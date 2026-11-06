@@ -7,6 +7,7 @@ import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyCardIndex } from '#lib/card-index/card-index/card-index.ts';
 import { isCategoryCode } from '#lib/card-index/category-values/category-values.ts';
 import { isEraCode } from '#lib/catalogue/eras/eras.ts';
+import { isPlaceType } from '#lib/catalogue/place-types/place-types.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import type { OwnValue } from '#lib/card-index/types/own-value.ts';
 import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
@@ -71,6 +72,7 @@ type CardIndexRow = {
 		sort_name?: string;
 		birth_year?: number;
 		country_code?: string;
+		place_type?: string;
 	})[];
 	period_eras: PeriodEraRow[];
 	style_periods: StylePeriodRow[];
@@ -87,7 +89,8 @@ function recordOf(row: CardIndexRow['values'][number]): CardIndexRecord[] {
 			...(row.visit_count ? { visits: row.visit_count } : {}),
 			...(row.sort_name ? { sortName: row.sort_name } : {}),
 			...(row.birth_year === undefined ? {} : { birthYear: row.birth_year }),
-			...(row.country_code ? { countryCode: row.country_code } : {})
+			...(row.country_code ? { countryCode: row.country_code } : {}),
+			...(isPlaceType(row.place_type) ? { placeType: row.place_type } : {})
 		}
 	];
 }

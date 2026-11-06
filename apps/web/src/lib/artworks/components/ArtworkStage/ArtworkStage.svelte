@@ -3,6 +3,7 @@
 	import { untrack } from 'svelte';
 	import { ArtworkImage, Button, Icon, NoImage } from '@study-atelier/ui';
 	import { MediaQuery } from 'svelte/reactivity';
+	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
 	import FlipLinks from '#lib/artworks/components/FlipLinks/FlipLinks.svelte';
 	import StageActions from '#lib/artworks/components/StageActions/StageActions.svelte';
@@ -21,6 +22,8 @@
 	import PinCard from '#lib/pins/components/PinCard/PinCard.svelte';
 	import PinDialog from '#lib/pins/components/PinDialog/PinDialog.svelte';
 	import PinMarkers from '#lib/pins/components/PinMarkers/PinMarkers.svelte';
+	import { ensurePinCrops } from '#lib/pins/pin-crop/pin-crop.ts';
+	import { refreshCareerOnFullImage } from '#lib/pins/full-image/full-image.ts';
 	import { pinsOfImage } from '#lib/pins/pin-layout/pin-layout.ts';
 	import type { Pin as PinRecord } from '#lib/pins/types/pin.ts';
 	import { swipe } from '#lib/wall/flip/flip.ts';
@@ -115,9 +118,17 @@
 		newPinOpen = true;
 	}
 
+	$effect(() => {
+		ensurePinCrops(gallery, allPins);
+	});
+
 	function pinSaved(pin: PinRecord): void {
 		allPins = [...allPins, pin];
 		showPins = true;
+		refreshCareerOnFullImage(
+			pinsOfImage(allPins, pin.imageId).length,
+			page.data.careerShown !== false
+		);
 	}
 </script>
 

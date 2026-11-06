@@ -6,13 +6,14 @@
 	type Props = {
 		label: string;
 		accept?: string;
+		capture?: 'environment' | 'user';
 		icon?: LucideIcon;
 		disabled?: boolean;
 		describedby?: string;
 		onpick: (file: File) => void;
 	};
 
-	let { label, accept, icon, disabled = false, describedby, onpick }: Props = $props();
+	let { label, accept, capture, icon, disabled = false, describedby, onpick }: Props = $props();
 
 	let input: HTMLInputElement | undefined = $state();
 
@@ -29,4 +30,4 @@
 	{/if}
 	{label}
 </Button>
-<input bind:this={input} {accept} {disabled} hidden onchange={pick} type="file" />
+<input bind:this={input} {accept} {capture} {disabled} hidden onchange={pick} type="file" />

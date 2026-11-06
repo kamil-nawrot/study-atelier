@@ -31,6 +31,13 @@ begin
   insert into public.author_details (value_id, own_image_path)
     values (author, '00000000-0000-0000-0000-00000000000a/portrait.webp');
 
+  insert into public.artwork_pins (image_id, x, y, view_width)
+    select image.id, 0.5, 0.5, 0.1
+      from public.artwork_images image
+      where image.own_image_path = '00000000-0000-0000-0000-00000000000a/main.png';
+  update public.artwork_pins
+    set crop_path = '00000000-0000-0000-0000-00000000000a/pin-crop-1.jpg';
+
   insert into public.profiles (avatar_path)
     values ('00000000-0000-0000-0000-00000000000a/avatar-11111111-1111-1111-1111-111111111111.jpg');
 
@@ -63,6 +70,8 @@ insert into storage.objects (bucket_id, name, created_at) values
   ('artwork-images', '00000000-0000-0000-0000-00000000000a/portrait-thumb.jpg', now() - interval '3 days'),
   ('artwork-images', '00000000-0000-0000-0000-00000000000a/avatar-11111111-1111-1111-1111-111111111111.jpg', now() - interval '3 days'),
   ('artwork-images', '00000000-0000-0000-0000-00000000000a/avatar-22222222-2222-2222-2222-222222222222.jpg', now() - interval '3 days'),
+  ('artwork-images', '00000000-0000-0000-0000-00000000000a/pin-crop-1.jpg', now() - interval '3 days'),
+  ('artwork-images', '00000000-0000-0000-0000-00000000000a/pin-crop-0.jpg', now() - interval '3 days'),
   ('artwork-images', '00000000-0000-0000-0000-00000000000a/left.jpg', now() - interval '2 days'),
   ('artwork-images', '00000000-0000-0000-0000-00000000000a/left-thumb.jpg', now() - interval '2 days'),
   ('artwork-images', '00000000-0000-0000-0000-00000000000a/fresh.jpg', now() - interval '1 hour'),
@@ -73,8 +82,8 @@ set local role service_role;
 do $$
 begin
   assert (select array_agg(path order by path) from public.unused_images() as unused (path)) =
-    '{00000000-0000-0000-0000-00000000000a/avatar-22222222-2222-2222-2222-222222222222.jpg,00000000-0000-0000-0000-00000000000a/left-thumb.jpg,00000000-0000-0000-0000-00000000000a/left.jpg}',
-    'unused_images does not list exactly the unused files older than a day, or lists the avatar in use';
+    '{00000000-0000-0000-0000-00000000000a/avatar-22222222-2222-2222-2222-222222222222.jpg,00000000-0000-0000-0000-00000000000a/left-thumb.jpg,00000000-0000-0000-0000-00000000000a/left.jpg,00000000-0000-0000-0000-00000000000a/pin-crop-0.jpg}',
+    'unused_images does not list exactly the unused files older than a day, or lists the avatar or the pin crop in use';
   assert (select array_agg(path) from public.deleted_account_images() as deleted (path)) =
     '{00000000-0000-0000-0000-00000000000d/gone.jpg}',
     'deleted_account_images does not list exactly the files of accounts that no longer exist';

@@ -17,6 +17,7 @@ import { testSession } from '#lib/testing/auth/auth.ts';
 import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
 import type { Visit } from '#lib/chronicle/types/visit.ts';
 import ValuePage from './+page.svelte';
+import { eraYearsText } from '#lib/catalogue/eras/eras.ts';
 
 const navigation = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier/values/style/style-doric'),
@@ -186,7 +187,7 @@ describe('value page', () => {
 		renderValue({ kind: 'era', code: 'antiquity' });
 
 		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Starożytność');
-		await expect.element(page.getByText(m.eras.antiquity.years)).toBeVisible();
+		await expect.element(page.getByText(eraYearsText('antiquity'))).toBeVisible();
 		await expect
 			.element(page.getByText(m.valuePage.header(m.valuePage.eraKind, m.atelier.count(4))))
 			.toBeVisible();

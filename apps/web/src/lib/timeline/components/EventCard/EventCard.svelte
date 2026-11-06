@@ -8,6 +8,7 @@
 	import { WIKIPEDIA_LICENCE_URL } from '#lib/glossary/wikipedia/wikipedia.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { yearsLong } from '#lib/timeline/event-lanes/event-lanes.ts';
+	import { eventPath } from '#lib/timeline/event-page/event-page.ts';
 	import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 
 	type Props = {
@@ -31,7 +32,7 @@
 	<div class="head">
 		<div class="title">
 			<span class="kind caption">{period ? m.timeline.card.period : m.timeline.card.event}</span>
-			<h2>{event.name}</h2>
+			<h2><a href={eventPath(event.id)}>{event.name}</a></h2>
 			<p>
 				{date}{#if period && length > 0}<span class="muted"
 						>{` · ${m.timeline.card.length(length)}`}</span
@@ -109,6 +110,15 @@
 	.kind {
 		letter-spacing: var(--letter-spacing-wide);
 		text-transform: uppercase;
+	}
+
+	h2 a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	h2 a:hover {
+		text-decoration: underline;
 	}
 
 	.muted {

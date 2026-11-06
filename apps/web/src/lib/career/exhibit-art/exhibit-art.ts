@@ -80,6 +80,44 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		credit: 'Georg Pencz, „Usta prawdy”, 1533–1534',
 		licence: 'CC0',
 		commonsFile: 'Georg Pencz - The Mouth of Truth - 1922.150 - Cleveland Museum of Art.jpg'
+	},
+	prehistory: {
+		credit: 'Émile Bayard, „Une famille à l’âge du renne”, 1870',
+		licence: 'domena publiczna',
+		commonsFile: 'Une famille à l’âge du renne.jpg'
+	},
+	antiquity: {
+		credit:
+			'Jules Férat, „La bibliothèque d’un Romain”, skan: Biblioteca de la Universidad de Sevilla',
+		licence: 'CC BY 2.0',
+		commonsFile:
+			'Les merveilles de l\'industrie, 1873 "La bibliothèque d\'un Romain". (4727228008).jpg'
+	},
+	middle_ages: {
+		credit: 'Rycerstwo w postaciach alegorycznych, według miedziorytu z 1573 roku, 1870',
+		licence: 'domena publiczna',
+		commonsFile:
+			'Military and religious life in the Middle Ages and at the period of the Renaissance (1870) (14782676354).jpg'
+	},
+	early_modern: {
+		credit: 'Leo Reiffenstein, „Gutenberg pokazuje Fustowi pierwsze arkusze”, 1881',
+		licence: 'domena publiczna',
+		commonsFile: 'Die Gartenlaube (1881) b 837.jpg'
+	},
+	modern: {
+		credit: 'Alphonse de Neuville i Léon Benett, „Stado bizonów zagrodziło tory”',
+		licence: 'domena publiczna',
+		commonsFile: "'Around the World in Eighty Days' by Neuville and Benett 42.jpg"
+	},
+	contemporary: {
+		credit: 'Henri de Montaut, „L’arrivée du projectile à Stone’s Hill”',
+		licence: 'domena publiczna',
+		commonsFile: 'Arrivee Projectile DTAL.jpg'
+	},
+	pinacotheca: {
+		credit: '„Pinacoteca 1”, plansza z katalogu Levinusa Vincenta, 1719',
+		licence: 'domena publiczna',
+		commonsFile: 'Vincent, Levinus (1715) Wondertooneel der natuur -Tome 2- 0293.jpg'
 	}
 };
 

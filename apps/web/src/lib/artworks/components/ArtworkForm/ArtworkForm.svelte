@@ -19,6 +19,7 @@
 		artworkInputFromForm,
 		canSearchImage,
 		describedCategories,
+		artworkImageTexts,
 		emptyArtworkForm,
 		formHasChanges
 	} from '#lib/artworks/artwork-form/artwork-form.ts';
@@ -39,6 +40,7 @@
 	import { sameTitleAndAuthors } from '#lib/artworks/duplicates/duplicates.ts';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
+	import { LiveErrors } from '#lib/shared/forms/live-errors/live-errors.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { suggestValues } from '#lib/card-index/value-suggestions/value-suggestions.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
@@ -50,11 +52,13 @@
 	import YearInput from '#lib/shared/forms/YearInput/YearInput.svelte';
 	import DuplicateDialog from '#lib/artworks/components/DuplicateDialog/DuplicateDialog.svelte';
 	import EraDialog from '#lib/artworks/components/EraDialog/EraDialog.svelte';
+	import FieldTypeDialog from '#lib/artworks/components/FieldTypeDialog/FieldTypeDialog.svelte';
+	import { FieldTypeCheck } from '#lib/artworks/field-type-check/field-type-check.svelte.ts';
+	import { fieldApplies } from '#lib/card-index/own-fields/own-fields.ts';
 	import type { ArtworkFieldErrors } from '#lib/artworks/types/artwork-field-errors.ts';
 	import type { ArtworkFormState } from '#lib/artworks/types/artwork-form-state.ts';
 	import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
 	import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
-	import type { ImageFieldTexts } from '#lib/images/types/image-field-texts.ts';
 	import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 	import type { ValueSuggestion } from '#lib/card-index/types/value-suggestion.ts';
 	import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
@@ -84,19 +88,11 @@
 	const titleId = $props.id();
 	const yearToId = `${titleId}-year-to`;
 	const typeTiles = artworkTypeTiles();
-	const imageTexts: ImageFieldTexts = {
-		label: m.artworkForm.image,
-		find: m.artworkForm.findImage,
-		findOther: m.artworkForm.chooseOtherImage,
-		findHint: m.artworkForm.findImageHint,
-		own: m.artworkForm.ownImage,
-		changeOwn: m.artworkForm.changeOwnImage,
-		ownTitle: m.artworkForm.ownImageTitle,
-		changeOwnTitle: m.artworkForm.changeOwnImageTitle,
-		remove: m.artworkForm.removeImage
-	};
+	const imageTexts = artworkImageTexts();
 	let form = $state(initialForm());
-	let fieldErrors = $state<ArtworkFieldErrors>({});
+	const fieldErrors = new LiveErrors<ArtworkFieldErrors>(() =>
+		validateArtwork(artworkInputFromForm($state.snapshot(form)))
+	);
 	let savingNext = $state(false);
 	let imageMatching = $state(false);
 	let next = false;
@@ -110,11 +106,15 @@
 	);
 	const duplicateCheck = new DuplicateCheck();
 	const eraCheck = new EraCheck();
+	const fieldTypeCheck = new FieldTypeCheck();
 	let checked = $state<ArtworkInput>();
 
 	let imageSearchReady = $derived(canSearchImage(form));
 	let imageAlt = $derived(artworkImageAlt(form));
 	let pinList = $derived(pins);
+	let shownFields = $derived(
+		(ownFields ?? []).filter((field) => fieldApplies(field, form.typeCode))
+	);
 
 	function initialForm(): ArtworkFormState {
 		return artwork ? artworkFormFromRecord(artwork, ownFields) : emptyArtworkForm(ownFields);
@@ -131,6 +131,7 @@
 
 	onDestroy(() => {
 		eraCheck.answer(false);
+		fieldTypeCheck.answer(false);
 		duplicateCheck.answer(false);
 	});
 
@@ -176,9 +177,9 @@
 			savingNext = andNext;
 			const snapshot = $state.snapshot(form);
 			const input = artworkInputFromForm(snapshot);
-			fieldErrors = validateArtwork(input);
-			if (Object.keys(fieldErrors).length > 0) return;
+			if (!fieldErrors.check()) return;
 			checked = input;
+			if (!(await fieldTypeCheck.confirm(input, ownFields ?? []))) return;
 			if (!(await eraCheck.ask(input, artwork))) return;
 			if (!(await confirmDuplicate(input))) return;
 			const result = await saveArtwork(
@@ -186,7 +187,6 @@
 				artwork ? { id: artwork.id, image: artwork.image, images: artwork.images } : undefined
 			);
 			if (!result.saved) {
-				fieldErrors = result.fieldErrors;
 				formState.error = result.error ?? '';
 				return;
 			}
@@ -238,7 +238,7 @@
 			<TextField
 				id={titleId}
 				autocomplete="off"
-				error={fieldErrors.title}
+				error={fieldErrors.current.title}
 				label={m.artworkForm.title}
 				bind:value={form.title}
 			/>
@@ -246,7 +246,7 @@
 			<div class="group">
 				<ValueField
 					disabled={form.authorUnknown}
-					error={fieldErrors.authors}
+					error={fieldErrors.current.authors}
 					label={m.artworkForm.authors}
 					maxlength={VALUE_NAME_MAX_LENGTH}
 					options={options('author')}
@@ -272,7 +272,7 @@
 				{#if form.spanMode}
 					<YearInput
 						beforeCommonEraLabel={m.artworkForm.beforeCommonEraFrom}
-						error={fieldErrors.yearFrom}
+						error={fieldErrors.current.yearFrom}
 						label={m.artworkForm.spanFrom}
 						placeholder={m.artworkForm.spanFrom}
 						bind:value={form.yearFrom}
@@ -282,7 +282,7 @@
 				<YearInput
 					id={yearToId}
 					beforeCommonEraLabel={form.spanMode ? m.artworkForm.beforeCommonEraTo : undefined}
-					error={fieldErrors.yearTo}
+					error={fieldErrors.current.yearTo}
 					label={form.spanMode ? m.artworkForm.spanTo : m.artworkForm.year}
 					placeholder={form.spanMode ? m.artworkForm.spanTo : undefined}
 					bind:value={form.yearTo}
@@ -316,7 +316,7 @@
 
 			{#if form.own}
 				<ArtworkOwnFields
-					fields={ownFields ?? []}
+					fields={shownFields}
 					idPrefix={titleId}
 					values={suggestions.ownValues}
 					bind:form
@@ -359,6 +359,7 @@
 	yearFrom={checked ? datedOf(checked).yearFrom : null}
 	yearTo={checked ? datedOf(checked).yearTo : null}
 />
+<FieldTypeDialog check={fieldTypeCheck} typeCode={checked?.typeCode ?? null} />
 <DuplicateDialog action="save" check={duplicateCheck} />
 
 <style>

@@ -16,6 +16,7 @@ import {
 } from '#lib/testing/duplicates/duplicates.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import EditArtworkPage from './+page.svelte';
+import { eraYearsText } from '#lib/catalogue/eras/eras.ts';
 
 vi.mock('#lib/artworks/form-suggestions/form-suggestions.svelte.ts', async () => ({
 	FormSuggestions: (await import('#lib/testing/form-suggestions/form-suggestions.ts'))
@@ -174,7 +175,7 @@ describe('edit artwork page', () => {
 
 		const era = m.eras.early_modern;
 		await expect
-			.element(page.getByRole('radio', { name: `${era.name} ${era.years}` }))
+			.element(page.getByRole('radio', { name: `${era.name} ${eraYearsText('early_modern')}` }))
 			.toBeChecked();
 		await expect.element(page.getByText('Dutch Golden Age', { exact: true })).toBeVisible();
 		await expect.element(page.getByText('Delft school', { exact: true })).toBeVisible();
@@ -197,7 +198,7 @@ describe('edit artwork page', () => {
 		await expect.element(page.getByText('Pointillism', { exact: true })).toBeVisible();
 
 		await userEvent.click(
-			page.getByRole('radio', { name: `${m.eras.modern.name} ${m.eras.modern.years}` })
+			page.getByRole('radio', { name: `${m.eras.modern.name} ${eraYearsText('modern')}` })
 		);
 
 		await expect.element(page.getByText('Pointillism', { exact: true })).toBeVisible();
@@ -351,9 +352,30 @@ describe('edit artwork page', () => {
 
 	it('fills the own fields with the saved entries and saves an emptied list as empty', async () => {
 		const ownFields: OwnFieldDefinition[] = [
-			{ id: 'motifs', name: 'Motifs', description: null, kind: 'list', multiple: true },
-			{ id: 'source', name: 'Source', description: null, kind: 'text', multiple: false },
-			{ id: 'seen', name: 'Seen in person', description: null, kind: 'flag', multiple: false }
+			{
+				id: 'motifs',
+				name: 'Motifs',
+				description: null,
+				kind: 'list',
+				multiple: true,
+				typeCodes: []
+			},
+			{
+				id: 'source',
+				name: 'Source',
+				description: null,
+				kind: 'text',
+				multiple: false,
+				typeCodes: []
+			},
+			{
+				id: 'seen',
+				name: 'Seen in person',
+				description: null,
+				kind: 'flag',
+				multiple: false,
+				typeCodes: []
+			}
 		];
 		renderPage({
 			artwork: artwork({ own: { motifs: ['Milk'], source: 'Gombrich', seen: true } }),
@@ -372,6 +394,54 @@ describe('edit artwork page', () => {
 				values_by_category: expect.objectContaining({ motifs: [] }),
 				field_entries: { source: 'Gombrich', seen: true }
 			})
+		);
+	});
+
+	it('asks before dropping the values of own fields the new type does not take', async () => {
+		const ownFields: OwnFieldDefinition[] = [
+			{
+				id: 'order',
+				name: 'Order',
+				description: null,
+				kind: 'text',
+				multiple: false,
+				typeCodes: ['architecture']
+			},
+			{
+				id: 'source',
+				name: 'Source',
+				description: null,
+				kind: 'text',
+				multiple: false,
+				typeCodes: []
+			}
+		];
+		renderPage({
+			artwork: artwork({ typeCode: 'architecture', own: { order: 'Doric', source: 'Gombrich' } }),
+			ownFields
+		});
+
+		await expect.element(page.getByRole('textbox', { name: 'Order' })).toHaveValue('Doric');
+		await page.getByRole('radio', { name: m.artworkTypes.painting }).click();
+		await expect.element(page.getByRole('textbox', { name: 'Order' })).not.toBeInTheDocument();
+		await saveButton().click();
+
+		const dialog = page.getByRole('alertdialog', { name: m.fieldTypeDialog.title(1) });
+		await expect
+			.element(dialog)
+			.toHaveAccessibleDescription(
+				m.fieldTypeDialog.description(['Order'], m.artworkTypes.painting)
+			);
+		await dialog.getByRole('button', { name: m.fieldTypeDialog.back }).click();
+		expect(saveArtworkCalls()).toHaveLength(0);
+
+		await saveButton().click();
+		await page.getByRole('button', { name: m.fieldTypeDialog.confirm }).click();
+
+		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		expect(supabase.rpc).toHaveBeenCalledWith(
+			'save_artwork',
+			expect.objectContaining({ field_entries: { order: '', source: 'Gombrich' } })
 		);
 	});
 

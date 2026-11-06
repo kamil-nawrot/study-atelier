@@ -977,28 +977,32 @@ export const OWN_FIELDS = [
 		name: 'Wykład',
 		description: null,
 		kind: 'list',
-		multiple: false
+		multiple: false,
+		type_codes: []
 	},
 	{
 		id: '00000000-0000-4000-8000-000000000402',
 		name: 'Motywy',
 		description: 'Co przedstawia dzieło',
 		kind: 'list',
-		multiple: true
+		multiple: true,
+		type_codes: ['painting', 'sculpture']
 	},
 	{
 		id: '00000000-0000-4000-8000-000000000403',
 		name: 'Źródło',
 		description: 'Podręcznik i strona',
 		kind: 'text',
-		multiple: false
+		multiple: false,
+		type_codes: []
 	},
 	{
 		id: '00000000-0000-4000-8000-000000000404',
 		name: 'Widziane na żywo',
 		description: null,
 		kind: 'flag',
-		multiple: false
+		multiple: false,
+		type_codes: []
 	}
 ];
 
@@ -1023,7 +1027,7 @@ export const OWN_FIELD_USAGE = [
 	{ field_id: '00000000-0000-4000-8000-000000000404', artwork_count: 3 }
 ];
 
-function pin(artworkNumber, number, x, y, glossaryNumber, text, viewWidth = null) {
+function pin(artworkNumber, number, x, y, glossaryNumber, text, viewWidth = null, cropPath = null) {
 	const row = ARTWORKS.find((artwork) => artwork.record_number === artworkNumber);
 	return {
 		id: `00000000-0000-4000-a000-${String(number).padStart(12, '0')}`,
@@ -1035,6 +1039,7 @@ function pin(artworkNumber, number, x, y, glossaryNumber, text, viewWidth = null
 			: null,
 		text,
 		view_width: viewWidth,
+		crop_path: cropPath,
 		created_at: '2026-10-22T10:00:00Z'
 	};
 }
@@ -1043,7 +1048,19 @@ export const ARTWORK_PINS = [
 	pin(6, 1, 0.62, 0.34, 2, 'Półkolista część chóru, widoczna od wschodu.'),
 	pin(6, 2, 0.3, 0.55, null, 'Rozeta, której szkło pochodzi z XIII wieku.'),
 	pin(6, 3, 0.48, 0.2, 5, null),
-	pin(2, 4, 0.62, 0.38, null, 'Księżyc w nowiu otoczony poświatą.', 0.12)
+	pin(2, 4, 0.62, 0.38, null, 'Księżyc w nowiu otoczony poświatą.', 0.12),
+	...[1, 3, 4, 5, 7, 8, 9, 6].map((artworkNumber, index) =>
+		pin(
+			artworkNumber,
+			5 + index,
+			0.3 + index * 0.05,
+			0.4,
+			2,
+			index % 2 === 0 ? 'Zamknięcie chóru od wschodu.' : null,
+			0.2,
+			index === 2 ? null : `${USER.id}/pin-${5 + index}-crop-0a1b2c3d.jpg`
+		)
+	)
 ];
 
 export const EXHIBITS = [
@@ -1060,7 +1077,9 @@ export const EXHIBITS = [
 	{ exhibit: 'glossary', value: 147, thresholds: [1, 10, 25, 50, 100, 250, 500] },
 	{ exhibit: 'own_eye', value: 0, thresholds: [1, 5, 25, 50, 100] },
 	{ exhibit: 'night_watch', value: 0, thresholds: [1] },
-	{ exhibit: 'marathon', value: 0, thresholds: [1000] }
+	{ exhibit: 'marathon', value: 0, thresholds: [1000] },
+	{ exhibit: 'mouth_of_truth', value: 0, thresholds: [1] },
+	{ exhibit: 'pinacotheca', value: 10, thresholds: [10] }
 ];
 
 export const EXHIBIT_TIERS = EXHIBITS.flatMap(({ exhibit, value, thresholds }) =>

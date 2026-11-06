@@ -8,6 +8,7 @@ import {
 	waitingToday
 } from '#lib/review/review-data/review-data.ts';
 import { applyAutoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
+import { applyEraBounds } from '#lib/catalogue/era-bounds/era-bounds.svelte.ts';
 import {
 	loadOwnProfile,
 	type OwnProfileResult
@@ -40,6 +41,7 @@ export const load: LayoutLoad = async ({ parent, depends }): Promise<AppLayoutDa
 	const own = await loadOwnProfile();
 	const loaded = own.preferences;
 	applyAutoFetch(loaded);
+	applyEraBounds(own.eraBounds);
 	return {
 		session,
 		reviewWaiting: reviewWaiting(loaded.reviewNewPerDay),

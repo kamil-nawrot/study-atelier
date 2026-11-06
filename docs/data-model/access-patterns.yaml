@@ -155,10 +155,11 @@ reads:
   - id: R10
     name: Glossary entry
     route: /atelier/glossary/[id]
-    shows: one term with the other terms marked in its definition, artworks pinned with it, notes that mention it
+    shows: one term with the other terms marked in its definition, the loupe views of its pins, artworks pinned with it, notes that mention it
     needs:
       - 'term: one'
       - 'term index: for marking the definition'
+      - 'pins: of the term, with their loupe view, crop path and image, in one query; crops and own thumbnails signed in one batch'
       - 'artworks: pinned with the term'
       - 'mentions: notes containing a phrase of the term, with titles and names'
     scope: one
@@ -367,7 +368,8 @@ writes:
   - id: W08
     name: Answer in review
     changes: [review_cards, review_log, free_review_days, point_events]
-    side_effects: [counters, streak, career points, a point for a right answer about time or a definition]
+    side_effects:
+      [counters, streak, career points, a point for a right answer about time or a definition]
     frequency: write
   - id: W09
     name: Toggle favourite

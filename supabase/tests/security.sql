@@ -104,7 +104,8 @@ declare
     'storage_usage', 'delete_account', 'storage_has_room', 'deleted_account_images', 'search_key',
     'duplicate_candidates', 'used_category_values', 'learner_points', 'unlock_exhibits', 'record_free_answers',
     'career_standing', 'note_link_mentions', 'note_link_labels', 'note_link_suggestions', 'atelier_empty',
-    'collection_statistics', 'record_right_answer', 'note_gap_artwork'
+    'collection_statistics', 'record_right_answer', 'note_gap_artwork', 'artwork_field_type_impact',
+    'mastered_artworks'
   ];
   table_name text;
   routine record;
@@ -348,6 +349,9 @@ begin
   assert (select count(*) from public.artwork_fields) = 0, 'B reads artwork fields of A';
   assert (select count(*) from public.artwork_field_entries) = 0, 'B reads field entries of A';
   assert (select count(*) from public.artwork_field_usage()) = 0, 'B sees field usage of A';
+  assert public.artwork_field_type_impact(a_source, '{painting}') = 0,
+    'B counts the artworks of A with a field of A';
+  assert public.mastered_artworks(array[a_artwork]) = 0, 'B counts the mastered artworks of A';
   assert (select count(*) from public.categories) = 5, 'B reads the categories of the fields of A';
   assert (select count(*) from public.term_mentions(array['a'])) = 0, 'B finds the term mentions of A';
   assert (select count(*) from public.note_link_mentions(artwork_number => 1)) = 0,
@@ -903,6 +907,10 @@ begin
   assert security_test.denied('select * from public.artwork_fields'), 'anon reads artwork fields';
   assert security_test.denied('select * from public.artwork_field_entries'), 'anon reads field entries';
   assert security_test.denied('select public.artwork_field_usage()'), 'anon executes artwork_field_usage';
+  assert security_test.denied(format('select public.artwork_field_type_impact(%L, ''{}'')', gen_random_uuid())),
+    'anon executes artwork_field_type_impact';
+  assert security_test.denied(format('select public.mastered_artworks(array[%L]::uuid[])', gen_random_uuid())),
+    'anon executes mastered_artworks';
   assert security_test.denied(format('select public.move_artwork_field(%L, 1)', gen_random_uuid())),
     'anon executes move_artwork_field';
   assert security_test.denied('select public.storage_usage()'), 'anon executes storage_usage';

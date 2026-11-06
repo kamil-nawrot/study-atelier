@@ -58,6 +58,17 @@ describe('career state', () => {
 		expect([career.hasNewTiers, career.hasNewRank]).toEqual([false, false]);
 	});
 
+	it('marks the tiers as seen with the standing already being loaded, without asking again', async () => {
+		const career = new CareerState();
+		standing.mockResolvedValue({ standing: { points: 1846, newTiers: 2, rankSeen: 4 } });
+		void career.refresh();
+		await career.markSeen();
+
+		expect(standing).toHaveBeenCalledOnce();
+		expect(markTiersSeen).toHaveBeenCalledOnce();
+		expect(career.hasNewTiers).toBe(false);
+	});
+
 	it('does not count the first rank as a promotion', async () => {
 		const career = new CareerState();
 		standing.mockResolvedValue({ standing: { points: 0, newTiers: 0, rankSeen: 0 } });

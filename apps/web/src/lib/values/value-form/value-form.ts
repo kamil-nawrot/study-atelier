@@ -15,11 +15,15 @@ import {
 import { valueDetailsChanged } from '#lib/values/value-details/value-details.ts';
 import type { ValueDetails } from '#lib/values/types/value-details.ts';
 import type { ValueFormFields } from '#lib/values/types/value-form-fields.ts';
+import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+import { eraJunctions } from '#lib/catalogue/era-bounds/era-bounds.svelte.ts';
+import { eraBoundsForm } from '#lib/values/era-bounds-form/era-bounds-form.ts';
 
 export function initialValueForm(
 	record: CardIndexRecord | undefined,
 	index: CardIndexData,
-	details: ValueDetails
+	details: ValueDetails,
+	era?: EraCode
 ): ValueFormFields {
 	return {
 		name: record?.name ?? '',
@@ -36,7 +40,8 @@ export function initialValueForm(
 		location:
 			record?.category === 'location'
 				? { ...(details.location ?? { countryCode: null, placeType: null }) }
-				: null
+				: null,
+		eraBounds: era ? eraBoundsForm(era, eraJunctions()) : null
 	};
 }
 
@@ -59,7 +64,8 @@ export function valueFormChanged(current: ValueFormFields, reference: ValueFormF
 		!sameItems(current.periodIds, reference.periodIds) ||
 		valueDetailsChanged(current.details, reference.details) ||
 		JSON.stringify(current.author) !== JSON.stringify(reference.author) ||
-		JSON.stringify(current.location) !== JSON.stringify(reference.location)
+		JSON.stringify(current.location) !== JSON.stringify(reference.location) ||
+		JSON.stringify(current.eraBounds) !== JSON.stringify(reference.eraBounds)
 	);
 }
 

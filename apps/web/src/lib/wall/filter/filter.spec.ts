@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
+import { applyEraBounds } from '#lib/catalogue/era-bounds/era-bounds.svelte.ts';
 import {
 	UNKNOWN_AUTHOR,
 	applyFilter,
@@ -8,6 +9,7 @@ import {
 	emptyFilter,
 	filterOptions,
 	favouriteCount,
+	fieldsForTypes,
 	seenCount,
 	isEmptyFilter,
 	matchesFilter,
@@ -133,6 +135,10 @@ describe('applyFilter', () => {
 		expect(numbers(filterWith({ missing: ['period'] }))).toEqual([3, 4]);
 		expect(numbers(filterWith({ missing: ['type'] }))).toEqual([4]);
 		expect(numbers(filterWith({ missing: ['image', 'year'] }))).toEqual([3, 4]);
+		expect(numbers(filterWith({ missing: ['outsideEra'] }))).toEqual([]);
+		applyEraBounds([-3000, 476, 1520, 1789, 1945]);
+		expect(numbers(filterWith({ missing: ['outsideEra'] }))).toEqual([2]);
+		applyEraBounds(null);
 	});
 });
 
@@ -489,10 +495,38 @@ describe('seen in person', () => {
 
 describe('own fields', () => {
 	const fields: OwnFieldDefinition[] = [
-		{ id: 'lecture', name: 'Lecture', description: null, kind: 'list', multiple: false },
-		{ id: 'source', name: 'Source', description: null, kind: 'text', multiple: false },
-		{ id: 'seen', name: 'Seen in person', description: null, kind: 'flag', multiple: false },
-		{ id: 'exam', name: 'For the exam', description: null, kind: 'flag', multiple: false }
+		{
+			id: 'lecture',
+			name: 'Lecture',
+			description: null,
+			kind: 'list',
+			multiple: false,
+			typeCodes: []
+		},
+		{
+			id: 'source',
+			name: 'Source',
+			description: null,
+			kind: 'text',
+			multiple: false,
+			typeCodes: []
+		},
+		{
+			id: 'seen',
+			name: 'Seen in person',
+			description: null,
+			kind: 'flag',
+			multiple: false,
+			typeCodes: []
+		},
+		{
+			id: 'exam',
+			name: 'For the exam',
+			description: null,
+			kind: 'flag',
+			multiple: false,
+			typeCodes: []
+		}
 	];
 	const own: WallArtwork[] = [
 		testArtwork(1, 'Annunciation', {
@@ -612,5 +646,57 @@ describe('own fields', () => {
 		expect(pruned.own).toEqual({ lecture: ['Baroque class'] });
 		expect(pruned.ownTexts).toEqual({});
 		expect(pruned.ticked).toEqual(['seen']);
+	});
+});
+
+describe('own fields limited to artwork types', () => {
+	const fields: OwnFieldDefinition[] = [
+		{
+			id: 'order',
+			name: 'Order',
+			description: null,
+			kind: 'list',
+			multiple: false,
+			typeCodes: ['architecture']
+		},
+		{
+			id: 'source',
+			name: 'Source',
+			description: null,
+			kind: 'text',
+			multiple: false,
+			typeCodes: []
+		},
+		{
+			id: 'medium',
+			name: 'Medium',
+			description: null,
+			kind: 'text',
+			multiple: false,
+			typeCodes: ['painting']
+		}
+	];
+	const ids = (filter: CollectionFilter): string[] =>
+		fieldsForTypes(fields, filter).map((field) => field.id);
+
+	it('offers every field until types are chosen', () => {
+		expect(ids(emptyFilter())).toEqual(['order', 'source', 'medium']);
+	});
+
+	it('offers only the fields of the chosen types and the fields for all types', () => {
+		expect(ids(filterWith({ types: ['painting'] }))).toEqual(['source', 'medium']);
+		expect(ids(filterWith({ types: ['painting', 'architecture'] }))).toEqual([
+			'order',
+			'source',
+			'medium'
+		]);
+	});
+
+	it('keeps a field that is still filtered by', () => {
+		expect(ids(filterWith({ types: ['painting'], own: { order: ['Doric'] } }))).toEqual([
+			'order',
+			'source',
+			'medium'
+		]);
 	});
 });

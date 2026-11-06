@@ -83,6 +83,7 @@ Table artwork_pins {
   text text
   created_at "timestamp with time zone" [not null, default: `now()`]
   view_width "double precision"
+  crop_path text
 
   indexes {
     glossary_entry_id [name: 'artwork_pins_glossary_entry_id_idx', note: 'where (glossary_entry_id IS NOT NULL)']

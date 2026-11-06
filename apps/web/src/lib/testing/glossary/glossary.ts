@@ -16,6 +16,7 @@ export function testEntry(
 		forms: [],
 		sortName: null,
 		source: null,
+		createdAt: '2026-10-17T10:00:00Z',
 		...overrides
 	};
 	return { ...entry, hasDefinition: overrides.hasDefinition ?? entry.definition.trim() !== '' };

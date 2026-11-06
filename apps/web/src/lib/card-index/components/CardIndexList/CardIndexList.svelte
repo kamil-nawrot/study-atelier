@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { LucideIcon } from '@lucide/svelte';
 	import ListTree from '@lucide/svelte/icons/list-tree';
-	import { EmptyState } from '@study-atelier/ui';
+	import { EmptyState, Icon } from '@study-atelier/ui';
 	import CardIndexTools from '#lib/card-index/components/CardIndexTools/CardIndexTools.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
@@ -12,7 +13,13 @@
 	import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 	import type { ResolvedPathname } from '$app/types';
 
-	type ListedRecord = SortableRecord & { id: string; note?: string; detail?: string };
+	type ListedRecord = SortableRecord & {
+		id: string;
+		note?: string;
+		detail?: string;
+		icon?: LucideIcon;
+		iconLabel?: string;
+	};
 
 	type Props = {
 		records: ListedRecord[];
@@ -46,11 +53,18 @@
 </script>
 
 {#snippet label(record: ListedRecord)}
-	<span class="name">{record.name}</span>
-	{#if record.detail}
-		<span class="detail">{record.detail}</span>
-	{/if}
-	<span class="count">{record.note ?? record.count}</span>
+	<span class="main">
+		<span class="name">{record.name}</span>
+		{#if record.icon}
+			<span class="icon" title={record.iconLabel}>
+				<Icon icon={record.icon} size="sm" />
+			</span>
+		{/if}
+		{#if record.detail}
+			<span class="detail">{record.detail}</span>
+		{/if}
+	</span>
+	<span class="count">{record.note ?? m.atelier.count(record.count ?? 0)}</span>
 {/snippet}
 
 {#if records.length === 0}
@@ -112,15 +126,23 @@
 
 	ul {
 		display: grid;
-		gap: var(--spacing-4);
 		margin: 0;
+		padding: 0;
+		border-top: var(--border-width-hairline) solid var(--color-line);
 		list-style: none;
 	}
 
+	li {
+		border-bottom: var(--border-width-hairline) solid var(--color-line);
+	}
+
 	.record {
-		display: inline-flex;
+		display: flex;
+		justify-content: space-between;
 		align-items: baseline;
-		gap: var(--spacing-3);
+		gap: var(--spacing-4);
+		width: 100%;
+		padding: var(--spacing-4) var(--spacing-3);
 		color: var(--color-fg);
 		font-size: var(--font-size-xl);
 		font-weight: var(--font-weight-bold);
@@ -128,19 +150,32 @@
 		text-decoration: none;
 	}
 
+	@media (prefers-reduced-motion: no-preference) {
+		.record {
+			transition: background var(--duration-short) ease-out;
+		}
+	}
+
+	.record:hover {
+		background: var(--color-tag);
+	}
+
+	.main {
+		min-width: 0;
+	}
+
+	.icon {
+		display: inline-flex;
+		color: var(--color-fg-muted);
+		vertical-align: middle;
+	}
+
 	button.record {
-		padding: 0;
 		border: 0;
 		background: none;
 		font-family: inherit;
 		text-align: start;
 		cursor: pointer;
-	}
-
-	.record:hover .name {
-		text-decoration: underline;
-		text-decoration-thickness: var(--border-width-hairline);
-		text-underline-offset: 0.2em;
 	}
 
 	.detail {
@@ -151,7 +186,7 @@
 
 	.count {
 		color: var(--color-fg-muted);
-		font-size: var(--font-size-sm);
+		font-size: var(--font-size-md);
 		font-weight: var(--font-weight-regular);
 		font-variant-numeric: tabular-nums;
 		white-space: nowrap;

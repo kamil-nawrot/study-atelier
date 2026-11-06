@@ -49,6 +49,19 @@ describe('CardIndexTabs', () => {
 		expect(names.indexOf('Anonim')).toBeGreaterThan(names.indexOf('Rembrandt'));
 	});
 
+	it('shows the country of a place in every sort', async () => {
+		renderTabs(
+			'location',
+			withValues(
+				{ id: 'l-uffizi', category: 'location', name: 'Uffizi', count: 1, countryCode: 'IT' },
+				{ id: 'l-home', category: 'location', name: 'Home', count: 1 }
+			)
+		);
+
+		await expect.element(page.getByText('Włochy')).toBeVisible();
+		await expect.element(page.getByText('Home')).toBeVisible();
+	});
+
 	it('sorts places by country and shows the country, and remembers the choice', async () => {
 		const index = withValues(
 			{ id: 'l-uffizi', category: 'location', name: 'Uffizi', count: 1, countryCode: 'IT' },
@@ -98,5 +111,22 @@ describe('CardIndexTabs', () => {
 		await expect.element(page.getByRole('link', { name: /^Doric/ }).first()).toBeVisible();
 		await expect.element(page.getByRole('link', { name: /^Classical/ }).first()).toBeVisible();
 		await expect.element(page.getByRole('link', { name: /^Ionic/ })).not.toBeInTheDocument();
+	});
+
+	it('shows the type of a place after its name and the number of artworks in words', async () => {
+		renderTabs(
+			'location',
+			withValues({
+				id: 'l-louvre',
+				category: 'location',
+				name: 'Louvre',
+				count: 2,
+				placeType: 'museum'
+			})
+		);
+
+		const louvre = page.getByRole('listitem').filter({ hasText: 'Louvre' });
+		await expect.element(louvre.getByTitle(m.valueForm.placeTypes.museum)).toBeInTheDocument();
+		await expect.element(louvre).toHaveTextContent(m.atelier.count(2));
 	});
 });

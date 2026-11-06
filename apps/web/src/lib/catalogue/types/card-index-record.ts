@@ -1,4 +1,5 @@
 import type { CategoryCode } from './category-code.ts';
+import type { PlaceType } from './place-type.ts';
 
 export type CardIndexRecord = {
 	id: string;
@@ -9,4 +10,5 @@ export type CardIndexRecord = {
 	sortName?: string;
 	birthYear?: number;
 	countryCode?: string;
+	placeType?: PlaceType;
 };

@@ -87,6 +87,7 @@ export type Database = {
           name: string;
           owner_id: string;
           position: number;
+          type_codes: string[];
           updated_at: string;
         };
         ComputedFields: never;
@@ -99,6 +100,7 @@ export type Database = {
           name: string;
           owner_id?: string;
           position?: number;
+          type_codes?: string[];
           updated_at?: string;
         };
         Update: {
@@ -110,6 +112,7 @@ export type Database = {
           name?: string;
           owner_id?: string;
           position?: number;
+          type_codes?: string[];
           updated_at?: string;
         };
         Relationships: [];
@@ -174,6 +177,7 @@ export type Database = {
       artwork_pins: {
         Row: {
           created_at: string;
+          crop_path: string | null;
           glossary_entry_id: string | null;
           id: string;
           image_id: string;
@@ -186,6 +190,7 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           created_at?: string;
+          crop_path?: string | null;
           glossary_entry_id?: string | null;
           id?: string;
           image_id: string;
@@ -197,6 +202,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          crop_path?: string | null;
           glossary_entry_id?: string | null;
           id?: string;
           image_id?: string;
@@ -985,6 +991,7 @@ export type Database = {
           career_shown: boolean;
           created_at: string;
           display_name: string | null;
+          era_bounds: number[] | null;
           fetch_definition: boolean;
           fetch_event: boolean;
           fetch_forms: boolean;
@@ -1013,6 +1020,7 @@ export type Database = {
           career_shown?: boolean;
           created_at?: string;
           display_name?: string | null;
+          era_bounds?: number[] | null;
           fetch_definition?: boolean;
           fetch_event?: boolean;
           fetch_forms?: boolean;
@@ -1040,6 +1048,7 @@ export type Database = {
           career_shown?: boolean;
           created_at?: string;
           display_name?: string | null;
+          era_bounds?: number[] | null;
           fetch_definition?: boolean;
           fetch_event?: boolean;
           fetch_forms?: boolean;
@@ -1378,6 +1387,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      artwork_field_type_impact: {
+        Args: { target_field: string; type_codes: string[] };
+        Returns: number;
+      };
       artwork_field_usage: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -1420,6 +1433,7 @@ export type Database = {
       import_atelier: { Args: { payload: Json }; Returns: Json };
       keep_alive: { Args: Record<PropertyKey, never>; Returns: string };
       learner_points: { Args: Record<PropertyKey, never>; Returns: number };
+      mastered_artworks: { Args: { artwork_ids: string[] }; Returns: number };
       merge_category_values: {
         Args: { kept_id: string; merged_id: string };
         Returns: undefined;

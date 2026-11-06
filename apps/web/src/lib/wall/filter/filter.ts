@@ -1,12 +1,13 @@
 import { ARTWORK_TYPE_CODES } from '#lib/catalogue/artwork-types/artwork-types.ts';
 import { authorSortKeys, sortKeyOf } from '#lib/catalogue/author-sort/author-sort.ts';
 import { ERA_CODES } from '#lib/catalogue/eras/eras.ts';
+import { MISSING_DATA, missingOf } from '#lib/wall/missing-data/missing-data.ts';
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
+import { fieldApplies } from '#lib/card-index/own-fields/own-fields.ts';
 import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
 import type { FilterField } from '#lib/catalogue/types/filter-field.ts';
 import type { FilterOption } from '#lib/catalogue/types/filter-option.ts';
-import type { MissingData } from '#lib/catalogue/types/missing-data.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { FilterValueField } from '#lib/wall/types/filter-value-field.ts';
 import type { FlagField } from '#lib/wall/types/flag-field.ts';
@@ -28,8 +29,6 @@ export const FILTER_FIELDS: readonly FilterField[] = [
 	'locations',
 	'missing'
 ];
-
-export const MISSING_DATA: readonly MissingData[] = ['image', 'year', 'era', 'period', 'type'];
 
 export function emptyFilter(): CollectionFilter {
 	return {
@@ -105,16 +104,6 @@ function ownMatches(artwork: WallArtwork, filter: CollectionFilter, skip?: Filte
 	});
 	const ticksMatch = skip === 'ticked' || filter.ticked.every((id) => artwork.own?.[id] === true);
 	return listsMatch && textsMatch && ticksMatch;
-}
-
-function missingOf(artwork: WallArtwork): MissingData[] {
-	return MISSING_DATA.filter((kind) => {
-		if (kind === 'image') return !artwork.hasImage;
-		if (kind === 'year') return artwork.yearTo === null;
-		if (kind === 'era') return artwork.eraCode === null;
-		if (kind === 'period') return artwork.period === null;
-		return artwork.typeCode === null;
-	});
 }
 
 export function filterValuesOf(artwork: WallArtwork, field: FilterValueField): string[] {
@@ -216,6 +205,20 @@ export function ownFilterOptions(
 	}
 	for (const value of filter.own[fieldId] ?? []) counts.set(value, counts.get(value) ?? 0);
 	return [...counts].map(([value, count]) => ({ value, count })).sort(byCountAndName);
+}
+
+export function fieldsForTypes(
+	fields: readonly OwnFieldDefinition[],
+	filter: CollectionFilter
+): OwnFieldDefinition[] {
+	return fields.filter(
+		(field) =>
+			filter.types.length === 0 ||
+			filter.types.some((code) => fieldApplies(field, code)) ||
+			(filter.own[field.id] ?? []).length > 0 ||
+			(filter.ownTexts[field.id] ?? '') !== '' ||
+			filter.ticked.includes(field.id)
+	);
 }
 
 export function tickedOptions(

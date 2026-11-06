@@ -11,21 +11,11 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn(), rpc: vi.fn() }
 }));
 
-const query = {
-	insert: vi.fn(),
-	update: vi.fn(),
-	delete: vi.fn(),
-	eq: vi.fn()
-};
-
+const query = { insert: vi.fn() };
 const onchanged = vi.fn();
 
-function renderTab(fields: OwnField[] = testOwnFields()): void {
-	render(OwnFieldsTab, { fields, onchanged });
-}
-
-function menu(name: string): ReturnType<typeof page.getByRole> {
-	return page.getByRole('button', { name: m.ownFields.menu(name) });
+function renderTab(fields: OwnField[] = testOwnFields(), error?: string): void {
+	render(OwnFieldsTab, { fields, error, onchanged });
 }
 
 describe('OwnFieldsTab', () => {
@@ -33,36 +23,32 @@ describe('OwnFieldsTab', () => {
 		vi.clearAllMocks();
 		vi.mocked(supabase.from).mockReturnValue(query as never);
 		query.insert.mockResolvedValue({ error: null });
-		query.update.mockReturnValue(query);
-		query.delete.mockReturnValue(query);
-		query.eq.mockResolvedValue({ error: null });
 		vi.mocked(supabase.rpc).mockResolvedValue({ error: null } as never);
 		onchanged.mockResolvedValue(undefined);
 	});
 
-	it('says there are no own fields yet', async () => {
+	it('says there are no own fields yet and offers no reordering', async () => {
 		renderTab([]);
 
 		await expect.element(page.getByText(m.ownFields.empty)).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.ownFields.add })).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.ownFields.reorder }))
+			.not.toBeInTheDocument();
 	});
 
-	it('shows every field with its kind, count, description and list values', async () => {
+	it('says the fields could not be loaded', async () => {
+		renderTab([], 'No connection');
+
+		await expect.element(page.getByText('No connection')).toBeVisible();
+	});
+
+	it('lists the fields as links to their pages', async () => {
 		renderTab();
 
-		await expect.element(page.getByRole('heading', { name: 'Motifs' })).toBeVisible();
-		await expect.element(page.getByText('Lista · kilka wartości · 3 dzieła')).toBeVisible();
-		await expect.element(page.getByText('What the artwork shows')).toBeVisible();
-		await expect.element(page.getByText('Zaznaczenie · 0 dzieł')).toBeVisible();
+		await expect.element(page.getByText(m.ownFields.intro)).toBeVisible();
 		await expect
-			.element(page.getByRole('button', { name: m.cardIndex.openValue('Angel', '2 dzieła') }))
-			.not.toBeInTheDocument();
-		await page
-			.getByRole('heading', { name: new RegExp(`^${m.ownFields.values}`) })
-			.nth(1)
-			.click();
-		await expect
-			.element(page.getByRole('button', { name: m.cardIndex.openValue('Angel', '2 dzieła') }))
+			.element(page.getByRole('link', { name: m.cardIndex.openValue('Lecture', '3 dzieła') }))
 			.toBeVisible();
 	});
 
@@ -84,7 +70,8 @@ describe('OwnFieldsTab', () => {
 			name: 'Source',
 			description: null,
 			kind: 'text',
-			multiple: false
+			multiple: false,
+			type_codes: []
 		});
 		expect(onchanged).toHaveBeenCalledWith(m.ownFields.created('Source'));
 	});
@@ -101,80 +88,51 @@ describe('OwnFieldsTab', () => {
 		await expect.element(multiple).toBeInTheDocument();
 	});
 
-	it('does not move the first field higher or the last one lower', async () => {
+	it('limits a new field to the chosen artwork types', async () => {
 		renderTab();
+		await page.getByRole('button', { name: m.ownFields.add }).click();
+		await page.getByRole('textbox', { name: m.common.name }).fill('Order');
+		await page.getByText(m.ownFields.form.limited).click();
+		await page.getByRole('button', { name: m.common.add, exact: true }).click();
 
-		await menu('Lecture').click();
-		await expect.element(page.getByRole('button', { name: m.ownFields.moveUp })).toBeDisabled();
-		await menu('Seen in person').click();
+		await expect.element(page.getByText(m.ownFields.form.typesRequired)).toBeVisible();
+		expect(query.insert).not.toHaveBeenCalled();
 
-		await expect
-			.element(page.getByRole('button', { name: m.ownFields.moveDown }).last())
-			.toBeDisabled();
+		await page.getByRole('checkbox', { name: m.artworkTypes.architecture }).click();
+		await page.getByRole('button', { name: m.common.add, exact: true }).click();
+
+		expect(query.insert).toHaveBeenCalledWith(
+			expect.objectContaining({ name: 'Order', type_codes: ['architecture'] })
+		);
 	});
 
-	it('deletes a field after the learner confirms how many artworks lose it', async () => {
+	it('moves a field in the reorder mode and leaves it with "Gotowe"', async () => {
 		renderTab();
+		await page.getByRole('button', { name: m.ownFields.reorder }).click();
 
-		await menu('Lecture').click();
-		await page.getByRole('button', { name: m.common.delete, exact: true }).click();
-
-		const dialog = page.getByRole('alertdialog', {
-			name: m.ownFields.deleteConfirm.title('Lecture')
-		});
+		await expect.element(page.getByText(m.ownFields.reorderHint)).toBeVisible();
 		await expect
-			.element(dialog)
-			.toHaveAccessibleDescription(m.ownFields.deleteConfirm.description(3));
-		await dialog.getByRole('button', { name: m.ownFields.deleteConfirm.confirm }).click();
+			.element(page.getByRole('button', { name: m.ownFields.add }))
+			.not.toBeInTheDocument();
+		await page.getByRole('button', { name: m.ownFields.moveFieldDown('Lecture') }).click();
 
-		expect(query.delete).toHaveBeenCalled();
-		expect(query.eq).toHaveBeenCalledWith('id', 'lecture');
-		expect(onchanged).toHaveBeenCalledWith(m.ownFields.deleted('Lecture'));
+		expect(supabase.rpc).toHaveBeenCalledWith('move_artwork_field', {
+			target_field: 'lecture',
+			direction: 1
+		});
+		await vi.waitFor(() => expect(onchanged).toHaveBeenCalledWith());
+
+		await page.getByRole('button', { name: m.ownFields.reorderDone }).click();
+		await expect.element(page.getByRole('link').first()).toBeVisible();
 	});
 
-	it('moves the focus to the add button when the deleted field takes its menu with it', async () => {
-		const fields = testOwnFields();
-		const screen = await render(OwnFieldsTab, { fields, onchanged });
-		onchanged.mockImplementation(async () => {
-			await screen.rerender({
-				fields: fields.filter((field) => field.id !== 'lecture'),
-				onchanged
-			});
-		});
-
-		await menu('Lecture').click();
-		await page.getByRole('button', { name: m.common.delete, exact: true }).click();
-		await page
-			.getByRole('alertdialog')
-			.getByRole('button', { name: m.ownFields.deleteConfirm.confirm })
-			.click();
-
-		await expect.element(page.getByRole('button', { name: m.ownFields.add })).toHaveFocus();
-	});
-
-	it('merges a value renamed to another value of the field after a confirmation', async () => {
+	it('says a move failed', async () => {
+		vi.mocked(supabase.rpc).mockResolvedValue({ error: { code: 'XX000' } } as never);
 		renderTab();
+		await page.getByRole('button', { name: m.ownFields.reorder }).click();
+		await page.getByRole('button', { name: m.ownFields.moveFieldUp('Motifs') }).click();
 
-		await page
-			.getByRole('heading', { name: new RegExp(`^${m.ownFields.values}`) })
-			.nth(1)
-			.click();
-		await page.getByRole('button', { name: m.cardIndex.openValue('Angle', '1 dzieło') }).click();
-		await page.getByRole('textbox', { name: m.common.name }).fill('angel');
-
-		await expect
-			.element(page.getByText(m.ownFields.value.mergeHint('Angel', '2 dzieła')))
-			.toBeVisible();
-		await page.getByRole('button', { name: m.common.merge, exact: true }).click();
-		await page
-			.getByRole('alertdialog', { name: m.cardIndex.mergeConfirm.title('Angle', 'Angel') })
-			.getByRole('button', { name: m.common.merge })
-			.click();
-
-		expect(supabase.rpc).toHaveBeenCalledWith('merge_category_values', {
-			merged_id: 'angle',
-			kept_id: 'angel'
-		});
-		expect(onchanged).toHaveBeenCalledWith(m.cardIndex.merged('Angel'));
+		await expect.element(page.getByText(m.ownFields.errorTitle)).toBeVisible();
+		expect(onchanged).not.toHaveBeenCalled();
 	});
 });

@@ -34,9 +34,22 @@ begin
     'career_standing does not unlock the tiers of new artworks';
 
   assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC')) = array[
-    'back_from_storage', 'bullseye', 'chronicle', 'collection', 'eras', 'glossary', 'grand_tour', 'marathon',
-    'memory', 'mouth_of_truth', 'night_watch', 'own_eye', 'regular', 'seen_live', 'timeline'
-  ], 'the exhibits are not the agreed fifteen';
+    'antiquity', 'back_from_storage', 'bullseye', 'chronicle', 'collection', 'contemporary', 'early_modern', 'eras',
+    'glossary', 'grand_tour', 'marathon', 'memory', 'middle_ages', 'modern', 'mouth_of_truth', 'night_watch',
+    'own_eye', 'pinacotheca', 'prehistory', 'regular', 'seen_live', 'timeline'
+  ], 'the exhibits are not the agreed twenty-two';
+  assert (select (array_agg(exhibit order by position))[1:8]
+      from public.unlock_exhibits('UTC') with ordinality as listed (exhibit, value, thresholds, position)) = array[
+    'collection', 'eras', 'prehistory', 'antiquity', 'middle_ages', 'early_modern', 'modern', 'contemporary'
+  ], 'the era exhibits do not follow eras in their order';
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'early_modern') = 5,
+    'an era exhibit does not count the artworks of its era';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'modern') = array[1]::smallint[],
+    'five modern artworks do not unlock the first tier of modern';
+  assert (select tiers from public.exhibit_tiers where exhibit = 'early_modern') = 6,
+    'a lit tier of an era exhibit does not keep its six tiers';
+  assert not exists (select 1 from public.exhibit_tiers where exhibit = 'prehistory'),
+    'an era without artworks unlocks a tier';
   assert (select array_agg(tier order by tier) from public.exhibit_tiers where exhibit = 'collection') = array[1, 2]::smallint[],
     'ten artworks do not unlock the first two tiers of the collection';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'eras') = array[1]::smallint[],
@@ -61,6 +74,8 @@ begin
   perform public.unlock_exhibits('UTC');
   assert (select count(*) from public.exhibit_tiers where exhibit in ('collection', 'eras')) = 3,
     'deleting artworks takes an unlocked tier back';
+  assert exists (select 1 from public.exhibit_tiers where exhibit = 'modern'),
+    'deleting the artworks of an era takes its unlocked tier back';
 
   update public.exhibit_tiers set seen_at = now();
   assert (select count(*) from public.exhibit_tiers where seen_at is null) = 0, 'a tier cannot be marked as seen';
@@ -177,6 +192,49 @@ begin
   perform public.unlock_exhibits('UTC');
   assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'mouth_of_truth') = 1,
     'the mouth of truth does not give its bonus once';
+end;
+$$;
+
+do $$
+declare
+  pinned uuid;
+  trashed uuid;
+begin
+  perform public.save_artwork(
+    jsonb_build_object('title', 'Pinned', 'author_unknown', true, 'era_code', 'modern'),
+    '{}', null, '[{"source_wikidata_id": "Q101", "source_image_file": "Pinned.jpg"}]');
+  perform public.save_artwork(
+    jsonb_build_object('title', 'Trashed', 'author_unknown', true, 'era_code', 'modern'),
+    '{}', null, '[{"source_wikidata_id": "Q102", "source_image_file": "Trashed.jpg"}]');
+  select image.id into pinned from public.artwork_images as image
+    join public.artworks as artwork on artwork.id = image.artwork_id where artwork.title = 'Pinned';
+  select image.id into trashed from public.artwork_images as image
+    join public.artworks as artwork on artwork.id = image.artwork_id where artwork.title = 'Trashed';
+
+  insert into public.artwork_pins (image_id, x, y, text)
+    select pinned, 0.5, 0.5, 'Pin ' || number from generate_series(1, 9) as number;
+  insert into public.artwork_pins (image_id, x, y, text)
+    select trashed, 0.5, 0.5, 'Pin ' || number from generate_series(1, 10) as number;
+  update public.artworks set deleted_at = now() where title = 'Trashed';
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'pinacotheca') = 9,
+    'the pinacotheca does not count the most pins on one image outside the trash';
+  assert not exists (select 1 from public.exhibit_tiers where exhibit = 'pinacotheca'),
+    'an image in the trash or with fewer than ten pins unlocks the pinacotheca';
+
+  insert into public.artwork_pins (image_id, x, y, text) values (pinned, 0.5, 0.5, 'Pin 10');
+  assert (select thresholds from public.unlock_exhibits('UTC') where exhibit = 'pinacotheca') = array[10],
+    'the pinacotheca does not have one tier at ten pins';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'pinacotheca') = array[1]::smallint[],
+    'an image full of pins does not unlock the pinacotheca';
+
+  delete from public.artwork_pins where image_id = pinned and text = 'Pin 10';
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'pinacotheca') = 9,
+    'a deleted pin still counts';
+  assert exists (select 1 from public.exhibit_tiers where exhibit = 'pinacotheca'),
+    'a deleted pin takes the pinacotheca back';
+  assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'pinacotheca') = 1,
+    'the pinacotheca does not give its bonus once';
 end;
 $$;
 

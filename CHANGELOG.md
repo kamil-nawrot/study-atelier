@@ -2,6 +2,36 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.20.0] - 2026-11-06
+
+Kartoteka becomes a card file with a page for every value, own field and event, the learner can move the bounds between eras, and "Ekspozycja" gets an exhibit for each era.
+
+### Added
+
+- A value page shows "Powiązania": the years of its artworks on a time span with the era bounds, an author's life or an event's years, the values most often used with it, its artwork types, the review progress of its artworks and the Kalendarium events of the same time.
+- Every own field and every value of a list field has its own page and edit form, and "Zmień kolejność" reorders the own fields with up and down arrows.
+- An own field applies to all artwork types or only to chosen ones ("Tylko dla wybranych typów dzieł"), and narrowing it asks first how many artworks lose their values.
+- A Kalendarium event has its own page with the artworks of its time, opened from Kartoteka and from its card in Kalendarium.
+- The learner can move the bounds between eras in the era form, with "Przywróć domyślne", and saving says how many artworks fall outside their era; all views and the review use the learner's bounds.
+- A term's page shows "Fragmenty": the loupe views pinned with the term as round lenses, each opening its artwork at that pin.
+- On a phone the own image dialog offers "Zrób zdjęcie" first and takes the photo with the rear camera.
+- Six exhibits in "Ekspozycja", one per era, from "Schronisko w La Madeleine" to "Pocisk z Columbiady", each counting the artworks of its era, and the hidden "Pinakoteka motyli" for an image with every pin it can hold.
+
+### Changed
+
+- The tabs of Kartoteka are card-file dividers over a framed list, with the number of artworks on the right, the kind icon of places and events, the country of every place, and the era years in a badge after the era name.
+- The glossary list sorts "Alfabetycznie" or "Ostatnio dodane", and on desktop the letter of a group stays in view while its terms scroll.
+- Internal: a stored crop of every loupe pin, made once per image, fewer requests on the value pages, and a code review of the version with its fixes.
+
+### Fixed
+
+- After a failed save, the fields of the artwork form are checked again as the learner edits them.
+- A failed delete of an own field says why in its dialog.
+
+### Migrations run on production
+
+9 migrations run on production with this release and change no existing data. `20261105180000_card_index_place_type` replaces `card_index` with the same signature, adding the place type. `20261105190000_own_field_types` adds `type_codes` to own fields (empty, meaning all types), the triggers that drop or skip values outside a field's types and `artwork_field_type_impact`, and `20261106141000_field_type_trigger_joins` rewrites two of those triggers to join through keys. `20261105200000_pin_crops` adds `crop_path` to pins with a trigger that forgets a crop when its view moves, and replaces `unused_images` to keep the crops in use; `20261106130000_pin_crop_owner_folder` keeps a crop in its owner's folder. `20261105213000_learner_era_bounds` adds `era_bounds` to profiles (empty means the defaults) and replaces `review_session` with the same signature. `20261106100000_era_exhibits` and `20261106120000_pinacotheca_exhibit` replace the exhibit functions with the same signatures, adding seven exhibits, and `20261106140000_mastered_artworks` adds `mastered_artworks`. The new columns are nullable or have defaults and every replaced function keeps its signature, so the 0.19.1 app keeps working.
+
 ## [0.19.1] - 2026-11-05
 
 Review rounds start and flashcards turn over quickly again with a large glossary, and the year and order questions, the round summary and "Ekspozycja" read more clearly.
@@ -767,3 +797,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.18.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.18.0
 [0.19.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.19.0
 [0.19.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.19.1
+[0.20.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.20.0

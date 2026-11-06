@@ -24,7 +24,7 @@ describe('EraDialog', () => {
 		await expect
 			.element(dialog())
 			.toHaveAccessibleDescription(
-				'Rok powstania ok. 1650 nie mieści się w epoce „średniowiecze” (476–1492). Jeśli tak ma być, po prostu zapisz dzieło.'
+				'Rok powstania ok. 1650 nie mieści się w epoce „średniowiecze” (476 – 1492). Jeśli tak ma być, po prostu zapisz dzieło.'
 			);
 		await page.getByRole('button', { name: m.eraDialog.confirm }).click();
 
@@ -46,7 +46,7 @@ describe('EraDialog', () => {
 		await expect
 			.element(dialog())
 			.toHaveAccessibleDescription(
-				'Lata powstania 1650–1700 nie mieszczą się w epoce „średniowiecze” (476–1492). Jeśli tak ma być, po prostu zapisz dzieło.'
+				'Lata powstania 1650–1700 nie mieszczą się w epoce „średniowiecze” (476 – 1492). Jeśli tak ma być, po prostu zapisz dzieło.'
 			);
 		await page.getByRole('button', { name: m.eraDialog.back }).click();
 

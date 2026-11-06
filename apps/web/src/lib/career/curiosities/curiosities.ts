@@ -99,7 +99,56 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 	],
 	night_watch: ['https://www.rijksmuseum.nl/en/collection/SK-C-5'],
 	marathon: ['https://collections.tepapa.govt.nz/object/41358'],
-	mouth_of_truth: ['https://lucascranach.org/en/DE_BStGS-GNMN_Gm1108/']
+	mouth_of_truth: ['https://lucascranach.org/en/DE_BStGS-GNMN_Gm1108/'],
+	prehistory: [
+		'https://archeologie.culture.gouv.fr/lascaux/en/techniques',
+		'https://www.cultura.gob.es/mnaltamira/en/cueva-altamira/arte.html',
+		'https://archeologie.culture.gouv.fr/lascaux/en/lighting',
+		'https://www.uib.no/en/sapience/139003/origins-early-sapiens-behaviour',
+		'https://collections.louvre.fr/en/ark:/53355/cl010149557',
+		'https://archaeology.org/issues/january-february-2023/collection/austria-willendorf-venus-figurine/top-10-discoveries-of-2022'
+	],
+	antiquity: [
+		'https://archaeology.org/issues/march-april-2024/digs-discoveries/the-parthenons-paint-job/',
+		'https://edu.rsc.org/resources/roman-art-wall-painting-techniques/1960.article',
+		'https://www.colorado.edu/classics/2018/06/15/athenian-red-figure-technique',
+		'https://archaeology.org/issues/online/collection/egypt-mummy-portraits/',
+		'https://archaeology.org/news/2025/01/22/restoration-of-the-alexander-mosaic-reveals-tile-sources/',
+		'https://deutsche-digitale-bibliothek.de/content/blog/objekt-des-monats-die-modellbueste-der-koenigin-nofretete'
+	],
+	middle_ages: [
+		'https://www.nationalgallery.org.uk/podcast/colour-stories-blue',
+		'https://onprem.tcd.ie/library/research-collections/book-of-kells.php',
+		'https://www.bayeuxmuseum.com/en/the-bayeux-tapestry/discover-the-bayeux-tapestry/tapestry-or-embroidery/',
+		'https://collections.vam.ac.uk/item/O85634',
+		'https://learning.canterbury-cathedral.org/how-did-they-build-that/stone',
+		'https://www.seh.ox.ac.uk/blog/a-medieval-ink-recipe'
+	],
+	early_modern: [
+		'https://www.getty.edu/art/exhibitions/michelangelo_drawings/explore.html',
+		'https://www.vam.ac.uk/content/articles/t/raphael-cartoons/',
+		'https://www.nationalgallery.org.uk/artists/peter-paul-rubens',
+		'https://collections.vam.ac.uk/item/O153416/',
+		'https://www.clevelandart.org/art/157205',
+		'https://sammlung.staedelmuseum.de/en/person/hopfer-d-ae-daniel'
+	],
+	modern: [
+		'https://www.lindahall.org/about/news/scientist-of-the-day/john-goffe-rand',
+		'https://musee-rodin.fr/en/museum/institution/original-bronze-casts',
+		'https://content.time.com/time/quotes/0,26174,691044,00.html',
+		'https://collections.vam.ac.uk/item/O35228/poster-cheret-jules/',
+		'https://www.tate.org.uk/art/art-terms/p/papier-colle',
+		'https://www.tate.org.uk/art/art-terms/r/readymade'
+	],
+	contemporary: [
+		'https://whitney.org/collection/works/2634',
+		'https://www.warhol.org/?p=4860',
+		'https://www.centrepompidou.fr/en/pompidou-plus/magazine/article/the-untold-story-of-the-international-klein-blue-ikb-of-yves-klein',
+		'https://www.tate.org.uk/tate-etc/issue-51-spring-2021/yayoi-kusama-infinity-mirror-rooms-from-here-to-infinity',
+		'https://www.theartnewspaper.com/2006/07/01/damien-hirst-in-talks-to-replace-rotting-shark',
+		'https://collection.sciencemuseumgroup.org.uk/objects/co8647838/six-silver-fabric-samples-from-wrapped-reichstag-by-christo-and-jeanne-claude'
+	],
+	pinacotheca: ['https://marquandrarebooks.princeton.edu/?p=245']
 };
 
 export function curiosityOf(exhibit: string, tier: number): Curiosity | undefined {

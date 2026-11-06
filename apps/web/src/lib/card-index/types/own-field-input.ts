@@ -1,3 +1,4 @@
+import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
 import type { OwnFieldKind } from './own-field-kind.ts';
 
 export type OwnFieldInput = {
@@ -5,4 +6,6 @@ export type OwnFieldInput = {
 	description: string;
 	kind: OwnFieldKind;
 	multiple: boolean;
+	limited: boolean;
+	typeCodes: ArtworkTypeCode[];
 };

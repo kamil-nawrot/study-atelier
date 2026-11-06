@@ -7,6 +7,7 @@ import { deleteGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.t
 import type { Mention } from '#lib/notes/types/mention.ts';
 import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 import type { PinnedArtwork } from '#lib/glossary/types/pinned-artwork.ts';
+import type { TermFragment } from '#lib/glossary/types/term-fragment.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import { testEntry, testGlossary } from '#lib/testing/glossary/glossary.ts';
@@ -43,6 +44,7 @@ function renderEntry(
 		mentions?: Mention[];
 		glossary?: GlossaryEntry[];
 		pinned?: PinnedArtwork[];
+		fragments?: TermFragment[];
 		pinnedError?: string;
 	} = {}
 ): void {
@@ -281,5 +283,43 @@ describe('glossary entry page', () => {
 		renderEntry(tympanum, { pinned: [], pinnedError: m.common.network });
 
 		await expect.element(page.getByText(m.pins.loadFailed)).toBeVisible();
+	});
+
+	it('shows the loupe views of the pins above the artworks and opens the artwork with the pin', async () => {
+		renderEntry(tympanum, {
+			pinned: [{ artwork: testArtwork(12, 'Saint-Trophime'), pinId: 'pin-7' }],
+			fragments: [
+				{
+					pinId: 'pin-8',
+					number: 12,
+					title: 'Saint-Trophime',
+					text: 'Chrystus w mandorli',
+					thumbnail: { left: -450, top: -250, width: 1000, height: 1000 }
+				}
+			]
+		});
+
+		const fragments = page.getByRole('region', { name: m.glossary.view.fragments });
+		await expect
+			.element(fragments.getByRole('link', { name: /Saint-Trophime/ }))
+			.toHaveAttribute('href', '/atelier/12?pin=pin-8');
+		const headings = [...document.querySelectorAll('h2')].map((heading) => heading.textContent);
+		expect(headings.indexOf(m.glossary.view.fragments)).toBeLessThan(
+			headings.indexOf(m.glossary.view.onArtworks)
+		);
+	});
+
+	it('leaves out the fragments when no pin of the entry keeps a loupe view', async () => {
+		renderEntry(tympanum, {
+			pinned: [{ artwork: testArtwork(12, 'Saint-Trophime'), pinId: 'pin-7' }],
+			fragments: []
+		});
+
+		await expect
+			.element(page.getByRole('heading', { name: m.glossary.view.onArtworks }))
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { name: m.glossary.view.fragments }))
+			.not.toBeInTheDocument();
 	});
 });
