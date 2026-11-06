@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Plus from '@lucide/svelte/icons/plus';
-	import { Button, Dialog, Icon, Toast } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, Icon, Toast } from '@study-atelier/ui';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -68,7 +68,7 @@
 </script>
 
 <div class="page">
-	<OwnFieldHeader {failure} {field} />
+	<OwnFieldHeader {field} />
 
 	<section class="values" aria-labelledby="field-values">
 		<header>
@@ -104,7 +104,14 @@
 
 <OwnFieldDialog edited={field} {fields} onsaved={changed} bind:open={editOpen} />
 <NewOwnValueDialog {field} onsaved={changed} bind:open={valueOpen} />
+{#snippet failureAlert()}
+	<Alert title={m.ownFields.errorTitle} tone="danger">
+		{failure}
+	</Alert>
+{/snippet}
+
 <Dialog
+	children={failure ? failureAlert : undefined}
 	description={m.ownFields.deleteConfirm.description(field.count)}
 	size="small"
 	title={m.ownFields.deleteConfirm.title(field.name)}
