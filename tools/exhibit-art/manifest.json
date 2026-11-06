@@ -21,7 +21,8 @@
     "middle_ages": "lacroix-chivalry-allegory",
     "early_modern": "gartenlaube-gutenberg",
     "modern": "neuville-benett-buffalo-herd-wide",
-    "contemporary": "montaut-projectile-stone-hill"
+    "contemporary": "montaut-projectile-stone-hill",
+    "trevi_fountain": "piranesi-trevi-neptune"
   },
   "variants": [
     {
@@ -797,6 +798,48 @@
         0.02,
         1,
         0.87
+      ]
+    },
+    {
+      "exhibit": "trevi_fountain",
+      "status": "chosen",
+      "commons_file": "Trevifontein te Rome Veduta della vasta Fontana di Trevi anticamente detta l'Acqua Vergine (titel op object) Gezichten op Rome (serietitel) Vedute di Roma disegnate ed incise da Giambattista Piranesi architetto Ve(nez, RP-P-1941-600.jpg",
+      "licence": "CC0",
+      "credit": "Giovanni Battista Piranesi, Veduta della vasta Fontana di Trevi, Vedute di Roma, c. 1750",
+      "variant": "piranesi-trevi-neptune",
+      "crop": [
+        0.17,
+        0.2,
+        0.46,
+        0.72
+      ]
+    },
+    {
+      "exhibit": "trevi_fountain",
+      "status": "alternative",
+      "commons_file": "Trevifontein te Rome Veduta della vasta Fontana di Trevi anticamente detta l'Acqua Vergine (titel op object) Gezichten op Rome (serietitel) Vedute di Roma disegnate ed incise da Giambattista Piranesi architetto Ve(nez, RP-P-1941-600.jpg",
+      "licence": "CC0",
+      "credit": "Giovanni Battista Piranesi, Veduta della vasta Fontana di Trevi, Vedute di Roma, c. 1750",
+      "variant": "piranesi-trevi-basin",
+      "crop": [
+        0.42,
+        0.4,
+        0.72,
+        0.93
+      ]
+    },
+    {
+      "exhibit": "trevi_fountain",
+      "status": "rejected",
+      "commons_file": "Trevifontein te Rome Veduta della vasta Fontana di Trevi anticamente detta l'Acqua Vergine (titel op object) Gezichten op Rome (serietitel) Vedute di Roma disegnate ed incise da Giambattista Piranesi architetto Ve(nez, RP-P-1941-600.jpg",
+      "licence": "CC0",
+      "credit": "Giovanni Battista Piranesi, Veduta della vasta Fontana di Trevi, Vedute di Roma, c. 1750",
+      "variant": "piranesi-trevi-facade",
+      "crop": [
+        0.02,
+        0.1,
+        0.4,
+        0.78
       ]
     }
   ]
