@@ -31,7 +31,7 @@ Each tier of an exhibit in "Ekspozycja" reveals one curiosity on the exhibit's t
 - Each curiosity has one source: a single page of a museum or another institution, Britannica, Smarthistory, a university or major press, never Wikipedia, Wikimedia, Wikidata or Wiktionary. The page is opened and states every fact of the text; the text claims no more than the source and hedges only when the source does.
 - A curiosity first says what its subject is (a Viking ship burial, a forger, a map bought as medieval) and only then gives the fact, so it reads without knowing the subject; a person, place or term the learner may not know gets a few words of who or what it is, and a bare number or name gets what makes it worth telling.
 - The owner approves every text before it ships.
-- Every exhibit is named as an object or a place, then whose or where it is, after what its engraving shows ("Pracownia Świętego Hieronima", "Globus podróżnika", "Strzała putta"), never as a scene or an event, nor after the engraver or the title of a work ([ADR-0185](../decisions/0185-name-each-exhibit-after-what-its-engraving-shows.md)). The credit under an engraving keeps the real title of the work.
+- Every exhibit is named as an object or a place, then whose or where it is, after what its engraving shows ("Pracownia Świętego Hieronima", "Globus podróżnika", "Strzała putta"), never as a scene or an event, nor after the engraver or the title of a work ([ADR-0185](../decisions/0185-name-each-exhibit-after-what-its-engraving-shows.md)). "Turniej w Chauvency" is the one exception, a real tournament named for an allegorical engraving ([ADR-0194](../decisions/0194-show-the-six-eras-as-scenes-from-19th-century-book-illustration.md)). The credit under an engraving keeps the real title of the work.
 - The hint of a hidden exhibit is a riddle, not an instruction: it points the way through an image or the motif of its engraving and keeps the secret ("Lew nie gryzie tych, którzy mają coś do powiedzenia.", "Bogowie przyglądają się tym, którzy nie wiedzą, kiedy przestać."), never by naming the action or the place in the app.
 
 | Exhibit                       | Theme                                                                   |
@@ -47,6 +47,7 @@ Each tier of an exhibit in "Ekspozycja" reveals one curiosity on the exhibit's t
 | Strzała putta                 | dates to the year: works dated exactly and dates that exposed forgeries |
 | Biblioteka w Lejdzie          | where the names of styles and techniques come from                      |
 | Camera obscura z Encyklopedii | optics, devices and the image                                           |
+| The six era exhibits          | how the artworks of the era were made: materials, techniques, workshops |
 | Hidden exhibits               | one story about the work itself                                         |
 
 ## Examples

@@ -1060,7 +1060,7 @@ export const pl = {
 		},
 		emptyEvents: 'Nie ma tu jeszcze wydarzeń. Dodaj pierwsze, a pojawi się też w Kalendarium.',
 		eventsAdd: 'Dodaj wydarzenie',
-		eventKinds: { single: 'Wydarzenie jednego roku', span: 'Okres' },
+		eventKinds: { single: 'Wydarzenie', span: 'Okres' },
 		search: {
 			material: 'Szukaj materiału',
 			author: 'Szukaj autora',
@@ -1547,6 +1547,54 @@ export const pl = {
 			mouth_of_truth: [
 				'Pencz pokazał na rycinie legendę o kobiecie oskarżonej o zdradę. Z dłonią w lwiej paszczy przysięgła, że leżała tylko w ramionach męża i błazna. Lew jej nie ugryzł, bo mówiła prawdę, tyle że błazen był jej kochankiem.'
 			],
+			prehistory: [
+				'Do monumentalnych malowideł w jaskini Lascaux wystarczyło kilka krzemieni, bryłki barwnika, kamienie do rozcierania, parę pędzli i tamponów oraz szablony ze skór, choć najczęściej szablonem była ludzka dłoń. Barwnika było w okolicy pod dostatkiem, a rozrabiano go samą wodą.',
+				'W hiszpańskiej jaskini Altamira, zamieszkanej między 36 000 a 13 000 lat temu, największe malowane bizony i konie mają od 125 do 170 cm długości. Ich kontury najpierw ryto i rysowano węglem, a potem wypełniano czerwoną albo żółtawą farbą. Brzuch czy sierść niektórych bizonów podkreślano jeszcze czarną farbą albo kawałkami węgla.',
+				'Pod koniec XIX wieku wątpiono w prehistoryczny wiek malowideł jaskiniowych, bo ówcześni ludzie rzekomo nie umieliby zrobić przenośnej i dość jasnej lampy. W Lascaux znaleziono ich ponad 100: zwykle wapienne płytki z zagłębieniem na paliwo, a jedną wygładzoną, z czerwonego piaskowca, z uchwytem i rytą ozdobą.',
+				'W jaskini Blombos na południowym wybrzeżu RPA znaleziono niemal nienaruszony zestaw do robienia farby sprzed 100 000 lat. Farbę z tartej czerwonej ochry, foczego tłuszczu, mielonej kości, węgla i płynu mieszano i przechowywano w muszlach uchowców, najstarszych znanych pojemnikach.',
+				'Neolityczne posągi ludzi z Ain Ghazal w Jordanii, z lat 6900–5300 p.n.e., modelowano ręcznie z gipsu na szkielecie z wiązek trzciny związanych plecionymi sznurami, dzięki któremu stały. Trzcina zniknęła, zostawiając w gipsie odciski. Powierzchnię wygładzano szpachelką i palcami, a czubek głowy zostawiano chropowaty, bo miała go przykryć peruka.',
+				'Wenus z Willendorfu, kamienna figurka sprzed 30 000 lat znaleziona nad Dunajem, ma półkoliste dołki po grudkach tlenku żelaza, które prawdopodobnie wypadły przy rzeźbieniu. Jeden jest w miejscu pępka, a ślady narzędzia sugerują, że artysta mógł usunąć tę grudkę celowo, a więc od początku wiedział, jak figurka ma wyglądać.'
+			],
+			antiquity: [
+				'Na marmurowych rzeźbach z Partenonu, świątyni Ateny na ateńskim Akropolu, znaleziono ślady farby. Oświetlone czerwonym lub zielonym światłem ziarenka błękitu egipskiego, barwnika z wapna, miedzi i krzemu, świecą w podczerwieni, nawet te najdrobniejsze. Dzięki temu badacze odkryli, że tym błękitem malowano na rzeźbach wzory wełnianych szat i wodę, z której wyłania się Helios, bóg słońca.',
+				'Malowidła ścienne w Pompejach powstawały na mokrym tynku, czyli al fresco. Witruwiusz, żyjący w I wieku p.n.e. autor traktatu „O architekturze”, zalecał wykorzystywanie 6 lub 7 warstw tynku, z mączką marmurową w górnych. Gotowe malowidło pokrywano cienką warstwą wosku, która chroniła kolory, więc można było użyć drogiej czerwieni z cynobru.',
+				'W technice czerwonofigurowej, wynalezionej w Atenach około 530 roku p.n.e., postaci na wazie zostawały w kolorze gliny, a tło pokrywano czarnym szlamem. Czerń powstawała w piecu: bez dostępu powietrza, przy 950°C, szlam spiekał się w błyszczącą powłokę, a po wpuszczeniu powietrza glina wracała do czerwieni.',
+				'Portrety mumii, znajdowane głównie w okolicach Fajum w Egipcie, malowano w I–III wieku na deskach lub całunach, między innymi enkaustyką, czyli farbą z pigmentów i roztopionego wosku pszczelego. Deski wyginano, żeby przylegały do twarzy mumii, więc potrzebne było giętkie drewno: około 70% desek zbadanych przez badaczkę z British Museum to lipa z Europy.',
+				'Mozaikę z Aleksandrem Wielkim, odkrytą w 1831 roku w Domu Fauna w Pompejach, ułożono z ponad 2 milionów tesser, czyli kamyków. Badanie w muzeum w Neapolu wskazuje, że pochodziły z kamieniołomów w Italii, Grecji, Tunezji i na Półwyspie Iberyjskim, w tym kilka odcieni różu prawdopodobnie aż z Portugalii.',
+				'Popiersie Nefertiti, żony faraona Echnatona, wykonane około 1340 roku p.n.e. z wapienia i gipsu, prawdopodobnie nigdy nie opuściło pracowni rzeźbiarza Totmesa. Zapewne służyło za wzór przy rzeźbieniu posągów królowej, co może tłumaczyć, dlaczego nigdy nie wstawiono mu drugiego oka.'
+			],
+			middle_ages: [
+				'Ultramarynę, najsłynniejszy błękit w historii sztuki, uzyskiwano z lapis lazuli, półszlachetnego kamienia wydobywanego w Afganistanie. Najlepsze jej gatunki mogły być warte więcej niż złoto, a zleceniodawcy często płacili za dokładną ilość ultramaryny, jakiej chcieli w obrazie. Nazwa pochodzi od średniowiecznego łacińskiego słowa „ultramarinus”, czyli „zza morza”.',
+				'Księga z Kells, rękopis czterech Ewangelii po łacinie spisany około 800 roku, ma 340 kart z welinu, czyli wyprawionej skóry cielęcej. Tekst przepisało czterech głównych skrybów, a jaskrawą żółć uzyskano z aurypigmentu, czyli żółtego siarczku arsenu.',
+				'Tkanina z Bayeux, opowieść w obrazach i napisach, to w rzeczywistości haft, a nie gobelin: sceny wyszyto wełnianą nicią na 9 zszytych pasach lnianego płótna. Wełnę farbowano roślinami: urzetem na niebiesko, marzanną na czerwono i rezedą na żółto. Część niebieskich motywów wyblakła, bo barwnik nie wniknął w głąb włókien.',
+				'Na panelu witrażowym z lat 1320–1324 z kościoła opactwa Saint-Denis obwódki namalowano związkiem srebra, który po wypaleniu w piecu daje żółtopomarańczowy kolor wnikający w bezbarwne szkło. Po angielsku ta technika to „silver stain” i od niej pochodzi angielska nazwa witrażu, „stained glass”.',
+				'W średniowieczu przy budowie katedry w Canterbury część kamieniarzy dostawała zapłatę od dnia, a część od wykonanej sztuki. Dlatego każdy, kto ociosał kamień, znaczył go swoim znakiem, żeby móc udowodnić, ile mu się należy.',
+				'Atrament żelazowo-galasowy robiono z galasów, czyli narośli na gałązkach i pąkach młodych drzew, w których jaja składa maleńka osa galasówka. Przepis z notatnika z początku XV wieku każe zmieszać z wodą po uncji galasów, gumy i siarczanu żelaza. Świeży atrament jest fioletowoczarny, ale z czasem, gdy żelazo się utlenia, brązowieje jak rdza.'
+			],
+			early_modern: [
+				'Freski na sklepieniu Kaplicy Sykstyńskiej w Rzymie Michał Anioł malował na stojąco, z pędzlem nad głową, a farba i okruchy spadały mu na twarz. Rusztowanie zasłaniało okna, więc pracował przy lampach. Gdy latem 1511 roku zdjęto je z pierwszej połowy i zobaczył ją z dołu, w drugiej namalował większe postaci i czytelniejsze kompozycje.',
+				'Papież Leon X zamówił u Rafaela dla Kaplicy Sykstyńskiej kartony, czyli ogromne projekty arrasów w pełnej skali. Arrasy tkano w Brukseli na krosnach, które dają odwrócony obraz projektu. Kartony pocięto na długie pionowe pasy, zapewne przy wysyłce do Brukseli w 1516 roku, żeby łatwiej je było przenosić i przechowywać.',
+				'Peter Paul Rubens, malarz XVII wieku o ogromnym powodzeniu, miał o wiele za dużo zamówień, by wykonać je sam, więc zbudował dużą pracownię dla uczniów i asystentów. Wstawał o 4 rano i pracował do 17, a przy malowaniu kazał sobie czytać dzieła literatury klasycznej.',
+				'Alchemik Johann Friedrich Böttger był więźniem Augusta Mocnego, elektora Saksonii i króla Polski, który kazał mu najpierw wytworzyć złoto, a potem porcelanę. W 1707 roku Böttger uzyskał czerwoną kamionkę podobną do chińskiej, bardzo poszukiwanej w Europie. Rok później jako pierwszy Europejczyk stworzył twardą porcelanę, taką jak we wschodniej Azji.',
+				'„Nosorożca”, drzeworyt z 1515 roku, Albrecht Dürer wykonał, nigdy wcześniej nie widząc zwierzęcia, a jedynie jego opis i szkic przysłane do Norymbergi. Był to pierwszy od starożytności żywy nosorożec w Europie, który w maju 1515 roku dotarł do Lizbony. Król Portugalii wysłał go w darze papieżowi Leonowi X, ale statek zatonął i nosorożec utonął.',
+				'Akwaforta, technika grafiki, wywodzi się z trawienia ozdób na metalu. Daniel Hopfer z Augsburga, który ozdabiał trawieniem zbroje cesarza Maksymiliana I, był jednym z pierwszych, którzy przenieśli tę technikę do grafiki. Swoje akwaforty robił na płytach stalowych.'
+			],
+			modern: [
+				'Składaną metalową tubkę na farbę opatentował w 1841 roku John Goffe Rand, amerykański portrecista, który mieszkał wtedy w Anglii. Wcześniej malarze trzymali farby w świńskich pęcherzach, które trzeba było przekłuwać strzykawką, a tubka szybko stała się standardem. Na nagrobku Randa na cmentarzu Woodlawn w Bronksie widnieje tubka w reliefie.',
+				'Brązy rzeźbiarza Augusta Rodina wciąż powstają: Muzeum Rodina, które jako jego spadkobierca ma prawa do jego dzieł, nadzoruje odlewy z oryginalnych modeli i form z jego spuścizny. Z jednego dzieła wolno odlać najwyżej 12 brązów, a każdy nowy odlew muszą zatwierdzić dwie komisje ekspertów od rzeźby.',
+				'Georges Seurat namalował „Niedzielne popołudnie na wyspie Grande Jatte” kropkami różnych barw, które według teoretyka barw Michela-Eugène’a Chevreula zlewają się w oku widza. Wypróbował przy tym nową wtedy żółcień cynkową, która okazała się bardzo nietrwała i zbrązowiała. W ciągu kilku lat duże partie obrazu pociemniały.',
+				'Jules Chéret, nazywany „ojcem plakatu”, był pionierem litografii barwnej w plakatach i wyprowadził tę nową formę sztuki na ulice Paryża. W 1866 roku założył własną drukarnię litograficzną. Jego plakaty kabaretów i music-halli były tak lubiane, że podobno wielbiciele zdejmowali je nocą ze ścian do swoich kolekcji.',
+				'Papier collé to odmiana kolażu bliższa rysunkowi niż malarstwu. Pierwszy zastosował ją kubista Georges Braque: rysował na papierze udającym słoje drewna, naklejonym na biały papier. Pablo Picasso brał zamiast niego strony gazety „Le Journal”, a obaj tworzyli tak na przełomie 1912 i 1913 roku.',
+				'Readymade to nazwa, którą Marcel Duchamp nadał dziełom z fabrycznych przedmiotów, jak „Koło rowerowe” z 1913 roku: koło zamocowane na drewnianym stołku. Najgłośniejszy z nich, „Fontannę”, stworzył w 1917 roku w Nowym Jorku: to męski pisuar podpisany fałszywym nazwiskiem i położony na plecach. Przedmioty wybierał, jak mówił, z wizualnej obojętności.'
+			],
+			contemporary: [
+				'Jackson Pollock malował „Number 27, 1950” na dużym płótnie bez blejtramu, przybitym do podłogi, na które kapał, lał i rzucał zwykłą farbę do malowania domów. „Na podłodze czuję się swobodniej” – mówił, bo mógł obejść obraz, pracować z czterech stron i „dosłownie być w obrazie”.',
+				'Andy Warhol od 1962 roku tworzył prace sitodrukiem fotograficznym: wybrane zdjęcie wysyłał do komercyjnej wytwórni sit, a gotowe sito wracało do Factory, jego pracowni w Nowym Jorku. „Każdy z moich asystentów, a właściwie ktokolwiek, odtworzy ten wzór tak dobrze jak ja” – mówił w 1969 roku.',
+				'Malarz Yves Klein szukał spoiwa, czyli substancji wiążącej sproszkowany pigment w farbę, bo tradycyjne przygaszały jego błękit po wyschnięciu. Z paryskim kupcem farb Édouardem Adamem wybrał syntetyczną żywicę Rhodopas M. Przepis na tę farbę, nazwaną International Klein Blue, zarejestrował w 1960 roku, ale samego koloru nie opatentował, bo według francuskiego prawa barwa nie może mieć właściciela.',
+				'Yayoi Kusama z japońskiego Matsumoto zbudowała w 1965 roku w Nowym Jorku swój pierwszy „Infinity Mirror Room”: pokój wyłożony lustrami, które odbijały widza w nieskończoność. Na podłodze stało kilkaset fallicznych wypustek z tkaniny w czerwone i białe grochy, wypchanych watą, a Kusama szyła je przez kilka lat.',
+				'Rekina w formaldehydzie, „Fizyczną niemożliwość śmierci w umyśle żyjącego”, kolekcjoner Charles Saatchi zamówił u artysty Damiena Hirsta w 1991 roku za 50 000 funtów. Hirst użył 5-procentowego roztworu, a według kuratora zbiorów ryb z Muzeum Historii Naturalnej nie wstrzyknął formaldehydu w głębokie tkanki, przez co rekin nieco zmienił kształt.',
+				'W 1995 roku artyści Christo i Jeanne-Claude owinęli berliński Reichstag 100 000 metrami kwadratowymi tkaniny pokrytej aluminium i 15 kilometrami niebieskiej liny. Zasłaniając budynek, chcieli odsłonić to, co w jego architekturze najważniejsze: konstrukcję i proporcje. Zgodę dostali dopiero po zjednoczeniu Niemiec, a dzieło za około 15 milionów dolarów sfinansowali sami.'
+			],
 			pinacotheca: [
 				'Przy szufladach z owadami w gabinecie Levinusa Vincenta, kupca tkanin, pracowała jego żona Joanna van Breda, chwalona za ich artyzm; porównywano je do wzorów haftu. Na rycinie otwierającej katalog ich zbiorów kobieta uosabiająca Haft wyszywa igłą wzór w jednej z szuflad. Naprzeciw niej postać Malarstwa trzyma pędzel, wzór i drugą szufladę.'
 			]
@@ -1606,6 +1654,42 @@ export const pl = {
 				about:
 					'Giovanni Battista Piranesi wyrył wnętrze ruin świątyni della Tosse pod Tivoli, jednej z wielu starożytnych budowli, które utrwalał na rycinach.',
 				count: counter('epok w Twoich dziełach')
+			},
+			prehistory: {
+				name: 'Schronisko w La Madeleine',
+				about:
+					"Émile Bayard narysował do „L'Homme primitif” Louisa Figuiera z 1870 roku rodzinę z epoki renifera, nazywanej dziś magdalenem od schroniska skalnego La Madeleine w Dordonii.",
+				count: counter('dzieł z prehistorii')
+			},
+			antiquity: {
+				name: 'Armarium Rzymianina',
+				about:
+					"Jules Férat narysował do „Les Merveilles de l'industrie” Louisa Figuiera domową bibliotekę Rzymianina, który czyta zwój przy armarium, szafie na zwoje.",
+				count: counter('dzieł ze starożytności')
+			},
+			middle_ages: {
+				name: 'Turniej w Chauvency',
+				about:
+					'Rycina z książki Paula Lacroix z 1870 roku według miedziorytu z 1573 roku pokazuje alegoryczną walkę rycerzy na koniach, jakie toczono choćby na sześciodniowym turnieju w Chauvency w 1285 roku.',
+				count: counter('dzieł ze średniowiecza')
+			},
+			early_modern: {
+				name: 'Drukarnia Gutenberga',
+				about:
+					'Leo Reiffenstein narysował w 1881 roku dla „Die Gartenlaube” Gutenberga, który pokazuje Johannowi Fustowi pierwsze wydrukowane arkusze.',
+				count: counter('dzieł z nowożytności')
+			},
+			modern: {
+				name: 'Parowóz Pacific Railroad',
+				about:
+					"Alphonse de Neuville i Léon Benett zilustrowali w „W 80 dni dookoła świata” Juliusza Verne'a parowóz Pacific Railroad, który w Nevadzie przez trzy godziny czekał, aż tory przekroczy stado bizonów.",
+				count: counter('dzieł z nowoczesności')
+			},
+			contemporary: {
+				name: 'Pocisk z Columbiady',
+				about:
+					"Henri de Montaut zilustrował w „Z Ziemi na Księżyc” Juliusza Verne'a pocisk przywieziony na Stone's Hill na Florydzie, skąd miała go wystrzelić w stronę Księżyca armata Columbiada.",
+				count: counter('dzieł ze współczesności')
 			},
 			memory: {
 				name: 'Pracownia Świętego Hieronima',

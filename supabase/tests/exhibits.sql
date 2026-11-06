@@ -34,9 +34,22 @@ begin
     'career_standing does not unlock the tiers of new artworks';
 
   assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC')) = array[
-    'back_from_storage', 'bullseye', 'chronicle', 'collection', 'eras', 'glossary', 'grand_tour', 'marathon',
-    'memory', 'mouth_of_truth', 'night_watch', 'own_eye', 'pinacotheca', 'regular', 'seen_live', 'timeline'
-  ], 'the exhibits are not the agreed sixteen';
+    'antiquity', 'back_from_storage', 'bullseye', 'chronicle', 'collection', 'contemporary', 'early_modern', 'eras',
+    'glossary', 'grand_tour', 'marathon', 'memory', 'middle_ages', 'modern', 'mouth_of_truth', 'night_watch',
+    'own_eye', 'pinacotheca', 'prehistory', 'regular', 'seen_live', 'timeline'
+  ], 'the exhibits are not the agreed twenty-two';
+  assert (select (array_agg(exhibit order by position))[1:8]
+      from public.unlock_exhibits('UTC') with ordinality as listed (exhibit, value, thresholds, position)) = array[
+    'collection', 'eras', 'prehistory', 'antiquity', 'middle_ages', 'early_modern', 'modern', 'contemporary'
+  ], 'the era exhibits do not follow eras in their order';
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'early_modern') = 5,
+    'an era exhibit does not count the artworks of its era';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'modern') = array[1]::smallint[],
+    'five modern artworks do not unlock the first tier of modern';
+  assert (select tiers from public.exhibit_tiers where exhibit = 'early_modern') = 6,
+    'a lit tier of an era exhibit does not keep its six tiers';
+  assert not exists (select 1 from public.exhibit_tiers where exhibit = 'prehistory'),
+    'an era without artworks unlocks a tier';
   assert (select array_agg(tier order by tier) from public.exhibit_tiers where exhibit = 'collection') = array[1, 2]::smallint[],
     'ten artworks do not unlock the first two tiers of the collection';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'eras') = array[1]::smallint[],
@@ -61,6 +74,8 @@ begin
   perform public.unlock_exhibits('UTC');
   assert (select count(*) from public.exhibit_tiers where exhibit in ('collection', 'eras')) = 3,
     'deleting artworks takes an unlocked tier back';
+  assert exists (select 1 from public.exhibit_tiers where exhibit = 'modern'),
+    'deleting the artworks of an era takes its unlocked tier back';
 
   update public.exhibit_tiers set seen_at = now();
   assert (select count(*) from public.exhibit_tiers where seen_at is null) = 0, 'a tier cannot be marked as seen';
