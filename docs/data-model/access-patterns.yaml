@@ -61,10 +61,11 @@ reads:
       - 'term definition: one, on hover (R04)'
       - 'mentions: notes linking to this artwork'
       - 'own field definitions: all'
+      - 'artwork count: one head request, only to dim "Porównaj" when the atelier holds a single artwork'
     scope: one
     frequency: view, flip
     today:
-      requests: '17 cold / 18 per flip (most of a flip is the preloadData of the next artwork)'
+      requests: '18 cold / 19 per flip (most of a flip is the preloadData of the next artwork)'
       whole:
         - glossary_entries select *
         - artworks (note link labels)

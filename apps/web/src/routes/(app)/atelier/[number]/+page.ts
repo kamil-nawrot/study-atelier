@@ -1,4 +1,5 @@
 import { resolve } from '$app/paths';
+import { countArtworks } from '#lib/artworks/artwork-data/artwork-data.ts';
 import { artworkCore } from '#lib/artworks/artwork-preload/artwork-preload.ts';
 import { loadArtworkVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { parseRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
@@ -24,7 +25,8 @@ export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadA
 		layout,
 		loadedPins,
 		loadedGlossary,
-		seen
+		seen,
+		atelierCount
 	] = await Promise.all([
 		artworkCore(number).then(async (result) => ({
 			result,
@@ -41,7 +43,8 @@ export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadA
 		untrack(() => parent()),
 		loadArtworkPins(number),
 		loadTermIndex(),
-		loadArtworkVisits(number)
+		loadArtworkVisits(number),
+		countArtworks()
 	]);
 	const visits = seen.visits;
 	const preferences = layout.preferences ?? defaultPreferences;
@@ -59,6 +62,7 @@ export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadA
 		pinsError,
 		ownFields,
 		preferences,
+		atelierCount,
 		...(noteLinks ? { noteLinks } : {})
 	};
 };

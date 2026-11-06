@@ -221,3 +221,11 @@ export async function loadArtwork(number: number): Promise<LoadArtworkResult> {
 		}
 	};
 }
+
+export async function countArtworks(): Promise<number | undefined> {
+	const { count, error } = await supabase
+		.from('artworks')
+		.select('id', { count: 'exact', head: true })
+		.is('deleted_at', null);
+	return error ? undefined : (count ?? undefined);
+}
