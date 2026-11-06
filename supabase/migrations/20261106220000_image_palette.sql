@@ -6,7 +6,7 @@ alter table public.artwork_images
 
 grant update (palette) on public.artwork_images to authenticated;
 
-create function public.forget_palette_of_changed_image()
+create function private.forget_palette_of_changed_image()
 returns trigger
 language plpgsql
 security invoker
@@ -26,4 +26,6 @@ $$;
 
 create trigger forget_palette_of_changed_image
   before update on public.artwork_images
-  for each row execute function public.forget_palette_of_changed_image();
+  for each row execute function private.forget_palette_of_changed_image();
+
+revoke all on function private.forget_palette_of_changed_image() from public;
