@@ -1066,6 +1066,7 @@ export const ARTWORK_PINS = [
 export const EXHIBITS = [
 	{ exhibit: 'collection', value: 191, thresholds: [1, 10, 50, 100, 250, 500, 1000, 2500, 5000] },
 	{ exhibit: 'eras', value: 5, thresholds: [2, 3, 4, 5, 6] },
+	{ exhibit: 'vasari_lives', value: 2, thresholds: [1, 3, 5, 10, 20] },
 	{ exhibit: 'memory', value: 55, thresholds: [1, 25, 100, 250, 500, 1000, 2500] },
 	{ exhibit: 'bullseye', value: 7, thresholds: [1, 5, 25, 50, 100, 250] },
 	{ exhibit: 'regular', value: 14, thresholds: [3, 7, 14, 30, 60, 100, 200, 365] },
@@ -1075,11 +1076,15 @@ export const EXHIBITS = [
 	{ exhibit: 'seen_live', value: 6, thresholds: [1, 10, 50, 100, 250, 500] },
 	{ exhibit: 'timeline', value: 12, thresholds: [1, 10, 50, 100, 250] },
 	{ exhibit: 'glossary', value: 147, thresholds: [1, 10, 25, 50, 100, 250, 500] },
+	{ exhibit: 'hortus_cliffortianus', value: 31, thresholds: [1, 10, 25, 50, 100, 500] },
 	{ exhibit: 'own_eye', value: 0, thresholds: [1, 5, 25, 50, 100] },
 	{ exhibit: 'night_watch', value: 0, thresholds: [1] },
 	{ exhibit: 'marathon', value: 0, thresholds: [1000] },
 	{ exhibit: 'mouth_of_truth', value: 0, thresholds: [1] },
-	{ exhibit: 'pinacotheca', value: 10, thresholds: [10] }
+	{ exhibit: 'pinacotheca', value: 10, thresholds: [10] },
+	{ exhibit: 'trevi_fountain', value: 2, thresholds: [2] },
+	{ exhibit: 'seven_league_boots', value: 1, thresholds: [3] },
+	{ exhibit: 'figure_alphabet', value: 23, thresholds: [23] }
 ];
 
 export const EXHIBIT_TIERS = EXHIBITS.flatMap(({ exhibit, value, thresholds }) =>

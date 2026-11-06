@@ -33,11 +33,13 @@ begin
   assert (select new_tiers from public.career_standing('UTC', true)) > 0,
     'career_standing does not unlock the tiers of new artworks';
 
-  assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC')) = array[
-    'antiquity', 'back_from_storage', 'bullseye', 'chronicle', 'collection', 'contemporary', 'early_modern', 'eras',
-    'glossary', 'grand_tour', 'marathon', 'memory', 'middle_ages', 'modern', 'mouth_of_truth', 'night_watch',
-    'own_eye', 'pinacotheca', 'prehistory', 'regular', 'seen_live', 'timeline'
-  ], 'the exhibits are not the agreed twenty-two';
+  assert (select array_agg(exhibit order by position)
+      from public.unlock_exhibits('UTC') with ordinality as listed (exhibit, value, thresholds, position)) = array[
+    'collection', 'eras', 'prehistory', 'antiquity', 'middle_ages', 'early_modern', 'modern', 'contemporary',
+    'vasari_lives', 'memory', 'bullseye', 'regular', 'back_from_storage', 'chronicle', 'grand_tour', 'seen_live',
+    'timeline', 'glossary', 'hortus_cliffortianus', 'own_eye', 'night_watch', 'marathon', 'mouth_of_truth',
+    'pinacotheca', 'trevi_fountain', 'seven_league_boots', 'figure_alphabet'
+  ], 'the exhibits are not the agreed twenty-seven in their order';
   assert (select (array_agg(exhibit order by position))[1:8]
       from public.unlock_exhibits('UTC') with ordinality as listed (exhibit, value, thresholds, position)) = array[
     'collection', 'eras', 'prehistory', 'antiquity', 'middle_ages', 'early_modern', 'modern', 'contemporary'
@@ -235,6 +237,168 @@ begin
     'a deleted pin takes the pinacotheca back';
   assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'pinacotheca') = 1,
     'the pinacotheca does not give its bonus once';
+end;
+$$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-00000000000e', 'owner-e@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-00000000000e", "role": "authenticated"}', true);
+
+do $$
+declare
+  number integer;
+  prolific uuid;
+  shared uuid;
+  trashed uuid;
+begin
+  insert into public.category_values (category_code, name) values
+    ('author', 'Prolific'), ('author', 'Shared'), ('author', 'Trashed');
+  select id into prolific from public.category_values where name = 'Prolific';
+  select id into shared from public.category_values where name = 'Shared';
+  select id into trashed from public.category_values where name = 'Trashed';
+  for number in 1..29 loop
+    perform public.save_artwork(
+      jsonb_build_object('title', 'Authored ' || number, 'author_unknown', true, 'era_code', 'modern'),
+      '{}', null,
+      jsonb_build_array(jsonb_build_object('source_wikidata_id', 'Q' || (200 + number),
+        'source_image_file', 'Authored' || number || '.jpg')));
+  end loop;
+  insert into public.artwork_values (artwork_id, value_id)
+    select artwork.id,
+        case when artwork.record_number <= 10 then prolific when artwork.record_number <= 19 then shared else trashed end
+      from public.artworks as artwork;
+  insert into public.artwork_values (artwork_id, value_id)
+    select artwork.id, shared from public.artworks as artwork where artwork.title = 'Authored 1';
+  update public.artworks set deleted_at = now() where title = 'Authored 29';
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'vasari_lives') = 2,
+    'the book of Vasari does not count each author of an artwork, or counts an artwork in the trash';
+  assert (select thresholds from public.unlock_exhibits('UTC') where exhibit = 'vasari_lives') = array[1, 3, 5, 10, 20],
+    'the book of Vasari does not have the agreed tiers';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'vasari_lives') = array[1]::smallint[],
+    'two authors with ten artworks do not unlock the first tier of the book of Vasari';
+end;
+$$;
+
+do $$
+declare
+  first_place uuid;
+  second_place uuid;
+  third_place uuid;
+  morning uuid;
+  elsewhere uuid;
+  later uuid;
+  long_ago uuid;
+begin
+  insert into public.category_values (category_code, name) values
+    ('location', 'First'), ('location', 'Second'), ('location', 'Third');
+  select id into first_place from public.category_values where name = 'First';
+  select id into second_place from public.category_values where name = 'Second';
+  select id into third_place from public.category_values where name = 'Third';
+  insert into public.visits (place_id, visited_on, date_precision) values
+    (first_place, '2026-05-14', 'day'), (second_place, '2026-05-14', 'day'), (first_place, '2026-05-14', 'day'),
+    (third_place, '2026-05-01', 'month'), (third_place, '2025-01-01', 'year');
+  select id into morning from public.visits where place_id = first_place order by created_at, id limit 1;
+  select id into elsewhere from public.visits where place_id = second_place;
+  select id into later from public.visits where date_precision = 'month';
+  select id into long_ago from public.visits where date_precision = 'year';
+
+  insert into public.visit_artworks (visit_id, artwork_id)
+    select visit, artwork.id from public.artworks as artwork, unnest(array[morning, elsewhere]) as visit
+      where artwork.title = 'Authored 1';
+  insert into public.visit_artworks (visit_id, artwork_id)
+    select visit, artwork.id from public.artworks as artwork, unnest(array[morning, long_ago]) as visit
+      where artwork.title = 'Authored 29';
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'trevi_fountain') = 1,
+    'the Trevi fountain counts two visits of one day, or an artwork in the trash';
+  assert not exists (select 1 from public.exhibit_tiers where exhibit = 'trevi_fountain'),
+    'one day of visits unlocks the Trevi fountain';
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'seven_league_boots') = 2,
+    'the seven-league boots count a place twice, or a visit without its day';
+  assert not exists (select 1 from public.exhibit_tiers where exhibit = 'seven_league_boots'),
+    'two places of one day unlock the seven-league boots';
+
+  insert into public.visit_artworks (visit_id, artwork_id)
+    select later, artwork.id from public.artworks as artwork where artwork.title = 'Authored 1';
+  insert into public.visits (place_id, visited_on, date_precision) values (third_place, '2026-05-14', 'day');
+
+  assert (select thresholds from public.unlock_exhibits('UTC') where exhibit = 'trevi_fountain') = array[2],
+    'the Trevi fountain does not have one tier at two visits';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'trevi_fountain') = array[1]::smallint[],
+    'an artwork seen on two days does not unlock the Trevi fountain';
+  assert (select thresholds from public.unlock_exhibits('UTC') where exhibit = 'seven_league_boots') = array[3],
+    'the seven-league boots do not have one tier at three places';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'seven_league_boots') = array[1]::smallint[],
+    'three places of one day do not unlock the seven-league boots';
+
+  delete from public.visits where place_id = third_place;
+  perform public.unlock_exhibits('UTC');
+  assert (select count(*) from public.exhibit_tiers where exhibit in ('trevi_fountain', 'seven_league_boots')) = 2,
+    'deleting visits takes a hidden exhibit back';
+  assert (select count(*) from public.point_events
+      where kind = 'easter_egg' and code in ('trevi_fountain', 'seven_league_boots')) = 2,
+    'the Trevi fountain and the seven-league boots do not give their bonus once';
+end;
+$$;
+
+do $$
+begin
+  insert into public.glossary_entries (name, sort_name, category) values
+    ('akwaforta', null, 'general'), ('barok', null, 'general'), ('chiaroscuro', null, 'general'),
+    ('dyptyk', null, 'general'), ('Écorché', null, 'general'), ('fresk', null, 'general'),
+    ('gotyk', null, 'general'), ('hieratyzm', null, 'general'), ('impast', null, 'general'),
+    ('japonizm', null, 'general'), ('Kazimierz Michałowski', 'Michałowski', 'person'),
+    ('Łuk triumfalny', null, 'general'), ('nawa', null, 'general'), ('„Ostatnia Wieczerza”', null, 'general'),
+    ('putto', null, 'general'), ('rokoko', null, 'general'), ('ślimacznica', null, 'general'),
+    ('tympanon', null, 'general'), ('umbra', null, 'general'), ('witraż', null, 'general'),
+    ('yamato-e', null, 'general'), ('Żyrandol', null, 'general'), ('quattrocento', null, 'general'),
+    ('veduta', null, 'general'), ('xoanon', null, 'general'), ('1. Mistrz', null, 'general');
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'figure_alphabet') = 22,
+    'the alphabet does not read the first letter as the glossary index does';
+  assert not exists (select 1 from public.exhibit_tiers where exhibit = 'figure_alphabet'),
+    'twenty-two letters unlock the alphabet';
+
+  insert into public.glossary_entries (name, category) values ('kamea', 'general');
+  assert (select thresholds from public.unlock_exhibits('UTC') where exhibit = 'figure_alphabet') = array[23],
+    'the alphabet does not have one tier at twenty-three letters';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'figure_alphabet') = array[1]::smallint[],
+    'twenty-three letters do not unlock the alphabet';
+  assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'figure_alphabet') = 1,
+    'the alphabet does not give its bonus';
+end;
+$$;
+
+do $$
+declare
+  described uuid;
+  blank uuid;
+  bare uuid;
+begin
+  insert into public.category_values (category_code, name) values
+    ('style', 'Described'), ('style', 'Blank'), ('location', 'Bare');
+  select id into described from public.category_values where name = 'Described';
+  select id into blank from public.category_values where name = 'Blank';
+  select id into bare from public.category_values where name = 'Bare';
+  insert into public.style_details (value_id, summary) values (described, 'Opis');
+  insert into public.style_details (value_id, notes) values (blank, E'  \n ');
+  insert into public.location_details (value_id, place_type) values (bare, 'museum');
+  insert into public.author_details (value_id, notes)
+    select id, 'Notes only' from public.category_values where name = 'Trashed';
+  insert into public.era_details (era_code, summary) values ('modern', 'Epoka');
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'hortus_cliffortianus') = 3,
+    'the garden of Clifford does not count the values described with a summary or notes';
+  assert (select thresholds from public.unlock_exhibits('UTC') where exhibit = 'hortus_cliffortianus')
+      = array[1, 10, 25, 50, 100, 500],
+    'the garden of Clifford does not have the agreed tiers';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'hortus_cliffortianus') = array[1]::smallint[],
+    'a described value does not unlock the first tier of the garden of Clifford';
 end;
 $$;
 
