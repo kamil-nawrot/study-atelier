@@ -80,6 +80,11 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		credit: 'Georg Pencz, „Usta prawdy”, 1533–1534',
 		licence: 'CC0',
 		commonsFile: 'Georg Pencz - The Mouth of Truth - 1922.150 - Cleveland Museum of Art.jpg'
+	},
+	pinacotheca: {
+		credit: '„Pinacoteca 1”, plansza z katalogu Levinusa Vincenta, 1719',
+		licence: 'domena publiczna',
+		commonsFile: 'Vincent, Levinus (1715) Wondertooneel der natuur -Tome 2- 0293.jpg'
 	}
 };
 

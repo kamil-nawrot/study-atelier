@@ -99,7 +99,8 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 	],
 	night_watch: ['https://www.rijksmuseum.nl/en/collection/SK-C-5'],
 	marathon: ['https://collections.tepapa.govt.nz/object/41358'],
-	mouth_of_truth: ['https://lucascranach.org/en/DE_BStGS-GNMN_Gm1108/']
+	mouth_of_truth: ['https://lucascranach.org/en/DE_BStGS-GNMN_Gm1108/'],
+	pinacotheca: ['https://marquandrarebooks.princeton.edu/?p=245']
 };
 
 export function curiosityOf(exhibit: string, tier: number): Curiosity | undefined {

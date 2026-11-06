@@ -1546,6 +1546,9 @@ export const pl = {
 			],
 			mouth_of_truth: [
 				'Pencz pokazał na rycinie legendę o kobiecie oskarżonej o zdradę. Z dłonią w lwiej paszczy przysięgła, że leżała tylko w ramionach męża i błazna. Lew jej nie ugryzł, bo mówiła prawdę, tyle że błazen był jej kochankiem.'
+			],
+			pinacotheca: [
+				'Przy szufladach z owadami w gabinecie Levinusa Vincenta, kupca tkanin, pracowała jego żona Joanna van Breda, chwalona za ich artyzm; porównywano je do wzorów haftu. Na rycinie otwierającej katalog ich zbiorów kobieta uosabiająca Haft wyszywa igłą wzór w jednej z szuflad. Naprzeciw niej postać Malarstwa trzyma pędzel, wzór i drugą szufladę.'
 			]
 		},
 		ranks: {
@@ -1685,6 +1688,13 @@ export const pl = {
 					'Georg Pencz wyrył w latach 1533–1534 kobietę, która przysięga na swoją niewinność z dłonią w paszczy kamiennego lwa.',
 				hint: 'Lew nie gryzie tych, którzy mają coś do powiedzenia.',
 				awarded: 'Za pierwszy zgłoszony pomysł.'
+			},
+			pinacotheca: {
+				name: 'Pinakoteka motyli',
+				about:
+					'Plansza z katalogu Levinusa Vincenta z 1719 roku pokazuje szuflady jego haarlemskiego gabinetu, w których owady przypinano drobnymi szpilkami według wzoru rozrysowanego na siatce.',
+				hint: 'Motyle nie odlecą, jeśli tylko dobrze je przyszpilić.',
+				awarded: 'Za komplet pinezek na jednym obrazie.'
 			}
 		}
 	},
