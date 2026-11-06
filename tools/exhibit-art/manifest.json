@@ -22,7 +22,8 @@
     "early_modern": "gartenlaube-gutenberg",
     "modern": "neuville-benett-buffalo-herd-wide",
     "contemporary": "montaut-projectile-stone-hill",
-    "trevi_fountain": "piranesi-trevi-neptune"
+    "trevi_fountain": "piranesi-trevi-neptune",
+    "seven_league_boots": "dore-boots-legs"
   },
   "variants": [
     {
@@ -840,6 +841,48 @@
         0.1,
         0.4,
         0.78
+      ]
+    },
+    {
+      "exhibit": "seven_league_boots",
+      "status": "alternative",
+      "commons_file": "Le Petit Poucet (136548020).jpg",
+      "licence": "Public domain",
+      "credit": "Gustave Doré, illustration for Perrault's Le Petit Poucet, 1862",
+      "variant": "dore-boots-close",
+      "crop": [
+        0.62,
+        0.4,
+        0.95,
+        0.938
+      ]
+    },
+    {
+      "exhibit": "seven_league_boots",
+      "status": "chosen",
+      "commons_file": "Le Petit Poucet (136548020).jpg",
+      "licence": "Public domain",
+      "credit": "Gustave Doré, illustration for Perrault's Le Petit Poucet, 1862",
+      "variant": "dore-boots-legs",
+      "crop": [
+        0.48,
+        0.23,
+        0.95,
+        0.996
+      ]
+    },
+    {
+      "exhibit": "seven_league_boots",
+      "status": "alternative",
+      "commons_file": "Le Petit Poucet (136548020).jpg",
+      "licence": "Public domain",
+      "credit": "Gustave Doré, illustration for Perrault's Le Petit Poucet, 1862",
+      "variant": "dore-boots-ogre",
+      "crop": [
+        0.4,
+        0.1,
+        0.95,
+        0.996
       ]
     }
   ]
