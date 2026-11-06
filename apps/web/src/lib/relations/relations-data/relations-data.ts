@@ -1,5 +1,4 @@
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import {
@@ -20,8 +19,6 @@ export type RelationsInput = {
 	bounds?: YearSpan;
 	eventId?: string;
 };
-
-const SETTLED_STABILITY = 7;
 
 export async function loadEventsDuring(
 	span: YearSpan,
@@ -50,18 +47,8 @@ export async function loadMasteredCount(
 	artworkIds: readonly string[]
 ): Promise<number | undefined> {
 	if (artworkIds.length === 0) return 0;
-	const { rows, error } = await fetchAll<{ artwork_id: string }>((from, to) =>
-		supabase
-			.from('review_cards')
-			.select('artwork_id')
-			.eq('facet', 'recognise')
-			.gte('stability', SETTLED_STABILITY)
-			.order('artwork_id')
-			.range(from, to)
-	);
-	if (error) return undefined;
-	const mastered = new Set(rows.map((row) => row.artwork_id));
-	return artworkIds.filter((id) => mastered.has(id)).length;
+	const { data, error } = await supabase.rpc('mastered_artworks', { artwork_ids: [...artworkIds] });
+	return error ? undefined : (data ?? 0);
 }
 
 export async function loadRelations(input: RelationsInput): Promise<Relations> {
