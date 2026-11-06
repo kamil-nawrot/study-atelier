@@ -15,6 +15,7 @@
     "marathon": "durer-nemesis-cup",
     "bullseye": "vinkeles-putto-arrow-in-bullseye-close",
     "mouth_of_truth": "pencz-mouth-of-truth",
+    "pinacotheca": "vincent-butterfly-drawer-left",
     "prehistory": "bayard-reindeer-age-family",
     "antiquity": "ferat-roman-library",
     "middle_ages": "lacroix-chivalry-allegory",
@@ -585,6 +586,78 @@
         0.62,
         0.781366
       ]
+    },
+    {
+      "exhibit": "pinacotheca",
+      "variant": "vincent-butterfly-drawer",
+      "status": "alternative",
+      "commons_file": "Vincent, Levinus (1715) Wondertooneel der natuur -Tome 2- 0293.jpg",
+      "licence": "Public domain",
+      "credit": "Pinacoteca 1, plate I of Levinus Vincent's Elenchus tabularum, Haarlem, 1719",
+      "crop": [
+        0.34,
+        0.53,
+        0.64,
+        0.81
+      ]
+    },
+    {
+      "exhibit": "pinacotheca",
+      "variant": "vincent-butterfly-drawer-left",
+      "status": "chosen",
+      "commons_file": "Vincent, Levinus (1715) Wondertooneel der natuur -Tome 2- 0293.jpg",
+      "licence": "Public domain",
+      "credit": "Pinacoteca 1, plate I of Levinus Vincent's Elenchus tabularum, Haarlem, 1719",
+      "crop": [
+        0.09,
+        0.53,
+        0.37,
+        0.792
+      ]
+    },
+    {
+      "exhibit": "pinacotheca",
+      "variant": "vincent-insect-drawer-right",
+      "status": "alternative",
+      "commons_file": "Vincent, Levinus (1715) Wondertooneel der natuur -Tome 2- 0293.jpg",
+      "licence": "Public domain",
+      "credit": "Pinacoteca 1, plate I of Levinus Vincent's Elenchus tabularum, Haarlem, 1719",
+      "crop": [
+        0.61,
+        0.53,
+        0.88,
+        0.782
+      ]
+    },
+    {
+      "exhibit": "pinacotheca",
+      "variant": "vincent-insect-plate",
+      "status": "rejected",
+      "commons_file": "Vincent, Levinus (1715) Wondertooneel der natuur -Tome 2- 0293.jpg",
+      "licence": "Public domain",
+      "credit": "Pinacoteca 1, plate I of Levinus Vincent's Elenchus tabularum, Haarlem, 1719",
+      "crop": [
+        0.09,
+        0.13,
+        0.89,
+        0.88
+      ]
+    },
+    {
+      "exhibit": "pinacotheca",
+      "variant": "vincent-three-drawers-padded",
+      "status": "rejected",
+      "commons_file": "Vincent, Levinus (1715) Wondertooneel der natuur -Tome 2- 0293.jpg",
+      "licence": "Public domain",
+      "credit": "Pinacoteca 1, plate I of Levinus Vincent's Elenchus tabularum, Haarlem, 1719",
+      "crop": [
+        0.09,
+        0.53,
+        0.89,
+        0.88
+      ],
+      "background": "wall-detect",
+      "pad": true
     },
     {
       "exhibit": "prehistory",
