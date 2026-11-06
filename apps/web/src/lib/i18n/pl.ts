@@ -909,9 +909,9 @@ export const pl = {
 		other: 'Inne'
 	},
 	eraBounds: {
-		open: 'Twój kurs datuje tę epokę inaczej?',
-		title: 'Lata epoki',
-		hint: 'Zmień je tylko, jeśli Twój kurs przyjmuje inne daty. Sąsiednia epoka przesunie się razem z nimi.',
+		open: 'Dostosuj granice epoki',
+		title: 'Ramy czasowe epoki',
+		hint: 'Atelier przyjmuje standardowe ramy epok, ale to nie jedyne słuszne podejście. Jeśli chcesz, możesz je dostosować. Pamiętaj, że może to wpłynąć na zakres powtórek, a epoka przypisana już do dzieła nie zmieni się. Żeby zapewnić ciągłość biegu historii, sąsiednie epoki automatycznie dopasują się do nowych granic.',
 		start: 'Początek',
 		end: 'Koniec',
 		startBeforeCommonEra: 'Początek p.n.e.',
@@ -922,14 +922,14 @@ export const pl = {
 		before: (year: string): string => `Rok musi być wcześniejszy niż ${year}.`,
 		afterStart: 'Koniec musi być później niż początek.',
 		previousMoves: (era: string, year: string): string =>
-			`${capital(era)} skończy się wtedy w ${year}.`,
+			`Po tej zmianie ${era} będzie się kończyć w ${year}.`,
 		nextMoves: (era: string, year: string): string =>
-			`${capital(era)} zacznie się wtedy w ${year}.`,
+			`Po tej zmianie ${era} będzie się zaczynać w ${year}.`,
 		confirm: {
-			title: 'Zapisać nowe lata epoki?',
+			title: 'Zapisać nowe ramy epoki?',
 			description: (count: number): string =>
-				`${plural(count, { one: 'Jedno dzieło wyjdzie', few: `${count} dzieła wyjdą`, many: `${count} dzieł wyjdzie` })} wtedy poza ramy swojej epoki. Zostaną w niej, ale nie trafią do pytań o czas, dopóki ich rok i epoka znów nie będą do siebie pasować.`,
-			save: 'Zapisz mimo to'
+				`Po zmianie ${plural(count, { one: 'jedno dzieło wyjdzie', few: `${count} dzieła wyjdą`, many: `${count} dzieł wyjdzie` })} poza ramy swojej epoki. Nadal ${count === 1 ? 'będzie' : 'będą'} do niej przypisane i wpłynie to jedynie na zakres powtórek. Przypisanie dzieła do epoki możesz zmienić jedynie ręcznie.`,
+			save: 'Zapisz'
 		},
 		outside: (count: number): string =>
 			`${plural(count, { one: 'Jedno dzieło wychodzi', few: `${count} dzieła wychodzą`, many: `${count} dzieł wychodzi` })} poza ramy swojej epoki. Kliknij, aby przyjrzeć się im bliżej.`
@@ -2198,8 +2198,4 @@ function workCount(count: number): string {
 function plural(count: number, forms: PluralForms): string {
 	const category = pluralRules.select(count);
 	return category === 'one' || category === 'few' ? forms[category] : forms.many;
-}
-
-function capital(text: string): string {
-	return `${text.charAt(0).toLocaleUpperCase('pl')}${text.slice(1)}`;
 }
