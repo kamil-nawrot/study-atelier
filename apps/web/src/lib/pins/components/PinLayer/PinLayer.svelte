@@ -2,7 +2,9 @@
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { page } from '$app/state';
 	import { movePin } from '#lib/pins/pin-data/pin-data.ts';
+	import { refreshCareerOnFullImage } from '#lib/pins/full-image/full-image.ts';
 	import { fractionIn, pinsOfImage } from '#lib/pins/pin-layout/pin-layout.ts';
 	import type { Fraction } from '#lib/pins/types/fraction.ts';
 	import type { Pin } from '#lib/pins/types/pin.ts';
@@ -61,9 +63,12 @@
 	}
 
 	function saved(pin: Pin): void {
-		pins = pins.some((item) => item.id === pin.id)
-			? pins.map((item) => (item.id === pin.id ? pin : item))
-			: [...pins, pin];
+		if (pins.some((item) => item.id === pin.id)) {
+			pins = pins.map((item) => (item.id === pin.id ? pin : item));
+			return;
+		}
+		pins = [...pins, pin];
+		refreshCareerOnFullImage(pinsOfImage(pins, imageId).length, page.data.careerShown !== false);
 	}
 
 	function deleted(pin: Pin): void {

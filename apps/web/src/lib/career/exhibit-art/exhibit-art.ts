@@ -113,6 +113,11 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		credit: 'Henri de Montaut, „L’arrivée du projectile à Stone’s Hill”',
 		licence: 'domena publiczna',
 		commonsFile: 'Arrivee Projectile DTAL.jpg'
+	},
+	pinacotheca: {
+		credit: '„Pinacoteca 1”, plansza z katalogu Levinusa Vincenta, 1719',
+		licence: 'domena publiczna',
+		commonsFile: 'Vincent, Levinus (1715) Wondertooneel der natuur -Tome 2- 0293.jpg'
 	}
 };
 

@@ -147,7 +147,8 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 		'https://www.tate.org.uk/tate-etc/issue-51-spring-2021/yayoi-kusama-infinity-mirror-rooms-from-here-to-infinity',
 		'https://www.theartnewspaper.com/2006/07/01/damien-hirst-in-talks-to-replace-rotting-shark',
 		'https://collection.sciencemuseumgroup.org.uk/objects/co8647838/six-silver-fabric-samples-from-wrapped-reichstag-by-christo-and-jeanne-claude'
-	]
+	],
+	pinacotheca: ['https://marquandrarebooks.princeton.edu/?p=245']
 };
 
 export function curiosityOf(exhibit: string, tier: number): Curiosity | undefined {

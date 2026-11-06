@@ -75,6 +75,7 @@ describe('exhibits', () => {
 		expect(isHidden(exhibit({ code: 'night_watch', value: 1, thresholds: [1] }))).toBe(false);
 		expect(isHidden(exhibit({ code: 'back_from_storage', value: 0, thresholds: [1] }))).toBe(true);
 		expect(isHidden(exhibit({ code: 'mouth_of_truth', value: 0, thresholds: [1] }))).toBe(true);
+		expect(isHidden(exhibit({ code: 'pinacotheca', value: 9, thresholds: [10] }))).toBe(true);
 		expect(isHidden(exhibit({ value: 0 }))).toBe(false);
 	});
 

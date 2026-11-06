@@ -36,8 +36,8 @@ begin
   assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC')) = array[
     'antiquity', 'back_from_storage', 'bullseye', 'chronicle', 'collection', 'contemporary', 'early_modern', 'eras',
     'glossary', 'grand_tour', 'marathon', 'memory', 'middle_ages', 'modern', 'mouth_of_truth', 'night_watch',
-    'own_eye', 'prehistory', 'regular', 'seen_live', 'timeline'
-  ], 'the exhibits are not the agreed twenty-one';
+    'own_eye', 'pinacotheca', 'prehistory', 'regular', 'seen_live', 'timeline'
+  ], 'the exhibits are not the agreed twenty-two';
   assert (select (array_agg(exhibit order by position))[1:8]
       from public.unlock_exhibits('UTC') with ordinality as listed (exhibit, value, thresholds, position)) = array[
     'collection', 'eras', 'prehistory', 'antiquity', 'middle_ages', 'early_modern', 'modern', 'contemporary'
@@ -192,6 +192,49 @@ begin
   perform public.unlock_exhibits('UTC');
   assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'mouth_of_truth') = 1,
     'the mouth of truth does not give its bonus once';
+end;
+$$;
+
+do $$
+declare
+  pinned uuid;
+  trashed uuid;
+begin
+  perform public.save_artwork(
+    jsonb_build_object('title', 'Pinned', 'author_unknown', true, 'era_code', 'modern'),
+    '{}', null, '[{"source_wikidata_id": "Q101", "source_image_file": "Pinned.jpg"}]');
+  perform public.save_artwork(
+    jsonb_build_object('title', 'Trashed', 'author_unknown', true, 'era_code', 'modern'),
+    '{}', null, '[{"source_wikidata_id": "Q102", "source_image_file": "Trashed.jpg"}]');
+  select image.id into pinned from public.artwork_images as image
+    join public.artworks as artwork on artwork.id = image.artwork_id where artwork.title = 'Pinned';
+  select image.id into trashed from public.artwork_images as image
+    join public.artworks as artwork on artwork.id = image.artwork_id where artwork.title = 'Trashed';
+
+  insert into public.artwork_pins (image_id, x, y, text)
+    select pinned, 0.5, 0.5, 'Pin ' || number from generate_series(1, 9) as number;
+  insert into public.artwork_pins (image_id, x, y, text)
+    select trashed, 0.5, 0.5, 'Pin ' || number from generate_series(1, 10) as number;
+  update public.artworks set deleted_at = now() where title = 'Trashed';
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'pinacotheca') = 9,
+    'the pinacotheca does not count the most pins on one image outside the trash';
+  assert not exists (select 1 from public.exhibit_tiers where exhibit = 'pinacotheca'),
+    'an image in the trash or with fewer than ten pins unlocks the pinacotheca';
+
+  insert into public.artwork_pins (image_id, x, y, text) values (pinned, 0.5, 0.5, 'Pin 10');
+  assert (select thresholds from public.unlock_exhibits('UTC') where exhibit = 'pinacotheca') = array[10],
+    'the pinacotheca does not have one tier at ten pins';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'pinacotheca') = array[1]::smallint[],
+    'an image full of pins does not unlock the pinacotheca';
+
+  delete from public.artwork_pins where image_id = pinned and text = 'Pin 10';
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'pinacotheca') = 9,
+    'a deleted pin still counts';
+  assert exists (select 1 from public.exhibit_tiers where exhibit = 'pinacotheca'),
+    'a deleted pin takes the pinacotheca back';
+  assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'pinacotheca') = 1,
+    'the pinacotheca does not give its bonus once';
 end;
 $$;
 
