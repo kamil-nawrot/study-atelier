@@ -24,12 +24,12 @@ exhibit-art build --out tmp/exhibits
 exhibit-art publish --out ../../apps/web/static/exhibits
 ```
 
-| Command   | What it does                                                                                                                                                                             |
-| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `render`  | Renders one image into every tier as PNG. `--preview` also writes `source-crop.jpg`, the original with the crop marked.                                                                  |
-| `fetch`   | Downloads the source of every variant in `manifest.json` from Wikimedia Commons into `.cache/sources/`, at most 3840 px wide, and skips files already there.                             |
-| `build`   | Renders every variant of the manifest into `<out>/<exhibit>/<variant>/`, with `source-crop.jpg`, and writes `<out>/sources.json` with the credits and licences.                          |
-| `publish` | Renders the variant chosen for the app (`app` in the manifest) of each exhibit as WebP (quality 80) into `<out>/<exhibit>/<tier>.webp`, the layout the app reads from `static/exhibits`. |
+| Command   | What it does                                                                                                                                                                                |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `render`  | Renders one image into every tier as PNG. `--preview` also writes `source-crop.jpg`, the original with the crop marked.                                                                     |
+| `fetch`   | Downloads the source of every variant in `manifest.json` into `.cache/sources/`: from Wikimedia Commons at most 3840 px wide, or from the museum's `source_url`; skips files already there. |
+| `build`   | Renders every variant of the manifest into `<out>/<exhibit>/<variant>/`, with `source-crop.jpg`, and writes `<out>/sources.json` with the credits and licences.                             |
+| `publish` | Renders the variant chosen for the app (`app` in the manifest) of each exhibit as WebP (quality 80) into `<out>/<exhibit>/<tier>.webp`, the layout the app reads from `static/exhibits`.    |
 
 `build` and `publish` take `--fetch` to download missing sources first, and `--only` to limit the run to some exhibits (`--only marathon chronicle`) or variants (`--only marathon/durer-nemesis-cup`). Every command takes `--tiers <file>` to use other tiers than the built-in ones.
 
@@ -37,16 +37,17 @@ exhibit-art publish --out ../../apps/web/static/exhibits
 
 `manifest.json` lists every variant made so far, chosen, alternative and rejected, so none has to be prepared again by hand. `app` names the variant shown in the app for each exhibit.
 
-| Field                | Meaning                                                                                                                      |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `exhibit`, `variant` | The exhibit code used in the app and a name for this crop                                                                    |
-| `status`             | `chosen`, `alternative` or `rejected`                                                                                        |
-| `commons_file`       | The file name on Wikimedia Commons, without `File:`                                                                          |
-| `licence`, `credit`  | What the credits need                                                                                                        |
-| `crop`               | `[x0, y0, x1, y1]` as fractions of the source, so the crop does not depend on the downloaded size; keep the ratio near 10:13 |
-| `background`         | `scene` (default), `wall` or `wall-detect`, see below                                                                        |
-| `gamma`, `cap`       | Tone settings: gamma above 1 darkens the mid-tones, `cap` lowers the brightest tone (defaults 1.25 and 0.95)                 |
-| `pad`, `wall_darken` | Pad a narrow crop with paper to 10:13 before rendering, and darken the generated wall (1 keeps it)                           |
+| Field                       | Meaning                                                                                                                                                                  |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `exhibit`, `variant`        | The exhibit code used in the app and a name for this crop                                                                                                                |
+| `status`                    | `chosen`, `alternative` or `rejected`                                                                                                                                    |
+| `commons_file`              | The file name on Wikimedia Commons, without `File:`                                                                                                                      |
+| `source_url`, `source_page` | Instead of `commons_file`, for an engraving not on Commons: the direct address of the museum's public-domain image and the page of its object, which the credits link to |
+| `licence`, `credit`         | What the credits need                                                                                                                                                    |
+| `crop`                      | `[x0, y0, x1, y1]` as fractions of the source, so the crop does not depend on the downloaded size; keep the ratio near 10:13                                             |
+| `background`                | `scene` (default), `wall` or `wall-detect`, see below                                                                                                                    |
+| `gamma`, `cap`              | Tone settings: gamma above 1 darkens the mid-tones, `cap` lowers the brightest tone (defaults 1.25 and 0.95)                                                             |
+| `pad`, `wall_darken`        | Pad a narrow crop with paper to 10:13 before rendering, and darken the generated wall (1 keeps it)                                                                       |
 
 ## How an image is made
 
