@@ -26,7 +26,8 @@
     "seven_league_boots": "dore-boots-legs",
     "vasari_lives": "vasari-title-page",
     "figure_alphabet": "meckenem-letter-a-smb-mount-close",
-    "hortus_cliffortianus": "wandelaar-wide"
+    "hortus_cliffortianus": "wandelaar-wide",
+    "candle_moths": "van-der-vinne-candle"
   },
   "variants": [
     {
@@ -1110,6 +1111,36 @@
         0.208,
         0.9,
         0.84
+      ]
+    },
+    {
+      "exhibit": "candle_moths",
+      "status": "chosen",
+      "source_url": "https://iiif.micr.io/FDVGW/full/max/0/default.jpg",
+      "source_page": "https://www.rijksmuseum.nl/en/collection/RP-P-OB-62.370",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Vincent Laurensz. van der Vinne (II), Flies come to the light of a candle, in Adriaan Spinniker, Leerzaame zinnebeelden, Haarlem 1714, Rijksmuseum RP-P-OB-62.370",
+      "variant": "van-der-vinne-candle",
+      "crop": [
+        0.17,
+        0.02,
+        0.755,
+        0.97
+      ]
+    },
+    {
+      "exhibit": "candle_moths",
+      "status": "alternative",
+      "source_url": "https://iiif.micr.io/FDVGW/full/max/0/default.jpg",
+      "source_page": "https://www.rijksmuseum.nl/en/collection/RP-P-OB-62.370",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Vincent Laurensz. van der Vinne (II), Flies come to the light of a candle, in Adriaan Spinniker, Leerzaame zinnebeelden, Haarlem 1714, Rijksmuseum RP-P-OB-62.370",
+      "variant": "van-der-vinne-candle-close",
+      "crop": [
+        0.25,
+        0.02,
+        0.68,
+        0.72
       ]
     }
   ]
