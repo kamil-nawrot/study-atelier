@@ -29,16 +29,6 @@
 	let high = $derived(Math.max(...edges));
 	let ends = $derived(bounds ?? { from: years[0], to: years[years.length - 1] });
 	let text = $derived(sentence());
-	let legend = $derived(
-		[
-			m.relations.legend.tick,
-			bounds && boundsKind ? m.relations.legend[boundsKind] : undefined,
-			dots.length > 0 ? m.relations.legend.dot : undefined
-		]
-			.filter((part) => part !== undefined)
-			.join(', ')
-	);
-
 	function year(value: number): string {
 		return formatYear(value, false) ?? String(value);
 	}
@@ -55,11 +45,18 @@
 	function at(value: number): number {
 		return high === low ? 50 : ((value - low) / (high - low)) * 100;
 	}
+
+	const NARROW = 20;
+
+	let start = $derived(at(ends.from));
+	let end = $derived(at(ends.to));
+	let narrow = $derived(end - start < NARROW);
+	let middle = $derived(Math.min(Math.max((start + end) / 2, NARROW / 2), 100 - NARROW / 2));
 </script>
 
 <section class="span" aria-labelledby="relations-span">
 	<h3 id="relations-span" class="label">{m.relations.span}</h3>
-	<p>{text}</p>
+	<p class="visually-hidden">{text}</p>
 	<div class="strip" aria-hidden="true">
 		<div class="track"></div>
 		{#if bounds}
@@ -75,12 +72,17 @@
 		{/each}
 	</div>
 	<div class="ends caption" aria-hidden="true">
-		<span>{year(ends.from)}</span>
-		{#if ends.to !== ends.from}
-			<span>{year(ends.to)}</span>
+		{#if ends.from === undefined}{:else if narrow}
+			<span style:left="{middle}%" class="middle"
+				>{ends.to === ends.from
+					? year(ends.from)
+					: m.atelier.yearRange(year(ends.from), year(ends.to))}</span
+			>
+		{:else}
+			<span style:left="{start}%">{year(ends.from)}</span>
+			<span style:right="{100 - end}%">{year(ends.to)}</span>
 		{/if}
 	</div>
-	<p class="caption">{legend.charAt(0).toLocaleUpperCase('pl')}{legend.slice(1)}.</p>
 </section>
 
 <style>
@@ -137,8 +139,18 @@
 	}
 
 	.ends {
-		display: flex;
-		justify-content: space-between;
+		position: relative;
+		height: var(--line-height-sm);
+	}
+
+	.ends span {
+		position: absolute;
+		top: 0;
+		white-space: nowrap;
+	}
+
+	.ends .middle {
+		transform: translateX(-50%);
 	}
 
 	.label {
