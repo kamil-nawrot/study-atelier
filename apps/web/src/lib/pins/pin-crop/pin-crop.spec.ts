@@ -126,6 +126,14 @@ describe('ensurePinCrops', () => {
 		expect(vi.mocked(savePinCrop).mock.calls[0][0]).toBe(pin);
 	});
 
+	it('fetches the image once for all its pins', async () => {
+		ensurePinCrops([image], [viewPin('first'), viewPin('second', { x: 0.2 })]);
+		await settled();
+		await vi.waitFor(() => expect(savePinCrop).toHaveBeenCalledTimes(2));
+
+		expect(fetch).toHaveBeenCalledTimes(1);
+	});
+
 	it('leaves pins without a view, with a crop or without their image alone', async () => {
 		ensurePinCrops(
 			[image],
