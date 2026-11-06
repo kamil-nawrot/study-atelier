@@ -53,8 +53,8 @@ Chosen by the owner in ATL-507.
 - A pin without a view gets no crop. The learner chose no fragment there, so any crop would guess a zoom level.
 - Each lens shows a small crop stored for its pin (about 320 px). The crop is cut from the large image of the loupe, which is already loaded when the pin is saved or its view changes. It is stored next to the own images as `<owner>/<pin id>-crop.<ext>`, so the existing storage policies, the quota and the deletion of an account cover it. The crop is deleted with its pin.
 - The daily clean-up of unused files (`unused_images()`) keeps the crops of existing pins.
-- A pin saved before the crops, or one whose crop failed, gets its crop in the background the next time its artwork is opened. Until then its lens shows the artwork thumbnail with the point marked.
-- A crop fails when the image server forbids reading its pixels. Commons and the own images allow it, but a linked image from another site may not. A crop also fails when the account's storage is full. In both cases the lens keeps the thumbnail.
+- A pin saved before the crops, or one whose crop failed, gets its crop in the background the next time its artwork is opened. Until then its lens shows the same view cut by CSS from a medium image (960 px from Commons, the 500 px thumbnail of an own image), blurry at a strong zoom. The owner chose this in ATL-531 over the first plan, the whole thumbnail with the point marked.
+- A crop fails when the image server forbids reading its pixels. Commons and the own images allow it, but a linked image from another site may not. A crop also fails when the account's storage is full. In both cases the lens keeps the view cut from the medium image.
 
 ### Consequences
 

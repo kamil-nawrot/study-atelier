@@ -62,12 +62,18 @@ describe('termFragments', () => {
 				title: 'Katedra',
 				text: 'Apsyda od wschodu',
 				crop: 'https://storage.test/crop',
-				thumbnail: { src: 'https://storage.test/thumbnail', x: 0.25, y: 0.75, ratio: 2 }
+				thumbnail: {
+					src: 'https://storage.test/thumbnail',
+					left: -200,
+					top: -325,
+					width: 1000,
+					height: 500
+				}
 			}
 		]);
 	});
 
-	it('keeps the thumbnail with the point when the crop is missing', async () => {
+	it('cuts the view of the pin from a medium image when the crop is missing', async () => {
 		const [shown] = await termFragments(
 			[
 				fragment('pin-2', 'artwork-1', {
@@ -89,9 +95,10 @@ describe('termFragments', () => {
 		expect(shown?.crop).toBeUndefined();
 		expect(shown?.thumbnail).toEqual({
 			src: expect.stringContaining('Apse.jpg'),
-			x: 0.25,
-			y: 0.75,
-			ratio: 1
+			left: -200,
+			top: -700,
+			width: 1000,
+			height: 1000
 		});
 	});
 

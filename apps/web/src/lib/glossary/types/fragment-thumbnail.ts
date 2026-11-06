@@ -1,6 +1,7 @@
 export type FragmentThumbnail = {
 	src?: string;
-	x: number;
-	y: number;
-	ratio: number;
+	left: number;
+	top: number;
+	width: number;
+	height: number;
 };

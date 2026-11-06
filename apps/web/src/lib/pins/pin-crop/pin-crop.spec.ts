@@ -3,7 +3,7 @@ import { fetchCommonsThumbnails } from '#lib/images/commons/commons.ts';
 import { savePinCrop } from '#lib/pins/pin-crop-data/pin-crop-data.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import type { Pin } from '#lib/pins/types/pin.ts';
-import { cutPinCrop, ensurePinCrops, PIN_CROP_SIDE, pinCropRect } from './pin-crop.ts';
+import { cutPinCrop, ensurePinCrops, PIN_CROP_SIDE } from './pin-crop.ts';
 
 vi.mock('#lib/pins/pin-crop-data/pin-crop-data.ts', () => ({ savePinCrop: vi.fn() }));
 vi.mock('#lib/images/commons/commons.ts', async (importOriginal) => ({
@@ -75,36 +75,6 @@ async function settled(): Promise<void> {
 async function drained(): Promise<void> {
 	for (let turn = 0; turn < 20; turn += 1) await Promise.resolve();
 }
-
-describe('pinCropRect', () => {
-	it('cuts a square as wide as the view around the pin', () => {
-		expect(pinCropRect({ x: 0.5, y: 0.5, viewWidth: 0.1 }, 2000, 1000)).toEqual({
-			left: 900,
-			top: 400,
-			side: 200
-		});
-	});
-
-	it('keeps the square inside the image at its edges', () => {
-		expect(pinCropRect({ x: 0, y: 1, viewWidth: 0.1 }, 2000, 1000)).toEqual({
-			left: 0,
-			top: 800,
-			side: 200
-		});
-	});
-
-	it('shrinks a view taller than the image to its height', () => {
-		expect(pinCropRect({ x: 0.5, y: 0.5, viewWidth: 1 }, 2000, 1000)).toEqual({
-			left: 500,
-			top: 0,
-			side: 1000
-		});
-	});
-
-	it('cuts nothing for a pin without a view', () => {
-		expect(pinCropRect({ x: 0.5, y: 0.5 }, 2000, 1000)).toBeUndefined();
-	});
-});
 
 describe('cutPinCrop', () => {
 	afterEach(() => {
