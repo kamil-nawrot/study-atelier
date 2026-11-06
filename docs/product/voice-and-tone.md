@@ -50,6 +50,7 @@ Each tier of an exhibit in "Ekspozycja" reveals one curiosity on the exhibit's t
 | Camera obscura z Encyklopedii | optics, devices and the image                                                                                                                                                           |
 | The six era exhibits          | how the artworks of the era were made: materials, techniques, workshops                                                                                                                 |
 | Księga Vasariego              | how the whole work of one artist is known: biographies, catalogues of works, versatility and records ([ADR-0198](../decisions/0198-show-authors-with-many-artworks-as-vasaris-book.md)) |
+| Ogród Clifforta               | how collections are described and ordered: names, labels, catalogues and classification systems ([ADR-0202](../decisions/0202-show-described-values-as-cliffords-garden.md))            |
 | Hidden exhibits               | one story about the work itself                                                                                                                                                         |
 
 ## Examples

@@ -1,4 +1,4 @@
-# 0202. Show the palette on the stage and compare two artworks side by side
+# 0203. Show the palette on the stage and compare two artworks side by side
 
 - Status: accepted
 - Date: 2026-11-06
