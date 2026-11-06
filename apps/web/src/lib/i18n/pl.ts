@@ -1060,7 +1060,7 @@ export const pl = {
 		},
 		emptyEvents: 'Nie ma tu jeszcze wydarzeń. Dodaj pierwsze, a pojawi się też w Kalendarium.',
 		eventsAdd: 'Dodaj wydarzenie',
-		eventKinds: { single: 'Wydarzenie jednego roku', span: 'Okres' },
+		eventKinds: { single: 'Wydarzenie', span: 'Okres' },
 		search: {
 			material: 'Szukaj materiału',
 			author: 'Szukaj autora',
