@@ -93,6 +93,8 @@ export function validateEraBounds(
 		const floor = index >= 2 ? junctions[index - 2] : PREHISTORY_START;
 		if (start === undefined) errors.start = m.eraBounds.yearRequired;
 		else if (start <= floor) errors.start = m.eraBounds.after(year(floor));
+		else if (!hasEnd(code) && start > LATEST_BOUND)
+			errors.start = m.eraBounds.before(year(LATEST_BOUND + 1));
 	}
 	if (hasEnd(code)) {
 		const ceiling = index + 1 < junctions.length ? junctions[index + 1] : LATEST_BOUND + 1;
