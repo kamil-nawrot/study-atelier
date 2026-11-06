@@ -59,7 +59,11 @@
 	<p class="visually-hidden">{text}</p>
 	<div class="strip" aria-hidden="true">
 		<div class="track"></div>
-		{#if bounds}
+		{#if bounds && bounds.from === bounds.to}
+			<svg style:left="{at(bounds.from)}%" class="dot point" viewBox="0 0 10 10">
+				<circle cx="5" cy="5" r="4" />
+			</svg>
+		{:else if bounds}
 			<div style:left="{at(bounds.from)}%" style:right="{100 - at(bounds.to)}%" class="band"></div>
 		{/if}
 		{#each years as value, position (position)}
@@ -136,6 +140,10 @@
 		fill: var(--color-bg);
 		stroke: var(--color-fg-muted);
 		stroke-width: var(--border-width-base);
+	}
+
+	.point circle {
+		fill: var(--color-fg-muted);
 	}
 
 	.ends {

@@ -53,6 +53,16 @@ describe('TimeSpan', () => {
 		await expect.element(page.getByText('1500 – 1510', { exact: true })).toBeVisible();
 	});
 
+	it('marks the one year of an event without artworks with a point', async () => {
+		const { container } = await render(TimeSpan, {
+			props: { kind: 'event', years: [], bounds: { from: 1492, to: 1492 } }
+		});
+
+		await expect.element(page.getByText('1492', { exact: true })).toBeVisible();
+		expect(container.querySelector('.point')?.getAttribute('style')).toContain('left: 50%');
+		expect(container.querySelector('.band')).toBeNull();
+	});
+
 	it('says when no artwork has a date, without a band for a style', async () => {
 		render(TimeSpan, { kind: 'style', years: [], bounds: undefined });
 
