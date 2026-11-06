@@ -253,6 +253,18 @@ How views and components look and behave, so every new screen stays consistent w
 - The filter panel of the wall has "Widziane na żywo" with the `footprints` icon and its count next to "Ulubione", both a `FlagToggle` (the heart filled when pressed, the footprints not); it is kept in the address as `seen=1` and has a tag that names the field only. There is no "not yet" choice.
 - A visit whose note links to a value or an artwork is listed under "Wspominasz o tym w notatkach" as "Wizyta" with its place and its date as far as it is known ("Louvre · 12.10.2026"). A place with visits counts as used in the card index, so it has no "Usuń" until its visits are gone, merging two places moves their visits, and the place fields of the visit and artwork forms suggest it even when no artwork has it.
 
+## Exhibitions
+
+- The list of exhibitions is a grid of posters, three in a row from 768 px and one on a phone: the cover at 4:5 (the first artwork of the document, `NoImage` without one), the title in Newsreader italic and a caption with the number of artworks and the last change ([ADR-0198](../decisions/0198-tell-stories-in-exhibitions-of-the-learners-artworks.md)).
+- An exhibition page is one document. Text blocks are at most `--size-content-default` wide, and artworks and rows at most `--size-content-wide`, all aligned left, so a text needs a row to be wider. A row holds two or three blocks in equal columns from 768 px and stacks on a phone.
+- An artwork of an exhibition that is in Archiwum or deleted for good is the library `NoImage` frame without a caption.
+- Edit mode is the same page. The side panel "Dodaj do wystawy" at the right edge behaves like the wall filters: it takes the free margin first, opens and closes with the width animation of the side menu, and is toggled by "Dodaj" in the top bar. A quiet "Zapisano" with the `cloud-check` icon and "Gotowe" (`check`) stand at the top right.
+- The contextual bar of a block is placed like `PopoverCard`, above the block or below it without room, shifted sideways, with the document column as its boundary instead of the window.
+- While dragging, only the style of the target row changes (the dashed slot, columns at a third); the document changes on the drop. Drag tests use real Playwright mouse moves in a tall viewport, because synthetic drag events missed the bugs of the prototype.
+- On a phone the panel opens from the bottom from a full-width "Dodaj do wystawy" button fixed at the bottom of the screen, and the bar wraps into lines.
+- In the artwork view "Na N wystawach" is a muted `Disclosure` under "Widziane na żywo", closed at first, like the visits.
+- Archiwum shows its two kinds, "Dzieła" and "Wystawy", with the library `Tabs`, without counters.
+
 ## Statistics
 
 - "Statystyki" has no item in the menu: the artwork count over the wall is its way in, a link of the count and the `chart-column` icon (`WallCount`) with a `Tooltip` "Statystyki", muted like a caption and in `--color-fg` on hover ([ADR-0171](../decisions/0171-show-statistics-of-the-collection-from-the-wall.md)).

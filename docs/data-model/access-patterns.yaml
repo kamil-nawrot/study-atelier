@@ -280,7 +280,7 @@ reads:
   - id: R18
     name: Trash
     route: /atelier/trash
-    shows: every trashed artwork
+    shows: every trashed artwork, and in the tab "Wystawy" every exhibition in Archiwum (from 0.21)
     needs:
       - 'artworks: all trashed, tile columns'
     scope: all
@@ -324,6 +324,65 @@ reads:
         note: 'new in 0.18 (ADR-0171); arriving from the wall needs only the aggregate and the cards'
       }
 
+  - id: R22
+    name: Exhibitions list
+    route: /atelier/exhibitions
+    shows: every exhibition outside Archiwum as a poster with its cover, title, number of artworks and last change
+    needs:
+      - 'exhibitions: all outside Archiwum, light (id, title, updated_at), never the document'
+      - 'cover: the artwork at position 0 of exhibition_artworks, its first image'
+      - 'count: artworks per exhibition'
+    scope: all
+    frequency: view
+    today:
+      { requests: 0, whole: [], note: 'new in 0.21 (ADR-0199); target one RPC exhibition_list' }
+
+  - id: R23
+    name: Exhibition
+    route: /atelier/exhibitions/[id]
+    shows: the document with text, heading, quote, artwork and close-up blocks in rows, palettes and live artwork notes
+    needs:
+      - 'exhibition: one, by id, with the document'
+      - 'artworks: few, by the ids in exhibition_artworks, Archiwum included (deleted_at picks the frame), with images, palettes and notes'
+      - 'note link labels: only for the artwork notes the document shows (R05)'
+      - 'term index: cached, for marking the texts and the shown notes'
+    scope: one
+    frequency: view
+    today: { requests: 0, whole: [], note: 'new in 0.21; target 2-3 requests' }
+
+  - id: R24
+    name: Exhibition, edit mode
+    route: /atelier/exhibitions/[id] (edit)
+    shows: R23 and the side panel "Dodaj do wystawy"
+    needs:
+      - 'everything of R23'
+      - 'panel, recent: few, the 12 artworks added last, tile columns'
+      - 'panel, search: few, by phrase (title, author, record number), limit 20, per pause in typing (like R06)'
+      - 'a dropped artwork: one, by id, with images, palettes and notes'
+    scope: one
+    frequency: view, key
+    today:
+      {
+        requests: 0,
+        whole: [],
+        note: 'new in 0.21; must not load the whole collection for the panel'
+      }
+
+  - id: R25
+    name: Exhibitions of an artwork
+    route: /atelier/[number] (part of R03)
+    shows: '"Na N wystawach": the exhibitions outside Archiwum that hold the artwork'
+    needs:
+      - 'exhibition_artworks: few, by artwork_id, joined to exhibition titles and covers'
+    scope: few
+    frequency: view, flip
+    today:
+      {
+        requests: 0,
+        whole: [],
+        note: 'new in 0.21; folded into the artwork page RPC where possible'
+      }
+
 writes:
   - id: W01
     name: Save artwork
@@ -353,12 +412,17 @@ writes:
   - id: W05
     name: Delete or trash an artwork, value, term, visit
     changes: [the row]
-    side_effects: [dangling note links, pins, visits, review cards]
+    side_effects:
+      [dangling note links, pins, visits, review cards, the NoImage frame in exhibitions]
     frequency: write
   - id: W06
     name: Import an atelier export
     changes: [all owner tables]
-    side_effects: [must accept every older export format]
+    side_effects:
+      [
+        must accept every older export format,
+        exhibition_artworks rebuilt from the documents at the end
+      ]
     frequency: rare
   - id: W07
     name: Save or delete a pin
@@ -414,8 +478,41 @@ writes:
   - id: W17
     name: Restore or purge from the trash
     changes: [artworks.deleted_at, artworks]
-    side_effects: [links and mentions come back on restore; purge cascades]
+    side_effects:
+      [
+        links and mentions come back on restore; purge cascades,
+        an exhibition shows the NoImage frame in place of a purged artwork
+      ]
     frequency: write
+  - id: W18
+    name: Create an exhibition
+    changes: [exhibitions]
+    side_effects: [list, limit of 200 exhibitions per account]
+    frequency: write
+  - id: W19
+    name: Autosave an exhibition (title and document)
+    changes: [exhibitions, exhibition_artworks]
+    side_effects:
+      - '"Na wystawach" of every artwork added or removed'
+      - 'cover and count on the list'
+      - 'a save with an older revision is refused'
+    frequency: 'write, a few seconds after the last change'
+  - id: W20
+    name: Move an exhibition to Archiwum
+    changes: [exhibitions.deleted_at]
+    side_effects: [list, '"Na wystawach" of its artworks']
+    frequency: rare
+  - id: W21
+    name: Restore or purge an exhibition
+    changes: [exhibitions.deleted_at, exhibitions, exhibition_artworks]
+    side_effects:
+      ['restore brings back "Na wystawach"; purge cascades exhibition_artworks; the artworks stay']
+    frequency: rare
+  - id: W22
+    name: Store the palette of an image
+    changes: [artwork_images.palette]
+    side_effects: [palette in exhibitions and the artwork view]
+    frequency: 'write, on saving an image, or once on the first show of an older image'
 
 relations:
   # Every relation the app shows, whether stored or computed today.
@@ -424,6 +521,13 @@ relations:
   - { from: style, to: period, kind: in_period, stored: style_periods }
   - { from: visit, to: place, kind: at_place, stored: visits.place_id }
   - { from: visit, to: artwork, kind: saw, stored: visit_artworks }
+  - {
+      from: exhibition,
+      to: artwork,
+      kind: shows,
+      stored: 'exhibition_artworks, written by save_exhibition from the document'
+    }
+  - { from: exhibition block, to: image, kind: shows_image, stored: 'no, imageId in the document' }
   - { from: pin, to: term, kind: pinned_term, stored: artwork_pins.glossary_entry_id }
   - { from: note, to: artwork, kind: links_to, stored: 'no, Markdown text ](/atelier/n)' }
   - {
