@@ -12,10 +12,20 @@ import {
 import { loadValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
 import { loadPlaceVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
+import { loadRelations } from '#lib/relations/relations-data/relations-data.ts';
 import { loadValuePage } from './value-page-data.ts';
 
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({ loadArtworksOfValue: vi.fn() }));
 vi.mock('#lib/card-index/card-index-data/card-index-data.ts', () => ({ loadCardIndex: vi.fn() }));
+vi.mock('#lib/relations/relations-data/relations-data.ts', () => ({
+	loadRelations: vi.fn(async ({ kind }: { kind: string }) => ({
+		kind,
+		years: [],
+		groups: [],
+		types: [],
+		total: 0
+	}))
+}));
 vi.mock('#lib/chronicle/chronicle-data/chronicle-data.ts', () => ({ loadPlaceVisits: vi.fn() }));
 vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({
 	loadTermIndex: vi.fn(async () => ({ terms: [] }))
@@ -87,12 +97,16 @@ describe('loadValuePage', () => {
 		await loadValuePage('era', 'antiquity', true);
 
 		expect(loadArtworksOfValue).toHaveBeenCalledWith({ eraCode: 'antiquity' });
+		expect(loadRelations).toHaveBeenCalledWith(
+			expect.objectContaining({ kind: 'era', bounds: { from: -3000, to: 476 } })
+		);
 	});
 
 	it('does not load the artworks for the form', async () => {
 		const result = await loadValuePage('era', 'antiquity', false);
 
 		expect(loadArtworksOfValue).not.toHaveBeenCalled();
+		expect(loadRelations).not.toHaveBeenCalled();
 		expect(result.subject).toEqual({ kind: 'era', code: 'antiquity' });
 	});
 

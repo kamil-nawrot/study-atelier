@@ -1975,6 +1975,42 @@ export const pl = {
 			invalid: 'Nie udało się zapisać wydarzenia. Sprawdź nazwę i datę.'
 		}
 	},
+	relations: {
+		title: 'Powiązania',
+		span: 'Rozpiętość w czasie',
+		artworkYears: (from: string, to: string): string =>
+			from === to ? `Twoje dzieła z roku ${from}` : `Twoje dzieła z lat ${from} – ${to}`,
+		noYears: 'Żadne z tych dzieł nie ma daty',
+		bounds: {
+			era: (from: string, to: string): string => `w epoce ${from} – ${to}`,
+			author: (from: string, to: string): string => `w ciągu życia ${from} – ${to}`,
+			event: (from: string, to: string): string =>
+				from === to ? `w roku ${from}` : `w latach ${from} – ${to}`
+		},
+		legend: {
+			tick: 'kreska to dzieło',
+			era: 'pas to lata epoki',
+			author: 'pas to lata życia',
+			event: 'pas to czas wydarzenia',
+			dot: 'kółko to wydarzenie z Kalendarium'
+		},
+		together: 'Najczęściej razem',
+		hierarchy: 'W tej epoce',
+		groups: {
+			periods: 'Okresy',
+			styles: 'Style',
+			authors: 'Autorzy',
+			materials: 'Materiały',
+			places: 'Miejsca',
+			periodsAndStyles: 'Okresy i style'
+		},
+		types: 'Typy dzieł',
+		progress: 'Postęp w nauce',
+		mastered: (count: number, total: number): string =>
+			`${count} z ${total} ${total === 1 ? 'dzieła' : 'dzieł'} opanowane`,
+		sameTime: 'W tym samym czasie',
+		otherEvents: 'Inne wydarzenia w tym czasie'
+	},
 	valuePage: {
 		back: 'Kartoteka',
 		deleteBlocked: (demonstrative: string, count: string, other: string): string =>

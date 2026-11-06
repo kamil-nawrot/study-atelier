@@ -752,7 +752,14 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/rpc/record_review') {
 			return route.fulfill({ status: 204, headers: corsHeaders() });
 		}
-		if (url.pathname === '/rest/v1/review_cards') return json(route, REVIEW_CARDS);
+		if (url.pathname === '/rest/v1/review_cards') {
+			const settled = Number(url.searchParams.get('stability')?.replace(/^gte\./, '') ?? '');
+			if (!Number.isFinite(settled) || settled === 0) return json(route, REVIEW_CARDS);
+			return json(
+				route,
+				REVIEW_CARDS.filter((row) => row.stability >= settled)
+			);
+		}
 		if (url.pathname === '/rest/v1/rpc/unlock_exhibits') return json(route, EXHIBITS);
 		if (url.pathname === '/rest/v1/rpc/career_standing') {
 			const newTiers = EXHIBIT_TIERS.filter((row) => !row.seen_at).length;
@@ -771,8 +778,23 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/timeline_events') {
 			if (request.method() === 'POST') return json(route, { id: TIMELINE_EVENTS[0].id }, 201);
 			if (request.method() === 'PATCH') return json(route, { id: TIMELINE_EVENTS[0].id });
-			const id = url.searchParams.get('id')?.replace(/^eq\./, '');
+			const single = url.searchParams.get('id');
+			const id = single?.startsWith('eq.') ? single.slice(3) : undefined;
 			if (id) return json(route, TIMELINE_EVENTS.find((row) => row.id === id) ?? null);
+			const after = Number(url.searchParams.get('year_to')?.replace(/^gte\./, '') ?? '');
+			const before = Number(
+				url.searchParams.get('or')?.match(/year_from\.lte\.(-?\d+)/)?.[1] ?? ''
+			);
+			if (Number.isFinite(after) && Number.isFinite(before) && url.searchParams.has('or')) {
+				const except = url.searchParams.get('id')?.replace(/^neq\./, '');
+				return json(
+					route,
+					TIMELINE_EVENTS.filter(
+						(row) =>
+							row.year_to >= after && (row.year_from ?? row.year_to) <= before && row.id !== except
+					)
+				);
+			}
 			return json(route, TIMELINE_EVENTS);
 		}
 		if (url.pathname === '/rest/v1/visits') return visitsRoute(route, request, url);
