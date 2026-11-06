@@ -14,7 +14,13 @@
     "night_watch": "night-watch-engraving-1847",
     "marathon": "durer-nemesis-cup",
     "bullseye": "vinkeles-putto-arrow-in-bullseye-close",
-    "mouth_of_truth": "pencz-mouth-of-truth"
+    "mouth_of_truth": "pencz-mouth-of-truth",
+    "prehistory": "bayard-reindeer-age-family",
+    "antiquity": "ferat-roman-library",
+    "middle_ages": "lacroix-chivalry-allegory",
+    "early_modern": "gartenlaube-gutenberg",
+    "modern": "neuville-benett-buffalo-herd-wide",
+    "contemporary": "montaut-projectile-stone-hill"
   },
   "variants": [
     {
@@ -578,6 +584,146 @@
         0.2,
         0.62,
         0.781366
+      ]
+    },
+    {
+      "exhibit": "prehistory",
+      "variant": "bayard-reindeer-age-family",
+      "status": "chosen",
+      "commons_file": "Une famille à l’âge du renne.jpg",
+      "licence": "Public domain",
+      "credit": "Émile Bayard, Une famille à l’âge du renne, from Louis Figuier, L’Homme primitif, 1870",
+      "crop": [
+        0,
+        0.02,
+        1,
+        0.89
+      ]
+    },
+    {
+      "exhibit": "prehistory",
+      "variant": "bayard-reindeer-age-family-close",
+      "status": "alternative",
+      "commons_file": "Une famille à l’âge du renne.jpg",
+      "licence": "Public domain",
+      "credit": "Émile Bayard, Une famille à l’âge du renne, from Louis Figuier, L’Homme primitif, 1870",
+      "crop": [
+        0.05,
+        0,
+        0.95,
+        0.8
+      ]
+    },
+    {
+      "exhibit": "antiquity",
+      "variant": "ferat-roman-library",
+      "status": "chosen",
+      "commons_file": "Les merveilles de l'industrie, 1873 \"La bibliothèque d'un Romain\". (4727228008).jpg",
+      "licence": "CC BY 2.0",
+      "credit": "Jules Férat, La bibliothèque d’un Romain, from Louis Figuier, Les Merveilles de l’industrie, 1873; scan by the Fondo Antiguo de la Biblioteca de la Universidad de Sevilla",
+      "crop": [
+        0.02,
+        0,
+        0.98,
+        0.96
+      ]
+    },
+    {
+      "exhibit": "antiquity",
+      "variant": "ferat-roman-library-close",
+      "status": "alternative",
+      "commons_file": "Les merveilles de l'industrie, 1873 \"La bibliothèque d'un Romain\". (4727228008).jpg",
+      "licence": "CC BY 2.0",
+      "credit": "Jules Férat, La bibliothèque d’un Romain, from Louis Figuier, Les Merveilles de l’industrie, 1873; scan by the Fondo Antiguo de la Biblioteca de la Universidad de Sevilla",
+      "crop": [
+        0.25,
+        0.26,
+        0.98,
+        0.96
+      ]
+    },
+    {
+      "exhibit": "middle_ages",
+      "variant": "lacroix-chivalry-allegory",
+      "status": "chosen",
+      "commons_file": "Military and religious life in the Middle Ages and at the period of the Renaissance (1870) (14782676354).jpg",
+      "licence": "No known copyright restrictions",
+      "credit": "Chivalry represented by allegorical figures, after a copperplate of 1573, from Paul Lacroix, Military and Religious Life in the Middle Ages, 1870",
+      "crop": [
+        0,
+        0,
+        1,
+        0.82
+      ]
+    },
+    {
+      "exhibit": "early_modern",
+      "variant": "gartenlaube-gutenberg",
+      "status": "chosen",
+      "commons_file": "Die Gartenlaube (1881) b 837.jpg",
+      "licence": "Public domain",
+      "credit": "Leo Reiffenstein, Gutenberg zeigt seinem Freunde Fust die ersten Druckbogen, from Die Gartenlaube, 1881",
+      "crop": [
+        0,
+        0,
+        1,
+        1
+      ]
+    },
+    {
+      "exhibit": "early_modern",
+      "variant": "gartenlaube-gutenberg-close",
+      "status": "alternative",
+      "commons_file": "Die Gartenlaube (1881) b 837.jpg",
+      "licence": "Public domain",
+      "credit": "Leo Reiffenstein, Gutenberg zeigt seinem Freunde Fust die ersten Druckbogen, from Die Gartenlaube, 1881",
+      "crop": [
+        0.1,
+        0.15,
+        0.9,
+        0.947
+      ]
+    },
+    {
+      "exhibit": "modern",
+      "variant": "neuville-benett-buffalo-herd",
+      "status": "alternative",
+      "commons_file": "'Around the World in Eighty Days' by Neuville and Benett 42.jpg",
+      "licence": "Public domain",
+      "credit": "Alphonse de Neuville and Léon Benett, A herd of buffalo barred the track, from Jules Verne, Le Tour du monde en quatre-vingts jours, 1873",
+      "crop": [
+        0.15,
+        0.05,
+        0.85,
+        0.66
+      ]
+    },
+    {
+      "exhibit": "modern",
+      "variant": "neuville-benett-buffalo-herd-wide",
+      "status": "chosen",
+      "commons_file": "'Around the World in Eighty Days' by Neuville and Benett 42.jpg",
+      "licence": "Public domain",
+      "credit": "Alphonse de Neuville and Léon Benett, A herd of buffalo barred the track, from Jules Verne, Le Tour du monde en quatre-vingts jours, 1873",
+      "crop": [
+        0,
+        0,
+        1,
+        0.88
+      ]
+    },
+    {
+      "exhibit": "contemporary",
+      "variant": "montaut-projectile-stone-hill",
+      "status": "chosen",
+      "commons_file": "Arrivee Projectile DTAL.jpg",
+      "licence": "Public domain",
+      "credit": "Henri de Montaut and François Pannemaker, L’arrivée du projectile à Stone’s Hill, from Jules Verne, De la Terre à la Lune, 1865",
+      "crop": [
+        0,
+        0.02,
+        1,
+        0.87
       ]
     }
   ]
