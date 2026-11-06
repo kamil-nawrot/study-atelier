@@ -679,7 +679,6 @@ export const pl = {
 		change: 'Zmień dzieło',
 		swap: 'Zamień strony',
 		loupeBoth: 'Lupa pokazuje to samo miejsce na obu obrazach',
-		more: 'Pokaż więcej dzieł',
 		loadFailedTitle: 'Nie udało się wczytać porównania',
 		loadingAtelier: 'Wczytywanie atelier…'
 	},
