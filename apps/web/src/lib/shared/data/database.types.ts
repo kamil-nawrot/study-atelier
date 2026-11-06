@@ -126,6 +126,7 @@ export type Database = {
           own_image_path: string | null;
           own_image_url: string | null;
           owner_id: string;
+          palette: Json | null;
           position: number;
           source_image_attribution: string | null;
           source_image_file: string | null;
@@ -142,6 +143,7 @@ export type Database = {
           own_image_path?: string | null;
           own_image_url?: string | null;
           owner_id?: string;
+          palette?: Json | null;
           position: number;
           source_image_attribution?: string | null;
           source_image_file?: string | null;
@@ -157,6 +159,7 @@ export type Database = {
           own_image_path?: string | null;
           own_image_url?: string | null;
           owner_id?: string;
+          palette?: Json | null;
           position?: number;
           source_image_attribution?: string | null;
           source_image_file?: string | null;

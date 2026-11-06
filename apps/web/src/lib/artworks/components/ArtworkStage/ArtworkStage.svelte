@@ -18,6 +18,8 @@
 	} from '#lib/images/artwork-image/artwork-image.ts';
 	import ImageViewer from '#lib/images/components/ImageViewer/ImageViewer.svelte';
 	import Loupe from '#lib/images/components/Loupe/Loupe.svelte';
+	import PaletteBand from '#lib/images/components/PaletteBand/PaletteBand.svelte';
+	import { PaletteLoader } from '#lib/images/palette-loader/palette-loader.svelte.ts';
 	import { LOUPE_MIN_RATIO } from '#lib/images/loupe/loupe.ts';
 	import PinCard from '#lib/pins/components/PinCard/PinCard.svelte';
 	import PinDialog from '#lib/pins/components/PinDialog/PinDialog.svelte';
@@ -77,6 +79,8 @@
 	let loupeActive = $derived(loupeOn && loupeReady && mouse.current);
 
 	let showPins = $state(false);
+	let paletteOn = $state(false);
+	const palette = new PaletteLoader();
 
 	let imageId = $derived(current?.id);
 	let allPins = $derived(pins);
@@ -99,6 +103,15 @@
 		void artwork.id;
 		void shown;
 		loupeOn = untrack(() => loupeOnOpen);
+	});
+
+	$effect.pre(() => {
+		void artwork.id;
+		paletteOn = false;
+	});
+
+	$effect(() => {
+		if (paletteOn) void palette.load(current);
 	});
 
 	function step(by: -1 | 1): void {
@@ -166,6 +179,9 @@
 				{#if showPins}
 					<PinMarkers card={pinCard} names={entryNames} pins={imagePins} />
 				{/if}
+				{#if paletteOn && palette.status !== 'unreadable' && palette.status !== 'idle'}
+					<PaletteBand collecting={palette.status === 'loading'} colours={palette.colours} />
+				{/if}
 				{#if loupeActive && large}
 					<Loupe
 						image={image.src}
@@ -180,17 +196,17 @@
 		{#if credit}
 			<figcaption class="caption">{credit}</figcaption>
 		{/if}
-		{#if mouse.current || imagePins.length > 0}
-			<StageActions
-				{loupeActive}
-				{loupeReady}
-				mouse={mouse.current}
-				onloupe={toggleLoupe}
-				pinCount={imagePins.length}
-				tooLarge={isTooLargeForLoupe(current)}
-				bind:showPins
-			/>
-		{/if}
+		<StageActions
+			{loupeActive}
+			{loupeReady}
+			mouse={mouse.current}
+			onloupe={toggleLoupe}
+			paletteUnreadable={palette.status === 'unreadable'}
+			pinCount={imagePins.length}
+			tooLarge={isTooLargeForLoupe(current)}
+			bind:paletteOn
+			bind:showPins
+		/>
 		{#if gallery.length > 1}
 			<StageGallery {gallery} bind:shown />
 		{/if}

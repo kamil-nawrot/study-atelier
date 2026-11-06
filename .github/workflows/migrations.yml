@@ -108,6 +108,9 @@ jobs:
       - name: Check the collection statistics
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/collection-statistics.sql
 
+      - name: Check the palette of an image
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/image-palette.sql
+
       - name: Stop local Supabase
         if: always()
         run: supabase stop --no-backup

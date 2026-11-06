@@ -1,3 +1,5 @@
+import type { PaletteColour } from './palette-colour.ts';
+
 type ImageSource =
 	| {
 			kind: 'commons';
@@ -19,4 +21,4 @@ type ImageSource =
 	  }
 	| { kind: 'url'; url: string; width: number | null; height: number | null };
 
-export type ArtworkImageInput = ImageSource & { id?: string };
+export type ArtworkImageInput = ImageSource & { id?: string; palette?: PaletteColour[] };
