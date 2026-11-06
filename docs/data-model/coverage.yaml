@@ -179,7 +179,7 @@ changes:
 
   - id: M5
     name: Store exhibitions as one JSON document with rows of their artworks, and the palette per image
-    status: 'accepted 2026-11-06, ADR-0199; built in ATL-542, ATL-543 and ATL-454 (0.21)'
+    status: 'accepted 2026-11-06, ADR-0200; built in ATL-542, ATL-543 and ATL-454 (0.21)'
     kind: schema
     tables: [exhibitions, exhibition_artworks, artwork_images]
     serves: [R03, R22, R23, R24, R25, W05, W06, W17, W18, W19, W20, W21, W22]

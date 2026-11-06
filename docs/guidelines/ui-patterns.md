@@ -255,7 +255,7 @@ How views and components look and behave, so every new screen stays consistent w
 
 ## Exhibitions
 
-- The list of exhibitions is a grid of posters, three in a row from 768 px and one on a phone: the cover at 4:5 (the first artwork of the document, `NoImage` without one), the title in Newsreader italic and a caption with the number of artworks and the last change ([ADR-0198](../decisions/0198-tell-stories-in-exhibitions-of-the-learners-artworks.md)).
+- The list of exhibitions is a grid of posters, three in a row from 768 px and one on a phone: the cover at 4:5 (the first artwork of the document, `NoImage` without one), the title in Newsreader italic and a caption with the number of artworks and the last change ([ADR-0199](../decisions/0199-tell-stories-in-exhibitions-of-the-learners-artworks.md)).
 - An exhibition page is one document. Text blocks are at most `--size-content-default` wide, and artworks and rows at most `--size-content-wide`, all aligned left, so a text needs a row to be wider. A row holds two or three blocks in equal columns from 768 px and stacks on a phone.
 - An artwork of an exhibition that is in Archiwum or deleted for good is the library `NoImage` frame without a caption.
 - Edit mode is the same page. The side panel "Dodaj do wystawy" at the right edge behaves like the wall filters: it takes the free margin first, opens and closes with the width animation of the side menu, and is toggled by "Dodaj" in the top bar. A quiet "Zapisano" with the `cloud-check` icon and "Gotowe" (`check`) stand at the top right.

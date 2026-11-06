@@ -1,4 +1,4 @@
-# 0198. Tell stories in exhibitions of the learner's artworks
+# 0199. Tell stories in exhibitions of the learner's artworks
 
 - Status: accepted
 - Date: 2026-11-06
@@ -75,4 +75,4 @@ The texts were chosen by the owner from a table of variants. They are in [requir
 
 ## More information
 
-Design issue [ATL-130](https://linear.app/kamil-nawrot/issue/ATL-130), builds ATL-542 (module and document) and ATL-543 (rows, palette, close-ups, "Na wystawach"). The data model is [ADR-0199](0199-store-an-exhibition-as-one-document-with-rows-of-its-artworks.md). The prototype is linked in ATL-130. The mockups, the texts table and the model drafts are in the project files under `wystawy-0-21/`. Where the prototype or a mockup differs from this ADR, the ADR wins.
+Design issue [ATL-130](https://linear.app/kamil-nawrot/issue/ATL-130), builds ATL-542 (module and document) and ATL-543 (rows, palette, close-ups, "Na wystawach"). The data model is [ADR-0200](0200-store-an-exhibition-as-one-document-with-rows-of-its-artworks.md). The prototype is linked in ATL-130. The mockups, the texts table and the model drafts are in the project files under `wystawy-0-21/`. Where the prototype or a mockup differs from this ADR, the ADR wins.

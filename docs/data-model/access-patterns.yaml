@@ -335,7 +335,7 @@ reads:
     scope: all
     frequency: view
     today:
-      { requests: 0, whole: [], note: 'new in 0.21 (ADR-0199); target one RPC exhibition_list' }
+      { requests: 0, whole: [], note: 'new in 0.21 (ADR-0200); target one RPC exhibition_list' }
 
   - id: R23
     name: Exhibition

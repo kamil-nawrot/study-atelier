@@ -23,7 +23,8 @@
     "modern": "neuville-benett-buffalo-herd-wide",
     "contemporary": "montaut-projectile-stone-hill",
     "trevi_fountain": "piranesi-trevi-neptune",
-    "seven_league_boots": "dore-boots-legs"
+    "seven_league_boots": "dore-boots-legs",
+    "vasari_lives": "vasari-title-page"
   },
   "variants": [
     {
@@ -883,6 +884,48 @@
         0.1,
         0.95,
         0.996
+      ]
+    },
+    {
+      "exhibit": "vasari_lives",
+      "variant": "vasari-title-page",
+      "status": "chosen",
+      "commons_file": "Vite.jpg",
+      "licence": "Public domain",
+      "credit": "Title page of Giorgio Vasari's Le vite de' piu eccellenti pittori, scultori e architettori, Florence, Giunti, 1568",
+      "crop": [
+        0.04,
+        0.02,
+        0.96,
+        0.92
+      ]
+    },
+    {
+      "exhibit": "vasari_lives",
+      "variant": "vasari-portrait-filippo-lippi",
+      "status": "alternative",
+      "commons_file": "Portret Fra Fillippo Lippi, RP-P-2004-73-105.jpg",
+      "licence": "CC0",
+      "credit": "Portrait of Fra Filippo Lippi from Giorgio Vasari's Le vite, Florence, Giunti, 1568",
+      "crop": [
+        0.2,
+        0.075,
+        0.78,
+        0.65
+      ]
+    },
+    {
+      "exhibit": "vasari_lives",
+      "variant": "vasari-title-page-top",
+      "status": "alternative",
+      "commons_file": "Vite.jpg",
+      "licence": "Public domain",
+      "credit": "Title page of Giorgio Vasari's Le vite de' piu eccellenti pittori, scultori e architettori, Florence, Giunti, 1568",
+      "crop": [
+        0.15,
+        0.0,
+        0.85,
+        0.7
       ]
     }
   ]

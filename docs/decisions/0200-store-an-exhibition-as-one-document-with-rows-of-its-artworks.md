@@ -1,11 +1,11 @@
-# 0199. Store an exhibition as one document with rows of its artworks
+# 0200. Store an exhibition as one document with rows of its artworks
 
 - Status: accepted
 - Date: 2026-11-06
 
 ## Context and problem statement
 
-An exhibition ([ADR-0198](0198-tell-stories-in-exhibitions-of-the-learners-artworks.md)) is a document of blocks in rows, edited in TipTap. The app reads it whole to show it, and reads it in reverse for "Na wystawach" on the artwork page and for the cover on the list. An artwork in it can go to Archiwum, come back or be deleted for good. The export must carry it, and the import must restore it. The palette of an artwork image, new in 0.21 ([ATL-454](https://linear.app/kamil-nawrot/issue/ATL-454)), is shown in exhibitions and in the artwork view.
+An exhibition ([ADR-0199](0199-tell-stories-in-exhibitions-of-the-learners-artworks.md)) is a document of blocks in rows, edited in TipTap. The app reads it whole to show it, and reads it in reverse for "Na wystawach" on the artwork page and for the cover on the list. An artwork in it can go to Archiwum, come back or be deleted for good. The export must carry it, and the import must restore it. The palette of an artwork image, new in 0.21 ([ATL-454](https://linear.app/kamil-nawrot/issue/ATL-454)), is shown in exhibitions and in the artwork view.
 
 How are exhibitions stored, and where does the palette live? The model follows [ADR-0165](0165-model-the-database-from-the-app-access-patterns.md). The patterns are R22 to R25 and W18 to W22 in [access-patterns.yaml](../data-model/access-patterns.yaml), and the change is M5 in [coverage.yaml](../data-model/coverage.yaml).
 
