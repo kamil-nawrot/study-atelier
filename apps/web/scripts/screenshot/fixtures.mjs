@@ -1077,7 +1077,9 @@ export const EXHIBITS = [
 	{ exhibit: 'glossary', value: 147, thresholds: [1, 10, 25, 50, 100, 250, 500] },
 	{ exhibit: 'own_eye', value: 0, thresholds: [1, 5, 25, 50, 100] },
 	{ exhibit: 'night_watch', value: 0, thresholds: [1] },
-	{ exhibit: 'marathon', value: 0, thresholds: [1000] }
+	{ exhibit: 'marathon', value: 0, thresholds: [1000] },
+	{ exhibit: 'mouth_of_truth', value: 0, thresholds: [1] },
+	{ exhibit: 'pinacotheca', value: 10, thresholds: [10] }
 ];
 
 export const EXHIBIT_TIERS = EXHIBITS.flatMap(({ exhibit, value, thresholds }) =>
