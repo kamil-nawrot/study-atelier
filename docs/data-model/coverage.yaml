@@ -201,7 +201,7 @@ changes:
       - 'import_atelier inserts exhibitions and rebuilds exhibition_artworks at its end; an older export has none.'
     cost:
       - 'migration: two tables, RLS, limits, save_exhibition, exhibition_list, artwork_images.palette, export and import'
-      - 'SQL tests: save, stale revision, foreign artwork refused, limits, Archiwum of an artwork and of an exhibition, purge, import of an old and a new export'
+      - 'SQL tests: save, stale revision, foreign artwork refused, purged artwork kept without a row, limits, Archiwum of an artwork and of an exhibition, purge, import of an old and a new export'
       - 'database.types.ts generated, screenshot mocks for the new reads'
     loses:
       - 'The document is JSON, harder to read in an export than the Markdown of a note.'
