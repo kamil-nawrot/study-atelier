@@ -88,14 +88,13 @@
 	}
 
 	function listed(kind: 'material' | 'author' | 'location'): ListedValue[] {
-		const byCountry = kind === 'location' && sorts.location === 'country';
 		return valuesOf(index, kind).map((record) => {
 			const country = record.countryCode ? countryName(record.countryCode) : undefined;
 			const type = record.placeType;
 			return {
 				...record,
 				country,
-				detail: byCountry ? country : undefined,
+				detail: kind === 'location' ? country : undefined,
 				...(type ? { icon: placeTypeIcon(type), iconLabel: placeTypeName(type) } : {})
 			};
 		});
