@@ -1,4 +1,5 @@
 import { artworkImageSource, artworkLargeSource } from '#lib/images/artwork-image/artwork-image.ts';
+import { COMMONS_LOUPE_WIDTH, fetchCommonsThumbnails } from '#lib/images/commons/commons.ts';
 import { savePinCrop } from '#lib/pins/pin-crop-data/pin-crop-data.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import { pinCropRect } from '#lib/pins/pin-crop-rect/pin-crop-rect.ts';
@@ -53,12 +54,26 @@ export async function cutPinCrop(
 	}
 }
 
-function cropSource(image: ArtworkImageInput): string | undefined {
-	return artworkLargeSource(image)?.src ?? artworkImageSource(image, FALLBACK_WIDTH)?.src;
+type CropSource = () => Promise<string | undefined>;
+
+async function commonsCropSource(
+	image: Extract<ArtworkImageInput, { kind: 'commons' }>
+): Promise<string | undefined> {
+	const width = image.width ? Math.min(image.width, COMMONS_LOUPE_WIDTH) : FALLBACK_WIDTH;
+	const thumbnails = await fetchCommonsThumbnails([image.file], width);
+	return thumbnails.get(image.file);
 }
 
-async function makeCrop(pin: Pin, src: string): Promise<void> {
+function cropSource(image: ArtworkImageInput): CropSource | undefined {
+	if (image.kind === 'commons') return () => commonsCropSource(image);
+	const src = artworkLargeSource(image)?.src ?? artworkImageSource(image, FALLBACK_WIDTH)?.src;
+	return src === undefined ? undefined : () => Promise.resolve(src);
+}
+
+async function makeCrop(pin: Pin, source: CropSource): Promise<void> {
 	try {
+		const src = await source();
+		if (!src) return;
 		const response = await fetch(src, { mode: 'cors' });
 		if (!response.ok) return;
 		const crop = await cutPinCrop(await response.blob(), pin);
@@ -77,9 +92,9 @@ export function ensurePinCrops(
 		const key = `${pin.id}:${pin.x}:${pin.y}:${pin.viewWidth}`;
 		if (attempted.has(key)) continue;
 		const image = images.find((candidate) => candidate?.id === pin.imageId);
-		const src = image ? cropSource(image) : undefined;
-		if (!src) continue;
+		const source = image ? cropSource(image) : undefined;
+		if (!source) continue;
 		attempted.add(key);
-		queue = queue.then(() => makeCrop(pin, src));
+		queue = queue.then(() => makeCrop(pin, source));
 	}
 }

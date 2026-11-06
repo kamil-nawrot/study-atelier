@@ -1,10 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fetchCommonsThumbnails } from '#lib/images/commons/commons.ts';
 import { savePinCrop } from '#lib/pins/pin-crop-data/pin-crop-data.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import type { Pin } from '#lib/pins/types/pin.ts';
 import { cutPinCrop, ensurePinCrops, PIN_CROP_SIDE } from './pin-crop.ts';
 
 vi.mock('#lib/pins/pin-crop-data/pin-crop-data.ts', () => ({ savePinCrop: vi.fn() }));
+vi.mock('#lib/images/commons/commons.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/images/commons/commons.ts')>()),
+	fetchCommonsThumbnails: vi.fn()
+}));
 
 const image: ArtworkImageInput = {
 	id: 'image-1',
@@ -13,6 +18,21 @@ const image: ArtworkImageInput = {
 	width: 2000,
 	height: 1000
 };
+
+const commonsImage: ArtworkImageInput = {
+	id: 'image-1',
+	kind: 'commons',
+	wikidataId: 'Q167605',
+	file: 'The Milkmaid.jpg',
+	licence: null,
+	licenceUrl: null,
+	attribution: null,
+	width: 5000,
+	height: 4000
+};
+
+const commonsThumbnail =
+	'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/The_Milkmaid.jpg/3840px-The_Milkmaid.jpg';
 
 function viewPin(id: string, overrides: Partial<Pin> = {}): Pin {
 	return {
@@ -126,6 +146,31 @@ describe('ensurePinCrops', () => {
 		ensurePinCrops([image], [viewPin('refused')]);
 		await settled();
 
+		expect(savePinCrop).not.toHaveBeenCalled();
+	});
+
+	it('fetches a Commons image from the direct address the Commons API gives', async () => {
+		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(
+			new Map([['The Milkmaid.jpg', commonsThumbnail]])
+		);
+		const pin = viewPin('commons');
+
+		ensurePinCrops([commonsImage], [pin]);
+		await settled();
+		await vi.waitFor(() => expect(savePinCrop).toHaveBeenCalledTimes(1));
+
+		expect(fetchCommonsThumbnails).toHaveBeenCalledWith(['The Milkmaid.jpg'], 3840);
+		expect(fetch).toHaveBeenCalledWith(commonsThumbnail, { mode: 'cors' });
+	});
+
+	it('saves nothing when the Commons API gives no address', async () => {
+		vi.mocked(fetchCommonsThumbnails).mockResolvedValue(new Map());
+
+		ensurePinCrops([commonsImage], [viewPin('commons-missing')]);
+		await vi.waitFor(() => expect(fetchCommonsThumbnails).toHaveBeenCalled());
+		await drained();
+
+		expect(fetch).not.toHaveBeenCalled();
 		expect(savePinCrop).not.toHaveBeenCalled();
 	});
 });
