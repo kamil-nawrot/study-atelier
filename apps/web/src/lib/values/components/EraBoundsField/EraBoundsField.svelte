@@ -4,7 +4,6 @@
 		DEFAULT_ERA_JUNCTIONS,
 		eraJunctions
 	} from '#lib/catalogue/era-bounds/era-bounds.svelte.ts';
-	import { yearOutsideEra } from '#lib/catalogue/eras/eras.ts';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
@@ -14,6 +13,7 @@
 		eraHasEnd,
 		eraHasStart,
 		junctionsOf,
+		newlyOutside,
 		neighbourNotes
 	} from '#lib/values/era-bounds-form/era-bounds-form.ts';
 	import type { EraBoundsErrors } from '#lib/values/types/era-bounds-errors.ts';
@@ -46,7 +46,7 @@
 		const next = changedJunctions();
 		if (!next) return true;
 		const { artworks } = await loadAtelier();
-		outside = artworks.filter((artwork) => yearOutsideEra(artwork, next)).length;
+		outside = newlyOutside(artworks, eraJunctions(), next);
 		if (outside === 0) return true;
 		confirmOpen = true;
 		return new Promise((resolve) => (answer = resolve));
