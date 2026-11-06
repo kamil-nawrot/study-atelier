@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Disclosure, Icon, Meter } from '@study-atelier/ui';
+	import { Disclosure, Icon, Meter, TextButton } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { artworkTypeIcon } from '#lib/catalogue/artwork-types/artwork-types.ts';
 	import { formatDate } from '#lib/catalogue/years/years.ts';
@@ -12,6 +12,10 @@
 	};
 
 	let { relations }: Props = $props();
+
+	const SHOWN_EVENTS = 8;
+
+	let allEvents = $state(false);
 
 	let timed = $derived(relations.years.length > 0 || relations.bounds !== undefined);
 	let events = $derived(relations.events ?? []);
@@ -89,7 +93,7 @@
 								{relations.kind === 'event' ? m.relations.otherEvents : m.relations.sameTime}
 							</h3>
 							<ul class="events">
-								{#each events as event (event.id)}
+								{#each allEvents ? events : events.slice(0, SHOWN_EVENTS) as event (event.id)}
 									<li>
 										<a href={resolve('/(app)/atelier/timeline/events/[id]', { id: event.id })}
 											>{event.name}</a
@@ -100,6 +104,11 @@
 									</li>
 								{/each}
 							</ul>
+							{#if !allEvents && events.length > SHOWN_EVENTS}
+								<TextButton inline onclick={() => (allEvents = true)}>
+									{m.relations.allEvents(events.length)}
+								</TextButton>
+							{/if}
 						</section>
 					{/if}
 				</div>

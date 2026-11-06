@@ -243,15 +243,6 @@
 					/>
 				{/if}
 
-				{#if era && form.eraBounds}
-					<EraBoundsField
-						bind:this={eraField}
-						code={era}
-						errors={errors.current.eraBounds ?? {}}
-						bind:bounds={form.eraBounds}
-					/>
-				{/if}
-
 				{#if form.author}
 					<AuthorLifeFields errors={errors.current.author ?? {}} bind:author={form.author} />
 				{/if}
@@ -280,6 +271,15 @@
 					placeholder={m.valueForm.notesPlaceholder}
 					bind:value={form.details.notes}
 				/>
+
+				{#if era && form.eraBounds}
+					<EraBoundsField
+						bind:this={eraField}
+						code={era}
+						errors={errors.current.eraBounds ?? {}}
+						bind:bounds={form.eraBounds}
+					/>
+				{/if}
 			</div>
 		</div>
 

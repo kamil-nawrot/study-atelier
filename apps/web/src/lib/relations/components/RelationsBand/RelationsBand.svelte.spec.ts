@@ -49,6 +49,28 @@ describe('RelationsBand', () => {
 		await expect.element(page.getByText('2 z 3 dzieł opanowane')).not.toBeVisible();
 	});
 
+	it('shows eight events of the same time and the rest on request', async () => {
+		const events = Array.from({ length: 12 }, (_, index) => ({
+			id: `e${index}`,
+			name: `Event ${index + 1}`,
+			yearFrom: null,
+			yearTo: 1400 + index,
+			yearApproximate: false
+		}));
+		render(RelationsBand, { relations: { ...relations, events } });
+
+		await expect.element(page.getByRole('link', { name: 'Event 8', exact: true })).toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: 'Event 9', exact: true }))
+			.not.toBeInTheDocument();
+		await page.getByRole('button', { name: m.relations.allEvents(12) }).click();
+
+		await expect.element(page.getByRole('link', { name: 'Event 12', exact: true })).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.relations.allEvents(12) }))
+			.not.toBeInTheDocument();
+	});
+
 	it('names other events on an event page', async () => {
 		render(RelationsBand, { relations: { ...relations, kind: 'event' } });
 		await expect.element(page.getByText(m.relations.otherEvents)).toBeVisible();

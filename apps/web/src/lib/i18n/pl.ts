@@ -909,8 +909,9 @@ export const pl = {
 		other: 'Inne'
 	},
 	eraBounds: {
+		open: 'Twój kurs datuje tę epokę inaczej?',
 		title: 'Lata epoki',
-		hint: 'Zmieniaj je tylko wtedy, gdy Twój kurs datuje epoki inaczej. Granica przesuwa się razem z sąsiednią epoką.',
+		hint: 'Zmień je tylko, jeśli Twój kurs przyjmuje inne daty. Sąsiednia epoka przesunie się razem z nimi.',
 		start: 'Początek',
 		end: 'Koniec',
 		startBeforeCommonEra: 'Początek p.n.e.',
@@ -921,17 +922,17 @@ export const pl = {
 		before: (year: string): string => `Rok musi być wcześniejszy niż ${year}.`,
 		afterStart: 'Koniec musi być później niż początek.',
 		previousMoves: (era: string, year: string): string =>
-			`Razem z tym ${era} skończy się w ${year}.`,
-		nextMoves: (era: string, year: string): string => `Razem z tym ${era} zacznie się w ${year}.`,
+			`${capital(era)} skończy się wtedy w ${year}.`,
+		nextMoves: (era: string, year: string): string =>
+			`${capital(era)} zacznie się wtedy w ${year}.`,
 		confirm: {
-			title: 'Zapisać nowe granice?',
+			title: 'Zapisać nowe lata epoki?',
 			description: (count: number): string =>
-				`Po zmianie ${plural(count, { one: 'jedno dzieło będzie', few: `${count} dzieła będą`, many: `${count} dzieł będzie` })} poza swoją epoką. Zostaną w niej, ale nie trafią do pytań o czas, dopóki rok i epoka znów nie będą do siebie pasować.`,
-			save: 'Zapisz'
+				`${plural(count, { one: 'Jedno dzieło wyjdzie', few: `${count} dzieła wyjdą`, many: `${count} dzieł wyjdzie` })} wtedy poza ramy swojej epoki. Zostaną w niej, ale nie trafią do pytań o czas, dopóki ich rok i epoka znów nie będą do siebie pasować.`,
+			save: 'Zapisz mimo to'
 		},
 		outside: (count: number): string =>
-			`${plural(count, { one: 'Jedno dzieło z tej epoki ma', few: `${count} dzieła z tej epoki mają`, many: `${count} dzieł z tej epoki ma` })} rok poza jej granicami.`,
-		showOutside: 'Pokaż je na ścianie'
+			`${plural(count, { one: 'Jedno dzieło wychodzi', few: `${count} dzieła wychodzą`, many: `${count} dzieł wychodzi` })} poza ramy swojej epoki. Kliknij, aby przyjrzeć się im bliżej.`
 	},
 	eraYears: {
 		until: (year: string): string => `do ${year}`,
@@ -2017,13 +2018,6 @@ export const pl = {
 			event: (from: string, to: string): string =>
 				from === to ? `w roku ${from}` : `w latach ${from} – ${to}`
 		},
-		legend: {
-			tick: 'kreska to dzieło',
-			era: 'pas to lata epoki',
-			author: 'pas to lata życia',
-			event: 'pas to czas wydarzenia',
-			dot: 'kółko to wydarzenie z Kalendarium'
-		},
 		together: 'Najczęściej razem',
 		hierarchy: 'W tej epoce',
 		groups: {
@@ -2039,6 +2033,7 @@ export const pl = {
 		mastered: (count: number, total: number): string =>
 			`${count} z ${total} ${total === 1 ? 'dzieła' : 'dzieł'} opanowane`,
 		sameTime: 'W tym samym czasie',
+		allEvents: (count: number): string => `Pokaż wszystkie (${count})`,
 		otherEvents: 'Inne wydarzenia w tym czasie'
 	},
 	valuePage: {
@@ -2203,4 +2198,8 @@ function workCount(count: number): string {
 function plural(count: number, forms: PluralForms): string {
 	const category = pluralRules.select(count);
 	return category === 'one' || category === 'few' ? forms[category] : forms.many;
+}
+
+function capital(text: string): string {
+	return `${text.charAt(0).toLocaleUpperCase('pl')}${text.slice(1)}`;
 }

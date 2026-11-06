@@ -8,13 +8,32 @@ import EraBoundsField from './EraBoundsField.svelte';
 
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({ loadAtelier: vi.fn() }));
 
+async function open(): Promise<void> {
+	await page.getByRole('button', { name: m.eraBounds.open }).click();
+}
+
 describe('EraBoundsField', () => {
+	it('keeps the years hidden until the learner asks for them', async () => {
+		render(EraBoundsField, {
+			code: 'middle_ages',
+			bounds: eraBoundsForm('middle_ages', DEFAULT_ERA_JUNCTIONS),
+			errors: {}
+		});
+
+		await expect
+			.element(page.getByLabelText(m.eraBounds.start, { exact: true }))
+			.not.toBeInTheDocument();
+		await open();
+		await expect.element(page.getByLabelText(m.eraBounds.start, { exact: true })).toBeVisible();
+	});
+
 	it('shows the start and end of an era in between, with the hint', async () => {
 		render(EraBoundsField, {
 			code: 'middle_ages',
 			bounds: eraBoundsForm('middle_ages', DEFAULT_ERA_JUNCTIONS),
 			errors: {}
 		});
+		await open();
 
 		await expect
 			.element(page.getByLabelText(m.eraBounds.start, { exact: true }))
@@ -32,6 +51,7 @@ describe('EraBoundsField', () => {
 			bounds: eraBoundsForm('prehistory', DEFAULT_ERA_JUNCTIONS),
 			errors: {}
 		});
+		await open();
 
 		await expect.element(page.getByLabelText(m.eraBounds.end, { exact: true })).toBeVisible();
 		await expect
@@ -45,6 +65,7 @@ describe('EraBoundsField', () => {
 			bounds: { ...eraBoundsForm('middle_ages', DEFAULT_ERA_JUNCTIONS), endYear: '1500' },
 			errors: { end: 'Wpisz rok.' }
 		});
+		await open();
 
 		await expect
 			.element(

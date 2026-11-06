@@ -11,7 +11,6 @@
 	import ArtworksSection from '#lib/wall/components/ArtworksSection/ArtworksSection.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import ValueView from '#lib/values/components/ValueView/ValueView.svelte';
-	import EraOutsideNote from '#lib/values/components/EraOutsideNote/EraOutsideNote.svelte';
 	import RelationsBand from '#lib/relations/components/RelationsBand/RelationsBand.svelte';
 	import {
 		artworksOfValue,
@@ -134,6 +133,7 @@
 	{#if subject && editHref}
 		<div class="page">
 			<ValueView
+				{artworks}
 				count={artworks.length}
 				details={data.details}
 				glossary={data.glossary}
@@ -143,8 +143,6 @@
 				{subject}
 				visits={data.visits}
 			/>
-
-			<EraOutsideNote {artworks} {subject} />
 
 			{#if data.relations}
 				<RelationsBand relations={data.relations} />
