@@ -1,0 +1,77 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
+import { readPixels } from '#lib/images/image-pixels/image-pixels.ts';
+import { savePalette } from '#lib/images/palette-data/palette-data.ts';
+import { paletteOf } from './image-palette.ts';
+
+vi.mock('#lib/images/palette-data/palette-data.ts', () => ({ savePalette: vi.fn() }));
+vi.mock('#lib/images/image-pixels/image-pixels.ts', () => ({ readPixels: vi.fn() }));
+
+const RED = 'https://images.example.test/red.jpg';
+const RED_PIXELS = Uint8ClampedArray.from([200, 20, 20, 255, 200, 20, 20, 255]);
+
+function linked(id: string | undefined, url = RED): ArtworkImageInput {
+	return { ...(id ? { id } : {}), kind: 'url', url, width: 8, height: 8 };
+}
+
+describe('paletteOf', () => {
+	beforeEach(() => {
+		vi.mocked(savePalette).mockReset();
+		vi.mocked(readPixels).mockReset().mockResolvedValue(RED_PIXELS);
+		vi.stubGlobal(
+			'fetch',
+			vi.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(new Blob()) })
+		);
+	});
+
+	it('returns the stored palette without reading the image', async () => {
+		const fetchSpy = vi.fn();
+		vi.stubGlobal('fetch', fetchSpy);
+		const palette = [{ color: '#aa8855', share: 1 }];
+
+		const result = await paletteOf({ ...linked('stored-1'), palette });
+
+		expect(result).toEqual({ colours: palette });
+		expect(fetchSpy).not.toHaveBeenCalled();
+		expect(savePalette).not.toHaveBeenCalled();
+	});
+
+	it('computes the palette of an image and stores it once', async () => {
+		const first = await paletteOf(linked('fresh-1'));
+		const second = await paletteOf(linked('fresh-1'));
+
+		expect(first).toEqual({ colours: [{ color: '#c81414', share: 1 }] });
+		expect(second).toEqual(first);
+		expect(savePalette).toHaveBeenCalledTimes(1);
+		expect(savePalette).toHaveBeenCalledWith('fresh-1', [{ color: '#c81414', share: 1 }]);
+	});
+
+	it('computes again when the image behind the id has changed', async () => {
+		await paletteOf(linked('changed-1'));
+		await paletteOf(linked('changed-1', 'https://images.example.test/other.jpg'));
+
+		expect(savePalette).toHaveBeenCalledTimes(2);
+	});
+
+	it('reports an image that cannot be fetched and does not store anything', async () => {
+		vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('blocked')));
+
+		const result = await paletteOf(linked('blocked-1'));
+
+		expect(result).toEqual({ unreadable: true });
+		expect(savePalette).not.toHaveBeenCalled();
+	});
+
+	it('reports an image the host refuses', async () => {
+		vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }));
+
+		expect(await paletteOf(linked('refused-1'))).toEqual({ unreadable: true });
+	});
+
+	it('does not store the palette of an image that has no id yet', async () => {
+		const result = await paletteOf(linked(undefined));
+
+		expect(result).toEqual({ colours: [{ color: '#c81414', share: 1 }] });
+		expect(savePalette).not.toHaveBeenCalled();
+	});
+});

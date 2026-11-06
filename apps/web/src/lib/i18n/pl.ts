@@ -669,6 +669,13 @@ export const pl = {
 		tooLarge: 'Ten obraz z adresu jest zbyt duży, żeby można było skorzystać z lupy.',
 		level: (level: number): string => `${level.toLocaleString('pl', { maximumFractionDigits: 1 })}×`
 	},
+	palette: {
+		label: 'Paleta barw',
+		hide: 'Ukryj paletę barw',
+		unreadable: 'Ten obraz nie pozwala odczytać swoich kolorów.',
+		collecting: 'Zbieranie kolorów…',
+		colour: (hex: string, percent: number): string => `${hex}, ${percent}%`
+	},
 	favourite: {
 		add: 'Dodaj do ulubionych',
 		remove: 'Usuń z ulubionych',

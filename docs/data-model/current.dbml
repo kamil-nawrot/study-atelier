@@ -65,6 +65,7 @@ Table artwork_images {
   image_width integer
   image_height integer
   id uuid [pk, default: `gen_random_uuid()`]
+  palette jsonb
 
   indexes {
     (artwork_id, position) [unique]
