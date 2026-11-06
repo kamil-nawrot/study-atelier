@@ -68,6 +68,17 @@ describe('validateEraBounds', () => {
 		});
 	});
 
+	it('keeps the start of the present no later than the latest end of the modern era', () => {
+		const form = { ...eraBoundsForm('contemporary', DEFAULT_ERA_JUNCTIONS), startYear: '9999' };
+
+		expect(validateEraBounds('contemporary', form, DEFAULT_ERA_JUNCTIONS).start).toBe(
+			m.eraBounds.before(m.atelier.year(3001, false))
+		);
+		expect(
+			validateEraBounds('contemporary', { ...form, startYear: '3000' }, DEFAULT_ERA_JUNCTIONS).start
+		).toBeUndefined();
+	});
+
 	it('asks for the end to come after the start and for both years', () => {
 		const late = { ...eraBoundsForm('early_modern', DEFAULT_ERA_JUNCTIONS), endYear: '1400' };
 		const empty = { ...eraBoundsForm('early_modern', DEFAULT_ERA_JUNCTIONS), startYear: '' };

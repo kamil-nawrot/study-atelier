@@ -140,6 +140,18 @@ describe('edit value page', () => {
 		);
 	});
 
+	it('keeps the era bounds and says why when the collection cannot be counted', async () => {
+		vi.mocked(loadAtelier).mockResolvedValue({ artworks: [], error: 'No connection.' } as never);
+		renderEdit({ kind: 'era', code: 'early_modern' });
+
+		await page.getByRole('button', { name: m.eraBounds.open }).click();
+		await page.getByLabelText(m.eraBounds.start, { exact: true }).fill('1520');
+		await saveButton().click();
+
+		await expect.element(page.getByText('No connection.')).toBeVisible();
+		expect(saveEraBounds).not.toHaveBeenCalled();
+	});
+
 	it('names the value in the title and fills the form', async () => {
 		renderEdit(subjectOf('style-doric'), { summary: 'Plain capitals.', notes: '' });
 

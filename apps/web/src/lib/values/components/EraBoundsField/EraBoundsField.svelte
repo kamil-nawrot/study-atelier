@@ -42,14 +42,15 @@
 		return junctions && notes.length > 0 ? junctions : undefined;
 	}
 
-	export async function confirmChange(): Promise<boolean> {
+	export async function confirmChange(): Promise<{ confirmed: boolean; error?: string }> {
 		const next = changedJunctions();
-		if (!next) return true;
-		const { artworks } = await loadAtelier();
+		if (!next) return { confirmed: true };
+		const { artworks, error } = await loadAtelier();
+		if (error) return { confirmed: false, error };
 		outside = newlyOutside(artworks, eraJunctions(), next);
-		if (outside === 0) return true;
+		if (outside === 0) return { confirmed: true };
 		confirmOpen = true;
-		return new Promise((resolve) => (answer = resolve));
+		return new Promise((resolve) => (answer = (confirmed) => resolve({ confirmed })));
 	}
 
 	function close(confirmed: boolean): void {

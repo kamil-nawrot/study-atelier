@@ -100,6 +100,16 @@ describe('remapAtelier', () => {
 		expect(uploads[0].contentType).toBe('image/png');
 	});
 
+	it('leaves the crops of pins to be made again for the new owner', () => {
+		const pin = {
+			id: '55555555-5555-4555-8555-555555555555',
+			crop_path: `${OLD_OWNER}/pin-crop.jpg`
+		};
+		const { payload } = remapAtelier({ ...data, artwork_pins: [pin] }, new Map(), OWNER, counter());
+
+		expect(payload.artwork_pins[0].crop_path).toBeNull();
+	});
+
 	it('leaves out the tables the import does not take', () => {
 		const { payload } = remapAtelier(
 			{ ...data, profiles: [{ display_name: 'A' }] },

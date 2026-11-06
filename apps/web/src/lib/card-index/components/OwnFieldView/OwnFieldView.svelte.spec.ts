@@ -98,7 +98,9 @@ describe('OwnFieldView', () => {
 		view.askDelete();
 		await page.getByRole('button', { name: m.ownFields.deleteConfirm.confirm }).click();
 
-		await expect.element(page.getByText(m.ownFields.errorTitle)).toBeVisible();
+		await expect
+			.element(page.getByRole('alertdialog').getByText(m.ownFields.errorTitle))
+			.toBeVisible();
 		expect(goto).not.toHaveBeenCalled();
 	});
 });

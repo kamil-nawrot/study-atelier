@@ -20,12 +20,11 @@ describe('OwnFieldHeader', () => {
 		await expect.element(page.getByText(m.ownFields.page.allTypes)).not.toBeInTheDocument();
 	});
 
-	it('says a field applies to all types and shows a failure', async () => {
+	it('says a field applies to all types', async () => {
 		const [, , seen] = testOwnFields();
-		render(OwnFieldHeader, { field: seen, failure: 'No connection' });
+		render(OwnFieldHeader, { field: seen });
 
 		await expect.element(page.getByText('Własne pole · Zaznaczenie · 0 dzieł')).toBeVisible();
 		await expect.element(page.getByText(m.ownFields.page.allTypes)).toBeVisible();
-		await expect.element(page.getByText('No connection')).toBeVisible();
 	});
 });

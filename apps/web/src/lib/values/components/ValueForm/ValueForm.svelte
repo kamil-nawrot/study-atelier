@@ -133,7 +133,11 @@
 		if (formState.busy) return;
 		formState.error = '';
 		if (!errors.check()) return;
-		if (eraField && !(await eraField.confirmChange())) return;
+		if (eraField) {
+			const { confirmed, error } = await eraField.confirmChange();
+			if (error) formState.error = error;
+			if (!confirmed) return;
+		}
 		if (needsMove) {
 			moveError = undefined;
 			moveOpen = true;

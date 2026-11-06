@@ -100,6 +100,7 @@ export function remapAtelier(
 	const tables: Record<string, ExportRow[]> = {};
 	for (const table of IMPORT_TABLES) {
 		tables[table] = (data[table] ?? []).map((row) => {
+			if (table === 'artwork_pins') return { ...row, crop_path: null };
 			if (!IMAGE_PATH_TABLES.includes(table)) return row;
 			const path = row.own_image_path;
 			return typeof path === 'string' && path !== ''
