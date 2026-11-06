@@ -34,21 +34,22 @@ Each tier of an exhibit in "Ekspozycja" reveals one curiosity on the exhibit's t
 - Every exhibit is named as an object or a place, then whose or where it is, after what its engraving shows ("Pracownia Świętego Hieronima", "Globus podróżnika", "Strzała putta"), never as a scene or an event, nor after the engraver or the title of a work ([ADR-0185](../decisions/0185-name-each-exhibit-after-what-its-engraving-shows.md)). "Turniej w Chauvency" is the one exception, a real tournament named for an allegorical engraving ([ADR-0194](../decisions/0194-show-the-six-eras-as-scenes-from-19th-century-book-illustration.md)). The credit under an engraving keeps the real title of the work.
 - The hint of a hidden exhibit is a riddle, not an instruction: it points the way through an image or the motif of its engraving and keeps the secret ("Lew nie gryzie tych, którzy mają coś do powiedzenia.", "Bogowie przyglądają się tym, którzy nie wiedzą, kiedy przestać."), never by naming the action or the place in the app.
 
-| Exhibit                       | Theme                                                                   |
-| ----------------------------- | ----------------------------------------------------------------------- |
-| Gabinet Olego Worma           | records and firsts of art history and museums                           |
-| Świątynia della Tosse         | rediscoveries of the past                                               |
-| Pracownia Świętego Hieronima  | memory in art history                                                   |
-| Klepsydra melancholii         | works that took years or centuries to make                              |
-| Salon w Luwrze                | stories of museum visiting and exhibitions                              |
-| Globus podróżnika             | little-known or unusual museums around the world                        |
-| Teleskop Mathieu Laensbergha  | what surprises when a famous work is seen in person                     |
-| Praski orloj                  | how artworks are dated                                                  |
-| Strzała putta                 | dates to the year: works dated exactly and dates that exposed forgeries |
-| Biblioteka w Lejdzie          | where the names of styles and techniques come from                      |
-| Camera obscura z Encyklopedii | optics, devices and the image                                           |
-| The six era exhibits          | how the artworks of the era were made: materials, techniques, workshops |
-| Hidden exhibits               | one story about the work itself                                         |
+| Exhibit                       | Theme                                                                                                                                                                                   |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Gabinet Olego Worma           | records and firsts of art history and museums                                                                                                                                           |
+| Świątynia della Tosse         | rediscoveries of the past                                                                                                                                                               |
+| Pracownia Świętego Hieronima  | memory in art history                                                                                                                                                                   |
+| Klepsydra melancholii         | works that took years or centuries to make                                                                                                                                              |
+| Salon w Luwrze                | stories of museum visiting and exhibitions                                                                                                                                              |
+| Globus podróżnika             | little-known or unusual museums around the world                                                                                                                                        |
+| Teleskop Mathieu Laensbergha  | what surprises when a famous work is seen in person                                                                                                                                     |
+| Praski orloj                  | how artworks are dated                                                                                                                                                                  |
+| Strzała putta                 | dates to the year: works dated exactly and dates that exposed forgeries                                                                                                                 |
+| Biblioteka w Lejdzie          | where the names of styles and techniques come from                                                                                                                                      |
+| Camera obscura z Encyklopedii | optics, devices and the image                                                                                                                                                           |
+| The six era exhibits          | how the artworks of the era were made: materials, techniques, workshops                                                                                                                 |
+| Księga Vasariego              | how the whole work of one artist is known: biographies, catalogues of works, versatility and records ([ADR-0198](../decisions/0198-show-authors-with-many-artworks-as-vasaris-book.md)) |
+| Hidden exhibits               | one story about the work itself                                                                                                                                                         |
 
 ## Examples
 
