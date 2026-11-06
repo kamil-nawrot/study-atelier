@@ -25,7 +25,8 @@
     "trevi_fountain": "piranesi-trevi-neptune",
     "seven_league_boots": "dore-boots-legs",
     "vasari_lives": "vasari-title-page",
-    "figure_alphabet": "meckenem-letter-a-smb-mount-close"
+    "figure_alphabet": "meckenem-letter-a-smb-mount-close",
+    "hortus_cliffortianus": "wandelaar-wide"
   },
   "variants": [
     {
@@ -1068,6 +1069,48 @@
       ],
       "gamma": 1.6,
       "cap": 0.97
+    },
+    {
+      "exhibit": "hortus_cliffortianus",
+      "status": "alternative",
+      "commons_file": "Linnaeus Hortus Cliffortianus frontispiece.jpg",
+      "licence": "Public domain",
+      "credit": "Jan Wandelaar, frontispiece of Carl Linnaeus's Hortus Cliffortianus, 1738",
+      "variant": "wandelaar-apollo-earth",
+      "crop": [
+        0.25,
+        0.4,
+        0.88,
+        0.874
+      ]
+    },
+    {
+      "exhibit": "hortus_cliffortianus",
+      "status": "alternative",
+      "commons_file": "Linnaeus Hortus Cliffortianus frontispiece.jpg",
+      "licence": "Public domain",
+      "credit": "Jan Wandelaar, frontispiece of Carl Linnaeus's Hortus Cliffortianus, 1738",
+      "variant": "wandelaar-bust-garden",
+      "crop": [
+        0.08,
+        0.14,
+        0.6,
+        0.53
+      ]
+    },
+    {
+      "exhibit": "hortus_cliffortianus",
+      "status": "chosen",
+      "commons_file": "Linnaeus Hortus Cliffortianus frontispiece.jpg",
+      "licence": "Public domain",
+      "credit": "Jan Wandelaar, frontispiece of Carl Linnaeus's Hortus Cliffortianus, 1738",
+      "variant": "wandelaar-wide",
+      "crop": [
+        0.068,
+        0.208,
+        0.9,
+        0.84
+      ]
     }
   ]
 }
