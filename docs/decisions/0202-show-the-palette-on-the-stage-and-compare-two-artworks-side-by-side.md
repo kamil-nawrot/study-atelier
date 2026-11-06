@@ -25,6 +25,8 @@ For picking the second artwork: a dialog with a search; the wall in a picking mo
 
 For writing about a comparison: a note between the two images, saved as its own comparison, appended to the notes of both artworks, or no note at all.
 
+For the comparison and exhibitions: "Dodaj do wystawy", which appends the two artworks with an empty paragraph between them to a chosen exhibition, or nothing.
+
 ## Decision outcome
 
 The owner chose each part in the design of ATL-544 on 2026-11-06.
@@ -49,8 +51,8 @@ The owner chose each part in the design of ATL-544 on 2026-11-06.
 
 ### The comparison view
 
-- The view is two stages side by side, like the stage of the artwork view, each with the blurred backdrop, the passe-partout, the title in Newsreader italic, the authors and the year, and "Zmień dzieło", which empties that half. The top bar has the back link to the artwork the comparison started from and "Zamień strony" (Lucide `arrow-left-right`). The address holds both record numbers, so a reload or the back button keeps the comparison. Each half shows the first image of its artwork.
-- The corner of the view holds one loupe and one palette icon for both images. With the loupe on, the cursor over either image shows a loupe on both, at the same point relative to the image and at the same level, and its tooltip says "Lupa pokazuje to samo miejsce na obu obrazach". The rule of [ADR-0110](0110-look-at-details-through-a-loupe.md) applies to each image: an image too small for the loupe shows no lens. A click makes no pin, and pins are not shown. The palette icon shows the palettes of both images.
+- The view is two stages side by side, like the stage of the artwork view, each with the blurred backdrop, the passe-partout, the title in Newsreader italic, the authors and the year, and "Zmień dzieło", which empties that half. "Zmień dzieło" and "Zamień strony" show only while both halves hold an artwork. An artwork without an image shows `NoImage` and has no palette, and a record number in the address that is not in the atelier (in Archiwum or deleted) leaves its half empty. The top bar has the back link to the artwork the comparison started from and "Zamień strony" (Lucide `arrow-left-right`). The address holds both record numbers, so a reload or the back button keeps the comparison. Each half shows the first image of its artwork.
+- The corner of the view holds one loupe and one palette icon for both images. With the loupe on, the cursor over either image shows a loupe on both, at the same point relative to the image and at the same level, and its tooltip says "Lupa pokazuje to samo miejsce na obu obrazach". The rule of [ADR-0110](0110-look-at-details-through-a-loupe.md) applies to each image: an image too small for the loupe shows no lens, and the icon is dimmed when neither image is large enough. A click makes no pin, and pins are not shown. The palette icon shows the palettes of both images.
 - On a phone the halves stack, the loupe is not offered (it needs a mouse, as in the artwork view) and the palette icon works.
 - There is no note and no "Dodaj do wystawy". The prototype and ATL-451 had a "Podobieństwa i różnice" note and a way to add the pair to an exhibition. The owner had not planned to store notes of comparisons and wanted the comparison to stay a tool for looking. Writing about two artworks belongs in an exhibition, where they can stand in a row with a text. A comparison is not stored.
 
