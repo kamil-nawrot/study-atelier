@@ -24,7 +24,8 @@
     "contemporary": "montaut-projectile-stone-hill",
     "trevi_fountain": "piranesi-trevi-neptune",
     "seven_league_boots": "dore-boots-legs",
-    "vasari_lives": "vasari-title-page"
+    "vasari_lives": "vasari-title-page",
+    "figure_alphabet": "meckenem-letter-a-smb-mount-close"
   },
   "variants": [
     {
@@ -927,6 +928,146 @@
         0.85,
         0.7
       ]
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "master-es-letter-a",
+      "status": "rejected",
+      "commons_file": "Maitre ES L. 283 lettre A Alphabet figure.jpg",
+      "licence": "Public domain",
+      "credit": "Master E.S., letter A from the Fantastic Alphabet, c. 1464–1467",
+      "crop": [
+        0.02,
+        0.0,
+        0.98,
+        1.0
+      ]
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "master-es-letter-a-wall",
+      "status": "rejected",
+      "commons_file": "Maitre ES L. 283 lettre A Alphabet figure.jpg",
+      "licence": "Public domain",
+      "credit": "Master E.S., letter A from the Fantastic Alphabet, c. 1464–1467",
+      "crop": [
+        0.02,
+        0.0,
+        0.98,
+        1.0
+      ],
+      "background": "wall"
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "master-es-letter-a-wall-detect",
+      "status": "rejected",
+      "commons_file": "Maitre ES L. 283 lettre A Alphabet figure.jpg",
+      "licence": "Public domain",
+      "credit": "Master E.S., letter A from the Fantastic Alphabet, c. 1464–1467",
+      "crop": [
+        0.02,
+        0.0,
+        0.98,
+        1.0
+      ],
+      "background": "wall-detect"
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "meckenem-letter-a-smb",
+      "status": "alternative",
+      "source_url": "https://search.smb.museum/media/images/originals/229/005/5229067.20035329.jpg",
+      "source_page": "https://id.smb.museum/object/1543315",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Israhel van Meckenem after Master E.S., the letter a from the Figure Alphabet, Kupferstichkabinett, Staatliche Museen zu Berlin, 92-1890; photo Volker-H. Schneider",
+      "crop": [
+        0.09,
+        0.08,
+        0.893,
+        0.85
+      ]
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "meckenem-letter-a-smb-mount",
+      "status": "alternative",
+      "source_url": "https://search.smb.museum/media/images/originals/229/005/5229067.20035329.jpg",
+      "source_page": "https://id.smb.museum/object/1543315",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Israhel van Meckenem after Master E.S., the letter a from the Figure Alphabet, Kupferstichkabinett, Staatliche Museen zu Berlin, 92-1890; photo Volker-H. Schneider",
+      "crop": [
+        0.02,
+        0.0,
+        0.98,
+        0.917
+      ]
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "meckenem-letter-a-smb-mount-wall",
+      "status": "rejected",
+      "source_url": "https://search.smb.museum/media/images/originals/229/005/5229067.20035329.jpg",
+      "source_page": "https://id.smb.museum/object/1543315",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Israhel van Meckenem after Master E.S., the letter a from the Figure Alphabet, Kupferstichkabinett, Staatliche Museen zu Berlin, 92-1890; photo Volker-H. Schneider",
+      "crop": [
+        0.02,
+        0.0,
+        0.98,
+        0.917
+      ],
+      "background": "wall"
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "meckenem-letter-a-smb-wall",
+      "status": "rejected",
+      "source_url": "https://search.smb.museum/media/images/originals/229/005/5229067.20035329.jpg",
+      "source_page": "https://id.smb.museum/object/1543315",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Israhel van Meckenem after Master E.S., the letter a from the Figure Alphabet, Kupferstichkabinett, Staatliche Museen zu Berlin, 92-1890; photo Volker-H. Schneider",
+      "crop": [
+        0.09,
+        0.08,
+        0.893,
+        0.85
+      ],
+      "background": "wall"
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "meckenem-letter-a-smb-mount-contrast",
+      "status": "alternative",
+      "source_url": "https://search.smb.museum/media/images/originals/229/005/5229067.20035329.jpg",
+      "source_page": "https://id.smb.museum/object/1543315",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Israhel van Meckenem after Master E.S., the letter a from the Figure Alphabet, Kupferstichkabinett, Staatliche Museen zu Berlin, 92-1890; photo Volker-H. Schneider",
+      "crop": [
+        0.02,
+        0.0,
+        0.98,
+        0.917
+      ],
+      "gamma": 1.7,
+      "cap": 0.97
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "meckenem-letter-a-smb-mount-close",
+      "status": "chosen",
+      "source_url": "https://search.smb.museum/media/images/originals/229/005/5229067.20035329.jpg",
+      "source_page": "https://id.smb.museum/object/1543315",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Israhel van Meckenem after Master E.S., the letter a from the Figure Alphabet, Kupferstichkabinett, Staatliche Museen zu Berlin, 92-1890; photo Volker-H. Schneider",
+      "crop": [
+        0.06,
+        0.04,
+        0.94,
+        0.88
+      ],
+      "gamma": 1.6,
+      "cap": 0.97
     }
   ]
 }
