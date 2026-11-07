@@ -18,6 +18,8 @@ import {
 	REVIEW_CARDS,
 	TIMELINE_EVENTS,
 	VISITS,
+	EXHIBITIONS,
+	ARCHIVED_EXHIBITIONS,
 	STYLE_PERIOD_USAGE,
 	VALUE_DETAILS,
 	VALUE_USAGE,
@@ -597,6 +599,20 @@ function visitsRoute(route, request, url) {
 	return json(route, rows[0] ?? null);
 }
 
+function exhibitionsRoute(route, request, url) {
+	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
+	if (request.method() === 'DELETE' || request.method() === 'PATCH') {
+		return route.fulfill({ status: 204, headers: corsHeaders() });
+	}
+	const archived = url.searchParams.get('deleted_at') === 'not.is.null';
+	const id = url.searchParams.get('id');
+	const rows = (archived ? ARCHIVED_EXHIBITIONS : EXHIBITIONS).filter(
+		(row) => !id?.startsWith('eq.') || row.id === id.slice(3)
+	);
+	if (!wantsObject) return json(route, rows);
+	return json(route, rows[0] ?? null);
+}
+
 function profileRoute(route, request) {
 	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
 	if (request.method() !== 'GET') return json(route, wantsObject ? PROFILE : [PROFILE], 201);
@@ -798,6 +814,8 @@ async function mockSupabase(context) {
 			return json(route, TIMELINE_EVENTS);
 		}
 		if (url.pathname === '/rest/v1/visits') return visitsRoute(route, request, url);
+		if (url.pathname === '/rest/v1/exhibitions') return exhibitionsRoute(route, request, url);
+		if (url.pathname === '/rest/v1/rpc/save_exhibition') return json(route, 4);
 		if (url.pathname === '/rest/v1/rpc/save_visit') return json(route, VISITS[0].id);
 		if (url.pathname === '/rest/v1/catalogue_museums') return json(route, CATALOGUE_MUSEUMS);
 		if (

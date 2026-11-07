@@ -3,6 +3,7 @@
 	import CalendarRange from '@lucide/svelte/icons/calendar-range';
 	import Footprints from '@lucide/svelte/icons/footprints';
 	import ImagesIcon from '@lucide/svelte/icons/images';
+	import Landmark from '@lucide/svelte/icons/landmark';
 	import Layers from '@lucide/svelte/icons/layers';
 	import ListTree from '@lucide/svelte/icons/list-tree';
 	import LogOut from '@lucide/svelte/icons/log-out';
@@ -44,6 +45,7 @@
 	const glossaryPath = resolve('/(app)/atelier/glossary');
 	const timelinePath = resolve('/(app)/atelier/timeline');
 	const chroniclePath = resolve('/(app)/atelier/chronicle');
+	const exhibitionsPath = resolve('/(app)/atelier/exhibitions');
 	const trashPath = resolve('/(app)/atelier/trash');
 	const settingsPath = resolve('/(app)/atelier/settings');
 	const reviewPath = resolve('/(app)/atelier/review');
@@ -162,6 +164,16 @@
 		<Icon icon={Footprints} />
 		<span class="label" class:visually-hidden={compact}>
 			{m.menu.chronicle}
+		</span>
+	</a>
+	<a
+		class="item"
+		aria-current={page.url.pathname.startsWith(exhibitionsPath) ? 'page' : undefined}
+		href={exhibitionsPath}
+	>
+		<Icon icon={Landmark} />
+		<span class="label" class:visually-hidden={compact}>
+			{m.menu.exhibitions}
 		</span>
 	</a>
 	<a

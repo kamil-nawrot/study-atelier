@@ -336,7 +336,11 @@ reads:
     scope: all
     frequency: view
     today:
-      { requests: 0, whole: [], note: 'new in 0.21 (ADR-0200); target one RPC exhibition_list' }
+      {
+        requests: 2,
+        whole: [],
+        note: 'new in 0.21 (ADR-0200, ADR-0211): exhibitions with their artwork rows embedded, then the covers by id; target one RPC exhibition_list'
+      }
 
   - id: R23
     name: Exhibition
@@ -349,7 +353,12 @@ reads:
       - 'term index: cached, for marking the texts and the shown notes'
     scope: one
     frequency: view
-    today: { requests: 0, whole: [], note: 'new in 0.21; target 2-3 requests' }
+    today:
+      {
+        requests: 3,
+        whole: [],
+        note: 'new in 0.21: the exhibition, its artworks by id and the term index'
+      }
 
   - id: R24
     name: Exhibition, edit mode

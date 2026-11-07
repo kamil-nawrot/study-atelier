@@ -55,6 +55,10 @@ begin
   insert into public.timeline_events (name, year_to) values ('War', 1648);
   perform public.save_visit('{"visited_on": "2026-10-12", "date_precision": "day", "notes": "Seen"}', 'Louvre',
     array[first_artwork, third_artwork]);
+  perform public.save_exhibition(gen_random_uuid(), 'Dutch light',
+    jsonb_build_object('type', 'doc', 'content', jsonb_build_array(
+      jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', first_artwork)),
+      jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', second_artwork)))));
 
   perform public.record_review(first_artwork,
     jsonb_build_object('due', now() + interval '3 days', 'stability', 3, 'difficulty', 5,
@@ -83,7 +87,7 @@ declare
     'artworks', 'artwork_images', 'glossary_entries', 'artwork_pins', 'artwork_fields',
     'category_values', 'artwork_values', 'period_eras', 'style_periods', 'author_details',
     'period_details', 'style_details', 'material_details', 'location_details', 'era_details',
-    'artwork_field_entries', 'timeline_events', 'visits', 'visit_artworks', 'review_cards', 'review_log'
+    'artwork_field_entries', 'timeline_events', 'visits', 'visit_artworks', 'exhibitions', 'review_cards', 'review_log'
   ];
   table_name text;
   rows jsonb;
@@ -154,8 +158,16 @@ begin
     and (select count(*) from public.review_log) = 2
     and (select count(*) from public.artwork_field_entries) = 1
     and (select count(*) from public.visits) = 1
-    and (select count(*) from public.visit_artworks) = 2,
+    and (select count(*) from public.visit_artworks) = 2
+    and (select count(*) from public.exhibitions) = 1,
     'a table does not come back whole';
+  assert (select array_agg(artwork.title order by shown.position)
+      from public.exhibition_artworks as shown
+      join public.artworks as artwork on artwork.id = shown.artwork_id) = '{Girl,Milkmaid}',
+    'the import does not rebuild the artworks of an exhibition from its document';
+  assert (select document -> 'content' -> 0 -> 'attrs' ->> 'artworkId' from public.exhibitions)
+      = (select id::text from public.artworks where title = 'Girl'),
+    'an exhibition does not follow the new id of its artwork';
   assert (select stability from public.review_cards where facet = 'date') = 4
     and (select mode from public.review_log where facet = 'date') = 'year',
     'the date card or its answer does not survive the import';

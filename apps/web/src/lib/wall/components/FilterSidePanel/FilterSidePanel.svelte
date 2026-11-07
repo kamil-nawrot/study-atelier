@@ -7,13 +7,23 @@
 
 	type Props = {
 		open: boolean;
-		summary: string;
-		filtering: boolean;
-		onclear: () => void;
+		summary?: string;
+		filtering?: boolean;
+		onclear?: () => void;
+		title?: string;
+		closeLabel?: string;
 		children: Snippet;
 	};
 
-	let { open = $bindable(), summary, filtering, onclear, children }: Props = $props();
+	let {
+		open = $bindable(),
+		summary,
+		filtering = false,
+		onclear,
+		title = m.atelier.filters.title,
+		closeLabel = m.atelier.filters.closePanel,
+		children
+	}: Props = $props();
 
 	let mounted = $state(false);
 
@@ -31,25 +41,22 @@
 
 <div class="slot filter-panel" class:open ontransitionend={unmount}>
 	{#if mounted}
-		<aside class="filters" {@attach overlayScrollbar()} aria-label={m.atelier.filters.title}>
+		<aside class="filters" {@attach overlayScrollbar()} aria-label={title}>
 			<div class="top">
-				<h2>{m.atelier.filters.title}</h2>
-				<button
-					class="close"
-					aria-label={m.atelier.filters.closePanel}
-					onclick={() => (open = false)}
-					type="button"
-				>
+				<h2>{title}</h2>
+				<button class="close" aria-label={closeLabel} onclick={() => (open = false)} type="button">
 					<Icon icon={X} />
 				</button>
 			</div>
 			{@render children()}
-			<div class="bottom">
-				<span class="caption">{summary}</span>
-				<Button disabled={!filtering} onclick={onclear}>
-					{m.atelier.filters.clear}
-				</Button>
-			</div>
+			{#if onclear}
+				<div class="bottom">
+					<span class="caption">{summary}</span>
+					<Button disabled={!filtering} onclick={onclear}>
+						{m.atelier.filters.clear}
+					</Button>
+				</div>
+			{/if}
 		</aside>
 	{/if}
 </div>

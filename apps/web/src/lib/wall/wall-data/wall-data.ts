@@ -60,7 +60,7 @@ type ArtworkRow = {
 	visit_artworks?: { visit_id: string }[];
 };
 
-const ARTWORK_COLUMNS = [
+export const ARTWORK_COLUMNS = [
 	'id',
 	'record_number',
 	'title',
@@ -92,14 +92,14 @@ async function wallImageUrls(paths: string[]): Promise<Map<string, string>> {
 	return urls;
 }
 
-async function fetchAllRows(
+export async function fetchAllRows(
 	page: Parameters<typeof fetchAll>[0]
 ): Promise<{ rows: ArtworkRow[]; error?: string }> {
 	const { rows, error } = await fetchAll<ArtworkRow>(page);
 	return error ? { rows: [], error: collectionErrorMessage(error) } : { rows };
 }
 
-function wallArtwork(row: ArtworkRow): WallArtwork {
+export function wallArtwork(row: ArtworkRow): WallArtwork {
 	const main = row.artwork_images[0];
 	const size = storedSize(main);
 	const pendingImage = pendingImageOf(main, size);
@@ -131,7 +131,7 @@ function wallArtwork(row: ArtworkRow): WallArtwork {
 	};
 }
 
-function rememberedArtwork(artwork: WallArtwork): WallArtwork | undefined {
+export function rememberedArtwork(artwork: WallArtwork): WallArtwork | undefined {
 	const { pendingImage, ...resolved } = artwork;
 	if (!pendingImage) return undefined;
 	const { sourceFile, ownPath, size } = pendingImage;
