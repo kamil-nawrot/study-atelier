@@ -653,7 +653,7 @@ export type Database = {
           id?: string;
           owner_id?: string;
           revision?: number;
-          title?: string;
+          title: string;
           updated_at?: string;
         };
         Update: {
