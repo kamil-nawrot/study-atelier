@@ -75,7 +75,19 @@ test('builds an exhibition from blocks that typing or dragging cannot break', as
 	if (!artwork) throw new Error('the artwork is not on screen');
 	const inside = Math.max(artwork.y + 20, Math.min(artwork.y + artwork.height - 20, 360));
 	await page.mouse.move(artwork.x + artwork.width - 10, inside, { steps: 8 });
-	await expect(page.locator('.mark[data-side]')).toBeVisible();
+	const state = await page.evaluate(() => ({
+		scroll: window.scrollY,
+		ghost: document.querySelector('.ghost')?.textContent,
+		marks: [...document.querySelectorAll<HTMLElement>('.mark')].map((mark) => mark.style.cssText),
+		rows: [...document.querySelectorAll('[data-row-id]')].map((row) => {
+			const box = row.getBoundingClientRect();
+			return [box.top, box.bottom, box.left, box.right, row.textContent?.slice(0, 40)];
+		})
+	}));
+	await expect(
+		page.locator('.mark[data-side]'),
+		JSON.stringify({ artwork, inside, grip, state })
+	).toBeVisible();
 	await page.mouse.up();
 	const row = page.locator('[data-row-id]').filter({ has: page.locator('[data-kind="artwork"]') });
 	await expect(row.locator('[data-kind="palette"]')).toHaveCount(1);
