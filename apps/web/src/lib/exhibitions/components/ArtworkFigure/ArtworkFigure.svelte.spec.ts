@@ -7,6 +7,13 @@ import { m } from '#lib/i18n/i18n.ts';
 import ArtworkFigure from './ArtworkFigure.svelte';
 
 const loadArtworkNotes = vi.hoisted(() => vi.fn());
+const loadArtworkImages = vi.hoisted(() => vi.fn());
+const paletteOf = vi.hoisted(() => vi.fn());
+
+vi.mock('#lib/exhibitions/exhibition-images-data/exhibition-images-data.ts', () => ({
+	loadArtworkImages
+}));
+vi.mock('#lib/images/image-palette/image-palette.ts', () => ({ paletteOf }));
 
 vi.mock('#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts', () => ({
 	loadArtworkNotes
@@ -59,5 +66,47 @@ describe('ArtworkFigure', () => {
 
 		await expect.element(page.getByText(m.exhibitions.bar.noteOf('Judith'))).toBeInTheDocument();
 		await expect.element(page.getByText('Painted in Rome.')).toBeInTheDocument();
+	});
+
+	describe('palette', () => {
+		const picture = {
+			id: 'image-1',
+			kind: 'url',
+			url: 'https://a.test/a.jpg',
+			width: 4,
+			height: 3
+		};
+
+		function show(props: Record<string, unknown>): void {
+			loadArtworkImages.mockResolvedValue({ images: new Map([['artwork-7', [picture]]]) });
+			const lookup = new ArtworkLookup();
+			lookup.add([testArtwork(7, 'Judith')]);
+			render(ArtworkFigure, { lookup, artworkId: 'artwork-7', ...props });
+		}
+
+		it('shows the colours under the image', async () => {
+			paletteOf.mockResolvedValue({ colours: [{ color: '#aa8855', share: 1 }] });
+			show({ palette: true });
+
+			await vi.waitFor(() => expect(document.querySelector('[data-palette]')).not.toBeNull());
+			expect(document.querySelector('img')).not.toBeNull();
+		});
+
+		it('shows only the colours instead of the image', async () => {
+			paletteOf.mockResolvedValue({ colours: [{ color: '#aa8855', share: 1 }] });
+			show({ paletteOnly: true });
+
+			await vi.waitFor(() => expect(document.querySelector('[data-palette-only]')).not.toBeNull());
+			expect(document.querySelector('img')).toBeNull();
+		});
+
+		it('keeps the image when the colours cannot be read', async () => {
+			paletteOf.mockResolvedValue({ unreadable: true });
+			show({ paletteOnly: true });
+
+			await vi.waitFor(() => expect(paletteOf).toHaveBeenCalled());
+			expect(document.querySelector('[data-palette-only]')).toBeNull();
+			expect(document.querySelector('img')).not.toBeNull();
+		});
 	});
 });

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { NoImage } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
+	import PaletteBand from '#lib/images/components/PaletteBand/PaletteBand.svelte';
+	import { PaletteLoader } from '#lib/images/palette-loader/palette-loader.svelte.ts';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
@@ -10,6 +12,8 @@
 		lookup: ArtworkLookup;
 		artworkId: string;
 		showNote?: boolean;
+		palette?: boolean;
+		paletteOnly?: boolean;
 		caption?: string;
 		editable?: boolean;
 		empty?: boolean;
@@ -22,6 +26,8 @@
 		lookup,
 		artworkId,
 		showNote = false,
+		palette = false,
+		paletteOnly = false,
 		caption,
 		editable = false,
 		empty = false,
@@ -36,8 +42,24 @@
 		artwork ? [artwork.authors.join(', '), artwork.date].filter(Boolean).join(', ') : ''
 	);
 
+	const colours = new PaletteLoader();
+	const wantsPalette = $derived(palette || paletteOnly);
+	const firstImage = $derived(lookup.pictures(artworkId)?.[0] ?? null);
+	const showsPalette = $derived(
+		wantsPalette && colours.status !== 'idle' && colours.status !== 'unreadable'
+	);
+
 	$effect(() => {
 		if (showNote) void lookup.wantNote(artworkId);
+	});
+
+	$effect(() => {
+		if (!wantsPalette) return;
+		void lookup.wantPictures(artworkId);
+	});
+
+	$effect(() => {
+		if (wantsPalette) void colours.load(firstImage);
 	});
 </script>
 
@@ -45,7 +67,11 @@
 	<div class="top" contenteditable="false">
 		<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 		<div class="mat" onclick={onselect}>
-			{#if artwork?.image?.src}
+			{#if paletteOnly && showsPalette}
+				<div class="swatches" data-palette-only="">
+					<PaletteBand collecting={colours.status === 'loading'} colours={colours.colours} inline />
+				</div>
+			{:else if artwork?.image?.src}
 				<img
 					alt=""
 					draggable="false"
@@ -62,6 +88,11 @@
 				</div>
 			{/if}
 		</div>
+		{#if palette && !paletteOnly && showsPalette}
+			<div class="strip" data-palette="">
+				<PaletteBand collecting={colours.status === 'loading'} colours={colours.colours} inline />
+			</div>
+		{/if}
 		{#if artwork}
 			<p class="label">
 				{#if editable}
@@ -132,6 +163,19 @@
 	.placeholder {
 		width: calc(20 * var(--spacing-6));
 		max-width: 100%;
+	}
+
+	.swatches {
+		width: calc(20 * var(--spacing-6));
+		max-width: 100%;
+		aspect-ratio: 4 / 5;
+		display: grid;
+		align-items: end;
+		background: var(--color-palette-band);
+	}
+
+	.strip {
+		width: 100%;
 	}
 
 	.label {
