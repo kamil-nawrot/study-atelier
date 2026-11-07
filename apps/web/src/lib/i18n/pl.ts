@@ -2464,7 +2464,10 @@ export const pl = {
 			artworks:
 				'Ta wystawa ma już 100 dzieł, czyli najwięcej, ile się zmieści. Może warto podzielić ją na dwie?',
 			blocks:
-				'Ta wystawa ma już 300 elementów, czyli najwięcej, ile się zmieści. Może warto podzielić ją na dwie?'
+				'Ta wystawa ma już 300 elementów, czyli najwięcej, ile się zmieści. Może warto podzielić ją na dwie?',
+			noPalette:
+				'Z obrazu tego dzieła nie da się odczytać kolorów, więc paleta nie została dodana.',
+			noImage: 'To dzieło nie ma obrazu, więc nie ma z czego zebrać palety.'
 		},
 		errors: {
 			notFound: 'Nie ma takiej wystawy.',
