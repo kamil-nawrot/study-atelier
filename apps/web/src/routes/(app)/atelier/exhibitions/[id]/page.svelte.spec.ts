@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { goto } from '$app/navigation';
+import { beforeNavigate, goto } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
 import { saveExhibition } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
@@ -189,5 +189,59 @@ describe('exhibition page', () => {
 		renderExhibition();
 
 		await expect.element(page.getByText(m.exhibitions.panel.title)).not.toBeInTheDocument();
+	});
+
+	describe('leaving with unsaved changes', () => {
+		type Leaving = { willUnload: boolean; cancel: () => void };
+
+		async function editAndChange(): Promise<(navigation: Leaving) => void> {
+			navigation.url = new URL(`http://localhost/atelier/exhibitions/${ID}?edit`);
+			renderExhibition();
+			await userEvent.type(page.getByLabelText(m.exhibitions.view.titleLabel), '!');
+			const calls = vi.mocked(beforeNavigate).mock.calls;
+			return calls[calls.length - 1][0] as (navigation: Leaving) => void;
+		}
+
+		it('keeps the page when the learner closes the tab before the save', async () => {
+			const leave = await editAndChange();
+			const cancel = vi.fn();
+
+			leave({ willUnload: true, cancel });
+
+			expect(cancel).toHaveBeenCalled();
+		});
+
+		it('lets the learner move inside the app while the save runs', async () => {
+			const leave = await editAndChange();
+			const cancel = vi.fn();
+
+			leave({ willUnload: false, cancel });
+
+			expect(cancel).not.toHaveBeenCalled();
+			expect(saveExhibition).toHaveBeenCalled();
+		});
+
+		it('asks the browser to confirm closing the tab', async () => {
+			await editAndChange();
+
+			const event = new Event('beforeunload', { cancelable: true });
+			window.dispatchEvent(event);
+
+			expect(event.defaultPrevented).toBe(true);
+		});
+
+		it('does not hold the page back when everything is saved', async () => {
+			renderExhibition();
+			const calls = vi.mocked(beforeNavigate).mock.calls;
+			const leave = calls[calls.length - 1][0] as (navigation: Leaving) => void;
+			const cancel = vi.fn();
+
+			leave({ willUnload: true, cancel });
+			const event = new Event('beforeunload', { cancelable: true });
+			window.dispatchEvent(event);
+
+			expect(cancel).not.toHaveBeenCalled();
+			expect(event.defaultPrevented).toBe(false);
+		});
 	});
 });
