@@ -233,16 +233,13 @@
 	.drop {
 		position: fixed;
 		z-index: 2;
-		border-top: var(--border-width-base) solid var(--color-fg);
-		pointer-events: none;
-	}
-
-	.drop {
 		display: grid;
 		place-items: center;
+		border-top: var(--border-width-base) solid var(--color-fg);
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
 		text-align: center;
+		pointer-events: none;
 	}
 
 	.drop.slot {
