@@ -1,5 +1,6 @@
 <script lang="ts">
 	import CloseUpFigure from '#lib/exhibitions/components/CloseUpFigure/CloseUpFigure.svelte';
+	import ExhibitionDivider from '#lib/exhibitions/components/ExhibitionDivider/ExhibitionDivider.svelte';
 	import ArtworkFigure from '#lib/exhibitions/components/ArtworkFigure/ArtworkFigure.svelte';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
 	import { isBlankText } from '#lib/exhibitions/exhibition-document/exhibition-document.ts';
@@ -67,6 +68,8 @@
 			x={Number(block.attrs?.x)}
 			y={Number(block.attrs?.y)}
 		/>
+	{:else if block.type === 'divider'}
+		<ExhibitionDivider line={Boolean(block.attrs?.line)} />
 	{:else if block.type === 'set'}
 		<div class="set">
 			{#each block.content ?? [] as item, index (index)}

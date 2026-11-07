@@ -6,8 +6,16 @@ import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 import { blockOf } from '#lib/exhibitions/editor/block-rows/block-rows.ts';
-import { artwork, closeUp, heading, palette, set } from '#lib/testing/exhibitions/exhibitions.ts';
+import {
+	artwork,
+	closeUp,
+	divider,
+	heading,
+	palette,
+	set
+} from '#lib/testing/exhibitions/exhibitions.ts';
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
+import '@study-atelier/ui/styles.css';
 import BlockCard from './BlockCard.svelte';
 
 vi.mock('#lib/wall/wall-images/wall-images.svelte.ts', () => ({
@@ -83,6 +91,29 @@ describe('BlockCard', () => {
 			type: 'artwork',
 			attrs: { artworkId: 'artwork-1', note: true }
 		});
+	});
+
+	it('draws or hides the line of a divider from its toolbox and offers no position', async () => {
+		const given = props(divider());
+		render(BlockCard, given);
+
+		await expect.element(page.getByRole('separator')).not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: m.exhibitions.bar.position }))
+			.not.toBeInTheDocument();
+		const line = page.getByRole('button', { name: m.exhibitions.bar.line });
+		await expect.element(line).toHaveAttribute('aria-pressed', 'false');
+		await userEvent.click(line);
+
+		expect(given.onchange).toHaveBeenLastCalledWith({ type: 'divider', attrs: { line: true } });
+	});
+
+	it('shows the line of a divider that has one', async () => {
+		render(BlockCard, props(divider(true)));
+		await expect.element(page.getByRole('separator')).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: m.exhibitions.bar.line }))
+			.toHaveAttribute('aria-pressed', 'true');
 	});
 
 	it('shows a detail and a palette with the name of their kind', async () => {

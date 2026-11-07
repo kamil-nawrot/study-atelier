@@ -87,6 +87,20 @@ describe('ExhibitionBody', () => {
 		expect(document.querySelectorAll('.text')).toHaveLength(1);
 	});
 
+	it('leaves a gap for a divider and draws a line only for one that has it', async () => {
+		render(ExhibitionBody, {
+			lookup: new ArtworkLookup(),
+			document: {
+				type: 'doc',
+				content: [{ type: 'divider' }, { type: 'divider', attrs: { line: true } }]
+			}
+		});
+
+		await expect.element(page.getByRole('separator')).toBeInTheDocument();
+		expect(document.querySelectorAll('.divider')).toHaveLength(2);
+		expect(document.querySelectorAll('hr')).toHaveLength(1);
+	});
+
 	it('lays the blocks of a row side by side, with a close-up beside the artwork', async () => {
 		const lookup = new ArtworkLookup();
 		lookup.add([testArtwork(1, 'Judith')]);
