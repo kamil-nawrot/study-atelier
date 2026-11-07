@@ -8,6 +8,7 @@
 		textBlockMarkdown
 	} from '#lib/exhibitions/exhibition-markdown/exhibition-markdown.ts';
 	import type { JSONContent } from '@tiptap/core';
+	import { positionOf } from '#lib/exhibitions/editor/block-position/block-position.ts';
 	import type { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 	import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
@@ -26,6 +27,13 @@
 		})
 	);
 </script>
+
+{#snippet placed(block: JSONContent, cell: boolean)}
+	{@const position = positionOf(block)}
+	<div class={cell ? 'cell' : 'place'} data-align={position.align} data-valign={position.valign}>
+		{@render blockOf(block)}
+	</div>
+{/snippet}
 
 {#snippet blockOf(block: JSONContent)}
 	{#if block.type === 'textBlock'}
@@ -62,11 +70,7 @@
 	{:else if block.type === 'columns'}
 		<div class="row" data-row="">
 			{#each block.content ?? [] as column, index (index)}
-				<div class="cell">
-					{#each column.content ?? [] as inner, innerIndex (innerIndex)}
-						{@render blockOf(inner)}
-					{/each}
-				</div>
+				{@render placed(column.content?.[0] ?? {}, true)}
 			{/each}
 		</div>
 	{/if}
@@ -74,7 +78,11 @@
 
 <div class="body">
 	{#each blocks as block, index (index)}
-		{@render blockOf(block)}
+		{#if block.type === 'columns'}
+			{@render blockOf(block)}
+		{:else}
+			{@render placed(block, false)}
+		{/if}
 	{/each}
 </div>
 
@@ -88,16 +96,39 @@
 	.row {
 		display: flex;
 		gap: var(--spacing-8);
-		align-items: flex-start;
+		align-items: stretch;
 		width: 100%;
 	}
 
+	.place,
 	.cell {
 		display: grid;
-		flex: 1 1 0;
-		gap: var(--spacing-4);
+		align-content: start;
 		justify-items: start;
+		width: 100%;
 		min-width: 0;
+	}
+
+	.cell {
+		flex: 1 1 0;
+	}
+
+	[data-align='center'] {
+		justify-items: center;
+		text-align: center;
+	}
+
+	[data-align='right'] {
+		justify-items: end;
+		text-align: right;
+	}
+
+	[data-valign='middle'] {
+		align-content: center;
+	}
+
+	[data-valign='bottom'] {
+		align-content: end;
 	}
 
 	@media (max-width: 767px) {
@@ -113,9 +144,10 @@
 	}
 
 	h2 {
-		font-size: var(--font-size-lg);
-		font-weight: var(--font-weight-medium);
-		line-height: var(--line-height-lg);
+		font-family: var(--font-family-title), Georgia, serif;
+		font-size: var(--font-size-xl);
+		font-weight: var(--font-weight-regular);
+		line-height: var(--line-height-xl);
 	}
 
 	blockquote {

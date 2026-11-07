@@ -2430,7 +2430,7 @@ export const pl = {
 		},
 		bar: {
 			label: (block: string): string => `Blok: ${block}`,
-			move: 'Przeciągnij, żeby przenieść',
+			move: (block: string): string => `${block}: przeciągnij, żeby przenieść`,
 			up: 'W górę',
 			down: 'W dół',
 			remove: 'Usuń z wystawy',
@@ -2438,6 +2438,10 @@ export const pl = {
 			italic: 'Kursywa',
 			bulletList: 'Lista',
 			orderedList: 'Lista numerowana',
+			note: 'Notatka',
+			position: 'Położenie',
+			place: (valign: string, align: string): string =>
+				`${{ top: 'U góry', middle: 'W połowie', bottom: 'Na dole' }[valign] ?? valign}, ${{ left: 'z lewej', center: 'na środku', right: 'z prawej' }[align] ?? align}`,
 			noteOf: (title: string): string => `Z notatki dzieła · ${title}`,
 			noNote: 'To dzieło nie ma jeszcze notatki.'
 		},

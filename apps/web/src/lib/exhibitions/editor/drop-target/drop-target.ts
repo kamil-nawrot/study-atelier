@@ -60,16 +60,45 @@ function side(row: RowBox, at: number, x: number, columns: number): Drop {
 	};
 }
 
-function sideOf(row: RowBox, x: number, moving: string | undefined): Drop | undefined {
+function sideOf(row: RowBox, x: number, moving: string | undefined): Drop | null | undefined {
 	const others = row.blocks.filter((block) => block.id !== moving);
 	if (others.length >= MAX_COLUMNS || others.length === 0) return undefined;
+	const columns = others.length + 1;
+	const own = row.blocks.findIndex((block) => block.id === moving);
+	const offer = (at: number, edge: number): Drop | null =>
+		own >= 0 && (at === own || at === own + 1) ? null : side(row, at, edge, columns);
+	const zoneOf = (block: BlockBox): number =>
+		Math.min((block.right - block.left) * SIDE_SHARE, SIDE_MAX);
+	const first = row.blocks[0];
+	const last = row.blocks.at(-1);
+	if (first && x >= first.left && x <= first.left + zoneOf(first)) return offer(0, first.left);
+	if (last && x <= last.right && x >= last.right - zoneOf(last)) {
+		return offer(row.blocks.length, last.right);
+	}
 	for (const [index, block] of row.blocks.entries()) {
-		if (x < block.left || x > block.right) continue;
-		const zone = Math.min((block.right - block.left) * SIDE_SHARE, SIDE_MAX);
-		if (x <= block.left + zone) return side(row, index, block.left, others.length + 1);
-		if (x >= block.right - zone) return side(row, index + 1, block.right, others.length + 1);
+		const next = row.blocks[index + 1];
+		if (!next) break;
+		if (x >= block.right - zoneOf(block) && x <= next.left + zoneOf(next)) {
+			return offer(index + 1, (block.right + next.left) / 2);
+		}
 	}
 	return undefined;
+}
+
+function within(row: RowBox, x: number, moving: string | undefined): boolean {
+	return row.blocks.some((block) => block.id === moving && x >= block.left && x <= block.right);
+}
+
+function lineAt(
+	rows: readonly RowBox[],
+	index: number,
+	frame: Frame,
+	moving: string | undefined
+): Drop | undefined {
+	const alone = (row: RowBox | undefined): boolean =>
+		row?.blocks.length === 1 && row.blocks[0]?.id === moving;
+	if (moving && (alone(rows[index]) || alone(rows[index - 1]))) return undefined;
+	return line(rows, index, frame);
 }
 
 export function dropAt(
@@ -85,10 +114,11 @@ export function dropAt(
 		if (y > row.bottom) continue;
 		if (y >= row.top) {
 			const beside = sideOf(row, x, moving);
-			if (beside) return beside;
-			return line(rows, y < (row.top + row.bottom) / 2 ? index : index + 1, frame);
+			if (beside !== undefined) return beside ?? undefined;
+			if (within(row, x, moving)) return undefined;
+			return lineAt(rows, y < (row.top + row.bottom) / 2 ? index : index + 1, frame, moving);
 		}
-		return line(rows, index, frame);
+		return lineAt(rows, index, frame, moving);
 	}
-	return line(rows, rows.length, frame);
+	return lineAt(rows, rows.length, frame, moving);
 }

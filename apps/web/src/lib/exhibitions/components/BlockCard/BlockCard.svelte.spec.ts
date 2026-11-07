@@ -71,6 +71,20 @@ describe('BlockCard', () => {
 		expect(document.querySelector('.grab a')).toBeNull();
 	});
 
+	it('switches the note of an artwork on and off from its toolbox', async () => {
+		const given = props(artwork('artwork-1'));
+		render(BlockCard, given);
+
+		const note = page.getByRole('button', { name: m.exhibitions.bar.note });
+		await expect.element(note).toHaveAttribute('aria-pressed', 'false');
+		await userEvent.click(note);
+
+		expect(given.onchange).toHaveBeenLastCalledWith({
+			type: 'artwork',
+			attrs: { artworkId: 'artwork-1', note: true }
+		});
+	});
+
 	it('shows a detail and a palette with the name of their kind', async () => {
 		render(BlockCard, props(closeUp('artwork-1')));
 		await expect

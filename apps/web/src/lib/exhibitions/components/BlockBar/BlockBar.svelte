@@ -5,6 +5,8 @@
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import type { Snippet } from 'svelte';
 	import { m } from '#lib/i18n/i18n.ts';
+	import PositionPicker from '#lib/exhibitions/components/PositionPicker/PositionPicker.svelte';
+	import type { Position } from '#lib/exhibitions/editor/block-position/block-position.ts';
 
 	type Props = {
 		label: string;
@@ -13,10 +15,13 @@
 		onmovestart: (event: PointerEvent) => void;
 		onstep: (direction: -1 | 1) => void;
 		onremove: () => void;
+		position?: Position;
+		onposition?: (position: Position) => void;
 		tools?: Snippet;
 	};
 
-	let { label, canUp, canDown, onmovestart, onstep, onremove, tools }: Props = $props();
+	let { label, canUp, canDown, onmovestart, onstep, onremove, position, onposition, tools }: Props =
+		$props();
 </script>
 
 <div class="bar" aria-label={m.exhibitions.bar.label(label)} role="toolbar">
@@ -24,16 +29,20 @@
 		class="handle"
 		onpointerdown={onmovestart}
 		role="presentation"
-		title={m.exhibitions.bar.move}
+		title={m.exhibitions.bar.move(label)}
 	>
 		<GripVertical aria-hidden="true" size={16} />
-		{label}
+		<span class="name">{label}</span>
 	</span>
 	<span class="end">
 		{#if tools}
 			<span class="tools">{@render tools()}</span>
 		{/if}
+		{#if position && onposition}
+			<PositionPicker onpick={onposition} {position} />
+		{/if}
 		<button
+			class="step"
 			aria-label={m.exhibitions.bar.up}
 			disabled={!canUp}
 			onclick={() => onstep(-1)}
@@ -43,6 +52,7 @@
 			<ArrowUp aria-hidden="true" size={16} />
 		</button>
 		<button
+			class="step"
 			aria-label={m.exhibitions.bar.down}
 			disabled={!canDown}
 			onclick={() => onstep(1)}
@@ -65,7 +75,7 @@
 <style>
 	.bar {
 		position: absolute;
-		z-index: 2;
+		z-index: 1;
 		top: calc(-1 * var(--size-control) / 2);
 		right: var(--spacing-3);
 		left: var(--spacing-3);
@@ -139,6 +149,31 @@
 	.bar :global(button:focus-visible) {
 		outline: var(--border-width-base) dashed currentColor;
 		outline-offset: calc(-1 * var(--spacing-2));
+	}
+
+	@container block (max-width: 400px) {
+		.bar {
+			right: 0;
+			left: 0;
+		}
+
+		.handle {
+			padding: 0 var(--spacing-4);
+		}
+
+		.name {
+			display: none;
+		}
+	}
+
+	@container block (max-width: 300px) {
+		.bar .step {
+			display: none;
+		}
+
+		.bar :global(button) {
+			min-width: calc(var(--size-control) - var(--spacing-2));
+		}
 	}
 
 	@media (max-width: 767px) {
