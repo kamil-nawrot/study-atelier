@@ -198,8 +198,8 @@
 		margin: 0;
 	}
 
-	.document :global(.ProseMirror ul),
-	.document :global(.ProseMirror ol) {
+	.document :global(.ProseMirror [data-block='text'] ul),
+	.document :global(.ProseMirror [data-block='text'] ol) {
 		display: grid;
 		gap: var(--spacing-1);
 		padding-left: var(--spacing-6);
