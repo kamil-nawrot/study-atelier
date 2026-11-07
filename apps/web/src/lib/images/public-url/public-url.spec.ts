@@ -16,7 +16,6 @@ describe('publicHttpsUrl', () => {
 		'not a url',
 		'http://images.example.test/a.jpg',
 		'ftp://images.example.test/a.jpg',
-		'https://user:pass@images.example.test/a.jpg',
 		'https://images.example.test:8443/a.jpg',
 		'https://localhost/a.jpg',
 		'https://intranet/a.jpg',
@@ -30,5 +29,13 @@ describe('publicHttpsUrl', () => {
 		'https://router.home.arpa/a.jpg'
 	])('rejects %s', (text) => {
 		expect(publicHttpsUrl(text)).toBeUndefined();
+	});
+
+	it('rejects an address with credentials', () => {
+		const address = new URL('https://images.example.test/a.jpg');
+		address.username = 'user';
+		address.password = 'secret';
+
+		expect(publicHttpsUrl(address.href)).toBeUndefined();
 	});
 });
