@@ -55,12 +55,12 @@ describe('dropAt', () => {
 		expect(right?.mark.slot).toEqual({ top: 0, left: 450, width: 450, height: 100 });
 		const middle = dropAt(rows, frame, 420, 200);
 		expect(middle?.target).toEqual({ row: 'r2', at: 1 });
-		expect(middle?.mark.slot).toEqual({ top: 140, left: 280, width: 300, height: 160 });
+		expect(middle?.mark.slot).toEqual({ top: 140, left: 300, width: 300, height: 160 });
 		expect(dropAt(rows, frame, 480, 200)?.target).toEqual({ row: 'r2', at: 1 });
 	});
 
 	it('offers no column beside the block that is moved alone or in a full row', () => {
-		expect(dropAt(rows, frame, 10, 20, 'a')?.target).toEqual({ before: 'r1' });
+		expect(dropAt(rows, frame, 10, 20, 'a')).toBeUndefined();
 		const full: RowBox[] = [
 			{
 				id: 'r',
@@ -74,7 +74,24 @@ describe('dropAt', () => {
 			}
 		];
 		expect(dropAt(full, frame, 5, 20)?.target).toEqual({ before: 'r' });
-		expect(dropAt(full, frame, 5, 20, 'x')?.target).toEqual({ row: 'r', at: 0 });
+		expect(dropAt(full, frame, 875, 20, 'x')?.target).toEqual({ row: 'r', at: 3 });
+	});
+
+	it('shows one line in the middle of the gap between two blocks', () => {
+		const fromLeft = dropAt(rows, frame, 420, 200);
+		const fromRight = dropAt(rows, frame, 480, 200);
+		expect(fromLeft?.mark.left).toBe(448);
+		expect(fromRight?.mark).toEqual(fromLeft?.mark);
+	});
+
+	it('offers nothing where the dragged block already stands', () => {
+		expect(dropAt(rows, frame, 200, 200, 'b')).toBeUndefined();
+		expect(dropAt(rows, frame, 450, 200, 'b')).toBeUndefined();
+		expect(dropAt(rows, frame, 10, 200, 'b')).toBeUndefined();
+		expect(dropAt(rows, frame, 890, 200, 'b')?.target).toEqual({ row: 'r2', at: 2 });
+		expect(dropAt(rows, frame, 450, 120, 'a')).toBeUndefined();
+		expect(dropAt(rows, frame, 450, 400, 'a')?.target).toEqual({ before: undefined });
+		expect(dropAt(rows, frame, 450, 120, 'b')?.target).toEqual({ before: 'r2' });
 	});
 
 	it('drops nowhere outside the frame and on a line in an empty exhibition', () => {

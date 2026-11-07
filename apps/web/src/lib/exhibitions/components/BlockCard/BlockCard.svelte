@@ -3,6 +3,7 @@
 	import Italic from '@lucide/svelte/icons/italic';
 	import List from '@lucide/svelte/icons/list';
 	import ListOrdered from '@lucide/svelte/icons/list-ordered';
+	import StickyNote from '@lucide/svelte/icons/sticky-note';
 	import { untrack } from 'svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ArtworkFigure from '#lib/exhibitions/components/ArtworkFigure/ArtworkFigure.svelte';
@@ -17,6 +18,7 @@
 		quoteText
 	} from '#lib/exhibitions/editor/new-block/new-block.ts';
 	import { TextField } from '#lib/exhibitions/editor/text-field/text-field.svelte.ts';
+	import { placed, positionOf } from '#lib/exhibitions/editor/block-position/block-position.ts';
 	import type { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 	import type { Block } from '#lib/exhibitions/editor/block-rows/block-rows.ts';
 	import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
@@ -50,6 +52,12 @@
 	const kind = $derived(kindOf(block.node));
 	const attrs = $derived(block.node.attrs ?? {});
 	const label = $derived(m.exhibitions.blocks[kind]);
+	const position = $derived(positionOf(block.node));
+
+	function keep(node: ExhibitionDocument): void {
+		const attrs = { ...block.node.attrs, ...node.attrs };
+		onchange(Object.keys(attrs).length > 0 ? { ...node, attrs } : node);
+	}
 
 	function text(element: HTMLElement): () => void {
 		const created = untrack(
@@ -58,7 +66,7 @@
 					element,
 					node: block.node,
 					label: m.exhibitions.blocks.textBlock,
-					onchange: (node) => onchange(node)
+					onchange: (node) => keep(node)
 				})
 		);
 		field = created;
@@ -68,14 +76,34 @@
 		};
 	}
 
+	function toggleNote(): void {
+		onchange({ ...block.node, attrs: { ...attrs, note: !attrs.note } });
+	}
+
 	function grab(event: PointerEvent): void {
 		if (event.target instanceof Element && event.target.closest('a, button')) return;
 		onmovestart(event);
 	}
 </script>
 
-<div class="card" class:moving data-block-id={block.id} data-kind={kind}>
-	<BlockBar {canDown} {canUp} {label} {onmovestart} {onremove} {onstep}>
+<div
+	class="card"
+	class:moving
+	data-align={position.align}
+	data-block-id={block.id}
+	data-kind={kind}
+	data-valign={position.valign}
+>
+	<BlockBar
+		{canDown}
+		{canUp}
+		{label}
+		{onmovestart}
+		onposition={(next) => onchange(placed(block.node, next))}
+		{onremove}
+		{onstep}
+		{position}
+	>
 		{#snippet tools()}
 			{#if kind === 'textBlock' && field}
 				<button
@@ -114,6 +142,16 @@
 				>
 					<ListOrdered aria-hidden="true" size={16} />
 				</button>
+			{:else if kind === 'artwork'}
+				<button
+					aria-label={m.exhibitions.bar.note}
+					aria-pressed={Boolean(attrs.note)}
+					onclick={toggleNote}
+					title={m.exhibitions.bar.note}
+					type="button"
+				>
+					<StickyNote aria-hidden="true" size={16} />
+				</button>
 			{/if}
 		{/snippet}
 	</BlockBar>
@@ -130,7 +168,7 @@
 				class="heading"
 				aria-label={m.exhibitions.blocks.heading}
 				maxlength="200"
-				oninput={(event) => onchange(headingNode(event.currentTarget.value))}
+				oninput={(event) => keep(headingNode(event.currentTarget.value))}
 				placeholder={m.exhibitions.blocks.headingHint}
 				value={headingText(block.node)}
 			/>
@@ -138,7 +176,7 @@
 			<textarea
 				class="quote"
 				aria-label={m.exhibitions.blocks.quote}
-				oninput={(event) => onchange(quoteNode(event.currentTarget.value))}
+				oninput={(event) => keep(quoteNode(event.currentTarget.value))}
 				placeholder={m.exhibitions.blocks.quoteHint}
 				rows="1"
 				value={quoteText(block.node)}></textarea>
@@ -178,6 +216,7 @@
 		align-self: stretch;
 		min-width: 0;
 		padding: var(--spacing-6);
+		container: block / inline-size;
 		background: var(--color-surface);
 		outline: var(--border-width-hairline) solid transparent;
 	}
@@ -210,10 +249,33 @@
 	}
 
 	.content {
+		display: grid;
+		justify-items: start;
 		min-width: 0;
 	}
 
+	.card[data-valign='middle'] {
+		align-content: center;
+	}
+
+	.card[data-valign='bottom'] {
+		align-content: end;
+	}
+
+	.card[data-align='center'] .content {
+		justify-items: center;
+		text-align: center;
+	}
+
+	.card[data-align='right'] .content {
+		justify-items: end;
+		text-align: right;
+	}
+
 	.grab {
+		display: grid;
+		justify-items: inherit;
+		width: 100%;
 		cursor: grab;
 		user-select: none;
 	}
@@ -231,6 +293,7 @@
 		color: var(--color-fg);
 		font: inherit;
 		line-height: var(--line-height-md);
+		text-align: inherit;
 	}
 
 	.text :global(.tiptap) {
@@ -261,9 +324,10 @@
 	}
 
 	.heading {
-		font-size: var(--font-size-lg);
-		font-weight: var(--font-weight-medium);
-		line-height: var(--line-height-lg);
+		font-family: var(--font-family-title), Georgia, serif;
+		font-size: var(--font-size-xl);
+		font-weight: var(--font-weight-regular);
+		line-height: var(--line-height-xl);
 	}
 
 	.quote {

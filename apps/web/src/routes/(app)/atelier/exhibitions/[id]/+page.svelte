@@ -76,6 +76,16 @@
 		{#if session && data.exhibition}
 			{#if editing}
 				<SaveStatusText status={session.status} />
+				{#if !panelOpen && wide.current}
+					<Button
+						aria-label={m.exhibitions.panel.open}
+						compact
+						icon={Plus}
+						onclick={() => (panelOpen = true)}
+					>
+						{m.exhibitions.panel.open}
+					</Button>
+				{/if}
 				<Button
 					aria-label={m.exhibitions.view.done}
 					compact
@@ -121,18 +131,6 @@
 
 	{#if session && data.exhibition}
 		{#if editing}
-			{#if !panelOpen && wide.current}
-				<div class="open">
-					<Button
-						aria-label={m.exhibitions.panel.open}
-						compact
-						icon={Plus}
-						onclick={() => (panelOpen = true)}
-					>
-						{m.exhibitions.panel.open}
-					</Button>
-				</div>
-			{/if}
 			<ExhibitionEditorPane bind:this={pane} {barHeight} {lookup} {session} />
 		{:else}
 			<article>
@@ -185,10 +183,5 @@
 		font-size: var(--font-size-2xl);
 		font-style: italic;
 		line-height: var(--line-height-2xl);
-	}
-
-	.open {
-		display: flex;
-		justify-content: flex-end;
 	}
 </style>

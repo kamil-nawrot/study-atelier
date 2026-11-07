@@ -90,9 +90,10 @@ begin
         jsonb_build_object('type', 'closeUp', 'attrs', jsonb_build_object(
           'artworkId', olympia, 'imageId', null, 'x', 0.4, 'y', 0.6, 'viewWidth', 0.25)))),
       jsonb_build_object('type', 'column', 'content', jsonb_build_array(
-        jsonb_build_object('type', 'heading', 'attrs', jsonb_build_object('level', 2)))))),
+        jsonb_build_object('type', 'heading', 'attrs', jsonb_build_object(
+          'level', 2, 'align', 'center', 'valign', 'bottom')))))),
     jsonb_build_object('type', 'closeUp', 'attrs', jsonb_build_object(
-      'artworkId', raft, 'x', 0, 'y', 1, 'viewWidth', 1)))), 2);
+      'artworkId', raft, 'x', 0, 'y', 1, 'viewWidth', 1, 'align', 'right')))), 2);
   assert revision = 3, 'save_exhibition does not take a document with a row and close-ups';
   assert (select array_agg(artwork_id order by position) from public.exhibition_artworks where exhibition_id = exhibition)
     = array[judith, olympia, raft],
@@ -130,6 +131,15 @@ begin
     'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5, "zoom": 2}}]}'::jsonb))
     = '23514 exhibition_document',
     'an exhibition has a close-up with an attribute it does not know';
+
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "heading", "attrs": {"level": 2, "align": "justify"}}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a block aligned in a way it does not know';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "quote", "attrs": {"valign": "baseline"}}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a block placed in a way it does not know';
 
   assert exhibitions_test.failure(format(
     'select public.save_exhibition(%L, ''Light'', ''{"type": "doc", "content": []}'', 1)', exhibition))
