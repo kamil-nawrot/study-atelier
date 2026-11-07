@@ -6,7 +6,7 @@ import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 import { blockOf } from '#lib/exhibitions/editor/block-rows/block-rows.ts';
-import { artwork, closeUp, heading } from '#lib/testing/exhibitions/exhibitions.ts';
+import { artwork, closeUp, heading, palette, set } from '#lib/testing/exhibitions/exhibitions.ts';
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 import BlockCard from './BlockCard.svelte';
 
@@ -102,5 +102,29 @@ describe('BlockCard', () => {
 		button.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
 
 		expect(given.onmovestart).not.toHaveBeenCalled();
+	});
+
+	it('offers another detail or palette from the toolbox until the set holds five', async () => {
+		const onaddmore = vi.fn();
+		const { rerender } = await render(BlockCard, { ...props(palette('artwork-1')), onaddmore });
+
+		await userEvent.click(page.getByRole('button', { name: m.exhibitions.bar.addMore }));
+		expect(onaddmore).toHaveBeenCalledTimes(1);
+
+		const full = set(...[1, 2, 3, 4, 5].map(() => closeUp('artwork-1')));
+		await rerender({ block: blockOf(full) });
+		await expect.element(page.getByRole('button', { name: m.exhibitions.bar.full })).toBeDisabled();
+		await expect
+			.element(page.getByRole('toolbar', { name: m.exhibitions.bar.label('Szczegół') }))
+			.toBeInTheDocument();
+	});
+
+	it('removes one item of a set and keeps the rest', async () => {
+		const given = props(set(palette('artwork-1'), palette('artwork-1'), palette('artwork-1')));
+		render(BlockCard, given);
+
+		await userEvent.click(page.getByRole('button', { name: m.exhibitions.bar.removeItem(2) }));
+
+		expect(given.onchange).toHaveBeenCalledWith(set(palette('artwork-1'), palette('artwork-1')));
 	});
 });

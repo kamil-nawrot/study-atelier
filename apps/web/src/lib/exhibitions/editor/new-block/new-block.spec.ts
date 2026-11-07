@@ -16,6 +16,7 @@ describe('new blocks', () => {
 		expect(kindOf(artworkNode('a1', true))).toBe('palette');
 		expect(kindOf(textNode('quote'))).toBe('quote');
 		expect(kindOf({})).toBe('textBlock');
+		expect(kindOf({ type: 'set', content: [artworkNode('a1', true)] })).toBe('palette');
 	});
 
 	it('creates empty texts of every kind', () => {

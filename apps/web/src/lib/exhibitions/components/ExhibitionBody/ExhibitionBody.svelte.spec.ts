@@ -120,4 +120,26 @@ describe('ExhibitionBody', () => {
 		await vi.waitFor(() => expect(document.querySelectorAll('[data-row] .cell')).toHaveLength(2));
 		await vi.waitFor(() => expect(document.querySelector('[data-fragment]')).not.toBeNull());
 	});
+
+	it('stacks the details of a set in its column, where the set is placed', async () => {
+		const lookup = new ArtworkLookup();
+		lookup.add([testArtwork(1, 'Judith')]);
+		const detail = (x: number): ExhibitionDocument => ({
+			type: 'closeUp',
+			attrs: { artworkId: 'artwork-1', imageId: null, x, y: 0.5, viewWidth: 0.4 }
+		});
+		render(ExhibitionBody, {
+			lookup,
+			document: {
+				type: 'doc',
+				content: [{ type: 'set', attrs: { align: 'center' }, content: [detail(0.2), detail(0.8)] }]
+			}
+		});
+
+		await vi.waitFor(() =>
+			expect(document.querySelectorAll('[data-align="center"] .set [data-fragment]')).toHaveLength(
+				2
+			)
+		);
+	});
 });

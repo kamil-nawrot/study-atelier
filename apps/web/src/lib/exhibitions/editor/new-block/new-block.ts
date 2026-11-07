@@ -17,6 +17,7 @@ export type CloseUpAttributes = {
 };
 
 export function kindOf(node: ExhibitionDocument): BlockKind {
+	if (node.type === 'set') return kindOf(node.content?.[0] ?? { type: 'closeUp' });
 	if (node.type === 'artwork' && node.attrs?.paletteOnly) return 'palette';
 	return (node.type ?? 'textBlock') as BlockKind;
 }

@@ -3,6 +3,7 @@
 	import { Alert } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import BlockCard from '#lib/exhibitions/components/BlockCard/BlockCard.svelte';
+	import ArtworkPickDialog from '#lib/exhibitions/components/ArtworkPickDialog/ArtworkPickDialog.svelte';
 	import CloseUpDialog from '#lib/exhibitions/components/CloseUpDialog/CloseUpDialog.svelte';
 	import DragOverlay from '#lib/exhibitions/components/DragOverlay/DragOverlay.svelte';
 	import { BlockDrag } from '#lib/exhibitions/editor/block-drag/block-drag.svelte.ts';
@@ -22,10 +23,12 @@
 	import { dropAt, type Drop } from '#lib/exhibitions/editor/drop-target/drop-target.ts';
 	import { measureRows } from '#lib/exhibitions/editor/row-boxes/row-boxes.ts';
 	import { blockLabel, newBlockLabel } from '#lib/exhibitions/editor/block-label/block-label.ts';
+	import { itemsOf, withItem } from '#lib/exhibitions/editor/block-set/block-set.ts';
 	import { limitOf } from '#lib/exhibitions/editor/block-limits/block-limits.ts';
 	import {
 		artworkNode,
 		closeUpNode,
+		kindOf,
 		textNode,
 		type CloseUpAttributes,
 		type NewBlock
@@ -50,6 +53,8 @@
 	let closeUpOf = $state('');
 	let closeUpOpen = $state(false);
 	let closeUpTarget: Target | undefined;
+	let paletteOpen = $state(false);
+	let growing: string | undefined;
 
 	const drag = new BlockDrag(() => barHeight);
 
@@ -77,6 +82,7 @@
 	}
 
 	export function add(block: NewBlock, target?: Target): void {
+		growing = undefined;
 		if (block.kind === 'closeUp') {
 			closeUpOf = block.artworkId;
 			closeUpTarget = target;
@@ -89,8 +95,31 @@
 	}
 
 	function pickCloseUp(attributes: CloseUpAttributes): void {
-		place(closeUpNode(attributes), closeUpTarget);
+		if (growing) grow(closeUpNode(attributes));
+		else place(closeUpNode(attributes), closeUpTarget);
 		closeUpTarget = undefined;
+	}
+
+	function addMore(id: string, node: ExhibitionDocument): void {
+		growing = id;
+		if (kindOf(node) === 'palette') {
+			paletteOpen = true;
+			return;
+		}
+		closeUpOf = String(itemsOf(node).at(-1)?.attrs?.artworkId);
+		closeUpOpen = true;
+	}
+
+	function grow(item: ExhibitionDocument): void {
+		const id = growing;
+		growing = undefined;
+		const node = id
+			? rows.flatMap((row) => row.blocks).find((block) => block.id === id)?.node
+			: undefined;
+		if (!id || !node) return;
+		const next = update(rows, id, withItem(node, item));
+		limit = limitOf(documentOf(next));
+		if (!limit) change(next);
 	}
 
 	function hover(x: number, y: number): void {
@@ -158,6 +187,7 @@
 						canUp={canStep(rows, block.id, -1)}
 						{lookup}
 						moving={drag.active && moving === block.id}
+						onaddmore={() => addMore(block.id, block.node)}
 						onchange={(node) => change(update(rows, block.id, node))}
 						onmovestart={(event) => dragBlock(event, block.id, blockLabel(block.node, lookup))}
 						onremove={() => change(remove(rows, block.id))}
@@ -172,6 +202,13 @@
 </div>
 
 <CloseUpDialog artworkId={closeUpOf} {lookup} onpick={pickCloseUp} bind:open={closeUpOpen} />
+
+<ArtworkPickDialog
+	{lookup}
+	onpick={(artworkId) => grow(artworkNode(artworkId, true))}
+	title={m.exhibitions.paletteDialog.title}
+	bind:open={paletteOpen}
+/>
 
 <DragOverlay label={drag.label} mark={drop?.mark} top={barHeight} x={drag.x} y={drag.y} />
 

@@ -92,9 +92,13 @@ begin
       jsonb_build_object('type', 'column', 'content', jsonb_build_array(
         jsonb_build_object('type', 'heading', 'attrs', jsonb_build_object(
           'level', 2, 'align', 'center', 'valign', 'bottom')))))),
-    jsonb_build_object('type', 'closeUp', 'attrs', jsonb_build_object(
-      'artworkId', raft, 'x', 0, 'y', 1, 'viewWidth', 1, 'align', 'right')))), 2);
-  assert revision = 3, 'save_exhibition does not take a document with a row and close-ups';
+    jsonb_build_object('type', 'set', 'attrs', jsonb_build_object('align', 'right'), 'content', jsonb_build_array(
+      jsonb_build_object('type', 'closeUp', 'attrs', jsonb_build_object('artworkId', raft, 'x', 0, 'y', 1, 'viewWidth', 1)),
+      jsonb_build_object('type', 'closeUp', 'attrs', jsonb_build_object('artworkId', raft, 'x', 0.5, 'y', 0.5, 'viewWidth', 0.2)))),
+    jsonb_build_object('type', 'set', 'content', jsonb_build_array(
+      jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', olympia, 'paletteOnly', true)),
+      jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', judith, 'paletteOnly', true)))))), 2);
+  assert revision = 3, 'save_exhibition does not take a document with a row, close-ups and sets';
   assert (select array_agg(artwork_id order by position) from public.exhibition_artworks where exhibition_id = exhibition)
     = array[judith, olympia, raft],
     'save_exhibition does not list the artworks of a row and of a close-up in the order they appear';
@@ -140,6 +144,27 @@ begin
     'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "quote", "attrs": {"valign": "baseline"}}]}'::jsonb))
     = '23514 exhibition_document',
     'an exhibition has a block placed in a way it does not know';
+
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "set", "content": [{"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5}}]}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a set of one item';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "set", "content": [{"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5}}, {"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5}}, {"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5}}, {"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5}}, {"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5}}, {"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5}}]}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a set of six items';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "set", "content": [{"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5}}, {"type": "artwork", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "paletteOnly": true}}]}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a set of a detail and a palette';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "set", "content": [{"type": "artwork", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001"}}, {"type": "artwork", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001"}}]}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a set of artworks that are not palettes';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "set", "content": [{"type": "set", "content": [{"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5}}, {"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5}}]}, {"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5}}]}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a set inside a set';
 
   assert exhibitions_test.failure(format(
     'select public.save_exhibition(%L, ''Light'', ''{"type": "doc", "content": []}'', 1)', exhibition))

@@ -5,8 +5,17 @@ import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 import { saveExhibition } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
+import { searchArtworks } from '#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts';
 import { ExhibitionSession } from '#lib/exhibitions/exhibition-session/exhibition-session.svelte.ts';
-import { artwork, columns, doc, textBlock } from '#lib/testing/exhibitions/exhibitions.ts';
+import {
+	artwork,
+	closeUp,
+	columns,
+	doc,
+	palette,
+	set,
+	textBlock
+} from '#lib/testing/exhibitions/exhibitions.ts';
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 import ExhibitionEditorPane from './ExhibitionEditorPane.svelte';
 
@@ -22,7 +31,9 @@ vi.mock('#lib/wall/wall-images/wall-images.svelte.ts', () => ({
 	}
 }));
 vi.mock('#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts', () => ({
-	loadArtworkNotes: vi.fn().mockResolvedValue({ notes: new Map() })
+	loadArtworkNotes: vi.fn().mockResolvedValue({ notes: new Map() }),
+	loadRecentArtworks: vi.fn().mockResolvedValue({ artworks: [] }),
+	searchArtworks: vi.fn()
 }));
 vi.mock('#lib/exhibitions/exhibition-images-data/exhibition-images-data.ts', () => ({
 	loadArtworkImages: vi.fn().mockResolvedValue({ images: new Map() })
@@ -66,6 +77,7 @@ describe('ExhibitionEditorPane', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		vi.mocked(saveExhibition).mockResolvedValue({ revision: 2 });
+		vi.mocked(searchArtworks).mockResolvedValue({ artworks: [testArtwork(2, 'Olympia')] });
 	});
 
 	it('shows the title and every block as a card of its own', async () => {
@@ -214,6 +226,37 @@ describe('ExhibitionEditorPane', () => {
 			.element(page.getByRole('dialog', { name: m.exhibitions.closeUpDialog.title }))
 			.toBeInTheDocument();
 		expect(given.document.content).toEqual([]);
+	});
+
+	it('adds the palette of another artwork to a palette and makes a set of them', async () => {
+		const given = session(doc(palette('artwork-1')));
+		render(ExhibitionEditorPane, { session: given, lookup: lookup(), barHeight: 80 });
+
+		await userEvent.click(page.getByRole('button', { name: m.exhibitions.bar.addMore }));
+		const dialog = page.getByRole('dialog', { name: m.exhibitions.paletteDialog.title });
+		await userEvent.fill(dialog.getByRole('searchbox'), 'Oly');
+		await vi.waitFor(() => expect(searchArtworks).toHaveBeenCalled());
+		await userEvent.click(dialog.getByRole('button', { name: 'Olympia' }));
+
+		await vi.waitFor(() =>
+			expect(given.document.content).toEqual([set(palette('artwork-1'), palette('artwork-2'))])
+		);
+	});
+
+	it('adds another detail of the same artwork to a detail', async () => {
+		loadArtworkPins.mockResolvedValue({ pins: [] });
+		render(ExhibitionEditorPane, {
+			session: session(doc(closeUp('artwork-2'))),
+			lookup: lookup(),
+			barHeight: 80
+		});
+
+		await userEvent.click(page.getByRole('button', { name: m.exhibitions.bar.addMore }));
+
+		await expect
+			.element(page.getByRole('dialog', { name: m.exhibitions.closeUpDialog.title }))
+			.toBeInTheDocument();
+		expect(loadArtworkPins).toHaveBeenCalledWith(2);
 	});
 
 	it('moves a block with the arrows of its bar', async () => {

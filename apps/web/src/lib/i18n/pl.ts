@@ -2408,6 +2408,9 @@ export const pl = {
 			caption: 'Szczegół: ',
 			label: (title: string): string => `Szczegół: ${title}`
 		},
+		paletteDialog: {
+			title: 'Paleta kolejnego dzieła'
+		},
 		closeUpDialog: {
 			title: 'Szczegół',
 			hint: 'Wybierz pinezkę, której fragment pokaże szczegół.',
@@ -2440,6 +2443,9 @@ export const pl = {
 			orderedList: 'Lista numerowana',
 			note: 'Notatka',
 			position: 'Położenie',
+			addMore: 'Dodaj kolejny',
+			full: 'Zestaw ma już pięć elementów',
+			removeItem: (number: number): string => `Usuń element ${number} z zestawu`,
 			place: (valign: string, align: string): string =>
 				`${{ top: 'U góry', middle: 'W połowie', bottom: 'Na dole' }[valign] ?? valign}, ${{ left: 'z lewej', center: 'na środku', right: 'z prawej' }[align] ?? align}`,
 			noteOf: (title: string): string => `Z notatki dzieła · ${title}`,

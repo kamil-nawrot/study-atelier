@@ -67,6 +67,12 @@
 			x={Number(block.attrs?.x)}
 			y={Number(block.attrs?.y)}
 		/>
+	{:else if block.type === 'set'}
+		<div class="set">
+			{#each block.content ?? [] as item, index (index)}
+				{@render blockOf(item)}
+			{/each}
+		</div>
 	{:else if block.type === 'columns'}
 		<div class="row" data-row="">
 			{#each block.content ?? [] as column, index (index)}
@@ -111,6 +117,13 @@
 
 	.cell {
 		flex: 1 1 0;
+	}
+
+	.set {
+		display: grid;
+		gap: var(--spacing-6);
+		justify-items: inherit;
+		width: 100%;
 	}
 
 	[data-align='center'] {
