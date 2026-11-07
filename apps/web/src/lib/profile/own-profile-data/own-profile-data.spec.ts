@@ -44,7 +44,8 @@ const row = {
 	rank_form: 'feminine',
 	legal_version: '2026-10-27',
 	era_bounds: [-3000, 476, 1560, 1789, 1945],
-	night_light_at: '2026-11-07T22:40:00Z'
+	night_light_at: '2026-11-07T22:40:00Z',
+	long_look_at: null
 };
 
 describe('loadOwnProfile', () => {
@@ -68,6 +69,7 @@ describe('loadOwnProfile', () => {
 		expect(own.legalVersion).toBe('2026-10-27');
 		expect(own.eraBounds).toEqual([-3000, 476, 1560, 1789, 1945]);
 		expect(own.nightLightRecorded).toBe(true);
+		expect(own.longLookRecorded).toBe(false);
 		expect(own.error).toBeUndefined();
 	});
 
@@ -79,7 +81,8 @@ describe('loadOwnProfile', () => {
 			profile: emptyProfile,
 			legalVersion: null,
 			eraBounds: null,
-			nightLightRecorded: false
+			nightLightRecorded: false,
+			longLookRecorded: false
 		});
 	});
 
