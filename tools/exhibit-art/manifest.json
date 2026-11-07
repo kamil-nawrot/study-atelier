@@ -28,7 +28,8 @@
     "figure_alphabet": "meckenem-letter-a-smb-mount-close",
     "hortus_cliffortianus": "wandelaar-wide",
     "candle_moths": "van-der-vinne-candle",
-    "amateur_magnifier": "daumier-amateur-figure"
+    "amateur_magnifier": "daumier-amateur-figure",
+    "crystal_palace": "burton-transept"
   },
   "variants": [
     {
@@ -1187,6 +1188,51 @@
         0.2,
         0.83,
         0.53
+      ]
+    },
+    {
+      "exhibit": "crystal_palace",
+      "status": "chosen",
+      "source_url": "https://iiif.micr.io/wPhKk/full/max/0/default.jpg",
+      "source_page": "https://www.rijksmuseum.nl/en/collection/RP-P-2018-839",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Charles Burton, Transept (external view) of the Industrial Palace, from Prince of Wales's Gate, London, Ackermann & Co., 1851, Rijksmuseum RP-P-2018-839",
+      "variant": "burton-transept",
+      "crop": [
+        0.23,
+        0.24,
+        0.52,
+        0.86
+      ]
+    },
+    {
+      "exhibit": "crystal_palace",
+      "status": "alternative",
+      "source_url": "https://iiif.micr.io/wPhKk/full/max/0/default.jpg",
+      "source_page": "https://www.rijksmuseum.nl/en/collection/RP-P-2018-839",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Charles Burton, Transept (external view) of the Industrial Palace, from Prince of Wales's Gate, London, Ackermann & Co., 1851, Rijksmuseum RP-P-2018-839",
+      "variant": "burton-transept-wide",
+      "crop": [
+        0.215,
+        0.18,
+        0.537,
+        0.87
+      ]
+    },
+    {
+      "exhibit": "crystal_palace",
+      "status": "alternative",
+      "source_url": "https://iiif.micr.io/tHMAM/full/max/0/default.jpg",
+      "source_page": "https://www.rijksmuseum.nl/en/collection/RP-P-2018-2036",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Anonymous, Interior of the Building of the Exhibition of all Nations, Hyde Park, London, Joseph Thomas Wood, 1851, Rijksmuseum RP-P-2018-2036",
+      "variant": "wood-interior",
+      "crop": [
+        0.245,
+        0.05,
+        0.756,
+        0.85
       ]
     }
   ]
