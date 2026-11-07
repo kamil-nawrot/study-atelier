@@ -83,12 +83,12 @@
 	<BlockBar
 		bar={editor.bar}
 		{column}
-		onconvert={(kind) => editor?.convert(kind)}
-		onmovestart={startMove}
 		oncloseup={() => {
 			closeUpOf = editor?.bar?.artworkId ?? '';
 			closeUpOpen = closeUpOf !== '';
 		}}
+		onconvert={(kind) => editor?.convert(kind)}
+		onmovestart={startMove}
 		onnote={() => editor?.setArtwork({ note: !editor.bar?.note })}
 		onpalette={(only) =>
 			editor?.setArtwork(
@@ -117,8 +117,8 @@
 		style:top="{editor.dropAt.top}px"
 		style:width="{editor.dropAt.width}px"
 		class="drop"
-		class:slot={editor.dropAt.replaces || editor.dropAt.beside !== undefined}
 		class:full={editor.dropAt.full}
+		class:slot={editor.dropAt.replaces || editor.dropAt.beside !== undefined}
 		aria-hidden="true"
 	>
 		{#if editor.dropAt.full}

@@ -142,6 +142,8 @@
 		<ArtworkView
 			artwork={data.artwork}
 			editHref={editPath}
+			exhibitionCovers={data.exhibitionCovers}
+			exhibitions={data.exhibitions}
 			flipLinks={flip.links}
 			focusPin={page.url.searchParams.get('pin') ?? undefined}
 			glossary={data.glossary}

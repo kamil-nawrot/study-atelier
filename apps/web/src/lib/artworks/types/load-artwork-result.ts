@@ -5,6 +5,8 @@ import type { Preferences } from '#lib/profile/types/preferences.ts';
 import type { Mention } from '#lib/notes/types/mention.ts';
 import type { ValueSummaries } from '#lib/card-index/types/value-summaries.ts';
 import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+import type { ExhibitionSummary } from '#lib/exhibitions/types/exhibition-summary.ts';
 import type { Visit } from '#lib/chronicle/types/visit.ts';
 import type { ArtworkRecord } from './artwork-record.ts';
 
@@ -16,6 +18,8 @@ export type LoadArtworkResult = {
 	glossary?: GlossaryTerm[];
 	mentions?: Mention[];
 	visits?: Visit[];
+	exhibitions?: ExhibitionSummary[];
+	exhibitionCovers?: WallArtwork[];
 	summaries?: ValueSummaries;
 	ownFields?: OwnFieldDefinition[];
 	preferences?: Preferences;

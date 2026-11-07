@@ -14,6 +14,8 @@
 	import { emptyValueSummaries } from '#lib/card-index/value-summaries/value-summaries.ts';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import type { Mention } from '#lib/notes/types/mention.ts';
+	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+	import type { ExhibitionSummary } from '#lib/exhibitions/types/exhibition-summary.ts';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
 	import type { Pin as PinRecord } from '#lib/pins/types/pin.ts';
 	import type { FlipDirection } from '#lib/wall/types/flip-direction.ts';
@@ -28,6 +30,8 @@
 		focusPin?: string;
 		mentions?: Mention[];
 		visits?: Visit[];
+		exhibitions?: ExhibitionSummary[];
+		exhibitionCovers?: WallArtwork[];
 		summaries?: ValueSummaries;
 		ownFields?: OwnFieldDefinition[];
 		showPinsOnOpen?: boolean;
@@ -46,6 +50,8 @@
 		focusPin,
 		mentions = [],
 		visits = [],
+		exhibitions = [],
+		exhibitionCovers = [],
 		summaries = emptyValueSummaries(),
 		ownFields = [],
 		showPinsOnOpen = false,
@@ -78,6 +84,8 @@
 		<ArtworkInfo
 			{artwork}
 			closed={!panelOpen}
+			{exhibitionCovers}
+			{exhibitions}
 			{glossary}
 			{mentions}
 			{noteLinks}

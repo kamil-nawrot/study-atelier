@@ -1,6 +1,7 @@
 import { resolve } from '$app/paths';
 import { countArtworks } from '#lib/artworks/artwork-data/artwork-data.ts';
 import { artworkCore } from '#lib/artworks/artwork-preload/artwork-preload.ts';
+import { loadArtworkExhibitions } from '#lib/exhibitions/artwork-exhibitions-data/artwork-exhibitions-data.ts';
 import { loadArtworkVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { parseRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
@@ -18,7 +19,7 @@ export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadA
 	const number = parseRecordNumber(params.number);
 	if (number === null) return { error: m.artworkErrors.notFound, notFound: true };
 	const [
-		{ result, noteLinks },
+		{ result, noteLinks, shown },
 		mentions,
 		summaries,
 		own,
@@ -30,6 +31,9 @@ export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadA
 	] = await Promise.all([
 		artworkCore(number).then(async (result) => ({
 			result,
+			shown: result.artwork
+				? await loadArtworkExhibitions(result.artwork.id)
+				: { exhibitions: [], covers: [] },
 			noteLinks: mentionsLinks(result.artwork?.notes)
 				? await loadNoteLinkLabels({ artworkNumber: number })
 				: undefined
@@ -56,6 +60,8 @@ export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadA
 		...result,
 		mentions,
 		visits,
+		exhibitions: shown.exhibitions,
+		exhibitionCovers: shown.covers,
 		summaries,
 		glossary,
 		pins,

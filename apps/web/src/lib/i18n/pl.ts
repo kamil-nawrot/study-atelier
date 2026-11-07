@@ -2337,6 +2337,8 @@ export const pl = {
 			'Wybierz temat przewodni i zbuduj jego historię z dzieł Twojego atelier i własnych wniosków.',
 		posterMeta: (count: number, changed: string): string =>
 			`${workCount(count)} · zmieniona ${changed}`,
+		onExhibitions: (count: number): string => exhibitionCount(count),
+		artworkCount: (count: number): string => workCount(count),
 		changedToday: 'dziś',
 		loadErrorTitle: 'Nie udało się wczytać wystaw',
 		addErrorTitle: 'Nie udało się dodać wystawy',
@@ -2491,6 +2493,10 @@ function counter(unit: string): (next?: number) => string {
 
 function pointCount(count: number): string {
 	return `${count} ${plural(count, { one: 'punkt', few: 'punkty', many: 'punktów' })}`;
+}
+
+function exhibitionCount(count: number): string {
+	return `Na ${count} ${plural(count, { one: 'wystawie', few: 'wystawach', many: 'wystawach' })}`;
 }
 
 function visitCount(count: number): string {

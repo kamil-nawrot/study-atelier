@@ -80,7 +80,7 @@ describe('AddPanel', () => {
 			open: true,
 			lookup: new ArtworkLookup(),
 			onadd: vi.fn(),
-			addHref: '/atelier/new?return=x'
+			addHref: '/atelier/new?return=x' as never
 		});
 
 		await expect

@@ -5,14 +5,12 @@ import { goto } from '$app/navigation';
 import { suggest } from '#lib/testing/form-suggestions/form-suggestions.ts';
 import { emptyPlaceStarter } from '#lib/card-index/place-starter/place-starter.ts';
 import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
-import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { answerRpc, saveArtworkCalls } from '#lib/testing/duplicates/duplicates.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import {
 	fillRequired,
 	saveButton,
-	titleField,
 	answerNothingFromWikidata
 } from '#lib/testing/add-artwork/add-artwork.ts';
 import AddArtworkPage from './+page.svelte';

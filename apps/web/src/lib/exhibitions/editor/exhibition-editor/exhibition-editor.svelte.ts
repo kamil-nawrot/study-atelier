@@ -24,7 +24,6 @@ import {
 	insertBeside,
 	insertBlock,
 	insertionRange,
-	isTextKind,
 	moveBeside,
 	moveBlockTo,
 	removeBlock,

@@ -8,7 +8,7 @@ import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-docum
 import type { ExhibitionSummary } from '#lib/exhibitions/types/exhibition-summary.ts';
 import type { SaveResult } from '#lib/exhibitions/types/save-result.ts';
 
-type ExhibitionRow = {
+export type ExhibitionRow = {
 	id: string;
 	title: string;
 	updated_at: string;
@@ -32,7 +32,7 @@ type ActionResult = {
 
 export const BLANK_DOCUMENT: ExhibitionDocument = { type: 'doc', content: [] };
 
-function summaryOf(row: ExhibitionRow): SummariesResult['exhibitions'][number] {
+export function summaryOf(row: ExhibitionRow): SummariesResult['exhibitions'][number] {
 	const artworks = row.exhibition_artworks ?? [];
 	const cover = artworks.find((artwork) => artwork.position === 0);
 	return {

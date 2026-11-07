@@ -66,9 +66,9 @@
 				style:background-position={position.place}
 				style:background-size={position.size}
 				class="fragment"
+				aria-label={artwork ? m.exhibitions.closeUp.label(artwork.title) : ''}
 				data-fragment=""
 				role="img"
-				aria-label={artwork ? m.exhibitions.closeUp.label(artwork.title) : ''}
 			></div>
 		{:else if source}
 			<img
