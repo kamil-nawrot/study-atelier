@@ -20,11 +20,12 @@
 		open: boolean;
 		lookup: ArtworkLookup;
 		onadd: (block: NewBlock) => void;
+		addHref?: string;
 	};
 
 	const SEARCH_DELAY_MS = 250;
 
-	let { open = $bindable(), lookup, onadd }: Props = $props();
+	let { open = $bindable(), lookup, onadd, addHref }: Props = $props();
 
 	const kinds: { kind: TextKind; label: string }[] = [
 		{ kind: 'textBlock', label: m.exhibitions.panel.paragraph },
@@ -137,6 +138,9 @@
 		<a class="browse" href={resolve('/(app)/atelier')} rel="external noopener" target="_blank">
 			{m.exhibitions.panel.browse}
 		</a>
+		{#if addHref}
+			<a class="browse" href={addHref}>{m.exhibitions.panel.addMissing}</a>
+		{/if}
 	</section>
 </FilterSidePanel>
 

@@ -11,15 +11,17 @@ import {
 import type { ExhibitionEditor } from '#lib/exhibitions/editor/exhibition-editor/exhibition-editor.svelte.ts';
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 import {
-	convertBlock,
 	currentBlock,
 	isEmptyBlock,
 	isTextKind,
 	moveBlockTo,
 	removeBlock,
-	setArtworkAttributes,
 	stepBlock
 } from './block-commands.ts';
+import {
+	convertBlock,
+	setArtworkAttributes
+} from '#lib/exhibitions/editor/block-conversion/block-conversion.ts';
 
 vi.mock('#lib/wall/wall-images/wall-images.svelte.ts', () => ({
 	WallImages: class {

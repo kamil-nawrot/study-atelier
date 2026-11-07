@@ -2381,6 +2381,7 @@ export const pl = {
 			found: (count: number): string => `Znalezione: ${count}`,
 			noMatch: 'Nic nie pasuje. Sprawdź pisownię albo przeglądaj całe atelier.',
 			browse: 'Przeglądaj całe atelier…',
+			addMissing: 'Dodaj dzieło, którego brakuje',
 			empty: 'W atelier nie ma jeszcze dzieł.',
 			loadError: 'Nie udało się wczytać dzieł.'
 		},

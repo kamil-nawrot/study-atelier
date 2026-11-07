@@ -18,7 +18,6 @@ import {
 import {
 	blockAt,
 	canJoinRow,
-	convertBlock,
 	createBlock,
 	createCloseUp,
 	currentBlock,
@@ -29,7 +28,6 @@ import {
 	moveBeside,
 	moveBlockTo,
 	removeBlock,
-	setArtworkAttributes,
 	stepBlock,
 	type BlockKind,
 	type CloseUpAttributes,
@@ -37,6 +35,11 @@ import {
 	type NewBlock,
 	type TextKind
 } from '#lib/exhibitions/editor/block-commands/block-commands.ts';
+import {
+	convertBlock,
+	setArtworkAttributes
+} from '#lib/exhibitions/editor/block-conversion/block-conversion.ts';
+import { BLOCK_MIME, payloadOf } from '#lib/exhibitions/editor/block-payload/block-payload.ts';
 import { dropTarget, type DropTarget } from '#lib/exhibitions/editor/block-drop/block-drop.ts';
 import {
 	MAX_ARTWORKS,
@@ -49,8 +52,6 @@ import type { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-look
 import type { BlockBarState } from '#lib/exhibitions/types/block-bar-state.ts';
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 
-export const BLOCK_MIME = 'application/x-exhibition-block';
-
 type Options = {
 	host: HTMLElement;
 	document: ExhibitionDocument;
@@ -59,19 +60,7 @@ type Options = {
 	onlimit: (message: string) => void;
 };
 
-function payloadOf(event: DragEvent): NewBlock | undefined {
-	const raw = event.dataTransfer?.getData(BLOCK_MIME);
-	if (!raw) return undefined;
-	try {
-		const payload = JSON.parse(raw) as { kind?: string; artworkId?: string };
-		if (payload.kind === 'artwork' && typeof payload.artworkId === 'string') {
-			return { kind: 'artwork', artworkId: payload.artworkId };
-		}
-		return payload.kind && isTextKind(payload.kind) ? { kind: payload.kind } : undefined;
-	} catch {
-		return undefined;
-	}
-}
+export { BLOCK_MIME };
 
 export class ExhibitionEditor {
 	bar = $state.raw<BlockBarState>();
@@ -181,12 +170,15 @@ export class ExhibitionEditor {
 		this.bar = undefined;
 	}
 
+	#roomForBlock(): boolean {
+		if (blockCountOf(this.#editor.getJSON()) < MAX_BLOCKS) return true;
+		this.#onlimit(m.exhibitions.limits.blocks);
+		return false;
+	}
+
 	#allowed(block: NewBlock): boolean {
+		if (!this.#roomForBlock()) return false;
 		const document = this.#editor.getJSON();
-		if (blockCountOf(document) >= MAX_BLOCKS) {
-			this.#onlimit(m.exhibitions.limits.blocks);
-			return false;
-		}
 		if (
 			block.kind === 'artwork' &&
 			!artworkIdsOf(document).includes(block.artworkId) &&
@@ -229,11 +221,7 @@ export class ExhibitionEditor {
 	}
 
 	addCloseUp(attributes: CloseUpAttributes): void {
-		const document = this.#editor.getJSON();
-		if (blockCountOf(document) >= MAX_BLOCKS) {
-			this.#onlimit(m.exhibitions.limits.blocks);
-			return;
-		}
+		if (!this.#roomForBlock()) return;
 		const { state, view } = this.#editor;
 		const node = createCloseUp(state.schema, attributes);
 		const current = currentBlock(state);
