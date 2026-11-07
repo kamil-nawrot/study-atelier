@@ -87,6 +87,11 @@ test('builds an exhibition from blocks that typing or dragging cannot break', as
 	const heading = page.getByRole('heading', { name: 'Sala pierwsza' });
 	await expect(heading).toBeVisible();
 	const headingBox = await heading.boundingBox();
-	const figureBox = await page.getByRole('figure').boundingBox();
+	const figures = page.getByRole('figure');
+	await expect(figures).toHaveCount(2);
+	const figureBox = await figures.first().boundingBox();
+	const paletteBox = await figures.last().boundingBox();
 	expect(headingBox && figureBox && headingBox.y < figureBox.y).toBe(true);
+	expect(figureBox && paletteBox && figureBox.x < paletteBox.x).toBe(true);
+	expect(figureBox && paletteBox && Math.abs(figureBox.y - paletteBox.y) < 2).toBe(true);
 });
