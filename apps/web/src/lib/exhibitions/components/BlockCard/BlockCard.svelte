@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Bold from '@lucide/svelte/icons/bold';
+	import CopyPlus from '@lucide/svelte/icons/copy-plus';
 	import Italic from '@lucide/svelte/icons/italic';
 	import List from '@lucide/svelte/icons/list';
 	import ListOrdered from '@lucide/svelte/icons/list-ordered';
@@ -7,8 +8,8 @@
 	import { untrack } from 'svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ArtworkFigure from '#lib/exhibitions/components/ArtworkFigure/ArtworkFigure.svelte';
+	import BlockSetItems from '#lib/exhibitions/components/BlockSetItems/BlockSetItems.svelte';
 	import BlockBar from '#lib/exhibitions/components/BlockBar/BlockBar.svelte';
-	import CloseUpFigure from '#lib/exhibitions/components/CloseUpFigure/CloseUpFigure.svelte';
 	import { plainText } from '#lib/exhibitions/exhibition-markdown/exhibition-markdown.ts';
 	import {
 		headingNode,
@@ -19,6 +20,7 @@
 	} from '#lib/exhibitions/editor/new-block/new-block.ts';
 	import { TextField } from '#lib/exhibitions/editor/text-field/text-field.svelte.ts';
 	import { placed, positionOf } from '#lib/exhibitions/editor/block-position/block-position.ts';
+	import { canGrow } from '#lib/exhibitions/editor/block-set/block-set.ts';
 	import type { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 	import type { Block } from '#lib/exhibitions/editor/block-rows/block-rows.ts';
 	import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
@@ -33,6 +35,7 @@
 		onstep: (direction: -1 | 1) => void;
 		onremove: () => void;
 		onchange: (node: ExhibitionDocument) => void;
+		onaddmore?: () => void;
 	};
 
 	let {
@@ -44,7 +47,8 @@
 		onmovestart,
 		onstep,
 		onremove,
-		onchange
+		onchange,
+		onaddmore
 	}: Props = $props();
 
 	let field = $state<TextField>();
@@ -53,6 +57,7 @@
 	const attrs = $derived(block.node.attrs ?? {});
 	const label = $derived(m.exhibitions.blocks[kind]);
 	const position = $derived(positionOf(block.node));
+	const grows = $derived(kind === 'closeUp' || kind === 'palette');
 
 	function keep(node: ExhibitionDocument): void {
 		const attrs = { ...block.node.attrs, ...node.attrs };
@@ -142,6 +147,16 @@
 				>
 					<ListOrdered aria-hidden="true" size={16} />
 				</button>
+			{:else if grows && onaddmore}
+				<button
+					aria-label={canGrow(block.node) ? m.exhibitions.bar.addMore : m.exhibitions.bar.full}
+					disabled={!canGrow(block.node)}
+					onclick={onaddmore}
+					title={canGrow(block.node) ? m.exhibitions.bar.addMore : m.exhibitions.bar.full}
+					type="button"
+				>
+					<CopyPlus aria-hidden="true" size={16} />
+				</button>
 			{:else if kind === 'artwork'}
 				<button
 					aria-label={m.exhibitions.bar.note}
@@ -180,18 +195,8 @@
 				placeholder={m.exhibitions.blocks.quoteHint}
 				rows="1"
 				value={quoteText(block.node)}></textarea>
-		{:else if kind === 'closeUp'}
-			<div class="grab" onpointerdown={grab} role="presentation">
-				<CloseUpFigure
-					artworkId={String(attrs.artworkId)}
-					editable
-					imageId={(attrs.imageId as string | null | undefined) ?? null}
-					{lookup}
-					viewWidth={Number(attrs.viewWidth)}
-					x={Number(attrs.x)}
-					y={Number(attrs.y)}
-				/>
-			</div>
+		{:else if grows}
+			<BlockSetItems {lookup} node={block.node} {onchange} ongrab={grab} />
 		{:else}
 			<div class="grab" onpointerdown={grab} role="presentation">
 				<ArtworkFigure
@@ -200,7 +205,6 @@
 					editable
 					{lookup}
 					palette={Boolean(attrs.palette)}
-					paletteOnly={Boolean(attrs.paletteOnly)}
 					showNote={Boolean(attrs.note)}
 				/>
 			</div>

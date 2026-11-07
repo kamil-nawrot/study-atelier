@@ -623,6 +623,10 @@ function closeUpBlock(number, x, y, viewWidth) {
 	};
 }
 
+function set(...items) {
+	return { type: 'set', content: items };
+}
+
 function row(...blocks) {
 	return {
 		type: 'columns',
@@ -677,6 +681,18 @@ export const EXHIBITIONS = [
 			row(
 				artworkBlock(3, 'Okno po lewej stronie i cały świat po prawej.', true),
 				closeUpBlock(3, 0.3, 0.4, 0.35)
+			),
+			row(
+				artworkBlock(1, 'Trzy szczegóły jednego portretu.'),
+				set(
+					closeUpBlock(1, 0.5, 0.3, 0.25),
+					closeUpBlock(1, 0.4, 0.6, 0.3),
+					closeUpBlock(1, 0.6, 0.8, 0.2)
+				)
+			),
+			set(
+				artworkBlock(1, '', false, { paletteOnly: true }),
+				artworkBlock(3, '', false, { paletteOnly: true })
 			),
 			textBlock('Na końcu zostaje pytanie: czy światło jest tematem, czy tylko narzędziem?')
 		],

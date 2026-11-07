@@ -40,3 +40,11 @@ export function columns(...blocks: Node[]): Node {
 export function doc(...content: Node[]): ExhibitionDocument {
 	return { type: 'doc', content };
 }
+
+export function palette(artworkId: string): Node {
+	return { type: 'artwork', attrs: { artworkId, paletteOnly: true } };
+}
+
+export function set(...items: Node[]): Node {
+	return { type: 'set', content: items };
+}
