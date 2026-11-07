@@ -82,6 +82,55 @@ begin
   assert (select array_agg(artwork_id) from public.exhibition_artworks where exhibition_id = exhibition) = array[raft],
     'save_exhibition keeps the rows of artworks the document no longer shows';
 
+  revision := public.save_exhibition(exhibition, 'Light', jsonb_build_object('type', 'doc', 'content', jsonb_build_array(
+    jsonb_build_object('type', 'columns', 'content', jsonb_build_array(
+      jsonb_build_object('type', 'column', 'content', jsonb_build_array(
+        jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', judith, 'palette', true)))),
+      jsonb_build_object('type', 'column', 'content', jsonb_build_array(
+        jsonb_build_object('type', 'closeUp', 'attrs', jsonb_build_object(
+          'artworkId', olympia, 'imageId', null, 'x', 0.4, 'y', 0.6, 'viewWidth', 0.25)))),
+      jsonb_build_object('type', 'column', 'content', jsonb_build_array(
+        jsonb_build_object('type', 'heading', 'attrs', jsonb_build_object('level', 2)))))),
+    jsonb_build_object('type', 'closeUp', 'attrs', jsonb_build_object(
+      'artworkId', raft, 'x', 0, 'y', 1, 'viewWidth', 1)))), 2);
+  assert revision = 3, 'save_exhibition does not take a document with a row and close-ups';
+  assert (select array_agg(artwork_id order by position) from public.exhibition_artworks where exhibition_id = exhibition)
+    = array[judith, olympia, raft],
+    'save_exhibition does not list the artworks of a row and of a close-up in the order they appear';
+
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "columns", "content": [{"type": "column", "content": [{"type": "heading", "attrs": {"level": 2}}]}]}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a row of one column';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "columns", "content": [{"type": "column", "content": [{"type": "heading", "attrs": {"level": 2}}]}, {"type": "column", "content": [{"type": "heading", "attrs": {"level": 2}}]}, {"type": "column", "content": [{"type": "heading", "attrs": {"level": 2}}]}, {"type": "column", "content": [{"type": "heading", "attrs": {"level": 2}}]}]}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a row of four columns';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "columns", "content": [{"type": "column", "content": [{"type": "heading", "attrs": {"level": 2}}, {"type": "heading", "attrs": {"level": 2}}]}, {"type": "column", "content": [{"type": "heading", "attrs": {"level": 2}}]}]}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a column of two blocks';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "columns", "content": [{"type": "column", "content": [{"type": "columns", "content": [{"type": "column", "content": [{"type": "heading", "attrs": {"level": 2}}]}, {"type": "column", "content": [{"type": "heading", "attrs": {"level": 2}}]}]}]}, {"type": "column", "content": [{"type": "heading", "attrs": {"level": 2}}]}]}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a row inside a row';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "column", "content": [{"type": "heading", "attrs": {"level": 2}}]}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a column outside a row';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 1.5, "y": 0.5, "viewWidth": 0.5}}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a close-up outside the image';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0}}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a close-up of no width';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5, "zoom": 2}}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a close-up with an attribute it does not know';
+
   assert exhibitions_test.failure(format(
     'select public.save_exhibition(%L, ''Light'', ''{"type": "doc", "content": []}'', 1)', exhibition))
     = '40001 exhibition_revision',
@@ -173,8 +222,8 @@ begin
     'select public.save_exhibition(%L, ''Light'', ''{"type": "doc", "content": []}'', 2)', exhibition))
     = 'P0002',
     'save_exhibition saves an exhibition in Archiwum';
-  assert (select count(*) from public.exhibition_artworks where exhibition_id = exhibition) = 1,
-    'moving an exhibition to Archiwum drops its rows';
+  assert (select count(*) from public.exhibition_artworks where exhibition_id = exhibition) = 3,
+    'moving an exhibition to Archiwum keeps its rows';
 
   update public.exhibitions set deleted_at = null where id = exhibition;
   delete from public.artworks where id = raft;
