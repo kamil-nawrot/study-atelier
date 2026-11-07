@@ -54,9 +54,9 @@ export async function paletteOf(image: ArtworkImageInput): Promise<PaletteResult
 	if (remembered) return remembered;
 	const colours = await computeColours(image);
 	const result: PaletteResult = colours ? { colours } : { unreadable: true };
-	if (key && image.id) {
+	if (key && image.id && colours) {
 		known.set(key, result);
-		if (colours) await savePalette(image.id, colours);
+		await savePalette(image.id, colours);
 	}
 	return result;
 }

@@ -9,8 +9,8 @@ import {
 	heading,
 	textBlock
 } from '#lib/testing/exhibitions/exhibitions.ts';
-import { BLOCK_MIME } from '#lib/exhibitions/editor/exhibition-editor/exhibition-editor.svelte.ts';
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
+import type { NewBlock } from '#lib/exhibitions/editor/block-commands/block-commands.ts';
 
 vi.mock('#lib/wall/wall-images/wall-images.svelte.ts', () => ({
 	WallImages: class {
@@ -73,19 +73,7 @@ function blockEl(label: string): HTMLElement {
 	return found;
 }
 
-function dragEvent(type: string, x: number, y: number, payload?: object): DragEvent {
-	const dataTransfer = new DataTransfer();
-	if (payload) dataTransfer.setData(BLOCK_MIME, JSON.stringify(payload));
-	return new DragEvent(type, {
-		bubbles: true,
-		cancelable: true,
-		clientX: x,
-		clientY: y,
-		dataTransfer
-	});
-}
-
-function drop(label: string, side: 'left' | 'right' | 'middle', payload?: object): void {
+function drop(label: string, side: 'left' | 'right' | 'middle', payload?: NewBlock): void {
 	const rect = blockEl(label).getBoundingClientRect();
 	const x =
 		side === 'left'
@@ -93,9 +81,7 @@ function drop(label: string, side: 'left' | 'right' | 'middle', payload?: object
 			: side === 'right'
 				? rect.right - 2
 				: rect.left + rect.width / 2;
-	harness
-		.opened()
-		.view.dom.dispatchEvent(dragEvent('drop', x, rect.top + rect.height / 2, payload));
+	harness.opened().place(payload, x, rect.top + rect.height / 2);
 }
 
 function select(text: string): void {
@@ -174,9 +160,7 @@ describe('rows of blocks', () => {
 		);
 		const rect = blockEl('Gamma').getBoundingClientRect();
 
-		opened.view.dom.dispatchEvent(
-			dragEvent('dragover', rect.right - 2, rect.top + rect.height / 2)
-		);
+		opened.hover(rect.right - 2, rect.top + rect.height / 2);
 
 		expect(opened.dropAt?.full).toBe(true);
 		expect(opened.dropAt?.side).toBe('right');
@@ -186,7 +170,7 @@ describe('rows of blocks', () => {
 		const opened = harness.open(doc(textBlock('Alpha'), textBlock('')));
 		const rect = blockEl('Alpha').getBoundingClientRect();
 
-		opened.view.dom.dispatchEvent(dragEvent('dragover', rect.left + 2, rect.top + 4));
+		opened.hover(rect.left + 2, rect.top + 4);
 
 		expect(opened.dropAt?.side).toBe('left');
 		expect(opened.dropAt?.full).toBe(false);
@@ -198,9 +182,7 @@ describe('rows of blocks', () => {
 		const rect = blockEl('Alpha').getBoundingClientRect();
 		const x = rect.left + rect.width / 2;
 
-		opened.view.dom.dispatchEvent(
-			dragEvent('drop', x, rect.top + 1, { kind: 'artwork', artworkId: 'artwork-1' })
-		);
+		opened.place({ kind: 'artwork', artworkId: 'artwork-1' }, x, rect.top + 1);
 
 		expect(outline()).toMatch(/^artwork:artwork-1 \| columns/);
 	});
@@ -208,7 +190,7 @@ describe('rows of blocks', () => {
 	it('moves a block beside another one and leaves its old place', () => {
 		const opened = harness.open(doc(textBlock('Alpha'), heading('Beta'), textBlock('')));
 		select('Alpha');
-		expect(opened.startMove()).toBe(true);
+		expect(opened.startMove()).toBeDefined();
 
 		drop('Beta', 'right');
 
@@ -220,7 +202,7 @@ describe('rows of blocks', () => {
 			doc(columns(textBlock('Alpha'), textBlock('Beta')), textBlock('Gamma'), textBlock(''))
 		);
 		select('Alpha');
-		expect(opened.startMove()).toBe(true);
+		expect(opened.startMove()).toBeDefined();
 
 		drop('Gamma', 'middle');
 

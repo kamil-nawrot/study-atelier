@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { NoImage } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
-	import { artworkImageSource } from '#lib/images/artwork-image/artwork-image.ts';
 	import { m } from '#lib/i18n/i18n.ts';
-	import { pinCropRect } from '#lib/pins/pin-crop-rect/pin-crop-rect.ts';
+	import PinView from '#lib/pins/components/PinView/PinView.svelte';
+	import { LOUPE_SIZE } from '#lib/images/loupe/loupe.ts';
 	import type { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 
 	type Props = {
@@ -18,8 +18,6 @@
 		onselect?: () => void;
 	};
 
-	const SOURCE_WIDTH = 1280;
-
 	let {
 		lookup,
 		artworkId,
@@ -33,24 +31,10 @@
 	}: Props = $props();
 
 	const artwork = $derived(lookup.get(artworkId));
-	const image = $derived.by(() => {
-		const pictures = lookup.pictures(artworkId) ?? [];
-		return pictures.find((picture) => picture.id === imageId) ?? pictures[0] ?? null;
-	});
-	const source = $derived(artworkImageSource(image, SOURCE_WIDTH));
-	const rect = $derived(
-		image?.width && image.height
-			? pinCropRect({ x, y, viewWidth }, image.width, image.height)
-			: undefined
+	const pictures = $derived(lookup.pictures(artworkId));
+	const image = $derived(
+		pictures?.find((picture) => picture.id === imageId) ?? pictures?.[0] ?? null
 	);
-	const position = $derived.by(() => {
-		if (!rect || !image?.width || !image.height) return undefined;
-		const free = (extent: number): number => (extent > rect.side ? extent - rect.side : 1);
-		return {
-			size: `${(image.width / rect.side) * 100}% auto`,
-			place: `${(rect.left / free(image.width)) * 100}% ${(rect.top / free(image.height)) * 100}%`
-		};
-	});
 
 	$effect(() => {
 		void lookup.wantPictures(artworkId);
@@ -58,26 +42,18 @@
 </script>
 
 <figure class="figure" class:selected>
-	<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-	<div class="crop" onclick={onselect}>
-		{#if source && position}
-			<div
-				style:background-image={`url(${JSON.stringify(source.src)})`}
-				style:background-position={position.place}
-				style:background-size={position.size}
-				class="fragment"
-				aria-label={artwork ? m.exhibitions.closeUp.label(artwork.title) : ''}
-				data-fragment=""
-				role="img"
-			></div>
-		{:else if source}
-			<img
-				style:object-position="{x * 100}% {y * 100}%"
-				alt=""
-				draggable="false"
-				src={source.src}
-			/>
-		{:else}
+	<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
+	<div
+		style:max-width="{LOUPE_SIZE}px"
+		class="crop"
+		aria-label={artwork ? m.exhibitions.closeUp.label(artwork.title) : undefined}
+		data-fragment=""
+		onclick={onselect}
+		role="img"
+	>
+		{#if image}
+			<PinView {image} {viewWidth} {x} {y} />
+		{:else if pictures}
 			<div class="placeholder">
 				<NoImage />
 			</div>
@@ -112,29 +88,11 @@
 
 	.crop {
 		width: 100%;
-		max-width: calc(20 * var(--spacing-6));
-		aspect-ratio: 1;
-		background: var(--color-mat-bg);
 		cursor: default;
 	}
 
-	.fragment,
-	.crop img {
-		width: 100%;
-		height: 100%;
-		background-repeat: no-repeat;
-	}
-
-	.crop img {
-		display: block;
-		object-fit: cover;
-	}
-
 	.placeholder {
-		display: grid;
-		place-items: center;
-		width: 100%;
-		height: 100%;
+		aspect-ratio: 1;
 	}
 
 	figcaption {

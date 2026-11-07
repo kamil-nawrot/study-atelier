@@ -4,7 +4,7 @@ import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
-import { BLOCK_MIME, ExhibitionEditor } from './exhibition-editor.svelte.ts';
+import { ExhibitionEditor } from './exhibition-editor.svelte.ts';
 
 vi.mock('#lib/wall/wall-images/wall-images.svelte.ts', () => ({
 	WallImages: class {
@@ -140,17 +140,9 @@ describe('ExhibitionEditor', () => {
 	});
 
 	describe('dragging', () => {
-		function dragEvent(type: string, y: number, payload?: object, x?: number): DragEvent {
-			const dataTransfer = new DataTransfer();
-			if (payload) dataTransfer.setData(BLOCK_MIME, JSON.stringify(payload));
+		function middle(): number {
 			const bounds = host.getBoundingClientRect();
-			return new DragEvent(type, {
-				bubbles: true,
-				cancelable: true,
-				clientX: x ?? bounds.left + bounds.width / 2,
-				clientY: y,
-				dataTransfer
-			});
+			return bounds.left + bounds.width / 2;
 		}
 
 		function blockRects(): DOMRect[] {
@@ -169,10 +161,14 @@ describe('ExhibitionEditor', () => {
 			});
 			const [first] = blockRects();
 
-			editor.view.dom.dispatchEvent(dragEvent('dragover', first.top + 1));
+			editor.hover(middle(), first.top + 1);
 			expect(editor.dropAt).toBeDefined();
 
-			editor.view.dom.dispatchEvent(dragEvent('dragleave', 0));
+			editor.hover(-10, first.top + 1);
+			expect(editor.dropAt).toBeUndefined();
+
+			editor.hover(middle(), first.top + 1);
+			editor.endDrag();
 			expect(editor.dropAt).toBeUndefined();
 		});
 
@@ -186,18 +182,16 @@ describe('ExhibitionEditor', () => {
 			});
 			const [first] = blockRects();
 
-			editor.view.dom.dispatchEvent(
-				dragEvent('drop', first.top + 1, { kind: 'artwork', artworkId: 'artwork-2' })
-			);
+			editor.place({ kind: 'artwork', artworkId: 'artwork-2' }, middle(), first.top + 1);
 
 			expect(kinds()[0]).toBe('artwork');
 		});
 
-		it('ignores a payload it does not know', () => {
+		it('drops nothing outside the document', () => {
 			open(paragraph('B'));
 			const [first] = blockRects();
 
-			editor.view.dom.dispatchEvent(dragEvent('drop', first.bottom + 20, { kind: 'script' }));
+			editor.place({ kind: 'quote' }, -10, first.bottom - 1);
 
 			expect(changes).toEqual([]);
 		});
@@ -206,7 +200,7 @@ describe('ExhibitionEditor', () => {
 			open(paragraph('B'));
 			const [first] = blockRects();
 
-			editor.view.dom.dispatchEvent(dragEvent('drop', first.bottom - 1, { kind: 'quote' }));
+			editor.place({ kind: 'quote' }, middle(), first.bottom - 1);
 
 			expect(kinds()).toContain('quote');
 		});
@@ -220,10 +214,10 @@ describe('ExhibitionEditor', () => {
 				]
 			});
 			editor.view.focus();
-			expect(editor.startMove()).toBe(true);
+			expect(editor.startMove()?.node.type.name).toBe('heading');
 			const [, second] = blockRects();
 
-			editor.view.dom.dispatchEvent(dragEvent('drop', second.bottom - 1));
+			editor.place(undefined, middle(), second.bottom - 1);
 
 			expect(kinds().slice(0, 2)).toEqual(['textBlock', 'heading']);
 		});

@@ -48,10 +48,10 @@ function handlers(): Handlers {
 
 function props(overrides: Partial<BlockBarState> = {}): {
 	bar: BlockBarState;
-	column: HTMLElement;
+	frameWidth: number;
 	topLimit: number;
 } & Handlers {
-	return { bar: bar(overrides), column: document.body, topLimit: 80, ...handlers() };
+	return { bar: bar(overrides), frameWidth: 900, topLimit: 80, ...handlers() };
 }
 
 describe('BlockBar', () => {
@@ -135,5 +135,24 @@ describe('BlockBar', () => {
 
 		await expect.element(page.getByRole('button', { name: m.exhibitions.bar.left })).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.exhibitions.bar.right })).toBeVisible();
+	});
+
+	it('starts a move when the learner presses the handle', async () => {
+		const given = props();
+		render(BlockBar, given);
+
+		document
+			.querySelector('.handle')
+			?.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
+
+		expect(given.onmovestart).toHaveBeenCalledOnce();
+	});
+
+	it('stands above the block and stays inside the document', async () => {
+		render(BlockBar, props({ rect: { top: 300, bottom: 360, left: 880, right: 900 } }));
+
+		const track = document.querySelector<HTMLElement>('.track');
+		await vi.waitFor(() => expect(Number.parseFloat(track?.style.left ?? '')).toBeLessThan(880));
+		expect(Number.parseFloat(track?.style.top ?? '')).toBeLessThan(300);
 	});
 });

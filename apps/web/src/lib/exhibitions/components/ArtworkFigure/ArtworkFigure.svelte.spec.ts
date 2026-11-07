@@ -100,13 +100,29 @@ describe('ArtworkFigure', () => {
 			expect(document.querySelector('img')).toBeNull();
 		});
 
-		it('keeps the image when the colours cannot be read', async () => {
+		it('says so instead of the colours when they cannot be read', async () => {
 			paletteOf.mockResolvedValue({ unreadable: true });
 			show({ paletteOnly: true });
 
-			await vi.waitFor(() => expect(paletteOf).toHaveBeenCalled());
-			expect(document.querySelector('[data-palette-only]')).toBeNull();
+			await expect.element(page.getByText(m.palette.unreadable)).toBeInTheDocument();
+			expect(document.querySelector('img')).toBeNull();
+		});
+
+		it('keeps the image and says so under it when the colours cannot be read', async () => {
+			paletteOf.mockResolvedValue({ unreadable: true });
+			show({ palette: true });
+
+			await expect.element(page.getByText(m.palette.unreadable)).toBeInTheDocument();
 			expect(document.querySelector('img')).not.toBeNull();
+		});
+
+		it('collects the colours while the images are still on their way', async () => {
+			loadArtworkImages.mockReturnValue(new Promise(() => {}));
+			const lookup = new ArtworkLookup();
+			lookup.add([testArtwork(7, 'Judith')]);
+			render(ArtworkFigure, { lookup, artworkId: 'artwork-7', palette: true });
+
+			await expect.element(page.getByText(m.palette.collecting)).toBeInTheDocument();
 		});
 	});
 });
