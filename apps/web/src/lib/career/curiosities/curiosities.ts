@@ -170,7 +170,8 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 	seven_league_boots: [
 		'https://essentiels.bnf.fr/fr/extrait/a4e7265f-26a5-43ff-9fb2-924a75411cd5-bottes-sept-lieues-tresor-petit-poucet'
 	],
-	figure_alphabet: ['https://www.metmuseum.org/art/collection/search/428829']
+	figure_alphabet: ['https://www.metmuseum.org/art/collection/search/428829'],
+	candle_moths: ['https://www.rijksmuseum.nl/en/collection/RP-P-OB-62.370']
 };
 
 export function curiosityOf(exhibit: string, tier: number): Curiosity | undefined {

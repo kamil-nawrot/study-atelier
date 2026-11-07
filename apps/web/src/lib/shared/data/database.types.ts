@@ -1075,6 +1075,7 @@ export type Database = {
           fetch_image: boolean;
           legal_accepted_at: string | null;
           legal_version: string | null;
+          night_light_at: string | null;
           owner_id: string;
           rank_form: string;
           rank_seen: number;
@@ -1104,6 +1105,7 @@ export type Database = {
           fetch_image?: boolean;
           legal_accepted_at?: string | null;
           legal_version?: string | null;
+          night_light_at?: string | null;
           owner_id?: string;
           rank_form?: string;
           rank_seen?: number;
@@ -1132,6 +1134,7 @@ export type Database = {
           fetch_image?: boolean;
           legal_accepted_at?: string | null;
           legal_version?: string | null;
+          night_light_at?: string | null;
           owner_id?: string;
           rank_form?: string;
           rank_seen?: number;
@@ -1583,6 +1586,7 @@ export type Database = {
         };
         Returns: undefined;
       };
+      record_night_light: { Args: Record<PropertyKey, never>; Returns: undefined };
       record_right_answer: { Args: { day_start: string }; Returns: undefined };
       review_counts: {
         Args: { day_start: string };
