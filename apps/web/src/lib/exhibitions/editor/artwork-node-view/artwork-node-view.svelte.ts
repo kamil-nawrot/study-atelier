@@ -11,6 +11,8 @@ export function artworkNodeView(lookup: ArtworkLookup): NodeViewRenderer {
 		const props = $state({
 			artworkId: String(node.attrs.artworkId),
 			showNote: Boolean(node.attrs.note),
+			palette: Boolean(node.attrs.palette),
+			paletteOnly: Boolean(node.attrs.paletteOnly),
 			empty: node.content.size === 0,
 			selected: false
 		});
@@ -24,6 +26,12 @@ export function artworkNodeView(lookup: ArtworkLookup): NodeViewRenderer {
 				},
 				get showNote() {
 					return props.showNote;
+				},
+				get palette() {
+					return props.palette;
+				},
+				get paletteOnly() {
+					return props.paletteOnly;
 				},
 				get empty() {
 					return props.empty;
@@ -51,6 +59,8 @@ export function artworkNodeView(lookup: ArtworkLookup): NodeViewRenderer {
 				if (next.type !== node.type) return false;
 				props.artworkId = String(next.attrs.artworkId);
 				props.showNote = Boolean(next.attrs.note);
+				props.palette = Boolean(next.attrs.palette);
+				props.paletteOnly = Boolean(next.attrs.paletteOnly);
 				props.empty = next.content.size === 0;
 				return true;
 			},
