@@ -127,4 +127,16 @@ describe('BlockCard', () => {
 
 		expect(given.onchange).toHaveBeenCalledWith(set(palette('artwork-1'), palette('artwork-1')));
 	});
+
+	it('moves the image of an artwork to the place picked for its block', async () => {
+		render(
+			BlockCard,
+			props({ ...artwork('artwork-1'), attrs: { artworkId: 'artwork-1', align: 'right' } })
+		);
+
+		await vi.waitFor(() => expect(document.querySelector('.figure .top')).not.toBeNull());
+		expect(getComputedStyle(document.querySelector('.figure .top') as Element).justifyItems).toBe(
+			'end'
+		);
+	});
 });

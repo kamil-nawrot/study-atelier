@@ -137,7 +137,7 @@
 
 		display: grid;
 		gap: var(--spacing-2);
-		justify-items: start;
+		justify-items: var(--block-justify, start);
 	}
 
 	.mat {

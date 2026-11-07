@@ -127,11 +127,15 @@
 	}
 
 	[data-align='center'] {
+		--block-justify: center;
+
 		justify-items: center;
 		text-align: center;
 	}
 
 	[data-align='right'] {
+		--block-justify: end;
+
 		justify-items: end;
 		text-align: right;
 	}
