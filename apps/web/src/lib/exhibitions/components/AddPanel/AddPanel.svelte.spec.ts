@@ -48,6 +48,29 @@ describe('AddPanel', () => {
 		expect(onadd).toHaveBeenCalledWith({ kind: 'divider' });
 	});
 
+	it('adds a term of the glossary on a click', async () => {
+		const onadd = vi.fn();
+		render(AddPanel, {
+			open: true,
+			lookup: new ArtworkLookup(),
+			onadd,
+			terms: [
+				{
+					id: 't1',
+					name: 'Sfumato',
+					category: 'technique',
+					synonyms: [],
+					forms: [],
+					hasDefinition: false
+				}
+			]
+		});
+
+		await userEvent.click(page.getByRole('button', { name: 'Sfumato' }));
+
+		expect(onadd).toHaveBeenCalledWith({ kind: 'term', termId: 't1', name: 'Sfumato' });
+	});
+
 	it('lists the artworks added last and adds one on a click', async () => {
 		const onadd = vi.fn();
 		render(AddPanel, { open: true, lookup: new ArtworkLookup(), onadd });

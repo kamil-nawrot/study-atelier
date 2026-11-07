@@ -670,6 +670,10 @@ export const EXHIBITIONS = [
 			),
 			artworkBlock(1, 'Sfumato: cień rozpuszcza kontur policzka.', false, { palette: true }),
 			{ type: 'divider', attrs: { line: true } },
+			row(artworkBlock(3, ''), {
+				type: 'term',
+				attrs: { termId: '00000000-0000-4000-9000-000000000007', valign: 'middle' }
+			}),
 			{
 				type: 'quote',
 				content: [
