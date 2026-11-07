@@ -23,6 +23,7 @@
 	import RankTitle from '#lib/career/components/RankTitle/RankTitle.svelte';
 	import { progressToNext, rankName, rankOf } from '#lib/career/ranks/ranks.ts';
 	import { career } from '#lib/career/career-state/career-state.svelte.ts';
+	import { followNightLight, noteLightAtNight } from '#lib/career/night-light/night-light.ts';
 	import {
 		followMenuProfile,
 		shownMenuProfile
@@ -57,6 +58,13 @@
 	const careerShown = $derived(page.data.careerShown !== false);
 
 	$effect(() => followMenuProfile(page.data.menuProfile, ownerId));
+	$effect(() => followNightLight(ownerId, page.data.nightLightRecorded === true));
+
+	function toggleTheme(): void {
+		const next = light ? 'dark' : 'light';
+		setTheme(next);
+		if (next === 'light') void noteLightAtNight(careerShown);
+	}
 
 	function accountLabel(profile: Profile | undefined): string {
 		const parts = [m.menu.settingsLink(profile?.displayName || email, email)];
@@ -239,7 +247,7 @@
 			{m.menu.feedback}
 		</span>
 	</button>
-	<button class="item muted" onclick={() => setTheme(light ? 'dark' : 'light')} type="button">
+	<button class="item muted" onclick={toggleTheme} type="button">
 		<Icon icon={light ? Moon : Sun} />
 		<span class="label" class:visually-hidden={compact}>
 			{light ? m.menu.darkTheme : m.menu.lightTheme}
