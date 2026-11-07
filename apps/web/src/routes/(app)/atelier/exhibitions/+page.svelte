@@ -8,6 +8,7 @@
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
+	import NewExhibitionDialog from '#lib/exhibitions/components/NewExhibitionDialog/NewExhibitionDialog.svelte';
 	import ExhibitionList from '#lib/exhibitions/components/ExhibitionList/ExhibitionList.svelte';
 	import { createExhibition } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -20,6 +21,7 @@
 
 	let toast: Toast;
 	let adding = $state(false);
+	let naming = $state(false);
 	let addError = $state<string>();
 	let covers = $derived(new Map(images.apply(data.covers).map((artwork) => [artwork.id, artwork])));
 
@@ -34,11 +36,11 @@
 		void goto(resolve('/(app)/atelier/exhibitions'), { state: {}, shallow: true, replace: true });
 	});
 
-	async function add(): Promise<void> {
+	async function add(title: string): Promise<void> {
 		if (adding) return;
 		adding = true;
 		addError = undefined;
-		const { id, error } = await createExhibition();
+		const { id, error } = await createExhibition(title);
 		if (error || !id) {
 			adding = false;
 			addError = error;
@@ -52,7 +54,7 @@
 	{#snippet bar()}
 		{#if !data.error}
 			<div class="actions">
-				<Button disabled={adding} onclick={add} variant="primary">
+				<Button disabled={adding} onclick={() => (naming = true)} variant="primary">
 					<Icon icon={Plus} size="sm" />
 					<span class="long">{adding ? m.exhibitions.adding : m.exhibitions.add}</span>
 					<span class="short">{m.common.add}</span>
@@ -76,11 +78,6 @@
 			{data.error}
 		</Alert>
 	{:else}
-		{#if addError}
-			<Alert title={m.exhibitions.addErrorTitle} tone="danger">
-				{addError}
-			</Alert>
-		{/if}
 		{#if data.exhibitions.length === 0}
 			<EmptyState icon={ScrollText} text={m.exhibitions.empty} title={m.exhibitions.emptyTitle} />
 		{:else}
@@ -92,6 +89,8 @@
 		{/if}
 	{/if}
 </AtelierLayout>
+
+<NewExhibitionDialog busy={adding} error={addError} oncreate={add} bind:open={naming} />
 
 <Toast bind:this={toast} />
 

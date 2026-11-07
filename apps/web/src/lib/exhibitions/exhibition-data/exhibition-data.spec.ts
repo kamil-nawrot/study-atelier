@@ -189,15 +189,15 @@ describe('moving between the list and Archiwum', () => {
 });
 
 describe('createExhibition', () => {
-	it('creates an empty exhibition under a new id', async () => {
+	it('creates an empty exhibition under a new id and the given title', async () => {
 		rpc.mockResolvedValue({ data: 1, error: null } as never);
 
-		const { id, error } = await createExhibition();
+		const { id, error } = await createExhibition('Light');
 
 		expect(error).toBeUndefined();
 		expect(rpc.mock.calls[0][1]).toMatchObject({
 			exhibition_id: id,
-			new_title: '',
+			new_title: 'Light',
 			new_document: BLANK_DOCUMENT
 		});
 	});
@@ -208,7 +208,7 @@ describe('createExhibition', () => {
 			error: { code: 'P0001', message: '', hint: 'exhibitions' }
 		} as never);
 
-		const { id, error } = await createExhibition();
+		const { id, error } = await createExhibition('Light');
 
 		expect(id).toBeUndefined();
 		expect(error).toBeTruthy();

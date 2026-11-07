@@ -1,1 +1,1 @@
-export type SaveStatus = 'saved' | 'saving' | 'failed' | 'conflict';
+export type SaveStatus = 'saved' | 'saving' | 'failed' | 'conflict' | 'untitled';

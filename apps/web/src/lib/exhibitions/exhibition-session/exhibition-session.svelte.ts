@@ -8,6 +8,7 @@ export const RETRY_DELAY_MS = 10000;
 
 export class ExhibitionSession {
 	title = $state('');
+	savedTitle = $state('');
 	status = $state<SaveStatus>('saved');
 	error = $state<string>();
 	#id: string;
@@ -22,6 +23,7 @@ export class ExhibitionSession {
 		this.#revision = exhibition.revision;
 		this.#document = exhibition.document;
 		this.title = exhibition.title;
+		this.savedTitle = exhibition.title;
 	}
 
 	get document(): ExhibitionDocument {
@@ -34,6 +36,18 @@ export class ExhibitionSession {
 
 	rename(title: string): void {
 		this.title = title;
+		if (title.trim() === '') {
+			clearTimeout(this.#timer);
+			this.status = 'untitled';
+			return;
+		}
+		this.savedTitle = title.trim();
+		this.#changed();
+	}
+
+	keepTitle(): void {
+		if (this.title.trim() !== '') return;
+		this.title = this.savedTitle;
 		this.#changed();
 	}
 
@@ -44,6 +58,11 @@ export class ExhibitionSession {
 
 	#changed(): void {
 		if (this.status === 'conflict') return;
+		if (this.title.trim() === '') {
+			this.#dirty = true;
+			this.status = 'untitled';
+			return;
+		}
 		this.#dirty = true;
 		this.status = 'saving';
 		this.#schedule(AUTOSAVE_DELAY_MS);
@@ -57,6 +76,10 @@ export class ExhibitionSession {
 	async flush(): Promise<void> {
 		clearTimeout(this.#timer);
 		if (this.#saving || !this.#dirty || this.status === 'conflict') return;
+		if (this.title.trim() === '') {
+			this.status = 'untitled';
+			return;
+		}
 		this.#saving = true;
 		this.#dirty = false;
 		const result = await saveExhibition(this.#id, this.title, this.#document, this.#revision);

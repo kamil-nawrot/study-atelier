@@ -39,7 +39,7 @@
 	});
 
 	function nameOf(exhibition: ArchivedExhibition): string {
-		return exhibition.title || m.exhibitions.untitled;
+		return exhibition.title;
 	}
 
 	async function restore(exhibition: ArchivedExhibition): Promise<void> {

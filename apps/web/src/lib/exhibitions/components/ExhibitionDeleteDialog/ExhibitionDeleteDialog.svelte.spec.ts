@@ -34,18 +34,6 @@ describe('ExhibitionDeleteDialog', () => {
 		expect(archive).toHaveBeenCalledWith('x');
 	});
 
-	it('names an exhibition without a title by the placeholder', async () => {
-		render(ExhibitionDeleteDialog, { id: 'x', title: '', open: true, onarchived: vi.fn() });
-
-		await expect
-			.element(
-				page.getByRole('heading', {
-					name: m.exhibitions.deleteConfirm.title(m.exhibitions.untitled)
-				})
-			)
-			.toBeInTheDocument();
-	});
-
 	it('keeps the dialog open with the error when the move fails', async () => {
 		archive.mockResolvedValue({ error: m.common.network });
 		const onarchived = vi.fn();

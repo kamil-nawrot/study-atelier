@@ -44,7 +44,7 @@
 	children={error ? errorAlert : undefined}
 	description={m.exhibitions.deleteConfirm.description}
 	size="small"
-	title={m.exhibitions.deleteConfirm.title(title || m.exhibitions.untitled)}
+	title={m.exhibitions.deleteConfirm.title(title)}
 	bind:open
 >
 	{#snippet footer()}

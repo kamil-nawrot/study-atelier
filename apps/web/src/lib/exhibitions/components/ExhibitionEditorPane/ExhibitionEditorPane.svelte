@@ -61,6 +61,7 @@
 		class="title"
 		aria-label={m.exhibitions.view.titleLabel}
 		maxlength="200"
+		onblur={() => session.keepTitle()}
 		oninput={(event) => session.rename(event.currentTarget.value)}
 		placeholder={m.exhibitions.view.titleLabel}
 		value={session.title}

@@ -1,7 +1,7 @@
 create table public.exhibitions (
   id uuid primary key default gen_random_uuid(),
   owner_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
-  title text not null default '' check (char_length(title) <= 200),
+  title text not null check (char_length(btrim(title)) between 1 and 200),
   document jsonb not null default '{"type": "doc", "content": []}',
   format smallint not null default 1 check (format = 1),
   revision integer not null default 1 check (revision >= 1),

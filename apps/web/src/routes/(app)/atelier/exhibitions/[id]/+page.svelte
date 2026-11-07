@@ -38,9 +38,9 @@
 	let session = $derived(data.exhibition ? new ExhibitionSession(data.exhibition) : undefined);
 	let editing = $derived(session !== undefined && page.url.searchParams.has('edit'));
 	let title = $derived(
-		session?.title ||
+		session?.savedTitle ||
 			(data.exhibition
-				? m.exhibitions.untitled
+				? m.exhibitions.view.titleLabel
 				: data.notFound
 					? m.exhibitions.view.notFoundTitle
 					: m.exhibitions.view.loadErrorTitle)

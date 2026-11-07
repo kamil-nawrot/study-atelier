@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import ExhibitionPoster from './ExhibitionPoster.svelte';
 
@@ -26,10 +25,10 @@ describe('ExhibitionPoster', () => {
 		expect(document.querySelector('img')?.getAttribute('src')).toBe(cover.image?.src);
 	});
 
-	it('shows a frame and a placeholder title when there is no cover and no title', async () => {
-		render(ExhibitionPoster, { exhibition: { ...exhibition, title: '', coverId: null } });
+	it('shows a frame without an image when there is no cover', async () => {
+		render(ExhibitionPoster, { exhibition: { ...exhibition, coverId: null } });
 
-		await expect.element(page.getByText(m.exhibitions.untitled)).toBeInTheDocument();
+		await expect.element(page.getByText('Light')).toBeInTheDocument();
 		expect(document.querySelector('img')).toBeNull();
 	});
 });

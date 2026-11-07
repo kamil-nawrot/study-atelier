@@ -120,9 +120,9 @@ export async function deleteExhibition(id: string): Promise<ActionResult> {
 	return error ? { error: await failureMessage(error, exhibitionErrorMessage) } : {};
 }
 
-export async function createExhibition(): Promise<ActionResult & { id?: string }> {
+export async function createExhibition(title: string): Promise<ActionResult & { id?: string }> {
 	const id = crypto.randomUUID();
-	const result = await saveExhibition(id, '', BLANK_DOCUMENT, null);
+	const result = await saveExhibition(id, title, BLANK_DOCUMENT, null);
 	if (result.error) return { error: result.error };
 	return { id };
 }

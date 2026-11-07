@@ -101,6 +101,11 @@ begin
     'an exhibition has a title over 200 characters';
 
   assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, %L, ''{"type": "doc", "content": []}'')', gen_random_uuid(), '   '))
+    = '23514',
+    'an exhibition has no title';
+
+  assert exhibitions_test.failure(format(
     'select public.save_exhibition(%L, ''x'', %L)', gen_random_uuid(),
     '{"type": "doc", "content": [{"type": "script"}]}'))
     = '23514 exhibition_document',

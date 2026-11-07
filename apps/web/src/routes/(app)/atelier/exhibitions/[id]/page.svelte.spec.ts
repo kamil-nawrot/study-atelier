@@ -183,14 +183,6 @@ describe('exhibition page', () => {
 		);
 	});
 
-	it('names an exhibition without a title by the placeholder', async () => {
-		renderExhibition({ exhibition: { ...exhibition, title: '' } });
-
-		await expect
-			.element(page.getByRole('heading', { level: 1 }))
-			.toHaveTextContent(m.exhibitions.untitled);
-	});
-
 	it('leaves the panel out on a phone', async () => {
 		await page.viewport(390, 844);
 		navigation.url = new URL(`http://localhost/atelier/exhibitions/${ID}?edit`);

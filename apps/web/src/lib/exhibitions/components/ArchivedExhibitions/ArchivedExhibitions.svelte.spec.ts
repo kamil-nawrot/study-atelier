@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/i18n.ts';
-import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import {
 	deleteExhibition,
 	restoreExhibition
@@ -81,18 +80,6 @@ describe('ArchivedExhibitions', () => {
 			expect(onmessage).toHaveBeenCalledWith(m.trash.exhibitionDeleted('Light'))
 		);
 		expect(remove).toHaveBeenCalledWith('a');
-	});
-
-	it('shows the cover and names an exhibition without a title by the placeholder', async () => {
-		const cover = testArtwork(1, 'Judith');
-		render(ArchivedExhibitions, {
-			exhibitions: [{ ...light, title: '', coverId: cover.id }],
-			covers: [cover],
-			onmessage: vi.fn()
-		});
-
-		await expect.element(row(m.exhibitions.untitled)).toBeVisible();
-		expect(document.querySelector('img')?.getAttribute('src')).toBe(cover.image?.src);
 	});
 
 	it('keeps the dialog open with the reason when deleting fails', async () => {

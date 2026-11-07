@@ -60,6 +60,46 @@ describe('ExhibitionSession', () => {
 		expect(saveExhibition).toHaveBeenCalledWith('exhibition-1', 'Dark', changed, 3);
 	});
 
+	it('does not save a blank title and says why', async () => {
+		const session = new ExhibitionSession(exhibition);
+		session.rename('   ');
+		await vi.advanceTimersByTimeAsync(AUTOSAVE_DELAY_MS);
+
+		expect(saveExhibition).not.toHaveBeenCalled();
+		expect(session.status).toBe('untitled');
+		await session.flush();
+		expect(saveExhibition).not.toHaveBeenCalled();
+	});
+
+	it('keeps the last title once the learner leaves the field blank', async () => {
+		const session = new ExhibitionSession(exhibition);
+		session.rename('Dark');
+		session.rename('');
+		session.keepTitle();
+
+		expect(session.title).toBe('Dark');
+		await vi.advanceTimersByTimeAsync(AUTOSAVE_DELAY_MS);
+		expect(saveExhibition).toHaveBeenCalledWith('exhibition-1', 'Dark', exhibition.document, 3);
+	});
+
+	it('leaves a filled title as it is when the field loses focus', () => {
+		const session = new ExhibitionSession(exhibition);
+		session.rename('Dark');
+		session.keepTitle();
+
+		expect(session.title).toBe('Dark');
+	});
+
+	it('does not schedule a save for a document change while the title is blank', async () => {
+		const session = new ExhibitionSession(exhibition);
+		session.rename('');
+		session.replace(changed);
+		await vi.advanceTimersByTimeAsync(AUTOSAVE_DELAY_MS);
+
+		expect(saveExhibition).not.toHaveBeenCalled();
+		expect(session.status).toBe('untitled');
+	});
+
 	it('sends the revision it got from the last save with the next one', async () => {
 		const session = new ExhibitionSession(exhibition);
 		session.replace(changed);

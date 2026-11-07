@@ -30,7 +30,7 @@
 			<NoImage />
 		{/if}
 	</span>
-	<span class="title">{exhibition.title || m.exhibitions.untitled}</span>
+	<span class="title">{exhibition.title}</span>
 	<span class="meta">
 		{m.exhibitions.posterMeta(exhibition.artworkCount, changedOn(exhibition.updatedAt))}
 	</span>

@@ -36,6 +36,12 @@ const light = {
 	coverId: cover.id
 };
 
+async function addNamed(): Promise<void> {
+	await userEvent.click(page.getByRole('button', { name: m.exhibitions.add }));
+	await userEvent.type(page.getByLabelText(m.exhibitions.nameLabel), 'Light');
+	await userEvent.click(page.getByRole('button', { name: m.exhibitions.add }).last());
+}
+
 function renderList(exhibitions = [light], error?: string): void {
 	render(ExhibitionsPage, {
 		data: { session: testSession(), exhibitions, covers: [cover], error },
@@ -72,7 +78,7 @@ describe('exhibitions page', () => {
 		vi.mocked(createExhibition).mockResolvedValue({ id: 'new-id' });
 		renderList();
 
-		await userEvent.click(page.getByRole('button', { name: m.exhibitions.add }));
+		await addNamed();
 
 		await vi.waitFor(() => expect(goto).toHaveBeenCalledWith('/atelier/exhibitions/new-id?edit'));
 	});
@@ -81,7 +87,7 @@ describe('exhibitions page', () => {
 		vi.mocked(createExhibition).mockResolvedValue({ error: m.limits.exhibitions(200) });
 		renderList();
 
-		await userEvent.click(page.getByRole('button', { name: m.exhibitions.add }));
+		await addNamed();
 
 		await expect.element(page.getByText(m.limits.exhibitions(200))).toBeInTheDocument();
 		expect(goto).not.toHaveBeenCalled();
@@ -112,9 +118,12 @@ describe('exhibitions page', () => {
 		vi.mocked(createExhibition).mockReturnValue(new Promise(() => {}));
 		renderList();
 
-		await userEvent.click(page.getByRole('button', { name: m.exhibitions.add }));
+		await addNamed();
 
-		await expect.element(page.getByRole('button', { name: m.exhibitions.adding })).toBeDisabled();
+		await expect
+			.element(page.getByRole('button', { name: m.exhibitions.adding }).last())
+			.toBeDisabled();
 		expect(createExhibition).toHaveBeenCalledTimes(1);
+		expect(createExhibition).toHaveBeenCalledWith('Light');
 	});
 });

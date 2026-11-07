@@ -2329,10 +2329,12 @@ export const pl = {
 			`${count} ${plural(count, { one: 'wystawa', few: 'wystawy', many: 'wystaw' })}`,
 		add: 'Dodaj wystawę',
 		adding: 'Dodawanie…',
+		newTitle: 'Nowa wystawa',
+		nameLabel: 'Tytuł wystawy',
+		nameRequired: 'Wpisz tytuł wystawy.',
 		emptyTitle: 'Pierwszy wernisaż dopiero przed Tobą',
 		empty:
 			'Wybierz temat przewodni i zbuduj jego historię z dzieł Twojego atelier i własnych wniosków.',
-		untitled: 'Wystawa bez tytułu',
 		posterMeta: (count: number, changed: string): string =>
 			`${workCount(count)} · zmieniona ${changed}`,
 		changedToday: 'dziś',
@@ -2356,6 +2358,7 @@ export const pl = {
 		save: {
 			saving: 'Zapisywanie…',
 			saved: 'Zapisano',
+			untitled: 'Wpisz tytuł, żeby zapisać zmiany',
 			failed: 'Nie udało się zapisać. Spróbujemy ponownie za chwilę.',
 			conflict:
 				'Ta wystawa w międzyczasie zmieniła swój kształt, więc Twoich ostatnich zmian nie udało się zapisać. Odśwież stronę, żeby zobaczyć najnowszą wersję.',

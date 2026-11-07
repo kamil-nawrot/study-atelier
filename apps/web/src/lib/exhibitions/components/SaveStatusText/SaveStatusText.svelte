@@ -15,11 +15,17 @@
 				? m.exhibitions.save.saved
 				: status === 'conflict'
 					? m.exhibitions.save.conflictTitle
-					: m.exhibitions.save.failed
+					: status === 'untitled'
+						? m.exhibitions.save.untitled
+						: m.exhibitions.save.failed
 	);
 </script>
 
-<span class="status" class:failed={status === 'failed' || status === 'conflict'} role="status">
+<span
+	class="status"
+	class:failed={status === 'failed' || status === 'conflict' || status === 'untitled'}
+	role="status"
+>
 	{text}
 </span>
 
