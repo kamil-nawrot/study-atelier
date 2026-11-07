@@ -38,8 +38,8 @@ begin
     'collection', 'eras', 'prehistory', 'antiquity', 'middle_ages', 'early_modern', 'modern', 'contemporary',
     'vasari_lives', 'memory', 'bullseye', 'regular', 'back_from_storage', 'chronicle', 'grand_tour', 'seen_live',
     'timeline', 'glossary', 'hortus_cliffortianus', 'own_eye', 'night_watch', 'marathon', 'mouth_of_truth',
-    'pinacotheca', 'trevi_fountain', 'seven_league_boots', 'figure_alphabet'
-  ], 'the exhibits are not the agreed twenty-seven in their order';
+    'pinacotheca', 'trevi_fountain', 'seven_league_boots', 'figure_alphabet', 'candle_moths'
+  ], 'the exhibits are not the agreed twenty-eight in their order';
   assert (select (array_agg(exhibit order by position))[1:8]
       from public.unlock_exhibits('UTC') with ordinality as listed (exhibit, value, thresholds, position)) = array[
     'collection', 'eras', 'prehistory', 'antiquity', 'middle_ages', 'early_modern', 'modern', 'contemporary'
@@ -399,6 +399,48 @@ begin
     'the garden of Clifford does not have the agreed tiers';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'hortus_cliffortianus') = array[1]::smallint[],
     'a described value does not unlock the first tier of the garden of Clifford';
+end;
+$$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-00000000000f', 'owner-f@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-00000000000f", "role": "authenticated"}', true);
+
+do $$
+declare
+  first_switch timestamptz;
+begin
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'candle_moths') = 0,
+    'a learner who never switched the theme counts for the night candlestick';
+  perform public.record_night_light();
+  select night_light_at into first_switch from public.profiles;
+  assert first_switch is not null, 'record_night_light does not record the switch for a learner without a profile';
+  perform public.record_night_light();
+  assert (select night_light_at from public.profiles) = first_switch, 'a later switch replaces the first one';
+end;
+$$;
+
+reset role;
+update public.profiles set night_light_at = '2026-11-07T21:30:00Z'
+  where owner_id = '00000000-0000-0000-0000-00000000000f';
+set local role authenticated;
+
+do $$
+begin
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'candle_moths') = 0,
+    'a switch at 21:30 of the learner counts as a night one';
+  assert not exists (select 1 from public.exhibit_tiers where exhibit = 'candle_moths'),
+    'a switch in the evening unlocks the night candlestick';
+  assert (select thresholds from public.unlock_exhibits('Europe/Warsaw') where exhibit = 'candle_moths') = array[1],
+    'the night candlestick does not have one tier';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'candle_moths') = array[1]::smallint[],
+    'a switch at 22:30 of the learner does not unlock the night candlestick';
+  assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'candle_moths') = 1,
+    'the night candlestick does not give its bonus';
 end;
 $$;
 
