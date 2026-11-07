@@ -24,6 +24,7 @@
 	import { measureRows } from '#lib/exhibitions/editor/row-boxes/row-boxes.ts';
 	import { blockLabel, newBlockLabel } from '#lib/exhibitions/editor/block-label/block-label.ts';
 	import { itemsOf, withItem } from '#lib/exhibitions/editor/block-set/block-set.ts';
+	import { paletteOf } from '#lib/images/image-palette/image-palette.ts';
 	import { limitOf } from '#lib/exhibitions/editor/block-limits/block-limits.ts';
 	import {
 		artworkNode,
@@ -89,11 +90,24 @@
 			closeUpOf = block.artworkId;
 			closeUpTarget = target;
 			closeUpOpen = true;
-		} else if (block.kind === 'artwork' || block.kind === 'palette') {
-			place(artworkNode(block.artworkId, block.kind === 'palette'), target);
+		} else if (block.kind === 'palette') {
+			void readablePalette(block.artworkId).then((node) => node && place(node, target));
+		} else if (block.kind === 'artwork') {
+			place(artworkNode(block.artworkId), target);
 		} else {
 			place(textNode(block.kind), target);
 		}
+	}
+
+	async function readablePalette(artworkId: string): Promise<ExhibitionDocument | undefined> {
+		limit = undefined;
+		await lookup.wantPictures(artworkId);
+		const pictures = lookup.pictures(artworkId);
+		const image = pictures?.[0];
+		const result = image ? await paletteOf(image) : undefined;
+		if (result && 'colours' in result) return artworkNode(artworkId, true);
+		limit = pictures && !image ? m.exhibitions.limits.noImage : m.exhibitions.limits.noPalette;
+		return undefined;
 	}
 
 	function pickCloseUp(attributes: CloseUpAttributes): void {
@@ -110,6 +124,12 @@
 		}
 		closeUpOf = String(itemsOf(node).at(-1)?.attrs?.artworkId);
 		closeUpOpen = true;
+	}
+
+	async function growPalette(artworkId: string): Promise<void> {
+		const node = await readablePalette(artworkId);
+		if (node) grow(node);
+		else growing = undefined;
 	}
 
 	function grow(item: ExhibitionDocument): void {
@@ -214,7 +234,7 @@
 
 <ArtworkPickDialog
 	{lookup}
-	onpick={(artworkId) => grow(artworkNode(artworkId, true))}
+	onpick={growPalette}
 	title={m.exhibitions.paletteDialog.title}
 	bind:open={paletteOpen}
 />
