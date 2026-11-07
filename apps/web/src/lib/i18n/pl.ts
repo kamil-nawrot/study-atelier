@@ -1648,6 +1648,9 @@ export const pl = {
 			],
 			candle_moths: [
 				'Rycina Vincenta Laurensza van der Vinne ilustruje „Leerzaame zinnebeelden” Adriaana Spinnikera, zbiór pouczających emblematów wydany w Haarlemie i Amsterdamie w 1714 roku. Owady, które giną od żaru i w wosku świecy, są w nim obrazem ludzi lekceważących ostrzeżenia, którzy przepadają przez marne, ziemskie życie.'
+			],
+			amateur_magnifier: [
+				'Daumier wracał do paryskich znawców sztuki i kilkanaście lat później: w serii akwarel pokazał kolekcjonerów, którzy z bliska studiują dzieła. Akwarele robił głównie dla kolekcjonerów swoich prac, więc te obrazki trafiały, nieco ironicznie, do tych samych ludzi, których przedstawiały.'
 			]
 		},
 		ranks: {
@@ -1870,6 +1873,13 @@ export const pl = {
 					'Vincent Laurensz. van der Vinne wytrawił w 1714 roku świecę, do której płomienia zlatują się owady, a te, które zginęły, leżą w wosku i na ziemi.',
 				hint: 'Po zmroku światło przyciąga najmocniej.',
 				awarded: 'Za zapalenie światła w środku nocy.'
+			},
+			amateur_magnifier: {
+				name: 'Soczewka znawcy',
+				about:
+					'Honoré Daumier narysował w 1847 roku dla „Le Charivari” znawcę, który ogląda obraz przez lupę, podczas gdy jego towarzysz rozgląda się po sali.',
+				hint: 'Kto patrzy z bliska, nie patrzy na zegarek.',
+				awarded: 'Za godzinę spędzoną z jednym dziełem.'
 			}
 		}
 	},

@@ -42,6 +42,11 @@ export async function markTiersSeen(now: Date = new Date()): Promise<{ error?: s
 	return error ? { error: collectionErrorMessage(error) } : {};
 }
 
+export async function recordLongLook(): Promise<{ error?: string }> {
+	const { error } = await supabase.rpc('record_long_look');
+	return error ? { error: collectionErrorMessage(error) } : {};
+}
+
 export async function recordNightLight(): Promise<{ error?: string }> {
 	const { error } = await supabase.rpc('record_night_light');
 	return error ? { error: collectionErrorMessage(error) } : {};
