@@ -5,7 +5,7 @@
 	import PinView from '#lib/pins/components/PinView/PinView.svelte';
 	import { loadArtworkPins } from '#lib/pins/pin-data/pin-data.ts';
 	import type { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
-	import type { CloseUpAttributes } from '#lib/exhibitions/editor/block-commands/block-commands.ts';
+	import type { CloseUpAttributes } from '#lib/exhibitions/editor/new-block/new-block.ts';
 	import type { Pin } from '#lib/pins/types/pin.ts';
 
 	type Props = {

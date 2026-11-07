@@ -11,9 +11,10 @@
 	import FilterSidePanel from '#lib/wall/components/FilterSidePanel/FilterSidePanel.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import type {
+		ArtworkKind,
 		NewBlock,
 		TextKind
-	} from '#lib/exhibitions/editor/block-commands/block-commands.ts';
+	} from '#lib/exhibitions/editor/new-block/new-block.ts';
 	import type { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 
 	type Props = {
@@ -33,6 +34,14 @@
 		{ kind: 'heading', label: m.exhibitions.panel.heading },
 		{ kind: 'quote', label: m.exhibitions.panel.quote }
 	];
+
+	const artworkKinds: { kind: ArtworkKind; label: string }[] = [
+		{ kind: 'artwork', label: m.exhibitions.blocks.artwork },
+		{ kind: 'palette', label: m.exhibitions.blocks.palette },
+		{ kind: 'closeUp', label: m.exhibitions.blocks.closeUp }
+	];
+
+	let artworkKind = $state<ArtworkKind>('artwork');
 
 	let query = $state('');
 	let recent = $state<string[]>([]);
@@ -98,6 +107,15 @@
 	</section>
 	<section class="section" aria-labelledby="panel-artworks">
 		<h3 id="panel-artworks">{m.exhibitions.panel.artworksTitle}</h3>
+		<p id="panel-add-as" class="caption">{m.exhibitions.panel.addAs}</p>
+		<div class="as" aria-labelledby="panel-add-as" role="radiogroup">
+			{#each artworkKinds as { kind, label } (kind)}
+				<label class="kind" class:chosen={artworkKind === kind}>
+					<input name="artwork-kind" type="radio" value={kind} bind:group={artworkKind} />
+					{label}
+				</label>
+			{/each}
+		</div>
 		<SearchField
 			label={m.exhibitions.panel.search}
 			placeholder={m.exhibitions.panel.searchPlaceholder}
@@ -113,8 +131,8 @@
 				<li>
 					<button
 						class="tile"
-						onclick={() => onadd({ kind: 'artwork', artworkId: artwork.id })}
-						onpointerdown={(event) => ondrag?.(event, { kind: 'artwork', artworkId: artwork.id })}
+						onclick={() => onadd({ kind: artworkKind, artworkId: artwork.id })}
+						onpointerdown={(event) => ondrag?.(event, { kind: artworkKind, artworkId: artwork.id })}
 						type="button"
 					>
 						<span class="thumbnail">
@@ -164,6 +182,31 @@
 		color: inherit;
 		font: inherit;
 		cursor: grab;
+	}
+
+	.as {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-2);
+	}
+
+	.as .kind {
+		cursor: pointer;
+	}
+
+	.as input {
+		position: absolute;
+		opacity: 0;
+	}
+
+	.as .chosen {
+		background: var(--color-fg);
+		color: var(--color-on-fg);
+	}
+
+	.as .kind:focus-within {
+		outline: var(--border-width-base) dashed var(--color-fg);
+		outline-offset: var(--spacing-1);
 	}
 
 	.tiles {

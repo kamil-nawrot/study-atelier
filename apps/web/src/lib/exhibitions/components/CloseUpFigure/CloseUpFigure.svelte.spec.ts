@@ -48,22 +48,18 @@ describe('CloseUpFigure', () => {
 		await expect.element(page.getByText(m.exhibitions.closeUp.caption)).toBeInTheDocument();
 	});
 
-	it('does not link the caption while editing, and reports a click', async () => {
-		const onselect = vi.fn();
+	it('does not link the caption while editing', async () => {
 		render(CloseUpFigure, {
 			lookup: lookupWith([picture]),
 			artworkId: 'artwork-7',
 			x: 0.5,
 			y: 0.5,
 			viewWidth: 0.4,
-			editable: true,
-			onselect
+			editable: true
 		});
 
 		await vi.waitFor(() => expect(document.querySelector('[data-fragment]')).not.toBeNull());
 		expect(document.querySelector('a')).toBeNull();
-		await page.getByRole('img', { name: m.exhibitions.closeUp.label('Judith') }).click();
-		expect(onselect).toHaveBeenCalled();
 	});
 
 	it('shows a frame while the image is unknown', async () => {

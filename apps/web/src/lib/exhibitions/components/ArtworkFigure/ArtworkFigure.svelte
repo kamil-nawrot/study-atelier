@@ -16,10 +16,7 @@
 		paletteOnly?: boolean;
 		caption?: string;
 		editable?: boolean;
-		empty?: boolean;
-		selected?: boolean;
 		entries?: readonly GlossaryTerm[];
-		onselect?: () => void;
 	};
 
 	let {
@@ -28,12 +25,9 @@
 		showNote = false,
 		palette = false,
 		paletteOnly = false,
-		caption,
+		caption = '',
 		editable = false,
-		empty = false,
-		selected = false,
-		entries,
-		onselect
+		entries
 	}: Props = $props();
 
 	const artwork = $derived(lookup.get(artworkId));
@@ -69,10 +63,9 @@
 	});
 </script>
 
-<figure class="figure" class:selected>
-	<div style:--ratio={ratio} class="top" contenteditable="false">
-		<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-		<div class="mat" class:bare={paletteOnly && (showsPalette || unreadable)} onclick={onselect}>
+<figure class="figure">
+	<div style:--ratio={ratio} class="top">
+		<div class="mat" class:bare={paletteOnly && (showsPalette || unreadable)}>
 			{#if paletteOnly && (showsPalette || unreadable)}
 				<div class="swatches" data-palette-only="">
 					{#if unreadable}
@@ -115,17 +108,11 @@
 			</p>
 		{/if}
 	</div>
-	{#if caption === undefined}
-		<figcaption
-			class:empty
-			data-caption=""
-			data-placeholder={editable ? m.exhibitions.view.captionHint : undefined}
-		></figcaption>
-	{:else if caption !== ''}
+	{#if caption !== ''}
 		<figcaption>{caption}</figcaption>
 	{/if}
 	{#if showNote && artwork}
-		<aside class="note" contenteditable="false">
+		<aside class="note">
 			<p class="note-label">{m.exhibitions.bar.noteOf(artwork.title)}</p>
 			{#if note?.text}
 				<GlossaryNotes {entries} linked={!editable} links={note.links} value={note.text} />
@@ -143,11 +130,6 @@
 		gap: var(--spacing-3);
 		margin: 0;
 		max-width: var(--size-content-wide);
-	}
-
-	.figure.selected .mat {
-		outline: var(--border-width-base) dashed var(--color-fg);
-		outline-offset: var(--border-width-base);
 	}
 
 	.top {
@@ -181,7 +163,7 @@
 	}
 
 	.mat.bare {
-		width: var(--image-width);
+		width: 100%;
 		padding: 0;
 		background: none;
 	}
@@ -222,15 +204,7 @@
 
 	figcaption {
 		max-width: var(--size-content-default);
-		min-height: calc(1em * var(--line-height-md));
 		line-height: var(--line-height-md);
-	}
-
-	figcaption.empty::before {
-		content: attr(data-placeholder);
-		position: absolute;
-		color: var(--color-fg-muted);
-		pointer-events: none;
 	}
 
 	.note {
