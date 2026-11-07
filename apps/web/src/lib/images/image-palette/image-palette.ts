@@ -2,6 +2,7 @@ import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input
 import type { PaletteColour } from '#lib/catalogue/types/palette-colour.ts';
 import { artworkImageSource } from '#lib/images/artwork-image/artwork-image.ts';
 import { fetchCommonsThumbnails } from '#lib/images/commons/commons.ts';
+import { fetchImageThroughProxy } from '#lib/images/image-proxy-data/image-proxy-data.ts';
 import { readPixels } from '#lib/images/image-pixels/image-pixels.ts';
 import { savePalette } from '#lib/images/palette-data/palette-data.ts';
 import { extractPalette } from '#lib/images/palette/palette.ts';
@@ -33,13 +34,22 @@ async function sourceUrl(image: ArtworkImageInput): Promise<string | undefined> 
 	return artworkImageSource(image, PALETTE_SOURCE_WIDTH)?.src;
 }
 
+async function downloadImage(image: ArtworkImageInput, url: string): Promise<Blob | undefined> {
+	try {
+		const response = await fetch(url, { mode: 'cors' });
+		return response.ok ? await response.blob() : undefined;
+	} catch {
+		return image.kind === 'url' ? fetchImageThroughProxy(url) : undefined;
+	}
+}
+
 async function computeColours(image: ArtworkImageInput): Promise<PaletteColour[] | undefined> {
 	try {
 		const url = await sourceUrl(image);
 		if (!url) return undefined;
-		const response = await fetch(url, { mode: 'cors' });
-		if (!response.ok) return undefined;
-		const pixels = await readPixels(await response.blob());
+		const blob = await downloadImage(image, url);
+		if (!blob) return undefined;
+		const pixels = await readPixels(blob);
 		const colours = pixels ? extractPalette(pixels) : [];
 		return colours.length > 0 ? colours : undefined;
 	} catch {
