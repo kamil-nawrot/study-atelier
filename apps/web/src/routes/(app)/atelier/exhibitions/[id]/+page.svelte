@@ -129,7 +129,10 @@
 			<ExhibitionEditorPane bind:this={pane} {barHeight} {lookup} {session} />
 		{:else}
 			<article>
-				<h1>{title}</h1>
+				<header>
+					<p class="kind">{m.exhibitions.kind}</p>
+					<h1>{title}</h1>
+				</header>
 				<ExhibitionBody document={session.document} entries={data.glossary} {lookup} />
 			</article>
 		{/if}
@@ -157,6 +160,16 @@
 	article {
 		display: grid;
 		gap: var(--spacing-8);
+	}
+
+	header {
+		display: grid;
+		gap: var(--spacing-1);
+	}
+
+	.kind {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
 	}
 
 	h1 {

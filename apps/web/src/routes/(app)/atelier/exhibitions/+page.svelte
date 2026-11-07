@@ -23,6 +23,10 @@
 	let addError = $state<string>();
 	let covers = $derived(new Map(images.apply(data.covers).map((artwork) => [artwork.id, artwork])));
 
+	$effect(() => {
+		for (const cover of data.covers) images.request(cover);
+	});
+
 	onMount(() => {
 		const message = page.state.exhibitionMessage;
 		if (message === undefined) return;

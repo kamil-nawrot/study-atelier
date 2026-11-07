@@ -83,7 +83,7 @@
 <AtelierLayout email={data.session.user.email ?? ''} title={m.trash.title}>
 	<header>
 		<h1>{m.trash.title}</h1>
-		{#if shown.length > 0}
+		{#if tab === 'artworks' && shown.length > 0}
 			<span class="caption">{m.atelier.count(shown.length)}</span>
 		{/if}
 	</header>

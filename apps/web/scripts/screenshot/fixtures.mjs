@@ -594,6 +594,91 @@ for (const row of ARTWORKS) {
 	).map((visit) => ({ visit_id: visit.id }));
 }
 
+function artworkId(number) {
+	return `00000000-0000-4000-8000-${String(number).padStart(12, '0')}`;
+}
+
+function textBlock(...paragraphs) {
+	return {
+		type: 'textBlock',
+		content: paragraphs.map((text) => ({
+			type: 'paragraph',
+			content: [{ type: 'text', text }]
+		}))
+	};
+}
+
+function artworkBlock(number, caption, note = false) {
+	return {
+		type: 'artwork',
+		attrs: { artworkId: artworkId(number), note },
+		...(caption ? { content: [{ type: 'text', text: caption }] } : {})
+	};
+}
+
+function exhibition(index, title, blocks, numbers, deletedAt = null) {
+	return {
+		id: `00000000-0000-4000-8000-0000000004${String(index).padStart(2, '0')}`,
+		owner_id: USER.id,
+		title,
+		document: {
+			type: 'doc',
+			content: [...blocks, { type: 'textBlock', content: [{ type: 'paragraph' }] }]
+		},
+		format: 1,
+		revision: 3,
+		deleted_at: deletedAt,
+		created_at: '2026-11-01T10:00:00Z',
+		updated_at: '2026-11-0' + index + 'T10:00:00Z',
+		exhibition_artworks: numbers.map((number, position) => ({
+			artwork_id: artworkId(number),
+			position
+		}))
+	};
+}
+
+export const EXHIBITIONS = [
+	exhibition(
+		1,
+		'Światło i cień',
+		[
+			{
+				type: 'heading',
+				attrs: { level: 2 },
+				content: [{ type: 'text', text: 'Od Leonarda do Vermeera' }]
+			},
+			textBlock(
+				'Światło prowadzi wzrok tam, gdzie malarz chce go zatrzymać. U Leonarda rozpuszcza kontury, u Vermeera zamienia zwykłą sień w scenę.'
+			),
+			artworkBlock(1, 'Sfumato: cień rozpuszcza kontur policzka.'),
+			{
+				type: 'quote',
+				content: [
+					{
+						type: 'paragraph',
+						content: [{ type: 'text', text: 'Malarstwo to poezja, którą się widzi.' }]
+					}
+				]
+			},
+			artworkBlock(3, 'Okno po lewej stronie i cały świat po prawej.', true),
+			textBlock('Na końcu zostaje pytanie: czy światło jest tematem, czy tylko narzędziem?')
+		],
+		[1, 3]
+	),
+	exhibition(2, 'Portrety kobiet', [textBlock('Notatki w przygotowaniu.')], [9]),
+	exhibition(3, '', [], [])
+];
+
+export const ARCHIVED_EXHIBITIONS = [
+	exhibition(
+		4,
+		'Pejzaże północy',
+		[textBlock('Nieużywana wystawa.')],
+		[6, 7],
+		'2026-11-05T09:00:00Z'
+	)
+];
+
 export const TIMELINE_EVENTS = [
 	{
 		id: '00000000-0000-4000-8000-000000000301',

@@ -3,6 +3,7 @@
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { Alert, Button, Dialog, EmptyState, NoImage } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
 	import {
 		deleteExhibition,
 		restoreExhibition
@@ -19,6 +20,8 @@
 
 	let { exhibitions, covers, onmessage }: Props = $props();
 
+	const images = new WallImages();
+
 	let removed = $state<string[]>([]);
 	let busy = $state<string>();
 	let actionError = $state<string>();
@@ -27,7 +30,13 @@
 	let deleteError = $state<string>();
 
 	let shown = $derived(exhibitions.filter((exhibition) => !removed.includes(exhibition.id)));
-	let coverById = $derived(new Map(covers.map((artwork) => [artwork.id, artwork])));
+	let coverById = $derived(
+		new Map(images.apply([...covers]).map((artwork) => [artwork.id, artwork]))
+	);
+
+	$effect(() => {
+		for (const cover of covers) images.request(cover);
+	});
 
 	function nameOf(exhibition: ArchivedExhibition): string {
 		return exhibition.title || m.exhibitions.untitled;
@@ -84,7 +93,13 @@
 			<li>
 				<div class="thumbnail">
 					{#if cover?.image?.src}
-						<img alt="" loading="lazy" src={cover.image.src} srcset={cover.image.srcset} />
+						<img
+							alt=""
+							loading="lazy"
+							onerror={() => images.failed(cover)}
+							src={cover.image.src}
+							srcset={cover.image.srcset}
+						/>
 					{:else}
 						<NoImage />
 					{/if}

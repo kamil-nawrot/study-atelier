@@ -65,13 +65,10 @@
 		{#if artwork}
 			<p class="label">
 				{#if editable}
-					<cite>{artwork.title}</cite>
-				{:else}
-					<a href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}>
-						<cite>{artwork.title}</cite>
-					</a>
-				{/if}
-				{#if byline}, {byline}{/if}
+					<cite>{artwork.title}</cite>{:else}<a
+						href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
+						><cite>{artwork.title}</cite></a
+					>{/if}{#if byline}, {byline}{/if}
 			</p>
 		{/if}
 	</div>
