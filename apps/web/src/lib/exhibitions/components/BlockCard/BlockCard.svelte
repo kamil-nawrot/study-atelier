@@ -172,21 +172,37 @@
 
 <style>
 	.card {
+		position: relative;
 		display: grid;
 		align-content: start;
-		gap: var(--spacing-3);
+		align-self: stretch;
 		min-width: 0;
-		outline: var(--border-width-hairline) dashed transparent;
-		outline-offset: var(--spacing-2);
+		padding: var(--spacing-6);
+		background: var(--color-surface);
+		outline: var(--border-width-hairline) solid transparent;
 	}
 
-	.card:hover,
+	:global(.rows:not(.dragging)) .card:hover,
 	.card:focus-within {
-		outline-color: var(--color-line);
+		outline-color: var(--color-fg-muted);
 	}
 
-	.card:focus-within {
-		outline: var(--border-width-base) dashed var(--color-fg);
+	.card:not(:hover, :focus-within) > :global(.bar) {
+		opacity: 0;
+	}
+
+	.card:not(:hover, :focus-within) > :global(.bar > *) {
+		pointer-events: none;
+	}
+
+	:global(.rows.dragging) .card > :global(.bar) {
+		visibility: hidden;
+	}
+
+	@media (max-width: 767px) {
+		.card {
+			padding: var(--spacing-4);
+		}
 	}
 
 	.card.moving {

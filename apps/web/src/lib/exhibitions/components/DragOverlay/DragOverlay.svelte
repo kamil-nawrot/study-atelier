@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Mark } from '#lib/exhibitions/editor/drop-target/drop-target.ts';
+	import type { Box, Mark } from '#lib/exhibitions/editor/drop-target/drop-target.ts';
 
 	type Props = {
 		mark?: Mark;
@@ -11,19 +11,32 @@
 
 	let { mark, top = 0, label, x, y }: Props = $props();
 
-	const shown = $derived(
-		mark && {
-			...mark,
-			top: Math.max(mark.top, top),
-			height: mark.top < top ? Math.max(0, mark.height - (top - mark.top)) : mark.height
-		}
-	);
+	function below<T extends Box>(box: T): T {
+		return {
+			...box,
+			top: Math.max(box.top, top),
+			height: box.top < top ? Math.max(0, box.height - (top - box.top)) : box.height
+		};
+	}
+
+	const shown = $derived(mark && below(mark));
+	const slot = $derived(mark && below(mark.slot));
 </script>
 
 {#if label !== undefined}
 	<div style:left="{x}px" style:top="{y}px" class="ghost" aria-hidden="true">
 		{label}
 	</div>
+	{#if slot}
+		<div
+			style:height="{slot.height}px"
+			style:left="{slot.left}px"
+			style:top="{slot.top}px"
+			style:width="{slot.width}px"
+			class="slot"
+			aria-hidden="true"
+		></div>
+	{/if}
 	{#if shown}
 		<div
 			style:height="{shown.height}px"
@@ -51,6 +64,19 @@
 		white-space: nowrap;
 		text-overflow: ellipsis;
 		transform: translate(var(--spacing-3), var(--spacing-3));
+		pointer-events: none;
+	}
+
+	.slot {
+		position: fixed;
+		z-index: 3;
+		box-sizing: border-box;
+		display: grid;
+		place-items: center;
+		border: var(--border-width-base) dashed var(--color-fg);
+		background: color-mix(in srgb, var(--color-fg) 8%, transparent);
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
 		pointer-events: none;
 	}
 

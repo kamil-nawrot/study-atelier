@@ -52,11 +52,46 @@ test('builds an exhibition from blocks that typing or dragging cannot break', as
 	await page.mouse.move(from.x + 30, title.y + title.height + 4, { steps: 4 });
 	await page.mouse.up();
 
+	await page.getByRole('radiogroup').getByText(m.exhibitions.blocks.palette).click();
+	await page.getByRole('button', { name: 'Dama z gronostajem' }).click();
+	const palette = page.locator('[data-kind="palette"]');
+	await palette.evaluate((element) =>
+		window.scrollBy(0, element.getBoundingClientRect().top - window.innerHeight / 2)
+	);
+	await palette.hover({ position: { x: 100, y: 60 } });
+	const grip = await palette.locator('.handle').boundingBox();
+	if (!grip) throw new Error('the palette has no handle on screen');
+	await page.mouse.move(grip.x + 10, grip.y + grip.height - 10);
+	await page.mouse.down();
+	await page.mouse.move(grip.x + 30, 360, { steps: 4 });
+	let settled = -1;
+	await expect
+		.poll(async () => {
+			const now = await page.evaluate(() => window.scrollY);
+			const still = now === settled;
+			settled = now;
+			return still;
+		})
+		.toBe(true);
+	const artwork = await page.locator('[data-kind="artwork"]').boundingBox();
+	if (!artwork) throw new Error('the artwork is not on screen');
+	const inside = Math.max(artwork.y + 20, Math.min(artwork.y + artwork.height - 20, 360));
+	await page.mouse.move(artwork.x + artwork.width - 10, inside, { steps: 8 });
+	await expect(page.locator('.mark[data-side]')).toBeVisible();
+	await page.mouse.up();
+	const row = page.locator('[data-row-id]').filter({ has: page.locator('[data-kind="artwork"]') });
+	await expect(row.locator('[data-kind="palette"]')).toHaveCount(1);
+
 	await page.getByRole('button', { name: m.exhibitions.view.done }).click();
 	await page.waitForURL(/\/atelier\/exhibitions\/[^?]+$/);
 	const heading = page.getByRole('heading', { name: 'Sala pierwsza' });
 	await expect(heading).toBeVisible();
 	const headingBox = await heading.boundingBox();
-	const figureBox = await page.getByRole('figure').boundingBox();
+	const figures = page.getByRole('figure');
+	await expect(figures).toHaveCount(2);
+	const figureBox = await figures.first().boundingBox();
+	const paletteBox = await figures.last().boundingBox();
 	expect(headingBox && figureBox && headingBox.y < figureBox.y).toBe(true);
+	expect(figureBox && paletteBox && figureBox.x < paletteBox.x).toBe(true);
+	expect(figureBox && paletteBox && Math.abs(figureBox.y - paletteBox.y) < 2).toBe(true);
 });
