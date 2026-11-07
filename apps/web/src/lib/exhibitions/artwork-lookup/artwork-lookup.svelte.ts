@@ -1,5 +1,7 @@
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
+import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import { loadArtworkNotes } from '#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts';
+import { loadArtworkImages } from '#lib/exhibitions/exhibition-images-data/exhibition-images-data.ts';
 import { loadNoteLinkLabels, mentionsLinks } from '#lib/notes/note-link-data/note-link-data.ts';
 import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -9,6 +11,8 @@ export class ArtworkLookup {
 	#artworks = new SvelteMap<string, WallArtwork>();
 	#notes = new SvelteMap<string, BlockNote>();
 	#asked = new SvelteSet<string>();
+	#pictures = new SvelteMap<string, ArtworkImageInput[]>();
+	#pictureAsked = new SvelteSet<string>();
 	#images = new WallImages();
 
 	get(id: string): WallArtwork | undefined {
@@ -31,6 +35,21 @@ export class ArtworkLookup {
 
 	note(id: string): BlockNote | undefined {
 		return this.#notes.get(id);
+	}
+
+	pictures(id: string): ArtworkImageInput[] | undefined {
+		return this.#pictures.get(id);
+	}
+
+	async wantPictures(id: string): Promise<void> {
+		if (this.#pictureAsked.has(id)) return;
+		this.#pictureAsked.add(id);
+		const { images, error } = await loadArtworkImages([id]);
+		if (error) {
+			this.#pictureAsked.delete(id);
+			return;
+		}
+		this.#pictures.set(id, images.get(id) ?? []);
 	}
 
 	async wantNote(id: string): Promise<void> {

@@ -27,6 +27,22 @@ describe('artworkIdsOf', () => {
 		expect(artworkIdsOf(document)).toEqual(['b', 'a']);
 	});
 
+	it('finds the artworks of close-ups and of blocks in a row', () => {
+		const document = {
+			type: 'doc',
+			content: [
+				{
+					type: 'columns',
+					content: [
+						{ type: 'column', content: [artwork('a')] },
+						{ type: 'column', content: [{ type: 'closeUp', attrs: { artworkId: 'b' } }] }
+					]
+				}
+			]
+		};
+		expect(artworkIdsOf(document)).toEqual(['a', 'b']);
+	});
+
 	it('finds nothing in a document without artworks', () => {
 		expect(artworkIdsOf({ type: 'doc', content: [text('x')] })).toEqual([]);
 	});
@@ -44,6 +60,22 @@ describe('blockCountOf', () => {
 			]
 		};
 		expect(blockCountOf(document)).toBe(4);
+	});
+
+	it('counts the blocks of a row and the close-ups but not the row itself', () => {
+		const document = {
+			type: 'doc',
+			content: [
+				{
+					type: 'columns',
+					content: [
+						{ type: 'column', content: [artwork('a')] },
+						{ type: 'column', content: [{ type: 'closeUp', attrs: { artworkId: 'a' } }] }
+					]
+				}
+			]
+		};
+		expect(blockCountOf(document)).toBe(2);
 	});
 });
 

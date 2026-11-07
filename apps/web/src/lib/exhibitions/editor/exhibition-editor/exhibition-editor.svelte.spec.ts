@@ -140,10 +140,17 @@ describe('ExhibitionEditor', () => {
 	});
 
 	describe('dragging', () => {
-		function dragEvent(type: string, y: number, payload?: object): DragEvent {
+		function dragEvent(type: string, y: number, payload?: object, x?: number): DragEvent {
 			const dataTransfer = new DataTransfer();
 			if (payload) dataTransfer.setData(BLOCK_MIME, JSON.stringify(payload));
-			return new DragEvent(type, { bubbles: true, cancelable: true, clientY: y, dataTransfer });
+			const bounds = host.getBoundingClientRect();
+			return new DragEvent(type, {
+				bubbles: true,
+				cancelable: true,
+				clientX: x ?? bounds.left + bounds.width / 2,
+				clientY: y,
+				dataTransfer
+			});
 		}
 
 		function blockRects(): DOMRect[] {

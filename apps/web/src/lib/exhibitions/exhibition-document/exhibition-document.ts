@@ -4,7 +4,7 @@ export const MAX_BLOCKS = 300;
 export const MAX_ARTWORKS = 100;
 export const MAX_DOCUMENT_BYTES = 524288;
 
-const BLOCK_TYPES = new Set(['textBlock', 'heading', 'quote', 'artwork']);
+const BLOCK_TYPES = new Set(['textBlock', 'heading', 'quote', 'artwork', 'closeUp']);
 
 function walk(node: ExhibitionDocument, visit: (node: ExhibitionDocument) => void): void {
 	visit(node);
@@ -14,7 +14,8 @@ function walk(node: ExhibitionDocument, visit: (node: ExhibitionDocument) => voi
 export function artworkIdsOf(document: ExhibitionDocument): string[] {
 	const ids = new Set<string>();
 	walk(document, (node) => {
-		const id = node.type === 'artwork' ? node.attrs?.artworkId : undefined;
+		const id =
+			node.type === 'artwork' || node.type === 'closeUp' ? node.attrs?.artworkId : undefined;
 		if (typeof id === 'string') ids.add(id);
 	});
 	return [...ids];

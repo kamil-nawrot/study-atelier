@@ -7,5 +7,6 @@ export type BlockBarState = {
 	bold: boolean;
 	italic: boolean;
 	note: boolean;
+	row: boolean;
 	rect: { top: number; bottom: number; left: number; right: number };
 };

@@ -1,7 +1,9 @@
 import { Extension } from '@tiptap/core';
+import { Fragment, type Node as ProseNode } from '@tiptap/pm/model';
 import { Plugin, PluginKey, TextSelection, type EditorState } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import {
+	blockDepthOf,
 	createBlock,
 	currentBlock,
 	emptyBlockAfter,
@@ -14,28 +16,31 @@ type BlockKeysOptions = {
 	headingHint: string;
 };
 
-const EXIT_AFTER_ENTER = ['heading', 'artwork'];
+const EXIT_AFTER_ENTER = ['heading', 'artwork', 'closeUp'];
 
 function placeholders(state: EditorState, options: BlockKeysOptions): DecorationSet {
 	const decorations: Decoration[] = [];
 	const last = state.doc.lastChild;
-	state.doc.forEach((node, offset) => {
+	state.doc.descendants((node, offset) => {
+		const name = node.type.name;
+		if (name === 'columns' || name === 'column') return true;
 		const hint =
-			node.type.name === 'heading'
+			name === 'heading'
 				? options.headingHint
 				: node === last && isEmptyBlock(node)
 					? options.bodyHint
 					: undefined;
-		if (hint === undefined || node.textContent !== '') return;
-		const target = node.type.name === 'textBlock' ? offset + 1 : offset;
-		const inner = node.type.name === 'textBlock' ? node.firstChild : node;
-		if (!inner) return;
+		if (hint === undefined || node.textContent !== '') return false;
+		const target = name === 'textBlock' ? offset + 1 : offset;
+		const inner = name === 'textBlock' ? node.firstChild : node;
+		if (!inner) return false;
 		decorations.push(
 			Decoration.node(target, target + inner.nodeSize, {
 				class: 'is-empty',
 				'data-placeholder': hint
 			})
 		);
+		return false;
 	});
 	return DecorationSet.create(state.doc, decorations);
 }
@@ -84,18 +89,39 @@ export const ExhibitionBlocks = Extension.create<BlockKeysOptions>({
 				}
 			}),
 			new Plugin({
+				key: new PluginKey('exhibitionRowKeeper'),
+				appendTransaction(transactions, _before, state) {
+					if (!transactions.some((transaction) => transaction.docChanged)) return null;
+					const loose: { pos: number; node: ProseNode }[] = [];
+					state.doc.forEach((node, offset) => {
+						if (node.type.name === 'columns' && node.childCount < 2) {
+							loose.push({ pos: offset, node });
+						}
+					});
+					if (loose.length === 0) return null;
+					const tr = state.tr;
+					for (const { pos, node } of loose.reverse()) {
+						const blocks = node.childCount === 1 ? node.firstChild?.content : Fragment.empty;
+						tr.replaceWith(pos, pos + node.nodeSize, blocks ?? Fragment.empty);
+					}
+					return tr;
+				}
+			}),
+			new Plugin({
 				key: new PluginKey('exhibitionSelectionInOneBlock'),
 				appendTransaction(_transactions, _before, state) {
 					const { selection } = state;
 					if (!(selection instanceof TextSelection) || selection.empty) return null;
 					const anchor = selection.$anchor;
 					const head = selection.$head;
-					if (anchor.depth < 1 || head.depth < 1) return null;
-					if (anchor.before(1) === head.before(1)) return null;
+					const anchorDepth = blockDepthOf(anchor);
+					const headDepth = blockDepthOf(head);
+					if (anchorDepth < 1 || headDepth < 1) return null;
+					if (anchor.before(anchorDepth) === head.before(headDepth)) return null;
 					const edge =
 						head.pos > anchor.pos
-							? TextSelection.findFrom(state.doc.resolve(anchor.after(1) - 1), -1, true)
-							: TextSelection.findFrom(state.doc.resolve(anchor.before(1) + 1), 1, true);
+							? TextSelection.findFrom(state.doc.resolve(anchor.after(anchorDepth) - 1), -1, true)
+							: TextSelection.findFrom(state.doc.resolve(anchor.before(anchorDepth) + 1), 1, true);
 					return edge
 						? state.tr.setSelection(TextSelection.create(state.doc, anchor.pos, edge.head))
 						: null;

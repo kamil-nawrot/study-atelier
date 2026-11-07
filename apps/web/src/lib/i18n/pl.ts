@@ -2384,6 +2384,10 @@ export const pl = {
 			empty: 'W atelier nie ma jeszcze dzieł.',
 			loadError: 'Nie udało się wczytać dzieł.'
 		},
+		closeUp: {
+			caption: 'Zbliżenie: ',
+			label: (title: string): string => `Zbliżenie: ${title}`
+		},
 		bar: {
 			label: 'Blok wystawy',
 			move: 'Przenieś',

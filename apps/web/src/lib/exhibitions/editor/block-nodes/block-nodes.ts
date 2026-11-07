@@ -3,7 +3,7 @@ import { Node } from '@tiptap/core';
 export const ExhibitionDoc = Node.create({
 	name: 'doc',
 	topNode: true,
-	content: '(textBlock | heading | quote | artwork)+'
+	content: '(textBlock | heading | quote | artwork | closeUp | columns)+'
 });
 
 export const TextBlock = Node.create({
@@ -33,4 +33,24 @@ export const Quote = Node.create({
 	defining: true,
 	parseHTML: () => [{ tag: 'blockquote' }],
 	renderHTML: () => ['blockquote', 0]
+});
+
+export const Columns = Node.create({
+	name: 'columns',
+	content: 'column+',
+	isolating: true,
+	defining: true,
+	selectable: false,
+	parseHTML: () => [{ tag: 'div[data-block="columns"]' }],
+	renderHTML: () => ['div', { 'data-block': 'columns' }, 0]
+});
+
+export const Column = Node.create({
+	name: 'column',
+	content: '(textBlock | heading | quote | artwork | closeUp)',
+	isolating: true,
+	defining: true,
+	selectable: false,
+	parseHTML: () => [{ tag: 'div[data-column]' }],
+	renderHTML: () => ['div', { 'data-column': '' }, 0]
 });
