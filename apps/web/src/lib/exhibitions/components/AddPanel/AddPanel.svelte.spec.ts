@@ -74,4 +74,17 @@ describe('AddPanel', () => {
 
 		await expect.element(page.getByText(m.exhibitions.panel.loadError)).toBeInTheDocument();
 	});
+
+	it('links to the form of a new artwork when the address is given', async () => {
+		render(AddPanel, {
+			open: true,
+			lookup: new ArtworkLookup(),
+			onadd: vi.fn(),
+			addHref: '/atelier/new?return=x' as never
+		});
+
+		await expect
+			.element(page.getByRole('link', { name: m.exhibitions.panel.addMissing }))
+			.toHaveAttribute('href', '/atelier/new?return=x');
+	});
 });

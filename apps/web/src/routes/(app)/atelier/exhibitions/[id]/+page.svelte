@@ -17,6 +17,7 @@
 	import ExhibitionDeleteDialog from '#lib/exhibitions/components/ExhibitionDeleteDialog/ExhibitionDeleteDialog.svelte';
 	import ExhibitionEditorPane from '#lib/exhibitions/components/ExhibitionEditorPane/ExhibitionEditorPane.svelte';
 	import SaveStatusText from '#lib/exhibitions/components/SaveStatusText/SaveStatusText.svelte';
+	import { addArtworkHref } from '#lib/exhibitions/exhibition-return/exhibition-return.ts';
 	import { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 	import { ExhibitionSession } from '#lib/exhibitions/exhibition-session/exhibition-session.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -107,8 +108,13 @@
 	{/snippet}
 
 	{#snippet panel()}
-		{#if editing && wide.current}
-			<AddPanel {lookup} onadd={(block) => pane?.add(block)} bind:open={panelOpen} />
+		{#if editing && wide.current && data.exhibition}
+			<AddPanel
+				addHref={addArtworkHref(data.exhibition.id)}
+				{lookup}
+				onadd={(block) => pane?.add(block)}
+				bind:open={panelOpen}
+			/>
 		{/if}
 	{/snippet}
 

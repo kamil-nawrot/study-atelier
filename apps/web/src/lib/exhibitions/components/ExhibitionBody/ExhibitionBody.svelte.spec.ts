@@ -6,6 +6,17 @@ import { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.sv
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 import ExhibitionBody from './ExhibitionBody.svelte';
 
+vi.mock('#lib/exhibitions/exhibition-images-data/exhibition-images-data.ts', () => ({
+	loadArtworkImages: vi.fn().mockResolvedValue({
+		images: new Map([
+			[
+				'artwork-1',
+				[{ id: 'i1', kind: 'url', url: 'https://a.test/a.jpg', width: 400, height: 300 }]
+			]
+		])
+	})
+}));
+
 vi.mock('#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts', () => ({
 	loadArtworkNotes: vi.fn().mockResolvedValue({ notes: new Map() })
 }));
@@ -74,5 +85,39 @@ describe('ExhibitionBody', () => {
 
 		await expect.element(page.getByText('Hello')).toBeInTheDocument();
 		expect(document.querySelectorAll('.text')).toHaveLength(1);
+	});
+
+	it('lays the blocks of a row side by side, with a close-up beside the artwork', async () => {
+		const lookup = new ArtworkLookup();
+		lookup.add([testArtwork(1, 'Judith')]);
+		render(ExhibitionBody, {
+			lookup,
+			document: {
+				type: 'doc',
+				content: [
+					{
+						type: 'columns',
+						content: [
+							{
+								type: 'column',
+								content: [{ type: 'artwork', attrs: { artworkId: 'artwork-1' } }]
+							},
+							{
+								type: 'column',
+								content: [
+									{
+										type: 'closeUp',
+										attrs: { artworkId: 'artwork-1', imageId: null, x: 0.5, y: 0.5, viewWidth: 0.4 }
+									}
+								]
+							}
+						]
+					}
+				]
+			}
+		});
+
+		await vi.waitFor(() => expect(document.querySelectorAll('[data-row] .cell')).toHaveLength(2));
+		await vi.waitFor(() => expect(document.querySelector('[data-fragment]')).not.toBeNull());
 	});
 });

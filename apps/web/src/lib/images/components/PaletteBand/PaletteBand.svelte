@@ -6,12 +6,13 @@
 	type Props = {
 		colours: PaletteColour[];
 		collecting: boolean;
+		inline?: boolean;
 	};
 
-	let { colours, collecting }: Props = $props();
+	let { colours, collecting, inline = false }: Props = $props();
 </script>
 
-<div class="band">
+<div class="band" class:inline>
 	{#if collecting}
 		<p class="collecting">{m.palette.collecting}</p>
 	{:else}
@@ -39,6 +40,10 @@
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-xs);
 		line-height: var(--line-height-xs);
+	}
+
+	.band.inline {
+		position: static;
 	}
 
 	ul {

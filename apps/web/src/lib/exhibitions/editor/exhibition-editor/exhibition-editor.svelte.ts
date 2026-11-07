@@ -2,31 +2,43 @@ import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import { NodeSelection } from '@tiptap/pm/state';
 import type { EditorView } from '@tiptap/pm/view';
+import { closeUpNodeView } from '#lib/exhibitions/editor/close-up-node-view/close-up-node-view.svelte.ts';
+import { CloseUpNode } from '#lib/exhibitions/editor/close-up-node/close-up-node.ts';
 import { artworkNodeView } from '#lib/exhibitions/editor/artwork-node-view/artwork-node-view.svelte.ts';
 import { ArtworkNode } from '#lib/exhibitions/editor/artwork-node/artwork-node.ts';
 import { ExhibitionBlocks } from '#lib/exhibitions/editor/block-keys/block-keys.ts';
 import {
+	Column,
+	Columns,
 	ExhibitionDoc,
 	ExhibitionHeading,
 	Quote,
 	TextBlock
 } from '#lib/exhibitions/editor/block-nodes/block-nodes.ts';
 import {
-	convertBlock,
+	blockAt,
+	canJoinRow,
 	createBlock,
+	createCloseUp,
 	currentBlock,
+	insertBeside,
 	insertBlock,
 	insertionRange,
-	isTextKind,
+	moveBeside,
 	moveBlockTo,
 	removeBlock,
-	setArtworkAttributes,
 	stepBlock,
 	type BlockKind,
+	type CloseUpAttributes,
 	type CurrentBlock,
 	type NewBlock,
 	type TextKind
 } from '#lib/exhibitions/editor/block-commands/block-commands.ts';
+import {
+	convertBlock,
+	setArtworkAttributes
+} from '#lib/exhibitions/editor/block-conversion/block-conversion.ts';
+import { BLOCK_MIME, payloadOf } from '#lib/exhibitions/editor/block-payload/block-payload.ts';
 import { dropTarget, type DropTarget } from '#lib/exhibitions/editor/block-drop/block-drop.ts';
 import {
 	MAX_ARTWORKS,
@@ -39,8 +51,6 @@ import type { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-look
 import type { BlockBarState } from '#lib/exhibitions/types/block-bar-state.ts';
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 
-export const BLOCK_MIME = 'application/x-exhibition-block';
-
 type Options = {
 	host: HTMLElement;
 	document: ExhibitionDocument;
@@ -49,19 +59,7 @@ type Options = {
 	onlimit: (message: string) => void;
 };
 
-function payloadOf(event: DragEvent): NewBlock | undefined {
-	const raw = event.dataTransfer?.getData(BLOCK_MIME);
-	if (!raw) return undefined;
-	try {
-		const payload = JSON.parse(raw) as { kind?: string; artworkId?: string };
-		if (payload.kind === 'artwork' && typeof payload.artworkId === 'string') {
-			return { kind: 'artwork', artworkId: payload.artworkId };
-		}
-		return payload.kind && isTextKind(payload.kind) ? { kind: payload.kind } : undefined;
-	} catch {
-		return undefined;
-	}
-}
+export { BLOCK_MIME };
 
 export class ExhibitionEditor {
 	bar = $state.raw<BlockBarState>();
@@ -96,6 +94,9 @@ export class ExhibitionEditor {
 				ExhibitionHeading,
 				Quote,
 				ArtworkNode.configure({ nodeView: artworkNodeView(lookup) }),
+				CloseUpNode.configure({ nodeView: closeUpNodeView(lookup) }),
+				Columns,
+				Column,
 				ExhibitionBlocks.configure({
 					bodyHint: m.exhibitions.view.emptyBody,
 					headingHint: m.exhibitions.view.headingHint
@@ -156,6 +157,10 @@ export class ExhibitionEditor {
 			bold: this.#editor.isActive('bold'),
 			italic: this.#editor.isActive('italic'),
 			note: Boolean(block.node.attrs.note),
+			palette: Boolean(block.node.attrs.palette),
+			paletteOnly: Boolean(block.node.attrs.paletteOnly),
+			row: block.row !== undefined,
+			artworkId: block.node.attrs.artworkId ? String(block.node.attrs.artworkId) : undefined,
 			rect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right }
 		};
 	}
@@ -164,12 +169,15 @@ export class ExhibitionEditor {
 		this.bar = undefined;
 	}
 
+	#roomForBlock(): boolean {
+		if (blockCountOf(this.#editor.getJSON()) < MAX_BLOCKS) return true;
+		this.#onlimit(m.exhibitions.limits.blocks);
+		return false;
+	}
+
 	#allowed(block: NewBlock): boolean {
+		if (!this.#roomForBlock()) return false;
 		const document = this.#editor.getJSON();
-		if (blockCountOf(document) >= MAX_BLOCKS) {
-			this.#onlimit(m.exhibitions.limits.blocks);
-			return false;
-		}
 		if (
 			block.kind === 'artwork' &&
 			!artworkIdsOf(document).includes(block.artworkId) &&
@@ -192,28 +200,67 @@ export class ExhibitionEditor {
 	#insertAt(block: NewBlock, target: DropTarget): void {
 		if (!this.#allowed(block)) return;
 		const { state, view } = this.#editor;
-		view.dispatch(insertBlock(state, createBlock(state.schema, block), target.from, target.to));
+		const node = createBlock(state.schema, block);
+		const beside = target.beside === undefined ? undefined : blockAt(state.doc, target.beside);
+		if (beside && target.side) {
+			const tr = insertBeside(state, beside, target.side, node);
+			if (tr) view.dispatch(tr);
+		} else {
+			view.dispatch(insertBlock(state, node, target.from, target.to));
+		}
+		view.focus();
+	}
+
+	#moveBeside(moving: CurrentBlock, target: DropTarget): void {
+		const { state, view } = this.#editor;
+		const beside = target.beside === undefined ? undefined : blockAt(state.doc, target.beside);
+		const tr = beside && target.side && moveBeside(state, moving, beside, target.side);
+		if (tr) view.dispatch(tr);
+		view.focus();
+	}
+
+	addCloseUp(attributes: CloseUpAttributes): void {
+		if (!this.#roomForBlock()) return;
+		const { state, view } = this.#editor;
+		const node = createCloseUp(state.schema, attributes);
+		const current = currentBlock(state);
+		const beside = current && canJoinRow(current) && insertBeside(state, current, 'right', node);
+		if (beside) {
+			view.dispatch(beside);
+		} else {
+			const { from, to } = insertionRange(state);
+			view.dispatch(insertBlock(state, node, from, to));
+		}
 		view.focus();
 	}
 
 	#drop(view: EditorView, event: DragEvent): boolean {
 		event.preventDefault();
 		this.dropAt = undefined;
-		const target = dropTarget(view, event.clientY);
+		const target = dropTarget(view, event.clientX, event.clientY);
 		const dropped = payloadOf(event);
+		const within =
+			this.#moving?.row !== undefined &&
+			target?.beside !== undefined &&
+			blockAt(view.state.doc, target.beside)?.row?.pos === this.#moving.row.pos;
+		if (target?.full && !within) return true;
 		if (target && dropped) this.#insertAt(dropped, target);
 		else if (target && this.#moving) {
 			const moving = this.#moving;
 			this.#moving = undefined;
-			view.dispatch(moveBlockTo(view.state, moving, target.from));
-			view.focus();
+			if (target.side) {
+				this.#moveBeside(moving, target);
+			} else {
+				view.dispatch(moveBlockTo(view.state, moving, target.from));
+				view.focus();
+			}
 		}
 		return true;
 	}
 
 	#over = (event: DragEvent): void => {
 		event.preventDefault();
-		this.dropAt = dropTarget(this.#editor.view, event.clientY);
+		this.dropAt = dropTarget(this.#editor.view, event.clientX, event.clientY);
 	};
 
 	#leave = (event: DragEvent): void => {

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { loadArtworkNotes } from '#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts';
+import { loadArtworkImages } from '#lib/exhibitions/exhibition-images-data/exhibition-images-data.ts';
 import { loadNoteLinkLabels } from '#lib/notes/note-link-data/note-link-data.ts';
 import { ArtworkLookup } from './artwork-lookup.svelte.ts';
 
@@ -17,6 +18,9 @@ vi.mock('#lib/wall/wall-images/wall-images.svelte.ts', () => ({
 }));
 vi.mock('#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts', () => ({
 	loadArtworkNotes: vi.fn()
+}));
+vi.mock('#lib/exhibitions/exhibition-images-data/exhibition-images-data.ts', () => ({
+	loadArtworkImages: vi.fn()
 }));
 vi.mock('#lib/notes/note-link-data/note-link-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/notes/note-link-data/note-link-data.ts')>()),
@@ -91,5 +95,42 @@ describe('ArtworkLookup', () => {
 		await lookup.wantNote('unknown');
 
 		expect(lookup.note('unknown')).toEqual({ text: '' });
+	});
+
+	it('loads the images of an artwork once and keeps them', async () => {
+		const image = {
+			kind: 'url' as const,
+			url: 'https://example.test/a.jpg',
+			width: 10,
+			height: 20
+		};
+		vi.mocked(loadArtworkImages).mockResolvedValue({ images: new Map([[judith.id, [image]]]) });
+		const lookup = new ArtworkLookup();
+
+		await lookup.wantPictures(judith.id);
+		await lookup.wantPictures(judith.id);
+
+		expect(loadArtworkImages).toHaveBeenCalledTimes(1);
+		expect(lookup.pictures(judith.id)).toEqual([image]);
+	});
+
+	it('knows an artwork without images as one with an empty list', async () => {
+		vi.mocked(loadArtworkImages).mockResolvedValue({ images: new Map() });
+		const lookup = new ArtworkLookup();
+
+		await lookup.wantPictures('unknown');
+
+		expect(lookup.pictures('unknown')).toEqual([]);
+	});
+
+	it('asks again for the images after a failure', async () => {
+		vi.mocked(loadArtworkImages).mockResolvedValue({ images: new Map(), error: 'Boom' });
+		const lookup = new ArtworkLookup();
+
+		await lookup.wantPictures(judith.id);
+		await lookup.wantPictures(judith.id);
+
+		expect(loadArtworkImages).toHaveBeenCalledTimes(2);
+		expect(lookup.pictures(judith.id)).toBeUndefined();
 	});
 });

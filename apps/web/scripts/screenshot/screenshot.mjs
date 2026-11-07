@@ -599,6 +599,28 @@ function visitsRoute(route, request, url) {
 	return json(route, rows[0] ?? null);
 }
 
+function exhibitionArtworksRoute(route, url) {
+	const filter = url.searchParams.get('artwork_id') ?? '';
+	const holding = EXHIBITIONS.filter((row) =>
+		row.exhibition_artworks.some((link) => `eq.${link.artwork_id}` === filter)
+	);
+	return json(
+		route,
+		holding.map((row) => ({ exhibition_id: row.id }))
+	);
+}
+
+function artworkImagesRoute(route, url) {
+	const filter = url.searchParams.get('artwork_id') ?? '';
+	const ids = filter.startsWith('in.(') ? filter.slice(4, -1).split(',') : [];
+	return json(
+		route,
+		ARTWORKS.filter((row) => ids.includes(row.id)).flatMap((row) =>
+			row.artwork_images.map((image) => ({ ...image, artwork_id: row.id }))
+		)
+	);
+}
+
 function exhibitionsRoute(route, request, url) {
 	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
 	if (request.method() === 'DELETE' || request.method() === 'PATCH') {
@@ -607,7 +629,9 @@ function exhibitionsRoute(route, request, url) {
 	const archived = url.searchParams.get('deleted_at') === 'not.is.null';
 	const id = url.searchParams.get('id');
 	const rows = (archived ? ARCHIVED_EXHIBITIONS : EXHIBITIONS).filter(
-		(row) => !id?.startsWith('eq.') || row.id === id.slice(3)
+		(row) =>
+			(!id?.startsWith('eq.') || row.id === id.slice(3)) &&
+			(!id?.startsWith('in.(') || id.slice(4, -1).split(',').includes(row.id))
 	);
 	if (!wantsObject) return json(route, rows);
 	return json(route, rows[0] ?? null);
@@ -815,6 +839,8 @@ async function mockSupabase(context) {
 		}
 		if (url.pathname === '/rest/v1/visits') return visitsRoute(route, request, url);
 		if (url.pathname === '/rest/v1/exhibitions') return exhibitionsRoute(route, request, url);
+		if (url.pathname === '/rest/v1/exhibition_artworks') return exhibitionArtworksRoute(route, url);
+		if (url.pathname === '/rest/v1/artwork_images') return artworkImagesRoute(route, url);
 		if (url.pathname === '/rest/v1/rpc/save_exhibition') return json(route, 4);
 		if (url.pathname === '/rest/v1/rpc/save_visit') return json(route, VISITS[0].id);
 		if (url.pathname === '/rest/v1/catalogue_museums') return json(route, CATALOGUE_MUSEUMS);

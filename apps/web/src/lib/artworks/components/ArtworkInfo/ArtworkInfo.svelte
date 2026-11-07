@@ -17,6 +17,9 @@
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import VisitsDisclosure from '#lib/chronicle/components/VisitsDisclosure/VisitsDisclosure.svelte';
+	import ArtworkExhibitions from '#lib/exhibitions/components/ArtworkExhibitions/ArtworkExhibitions.svelte';
+	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+	import type { ExhibitionSummary } from '#lib/exhibitions/types/exhibition-summary.ts';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
 	import MentionedIn from '#lib/notes/components/MentionedIn/MentionedIn.svelte';
 	import type { Mention } from '#lib/notes/types/mention.ts';
@@ -28,6 +31,8 @@
 		glossary?: GlossaryTerm[];
 		mentions: Mention[];
 		visits: Visit[];
+		exhibitions: ExhibitionSummary[];
+		exhibitionCovers: WallArtwork[];
 		summaries: ValueSummaries;
 		ownFields: OwnFieldDefinition[];
 		closed: boolean;
@@ -40,6 +45,8 @@
 		glossary,
 		mentions,
 		visits,
+		exhibitions,
+		exhibitionCovers,
 		summaries,
 		ownFields,
 		closed,
@@ -219,6 +226,8 @@
 	</dl>
 
 	<VisitsDisclosure title={m.chronicle.artworkVisits} {visits} />
+
+	<ArtworkExhibitions covers={exhibitionCovers} {exhibitions} />
 
 	<section class="notes" aria-labelledby="artwork-notes">
 		<h2 id="artwork-notes" class="caption">{m.common.notes}</h2>

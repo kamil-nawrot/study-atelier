@@ -30,6 +30,17 @@ export function artwork(artworkId: string): Node {
 	return { type: 'artwork', attrs: { artworkId } };
 }
 
+export function closeUp(artworkId: string, x = 0.5, y = 0.5, viewWidth = 0.25): Node {
+	return { type: 'closeUp', attrs: { artworkId, imageId: null, x, y, viewWidth } };
+}
+
+export function columns(...blocks: Node[]): Node {
+	return {
+		type: 'columns',
+		content: blocks.map((block) => ({ type: 'column', content: [block] }))
+	};
+}
+
 export function doc(...content: Node[]): ExhibitionDocument {
 	return { type: 'doc', content };
 }

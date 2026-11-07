@@ -2357,6 +2357,8 @@ export const pl = {
 			'Wybierz temat przewodni i zbuduj jego historię z dzieł Twojego atelier i własnych wniosków.',
 		posterMeta: (count: number, changed: string): string =>
 			`${workCount(count)} · zmieniona ${changed}`,
+		onExhibitions: (count: number): string => exhibitionCount(count),
+		artworkCount: (count: number): string => workCount(count),
 		changedToday: 'dziś',
 		loadErrorTitle: 'Nie udało się wczytać wystaw',
 		addErrorTitle: 'Nie udało się dodać wystawy',
@@ -2401,15 +2403,37 @@ export const pl = {
 			found: (count: number): string => `Znalezione: ${count}`,
 			noMatch: 'Nic nie pasuje. Sprawdź pisownię albo przeglądaj całe atelier.',
 			browse: 'Przeglądaj całe atelier…',
+			addMissing: 'Dodaj dzieło, którego brakuje',
 			empty: 'W atelier nie ma jeszcze dzieł.',
 			loadError: 'Nie udało się wczytać dzieł.'
+		},
+		closeUp: {
+			caption: 'Zbliżenie: ',
+			label: (title: string): string => `Zbliżenie: ${title}`
+		},
+		drop: {
+			here: 'Upuść tutaj',
+			full: 'Ten rząd jest już pełny'
+		},
+		closeUpDialog: {
+			title: 'Zbliżenie',
+			hint: 'Kliknij miejsce na obrazie, które ma wypełnić zbliżenie.',
+			zoom: 'Wielkość wycinka',
+			preview: 'Podgląd',
+			add: 'Dodaj zbliżenie',
+			noImage: 'To dzieło nie ma obrazu.'
 		},
 		bar: {
 			label: 'Blok wystawy',
 			move: 'Przenieś',
 			up: 'W górę',
 			down: 'W dół',
+			left: 'W lewo',
+			right: 'W prawo',
 			remove: 'Usuń z wystawy',
+			palette: 'Paleta',
+			paletteOnly: 'Tylko paleta',
+			closeUp: 'Dodaj zbliżenie',
 			kind: 'Rodzaj tekstu',
 			paragraph: 'Akapit',
 			heading: 'Nagłówek',
@@ -2489,6 +2513,10 @@ function counter(unit: string): (next?: number) => string {
 
 function pointCount(count: number): string {
 	return `${count} ${plural(count, { one: 'punkt', few: 'punkty', many: 'punktów' })}`;
+}
+
+function exhibitionCount(count: number): string {
+	return `Na ${count} ${plural(count, { one: 'wystawie', few: 'wystawach', many: 'wystawach' })}`;
 }
 
 function visitCount(count: number): string {

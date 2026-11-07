@@ -24,6 +24,8 @@ const open = (content: ExhibitionDocument): ExhibitionEditor => harness.open(con
 beforeEach(() => harness.setup());
 afterEach(() => harness.teardown());
 
+const middle = (rect: DOMRect): number => rect.left + rect.width / 2;
+
 describe('dropTarget', () => {
 	function layout(): { first: DOMRect; second: DOMRect } {
 		const blocks = [...harness.host.querySelectorAll('.ProseMirror > *')];
@@ -37,7 +39,7 @@ describe('dropTarget', () => {
 		const opened = open(doc(textBlock('One'), textBlock('Two')));
 		const { second } = layout();
 
-		const target = dropTarget(opened.view, second.top + 1);
+		const target = dropTarget(opened.view, middle(second), second.top + 1);
 
 		expect(target?.replaces).toBe(false);
 		expect(target?.from).toBe(opened.view.state.doc.child(0).nodeSize);
@@ -48,7 +50,7 @@ describe('dropTarget', () => {
 		const opened = open(doc(textBlock('One'), textBlock('Two')));
 		const { first } = layout();
 
-		const target = dropTarget(opened.view, first.bottom - 1);
+		const target = dropTarget(opened.view, middle(first), first.bottom - 1);
 
 		expect(target?.from).toBe(opened.view.state.doc.child(0).nodeSize);
 	});
@@ -57,7 +59,7 @@ describe('dropTarget', () => {
 		const opened = open(doc(textBlock('One'), textBlock('')));
 		const { second } = layout();
 
-		const target = dropTarget(opened.view, second.top + 1);
+		const target = dropTarget(opened.view, middle(second), second.top + 1);
 
 		expect(target?.replaces).toBe(true);
 		expect(target?.to).toBeGreaterThan(target?.from ?? 0);
@@ -66,6 +68,6 @@ describe('dropTarget', () => {
 	it('finds the nearest block for a pointer outside the document', () => {
 		const opened = open(doc(textBlock('One'), textBlock('Two')));
 
-		expect(dropTarget(opened.view, -500)?.from).toBe(0);
+		expect(dropTarget(opened.view, 0, -500)?.from).toBe(0);
 	});
 });

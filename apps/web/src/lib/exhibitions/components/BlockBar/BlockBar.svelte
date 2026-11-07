@@ -14,13 +14,26 @@
 		onconvert: (kind: TextKind) => void;
 		onmovestart: (event: DragEvent) => void;
 		onnote: () => void;
+		onpalette: (only: boolean) => void;
+		oncloseup: () => void;
 		onremove: () => void;
 		onstep: (direction: -1 | 1) => void;
 		ontoggle: (mark: 'bold' | 'italic') => void;
 	};
 
-	let { bar, column, topLimit, onconvert, onmovestart, onnote, onremove, onstep, ontoggle }: Props =
-		$props();
+	let {
+		bar,
+		column,
+		topLimit,
+		onconvert,
+		onmovestart,
+		onnote,
+		onpalette,
+		oncloseup,
+		onremove,
+		onstep,
+		ontoggle
+	}: Props = $props();
 
 	const kinds: { kind: TextKind; label: string }[] = [
 		{ kind: 'textBlock', label: m.exhibitions.bar.paragraph },
@@ -31,7 +44,7 @@
 	let width = $state(0);
 	let height = $state(0);
 
-	let isText = $derived(bar.kind !== 'artwork');
+	let isText = $derived(bar.kind !== 'artwork' && bar.kind !== 'closeUp');
 	let position = $derived(
 		barPosition(bar.rect, { width, height }, column.getBoundingClientRect(), topLimit)
 	);
@@ -55,10 +68,10 @@
 		{m.exhibitions.bar.move}
 	</span>
 	<button disabled={bar.index === 0} onclick={() => onstep(-1)} type="button">
-		{m.exhibitions.bar.up}
+		{bar.row ? m.exhibitions.bar.left : m.exhibitions.bar.up}
 	</button>
 	<button disabled={bar.index >= bar.count - 1} onclick={() => onstep(1)} type="button">
-		{m.exhibitions.bar.down}
+		{bar.row ? m.exhibitions.bar.right : m.exhibitions.bar.down}
 	</button>
 	<span class="separator"></span>
 	{#if isText}
@@ -91,10 +104,25 @@
 			<Icon icon={Italic} size="sm" />
 		</button>
 	{:else}
-		<button aria-pressed={bar.note} onclick={onnote} type="button">
-			{m.exhibitions.bar.note}
-		</button>
-		<span class="separator"></span>
+		{#if bar.kind === 'artwork'}
+			<button
+				aria-pressed={bar.palette && !bar.paletteOnly}
+				onclick={() => onpalette(false)}
+				type="button"
+			>
+				{m.exhibitions.bar.palette}
+			</button>
+			<button aria-pressed={bar.paletteOnly} onclick={() => onpalette(true)} type="button">
+				{m.exhibitions.bar.paletteOnly}
+			</button>
+			<button aria-pressed={bar.note} onclick={onnote} type="button">
+				{m.exhibitions.bar.note}
+			</button>
+			<button onclick={oncloseup} type="button">
+				{m.exhibitions.bar.closeUp}
+			</button>
+			<span class="separator"></span>
+		{/if}
 		<button onclick={onremove} type="button">
 			{m.exhibitions.bar.remove}
 		</button>

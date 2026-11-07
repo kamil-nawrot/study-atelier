@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { NoImage, SearchField } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
+	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { BLOCK_MIME } from '#lib/exhibitions/editor/exhibition-editor/exhibition-editor.svelte.ts';
 	import {
@@ -20,11 +21,12 @@
 		open: boolean;
 		lookup: ArtworkLookup;
 		onadd: (block: NewBlock) => void;
+		addHref?: ResolvedPathname;
 	};
 
 	const SEARCH_DELAY_MS = 250;
 
-	let { open = $bindable(), lookup, onadd }: Props = $props();
+	let { open = $bindable(), lookup, onadd, addHref }: Props = $props();
 
 	const kinds: { kind: TextKind; label: string }[] = [
 		{ kind: 'textBlock', label: m.exhibitions.panel.paragraph },
@@ -137,6 +139,9 @@
 		<a class="browse" href={resolve('/(app)/atelier')} rel="external noopener" target="_blank">
 			{m.exhibitions.panel.browse}
 		</a>
+		{#if addHref}
+			<a class="browse" href={addHref}>{m.exhibitions.panel.addMissing}</a>
+		{/if}
 	</section>
 </FilterSidePanel>
 

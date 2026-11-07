@@ -608,11 +608,25 @@ function textBlock(...paragraphs) {
 	};
 }
 
-function artworkBlock(number, caption, note = false) {
+function artworkBlock(number, caption, note = false, extra = {}) {
 	return {
 		type: 'artwork',
-		attrs: { artworkId: artworkId(number), note },
+		attrs: { artworkId: artworkId(number), note, ...extra },
 		...(caption ? { content: [{ type: 'text', text: caption }] } : {})
+	};
+}
+
+function closeUpBlock(number, x, y, viewWidth) {
+	return {
+		type: 'closeUp',
+		attrs: { artworkId: artworkId(number), imageId: null, x, y, viewWidth }
+	};
+}
+
+function row(...blocks) {
+	return {
+		type: 'columns',
+		content: blocks.map((block) => ({ type: 'column', content: [block] }))
 	};
 }
 
@@ -650,7 +664,7 @@ export const EXHIBITIONS = [
 			textBlock(
 				'Światło prowadzi wzrok tam, gdzie malarz chce go zatrzymać. U Leonarda rozpuszcza kontury, u Vermeera zamienia zwykłą sień w scenę.'
 			),
-			artworkBlock(1, 'Sfumato: cień rozpuszcza kontur policzka.'),
+			artworkBlock(1, 'Sfumato: cień rozpuszcza kontur policzka.', false, { palette: true }),
 			{
 				type: 'quote',
 				content: [
@@ -660,7 +674,10 @@ export const EXHIBITIONS = [
 					}
 				]
 			},
-			artworkBlock(3, 'Okno po lewej stronie i cały świat po prawej.', true),
+			row(
+				artworkBlock(3, 'Okno po lewej stronie i cały świat po prawej.', true),
+				closeUpBlock(3, 0.3, 0.4, 0.35)
+			),
 			textBlock('Na końcu zostaje pytanie: czy światło jest tematem, czy tylko narzędziem?')
 		],
 		[1, 3]

@@ -43,4 +43,11 @@ describe('PaletteBand', () => {
 		expect(container.textContent).toContain(m.palette.collecting);
 		expect(container.querySelector('li')).toBeNull();
 	});
+
+	it('stands in the flow of the page when it is inline', async () => {
+		const { container } = await render(PaletteBand, { colours, collecting: false, inline: true });
+
+		const band = container.querySelector<HTMLElement>('.band');
+		expect(band && getComputedStyle(band).position).toBe('static');
+	});
 });

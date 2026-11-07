@@ -7,5 +7,9 @@ export type BlockBarState = {
 	bold: boolean;
 	italic: boolean;
 	note: boolean;
+	palette: boolean;
+	paletteOnly: boolean;
+	row: boolean;
+	artworkId?: string;
 	rect: { top: number; bottom: number; left: number; right: number };
 };
