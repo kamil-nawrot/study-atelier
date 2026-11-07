@@ -14,9 +14,10 @@ test('builds an exhibition from blocks that typing or dragging cannot break', as
 
 	await page.goto('/atelier/exhibitions');
 	await page.getByRole('button', { name: m.exhibitions.add }).click();
-	await page.getByLabel(m.exhibitions.nameLabel).fill('Portrety');
-	await page.getByRole('dialog').getByRole('button', { name: m.exhibitions.add }).click();
-	await page.waitForURL('**/atelier/exhibitions/*?edit');
+	const name = page.getByLabel(m.exhibitions.nameLabel);
+	await name.fill('Portrety');
+	await name.press('Enter');
+	await page.waitForURL(/\/atelier\/exhibitions\/[^/?]+\?edit$/);
 
 	await page.getByRole('button', { name: 'Dama z gronostajem' }).click();
 	const figure = page.getByRole('figure');
