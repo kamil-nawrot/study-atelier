@@ -55,18 +55,19 @@ test('builds an exhibition from blocks that typing or dragging cannot break', as
 	await page.getByRole('radiogroup').getByText(m.exhibitions.blocks.palette).click();
 	await page.getByRole('button', { name: 'Dama z gronostajem' }).click();
 	const palette = page.locator('[data-kind="palette"]');
-	await palette.scrollIntoViewIfNeeded();
+	await palette.evaluate((element) => element.scrollIntoView({ block: 'center' }));
 	await palette.hover();
 	const grip = await palette.locator('.handle').boundingBox();
 	if (!grip) throw new Error('the palette has no handle on screen');
 	await page.mouse.move(grip.x + 10, grip.y + grip.height - 10);
 	await page.mouse.down();
-	await page.mouse.move(grip.x + 30, grip.y + grip.height + 10, { steps: 4 });
+	await page.mouse.move(grip.x + 30, grip.y - 10, { steps: 4 });
 	const artwork = await page.locator('[data-kind="artwork"]').boundingBox();
 	if (!artwork) throw new Error('the artwork is not on screen');
 	await page.mouse.move(artwork.x + artwork.width - 10, artwork.y + artwork.height - 40, {
 		steps: 8
 	});
+	await expect(page.locator('.mark[data-side]')).toBeVisible();
 	await expect(page.locator('.slot')).toBeVisible();
 	await page.mouse.up();
 	const row = page.locator('[data-row-id]').filter({ has: page.locator('[data-kind="artwork"]') });
