@@ -1645,6 +1645,9 @@ export const pl = {
 			],
 			figure_alphabet: [
 				'O Mistrzu E.S. wiadomo niewiele, a przydomek zawdzięcza inicjałom, które pojawiają się na jego późniejszych pracach. Na to, że był z wykształcenia złotnikiem, wskazują punce – złotnicze narzędzia wbijane młotkiem w płytę, którymi wybijał wzory drobnych kwiatków i kółek. Jego figuralny alfabet przetrwał w 23 rzadkich, pojedynczych odbitkach.'
+			],
+			candle_moths: [
+				'Rycina Vincenta Laurensza van der Vinne ilustruje „Leerzaame zinnebeelden” Adriaana Spinnikera, zbiór pouczających emblematów wydany w Haarlemie i Amsterdamie w 1714 roku. Owady, które giną od żaru i w wosku świecy, są w nim obrazem ludzi lekceważących ostrzeżenia, którzy przepadają przez marne, ziemskie życie.'
 			]
 		},
 		ranks: {
@@ -1858,8 +1861,15 @@ export const pl = {
 				name: 'Alfabet Mistrza E.S.',
 				about:
 					'Israhel van Meckenem wyrył w ostatniej tercji XV wieku literę A z figuralnego alfabetu Mistrza E.S., ułożoną z lwa, psów, ptaków i człowieka.',
-				hint: 'Prawdziwy znawca zgłębił sztukę od A do Z.',
+				hint: 'Sztukę warto zgłębiać od A do Z.',
 				awarded: 'Za pojęcia w Słowniczku na każdą literę alfabetu.'
+			},
+			candle_moths: {
+				name: 'Nocny lichtarz',
+				about:
+					'Vincent Laurensz. van der Vinne wytrawił w 1714 roku świecę, do której płomienia zlatują się owady, a te, które zginęły, leżą w wosku i na ziemi.',
+				hint: 'Po zmroku światło przyciąga najmocniej.',
+				awarded: 'Za zapalenie światła w środku nocy.'
 			}
 		}
 	},

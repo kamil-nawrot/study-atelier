@@ -1,6 +1,6 @@
 # 0201. Show a glossary from A to Z as the alphabet of Master E.S.
 
-- Status: accepted
+- Status: accepted; the hint is superseded by [0213](0213-change-the-hint-of-the-alphabet-of-master-es.md)
 - Date: 2026-11-06
 
 ## Context and problem statement
