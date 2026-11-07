@@ -2388,12 +2388,29 @@ export const pl = {
 			caption: 'Zbliżenie: ',
 			label: (title: string): string => `Zbliżenie: ${title}`
 		},
+		drop: {
+			here: 'Upuść tutaj',
+			full: 'Ten rząd jest już pełny'
+		},
+		closeUpDialog: {
+			title: 'Zbliżenie',
+			hint: 'Kliknij miejsce na obrazie, które ma wypełnić zbliżenie.',
+			zoom: 'Wielkość wycinka',
+			preview: 'Podgląd',
+			add: 'Dodaj zbliżenie',
+			noImage: 'To dzieło nie ma obrazu.'
+		},
 		bar: {
 			label: 'Blok wystawy',
 			move: 'Przenieś',
 			up: 'W górę',
 			down: 'W dół',
+			left: 'W lewo',
+			right: 'W prawo',
 			remove: 'Usuń z wystawy',
+			palette: 'Paleta',
+			paletteOnly: 'Tylko paleta',
+			closeUp: 'Dodaj zbliżenie',
 			kind: 'Rodzaj tekstu',
 			paragraph: 'Akapit',
 			heading: 'Nagłówek',

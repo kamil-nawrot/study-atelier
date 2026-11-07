@@ -169,7 +169,10 @@ export class ExhibitionEditor {
 			bold: this.#editor.isActive('bold'),
 			italic: this.#editor.isActive('italic'),
 			note: Boolean(block.node.attrs.note),
+			palette: Boolean(block.node.attrs.palette),
+			paletteOnly: Boolean(block.node.attrs.paletteOnly),
 			row: block.row !== undefined,
+			artworkId: block.node.attrs.artworkId ? String(block.node.attrs.artworkId) : undefined,
 			rect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right }
 		};
 	}

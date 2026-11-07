@@ -13,13 +13,23 @@ function bar(overrides: Partial<BlockBarState> = {}): BlockBarState {
 		bold: false,
 		italic: true,
 		note: false,
+		palette: false,
+		paletteOnly: false,
+		row: false,
 		rect: { top: 300, bottom: 360, left: 100, right: 500 },
 		...overrides
 	};
 }
 
 type Handlers = Record<
-	'onconvert' | 'onmovestart' | 'onnote' | 'onremove' | 'onstep' | 'ontoggle',
+	| 'onconvert'
+	| 'onmovestart'
+	| 'onnote'
+	| 'onpalette'
+	| 'oncloseup'
+	| 'onremove'
+	| 'onstep'
+	| 'ontoggle',
 	Mock
 >;
 
@@ -28,6 +38,8 @@ function handlers(): Handlers {
 		onconvert: vi.fn(),
 		onmovestart: vi.fn(),
 		onnote: vi.fn(),
+		onpalette: vi.fn(),
+		oncloseup: vi.fn(),
 		onremove: vi.fn(),
 		onstep: vi.fn(),
 		ontoggle: vi.fn()
@@ -86,5 +98,42 @@ describe('BlockBar', () => {
 		await expect
 			.element(page.getByRole('button', { name: m.exhibitions.bar.bold }))
 			.not.toBeInTheDocument();
+	});
+
+	it('offers the palette, the palette alone and a close-up for an artwork', async () => {
+		const given = props({ kind: 'artwork', paletteOnly: true });
+		render(BlockBar, given);
+
+		await page.getByRole('button', { name: m.exhibitions.bar.palette, exact: true }).click();
+		await page.getByRole('button', { name: m.exhibitions.bar.paletteOnly }).click();
+		await page.getByRole('button', { name: m.exhibitions.bar.closeUp }).click();
+
+		expect(given.onpalette).toHaveBeenNthCalledWith(1, false);
+		expect(given.onpalette).toHaveBeenNthCalledWith(2, true);
+		expect(given.oncloseup).toHaveBeenCalled();
+		await expect
+			.element(page.getByRole('button', { name: m.exhibitions.bar.paletteOnly }))
+			.toHaveAttribute('aria-pressed', 'true');
+	});
+
+	it('offers only removal for a close-up', async () => {
+		render(BlockBar, props({ kind: 'closeUp' }));
+
+		await expect
+			.element(page.getByRole('button', { name: m.exhibitions.bar.remove }))
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.exhibitions.bar.note }))
+			.not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: m.exhibitions.bar.italic }))
+			.not.toBeInTheDocument();
+	});
+
+	it('moves a block of a row to the left and to the right', async () => {
+		render(BlockBar, props({ row: true }));
+
+		await expect.element(page.getByRole('button', { name: m.exhibitions.bar.left })).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.exhibitions.bar.right })).toBeVisible();
 	});
 });

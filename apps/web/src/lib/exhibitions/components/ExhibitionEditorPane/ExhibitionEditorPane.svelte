@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { Alert } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
+	import CloseUpDialog from '#lib/exhibitions/components/CloseUpDialog/CloseUpDialog.svelte';
 	import BlockBar from '#lib/exhibitions/components/BlockBar/BlockBar.svelte';
 	import {
 		BLOCK_MIME,
@@ -24,6 +25,8 @@
 	let column = $state<HTMLElement>();
 	let editor = $state.raw<ExhibitionEditor>();
 	let limit = $state<string>();
+	let closeUpOpen = $state(false);
+	let closeUpOf = $state('');
 
 	export function add(block: NewBlock): void {
 		editor?.add(block);
@@ -82,13 +85,30 @@
 		{column}
 		onconvert={(kind) => editor?.convert(kind)}
 		onmovestart={startMove}
+		oncloseup={() => {
+			closeUpOf = editor?.bar?.artworkId ?? '';
+			closeUpOpen = closeUpOf !== '';
+		}}
 		onnote={() => editor?.setArtwork({ note: !editor.bar?.note })}
+		onpalette={(only) =>
+			editor?.setArtwork(
+				only
+					? { paletteOnly: !editor.bar?.paletteOnly, palette: false }
+					: { palette: !(editor.bar?.palette && !editor.bar?.paletteOnly), paletteOnly: false }
+			)}
 		onremove={() => editor?.remove()}
 		onstep={(direction) => editor?.step(direction)}
 		ontoggle={(mark) => editor?.toggle(mark)}
 		topLimit={barHeight}
 	/>
 {/if}
+
+<CloseUpDialog
+	artworkId={closeUpOf}
+	{lookup}
+	onpick={(attributes) => editor?.addCloseUp(attributes)}
+	bind:open={closeUpOpen}
+/>
 
 {#if editor?.dropAt}
 	<div
@@ -97,9 +117,16 @@
 		style:top="{editor.dropAt.top}px"
 		style:width="{editor.dropAt.width}px"
 		class="drop"
-		class:slot={editor.dropAt.replaces}
+		class:slot={editor.dropAt.replaces || editor.dropAt.beside !== undefined}
+		class:full={editor.dropAt.full}
 		aria-hidden="true"
-	></div>
+	>
+		{#if editor.dropAt.full}
+			{m.exhibitions.drop.full}
+		{:else if editor.dropAt.beside !== undefined}
+			{m.exhibitions.drop.here}
+		{/if}
+	</div>
 {/if}
 
 <style>
@@ -138,6 +165,29 @@
 	.document :global(.ProseMirror > *) {
 		max-width: var(--size-content-default);
 		margin: 0;
+	}
+
+	.document :global(.ProseMirror > [data-block='columns']) {
+		display: flex;
+		gap: var(--spacing-8);
+		align-items: flex-start;
+		width: 100%;
+		max-width: var(--size-content-wide);
+	}
+
+	.document :global(.ProseMirror > [data-block='columns'] > [data-column]) {
+		display: grid;
+		flex: 1 1 0;
+		gap: var(--spacing-4);
+		justify-items: start;
+		min-width: 0;
+	}
+
+	@media (max-width: 767px) {
+		.document :global(.ProseMirror > [data-block='columns']) {
+			flex-direction: column;
+			gap: var(--spacing-8);
+		}
 	}
 
 	.document :global(.ProseMirror > .artwork-block) {
@@ -185,6 +235,14 @@
 		z-index: 2;
 		border-top: var(--border-width-base) solid var(--color-fg);
 		pointer-events: none;
+	}
+
+	.drop {
+		display: grid;
+		place-items: center;
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
+		text-align: center;
 	}
 
 	.drop.slot {
