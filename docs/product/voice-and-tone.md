@@ -41,7 +41,7 @@ Each tier of an exhibit in "Ekspozycja" reveals one curiosity on the exhibit's t
 | Świątynia della Tosse         | rediscoveries of the past                                                                                                                                                               |
 | Pracownia Świętego Hieronima  | memory in art history                                                                                                                                                                   |
 | Klepsydra melancholii         | works that took years or centuries to make                                                                                                                                              |
-| Salon w Luwrze                | stories of museum visiting and exhibitions                                                                                                                                              |
+| Salon w Luwrze                | stories of museum visiting and exhibitions as the visitors lived them: queues, crowds, empty walls                                                                                      |
 | Globus podróżnika             | little-known or unusual museums around the world                                                                                                                                        |
 | Teleskop Mathieu Laensbergha  | what surprises when a famous work is seen in person                                                                                                                                     |
 | Praski orloj                  | how artworks are dated                                                                                                                                                                  |
@@ -51,6 +51,7 @@ Each tier of an exhibit in "Ekspozycja" reveals one curiosity on the exhibit's t
 | The six era exhibits          | how the artworks of the era were made: materials, techniques, workshops                                                                                                                 |
 | Księga Vasariego              | how the whole work of one artist is known: biographies, catalogues of works, versatility and records ([ADR-0198](../decisions/0198-show-authors-with-many-artworks-as-vasaris-book.md)) |
 | Ogród Clifforta               | how collections are described and ordered: names, labels, catalogues and classification systems ([ADR-0202](../decisions/0202-show-described-values-as-cliffords-garden.md))            |
+| Kryształowy Pałac             | how exhibitions are made: world's fairs, selection, hanging and curators                                                                                                                |
 | Hidden exhibits               | one story about the work itself                                                                                                                                                         |
 
 ## Examples
