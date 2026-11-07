@@ -4,6 +4,7 @@ export const ROW_LIMITS = {
 	glossary_entries: 2000,
 	timeline_events: 2000,
 	visits: 1000,
+	exhibitions: 200,
 	artwork_fields: 100,
 	artwork_values: 100000,
 	visit_artworks: 20000,

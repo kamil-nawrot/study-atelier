@@ -4,6 +4,7 @@ import { render } from 'vitest-browser-svelte';
 import { invalidate } from '$app/navigation';
 import { findDuplicates } from '#lib/artworks/duplicates-data/duplicates-data.ts';
 import { deletePermanently, restoreArtwork } from '#lib/artworks/trash-data/trash-data.ts';
+import type { ArchivedExhibition } from '#lib/exhibitions/exhibition-page-data/exhibition-page-data.ts';
 import type { TrashArtwork } from '#lib/wall/types/trash-artwork.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data/review-data.ts';
@@ -44,8 +45,21 @@ const artworks = [
 	trashed(7, 'Night Watch', { image: undefined })
 ];
 
-function renderTrash(list: TrashArtwork[] = artworks, error?: string): void {
-	render(TrashPage, { data: { session: testSession(), artworks: list, error }, params: {} });
+function renderTrash(
+	list: TrashArtwork[] = artworks,
+	error?: string,
+	archived: ArchivedExhibition[] = []
+): void {
+	render(TrashPage, {
+		data: {
+			session: testSession(),
+			artworks: list,
+			error,
+			archived,
+			archivedCovers: []
+		},
+		params: {}
+	});
 }
 
 function row(title: string): ReturnType<typeof page.getByRole> {
@@ -155,6 +169,25 @@ describe('trash page', () => {
 
 		await expect.element(page.getByText(m.trash.loadErrorTitle)).toBeVisible();
 		await expect.element(page.getByText(m.collectionErrors.network)).toBeVisible();
+	});
+
+	it('keeps the archived exhibitions on a tab of their own', async () => {
+		renderTrash(artworks, undefined, [
+			{
+				id: 'a',
+				title: 'Light',
+				updatedAt: '2026-11-01T10:00:00Z',
+				deletedAt: '2026-11-02T10:00:00Z',
+				artworkCount: 2,
+				coverId: null
+			}
+		]);
+
+		await expect.element(row('Light')).not.toBeInTheDocument();
+		await page.getByRole('tab', { name: m.trash.tabs.exhibitions }).click();
+
+		await expect.element(row('Light')).toBeVisible();
+		await expect.element(row('Night Watch')).not.toBeInTheDocument();
 	});
 
 	describe('on a phone', () => {

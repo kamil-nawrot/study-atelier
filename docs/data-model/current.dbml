@@ -244,6 +244,38 @@ Table exhibit_tiers {
   Note: 'RLS on'
 }
 
+Table exhibition_artworks {
+  exhibition_id uuid [not null]
+  artwork_id uuid [not null]
+  owner_id uuid [not null, default: `auth.uid()`]
+  position smallint [not null]
+
+  indexes {
+    (exhibition_id, artwork_id) [pk]
+    artwork_id [name: 'exhibition_artworks_artwork_id_idx']
+    owner_id [name: 'exhibition_artworks_owner_id_idx']
+  }
+  Note: 'RLS on. Written only by a private trigger function of exhibitions.document; position 0 is the cover'
+}
+
+Table exhibitions {
+  id uuid [pk, default: `gen_random_uuid()`]
+  owner_id uuid [not null, default: `auth.uid()`]
+  title text [not null, default: '']
+  document jsonb [not null, default: `'{"type": "doc", "content": []}'`]
+  format smallint [not null, default: 1]
+  revision integer [not null, default: 1]
+  deleted_at "timestamp with time zone"
+  created_at "timestamp with time zone" [not null, default: `now()`]
+  updated_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    (id, owner_id) [unique]
+    (owner_id, updated_at) [name: 'exhibitions_owner_updated_at_idx']
+  }
+  Note: 'RLS on. Written through save_exhibition; at most 200 per owner, 512 KB, 300 blocks and 100 artworks per document'
+}
+
 Table feedback {
   id uuid [pk, default: `gen_random_uuid()`]
   owner_id uuid [not null, default: `auth.uid()`]
@@ -528,6 +560,10 @@ Ref category_values_owner_id_fkey: category_values.owner_id > auth.users.id [del
 Ref era_details_era_code_fkey: era_details.era_code > eras.code
 Ref era_details_owner_id_fkey: era_details.owner_id > auth.users.id [delete: cascade]
 Ref exhibit_tiers_owner_id_fkey: exhibit_tiers.owner_id > auth.users.id [delete: cascade]
+Ref exhibition_artworks_artwork_id_owner_id_fkey: exhibition_artworks.(artwork_id, owner_id) > artworks.(id, owner_id) [delete: cascade]
+Ref exhibition_artworks_exhibition_id_owner_id_fkey: exhibition_artworks.(exhibition_id, owner_id) > exhibitions.(id, owner_id) [delete: cascade]
+Ref exhibition_artworks_owner_id_fkey: exhibition_artworks.owner_id > auth.users.id [delete: cascade]
+Ref exhibitions_owner_id_fkey: exhibitions.owner_id > auth.users.id [delete: cascade]
 Ref feedback_owner_id_fkey: feedback.owner_id > auth.users.id [delete: cascade]
 Ref free_review_days_owner_id_fkey: free_review_days.owner_id > auth.users.id [delete: cascade]
 Ref glossary_entries_owner_id_fkey: glossary_entries.owner_id > auth.users.id [delete: cascade]

@@ -1,9 +1,10 @@
 <script lang="ts">
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Trash from '@lucide/svelte/icons/trash-2';
-	import { Alert, Button, Dialog, EmptyState, Toast } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, EmptyState, Tabs, Toast } from '@study-atelier/ui';
 	import { invalidate } from '$app/navigation';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
+	import ArchivedExhibitions from '#lib/exhibitions/components/ArchivedExhibitions/ArchivedExhibitions.svelte';
 	import DuplicateDialog from '#lib/artworks/components/DuplicateDialog/DuplicateDialog.svelte';
 	import { DuplicateCheck } from '#lib/artworks/duplicate-check/duplicate-check.svelte.ts';
 	import { formatDeletedOn } from '#lib/artworks/trash/trash.ts';
@@ -17,6 +18,11 @@
 	let { data }: PageProps = $props();
 
 	let toast: Toast;
+	let tab = $state('artworks');
+	const tabs = [
+		{ value: 'artworks', label: m.trash.tabs.artworks },
+		{ value: 'exhibitions', label: m.trash.tabs.exhibitions }
+	];
 	const duplicateCheck = new DuplicateCheck();
 	let removed = $state<string[]>([]);
 	let busy = $state<string>();
@@ -82,68 +88,84 @@
 		{/if}
 	</header>
 
-	{#if data.error}
-		<Alert title={m.trash.loadErrorTitle} tone="danger">
-			{data.error}
-		</Alert>
-	{:else if shown.length === 0}
-		<EmptyState icon={Trash} text={m.trash.empty} title={m.trash.emptyTitle} />
-	{:else}
-		{#if actionError}
-			<Alert title={m.trash.actionErrorTitle} tone="danger">
-				{actionError}
-			</Alert>
+	<Tabs label={m.trash.tabsLabel} {tabs} bind:value={tab}>
+		{#if tab === 'exhibitions'}
+			{#if data.archivedError}
+				<Alert title={m.exhibitions.loadErrorTitle} tone="danger">
+					{data.archivedError}
+				</Alert>
+			{:else}
+				<ArchivedExhibitions
+					covers={data.archivedCovers}
+					exhibitions={data.archived}
+					onmessage={(message) => toast.show(message)}
+				/>
+			{/if}
+		{:else}
+			{#if data.error}
+				<Alert title={m.trash.loadErrorTitle} tone="danger">
+					{data.error}
+				</Alert>
+			{:else if shown.length === 0}
+				<EmptyState icon={Trash} text={m.trash.empty} title={m.trash.emptyTitle} />
+			{:else}
+				{#if actionError}
+					<Alert title={m.trash.actionErrorTitle} tone="danger">
+						{actionError}
+					</Alert>
+				{/if}
+				<ul>
+					{#each shown as artwork (artwork.id)}
+						<li>
+							<div class="thumbnail">
+								{#if artwork.image}
+									<img
+										alt=""
+										loading="lazy"
+										sizes="64px"
+										src={artwork.image.src}
+										srcset={artwork.image.srcset}
+									/>
+								{:else}
+									<span class="window"></span>
+								{/if}
+							</div>
+							<div class="text">
+								<cite class="artwork-title">{artwork.title}</cite>
+								{#if byline(artwork)}
+									<span class="byline">{byline(artwork)}</span>
+								{/if}
+								<span class="meta">
+									{formatRecordNumber(artwork.number)} · {formatDeletedOn(artwork.deletedAt)}
+								</span>
+							</div>
+							<div class="actions">
+								<Button
+									aria-label={m.trash.restore}
+									compact
+									disabled={busy === artwork.id}
+									icon={RotateCcw}
+									onclick={() => restore(artwork)}
+								>
+									{m.trash.restore}
+								</Button>
+								<Button
+									aria-label={m.trash.deleteForever}
+									compact
+									disabled={busy === artwork.id}
+									icon={Trash}
+									onclick={() => askToDelete(artwork)}
+									variant="danger"
+								>
+									{m.trash.deleteForever}
+								</Button>
+							</div>
+						</li>
+					{/each}
+				</ul>
+			{/if}
 		{/if}
-		<ul>
-			{#each shown as artwork (artwork.id)}
-				<li>
-					<div class="thumbnail">
-						{#if artwork.image}
-							<img
-								alt=""
-								loading="lazy"
-								sizes="64px"
-								src={artwork.image.src}
-								srcset={artwork.image.srcset}
-							/>
-						{:else}
-							<span class="window"></span>
-						{/if}
-					</div>
-					<div class="text">
-						<cite class="artwork-title">{artwork.title}</cite>
-						{#if byline(artwork)}
-							<span class="byline">{byline(artwork)}</span>
-						{/if}
-						<span class="meta">
-							{formatRecordNumber(artwork.number)} · {formatDeletedOn(artwork.deletedAt)}
-						</span>
-					</div>
-					<div class="actions">
-						<Button
-							aria-label={m.trash.restore}
-							compact
-							disabled={busy === artwork.id}
-							icon={RotateCcw}
-							onclick={() => restore(artwork)}
-						>
-							{m.trash.restore}
-						</Button>
-						<Button
-							aria-label={m.trash.deleteForever}
-							compact
-							disabled={busy === artwork.id}
-							icon={Trash}
-							onclick={() => askToDelete(artwork)}
-							variant="danger"
-						>
-							{m.trash.deleteForever}
-						</Button>
-					</div>
-				</li>
-			{/each}
-		</ul>
-	{/if}
+	</Tabs>
 </AtelierLayout>
 
 {#snippet deleteErrorAlert()}

@@ -14,6 +14,7 @@ const LIMIT_MESSAGES: Record<LimitedTable, (limit: number) => string> = {
 	glossary_entries: m.limits.glossaryEntries,
 	timeline_events: m.limits.timelineEvents,
 	visits: m.limits.visits,
+	exhibitions: m.limits.exhibitions,
 	artwork_fields: m.limits.artworkFields,
 	artwork_values: m.limits.artworkValues,
 	visit_artworks: m.limits.visitArtworks,

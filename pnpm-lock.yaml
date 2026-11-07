@@ -56,6 +56,15 @@ importers:
       '@supabase/supabase-js':
         specifier: 2.117.2
         version: 2.117.2
+      '@tiptap/core':
+        specifier: ^3.31.4
+        version: 3.31.4(@tiptap/pm@3.31.4)
+      '@tiptap/pm':
+        specifier: ^3.31.4
+        version: 3.31.4
+      '@tiptap/starter-kit':
+        specifier: ^3.31.4
+        version: 3.31.4
       fflate:
         specifier: 0.8.3
         version: 0.8.3

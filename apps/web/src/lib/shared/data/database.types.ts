@@ -595,6 +595,80 @@ export type Database = {
         };
         Relationships: [];
       };
+      exhibition_artworks: {
+        Row: {
+          artwork_id: string;
+          exhibition_id: string;
+          owner_id: string;
+          position: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          artwork_id: string;
+          exhibition_id: string;
+          owner_id?: string;
+          position: number;
+        };
+        Update: {
+          artwork_id?: string;
+          exhibition_id?: string;
+          owner_id?: string;
+          position?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "exhibition_artworks_artwork_id_owner_id_fkey";
+            columns: ["artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "exhibition_artworks_exhibition_id_owner_id_fkey";
+            columns: ["exhibition_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "exhibitions";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
+      exhibitions: {
+        Row: {
+          created_at: string;
+          deleted_at: string | null;
+          document: Json;
+          format: number;
+          id: string;
+          owner_id: string;
+          revision: number;
+          title: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          deleted_at?: string | null;
+          document?: Json;
+          format?: number;
+          id?: string;
+          owner_id?: string;
+          revision?: number;
+          title?: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          deleted_at?: string | null;
+          document?: Json;
+          format?: number;
+          id?: string;
+          owner_id?: string;
+          revision?: number;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       feedback: {
         Row: {
           browser: string | null;
@@ -1550,6 +1624,15 @@ export type Database = {
       save_era_details: {
         Args: { details: Json; target_era: string };
         Returns: undefined;
+      };
+      save_exhibition: {
+        Args: {
+          exhibition_id: string;
+          expected_revision?: number;
+          new_document: Json;
+          new_title: string;
+        };
+        Returns: number;
       };
       save_value_details: {
         Args: { details: Json; target_value: string };

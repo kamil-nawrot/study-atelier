@@ -209,6 +209,7 @@ export const pl = {
 		glossary: 'Słowniczek',
 		timeline: 'Kalendarium',
 		chronicle: 'Kronika',
+		exhibitions: 'Wystawy',
 		review: 'Powtórki',
 		displayCase: 'Ekspozycja',
 		displayCaseNew: 'Ekspozycja, nowe',
@@ -374,6 +375,7 @@ export const pl = {
 				glossary_entries: 'pojęć w Słowniczku',
 				timeline_events: 'wydarzeń w Kalendarium',
 				visits: 'wizyt w Kronice',
+				exhibitions: 'wystaw',
 				artwork_fields: 'własnych pól',
 				artwork_values: 'wartości przypisanych do dzieł',
 				visit_artworks: 'dzieł przypisanych do wizyt',
@@ -1042,6 +1044,8 @@ export const pl = {
 			`W Kalendarium zmieści się ${limit} wydarzeń. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
 		visits: (limit: number): string =>
 			`W Kronice zmieści się ${limit} wizyt. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		exhibitions: (limit: number): string =>
+			`W atelier zmieści się ${limit} wystaw, razem z tymi w Archiwum. Usuń z Archiwum te, których już nie potrzebujesz.`,
 		artworkFields: (limit: number): string =>
 			`W atelier zmieści się ${limit} własnych pól. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
 		artworkValues: (limit: number): string =>
@@ -2260,6 +2264,103 @@ export const pl = {
 			on_site: 'Na miejscu'
 		}
 	},
+	exhibitions: {
+		title: 'Wystawy',
+		kind: 'Wystawa',
+		lead: 'Opowieści, które układasz z dzieł swojego atelier. Wystawy pozwalają wykorzystać kolekcję do szukania powiązań w sztuce, budowania porównań i zapisywania własnych komentarzy.',
+		count: (count: number): string =>
+			`${count} ${plural(count, { one: 'wystawa', few: 'wystawy', many: 'wystaw' })}`,
+		add: 'Dodaj wystawę',
+		adding: 'Dodawanie…',
+		emptyTitle: 'Pierwszy wernisaż dopiero przed Tobą',
+		empty:
+			'Wybierz temat przewodni i zbuduj jego historię z dzieł Twojego atelier i własnych wniosków.',
+		untitled: 'Wystawa bez tytułu',
+		posterMeta: (count: number, changed: string): string =>
+			`${workCount(count)} · zmieniona ${changed}`,
+		changedToday: 'dziś',
+		loadErrorTitle: 'Nie udało się wczytać wystaw',
+		addErrorTitle: 'Nie udało się dodać wystawy',
+		view: {
+			notFoundTitle: 'Nie ma takiej wystawy',
+			loadErrorTitle: 'Nie udało się wczytać wystawy',
+			back: 'Wystawy',
+			edit: 'Edytuj',
+			done: 'Gotowe',
+			delete: 'Usuń',
+			titleLabel: 'Tytuł wystawy',
+			bodyLabel: 'Treść wystawy',
+			emptyBody: 'Tu zaczyna się Twoja opowieść. Pisz albo przeciągnij dzieło z panelu.',
+			captionHint: 'Dodaj podpis kuratorski',
+			headingHint: 'Nagłówek',
+			missingArtwork: 'Dzieła nie ma w atelier',
+			archivedArtwork: 'Dzieło jest w Archiwum'
+		},
+		save: {
+			saving: 'Zapisywanie…',
+			saved: 'Zapisano',
+			failed: 'Nie udało się zapisać. Spróbujemy ponownie za chwilę.',
+			conflict:
+				'Ta wystawa w międzyczasie zmieniła swój kształt, więc Twoich ostatnich zmian nie udało się zapisać. Odśwież stronę, żeby zobaczyć najnowszą wersję.',
+			conflictTitle: 'Nie zapisano zmian',
+			limitTitle: 'Nie zapisano zmian'
+		},
+		panel: {
+			title: 'Dodaj do wystawy',
+			open: 'Dodaj',
+			phoneOpen: 'Dodaj pod zaznaczonym blokiem',
+			close: 'Zwiń panel',
+			textTitle: 'Tekst',
+			paragraph: 'Akapit',
+			heading: 'Nagłówek',
+			quote: 'Cytat',
+			artworksTitle: 'Dzieła',
+			search: 'Szukaj dzieła',
+			searchPlaceholder: 'Tytuł, autor albo numer',
+			recent: 'Ostatnio dodane',
+			found: (count: number): string => `Znalezione: ${count}`,
+			noMatch: 'Nic nie pasuje. Sprawdź pisownię albo przeglądaj całe atelier.',
+			browse: 'Przeglądaj całe atelier…',
+			empty: 'W atelier nie ma jeszcze dzieł.',
+			loadError: 'Nie udało się wczytać dzieł.'
+		},
+		bar: {
+			label: 'Blok wystawy',
+			move: 'Przenieś',
+			up: 'W górę',
+			down: 'W dół',
+			remove: 'Usuń z wystawy',
+			kind: 'Rodzaj tekstu',
+			paragraph: 'Akapit',
+			heading: 'Nagłówek',
+			quote: 'Cytat',
+			bold: 'Pogrubienie',
+			italic: 'Kursywa',
+			note: 'Notatka',
+			noteOf: (title: string): string => `Z notatki dzieła · ${title}`,
+			noNote: 'To dzieło nie ma jeszcze notatki.'
+		},
+		deleteConfirm: {
+			title: (title: string): string => `Przenieść wystawę „${title}” do Archiwum?`,
+			description:
+				'Wystawa zniknie z listy. Dzieła zostaną w atelier, a wystawę przywrócisz z Archiwum.',
+			confirm: 'Przenieś do Archiwum',
+			moving: 'Przenoszenie…',
+			errorTitle: 'Nie udało się przenieść wystawy'
+		},
+		moved: 'Przeniesiono wystawę do Archiwum.',
+		limits: {
+			artworks:
+				'Ta wystawa ma już 100 dzieł, czyli najwięcej, ile się zmieści. Może warto podzielić ją na dwie?',
+			blocks:
+				'Ta wystawa ma już 300 elementów, czyli najwięcej, ile się zmieści. Może warto podzielić ją na dwie?'
+		},
+		errors: {
+			notFound: 'Nie ma takiej wystawy.',
+			invalid: 'Wystawa ma w sobie coś, czego nie umiemy zapisać.',
+			tooBig: 'Ta wystawa jest za duża, żeby ją zapisać. Może warto podzielić ją na dwie?'
+		}
+	},
 	trash: {
 		title: 'Archiwum',
 		emptyTitle: 'Archiwum jest puste',
@@ -2281,7 +2382,16 @@ export const pl = {
 		deleteTitle: (number: string): string => `Usunąć ${number} na zawsze?`,
 		deleteDescription: (number: string): string =>
 			`Dzieło ${number} i Twój obraz znikną bezpowrotnie.`,
-		deleted: (number: string): string => `Usunięto ${number} na zawsze.`
+		deleted: (number: string): string => `Usunięto ${number} na zawsze.`,
+		tabsLabel: 'Co jest w Archiwum',
+		tabs: { artworks: 'Dzieła', exhibitions: 'Wystawy' },
+		exhibitionsEmpty:
+			'Nie ma tu żadnej wystawy. Trafiają tu wystawy, które postanowisz wycofać. Stąd możesz je przywrócić lub usunąć na zawsze.',
+		exhibitionMeta: (count: number, date: string): string => `${workCount(count)} · ${date}`,
+		exhibitionRestored: (title: string): string => `Przywrócono wystawę „${title}”.`,
+		exhibitionDeleteTitle: (title: string): string => `Usunąć wystawę „${title}” na zawsze?`,
+		exhibitionDeleteDescription: 'Zniknie razem ze swoimi tekstami. Dzieła zostaną w atelier.',
+		exhibitionDeleted: (title: string): string => `Usunięto wystawę „${title}” na zawsze.`
 	}
 };
 
