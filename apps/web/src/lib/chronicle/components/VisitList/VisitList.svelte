@@ -70,10 +70,4 @@
 		gap: var(--spacing-4);
 		list-style: none;
 	}
-
-	@media (min-width: 768px) {
-		.visits {
-			max-width: max(50%, var(--size-content-narrow));
-		}
-	}
 </style>
