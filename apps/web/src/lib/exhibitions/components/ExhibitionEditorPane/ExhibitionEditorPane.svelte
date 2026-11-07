@@ -1,16 +1,22 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { Alert } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import CloseUpDialog from '#lib/exhibitions/components/CloseUpDialog/CloseUpDialog.svelte';
 	import BlockBar from '#lib/exhibitions/components/BlockBar/BlockBar.svelte';
+	import DragOverlay from '#lib/exhibitions/components/DragOverlay/DragOverlay.svelte';
+	import { ExhibitionEditor } from '#lib/exhibitions/editor/exhibition-editor/exhibition-editor.svelte.ts';
 	import {
-		BLOCK_MIME,
-		ExhibitionEditor
-	} from '#lib/exhibitions/editor/exhibition-editor/exhibition-editor.svelte.ts';
+		BlockDrag,
+		type DragHandlers
+	} from '#lib/exhibitions/editor/block-drag/block-drag.svelte.ts';
+	import { blockLabel, newBlockLabel } from '#lib/exhibitions/editor/drag-label/drag-label.ts';
 	import { withEditableBody } from '#lib/exhibitions/exhibition-document/exhibition-document.ts';
 	import type { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
-	import type { NewBlock } from '#lib/exhibitions/editor/block-commands/block-commands.ts';
+	import type {
+		CurrentBlock,
+		NewBlock
+	} from '#lib/exhibitions/editor/block-commands/block-commands.ts';
 	import type { ExhibitionSession } from '#lib/exhibitions/exhibition-session/exhibition-session.svelte.ts';
 
 	type Props = {
@@ -22,14 +28,25 @@
 	let { session, lookup, barHeight }: Props = $props();
 
 	let host: HTMLElement;
-	let column = $state<HTMLElement>();
 	let editor = $state.raw<ExhibitionEditor>();
 	let limit = $state<string>();
 	let closeUpOpen = $state(false);
 	let closeUpOf = $state('');
+	let frameWidth = $state(0);
+	let dragging = $state(false);
+
+	const drag = new BlockDrag(() => barHeight);
 
 	export function add(block: NewBlock): void {
 		editor?.add(block);
+	}
+
+	export function dragNew(event: PointerEvent, block: NewBlock): void {
+		drag.begin(
+			event,
+			newBlockLabel(block, lookup),
+			handlers(block, () => undefined)
+		);
 	}
 
 	onMount(() => {
@@ -44,22 +61,76 @@
 			onlimit: (message) => (limit = message)
 		});
 		editor = created;
-		return () => created.destroy();
+		const resized = new ResizeObserver(() => created.measure());
+		resized.observe(host);
+		return () => {
+			drag.cancel();
+			resized.disconnect();
+			created.destroy();
+		};
 	});
 
-	function startMove(event: DragEvent): void {
-		if (!editor?.startMove()) {
-			event.preventDefault();
-			return;
-		}
-		event.dataTransfer?.setData(BLOCK_MIME, '');
-		if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+	function handlers(
+		block: NewBlock | undefined,
+		pick: () => CurrentBlock | undefined
+	): DragHandlers {
+		let moved: HTMLElement | undefined;
+		return {
+			onstart: () => {
+				const picked = pick();
+				if (picked) drag.label = blockLabel(picked.node, lookup);
+				const dom = picked && editor?.view.nodeDOM(picked.pos);
+				moved = dom instanceof HTMLElement ? dom : undefined;
+				void shrink(moved);
+			},
+			onmove: (x: number, y: number) => editor?.hover(x, y),
+			ondrop: (x: number, y: number) => editor?.place(block, x, y),
+			onend: () => {
+				moved?.classList.remove('moving');
+				dragging = false;
+				editor?.endDrag();
+				editor?.measure();
+			}
+		};
+	}
+
+	async function shrink(moved: HTMLElement | undefined): Promise<void> {
+		const before = moved?.getBoundingClientRect().top;
+		moved?.classList.add('moving');
+		dragging = true;
+		editor?.hideBar();
+		await tick();
+		if (moved && before !== undefined)
+			window.scrollBy(0, moved.getBoundingClientRect().top - before);
+		editor?.hover(drag.x, drag.y);
+	}
+
+	function moveFromBar(event: PointerEvent): void {
+		const block = editor?.startMove();
+		if (!block || !editor) return;
+		drag.begin(
+			event,
+			m.exhibitions.bar.move,
+			handlers(undefined, () => block)
+		);
+	}
+
+	function moveFromFigure(event: PointerEvent): void {
+		const target = event.target instanceof Element ? event.target : null;
+		const figure = target?.closest('.artwork-block .mat, .close-up-block .crop');
+		const dom = figure?.closest('.artwork-block, .close-up-block');
+		if (!dom || !editor) return;
+		drag.begin(
+			event,
+			m.exhibitions.bar.move,
+			handlers(undefined, () => editor?.pickUp(dom))
+		);
 	}
 </script>
 
-<svelte:window onresize={() => editor?.measure()} onscroll={() => editor?.measure()} />
+<svelte:window onresize={() => editor?.measure()} />
 
-<div bind:this={column} class="column">
+<div class="column">
 	<input
 		class="title"
 		aria-label={m.exhibitions.view.titleLabel}
@@ -76,32 +147,33 @@
 	{:else if limit}
 		<Alert tone="warning">{limit}</Alert>
 	{/if}
-	<div bind:this={host} class="document"></div>
+	<div class="frame" class:dragging bind:clientWidth={frameWidth}>
+		<div bind:this={host} class="document" onpointerdown={moveFromFigure} role="presentation"></div>
+		{#if editor?.bar && !dragging}
+			<BlockBar
+				bar={editor.bar}
+				{frameWidth}
+				oncloseup={() => {
+					closeUpOf = editor?.bar?.artworkId ?? '';
+					closeUpOpen = closeUpOf !== '';
+				}}
+				onconvert={(kind) => editor?.convert(kind)}
+				onmovestart={moveFromBar}
+				onnote={() => editor?.setArtwork({ note: !editor.bar?.note })}
+				onpalette={(only) =>
+					editor?.setArtwork(
+						only
+							? { paletteOnly: !editor.bar?.paletteOnly, palette: false }
+							: { palette: !(editor.bar?.palette && !editor.bar?.paletteOnly), paletteOnly: false }
+					)}
+				onremove={() => editor?.remove()}
+				onstep={(direction) => editor?.step(direction)}
+				ontoggle={(mark) => editor?.toggle(mark)}
+				topLimit={barHeight}
+			/>
+		{/if}
+	</div>
 </div>
-
-{#if editor && column && editor.bar}
-	<BlockBar
-		bar={editor.bar}
-		{column}
-		oncloseup={() => {
-			closeUpOf = editor?.bar?.artworkId ?? '';
-			closeUpOpen = closeUpOf !== '';
-		}}
-		onconvert={(kind) => editor?.convert(kind)}
-		onmovestart={startMove}
-		onnote={() => editor?.setArtwork({ note: !editor.bar?.note })}
-		onpalette={(only) =>
-			editor?.setArtwork(
-				only
-					? { paletteOnly: !editor.bar?.paletteOnly, palette: false }
-					: { palette: !(editor.bar?.palette && !editor.bar?.paletteOnly), paletteOnly: false }
-			)}
-		onremove={() => editor?.remove()}
-		onstep={(direction) => editor?.step(direction)}
-		ontoggle={(mark) => editor?.toggle(mark)}
-		topLimit={barHeight}
-	/>
-{/if}
 
 <CloseUpDialog
 	artworkId={closeUpOf}
@@ -110,24 +182,7 @@
 	bind:open={closeUpOpen}
 />
 
-{#if editor?.dropAt}
-	<div
-		style:height="{editor.dropAt.height}px"
-		style:left="{editor.dropAt.left}px"
-		style:top="{editor.dropAt.top}px"
-		style:width="{editor.dropAt.width}px"
-		class="drop"
-		class:full={editor.dropAt.full}
-		class:slot={editor.dropAt.replaces || editor.dropAt.beside !== undefined}
-		aria-hidden="true"
-	>
-		{#if editor.dropAt.full}
-			{m.exhibitions.drop.full}
-		{:else if editor.dropAt.beside !== undefined}
-			{m.exhibitions.drop.here}
-		{/if}
-	</div>
-{/if}
+<DragOverlay dropAt={editor?.dropAt} label={drag.label} x={drag.x} y={drag.y} />
 
 <style>
 	.column {
@@ -154,12 +209,64 @@
 		outline-offset: var(--spacing-2);
 	}
 
+	.frame {
+		position: relative;
+	}
+
 	.document :global(.ProseMirror) {
 		display: grid;
 		gap: var(--spacing-8);
 		justify-items: start;
 		min-height: calc(10 * var(--spacing-6));
+		padding-bottom: calc(2 * var(--size-control));
 		outline: none;
+	}
+
+	@media (min-width: 768px) {
+		.document :global(.ProseMirror) {
+			gap: calc(var(--size-control) + var(--spacing-4));
+			padding-top: calc(var(--size-control) + var(--spacing-2));
+			padding-bottom: 0;
+		}
+
+		.document :global(:is(.artwork-block .mat, .close-up-block .crop)) {
+			cursor: grab;
+		}
+	}
+
+	.document :global(.ProseMirror-focused .is-current:not(.artwork-block, .close-up-block)) {
+		outline: var(--border-width-base) dashed var(--color-fg);
+		outline-offset: var(--spacing-2);
+	}
+
+	.document :global(.ProseMirror-focused .is-current :is(.mat, .crop)) {
+		outline: var(--border-width-base) dashed var(--color-fg);
+		outline-offset: var(--border-width-base);
+	}
+
+	.dragging :global(.ProseMirror) {
+		cursor: grabbing;
+		user-select: none;
+	}
+
+	.dragging :global(.ProseMirror img) {
+		max-height: calc(6 * var(--spacing-6));
+	}
+
+	.dragging :global(.ProseMirror :is([data-palette], .note)) {
+		display: none;
+	}
+
+	.dragging :global(.ProseMirror .mat) {
+		padding: var(--spacing-2);
+	}
+
+	.dragging :global(.ProseMirror .close-up-block) {
+		max-width: calc(6 * var(--spacing-6));
+	}
+
+	.dragging :global(.ProseMirror .moving) {
+		opacity: 0.4;
 	}
 
 	.document :global(.ProseMirror > *) {
@@ -190,7 +297,8 @@
 		}
 	}
 
-	.document :global(.ProseMirror > .artwork-block) {
+	.document :global(:is(.ProseMirror, [data-column]) > .artwork-block) {
+		width: 100%;
 		max-width: var(--size-content-wide);
 	}
 
@@ -224,26 +332,5 @@
 		position: absolute;
 		color: var(--color-fg-muted);
 		pointer-events: none;
-	}
-
-	.document :global(.ProseMirror-selectednode > .top .mat) {
-		outline: var(--border-width-base) dashed var(--color-fg);
-	}
-
-	.drop {
-		position: fixed;
-		z-index: 2;
-		display: grid;
-		place-items: center;
-		border-top: var(--border-width-base) solid var(--color-fg);
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-sm);
-		text-align: center;
-		pointer-events: none;
-	}
-
-	.drop.slot {
-		border: var(--border-width-base) dashed var(--color-fg);
-		background: var(--color-surface);
 	}
 </style>

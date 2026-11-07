@@ -2417,11 +2417,12 @@ export const pl = {
 		},
 		closeUpDialog: {
 			title: 'Zbliżenie',
-			hint: 'Kliknij miejsce na obrazie, które ma wypełnić zbliżenie.',
-			zoom: 'Wielkość wycinka',
-			preview: 'Podgląd',
-			add: 'Dodaj zbliżenie',
-			noImage: 'To dzieło nie ma obrazu.'
+			hint: 'Wybierz pinezkę, której fragment pokaże zbliżenie.',
+			loading: 'Wczytywanie pinezek…',
+			loadError: 'Nie udało się wczytać pinezek. Spróbuj ponownie za chwilę.',
+			noPins: 'To dzieło nie ma jeszcze pinezek. Wbij je lupą w widoku dzieła, a potem wróć tutaj.',
+			openArtwork: 'Otwórz dzieło',
+			pin: (number: number): string => `Pinezka ${number}`
 		},
 		bar: {
 			label: 'Blok wystawy',

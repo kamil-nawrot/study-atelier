@@ -1,10 +1,12 @@
 <script lang="ts">
-	import { Button, Dialog, NoImage } from '@study-atelier/ui';
+	import { Button, Dialog } from '@study-atelier/ui';
+	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
-	import { artworkImageSource } from '#lib/images/artwork-image/artwork-image.ts';
-	import CloseUpFigure from '#lib/exhibitions/components/CloseUpFigure/CloseUpFigure.svelte';
+	import PinView from '#lib/pins/components/PinView/PinView.svelte';
+	import { loadArtworkPins } from '#lib/pins/pin-data/pin-data.ts';
 	import type { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 	import type { CloseUpAttributes } from '#lib/exhibitions/editor/block-commands/block-commands.ts';
+	import type { Pin } from '#lib/pins/types/pin.ts';
 
 	type Props = {
 		open?: boolean;
@@ -13,71 +15,79 @@
 		onpick: (attributes: CloseUpAttributes) => void;
 	};
 
+	const PIN_VIEW_WIDTH = 0.25;
+
 	let { open = $bindable(false), lookup, artworkId, onpick }: Props = $props();
 
-	const zoomId = $props.id();
+	let pins = $state<Pin[]>();
+	let error = $state(false);
 
-	let x = $state(0.5);
-	let y = $state(0.5);
-	let viewWidth = $state(0.3);
-
-	const image = $derived(lookup.pictures(artworkId)?.[0] ?? null);
-	const source = $derived(artworkImageSource(image, 1280));
+	const artwork = $derived(lookup.get(artworkId));
+	const pictures = $derived(lookup.pictures(artworkId));
+	const choices = $derived(
+		(pins ?? []).flatMap((pin) => {
+			const image = pictures?.find((picture) => picture.id === pin.imageId);
+			return image ? [{ pin, image }] : [];
+		})
+	);
 
 	$effect(() => {
 		if (!open) return;
-		x = 0.5;
-		y = 0.5;
-		viewWidth = 0.3;
+		const number = artwork?.number;
+		pins = undefined;
+		error = false;
 		void lookup.wantPictures(artworkId);
+		if (number === undefined) return;
+		void loadArtworkPins(number).then((result) => {
+			if (result.error) error = true;
+			else pins = result.pins;
+		});
 	});
 
-	function point(event: MouseEvent): void {
-		const rect =
-			event.currentTarget instanceof HTMLElement
-				? event.currentTarget.getBoundingClientRect()
-				: undefined;
-		if (!rect || rect.width === 0 || rect.height === 0) return;
-		x = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
-		y = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
-	}
-
-	function add(): void {
-		onpick({ artworkId, imageId: image?.id ?? null, x, y, viewWidth });
+	function pick(pin: Pin): void {
+		onpick({
+			artworkId,
+			imageId: pin.imageId,
+			x: pin.x,
+			y: pin.y,
+			viewWidth: pin.viewWidth ?? PIN_VIEW_WIDTH
+		});
 		open = false;
 	}
 </script>
 
 <Dialog title={m.exhibitions.closeUpDialog.title} bind:open>
 	<div class="body">
-		<p class="hint">{m.exhibitions.closeUpDialog.hint}</p>
-		{#if source}
-			<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-			<div class="stage" data-stage="" onclick={point}>
-				<img alt="" draggable="false" src={source.src} />
-				<span style:left="{x * 100}%" style:top="{y * 100}%" class="mark"></span>
-			</div>
-			<label class="zoom" for={zoomId}>
-				<span>{m.exhibitions.closeUpDialog.zoom}</span>
-				<input id={zoomId} max="0.6" min="0.1" step="0.05" type="range" bind:value={viewWidth} />
-			</label>
-			<div class="preview">
-				<p class="hint">{m.exhibitions.closeUpDialog.preview}</p>
-				<CloseUpFigure {artworkId} {lookup} {viewWidth} {x} {y} />
-			</div>
+		{#if error}
+			<p class="hint">{m.exhibitions.closeUpDialog.loadError}</p>
+		{:else if pins === undefined || pictures === undefined}
+			<p class="hint">{m.exhibitions.closeUpDialog.loading}</p>
+		{:else if choices.length === 0}
+			<p>{m.exhibitions.closeUpDialog.noPins}</p>
+			{#if artwork}
+				<a
+					href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
+					rel="external noopener"
+					target="_blank">{m.exhibitions.closeUpDialog.openArtwork}</a
+				>
+			{/if}
 		{:else}
-			<div class="empty">
-				<NoImage />
-				<p>{m.exhibitions.closeUpDialog.noImage}</p>
-			</div>
+			<p class="hint">{m.exhibitions.closeUpDialog.hint}</p>
+			<ul class="pins">
+				{#each choices as { pin, image }, index (pin.id)}
+					<li>
+						<button class="pin" onclick={() => pick(pin)} type="button">
+							<PinView {image} viewWidth={pin.viewWidth ?? PIN_VIEW_WIDTH} x={pin.x} y={pin.y} />
+							<span>{pin.text || m.exhibitions.closeUpDialog.pin(index + 1)}</span>
+						</button>
+					</li>
+				{/each}
+			</ul>
 		{/if}
 	</div>
 	{#snippet footer()}
 		<Button onclick={() => (open = false)}>
 			{m.common.cancel}
-		</Button>
-		<Button disabled={!source} onclick={add} variant="primary">
-			{m.exhibitions.closeUpDialog.add}
 		</Button>
 	{/snippet}
 </Dialog>
@@ -88,48 +98,45 @@
 		gap: var(--spacing-4);
 	}
 
-	.hint {
+	p {
 		margin: 0;
+	}
+
+	.hint {
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
 	}
 
-	.stage {
-		position: relative;
-		cursor: crosshair;
+	.pins {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(calc(6 * var(--spacing-6)), 1fr));
+		gap: var(--spacing-4);
+		margin: 0;
+		padding: 0;
+		list-style: none;
 	}
 
-	.stage img {
-		display: block;
+	.pin {
+		display: grid;
+		gap: var(--spacing-2);
 		width: 100%;
-		max-height: 60vh;
-		object-fit: contain;
-	}
-
-	.mark {
-		position: absolute;
-		width: var(--spacing-4);
-		height: var(--spacing-4);
-		border: var(--border-width-base) solid var(--color-fg);
-		background: var(--color-surface);
-		transform: translate(-50%, -50%);
-		pointer-events: none;
-	}
-
-	.zoom {
-		display: grid;
-		gap: var(--spacing-1);
+		padding: var(--spacing-2);
+		border: var(--border-width-hairline) solid var(--color-line);
+		border-radius: var(--border-radius-none);
+		background: transparent;
+		color: var(--color-fg);
+		font: inherit;
 		font-size: var(--font-size-sm);
+		text-align: center;
+		cursor: pointer;
 	}
 
-	.preview {
-		display: grid;
-		gap: var(--spacing-2);
+	.pin:hover {
+		border-color: var(--color-fg);
 	}
 
-	.empty {
-		display: grid;
-		justify-items: center;
-		gap: var(--spacing-2);
+	.pin:focus-visible {
+		outline: var(--border-width-base) dashed var(--color-fg);
+		outline-offset: var(--border-width-base);
 	}
 </style>

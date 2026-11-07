@@ -4,7 +4,6 @@
 	import { resolve } from '$app/paths';
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/i18n.ts';
-	import { BLOCK_MIME } from '#lib/exhibitions/editor/exhibition-editor/exhibition-editor.svelte.ts';
 	import {
 		loadRecentArtworks,
 		searchArtworks
@@ -21,12 +20,13 @@
 		open: boolean;
 		lookup: ArtworkLookup;
 		onadd: (block: NewBlock) => void;
+		ondrag?: (event: PointerEvent, block: NewBlock) => void;
 		addHref?: ResolvedPathname;
 	};
 
 	const SEARCH_DELAY_MS = 250;
 
-	let { open = $bindable(), lookup, onadd, addHref }: Props = $props();
+	let { open = $bindable(), lookup, onadd, ondrag, addHref }: Props = $props();
 
 	const kinds: { kind: TextKind; label: string }[] = [
 		{ kind: 'textBlock', label: m.exhibitions.panel.paragraph },
@@ -75,11 +75,6 @@
 		};
 	});
 
-	function drag(event: DragEvent, block: NewBlock): void {
-		event.dataTransfer?.setData(BLOCK_MIME, JSON.stringify(block));
-		if (event.dataTransfer) event.dataTransfer.effectAllowed = 'copy';
-	}
-
 	function image(artwork: WallArtwork): string | undefined {
 		return artwork.image?.src;
 	}
@@ -92,9 +87,8 @@
 			{#each kinds as { kind, label } (kind)}
 				<button
 					class="kind"
-					draggable="true"
 					onclick={() => onadd({ kind })}
-					ondragstart={(event) => drag(event, { kind })}
+					onpointerdown={(event) => ondrag?.(event, { kind })}
 					type="button"
 				>
 					{label}
@@ -119,9 +113,8 @@
 				<li>
 					<button
 						class="tile"
-						draggable="true"
 						onclick={() => onadd({ kind: 'artwork', artworkId: artwork.id })}
-						ondragstart={(event) => drag(event, { kind: 'artwork', artworkId: artwork.id })}
+						onpointerdown={(event) => ondrag?.(event, { kind: 'artwork', artworkId: artwork.id })}
 						type="button"
 					>
 						<span class="thumbnail">

@@ -111,26 +111,6 @@ describe('ExhibitionEditorPane', () => {
 		await vi.waitFor(() => expect(given.document.content?.[0].type).toBe('quote'));
 	});
 
-	it('picks up the block by its handle', async () => {
-		await render(ExhibitionEditorPane, {
-			session: session(),
-			lookup: new ArtworkLookup(),
-			barHeight: 80
-		});
-		await userEvent.click(page.getByText('Soft glow'));
-		const handle = document.querySelector('.handle');
-		const event = new DragEvent('dragstart', {
-			bubbles: true,
-			cancelable: true,
-			dataTransfer: new DataTransfer()
-		});
-
-		handle?.dispatchEvent(event);
-
-		expect(event.defaultPrevented).toBe(false);
-		expect(event.dataTransfer?.types).toContain('application/x-exhibition-block');
-	});
-
 	it('tells the learner when the exhibition is full', async () => {
 		const full = new ExhibitionSession({
 			id: 'x',
@@ -156,24 +136,156 @@ describe('ExhibitionEditorPane', () => {
 		await expect.element(page.getByText(m.exhibitions.limits.blocks)).toBeInTheDocument();
 	});
 
-	it('shows where a dragged block would land', async () => {
-		await render(ExhibitionEditorPane, {
-			session: session(),
-			lookup: new ArtworkLookup(),
-			barHeight: 80
+	describe('dragging', () => {
+		function pointer(type: string, target: EventTarget, x: number, y: number): void {
+			target.dispatchEvent(
+				new PointerEvent(type, {
+					bubbles: true,
+					cancelable: true,
+					clientX: x,
+					clientY: y,
+					button: 0,
+					pointerId: 1,
+					pointerType: 'mouse'
+				})
+			);
+		}
+
+		function twoTexts(): ExhibitionSession {
+			return new ExhibitionSession({
+				id: 'x',
+				title: 'Light',
+				revision: 1,
+				updatedAt: '2026-11-01T10:00:00Z',
+				document: {
+					type: 'doc',
+					content: ['Alpha', 'Beta'].map((text) => ({
+						type: 'textBlock',
+						content: [{ type: 'paragraph', content: [{ type: 'text', text }] }]
+					}))
+				}
+			});
+		}
+
+		function texts(given: ExhibitionSession): string[] {
+			return (given.document.content ?? []).map((block) =>
+				JSON.stringify(block).includes('Alpha')
+					? 'Alpha'
+					: JSON.stringify(block).includes('Beta')
+						? 'Beta'
+						: '-'
+			);
+		}
+
+		it('moves a block by the handle of its bar and shows where it lands on the way', async () => {
+			const given = twoTexts();
+			render(ExhibitionEditorPane, { session: given, lookup: new ArtworkLookup(), barHeight: 80 });
+			await userEvent.click(page.getByText('Alpha'));
+			const handle = document.querySelector('.handle');
+			if (!handle) throw new Error('no handle');
+			const start = handle.getBoundingClientRect();
+			const beta = page.getByText('Beta').element().getBoundingClientRect();
+			const x = beta.left + beta.width / 2;
+
+			pointer('pointerdown', handle, start.left + 2, start.top + 2);
+			pointer('pointermove', window, start.left + 40, start.top + 40);
+			await expect.element(page.getByText('Alpha', { exact: true }).last()).toBeInTheDocument();
+			expect(document.querySelector('.ghost')?.textContent).toContain('Alpha');
+			expect(document.querySelector('.frame.dragging')).not.toBeNull();
+			const moved = page.getByText('Beta').element().getBoundingClientRect();
+			pointer('pointermove', window, x, moved.bottom - 1);
+			await vi.waitFor(() => expect(document.querySelector('.drop')).not.toBeNull());
+			pointer('pointerup', window, x, moved.bottom - 1);
+
+			await vi.waitFor(() => expect(texts(given).slice(0, 2)).toEqual(['Beta', 'Alpha']));
+			expect(document.querySelector('.ghost')).toBeNull();
+			expect(document.querySelector('.drop')).toBeNull();
 		});
-		const block = document.querySelector('.ProseMirror > *');
-		const top = block?.getBoundingClientRect().top ?? 0;
 
-		document.querySelector('.ProseMirror')?.dispatchEvent(
-			new DragEvent('dragover', {
-				bubbles: true,
-				cancelable: true,
-				clientY: top + 1,
-				dataTransfer: new DataTransfer()
-			})
-		);
+		it('puts nothing down when the learner presses Escape', async () => {
+			const given = twoTexts();
+			render(ExhibitionEditorPane, { session: given, lookup: new ArtworkLookup(), barHeight: 80 });
+			await userEvent.click(page.getByText('Alpha'));
+			const handle = document.querySelector('.handle');
+			if (!handle) throw new Error('no handle');
+			const start = handle.getBoundingClientRect();
 
-		await vi.waitFor(() => expect(document.querySelector('.drop')).not.toBeNull());
+			pointer('pointerdown', handle, start.left, start.top);
+			pointer('pointermove', window, start.left + 30, start.top + 300);
+			window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+			pointer('pointerup', window, start.left + 30, start.top + 300);
+
+			await vi.waitFor(() => expect(document.querySelector('.ghost')).toBeNull());
+			expect(texts(given).slice(0, 2)).toEqual(['Alpha', 'Beta']);
+		});
+
+		it('drops a block brought from the panel', async () => {
+			const lookup = new ArtworkLookup();
+			lookup.add([testArtwork(1, 'Judith')]);
+			const given = twoTexts();
+			const { component } = await render(ExhibitionEditorPane, {
+				session: given,
+				lookup,
+				barHeight: 80
+			});
+			const button = document.createElement('button');
+			document.body.appendChild(button);
+			const alpha = page.getByText('Alpha').element().getBoundingClientRect();
+			const x = alpha.left + alpha.width / 2;
+
+			button.addEventListener('pointerdown', (event) =>
+				component.dragNew(event, { kind: 'artwork', artworkId: 'artwork-1' })
+			);
+			pointer('pointerdown', button, 0, 0);
+			pointer('pointermove', window, x, alpha.top + 1);
+			await vi.waitFor(() =>
+				expect(document.querySelector('.ghost')?.textContent).toContain('Judith')
+			);
+			pointer('pointerup', window, x, alpha.top + 1);
+
+			await vi.waitFor(() => expect(given.document.content?.[0].type).toBe('artwork'));
+			button.remove();
+		});
+
+		it('picks an artwork up by its image', async () => {
+			const lookup = new ArtworkLookup();
+			lookup.add([testArtwork(1, 'Judith')]);
+			const given = twoTexts();
+			const { component } = await render(ExhibitionEditorPane, {
+				session: given,
+				lookup,
+				barHeight: 80
+			});
+			component.add({ kind: 'artwork', artworkId: 'artwork-1' });
+			await expect.element(page.getByRole('figure')).toBeInTheDocument();
+			const mat = document.querySelector('.artwork-block .mat');
+			if (!mat) throw new Error('no image');
+			const start = mat.getBoundingClientRect();
+
+			pointer('pointerdown', mat, start.left + 5, start.top + 5);
+			pointer('pointermove', window, start.left + 30, start.top + 30);
+
+			await vi.waitFor(() =>
+				expect(document.querySelector('.ghost')?.textContent).toContain('Judith')
+			);
+			expect(document.querySelector('.artwork-block.moving')).not.toBeNull();
+			window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+			await vi.waitFor(() => expect(document.querySelector('.moving')).toBeNull());
+		});
+
+		it('ignores a press outside of an image', async () => {
+			render(ExhibitionEditorPane, {
+				session: twoTexts(),
+				lookup: new ArtworkLookup(),
+				barHeight: 80
+			});
+			const text = page.getByText('Alpha').element();
+			const start = text.getBoundingClientRect();
+
+			pointer('pointerdown', text, start.left, start.top);
+			pointer('pointermove', window, start.left + 40, start.top + 40);
+
+			expect(document.querySelector('.ghost')).toBeNull();
+		});
 	});
 });

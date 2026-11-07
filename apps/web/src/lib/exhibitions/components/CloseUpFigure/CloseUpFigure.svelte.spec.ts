@@ -32,7 +32,7 @@ function lookupWith(images: unknown[]): ArtworkLookup {
 }
 
 describe('CloseUpFigure', () => {
-	it('crops the fragment and links the artwork in the caption', async () => {
+	it('shows the fragment as a round lens and links the artwork in the caption', async () => {
 		render(CloseUpFigure, {
 			lookup: lookupWith([picture]),
 			artworkId: 'artwork-7',
@@ -41,7 +41,7 @@ describe('CloseUpFigure', () => {
 			viewWidth: 0.4
 		});
 
-		await vi.waitFor(() => expect(document.querySelector('[data-fragment]')).not.toBeNull());
+		await vi.waitFor(() => expect(document.querySelector('[data-fragment] .view')).not.toBeNull());
 		await expect
 			.element(page.getByRole('link', { name: 'Judith' }))
 			.toHaveAttribute('href', '/atelier/7');
@@ -62,7 +62,7 @@ describe('CloseUpFigure', () => {
 
 		await vi.waitFor(() => expect(document.querySelector('[data-fragment]')).not.toBeNull());
 		expect(document.querySelector('a')).toBeNull();
-		await page.getByRole('img').click();
+		await page.getByRole('img', { name: m.exhibitions.closeUp.label('Judith') }).click();
 		expect(onselect).toHaveBeenCalled();
 	});
 
@@ -75,7 +75,7 @@ describe('CloseUpFigure', () => {
 			viewWidth: 0.4
 		});
 
-		await vi.waitFor(() => expect(loadArtworkImages).toHaveBeenCalled());
-		expect(document.querySelector('[data-fragment]')).toBeNull();
+		await vi.waitFor(() => expect(document.querySelector('.placeholder')).not.toBeNull());
+		expect(document.querySelector('[data-fragment] .view')).toBeNull();
 	});
 });

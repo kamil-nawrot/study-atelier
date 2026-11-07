@@ -38,7 +38,7 @@ import {
 	convertBlock,
 	setArtworkAttributes
 } from '#lib/exhibitions/editor/block-conversion/block-conversion.ts';
-import { BLOCK_MIME, payloadOf } from '#lib/exhibitions/editor/block-payload/block-payload.ts';
+import { CurrentBlockMark } from '#lib/exhibitions/editor/current-block/current-block.ts';
 import { dropTarget, type DropTarget } from '#lib/exhibitions/editor/block-drop/block-drop.ts';
 import {
 	MAX_ARTWORKS,
@@ -59,17 +59,17 @@ type Options = {
 	onlimit: (message: string) => void;
 };
 
-export { BLOCK_MIME };
-
 export class ExhibitionEditor {
 	bar = $state.raw<BlockBarState>();
 	dropAt = $state.raw<DropTarget>();
 	#editor: Editor;
 	#moving: CurrentBlock | undefined;
+	#host: HTMLElement;
 	#onlimit: (message: string) => void;
 
 	constructor({ host, document, lookup, onchange, onlimit }: Options) {
 		this.#onlimit = onlimit;
+		this.#host = host;
 		this.#editor = new Editor({
 			element: host,
 			content: document,
@@ -97,6 +97,7 @@ export class ExhibitionEditor {
 				CloseUpNode.configure({ nodeView: closeUpNodeView(lookup) }),
 				Columns,
 				Column,
+				CurrentBlockMark,
 				ExhibitionBlocks.configure({
 					bodyHint: m.exhibitions.view.emptyBody,
 					headingHint: m.exhibitions.view.headingHint
@@ -108,7 +109,7 @@ export class ExhibitionEditor {
 					'aria-multiline': 'true',
 					'aria-label': m.exhibitions.view.bodyLabel
 				},
-				handleDrop: (view, event) => this.#drop(view, event)
+				handleDrop: () => true
 			},
 			onUpdate: ({ editor }) => onchange(editor.getJSON()),
 			onSelectionUpdate: () => this.measure(),
@@ -116,11 +117,6 @@ export class ExhibitionEditor {
 			onBlur: () => setTimeout(() => this.measure(), 0),
 			onFocus: () => this.measure()
 		});
-		const dom = this.#editor.view.dom;
-		dom.addEventListener('dragover', this.#over);
-		dom.addEventListener('dragleave', this.#leave);
-		window.addEventListener('dragend', this.#end);
-		window.addEventListener('drop', this.#end);
 	}
 
 	get view(): EditorView {
@@ -128,11 +124,6 @@ export class ExhibitionEditor {
 	}
 
 	destroy(): void {
-		const dom = this.#editor.view.dom;
-		dom.removeEventListener('dragover', this.#over);
-		dom.removeEventListener('dragleave', this.#leave);
-		window.removeEventListener('dragend', this.#end);
-		window.removeEventListener('drop', this.#end);
 		this.#editor.destroy();
 	}
 
@@ -150,6 +141,7 @@ export class ExhibitionEditor {
 			return;
 		}
 		const rect = dom.getBoundingClientRect();
+		const origin = this.#host.getBoundingClientRect();
 		this.bar = {
 			kind: block.node.type.name as BlockKind,
 			index: block.index,
@@ -161,7 +153,12 @@ export class ExhibitionEditor {
 			paletteOnly: Boolean(block.node.attrs.paletteOnly),
 			row: block.row !== undefined,
 			artworkId: block.node.attrs.artworkId ? String(block.node.attrs.artworkId) : undefined,
-			rect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right }
+			rect: {
+				top: rect.top - origin.top,
+				bottom: rect.bottom - origin.top,
+				left: rect.left - origin.left,
+				right: rect.right - origin.left
+			}
 		};
 	}
 
@@ -234,49 +231,56 @@ export class ExhibitionEditor {
 		view.focus();
 	}
 
-	#drop(view: EditorView, event: DragEvent): boolean {
-		event.preventDefault();
-		this.dropAt = undefined;
-		const target = dropTarget(view, event.clientX, event.clientY);
-		const dropped = payloadOf(event);
-		const within =
-			this.#moving?.row !== undefined &&
-			target?.beside !== undefined &&
-			blockAt(view.state.doc, target.beside)?.row?.pos === this.#moving.row.pos;
-		if (target?.full && !within) return true;
-		if (target && dropped) this.#insertAt(dropped, target);
-		else if (target && this.#moving) {
-			const moving = this.#moving;
-			this.#moving = undefined;
-			if (target.side) {
-				this.#moveBeside(moving, target);
-			} else {
-				view.dispatch(moveBlockTo(view.state, moving, target.from));
-				view.focus();
-			}
-		}
-		return true;
+	#targetAt(x: number, y: number): DropTarget | undefined {
+		const bounds = this.#host.getBoundingClientRect();
+		if (x < bounds.left || x > bounds.right) return undefined;
+		return dropTarget(this.#editor.view, x, y);
 	}
 
-	#over = (event: DragEvent): void => {
-		event.preventDefault();
-		this.dropAt = dropTarget(this.#editor.view, event.clientX, event.clientY);
-	};
+	hover(x: number, y: number): void {
+		this.dropAt = this.#targetAt(x, y);
+	}
 
-	#leave = (event: DragEvent): void => {
-		const next = event.relatedTarget;
-		if (!(next instanceof Node) || !this.#editor.view.dom.contains(next)) this.dropAt = undefined;
-	};
+	place(block: NewBlock | undefined, x: number, y: number): void {
+		const { view } = this.#editor;
+		const target = this.#targetAt(x, y);
+		const moving = this.#moving;
+		this.endDrag();
+		if (!target) return;
+		const within =
+			moving?.row !== undefined &&
+			target.beside !== undefined &&
+			blockAt(view.state.doc, target.beside)?.row?.pos === moving.row.pos;
+		if (target.full && !within) return;
+		if (block) this.#insertAt(block, target);
+		else if (moving && target.side) this.#moveBeside(moving, target);
+		else if (moving) {
+			view.dispatch(moveBlockTo(view.state, moving, target.from));
+			view.focus();
+		}
+	}
 
-	#end = (): void => {
+	endDrag(): void {
 		this.dropAt = undefined;
 		this.#moving = undefined;
-	};
+	}
 
-	startMove(): boolean {
+	startMove(): CurrentBlock | undefined {
 		const block = currentBlock(this.#editor.state);
 		this.#moving = block;
-		return block !== undefined;
+		return block;
+	}
+
+	pickUp(dom: Element): CurrentBlock | undefined {
+		const { view } = this.#editor;
+		let found: number | undefined;
+		view.state.doc.descendants((_, pos) => {
+			if (found === undefined && view.nodeDOM(pos) === dom) found = pos;
+			return found === undefined;
+		});
+		if (found === undefined) return undefined;
+		view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, found)));
+		return this.startMove();
 	}
 
 	convert(kind: TextKind): void {

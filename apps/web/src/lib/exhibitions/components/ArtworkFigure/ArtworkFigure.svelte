@@ -44,9 +44,15 @@
 
 	const colours = new PaletteLoader();
 	const wantsPalette = $derived(palette || paletteOnly);
-	const firstImage = $derived(lookup.pictures(artworkId)?.[0] ?? null);
-	const showsPalette = $derived(
-		wantsPalette && colours.status !== 'idle' && colours.status !== 'unreadable'
+	const pictures = $derived(lookup.pictures(artworkId));
+	const firstImage = $derived(pictures?.[0] ?? null);
+	const collecting = $derived(
+		colours.status === 'loading' || (pictures === undefined && colours.status === 'idle')
+	);
+	const showsPalette = $derived(wantsPalette && (collecting || colours.status === 'ready'));
+	const unreadable = $derived(wantsPalette && colours.status === 'unreadable');
+	const ratio = $derived(
+		artwork?.image?.width && artwork.image.height ? artwork.image.width / artwork.image.height : 0.8
 	);
 
 	$effect(() => {
@@ -64,12 +70,16 @@
 </script>
 
 <figure class="figure" class:selected>
-	<div class="top" contenteditable="false">
+	<div style:--ratio={ratio} class="top" contenteditable="false">
 		<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-		<div class="mat" onclick={onselect}>
-			{#if paletteOnly && showsPalette}
+		<div class="mat" class:bare={paletteOnly && (showsPalette || unreadable)} onclick={onselect}>
+			{#if paletteOnly && (showsPalette || unreadable)}
 				<div class="swatches" data-palette-only="">
-					<PaletteBand collecting={colours.status === 'loading'} colours={colours.colours} inline />
+					{#if unreadable}
+						<p class="unreadable">{m.palette.unreadable}</p>
+					{:else}
+						<PaletteBand {collecting} colours={colours.colours} inline />
+					{/if}
 				</div>
 			{:else if artwork?.image?.src}
 				<img
@@ -90,8 +100,10 @@
 		</div>
 		{#if palette && !paletteOnly && showsPalette}
 			<div class="strip" data-palette="">
-				<PaletteBand collecting={colours.status === 'loading'} colours={colours.colours} inline />
+				<PaletteBand {collecting} colours={colours.colours} inline />
 			</div>
+		{:else if palette && !paletteOnly && unreadable}
+			<p class="unreadable">{m.palette.unreadable}</p>
 		{/if}
 		{#if artwork}
 			<p class="label">
@@ -127,6 +139,7 @@
 <style>
 	.figure {
 		display: grid;
+		width: 100%;
 		gap: var(--spacing-3);
 		margin: 0;
 		max-width: var(--size-content-wide);
@@ -138,6 +151,8 @@
 	}
 
 	.top {
+		--image-width: min(100%, calc(80vh * var(--ratio) + 2 * var(--spacing-4)));
+
 		display: grid;
 		gap: var(--spacing-2);
 		justify-items: start;
@@ -165,17 +180,26 @@
 		max-width: 100%;
 	}
 
+	.mat.bare {
+		width: var(--image-width);
+		padding: 0;
+		background: none;
+	}
+
 	.swatches {
-		width: calc(20 * var(--spacing-6));
-		max-width: 100%;
-		aspect-ratio: 4 / 5;
-		display: grid;
-		align-items: end;
+		width: 100%;
+	}
+
+	.unreadable {
+		margin: 0;
+		padding: var(--spacing-3);
 		background: var(--color-palette-band);
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-xs);
 	}
 
 	.strip {
-		width: 100%;
+		width: var(--image-width);
 	}
 
 	.label {

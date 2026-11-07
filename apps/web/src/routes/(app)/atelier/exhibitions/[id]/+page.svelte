@@ -113,6 +113,7 @@
 				addHref={addArtworkHref(data.exhibition.id)}
 				{lookup}
 				onadd={(block) => pane?.add(block)}
+				ondrag={(event, block) => pane?.dragNew(event, block)}
 				bind:open={panelOpen}
 			/>
 		{/if}
