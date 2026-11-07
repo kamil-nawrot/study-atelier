@@ -28,6 +28,7 @@
 	import {
 		artworkNode,
 		closeUpNode,
+		isSolo,
 		kindOf,
 		textNode,
 		type CloseUpAttributes,
@@ -50,6 +51,7 @@
 	let limit = $state<string>();
 	let drop = $state.raw<Drop>();
 	let moving = $state<string>();
+	let solo = false;
 	let closeUpOf = $state('');
 	let closeUpOpen = $state(false);
 	let closeUpTarget: Target | undefined;
@@ -124,7 +126,7 @@
 
 	function hover(x: number, y: number): void {
 		const frame = list?.getBoundingClientRect();
-		drop = frame && list ? dropAt(measureRows(list), frame, x, y, moving) : undefined;
+		drop = frame && list ? dropAt(measureRows(list), frame, x, y, moving, solo) : undefined;
 	}
 
 	function handlers(onplace: (target: Target) => void): Parameters<BlockDrag['begin']>[2] {
@@ -138,11 +140,13 @@
 			onend: () => {
 				drop = undefined;
 				moving = undefined;
+				solo = false;
 			}
 		};
 	}
 
 	export function dragNew(event: PointerEvent, block: NewBlock): void {
+		solo = block.kind === 'divider';
 		drag.begin(
 			event,
 			newBlockLabel(block, lookup),
@@ -150,10 +154,11 @@
 		);
 	}
 
-	function dragBlock(event: PointerEvent, id: string, label: string): void {
+	function dragBlock(event: PointerEvent, id: string, node: ExhibitionDocument): void {
+		solo = isSolo(node);
 		const started = drag.begin(
 			event,
-			label,
+			blockLabel(node, lookup),
 			handlers((target) => change(move(rows, id, target)))
 		);
 		if (started) moving = id;
@@ -179,7 +184,11 @@
 	{/if}
 	<div bind:this={list} class="rows" class:dragging={drag.active}>
 		{#each rows as row (row.id)}
-			<div class="row" data-row-id={row.id}>
+			<div
+				class="row"
+				data-row-id={row.id}
+				data-solo={row.blocks.some((block) => isSolo(block.node)) ? '' : undefined}
+			>
 				{#each row.blocks as block (block.id)}
 					<BlockCard
 						{block}
@@ -189,7 +198,7 @@
 						moving={drag.active && moving === block.id}
 						onaddmore={() => addMore(block.id, block.node)}
 						onchange={(node) => change(update(rows, block.id, node))}
-						onmovestart={(event) => dragBlock(event, block.id, blockLabel(block.node, lookup))}
+						onmovestart={(event) => dragBlock(event, block.id, block.node)}
 						onremove={() => change(remove(rows, block.id))}
 						onstep={(direction) => change(step(rows, block.id, direction))}
 					/>

@@ -7,6 +7,7 @@ export function measureRows(list: HTMLElement): RowBox[] {
 			id: row.dataset.rowId ?? '',
 			top: box.top,
 			bottom: box.bottom,
+			solo: row.dataset.solo !== undefined,
 			blocks: [...row.querySelectorAll<HTMLElement>(':scope > [data-block-id]')].map((block) => {
 				const rect = block.getBoundingClientRect();
 				return { id: block.dataset.blockId ?? '', left: rect.left, right: rect.right };

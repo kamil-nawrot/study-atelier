@@ -4,6 +4,7 @@ import {
 	closeUpNode,
 	headingNode,
 	headingText,
+	isSolo,
 	kindOf,
 	quoteNode,
 	quoteText,
@@ -23,6 +24,10 @@ describe('new blocks', () => {
 		expect(textNode('textBlock')).toEqual({ type: 'textBlock', content: [{ type: 'paragraph' }] });
 		expect(textNode('heading')).toEqual({ type: 'heading', attrs: { level: 2 } });
 		expect(textNode('quote')).toEqual({ type: 'quote', content: [{ type: 'paragraph' }] });
+		expect(textNode('divider')).toEqual({ type: 'divider' });
+		expect(kindOf(textNode('divider'))).toBe('divider');
+		expect(isSolo(textNode('divider'))).toBe(true);
+		expect(isSolo(textNode('quote'))).toBe(false);
 	});
 
 	it('stores a palette as an artwork that shows only its colours', () => {

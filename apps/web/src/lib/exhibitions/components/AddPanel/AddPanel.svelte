@@ -24,7 +24,8 @@
 	const kinds: { kind: TextKind; label: string }[] = [
 		{ kind: 'textBlock', label: m.exhibitions.panel.paragraph },
 		{ kind: 'heading', label: m.exhibitions.panel.heading },
-		{ kind: 'quote', label: m.exhibitions.panel.quote }
+		{ kind: 'quote', label: m.exhibitions.panel.quote },
+		{ kind: 'divider', label: m.exhibitions.panel.divider }
 	];
 
 	const artworkKinds: { kind: ArtworkKind; label: string }[] = [

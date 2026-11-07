@@ -1,6 +1,6 @@
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 
-export type TextKind = 'textBlock' | 'heading' | 'quote';
+export type TextKind = 'textBlock' | 'heading' | 'quote' | 'divider';
 
 export type ArtworkKind = 'artwork' | 'palette' | 'closeUp';
 
@@ -25,7 +25,12 @@ export function kindOf(node: ExhibitionDocument): BlockKind {
 export function textNode(kind: TextKind): ExhibitionDocument {
 	if (kind === 'heading') return { type: 'heading', attrs: { level: 2 } };
 	if (kind === 'quote') return { type: 'quote', content: [{ type: 'paragraph' }] };
+	if (kind === 'divider') return { type: 'divider' };
 	return { type: 'textBlock', content: [{ type: 'paragraph' }] };
+}
+
+export function isSolo(node: ExhibitionDocument): boolean {
+	return node.type === 'divider';
 }
 
 export function artworkNode(artworkId: string, paletteOnly = false): ExhibitionDocument {

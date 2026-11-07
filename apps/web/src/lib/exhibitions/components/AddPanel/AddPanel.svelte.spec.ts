@@ -44,6 +44,8 @@ describe('AddPanel', () => {
 		await userEvent.click(page.getByRole('button', { name: m.exhibitions.panel.quote }));
 
 		expect(onadd).toHaveBeenCalledWith({ kind: 'quote' });
+		await userEvent.click(page.getByRole('button', { name: m.exhibitions.panel.divider }));
+		expect(onadd).toHaveBeenCalledWith({ kind: 'divider' });
 	});
 
 	it('lists the artworks added last and adds one on a click', async () => {

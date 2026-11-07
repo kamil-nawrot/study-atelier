@@ -12,7 +12,14 @@ import {
 	update,
 	type Row
 } from '#lib/exhibitions/editor/block-rows/block-rows.ts';
-import { artwork, columns, doc, heading, textBlock } from '#lib/testing/exhibitions/exhibitions.ts';
+import {
+	artwork,
+	columns,
+	divider,
+	doc,
+	heading,
+	textBlock
+} from '#lib/testing/exhibitions/exhibitions.ts';
 
 function names(rows: readonly Row[]): string[][] {
 	return rows.map((row) =>
@@ -94,6 +101,19 @@ describe('insert', () => {
 		);
 		expect(names(insert(full, blockOf(textBlock('Four')), { row: 'gone', at: 0 }))).toEqual(
 			names(full)
+		);
+	});
+
+	it('keeps a divider alone in its row', () => {
+		const rows = rowsOf(doc(textBlock('Alpha'), divider()));
+		expect(names(insert(rows, blockOf(divider()), { row: rows[0].id, at: 1 }))).toEqual(
+			names(rows)
+		);
+		expect(names(insert(rows, blockOf(textBlock('New')), { row: rows[1].id, at: 0 }))).toEqual(
+			names(rows)
+		);
+		expect(names(move(rows, rows[1].blocks[0].id, { row: rows[0].id, at: 0 }))).toEqual(
+			names(rows)
 		);
 	});
 });

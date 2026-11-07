@@ -2392,6 +2392,7 @@ export const pl = {
 			paragraph: 'Akapit',
 			heading: 'Nagłówek',
 			quote: 'Cytat',
+			divider: 'Odstęp',
 			artworksTitle: 'Dzieła',
 			addAs: 'Dodaj jako',
 			search: 'Szukaj dzieła',
@@ -2427,6 +2428,7 @@ export const pl = {
 			artwork: 'Dzieło',
 			palette: 'Paleta',
 			closeUp: 'Szczegół',
+			divider: 'Odstęp',
 			textHint: 'Pisz tutaj…',
 			headingHint: 'Wpisz nagłówek',
 			quoteHint: 'Wpisz cytat'
@@ -2442,6 +2444,7 @@ export const pl = {
 			bulletList: 'Lista',
 			orderedList: 'Lista numerowana',
 			note: 'Notatka',
+			line: 'Linia',
 			position: 'Położenie',
 			addMore: 'Dodaj kolejny',
 			full: 'Zestaw ma już pięć elementów',
