@@ -55,8 +55,10 @@ test('builds an exhibition from blocks that typing or dragging cannot break', as
 	await page.getByRole('radiogroup').getByText(m.exhibitions.blocks.palette).click();
 	await page.getByRole('button', { name: 'Dama z gronostajem' }).click();
 	const palette = page.locator('[data-kind="palette"]');
-	await palette.evaluate((element) => element.scrollIntoView({ block: 'center' }));
-	await palette.hover();
+	await palette.evaluate((element) =>
+		window.scrollBy(0, element.getBoundingClientRect().top - window.innerHeight / 2)
+	);
+	await palette.hover({ position: { x: 100, y: 60 } });
 	const grip = await palette.locator('.handle').boundingBox();
 	if (!grip) throw new Error('the palette has no handle on screen');
 	await page.mouse.move(grip.x + 10, grip.y + grip.height - 10);
@@ -75,19 +77,7 @@ test('builds an exhibition from blocks that typing or dragging cannot break', as
 	if (!artwork) throw new Error('the artwork is not on screen');
 	const inside = Math.max(artwork.y + 20, Math.min(artwork.y + artwork.height - 20, 360));
 	await page.mouse.move(artwork.x + artwork.width - 10, inside, { steps: 8 });
-	const state = await page.evaluate(() => ({
-		scroll: window.scrollY,
-		ghost: document.querySelector('.ghost')?.textContent,
-		marks: [...document.querySelectorAll<HTMLElement>('.mark')].map((mark) => mark.style.cssText),
-		rows: [...document.querySelectorAll('[data-row-id]')].map((row) => {
-			const box = row.getBoundingClientRect();
-			return [box.top, box.bottom, box.left, box.right, row.textContent?.slice(0, 40)];
-		})
-	}));
-	await expect(
-		page.locator('.mark[data-side]'),
-		JSON.stringify({ artwork, inside, grip, state })
-	).toBeVisible();
+	await expect(page.locator('.mark[data-side]')).toBeVisible();
 	await page.mouse.up();
 	const row = page.locator('[data-row-id]').filter({ has: page.locator('[data-kind="artwork"]') });
 	await expect(row.locator('[data-kind="palette"]')).toHaveCount(1);
