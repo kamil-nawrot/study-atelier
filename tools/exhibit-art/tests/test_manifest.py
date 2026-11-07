@@ -29,7 +29,7 @@ def test_a_variant_can_come_from_a_museum_page(tmp_path: Path) -> None:
         "variant": "letter-a",
         "status": "chosen",
         "source_url": "https://example.org/media/images/originals/5229067.20035329.jpg",
-        "source_page": "https://example.org/object/1",
+        "source_page": "https://example.org/object/obj-1",
         "licence": "Public Domain Mark 1.0",
         "credit": "c",
         "crop": [0, 0, 1, 1],
@@ -38,8 +38,8 @@ def test_a_variant_can_come_from_a_museum_page(tmp_path: Path) -> None:
     path.write_text(json.dumps({"variants": [item]}))
     [variant] = load_manifest(path, tmp_path)
     assert variant.commons_file is None
-    assert variant.source_page == "https://example.org/object/1"
-    assert variant.job.source.name == "5229067-20035329.jpg"
+    assert variant.source_page == "https://example.org/object/obj-1"
+    assert variant.job.source.name == "obj-1.jpg"
     path.write_text(json.dumps({"variants": [{**item, "source_page": None}]}))
     with pytest.raises(ValueError):
         load_manifest(path, tmp_path)

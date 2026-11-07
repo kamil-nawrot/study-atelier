@@ -30,6 +30,11 @@ def source_name(commons_file: str) -> str:
     return f"{slug}.{ext.lower()}"
 
 
+def museum_file_name(source_url: str, source_page: str) -> str:
+    ext = source_url.split("?")[0].rsplit(".", 1)[-1]
+    return f"{source_page.rstrip('/').rsplit('/', 1)[-1]}.{ext}"
+
+
 def load_app(path: Path) -> dict[str, str]:
     return json.loads(path.read_text("utf-8")).get("app", {})
 
@@ -47,7 +52,7 @@ def load_manifest(path: Path, sources_dir: Path) -> list[Variant]:
             raise ValueError(f"{name}: give either commons_file or source_url")
         if source_url and not item.get("source_page"):
             raise ValueError(f"{name}: a source_url needs its source_page")
-        file_name = commons_file or source_url.split("?")[0].rsplit("/", 1)[-1]
+        file_name = commons_file or museum_file_name(source_url, item["source_page"])
         job = Job(
             source=sources_dir / source_name(file_name),
             crop=tuple(item["crop"]),
