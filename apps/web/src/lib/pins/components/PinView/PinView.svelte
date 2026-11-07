@@ -50,5 +50,6 @@
 		justify-items: center;
 		justify-self: center;
 		width: 100%;
+		min-width: 0;
 	}
 </style>

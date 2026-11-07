@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import '@study-atelier/ui/styles.css';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 import { m } from '#lib/i18n/i18n.ts';
@@ -72,6 +73,27 @@ describe('CloseUpDialog', () => {
 			y: 0.3,
 			viewWidth: 0.4
 		});
+	});
+
+	it('keeps every lens inside its tile', async () => {
+		await page.viewport(800, 900);
+		loadArtworkPins.mockResolvedValue({
+			pins: ['p1', 'p2', 'p3', 'p4', 'p5'].map((id) => pin(id, '', 0.3))
+		});
+		render(CloseUpDialog, {
+			open: true,
+			lookup: lookupWith([picture]),
+			artworkId: 'artwork-7',
+			onpick: vi.fn()
+		});
+
+		await vi.waitFor(() => expect(document.querySelectorAll('.pin .view > *')).toHaveLength(5));
+		for (const tile of document.querySelectorAll('.pin')) {
+			const lens = tile.querySelector('.view > *') as HTMLElement;
+			expect(lens.getBoundingClientRect().right).toBeLessThanOrEqual(
+				tile.getBoundingClientRect().right
+			);
+		}
 	});
 
 	it('gives a pin without a view the default size', async () => {
