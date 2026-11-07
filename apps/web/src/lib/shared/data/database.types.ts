@@ -636,7 +636,7 @@ export type Database = {
         Row: {
           created_at: string;
           deleted_at: string | null;
-          document: Json;
+          document: NonNullable<Json>;
           format: number;
           id: string;
           owner_id: string;
@@ -648,7 +648,7 @@ export type Database = {
         Insert: {
           created_at?: string;
           deleted_at?: string | null;
-          document?: Json;
+          document?: NonNullable<Json>;
           format?: number;
           id?: string;
           owner_id?: string;
@@ -659,7 +659,7 @@ export type Database = {
         Update: {
           created_at?: string;
           deleted_at?: string | null;
-          document?: Json;
+          document?: NonNullable<Json>;
           format?: number;
           id?: string;
           owner_id?: string;
