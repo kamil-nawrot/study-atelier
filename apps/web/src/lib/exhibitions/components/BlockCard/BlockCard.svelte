@@ -267,11 +267,15 @@
 	}
 
 	.card[data-align='center'] .content {
+		--block-justify: center;
+
 		justify-items: center;
 		text-align: center;
 	}
 
 	.card[data-align='right'] .content {
+		--block-justify: end;
+
 		justify-items: end;
 		text-align: right;
 	}
