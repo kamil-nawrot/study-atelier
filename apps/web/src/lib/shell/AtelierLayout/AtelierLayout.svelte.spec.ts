@@ -34,6 +34,10 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 }));
 
 vi.mock('#lib/feedback/feedback-data/feedback-data.ts', () => ({ sendFeedback: vi.fn() }));
+vi.mock('#lib/career/career-data/career-data.ts', async (original) => ({
+	...(await original<typeof import('#lib/career/career-data/career-data.ts')>()),
+	recordNightLight: vi.fn().mockResolvedValue({})
+}));
 
 const signOut = vi.mocked(supabase.auth.signOut);
 
