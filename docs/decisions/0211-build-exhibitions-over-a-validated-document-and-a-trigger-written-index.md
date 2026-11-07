@@ -41,6 +41,10 @@ For the page: the editor in read-only mode, or the document rendered by the exis
 - Bad: the whitelist lives in SQL and in the editor schema and changes in both. ATL-543 extends it for rows and close-ups.
 - Bad: a save of a document that names an artwork of someone else succeeds silently.
 
+### Rows and close-ups (ATL-543)
+
+The document gains `columns` (two or three `column` children, direct child of the document only), each `column` holding exactly one block, and the atom block `closeUp` (artworkId, imageId, x, y, viewWidth, the geometry of a pin). The validation trigger whitelists them, and the index trigger collects the `artworkId` of a close-up like any other. In the editor the schema accepts a row of any size so that deleting a block stays valid, and a plugin dissolves a row with fewer than two columns; the limit of three is kept by the drop logic. Rows keep the document a plain tree, so export, import and reading need no new table.
+
 ## More information
 
 [ATL-542](https://linear.app/kamil-nawrot/issue/ATL-542), [ATL-543](https://linear.app/kamil-nawrot/issue/ATL-543).
