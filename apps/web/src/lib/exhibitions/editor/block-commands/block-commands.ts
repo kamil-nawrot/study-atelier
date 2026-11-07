@@ -235,9 +235,10 @@ function placeBeside(
 	schema: Schema,
 	target: CurrentBlock,
 	side: Side,
-	node: ProseNode
+	node: ProseNode,
+	crowded = false
 ): number | undefined {
-	if (!canJoinRow(target)) return undefined;
+	if (!crowded && !canJoinRow(target)) return undefined;
 	const { column, columns } = schema.nodes;
 	if (target.row) {
 		const at =
@@ -271,11 +272,15 @@ export function moveBeside(
 ): Transaction | undefined {
 	if (block.pos === target.pos) return undefined;
 	const tr = state.tr;
-	const at = placeBeside(tr, state.schema, target, side, block.node);
+	const sameRow = block.row !== undefined && block.row.pos === target.row?.pos;
+	const at = placeBeside(tr, state.schema, target, side, block.node, sameRow);
 	if (at === undefined) return undefined;
 	const { from, to } = sourceRange(block);
+	const placed = tr.steps.length;
 	tr.delete(tr.mapping.map(from, 1), tr.mapping.map(to, -1));
-	return tr.setSelection(NodeSelection.create(tr.doc, tr.mapping.map(at))).scrollIntoView();
+	return tr
+		.setSelection(NodeSelection.create(tr.doc, tr.mapping.slice(placed).map(at)))
+		.scrollIntoView();
 }
 
 function paragraphsOf(node: ProseNode): Fragment[] {

@@ -249,7 +249,11 @@ export class ExhibitionEditor {
 		this.dropAt = undefined;
 		const target = dropTarget(view, event.clientX, event.clientY);
 		const dropped = payloadOf(event);
-		if (target?.full) return true;
+		const within =
+			this.#moving?.row !== undefined &&
+			target?.beside !== undefined &&
+			blockAt(view.state.doc, target.beside)?.row?.pos === this.#moving.row.pos;
+		if (target?.full && !within) return true;
 		if (target && dropped) this.#insertAt(dropped, target);
 		else if (target && this.#moving) {
 			const moving = this.#moving;
