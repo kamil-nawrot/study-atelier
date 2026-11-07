@@ -29,10 +29,10 @@
 		<GripVertical aria-hidden="true" size={16} />
 		{label}
 	</span>
-	{#if tools}
-		<span class="tools">{@render tools()}</span>
-	{/if}
 	<span class="end">
+		{#if tools}
+			<span class="tools">{@render tools()}</span>
+		{/if}
 		<button
 			aria-label={m.exhibitions.bar.up}
 			disabled={!canUp}
@@ -64,24 +64,39 @@
 
 <style>
 	.bar {
+		position: absolute;
+		z-index: 2;
+		top: calc(-1 * var(--size-control) / 2);
+		right: var(--spacing-3);
+		left: var(--spacing-3);
 		display: flex;
-		align-items: center;
-		gap: var(--spacing-1);
-		min-width: 0;
-		border-bottom: var(--border-width-hairline) solid var(--color-line);
+		justify-content: space-between;
+		gap: var(--spacing-2);
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
+		pointer-events: none;
+	}
+
+	.bar > * {
+		pointer-events: auto;
+	}
+
+	.handle,
+	.end {
+		display: inline-flex;
+		align-items: center;
+		min-height: var(--size-control);
+		border: var(--border-width-hairline) solid var(--color-line);
+		background: var(--color-bg);
 	}
 
 	.handle {
-		display: inline-flex;
-		flex: 1 1 auto;
-		align-items: center;
-		gap: var(--spacing-1);
+		gap: var(--spacing-2);
 		min-width: 0;
-		min-height: var(--size-control);
+		padding: 0 var(--spacing-3);
 		overflow: hidden;
+		color: var(--color-fg);
 		cursor: grab;
 		text-overflow: ellipsis;
 		touch-action: none;
@@ -89,10 +104,9 @@
 		white-space: nowrap;
 	}
 
-	.tools,
-	.end {
+	.tools {
 		display: flex;
-		flex: none;
+		border-right: var(--border-width-hairline) solid var(--color-line);
 	}
 
 	.bar :global(button) {
@@ -129,12 +143,12 @@
 
 	@media (max-width: 767px) {
 		.bar {
-			flex-wrap: wrap;
+			right: 0;
+			left: auto;
 		}
 
 		.handle {
-			flex: 1 0 auto;
-			cursor: default;
+			display: none;
 		}
 	}
 </style>

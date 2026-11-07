@@ -1,6 +1,6 @@
 # 0216. Edit exhibitions as a list of blocks that are only added and moved
 
-- Status: accepted
+- Status: accepted; the bar and the drop marks are superseded by [ADR-0217](0217-show-block-tools-on-hover-over-a-quiet-edit-mode.md)
 - Date: 2026-11-07
 
 ## Context and problem statement

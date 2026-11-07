@@ -20,7 +20,14 @@ describe('dropAt', () => {
 	it('shows a line in the gap between rows', () => {
 		const drop = dropAt(rows, frame, 450, 120);
 		expect(drop?.target).toEqual({ before: 'r2' });
-		expect(drop?.mark).toEqual({ top: 118, left: 0, width: 900, height: 4, side: false });
+		expect(drop?.mark).toEqual({
+			top: 118,
+			left: 0,
+			width: 900,
+			height: 4,
+			side: false,
+			slot: { top: 108, left: 0, width: 900, height: 24 }
+		});
 	});
 
 	it('shows a line above or below a row by the half of it the pointer is in', () => {
@@ -35,9 +42,20 @@ describe('dropAt', () => {
 	it('offers a column at the edge of a block', () => {
 		const left = dropAt(rows, frame, 10, 50);
 		expect(left?.target).toEqual({ row: 'r1', at: 0 });
-		expect(left?.mark).toEqual({ top: 0, left: -2, width: 4, height: 100, side: true });
-		expect(dropAt(rows, frame, 890, 50)?.target).toEqual({ row: 'r1', at: 1 });
-		expect(dropAt(rows, frame, 420, 200)?.target).toEqual({ row: 'r2', at: 1 });
+		expect(left?.mark).toEqual({
+			top: 0,
+			left: -2,
+			width: 4,
+			height: 100,
+			side: true,
+			slot: { top: 0, left: 0, width: 450, height: 100 }
+		});
+		const right = dropAt(rows, frame, 890, 50);
+		expect(right?.target).toEqual({ row: 'r1', at: 1 });
+		expect(right?.mark.slot).toEqual({ top: 0, left: 450, width: 450, height: 100 });
+		const middle = dropAt(rows, frame, 420, 200);
+		expect(middle?.target).toEqual({ row: 'r2', at: 1 });
+		expect(middle?.mark.slot).toEqual({ top: 140, left: 280, width: 300, height: 160 });
 		expect(dropAt(rows, frame, 480, 200)?.target).toEqual({ row: 'r2', at: 1 });
 	});
 

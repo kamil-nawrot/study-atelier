@@ -215,7 +215,7 @@
 	.row {
 		display: flex;
 		gap: var(--spacing-8);
-		align-items: flex-start;
+		align-items: stretch;
 	}
 
 	.row > :global(*) {

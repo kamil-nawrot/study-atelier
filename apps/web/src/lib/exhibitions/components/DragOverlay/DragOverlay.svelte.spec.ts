@@ -7,7 +7,14 @@ describe('DragOverlay', () => {
 		render(DragOverlay, {
 			x: 10,
 			y: 10,
-			mark: { top: 0, left: 0, width: 100, height: 4, side: false }
+			mark: {
+				top: 0,
+				left: 0,
+				width: 100,
+				height: 4,
+				side: false,
+				slot: { top: 0, left: 0, width: 100, height: 24 }
+			}
 		});
 
 		expect(document.querySelector('.ghost')).toBeNull();
@@ -19,13 +26,21 @@ describe('DragOverlay', () => {
 			label: 'Tekst',
 			x: 10,
 			y: 20,
-			mark: { top: 30, left: 0, width: 100, height: 4, side: false }
+			mark: {
+				top: 30,
+				left: 0,
+				width: 100,
+				height: 4,
+				side: false,
+				slot: { top: 20, left: 0, width: 100, height: 24 }
+			}
 		});
 
 		expect(document.querySelector<HTMLElement>('.ghost')?.style.top).toBe('20px');
 		expect(document.querySelector('.ghost')?.textContent).toContain('Tekst');
 		expect(document.querySelector<HTMLElement>('.mark')?.style.width).toBe('100px');
 		expect(document.querySelector('.mark[data-side]')).toBeNull();
+		expect(document.querySelector<HTMLElement>('.slot')?.style.height).toBe('24px');
 	});
 
 	it('marks a new column at the edge of a block', () => {
@@ -33,10 +48,18 @@ describe('DragOverlay', () => {
 			label: 'Tekst',
 			x: 10,
 			y: 20,
-			mark: { top: 0, left: 50, width: 4, height: 200, side: true }
+			mark: {
+				top: 0,
+				left: 50,
+				width: 4,
+				height: 200,
+				side: true,
+				slot: { top: 0, left: 50, width: 100, height: 200 }
+			}
 		});
 
 		expect(document.querySelector('.mark[data-side]')).not.toBeNull();
+		expect(document.querySelector<HTMLElement>('.slot')?.style.width).toBe('100px');
 	});
 
 	it('keeps a mark below the top bar', () => {
@@ -45,10 +68,18 @@ describe('DragOverlay', () => {
 			x: 10,
 			y: 20,
 			top: 80,
-			mark: { top: 30, left: 50, width: 4, height: 200, side: true }
+			mark: {
+				top: 30,
+				left: 50,
+				width: 4,
+				height: 200,
+				side: true,
+				slot: { top: 30, left: 50, width: 100, height: 200 }
+			}
 		});
 
 		expect(document.querySelector<HTMLElement>('.mark')?.style.top).toBe('80px');
 		expect(document.querySelector<HTMLElement>('.mark')?.style.height).toBe('150px');
+		expect(document.querySelector<HTMLElement>('.slot')?.style.top).toBe('80px');
 	});
 });
