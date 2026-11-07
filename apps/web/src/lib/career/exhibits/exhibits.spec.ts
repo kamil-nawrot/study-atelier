@@ -80,6 +80,7 @@ describe('exhibits', () => {
 		expect(isHidden(exhibit({ code: 'seven_league_boots', value: 2, thresholds: [3] }))).toBe(true);
 		expect(isHidden(exhibit({ code: 'figure_alphabet', value: 22, thresholds: [23] }))).toBe(true);
 		expect(isHidden(exhibit({ code: 'candle_moths', value: 0, thresholds: [1] }))).toBe(true);
+		expect(isHidden(exhibit({ code: 'amateur_magnifier', value: 0, thresholds: [1] }))).toBe(true);
 		expect(
 			isHidden(exhibit({ code: 'vasari_lives', value: 0, thresholds: [1, 3, 5, 10, 20] }))
 		).toBe(false);

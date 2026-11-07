@@ -38,8 +38,9 @@ begin
     'collection', 'eras', 'prehistory', 'antiquity', 'middle_ages', 'early_modern', 'modern', 'contemporary',
     'vasari_lives', 'memory', 'bullseye', 'regular', 'back_from_storage', 'chronicle', 'grand_tour', 'seen_live',
     'timeline', 'glossary', 'hortus_cliffortianus', 'own_eye', 'night_watch', 'marathon', 'mouth_of_truth',
-    'pinacotheca', 'trevi_fountain', 'seven_league_boots', 'figure_alphabet', 'candle_moths'
-  ], 'the exhibits are not the agreed twenty-eight in their order';
+    'pinacotheca', 'trevi_fountain', 'seven_league_boots', 'figure_alphabet', 'candle_moths',
+    'amateur_magnifier'
+  ], 'the exhibits are not the agreed twenty-nine in their order';
   assert (select (array_agg(exhibit order by position))[1:8]
       from public.unlock_exhibits('UTC') with ordinality as listed (exhibit, value, thresholds, position)) = array[
     'collection', 'eras', 'prehistory', 'antiquity', 'middle_ages', 'early_modern', 'modern', 'contemporary'
@@ -441,6 +442,34 @@ begin
     'a switch at 22:30 of the learner does not unlock the night candlestick';
   assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'candle_moths') = 1,
     'the night candlestick does not give its bonus';
+end;
+$$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000010', 'owner-g@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000010", "role": "authenticated"}', true);
+
+do $$
+declare
+  first_look timestamptz;
+begin
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'amateur_magnifier') = 0,
+    'a learner who never stayed an hour with an artwork counts for the magnifier';
+  perform public.record_long_look();
+  select long_look_at into first_look from public.profiles;
+  assert first_look is not null, 'record_long_look does not record the hour for a learner without a profile';
+  perform public.record_long_look();
+  assert (select long_look_at from public.profiles) = first_look, 'a later hour replaces the first one';
+  assert (select thresholds from public.unlock_exhibits('UTC') where exhibit = 'amateur_magnifier') = array[1],
+    'the magnifier does not have one tier';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'amateur_magnifier') = array[1]::smallint[],
+    'an hour with one artwork does not unlock the magnifier';
+  assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'amateur_magnifier') = 1,
+    'the magnifier does not give its bonus';
 end;
 $$;
 

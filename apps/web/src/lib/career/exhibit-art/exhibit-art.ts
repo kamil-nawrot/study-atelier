@@ -152,6 +152,11 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		credit: 'Vincent Laurensz. van der Vinne, „Muchy lecą do światła świecy”, 1714',
 		licence: 'domena publiczna',
 		page: 'https://www.rijksmuseum.nl/en/collection/RP-P-OB-62.370'
+	},
+	amateur_magnifier: {
+		credit: 'Honoré Daumier, „Prawdziwy znawca”, 1847',
+		licence: 'domena publiczna',
+		page: 'https://www.rijksmuseum.nl/en/collection/RP-P-2015-26-183'
 	}
 };
 

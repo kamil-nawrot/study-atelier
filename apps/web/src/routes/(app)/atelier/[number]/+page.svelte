@@ -10,6 +10,7 @@
 	import { page } from '$app/state';
 	import { preloadArtwork } from '#lib/artworks/artwork-preload/artwork-preload.ts';
 	import { compareHref } from '#lib/compare/compare-address/compare-address.ts';
+	import { followLongLook, watchLongLook } from '#lib/career/long-look/long-look.ts';
 	import ArtworkTrashDialog from '#lib/artworks/components/ArtworkTrashDialog/ArtworkTrashDialog.svelte';
 	import ArtworkView from '#lib/artworks/components/ArtworkView/ArtworkView.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
@@ -55,6 +56,11 @@
 		() => trashOpen
 	);
 	flip.follow(preloadArtwork);
+
+	$effect(() => followLongLook(page.data.session?.user.id, page.data.longLookRecorded === true));
+	$effect(() => {
+		if (data.artwork?.id) return watchLongLook(page.data.careerShown !== false);
+	});
 
 	onMount(() => {
 		const saved = page.state.saved;

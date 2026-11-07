@@ -1,6 +1,6 @@
 # 0205. Show an hour with one artwork as a connoisseur's magnifier
 
-- Status: accepted
+- Status: accepted; the name is superseded by [0214](0214-record-the-first-hour-on-one-artwork-and-rename-its-exhibit.md)
 - Date: 2026-11-06
 
 ## Context and problem statement

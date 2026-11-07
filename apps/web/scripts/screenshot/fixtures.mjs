@@ -1187,7 +1187,8 @@ export const EXHIBITS = [
 	{ exhibit: 'trevi_fountain', value: 2, thresholds: [2] },
 	{ exhibit: 'seven_league_boots', value: 1, thresholds: [3] },
 	{ exhibit: 'figure_alphabet', value: 23, thresholds: [23] },
-	{ exhibit: 'candle_moths', value: 1, thresholds: [1] }
+	{ exhibit: 'candle_moths', value: 1, thresholds: [1] },
+	{ exhibit: 'amateur_magnifier', value: 0, thresholds: [1] }
 ];
 
 export const EXHIBIT_TIERS = EXHIBITS.flatMap(({ exhibit, value, thresholds }) =>
