@@ -2370,10 +2370,7 @@ export const pl = {
 			done: 'Gotowe',
 			delete: 'Usuń',
 			titleLabel: 'Tytuł wystawy',
-			bodyLabel: 'Treść wystawy',
-			emptyBody: 'Tu zaczyna się Twoja opowieść. Pisz albo przeciągnij dzieło z panelu.',
-			captionHint: 'Dodaj podpis kuratorski',
-			headingHint: 'Nagłówek',
+			emptyBody: 'Tu zaczyna się Twoja opowieść. Dodaj tekst albo dzieło z panelu obok.',
 			missingArtwork: 'Dzieła nie ma w atelier',
 			archivedArtwork: 'Dzieło jest w Archiwum'
 		},
@@ -2390,13 +2387,13 @@ export const pl = {
 		panel: {
 			title: 'Dodaj do wystawy',
 			open: 'Dodaj',
-			phoneOpen: 'Dodaj pod zaznaczonym blokiem',
 			close: 'Zwiń panel',
 			textTitle: 'Tekst',
 			paragraph: 'Akapit',
 			heading: 'Nagłówek',
 			quote: 'Cytat',
 			artworksTitle: 'Dzieła',
+			addAs: 'Dodaj jako',
 			search: 'Szukaj dzieła',
 			searchPlaceholder: 'Tytuł, autor albo numer',
 			recent: 'Ostatnio dodane',
@@ -2408,40 +2405,39 @@ export const pl = {
 			loadError: 'Nie udało się wczytać dzieł.'
 		},
 		closeUp: {
-			caption: 'Zbliżenie: ',
-			label: (title: string): string => `Zbliżenie: ${title}`
-		},
-		drop: {
-			here: 'Upuść tutaj',
-			full: 'Ten rząd jest już pełny'
+			caption: 'Szczegół: ',
+			label: (title: string): string => `Szczegół: ${title}`
 		},
 		closeUpDialog: {
-			title: 'Zbliżenie',
-			hint: 'Wybierz pinezkę, której fragment pokaże zbliżenie.',
+			title: 'Szczegół',
+			hint: 'Wybierz pinezkę, której fragment pokaże szczegół.',
 			loading: 'Wczytywanie pinezek…',
 			loadError: 'Nie udało się wczytać pinezek. Spróbuj ponownie za chwilę.',
 			noPins: 'To dzieło nie ma jeszcze pinezek. Wbij je lupą w widoku dzieła, a potem wróć tutaj.',
 			openArtwork: 'Otwórz dzieło',
 			pin: (number: number): string => `Pinezka ${number}`
 		},
-		bar: {
-			label: 'Blok wystawy',
-			move: 'Przenieś',
-			up: 'W górę',
-			down: 'W dół',
-			left: 'W lewo',
-			right: 'W prawo',
-			remove: 'Usuń z wystawy',
-			palette: 'Paleta',
-			paletteOnly: 'Tylko paleta',
-			closeUp: 'Dodaj zbliżenie',
-			kind: 'Rodzaj tekstu',
-			paragraph: 'Akapit',
+		blocks: {
+			textBlock: 'Tekst',
 			heading: 'Nagłówek',
 			quote: 'Cytat',
+			artwork: 'Dzieło',
+			palette: 'Paleta',
+			closeUp: 'Szczegół',
+			textHint: 'Pisz tutaj…',
+			headingHint: 'Wpisz nagłówek',
+			quoteHint: 'Wpisz cytat'
+		},
+		bar: {
+			label: (block: string): string => `Blok: ${block}`,
+			move: 'Przeciągnij, żeby przenieść',
+			up: 'W górę',
+			down: 'W dół',
+			remove: 'Usuń z wystawy',
 			bold: 'Pogrubienie',
 			italic: 'Kursywa',
-			note: 'Notatka',
+			bulletList: 'Lista',
+			orderedList: 'Lista numerowana',
 			noteOf: (title: string): string => `Z notatki dzieła · ${title}`,
 			noNote: 'To dzieło nie ma jeszcze notatki.'
 		},

@@ -56,6 +56,24 @@ describe('AddPanel', () => {
 		expect(onadd).toHaveBeenCalledWith({ kind: 'artwork', artworkId: judith.id });
 	});
 
+	it('adds the palette or a detail of an artwork when the learner picks it first', async () => {
+		const onadd = vi.fn();
+		const ondrag = vi.fn();
+		render(AddPanel, { open: true, lookup: new ArtworkLookup(), onadd, ondrag });
+
+		await userEvent.click(page.getByRole('radio', { name: m.exhibitions.blocks.palette }));
+		await userEvent.click(page.getByRole('button', { name: 'Judith' }));
+		await userEvent.click(page.getByRole('radio', { name: m.exhibitions.blocks.closeUp }));
+		await userEvent.click(page.getByRole('button', { name: 'Judith' }));
+
+		expect(onadd).toHaveBeenNthCalledWith(1, { kind: 'palette', artworkId: judith.id });
+		expect(onadd).toHaveBeenNthCalledWith(2, { kind: 'closeUp', artworkId: judith.id });
+		expect(ondrag).toHaveBeenLastCalledWith(expect.any(PointerEvent), {
+			kind: 'closeUp',
+			artworkId: judith.id
+		});
+	});
+
 	it('searches by what the learner types and says when nothing matches', async () => {
 		search.mockResolvedValueOnce({ artworks: [olympia] }).mockResolvedValueOnce({ artworks: [] });
 		render(AddPanel, { open: true, lookup: new ArtworkLookup(), onadd: vi.fn() });

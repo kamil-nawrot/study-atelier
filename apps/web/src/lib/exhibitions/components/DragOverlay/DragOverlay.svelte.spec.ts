@@ -1,36 +1,54 @@
 import { describe, expect, it } from 'vitest';
-import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { m } from '#lib/i18n/i18n.ts';
 import DragOverlay from './DragOverlay.svelte';
 
-const line = { from: 1, to: 1, top: 100, left: 50, width: 400, height: 0, replaces: false };
-
 describe('DragOverlay', () => {
-	it('shows nothing while nothing is dragged', () => {
-		render(DragOverlay, { x: 0, y: 0 });
-
-		expect(document.querySelector('.ghost, .drop')).toBeNull();
-	});
-
-	it('shows the name of the dragged block at the pointer and the line where it lands', () => {
-		render(DragOverlay, { dropAt: line, label: 'Judith', x: 30, y: 40 });
-
-		const ghost = document.querySelector<HTMLElement>('.ghost');
-		expect(ghost?.textContent?.trim()).toBe('Judith');
-		expect(ghost?.style.left).toBe('30px');
-		expect(document.querySelector<HTMLElement>('.drop')?.style.top).toBe('100px');
-	});
-
-	it('opens a slot beside a block and says when a row is full', async () => {
-		const { rerender } = await render(DragOverlay, {
-			dropAt: { ...line, beside: 4, side: 'left', full: false },
-			x: 0,
-			y: 0
+	it('shows nothing while no block is dragged', () => {
+		render(DragOverlay, {
+			x: 10,
+			y: 10,
+			mark: { top: 0, left: 0, width: 100, height: 4, side: false }
 		});
-		await expect.element(page.getByText(m.exhibitions.drop.here)).toBeInTheDocument();
 
-		await rerender({ dropAt: { ...line, beside: 4, side: 'left', full: true }, x: 0, y: 0 });
-		await expect.element(page.getByText(m.exhibitions.drop.full)).toBeInTheDocument();
+		expect(document.querySelector('.ghost')).toBeNull();
+		expect(document.querySelector('.mark')).toBeNull();
+	});
+
+	it('shows the dragged block at the pointer and a line where it lands', () => {
+		render(DragOverlay, {
+			label: 'Tekst',
+			x: 10,
+			y: 20,
+			mark: { top: 30, left: 0, width: 100, height: 4, side: false }
+		});
+
+		expect(document.querySelector<HTMLElement>('.ghost')?.style.top).toBe('20px');
+		expect(document.querySelector('.ghost')?.textContent).toContain('Tekst');
+		expect(document.querySelector<HTMLElement>('.mark')?.style.width).toBe('100px');
+		expect(document.querySelector('.mark[data-side]')).toBeNull();
+	});
+
+	it('marks a new column at the edge of a block', () => {
+		render(DragOverlay, {
+			label: 'Tekst',
+			x: 10,
+			y: 20,
+			mark: { top: 0, left: 50, width: 4, height: 200, side: true }
+		});
+
+		expect(document.querySelector('.mark[data-side]')).not.toBeNull();
+	});
+
+	it('keeps a mark below the top bar', () => {
+		render(DragOverlay, {
+			label: 'Tekst',
+			x: 10,
+			y: 20,
+			top: 80,
+			mark: { top: 30, left: 50, width: 4, height: 200, side: true }
+		});
+
+		expect(document.querySelector<HTMLElement>('.mark')?.style.top).toBe('80px');
+		expect(document.querySelector<HTMLElement>('.mark')?.style.height).toBe('150px');
 	});
 });

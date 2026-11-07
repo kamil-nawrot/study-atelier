@@ -14,21 +14,9 @@
 		y: number;
 		viewWidth: number;
 		editable?: boolean;
-		selected?: boolean;
-		onselect?: () => void;
 	};
 
-	let {
-		lookup,
-		artworkId,
-		imageId = null,
-		x,
-		y,
-		viewWidth,
-		editable = false,
-		selected = false,
-		onselect
-	}: Props = $props();
+	let { lookup, artworkId, imageId = null, x, y, viewWidth, editable = false }: Props = $props();
 
 	const artwork = $derived(lookup.get(artworkId));
 	const pictures = $derived(lookup.pictures(artworkId));
@@ -41,14 +29,12 @@
 	});
 </script>
 
-<figure class="figure" class:selected>
-	<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
+<figure class="figure">
 	<div
 		style:max-width="{LOUPE_SIZE}px"
 		class="crop"
 		aria-label={artwork ? m.exhibitions.closeUp.label(artwork.title) : undefined}
 		data-fragment=""
-		onclick={onselect}
 		role="img"
 	>
 		{#if image}
@@ -79,11 +65,6 @@
 		gap: var(--spacing-2);
 		justify-items: start;
 		margin: 0;
-	}
-
-	.figure.selected .crop {
-		outline: var(--border-width-base) dashed var(--color-fg);
-		outline-offset: var(--border-width-base);
 	}
 
 	.crop {

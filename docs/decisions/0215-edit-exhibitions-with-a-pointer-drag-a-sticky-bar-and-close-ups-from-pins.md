@@ -1,6 +1,6 @@
 # 0215. Edit exhibitions with a pointer drag, a sticky bar and close-ups from pins
 
-- Status: accepted
+- Status: accepted; the bar, the drag and the editing of the document are superseded by [0216](0216-edit-exhibitions-as-a-list-of-blocks-that-are-only-added-and-moved.md)
 - Date: 2026-11-07
 
 ## Context and problem statement

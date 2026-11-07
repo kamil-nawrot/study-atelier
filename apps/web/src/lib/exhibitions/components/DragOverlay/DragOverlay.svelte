@@ -1,40 +1,40 @@
 <script lang="ts">
-	import { m } from '#lib/i18n/i18n.ts';
-	import type { DropTarget } from '#lib/exhibitions/editor/block-drop/block-drop.ts';
+	import type { Mark } from '#lib/exhibitions/editor/drop-target/drop-target.ts';
 
 	type Props = {
-		dropAt?: DropTarget;
+		mark?: Mark;
+		top?: number;
 		label?: string;
 		x: number;
 		y: number;
 	};
 
-	let { dropAt, label, x, y }: Props = $props();
+	let { mark, top = 0, label, x, y }: Props = $props();
+
+	const shown = $derived(
+		mark && {
+			...mark,
+			top: Math.max(mark.top, top),
+			height: mark.top < top ? Math.max(0, mark.height - (top - mark.top)) : mark.height
+		}
+	);
 </script>
 
 {#if label !== undefined}
 	<div style:left="{x}px" style:top="{y}px" class="ghost" aria-hidden="true">
 		{label}
 	</div>
-{/if}
-
-{#if dropAt}
-	<div
-		style:height="{dropAt.height}px"
-		style:left="{dropAt.left}px"
-		style:top="{dropAt.top}px"
-		style:width="{dropAt.width}px"
-		class="drop"
-		class:full={dropAt.full}
-		class:slot={dropAt.replaces || dropAt.beside !== undefined}
-		aria-hidden="true"
-	>
-		{#if dropAt.full}
-			{m.exhibitions.drop.full}
-		{:else if dropAt.beside !== undefined}
-			{m.exhibitions.drop.here}
-		{/if}
-	</div>
+	{#if shown}
+		<div
+			style:height="{shown.height}px"
+			style:left="{shown.left}px"
+			style:top="{shown.top}px"
+			style:width="{shown.width}px"
+			class="mark"
+			aria-hidden="true"
+			data-side={shown.side ? '' : undefined}
+		></div>
+	{/if}
 {/if}
 
 <style>
@@ -54,20 +54,10 @@
 		pointer-events: none;
 	}
 
-	.drop {
+	.mark {
 		position: fixed;
-		z-index: 2;
-		display: grid;
-		place-items: center;
-		border-top: var(--border-width-base) solid var(--color-fg);
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-sm);
-		text-align: center;
+		z-index: 3;
+		background: var(--color-fg);
 		pointer-events: none;
-	}
-
-	.drop.slot {
-		border: var(--border-width-base) dashed var(--color-fg);
-		background: var(--color-surface);
 	}
 </style>
