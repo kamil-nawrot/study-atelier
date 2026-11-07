@@ -1861,7 +1861,7 @@ export const pl = {
 				name: 'Alfabet Mistrza E.S.',
 				about:
 					'Israhel van Meckenem wyrył w ostatniej tercji XV wieku literę A z figuralnego alfabetu Mistrza E.S., ułożoną z lwa, psów, ptaków i człowieka.',
-				hint: 'Prawdziwy znawca zgłębił sztukę od A do Z.',
+				hint: 'Sztukę warto zgłębiać od A do Z.',
 				awarded: 'Za pojęcia w Słowniczku na każdą literę alfabetu.'
 			},
 			candle_moths: {
