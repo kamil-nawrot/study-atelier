@@ -147,6 +147,11 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 			'Israhel van Meckenem według Mistrza E.S., litera A z „Alfabetu figuralnego”, ostatnia tercja XV wieku',
 		licence: 'domena publiczna',
 		page: 'https://id.smb.museum/object/1543315'
+	},
+	candle_moths: {
+		credit: 'Vincent Laurensz. van der Vinne, „Muchy lecą do światła świecy”, 1714',
+		licence: 'domena publiczna',
+		page: 'https://www.rijksmuseum.nl/en/collection/RP-P-OB-62.370'
 	}
 };
 

@@ -12,7 +12,8 @@ const HIDDEN = new Set([
 	'pinacotheca',
 	'trevi_fountain',
 	'seven_league_boots',
-	'figure_alphabet'
+	'figure_alphabet',
+	'candle_moths'
 ]);
 
 export function withTiers(progress: ExhibitProgress[], tiers: UnlockedTier[]): Exhibit[] {
