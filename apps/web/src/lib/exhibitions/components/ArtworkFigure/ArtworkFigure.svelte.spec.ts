@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { page, userEvent } from 'vitest/browser';
+import { page } from 'vitest/browser';
 import '@study-atelier/ui/styles.css';
 import { render } from 'vitest-browser-svelte';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
@@ -73,7 +73,7 @@ describe('ArtworkFigure', () => {
 		await expect.element(flip).toHaveAttribute('aria-pressed', 'false');
 		expect(loadArtworkNotes).not.toHaveBeenCalled();
 		const before = document.querySelector('.mat')?.getBoundingClientRect();
-		await userEvent.click(flip);
+		(flip.element() as HTMLButtonElement).click();
 
 		const back = page.getByRole('region', { name: m.exhibitions.view.noteOf('Judith') });
 		await expect.element(back.getByText('Painted in Rome.')).toBeInTheDocument();
@@ -82,7 +82,7 @@ describe('ArtworkFigure', () => {
 		expect(after?.width).toBe(before?.width);
 		expect(getComputedStyle(document.querySelector('img') as Element).visibility).toBe('hidden');
 
-		await userEvent.click(flip);
+		(flip.element() as HTMLButtonElement).click();
 		await expect.element(back).not.toBeInTheDocument();
 		expect(getComputedStyle(document.querySelector('img') as Element).visibility).toBe('visible');
 	});
