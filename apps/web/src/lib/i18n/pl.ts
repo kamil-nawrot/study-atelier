@@ -2402,6 +2402,13 @@ export const pl = {
 			noMatch: 'Nic nie pasuje. Sprawdź pisownię albo przeglądaj całe atelier.',
 			browse: 'Przeglądaj całe atelier…',
 			addMissing: 'Dodaj dzieło, którego brakuje',
+			glossaryTitle: 'Słowniczek',
+			searchTerm: 'Szukaj hasła',
+			searchTermPlaceholder: 'Nazwa albo synonim',
+			termsByName: 'Hasła od A do Z',
+			noTerm: 'Nic nie pasuje. Sprawdź pisownię albo dodaj hasło w Słowniczku.',
+			noTerms: 'W Słowniczku nie ma jeszcze haseł.',
+			browseGlossary: 'Otwórz Słowniczek…',
 			empty: 'W atelier nie ma jeszcze dzieł.',
 			loadError: 'Nie udało się wczytać dzieł.'
 		},
@@ -2429,6 +2436,8 @@ export const pl = {
 			palette: 'Paleta',
 			closeUp: 'Szczegół',
 			divider: 'Odstęp',
+			term: 'Hasło',
+			termOf: (name: string): string => `Hasło ze Słowniczka: ${name}`,
 			textHint: 'Pisz tutaj…',
 			headingHint: 'Wpisz nagłówek',
 			quoteHint: 'Wpisz cytat'

@@ -9,6 +9,8 @@
 	import { untrack } from 'svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ArtworkFigure from '#lib/exhibitions/components/ArtworkFigure/ArtworkFigure.svelte';
+	import TermFigure from '#lib/exhibitions/components/TermFigure/TermFigure.svelte';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import ExhibitionDivider from '#lib/exhibitions/components/ExhibitionDivider/ExhibitionDivider.svelte';
 	import BlockSetItems from '#lib/exhibitions/components/BlockSetItems/BlockSetItems.svelte';
 	import BlockBar from '#lib/exhibitions/components/BlockBar/BlockBar.svelte';
@@ -30,6 +32,7 @@
 	type Props = {
 		block: Block;
 		lookup: ArtworkLookup;
+		terms?: readonly GlossaryTerm[];
 		canUp: boolean;
 		canDown: boolean;
 		moving?: boolean;
@@ -43,6 +46,7 @@
 	let {
 		block,
 		lookup,
+		terms,
 		canUp,
 		canDown,
 		moving = false,
@@ -207,6 +211,10 @@
 				placeholder={m.exhibitions.blocks.quoteHint}
 				rows="1"
 				value={quoteText(block.node)}></textarea>
+		{:else if kind === 'term'}
+			<div class="grab" onpointerdown={grab} role="presentation">
+				<TermFigure termId={String(attrs.termId)} {terms} />
+			</div>
 		{:else if kind === 'divider'}
 			<div class="grab" onpointerdown={grab} role="presentation">
 				<ExhibitionDivider line={Boolean(attrs.line)} />

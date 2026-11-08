@@ -3,6 +3,8 @@
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ArtworkSearch from '#lib/exhibitions/components/ArtworkSearch/ArtworkSearch.svelte';
+	import TermSearch from '#lib/exhibitions/components/TermSearch/TermSearch.svelte';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import FilterSidePanel from '#lib/wall/components/FilterSidePanel/FilterSidePanel.svelte';
 	import type {
 		ArtworkKind,
@@ -14,12 +16,17 @@
 	type Props = {
 		open: boolean;
 		lookup: ArtworkLookup;
+		terms?: readonly GlossaryTerm[];
 		onadd: (block: NewBlock) => void;
 		ondrag?: (event: PointerEvent, block: NewBlock) => void;
 		addHref?: ResolvedPathname;
 	};
 
-	let { open = $bindable(), lookup, onadd, ondrag, addHref }: Props = $props();
+	let { open = $bindable(), lookup, terms = [], onadd, ondrag, addHref }: Props = $props();
+
+	function termBlock(term: GlossaryTerm): NewBlock {
+		return { kind: 'term', termId: term.id, name: term.name };
+	}
 
 	const kinds: { kind: TextKind; label: string }[] = [
 		{ kind: 'textBlock', label: m.exhibitions.panel.paragraph },
@@ -75,6 +82,14 @@
 		{#if addHref}
 			<a class="browse" href={addHref}>{m.exhibitions.panel.addMissing}</a>
 		{/if}
+	</section>
+	<section class="section" aria-labelledby="panel-glossary">
+		<h3 id="panel-glossary">{m.exhibitions.panel.glossaryTitle}</h3>
+		<TermSearch
+			ondrag={(event, term) => ondrag?.(event, termBlock(term))}
+			onpick={(term) => onadd(termBlock(term))}
+			{terms}
+		/>
 	</section>
 </FilterSidePanel>
 

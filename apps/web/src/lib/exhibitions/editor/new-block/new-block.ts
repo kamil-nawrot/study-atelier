@@ -4,9 +4,12 @@ export type TextKind = 'textBlock' | 'heading' | 'quote' | 'divider';
 
 export type ArtworkKind = 'artwork' | 'palette' | 'closeUp';
 
-export type BlockKind = TextKind | ArtworkKind;
+export type BlockKind = TextKind | ArtworkKind | 'term';
 
-export type NewBlock = { kind: TextKind } | { kind: ArtworkKind; artworkId: string };
+export type NewBlock =
+	| { kind: TextKind }
+	| { kind: ArtworkKind; artworkId: string }
+	| { kind: 'term'; termId: string; name: string };
 
 export type CloseUpAttributes = {
 	artworkId: string;
@@ -37,6 +40,10 @@ export function artworkNode(artworkId: string, paletteOnly = false): ExhibitionD
 	return paletteOnly
 		? { type: 'artwork', attrs: { artworkId, paletteOnly: true } }
 		: { type: 'artwork', attrs: { artworkId } };
+}
+
+export function termNode(termId: string): ExhibitionDocument {
+	return { type: 'term', attrs: { termId } };
 }
 
 export function closeUpNode(attributes: CloseUpAttributes): ExhibitionDocument {

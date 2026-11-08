@@ -5,6 +5,7 @@ import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-docum
 
 export function newBlockLabel(block: NewBlock, lookup: ArtworkLookup): string {
 	const kind = m.exhibitions.blocks[block.kind];
+	if ('termId' in block) return `${kind}: ${block.name}`;
 	if (!('artworkId' in block)) return kind;
 	const title = lookup.get(block.artworkId)?.title;
 	return title ? `${kind}: ${title}` : kind;

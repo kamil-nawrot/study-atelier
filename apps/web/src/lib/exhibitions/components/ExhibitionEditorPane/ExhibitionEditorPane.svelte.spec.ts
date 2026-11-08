@@ -46,6 +46,9 @@ vi.mock('#lib/exhibitions/exhibition-data/exhibition-data.ts', () => ({
 	saveExhibition: vi.fn()
 }));
 vi.mock('#lib/pins/pin-data/pin-data.ts', () => ({ loadArtworkPins }));
+vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({
+	loadTermDefinition: vi.fn().mockResolvedValue({ definition: 'Soft edges.', source: null })
+}));
 
 const picture: ArtworkImageInput = {
 	id: 'i1',
@@ -180,6 +183,35 @@ describe('ExhibitionEditorPane', () => {
 		await userEvent.click(page.getByRole('button', { name: m.exhibitions.bar.orderedList }));
 		await vi.waitFor(() => expect(JSON.stringify(given.document)).toContain('orderedList'));
 		expect(JSON.stringify(given.document)).toContain('"italic"');
+	});
+
+	it('adds a term of the glossary as a block that shows its definition', async () => {
+		const given = session(doc());
+		const { component } = await render(ExhibitionEditorPane, {
+			session: given,
+			lookup: lookup(),
+			terms: [
+				{
+					id: 't1',
+					name: 'Sfumato',
+					category: 'technique',
+					synonyms: [],
+					forms: [],
+					hasDefinition: true
+				}
+			],
+			barHeight: 80
+		});
+
+		component.add({ kind: 'term', termId: 't1', name: 'Sfumato' });
+
+		await expect.element(page.getByText('Soft edges.')).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('toolbar', { name: m.exhibitions.bar.label('Hasło') }))
+			.toBeInTheDocument();
+		await vi.waitFor(() =>
+			expect(given.document.content).toEqual([{ type: 'term', attrs: { termId: 't1' } }])
+		);
 	});
 
 	it('writes a heading and a quote into fields of their own', async () => {

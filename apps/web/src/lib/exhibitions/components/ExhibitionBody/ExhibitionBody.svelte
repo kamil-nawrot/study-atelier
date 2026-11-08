@@ -1,5 +1,6 @@
 <script lang="ts">
 	import CloseUpFigure from '#lib/exhibitions/components/CloseUpFigure/CloseUpFigure.svelte';
+	import TermFigure from '#lib/exhibitions/components/TermFigure/TermFigure.svelte';
 	import ExhibitionDivider from '#lib/exhibitions/components/ExhibitionDivider/ExhibitionDivider.svelte';
 	import ArtworkFigure from '#lib/exhibitions/components/ArtworkFigure/ArtworkFigure.svelte';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
@@ -68,6 +69,8 @@
 			x={Number(block.attrs?.x)}
 			y={Number(block.attrs?.y)}
 		/>
+	{:else if block.type === 'term'}
+		<TermFigure linked termId={String(block.attrs?.termId)} terms={entries} />
 	{:else if block.type === 'divider'}
 		<ExhibitionDivider line={Boolean(block.attrs?.line)} />
 	{:else if block.type === 'set'}
