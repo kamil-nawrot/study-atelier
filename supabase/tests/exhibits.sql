@@ -43,12 +43,13 @@ begin
     'reading_room:night_watch', 'reading_room:marathon', 'reading_room:amateur_magnifier',
     'scriptorium:glossary', 'scriptorium:timeline', 'scriptorium:hortus_cliffortianus', 'scriptorium:figure_alphabet',
     'map_room:chronicle', 'map_room:grand_tour', 'map_room:seen_live', 'map_room:trevi_fountain',
-    'map_room:seven_league_boots', 'pavilion:crystal_palace', 'crypt:mouth_of_truth', 'crypt:candle_moths'
-  ], 'the exhibits are not the agreed thirty in their rooms and order';
+    'map_room:seven_league_boots', 'pavilion:crystal_palace', 'pavilion:lenoir_chapel', 'crypt:mouth_of_truth',
+    'crypt:candle_moths'
+  ], 'the exhibits are not the agreed thirty-one in their rooms and order';
   assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC') where hidden) = array[
-    'amateur_magnifier', 'back_from_storage', 'candle_moths', 'figure_alphabet', 'marathon', 'mouth_of_truth',
-    'night_watch', 'pinacotheca', 'seven_league_boots', 'trevi_fountain'
-  ], 'the hidden exhibits are not the agreed ten';
+    'amateur_magnifier', 'back_from_storage', 'candle_moths', 'figure_alphabet', 'lenoir_chapel', 'marathon',
+    'mouth_of_truth', 'night_watch', 'pinacotheca', 'seven_league_boots', 'trevi_fountain'
+  ], 'the hidden exhibits are not the agreed eleven';
   assert (select value from public.unlock_exhibits('UTC') where exhibit = 'early_modern') = 5,
     'an era exhibit does not count the artworks of its era';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'modern') = array[1]::smallint[],
@@ -543,6 +544,63 @@ begin
     rejected := true;
   end;
   assert rejected, 'a tier of an exhibit missing from the catalogue was stored';
+end;
+$$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000012', 'owner-i@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000012", "role": "authenticated"}', true);
+
+do $$
+declare
+  eras constant text[] := array['prehistory', 'antiquity', 'middle_ages', 'early_modern', 'modern', 'contemporary'];
+  works uuid[];
+  era text;
+  undated uuid;
+  trashed uuid;
+  archived_show uuid := gen_random_uuid();
+begin
+  foreach era in array eras loop
+    works := works || (select id from public.save_artwork(
+      jsonb_build_object('title', 'Of ' || era, 'author_unknown', true, 'era_code', era),
+      '{"author": [], "location": []}'));
+  end loop;
+  undated := (select id from public.save_artwork(
+    jsonb_build_object('title', 'Undated', 'author_unknown', true), '{"author": [], "location": []}'));
+  trashed := (select id from public.save_artwork(
+    jsonb_build_object('title', 'Trashed', 'author_unknown', true, 'era_code', 'contemporary'),
+    '{"author": [], "location": []}'));
+  update public.artworks set deleted_at = now() where id = trashed;
+
+  perform public.save_exhibition(gen_random_uuid(), 'Five and more', jsonb_build_object('type', 'doc', 'content',
+    (select jsonb_agg(jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', work)))
+      from unnest(works[1:5] || undated || trashed) as work)));
+  perform public.save_exhibition(archived_show, 'Archived', jsonb_build_object('type', 'doc', 'content',
+    (select jsonb_agg(jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', work)))
+      from unnest(works) as work)));
+  update public.exhibitions set deleted_at = now() where id = archived_show;
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'lenoir_chapel') = 5,
+    'the lenoir chapel counts an artwork without an era, an artwork or an exhibition in the trash';
+  assert not exists (select 1 from public.exhibit_tiers where exhibit = 'lenoir_chapel'),
+    'five eras in an exhibition unlock the lenoir chapel';
+
+  perform public.save_exhibition(gen_random_uuid(), 'All six', jsonb_build_object('type', 'doc', 'content',
+    (select jsonb_agg(jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', work)))
+      from unnest(works[1:5]) as work)
+    || jsonb_build_array(jsonb_build_object('type', 'closeUp', 'attrs',
+      jsonb_build_object('artworkId', works[6], 'x', 0.5, 'y', 0.5, 'viewWidth', 0.2)))));
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'lenoir_chapel') = 6,
+    'a close-up does not bring the era of its artwork to the lenoir chapel';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'lenoir_chapel') = array[1]::smallint[],
+    'an exhibition through all six eras does not unlock the lenoir chapel';
+  assert exists (select 1 from public.point_events where kind = 'easter_egg' and code = 'lenoir_chapel'),
+    'the hidden lenoir chapel gives no bonus';
 end;
 $$;
 
