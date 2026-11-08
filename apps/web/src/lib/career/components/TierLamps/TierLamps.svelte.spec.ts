@@ -19,7 +19,14 @@ function renderLamps(tiers: UnlockedTier[], code = 'collection'): void {
 	render(TierLamps, {
 		props: {
 			name: NAME,
-			exhibit: { code, value: 24, thresholds: [1, 10, 50, 100, 250], tiers },
+			exhibit: {
+				code,
+				room: 'main_hall',
+				hidden: false,
+				value: 24,
+				thresholds: [1, 10, 50, 100, 250],
+				tiers
+			},
 			tier: tiers.length
 		}
 	});

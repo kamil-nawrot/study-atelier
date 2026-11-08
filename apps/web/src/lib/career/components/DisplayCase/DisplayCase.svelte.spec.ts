@@ -6,8 +6,22 @@ import type { Exhibit } from '#lib/career/types/exhibit.ts';
 import DisplayCase from './DisplayCase.svelte';
 
 const exhibits: Exhibit[] = [
-	{ code: 'collection', value: 24, thresholds: [1, 10, 50], tiers: [] },
-	{ code: 'eras', value: 1, thresholds: [2, 3, 4, 5, 6], tiers: [] }
+	{
+		code: 'collection',
+		room: 'main_hall',
+		hidden: false,
+		value: 24,
+		thresholds: [1, 10, 50],
+		tiers: []
+	},
+	{
+		code: 'eras',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 1,
+		thresholds: [2, 3, 4, 5, 6],
+		tiers: []
+	}
 ];
 
 describe('DisplayCase', () => {

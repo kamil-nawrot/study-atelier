@@ -40,7 +40,15 @@ describe('career data', () => {
 	});
 
 	it('unlocks the exhibits in the learner time zone', async () => {
-		const exhibits = [{ exhibit: 'collection', value: 12, thresholds: [1, 10, 50] }];
+		const exhibits = [
+			{
+				exhibit: 'collection',
+				room: 'main_hall',
+				hidden: false,
+				value: 12,
+				thresholds: [1, 10, 50]
+			}
+		];
 		rpc.mockResolvedValue({ data: exhibits, error: null } as never);
 		await expect(unlockExhibits()).resolves.toEqual({ exhibits });
 		expect(rpc).toHaveBeenCalledWith('unlock_exhibits', {
@@ -102,7 +110,15 @@ describe('career data', () => {
 
 	it('unlocks the exhibits before it reads their tiers for the display case', async () => {
 		rpc.mockResolvedValue({
-			data: [{ exhibit: 'collection', value: 12, thresholds: [1, 10, 50] }],
+			data: [
+				{
+					exhibit: 'collection',
+					room: 'main_hall',
+					hidden: false,
+					value: 12,
+					thresholds: [1, 10, 50]
+				}
+			],
 			error: null
 		} as never);
 		from.mockReturnValue(
@@ -117,6 +133,8 @@ describe('career data', () => {
 			exhibits: [
 				{
 					code: 'collection',
+					room: 'main_hall',
+					hidden: false,
 					value: 12,
 					thresholds: [1, 10, 50],
 					tiers: [

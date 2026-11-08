@@ -567,6 +567,22 @@ export type Database = {
         };
         Relationships: [];
       };
+      exhibit_rooms: {
+        Row: {
+          code: string;
+          position: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          code: string;
+          position: number;
+        };
+        Update: {
+          code?: string;
+          position?: number;
+        };
+        Relationships: [];
+      };
       exhibit_tiers: {
         Row: {
           exhibit: string;
@@ -593,7 +609,15 @@ export type Database = {
           tiers?: number | null;
           unlocked_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "exhibit_tiers_exhibit_fkey";
+            columns: ["exhibit"];
+            isOneToOne: false;
+            referencedRelation: "exhibits";
+            referencedColumns: ["code"];
+          },
+        ];
       };
       exhibition_artworks: {
         Row: {
@@ -668,6 +692,39 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      exhibits: {
+        Row: {
+          code: string;
+          hidden: boolean;
+          position: number;
+          room_code: string;
+          thresholds: number[];
+        };
+        ComputedFields: never;
+        Insert: {
+          code: string;
+          hidden: boolean;
+          position: number;
+          room_code: string;
+          thresholds: number[];
+        };
+        Update: {
+          code?: string;
+          hidden?: boolean;
+          position?: number;
+          room_code?: string;
+          thresholds?: number[];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "exhibits_room_code_fkey";
+            columns: ["room_code"];
+            isOneToOne: false;
+            referencedRelation: "exhibit_rooms";
+            referencedColumns: ["code"];
+          },
+        ];
       };
       feedback: {
         Row: {
@@ -1700,6 +1757,8 @@ export type Database = {
         Args: { time_zone: string };
         Returns: {
           exhibit: string;
+          hidden: boolean;
+          room: string;
           thresholds: number[];
           value: number;
         }[];
