@@ -37,10 +37,10 @@ begin
       from public.unlock_exhibits('UTC') with ordinality as listed (exhibit, value, thresholds, position)) = array[
     'collection', 'eras', 'prehistory', 'antiquity', 'middle_ages', 'early_modern', 'modern', 'contemporary',
     'vasari_lives', 'memory', 'bullseye', 'regular', 'back_from_storage', 'chronicle', 'grand_tour', 'seen_live',
-    'timeline', 'glossary', 'hortus_cliffortianus', 'own_eye', 'night_watch', 'marathon', 'mouth_of_truth',
-    'pinacotheca', 'trevi_fountain', 'seven_league_boots', 'figure_alphabet', 'candle_moths',
+    'timeline', 'glossary', 'hortus_cliffortianus', 'own_eye', 'crystal_palace', 'night_watch', 'marathon',
+    'mouth_of_truth', 'pinacotheca', 'trevi_fountain', 'seven_league_boots', 'figure_alphabet', 'candle_moths',
     'amateur_magnifier'
-  ], 'the exhibits are not the agreed twenty-nine in their order';
+  ], 'the exhibits are not the agreed thirty in their order';
   assert (select (array_agg(exhibit order by position))[1:8]
       from public.unlock_exhibits('UTC') with ordinality as listed (exhibit, value, thresholds, position)) = array[
     'collection', 'eras', 'prehistory', 'antiquity', 'middle_ages', 'early_modern', 'modern', 'contemporary'
@@ -470,6 +470,54 @@ begin
     'an hour with one artwork does not unlock the magnifier';
   assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'amateur_magnifier') = 1,
     'the magnifier does not give its bonus';
+end;
+$$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000011', 'owner-h@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000011", "role": "authenticated"}', true);
+
+do $$
+declare
+  works uuid[];
+  number integer;
+  full_show uuid := gen_random_uuid();
+  repeated uuid := gen_random_uuid();
+  with_trashed uuid := gen_random_uuid();
+  trashed_show uuid := gen_random_uuid();
+begin
+  for number in 1..6 loop
+    works := works || (select id from public.save_artwork(
+      jsonb_build_object('title', 'Shown ' || number, 'author_unknown', true), '{"author": [], "location": []}'));
+  end loop;
+  update public.artworks set deleted_at = now() where id = works[6];
+
+  perform public.save_exhibition(full_show, 'Full', jsonb_build_object('type', 'doc', 'content',
+    (select jsonb_agg(jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', work)))
+      from unnest(works[1:5]) as work)));
+  perform public.save_exhibition(repeated, 'Repeated', jsonb_build_object('type', 'doc', 'content',
+    (select jsonb_agg(jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', work)))
+      from unnest(works[1:4] || works[1]) as work)));
+  perform public.save_exhibition(with_trashed, 'With trashed', jsonb_build_object('type', 'doc', 'content',
+    (select jsonb_agg(jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', work)))
+      from unnest(works[2:6]) as work)));
+  perform public.save_exhibition(trashed_show, 'Trashed', jsonb_build_object('type', 'doc', 'content',
+    (select jsonb_agg(jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', work)))
+      from unnest(works[1:5]) as work)));
+  update public.exhibitions set deleted_at = now() where id = trashed_show;
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'crystal_palace') = 1,
+    'the crystal palace counts an artwork placed twice, an artwork or an exhibition in the trash';
+  assert (select thresholds from public.unlock_exhibits('UTC') where exhibit = 'crystal_palace') = array[1, 3, 5, 10, 25],
+    'the crystal palace does not have the agreed tiers';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'crystal_palace') = array[1]::smallint[],
+    'an exhibition with five artworks does not unlock the first tier of the crystal palace';
+  assert not exists (select 1 from public.point_events where kind = 'easter_egg' and code = 'crystal_palace'),
+    'the tiered crystal palace gives a bonus of a hidden exhibit';
 end;
 $$;
 

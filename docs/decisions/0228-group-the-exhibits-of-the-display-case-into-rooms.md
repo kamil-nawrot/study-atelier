@@ -84,4 +84,4 @@ The rooms and the order are data of the catalogue in the database, not a map in 
 
 ## More information
 
-Designed in ATL-581 on mockups in the project files (`kategorie-osiagniec/`); the catalogue is ATL-583 and the build of the rooms ATL-582. Requirement [R-237](../product/requirements.md).
+Designed in ATL-581 on mockups in the project files (`kategorie-osiagniec/`); the catalogue is ATL-583 and the build of the rooms ATL-582. Requirement [R-238](../product/requirements.md).

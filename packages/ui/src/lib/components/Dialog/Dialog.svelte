@@ -8,7 +8,7 @@
 	type Props = {
 		title: string;
 		open?: boolean;
-		size?: 'default' | 'small';
+		size?: 'default' | 'wide' | 'small';
 		description?: string;
 		closeLabel?: string;
 		onclose?: () => void;
@@ -58,7 +58,7 @@
 
 <dialog
 	bind:this={dialog}
-	class="dialog {size}"
+	class={['dialog', size === 'small' ? 'small' : 'default', size === 'wide' && 'wide']}
 	aria-describedby={description ? descriptionId : undefined}
 	aria-labelledby={titleId}
 	onclose={onclosed}
@@ -71,7 +71,7 @@
 				<p id={descriptionId}>{description}</p>
 			{/if}
 		</div>
-		{#if size === 'default'}
+		{#if size !== 'small'}
 			<button
 				class="close"
 				aria-label={closeLabel}
@@ -212,6 +212,10 @@
 			max-width: var(--size-content-default);
 			max-height: calc(100% - 2 * var(--spacing-12));
 			border: var(--border-width-base) solid var(--color-line);
+		}
+
+		.wide {
+			max-width: calc(var(--size-content-default) * 4 / 3);
 		}
 
 		.default header {

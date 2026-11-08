@@ -18,7 +18,7 @@
 		tags: ['autodocs'],
 		args: { title: 'Which artwork is it?' },
 		argTypes: {
-			size: { control: 'inline-radio', options: ['default', 'small'] },
+			size: { control: 'inline-radio', options: ['default', 'wide', 'small'] },
 			children: { control: false },
 			footer: { control: false }
 		}

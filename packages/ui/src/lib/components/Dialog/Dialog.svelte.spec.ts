@@ -110,6 +110,16 @@ describe('Dialog', () => {
 		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
 	});
 
+	it('is wider in the wide size and keeps its close button', async () => {
+		await page.viewport(1280, 900);
+		render(Dialog, { open: true, size: 'wide', title: 'Which pin?' });
+
+		const dialog = page.getByRole('dialog', { name: 'Which pin?' });
+		await expect.element(dialog).toBeVisible();
+		expect(dialog.element().getBoundingClientRect().width).toBe(960);
+		await expect.element(page.getByRole('button', { name: closeLabel })).toBeVisible();
+	});
+
 	it('asks for confirmation in the small size without a close button', async () => {
 		render(Dialog, {
 			open: true,

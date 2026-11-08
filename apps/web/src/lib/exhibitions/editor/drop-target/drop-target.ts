@@ -9,7 +9,7 @@ export type RowBox = {
 	blocks: BlockBox[];
 };
 
-export type Frame = { left: number; right: number };
+export type Frame = { top: number; left: number; right: number };
 
 export type Box = { top: number; left: number; width: number; height: number };
 
@@ -33,7 +33,9 @@ function line(rows: readonly RowBox[], index: number, frame: Frame): Drop {
 			? (above.bottom + below.top) / 2
 			: below
 				? below.top - LINE * 2
-				: (above?.bottom ?? 0) + LINE * 2;
+				: above
+					? above.bottom + LINE * 2
+					: frame.top - LINE * 2;
 	return {
 		target: { before: below?.id },
 		mark: {

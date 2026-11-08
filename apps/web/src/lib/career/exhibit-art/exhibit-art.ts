@@ -67,6 +67,11 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		licence: 'domena publiczna',
 		commonsFile: 'Camera obscura.png'
 	},
+	crystal_palace: {
+		credit: 'Charles Burton, „Transept Pałacu Przemysłu od Bramy Księcia Walii”, 1851',
+		licence: 'domena publiczna',
+		page: 'https://www.rijksmuseum.nl/en/collection/RP-P-2018-839'
+	},
 	night_watch: {
 		credit: 'William Unger według Rembrandta, „Straż nocna”, XIX wiek',
 		licence: 'CC0',
