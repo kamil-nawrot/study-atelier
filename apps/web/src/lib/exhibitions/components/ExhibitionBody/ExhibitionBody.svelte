@@ -60,10 +60,10 @@
 			artworkId={String(block.attrs?.artworkId)}
 			caption={plainText(block)}
 			{entries}
+			flippable
 			{lookup}
 			palette={Boolean(block.attrs?.palette)}
 			paletteOnly={Boolean(block.attrs?.paletteOnly)}
-			showNote={Boolean(block.attrs?.note)}
 		/>
 	{:else if block.type === 'closeUp'}
 		<CloseUpFigure

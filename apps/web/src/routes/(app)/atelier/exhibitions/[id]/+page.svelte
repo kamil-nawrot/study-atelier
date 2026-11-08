@@ -47,6 +47,9 @@
 	);
 
 	$effect(() => lookup.add(data.artworks));
+	$effect(() => {
+		if (!editing) void lookup.checkNotes(data.artworks.map((artwork) => artwork.id));
+	});
 	$effect(() => () => session?.destroy());
 	$effect(() => writeStored('local', PANEL_KEY, panelOpen ? 'open' : 'closed'));
 

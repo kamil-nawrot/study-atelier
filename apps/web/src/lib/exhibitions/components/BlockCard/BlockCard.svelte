@@ -7,7 +7,6 @@
 	import ListOrdered from '@lucide/svelte/icons/list-ordered';
 	import SeparatorHorizontal from '@lucide/svelte/icons/separator-horizontal';
 	import SeparatorVertical from '@lucide/svelte/icons/separator-vertical';
-	import StickyNote from '@lucide/svelte/icons/sticky-note';
 	import { untrack } from 'svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ArtworkFigure from '#lib/exhibitions/components/ArtworkFigure/ArtworkFigure.svelte';
@@ -91,8 +90,8 @@
 		};
 	}
 
-	function toggle(name: 'note' | 'line'): void {
-		onchange({ ...block.node, attrs: { ...attrs, [name]: !attrs[name] } });
+	function toggleLine(): void {
+		onchange({ ...block.node, attrs: { ...attrs, line: !attrs.line } });
 	}
 
 	function grab(event: PointerEvent): void {
@@ -176,21 +175,11 @@
 				>
 					<CopyPlus aria-hidden="true" size={16} />
 				</button>
-			{:else if kind === 'artwork'}
-				<button
-					aria-label={m.exhibitions.bar.note}
-					aria-pressed={Boolean(attrs.note)}
-					onclick={() => toggle('note')}
-					title={m.exhibitions.bar.note}
-					type="button"
-				>
-					<StickyNote aria-hidden="true" size={16} />
-				</button>
 			{:else if kind === 'divider'}
 				<button
 					aria-label={m.exhibitions.bar.line}
 					aria-pressed={Boolean(attrs.line)}
-					onclick={() => toggle('line')}
+					onclick={toggleLine}
 					title={m.exhibitions.bar.line}
 					type="button"
 				>
@@ -247,7 +236,6 @@
 					editable
 					{lookup}
 					palette={Boolean(attrs.palette)}
-					showNote={Boolean(attrs.note)}
 				/>
 			</div>
 		{/if}
