@@ -1,10 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
+import { fetchImageThroughProxy } from '#lib/images/image-proxy-data/image-proxy-data.ts';
 import { readPixels } from '#lib/images/image-pixels/image-pixels.ts';
 import { savePalette } from '#lib/images/palette-data/palette-data.ts';
 import { paletteOf } from './image-palette.ts';
 
 vi.mock('#lib/images/palette-data/palette-data.ts', () => ({ savePalette: vi.fn() }));
+vi.mock('#lib/images/image-proxy-data/image-proxy-data.ts', () => ({
+	fetchImageThroughProxy: vi.fn()
+}));
 vi.mock('#lib/images/image-pixels/image-pixels.ts', () => ({ readPixels: vi.fn() }));
 
 const RED = 'https://images.example.test/red.jpg';
@@ -17,6 +21,7 @@ function linked(id: string | undefined, url = RED): ArtworkImageInput {
 describe('paletteOf', () => {
 	beforeEach(() => {
 		vi.mocked(savePalette).mockReset();
+		vi.mocked(fetchImageThroughProxy).mockReset().mockResolvedValue(undefined);
 		vi.mocked(readPixels).mockReset().mockResolvedValue(RED_PIXELS);
 		vi.stubGlobal(
 			'fetch',
@@ -73,5 +78,42 @@ describe('paletteOf', () => {
 
 		expect(result).toEqual({ colours: [{ color: '#c81414', share: 1 }] });
 		expect(savePalette).not.toHaveBeenCalled();
+	});
+
+	it('reads an image of a host without CORS through the proxy', async () => {
+		vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('blocked')));
+		const proxied = new Blob(['x']);
+		vi.mocked(fetchImageThroughProxy).mockResolvedValue(proxied);
+
+		const result = await paletteOf(linked('proxied-1'));
+
+		expect(fetchImageThroughProxy).toHaveBeenCalledWith(RED);
+		expect(readPixels).toHaveBeenCalledWith(proxied);
+		expect(result).toEqual({ colours: [{ color: '#c81414', share: 1 }] });
+		expect(savePalette).toHaveBeenCalledWith('proxied-1', [{ color: '#c81414', share: 1 }]);
+	});
+
+	it('does not use the proxy for an image the host refuses', async () => {
+		vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }));
+
+		await paletteOf(linked('refused-2'));
+
+		expect(fetchImageThroughProxy).not.toHaveBeenCalled();
+	});
+
+	it('does not use the proxy for an image that is not a linked one', async () => {
+		vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('blocked')));
+
+		const result = await paletteOf({
+			id: 'own-1',
+			kind: 'upload',
+			path: 'user/own.jpg',
+			previewUrl: 'https://project.example.test/own.jpg',
+			width: 8,
+			height: 8
+		});
+
+		expect(fetchImageThroughProxy).not.toHaveBeenCalled();
+		expect(result).toEqual({ unreadable: true });
 	});
 });

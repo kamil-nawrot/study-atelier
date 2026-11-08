@@ -137,6 +137,7 @@ Every learner-owned row is protected by Row Level Security on `owner_id`. An art
 
 - The web app is a SvelteKit build for Cloudflare Pages, project `study-atelier`.
 - GitHub Actions ([`ci.yml`](../../.github/workflows/ci.yml)) runs lint, type check, unit and component tests and the build, then deploys with Wrangler ([ADR-0011](../decisions/0011-deploy-from-github-actions.md)). To save free runner minutes, the [UI library](../../.github/workflows/ui.yml) and [migrations](../../.github/workflows/migrations.yml) checks run on a pull request only when it touches their files, and a change to documentation alone starts no CI; every push to `develop` and `main` runs all checks.
+- The worker of the Pages project also serves `/api/image-proxy`, which lets the browser read the colours of linked images from hosts without CORS ([ADR-0223](../decisions/0223-read-colours-of-linked-images-through-an-image-proxy.md)).
 - The same workflow checks `packages/ui` and builds its Storybook without deploying it ([ADR-0013](../decisions/0013-component-library-with-storybook.md)).
 
 | Trigger           | Deployment                                   |
