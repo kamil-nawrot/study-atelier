@@ -2392,6 +2392,7 @@ export const pl = {
 			paragraph: 'Akapit',
 			heading: 'Nagłówek',
 			quote: 'Cytat',
+			divider: 'Odstęp',
 			artworksTitle: 'Dzieła',
 			addAs: 'Dodaj jako',
 			search: 'Szukaj dzieła',
@@ -2401,6 +2402,13 @@ export const pl = {
 			noMatch: 'Nic nie pasuje. Sprawdź pisownię albo przeglądaj całe atelier.',
 			browse: 'Przeglądaj całe atelier…',
 			addMissing: 'Dodaj dzieło, którego brakuje',
+			glossaryTitle: 'Słowniczek',
+			searchTerm: 'Szukaj hasła',
+			searchTermPlaceholder: 'Nazwa albo synonim',
+			termsByName: 'Hasła od A do Z',
+			noTerm: 'Nic nie pasuje. Sprawdź pisownię albo dodaj hasło w Słowniczku.',
+			noTerms: 'W Słowniczku nie ma jeszcze haseł.',
+			browseGlossary: 'Otwórz Słowniczek…',
 			empty: 'W atelier nie ma jeszcze dzieł.',
 			loadError: 'Nie udało się wczytać dzieł.'
 		},
@@ -2427,6 +2435,9 @@ export const pl = {
 			artwork: 'Dzieło',
 			palette: 'Paleta',
 			closeUp: 'Szczegół',
+			divider: 'Odstęp',
+			term: 'Hasło',
+			termOf: (name: string): string => `Hasło ze Słowniczka: ${name}`,
 			textHint: 'Pisz tutaj…',
 			headingHint: 'Wpisz nagłówek',
 			quoteHint: 'Wpisz cytat'
@@ -2442,6 +2453,7 @@ export const pl = {
 			bulletList: 'Lista',
 			orderedList: 'Lista numerowana',
 			note: 'Notatka',
+			line: 'Linia',
 			position: 'Położenie',
 			addMore: 'Dodaj kolejny',
 			full: 'Zestaw ma już pięć elementów',
@@ -2464,7 +2476,10 @@ export const pl = {
 			artworks:
 				'Ta wystawa ma już 100 dzieł, czyli najwięcej, ile się zmieści. Może warto podzielić ją na dwie?',
 			blocks:
-				'Ta wystawa ma już 300 elementów, czyli najwięcej, ile się zmieści. Może warto podzielić ją na dwie?'
+				'Ta wystawa ma już 300 elementów, czyli najwięcej, ile się zmieści. Może warto podzielić ją na dwie?',
+			noPalette:
+				'Z obrazu tego dzieła nie da się odczytać kolorów, więc paleta nie została dodana.',
+			noImage: 'To dzieło nie ma obrazu, więc nie ma z czego zebrać palety.'
 		},
 		errors: {
 			notFound: 'Nie ma takiej wystawy.',

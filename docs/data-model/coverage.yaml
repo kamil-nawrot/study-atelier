@@ -193,7 +193,7 @@ changes:
       list cover are indexed reads (the rule of M1). The palette of an image is computed in the browser once and stored in
       artwork_images.palette.
     design:
-      - 'Blocks: text, heading, quote, artwork, closeUp, set{2,5} of closeUps or of palettes (ADR-0219), columns > column{2,3}; artwork attrs artworkId, imageId, palette, paletteOnly, note; closeUp attrs artworkId, imageId, x, y, viewWidth.'
+      - 'Blocks: text, heading, quote, artwork, closeUp, set{2,5} of closeUps or of palettes (ADR-0219), divider with attr line, only in the document (ADR-0221), term with attr termId, a reference to a glossary entry (ADR-0222), columns > column{2,3}; artwork attrs artworkId, imageId, palette, paletteOnly, note; closeUp attrs artworkId, imageId, x, y, viewWidth.'
       - 'References by uuid: import_atelier keeps the ids, so an export round trip keeps every reference.'
       - 'A purge cascades exhibition_artworks; the document keeps the id and the view shows the NoImage frame.'
       - 'exhibitions.deleted_at puts an exhibition in Archiwum; reads of the list and of "Na wystawach" leave it out.'

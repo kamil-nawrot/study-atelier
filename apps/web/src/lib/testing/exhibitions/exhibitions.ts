@@ -48,3 +48,7 @@ export function palette(artworkId: string): Node {
 export function set(...items: Node[]): Node {
 	return { type: 'set', content: items };
 }
+
+export function divider(line = false): Node {
+	return line ? { type: 'divider', attrs: { line: true } } : { type: 'divider' };
+}

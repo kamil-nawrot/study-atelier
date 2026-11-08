@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
@@ -85,6 +86,44 @@ describe('ExhibitionBody', () => {
 
 		await expect.element(page.getByText('Hello')).toBeInTheDocument();
 		expect(document.querySelectorAll('.text')).toHaveLength(1);
+	});
+
+	it('shows a term of the glossary with a link to it', async () => {
+		render(ExhibitionBody, {
+			lookup: new ArtworkLookup(),
+			entries: [
+				{
+					id: 't1',
+					name: 'Sfumato',
+					category: 'technique',
+					synonyms: [],
+					forms: [],
+					hasDefinition: false
+				}
+			],
+			document: { type: 'doc', content: [{ type: 'term', attrs: { termId: 't1' } }] }
+		});
+
+		await expect
+			.element(page.getByRole('complementary', { name: m.exhibitions.blocks.termOf('Sfumato') }))
+			.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('link', { name: m.glossary.card.open }))
+			.toHaveAttribute('href', '/atelier/glossary/t1');
+	});
+
+	it('leaves a gap for a divider and draws a line only for one that has it', async () => {
+		render(ExhibitionBody, {
+			lookup: new ArtworkLookup(),
+			document: {
+				type: 'doc',
+				content: [{ type: 'divider' }, { type: 'divider', attrs: { line: true } }]
+			}
+		});
+
+		await expect.element(page.getByRole('separator')).toBeInTheDocument();
+		expect(document.querySelectorAll('.divider')).toHaveLength(2);
+		expect(document.querySelectorAll('hr')).toHaveLength(1);
 	});
 
 	it('lays the blocks of a row side by side, with a close-up beside the artwork', async () => {

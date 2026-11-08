@@ -4,10 +4,14 @@
 	import Italic from '@lucide/svelte/icons/italic';
 	import List from '@lucide/svelte/icons/list';
 	import ListOrdered from '@lucide/svelte/icons/list-ordered';
+	import SeparatorHorizontal from '@lucide/svelte/icons/separator-horizontal';
 	import StickyNote from '@lucide/svelte/icons/sticky-note';
 	import { untrack } from 'svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ArtworkFigure from '#lib/exhibitions/components/ArtworkFigure/ArtworkFigure.svelte';
+	import TermFigure from '#lib/exhibitions/components/TermFigure/TermFigure.svelte';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
+	import ExhibitionDivider from '#lib/exhibitions/components/ExhibitionDivider/ExhibitionDivider.svelte';
 	import BlockSetItems from '#lib/exhibitions/components/BlockSetItems/BlockSetItems.svelte';
 	import BlockBar from '#lib/exhibitions/components/BlockBar/BlockBar.svelte';
 	import { plainText } from '#lib/exhibitions/exhibition-markdown/exhibition-markdown.ts';
@@ -28,6 +32,7 @@
 	type Props = {
 		block: Block;
 		lookup: ArtworkLookup;
+		terms?: readonly GlossaryTerm[];
 		canUp: boolean;
 		canDown: boolean;
 		moving?: boolean;
@@ -41,6 +46,7 @@
 	let {
 		block,
 		lookup,
+		terms,
 		canUp,
 		canDown,
 		moving = false,
@@ -81,8 +87,8 @@
 		};
 	}
 
-	function toggleNote(): void {
-		onchange({ ...block.node, attrs: { ...attrs, note: !attrs.note } });
+	function toggle(name: 'note' | 'line'): void {
+		onchange({ ...block.node, attrs: { ...attrs, [name]: !attrs[name] } });
 	}
 
 	function grab(event: PointerEvent): void {
@@ -104,7 +110,7 @@
 		{canUp}
 		{label}
 		{onmovestart}
-		onposition={(next) => onchange(placed(block.node, next))}
+		onposition={kind === 'divider' ? undefined : (next) => onchange(placed(block.node, next))}
 		{onremove}
 		{onstep}
 		{position}
@@ -161,11 +167,21 @@
 				<button
 					aria-label={m.exhibitions.bar.note}
 					aria-pressed={Boolean(attrs.note)}
-					onclick={toggleNote}
+					onclick={() => toggle('note')}
 					title={m.exhibitions.bar.note}
 					type="button"
 				>
 					<StickyNote aria-hidden="true" size={16} />
+				</button>
+			{:else if kind === 'divider'}
+				<button
+					aria-label={m.exhibitions.bar.line}
+					aria-pressed={Boolean(attrs.line)}
+					onclick={() => toggle('line')}
+					title={m.exhibitions.bar.line}
+					type="button"
+				>
+					<SeparatorHorizontal aria-hidden="true" size={16} />
 				</button>
 			{/if}
 		{/snippet}
@@ -195,6 +211,14 @@
 				placeholder={m.exhibitions.blocks.quoteHint}
 				rows="1"
 				value={quoteText(block.node)}></textarea>
+		{:else if kind === 'term'}
+			<div class="grab" onpointerdown={grab} role="presentation">
+				<TermFigure termId={String(attrs.termId)} {terms} />
+			</div>
+		{:else if kind === 'divider'}
+			<div class="grab" onpointerdown={grab} role="presentation">
+				<ExhibitionDivider line={Boolean(attrs.line)} />
+			</div>
 		{:else if grows}
 			<BlockSetItems {lookup} node={block.node} {onchange} ongrab={grab} />
 		{:else}

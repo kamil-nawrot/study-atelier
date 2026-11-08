@@ -4,7 +4,15 @@ export const MAX_BLOCKS = 300;
 export const MAX_ARTWORKS = 100;
 export const MAX_DOCUMENT_BYTES = 524288;
 
-const BLOCK_TYPES = new Set(['textBlock', 'heading', 'quote', 'artwork', 'closeUp']);
+const BLOCK_TYPES = new Set([
+	'textBlock',
+	'heading',
+	'quote',
+	'artwork',
+	'closeUp',
+	'divider',
+	'term'
+]);
 
 function walk(node: ExhibitionDocument, visit: (node: ExhibitionDocument) => void): void {
 	visit(node);

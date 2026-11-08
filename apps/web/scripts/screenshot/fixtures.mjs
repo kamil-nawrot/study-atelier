@@ -669,6 +669,11 @@ export const EXHIBITIONS = [
 				'Światło prowadzi wzrok tam, gdzie malarz chce go zatrzymać. U Leonarda rozpuszcza kontury, u Vermeera zamienia zwykłą sień w scenę.'
 			),
 			artworkBlock(1, 'Sfumato: cień rozpuszcza kontur policzka.', false, { palette: true }),
+			{ type: 'divider', attrs: { line: true } },
+			row(artworkBlock(3, ''), {
+				type: 'term',
+				attrs: { termId: '00000000-0000-4000-9000-000000000007', valign: 'middle' }
+			}),
 			{
 				type: 'quote',
 				content: [
@@ -694,6 +699,7 @@ export const EXHIBITIONS = [
 				artworkBlock(1, '', false, { paletteOnly: true }),
 				artworkBlock(3, '', false, { paletteOnly: true })
 			),
+			{ type: 'divider' },
 			textBlock('Na końcu zostaje pytanie: czy światło jest tematem, czy tylko narzędziem?')
 		],
 		[1, 3]

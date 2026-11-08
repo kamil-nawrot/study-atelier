@@ -5,6 +5,8 @@ import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 import { saveExhibition } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
+import { loadArtworkImages } from '#lib/exhibitions/exhibition-images-data/exhibition-images-data.ts';
+import { paletteOf } from '#lib/images/image-palette/image-palette.ts';
 import { searchArtworks } from '#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts';
 import { ExhibitionSession } from '#lib/exhibitions/exhibition-session/exhibition-session.svelte.ts';
 import {
@@ -16,6 +18,7 @@ import {
 	set,
 	textBlock
 } from '#lib/testing/exhibitions/exhibitions.ts';
+import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 import ExhibitionEditorPane from './ExhibitionEditorPane.svelte';
 
@@ -36,12 +39,24 @@ vi.mock('#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts',
 	searchArtworks: vi.fn()
 }));
 vi.mock('#lib/exhibitions/exhibition-images-data/exhibition-images-data.ts', () => ({
-	loadArtworkImages: vi.fn().mockResolvedValue({ images: new Map() })
+	loadArtworkImages: vi.fn()
 }));
+vi.mock('#lib/images/image-palette/image-palette.ts', () => ({ paletteOf: vi.fn() }));
 vi.mock('#lib/exhibitions/exhibition-data/exhibition-data.ts', () => ({
 	saveExhibition: vi.fn()
 }));
 vi.mock('#lib/pins/pin-data/pin-data.ts', () => ({ loadArtworkPins }));
+vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({
+	loadTermDefinition: vi.fn().mockResolvedValue({ definition: 'Soft edges.', source: null })
+}));
+
+const picture: ArtworkImageInput = {
+	id: 'i1',
+	kind: 'url',
+	url: 'https://example.org/a.jpg',
+	width: 400,
+	height: 500
+};
 
 function session(document: ExhibitionDocument = doc(textBlock('Soft glow'))): ExhibitionSession {
 	return new ExhibitionSession({
@@ -77,6 +92,10 @@ describe('ExhibitionEditorPane', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		vi.mocked(saveExhibition).mockResolvedValue({ revision: 2 });
+		vi.mocked(loadArtworkImages).mockImplementation(async (ids) => ({
+			images: new Map(ids.map((id) => [id, [picture]]))
+		}));
+		vi.mocked(paletteOf).mockResolvedValue({ colours: [{ color: '#9c5d69', share: 1 }] });
 		vi.mocked(searchArtworks).mockResolvedValue({ artworks: [testArtwork(2, 'Olympia')] });
 	});
 
@@ -166,6 +185,35 @@ describe('ExhibitionEditorPane', () => {
 		expect(JSON.stringify(given.document)).toContain('"italic"');
 	});
 
+	it('adds a term of the glossary as a block that shows its definition', async () => {
+		const given = session(doc());
+		const { component } = await render(ExhibitionEditorPane, {
+			session: given,
+			lookup: lookup(),
+			terms: [
+				{
+					id: 't1',
+					name: 'Sfumato',
+					category: 'technique',
+					synonyms: [],
+					forms: [],
+					hasDefinition: true
+				}
+			],
+			barHeight: 80
+		});
+
+		component.add({ kind: 'term', termId: 't1', name: 'Sfumato' });
+
+		await expect.element(page.getByText('Soft edges.')).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('toolbar', { name: m.exhibitions.bar.label('Hasło') }))
+			.toBeInTheDocument();
+		await vi.waitFor(() =>
+			expect(given.document.content).toEqual([{ type: 'term', attrs: { termId: 't1' } }])
+		);
+	});
+
 	it('writes a heading and a quote into fields of their own', async () => {
 		const given = session(doc());
 		const { component } = await render(ExhibitionEditorPane, {
@@ -209,6 +257,37 @@ describe('ExhibitionEditorPane', () => {
 		await expect
 			.element(page.getByRole('toolbar', { name: m.exhibitions.bar.label('Paleta') }))
 			.toBeInTheDocument();
+	});
+
+	it('adds no palette whose colours cannot be read, and says why', async () => {
+		vi.mocked(paletteOf).mockResolvedValue({ unreadable: true });
+		const given = session(doc());
+		const { component } = await render(ExhibitionEditorPane, {
+			session: given,
+			lookup: lookup(),
+			barHeight: 80
+		});
+
+		component.add({ kind: 'palette', artworkId: 'artwork-2' });
+
+		await expect.element(page.getByText(m.exhibitions.limits.noPalette)).toBeInTheDocument();
+		expect(given.document.content).toEqual([]);
+	});
+
+	it('adds no palette of an artwork without an image', async () => {
+		vi.mocked(loadArtworkImages).mockResolvedValue({ images: new Map() });
+		const given = session(doc());
+		const { component } = await render(ExhibitionEditorPane, {
+			session: given,
+			lookup: lookup(),
+			barHeight: 80
+		});
+
+		component.add({ kind: 'palette', artworkId: 'artwork-2' });
+
+		await expect.element(page.getByText(m.exhibitions.limits.noImage)).toBeInTheDocument();
+		expect(paletteOf).not.toHaveBeenCalled();
+		expect(given.document.content).toEqual([]);
 	});
 
 	it('asks for a pin before it adds a detail', async () => {

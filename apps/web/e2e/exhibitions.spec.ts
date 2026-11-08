@@ -54,13 +54,20 @@ test('builds an exhibition from blocks that typing or dragging cannot break', as
 
 	await page.getByRole('radiogroup').getByText(m.exhibitions.blocks.palette).click();
 	await page.getByRole('button', { name: 'Dama z gronostajem' }).click();
-	const palette = page.locator('[data-kind="palette"]');
-	await palette.evaluate((element) =>
+	await expect(page.getByText(m.exhibitions.limits.noImage)).toBeVisible();
+	await expect(page.locator('[data-kind="palette"]')).toHaveCount(0);
+
+	await page.getByRole('button', { name: m.exhibitions.panel.quote }).click();
+	await page
+		.getByRole('textbox', { name: m.exhibitions.blocks.quote })
+		.fill('Dama trzyma zwierzę jak herb.');
+	const quote = page.locator('[data-kind="quote"]');
+	await quote.evaluate((element) =>
 		window.scrollBy(0, element.getBoundingClientRect().top - window.innerHeight / 2)
 	);
-	await palette.hover({ position: { x: 100, y: 60 } });
-	const grip = await palette.locator('.handle').boundingBox();
-	if (!grip) throw new Error('the palette has no handle on screen');
+	await quote.hover({ position: { x: 100, y: 40 } });
+	const grip = await quote.locator('.handle').boundingBox();
+	if (!grip) throw new Error('the quote has no handle on screen');
 	await page.mouse.move(grip.x + 10, grip.y + grip.height - 10);
 	await page.mouse.down();
 	await page.mouse.move(grip.x + 30, 360, { steps: 4 });
@@ -80,7 +87,7 @@ test('builds an exhibition from blocks that typing or dragging cannot break', as
 	await expect(page.locator('.mark[data-side]')).toBeVisible();
 	await page.mouse.up();
 	const row = page.locator('[data-row-id]').filter({ has: page.locator('[data-kind="artwork"]') });
-	await expect(row.locator('[data-kind="palette"]')).toHaveCount(1);
+	await expect(row.locator('[data-kind="quote"]')).toHaveCount(1);
 
 	await page.getByRole('button', { name: m.exhibitions.view.done }).click();
 	await page.waitForURL(/\/atelier\/exhibitions\/[^?]+$/);
@@ -88,10 +95,10 @@ test('builds an exhibition from blocks that typing or dragging cannot break', as
 	await expect(heading).toBeVisible();
 	const headingBox = await heading.boundingBox();
 	const figures = page.getByRole('figure');
-	await expect(figures).toHaveCount(2);
+	await expect(figures).toHaveCount(1);
 	const figureBox = await figures.first().boundingBox();
-	const paletteBox = await figures.last().boundingBox();
+	const quoteBox = await page.locator('blockquote').boundingBox();
 	expect(headingBox && figureBox && headingBox.y < figureBox.y).toBe(true);
-	expect(figureBox && paletteBox && figureBox.x < paletteBox.x).toBe(true);
-	expect(figureBox && paletteBox && Math.abs(figureBox.y - paletteBox.y) < 2).toBe(true);
+	expect(figureBox && quoteBox && figureBox.x < quoteBox.x).toBe(true);
+	expect(figureBox && quoteBox && Math.abs(figureBox.y - quoteBox.y) < 2).toBe(true);
 });

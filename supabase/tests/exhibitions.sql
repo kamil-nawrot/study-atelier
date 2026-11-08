@@ -97,7 +97,11 @@ begin
       jsonb_build_object('type', 'closeUp', 'attrs', jsonb_build_object('artworkId', raft, 'x', 0.5, 'y', 0.5, 'viewWidth', 0.2)))),
     jsonb_build_object('type', 'set', 'content', jsonb_build_array(
       jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', olympia, 'paletteOnly', true)),
-      jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', judith, 'paletteOnly', true)))))), 2);
+      jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', judith, 'paletteOnly', true)))),
+    jsonb_build_object('type', 'divider'),
+    jsonb_build_object('type', 'divider', 'attrs', jsonb_build_object('line', true)),
+    jsonb_build_object('type', 'term', 'attrs', jsonb_build_object(
+      'termId', '00000000-0000-4000-8000-0000000000f1', 'align', 'center')))), 2);
   assert revision = 3, 'save_exhibition does not take a document with a row, close-ups and sets';
   assert (select array_agg(artwork_id order by position) from public.exhibition_artworks where exhibition_id = exhibition)
     = array[judith, olympia, raft],
@@ -165,6 +169,38 @@ begin
     'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "set", "content": [{"type": "set", "content": [{"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5}}, {"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5}}]}, {"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5}}]}]}'::jsonb))
     = '23514 exhibition_document',
     'an exhibition has a set inside a set';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "columns", "content": [{"type": "column", "content": [{"type": "divider"}]}, {"type": "column", "content": [{"type": "heading", "attrs": {"level": 2}}]}]}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a divider beside another block';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "divider", "attrs": {"line": "yes"}}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a divider with a line it does not know';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "divider", "content": []}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a divider that holds something';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "divider", "attrs": {"align": "center"}}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a divider placed on a side';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "term"}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a term block with no entry';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "term", "attrs": {"termId": "sfumato"}}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a term block whose entry is not an id';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "term", "attrs": {"termId": "00000000-0000-4000-8000-0000000000f1"}, "content": [{"type": "text", "text": "x"}]}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a term block that holds text';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "set", "content": [{"type": "term", "attrs": {"termId": "00000000-0000-4000-8000-0000000000f1"}}, {"type": "term", "attrs": {"termId": "00000000-0000-4000-8000-0000000000f1"}}]}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a set of term blocks';
 
   assert exhibitions_test.failure(format(
     'select public.save_exhibition(%L, ''Light'', ''{"type": "doc", "content": []}'', 1)', exhibition))

@@ -4,9 +4,11 @@ import {
 	closeUpNode,
 	headingNode,
 	headingText,
+	isSolo,
 	kindOf,
 	quoteNode,
 	quoteText,
+	termNode,
 	textNode
 } from '#lib/exhibitions/editor/new-block/new-block.ts';
 
@@ -23,6 +25,12 @@ describe('new blocks', () => {
 		expect(textNode('textBlock')).toEqual({ type: 'textBlock', content: [{ type: 'paragraph' }] });
 		expect(textNode('heading')).toEqual({ type: 'heading', attrs: { level: 2 } });
 		expect(textNode('quote')).toEqual({ type: 'quote', content: [{ type: 'paragraph' }] });
+		expect(textNode('divider')).toEqual({ type: 'divider' });
+		expect(termNode('t1')).toEqual({ type: 'term', attrs: { termId: 't1' } });
+		expect(kindOf(termNode('t1'))).toBe('term');
+		expect(kindOf(textNode('divider'))).toBe('divider');
+		expect(isSolo(textNode('divider'))).toBe(true);
+		expect(isSolo(textNode('quote'))).toBe(false);
 	});
 
 	it('stores a palette as an artwork that shows only its colours', () => {

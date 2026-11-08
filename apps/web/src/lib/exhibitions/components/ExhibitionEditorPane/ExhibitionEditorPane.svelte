@@ -24,32 +24,38 @@
 	import { measureRows } from '#lib/exhibitions/editor/row-boxes/row-boxes.ts';
 	import { blockLabel, newBlockLabel } from '#lib/exhibitions/editor/block-label/block-label.ts';
 	import { itemsOf, withItem } from '#lib/exhibitions/editor/block-set/block-set.ts';
+	import { paletteOf } from '#lib/images/image-palette/image-palette.ts';
 	import { limitOf } from '#lib/exhibitions/editor/block-limits/block-limits.ts';
 	import {
 		artworkNode,
 		closeUpNode,
+		isSolo,
 		kindOf,
+		termNode,
 		textNode,
 		type CloseUpAttributes,
 		type NewBlock
 	} from '#lib/exhibitions/editor/new-block/new-block.ts';
 	import type { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 	import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import type { ExhibitionSession } from '#lib/exhibitions/exhibition-session/exhibition-session.svelte.ts';
 
 	type Props = {
 		session: ExhibitionSession;
 		lookup: ArtworkLookup;
+		terms?: readonly GlossaryTerm[];
 		barHeight: number;
 	};
 
-	let { session, lookup, barHeight }: Props = $props();
+	let { session, lookup, terms, barHeight }: Props = $props();
 
 	let rows = $state.raw<Row[]>(untrack(() => rowsOf(session.document)));
 	let list = $state<HTMLElement>();
 	let limit = $state<string>();
 	let drop = $state.raw<Drop>();
 	let moving = $state<string>();
+	let solo = false;
 	let closeUpOf = $state('');
 	let closeUpOpen = $state(false);
 	let closeUpTarget: Target | undefined;
@@ -87,11 +93,26 @@
 			closeUpOf = block.artworkId;
 			closeUpTarget = target;
 			closeUpOpen = true;
-		} else if (block.kind === 'artwork' || block.kind === 'palette') {
-			place(artworkNode(block.artworkId, block.kind === 'palette'), target);
+		} else if (block.kind === 'term') {
+			place(termNode(block.termId), target);
+		} else if (block.kind === 'palette') {
+			void readablePalette(block.artworkId).then((node) => node && place(node, target));
+		} else if (block.kind === 'artwork') {
+			place(artworkNode(block.artworkId), target);
 		} else {
 			place(textNode(block.kind), target);
 		}
+	}
+
+	async function readablePalette(artworkId: string): Promise<ExhibitionDocument | undefined> {
+		limit = undefined;
+		await lookup.wantPictures(artworkId);
+		const pictures = lookup.pictures(artworkId);
+		const image = pictures?.[0];
+		const result = image ? await paletteOf(image) : undefined;
+		if (result && 'colours' in result) return artworkNode(artworkId, true);
+		limit = pictures && !image ? m.exhibitions.limits.noImage : m.exhibitions.limits.noPalette;
+		return undefined;
 	}
 
 	function pickCloseUp(attributes: CloseUpAttributes): void {
@@ -110,6 +131,12 @@
 		closeUpOpen = true;
 	}
 
+	async function growPalette(artworkId: string): Promise<void> {
+		const node = await readablePalette(artworkId);
+		if (node) grow(node);
+		else growing = undefined;
+	}
+
 	function grow(item: ExhibitionDocument): void {
 		const id = growing;
 		growing = undefined;
@@ -124,7 +151,7 @@
 
 	function hover(x: number, y: number): void {
 		const frame = list?.getBoundingClientRect();
-		drop = frame && list ? dropAt(measureRows(list), frame, x, y, moving) : undefined;
+		drop = frame && list ? dropAt(measureRows(list), frame, x, y, moving, solo) : undefined;
 	}
 
 	function handlers(onplace: (target: Target) => void): Parameters<BlockDrag['begin']>[2] {
@@ -138,11 +165,13 @@
 			onend: () => {
 				drop = undefined;
 				moving = undefined;
+				solo = false;
 			}
 		};
 	}
 
 	export function dragNew(event: PointerEvent, block: NewBlock): void {
+		solo = block.kind === 'divider';
 		drag.begin(
 			event,
 			newBlockLabel(block, lookup),
@@ -150,10 +179,11 @@
 		);
 	}
 
-	function dragBlock(event: PointerEvent, id: string, label: string): void {
+	function dragBlock(event: PointerEvent, id: string, node: ExhibitionDocument): void {
+		solo = isSolo(node);
 		const started = drag.begin(
 			event,
-			label,
+			blockLabel(node, lookup),
 			handlers((target) => change(move(rows, id, target)))
 		);
 		if (started) moving = id;
@@ -179,7 +209,11 @@
 	{/if}
 	<div bind:this={list} class="rows" class:dragging={drag.active}>
 		{#each rows as row (row.id)}
-			<div class="row" data-row-id={row.id}>
+			<div
+				class="row"
+				data-row-id={row.id}
+				data-solo={row.blocks.some((block) => isSolo(block.node)) ? '' : undefined}
+			>
 				{#each row.blocks as block (block.id)}
 					<BlockCard
 						{block}
@@ -189,9 +223,10 @@
 						moving={drag.active && moving === block.id}
 						onaddmore={() => addMore(block.id, block.node)}
 						onchange={(node) => change(update(rows, block.id, node))}
-						onmovestart={(event) => dragBlock(event, block.id, blockLabel(block.node, lookup))}
+						onmovestart={(event) => dragBlock(event, block.id, block.node)}
 						onremove={() => change(remove(rows, block.id))}
 						onstep={(direction) => change(step(rows, block.id, direction))}
+						{terms}
 					/>
 				{/each}
 			</div>
@@ -205,7 +240,7 @@
 
 <ArtworkPickDialog
 	{lookup}
-	onpick={(artworkId) => grow(artworkNode(artworkId, true))}
+	onpick={growPalette}
 	title={m.exhibitions.paletteDialog.title}
 	bind:open={paletteOpen}
 />
