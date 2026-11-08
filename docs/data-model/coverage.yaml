@@ -346,7 +346,7 @@ alternatives:
     loses: 'One request per note view even when no tooltip is opened; definitions of terms the learner never points at.'
   - id: M6
     name: Keep the exhibit catalogue with its rooms in tables
-    status: 'accepted 2026-11-08, ADR-0231; built in ATL-583 (0.21)'
+    status: 'accepted 2026-11-08, ADR-0232; built in ATL-583 (0.21)'
     kind: schema
     tables: [exhibit_rooms, exhibits, exhibit_tiers]
     serves: [R15, W14]

@@ -1,4 +1,4 @@
-# 0231. Keep the exhibit catalogue in tables
+# 0232. Keep the exhibit catalogue in tables
 
 - Status: accepted
 - Date: 2026-11-08
