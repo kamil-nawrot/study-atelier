@@ -29,7 +29,8 @@
     "hortus_cliffortianus": "wandelaar-wide",
     "candle_moths": "van-der-vinne-candle",
     "amateur_magnifier": "daumier-amateur-figure",
-    "crystal_palace": "burton-transept"
+    "crystal_palace": "burton-transept",
+    "artwork_types": "cort-workshop"
   },
   "variants": [
     {
@@ -1237,7 +1238,7 @@
     },
     {
       "exhibit": "artwork_types",
-      "status": "alternative",
+      "status": "chosen",
       "source_url": "https://images.metmuseum.org/CRDImages/dp/original/DP874315.jpg",
       "source_page": "https://www.metmuseum.org/art/collection/search/369581",
       "licence": "CC0 1.0",
