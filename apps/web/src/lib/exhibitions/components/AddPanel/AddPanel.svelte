@@ -44,7 +44,13 @@
 	let artworkKind = $state<ArtworkKind>('artwork');
 </script>
 
-<FilterSidePanel closeLabel={m.exhibitions.panel.close} title={m.exhibitions.panel.title} bind:open>
+<FilterSidePanel
+	closeLabel={m.exhibitions.panel.close}
+	openLabel={m.exhibitions.panel.open}
+	strip={m.exhibitions.panel.title}
+	title={m.exhibitions.panel.title}
+	bind:open
+>
 	<section class="section" aria-labelledby="panel-text">
 		<h3 id="panel-text">{m.exhibitions.panel.textTitle}</h3>
 		<div class="kinds">

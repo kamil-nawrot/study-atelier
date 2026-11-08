@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Check from '@lucide/svelte/icons/check';
 	import Pencil from '@lucide/svelte/icons/pencil';
-	import Plus from '@lucide/svelte/icons/plus';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { Button, LoadFailure } from '@study-atelier/ui';
@@ -76,16 +75,6 @@
 		{#if session && data.exhibition}
 			{#if editing}
 				<SaveStatusText status={session.status} />
-				{#if !panelOpen && wide.current}
-					<Button
-						aria-label={m.exhibitions.panel.open}
-						compact
-						icon={Plus}
-						onclick={() => (panelOpen = true)}
-					>
-						{m.exhibitions.panel.open}
-					</Button>
-				{/if}
 				<Button
 					aria-label={m.exhibitions.view.done}
 					compact
