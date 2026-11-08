@@ -237,7 +237,7 @@
 		position: absolute;
 		inset: 0;
 		box-sizing: border-box;
-		padding: var(--spacing-8) var(--spacing-4) var(--spacing-4);
+		padding: calc(var(--spacing-6) + var(--spacing-8)) var(--spacing-4) var(--spacing-4);
 		overflow-y: auto;
 		background: var(--color-surface);
 		color: var(--color-fg);
@@ -251,16 +251,17 @@
 
 	.flip {
 		position: absolute;
-		top: 0;
-		right: 0;
+		top: var(--spacing-6);
+		right: var(--spacing-6);
 		display: grid;
 		place-items: center;
 		width: var(--spacing-8);
 		height: var(--spacing-8);
 		padding: 0;
 		border: none;
-		background: var(--color-bg);
-		color: var(--color-fg-muted);
+		border-radius: 50%;
+		background: color-mix(in srgb, var(--color-stage-bg) 60%, transparent);
+		color: var(--color-stage-fg);
 		cursor: pointer;
 		opacity: 0.7;
 	}
@@ -268,7 +269,6 @@
 	.flip:hover,
 	.flip:focus-visible,
 	.flip[aria-pressed='true'] {
-		color: var(--color-fg);
 		opacity: 1;
 	}
 </style>
