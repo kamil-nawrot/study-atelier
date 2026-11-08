@@ -35,6 +35,17 @@ describe('textBlockMarkdown', () => {
 		expect(textBlockMarkdown(block)).toBe('***b***');
 	});
 
+	it('writes a heading of a text as a Markdown heading', () => {
+		const block = {
+			type: 'textBlock',
+			content: [
+				{ type: 'heading', attrs: { level: 3 }, content: [words('Light', 'bold')] },
+				paragraph(words('a'))
+			]
+		};
+		expect(textBlockMarkdown(block)).toBe('### **Light**\n\na');
+	});
+
 	it('separates paragraphs with a blank line', () => {
 		const block = { type: 'textBlock', content: [paragraph(words('a')), paragraph(words('b'))] };
 		expect(textBlockMarkdown(block)).toBe('a\n\nb');
