@@ -665,9 +665,19 @@ export const EXHIBITIONS = [
 				attrs: { level: 2 },
 				content: [{ type: 'text', text: 'Od Leonarda do Vermeera' }]
 			},
-			textBlock(
-				'Światło prowadzi wzrok tam, gdzie malarz chce go zatrzymać. U Leonarda rozpuszcza kontury, u Vermeera zamienia zwykłą sień w scenę.'
-			),
+			{
+				type: 'textBlock',
+				content: [
+					{
+						type: 'heading',
+						attrs: { level: 3 },
+						content: [{ type: 'text', text: 'Światło jako narzędzie' }]
+					},
+					...textBlock(
+						'Światło prowadzi wzrok tam, gdzie malarz chce go zatrzymać. U Leonarda rozpuszcza kontury, u Vermeera zamienia zwykłą sień w scenę.'
+					).content
+				]
+			},
 			artworkBlock(1, 'Sfumato: cień rozpuszcza kontur policzka.', false, { palette: true }),
 			{ type: 'divider', attrs: { line: true } },
 			row(artworkBlock(3, ''), {

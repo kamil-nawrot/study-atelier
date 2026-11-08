@@ -2450,6 +2450,7 @@ export const pl = {
 			remove: 'Usuń z wystawy',
 			bold: 'Pogrubienie',
 			italic: 'Kursywa',
+			heading: 'Nagłówek',
 			bulletList: 'Lista',
 			orderedList: 'Lista numerowana',
 			note: 'Notatka',
