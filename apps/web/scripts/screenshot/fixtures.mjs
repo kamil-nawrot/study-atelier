@@ -1224,6 +1224,48 @@ export const EXHIBITS = [
 	{ exhibit: 'pinacotheca', room: 'main_hall', hidden: true, value: 10, thresholds: [10] },
 	{ exhibit: 'eras', room: 'era_enfilade', hidden: false, value: 5, thresholds: [2, 3, 4, 5, 6] },
 	{
+		exhibit: 'prehistory',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 0,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'antiquity',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 3,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'middle_ages',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 12,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'early_modern',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 61,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'modern',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 104,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'contemporary',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 11,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
 		exhibit: 'memory',
 		room: 'reading_room',
 		hidden: false,
