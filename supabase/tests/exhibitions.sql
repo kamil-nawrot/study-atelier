@@ -100,6 +100,10 @@ begin
       jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', judith, 'paletteOnly', true)))),
     jsonb_build_object('type', 'divider'),
     jsonb_build_object('type', 'divider', 'attrs', jsonb_build_object('line', true)),
+    jsonb_build_object('type', 'columns', 'content', jsonb_build_array(
+      jsonb_build_object('type', 'column', 'content', jsonb_build_array(jsonb_build_object('type', 'divider'))),
+      jsonb_build_object('type', 'column', 'content', jsonb_build_array(
+        jsonb_build_object('type', 'divider', 'attrs', jsonb_build_object('line', true)))))),
     jsonb_build_object('type', 'term', 'attrs', jsonb_build_object(
       'termId', '00000000-0000-4000-8000-0000000000f1', 'align', 'center')))), 2);
   assert revision = 3, 'save_exhibition does not take a document with a row, close-ups and sets';
@@ -169,10 +173,6 @@ begin
     'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "set", "content": [{"type": "set", "content": [{"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5}}, {"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5}}]}, {"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5}}]}]}'::jsonb))
     = '23514 exhibition_document',
     'an exhibition has a set inside a set';
-  assert exhibitions_test.failure(format(
-    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "columns", "content": [{"type": "column", "content": [{"type": "divider"}]}, {"type": "column", "content": [{"type": "heading", "attrs": {"level": 2}}]}]}]}'::jsonb))
-    = '23514 exhibition_document',
-    'an exhibition has a divider beside another block';
   assert exhibitions_test.failure(format(
     'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "divider", "attrs": {"line": "yes"}}]}'::jsonb))
     = '23514 exhibition_document',

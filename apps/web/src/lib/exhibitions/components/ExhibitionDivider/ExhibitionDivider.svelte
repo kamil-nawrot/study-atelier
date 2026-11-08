@@ -1,17 +1,18 @@
 <script lang="ts">
 	type Props = {
 		line: boolean;
+		upright?: boolean;
 	};
 
-	let { line }: Props = $props();
+	let { line, upright = false }: Props = $props();
 </script>
 
 {#if line}
-	<div class="divider">
-		<hr />
+	<div class="divider" class:upright>
+		<hr aria-orientation={upright ? 'vertical' : undefined} />
 	</div>
 {:else}
-	<div class="divider" aria-hidden="true"></div>
+	<div class="divider" class:upright aria-hidden="true"></div>
 {/if}
 
 <style>
@@ -27,5 +28,20 @@
 		margin: 0;
 		border: none;
 		border-top: var(--border-width-hairline) solid var(--color-line);
+	}
+
+	@media (min-width: 768px) {
+		.upright {
+			align-items: stretch;
+			justify-items: center;
+			height: 100%;
+		}
+
+		.upright hr {
+			width: 0;
+			height: 100%;
+			border-top: none;
+			border-left: var(--border-width-hairline) solid var(--color-line);
+		}
 	}
 </style>

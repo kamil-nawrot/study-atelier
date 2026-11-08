@@ -108,6 +108,14 @@ describe('BlockCard', () => {
 		expect(given.onchange).toHaveBeenLastCalledWith({ type: 'divider', attrs: { line: true } });
 	});
 
+	it('stands the line of a divider upright beside other blocks', async () => {
+		await page.viewport(1024, 800);
+		render(BlockCard, { ...props(divider(true)), beside: true });
+		await expect
+			.element(page.getByRole('separator'))
+			.toHaveAttribute('aria-orientation', 'vertical');
+	});
+
 	it('shows the line of a divider that has one', async () => {
 		render(BlockCard, props(divider(true)));
 		await expect.element(page.getByRole('separator')).toBeInTheDocument();
