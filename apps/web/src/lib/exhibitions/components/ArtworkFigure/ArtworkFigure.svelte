@@ -1,4 +1,5 @@
 <script lang="ts">
+	import StickyNote from '@lucide/svelte/icons/sticky-note';
 	import { NoImage } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import PaletteBand from '#lib/images/components/PaletteBand/PaletteBand.svelte';
@@ -11,7 +12,7 @@
 	type Props = {
 		lookup: ArtworkLookup;
 		artworkId: string;
-		showNote?: boolean;
+		flippable?: boolean;
 		palette?: boolean;
 		paletteOnly?: boolean;
 		caption?: string;
@@ -22,7 +23,7 @@
 	let {
 		lookup,
 		artworkId,
-		showNote = false,
+		flippable = false,
 		palette = false,
 		paletteOnly = false,
 		caption = '',
@@ -32,6 +33,9 @@
 
 	const artwork = $derived(lookup.get(artworkId));
 	const note = $derived(lookup.note(artworkId));
+	const canFlip = $derived(flippable && !paletteOnly && lookup.hasNote(artworkId));
+
+	let flipped = $state(false);
 	const byline = $derived(
 		artwork ? [artwork.authors.join(', '), artwork.date].filter(Boolean).join(', ') : ''
 	);
@@ -50,7 +54,7 @@
 	);
 
 	$effect(() => {
-		if (showNote) void lookup.wantNote(artworkId);
+		if (flipped) void lookup.wantNote(artworkId);
 	});
 
 	$effect(() => {
@@ -65,7 +69,7 @@
 
 <figure class="figure">
 	<div style:--ratio={ratio} class="top">
-		<div class="mat" class:bare={paletteOnly && (showsPalette || unreadable)}>
+		<div class="mat" class:bare={paletteOnly && (showsPalette || unreadable)} class:flipped>
 			{#if paletteOnly && (showsPalette || unreadable)}
 				<div class="swatches" data-palette-only="">
 					{#if unreadable}
@@ -90,6 +94,33 @@
 					<NoImage />
 				</div>
 			{/if}
+			{#if canFlip && flipped}
+				<div
+					class="back"
+					aria-label={m.exhibitions.view.noteOf(artwork?.title ?? '')}
+					role="region"
+				>
+					{#if note?.text}
+						<GlossaryNotes {entries} linked links={note.links} value={note.text} />
+					{:else if note}
+						<p class="empty">{m.exhibitions.view.noNote}</p>
+					{:else}
+						<p class="empty">{m.exhibitions.view.loadingNote}</p>
+					{/if}
+				</div>
+			{/if}
+			{#if canFlip}
+				<button
+					class="flip"
+					aria-label={m.exhibitions.view.flip}
+					aria-pressed={flipped}
+					onclick={() => (flipped = !flipped)}
+					title={m.exhibitions.view.flip}
+					type="button"
+				>
+					<StickyNote aria-hidden="true" size={16} />
+				</button>
+			{/if}
 		</div>
 		{#if palette && !paletteOnly && showsPalette}
 			<div class="strip" data-palette="">
@@ -111,16 +142,6 @@
 	{#if caption !== ''}
 		<figcaption>{caption}</figcaption>
 	{/if}
-	{#if showNote && artwork}
-		<aside class="note">
-			<p class="note-label">{m.exhibitions.bar.noteOf(artwork.title)}</p>
-			{#if note?.text}
-				<GlossaryNotes {entries} linked={!editable} links={note.links} value={note.text} />
-			{:else if note}
-				<p class="caption">{m.exhibitions.bar.noNote}</p>
-			{/if}
-		</aside>
-	{/if}
 </figure>
 
 <style>
@@ -141,6 +162,7 @@
 	}
 
 	.mat {
+		position: relative;
 		display: grid;
 		place-items: center;
 		max-width: 100%;
@@ -207,18 +229,46 @@
 		line-height: var(--line-height-md);
 	}
 
-	.note {
-		display: grid;
-		gap: var(--spacing-2);
-		max-width: var(--size-content-default);
-		padding: var(--spacing-3) var(--spacing-4);
-		border-left: var(--border-width-base) solid var(--color-line);
-		background: var(--color-surface);
+	.mat.flipped > :not(.back, .flip) {
+		visibility: hidden;
 	}
 
-	.note-label {
+	.back {
+		position: absolute;
+		inset: 0;
+		box-sizing: border-box;
+		padding: var(--spacing-8) var(--spacing-4) var(--spacing-4);
+		overflow-y: auto;
+		background: var(--color-surface);
+		color: var(--color-fg);
+		text-align: start;
+	}
+
+	.empty {
 		margin: 0;
 		color: var(--color-fg-muted);
-		font-size: var(--font-size-sm);
+	}
+
+	.flip {
+		position: absolute;
+		top: 0;
+		right: 0;
+		display: grid;
+		place-items: center;
+		width: var(--spacing-8);
+		height: var(--spacing-8);
+		padding: 0;
+		border: none;
+		background: var(--color-bg);
+		color: var(--color-fg-muted);
+		cursor: pointer;
+		opacity: 0.7;
+	}
+
+	.flip:hover,
+	.flip:focus-visible,
+	.flip[aria-pressed='true'] {
+		color: var(--color-fg);
+		opacity: 1;
 	}
 </style>

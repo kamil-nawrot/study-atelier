@@ -104,20 +104,6 @@ describe('BlockCard', () => {
 		expect(document.querySelector('.grab a')).toBeNull();
 	});
 
-	it('switches the note of an artwork on and off from its toolbox', async () => {
-		const given = props(artwork('artwork-1'));
-		render(BlockCard, given);
-
-		const note = page.getByRole('button', { name: m.exhibitions.bar.note });
-		await expect.element(note).toHaveAttribute('aria-pressed', 'false');
-		await userEvent.click(note);
-
-		expect(given.onchange).toHaveBeenLastCalledWith({
-			type: 'artwork',
-			attrs: { artworkId: 'artwork-1', note: true }
-		});
-	});
-
 	it('draws or hides the line of a divider from its toolbox and offers no position', async () => {
 		const given = props(divider());
 		render(BlockCard, given);

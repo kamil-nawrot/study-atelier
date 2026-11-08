@@ -23,6 +23,11 @@ type NotesResult = {
 	error?: string;
 };
 
+type NoteIdsResult = {
+	ids: Set<string>;
+	error?: string;
+};
+
 type SuggestionRow = {
 	kind: string;
 	id: string;
@@ -105,4 +110,17 @@ export async function loadArtworkNotes(ids: readonly string[]): Promise<NotesRes
 	return {
 		notes: new Map((data as NoteRow[]).map((row) => [row.id, row.notes ?? '']))
 	};
+}
+
+export async function loadArtworksWithNotes(ids: readonly string[]): Promise<NoteIdsResult> {
+	if (ids.length === 0) return { ids: new Set() };
+	const { data, error } = await supabase
+		.from('artworks')
+		.select('id')
+		.in('id', [...ids])
+		.is('deleted_at', null)
+		.not('notes', 'is', null)
+		.neq('notes', '');
+	if (error) return { ids: new Set(), error: collectionErrorMessage(error) };
+	return { ids: new Set((data as { id: string }[]).map((row) => row.id)) };
 }

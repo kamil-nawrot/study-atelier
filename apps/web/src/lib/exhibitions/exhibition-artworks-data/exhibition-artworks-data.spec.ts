@@ -4,6 +4,7 @@ import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { fetchAllRows } from '#lib/wall/wall-data/wall-data.ts';
 import {
 	loadArtworkNotes,
+	loadArtworksWithNotes,
 	loadArtworksByIds,
 	loadRecentArtworks,
 	searchArtworks
@@ -130,5 +131,42 @@ describe('loadArtworkNotes', () => {
 	it('does not ask for nothing', async () => {
 		expect((await loadArtworkNotes([])).notes.size).toBe(0);
 		expect(from).not.toHaveBeenCalled();
+	});
+});
+
+describe('loadArtworksWithNotes', () => {
+	it('asks only for the ids of the artworks whose notes are not empty', async () => {
+		const query = {
+			select: vi.fn().mockReturnThis(),
+			in: vi.fn().mockReturnThis(),
+			is: vi.fn().mockReturnThis(),
+			not: vi.fn().mockReturnThis(),
+			neq: vi.fn().mockResolvedValue({ data: [{ id: 'a' }], error: null })
+		};
+		from.mockReturnValue(query as never);
+
+		const { ids } = await loadArtworksWithNotes(['a', 'b']);
+
+		expect([...ids]).toEqual(['a']);
+		expect(query.select).toHaveBeenCalledWith('id');
+		expect(query.not).toHaveBeenCalledWith('notes', 'is', null);
+		expect(query.neq).toHaveBeenCalledWith('notes', '');
+	});
+
+	it('reports a failure and does not ask for nothing', async () => {
+		expect((await loadArtworksWithNotes([])).ids.size).toBe(0);
+		expect(from).not.toHaveBeenCalled();
+		from.mockReturnValue({
+			select: vi.fn().mockReturnThis(),
+			in: vi.fn().mockReturnThis(),
+			is: vi.fn().mockReturnThis(),
+			not: vi.fn().mockReturnThis(),
+			neq: vi.fn().mockResolvedValue({ data: null, error: { message: 'Boom' } })
+		} as never);
+
+		const result = await loadArtworksWithNotes(['a']);
+
+		expect(result.ids.size).toBe(0);
+		expect(result.error).toBeTruthy();
 	});
 });

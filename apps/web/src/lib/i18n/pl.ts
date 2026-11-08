@@ -2372,7 +2372,11 @@ export const pl = {
 			titleLabel: 'Tytuł wystawy',
 			emptyBody: 'Tu zaczyna się Twoja opowieść. Dodaj tekst albo dzieło z panelu obok.',
 			missingArtwork: 'Dzieła nie ma w atelier',
-			archivedArtwork: 'Dzieło jest w Archiwum'
+			archivedArtwork: 'Dzieło jest w Archiwum',
+			flip: 'Notatka do dzieła',
+			noteOf: (title: string): string => `Notatka do dzieła „${title}”`,
+			noNote: 'To dzieło nie ma już notatki.',
+			loadingNote: 'Wczytywanie notatki…'
 		},
 		save: {
 			saving: 'Zapisywanie…',
@@ -2453,16 +2457,13 @@ export const pl = {
 			heading: 'Nagłówek',
 			bulletList: 'Lista',
 			orderedList: 'Lista numerowana',
-			note: 'Notatka',
 			line: 'Linia',
 			position: 'Położenie',
 			addMore: 'Dodaj kolejny',
 			full: 'Zestaw ma już pięć elementów',
 			removeItem: (number: number): string => `Usuń element ${number} z zestawu`,
 			place: (valign: string, align: string): string =>
-				`${{ top: 'U góry', middle: 'W połowie', bottom: 'Na dole' }[valign] ?? valign}, ${{ left: 'z lewej', center: 'na środku', right: 'z prawej' }[align] ?? align}`,
-			noteOf: (title: string): string => `Z notatki dzieła · ${title}`,
-			noNote: 'To dzieło nie ma jeszcze notatki.'
+				`${{ top: 'U góry', middle: 'W połowie', bottom: 'Na dole' }[valign] ?? valign}, ${{ left: 'z lewej', center: 'na środku', right: 'z prawej' }[align] ?? align}`
 		},
 		deleteConfirm: {
 			title: (title: string): string => `Przenieść wystawę „${title}” do Archiwum?`,

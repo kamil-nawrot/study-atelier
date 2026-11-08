@@ -38,6 +38,7 @@ vi.mock('#lib/wall/wall-images/wall-images.svelte.ts', () => ({
 	}
 }));
 vi.mock('#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts', () => ({
+	loadArtworksWithNotes: vi.fn().mockResolvedValue({ ids: new Set() }),
 	loadArtworkNotes: vi.fn().mockResolvedValue({ notes: new Map() }),
 	loadRecentArtworks: vi.fn().mockResolvedValue({ artworks: [] }),
 	searchArtworks: vi.fn().mockResolvedValue({ artworks: [] })
