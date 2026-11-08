@@ -36,7 +36,7 @@ Chosen by the owner in ATL-580.
 ### Display case
 
 - Object: the academy of the visual arts in Rome, where sculptors, painters, draughtsmen, architects and engravers work side by side, each art marked with its Latin name.
-- Engraving: Cornelis Cort after a design by Jan van der Straet (Stradanus), _The Practitioners of the Visual Arts_, Rome, 1578, published by Laurentius Vacarius and dedicated to Giacomo Boncompagni, Rijksmuseum RP-P-BI-6381, in the scan `Cornelis Cort, Jan van der Straet (After) - Allegory of the arts.jpg` on Wikimedia Commons. The whole workshop inside the plate, without the dedication, variant `cort-workshop` in `tools/exhibit-art/manifest.json`; the other two crops stay as alternatives. The scene is dense at 400 × 520, which the owner accepted.
+- Engraving: Cornelis Cort after a design by Jan van der Straet (Stradanus), _The Practitioners of the Visual Arts_, Rome, 1578, published by Laurentius Vacarius and dedicated to Giacomo Boncompagni, Metropolitan Museum of Art 53.600.509, CC0 on its [object page](https://www.metmuseum.org/art/collection/search/369581); `exhibit-art` takes the museum's image through `source_url`. The Rijksmuseum holds another impression, RP-P-BI-6381, which confirms the publisher and the dedication. The whole workshop inside the plate, without the dedication, variant `cort-workshop` in `tools/exhibit-art/manifest.json`; the other two crops stay as alternatives. The scene is dense at 400 × 520, which the owner accepted.
 - Credit: Cornelis Cort, „Adepci sztuk plastycznych”, 1578.
 - Exhibit code: `boncompagni_academy`.
 - Name "Akademia Boncompagniego", a place and whose it is, after the dedication of the print.
