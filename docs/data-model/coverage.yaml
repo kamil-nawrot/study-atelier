@@ -344,6 +344,34 @@ alternatives:
     size: small
     gives: 'No wait on the first hover or tap, which matters on a phone; still read by ids with no filtering in the app.'
     loses: 'One request per note view even when no tooltip is opened; definitions of terms the learner never points at.'
+  - id: M6
+    name: Keep the exhibit catalogue with its rooms in tables
+    status: 'accepted 2026-11-08, ADR-0231; built in ATL-583 (0.21)'
+    kind: schema
+    tables: [exhibit_rooms, exhibits, exhibit_tiers]
+    serves: [R15, W14]
+    pull_requests: 1
+    risk: low
+    risk_because: 'two small reference tables and a foreign key over codes that were never renamed; one replaced function changes its return type'
+    how: >
+      exhibit_rooms (code, position) and exhibits (code, room, position in the room, thresholds, hidden) replace the
+      inline list of private.exhibit_values, its place column and the two lists of hidden exhibits, in
+      private.unlock_exhibits_for and in the app. private.exhibit_values only computes (code, value) and takes the
+      thresholds and the order from the catalogue. unlock_exhibits returns the room and hidden with every exhibit,
+      ordered by the room and the position, so the display case still makes one call. exhibit_tiers.exhibit
+      references exhibits.code.
+    design:
+      - 'Both tables are read by authenticated and written only by migrations, like eras; names and texts stay in pl.ts by code.'
+      - 'thresholds is a non-empty integer array; hidden is explicit, because a hidden exhibit may have a threshold above 1 (marathon, 1000).'
+      - 'unlock_exhibits returns (exhibit, room, hidden, value, thresholds); a bundle of the previous release reads the old three columns by name and ignores the new ones.'
+      - 'import_atelier skips exhibit_tiers rows whose exhibit is not in the catalogue, so an export made before an exhibit is removed still imports.'
+      - 'A SQL test requires the codes of the catalogue and of private.exhibit_values to be the same set, so an exhibit with no computed value fails in CI.'
+      - 'A new exhibit adds its catalogue row and its value in the same migration; a removed exhibit deletes its tiers before its row (no cascade).'
+    cost:
+      - 'migration with the catalogue of 30 exhibits and 7 rooms, private.exhibit_values, private.unlock_exhibits_for, unlock_exhibits and import_atelier replaced, database.types.ts generated'
+      - 'the app drops its list of hidden exhibits and reads hidden from unlock_exhibits'
+    loses:
+      - 'A deploy where the previous bundle shows the exhibits in the new order, still as one flat grid.'
 
 patterns:
   - { id: R01, today: 10, target: 5, model: none, also: [T1, T2] }
@@ -394,7 +422,7 @@ patterns:
   - { id: R12, today: 2, target: 2, model: none, also: [] }
   - { id: R13, today: 9, target: 'about 4', model: [M1, Q1], also: [Z5] }
   - { id: R14, today: 7, target: 'about 5', model: [Q1], also: [T1, T14] }
-  - { id: R15, today: 5, target: 3, model: none, also: [T2] }
+  - { id: R15, today: 5, target: 3, model: [M6], also: [T2] }
   - {
       id: R16,
       today: '0 / 8 / 9',
@@ -479,8 +507,8 @@ writes:
   - {
       id: W14,
       today: 'unlock_exhibits on every start',
-      after: 'inside one career function (T2)',
-      model: none
+      after: 'inside one career function (T2); thresholds, order and hidden from the catalogue',
+      model: [M6]
     }
   - { id: W15, today: 'one row', after: 'unchanged', model: none }
   - {
