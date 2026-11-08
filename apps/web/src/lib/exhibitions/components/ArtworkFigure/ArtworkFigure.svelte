@@ -259,11 +259,20 @@
 		height: var(--spacing-8);
 		padding: 0;
 		border: none;
-		border-radius: 50%;
-		background: color-mix(in srgb, var(--color-stage-bg) 60%, transparent);
+		background: transparent;
 		color: var(--color-stage-fg);
 		cursor: pointer;
+		isolation: isolate;
 		opacity: 0.7;
+	}
+
+	.flip::before {
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: color-mix(in srgb, var(--color-stage-bg) 60%, transparent);
+		clip-path: circle(50%);
+		content: '';
 	}
 
 	.flip:hover,
