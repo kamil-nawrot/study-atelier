@@ -177,6 +177,9 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 		'https://www.fondazioneprada.org/project/when-attitudes-become-form/?lang=en',
 		'https://passerelles.essentiels.bnf.fr/fr/chronologie/construction/86975eb3-9f28-4e1a-bc88-e28bbfab0a26-tour-eiffel'
 	],
+	lenoir_chapel: [
+		'https://www.louvre.fr/en/exhibitions-and-events/exhibitions/a-revolutionary-museum'
+	],
 	figure_alphabet: ['https://www.metmuseum.org/art/collection/search/428829'],
 	candle_moths: ['https://www.rijksmuseum.nl/en/collection/RP-P-OB-62.370'],
 	amateur_magnifier: ['https://www.clevelandart.org/art/1927.208']
