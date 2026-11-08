@@ -1214,6 +1214,7 @@ export const EXHIBITS = [
 	{ exhibit: 'glossary', value: 147, thresholds: [1, 10, 25, 50, 100, 250, 500] },
 	{ exhibit: 'hortus_cliffortianus', value: 31, thresholds: [1, 10, 25, 50, 100, 500] },
 	{ exhibit: 'own_eye', value: 0, thresholds: [1, 5, 25, 50, 100] },
+	{ exhibit: 'crystal_palace', value: 3, thresholds: [1, 3, 5, 10, 25] },
 	{ exhibit: 'night_watch', value: 0, thresholds: [1] },
 	{ exhibit: 'marathon', value: 0, thresholds: [1000] },
 	{ exhibit: 'mouth_of_truth', value: 0, thresholds: [1] },
