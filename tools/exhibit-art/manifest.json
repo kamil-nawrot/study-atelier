@@ -1234,6 +1234,51 @@
         0.756,
         0.85
       ]
+    },
+    {
+      "exhibit": "artwork_types",
+      "status": "alternative",
+      "source_url": "https://images.metmuseum.org/CRDImages/dp/original/DP874315.jpg",
+      "source_page": "https://www.metmuseum.org/art/collection/search/369581",
+      "licence": "CC0 1.0",
+      "credit": "Cornelis Cort after Jan van der Straet (Stradanus), The Practitioners of the Visual Arts, 1578, The Metropolitan Museum of Art 369581",
+      "variant": "cort-workshop",
+      "crop": [
+        0.02,
+        0.03,
+        0.98,
+        0.888
+      ]
+    },
+    {
+      "exhibit": "artwork_types",
+      "status": "alternative",
+      "source_url": "https://images.metmuseum.org/CRDImages/dp/original/DP874315.jpg",
+      "source_page": "https://www.metmuseum.org/art/collection/search/369581",
+      "licence": "CC0 1.0",
+      "credit": "Cornelis Cort after Jan van der Straet (Stradanus), The Practitioners of the Visual Arts, 1578, The Metropolitan Museum of Art 369581",
+      "variant": "cort-statuaria",
+      "crop": [
+        0.27,
+        0.03,
+        0.97,
+        0.655
+      ]
+    },
+    {
+      "exhibit": "artwork_types",
+      "status": "alternative",
+      "source_url": "https://images.metmuseum.org/CRDImages/dp/original/DP874315.jpg",
+      "source_page": "https://www.metmuseum.org/art/collection/search/369581",
+      "licence": "CC0 1.0",
+      "credit": "Cornelis Cort after Jan van der Straet (Stradanus), The Practitioners of the Visual Arts, 1578, The Metropolitan Museum of Art 369581",
+      "variant": "cort-incisoria",
+      "crop": [
+        0.26,
+        0.33,
+        0.98,
+        0.973
+      ]
     }
   ]
 }
