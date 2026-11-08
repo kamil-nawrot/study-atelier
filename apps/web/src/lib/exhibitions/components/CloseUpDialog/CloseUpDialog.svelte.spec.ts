@@ -45,7 +45,7 @@ function pin(id: string, text: string, viewWidth?: number, imageId = 'i1'): obje
 }
 
 describe('CloseUpDialog', () => {
-	it('lists the pins of the artwork and adds the one that was picked', async () => {
+	it('lists the pins as lenses, names only those that have a text and adds the one picked', async () => {
 		loadArtworkPins.mockResolvedValue({
 			pins: [pin('p1', 'Dłoń', 0.4), pin('p2', '', undefined), pin('p3', 'Gone', 0.3, 'other')]
 		});
@@ -63,6 +63,8 @@ describe('CloseUpDialog', () => {
 			.element(page.getByRole('button', { name: m.exhibitions.closeUpDialog.pin(2) }))
 			.toBeInTheDocument();
 		expect(page.getByRole('button', { name: 'Gone' }).query()).toBeNull();
+		expect(page.getByText(m.exhibitions.closeUpDialog.pin(2)).query()).toBeNull();
+		expect(getComputedStyle(document.querySelector('.pin') as Element).borderTopStyle).toBe('none');
 
 		await page.getByRole('button', { name: 'Dłoń' }).click();
 
