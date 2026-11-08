@@ -236,6 +236,29 @@ Table eras {
   Note: 'RLS on'
 }
 
+Table exhibit_rooms {
+  code text [pk]
+  position smallint [not null]
+
+  indexes {
+    (position) [unique]
+  }
+  Note: 'RLS on. M6. Shared by all accounts, read by authenticated, written only by migrations; names in pl.ts by code.'
+}
+
+Table exhibits {
+  code text [pk]
+  room_code text [not null]
+  position smallint [not null]
+  thresholds "integer[]" [not null]
+  hidden boolean [not null]
+
+  indexes {
+    (room_code, position) [unique]
+  }
+  Note: 'RLS on. M6. Shared by all accounts, read by authenticated, written only by migrations; texts in pl.ts by code. The values stay computed per code in private.exhibit_values.'
+}
+
 Table exhibit_tiers {
   owner_id uuid [not null, default: `auth.uid()`]
   exhibit text [not null]
@@ -655,6 +678,9 @@ Table exhibition_artworks {
   Written only by private security definer functions; select for the owner. RLS on.
   '''
 }
+
+Ref exhibits_room_code_fkey: exhibits.room_code > exhibit_rooms.code
+Ref exhibit_tiers_exhibit_fkey: exhibit_tiers.exhibit > exhibits.code
 
 Ref exhibitions_owner_id_fkey: exhibitions.owner_id > auth.users.id [delete: cascade]
 Ref exhibition_artworks_exhibition_fkey: exhibition_artworks.(exhibition_id, owner_id) > exhibitions.(id, owner_id) [delete: cascade]

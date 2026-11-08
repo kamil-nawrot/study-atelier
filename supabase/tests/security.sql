@@ -375,6 +375,8 @@ begin
   assert not (select has_content from public.value_page_content(a_value)),
     'B sees the page content of a value of A';
   assert (select count(*) from public.eras) = 6, 'B cannot read the shared eras';
+  assert (select count(*) from public.exhibit_rooms) = 7 and (select count(*) from public.exhibits) = 30,
+    'B cannot read the shared exhibit catalogue';
   assert (select count(*) from public.review_cards) = 0, 'B reads review cards of A';
   assert (select count(*) from public.review_log) = 0, 'B reads the review log of A';
   assert (select due + new_available + new_today + with_image from public.review_counts('2026-10-16T00:00:00Z')) = 0,
@@ -884,6 +886,9 @@ begin
     'insert into public.artwork_fields (name, kind) values (''Number'', ''number'')'),
     'A adds an artwork field of an unknown kind';
   assert security_test.denied('update public.eras set position = 99'), 'A changes an era';
+  assert security_test.denied('update public.exhibits set thresholds = ''{1}'''), 'A changes an exhibit';
+  assert security_test.denied('insert into public.exhibit_rooms (code, position) values (''forged'', 99)'),
+    'A adds an exhibit room';
   assert security_test.denied('insert into public.artwork_types (code, position) values (''forged'', 99)'),
     'A adds an artwork type';
   assert security_test.denied('select * from private.record_counters'), 'A reads the record counters';

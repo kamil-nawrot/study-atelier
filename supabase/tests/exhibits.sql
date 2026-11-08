@@ -33,18 +33,22 @@ begin
   assert (select new_tiers from public.career_standing('UTC', true)) > 0,
     'career_standing does not unlock the tiers of new artworks';
 
-  assert (select array_agg(exhibit order by position)
-      from public.unlock_exhibits('UTC') with ordinality as listed (exhibit, value, thresholds, position)) = array[
-    'collection', 'eras', 'prehistory', 'antiquity', 'middle_ages', 'early_modern', 'modern', 'contemporary',
-    'vasari_lives', 'memory', 'bullseye', 'regular', 'back_from_storage', 'chronicle', 'grand_tour', 'seen_live',
-    'timeline', 'glossary', 'hortus_cliffortianus', 'own_eye', 'crystal_palace', 'night_watch', 'marathon',
-    'mouth_of_truth', 'pinacotheca', 'trevi_fountain', 'seven_league_boots', 'figure_alphabet', 'candle_moths',
-    'amateur_magnifier'
-  ], 'the exhibits are not the agreed thirty in their order';
-  assert (select (array_agg(exhibit order by position))[1:8]
-      from public.unlock_exhibits('UTC') with ordinality as listed (exhibit, value, thresholds, position)) = array[
-    'collection', 'eras', 'prehistory', 'antiquity', 'middle_ages', 'early_modern', 'modern', 'contemporary'
-  ], 'the era exhibits do not follow eras in their order';
+  assert (select array_agg(room || ':' || exhibit order by position)
+      from public.unlock_exhibits('UTC') with ordinality as listed (exhibit, room, hidden, value, thresholds, position))
+    = array[
+    'main_hall:collection', 'main_hall:vasari_lives', 'main_hall:own_eye', 'main_hall:pinacotheca',
+    'era_enfilade:eras', 'era_enfilade:prehistory', 'era_enfilade:antiquity', 'era_enfilade:middle_ages',
+    'era_enfilade:early_modern', 'era_enfilade:modern', 'era_enfilade:contemporary',
+    'reading_room:memory', 'reading_room:bullseye', 'reading_room:regular', 'reading_room:back_from_storage',
+    'reading_room:night_watch', 'reading_room:marathon', 'reading_room:amateur_magnifier',
+    'scriptorium:glossary', 'scriptorium:timeline', 'scriptorium:hortus_cliffortianus', 'scriptorium:figure_alphabet',
+    'map_room:chronicle', 'map_room:grand_tour', 'map_room:seen_live', 'map_room:trevi_fountain',
+    'map_room:seven_league_boots', 'pavilion:crystal_palace', 'crypt:mouth_of_truth', 'crypt:candle_moths'
+  ], 'the exhibits are not the agreed thirty in their rooms and order';
+  assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC') where hidden) = array[
+    'amateur_magnifier', 'back_from_storage', 'candle_moths', 'figure_alphabet', 'marathon', 'mouth_of_truth',
+    'night_watch', 'pinacotheca', 'seven_league_boots', 'trevi_fountain'
+  ], 'the hidden exhibits are not the agreed ten';
   assert (select value from public.unlock_exhibits('UTC') where exhibit = 'early_modern') = 5,
     'an era exhibit does not count the artworks of its era';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'modern') = array[1]::smallint[],
@@ -518,6 +522,27 @@ begin
     'an exhibition with five artworks does not unlock the first tier of the crystal palace';
   assert not exists (select 1 from public.point_events where kind = 'easter_egg' and code = 'crystal_palace'),
     'the tiered crystal palace gives a bonus of a hidden exhibit';
+end;
+$$;
+
+reset role;
+
+do $$
+declare
+  rejected boolean := false;
+begin
+  assert (select array_agg(code order by code) from public.exhibits)
+      = (select array_agg(exhibit order by exhibit) from private.exhibit_values('00000000-0000-0000-0000-00000000000a', 'UTC')),
+    'the catalogue and the computed values do not name the same exhibits';
+  assert not exists (select 1 from public.exhibits where thresholds <> (select array_agg(t order by t) from unnest(thresholds) as t)),
+    'the thresholds of an exhibit do not rise';
+  begin
+    insert into public.exhibit_tiers (owner_id, exhibit, tier)
+      values ('00000000-0000-0000-0000-00000000000a', 'unknown_exhibit', 1);
+  exception when foreign_key_violation then
+    rejected := true;
+  end;
+  assert rejected, 'a tier of an exhibit missing from the catalogue was stored';
 end;
 $$;
 

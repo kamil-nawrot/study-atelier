@@ -234,10 +234,11 @@ reads:
   - id: R15
     name: Display case
     route: /atelier/display-case
-    shows: exhibits, tiers, points
+    shows: exhibits in rooms, tiers, points
     needs:
       - 'career standing (aggregate)'
       - 'exhibit tiers: all'
+      - 'exhibit catalogue: all, with the room, the order, hidden and the thresholds (ADR-0228)'
     scope: all
     frequency: view
     today: { requests: 5, whole: [] }

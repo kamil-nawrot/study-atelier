@@ -230,6 +230,16 @@ Table eras {
   Note: 'RLS on'
 }
 
+Table exhibit_rooms {
+  code text [pk]
+  position smallint [not null]
+
+  indexes {
+    (position) [unique]
+  }
+  Note: 'RLS on'
+}
+
 Table exhibit_tiers {
   owner_id uuid [not null, default: `auth.uid()`]
   exhibit text [not null]
@@ -274,6 +284,19 @@ Table exhibitions {
     (owner_id, updated_at) [name: 'exhibitions_owner_updated_at_idx']
   }
   Note: 'RLS on. Written through save_exhibition; at most 200 per owner, 512 KB, 300 blocks and 100 artworks per document'
+}
+
+Table exhibits {
+  code text [pk]
+  room_code text [not null]
+  position smallint [not null]
+  thresholds "integer[]" [not null]
+  hidden boolean [not null]
+
+  indexes {
+    (room_code, position) [unique]
+  }
+  Note: 'RLS on'
 }
 
 Table feedback {
@@ -559,11 +582,13 @@ Ref category_values_category_code_fkey: category_values.category_code > categori
 Ref category_values_owner_id_fkey: category_values.owner_id > auth.users.id [delete: cascade]
 Ref era_details_era_code_fkey: era_details.era_code > eras.code
 Ref era_details_owner_id_fkey: era_details.owner_id > auth.users.id [delete: cascade]
+Ref exhibit_tiers_exhibit_fkey: exhibit_tiers.exhibit > exhibits.code
 Ref exhibit_tiers_owner_id_fkey: exhibit_tiers.owner_id > auth.users.id [delete: cascade]
 Ref exhibition_artworks_artwork_id_owner_id_fkey: exhibition_artworks.(artwork_id, owner_id) > artworks.(id, owner_id) [delete: cascade]
 Ref exhibition_artworks_exhibition_id_owner_id_fkey: exhibition_artworks.(exhibition_id, owner_id) > exhibitions.(id, owner_id) [delete: cascade]
 Ref exhibition_artworks_owner_id_fkey: exhibition_artworks.owner_id > auth.users.id [delete: cascade]
 Ref exhibitions_owner_id_fkey: exhibitions.owner_id > auth.users.id [delete: cascade]
+Ref exhibits_room_code_fkey: exhibits.room_code > exhibit_rooms.code
 Ref feedback_owner_id_fkey: feedback.owner_id > auth.users.id [delete: cascade]
 Ref free_review_days_owner_id_fkey: free_review_days.owner_id > auth.users.id [delete: cascade]
 Ref glossary_entries_owner_id_fkey: glossary_entries.owner_id > auth.users.id [delete: cascade]
