@@ -52,6 +52,10 @@ Seven rooms by kind of activity, in the order of a visitor route. Hidden exhibit
 
 A room with no exhibit in the app yet is not shown. A new exhibit is placed in a room by the issue that builds it.
 
+### Where the rooms live
+
+The rooms and the order are data of the catalogue in the database, not a map in the app. For the model the options were a map from exhibit code to room in the app, a `room` column beside `place` in `private.exhibit_values`, and a catalogue of tables for rooms and exhibits. The owner chose the catalogue: a table of rooms and a table of exhibits with their room, position and thresholds, `exhibit_tiers.exhibit` referencing an exhibit, and `private.exhibit_values` reading the catalogue instead of its inline list, so `place` goes. Names and texts stay in `pl.ts`, keyed by code. The model is settled and built in ATL-583, before the rooms are built.
+
 ### Room header
 
 - An overline "Sala I", "Sala II" and so on in Roman numerals, in small capitals, counted over the rooms shown.
@@ -74,10 +78,10 @@ A room with no exhibit in the app yet is not shown. A new exhibit is placed in a
 
 - Good: 32 exhibits read as seven short rooms on a route, and a learner folds or hides what does not interest them.
 - Good: the squares keep the progress of a folded room in sight, and the rooms keep the museum of the display case.
-- Good: nothing changes in the database; the room of an exhibit lives in the app.
+- Good: the room and the order of an exhibit come from one catalogue in the database, which also gives `exhibit_tiers` a foreign key.
 - Bad: rooms are uneven (two to seven exhibits), and Krypta is a room for what fits nowhere else.
-- Bad: every new exhibit needs a room, and the order kept by `place` in the database no longer decides the order on the page.
+- Bad: every new exhibit needs a room, and the rooms need the catalogue (ATL-583) before the display case can show them.
 
 ## More information
 
-Designed in ATL-581 on mockups in the project files (`kategorie-osiagniec/`); the build is ATL-582. Requirement [R-237](../product/requirements.md).
+Designed in ATL-581 on mockups in the project files (`kategorie-osiagniec/`); the catalogue is ATL-583 and the build of the rooms ATL-582. Requirement [R-237](../product/requirements.md).
