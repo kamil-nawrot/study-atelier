@@ -62,7 +62,7 @@
 		if (!data.exhibition) return;
 		await session?.flush();
 		const path = resolve('/(app)/atelier/exhibitions/[id]', { id: data.exhibition.id });
-		await goto((on ? `${path}?edit` : path) as ResolvedPathname);
+		await goto((on ? `${path}?edit` : path) as ResolvedPathname, { replaceState: true });
 	}
 
 	async function moved(): Promise<void> {
@@ -167,7 +167,10 @@
 
 	.kind {
 		color: var(--color-fg-muted);
-		font-size: var(--font-size-sm);
+		font-size: var(--font-size-xs);
+		line-height: var(--line-height-xs);
+		letter-spacing: var(--letter-spacing-wide);
+		text-transform: uppercase;
 	}
 
 	h1 {

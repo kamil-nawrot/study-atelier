@@ -365,6 +365,7 @@
 	.text.empty::before {
 		content: attr(data-placeholder);
 		position: absolute;
+		inset-inline: 0;
 		color: var(--color-fg-muted);
 		pointer-events: none;
 	}

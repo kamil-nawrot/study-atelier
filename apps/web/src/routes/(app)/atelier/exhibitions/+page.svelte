@@ -104,6 +104,8 @@
 	header {
 		display: grid;
 		gap: var(--spacing-2);
+		padding-bottom: var(--spacing-8);
+		border-bottom: var(--border-width-hairline) solid var(--color-line);
 	}
 
 	.title {
