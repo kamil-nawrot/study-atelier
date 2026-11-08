@@ -30,7 +30,7 @@
     "candle_moths": "van-der-vinne-candle",
     "amateur_magnifier": "daumier-amateur-figure",
     "crystal_palace": "burton-transept",
-    "artwork_types": "cort-workshop"
+    "boncompagni_academy": "cort-workshop"
   },
   "variants": [
     {
@@ -1237,12 +1237,12 @@
       ]
     },
     {
-      "exhibit": "artwork_types",
+      "exhibit": "boncompagni_academy",
       "status": "chosen",
       "source_url": "https://images.metmuseum.org/CRDImages/dp/original/DP874315.jpg",
       "source_page": "https://www.metmuseum.org/art/collection/search/369581",
       "licence": "CC0 1.0",
-      "credit": "Cornelis Cort after Jan van der Straet (Stradanus), The Practitioners of the Visual Arts, 1578, The Metropolitan Museum of Art 369581",
+      "credit": "Cornelis Cort after Jan van der Straet (Stradanus), The Practice of the Noble Arts (The Practitioners of the Visual Arts), Rome, Lorenzo Vaccari, 1578, The Metropolitan Museum of Art 53.600.509",
       "variant": "cort-workshop",
       "crop": [
         0.02,
@@ -1252,12 +1252,12 @@
       ]
     },
     {
-      "exhibit": "artwork_types",
+      "exhibit": "boncompagni_academy",
       "status": "alternative",
       "source_url": "https://images.metmuseum.org/CRDImages/dp/original/DP874315.jpg",
       "source_page": "https://www.metmuseum.org/art/collection/search/369581",
       "licence": "CC0 1.0",
-      "credit": "Cornelis Cort after Jan van der Straet (Stradanus), The Practitioners of the Visual Arts, 1578, The Metropolitan Museum of Art 369581",
+      "credit": "Cornelis Cort after Jan van der Straet (Stradanus), The Practice of the Noble Arts (The Practitioners of the Visual Arts), Rome, Lorenzo Vaccari, 1578, The Metropolitan Museum of Art 53.600.509",
       "variant": "cort-statuaria",
       "crop": [
         0.27,
@@ -1267,12 +1267,12 @@
       ]
     },
     {
-      "exhibit": "artwork_types",
+      "exhibit": "boncompagni_academy",
       "status": "alternative",
       "source_url": "https://images.metmuseum.org/CRDImages/dp/original/DP874315.jpg",
       "source_page": "https://www.metmuseum.org/art/collection/search/369581",
       "licence": "CC0 1.0",
-      "credit": "Cornelis Cort after Jan van der Straet (Stradanus), The Practitioners of the Visual Arts, 1578, The Metropolitan Museum of Art 369581",
+      "credit": "Cornelis Cort after Jan van der Straet (Stradanus), The Practice of the Noble Arts (The Practitioners of the Visual Arts), Rome, Lorenzo Vaccari, 1578, The Metropolitan Museum of Art 53.600.509",
       "variant": "cort-incisoria",
       "crop": [
         0.26,
