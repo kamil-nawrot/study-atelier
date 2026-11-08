@@ -226,8 +226,5 @@ Architecture Decision Records in [MADR](https://adr.github.io/madr/) format. New
 | [0220](0220-show-exhibitions-as-the-crystal-palace.md)                                    | Show exhibitions as the Crystal Palace                                                   | accepted                                                                                                   |
 | [0221](0221-space-blocks-apart-with-a-divider.md)                                         | Space blocks apart with a divider                                                        | accepted; partly superseded by [0224](0224-let-a-divider-stand-beside-other-blocks.md)                     |
 | [0222](0222-show-a-glossary-term-as-a-block-of-an-exhibition.md)                          | Show a glossary term as a block of an exhibition                                         | accepted                                                                                                   |
-<<<<<<< HEAD
-| [0225](0225-add-headings-to-the-text-of-an-exhibition.md)                                 | Add headings to the text of an exhibition                                                | accepted                                                                                                   |
-=======
 | [0224](0224-let-a-divider-stand-beside-other-blocks.md)                                   | Let a divider stand beside other blocks                                                  | accepted                                                                                                   |
->>>>>>> origin/develop
+| [0225](0225-add-headings-to-the-text-of-an-exhibition.md)                                 | Add headings to the text of an exhibition                                                | accepted                                                                                                   |
