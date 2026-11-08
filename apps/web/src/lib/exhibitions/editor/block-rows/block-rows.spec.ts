@@ -104,17 +104,14 @@ describe('insert', () => {
 		);
 	});
 
-	it('keeps a divider alone in its row', () => {
+	it('puts a divider beside other blocks and keeps it there', () => {
 		const rows = rowsOf(doc(textBlock('Alpha'), divider()));
-		expect(names(insert(rows, blockOf(divider()), { row: rows[0].id, at: 1 }))).toEqual(
-			names(rows)
-		);
-		expect(names(insert(rows, blockOf(textBlock('New')), { row: rows[1].id, at: 0 }))).toEqual(
-			names(rows)
-		);
-		expect(names(move(rows, rows[1].blocks[0].id, { row: rows[0].id, at: 0 }))).toEqual(
-			names(rows)
-		);
+		const joined = insert(rows, blockOf(divider()), { row: rows[0].id, at: 1 });
+		expect(names(joined)).toEqual([['Alpha', '-'], ['-']]);
+		expect(rowsOf(documentOf(joined)).map((row) => row.blocks.length)).toEqual([2, 1]);
+		expect(names(move(rows, rows[1].blocks[0].id, { row: rows[0].id, at: 0 }))).toEqual([
+			['-', 'Alpha']
+		]);
 	});
 });
 

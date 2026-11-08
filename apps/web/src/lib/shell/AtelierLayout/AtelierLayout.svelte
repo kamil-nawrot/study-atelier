@@ -131,6 +131,7 @@
 	.atelier {
 		--page-inline: var(--spacing-4);
 		--filter-panel-width: 380px;
+		--docked-panel-width: 48px;
 		--artwork-max-height: calc(100dvh - var(--bar-height));
 		display: flex;
 		min-height: 100dvh;
@@ -190,6 +191,10 @@
 	.fill .content {
 		gap: 0;
 		padding: 0;
+	}
+
+	.main:has(> .body > :global(.filter-panel.docked)) {
+		--panel-width: var(--docked-panel-width);
 	}
 
 	.main:has(> .body > :global(.filter-panel.open)) {

@@ -76,9 +76,16 @@
 			<ul class="pins">
 				{#each choices as { pin, image }, index (pin.id)}
 					<li>
-						<button class="pin" onclick={() => pick(pin)} type="button">
+						<button
+							class="pin"
+							aria-label={pin.text || m.exhibitions.closeUpDialog.pin(index + 1)}
+							onclick={() => pick(pin)}
+							type="button"
+						>
 							<PinView {image} viewWidth={pin.viewWidth ?? PIN_VIEW_WIDTH} x={pin.x} y={pin.y} />
-							<span>{pin.text || m.exhibitions.closeUpDialog.pin(index + 1)}</span>
+							{#if pin.text}
+								<span aria-hidden="true">{pin.text}</span>
+							{/if}
 						</button>
 					</li>
 				{/each}
@@ -120,9 +127,9 @@
 		display: grid;
 		gap: var(--spacing-2);
 		width: 100%;
-		padding: var(--spacing-2);
-		border: var(--border-width-hairline) solid var(--color-line);
-		border-radius: var(--border-radius-none);
+		align-content: start;
+		padding: 0;
+		border: none;
 		background: transparent;
 		color: var(--color-fg);
 		font: inherit;
@@ -132,7 +139,11 @@
 	}
 
 	.pin:hover {
-		border-color: var(--color-fg);
+		filter: brightness(1.15);
+	}
+
+	.pin:hover span {
+		text-decoration: underline;
 	}
 
 	.pin:focus-visible {

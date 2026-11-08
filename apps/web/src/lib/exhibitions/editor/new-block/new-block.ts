@@ -32,10 +32,6 @@ export function textNode(kind: TextKind): ExhibitionDocument {
 	return { type: 'textBlock', content: [{ type: 'paragraph' }] };
 }
 
-export function isSolo(node: ExhibitionDocument): boolean {
-	return node.type === 'divider';
-}
-
 export function artworkNode(artworkId: string, paletteOnly = false): ExhibitionDocument {
 	return paletteOnly
 		? { type: 'artwork', attrs: { artworkId, paletteOnly: true } }

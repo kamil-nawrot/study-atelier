@@ -103,7 +103,9 @@ describe('exhibition page', () => {
 		await expect
 			.element(page.getByRole('textbox', { name: m.exhibitions.view.titleLabel }))
 			.toHaveValue('Light');
-		await expect.element(page.getByText(m.exhibitions.panel.title)).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('heading', { name: m.exhibitions.panel.title }))
+			.toBeInTheDocument();
 		await expect.element(page.getByRole('button', { name: m.exhibitions.view.done })).toBeVisible();
 	});
 
@@ -188,7 +190,12 @@ describe('exhibition page', () => {
 		navigation.url = new URL(`http://localhost/atelier/exhibitions/${ID}?edit`);
 		renderExhibition();
 
-		await expect.element(page.getByText(m.exhibitions.panel.title)).not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('complementary', { name: m.exhibitions.panel.title }))
+			.not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: m.exhibitions.panel.open }))
+			.not.toBeInTheDocument();
 	});
 
 	describe('leaving with unsaved changes', () => {

@@ -99,11 +99,4 @@ describe('dropAt', () => {
 		expect(dropAt(rows, frame, 905, 50)).toBeUndefined();
 		expect(dropAt([], frame, 450, 50)?.target).toEqual({ before: undefined });
 	});
-
-	it('offers no column beside a divider or for a divider', () => {
-		const solo: RowBox[] = [{ ...rows[0], solo: true }, rows[1]];
-		expect(dropAt(solo, frame, 10, 20)?.target).toEqual({ before: 'r1' });
-		expect(dropAt(rows, frame, 10, 20, undefined, true)?.target).toEqual({ before: 'r1' });
-		expect(dropAt(rows, frame, 480, 200, undefined, true)?.target).toEqual({ before: 'r2' });
-	});
 });

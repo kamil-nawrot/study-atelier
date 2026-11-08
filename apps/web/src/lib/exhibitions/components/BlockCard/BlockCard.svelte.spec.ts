@@ -67,6 +67,31 @@ describe('BlockCard', () => {
 		});
 	});
 
+	it('wraps a long heading onto more lines and keeps it one line of text', async () => {
+		const given = props(heading(''));
+		render(BlockCard, given);
+
+		const field = page.getByRole('textbox', { name: m.exhibitions.blocks.heading });
+		await userEvent.fill(field, 'Światło i cień\nw malarstwie');
+		expect(given.onchange).toHaveBeenLastCalledWith({
+			type: 'heading',
+			attrs: { level: 2 },
+			content: [{ type: 'text', text: 'Światło i cień w malarstwie' }]
+		});
+
+		await userEvent.fill(
+			field,
+			'Długi nagłówek, który na wąskim bloku nie mieści się w jednej linii'
+		);
+		const box = field.element().getBoundingClientRect();
+		const line = parseFloat(getComputedStyle(field.element()).lineHeight);
+		(field.element() as HTMLElement).style.width = '200px';
+		await expect
+			.poll(() => field.element().getBoundingClientRect().height)
+			.toBeGreaterThan(line * 1.5);
+		expect(box.width).toBeGreaterThan(0);
+	});
+
 	it('picks an artwork up by its image but not by its links', async () => {
 		const given = props({ ...artwork('artwork-1'), content: [{ type: 'text', text: 'Old' }] });
 		render(BlockCard, given);
@@ -106,6 +131,14 @@ describe('BlockCard', () => {
 		await userEvent.click(line);
 
 		expect(given.onchange).toHaveBeenLastCalledWith({ type: 'divider', attrs: { line: true } });
+	});
+
+	it('stands the line of a divider upright beside other blocks', async () => {
+		await page.viewport(1024, 800);
+		render(BlockCard, { ...props(divider(true)), beside: true });
+		await expect
+			.element(page.getByRole('separator'))
+			.toHaveAttribute('aria-orientation', 'vertical');
 	});
 
 	it('shows the line of a divider that has one', async () => {

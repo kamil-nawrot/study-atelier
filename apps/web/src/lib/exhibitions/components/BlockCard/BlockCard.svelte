@@ -5,6 +5,7 @@
 	import List from '@lucide/svelte/icons/list';
 	import ListOrdered from '@lucide/svelte/icons/list-ordered';
 	import SeparatorHorizontal from '@lucide/svelte/icons/separator-horizontal';
+	import SeparatorVertical from '@lucide/svelte/icons/separator-vertical';
 	import StickyNote from '@lucide/svelte/icons/sticky-note';
 	import { untrack } from 'svelte';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -36,6 +37,7 @@
 		canUp: boolean;
 		canDown: boolean;
 		moving?: boolean;
+		beside?: boolean;
 		onmovestart: (event: PointerEvent) => void;
 		onstep: (direction: -1 | 1) => void;
 		onremove: () => void;
@@ -50,6 +52,7 @@
 		canUp,
 		canDown,
 		moving = false,
+		beside = false,
 		onmovestart,
 		onstep,
 		onremove,
@@ -181,7 +184,11 @@
 					title={m.exhibitions.bar.line}
 					type="button"
 				>
-					<SeparatorHorizontal aria-hidden="true" size={16} />
+					{#if beside}
+						<SeparatorVertical aria-hidden="true" size={16} />
+					{:else}
+						<SeparatorHorizontal aria-hidden="true" size={16} />
+					{/if}
 				</button>
 			{/if}
 		{/snippet}
@@ -195,14 +202,15 @@
 				data-placeholder={m.exhibitions.blocks.textHint}
 			></div>
 		{:else if kind === 'heading'}
-			<input
+			<textarea
 				class="heading"
 				aria-label={m.exhibitions.blocks.heading}
 				maxlength="200"
-				oninput={(event) => keep(headingNode(event.currentTarget.value))}
+				oninput={(event) => keep(headingNode(event.currentTarget.value.replace(/\s*\n\s*/g, ' ')))}
+				onkeydown={(event) => event.key === 'Enter' && event.preventDefault()}
 				placeholder={m.exhibitions.blocks.headingHint}
-				value={headingText(block.node)}
-			/>
+				rows="1"
+				value={headingText(block.node)}></textarea>
 		{:else if kind === 'quote'}
 			<textarea
 				class="quote"
@@ -217,7 +225,7 @@
 			</div>
 		{:else if kind === 'divider'}
 			<div class="grab" onpointerdown={grab} role="presentation">
-				<ExhibitionDivider line={Boolean(attrs.line)} />
+				<ExhibitionDivider line={Boolean(attrs.line)} upright={beside} />
 			</div>
 		{:else if grows}
 			<BlockSetItems {lookup} node={block.node} {onchange} ongrab={grab} />
@@ -280,6 +288,10 @@
 		display: grid;
 		justify-items: start;
 		min-width: 0;
+	}
+
+	.card[data-kind='divider'] {
+		align-content: stretch;
 	}
 
 	.card[data-valign='middle'] {
@@ -356,6 +368,8 @@
 	}
 
 	.heading {
+		field-sizing: content;
+		resize: none;
 		font-family: var(--font-family-title), Georgia, serif;
 		font-size: var(--font-size-xl);
 		font-weight: var(--font-weight-regular);

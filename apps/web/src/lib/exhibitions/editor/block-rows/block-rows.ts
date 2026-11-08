@@ -1,5 +1,4 @@
 import { isBlankText } from '#lib/exhibitions/exhibition-document/exhibition-document.ts';
-import { isSolo } from '#lib/exhibitions/editor/new-block/new-block.ts';
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 
 export const MAX_COLUMNS = 3;
@@ -72,10 +71,6 @@ export function canJoin(row: Row, moving?: string): boolean {
 	return row.blocks.filter((block) => block.id !== moving).length < MAX_COLUMNS;
 }
 
-function canShare(row: Row, block: Block): boolean {
-	return !isSolo(block.node) && !row.blocks.some((other) => isSolo(other.node));
-}
-
 function without(rows: readonly Row[], block: Block): Row[] {
 	return rows.flatMap((row) => {
 		if (!row.blocks.includes(block)) return [row];
@@ -87,7 +82,7 @@ function without(rows: readonly Row[], block: Block): Row[] {
 export function insert(rows: readonly Row[], block: Block, target: Target): Row[] {
 	if ('row' in target) {
 		const row = rows.find((other) => other.id === target.row);
-		if (!row || !canJoin(row, block.id) || !canShare(row, block)) return [...rows];
+		if (!row || !canJoin(row, block.id)) return [...rows];
 		return rows.map((other) => {
 			if (other !== row) return other;
 			const blocks = [...row.blocks];
