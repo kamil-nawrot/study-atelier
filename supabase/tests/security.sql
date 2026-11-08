@@ -375,7 +375,7 @@ begin
   assert not (select has_content from public.value_page_content(a_value)),
     'B sees the page content of a value of A';
   assert (select count(*) from public.eras) = 6, 'B cannot read the shared eras';
-  assert (select count(*) from public.exhibit_rooms) = 7 and (select count(*) from public.exhibits) = 30,
+  assert (select count(*) from public.exhibit_rooms) = 7 and (select count(*) from public.exhibits) = 31,
     'B cannot read the shared exhibit catalogue';
   assert (select count(*) from public.review_cards) = 0, 'B reads review cards of A';
   assert (select count(*) from public.review_log) = 0, 'B reads the review log of A';

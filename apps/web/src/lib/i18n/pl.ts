@@ -1663,6 +1663,9 @@ export const pl = {
 				'W 1969 roku Harald Szeemann pokazał w Kunsthalle w Bernie wystawę „When Attitudes Become Form”, która przeszła do historii dzięki jego radykalnemu podejściu: sama wystawa, czyli dobór dzieł i ich zestawienie, była jego wypowiedzią. W 2013 roku Fondazione Prada odtworzyła ją w Wenecji, wstawiając białe sale Kunsthalle w pełnej skali do zdobionych freskami wnętrz zabytkowego pałacu.',
 				'Wieża Eiffla miała być w Paryżu tylko gościem: trzystumetrową konstrukcję postawiono na wystawę światową w 1889 roku z myślą, że postoi 20 lat. Zamiast zniknąć razem z wystawą, została na stałe i stała się symbolem Paryża i całej Francji.'
 			],
+			lenoir_chapel: [
+				'Muzeum Zabytków Francuskich Alexandre’a Lenoira, otwarte w Paryżu w 1795 roku, było drugim muzeum narodowym Francji po Luwrze i przyczyniło się do narodzin pojęcia dziedzictwa. Zamknięto je w 1816 roku, a zbiory rozproszyły się: dziś są m.in. w Luwrze, bazylice Saint-Denis i katedrze Notre-Dame, a za granicą najwięcej w Metropolitan Museum.'
+			],
 			figure_alphabet: [
 				'O Mistrzu E.S. wiadomo niewiele, a przydomek zawdzięcza inicjałom, które pojawiają się na jego późniejszych pracach. Na to, że był z wykształcenia złotnikiem, wskazują punce – złotnicze narzędzia wbijane młotkiem w płytę, którymi wybijał wzory drobnych kwiatków i kółek. Jego figuralny alfabet przetrwał w 23 rzadkich, pojedynczych odbitkach.'
 			],
@@ -1831,6 +1834,13 @@ export const pl = {
 				about:
 					'Charles Burton przedstawił w 1851 roku transept Kryształowego Pałacu w londyńskim Hyde Parku, szklanego gmachu zbudowanego na Wielką Wystawę.',
 				count: counter('wystaw z co najmniej 5 dziełami')
+			},
+			lenoir_chapel: {
+				name: 'Kaplica Lenoira',
+				about:
+					'Jean-Baptiste Réville i Jacques Lavallée wyryli w 1816 roku salę wprowadzającą paryskiego Muzeum Zabytków Francuskich, w której Alexandre Lenoir zebrał rzeźby ze wszystkich epok.',
+				hint: 'Dobra opowieść nie pomija żadnego rozdziału.',
+				awarded: 'Za wystawę z dziełami wszystkich sześciu epok.'
 			},
 			night_watch: {
 				name: 'Straż nocna',
