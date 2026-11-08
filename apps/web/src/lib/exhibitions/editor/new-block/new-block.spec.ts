@@ -4,7 +4,6 @@ import {
 	closeUpNode,
 	headingNode,
 	headingText,
-	isSolo,
 	kindOf,
 	quoteNode,
 	quoteText,
@@ -29,8 +28,6 @@ describe('new blocks', () => {
 		expect(termNode('t1')).toEqual({ type: 'term', attrs: { termId: 't1' } });
 		expect(kindOf(termNode('t1'))).toBe('term');
 		expect(kindOf(textNode('divider'))).toBe('divider');
-		expect(isSolo(textNode('divider'))).toBe(true);
-		expect(isSolo(textNode('quote'))).toBe(false);
 	});
 
 	it('stores a palette as an artwork that shows only its colours', () => {

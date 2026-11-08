@@ -29,7 +29,6 @@
 	import {
 		artworkNode,
 		closeUpNode,
-		isSolo,
 		kindOf,
 		termNode,
 		textNode,
@@ -55,7 +54,6 @@
 	let limit = $state<string>();
 	let drop = $state.raw<Drop>();
 	let moving = $state<string>();
-	let solo = false;
 	let closeUpOf = $state('');
 	let closeUpOpen = $state(false);
 	let closeUpTarget: Target | undefined;
@@ -151,7 +149,7 @@
 
 	function hover(x: number, y: number): void {
 		const frame = list?.getBoundingClientRect();
-		drop = frame && list ? dropAt(measureRows(list), frame, x, y, moving, solo) : undefined;
+		drop = frame && list ? dropAt(measureRows(list), frame, x, y, moving) : undefined;
 	}
 
 	function handlers(onplace: (target: Target) => void): Parameters<BlockDrag['begin']>[2] {
@@ -165,13 +163,11 @@
 			onend: () => {
 				drop = undefined;
 				moving = undefined;
-				solo = false;
 			}
 		};
 	}
 
 	export function dragNew(event: PointerEvent, block: NewBlock): void {
-		solo = block.kind === 'divider';
 		drag.begin(
 			event,
 			newBlockLabel(block, lookup),
@@ -180,7 +176,6 @@
 	}
 
 	function dragBlock(event: PointerEvent, id: string, node: ExhibitionDocument): void {
-		solo = isSolo(node);
 		const started = drag.begin(
 			event,
 			blockLabel(node, lookup),
@@ -209,13 +204,10 @@
 	{/if}
 	<div bind:this={list} class="rows" class:dragging={drag.active}>
 		{#each rows as row (row.id)}
-			<div
-				class="row"
-				data-row-id={row.id}
-				data-solo={row.blocks.some((block) => isSolo(block.node)) ? '' : undefined}
-			>
+			<div class="row" data-row-id={row.id}>
 				{#each row.blocks as block (block.id)}
 					<BlockCard
+						beside={row.blocks.length > 1}
 						{block}
 						canDown={canStep(rows, block.id, 1)}
 						canUp={canStep(rows, block.id, -1)}
