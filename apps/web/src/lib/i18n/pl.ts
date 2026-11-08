@@ -2385,9 +2385,9 @@ export const pl = {
 			limitTitle: 'Nie zapisano zmian'
 		},
 		panel: {
-			title: 'Dodaj do wystawy',
-			open: 'Dodaj',
-			close: 'Zwiń panel',
+			title: 'Przybornik',
+			open: 'Rozwiń Przybornik',
+			close: 'Zwiń Przybornik',
 			textTitle: 'Tekst',
 			paragraph: 'Akapit',
 			heading: 'Nagłówek',
