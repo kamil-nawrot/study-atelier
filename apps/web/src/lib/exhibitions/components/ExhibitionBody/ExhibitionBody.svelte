@@ -32,12 +32,17 @@
 
 {#snippet placed(block: JSONContent, cell: boolean)}
 	{@const position = positionOf(block)}
-	<div class={cell ? 'cell' : 'place'} data-align={position.align} data-valign={position.valign}>
-		{@render blockOf(block)}
+	<div
+		class={cell ? 'cell' : 'place'}
+		data-align={position.align}
+		data-kind={block.type}
+		data-valign={position.valign}
+	>
+		{@render blockOf(block, cell)}
 	</div>
 {/snippet}
 
-{#snippet blockOf(block: JSONContent)}
+{#snippet blockOf(block: JSONContent, cell = false)}
 	{#if block.type === 'textBlock'}
 		{#if !isBlankText(block)}
 			<div class="text">
@@ -72,7 +77,7 @@
 	{:else if block.type === 'term'}
 		<TermFigure linked termId={String(block.attrs?.termId)} terms={entries} />
 	{:else if block.type === 'divider'}
-		<ExhibitionDivider line={Boolean(block.attrs?.line)} />
+		<ExhibitionDivider line={Boolean(block.attrs?.line)} upright={cell} />
 	{:else if block.type === 'set'}
 		<div class="set">
 			{#each block.content ?? [] as item, index (index)}
@@ -123,6 +128,10 @@
 
 	.cell {
 		flex: 1 1 0;
+	}
+
+	.cell[data-kind='divider'] {
+		align-content: stretch;
 	}
 
 	.set {

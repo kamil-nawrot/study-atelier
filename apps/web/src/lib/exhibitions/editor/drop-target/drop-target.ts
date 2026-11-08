@@ -7,7 +7,6 @@ export type RowBox = {
 	top: number;
 	bottom: number;
 	blocks: BlockBox[];
-	solo?: boolean;
 };
 
 export type Frame = { left: number; right: number };
@@ -112,15 +111,14 @@ export function dropAt(
 	frame: Frame,
 	x: number,
 	y: number,
-	moving?: string,
-	solo = false
+	moving?: string
 ): Drop | undefined {
 	if (x < frame.left || x > frame.right) return undefined;
 	if (rows.length === 0) return line(rows, 0, frame);
 	for (const [index, row] of rows.entries()) {
 		if (y > row.bottom) continue;
 		if (y >= row.top) {
-			const beside = solo || row.solo ? undefined : sideOf(row, x, moving);
+			const beside = sideOf(row, x, moving);
 			if (beside !== undefined) return beside ?? undefined;
 			if (within(row, x, moving)) return undefined;
 			return lineAt(rows, y < (row.top + row.bottom) / 2 ? index : index + 1, frame, moving);

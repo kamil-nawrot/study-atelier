@@ -19,7 +19,7 @@ as $$
     "divider": [],
     "term": [],
     "columns": ["column"],
-    "column": ["textBlock", "heading", "quote", "artwork", "closeUp", "set", "term"],
+    "column": ["textBlock", "heading", "quote", "artwork", "closeUp", "set", "divider", "term"],
     "text": [],
     "bold": [],
     "italic": []

@@ -695,8 +695,10 @@ export const EXHIBITIONS = [
 			},
 			row(
 				artworkBlock(3, 'Okno po lewej stronie i cały świat po prawej.', true),
+				{ type: 'divider', attrs: { line: true } },
 				closeUpBlock(3, 0.3, 0.4, 0.35)
 			),
+			row(artworkBlock(1, 'Portret na lewej połowie strony.'), { type: 'divider' }),
 			row(
 				artworkBlock(1, 'Trzy szczegóły jednego portretu.'),
 				set(
