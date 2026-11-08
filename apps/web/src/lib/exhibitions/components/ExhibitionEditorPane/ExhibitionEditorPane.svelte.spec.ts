@@ -185,6 +185,22 @@ describe('ExhibitionEditorPane', () => {
 		expect(JSON.stringify(given.document)).toContain('"italic"');
 	});
 
+	it('turns a line of a text into a heading of the text and back', async () => {
+		const given = session();
+		render(ExhibitionEditorPane, { session: given, lookup: lookup(), barHeight: 80 });
+
+		await userEvent.click(page.getByText('Soft glow'));
+		const heading = page.getByRole('button', { name: m.exhibitions.bar.heading, exact: true });
+		await userEvent.click(heading);
+		await vi.waitFor(() =>
+			expect(JSON.stringify(given.document)).toContain('{"type":"heading","attrs":{"level":3}')
+		);
+		await expect.element(heading).toHaveAttribute('aria-pressed', 'true');
+
+		await userEvent.click(heading);
+		await vi.waitFor(() => expect(JSON.stringify(given.document)).not.toContain('"level":3'));
+	});
+
 	it('adds a term of the glossary as a block that shows its definition', async () => {
 		const given = session(doc());
 		const { component } = await render(ExhibitionEditorPane, {

@@ -16,12 +16,13 @@ type Options = {
 const TextDoc = Node.create({
 	name: 'doc',
 	topNode: true,
-	content: '(paragraph | bulletList | orderedList)+'
+	content: '(paragraph | heading | bulletList | orderedList)+'
 });
 
 export class TextField {
 	bold = $state(false);
 	italic = $state(false);
+	heading = $state(false);
 	bulletList = $state(false);
 	orderedList = $state(false);
 	empty = $state(true);
@@ -37,7 +38,7 @@ export class TextField {
 			extensions: [
 				StarterKit.configure({
 					document: false,
-					heading: false,
+					heading: { levels: [3] },
 					blockquote: false,
 					code: false,
 					codeBlock: false,
@@ -74,6 +75,10 @@ export class TextField {
 		(kind === 'bulletList' ? chain.toggleBulletList() : chain.toggleOrderedList()).run();
 	}
 
+	toggleHeading(): void {
+		this.#editor.chain().focus().toggleHeading({ level: 3 }).run();
+	}
+
 	focus(): void {
 		this.#editor.commands.focus('end');
 	}
@@ -87,6 +92,7 @@ export class TextField {
 		if (!editor || editor.isDestroyed) return;
 		this.bold = editor.isActive('bold');
 		this.italic = editor.isActive('italic');
+		this.heading = editor.isActive('heading');
 		this.bulletList = editor.isActive('bulletList');
 		this.orderedList = editor.isActive('orderedList');
 		this.empty = editor.isEmpty;

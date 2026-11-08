@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Bold from '@lucide/svelte/icons/bold';
 	import CopyPlus from '@lucide/svelte/icons/copy-plus';
+	import Heading from '@lucide/svelte/icons/heading';
 	import Italic from '@lucide/svelte/icons/italic';
 	import List from '@lucide/svelte/icons/list';
 	import ListOrdered from '@lucide/svelte/icons/list-ordered';
@@ -137,6 +138,15 @@
 					type="button"
 				>
 					<Italic aria-hidden="true" size={16} />
+				</button>
+				<button
+					aria-label={m.exhibitions.bar.heading}
+					aria-pressed={field.heading}
+					onclick={() => field?.toggleHeading()}
+					title={m.exhibitions.bar.heading}
+					type="button"
+				>
+					<Heading aria-hidden="true" size={16} />
 				</button>
 				<button
 					aria-label={m.exhibitions.bar.bulletList}
@@ -347,6 +357,10 @@
 
 	.text :global(p) {
 		margin: 0;
+	}
+
+	.text :global(h3) {
+		font-weight: var(--font-weight-medium);
 	}
 
 	.text :global(:is(ul, ol)) {

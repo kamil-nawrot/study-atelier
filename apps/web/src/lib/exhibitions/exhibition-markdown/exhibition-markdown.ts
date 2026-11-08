@@ -42,7 +42,11 @@ function list(node: ExhibitionDocument, depth: number): string {
 
 export function textBlockMarkdown(node: ExhibitionDocument): string {
 	return (node.content ?? [])
-		.map((child) => (child.type === 'paragraph' ? paragraph(child) : list(child, 0)))
+		.map((child) => {
+			if (child.type === 'paragraph') return paragraph(child);
+			if (child.type === 'heading') return `### ${paragraph(child)}`;
+			return list(child, 0);
+		})
 		.join('\n\n');
 }
 

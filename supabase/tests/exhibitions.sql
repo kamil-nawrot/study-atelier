@@ -56,6 +56,8 @@ begin
     jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', olympia, 'palette', true),
       'content', jsonb_build_array(jsonb_build_object('type', 'text', 'text', 'A caption'))),
     jsonb_build_object('type', 'textBlock', 'content', jsonb_build_array(
+      jsonb_build_object('type', 'heading', 'attrs', jsonb_build_object('level', 3),
+        'content', jsonb_build_array(jsonb_build_object('type', 'text', 'text', 'Inside'))),
       jsonb_build_object('type', 'paragraph', 'content', jsonb_build_array(
         jsonb_build_object('type', 'text', 'text', 'Bold', 'marks', jsonb_build_array(jsonb_build_object('type', 'bold')))))
     )),
@@ -240,6 +242,21 @@ begin
     '{"type": "doc", "content": [{"type": "heading", "attrs": {"level": 1}, "content": []}]}'))
     = '23514 exhibition_document',
     'save_exhibition accepts a heading of level 1';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''x'', %L)', gen_random_uuid(),
+    '{"type": "doc", "content": [{"type": "heading", "attrs": {"level": 3}, "content": []}]}'))
+    = '23514 exhibition_document',
+    'save_exhibition accepts a heading of level 3 outside a text';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''x'', %L)', gen_random_uuid(),
+    '{"type": "doc", "content": [{"type": "textBlock", "content": [{"type": "heading", "attrs": {"level": 2}, "content": []}]}]}'))
+    = '23514 exhibition_document',
+    'save_exhibition accepts a heading of level 2 inside a text';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''x'', %L)', gen_random_uuid(),
+    '{"type": "doc", "content": [{"type": "textBlock", "content": [{"type": "heading", "content": []}]}]}'))
+    = '23514 exhibition_document',
+    'save_exhibition accepts a heading without a level inside a text';
   assert exhibitions_test.failure(format(
     'select public.save_exhibition(%L, ''x'', %L)', gen_random_uuid(),
     '{"type": "doc", "content": [{"type": "heading", "attrs": {"level": 2, "style": "x"}, "content": []}]}'))
