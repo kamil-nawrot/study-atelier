@@ -1,4 +1,4 @@
-# 0233. Mark a room with a new tier in its header
+# 0234. Mark a room with a new tier in its header
 
 - Status: accepted
 - Date: 2026-11-08
