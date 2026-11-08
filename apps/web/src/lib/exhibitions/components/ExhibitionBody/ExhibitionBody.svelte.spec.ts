@@ -19,6 +19,7 @@ vi.mock('#lib/exhibitions/exhibition-images-data/exhibition-images-data.ts', () 
 }));
 
 vi.mock('#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts', () => ({
+	loadArtworksWithNotes: vi.fn().mockResolvedValue({ ids: new Set() }),
 	loadArtworkNotes: vi.fn().mockResolvedValue({ notes: new Map() })
 }));
 

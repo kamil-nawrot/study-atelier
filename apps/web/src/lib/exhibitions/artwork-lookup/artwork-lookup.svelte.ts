@@ -1,6 +1,9 @@
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
-import { loadArtworkNotes } from '#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts';
+import {
+	loadArtworkNotes,
+	loadArtworksWithNotes
+} from '#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts';
 import { loadArtworkImages } from '#lib/exhibitions/exhibition-images-data/exhibition-images-data.ts';
 import { loadNoteLinkLabels, mentionsLinks } from '#lib/notes/note-link-data/note-link-data.ts';
 import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
@@ -11,6 +14,8 @@ export class ArtworkLookup {
 	#artworks = new SvelteMap<string, WallArtwork>();
 	#notes = new SvelteMap<string, BlockNote>();
 	#asked = new SvelteSet<string>();
+	#withNotes = new SvelteSet<string>();
+	#notesChecked = new SvelteSet<string>();
 	#pictures = new SvelteMap<string, ArtworkImageInput[]>();
 	#pictureAsked = new SvelteSet<string>();
 	#images = new WallImages();
@@ -31,6 +36,22 @@ export class ArtworkLookup {
 
 	imageFailed(artwork: WallArtwork): void {
 		this.#images.failed(artwork);
+	}
+
+	hasNote(id: string): boolean {
+		return this.#withNotes.has(id);
+	}
+
+	async checkNotes(ids: readonly string[]): Promise<void> {
+		const unknown = ids.filter((id) => !this.#notesChecked.has(id));
+		if (unknown.length === 0) return;
+		for (const id of unknown) this.#notesChecked.add(id);
+		const { ids: found, error } = await loadArtworksWithNotes(unknown);
+		if (error) {
+			for (const id of unknown) this.#notesChecked.delete(id);
+			return;
+		}
+		for (const id of found) this.#withNotes.add(id);
 	}
 
 	note(id: string): BlockNote | undefined {

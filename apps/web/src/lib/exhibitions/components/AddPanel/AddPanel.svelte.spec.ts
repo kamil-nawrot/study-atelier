@@ -20,6 +20,7 @@ vi.mock('#lib/wall/wall-images/wall-images.svelte.ts', () => ({
 	}
 }));
 vi.mock('#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts', () => ({
+	loadArtworksWithNotes: vi.fn().mockResolvedValue({ ids: new Set() }),
 	loadRecentArtworks: vi.fn(),
 	searchArtworks: vi.fn(),
 	loadArtworkNotes: vi.fn()

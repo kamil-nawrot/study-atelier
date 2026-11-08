@@ -153,6 +153,7 @@ function filteredRows(url) {
 		const ids = id.slice(4, -1).split(',');
 		rows = [...ARTWORKS, ...TRASHED].filter((row) => ids.includes(row.id));
 	}
+	if (params.get('notes') === 'neq.') rows = rows.filter((row) => row.notes);
 	const era = params.get('era_code');
 	if (era?.startsWith('eq.')) rows = rows.filter((row) => row.era_code === era.slice(3));
 	const term = params.get('pinned.artwork_pins.glossary_entry_id');

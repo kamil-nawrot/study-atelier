@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { page } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
+import '@study-atelier/ui/styles.css';
 import { render } from 'vitest-browser-svelte';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
@@ -7,6 +8,7 @@ import { m } from '#lib/i18n/i18n.ts';
 import ArtworkFigure from './ArtworkFigure.svelte';
 
 const loadArtworkNotes = vi.hoisted(() => vi.fn());
+const loadArtworksWithNotes = vi.hoisted(() => vi.fn());
 const loadArtworkImages = vi.hoisted(() => vi.fn());
 const paletteOf = vi.hoisted(() => vi.fn());
 
@@ -16,7 +18,8 @@ vi.mock('#lib/exhibitions/exhibition-images-data/exhibition-images-data.ts', () 
 vi.mock('#lib/images/image-palette/image-palette.ts', () => ({ paletteOf }));
 
 vi.mock('#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts', () => ({
-	loadArtworkNotes
+	loadArtworkNotes,
+	loadArtworksWithNotes
 }));
 
 vi.mock('#lib/wall/wall-images/wall-images.svelte.ts', () => ({
@@ -58,14 +61,42 @@ describe('ArtworkFigure', () => {
 		await expect.element(page.getByText('Judith')).toBeInTheDocument();
 	});
 
-	it('quotes the note of the artwork when asked to', async () => {
+	it('turns an artwork with notes over to its note in the same frame and back', async () => {
+		loadArtworksWithNotes.mockResolvedValue({ ids: new Set(['artwork-7']) });
 		loadArtworkNotes.mockResolvedValue({ notes: new Map([['artwork-7', 'Painted in Rome.']]) });
 		const lookup = new ArtworkLookup();
 		lookup.add([testArtwork(7, 'Judith')]);
-		render(ArtworkFigure, { lookup, artworkId: 'artwork-7', caption: '', showNote: true });
+		await lookup.checkNotes(['artwork-7']);
+		render(ArtworkFigure, { lookup, artworkId: 'artwork-7', flippable: true });
 
-		await expect.element(page.getByText(m.exhibitions.bar.noteOf('Judith'))).toBeInTheDocument();
-		await expect.element(page.getByText('Painted in Rome.')).toBeInTheDocument();
+		const flip = page.getByRole('button', { name: m.exhibitions.view.flip });
+		await expect.element(flip).toHaveAttribute('aria-pressed', 'false');
+		expect(loadArtworkNotes).not.toHaveBeenCalled();
+		const before = document.querySelector('.mat')?.getBoundingClientRect();
+		await userEvent.click(flip);
+
+		const back = page.getByRole('region', { name: m.exhibitions.view.noteOf('Judith') });
+		await expect.element(back.getByText('Painted in Rome.')).toBeInTheDocument();
+		const after = document.querySelector('.mat')?.getBoundingClientRect();
+		expect(after?.height).toBe(before?.height);
+		expect(after?.width).toBe(before?.width);
+		expect(getComputedStyle(document.querySelector('img') as Element).visibility).toBe('hidden');
+
+		await userEvent.click(flip);
+		await expect.element(back).not.toBeInTheDocument();
+		expect(getComputedStyle(document.querySelector('img') as Element).visibility).toBe('visible');
+	});
+
+	it('offers no flip for an artwork without notes or while editing', async () => {
+		loadArtworksWithNotes.mockResolvedValue({ ids: new Set() });
+		const lookup = new ArtworkLookup();
+		lookup.add([testArtwork(7, 'Judith'), testArtwork(8, 'Olympia')]);
+		await lookup.checkNotes(['artwork-7', 'artwork-8']);
+		render(ArtworkFigure, { lookup, artworkId: 'artwork-7', flippable: true });
+		render(ArtworkFigure, { lookup, artworkId: 'artwork-8', editable: true });
+
+		await expect.element(page.getByText('Olympia')).toBeInTheDocument();
+		expect(page.getByRole('button', { name: m.exhibitions.view.flip }).query()).toBeNull();
 	});
 
 	describe('palette', () => {

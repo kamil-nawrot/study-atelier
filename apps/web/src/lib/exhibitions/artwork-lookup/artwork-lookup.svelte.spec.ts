@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
-import { loadArtworkNotes } from '#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts';
+import {
+	loadArtworkNotes,
+	loadArtworksWithNotes
+} from '#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts';
 import { loadArtworkImages } from '#lib/exhibitions/exhibition-images-data/exhibition-images-data.ts';
 import { loadNoteLinkLabels } from '#lib/notes/note-link-data/note-link-data.ts';
 import { ArtworkLookup } from './artwork-lookup.svelte.ts';
@@ -17,7 +20,8 @@ vi.mock('#lib/wall/wall-images/wall-images.svelte.ts', () => ({
 	}
 }));
 vi.mock('#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts', () => ({
-	loadArtworkNotes: vi.fn()
+	loadArtworkNotes: vi.fn(),
+	loadArtworksWithNotes: vi.fn()
 }));
 vi.mock('#lib/exhibitions/exhibition-images-data/exhibition-images-data.ts', () => ({
 	loadArtworkImages: vi.fn()
@@ -59,6 +63,22 @@ describe('ArtworkLookup', () => {
 		lookup.imageFailed(judith);
 
 		expect(images.failed).toHaveBeenCalledWith(judith);
+	});
+
+	it('learns once which artworks have notes and asks again after a failure', async () => {
+		vi.mocked(loadArtworksWithNotes)
+			.mockResolvedValueOnce({ ids: new Set(), error: 'Boom' })
+			.mockResolvedValueOnce({ ids: new Set([judith.id]) });
+		const lookup = new ArtworkLookup();
+
+		await lookup.checkNotes([judith.id, 'artwork-2']);
+		expect(lookup.hasNote(judith.id)).toBe(false);
+		await lookup.checkNotes([judith.id, 'artwork-2']);
+		await lookup.checkNotes([judith.id]);
+
+		expect(loadArtworksWithNotes).toHaveBeenCalledTimes(2);
+		expect(lookup.hasNote(judith.id)).toBe(true);
+		expect(lookup.hasNote('artwork-2')).toBe(false);
 	});
 
 	it('loads the note of an artwork once', async () => {
