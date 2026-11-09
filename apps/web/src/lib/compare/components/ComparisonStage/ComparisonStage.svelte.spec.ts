@@ -38,12 +38,12 @@ function artwork(overrides: Partial<ArtworkRecord> = {}): ArtworkRecord {
 
 async function renderStage(
 	overrides: Partial<ArtworkRecord> = {},
-	props: { changeable?: boolean; onchange?: () => void } = {}
+	props: { changeable?: boolean; onchange?: () => void; loupe?: SharedLoupe } = {}
 ): Promise<void> {
 	await render(ComparisonStage, {
 		artwork: artwork(overrides),
 		changeable: props.changeable ?? true,
-		loupe: new SharedLoupe(),
+		loupe: props.loupe ?? new SharedLoupe(),
 		onready: vi.fn(),
 		onchange: props.onchange ?? vi.fn(),
 		palette: new PaletteLoader(),
@@ -66,6 +66,16 @@ describe('ComparisonStage', () => {
 		await renderStage({ authors: [], authorUnknown: true, yearTo: null });
 
 		await expect.element(page.getByText(m.ui.unknownAuthor)).toBeVisible();
+	});
+
+	it('says the image is too small while the loupe is on', async () => {
+		const loupe = new SharedLoupe();
+		await renderStage({}, { loupe });
+
+		expect(document.body.textContent).not.toContain(m.loupe.unavailable);
+		loupe.toggle(true);
+
+		await expect.element(page.getByText(m.loupe.unavailable)).toBeVisible();
 	});
 
 	it('shows a placeholder for an artwork without an image', async () => {
