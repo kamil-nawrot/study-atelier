@@ -47,9 +47,12 @@ export async function recordLongLook(): Promise<{ error?: string }> {
 	return error ? { error: collectionErrorMessage(error) } : {};
 }
 
-export async function recordNightLight(): Promise<{ error?: string }> {
-	const { error } = await supabase.rpc('record_night_light');
-	return error ? { error: collectionErrorMessage(error) } : {};
+export async function recordNightLight(): Promise<{ recorded: boolean; error?: string }> {
+	const { data, error } = await supabase.rpc('record_night_light', {
+		time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone
+	});
+	if (error) return { recorded: false, error: collectionErrorMessage(error) };
+	return { recorded: data === true };
 }
 
 export async function loadDisplayCase(): Promise<DisplayCaseResult> {

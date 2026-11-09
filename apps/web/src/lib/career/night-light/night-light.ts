@@ -25,8 +25,8 @@ export async function noteLightAtNight(
 ): Promise<void> {
 	if (recorded || !isNight(now)) return;
 	recorded = true;
-	const { error } = await recordNightLight();
-	if (error) {
+	const result = await recordNightLight();
+	if (!result.recorded) {
 		recorded = false;
 		return;
 	}
