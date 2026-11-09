@@ -96,6 +96,7 @@
 	--color-lane-3: var(--color-red-300);
 	--color-lane-4: var(--color-blue-300);
 	--color-lane-5: var(--color-plum-300);
+	--color-palette-band: rgba(28, 26, 24, 0.85);
 	color-scheme: dark;
 }
 
@@ -117,5 +118,6 @@
 	--color-lane-4: var(--color-blue-700);
 	--color-lane-5: var(--color-plum-700);
 	--color-mat-bg: var(--color-neutral-50);
+	--color-palette-band: rgba(226, 223, 215, 0.85);
 	color-scheme: light;
 }

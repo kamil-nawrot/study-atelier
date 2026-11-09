@@ -1,5 +1,7 @@
 import { resolve } from '$app/paths';
+import { countArtworks } from '#lib/artworks/artwork-data/artwork-data.ts';
 import { artworkCore } from '#lib/artworks/artwork-preload/artwork-preload.ts';
+import { loadArtworkExhibitions } from '#lib/exhibitions/artwork-exhibitions-data/artwork-exhibitions-data.ts';
 import { loadArtworkVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { parseRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
@@ -17,21 +19,27 @@ export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadA
 	const number = parseRecordNumber(params.number);
 	if (number === null) return { error: m.artworkErrors.notFound, notFound: true };
 	const [
-		{ result, noteLinks },
+		{ result, noteLinks, shown },
 		mentions,
 		summaries,
 		own,
 		layout,
 		loadedPins,
 		loadedGlossary,
-		seen
+		seen,
+		atelierCount
 	] = await Promise.all([
-		artworkCore(number).then(async (result) => ({
-			result,
-			noteLinks: mentionsLinks(result.artwork?.notes)
-				? await loadNoteLinkLabels({ artworkNumber: number })
-				: undefined
-		})),
+		artworkCore(number).then(async (result) => {
+			const [shown, noteLinks] = await Promise.all([
+				result.artwork
+					? loadArtworkExhibitions(result.artwork.id)
+					: { exhibitions: [], covers: [] },
+				mentionsLinks(result.artwork?.notes)
+					? loadNoteLinkLabels({ artworkNumber: number })
+					: undefined
+			]);
+			return { result, shown, noteLinks };
+		}),
 		loadMentions(
 			{ artworkNumber: number },
 			resolve('/(app)/atelier/[number]', { number: String(number) })
@@ -41,7 +49,8 @@ export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadA
 		untrack(() => parent()),
 		loadArtworkPins(number),
 		loadTermIndex(),
-		loadArtworkVisits(number)
+		loadArtworkVisits(number),
+		countArtworks()
 	]);
 	const visits = seen.visits;
 	const preferences = layout.preferences ?? defaultPreferences;
@@ -53,12 +62,15 @@ export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadA
 		...result,
 		mentions,
 		visits,
+		exhibitions: shown.exhibitions,
+		exhibitionCovers: shown.covers,
 		summaries,
 		glossary,
 		pins,
 		pinsError,
 		ownFields,
 		preferences,
+		atelierCount,
 		...(noteLinks ? { noteLinks } : {})
 	};
 };

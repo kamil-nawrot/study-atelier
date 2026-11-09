@@ -105,7 +105,7 @@ declare
     'duplicate_candidates', 'used_category_values', 'learner_points', 'unlock_exhibits', 'record_free_answers',
     'career_standing', 'note_link_mentions', 'note_link_labels', 'note_link_suggestions', 'atelier_empty',
     'collection_statistics', 'record_right_answer', 'note_gap_artwork', 'artwork_field_type_impact',
-    'mastered_artworks'
+    'mastered_artworks', 'save_exhibition', 'record_night_light', 'record_long_look'
   ];
   table_name text;
   routine record;
@@ -248,6 +248,12 @@ select public.save_visit(
   array[(select id from public.artworks)]
 );
 
+select public.save_exhibition(
+  gen_random_uuid(), 'Owner A story',
+  jsonb_build_object('type', 'doc', 'content', jsonb_build_array(jsonb_build_object(
+    'type', 'artwork', 'attrs', jsonb_build_object('artworkId', (select id from public.artworks)))))
+);
+
 insert into public.category_values (category_code, name) values ('material', 'Oil on canvas'), ('author', 'Sculptor');
 insert into public.material_details (value_id, summary)
   select id, 'Material summary' from public.category_values where name = 'Oil on canvas';
@@ -288,6 +294,7 @@ declare
   a_source uuid;
   a_place uuid;
   a_visit uuid;
+  a_exhibition uuid;
   a_style uuid;
   c constant uuid := '00000000-0000-0000-0000-00000000000c';
   table_name text;
@@ -302,8 +309,10 @@ begin
   select id into a_source from public.artwork_fields where owner_id = a and name = 'Source';
   select id into a_place from public.category_values where owner_id = a and name = 'Visited museum';
   select id into a_visit from public.visits where owner_id = a;
+  select id into a_exhibition from public.exhibitions where owner_id = a;
   select id into a_style from public.category_values where owner_id = a and name = 'Tenebrism';
   assert a_visit is not null, 'the visit of owner A was not created';
+  assert a_exhibition is not null, 'the exhibition of owner A was not created';
   assert a_artwork is not null and a_value is not null, 'fixture for owner A was not created';
   assert a_lecture is not null and a_source is not null, 'fields of owner A were not created';
 
@@ -337,6 +346,8 @@ begin
   assert (select count(*) from public.timeline_events) = 0, 'B reads timeline events of A';
   assert (select count(*) from public.visits) = 0, 'B reads visits of A';
   assert (select count(*) from public.visit_artworks) = 0, 'B reads the artworks of visits of A';
+  assert (select count(*) from public.exhibitions) = 0, 'B reads exhibitions of A';
+  assert (select count(*) from public.exhibition_artworks) = 0, 'B reads the artworks of exhibitions of A';
   assert (select count(*) from public.profiles) = 0, 'B reads the profile of A';
   assert (select count(*) from storage.objects) = 0, 'B reads image objects of A';
   assert (select used_bytes from public.storage_usage()) = 0, 'B counts the files of A as used space';
@@ -364,6 +375,8 @@ begin
   assert not (select has_content from public.value_page_content(a_value)),
     'B sees the page content of a value of A';
   assert (select count(*) from public.eras) = 6, 'B cannot read the shared eras';
+  assert (select count(*) from public.exhibit_rooms) = 7 and (select count(*) from public.exhibits) = 32,
+    'B cannot read the shared exhibit catalogue';
   assert (select count(*) from public.review_cards) = 0, 'B reads review cards of A';
   assert (select count(*) from public.review_log) = 0, 'B reads the review log of A';
   assert (select due + new_available + new_today + with_image from public.review_counts('2026-10-16T00:00:00Z')) = 0,
@@ -518,6 +531,19 @@ begin
     'select public.save_visit(''{"visited_on": "2026-10-12", "date_precision": "day"}'', ''Mine'', ''{%s}'')',
     a_artwork)),
     'B adds an artwork of A to a visit through save_visit';
+  assert security_test.denied(format(
+    'select public.save_exhibition(%L, ''Mine'', ''{"type": "doc", "content": []}'', 1)', a_exhibition)),
+    'B overwrites an exhibition of A through save_exhibition';
+  assert security_test.denied(format(
+    'select public.save_exhibition(%L, ''Mine'', ''{"type": "doc", "content": []}'')', a_exhibition)),
+    'B creates an exhibition over one of A through save_exhibition';
+  assert security_test.denied(format(
+    'insert into public.exhibitions (owner_id, title) values (%L, ''Forged'')', a)),
+    'B inserts an exhibition owned by A';
+  assert security_test.denied(format(
+    'insert into public.exhibition_artworks (exhibition_id, artwork_id, position) values (%L, %L, 1)',
+    a_exhibition, a_artwork)),
+    'B writes the artworks of an exhibition directly';
   assert security_test.affected('delete from public.artwork_pins') = 0, 'B deletes pins of A';
   assert (select count(*) from public.period_era_usage()) = 0, 'B sees the eras of the periods of A';
   assert (select count(*) from public.style_period_usage()) = 0, 'B sees the periods of the styles of A';
@@ -860,6 +886,9 @@ begin
     'insert into public.artwork_fields (name, kind) values (''Number'', ''number'')'),
     'A adds an artwork field of an unknown kind';
   assert security_test.denied('update public.eras set position = 99'), 'A changes an era';
+  assert security_test.denied('update public.exhibits set thresholds = ''{1}'''), 'A changes an exhibit';
+  assert security_test.denied('insert into public.exhibit_rooms (code, position) values (''forged'', 99)'),
+    'A adds an exhibit room';
   assert security_test.denied('insert into public.artwork_types (code, position) values (''forged'', 99)'),
     'A adds an artwork type';
   assert security_test.denied('select * from private.record_counters'), 'A reads the record counters';
@@ -929,6 +958,8 @@ begin
   assert security_test.denied('select public.learner_points()'), 'anon executes learner_points';
   assert security_test.denied('select public.unlock_exhibits(''UTC'')'), 'anon executes unlock_exhibits';
   assert security_test.denied('select public.record_free_answers(now(), 1)'), 'anon executes record_free_answers';
+  assert security_test.denied('select public.record_night_light(''UTC'')'), 'anon executes record_night_light';
+  assert security_test.denied('select public.record_long_look()'), 'anon executes record_long_look';
   assert security_test.denied('select public.record_right_answer(now())'), 'anon executes record_right_answer';
   assert security_test.denied('select public.save_era_details(''antiquity'', ''{}'')'),
     'anon executes save_era_details';

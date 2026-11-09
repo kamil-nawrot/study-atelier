@@ -1,6 +1,7 @@
 import type { asset } from '$app/paths';
 import type { ExhibitArt } from '#lib/career/types/exhibit-art.ts';
 import type { Metal } from '#lib/career/types/metal.ts';
+import { commonsFilePage } from '#lib/images/commons/commons.ts';
 
 export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 	chronicle: {
@@ -66,6 +67,17 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		licence: 'domena publiczna',
 		commonsFile: 'Camera obscura.png'
 	},
+	crystal_palace: {
+		credit: 'Charles Burton, „Transept Pałacu Przemysłu od Bramy Księcia Walii”, 1851',
+		licence: 'domena publiczna',
+		page: 'https://www.rijksmuseum.nl/en/collection/RP-P-2018-839'
+	},
+	lenoir_chapel: {
+		credit:
+			'Jean-Baptiste Réville i Jacques Lavallée według Jean-Lubina Vauzelle’a, „Druga perspektywa sali wprowadzającej”, 1816',
+		licence: 'CC0',
+		commonsFile: "Seconde vue de la salle d'introduction. G.30766.jpg"
+	},
 	night_watch: {
 		credit: 'William Unger według Rembrandta, „Straż nocna”, XIX wiek',
 		licence: 'CC0',
@@ -118,6 +130,49 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		credit: '„Pinacoteca 1”, plansza z katalogu Levinusa Vincenta, 1719',
 		licence: 'domena publiczna',
 		commonsFile: 'Vincent, Levinus (1715) Wondertooneel der natuur -Tome 2- 0293.jpg'
+	},
+	vasari_lives: {
+		credit:
+			'Strona tytułowa „Żywotów najwybitniejszych malarzy, rzeźbiarzy i architektów” Giorgia Vasariego, Florencja 1568',
+		licence: 'domena publiczna',
+		commonsFile: 'Vite.jpg'
+	},
+	boncompagni_academy: {
+		credit: 'Cornelis Cort, „Adepci sztuk plastycznych”, 1578',
+		licence: 'CC0',
+		page: 'https://www.metmuseum.org/art/collection/search/369581'
+	},
+	hortus_cliffortianus: {
+		credit: 'Jan Wandelaar, frontyspis „Hortus Cliffortianus” Karola Linneusza, 1738',
+		licence: 'domena publiczna',
+		commonsFile: 'Linnaeus Hortus Cliffortianus frontispiece.jpg'
+	},
+	trevi_fountain: {
+		credit: 'Giovanni Battista Piranesi, „Widok Fontanny di Trevi”, ok. 1751',
+		licence: 'CC0',
+		commonsFile:
+			"Trevifontein te Rome Veduta della vasta Fontana di Trevi anticamente detta l'Acqua Vergine (titel op object) Gezichten op Rome (serietitel) Vedute di Roma disegnate ed incise da Giambattista Piranesi architetto Ve(nez, RP-P-1941-600.jpg"
+	},
+	seven_league_boots: {
+		credit: 'Gustave Doré, ilustracja do „Tomcia Palucha” Charles’a Perraulta, 1862',
+		licence: 'domena publiczna',
+		commonsFile: 'Le Petit Poucet (136548020).jpg'
+	},
+	figure_alphabet: {
+		credit:
+			'Israhel van Meckenem według Mistrza E.S., litera A z „Alfabetu figuralnego”, ostatnia tercja XV wieku',
+		licence: 'domena publiczna',
+		page: 'https://id.smb.museum/object/1543315'
+	},
+	candle_moths: {
+		credit: 'Vincent Laurensz. van der Vinne, „Muchy lecą do światła świecy”, 1714',
+		licence: 'domena publiczna',
+		page: 'https://www.rijksmuseum.nl/en/collection/RP-P-OB-62.370'
+	},
+	amateur_magnifier: {
+		credit: 'Honoré Daumier, „Prawdziwy znawca”, 1847',
+		licence: 'domena publiczna',
+		page: 'https://www.rijksmuseum.nl/en/collection/RP-P-2015-26-183'
 	}
 };
 
@@ -127,6 +182,10 @@ export function artOf(code: string): ExhibitArt | undefined {
 
 export function imageOf(code: string, metal: Metal): Parameters<typeof asset>[0] {
 	return `exhibits/${code}/${metal}.webp` as Parameters<typeof asset>[0];
+}
+
+export function pageOf(art: ExhibitArt): string {
+	return 'page' in art ? art.page : commonsFilePage(art.commonsFile);
 }
 
 export function credits(codes: readonly string[]): ExhibitArt[] {

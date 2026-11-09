@@ -3,6 +3,7 @@
 	import CalendarRange from '@lucide/svelte/icons/calendar-range';
 	import Footprints from '@lucide/svelte/icons/footprints';
 	import ImagesIcon from '@lucide/svelte/icons/images';
+	import Landmark from '@lucide/svelte/icons/landmark';
 	import Layers from '@lucide/svelte/icons/layers';
 	import ListTree from '@lucide/svelte/icons/list-tree';
 	import LogOut from '@lucide/svelte/icons/log-out';
@@ -22,6 +23,7 @@
 	import RankTitle from '#lib/career/components/RankTitle/RankTitle.svelte';
 	import { progressToNext, rankName, rankOf } from '#lib/career/ranks/ranks.ts';
 	import { career } from '#lib/career/career-state/career-state.svelte.ts';
+	import { followNightLight, noteLightAtNight } from '#lib/career/night-light/night-light.ts';
 	import {
 		followMenuProfile,
 		shownMenuProfile
@@ -44,6 +46,7 @@
 	const glossaryPath = resolve('/(app)/atelier/glossary');
 	const timelinePath = resolve('/(app)/atelier/timeline');
 	const chroniclePath = resolve('/(app)/atelier/chronicle');
+	const exhibitionsPath = resolve('/(app)/atelier/exhibitions');
 	const trashPath = resolve('/(app)/atelier/trash');
 	const settingsPath = resolve('/(app)/atelier/settings');
 	const reviewPath = resolve('/(app)/atelier/review');
@@ -55,6 +58,13 @@
 	const careerShown = $derived(page.data.careerShown !== false);
 
 	$effect(() => followMenuProfile(page.data.menuProfile, ownerId));
+	$effect(() => followNightLight(ownerId, page.data.nightLightRecorded === true));
+
+	function toggleTheme(): void {
+		const next = light ? 'dark' : 'light';
+		setTheme(next);
+		if (next === 'light') void noteLightAtNight(careerShown);
+	}
 
 	function accountLabel(profile: Profile | undefined): string {
 		const parts = [m.menu.settingsLink(profile?.displayName || email, email)];
@@ -166,6 +176,16 @@
 	</a>
 	<a
 		class="item"
+		aria-current={page.url.pathname.startsWith(exhibitionsPath) ? 'page' : undefined}
+		href={exhibitionsPath}
+	>
+		<Icon icon={Landmark} />
+		<span class="label" class:visually-hidden={compact}>
+			{m.menu.exhibitions}
+		</span>
+	</a>
+	<a
+		class="item"
 		aria-current={page.url.pathname === reviewPath ? 'page' : undefined}
 		href={reviewPath}
 	>
@@ -227,7 +247,7 @@
 			{m.menu.feedback}
 		</span>
 	</button>
-	<button class="item muted" onclick={() => setTheme(light ? 'dark' : 'light')} type="button">
+	<button class="item muted" onclick={toggleTheme} type="button">
 		<Icon icon={light ? Moon : Sun} />
 		<span class="label" class:visually-hidden={compact}>
 			{light ? m.menu.darkTheme : m.menu.lightTheme}

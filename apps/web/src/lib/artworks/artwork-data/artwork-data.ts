@@ -52,7 +52,7 @@ type ArtworkRecordRow = {
 	notes: string | null;
 	favourite: boolean;
 	artwork_values: ArtworkValueRow[];
-	artwork_images: (ImageRow & { id: string; position: number })[];
+	artwork_images: (ImageRow & { id: string; position: number; palette: Json | null })[];
 	artwork_field_entries?: FieldEntryRow[];
 };
 
@@ -69,7 +69,7 @@ const RECORD_COLUMNS = [
 	'notes',
 	'favourite',
 	'artwork_values(position, category_values(category_code, name))',
-	`artwork_images(id, position, ${IMAGE_COLUMNS.join(', ')})`,
+	`artwork_images(id, position, palette, ${IMAGE_COLUMNS.join(', ')})`,
 	'artwork_field_entries(field_id, text_value)'
 ].join(', ');
 
@@ -220,4 +220,12 @@ export async function loadArtwork(number: number): Promise<LoadArtworkResult> {
 			images: images.filter((item): item is NonNullable<typeof item> => item !== null)
 		}
 	};
+}
+
+export async function countArtworks(): Promise<number | undefined> {
+	const { count, error } = await supabase
+		.from('artworks')
+		.select('id', { count: 'exact', head: true })
+		.is('deleted_at', null);
+	return error ? undefined : (count ?? undefined);
 }

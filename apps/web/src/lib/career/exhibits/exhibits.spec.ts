@@ -11,7 +11,15 @@ import {
 } from './exhibits.ts';
 
 function exhibit(overrides: Partial<Exhibit> = {}): Exhibit {
-	return { code: 'collection', value: 24, thresholds: [1, 10, 50, 100], tiers: [], ...overrides };
+	return {
+		code: 'collection',
+		room: 'main_hall',
+		hidden: false,
+		value: 24,
+		thresholds: [1, 10, 50, 100],
+		tiers: [],
+		...overrides
+	};
 }
 
 const unlocked = (tier: number, seen = true): UnlockedTier => ({
@@ -25,10 +33,27 @@ describe('exhibits', () => {
 	it('joins the counted exhibits with their unlocked tiers', () => {
 		expect(
 			withTiers(
-				[{ exhibit: 'collection', value: 24, thresholds: [1, 10] }],
+				[
+					{
+						exhibit: 'collection',
+						room: 'main_hall',
+						hidden: false,
+						value: 24,
+						thresholds: [1, 10]
+					}
+				],
 				[unlocked(1), { ...unlocked(1), exhibit: 'eras' }]
 			)
-		).toEqual([{ code: 'collection', value: 24, thresholds: [1, 10], tiers: [unlocked(1)] }]);
+		).toEqual([
+			{
+				code: 'collection',
+				room: 'main_hall',
+				hidden: false,
+				value: 24,
+				thresholds: [1, 10],
+				tiers: [unlocked(1)]
+			}
+		]);
 	});
 
 	it('keeps a tier unlocked after the count fell below it', () => {
@@ -71,11 +96,12 @@ describe('exhibits', () => {
 	});
 
 	it('hides the easter eggs until they are found', () => {
-		expect(isHidden(exhibit({ code: 'night_watch', value: 0, thresholds: [1] }))).toBe(true);
-		expect(isHidden(exhibit({ code: 'night_watch', value: 1, thresholds: [1] }))).toBe(false);
-		expect(isHidden(exhibit({ code: 'back_from_storage', value: 0, thresholds: [1] }))).toBe(true);
-		expect(isHidden(exhibit({ code: 'mouth_of_truth', value: 0, thresholds: [1] }))).toBe(true);
-		expect(isHidden(exhibit({ code: 'pinacotheca', value: 9, thresholds: [10] }))).toBe(true);
+		expect(isHidden(exhibit({ hidden: true, value: 0, thresholds: [1] }))).toBe(true);
+		expect(isHidden(exhibit({ hidden: true, value: 9, thresholds: [10] }))).toBe(true);
+		expect(isHidden(exhibit({ hidden: true, value: 1, thresholds: [1] }))).toBe(false);
+		expect(
+			isHidden(exhibit({ hidden: true, value: 0, thresholds: [1], tiers: [unlocked(1)] }))
+		).toBe(false);
 		expect(isHidden(exhibit({ value: 0 }))).toBe(false);
 	});
 

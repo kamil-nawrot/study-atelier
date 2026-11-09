@@ -18,6 +18,8 @@ import {
 	REVIEW_CARDS,
 	TIMELINE_EVENTS,
 	VISITS,
+	EXHIBITIONS,
+	ARCHIVED_EXHIBITIONS,
 	STYLE_PERIOD_USAGE,
 	VALUE_DETAILS,
 	VALUE_USAGE,
@@ -151,6 +153,7 @@ function filteredRows(url) {
 		const ids = id.slice(4, -1).split(',');
 		rows = [...ARTWORKS, ...TRASHED].filter((row) => ids.includes(row.id));
 	}
+	if (params.get('notes') === 'neq.') rows = rows.filter((row) => row.notes);
 	const era = params.get('era_code');
 	if (era?.startsWith('eq.')) rows = rows.filter((row) => row.era_code === era.slice(3));
 	const term = params.get('pinned.artwork_pins.glossary_entry_id');
@@ -597,6 +600,44 @@ function visitsRoute(route, request, url) {
 	return json(route, rows[0] ?? null);
 }
 
+function exhibitionArtworksRoute(route, url) {
+	const filter = url.searchParams.get('artwork_id') ?? '';
+	const holding = EXHIBITIONS.filter((row) =>
+		row.exhibition_artworks.some((link) => `eq.${link.artwork_id}` === filter)
+	);
+	return json(
+		route,
+		holding.map((row) => ({ exhibition_id: row.id }))
+	);
+}
+
+function artworkImagesRoute(route, url) {
+	const filter = url.searchParams.get('artwork_id') ?? '';
+	const ids = filter.startsWith('in.(') ? filter.slice(4, -1).split(',') : [];
+	return json(
+		route,
+		ARTWORKS.filter((row) => ids.includes(row.id)).flatMap((row) =>
+			row.artwork_images.map((image) => ({ ...image, artwork_id: row.id }))
+		)
+	);
+}
+
+function exhibitionsRoute(route, request, url) {
+	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
+	if (request.method() === 'DELETE' || request.method() === 'PATCH') {
+		return route.fulfill({ status: 204, headers: corsHeaders() });
+	}
+	const archived = url.searchParams.get('deleted_at') === 'not.is.null';
+	const id = url.searchParams.get('id');
+	const rows = (archived ? ARCHIVED_EXHIBITIONS : EXHIBITIONS).filter(
+		(row) =>
+			(!id?.startsWith('eq.') || row.id === id.slice(3)) &&
+			(!id?.startsWith('in.(') || id.slice(4, -1).split(',').includes(row.id))
+	);
+	if (!wantsObject) return json(route, rows);
+	return json(route, rows[0] ?? null);
+}
+
 function profileRoute(route, request) {
 	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
 	if (request.method() !== 'GET') return json(route, wantsObject ? PROFILE : [PROFILE], 201);
@@ -798,6 +839,10 @@ async function mockSupabase(context) {
 			return json(route, TIMELINE_EVENTS);
 		}
 		if (url.pathname === '/rest/v1/visits') return visitsRoute(route, request, url);
+		if (url.pathname === '/rest/v1/exhibitions') return exhibitionsRoute(route, request, url);
+		if (url.pathname === '/rest/v1/exhibition_artworks') return exhibitionArtworksRoute(route, url);
+		if (url.pathname === '/rest/v1/artwork_images') return artworkImagesRoute(route, url);
+		if (url.pathname === '/rest/v1/rpc/save_exhibition') return json(route, 4);
 		if (url.pathname === '/rest/v1/rpc/save_visit') return json(route, VISITS[0].id);
 		if (url.pathname === '/rest/v1/catalogue_museums') return json(route, CATALOGUE_MUSEUMS);
 		if (
@@ -1273,27 +1318,48 @@ async function recordScroll(browser, base, options, name) {
 	return target;
 }
 
-async function combine(browser, files, target) {
-	const context = await browser.newContext({ viewport: { width: 1000, height: 1000 } });
+async function combine(browser, files, target, fullPage) {
+	const context = await browser.newContext({ viewport: { width: 100, height: 100 } });
 	const page = await context.newPage();
 	const images = files
-		.map((file) => `<img src="data:image/png;base64,${readFileSync(file).toString('base64')}">`)
+		.map(
+			(file) =>
+				`<div><img style="display:block" src="data:image/png;base64,${readFileSync(file).toString('base64')}"></div>`
+		)
 		.join('');
 	await page.setContent(
-		`<body style="margin:0;display:flex;gap:24px;align-items:flex-start;background:#111;padding:24px;width:max-content">${images}</body><style>html{background:#111}</style>`
+		`<!doctype html><body style="margin:0;display:flex;gap:24px;align-items:flex-start;background:#111;padding:24px;width:max-content">${images}</body><style>html{background:#111}</style>`
 	);
 	await page.evaluate(() => Promise.all([...document.images].map((img) => img.decode())));
-	await page.evaluate(() => {
-		const [desktop, phone] = document.images;
-		if (!phone) return;
-		const height = Math.min(desktop.naturalHeight, 900);
-		desktop.style.height = `${height}px`;
-		phone.style.height = `${height}px`;
+	const scales = [VIEWPORTS.desktop.deviceScaleFactor, VIEWPORTS.phone.deviceScaleFactor];
+	await page.evaluate(
+		([fullPage, scales]) => {
+			const [desktop, phone] = document.images;
+			if (!fullPage) {
+				const height = Math.min(desktop.naturalHeight, 900);
+				desktop.style.height = `${height}px`;
+				phone.style.height = `${height}px`;
+				return;
+			}
+			const height = Math.max(desktop.naturalHeight / scales[0], phone.naturalHeight / scales[1]);
+			[desktop, phone].forEach((img, index) => {
+				img.style.width = `${img.naturalWidth / scales[index]}px`;
+				img.parentElement.style.height = `${height}px`;
+				const canvas = document.createElement('canvas');
+				canvas.width = 1;
+				canvas.height = 1;
+				const context = canvas.getContext('2d');
+				context.drawImage(img, 0, img.naturalHeight - 1, 1, 1, 0, 0, 1, 1);
+				const [red, green, blue] = context.getImageData(0, 0, 1, 1).data;
+				img.parentElement.style.background = `rgb(${red}, ${green}, ${blue})`;
+			});
+		},
+		[Boolean(fullPage), scales]
+	);
+	const size = await page.evaluate(() => {
+		const { width, height } = document.body.getBoundingClientRect();
+		return { width: Math.ceil(width), height: Math.ceil(height) };
 	});
-	const size = await page.evaluate(() => ({
-		width: Math.ceil(document.body.scrollWidth),
-		height: Math.ceil(document.body.scrollHeight)
-	}));
 	await page.setViewportSize(size);
 	await page.screenshot({ path: target, fullPage: true });
 	await context.close();
@@ -1327,7 +1393,7 @@ async function main() {
 		}
 		if (options.combine && files.length === 2) {
 			const target = path.join(options.out, `${options.name}-both.png`);
-			await combine(browser, files, target);
+			await combine(browser, files, target, options.fullPage);
 			files.push(target);
 		}
 		for (const file of files) process.stdout.write(`${file}\n`);

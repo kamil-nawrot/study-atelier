@@ -32,7 +32,8 @@ Commit messages follow [Conventional Commits 1.0](https://www.conventionalcommit
 
 - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
 - Scopes follow the monorepo layout, for example `web`, `design`, `db`, `docs`, `ci`, and `tools` for `tools/`.
-- The description is imperative, lowercase, without a trailing period.
+- The description is imperative, lowercase, without a trailing period. A subject that ends in an abbreviation ("Master E.S.") still breaks the rule, so Claude checks every subject against the pattern of `.github/scripts/check-pull-request.mjs` before a push.
+- A pushed commit whose subject fails the Conventions check is not reworded, since a pushed branch is never rewritten: its commits go onto a new branch from `develop` (cherry-picked, the failing one with a corrected subject), a new pull request replaces the old one, and the old one is closed with a comment that points to it.
 - Breaking changes are marked with `!` after the type or a `BREAKING CHANGE:` footer.
 - A commit may reference the Linear issue in the footer, for example `Refs: ATL-1`; it is not required, since the branch name already links the issue. Name only the pull request's own issue: Linear moves every issue a commit references, so naming another one marks it as started.
 

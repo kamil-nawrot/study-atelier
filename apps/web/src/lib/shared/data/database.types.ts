@@ -126,6 +126,7 @@ export type Database = {
           own_image_path: string | null;
           own_image_url: string | null;
           owner_id: string;
+          palette: Json | null;
           position: number;
           source_image_attribution: string | null;
           source_image_file: string | null;
@@ -142,6 +143,7 @@ export type Database = {
           own_image_path?: string | null;
           own_image_url?: string | null;
           owner_id?: string;
+          palette?: Json | null;
           position: number;
           source_image_attribution?: string | null;
           source_image_file?: string | null;
@@ -157,6 +159,7 @@ export type Database = {
           own_image_path?: string | null;
           own_image_url?: string | null;
           owner_id?: string;
+          palette?: Json | null;
           position?: number;
           source_image_attribution?: string | null;
           source_image_file?: string | null;
@@ -564,6 +567,22 @@ export type Database = {
         };
         Relationships: [];
       };
+      exhibit_rooms: {
+        Row: {
+          code: string;
+          position: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          code: string;
+          position: number;
+        };
+        Update: {
+          code?: string;
+          position?: number;
+        };
+        Relationships: [];
+      };
       exhibit_tiers: {
         Row: {
           exhibit: string;
@@ -590,7 +609,122 @@ export type Database = {
           tiers?: number | null;
           unlocked_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "exhibit_tiers_exhibit_fkey";
+            columns: ["exhibit"];
+            isOneToOne: false;
+            referencedRelation: "exhibits";
+            referencedColumns: ["code"];
+          },
+        ];
+      };
+      exhibition_artworks: {
+        Row: {
+          artwork_id: string;
+          exhibition_id: string;
+          owner_id: string;
+          position: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          artwork_id: string;
+          exhibition_id: string;
+          owner_id?: string;
+          position: number;
+        };
+        Update: {
+          artwork_id?: string;
+          exhibition_id?: string;
+          owner_id?: string;
+          position?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "exhibition_artworks_artwork_id_owner_id_fkey";
+            columns: ["artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "exhibition_artworks_exhibition_id_owner_id_fkey";
+            columns: ["exhibition_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "exhibitions";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
+      exhibitions: {
+        Row: {
+          created_at: string;
+          deleted_at: string | null;
+          document: NonNullable<Json>;
+          format: number;
+          id: string;
+          owner_id: string;
+          revision: number;
+          title: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          deleted_at?: string | null;
+          document?: NonNullable<Json>;
+          format?: number;
+          id?: string;
+          owner_id?: string;
+          revision?: number;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          deleted_at?: string | null;
+          document?: NonNullable<Json>;
+          format?: number;
+          id?: string;
+          owner_id?: string;
+          revision?: number;
+          title?: string;
+          updated_at?: string;
+        };
         Relationships: [];
+      };
+      exhibits: {
+        Row: {
+          code: string;
+          hidden: boolean;
+          position: number;
+          room_code: string;
+          thresholds: number[];
+        };
+        ComputedFields: never;
+        Insert: {
+          code: string;
+          hidden: boolean;
+          position: number;
+          room_code: string;
+          thresholds: number[];
+        };
+        Update: {
+          code?: string;
+          hidden?: boolean;
+          position?: number;
+          room_code?: string;
+          thresholds?: number[];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "exhibits_room_code_fkey";
+            columns: ["room_code"];
+            isOneToOne: false;
+            referencedRelation: "exhibit_rooms";
+            referencedColumns: ["code"];
+          },
+        ];
       };
       feedback: {
         Row: {
@@ -998,6 +1132,8 @@ export type Database = {
           fetch_image: boolean;
           legal_accepted_at: string | null;
           legal_version: string | null;
+          long_look_at: string | null;
+          night_light_at: string | null;
           owner_id: string;
           rank_form: string;
           rank_seen: number;
@@ -1027,6 +1163,8 @@ export type Database = {
           fetch_image?: boolean;
           legal_accepted_at?: string | null;
           legal_version?: string | null;
+          long_look_at?: string | null;
+          night_light_at?: string | null;
           owner_id?: string;
           rank_form?: string;
           rank_seen?: number;
@@ -1055,6 +1193,8 @@ export type Database = {
           fetch_image?: boolean;
           legal_accepted_at?: string | null;
           legal_version?: string | null;
+          long_look_at?: string | null;
+          night_light_at?: string | null;
           owner_id?: string;
           rank_form?: string;
           rank_seen?: number;
@@ -1496,6 +1636,11 @@ export type Database = {
         Args: { answers: number; day_start: string };
         Returns: undefined;
       };
+      record_long_look: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
+      record_night_light: { Args: { time_zone: string }; Returns: boolean };
       record_review: {
         Args: {
           answer: Json;
@@ -1547,6 +1692,15 @@ export type Database = {
       save_era_details: {
         Args: { details: Json; target_era: string };
         Returns: undefined;
+      };
+      save_exhibition: {
+        Args: {
+          exhibition_id: string;
+          expected_revision?: number;
+          new_document: Json;
+          new_title: string;
+        };
+        Returns: number;
       };
       save_value_details: {
         Args: { details: Json; target_value: string };
@@ -1600,6 +1754,8 @@ export type Database = {
         Args: { time_zone: string };
         Returns: {
           exhibit: string;
+          hidden: boolean;
+          room: string;
           thresholds: number[];
           value: number;
         }[];

@@ -28,6 +28,7 @@ export const IMPORT_TABLES = [
 	'timeline_events',
 	'visits',
 	'visit_artworks',
+	'exhibitions',
 	'review_cards',
 	'review_log',
 	'point_events',

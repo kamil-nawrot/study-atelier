@@ -631,6 +631,32 @@ describe('artwork page', () => {
 		await expect.element(page.getByText(m.favourite.added)).toBeVisible();
 	});
 
+	it('links the compare button in the top bar to a comparison that starts with this artwork', async () => {
+		renderPage({ artwork: artwork(), atelierCount: 3 });
+
+		const compare = page.getByRole('banner').getByRole('link', { name: m.compare.label });
+
+		await expect.element(compare).toHaveAttribute('href', '/atelier/compare?left=42');
+	});
+
+	it('dims the compare button and says why when the atelier holds one artwork', async () => {
+		renderPage({ artwork: artwork(), atelierCount: 1 });
+
+		const compare = page.getByRole('banner').getByRole('button', { name: m.compare.label });
+
+		await expect.element(compare).toHaveAttribute('aria-disabled', 'true');
+		await compare.hover();
+		await expect.element(page.getByRole('tooltip')).toHaveTextContent(m.compare.unavailable);
+	});
+
+	it('offers the comparison when the size of the atelier is not known', async () => {
+		renderPage();
+
+		await expect
+			.element(page.getByRole('banner').getByRole('link', { name: m.compare.label }))
+			.toBeVisible();
+	});
+
 	it('shows a favourite artwork with a filled heart and clears it', async () => {
 		vi.mocked(setFavourite).mockResolvedValue({});
 		renderPage({ artwork: artwork({ favourite: true }) });

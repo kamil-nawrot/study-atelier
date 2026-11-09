@@ -209,6 +209,7 @@ export const pl = {
 		glossary: 'Słowniczek',
 		timeline: 'Kalendarium',
 		chronicle: 'Kronika',
+		exhibitions: 'Wystawy',
 		review: 'Powtórki',
 		displayCase: 'Ekspozycja',
 		displayCaseNew: 'Ekspozycja, nowe',
@@ -374,6 +375,7 @@ export const pl = {
 				glossary_entries: 'pojęć w Słowniczku',
 				timeline_events: 'wydarzeń w Kalendarium',
 				visits: 'wizyt w Kronice',
+				exhibitions: 'wystaw',
 				artwork_fields: 'własnych pól',
 				artwork_values: 'wartości przypisanych do dzieł',
 				visit_artworks: 'dzieł przypisanych do wizyt',
@@ -668,6 +670,26 @@ export const pl = {
 		unavailable: 'Rozdzielczość tego obrazu jest zbyt mała, żeby można było skorzystać z lupy.',
 		tooLarge: 'Ten obraz z adresu jest zbyt duży, żeby można było skorzystać z lupy.',
 		level: (level: number): string => `${level.toLocaleString('pl', { maximumFractionDigits: 1 })}×`
+	},
+	compare: {
+		label: 'Porównaj',
+		title: 'Porównanie',
+		unavailable: 'Do porównania potrzebne są co najmniej dwa dzieła.',
+		question: (title: string): string => `Z czym porównać ${title}?`,
+		questionEmpty: 'Które dzieła chcesz porównać?',
+		search: 'Szukaj po tytule, autorze lub numerze',
+		change: 'Zmień dzieło',
+		swap: 'Zamień strony',
+		loupeBoth: 'Lupa pokazuje to samo miejsce na obu obrazach',
+		loadFailedTitle: 'Nie udało się wczytać porównania',
+		loadingAtelier: 'Wczytywanie atelier…'
+	},
+	palette: {
+		label: 'Paleta barw',
+		hide: 'Ukryj paletę barw',
+		unreadable: 'Ten obraz nie pozwala odczytać swoich kolorów.',
+		collecting: 'Zbieranie kolorów…',
+		colour: (hex: string, percent: number): string => `${hex}, ${percent}%`
 	},
 	favourite: {
 		add: 'Dodaj do ulubionych',
@@ -1022,6 +1044,8 @@ export const pl = {
 			`W Kalendarium zmieści się ${limit} wydarzeń. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
 		visits: (limit: number): string =>
 			`W Kronice zmieści się ${limit} wizyt. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		exhibitions: (limit: number): string =>
+			`W atelier zmieści się ${limit} wystaw, razem z tymi w Archiwum. Usuń z Archiwum te, których już nie potrzebujesz.`,
 		artworkFields: (limit: number): string =>
 			`W atelier zmieści się ${limit} własnych pól. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
 		artworkValues: (limit: number): string =>
@@ -1432,13 +1456,26 @@ export const pl = {
 	},
 	career: {
 		title: 'Ekspozycja',
-		lead: 'Sala z eksponatami, które udało Ci się zgromadzić, rozwijając swoje atelier. Każdy eksponat pokazuje Twoje postępy w innej dziedzinie nauki i kolekcjonowania. Niektóre są ukryte i odsłonią się dopiero wtedy, gdy spełnisz warunek ukryty w zagadce.',
+		lead: 'Sale z eksponatami, które udało Ci się zgromadzić, rozwijając swoje atelier. Każdy eksponat pokazuje Twoje postępy w innej dziedzinie nauki i kolekcjonowania. Niektóre są ukryte i odsłonią się dopiero wtedy, gdy spełnisz warunek ukryty w zagadce.',
 		loadErrorTitle: 'Nie udało się wczytać Ekspozycji',
 		tier: (tier: string, total: string): string => `Poziom ${tier} z ${total}`,
 		new: 'Nowe',
 		tierDate: (tier: string, date: string): string => `Poziom ${tier} · ${date}`,
 		hiddenName: 'Ukryty eksponat',
-		exhibitsHeading: 'Eksponaty',
+		roomNumber: (number: string): string => `Sala ${number}`,
+		roomFinished: (finished: number, total: number): string => `Ukończone: ${finished} z ${total}`,
+		roomEmpty: 'Wszystkie eksponaty tej sali są teraz schowane.',
+		showFinished: 'Pokaż ukończone',
+		showLocked: 'Pokaż nieodblokowane',
+		rooms: {
+			main_hall: 'Sala główna',
+			era_enfilade: 'Amfilada epok',
+			reading_room: 'Czytelnia',
+			scriptorium: 'Skryptorium',
+			map_room: 'Sala map',
+			pavilion: 'Pawilon',
+			crypt: 'Krypta'
+		},
 		newRank: 'nowy stopień',
 		newCuriosity: 'nowa ciekawostka',
 		source: 'Źródło',
@@ -1597,6 +1634,54 @@ export const pl = {
 			],
 			pinacotheca: [
 				'Przy szufladach z owadami w gabinecie Levinusa Vincenta, kupca tkanin, pracowała jego żona Joanna van Breda, chwalona za ich artyzm; porównywano je do wzorów haftu. Na rycinie otwierającej katalog ich zbiorów kobieta uosabiająca Haft wyszywa igłą wzór w jednej z szuflad. Naprzeciw niej postać Malarstwa trzyma pędzel, wzór i drugą szufladę.'
+			],
+			vasari_lives: [
+				'„Żywoty najwybitniejszych malarzy, rzeźbiarzy i architektów” Giorgia Vasariego, zbiór biografii artystów, ukazały się po raz pierwszy w 1550 roku. W drugim wydaniu z 1568 roku Vasari dodał portrety artystów, jedne z pierwszych przykładów takich wizerunków. Książka do dziś jest jednym z najważniejszych źródeł do badań nad artystami tamtej epoki.',
+				'W katalogu grafik Rembrandta z 1751 roku, opracowanym przez Edme-François Gersainta, jego akwaforta z 1636 roku figuruje jako portret Menasseha ben Izraela, autora książki „Piedra Gloriosa”. Kolejni autorzy katalogów powtarzali to bez sprawdzania, choć badacze od dawna twierdzą, że to wcale nie on.',
+				'Johannes Vermeer, nazywany Sfinksem z Delftu, pozostawił po sobie wyjątkowo mało dzieł: Rijksmuseum liczy jego dorobek na 37 obrazów. Na wystawę w 2023 roku muzeum zgromadziło co najmniej 28 z nich, wypożyczonych z Europy, Stanów Zjednoczonych i Japonii.',
+				'Muzeum Wiktorii i Alberta w Londynie przechowuje pięć notesów Leonarda da Vinci, oprawionych w trzy tomy nazywane Kodeksem Forstera. Między zapisanymi pismem lustrzanym notatkami o geometrii, ciężarach i hydraulice są w nich szkice końskich nóg i notatki związane zapewne z „Ostatnią Wieczerzą”.',
+				'Pablo Picasso to według Księgi rekordów Guinnessa najpłodniejszy malarz w historii. W ciągu 75 lat pracy stworzył około 13 500 obrazów i projektów, 100 000 grafik, 34 000 ilustracji książkowych oraz 300 rzeźb i ceramik.'
+			],
+			boncompagni_academy: [
+				'W 1546 roku florencki uczony Benedetto Varchi zapytał najwybitniejszych artystów, która sztuka jest wyższa: malarstwo czy rzeźba, i ten spór nazwano paragone. Bronzino w niedokończonej odpowiedzi bronił malarstwa: według niego umie ono oddać trójwymiarowość rzeźby, a przy tym naśladować naturę tak, jak rzeźba nie potrafi.',
+				'W 1563 roku książę Kosma I Medyceusz zatwierdził statut florenckiej Akademii Sztuki Rysunku, którą wymyślił Giorgio Vasari. Na pierwszym zebraniu 70 osób ogłosiło Michała Anioła „Ojcem i Mistrzem tych trzech sztuk”, a młodsi artyści protestowali, bo nie przyjęto ich do grona pierwszych akademików.',
+				'Gdy w 1768 roku powstała londyńska Royal Academy, jej statut wprost wykluczał z członkostwa rytowników. Francesco Bartolozzi, przez blisko 40 lat rytownik króla, był jednak ceniony tak wysoko, że zrobiono dla niego wyjątek i przyjęto go do Akademii jako malarza.',
+				'Od 1912 do 1948 roku na igrzyskach olimpijskich przyznawano medale także za architekturę, literaturę, muzykę, malarstwo i rzeźbę, za dzieła poświęcone sportowi. W 1912 roku złoto za rzeźbę zdobył Amerykanin Walter Winans, cztery lata wcześniej mistrz olimpijski w strzelaniu. Brąz w 1932 roku dostał projekt Stadionu Olimpijskiego we Wrocławiu.',
+				'Po Wielkiej Wystawie w 1851 roku za 5000 funtów rządowej dotacji kupiono wybór wystawionych przedmiotów. Stały się zaczątkiem otwartego w 1852 roku Muzeum Wyrobów, które miało uczyć projektantów, producentów i publiczność sztuki i wzornictwa. W 1899 roku dostało nazwę Muzeum Wiktorii i Alberta.',
+				'W 1852 roku V&A jako jedno z pierwszych muzeów zaczęło kupować do zbiorów fotografie, a w 1858 urządziło swoją pierwszą wystawę fotografii. Dziś ma około 800 000 zdjęć, jedną z najważniejszych kolekcji na świecie.'
+			],
+			hortus_cliffortianus: [
+				'Muzeum Ennigaldi, córki babilońskiego króla Nabonida i arcykapłanki boga księżyca, powstało w Ur około 530 roku p.n.e. i uchodzi za najstarsze na świecie. W 1925 roku Leonard Woolley rozpoznał je po etykietach: przy każdym przedmiocie leżał gliniany cylinder z napisami w czterech językach, objaśniającymi przedmiot i jego historię.',
+				'Portret matki Jamesa Whistlera, amerykańskiego malarza dzielącego karierę między Londyn i Paryż, ma podwójny tytuł: „Aranżacja w szarości i czerni nr 1” i „Portret matki artysty”. Wkrótce potem Whistler dawał swoim obrazom już tylko muzyczne podtytuły, bo ważniejsza była dla niego harmonia niż temat.',
+				'Poradnik pisania tekstów w Muzeum Wiktorii i Alberta zaleca, by zwykła etykieta dzieła miała 50–60 słów, a jej pierwsze zdanie w miarę możliwości mniej niż 16. Powód: według Getty Museum zwiedzający bez przygotowania patrzy na obiekt krócej niż 30 sekund, więc najważniejsza informacja musi paść od razu.',
+				'Iconclass, system klasyfikacji tego, co przedstawiają obrazy, wymyślił Henri van de Waal, profesor historii sztuki na uniwersytecie w Lejdzie, który pracował nad nim od lat 40. XX wieku. Dziś wiele muzeów i bibliotek opisuje nim tematy dzieł w swoich zbiorach.',
+				'Melvil Dewey od 1873 roku pracował w bibliotece Amherst College nad systemem porządkowania książek i katalogów kartkowych. Pierwsze wydanie jego klasyfikacji z 1876 roku liczyło mniej niż 50 stron, a 23. wydanie z 2011 roku ma cztery tomy. Sama Biblioteka Kongresu z tego systemu nie korzysta.',
+				'W marcu 2021 roku Luwr po raz pierwszy udostępnił w sieci całą swoją kolekcję. Jego nowa baza miała na start ponad 482 000 wpisów, również o dziełach z magazynów i tych wypożyczonych na długo innym instytucjom we Francji.'
+			],
+			trevi_fountain: [
+				'Fontanna di Trevi to wylot akweduktu Aqua Virgo, który Agryppa, zięć cesarza Augusta, otworzył w 19 roku p.n.e. Według legendy nazwę dała mu dziewczyna, która wskazała źródła żołnierzom szukającym wody. To jedyny z jedenastu głównych akweduktów starożytnego Rzymu, który działa nieprzerwanie do dziś.'
+			],
+			seven_league_boots: [
+				'W baśni Charles’a Perraulta buty olbrzyma były zaczarowane: rosły i malały, dopasowując się do nóg tego, kto je włożył. Według jednego z dwóch zakończeń Tomcio został w nich królewskim gońcem i jeszcze tego samego wieczoru przyniósł królowi wieści od armii oddalonej o dwieście mil.'
+			],
+			crystal_palace: [
+				'Na Wielką Wystawę w 1851 roku 5000 robotników w pięć miesięcy zbudowało w londyńskim Hyde Parku szklany Kryształowy Pałac. Gmach był tak duży, że w środku znalazły się drzewa parku. 14 000 wystawców pokazało w nim 100 000 przedmiotów z całego świata, które obejrzało sześć milionów ludzi.',
+				'Udział w paryskim Salonie, wystawie z jury, decydował o karierze artysty. Gdy artyści zarzucili jury, że odrzuca dzieła niezgodne z akademickim wzorem, cesarz Napoleon III zorganizował w 1863 roku pierwszy Salon Odrzuconych dla prac, których jury nie przyjęło. Pokazano tam wiele dzieł artystów, których później łączono z impresjonizmem.',
+				'Białe ściany galerii to wynalazek dopiero początku XX wieku, gdy sztuka stawała się coraz bardziej abstrakcyjna. Artyści De Stijl i Bauhausu chcieli, by nic nie odciągało uwagi od dzieł, a gładka biel dodatkowo je obramowywała. Tak powstał „biały sześcian”: prosta sala o białych ścianach, zwykle oświetlona z sufitu.',
+				'W 1969 roku Harald Szeemann pokazał w Kunsthalle w Bernie wystawę „When Attitudes Become Form”, która przeszła do historii dzięki jego radykalnemu podejściu: sama wystawa, czyli dobór dzieł i ich zestawienie, była jego wypowiedzią. W 2013 roku Fondazione Prada odtworzyła ją w Wenecji, wstawiając białe sale Kunsthalle w pełnej skali do zdobionych freskami wnętrz zabytkowego pałacu.',
+				'Wieża Eiffla miała być w Paryżu tylko gościem: trzystumetrową konstrukcję postawiono na wystawę światową w 1889 roku z myślą, że postoi 20 lat. Zamiast zniknąć razem z wystawą, została na stałe i stała się symbolem Paryża i całej Francji.'
+			],
+			lenoir_chapel: [
+				'Muzeum Zabytków Francuskich Alexandre’a Lenoira, otwarte w Paryżu w 1795 roku, było drugim muzeum narodowym Francji po Luwrze i przyczyniło się do narodzin pojęcia dziedzictwa. Zamknięto je w 1816 roku, a zbiory rozproszyły się: dziś są m.in. w Luwrze, bazylice Saint-Denis i katedrze Notre-Dame, a za granicą najwięcej w Metropolitan Museum.'
+			],
+			figure_alphabet: [
+				'O Mistrzu E.S. wiadomo niewiele, a przydomek zawdzięcza inicjałom, które pojawiają się na jego późniejszych pracach. Na to, że był z wykształcenia złotnikiem, wskazują punce – złotnicze narzędzia wbijane młotkiem w płytę, którymi wybijał wzory drobnych kwiatków i kółek. Jego figuralny alfabet przetrwał w 23 rzadkich, pojedynczych odbitkach.'
+			],
+			candle_moths: [
+				'Rycina Vincenta Laurensza van der Vinne ilustruje „Leerzaame zinnebeelden” Adriaana Spinnikera, zbiór pouczających emblematów wydany w Haarlemie i Amsterdamie w 1714 roku. Owady, które giną od żaru i w wosku świecy, są w nim obrazem ludzi lekceważących ostrzeżenia, którzy przepadają przez marne, ziemskie życie.'
+			],
+			amateur_magnifier: [
+				'Daumier wracał do paryskich znawców sztuki i kilkanaście lat później: w serii akwarel pokazał kolekcjonerów, którzy z bliska studiują dzieła. Akwarele robił głównie dla kolekcjonerów swoich prac, więc te obrazki trafiały, nieco ironicznie, do tych samych ludzi, których przedstawiały.'
 			]
 		},
 		ranks: {
@@ -1752,6 +1837,19 @@ export const pl = {
 					'Plansza z „Encyklopedii” Diderota i d’Alemberta pokazuje ciemnię optyczną, dzięki której na długo przed fotografią artyści przenosili na papier krajobrazy i budowle.',
 				count: counter('dodanych przez Ciebie zdjęć')
 			},
+			crystal_palace: {
+				name: 'Kryształowy Pałac',
+				about:
+					'Charles Burton przedstawił w 1851 roku transept Kryształowego Pałacu w londyńskim Hyde Parku, szklanego gmachu zbudowanego na Wielką Wystawę.',
+				count: counter('wystaw z co najmniej 5 dziełami')
+			},
+			lenoir_chapel: {
+				name: 'Kaplica Lenoira',
+				about:
+					'Jean-Baptiste Réville i Jacques Lavallée wyryli w 1816 roku salę wprowadzającą paryskiego Muzeum Zabytków Francuskich, w której Alexandre Lenoir zebrał rzeźby ze wszystkich epok.',
+				hint: 'Dobra opowieść nie pomija żadnego rozdziału.',
+				awarded: 'Za wystawę z dziełami wszystkich sześciu epok.'
+			},
 			night_watch: {
 				name: 'Straż nocna',
 				about:
@@ -1779,6 +1877,59 @@ export const pl = {
 					'Plansza z katalogu Levinusa Vincenta z 1719 roku pokazuje szuflady jego haarlemskiego gabinetu, w których owady przypinano drobnymi szpilkami według wzoru rozrysowanego na siatce.',
 				hint: 'Motyle nie odlecą, jeśli tylko dobrze je przyszpilić.',
 				awarded: 'Za komplet pinezek na jednym obrazie.'
+			},
+			vasari_lives: {
+				name: 'Księga Vasariego',
+				about:
+					'Strona tytułowa drugiego wydania „Żywotów” Giorgia Vasariego, wydrukowanego we Florencji w 1568 roku razem z drzeworytowymi portretami artystów.',
+				count: counter('autorów z co najmniej 10 dziełami')
+			},
+			boncompagni_academy: {
+				name: 'Akademia Boncompagniego',
+				about:
+					'Cornelis Cort wyrył w 1578 roku w Rzymie pracownię, w której obok siebie pracują rzeźbiarze, malarze, rysownicy, architekci i rytownicy.',
+				count: counter('typów dzieł w atelier')
+			},
+			hortus_cliffortianus: {
+				name: 'Ogród Clifforta',
+				about:
+					'Jan Wandelaar wyrył w 1738 roku frontyspis „Hortus Cliffortianus”, katalogu roślin z ogrodu George’a Clifforta opisanego przez Karola Linneusza.',
+				count: counter('opisanych wartości w Kartotece')
+			},
+			trevi_fountain: {
+				name: 'Fontanna di Trevi',
+				about:
+					'Giovanni Battista Piranesi wyrył Fontannę di Trevi około 1751 roku, jedenaście lat przed jej ukończeniem, z posągiem Oceana w centralnej niszy.',
+				hint: 'Prawdziwy wielbiciel zawsze wraca do źródła.',
+				awarded: 'Za dzieło zobaczone na żywo podczas dwóch wizyt.'
+			},
+			seven_league_boots: {
+				name: 'Siedmiomilowe buty',
+				about:
+					'Na drzeworycie według Gustave’a Doré z 1862 roku Tomcio Paluch ściąga śpiącemu olbrzymowi siedmiomilowe buty.',
+				hint: 'Olbrzymowi wystarczy jeden krok, sprytnemu – jeden dzień.',
+				awarded: 'Za trzy muzea odwiedzone jednego dnia.'
+			},
+			figure_alphabet: {
+				name: 'Alfabet Mistrza E.S.',
+				about:
+					'Israhel van Meckenem wyrył w ostatniej tercji XV wieku literę A z figuralnego alfabetu Mistrza E.S., ułożoną z lwa, psów, ptaków i człowieka.',
+				hint: 'Sztukę warto zgłębiać od A do Z.',
+				awarded: 'Za pojęcia w Słowniczku na każdą literę alfabetu.'
+			},
+			candle_moths: {
+				name: 'Nocny lichtarz',
+				about:
+					'Vincent Laurensz. van der Vinne wytrawił w 1714 roku świecę, do której płomienia zlatują się owady, a te, które zginęły, leżą w wosku i na ziemi.',
+				hint: 'Po zmroku światło przyciąga najmocniej.',
+				awarded: 'Za zapalenie światła w środku nocy.'
+			},
+			amateur_magnifier: {
+				name: 'Soczewka znawcy',
+				about:
+					'Honoré Daumier narysował w 1847 roku dla „Le Charivari” znawcę, który ogląda obraz przez lupę, podczas gdy jego towarzysz rozgląda się po sali.',
+				hint: 'Kto patrzy z bliska, nie patrzy na zegarek.',
+				awarded: 'Za godzinę spędzoną z jednym dziełem.'
 			}
 		}
 	},
@@ -2240,6 +2391,155 @@ export const pl = {
 			on_site: 'Na miejscu'
 		}
 	},
+	exhibitions: {
+		title: 'Wystawy',
+		kind: 'Wystawa',
+		lead: 'Opowieści, które układasz z dzieł swojego atelier. Wystawy pozwalają wykorzystać kolekcję do szukania powiązań w sztuce, budowania porównań i zapisywania własnych komentarzy.',
+		count: (count: number): string =>
+			`${count} ${plural(count, { one: 'wystawa', few: 'wystawy', many: 'wystaw' })}`,
+		add: 'Dodaj wystawę',
+		adding: 'Dodawanie…',
+		newTitle: 'Nowa wystawa',
+		nameLabel: 'Tytuł wystawy',
+		nameRequired: 'Wpisz tytuł wystawy.',
+		emptyTitle: 'Pierwszy wernisaż dopiero przed Tobą',
+		empty:
+			'Wybierz temat przewodni i zbuduj jego historię z dzieł Twojego atelier i własnych wniosków.',
+		posterMeta: (count: number, changed: string): string =>
+			`${workCount(count)} · zmieniona ${changed}`,
+		onExhibitions: (count: number): string => exhibitionCount(count),
+		artworkCount: (count: number): string => workCount(count),
+		changedToday: 'dziś',
+		loadErrorTitle: 'Nie udało się wczytać wystaw',
+		addErrorTitle: 'Nie udało się dodać wystawy',
+		view: {
+			notFoundTitle: 'Nie ma takiej wystawy',
+			loadErrorTitle: 'Nie udało się wczytać wystawy',
+			back: 'Wystawy',
+			edit: 'Edytuj',
+			done: 'Gotowe',
+			delete: 'Usuń',
+			titleLabel: 'Tytuł wystawy',
+			emptyBody: 'Tu zaczyna się Twoja opowieść. Dodaj tekst albo dzieło z panelu obok.',
+			missingArtwork: 'Dzieła nie ma w atelier',
+			archivedArtwork: 'Dzieło jest w Archiwum',
+			flip: 'Notatka do dzieła',
+			noteOf: (title: string): string => `Notatka do dzieła „${title}”`,
+			noNote: 'To dzieło nie ma już notatki.',
+			loadingNote: 'Wczytywanie notatki…'
+		},
+		save: {
+			saving: 'Zapisywanie…',
+			saved: 'Zapisano',
+			untitled: 'Wpisz tytuł, żeby zapisać zmiany',
+			failed: 'Nie udało się zapisać. Spróbujemy ponownie za chwilę.',
+			conflict:
+				'Ta wystawa w międzyczasie zmieniła swój kształt, więc Twoich ostatnich zmian nie udało się zapisać. Odśwież stronę, żeby zobaczyć najnowszą wersję.',
+			conflictTitle: 'Nie zapisano zmian',
+			limitTitle: 'Nie zapisano zmian',
+			keepEditing: 'Wróć do wystawy'
+		},
+		panel: {
+			title: 'Przybornik',
+			open: 'Rozwiń Przybornik',
+			close: 'Zwiń Przybornik',
+			textTitle: 'Tekst',
+			paragraph: 'Akapit',
+			heading: 'Nagłówek',
+			quote: 'Cytat',
+			divider: 'Odstęp',
+			artworksTitle: 'Dzieła',
+			addAs: 'Dodaj jako',
+			search: 'Szukaj dzieła',
+			searchPlaceholder: 'Tytuł, autor albo numer',
+			recent: 'Ostatnio dodane',
+			found: (count: number): string => `Znalezione: ${count}`,
+			noMatch: 'Nic nie pasuje. Sprawdź pisownię albo przeglądaj całe atelier.',
+			browse: 'Przeglądaj całe atelier…',
+			addMissing: 'Dodaj dzieło, którego brakuje',
+			glossaryTitle: 'Słowniczek',
+			searchTerm: 'Szukaj hasła',
+			searchTermPlaceholder: 'Nazwa albo synonim',
+			termsByName: 'Hasła od A do Z',
+			noTerm: 'Nic nie pasuje. Sprawdź pisownię albo dodaj hasło w Słowniczku.',
+			noTerms: 'W Słowniczku nie ma jeszcze haseł.',
+			browseGlossary: 'Otwórz Słowniczek…',
+			empty: 'W atelier nie ma jeszcze dzieł.',
+			loadError: 'Nie udało się wczytać dzieł.'
+		},
+		closeUp: {
+			caption: 'Szczegół: ',
+			label: (title: string): string => `Szczegół: ${title}`
+		},
+		paletteDialog: {
+			title: 'Paleta kolejnego dzieła'
+		},
+		closeUpDialog: {
+			title: 'Szczegół',
+			hint: 'Wybierz pinezkę, której fragment pokaże szczegół.',
+			loading: 'Wczytywanie pinezek…',
+			loadError: 'Nie udało się wczytać pinezek. Spróbuj ponownie za chwilę.',
+			noPins: 'To dzieło nie ma jeszcze pinezek. Wbij je lupą w widoku dzieła, a potem wróć tutaj.',
+			openArtwork: 'Otwórz dzieło',
+			pin: (number: number): string => `Pinezka ${number}`
+		},
+		blocks: {
+			textBlock: 'Tekst',
+			heading: 'Nagłówek',
+			quote: 'Cytat',
+			artwork: 'Dzieło',
+			palette: 'Paleta',
+			closeUp: 'Szczegół',
+			divider: 'Odstęp',
+			term: 'Hasło',
+			termOf: (name: string): string => `Hasło ze Słowniczka: ${name}`,
+			textHint: 'Pisz tutaj…',
+			headingHint: 'Wpisz nagłówek',
+			quoteHint: 'Wpisz cytat'
+		},
+		bar: {
+			label: (block: string): string => `Blok: ${block}`,
+			move: (block: string): string => `${block}: przeciągnij, żeby przenieść`,
+			up: 'W górę',
+			down: 'W dół',
+			remove: 'Usuń z wystawy',
+			bold: 'Pogrubienie',
+			italic: 'Kursywa',
+			heading: 'Nagłówek',
+			bulletList: 'Lista',
+			orderedList: 'Lista numerowana',
+			line: 'Linia',
+			position: 'Położenie',
+			addMore: 'Dodaj kolejny',
+			full: 'Zestaw ma już pięć elementów',
+			removeItem: (number: number): string => `Usuń element ${number} z zestawu`,
+			place: (valign: string, align: string): string =>
+				`${{ top: 'U góry', middle: 'W połowie', bottom: 'Na dole' }[valign] ?? valign}, ${{ left: 'z lewej', center: 'na środku', right: 'z prawej' }[align] ?? align}`
+		},
+		deleteConfirm: {
+			title: (title: string): string => `Przenieść wystawę „${title}” do Archiwum?`,
+			description:
+				'Wystawa zniknie z listy. Dzieła zostaną w atelier, a wystawę przywrócisz z Archiwum.',
+			confirm: 'Przenieś do Archiwum',
+			moving: 'Przenoszenie…',
+			errorTitle: 'Nie udało się przenieść wystawy'
+		},
+		moved: 'Przeniesiono wystawę do Archiwum.',
+		limits: {
+			artworks:
+				'Ta wystawa ma już 100 dzieł, czyli najwięcej, ile się zmieści. Może warto podzielić ją na dwie?',
+			blocks:
+				'Ta wystawa ma już 300 elementów, czyli najwięcej, ile się zmieści. Może warto podzielić ją na dwie?',
+			noPalette:
+				'Z obrazu tego dzieła nie da się odczytać kolorów, więc paleta nie została dodana.',
+			noImage: 'To dzieło nie ma obrazu, więc nie ma z czego zebrać palety.'
+		},
+		errors: {
+			notFound: 'Nie ma takiej wystawy.',
+			invalid: 'Wystawa ma w sobie coś, czego nie umiemy zapisać.',
+			tooBig: 'Ta wystawa jest za duża, żeby ją zapisać. Może warto podzielić ją na dwie?'
+		}
+	},
 	trash: {
 		title: 'Archiwum',
 		emptyTitle: 'Archiwum jest puste',
@@ -2261,7 +2561,16 @@ export const pl = {
 		deleteTitle: (number: string): string => `Usunąć ${number} na zawsze?`,
 		deleteDescription: (number: string): string =>
 			`Dzieło ${number} i Twój obraz znikną bezpowrotnie.`,
-		deleted: (number: string): string => `Usunięto ${number} na zawsze.`
+		deleted: (number: string): string => `Usunięto ${number} na zawsze.`,
+		tabsLabel: 'Co jest w Archiwum',
+		tabs: { artworks: 'Dzieła', exhibitions: 'Wystawy' },
+		exhibitionsEmpty:
+			'Nie ma tu żadnej wystawy. Trafiają tu wystawy, które postanowisz wycofać. Stąd możesz je przywrócić lub usunąć na zawsze.',
+		exhibitionMeta: (count: number, date: string): string => `${workCount(count)} · ${date}`,
+		exhibitionRestored: (title: string): string => `Przywrócono wystawę „${title}”.`,
+		exhibitionDeleteTitle: (title: string): string => `Usunąć wystawę „${title}” na zawsze?`,
+		exhibitionDeleteDescription: 'Zniknie razem ze swoimi tekstami. Dzieła zostaną w atelier.',
+		exhibitionDeleted: (title: string): string => `Usunięto wystawę „${title}” na zawsze.`
 	}
 };
 
@@ -2279,6 +2588,10 @@ function counter(unit: string): (next?: number) => string {
 
 function pointCount(count: number): string {
 	return `${count} ${plural(count, { one: 'punkt', few: 'punkty', many: 'punktów' })}`;
+}
+
+function exhibitionCount(count: number): string {
+	return `Na ${count} ${plural(count, { one: 'wystawie', few: 'wystawach', many: 'wystawach' })}`;
 }
 
 function visitCount(count: number): string {

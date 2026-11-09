@@ -594,6 +594,142 @@ for (const row of ARTWORKS) {
 	).map((visit) => ({ visit_id: visit.id }));
 }
 
+function artworkId(number) {
+	return `00000000-0000-4000-8000-${String(number).padStart(12, '0')}`;
+}
+
+function textBlock(...paragraphs) {
+	return {
+		type: 'textBlock',
+		content: paragraphs.map((text) => ({
+			type: 'paragraph',
+			content: [{ type: 'text', text }]
+		}))
+	};
+}
+
+function artworkBlock(number, caption, note = false, extra = {}) {
+	return {
+		type: 'artwork',
+		attrs: { artworkId: artworkId(number), note, ...extra },
+		...(caption ? { content: [{ type: 'text', text: caption }] } : {})
+	};
+}
+
+function closeUpBlock(number, x, y, viewWidth) {
+	return {
+		type: 'closeUp',
+		attrs: { artworkId: artworkId(number), imageId: null, x, y, viewWidth }
+	};
+}
+
+function set(...items) {
+	return { type: 'set', content: items };
+}
+
+function row(...blocks) {
+	return {
+		type: 'columns',
+		content: blocks.map((block) => ({ type: 'column', content: [block] }))
+	};
+}
+
+function exhibition(index, title, blocks, numbers, deletedAt = null) {
+	return {
+		id: `00000000-0000-4000-8000-0000000004${String(index).padStart(2, '0')}`,
+		owner_id: USER.id,
+		title,
+		document: {
+			type: 'doc',
+			content: [...blocks, { type: 'textBlock', content: [{ type: 'paragraph' }] }]
+		},
+		format: 1,
+		revision: 3,
+		deleted_at: deletedAt,
+		created_at: '2026-11-01T10:00:00Z',
+		updated_at: '2026-11-0' + index + 'T10:00:00Z',
+		exhibition_artworks: numbers.map((number, position) => ({
+			artwork_id: artworkId(number),
+			position
+		}))
+	};
+}
+
+export const EXHIBITIONS = [
+	exhibition(
+		1,
+		'Światło i cień',
+		[
+			{
+				type: 'heading',
+				attrs: { level: 2 },
+				content: [{ type: 'text', text: 'Od Leonarda do Vermeera' }]
+			},
+			{
+				type: 'textBlock',
+				content: [
+					{
+						type: 'heading',
+						attrs: { level: 3 },
+						content: [{ type: 'text', text: 'Światło jako narzędzie' }]
+					},
+					...textBlock(
+						'Światło prowadzi wzrok tam, gdzie malarz chce go zatrzymać. U Leonarda rozpuszcza kontury, u Vermeera zamienia zwykłą sień w scenę.'
+					).content
+				]
+			},
+			artworkBlock(1, 'Sfumato: cień rozpuszcza kontur policzka.', false, { palette: true }),
+			{ type: 'divider', attrs: { line: true } },
+			row(artworkBlock(3, ''), {
+				type: 'term',
+				attrs: { termId: '00000000-0000-4000-9000-000000000007', valign: 'middle' }
+			}),
+			{
+				type: 'quote',
+				content: [
+					{
+						type: 'paragraph',
+						content: [{ type: 'text', text: 'Malarstwo to poezja, którą się widzi.' }]
+					}
+				]
+			},
+			row(
+				artworkBlock(3, 'Okno po lewej stronie i cały świat po prawej.', true),
+				{ type: 'divider', attrs: { line: true } },
+				closeUpBlock(3, 0.3, 0.4, 0.35)
+			),
+			row(artworkBlock(1, 'Portret na lewej połowie strony.'), { type: 'divider' }),
+			row(
+				artworkBlock(1, 'Trzy szczegóły jednego portretu.'),
+				set(
+					closeUpBlock(1, 0.5, 0.3, 0.25),
+					closeUpBlock(1, 0.4, 0.6, 0.3),
+					closeUpBlock(1, 0.6, 0.8, 0.2)
+				)
+			),
+			set(
+				artworkBlock(1, '', false, { paletteOnly: true }),
+				artworkBlock(3, '', false, { paletteOnly: true })
+			),
+			{ type: 'divider' },
+			textBlock('Na końcu zostaje pytanie: czy światło jest tematem, czy tylko narzędziem?')
+		],
+		[1, 3]
+	),
+	exhibition(2, 'Portrety kobiet', [textBlock('Notatki w przygotowaniu.')], [9]),
+	exhibition(3, '', [], [])
+];
+
+export const ARCHIVED_EXHIBITIONS = [
+	exhibition(
+		4,
+		'Pejzaże północy',
+		[textBlock('Nieużywana wystawa.')],
+		[6, 7],
+		'2026-11-05T09:00:00Z'
+	)
+];
+
 export const TIMELINE_EVENTS = [
 	{
 		id: '00000000-0000-4000-8000-000000000301',
@@ -1064,22 +1200,158 @@ export const ARTWORK_PINS = [
 ];
 
 export const EXHIBITS = [
-	{ exhibit: 'collection', value: 191, thresholds: [1, 10, 50, 100, 250, 500, 1000, 2500, 5000] },
-	{ exhibit: 'eras', value: 5, thresholds: [2, 3, 4, 5, 6] },
-	{ exhibit: 'memory', value: 55, thresholds: [1, 25, 100, 250, 500, 1000, 2500] },
-	{ exhibit: 'bullseye', value: 7, thresholds: [1, 5, 25, 50, 100, 250] },
-	{ exhibit: 'regular', value: 14, thresholds: [3, 7, 14, 30, 60, 100, 200, 365] },
-	{ exhibit: 'back_from_storage', value: 0, thresholds: [1] },
-	{ exhibit: 'chronicle', value: 2, thresholds: [1, 5, 10, 25, 50, 100] },
-	{ exhibit: 'grand_tour', value: 2, thresholds: [1, 2, 3, 5, 10, 20] },
-	{ exhibit: 'seen_live', value: 6, thresholds: [1, 10, 50, 100, 250, 500] },
-	{ exhibit: 'timeline', value: 12, thresholds: [1, 10, 50, 100, 250] },
-	{ exhibit: 'glossary', value: 147, thresholds: [1, 10, 25, 50, 100, 250, 500] },
-	{ exhibit: 'own_eye', value: 0, thresholds: [1, 5, 25, 50, 100] },
-	{ exhibit: 'night_watch', value: 0, thresholds: [1] },
-	{ exhibit: 'marathon', value: 0, thresholds: [1000] },
-	{ exhibit: 'mouth_of_truth', value: 0, thresholds: [1] },
-	{ exhibit: 'pinacotheca', value: 10, thresholds: [10] }
+	{
+		exhibit: 'collection',
+		room: 'main_hall',
+		hidden: false,
+		value: 191,
+		thresholds: [1, 10, 50, 100, 250, 500, 1000, 2500, 5000]
+	},
+	{
+		exhibit: 'vasari_lives',
+		room: 'main_hall',
+		hidden: false,
+		value: 2,
+		thresholds: [1, 3, 5, 10, 20]
+	},
+	{
+		exhibit: 'boncompagni_academy',
+		room: 'main_hall',
+		hidden: false,
+		value: 4,
+		thresholds: [2, 3, 4, 5, 6, 7]
+	},
+	{
+		exhibit: 'own_eye',
+		room: 'main_hall',
+		hidden: false,
+		value: 0,
+		thresholds: [1, 5, 25, 50, 100]
+	},
+	{ exhibit: 'pinacotheca', room: 'main_hall', hidden: true, value: 10, thresholds: [10] },
+	{ exhibit: 'eras', room: 'era_enfilade', hidden: false, value: 5, thresholds: [2, 3, 4, 5, 6] },
+	{
+		exhibit: 'prehistory',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 0,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'antiquity',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 3,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'middle_ages',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 12,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'early_modern',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 61,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'modern',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 104,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'contemporary',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 11,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'memory',
+		room: 'reading_room',
+		hidden: false,
+		value: 55,
+		thresholds: [1, 25, 100, 250, 500, 1000, 2500]
+	},
+	{
+		exhibit: 'bullseye',
+		room: 'reading_room',
+		hidden: false,
+		value: 7,
+		thresholds: [1, 5, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'regular',
+		room: 'reading_room',
+		hidden: false,
+		value: 14,
+		thresholds: [3, 7, 14, 30, 60, 100, 200, 365]
+	},
+	{ exhibit: 'back_from_storage', room: 'reading_room', hidden: true, value: 0, thresholds: [1] },
+	{ exhibit: 'night_watch', room: 'reading_room', hidden: true, value: 0, thresholds: [1] },
+	{ exhibit: 'marathon', room: 'reading_room', hidden: true, value: 0, thresholds: [1000] },
+	{ exhibit: 'amateur_magnifier', room: 'reading_room', hidden: true, value: 0, thresholds: [1] },
+	{
+		exhibit: 'glossary',
+		room: 'scriptorium',
+		hidden: false,
+		value: 147,
+		thresholds: [1, 10, 25, 50, 100, 250, 500]
+	},
+	{
+		exhibit: 'timeline',
+		room: 'scriptorium',
+		hidden: false,
+		value: 12,
+		thresholds: [1, 10, 50, 100, 250]
+	},
+	{
+		exhibit: 'hortus_cliffortianus',
+		room: 'scriptorium',
+		hidden: false,
+		value: 31,
+		thresholds: [1, 10, 25, 50, 100, 500]
+	},
+	{ exhibit: 'figure_alphabet', room: 'scriptorium', hidden: true, value: 23, thresholds: [23] },
+	{
+		exhibit: 'chronicle',
+		room: 'map_room',
+		hidden: false,
+		value: 2,
+		thresholds: [1, 5, 10, 25, 50, 100]
+	},
+	{
+		exhibit: 'grand_tour',
+		room: 'map_room',
+		hidden: false,
+		value: 2,
+		thresholds: [1, 2, 3, 5, 10, 20]
+	},
+	{
+		exhibit: 'seen_live',
+		room: 'map_room',
+		hidden: false,
+		value: 6,
+		thresholds: [1, 10, 50, 100, 250, 500]
+	},
+	{ exhibit: 'trevi_fountain', room: 'map_room', hidden: true, value: 2, thresholds: [2] },
+	{ exhibit: 'seven_league_boots', room: 'map_room', hidden: true, value: 1, thresholds: [3] },
+	{
+		exhibit: 'crystal_palace',
+		room: 'pavilion',
+		hidden: false,
+		value: 3,
+		thresholds: [1, 3, 5, 10, 25]
+	},
+	{ exhibit: 'lenoir_chapel', room: 'pavilion', hidden: true, value: 6, thresholds: [6] },
+	{ exhibit: 'mouth_of_truth', room: 'crypt', hidden: true, value: 0, thresholds: [1] },
+	{ exhibit: 'candle_moths', room: 'crypt', hidden: true, value: 1, thresholds: [1] }
 ];
 
 export const EXHIBIT_TIERS = EXHIBITS.flatMap(({ exhibit, value, thresholds }) =>

@@ -21,7 +21,17 @@
     "middle_ages": "lacroix-chivalry-allegory",
     "early_modern": "gartenlaube-gutenberg",
     "modern": "neuville-benett-buffalo-herd-wide",
-    "contemporary": "montaut-projectile-stone-hill"
+    "contemporary": "montaut-projectile-stone-hill",
+    "trevi_fountain": "piranesi-trevi-neptune",
+    "seven_league_boots": "dore-boots-legs",
+    "vasari_lives": "vasari-title-page",
+    "figure_alphabet": "meckenem-letter-a-smb-mount-close",
+    "hortus_cliffortianus": "wandelaar-wide",
+    "candle_moths": "van-der-vinne-candle",
+    "amateur_magnifier": "daumier-amateur-figure",
+    "crystal_palace": "burton-transept",
+    "lenoir_chapel": "introduction-left",
+    "boncompagni_academy": "cort-workshop"
   },
   "variants": [
     {
@@ -797,6 +807,521 @@
         0.02,
         1,
         0.87
+      ]
+    },
+    {
+      "exhibit": "trevi_fountain",
+      "status": "chosen",
+      "commons_file": "Trevifontein te Rome Veduta della vasta Fontana di Trevi anticamente detta l'Acqua Vergine (titel op object) Gezichten op Rome (serietitel) Vedute di Roma disegnate ed incise da Giambattista Piranesi architetto Ve(nez, RP-P-1941-600.jpg",
+      "licence": "CC0",
+      "credit": "Giovanni Battista Piranesi, Veduta della vasta Fontana di Trevi, Vedute di Roma, c. 1750",
+      "variant": "piranesi-trevi-neptune",
+      "crop": [
+        0.17,
+        0.2,
+        0.46,
+        0.72
+      ]
+    },
+    {
+      "exhibit": "trevi_fountain",
+      "status": "alternative",
+      "commons_file": "Trevifontein te Rome Veduta della vasta Fontana di Trevi anticamente detta l'Acqua Vergine (titel op object) Gezichten op Rome (serietitel) Vedute di Roma disegnate ed incise da Giambattista Piranesi architetto Ve(nez, RP-P-1941-600.jpg",
+      "licence": "CC0",
+      "credit": "Giovanni Battista Piranesi, Veduta della vasta Fontana di Trevi, Vedute di Roma, c. 1750",
+      "variant": "piranesi-trevi-basin",
+      "crop": [
+        0.42,
+        0.4,
+        0.72,
+        0.93
+      ]
+    },
+    {
+      "exhibit": "trevi_fountain",
+      "status": "rejected",
+      "commons_file": "Trevifontein te Rome Veduta della vasta Fontana di Trevi anticamente detta l'Acqua Vergine (titel op object) Gezichten op Rome (serietitel) Vedute di Roma disegnate ed incise da Giambattista Piranesi architetto Ve(nez, RP-P-1941-600.jpg",
+      "licence": "CC0",
+      "credit": "Giovanni Battista Piranesi, Veduta della vasta Fontana di Trevi, Vedute di Roma, c. 1750",
+      "variant": "piranesi-trevi-facade",
+      "crop": [
+        0.02,
+        0.1,
+        0.4,
+        0.78
+      ]
+    },
+    {
+      "exhibit": "seven_league_boots",
+      "status": "alternative",
+      "commons_file": "Le Petit Poucet (136548020).jpg",
+      "licence": "Public domain",
+      "credit": "Gustave Doré, illustration for Perrault's Le Petit Poucet, 1862",
+      "variant": "dore-boots-close",
+      "crop": [
+        0.62,
+        0.4,
+        0.95,
+        0.938
+      ]
+    },
+    {
+      "exhibit": "seven_league_boots",
+      "status": "chosen",
+      "commons_file": "Le Petit Poucet (136548020).jpg",
+      "licence": "Public domain",
+      "credit": "Gustave Doré, illustration for Perrault's Le Petit Poucet, 1862",
+      "variant": "dore-boots-legs",
+      "crop": [
+        0.48,
+        0.23,
+        0.95,
+        0.996
+      ]
+    },
+    {
+      "exhibit": "seven_league_boots",
+      "status": "alternative",
+      "commons_file": "Le Petit Poucet (136548020).jpg",
+      "licence": "Public domain",
+      "credit": "Gustave Doré, illustration for Perrault's Le Petit Poucet, 1862",
+      "variant": "dore-boots-ogre",
+      "crop": [
+        0.4,
+        0.1,
+        0.95,
+        0.996
+      ]
+    },
+    {
+      "exhibit": "vasari_lives",
+      "variant": "vasari-title-page",
+      "status": "chosen",
+      "commons_file": "Vite.jpg",
+      "licence": "Public domain",
+      "credit": "Title page of Giorgio Vasari's Le vite de' piu eccellenti pittori, scultori e architettori, Florence, Giunti, 1568",
+      "crop": [
+        0.04,
+        0.02,
+        0.96,
+        0.92
+      ]
+    },
+    {
+      "exhibit": "vasari_lives",
+      "variant": "vasari-portrait-filippo-lippi",
+      "status": "alternative",
+      "commons_file": "Portret Fra Fillippo Lippi, RP-P-2004-73-105.jpg",
+      "licence": "CC0",
+      "credit": "Portrait of Fra Filippo Lippi from Giorgio Vasari's Le vite, Florence, Giunti, 1568",
+      "crop": [
+        0.2,
+        0.075,
+        0.78,
+        0.65
+      ]
+    },
+    {
+      "exhibit": "vasari_lives",
+      "variant": "vasari-title-page-top",
+      "status": "alternative",
+      "commons_file": "Vite.jpg",
+      "licence": "Public domain",
+      "credit": "Title page of Giorgio Vasari's Le vite de' piu eccellenti pittori, scultori e architettori, Florence, Giunti, 1568",
+      "crop": [
+        0.15,
+        0.0,
+        0.85,
+        0.7
+      ]
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "master-es-letter-a",
+      "status": "rejected",
+      "commons_file": "Maitre ES L. 283 lettre A Alphabet figure.jpg",
+      "licence": "Public domain",
+      "credit": "Master E.S., letter A from the Fantastic Alphabet, c. 1464–1467",
+      "crop": [
+        0.02,
+        0.0,
+        0.98,
+        1.0
+      ]
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "master-es-letter-a-wall",
+      "status": "rejected",
+      "commons_file": "Maitre ES L. 283 lettre A Alphabet figure.jpg",
+      "licence": "Public domain",
+      "credit": "Master E.S., letter A from the Fantastic Alphabet, c. 1464–1467",
+      "crop": [
+        0.02,
+        0.0,
+        0.98,
+        1.0
+      ],
+      "background": "wall"
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "master-es-letter-a-wall-detect",
+      "status": "rejected",
+      "commons_file": "Maitre ES L. 283 lettre A Alphabet figure.jpg",
+      "licence": "Public domain",
+      "credit": "Master E.S., letter A from the Fantastic Alphabet, c. 1464–1467",
+      "crop": [
+        0.02,
+        0.0,
+        0.98,
+        1.0
+      ],
+      "background": "wall-detect"
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "meckenem-letter-a-smb",
+      "status": "alternative",
+      "source_url": "https://search.smb.museum/media/images/originals/229/005/5229067.20035329.jpg",
+      "source_page": "https://id.smb.museum/object/1543315",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Israhel van Meckenem after Master E.S., the letter a from the Figure Alphabet, Kupferstichkabinett, Staatliche Museen zu Berlin, 92-1890; photo Volker-H. Schneider",
+      "crop": [
+        0.09,
+        0.08,
+        0.893,
+        0.85
+      ]
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "meckenem-letter-a-smb-mount",
+      "status": "alternative",
+      "source_url": "https://search.smb.museum/media/images/originals/229/005/5229067.20035329.jpg",
+      "source_page": "https://id.smb.museum/object/1543315",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Israhel van Meckenem after Master E.S., the letter a from the Figure Alphabet, Kupferstichkabinett, Staatliche Museen zu Berlin, 92-1890; photo Volker-H. Schneider",
+      "crop": [
+        0.02,
+        0.0,
+        0.98,
+        0.917
+      ]
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "meckenem-letter-a-smb-mount-wall",
+      "status": "rejected",
+      "source_url": "https://search.smb.museum/media/images/originals/229/005/5229067.20035329.jpg",
+      "source_page": "https://id.smb.museum/object/1543315",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Israhel van Meckenem after Master E.S., the letter a from the Figure Alphabet, Kupferstichkabinett, Staatliche Museen zu Berlin, 92-1890; photo Volker-H. Schneider",
+      "crop": [
+        0.02,
+        0.0,
+        0.98,
+        0.917
+      ],
+      "background": "wall"
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "meckenem-letter-a-smb-wall",
+      "status": "rejected",
+      "source_url": "https://search.smb.museum/media/images/originals/229/005/5229067.20035329.jpg",
+      "source_page": "https://id.smb.museum/object/1543315",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Israhel van Meckenem after Master E.S., the letter a from the Figure Alphabet, Kupferstichkabinett, Staatliche Museen zu Berlin, 92-1890; photo Volker-H. Schneider",
+      "crop": [
+        0.09,
+        0.08,
+        0.893,
+        0.85
+      ],
+      "background": "wall"
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "meckenem-letter-a-smb-mount-contrast",
+      "status": "alternative",
+      "source_url": "https://search.smb.museum/media/images/originals/229/005/5229067.20035329.jpg",
+      "source_page": "https://id.smb.museum/object/1543315",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Israhel van Meckenem after Master E.S., the letter a from the Figure Alphabet, Kupferstichkabinett, Staatliche Museen zu Berlin, 92-1890; photo Volker-H. Schneider",
+      "crop": [
+        0.02,
+        0.0,
+        0.98,
+        0.917
+      ],
+      "gamma": 1.7,
+      "cap": 0.97
+    },
+    {
+      "exhibit": "figure_alphabet",
+      "variant": "meckenem-letter-a-smb-mount-close",
+      "status": "chosen",
+      "source_url": "https://search.smb.museum/media/images/originals/229/005/5229067.20035329.jpg",
+      "source_page": "https://id.smb.museum/object/1543315",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Israhel van Meckenem after Master E.S., the letter a from the Figure Alphabet, Kupferstichkabinett, Staatliche Museen zu Berlin, 92-1890; photo Volker-H. Schneider",
+      "crop": [
+        0.06,
+        0.04,
+        0.94,
+        0.88
+      ],
+      "gamma": 1.6,
+      "cap": 0.97
+    },
+    {
+      "exhibit": "hortus_cliffortianus",
+      "status": "alternative",
+      "commons_file": "Linnaeus Hortus Cliffortianus frontispiece.jpg",
+      "licence": "Public domain",
+      "credit": "Jan Wandelaar, frontispiece of Carl Linnaeus's Hortus Cliffortianus, 1738",
+      "variant": "wandelaar-apollo-earth",
+      "crop": [
+        0.25,
+        0.4,
+        0.88,
+        0.874
+      ]
+    },
+    {
+      "exhibit": "hortus_cliffortianus",
+      "status": "alternative",
+      "commons_file": "Linnaeus Hortus Cliffortianus frontispiece.jpg",
+      "licence": "Public domain",
+      "credit": "Jan Wandelaar, frontispiece of Carl Linnaeus's Hortus Cliffortianus, 1738",
+      "variant": "wandelaar-bust-garden",
+      "crop": [
+        0.08,
+        0.14,
+        0.6,
+        0.53
+      ]
+    },
+    {
+      "exhibit": "hortus_cliffortianus",
+      "status": "chosen",
+      "commons_file": "Linnaeus Hortus Cliffortianus frontispiece.jpg",
+      "licence": "Public domain",
+      "credit": "Jan Wandelaar, frontispiece of Carl Linnaeus's Hortus Cliffortianus, 1738",
+      "variant": "wandelaar-wide",
+      "crop": [
+        0.068,
+        0.208,
+        0.9,
+        0.84
+      ]
+    },
+    {
+      "exhibit": "candle_moths",
+      "status": "chosen",
+      "source_url": "https://iiif.micr.io/FDVGW/full/max/0/default.jpg",
+      "source_page": "https://www.rijksmuseum.nl/en/collection/RP-P-OB-62.370",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Vincent Laurensz. van der Vinne (II), Flies come to the light of a candle, in Adriaan Spinniker, Leerzaame zinnebeelden, Haarlem 1714, Rijksmuseum RP-P-OB-62.370",
+      "variant": "van-der-vinne-candle",
+      "crop": [
+        0.17,
+        0.02,
+        0.755,
+        0.97
+      ]
+    },
+    {
+      "exhibit": "candle_moths",
+      "status": "alternative",
+      "source_url": "https://iiif.micr.io/FDVGW/full/max/0/default.jpg",
+      "source_page": "https://www.rijksmuseum.nl/en/collection/RP-P-OB-62.370",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Vincent Laurensz. van der Vinne (II), Flies come to the light of a candle, in Adriaan Spinniker, Leerzaame zinnebeelden, Haarlem 1714, Rijksmuseum RP-P-OB-62.370",
+      "variant": "van-der-vinne-candle-close",
+      "crop": [
+        0.25,
+        0.02,
+        0.68,
+        0.72
+      ]
+    },
+    {
+      "exhibit": "amateur_magnifier",
+      "status": "alternative",
+      "source_url": "https://iiif.micr.io/RUCAs/full/max/0/default.jpg",
+      "source_page": "https://www.rijksmuseum.nl/en/collection/RP-P-2015-26-183",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Honoré Daumier, Un véritable amateur, Les Bons Bourgeois no. 66, Le Charivari, 16 May 1847, Rijksmuseum RP-P-2015-26-183",
+      "variant": "daumier-amateur",
+      "crop": [
+        0.1,
+        0.1,
+        0.91,
+        0.843
+      ]
+    },
+    {
+      "exhibit": "amateur_magnifier",
+      "status": "chosen",
+      "source_url": "https://iiif.micr.io/RUCAs/full/max/0/default.jpg",
+      "source_page": "https://www.rijksmuseum.nl/en/collection/RP-P-2015-26-183",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Honoré Daumier, Un véritable amateur, Les Bons Bourgeois no. 66, Le Charivari, 16 May 1847, Rijksmuseum RP-P-2015-26-183",
+      "variant": "daumier-amateur-figure",
+      "crop": [
+        0.26,
+        0.21,
+        0.876,
+        0.775
+      ]
+    },
+    {
+      "exhibit": "amateur_magnifier",
+      "status": "alternative",
+      "source_url": "https://iiif.micr.io/RUCAs/full/max/0/default.jpg",
+      "source_page": "https://www.rijksmuseum.nl/en/collection/RP-P-2015-26-183",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Honoré Daumier, Un véritable amateur, Les Bons Bourgeois no. 66, Le Charivari, 16 May 1847, Rijksmuseum RP-P-2015-26-183",
+      "variant": "daumier-amateur-close",
+      "crop": [
+        0.47,
+        0.2,
+        0.83,
+        0.53
+      ]
+    },
+    {
+      "exhibit": "crystal_palace",
+      "status": "chosen",
+      "source_url": "https://iiif.micr.io/wPhKk/full/max/0/default.jpg",
+      "source_page": "https://www.rijksmuseum.nl/en/collection/RP-P-2018-839",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Charles Burton, Transept (external view) of the Industrial Palace, from Prince of Wales's Gate, London, Ackermann & Co., 1851, Rijksmuseum RP-P-2018-839",
+      "variant": "burton-transept",
+      "crop": [
+        0.23,
+        0.24,
+        0.52,
+        0.86
+      ]
+    },
+    {
+      "exhibit": "crystal_palace",
+      "status": "alternative",
+      "source_url": "https://iiif.micr.io/wPhKk/full/max/0/default.jpg",
+      "source_page": "https://www.rijksmuseum.nl/en/collection/RP-P-2018-839",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Charles Burton, Transept (external view) of the Industrial Palace, from Prince of Wales's Gate, London, Ackermann & Co., 1851, Rijksmuseum RP-P-2018-839",
+      "variant": "burton-transept-wide",
+      "crop": [
+        0.215,
+        0.18,
+        0.537,
+        0.87
+      ]
+    },
+    {
+      "exhibit": "crystal_palace",
+      "status": "alternative",
+      "source_url": "https://iiif.micr.io/tHMAM/full/max/0/default.jpg",
+      "source_page": "https://www.rijksmuseum.nl/en/collection/RP-P-2018-2036",
+      "licence": "Public Domain Mark 1.0",
+      "credit": "Anonymous, Interior of the Building of the Exhibition of all Nations, Hyde Park, London, Joseph Thomas Wood, 1851, Rijksmuseum RP-P-2018-2036",
+      "variant": "wood-interior",
+      "crop": [
+        0.245,
+        0.05,
+        0.756,
+        0.85
+      ]
+    },
+    {
+      "exhibit": "lenoir_chapel",
+      "status": "alternative",
+      "commons_file": "Seconde vue de la salle d'introduction. G.30766.jpg",
+      "licence": "CC0 1.0",
+      "credit": "Jean-Baptiste Réville and Jacques Lavallée after Jean-Lubin Vauzelle, Seconde vue de la salle d'introduction, Musée des monuments français, Paris Musées / Musée Carnavalet G.30766",
+      "variant": "introduction-centre",
+      "crop": [
+        0.2875,
+        0.1068,
+        0.7125,
+        0.7969
+      ]
+    },
+    {
+      "exhibit": "lenoir_chapel",
+      "status": "chosen",
+      "commons_file": "Seconde vue de la salle d'introduction. G.30766.jpg",
+      "licence": "CC0 1.0",
+      "credit": "Jean-Baptiste Réville and Jacques Lavallée after Jean-Lubin Vauzelle, Seconde vue de la salle d'introduction, Musée des monuments français, Paris Musées / Musée Carnavalet G.30766",
+      "variant": "introduction-left",
+      "crop": [
+        0.1667,
+        0.1068,
+        0.5917,
+        0.7969
+      ]
+    },
+    {
+      "exhibit": "lenoir_chapel",
+      "status": "alternative",
+      "commons_file": "Seconde vue de la salle d'introduction. G.30766.jpg",
+      "licence": "CC0 1.0",
+      "credit": "Jean-Baptiste Réville and Jacques Lavallée after Jean-Lubin Vauzelle, Seconde vue de la salle d'introduction, Musée des monuments français, Paris Musées / Musée Carnavalet G.30766",
+      "variant": "introduction-right",
+      "crop": [
+        0.4479,
+        0.1068,
+        0.8729,
+        0.7969
+      ]
+    },
+    {
+      "exhibit": "boncompagni_academy",
+      "status": "chosen",
+      "source_url": "https://images.metmuseum.org/CRDImages/dp/original/DP874315.jpg",
+      "source_page": "https://www.metmuseum.org/art/collection/search/369581",
+      "licence": "CC0 1.0",
+      "credit": "Cornelis Cort after Jan van der Straet (Stradanus), The Practice of the Noble Arts (The Practitioners of the Visual Arts), Rome, Lorenzo Vaccari, 1578, The Metropolitan Museum of Art 53.600.509",
+      "variant": "cort-workshop",
+      "crop": [
+        0.02,
+        0.03,
+        0.98,
+        0.888
+      ]
+    },
+    {
+      "exhibit": "boncompagni_academy",
+      "status": "alternative",
+      "source_url": "https://images.metmuseum.org/CRDImages/dp/original/DP874315.jpg",
+      "source_page": "https://www.metmuseum.org/art/collection/search/369581",
+      "licence": "CC0 1.0",
+      "credit": "Cornelis Cort after Jan van der Straet (Stradanus), The Practice of the Noble Arts (The Practitioners of the Visual Arts), Rome, Lorenzo Vaccari, 1578, The Metropolitan Museum of Art 53.600.509",
+      "variant": "cort-statuaria",
+      "crop": [
+        0.27,
+        0.03,
+        0.97,
+        0.655
+      ]
+    },
+    {
+      "exhibit": "boncompagni_academy",
+      "status": "alternative",
+      "source_url": "https://images.metmuseum.org/CRDImages/dp/original/DP874315.jpg",
+      "source_page": "https://www.metmuseum.org/art/collection/search/369581",
+      "licence": "CC0 1.0",
+      "credit": "Cornelis Cort after Jan van der Straet (Stradanus), The Practice of the Noble Arts (The Practitioners of the Visual Arts), Rome, Lorenzo Vaccari, 1578, The Metropolitan Museum of Art 53.600.509",
+      "variant": "cort-incisoria",
+      "crop": [
+        0.26,
+        0.33,
+        0.98,
+        0.973
       ]
     }
   ]

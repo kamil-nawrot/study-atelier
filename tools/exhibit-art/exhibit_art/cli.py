@@ -30,7 +30,8 @@ def sources_entry(v: Variant, tiers: TierSet) -> dict:
         "files": {t.name: f"{base}/{t.name}.png" for t in tiers.tiers},
         "source_crop": f"{base}/source-crop.jpg",
         "commons_file": v.commons_file,
-        "commons_url": "https://commons.wikimedia.org/wiki/File:" + urllib.parse.quote(v.commons_file.replace(" ", "_")),
+        "source_url": v.source_page
+        or "https://commons.wikimedia.org/wiki/File:" + urllib.parse.quote((v.commons_file or "").replace(" ", "_")),
         "licence": v.licence,
         "credit": v.credit,
     }
@@ -57,7 +58,7 @@ def selected(variants: list[Variant], only: list[str] | None) -> list[Variant]:
 
 def cmd_fetch(args: argparse.Namespace) -> None:
     for v in selected(load_manifest(Path(args.manifest), Path(args.sources)), args.only):
-        print(download(v.commons_file, v.job.source))
+        print(download(v.commons_file, v.job.source, source_url=v.source_url))
 
 
 def cmd_build(args: argparse.Namespace) -> None:
@@ -66,7 +67,7 @@ def cmd_build(args: argparse.Namespace) -> None:
     out = Path(args.out)
     for v in selected(variants, args.only):
         if args.fetch:
-            download(v.commons_file, v.job.source)
+            download(v.commons_file, v.job.source, source_url=v.source_url)
         write_set(v.job, tiers, out / v.exhibit / v.variant, True)
         print(f"{v.exhibit}/{v.variant}")
     meta = {
@@ -86,7 +87,7 @@ def cmd_publish(args: argparse.Namespace) -> None:
             continue
         v = variants[(exhibit, name)]
         if args.fetch:
-            download(v.commons_file, v.job.source)
+            download(v.commons_file, v.job.source, source_url=v.source_url)
         folder = out / exhibit
         folder.mkdir(parents=True, exist_ok=True)
         for tier, image in render(v.job, tiers).items():

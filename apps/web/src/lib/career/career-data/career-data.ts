@@ -42,6 +42,19 @@ export async function markTiersSeen(now: Date = new Date()): Promise<{ error?: s
 	return error ? { error: collectionErrorMessage(error) } : {};
 }
 
+export async function recordLongLook(): Promise<{ error?: string }> {
+	const { error } = await supabase.rpc('record_long_look');
+	return error ? { error: collectionErrorMessage(error) } : {};
+}
+
+export async function recordNightLight(): Promise<{ recorded: boolean; error?: string }> {
+	const { data, error } = await supabase.rpc('record_night_light', {
+		time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone
+	});
+	if (error) return { recorded: false, error: collectionErrorMessage(error) };
+	return { recorded: data === true };
+}
+
 export async function loadDisplayCase(): Promise<DisplayCaseResult> {
 	const counted = await unlockExhibits();
 	if (counted.error) return { exhibits: [], error: counted.error };

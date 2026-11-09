@@ -22,7 +22,13 @@ erDiagram
   ARTWORK ||--o{ REVIEW_CARD : "is reviewed as"
   REVIEW_CARD ||--o{ REVIEW_ANSWER : "logs"
   LEARNER ||--o{ EXHIBIT_TIER : "unlocks"
+  EXHIBIT ||--o{ EXHIBIT_TIER : "is unlocked as"
+  EXHIBIT_ROOM ||--|{ EXHIBIT : "holds"
   TIMELINE_EVENT }o--o{ SUBJECT : "is placed beside"
+  EXHIBITION ||--o{ BLOCK : "is told in"
+  BLOCK }o--o| ARTWORK : "shows"
+  BLOCK }o--o| IMAGE : "shows which image"
+  EXHIBITION }o--o{ ARTWORK : "shows (stored as rows)"
 ```
 
 ## Entities
@@ -42,7 +48,11 @@ erDiagram
 | TIMELINE_EVENT | a dated event on the timeline                                                     | `timeline_events`                                                                       |
 | REVIEW_CARD    | the scheduling state of one artwork facet                                         | `review_cards`                                                                          |
 | REVIEW_ANSWER  | one logged answer                                                                 | `review_log`, `free_review_days`                                                        |
+| EXHIBIT_ROOM   | a room of the display case, shared by all learners, in a fixed order              | `exhibit_rooms`                                                                         |
+| EXHIBIT        | an exhibit of the catalogue, shared by all learners: room, order, tiers, hidden   | `exhibits`; the value of each is computed in `private.exhibit_values`                   |
 | EXHIBIT_TIER   | an unlocked tier of the museum career                                             | `exhibit_tiers`, `point_events`                                                         |
+| EXHIBITION     | a learner's story: a title and one document of blocks, Archiwum state             | `exhibitions`                                                                           |
+| BLOCK          | a text, heading, quote, artwork or close-up of an exhibition, alone or in a row   | a node of `exhibitions.document` (TipTap JSON)                                          |
 
 ## Relations
 
@@ -54,6 +64,7 @@ Each relation of [access-patterns.yaml](access-patterns.yaml) `relations`, with 
 | period in era, style in period | `period_eras`, `style_periods`        | card index (R08)                          |
 | visit at place, visit saw      | `visits.place_id`, `visit_artworks`   | value page (R07), artwork page (R03)      |
 | pin explained by term          | `artwork_pins.glossary_entry_id`      | glossary entry (R10)                      |
+| exhibition shows artwork       | `exhibition_artworks`                 | "Na wystawach" (R25), list cover (R22)    |
 | note links to subject          | only as Markdown text `](/atelier/…)` | "Wspomniane w" on R03, R07, R13           |
 | note mentions term             | nowhere; matched in the browser       | "Pojawia się w notatkach" on R10          |
 

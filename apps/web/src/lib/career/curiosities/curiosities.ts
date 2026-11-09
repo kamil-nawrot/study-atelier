@@ -148,7 +148,49 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 		'https://www.theartnewspaper.com/2006/07/01/damien-hirst-in-talks-to-replace-rotting-shark',
 		'https://collection.sciencemuseumgroup.org.uk/objects/co8647838/six-silver-fabric-samples-from-wrapped-reichstag-by-christo-and-jeanne-claude'
 	],
-	pinacotheca: ['https://marquandrarebooks.princeton.edu/?p=245']
+	pinacotheca: ['https://marquandrarebooks.princeton.edu/?p=245'],
+	vasari_lives: [
+		'https://www.uffizi.it/en/artworks/vasari-giunti-en',
+		'https://www.rembrandthuis.nl/en/kronieken/rembrandts-etchings-for-menasseh-ben-israels-piedra-gloriosa-a-mystery-solved/',
+		'https://www.rijksmuseum.nl/en/press/press-releases/rijksmuseum-announces-list-of-vermeer-paintings',
+		'https://www.vam.ac.uk/articles/leonardo-da-vincis-notebooks',
+		'https://www.guinnessworldrecords.com/world-records/most-prolific-painter'
+	],
+	boncompagni_academy: [
+		'https://www.nationalgallery.org.uk/paintings/bronzino-the-madonna-and-child-with-saints',
+		'https://www.aadfi.it/accademia/',
+		'https://www.royalacademy.org.uk/art-artists/name/francesco-bartolozzi-ra',
+		'https://www.olympics.com/en/news/look-to-the-past-when-olympic-medals-were-awarded-for-architecture-music-and-lit',
+		'https://www.vam.ac.uk/articles/building-the-museum',
+		'https://www.vam.ac.uk/collections/photographs'
+	],
+	hortus_cliffortianus: [
+		'https://news.artnet.com/art-world/art-bites-first-museum-labels-2467975',
+		'https://www.musee-orsay.fr/en/artworks/arrangement-en-gris-et-noir-ndeg1-974',
+		'http://media.vam.ac.uk/media/documents/gallery_text_writing_guide_updated.pdf',
+		'https://iconclass.org/',
+		'https://blogs.loc.gov/manuscripts/2026/04/of-note-registering-the-dewey-decimal-system-at-the-library-of-congress/',
+		'https://presse.louvre.fr/le-musee-du-louvre-met-en-ligne-ses-collections-et-devoile-son-nouveau-site-internet-3/?lang=en'
+	],
+	trevi_fountain: [
+		'https://www.sovraintendenzaroma.it/i_luoghi/roma_antica/monumenti/acquedotto_vergine'
+	],
+	seven_league_boots: [
+		'https://essentiels.bnf.fr/fr/extrait/a4e7265f-26a5-43ff-9fb2-924a75411cd5-bottes-sept-lieues-tresor-petit-poucet'
+	],
+	crystal_palace: [
+		'https://www.royalparks.org.uk/read-watch-listen/great-exhibition-1851-hyde-park',
+		'https://www.getty.edu/education/for_teachers/curricula/impressionism/background1.html',
+		'https://www.tate.org.uk/art/art-terms/w/white-cube',
+		'https://www.fondazioneprada.org/project/when-attitudes-become-form/?lang=en',
+		'https://passerelles.essentiels.bnf.fr/fr/chronologie/construction/86975eb3-9f28-4e1a-bc88-e28bbfab0a26-tour-eiffel'
+	],
+	lenoir_chapel: [
+		'https://www.louvre.fr/en/exhibitions-and-events/exhibitions/a-revolutionary-museum'
+	],
+	figure_alphabet: ['https://www.metmuseum.org/art/collection/search/428829'],
+	candle_moths: ['https://www.rijksmuseum.nl/en/collection/RP-P-OB-62.370'],
+	amateur_magnifier: ['https://www.clevelandart.org/art/1927.208']
 };
 
 export function curiosityOf(exhibit: string, tier: number): Curiosity | undefined {

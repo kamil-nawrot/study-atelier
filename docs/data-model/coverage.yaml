@@ -177,6 +177,37 @@ changes:
     loses:
       - 'Seven more indexes to write on insert.'
 
+  - id: M5
+    name: Store exhibitions as one JSON document with rows of their artworks, and the palette per image
+    status: 'accepted 2026-11-06, ADR-0200; built in ATL-542, ATL-543 and ATL-454 (0.21)'
+    kind: schema
+    tables: [exhibitions, exhibition_artworks, artwork_images]
+    serves: [R03, R22, R23, R24, R25, W05, W06, W17, W18, W19, W20, W21, W22]
+    pull_requests: 3
+    risk: medium
+    risk_because: 'a new document format checked in SQL, autosave with a revision, and a new kind in Archiwum, the export and the import'
+    how: >
+      The document is TipTap JSON in exhibitions.document, saved whole by save_exhibition(id, title, document, revision).
+      The function checks the block whitelist and the limits, checks that every artworkId belongs to the owner, stores the
+      document, raises the revision and replaces the exhibition_artworks rows in one transaction, so "Na wystawach" and the
+      list cover are indexed reads (the rule of M1). The palette of an image is computed in the browser once and stored in
+      artwork_images.palette.
+    design:
+      - 'Blocks: text (paragraphs, lists and headings of level 3, ADR-0225), heading, quote, artwork, closeUp, set{2,5} of closeUps or of palettes (ADR-0219), divider with attr line, in the document or a column (ADR-0221, ADR-0224), term with attr termId, a reference to a glossary entry (ADR-0222), columns > column{2,3}; artwork attrs artworkId, imageId, palette, paletteOnly, note; closeUp attrs artworkId, imageId, x, y, viewWidth.'
+      - 'References by uuid: import_atelier keeps the ids, so an export round trip keeps every reference.'
+      - 'A purge cascades exhibition_artworks; the document keeps the id and the view shows the NoImage frame.'
+      - 'exhibitions.deleted_at puts an exhibition in Archiwum; reads of the list and of "Na wystawach" leave it out.'
+      - 'Limits: 200 exhibitions per owner (Archiwum counted), 300 blocks, 100 artworks and 512 KB of JSON per exhibition.'
+      - 'import_atelier inserts exhibitions and rebuilds exhibition_artworks at its end; an older export has none.'
+    cost:
+      - 'migration: two tables, RLS, limits, save_exhibition, exhibition_list, artwork_images.palette, export and import'
+      - 'SQL tests: save, stale revision, foreign artwork refused, purged artwork kept without a row, limits, Archiwum of an artwork and of an exhibition, purge, import of an old and a new export'
+      - 'database.types.ts generated, screenshot mocks for the new reads'
+    loses:
+      - 'The document is JSON, harder to read in an export than the Markdown of a note.'
+      - 'Every autosave sends the whole document.'
+      - 'The block format lives in the editor and in the whitelist of save_exhibition.'
+
 bugs:
   # Found by the review; they exist today, independent of the model, and are filed separately.
   - id: B1
@@ -313,6 +344,34 @@ alternatives:
     size: small
     gives: 'No wait on the first hover or tap, which matters on a phone; still read by ids with no filtering in the app.'
     loses: 'One request per note view even when no tooltip is opened; definitions of terms the learner never points at.'
+  - id: M6
+    name: Keep the exhibit catalogue with its rooms in tables
+    status: 'accepted 2026-11-08, ADR-0232; built in ATL-583 (0.21)'
+    kind: schema
+    tables: [exhibit_rooms, exhibits, exhibit_tiers]
+    serves: [R15, W14]
+    pull_requests: 1
+    risk: low
+    risk_because: 'two small reference tables and a foreign key over codes that were never renamed; one replaced function changes its return type'
+    how: >
+      exhibit_rooms (code, position) and exhibits (code, room, position in the room, thresholds, hidden) replace the
+      inline list of private.exhibit_values, its place column and the two lists of hidden exhibits, in
+      private.unlock_exhibits_for and in the app. private.exhibit_values only computes (code, value) and takes the
+      thresholds and the order from the catalogue. unlock_exhibits returns the room and hidden with every exhibit,
+      ordered by the room and the position, so the display case still makes one call. exhibit_tiers.exhibit
+      references exhibits.code.
+    design:
+      - 'Both tables are read by authenticated and written only by migrations, like eras; names and texts stay in pl.ts by code.'
+      - 'thresholds is a non-empty integer array; hidden is explicit, because a hidden exhibit may have a threshold above 1 (marathon, 1000).'
+      - 'unlock_exhibits returns (exhibit, room, hidden, value, thresholds); a bundle of the previous release reads the old three columns by name and ignores the new ones.'
+      - 'import_atelier skips exhibit_tiers rows whose exhibit is not in the catalogue, so an export made before an exhibit is removed still imports.'
+      - 'A SQL test requires the codes of the catalogue and of private.exhibit_values to be the same set, so an exhibit with no computed value fails in CI.'
+      - 'A new exhibit adds its catalogue row and its value in the same migration; a removed exhibit deletes its tiers before its row (no cascade).'
+    cost:
+      - 'migration with the catalogue of 30 exhibits and 7 rooms, private.exhibit_values, private.unlock_exhibits_for, unlock_exhibits and import_atelier replaced, database.types.ts generated'
+      - 'the app drops its list of hidden exhibits and reads hidden from unlock_exhibits'
+    loses:
+      - 'A deploy where the previous bundle shows the exhibits in the new order, still as one flat grid.'
 
 patterns:
   - { id: R01, today: 10, target: 5, model: none, also: [T1, T2] }
@@ -363,7 +422,7 @@ patterns:
   - { id: R12, today: 2, target: 2, model: none, also: [] }
   - { id: R13, today: 9, target: 'about 4', model: [M1, Q1], also: [Z5] }
   - { id: R14, today: 7, target: 'about 5', model: [Q1], also: [T1, T14] }
-  - { id: R15, today: 5, target: 3, model: none, also: [T2] }
+  - { id: R15, today: 5, target: 3, model: [M6], also: [T2] }
   - {
       id: R16,
       today: '0 / 8 / 9',
@@ -375,6 +434,16 @@ patterns:
   - { id: R18, today: 1, target: 1, model: none, also: [] }
   - { id: R19, today: 1, target: 1, model: none, also: [] }
   - { id: R20, today: 4, target: 1, model: none, also: [T2] }
+  - { id: R22, today: 'new', target: 1, model: [M5], also: [] }
+  - { id: R23, today: 'new', target: '2-3', model: [M5], also: [] }
+  - { id: R24, today: 'new', target: 'R23 + 1 recent + 1 per search pause', model: [M5], also: [] }
+  - {
+      id: R25,
+      today: 'new',
+      target: '0 inside the artwork page RPC, else 1',
+      model: [M5],
+      also: []
+    }
 
 writes:
   - {
@@ -438,8 +507,8 @@ writes:
   - {
       id: W14,
       today: 'unlock_exhibits on every start',
-      after: 'inside one career function (T2)',
-      model: none
+      after: 'inside one career function (T2); thresholds, order and hidden from the catalogue',
+      model: [M6]
     }
   - { id: W15, today: 'one row', after: 'unchanged', model: none }
   - {
@@ -454,6 +523,16 @@ writes:
       after: 'link rows stay through the trash and return on restore',
       model: [M1]
     }
+  - { id: W18, today: 'new', after: 'one insert', model: [M5] }
+  - {
+      id: W19,
+      today: 'new',
+      after: 'save_exhibition: document and its exhibition_artworks rows',
+      model: [M5]
+    }
+  - { id: W20, today: 'new', after: 'one update of deleted_at', model: [M5] }
+  - { id: W21, today: 'new', after: 'one update or delete, cascades its rows', model: [M5] }
+  - { id: W22, today: 'new', after: 'one update of artwork_images.palette', model: [M5] }
 
 decisions:
   - id: D1

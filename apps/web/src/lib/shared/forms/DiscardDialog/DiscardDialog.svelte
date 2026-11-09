@@ -6,9 +6,10 @@
 	type Props = {
 		changes: UnsavedChanges<T>;
 		description: string;
+		keepLabel?: string;
 	};
 
-	let { changes, description }: Props = $props();
+	let { changes, description, keepLabel = m.artworkForm.keepEditing }: Props = $props();
 </script>
 
 <Dialog
@@ -20,7 +21,7 @@
 >
 	{#snippet footer()}
 		<Button onclick={() => changes.answer(false)}>
-			{m.artworkForm.keepEditing}
+			{keepLabel}
 		</Button>
 		<Button onclick={() => changes.answer(true)} variant="primary">
 			{m.artworkForm.discard}

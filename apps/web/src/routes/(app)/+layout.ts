@@ -25,6 +25,8 @@ type AppLayoutData = {
 	menuProfile?: Promise<Profile | undefined>;
 	acceptedLegalVersion?: Promise<string | null | undefined>;
 	careerShown?: boolean;
+	nightLightRecorded?: boolean;
+	longLookRecorded?: boolean;
 	preferences?: Preferences;
 	ownProfile?: OwnProfileResult;
 };
@@ -48,6 +50,8 @@ export const load: LayoutLoad = async ({ parent, depends }): Promise<AppLayoutDa
 		menuProfile: Promise.resolve(own.error ? undefined : own.profile),
 		acceptedLegalVersion: Promise.resolve(own.legalVersion),
 		careerShown: own.profile.careerShown,
+		nightLightRecorded: own.nightLightRecorded,
+		longLookRecorded: own.longLookRecorded,
 		preferences: loaded,
 		ownProfile: own
 	};

@@ -62,6 +62,8 @@ begin
       values (artwork, field, 'text', 'A source');
     insert into public.glossary_entries (name, category) values ('Tympanum', 'architecture');
     insert into public.timeline_events (name, year_to) values ('War', 1648);
+    insert into public.exhibitions (title, document) values ('Exhibition', jsonb_build_object('type', 'doc', 'content',
+      jsonb_build_array(jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', artwork)))));
     insert into public.profiles (display_name) values ('Learner');
     insert into public.era_details (era_code, summary, notes) values ('early_modern', 'Era', 'See [x](/atelier/1).');
     insert into public.feedback (kind, title) values ('idea', 'An idea');

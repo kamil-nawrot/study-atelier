@@ -1,7 +1,7 @@
 {
 	"name": "@study-atelier/web",
 	"private": true,
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -49,6 +49,10 @@
 	"dependencies": {
 		"@sentry/svelte": "11.7.0",
 		"@supabase/supabase-js": "2.117.2",
+		"@tiptap/core": "^3.31.4",
+		"@tiptap/extension-list": "^3.31.4",
+		"@tiptap/pm": "^3.31.4",
+		"@tiptap/starter-kit": "^3.31.4",
 		"fflate": "0.8.3",
 		"ts-fsrs": "5.4.2"
 	}

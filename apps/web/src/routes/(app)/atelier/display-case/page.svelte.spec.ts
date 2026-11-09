@@ -39,11 +39,13 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 const exhibits: Exhibit[] = [
 	{
 		code: 'collection',
+		room: 'main_hall',
+		hidden: false,
 		value: 24,
 		thresholds: [1, 10, 50],
 		tiers: [{ exhibit: 'collection', tier: 1, unlockedAt: new Date(2026, 9, 1) }]
 	},
-	{ code: 'marathon', value: 0, thresholds: [1000], tiers: [] }
+	{ code: 'marathon', room: 'reading_room', hidden: true, value: 0, thresholds: [1000], tiers: [] }
 ];
 
 function renderDisplayCase(error?: string): void {

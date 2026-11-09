@@ -5,6 +5,8 @@ import {
 } from '#lib/images/own-image-data/own-image-data.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import type { StoredImage } from '#lib/images/types/stored-image.ts';
+import { storedPalette } from '#lib/images/palette/palette.ts';
+import type { Json } from '#lib/shared/data/database.types.ts';
 import type { ImageRow } from '#lib/images/types/image-row.ts';
 
 export const IMAGE_COLUMNS = [
@@ -49,11 +51,16 @@ export function imageRecord(image: StoredImage): ImageRow & { id?: string } {
 	return { ...imageColumns(image), ...(image.id ? { id: image.id } : {}) };
 }
 
-export function imageOf(row: ImageRow & { id?: string }): ArtworkImageInput | null {
+export function imageOf(
+	row: ImageRow & { id?: string; palette?: Json | null }
+): ArtworkImageInput | null {
 	const size = { width: row.image_width, height: row.image_height };
 	const id = row.id ? { id: row.id } : {};
-	if (row.own_image_path) return { kind: 'upload', path: row.own_image_path, ...size, ...id };
-	if (row.own_image_url) return { kind: 'url', url: row.own_image_url, ...size, ...id };
+	const colours = storedPalette(row.palette);
+	const palette = colours ? { palette: colours } : {};
+	if (row.own_image_path)
+		return { kind: 'upload', path: row.own_image_path, ...size, ...id, ...palette };
+	if (row.own_image_url) return { kind: 'url', url: row.own_image_url, ...size, ...id, ...palette };
 	if (row.source_wikidata_id && row.source_image_file) {
 		return {
 			kind: 'commons',
@@ -63,7 +70,8 @@ export function imageOf(row: ImageRow & { id?: string }): ArtworkImageInput | nu
 			licenceUrl: row.source_image_licence_url,
 			attribution: row.source_image_attribution,
 			...size,
-			...id
+			...id,
+			...palette
 		};
 	}
 	return null;

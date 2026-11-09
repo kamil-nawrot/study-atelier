@@ -15,10 +15,13 @@ export type OwnProfileResult = {
 	profile: Profile;
 	legalVersion: string | null | undefined;
 	eraBounds: number[] | null;
+	nightLightRecorded: boolean;
+	longLookRecorded: boolean;
 	error?: string;
 };
 
-const COLUMNS = `${PREFERENCES_COLUMNS}, ${PROFILE_COLUMNS}, legal_version, era_bounds` as const;
+const COLUMNS =
+	`${PREFERENCES_COLUMNS}, ${PROFILE_COLUMNS}, legal_version, era_bounds, night_light_at, long_look_at` as const;
 
 export async function loadOwnProfile(): Promise<OwnProfileResult> {
 	const { data, error } = await supabase.from('profiles').select(COLUMNS).maybeSingle();
@@ -28,6 +31,8 @@ export async function loadOwnProfile(): Promise<OwnProfileResult> {
 			profile: emptyProfile,
 			legalVersion: undefined,
 			eraBounds: null,
+			nightLightRecorded: false,
+			longLookRecorded: false,
 			error: profileErrorMessage(error)
 		};
 	}
@@ -35,6 +40,8 @@ export async function loadOwnProfile(): Promise<OwnProfileResult> {
 		preferences: preferencesOf(data),
 		profile: profileOf(data),
 		legalVersion: data?.legal_version ?? null,
-		eraBounds: data?.era_bounds ?? null
+		eraBounds: data?.era_bounds ?? null,
+		nightLightRecorded: Boolean(data?.night_light_at),
+		longLookRecorded: Boolean(data?.long_look_at)
 	};
 }

@@ -34,6 +34,10 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 }));
 
 vi.mock('#lib/feedback/feedback-data/feedback-data.ts', () => ({ sendFeedback: vi.fn() }));
+vi.mock('#lib/career/career-data/career-data.ts', async (original) => ({
+	...(await original<typeof import('#lib/career/career-data/career-data.ts')>()),
+	recordNightLight: vi.fn().mockResolvedValue({})
+}));
 
 const signOut = vi.mocked(supabase.auth.signOut);
 
@@ -114,7 +118,7 @@ describe('AtelierLayout', () => {
 		expect(getComputedStyle(document.documentElement).overflow).toBe('hidden');
 	});
 
-	it('puts the glossary after the card index and the chronicle between the timeline and the reviews, and marks the glossary on its pages', async () => {
+	it('puts the glossary after the card index and the chronicle between the timeline and the exhibitions, and marks the glossary on its pages', async () => {
 		await page.viewport(1280, 800);
 		pageState.url = new URL('http://localhost/atelier/glossary/some-entry');
 		renderLayout(views.empty);
@@ -125,12 +129,13 @@ describe('AtelierLayout', () => {
 			.querySelectorAll('a');
 		const names = [...links].map((link) => link.textContent?.trim() ?? '');
 
-		expect(names.slice(1, 7)).toEqual([
+		expect(names.slice(1, 8)).toEqual([
 			m.menu.atelier,
 			m.menu.cardIndex,
 			m.menu.glossary,
 			m.menu.timeline,
 			m.menu.chronicle,
+			m.menu.exhibitions,
 			m.menu.review
 		]);
 		await expect
@@ -178,7 +183,7 @@ describe('AtelierLayout', () => {
 		await expect.element(page.getByRole('button', { name: m.menu.lightTheme })).toBeInTheDocument();
 	});
 
-	it('links to the reviews between the chronicle and the trash, with the number waiting today only in the expanded rail', async () => {
+	it('links to the reviews between the exhibitions and the trash, with the number waiting today only in the expanded rail', async () => {
 		await page.viewport(1280, 800);
 		pageState.data = { reviewWaiting: Promise.resolve(14) };
 		renderLayout(views.empty);
@@ -196,9 +201,23 @@ describe('AtelierLayout', () => {
 		const names = [...rail.element().querySelectorAll('a')].map((item) =>
 			item.querySelector('.label')?.textContent?.trim()
 		);
-		expect(names.indexOf(m.menu.chronicle) + 1).toBe(
+		expect(names.indexOf(m.menu.exhibitions) + 1).toBe(
 			names.findIndex((name) => name?.startsWith(m.menu.review))
 		);
+	});
+
+	it('links to the exhibitions right after the chronicle', async () => {
+		await page.viewport(1280, 800);
+		renderLayout(views.empty);
+
+		const rail = page.getByRole('navigation', { name: m.menu.label });
+		await expect
+			.element(rail.getByRole('link', { name: m.menu.exhibitions }))
+			.toHaveAttribute('href', '/atelier/exhibitions');
+		const names = [...rail.element().querySelectorAll('a')].map((item) =>
+			item.querySelector('.label')?.textContent?.trim()
+		);
+		expect(names.indexOf(m.menu.chronicle) + 1).toBe(names.indexOf(m.menu.exhibitions));
 	});
 
 	it('links to the display case right after the reviews', async () => {
