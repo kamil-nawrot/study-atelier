@@ -2,6 +2,7 @@
 	import Plus from '@lucide/svelte/icons/plus';
 	import ScrollText from '@lucide/svelte/icons/scroll-text';
 	import { onMount } from 'svelte';
+	import { MediaQuery } from 'svelte/reactivity';
 	import { Alert, Button, EmptyState, Icon, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -18,6 +19,7 @@
 	let { data }: PageProps = $props();
 
 	const images = new WallImages();
+	const wide = new MediaQuery('min-width: 768px');
 
 	let toast: Toast;
 	let adding = $state(false);
@@ -52,12 +54,11 @@
 
 <AtelierLayout email={data.session.user.email ?? ''} title={m.exhibitions.title}>
 	{#snippet bar()}
-		{#if !data.error}
+		{#if !data.error && wide.current}
 			<div class="actions">
 				<Button disabled={adding} onclick={() => (naming = true)} variant="primary">
 					<Icon icon={Plus} size="sm" />
-					<span class="long">{adding ? m.exhibitions.adding : m.exhibitions.add}</span>
-					<span class="short">{m.common.add}</span>
+					{adding ? m.exhibitions.adding : m.exhibitions.add}
 				</Button>
 			</div>
 		{/if}
@@ -118,23 +119,5 @@
 
 	.caption {
 		font-variant-numeric: tabular-nums;
-	}
-
-	.short {
-		display: inline;
-	}
-
-	.long {
-		display: none;
-	}
-
-	@media (min-width: 768px) {
-		.short {
-			display: none;
-		}
-
-		.long {
-			display: inline;
-		}
 	}
 </style>

@@ -25,6 +25,12 @@ export function exhibitionErrorMessage(error: ServiceError): string {
 	return byCode(error);
 }
 
+const LASTING_CODES = new Set(['P0002', 'PGRST116', '23502', '23514', ROW_LIMIT_CODE]);
+
+export function isLastingSaveError(error: ServiceError): boolean {
+	return error.code !== undefined && LASTING_CODES.has(error.code);
+}
+
 export function isRevisionConflict(error: ServiceError): boolean {
 	return error.code === '40001' && error.hint === 'exhibition_revision';
 }

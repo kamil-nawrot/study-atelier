@@ -311,6 +311,41 @@ describe('ExhibitionEditorPane', () => {
 		expect(given.document.content).toEqual([]);
 	});
 
+	it('says the images could not be loaded instead of blaming the palette', async () => {
+		vi.mocked(loadArtworkImages).mockResolvedValue({ images: new Map(), error: 'Boom' });
+		const given = session(doc());
+		const { component } = await render(ExhibitionEditorPane, {
+			session: given,
+			lookup: lookup(),
+			barHeight: 80
+		});
+
+		component.add({ kind: 'palette', artworkId: 'artwork-2' });
+
+		await expect.element(page.getByText('Boom')).toBeInTheDocument();
+		expect(page.getByText(m.exhibitions.limits.noPalette).query()).toBeNull();
+		expect(given.document.content).toEqual([]);
+	});
+
+	it('waits for the images already on their way before it reads the palette', async () => {
+		let answer: (value: Awaited<ReturnType<typeof loadArtworkImages>>) => void = () => {};
+		vi.mocked(loadArtworkImages).mockReturnValue(new Promise((resolve) => (answer = resolve)));
+		const given = session(doc());
+		const shared = lookup();
+		void shared.wantPictures('artwork-2');
+		const { component } = await render(ExhibitionEditorPane, {
+			session: given,
+			lookup: shared,
+			barHeight: 80
+		});
+
+		component.add({ kind: 'palette', artworkId: 'artwork-2' });
+		answer({ images: new Map([['artwork-2', [picture]]]) });
+
+		await vi.waitFor(() => expect(kinds(given)).toEqual(['artwork']));
+		expect(loadArtworkImages).toHaveBeenCalledTimes(1);
+	});
+
 	it('asks for a pin before it adds a detail', async () => {
 		loadArtworkPins.mockResolvedValue({ pins: [] });
 		const given = session(doc());
@@ -411,6 +446,21 @@ describe('ExhibitionEditorPane', () => {
 		await given.flush();
 
 		await expect.element(page.getByText(m.exhibitions.save.conflict)).toBeInTheDocument();
+	});
+
+	it('says why the database refused to save the exhibition', async () => {
+		const given = session();
+		vi.mocked(saveExhibition).mockResolvedValue({
+			error: m.exhibitions.errors.notFound,
+			rejected: true
+		});
+		render(ExhibitionEditorPane, { session: given, lookup: lookup(), barHeight: 80 });
+
+		given.rename('Dark');
+		await given.flush();
+
+		await expect.element(page.getByText(m.exhibitions.errors.notFound)).toBeInTheDocument();
+		await expect.element(page.getByText(m.exhibitions.save.limitTitle)).toBeInTheDocument();
 	});
 
 	it('tells the learner when the exhibition is full and adds nothing', async () => {

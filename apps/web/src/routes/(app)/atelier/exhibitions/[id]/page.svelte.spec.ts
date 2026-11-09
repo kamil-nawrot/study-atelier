@@ -4,6 +4,8 @@ import { render } from 'vitest-browser-svelte';
 import { beforeNavigate, goto } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
 import { saveExhibition } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
+import { loadArtworksWithNotes } from '#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts';
+import { artwork, doc, textBlock } from '#lib/testing/exhibitions/exhibitions.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import ExhibitionPage from './+page.svelte';
 
@@ -120,6 +122,14 @@ describe('exhibition page', () => {
 		await expect
 			.element(page.getByRole('heading', { name: m.exhibitions.deleteConfirm.title('Light') }))
 			.toBeInTheDocument();
+	});
+
+	it('learns which artworks of the document have notes, not only those loaded with it', async () => {
+		renderExhibition({
+			exhibition: { ...exhibition, document: doc(textBlock('Soft'), artwork('artwork-9')) }
+		});
+
+		await vi.waitFor(() => expect(loadArtworksWithNotes).toHaveBeenCalledWith(['artwork-9']));
 	});
 
 	it('tells when there is no such exhibition', async () => {
@@ -240,6 +250,23 @@ describe('exhibition page', () => {
 			window.dispatchEvent(event);
 
 			expect(event.defaultPrevented).toBe(true);
+		});
+
+		it('asks before leaving changes that could not be saved', async () => {
+			vi.mocked(saveExhibition).mockResolvedValueOnce({ error: 'Offline' });
+			const leave = await editAndChange();
+			leave({ willUnload: false, cancel: vi.fn() });
+			await expect.element(page.getByText(m.exhibitions.save.failed)).toBeInTheDocument();
+			const calls = vi.mocked(beforeNavigate).mock.calls;
+			const guard = calls[calls.length - 2][0] as (navigation: unknown) => void;
+			const cancel = vi.fn();
+
+			guard({ type: 'link', to: { url: new URL('http://localhost/atelier') }, cancel });
+
+			expect(cancel).toHaveBeenCalled();
+			await expect
+				.element(page.getByRole('heading', { name: m.artworkForm.discardTitle }))
+				.toBeInTheDocument();
 		});
 
 		it('does not hold the page back when everything is saved', async () => {

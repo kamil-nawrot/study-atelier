@@ -11,6 +11,7 @@ describe('SaveStatusText', () => {
 		['saved', m.exhibitions.save.saved],
 		['failed', m.exhibitions.save.failed],
 		['conflict', m.exhibitions.save.conflictTitle],
+		['rejected', m.exhibitions.save.limitTitle],
 		['untitled', m.exhibitions.save.untitled]
 	] as const)('says what happens with the changes when they are %s', async (status, text) => {
 		render(SaveStatusText, { status });

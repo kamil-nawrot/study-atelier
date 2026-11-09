@@ -140,7 +140,7 @@ describe('CloseUpDialog', () => {
 		await expect.element(page.getByText(m.exhibitions.closeUpDialog.loadError)).toBeInTheDocument();
 	});
 
-	it('waits for an artwork it does not know yet', async () => {
+	it('says it cannot load the pins of an artwork it does not know', async () => {
 		loadArtworkPins.mockClear();
 		render(CloseUpDialog, {
 			open: true,
@@ -149,8 +149,48 @@ describe('CloseUpDialog', () => {
 			onpick: vi.fn()
 		});
 
-		await expect.element(page.getByText(m.exhibitions.closeUpDialog.loading)).toBeInTheDocument();
+		await expect.element(page.getByText(m.exhibitions.closeUpDialog.loadError)).toBeInTheDocument();
 		expect(loadArtworkPins).not.toHaveBeenCalled();
+	});
+
+	it('says when the images could not be loaded', async () => {
+		loadArtworkPins.mockResolvedValue({ pins: [pin('p1', 'Dłoń')] });
+		loadArtworkImages.mockResolvedValue({ images: new Map(), error: 'Boom' });
+		const lookup = new ArtworkLookup();
+		lookup.add([testArtwork(7, 'Judith')]);
+		render(CloseUpDialog, { open: true, lookup, artworkId: 'artwork-7', onpick: vi.fn() });
+
+		await expect.element(page.getByText(m.exhibitions.closeUpDialog.loadError)).toBeInTheDocument();
+	});
+
+	it('shows the pins of the artwork asked for last, whichever answer comes first', async () => {
+		let answerFirst: (value: unknown) => void = () => {};
+		loadArtworkPins.mockClear();
+		loadArtworkPins
+			.mockReturnValueOnce(new Promise((resolve) => (answerFirst = resolve)))
+			.mockResolvedValueOnce({ pins: [] });
+		loadArtworkImages.mockResolvedValue({
+			images: new Map([
+				['artwork-7', [picture]],
+				['artwork-8', [picture]]
+			])
+		});
+		const lookup = new ArtworkLookup();
+		lookup.add([testArtwork(7, 'Judith'), testArtwork(8, 'Olympia')]);
+		const { rerender } = await render(CloseUpDialog, {
+			open: true,
+			lookup,
+			artworkId: 'artwork-7',
+			onpick: vi.fn()
+		});
+
+		await rerender({ artworkId: 'artwork-8' });
+		await expect.element(page.getByText(m.exhibitions.closeUpDialog.noPins)).toBeInTheDocument();
+		answerFirst({ pins: [pin('p1', 'Dłoń')] });
+
+		await expect.element(page.getByText(m.exhibitions.closeUpDialog.noPins)).toBeInTheDocument();
+		expect(page.getByRole('button', { name: 'Dłoń' }).query()).toBeNull();
+		expect(loadArtworkPins).toHaveBeenCalledTimes(2);
 	});
 
 	it('closes with Cancel', async () => {

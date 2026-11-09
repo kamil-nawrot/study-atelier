@@ -107,7 +107,11 @@
 
 	async function readablePalette(artworkId: string): Promise<ExhibitionDocument | undefined> {
 		limit = undefined;
-		await lookup.wantPictures(artworkId);
+		const loaded = await lookup.wantPictures(artworkId, true);
+		if (loaded.error) {
+			limit = loaded.error;
+			return undefined;
+		}
 		const pictures = lookup.pictures(artworkId);
 		const image = pictures?.[0];
 		const result = image ? await paletteOf(image) : undefined;
@@ -217,6 +221,8 @@
 		<Alert title={m.exhibitions.save.conflictTitle} tone="danger">
 			{m.exhibitions.save.conflict}
 		</Alert>
+	{:else if session.status === 'rejected'}
+		<Alert title={m.exhibitions.save.limitTitle} tone="danger">{session.error}</Alert>
 	{:else if limit}
 		<Alert tone="warning">{limit}</Alert>
 	{/if}
