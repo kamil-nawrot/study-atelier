@@ -52,7 +52,7 @@ describe('ArtworkExhibitions', () => {
 		await expect
 			.element(page.getByRole('link', { name: /Light/ }))
 			.toHaveAttribute('href', '/atelier/exhibitions/e1');
-		await expect.element(page.getByText(m.exhibitions.artworkCount(5))).toBeVisible();
+		expect(document.body.textContent).not.toContain(m.exhibitions.artworkCount(5));
 		expect(document.querySelectorAll('img')).toHaveLength(1);
 	});
 });
