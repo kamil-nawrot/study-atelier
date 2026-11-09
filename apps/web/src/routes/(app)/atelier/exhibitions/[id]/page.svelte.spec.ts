@@ -4,6 +4,8 @@ import { render } from 'vitest-browser-svelte';
 import { beforeNavigate, goto } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
 import { saveExhibition } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
+import { loadArtworksWithNotes } from '#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts';
+import { artwork, doc, textBlock } from '#lib/testing/exhibitions/exhibitions.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import ExhibitionPage from './+page.svelte';
 
@@ -120,6 +122,14 @@ describe('exhibition page', () => {
 		await expect
 			.element(page.getByRole('heading', { name: m.exhibitions.deleteConfirm.title('Light') }))
 			.toBeInTheDocument();
+	});
+
+	it('learns which artworks of the document have notes, not only those loaded with it', async () => {
+		renderExhibition({
+			exhibition: { ...exhibition, document: doc(textBlock('Soft'), artwork('artwork-9')) }
+		});
+
+		await vi.waitFor(() => expect(loadArtworksWithNotes).toHaveBeenCalledWith(['artwork-9']));
 	});
 
 	it('tells when there is no such exhibition', async () => {

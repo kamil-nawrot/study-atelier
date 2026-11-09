@@ -17,6 +17,7 @@
 	import ExhibitionEditorPane from '#lib/exhibitions/components/ExhibitionEditorPane/ExhibitionEditorPane.svelte';
 	import SaveStatusText from '#lib/exhibitions/components/SaveStatusText/SaveStatusText.svelte';
 	import { addArtworkHref } from '#lib/exhibitions/exhibition-return/exhibition-return.ts';
+	import { artworkIdsOf } from '#lib/exhibitions/exhibition-document/exhibition-document.ts';
 	import { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 	import { ExhibitionSession } from '#lib/exhibitions/exhibition-session/exhibition-session.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -48,7 +49,7 @@
 
 	$effect(() => lookup.add(data.artworks));
 	$effect(() => {
-		if (!editing) void lookup.checkNotes(data.artworks.map((artwork) => artwork.id));
+		if (session && !editing) void lookup.checkNotes(artworkIdsOf(session.document));
 	});
 	$effect(() => () => session?.destroy());
 	$effect(() => writeStored('local', PANEL_KEY, panelOpen ? 'open' : 'closed'));
