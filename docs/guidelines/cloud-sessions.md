@@ -20,25 +20,25 @@ pnpm screenshot /atelier --combine
 
 Starts the dev server on port 5199, opens the route in Chromium at a desktop (1440 x 900) and a phone (390 x 844, 2x) viewport and writes PNGs to `tmp/screenshots/` (ignored by git). Options:
 
-| Option              | Effect                                                                                                                                                                           |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--out <dir>`       | Output folder, for example a folder in the project files                                                                                                                         |
-| `--name <name>`     | File name prefix (default derived from the route)                                                                                                                                |
-| `--viewport <v>`    | `desktop`, `wide` (1920 x 1000, wide enough for the period rail), `phone` or `both` (default)                                                                                    |
-| `--combine`         | Also write `<name>-both.png` with both shots side by side                                                                                                                        |
-| `--full-page`       | Capture the whole page instead of the first screen                                                                                                                               |
-| `--signed-out`      | No fake session (automatic for sign-in, sign-up and password pages)                                                                                                              |
-| `--storage k=v`     | Set a localStorage entry first, for example `study-atelier:wall-order=year`                                                                                                      |
-| `--session k=v`     | Set a sessionStorage entry first, for example the wall sequence that gives the artwork view its arrows: `'study-atelier:wall-sequence={"query":"","numbers":[9,3,1]}'`           |
-| `--wait <selector>` | Wait for a selector before capturing                                                                                                                                             |
-| `--type <text>`     | Click the notes editor and type this text first, for example `' @ba'` to open the link suggestions                                                                               |
-| `--script <file>`   | Run a JavaScript file in the page first, for example to mock an option; a relative path is read from `apps/web`, so pass an absolute one for a file elsewhere                    |
-| `--steps <file>`    | Run the default export of a JavaScript module with the Playwright `page` first, for a flow across navigations (clicks, `page.goBack()`); a relative path is read from `apps/web` |
-| `--repeat <n>`      | Show every sample artwork n times, to have more to scroll through                                                                                                                |
-| `--empty`           | Show an empty atelier: no artworks, values, glossary entries, events, visits or trash, for the empty states of the views                                                         |
-| `--scroll`          | Also write a GIF that scrolls the page from top to bottom (`<name>-<viewport>-scroll.gif`, needs ffmpeg)                                                                         |
-| `--log-requests`    | Write the Supabase requests of each viewport to `<name>-<viewport>-requests.json` and print them per phase (the load, then `--steps`), shell and view, with payload sizes        |
-| `--url <base>`      | Use a dev server that is already running                                                                                                                                         |
+| Option              | Effect                                                                                                                                                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--out <dir>`       | Output folder, for example a folder in the project files                                                                                                                                               |
+| `--name <name>`     | File name prefix (default derived from the route)                                                                                                                                                      |
+| `--viewport <v>`    | `desktop`, `wide` (1920 x 1000, wide enough for the period rail), `phone` or `both` (default)                                                                                                          |
+| `--combine`         | Also write `<name>-both.png` with both shots side by side; with `--full-page`, both whole pages at their CSS size, the shorter one filled to the height of the taller in the colour of its bottom edge |
+| `--full-page`       | Capture the whole page instead of the first screen                                                                                                                                                     |
+| `--signed-out`      | No fake session (automatic for sign-in, sign-up and password pages)                                                                                                                                    |
+| `--storage k=v`     | Set a localStorage entry first, for example `study-atelier:wall-order=year`                                                                                                                            |
+| `--session k=v`     | Set a sessionStorage entry first, for example the wall sequence that gives the artwork view its arrows: `'study-atelier:wall-sequence={"query":"","numbers":[9,3,1]}'`                                 |
+| `--wait <selector>` | Wait for a selector before capturing                                                                                                                                                                   |
+| `--type <text>`     | Click the notes editor and type this text first, for example `' @ba'` to open the link suggestions                                                                                                     |
+| `--script <file>`   | Run a JavaScript file in the page first, for example to mock an option; a relative path is read from `apps/web`, so pass an absolute one for a file elsewhere                                          |
+| `--steps <file>`    | Run the default export of a JavaScript module with the Playwright `page` first, for a flow across navigations (clicks, `page.goBack()`); a relative path is read from `apps/web`                       |
+| `--repeat <n>`      | Show every sample artwork n times, to have more to scroll through                                                                                                                                      |
+| `--empty`           | Show an empty atelier: no artworks, values, glossary entries, events, visits or trash, for the empty states of the views                                                                               |
+| `--scroll`          | Also write a GIF that scrolls the page from top to bottom (`<name>-<viewport>-scroll.gif`, needs ffmpeg)                                                                                               |
+| `--log-requests`    | Write the Supabase requests of each viewport to `<name>-<viewport>-requests.json` and print them per phase (the load, then `--steps`), shell and view, with payload sizes                              |
+| `--url <base>`      | Use a dev server that is already running                                                                                                                                                               |
 
 A question that a review session places at random, such as the year question, is reached with the steps in `scripts/screenshot/steps/`: `reachQuestion(page, heading)` from `review-until.mjs` starts a session and answers until that question shows, `review-year.mjs` and `review-year-answered.mjs` capture the year question before and after its answer, `review-order.mjs` and `review-order-answered.mjs` the order question, `review-typed.mjs` and `review-typed-answered.mjs` the title typed from memory, and `review-note.mjs` and `review-note-answered.mjs` the gap in a note, for example `pnpm screenshot /atelier/review --steps scripts/screenshot/steps/review-year.mjs --combine`. A new question kind adds its own steps file next to them.
 
@@ -67,4 +67,3 @@ A design thread can draw a view that does not exist yet in the app itself, so th
 
 - Do not kill the dev server with `pkill -f 'vite dev'` from a command whose own text contains the same pattern: it kills the shell. The script stops the server it started by itself.
 - `pnpm check` rewrites `.svelte-kit` env; a dev server that was already running then signs the fake session out. Start the screenshot after the check, or let the script start its own server.
-- `--combine` with `--full-page` writes a broken image (1000 x 1000) when the desktop and phone pages have different heights. Until [ATL-549](https://linear.app/kamil-nawrot/issue/ATL-549) is fixed, capture each viewport with `--full-page` alone and put them side by side yourself.

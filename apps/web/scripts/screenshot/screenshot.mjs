@@ -1318,27 +1318,48 @@ async function recordScroll(browser, base, options, name) {
 	return target;
 }
 
-async function combine(browser, files, target) {
-	const context = await browser.newContext({ viewport: { width: 1000, height: 1000 } });
+async function combine(browser, files, target, fullPage) {
+	const context = await browser.newContext({ viewport: { width: 100, height: 100 } });
 	const page = await context.newPage();
 	const images = files
-		.map((file) => `<img src="data:image/png;base64,${readFileSync(file).toString('base64')}">`)
+		.map(
+			(file) =>
+				`<div><img style="display:block" src="data:image/png;base64,${readFileSync(file).toString('base64')}"></div>`
+		)
 		.join('');
 	await page.setContent(
-		`<body style="margin:0;display:flex;gap:24px;align-items:flex-start;background:#111;padding:24px;width:max-content">${images}</body><style>html{background:#111}</style>`
+		`<!doctype html><body style="margin:0;display:flex;gap:24px;align-items:flex-start;background:#111;padding:24px;width:max-content">${images}</body><style>html{background:#111}</style>`
 	);
 	await page.evaluate(() => Promise.all([...document.images].map((img) => img.decode())));
-	await page.evaluate(() => {
-		const [desktop, phone] = document.images;
-		if (!phone) return;
-		const height = Math.min(desktop.naturalHeight, 900);
-		desktop.style.height = `${height}px`;
-		phone.style.height = `${height}px`;
+	const scales = [VIEWPORTS.desktop.deviceScaleFactor, VIEWPORTS.phone.deviceScaleFactor];
+	await page.evaluate(
+		([fullPage, scales]) => {
+			const [desktop, phone] = document.images;
+			if (!fullPage) {
+				const height = Math.min(desktop.naturalHeight, 900);
+				desktop.style.height = `${height}px`;
+				phone.style.height = `${height}px`;
+				return;
+			}
+			const height = Math.max(desktop.naturalHeight / scales[0], phone.naturalHeight / scales[1]);
+			[desktop, phone].forEach((img, index) => {
+				img.style.width = `${img.naturalWidth / scales[index]}px`;
+				img.parentElement.style.height = `${height}px`;
+				const canvas = document.createElement('canvas');
+				canvas.width = 1;
+				canvas.height = 1;
+				const context = canvas.getContext('2d');
+				context.drawImage(img, 0, img.naturalHeight - 1, 1, 1, 0, 0, 1, 1);
+				const [red, green, blue] = context.getImageData(0, 0, 1, 1).data;
+				img.parentElement.style.background = `rgb(${red}, ${green}, ${blue})`;
+			});
+		},
+		[Boolean(fullPage), scales]
+	);
+	const size = await page.evaluate(() => {
+		const { width, height } = document.body.getBoundingClientRect();
+		return { width: Math.ceil(width), height: Math.ceil(height) };
 	});
-	const size = await page.evaluate(() => ({
-		width: Math.ceil(document.body.scrollWidth),
-		height: Math.ceil(document.body.scrollHeight)
-	}));
 	await page.setViewportSize(size);
 	await page.screenshot({ path: target, fullPage: true });
 	await context.close();
@@ -1372,7 +1393,7 @@ async function main() {
 		}
 		if (options.combine && files.length === 2) {
 			const target = path.join(options.out, `${options.name}-both.png`);
-			await combine(browser, files, target);
+			await combine(browser, files, target, options.fullPage);
 			files.push(target);
 		}
 		for (const file of files) process.stdout.write(`${file}\n`);
