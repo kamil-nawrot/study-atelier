@@ -104,7 +104,11 @@
 
 	async function readablePalette(artworkId: string): Promise<ExhibitionDocument | undefined> {
 		limit = undefined;
-		await lookup.wantPictures(artworkId);
+		const loaded = await lookup.wantPictures(artworkId, true);
+		if (loaded.error) {
+			limit = loaded.error;
+			return undefined;
+		}
 		const pictures = lookup.pictures(artworkId);
 		const image = pictures?.[0];
 		const result = image ? await paletteOf(image) : undefined;

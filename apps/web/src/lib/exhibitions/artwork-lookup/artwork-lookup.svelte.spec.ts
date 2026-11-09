@@ -143,14 +143,56 @@ describe('ArtworkLookup', () => {
 		expect(lookup.pictures('unknown')).toEqual([]);
 	});
 
-	it('asks again for the images after a failure', async () => {
-		vi.mocked(loadArtworkImages).mockResolvedValue({ images: new Map(), error: 'Boom' });
+	it('remembers a failed load and asks again only when asked to', async () => {
+		vi.mocked(loadArtworkImages)
+			.mockResolvedValueOnce({ images: new Map(), error: 'Boom' })
+			.mockResolvedValueOnce({ images: new Map() });
 		const lookup = new ArtworkLookup();
 
-		await lookup.wantPictures(judith.id);
-		await lookup.wantPictures(judith.id);
-
-		expect(loadArtworkImages).toHaveBeenCalledTimes(2);
+		expect(await lookup.wantPictures(judith.id)).toEqual({ error: 'Boom' });
+		expect(await lookup.wantPictures(judith.id)).toEqual({ error: 'Boom' });
+		expect(loadArtworkImages).toHaveBeenCalledTimes(1);
 		expect(lookup.pictures(judith.id)).toBeUndefined();
+		expect(lookup.picturesFailed(judith.id)).toBe(true);
+
+		expect(await lookup.wantPictures(judith.id, true)).toEqual({});
+		expect(loadArtworkImages).toHaveBeenCalledTimes(2);
+		expect(lookup.pictures(judith.id)).toEqual([]);
+		expect(lookup.picturesFailed(judith.id)).toBe(false);
+	});
+
+	it('loads the images of the artworks asked for together in one request', async () => {
+		vi.mocked(loadArtworkImages).mockResolvedValue({ images: new Map() });
+		const lookup = new ArtworkLookup();
+
+		await Promise.all([lookup.wantPictures('a'), lookup.wantPictures('b')]);
+
+		expect(loadArtworkImages).toHaveBeenCalledTimes(1);
+		expect(loadArtworkImages).toHaveBeenCalledWith(['a', 'b']);
+	});
+
+	it('lets a second caller wait for the images already on their way', async () => {
+		vi.mocked(loadArtworkImages).mockResolvedValue({ images: new Map() });
+		const lookup = new ArtworkLookup();
+
+		void lookup.wantPictures(judith.id);
+		await lookup.wantPictures(judith.id, true);
+
+		expect(loadArtworkImages).toHaveBeenCalledTimes(1);
+		expect(lookup.pictures(judith.id)).toEqual([]);
+	});
+
+	it('keeps no note after a failure and asks again the next time', async () => {
+		vi.mocked(loadArtworkNotes)
+			.mockResolvedValueOnce({ notes: new Map(), error: 'Boom' })
+			.mockResolvedValueOnce({ notes: new Map([[judith.id, 'Rome.']]) });
+		const lookup = new ArtworkLookup();
+
+		await lookup.wantNote(judith.id);
+		expect(lookup.note(judith.id)).toBeUndefined();
+		await lookup.wantNote(judith.id);
+
+		expect(loadArtworkNotes).toHaveBeenCalledTimes(2);
+		expect(lookup.note(judith.id)).toEqual({ text: 'Rome.' });
 	});
 });

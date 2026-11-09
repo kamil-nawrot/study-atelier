@@ -45,7 +45,8 @@
 	const pictures = $derived(lookup.pictures(artworkId));
 	const firstImage = $derived(pictures?.[0] ?? null);
 	const collecting = $derived(
-		colours.status === 'loading' || (pictures === undefined && colours.status === 'idle')
+		colours.status === 'loading' ||
+			(pictures === undefined && colours.status === 'idle' && !lookup.picturesFailed(artworkId))
 	);
 	const showsPalette = $derived(wantsPalette && (collecting || colours.status === 'ready'));
 	const unreadable = $derived(wantsPalette && colours.status === 'unreadable');
