@@ -108,6 +108,7 @@
 	$effect.pre(() => {
 		void artwork.id;
 		paletteOn = false;
+		untrack(() => void palette.load(null));
 	});
 
 	$effect(() => {
