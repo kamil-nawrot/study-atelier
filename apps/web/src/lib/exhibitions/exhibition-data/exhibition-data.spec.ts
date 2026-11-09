@@ -39,7 +39,7 @@ beforeEach(() => {
 });
 
 describe('loadExhibitionSummaries', () => {
-	it('summarises each exhibition with its number of artworks and its cover', async () => {
+	it('summarises each exhibition with its artworks outside the trash and its cover', async () => {
 		const query = chain({
 			data: [
 				{
@@ -48,8 +48,9 @@ describe('loadExhibitionSummaries', () => {
 					updated_at: '2026-11-01T10:00:00Z',
 					deleted_at: null,
 					exhibition_artworks: [
-						{ artwork_id: 'b', position: 1 },
-						{ artwork_id: 'a', position: 0 }
+						{ artwork_id: 'c', position: 2, artworks: { deleted_at: null } },
+						{ artwork_id: 'b', position: 1, artworks: { deleted_at: null } },
+						{ artwork_id: 'a', position: 0, artworks: { deleted_at: '2026-11-02T10:00:00Z' } }
 					]
 				}
 			],
@@ -66,7 +67,7 @@ describe('loadExhibitionSummaries', () => {
 				updatedAt: '2026-11-01T10:00:00Z',
 				deletedAt: null,
 				artworkCount: 2,
-				coverId: 'a'
+				coverId: 'b'
 			}
 		]);
 		expect(query.is).toHaveBeenCalledWith('deleted_at', null);

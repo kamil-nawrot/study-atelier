@@ -17,8 +17,17 @@ export type ExhibitionRow = {
 	title: string;
 	updated_at: string;
 	deleted_at: string | null;
-	exhibition_artworks: { artwork_id: string; position: number }[] | null;
+	exhibition_artworks: ExhibitionArtworkRow[] | null;
 };
+
+type ExhibitionArtworkRow = {
+	artwork_id: string;
+	position: number;
+	artworks: { deleted_at: string | null } | null;
+};
+
+export const SUMMARY_COLUMNS =
+	'id, title, updated_at, deleted_at, exhibition_artworks(artwork_id, position, artworks(deleted_at))';
 
 type SummariesResult = {
 	exhibitions: (ExhibitionSummary & { deletedAt: string | null })[];
@@ -37,8 +46,10 @@ type ActionResult = {
 export const BLANK_DOCUMENT: ExhibitionDocument = { type: 'doc', content: [] };
 
 export function summaryOf(row: ExhibitionRow): SummariesResult['exhibitions'][number] {
-	const artworks = row.exhibition_artworks ?? [];
-	const cover = artworks.find((artwork) => artwork.position === 0);
+	const artworks = (row.exhibition_artworks ?? [])
+		.filter((artwork) => artwork.artworks?.deleted_at === null)
+		.sort((a, b) => a.position - b.position);
+	const cover = artworks[0];
 	return {
 		id: row.id,
 		title: row.title,
@@ -51,9 +62,7 @@ export function summaryOf(row: ExhibitionRow): SummariesResult['exhibitions'][nu
 
 export async function loadExhibitionSummaries(archived: boolean): Promise<SummariesResult> {
 	const { rows, error } = await fetchAll<ExhibitionRow>((from, to) => {
-		const query = supabase
-			.from('exhibitions')
-			.select('id, title, updated_at, deleted_at, exhibition_artworks(artwork_id, position)');
+		const query = supabase.from('exhibitions').select(SUMMARY_COLUMNS);
 		const filtered = archived ? query.not('deleted_at', 'is', null) : query.is('deleted_at', null);
 		return filtered
 			.order(archived ? 'deleted_at' : 'updated_at', { ascending: false })
