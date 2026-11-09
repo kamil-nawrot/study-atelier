@@ -48,10 +48,7 @@
 									<NoImage />
 								{/if}
 							</span>
-							<span class="text">
-								<span class="title">{exhibition.title}</span>
-								<span class="meta">{m.exhibitions.artworkCount(exhibition.artworkCount)}</span>
-							</span>
+							<span class="title">{exhibition.title}</span>
 						</a>
 					</li>
 				{/each}
@@ -96,18 +93,8 @@
 		object-fit: cover;
 	}
 
-	.text {
-		display: grid;
-		gap: var(--spacing-1);
-	}
-
 	.title {
 		font-family: var(--font-family-title), Georgia, serif;
 		font-size: var(--font-size-md);
-	}
-
-	.meta {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-sm);
 	}
 </style>
