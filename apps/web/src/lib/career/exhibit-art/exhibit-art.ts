@@ -67,6 +67,17 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		licence: 'domena publiczna',
 		commonsFile: 'Camera obscura.png'
 	},
+	crystal_palace: {
+		credit: 'Charles Burton, „Transept Pałacu Przemysłu od Bramy Księcia Walii”, 1851',
+		licence: 'domena publiczna',
+		page: 'https://www.rijksmuseum.nl/en/collection/RP-P-2018-839'
+	},
+	lenoir_chapel: {
+		credit:
+			'Jean-Baptiste Réville i Jacques Lavallée według Jean-Lubina Vauzelle’a, „Druga perspektywa sali wprowadzającej”, 1816',
+		licence: 'CC0',
+		commonsFile: "Seconde vue de la salle d'introduction. G.30766.jpg"
+	},
 	night_watch: {
 		credit: 'William Unger według Rembrandta, „Straż nocna”, XIX wiek',
 		licence: 'CC0',

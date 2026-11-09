@@ -30,6 +30,7 @@
     "candle_moths": "van-der-vinne-candle",
     "amateur_magnifier": "daumier-amateur-figure",
     "crystal_palace": "burton-transept",
+    "lenoir_chapel": "introduction-left",
     "boncompagni_academy": "cort-workshop"
   },
   "variants": [
@@ -1234,6 +1235,48 @@
         0.05,
         0.756,
         0.85
+      ]
+    },
+    {
+      "exhibit": "lenoir_chapel",
+      "status": "alternative",
+      "commons_file": "Seconde vue de la salle d'introduction. G.30766.jpg",
+      "licence": "CC0 1.0",
+      "credit": "Jean-Baptiste Réville and Jacques Lavallée after Jean-Lubin Vauzelle, Seconde vue de la salle d'introduction, Musée des monuments français, Paris Musées / Musée Carnavalet G.30766",
+      "variant": "introduction-centre",
+      "crop": [
+        0.2875,
+        0.1068,
+        0.7125,
+        0.7969
+      ]
+    },
+    {
+      "exhibit": "lenoir_chapel",
+      "status": "chosen",
+      "commons_file": "Seconde vue de la salle d'introduction. G.30766.jpg",
+      "licence": "CC0 1.0",
+      "credit": "Jean-Baptiste Réville and Jacques Lavallée after Jean-Lubin Vauzelle, Seconde vue de la salle d'introduction, Musée des monuments français, Paris Musées / Musée Carnavalet G.30766",
+      "variant": "introduction-left",
+      "crop": [
+        0.1667,
+        0.1068,
+        0.5917,
+        0.7969
+      ]
+    },
+    {
+      "exhibit": "lenoir_chapel",
+      "status": "alternative",
+      "commons_file": "Seconde vue de la salle d'introduction. G.30766.jpg",
+      "licence": "CC0 1.0",
+      "credit": "Jean-Baptiste Réville and Jacques Lavallée after Jean-Lubin Vauzelle, Seconde vue de la salle d'introduction, Musée des monuments français, Paris Musées / Musée Carnavalet G.30766",
+      "variant": "introduction-right",
+      "crop": [
+        0.4479,
+        0.1068,
+        0.8729,
+        0.7969
       ]
     },
     {

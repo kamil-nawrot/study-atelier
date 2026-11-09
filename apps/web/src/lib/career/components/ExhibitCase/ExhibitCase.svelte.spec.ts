@@ -17,6 +17,8 @@ const unlocked = (tier: number, seen = true): UnlockedTier => ({
 function exhibit(overrides: Partial<Exhibit> = {}): Exhibit {
 	return {
 		code: 'collection',
+		room: 'main_hall',
+		hidden: false,
 		value: 24,
 		thresholds: [1, 10, 50, 100, 250],
 		tiers: [unlocked(1), unlocked(2)],
@@ -106,7 +108,15 @@ describe('ExhibitCase', () => {
 
 	it('keeps an easter egg hidden behind a hint until it is found', async () => {
 		render(ExhibitCase, {
-			props: { exhibit: exhibit({ code: 'night_watch', value: 0, thresholds: [1], tiers: [] }) }
+			props: {
+				exhibit: exhibit({
+					code: 'night_watch',
+					hidden: true,
+					value: 0,
+					thresholds: [1],
+					tiers: []
+				})
+			}
 		});
 
 		await expect
@@ -127,6 +137,7 @@ describe('ExhibitCase', () => {
 			props: {
 				exhibit: exhibit({
 					code: 'back_from_storage',
+					hidden: true,
 					value: 1,
 					thresholds: [1],
 					tiers: [{ ...unlocked(1), exhibit: 'back_from_storage' }]

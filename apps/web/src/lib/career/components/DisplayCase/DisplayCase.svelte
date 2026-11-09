@@ -1,6 +1,15 @@
 <script lang="ts">
+	import { Switch } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
-	import ExhibitCase from '#lib/career/components/ExhibitCase/ExhibitCase.svelte';
+	import ExhibitRoom from '#lib/career/components/ExhibitRoom/ExhibitRoom.svelte';
+	import {
+		intoRooms,
+		rememberFilters,
+		rememberFolded,
+		rememberedFilters,
+		rememberedFolded,
+		type CaseFilters
+	} from '#lib/career/rooms/rooms.ts';
 	import type { Exhibit } from '#lib/career/types/exhibit.ts';
 
 	type Props = {
@@ -8,24 +17,58 @@
 	};
 
 	let { exhibits }: Props = $props();
-</script>
 
-<h2 class="visually-hidden">{m.career.exhibitsHeading}</h2>
-<ul class="exhibits">
-	{#each exhibits as exhibit (exhibit.code)}
-		<li><ExhibitCase {exhibit} /></li>
-	{/each}
-</ul>
+	let rooms = $derived(intoRooms(exhibits));
+	let folded = $state(rememberedFolded());
+	let filters: CaseFilters = $state(rememberedFilters());
 
-<style>
-	.exhibits {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-		gap: var(--spacing-6);
-		list-style: none;
+	function toggle(code: string): void {
+		folded = folded.includes(code) ? folded.filter((other) => other !== code) : [...folded, code];
+		rememberFolded(folded);
 	}
 
-	.exhibits > li {
+	function setFilter(key: keyof CaseFilters, value: boolean): void {
+		filters = { ...filters, [key]: value };
+		rememberFilters(filters);
+	}
+</script>
+
+<div class="case">
+	<div class="filters">
+		<Switch
+			checked={filters.finished}
+			label={m.career.showFinished}
+			onchange={(event) => setFilter('finished', event.currentTarget.checked)}
+		/>
+		<Switch
+			checked={filters.locked}
+			label={m.career.showLocked}
+			onchange={(event) => setFilter('locked', event.currentTarget.checked)}
+		/>
+	</div>
+	<div>
+		{#each rooms as room, index (room.code)}
+			<ExhibitRoom
+				{filters}
+				number={index + 1}
+				ontoggle={() => toggle(room.code)}
+				open={!folded.includes(room.code)}
+				{room}
+			/>
+		{/each}
+	</div>
+</div>
+
+<style>
+	.case {
 		display: grid;
+		gap: var(--spacing-2);
+	}
+
+	.filters {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: end;
+		gap: var(--spacing-2) var(--spacing-6);
 	}
 </style>

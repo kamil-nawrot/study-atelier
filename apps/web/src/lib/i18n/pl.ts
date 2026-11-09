@@ -1456,13 +1456,26 @@ export const pl = {
 	},
 	career: {
 		title: 'Ekspozycja',
-		lead: 'Sala z eksponatami, które udało Ci się zgromadzić, rozwijając swoje atelier. Każdy eksponat pokazuje Twoje postępy w innej dziedzinie nauki i kolekcjonowania. Niektóre są ukryte i odsłonią się dopiero wtedy, gdy spełnisz warunek ukryty w zagadce.',
+		lead: 'Sale z eksponatami, które udało Ci się zgromadzić, rozwijając swoje atelier. Każdy eksponat pokazuje Twoje postępy w innej dziedzinie nauki i kolekcjonowania. Niektóre są ukryte i odsłonią się dopiero wtedy, gdy spełnisz warunek ukryty w zagadce.',
 		loadErrorTitle: 'Nie udało się wczytać Ekspozycji',
 		tier: (tier: string, total: string): string => `Poziom ${tier} z ${total}`,
 		new: 'Nowe',
 		tierDate: (tier: string, date: string): string => `Poziom ${tier} · ${date}`,
 		hiddenName: 'Ukryty eksponat',
-		exhibitsHeading: 'Eksponaty',
+		roomNumber: (number: string): string => `Sala ${number}`,
+		roomFinished: (finished: number, total: number): string => `Ukończone: ${finished} z ${total}`,
+		roomEmpty: 'Wszystkie eksponaty tej sali są teraz schowane.',
+		showFinished: 'Pokaż ukończone',
+		showLocked: 'Pokaż nieodblokowane',
+		rooms: {
+			main_hall: 'Sala główna',
+			era_enfilade: 'Amfilada epok',
+			reading_room: 'Czytelnia',
+			scriptorium: 'Skryptorium',
+			map_room: 'Sala map',
+			pavilion: 'Pawilon',
+			crypt: 'Krypta'
+		},
 		newRank: 'nowy stopień',
 		newCuriosity: 'nowa ciekawostka',
 		source: 'Źródło',
@@ -1643,6 +1656,16 @@ export const pl = {
 			seven_league_boots: [
 				'W baśni Charles’a Perraulta buty olbrzyma były zaczarowane: rosły i malały, dopasowując się do nóg tego, kto je włożył. Według jednego z dwóch zakończeń Tomcio został w nich królewskim gońcem i jeszcze tego samego wieczoru przyniósł królowi wieści od armii oddalonej o dwieście mil.'
 			],
+			crystal_palace: [
+				'Na Wielką Wystawę w 1851 roku 5000 robotników w pięć miesięcy zbudowało w londyńskim Hyde Parku szklany Kryształowy Pałac. Gmach był tak duży, że w środku znalazły się drzewa parku. 14 000 wystawców pokazało w nim 100 000 przedmiotów z całego świata, które obejrzało sześć milionów ludzi.',
+				'Udział w paryskim Salonie, wystawie z jury, decydował o karierze artysty. Gdy artyści zarzucili jury, że odrzuca dzieła niezgodne z akademickim wzorem, cesarz Napoleon III zorganizował w 1863 roku pierwszy Salon Odrzuconych dla prac, których jury nie przyjęło. Pokazano tam wiele dzieł artystów, których później łączono z impresjonizmem.',
+				'Białe ściany galerii to wynalazek dopiero początku XX wieku, gdy sztuka stawała się coraz bardziej abstrakcyjna. Artyści De Stijl i Bauhausu chcieli, by nic nie odciągało uwagi od dzieł, a gładka biel dodatkowo je obramowywała. Tak powstał „biały sześcian”: prosta sala o białych ścianach, zwykle oświetlona z sufitu.',
+				'W 1969 roku Harald Szeemann pokazał w Kunsthalle w Bernie wystawę „When Attitudes Become Form”, która przeszła do historii dzięki jego radykalnemu podejściu: sama wystawa, czyli dobór dzieł i ich zestawienie, była jego wypowiedzią. W 2013 roku Fondazione Prada odtworzyła ją w Wenecji, wstawiając białe sale Kunsthalle w pełnej skali do zdobionych freskami wnętrz zabytkowego pałacu.',
+				'Wieża Eiffla miała być w Paryżu tylko gościem: trzystumetrową konstrukcję postawiono na wystawę światową w 1889 roku z myślą, że postoi 20 lat. Zamiast zniknąć razem z wystawą, została na stałe i stała się symbolem Paryża i całej Francji.'
+			],
+			lenoir_chapel: [
+				'Muzeum Zabytków Francuskich Alexandre’a Lenoira, otwarte w Paryżu w 1795 roku, było drugim muzeum narodowym Francji po Luwrze i przyczyniło się do narodzin pojęcia dziedzictwa. Zamknięto je w 1816 roku, a zbiory rozproszyły się: dziś są m.in. w Luwrze, bazylice Saint-Denis i katedrze Notre-Dame, a za granicą najwięcej w Metropolitan Museum.'
+			],
 			figure_alphabet: [
 				'O Mistrzu E.S. wiadomo niewiele, a przydomek zawdzięcza inicjałom, które pojawiają się na jego późniejszych pracach. Na to, że był z wykształcenia złotnikiem, wskazują punce – złotnicze narzędzia wbijane młotkiem w płytę, którymi wybijał wzory drobnych kwiatków i kółek. Jego figuralny alfabet przetrwał w 23 rzadkich, pojedynczych odbitkach.'
 			],
@@ -1805,6 +1828,19 @@ export const pl = {
 				about:
 					'Plansza z „Encyklopedii” Diderota i d’Alemberta pokazuje ciemnię optyczną, dzięki której na długo przed fotografią artyści przenosili na papier krajobrazy i budowle.',
 				count: counter('dodanych przez Ciebie zdjęć')
+			},
+			crystal_palace: {
+				name: 'Kryształowy Pałac',
+				about:
+					'Charles Burton przedstawił w 1851 roku transept Kryształowego Pałacu w londyńskim Hyde Parku, szklanego gmachu zbudowanego na Wielką Wystawę.',
+				count: counter('wystaw z co najmniej 5 dziełami')
+			},
+			lenoir_chapel: {
+				name: 'Kaplica Lenoira',
+				about:
+					'Jean-Baptiste Réville i Jacques Lavallée wyryli w 1816 roku salę wprowadzającą paryskiego Muzeum Zabytków Francuskich, w której Alexandre Lenoir zebrał rzeźby ze wszystkich epok.',
+				hint: 'Dobra opowieść nie pomija żadnego rozdziału.',
+				awarded: 'Za wystawę z dziełami wszystkich sześciu epok.'
 			},
 			night_watch: {
 				name: 'Straż nocna',

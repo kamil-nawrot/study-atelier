@@ -1200,29 +1200,151 @@ export const ARTWORK_PINS = [
 ];
 
 export const EXHIBITS = [
-	{ exhibit: 'collection', value: 191, thresholds: [1, 10, 50, 100, 250, 500, 1000, 2500, 5000] },
-	{ exhibit: 'eras', value: 5, thresholds: [2, 3, 4, 5, 6] },
-	{ exhibit: 'vasari_lives', value: 2, thresholds: [1, 3, 5, 10, 20] },
-	{ exhibit: 'memory', value: 55, thresholds: [1, 25, 100, 250, 500, 1000, 2500] },
-	{ exhibit: 'bullseye', value: 7, thresholds: [1, 5, 25, 50, 100, 250] },
-	{ exhibit: 'regular', value: 14, thresholds: [3, 7, 14, 30, 60, 100, 200, 365] },
-	{ exhibit: 'back_from_storage', value: 0, thresholds: [1] },
-	{ exhibit: 'chronicle', value: 2, thresholds: [1, 5, 10, 25, 50, 100] },
-	{ exhibit: 'grand_tour', value: 2, thresholds: [1, 2, 3, 5, 10, 20] },
-	{ exhibit: 'seen_live', value: 6, thresholds: [1, 10, 50, 100, 250, 500] },
-	{ exhibit: 'timeline', value: 12, thresholds: [1, 10, 50, 100, 250] },
-	{ exhibit: 'glossary', value: 147, thresholds: [1, 10, 25, 50, 100, 250, 500] },
-	{ exhibit: 'hortus_cliffortianus', value: 31, thresholds: [1, 10, 25, 50, 100, 500] },
-	{ exhibit: 'own_eye', value: 0, thresholds: [1, 5, 25, 50, 100] },
-	{ exhibit: 'night_watch', value: 0, thresholds: [1] },
-	{ exhibit: 'marathon', value: 0, thresholds: [1000] },
-	{ exhibit: 'mouth_of_truth', value: 0, thresholds: [1] },
-	{ exhibit: 'pinacotheca', value: 10, thresholds: [10] },
-	{ exhibit: 'trevi_fountain', value: 2, thresholds: [2] },
-	{ exhibit: 'seven_league_boots', value: 1, thresholds: [3] },
-	{ exhibit: 'figure_alphabet', value: 23, thresholds: [23] },
-	{ exhibit: 'candle_moths', value: 1, thresholds: [1] },
-	{ exhibit: 'amateur_magnifier', value: 0, thresholds: [1] }
+	{
+		exhibit: 'collection',
+		room: 'main_hall',
+		hidden: false,
+		value: 191,
+		thresholds: [1, 10, 50, 100, 250, 500, 1000, 2500, 5000]
+	},
+	{
+		exhibit: 'vasari_lives',
+		room: 'main_hall',
+		hidden: false,
+		value: 2,
+		thresholds: [1, 3, 5, 10, 20]
+	},
+	{
+		exhibit: 'own_eye',
+		room: 'main_hall',
+		hidden: false,
+		value: 0,
+		thresholds: [1, 5, 25, 50, 100]
+	},
+	{ exhibit: 'pinacotheca', room: 'main_hall', hidden: true, value: 10, thresholds: [10] },
+	{ exhibit: 'eras', room: 'era_enfilade', hidden: false, value: 5, thresholds: [2, 3, 4, 5, 6] },
+	{
+		exhibit: 'prehistory',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 0,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'antiquity',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 3,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'middle_ages',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 12,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'early_modern',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 61,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'modern',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 104,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'contemporary',
+		room: 'era_enfilade',
+		hidden: false,
+		value: 11,
+		thresholds: [1, 10, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'memory',
+		room: 'reading_room',
+		hidden: false,
+		value: 55,
+		thresholds: [1, 25, 100, 250, 500, 1000, 2500]
+	},
+	{
+		exhibit: 'bullseye',
+		room: 'reading_room',
+		hidden: false,
+		value: 7,
+		thresholds: [1, 5, 25, 50, 100, 250]
+	},
+	{
+		exhibit: 'regular',
+		room: 'reading_room',
+		hidden: false,
+		value: 14,
+		thresholds: [3, 7, 14, 30, 60, 100, 200, 365]
+	},
+	{ exhibit: 'back_from_storage', room: 'reading_room', hidden: true, value: 0, thresholds: [1] },
+	{ exhibit: 'night_watch', room: 'reading_room', hidden: true, value: 0, thresholds: [1] },
+	{ exhibit: 'marathon', room: 'reading_room', hidden: true, value: 0, thresholds: [1000] },
+	{ exhibit: 'amateur_magnifier', room: 'reading_room', hidden: true, value: 0, thresholds: [1] },
+	{
+		exhibit: 'glossary',
+		room: 'scriptorium',
+		hidden: false,
+		value: 147,
+		thresholds: [1, 10, 25, 50, 100, 250, 500]
+	},
+	{
+		exhibit: 'timeline',
+		room: 'scriptorium',
+		hidden: false,
+		value: 12,
+		thresholds: [1, 10, 50, 100, 250]
+	},
+	{
+		exhibit: 'hortus_cliffortianus',
+		room: 'scriptorium',
+		hidden: false,
+		value: 31,
+		thresholds: [1, 10, 25, 50, 100, 500]
+	},
+	{ exhibit: 'figure_alphabet', room: 'scriptorium', hidden: true, value: 23, thresholds: [23] },
+	{
+		exhibit: 'chronicle',
+		room: 'map_room',
+		hidden: false,
+		value: 2,
+		thresholds: [1, 5, 10, 25, 50, 100]
+	},
+	{
+		exhibit: 'grand_tour',
+		room: 'map_room',
+		hidden: false,
+		value: 2,
+		thresholds: [1, 2, 3, 5, 10, 20]
+	},
+	{
+		exhibit: 'seen_live',
+		room: 'map_room',
+		hidden: false,
+		value: 6,
+		thresholds: [1, 10, 50, 100, 250, 500]
+	},
+	{ exhibit: 'trevi_fountain', room: 'map_room', hidden: true, value: 2, thresholds: [2] },
+	{ exhibit: 'seven_league_boots', room: 'map_room', hidden: true, value: 1, thresholds: [3] },
+	{
+		exhibit: 'crystal_palace',
+		room: 'pavilion',
+		hidden: false,
+		value: 3,
+		thresholds: [1, 3, 5, 10, 25]
+	},
+	{ exhibit: 'lenoir_chapel', room: 'pavilion', hidden: true, value: 6, thresholds: [6] },
+	{ exhibit: 'mouth_of_truth', room: 'crypt', hidden: true, value: 0, thresholds: [1] },
+	{ exhibit: 'candle_moths', room: 'crypt', hidden: true, value: 1, thresholds: [1] }
 ];
 
 export const EXHIBIT_TIERS = EXHIBITS.flatMap(({ exhibit, value, thresholds }) =>

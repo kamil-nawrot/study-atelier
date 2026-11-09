@@ -4,22 +4,12 @@ import type { Metal } from '#lib/career/types/metal.ts';
 import type { UnlockedTier } from '#lib/career/types/unlocked-tier.ts';
 
 const METALS: readonly Metal[] = ['bronze', 'silver', 'gold'];
-const HIDDEN = new Set([
-	'night_watch',
-	'marathon',
-	'back_from_storage',
-	'mouth_of_truth',
-	'pinacotheca',
-	'trevi_fountain',
-	'seven_league_boots',
-	'figure_alphabet',
-	'candle_moths',
-	'amateur_magnifier'
-]);
 
 export function withTiers(progress: ExhibitProgress[], tiers: UnlockedTier[]): Exhibit[] {
-	return progress.map(({ exhibit, value, thresholds }) => ({
+	return progress.map(({ exhibit, room, hidden, value, thresholds }) => ({
 		code: exhibit,
+		room,
+		hidden,
 		value,
 		thresholds,
 		tiers: tiers.filter((tier) => tier.exhibit === exhibit)
@@ -43,7 +33,7 @@ export function metalOf(tier: number, total: number): Metal {
 }
 
 export function isHidden(exhibit: Exhibit): boolean {
-	return HIDDEN.has(exhibit.code) && reachedTier(exhibit) === 0;
+	return exhibit.hidden && reachedTier(exhibit) === 0;
 }
 
 export function hasNewTier(exhibit: Exhibit): boolean {

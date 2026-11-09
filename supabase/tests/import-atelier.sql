@@ -130,8 +130,12 @@ declare
 begin
   assert jsonb_array_length(payload -> 'artworks') = 3, 'the payload does not hold the artworks';
 
-  counts := public.import_atelier(payload);
+  counts := public.import_atelier(payload || jsonb_build_object('exhibit_tiers', jsonb_build_array(
+    jsonb_build_object('exhibit', 'collection', 'tier', 1, 'tiers', 9, 'unlocked_at', '2026-10-20T10:00:00Z'),
+    jsonb_build_object('exhibit', 'removed_exhibit', 'tier', 1, 'tiers', 1, 'unlocked_at', '2026-10-20T10:00:00Z'))));
   assert (counts ->> 'artworks')::integer = 3, 'import_atelier does not count the artworks';
+  assert (select array_agg(exhibit) from public.exhibit_tiers) = '{collection}',
+    'the import does not skip the tiers of an exhibit missing from the catalogue';
 
   assert (select array_agg(record_number order by record_number) from public.artworks) = '{1,2,3}',
     'the record numbers do not survive the import';

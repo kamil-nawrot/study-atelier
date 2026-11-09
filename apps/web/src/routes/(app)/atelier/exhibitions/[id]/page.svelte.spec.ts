@@ -94,7 +94,9 @@ describe('exhibition page', () => {
 
 		await userEvent.click(page.getByRole('button', { name: m.exhibitions.view.edit }));
 
-		await vi.waitFor(() => expect(goto).toHaveBeenCalledWith(`/atelier/exhibitions/${ID}?edit`));
+		await vi.waitFor(() =>
+			expect(goto).toHaveBeenCalledWith(`/atelier/exhibitions/${ID}?edit`, { replaceState: true })
+		);
 	});
 
 	it('edits the exhibition in the edit mode, with the panel for adding', async () => {
@@ -168,7 +170,9 @@ describe('exhibition page', () => {
 		);
 		await userEvent.click(page.getByRole('button', { name: m.exhibitions.view.done }));
 
-		await vi.waitFor(() => expect(goto).toHaveBeenCalledWith(`/atelier/exhibitions/${ID}`));
+		await vi.waitFor(() =>
+			expect(goto).toHaveBeenCalledWith(`/atelier/exhibitions/${ID}`, { replaceState: true })
+		);
 		expect(saveExhibition).toHaveBeenCalled();
 	});
 

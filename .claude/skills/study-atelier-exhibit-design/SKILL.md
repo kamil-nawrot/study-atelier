@@ -60,18 +60,19 @@ For a tiered exhibit, settle the structure first, in one table: what it counts, 
 
 Propose all texts in one table, the recommended option first, with the facts' sources below it:
 
-| Field           | What it is                                                                                    |
-| --------------- | --------------------------------------------------------------------------------------------- |
-| Kod             | the exhibit code                                                                              |
-| Nazwa           | an object or a place, then whose or where (ADR-0185)                                          |
-| O obiekcie      | one sentence on what the engraving shows, who made it and when                                |
-| Podpowiedź      | hidden exhibits only: a riddle through the engraving's motif                                  |
-| Za co / poziomy | a hidden exhibit: what it was awarded for; a tiered one: the thresholds and the counter label |
-| Podpis ryciny   | engraver, title of the work in Polish „…”, date                                               |
-| Ciekawostka     | one per tier, each with its source                                                            |
+| Field           | What it is                                                                                                                               |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Kod             | the exhibit code                                                                                                                         |
+| Nazwa           | an object or a place, then whose or where (ADR-0185), without the word "Sala", which names the rooms of the case                         |
+| O obiekcie      | one sentence on what the engraving shows, who made it and when                                                                           |
+| Podpowiedź      | hidden exhibits only: a riddle through an image of its own, since the engraving is not seen until the exhibit is found                   |
+| Za co / poziomy | a hidden exhibit: what it was awarded for; a tiered one: the thresholds and the counter label                                            |
+| Podpis ryciny   | engraver, title of the work in Polish „…”, date                                                                                          |
+| Ciekawostka     | one per tier, each with its source                                                                                                       |
+| Sala            | the room of the case ([ADR-0228](../../../docs/decisions/0228-group-the-exhibits-of-the-display-case-into-rooms.md)) and the place in it |
 
 - Keep the owner's own wording when they give one, and polish it as little as possible.
-- The hint gets its own round when the owner is not convinced: five or six short options on different motifs of the engraving, each in one line with why it works; when the owner leans to one, offer two or three tuned versions and say what each change does. Rejected hints go into the ADR's considered options.
+- The hint gets its own round when the owner is not convinced: five or six short options on different images, each in one line with why it works; an image works without the engraving and never describes what it shows (`voice-and-tone.md`); when the owner leans to one, offer two or three tuned versions and say what each change does. Rejected hints go into the ADR's considered options.
 - For a tiered exhibit, propose thresholds against the owner's real data (read-only SQL on the local Supabase, see the memory on the local collection) and a theme for its row in `voice-and-tone.md`; when a theme is narrow, mix it with a neighbouring one and order the curiosities so the last tier crowns the hardest goal.
 - Apply the owner's word changes as given and re-check that the source still states the changed wording (for example "przed nocą" against "dès le soir même").
 
@@ -81,5 +82,5 @@ When every field is settled:
 
 1. **Linear:** replace the design issue's "To settle" paragraph with a "Settled with the owner (date)" section listing every field and the source of each curiosity, and agent notes with the manifest variants.
 2. **ADR:** the first number free on `develop` and in open pull requests, from `docs/decisions/template.md`, in the shape of the newest exhibit ADR: context, drivers, every considered option (objects, crops, names, hints, awards), the outcome with the display case fields and the curiosity table, and consequences. Add it to the index. A tiered exhibit also adds its theme row to `voice-and-tone.md`.
-3. **Build issue:** "Build the … exhibit", label `Feature`, related to the design and idea issues, listing the counting, the texts from the ADR, `exhibit-art publish --only <code>`, and the questions about the counting to settle with the owner (what counts, deleted or trashed data, data before the release, the place in the case). Link it from the ADR's "More information".
+3. **Build issue:** "Build the … exhibit", label `Feature`, related to the design and idea issues, listing the counting, the texts from the ADR, `exhibit-art publish --only <code>`, and the questions about the counting to settle with the owner (what counts, deleted or trashed data, data before the release, the room of the case and the place in it, [ADR-0228](../../../docs/decisions/0228-group-the-exhibits-of-the-display-case-into-rooms.md)). Link it from the ADR's "More information".
 4. **Pull request:** two commits, `feat(design): add the crops of the … exhibit` (the manifest) and `docs(decisions): record the design of the … exhibit`; title `docs(decisions): ATL-<n> - record the design of the … exhibit`, with the `study-atelier-pr-create` skill. The texts are approved in the conversation, so the pull request is merged at a green "Web app" (see the memory on working in a loop); then set the issue Done and switch the checkout back to `develop`.

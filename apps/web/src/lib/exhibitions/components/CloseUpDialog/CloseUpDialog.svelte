@@ -56,7 +56,7 @@
 	}
 </script>
 
-<Dialog title={m.exhibitions.closeUpDialog.title} bind:open>
+<Dialog size="wide" title={m.exhibitions.closeUpDialog.title} bind:open>
 	<div class="body">
 		{#if error}
 			<p class="hint">{m.exhibitions.closeUpDialog.loadError}</p>
@@ -117,7 +117,7 @@
 	.pins {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(calc(6 * var(--spacing-6)), 1fr));
-		gap: var(--spacing-4);
+		gap: var(--spacing-8) var(--spacing-12);
 		margin: 0;
 		padding: 0;
 		list-style: none;

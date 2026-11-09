@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { dropAt, type RowBox } from '#lib/exhibitions/editor/drop-target/drop-target.ts';
 
-const frame = { left: 0, right: 900 };
+const frame = { top: -40, left: 0, right: 900 };
 
 const rows: RowBox[] = [
 	{ id: 'r1', top: 0, bottom: 100, blocks: [{ id: 'a', left: 0, right: 900 }] },
@@ -28,6 +28,13 @@ describe('dropAt', () => {
 			side: false,
 			slot: { top: 108, left: 0, width: 900, height: 24 }
 		});
+	});
+
+	it('shows the line of an empty exhibition at the top of its list', () => {
+		const drop = dropAt([], frame, 450, 300);
+
+		expect(drop?.target).toEqual({ before: undefined });
+		expect(drop?.mark.top).toBe(-50);
 	});
 
 	it('shows a line above or below a row by the half of it the pointer is in', () => {
