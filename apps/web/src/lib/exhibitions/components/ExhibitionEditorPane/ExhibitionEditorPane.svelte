@@ -150,6 +150,21 @@
 		if (!limit) change(next);
 	}
 
+	async function stepBlock(id: string, direction: -1 | 1): Promise<void> {
+		change(step(rows, id, direction));
+		await tick();
+		const card = list?.querySelector(`[data-block-id="${id}"]`);
+		if (!card || card.contains(document.activeElement)) return;
+		const [pressed, other] =
+			direction < 0
+				? [m.exhibitions.bar.up, m.exhibitions.bar.down]
+				: [m.exhibitions.bar.down, m.exhibitions.bar.up];
+		const button =
+			card.querySelector<HTMLElement>(`button[aria-label="${pressed}"]:not(:disabled)`) ??
+			card.querySelector<HTMLElement>(`button[aria-label="${other}"]`);
+		button?.focus();
+	}
+
 	function hover(x: number, y: number): void {
 		const frame = list?.getBoundingClientRect();
 		drop = frame && list ? dropAt(measureRows(list), frame, x, y, moving) : undefined;
@@ -220,7 +235,7 @@
 						onchange={(node) => change(update(rows, block.id, node))}
 						onmovestart={(event) => dragBlock(event, block.id, block.node)}
 						onremove={() => change(remove(rows, block.id))}
-						onstep={(direction) => change(step(rows, block.id, direction))}
+						onstep={(direction) => stepBlock(block.id, direction)}
 						{terms}
 					/>
 				{/each}

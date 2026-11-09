@@ -379,6 +379,29 @@ describe('ExhibitionEditorPane', () => {
 		expect(down(2)).toHaveProperty('disabled', true);
 	});
 
+	it('keeps the focus on an arrow and the text as it is while a block moves', async () => {
+		const given = session(doc(textBlock('Alpha'), textBlock('Beta'), textBlock('Gamma')));
+		render(ExhibitionEditorPane, { session: given, lookup: lookup(), barHeight: 80 });
+		await expect.element(page.getByText('Gamma')).toBeInTheDocument();
+		const editor = card(0).querySelector('.tiptap');
+		const arrow = (label: string): Element =>
+			card(
+				[...document.querySelectorAll('[data-block-id]')].findIndex((element) =>
+					element.textContent?.includes('Alpha')
+				)
+			).querySelector(`[aria-label="${label}"]`)!;
+
+		await userEvent.click(arrow(m.exhibitions.bar.down));
+		await vi.waitFor(() => expect(card(1).textContent).toContain('Alpha'));
+		expect(card(1).querySelector('.tiptap')).toBe(editor);
+		expect(document.activeElement).toBe(arrow(m.exhibitions.bar.down));
+
+		await userEvent.click(arrow(m.exhibitions.bar.down));
+		await vi.waitFor(() => expect(card(2).textContent).toContain('Alpha'));
+		expect(card(2).querySelector('.tiptap')).toBe(editor);
+		expect(document.activeElement).toBe(arrow(m.exhibitions.bar.up));
+	});
+
 	it('warns when the exhibition changed elsewhere', async () => {
 		const given = session();
 		vi.mocked(saveExhibition).mockResolvedValue({ conflict: true });
