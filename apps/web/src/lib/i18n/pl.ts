@@ -1642,6 +1642,14 @@ export const pl = {
 				'Muzeum Wiktorii i Alberta w Londynie przechowuje pięć notesów Leonarda da Vinci, oprawionych w trzy tomy nazywane Kodeksem Forstera. Między zapisanymi pismem lustrzanym notatkami o geometrii, ciężarach i hydraulice są w nich szkice końskich nóg i notatki związane zapewne z „Ostatnią Wieczerzą”.',
 				'Pablo Picasso to według Księgi rekordów Guinnessa najpłodniejszy malarz w historii. W ciągu 75 lat pracy stworzył około 13 500 obrazów i projektów, 100 000 grafik, 34 000 ilustracji książkowych oraz 300 rzeźb i ceramik.'
 			],
+			boncompagni_academy: [
+				'W 1546 roku florencki uczony Benedetto Varchi zapytał najwybitniejszych artystów, która sztuka jest wyższa: malarstwo czy rzeźba, i ten spór nazwano paragone. Bronzino w niedokończonej odpowiedzi bronił malarstwa: według niego umie ono oddać trójwymiarowość rzeźby, a przy tym naśladować naturę tak, jak rzeźba nie potrafi.',
+				'W 1563 roku książę Kosma I Medyceusz zatwierdził statut florenckiej Akademii Sztuki Rysunku, którą wymyślił Giorgio Vasari. Na pierwszym zebraniu 70 osób ogłosiło Michała Anioła „Ojcem i Mistrzem tych trzech sztuk”, a młodsi artyści protestowali, bo nie przyjęto ich do grona pierwszych akademików.',
+				'Gdy w 1768 roku powstała londyńska Royal Academy, jej statut wprost wykluczał z członkostwa rytowników. Francesco Bartolozzi, przez blisko 40 lat rytownik króla, był jednak ceniony tak wysoko, że zrobiono dla niego wyjątek i przyjęto go do Akademii jako malarza.',
+				'Od 1912 do 1948 roku na igrzyskach olimpijskich przyznawano medale także za architekturę, literaturę, muzykę, malarstwo i rzeźbę, za dzieła poświęcone sportowi. W 1912 roku złoto za rzeźbę zdobył Amerykanin Walter Winans, cztery lata wcześniej mistrz olimpijski w strzelaniu. Brąz w 1932 roku dostał projekt Stadionu Olimpijskiego we Wrocławiu.',
+				'Po Wielkiej Wystawie w 1851 roku za 5000 funtów rządowej dotacji kupiono wybór wystawionych przedmiotów. Stały się zaczątkiem otwartego w 1852 roku Muzeum Wyrobów, które miało uczyć projektantów, producentów i publiczność sztuki i wzornictwa. W 1899 roku dostało nazwę Muzeum Wiktorii i Alberta.',
+				'W 1852 roku V&A jako jedno z pierwszych muzeów zaczęło kupować do zbiorów fotografie, a w 1858 urządziło swoją pierwszą wystawę fotografii. Dziś ma około 800 000 zdjęć, jedną z najważniejszych kolekcji na świecie.'
+			],
 			hortus_cliffortianus: [
 				'Muzeum Ennigaldi, córki babilońskiego króla Nabonida i arcykapłanki boga księżyca, powstało w Ur około 530 roku p.n.e. i uchodzi za najstarsze na świecie. W 1925 roku Leonard Woolley rozpoznał je po etykietach: przy każdym przedmiocie leżał gliniany cylinder z napisami w czterech językach, objaśniającymi przedmiot i jego historię.',
 				'Portret matki Jamesa Whistlera, amerykańskiego malarza dzielącego karierę między Londyn i Paryż, ma podwójny tytuł: „Aranżacja w szarości i czerni nr 1” i „Portret matki artysty”. Wkrótce potem Whistler dawał swoim obrazom już tylko muzyczne podtytuły, bo ważniejsza była dla niego harmonia niż temat.',
@@ -1875,6 +1883,12 @@ export const pl = {
 				about:
 					'Strona tytułowa drugiego wydania „Żywotów” Giorgia Vasariego, wydrukowanego we Florencji w 1568 roku razem z drzeworytowymi portretami artystów.',
 				count: counter('autorów z co najmniej 10 dziełami')
+			},
+			boncompagni_academy: {
+				name: 'Akademia Boncompagniego',
+				about:
+					'Cornelis Cort wyrył w 1578 roku w Rzymie pracownię, w której obok siebie pracują rzeźbiarze, malarze, rysownicy, architekci i rytownicy.',
+				count: counter('typów dzieł w atelier')
 			},
 			hortus_cliffortianus: {
 				name: 'Ogród Clifforta',

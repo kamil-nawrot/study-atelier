@@ -137,6 +137,11 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		licence: 'domena publiczna',
 		commonsFile: 'Vite.jpg'
 	},
+	boncompagni_academy: {
+		credit: 'Cornelis Cort, „Adepci sztuk plastycznych”, 1578',
+		licence: 'CC0',
+		page: 'https://www.metmuseum.org/art/collection/search/369581'
+	},
 	hortus_cliffortianus: {
 		credit: 'Jan Wandelaar, frontyspis „Hortus Cliffortianus” Karola Linneusza, 1738',
 		licence: 'domena publiczna',

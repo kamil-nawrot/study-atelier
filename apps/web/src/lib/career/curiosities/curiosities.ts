@@ -156,6 +156,14 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 		'https://www.vam.ac.uk/articles/leonardo-da-vincis-notebooks',
 		'https://www.guinnessworldrecords.com/world-records/most-prolific-painter'
 	],
+	boncompagni_academy: [
+		'https://www.nationalgallery.org.uk/paintings/bronzino-the-madonna-and-child-with-saints',
+		'https://www.aadfi.it/accademia/',
+		'https://www.royalacademy.org.uk/art-artists/name/francesco-bartolozzi-ra',
+		'https://www.olympics.com/en/news/look-to-the-past-when-olympic-medals-were-awarded-for-architecture-music-and-lit',
+		'https://www.vam.ac.uk/articles/building-the-museum',
+		'https://www.vam.ac.uk/collections/photographs'
+	],
 	hortus_cliffortianus: [
 		'https://news.artnet.com/art-world/art-bites-first-museum-labels-2467975',
 		'https://www.musee-orsay.fr/en/artworks/arrangement-en-gris-et-noir-ndeg1-974',
