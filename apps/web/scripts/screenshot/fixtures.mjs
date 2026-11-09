@@ -1215,6 +1215,13 @@ export const EXHIBITS = [
 		thresholds: [1, 3, 5, 10, 20]
 	},
 	{
+		exhibit: 'boncompagni_academy',
+		room: 'main_hall',
+		hidden: false,
+		value: 4,
+		thresholds: [2, 3, 4, 5, 6, 7]
+	},
+	{
 		exhibit: 'own_eye',
 		room: 'main_hall',
 		hidden: false,
