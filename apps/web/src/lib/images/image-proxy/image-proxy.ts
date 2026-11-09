@@ -26,6 +26,10 @@ function redirectTarget(response: Response, from: URL): string | null {
 	}
 }
 
+function discard(response: Response): void {
+	response.body?.cancel().catch(() => undefined);
+}
+
 function limited(body: ReadableStream<Uint8Array>): ReadableStream<Uint8Array> {
 	let size = 0;
 	return body.pipeThrough(
@@ -39,12 +43,22 @@ function limited(body: ReadableStream<Uint8Array>): ReadableStream<Uint8Array> {
 	);
 }
 
+function imageOf(response: Response): ProxiedImage {
+	if (!response.ok || !response.body) return { ok: false, status: 502 };
+	const contentType = imageType(response);
+	if (!contentType) return { ok: false, status: 415 };
+	const declared = Number(response.headers.get('content-length') ?? 0);
+	if (declared > IMAGE_PROXY_MAX_BYTES) return { ok: false, status: 413 };
+	return { ok: true, body: limited(response.body), contentType };
+}
+
 export async function fetchPublicImage(
 	target: string | null,
 	fetcher: Fetcher = fetch
 ): Promise<ProxiedImage> {
 	let url = publicHttpsUrl(target);
 	if (!url) return { ok: false, status: 400 };
+	const signal = AbortSignal.timeout(IMAGE_PROXY_TIMEOUT_MS);
 	for (let hop = 0; hop <= IMAGE_PROXY_MAX_REDIRECTS; hop += 1) {
 		let response: Response;
 		try {
@@ -52,23 +66,21 @@ export async function fetchPublicImage(
 				method: 'GET',
 				redirect: 'manual',
 				headers: { accept: 'image/*' },
-				signal: AbortSignal.timeout(IMAGE_PROXY_TIMEOUT_MS)
+				signal
 			});
 		} catch {
 			return { ok: false, status: 502 };
 		}
 		if (response.status >= 300 && response.status < 400) {
+			discard(response);
 			const next = publicHttpsUrl(redirectTarget(response, url));
 			if (!next) return { ok: false, status: 502 };
 			url = next;
 			continue;
 		}
-		if (!response.ok || !response.body) return { ok: false, status: 502 };
-		const contentType = imageType(response);
-		if (!contentType) return { ok: false, status: 415 };
-		const declared = Number(response.headers.get('content-length') ?? 0);
-		if (declared > IMAGE_PROXY_MAX_BYTES) return { ok: false, status: 413 };
-		return { ok: true, body: limited(response.body), contentType };
+		const result = imageOf(response);
+		if (!result.ok) discard(response);
+		return result;
 	}
 	return { ok: false, status: 502 };
 }

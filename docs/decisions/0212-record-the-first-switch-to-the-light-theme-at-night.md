@@ -1,6 +1,6 @@
 # 0212. Record the first switch to the light theme at night
 
-- Status: accepted
+- Status: accepted; the record of the switch is superseded by [0237](0237-record-a-switch-to-the-light-theme-only-in-the-learner-s-night.md)
 - Date: 2026-11-07
 
 ## Context and problem statement

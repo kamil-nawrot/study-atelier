@@ -7,6 +7,7 @@ const ITERATIONS = 12;
 const MIN_ALPHA = 128;
 const BUCKET_SHIFT = 4;
 const MIN_SEED_DISTANCE = 1800;
+const MIN_SHARE = 0.001;
 const HEX = /^#[0-9a-f]{6}$/;
 
 type Rgb = [number, number, number];
@@ -102,7 +103,7 @@ export function extractPalette(
 		.sort((first, second) => second.size - first.size || first.color.localeCompare(second.color))
 		.map((entry) => ({
 			color: entry.color,
-			share: Math.round((entry.size / pixels.length) * 1000) / 1000
+			share: Math.max(MIN_SHARE, Math.round((entry.size / pixels.length) * 1000) / 1000)
 		}));
 }
 

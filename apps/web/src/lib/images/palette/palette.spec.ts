@@ -42,6 +42,16 @@ describe('extractPalette', () => {
 		expect(extractPalette(pixels([[10, 20, 30], 25]))).toEqual([{ color: '#0a141e', share: 1 }]);
 	});
 
+	it('keeps a colour of a few stray pixels in a palette the database accepts', () => {
+		const palette = extractPalette(pixels([[180, 160, 120], 4094], [[10, 10, 240], 2]));
+
+		expect(palette).toEqual([
+			{ color: '#b4a078', share: 1 },
+			{ color: '#0a0af0', share: 0.001 }
+		]);
+		expect(storedPalette(palette)).toEqual(palette);
+	});
+
 	it('ignores transparent pixels', () => {
 		const data = Uint8ClampedArray.from([255, 0, 0, 0, 0, 0, 255, 255]);
 

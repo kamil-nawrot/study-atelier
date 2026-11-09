@@ -1640,10 +1640,7 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: undefined;
       };
-      record_night_light: {
-        Args: Record<PropertyKey, never>;
-        Returns: undefined;
-      };
+      record_night_light: { Args: { time_zone: string }; Returns: boolean };
       record_review: {
         Args: {
           answer: Json;

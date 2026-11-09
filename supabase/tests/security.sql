@@ -958,7 +958,7 @@ begin
   assert security_test.denied('select public.learner_points()'), 'anon executes learner_points';
   assert security_test.denied('select public.unlock_exhibits(''UTC'')'), 'anon executes unlock_exhibits';
   assert security_test.denied('select public.record_free_answers(now(), 1)'), 'anon executes record_free_answers';
-  assert security_test.denied('select public.record_night_light()'), 'anon executes record_night_light';
+  assert security_test.denied('select public.record_night_light(''UTC'')'), 'anon executes record_night_light';
   assert security_test.denied('select public.record_long_look()'), 'anon executes record_long_look';
   assert security_test.denied('select public.record_right_answer(now())'), 'anon executes record_right_answer';
   assert security_test.denied('select public.save_era_details(''antiquity'', ''{}'')'),

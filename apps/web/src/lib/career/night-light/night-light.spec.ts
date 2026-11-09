@@ -13,7 +13,7 @@ const day = new Date(2026, 10, 7, 21, 59);
 
 describe('night light', () => {
 	beforeEach(() => {
-		vi.mocked(recordNightLight).mockReset().mockResolvedValue({});
+		vi.mocked(recordNightLight).mockReset().mockResolvedValue({ recorded: true });
 		vi.mocked(career.refresh).mockClear();
 	});
 
@@ -42,10 +42,19 @@ describe('night light', () => {
 
 	it('tries again after a failed record and keeps the career alone when it is hidden', async () => {
 		followNightLight('c', false);
-		vi.mocked(recordNightLight).mockResolvedValueOnce({ error: 'offline' });
+		vi.mocked(recordNightLight).mockResolvedValueOnce({ recorded: false, error: 'offline' });
 		await noteLightAtNight(false, night);
 		await noteLightAtNight(false, night);
 		expect(recordNightLight).toHaveBeenCalledTimes(2);
 		expect(career.refresh).not.toHaveBeenCalled();
+	});
+
+	it('tries again when the database does not take the switch as a night one', async () => {
+		followNightLight('d', false);
+		vi.mocked(recordNightLight).mockResolvedValueOnce({ recorded: false });
+		await noteLightAtNight(true, night);
+		await noteLightAtNight(true, night);
+		expect(recordNightLight).toHaveBeenCalledTimes(2);
+		expect(career.refresh).toHaveBeenCalledOnce();
 	});
 });

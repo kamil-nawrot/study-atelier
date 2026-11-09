@@ -155,5 +155,16 @@ describe('ArtworkFigure', () => {
 
 			await expect.element(page.getByText(m.palette.collecting)).toBeInTheDocument();
 		});
+
+		it('asks once for images that fail to load and stops collecting', async () => {
+			loadArtworkImages.mockClear();
+			loadArtworkImages.mockResolvedValue({ images: new Map(), error: 'Boom' });
+			const lookup = new ArtworkLookup();
+			lookup.add([testArtwork(7, 'Judith')]);
+			render(ArtworkFigure, { lookup, artworkId: 'artwork-7', palette: true });
+
+			await expect.element(page.getByText(m.palette.collecting)).not.toBeInTheDocument();
+			expect(loadArtworkImages).toHaveBeenCalledTimes(1);
+		});
 	});
 });

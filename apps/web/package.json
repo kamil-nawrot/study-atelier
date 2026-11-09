@@ -50,6 +50,7 @@
 		"@sentry/svelte": "11.7.0",
 		"@supabase/supabase-js": "2.117.2",
 		"@tiptap/core": "^3.31.4",
+		"@tiptap/extension-list": "^3.31.4",
 		"@tiptap/pm": "^3.31.4",
 		"@tiptap/starter-kit": "^3.31.4",
 		"fflate": "0.8.3",

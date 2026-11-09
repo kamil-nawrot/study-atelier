@@ -420,13 +420,22 @@ select set_config('request.jwt.claims',
 do $$
 declare
   first_switch timestamptz;
+  night_zone text := (select zone.name from generate_series(-14, 12) as shift,
+    lateral (select 'Etc/GMT' || case when shift >= 0 then '+' || shift else shift::text end as name) as zone
+    where extract(hour from now() at time zone zone.name) = 23 limit 1);
+  day_zone text := (select zone.name from generate_series(-14, 12) as shift,
+    lateral (select 'Etc/GMT' || case when shift >= 0 then '+' || shift else shift::text end as name) as zone
+    where extract(hour from now() at time zone zone.name) = 12 limit 1);
 begin
   assert (select value from public.unlock_exhibits('UTC') where exhibit = 'candle_moths') = 0,
     'a learner who never switched the theme counts for the night candlestick';
-  perform public.record_night_light();
+  assert not public.record_night_light(day_zone), 'record_night_light takes a switch in the day of the learner';
+  assert not exists (select 1 from public.profiles where night_light_at is not null),
+    'record_night_light keeps a switch in the day of the learner';
+  assert public.record_night_light(night_zone), 'record_night_light refuses a switch in the night of the learner';
   select night_light_at into first_switch from public.profiles;
   assert first_switch is not null, 'record_night_light does not record the switch for a learner without a profile';
-  perform public.record_night_light();
+  assert public.record_night_light(night_zone), 'record_night_light refuses a later switch in the night';
   assert (select night_light_at from public.profiles) = first_switch, 'a later switch replaces the first one';
 end;
 $$;
@@ -653,6 +662,32 @@ begin
     'the boncompagni academy still counts a type whose only artwork is in the trash';
   assert (select count(*) from public.exhibit_tiers where exhibit = 'boncompagni_academy') = 6,
     'the boncompagni academy takes back a reached tier';
+end;
+$$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000014', 'owner-k@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000014", "role": "authenticated"}', true);
+
+do $$
+declare
+  place uuid;
+  work uuid;
+begin
+  insert into public.category_values (category_code, name) values ('location', 'Uffizi') returning id into place;
+  work := (select id from public.save_artwork(
+    jsonb_build_object('title', 'Seen twice', 'author_unknown', true), '{"author": [], "location": []}'));
+  insert into public.visits (place_id, visited_on, date_precision) values
+    (place, '2026-05-01', 'month'), (place, '2026-05-01', 'day');
+  insert into public.visit_artworks (visit_id, artwork_id)
+    select visit.id, work from public.visits as visit where visit.place_id = place;
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'trevi_fountain') = 2,
+    'the Trevi fountain counts "maj 2026" and "1 maja 2026" as one visit';
 end;
 $$;
 

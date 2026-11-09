@@ -26,8 +26,8 @@ export function blockOf(node: ExhibitionDocument): Block {
 	return { id: newId(), node };
 }
 
-function rowOf(blocks: Block[]): Row {
-	return { id: newId(), blocks };
+function rowOf(blocks: Block[], id = newId()): Row {
+	return { id, blocks };
 }
 
 export function rowsOf(document: ExhibitionDocument): Row[] {
@@ -79,7 +79,7 @@ function without(rows: readonly Row[], block: Block): Row[] {
 	});
 }
 
-export function insert(rows: readonly Row[], block: Block, target: Target): Row[] {
+export function insert(rows: readonly Row[], block: Block, target: Target, rowId = newId()): Row[] {
 	if ('row' in target) {
 		const row = rows.find((other) => other.id === target.row);
 		if (!row || !canJoin(row, block.id)) return [...rows];
@@ -92,7 +92,7 @@ export function insert(rows: readonly Row[], block: Block, target: Target): Row[
 	}
 	const index = rows.findIndex((row) => row.id === target.before);
 	const at = index < 0 ? rows.length : index;
-	return [...rows.slice(0, at), rowOf([block]), ...rows.slice(at)];
+	return [...rows.slice(0, at), rowOf([block], rowId), ...rows.slice(at)];
 }
 
 export function move(rows: readonly Row[], id: string, target: Target): Row[] {
@@ -107,7 +107,8 @@ export function move(rows: readonly Row[], id: string, target: Target): Row[] {
 		if (target.before === found.row.id || target.before === next?.id) return [...rows];
 		if (target.before === undefined && next === undefined) return [...rows];
 	}
-	const placed = insert(rows, { ...original }, target);
+	const alone = found.row.blocks.length === 1;
+	const placed = insert(rows, { ...original }, target, alone ? found.row.id : undefined);
 	if (placed.every((row, index) => row === rows[index]) && placed.length === rows.length) {
 		return placed;
 	}

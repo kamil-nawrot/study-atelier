@@ -7,6 +7,10 @@ import { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.sv
 import { saveExhibition } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
 import { loadArtworkImages } from '#lib/exhibitions/exhibition-images-data/exhibition-images-data.ts';
 import { paletteOf } from '#lib/images/image-palette/image-palette.ts';
+import {
+	MAX_DOCUMENT_BYTES,
+	documentBytes
+} from '#lib/exhibitions/exhibition-document/exhibition-document.ts';
 import { searchArtworks } from '#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts';
 import { ExhibitionSession } from '#lib/exhibitions/exhibition-session/exhibition-session.svelte.ts';
 import {
@@ -307,6 +311,41 @@ describe('ExhibitionEditorPane', () => {
 		expect(given.document.content).toEqual([]);
 	});
 
+	it('says the images could not be loaded instead of blaming the palette', async () => {
+		vi.mocked(loadArtworkImages).mockResolvedValue({ images: new Map(), error: 'Boom' });
+		const given = session(doc());
+		const { component } = await render(ExhibitionEditorPane, {
+			session: given,
+			lookup: lookup(),
+			barHeight: 80
+		});
+
+		component.add({ kind: 'palette', artworkId: 'artwork-2' });
+
+		await expect.element(page.getByText('Boom')).toBeInTheDocument();
+		expect(page.getByText(m.exhibitions.limits.noPalette).query()).toBeNull();
+		expect(given.document.content).toEqual([]);
+	});
+
+	it('waits for the images already on their way before it reads the palette', async () => {
+		let answer: (value: Awaited<ReturnType<typeof loadArtworkImages>>) => void = () => {};
+		vi.mocked(loadArtworkImages).mockReturnValue(new Promise((resolve) => (answer = resolve)));
+		const given = session(doc());
+		const shared = lookup();
+		void shared.wantPictures('artwork-2');
+		const { component } = await render(ExhibitionEditorPane, {
+			session: given,
+			lookup: shared,
+			barHeight: 80
+		});
+
+		component.add({ kind: 'palette', artworkId: 'artwork-2' });
+		answer({ images: new Map([['artwork-2', [picture]]]) });
+
+		await vi.waitFor(() => expect(kinds(given)).toEqual(['artwork']));
+		expect(loadArtworkImages).toHaveBeenCalledTimes(1);
+	});
+
 	it('asks for a pin before it adds a detail', async () => {
 		loadArtworkPins.mockResolvedValue({ pins: [] });
 		const given = session(doc());
@@ -375,6 +414,29 @@ describe('ExhibitionEditorPane', () => {
 		expect(down(2)).toHaveProperty('disabled', true);
 	});
 
+	it('keeps the focus on an arrow and the text as it is while a block moves', async () => {
+		const given = session(doc(textBlock('Alpha'), textBlock('Beta'), textBlock('Gamma')));
+		render(ExhibitionEditorPane, { session: given, lookup: lookup(), barHeight: 80 });
+		await expect.element(page.getByText('Gamma')).toBeInTheDocument();
+		const editor = card(0).querySelector('.tiptap');
+		const arrow = (label: string): Element =>
+			card(
+				[...document.querySelectorAll('[data-block-id]')].findIndex((element) =>
+					element.textContent?.includes('Alpha')
+				)
+			).querySelector(`[aria-label="${label}"]`)!;
+
+		await userEvent.click(arrow(m.exhibitions.bar.down));
+		await vi.waitFor(() => expect(card(1).textContent).toContain('Alpha'));
+		expect(card(1).querySelector('.tiptap')).toBe(editor);
+		expect(document.activeElement).toBe(arrow(m.exhibitions.bar.down));
+
+		await userEvent.click(arrow(m.exhibitions.bar.down));
+		await vi.waitFor(() => expect(card(2).textContent).toContain('Alpha'));
+		expect(card(2).querySelector('.tiptap')).toBe(editor);
+		expect(document.activeElement).toBe(arrow(m.exhibitions.bar.up));
+	});
+
 	it('warns when the exhibition changed elsewhere', async () => {
 		const given = session();
 		vi.mocked(saveExhibition).mockResolvedValue({ conflict: true });
@@ -384,6 +446,21 @@ describe('ExhibitionEditorPane', () => {
 		await given.flush();
 
 		await expect.element(page.getByText(m.exhibitions.save.conflict)).toBeInTheDocument();
+	});
+
+	it('says why the database refused to save the exhibition', async () => {
+		const given = session();
+		vi.mocked(saveExhibition).mockResolvedValue({
+			error: m.exhibitions.errors.notFound,
+			rejected: true
+		});
+		render(ExhibitionEditorPane, { session: given, lookup: lookup(), barHeight: 80 });
+
+		given.rename('Dark');
+		await given.flush();
+
+		await expect.element(page.getByText(m.exhibitions.errors.notFound)).toBeInTheDocument();
+		await expect.element(page.getByText(m.exhibitions.save.limitTitle)).toBeInTheDocument();
 	});
 
 	it('tells the learner when the exhibition is full and adds nothing', async () => {
@@ -402,6 +479,22 @@ describe('ExhibitionEditorPane', () => {
 
 		await expect.element(page.getByText(m.exhibitions.limits.blocks)).toBeInTheDocument();
 		expect(given.document.content).toHaveLength(300);
+	});
+
+	it('tells the learner when a text makes the exhibition too big to save', async () => {
+		const room = MAX_DOCUMENT_BYTES - documentBytes(doc(textBlock('')));
+		render(ExhibitionEditorPane, {
+			session: session(doc(textBlock('x'.repeat(room - 5)))),
+			lookup: lookup(),
+			barHeight: 80
+		});
+		const text = page.getByRole('textbox', { name: m.exhibitions.blocks.textBlock });
+		await expect.element(text).toBeInTheDocument();
+		expect(document.body.textContent).not.toContain(m.exhibitions.errors.tooBig);
+
+		await userEvent.type(text, 'yyyyyyyyyy');
+
+		await expect.element(page.getByText(m.exhibitions.errors.tooBig)).toBeInTheDocument();
 	});
 });
 
@@ -452,9 +545,10 @@ function grab(name: string): { x: number; y: number } {
 }
 
 describe('ExhibitionEditorPane dragging', () => {
-	beforeEach(() => {
+	beforeEach(async () => {
 		vi.clearAllMocks();
 		vi.mocked(saveExhibition).mockResolvedValue({ revision: 2 });
+		await page.viewport(1280, 800);
 	});
 
 	it('moves a block below another one and shows a line where it lands', async () => {
@@ -492,6 +586,23 @@ describe('ExhibitionEditorPane dragging', () => {
 
 		await vi.waitFor(() => expect(shape(given)).toEqual(['Judith|Alpha']));
 		expect(given.document.content?.[0].type).toBe('columns');
+	});
+
+	it('offers no column beside a block in a window too narrow for columns', async () => {
+		await page.viewport(600, 800);
+		const given = session(doc(textBlock('Alpha'), artwork('artwork-1')));
+		render(ExhibitionEditorPane, { session: given, lookup: lookup(), barHeight: 0 });
+		await expect.element(page.getByRole('figure')).toBeInTheDocument();
+
+		grab('Alpha');
+		const judith = named('Judith').getBoundingClientRect();
+		const y = judith.bottom - 4;
+		pointer('pointermove', window, judith.right - 4, y);
+		await vi.waitFor(() => expect(document.querySelector('.mark')).not.toBeNull());
+		expect(document.querySelector('.mark[data-side]')).toBeNull();
+		pointer('pointerup', window, judith.right - 4, y);
+
+		await vi.waitFor(() => expect(shape(given)).toEqual(['Judith', 'Alpha']));
 	});
 
 	it('keeps an image its full size while a block is dragged', async () => {

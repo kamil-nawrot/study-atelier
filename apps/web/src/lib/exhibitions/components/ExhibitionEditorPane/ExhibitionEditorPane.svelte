@@ -25,7 +25,7 @@
 	import { blockLabel, newBlockLabel } from '#lib/exhibitions/editor/block-label/block-label.ts';
 	import { itemsOf, withItem } from '#lib/exhibitions/editor/block-set/block-set.ts';
 	import { paletteOf } from '#lib/images/image-palette/image-palette.ts';
-	import { limitOf } from '#lib/exhibitions/editor/block-limits/block-limits.ts';
+	import { limitOf, sizeLimitOf } from '#lib/exhibitions/editor/block-limits/block-limits.ts';
 	import {
 		artworkNode,
 		closeUpNode,
@@ -65,8 +65,11 @@
 	onDestroy(() => drag.cancel());
 
 	function change(next: Row[]): void {
+		const document = documentOf(next);
+		const size = sizeLimitOf(document);
+		if (size || limit === m.exhibitions.errors.tooBig) limit = size;
 		rows = next;
-		session.replace(documentOf(next));
+		session.replace(document);
 	}
 
 	function place(node: ExhibitionDocument, target: Target = { before: undefined }): void {
@@ -104,7 +107,11 @@
 
 	async function readablePalette(artworkId: string): Promise<ExhibitionDocument | undefined> {
 		limit = undefined;
-		await lookup.wantPictures(artworkId);
+		const loaded = await lookup.wantPictures(artworkId, true);
+		if (loaded.error) {
+			limit = loaded.error;
+			return undefined;
+		}
 		const pictures = lookup.pictures(artworkId);
 		const image = pictures?.[0];
 		const result = image ? await paletteOf(image) : undefined;
@@ -145,6 +152,21 @@
 		const next = update(rows, id, withItem(node, item));
 		limit = limitOf(documentOf(next));
 		if (!limit) change(next);
+	}
+
+	async function stepBlock(id: string, direction: -1 | 1): Promise<void> {
+		change(step(rows, id, direction));
+		await tick();
+		const card = list?.querySelector(`[data-block-id="${id}"]`);
+		if (!card || card.contains(document.activeElement)) return;
+		const [pressed, other] =
+			direction < 0
+				? [m.exhibitions.bar.up, m.exhibitions.bar.down]
+				: [m.exhibitions.bar.down, m.exhibitions.bar.up];
+		const button =
+			card.querySelector<HTMLElement>(`button[aria-label="${pressed}"]:not(:disabled)`) ??
+			card.querySelector<HTMLElement>(`button[aria-label="${other}"]`);
+		button?.focus();
 	}
 
 	function hover(x: number, y: number): void {
@@ -199,6 +221,8 @@
 		<Alert title={m.exhibitions.save.conflictTitle} tone="danger">
 			{m.exhibitions.save.conflict}
 		</Alert>
+	{:else if session.status === 'rejected'}
+		<Alert title={m.exhibitions.save.limitTitle} tone="danger">{session.error}</Alert>
 	{:else if limit}
 		<Alert tone="warning">{limit}</Alert>
 	{/if}
@@ -217,7 +241,7 @@
 						onchange={(node) => change(update(rows, block.id, node))}
 						onmovestart={(event) => dragBlock(event, block.id, block.node)}
 						onremove={() => change(remove(rows, block.id))}
-						onstep={(direction) => change(step(rows, block.id, direction))}
+						onstep={(direction) => stepBlock(block.id, direction)}
 						{terms}
 					/>
 				{/each}

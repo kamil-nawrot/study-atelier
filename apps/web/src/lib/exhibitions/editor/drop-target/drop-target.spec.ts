@@ -101,6 +101,29 @@ describe('dropAt', () => {
 		expect(dropAt(rows, frame, 450, 120, 'b')?.target).toEqual({ before: 'r2' });
 	});
 
+	it('offers only lines between rows when the blocks of a row stand one under another', () => {
+		const stacked: RowBox[] = [
+			{ id: 'r1', top: 0, bottom: 100, stacked: true, blocks: [{ id: 'a', left: 0, right: 900 }] },
+			{
+				id: 'r2',
+				top: 140,
+				bottom: 500,
+				stacked: true,
+				blocks: [
+					{ id: 'b', left: 0, right: 900 },
+					{ id: 'c', left: 0, right: 900 }
+				]
+			}
+		];
+
+		expect(dropAt(stacked, frame, 10, 20)?.target).toEqual({ before: 'r1' });
+		expect(dropAt(stacked, frame, 890, 90)?.target).toEqual({ before: 'r2' });
+		expect(dropAt(stacked, frame, 10, 200)?.target).toEqual({ before: 'r2' });
+		expect(dropAt(stacked, frame, 890, 450)?.target).toEqual({ before: undefined });
+		expect(dropAt(stacked, frame, 450, 450, 'c')?.target).toEqual({ before: undefined });
+		expect(dropAt(stacked, frame, 10, 20, 'a')).toBeUndefined();
+	});
+
 	it('drops nowhere outside the frame and on a line in an empty exhibition', () => {
 		expect(dropAt(rows, frame, -5, 50)).toBeUndefined();
 		expect(dropAt(rows, frame, 905, 50)).toBeUndefined();

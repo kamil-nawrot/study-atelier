@@ -2,7 +2,9 @@ import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input
 import type { PaletteColour } from '#lib/catalogue/types/palette-colour.ts';
 import { artworkImageSource } from '#lib/images/artwork-image/artwork-image.ts';
 import { fetchCommonsThumbnails } from '#lib/images/commons/commons.ts';
+import { ownThumbnailPath } from '#lib/images/bucket/bucket.ts';
 import { fetchImageThroughProxy } from '#lib/images/image-proxy-data/image-proxy-data.ts';
+import { ownImageUrl } from '#lib/images/own-image-data/own-image-data.ts';
 import { readPixels } from '#lib/images/image-pixels/image-pixels.ts';
 import { savePalette } from '#lib/images/palette-data/palette-data.ts';
 import { extractPalette } from '#lib/images/palette/palette.ts';
@@ -12,9 +14,9 @@ export const PALETTE_SOURCE_WIDTH = 330;
 export type PaletteResult = { colours: PaletteColour[] } | { unreadable: true };
 
 const known = new Map<string, PaletteResult>();
+const running = new Map<string, Promise<PaletteResult>>();
 
-function memoryKey(image: ArtworkImageInput): string | undefined {
-	if (!image.id) return undefined;
+function memoryKey(image: ArtworkImageInput): string {
 	const origin =
 		image.kind === 'commons'
 			? image.file
@@ -22,14 +24,17 @@ function memoryKey(image: ArtworkImageInput): string | undefined {
 				? image.url
 				: image.kind === 'upload'
 					? image.path
-					: '';
-	return `${image.id}:${origin}`;
+					: image.previewUrl;
+	return `${image.id ?? ''}:${image.kind}:${origin}`;
 }
 
 async function sourceUrl(image: ArtworkImageInput): Promise<string | undefined> {
 	if (image.kind === 'commons') {
 		const thumbnails = await fetchCommonsThumbnails([image.file], PALETTE_SOURCE_WIDTH);
 		return thumbnails.get(image.file);
+	}
+	if (image.kind === 'upload') {
+		return (await ownImageUrl(ownThumbnailPath(image.path))) ?? image.previewUrl;
 	}
 	return artworkImageSource(image, PALETTE_SOURCE_WIDTH)?.src;
 }
@@ -49,7 +54,9 @@ async function computeColours(image: ArtworkImageInput): Promise<PaletteColour[]
 		if (!url) return undefined;
 		const blob = await downloadImage(image, url);
 		if (!blob) return undefined;
-		const pixels = await readPixels(blob);
+		const shape =
+			image.width && image.height ? { width: image.width, height: image.height } : undefined;
+		const pixels = await readPixels(blob, shape);
 		const colours = pixels ? extractPalette(pixels) : [];
 		return colours.length > 0 ? colours : undefined;
 	} catch {
@@ -57,16 +64,22 @@ async function computeColours(image: ArtworkImageInput): Promise<PaletteColour[]
 	}
 }
 
-export async function paletteOf(image: ArtworkImageInput): Promise<PaletteResult> {
-	if (image.palette) return { colours: image.palette };
-	const key = memoryKey(image);
-	const remembered = key ? known.get(key) : undefined;
-	if (remembered) return remembered;
+async function readPalette(image: ArtworkImageInput, key: string): Promise<PaletteResult> {
 	const colours = await computeColours(image);
 	const result: PaletteResult = colours ? { colours } : { unreadable: true };
-	if (key && image.id && colours) {
-		known.set(key, result);
-		await savePalette(image.id, colours);
-	}
+	known.set(key, result);
+	if (colours && image.id) void savePalette(image, colours).catch(() => false);
 	return result;
+}
+
+export function paletteOf(image: ArtworkImageInput): Promise<PaletteResult> {
+	if (image.palette) return Promise.resolve({ colours: image.palette });
+	const key = memoryKey(image);
+	const remembered = known.get(key);
+	if (remembered) return Promise.resolve(remembered);
+	const pending = running.get(key);
+	if (pending) return pending;
+	const request = readPalette(image, key).finally(() => running.delete(key));
+	running.set(key, request);
+	return request;
 }

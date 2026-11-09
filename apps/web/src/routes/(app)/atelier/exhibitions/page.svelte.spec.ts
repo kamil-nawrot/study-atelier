@@ -68,6 +68,14 @@ describe('exhibitions page', () => {
 			.toHaveAttribute('href', `/atelier/exhibitions/${light.id}`);
 	});
 
+	it('offers no new exhibition on a phone, where blocks cannot be added', async () => {
+		await page.viewport(390, 844);
+		renderList();
+
+		await expect.element(page.getByRole('link', { name: /Light/ })).toBeInTheDocument();
+		expect(page.getByRole('button', { name: m.exhibitions.add }).query()).toBeNull();
+	});
+
 	it('invites to the first exhibition when there is none', async () => {
 		renderList([]);
 

@@ -77,6 +77,20 @@ describe('blockCountOf', () => {
 		};
 		expect(blockCountOf(document)).toBe(2);
 	});
+
+	it('counts a heading inside a text as part of the text, like the database', () => {
+		const document = {
+			type: 'doc',
+			content: [
+				{
+					type: 'textBlock',
+					content: [{ type: 'heading', attrs: { level: 3 } }, { type: 'paragraph' }]
+				},
+				{ type: 'heading', attrs: { level: 2 } }
+			]
+		};
+		expect(blockCountOf(document)).toBe(2);
+	});
 });
 
 describe('isBlankText', () => {
@@ -115,8 +129,22 @@ describe('withEditableBody', () => {
 
 describe('documentBytes', () => {
 	it('counts the bytes of the JSON, not its characters', () => {
-		expect(documentBytes({ type: 'doc', content: [text('ł')] })).toBe(
-			JSON.stringify({ type: 'doc', content: [text('ł')] }).length + 1
+		expect(documentBytes({ type: 'doc', attrs: { a: 'ł' } })).toBe(
+			'{"type": "doc", "attrs": {"a": "ł"}}'.length + 1
+		);
+	});
+
+	it('measures the text the database keeps, with spaces after separators and plain numbers', () => {
+		const document = {
+			type: 'doc',
+			content: [{ type: 'closeUp', attrs: { x: 1e-7, y: 0.5, viewWidth: 1, imageId: undefined } }]
+		};
+		expect(documentBytes(document)).toBe(
+			'{"type": "doc", "content": [{"type": "closeUp", "attrs": {"x": 0.0000001, "y": 0.5, "viewWidth": 1}}]}'
+				.length
+		);
+		expect(documentBytes({ type: 'doc', attrs: { a: 2e21, b: -1.5e-8 } })).toBe(
+			'{"type": "doc", "attrs": {"a": 2000000000000000000000, "b": -0.000000015}}'.length
 		);
 	});
 });
