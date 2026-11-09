@@ -38,7 +38,7 @@ afterEach(() => {
 describe('TextField', () => {
 	it('keeps a pasted heading out of a list item', async () => {
 		const element = document.createElement('div');
-		document.body.append(element);
+		document.body.appendChild(element);
 		const onchange = vi.fn<(node: ExhibitionDocument) => void>();
 		field = new TextField({
 			element,
