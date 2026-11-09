@@ -64,7 +64,7 @@
 	}
 
 	.credits li {
-		margin-block-end: var(--spacing-1);
+		padding-block-end: var(--spacing-1);
 		break-inside: avoid;
 	}
 
