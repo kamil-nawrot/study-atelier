@@ -31,7 +31,7 @@ Chosen by the owner in ATL-580.
 
 ### Counting
 
-- A tiered exhibit counting the artwork types of the collection without "Inne", at most seven, with six tiers at 2, 3, 4, 5, 6 and 7, like "Świątynia della Tosse" from 2 to 6 eras. The trash, artworks without a type and the place in the case are settled in the build's issue.
+- A tiered exhibit counting the artwork types of the collection without "Inne", at most seven, with six tiers at 2, 3, 4, 5, 6 and 7, like "Świątynia della Tosse" from 2 to 6 eras. The trash and artworks without a type are settled in the build's issue.
 
 ### Display case
 
@@ -39,6 +39,7 @@ Chosen by the owner in ATL-580.
 - Engraving: Cornelis Cort after a design by Jan van der Straet (Stradanus), _The Practitioners of the Visual Arts_, Rome, 1578, published by Laurentius Vacarius and dedicated to Giacomo Boncompagni, Metropolitan Museum of Art 53.600.509, CC0 on its [object page](https://www.metmuseum.org/art/collection/search/369581); `exhibit-art` takes the museum's image through `source_url`. The Rijksmuseum holds another impression, RP-P-BI-6381, which confirms the publisher and the dedication. The whole workshop inside the plate, without the dedication, variant `cort-workshop` in `tools/exhibit-art/manifest.json`; the other two crops stay as alternatives. The scene is dense at 400 × 520, which the owner accepted.
 - Credit: Cornelis Cort, „Adepci sztuk plastycznych”, 1578.
 - Exhibit code: `boncompagni_academy`.
+- The room of the display case: Sala główna, after `vasari_lives` ([ADR-0228](0228-group-the-exhibits-of-the-display-case-into-rooms.md)).
 - Name "Akademia Boncompagniego", a place and whose it is, after the dedication of the print.
 - The counter label: "typów dzieł w atelier", as in "3 z 7 typów dzieł w atelier".
 - The story of the object: "Cornelis Cort wyrył w 1578 roku w Rzymie pracownię, w której obok siebie pracują rzeźbiarze, malarze, rysownicy, architekci i rytownicy."
