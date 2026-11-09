@@ -219,7 +219,7 @@ begin
 
   listed := array(select ctid::text from public.exhibition_artworks where exhibition_id = exhibition order by position);
   revision := public.save_exhibition(exhibition, 'Light and shade',
-    (select document from public.exhibitions where id = exhibition), 3);
+    (select saved.document from public.exhibitions as saved where saved.id = exhibition), 3);
   assert array(select ctid::text from public.exhibition_artworks where exhibition_id = exhibition order by position) = listed,
     'a save that keeps the artworks writes their rows again';
 
