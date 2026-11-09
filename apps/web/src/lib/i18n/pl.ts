@@ -1970,7 +1970,13 @@ export const pl = {
 					many: 'wydarzeń w Kalendarium'
 				}),
 			visits: (count: number): string =>
-				plural(count, { one: 'wizyta w Kronice', few: 'wizyty w Kronice', many: 'wizyt w Kronice' })
+				plural(count, {
+					one: 'wizyta w Kronice',
+					few: 'wizyty w Kronice',
+					many: 'wizyt w Kronice'
+				}),
+			exhibitions: (count: number): string =>
+				plural(count, { one: 'wystawa', few: 'wystawy', many: 'wystaw' })
 		},
 		composition: {
 			title: 'Kompozycja',

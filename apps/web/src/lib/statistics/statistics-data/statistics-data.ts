@@ -8,6 +8,7 @@ type StatisticsRow = {
 	terms: number;
 	events: number;
 	visits: number;
+	exhibitions: number;
 	quiz_answers: number;
 	correct_answers: number;
 	most_reviewed: { artwork_id: string; times: number }[];
@@ -56,6 +57,7 @@ function statisticsOf(row: StatisticsRow): CollectionStatistics {
 		terms: row.terms,
 		events: row.events,
 		visits: row.visits,
+		exhibitions: row.exhibitions,
 		quizAnswers: row.quiz_answers,
 		correctAnswers: row.correct_answers,
 		mostReviewed: row.most_reviewed.map((item) => ({
