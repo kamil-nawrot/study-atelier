@@ -14,9 +14,13 @@ const BLOCK_TYPES = new Set([
 	'term'
 ]);
 
-function walk(node: ExhibitionDocument, visit: (node: ExhibitionDocument) => void): void {
-	visit(node);
-	for (const child of node.content ?? []) walk(child, visit);
+function walk(
+	node: ExhibitionDocument,
+	visit: (node: ExhibitionDocument, parent?: ExhibitionDocument) => void,
+	parent?: ExhibitionDocument
+): void {
+	visit(node, parent);
+	for (const child of node.content ?? []) walk(child, visit, node);
 }
 
 export function artworkIdsOf(document: ExhibitionDocument): string[] {
@@ -31,7 +35,8 @@ export function artworkIdsOf(document: ExhibitionDocument): string[] {
 
 export function blockCountOf(document: ExhibitionDocument): number {
 	let count = 0;
-	walk(document, (node) => {
+	walk(document, (node, parent) => {
+		if (node.type === 'heading' && parent?.type === 'textBlock') return;
 		if (node.type && BLOCK_TYPES.has(node.type)) count += 1;
 	});
 	return count;
@@ -51,6 +56,30 @@ export function withEditableBody(document: ExhibitionDocument): ExhibitionDocume
 	};
 }
 
+function numberText(value: number): string {
+	if (!Number.isFinite(value)) return 'null';
+	const text = String(value);
+	const match = /^(-?)(\d)(?:\.(\d+))?e([+-]\d+)$/.exec(text);
+	if (!match) return text;
+	const [, sign, lead, rest = '', power] = match;
+	const digits = `${lead}${rest}`;
+	const point = 1 + Number(power);
+	if (point <= 0) return `${sign}0.${'0'.repeat(-point)}${digits}`;
+	return `${sign}${digits.padEnd(point, '0')}`;
+}
+
+function jsonbText(value: unknown): string {
+	if (typeof value === 'number') return numberText(value);
+	if (Array.isArray(value)) {
+		return `[${value.map((item) => (item === undefined ? 'null' : jsonbText(item))).join(', ')}]`;
+	}
+	if (value !== null && typeof value === 'object') {
+		const entries = Object.entries(value).filter(([, item]) => item !== undefined);
+		return `{${entries.map(([key, item]) => `${JSON.stringify(key)}: ${jsonbText(item)}`).join(', ')}}`;
+	}
+	return JSON.stringify(value) ?? 'null';
+}
+
 export function documentBytes(document: ExhibitionDocument): number {
-	return new TextEncoder().encode(JSON.stringify(document)).length;
+	return new TextEncoder().encode(jsonbText(document)).length;
 }

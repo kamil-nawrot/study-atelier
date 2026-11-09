@@ -1,4 +1,5 @@
 import { Editor, Node } from '@tiptap/core';
+import { ListItem } from '@tiptap/extension-list';
 import StarterKit from '@tiptap/starter-kit';
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 
@@ -17,6 +18,10 @@ const TextDoc = Node.create({
 	name: 'doc',
 	topNode: true,
 	content: '(paragraph | heading | bulletList | orderedList)+'
+});
+
+const TextListItem = ListItem.extend({
+	content: 'paragraph (paragraph | bulletList | orderedList)*'
 });
 
 export class TextField {
@@ -49,9 +54,11 @@ export class TextField {
 					underline: false,
 					dropcursor: false,
 					gapcursor: false,
-					trailingNode: false
+					trailingNode: false,
+					listItem: false
 				}),
-				TextDoc
+				TextDoc,
+				TextListItem
 			],
 			editorProps: {
 				attributes: { role: 'textbox', 'aria-multiline': 'true', 'aria-label': label },

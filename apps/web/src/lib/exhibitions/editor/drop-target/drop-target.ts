@@ -7,6 +7,7 @@ export type RowBox = {
 	top: number;
 	bottom: number;
 	blocks: BlockBox[];
+	stacked?: boolean;
 };
 
 export type Frame = { top: number; left: number; right: number };
@@ -120,9 +121,9 @@ export function dropAt(
 	for (const [index, row] of rows.entries()) {
 		if (y > row.bottom) continue;
 		if (y >= row.top) {
-			const beside = sideOf(row, x, moving);
+			const beside = row.stacked ? undefined : sideOf(row, x, moving);
 			if (beside !== undefined) return beside ?? undefined;
-			if (within(row, x, moving)) return undefined;
+			if (!row.stacked && within(row, x, moving)) return undefined;
 			return lineAt(rows, y < (row.top + row.bottom) / 2 ? index : index + 1, frame, moving);
 		}
 		return lineAt(rows, index, frame, moving);

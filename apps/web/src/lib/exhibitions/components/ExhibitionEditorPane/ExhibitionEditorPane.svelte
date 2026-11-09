@@ -25,7 +25,7 @@
 	import { blockLabel, newBlockLabel } from '#lib/exhibitions/editor/block-label/block-label.ts';
 	import { itemsOf, withItem } from '#lib/exhibitions/editor/block-set/block-set.ts';
 	import { paletteOf } from '#lib/images/image-palette/image-palette.ts';
-	import { limitOf } from '#lib/exhibitions/editor/block-limits/block-limits.ts';
+	import { limitOf, sizeLimitOf } from '#lib/exhibitions/editor/block-limits/block-limits.ts';
 	import {
 		artworkNode,
 		closeUpNode,
@@ -65,8 +65,11 @@
 	onDestroy(() => drag.cancel());
 
 	function change(next: Row[]): void {
+		const document = documentOf(next);
+		const size = sizeLimitOf(document);
+		if (size || limit === m.exhibitions.errors.tooBig) limit = size;
 		rows = next;
-		session.replace(documentOf(next));
+		session.replace(document);
 	}
 
 	function place(node: ExhibitionDocument, target: Target = { before: undefined }): void {
@@ -147,6 +150,21 @@
 		if (!limit) change(next);
 	}
 
+	async function stepBlock(id: string, direction: -1 | 1): Promise<void> {
+		change(step(rows, id, direction));
+		await tick();
+		const card = list?.querySelector(`[data-block-id="${id}"]`);
+		if (!card || card.contains(document.activeElement)) return;
+		const [pressed, other] =
+			direction < 0
+				? [m.exhibitions.bar.up, m.exhibitions.bar.down]
+				: [m.exhibitions.bar.down, m.exhibitions.bar.up];
+		const button =
+			card.querySelector<HTMLElement>(`button[aria-label="${pressed}"]:not(:disabled)`) ??
+			card.querySelector<HTMLElement>(`button[aria-label="${other}"]`);
+		button?.focus();
+	}
+
 	function hover(x: number, y: number): void {
 		const frame = list?.getBoundingClientRect();
 		drop = frame && list ? dropAt(measureRows(list), frame, x, y, moving) : undefined;
@@ -217,7 +235,7 @@
 						onchange={(node) => change(update(rows, block.id, node))}
 						onmovestart={(event) => dragBlock(event, block.id, block.node)}
 						onremove={() => change(remove(rows, block.id))}
-						onstep={(direction) => change(step(rows, block.id, direction))}
+						onstep={(direction) => stepBlock(block.id, direction)}
 						{terms}
 					/>
 				{/each}

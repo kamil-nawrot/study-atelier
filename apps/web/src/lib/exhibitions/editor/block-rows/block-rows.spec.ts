@@ -199,6 +199,17 @@ describe('remove, update and step', () => {
 		expect(names(step(rows, 'gone', 1))).toEqual(names(rows));
 	});
 
+	it('keeps the row of a block that moves alone, so its card stays as it is', () => {
+		const rows = sample();
+		const alpha = rows[0].id;
+		expect(step(rows, ids(rows, 'Alpha'), 1)[1].id).toBe(alpha);
+		expect(move(rows, ids(rows, 'Alpha'), { before: undefined }).at(-1)?.id).toBe(alpha);
+		const out = step(rows, ids(rows, 'Beta'), 1).find(
+			(row) => row.blocks[0]?.id === ids(rows, 'Beta')
+		);
+		expect(rows.map((row) => row.id)).not.toContain(out?.id);
+	});
+
 	it('tells which steps a block can take', () => {
 		const rows = sample();
 		expect(canStep(rows, ids(rows, 'Alpha'), -1)).toBe(false);
