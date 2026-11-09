@@ -1,6 +1,6 @@
 <script lang="ts">
 	import X from '@lucide/svelte/icons/x';
-	import { Icon, Logo } from '@study-atelier/ui';
+	import { Icon, Logo, overlayScrollbar } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import AtelierMenu from '#lib/shell/AtelierMenu/AtelierMenu.svelte';
 
@@ -45,7 +45,7 @@
 					<Icon icon={X} />
 				</button>
 			</div>
-			<div class="menu">
+			<div class="menu" {@attach overlayScrollbar()}>
 				<AtelierMenu {email} {onfeedback} {onsignout} {signingOut} />
 			</div>
 		</nav>
@@ -72,6 +72,8 @@
 		flex-direction: column;
 		justify-content: space-between;
 		gap: var(--spacing-6);
+		min-height: 0;
+		overflow-y: auto;
 	}
 
 	.drawer {
