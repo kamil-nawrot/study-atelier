@@ -267,6 +267,9 @@ describe('exhibition page', () => {
 			await expect
 				.element(page.getByRole('heading', { name: m.artworkForm.discardTitle }))
 				.toBeInTheDocument();
+			await expect
+				.element(page.getByRole('button', { name: m.exhibitions.save.keepEditing }))
+				.toBeInTheDocument();
 		});
 
 		it('does not hold the page back when everything is saved', async () => {

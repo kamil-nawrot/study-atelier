@@ -147,7 +147,11 @@
 	{/if}
 </AtelierLayout>
 
-<DiscardDialog changes={leave.changes} description={m.common.discardDescription} />
+<DiscardDialog
+	changes={leave.changes}
+	description={m.common.discardDescription}
+	keepLabel={m.exhibitions.save.keepEditing}
+/>
 
 {#if data.exhibition}
 	<ExhibitionDeleteDialog

@@ -2436,7 +2436,8 @@ export const pl = {
 			conflict:
 				'Ta wystawa w międzyczasie zmieniła swój kształt, więc Twoich ostatnich zmian nie udało się zapisać. Odśwież stronę, żeby zobaczyć najnowszą wersję.',
 			conflictTitle: 'Nie zapisano zmian',
-			limitTitle: 'Nie zapisano zmian'
+			limitTitle: 'Nie zapisano zmian',
+			keepEditing: 'Wróć do wystawy'
 		},
 		panel: {
 			title: 'Przybornik',
