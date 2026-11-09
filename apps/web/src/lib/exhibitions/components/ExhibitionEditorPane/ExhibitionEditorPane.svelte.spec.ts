@@ -421,6 +421,21 @@ describe('ExhibitionEditorPane', () => {
 		await expect.element(page.getByText(m.exhibitions.save.conflict)).toBeInTheDocument();
 	});
 
+	it('says why the database refused to save the exhibition', async () => {
+		const given = session();
+		vi.mocked(saveExhibition).mockResolvedValue({
+			error: m.exhibitions.errors.notFound,
+			rejected: true
+		});
+		render(ExhibitionEditorPane, { session: given, lookup: lookup(), barHeight: 80 });
+
+		given.rename('Dark');
+		await given.flush();
+
+		await expect.element(page.getByText(m.exhibitions.errors.notFound)).toBeInTheDocument();
+		await expect.element(page.getByText(m.exhibitions.save.limitTitle)).toBeInTheDocument();
+	});
+
 	it('tells the learner when the exhibition is full and adds nothing', async () => {
 		const given = session(
 			doc(

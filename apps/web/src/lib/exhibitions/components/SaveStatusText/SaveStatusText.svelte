@@ -8,25 +8,18 @@
 
 	let { status }: Props = $props();
 
-	let text = $derived(
-		status === 'saving'
-			? m.exhibitions.save.saving
-			: status === 'saved'
-				? m.exhibitions.save.saved
-				: status === 'conflict'
-					? m.exhibitions.save.conflictTitle
-					: status === 'untitled'
-						? m.exhibitions.save.untitled
-						: m.exhibitions.save.failed
-	);
+	const TEXTS: Record<SaveStatus, string> = {
+		saving: m.exhibitions.save.saving,
+		saved: m.exhibitions.save.saved,
+		failed: m.exhibitions.save.failed,
+		conflict: m.exhibitions.save.conflictTitle,
+		rejected: m.exhibitions.save.limitTitle,
+		untitled: m.exhibitions.save.untitled
+	};
 </script>
 
-<span
-	class="status"
-	class:failed={status === 'failed' || status === 'conflict' || status === 'untitled'}
-	role="status"
->
-	{text}
+<span class="status" class:failed={status !== 'saving' && status !== 'saved'} role="status">
+	{TEXTS[status]}
 </span>
 
 <style>

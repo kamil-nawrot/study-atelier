@@ -152,6 +152,41 @@ describe('ExhibitionSession', () => {
 		expect(session.error).toBeUndefined();
 	});
 
+	it('does not try again a save the database refused, until the next change', async () => {
+		vi.mocked(saveExhibition).mockResolvedValueOnce({ error: 'Archived', rejected: true });
+		const session = new ExhibitionSession(exhibition);
+		session.replace(changed);
+		await vi.advanceTimersByTimeAsync(AUTOSAVE_DELAY_MS);
+		expect(session.status).toBe('rejected');
+		expect(session.error).toBe('Archived');
+		expect(session.unsaved).toBe(true);
+		await vi.advanceTimersByTimeAsync(RETRY_DELAY_MS * 3);
+		expect(saveExhibition).toHaveBeenCalledTimes(1);
+
+		session.rename('Dark');
+		await vi.advanceTimersByTimeAsync(AUTOSAVE_DELAY_MS);
+		expect(saveExhibition).toHaveBeenCalledTimes(2);
+		expect(session.status).toBe('saved');
+		expect(session.unsaved).toBe(false);
+	});
+
+	it('tries no more once destroyed, even after a save that was running fails', async () => {
+		let fail: () => void = () => {};
+		vi.mocked(saveExhibition).mockImplementationOnce(
+			() => new Promise((resolve) => (fail = () => resolve({ error: 'Offline' })))
+		);
+		const session = new ExhibitionSession(exhibition);
+		session.replace(changed);
+		await vi.advanceTimersByTimeAsync(AUTOSAVE_DELAY_MS);
+		session.destroy();
+		fail();
+		await vi.advanceTimersByTimeAsync(RETRY_DELAY_MS * 3);
+
+		expect(saveExhibition).toHaveBeenCalledTimes(1);
+		expect(session.status).toBe('failed');
+		expect(session.unsaved).toBe(true);
+	});
+
 	it('stops saving after a newer version from another window refused the save', async () => {
 		vi.mocked(saveExhibition).mockResolvedValueOnce({ conflict: true });
 		const session = new ExhibitionSession(exhibition);

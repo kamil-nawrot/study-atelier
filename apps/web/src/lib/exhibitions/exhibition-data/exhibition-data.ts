@@ -1,5 +1,9 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
-import { exhibitionErrorMessage, isRevisionConflict } from '#lib/exhibitions/errors/errors.ts';
+import {
+	exhibitionErrorMessage,
+	isLastingSaveError,
+	isRevisionConflict
+} from '#lib/exhibitions/errors/errors.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import type { Json } from '#lib/shared/data/database.types.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
@@ -94,7 +98,8 @@ export async function saveExhibition(
 	});
 	if (error) {
 		if (isRevisionConflict(error)) return { conflict: true };
-		return { error: await failureMessage(error, exhibitionErrorMessage) };
+		const message = await failureMessage(error, exhibitionErrorMessage);
+		return isLastingSaveError(error) ? { error: message, rejected: true } : { error: message };
 	}
 	return { revision: data };
 }

@@ -4,12 +4,13 @@
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { Button, LoadFailure } from '@study-atelier/ui';
-	import { beforeNavigate, goto } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
+	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import { readStored, writeStored } from '#lib/shared/utils/storage/storage.ts';
 	import AddPanel from '#lib/exhibitions/components/AddPanel/AddPanel.svelte';
 	import ExhibitionBody from '#lib/exhibitions/components/ExhibitionBody/ExhibitionBody.svelte';
@@ -20,6 +21,7 @@
 	import { artworkIdsOf } from '#lib/exhibitions/exhibition-document/exhibition-document.ts';
 	import { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 	import { ExhibitionSession } from '#lib/exhibitions/exhibition-session/exhibition-session.svelte.ts';
+	import { ExhibitionLeave } from '#lib/exhibitions/exhibition-leave/exhibition-leave.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { PageProps } from './$types';
 
@@ -54,16 +56,15 @@
 	$effect(() => () => session?.destroy());
 	$effect(() => writeStored('local', PANEL_KEY, panelOpen ? 'open' : 'closed'));
 
-	beforeNavigate((navigation) => {
-		if (session?.dirty) void session.flush();
-		if (session?.dirty && navigation.willUnload) navigation.cancel();
-	});
+	const leave = new ExhibitionLeave(() => session);
 
 	async function setEditing(on: boolean): Promise<void> {
 		if (!data.exhibition) return;
 		await session?.flush();
 		const path = resolve('/(app)/atelier/exhibitions/[id]', { id: data.exhibition.id });
-		await goto((on ? `${path}?edit` : path) as ResolvedPathname, { replaceState: true });
+		await leave.switchMode(() =>
+			goto((on ? `${path}?edit` : path) as ResolvedPathname, { replaceState: true })
+		);
 	}
 
 	async function moved(): Promise<void> {
@@ -145,6 +146,8 @@
 		/>
 	{/if}
 </AtelierLayout>
+
+<DiscardDialog changes={leave.changes} description={m.common.discardDescription} />
 
 {#if data.exhibition}
 	<ExhibitionDeleteDialog

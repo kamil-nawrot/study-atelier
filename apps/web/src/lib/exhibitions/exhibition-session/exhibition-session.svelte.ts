@@ -16,6 +16,7 @@ export class ExhibitionSession {
 	#document: ExhibitionDocument;
 	#dirty = false;
 	#saving = false;
+	#stopped = false;
 	#timer: ReturnType<typeof setTimeout> | undefined;
 
 	constructor(exhibition: Exhibition) {
@@ -32,6 +33,10 @@ export class ExhibitionSession {
 
 	get dirty(): boolean {
 		return this.#dirty || this.#saving;
+	}
+
+	get unsaved(): boolean {
+		return this.#dirty && (this.status === 'failed' || this.status === 'rejected');
 	}
 
 	rename(title: string): void {
@@ -70,6 +75,7 @@ export class ExhibitionSession {
 
 	#schedule(delay: number): void {
 		clearTimeout(this.#timer);
+		if (this.#stopped) return;
 		this.#timer = setTimeout(() => void this.flush(), delay);
 	}
 
@@ -91,9 +97,9 @@ export class ExhibitionSession {
 		}
 		if (result.revision === undefined) {
 			this.#dirty = true;
-			this.status = 'failed';
+			this.status = result.rejected ? 'rejected' : 'failed';
 			this.error = result.error;
-			this.#schedule(RETRY_DELAY_MS);
+			if (!result.rejected) this.#schedule(RETRY_DELAY_MS);
 			return;
 		}
 		this.#revision = result.revision;
@@ -103,6 +109,7 @@ export class ExhibitionSession {
 	}
 
 	destroy(): void {
+		this.#stopped = true;
 		clearTimeout(this.#timer);
 	}
 }

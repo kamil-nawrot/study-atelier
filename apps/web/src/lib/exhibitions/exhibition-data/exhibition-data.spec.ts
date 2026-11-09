@@ -162,7 +162,31 @@ describe('saveExhibition', () => {
 			error: { code: '23514', message: '' }
 		} as never);
 		expect(await saveExhibition(ID, 'x', BLANK_DOCUMENT, 1)).toEqual({
-			error: m.exhibitions.errors.invalid
+			error: m.exhibitions.errors.invalid,
+			rejected: true
+		});
+
+		rpc.mockResolvedValueOnce({
+			data: null,
+			error: { code: 'P0002', message: '' }
+		} as never);
+		expect(await saveExhibition(ID, 'x', BLANK_DOCUMENT, 1)).toEqual({
+			error: m.exhibitions.errors.notFound,
+			rejected: true
+		});
+
+		rpc.mockResolvedValueOnce({
+			data: null,
+			error: { code: '53400', hint: 'exhibition_blocks', message: '' }
+		} as never);
+		expect(await saveExhibition(ID, 'x', BLANK_DOCUMENT, 1)).toEqual({
+			error: m.exhibitions.limits.blocks,
+			rejected: true
+		});
+
+		rpc.mockResolvedValueOnce({ data: null, error: { message: 'Failed to fetch' } } as never);
+		expect(await saveExhibition(ID, 'x', BLANK_DOCUMENT, 1)).toEqual({
+			error: m.common.network
 		});
 	});
 });

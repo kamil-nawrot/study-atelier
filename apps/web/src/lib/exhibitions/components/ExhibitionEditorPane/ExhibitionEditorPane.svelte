@@ -203,6 +203,8 @@
 		<Alert title={m.exhibitions.save.conflictTitle} tone="danger">
 			{m.exhibitions.save.conflict}
 		</Alert>
+	{:else if session.status === 'rejected'}
+		<Alert title={m.exhibitions.save.limitTitle} tone="danger">{session.error}</Alert>
 	{:else if limit}
 		<Alert tone="warning">{limit}</Alert>
 	{/if}

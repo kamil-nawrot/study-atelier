@@ -252,6 +252,23 @@ describe('exhibition page', () => {
 			expect(event.defaultPrevented).toBe(true);
 		});
 
+		it('asks before leaving changes that could not be saved', async () => {
+			vi.mocked(saveExhibition).mockResolvedValueOnce({ error: 'Offline' });
+			const leave = await editAndChange();
+			leave({ willUnload: false, cancel: vi.fn() });
+			await expect.element(page.getByText(m.exhibitions.save.failed)).toBeInTheDocument();
+			const calls = vi.mocked(beforeNavigate).mock.calls;
+			const guard = calls[calls.length - 2][0] as (navigation: unknown) => void;
+			const cancel = vi.fn();
+
+			guard({ type: 'link', to: { url: new URL('http://localhost/atelier') }, cancel });
+
+			expect(cancel).toHaveBeenCalled();
+			await expect
+				.element(page.getByRole('heading', { name: m.artworkForm.discardTitle }))
+				.toBeInTheDocument();
+		});
+
 		it('does not hold the page back when everything is saved', async () => {
 			renderExhibition();
 			const calls = vi.mocked(beforeNavigate).mock.calls;
