@@ -472,9 +472,10 @@ function grab(name: string): { x: number; y: number } {
 }
 
 describe('ExhibitionEditorPane dragging', () => {
-	beforeEach(() => {
+	beforeEach(async () => {
 		vi.clearAllMocks();
 		vi.mocked(saveExhibition).mockResolvedValue({ revision: 2 });
+		await page.viewport(1280, 800);
 	});
 
 	it('moves a block below another one and shows a line where it lands', async () => {
@@ -512,6 +513,23 @@ describe('ExhibitionEditorPane dragging', () => {
 
 		await vi.waitFor(() => expect(shape(given)).toEqual(['Judith|Alpha']));
 		expect(given.document.content?.[0].type).toBe('columns');
+	});
+
+	it('offers no column beside a block in a window too narrow for columns', async () => {
+		await page.viewport(600, 800);
+		const given = session(doc(textBlock('Alpha'), artwork('artwork-1')));
+		render(ExhibitionEditorPane, { session: given, lookup: lookup(), barHeight: 0 });
+		await expect.element(page.getByRole('figure')).toBeInTheDocument();
+
+		grab('Alpha');
+		const judith = named('Judith').getBoundingClientRect();
+		const y = judith.bottom - 4;
+		pointer('pointermove', window, judith.right - 4, y);
+		await vi.waitFor(() => expect(document.querySelector('.mark')).not.toBeNull());
+		expect(document.querySelector('.mark[data-side]')).toBeNull();
+		pointer('pointerup', window, judith.right - 4, y);
+
+		await vi.waitFor(() => expect(shape(given)).toEqual(['Judith', 'Alpha']));
 	});
 
 	it('keeps an image its full size while a block is dragged', async () => {
