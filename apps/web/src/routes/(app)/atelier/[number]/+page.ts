@@ -29,15 +29,17 @@ export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadA
 		seen,
 		atelierCount
 	] = await Promise.all([
-		artworkCore(number).then(async (result) => ({
-			result,
-			shown: result.artwork
-				? await loadArtworkExhibitions(result.artwork.id)
-				: { exhibitions: [], covers: [] },
-			noteLinks: mentionsLinks(result.artwork?.notes)
-				? await loadNoteLinkLabels({ artworkNumber: number })
-				: undefined
-		})),
+		artworkCore(number).then(async (result) => {
+			const [shown, noteLinks] = await Promise.all([
+				result.artwork
+					? loadArtworkExhibitions(result.artwork.id)
+					: { exhibitions: [], covers: [] },
+				mentionsLinks(result.artwork?.notes)
+					? loadNoteLinkLabels({ artworkNumber: number })
+					: undefined
+			]);
+			return { result, shown, noteLinks };
+		}),
 		loadMentions(
 			{ artworkNumber: number },
 			resolve('/(app)/atelier/[number]', { number: String(number) })
