@@ -1,12 +1,6 @@
 <script lang="ts">
 	import LoupeLens from '#lib/images/components/LoupeLens/LoupeLens.svelte';
-	import {
-		LOUPE_MIN_LEVEL,
-		LOUPE_SIZE,
-		LOUPE_START_LEVEL,
-		loupeLevel,
-		loupeViewWidth
-	} from '#lib/images/loupe/loupe.ts';
+	import { LOUPE_MIN_LEVEL, LOUPE_SIZE, LOUPE_START_LEVEL } from '#lib/images/loupe/loupe.ts';
 	import type { SharedLoupe } from '#lib/compare/shared-loupe/shared-loupe.svelte.ts';
 
 	type Props = {
@@ -25,15 +19,13 @@
 
 	let maxLevel = $derived(width > 0 ? sourceWidth / width : LOUPE_MIN_LEVEL);
 	let level = $derived(
-		loupe.viewWidth !== undefined && width > 0
-			? Math.max(LOUPE_MIN_LEVEL, Math.min(loupeLevel(loupe.viewWidth, width), maxLevel))
-			: Math.min(LOUPE_START_LEVEL, maxLevel)
+		Math.max(LOUPE_MIN_LEVEL, Math.min(loupe.level ?? LOUPE_START_LEVEL, maxLevel))
 	);
 
 	function follow(event: PointerEvent): void {
 		if (event.pointerType !== 'mouse' || width === 0 || height === 0) return;
 		const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-		loupe.viewWidth ??= loupeViewWidth(width, level);
+		loupe.level ??= level;
 		loupe.spot = {
 			x: Math.min(1, Math.max(0, (event.clientX - rect.left) / width)),
 			y: Math.min(1, Math.max(0, (event.clientY - rect.top) / height))
@@ -47,7 +39,7 @@
 				LOUPE_MIN_LEVEL,
 				Math.min(maxLevel, level + (event.deltaY < 0 ? STEP : -STEP))
 			);
-			loupe.viewWidth = loupeViewWidth(width, next);
+			loupe.level = next;
 		};
 		node.addEventListener('wheel', listener, { passive: false });
 		return () => node.removeEventListener('wheel', listener);
