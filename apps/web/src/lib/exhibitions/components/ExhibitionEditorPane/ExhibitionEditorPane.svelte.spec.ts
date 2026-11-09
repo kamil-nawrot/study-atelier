@@ -7,6 +7,10 @@ import { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.sv
 import { saveExhibition } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
 import { loadArtworkImages } from '#lib/exhibitions/exhibition-images-data/exhibition-images-data.ts';
 import { paletteOf } from '#lib/images/image-palette/image-palette.ts';
+import {
+	MAX_DOCUMENT_BYTES,
+	documentBytes
+} from '#lib/exhibitions/exhibition-document/exhibition-document.ts';
 import { searchArtworks } from '#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts';
 import { ExhibitionSession } from '#lib/exhibitions/exhibition-session/exhibition-session.svelte.ts';
 import {
@@ -402,6 +406,22 @@ describe('ExhibitionEditorPane', () => {
 
 		await expect.element(page.getByText(m.exhibitions.limits.blocks)).toBeInTheDocument();
 		expect(given.document.content).toHaveLength(300);
+	});
+
+	it('tells the learner when a text makes the exhibition too big to save', async () => {
+		const room = MAX_DOCUMENT_BYTES - documentBytes(doc(textBlock('')));
+		render(ExhibitionEditorPane, {
+			session: session(doc(textBlock('x'.repeat(room - 5)))),
+			lookup: lookup(),
+			barHeight: 80
+		});
+		const text = page.getByRole('textbox', { name: m.exhibitions.blocks.textBlock });
+		await expect.element(text).toBeInTheDocument();
+		expect(document.body.textContent).not.toContain(m.exhibitions.errors.tooBig);
+
+		await userEvent.type(text, 'yyyyyyyyyy');
+
+		await expect.element(page.getByText(m.exhibitions.errors.tooBig)).toBeInTheDocument();
 	});
 });
 

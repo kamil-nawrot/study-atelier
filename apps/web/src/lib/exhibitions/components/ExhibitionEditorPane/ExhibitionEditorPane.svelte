@@ -25,7 +25,7 @@
 	import { blockLabel, newBlockLabel } from '#lib/exhibitions/editor/block-label/block-label.ts';
 	import { itemsOf, withItem } from '#lib/exhibitions/editor/block-set/block-set.ts';
 	import { paletteOf } from '#lib/images/image-palette/image-palette.ts';
-	import { limitOf } from '#lib/exhibitions/editor/block-limits/block-limits.ts';
+	import { limitOf, sizeLimitOf } from '#lib/exhibitions/editor/block-limits/block-limits.ts';
 	import {
 		artworkNode,
 		closeUpNode,
@@ -65,8 +65,11 @@
 	onDestroy(() => drag.cancel());
 
 	function change(next: Row[]): void {
+		const document = documentOf(next);
+		const size = sizeLimitOf(document);
+		if (size || limit === m.exhibitions.errors.tooBig) limit = size;
 		rows = next;
-		session.replace(documentOf(next));
+		session.replace(document);
 	}
 
 	function place(node: ExhibitionDocument, target: Target = { before: undefined }): void {
