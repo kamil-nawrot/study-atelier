@@ -36,7 +36,8 @@ begin
   assert (select array_agg(room || ':' || exhibit order by position)
       from public.unlock_exhibits('UTC') with ordinality as listed (exhibit, room, hidden, value, thresholds, position))
     = array[
-    'main_hall:collection', 'main_hall:vasari_lives', 'main_hall:own_eye', 'main_hall:pinacotheca',
+    'main_hall:collection', 'main_hall:vasari_lives', 'main_hall:boncompagni_academy', 'main_hall:own_eye',
+    'main_hall:pinacotheca',
     'era_enfilade:eras', 'era_enfilade:prehistory', 'era_enfilade:antiquity', 'era_enfilade:middle_ages',
     'era_enfilade:early_modern', 'era_enfilade:modern', 'era_enfilade:contemporary',
     'reading_room:memory', 'reading_room:bullseye', 'reading_room:regular', 'reading_room:back_from_storage',
@@ -45,7 +46,7 @@ begin
     'map_room:chronicle', 'map_room:grand_tour', 'map_room:seen_live', 'map_room:trevi_fountain',
     'map_room:seven_league_boots', 'pavilion:crystal_palace', 'pavilion:lenoir_chapel', 'crypt:mouth_of_truth',
     'crypt:candle_moths'
-  ], 'the exhibits are not the agreed thirty-one in their rooms and order';
+  ], 'the exhibits are not the agreed thirty-two in their rooms and order';
   assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC') where hidden) = array[
     'amateur_magnifier', 'back_from_storage', 'candle_moths', 'figure_alphabet', 'lenoir_chapel', 'marathon',
     'mouth_of_truth', 'night_watch', 'pinacotheca', 'seven_league_boots', 'trevi_fountain'
@@ -601,6 +602,57 @@ begin
     'an exhibition through all six eras does not unlock the lenoir chapel';
   assert exists (select 1 from public.point_events where kind = 'easter_egg' and code = 'lenoir_chapel'),
     'the hidden lenoir chapel gives no bonus';
+end;
+$$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000013', 'owner-j@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000013", "role": "authenticated"}', true);
+
+do $$
+declare
+  kind text;
+  photograph uuid;
+begin
+  foreach kind in array array['painting', 'sculpture', 'other'] loop
+    perform public.save_artwork(
+      jsonb_build_object('title', 'A ' || kind, 'author_unknown', true, 'type_code', kind),
+      '{"author": [], "location": []}');
+  end loop;
+  perform public.save_artwork(
+    jsonb_build_object('title', 'Untyped', 'author_unknown', true), '{"author": [], "location": []}');
+  photograph := (select id from public.save_artwork(
+    jsonb_build_object('title', 'A photograph', 'author_unknown', true, 'type_code', 'photography'),
+    '{"author": [], "location": []}'));
+  update public.artworks set deleted_at = now() where id = photograph;
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'boncompagni_academy') = 2,
+    'the boncompagni academy counts "other", an artwork without a type or an artwork in the trash';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'boncompagni_academy')
+    = array[1]::smallint[], 'two artwork types do not reach the first tier of the boncompagni academy';
+
+  update public.artworks set deleted_at = null where id = photograph;
+  foreach kind in array array['architecture', 'drawing', 'printmaking', 'applied_arts'] loop
+    perform public.save_artwork(
+      jsonb_build_object('title', 'A ' || kind, 'author_unknown', true, 'type_code', kind),
+      '{"author": [], "location": []}');
+  end loop;
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'boncompagni_academy') = 7,
+    'the boncompagni academy does not count all seven artwork types';
+  assert (select array_agg(tier order by tier) from public.exhibit_tiers where exhibit = 'boncompagni_academy')
+    = array[1, 2, 3, 4, 5, 6]::smallint[], 'seven artwork types do not reach every tier of the boncompagni academy';
+
+  update public.artworks set deleted_at = now() where id = photograph;
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'boncompagni_academy') = 6,
+    'the boncompagni academy still counts a type whose only artwork is in the trash';
+  assert (select count(*) from public.exhibit_tiers where exhibit = 'boncompagni_academy') = 6,
+    'the boncompagni academy takes back a reached tier';
 end;
 $$;
 
