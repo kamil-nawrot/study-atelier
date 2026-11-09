@@ -49,7 +49,7 @@
 </script>
 
 <section aria-labelledby="statistics-memory">
-	<h2 id="statistics-memory">{texts.title}</h2>
+	<h2 id="statistics-memory" class="artwork-title">{texts.title}</h2>
 	{#if cards.size === 0}
 		<p class="caption">{texts.noCards}</p>
 	{:else}
@@ -100,11 +100,13 @@
 	section {
 		display: grid;
 		gap: var(--spacing-6);
+		padding-block-start: var(--spacing-6);
+		border-block-start: var(--border-width-hairline) solid var(--color-line);
 	}
 
 	h2 {
-		padding-block-end: var(--spacing-2);
-		border-block-end: var(--border-width-hairline) solid var(--color-tag);
+		font-size: var(--font-size-2xl);
+		line-height: var(--line-height-2xl);
 	}
 
 	.knowledge {

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
-	import { Icon, Logo } from '@study-atelier/ui';
+	import { Icon, Logo, overlayScrollbar } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { railExpanded, setRailExpanded } from '#lib/shell/rail/rail.svelte.ts';
 	import AtelierMenu from '#lib/shell/AtelierMenu/AtelierMenu.svelte';
@@ -31,8 +31,8 @@
 			<Icon icon={ChevronRight} />
 		{/if}
 	</button>
-	<div class="menu">
-		<AtelierMenu compact={!railExpanded()} {email} {onfeedback} {onsignout} {signingOut} />
+	<div class="menu" {@attach overlayScrollbar()}>
+		<AtelierMenu compact={!railExpanded()} dense {email} {onfeedback} {onsignout} {signingOut} />
 	</div>
 </nav>
 
@@ -58,6 +58,8 @@
 		flex-direction: column;
 		justify-content: space-between;
 		gap: var(--spacing-6);
+		min-height: 0;
+		overflow-y: auto;
 	}
 
 	@media (prefers-reduced-motion: no-preference) {

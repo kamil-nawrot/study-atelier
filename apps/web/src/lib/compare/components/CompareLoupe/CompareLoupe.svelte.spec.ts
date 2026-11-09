@@ -2,19 +2,21 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import '@study-atelier/ui/styles.css';
 import { SharedLoupe } from '#lib/compare/shared-loupe/shared-loupe.svelte.ts';
+import { m } from '#lib/i18n/i18n.ts';
 import CompareLoupe from './CompareLoupe.svelte';
 
 const SMALL = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="30"/>')}`;
 const LARGE = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200"/>')}`;
 
-let frame: HTMLElement;
+let frames: HTMLElement[] = [];
 
-function renderLoupe(loupe: SharedLoupe, sourceWidth = 1600): HTMLElement {
-	frame = document.createElement('div');
+function renderLoupe(loupe: SharedLoupe, sourceWidth = 1600, width = 400): HTMLElement {
+	const frame = document.createElement('div');
 	frame.style.position = 'relative';
-	frame.style.width = '400px';
+	frame.style.width = `${width}px`;
 	frame.style.height = '300px';
 	document.body.appendChild(frame);
+	frames.push(frame);
 	render(CompareLoupe, {
 		target: frame,
 		props: { loupe, image: SMALL, large: LARGE, sourceWidth }
@@ -35,7 +37,21 @@ function point(layer: HTMLElement, x: number, y: number): void {
 }
 
 describe('CompareLoupe', () => {
-	afterEach(() => frame.remove());
+	afterEach(() => {
+		for (const frame of frames) frame.remove();
+		frames = [];
+	});
+
+	it('shows the same level on images of different widths', async () => {
+		const loupe = new SharedLoupe();
+		const wide = renderLoupe(loupe, 1600, 400);
+		const narrow = renderLoupe(loupe, 1600, 220);
+
+		point(wide, 100, 100);
+
+		await expect.poll(() => narrow.querySelector('.level')?.textContent).toBe(m.loupe.level(2));
+		expect(wide.querySelector('.level')?.textContent).toBe(m.loupe.level(2));
+	});
 
 	it('stores the place under the cursor as a share of the image', () => {
 		const loupe = new SharedLoupe();
@@ -44,13 +60,13 @@ describe('CompareLoupe', () => {
 		point(layer, 100, 150);
 
 		expect(loupe.spot).toEqual({ x: 0.25, y: 0.5 });
-		expect(loupe.viewWidth).toBeGreaterThan(0);
+		expect(loupe.level).toBeGreaterThan(0);
 	});
 
 	it('shows a lens where the other image holds the shared spot', async () => {
 		const loupe = new SharedLoupe();
 		const layer = renderLoupe(loupe);
-		loupe.viewWidth = 0.25;
+		loupe.level = 2;
 
 		loupe.spot = { x: 0.5, y: 0.5 };
 
@@ -64,11 +80,11 @@ describe('CompareLoupe', () => {
 		const loupe = new SharedLoupe();
 		const layer = renderLoupe(loupe);
 		point(layer, 100, 100);
-		const before = loupe.viewWidth as number;
+		const before = loupe.level as number;
 
 		layer.dispatchEvent(new WheelEvent('wheel', { deltaY: -1, bubbles: true, cancelable: true }));
 
-		expect(loupe.viewWidth).toBeLessThan(before);
+		expect(loupe.level).toBeGreaterThan(before);
 	});
 
 	it('forgets the spot when the cursor leaves', () => {

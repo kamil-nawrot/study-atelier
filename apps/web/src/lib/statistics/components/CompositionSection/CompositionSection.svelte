@@ -89,7 +89,7 @@
 </script>
 
 <section aria-labelledby="statistics-composition">
-	<h2 id="statistics-composition">{texts.title}</h2>
+	<h2 id="statistics-composition" class="artwork-title">{texts.title}</h2>
 	{#if artworks.length < SHOWN_FROM}
 		<p class="caption">{texts.tooEarly(artworks.length)}</p>
 	{:else}
@@ -137,11 +137,13 @@
 	section {
 		display: grid;
 		gap: var(--spacing-4);
+		padding-block-start: var(--spacing-6);
+		border-block-start: var(--border-width-hairline) solid var(--color-line);
 	}
 
 	h2 {
-		padding-block-end: var(--spacing-2);
-		border-block-end: var(--border-width-hairline) solid var(--color-tag);
+		font-size: var(--font-size-2xl);
+		line-height: var(--line-height-2xl);
 	}
 
 	.choices {

@@ -35,11 +35,19 @@
 		email: string;
 		signingOut: boolean;
 		compact?: boolean;
+		dense?: boolean;
 		onsignout: () => void;
 		onfeedback: () => void;
 	};
 
-	let { email, signingOut, compact = false, onsignout, onfeedback }: Props = $props();
+	let {
+		email,
+		signingOut,
+		compact = false,
+		dense = false,
+		onsignout,
+		onfeedback
+	}: Props = $props();
 
 	const atelierPath = resolve('/(app)/atelier');
 	const cardIndexPath = resolve('/(app)/atelier/values');
@@ -230,31 +238,31 @@
 		</a>
 	{/if}
 </div>
-<div class="group">
+<div class="group" class:dense>
 	<a
 		class="item muted"
 		aria-current={page.url.pathname === trashPath ? 'page' : undefined}
 		href={trashPath}
 	>
-		<Icon icon={Trash} />
+		<Icon icon={Trash} size={dense ? 'sm' : 'md'} />
 		<span class="label" class:visually-hidden={compact}>
 			{m.menu.trash}
 		</span>
 	</a>
 	<button class="item muted" onclick={onfeedback} type="button">
-		<Icon icon={MessageSquarePlus} />
+		<Icon icon={MessageSquarePlus} size={dense ? 'sm' : 'md'} />
 		<span class="label" class:visually-hidden={compact}>
 			{m.menu.feedback}
 		</span>
 	</button>
 	<button class="item muted" onclick={toggleTheme} type="button">
-		<Icon icon={light ? Moon : Sun} />
+		<Icon icon={light ? Moon : Sun} size={dense ? 'sm' : 'md'} />
 		<span class="label" class:visually-hidden={compact}>
 			{light ? m.menu.darkTheme : m.menu.lightTheme}
 		</span>
 	</button>
 	<button class="item danger" disabled={signingOut} onclick={onsignout} type="button">
-		<Icon icon={LogOut} />
+		<Icon icon={LogOut} size={dense ? 'sm' : 'md'} />
 		<span class="label" class:visually-hidden={compact}>
 			{m.menu.signOut}
 		</span>
@@ -286,6 +294,16 @@
 		text-decoration: none;
 		white-space: nowrap;
 		cursor: pointer;
+	}
+
+	.dense {
+		gap: 0;
+	}
+
+	.dense .item {
+		padding-block: var(--spacing-1);
+		font-size: var(--font-size-xs);
+		line-height: var(--line-height-xs);
 	}
 
 	a.item:hover,
