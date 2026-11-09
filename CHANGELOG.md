@@ -2,6 +2,31 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.21.1] - 2026-11-09
+
+"Statystyki" count the exhibitions and set their sections apart, the menu fits a low screen, and the comparison, the display case and the exhibitions of an artwork read more clearly.
+
+### Added
+
+- "Stan zbiorów" in "Statystyki" counts the exhibitions outside Archiwum ("3 wystawy").
+
+### Changed
+
+- The sections of "Statystyki" open like the rooms of "Ekspozycja": a line above each, a large italic title and more space between them.
+- The four bottom items of the menu on a computer, "Archiwum", "Zgłoś uwagę", the theme and "Wyloguj się", are smaller.
+- The exhibitions of an artwork on its page show only their titles.
+- The artworks to choose from in "Porównaj" stand in columns of different heights, without gaps.
+- The list of engravings under "Ryciny" in "Ekspozycja" is wider, in two columns on a computer, and scrolls when it is taller than the screen; the case ends with one line.
+
+### Fixed
+
+- On a low screen the menu cut off its bottom items; it now scrolls.
+- The shared loupe of "Porównaj" magnified the two images differently; both lenses now show the same level, and an image too small for the loupe says "Rozdzielczość tego obrazu jest zbyt mała, żeby można było skorzystać z lupy."
+
+### Migrations run on production
+
+1 migration runs on production with this release and changes no existing data: `20261109120000_exhibitions_in_collection_statistics` replaces `collection_statistics` with the same signature, adding the number of exhibitions outside Archiwum to its result, so the 0.21.0 app keeps working.
+
 ## [0.21.0] - 2026-11-09
 
 The learner tells stories with the artworks of the atelier in "Wystawy", sees the colours of an artwork and compares two artworks side by side, and "Ekspozycja" groups its exhibits into rooms with ten new ones.
@@ -822,3 +847,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.19.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.19.1
 [0.20.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.20.0
 [0.21.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.0
+[0.21.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.1
