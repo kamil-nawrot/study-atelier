@@ -1197,6 +1197,7 @@ function collectionStatistics() {
 		terms: GLOSSARY_ENTRIES.length,
 		events: TIMELINE_EVENTS.length,
 		visits: VISITS.length,
+		exhibitions: EXHIBITIONS.length,
 		quiz_answers: REVIEW_CARDS.length > 0 ? 106 : 0,
 		correct_answers: REVIEW_CARDS.length > 0 ? 83 : 0,
 		most_reviewed: REVIEW_CARDS.slice(0, 4).map((card, index) => ({

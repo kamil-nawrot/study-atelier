@@ -55,7 +55,7 @@
 <style>
 	.view {
 		display: grid;
-		gap: var(--spacing-12);
+		gap: var(--spacing-16);
 		max-width: var(--size-content-wide);
 	}
 

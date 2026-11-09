@@ -19,12 +19,13 @@
 		{ count: holdings.seen, label: texts.seen },
 		{ count: statistics.terms, label: texts.terms },
 		{ count: statistics.events, label: texts.events },
-		{ count: statistics.visits, label: texts.visits }
+		{ count: statistics.visits, label: texts.visits },
+		{ count: statistics.exhibitions, label: texts.exhibitions }
 	]);
 </script>
 
 <section aria-labelledby="statistics-holdings">
-	<h2 id="statistics-holdings">{texts.title}</h2>
+	<h2 id="statistics-holdings" class="artwork-title">{texts.title}</h2>
 	<dl>
 		{#each items as item (item.label)}
 			<div>
@@ -39,11 +40,13 @@
 	section {
 		display: grid;
 		gap: var(--spacing-4);
+		padding-block-start: var(--spacing-6);
+		border-block-start: var(--border-width-hairline) solid var(--color-line);
 	}
 
 	h2 {
-		padding-block-end: var(--spacing-2);
-		border-block-end: var(--border-width-hairline) solid var(--color-tag);
+		font-size: var(--font-size-2xl);
+		line-height: var(--line-height-2xl);
 	}
 
 	dl {

@@ -33,7 +33,7 @@
 </script>
 
 <section aria-labelledby="statistics-foreground">
-	<h2 id="statistics-foreground">{texts.title}</h2>
+	<h2 id="statistics-foreground" class="artwork-title">{texts.title}</h2>
 	<Tabs
 		label={texts.tabsLabel}
 		tabs={KINDS.map((value) => ({ value, label: texts.tabs[value] }))}
@@ -54,11 +54,13 @@
 	section {
 		display: grid;
 		gap: var(--spacing-4);
+		padding-block-start: var(--spacing-6);
+		border-block-start: var(--border-width-hairline) solid var(--color-line);
 	}
 
 	h2 {
-		padding-block-end: var(--spacing-2);
-		border-block-end: var(--border-width-hairline) solid var(--color-tag);
+		font-size: var(--font-size-2xl);
+		line-height: var(--line-height-2xl);
 	}
 
 	.tab {

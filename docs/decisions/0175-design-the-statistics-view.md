@@ -1,6 +1,6 @@
 # 0175. Design the statistics view
 
-- Status: accepted
+- Status: accepted; the look of the sections is superseded by [0239](0239-set-the-statistics-sections-apart-like-rooms.md)
 - Date: 2026-11-03
 
 ## Context and problem statement
