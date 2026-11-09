@@ -106,12 +106,23 @@ select set_config('request.jwt.claims',
 
 do $$
 declare
+  archived uuid := gen_random_uuid();
+begin
+  perform public.save_exhibition(gen_random_uuid(), 'Shown', '{"type": "doc", "content": []}');
+  perform public.save_exhibition(archived, 'Archived', '{"type": "doc", "content": []}');
+  update public.exhibitions set deleted_at = now() where id = archived;
+end;
+$$;
+
+do $$
+declare
   stats jsonb := public.collection_statistics();
   reviewed jsonb := stats -> 'most_reviewed';
 begin
   assert (stats ->> 'terms')::int = 1, 'the terms are not counted';
   assert (stats ->> 'events')::int = 1, 'the events are not counted';
   assert (stats ->> 'visits')::int = 3, 'the visits are not counted';
+  assert (stats ->> 'exhibitions')::int = 1, 'the exhibitions are not counted, or those in Archiwum are';
 
   assert (stats ->> 'quiz_answers')::int = 4, 'quiz answers count flashcards or archived artworks';
   assert (stats ->> 'correct_answers')::int = 3, 'correct answers count archived artworks';
