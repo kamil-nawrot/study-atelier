@@ -26,9 +26,19 @@ describe('publicHttpsUrl', () => {
 		'https://[::1]/a.jpg',
 		'https://printer.local/a.jpg',
 		'https://service.internal/a.jpg',
-		'https://router.home.arpa/a.jpg'
+		'https://router.home.arpa/a.jpg',
+		'https://localhost./a.jpg',
+		'https://metadata.google.internal./computeMetadata',
+		'https://printer.local../a.jpg',
+		'https://127.0.0.1./a.jpg',
+		'https://./a.jpg',
+		'https://.../a.jpg'
 	])('rejects %s', (text) => {
 		expect(publicHttpsUrl(text)).toBeUndefined();
+	});
+
+	it('accepts a public host written with a trailing dot', () => {
+		expect(publicHttpsUrl('https://images.example.test./a.jpg')).toBeDefined();
 	});
 
 	it('rejects an address with credentials', () => {
