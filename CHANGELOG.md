@@ -2,6 +2,29 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.21.0] - 2026-11-09
+
+The learner tells stories with the artworks of the atelier in "Wystawy", sees the colours of an artwork and compares two artworks side by side, and "Ekspozycja" groups its exhibits into rooms with ten new ones.
+
+### Added
+
+- "Wystawy" in the menu: an exhibition is one flowing document of blocks, "Tekst" with its own headings, "Nagłówek", "Cytat", "Dzieło" with its caption, "Paleta", "Szczegół" made from a pin, "Odstęp" with or without a line and "Hasło" from Słowniczek, up to three side by side. It is edited with a toolbox at the right edge of the page, saved as the learner writes, and goes to Archiwum like an artwork. An artwork in an exhibition turns over to its note.
+- On a phone exhibitions are read, and their texts and the order of their blocks edited; new exhibitions are started on a computer.
+- The artwork page lists the exhibitions that show the artwork.
+- "Paleta barw" on an artwork's image shows its main colours, also for images linked from other sites.
+- "Porównaj" shows two artworks side by side with a shared loupe and "Zamień strony".
+- "Ekspozycja" groups its exhibits into seven rooms, from "Sala główna" to "Krypta". Each room folds and shows a square per exhibit in the colour of its metal, and "Pokaż ukończone" and "Pokaż nieodblokowane" hide what is finished or not started.
+- Ten exhibits: "Księga Vasariego" for authors with at least 10 artworks, "Ogród Clifforta" for described values in Kartoteka, "Kryształowy Pałac" for exhibitions with at least 5 artworks and "Akademia Boncompagniego" for the artwork types of the collection, and the hidden "Fontanna di Trevi", "Siedmiomilowe buty", "Alfabet Mistrza E.S.", "Nocny lichtarz", "Soczewka znawcy" and "Kaplica Lenoira".
+
+### Changed
+
+- A visit in Kronika spans the whole width of the page.
+- Internal: the exhibit catalogue with its rooms in the database, an image proxy for reading the colours of linked images, combined full-page screenshots, a skill for designing exhibits, and a code review of the version with its fixes.
+
+### Migrations run on production
+
+17 migrations run on production with this release and change no existing data. `20261106220000_image_palette` adds a nullable `palette` to artwork images, with a trigger that forgets it when the image changes. `20261107100000_exhibitions` adds `exhibitions` and `exhibition_artworks` with row level security, `save_exhibition` and the document validator, and replaces `import_atelier` with the same signature to bring exhibitions along; `20261107130000_exhibition_rows_and_close_ups` to `20261108110000_exhibition_text_headings` (seven migrations) replace the validator and its lists of blocks. `20261107110000_candle_moths_exhibit` and `20261107120000_amateur_magnifier_exhibit` add the nullable `night_light_at` and `long_look_at` to profiles with `record_night_light` and `record_long_look`. `20261108130000_exhibit_catalogue` adds `exhibit_rooms` and `exhibits`, a foreign key from `exhibit_tiers` to the catalogue, replaces `import_atelier` with the same signature, and recreates `unlock_exhibits` with the same argument, returning the room and whether an exhibit is hidden besides its old columns. `20261107090000_five_exhibits_of_0_21`, `20261108120000_crystal_palace_exhibit`, `20261108140000_lenoir_chapel_exhibit` and `20261109100000_boncompagni_academy_exhibit` add exhibits and replace `exhibit_values`. `20261109110000_fix_the_review_of_0_21` tightens the validator, skips rewriting the artworks of an exhibition when they stay the same, recreates `record_night_light` with the learner's time zone and replaces `exhibit_values`. The 0.20 app calls none of the new functions and reads the old columns of `unlock_exhibits`, so it keeps working.
+
 ## [0.20.0] - 2026-11-06
 
 Kartoteka becomes a card file with a page for every value, own field and event, the learner can move the bounds between eras, and "Ekspozycja" gets an exhibit for each era.
@@ -798,3 +821,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.19.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.19.0
 [0.19.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.19.1
 [0.20.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.20.0
+[0.21.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.0
