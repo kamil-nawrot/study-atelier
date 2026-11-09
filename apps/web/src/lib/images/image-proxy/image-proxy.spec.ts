@@ -53,6 +53,44 @@ describe('fetchPublicImage', () => {
 		);
 	});
 
+	it('gives the whole chain of redirects one deadline and drops the body of each redirect', async () => {
+		const cancelled: string[] = [];
+		const redirect = (location: string): Response =>
+			new Response(
+				new ReadableStream({
+					cancel: () => {
+						cancelled.push(location);
+					}
+				}),
+				{ status: 302, headers: { location } }
+			);
+		const fetcher = vi
+			.fn()
+			.mockResolvedValueOnce(redirect('/b.jpg'))
+			.mockResolvedValueOnce(redirect('/c.jpg'))
+			.mockResolvedValueOnce(reply(new Uint8Array(1)));
+
+		const result = await fetchPublicImage(URL_OK, fetcher);
+
+		expect(result.ok).toBe(true);
+		const signals = fetcher.mock.calls.map(([, init]) => (init as RequestInit).signal);
+		expect(signals[0]).toBeInstanceOf(AbortSignal);
+		expect(new Set(signals).size).toBe(1);
+		await vi.waitFor(() => expect(cancelled).toEqual(['/b.jpg', '/c.jpg']));
+	});
+
+	it('drops the body of a response that is not an image', async () => {
+		const cancel = vi.fn();
+		const fetcher = vi.fn().mockResolvedValue(
+			new Response(new ReadableStream({ cancel }), {
+				headers: { 'content-type': 'text/html' }
+			})
+		);
+
+		expect(await fetchPublicImage(URL_OK, fetcher)).toEqual({ ok: false, status: 415 });
+		await vi.waitFor(() => expect(cancel).toHaveBeenCalled());
+	});
+
 	it('refuses a redirect to an internal address', async () => {
 		const fetcher = vi
 			.fn()

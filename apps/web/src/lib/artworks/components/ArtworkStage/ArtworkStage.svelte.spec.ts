@@ -106,6 +106,34 @@ describe('ArtworkStage palette', () => {
 		await expect.element(page.getByRole('tooltip')).toHaveTextContent(m.palette.unreadable);
 	});
 
+	it('offers the palette again on the next artwork after an unreadable one', async () => {
+		vi.mocked(paletteOf).mockResolvedValue({ unreadable: true });
+		const props = {
+			artwork: artwork(),
+			editHref: '/atelier/42/edit',
+			pins: [],
+			showPinsOnOpen: false,
+			loupeOnOpen: false
+		};
+		const screen = await render(ArtworkStage, props);
+		await paletteButton().click();
+		await expect.element(paletteButton()).toHaveAttribute('aria-disabled', 'true');
+
+		vi.mocked(paletteOf).mockResolvedValue({ colours: COLOURS });
+		await screen.rerender({
+			...props,
+			artwork: artwork({
+				id: 'artwork-43',
+				number: 43,
+				image: { kind: 'url', url: IMAGE, width: 40, height: 50, id: 'image-2' }
+			})
+		});
+
+		await expect.element(paletteButton()).not.toHaveAttribute('aria-disabled', 'true');
+		await paletteButton().click();
+		await expect.element(page.getByRole('list', { name: m.palette.label })).toBeInTheDocument();
+	});
+
 	it('offers no palette to an artwork without an image', async () => {
 		await renderStage(artwork({ image: null }));
 
