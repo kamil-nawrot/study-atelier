@@ -12,9 +12,9 @@ export const PALETTE_SOURCE_WIDTH = 330;
 export type PaletteResult = { colours: PaletteColour[] } | { unreadable: true };
 
 const known = new Map<string, PaletteResult>();
+const running = new Map<string, Promise<PaletteResult>>();
 
-function memoryKey(image: ArtworkImageInput): string | undefined {
-	if (!image.id) return undefined;
+function memoryKey(image: ArtworkImageInput): string {
 	const origin =
 		image.kind === 'commons'
 			? image.file
@@ -22,8 +22,8 @@ function memoryKey(image: ArtworkImageInput): string | undefined {
 				? image.url
 				: image.kind === 'upload'
 					? image.path
-					: '';
-	return `${image.id}:${origin}`;
+					: image.previewUrl;
+	return `${image.id ?? ''}:${image.kind}:${origin}`;
 }
 
 async function sourceUrl(image: ArtworkImageInput): Promise<string | undefined> {
@@ -57,16 +57,22 @@ async function computeColours(image: ArtworkImageInput): Promise<PaletteColour[]
 	}
 }
 
-export async function paletteOf(image: ArtworkImageInput): Promise<PaletteResult> {
-	if (image.palette) return { colours: image.palette };
-	const key = memoryKey(image);
-	const remembered = key ? known.get(key) : undefined;
-	if (remembered) return remembered;
+async function readPalette(image: ArtworkImageInput, key: string): Promise<PaletteResult> {
 	const colours = await computeColours(image);
 	const result: PaletteResult = colours ? { colours } : { unreadable: true };
-	if (key && image.id && colours) {
-		known.set(key, result);
-		await savePalette(image, colours);
-	}
+	known.set(key, result);
+	if (colours && image.id) void savePalette(image, colours).catch(() => false);
 	return result;
+}
+
+export function paletteOf(image: ArtworkImageInput): Promise<PaletteResult> {
+	if (image.palette) return Promise.resolve({ colours: image.palette });
+	const key = memoryKey(image);
+	const remembered = known.get(key);
+	if (remembered) return Promise.resolve(remembered);
+	const pending = running.get(key);
+	if (pending) return pending;
+	const request = readPalette(image, key).finally(() => running.delete(key));
+	running.set(key, request);
+	return request;
 }

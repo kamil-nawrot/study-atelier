@@ -20,7 +20,7 @@ function linked(id: string | undefined, url = RED): ArtworkImageInput {
 
 describe('paletteOf', () => {
 	beforeEach(() => {
-		vi.mocked(savePalette).mockReset();
+		vi.mocked(savePalette).mockReset().mockResolvedValue(true);
 		vi.mocked(fetchImageThroughProxy).mockReset().mockResolvedValue(undefined);
 		vi.mocked(readPixels).mockReset().mockResolvedValue(RED_PIXELS);
 		vi.stubGlobal(
@@ -71,6 +71,46 @@ describe('paletteOf', () => {
 		vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }));
 
 		expect(await paletteOf(linked('refused-1'))).toEqual({ unreadable: true });
+	});
+
+	it('remembers an image that cannot be read for the session', async () => {
+		const failing = vi.fn().mockRejectedValue(new TypeError('blocked'));
+		vi.stubGlobal('fetch', failing);
+
+		await paletteOf(linked('unreadable-1'));
+		const again = await paletteOf(linked('unreadable-1'));
+
+		expect(again).toEqual({ unreadable: true });
+		expect(failing).toHaveBeenCalledTimes(1);
+		expect(fetchImageThroughProxy).toHaveBeenCalledTimes(1);
+	});
+
+	it('reads an image once when two views ask for its palette at the same time', async () => {
+		const [first, second] = await Promise.all([
+			paletteOf(linked('parallel-1')),
+			paletteOf(linked('parallel-1'))
+		]);
+
+		expect(second).toEqual(first);
+		expect(fetch).toHaveBeenCalledTimes(1);
+		expect(readPixels).toHaveBeenCalledTimes(1);
+		expect(savePalette).toHaveBeenCalledTimes(1);
+	});
+
+	it('returns the colours without waiting for them to be stored', async () => {
+		vi.mocked(savePalette).mockReturnValue(new Promise(() => {}));
+
+		expect(await paletteOf(linked('unsaved-1'))).toEqual({
+			colours: [{ color: '#c81414', share: 1 }]
+		});
+	});
+
+	it('returns the colours when storing them fails', async () => {
+		vi.mocked(savePalette).mockRejectedValue(new Error('offline'));
+
+		expect(await paletteOf(linked('offline-1'))).toEqual({
+			colours: [{ color: '#c81414', share: 1 }]
+		});
 	});
 
 	it('does not store the palette of an image that has no id yet', async () => {
