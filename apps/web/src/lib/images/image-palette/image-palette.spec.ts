@@ -48,7 +48,7 @@ describe('paletteOf', () => {
 		expect(first).toEqual({ colours: [{ color: '#c81414', share: 1 }] });
 		expect(second).toEqual(first);
 		expect(savePalette).toHaveBeenCalledTimes(1);
-		expect(savePalette).toHaveBeenCalledWith('fresh-1', [{ color: '#c81414', share: 1 }]);
+		expect(savePalette).toHaveBeenCalledWith(linked('fresh-1'), [{ color: '#c81414', share: 1 }]);
 	});
 
 	it('computes again when the image behind the id has changed', async () => {
@@ -90,7 +90,7 @@ describe('paletteOf', () => {
 		expect(fetchImageThroughProxy).toHaveBeenCalledWith(RED);
 		expect(readPixels).toHaveBeenCalledWith(proxied);
 		expect(result).toEqual({ colours: [{ color: '#c81414', share: 1 }] });
-		expect(savePalette).toHaveBeenCalledWith('proxied-1', [{ color: '#c81414', share: 1 }]);
+		expect(savePalette).toHaveBeenCalledWith(linked('proxied-1'), [{ color: '#c81414', share: 1 }]);
 	});
 
 	it('does not use the proxy for an image the host refuses', async () => {
