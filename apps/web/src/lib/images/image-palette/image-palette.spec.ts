@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import { fetchImageThroughProxy } from '#lib/images/image-proxy-data/image-proxy-data.ts';
 import { readPixels } from '#lib/images/image-pixels/image-pixels.ts';
+import { ownImageUrl } from '#lib/images/own-image-data/own-image-data.ts';
 import { savePalette } from '#lib/images/palette-data/palette-data.ts';
 import { paletteOf } from './image-palette.ts';
 
@@ -10,6 +11,7 @@ vi.mock('#lib/images/image-proxy-data/image-proxy-data.ts', () => ({
 	fetchImageThroughProxy: vi.fn()
 }));
 vi.mock('#lib/images/image-pixels/image-pixels.ts', () => ({ readPixels: vi.fn() }));
+vi.mock('#lib/images/own-image-data/own-image-data.ts', () => ({ ownImageUrl: vi.fn() }));
 
 const RED = 'https://images.example.test/red.jpg';
 const RED_PIXELS = Uint8ClampedArray.from([200, 20, 20, 255, 200, 20, 20, 255]);
@@ -23,6 +25,7 @@ describe('paletteOf', () => {
 		vi.mocked(savePalette).mockReset().mockResolvedValue(true);
 		vi.mocked(fetchImageThroughProxy).mockReset().mockResolvedValue(undefined);
 		vi.mocked(readPixels).mockReset().mockResolvedValue(RED_PIXELS);
+		vi.mocked(ownImageUrl).mockReset().mockResolvedValue(undefined);
 		vi.stubGlobal(
 			'fetch',
 			vi.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(new Blob()) })
@@ -128,7 +131,7 @@ describe('paletteOf', () => {
 		const result = await paletteOf(linked('proxied-1'));
 
 		expect(fetchImageThroughProxy).toHaveBeenCalledWith(RED);
-		expect(readPixels).toHaveBeenCalledWith(proxied);
+		expect(readPixels).toHaveBeenCalledWith(proxied, { width: 8, height: 8 });
 		expect(result).toEqual({ colours: [{ color: '#c81414', share: 1 }] });
 		expect(savePalette).toHaveBeenCalledWith(linked('proxied-1'), [{ color: '#c81414', share: 1 }]);
 	});
@@ -139,6 +142,39 @@ describe('paletteOf', () => {
 		await paletteOf(linked('refused-2'));
 
 		expect(fetchImageThroughProxy).not.toHaveBeenCalled();
+	});
+
+	it('reads an own image from its thumbnail when it has one', async () => {
+		vi.mocked(ownImageUrl).mockResolvedValue('https://project.example.test/own-thumb.jpg');
+
+		await paletteOf({
+			id: 'own-thumb-1',
+			kind: 'upload',
+			path: 'user/own.png',
+			previewUrl: 'https://project.example.test/own.png',
+			width: 800,
+			height: 600
+		});
+
+		expect(ownImageUrl).toHaveBeenCalledWith('user/own-thumb.jpg');
+		expect(fetch).toHaveBeenCalledWith('https://project.example.test/own-thumb.jpg', {
+			mode: 'cors'
+		});
+		expect(readPixels).toHaveBeenCalledWith(expect.any(Blob), { width: 800, height: 600 });
+	});
+
+	it('reads an own image from its original when it has no thumbnail', async () => {
+		await paletteOf({
+			id: 'own-original-1',
+			kind: 'upload',
+			path: 'user/own.png',
+			previewUrl: 'https://project.example.test/own.png',
+			width: null,
+			height: null
+		});
+
+		expect(fetch).toHaveBeenCalledWith('https://project.example.test/own.png', { mode: 'cors' });
+		expect(readPixels).toHaveBeenCalledWith(expect.any(Blob), undefined);
 	});
 
 	it('does not use the proxy for an image that is not a linked one', async () => {
