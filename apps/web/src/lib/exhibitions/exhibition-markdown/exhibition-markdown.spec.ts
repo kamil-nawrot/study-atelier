@@ -16,6 +16,11 @@ const paragraph = (...content: ExhibitionDocument[]): ExhibitionDocument => ({
 	content
 });
 
+const item = (text: string, ...nested: ExhibitionDocument[]): ExhibitionDocument => ({
+	type: 'listItem',
+	content: [paragraph(words(text)), ...nested]
+});
+
 describe('textBlockMarkdown', () => {
 	it('writes bold and italic words as Markdown', () => {
 		const block = {
@@ -65,10 +70,6 @@ describe('textBlockMarkdown', () => {
 	});
 
 	it('writes bullet and numbered lists with nested lists indented', () => {
-		const item = (text: string, ...nested: ExhibitionDocument[]): ExhibitionDocument => ({
-			type: 'listItem',
-			content: [paragraph(words(text)), ...nested]
-		});
 		const block = {
 			type: 'textBlock',
 			content: [
@@ -78,7 +79,43 @@ describe('textBlockMarkdown', () => {
 				}
 			]
 		};
-		expect(textBlockMarkdown(block)).toBe('1. a\n  - b\n2. c');
+		expect(textBlockMarkdown(block)).toBe('1. a\n   - b\n2. c');
+	});
+
+	it('indents a list nested in the tenth numbered item to the column of its words', () => {
+		const items = Array.from({ length: 10 }, (_, index) => item(`i${index + 1}`));
+		items[9] = item('i10', { type: 'orderedList', content: [item('x'), item('y')] });
+		const block = { type: 'textBlock', content: [{ type: 'orderedList', content: items }] };
+
+		expect(textBlockMarkdown(block).split('\n').slice(-3)).toEqual([
+			'10. i10',
+			'    1. x',
+			'    2. y'
+		]);
+	});
+
+	it('writes every paragraph of a list item inside the item', () => {
+		const block = {
+			type: 'textBlock',
+			content: [
+				{
+					type: 'orderedList',
+					content: [
+						{
+							type: 'listItem',
+							content: [
+								paragraph(words('a')),
+								{ type: 'bulletList', content: [item('b')] },
+								paragraph(words('c'))
+							]
+						},
+						item('d')
+					]
+				}
+			]
+		};
+
+		expect(textBlockMarkdown(block)).toBe('1. a\n   - b\n\n   c\n2. d');
 	});
 });
 

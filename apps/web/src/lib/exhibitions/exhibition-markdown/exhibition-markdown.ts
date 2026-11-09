@@ -25,29 +25,35 @@ function paragraph(node: ExhibitionDocument): string {
 	return (node.content ?? []).map(inline).join('');
 }
 
-function list(node: ExhibitionDocument, depth: number): string {
+function blockMarkdown(node: ExhibitionDocument): string {
+	if (node.type === 'paragraph') return paragraph(node);
+	if (node.type === 'heading') return `### ${paragraph(node)}`;
+	return list(node);
+}
+
+function itemMarkdown(item: ExhibitionDocument, marker: string): string {
+	const pad = ' '.repeat(marker.length + 1);
+	const body = (item.content ?? [])
+		.map((child, index) => {
+			const gap = index === 0 ? '' : child.type === 'paragraph' ? '\n\n' : '\n';
+			return `${gap}${blockMarkdown(child)}`;
+		})
+		.join('');
+	const lines = body
+		.split('\n')
+		.map((line, index) => (index === 0 || line === '' ? line : pad + line));
+	return `${marker} ${lines.join('\n')}`;
+}
+
+function list(node: ExhibitionDocument): string {
 	const ordered = node.type === 'orderedList';
 	return (node.content ?? [])
-		.map((item, index) => {
-			const marker = ordered ? `${index + 1}.` : '-';
-			const indent = '  '.repeat(depth);
-			const [first, ...rest] = item.content ?? [];
-			const nested = rest
-				.filter((child) => child.type === 'bulletList' || child.type === 'orderedList')
-				.map((child) => list(child, depth + 1));
-			return [`${indent}${marker} ${first ? paragraph(first) : ''}`, ...nested].join('\n');
-		})
+		.map((item, index) => itemMarkdown(item, ordered ? `${index + 1}.` : '-'))
 		.join('\n');
 }
 
 export function textBlockMarkdown(node: ExhibitionDocument): string {
-	return (node.content ?? [])
-		.map((child) => {
-			if (child.type === 'paragraph') return paragraph(child);
-			if (child.type === 'heading') return `### ${paragraph(child)}`;
-			return list(child, 0);
-		})
-		.join('\n\n');
+	return (node.content ?? []).map(blockMarkdown).join('\n\n');
 }
 
 export function plainText(node: ExhibitionDocument): string {
