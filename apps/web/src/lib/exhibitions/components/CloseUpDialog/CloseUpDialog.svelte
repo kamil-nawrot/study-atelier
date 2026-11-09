@@ -20,10 +20,13 @@
 	let { open = $bindable(false), lookup, artworkId, onpick }: Props = $props();
 
 	let pins = $state<Pin[]>();
-	let error = $state(false);
+	let pinsFailed = $state(false);
+	let request = 0;
 
 	const artwork = $derived(lookup.get(artworkId));
+	const number = $derived(artwork?.number);
 	const pictures = $derived(lookup.pictures(artworkId));
+	const error = $derived(pinsFailed || number === undefined || lookup.picturesFailed(artworkId));
 	const choices = $derived(
 		(pins ?? []).flatMap((pin) => {
 			const image = pictures?.find((picture) => picture.id === pin.imageId);
@@ -32,14 +35,14 @@
 	);
 
 	$effect(() => {
-		if (!open) return;
-		const number = artwork?.number;
+		const current = (request += 1);
 		pins = undefined;
-		error = false;
-		void lookup.wantPictures(artworkId);
-		if (number === undefined) return;
+		pinsFailed = false;
+		if (!open || number === undefined) return;
+		void lookup.wantPictures(artworkId, true);
 		void loadArtworkPins(number).then((result) => {
-			if (result.error) error = true;
+			if (current !== request) return;
+			if (result.error) pinsFailed = true;
 			else pins = result.pins;
 		});
 	});
