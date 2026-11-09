@@ -32,7 +32,7 @@
 		{/if}
 	</button>
 	<div class="menu" {@attach overlayScrollbar()}>
-		<AtelierMenu compact={!railExpanded()} {email} {onfeedback} {onsignout} {signingOut} />
+		<AtelierMenu compact={!railExpanded()} dense {email} {onfeedback} {onsignout} {signingOut} />
 	</div>
 </nav>
 
