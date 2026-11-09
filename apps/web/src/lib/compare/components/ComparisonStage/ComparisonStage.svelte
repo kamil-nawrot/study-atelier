@@ -71,6 +71,8 @@
 				{/if}
 				{#if loupe.on && ready && mouse.current && large}
 					<CompareLoupe image={image.src} large={large.src} {loupe} sourceWidth={large.width} />
+				{:else if loupe.on && mouse.current}
+					<p class="loupe-note">{m.loupe.unavailable}</p>
 				{/if}
 			</div>
 		</div>
@@ -134,6 +136,19 @@
 		display: block;
 		padding: var(--spacing-2);
 		background: var(--color-mat-bg);
+	}
+
+	.loupe-note {
+		position: absolute;
+		inset-inline: var(--spacing-2);
+		bottom: var(--spacing-2);
+		margin: 0;
+		padding: var(--spacing-2) var(--spacing-3);
+		background: var(--color-stage-bg);
+		color: var(--color-stage-fg);
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
+		text-align: center;
 	}
 
 	.frame {
