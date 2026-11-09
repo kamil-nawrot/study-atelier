@@ -40,6 +40,7 @@ declare
   gone uuid := '99999999-9999-9999-9999-999999999999';
   exhibition uuid := gen_random_uuid();
   revision integer;
+  listed text[];
   document jsonb;
   many jsonb;
 begin
@@ -145,6 +146,18 @@ begin
     'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "closeUp", "attrs": {"artworkId": "00000000-0000-4000-8000-000000000001", "x": 0.5, "y": 0.5, "viewWidth": 0.5, "zoom": 2}}]}'::jsonb))
     = '23514 exhibition_document',
     'an exhibition has a close-up with an attribute it does not know';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"content": [{"type": "heading", "attrs": {"level": 2}}]}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition holds a node without a type';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "artwork", "attrs": {}}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has an artwork block without an artwork';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "closeUp", "attrs": {"x": 0.5, "y": 0.5, "viewWidth": 0.5}}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a close-up without an artwork';
 
   assert exhibitions_test.failure(format(
     'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "heading", "attrs": {"level": 2, "align": "justify"}}]}'::jsonb))
@@ -203,6 +216,12 @@ begin
     'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "set", "content": [{"type": "term", "attrs": {"termId": "00000000-0000-4000-8000-0000000000f1"}}, {"type": "term", "attrs": {"termId": "00000000-0000-4000-8000-0000000000f1"}}]}]}'::jsonb))
     = '23514 exhibition_document',
     'an exhibition has a set of term blocks';
+
+  listed := array(select ctid::text from public.exhibition_artworks where exhibition_id = exhibition order by position);
+  revision := public.save_exhibition(exhibition, 'Light and shade',
+    (select document from public.exhibitions where id = exhibition), 3);
+  assert array(select ctid::text from public.exhibition_artworks where exhibition_id = exhibition order by position) = listed,
+    'a save that keeps the artworks writes their rows again';
 
   assert exhibitions_test.failure(format(
     'select public.save_exhibition(%L, ''Light'', ''{"type": "doc", "content": []}'', 1)', exhibition))
