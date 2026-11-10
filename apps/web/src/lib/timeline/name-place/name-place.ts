@@ -12,6 +12,15 @@ export type NamePlace = { before: boolean; shift: number };
 
 export const PIN_NAME_GAP = 16;
 
+const RIBBON_OVERHANG = 4;
+
+export function drawnRibbon(from: number, to: number, length: number): Bounds {
+	return {
+		start: Math.min(Math.max(from, -RIBBON_OVERHANG), to),
+		end: Math.max(Math.min(to, length + RIBBON_OVERHANG), from)
+	};
+}
+
 export function namePlace(shown: PlacedEvent, bounds: Bounds): NamePlace {
 	if (shown.pin) {
 		const at = (shown.from + shown.to) / 2;

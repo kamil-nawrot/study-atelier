@@ -80,3 +80,21 @@ export function lineTimes(view: View, length: number, bounds: TimeSpan): number[
 export function labelStride(segmentSize: number, labelSize: number): number {
 	return LABEL_STRIDES.find((stride) => stride * segmentSize >= labelSize) ?? 100;
 }
+
+function leadsGroup(segment: Segment, stride: number): boolean {
+	return segment.beforeCommonEra
+		? segment.number % stride === 0
+		: (segment.number - 1) % stride === 0;
+}
+
+export function labelGroups(view: View, bounds: TimeSpan, unit: Unit, stride: number): Segment[] {
+	const reach = (stride - 1) * unit;
+	return segments({ center: view.center - reach / 2, span: view.span + reach }, unit)
+		.filter((segment) => leadsGroup(segment, stride))
+		.map((segment) => ({ ...segment, end: segment.start + stride * unit }))
+		.filter(
+			(group) =>
+				group.end > Math.max(bounds.start, viewStart(view)) &&
+				group.start < Math.min(bounds.end, viewStart(view) + view.span)
+		);
+}

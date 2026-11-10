@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import '@study-atelier/ui/styles.css';
 import { render } from 'vitest-browser-svelte';
@@ -30,6 +30,7 @@ function placedElement(tag: 'button' | 'div', style: string, text = ''): HTMLEle
 
 type Rendered = {
 	anchor: HTMLButtonElement;
+	rerender: (props: Record<string, unknown>) => Promise<void>;
 	props: {
 		onclose: ReturnType<typeof vi.fn>;
 		onartwork: ReturnType<typeof vi.fn>;
@@ -38,7 +39,10 @@ type Rendered = {
 	};
 };
 
-function renderPopover(anchorStyle = 'left: 200px; top: 100px', boundary?: HTMLElement): Rendered {
+async function renderPopover(
+	anchorStyle = 'left: 200px; top: 100px',
+	boundary?: HTMLElement
+): Promise<Rendered> {
 	const anchor = placedElement('button', anchorStyle, war.name) as HTMLButtonElement;
 	const props = {
 		event: war,
@@ -50,8 +54,8 @@ function renderPopover(anchorStyle = 'left: 200px; top: 100px', boundary?: HTMLE
 		onwhole: vi.fn(),
 		ondelete: vi.fn()
 	};
-	render(EventPopover, { props });
-	return { anchor, props };
+	const { rerender } = await render(EventPopover, { props });
+	return { anchor, props, rerender: async (next) => rerender(next) };
 }
 
 function card(): ReturnType<typeof page.getByRole> {
@@ -62,7 +66,7 @@ async function closesOn(
 	press: (popover: ReturnType<typeof card>) => void,
 	called: (props: Rendered['props']) => unknown
 ): Promise<void> {
-	const { anchor, props } = renderPopover();
+	const { anchor, props } = await renderPopover();
 	await expect.element(card()).toBeVisible();
 
 	press(card());
@@ -74,12 +78,16 @@ async function closesOn(
 }
 
 describe('EventPopover', () => {
+	beforeEach(async () => {
+		await page.viewport(1280, 800);
+	});
+
 	afterEach(() => {
 		for (const element of placed.splice(0)) element.remove();
 	});
 
 	it('shows the event with its edit and delete actions as icon buttons with tooltips', async () => {
-		renderPopover();
+		await renderPopover();
 
 		await expect
 			.element(card().getByRole('link', { name: war.name }))
@@ -106,14 +114,49 @@ describe('EventPopover', () => {
 		);
 	});
 
-	it('closes when the whole period is shown and gives the focus back to the event', async () => {
-		await closesOn(
-			(popover) =>
-				(
-					popover.getByRole('button', { name: m.timeline.card.showWhole }).element() as HTMLElement
-				).click(),
-			(props) => expect(props.onwhole).toHaveBeenCalledWith(war)
-		);
+	it('closes when the whole period is shown and keeps the event chosen', async () => {
+		const { anchor, props, rerender } = await renderPopover();
+		await expect.element(card()).toBeVisible();
+
+		(
+			card().getByRole('button', { name: m.timeline.card.showWhole }).element() as HTMLElement
+		).click();
+
+		await expect.element(card()).not.toBeInTheDocument();
+		expect(document.activeElement).toBe(anchor);
+		expect(props.onwhole).toHaveBeenCalledWith(war);
+		await rerender({ view: { center: 1630, span: 60 } });
+		await expect.element(card()).not.toBeInTheDocument();
+		expect(props.onclose).not.toHaveBeenCalled();
+	});
+
+	it('hides while its event is outside the stage and keeps the event chosen', async () => {
+		const boundary = placedElement('div', 'left: 100px; top: 40px; width: 500px; height: 300px');
+		const { anchor, props, rerender } = await renderPopover('left: 200px; top: 100px', boundary);
+		await expect.element(card()).toBeVisible();
+
+		anchor.style.left = '700px';
+		await rerender({ view: { center: 1500, span: 200 } });
+		await expect.element(card()).not.toBeInTheDocument();
+
+		anchor.style.left = '300px';
+		await rerender({ view: { center: 1600, span: 200 } });
+		await expect.element(card()).toBeVisible();
+		expect(props.onclose).not.toHaveBeenCalled();
+	});
+
+	it('keeps the event chosen while its bar is gone and shows it again on the new one', async () => {
+		const { props, rerender } = await renderPopover();
+		await expect.element(card()).toBeVisible();
+
+		await rerender({ anchor: undefined });
+		await expect.element(card()).not.toBeInTheDocument();
+		expect(props.onclose).not.toHaveBeenCalled();
+
+		const next = placedElement('button', 'left: 300px; top: 100px', war.name);
+		await rerender({ anchor: next });
+		await expect.element(card()).toBeVisible();
+		expect(props.onclose).not.toHaveBeenCalled();
 	});
 
 	it('closes when the delete is asked for and gives the focus back to the event', async () => {
@@ -134,7 +177,7 @@ describe('EventPopover', () => {
 	});
 
 	it('hands a chosen artwork on and closes', async () => {
-		const { props } = renderPopover();
+		const { props } = await renderPopover();
 
 		(card().getByRole('button', { name: 'Straż nocna' }).element() as HTMLElement).click();
 
@@ -144,7 +187,7 @@ describe('EventPopover', () => {
 
 	it('closes with a click outside it', async () => {
 		const outside = placedElement('button', 'left: 0; bottom: 0', 'Outside');
-		const { props } = renderPopover();
+		const { props } = await renderPopover();
 		await expect.element(card()).toBeVisible();
 
 		await page.elementLocator(outside).click();
@@ -155,12 +198,27 @@ describe('EventPopover', () => {
 
 	it('stays inside its boundary when the event stands at its edge', async () => {
 		const boundary = placedElement('div', 'left: 100px; top: 40px; width: 500px; height: 300px');
-		renderPopover('left: 560px; top: 100px', boundary);
+		await renderPopover('left: 560px; top: 100px', boundary);
 		await expect.element(card()).toBeVisible();
 
 		const box = card().element().getBoundingClientRect();
 		expect(box.left).toBeGreaterThanOrEqual(100);
 		expect(box.right).toBeLessThanOrEqual(600);
 		expect(box.top).toBeGreaterThan(100);
+	});
+
+	it('stays inside the window when its boundary is narrower than the card', async () => {
+		const width = document.documentElement.clientWidth;
+		const boundary = placedElement(
+			'div',
+			`left: ${width - 120}px; top: 40px; width: 100px; height: 300px`
+		);
+		await renderPopover(`left: ${width - 110}px; top: 100px`, boundary);
+		await expect.element(card()).toBeVisible();
+
+		const box = card().element().getBoundingClientRect();
+		expect(box.width).toBeGreaterThan(100);
+		expect(box.left).toBeGreaterThanOrEqual(0);
+		expect(box.right).toBeLessThanOrEqual(width);
 	});
 });
