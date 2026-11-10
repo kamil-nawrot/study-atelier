@@ -5,15 +5,16 @@
 		text: string;
 		placement?: 'top' | 'bottom' | 'left';
 		align?: 'start' | 'end';
+		phoneOnly?: boolean;
 		children: Snippet<[string]>;
 	};
 
-	let { text, placement = 'top', align = 'start', children }: Props = $props();
+	let { text, placement = 'top', align = 'start', phoneOnly = false, children }: Props = $props();
 
 	const id = $props.id();
 </script>
 
-<span class="tooltip">
+<span class="tooltip" class:phone-only={phoneOnly}>
 	{@render children(id)}
 	<span
 		{id}
@@ -74,6 +75,12 @@
 
 	.tooltip:has(:global([aria-expanded='true'])) .bubble {
 		display: none;
+	}
+
+	@media (min-width: 768px) {
+		.phone-only .bubble {
+			visibility: hidden;
+		}
 	}
 
 	@media (prefers-reduced-motion: no-preference) {

@@ -1,3 +1,4 @@
+export { default as AddButton } from './components/AddButton/AddButton.svelte';
 export { default as Alert } from './components/Alert/Alert.svelte';
 export { default as ArtworkImage } from './components/ArtworkImage/ArtworkImage.svelte';
 export { default as ArtworkTile } from './components/ArtworkTile/ArtworkTile.svelte';
