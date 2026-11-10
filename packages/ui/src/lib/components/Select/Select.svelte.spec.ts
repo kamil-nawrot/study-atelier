@@ -84,30 +84,22 @@ describe('Select', () => {
 		expect(outlinedHeight(select, '.control')).toBe(controlHeight());
 	});
 
-	it('keeps its name for assistive technology when compact', async () => {
-		render(Select, { label: 'Order', options: types, icon: ArrowUpDown, compact: true });
+	it('uses the smaller text of a button on a computer and keeps the default on a phone when compact', async () => {
+		render(Select, { label: 'Default', options: types });
+		render(Select, { label: 'Compact', options: types, icon: ArrowUpDown, compact: true });
 
-		await expect.element(page.getByRole('combobox', { name: 'Order' })).toBeInTheDocument();
-	});
-
-	it('shrinks to the icon on a phone and shows the chosen text on a larger screen', async () => {
-		render(Select, {
-			label: 'Order',
-			options: types,
-			icon: ArrowUpDown,
-			compact: true,
-			value: 'painting'
-		});
-		const control = page.getByRole('combobox', { name: 'Order' }).element().closest('.control');
+		const fontSize = (name: string): number =>
+			parseFloat(getComputedStyle(page.getByRole('combobox', { name }).element()).fontSize);
 
 		await page.viewport(400, 800);
-		expect(control?.getBoundingClientRect().width).toBe(controlHeight());
+		expect(fontSize('Compact')).toBe(fontSize('Default'));
 
 		await page.viewport(1280, 800);
-		expect(control?.getBoundingClientRect().width).toBeGreaterThan(controlHeight());
+		expect(fontSize('Compact')).toBeLessThan(fontSize('Default'));
+		await expect.element(page.getByText('Compact')).toBeVisible();
 	});
 
-	it('shows the icon before the chosen text when not compact', async () => {
+	it('shows the icon before the chosen text', async () => {
 		render(Select, { label: 'Order', options: types, icon: ArrowUpDown, value: 'painting' });
 		const select = page.getByRole('combobox', { name: 'Order' }).element();
 		const glyph = select.closest('.control')?.querySelector('.glyph svg');
