@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
-	import { Alert, Tabs, Toast } from '@study-atelier/ui';
+	import { Alert, PageHeader, Tabs, Toast } from '@study-atelier/ui';
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -79,10 +79,7 @@
 	{/snippet}
 
 	<div class="page">
-		<header>
-			<h1>{m.settings.title}</h1>
-			<p class="lead">{m.settings.lead}</p>
-		</header>
+		<PageHeader lead={m.settings.lead} title={m.settings.title} />
 
 		{#if data.error}
 			<Alert title={m.settings.loadErrorTitle} tone="danger">
@@ -133,11 +130,6 @@
 <Toast bind:this={toast} offset={tab === 'account' || tab === 'data' ? 0 : barHeight} />
 
 <style>
-	header {
-		display: grid;
-		gap: var(--spacing-2);
-	}
-
 	.page {
 		display: flex;
 		flex-direction: column;

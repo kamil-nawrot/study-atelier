@@ -83,11 +83,37 @@ describe('ComparisonView', () => {
 		await render(ComparisonView, { sides: { left: 1, right: null }, left: LEFT });
 
 		await expect
-			.element(page.getByRole('heading', { name: m.compare.question('Girl with a Pearl Earring') }))
+			.element(
+				page.getByRole('heading', { name: `${m.compare.questionLead} Girl with a Pearl Earring?` })
+			)
 			.toBeVisible();
 		await expect
 			.element(page.getByRole('button', { name: m.compare.change }))
 			.not.toBeInTheDocument();
+	});
+
+	it('shows the artwork title in the question as a title', async () => {
+		await render(ComparisonView, { sides: { left: 1, right: null }, left: LEFT });
+
+		const heading = page.getByRole('heading', { level: 2 });
+		await expect.element(heading).toBeVisible();
+		expect(heading.element().querySelector('cite.artwork-title')?.textContent).toBe(
+			'Girl with a Pearl Earring'
+		);
+	});
+
+	it('offers the loupe and the palette only once both halves hold an artwork', async () => {
+		await render(ComparisonView, { sides: { left: 1, right: null }, left: LEFT });
+
+		await expect
+			.element(
+				page.getByRole('heading', { name: `${m.compare.questionLead} Girl with a Pearl Earring?` })
+			)
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.palette.label }))
+			.not.toBeInTheDocument();
+		await expect.element(page.getByRole('button', { name: m.loupe.label })).not.toBeInTheDocument();
 	});
 
 	it('shows the palettes of both images behind one icon', async () => {

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import BookA from '@lucide/svelte/icons/book-a';
 	import CalendarClock from '@lucide/svelte/icons/calendar-clock';
+	import FastForward from '@lucide/svelte/icons/fast-forward';
 	import ListOrdered from '@lucide/svelte/icons/list-ordered';
 	import NotebookPen from '@lucide/svelte/icons/notebook-pen';
 	import Target from '@lucide/svelte/icons/target';
@@ -122,10 +123,12 @@
 		<div class="actions">
 			{#if free}
 				<Button disabled={starting} onclick={onfree} variant="primary">
+					<Icon icon={FastForward} size="sm" />
 					{starting ? m.review.preparing : m.review.freeNextRound}
 				</Button>
 			{:else if nextRound > 0}
 				<Button disabled={starting} onclick={onnext} variant="primary">
+					<Icon icon={FastForward} size="sm" />
 					{starting ? m.review.preparing : m.review.nextRound(nextRound)}
 				</Button>
 			{:else if freeOpen}

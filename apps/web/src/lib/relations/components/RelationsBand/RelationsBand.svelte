@@ -26,103 +26,96 @@
 </script>
 
 {#if shown}
-	<div class="relations">
-		<Disclosure level={2} title={m.relations.title}>
-			<div class="band">
-				<div class="column wide">
-					{#if timed}
-						<TimeSpan
-							bounds={relations.bounds}
-							{events}
-							kind={relations.kind}
-							years={relations.years}
-						/>
-					{/if}
-					{#if relations.groups.length > 0}
-						<section class="part" aria-labelledby="relations-together">
-							<h3 id="relations-together" class="label">
-								{relations.kind === 'era' ? m.relations.hierarchy : m.relations.together}
-							</h3>
-							{#each relations.groups as group (group.label)}
-								<div class="group">
-									<span class="caption">{group.label}</span>
-									<ul class="values">
-										{#each group.values as value (value.id)}
-											<li>
-												<a class="value" href={value.href}
-													>{value.name}<span class="count">{value.count}</span></a
-												>
-											</li>
-										{/each}
-									</ul>
-								</div>
-							{/each}
-						</section>
-					{/if}
-				</div>
-				<div class="column">
-					{#if progress}
-						<section class="part" aria-labelledby="relations-progress">
-							<h3 id="relations-progress" class="label">{m.relations.progress}</h3>
-							<p>{m.relations.mastered(relations.mastered ?? 0, relations.total)}</p>
-							<Meter
-								label={m.relations.progress}
-								max={relations.total}
-								track="dim"
-								value={relations.mastered ?? 0}
-							/>
-						</section>
-					{/if}
-					{#if relations.types.length > 0}
-						<section class="part" aria-labelledby="relations-types">
-							<h3 id="relations-types" class="label">{m.relations.types}</h3>
-							<ul class="types">
-								{#each relations.types as type (type.code)}
-									<li>
-										<Icon icon={artworkTypeIcon(type.code)} size="sm" />
-										{m.artworkTypes[type.code]}
-										<span class="count">{type.count}</span>
-									</li>
-								{/each}
-							</ul>
-						</section>
-					{/if}
-					{#if events.length > 0}
-						<section class="part" aria-labelledby="relations-events">
-							<h3 id="relations-events" class="label">
-								{relations.kind === 'event' ? m.relations.otherEvents : m.relations.sameTime}
-							</h3>
-							<ul class="events">
-								{#each allEvents ? events : events.slice(0, SHOWN_EVENTS) as event (event.id)}
-									<li>
-										<a href={resolve('/(app)/atelier/timeline/events/[id]', { id: event.id })}
-											>{event.name}</a
-										>
-										<span class="count"
-											>{formatDate(event.yearFrom, event.yearTo, event.yearApproximate)}</span
-										>
-									</li>
-								{/each}
-							</ul>
-							{#if !allEvents && events.length > SHOWN_EVENTS}
-								<TextButton inline onclick={() => (allEvents = true)}>
-									{m.relations.allEvents(events.length)}
-								</TextButton>
-							{/if}
-						</section>
-					{/if}
-				</div>
+	<Disclosure room title={m.relations.title}>
+		<div class="band">
+			<div class="column wide">
+				{#if timed}
+					<TimeSpan
+						bounds={relations.bounds}
+						{events}
+						kind={relations.kind}
+						years={relations.years}
+					/>
+				{/if}
+				{#if relations.groups.length > 0}
+					<section class="part" aria-labelledby="relations-together">
+						<h3 id="relations-together" class="overline">
+							{relations.kind === 'era' ? m.relations.hierarchy : m.relations.together}
+						</h3>
+						{#each relations.groups as group (group.label)}
+							<div class="group">
+								<span class="caption">{group.label}</span>
+								<ul class="values">
+									{#each group.values as value (value.id)}
+										<li>
+											<a class="value" href={value.href}
+												>{value.name}<span class="count">{value.count}</span></a
+											>
+										</li>
+									{/each}
+								</ul>
+							</div>
+						{/each}
+					</section>
+				{/if}
 			</div>
-		</Disclosure>
-	</div>
+			<div class="column">
+				{#if progress}
+					<section class="part" aria-labelledby="relations-progress">
+						<h3 id="relations-progress" class="overline">{m.relations.progress}</h3>
+						<p>{m.relations.mastered(relations.mastered ?? 0, relations.total)}</p>
+						<Meter
+							label={m.relations.progress}
+							max={relations.total}
+							track="dim"
+							value={relations.mastered ?? 0}
+						/>
+					</section>
+				{/if}
+				{#if relations.types.length > 0}
+					<section class="part" aria-labelledby="relations-types">
+						<h3 id="relations-types" class="overline">{m.relations.types}</h3>
+						<ul class="types">
+							{#each relations.types as type (type.code)}
+								<li>
+									<Icon icon={artworkTypeIcon(type.code)} size="sm" />
+									{m.artworkTypes[type.code]}
+									<span class="count">{type.count}</span>
+								</li>
+							{/each}
+						</ul>
+					</section>
+				{/if}
+				{#if events.length > 0}
+					<section class="part" aria-labelledby="relations-events">
+						<h3 id="relations-events" class="overline">
+							{relations.kind === 'event' ? m.relations.otherEvents : m.relations.sameTime}
+						</h3>
+						<ul class="events">
+							{#each allEvents ? events : events.slice(0, SHOWN_EVENTS) as event (event.id)}
+								<li>
+									<a href={resolve('/(app)/atelier/timeline/events/[id]', { id: event.id })}
+										>{event.name}</a
+									>
+									<span class="count"
+										>{formatDate(event.yearFrom, event.yearTo, event.yearApproximate)}</span
+									>
+								</li>
+							{/each}
+						</ul>
+						{#if !allEvents && events.length > SHOWN_EVENTS}
+							<TextButton inline onclick={() => (allEvents = true)}>
+								{m.relations.allEvents(events.length)}
+							</TextButton>
+						{/if}
+					</section>
+				{/if}
+			</div>
+		</div>
+	</Disclosure>
 {/if}
 
 <style>
-	.relations {
-		padding-top: var(--spacing-6);
-		border-top: var(--border-width-hairline) solid var(--color-line);
-	}
-
 	.band,
 	.column,
 	.part,
@@ -142,15 +135,6 @@
 
 	.group {
 		gap: var(--spacing-2);
-	}
-
-	.label {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		font-weight: var(--font-weight-regular);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
 	}
 
 	.caption,

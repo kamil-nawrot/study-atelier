@@ -116,6 +116,12 @@
 		color: var(--color-fg);
 	}
 
+	@media (max-width: 767.98px) {
+		input::placeholder {
+			font-size: var(--font-size-sm);
+		}
+	}
+
 	@media (min-width: 768px) {
 		.compact input {
 			font-size: var(--font-size-sm);

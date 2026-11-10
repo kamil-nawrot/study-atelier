@@ -282,6 +282,7 @@ export const pl = {
 			othersFailedTitle: 'Hasło zostało pomyślnie zmienione',
 			othersFailed:
 				'Nie udało się wylogować Cię na innych urządzeniach. Wyloguj się tam ręcznie albo zmień hasło jeszcze raz.',
+			legalTitle: 'Regulamin i Polityka prywatności',
 			deleteTitle: 'Usuń konto',
 			deleteDescription:
 				'Usunięcie konta usuwa na zawsze całe atelier: dzieła, zdjęcia, notatki, Słowniczek, Kalendarium, Kronikę i historię powtórek.',
@@ -313,7 +314,7 @@ export const pl = {
 				quiz_pin: 'Dopasowywanie detalu do definicji',
 				quiz_typed: 'Wpisywanie tytułu dzieła z pamięci'
 			},
-			kindsHint: 'Zostaw zaznaczony przynajmniej jeden rodzaj.',
+			kindsHint: 'Zostaw zaznaczony przynajmniej jeden rodzaj dopasowywania.',
 			extraTitle: 'Pytania dodatkowe',
 			glossaryOn: 'Pytania ze Słowniczka',
 			glossaryQuestions: 'Liczba pytań w sesji',
@@ -403,6 +404,7 @@ export const pl = {
 		filteredCount: (shown: number, total: number): string =>
 			`${shown} z ${total} ${plural(total, { one: 'dzieła', few: 'dzieł', many: 'dzieł' })}`,
 		search: 'Szukaj po tytule lub autorze',
+		searchShort: 'Szukaj',
 		sort: {
 			label: 'Kolejność',
 			recent: 'Ostatnio dodane',
@@ -481,7 +483,7 @@ export const pl = {
 			buttonWithCount: (count: number): string => `Filtry (${count})`,
 			viewButton: 'Widok',
 			viewTitle: 'Widok',
-			closePanel: 'Zamknij filtry',
+			closePanel: 'Zwiń filtry',
 			activeLabel: 'Aktywne filtry',
 			clear: 'Wyczyść filtry',
 			removeTag: (label: string): string => `Usuń filtr: ${label}`,
@@ -657,7 +659,7 @@ export const pl = {
 		addImage: 'Dodaj obraz',
 		information: 'Informacje',
 		showInformation: 'Pokaż informacje',
-		hideInformation: 'Zamknij informacje',
+		hideInformation: 'Zwiń informacje',
 		openImage: 'Powiększ obraz',
 		closeImage: 'Zamknij powiększenie',
 		empty: 'Nie wpisano',
@@ -675,7 +677,7 @@ export const pl = {
 		label: 'Porównaj',
 		title: 'Porównanie',
 		unavailable: 'Do porównania potrzebne są co najmniej dwa dzieła.',
-		question: (title: string): string => `Z czym porównać ${title}?`,
+		questionLead: 'Z czym porównać',
 		questionEmpty: 'Które dzieła chcesz porównać?',
 		search: 'Szukaj po tytule, autorze lub numerze',
 		change: 'Zmień dzieło',
@@ -700,6 +702,7 @@ export const pl = {
 	},
 	review: {
 		title: 'Powtórki',
+		lead: 'Codziennie trafiają tu dzieła do powtórki: nowe z Twojego atelier i te, które warto sobie przypomnieć. Im lepiej pamiętasz dzieło, tym rzadziej wraca.',
 		loadErrorTitle: 'Nie udało się wczytać powtórek',
 		startErrorTitle: 'Nie udało się rozpocząć sesji powtórkowej',
 		waiting: (count: number): string => `Na dziś do powtórki zaplanowane masz ${workCount(count)}`,
@@ -744,8 +747,6 @@ export const pl = {
 		freeHint:
 			'Dodatkowa runda losowo wybranych dzieł, które już powtarzasz. Nie zmienia planu powtórek ani nie wpływa na obecną serię.',
 		freeTag: 'Tryb swobodny',
-		howTitle: 'Jak działają powtórki?',
-		how: 'Do puli codziennie dobierane są nowe dzieła, które dodasz do atelier, a także takie, które wymagają powtórki. Im lepiej pamiętasz dzieło, tym rzadziej będzie pojawiać się w kolejnych dniach.',
 		knowledge: 'Jak dobrze znasz swoje atelier?',
 		knowledgeGroups: {
 			settled: { label: 'Utrwalone', hint: 'Pamiętasz je dłużej niż tydzień.' },
@@ -1370,9 +1371,9 @@ export const pl = {
 			noDefinition: 'Nie dodano jeszcze definicji.',
 			mentionsHeading: 'Pojawia się w notatkach',
 			onArtworks: 'Na dziełach',
-			fragments: 'Fragmenty',
-			fragmentsBack: 'Przewiń fragmenty wstecz',
-			fragmentsForward: 'Przewiń fragmenty dalej',
+			fragments: 'Detale',
+			fragmentsBack: 'Przewiń detale wstecz',
+			fragmentsForward: 'Przewiń detale dalej',
 			licenceLink: 'CC BY-SA 4.0',
 			notFoundTitle: 'Nie ma takiego pojęcia',
 			notFound: 'Nie ma takiego pojęcia w słowniczku. Może zostało usunięte.',
@@ -2224,11 +2225,6 @@ export const pl = {
 			`${count} ${plural(count, { one: 'wydarzenie', few: 'wydarzenia', many: 'wydarzeń' })} poza widokiem. Przybliż, żeby je zobaczyć.`,
 		now: (year: string, parts: string[]): string => [year, ...parts].join(' · '),
 		nowEvents: (events: string): string => `w tym czasie: ${events}`,
-		nowArtworks: (titles: string, more: number): string =>
-			`dzieła: ${titles}${more > 0 ? ` (+${more})` : ''}`,
-		readingArtworks: 'W linii czytania:',
-		readingArtworksNone: 'W linii czytania nie ma dzieł.',
-		readingMore: (count: number): string => `(+${count})`,
 		lane: (name: string, count: number): string => `${name} · ${count}`,
 		filters: {
 			lanes: 'Okresy i style',
@@ -2241,7 +2237,6 @@ export const pl = {
 			searchAuthors: 'Szukaj autora',
 			view: 'Widok',
 			events: 'Wydarzenia',
-			readingArtworks: 'Dzieła w linii czytania',
 			empty: 'W tej epoce nie ma dzieł, które pasują do filtrów.'
 		},
 		zones: {
@@ -2548,6 +2543,7 @@ export const pl = {
 	},
 	trash: {
 		title: 'Archiwum',
+		lead: 'Trafiają tu dzieła i wystawy, które usuniesz z atelier. Możesz je stąd przywrócić albo usunąć na zawsze.',
 		emptyTitle: 'Archiwum jest puste',
 		empty:
 			'Trafiają tu dzieła, które usuniesz z atelier. Stąd możesz je przywrócić albo usunąć na zawsze.',

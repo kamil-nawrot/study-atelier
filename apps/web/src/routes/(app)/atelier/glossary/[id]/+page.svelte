@@ -6,7 +6,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import ArtworkWall from '#lib/wall/components/ArtworkWall/ArtworkWall.svelte';
+	import ArtworksSection from '#lib/wall/components/ArtworksSection/ArtworksSection.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -121,15 +121,15 @@
 			</div>
 		{/if}
 		{#if artworks.length > 0}
-			<section class="artworks" aria-labelledby="glossary-artworks">
-				<h2 id="glossary-artworks">{m.glossary.view.onArtworks}</h2>
-				<ArtworkWall
+			<div class="artworks">
+				<ArtworksSection
 					{artworks}
+					empty=""
 					hrefOf={pinnedHref}
-					onimagefailed={(artwork) => images.failed(artwork)}
-					onnearscreen={(artwork) => images.request(artwork)}
+					{images}
+					title={m.glossary.view.onArtworks}
 				/>
-			</section>
+			</div>
 		{/if}
 	{:else}
 		<LoadFailure
@@ -175,19 +175,6 @@
 	}
 
 	.artworks {
-		display: grid;
-		gap: var(--spacing-6);
 		margin-top: var(--spacing-8);
-		padding-top: var(--spacing-6);
-		border-top: var(--border-width-hairline) solid var(--color-line);
-	}
-
-	h2 {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		font-weight: var(--font-weight-regular);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
 	}
 </style>

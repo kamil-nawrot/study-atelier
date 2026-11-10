@@ -70,7 +70,7 @@
 <ReviewCard actions={next} alt="" compact labelledby="quiz-heading" stage={definition}>
 	{#snippet body()}
 		<div class="intro">
-			<p class="caption">{m.review.quiz.definitionTag}</p>
+			<p class="overline">{m.review.quiz.definitionTag}</p>
 			<h1 bind:this={heading} id="quiz-heading" tabindex="-1">
 				{m.review.quiz.definitionQuestion}
 			</h1>
@@ -112,21 +112,34 @@
 
 	.definition {
 		max-width: 40rem;
-		color: var(--color-stage-fg);
-		font-size: var(--font-size-md);
-		line-height: var(--line-height-md);
+		padding: var(--spacing-6);
+		background: var(--color-mat-bg);
+		color: var(--color-mat-fg);
+		font-family: var(--font-family-title), Georgia, serif;
+		font-size: var(--font-size-lg);
+		font-style: italic;
+		line-height: var(--line-height-lg);
 		white-space: pre-line;
 	}
 
 	.gap,
 	.term {
 		padding: 0 var(--spacing-1);
-		background: var(--color-tag);
+		background: var(--color-mat-window);
 		color: inherit;
+	}
+
+	@media (min-width: 768px) {
+		.definition {
+			padding: var(--spacing-8);
+			font-size: var(--font-size-xl);
+			line-height: var(--line-height-xl);
+		}
 	}
 
 	.gap {
 		display: inline-block;
+		border-bottom: var(--border-width-base) solid var(--color-mat-fg-muted);
 		width: 4em;
 		height: 1em;
 		vertical-align: -0.1em;

@@ -12,7 +12,7 @@
 	let { kind, parent, name, summary }: Props = $props();
 </script>
 
-<span class="kind"><MetaLine parts={[kind, parent]} /></span>
+<span class="overline"><MetaLine parts={[kind, parent]} /></span>
 <span class="name">{name}</span>
 {#if summary.lifeYears}
 	<span class="years">{summary.lifeYears}</span>
@@ -20,14 +20,6 @@
 <span class="summary">{summary.summary}</span>
 
 <style>
-	.kind {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
-	}
-
 	.name {
 		font-family: var(--font-family-title), Georgia, serif;
 		font-size: var(--font-size-xl);

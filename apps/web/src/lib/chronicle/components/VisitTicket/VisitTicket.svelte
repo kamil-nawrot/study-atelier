@@ -43,7 +43,7 @@
 		</time>
 		<div class="body">
 			{#if header}
-				<p class="kind">{m.chronicle.kind}</p>
+				<p class="overline">{m.chronicle.kind}</p>
 				<h1 class="place">{visit.place}</h1>
 			{:else}
 				<h3 class="place">
@@ -124,14 +124,6 @@
 	}
 
 	.month,
-	.kind {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
-	}
-
 	.body {
 		display: grid;
 		align-content: start;

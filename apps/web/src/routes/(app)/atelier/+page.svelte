@@ -51,7 +51,6 @@
 			<FilterSidePanel
 				filtering={view.filtering}
 				onclear={() => view.clearFilter()}
-				summary={m.atelier.filteredCount(view.shown.length, view.total)}
 				bind:open={view.panelOpen}
 			>
 				<FilterPanel

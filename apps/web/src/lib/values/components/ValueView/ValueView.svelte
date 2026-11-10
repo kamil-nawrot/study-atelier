@@ -23,6 +23,7 @@
 	import VisitsDisclosure from '#lib/chronicle/components/VisitsDisclosure/VisitsDisclosure.svelte';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
 	import MentionedIn from '#lib/notes/components/MentionedIn/MentionedIn.svelte';
+	import NotesSection from '#lib/notes/components/NotesSection/NotesSection.svelte';
 	import EraOutsideNote from '#lib/values/components/EraOutsideNote/EraOutsideNote.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
@@ -89,7 +90,7 @@
 	{/if}
 	<div class="text">
 		<header>
-			<p class="kind">
+			<p class="kind overline">
 				{#if subject.kind === 'era'}
 					<span class="mark" aria-hidden="true">
 						<Icon icon={eraIcon(subject.code)} size="sm" />
@@ -140,14 +141,13 @@
 				</Section>
 			{/if}
 			{#if details.notes}
-				<section class="notes" aria-labelledby="value-notes">
-					<h2 id="value-notes" class="label">{m.common.notes}</h2>
+				<NotesSection>
 					<GlossaryNotes entries={glossary} links={noteLinks} value={details.notes} />
-				</section>
+				</NotesSection>
 			{/if}
 		{/if}
 
-		<MentionedIn {mentions} variant="label" />
+		<MentionedIn {mentions} />
 	</div>
 </article>
 
@@ -159,8 +159,7 @@
 	}
 
 	article,
-	header,
-	.notes {
+	header {
 		display: grid;
 		gap: var(--spacing-3);
 	}
@@ -199,16 +198,10 @@
 		background: var(--color-mat-window);
 	}
 
-	.kind,
-	.label {
+	.kind {
 		display: flex;
 		align-items: center;
 		gap: var(--spacing-2);
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
 	}
 
 	.mark {
@@ -250,10 +243,6 @@
 		font-size: var(--font-size-xl);
 		font-style: italic;
 		line-height: var(--line-height-xl);
-	}
-
-	.label {
-		font-weight: var(--font-weight-regular);
 	}
 
 	.empty {

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { m } from '#lib/i18n/i18n.ts';
-	import { axisKind, segments, tickYears } from '#lib/timeline/axis/axis.ts';
+	import { axisKind, labelStride, segments, tickYears } from '#lib/timeline/axis/axis.ts';
 	import { segmentLabel } from '#lib/timeline/labels/labels.ts';
 	import { boxStyle } from '#lib/timeline/stage/stage.ts';
 	import { timeOf } from '#lib/timeline/time/time.ts';
@@ -16,20 +16,38 @@
 
 	const LABEL_MIN = 48;
 	const LABEL_MIN_VERTICAL = 24;
+	const LABEL_CHAR = 9;
+	const LABEL_PADDING = 16;
+	const LABEL_HEIGHT_VERTICAL = 64;
 
 	let view = $derived(geometry.view);
 	let length = $derived(geometry.length);
 	let vertical = $derived(geometry.orientation === 'vertical');
 	let kind = $derived(axisKind(view));
 	let unit = $derived<100 | 1000>(kind === 'millennia' ? 1000 : 100);
+	let longest = $derived(
+		Math.max(
+			...segments({ center: (era.start + era.end) / 2, span: era.end - era.start }, unit).map(
+				(segment) => segmentLabel(segment, unit).length
+			)
+		)
+	);
+	let stride = $derived(
+		labelStride(
+			(length * unit) / view.span,
+			vertical ? LABEL_HEIGHT_VERTICAL : LABEL_PADDING + LABEL_CHAR * longest
+		)
+	);
 	let labels = $derived(
 		kind === 'years'
 			? []
 			: segments(view, unit)
 					.filter((segment) => segment.end > era.start && segment.start < era.end)
+					.filter((segment) => segment.number % stride === 0)
 					.map((segment) => {
+						const end = segment.start + stride * unit;
 						const from = Math.max(geometry.position(Math.max(segment.start, era.start)), 0);
-						const to = Math.min(geometry.position(Math.min(segment.end, era.end)), length);
+						const to = Math.min(geometry.position(Math.min(end, era.end)), length);
 						return { key: `${unit}:${segment.start}`, text: segmentLabel(segment, unit), from, to };
 					})
 					.filter((label) => label.to - label.from > (vertical ? LABEL_MIN_VERTICAL : LABEL_MIN))

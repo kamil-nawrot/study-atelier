@@ -82,6 +82,15 @@ h4 {
 	line-height: var(--line-height-sm);
 }
 
+.overline {
+	color: var(--color-fg-muted);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-regular);
+	font-variant-caps: all-small-caps;
+	line-height: var(--line-height-sm);
+	letter-spacing: var(--letter-spacing-wide);
+}
+
 .artwork-title {
 	font-family: var(--font-family-title), Georgia, serif;
 	font-size: var(--font-size-lg);

@@ -114,9 +114,7 @@ describe('glossary entry page', () => {
 			mentions: [{ href: '/atelier/3', name: '#0003 Temple', kind: m.mentions.artwork }]
 		});
 
-		await expect
-			.element(page.getByRole('heading', { name: m.glossary.view.mentionsHeading }))
-			.toBeVisible();
+		await page.getByRole('heading', { name: m.glossary.view.mentionsHeading }).click();
 		await expect
 			.element(page.getByRole('link', { name: '#0003 Temple' }))
 			.toHaveAttribute('href', '/atelier/3');
@@ -304,9 +302,13 @@ describe('glossary entry page', () => {
 			.element(fragments.getByRole('link', { name: /Saint-Trophime/ }))
 			.toHaveAttribute('href', '/atelier/12?pin=pin-8');
 		const headings = [...document.querySelectorAll('h2')].map((heading) => heading.textContent);
-		expect(headings.indexOf(m.glossary.view.fragments)).toBeLessThan(
-			headings.indexOf(m.glossary.view.onArtworks)
-		);
+		const position = (title: string): number =>
+			headings.findIndex((heading) => heading.trim().startsWith(title));
+		await expect
+			.element(page.getByRole('heading', { name: m.glossary.view.fragments }))
+			.toHaveTextContent(/1/);
+		expect(position(m.glossary.view.fragments)).toBeGreaterThanOrEqual(0);
+		expect(position(m.glossary.view.fragments)).toBeLessThan(position(m.glossary.view.onArtworks));
 	});
 
 	it('leaves out the fragments when no pin of the entry keeps a loupe view', async () => {

@@ -14,23 +14,16 @@
 </script>
 
 {#if visits.length > 0}
-	<div class="visits">
-		<Disclosure icon={Footprints} muted open={false} title={title(visits.length)}>
-			<ul>
-				{#each visits as visit (visit.id)}
-					<li><SmallTicket stub={stub?.(visit)} {visit} /></li>
-				{/each}
-			</ul>
-		</Disclosure>
-	</div>
+	<Disclosure icon={Footprints} muted open={false} title={title(visits.length)}>
+		<ul>
+			{#each visits as visit (visit.id)}
+				<li><SmallTicket stub={stub?.(visit)} {visit} /></li>
+			{/each}
+		</ul>
+	</Disclosure>
 {/if}
 
 <style>
-	.visits :global(h2) {
-		font-size: var(--font-size-md);
-		line-height: var(--line-height-md);
-	}
-
 	ul {
 		display: grid;
 		gap: var(--spacing-2);

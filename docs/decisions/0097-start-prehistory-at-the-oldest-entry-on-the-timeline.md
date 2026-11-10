@@ -1,6 +1,6 @@
 # 0097. Start prehistory at the oldest entry on the timeline
 
-- Status: accepted
+- Status: accepted; the width of prehistory on the era strip is superseded by [0242](0242-polish-the-era-strip-axis-and-event-names-of-kalendarium.md)
 - Date: 2026-10-21
 
 ## Context and problem statement

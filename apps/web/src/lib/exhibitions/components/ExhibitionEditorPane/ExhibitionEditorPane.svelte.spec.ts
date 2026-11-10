@@ -114,6 +114,7 @@ describe('ExhibitionEditorPane', () => {
 		await expect
 			.element(page.getByRole('textbox', { name: m.exhibitions.view.titleLabel }))
 			.toHaveValue('Light');
+		await expect.element(page.getByText(m.exhibitions.kind)).toBeVisible();
 		await expect.element(page.getByText('Soft glow')).toBeInTheDocument();
 		await expect
 			.element(page.getByRole('toolbar', { name: m.exhibitions.bar.label('Dzieło') }))

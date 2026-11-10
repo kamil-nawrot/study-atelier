@@ -26,4 +26,16 @@ describe('SearchField', () => {
 
 		expect(fontSize('Compact')).toBeLessThan(fontSize('Default'));
 	});
+
+	it('keeps 16 px in the field on a phone and shows a smaller placeholder', async () => {
+		await page.viewport(390, 844);
+		render(SearchField, { label: 'Search', placeholder: 'Search by title or author' });
+
+		const search = page.getByRole('searchbox', { name: 'Search' }).element();
+		const field = parseFloat(getComputedStyle(search).fontSize);
+		const placeholder = parseFloat(getComputedStyle(search, '::placeholder').fontSize);
+
+		expect(field).toBe(16);
+		expect(placeholder).toBeLessThan(field);
+	});
 });

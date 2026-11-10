@@ -33,4 +33,15 @@ describe('Disclosure', () => {
 		await expect.element(page.getByText('Group content')).toBeVisible();
 		expect(ontoggle).toHaveBeenLastCalledWith(true);
 	});
+
+	it('opens a section of a page like a room, with the chevron at the end of the row', async () => {
+		render(Disclosure, { title: 'Relations', room: true, children: content });
+
+		const heading = page.getByRole('heading', { level: 2, name: 'Relations' }).element();
+		const summary = heading.closest('summary');
+		const chevron = summary?.lastElementChild;
+
+		expect(summary?.closest('details')?.classList.contains('room')).toBe(true);
+		expect(chevron?.getBoundingClientRect().right).toBe(summary?.getBoundingClientRect().right);
+	});
 });

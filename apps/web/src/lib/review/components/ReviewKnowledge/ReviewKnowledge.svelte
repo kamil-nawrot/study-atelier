@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
+	import ChoiceTitle from '#lib/review/components/ChoiceTitle/ChoiceTitle.svelte';
 	import ArtworkRow from '#lib/review/components/ArtworkRow/ArtworkRow.svelte';
 	import KnowledgeBar from '#lib/review/components/KnowledgeBar/KnowledgeBar.svelte';
 	import type { AtelierKnowledge } from '#lib/review/types/atelier-knowledge.ts';
@@ -18,12 +19,12 @@
 {#if total > 0}
 	<aside class="side" aria-labelledby="review-knowledge">
 		<section class="knowledge">
-			<h2 id="review-knowledge" class="choice-title">{m.review.knowledge}</h2>
+			<ChoiceTitle id="review-knowledge" text={m.review.knowledge} />
 			<KnowledgeBar {knowledge} />
 		</section>
 		{#if troubles.length > 0}
 			<section class="troubles" aria-labelledby="review-troubles">
-				<h2 id="review-troubles" class="choice-title">{m.review.troubles}</h2>
+				<ChoiceTitle id="review-troubles" text={m.review.troubles} />
 				<ul class="trouble-list">
 					{#each troubles as artwork (artwork.id)}
 						<li>
@@ -37,11 +38,6 @@
 {/if}
 
 <style>
-	.choice-title {
-		font-size: var(--font-size-md);
-		line-height: var(--line-height-md);
-	}
-
 	.side {
 		display: grid;
 		align-content: start;

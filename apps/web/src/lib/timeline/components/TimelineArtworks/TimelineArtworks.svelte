@@ -296,7 +296,7 @@
 		top: 50%;
 		right: var(--spacing-1);
 		left: 0;
-		height: var(--border-width-base);
+		height: var(--border-width-hairline);
 		background: var(--color-fg-muted);
 		transform: translateY(-50%);
 	}
@@ -306,7 +306,7 @@
 		right: auto;
 		bottom: var(--spacing-1);
 		left: 50%;
-		width: var(--border-width-base);
+		width: var(--border-width-hairline);
 		height: auto;
 		transform: translateX(-50%);
 	}

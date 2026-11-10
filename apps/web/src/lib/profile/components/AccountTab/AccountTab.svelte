@@ -150,6 +150,12 @@
 			</div>
 		</Form>
 	</SettingsSection>
+	<SettingsSection rule title={m.settings.account.legalTitle}>
+		{#if acceptedLegalVersion}
+			<p>{m.legal.accepted(legalVersionDate(acceptedLegalVersion))}</p>
+		{/if}
+		<LegalLinks />
+	</SettingsSection>
 	<SettingsSection rule title={m.settings.account.deleteTitle}>
 		<p>{m.settings.account.deleteDescription}</p>
 		<div class="actions">
@@ -158,13 +164,6 @@
 			</Button>
 		</div>
 	</SettingsSection>
-	<div class="legal">
-		{#if acceptedLegalVersion}
-			<span>{m.legal.accepted(legalVersionDate(acceptedLegalVersion))}</span>
-			<span aria-hidden="true">·</span>
-		{/if}
-		<LegalLinks />
-	</div>
 </div>
 
 <AccountDeleteDialog {email} ondeleted={accountGone} bind:open={deleteOpen} />
@@ -178,13 +177,5 @@
 
 	.actions {
 		display: flex;
-	}
-
-	.legal {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--spacing-2);
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
 	}
 </style>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Plus from '@lucide/svelte/icons/plus';
 	import { onMount } from 'svelte';
-	import { Alert, Button, Icon, Toast } from '@study-atelier/ui';
+	import { Alert, Button, Icon, PageHeader, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -42,17 +42,15 @@
 		{/if}
 	{/snippet}
 
-	<header>
-		<div class="title">
-			<h1>{m.chronicle.title}</h1>
+	<PageHeader lead={m.chronicle.lead} title={m.chronicle.title}>
+		{#snippet aside()}
 			{#if !data.error && data.visits.length > 0}
 				<span class="caption">
 					{m.chronicle.count(data.visits.length, seenCount(data.visits, artworks))}
 				</span>
 			{/if}
-		</div>
-		<p class="lead">{m.chronicle.lead}</p>
-	</header>
+		{/snippet}
+	</PageHeader>
 
 	{#if data.error}
 		<Alert title={m.chronicle.loadErrorTitle} tone="danger">
@@ -75,23 +73,6 @@
 		display: flex;
 		gap: inherit;
 		margin-inline-start: auto;
-	}
-
-	header {
-		display: grid;
-		gap: var(--spacing-2);
-	}
-
-	.title {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-		align-items: baseline;
-		gap: var(--spacing-4);
-	}
-
-	.caption {
-		font-variant-numeric: tabular-nums;
 	}
 
 	.short {

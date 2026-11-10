@@ -13,7 +13,7 @@
 
 <header>
 	<div class="title">
-		<p class="kind"><MetaLine text={fieldKindLine(field)} /></p>
+		<p class="overline"><MetaLine text={fieldKindLine(field)} /></p>
 		<h1>{field.name}</h1>
 	</div>
 	{#if field.description}
@@ -41,14 +41,6 @@
 	.title {
 		display: grid;
 		gap: var(--spacing-2);
-	}
-
-	.kind {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
 	}
 
 	h1 {

@@ -35,7 +35,7 @@
 	});
 </script>
 
-<span class="kind">
+<span class="kind overline">
 	<Icon icon={glossaryCategoryIcon(term.category)} size="sm" />
 	{glossaryCategoryName(term.category)}
 </span>
@@ -70,11 +70,6 @@
 		display: inline-flex;
 		align-items: center;
 		gap: var(--spacing-2);
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
 	}
 
 	.name {

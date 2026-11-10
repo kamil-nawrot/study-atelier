@@ -1,6 +1,6 @@
 # 0100. Show the artworks at the reading line under the stage
 
-- Status: accepted
+- Status: superseded by [0241](0241-show-a-timeline-event-in-a-popover-and-drop-the-artworks-at-the-reading-line.md)
 - Date: 2026-10-21
 
 ## Context and problem statement

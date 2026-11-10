@@ -9,18 +9,20 @@
 		empty: string;
 		artworks: WallArtwork[];
 		images: WallImages;
+		hrefOf?: (artwork: WallArtwork) => string;
 	};
 
-	let { title, empty, artworks, images }: Props = $props();
+	let { title, empty, artworks, images, hrefOf }: Props = $props();
 </script>
 
-<section class="artworks" aria-label={title}>
-	<Disclosure count={artworks.length} {title}>
+<section aria-label={title}>
+	<Disclosure count={artworks.length} room {title}>
 		{#if artworks.length === 0}
 			<p class="empty">{empty}</p>
 		{:else}
 			<ArtworkWall
 				{artworks}
+				{hrefOf}
 				onimagefailed={(artwork) => images.failed(artwork)}
 				onnearscreen={(artwork) => images.request(artwork)}
 			/>
@@ -29,11 +31,6 @@
 </section>
 
 <style>
-	.artworks {
-		padding-top: var(--spacing-6);
-		border-top: var(--border-width-hairline) solid var(--color-line);
-	}
-
 	.empty {
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);

@@ -156,8 +156,11 @@ describe('review page', () => {
 		await expect.element(page.getByText(m.review.planFresh(5))).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.review.start })).toBeVisible();
 		await expect.element(page.getByRole('button', { name: m.review.free })).not.toBeInTheDocument();
-		await expect.element(page.getByRole('heading', { name: m.review.howTitle })).toBeVisible();
-		await expect.element(page.getByText(m.review.how)).toBeVisible();
+		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent(m.review.title);
+		await expect.element(page.getByText(m.review.lead)).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { level: 2, name: m.review.waiting(9) }))
+			.toBeVisible();
 		await expect
 			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
 			.not.toBeInTheDocument();

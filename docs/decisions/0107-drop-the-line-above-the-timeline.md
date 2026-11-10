@@ -1,6 +1,6 @@
 # 0107. Drop the line above the timeline
 
-- Status: accepted
+- Status: accepted; the artworks in the spoken reading line are superseded by [0241](0241-show-a-timeline-event-in-a-popover-and-drop-the-artworks-at-the-reading-line.md)
 - Date: 2026-10-22
 
 ## Context and problem statement

@@ -1,10 +1,10 @@
 <script lang="ts">
-	import X from '@lucide/svelte/icons/x';
 	import type { LucideIcon } from '@lucide/svelte';
 	import {
 		Icon,
 		MetaLine,
 		type NoteLinks,
+		PanelHeader,
 		Popover,
 		Tag,
 		overlayScrollbar
@@ -29,6 +29,7 @@
 	import type { ExhibitionSummary } from '#lib/exhibitions/types/exhibition-summary.ts';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
 	import MentionedIn from '#lib/notes/components/MentionedIn/MentionedIn.svelte';
+	import NotesSection from '#lib/notes/components/NotesSection/NotesSection.svelte';
 	import type { Mention } from '#lib/notes/types/mention.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 
@@ -185,15 +186,12 @@
 	aria-label={m.artworkView.information}
 >
 	<div class="panel-top">
-		<span class="caption">{m.artworkView.information}</span>
-		<button
-			class="icon-button"
-			aria-label={m.artworkView.hideInformation}
-			onclick={onhide}
-			type="button"
-		>
-			<Icon icon={X} />
-		</button>
+		<PanelHeader
+			as="p"
+			foldLabel={m.artworkView.hideInformation}
+			onfold={onhide}
+			title={m.artworkView.information}
+		/>
 	</div>
 
 	<header class="heading">
@@ -234,14 +232,13 @@
 
 	<ArtworkExhibitions covers={exhibitionCovers} {exhibitions} />
 
-	<section class="notes" aria-labelledby="artwork-notes">
-		<h2 id="artwork-notes" class="caption">{m.common.notes}</h2>
+	<NotesSection>
 		{#if artwork.notes.trim()}
 			<GlossaryNotes entries={glossary} links={noteLinks} value={artwork.notes} />
 		{:else}
 			{@render empty()}
 		{/if}
-	</section>
+	</NotesSection>
 
 	<MentionedIn {mentions} />
 </aside>
@@ -256,17 +253,6 @@
 
 	.panel-top {
 		display: none;
-	}
-
-	.icon-button {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-1);
-		padding: var(--spacing-2);
-		border: none;
-		background: transparent;
-		color: var(--color-fg);
-		cursor: pointer;
 	}
 
 	.heading {
@@ -306,15 +292,6 @@
 		gap: var(--spacing-2);
 	}
 
-	.notes {
-		display: grid;
-		gap: var(--spacing-2);
-	}
-
-	.notes h2 {
-		font-weight: var(--font-weight-regular);
-	}
-
 	.empty {
 		color: var(--color-fg-muted);
 	}
@@ -331,14 +308,11 @@
 			width: 380px;
 			height: 100%;
 			overflow-y: auto;
-			padding: var(--spacing-8) var(--spacing-6) var(--spacing-12);
+			padding: var(--spacing-4) var(--spacing-6) var(--spacing-12);
 		}
 
 		.panel-top {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			margin-right: calc(-1 * var(--spacing-2));
+			display: block;
 		}
 
 		.panel.closed {

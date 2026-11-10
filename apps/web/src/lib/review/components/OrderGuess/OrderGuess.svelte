@@ -72,7 +72,7 @@
 <ReviewCard {actions} alt="" compact labelledby="quiz-heading" stage={board}>
 	{#snippet body()}
 		<div class="intro">
-			<p class="caption">{m.review.order.tag}</p>
+			<p class="overline">{m.review.order.tag}</p>
 			<h1 bind:this={heading} id="quiz-heading" tabindex="-1">{m.review.order.question}</h1>
 			<p class="lead">{m.review.order.hint}</p>
 			<p class="visually-hidden">{m.review.order.keyboardHint}</p>

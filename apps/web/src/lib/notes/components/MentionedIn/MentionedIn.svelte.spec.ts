@@ -5,7 +5,7 @@ import { m } from '#lib/i18n/i18n.ts';
 import MentionedIn from './MentionedIn.svelte';
 
 describe('MentionedIn', () => {
-	it('lists the notes that link there, with their kind', async () => {
+	it('folds the notes that link there under a heading with their number', async () => {
 		render(MentionedIn, {
 			mentions: [
 				{ href: '/atelier/values/author/a1', name: 'Phidias', kind: 'Autor' },
@@ -13,9 +13,12 @@ describe('MentionedIn', () => {
 			]
 		});
 
-		await expect
-			.element(page.getByRole('heading', { name: m.mentions.heading }))
-			.toBeInTheDocument();
+		const heading = page.getByRole('heading', { name: m.mentions.heading });
+		await expect.element(heading).toHaveTextContent(/2/);
+		await expect.element(page.getByRole('link', { name: 'Phidias' })).not.toBeInTheDocument();
+
+		await heading.click();
+
 		await expect
 			.element(page.getByRole('link', { name: 'Phidias' }))
 			.toHaveAttribute('href', '/atelier/values/author/a1');

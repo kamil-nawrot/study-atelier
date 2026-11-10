@@ -229,11 +229,21 @@ describe('atelier page', () => {
 			await page.viewport(390, 800);
 		});
 
-		it('shows the add button as an icon with an accessible name', async () => {
+		it('shortens the add button to "Dodaj"', async () => {
 			renderAtelier();
 
-			await expect.element(page.getByRole('link', { name: m.atelier.add })).toBeVisible();
+			await expect
+				.element(page.getByRole('link', { name: m.common.add, exact: true }))
+				.toHaveAttribute('href', '/atelier/new');
 			await expect.element(page.getByText(m.atelier.add, { exact: true })).not.toBeVisible();
+		});
+
+		it('shortens the placeholder of the search and keeps its full name', async () => {
+			renderAtelier();
+
+			await expect
+				.element(page.getByRole('searchbox', { name: m.atelier.search }))
+				.toHaveAttribute('placeholder', m.atelier.searchShort);
 		});
 	});
 
@@ -578,9 +588,11 @@ describe('atelier page', () => {
 
 			const heading = page.getByRole('heading', { name: m.atelier.filters.title });
 			await expect.element(heading).toBeVisible();
-			expect(getComputedStyle(heading.element().parentElement as HTMLElement).position).toBe(
-				'sticky'
-			);
+			let holder = heading.element().parentElement;
+			while (holder && getComputedStyle(holder).position !== 'sticky') {
+				holder = holder.parentElement;
+			}
+			expect(holder?.closest('aside')).not.toBeNull();
 		});
 
 		it('narrows the wall as soon as a value is chosen and counts the result', async () => {
