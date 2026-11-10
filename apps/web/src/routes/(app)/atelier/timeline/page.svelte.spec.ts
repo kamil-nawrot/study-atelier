@@ -563,11 +563,20 @@ describe('timeline page', () => {
 		await expect.element(stage()).not.toBeInTheDocument();
 	});
 
-	it('shows the name of the current era above the scale', async () => {
+	it('shows the name of the current era above the scale and every era as wide on the strip', async () => {
 		localStorage.setItem(ERA_KEY, 'early_modern');
 		renderTimeline();
 
-		await expect.element(page.getByText('Nowożytność', { exact: true })).toBeVisible();
+		await expect
+			.element(page.getByRole('paragraph').filter({ hasText: /^Nowożytność$/ }))
+			.toBeVisible();
+		const strip = page.getByRole('navigation', { name: m.timeline.strip });
+		const widths = strip
+			.getByRole('button')
+			.elements()
+			.map((segment) => segment.getBoundingClientRect().width);
+		expect(widths).toHaveLength(6);
+		expect(Math.max(...widths) - Math.min(...widths)).toBeLessThan(1);
 	});
 
 	it('gives every chosen period and style its own lane, and clears them in another era', async () => {

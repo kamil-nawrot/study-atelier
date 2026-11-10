@@ -220,7 +220,7 @@
 <svelte:window bind:innerHeight={viewportHeight} />
 
 <div class="timeline">
-	<EraStrip current={code} eras={allEras} onselect={openEra} view={camera.view} />
+	<EraStrip current={code} eras={allEras} onselect={openEra} />
 
 	<p class="era-name" aria-live="polite">{eraTitle(code)}</p>
 
@@ -341,6 +341,11 @@
 
 	.era-name {
 		justify-self: center;
-		font-weight: var(--font-weight-medium);
+		padding-block: var(--spacing-3);
+		font-family: var(--font-family-title), Georgia, serif;
+		font-size: var(--font-size-2xl);
+		font-style: italic;
+		font-weight: var(--font-weight-regular);
+		line-height: var(--line-height-2xl);
 	}
 </style>

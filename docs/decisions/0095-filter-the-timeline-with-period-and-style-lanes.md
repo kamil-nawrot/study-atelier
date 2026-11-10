@@ -1,6 +1,6 @@
 # 0095. Filter the timeline in a side panel, with lanes for periods and styles
 
-- Status: accepted; the switch "Dzieła w linii czytania" is superseded by [0241](0241-show-a-timeline-event-in-a-popover-and-drop-the-artworks-at-the-reading-line.md)
+- Status: accepted; the switch "Dzieła w linii czytania" is superseded by [0241](0241-show-a-timeline-event-in-a-popover-and-drop-the-artworks-at-the-reading-line.md); the look of the era name is superseded by [0242](0242-polish-the-era-strip-axis-and-event-names-of-kalendarium.md)
 - Date: 2026-10-20
 
 ## Context and problem statement

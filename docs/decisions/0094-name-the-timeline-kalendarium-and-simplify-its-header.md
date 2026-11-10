@@ -1,6 +1,6 @@
 # 0094. Name the timeline "Kalendarium" and simplify its header
 
-- Status: accepted; the event card on a larger screen is superseded by [0241](0241-show-a-timeline-event-in-a-popover-and-drop-the-artworks-at-the-reading-line.md)
+- Status: accepted; the event card on a larger screen is superseded by [0241](0241-show-a-timeline-event-in-a-popover-and-drop-the-artworks-at-the-reading-line.md); the era strip's proportions, break mark and frame are superseded by [0242](0242-polish-the-era-strip-axis-and-event-names-of-kalendarium.md)
 - Date: 2026-10-20
 
 ## Context and problem statement
