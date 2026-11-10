@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ImageIcon from '@lucide/svelte/icons/image';
+	import PinIcon from '@lucide/svelte/icons/pin';
 	import Plus from '@lucide/svelte/icons/plus';
 	import { onDestroy, untrack } from 'svelte';
 	import { Alert, ArtworkImage, Icon, TextButton } from '@study-atelier/ui';
@@ -245,20 +246,12 @@
 	{/if}
 {/snippet}
 
-{#snippet statusLines()}
-	{@render matchStatusLine()}
-	{@render pinStatus()}
-{/snippet}
-
 {#snippet pinStatus()}
 	{#if pinsError && current()?.id !== undefined}
 		<Alert tone="danger">{m.pins.loadFailed}</Alert>
 	{/if}
-	{#if pinImageId !== undefined}
-		{#if pinFailure}
-			<Alert tone="danger">{pinFailure}</Alert>
-		{/if}
-		<p class="caption">{m.pins.editHint} {m.pins.editorNote}</p>
+	{#if pinImageId !== undefined && pinFailure}
+		<Alert tone="danger">{pinFailure}</Alert>
 	{/if}
 {/snippet}
 
@@ -277,6 +270,9 @@
 <ImageField
 	{alt}
 	filling={selected === 0 && matchStatus === 'searching'}
+	hints={pinImageId === undefined
+		? []
+		: [{ icon: PinIcon, text: `${m.pins.editHint} ${m.pins.editorNote}` }]}
 	onsearch={stopMatch}
 	overlay={pinLayer}
 	{query}
@@ -284,7 +280,8 @@
 	removeWarning={currentPins > 0 ? m.pins.imagePins(currentPins) : undefined}
 	{searchReady}
 	slots={slotRow}
-	status={statusLines}
+	source={matchStatusLine}
+	status={pinStatus}
 	{texts}
 	bind:image={current, setCurrent}
 />

@@ -133,6 +133,26 @@ describe('ArtworkImages automatic match', () => {
 	});
 });
 
+describe('ArtworkImages hints', () => {
+	it('lists the hints together under the image actions', async () => {
+		render(ArtworkImages, {
+			alt: 'Artwork',
+			searchReady: false,
+			query: { kind: 'artwork', title: '', authors: [] },
+			texts,
+			image: null,
+			images: []
+		});
+
+		await expect
+			.element(page.getByRole('listitem').filter({ hasText: m.artworkForm.findImageHint }))
+			.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('listitem').filter({ hasText: m.artworkForm.pasteHintForm }))
+			.toBeInTheDocument();
+	});
+});
+
 describe('ArtworkImages main image', () => {
 	it('marks the first slot as the main one and offers to make another image main', async () => {
 		render(ArtworkImages, {
