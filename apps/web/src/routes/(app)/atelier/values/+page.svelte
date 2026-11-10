@@ -48,8 +48,8 @@
 	});
 </script>
 
-<AtelierLayout email={data.session.user.email ?? ''} title={m.cardIndex.title}>
-	<PageHeader lead={m.cardIndex.lead} title={m.cardIndex.title} />
+<AtelierLayout email={data.session.user.email ?? ''} heading title={m.cardIndex.title}>
+	<PageHeader lead={m.cardIndex.lead} />
 
 	{#if data.error}
 		<Alert title={m.cardIndex.loadErrorTitle} tone="danger">

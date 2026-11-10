@@ -10,13 +10,12 @@
 		component: PageHeader,
 		tags: ['autodocs'],
 		args: {
-			title: 'Kronika',
 			lead: 'Wizyty w muzeach i miejscach, w których oglądasz dzieła na żywo.'
 		}
 	});
 </script>
 
-<Story name="Title and lead" />
+<Story name="Lead" />
 
 <Story name="With a count">
 	{#snippet template(args)}

@@ -7,7 +7,7 @@ import { testStatistics } from '#lib/testing/statistics/statistics.ts';
 import StatisticsView from './StatisticsView.svelte';
 
 describe('StatisticsView', () => {
-	it('shows the title, the lead and the holdings counted from the artworks', async () => {
+	it('shows the lead and the holdings counted from the artworks, leaving the title to the top bar', async () => {
 		render(StatisticsView, {
 			artworks: [
 				testArtwork(1, 'Mona Lisa', { authors: ['Leonardo'], location: 'Louvre' }),
@@ -16,10 +16,8 @@ describe('StatisticsView', () => {
 			statistics: testStatistics()
 		});
 
-		await expect
-			.element(page.getByRole('heading', { level: 1 }))
-			.toHaveTextContent(m.statistics.title);
 		await expect.element(page.getByText(m.statistics.lead)).toBeVisible();
+		await expect.element(page.getByRole('heading', { level: 1 })).not.toBeInTheDocument();
 		await expect
 			.element(page.getByRole('heading', { level: 2, name: m.statistics.holdings.title }))
 			.toBeVisible();

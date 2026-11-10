@@ -1,7 +1,6 @@
 <script lang="ts">
-	import Plus from '@lucide/svelte/icons/plus';
 	import { onMount } from 'svelte';
-	import { Alert, Button, Icon, PageHeader, Toast } from '@study-atelier/ui';
+	import { AddButton, Alert, PageHeader, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -29,20 +28,16 @@
 	});
 </script>
 
-<AtelierLayout email={data.session.user.email ?? ''} title={m.chronicle.title}>
+<AtelierLayout email={data.session.user.email ?? ''} heading title={m.chronicle.title}>
 	{#snippet bar()}
 		{#if !data.error}
 			<div class="actions">
-				<Button href={resolve('/(app)/atelier/chronicle/new')} variant="primary">
-					<Icon icon={Plus} size="sm" />
-					<span class="long">{m.chronicle.add}</span>
-					<span class="short">{m.common.add}</span>
-				</Button>
+				<AddButton href={resolve('/(app)/atelier/chronicle/new')} label={m.chronicle.add} />
 			</div>
 		{/if}
 	{/snippet}
 
-	<PageHeader lead={m.chronicle.lead} title={m.chronicle.title}>
+	<PageHeader lead={m.chronicle.lead}>
 		{#snippet aside()}
 			{#if !data.error && data.visits.length > 0}
 				<span class="caption">
@@ -73,23 +68,5 @@
 		display: flex;
 		gap: inherit;
 		margin-inline-start: auto;
-	}
-
-	.short {
-		display: inline;
-	}
-
-	.long {
-		display: none;
-	}
-
-	@media (min-width: 768px) {
-		.short {
-			display: none;
-		}
-
-		.long {
-			display: inline;
-		}
 	}
 </style>

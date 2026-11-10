@@ -79,6 +79,18 @@ describe('Tooltip', () => {
 		await expect.element(page.getByText('Filters')).not.toBeVisible();
 	});
 
+	it('shows a phone-only text on a phone and keeps it hidden on a larger screen', async () => {
+		await page.viewport(390, 844);
+		render(Tooltip, { text: 'Add a term', phoneOnly: true, children: button });
+		page.getByRole('button', { name: 'Delete' }).element().focus();
+
+		await expect.element(page.getByRole('tooltip')).toBeVisible();
+
+		await page.viewport(1280, 800);
+
+		await expect.element(page.getByText('Add a term')).not.toBeVisible();
+	});
+
 	it('describes the wrapped control with the text', async () => {
 		renderTooltip();
 

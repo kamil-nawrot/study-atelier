@@ -37,7 +37,6 @@
 {:else}
 	<div class="view">
 		<header>
-			<h1>{m.statistics.title}</h1>
 			<p class="lead">{m.statistics.lead}</p>
 		</header>
 		<HoldingsSection {holdings} {statistics} />
@@ -57,10 +56,5 @@
 		display: grid;
 		gap: var(--spacing-16);
 		max-width: var(--size-content-wide);
-	}
-
-	header {
-		display: grid;
-		gap: var(--spacing-2);
 	}
 </style>

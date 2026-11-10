@@ -9,9 +9,10 @@
 	type Props = {
 		fallbackName: string;
 		fallbackHref: ResolvedPathname;
+		arrowOnly?: boolean;
 	};
 
-	let { fallbackName, fallbackHref }: Props = $props();
+	let { fallbackName, fallbackHref, arrowOnly = false }: Props = $props();
 
 	const wide = new MediaQuery('min-width: 768px');
 
@@ -23,11 +24,14 @@
 
 <a
 	class="back"
+	class:arrow-only={arrowOnly}
 	{href}
 	onclick={(event) => goBackThroughHistory(event, place !== undefined, place?.steps)}
 >
 	<Icon icon={ArrowLeft} />
-	<span class="name" class:visually-hidden={!wide.current}>{place?.name ?? fallbackName}</span>
+	<span class="name" class:visually-hidden={arrowOnly || !wide.current}
+		>{place?.name ?? fallbackName}</span
+	>
 </a>
 
 <style>
@@ -41,6 +45,10 @@
 		font-size: var(--font-size-sm);
 		font-weight: var(--font-weight-medium);
 		text-decoration: none;
+	}
+
+	.arrow-only {
+		flex: none;
 	}
 
 	.name {

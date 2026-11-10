@@ -87,6 +87,48 @@ describe('AtelierLayout', () => {
 		await expect.element(page.getByRole('main')).toHaveAttribute('aria-busy', 'true');
 	});
 
+	it('names the view in the top bar as the page heading, after its way back', async () => {
+		render(AtelierLayout, {
+			title: 'Kronika',
+			email: 'learner@example.com',
+			heading: true,
+			back: snippet('<a href="/atelier">Atelier</a>'),
+			bar: snippet('<a href="/atelier/chronicle/new">Dodaj</a>'),
+			children: snippet('<p>Content</p>')
+		});
+
+		const heading = page.getByRole('banner').getByRole('heading', { level: 1 });
+		await expect.element(heading).toHaveTextContent('Kronika');
+		const back = page.getByRole('link', { name: 'Atelier' }).element();
+		const add = page.getByRole('link', { name: 'Dodaj' }).element();
+		expect(back.compareDocumentPosition(heading.element())).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+		expect(heading.element().compareDocumentPosition(add)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+	});
+
+	it('leaves the heading to the view unless asked to name it in the top bar', async () => {
+		renderLayout(views.link);
+
+		await expect.element(page.getByRole('heading', { level: 1 })).not.toBeInTheDocument();
+	});
+
+	it('keeps the top bar at one height with the name of the view in it', async () => {
+		await page.viewport(390, 844);
+		renderLayout(views.empty);
+		render(AtelierLayout, {
+			title: 'Kalendarium',
+			email: 'learner@example.com',
+			heading: true,
+			children: snippet('<p>Content</p>')
+		});
+
+		const heights = page
+			.getByRole('banner')
+			.elements()
+			.map((bar) => bar.getBoundingClientRect().height);
+		expect(heights).toHaveLength(2);
+		expect(heights[0]).toBe(heights[1]);
+	});
+
 	for (const [name, width, height] of [
 		['a computer', 1280, 800],
 		['a phone', 390, 844]

@@ -85,8 +85,8 @@
 	}
 </script>
 
-<AtelierLayout email={data.session.user.email ?? ''} title={m.trash.title}>
-	<PageHeader lead={m.trash.lead} title={m.trash.title}>
+<AtelierLayout email={data.session.user.email ?? ''} heading title={m.trash.title}>
+	<PageHeader lead={m.trash.lead}>
 		{#snippet aside()}
 			{#if tab === 'artworks' && shown.length > 0}
 				<span class="caption">{m.atelier.count(shown.length)}</span>
