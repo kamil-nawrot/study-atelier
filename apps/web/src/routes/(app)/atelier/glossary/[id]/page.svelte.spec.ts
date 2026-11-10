@@ -203,6 +203,9 @@ describe('glossary entry page', () => {
 		renderEntry(null, { notFound: true });
 
 		await expect.element(page.getByText(m.glossary.view.notFound)).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent(m.glossary.view.notFoundTitle);
 		await expect.element(page.getByRole('link', { name: m.common.edit })).not.toBeInTheDocument();
 	});
 
@@ -210,6 +213,9 @@ describe('glossary entry page', () => {
 		renderEntry(null, { error: m.common.unexpectedError });
 
 		await expect.element(page.getByText(m.common.unexpectedError)).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent(m.glossary.view.loadErrorTitle);
 	});
 
 	it('goes back to the list through history when the entry was opened from it', async () => {

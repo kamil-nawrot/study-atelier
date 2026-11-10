@@ -77,6 +77,11 @@
 		selected === 0 && matchStatus === 'matched' && isCandidateImage(image, pool[0])
 	);
 
+	$effect.pre(() => {
+		void pinImageId;
+		pinFailure = undefined;
+	});
+
 	$effect(() => {
 		onmatching?.(matchStatus === 'searching');
 	});

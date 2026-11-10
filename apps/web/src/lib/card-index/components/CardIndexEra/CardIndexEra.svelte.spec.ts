@@ -12,7 +12,7 @@ const era = {
 };
 
 function folding(): TimelineFolding {
-	return new TimelineFolding(() => ({ query: '', matched: [] }));
+	return new TimelineFolding(() => ({ query: '', matched: [], periods: [] }));
 }
 
 describe('CardIndexEra', () => {

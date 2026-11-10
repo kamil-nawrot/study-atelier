@@ -116,6 +116,20 @@ describe('CardIndexTimeline', () => {
 		await expect.element(record('Barok', 4)).not.toBeInTheDocument();
 	});
 
+	it('forgets the periods that are gone the next time it remembers the folding', async () => {
+		localStorage.setItem(OPEN_PERIODS_KEY, JSON.stringify(['p-deleted', 'p-gothic']));
+		render(CardIndexTimeline, { props: { timeline } });
+
+		await expect.element(toggle('Gotyk')).toHaveAttribute('aria-expanded', 'true');
+		await toggle('Barok').click();
+
+		await expect.element(toggle('Barok')).toHaveAttribute('aria-expanded', 'true');
+		expect(JSON.parse(localStorage.getItem(OPEN_PERIODS_KEY) ?? '[]')).toEqual([
+			'p-gothic',
+			'p-baroque'
+		]);
+	});
+
 	it('unfolds what holds a match while searching, without changing the remembered folding', async () => {
 		localStorage.setItem(FOLDED_ERAS_KEY, JSON.stringify(['early_modern']));
 		render(CardIndexTimeline, { props: { timeline } });

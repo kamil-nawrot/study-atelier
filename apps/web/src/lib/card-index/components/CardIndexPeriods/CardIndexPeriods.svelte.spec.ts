@@ -16,7 +16,7 @@ const periods = [
 ];
 
 function folding(query = '', matched: string[] = []): TimelineFolding {
-	return new TimelineFolding(() => ({ query, matched }));
+	return new TimelineFolding(() => ({ query, matched, periods: [] }));
 }
 
 describe('CardIndexPeriods', () => {

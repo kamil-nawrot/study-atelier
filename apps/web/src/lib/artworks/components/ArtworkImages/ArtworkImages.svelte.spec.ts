@@ -6,6 +6,7 @@ import { findImageCandidates } from '#lib/images/image-search/image-search.ts';
 import { autoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
 import { AUTO_MATCH_DELAY_MS } from '#lib/images/auto-match/auto-match.ts';
 import type { ImageFieldTexts } from '#lib/images/types/image-field-texts.ts';
+import { MAX_PINS_PER_IMAGE } from '#lib/pins/pin-limits/pin-limits.ts';
 import ArtworkImages from './ArtworkImages.svelte';
 
 vi.mock('#lib/images/image-search/image-search.ts', () => ({ findImageCandidates: vi.fn() }));
@@ -179,6 +180,50 @@ describe('ArtworkImages main image', () => {
 			.toHaveAttribute('aria-pressed', 'true');
 		await expect
 			.element(page.getByRole('button', { name: m.artworkForm.setMainImage }))
+			.not.toBeInTheDocument();
+	});
+});
+
+describe('ArtworkImages pins', () => {
+	it('drops the pin error of one image when another image is shown', async () => {
+		const pins = Array.from({ length: MAX_PINS_PER_IMAGE }, (_, index) => ({
+			id: `pin-${index}`,
+			imageId: 'front',
+			x: 0.1,
+			y: 0.1,
+			glossaryEntryId: null,
+			text: `Pin ${index}`
+		}));
+		render(ArtworkImages, {
+			alt: 'Artwork',
+			searchReady: true,
+			query: { kind: 'artwork', title: 'The Night Watch', authors: ['Rembrandt'] },
+			texts,
+			image: {
+				id: 'front',
+				kind: 'url',
+				url: 'https://example.com/front.jpg',
+				width: 4,
+				height: 3
+			},
+			images: [
+				{ id: 'back', kind: 'url', url: 'https://example.com/back.jpg', width: 3, height: 4 }
+			],
+			pins
+		});
+
+		(page.getByRole('button', { name: m.pins.placeHere }).element() as HTMLButtonElement).click();
+		await expect
+			.element(page.getByText(m.pins.errors.tooMany(MAX_PINS_PER_IMAGE)))
+			.toBeInTheDocument();
+
+		await page.getByRole('button', { name: m.artworkForm.imageSlot(2, 2) }).click();
+
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.imageSlot(2, 2) }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect
+			.element(page.getByText(m.pins.errors.tooMany(MAX_PINS_PER_IMAGE)))
 			.not.toBeInTheDocument();
 	});
 });

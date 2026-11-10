@@ -4,7 +4,7 @@ import { readStoredStrings, writeStored } from '#lib/shared/utils/storage/storag
 export const FOLDED_ERAS_KEY = 'study-atelier:card-index-folded-eras';
 export const OPEN_PERIODS_KEY = 'study-atelier:card-index-open-periods';
 
-type Search = { query: string; matched: readonly string[] };
+type Search = { query: string; matched: readonly string[]; periods: readonly string[] };
 
 function toggled(list: readonly string[], item: string): string[] {
 	return list.includes(item) ? list.filter((other) => other !== item) : [...list, item];
@@ -46,7 +46,11 @@ export class TimelineFolding {
 			this.#flip(`period:${id}`);
 			return;
 		}
-		this.#openPeriods = toggled(this.#openPeriods, id);
+		const present = this.#search().periods;
+		this.#openPeriods = toggled(
+			this.#openPeriods.filter((open) => open === id || present.includes(open)),
+			id
+		);
 		writeStored('local', OPEN_PERIODS_KEY, JSON.stringify(this.#openPeriods));
 	}
 
