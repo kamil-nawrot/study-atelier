@@ -2,7 +2,7 @@
 	import CircleDot from '@lucide/svelte/icons/circle-dot';
 	import MoveHorizontal from '@lucide/svelte/icons/move-horizontal';
 	import { onMount } from 'svelte';
-	import { Icon, Toast } from '@study-atelier/ui';
+	import { Icon, MetaLine, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -68,11 +68,11 @@
 			<span class="mark" aria-hidden="true">
 				<Icon icon={span ? MoveHorizontal : CircleDot} size="sm" />
 			</span>
-			{m.valuePage.header(kind, m.atelier.count(artworks.length))}
+			<MetaLine text={m.valuePage.header(kind, m.atelier.count(artworks.length))} />
 		</p>
 		<h1>{event.name}</h1>
-		<p class="caption">
-			{date}{#if span && length > 0}{` · ${m.timeline.card.length(length)}`}{/if}
+		<p>
+			<MetaLine parts={[date, span && length > 0 && m.timeline.card.length(length)]} />
 		</p>
 	</header>
 

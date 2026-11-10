@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { m } from '#lib/i18n/i18n.ts';
+	import { MetaLine } from '@study-atelier/ui';
 	import type { ValueSummary } from '#lib/card-index/types/value-summary.ts';
 
 	type Props = {
@@ -12,7 +12,7 @@
 	let { kind, parent, name, summary }: Props = $props();
 </script>
 
-<span class="kind">{parent ? m.valuePage.header(kind, parent) : kind}</span>
+<span class="kind"><MetaLine parts={[kind, parent]} /></span>
 <span class="name">{name}</span>
 {#if summary.lifeYears}
 	<span class="years">{summary.lifeYears}</span>

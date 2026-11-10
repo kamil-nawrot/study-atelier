@@ -127,7 +127,12 @@
 	</figure>
 
 	<div class="image-actions">
-		<Button id={findImageId} disabled={!searchReady || filling} onclick={openSearch}>
+		<Button
+			id={findImageId}
+			disabled={!searchReady || filling}
+			onclick={openSearch}
+			variant="primary"
+		>
 			<Icon icon={Search} size="sm" />
 			{image?.kind === 'commons' ? texts.findOther : texts.find}
 		</Button>
@@ -136,7 +141,7 @@
 			{ownImage ? texts.changeOwn : texts.own}
 		</Button>
 		{#if image || removable}
-			<Button onclick={askToRemove}>
+			<Button onclick={askToRemove} variant="danger">
 				<Icon icon={Trash} size="sm" />
 				{texts.remove}
 			</Button>
