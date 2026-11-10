@@ -173,7 +173,7 @@
 <style>
 	.page {
 		display: grid;
-		min-height: calc(100dvh - var(--bar-height) - var(--spacing-6) - var(--spacing-12));
+		min-height: calc(100dvh - var(--bar-height) - var(--spacing-6));
 	}
 
 	.page > :global(form) {
@@ -188,5 +188,11 @@
 		width: 100%;
 		min-width: 0;
 		max-width: var(--size-content-default);
+	}
+
+	@media (min-width: 768px) {
+		.page {
+			min-height: calc(100dvh - var(--bar-height) - var(--spacing-8));
+		}
 	}
 </style>
