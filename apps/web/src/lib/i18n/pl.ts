@@ -675,7 +675,7 @@ export const pl = {
 		label: 'Porównaj',
 		title: 'Porównanie',
 		unavailable: 'Do porównania potrzebne są co najmniej dwa dzieła.',
-		question: (title: string): string => `Z czym porównać ${title}?`,
+		questionLead: 'Z czym porównać',
 		questionEmpty: 'Które dzieła chcesz porównać?',
 		search: 'Szukaj po tytule, autorze lub numerze',
 		change: 'Zmień dzieło',

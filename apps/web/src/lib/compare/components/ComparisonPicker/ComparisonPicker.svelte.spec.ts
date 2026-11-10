@@ -52,11 +52,11 @@ describe('ComparisonPicker', () => {
 		});
 
 		await expect
-			.element(page.getByRole('heading', { name: m.compare.question('Mona Lisa') }))
+			.element(page.getByRole('heading', { name: `${m.compare.questionLead} Mona Lisa?` }))
 			.toBeVisible();
 		await expect.element(page.getByText('The Birth of Venus')).toBeVisible();
 		await expect.element(page.getByText('The Night Watch')).toBeVisible();
-		await expect.element(page.getByText('Mona Lisa', { exact: true })).not.toBeInTheDocument();
+		await expect.element(page.getByRole('link', { name: /Mona Lisa/ })).not.toBeInTheDocument();
 	});
 
 	it('links each tile to the comparison with that artwork in the empty half', async () => {

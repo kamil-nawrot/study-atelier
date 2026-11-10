@@ -278,8 +278,8 @@ How views and components look and behave, so every new screen stays consistent w
 ## Comparison
 
 - The comparison view is two stages side by side in equal columns, each built like the stage of the artwork view (blurred backdrop, scrim, passe-partout) with the caption centred under the image and "Zmień dzieło" as a `TextButton`. On a phone the stages stack ([ADR-0203](../decisions/0203-show-the-palette-on-the-stage-and-compare-two-artworks-side-by-side.md)).
-- The empty half is on `--color-bg` with a dashed `--color-line` outline, the question, a `SearchField` and the atelier as `ArtworkTile`s in three columns, which scroll inside the half.
-- The palette and loupe icons sit once, in the top right corner of the comparison, and act on both images.
+- The empty half is on `--color-bg` without an outline, so it reads as part of the comparison: the question, with the other artwork's title in the artwork title font ("Z czym porównać _Mona Lisa_?"), a `SearchField` and the atelier as `ArtworkTile`s in three columns, which scroll inside the half with the overlay scrollbar.
+- The palette and loupe icons sit once, in the top right corner of the comparison, and act on both images. They show only once both halves hold an artwork; emptying a half switches the loupe and the palettes off.
 
 ## Statistics
 
