@@ -48,3 +48,18 @@ export function narrowTimeline(
 		stylesWithoutPeriod: styles(timeline.stylesWithoutPeriod)
 	};
 }
+
+export function periodsWithMatchingStyles(timeline: CardIndexTimeline, query: string): string[] {
+	const term = normalizeForSearch(query);
+	if (!term) return [];
+	const periods = [...timeline.eras.flatMap((era) => era.periods), ...timeline.periodsWithoutEra];
+	return [
+		...new Set(
+			periods
+				.filter((period) =>
+					period.styles.some((style) => normalizeForSearch(style.name).includes(term))
+				)
+				.map((period) => period.id)
+		)
+	];
+}

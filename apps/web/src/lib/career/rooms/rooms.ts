@@ -1,5 +1,9 @@
 import { hasNewTier, isHidden, metalOf, reachedTier } from '#lib/career/exhibits/exhibits.ts';
-import { readStoredJson, writeStored } from '#lib/shared/utils/storage/storage.ts';
+import {
+	readStoredJson,
+	readStoredStrings,
+	writeStored
+} from '#lib/shared/utils/storage/storage.ts';
 import type { Exhibit } from '#lib/career/types/exhibit.ts';
 import type { Metal } from '#lib/career/types/metal.ts';
 
@@ -42,8 +46,7 @@ export function hasNewInRoom(room: Room): boolean {
 }
 
 export function rememberedFolded(): string[] {
-	const stored = readStoredJson('local', FOLDED_KEY);
-	return Array.isArray(stored) ? stored.filter((code) => typeof code === 'string') : [];
+	return readStoredStrings('local', FOLDED_KEY);
 }
 
 export function rememberFolded(codes: readonly string[]): void {

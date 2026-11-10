@@ -1,4 +1,4 @@
-import { readStoredJson, writeStored } from '#lib/shared/utils/storage/storage.ts';
+import { readStoredStrings, writeStored } from '#lib/shared/utils/storage/storage.ts';
 
 export const DISMISSED_KEY = 'study-atelier:dismissed-announcements';
 const KEPT_DISMISSALS = 50;
@@ -10,8 +10,7 @@ export type Announcement = {
 };
 
 export function dismissedAnnouncements(): string[] {
-	const stored = readStoredJson('local', DISMISSED_KEY);
-	return Array.isArray(stored) ? stored.filter((id): id is string => typeof id === 'string') : [];
+	return readStoredStrings('local', DISMISSED_KEY);
 }
 
 export function dismissAnnouncement(id: string): void {

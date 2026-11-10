@@ -1,15 +1,18 @@
 <script lang="ts">
 	import ListTree from '@lucide/svelte/icons/list-tree';
-	import { EmptyState, Icon } from '@study-atelier/ui';
+	import { EmptyState } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
-	import { eraIcon, eraYearsText } from '#lib/catalogue/eras/eras.ts';
-	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
 	import type { Snippet } from 'svelte';
+	import CardIndexEra from '#lib/card-index/components/CardIndexEra/CardIndexEra.svelte';
+	import CardIndexPeriods from '#lib/card-index/components/CardIndexPeriods/CardIndexPeriods.svelte';
+	import CardIndexStyles from '#lib/card-index/components/CardIndexStyles/CardIndexStyles.svelte';
 	import CardIndexTools from '#lib/card-index/components/CardIndexTools/CardIndexTools.svelte';
-	import { narrowTimeline } from '#lib/card-index/timeline-search/timeline-search.ts';
+	import {
+		narrowTimeline,
+		periodsWithMatchingStyles
+	} from '#lib/card-index/timeline-search/timeline-search.ts';
+	import { TimelineFolding } from '#lib/card-index/timeline-folding/timeline-folding.svelte.ts';
 	import { sortsOf, type CardIndexSort } from '#lib/card-index/card-index-sort/card-index-sort.ts';
-	import type { CardIndexEntry } from '#lib/card-index/types/card-index-entry.ts';
-	import type { CardIndexPeriod } from '#lib/card-index/types/card-index-period.ts';
 	import type { CardIndexTimeline } from '#lib/card-index/types/card-index-timeline.ts';
 
 	type Props = {
@@ -27,8 +30,14 @@
 	}: Props = $props();
 
 	let timeline = $derived(narrowTimeline(full, query, sort));
+	let matched = $derived(periodsWithMatchingStyles(timeline, query));
 	let isEmpty = $derived(!filled(full));
 	let hasEras = $derived(timeline.eras.some((era) => era.periods.length > 0));
+	let hasOutside = $derived(
+		timeline.periodsWithoutEra.length > 0 || timeline.stylesWithoutPeriod.length > 0
+	);
+
+	const folding = new TimelineFolding(() => ({ query, matched }));
 
 	function filled(shown: CardIndexTimeline): boolean {
 		return (
@@ -37,36 +46,7 @@
 			shown.stylesWithoutPeriod.length > 0
 		);
 	}
-
-	function label(entry: CardIndexEntry): string {
-		return m.cardIndex.openValue(entry.name, m.atelier.count(entry.count));
-	}
 </script>
-
-{#snippet periodList(periods: CardIndexPeriod[])}
-	<ul class="periods">
-		{#each periods as period (period.id)}
-			<li>
-				<a class="period" aria-label={label(period)} href={valuePath('period', period.id)}>
-					<span class="period-name">{period.name}</span>
-					<span class="count">{period.count}</span>
-				</a>
-				{#if period.styles.length > 0}
-					<ul class="styles">
-						{#each period.styles as style (style.id)}
-							<li>
-								<a class="style" aria-label={label(style)} href={valuePath('style', style.id)}>
-									<span>{style.name}</span>
-									<span class="count">{style.count}</span>
-								</a>
-							</li>
-						{/each}
-					</ul>
-				{/if}
-			</li>
-		{/each}
-	</ul>
-{/snippet}
 
 {#if isEmpty}
 	{#if actions}
@@ -88,49 +68,25 @@
 		{#if hasEras}
 			<ol class="eras">
 				{#each timeline.eras as era (era.code)}
-					<li class="era">
-						<span class="marker" aria-hidden="true">
-							<Icon icon={eraIcon(era.code)} />
-						</span>
-						<div class="era-body">
-							<div class="era-head">
-								<h2 class="era-name">
-									<a href={valuePath('era', era.code)}>{m.eras[era.code].name}</a>
-								</h2>
-								<span class="years">{eraYearsText(era.code)}</span>
-							</div>
-							{#if era.periods.length > 0}
-								{@render periodList(era.periods)}
-							{:else}
-								<p class="empty">{m.cardIndex.emptyEra}</p>
-							{/if}
-						</div>
-					</li>
+					<CardIndexEra {era} {folding} />
 				{/each}
 			</ol>
 		{/if}
-
-		{#if timeline.periodsWithoutEra.length > 0}
-			<section class="group">
-				<h2 class="group-title">{m.cardIndex.periodsWithoutEra}</h2>
-				{@render periodList(timeline.periodsWithoutEra)}
-			</section>
-		{/if}
-
-		{#if timeline.stylesWithoutPeriod.length > 0}
-			<section class="group">
-				<h2 class="group-title">{m.cardIndex.stylesWithoutPeriod}</h2>
-				<ul class="styles">
-					{#each timeline.stylesWithoutPeriod as style (style.id)}
-						<li>
-							<a class="style" aria-label={label(style)} href={valuePath('style', style.id)}>
-								<span>{style.name}</span>
-								<span class="count">{style.count}</span>
-							</a>
-						</li>
-					{/each}
-				</ul>
-			</section>
+		{#if hasOutside}
+			<div class={['outside', { divided: hasEras }]}>
+				{#if timeline.periodsWithoutEra.length > 0}
+					<section class="group">
+						<h2 class="group-title">{m.cardIndex.periodsWithoutEra}</h2>
+						<CardIndexPeriods {folding} periods={timeline.periodsWithoutEra} />
+					</section>
+				{/if}
+				{#if timeline.stylesWithoutPeriod.length > 0}
+					<section class="group">
+						<h2 class="group-title">{m.cardIndex.stylesWithoutPeriod}</h2>
+						<CardIndexStyles styles={timeline.stylesWithoutPeriod} />
+					</section>
+				{/if}
+			</div>
 		{/if}
 	</div>
 {/if}
@@ -148,16 +104,13 @@
 		gap: var(--spacing-6);
 	}
 
-	ol,
-	ul {
-		margin: 0;
-		list-style: none;
-	}
-
 	.eras {
 		position: relative;
 		display: grid;
-		gap: var(--spacing-12);
+		gap: var(--spacing-8);
+		margin: 0;
+		padding: 0;
+		list-style: none;
 	}
 
 	.eras::before {
@@ -169,132 +122,27 @@
 		border-left: var(--border-width-hairline) solid var(--color-line);
 	}
 
-	.era {
-		position: relative;
+	.outside {
 		display: grid;
-		grid-template-columns: var(--spacing-12) minmax(0, 1fr);
-		gap: var(--spacing-6);
+		gap: var(--spacing-8);
 	}
 
-	.marker {
-		display: grid;
-		place-items: center;
-		justify-self: center;
-		width: var(--spacing-12);
-		height: var(--spacing-12);
-		background: var(--color-fg);
-		color: var(--color-bg);
-	}
-
-	.era-body {
-		display: grid;
-		align-content: start;
-		gap: var(--spacing-3);
-		min-width: 0;
-		padding-top: var(--spacing-2);
-	}
-
-	.era-name {
-		font-family: var(--font-family-title), Georgia, serif;
-		font-size: var(--font-size-2xl);
-		font-style: italic;
-		font-weight: var(--font-weight-regular);
-		line-height: var(--line-height-2xl);
-	}
-
-	.era-head {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: var(--spacing-2) var(--spacing-3);
-	}
-
-	.years {
-		padding: 0 var(--spacing-2);
-		border: var(--border-width-hairline) solid var(--color-line);
-		color: var(--color-fg);
-		font-size: var(--font-size-sm);
-		line-height: var(--line-height-sm);
-		white-space: nowrap;
-	}
-
-	.empty {
-		color: var(--color-fg-muted);
-	}
-
-	.periods {
-		display: grid;
-		gap: var(--spacing-6);
-		margin-top: var(--spacing-3);
-	}
-
-	.period,
-	.style,
-	.era-name a {
-		color: var(--color-fg);
-		text-decoration: none;
-	}
-
-	.era-name a:hover {
-		text-decoration: underline;
-		text-decoration-thickness: var(--border-width-hairline);
-		text-underline-offset: 0.2em;
-	}
-
-	.period {
-		display: inline-flex;
-		align-items: baseline;
-		gap: var(--spacing-3);
-		font-size: var(--font-size-xl);
-		font-weight: var(--font-weight-bold);
-		line-height: var(--line-height-xl);
-	}
-
-	.period:hover .period-name {
-		text-decoration: underline;
-		text-decoration-thickness: var(--border-width-hairline);
-		text-underline-offset: 0.2em;
-	}
-
-	.count {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-regular);
-		font-variant-numeric: tabular-nums;
-	}
-
-	.styles {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--spacing-2);
-		margin-top: var(--spacing-2);
-	}
-
-	.style {
-		display: inline-flex;
-		align-items: baseline;
-		gap: var(--spacing-2);
-		padding: var(--spacing-2) var(--spacing-3);
-		background: var(--color-tag);
-		font-size: var(--font-size-md);
-		line-height: var(--line-height-md);
-	}
-
-	.style:hover {
-		background: var(--color-surface);
+	.outside.divided {
+		padding-top: var(--spacing-8);
+		border-top: var(--border-width-hairline) solid var(--color-line);
 	}
 
 	.group {
 		display: grid;
-		gap: var(--spacing-4);
-		margin-top: var(--spacing-12);
+		gap: var(--spacing-2);
 	}
 
 	.group-title {
-		font-family: var(--font-family-title), Georgia, serif;
-		font-size: var(--font-size-xl);
-		font-style: italic;
-		font-weight: var(--font-weight-regular);
-		line-height: var(--line-height-xl);
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-medium);
+		font-variant-caps: all-small-caps;
+		letter-spacing: var(--letter-spacing-wide);
+		line-height: var(--line-height-sm);
 	}
 </style>

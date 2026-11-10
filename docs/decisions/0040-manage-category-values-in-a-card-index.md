@@ -1,6 +1,6 @@
 # 0040. Manage category values in a card index view
 
-- Status: accepted; drawing the eras of an empty card index is superseded by [0130](0130-show-empty-views-in-one-centred-pattern.md)
+- Status: accepted; drawing the eras of an empty card index is superseded by [0130](0130-show-empty-views-in-one-centred-pattern.md); the look of the timeline tab is partly superseded by [0240](0240-fold-eras-and-periods-in-the-timeline-tab-of-kartoteka.md)
 - Date: 2026-10-13
 
 ## Context and problem statement
