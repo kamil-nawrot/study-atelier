@@ -71,13 +71,15 @@ function format(date: VisitDate, options: Intl.DateTimeFormatOptions): string {
 	);
 }
 
+const NO_DAY = '—';
+
 export function ticketDate(date: VisitDate, withYear = true): TicketDate {
 	const [year, , day] = parts(date);
 	const label = visitDateName(date, new Date(0));
 	if (date.precision === 'year') return { main: withYear ? String(year) : '', label };
 	const monthShort = format(date, { month: 'short' });
 	if (date.precision === 'month') {
-		return withYear ? { main: monthShort, sub: String(year), label } : { main: monthShort, label };
+		return { main: NO_DAY, sub: withYear ? `${monthShort} ${year}` : monthShort, label };
 	}
 	return { main: String(day), sub: withYear ? `${monthShort} ${year}` : monthShort, label };
 }

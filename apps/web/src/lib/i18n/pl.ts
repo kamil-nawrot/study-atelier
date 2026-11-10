@@ -1410,8 +1410,7 @@ export const pl = {
 			sortNamePlaceholder: 'np. Medici, Lorenzo',
 			sortNameHint: 'Według tej wartości pojęcie trafi pod właściwą literę.',
 			synonyms: 'Synonimy',
-			synonymsHint:
-				'Inne nazwy tego pojęcia, będą używane przy wyszukiwaniu wystąpień w notatkach.',
+			synonymsHint: 'Inne nazwy tego pojęcia będą używane przy wyszukiwaniu wystąpień w notatkach.',
 			synonymsFull: 'Możesz dodać najwyżej 3 synonimy.',
 			forms: 'Odmiana',
 			formsCount: (count: number): string =>
@@ -2054,7 +2053,9 @@ export const pl = {
 				`${count} ${plural(count, { one: 'raz', few: 'razy', many: 'razy' })}`,
 			stable: 'Najmocniej utrwalone: ',
 			stableIn: (days: number): string =>
-				`, wróci w powtórkach za ${days} ${plural(days, { one: 'dzień', few: 'dni', many: 'dni' })}.`,
+				days === 0
+					? ', wróci w powtórkach dziś.'
+					: `, wróci w powtórkach za ${days} ${plural(days, { one: 'dzień', few: 'dni', many: 'dni' })}.`,
 			noCards: 'Statystyki powtórek pojawią się po pierwszej powtórce.'
 		},
 		acquisitions: {

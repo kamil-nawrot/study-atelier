@@ -98,11 +98,16 @@ describe('ticketDate', () => {
 		});
 	});
 
-	it('shows the month with the year under it', () => {
+	it('shows a dash for the day and the month with the year under it', () => {
 		expect(ticketDate({ on: '2026-10-01', precision: 'month' })).toEqual({
-			main: 'paź',
-			sub: '2026',
+			main: '—',
+			sub: 'paź 2026',
 			label: 'październik 2026'
+		});
+		expect(ticketDate({ on: '2026-08-01', precision: 'month' }, false)).toEqual({
+			main: '—',
+			sub: 'sie',
+			label: 'sierpień 2026'
 		});
 	});
 
@@ -120,7 +125,8 @@ describe('ticketDate', () => {
 			label: '12 października 2026'
 		});
 		expect(ticketDate({ on: '2026-10-01', precision: 'month' }, false)).toEqual({
-			main: 'paź',
+			main: '—',
+			sub: 'paź',
 			label: 'październik 2026'
 		});
 		expect(ticketDate({ on: '2026-01-01', precision: 'year' }, false)).toEqual({

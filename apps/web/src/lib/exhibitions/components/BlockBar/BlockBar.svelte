@@ -158,7 +158,7 @@
 		}
 
 		.handle {
-			padding: 0 var(--spacing-4);
+			padding: 0;
 		}
 
 		.name {
