@@ -404,6 +404,7 @@ export const pl = {
 		filteredCount: (shown: number, total: number): string =>
 			`${shown} z ${total} ${plural(total, { one: 'dzieła', few: 'dzieł', many: 'dzieł' })}`,
 		search: 'Szukaj po tytule lub autorze',
+		searchShort: 'Szukaj',
 		sort: {
 			label: 'Kolejność',
 			recent: 'Ostatnio dodane',

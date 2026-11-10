@@ -28,7 +28,7 @@
 			compact
 			disabled={view.total === 0}
 			label={m.atelier.search}
-			placeholder={m.atelier.search}
+			placeholder={view.wide.current ? m.atelier.search : m.atelier.searchShort}
 			bind:value={query}
 		/>
 	</div>

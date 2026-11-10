@@ -237,6 +237,14 @@ describe('atelier page', () => {
 				.toHaveAttribute('href', '/atelier/new');
 			await expect.element(page.getByText(m.atelier.add, { exact: true })).not.toBeVisible();
 		});
+
+		it('shortens the placeholder of the search and keeps its full name', async () => {
+			renderAtelier();
+
+			await expect
+				.element(page.getByRole('searchbox', { name: m.atelier.search }))
+				.toHaveAttribute('placeholder', m.atelier.searchShort);
+		});
 	});
 
 	describe('ordered by date of creation', () => {
