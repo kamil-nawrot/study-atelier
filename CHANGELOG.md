@@ -2,6 +2,69 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.21.2] - 2026-11-10
+
+Every view of the atelier speaks one visual language: the same header, tabs, toolbars, sections, forms and side panels, and Kalendarium shows an event in a popover next to it.
+
+### Added
+
+- In Kalendarium on a computer, a click on an event opens it in a popover next to it, with its description, its source, "Pokaż cały okres na osi", "Dzieła z tego czasu" and the "Edytuj" and "Usuń" icons; the phone keeps the card under the axis.
+- "Zakresy dat dzieł" in the timeline filters hides the lines of the year ranges of artworks, leaving their dots.
+
+### Changed
+
+- Headers:
+  - The name of every view except the Atelier wall stands in the top bar. Each view starts with its lead and a line, with its count beside the lead.
+  - On a phone the add button of a view is a "+" alone.
+  - "Statystyki" and "Ustawienia" have an arrow back to Atelier.
+  - Archiwum and Powtórki have new leads, and "Jak działają powtórki?" is gone.
+- Every set of tabs has the boxed look of Kartoteka. The controls of a toolbar share one text size. The Atelier wall has "+ Dodaj dzieło" and a search as wide as the wall.
+- Sections and details:
+  - The sections of detail pages fold like the rooms of "Ekspozycja".
+  - Notes and mentions fold with an icon.
+  - "Fragmenty" in Słowniczek is now "Detale", with a count.
+  - Section counts share one filled style.
+  - Small labels above titles are small capitals.
+  - Details separated by "·" are spaced evenly, and the years and types under the title of a detail page read as text. A place's page shows the icon of its type.
+- "Okresy i style" in Kartoteka folds eras and periods, all eras open and periods closed at first, and remembers what the learner opened.
+- Kalendarium:
+  - The eras on the strip are of equal width, and the axis labels thin out instead of overlapping.
+  - An event's name moves before it rather than being cut at the edge of an era.
+  - The lines of an artwork's date range are thin.
+  - "Filtry" stands beside the lead.
+  - "Dzieła w linii czytania" is gone.
+- Filter panels:
+  - The side panels have a larger header and a "Zwiń" icon.
+  - The filter panels lose their count.
+  - "Wyczyść filtry" is a plain link.
+  - "Pokaż mniej" scrolls back to its group.
+  - Long names end with an ellipsis.
+- Forms and actions:
+  - The save bar of a form spans its column and stays at the bottom, also in Ustawienia.
+  - The back link of an event or visit form leads to the record.
+  - The sort name of an author sits under the name.
+  - The summary of a value grows to eight lines at most.
+  - Red marks only actions that lose data.
+  - Image actions are text buttons with icons.
+  - The main image of an artwork is marked with a star, and "Ustaw jako główne" carries the same star.
+- Hover cards of pins and notes open after the same short delay as tooltips.
+- The comparison picker blends into the comparison, and the loupe and palette show once both halves hold an artwork.
+- Ustawienia:
+  - Konto sets "Regulamin i Polityka prywatności" apart.
+  - In "Powtórki" the last matching quiz kind cannot be switched off.
+- Internal: new library components (`PageHeader`, `PanelHeader`, `AddButton`, `MetaLine`) and variants, fuller screenshot stubs, a stabler exhibition editor spec, and a code review of the version with its fixes.
+
+### Fixed
+
+- "W pamięci" in "Statystyki" said "wróci w powtórkach za 0 dni" for a card due today or earlier; it now says "dziś".
+- A visit with only its month known showed the month in place of the day on its ticket; the day now reads "—" with the month under it, as on other tickets.
+- Hidden tooltips widened Ustawienia on a phone; they no longer take space.
+- In "Powiązania" the years under the time span overlapped the next group.
+- The menu items moved down when the menu opened; they now stay in place.
+- The country of a place in Kartoteka sat lower than its name; it now lines up.
+- A detail page that failed to load had no heading; it now names the page.
+- A pin error stayed after switching to another image; it now clears.
+
 ## [0.21.1] - 2026-11-09
 
 "Statystyki" count the exhibitions and set their sections apart, the menu fits a low screen, and the comparison, the display case and the exhibitions of an artwork read more clearly.
@@ -848,3 +911,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.20.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.20.0
 [0.21.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.0
 [0.21.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.1
+[0.21.2]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.2
