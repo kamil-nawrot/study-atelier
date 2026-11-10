@@ -31,6 +31,7 @@ describe('Tabs', () => {
 	});
 
 	it('puts a tab marked as end at the right edge of the list', async () => {
+		await page.viewport(1280, 800);
 		render(Tabs, {
 			label: 'Kinds',
 			tabs: [...tabs, { value: 'own', label: 'Own', end: true }],
@@ -100,8 +101,8 @@ describe('Tabs', () => {
 			.toHaveAttribute('tabindex', '-1');
 	});
 
-	it('joins the selected tab to a framed panel', async () => {
-		render(Tabs, { label: 'Kinds', tabs, framed: true, children: panel });
+	it('joins the selected tab to the framed panel', async () => {
+		renderTabs();
 
 		const tab = page.getByRole('tab', { name: 'Periods' }).element();
 		const panelBox = page.getByRole('tabpanel').element();

@@ -160,6 +160,5 @@
 		flex-direction: column;
 		box-sizing: border-box;
 		min-height: 100%;
-		padding-top: var(--spacing-8);
 	}
 </style>
