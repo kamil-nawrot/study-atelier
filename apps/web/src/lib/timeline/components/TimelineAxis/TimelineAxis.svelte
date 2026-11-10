@@ -111,9 +111,10 @@
 
 	.vertical .segment {
 		width: var(--spacing-16);
-		padding: var(--spacing-1) var(--spacing-2);
-		font-size: var(--font-size-sm);
+		padding: var(--spacing-1) 0;
+		font-size: var(--font-size-xs);
 		white-space: normal;
+		overflow-wrap: anywhere;
 	}
 
 	.tick {
