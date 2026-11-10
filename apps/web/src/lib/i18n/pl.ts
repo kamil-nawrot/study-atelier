@@ -2237,6 +2237,7 @@ export const pl = {
 			searchAuthors: 'Szukaj autora',
 			view: 'Widok',
 			events: 'Wydarzenia',
+			spans: 'Zakresy dat dzieł',
 			empty: 'W tej epoce nie ma dzieł, które pasują do filtrów.'
 		},
 		zones: {

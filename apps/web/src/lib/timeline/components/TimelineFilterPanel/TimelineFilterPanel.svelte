@@ -31,11 +31,18 @@
 		era: EraCode;
 		filter: TimelineFilter;
 		showEvents: boolean;
+		showSpans: boolean;
 	};
 
 	const FREQUENT_LIMIT = 8;
 
-	let { artworks, era, filter = $bindable(), showEvents = $bindable() }: Props = $props();
+	let {
+		artworks,
+		era,
+		filter = $bindable(),
+		showEvents = $bindable(),
+		showSpans = $bindable()
+	}: Props = $props();
 
 	let full = $derived(lanesFull(filter));
 	let typeTiles = $derived(withCounts(artworkTypeTiles()));
@@ -130,6 +137,7 @@
 		<h3>{m.timeline.filters.view}</h3>
 		<div class="switches">
 			<Switch label={m.timeline.filters.events} bind:checked={showEvents} />
+			<Switch label={m.timeline.filters.spans} bind:checked={showSpans} />
 		</div>
 	</section>
 </div>
