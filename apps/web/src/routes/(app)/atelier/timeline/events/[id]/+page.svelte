@@ -52,7 +52,7 @@
 		<LoadFailure
 			backHref={timelinePath}
 			backLabel={m.timeline.title}
-			errorTitle={m.timeline.form.loadErrorTitle}
+			heading={title}
 			message={data.notFound ? m.timeline.errors.notFound : (data.error ?? '')}
 			notFound={data.notFound === true}
 		/>
