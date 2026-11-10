@@ -47,6 +47,9 @@ describe('VisitTicket', () => {
 		await expect.element(page.getByText(m.chronicle.kind)).toBeInTheDocument();
 		await expect.element(page.getByText('poniedziałek')).not.toBeInTheDocument();
 		await expect.element(page.getByText('paź 2026')).toBeInTheDocument();
+		const month = getComputedStyle(page.getByText('paź 2026').element());
+		expect(month.textTransform).toBe('uppercase');
+		expect(month.display).not.toBe('grid');
 		await expect.element(page.getByText(m.chronicle.seenCount(2))).toBeInTheDocument();
 		await expect.element(page.getByText('Lilie wodne w owalnej sali.')).not.toBeInTheDocument();
 	});
