@@ -78,6 +78,7 @@ describe('card index page', () => {
 		vi.clearAllMocks();
 		navigation.state = {};
 		sessionStorage.clear();
+		localStorage.clear();
 		await page.viewport(1280, 800);
 	});
 
@@ -91,6 +92,7 @@ describe('card index page', () => {
 			await expect.element(page.getByRole('heading', { name: era.name })).toBeVisible();
 		}
 		await expect.element(openValue('Classical', 3)).toBeVisible();
+		await page.getByRole('button', { name: 'Classical', exact: true }).first().click();
 		await expect.element(openValue('Doric', 2)).toBeVisible();
 		await expect.element(openValue('Gothic', 2)).toBeVisible();
 		await expect.element(page.getByText(m.cardIndex.emptyEra).first()).toBeVisible();
@@ -298,6 +300,7 @@ describe('card index page', () => {
 		await expect
 			.element(openValue('Classical', 3))
 			.toHaveAttribute('href', '/atelier/values/period/period-classical');
+		await page.getByRole('button', { name: 'Classical', exact: true }).first().click();
 		await expect
 			.element(openValue('Doric', 2))
 			.toHaveAttribute('href', '/atelier/values/style/style-doric');

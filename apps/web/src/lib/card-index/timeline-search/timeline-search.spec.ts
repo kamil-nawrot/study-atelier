@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CardIndexTimeline } from '#lib/card-index/types/card-index-timeline.ts';
-import { narrowTimeline } from './timeline-search.ts';
+import { narrowTimeline, periodsWithMatchingStyles } from './timeline-search.ts';
 
 const timeline: CardIndexTimeline = {
 	eras: [
@@ -79,5 +79,14 @@ describe('narrowTimeline', () => {
 			'Gotyk płomienisty',
 			'Gotyk promienisty'
 		]);
+	});
+});
+
+describe('periodsWithMatchingStyles', () => {
+	it('names the periods whose styles match the query, once each', () => {
+		const shared = { ...timeline, periodsWithoutEra: timeline.eras[0].periods };
+		expect(periodsWithMatchingStyles(shared, 'PŁOMIEN')).toEqual(['p-gothic']);
+		expect(periodsWithMatchingStyles(timeline, 'Romanizm')).toEqual([]);
+		expect(periodsWithMatchingStyles(timeline, '  ')).toEqual([]);
 	});
 });
