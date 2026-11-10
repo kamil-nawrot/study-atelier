@@ -35,6 +35,7 @@ describe('Tooltip', () => {
 	it('waits a moment before showing on hover', async () => {
 		renderTooltip();
 		const bubble = page.getByText('Two artworks still use this').element();
+		expect(getComputedStyle(bubble).display).toBe('none');
 
 		await userEvent.hover(page.getByRole('button', { name: 'Delete' }));
 		expect(getComputedStyle(bubble).visibility).toBe('hidden');
