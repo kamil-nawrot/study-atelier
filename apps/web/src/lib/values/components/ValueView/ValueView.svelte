@@ -245,10 +245,6 @@
 		line-height: var(--line-height-xl);
 	}
 
-	.label {
-		font-weight: var(--font-weight-regular);
-	}
-
 	.empty {
 		color: var(--color-fg-muted);
 	}
