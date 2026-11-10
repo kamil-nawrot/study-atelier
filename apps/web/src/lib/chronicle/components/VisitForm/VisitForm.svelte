@@ -127,34 +127,38 @@
 
 <div class="page">
 	<Form error={formState.error} errorTitle={m.chronicle.form.errorTitle} onsubmit={submit}>
-		<div class="fields">
-			<ValueField
-				error={errors.current.place}
-				hint={existing ? undefined : m.chronicle.form.placeHint}
-				label={m.chronicle.form.place}
-				maxlength={VALUE_NAME_MAX_LENGTH}
-				options={placeOptions}
-				single
-				bind:query={form.placeQuery}
-				bind:values={form.place}
-			/>
+		<div class="columns">
+			<div class="fields">
+				<ValueField
+					error={errors.current.place}
+					hint={existing ? undefined : m.chronicle.form.placeHint}
+					label={m.chronicle.form.place}
+					maxlength={VALUE_NAME_MAX_LENGTH}
+					options={placeOptions}
+					single
+					bind:query={form.placeQuery}
+					bind:values={form.place}
+				/>
 
-			<VisitDateField
-				errors={errors.current}
-				bind:day={form.day}
-				bind:month={form.month}
-				bind:year={form.year}
-			/>
+				<VisitDateField
+					errors={errors.current}
+					bind:day={form.day}
+					bind:month={form.month}
+					bind:year={form.year}
+				/>
 
-			<NotesEditor
-				hint={noteLinks ? m.artworkForm.notesLinkHint : undefined}
-				label={m.common.notes}
-				links={noteLinks}
-				placeholder={m.chronicle.form.notesPlaceholder}
-				bind:value={form.notes}
-			/>
+				<NotesEditor
+					hint={noteLinks ? m.artworkForm.notesLinkHint : undefined}
+					label={m.common.notes}
+					links={noteLinks}
+					placeholder={m.chronicle.form.notesPlaceholder}
+					bind:value={form.notes}
+				/>
+			</div>
 
-			<VisitArtworksField {artworks} isNew={!existing} {onimagefailed} {onnearscreen} bind:form />
+			<div class="fields">
+				<VisitArtworksField {artworks} isNew={!existing} {onimagefailed} {onnearscreen} bind:form />
+			</div>
 		</div>
 
 		<FormActions>
@@ -181,6 +185,11 @@
 		flex-direction: column;
 	}
 
+	.columns {
+		display: grid;
+		gap: var(--spacing-6);
+	}
+
 	.fields {
 		display: grid;
 		align-content: start;
@@ -193,6 +202,11 @@
 	@media (min-width: 768px) {
 		.page {
 			min-height: calc(100dvh - var(--bar-height) - var(--spacing-8));
+		}
+
+		.columns {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: var(--spacing-12);
 		}
 	}
 </style>
