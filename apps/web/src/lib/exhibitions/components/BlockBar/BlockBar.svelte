@@ -62,6 +62,7 @@
 			<ArrowDown aria-hidden="true" size={16} />
 		</button>
 		<button
+			class="remove"
 			aria-label={m.exhibitions.bar.remove}
 			onclick={onremove}
 			title={m.exhibitions.bar.remove}
@@ -134,6 +135,11 @@
 
 	.bar :global(button:hover:not(:disabled)) {
 		color: var(--color-fg);
+	}
+
+	.bar .remove,
+	.bar .remove:hover {
+		color: var(--color-danger);
 	}
 
 	.bar :global(button[aria-pressed='true']) {

@@ -315,7 +315,7 @@
 						<TextButton inline onclick={openArticles}>
 							{m.timeline.form.pickArticle}
 						</TextButton>
-						<TextButton inline onclick={removeSource}>
+						<TextButton danger inline onclick={removeSource}>
 							{m.timeline.form.removeSource}
 						</TextButton>
 					</div>

@@ -2,15 +2,7 @@
 	import { onDestroy, untrack } from 'svelte';
 	import ImageUp from '@lucide/svelte/icons/image-up';
 	import Trash from '@lucide/svelte/icons/trash';
-	import {
-		Button,
-		Form,
-		FormActions,
-		IconButton,
-		Select,
-		Switch,
-		TextField
-	} from '@study-atelier/ui';
+	import { Button, Form, FormActions, Icon, Select, Switch, TextField } from '@study-atelier/ui';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
@@ -128,32 +120,29 @@
 	<Form error={formState.error} errorTitle={m.settings.profile.errorTitle} onsubmit={submit}>
 		<div class="fields">
 			<div class="photo">
-				<div class="photo-row">
-					<div class="mat">
-						<Avatar
-							{initial}
-							large
-							path={hasAvatar ? formState.saved.avatarPath : null}
-							{previewUrl}
-						/>
-					</div>
-					<div class="buttons">
-						<IconButton
-							disabled={formState.busy || cropping}
-							icon={ImageUp}
-							label={hasAvatar ? m.settings.profile.changePhoto : m.settings.profile.addPhoto}
-							onclick={() => fileInput?.click()}
-						/>
-						{#if hasAvatar}
-							<IconButton
-								disabled={formState.busy}
-								icon={Trash}
-								label={m.settings.profile.removePhoto}
-								onclick={() => setAvatar({ kind: 'remove' })}
-								variant="danger"
-							/>
-						{/if}
-					</div>
+				<div class="mat">
+					<Avatar
+						{initial}
+						large
+						path={hasAvatar ? formState.saved.avatarPath : null}
+						{previewUrl}
+					/>
+				</div>
+				<div class="buttons">
+					<Button disabled={formState.busy || cropping} onclick={() => fileInput?.click()}>
+						<Icon icon={ImageUp} size="sm" />
+						{hasAvatar ? m.settings.profile.changePhoto : m.settings.profile.addPhoto}
+					</Button>
+					{#if hasAvatar}
+						<Button
+							disabled={formState.busy}
+							onclick={() => setAvatar({ kind: 'remove' })}
+							variant="danger"
+						>
+							<Icon icon={Trash} size="sm" />
+							{m.settings.profile.removePhoto}
+						</Button>
+					{/if}
 				</div>
 				{#if photoError}
 					<span id={hintId} class="error" role="alert">{photoError}</span>
@@ -254,14 +243,7 @@
 		gap: var(--spacing-3);
 	}
 
-	.photo-row {
-		display: flex;
-		align-items: flex-start;
-		gap: var(--spacing-4);
-	}
-
 	.mat {
-		flex: 1;
 		min-width: 0;
 		padding: var(--spacing-4);
 		border: var(--border-width-hairline) solid var(--color-line);
@@ -270,8 +252,18 @@
 
 	.buttons {
 		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-3);
+		flex-wrap: wrap;
+		gap: var(--spacing-2);
+	}
+
+	.buttons > :global(*) {
+		flex: 1 1 auto;
+	}
+
+	@media (min-width: 768px) {
+		.buttons > :global(*) {
+			flex: none;
+		}
 	}
 
 	.described {

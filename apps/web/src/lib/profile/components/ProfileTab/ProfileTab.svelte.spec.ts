@@ -68,15 +68,15 @@ describe('ProfileTab', () => {
 		expect(page.getByText(TEST_EMAIL).elements()).toHaveLength(0);
 	});
 
-	it('names the photo buttons by icon', async () => {
+	it('shows the photo actions as text buttons', async () => {
 		renderTab(named);
 
 		await expect
 			.element(page.getByRole('button', { name: m.settings.profile.changePhoto }))
-			.toHaveTextContent('');
+			.toHaveTextContent(m.settings.profile.changePhoto);
 		await expect
 			.element(page.getByRole('button', { name: m.settings.profile.removePhoto }))
-			.toHaveTextContent('');
+			.toHaveTextContent(m.settings.profile.removePhoto);
 	});
 
 	it('shows the saved name and offers to add a photo when there is none', async () => {
