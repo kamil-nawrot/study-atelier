@@ -48,7 +48,7 @@ describe('PinMarkers', () => {
 
 		const away = document.createElement('div');
 		away.style.cssText = 'position: fixed; right: 0; bottom: 0; width: 20px; height: 20px';
-		document.body.append(away);
+		document.body.appendChild(away);
 
 		await userEvent.hover(first);
 		vi.advanceTimersByTime(200);

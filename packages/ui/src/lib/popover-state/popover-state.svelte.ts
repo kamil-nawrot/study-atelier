@@ -5,7 +5,7 @@ const FOCUSABLE =
 function hoverRevealDelay(): number {
 	const probe = document.createElement('span');
 	probe.style.transitionDelay = 'var(--hover-reveal-delay)';
-	document.body.append(probe);
+	document.body.appendChild(probe);
 	const delay = parseFloat(getComputedStyle(probe).transitionDelay) * 1000;
 	probe.remove();
 	return Number.isFinite(delay) ? delay : 0;

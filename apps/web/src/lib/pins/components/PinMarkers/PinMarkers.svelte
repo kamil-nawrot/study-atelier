@@ -138,7 +138,6 @@
 			class:editing
 			class:entry={pin.glossaryEntryId !== null}
 			class:view={pin.viewWidth !== undefined}
-			data-pin={pin.id}
 			aria-controls={previewing ? cardId : undefined}
 			aria-describedby={expanded ? cardId : undefined}
 			aria-expanded={previewing ? expanded : undefined}
@@ -147,6 +146,7 @@
 				pin.glossaryEntryId ? names[pin.glossaryEntryId] : undefined,
 				pin.viewWidth !== undefined
 			)}
+			data-pin={pin.id}
 			onblur={(event) => blur(event, pin)}
 			onclick={(event) => click(event, pin)}
 			onfocus={focus}
