@@ -1,7 +1,14 @@
 <script lang="ts">
 	import X from '@lucide/svelte/icons/x';
 	import type { LucideIcon } from '@lucide/svelte';
-	import { Icon, type NoteLinks, Popover, Tag, overlayScrollbar } from '@study-atelier/ui';
+	import {
+		Icon,
+		MetaLine,
+		type NoteLinks,
+		Popover,
+		Tag,
+		overlayScrollbar
+	} from '@study-atelier/ui';
 	import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
 	import ValueSummaryCard from '#lib/card-index/components/ValueSummaryCard/ValueSummaryCard.svelte';
 	import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
@@ -154,6 +161,16 @@
 	{/if}
 {/snippet}
 
+{#snippet authorNames()}
+	{#if artwork.authors.length === 0}
+		{authors}
+	{:else}
+		{#each artwork.authors as author, index (author)}
+			{index > 0 ? ', ' : ''}{@render valueName('author', author)}
+		{/each}
+	{/if}
+{/snippet}
+
 {#snippet empty()}
 	<span class="empty">
 		<span aria-hidden="true">—</span>
@@ -182,20 +199,8 @@
 	<header class="heading">
 		<span class="number">{formatRecordNumber(artwork.number)}</span>
 		<h1><cite class="artwork-title">{artwork.title}</cite></h1>
-		<p class="meta">
-			<span>
-				{#if artwork.authors.length === 0}
-					{authors}
-				{:else}
-					{#each artwork.authors as author, index (author)}
-						{index > 0 ? ', ' : ''}{@render valueName('author', author)}
-					{/each}
-				{/if}
-			</span>
-			{#if date}
-				<span aria-hidden="true">·</span>
-				<span class="date">{date}</span>
-			{/if}
+		<p>
+			<MetaLine parts={[authorNames, date]} />
 		</p>
 	</header>
 
@@ -276,16 +281,6 @@
 		line-height: var(--line-height-xs);
 		letter-spacing: var(--letter-spacing-wide);
 		font-variant-numeric: tabular-nums;
-	}
-
-	.meta {
-		display: flex;
-		flex-wrap: wrap;
-		column-gap: var(--spacing-1);
-	}
-
-	.date {
-		white-space: nowrap;
 	}
 
 	dl {

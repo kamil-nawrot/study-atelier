@@ -10,11 +10,10 @@
 		label: string;
 		tabs: readonly TabOption[];
 		value?: string;
-		framed?: boolean;
 		children: Snippet;
 	};
 
-	let { label, tabs, value = $bindable(), framed = false, children }: Props = $props();
+	let { label, tabs, value = $bindable(), children }: Props = $props();
 
 	const id = $props.id();
 
@@ -51,7 +50,7 @@
 	}
 </script>
 
-<div class="tabs" class:framed>
+<div class="tabs">
 	<div
 		bind:this={list}
 		class="list"
@@ -84,21 +83,19 @@
 <style>
 	.tabs {
 		display: grid;
-		gap: var(--spacing-6);
 	}
 
 	.list {
 		display: flex;
-		gap: var(--spacing-6);
 		overflow-x: auto;
-		border-bottom: var(--border-width-hairline) solid var(--color-line);
+		background: linear-gradient(var(--color-line), var(--color-line)) bottom / 100%
+			var(--border-width-hairline) no-repeat;
 	}
 
 	.tab {
 		flex: none;
-		padding: var(--spacing-3) 0;
-		border: none;
-		border-bottom: var(--border-width-button) solid transparent;
+		padding: var(--spacing-3) var(--spacing-4);
+		border: var(--border-width-hairline) solid transparent;
 		background: none;
 		color: var(--color-fg-muted);
 		font-family: inherit;
@@ -118,40 +115,20 @@
 	}
 
 	.tab[aria-selected='true'] {
-		border-bottom-color: var(--color-fg);
-		color: var(--color-fg);
-	}
-
-	.framed {
-		gap: 0;
-	}
-
-	.framed .list {
-		gap: 0;
-		border-bottom: none;
-		background: linear-gradient(var(--color-line), var(--color-line)) bottom / 100%
-			var(--border-width-hairline) no-repeat;
-	}
-
-	.framed .tab {
-		padding: var(--spacing-3) var(--spacing-4);
-		border: var(--border-width-hairline) solid transparent;
-	}
-
-	.framed .tab[aria-selected='true'] {
 		border-color: var(--color-line);
 		border-bottom-color: var(--color-bg);
 		background: var(--color-bg);
+		color: var(--color-fg);
 	}
 
-	.framed .panel {
+	.panel {
 		padding: var(--spacing-4);
 		border: var(--border-width-hairline) solid var(--color-line);
 		border-top: none;
 	}
 
 	@media (min-width: 768px) {
-		.framed .panel {
+		.panel {
 			padding: var(--spacing-8);
 		}
 	}

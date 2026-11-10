@@ -1,7 +1,7 @@
 <script lang="ts">
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Trash from '@lucide/svelte/icons/trash-2';
-	import { Alert, Button, Dialog, EmptyState, NoImage } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, EmptyState, MetaLine, NoImage } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
 	import {
@@ -106,9 +106,13 @@
 				</div>
 				<div class="text">
 					<cite class="exhibition-title">{nameOf(exhibition)}</cite>
-					<span class="meta">
-						{m.trash.exhibitionMeta(exhibition.artworkCount, archivedSince(exhibition.deletedAt))}
-					</span>
+					<MetaLine
+						class="meta"
+						text={m.trash.exhibitionMeta(
+							exhibition.artworkCount,
+							archivedSince(exhibition.deletedAt)
+						)}
+					/>
 				</div>
 				<div class="actions">
 					<Button
@@ -200,7 +204,7 @@
 		font-size: var(--font-size-lg);
 	}
 
-	.meta {
+	.text > :global(.meta) {
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-xs);
 		font-variant-numeric: tabular-nums;

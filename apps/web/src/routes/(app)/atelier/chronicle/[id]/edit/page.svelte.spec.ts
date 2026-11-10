@@ -33,6 +33,17 @@ describe('visit edit page', () => {
 		await expect.element(page.getByLabelText(m.chronicle.form.day)).toHaveValue('12');
 	});
 
+	it('leads back to the visit it edits', async () => {
+		render(FormPage, {
+			data: { session: testSession(), visit: testVisit(), artworks: [], places: [] },
+			params: { id: testVisit().id }
+		});
+
+		await expect
+			.element(page.getByRole('link', { name: testVisit().place }))
+			.toHaveAttribute('href', `/atelier/chronicle/${testVisit().id}`);
+	});
+
 	it('says that the visit does not exist', async () => {
 		render(FormPage, {
 			data: { session: testSession(), notFound: true, artworks: [], places: [] },

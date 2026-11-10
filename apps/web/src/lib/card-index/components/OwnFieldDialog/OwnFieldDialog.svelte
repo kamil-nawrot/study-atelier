@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import List from '@lucide/svelte/icons/list';
 	import SquareCheck from '@lucide/svelte/icons/square-check';
 	import Type from '@lucide/svelte/icons/type';
@@ -65,6 +66,7 @@
 	let outside = $state<number>();
 	let failure = $state<string>();
 	let saving = $state(false);
+	let typesGroup = $state<HTMLElement>();
 
 	function emptyDraft(): OwnFieldInput {
 		return {
@@ -137,9 +139,13 @@
 		outside = undefined;
 	}
 
-	function limit(): void {
+	async function limit(): Promise<void> {
 		typesError = undefined;
 		outside = undefined;
+		if (!draft.limited) return;
+		await tick();
+		const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		typesGroup?.scrollIntoView({ block: 'nearest', behavior: smooth ? 'smooth' : 'instant' });
 	}
 </script>
 
@@ -180,7 +186,7 @@
 		{/if}
 		<Checkbox label={m.ownFields.form.limited} onchange={limit} bind:checked={draft.limited} />
 		{#if draft.limited}
-			<div class="types">
+			<div bind:this={typesGroup} class="types">
 				<ToggleTiles
 					columns={4}
 					label={m.ownFields.form.types}

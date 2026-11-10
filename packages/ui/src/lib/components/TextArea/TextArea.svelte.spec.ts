@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import '../../styles/index.css';
 import TextArea from './TextArea.svelte';
 
 describe('TextArea', () => {
@@ -45,6 +46,18 @@ describe('TextArea', () => {
 		render(TextArea, { label: 'Summary', counter: true, value: 'Doric' });
 
 		await expect.element(page.getByText('5/', { exact: false })).not.toBeInTheDocument();
+	});
+
+	it('grows at most to the given number of lines', async () => {
+		render(TextArea, { label: 'Summary', rows: 2, maxRows: 3 });
+
+		const field = page.getByRole('textbox', { name: 'Summary' });
+		const textarea = field.element() as HTMLTextAreaElement;
+		const twoLines = textarea.offsetHeight;
+		textarea.style.height = '2000px';
+
+		await expect.poll(() => textarea.offsetHeight).toBeLessThan(twoLines * 2);
+		expect(textarea.offsetHeight).toBeGreaterThan(twoLines);
 	});
 
 	it('keeps the field still and read-only, with text-sized lines, while it is being filled', async () => {

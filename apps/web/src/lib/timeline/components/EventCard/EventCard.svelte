@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
-	import { Button, Icon, TextButton } from '@study-atelier/ui';
+	import { Button, Icon, MetaLine, TextButton } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { formatDate } from '#lib/catalogue/years/years.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -28,15 +28,17 @@
 	let date = $derived(formatDate(event.yearFrom, event.yearTo, event.yearApproximate));
 </script>
 
+{#snippet lengthPart()}
+	<span class="muted">{m.timeline.card.length(length)}</span>
+{/snippet}
+
 <section class="card" aria-label={period ? m.timeline.card.period : m.timeline.card.event}>
 	<div class="head">
 		<div class="title">
 			<span class="kind caption">{period ? m.timeline.card.period : m.timeline.card.event}</span>
 			<h2><a href={eventPath(event.id)}>{event.name}</a></h2>
 			<p>
-				{date}{#if period && length > 0}<span class="muted"
-						>{` · ${m.timeline.card.length(length)}`}</span
-					>{/if}
+				<MetaLine parts={[date, period && length > 0 && lengthPart]} />
 			</p>
 		</div>
 		<div class="actions">

@@ -43,6 +43,16 @@
 	args={{ label: 'Summary', counter: true, maxlength: 24, value: 'Exactly twenty-four char' }}
 />
 
+<Story
+	name="At most four lines"
+	args={{
+		label: 'Summary',
+		rows: 2,
+		maxRows: 4,
+		value: 'Drag the corner down: the field grows by four lines at most.'
+	}}
+/>
+
 <Story name="Disabled" args={{ value: 'Seen in Delft in 2024.', disabled: true }} />
 
 <Story name="Filling" args={{ filling: true }} />

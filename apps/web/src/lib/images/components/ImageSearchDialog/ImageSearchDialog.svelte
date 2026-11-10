@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { tick, untrack } from 'svelte';
-	import { Alert, ArtworkImage, Button, Dialog, Primer } from '@study-atelier/ui';
+	import { Alert, ArtworkImage, Button, Dialog, MetaLine, Primer } from '@study-atelier/ui';
 	import FillingStatus from '#lib/shared/forms/FillingStatus/FillingStatus.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { findImageCandidates } from '#lib/images/image-search/image-search.ts';
@@ -61,17 +61,7 @@
 			<cite class="artwork-title">
 				{candidate.title}
 			</cite>
-			<span class="meta">
-				<span>
-					{authorText(candidate)}
-				</span>
-				{#if candidate.date}
-					<span aria-hidden="true">·</span>
-					<span class="date">
-						{candidate.date}
-					</span>
-				{/if}
-			</span>
+			<MetaLine class="meta" parts={[authorText(candidate), candidate.date]} />
 		{/if}
 	</span>
 {/snippet}
@@ -195,17 +185,10 @@
 		text-wrap: balance;
 	}
 
-	.meta {
-		display: flex;
-		flex-wrap: wrap;
-		column-gap: var(--spacing-1);
+	.candidate :global(.meta) {
 		color: var(--color-mat-fg-muted);
 		font-size: var(--font-size-xs);
 		line-height: var(--line-height-xs);
-	}
-
-	.date {
-		white-space: nowrap;
 	}
 
 	.candidate:hover .artwork-title,

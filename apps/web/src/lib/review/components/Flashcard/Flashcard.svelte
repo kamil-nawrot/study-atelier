@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Alert, Button, Tag } from '@study-atelier/ui';
+	import { Alert, Button, MetaLine, Tag } from '@study-atelier/ui';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
@@ -77,12 +77,8 @@
 				<h1 bind:this={heading} id="flashcard-heading" tabindex="-1">
 					<cite class="artwork-title">{artwork.title}</cite>
 				</h1>
-				<p class="meta">
-					<span>{authors}</span>
-					{#if artwork.date}
-						<span aria-hidden="true">·</span>
-						<span class="date">{artwork.date}</span>
-					{/if}
+				<p>
+					<MetaLine parts={[authors, artwork.date]} />
 				</p>
 			</header>
 			{#if fields.length > 0}
@@ -153,16 +149,6 @@
 		line-height: var(--line-height-xs);
 		letter-spacing: var(--letter-spacing-wide);
 		font-variant-numeric: tabular-nums;
-	}
-
-	.meta {
-		display: flex;
-		flex-wrap: wrap;
-		column-gap: var(--spacing-1);
-	}
-
-	.date {
-		white-space: nowrap;
 	}
 
 	dl {

@@ -17,13 +17,21 @@
 	.actions {
 		position: sticky;
 		bottom: 0;
+		z-index: 1;
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--spacing-2) var(--spacing-3);
 		margin-top: auto;
 		padding: var(--spacing-3) 0;
+	}
+
+	.actions::before {
+		content: '';
+		position: absolute;
+		inset: 0 calc(-1 * var(--form-actions-bleed, 0px));
+		z-index: -1;
 		border-top: var(--border-width-hairline) solid var(--color-tag);
-		background: var(--color-bg);
+		background: var(--color-surface);
 	}
 
 	.actions > :global(*) {
@@ -31,8 +39,7 @@
 	}
 
 	.actions > :global(:first-child) {
-		order: 3;
-		flex-basis: 100%;
+		flex: none;
 	}
 
 	@media (min-width: 768px) {
@@ -46,8 +53,6 @@
 		}
 
 		.actions > :global(:first-child) {
-			order: 0;
-			flex-basis: auto;
 			margin-right: auto;
 		}
 	}

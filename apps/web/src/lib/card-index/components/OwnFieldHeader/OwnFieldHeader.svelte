@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { MetaLine } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { fieldKindLine } from '#lib/card-index/own-fields/own-fields.ts';
 	import type { OwnField } from '#lib/card-index/types/own-field.ts';
@@ -12,7 +13,7 @@
 
 <header>
 	<div class="title">
-		<p class="kind">{fieldKindLine(field)}</p>
+		<p class="kind"><MetaLine text={fieldKindLine(field)} /></p>
 		<h1>{field.name}</h1>
 	</div>
 	{#if field.description}

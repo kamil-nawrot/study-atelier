@@ -10,6 +10,12 @@
 
 	const title = m.chronicle.form.editTitle;
 
+	let backPath = $derived(
+		data.visit
+			? resolve('/(app)/atelier/chronicle/[id]', { id: data.visit.id })
+			: resolve('/(app)/atelier/chronicle')
+	);
+
 	let page = $state<VisitFormPage>();
 </script>
 
@@ -19,7 +25,7 @@
 	title={data.notFound ? m.chronicle.form.notFoundTitle : title}
 >
 	{#snippet bar()}
-		<BackLink fallbackHref={resolve('/(app)/atelier/chronicle')} fallbackName={m.chronicle.back} />
+		<BackLink fallbackHref={backPath} fallbackName={data.visit?.place ?? m.chronicle.back} />
 		<h1 class="visually-hidden">{title}</h1>
 	{/snippet}
 

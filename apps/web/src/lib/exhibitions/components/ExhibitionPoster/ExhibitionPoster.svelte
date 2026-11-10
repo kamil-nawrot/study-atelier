@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { NoImage } from '@study-atelier/ui';
+	import { MetaLine, NoImage } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { changedOn } from '#lib/exhibitions/exhibition-dates/exhibition-dates.ts';
@@ -30,9 +30,12 @@
 			<NoImage />
 		{/if}
 	</span>
-	<span class="title">{exhibition.title}</span>
-	<span class="meta">
-		{m.exhibitions.posterMeta(exhibition.artworkCount, changedOn(exhibition.updatedAt))}
+	<span class="text">
+		<span class="title">{exhibition.title}</span>
+		<MetaLine
+			class="meta"
+			text={m.exhibitions.posterMeta(exhibition.artworkCount, changedOn(exhibition.updatedAt))}
+		/>
 	</span>
 </a>
 
@@ -40,7 +43,7 @@
 	.poster {
 		display: grid;
 		align-content: start;
-		gap: var(--spacing-2);
+		gap: var(--spacing-3);
 		color: inherit;
 		text-decoration: none;
 	}
@@ -66,7 +69,12 @@
 		line-height: var(--line-height-xl);
 	}
 
-	.meta {
+	.text {
+		display: grid;
+		gap: var(--spacing-2);
+	}
+
+	.text > :global(.meta) {
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);

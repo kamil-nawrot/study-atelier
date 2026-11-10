@@ -161,13 +161,21 @@
 	}
 
 	.main {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: var(--spacing-3);
+		min-width: 0;
+	}
+
+	.name {
 		min-width: 0;
 	}
 
 	.icon {
 		display: inline-flex;
+		align-self: center;
 		color: var(--color-fg-muted);
-		vertical-align: middle;
 	}
 
 	button.record {

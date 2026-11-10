@@ -2163,13 +2163,12 @@ export const pl = {
 		form: {
 			newTitle: 'Nowe wydarzenie',
 			editTitle: 'Edycja wydarzenia',
-			namePlaceholder: 'Np. wojny napoleońskie, chrzest Polski',
 			nameRequired: 'Wpisz nazwę wydarzenia.',
 			year: 'Rok',
 			spanTitle: 'Lata',
 			yearRequired: 'Wpisz rok wydarzenia.',
 			description: 'Opis',
-			descriptionPlaceholder: 'Co warto o nim pamiętać',
+			descriptionPlaceholder: 'Wszystko, co warto zapamiętać',
 			errorTitle: 'Nie udało się zapisać wydarzenia',
 			notFoundTitle: 'Nie ma takiego wydarzenia',
 			loadErrorTitle: 'Nie udało się wczytać wydarzenia',
@@ -2388,7 +2387,7 @@ export const pl = {
 		sortNamePlaceholder: 'np. Vinci, Leonardo da',
 		sortNameHint: 'Po tej wartości będą sortowani autorzy.',
 		country: 'Kraj',
-		countryPlaceholder: 'Zacznij pisać nazwę kraju',
+		countryPlaceholder: 'Zacznij wpisywać nazwę kraju, żeby zobaczyć listę opcji',
 		countryHint: 'Wybierz kraj z listy.',
 		placeType: 'Typ miejsca',
 		placeTypes: {
