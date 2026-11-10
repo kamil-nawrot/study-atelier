@@ -12,16 +12,7 @@
 </script>
 
 <Tooltip align="end" phoneOnly placement="bottom" text={label}>
-	{#snippet children(describedby)}
-		<Button
-			aria-describedby={describedby}
-			aria-label={label}
-			compact
-			{href}
-			icon={Plus}
-			variant="primary"
-		>
-			{label}
-		</Button>
-	{/snippet}
+	<Button aria-label={label} compact {href} icon={Plus} variant="primary">
+		{label}
+	</Button>
 </Tooltip>
