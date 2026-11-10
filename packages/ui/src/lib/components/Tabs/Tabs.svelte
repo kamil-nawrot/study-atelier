@@ -133,6 +133,11 @@
 		}
 	}
 
+	.panel:has(:global([data-action-bar])) {
+		padding-bottom: 0;
+		border-bottom: none;
+	}
+
 	.panel:focus-visible {
 		outline: var(--border-width-button) solid var(--color-fg);
 		outline-offset: var(--spacing-1);

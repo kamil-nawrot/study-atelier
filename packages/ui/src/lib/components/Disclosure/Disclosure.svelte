@@ -54,7 +54,7 @@
 				{/if}
 				{title}
 				{#if count !== undefined}
-					<Count outlined={muted} value={count} />
+					<Count value={count} />
 				{/if}
 			</svelte:element>
 		{/if}

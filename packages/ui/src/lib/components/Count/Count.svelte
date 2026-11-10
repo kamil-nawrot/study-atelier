@@ -3,13 +3,12 @@
 
 	type Props = HTMLAttributes<HTMLSpanElement> & {
 		value: number;
-		outlined?: boolean;
 	};
 
-	let { value, outlined = false, ...rest }: Props = $props();
+	let { value, ...rest }: Props = $props();
 </script>
 
-<span class="count" class:outlined {...rest}>{value}</span>
+<span class="count" {...rest}>{value}</span>
 
 <style>
 	.count {
@@ -17,17 +16,12 @@
 		padding: 0 var(--spacing-1);
 		background: var(--color-fg);
 		color: var(--color-bg);
+		font-family: var(--font-family-ui), system-ui, sans-serif;
 		font-size: var(--font-size-xs);
+		font-style: normal;
 		font-weight: var(--font-weight-bold);
 		line-height: var(--line-height-xs);
 		text-align: center;
 		font-variant-numeric: tabular-nums;
-	}
-
-	.outlined {
-		outline: var(--border-width-hairline) solid var(--color-fg-muted);
-		outline-offset: calc(-1 * var(--border-width-hairline));
-		background: transparent;
-		color: var(--color-fg-muted);
 	}
 </style>
