@@ -11,6 +11,7 @@
 		hint?: string;
 		error?: string;
 		counter?: boolean;
+		maxRows?: number;
 		filling?: boolean;
 		fillingNote?: Snippet;
 	};
@@ -21,6 +22,7 @@
 		hint,
 		error,
 		counter = false,
+		maxRows,
 		filling = false,
 		fillingNote,
 		disabled,
@@ -47,7 +49,9 @@
 	<div class="control" class:filling>
 		<textarea
 			id={inputId}
+			style:--max-rows={maxRows}
 			class:invalid={!!error}
+			class:limited={maxRows !== undefined}
 			{@attach overlayScrollbarBeside()}
 			aria-busy={filling || undefined}
 			aria-describedby={describedBy}
@@ -113,6 +117,10 @@
 		font-size: var(--font-size-md);
 		line-height: var(--line-height-md);
 		resize: vertical;
+	}
+
+	textarea.limited {
+		max-height: calc(var(--max-rows) * 1lh + 2 * var(--spacing-3) + 2 * var(--border-width-base));
 	}
 
 	textarea.invalid {

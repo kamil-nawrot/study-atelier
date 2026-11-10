@@ -263,6 +263,7 @@
 					counter
 					label={m.valueForm.summary}
 					maxlength={SUMMARY_MAX_LENGTH}
+					maxRows={8}
 					placeholder={m.valueForm.summaryPlaceholder}
 					rows={3}
 					bind:value={form.details.summary}
