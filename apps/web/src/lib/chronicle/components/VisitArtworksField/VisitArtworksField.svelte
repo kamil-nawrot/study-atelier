@@ -127,12 +127,13 @@
 		display: grid;
 		gap: var(--spacing-4);
 		min-width: 0;
+		margin: 0;
 		padding: 0;
 		border: 0;
 	}
 
 	legend {
-		padding: 0;
+		padding: 0 0 var(--spacing-2);
 		font-size: var(--font-size-sm);
 		font-weight: var(--font-weight-medium);
 		line-height: var(--line-height-sm);
