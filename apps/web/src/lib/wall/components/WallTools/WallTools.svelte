@@ -25,6 +25,7 @@
 <div class="tools">
 	<div class="search">
 		<SearchField
+			compact
 			disabled={view.total === 0}
 			label={m.atelier.search}
 			placeholder={m.atelier.search}
@@ -46,6 +47,7 @@
 			<Select
 				compact
 				disabled={view.total === 0}
+				hideLabel
 				icon={ArrowUpDown}
 				label={m.atelier.sort.label}
 				options={WALL_ORDERS}

@@ -22,7 +22,7 @@
 	const termId = `${id}-term`;
 	const popover = new PopoverState();
 
-	let activeTerm = $state<string>();
+	let activeTerm = $derived(popover.anchor?.dataset.term);
 
 	const html = $derived.by(() => {
 		const marked = termCard ? terms : undefined;
@@ -34,10 +34,6 @@
 		return element ?? undefined;
 	}
 
-	function open(term: HTMLElement): void {
-		activeTerm = term.dataset.term;
-	}
-
 	function listen(node: HTMLElement): () => void {
 		const handlers: [string, (event: Event) => void][] = [
 			[
@@ -45,7 +41,6 @@
 				(event) => {
 					const term = termOf(event.target);
 					if (!term) return;
-					open(term);
 					popover.pointerEnter(term, event as PointerEvent);
 				}
 			],
@@ -60,7 +55,6 @@
 				(event) => {
 					const term = termOf(event.target);
 					if (!term) return;
-					open(term);
 					popover.toggle(term);
 				}
 			],
@@ -69,7 +63,6 @@
 				(event) => {
 					const term = termOf(event.target);
 					if (!term) return;
-					open(term);
 					popover.focus(term);
 				}
 			],

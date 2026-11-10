@@ -42,6 +42,7 @@
 		label: 'Order',
 		icon: ArrowUpDown,
 		compact: true,
+		hideLabel: true,
 		placeholder: undefined,
 		value: 'painting'
 	}}

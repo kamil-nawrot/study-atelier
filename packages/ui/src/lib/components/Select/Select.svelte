@@ -39,7 +39,7 @@
 </script>
 
 <div class="field" class:compact>
-	<label class:visually-hidden={compact || hideLabel} for={selectId}>{label}</label>
+	<label class:visually-hidden={hideLabel} for={selectId}>{label}</label>
 	<div class="control" class:invalid={!!error} class:with-icon={!!icon}>
 		{#if icon}
 			<span class="glyph">
@@ -156,24 +156,10 @@
 		padding-left: var(--spacing-12);
 	}
 
-	@media (max-width: 767.98px) {
-		.compact .control {
-			width: var(--size-control);
-		}
-
-		.compact .glyph {
-			right: 0;
-			padding: 0;
-			color: var(--color-fg);
-		}
-
+	@media (min-width: 768px) {
 		.compact select {
-			padding: 0;
-			color: transparent;
-		}
-
-		.compact .chevron {
-			display: none;
+			font-size: var(--font-size-sm);
+			line-height: var(--line-height-sm);
 		}
 	}
 </style>
