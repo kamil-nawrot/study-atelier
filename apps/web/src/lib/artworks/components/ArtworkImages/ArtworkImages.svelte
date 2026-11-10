@@ -1,9 +1,8 @@
 <script lang="ts">
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import Plus from '@lucide/svelte/icons/plus';
-	import Star from '@lucide/svelte/icons/star';
 	import { onDestroy, untrack } from 'svelte';
-	import { Alert, ArtworkImage, Icon, Tooltip } from '@study-atelier/ui';
+	import { Alert, ArtworkImage, Icon, TextButton } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { findImageCandidates } from '#lib/images/image-search/image-search.ts';
 	import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
@@ -227,19 +226,9 @@
 			</button>
 		{/if}
 		{#if selected > 0 && current() !== null}
-			<Tooltip placement="left" text={m.artworkForm.setMainImage}>
-				{#snippet children(id)}
-					<button
-						class="make-main"
-						aria-describedby={id}
-						aria-label={m.artworkForm.setMainImage}
-						onclick={makeMain}
-						type="button"
-					>
-						<Icon icon={Star} size="sm" />
-					</button>
-				{/snippet}
-			</Tooltip>
+			<TextButton inline onclick={makeMain}>
+				{m.artworkForm.setMainImage}
+			</TextButton>
 		{/if}
 	</div>
 {/snippet}
@@ -350,15 +339,15 @@
 
 	.main {
 		position: absolute;
-		right: 0;
-		bottom: 0;
-		left: 0;
+		bottom: var(--spacing-1);
+		left: var(--spacing-1);
 		padding: 0 var(--spacing-1);
-		background: var(--color-fg);
-		color: var(--color-bg);
+		background: var(--color-mat-badge-bg);
+		color: var(--color-mat-badge-fg);
 		font-size: var(--font-size-xs);
+		font-weight: var(--font-weight-medium);
 		line-height: var(--line-height-xs);
-		text-align: center;
+		letter-spacing: var(--letter-spacing-wide);
 	}
 
 	.empty {
@@ -373,20 +362,5 @@
 		border-style: dashed;
 		background: transparent;
 		color: var(--color-fg-muted);
-	}
-
-	.make-main {
-		display: grid;
-		place-items: center;
-		padding: var(--spacing-2);
-		border: none;
-		background: transparent;
-		color: var(--color-fg-muted);
-		cursor: pointer;
-	}
-
-	.make-main:hover,
-	.make-main:focus-visible {
-		color: var(--color-fg);
 	}
 </style>
