@@ -64,7 +64,7 @@
 
 <div class="page">
 	<header>
-		<p class="kind">
+		<p class="kind overline">
 			<span class="mark" aria-hidden="true">
 				<Icon icon={span ? MoveHorizontal : CircleDot} size="sm" />
 			</span>
@@ -129,11 +129,6 @@
 		display: flex;
 		align-items: center;
 		gap: var(--spacing-2);
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
 	}
 
 	.mark {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Section, type NoteLinks } from '@study-atelier/ui';
+	import { Disclosure, Section, type NoteLinks } from '@study-atelier/ui';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ArtworkWall from '#lib/wall/components/ArtworkWall/ArtworkWall.svelte';
@@ -31,13 +31,14 @@
 		</div>
 	{/if}
 
-	<section class="seen" aria-labelledby="visit-seen">
-		<h2 id="visit-seen">{m.chronicle.view.seenTitle}</h2>
-		{#if artworks.length > 0}
-			<ArtworkWall {artworks} {onimagefailed} {onnearscreen} />
-		{:else}
-			<p class="caption">{m.chronicle.view.noArtworks}</p>
-		{/if}
+	<section aria-labelledby="visit-seen">
+		<Disclosure id="visit-seen" room title={m.chronicle.view.seenTitle}>
+			{#if artworks.length > 0}
+				<ArtworkWall {artworks} {onimagefailed} {onnearscreen} />
+			{:else}
+				<p class="caption">{m.chronicle.view.noArtworks}</p>
+			{/if}
+		</Disclosure>
 	</section>
 </article>
 
@@ -49,12 +50,5 @@
 
 	.notes {
 		max-width: var(--size-content-default);
-	}
-
-	.seen {
-		display: grid;
-		gap: var(--spacing-6);
-		padding-top: var(--spacing-6);
-		border-top: var(--border-width-hairline) solid var(--color-line);
 	}
 </style>

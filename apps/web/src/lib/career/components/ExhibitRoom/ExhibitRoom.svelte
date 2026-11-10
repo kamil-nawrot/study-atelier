@@ -106,13 +106,6 @@
 		gap: var(--spacing-1);
 	}
 
-	.overline {
-		font-size: var(--font-size-xs);
-		font-variant-caps: all-small-caps;
-		letter-spacing: var(--letter-spacing-wide);
-		color: var(--color-fg-muted);
-	}
-
 	.name {
 		display: flex;
 		flex-wrap: wrap;

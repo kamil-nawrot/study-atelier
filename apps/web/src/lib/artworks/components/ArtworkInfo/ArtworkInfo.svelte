@@ -29,6 +29,7 @@
 	import type { ExhibitionSummary } from '#lib/exhibitions/types/exhibition-summary.ts';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
 	import MentionedIn from '#lib/notes/components/MentionedIn/MentionedIn.svelte';
+	import NotesSection from '#lib/notes/components/NotesSection/NotesSection.svelte';
 	import type { Mention } from '#lib/notes/types/mention.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 
@@ -234,14 +235,13 @@
 
 	<ArtworkExhibitions covers={exhibitionCovers} {exhibitions} />
 
-	<section class="notes" aria-labelledby="artwork-notes">
-		<h2 id="artwork-notes" class="caption">{m.common.notes}</h2>
+	<NotesSection>
 		{#if artwork.notes.trim()}
 			<GlossaryNotes entries={glossary} links={noteLinks} value={artwork.notes} />
 		{:else}
 			{@render empty()}
 		{/if}
-	</section>
+	</NotesSection>
 
 	<MentionedIn {mentions} />
 </aside>
@@ -304,15 +304,6 @@
 		flex-wrap: wrap;
 		align-items: center;
 		gap: var(--spacing-2);
-	}
-
-	.notes {
-		display: grid;
-		gap: var(--spacing-2);
-	}
-
-	.notes h2 {
-		font-weight: var(--font-weight-regular);
 	}
 
 	.empty {

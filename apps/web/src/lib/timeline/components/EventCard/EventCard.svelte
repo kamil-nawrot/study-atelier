@@ -35,7 +35,7 @@
 <section class="card" aria-label={period ? m.timeline.card.period : m.timeline.card.event}>
 	<div class="head">
 		<div class="title">
-			<span class="kind caption">{period ? m.timeline.card.period : m.timeline.card.event}</span>
+			<span class="overline">{period ? m.timeline.card.period : m.timeline.card.event}</span>
 			<h2><a href={eventPath(event.id)}>{event.name}</a></h2>
 			<p>
 				<MetaLine parts={[date, period && length > 0 && lengthPart]} />
@@ -107,11 +107,6 @@
 	.title {
 		display: grid;
 		gap: var(--spacing-1);
-	}
-
-	.kind {
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
 	}
 
 	h2 a {

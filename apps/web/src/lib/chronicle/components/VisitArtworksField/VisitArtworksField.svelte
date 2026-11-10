@@ -84,7 +84,7 @@
 		<p class="caption">{m.chronicle.form.placeEmpty}</p>
 	{:else}
 		<div class="group" aria-labelledby="{fieldId}-place" role="group">
-			<p id="{fieldId}-place" class="group-title">{m.chronicle.form.fromPlace}</p>
+			<p id="{fieldId}-place" class="overline">{m.chronicle.form.fromPlace}</p>
 			{#if isNew}
 				<p class="caption">{m.chronicle.form.ticked}</p>
 			{/if}
@@ -104,7 +104,7 @@
 
 	{#if extra.length > 0}
 		<div class="group" aria-labelledby="{fieldId}-extra" role="group">
-			<p id="{fieldId}-extra" class="group-title">{m.chronicle.form.fromElsewhere}</p>
+			<p id="{fieldId}-extra" class="overline">{m.chronicle.form.fromElsewhere}</p>
 			<div class="grid">
 				{#each extra as artwork (artwork.id)}
 					<VisitArtworkTick
@@ -167,14 +167,6 @@
 
 	.group {
 		gap: var(--spacing-3);
-	}
-
-	.group-title {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
 	}
 
 	.grid {

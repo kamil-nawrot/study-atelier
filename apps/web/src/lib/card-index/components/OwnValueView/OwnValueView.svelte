@@ -46,7 +46,7 @@
 
 <div class="page">
 	<header>
-		<p class="kind">
+		<p class="overline">
 			<MetaLine
 				parts={[m.ownFields.page.valueKind(field.name), m.atelier.count(artworks.length)]}
 			/>
@@ -79,14 +79,6 @@
 	header {
 		display: grid;
 		gap: var(--spacing-2);
-	}
-
-	.kind {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
 	}
 
 	h1 {

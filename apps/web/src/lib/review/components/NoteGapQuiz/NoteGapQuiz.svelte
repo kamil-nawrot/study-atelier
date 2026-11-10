@@ -64,7 +64,7 @@
 >
 	{#snippet body()}
 		<div class="intro">
-			<p class="caption">{m.review.quiz.noteTag}</p>
+			<p class="overline">{m.review.quiz.noteTag}</p>
 			<h1 bind:this={heading} id="quiz-heading" tabindex="-1">{m.review.quiz.noteQuestion}</h1>
 			<blockquote class="note">
 				<p>

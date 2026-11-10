@@ -70,7 +70,7 @@
 <ReviewCard actions={next} alt="" compact labelledby="quiz-heading" stage={definition}>
 	{#snippet body()}
 		<div class="intro">
-			<p class="caption">{m.review.quiz.definitionTag}</p>
+			<p class="overline">{m.review.quiz.definitionTag}</p>
 			<h1 bind:this={heading} id="quiz-heading" tabindex="-1">
 				{m.review.quiz.definitionQuestion}
 			</h1>

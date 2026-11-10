@@ -11,6 +11,7 @@
 	import { sameScope, scopeKey } from '#lib/review/overview/overview.ts';
 	import type { AtelierKnowledge } from '#lib/review/types/atelier-knowledge.ts';
 	import type { ReviewScope } from '#lib/review/types/review-scope.ts';
+	import ChoiceTitle from '#lib/review/components/ChoiceTitle/ChoiceTitle.svelte';
 	import ReviewKnowledge from '#lib/review/components/ReviewKnowledge/ReviewKnowledge.svelte';
 	import ReviewStreak from '#lib/review/components/ReviewStreak/ReviewStreak.svelte';
 	import type { ScopeChoice } from '#lib/review/types/scope-choice.ts';
@@ -135,7 +136,7 @@
 				<div class="choices">
 					{#if scopes.length > 1}
 						<section class="choice" aria-labelledby="review-scope">
-							<h2 id="review-scope" class="choice-title">{m.review.scope}</h2>
+							<ChoiceTitle id="review-scope" text={m.review.scope} />
 							<div class="tags">
 								{#each scopes as option (scopeKey(option.scope))}
 									<ToggleTag
@@ -152,7 +153,7 @@
 						</section>
 					{/if}
 					<section class="choice" aria-labelledby="review-form">
-						<h2 id="review-form" class="choice-title">{m.review.form}</h2>
+						<ChoiceTitle id="review-form" text={m.review.form} />
 						<div class="tags">
 							{#each forms as option (option)}
 								<ToggleTag
@@ -169,7 +170,7 @@
 		{/if}
 
 		<section class="how" aria-labelledby="review-how">
-			<h2 id="review-how" class="choice-title">{m.review.howTitle}</h2>
+			<ChoiceTitle id="review-how" text={m.review.howTitle} />
 			<p class="caption">{m.review.how}</p>
 		</section>
 	</div>
@@ -231,11 +232,6 @@
 	.choice {
 		display: grid;
 		gap: var(--spacing-3);
-	}
-
-	.choice-title {
-		font-size: var(--font-size-md);
-		line-height: var(--line-height-md);
 	}
 
 	.tags {

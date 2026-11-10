@@ -27,3 +27,9 @@
 		<p>The artworks of the group.</p>
 	</Disclosure>
 </Story>
+
+<Story name="Room">
+	<Disclosure count={14} room title="Dzieła tego autora">
+		<p>The artworks of the author.</p>
+	</Disclosure>
+</Story>

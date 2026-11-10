@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
-	import { IconButton } from '@study-atelier/ui';
+	import { Disclosure, IconButton } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import type { TermFragment } from '#lib/glossary/types/term-fragment.ts';
@@ -42,79 +42,69 @@
 	}
 </script>
 
-<section class="fragments" aria-labelledby="glossary-fragments">
-	<h2 id="glossary-fragments">{m.glossary.view.fragments}</h2>
-	<div class="strip" class:scrolls={!atStart || !atEnd}>
-		<span class="arrow">
-			<IconButton
-				disabled={atStart}
-				icon={ChevronLeft}
-				label={m.glossary.view.fragmentsBack}
-				onclick={() => scroll(-1)}
-			/>
-		</span>
-		<ul bind:this={strip} onscroll={measure}>
-			{#each fragments as fragment (fragment.pinId)}
-				{@const thumbnail = fragment.thumbnail}
-				<li>
-					<a
-						href="{resolve('/(app)/atelier/[number]', {
-							number: String(fragment.number)
-						})}?pin={encodeURIComponent(fragment.pinId)}"
-						title={fragment.text || undefined}
-					>
-						<span class="lens">
-							{#if fragment.crop && !failed.has(fragment.pinId)}
-								<img alt="" onerror={() => cropFailed(fragment)} src={fragment.crop} />
-							{:else if thumbnail.src}
-								<img
-									style:left="{thumbnail.left}%"
-									style:top="{thumbnail.top}%"
-									style:width="{thumbnail.width}%"
-									style:height="{thumbnail.height}%"
-									class="view"
-									alt=""
-									src={thumbnail.src}
-								/>
-							{/if}
-							<svg class="ring" aria-hidden="true" viewBox="0 0 100 100">
-								<circle cx="50" cy="50" r="49" />
-							</svg>
-						</span>
-						<span class="title">{fragment.title}</span>
-						<span class="number">{formatRecordNumber(fragment.number)}</span>
-					</a>
-				</li>
-			{/each}
-		</ul>
-		<span class="arrow">
-			<IconButton
-				disabled={atEnd}
-				icon={ChevronRight}
-				label={m.glossary.view.fragmentsForward}
-				onclick={() => scroll(1)}
-			/>
-		</span>
-	</div>
+<section aria-labelledby="glossary-fragments">
+	<Disclosure
+		id="glossary-fragments"
+		count={fragments.length}
+		room
+		title={m.glossary.view.fragments}
+	>
+		<div class="strip" class:scrolls={!atStart || !atEnd}>
+			<span class="arrow">
+				<IconButton
+					disabled={atStart}
+					icon={ChevronLeft}
+					label={m.glossary.view.fragmentsBack}
+					onclick={() => scroll(-1)}
+				/>
+			</span>
+			<ul bind:this={strip} onscroll={measure}>
+				{#each fragments as fragment (fragment.pinId)}
+					{@const thumbnail = fragment.thumbnail}
+					<li>
+						<a
+							href="{resolve('/(app)/atelier/[number]', {
+								number: String(fragment.number)
+							})}?pin={encodeURIComponent(fragment.pinId)}"
+							title={fragment.text || undefined}
+						>
+							<span class="lens">
+								{#if fragment.crop && !failed.has(fragment.pinId)}
+									<img alt="" onerror={() => cropFailed(fragment)} src={fragment.crop} />
+								{:else if thumbnail.src}
+									<img
+										style:left="{thumbnail.left}%"
+										style:top="{thumbnail.top}%"
+										style:width="{thumbnail.width}%"
+										style:height="{thumbnail.height}%"
+										class="view"
+										alt=""
+										src={thumbnail.src}
+									/>
+								{/if}
+								<svg class="ring" aria-hidden="true" viewBox="0 0 100 100">
+									<circle cx="50" cy="50" r="49" />
+								</svg>
+							</span>
+							<span class="title">{fragment.title}</span>
+							<span class="number">{formatRecordNumber(fragment.number)}</span>
+						</a>
+					</li>
+				{/each}
+			</ul>
+			<span class="arrow">
+				<IconButton
+					disabled={atEnd}
+					icon={ChevronRight}
+					label={m.glossary.view.fragmentsForward}
+					onclick={() => scroll(1)}
+				/>
+			</span>
+		</div>
+	</Disclosure>
 </section>
 
 <style>
-	.fragments {
-		display: grid;
-		gap: var(--spacing-6);
-		padding-top: var(--spacing-6);
-		border-top: var(--border-width-hairline) solid var(--color-line);
-	}
-
-	h2 {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		font-weight: var(--font-weight-regular);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
-	}
-
 	.strip {
 		--fragment-lens: 128px;
 
