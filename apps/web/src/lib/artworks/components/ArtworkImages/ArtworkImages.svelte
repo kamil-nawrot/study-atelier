@@ -2,8 +2,9 @@
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import PinIcon from '@lucide/svelte/icons/pin';
 	import Plus from '@lucide/svelte/icons/plus';
+	import Star from '@lucide/svelte/icons/star';
 	import { onDestroy, untrack } from 'svelte';
-	import { Alert, ArtworkImage, Icon, TextButton } from '@study-atelier/ui';
+	import { Alert, ArtworkImage, Icon, TextButton, Tooltip } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { findImageCandidates } from '#lib/images/image-search/image-search.ts';
 	import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
@@ -182,38 +183,55 @@
 	}
 </script>
 
+{#snippet slotButton(
+	index: number,
+	preview: ReturnType<typeof artworkImageSource>,
+	describedby?: string
+)}
+	<button
+		class="slot"
+		class:selected={index === selected}
+		aria-describedby={describedby}
+		aria-label={m.artworkForm.imageSlot(index + 1, slots.length)}
+		aria-pressed={index === selected}
+		onclick={() => (selected = index)}
+		type="button"
+	>
+		<span class="thumb" aria-hidden="true">
+			{#if preview}
+				<ArtworkImage
+					alt=""
+					height={preview.height}
+					sizes="{SLOT_WIDTH}px"
+					src={preview.src}
+					srcset={preview.srcset}
+					width={preview.width}
+				/>
+			{:else}
+				<span class="empty">
+					<Icon icon={ImageIcon} size="sm" />
+				</span>
+			{/if}
+		</span>
+		{#if index === 0}
+			<span class="main" aria-hidden="true"><Icon icon={Star} size="sm" /></span>
+		{/if}
+	</button>
+{/snippet}
+
 {#snippet slotRow()}
 	<div class="slots">
 		{#each slots as slot, index (index)}
 			{@const preview = artworkImageSource(slot, SLOT_WIDTH)}
-			<button
-				class="slot"
-				class:selected={index === selected}
-				aria-label={m.artworkForm.imageSlot(index + 1, slots.length)}
-				aria-pressed={index === selected}
-				onclick={() => (selected = index)}
-				type="button"
-			>
-				<span class="thumb" aria-hidden="true">
-					{#if preview}
-						<ArtworkImage
-							alt=""
-							height={preview.height}
-							sizes="{SLOT_WIDTH}px"
-							src={preview.src}
-							srcset={preview.srcset}
-							width={preview.width}
-						/>
-					{:else}
-						<span class="empty">
-							<Icon icon={ImageIcon} size="sm" />
-						</span>
-					{/if}
-				</span>
-				{#if index === 0}
-					<span class="main">{m.artworkForm.mainImage}</span>
-				{/if}
-			</button>
+			{#if index === 0}
+				<Tooltip placement="bottom" text={m.artworkForm.mainImage}>
+					{#snippet children(id)}
+						{@render slotButton(index, preview, id)}
+					{/snippet}
+				</Tooltip>
+			{:else}
+				{@render slotButton(index, preview)}
+			{/if}
 		{/each}
 		{#if !full}
 			<button
@@ -228,7 +246,7 @@
 		{/if}
 		{#if selected > 0 && current() !== null}
 			<TextButton inline onclick={makeMain}>
-				{m.artworkForm.setMainImage}
+				<span class="star"><Icon icon={Star} size="sm" /></span>{m.artworkForm.setMainImage}
 			</TextButton>
 		{/if}
 	</div>
@@ -338,13 +356,24 @@
 		position: absolute;
 		bottom: var(--spacing-1);
 		left: var(--spacing-1);
-		padding: 0 var(--spacing-1);
+		display: grid;
+		place-items: center;
+		width: var(--spacing-6);
+		height: var(--spacing-6);
 		background: var(--color-mat-badge-bg);
 		color: var(--color-mat-badge-fg);
-		font-size: var(--font-size-xs);
-		font-weight: var(--font-weight-medium);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
+	}
+
+	.main :global(svg) {
+		width: var(--spacing-4);
+		height: var(--spacing-4);
+		fill: currentColor;
+	}
+
+	.star {
+		display: inline-block;
+		padding-right: var(--spacing-1);
+		vertical-align: middle;
 	}
 
 	.empty {

@@ -166,7 +166,7 @@ describe('ArtworkImages main image', () => {
 
 		await expect
 			.element(page.getByRole('button', { name: m.artworkForm.imageSlot(1, 2) }))
-			.toHaveTextContent(m.artworkForm.mainImage);
+			.toHaveAccessibleDescription(m.artworkForm.mainImage);
 		await expect
 			.element(page.getByRole('button', { name: m.artworkForm.setMainImage }))
 			.not.toBeInTheDocument();
