@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { axisKind, lineTimes, lineUnit, segments, tickYears } from './axis.ts';
+import { axisKind, labelStride, lineTimes, lineUnit, segments, tickYears } from './axis.ts';
 
 describe('segments', () => {
 	it('splits the view into centuries that start in year 1', () => {
@@ -48,5 +48,15 @@ describe('lineTimes', () => {
 		expect(lineTimes({ center: 1640, span: 309 }, 1000, { start: 1492, end: 1789 })).toEqual([
 			1501, 1601, 1701
 		]);
+	});
+});
+
+describe('labelStride', () => {
+	it('labels every segment while its label fits and every second, fifth or tenth when it does not', () => {
+		expect(labelStride(120, 100)).toBe(1);
+		expect(labelStride(60, 100)).toBe(2);
+		expect(labelStride(30, 100)).toBe(5);
+		expect(labelStride(12, 100)).toBe(10);
+		expect(labelStride(0.5, 100)).toBe(100);
 	});
 });

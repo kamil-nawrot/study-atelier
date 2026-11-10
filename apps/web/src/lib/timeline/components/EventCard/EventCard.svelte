@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
-	import { Button, Icon, MetaLine, TextButton } from '@study-atelier/ui';
+	import { Button, Icon, MetaLine, TextButton, Tooltip } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { formatDate } from '#lib/catalogue/years/years.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -17,43 +17,86 @@
 		onartwork: (artwork: WallArtwork) => void;
 		onwhole: () => void;
 		ondelete: () => void;
+		compact?: boolean;
+		headingId?: string;
+		onleave?: () => void;
 	};
 
-	let { event, artworks, onartwork, onwhole, ondelete }: Props = $props();
+	let {
+		event,
+		artworks,
+		onartwork,
+		onwhole,
+		ondelete,
+		compact = false,
+		headingId,
+		onleave
+	}: Props = $props();
 
 	const SHOWN_ARTWORKS = 10;
 
 	let period = $derived(event.yearFrom !== null);
 	let length = $derived(yearsLong(event));
 	let date = $derived(formatDate(event.yearFrom, event.yearTo, event.yearApproximate));
+	let editPath = $derived(resolve('/(app)/atelier/timeline/events/[id]/edit', { id: event.id }));
 </script>
 
 {#snippet lengthPart()}
 	<span class="muted">{m.timeline.card.length(length)}</span>
 {/snippet}
 
-<section class="card" aria-label={period ? m.timeline.card.period : m.timeline.card.event}>
+{#snippet iconActions()}
+	<Tooltip align="end" placement="bottom" text={m.common.edit}>
+		{#snippet children(id)}
+			<Button aria-describedby={id} aria-label={m.common.edit} href={editPath} onclick={onleave}>
+				<Icon icon={Pencil} size="sm" />
+			</Button>
+		{/snippet}
+	</Tooltip>
+	<Tooltip align="end" placement="bottom" text={m.common.delete}>
+		{#snippet children(id)}
+			<Button
+				aria-describedby={id}
+				aria-label={m.common.delete}
+				onclick={ondelete}
+				variant="danger"
+			>
+				<Icon icon={Trash} size="sm" />
+			</Button>
+		{/snippet}
+	</Tooltip>
+{/snippet}
+
+<section
+	class="card"
+	class:compact
+	aria-label={compact ? undefined : period ? m.timeline.card.period : m.timeline.card.event}
+>
 	<div class="head">
 		<div class="title">
 			<span class="overline">{period ? m.timeline.card.period : m.timeline.card.event}</span>
-			<h2><a href={eventPath(event.id)}>{event.name}</a></h2>
+			<h2 id={headingId}><a href={eventPath(event.id)} onclick={onleave}>{event.name}</a></h2>
 			<p>
 				<MetaLine parts={[date, period && length > 0 && lengthPart]} />
 			</p>
 		</div>
 		<div class="actions">
-			<Button href={resolve('/(app)/atelier/timeline/events/[id]/edit', { id: event.id })}>
-				<Icon icon={Pencil} size="sm" />
-				{m.common.edit}
-			</Button>
-			<Button onclick={ondelete} variant="danger">
-				<Icon icon={Trash} size="sm" />
-				{m.common.delete}
-			</Button>
+			{#if compact}
+				{@render iconActions()}
+			{:else}
+				<Button href={editPath}>
+					<Icon icon={Pencil} size="sm" />
+					{m.common.edit}
+				</Button>
+				<Button onclick={ondelete} variant="danger">
+					<Icon icon={Trash} size="sm" />
+					{m.common.delete}
+				</Button>
+			{/if}
 		</div>
 	</div>
 	{#if event.description}
-		<p>{event.description}</p>
+		<p class="description">{event.description}</p>
 	{/if}
 	{#if event.source}
 		<p class="caption">
@@ -94,6 +137,25 @@
 		gap: var(--spacing-3);
 		padding: var(--spacing-4);
 		background: var(--color-surface);
+	}
+
+	.card.compact {
+		width: 328px;
+		max-width: 100%;
+		padding: 0;
+		background: none;
+	}
+
+	.compact .head {
+		flex-wrap: nowrap;
+	}
+
+	.compact .description {
+		display: -webkit-box;
+		overflow: hidden;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 6;
+		line-clamp: 6;
 	}
 
 	.head {
@@ -144,6 +206,7 @@
 		border: 0;
 		background: none;
 		color: var(--color-fg);
+		text-align: start;
 		cursor: pointer;
 	}
 

@@ -2223,11 +2223,6 @@ export const pl = {
 			`${count} ${plural(count, { one: 'wydarzenie', few: 'wydarzenia', many: 'wydarzeń' })} poza widokiem. Przybliż, żeby je zobaczyć.`,
 		now: (year: string, parts: string[]): string => [year, ...parts].join(' · '),
 		nowEvents: (events: string): string => `w tym czasie: ${events}`,
-		nowArtworks: (titles: string, more: number): string =>
-			`dzieła: ${titles}${more > 0 ? ` (+${more})` : ''}`,
-		readingArtworks: 'W linii czytania:',
-		readingArtworksNone: 'W linii czytania nie ma dzieł.',
-		readingMore: (count: number): string => `(+${count})`,
 		lane: (name: string, count: number): string => `${name} · ${count}`,
 		filters: {
 			lanes: 'Okresy i style',
@@ -2240,7 +2235,6 @@ export const pl = {
 			searchAuthors: 'Szukaj autora',
 			view: 'Widok',
 			events: 'Wydarzenia',
-			readingArtworks: 'Dzieła w linii czytania',
 			empty: 'W tej epoce nie ma dzieł, które pasują do filtrów.'
 		},
 		zones: {
