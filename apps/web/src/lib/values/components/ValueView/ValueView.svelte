@@ -9,7 +9,7 @@
 	} from '#lib/images/artwork-image/artwork-image.ts';
 	import { countryName } from '#lib/catalogue/countries/countries.ts';
 	import { eraIcon, eraYearsText } from '#lib/catalogue/eras/eras.ts';
-	import { placeTypeName } from '#lib/catalogue/place-types/place-types.ts';
+	import { placeTypeIcon, placeTypeName } from '#lib/catalogue/place-types/place-types.ts';
 	import { formatLifeYears } from '#lib/catalogue/years/years.ts';
 	import {
 		subjectName,
@@ -109,7 +109,12 @@
 				<p>{lifeYears}</p>
 			{/if}
 			{#if place.some((part) => part !== null)}
-				<p><MetaLine parts={place} /></p>
+				<p class="place">
+					{#if details.location?.placeType}
+						<Icon icon={placeTypeIcon(details.location.placeType)} size="sm" />
+					{/if}
+					<MetaLine parts={place} />
+				</p>
 			{/if}
 			{#if parents.length > 0}
 				<p class="caption parents">
@@ -199,6 +204,12 @@
 	}
 
 	.kind {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+	}
+
+	.place {
 		display: flex;
 		align-items: center;
 		gap: var(--spacing-2);

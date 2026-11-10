@@ -77,6 +77,12 @@
 		min-width: 0;
 	}
 
+	@media (max-width: 767.98px) {
+		.body {
+			row-gap: var(--spacing-2);
+		}
+	}
+
 	.head {
 		display: flex;
 		align-items: center;
