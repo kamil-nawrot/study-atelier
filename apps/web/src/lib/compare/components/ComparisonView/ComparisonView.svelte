@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Blend from '@lucide/svelte/icons/blend';
 	import Search from '@lucide/svelte/icons/search';
-	import { StageButton } from '@study-atelier/ui';
+	import { StageButton, overlayScrollbar } from '@study-atelier/ui';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { goto } from '$app/navigation';
 	import type { ResolvedPathname } from '$app/types';
@@ -45,6 +45,12 @@
 	);
 
 	$effect(() => {
+		if (both) return;
+		loupe.close();
+		paletteOn = false;
+	});
+
+	$effect(() => {
 		if (!paletteOn) return;
 		void palettes.left.load(left?.image);
 		void palettes.right.load(right?.image);
@@ -60,41 +66,43 @@
 </script>
 
 <div class="view">
-	<div class="corner">
-		{#if mouse.current}
-			<StageButton
-				active={loupe.on}
-				aria-disabled={!loupeReady}
-				aria-pressed={loupeReady ? loupe.on : undefined}
-				data-loupe-toggle
-				icon={Search}
-				label={m.loupe.label}
-				onclick={() => loupe.toggle(loupeReady)}
-				tooltip={loupeReady ? m.compare.loupeBoth : m.loupe.unavailable}
-				unavailable={!loupeReady}
-			/>
-		{/if}
-		{#if paletteOffered}
-			<StageButton
-				active={paletteOn}
-				aria-disabled={paletteUnreadable}
-				aria-pressed={paletteUnreadable ? undefined : paletteOn}
-				icon={Blend}
-				label={m.palette.label}
-				onclick={() => {
-					if (!paletteUnreadable) paletteOn = !paletteOn;
-				}}
-				tooltip={paletteUnreadable
-					? m.palette.unreadable
-					: paletteOn
-						? m.palette.hide
-						: m.palette.label}
-				unavailable={paletteUnreadable}
-			/>
-		{/if}
-	</div>
+	{#if both}
+		<div class="corner">
+			{#if mouse.current}
+				<StageButton
+					active={loupe.on}
+					aria-disabled={!loupeReady}
+					aria-pressed={loupeReady ? loupe.on : undefined}
+					data-loupe-toggle
+					icon={Search}
+					label={m.loupe.label}
+					onclick={() => loupe.toggle(loupeReady)}
+					tooltip={loupeReady ? m.compare.loupeBoth : m.loupe.unavailable}
+					unavailable={!loupeReady}
+				/>
+			{/if}
+			{#if paletteOffered}
+				<StageButton
+					active={paletteOn}
+					aria-disabled={paletteUnreadable}
+					aria-pressed={paletteUnreadable ? undefined : paletteOn}
+					icon={Blend}
+					label={m.palette.label}
+					onclick={() => {
+						if (!paletteUnreadable) paletteOn = !paletteOn;
+					}}
+					tooltip={paletteUnreadable
+						? m.palette.unreadable
+						: paletteOn
+							? m.palette.hide
+							: m.palette.label}
+					unavailable={paletteUnreadable}
+				/>
+			{/if}
+		</div>
+	{/if}
 
-	<div class="half">
+	<div class="half" {@attach overlayScrollbar()}>
 		{#if left}
 			<ComparisonStage
 				artwork={left}
@@ -109,7 +117,7 @@
 			<ComparisonPicker empty="left" other={right} {sides} />
 		{/if}
 	</div>
-	<div class="half">
+	<div class="half" {@attach overlayScrollbar()}>
 		{#if right}
 			<ComparisonStage
 				artwork={right}

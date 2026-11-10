@@ -13,7 +13,8 @@
 		REVIEW_FORMS,
 		SESSION_SIZES,
 		toggledKind,
-		hasArtworkQuiz
+		hasArtworkQuiz,
+		lastArtworkQuiz
 	} from '#lib/profile/preferences/preferences.ts';
 	import { savePreferences } from '#lib/profile/preferences-data/preferences-data.ts';
 	import type { Preferences } from '#lib/profile/types/preferences.ts';
@@ -35,7 +36,7 @@
 	const formState = new FormState<Preferences>(untrack(() => preferences));
 
 	let draft = $state<Preferences>(untrack(() => ({ ...preferences })));
-	let kindsError = $state(false);
+	let kindsError = $derived(part === 'review' && !hasArtworkQuiz(draft.reviewQuizKinds));
 
 	const changes = new UnsavedChanges<Preferences>(
 		() => draft,
@@ -45,18 +46,15 @@
 
 	function cancel(): void {
 		draft = { ...formState.saved };
-		kindsError = false;
 		formState.error = '';
 	}
 
 	function setKind(kind: (typeof QUIZ_KINDS)[number], on: boolean): void {
 		draft.reviewQuizKinds = toggledKind(draft.reviewQuizKinds, kind, on);
-		kindsError = false;
 	}
 
 	function submit(): Promise<void> {
 		return formState.run(async () => {
-			kindsError = part === 'review' && !hasArtworkQuiz(draft.reviewQuizKinds);
 			if (kindsError) return;
 			const result = await savePreferences(part, draft);
 			if (result.error !== undefined) {
@@ -141,6 +139,7 @@
 						{#each QUIZ_KINDS as kind (kind)}
 							<Checkbox
 								aria-describedby={kindsHintId}
+								disabled={lastArtworkQuiz(draft.reviewQuizKinds, kind)}
 								label={m.settings.preferences.kindLabels[kind]}
 								bind:checked={() => draft.reviewQuizKinds.includes(kind), (on) => setKind(kind, on)}
 							/>

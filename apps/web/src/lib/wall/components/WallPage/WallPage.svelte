@@ -70,7 +70,7 @@
 		<Section>
 			<h2>{title}</h2>
 			<p class="lead">{lead}</p>
-			<div>
+			<div class="action">
 				<Button {onclick}>{action}</Button>
 			</div>
 		</Section>
@@ -194,5 +194,9 @@
 
 	.state {
 		max-width: var(--size-content-default);
+	}
+
+	.action {
+		padding-block-start: var(--spacing-4);
 	}
 </style>

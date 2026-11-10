@@ -282,6 +282,7 @@ export const pl = {
 			othersFailedTitle: 'Hasło zostało pomyślnie zmienione',
 			othersFailed:
 				'Nie udało się wylogować Cię na innych urządzeniach. Wyloguj się tam ręcznie albo zmień hasło jeszcze raz.',
+			legalTitle: 'Regulamin i Polityka prywatności',
 			deleteTitle: 'Usuń konto',
 			deleteDescription:
 				'Usunięcie konta usuwa na zawsze całe atelier: dzieła, zdjęcia, notatki, Słowniczek, Kalendarium, Kronikę i historię powtórek.',
@@ -313,7 +314,7 @@ export const pl = {
 				quiz_pin: 'Dopasowywanie detalu do definicji',
 				quiz_typed: 'Wpisywanie tytułu dzieła z pamięci'
 			},
-			kindsHint: 'Zostaw zaznaczony przynajmniej jeden rodzaj.',
+			kindsHint: 'Zostaw zaznaczony przynajmniej jeden rodzaj dopasowywania.',
 			extraTitle: 'Pytania dodatkowe',
 			glossaryOn: 'Pytania ze Słowniczka',
 			glossaryQuestions: 'Liczba pytań w sesji',
@@ -481,7 +482,7 @@ export const pl = {
 			buttonWithCount: (count: number): string => `Filtry (${count})`,
 			viewButton: 'Widok',
 			viewTitle: 'Widok',
-			closePanel: 'Zamknij filtry',
+			closePanel: 'Zwiń filtry',
 			activeLabel: 'Aktywne filtry',
 			clear: 'Wyczyść filtry',
 			removeTag: (label: string): string => `Usuń filtr: ${label}`,
@@ -657,7 +658,7 @@ export const pl = {
 		addImage: 'Dodaj obraz',
 		information: 'Informacje',
 		showInformation: 'Pokaż informacje',
-		hideInformation: 'Zamknij informacje',
+		hideInformation: 'Zwiń informacje',
 		openImage: 'Powiększ obraz',
 		closeImage: 'Zamknij powiększenie',
 		empty: 'Nie wpisano',
@@ -675,7 +676,7 @@ export const pl = {
 		label: 'Porównaj',
 		title: 'Porównanie',
 		unavailable: 'Do porównania potrzebne są co najmniej dwa dzieła.',
-		question: (title: string): string => `Z czym porównać ${title}?`,
+		questionLead: 'Z czym porównać',
 		questionEmpty: 'Które dzieła chcesz porównać?',
 		search: 'Szukaj po tytule, autorze lub numerze',
 		change: 'Zmień dzieło',

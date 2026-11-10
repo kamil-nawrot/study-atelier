@@ -20,6 +20,14 @@ export function hasArtworkQuiz(kinds: readonly QuizMode[]): boolean {
 	return kinds.some((kind) => kind !== 'quiz_typed');
 }
 
+export function lastArtworkQuiz(kinds: readonly QuizMode[], kind: QuizMode): boolean {
+	return (
+		kind !== 'quiz_typed' &&
+		kinds.includes(kind) &&
+		kinds.filter((item) => item !== 'quiz_typed').length === 1
+	);
+}
+
 export const defaultPreferences: Preferences = {
 	reviewSessionSize: 20,
 	reviewNewPerDay: 10,

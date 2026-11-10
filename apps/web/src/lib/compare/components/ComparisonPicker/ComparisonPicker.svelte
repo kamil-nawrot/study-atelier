@@ -45,7 +45,6 @@
 			artwork.image ? artwork.image.height / artwork.image.width : NO_IMAGE_RATIO
 		)
 	);
-	let question = $derived(other ? m.compare.question(other.title) : m.compare.questionEmpty);
 
 	onMount(async () => {
 		const result = await loadAtelier();
@@ -85,7 +84,11 @@
 </script>
 
 <section class="picker" data-sveltekit-replacestate>
-	<h2>{question}</h2>
+	{#if other}
+		<h2>{m.compare.questionLead} <cite class="artwork-title">{other.title}</cite>?</h2>
+	{:else}
+		<h2>{m.compare.questionEmpty}</h2>
+	{/if}
 	<SearchField label={m.compare.search} placeholder={m.compare.search} bind:value={query} />
 	{#if error}
 		<Alert title={m.atelier.loadErrorTitle} tone="danger">
@@ -136,7 +139,6 @@
 		gap: var(--spacing-4);
 		min-width: 0;
 		padding: var(--spacing-6) var(--spacing-4);
-		border: var(--border-width-hairline) dashed var(--color-line);
 		background: var(--color-bg);
 		color: var(--color-fg);
 	}

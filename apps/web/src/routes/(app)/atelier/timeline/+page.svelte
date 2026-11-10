@@ -109,7 +109,6 @@
 			<FilterSidePanel
 				{filtering}
 				onclear={() => (filter = emptyTimelineFilter())}
-				summary={m.atelier.filteredCount(matching, eraArtworks.length)}
 				bind:open={panelOpen}
 			>
 				<TimelineFilterPanel artworks={eraArtworks} {era} bind:filter bind:showEvents />

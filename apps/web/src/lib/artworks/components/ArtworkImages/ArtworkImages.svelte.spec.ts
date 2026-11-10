@@ -132,3 +132,53 @@ describe('ArtworkImages automatic match', () => {
 		expect(search).not.toHaveBeenCalled();
 	});
 });
+
+describe('ArtworkImages hints', () => {
+	it('lists the hints together under the image actions', async () => {
+		render(ArtworkImages, {
+			alt: 'Artwork',
+			searchReady: false,
+			query: { kind: 'artwork', title: '', authors: [] },
+			texts,
+			image: null,
+			images: []
+		});
+
+		await expect
+			.element(page.getByRole('listitem').filter({ hasText: m.artworkForm.findImageHint }))
+			.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('listitem').filter({ hasText: m.artworkForm.pasteHintForm }))
+			.toBeInTheDocument();
+	});
+});
+
+describe('ArtworkImages main image', () => {
+	it('marks the first slot as the main one and offers to make another image main', async () => {
+		render(ArtworkImages, {
+			alt: 'Artwork',
+			searchReady: true,
+			query: { kind: 'artwork', title: 'The Night Watch', authors: ['Rembrandt'] },
+			texts,
+			image: { kind: 'url', url: 'https://example.com/front.jpg', width: 4, height: 3 },
+			images: [{ kind: 'url', url: 'https://example.com/back.jpg', width: 3, height: 4 }]
+		});
+
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.imageSlot(1, 2) }))
+			.toHaveTextContent(m.artworkForm.mainImage);
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.setMainImage }))
+			.not.toBeInTheDocument();
+
+		await page.getByRole('button', { name: m.artworkForm.imageSlot(2, 2) }).click();
+		await page.getByRole('button', { name: m.artworkForm.setMainImage }).click();
+
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.imageSlot(1, 2) }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.setMainImage }))
+			.not.toBeInTheDocument();
+	});
+});

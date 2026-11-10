@@ -24,6 +24,7 @@ export { default as Meter } from './components/Meter/Meter.svelte';
 export { default as MetaLine } from './components/MetaLine/MetaLine.svelte';
 export { default as NoImage } from './components/NoImage/NoImage.svelte';
 export { default as PageHeader } from './components/PageHeader/PageHeader.svelte';
+export { default as PanelHeader } from './components/PanelHeader/PanelHeader.svelte';
 export { default as Notes } from './components/Notes/Notes.svelte';
 export { default as PageScrollbar } from './components/PageScrollbar/PageScrollbar.svelte';
 export { default as NotesEditor } from './components/NotesEditor/NotesEditor.svelte';

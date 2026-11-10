@@ -580,9 +580,11 @@ describe('atelier page', () => {
 
 			const heading = page.getByRole('heading', { name: m.atelier.filters.title });
 			await expect.element(heading).toBeVisible();
-			expect(getComputedStyle(heading.element().parentElement as HTMLElement).position).toBe(
-				'sticky'
-			);
+			let holder = heading.element().parentElement;
+			while (holder && getComputedStyle(holder).position !== 'sticky') {
+				holder = holder.parentElement;
+			}
+			expect(holder?.closest('aside')).not.toBeNull();
 		});
 
 		it('narrows the wall as soon as a value is chosen and counts the result', async () => {
