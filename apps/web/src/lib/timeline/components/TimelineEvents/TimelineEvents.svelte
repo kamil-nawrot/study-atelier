@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Attachment } from 'svelte/attachments';
 	import { Tooltip } from '@study-atelier/ui';
 	import { formatDate } from '#lib/catalogue/years/years.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -22,6 +23,7 @@
 		nameCut?: (event: TimelineEvent) => boolean;
 		onselect: (event: TimelineEvent) => void;
 		layoutSpan?: number;
+		anchor?: HTMLElement;
 	};
 
 	let {
@@ -33,7 +35,8 @@
 		labelWidth,
 		nameCut = () => false,
 		onselect,
-		layoutSpan
+		layoutSpan,
+		anchor = $bindable()
 	}: Props = $props();
 
 	const VISIBLE_MARGIN = 400;
@@ -58,6 +61,16 @@
 		near.filter((shown) => shown.item.lane >= lanes && shown.to > 0 && shown.from < geometry.length)
 			.length
 	);
+
+	function anchorOf(id: string): Attachment<HTMLElement> | undefined {
+		if (id !== selected) return undefined;
+		return (node) => {
+			anchor = node;
+			return () => {
+				if (anchor === node) anchor = undefined;
+			};
+		};
+	}
 
 	function label(item: LaidEvent): string {
 		return cutLabel(item.event.name, item.cutBefore, item.cutAfter);
@@ -114,6 +127,7 @@
 			class="pin"
 			class:selected={shown.item.event.id === selected}
 			class:vertical
+			{@attach anchorOf(shown.item.event.id)}
 			aria-label={title(shown.item)}
 			aria-pressed={shown.item.event.id === selected}
 			onclick={() => onselect(shown.item.event)}
@@ -135,6 +149,7 @@
 			class:outside={!shown.item.inside}
 			class:selected={shown.item.event.id === selected}
 			class:vertical
+			{@attach anchorOf(shown.item.event.id)}
 			aria-label={title(shown.item)}
 			aria-pressed={shown.item.event.id === selected}
 			onclick={() => onselect(shown.item.event)}

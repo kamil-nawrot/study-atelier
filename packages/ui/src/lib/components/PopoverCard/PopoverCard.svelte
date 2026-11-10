@@ -7,16 +7,17 @@
 		popover: PopoverState;
 		interactive?: boolean;
 		labelledby?: string;
+		boundary?: HTMLElement;
 		children: Snippet;
 	};
 
-	let { id, popover, interactive = false, labelledby, children }: Props = $props();
+	let { id, popover, interactive = false, labelledby, boundary, children }: Props = $props();
 
 	let card: HTMLDivElement | undefined = $state();
 	let top = $state(0);
 	let left = $state(0);
 
-	async function place(): Promise<void> {
+	export async function place(): Promise<void> {
 		await tick();
 		const anchor = popover.anchor;
 		if (!anchor || !card) return;
@@ -24,13 +25,17 @@
 		const box = card.getBoundingClientRect();
 		const margin = parseFloat(getComputedStyle(card).getPropertyValue('--popover-margin')) || 0;
 		const { clientWidth: width, clientHeight: height } = document.documentElement;
+		const bounds = boundary?.getBoundingClientRect();
+		const from = Math.max(margin, bounds ? bounds.left + margin : 0);
+		const to = Math.min(width - margin, bounds ? bounds.right - margin : width);
+		const start = Math.max(anchorBox.left, from);
 		const below = anchorBox.bottom + margin;
 		const fitsBelow = below + box.height <= height - margin;
-		const fitsRight = anchorBox.left + box.width <= width - margin;
+		const fitsRight = start + box.width <= to;
 		top = fitsBelow ? below : Math.max(margin, anchorBox.top - margin - box.height);
-		left = Math.min(
-			Math.max(margin, fitsRight ? anchorBox.left : anchorBox.right - box.width),
-			width - margin - box.width
+		left = Math.max(
+			from,
+			Math.min(fitsRight ? start : Math.min(anchorBox.right, to) - box.width, to - box.width)
 		);
 	}
 

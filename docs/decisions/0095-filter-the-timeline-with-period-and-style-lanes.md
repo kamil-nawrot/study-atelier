@@ -1,6 +1,6 @@
 # 0095. Filter the timeline in a side panel, with lanes for periods and styles
 
-- Status: accepted
+- Status: accepted; the switch "Dzieła w linii czytania" is superseded by [0241](0241-show-a-timeline-event-in-a-popover-and-drop-the-artworks-at-the-reading-line.md)
 - Date: 2026-10-20
 
 ## Context and problem statement
