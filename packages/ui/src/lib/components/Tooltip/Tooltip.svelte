@@ -45,7 +45,7 @@
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
 		white-space: normal;
-		visibility: hidden;
+		display: none;
 		pointer-events: none;
 	}
 
@@ -69,11 +69,11 @@
 
 	.tooltip:hover .bubble,
 	.tooltip:has(:global(:focus-visible)) .bubble {
-		visibility: visible;
+		display: block;
 	}
 
 	.tooltip:has(:global([aria-expanded='true'])) .bubble {
-		visibility: hidden;
+		display: none;
 	}
 
 	@media (prefers-reduced-motion: no-preference) {
