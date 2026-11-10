@@ -46,6 +46,7 @@
 	import { validateEraBounds } from '#lib/values/era-bounds-form/era-bounds-form.ts';
 	import { eraJunctions } from '#lib/catalogue/era-bounds/era-bounds.svelte.ts';
 	import type { EraBoundsErrors } from '#lib/values/types/era-bounds-errors.ts';
+	import AuthorSortField from '#lib/values/components/AuthorSortField/AuthorSortField.svelte';
 	import AuthorLifeFields from '#lib/values/components/AuthorLifeFields/AuthorLifeFields.svelte';
 	import PeriodErasField from '#lib/values/components/PeriodErasField/PeriodErasField.svelte';
 	import StylePeriodsField from '#lib/values/components/StylePeriodsField/StylePeriodsField.svelte';
@@ -214,20 +215,25 @@
 			{/if}
 			<div class="fields">
 				{#if record && kind}
-					<TextField
-						autocomplete="off"
-						error={errors.current.name}
-						hint={mergeTarget
-							? m.valueForm.mergeHint(
-									kind.accusative,
-									mergeTarget.name,
-									m.atelier.count(mergeTarget.count)
-								)
-							: undefined}
-						label={m.common.name}
-						maxlength={VALUE_NAME_MAX_LENGTH}
-						bind:value={form.name}
-					/>
+					<div class="name">
+						<TextField
+							autocomplete="off"
+							error={errors.current.name}
+							hint={mergeTarget
+								? m.valueForm.mergeHint(
+										kind.accusative,
+										mergeTarget.name,
+										m.atelier.count(mergeTarget.count)
+									)
+								: undefined}
+							label={m.common.name}
+							maxlength={VALUE_NAME_MAX_LENGTH}
+							bind:value={form.name}
+						/>
+						{#if form.author}
+							<AuthorSortField bind:author={form.author} />
+						{/if}
+					</div>
 				{/if}
 
 				{#if form.location}
@@ -363,6 +369,11 @@
 		align-content: start;
 		gap: var(--spacing-6);
 		min-width: 0;
+	}
+
+	.name {
+		display: grid;
+		gap: var(--spacing-2);
 	}
 
 	@media (min-width: 768px) {
