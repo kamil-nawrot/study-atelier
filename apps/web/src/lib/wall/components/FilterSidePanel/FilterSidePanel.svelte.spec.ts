@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { m } from '#lib/i18n/i18n.ts';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { createRawSnippet } from 'svelte';
@@ -21,6 +22,24 @@ describe('FilterSidePanel', () => {
 
 		await expect.element(page.getByText('Tools')).not.toBeInTheDocument();
 		expect(document.querySelector('.slot')?.getBoundingClientRect().width).toBe(0);
+	});
+
+	it('clears the filters with a text button that waits for a filter', async () => {
+		const onclear = vi.fn();
+		const { rerender } = await render(FilterSidePanel, {
+			open: true,
+			title: 'Filters',
+			filtering: false,
+			onclear,
+			children
+		});
+
+		const clear = page.getByRole('button', { name: m.atelier.filters.clear });
+		await expect.element(clear).toBeDisabled();
+		await rerender({ filtering: true });
+		await clear.click();
+
+		expect(onclear).toHaveBeenCalledTimes(1);
 	});
 
 	it('leaves an upright strip when it is docked and opens again from it', async () => {

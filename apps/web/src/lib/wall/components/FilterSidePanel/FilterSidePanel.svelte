@@ -2,12 +2,11 @@
 	import type { Snippet } from 'svelte';
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import { MediaQuery } from 'svelte/reactivity';
-	import { Button, Icon, PanelHeader, overlayScrollbar } from '@study-atelier/ui';
+	import { Icon, PanelHeader, TextButton, overlayScrollbar } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 
 	type Props = {
 		open: boolean;
-		summary?: string;
 		filtering?: boolean;
 		onclear?: () => void;
 		title?: string;
@@ -19,7 +18,6 @@
 
 	let {
 		open = $bindable(),
-		summary,
 		filtering = false,
 		onclear,
 		title = m.atelier.filters.title,
@@ -56,11 +54,10 @@
 			</div>
 			{@render children()}
 			{#if onclear}
-				<div class="bottom">
-					<span class="caption">{summary}</span>
-					<Button disabled={!filtering} onclick={onclear}>
+				<div>
+					<TextButton disabled={!filtering} inline onclick={onclear}>
 						{m.atelier.filters.clear}
-					</Button>
+					</TextButton>
 				</div>
 			{/if}
 		</aside>
@@ -144,6 +141,7 @@
 		padding: 0 var(--spacing-6) var(--spacing-12);
 		overflow-y: auto;
 		border-left: var(--border-width-base) solid var(--color-line);
+		scroll-padding-block-start: calc(var(--size-control) + 2 * var(--spacing-4));
 	}
 
 	@media (prefers-reduced-motion: no-preference) {
@@ -160,12 +158,5 @@
 		z-index: 1;
 		padding-block: var(--spacing-4);
 		background: var(--color-bg);
-	}
-
-	.bottom {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--spacing-3);
 	}
 </style>

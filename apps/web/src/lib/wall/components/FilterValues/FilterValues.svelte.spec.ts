@@ -63,6 +63,50 @@ describe('FilterValues', () => {
 		await expect.element(page.getByRole('button', { name: /^Author L/ })).not.toBeInTheDocument();
 	});
 
+	it('scrolls its heading back into view when a long list folds', async () => {
+		const host = document.createElement('div');
+		host.style.height = '200px';
+		host.style.overflowY = 'auto';
+		document.body.appendChild(host);
+		const many = Array.from({ length: 80 }, (_, index) => ({
+			value: `Author ${index}`,
+			count: 1
+		}));
+		render(FilterValues, { target: host, props: props({ limit: 8, options: many }) });
+		const after = document.createElement('div');
+		after.style.height = '2000px';
+		host.append(after);
+
+		await page.getByRole('button', { name: m.atelier.filters.showMore }).click();
+		await expect.element(page.getByRole('button', { name: /^Author 79/ })).toBeVisible();
+		host.scrollTop = host.scrollHeight;
+
+		await page.getByRole('button', { name: m.atelier.filters.showLess }).click();
+
+		await expect.element(page.getByRole('button', { name: /^Author 79/ })).not.toBeInTheDocument();
+		await expect.element(page.getByRole('heading', { name: 'Authors' })).toBeInViewport();
+		host.remove();
+	});
+
+	it('cuts a long value to one line and keeps its whole name in a title', async () => {
+		const host = document.createElement('div');
+		host.style.width = '200px';
+		document.body.appendChild(host);
+		const long = 'A very long name of a style that does not fit on one line of the panel';
+		render(FilterValues, {
+			target: host,
+			props: props({ options: [{ value: long, count: 3 }] })
+		});
+
+		const button = page.getByRole('button', { name: `${long} 3` });
+		await expect.element(button).toBeVisible();
+		expect(button.element().getBoundingClientRect().width).toBeLessThanOrEqual(200);
+		const name = page.getByTitle(long).element();
+		expect(name.scrollWidth).toBeGreaterThan(name.clientWidth);
+		expect(button.element().getBoundingClientRect().height).toBeLessThan(40);
+		host.remove();
+	});
+
 	it('keeps a chosen value visible although it is beyond the limit', async () => {
 		render(FilterValues, props({ limit: 8, chosen: ['Author L'] }));
 
