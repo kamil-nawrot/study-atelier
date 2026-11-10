@@ -111,7 +111,7 @@ describe('glossary page', () => {
 		renderGlossary();
 
 		await expect
-			.element(page.getByRole('heading', { level: 1 }))
+			.element(page.getByRole('banner').getByRole('heading', { level: 1 }))
 			.toHaveTextContent(m.glossary.title);
 		await expect.element(page.getByText(m.glossary.lead)).toBeVisible();
 		await expect

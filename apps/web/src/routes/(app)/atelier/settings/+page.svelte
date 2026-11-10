@@ -72,14 +72,15 @@
 	confirmLeave={() =>
 		(tab === 'profile' ? profileTab : preferencesTab)?.confirmLeave() ?? Promise.resolve(true)}
 	{email}
+	heading
 	title={m.settings.title}
 >
-	{#snippet bar()}
-		<BackLink fallbackHref={atelierPath} fallbackName={m.settings.back} />
+	{#snippet back()}
+		<BackLink arrowOnly fallbackHref={atelierPath} fallbackName={m.settings.back} />
 	{/snippet}
 
 	<div class="page">
-		<PageHeader lead={m.settings.lead} title={m.settings.title} />
+		<PageHeader lead={m.settings.lead} />
 
 		{#if data.error}
 			<Alert title={m.settings.loadErrorTitle} tone="danger">

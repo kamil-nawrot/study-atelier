@@ -52,7 +52,7 @@
 	}
 </script>
 
-<AtelierLayout email={data.session.user.email ?? ''} title={m.exhibitions.title}>
+<AtelierLayout email={data.session.user.email ?? ''} heading title={m.exhibitions.title}>
 	{#snippet bar()}
 		{#if !data.error && wide.current}
 			<div class="actions">
@@ -64,7 +64,7 @@
 		{/if}
 	{/snippet}
 
-	<PageHeader lead={m.exhibitions.lead} title={m.exhibitions.title}>
+	<PageHeader lead={m.exhibitions.lead}>
 		{#snippet aside()}
 			{#if !data.error && data.exhibitions.length > 0}
 				<span class="caption">{m.exhibitions.count(data.exhibitions.length)}</span>

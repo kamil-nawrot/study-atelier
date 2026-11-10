@@ -1,7 +1,6 @@
 <script lang="ts">
-	import Plus from '@lucide/svelte/icons/plus';
 	import { onMount, tick } from 'svelte';
-	import { Alert, Button, Icon, PageHeader, Toast } from '@study-atelier/ui';
+	import { AddButton, Alert, PageHeader, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -40,20 +39,16 @@
 	});
 </script>
 
-<AtelierLayout email={data.session.user.email ?? ''} title={m.glossary.title}>
+<AtelierLayout email={data.session.user.email ?? ''} heading title={m.glossary.title}>
 	{#snippet bar()}
 		{#if !data.error}
 			<div class="actions">
-				<Button href={resolve('/(app)/atelier/glossary/new')} variant="primary">
-					<Icon icon={Plus} size="sm" />
-					<span class="long">{m.glossary.add}</span>
-					<span class="short">{m.common.add}</span>
-				</Button>
+				<AddButton href={resolve('/(app)/atelier/glossary/new')} label={m.glossary.add} />
 			</div>
 		{/if}
 	{/snippet}
 
-	<PageHeader lead={m.glossary.lead} title={m.glossary.title}>
+	<PageHeader lead={m.glossary.lead}>
 		{#snippet aside()}
 			{#if !data.error && data.entries.length > 0}
 				<span class="caption">{m.glossary.count(data.entries.length)}</span>
@@ -77,23 +72,5 @@
 		display: flex;
 		gap: inherit;
 		margin-inline-start: auto;
-	}
-
-	.short {
-		display: inline;
-	}
-
-	.long {
-		display: none;
-	}
-
-	@media (min-width: 768px) {
-		.short {
-			display: none;
-		}
-
-		.long {
-			display: inline;
-		}
 	}
 </style>

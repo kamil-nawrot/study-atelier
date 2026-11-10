@@ -21,4 +21,12 @@ describe('BackLink', () => {
 		await expect.element(page.getByRole('link', { name: 'Atelier' })).toBeVisible();
 		await expect.element(page.getByText('Atelier')).toHaveClass('visually-hidden');
 	});
+
+	it('shows only the arrow on a larger screen too when asked to, before the name of the view', async () => {
+		await page.viewport(1280, 800);
+		render(BackLink, { fallbackName: 'Atelier', fallbackHref: '/atelier', arrowOnly: true });
+
+		await expect.element(page.getByRole('link', { name: 'Atelier' })).toBeVisible();
+		await expect.element(page.getByText('Atelier')).toHaveClass('visually-hidden');
+	});
 });

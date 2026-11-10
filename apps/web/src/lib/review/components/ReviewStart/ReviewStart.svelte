@@ -87,7 +87,7 @@
 </script>
 
 <div class="start">
-	<PageHeader lead={m.review.lead} title={m.review.title} />
+	<PageHeader lead={m.review.lead} />
 	<div class="main">
 		{#if missing === 0}
 			<div class="round">

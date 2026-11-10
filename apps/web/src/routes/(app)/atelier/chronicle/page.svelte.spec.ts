@@ -48,7 +48,7 @@ describe('chronicle page', () => {
 		]);
 
 		await expect
-			.element(page.getByRole('heading', { level: 1 }))
+			.element(page.getByRole('banner').getByRole('heading', { level: 1 }))
 			.toHaveTextContent(m.chronicle.title);
 		await expect.element(page.getByText(m.chronicle.count(2, 1))).toBeInTheDocument();
 		await expect
