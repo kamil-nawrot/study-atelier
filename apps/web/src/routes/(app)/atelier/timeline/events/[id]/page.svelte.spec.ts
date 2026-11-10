@@ -94,5 +94,20 @@ describe('timeline event page', () => {
 		});
 
 		await expect.element(page.getByText(m.timeline.errors.notFound)).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent(m.timeline.form.notFoundTitle);
+	});
+
+	it('names the page after a failed load', async () => {
+		render(EventPage, {
+			data: { session: testSession(), error: m.common.network, artworks: [] },
+			params: { id: 'e' }
+		});
+
+		await expect.element(page.getByText(m.common.network)).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent(m.timeline.form.loadErrorTitle);
 	});
 });

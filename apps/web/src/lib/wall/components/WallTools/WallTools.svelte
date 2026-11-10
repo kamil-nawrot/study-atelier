@@ -71,10 +71,10 @@
 			</Button>
 		{/snippet}
 	</Tooltip>
-	<Button href={addPath} variant="primary">
+	<Button aria-label={m.atelier.add} href={addPath} variant="primary">
 		<Icon icon={Plus} size="sm" />
-		<span class="long">{m.atelier.add}</span>
-		<span class="short">{m.common.add}</span>
+		<span class="long" aria-hidden="true">{m.atelier.add}</span>
+		<span class="short" aria-hidden="true">{m.common.add}</span>
 	</Button>
 </div>
 

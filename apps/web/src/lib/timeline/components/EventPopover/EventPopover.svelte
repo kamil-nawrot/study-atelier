@@ -24,31 +24,54 @@
 	const id = $props.id();
 	const popover = new PopoverState();
 	let card = $state<PopoverCard>();
+	let outside = $state(false);
+	let dismissed = $state<string>();
 	let wasOpen = false;
 
 	$effect(() => {
 		const target = anchor;
-		if (event && target) {
-			if (untrack(() => !popover.open || popover.anchor !== target)) popover.toggle(target);
-		} else if (untrack(() => popover.open)) {
-			popover.hide();
+		const current = event?.id;
+		if (current === undefined) {
+			untrack(() => {
+				dismissed = undefined;
+				if (popover.open) popover.hide();
+			});
+			return;
 		}
+		untrack(() => {
+			if (dismissed !== undefined && dismissed !== current) dismissed = undefined;
+			if (dismissed === current || !target) return;
+			if (!popover.open || popover.anchor !== target) popover.toggle(target);
+		});
 	});
 
 	$effect(() => {
 		const open = popover.open;
-		if (!open && wasOpen && untrack(() => event)) onclose();
+		if (!open && wasOpen && untrack(() => event && event.id !== dismissed)) onclose();
 		wasOpen = open;
 	});
 
 	$effect(() => {
-		if (view && Number.isFinite(view.center + view.span) && untrack(() => popover.open)) {
-			void card?.place();
-		}
+		const moved = view ? view.center + view.span : 0;
+		if (!Number.isFinite(moved)) return;
+		outside = anchor && boundary ? !within(anchor, boundary) : false;
+		if (untrack(() => popover.open)) void card?.place();
 	});
 
-	function act(action: () => void): void {
+	function within(target: HTMLElement, area: HTMLElement): boolean {
+		const box = target.getBoundingClientRect();
+		const bounds = area.getBoundingClientRect();
+		return (
+			box.right > bounds.left &&
+			box.left < bounds.right &&
+			box.bottom > bounds.top &&
+			box.top < bounds.bottom
+		);
+	}
+
+	function act(action: () => void, keep = false): void {
 		const target = popover.anchor;
+		if (keep) dismissed = event?.id;
 		popover.hide();
 		target?.focus();
 		action();
@@ -59,6 +82,7 @@
 	bind:this={card}
 	id="{id}-card"
 	{boundary}
+	concealed={!anchor || outside}
 	interactive
 	labelledby="{id}-name"
 	{popover}
@@ -73,7 +97,7 @@
 			onartwork={(artwork) => act(() => onartwork(artwork))}
 			ondelete={() => act(() => ondelete(shown))}
 			onleave={() => act(() => {})}
-			onwhole={() => act(() => onwhole(shown))}
+			onwhole={() => act(() => onwhole(shown), true)}
 		/>
 	{/if}
 </PopoverCard>

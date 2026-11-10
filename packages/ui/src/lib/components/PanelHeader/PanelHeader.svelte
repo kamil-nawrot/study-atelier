@@ -16,17 +16,9 @@
 <div class="panel-header">
 	<svelte:element this={as} class="title">{title}</svelte:element>
 	<Tooltip align="end" placement="bottom" text={foldLabel}>
-		{#snippet children(describedby)}
-			<button
-				class="fold"
-				aria-describedby={describedby}
-				aria-label={foldLabel}
-				onclick={onfold}
-				type="button"
-			>
-				<Icon icon={PanelRightClose} />
-			</button>
-		{/snippet}
+		<button class="fold" aria-label={foldLabel} onclick={onfold} type="button">
+			<Icon icon={PanelRightClose} />
+		</button>
 	</Tooltip>
 </div>
 

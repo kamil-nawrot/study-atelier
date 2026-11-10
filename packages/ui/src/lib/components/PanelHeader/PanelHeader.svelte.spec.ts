@@ -23,6 +23,9 @@ describe('PanelHeader', () => {
 
 		await userEvent.hover(page.getByRole('button', { name: 'Fold filters' }));
 		await expect.element(page.getByRole('tooltip')).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: 'Fold filters' }))
+			.not.toHaveAccessibleDescription();
 
 		await page.getByRole('button', { name: 'Fold filters' }).click();
 

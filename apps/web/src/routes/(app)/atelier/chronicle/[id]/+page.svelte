@@ -91,7 +91,7 @@
 		<LoadFailure
 			backHref={chroniclePath}
 			backLabel={m.chronicle.back}
-			errorTitle={m.chronicle.view.loadErrorTitle}
+			heading={title}
 			message={data.notFound ? m.chronicle.errors.notFound : (data.error ?? '')}
 			notFound={data.notFound === true}
 		/>

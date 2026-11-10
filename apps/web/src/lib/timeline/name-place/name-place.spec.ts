@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { namePlace, PIN_NAME_GAP } from './name-place.ts';
+import { drawnRibbon, namePlace, PIN_NAME_GAP } from './name-place.ts';
 
 const bounds = { start: 0, end: 1000 };
 
@@ -46,5 +46,26 @@ describe('namePlace', () => {
 				{ start: 250, end: 1000 }
 			)
 		).toEqual({ before: false, shift: 150 });
+	});
+
+	it('keeps a name inside the drawn part of a ribbon that sticks out past the edge', () => {
+		const drawn = drawnRibbon(-300, 200, 1000);
+		expect(drawn).toEqual({ start: -4, end: 200 });
+		const place = namePlace(
+			{ from: drawn.start, to: drawn.end, pin: false, inside: true, name: 120 },
+			bounds
+		);
+		expect(place).toEqual({ before: false, shift: 4 });
+		expect(drawn.start + place.shift + 120).toBeLessThanOrEqual(drawn.end);
+	});
+
+	it('draws a ribbon that runs past the end only a little beyond it', () => {
+		expect(drawnRibbon(900, 1600, 1000)).toEqual({ start: 900, end: 1004 });
+		expect(drawnRibbon(100, 400, 1000)).toEqual({ start: 100, end: 400 });
+	});
+
+	it('keeps a ribbon that lies wholly past an edge out of the stage', () => {
+		expect(drawnRibbon(-380, -150, 1000)).toEqual({ start: -150, end: -150 });
+		expect(drawnRibbon(1200, 1500, 1000)).toEqual({ start: 1200, end: 1200 });
 	});
 });

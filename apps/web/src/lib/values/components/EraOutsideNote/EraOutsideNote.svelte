@@ -21,11 +21,9 @@
 
 {#if count > 0}
 	<Tooltip placement="bottom" {text}>
-		{#snippet children(describedby)}
-			<a class="warning" aria-describedby={describedby} aria-label={text} {href}>
-				<Icon icon={CircleAlert} size="sm" />
-			</a>
-		{/snippet}
+		<a class="warning" aria-label={text} {href}>
+			<Icon icon={CircleAlert} size="sm" />
+		</a>
 	</Tooltip>
 {/if}
 

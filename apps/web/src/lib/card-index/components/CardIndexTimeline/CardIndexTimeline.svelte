@@ -37,7 +37,13 @@
 		timeline.periodsWithoutEra.length > 0 || timeline.stylesWithoutPeriod.length > 0
 	);
 
-	const folding = new TimelineFolding(() => ({ query, matched }));
+	let periods = $derived(
+		[...full.eras.flatMap((era) => era.periods), ...full.periodsWithoutEra].map(
+			(period) => period.id
+		)
+	);
+
+	const folding = new TimelineFolding(() => ({ query, matched, periods }));
 
 	function filled(shown: CardIndexTimeline): boolean {
 		return (

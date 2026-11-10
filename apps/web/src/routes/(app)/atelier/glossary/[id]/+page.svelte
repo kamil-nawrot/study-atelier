@@ -135,7 +135,7 @@
 		<LoadFailure
 			backHref={glossaryPath}
 			backLabel={m.glossary.back}
-			errorTitle={m.glossary.view.loadErrorTitle}
+			heading={title}
 			message={data.notFound ? m.glossary.view.notFound : (data.error ?? '')}
 			notFound={data.notFound === true}
 		/>

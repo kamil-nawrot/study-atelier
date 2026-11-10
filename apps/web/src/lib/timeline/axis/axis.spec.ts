@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { axisKind, labelStride, lineTimes, lineUnit, segments, tickYears } from './axis.ts';
+import {
+	axisKind,
+	labelGroups,
+	labelStride,
+	lineTimes,
+	lineUnit,
+	segments,
+	tickYears
+} from './axis.ts';
 
 describe('segments', () => {
 	it('splits the view into centuries that start in year 1', () => {
@@ -58,5 +66,67 @@ describe('labelStride', () => {
 		expect(labelStride(30, 100)).toBe(5);
 		expect(labelStride(12, 100)).toBe(10);
 		expect(labelStride(0.5, 100)).toBe(100);
+	});
+});
+
+describe('labelGroups', () => {
+	const open = { start: -50000, end: 2100 };
+
+	function numbers(groups: ReturnType<typeof labelGroups>): [number, boolean][] {
+		return groups.map((group) => [group.number, group.beforeCommonEra]);
+	}
+
+	it('labels every segment of the view and the era at a stride of 1', () => {
+		expect(numbers(labelGroups({ center: 1600, span: 200 }, open, 100, 1))).toEqual([
+			[15, false],
+			[16, false],
+			[17, false]
+		]);
+	});
+
+	it('keeps the label of a group whose first segment is out of view or out of the era', () => {
+		const groups = labelGroups({ center: 1650, span: 300 }, { start: 1492, end: 1789 }, 100, 2);
+		expect(numbers(groups)).toEqual([
+			[15, false],
+			[17, false]
+		]);
+		expect(groups[0]).toMatchObject({ start: 1401, end: 1601 });
+	});
+
+	it('drops a group that ends before the era or the view begins', () => {
+		expect(
+			numbers(labelGroups({ center: 1650, span: 300 }, { start: 1601, end: 1789 }, 100, 2))
+		).toEqual([[17, false]]);
+	});
+
+	it('groups segments from the year 0 on both sides, so the 1st century and millennium get a label', () => {
+		expect(numbers(labelGroups({ center: 0, span: 1000 }, open, 100, 2))).toEqual([
+			[6, true],
+			[4, true],
+			[2, true],
+			[1, false],
+			[3, false],
+			[5, false]
+		]);
+		const millennia = labelGroups({ center: 0, span: 6000 }, open, 1000, 2);
+		expect(millennia.find((group) => !group.beforeCommonEra)).toMatchObject({
+			number: 1,
+			start: 1,
+			end: 2001
+		});
+		expect(millennia.find((group) => group.number === 2)).toMatchObject({
+			beforeCommonEra: true,
+			start: -1999,
+			end: 1
+		});
+	});
+
+	it('labels the 1st millennium in a group of five', () => {
+		const groups = labelGroups({ center: -500, span: 9000 }, open, 1000, 5);
+		expect(numbers(groups)).toEqual([
+			[10, true],
+			[5, true],
+			[1, false]
+		]);
 	});
 });

@@ -218,6 +218,9 @@ describe('value page', () => {
 		renderValue(undefined, emptyValueDetails(), { error: m.valuePage.notFound, notFound: true });
 
 		await expect.element(page.getByText(m.valuePage.notFound)).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent(m.valuePage.notFoundTitle);
 		expect(page.getByRole('link', { name: m.common.edit }).elements()).toHaveLength(0);
 	});
 
@@ -225,6 +228,9 @@ describe('value page', () => {
 		renderValue(undefined, emptyValueDetails(), { error: m.collectionErrors.network });
 
 		await expect.element(page.getByText(m.collectionErrors.network)).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent(m.valuePage.loadErrorTitle);
 	});
 
 	it('shows the portrait of an author and the years of life under the name', async () => {

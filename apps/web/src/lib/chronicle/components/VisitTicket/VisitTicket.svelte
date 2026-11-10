@@ -123,7 +123,14 @@
 		line-height: var(--line-height-lg);
 	}
 
-	.month,
+	.month {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-xs);
+		line-height: var(--line-height-xs);
+		letter-spacing: var(--letter-spacing-wide);
+		text-transform: uppercase;
+	}
+
 	.body {
 		display: grid;
 		align-content: start;

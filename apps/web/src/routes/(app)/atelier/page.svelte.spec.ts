@@ -229,12 +229,12 @@ describe('atelier page', () => {
 			await page.viewport(390, 800);
 		});
 
-		it('shortens the add button to "Dodaj"', async () => {
+		it('shortens the add button to "Dodaj" and keeps its full name', async () => {
 			renderAtelier();
 
-			await expect
-				.element(page.getByRole('link', { name: m.common.add, exact: true }))
-				.toHaveAttribute('href', '/atelier/new');
+			const add = page.getByRole('link', { name: m.atelier.add, exact: true });
+			await expect.element(add).toHaveAttribute('href', '/atelier/new');
+			await expect.element(page.getByText(m.common.add, { exact: true })).toBeVisible();
 			await expect.element(page.getByText(m.atelier.add, { exact: true })).not.toBeVisible();
 		});
 

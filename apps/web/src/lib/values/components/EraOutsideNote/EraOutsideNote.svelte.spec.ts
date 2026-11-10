@@ -30,6 +30,7 @@ describe('EraOutsideNote', () => {
 			.toHaveAttribute('href', '/atelier?era=early_modern&missing=outsideEra');
 		await link.hover();
 		await expect.element(page.getByRole('tooltip')).toHaveTextContent(m.eraBounds.outside(1));
+		await expect.element(link).not.toHaveAccessibleDescription();
 	});
 
 	it('shows nothing when every artwork fits the era', async () => {

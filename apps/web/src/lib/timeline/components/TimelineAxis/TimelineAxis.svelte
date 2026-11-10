@@ -1,6 +1,12 @@
 <script lang="ts">
 	import { m } from '#lib/i18n/i18n.ts';
-	import { axisKind, labelStride, segments, tickYears } from '#lib/timeline/axis/axis.ts';
+	import {
+		axisKind,
+		labelGroups,
+		labelStride,
+		segments,
+		tickYears
+	} from '#lib/timeline/axis/axis.ts';
 	import { segmentLabel } from '#lib/timeline/labels/labels.ts';
 	import { boxStyle } from '#lib/timeline/stage/stage.ts';
 	import { timeOf } from '#lib/timeline/time/time.ts';
@@ -41,14 +47,11 @@
 	let labels = $derived(
 		kind === 'years'
 			? []
-			: segments(view, unit)
-					.filter((segment) => segment.end > era.start && segment.start < era.end)
-					.filter((segment) => segment.number % stride === 0)
-					.map((segment) => {
-						const end = segment.start + stride * unit;
-						const from = Math.max(geometry.position(Math.max(segment.start, era.start)), 0);
-						const to = Math.min(geometry.position(Math.min(end, era.end)), length);
-						return { key: `${unit}:${segment.start}`, text: segmentLabel(segment, unit), from, to };
+			: labelGroups(view, era, unit, stride)
+					.map((group) => {
+						const from = Math.max(geometry.position(Math.max(group.start, era.start)), 0);
+						const to = Math.min(geometry.position(Math.min(group.end, era.end)), length);
+						return { key: `${unit}:${group.start}`, text: segmentLabel(group, unit), from, to };
 					})
 					.filter((label) => label.to - label.from > (vertical ? LABEL_MIN_VERTICAL : LABEL_MIN))
 	);
@@ -108,9 +111,10 @@
 
 	.vertical .segment {
 		width: var(--spacing-16);
-		padding: var(--spacing-1) var(--spacing-2);
-		font-size: var(--font-size-sm);
+		padding: var(--spacing-1) 0;
+		font-size: var(--font-size-xs);
 		white-space: normal;
+		overflow-wrap: anywhere;
 	}
 
 	.tick {

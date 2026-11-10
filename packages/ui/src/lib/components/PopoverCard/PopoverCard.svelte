@@ -8,10 +8,19 @@
 		interactive?: boolean;
 		labelledby?: string;
 		boundary?: HTMLElement;
+		concealed?: boolean;
 		children: Snippet;
 	};
 
-	let { id, popover, interactive = false, labelledby, boundary, children }: Props = $props();
+	let {
+		id,
+		popover,
+		interactive = false,
+		labelledby,
+		boundary,
+		concealed = false,
+		children
+	}: Props = $props();
 
 	let card: HTMLDivElement | undefined = $state();
 	let top = $state(0);
@@ -33,10 +42,11 @@
 		const fitsBelow = below + box.height <= height - margin;
 		const fitsRight = start + box.width <= to;
 		top = fitsBelow ? below : Math.max(margin, anchorBox.top - margin - box.height);
-		left = Math.max(
+		const inBounds = Math.max(
 			from,
 			Math.min(fitsRight ? start : Math.min(anchorBox.right, to) - box.width, to - box.width)
 		);
+		left = Math.max(margin, Math.min(inBounds, width - margin - box.width));
 	}
 
 	$effect(() => {
@@ -75,7 +85,7 @@
 	class="card"
 	class:interactive
 	aria-labelledby={interactive ? labelledby : undefined}
-	hidden={!popover.open}
+	hidden={!popover.open || concealed}
 	onfocusout={(event) => popover.blur(event)}
 	onpointerenter={(event) => popover.cardPointerEnter(event)}
 	onpointerleave={(event) => popover.pointerLeave(event)}

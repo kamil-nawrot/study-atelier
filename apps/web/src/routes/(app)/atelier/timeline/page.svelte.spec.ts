@@ -331,6 +331,22 @@ describe('timeline page', () => {
 		).toBeNull();
 	});
 
+	it('lifts the whole name of an event above the reading line while it shows', async () => {
+		const long = 'Pokój westfalski kończący wojnę trzydziestoletnią w Rzeszy';
+		renderTimeline([testArtwork(1, 'Mona Lisa', { yearTo: 1519 })], undefined, [
+			testEvent('treaty', long, null, 1648)
+		]);
+		const treaty = page.getByRole('button', { name: `${long}, 1648` });
+		await expect.element(treaty).toBeInTheDocument();
+		const line = Number(getComputedStyle(document.querySelector('.reading') as Element).zIndex);
+		expect(Number(getComputedStyle(treaty.element()).zIndex)).toBeLessThan(line);
+
+		await page.elementLocator(treaty.element().querySelector('.name') as HTMLElement).hover();
+
+		await expect.element(page.getByRole('tooltip')).toBeVisible();
+		expect(Number(getComputedStyle(treaty.element()).zIndex)).toBeGreaterThan(line);
+	});
+
 	it('opens a chosen period in a popover with its artworks and its length, and acts from it', async () => {
 		renderTimeline(
 			[
@@ -365,7 +381,10 @@ describe('timeline page', () => {
 			.toHaveAttribute('aria-pressed', 'true');
 		await expect.element(card).not.toBeInTheDocument();
 		expect(document.activeElement).toBe(bar.element());
+		await expect.element(bar).toHaveAttribute('aria-pressed', 'true');
 
+		(bar.element() as HTMLButtonElement).click();
+		await expect.element(bar).toHaveAttribute('aria-pressed', 'false');
 		(bar.element() as HTMLButtonElement).click();
 		await press(card.getByRole('button', { name: 'Straż nocna' }));
 		await expect
