@@ -211,6 +211,7 @@
 		border: 0;
 		background: none;
 		color: var(--color-fg);
+		text-align: start;
 		cursor: pointer;
 	}
 
