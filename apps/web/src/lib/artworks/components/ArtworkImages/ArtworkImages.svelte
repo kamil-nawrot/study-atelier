@@ -354,14 +354,14 @@
 
 	.main {
 		position: absolute;
-		bottom: var(--spacing-1);
-		left: var(--spacing-1);
+		right: 0;
+		bottom: 0;
+		left: 0;
 		display: grid;
 		place-items: center;
-		width: var(--spacing-6);
-		height: var(--spacing-6);
-		background: var(--color-mat-badge-bg);
-		color: var(--color-mat-badge-fg);
+		padding: var(--spacing-1);
+		background: color-mix(in srgb, var(--color-stage-bg) 60%, transparent);
+		color: var(--color-stage-fg);
 	}
 
 	.main :global(svg) {

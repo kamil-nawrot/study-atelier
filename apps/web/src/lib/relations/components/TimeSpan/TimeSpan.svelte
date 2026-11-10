@@ -148,7 +148,7 @@
 
 	.ends {
 		position: relative;
-		height: var(--line-height-sm);
+		height: calc(var(--font-size-sm) * var(--line-height-sm));
 	}
 
 	.ends span {
