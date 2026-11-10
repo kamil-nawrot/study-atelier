@@ -700,6 +700,7 @@ export const pl = {
 	},
 	review: {
 		title: 'Powtórki',
+		lead: 'Codziennie trafiają tu dzieła do powtórki: nowe z Twojego atelier i te, które warto sobie przypomnieć. Im lepiej pamiętasz dzieło, tym rzadziej wraca.',
 		loadErrorTitle: 'Nie udało się wczytać powtórek',
 		startErrorTitle: 'Nie udało się rozpocząć sesji powtórkowej',
 		waiting: (count: number): string => `Na dziś do powtórki zaplanowane masz ${workCount(count)}`,
@@ -744,8 +745,6 @@ export const pl = {
 		freeHint:
 			'Dodatkowa runda losowo wybranych dzieł, które już powtarzasz. Nie zmienia planu powtórek ani nie wpływa na obecną serię.',
 		freeTag: 'Tryb swobodny',
-		howTitle: 'Jak działają powtórki?',
-		how: 'Do puli codziennie dobierane są nowe dzieła, które dodasz do atelier, a także takie, które wymagają powtórki. Im lepiej pamiętasz dzieło, tym rzadziej będzie pojawiać się w kolejnych dniach.',
 		knowledge: 'Jak dobrze znasz swoje atelier?',
 		knowledgeGroups: {
 			settled: { label: 'Utrwalone', hint: 'Pamiętasz je dłużej niż tydzień.' },
