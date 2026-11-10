@@ -178,6 +178,7 @@
 		font-family: var(--font-family-title), Georgia, serif;
 		font-size: var(--font-size-2xl);
 		font-style: italic;
+		font-weight: var(--font-weight-regular);
 		line-height: var(--line-height-2xl);
 	}
 </style>

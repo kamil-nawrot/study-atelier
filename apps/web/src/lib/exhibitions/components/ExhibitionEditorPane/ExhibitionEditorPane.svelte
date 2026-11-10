@@ -208,15 +208,18 @@
 </script>
 
 <div class="column">
-	<input
-		class="title"
-		aria-label={m.exhibitions.view.titleLabel}
-		maxlength="200"
-		onblur={() => session.keepTitle()}
-		oninput={(event) => session.rename(event.currentTarget.value)}
-		placeholder={m.exhibitions.view.titleLabel}
-		value={session.title}
-	/>
+	<header>
+		<p class="overline">{m.exhibitions.kind}</p>
+		<input
+			class="title"
+			aria-label={m.exhibitions.view.titleLabel}
+			maxlength="200"
+			onblur={() => session.keepTitle()}
+			oninput={(event) => session.rename(event.currentTarget.value)}
+			placeholder={m.exhibitions.view.titleLabel}
+			value={session.title}
+		/>
+	</header>
 	{#if session.status === 'conflict'}
 		<Alert title={m.exhibitions.save.conflictTitle} tone="danger">
 			{m.exhibitions.save.conflict}
@@ -268,6 +271,11 @@
 		display: grid;
 		gap: var(--spacing-6);
 		max-width: var(--size-content-wide);
+	}
+
+	header {
+		display: grid;
+		gap: var(--spacing-1);
 	}
 
 	.title {
