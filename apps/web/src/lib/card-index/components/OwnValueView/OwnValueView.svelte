@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Toast } from '@study-atelier/ui';
+	import { MetaLine, Toast } from '@study-atelier/ui';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { m } from '#lib/i18n/i18n.ts';
 	import RelationsBand from '#lib/relations/components/RelationsBand/RelationsBand.svelte';
@@ -47,10 +47,9 @@
 <div class="page">
 	<header>
 		<p class="kind">
-			{m.ownFields.summary([
-				m.ownFields.page.valueKind(field.name),
-				m.atelier.count(artworks.length)
-			])}
+			<MetaLine
+				parts={[m.ownFields.page.valueKind(field.name), m.atelier.count(artworks.length)]}
+			/>
 		</p>
 		<h1>{value.name}</h1>
 	</header>

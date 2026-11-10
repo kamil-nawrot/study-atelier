@@ -94,6 +94,7 @@ Every exported component has a row here; a pull request that adds a component ad
 | `Tabs`          | Row of text tabs under a hairline that switch what a view lists; a tab with `end` stands at the right edge; `framed` draws the selected tab as a card-file divider joined to a framed panel |
 | `Tag`           | Flat tag with `#` prefix; optional remove button                                                                                                                                            |
 | `Count`         | Number in a small filled box; `outlined` is the muted form                                                                                                                                  |
+| `MetaLine`      | Short details in one line (author and year, number of artworks and date) with a spaced, hidden "·" between them; from `parts` or a `text` split at " · "                                    |
 | `Notes`         | Read-only notes from Markdown, with links to values and artworks and marked glossary terms                                                                                                  |
 | `Icon`          | Lucide icon in the shared style: `sm` (20 px) or `md` (24 px)                                                                                                                               |
 | `PageScrollbar` | The overlay scrollbar of the page, mounted once in the root layout; `{@attach overlayScrollbar()}` gives a scrolling element its own ('y', or 'x' for a row)                                |

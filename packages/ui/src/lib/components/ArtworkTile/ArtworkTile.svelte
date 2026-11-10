@@ -5,6 +5,7 @@
 	import { uiMessages } from '../../messages/messages';
 	import ArtworkImage from '../ArtworkImage/ArtworkImage.svelte';
 	import Icon from '../Icon/Icon.svelte';
+	import MetaLine from '../MetaLine/MetaLine.svelte';
 	import NoImage from '../NoImage/NoImage.svelte';
 
 	type Props = {
@@ -88,17 +89,7 @@
 				<cite class="artwork-title">
 					{title}
 				</cite>
-				<span class="meta">
-					<span>
-						{authorText}
-					</span>
-					{#if date}
-						<span aria-hidden="true">·</span>
-						<span class="date">
-							{date}
-						</span>
-					{/if}
-				</span>
+				<MetaLine class="meta" parts={[authorText, date]} />
 			</figcaption>
 		</figure>
 	</a>
@@ -184,17 +175,10 @@
 		text-wrap: balance;
 	}
 
-	.meta {
-		display: flex;
-		flex-wrap: wrap;
-		column-gap: var(--spacing-1);
+	figcaption > :global(.meta) {
 		color: var(--color-mat-fg-muted);
 		font-size: var(--font-size-xs);
 		line-height: var(--line-height-xs);
-	}
-
-	.date {
-		white-space: nowrap;
 	}
 
 	.with-heart figcaption {

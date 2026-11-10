@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { PopupButton } from '@study-atelier/ui';
+	import { MetaLine, PopupButton } from '@study-atelier/ui';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { curiosityOf } from '#lib/career/curiosities/curiosities.ts';
@@ -42,7 +42,9 @@
 						<span class="lamp on" class:fresh={curiosity && !unlocked.seenAt}></span>
 					{/snippet}
 					<div class="tier">
-						<p class="caption">{m.career.tierDate(roman(level), tierDate(unlocked.unlockedAt))}</p>
+						<p class="caption">
+							<MetaLine text={m.career.tierDate(roman(level), tierDate(unlocked.unlockedAt))} />
+						</p>
 						{#if curiosity}
 							<p>
 								{curiosity.text}

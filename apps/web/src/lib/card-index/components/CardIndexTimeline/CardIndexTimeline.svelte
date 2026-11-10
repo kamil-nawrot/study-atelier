@@ -210,7 +210,7 @@
 	}
 
 	.years {
-		padding: 0 var(--spacing-2);
+		padding: var(--spacing-1) var(--spacing-3);
 		border: var(--border-width-hairline) solid var(--color-line);
 		color: var(--color-fg);
 		font-size: var(--font-size-sm);

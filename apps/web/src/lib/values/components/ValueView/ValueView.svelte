@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ArtworkImage, Icon, type NoteLinks, Section } from '@study-atelier/ui';
+	import { ArtworkImage, Icon, MetaLine, type NoteLinks, Section } from '@study-atelier/ui';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -60,14 +60,10 @@
 	let lifeYears = $derived(
 		author && formatLifeYears(author.birthYear, author.deathYear, author.yearsApproximate)
 	);
-	let place = $derived(
-		[
-			details.location?.placeType ? placeTypeName(details.location.placeType) : null,
-			details.location?.countryCode ? countryName(details.location.countryCode) : null
-		]
-			.filter((part) => part !== null)
-			.join(' · ')
-	);
+	let place = $derived([
+		details.location?.placeType ? placeTypeName(details.location.placeType) : null,
+		details.location?.countryCode ? countryName(details.location.countryCode) : null
+	]);
 	let title = $derived(
 		subject.kind === 'era' ? `${name.charAt(0).toLocaleUpperCase()}${name.slice(1)}` : name
 	);
@@ -99,20 +95,20 @@
 						<Icon icon={eraIcon(subject.code)} size="sm" />
 					</span>
 				{/if}
-				{m.valuePage.header(valueKindName(subject.kind), m.atelier.count(count))}
+				<MetaLine text={m.valuePage.header(valueKindName(subject.kind), m.atelier.count(count))} />
 			</p>
 			<h1>{title}</h1>
 			{#if subject.kind === 'era'}
-				<p class="caption years">
+				<p class="years">
 					{eraYearsText(subject.code)}
 					<EraOutsideNote {artworks} code={subject.code} />
 				</p>
 			{/if}
 			{#if lifeYears}
-				<p class="caption">{lifeYears}</p>
+				<p>{lifeYears}</p>
 			{/if}
-			{#if place}
-				<p class="caption">{place}</p>
+			{#if place.some((part) => part !== null)}
+				<p><MetaLine parts={place} /></p>
 			{/if}
 			{#if parents.length > 0}
 				<p class="caption parents">
