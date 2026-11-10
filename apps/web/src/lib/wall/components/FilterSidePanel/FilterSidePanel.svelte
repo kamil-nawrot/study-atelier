@@ -1,9 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
-	import X from '@lucide/svelte/icons/x';
 	import { MediaQuery } from 'svelte/reactivity';
-	import { Button, Icon, overlayScrollbar } from '@study-atelier/ui';
+	import { Button, Icon, PanelHeader, overlayScrollbar } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 
 	type Props = {
@@ -53,10 +52,7 @@
 	{#if mounted}
 		<aside class="filters" {@attach overlayScrollbar()} aria-label={title}>
 			<div class="top">
-				<h2>{title}</h2>
-				<button class="close" aria-label={closeLabel} onclick={() => (open = false)} type="button">
-					<Icon icon={X} />
-				</button>
+				<PanelHeader foldLabel={closeLabel} onfold={() => (open = false)} {title} />
 			</div>
 			{@render children()}
 			{#if onclear}
@@ -166,26 +162,10 @@
 		background: var(--color-bg);
 	}
 
-	.top,
 	.bottom {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--spacing-3);
-	}
-
-	.top h2 {
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-medium);
-		line-height: var(--line-height-sm);
-	}
-
-	.close {
-		display: flex;
-		padding: var(--spacing-2);
-		border: none;
-		background: transparent;
-		color: var(--color-fg);
-		cursor: pointer;
 	}
 </style>
