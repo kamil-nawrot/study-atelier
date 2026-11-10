@@ -1,7 +1,16 @@
 <script lang="ts">
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Trash from '@lucide/svelte/icons/trash-2';
-	import { Alert, Button, Dialog, EmptyState, MetaLine, Tabs, Toast } from '@study-atelier/ui';
+	import {
+		Alert,
+		Button,
+		Dialog,
+		EmptyState,
+		MetaLine,
+		PageHeader,
+		Tabs,
+		Toast
+	} from '@study-atelier/ui';
 	import { invalidate } from '$app/navigation';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import ArchivedExhibitions from '#lib/exhibitions/components/ArchivedExhibitions/ArchivedExhibitions.svelte';
@@ -77,12 +86,13 @@
 </script>
 
 <AtelierLayout email={data.session.user.email ?? ''} title={m.trash.title}>
-	<header>
-		<h1>{m.trash.title}</h1>
-		{#if tab === 'artworks' && shown.length > 0}
-			<span class="caption">{m.atelier.count(shown.length)}</span>
-		{/if}
-	</header>
+	<PageHeader lead={m.trash.lead} title={m.trash.title}>
+		{#snippet aside()}
+			{#if tab === 'artworks' && shown.length > 0}
+				<span class="caption">{m.atelier.count(shown.length)}</span>
+			{/if}
+		{/snippet}
+	</PageHeader>
 
 	<Tabs label={m.trash.tabsLabel} {tabs} bind:value={tab}>
 		{#if tab === 'exhibitions'}
@@ -193,18 +203,6 @@
 <Toast bind:this={toast} />
 
 <style>
-	header {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-		align-items: baseline;
-		gap: var(--spacing-4);
-	}
-
-	.caption {
-		font-variant-numeric: tabular-nums;
-	}
-
 	ul {
 		margin: 0;
 		list-style: none;

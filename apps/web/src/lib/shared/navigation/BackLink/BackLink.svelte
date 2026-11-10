@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
+	import { MediaQuery } from 'svelte/reactivity';
 	import { Icon } from '@study-atelier/ui';
 	import type { ResolvedPathname } from '$app/types';
 	import { goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
@@ -11,6 +12,8 @@
 	};
 
 	let { fallbackName, fallbackHref }: Props = $props();
+
+	const wide = new MediaQuery('min-width: 768px');
 
 	let place = $derived(currentBackPlace());
 	let href = $derived<ResolvedPathname>(
@@ -24,7 +27,7 @@
 	onclick={(event) => goBackThroughHistory(event, place !== undefined, place?.steps)}
 >
 	<Icon icon={ArrowLeft} />
-	<span class="name">{place?.name ?? fallbackName}</span>
+	<span class="name" class:visually-hidden={!wide.current}>{place?.name ?? fallbackName}</span>
 </a>
 
 <style>

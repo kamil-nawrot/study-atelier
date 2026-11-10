@@ -2548,6 +2548,7 @@ export const pl = {
 	},
 	trash: {
 		title: 'Archiwum',
+		lead: 'Trafiają tu dzieła i wystawy, które usuniesz z atelier. Możesz je stąd przywrócić albo usunąć na zawsze.',
 		emptyTitle: 'Archiwum jest puste',
 		empty:
 			'Trafiają tu dzieła, które usuniesz z atelier. Stąd możesz je przywrócić albo usunąć na zawsze.',

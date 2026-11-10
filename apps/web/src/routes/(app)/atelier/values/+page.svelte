@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
-	import { Alert, Toast } from '@study-atelier/ui';
+	import { Alert, PageHeader, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -49,10 +49,7 @@
 </script>
 
 <AtelierLayout email={data.session.user.email ?? ''} title={m.cardIndex.title}>
-	<header>
-		<h1>{m.cardIndex.title}</h1>
-		<p class="lead">{m.cardIndex.lead}</p>
-	</header>
+	<PageHeader lead={m.cardIndex.lead} title={m.cardIndex.title} />
 
 	{#if data.error}
 		<Alert title={m.cardIndex.loadErrorTitle} tone="danger">
@@ -72,10 +69,3 @@
 </AtelierLayout>
 
 <Toast bind:this={toast} />
-
-<style>
-	header {
-		display: grid;
-		gap: var(--spacing-2);
-	}
-</style>
