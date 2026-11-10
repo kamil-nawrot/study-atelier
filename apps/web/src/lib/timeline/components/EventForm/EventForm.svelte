@@ -232,7 +232,6 @@
 				error={errors.current.name}
 				label={m.common.name}
 				maxlength={EVENT_NAME_MAX_LENGTH}
-				placeholder={m.timeline.form.namePlaceholder}
 				bind:value={form.name}
 			/>
 
