@@ -45,14 +45,14 @@ describe('Popover', () => {
 		renderPopover();
 
 		await userEvent.hover(button());
-		vi.advanceTimersByTime(100);
+		vi.advanceTimersByTime(300);
 		expect(page.getByRole('tooltip').elements()).toHaveLength(0);
 		await userEvent.unhover(button());
 		vi.advanceTimersByTime(500);
 		await expect.element(button()).toHaveAttribute('aria-expanded', 'false');
 
 		await userEvent.hover(button());
-		vi.advanceTimersByTime(120);
+		vi.advanceTimersByTime(320);
 		await expect.element(button()).toHaveAttribute('aria-describedby');
 	});
 

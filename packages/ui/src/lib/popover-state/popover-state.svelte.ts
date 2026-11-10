@@ -1,7 +1,15 @@
-const OPEN_DELAY = 120;
 const CLOSE_DELAY = 120;
 const FOCUSABLE =
 	'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+function hoverRevealDelay(): number {
+	const probe = document.createElement('span');
+	probe.style.transitionDelay = 'var(--hover-reveal-delay)';
+	document.body.append(probe);
+	const delay = parseFloat(getComputedStyle(probe).transitionDelay) * 1000;
+	probe.remove();
+	return Number.isFinite(delay) ? delay : 0;
+}
 
 function focusablesIn(root: Element | Document): HTMLElement[] {
 	return [...root.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
@@ -41,12 +49,12 @@ export class PopoverState {
 
 	pointerEnter(anchor: HTMLElement, event: PointerEvent): void {
 		if (event.pointerType !== 'mouse') return;
-		if (this.open) {
-			this.show(anchor);
+		if (this.open && this.anchor === anchor) {
+			this.#cancelClose();
 			return;
 		}
 		this.#cancelOpen();
-		this.#opening = setTimeout(() => this.show(anchor), OPEN_DELAY);
+		this.#opening = setTimeout(() => this.show(anchor), hoverRevealDelay());
 	}
 
 	pointerLeave(event: PointerEvent): void {

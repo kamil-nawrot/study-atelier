@@ -1,6 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { createRawSnippet } from 'svelte';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import '@study-atelier/ui/styles.css';
 import type { Pin } from '#lib/pins/types/pin.ts';
 import PinMarkers from './PinMarkers.svelte';
 
@@ -16,7 +18,60 @@ function pin(id: string, overrides: Partial<Pin> = {}): Pin {
 	};
 }
 
+const card = createRawSnippet((shown: () => Pin) => ({
+	render: () => `<p>Card of ${shown().id}</p>`
+}));
+
 describe('PinMarkers', () => {
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it('opens the card of a hovered pin after the hover delay of a tooltip', async () => {
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+		render(PinMarkers, { pins: [pin('a')], card, onmove: vi.fn(), onselect: vi.fn() });
+		const first = page.getByRole('button', { name: 'Pinezka 1' });
+
+		await userEvent.hover(first);
+		vi.advanceTimersByTime(300);
+		await expect.element(first).toHaveAttribute('aria-expanded', 'false');
+		vi.advanceTimersByTime(20);
+
+		await expect.element(first).toHaveAttribute('aria-expanded', 'true');
+		await expect.element(page.getByText('Card of a')).toBeInTheDocument();
+	});
+
+	it('opens no card when the pointer leaves a pin before the delay', async () => {
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+		render(PinMarkers, { pins: [pin('a')], card, onmove: vi.fn(), onselect: vi.fn() });
+		const first = page.getByRole('button', { name: 'Pinezka 1' });
+
+		const away = document.createElement('div');
+		away.style.cssText = 'position: fixed; right: 0; bottom: 0; width: 20px; height: 20px';
+		document.body.append(away);
+
+		await userEvent.hover(first);
+		vi.advanceTimersByTime(200);
+		await userEvent.hover(away);
+		vi.advanceTimersByTime(1000);
+
+		await expect.element(first).toHaveAttribute('aria-expanded', 'false');
+		expect(page.getByText('Card of a').elements()).toHaveLength(0);
+		away.remove();
+	});
+
+	it('opens the card of a focused pin at once', async () => {
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+		render(PinMarkers, { pins: [pin('a')], card, onmove: vi.fn(), onselect: vi.fn() });
+
+		await userEvent.keyboard('{Tab}');
+
+		await expect
+			.element(page.getByRole('button', { name: 'Pinezka 1' }))
+			.toHaveAttribute('aria-expanded', 'true');
+		await expect.element(page.getByText('Card of a')).toBeInTheDocument();
+	});
+
 	it('numbers the markers and names the term of a pin', async () => {
 		render(PinMarkers, {
 			pins: [pin('a'), pin('b', { glossaryEntryId: 'entry-1' })],
