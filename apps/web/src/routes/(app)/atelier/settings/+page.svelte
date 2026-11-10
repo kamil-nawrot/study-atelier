@@ -78,7 +78,7 @@
 		<BackLink fallbackHref={atelierPath} fallbackName={m.settings.back} />
 	{/snippet}
 
-	<div class="page" class:bar={tab !== 'account' && tab !== 'data'}>
+	<div class="page">
 		<header>
 			<h1>{m.settings.title}</h1>
 			<p class="lead">{m.settings.lead}</p>
@@ -145,10 +145,6 @@
 		min-height: calc(100dvh - var(--bar-height) - var(--spacing-6));
 	}
 
-	.page.bar {
-		margin-bottom: calc(-1 * var(--spacing-12));
-	}
-
 	.page > :global(.tabs) {
 		flex: 1;
 		grid-template-rows: auto 1fr;
@@ -160,5 +156,11 @@
 		flex-direction: column;
 		box-sizing: border-box;
 		min-height: 100%;
+	}
+
+	@media (min-width: 768px) {
+		.page {
+			min-height: calc(100dvh - var(--bar-height) - var(--spacing-8));
+		}
 	}
 </style>

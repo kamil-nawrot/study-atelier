@@ -193,6 +193,12 @@
 		padding: 0;
 	}
 
+	.content:has(:global([data-action-bar])) {
+		--form-actions-bleed: 100vw;
+		overflow-x: clip;
+		padding-bottom: 0;
+	}
+
 	.main:has(> .body > :global(.filter-panel.docked)) {
 		--panel-width: var(--docked-panel-width);
 	}

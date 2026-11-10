@@ -92,7 +92,7 @@
 {:else}
 	<EventForm
 		bind:this={form}
-		cancelHref={timelinePath}
+		cancelHref={data.event ? eventPath(data.event.id) : timelinePath}
 		event={data.event}
 		oncancel={goBack}
 		onsaved={showSaved}

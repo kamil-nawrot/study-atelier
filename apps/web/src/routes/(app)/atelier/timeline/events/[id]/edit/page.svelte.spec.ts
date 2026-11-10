@@ -61,6 +61,31 @@ describe('edit timeline event page', () => {
 			.toHaveValue('Pokój w cesarstwie.');
 	});
 
+	it('leads back to the event it edits', async () => {
+		render(EditEventPage, {
+			data: {
+				session: testSession(),
+				event: {
+					id: 'e',
+					name: 'Pax Romana',
+					yearFrom: -27,
+					yearTo: 180,
+					yearApproximate: true,
+					description: '',
+					source: null
+				}
+			},
+			params: { id: 'e' }
+		});
+
+		await expect
+			.element(page.getByRole('link', { name: 'Pax Romana' }))
+			.toHaveAttribute('href', '/atelier/timeline/events/e');
+		await expect
+			.element(page.getByRole('link', { name: m.common.cancel }))
+			.toHaveAttribute('href', '/atelier/timeline/events/e');
+	});
+
 	it('says when the event no longer exists', async () => {
 		render(EditEventPage, {
 			data: { session: testSession(), notFound: true },

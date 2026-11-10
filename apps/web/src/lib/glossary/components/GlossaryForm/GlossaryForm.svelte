@@ -228,7 +228,6 @@
 	.page {
 		display: grid;
 		min-height: calc(100dvh - var(--bar-height) - var(--spacing-6));
-		margin-bottom: calc(-1 * var(--spacing-12));
 	}
 
 	.page > :global(form) {

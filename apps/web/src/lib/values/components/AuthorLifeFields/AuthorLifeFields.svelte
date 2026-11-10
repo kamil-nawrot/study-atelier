@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Checkbox, TextField } from '@study-atelier/ui';
+	import { Checkbox } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
 	import YearInput from '#lib/shared/forms/YearInput/YearInput.svelte';
@@ -35,23 +35,3 @@
 		bind:beforeCommonEra={author.deathBeforeCommonEra}
 	/>
 </YearGroup>
-
-<div class="sort">
-	<Checkbox label={m.valueForm.sortByOther} bind:checked={author.sortByOther} />
-	{#if author.sortByOther}
-		<TextField
-			autocomplete="off"
-			hint={m.valueForm.sortNameHint}
-			label={m.valueForm.sortName}
-			placeholder={m.valueForm.sortNamePlaceholder}
-			bind:value={author.sortName}
-		/>
-	{/if}
-</div>
-
-<style>
-	.sort {
-		display: grid;
-		gap: var(--spacing-3);
-	}
-</style>

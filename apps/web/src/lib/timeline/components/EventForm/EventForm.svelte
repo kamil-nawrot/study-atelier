@@ -232,7 +232,6 @@
 				error={errors.current.name}
 				label={m.common.name}
 				maxlength={EVENT_NAME_MAX_LENGTH}
-				placeholder={m.timeline.form.namePlaceholder}
 				bind:value={form.name}
 			/>
 
@@ -368,7 +367,6 @@
 	.page {
 		display: grid;
 		min-height: calc(100dvh - var(--bar-height) - var(--spacing-6));
-		margin-bottom: calc(-1 * var(--spacing-12));
 	}
 
 	.page > :global(form) {
@@ -395,5 +393,11 @@
 		width: 100%;
 		min-width: 0;
 		max-width: var(--size-content-default);
+	}
+
+	@media (min-width: 768px) {
+		.page {
+			min-height: calc(100dvh - var(--bar-height) - var(--spacing-8));
+		}
 	}
 </style>
