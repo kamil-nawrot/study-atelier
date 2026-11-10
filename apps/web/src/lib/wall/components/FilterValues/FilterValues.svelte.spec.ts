@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
@@ -10,7 +11,9 @@ const options = Array.from({ length: 12 }, (_, index) => ({
 	count: 12 - index
 }));
 
-function props(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+function props(
+	overrides: Partial<ComponentProps<typeof FilterValues>> = {}
+): ComponentProps<typeof FilterValues> {
 	return {
 		title: 'Authors',
 		options,
@@ -75,7 +78,7 @@ describe('FilterValues', () => {
 		render(FilterValues, { target: host, props: props({ limit: 8, options: many }) });
 		const after = document.createElement('div');
 		after.style.height = '2000px';
-		host.append(after);
+		host.appendChild(after);
 
 		await page.getByRole('button', { name: m.atelier.filters.showMore }).click();
 		await expect.element(page.getByRole('button', { name: /^Author 79/ })).toBeVisible();
