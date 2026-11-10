@@ -43,6 +43,10 @@
 		font-variant-numeric: tabular-nums;
 	}
 
+	.aside:empty {
+		display: none;
+	}
+
 	.actions {
 		display: flex;
 		grid-area: 1 / 2;
