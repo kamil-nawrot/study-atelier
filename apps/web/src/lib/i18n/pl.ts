@@ -282,6 +282,7 @@ export const pl = {
 			othersFailedTitle: 'Hasło zostało pomyślnie zmienione',
 			othersFailed:
 				'Nie udało się wylogować Cię na innych urządzeniach. Wyloguj się tam ręcznie albo zmień hasło jeszcze raz.',
+			legalTitle: 'Regulamin i Polityka prywatności',
 			deleteTitle: 'Usuń konto',
 			deleteDescription:
 				'Usunięcie konta usuwa na zawsze całe atelier: dzieła, zdjęcia, notatki, Słowniczek, Kalendarium, Kronikę i historię powtórek.',
@@ -313,7 +314,7 @@ export const pl = {
 				quiz_pin: 'Dopasowywanie detalu do definicji',
 				quiz_typed: 'Wpisywanie tytułu dzieła z pamięci'
 			},
-			kindsHint: 'Zostaw zaznaczony przynajmniej jeden rodzaj.',
+			kindsHint: 'Zostaw zaznaczony przynajmniej jeden rodzaj dopasowywania.',
 			extraTitle: 'Pytania dodatkowe',
 			glossaryOn: 'Pytania ze Słowniczka',
 			glossaryQuestions: 'Liczba pytań w sesji',

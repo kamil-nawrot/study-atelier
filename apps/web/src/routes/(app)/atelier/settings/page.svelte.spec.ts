@@ -203,16 +203,19 @@ describe('settings page', () => {
 		);
 	});
 
-	it('does not save the review preferences without a kind of question', async () => {
+	it('keeps the last matching quiz kind from being switched off', async () => {
 		renderSettings(undefined, '?tab=review');
+		const { quiz_typed: typed, quiz_pin: last, ...others } = m.settings.preferences.kindLabels;
 
-		for (const label of Object.values(m.settings.preferences.kindLabels)) {
+		for (const label of Object.values(others)) {
 			await page.getByText(label).click();
+			await expect.element(page.getByRole('checkbox', { name: label })).not.toBeChecked();
 		}
-		await page.getByRole('button', { name: m.settings.preferences.save }).click();
 
-		expect(savePreferences).not.toHaveBeenCalled();
-		await expect.element(page.getByText(m.settings.preferences.kindsHint)).toHaveClass(/error/);
+		await expect.element(page.getByRole('checkbox', { name: last })).toBeDisabled();
+		await expect.element(page.getByRole('checkbox', { name: last })).toBeChecked();
+		await expect.element(page.getByRole('checkbox', { name: typed })).toBeEnabled();
+		await expect.element(page.getByText(m.settings.preferences.kindsHint)).not.toHaveClass(/error/);
 	});
 
 	it('saves the artwork view preferences', async () => {
