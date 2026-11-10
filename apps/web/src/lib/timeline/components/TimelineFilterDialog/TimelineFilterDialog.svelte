@@ -15,6 +15,7 @@
 		open: boolean;
 		filter: TimelineFilter;
 		showEvents: boolean;
+		showSpans: boolean;
 	};
 
 	let {
@@ -24,12 +25,13 @@
 		filtering,
 		open = $bindable(),
 		filter = $bindable(),
-		showEvents = $bindable()
+		showEvents = $bindable(),
+		showSpans = $bindable()
 	}: Props = $props();
 </script>
 
 <Dialog title={m.atelier.filters.title} bind:open>
-	<TimelineFilterPanel {artworks} {era} bind:filter bind:showEvents />
+	<TimelineFilterPanel {artworks} {era} bind:filter bind:showEvents bind:showSpans />
 	{#snippet footer()}
 		<Button disabled={!filtering} onclick={() => (filter = emptyTimelineFilter())}>
 			{m.atelier.filters.clear}

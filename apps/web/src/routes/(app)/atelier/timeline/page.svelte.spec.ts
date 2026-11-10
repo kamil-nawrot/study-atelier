@@ -8,6 +8,7 @@ import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 import { deleteTimelineEvent } from '#lib/timeline/timeline-data/timeline-data.ts';
+import { DOT_SIZE } from '#lib/timeline/placement/placement.ts';
 import { invalidateAll } from '$app/navigation';
 import TimelinePage from './+page.svelte';
 
@@ -646,6 +647,25 @@ describe('timeline page', () => {
 			.element(page.getByRole('button', { name: /Wojna trzydziestoletnia/ }))
 			.not.toBeInTheDocument();
 		await expect.element(page.getByText(/w tym czasie/)).not.toBeInTheDocument();
+	});
+
+	it('hides the date ranges of the artworks with the switch, keeping their dots', async () => {
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		renderTimeline([
+			testArtwork(1, 'Straż nocna', { yearFrom: 1600, yearTo: 1700, date: '1600–1700' })
+		]);
+		const mark = page.getByRole('button', { name: 'Straż nocna, 1600–1700' });
+		await expect.element(mark).toBeInTheDocument();
+		expect(mark.element().getBoundingClientRect().width).toBeGreaterThan(DOT_SIZE * 2);
+
+		await press(page.getByRole('button', { name: m.atelier.filters.button }));
+		const panel = page.getByRole('complementary', { name: m.atelier.filters.title });
+		await press(panel.getByRole('switch', { name: m.timeline.filters.spans }));
+
+		await expect.element(mark).toBeInTheDocument();
+		await vi.waitFor(() =>
+			expect(mark.element().getBoundingClientRect().width).toBeLessThanOrEqual(DOT_SIZE + 1)
+		);
 	});
 
 	it('forgets a chosen event when the events are hidden', async () => {

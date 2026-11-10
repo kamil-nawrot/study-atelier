@@ -40,6 +40,7 @@
 	let era = $state(initialEra);
 	let filter = $state(emptyTimelineFilter());
 	let showEvents = $state(true);
+	let showSpans = $state(true);
 	let panelOpen = $state(false);
 	let timelineView = $state<TimelineView>();
 
@@ -47,13 +48,15 @@
 		place?: TimelinePlace;
 		filter: TimelineFilter;
 		showEvents: boolean;
+		showSpans?: boolean;
 	};
 
 	export const snapshot: Snapshot<Saved> = {
-		capture: () => ({ place: timelineView?.capture(), filter, showEvents }),
+		capture: () => ({ place: timelineView?.capture(), filter, showEvents, showSpans }),
 		restore: (value) => {
 			filter = value.filter;
 			showEvents = value.showEvents;
+			showSpans = value.showSpans ?? true;
 			if (value.place) timelineView?.restore(value.place);
 		}
 	};
@@ -111,7 +114,13 @@
 				onclear={() => (filter = emptyTimelineFilter())}
 				bind:open={panelOpen}
 			>
-				<TimelineFilterPanel artworks={eraArtworks} {era} bind:filter bind:showEvents />
+				<TimelineFilterPanel
+					artworks={eraArtworks}
+					{era}
+					bind:filter
+					bind:showEvents
+					bind:showSpans
+				/>
 			</FilterSidePanel>
 		{/if}
 	{/snippet}
@@ -138,6 +147,7 @@
 			ondeleted={removed}
 			onerachange={(code) => (era = code)}
 			{showEvents}
+			{showSpans}
 			bind:filter
 		/>
 	{/if}
@@ -152,6 +162,7 @@
 		bind:open={dialogOpen}
 		bind:filter
 		bind:showEvents
+		bind:showSpans
 	/>
 {/if}
 

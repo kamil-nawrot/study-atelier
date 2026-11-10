@@ -65,6 +65,7 @@
 		onerachange?: (code: EraCode) => void;
 		filter?: TimelineFilter;
 		showEvents?: boolean;
+		showSpans?: boolean;
 	};
 
 	let {
@@ -75,7 +76,8 @@
 		ondeleted,
 		onerachange,
 		filter = $bindable(emptyTimelineFilter()),
-		showEvents = true
+		showEvents = true,
+		showSpans = true
 	}: Props = $props();
 
 	const NOW_SHARE = 40;
@@ -291,6 +293,7 @@
 					layoutSpan={camera.target.span}
 					onselect={(artwork) => toggle('artwork', artwork.id)}
 					selected={selected?.kind === 'artwork' ? selected.id : null}
+					spans={showSpans}
 				/>
 			{/snippet}
 		</TimelineStage>

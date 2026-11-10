@@ -24,6 +24,7 @@
 		colourOf?: (artwork: WallArtwork) => string | undefined;
 		empty?: string;
 		layoutSpan?: number;
+		spans?: boolean;
 	};
 
 	type Group = {
@@ -44,7 +45,8 @@
 		lanes = [],
 		colourOf,
 		empty,
-		layoutSpan
+		layoutSpan,
+		spans = true
 	}: Props = $props();
 
 	const EDGE = 10;
@@ -217,14 +219,14 @@
 	<button
 		style:--dot-colour={dot.colour}
 		style={boxStyle(geometry, {
-			along: Math.min(dot.from, dot.at - DOT_SIZE / 2),
+			along: spans ? Math.min(dot.from, dot.at - DOT_SIZE / 2) : dot.at - DOT_SIZE / 2,
 			across: dot.cross - DOT_SIZE / 2,
-			alongSize: Math.max(dot.at - dot.from + DOT_SIZE / 2, DOT_SIZE),
+			alongSize: spans ? Math.max(dot.at - dot.from + DOT_SIZE / 2, DOT_SIZE) : DOT_SIZE,
 			acrossSize: DOT_SIZE
 		})}
 		class="mark"
 		class:selected={dot.mark.item.id === selected}
-		class:spanned={dot.at - dot.from > DOT_SIZE}
+		class:spanned={spans && dot.at - dot.from > DOT_SIZE}
 		class:vertical
 		aria-label={[dot.mark.item.title, dateOf(dot.mark)].filter(Boolean).join(', ')}
 		aria-pressed={dot.mark.item.id === selected}
