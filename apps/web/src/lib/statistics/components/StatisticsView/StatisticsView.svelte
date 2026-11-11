@@ -57,4 +57,10 @@
 		gap: var(--spacing-16);
 		max-width: var(--size-content-wide);
 	}
+
+	@media (max-width: 767.98px) {
+		header {
+			display: none;
+		}
+	}
 </style>

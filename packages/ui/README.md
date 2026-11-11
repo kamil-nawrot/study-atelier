@@ -90,7 +90,7 @@ Every exported component has a row here; a pull request that adds a component ad
 
 | Component       | Purpose                                                                                                                                                                                                                 |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PageHeader`    | The opening of a view under the top bar: the lead and a hairline under it; `aside` (a count) stands level with the lead from 768 px and under it on a phone, `actions` stand at the top right                           |
+| `PageHeader`    | The opening of a view under the top bar: the lead and a hairline under it; `aside` (a count) stands level with the lead, `actions` stand at the top right; not shown below 768 px                                       |
 | `Section`       | Text section with a heavy left edge (spine)                                                                                                                                                                             |
 | `Disclosure`    | Collapsible group with a heading, a count and a chevron (native `details`); `muted`, `plain`, `lazy`                                                                                                                    |
 | `Tabs`          | Row of text tabs under a hairline that switch what a view lists; a tab with `end` stands at the right edge; the selected tab joins a framed panel, which drops its bottom padding and border around a `FormActions` bar |

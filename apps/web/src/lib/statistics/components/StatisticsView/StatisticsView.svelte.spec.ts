@@ -8,6 +8,7 @@ import StatisticsView from './StatisticsView.svelte';
 
 describe('StatisticsView', () => {
 	it('shows the lead and the holdings counted from the artworks, leaving the title to the top bar', async () => {
+		await page.viewport(1280, 800);
 		render(StatisticsView, {
 			artworks: [
 				testArtwork(1, 'Mona Lisa', { authors: ['Leonardo'], location: 'Louvre' }),
