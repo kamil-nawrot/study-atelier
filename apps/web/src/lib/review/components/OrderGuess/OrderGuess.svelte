@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import { MediaQuery } from 'svelte/reactivity';
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
 	import { Button, Icon } from '@study-atelier/ui';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -11,6 +12,7 @@
 	import { yearsOf } from '#lib/review/year-guess/year-guess.ts';
 	import OrderAxis from '#lib/review/components/OrderAxis/OrderAxis.svelte';
 	import OrderBoard from '#lib/review/components/OrderBoard/OrderBoard.svelte';
+	import OrderTaps from '#lib/review/components/OrderTaps/OrderTaps.svelte';
 	import ReviewCard from '#lib/review/components/ReviewCard/ReviewCard.svelte';
 
 	type Props = {
@@ -25,6 +27,9 @@
 	let heading = $state<HTMLElement>();
 	let nextButton = $state<HTMLElement>();
 	let placement = $state(untrack(() => item.artworks));
+	let tappedOrder = $state<WallArtwork[]>();
+
+	const phone = new MediaQuery('max-width: 767.98px');
 
 	let answered = $derived(ordered !== undefined);
 	let shown = $derived(ordered ?? placement);
@@ -51,7 +56,15 @@
 <svelte:window onkeydown={keydown} />
 
 {#snippet board()}
-	<OrderBoard {answered} artworks={shown} onchange={(next) => (placement = next)} />
+	{#if phone.current}
+		<OrderTaps
+			{answered}
+			artworks={ordered ?? item.artworks}
+			onchange={(next) => (tappedOrder = next)}
+		/>
+	{:else}
+		<OrderBoard {answered} artworks={shown} onchange={(next) => (placement = next)} />
+	{/if}
 {/snippet}
 
 {#snippet actions()}
@@ -62,9 +75,20 @@
 				<Icon icon={ArrowRight} size="sm" />
 			</Button>
 		{:else}
-			<Button fullWidth onclick={() => oncheck(placement)} variant="primary">
-				{m.review.order.check}
-			</Button>
+			{#if phone.current}
+				<Button
+					disabled={!tappedOrder}
+					fullWidth
+					onclick={() => tappedOrder && oncheck(tappedOrder)}
+					variant="primary"
+				>
+					{m.review.order.check}
+				</Button>
+			{:else}
+				<Button fullWidth onclick={() => oncheck(placement)} variant="primary">
+					{m.review.order.check}
+				</Button>
+			{/if}
 		{/if}
 	</div>
 {/snippet}
@@ -74,8 +98,12 @@
 		<div class="intro">
 			<p class="overline">{m.review.order.tag}</p>
 			<h1 bind:this={heading} id="quiz-heading" tabindex="-1">{m.review.order.question}</h1>
-			<p class="lead">{m.review.order.hint}</p>
-			<p class="visually-hidden">{m.review.order.keyboardHint}</p>
+			{#if phone.current}
+				<p class="lead">{m.review.order.hintTap}</p>
+			{:else}
+				<p class="lead">{m.review.order.hint}</p>
+				<p class="visually-hidden">{m.review.order.keyboardHint}</p>
+			{/if}
 		</div>
 		<div class="feedback" role="status">
 			{#if ordered}

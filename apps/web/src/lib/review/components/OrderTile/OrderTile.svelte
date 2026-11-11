@@ -13,9 +13,10 @@
 		artwork: WallArtwork;
 		index: number;
 		place?: OrderPlace;
+		number?: number | null;
 	};
 
-	let { artwork, index, place }: Props = $props();
+	let { artwork, index, place, number = index + 1 }: Props = $props();
 
 	let image = $derived(artwork.image);
 	let alt = $derived(place ? describeArtwork(artwork) : m.review.order.imageAlt);
@@ -44,13 +45,13 @@
 		{:else}
 			<ArtworkImage {alt} unavailable />
 		{/if}
-		<span class="badge" aria-hidden="true">
+		<span class="badge" class:empty={number === null && !place} aria-hidden="true">
 			{#if place?.right}
 				<Icon icon={Check} size="sm" />
 			{:else if place}
 				<Icon icon={X} size="sm" />
-			{:else}
-				{index + 1}
+			{:else if number !== null}
+				{number}
 			{/if}
 		</span>
 	</span>
@@ -102,6 +103,10 @@
 		height: auto;
 		max-height: 18dvh;
 		background: var(--color-mat-window);
+	}
+
+	.badge.empty {
+		display: none;
 	}
 
 	.badge {
