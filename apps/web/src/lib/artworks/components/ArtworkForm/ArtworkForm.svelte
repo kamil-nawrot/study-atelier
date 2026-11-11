@@ -244,9 +244,9 @@
 		</div>
 
 		<ArtworkImages
-			compactEmpty
 			alt={imageAlt}
 			autoMatch={!artwork}
+			compactEmpty
 			entries={suggestions.glossary}
 			onmatching={(matching) => (imageMatching = matching)}
 			{pinsError}
