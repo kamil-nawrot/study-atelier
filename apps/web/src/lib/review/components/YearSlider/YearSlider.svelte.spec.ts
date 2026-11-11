@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import { tick } from 'svelte';
 import { m } from '#lib/i18n/i18n.ts';
 import YearSlider from './YearSlider.svelte';
 
@@ -63,16 +64,25 @@ describe('YearSlider', () => {
 	it('keeps moving the year while a button is held and stops when it is let go', async () => {
 		render(YearSlider, { bounds: [1492, 1789], value: 1641, oncheck: vi.fn() });
 		const slider = page.getByRole('slider', { name: m.review.year.slider });
-		const later = page.getByRole('button', { name: m.review.year.later }).element();
+		const later = page.getByRole('button', { name: m.review.year.later });
+		await expect.element(later).toBeVisible();
+		const year = (): number => Number(slider.element().getAttribute('aria-valuetext'));
 
-		later.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0 }));
-		await expect
-			.poll(() => Number(slider.element().getAttribute('aria-valuetext')))
-			.toBeGreaterThan(1643);
-		later.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
-		const stopped = slider.element().getAttribute('aria-valuetext');
-		await new Promise((resolve) => setTimeout(resolve, 500));
-		expect(slider.element().getAttribute('aria-valuetext')).toBe(stopped);
+		vi.useFakeTimers();
+		try {
+			later.element().dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0 }));
+			vi.advanceTimersByTime(1500);
+			await tick();
+			expect(year()).toBeGreaterThan(1645);
+
+			later.element().dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+			const stopped = year();
+			vi.advanceTimersByTime(2000);
+			await tick();
+			expect(year()).toBe(stopped);
+		} finally {
+			vi.useRealTimers();
+		}
 	});
 
 	it('disables the button that would leave the era', async () => {
