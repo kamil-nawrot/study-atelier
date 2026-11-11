@@ -138,7 +138,8 @@ describe('Tabs', () => {
 		const tabStyle = getComputedStyle(tab.element());
 		const panelStyle = getComputedStyle(page.getByRole('tabpanel').element());
 		expect(tabStyle.borderLeftColor).toBe('rgba(0, 0, 0, 0)');
-		expect(tabStyle.boxShadow).not.toBe('none');
+		expect(tabStyle.borderBottomStyle).toBe('solid');
+		expect(tabStyle.borderBottomColor).not.toBe('rgba(0, 0, 0, 0)');
 		expect(panelStyle.borderLeftStyle).toBe('none');
 		expect(panelStyle.paddingLeft).toBe('0px');
 		await page.viewport(1280, 800);
