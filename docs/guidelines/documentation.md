@@ -28,8 +28,8 @@
 - Status is one of `proposed`, `accepted`, `rejected`, `deprecated`, `superseded by NNNN`.
 - Accepted ADRs are not rewritten. A changed decision gets a new ADR that supersedes the old one, and the old one's status is updated.
 - Corrections that leave the decision unchanged are allowed in an accepted ADR: typos, broken links, facts found to be wrong, and removal of personal data.
-- Every new ADR is added to the index in [`decisions/README.md`](../decisions/README.md).
-- The `Pull request` workflow runs [`.github/scripts/check-docs.mjs`](../../.github/scripts/check-docs.mjs): every relative link in a Markdown file resolves, every ADR is in the index and no two share a number, and no tracked file holds an e-mail address other than an `example.com`, `example.org` or `example.test` address, the `przyklad.pl` sample in the UI texts, a role address of the app's own domain `studyatelier.art` and `noreply` attribution lines.
+- Every new ADR is added to the index in [`decisions/README.md`](../decisions/README.md) with `pnpm adr:index`, which also rewrites the titles and statuses of the index from the ADRs; the new row's area (`?` at first) is set by hand to one of the areas listed above the table. A status change, such as a later ADR superseding part of a decision, is written in the ADR's Status line and carried into the index by the same command. `pnpm adr <area>` lists the ADRs of an area.
+- The `Pull request` workflow runs [`.github/scripts/check-docs.mjs`](../../.github/scripts/check-docs.mjs): every relative link in a Markdown file resolves, every ADR is in the index with its own title and status and an area from the list, no two share a number, and no tracked file holds an e-mail address other than an `example.com`, `example.org` or `example.test` address, the `przyklad.pl` sample in the UI texts, a role address of the app's own domain `studyatelier.art` and `noreply` attribution lines.
 
 ## Architecture
 
