@@ -110,7 +110,6 @@
 		"apps/web/src/lib/timeline/components/EventFormPage/EventFormPage.svelte",
 		"apps/web/src/lib/timeline/components/ReadingLine/ReadingLine.svelte",
 		"apps/web/src/lib/timeline/components/TimelineArtworks/TimelineArtworks.svelte",
-		"apps/web/src/lib/timeline/components/TimelineAxis/TimelineAxis.svelte",
 		"apps/web/src/lib/timeline/components/TimelineControls/TimelineControls.svelte",
 		"apps/web/src/lib/timeline/components/TimelineEvents/TimelineEvents.svelte",
 		"apps/web/src/lib/timeline/components/TimelineFilterDialog/TimelineFilterDialog.svelte",

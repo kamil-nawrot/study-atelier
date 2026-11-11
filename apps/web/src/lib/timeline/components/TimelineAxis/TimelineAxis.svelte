@@ -25,6 +25,7 @@
 	const LABEL_CHAR = 9;
 	const LABEL_PADDING = 16;
 	const LABEL_HEIGHT_VERTICAL = 64;
+	const TICK_EDGE_VERTICAL = 16;
 
 	let view = $derived(geometry.view);
 	let length = $derived(geometry.length);
@@ -58,7 +59,10 @@
 	let ticks = $derived(
 		tickYears(view)
 			.map((year) => ({ year, at: geometry.position(timeOf(year)) }))
-			.filter((tick) => tick.at >= 0 && tick.at <= length)
+			.filter((tick) => {
+				const edge = vertical ? TICK_EDGE_VERTICAL : 0;
+				return tick.at >= edge && tick.at <= length - edge;
+			})
 	);
 </script>
 
@@ -129,10 +133,13 @@
 	}
 
 	.vertical .tick {
+		box-sizing: border-box;
 		width: var(--spacing-16);
-		margin-top: calc(-1 * var(--spacing-2));
+		margin-top: 0;
 		padding: 0 var(--spacing-2) 0 0;
 		border-left: 0;
 		text-align: right;
+		white-space: normal;
+		translate: 0 -50%;
 	}
 </style>
