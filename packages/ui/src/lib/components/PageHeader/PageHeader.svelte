@@ -40,6 +40,7 @@
 	}
 
 	.aside {
+		grid-area: 1 / 2;
 		font-variant-numeric: tabular-nums;
 	}
 
@@ -54,9 +55,9 @@
 		gap: var(--spacing-2);
 	}
 
-	@media (min-width: 768px) {
-		.aside {
-			grid-area: 1 / 2;
+	@media (max-width: 767.98px) {
+		.page-header {
+			display: none;
 		}
 	}
 </style>
