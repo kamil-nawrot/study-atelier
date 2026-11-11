@@ -129,6 +129,22 @@ describe('Tabs', () => {
 		expect(panelBox.getBoundingClientRect().top).toBeCloseTo(tab.getBoundingClientRect().bottom, 0);
 	});
 
+	it('drops the box on a phone: a thick line under the selected tab and a panel without a frame', async () => {
+		await page.viewport(390, 844);
+		renderTabs();
+
+		const tab = page.getByRole('tab', { name: 'Periods' });
+		await expect.element(tab).toBeVisible();
+		const tabStyle = getComputedStyle(tab.element());
+		const panelStyle = getComputedStyle(page.getByRole('tabpanel').element());
+		expect(tabStyle.borderLeftColor).toBe('rgba(0, 0, 0, 0)');
+		expect(tabStyle.borderBottomStyle).toBe('solid');
+		expect(tabStyle.borderBottomColor).not.toBe('rgba(0, 0, 0, 0)');
+		expect(panelStyle.borderLeftStyle).toBe('none');
+		expect(panelStyle.paddingLeft).toBe('0px');
+		await page.viewport(1280, 800);
+	});
+
 	it('scrolls the selected tab into view in a narrow list', async () => {
 		await page.viewport(320, 800);
 		render(Tabs, {

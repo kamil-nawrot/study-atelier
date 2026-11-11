@@ -66,6 +66,20 @@
 		border-top: none;
 	}
 
+	@media (max-width: 767.98px) {
+		.tab {
+			--card-padding: 0px;
+		}
+
+		.tab > :global(form)::before {
+			border: none;
+		}
+
+		.tab > :global(form) {
+			padding-top: var(--spacing-4);
+		}
+	}
+
 	.tab > :global(form) > :global([role='alert']) {
 		grid-row: 2;
 		grid-column: 2;

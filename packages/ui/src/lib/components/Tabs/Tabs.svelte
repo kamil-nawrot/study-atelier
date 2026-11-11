@@ -127,6 +127,33 @@
 		border-top: none;
 	}
 
+	@media (max-width: 767.98px) {
+		.list {
+			scrollbar-width: none;
+		}
+
+		.tab {
+			padding-inline: var(--spacing-3);
+			border-color: transparent;
+			border-bottom: var(--border-width-button) solid transparent;
+		}
+
+		.tab:first-child {
+			padding-inline-start: 0;
+		}
+
+		.tab[aria-selected='true'] {
+			border-color: transparent;
+			border-bottom-color: var(--color-fg);
+			background: none;
+		}
+
+		.panel {
+			padding: var(--spacing-4) 0 0;
+			border: none;
+		}
+	}
+
 	@media (min-width: 768px) {
 		.panel {
 			padding: var(--spacing-8);

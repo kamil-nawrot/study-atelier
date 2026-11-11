@@ -44,6 +44,7 @@ describe('SettingsForm', () => {
 	});
 
 	it('ends the card under its content, above the bar', async () => {
+		await page.viewport(1280, 800);
 		renderForm({ error: 'Brak połączenia' });
 
 		const content = page.getByText('Treść zakładki').element();

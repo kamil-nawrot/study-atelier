@@ -85,7 +85,22 @@ describe('CardIndexTabs', () => {
 	});
 
 	it('offers to add a value on every tab of values', async () => {
+		await page.viewport(1280, 800);
 		renderTabs('timeline');
+
+		await expect
+			.element(page.getByRole('link', { name: m.cardIndex.add.period }))
+			.toHaveAttribute('href', '/atelier/values/period/new');
+		await expect
+			.element(page.getByRole('link', { name: m.cardIndex.add.style }))
+			.toHaveAttribute('href', '/atelier/values/style/new');
+	});
+
+	it('offers a period or a style from one add button on a phone', async () => {
+		await page.viewport(390, 844);
+		renderTabs('timeline');
+
+		await page.getByRole('button', { name: m.common.add, exact: true }).click();
 
 		await expect
 			.element(page.getByRole('link', { name: m.cardIndex.add.period }))
