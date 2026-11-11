@@ -129,8 +129,6 @@ describe('Select', () => {
 		expect(getComputedStyle(select.element()).color).toBe('rgba(0, 0, 0, 0)');
 
 		await page.viewport(1280, 800);
-		await expect
-			.poll(() => control.getBoundingClientRect().width)
-			.toBeGreaterThan(controlHeight());
+		await expect.poll(() => control.getBoundingClientRect().width).toBeGreaterThan(controlHeight());
 	});
 });
