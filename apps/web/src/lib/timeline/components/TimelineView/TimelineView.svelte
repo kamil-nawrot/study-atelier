@@ -261,9 +261,9 @@
 			onkeypan={(share) => camera.panShare(share)}
 			onpan={(by) => camera.pan(by)}
 			onsettle={() => camera.settle()}
-			readingNames={orientation === 'vertical' ? now.map((event) => event.name) : []}
 			onstep={(direction, anchor) => camera.moveStep(direction, anchor)}
 			{orientation}
+			readingNames={orientation === 'vertical' ? now.map((event) => event.name) : []}
 			{tint}
 			view={camera.view}
 			{viewportHeight}
