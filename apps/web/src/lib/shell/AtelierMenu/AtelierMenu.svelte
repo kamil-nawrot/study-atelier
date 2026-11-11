@@ -36,6 +36,7 @@
 		signingOut: boolean;
 		compact?: boolean;
 		dense?: boolean;
+		barItems?: boolean;
 		onsignout: () => void;
 		onfeedback: () => void;
 	};
@@ -45,6 +46,7 @@
 		signingOut,
 		compact = false,
 		dense = false,
+		barItems = true,
 		onsignout,
 		onfeedback
 	}: Props = $props();
@@ -132,6 +134,7 @@
 	<div class="account-group">
 		{@render account(shownMenuProfile(ownerId))}
 	</div>
+	{#if barItems}
 	<a
 		class="item"
 		aria-current={page.url.pathname === atelierPath ? 'page' : undefined}
@@ -142,6 +145,7 @@
 			{m.menu.atelier}
 		</span>
 	</a>
+	{/if}
 	<a
 		class="item"
 		aria-current={page.url.pathname === cardIndexPath ? 'page' : undefined}
@@ -152,6 +156,7 @@
 			{m.menu.cardIndex}
 		</span>
 	</a>
+	{#if barItems}
 	<a
 		class="item"
 		aria-current={page.url.pathname.startsWith(glossaryPath) ? 'page' : undefined}
@@ -162,6 +167,7 @@
 			{m.menu.glossary}
 		</span>
 	</a>
+	{/if}
 	<a
 		class="item"
 		aria-current={page.url.pathname.startsWith(timelinePath) ? 'page' : undefined}
@@ -192,6 +198,7 @@
 			{m.menu.exhibitions}
 		</span>
 	</a>
+	{#if barItems}
 	<a
 		class="item"
 		aria-current={page.url.pathname === reviewPath ? 'page' : undefined}
@@ -219,6 +226,7 @@
 			{/if}
 		{/await}
 	</a>
+	{/if}
 	{#if careerShown}
 		<a
 			class="item"

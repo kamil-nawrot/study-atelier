@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Plus from '@lucide/svelte/icons/plus';
 	import Button from '../Button/Button.svelte';
-	import Tooltip from '../Tooltip/Tooltip.svelte';
 
 	type Props = {
 		label: string;
@@ -11,8 +10,20 @@
 	let { label, href }: Props = $props();
 </script>
 
-<Tooltip align="end" phoneOnly placement="bottom" text={label}>
+<span class="add-button">
 	<Button aria-label={label} compact {href} icon={Plus} variant="primary">
 		{label}
 	</Button>
-</Tooltip>
+</span>
+
+<style>
+	.add-button {
+		display: flex;
+	}
+
+	@media (max-width: 767.98px) {
+		.add-button {
+			display: none;
+		}
+	}
+</style>

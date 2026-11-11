@@ -78,7 +78,7 @@
 	.region {
 		position: fixed;
 		right: var(--spacing-4);
-		bottom: calc(var(--toast-offset) + var(--spacing-4));
+		bottom: calc(var(--toast-offset) + var(--bottom-inset, 0px) + var(--spacing-4));
 		left: var(--spacing-4);
 		z-index: 2;
 		display: grid;

@@ -238,7 +238,7 @@
 	@media (max-width: 767.98px) {
 		.go {
 			position: sticky;
-			bottom: 0;
+			bottom: var(--bottom-inset, 0px);
 			z-index: 1;
 			justify-items: stretch;
 			padding: var(--spacing-4) 0;
