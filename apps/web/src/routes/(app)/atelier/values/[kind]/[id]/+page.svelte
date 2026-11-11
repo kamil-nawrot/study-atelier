@@ -1,4 +1,5 @@
 <script lang="ts">
+	import MoreActions from '#lib/shared/navigation/MoreActions/MoreActions.svelte';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
@@ -93,40 +94,56 @@
 			</Button>
 		{/if}
 		{#if record && kind}
-			{#if canDelete(record)}
-				<Button
-					aria-label={m.common.delete}
-					compact
-					icon={Trash}
-					onclick={askToDelete}
-					variant="danger"
-				>
-					{m.common.delete}
-				</Button>
-			{:else}
-				<Tooltip
-					align="end"
-					placement="bottom"
-					text={m.valuePage.deleteBlocked(
-						kind.demonstrative,
-						m.atelier.count(record.count),
-						kind.other
-					)}
-				>
-					{#snippet children(describedby)}
-						<Button
-							aria-describedby={describedby}
-							aria-disabled="true"
-							aria-label={m.common.delete}
-							compact
-							icon={Trash}
-							variant="danger"
-						>
-							{m.common.delete}
-						</Button>
-					{/snippet}
-				</Tooltip>
-			{/if}
+			<MoreActions
+				actions={[
+					canDelete(record)
+						? { label: m.common.delete, icon: Trash, onclick: askToDelete, danger: true }
+						: {
+								label: m.common.delete,
+								icon: Trash,
+								reason: m.valuePage.deleteBlocked(
+									kind.demonstrative,
+									m.atelier.count(record.count),
+									kind.other
+								)
+							}
+				]}
+			>
+				{#if canDelete(record)}
+					<Button
+						aria-label={m.common.delete}
+						compact
+						icon={Trash}
+						onclick={askToDelete}
+						variant="danger"
+					>
+						{m.common.delete}
+					</Button>
+				{:else}
+					<Tooltip
+						align="end"
+						placement="bottom"
+						text={m.valuePage.deleteBlocked(
+							kind.demonstrative,
+							m.atelier.count(record.count),
+							kind.other
+						)}
+					>
+						{#snippet children(describedby)}
+							<Button
+								aria-describedby={describedby}
+								aria-disabled="true"
+								aria-label={m.common.delete}
+								compact
+								icon={Trash}
+								variant="danger"
+							>
+								{m.common.delete}
+							</Button>
+						{/snippet}
+					</Tooltip>
+				{/if}
+			</MoreActions>
 		{/if}
 	{/snippet}
 

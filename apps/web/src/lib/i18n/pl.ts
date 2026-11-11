@@ -59,6 +59,7 @@ export const pl = {
 		saving: 'Zapisywanie…',
 		delete: 'Usuń',
 		deleting: 'Usuwanie…',
+		moreActions: 'Więcej działań',
 		replace: 'Zastąp',
 		merge: 'Połącz',
 		cancel: 'Anuluj',

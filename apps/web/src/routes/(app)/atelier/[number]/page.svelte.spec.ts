@@ -595,6 +595,25 @@ describe('artwork page', () => {
 		expect(goto).toHaveBeenCalledWith('/atelier', { refreshAll: true, state: { trashed: 42 } });
 	});
 
+	it('keeps Edytuj in the bar and gathers Porównaj and Usuń under one button on a phone', async () => {
+		await page.viewport(390, 844);
+		renderPage();
+
+		await expect
+			.element(page.getByRole('banner').getByRole('link', { name: m.common.edit }))
+			.toBeVisible();
+		await page.getByRole('button', { name: m.common.moreActions }).click();
+		await expect
+			.element(page.getByRole('link', { name: m.compare.label }))
+			.toHaveAttribute('href', expect.stringContaining('/atelier/compare'));
+		await page.getByRole('button', { name: m.common.delete }).click();
+
+		await expect
+			.element(page.getByRole('alertdialog', { name: m.trash.moveTitle('#0042') }))
+			.toBeVisible();
+		await page.viewport(1280, 800);
+	});
+
 	it('keeps the artwork when the learner cancels', async () => {
 		renderPage();
 
