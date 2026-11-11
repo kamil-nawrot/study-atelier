@@ -1,4 +1,5 @@
 <script lang="ts">
+	import MoreActions from '#lib/shared/navigation/MoreActions/MoreActions.svelte';
 	import Check from '@lucide/svelte/icons/check';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
@@ -98,15 +99,19 @@
 				>
 					{m.exhibitions.view.edit}
 				</Button>
-				<Button
-					aria-label={m.exhibitions.view.delete}
-					compact
-					icon={Trash}
-					onclick={() => (deleteOpen = true)}
-					variant="danger"
+				<MoreActions
+					actions={[{ label: m.exhibitions.view.delete, icon: Trash, onclick: () => (deleteOpen = true), danger: true }]}
 				>
-					{m.exhibitions.view.delete}
-				</Button>
+						<Button
+						aria-label={m.exhibitions.view.delete}
+						compact
+						icon={Trash}
+						onclick={() => (deleteOpen = true)}
+						variant="danger"
+					>
+						{m.exhibitions.view.delete}
+					</Button>
+				</MoreActions>
 			{/if}
 		{/if}
 	{/snippet}

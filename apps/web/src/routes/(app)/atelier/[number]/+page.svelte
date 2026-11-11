@@ -1,4 +1,5 @@
 <script lang="ts">
+	import MoreActions from '#lib/shared/navigation/MoreActions/MoreActions.svelte';
 	import Columns2 from '@lucide/svelte/icons/columns-2';
 	import Heart from '@lucide/svelte/icons/heart';
 	import Pencil from '@lucide/svelte/icons/pencil';
@@ -87,6 +88,12 @@
 
 <svelte:window onkeydown={(event) => flip.flipWithKey(event)} />
 
+{#snippet editButton()}
+	<Button aria-label={m.common.edit} compact href={editPath} icon={Pencil}>
+		{m.common.edit}
+	</Button>
+{/snippet}
+
 <AtelierLayout email={data.session.user.email ?? ''} fill={data.artwork !== undefined} {title}>
 	{#snippet bar()}
 		<BackLink fallbackHref={flip.wallPath} fallbackName={m.artworkView.back} />
@@ -100,37 +107,47 @@
 					<Icon icon={Heart} size="sm" />
 				</span>
 			</Button>
-			{#if canCompare}
-				<Button aria-label={m.compare.label} compact href={comparePath} icon={Columns2}>
-					{m.compare.label}
-				</Button>
-			{:else}
-				<Tooltip align="end" placement="bottom" text={m.compare.unavailable}>
-					{#snippet children(describedby)}
-						<Button
-							aria-describedby={describedby}
-							aria-disabled="true"
-							aria-label={m.compare.label}
-							compact
-							icon={Columns2}
-						>
-							{m.compare.label}
-						</Button>
-					{/snippet}
-				</Tooltip>
-			{/if}
-			<Button aria-label={m.common.edit} compact href={editPath} icon={Pencil}>
-				{m.common.edit}
-			</Button>
-			<Button
-				aria-label={m.common.delete}
-				compact
-				icon={Trash}
-				onclick={() => (trashOpen = true)}
-				variant="danger"
+			<MoreActions
+				actions={[
+					canCompare
+						? { label: m.compare.label, icon: Columns2, href: comparePath }
+						: { label: m.compare.label, icon: Columns2, reason: m.compare.unavailable },
+					{ label: m.common.delete, icon: Trash, onclick: () => (trashOpen = true), danger: true }
+				]}
 			>
-				{m.common.delete}
-			</Button>
+				{#snippet kept()}
+					{@render editButton()}
+				{/snippet}
+				{#if canCompare}
+					<Button aria-label={m.compare.label} compact href={comparePath} icon={Columns2}>
+						{m.compare.label}
+					</Button>
+				{:else}
+					<Tooltip align="end" placement="bottom" text={m.compare.unavailable}>
+						{#snippet children(describedby)}
+							<Button
+								aria-describedby={describedby}
+								aria-disabled="true"
+								aria-label={m.compare.label}
+								compact
+								icon={Columns2}
+							>
+								{m.compare.label}
+							</Button>
+						{/snippet}
+					</Tooltip>
+				{/if}
+				{@render editButton()}
+				<Button
+					aria-label={m.common.delete}
+					compact
+					icon={Trash}
+					onclick={() => (trashOpen = true)}
+					variant="danger"
+				>
+					{m.common.delete}
+				</Button>
+			</MoreActions>
 		{/if}
 	{/snippet}
 

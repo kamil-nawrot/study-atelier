@@ -62,6 +62,7 @@
 				aria-expanded={view.wide.current ? view.panelOpen : undefined}
 				aria-haspopup={view.wide.current ? undefined : 'dialog'}
 				aria-label={view.wide.current ? view.filtersLabel : m.atelier.filters.viewButton}
+				data-on={view.filtering ? 'true' : undefined}
 				disabled={view.total === 0}
 				onclick={() =>
 					view.wide.current ? (view.panelOpen = !view.panelOpen) : (view.viewOpen = true)}

@@ -172,6 +172,29 @@
 		text-overflow: ellipsis;
 	}
 
+	@media (max-width: 767.98px) {
+		.bar :global(:is(.button, .icon-button)),
+		.bar :global(:is(.button, .icon-button):is(:disabled, [aria-disabled='true'])) {
+			position: relative;
+			border-color: transparent;
+			background: transparent;
+		}
+
+		.bar :global(.button.primary) {
+			color: var(--color-fg);
+		}
+
+		.bar :global([data-on='true'])::after {
+			position: absolute;
+			top: var(--spacing-2);
+			right: var(--spacing-2);
+			width: var(--spacing-2);
+			height: var(--spacing-2);
+			background: var(--color-highlight);
+			content: '';
+		}
+	}
+
 	.atelier.task,
 	.atelier:has(:global([data-action-bar])) {
 		--bottom-inset: 0px;
