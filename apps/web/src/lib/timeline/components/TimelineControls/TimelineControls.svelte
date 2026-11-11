@@ -103,6 +103,16 @@
 		justify-content: flex-end;
 	}
 
+	@media (max-width: 767.98px) {
+		.controls {
+			grid-template-columns: 1fr;
+		}
+
+		.move {
+			display: none;
+		}
+	}
+
 	.quiet {
 		display: inline-flex;
 		align-items: center;

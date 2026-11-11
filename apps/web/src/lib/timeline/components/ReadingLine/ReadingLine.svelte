@@ -11,11 +11,16 @@
 		orientation: Orientation;
 		onkeypan: (share: number) => void;
 		onstep: (direction: 1 | -1) => void;
+		names?: readonly string[];
 	};
 
-	let { era, view, orientation, onkeypan, onstep }: Props = $props();
+	let { era, view, orientation, onkeypan, onstep, names = [] }: Props = $props();
 
 	const KEY_PAN = 0.25;
+	const NAMES_SHOWN = 2;
+
+	let shown = $derived(orientation === 'vertical' ? names.slice(0, NAMES_SHOWN) : []);
+	let more = $derived(orientation === 'vertical' ? names.length - shown.length : 0);
 
 	let readingYear = $derived(yearAt(view.center));
 
@@ -31,6 +36,16 @@
 </script>
 
 <div class="reading" class:vertical={orientation === 'vertical'}>
+	{#if shown.length > 0}
+		<p class="names" aria-hidden="true">
+			{#each shown as name, index (index)}
+				<span class="name">{name}</span>
+			{/each}
+			{#if more > 0}
+				<span class="more">+{more}</span>
+			{/if}
+		</p>
+	{/if}
 	<span
 		class="reading-year"
 		aria-label={m.timeline.stage}
@@ -84,6 +99,35 @@
 	.reading-year:focus-visible {
 		outline: var(--border-width-base) dashed var(--color-fg);
 		outline-offset: var(--border-width-base);
+	}
+
+	.names {
+		position: absolute;
+		top: var(--spacing-2);
+		right: var(--spacing-2);
+		display: grid;
+		justify-items: end;
+		gap: var(--spacing-1);
+		max-width: calc(100% - var(--spacing-4));
+		margin: 0;
+	}
+
+	.name,
+	.more {
+		overflow: hidden;
+		max-width: 100%;
+		padding: 0 var(--spacing-2);
+		border-left: var(--border-width-base) solid var(--color-highlight);
+		background: var(--color-palette-band);
+		color: var(--color-fg);
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+
+	.more {
+		color: var(--color-fg-muted);
 	}
 
 	.vertical .reading-year {
