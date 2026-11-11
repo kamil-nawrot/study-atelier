@@ -127,7 +127,7 @@
 		position: fixed;
 		top: var(--start, var(--bar-height));
 		right: 0;
-		bottom: 0;
+		bottom: var(--bottom-inset, 0px);
 		z-index: 1;
 		display: flex;
 		align-items: flex-start;

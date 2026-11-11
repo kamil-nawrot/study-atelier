@@ -432,11 +432,13 @@ describe('artwork page', () => {
 			const next = arrow(m.artworkView.next).element().getBoundingClientRect();
 			const image = document.querySelector('.stage .mat')!.getBoundingClientRect();
 			const type = page.getByText(m.artworkForm.type, { exact: true }).element();
+			const fold =
+				document.querySelector('.bottom-bar')?.getBoundingClientRect().top ?? window.innerHeight;
 			screens.push({
 				stage: stage.height,
 				arrow: next.top,
 				fitsStage: image.bottom <= stage.bottom,
-				typeBelowFold: Math.round(type.getBoundingClientRect().top) >= window.innerHeight
+				typeBelowFold: Math.round(type.getBoundingClientRect().top) >= Math.round(fold)
 			});
 			await view.unmount();
 		}
