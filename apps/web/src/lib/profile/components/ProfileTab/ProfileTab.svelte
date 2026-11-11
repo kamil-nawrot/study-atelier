@@ -2,7 +2,7 @@
 	import { onDestroy, untrack } from 'svelte';
 	import ImageUp from '@lucide/svelte/icons/image-up';
 	import Trash from '@lucide/svelte/icons/trash';
-	import { Button, Form, FormActions, Icon, Select, Switch, TextField } from '@study-atelier/ui';
+	import { Button, Icon, Select, Switch, TextField } from '@study-atelier/ui';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
@@ -23,6 +23,7 @@
 	import type { Profile } from '#lib/profile/types/profile.ts';
 	import type { ProfileDraft } from '#lib/profile/types/profile-draft.ts';
 	import Avatar from '#lib/profile/components/Avatar/Avatar.svelte';
+	import SettingsForm from '#lib/profile/components/SettingsForm/SettingsForm.svelte';
 
 	type Props = {
 		profile: Profile;
@@ -116,102 +117,80 @@
 	});
 </script>
 
-<div class="tab">
-	<Form error={formState.error} errorTitle={m.settings.profile.errorTitle} onsubmit={submit}>
-		<div class="fields">
-			<div class="photo">
-				<div class="mat">
-					<Avatar
-						{initial}
-						large
-						path={hasAvatar ? formState.saved.avatarPath : null}
-						{previewUrl}
-					/>
-				</div>
-				<div class="buttons">
-					<Button disabled={formState.busy || cropping} onclick={() => fileInput?.click()}>
-						<Icon icon={ImageUp} size="sm" />
-						{hasAvatar ? m.settings.profile.changePhoto : m.settings.profile.addPhoto}
+<SettingsForm
+	busy={formState.busy}
+	error={formState.error}
+	errorTitle={m.settings.profile.errorTitle}
+	oncancel={cancel}
+	onsubmit={submit}
+	saveLabel={m.settings.profile.save}
+	bind:barHeight
+>
+	<div class="fields">
+		<div class="photo">
+			<div class="mat">
+				<Avatar {initial} large path={hasAvatar ? formState.saved.avatarPath : null} {previewUrl} />
+			</div>
+			<div class="buttons">
+				<Button disabled={formState.busy || cropping} onclick={() => fileInput?.click()}>
+					<Icon icon={ImageUp} size="sm" />
+					{hasAvatar ? m.settings.profile.changePhoto : m.settings.profile.addPhoto}
+				</Button>
+				{#if hasAvatar}
+					<Button
+						disabled={formState.busy}
+						onclick={() => setAvatar({ kind: 'remove' })}
+						variant="danger"
+					>
+						<Icon icon={Trash} size="sm" />
+						{m.settings.profile.removePhoto}
 					</Button>
-					{#if hasAvatar}
-						<Button
-							disabled={formState.busy}
-							onclick={() => setAvatar({ kind: 'remove' })}
-							variant="danger"
-						>
-							<Icon icon={Trash} size="sm" />
-							{m.settings.profile.removePhoto}
-						</Button>
-					{/if}
-				</div>
-				{#if photoError}
-					<span id={hintId} class="error" role="alert">{photoError}</span>
 				{/if}
-				<input
-					bind:this={fileInput}
-					accept={OWN_IMAGE_ACCEPT}
-					aria-describedby={photoError ? hintId : undefined}
-					hidden
-					onchange={pick}
-					type="file"
-				/>
 			</div>
-			<div class="inputs">
-				<TextField
-					autocomplete="given-name"
-					error={nameError}
-					label={m.settings.profile.name}
-					maxlength={DISPLAY_NAME_MAX_LENGTH * 2}
-					bind:value={name}
-				/>
-				<div class="described">
-					<Switch
-						aria-describedby="{formId}-career-hint"
-						label={m.settings.profile.careerShown}
-						bind:checked={careerShown}
-					/>
-					<p id="{formId}-career-hint" class="hint">{m.settings.profile.careerShownHint}</p>
-				</div>
-				<Select
-					disabled={!careerShown}
-					label={m.settings.profile.rankForm}
-					options={[
-						{ value: 'masculine', label: m.settings.profile.rankFormMasculine },
-						{ value: 'feminine', label: m.settings.profile.rankFormFeminine }
-					]}
-					bind:value={rankForm}
-				/>
-			</div>
+			{#if photoError}
+				<span id={hintId} class="error" role="alert">{photoError}</span>
+			{/if}
+			<input
+				bind:this={fileInput}
+				accept={OWN_IMAGE_ACCEPT}
+				aria-describedby={photoError ? hintId : undefined}
+				hidden
+				onchange={pick}
+				type="file"
+			/>
 		</div>
-		<FormActions bind:height={barHeight}>
-			<Button disabled={formState.busy} onclick={cancel}>
-				{m.common.cancel}
-			</Button>
-			<Button disabled={formState.busy} type="submit" variant="primary">
-				{formState.busy ? m.common.saving : m.settings.profile.save}
-			</Button>
-		</FormActions>
-	</Form>
-</div>
+		<div class="inputs">
+			<TextField
+				autocomplete="given-name"
+				error={nameError}
+				label={m.settings.profile.name}
+				maxlength={DISPLAY_NAME_MAX_LENGTH * 2}
+				bind:value={name}
+			/>
+			<div class="described">
+				<Switch
+					aria-describedby="{formId}-career-hint"
+					label={m.settings.profile.careerShown}
+					bind:checked={careerShown}
+				/>
+				<p id="{formId}-career-hint" class="hint">{m.settings.profile.careerShownHint}</p>
+			</div>
+			<Select
+				disabled={!careerShown}
+				label={m.settings.profile.rankForm}
+				options={[
+					{ value: 'masculine', label: m.settings.profile.rankFormMasculine },
+					{ value: 'feminine', label: m.settings.profile.rankFormFeminine }
+				]}
+				bind:value={rankForm}
+			/>
+		</div>
+	</div>
+</SettingsForm>
 
 <DiscardDialog {changes} description={m.common.discardDescription} />
 
 <style>
-	.tab {
-		display: grid;
-		flex: 1;
-	}
-
-	.tab > :global(form) {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-6);
-	}
-
-	.tab > :global(form) > :global([role='alert']) {
-		max-width: var(--size-content-default);
-	}
-
 	.fields {
 		display: grid;
 		align-content: start;
