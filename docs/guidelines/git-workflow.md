@@ -73,8 +73,16 @@ Migrations are applied to the development database from `develop` and to the pro
 
 ## Before pushing
 
-Run the same checks as CI from the repository root and push only when they pass:
+Run `pnpm verify` from the repository root and push only when it passes ([ADR-0246](../decisions/0246-guard-risky-commands-with-a-hook-and-verify-changes-with-one-command.md)). It runs the checks of the files changed since the branch left `develop`, one after another so the machine does not run out of memory: Prettier, ESLint and Stylelint on the changed files, the size limits, the dependency check and the type check of each changed package, the specs in the folders of the changed files with two Vitest workers, the workflow script and hook tests, the docs check and the migration order when their files changed, and the branch name and the commit subjects. Every step runs on the Node of `.nvmrc` from `~/.nvm`, its log goes to `tmp/verify/`, and the command fails when any step fails.
 
-```sh
-pnpm lint && pnpm check && pnpm test && pnpm build
-```
+| Option         | Effect                                                                        |
+| -------------- | ----------------------------------------------------------------------------- |
+| `--related`    | Run every spec Vitest finds related to the changed files                      |
+| `--all`        | Run the whole lint, type check and test suite of `apps/web` and `packages/ui` |
+| `--base <ref>` | Compare with another ref than the point the branch left `develop`             |
+
+CI runs the whole suite and the build on every pull request, so a test elsewhere that a change breaks shows there.
+
+## Guarded commands
+
+A `PreToolUse` hook, [`.claude/hooks/guard-bash.mjs`](../../.claude/hooks/guard-bash.mjs), refuses these commands in a Claude session before they run: staging a folder, everything or a pattern (`git add .`, `-A`, `<dir>`, a glob), a force push, a rebase, a pull with rebase, `supabase db reset` and `pnpm db:reset`, a `Claude-Session` trailer in a `git` or `gh` command, and piping into `jq`. A refused command is done another way (staging each file by its path, merging `develop`), not rephrased to get past the hook. A new rule gets a test in `guard-bash.test.mjs`.

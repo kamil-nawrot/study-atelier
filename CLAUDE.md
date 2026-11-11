@@ -18,6 +18,7 @@ Key rules in short:
 - Gitflow: work on `feature/*` branches (or `bugfix/*` for bugs) cut from `develop`; open PRs into `develop`; the owner approves and merges.
 - A pushed branch is never rebased or force-pushed; a conflict with `develop` is resolved by merging `develop` into the branch.
 - Commit messages follow Conventional Commits.
+- Before pushing, run `pnpm verify`; a hook refuses risky commands such as `git add .`, a force push or a database reset ([ADR-0246](docs/decisions/0246-guard-risky-commands-with-a-hook-and-verify-changes-with-one-command.md)).
 - No comments in code unless the owner explicitly asks for them.
 - `apps/web/src/lib` is organised in feature modules over `shared` and `catalogue`, with size limits per file and only `*-data.ts` files calling Supabase ([ADR-0126](docs/decisions/0126-organise-the-web-app-in-feature-modules-with-enforced-limits.md)).
 - Everything in this repository (code, comments, docs) is written in English. Conversation with the owner is in Polish.
