@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/i18n.ts';
@@ -11,6 +11,10 @@ vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({ loadTermDefinit
 describe('GlossaryNotes', () => {
 	beforeEach(() => {
 		vi.mocked(loadTermDefinition).mockReset().mockImplementation(testTermDefinition);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
 	});
 
 	it('marks a word of the glossary and shows its card on a click', async () => {
@@ -101,7 +105,6 @@ describe('GlossaryNotes', () => {
 		vi.advanceTimersByTime(500);
 
 		await expect.element(page.getByRole('dialog')).toHaveTextContent(m.glossary.card.loading);
-		vi.useRealTimers();
 	});
 
 	it('shows the card once with its definition when it loads quickly', async () => {
