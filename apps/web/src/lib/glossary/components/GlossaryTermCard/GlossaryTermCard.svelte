@@ -1,6 +1,6 @@
 <script lang="ts">
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
-	import { Icon } from '@study-atelier/ui';
+	import { Icon, popoverHold } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
@@ -18,6 +18,8 @@
 
 	let { term, linked = false }: Props = $props();
 
+	const hold = popoverHold();
+
 	let loaded = $state<{ id: string; result: TermDefinitionResult }>();
 
 	const result = $derived(loaded?.id === term.id ? loaded.result : undefined);
@@ -26,11 +28,14 @@
 		const id = term.id;
 		if (!term.hasDefinition) return;
 		let current = true;
+		const release = hold?.();
 		void loadTermDefinition(id).then((answer) => {
 			if (current) loaded = { id, result: answer };
+			release?.();
 		});
 		return () => {
 			current = false;
+			release?.();
 		};
 	});
 </script>

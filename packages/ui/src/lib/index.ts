@@ -60,7 +60,7 @@ export {
 	scrollForDrag,
 	thumbGeometry
 } from './overlay-scrollbar/overlay-scrollbar.ts';
-export { PopoverState } from './popover-state/popover-state.svelte';
+export { PopoverState, popoverHold } from './popover-state/popover-state.svelte';
 export type { ArtworkTileImage } from './types/artwork-tile-image';
 export type { ChoiceTile } from './types/choice-tile';
 export type { SearchSelectOption } from './types/search-select-option';

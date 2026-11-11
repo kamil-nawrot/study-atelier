@@ -91,13 +91,37 @@ describe('GlossaryNotes', () => {
 		expect(loadTermDefinition).toHaveBeenCalledExactlyOnceWith('a-tympanum');
 	});
 
-	it('shows a placeholder while the definition loads', async () => {
+	it('keeps the card hidden while the definition loads, and shows a placeholder when it is slow', async () => {
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
 		vi.mocked(loadTermDefinition).mockReturnValue(new Promise(() => {}));
 		render(GlossaryNotes, { entries: testGlossary(), value: 'The tympana.' });
 
 		await page.getByRole('button', { name: 'tympana' }).click();
+		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+		vi.advanceTimersByTime(500);
 
 		await expect.element(page.getByRole('dialog')).toHaveTextContent(m.glossary.card.loading);
+		vi.useRealTimers();
+	});
+
+	it('shows the card once with its definition when it loads quickly', async () => {
+		let answer: () => void = () => {};
+		vi.mocked(loadTermDefinition).mockImplementation(
+			(id) =>
+				new Promise((done) => {
+					answer = () => void testTermDefinition(id).then(done);
+				})
+		);
+		render(GlossaryNotes, { entries: testGlossary(), value: 'The tympana.' });
+
+		await page.getByRole('button', { name: 'tympana' }).click();
+		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+		answer();
+
+		await expect
+			.element(page.getByRole('dialog'))
+			.toHaveTextContent('Tympanum is a test definition.');
+		expect(page.getByText(m.glossary.card.loading).elements()).toHaveLength(0);
 	});
 
 	it('announces the definition once it has loaded', async () => {
