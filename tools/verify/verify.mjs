@@ -168,12 +168,17 @@ function repositorySteps(files, branch) {
 	const steps = [];
 	if (
 		all ||
-		files.some((file) => file.startsWith('.github/scripts/') || file.startsWith('.claude/hooks/'))
+		files.some((file) => /^(\.github\/scripts|\.claude\/hooks|tools)\/.*\.mjs$/.test(file))
 	) {
 		steps.push({
-			name: 'Workflow script and hook tests',
+			name: 'Workflow script, hook and tool tests',
 			cmd: 'node',
-			args: ['--test', '.github/scripts/**/*.test.mjs', '.claude/hooks/*.test.mjs']
+			args: [
+				'--test',
+				'.github/scripts/**/*.test.mjs',
+				'.claude/hooks/*.test.mjs',
+				'tools/**/*.test.mjs'
+			]
 		});
 	}
 	if (all || files.some((file) => file.endsWith('.md'))) {
