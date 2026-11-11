@@ -173,6 +173,18 @@ describe('add artwork page', () => {
 			.toBeInTheDocument();
 	});
 
+	it('puts the title and the authors before the images, so they come first on a phone', async () => {
+		renderPage();
+
+		const findImage = page.getByRole('button', { name: m.artworkForm.findImage });
+		await expect.element(findImage).toBeVisible();
+
+		for (const field of [titleField(), authorsField()]) {
+			const order = field.element().compareDocumentPosition(findImage.element());
+			expect(order & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+		}
+	});
+
 	it('shows field errors on save and moves focus to the first one', async () => {
 		renderPage();
 

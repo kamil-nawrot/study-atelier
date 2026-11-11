@@ -50,7 +50,7 @@
 	{disabled}
 >
 	<legend>{label}</legend>
-	<div class="tiles">
+	<div class="tiles" class:dense={(narrowColumns ?? 0) >= 4}>
 		{#each options as option (option.value)}
 			<label class="tile" class:selected={value === option.value}>
 				<input
@@ -164,7 +164,17 @@
 		cursor: not-allowed;
 	}
 
+	.dense .label {
+		font-size: var(--font-size-xs);
+		line-height: var(--line-height-xs);
+	}
+
 	@container (min-width: 600px) {
+		.dense .label {
+			font-size: var(--font-size-sm);
+			line-height: var(--line-height-sm);
+		}
+
 		.tiles {
 			grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
 		}
