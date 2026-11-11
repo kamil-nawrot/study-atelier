@@ -71,6 +71,18 @@ Migrations are applied to the development database from `develop` and to the pro
 2. Open a pull request to `main` and merge it with a merge commit, then tag and release as above.
 3. Merge `main` back into `develop` with a pull request.
 
+## Worktrees
+
+A local Claude session works in its own worktree, never in the main checkout ([ADR-0247](../decisions/0247-work-in-a-worktree-per-session.md)):
+
+```sh
+pnpm worktree feature/atl-12-artwork-list          # from origin/develop
+pnpm worktree hotfix/0.21.4 --from origin/main      # from another ref
+pnpm worktree remove feature/atl-12-artwork-list   # after the pull request is merged
+```
+
+The first form creates `../study-atelier-atl-12` (named after the issue key, or after the branch when it has none), checks out the branch when it already exists locally or on GitHub, copies `apps/web/.env` from the main checkout and runs `pnpm install` on the Node of `.nvmrc`. `remove` removes the worktree and deletes the local branch once its pull request is merged; a worktree with uncommitted changes is not removed.
+
 ## Before pushing
 
 Run `pnpm verify` from the repository root and push only when it passes ([ADR-0246](../decisions/0246-guard-risky-commands-with-a-hook-and-verify-changes-with-one-command.md)). It runs the checks of the files changed since the branch left `develop`, one after another so the machine does not run out of memory: Prettier, ESLint and Stylelint on the changed files, the size limits, the dependency check and the type check of each changed package, the specs in the folders of the changed files with two Vitest workers, the workflow script and hook tests, the docs check and the migration order when their files changed, and the branch name and the commit subjects. Every step runs on the Node of `.nvmrc` from `~/.nvm`, its log goes to `tmp/verify/`, and the command fails when any step fails.
