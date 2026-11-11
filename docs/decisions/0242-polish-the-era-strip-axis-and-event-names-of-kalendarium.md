@@ -1,6 +1,6 @@
 # 0242. Polish the era strip, the axis and the event names of Kalendarium
 
-- Status: accepted
+- Status: accepted; the era name under the strip on a phone is superseded by [0252](0252-overhaul-the-app-on-a-phone.md)
 - Date: 2026-11-10
 
 ## Context and problem statement

@@ -1,6 +1,6 @@
 # 0203. Show the palette on the stage and compare two artworks side by side
 
-- Status: accepted
+- Status: accepted; "Porównaj" in the top bar on a phone is superseded by [0252](0252-overhaul-the-app-on-a-phone.md)
 - Date: 2026-11-06
 
 ## Context and problem statement
