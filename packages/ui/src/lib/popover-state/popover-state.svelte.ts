@@ -1,4 +1,8 @@
+import { getContext, setContext, untrack } from 'svelte';
+
 const CLOSE_DELAY = 120;
+const SLOW_CONTENT_DELAY = 500;
+const contextKey = Symbol('popover-hold');
 const FOCUSABLE =
 	'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
@@ -20,11 +24,39 @@ function focusablesIn(root: Element | Document): HTMLElement[] {
 export class PopoverState {
 	anchor = $state<HTMLElement>();
 	open = $state(false);
+	slow = $state(false);
+	#holders = $state(0);
+	#slowing: ReturnType<typeof setTimeout> | undefined;
 	card: HTMLElement | undefined;
 	interactive = false;
 	#pinned = false;
 	#closing: ReturnType<typeof setTimeout> | undefined;
 	#opening: ReturnType<typeof setTimeout> | undefined;
+
+	get ready(): boolean {
+		return this.#holders === 0 || this.slow;
+	}
+
+	hold(): () => void {
+		untrack(() => {
+			if (this.#holders === 0) {
+				this.slow = false;
+				this.#slowing = setTimeout(() => {
+					this.slow = true;
+				}, SLOW_CONTENT_DELAY);
+			}
+			this.#holders += 1;
+		});
+		let held = true;
+		return () => {
+			if (!held) return;
+			held = false;
+			untrack(() => {
+				this.#holders -= 1;
+				if (this.#holders === 0) clearTimeout(this.#slowing);
+			});
+		};
+	}
 
 	show(anchor: HTMLElement): void {
 		this.#cancelOpen();
@@ -143,4 +175,12 @@ export class PopoverState {
 		clearTimeout(this.#closing);
 		this.#closing = undefined;
 	}
+}
+
+export function providePopoverHold(hold: () => () => void): void {
+	setContext(contextKey, hold);
+}
+
+export function popoverHold(): (() => () => void) | undefined {
+	return getContext<(() => () => void) | undefined>(contextKey);
 }
