@@ -20,22 +20,17 @@ describe('PageHeader', () => {
 		expect(document.querySelector('h1')).toBeNull();
 	});
 
-	it('puts the count level with the lead on a larger screen and under it on a phone', async () => {
+	it('puts the count level with the lead, at its right', async () => {
 		await page.viewport(1280, 800);
 		render(PageHeader, { lead: 'Your visits.', aside: count });
 		await expect.element(page.getByText('4 visits')).toBeVisible();
 
 		expect(box('4 visits').left).toBeGreaterThanOrEqual(box('Your visits.').right);
 		expect(box('4 visits').top).toBeLessThan(box('Your visits.').bottom);
-
-		await page.viewport(390, 844);
-
-		await expect.poll(() => box('4 visits').top).toBeGreaterThanOrEqual(box('Your visits.').bottom);
-		expect(box('4 visits').left).toBe(box('Your visits.').left);
 	});
 
-	it('keeps an action level with the lead, at its right, on a phone', async () => {
-		await page.viewport(390, 844);
+	it('keeps an action level with the lead, at its right', async () => {
+		await page.viewport(1280, 800);
 		render(PageHeader, { lead: 'Your visits.', actions: filter });
 
 		const button = page.getByRole('button', { name: 'Filters' });
@@ -43,5 +38,14 @@ describe('PageHeader', () => {
 		const control = button.element().getBoundingClientRect();
 		expect(control.left).toBeGreaterThanOrEqual(box('Your visits.').right);
 		expect(control.top).toBeLessThan(box('Your visits.').bottom);
+	});
+
+	it('is not shown on a phone, with its count and its action', async () => {
+		await page.viewport(390, 844);
+		render(PageHeader, { lead: 'Your visits.', aside: count, actions: filter });
+
+		await expect.element(page.getByText('Your visits.')).not.toBeVisible();
+		await expect.element(page.getByText('4 visits')).not.toBeVisible();
+		await expect.element(page.getByRole('button', { name: 'Filters' })).not.toBeVisible();
 	});
 });
