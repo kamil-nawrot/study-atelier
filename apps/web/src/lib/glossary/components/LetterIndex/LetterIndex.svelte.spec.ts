@@ -136,7 +136,7 @@ describe('LetterIndex', () => {
 			.toHaveAttribute('aria-current', 'true');
 	});
 
-	it('follows a finger sliding along the letters and shows the letter beside it', async () => {
+	it('follows a finger sliding along the letters and jumps to the last one when it lifts', async () => {
 		await page.viewport(390, 844);
 		list = sections('A', 'B', 'C');
 		render(LetterIndex, { letters: ['A', 'B', 'C'] });
@@ -160,9 +160,10 @@ describe('LetterIndex', () => {
 
 		await expect.element(c).toHaveAttribute('aria-current', 'true');
 		await expect.element(page.getByText('C', { exact: true }).last()).toBeVisible();
-		await expect.poll(() => window.scrollY).toBeGreaterThan(0);
+		expect(window.scrollY).toBe(0);
 
 		touch('pointerup', c.element());
+		await expect.poll(() => window.scrollY).toBeGreaterThan(0);
 		await expect.poll(() => document.querySelectorAll('.bubble').length).toBe(0);
 	});
 });
