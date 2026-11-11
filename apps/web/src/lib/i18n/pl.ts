@@ -839,6 +839,8 @@ export const pl = {
 				contemporary: 'współczesności'
 			},
 			slider: 'Rok powstania dzieła',
+			earlier: 'Rok wcześniej',
+			later: 'Rok później',
 			check: 'Sprawdź rok',
 			results: {
 				3: 'Świetne wyczucie.',
