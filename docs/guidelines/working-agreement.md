@@ -14,6 +14,19 @@ How the project owner and Claude (implementer) work together on study-atelier.
 3. A proposal the owner has not confirmed yet is recorded with status `proposed` and is not built upon.
 4. When a design changes how existing data is stored or interpreted, Claude first checks the owner's real data: it writes a read-only SQL query, the owner runs it in the Supabase SQL Editor and shares the result, and the options are weighed against what the data actually contains.
 
+## Working with the owner
+
+These rules come from the owner's corrections in earlier sessions ([ADR-0250](../decisions/0250-keep-the-rules-of-working-with-the-owner-in-the-working-agreement.md)).
+
+- **Scenarios before a decision.** A rule that orders, groups or lays out the owner's data is checked on the real data first (a read-only query, see [Decisions](#decisions)). A rule with limits, counts or time is shown as what the learner sees, step by step, in two or three realistic scenarios. A technical design is walked through a table of scenarios that includes the cases it does not handle, names every arbitrary value as arbitrary and states the real gain at today's data size.
+- **A new module starts with doubt.** An idea for a new module gets a spike issue that opens with an adversarial discussion: the strongest objections, each with a question for the owner, about the value, the overlap with existing modules and the cost. Every mechanism added later in the design, Claude's own included, is challenged the same way. Before the spike's ADR, every agreed rule is checked against the code (where the data is counted, which ids and orders exist, ties, empty states, time zones).
+- **Facts are checked in the code.** Every claim about how the app works, in a proposed text, a design question, a prototype or a bug report, is checked in the code, the database constraints and the real data first, not inferred from types.
+- **Texts before building.** A new or reworked screen gets all its texts proposed before it is built; the owner usually rewrites them. An owner's draft is polished close to its wording and rhythm, and every proposal must read as written in Polish, not translated ([voice-and-tone.md](../product/voice-and-tone.md)).
+- **An agreed layout is not changed silently.** When agreed content does not fit an agreed layout, Claude stops and asks with options (change the text, let the part wrap, change the layout).
+- **One topic per message.** A question names its Linear issue and does not ride along with a message about another task, and a part of the UI is called by the name the code and the issue use. Mockups needed for a choice go in the message or in a screenshot, since option previews of a question are cut to one line.
+- **A learner's bug comes first.** A bug a learner reported is filed as a `Bug` with priority High in the milestone being worked on, explained with options when the fix needs a decision, and built before the work in progress continues.
+- **A milestone is read in Linear.** Before saying what is left in a milestone, Claude lists its issues in Linear instead of counting from the conversation.
+
 ## Mockups
 
 Mockups (for example from a design session in Claude Projects) show layout and proportions. Where a mockup differs from an accepted ADR in texts, fields or details, the ADR wins, and nothing that only the mockup shows is built without asking the owner. Mockup files kept locally go in the ignored `tmp/` folder, never in a commit.
@@ -34,10 +47,14 @@ Every local Claude session works in its own worktree, set up with `pnpm worktree
 
 When Claude opens a session's pull request, before asking for review, Claude runs the [`study-atelier-session-retro`](../../.claude/skills/study-atelier-session-retro/SKILL.md) skill: it proposes what the conversation and the session's pull request taught that is worth recording in the docs, the guidelines or the project memory, and records what the owner confirms in that same pull request. The owner may merge as soon as CI passes, so the retro does not wait for the review; findings from the review itself are added in a short second round while the pull request is still open.
 
+## Working in a loop
+
+Once the issues of a milestone are agreed, Claude works through them without waiting to be told. Claude merges its own `feature/*` and `bugfix/*` pull requests into `develop` with a squash once `pnpm wait-ci` passes, then moves the issue to Done and removes the worktree; the owner gave this standing approval on 2026-10-29. A pull request that adds or changes UI texts waits for the owner's agreement on the texts, listed in a table, before it is merged. An issue blocked on the owner's decision does not stop the others: Claude asks, and meanwhile takes an unblocked issue in its own worktree. In a milestone of many small polish issues, the checks may run per batch of issues and one pull request may carry several issues, under the branch and title of the leading one with the others listed in its Context.
+
 ## Actions that need the owner's explicit approval
 
 - creating external resources (repositories, cloud projects, accounts, paid services)
-- merging pull requests or pushing directly to `main` or `develop`
+- merging release, hotfix and merge-back pull requests, merging any pull request that is not Claude's own (see [Working in a loop](#working-in-a-loop)), and pushing directly to `main` or `develop`
 - deleting data, branches, or Linear issues
 - anything that costs money
 
