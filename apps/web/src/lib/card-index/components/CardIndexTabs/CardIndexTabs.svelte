@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { LucideIcon } from '@lucide/svelte';
 	import Plus from '@lucide/svelte/icons/plus';
-	import { Button, Icon, Tabs } from '@study-atelier/ui';
+	import { MediaQuery } from 'svelte/reactivity';
+	import { Button, Icon, PopupButton, Tabs } from '@study-atelier/ui';
 	import { CARD_INDEX_TABS } from '#lib/card-index/card-index-tab/card-index-tab.ts';
 	import { loadOwnValues } from '#lib/card-index/card-index-data/card-index-data.ts';
 	import { buildTimeline, valuesOf } from '#lib/card-index/card-index/card-index.ts';
@@ -108,15 +109,35 @@
 		};
 		if (message) onmessage(message);
 	}
+
+	const phone = new MediaQuery('max-width: 767.98px');
 </script>
 
 {#snippet adds(kinds: CategoryCode[])}
-	{#each kinds as kind (kind)}
-		<Button href={newValuePath(kind)} variant="primary">
-			<Icon icon={Plus} />
-			{m.cardIndex.add[kind]}
-		</Button>
-	{/each}
+	{#if phone.current && kinds.length > 1}
+		<PopupButton align="end" label={m.common.add}>
+			{#snippet trigger()}
+				<Icon icon={Plus} />
+			{/snippet}
+			<ul class="add-choices">
+				{#each kinds as kind (kind)}
+					<li><a href={newValuePath(kind)}>{m.cardIndex.add[kind]}</a></li>
+				{/each}
+			</ul>
+		</PopupButton>
+	{:else}
+		{#each kinds as kind (kind)}
+			<Button
+				aria-label={m.cardIndex.add[kind]}
+				compact
+				href={newValuePath(kind)}
+				icon={Plus}
+				variant="primary"
+			>
+				{m.cardIndex.add[kind]}
+			</Button>
+		{/each}
+	{/if}
 {/snippet}
 
 {#snippet periodAdds()}
@@ -164,6 +185,20 @@
 </Tabs>
 
 <style>
+	.add-choices {
+		display: grid;
+		gap: var(--spacing-1);
+		margin: 0;
+		list-style: none;
+	}
+
+	.add-choices a {
+		display: block;
+		padding: var(--spacing-2) var(--spacing-3);
+		color: var(--color-fg);
+		white-space: nowrap;
+	}
+
 	.tab {
 		display: grid;
 		gap: var(--spacing-6);

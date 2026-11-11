@@ -2,7 +2,7 @@
 	import CircleDot from '@lucide/svelte/icons/circle-dot';
 	import MoveHorizontal from '@lucide/svelte/icons/move-horizontal';
 	import Plus from '@lucide/svelte/icons/plus';
-	import { Button, Icon } from '@study-atelier/ui';
+	import { Button } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { eventPath } from '#lib/timeline/event-page/event-page.ts';
@@ -27,8 +27,13 @@
 </script>
 
 {#snippet adds()}
-	<Button href={resolve('/(app)/atelier/timeline/events/new')} variant="primary">
-		<Icon icon={Plus} />
+	<Button
+		aria-label={m.cardIndex.eventsAdd}
+		compact
+		href={resolve('/(app)/atelier/timeline/events/new')}
+		icon={Plus}
+		variant="primary"
+	>
 		{m.cardIndex.eventsAdd}
 	</Button>
 {/snippet}

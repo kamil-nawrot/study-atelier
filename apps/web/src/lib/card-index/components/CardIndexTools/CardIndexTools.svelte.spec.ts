@@ -28,20 +28,17 @@ describe('CardIndexTools', () => {
 			.not.toBeInTheDocument();
 	});
 
-	it('gives the add buttons the full width of the search on a phone', async () => {
+	it('keeps the search, the order and the add button in one row on a phone', async () => {
 		await page.viewport(390, 800);
-		const actions = createRawSnippet(() => ({
-			render: () =>
-				'<span style="display: contents"><a href="/a">Dodaj okres</a><a href="/b">Dodaj styl</a></span>'
-		}));
+		const actions = createRawSnippet(() => ({ render: () => '<a href="/a">+</a>' }));
 		render(CardIndexTools, { searchLabel: 'Szukaj', sorts: ['name', 'count'], actions });
 
-		const search = page.getByRole('searchbox').element().closest('.search') as Element;
-		const first = page.getByRole('link', { name: 'Dodaj okres' }).element().getBoundingClientRect();
-		const second = page.getByRole('link', { name: 'Dodaj styl' }).element().getBoundingClientRect();
-		const row = search.getBoundingClientRect();
-		expect(first.left).toBeCloseTo(row.left, 0);
-		expect(second.right).toBeCloseTo(row.right, 0);
-		expect(first.width).toBeCloseTo(second.width, 0);
+		await expect.element(page.getByRole('link', { name: '+' })).toBeVisible();
+		const row = page.getByRole('searchbox').element().closest('.tools') as Element;
+		const boxes = [...row.children].map((child) => child.getBoundingClientRect());
+		expect(boxes).toHaveLength(3);
+		for (const box of boxes) expect(box.top).toBeCloseTo(boxes[0].top, 0);
+		expect(boxes[1].left).toBeGreaterThanOrEqual(boxes[0].right);
+		expect(boxes[2].left).toBeGreaterThanOrEqual(boxes[1].right);
 	});
 });

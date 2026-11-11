@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Plus from '@lucide/svelte/icons/plus';
-	import { Alert, Button, Dialog, Icon, Toast } from '@study-atelier/ui';
+	import { Alert, Button, Dialog, Toast } from '@study-atelier/ui';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -79,8 +79,13 @@
 		</header>
 		{#if field.kind === 'list'}
 			{#snippet addValue()}
-				<Button onclick={() => (valueOpen = true)} variant="primary">
-					<Icon icon={Plus} />
+				<Button
+					aria-label={m.ownFields.addValue}
+					compact
+					icon={Plus}
+					onclick={() => (valueOpen = true)}
+					variant="primary"
+				>
 					{m.ownFields.addValue}
 				</Button>
 			{/snippet}
