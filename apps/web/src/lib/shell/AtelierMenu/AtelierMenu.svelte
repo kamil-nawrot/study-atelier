@@ -135,16 +135,16 @@
 		{@render account(shownMenuProfile(ownerId))}
 	</div>
 	{#if barItems}
-	<a
-		class="item"
-		aria-current={page.url.pathname === atelierPath ? 'page' : undefined}
-		href={atelierPath}
-	>
-		<Icon icon={ImagesIcon} />
-		<span class="label" class:visually-hidden={compact}>
-			{m.menu.atelier}
-		</span>
-	</a>
+		<a
+			class="item"
+			aria-current={page.url.pathname === atelierPath ? 'page' : undefined}
+			href={atelierPath}
+		>
+			<Icon icon={ImagesIcon} />
+			<span class="label" class:visually-hidden={compact}>
+				{m.menu.atelier}
+			</span>
+		</a>
 	{/if}
 	<a
 		class="item"
@@ -157,16 +157,16 @@
 		</span>
 	</a>
 	{#if barItems}
-	<a
-		class="item"
-		aria-current={page.url.pathname.startsWith(glossaryPath) ? 'page' : undefined}
-		href={glossaryPath}
-	>
-		<Icon icon={BookA} />
-		<span class="label" class:visually-hidden={compact}>
-			{m.menu.glossary}
-		</span>
-	</a>
+		<a
+			class="item"
+			aria-current={page.url.pathname.startsWith(glossaryPath) ? 'page' : undefined}
+			href={glossaryPath}
+		>
+			<Icon icon={BookA} />
+			<span class="label" class:visually-hidden={compact}>
+				{m.menu.glossary}
+			</span>
+		</a>
 	{/if}
 	<a
 		class="item"
@@ -199,33 +199,33 @@
 		</span>
 	</a>
 	{#if barItems}
-	<a
-		class="item"
-		aria-current={page.url.pathname === reviewPath ? 'page' : undefined}
-		href={reviewPath}
-	>
-		<span class="icon">
-			<Icon icon={Layers} />
+		<a
+			class="item"
+			aria-current={page.url.pathname === reviewPath ? 'page' : undefined}
+			href={reviewPath}
+		>
+			<span class="icon">
+				<Icon icon={Layers} />
+				{#await page.data.reviewWaiting then waiting}
+					{#if waiting > 0}
+						<span class="badge" aria-hidden="true"></span>
+					{/if}
+				{/await}
+			</span>
+			<span class="label" class:visually-hidden={compact}>
+				{m.menu.review}
+				{#await page.data.reviewWaiting then waiting}
+					{#if waiting > 0}
+						<span class="visually-hidden">, {m.menu.reviewWaiting(waiting)}</span>
+					{/if}
+				{/await}
+			</span>
 			{#await page.data.reviewWaiting then waiting}
 				{#if waiting > 0}
-					<span class="badge" aria-hidden="true"></span>
+					<Count aria-hidden="true" value={waiting} />
 				{/if}
 			{/await}
-		</span>
-		<span class="label" class:visually-hidden={compact}>
-			{m.menu.review}
-			{#await page.data.reviewWaiting then waiting}
-				{#if waiting > 0}
-					<span class="visually-hidden">, {m.menu.reviewWaiting(waiting)}</span>
-				{/if}
-			{/await}
-		</span>
-		{#await page.data.reviewWaiting then waiting}
-			{#if waiting > 0}
-				<Count aria-hidden="true" value={waiting} />
-			{/if}
-		{/await}
-	</a>
+		</a>
 	{/if}
 	{#if careerShown}
 		<a

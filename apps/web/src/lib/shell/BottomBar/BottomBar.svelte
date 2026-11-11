@@ -60,7 +60,13 @@
 			{/await}
 		</span>
 	</a>
-	<button class="item" aria-haspopup="dialog" aria-label={m.menu.open} onclick={onmenu} type="button">
+	<button
+		class="item"
+		aria-haspopup="dialog"
+		aria-label={m.menu.open}
+		onclick={onmenu}
+		type="button"
+	>
 		<span class="icon">
 			<Icon icon={Menu} />
 			{#if careerShown}
@@ -76,12 +82,16 @@
 
 <style>
 	.bottom-bar {
+		--label-size: 11px;
+		--label-line: 1.2;
+		--item-gap: 2px;
+		--safe-bottom: env(safe-area-inset-bottom);
 		position: fixed;
 		inset: auto 0 0;
 		z-index: 3;
 		display: flex;
 		height: var(--bottom-bar-height);
-		padding-bottom: env(safe-area-inset-bottom);
+		padding-bottom: var(--safe-bottom);
 		border-top: var(--border-width-hairline) solid var(--color-tag);
 		background: var(--color-bg);
 	}
@@ -93,7 +103,7 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 2px;
+		gap: var(--item-gap);
 		min-width: 0;
 		padding: 0;
 		border: none;
@@ -119,8 +129,8 @@
 	.label {
 		overflow: hidden;
 		max-width: 100%;
-		font-size: 11px;
-		line-height: 1.2;
+		font-size: var(--label-size);
+		line-height: var(--label-line);
 		white-space: nowrap;
 		text-overflow: ellipsis;
 	}

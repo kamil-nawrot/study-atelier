@@ -232,9 +232,7 @@ describe('atelier page', () => {
 		it('leaves adding to the bottom bar, without an add button among its tools', async () => {
 			renderAtelier();
 
-			await expect
-				.element(page.getByRole('searchbox', { name: m.atelier.search }))
-				.toBeVisible();
+			await expect.element(page.getByRole('searchbox', { name: m.atelier.search })).toBeVisible();
 			await expect
 				.element(page.getByRole('link', { name: m.atelier.add, exact: true }))
 				.not.toBeInTheDocument();

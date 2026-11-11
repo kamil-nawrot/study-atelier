@@ -37,8 +37,8 @@
 	confirmLeave={() => flow.stop.confirm()}
 	email={data.session.user.email ?? ''}
 	fill={flow.phase === 'session'}
-	task={flow.phase === 'session'}
 	heading={flow.phase === 'start'}
+	task={flow.phase === 'session'}
 	title={m.review.title}
 >
 	{#snippet bar()}
