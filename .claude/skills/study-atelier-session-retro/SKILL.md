@@ -25,7 +25,7 @@ Look for things that will still be true in later sessions:
 - **Facts about the project**: external resources, URLs, settings changed outside the repository, credentials rotated, things the owner did by hand.
 - **Repeated friction**: anything the owner had to explain or correct twice.
 
-Skip what is already recorded, what only mattered for this session, what the code or git history already shows, and anything the owner did not confirm. A proposal the owner did not settle may be listed as an open question, never recorded as a decision.
+Skip what is already recorded, what only mattered for this session, what the code or git history already shows, and anything the owner did not confirm. Skip also a coding or text-style rule drawn from a single fix, unless the same mistake has happened before: the owner turned such rules down as too specific. A proposal the owner did not settle may be listed as an open question, never recorded as a decision.
 
 ## 3. Check against what exists
 
