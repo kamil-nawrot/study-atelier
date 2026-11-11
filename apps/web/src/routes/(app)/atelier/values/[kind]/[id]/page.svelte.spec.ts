@@ -331,6 +331,36 @@ describe('value page', () => {
 			});
 		});
 
+		it('gathers deleting under one button on a phone, with the reason when it is blocked', async () => {
+			await page.viewport(390, 844);
+			renderValue(subjectOf('style-doric'));
+			const blocked = m.valuePage.deleteBlocked(
+				m.cardIndex.kinds.style.demonstrative,
+				m.atelier.count(2),
+				m.cardIndex.kinds.style.other
+			);
+
+			await page.getByRole('button', { name: m.common.moreActions }).click();
+
+			await expect.element(page.getByText(blocked)).toBeVisible();
+			await page.viewport(1280, 800);
+		});
+
+		it('deletes an unused value from the menu on a phone', async () => {
+			await page.viewport(390, 844);
+			renderValue(subjectOf('style-loose'));
+
+			await page.getByRole('button', { name: m.common.moreActions }).click();
+			await page.getByRole('button', { name: m.common.delete }).click();
+
+			await expect
+				.element(
+					page.getByRole('alertdialog', { name: m.cardIndex.deleteConfirm.title('styl', 'Loose') })
+				)
+				.toBeVisible();
+			await page.viewport(1280, 800);
+		});
+
 		it('shows an error in the dialog when deleting fails', async () => {
 			vi.mocked(deleteValue).mockResolvedValue({ error: m.cardIndex.errors.changed });
 			renderValue(subjectOf('style-loose'));

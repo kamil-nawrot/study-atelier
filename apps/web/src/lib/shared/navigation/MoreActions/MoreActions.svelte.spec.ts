@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import type { ResolvedPathname } from '$app/types';
 import '@study-atelier/ui/styles.css';
 import { m } from '#lib/i18n/i18n.ts';
 import MoreActions from './MoreActions.svelte';
@@ -31,6 +32,7 @@ describe('MoreActions', () => {
 		render(MoreActions, {
 			actions: [
 				{ label: 'Compare', icon: Columns2, reason: 'Needs two artworks' },
+				{ label: 'Open', icon: Columns2, href: '/atelier/compare' as ResolvedPathname },
 				{ label: 'Delete', icon: Trash, onclick: remove, danger: true }
 			],
 			children: buttons,
@@ -42,8 +44,12 @@ describe('MoreActions', () => {
 		await page.getByRole('button', { name: m.common.moreActions }).click();
 
 		await expect.element(page.getByText('Needs two artworks')).toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: 'Open' }))
+			.toHaveAttribute('href', '/atelier/compare');
 		await page.getByRole('button', { name: 'Delete' }).click();
 		expect(remove).toHaveBeenCalledOnce();
+		await expect.element(page.getByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
 		await page.viewport(1280, 800);
 	});
 });
