@@ -49,10 +49,13 @@ Commit messages follow [Conventional Commits 1.0](https://www.conventionalcommit
 - Screenshots of a change (desktop and phone, from `pnpm screenshot`, see [cloud-sessions.md](cloud-sessions.md)) are attached to the Linear issue, not to the pull request; the pull request description says they are there. Screenshots taken after review changes are added with a title that says so.
 - Before asking the owner for review, Claude reviews the pull request with the [`study-atelier-pr-review`](../../.claude/skills/study-atelier-pr-review/SKILL.md) skill and fixes blocking findings.
 - The owner reviews and merges. Claude keeps the pull request green and answers review comments.
+- Claude waits for CI with `pnpm wait-ci <n>` ([ADR-0248](../decisions/0248-wait-for-ci-and-try-sql-with-one-command-each.md)). It waits for the named jobs of the pull request's head commit, "Web app" by default, "Markdown" when only Markdown changed, plus "UI library" when `packages/ui` changed and "Migrations on local Supabase" when `supabase/` changed (`--check <name>` names others), until each passes, is skipped or fails. It keeps waiting while GitHub does not show the local head yet, stops at once on a conflict with the base branch, and exits with 0 when they pass, 1 when one fails and 2 on a conflict, a closed pull request or after `--timeout` minutes (40 by default). A failed "Migrations on local Supabase" job can be the Docker registry's limit or a busy port rather than the code: read its log before looking for a bug, and rerun it after some minutes.
 - A pull request with a conflict against `develop` gets no CI run at all. Claude merges `develop` into the branch (a merge, never a rebase or a force push), resolves the conflicts, runs lint, the type check and the tests of the touched files, and pushes; then checks that CI ran.
 - After a pull request is merged, further work goes on a new branch from `develop` and into a new pull request. Nobody pushes to the branch of a merged pull request; check that the pull request is still open before pushing to it.
 
 ## Releases
+
+Claude prepares and finishes a release with the [`study-atelier-release`](../../.claude/skills/study-atelier-release/SKILL.md) skill, which follows the steps below.
 
 1. Check the Linear milestone of the version: every issue is Done or canceled. An open issue is the owner's call, either wait for it or move it to the next milestone; it is never left in the released milestone. Before cutting the branch, Claude reviews the code of the whole version (the diff from the previous tag to `develop`) for bugs and inefficient solutions, one reviewer per area of the code, and checks every finding in the code; the bugs go into one `Bug` issue of the milestone and are fixed first, and larger improvements get their own issue once the owner agrees. When the version brings a new view, the review also checks its design against comparable views on `pnpm screenshot` shots, at desktop and phone width, and its design bugs go into the same issue. Then cut `release/<version>` from `develop`, for example `release/0.1.0`. From then on the branch takes only release fixes; new features keep going to `develop`.
 2. On the release branch, set the same `version` in the root, `apps/web` and `packages/ui` `package.json` files and move the changelog entries to a new section in [`CHANGELOG.md`](../../CHANGELOG.md), user-facing changes first, with a link to the release at the end of the file. A commit that changes only these files relies on CI instead of the local checks in [Before pushing](#before-pushing).
@@ -71,10 +74,30 @@ Migrations are applied to the development database from `develop` and to the pro
 2. Open a pull request to `main` and merge it with a merge commit, then tag and release as above.
 3. Merge `main` back into `develop` with a pull request.
 
-## Before pushing
+## Worktrees
 
-Run the same checks as CI from the repository root and push only when they pass:
+A local Claude session works in its own worktree, never in the main checkout ([ADR-0247](../decisions/0247-work-in-a-worktree-per-session.md)):
 
 ```sh
-pnpm lint && pnpm check && pnpm test && pnpm build
+pnpm worktree feature/atl-12-artwork-list          # from origin/develop
+pnpm worktree hotfix/0.21.4 --from origin/main      # from another ref
+pnpm worktree remove feature/atl-12-artwork-list   # after the pull request is merged
 ```
+
+The first form creates `../study-atelier-atl-12` (named after the issue key, or after the branch when it has none), checks out the branch when it already exists locally or on GitHub, copies `apps/web/.env` from the main checkout and runs `pnpm install` on the Node of `.nvmrc`. `remove` removes the worktree and deletes the local branch once its pull request is merged; a worktree with uncommitted changes is not removed.
+
+## Before pushing
+
+Run `pnpm verify` from the repository root and push only when it passes ([ADR-0246](../decisions/0246-guard-risky-commands-with-a-hook-and-verify-changes-with-one-command.md)). It runs the checks of the files changed since the branch left `develop`, one after another so the machine does not run out of memory: Prettier, ESLint and Stylelint on the changed files, the size limits, the dependency check and the type check of each changed package, the specs in the folders of the changed files with two Vitest workers, the workflow script and hook tests, the docs check and the migration order when their files changed, and the branch name and the commit subjects. Every step runs on the Node of `.nvmrc` from `~/.nvm`, its log goes to `tmp/verify/`, and the command fails when any step fails.
+
+| Option         | Effect                                                                        |
+| -------------- | ----------------------------------------------------------------------------- |
+| `--related`    | Run every spec Vitest finds related to the changed files                      |
+| `--all`        | Run the whole lint, type check and test suite of `apps/web` and `packages/ui` |
+| `--base <ref>` | Compare with another ref than the point the branch left `develop`             |
+
+CI runs the whole suite and the build on every pull request, so a test elsewhere that a change breaks shows there.
+
+## Guarded commands
+
+A `PreToolUse` hook, [`.claude/hooks/guard-bash.mjs`](../../.claude/hooks/guard-bash.mjs), refuses these commands in a Claude session before they run: staging a folder, everything or a pattern (`git add .`, `-A`, `<dir>`, a glob), a force push, a rebase, a pull with rebase, `supabase db reset` and `pnpm db:reset`, a `Claude-Session` trailer in a `git` or `gh` command, and piping into `jq`. A refused command is done another way (staging each file by its path, merging `develop`), not rephrased to get past the hook. A new rule gets a test in `guard-bash.test.mjs`.

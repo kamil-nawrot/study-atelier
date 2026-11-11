@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { indexProblems, readAdrs } from '../../tools/adr/adr-index.mjs';
 
 const allowedMail = /@(example\.(com|org|test)|przyklad\.pl|studyatelier\.art)$|^noreply@/i;
 const mail = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
@@ -34,9 +35,8 @@ function checkDecisions() {
 		if (seen.has(number))
 			problems.push(`${file}: ADR number ${number} is also used by ${seen.get(number)}`);
 		seen.set(number, file);
-		if (!index.includes(`(${name})`))
-			problems.push(`${file}: missing from docs/decisions/README.md`);
 	}
+	problems.push(...indexProblems(index, readAdrs('docs/decisions')));
 }
 
 function checkMail(file) {

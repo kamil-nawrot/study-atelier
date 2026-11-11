@@ -1,6 +1,6 @@
 # 0192. Refresh the glossary list and show the fragments of a term
 
-- Status: accepted
+- Status: accepted; the place of the letter index is partly superseded by [0245](0245-stand-the-glossary-letter-index-in-the-middle-of-the-screen.md)
 - Date: 2026-11-05
 
 ## Context and problem statement

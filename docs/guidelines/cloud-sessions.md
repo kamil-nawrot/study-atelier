@@ -18,7 +18,7 @@ After the hook, `pnpm lint`, `pnpm check`, `pnpm test` and `pnpm build` work wit
 pnpm screenshot /atelier --combine
 ```
 
-Starts the dev server on port 5199, opens the route in Chromium at a desktop (1440 x 900) and a phone (390 x 844, 2x) viewport and writes PNGs to `tmp/screenshots/` (ignored by git). Options:
+Starts the dev server on the first free port from 5199 (so sessions in several worktrees can take screenshots at once), opens the route in Chromium at a desktop (1440 x 900) and a phone (390 x 844, 2x) viewport and writes PNGs to `tmp/screenshots/` (ignored by git). Options:
 
 | Option              | Effect                                                                                                                                                                                                 |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
