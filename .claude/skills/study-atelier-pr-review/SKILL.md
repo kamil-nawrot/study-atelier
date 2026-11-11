@@ -20,7 +20,7 @@ Read, in this order, whatever exists:
 
 1. `CLAUDE.md` at the repo root, and every file it links to.
 2. Everything in `docs/guidelines/`.
-3. `docs/decisions/README.md` (the ADR index), then the full text of every ADR whose topic the diff touches (stack, backend, hosting, images, database, auth, tracking, workflow...). Note each one's status.
+3. `docs/decisions/README.md` (the ADR index; `pnpm adr <area>` lists the ADRs of an area with their status), then the full text of every ADR whose topic the diff touches (stack, backend, hosting, images, database, auth, tracking, workflow...). Note each one's status.
 4. `docs/product/` (vision, requirements, glossary) when the PR adds or changes app behaviour or domain terms.
 5. `docs/architecture/` when the PR changes structure, adds a container/component, or touches deployment.
 6. Any `.github/pull_request_template.md` or other repo-local review/contributing rules.
