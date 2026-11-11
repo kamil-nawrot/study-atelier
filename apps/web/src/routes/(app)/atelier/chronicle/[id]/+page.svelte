@@ -65,9 +65,11 @@
 				{m.common.edit}
 			</Button>
 			<MoreActions
-				actions={[{ label: m.common.delete, icon: Trash, onclick: () => (deleteOpen = true), danger: true }]}
+				actions={[
+					{ label: m.common.delete, icon: Trash, onclick: () => (deleteOpen = true), danger: true }
+				]}
 			>
-					<Button
+				<Button
 					aria-label={m.common.delete}
 					compact
 					icon={Trash}

@@ -100,9 +100,16 @@
 					{m.exhibitions.view.edit}
 				</Button>
 				<MoreActions
-					actions={[{ label: m.exhibitions.view.delete, icon: Trash, onclick: () => (deleteOpen = true), danger: true }]}
+					actions={[
+						{
+							label: m.exhibitions.view.delete,
+							icon: Trash,
+							onclick: () => (deleteOpen = true),
+							danger: true
+						}
+					]}
 				>
-						<Button
+					<Button
 						aria-label={m.exhibitions.view.delete}
 						compact
 						icon={Trash}

@@ -42,7 +42,8 @@
 							</span>
 						</span>
 					{:else if action.href}
-						<a class="action" class:danger={action.danger} href={action.href}>
+						{@const href = action.href}
+						<a class="action" class:danger={action.danger} {href}>
 							<Icon icon={action.icon} size="sm" />
 							<span class="text">{action.label}</span>
 						</a>

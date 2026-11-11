@@ -102,7 +102,7 @@
 			<MoreActions
 				actions={[{ label: m.common.delete, icon: Trash, onclick: askToDelete, danger: true }]}
 			>
-					<Button
+				<Button
 					aria-label={m.common.delete}
 					compact
 					icon={Trash}
