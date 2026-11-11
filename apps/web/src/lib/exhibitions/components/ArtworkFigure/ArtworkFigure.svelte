@@ -155,7 +155,8 @@
 	}
 
 	.top {
-		--image-width: min(100%, calc(80vh * var(--ratio) + 2 * var(--spacing-4)));
+		--image-max-height: min(80vh, calc(var(--artwork-max-height, 100000px) - 2 * var(--spacing-4)));
+		--image-width: min(100%, calc(var(--image-max-height) * var(--ratio) + 2 * var(--spacing-4)));
 
 		display: grid;
 		gap: var(--spacing-2);
@@ -176,7 +177,7 @@
 		display: block;
 		width: auto;
 		max-width: 100%;
-		max-height: 80vh;
+		max-height: var(--image-max-height);
 		height: auto;
 	}
 
