@@ -67,7 +67,7 @@ The owner's choices in the spike [ATL-639](https://linear.app/kamil-nawrot/issue
 
 - On a phone the form starts with "Tytuł" and "Autorzy", then the images: the title and the authors are what a museum label gives, and they start the automatic image match. The empty image frame is low and grows when an image is found or added.
 - The type and era tiles are tighter.
-- The three buttons stay, "Zapisz" the widest.
+- The three buttons stay as they are. "Zapisz" was to be the widest, but on a 390 px phone "Zapisz i dodaj kolejne" does not wrap and leaves "Zapisz" about 66 px, so the owner kept the bar unchanged; "Zapisz" stands out as the one `primary` button.
 - Not taken: the era suggested from the year, and the later fields folded under "Więcej szczegółów".
 
 ### Reviews
