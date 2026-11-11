@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import { tick } from 'svelte';
 import { m } from '#lib/i18n/i18n.ts';
 import YearSlider from './YearSlider.svelte';
 
@@ -47,5 +48,47 @@ describe('YearSlider', () => {
 		await expect
 			.element(page.getByRole('slider', { name: m.review.year.slider }))
 			.toHaveAttribute('aria-valuetext', '21500 p.n.e.');
+	});
+
+	it('moves the year by one with the buttons beside it', async () => {
+		render(YearSlider, { bounds: [1492, 1789], value: 1641, oncheck: vi.fn() });
+		const slider = page.getByRole('slider', { name: m.review.year.slider });
+
+		await page.getByRole('button', { name: m.review.year.later }).click();
+		await expect.element(slider).toHaveAttribute('aria-valuetext', '1642');
+		await page.getByRole('button', { name: m.review.year.earlier }).click();
+		await page.getByRole('button', { name: m.review.year.earlier }).click();
+		await expect.element(slider).toHaveAttribute('aria-valuetext', '1640');
+	});
+
+	it('keeps moving the year while a button is held and stops when it is let go', async () => {
+		render(YearSlider, { bounds: [1492, 1789], value: 1641, oncheck: vi.fn() });
+		const slider = page.getByRole('slider', { name: m.review.year.slider });
+		const later = page.getByRole('button', { name: m.review.year.later });
+		await expect.element(later).toBeVisible();
+		const year = (): number => Number(slider.element().getAttribute('aria-valuetext'));
+
+		vi.useFakeTimers();
+		try {
+			later.element().dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0 }));
+			vi.advanceTimersByTime(1500);
+			await tick();
+			expect(year()).toBeGreaterThan(1645);
+
+			later.element().dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+			const stopped = year();
+			vi.advanceTimersByTime(2000);
+			await tick();
+			expect(year()).toBe(stopped);
+		} finally {
+			vi.useRealTimers();
+		}
+	});
+
+	it('disables the button that would leave the era', async () => {
+		render(YearSlider, { bounds: [1492, 1789], value: 1789, oncheck: vi.fn() });
+
+		await expect.element(page.getByRole('button', { name: m.review.year.later })).toBeDisabled();
+		await expect.element(page.getByRole('button', { name: m.review.year.earlier })).toBeEnabled();
 	});
 });
