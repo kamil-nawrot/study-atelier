@@ -1134,7 +1134,7 @@ export const OWN_FIELDS = [
 	},
 	{
 		id: '00000000-0000-4000-8000-000000000404',
-		name: 'Widziane na żywo',
+		name: 'Do ponownego obejrzenia',
 		description: null,
 		kind: 'flag',
 		multiple: false,
