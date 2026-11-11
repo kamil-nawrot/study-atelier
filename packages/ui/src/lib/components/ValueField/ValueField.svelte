@@ -1,5 +1,6 @@
 <script lang="ts" module>
 	import { overlayScrollbar } from '../../overlay-scrollbar/overlay-scrollbar.ts';
+	import { dropPlacement } from '../../drop-placement/drop-placement.ts';
 </script>
 
 <script lang="ts">
@@ -224,6 +225,7 @@
 			id={listId}
 			class="list"
 			{@attach overlayScrollbar()}
+			{@attach dropPlacement()}
 			aria-label={label}
 			hidden={!expanded}
 			role="listbox"
@@ -375,7 +377,7 @@
 		top: calc(100% + var(--border-width-base));
 		right: calc(-1 * var(--border-width-base));
 		left: calc(-1 * var(--border-width-base));
-		z-index: 1;
+		z-index: 2;
 		max-height: 280px;
 		margin: 0;
 		padding: var(--spacing-1) 0;
