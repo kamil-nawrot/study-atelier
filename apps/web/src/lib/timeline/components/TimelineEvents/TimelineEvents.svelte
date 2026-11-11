@@ -160,7 +160,9 @@
 			type="button"
 		>
 			<span class="diamond" aria-hidden="true"></span>
-			{@render name(shown)}
+			{#if !vertical}
+				{@render name(shown)}
+			{/if}
 		</button>
 	{:else}
 		<button
@@ -181,7 +183,9 @@
 			onclick={() => onselect(shown.item.event)}
 			type="button"
 		>
-			{@render name(shown)}
+			{#if !vertical}
+				{@render name(shown)}
+			{/if}
 		</button>
 	{/if}
 {/each}

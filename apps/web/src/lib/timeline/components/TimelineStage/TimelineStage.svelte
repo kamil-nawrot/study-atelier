@@ -27,6 +27,7 @@
 		viewportHeight?: number;
 		events?: Snippet<[StageGeometry]>;
 		artworks?: Snippet<[StageGeometry]>;
+		readingNames?: readonly string[];
 	};
 
 	let {
@@ -43,7 +44,8 @@
 		onsettle,
 		viewportHeight = 0,
 		events,
-		artworks
+		artworks,
+		readingNames = []
 	}: Props = $props();
 
 	let width = $state(0);
@@ -141,7 +143,7 @@
 		></div>
 	{/if}
 
-	<ReadingLine {era} {onkeypan} {onstep} {orientation} {view} />
+	<ReadingLine {era} names={readingNames} {onkeypan} {onstep} {orientation} {view} />
 </div>
 
 <style>
