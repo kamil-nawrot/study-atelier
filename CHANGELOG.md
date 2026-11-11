@@ -2,6 +2,23 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.21.3] - 2026-11-11
+
+Ustawienia, Słowniczek and Powtórki get the polish found after 0.21.2, and suggestion lists stay clear of the save bar.
+
+### Changed
+
+- A tab of "Ustawienia" is as tall as its content: its card ends under it, and the save bar stays at the bottom of the screen below the card.
+- On a computer the letter index of Słowniczek stands still in the middle of the screen; on a phone it still starts at the list.
+- In the light theme the stage of Powtórki, where artworks and definitions show, is light, and the definition of a glossary question stands on a quiet grey card in both themes.
+- Internal: a hook that refuses risky commands, `pnpm verify`, `pnpm wait-ci`, `pnpm db:try`, a worktree per session, an ADR index with areas, the working rules moved into the docs, stabler form and exhibition editor specs, and a code review of the version with its fixes.
+
+### Fixed
+
+- The icons of the menu flickered while the menu expanded or collapsed; they now stay still.
+- The suggestions of "Notatki" after "@" and "#", and the lists of authors, places and other values, went under the save bar and made the page longer; they now open upwards when there is no room below, or lie over their field above the bar.
+- In Kalendarium on a phone the year labels of prehistory ("40000 p.n.e.") ran past the axis and the top one was cut; they now wrap inside the axis.
+
 ## [0.21.2] - 2026-11-10
 
 Every view of the atelier speaks one visual language: the same header, tabs, toolbars, sections, forms and side panels, and Kalendarium shows an event in a popover next to it.
@@ -912,3 +929,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.21.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.0
 [0.21.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.1
 [0.21.2]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.2
+[0.21.3]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.3
