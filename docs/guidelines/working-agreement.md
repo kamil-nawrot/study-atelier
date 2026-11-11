@@ -51,6 +51,8 @@ When Claude opens a session's pull request, before asking for review, Claude run
 
 Once the issues of a milestone are agreed, Claude works through them without waiting to be told. Claude merges its own `feature/*` and `bugfix/*` pull requests into `develop` with a squash once `pnpm wait-ci` passes, then moves the issue to Done and removes the worktree; the owner gave this standing approval on 2026-10-29. A pull request that adds or changes UI texts waits for the owner's agreement on the texts, listed in a table, before it is merged. An issue blocked on the owner's decision does not stop the others: Claude asks, and meanwhile takes an unblocked issue in its own worktree. In a milestone of many small polish issues, the checks may run per batch of issues and one pull request may carry several issues, under the branch and title of the leading one with the others listed in its Context.
 
+A small fix the owner asks for in the middle of a session, such as a flaky test, goes on the session's current branch: only its files are committed, the commit names the branch's own issue, and the pull request description gets a line about it. A larger or riskier change gets its own issue; Claude asks when unsure. Small fixes the owner notes in passing while other work goes on go into one open `Bug` issue of the current milestone, and later ones are added to that issue, its branch and its pull request.
+
 ## Actions that need the owner's explicit approval
 
 - creating external resources (repositories, cloud projects, accounts, paid services)
