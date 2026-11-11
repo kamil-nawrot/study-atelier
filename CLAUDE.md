@@ -15,7 +15,7 @@ Before doing any work in this repository, read and follow:
 Key rules in short:
 
 - The project owner makes every decision. Propose options with a recommendation; record the outcome as an ADR in `docs/decisions/`.
-- Gitflow: work on `feature/*` branches (or `bugfix/*` for bugs) cut from `develop`; open PRs into `develop`; the owner approves and merges.
+- Gitflow: work on `feature/*` branches (or `bugfix/*` for bugs) cut from `develop`; open PRs into `develop`; Claude squash-merges its own at green CI, the owner merges the rest ([working agreement](docs/guidelines/working-agreement.md#working-in-a-loop)).
 - A pushed branch is never rebased or force-pushed; a conflict with `develop` is resolved by merging `develop` into the branch.
 - Commit messages follow Conventional Commits.
 - A local session works in its own worktree from `pnpm worktree <branch>`, never in the main checkout ([ADR-0247](docs/decisions/0247-work-in-a-worktree-per-session.md)).

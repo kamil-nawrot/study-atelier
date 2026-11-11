@@ -81,6 +81,6 @@ Turn the docs into concrete checks. Typical areas (verify each against the curre
 
 ## Boundaries
 
-- Never approve, merge, or push to someone else's branch. The owner approves and merges every PR.
+- Never approve, merge, or push to someone else's branch. Merging Claude's own pull requests follows [working-agreement.md](../../../docs/guidelines/working-agreement.md#working-in-a-loop); the review never merges by itself.
 - Post comments on GitHub only when asked; otherwise deliver the review in chat.
 - If the PR is your own, still review it honestly and fix blocking findings before handing it to the owner.

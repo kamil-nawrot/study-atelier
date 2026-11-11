@@ -44,17 +44,17 @@ Then classify it:
 
 ## 4. Pick the destination
 
-| Finding                                                                                          | Destination                                                                                                              |
-| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
-| A decision and its reason                                                                        | a new ADR in `docs/decisions/` from the template, added to the index; check open pull requests for numbers already taken |
-| What the app should do                                                                           | `docs/product/requirements.md` (a new R-n with its version; never renumber)                                              |
-| A domain term                                                                                    | `docs/product/glossary.md`                                                                                               |
-| How the app speaks to the learner                                                                | `docs/product/voice-and-tone.md`                                                                                         |
-| A coding standard                                                                                | `docs/guidelines/code-conventions.md`, or `ui-patterns.md` for how views and components look and behave                  |
-| A rule for how work flows                                                                        | the matching file in `docs/guidelines/`, or a repo skill when it is a step of a skill                                    |
-| A rule a linter or CI could check                                                                | the guideline, plus a Linear issue to enforce it (ask first)                                                             |
-| How the owner wants Claude to work, project facts, open threads, anything outside the repository | project memory                                                                                                           |
-| An idea for later                                                                                | a Linear issue with the [`study-atelier-idea`](../study-atelier-idea/SKILL.md) skill                                     |
+| Finding                                                                                  | Destination                                                                                                                               |
+| ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| A decision and its reason                                                                | a new ADR in `docs/decisions/` from the template, added to the index; check open pull requests for numbers already taken                  |
+| What the app should do                                                                   | `docs/product/requirements.md` (a new R-n with its version; never renumber)                                                               |
+| A domain term                                                                            | `docs/product/glossary.md`                                                                                                                |
+| How the app speaks to the learner                                                        | `docs/product/voice-and-tone.md`                                                                                                          |
+| A coding standard                                                                        | `docs/guidelines/code-conventions.md`, or `ui-patterns.md` for how views and components look and behave                                   |
+| A rule for how work flows, or for how the owner wants Claude to work                     | the matching file in `docs/guidelines/` (`working-agreement.md` for working with the owner), or a repo skill when it is a step of a skill |
+| A rule a linter or CI could check                                                        | the guideline, plus a Linear issue to enforce it (ask first)                                                                              |
+| Facts about the owner's machine and tools, open threads, anything outside the repository | project memory                                                                                                                            |
+| An idea for later                                                                        | a Linear issue with the [`study-atelier-idea`](../study-atelier-idea/SKILL.md) skill                                                      |
 
 A rule goes into the repository when it applies to the code or docs; memory only holds what the repository cannot. Do not record the same rule in both: memory links to the doc instead.
 
@@ -78,5 +78,5 @@ If nothing is worth recording, say so in one line and stop.
 ## Boundaries
 
 - Never record a decision the owner did not make, and never change an accepted ADR's decision in place.
-- Never merge, and never push to `develop` or `main`.
+- Never push to `develop` or `main`; a pull request of the retro is merged only as [working-agreement.md](../../../docs/guidelines/working-agreement.md#working-in-a-loop) allows.
 - Do not widen the session's pull request with findings unrelated to it.
