@@ -47,9 +47,7 @@
 
 	const wide = new MediaQuery(`min-width: ${WIDE_MIN_WIDTH}px`);
 
-	let count = $derived(
-		wide.current ? columnCount(true, innerWidth.current ?? 0) : phoneColumns()
-	);
+	let count = $derived(wide.current ? columnCount(true, innerWidth.current ?? 0) : phoneColumns());
 	let compact = $derived(!wide.current && count > 1);
 	let sizes = $derived(compact ? tileSizes(count) : undefined);
 	let columns = $derived(

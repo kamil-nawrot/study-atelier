@@ -7,10 +7,7 @@
 	import GroupingChoice from '#lib/wall/components/GroupingChoice/GroupingChoice.svelte';
 	import { WALL_ORDERS, type WallView } from '#lib/wall/wall-view/wall-view.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
-	import {
-		choosePhoneColumns,
-		phoneColumns
-	} from '#lib/wall/wall-columns/wall-columns.svelte.ts';
+	import { choosePhoneColumns, phoneColumns } from '#lib/wall/wall-columns/wall-columns.svelte.ts';
 
 	type Props = {
 		view: WallView;
