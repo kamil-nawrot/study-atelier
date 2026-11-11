@@ -87,6 +87,20 @@ describe('timeline event page', () => {
 		);
 	});
 
+	it('asks before deleting the event from the menu on a phone', async () => {
+		await page.viewport(390, 844);
+		render(EventPage, {
+			data: { session: testSession(), event: paxRomana, artworks: [] },
+			params: { id: 'e' }
+		});
+
+		await page.getByRole('button', { name: m.common.moreActions }).click();
+		await page.getByRole('button', { name: m.common.delete }).click();
+
+		await expect.element(page.getByRole('alertdialog')).toBeVisible();
+		await page.viewport(1280, 800);
+	});
+
 	it('says when the event no longer exists', async () => {
 		render(EventPage, {
 			data: { session: testSession(), notFound: true, artworks: [] },
