@@ -36,6 +36,7 @@
 		overlay?: Snippet;
 		removeWarning?: string;
 		filling?: boolean;
+		compactEmpty?: boolean;
 	};
 
 	let {
@@ -52,7 +53,8 @@
 		hints = [],
 		overlay,
 		removeWarning,
-		filling = false
+		filling = false,
+		compactEmpty = false
 	}: Props = $props();
 
 	const id = $props.id();
@@ -106,7 +108,7 @@
 >
 	{@render slots?.()}
 	<figure class="picture">
-		<div class="mat">
+		<div class="mat" class:compact={compactEmpty && !preview}>
 			{#if preview}
 				<div class="frame">
 					<ArtworkImage
@@ -124,7 +126,9 @@
 					<Primer />
 				</div>
 			{:else}
-				<NoImage />
+				<div class="empty">
+					<NoImage fill />
+				</div>
 			{/if}
 		</div>
 		{#if credit}
@@ -244,6 +248,18 @@
 		aspect-ratio: 4 / 5;
 		background: var(--color-mat-window);
 		color: var(--color-mat-fg);
+	}
+
+	.empty {
+		aspect-ratio: 4 / 5;
+	}
+
+	@media (max-width: 767.98px) {
+		.compact .primed,
+		.compact .empty {
+			height: 140px;
+			aspect-ratio: auto;
+		}
 	}
 
 	.mat :global(img) {
