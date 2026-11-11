@@ -159,6 +159,55 @@ describe('placeDrop', () => {
 		expect(list.getBoundingClientRect().top).toBeGreaterThanOrEqual(0);
 	});
 
+	it('cuts a list lying over its field to the visible area', async () => {
+		await page.viewport(800, 600);
+		const list = field({ top: 50, list: 600, bar: 80, height: 500 });
+
+		placeDrop(list);
+
+		expect(list.hasAttribute(DROP_OVER)).toBe(true);
+		expect(list.style.maxHeight).toBe('520px');
+	});
+
+	it('ignores the page bars for a field in a dialog', async () => {
+		await page.viewport(800, 600);
+		const host = document.createElement('dialog');
+		Object.assign(host.style, {
+			position: 'fixed',
+			inset: '0',
+			margin: '0',
+			padding: '0',
+			border: '0',
+			width: '400px',
+			height: '600px',
+			maxHeight: 'none'
+		});
+		host.setAttribute('open', '');
+		const list = field({ top: 400, list: 150, bar: 80, host });
+		list.style.setProperty('--bar-height', '500px');
+
+		placeDrop(list);
+
+		expect(list.hasAttribute(DROP_UP)).toBe(false);
+		expect(list.hasAttribute(DROP_OVER)).toBe(false);
+	});
+
+	it('measures the window when the browser has no visual viewport', async () => {
+		await page.viewport(800, 600);
+		const original = Object.getOwnPropertyDescriptor(window, 'visualViewport');
+		Object.defineProperty(window, 'visualViewport', { value: null, configurable: true });
+		try {
+			const list = field({ top: 400, list: 200 });
+
+			placeDrop(list);
+
+			expect(list.hasAttribute(DROP_UP)).toBe(true);
+		} finally {
+			if (original) Object.defineProperty(window, 'visualViewport', original);
+			else Reflect.deleteProperty(window, 'visualViewport');
+		}
+	});
+
 	it('places a list again when it shows, and stops once detached', async () => {
 		await page.viewport(800, 600);
 		const list = field({ top: 400, list: 200, bar: 80 });
