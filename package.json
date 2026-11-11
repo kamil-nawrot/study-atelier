@@ -17,6 +17,7 @@
 		"format": "prettier --write \"**/*.md\" \"lint/**\" && pnpm -r format",
 		"test": "pnpm -r test",
 		"verify": "node tools/verify/verify.mjs",
+		"worktree": "node tools/worktree/worktree.mjs",
 		"screenshot": "pnpm --filter @study-atelier/web screenshot",
 		"db:start": "supabase start",
 		"db:stop": "supabase stop",

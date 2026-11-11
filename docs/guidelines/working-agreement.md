@@ -28,6 +28,8 @@ The project goes one step at a time. Claude does not jump ahead to later steps (
 
 Several Claude sessions may work at the same time. Before starting an issue, Claude checks that no other session is on it: its status in Linear, the remote branches and the open pull requests. When one is, Claude tells the owner before doing anything.
 
+Every local Claude session works in its own worktree, set up with `pnpm worktree <branch>` (see [git-workflow.md](git-workflow.md#worktrees)), and never edits files or switches branches in the main checkout, which is the owner's ([ADR-0247](../decisions/0247-work-in-a-worktree-per-session.md)). A cloud session works in its own clone.
+
 ## End of a session
 
 When Claude opens a session's pull request, before asking for review, Claude runs the [`study-atelier-session-retro`](../../.claude/skills/study-atelier-session-retro/SKILL.md) skill: it proposes what the conversation and the session's pull request taught that is worth recording in the docs, the guidelines or the project memory, and records what the owner confirms in that same pull request. The owner may merge as soon as CI passes, so the retro does not wait for the review; findings from the review itself are added in a short second round while the pull request is still open.
