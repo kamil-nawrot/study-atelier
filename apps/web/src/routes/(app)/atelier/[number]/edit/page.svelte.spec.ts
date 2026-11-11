@@ -12,7 +12,8 @@ import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
 	answerRpc,
 	saveArtworkCalls,
-	savedCandidates
+	savedCandidates,
+	waitForSave
 } from '#lib/testing/duplicates/duplicates.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import EditArtworkPage from './+page.svelte';
@@ -281,7 +282,7 @@ describe('edit artwork page', () => {
 		await page.getByRole('button', { name: m.artworkForm.useImageUrl }).click();
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		await waitForSave();
 		const [, args] = saveArtworkCalls()[0] as [string, Record<string, never>];
 		expect(args.images).toEqual([
 			expect.objectContaining({ id: 'image-0', own_image_url: 'https://example.org/new.jpg' }),
@@ -309,7 +310,7 @@ describe('edit artwork page', () => {
 		await page.getByRole('button', { name: m.artworkForm.setMainImage }).click();
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		await waitForSave();
 		const [, args] = saveArtworkCalls()[0] as [string, Record<string, never>];
 		expect(args.images).toEqual([
 			expect.objectContaining({ id: 'image-1', own_image_url: 'https://example.com/plan.jpg' }),
@@ -387,7 +388,7 @@ describe('edit artwork page', () => {
 		await page.getByRole('button', { name: m.ui.valueField.remove('Milk') }).click();
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		await waitForSave();
 		expect(supabase.rpc).toHaveBeenCalledWith(
 			'save_artwork',
 			expect.objectContaining({
@@ -438,7 +439,7 @@ describe('edit artwork page', () => {
 		await saveButton().click();
 		await page.getByRole('button', { name: m.fieldTypeDialog.confirm }).click();
 
-		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		await waitForSave();
 		expect(supabase.rpc).toHaveBeenCalledWith(
 			'save_artwork',
 			expect.objectContaining({ field_entries: { order: '', source: 'Gombrich' } })
@@ -465,7 +466,7 @@ describe('edit artwork page', () => {
 		await page.getByRole('textbox', { name: m.artworkForm.year }).fill('1660');
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		await waitForSave();
 		expect(supabase.from).not.toHaveBeenCalledWith('artworks');
 	});
 
@@ -483,7 +484,7 @@ describe('edit artwork page', () => {
 			);
 		await page.getByRole('button', { name: m.duplicateDialog.save.confirm }).click();
 
-		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		await waitForSave();
 	});
 
 	it('does not ask when only the artwork itself has the changed title', async () => {
@@ -493,7 +494,7 @@ describe('edit artwork page', () => {
 		await titleField().fill('the milkmaid ');
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		await waitForSave();
 		expect(duplicateDialog().query()).toBeNull();
 	});
 
@@ -503,7 +504,7 @@ describe('edit artwork page', () => {
 		await titleField().fill('The Milkmaid, detail');
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		await waitForSave();
 		expect(page.getByRole('alertdialog', { name: m.eraDialog.title }).query()).toBeNull();
 	});
 

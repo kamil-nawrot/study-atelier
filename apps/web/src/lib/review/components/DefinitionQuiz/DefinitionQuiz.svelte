@@ -113,8 +113,8 @@
 	.definition {
 		max-width: 40rem;
 		padding: var(--spacing-6);
-		background: var(--color-mat-bg);
-		color: var(--color-mat-fg);
+		background: var(--color-surface);
+		color: var(--color-fg);
 		font-family: var(--font-family-title), Georgia, serif;
 		font-size: var(--font-size-lg);
 		font-style: italic;
@@ -125,7 +125,7 @@
 	.gap,
 	.term {
 		padding: 0 var(--spacing-1);
-		background: var(--color-mat-window);
+		background: var(--color-tag);
 		color: inherit;
 	}
 
@@ -139,7 +139,7 @@
 
 	.gap {
 		display: inline-block;
-		border-bottom: var(--border-width-base) solid var(--color-mat-fg-muted);
+		border-bottom: var(--border-width-base) solid var(--color-fg-muted);
 		width: 4em;
 		height: 1em;
 		vertical-align: -0.1em;

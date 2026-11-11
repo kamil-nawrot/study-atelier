@@ -14,7 +14,8 @@ import { pending, testSession } from '#lib/testing/auth/auth.ts';
 import {
 	answerRpc,
 	saveArtworkCalls,
-	savedCandidates
+	savedCandidates,
+	waitForSave
 } from '#lib/testing/duplicates/duplicates.ts';
 import {
 	linkedValues,
@@ -379,7 +380,7 @@ describe('add artwork page', () => {
 
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		await waitForSave();
 		const [, args] = saveArtworkCalls()[0] as unknown as [string, Record<string, unknown>];
 		expect(args.artwork).toMatchObject({ era_code: 'early_modern' });
 		expect(args.values_by_category).toMatchObject({
@@ -394,7 +395,7 @@ describe('add artwork page', () => {
 
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		await waitForSave();
 		const [, args] = saveArtworkCalls()[0] as unknown as [string, Record<string, unknown>];
 		expect(args.artwork).toMatchObject({ era_code: null });
 		expect(args.values_by_category).toMatchObject({ period: [], style: [] });
@@ -413,7 +414,7 @@ describe('add artwork page', () => {
 		await expect.element(sculpture).not.toBeChecked();
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		await waitForSave();
 		const [, args] = saveArtworkCalls()[0] as unknown as [string, Record<string, unknown>];
 		expect(args.artwork).toMatchObject({ type_code: null });
 	});
@@ -456,7 +457,7 @@ describe('add artwork page', () => {
 		await userEvent.click(museum);
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		await waitForSave();
 		expect(supabase.rpc).toHaveBeenCalledWith('save_artwork', {
 			artwork: expect.anything(),
 			values_by_category: expect.objectContaining({ location: ['Luwr'] }),
@@ -508,7 +509,7 @@ describe('add artwork page', () => {
 		await page.getByText('Seen in person', { exact: true }).click();
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		await waitForSave();
 		expect(supabase.rpc).toHaveBeenCalledWith(
 			'save_artwork',
 			expect.objectContaining({
@@ -523,7 +524,7 @@ describe('add artwork page', () => {
 		await fillRequired();
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		await waitForSave();
 		expect(supabase.rpc).toHaveBeenCalledWith(
 			'save_artwork',
 			expect.objectContaining({ field_entries: undefined })

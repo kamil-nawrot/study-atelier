@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { expect, vi } from 'vitest';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 
 type Candidate = { id: string; record_number: number; title: string; authors: string[] };
@@ -19,4 +19,8 @@ export function savedCandidates(...saved: Candidate[]): void {
 
 export function saveArtworkCalls(): unknown[][] {
 	return vi.mocked(supabase.rpc).mock.calls.filter(([name]) => name === 'save_artwork');
+}
+
+export async function waitForSave(): Promise<void> {
+	await expect.poll(() => saveArtworkCalls().length).toBeGreaterThan(0);
 }

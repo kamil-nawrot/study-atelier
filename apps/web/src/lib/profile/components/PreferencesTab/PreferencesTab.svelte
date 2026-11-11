@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import { Button, Checkbox, Form, FormActions, Switch, ToggleTag } from '@study-atelier/ui';
+	import { Checkbox, Switch, ToggleTag } from '@study-atelier/ui';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
@@ -20,6 +20,7 @@
 	import type { Preferences } from '#lib/profile/types/preferences.ts';
 	import type { PreferencesPart } from '#lib/profile/types/preferences-part.ts';
 	import SettingsSection from '#lib/profile/components/SettingsSection/SettingsSection.svelte';
+	import SettingsForm from '#lib/profile/components/SettingsForm/SettingsForm.svelte';
 
 	type Props = {
 		part: PreferencesPart;
@@ -72,20 +73,108 @@
 	}
 </script>
 
-<div class="tab">
-	<Form error={formState.error} errorTitle={m.settings.preferences.errorTitle} onsubmit={submit}>
-		<div class="fields">
-			{#if part === 'review'}
-				<SettingsSection title={m.settings.preferences.sessionTitle}>
-					<div class="items">
-						<div class="group" aria-labelledby="{formId}-size" role="group">
-							<span id="{formId}-size" class="label">{m.settings.preferences.sessionSize}</span>
+<SettingsForm
+	busy={formState.busy}
+	error={formState.error}
+	errorTitle={m.settings.preferences.errorTitle}
+	oncancel={cancel}
+	onsubmit={submit}
+	saveLabel={m.settings.preferences.save}
+	bind:barHeight
+>
+	<div class="fields">
+		{#if part === 'review'}
+			<SettingsSection title={m.settings.preferences.sessionTitle}>
+				<div class="items">
+					<div class="group" aria-labelledby="{formId}-size" role="group">
+						<span id="{formId}-size" class="label">{m.settings.preferences.sessionSize}</span>
+						<div class="tags">
+							{#each SESSION_SIZES as option (option)}
+								<ToggleTag
+									bind:pressed={
+										() => draft.reviewSessionSize === option,
+										(pressed) => pressed && (draft.reviewSessionSize = option)
+									}
+								>
+									{option}
+								</ToggleTag>
+							{/each}
+						</div>
+					</div>
+					<div class="group" aria-labelledby="{formId}-new" role="group">
+						<span id="{formId}-new" class="label">{m.settings.preferences.newPerDay}</span>
+						<div class="tags">
+							{#each NEW_PER_DAY_CHOICES as option (option)}
+								<ToggleTag
+									bind:pressed={
+										() => draft.reviewNewPerDay === option,
+										(pressed) => pressed && (draft.reviewNewPerDay = option)
+									}
+								>
+									{option}
+								</ToggleTag>
+							{/each}
+						</div>
+					</div>
+					<div class="group" aria-labelledby="{formId}-form" role="group">
+						<span id="{formId}-form" class="label">{m.settings.preferences.form}</span>
+						<div class="tags">
+							{#each REVIEW_FORMS as option (option)}
+								<ToggleTag
+									bind:pressed={
+										() => draft.reviewForm === option,
+										(pressed) => pressed && (draft.reviewForm = option)
+									}
+								>
+									{m.review.forms[option]}
+								</ToggleTag>
+							{/each}
+						</div>
+						<span class="hint">{m.settings.preferences.formHint}</span>
+					</div>
+					<div class="described">
+						<Switch
+							aria-describedby="{formId}-free-hint"
+							label={m.settings.preferences.free}
+							bind:checked={draft.reviewFree}
+						/>
+						<p id="{formId}-free-hint" class="hint">{m.settings.preferences.freeHint}</p>
+					</div>
+				</div>
+			</SettingsSection>
+			<SettingsSection rule title={m.settings.preferences.quizzesTitle}>
+				<div class="kinds">
+					{#each QUIZ_KINDS as kind (kind)}
+						<Checkbox
+							aria-describedby={kindsHintId}
+							disabled={lastArtworkQuiz(draft.reviewQuizKinds, kind)}
+							label={m.settings.preferences.kindLabels[kind]}
+							bind:checked={() => draft.reviewQuizKinds.includes(kind), (on) => setKind(kind, on)}
+						/>
+					{/each}
+					<span id={kindsHintId} class="hint" class:error={kindsError}>
+						{m.settings.preferences.kindsHint}
+					</span>
+				</div>
+			</SettingsSection>
+			<SettingsSection rule title={m.settings.preferences.extraTitle}>
+				<div class="items">
+					<div class="governed">
+						<Switch
+							label={m.settings.preferences.glossaryOn}
+							bind:checked={draft.reviewGlossaryOn}
+						/>
+						<div class="group" aria-labelledby="{formId}-glossary" role="group">
+							<span id="{formId}-glossary" class="label" class:off={!draft.reviewGlossaryOn}>
+								{m.settings.preferences.glossaryQuestions}
+							</span>
 							<div class="tags">
-								{#each SESSION_SIZES as option (option)}
+								{#each GLOSSARY_QUESTION_CHOICES as option (option)}
 									<ToggleTag
+										disabled={!draft.reviewGlossaryOn}
 										bind:pressed={
-											() => draft.reviewSessionSize === option,
-											(pressed) => pressed && (draft.reviewSessionSize = option)
+											() => draft.reviewGlossaryQuestions === option,
+											(pressed) => pressed && (draft.reviewGlossaryQuestions = option)
 										}
 									>
 										{option}
@@ -93,146 +182,41 @@
 								{/each}
 							</div>
 						</div>
-						<div class="group" aria-labelledby="{formId}-new" role="group">
-							<span id="{formId}-new" class="label">{m.settings.preferences.newPerDay}</span>
-							<div class="tags">
-								{#each NEW_PER_DAY_CHOICES as option (option)}
-									<ToggleTag
-										bind:pressed={
-											() => draft.reviewNewPerDay === option,
-											(pressed) => pressed && (draft.reviewNewPerDay = option)
-										}
-									>
-										{option}
-									</ToggleTag>
-								{/each}
-							</div>
-						</div>
-						<div class="group" aria-labelledby="{formId}-form" role="group">
-							<span id="{formId}-form" class="label">{m.settings.preferences.form}</span>
-							<div class="tags">
-								{#each REVIEW_FORMS as option (option)}
-									<ToggleTag
-										bind:pressed={
-											() => draft.reviewForm === option,
-											(pressed) => pressed && (draft.reviewForm = option)
-										}
-									>
-										{m.review.forms[option]}
-									</ToggleTag>
-								{/each}
-							</div>
-							<span class="hint">{m.settings.preferences.formHint}</span>
-						</div>
-						<div class="described">
-							<Switch
-								aria-describedby="{formId}-free-hint"
-								label={m.settings.preferences.free}
-								bind:checked={draft.reviewFree}
-							/>
-							<p id="{formId}-free-hint" class="hint">{m.settings.preferences.freeHint}</p>
-						</div>
 					</div>
-				</SettingsSection>
-				<SettingsSection rule title={m.settings.preferences.quizzesTitle}>
-					<div class="kinds">
-						{#each QUIZ_KINDS as kind (kind)}
-							<Checkbox
-								aria-describedby={kindsHintId}
-								disabled={lastArtworkQuiz(draft.reviewQuizKinds, kind)}
-								label={m.settings.preferences.kindLabels[kind]}
-								bind:checked={() => draft.reviewQuizKinds.includes(kind), (on) => setKind(kind, on)}
-							/>
-						{/each}
-						<span id={kindsHintId} class="hint" class:error={kindsError}>
-							{m.settings.preferences.kindsHint}
-						</span>
-					</div>
-				</SettingsSection>
-				<SettingsSection rule title={m.settings.preferences.extraTitle}>
-					<div class="items">
-						<div class="governed">
-							<Switch
-								label={m.settings.preferences.glossaryOn}
-								bind:checked={draft.reviewGlossaryOn}
-							/>
-							<div class="group" aria-labelledby="{formId}-glossary" role="group">
-								<span id="{formId}-glossary" class="label" class:off={!draft.reviewGlossaryOn}>
-									{m.settings.preferences.glossaryQuestions}
-								</span>
-								<div class="tags">
-									{#each GLOSSARY_QUESTION_CHOICES as option (option)}
-										<ToggleTag
-											disabled={!draft.reviewGlossaryOn}
-											bind:pressed={
-												() => draft.reviewGlossaryQuestions === option,
-												(pressed) => pressed && (draft.reviewGlossaryQuestions = option)
-											}
-										>
-											{option}
-										</ToggleTag>
-									{/each}
-								</div>
-							</div>
-						</div>
-						<Switch
-							label={m.settings.preferences.noteQuestions}
-							bind:checked={draft.reviewNoteQuestions}
-						/>
-						<Switch
-							label={m.settings.preferences.timeQuestions}
-							bind:checked={draft.reviewTimeQuestions}
-						/>
-					</div>
-				</SettingsSection>
-			{:else if part === 'sources'}
-				<div class="items narrow">
-					<p class="hint">{m.settings.preferences.sourcesHint}</p>
-					<Switch label={m.settings.preferences.fetchImage} bind:checked={draft.fetchImage} />
 					<Switch
-						label={m.settings.preferences.fetchDefinition}
-						bind:checked={draft.fetchDefinition}
+						label={m.settings.preferences.noteQuestions}
+						bind:checked={draft.reviewNoteQuestions}
 					/>
-					<Switch label={m.settings.preferences.fetchForms} bind:checked={draft.fetchForms} />
-					<Switch label={m.settings.preferences.fetchEvent} bind:checked={draft.fetchEvent} />
+					<Switch
+						label={m.settings.preferences.timeQuestions}
+						bind:checked={draft.reviewTimeQuestions}
+					/>
 				</div>
-			{:else}
-				<div class="items narrow">
-					<p class="hint">{m.settings.preferences.viewHint}</p>
-					<Switch label={m.settings.preferences.showPins} bind:checked={draft.viewShowPins} />
-					<Switch label={m.settings.preferences.loupe} bind:checked={draft.viewLoupeOn} />
-				</div>
-			{/if}
-		</div>
-		<FormActions bind:height={barHeight}>
-			<Button disabled={formState.busy} onclick={cancel}>
-				{m.common.cancel}
-			</Button>
-			<Button disabled={formState.busy} type="submit" variant="primary">
-				{formState.busy ? m.common.saving : m.settings.preferences.save}
-			</Button>
-		</FormActions>
-	</Form>
-</div>
+			</SettingsSection>
+		{:else if part === 'sources'}
+			<div class="items narrow">
+				<p class="hint">{m.settings.preferences.sourcesHint}</p>
+				<Switch label={m.settings.preferences.fetchImage} bind:checked={draft.fetchImage} />
+				<Switch
+					label={m.settings.preferences.fetchDefinition}
+					bind:checked={draft.fetchDefinition}
+				/>
+				<Switch label={m.settings.preferences.fetchForms} bind:checked={draft.fetchForms} />
+				<Switch label={m.settings.preferences.fetchEvent} bind:checked={draft.fetchEvent} />
+			</div>
+		{:else}
+			<div class="items narrow">
+				<p class="hint">{m.settings.preferences.viewHint}</p>
+				<Switch label={m.settings.preferences.showPins} bind:checked={draft.viewShowPins} />
+				<Switch label={m.settings.preferences.loupe} bind:checked={draft.viewLoupeOn} />
+			</div>
+		{/if}
+	</div>
+</SettingsForm>
 
 <DiscardDialog {changes} description={m.common.discardDescription} />
 
 <style>
-	.tab {
-		display: grid;
-		flex: 1;
-	}
-
-	.tab > :global(form) {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-6);
-	}
-
-	.tab > :global(form) > :global([role='alert']) {
-		max-width: var(--size-content-default);
-	}
-
 	.fields {
 		display: grid;
 		align-content: start;

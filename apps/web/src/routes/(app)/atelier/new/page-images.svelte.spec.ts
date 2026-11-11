@@ -16,7 +16,7 @@ import {
 	OWN_IMAGE_MAX_MEGABYTES
 } from '#lib/images/bucket/bucket.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { answerRpc, saveArtworkCalls } from '#lib/testing/duplicates/duplicates.ts';
+import { answerRpc, saveArtworkCalls, waitForSave } from '#lib/testing/duplicates/duplicates.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import {
 	titleField,
@@ -543,7 +543,7 @@ describe('image search on the add artwork page', () => {
 
 		await saveButton().click();
 
-		await vi.waitFor(() => expect(saveArtworkCalls()).not.toHaveLength(0));
+		await waitForSave();
 		expect(supabase.rpc).toHaveBeenCalledWith(
 			'save_artwork',
 			expect.objectContaining({

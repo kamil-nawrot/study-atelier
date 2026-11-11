@@ -1,6 +1,6 @@
 # 0192. Refresh the glossary list and show the fragments of a term
 
-- Status: accepted
+- Status: accepted; the place of the letter index is partly superseded by [0245](0245-stand-the-glossary-letter-index-in-the-middle-of-the-screen.md)
 - Date: 2026-11-05
 
 ## Context and problem statement
@@ -41,7 +41,7 @@ Chosen by the owner in ATL-507.
 - Hovering a row gives the whole row a subtle background, as in the card index, and the name is not underlined.
 - The space between the filters and the list matches the card index.
 - On desktop the letter of a group sticks below the top bar while its terms scroll, at the distance where the content starts.
-- On a phone the letter index starts at the list, not beside the search field.
+- On a phone the letter index starts at the list, not beside the search field; from 768 px it stands still in the middle of the screen ([ADR-0245](0245-stand-the-glossary-letter-index-in-the-middle-of-the-screen.md)).
 - A sort select with the `arrow-up-down` icon offers "Alfabetycznie" and "Ostatnio dodane". "Ostatnio dodane" shows a flat list, newest first, without letters and without the letter index. The date of adding is not knowledge to organise, so it gets no groups.
 
 ### Fragments

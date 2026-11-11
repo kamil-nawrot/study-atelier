@@ -21,13 +21,15 @@ function renderTabs(value?: string): void {
 }
 
 describe('Tabs', () => {
-	it('lets a save bar in the panel reach the bottom of the page', async () => {
+	it('leaves the frame of a panel with a save bar to its content', async () => {
 		render(Tabs, { label: 'Kinds', tabs, children: panelWithBar });
 
-		const tabPanel = page.getByRole('tabpanel').element();
+		const style = getComputedStyle(page.getByRole('tabpanel').element());
 		await expect.element(page.getByText('Save')).toBeVisible();
-		expect(getComputedStyle(tabPanel).paddingBottom).toBe('0px');
-		expect(getComputedStyle(tabPanel).borderBottomStyle).toBe('none');
+		expect(style.paddingTop).toBe('0px');
+		expect(style.paddingBottom).toBe('0px');
+		expect(style.borderLeftStyle).toBe('none');
+		expect(style.borderBottomStyle).toBe('none');
 	});
 
 	it('names the tab list and selects the first tab', async () => {
