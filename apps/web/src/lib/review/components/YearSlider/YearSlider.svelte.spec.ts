@@ -48,4 +48,37 @@ describe('YearSlider', () => {
 			.element(page.getByRole('slider', { name: m.review.year.slider }))
 			.toHaveAttribute('aria-valuetext', '21500 p.n.e.');
 	});
+
+	it('moves the year by one with the buttons beside it', async () => {
+		render(YearSlider, { bounds: [1492, 1789], value: 1641, oncheck: vi.fn() });
+		const slider = page.getByRole('slider', { name: m.review.year.slider });
+
+		await page.getByRole('button', { name: m.review.year.later }).click();
+		await expect.element(slider).toHaveAttribute('aria-valuetext', '1642');
+		await page.getByRole('button', { name: m.review.year.earlier }).click();
+		await page.getByRole('button', { name: m.review.year.earlier }).click();
+		await expect.element(slider).toHaveAttribute('aria-valuetext', '1640');
+	});
+
+	it('keeps moving the year while a button is held and stops when it is let go', async () => {
+		render(YearSlider, { bounds: [1492, 1789], value: 1641, oncheck: vi.fn() });
+		const slider = page.getByRole('slider', { name: m.review.year.slider });
+		const later = page.getByRole('button', { name: m.review.year.later }).element();
+
+		later.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0 }));
+		await expect
+			.poll(() => Number(slider.element().getAttribute('aria-valuetext')))
+			.toBeGreaterThan(1643);
+		later.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+		const stopped = slider.element().getAttribute('aria-valuetext');
+		await new Promise((resolve) => setTimeout(resolve, 500));
+		expect(slider.element().getAttribute('aria-valuetext')).toBe(stopped);
+	});
+
+	it('disables the button that would leave the era', async () => {
+		render(YearSlider, { bounds: [1492, 1789], value: 1789, oncheck: vi.fn() });
+
+		await expect.element(page.getByRole('button', { name: m.review.year.later })).toBeDisabled();
+		await expect.element(page.getByRole('button', { name: m.review.year.earlier })).toBeEnabled();
+	});
 });
