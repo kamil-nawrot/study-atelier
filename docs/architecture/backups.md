@@ -15,7 +15,7 @@ The database part has five files from `supabase db dump`: `roles.sql`, `schema.s
 
 ## The key
 
-The backups are encrypted with [`age`](https://github.com/FiloSottile/age) to a public key. The private key lives only with the owner, in the password manager, never in GitHub or the repository.
+The backups are encrypted with [`age`](https://github.com/FiloSottile/age) to a public key. The private key lives only with the owner, in the password manager, never in GitHub or the repository. CI downloads `age` from its release on GitHub, pinned to a version and checked against the SHA-256 in [`encrypt-backup.sh`](../../.github/scripts/encrypt-backup.sh), so a backup does not depend on the Ubuntu package servers (ATL-661); a new version means a new checksum there.
 
 1. Install `age` and run `age-keygen -o study-atelier-backup.key`. It prints the public key, `age1…`.
 2. GitHub, Settings, Environments, `production`, Variables: add `BACKUP_AGE_RECIPIENT` with the public key.
