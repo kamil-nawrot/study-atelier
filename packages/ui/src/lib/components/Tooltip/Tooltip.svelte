@@ -68,9 +68,14 @@
 		left: auto;
 	}
 
-	.tooltip:hover .bubble,
 	.tooltip:has(:global(:focus-visible)) .bubble {
 		display: block;
+	}
+
+	@media (hover: hover) {
+		.tooltip:hover .bubble {
+			display: block;
+		}
 	}
 
 	.tooltip:has(:global([aria-expanded='true'])) .bubble {

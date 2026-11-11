@@ -90,7 +90,7 @@
 		inset: auto 0 0;
 		z-index: 3;
 		display: flex;
-		height: var(--bottom-bar-height);
+		height: calc(var(--bottom-bar-height) + var(--safe-bottom));
 		padding-bottom: var(--safe-bottom);
 		border-top: var(--border-width-hairline) solid var(--color-tag);
 		background: var(--color-bg);

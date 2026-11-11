@@ -62,7 +62,7 @@
 			?.closest<HTMLButtonElement>('.index button');
 		const letter = button?.dataset.letter;
 		if (!letter) return;
-		if (scrubbed?.letter !== letter) jump(letter, true);
+		current = letter;
 		scrubbed = { letter, y: event.clientY };
 	}
 
@@ -75,7 +75,14 @@
 	}
 
 	function endScrub(): void {
+		const letter = scrubbed?.letter;
 		scrubbed = undefined;
+		if (letter) jump(letter, true);
+	}
+
+	function cancelScrub(): void {
+		scrubbed = undefined;
+		follow();
 	}
 
 	$effect(() => {
@@ -100,7 +107,7 @@
 	aria-label={m.glossary.letters}
 >
 	<ol
-		onpointercancel={endScrub}
+		onpointercancel={cancelScrub}
 		onpointerdown={startScrub}
 		onpointermove={moveScrub}
 		onpointerup={endScrub}
@@ -128,7 +135,7 @@
 		top: var(--start, var(--bar-height));
 		right: 0;
 		bottom: var(--bottom-inset, 0px);
-		z-index: 1;
+		z-index: 2;
 		display: flex;
 		align-items: flex-start;
 	}
