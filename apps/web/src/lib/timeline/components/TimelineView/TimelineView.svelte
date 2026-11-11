@@ -119,12 +119,13 @@
 	);
 	let orientation = $derived(orientationFor(width));
 	let eraEvents = $derived(eventsIn(events, era));
+	let laidLabelWidth = $derived(orientation === 'vertical' ? () => 0 : labelWidth);
 	let lanes = $derived(
 		lanesForEra(
 			eraEvents,
 			era,
 			orientation === 'vertical' ? verticalLength(viewportHeight) : width,
-			labelWidth,
+			laidLabelWidth,
 			width < NARROW_WIDTH ? EVENT_LANES_NARROW : EVENT_LANES
 		)
 	);
@@ -224,7 +225,7 @@
 <div class="timeline">
 	<EraStrip current={code} eras={allEras} onselect={openEra} />
 
-	<p class="era-name" aria-live="polite">{eraTitle(code)}</p>
+	<p class="era-name" class:visually-hidden={!wide.current} aria-live="polite">{eraTitle(code)}</p>
 
 	<TimelineControls
 		{code}
@@ -262,6 +263,7 @@
 			onsettle={() => camera.settle()}
 			onstep={(direction, anchor) => camera.moveStep(direction, anchor)}
 			{orientation}
+			readingNames={orientation === 'vertical' ? now.map((event) => event.name) : []}
 			{tint}
 			view={camera.view}
 			{viewportHeight}
@@ -272,7 +274,7 @@
 						{era}
 						events={eraEvents}
 						{geometry}
-						{labelWidth}
+						labelWidth={laidLabelWidth}
 						{lanes}
 						layoutSpan={camera.target.span}
 						{nameCut}
