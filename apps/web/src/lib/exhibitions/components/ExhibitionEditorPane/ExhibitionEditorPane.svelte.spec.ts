@@ -163,10 +163,9 @@ describe('ExhibitionEditorPane', () => {
 		await vi.waitFor(() => expect(JSON.stringify(given.document)).toContain('Light from the left'));
 		expect(kinds(given)).toEqual(['artwork', 'textBlock']);
 
-		await userEvent.fill(field, '');
-		await vi.waitFor(() => expect(JSON.stringify(given.document)).not.toContain('Light'), {
-			timeout: 6000
-		});
+		await userEvent.tripleClick(page.getByText('Light from the left'));
+		await userEvent.cut();
+		await vi.waitFor(() => expect(JSON.stringify(given.document)).not.toContain('Light'));
 		await userEvent.click(
 			card(1).querySelector('[aria-label="' + m.exhibitions.bar.remove + '"]')!
 		);
