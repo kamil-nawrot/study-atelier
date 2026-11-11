@@ -71,11 +71,12 @@
 			</Button>
 		{/snippet}
 	</Tooltip>
-	<Button aria-label={m.atelier.add} href={addPath} variant="primary">
-		<Icon icon={Plus} size="sm" />
-		<span class="long" aria-hidden="true">{m.atelier.add}</span>
-		<span class="short" aria-hidden="true">{m.common.add}</span>
-	</Button>
+	{#if view.wide.current}
+		<Button href={addPath} variant="primary">
+			<Icon icon={Plus} size="sm" />
+			{m.atelier.add}
+		</Button>
+	{/if}
 </div>
 
 <style>
@@ -96,14 +97,6 @@
 
 	.sort {
 		flex: none;
-	}
-
-	.short {
-		display: inline;
-	}
-
-	.long {
-		display: none;
 	}
 
 	.levels {
@@ -129,15 +122,5 @@
 	.levels span.on {
 		background: var(--color-fg);
 		opacity: 1;
-	}
-
-	@media (min-width: 768px) {
-		.short {
-			display: none;
-		}
-
-		.long {
-			display: inline;
-		}
 	}
 </style>
