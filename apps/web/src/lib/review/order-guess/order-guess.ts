@@ -26,6 +26,10 @@ export function moved<T>(values: T[], from: number, to: number): T[] {
 	return next;
 }
 
+export function tapped(picked: readonly string[], id: string): string[] {
+	return picked.includes(id) ? picked.filter((one) => one !== id) : [...picked, id];
+}
+
 export function orderPlaces(placed: WallArtwork[]): OrderPlace[] {
 	const right = chronological(placed);
 	return placed.map((artwork, index) => {

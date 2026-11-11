@@ -863,6 +863,8 @@ export const pl = {
 			tag: 'Ułóż chronologicznie',
 			question: 'W jakiej kolejności powstały te dzieła?',
 			hint: 'Przeciągaj obrazy tak, aby ułożyć je w kolejności od najstarszego do najnowszego',
+			hintTap:
+				'Zaznacz dzieła po kolei, od najstarszego do najnowszego. Ponowne kliknięcie wycofa zaznaczenie.',
 			keyboardHint:
 				'Z klawiatury: wybierz obraz Tabem, chwyć Spacją, przesuń strzałkami i puść Spacją.',
 			oldest: 'Najstarsze',
