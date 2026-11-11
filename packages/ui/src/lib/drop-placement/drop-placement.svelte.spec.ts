@@ -1,6 +1,6 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
-import { DROP_UP, placeDrop } from './drop-placement.ts';
+import { DROP_UP, dropPlacement, placeDrop } from './drop-placement.ts';
 
 let stage: HTMLElement;
 
@@ -69,5 +69,47 @@ describe('placeDrop', () => {
 
 		expect(list.hasAttribute(DROP_UP)).toBe(true);
 		expect(list.style.maxHeight).toBe('250px');
+	});
+
+	it('leaves a hidden list alone', async () => {
+		await page.viewport(800, 600);
+		const list = field(400, 200, 80);
+		list.hidden = true;
+		list.style.display = 'none';
+
+		placeDrop(list);
+
+		expect(list.hasAttribute(DROP_UP)).toBe(false);
+	});
+
+	it('measures the room down to the bottom of the screen without a bar', async () => {
+		await page.viewport(800, 600);
+		const list = field(300, 250);
+
+		placeDrop(list);
+
+		expect(list.hasAttribute(DROP_UP)).toBe(false);
+	});
+
+	it('keeps a list below when the top bar takes the room above', async () => {
+		await page.viewport(800, 600);
+		const list = field(250, 400, 80);
+		list.style.setProperty('--bar-height', '100px');
+
+		placeDrop(list);
+
+		expect(list.hasAttribute(DROP_UP)).toBe(false);
+		expect(list.style.maxHeight).toBe('226px');
+	});
+
+	it('places a list again when it shows, and stops once detached', async () => {
+		await page.viewport(800, 600);
+		const list = field(400, 200, 80);
+		list.style.display = 'none';
+		const detach = dropPlacement()(list);
+
+		list.style.display = '';
+		await vi.waitFor(() => expect(list.hasAttribute(DROP_UP)).toBe(true));
+		if (typeof detach === 'function') detach();
 	});
 });
