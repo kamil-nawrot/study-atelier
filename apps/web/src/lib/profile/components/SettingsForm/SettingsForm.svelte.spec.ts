@@ -55,6 +55,8 @@ describe('SettingsForm', () => {
 
 		expect(frame.borderBottomStyle).toBe('solid');
 		expect(frame.borderTopStyle).toBe('none');
+		expect([frame.gridRowStart, frame.gridRowEnd]).toEqual(['1', '5']);
+		expect(getComputedStyle(bar).gridRowStart).toBe('6');
 		expect(alert.getBoundingClientRect().bottom).toBeLessThanOrEqual(
 			body.getBoundingClientRect().top + 1
 		);

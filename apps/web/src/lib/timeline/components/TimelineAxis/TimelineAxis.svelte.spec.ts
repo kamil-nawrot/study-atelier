@@ -22,18 +22,23 @@ describe('TimelineAxis', () => {
 	});
 
 	it('keeps the vertical year labels inside the axis column and away from its ends', async () => {
-		const geometry = stageGeometry(view, 390, 0, 'vertical', 844);
+		const ends = { center: -29999, span: 40000 };
+		const geometry = stageGeometry(ends, 390, 0, 'vertical', 844);
 		const { container } = await render(TimelineAxis, { geometry, era: prehistory });
 
 		await expect.poll(() => ticks().length).toBeGreaterThan(0);
 		const axis = container.querySelector('.axis') as HTMLElement;
 		const column = axis.getBoundingClientRect();
-		expect(ticks().map((tick) => tick.textContent?.trim())).not.toContain('40000 p.n.e.');
+		const texts = ticks().map((tick) => tick.textContent?.trim());
+		expect(texts).not.toContain('50000 p.n.e.');
+		expect(texts).not.toContain('10000 p.n.e.');
+		expect(texts).toContain('30000 p.n.e.');
 		for (const tick of ticks()) {
 			const box = tick.getBoundingClientRect();
 			expect(box.left).toBeGreaterThanOrEqual(column.left);
 			expect(box.right).toBeLessThanOrEqual(column.right);
 			expect(box.top).toBeGreaterThanOrEqual(column.top);
+			expect(box.bottom).toBeLessThanOrEqual(column.top + geometry.length);
 			expect(tick.scrollWidth).toBeLessThanOrEqual(tick.clientWidth);
 		}
 	});
