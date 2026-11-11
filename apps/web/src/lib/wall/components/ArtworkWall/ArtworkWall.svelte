@@ -6,6 +6,7 @@
 	import { eraIcon, eraName } from '#lib/catalogue/eras/eras.ts';
 	import {
 		columnCount,
+		tileSizes,
 		distribute,
 		NO_IMAGE_RATIO,
 		WALL_MARGIN,
@@ -13,6 +14,7 @@
 		WIDE_MIN_WIDTH
 	} from '#lib/wall/masonry/masonry.ts';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { phoneColumns } from '#lib/wall/wall-columns/wall-columns.svelte.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 	type Props = {
@@ -45,7 +47,11 @@
 
 	const wide = new MediaQuery(`min-width: ${WIDE_MIN_WIDTH}px`);
 
-	let count = $derived(columnCount(wide.current, innerWidth.current ?? 0));
+	let count = $derived(
+		wide.current ? columnCount(true, innerWidth.current ?? 0) : phoneColumns()
+	);
+	let compact = $derived(!wide.current && count > 1);
+	let sizes = $derived(compact ? tileSizes(count) : undefined);
 	let columns = $derived(
 		distribute(artworks.slice(0, rendered), count, (artwork) =>
 			artwork.image ? artwork.image.height / artwork.image.width : NO_IMAGE_RATIO
@@ -95,7 +101,7 @@
 	}
 </script>
 
-<div bind:this={element} class="wall">
+<div bind:this={element} class="wall" class:compact>
 	{#each columns as column, index (index)}
 		<ul class="column">
 			{#each column as artwork (artwork.id)}
@@ -107,12 +113,13 @@
 				>
 					<ArtworkTile
 						authors={artwork.authors}
+						{compact}
 						date={artwork.date}
 						favourite={artwork.favourite}
 						favouriteLabel={artwork.favourite ? m.favourite.remove : m.favourite.add}
 						href={hrefOf?.(artwork) ??
 							resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
-						image={artwork.image}
+						image={artwork.image && sizes ? { ...artwork.image, sizes } : artwork.image}
 						imageUnavailable={artwork.imageUnavailable}
 						mark={artwork.eraCode ? eraIcon(artwork.eraCode) : undefined}
 						markLabel={artwork.eraCode ? eraName(artwork.eraCode) : undefined}
@@ -145,6 +152,11 @@
 		gap: var(--spacing-6);
 		min-width: 0;
 		list-style: none;
+	}
+
+	.compact,
+	.compact .column {
+		gap: var(--spacing-3);
 	}
 
 	li {

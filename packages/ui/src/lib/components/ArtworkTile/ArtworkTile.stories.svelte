@@ -126,6 +126,22 @@
 	{/snippet}
 </Story>
 
+<Story
+	name="Compact"
+	args={{
+		compact: true,
+		title: 'Portrait of Giovanni Arnolfini and his wife in their chamber in Bruges',
+		authors: ['Jan van Eyck', 'Hubert van Eyck'],
+		date: '1434'
+	}}
+>
+	{#snippet template(args)}
+		<div style="max-width: 170px">
+			<ArtworkTile {...args} />
+		</div>
+	{/snippet}
+</Story>
+
 <Story name="Wall">
 	{#snippet template()}
 		<div style="display: flex; gap: var(--spacing-6); align-items: flex-start">

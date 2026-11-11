@@ -17,12 +17,12 @@ function columnShare(columns: number): string {
 	return `${Math.round(100 / columns)}vw`;
 }
 
-export function tileSizes(): string {
+export function tileSizes(phoneColumns = 1): string {
 	const widest = MIN_WIDE_COLUMN_WIDTH * MAX_WIDE_COLUMNS;
 	return [
 		`(min-width: ${widest}px) ${columnShare(MAX_WIDE_COLUMNS)}`,
 		`(min-width: ${WIDE_MIN_WIDTH}px) ${columnShare(MIN_WIDE_COLUMNS)}`,
-		'100vw'
+		columnShare(phoneColumns)
 	].join(', ');
 }
 

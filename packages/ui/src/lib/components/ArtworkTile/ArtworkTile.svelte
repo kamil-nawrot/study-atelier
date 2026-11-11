@@ -25,6 +25,7 @@
 		imageUnavailable?: boolean;
 		imageUnavailableLabel?: string;
 		onimagefailed?: () => void;
+		compact?: boolean;
 	};
 
 	let {
@@ -43,7 +44,8 @@
 		noImageLabel = uiMessages().noImage,
 		imageUnavailable = false,
 		imageUnavailableLabel = uiMessages().imageFailed,
-		onimagefailed
+		onimagefailed,
+		compact = false
 	}: Props = $props();
 
 	const RECORD_NUMBER_DIGITS = 4;
@@ -52,7 +54,7 @@
 	let recordNumber = $derived(`#${String(number).padStart(RECORD_NUMBER_DIGITS, '0')}`);
 </script>
 
-<div class="tile" class:with-heart={onfavourite}>
+<div class="tile" class:compact class:with-heart={onfavourite}>
 	<a class="link" {href}>
 		<figure>
 			<div style:--artwork-ratio={image ? image.width / image.height : undefined} class="window">
@@ -89,7 +91,14 @@
 				<cite class="artwork-title">
 					{title}
 				</cite>
-				<MetaLine class="meta" parts={[authorText, date]} />
+				{#if compact}
+					<span class="meta authors">{authorText}</span>
+					{#if date}
+						<span class="meta date">{date}</span>
+					{/if}
+				{:else}
+					<MetaLine class="meta" parts={[authorText, date]} />
+				{/if}
 			</figcaption>
 		</figure>
 	</a>
@@ -179,6 +188,41 @@
 		color: var(--color-mat-fg-muted);
 		font-size: var(--font-size-xs);
 		line-height: var(--line-height-xs);
+	}
+
+	.compact figcaption {
+		gap: 0;
+		padding: var(--spacing-2) 0 var(--spacing-3);
+	}
+
+	.compact .artwork-title {
+		display: -webkit-box;
+		overflow: hidden;
+		font-size: var(--font-size-md);
+		line-height: var(--line-height-sm);
+		text-wrap: pretty;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+	}
+
+	.compact .meta {
+		color: var(--color-mat-fg-muted);
+		font-size: var(--font-size-xs);
+		line-height: var(--line-height-xs);
+	}
+
+	.compact .authors {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+
+	.compact.with-heart figcaption {
+		padding-inline-end: 0;
+	}
+
+	.compact.with-heart .meta:last-child {
+		padding-inline-end: var(--size-control);
 	}
 
 	.with-heart figcaption {

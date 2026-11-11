@@ -32,6 +32,30 @@ describe('ArtworkTile', () => {
 		await expect.element(link).toHaveTextContent('1888');
 	});
 
+	it('puts the authors and the date on lines of their own when compact, the title in two lines at most', async () => {
+		render(ArtworkTile, {
+			...base,
+			compact: true,
+			title: 'Portrait of Giovanni Arnolfini and his wife in their chamber in Bruges',
+			authors: ['Jan van Eyck', 'Hubert van Eyck', 'Petrus Christus', 'Workshop of Ghent'],
+			date: '1434',
+			onfavourite: vi.fn(),
+			favouriteLabel: 'Add to favourites'
+		});
+		const tile = page.getByRole('link').element().closest('.tile') as HTMLElement;
+		tile.style.width = '170px';
+
+		const authors = page.getByText(/^Jan van Eyck/).element();
+		const date = page.getByText('1434', { exact: true }).element();
+		const title = page.getByText(/^Portrait of/).element();
+		expect(date.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+			authors.getBoundingClientRect().bottom - 1
+		);
+		expect(getComputedStyle(authors).whiteSpace).toBe('nowrap');
+		const line = parseFloat(getComputedStyle(title).lineHeight);
+		expect(title.getBoundingClientRect().height).toBeLessThanOrEqual(2 * line + 1);
+	});
+
 	it('leaves the date out when there is none', async () => {
 		render(ArtworkTile, base);
 
