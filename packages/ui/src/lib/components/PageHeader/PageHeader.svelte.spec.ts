@@ -46,6 +46,6 @@ describe('PageHeader', () => {
 
 		await expect.element(page.getByText('Your visits.')).not.toBeVisible();
 		await expect.element(page.getByText('4 visits')).not.toBeVisible();
-		await expect.element(page.getByRole('button', { name: 'Filters' })).not.toBeVisible();
+		await expect.element(page.getByText('Filters')).not.toBeVisible();
 	});
 });
