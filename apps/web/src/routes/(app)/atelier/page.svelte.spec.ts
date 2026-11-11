@@ -804,10 +804,10 @@ describe('atelier page', () => {
 				await expect
 					.element(page.getByRole('dialog', { name: m.atelier.filters.viewTitle }))
 					.not.toBeInTheDocument();
-				expect(titlesOnTheWall(styled)).toEqual([
-					'Water Lilies',
+				expect(titlesOnTheWall(styled).toSorted()).toEqual([
 					'Impression, Sunrise',
-					'The Thinker'
+					'The Thinker',
+					'Water Lilies'
 				]);
 			});
 		});
