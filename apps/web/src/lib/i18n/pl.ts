@@ -200,6 +200,7 @@ export const pl = {
 	},
 	menu: {
 		label: 'Menu',
+		bar: 'Nawigacja',
 		open: 'Otwórz menu',
 		close: 'Zamknij menu',
 		expand: 'Rozwiń menu',
@@ -222,6 +223,14 @@ export const pl = {
 		lightTheme: 'Jasny motyw',
 		darkTheme: 'Ciemny motyw',
 		signOut: 'Wyloguj się'
+	},
+	addSheet: {
+		title: 'Dodaj',
+		close: 'Zamknij',
+		artwork: 'Dzieło',
+		term: 'Pojęcie',
+		visit: 'Wizyta',
+		event: 'Wydarzenie'
 	},
 	settings: {
 		title: 'Ustawienia',

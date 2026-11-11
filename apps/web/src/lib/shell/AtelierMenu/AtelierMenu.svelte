@@ -36,6 +36,7 @@
 		signingOut: boolean;
 		compact?: boolean;
 		dense?: boolean;
+		barItems?: boolean;
 		onsignout: () => void;
 		onfeedback: () => void;
 	};
@@ -45,6 +46,7 @@
 		signingOut,
 		compact = false,
 		dense = false,
+		barItems = true,
 		onsignout,
 		onfeedback
 	}: Props = $props();
@@ -132,16 +134,18 @@
 	<div class="account-group">
 		{@render account(shownMenuProfile(ownerId))}
 	</div>
-	<a
-		class="item"
-		aria-current={page.url.pathname === atelierPath ? 'page' : undefined}
-		href={atelierPath}
-	>
-		<Icon icon={ImagesIcon} />
-		<span class="label" class:visually-hidden={compact}>
-			{m.menu.atelier}
-		</span>
-	</a>
+	{#if barItems}
+		<a
+			class="item"
+			aria-current={page.url.pathname === atelierPath ? 'page' : undefined}
+			href={atelierPath}
+		>
+			<Icon icon={ImagesIcon} />
+			<span class="label" class:visually-hidden={compact}>
+				{m.menu.atelier}
+			</span>
+		</a>
+	{/if}
 	<a
 		class="item"
 		aria-current={page.url.pathname === cardIndexPath ? 'page' : undefined}
@@ -152,16 +156,18 @@
 			{m.menu.cardIndex}
 		</span>
 	</a>
-	<a
-		class="item"
-		aria-current={page.url.pathname.startsWith(glossaryPath) ? 'page' : undefined}
-		href={glossaryPath}
-	>
-		<Icon icon={BookA} />
-		<span class="label" class:visually-hidden={compact}>
-			{m.menu.glossary}
-		</span>
-	</a>
+	{#if barItems}
+		<a
+			class="item"
+			aria-current={page.url.pathname.startsWith(glossaryPath) ? 'page' : undefined}
+			href={glossaryPath}
+		>
+			<Icon icon={BookA} />
+			<span class="label" class:visually-hidden={compact}>
+				{m.menu.glossary}
+			</span>
+		</a>
+	{/if}
 	<a
 		class="item"
 		aria-current={page.url.pathname.startsWith(timelinePath) ? 'page' : undefined}
@@ -192,33 +198,35 @@
 			{m.menu.exhibitions}
 		</span>
 	</a>
-	<a
-		class="item"
-		aria-current={page.url.pathname === reviewPath ? 'page' : undefined}
-		href={reviewPath}
-	>
-		<span class="icon">
-			<Icon icon={Layers} />
+	{#if barItems}
+		<a
+			class="item"
+			aria-current={page.url.pathname === reviewPath ? 'page' : undefined}
+			href={reviewPath}
+		>
+			<span class="icon">
+				<Icon icon={Layers} />
+				{#await page.data.reviewWaiting then waiting}
+					{#if waiting > 0}
+						<span class="badge" aria-hidden="true"></span>
+					{/if}
+				{/await}
+			</span>
+			<span class="label" class:visually-hidden={compact}>
+				{m.menu.review}
+				{#await page.data.reviewWaiting then waiting}
+					{#if waiting > 0}
+						<span class="visually-hidden">, {m.menu.reviewWaiting(waiting)}</span>
+					{/if}
+				{/await}
+			</span>
 			{#await page.data.reviewWaiting then waiting}
 				{#if waiting > 0}
-					<span class="badge" aria-hidden="true"></span>
+					<Count aria-hidden="true" value={waiting} />
 				{/if}
 			{/await}
-		</span>
-		<span class="label" class:visually-hidden={compact}>
-			{m.menu.review}
-			{#await page.data.reviewWaiting then waiting}
-				{#if waiting > 0}
-					<span class="visually-hidden">, {m.menu.reviewWaiting(waiting)}</span>
-				{/if}
-			{/await}
-		</span>
-		{#await page.data.reviewWaiting then waiting}
-			{#if waiting > 0}
-				<Count aria-hidden="true" value={waiting} />
-			{/if}
-		{/await}
-	</a>
+		</a>
+	{/if}
 	{#if careerShown}
 		<a
 			class="item"

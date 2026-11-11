@@ -99,8 +99,8 @@ describe('AtelierLayout', () => {
 
 		const heading = page.getByRole('banner').getByRole('heading', { level: 1 });
 		await expect.element(heading).toHaveTextContent('Kronika');
-		const back = page.getByRole('link', { name: 'Atelier' }).element();
-		const add = page.getByRole('link', { name: 'Dodaj' }).element();
+		const back = page.getByRole('banner').getByRole('link', { name: 'Atelier' }).element();
+		const add = page.getByRole('banner').getByRole('link', { name: 'Dodaj' }).element();
 		expect(back.compareDocumentPosition(heading.element())).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
 		expect(heading.element().compareDocumentPosition(add)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
 	});
@@ -148,15 +148,17 @@ describe('AtelierLayout', () => {
 		});
 	}
 
-	it('fits the opened menu to the phone viewport and locks the page behind it', async () => {
+	it('opens the menu as a sheet at the bottom of a phone and locks the page behind it', async () => {
 		await page.viewport(390, 844);
 		renderLayout(views.empty);
 
 		await userEvent.click(page.getByRole('button', { name: m.menu.open }));
-		const drawer = page.getByRole('dialog').element();
-
-		expect(drawer.getBoundingClientRect().height).toBe(window.innerHeight);
-		expect(drawer.scrollHeight).toBe(drawer.clientHeight);
+		const sheet = page.getByRole('dialog', { name: m.menu.label });
+		await expect.element(sheet).toBeVisible();
+		await expect
+			.poll(() => sheet.element().getBoundingClientRect().bottom)
+			.toBeCloseTo(window.innerHeight, 0);
+		expect(sheet.element().getBoundingClientRect().height).toBeLessThan(window.innerHeight);
 		expect(getComputedStyle(document.documentElement).overflow).toBe('hidden');
 	});
 
@@ -516,7 +518,7 @@ describe('AtelierLayout menu', () => {
 			await page.viewport(390, 800);
 		});
 
-		it('opens the menu from the top bar and closes it', async () => {
+		it('opens the menu from the bottom bar and closes it', async () => {
 			renderLayout(views.empty);
 
 			await expect
@@ -534,5 +536,103 @@ describe('AtelierLayout menu', () => {
 
 			await expect.element(drawer).not.toBeInTheDocument();
 		});
+	});
+});
+
+describe('AtelierLayout bottom bar', () => {
+	beforeEach(async () => {
+		vi.clearAllMocks();
+		navigation.to = null;
+		pageState.data = {};
+		pageState.url = new URL('http://localhost/atelier');
+		await page.viewport(390, 844);
+	});
+
+	function renderWith(props: {
+		task?: boolean;
+		children?: ReturnType<typeof createRawSnippet>;
+	}): void {
+		render(AtelierLayout, {
+			title: 'Atelier',
+			email: 'learner@example.com',
+			task: props.task,
+			children: props.children ?? snippet('<p>Content</p>')
+		});
+	}
+
+	it('links to the atelier, the glossary and the reviews, with adding and the menu between them', async () => {
+		pageState.data = { reviewWaiting: Promise.resolve(19) };
+		renderWith({});
+		const bar = page.getByRole('navigation', { name: m.menu.bar });
+
+		await expect
+			.element(bar.getByRole('link', { name: m.menu.atelier }))
+			.toHaveAttribute('aria-current', 'page');
+		await expect
+			.element(bar.getByRole('link', { name: m.menu.glossary }))
+			.toHaveAttribute('href', '/atelier/glossary');
+		const review = bar.getByRole('link', { name: new RegExp(`^${m.menu.review}`) });
+		await expect.element(review).toHaveAttribute('href', '/atelier/review');
+		await expect.element(review).toHaveTextContent(m.menu.reviewWaiting(19));
+		await expect.element(bar.getByRole('button', { name: m.common.add })).toBeVisible();
+		await expect.element(bar.getByRole('button', { name: m.menu.open })).toBeVisible();
+	});
+
+	it('leaves the items of the bar out of the menu sheet', async () => {
+		renderWith({});
+
+		await page.getByRole('button', { name: m.menu.open }).click();
+		const sheet = page.getByRole('dialog', { name: m.menu.label });
+
+		await expect.element(sheet.getByRole('link', { name: m.menu.cardIndex })).toBeVisible();
+		await expect.element(sheet.getByRole('link', { name: m.menu.atelier })).not.toBeInTheDocument();
+		await expect
+			.element(sheet.getByRole('link', { name: m.menu.glossary }))
+			.not.toBeInTheDocument();
+	});
+
+	it('opens the add sheet with the tile of the current module highlighted', async () => {
+		pageState.url = new URL('http://localhost/atelier/glossary');
+		renderWith({});
+
+		await page.getByRole('button', { name: m.common.add }).click();
+		const sheet = page.getByRole('dialog', { name: m.addSheet.title });
+
+		await expect
+			.element(sheet.getByRole('link', { name: m.atelier.add }))
+			.toHaveAttribute('href', '/atelier/new');
+		await expect.element(sheet.getByRole('link', { name: m.glossary.add })).toHaveClass('here');
+		await expect
+			.element(sheet.getByRole('link', { name: m.chronicle.add }))
+			.not.toHaveClass('here');
+		await expect
+			.element(sheet.getByRole('link', { name: m.timeline.add }))
+			.toHaveAttribute('href', '/atelier/timeline/events/new');
+	});
+
+	it('leaves the bar out of a task', async () => {
+		renderWith({ task: true });
+
+		await expect.element(page.getByText('Content')).toBeVisible();
+		await expect
+			.element(page.getByRole('navigation', { name: m.menu.bar }))
+			.not.toBeInTheDocument();
+	});
+
+	it('hides the bar under the actions of a form', async () => {
+		renderWith({ children: snippet('<footer data-action-bar>Save</footer>') });
+
+		await expect.element(page.getByText('Save')).toBeVisible();
+		const bar = document.querySelector('.bottom-bar') as HTMLElement;
+		expect(getComputedStyle(bar).display).toBe('none');
+	});
+
+	it('is not shown on a larger screen', async () => {
+		await page.viewport(1280, 800);
+		renderWith({});
+
+		await expect.element(page.getByText('Content')).toBeVisible();
+		const bar = document.querySelector('.bottom-bar') as HTMLElement;
+		expect(getComputedStyle(bar).display).toBe('none');
 	});
 });

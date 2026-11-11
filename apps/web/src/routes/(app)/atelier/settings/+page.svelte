@@ -73,6 +73,7 @@
 		(tab === 'profile' ? profileTab : preferencesTab)?.confirmLeave() ?? Promise.resolve(true)}
 	{email}
 	heading
+	task
 	title={m.settings.title}
 >
 	{#snippet back()}

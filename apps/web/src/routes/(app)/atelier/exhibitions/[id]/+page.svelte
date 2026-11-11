@@ -74,7 +74,7 @@
 
 <svelte:window onbeforeunload={(event) => session?.dirty && event.preventDefault()} />
 
-<AtelierLayout email={data.session.user.email ?? ''} {title} bind:barHeight>
+<AtelierLayout email={data.session.user.email ?? ''} task={editing} {title} bind:barHeight>
 	{#snippet bar()}
 		<BackLink fallbackHref={listPath} fallbackName={m.exhibitions.view.back} />
 		{#if session && data.exhibition}

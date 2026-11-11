@@ -48,7 +48,7 @@ Every exported component has a row here; a pull request that adds a component ad
 | Component      | Purpose                                                                                                                                                                                                                    |
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Button`       | Outline button with a heavier bottom edge; `primary` is filled, one per view; `danger` for deletes; a link with `href`; `icon`, and `compact` shows only the icon on a phone and requires an `aria-label`                  |
-| `AddButton`    | The add action of a module's top bar: a `primary` link with `plus` and the label, the `plus` alone on a phone with the label as its accessible name and in a `Tooltip`                                                     |
+| `AddButton`    | The add action of a module's top bar: a `primary` link with `plus` and the label; not shown below 768 px, where the app's bottom bar adds                                                                                  |
 | `TextButton`   | Small underlined text action without a frame, read as part of a line ("Wyczyść filtry", "Zwiń wszystkie"); `inline` drops the inline padding for a column of texts, `danger` colours a delete                              |
 | `Form`         | Form without browser validation; shows the form error at the top and focuses the first invalid field on submit                                                                                                             |
 | `FormActions`  | Bar fixed to the bottom of the screen with a form's actions                                                                                                                                                                |
@@ -70,21 +70,21 @@ Every exported component has a row here; a pull request that adds a component ad
 
 ### Messages and overlays
 
-| Component       | Purpose                                                                                                                                                |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `Alert`         | Status message with a coloured label bar: `danger`, `warning`, `success`                                                                               |
-| `EmptyState`    | What a view or a part of a page shows while it has nothing yet: the icon, an optional title, a sentence and an action, centred                         |
-| `LoadFailure`   | What a page shows instead of its content when it is not found or failed to load, with a button back                                                    |
-| `Toast`         | Short confirmation floating above the content; disappears after 5 s; the newest message replaces the old one                                           |
-| `Dialog`        | Modal over the scrim with title, body and footer actions; full screen on a phone; `small` for confirmations                                            |
-| `Popover`       | Text-like trigger that opens a card on click, hover or focus                                                                                           |
-| `PopoverCard`   | The card of a `Popover`, of a glossary term in notes or of a timeline event; `interactive` holds links, `boundary` keeps it sideways within an element |
-| `PopupButton`   | Button that opens a panel under it (role `dialog`), closed by a click outside, Escape or `close()`                                                     |
-| `Tooltip`       | One short line above, below or to the left of a control, on hover and keyboard focus                                                                   |
-| `LoadingScreen` | Full-screen first load: the logo mark with strokes in its window                                                                                       |
-| `ProgressLine`  | Thin stroke along the bottom of the top bar while a navigation loads                                                                                   |
-| `FillingLines`  | Faint text-sized lines that hold a field's place while it is being filled                                                                              |
-| `Primer`        | Faint strokes laid across an image window while the image loads                                                                                        |
+| Component       | Purpose                                                                                                                                                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Alert`         | Status message with a coloured label bar: `danger`, `warning`, `success`                                                                                                 |
+| `EmptyState`    | What a view or a part of a page shows while it has nothing yet: the icon, an optional title, a sentence and an action, centred                                           |
+| `LoadFailure`   | What a page shows instead of its content when it is not found or failed to load, with a button back                                                                      |
+| `Toast`         | Short confirmation floating above the content and above a bar of the app at the bottom (`--bottom-inset`); disappears after 5 s; the newest message replaces the old one |
+| `Dialog`        | Modal over the scrim with title, body and footer actions; full screen on a phone; `small` for confirmations                                                              |
+| `Popover`       | Text-like trigger that opens a card on click, hover or focus                                                                                                             |
+| `PopoverCard`   | The card of a `Popover`, of a glossary term in notes or of a timeline event; `interactive` holds links, `boundary` keeps it sideways within an element                   |
+| `PopupButton`   | Button that opens a panel under it (role `dialog`), closed by a click outside, Escape or `close()`                                                                       |
+| `Tooltip`       | One short line above, below or to the left of a control, on hover and keyboard focus                                                                                     |
+| `LoadingScreen` | Full-screen first load: the logo mark with strokes in its window                                                                                                         |
+| `ProgressLine`  | Thin stroke along the bottom of the top bar while a navigation loads                                                                                                     |
+| `FillingLines`  | Faint text-sized lines that hold a field's place while it is being filled                                                                                                |
+| `Primer`        | Faint strokes laid across an image window while the image loads                                                                                                          |
 
 ### Text and structure
 
