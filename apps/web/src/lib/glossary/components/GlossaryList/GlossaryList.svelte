@@ -82,6 +82,7 @@
 					compact
 					hideLabel
 					icon={ArrowUpDown}
+					iconOnPhone
 					label={m.glossary.sortLabel}
 					options={sorts}
 					bind:value={() => sort, choose}
@@ -193,6 +194,49 @@
 		display: grid;
 		gap: var(--spacing-2);
 		max-width: var(--size-content-default);
+	}
+
+	@media (max-width: 767.98px) {
+		.filter {
+			gap: var(--spacing-3);
+			margin-top: 0;
+			padding-bottom: var(--spacing-4);
+		}
+
+		.tools {
+			grid-template-columns: minmax(0, 1fr) auto;
+			gap: var(--spacing-2);
+		}
+
+		.categories {
+			flex-wrap: nowrap;
+			overflow-x: auto;
+			margin-inline: calc(-1 * var(--page-inline));
+			padding-inline: var(--page-inline);
+			scrollbar-width: none;
+		}
+
+		.categories > li {
+			flex: none;
+		}
+
+		.groups {
+			gap: var(--spacing-6);
+		}
+
+		.group {
+			gap: var(--spacing-2);
+		}
+
+		h2 {
+			position: sticky;
+			top: var(--bar-height);
+			z-index: 1;
+			padding-top: var(--spacing-1);
+			background: var(--color-bg);
+			font-size: var(--font-size-lg);
+			line-height: var(--line-height-lg);
+		}
 	}
 
 	@media (min-width: 768px) {

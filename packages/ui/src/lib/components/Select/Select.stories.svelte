@@ -37,6 +37,11 @@
 <Story name="Hidden label" args={{ hideLabel: true, placeholder: 'Type' }} />
 
 <Story
+	name="Icon on a phone"
+	args={{ hideLabel: true, icon: ArrowUpDown, iconOnPhone: true, value: 'painting' }}
+/>
+
+<Story
 	name="Compact"
 	args={{
 		label: 'Order',

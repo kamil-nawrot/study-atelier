@@ -110,4 +110,27 @@ describe('Select', () => {
 			select.getBoundingClientRect().left + parseFloat(getComputedStyle(select).paddingLeft)
 		);
 	});
+
+	it('shrinks to its icon on a phone with iconOnPhone and keeps the chosen value', async () => {
+		await page.viewport(390, 844);
+		render(Select, {
+			label: 'Order',
+			options: types,
+			icon: ArrowUpDown,
+			value: 'sculpture',
+			hideLabel: true,
+			iconOnPhone: true
+		});
+		const select = page.getByRole('combobox', { name: 'Order' });
+
+		await expect.element(select).toHaveValue('sculpture');
+		const control = select.element().closest('.control') as HTMLElement;
+		expect(control.getBoundingClientRect().width).toBe(controlHeight());
+		expect(getComputedStyle(select.element()).color).toBe('rgba(0, 0, 0, 0)');
+
+		await page.viewport(1280, 800);
+		await expect
+			.poll(() => control.getBoundingClientRect().width)
+			.toBeGreaterThan(controlHeight());
+	});
 });

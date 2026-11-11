@@ -13,6 +13,7 @@
 	let current = $state<string>();
 	let top = $state<number>();
 	let chosen: string | undefined;
+	let scrubbed = $state<{ letter: string; y: number }>();
 
 	function section(letter: string): HTMLElement | null {
 		return document.getElementById(`letter-${letter}`)?.parentElement ?? null;
@@ -45,14 +46,36 @@
 		chosen = undefined;
 	}
 
-	function jump(letter: string): void {
+	function jump(letter: string, instant = false): void {
 		chosen = letter;
 		current = letter;
-		const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const smooth = !instant && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		section(letter)?.scrollIntoView({ block: 'start', behavior: smooth ? 'smooth' : 'instant' });
 		const heading = document.getElementById(`letter-${letter}`);
 		heading?.setAttribute('tabindex', '-1');
 		heading?.focus({ preventScroll: true });
+	}
+
+	function scrub(event: PointerEvent): void {
+		const button = document
+			.elementFromPoint(event.clientX, event.clientY)
+			?.closest<HTMLButtonElement>('.index button');
+		const letter = button?.dataset.letter;
+		if (!letter) return;
+		if (scrubbed?.letter !== letter) jump(letter, true);
+		scrubbed = { letter, y: event.clientY };
+	}
+
+	function startScrub(event: PointerEvent): void {
+		if (event.pointerType === 'touch') scrub(event);
+	}
+
+	function moveScrub(event: PointerEvent): void {
+		if (scrubbed) scrub(event);
+	}
+
+	function endScrub(): void {
+		scrubbed = undefined;
 	}
 
 	$effect(() => {
@@ -76,18 +99,27 @@
 	class="index"
 	aria-label={m.glossary.letters}
 >
-	<ol>
+	<ol
+		onpointercancel={endScrub}
+		onpointerdown={startScrub}
+		onpointermove={moveScrub}
+		onpointerup={endScrub}
+	>
 		{#each letters as letter (letter)}
 			<li>
 				<button
 					class:current={letter === current}
 					aria-current={letter === current ? 'true' : undefined}
+					data-letter={letter}
 					onclick={() => jump(letter)}
 					type="button">{letter}</button
 				>
 			</li>
 		{/each}
 	</ol>
+	{#if scrubbed}
+		<span style:top="{scrubbed.y}px" class="bubble" aria-hidden="true">{scrubbed.letter}</span>
+	{/if}
 </nav>
 
 <style>
@@ -138,6 +170,28 @@
 	button.current {
 		color: var(--color-fg);
 		font-weight: var(--font-weight-bold);
+	}
+
+	.bubble {
+		position: fixed;
+		right: calc(var(--spacing-8) + var(--spacing-4));
+		display: grid;
+		place-items: center;
+		width: var(--spacing-16);
+		height: var(--spacing-16);
+		background: var(--color-fg);
+		color: var(--color-on-fg);
+		font-family: var(--font-family-title), Georgia, serif;
+		font-size: var(--font-size-2xl);
+		font-style: italic;
+		pointer-events: none;
+		translate: 0 -50%;
+	}
+
+	@media (max-width: 767.98px) {
+		ol {
+			touch-action: none;
+		}
 	}
 
 	button:focus-visible {
