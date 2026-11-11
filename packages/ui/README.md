@@ -48,6 +48,7 @@ Every exported component has a row here; a pull request that adds a component ad
 | Component      | Purpose                                                                                                                                                                                                                    |
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Button`       | Outline button with a heavier bottom edge; `primary` is filled, one per view; `danger` for deletes; a link with `href`; `icon`, and `compact` shows only the icon on a phone and requires an `aria-label`                  |
+| `AddButton`    | The add action of a module's top bar: a `primary` link with `plus` and the label, the `plus` alone on a phone with the label as its accessible name and in a `Tooltip`                                                     |
 | `TextButton`   | Small underlined text action without a frame, read as part of a line ("Wyczyść filtry", "Zwiń wszystkie"); `inline` drops the inline padding for a column of texts, `danger` colours a delete                              |
 | `Form`         | Form without browser validation; shows the form error at the top and focuses the first invalid field on submit                                                                                                             |
 | `FormActions`  | Bar fixed to the bottom of the screen with a form's actions                                                                                                                                                                |
@@ -69,34 +70,36 @@ Every exported component has a row here; a pull request that adds a component ad
 
 ### Messages and overlays
 
-| Component       | Purpose                                                                                                                        |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `Alert`         | Status message with a coloured label bar: `danger`, `warning`, `success`                                                       |
-| `EmptyState`    | What a view or a part of a page shows while it has nothing yet: the icon, an optional title, a sentence and an action, centred |
-| `LoadFailure`   | What a page shows instead of its content when it is not found or failed to load, with a button back                            |
-| `Toast`         | Short confirmation floating above the content; disappears after 5 s; the newest message replaces the old one                   |
-| `Dialog`        | Modal over the scrim with title, body and footer actions; full screen on a phone; `small` for confirmations                    |
-| `Popover`       | Text-like trigger that opens a card on click, hover or focus                                                                   |
-| `PopoverCard`   | The card of a `Popover` or of a glossary term in notes; `interactive` holds a link                                             |
-| `PopupButton`   | Button that opens a panel under it (role `dialog`), closed by a click outside, Escape or `close()`                             |
-| `Tooltip`       | One short line above, below or to the left of a control, on hover and keyboard focus                                           |
-| `LoadingScreen` | Full-screen first load: the logo mark with strokes in its window                                                               |
-| `ProgressLine`  | Thin stroke along the bottom of the top bar while a navigation loads                                                           |
-| `FillingLines`  | Faint text-sized lines that hold a field's place while it is being filled                                                      |
-| `Primer`        | Faint strokes laid across an image window while the image loads                                                                |
+| Component       | Purpose                                                                                                                                                |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Alert`         | Status message with a coloured label bar: `danger`, `warning`, `success`                                                                               |
+| `EmptyState`    | What a view or a part of a page shows while it has nothing yet: the icon, an optional title, a sentence and an action, centred                         |
+| `LoadFailure`   | What a page shows instead of its content when it is not found or failed to load, with a button back                                                    |
+| `Toast`         | Short confirmation floating above the content; disappears after 5 s; the newest message replaces the old one                                           |
+| `Dialog`        | Modal over the scrim with title, body and footer actions; full screen on a phone; `small` for confirmations                                            |
+| `Popover`       | Text-like trigger that opens a card on click, hover or focus                                                                                           |
+| `PopoverCard`   | The card of a `Popover`, of a glossary term in notes or of a timeline event; `interactive` holds links, `boundary` keeps it sideways within an element |
+| `PopupButton`   | Button that opens a panel under it (role `dialog`), closed by a click outside, Escape or `close()`                                                     |
+| `Tooltip`       | One short line above, below or to the left of a control, on hover and keyboard focus                                                                   |
+| `LoadingScreen` | Full-screen first load: the logo mark with strokes in its window                                                                                       |
+| `ProgressLine`  | Thin stroke along the bottom of the top bar while a navigation loads                                                                                   |
+| `FillingLines`  | Faint text-sized lines that hold a field's place while it is being filled                                                                              |
+| `Primer`        | Faint strokes laid across an image window while the image loads                                                                                        |
 
 ### Text and structure
 
-| Component       | Purpose                                                                                                                                                                                     |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Section`       | Text section with a heavy left edge (spine)                                                                                                                                                 |
-| `Disclosure`    | Collapsible group with a heading, a count and a chevron (native `details`); `muted`, `plain`, `lazy`                                                                                        |
-| `Tabs`          | Row of text tabs under a hairline that switch what a view lists; a tab with `end` stands at the right edge; `framed` draws the selected tab as a card-file divider joined to a framed panel |
-| `Tag`           | Flat tag with `#` prefix; optional remove button                                                                                                                                            |
-| `Count`         | Number in a small filled box; `outlined` is the muted form                                                                                                                                  |
-| `Notes`         | Read-only notes from Markdown, with links to values and artworks and marked glossary terms                                                                                                  |
-| `Icon`          | Lucide icon in the shared style: `sm` (20 px) or `md` (24 px)                                                                                                                               |
-| `PageScrollbar` | The overlay scrollbar of the page, mounted once in the root layout; `{@attach overlayScrollbar()}` gives a scrolling element its own ('y', or 'x' for a row)                                |
+| Component       | Purpose                                                                                                                                                                                                                 |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PageHeader`    | The opening of a view under the top bar: the lead and a hairline under it; `aside` (a count) stands level with the lead from 768 px and under it on a phone, `actions` stand at the top right                           |
+| `Section`       | Text section with a heavy left edge (spine)                                                                                                                                                                             |
+| `Disclosure`    | Collapsible group with a heading, a count and a chevron (native `details`); `muted`, `plain`, `lazy`                                                                                                                    |
+| `Tabs`          | Row of text tabs under a hairline that switch what a view lists; a tab with `end` stands at the right edge; the selected tab joins a framed panel, which drops its bottom padding and border around a `FormActions` bar |
+| `Tag`           | Flat tag with `#` prefix; optional remove button                                                                                                                                                                        |
+| `Count`         | Number in a small filled box, always in the UI font                                                                                                                                                                     |
+| `MetaLine`      | Short details in one line (author and year, number of artworks and date) with a spaced, hidden "·" between them; from `parts` or a `text` split at " · "                                                                |
+| `Notes`         | Read-only notes from Markdown, with links to values and artworks and marked glossary terms                                                                                                                              |
+| `Icon`          | Lucide icon in the shared style: `sm` (20 px) or `md` (24 px)                                                                                                                                                           |
+| `PageScrollbar` | The overlay scrollbar of the page, mounted once in the root layout; `{@attach overlayScrollbar()}` gives a scrolling element its own ('y', or 'x' for a row)                                                            |
 
 ### Artworks and brand
 

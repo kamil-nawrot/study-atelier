@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
-	import { Alert, Tabs, Toast } from '@study-atelier/ui';
+	import { Alert, PageHeader, Tabs, Toast } from '@study-atelier/ui';
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -72,17 +72,15 @@
 	confirmLeave={() =>
 		(tab === 'profile' ? profileTab : preferencesTab)?.confirmLeave() ?? Promise.resolve(true)}
 	{email}
+	heading
 	title={m.settings.title}
 >
-	{#snippet bar()}
-		<BackLink fallbackHref={atelierPath} fallbackName={m.settings.back} />
+	{#snippet back()}
+		<BackLink arrowOnly fallbackHref={atelierPath} fallbackName={m.settings.back} />
 	{/snippet}
 
-	<div class="page" class:bar={tab !== 'account' && tab !== 'data'}>
-		<header>
-			<h1>{m.settings.title}</h1>
-			<p class="lead">{m.settings.lead}</p>
-		</header>
+	<div class="page">
+		<PageHeader lead={m.settings.lead} />
 
 		{#if data.error}
 			<Alert title={m.settings.loadErrorTitle} tone="danger">
@@ -133,20 +131,11 @@
 <Toast bind:this={toast} offset={tab === 'account' || tab === 'data' ? 0 : barHeight} />
 
 <style>
-	header {
-		display: grid;
-		gap: var(--spacing-2);
-	}
-
 	.page {
 		display: flex;
 		flex-direction: column;
 		gap: var(--spacing-6);
 		min-height: calc(100dvh - var(--bar-height) - var(--spacing-6));
-	}
-
-	.page.bar {
-		margin-bottom: calc(-1 * var(--spacing-12));
 	}
 
 	.page > :global(.tabs) {
@@ -160,6 +149,11 @@
 		flex-direction: column;
 		box-sizing: border-box;
 		min-height: 100%;
-		padding-top: var(--spacing-8);
+	}
+
+	@media (min-width: 768px) {
+		.page {
+			min-height: calc(100dvh - var(--bar-height) - var(--spacing-8));
+		}
 	}
 </style>

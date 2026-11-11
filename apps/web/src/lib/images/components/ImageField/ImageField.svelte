@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Clipboard from '@lucide/svelte/icons/clipboard';
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
 	import Search from '@lucide/svelte/icons/search';
 	import Trash from '@lucide/svelte/icons/trash';
@@ -17,6 +18,7 @@
 		artworkImageSource
 	} from '#lib/images/artwork-image/artwork-image.ts';
 	import type { ImageFieldTexts } from '#lib/images/types/image-field-texts.ts';
+	import type { ImageHint } from '#lib/images/types/image-hint.ts';
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 
 	type Props = {
@@ -28,7 +30,9 @@
 		removable?: boolean;
 		onsearch?: () => void;
 		slots?: Snippet;
+		source?: Snippet;
 		status?: Snippet;
+		hints?: ImageHint[];
 		overlay?: Snippet;
 		removeWarning?: string;
 		filling?: boolean;
@@ -43,7 +47,9 @@
 		removable = false,
 		onsearch,
 		slots,
+		source,
 		status,
+		hints = [],
 		overlay,
 		removeWarning,
 		filling = false
@@ -124,10 +130,16 @@
 		{#if credit}
 			<figcaption class="caption">{credit}</figcaption>
 		{/if}
+		{@render source?.()}
 	</figure>
 
 	<div class="image-actions">
-		<Button id={findImageId} disabled={!searchReady || filling} onclick={openSearch}>
+		<Button
+			id={findImageId}
+			disabled={!searchReady || filling}
+			onclick={openSearch}
+			variant="primary"
+		>
 			<Icon icon={Search} size="sm" />
 			{image?.kind === 'commons' ? texts.findOther : texts.find}
 		</Button>
@@ -136,23 +148,37 @@
 			{ownImage ? texts.changeOwn : texts.own}
 		</Button>
 		{#if image || removable}
-			<Button onclick={askToRemove}>
+			<Button onclick={askToRemove} variant="danger">
 				<Icon icon={Trash} size="sm" />
 				{texts.remove}
 			</Button>
 		{/if}
 	</div>
 	{@render status?.()}
-	{#if !searchReady}
-		<p class="caption">{texts.findHint}</p>
-	{/if}
 	{#if input.pasteError}
 		<p class="paste-error" role="alert">{input.pasteError}</p>
 	{/if}
-	<p class="caption paste-hint">
-		{m.artworkForm.pasteHintForm}
-		<PasteKeys />
-	</p>
+	<ul class="hints">
+		{#if !searchReady}
+			<li class="caption">
+				<Icon icon={Search} size="sm" />
+				<span>{texts.findHint}</span>
+			</li>
+		{/if}
+		{#each hints as hint (hint.text)}
+			<li class="caption">
+				<Icon icon={hint.icon} size="sm" />
+				<span>{hint.text}</span>
+			</li>
+		{/each}
+		<li class="caption paste-hint">
+			<Icon icon={Clipboard} size="sm" />
+			<span>
+				{m.artworkForm.pasteHintForm}
+				<PasteKeys />
+			</span>
+		</li>
+	</ul>
 </section>
 
 <ImageSearchDialog onpick={pickCandidate} {query} bind:open={input.searchOpen} />
@@ -237,7 +263,24 @@
 		flex: 1 1 auto;
 	}
 
-	.paste-hint {
+	.hints {
+		display: grid;
+		gap: var(--spacing-2);
+		margin: 0;
+		list-style: none;
+	}
+
+	.hints li {
+		display: flex;
+		align-items: start;
+		gap: var(--spacing-2);
+	}
+
+	.hints li > :global(svg) {
+		flex: none;
+	}
+
+	.hints li.paste-hint {
 		display: none;
 	}
 
@@ -249,8 +292,8 @@
 	}
 
 	@media (pointer: fine) {
-		.paste-hint {
-			display: block;
+		.hints li.paste-hint {
+			display: flex;
 		}
 	}
 

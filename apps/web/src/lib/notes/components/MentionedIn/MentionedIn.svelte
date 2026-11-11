@@ -1,21 +1,19 @@
 <script lang="ts">
+	import AtSign from '@lucide/svelte/icons/at-sign';
+	import { Disclosure } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { Mention } from '#lib/notes/types/mention.ts';
 
 	type Props = {
 		mentions: Mention[];
 		heading?: string;
-		variant?: 'caption' | 'label';
 	};
 
-	let { mentions, heading = m.mentions.heading, variant = 'caption' }: Props = $props();
-
-	const headingId = $props.id();
+	let { mentions, heading = m.mentions.heading }: Props = $props();
 </script>
 
 {#if mentions.length > 0}
-	<section aria-labelledby={headingId}>
-		<h2 id={headingId} class={variant}>{heading}</h2>
+	<Disclosure count={mentions.length} icon={AtSign} muted open={false} title={heading}>
 		<ul>
 			{#each mentions as mention (mention.href)}
 				<li>
@@ -24,17 +22,13 @@
 				</li>
 			{/each}
 		</ul>
-	</section>
+	</Disclosure>
 {/if}
 
 <style>
-	section,
 	ul {
 		display: grid;
 		gap: var(--spacing-2);
-	}
-
-	ul {
 		margin: 0;
 		list-style: none;
 	}
@@ -53,23 +47,9 @@
 		text-underline-offset: var(--spacing-1);
 	}
 
-	.kind,
-	.caption {
+	.kind {
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
-	}
-
-	.caption {
-		font-weight: var(--font-weight-regular);
-	}
-
-	.label {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		font-weight: var(--font-weight-regular);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
 	}
 </style>

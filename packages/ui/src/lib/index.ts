@@ -1,3 +1,4 @@
+export { default as AddButton } from './components/AddButton/AddButton.svelte';
 export { default as Alert } from './components/Alert/Alert.svelte';
 export { default as ArtworkImage } from './components/ArtworkImage/ArtworkImage.svelte';
 export { default as ArtworkTile } from './components/ArtworkTile/ArtworkTile.svelte';
@@ -21,7 +22,10 @@ export { default as LoadingScreen } from './components/LoadingScreen/LoadingScre
 export { default as Logo } from './components/Logo/Logo.svelte';
 export { default as LogoMark } from './components/LogoMark/LogoMark.svelte';
 export { default as Meter } from './components/Meter/Meter.svelte';
+export { default as MetaLine } from './components/MetaLine/MetaLine.svelte';
 export { default as NoImage } from './components/NoImage/NoImage.svelte';
+export { default as PageHeader } from './components/PageHeader/PageHeader.svelte';
+export { default as PanelHeader } from './components/PanelHeader/PanelHeader.svelte';
 export { default as Notes } from './components/Notes/Notes.svelte';
 export { default as PageScrollbar } from './components/PageScrollbar/PageScrollbar.svelte';
 export { default as NotesEditor } from './components/NotesEditor/NotesEditor.svelte';

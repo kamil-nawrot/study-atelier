@@ -629,11 +629,23 @@ function exhibitionsRoute(route, request, url) {
 	}
 	const archived = url.searchParams.get('deleted_at') === 'not.is.null';
 	const id = url.searchParams.get('id');
-	const rows = (archived ? ARCHIVED_EXHIBITIONS : EXHIBITIONS).filter(
-		(row) =>
-			(!id?.startsWith('eq.') || row.id === id.slice(3)) &&
-			(!id?.startsWith('in.(') || id.slice(4, -1).split(',').includes(row.id))
-	);
+	const rows = (archived ? ARCHIVED_EXHIBITIONS : EXHIBITIONS)
+		.filter(
+			(row) =>
+				(!id?.startsWith('eq.') || row.id === id.slice(3)) &&
+				(!id?.startsWith('in.(') || id.slice(4, -1).split(',').includes(row.id))
+		)
+		.map((row) => ({
+			...row,
+			exhibition_artworks: row.exhibition_artworks.map((link) => ({
+				...link,
+				artworks: {
+					deleted_at:
+						[...ARTWORKS, ...TRASHED].find((artwork) => artwork.id === link.artwork_id)
+							?.deleted_at ?? null
+				}
+			}))
+		}));
 	if (!wantsObject) return json(route, rows);
 	return json(route, rows[0] ?? null);
 }
@@ -869,6 +881,12 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/artwork_pins') return pinsRoute(route, request, url);
 		if (url.pathname === '/rest/v1/profiles') return profileRoute(route, request);
 		if (url.pathname === '/rest/v1/glossary_entries') return glossaryRoute(route, request, url);
+		if (url.pathname === '/rest/v1/rpc/mastered_artworks') {
+			return json(
+				route,
+				Math.min(2, JSON.parse(request.postData() ?? '{}').artwork_ids?.length ?? 0)
+			);
+		}
 		if (url.pathname.startsWith('/rest/v1/rpc/')) {
 			return json(route, { id: ARTWORKS[0].id, record_number: ARTWORKS[0].record_number });
 		}

@@ -72,12 +72,14 @@
 			<div class="tools">
 				{#if entries.length >= GLOSSARY_SEARCH_MIN_ENTRIES}
 					<SearchField
+						compact
 						label={m.glossary.search}
 						placeholder={m.glossary.search}
 						bind:value={query}
 					/>
 				{/if}
 				<Select
+					compact
 					hideLabel
 					icon={ArrowUpDown}
 					label={m.glossary.sortLabel}

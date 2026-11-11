@@ -1,6 +1,6 @@
 # 0093. Show the collection and the learner's historical events on a timeline, one era at a time
 
-- Status: accepted; the empty event band and the empty timeline are superseded by [0130](0130-show-empty-views-in-one-centred-pattern.md)
+- Status: accepted; the empty event band and the empty timeline are superseded by [0130](0130-show-empty-views-in-one-centred-pattern.md); the event card on a larger screen is superseded by [0241](0241-show-a-timeline-event-in-a-popover-and-drop-the-artworks-at-the-reading-line.md); the era strip's proportions and frame are superseded by [0242](0242-polish-the-era-strip-axis-and-event-names-of-kalendarium.md)
 - Date: 2026-10-20
 
 ## Context and problem statement

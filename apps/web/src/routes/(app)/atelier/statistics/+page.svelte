@@ -12,9 +12,13 @@
 	const atelierPath = resolve('/(app)/atelier');
 </script>
 
-<AtelierLayout email={data.session.user.email ?? ''} title={m.statistics.title}>
-	{#snippet bar()}
-		<BackLink fallbackHref={atelierPath} fallbackName={m.statistics.back} />
+<AtelierLayout
+	email={data.session.user.email ?? ''}
+	heading={Boolean(data.statistics && !data.error)}
+	title={m.statistics.title}
+>
+	{#snippet back()}
+		<BackLink arrowOnly fallbackHref={atelierPath} fallbackName={m.statistics.back} />
 	{/snippet}
 
 	{#if data.statistics && !data.error}

@@ -37,6 +37,7 @@
 				count={group.visits.length}
 				lazy
 				open={group.year === opened}
+				room
 				title={String(group.year)}
 			>
 				<ol class="visits">
@@ -60,13 +61,18 @@
 {/if}
 
 <style>
-	.years,
-	.visits {
+	.years {
 		display: grid;
-		gap: var(--spacing-8);
+		gap: var(--spacing-6);
+	}
+
+	.years > :global(.room:first-child) {
+		padding-top: 0;
+		border-top: none;
 	}
 
 	.visits {
+		display: grid;
 		gap: var(--spacing-4);
 		list-style: none;
 	}

@@ -55,7 +55,7 @@
 </script>
 
 <section class="span" aria-labelledby="relations-span">
-	<h3 id="relations-span" class="label">{m.relations.span}</h3>
+	<h3 id="relations-span" class="overline">{m.relations.span}</h3>
 	<p class="visually-hidden">{text}</p>
 	<div class="strip" aria-hidden="true">
 		<div class="track"></div>
@@ -148,7 +148,7 @@
 
 	.ends {
 		position: relative;
-		height: var(--line-height-sm);
+		height: calc(var(--font-size-sm) * var(--line-height-sm));
 	}
 
 	.ends span {
@@ -159,15 +159,6 @@
 
 	.ends .middle {
 		transform: translateX(-50%);
-	}
-
-	.label {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		font-weight: var(--font-weight-regular);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
 	}
 
 	.caption {

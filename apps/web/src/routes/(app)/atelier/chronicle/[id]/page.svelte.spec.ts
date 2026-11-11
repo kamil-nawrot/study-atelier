@@ -92,6 +92,9 @@ describe('visit page', () => {
 
 		await expect.element(page.getByText(m.chronicle.errors.notFound)).toBeInTheDocument();
 		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent(m.chronicle.view.notFoundTitle);
+		await expect
 			.element(page.getByRole('button', { name: m.common.delete }))
 			.not.toBeInTheDocument();
 	});

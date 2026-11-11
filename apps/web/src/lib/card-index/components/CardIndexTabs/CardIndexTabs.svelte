@@ -123,7 +123,7 @@
 	{@render adds(['period', 'style'])}
 {/snippet}
 
-<Tabs framed label={m.cardIndex.tabsLabel} {tabs} bind:value={() => tab, chooseTab}>
+<Tabs label={m.cardIndex.tabsLabel} {tabs} bind:value={() => tab, chooseTab}>
 	{#if tab === 'timeline'}
 		<div class="tab">
 			<CardIndexTimeline

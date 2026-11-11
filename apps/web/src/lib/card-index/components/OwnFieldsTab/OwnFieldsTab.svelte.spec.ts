@@ -135,4 +135,15 @@ describe('OwnFieldsTab', () => {
 		await expect.element(page.getByText(m.ownFields.errorTitle)).toBeVisible();
 		expect(onchanged).not.toHaveBeenCalled();
 	});
+
+	it('brings the artwork types into view when the field is limited to some', async () => {
+		await page.viewport(390, 480);
+		renderTab();
+		await page.getByRole('button', { name: m.ownFields.add }).click();
+		await page.getByText(m.ownFields.form.limited).click();
+
+		await expect
+			.element(page.getByRole('checkbox', { name: m.artworkTypes.other }))
+			.toBeInViewport();
+	});
 });

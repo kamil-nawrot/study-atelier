@@ -6,6 +6,9 @@ import '../../styles/index.css';
 import Tabs from './Tabs.svelte';
 
 const panel = createRawSnippet(() => ({ render: () => '<p>Panel content</p>' }));
+const panelWithBar = createRawSnippet(() => ({
+	render: () => '<div><footer data-action-bar>Save</footer></div>'
+}));
 
 const tabs = [
 	{ value: 'periods', label: 'Periods' },
@@ -18,6 +21,15 @@ function renderTabs(value?: string): void {
 }
 
 describe('Tabs', () => {
+	it('lets a save bar in the panel reach the bottom of the page', async () => {
+		render(Tabs, { label: 'Kinds', tabs, children: panelWithBar });
+
+		const tabPanel = page.getByRole('tabpanel').element();
+		await expect.element(page.getByText('Save')).toBeVisible();
+		expect(getComputedStyle(tabPanel).paddingBottom).toBe('0px');
+		expect(getComputedStyle(tabPanel).borderBottomStyle).toBe('none');
+	});
+
 	it('names the tab list and selects the first tab', async () => {
 		renderTabs();
 
@@ -31,6 +43,7 @@ describe('Tabs', () => {
 	});
 
 	it('puts a tab marked as end at the right edge of the list', async () => {
+		await page.viewport(1280, 800);
 		render(Tabs, {
 			label: 'Kinds',
 			tabs: [...tabs, { value: 'own', label: 'Own', end: true }],
@@ -100,8 +113,8 @@ describe('Tabs', () => {
 			.toHaveAttribute('tabindex', '-1');
 	});
 
-	it('joins the selected tab to a framed panel', async () => {
-		render(Tabs, { label: 'Kinds', tabs, framed: true, children: panel });
+	it('joins the selected tab to the framed panel', async () => {
+		renderTabs();
 
 		const tab = page.getByRole('tab', { name: 'Periods' }).element();
 		const panelBox = page.getByRole('tabpanel').element();

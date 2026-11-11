@@ -1,7 +1,6 @@
 <script lang="ts">
-	import Plus from '@lucide/svelte/icons/plus';
 	import { onMount } from 'svelte';
-	import { Alert, Button, Icon, Toast } from '@study-atelier/ui';
+	import { AddButton, Alert, PageHeader, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -29,30 +28,24 @@
 	});
 </script>
 
-<AtelierLayout email={data.session.user.email ?? ''} title={m.chronicle.title}>
+<AtelierLayout email={data.session.user.email ?? ''} heading title={m.chronicle.title}>
 	{#snippet bar()}
 		{#if !data.error}
 			<div class="actions">
-				<Button href={resolve('/(app)/atelier/chronicle/new')} variant="primary">
-					<Icon icon={Plus} size="sm" />
-					<span class="long">{m.chronicle.add}</span>
-					<span class="short">{m.common.add}</span>
-				</Button>
+				<AddButton href={resolve('/(app)/atelier/chronicle/new')} label={m.chronicle.add} />
 			</div>
 		{/if}
 	{/snippet}
 
-	<header>
-		<div class="title">
-			<h1>{m.chronicle.title}</h1>
+	<PageHeader lead={m.chronicle.lead}>
+		{#snippet aside()}
 			{#if !data.error && data.visits.length > 0}
 				<span class="caption">
 					{m.chronicle.count(data.visits.length, seenCount(data.visits, artworks))}
 				</span>
 			{/if}
-		</div>
-		<p class="lead">{m.chronicle.lead}</p>
-	</header>
+		{/snippet}
+	</PageHeader>
 
 	{#if data.error}
 		<Alert title={m.chronicle.loadErrorTitle} tone="danger">
@@ -75,40 +68,5 @@
 		display: flex;
 		gap: inherit;
 		margin-inline-start: auto;
-	}
-
-	header {
-		display: grid;
-		gap: var(--spacing-2);
-	}
-
-	.title {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-		align-items: baseline;
-		gap: var(--spacing-4);
-	}
-
-	.caption {
-		font-variant-numeric: tabular-nums;
-	}
-
-	.short {
-		display: inline;
-	}
-
-	.long {
-		display: none;
-	}
-
-	@media (min-width: 768px) {
-		.short {
-			display: none;
-		}
-
-		.long {
-			display: inline;
-		}
 	}
 </style>

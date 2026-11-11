@@ -20,6 +20,8 @@
 	type Props = {
 		title: string;
 		email: string;
+		heading?: boolean;
+		back?: Snippet;
 		bar?: Snippet;
 		strip?: Snippet;
 		panel?: Snippet;
@@ -32,6 +34,8 @@
 	let {
 		title,
 		email,
+		heading = false,
+		back,
 		bar,
 		strip,
 		panel,
@@ -95,6 +99,10 @@
 					/>
 				{/if}
 			</button>
+			{@render back?.()}
+			{#if heading}
+				<h1 class="heading">{title}</h1>
+			{/if}
 			{@render bar?.()}
 			{#if navigating.to}
 				<ProgressLine />
@@ -161,6 +169,14 @@
 		background: var(--color-bg);
 	}
 
+	.heading {
+		overflow: hidden;
+		align-self: center;
+		min-width: 0;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+
 	.burger {
 		position: relative;
 		display: flex;
@@ -191,6 +207,12 @@
 	.fill .content {
 		gap: 0;
 		padding: 0;
+	}
+
+	.content:has(:global([data-action-bar])) {
+		--form-actions-bleed: 100vw;
+		overflow-x: clip;
+		padding-bottom: 0;
 	}
 
 	.main:has(> .body > :global(.filter-panel.docked)) {

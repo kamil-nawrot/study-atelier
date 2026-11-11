@@ -12,6 +12,7 @@ const MILLENNIA_ABOVE = 1500;
 const CENTURIES_ABOVE = 120;
 const FINE_DECADES_UP_TO = 60;
 const CENTURY_LINE_MIN_GAP = 20;
+const LABEL_STRIDES = [1, 2, 5, 10, 20, 50, 100];
 
 export function segments(view: View, unit: Unit): Segment[] {
 	const start = viewStart(view);
@@ -74,4 +75,26 @@ export function lineTimes(view: View, length: number, bounds: TimeSpan): number[
 	return segments(view, lineUnit(view, length))
 		.map((segment) => segment.start)
 		.filter((time) => time > bounds.start && time < bounds.end);
+}
+
+export function labelStride(segmentSize: number, labelSize: number): number {
+	return LABEL_STRIDES.find((stride) => stride * segmentSize >= labelSize) ?? 100;
+}
+
+function leadsGroup(segment: Segment, stride: number): boolean {
+	return segment.beforeCommonEra
+		? segment.number % stride === 0
+		: (segment.number - 1) % stride === 0;
+}
+
+export function labelGroups(view: View, bounds: TimeSpan, unit: Unit, stride: number): Segment[] {
+	const reach = (stride - 1) * unit;
+	return segments({ center: view.center - reach / 2, span: view.span + reach }, unit)
+		.filter((segment) => leadsGroup(segment, stride))
+		.map((segment) => ({ ...segment, end: segment.start + stride * unit }))
+		.filter(
+			(group) =>
+				group.end > Math.max(bounds.start, viewStart(view)) &&
+				group.start < Math.min(bounds.end, viewStart(view) + view.span)
+		);
 }

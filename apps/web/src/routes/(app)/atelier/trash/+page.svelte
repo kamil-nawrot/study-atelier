@@ -1,7 +1,16 @@
 <script lang="ts">
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Trash from '@lucide/svelte/icons/trash-2';
-	import { Alert, Button, Dialog, EmptyState, Tabs, Toast } from '@study-atelier/ui';
+	import {
+		Alert,
+		Button,
+		Dialog,
+		EmptyState,
+		MetaLine,
+		PageHeader,
+		Tabs,
+		Toast
+	} from '@study-atelier/ui';
 	import { invalidate } from '$app/navigation';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import ArchivedExhibitions from '#lib/exhibitions/components/ArchivedExhibitions/ArchivedExhibitions.svelte';
@@ -33,10 +42,6 @@
 
 	let shown = $derived(data.artworks.filter((artwork) => !removed.includes(artwork.id)));
 	let deleteLabel = $derived(deleteTarget ? formatRecordNumber(deleteTarget.number) : '');
-
-	function byline(artwork: TrashArtwork): string {
-		return [artwork.authors.join(', '), artwork.date].filter(Boolean).join(' · ');
-	}
 
 	async function restore(artwork: TrashArtwork): Promise<void> {
 		if (busy) return;
@@ -80,13 +85,14 @@
 	}
 </script>
 
-<AtelierLayout email={data.session.user.email ?? ''} title={m.trash.title}>
-	<header>
-		<h1>{m.trash.title}</h1>
-		{#if tab === 'artworks' && shown.length > 0}
-			<span class="caption">{m.atelier.count(shown.length)}</span>
-		{/if}
-	</header>
+<AtelierLayout email={data.session.user.email ?? ''} heading title={m.trash.title}>
+	<PageHeader lead={m.trash.lead}>
+		{#snippet aside()}
+			{#if tab === 'artworks' && shown.length > 0}
+				<span class="caption">{m.atelier.count(shown.length)}</span>
+			{/if}
+		{/snippet}
+	</PageHeader>
 
 	<Tabs label={m.trash.tabsLabel} {tabs} bind:value={tab}>
 		{#if tab === 'exhibitions'}
@@ -132,12 +138,13 @@
 							</div>
 							<div class="text">
 								<cite class="artwork-title">{artwork.title}</cite>
-								{#if byline(artwork)}
-									<span class="byline">{byline(artwork)}</span>
+								{#if artwork.authors.length > 0 || artwork.date}
+									<MetaLine class="byline" parts={[artwork.authors.join(', '), artwork.date]} />
 								{/if}
-								<span class="meta">
-									{formatRecordNumber(artwork.number)} · {formatDeletedOn(artwork.deletedAt)}
-								</span>
+								<MetaLine
+									class="meta"
+									parts={[formatRecordNumber(artwork.number), formatDeletedOn(artwork.deletedAt)]}
+								/>
 							</div>
 							<div class="actions">
 								<Button
@@ -196,18 +203,6 @@
 <Toast bind:this={toast} />
 
 <style>
-	header {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-		align-items: baseline;
-		gap: var(--spacing-4);
-	}
-
-	.caption {
-		font-variant-numeric: tabular-nums;
-	}
-
 	ul {
 		margin: 0;
 		list-style: none;
@@ -252,12 +247,12 @@
 		font-size: var(--font-size-lg);
 	}
 
-	.byline {
+	.text > :global(.byline) {
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
 	}
 
-	.meta {
+	.text > :global(.meta) {
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-xs);
 		font-variant-numeric: tabular-nums;

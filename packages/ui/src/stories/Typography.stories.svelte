@@ -15,6 +15,7 @@
 			<h3>Subsection title (h3)</h3>
 			<p>Body text for notes and descriptions.</p>
 			<p class="caption">Caption: metadata, hints and secondary details.</p>
+			<p class="overline">Overline · the kind above a title</p>
 			<cite class="artwork-title">Girl with a Pearl Earring</cite>
 		</div>
 	{/snippet}

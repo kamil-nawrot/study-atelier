@@ -130,7 +130,7 @@
 		{:else}
 			<article>
 				<header>
-					<p class="kind">{m.exhibitions.kind}</p>
+					<p class="overline">{m.exhibitions.kind}</p>
 					<h1>{title}</h1>
 				</header>
 				<ExhibitionBody document={session.document} entries={data.glossary} {lookup} />
@@ -173,19 +173,12 @@
 		gap: var(--spacing-1);
 	}
 
-	.kind {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
-	}
-
 	h1 {
 		max-width: var(--size-content-default);
 		font-family: var(--font-family-title), Georgia, serif;
 		font-size: var(--font-size-2xl);
 		font-style: italic;
+		font-weight: var(--font-weight-regular);
 		line-height: var(--line-height-2xl);
 	}
 </style>

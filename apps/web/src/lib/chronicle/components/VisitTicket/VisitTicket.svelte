@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Footprints from '@lucide/svelte/icons/footprints';
-	import { Icon } from '@study-atelier/ui';
+	import { Icon, MetaLine } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { countryName } from '#lib/catalogue/countries/countries.ts';
 	import { placeTypeIcon, placeTypeName } from '#lib/catalogue/place-types/place-types.ts';
@@ -25,14 +25,10 @@
 
 	let header = $derived(!linked);
 	let date = $derived(ticketDate(visit.date, header));
-	let place = $derived(
-		[
-			visit.placeType ? placeTypeName(visit.placeType) : null,
-			visit.countryCode ? countryName(visit.countryCode) : null
-		]
-			.filter((part) => part !== null)
-			.join(' · ')
-	);
+	let place = $derived([
+		visit.placeType ? placeTypeName(visit.placeType) : null,
+		visit.countryCode ? countryName(visit.countryCode) : null
+	]);
 	let excerpt = $derived(header ? '' : noteExcerpt(visit.notes));
 </script>
 
@@ -47,7 +43,7 @@
 		</time>
 		<div class="body">
 			{#if header}
-				<p class="kind">{m.chronicle.kind}</p>
+				<p class="overline">{m.chronicle.kind}</p>
 				<h1 class="place">{visit.place}</h1>
 			{:else}
 				<h3 class="place">
@@ -55,12 +51,12 @@
 				</h3>
 			{/if}
 			<p class="meta caption">
-				{#if place}
+				{#if visit.placeType || visit.countryCode}
 					<span class="part">
 						{#if visit.placeType}
 							<Icon icon={placeTypeIcon(visit.placeType)} size="sm" />
 						{/if}
-						{place}
+						<MetaLine parts={place} />
 					</span>
 				{/if}
 				{#if !header}
@@ -127,8 +123,7 @@
 		line-height: var(--line-height-lg);
 	}
 
-	.month,
-	.kind {
+	.month {
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-xs);
 		line-height: var(--line-height-xs);

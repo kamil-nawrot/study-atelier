@@ -66,6 +66,5 @@
 	.tab {
 		display: grid;
 		gap: var(--spacing-4);
-		padding-block-start: var(--spacing-4);
 	}
 </style>

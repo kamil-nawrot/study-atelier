@@ -22,6 +22,13 @@ export function readStoredJson(area: Area, key: string): unknown {
 	}
 }
 
+export function readStoredStrings(area: Area, key: string): string[] {
+	const stored = readStoredJson(area, key);
+	return Array.isArray(stored)
+		? stored.filter((item): item is string => typeof item === 'string')
+		: [];
+}
+
 export function writeStored(area: Area, key: string, value: string | null): void {
 	try {
 		if (value === null) storageOf(area).removeItem(key);

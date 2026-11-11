@@ -137,9 +137,10 @@
 	}
 
 	.record {
+		--first-line: calc(var(--font-size-xl) * var(--line-height-xl));
 		display: flex;
 		justify-content: space-between;
-		align-items: baseline;
+		align-items: flex-start;
 		gap: var(--spacing-4);
 		width: 100%;
 		padding: var(--spacing-4) var(--spacing-3);
@@ -161,13 +162,27 @@
 	}
 
 	.main {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-start;
+		gap: var(--spacing-3);
 		min-width: 0;
 	}
 
-	.icon {
+	.name {
+		min-width: 0;
+	}
+
+	.icon,
+	.detail,
+	.count {
 		display: inline-flex;
+		align-items: center;
+		min-height: var(--first-line);
+	}
+
+	.icon {
 		color: var(--color-fg-muted);
-		vertical-align: middle;
 	}
 
 	button.record {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ArtworkImage, Icon, type NoteLinks, Section } from '@study-atelier/ui';
+	import { ArtworkImage, Icon, MetaLine, type NoteLinks, Section } from '@study-atelier/ui';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -9,7 +9,7 @@
 	} from '#lib/images/artwork-image/artwork-image.ts';
 	import { countryName } from '#lib/catalogue/countries/countries.ts';
 	import { eraIcon, eraYearsText } from '#lib/catalogue/eras/eras.ts';
-	import { placeTypeName } from '#lib/catalogue/place-types/place-types.ts';
+	import { placeTypeIcon, placeTypeName } from '#lib/catalogue/place-types/place-types.ts';
 	import { formatLifeYears } from '#lib/catalogue/years/years.ts';
 	import {
 		subjectName,
@@ -23,6 +23,7 @@
 	import VisitsDisclosure from '#lib/chronicle/components/VisitsDisclosure/VisitsDisclosure.svelte';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
 	import MentionedIn from '#lib/notes/components/MentionedIn/MentionedIn.svelte';
+	import NotesSection from '#lib/notes/components/NotesSection/NotesSection.svelte';
 	import EraOutsideNote from '#lib/values/components/EraOutsideNote/EraOutsideNote.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
@@ -60,14 +61,10 @@
 	let lifeYears = $derived(
 		author && formatLifeYears(author.birthYear, author.deathYear, author.yearsApproximate)
 	);
-	let place = $derived(
-		[
-			details.location?.placeType ? placeTypeName(details.location.placeType) : null,
-			details.location?.countryCode ? countryName(details.location.countryCode) : null
-		]
-			.filter((part) => part !== null)
-			.join(' · ')
-	);
+	let place = $derived([
+		details.location?.placeType ? placeTypeName(details.location.placeType) : null,
+		details.location?.countryCode ? countryName(details.location.countryCode) : null
+	]);
 	let title = $derived(
 		subject.kind === 'era' ? `${name.charAt(0).toLocaleUpperCase()}${name.slice(1)}` : name
 	);
@@ -93,26 +90,31 @@
 	{/if}
 	<div class="text">
 		<header>
-			<p class="kind">
+			<p class="kind overline">
 				{#if subject.kind === 'era'}
 					<span class="mark" aria-hidden="true">
 						<Icon icon={eraIcon(subject.code)} size="sm" />
 					</span>
 				{/if}
-				{m.valuePage.header(valueKindName(subject.kind), m.atelier.count(count))}
+				<MetaLine text={m.valuePage.header(valueKindName(subject.kind), m.atelier.count(count))} />
 			</p>
 			<h1>{title}</h1>
 			{#if subject.kind === 'era'}
-				<p class="caption years">
+				<p class="years">
 					{eraYearsText(subject.code)}
 					<EraOutsideNote {artworks} code={subject.code} />
 				</p>
 			{/if}
 			{#if lifeYears}
-				<p class="caption">{lifeYears}</p>
+				<p>{lifeYears}</p>
 			{/if}
-			{#if place}
-				<p class="caption">{place}</p>
+			{#if place.some((part) => part !== null)}
+				<p class="place">
+					{#if details.location?.placeType}
+						<Icon icon={placeTypeIcon(details.location.placeType)} size="sm" />
+					{/if}
+					<MetaLine parts={place} />
+				</p>
 			{/if}
 			{#if parents.length > 0}
 				<p class="caption parents">
@@ -144,14 +146,13 @@
 				</Section>
 			{/if}
 			{#if details.notes}
-				<section class="notes" aria-labelledby="value-notes">
-					<h2 id="value-notes" class="label">{m.common.notes}</h2>
+				<NotesSection>
 					<GlossaryNotes entries={glossary} links={noteLinks} value={details.notes} />
-				</section>
+				</NotesSection>
 			{/if}
 		{/if}
 
-		<MentionedIn {mentions} variant="label" />
+		<MentionedIn {mentions} />
 	</div>
 </article>
 
@@ -163,8 +164,7 @@
 	}
 
 	article,
-	header,
-	.notes {
+	header {
 		display: grid;
 		gap: var(--spacing-3);
 	}
@@ -203,16 +203,16 @@
 		background: var(--color-mat-window);
 	}
 
-	.kind,
-	.label {
+	.kind {
 		display: flex;
 		align-items: center;
 		gap: var(--spacing-2);
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
+	}
+
+	.place {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
 	}
 
 	.mark {
@@ -254,10 +254,6 @@
 		font-size: var(--font-size-xl);
 		font-style: italic;
 		line-height: var(--line-height-xl);
-	}
-
-	.label {
-		font-weight: var(--font-weight-regular);
 	}
 
 	.empty {

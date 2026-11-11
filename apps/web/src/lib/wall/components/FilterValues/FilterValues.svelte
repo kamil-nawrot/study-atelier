@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
-	import { SearchField, ToggleTag } from '@study-atelier/ui';
+	import { tick, type Snippet } from 'svelte';
+	import { SearchField, TextButton, ToggleTag } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 	import type { FilterOption } from '#lib/catalogue/types/filter-option.ts';
@@ -46,10 +46,17 @@
 			: matching.filter((option, index) => index < limit || chosen.includes(option.value))
 	);
 	let hidden = $derived(matching.length - shown.length);
+	let section = $state<HTMLElement>();
+
+	async function showLess(): Promise<void> {
+		expanded = false;
+		await tick();
+		section?.scrollIntoView({ block: 'nearest' });
+	}
 </script>
 
 {#if options.length > 0}
-	<section>
+	<section bind:this={section}>
 		<svelte:element this={heading} class="title">{title}</svelte:element>
 		{#if searchLabel}
 			<SearchField compact label={searchLabel} placeholder={searchLabel} bind:value={query} />
@@ -64,19 +71,23 @@
 						pressed={chosen.includes(option.value)}
 					>
 						{@render mark?.(option.value)}
-						{name(option.value)}
+						<span class="name" title={name(option.value)}>{name(option.value)}</span>
 					</ToggleTag>
 				</li>
 			{/each}
 		</ul>
 		{#if hidden > 0}
-			<button class="more" onclick={() => (expanded = true)} type="button">
-				{m.atelier.filters.showMore}
-			</button>
+			<div>
+				<TextButton inline onclick={() => (expanded = true)}>
+					{m.atelier.filters.showMore}
+				</TextButton>
+			</div>
 		{:else if expanded && limit !== undefined && matching.length > limit}
-			<button class="more" onclick={() => (expanded = false)} type="button">
-				{m.atelier.filters.showLess}
-			</button>
+			<div>
+				<TextButton inline onclick={showLess}>
+					{m.atelier.filters.showLess}
+				</TextButton>
+			</div>
 		{/if}
 	</section>
 {/if}
@@ -84,6 +95,7 @@
 <style>
 	section {
 		display: grid;
+		grid-template-columns: minmax(0, 1fr);
 		gap: var(--spacing-3);
 	}
 
@@ -101,16 +113,22 @@
 		list-style: none;
 	}
 
-	.more {
-		justify-self: start;
-		padding: 0;
-		border: none;
-		background: transparent;
-		color: var(--color-fg);
-		font: inherit;
-		font-size: var(--font-size-sm);
-		text-decoration: underline;
-		text-underline-offset: var(--spacing-1);
-		cursor: pointer;
+	h4.title {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-xs);
+		line-height: var(--line-height-xs);
+		letter-spacing: var(--letter-spacing-wide);
+		text-transform: uppercase;
+	}
+
+	li {
+		max-width: 100%;
+	}
+
+	.name {
+		overflow: hidden;
+		min-width: 0;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 </style>

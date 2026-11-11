@@ -35,5 +35,3 @@
 		]
 	}}
 />
-
-<Story name="Framed" args={{ framed: true }} />

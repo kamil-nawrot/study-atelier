@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Meter } from '@study-atelier/ui';
+	import { MetaLine, Meter } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { rankName, rankOf } from '#lib/career/ranks/ranks.ts';
 	import type { RankForm } from '#lib/profile/types/rank-form.ts';
@@ -23,7 +23,7 @@
 		{/if}
 	</div>
 	{#if rank.next === undefined}
-		<p class="caption">{m.career.rankTop(points)}</p>
+		<p class="caption"><MetaLine text={m.career.rankTop(points)} /></p>
 	{:else}
 		<Meter label={name} max={rank.next - rank.floor} tone="gold" value={points - rank.floor} />
 		<p class="caption">{m.career.rankProgress(points, rank.next)}</p>

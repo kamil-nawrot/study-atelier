@@ -50,6 +50,9 @@ describe('own field page', () => {
 		});
 
 		await expect.element(page.getByText(m.ownFields.page.notFound)).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent(m.ownFields.page.notFoundTitle);
 		await expect.element(page.getByRole('button', { name: m.common.edit })).not.toBeInTheDocument();
 	});
 });

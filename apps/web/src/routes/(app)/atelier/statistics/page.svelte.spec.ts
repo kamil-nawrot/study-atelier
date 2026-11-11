@@ -58,7 +58,7 @@ describe('statistics page', () => {
 		]);
 
 		await expect
-			.element(page.getByRole('heading', { level: 1 }))
+			.element(page.getByRole('banner').getByRole('heading', { level: 1 }))
 			.toHaveTextContent(m.statistics.title);
 		await expect.element(page.getByText(m.statistics.lead)).toBeVisible();
 		const holdings = page.getByRole('region', { name: m.statistics.holdings.title });

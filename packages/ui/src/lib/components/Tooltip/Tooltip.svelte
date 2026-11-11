@@ -5,15 +5,16 @@
 		text: string;
 		placement?: 'top' | 'bottom' | 'left';
 		align?: 'start' | 'end';
+		phoneOnly?: boolean;
 		children: Snippet<[string]>;
 	};
 
-	let { text, placement = 'top', align = 'start', children }: Props = $props();
+	let { text, placement = 'top', align = 'start', phoneOnly = false, children }: Props = $props();
 
 	const id = $props.id();
 </script>
 
-<span class="tooltip">
+<span class="tooltip" class:phone-only={phoneOnly}>
 	{@render children(id)}
 	<span
 		{id}
@@ -45,7 +46,7 @@
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
 		white-space: normal;
-		visibility: hidden;
+		display: none;
 		pointer-events: none;
 	}
 
@@ -69,11 +70,17 @@
 
 	.tooltip:hover .bubble,
 	.tooltip:has(:global(:focus-visible)) .bubble {
-		visibility: visible;
+		display: block;
 	}
 
 	.tooltip:has(:global([aria-expanded='true'])) .bubble {
-		visibility: hidden;
+		display: none;
+	}
+
+	@media (min-width: 768px) {
+		.phone-only .bubble {
+			visibility: hidden;
+		}
 	}
 
 	@media (prefers-reduced-motion: no-preference) {

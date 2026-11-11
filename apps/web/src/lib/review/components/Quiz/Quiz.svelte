@@ -172,6 +172,11 @@
 		outline: none;
 	}
 
+	h1 .artwork-title {
+		font-size: var(--font-size-2xl);
+		line-height: var(--line-height-xl);
+	}
+
 	.intro,
 	.feedback {
 		display: grid;

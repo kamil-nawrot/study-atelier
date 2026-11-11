@@ -51,3 +51,15 @@
 		</div>
 	{/snippet}
 </Story>
+
+<Story name="On a phone only">
+	{#snippet template(args)}
+		<div style="display: flex; justify-content: flex-end">
+			<Tooltip align="end" phoneOnly placement="bottom" text={args.text}>
+				{#snippet children(describedby)}
+					<Button aria-describedby={describedby}>Add</Button>
+				{/snippet}
+			</Tooltip>
+		</div>
+	{/snippet}
+</Story>

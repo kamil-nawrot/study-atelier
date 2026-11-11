@@ -25,9 +25,10 @@
 <div class="tools">
 	<div class="search">
 		<SearchField
+			compact
 			disabled={view.total === 0}
 			label={m.atelier.search}
-			placeholder={m.atelier.search}
+			placeholder={view.wide.current ? m.atelier.search : m.atelier.searchShort}
 			bind:value={query}
 		/>
 	</div>
@@ -46,6 +47,7 @@
 			<Select
 				compact
 				disabled={view.total === 0}
+				hideLabel
 				icon={ArrowUpDown}
 				label={m.atelier.sort.label}
 				options={WALL_ORDERS}
@@ -69,13 +71,11 @@
 			</Button>
 		{/snippet}
 	</Tooltip>
-	<Tooltip align="end" placement="bottom" text={m.atelier.add}>
-		{#snippet children(id)}
-			<Button aria-describedby={id} aria-label={m.atelier.add} href={addPath} variant="primary">
-				<Icon icon={Plus} />
-			</Button>
-		{/snippet}
-	</Tooltip>
+	<Button aria-label={m.atelier.add} href={addPath} variant="primary">
+		<Icon icon={Plus} size="sm" />
+		<span class="long" aria-hidden="true">{m.atelier.add}</span>
+		<span class="short" aria-hidden="true">{m.common.add}</span>
+	</Button>
 </div>
 
 <style>
@@ -84,19 +84,26 @@
 		flex: 1;
 		align-items: stretch;
 		gap: var(--spacing-2);
+		--wall-side: max(0px, calc((100% - var(--panel-width) - var(--size-content-wide)) / 2));
 		min-width: 0;
-		max-width: var(--size-content-wide);
-		margin-inline-start: max(0px, calc((100% - var(--size-content-wide)) / 2));
+		margin-inline: var(--wall-side) calc(var(--panel-width) + var(--wall-side));
 	}
 
 	.search {
 		flex: 1;
 		min-width: 0;
-		max-width: var(--size-content-default);
 	}
 
 	.sort {
 		flex: none;
+	}
+
+	.short {
+		display: inline;
+	}
+
+	.long {
+		display: none;
 	}
 
 	.levels {
@@ -122,5 +129,15 @@
 	.levels span.on {
 		background: var(--color-fg);
 		opacity: 1;
+	}
+
+	@media (min-width: 768px) {
+		.short {
+			display: none;
+		}
+
+		.long {
+			display: inline;
+		}
 	}
 </style>

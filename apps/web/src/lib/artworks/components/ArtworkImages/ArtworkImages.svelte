@@ -1,9 +1,10 @@
 <script lang="ts">
 	import ImageIcon from '@lucide/svelte/icons/image';
+	import PinIcon from '@lucide/svelte/icons/pin';
 	import Plus from '@lucide/svelte/icons/plus';
 	import Star from '@lucide/svelte/icons/star';
 	import { onDestroy, untrack } from 'svelte';
-	import { Alert, ArtworkImage, Icon, Tooltip } from '@study-atelier/ui';
+	import { Alert, ArtworkImage, Icon, TextButton, Tooltip } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { findImageCandidates } from '#lib/images/image-search/image-search.ts';
 	import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
@@ -75,6 +76,11 @@
 	let matchShown = $derived(
 		selected === 0 && matchStatus === 'matched' && isCandidateImage(image, pool[0])
 	);
+
+	$effect.pre(() => {
+		void pinImageId;
+		pinFailure = undefined;
+	});
 
 	$effect(() => {
 		onmatching?.(matchStatus === 'searching');
@@ -182,38 +188,55 @@
 	}
 </script>
 
+{#snippet slotButton(
+	index: number,
+	preview: ReturnType<typeof artworkImageSource>,
+	describedby?: string
+)}
+	<button
+		class="slot"
+		class:selected={index === selected}
+		aria-describedby={describedby}
+		aria-label={m.artworkForm.imageSlot(index + 1, slots.length)}
+		aria-pressed={index === selected}
+		onclick={() => (selected = index)}
+		type="button"
+	>
+		<span class="thumb" aria-hidden="true">
+			{#if preview}
+				<ArtworkImage
+					alt=""
+					height={preview.height}
+					sizes="{SLOT_WIDTH}px"
+					src={preview.src}
+					srcset={preview.srcset}
+					width={preview.width}
+				/>
+			{:else}
+				<span class="empty">
+					<Icon icon={ImageIcon} size="sm" />
+				</span>
+			{/if}
+		</span>
+		{#if index === 0}
+			<span class="main" aria-hidden="true"><Icon icon={Star} size="sm" /></span>
+		{/if}
+	</button>
+{/snippet}
+
 {#snippet slotRow()}
 	<div class="slots">
 		{#each slots as slot, index (index)}
 			{@const preview = artworkImageSource(slot, SLOT_WIDTH)}
-			<button
-				class="slot"
-				class:selected={index === selected}
-				aria-label={m.artworkForm.imageSlot(index + 1, slots.length)}
-				aria-pressed={index === selected}
-				onclick={() => (selected = index)}
-				type="button"
-			>
-				<span class="thumb" aria-hidden="true">
-					{#if preview}
-						<ArtworkImage
-							alt=""
-							height={preview.height}
-							sizes="{SLOT_WIDTH}px"
-							src={preview.src}
-							srcset={preview.srcset}
-							width={preview.width}
-						/>
-					{:else}
-						<span class="empty">
-							<Icon icon={ImageIcon} size="sm" />
-						</span>
-					{/if}
-				</span>
-				{#if index === 0}
-					<span class="main">{m.artworkForm.mainImage}</span>
-				{/if}
-			</button>
+			{#if index === 0}
+				<Tooltip placement="bottom" text={m.artworkForm.mainImage}>
+					{#snippet children(id)}
+						{@render slotButton(index, preview, id)}
+					{/snippet}
+				</Tooltip>
+			{:else}
+				{@render slotButton(index, preview)}
+			{/if}
 		{/each}
 		{#if !full}
 			<button
@@ -227,19 +250,9 @@
 			</button>
 		{/if}
 		{#if selected > 0 && current() !== null}
-			<Tooltip placement="left" text={m.artworkForm.setMainImage}>
-				{#snippet children(id)}
-					<button
-						class="make-main"
-						aria-describedby={id}
-						aria-label={m.artworkForm.setMainImage}
-						onclick={makeMain}
-						type="button"
-					>
-						<Icon icon={Star} size="sm" />
-					</button>
-				{/snippet}
-			</Tooltip>
+			<TextButton inline onclick={makeMain}>
+				<span class="star"><Icon icon={Star} size="sm" /></span>{m.artworkForm.setMainImage}
+			</TextButton>
 		{/if}
 	</div>
 {/snippet}
@@ -256,20 +269,12 @@
 	{/if}
 {/snippet}
 
-{#snippet statusLines()}
-	{@render matchStatusLine()}
-	{@render pinStatus()}
-{/snippet}
-
 {#snippet pinStatus()}
 	{#if pinsError && current()?.id !== undefined}
 		<Alert tone="danger">{m.pins.loadFailed}</Alert>
 	{/if}
-	{#if pinImageId !== undefined}
-		{#if pinFailure}
-			<Alert tone="danger">{pinFailure}</Alert>
-		{/if}
-		<p class="caption">{m.pins.editHint} {m.pins.editorNote}</p>
+	{#if pinImageId !== undefined && pinFailure}
+		<Alert tone="danger">{pinFailure}</Alert>
 	{/if}
 {/snippet}
 
@@ -288,6 +293,9 @@
 <ImageField
 	{alt}
 	filling={selected === 0 && matchStatus === 'searching'}
+	hints={pinImageId === undefined
+		? []
+		: [{ icon: PinIcon, text: `${m.pins.editHint} ${m.pins.editorNote}` }]}
 	onsearch={stopMatch}
 	overlay={pinLayer}
 	{query}
@@ -295,7 +303,8 @@
 	removeWarning={currentPins > 0 ? m.pins.imagePins(currentPins) : undefined}
 	{searchReady}
 	slots={slotRow}
-	status={statusLines}
+	source={matchStatusLine}
+	status={pinStatus}
 	{texts}
 	bind:image={current, setCurrent}
 />
@@ -353,12 +362,23 @@
 		right: 0;
 		bottom: 0;
 		left: 0;
-		padding: 0 var(--spacing-1);
-		background: var(--color-fg);
-		color: var(--color-bg);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-		text-align: center;
+		display: grid;
+		place-items: center;
+		padding: var(--spacing-1);
+		background: color-mix(in srgb, var(--color-stage-bg) 60%, transparent);
+		color: var(--color-stage-fg);
+	}
+
+	.main :global(svg) {
+		width: var(--spacing-4);
+		height: var(--spacing-4);
+		fill: currentColor;
+	}
+
+	.star {
+		display: inline-block;
+		padding-right: var(--spacing-1);
+		vertical-align: middle;
 	}
 
 	.empty {
@@ -373,20 +393,5 @@
 		border-style: dashed;
 		background: transparent;
 		color: var(--color-fg-muted);
-	}
-
-	.make-main {
-		display: grid;
-		place-items: center;
-		padding: var(--spacing-2);
-		border: none;
-		background: transparent;
-		color: var(--color-fg-muted);
-		cursor: pointer;
-	}
-
-	.make-main:hover,
-	.make-main:focus-visible {
-		color: var(--color-fg);
 	}
 </style>

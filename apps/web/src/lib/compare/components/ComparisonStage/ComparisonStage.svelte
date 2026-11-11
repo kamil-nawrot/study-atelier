@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ArtworkImage, NoImage, TextButton } from '@study-atelier/ui';
+	import { ArtworkImage, MetaLine, NoImage, TextButton } from '@study-atelier/ui';
 	import { MediaQuery } from 'svelte/reactivity';
 	import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
 	import { formatDate, signedYear } from '#lib/catalogue/years/years.ts';
@@ -85,7 +85,7 @@
 	{/if}
 	<figcaption class="caption">
 		<cite class="artwork-title">{artwork.title}</cite>
-		<span class="meta">{date ? `${authors} · ${date}` : authors}</span>
+		<MetaLine class="meta" parts={[authors, date]} />
 		{#if changeable}
 			<span class="change">
 				<TextButton onclick={onchange}>
@@ -182,7 +182,7 @@
 		line-height: var(--line-height-lg);
 	}
 
-	.meta {
+	figcaption > :global(.meta) {
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
 	}

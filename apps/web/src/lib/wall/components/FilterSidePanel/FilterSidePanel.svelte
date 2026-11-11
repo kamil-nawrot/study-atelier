@@ -1,14 +1,12 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
-	import X from '@lucide/svelte/icons/x';
 	import { MediaQuery } from 'svelte/reactivity';
-	import { Button, Icon, overlayScrollbar } from '@study-atelier/ui';
+	import { Icon, PanelHeader, TextButton, overlayScrollbar } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 
 	type Props = {
 		open: boolean;
-		summary?: string;
 		filtering?: boolean;
 		onclear?: () => void;
 		title?: string;
@@ -20,7 +18,6 @@
 
 	let {
 		open = $bindable(),
-		summary,
 		filtering = false,
 		onclear,
 		title = m.atelier.filters.title,
@@ -53,18 +50,14 @@
 	{#if mounted}
 		<aside class="filters" {@attach overlayScrollbar()} aria-label={title}>
 			<div class="top">
-				<h2>{title}</h2>
-				<button class="close" aria-label={closeLabel} onclick={() => (open = false)} type="button">
-					<Icon icon={X} />
-				</button>
+				<PanelHeader foldLabel={closeLabel} onfold={() => (open = false)} {title} />
 			</div>
 			{@render children()}
 			{#if onclear}
-				<div class="bottom">
-					<span class="caption">{summary}</span>
-					<Button disabled={!filtering} onclick={onclear}>
+				<div>
+					<TextButton disabled={!filtering} inline onclick={onclear}>
 						{m.atelier.filters.clear}
-					</Button>
+					</TextButton>
 				</div>
 			{/if}
 		</aside>
@@ -148,6 +141,7 @@
 		padding: 0 var(--spacing-6) var(--spacing-12);
 		overflow-y: auto;
 		border-left: var(--border-width-base) solid var(--color-line);
+		scroll-padding-block-start: calc(var(--size-control) + 2 * var(--spacing-4));
 	}
 
 	@media (prefers-reduced-motion: no-preference) {
@@ -164,28 +158,5 @@
 		z-index: 1;
 		padding-block: var(--spacing-4);
 		background: var(--color-bg);
-	}
-
-	.top,
-	.bottom {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--spacing-3);
-	}
-
-	.top h2 {
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-medium);
-		line-height: var(--line-height-sm);
-	}
-
-	.close {
-		display: flex;
-		padding: var(--spacing-2);
-		border: none;
-		background: transparent;
-		color: var(--color-fg);
-		cursor: pointer;
 	}
 </style>

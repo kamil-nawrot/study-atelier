@@ -3,7 +3,7 @@
 	import ScrollText from '@lucide/svelte/icons/scroll-text';
 	import { onMount } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
-	import { Alert, Button, EmptyState, Icon, Toast } from '@study-atelier/ui';
+	import { Alert, Button, EmptyState, Icon, PageHeader, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -52,7 +52,7 @@
 	}
 </script>
 
-<AtelierLayout email={data.session.user.email ?? ''} title={m.exhibitions.title}>
+<AtelierLayout email={data.session.user.email ?? ''} heading title={m.exhibitions.title}>
 	{#snippet bar()}
 		{#if !data.error && wide.current}
 			<div class="actions">
@@ -64,15 +64,13 @@
 		{/if}
 	{/snippet}
 
-	<header>
-		<div class="title">
-			<h1>{m.exhibitions.title}</h1>
+	<PageHeader lead={m.exhibitions.lead}>
+		{#snippet aside()}
 			{#if !data.error && data.exhibitions.length > 0}
 				<span class="caption">{m.exhibitions.count(data.exhibitions.length)}</span>
 			{/if}
-		</div>
-		<p class="lead">{m.exhibitions.lead}</p>
-	</header>
+		{/snippet}
+	</PageHeader>
 
 	{#if data.error}
 		<Alert title={m.exhibitions.loadErrorTitle} tone="danger">
@@ -100,24 +98,5 @@
 		display: flex;
 		gap: inherit;
 		margin-inline-start: auto;
-	}
-
-	header {
-		display: grid;
-		gap: var(--spacing-2);
-		padding-bottom: var(--spacing-8);
-		border-bottom: var(--border-width-hairline) solid var(--color-line);
-	}
-
-	.title {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-		align-items: baseline;
-		gap: var(--spacing-4);
-	}
-
-	.caption {
-		font-variant-numeric: tabular-nums;
 	}
 </style>

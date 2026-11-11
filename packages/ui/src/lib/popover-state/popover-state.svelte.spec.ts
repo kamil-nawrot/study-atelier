@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import '../styles/index.css';
 import { PopoverState } from './popover-state.svelte.ts';
 
 function mouse(): PointerEvent {
@@ -29,27 +30,66 @@ afterEach(() => {
 });
 
 describe('PopoverState', () => {
-	it('opens after the delay when the mouse enters the anchor', () => {
+	it('opens after the hover reveal delay of a tooltip when the mouse enters the anchor', () => {
 		const { state, anchor } = setup();
 
 		state.pointerEnter(anchor, mouse());
+		vi.advanceTimersByTime(319);
 		expect(state.open).toBe(false);
-		vi.advanceTimersByTime(120);
+		vi.advanceTimersByTime(1);
 
 		expect(state.open).toBe(true);
 		expect(state.anchor).toBe(anchor);
 	});
 
-	it('moves at once to another anchor the mouse enters while the card is open', () => {
+	it('stays shut when the mouse leaves the anchor before the delay', () => {
+		const { state, anchor } = setup();
+
+		state.pointerEnter(anchor, mouse());
+		vi.advanceTimersByTime(200);
+		state.pointerLeave(mouse());
+		vi.advanceTimersByTime(1000);
+
+		expect(state.open).toBe(false);
+	});
+
+	it('moves to another anchor the mouse enters while the card is open only after the delay', () => {
 		const { state, anchor } = setup();
 		const other = document.createElement('button');
 		document.body.append(other);
 		state.show(anchor);
 
 		state.pointerEnter(other, mouse());
+		expect(state.anchor).toBe(anchor);
+		vi.advanceTimersByTime(320);
 
 		expect(state.open).toBe(true);
 		expect(state.anchor).toBe(other);
+	});
+
+	it('keeps the card of the anchor when the mouse only passes over another one', () => {
+		const { state, anchor } = setup();
+		const other = document.createElement('button');
+		document.body.append(other);
+		state.show(anchor);
+
+		state.pointerEnter(other, mouse());
+		vi.advanceTimersByTime(100);
+		state.pointerLeave(mouse());
+		state.cardPointerEnter(mouse());
+		vi.advanceTimersByTime(1000);
+
+		expect(state.open).toBe(true);
+		expect(state.anchor).toBe(anchor);
+	});
+
+	it('opens at once on keyboard focus', async () => {
+		const { state, anchor } = setup();
+		anchor.focus();
+
+		state.focus(anchor);
+
+		expect(state.anchor).toBe(anchor);
 	});
 
 	it('closes an interactive card after the delay when nothing inside holds the focus', () => {

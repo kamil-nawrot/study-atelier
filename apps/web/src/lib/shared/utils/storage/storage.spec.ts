@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { readStored, readStoredJson, writeStored } from './storage.ts';
+import { readStored, readStoredJson, readStoredStrings, writeStored } from './storage.ts';
 
 const KEY = 'study-atelier:test';
 
@@ -40,6 +40,14 @@ describe('storage', () => {
 		writeStored('local', KEY, '{broken');
 		expect(readStoredJson('local', KEY)).toBeNull();
 		expect(readStoredJson('session', KEY)).toBeNull();
+	});
+
+	it('reads a list of strings and leaves out what is not one', () => {
+		writeStored('local', KEY, JSON.stringify(['one', 2, 'three', null]));
+		expect(readStoredStrings('local', KEY)).toEqual(['one', 'three']);
+		writeStored('local', KEY, JSON.stringify({ one: true }));
+		expect(readStoredStrings('local', KEY)).toEqual([]);
+		expect(readStoredStrings('session', KEY)).toEqual([]);
 	});
 
 	it('ignores a storage that throws', () => {

@@ -25,9 +25,10 @@
 </script>
 
 <div class="tools">
-	<SearchField label={searchLabel} placeholder={searchLabel} bind:value={query} />
+	<SearchField compact label={searchLabel} placeholder={searchLabel} bind:value={query} />
 	{#if options.length > 1}
 		<Select
+			compact
 			hideLabel
 			icon={ArrowUpDown}
 			label={m.cardIndex.sortLabel}
@@ -49,8 +50,9 @@
 	}
 
 	.actions {
-		display: flex;
-		flex-wrap: wrap;
+		display: grid;
+		grid-auto-columns: minmax(0, 1fr);
+		grid-auto-flow: column;
 		gap: var(--spacing-3);
 	}
 
@@ -61,6 +63,8 @@
 		}
 
 		.actions {
+			display: flex;
+			flex-wrap: wrap;
 			justify-content: flex-end;
 		}
 	}

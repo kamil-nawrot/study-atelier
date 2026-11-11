@@ -24,9 +24,9 @@
 	const cardId = `${id}-card`;
 	const popover = new PopoverState();
 
-	let shown = $state<Pin>();
 	let previewing = $derived(card !== undefined && !editing);
-	let shownIndex = $derived(pins.findIndex((pin) => pin.id === shown?.id));
+	let shownIndex = $derived(pins.findIndex((pin) => pin.id === popover.anchor?.dataset.pin));
+	let shown = $derived<Pin | undefined>(pins[shownIndex]);
 
 	$effect(() => {
 		if (shownIndex === -1) popover.hide();
@@ -83,7 +83,6 @@
 
 	function click(event: MouseEvent, pin: Pin): void {
 		if (previewing) {
-			shown = pin;
 			popover.toggle(event.currentTarget as HTMLElement);
 			return;
 		}
@@ -91,9 +90,8 @@
 		onselect?.(pin);
 	}
 
-	function enter(event: PointerEvent, pin: Pin): void {
+	function enter(event: PointerEvent): void {
 		if (!previewing) return;
-		shown = pin;
 		popover.pointerEnter(event.currentTarget as HTMLElement, event);
 	}
 
@@ -101,9 +99,8 @@
 		if (previewing) popover.pointerLeave(event);
 	}
 
-	function focus(event: FocusEvent, pin: Pin): void {
+	function focus(event: FocusEvent): void {
 		if (!previewing) return;
-		shown = pin;
 		popover.focus(event.currentTarget as HTMLElement);
 	}
 
@@ -149,14 +146,15 @@
 				pin.glossaryEntryId ? names[pin.glossaryEntryId] : undefined,
 				pin.viewWidth !== undefined
 			)}
+			data-pin={pin.id}
 			onblur={(event) => blur(event, pin)}
 			onclick={(event) => click(event, pin)}
-			onfocus={(event) => focus(event, pin)}
+			onfocus={focus}
 			onkeydown={(event) => key(event, pin)}
 			onkeyup={() => finishNudge(pin)}
 			onpointercancel={cancel}
 			onpointerdown={(event) => down(event, pin)}
-			onpointerenter={(event) => enter(event, pin)}
+			onpointerenter={enter}
 			onpointerleave={leave}
 			onpointermove={move}
 			onpointerup={(event) => up(event, pin)}

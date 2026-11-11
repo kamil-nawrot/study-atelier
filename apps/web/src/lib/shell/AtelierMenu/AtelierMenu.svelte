@@ -318,7 +318,7 @@
 	}
 
 	.account {
-		min-height: calc(40px + 2 * var(--spacing-2));
+		min-height: calc(40px + 2 * var(--border-width-base) + 2 * var(--spacing-2));
 	}
 
 	.item[aria-current='page'] {

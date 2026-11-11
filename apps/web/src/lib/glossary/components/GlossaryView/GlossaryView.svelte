@@ -25,7 +25,7 @@
 
 <article>
 	<header>
-		<p class="kind">
+		<p class="kind overline">
 			<Icon icon={glossaryCategoryIcon(entry.category)} size="sm" />
 			{glossaryCategoryName(entry.category)}
 		</p>
@@ -57,7 +57,7 @@
 		<p class="empty">{m.glossary.view.noDefinition}</p>
 	{/if}
 
-	<MentionedIn heading={m.glossary.view.mentionsHeading} {mentions} variant="label" />
+	<MentionedIn heading={m.glossary.view.mentionsHeading} {mentions} />
 </article>
 
 <style>
@@ -76,11 +76,6 @@
 		display: flex;
 		align-items: center;
 		gap: var(--spacing-2);
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
 	}
 
 	h1 {

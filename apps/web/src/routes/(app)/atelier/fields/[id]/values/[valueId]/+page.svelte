@@ -46,6 +46,7 @@
 		<LoadFailure
 			backHref={cardIndexPath}
 			backLabel={m.valuePage.back}
+			heading={title}
 			message={data.error ?? ''}
 			notFound={data.notFound === true}
 		/>

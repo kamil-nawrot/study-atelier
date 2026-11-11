@@ -18,9 +18,8 @@
 	});
 </script>
 
-<AtelierLayout email={data.session.user.email ?? ''} title={m.career.title}>
+<AtelierLayout email={data.session.user.email ?? ''} heading title={m.career.title}>
 	<header>
-		<h1>{m.career.title}</h1>
 		<div class="intro">
 			<p class="lead">{m.career.lead}</p>
 			{#if !data.error && career.standing}

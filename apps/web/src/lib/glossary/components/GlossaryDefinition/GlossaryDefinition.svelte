@@ -48,7 +48,7 @@
 			<TextButton inline onclick={() => search.openArticles()}>
 				{m.glossary.form.pickArticle}
 			</TextButton>
-			<TextButton inline onclick={() => search.removeSource()}>
+			<TextButton danger inline onclick={() => search.removeSource()}>
 				{m.glossary.form.removeSource}
 			</TextButton>
 		</div>

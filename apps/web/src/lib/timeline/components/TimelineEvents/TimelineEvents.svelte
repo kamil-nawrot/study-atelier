@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Attachment } from 'svelte/attachments';
 	import { Tooltip } from '@study-atelier/ui';
 	import { formatDate } from '#lib/catalogue/years/years.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -7,6 +8,7 @@
 	import { cutLabel } from '#lib/timeline/labels/labels.ts';
 	import { NAME_MAX_WIDTH } from '#lib/timeline/label-width/label-width.ts';
 	import { nameTooltipAlign } from '#lib/timeline/name-tooltip/name-tooltip.ts';
+	import { drawnRibbon, namePlace } from '#lib/timeline/name-place/name-place.ts';
 	import { boxStyle } from '#lib/timeline/stage/stage.ts';
 	import type { StageGeometry } from '#lib/timeline/types/stage-geometry.ts';
 	import type { Era } from '#lib/timeline/types/era.ts';
@@ -22,6 +24,7 @@
 		nameCut?: (event: TimelineEvent) => boolean;
 		onselect: (event: TimelineEvent) => void;
 		layoutSpan?: number;
+		anchor?: HTMLElement;
 	};
 
 	let {
@@ -33,7 +36,8 @@
 		labelWidth,
 		nameCut = () => false,
 		onselect,
-		layoutSpan
+		layoutSpan,
+		anchor = $bindable()
 	}: Props = $props();
 
 	const VISIBLE_MARGIN = 400;
@@ -53,11 +57,45 @@
 				(shown) => shown.to > -VISIBLE_MARGIN && shown.from < geometry.length + VISIBLE_MARGIN
 			)
 	);
-	let visible = $derived(near.filter((shown) => shown.item.lane < lanes));
+	let bounds = $derived({
+		start: Math.max(0, geometry.position(era.start)),
+		end: Math.min(geometry.length, geometry.position(era.end))
+	});
+	let visible = $derived(
+		near
+			.filter((shown) => shown.item.lane < lanes)
+			.map((shown) => {
+				const pin = shown.item.shape === 'pin';
+				const drawn = pin
+					? { start: shown.from, end: shown.to }
+					: drawnRibbon(shown.from, shown.to, geometry.length);
+				return {
+					...shown,
+					drawn,
+					place: namePlace(
+						{
+							from: drawn.start,
+							to: drawn.end,
+							pin,
+							inside: shown.item.inside,
+							name: labelWidth(shown.item.event)
+						},
+						bounds
+					)
+				};
+			})
+	);
 	let hidden = $derived(
 		near.filter((shown) => shown.item.lane >= lanes && shown.to > 0 && shown.from < geometry.length)
 			.length
 	);
+
+	const anchorOf: Attachment<HTMLElement> = (node) => {
+		anchor = node;
+		return () => {
+			if (anchor === node) anchor = undefined;
+		};
+	};
 
 	function label(item: LaidEvent): string {
 		return cutLabel(item.event.name, item.cutBefore, item.cutAfter);
@@ -112,8 +150,10 @@
 		<button
 			style={boxStyle(geometry, { along: (shown.from + shown.to) / 2, across: across(shown.item) })}
 			class="pin"
+			class:before={shown.place.before}
 			class:selected={shown.item.event.id === selected}
 			class:vertical
+			{@attach shown.item.event.id === selected ? anchorOf : undefined}
 			aria-label={title(shown.item)}
 			aria-pressed={shown.item.event.id === selected}
 			onclick={() => onselect(shown.item.event)}
@@ -123,18 +163,19 @@
 			{@render name(shown)}
 		</button>
 	{:else}
-		{@const from = Math.max(shown.from, -4)}
-		{@const to = Math.min(shown.to, geometry.length + 4)}
 		<button
 			style={boxStyle(geometry, {
-				along: from,
+				along: shown.drawn.start,
 				across: across(shown.item),
-				alongSize: Math.max(to - from, MIN_RIBBON)
+				alongSize: Math.max(shown.drawn.end - shown.drawn.start, MIN_RIBBON)
 			})}
+			style:--name-shift="{shown.place.shift}px"
 			class="ribbon"
+			class:before={shown.place.before}
 			class:outside={!shown.item.inside}
 			class:selected={shown.item.event.id === selected}
 			class:vertical
+			{@attach shown.item.event.id === selected ? anchorOf : undefined}
 			aria-label={title(shown.item)}
 			aria-pressed={shown.item.event.id === selected}
 			onclick={() => onselect(shown.item.event)}
@@ -230,6 +271,30 @@
 		left: auto;
 	}
 
+	.ribbon:not(.outside) > .name,
+	.ribbon:not(.outside) > :global(.tooltip) {
+		position: relative;
+		left: var(--name-shift);
+	}
+
+	.ribbon.vertical:not(.outside) > .name,
+	.ribbon.vertical:not(.outside) > :global(.tooltip) {
+		top: var(--name-shift);
+		left: auto;
+	}
+
+	.ribbon.outside.before > .name,
+	.ribbon.outside.before > :global(.tooltip) {
+		right: 100%;
+		left: auto;
+	}
+
+	.ribbon.vertical.outside.before > .name,
+	.ribbon.vertical.outside.before > :global(.tooltip) {
+		top: auto;
+		bottom: 100%;
+	}
+
 	.ribbon.selected {
 		border-color: var(--color-highlight);
 		background: var(--color-highlight);
@@ -250,6 +315,16 @@
 		margin-left: 0;
 	}
 
+	.pin.before {
+		flex-direction: row-reverse;
+		transform: translateX(calc(-100% + var(--spacing-2)));
+	}
+
+	.pin.vertical.before {
+		flex-direction: column-reverse;
+		transform: translateY(calc(-100% + var(--spacing-2)));
+	}
+
 	.diamond {
 		flex: none;
 		width: var(--spacing-2);
@@ -265,6 +340,11 @@
 	.ribbon:hover,
 	.pin:hover {
 		z-index: 3;
+	}
+
+	.ribbon:has(:global(.tooltip:hover)),
+	.pin:has(:global(.tooltip:hover)) {
+		z-index: 5;
 	}
 
 	.ribbon:focus-visible,

@@ -112,7 +112,9 @@ describe('comparison page', () => {
 		renderPage({ sides: { left: 1, right: 99 }, left: artwork(1, 'Girl with a Pearl Earring') });
 
 		await expect
-			.element(page.getByRole('heading', { name: m.compare.question('Girl with a Pearl Earring') }))
+			.element(
+				page.getByRole('heading', { name: `${m.compare.questionLead} Girl with a Pearl Earring?` })
+			)
 			.toBeVisible();
 	});
 

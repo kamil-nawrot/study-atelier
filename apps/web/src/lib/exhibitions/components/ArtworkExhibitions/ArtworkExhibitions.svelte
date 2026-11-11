@@ -24,45 +24,38 @@
 </script>
 
 {#if exhibitions.length > 0}
-	<div class="exhibitions">
-		<Disclosure
-			icon={Landmark}
-			muted
-			open={false}
-			title={m.exhibitions.onExhibitions(exhibitions.length)}
-		>
-			<ul>
-				{#each exhibitions as exhibition (exhibition.id)}
-					{@const cover = exhibition.coverId ? ready.get(exhibition.coverId) : undefined}
-					<li>
-						<a class="row" href={resolve('/(app)/atelier/exhibitions/[id]', { id: exhibition.id })}>
-							<span class="cover">
-								{#if cover?.image?.src}
-									<img
-										alt=""
-										loading="lazy"
-										onerror={() => cover && images.failed(cover)}
-										src={cover.image.src}
-									/>
-								{:else}
-									<NoImage />
-								{/if}
-							</span>
-							<span class="title">{exhibition.title}</span>
-						</a>
-					</li>
-				{/each}
-			</ul>
-		</Disclosure>
-	</div>
+	<Disclosure
+		icon={Landmark}
+		muted
+		open={false}
+		title={m.exhibitions.onExhibitions(exhibitions.length)}
+	>
+		<ul>
+			{#each exhibitions as exhibition (exhibition.id)}
+				{@const cover = exhibition.coverId ? ready.get(exhibition.coverId) : undefined}
+				<li>
+					<a class="row" href={resolve('/(app)/atelier/exhibitions/[id]', { id: exhibition.id })}>
+						<span class="cover">
+							{#if cover?.image?.src}
+								<img
+									alt=""
+									loading="lazy"
+									onerror={() => cover && images.failed(cover)}
+									src={cover.image.src}
+								/>
+							{:else}
+								<NoImage />
+							{/if}
+						</span>
+						<span class="title">{exhibition.title}</span>
+					</a>
+				</li>
+			{/each}
+		</ul>
+	</Disclosure>
 {/if}
 
 <style>
-	.exhibitions :global(h2) {
-		font-size: var(--font-size-md);
-		line-height: var(--line-height-md);
-	}
-
 	ul {
 		display: grid;
 		gap: var(--spacing-3);

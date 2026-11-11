@@ -11,5 +11,3 @@
 </script>
 
 <Story name="Default" />
-
-<Story name="Outlined" args={{ outlined: true }} />

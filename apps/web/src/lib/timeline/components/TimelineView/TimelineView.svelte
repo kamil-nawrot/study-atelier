@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onDestroy, untrack } from 'svelte';
+	import { MediaQuery } from 'svelte/reactivity';
 	import { eraTitle } from '#lib/catalogue/eras/eras.ts';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -22,7 +23,6 @@
 	import type { TimelineSelection } from '#lib/timeline/types/timeline-selection.ts';
 	import { eraOfYear, rememberEra } from '#lib/timeline/start/start.ts';
 	import {
-		distanceToSpan,
 		entriesSpan,
 		eraOf,
 		eras,
@@ -50,7 +50,7 @@
 	import EraStrip from '#lib/timeline/components/EraStrip/EraStrip.svelte';
 	import EventCard from '#lib/timeline/components/EventCard/EventCard.svelte';
 	import EventDeleteDialog from '#lib/timeline/components/EventDeleteDialog/EventDeleteDialog.svelte';
-	import ReadingArtworks from '#lib/timeline/components/ReadingArtworks/ReadingArtworks.svelte';
+	import EventPopover from '#lib/timeline/components/EventPopover/EventPopover.svelte';
 	import TimelineControls from '#lib/timeline/components/TimelineControls/TimelineControls.svelte';
 	import TimelineEvents from '#lib/timeline/components/TimelineEvents/TimelineEvents.svelte';
 	import TimelineArtworks from '#lib/timeline/components/TimelineArtworks/TimelineArtworks.svelte';
@@ -65,7 +65,7 @@
 		onerachange?: (code: EraCode) => void;
 		filter?: TimelineFilter;
 		showEvents?: boolean;
-		readingArtworks?: boolean;
+		showSpans?: boolean;
 	};
 
 	let {
@@ -77,7 +77,7 @@
 		onerachange,
 		filter = $bindable(emptyTimelineFilter()),
 		showEvents = true,
-		readingArtworks = false
+		showSpans = true
 	}: Props = $props();
 
 	const NOW_SHARE = 40;
@@ -98,6 +98,10 @@
 	let width = $state(0);
 	let viewportHeight = $state(0);
 	let deleteOpen = $state(false);
+	let deleting = $state<TimelineEvent>();
+	let anchor = $state<HTMLElement>();
+	let stageBox = $state<HTMLElement>();
+	const wide = new MediaQuery('min-width: 768px');
 
 	let allEras = $derived(eras(undefined, entriesSpan([...artworks, ...events])));
 	let era = $derived(allEras.find((candidate) => candidate.code === code) as Era);
@@ -137,12 +141,7 @@
 		end: camera.view.center + camera.view.span / NOW_SHARE
 	});
 	let now = $derived(showEvents ? eventsIn(eraEvents, reading) : []);
-	let nowArtworks = $derived(
-		readingArtworks
-			? artworksIn(collection, reading).sort((a, b) => distanceToReading(a) - distanceToReading(b))
-			: []
-	);
-	let spokenText = $derived(readingText(yearAt(camera.view.center), now, nowArtworks));
+	let spokenText = $derived(readingText(yearAt(camera.view.center), now));
 	let spoken = $state('');
 
 	$effect(() => {
@@ -169,11 +168,6 @@
 		return artworksIn(collection, spanOfYears(event.yearFrom, event.yearTo));
 	}
 
-	function distanceToReading(artwork: WallArtwork): number {
-		const span = spanOf(artwork);
-		return span ? distanceToSpan(span, camera.view.center) : Infinity;
-	}
-
 	function laneColourOf(artwork: WallArtwork): string | undefined {
 		const [first] = lanesOf(artwork, filter);
 		return first === undefined ? undefined : laneColour(first);
@@ -181,6 +175,11 @@
 
 	function toggle(kind: 'artwork' | 'event', id: string): void {
 		selected = selected?.kind === kind && selected.id === id ? null : { kind, id };
+	}
+
+	function askDelete(event: TimelineEvent): void {
+		deleting = event;
+		deleteOpen = true;
 	}
 
 	function showWhole(event: TimelineEvent): void {
@@ -223,7 +222,7 @@
 <svelte:window bind:innerHeight={viewportHeight} />
 
 <div class="timeline">
-	<EraStrip current={code} eras={allEras} onselect={openEra} view={camera.view} />
+	<EraStrip current={code} eras={allEras} onselect={openEra} />
 
 	<p class="era-name" aria-live="polite">{eraTitle(code)}</p>
 
@@ -252,7 +251,7 @@
 		<p class="caption">{m.timeline.noEvents}</p>
 	{/if}
 
-	<div bind:clientWidth={width}>
+	<div bind:this={stageBox} bind:clientWidth={width}>
 		<TimelineStage
 			artworkLanes={orientation === 'horizontal' ? artworkLanes.length : 0}
 			{era}
@@ -279,6 +278,7 @@
 						{nameCut}
 						onselect={(event) => toggle('event', event.id)}
 						selected={selected?.kind === 'event' ? selected.id : null}
+						bind:anchor
 					/>
 				{/if}
 			{/snippet}
@@ -293,30 +293,41 @@
 					layoutSpan={camera.target.span}
 					onselect={(artwork) => toggle('artwork', artwork.id)}
 					selected={selected?.kind === 'artwork' ? selected.id : null}
+					spans={showSpans}
 				/>
 			{/snippet}
 		</TimelineStage>
 	</div>
 
-	{#if readingArtworks}
-		<ReadingArtworks artworks={nowArtworks} onchoose={chooseArtwork} />
-	{/if}
-
-	{#if selectedEvent}
+	{#if selectedEvent && !wide.current}
 		{@const event = selectedEvent}
 		<EventCard
 			artworks={artworksOf(event)}
 			{event}
 			onartwork={chooseArtwork}
-			ondelete={() => (deleteOpen = true)}
+			ondelete={() => askDelete(event)}
 			onwhole={() => showWhole(event)}
 		/>
 	{/if}
 </div>
 
-{#if selectedEvent}
-	<EventDeleteDialog
+{#if wide.current}
+	<EventPopover
+		{anchor}
+		artworks={selectedEvent ? artworksOf(selectedEvent) : []}
+		boundary={stageBox}
 		event={selectedEvent}
+		onartwork={chooseArtwork}
+		onclose={() => (selected = null)}
+		ondelete={askDelete}
+		onwhole={showWhole}
+		view={camera.view}
+	/>
+{/if}
+
+{#if deleting}
+	<EventDeleteDialog
+		event={deleting}
 		ondeleted={(event) => {
 			selected = null;
 			return ondeleted?.(event);
@@ -333,6 +344,11 @@
 
 	.era-name {
 		justify-self: center;
-		font-weight: var(--font-weight-medium);
+		padding-block: var(--spacing-3);
+		font-family: var(--font-family-title), Georgia, serif;
+		font-size: var(--font-size-2xl);
+		font-style: italic;
+		font-weight: var(--font-weight-regular);
+		line-height: var(--line-height-2xl);
 	}
 </style>

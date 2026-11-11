@@ -4,13 +4,22 @@
 	import Plus from '@lucide/svelte/icons/plus';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Sprout from '@lucide/svelte/icons/sprout';
-	import { Alert, Button, Disclosure, EmptyState, Icon, ToggleTag } from '@study-atelier/ui';
+	import {
+		Alert,
+		Button,
+		Disclosure,
+		EmptyState,
+		Icon,
+		PageHeader,
+		ToggleTag
+	} from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { sameScope, scopeKey } from '#lib/review/overview/overview.ts';
 	import type { AtelierKnowledge } from '#lib/review/types/atelier-knowledge.ts';
 	import type { ReviewScope } from '#lib/review/types/review-scope.ts';
+	import ChoiceTitle from '#lib/review/components/ChoiceTitle/ChoiceTitle.svelte';
 	import ReviewKnowledge from '#lib/review/components/ReviewKnowledge/ReviewKnowledge.svelte';
 	import ReviewStreak from '#lib/review/components/ReviewStreak/ReviewStreak.svelte';
 	import type { ScopeChoice } from '#lib/review/types/scope-choice.ts';
@@ -78,32 +87,33 @@
 </script>
 
 <div class="start">
+	<PageHeader lead={m.review.lead} />
 	<div class="main">
-		<header class="intro">
-			{#if missing > 0}
-				<h1>{m.review.title}</h1>
-			{:else if waiting > 0}
-				<h1>{m.review.waiting(waiting)}</h1>
-				<p class="lead plan">
-					{#if known > 0}
-						<span class="part"><Icon icon={RotateCcw} size="sm" />{m.review.planKnown(known)}</span>
+		{#if missing === 0}
+			<div class="round">
+				{#if waiting > 0}
+					<h2>{m.review.waiting(waiting)}</h2>
+					<p class="lead plan">
+						{#if known > 0}
+							<span class="part"
+								><Icon icon={RotateCcw} size="sm" />{m.review.planKnown(known)}</span
+							>
+						{/if}
+						{#if fresh > 0}
+							<span class="part"><Icon icon={Sprout} size="sm" />{m.review.planFresh(fresh)}</span>
+						{/if}
+					</p>
+				{:else}
+					<h2>{m.review.allDoneTitle}</h2>
+					{#if nextWhen}
+						<p class="lead">{m.review.allDone(nextWhen)}</p>
 					{/if}
-					{#if fresh > 0}
-						<span class="part"><Icon icon={Sprout} size="sm" />{m.review.planFresh(fresh)}</span>
-					{/if}
-				</p>
-			{:else}
-				<h1>{m.review.allDoneTitle}</h1>
-				{#if nextWhen}
-					<p class="lead">{m.review.allDone(nextWhen)}</p>
 				{/if}
-			{/if}
-			{#if streak > 0}
-				<div class="streak">
-					<ReviewStreak {reviewedToday} {streak} />
-				</div>
-			{/if}
-		</header>
+			</div>
+		{/if}
+		{#if streak > 0}
+			<ReviewStreak {reviewedToday} {streak} />
+		{/if}
 
 		{#if missing > 0}
 			<EmptyState
@@ -135,7 +145,7 @@
 				<div class="choices">
 					{#if scopes.length > 1}
 						<section class="choice" aria-labelledby="review-scope">
-							<h2 id="review-scope" class="choice-title">{m.review.scope}</h2>
+							<ChoiceTitle id="review-scope" level={3} text={m.review.scope} />
 							<div class="tags">
 								{#each scopes as option (scopeKey(option.scope))}
 									<ToggleTag
@@ -152,7 +162,7 @@
 						</section>
 					{/if}
 					<section class="choice" aria-labelledby="review-form">
-						<h2 id="review-form" class="choice-title">{m.review.form}</h2>
+						<ChoiceTitle id="review-form" level={3} text={m.review.form} />
 						<div class="tags">
 							{#each forms as option (option)}
 								<ToggleTag
@@ -167,11 +177,6 @@
 				</div>
 			</Disclosure>
 		{/if}
-
-		<section class="how" aria-labelledby="review-how">
-			<h2 id="review-how" class="choice-title">{m.review.howTitle}</h2>
-			<p class="caption">{m.review.how}</p>
-		</section>
 	</div>
 
 	<ReviewKnowledge {knowledge} {troubles} />
@@ -180,7 +185,7 @@
 <style>
 	.start {
 		display: grid;
-		gap: var(--spacing-12);
+		gap: var(--spacing-6) var(--spacing-12);
 		width: 100%;
 		max-width: var(--size-content-wide);
 	}
@@ -191,14 +196,9 @@
 		gap: var(--spacing-8);
 	}
 
-	.intro,
-	.how {
+	.round {
 		display: grid;
 		gap: var(--spacing-2);
-	}
-
-	.streak {
-		padding-top: var(--spacing-4);
 	}
 
 	.plan {
@@ -211,10 +211,6 @@
 		display: inline-flex;
 		align-items: center;
 		gap: var(--spacing-2);
-	}
-
-	.how {
-		max-width: var(--size-content-narrow);
 	}
 
 	.go {
@@ -231,11 +227,6 @@
 	.choice {
 		display: grid;
 		gap: var(--spacing-3);
-	}
-
-	.choice-title {
-		font-size: var(--font-size-md);
-		line-height: var(--line-height-md);
 	}
 
 	.tags {
@@ -259,6 +250,10 @@
 	@media (min-width: 768px) {
 		.start {
 			grid-template-columns: minmax(0, 1fr) 360px;
+		}
+
+		.start > :global(.page-header) {
+			grid-column: 1 / -1;
 		}
 	}
 </style>

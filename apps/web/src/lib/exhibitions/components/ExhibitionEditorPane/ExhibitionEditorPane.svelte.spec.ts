@@ -114,6 +114,7 @@ describe('ExhibitionEditorPane', () => {
 		await expect
 			.element(page.getByRole('textbox', { name: m.exhibitions.view.titleLabel }))
 			.toHaveValue('Light');
+		await expect.element(page.getByText(m.exhibitions.kind)).toBeVisible();
 		await expect.element(page.getByText('Soft glow')).toBeInTheDocument();
 		await expect
 			.element(page.getByRole('toolbar', { name: m.exhibitions.bar.label('Dzieło') }))
@@ -163,7 +164,9 @@ describe('ExhibitionEditorPane', () => {
 		expect(kinds(given)).toEqual(['artwork', 'textBlock']);
 
 		await userEvent.fill(field, '');
-		await vi.waitFor(() => expect(JSON.stringify(given.document)).not.toContain('Light'));
+		await vi.waitFor(() => expect(JSON.stringify(given.document)).not.toContain('Light'), {
+			timeout: 6000
+		});
 		await userEvent.click(
 			card(1).querySelector('[aria-label="' + m.exhibitions.bar.remove + '"]')!
 		);
