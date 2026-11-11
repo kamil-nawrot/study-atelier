@@ -2,6 +2,14 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.21.4] - 2026-11-11
+
+The backup made before a release migrates the production database no longer depends on the Ubuntu package servers.
+
+### Fixed
+
+- The backup before migrating production installed `age` from the Ubuntu package servers and failed when they could not be reached, which stopped the 0.21.3 release before its migrations step; it now downloads a pinned `age` release from GitHub and checks its SHA-256. The weekly off-site backup uses the same script.
+
 ## [0.21.3] - 2026-11-11
 
 Ustawienia, Słowniczek and Powtórki get the polish found after 0.21.2, and suggestion lists stay clear of the save bar.
@@ -930,3 +938,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.21.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.1
 [0.21.2]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.2
 [0.21.3]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.3
+[0.21.4]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.4
