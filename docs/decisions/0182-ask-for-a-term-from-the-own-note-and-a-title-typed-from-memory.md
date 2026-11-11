@@ -1,6 +1,6 @@
 # 0182. Ask for a term from the own note and a title typed from memory
 
-- Status: accepted
+- Status: accepted; the layout of the gap in a note on a phone is superseded by [0252](0252-overhaul-the-app-on-a-phone.md)
 - Date: 2026-11-04
 
 ## Context and problem statement

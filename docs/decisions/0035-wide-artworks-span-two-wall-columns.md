@@ -1,6 +1,6 @@
 # 0035. Let wide artworks span two wall columns, with a fixed-height tile caption
 
-- Status: accepted
+- Status: accepted; the full caption on a phone is superseded by [0252](0252-overhaul-the-app-on-a-phone.md)
 - Date: 2026-10-13
 
 ## Context and problem statement

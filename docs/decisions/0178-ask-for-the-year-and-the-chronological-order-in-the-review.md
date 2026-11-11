@@ -1,6 +1,6 @@
 # 0178. Ask for the year and the chronological order in the review
 
-- Status: accepted
+- Status: accepted; the order question on a phone is superseded by [0252](0252-overhaul-the-app-on-a-phone.md), which also adds buttons for the year
 - Date: 2026-11-03
 
 ## Context and problem statement
