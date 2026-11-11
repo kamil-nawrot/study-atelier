@@ -9,16 +9,17 @@
 
 ## Where things go
 
-| You want to record                                     | Put it in                                                                                             |
-| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| A decision (business or technical) and why it was made | a new ADR in `docs/decisions/`                                                                        |
-| What the app should do                                 | `docs/product/requirements.md`                                                                        |
-| A domain term                                          | `docs/product/glossary.md`                                                                            |
-| How the app speaks to the learner                      | `docs/product/voice-and-tone.md`                                                                      |
-| How the system is structured                           | `docs/architecture/`                                                                                  |
-| What the app reads and writes, and the database model  | `docs/data-model/` ([ADR-0165](../decisions/0165-model-the-database-from-the-app-access-patterns.md)) |
-| A rule for working in the repository                   | `docs/guidelines/`                                                                                    |
-| A library component and what it is for                 | its row in `packages/ui/README.md`, in the pull request that adds or changes it                       |
+| You want to record                                     | Put it in                                                                                                                                   |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| A decision (business or technical) and why it was made | a new ADR in `docs/decisions/`                                                                                                              |
+| What the app should do                                 | `docs/product/requirements.md`                                                                                                              |
+| A domain term                                          | `docs/product/glossary.md`                                                                                                                  |
+| How the app speaks to the learner                      | `docs/product/voice-and-tone.md`                                                                                                            |
+| How the system is structured                           | `docs/architecture/`                                                                                                                        |
+| What the app reads and writes, and the database model  | `docs/data-model/` ([ADR-0165](../decisions/0165-model-the-database-from-the-app-access-patterns.md))                                       |
+| A rule for working in the repository                   | `docs/guidelines/`                                                                                                                          |
+| How the owner wants Claude to work                     | `docs/guidelines/working-agreement.md` ([ADR-0250](../decisions/0250-keep-the-rules-of-working-with-the-owner-in-the-working-agreement.md)) |
+| A library component and what it is for                 | its row in `packages/ui/README.md`, in the pull request that adds or changes it                                                             |
 
 ## Architecture Decision Records
 
@@ -28,8 +29,8 @@
 - Status is one of `proposed`, `accepted`, `rejected`, `deprecated`, `superseded by NNNN`.
 - Accepted ADRs are not rewritten. A changed decision gets a new ADR that supersedes the old one, and the old one's status is updated.
 - Corrections that leave the decision unchanged are allowed in an accepted ADR: typos, broken links, facts found to be wrong, and removal of personal data.
-- Every new ADR is added to the index in [`decisions/README.md`](../decisions/README.md).
-- The `Pull request` workflow runs [`.github/scripts/check-docs.mjs`](../../.github/scripts/check-docs.mjs): every relative link in a Markdown file resolves, every ADR is in the index and no two share a number, and no tracked file holds an e-mail address other than an `example.com`, `example.org` or `example.test` address, the `przyklad.pl` sample in the UI texts, a role address of the app's own domain `studyatelier.art` and `noreply` attribution lines.
+- Every new ADR is added to the index in [`decisions/README.md`](../decisions/README.md) with `pnpm adr:index`, which also rewrites the titles and statuses of the index from the ADRs; the new row's area (`?` at first) is set by hand to one of the areas listed above the table. A status change, such as a later ADR superseding part of a decision, is written in the ADR's Status line and carried into the index by the same command. `pnpm adr <area>` lists the ADRs of an area.
+- The `Pull request` workflow runs [`.github/scripts/check-docs.mjs`](../../.github/scripts/check-docs.mjs): every relative link in a Markdown file resolves, every ADR is in the index with its own title and status and an area from the list, no two share a number, and no tracked file holds an e-mail address other than an `example.com`, `example.org` or `example.test` address, the `przyklad.pl` sample in the UI texts, a role address of the app's own domain `studyatelier.art` and `noreply` attribution lines.
 
 ## Architecture
 

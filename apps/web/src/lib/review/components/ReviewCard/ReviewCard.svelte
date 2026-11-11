@@ -101,6 +101,10 @@
 	}
 
 	.stage {
+		--color-stage-bg: var(--color-bg);
+		--color-stage-fg: var(--color-fg);
+		--color-stage-fg-muted: var(--color-fg-muted);
+
 		position: relative;
 		display: grid;
 		justify-items: center;
@@ -116,7 +120,7 @@
 		content: '';
 		position: absolute;
 		inset: 0;
-		background: var(--color-scrim);
+		background: color-mix(in srgb, var(--color-stage-bg) 70%, transparent);
 	}
 
 	.backdrop {

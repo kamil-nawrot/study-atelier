@@ -134,8 +134,8 @@
 	}
 
 	.panel:has(:global([data-action-bar])) {
-		padding-bottom: 0;
-		border-bottom: none;
+		padding: 0;
+		border: none;
 	}
 
 	.panel:focus-visible {

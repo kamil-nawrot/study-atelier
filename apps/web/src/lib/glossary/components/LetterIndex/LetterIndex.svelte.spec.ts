@@ -43,6 +43,34 @@ describe('LetterIndex', () => {
 			.toHaveAttribute('aria-current', 'true');
 	});
 
+	it('stands still in the middle of the screen height on a larger screen', async () => {
+		await page.viewport(1024, 700);
+		list = sections('A', 'B', 'C');
+		list.style.paddingTop = '400px';
+		render(LetterIndex, { letters: ['A', 'B', 'C'] });
+
+		const index = page.getByRole('navigation', { name: m.glossary.letters }).element();
+		const before = index.getBoundingClientRect().top;
+		window.scrollTo({ top: 300, behavior: 'instant' });
+		await vi.waitFor(() => expect(document.documentElement.scrollTop).toBe(300));
+
+		expect(index.getBoundingClientRect().top).toBe(before);
+		expect(getComputedStyle(index).alignItems).toBe('center');
+	});
+
+	it('starts at the list on a phone', async () => {
+		await page.viewport(390, 700);
+		list = sections('A', 'B', 'C');
+		list.style.paddingTop = '400px';
+		render(LetterIndex, { letters: ['A', 'B', 'C'] });
+
+		const index = page.getByRole('navigation', { name: m.glossary.letters }).element();
+		const first = document.getElementById('letter-A')?.parentElement as HTMLElement;
+		await vi.waitFor(() =>
+			expect(index.getBoundingClientRect().top).toBe(first.getBoundingClientRect().top)
+		);
+	});
+
 	it('scrolls to the section of a chosen letter', async () => {
 		list = sections('A', 'B', 'C');
 		render(LetterIndex, { letters: ['A', 'B', 'C'] });

@@ -138,7 +138,7 @@
 		min-height: calc(100dvh - var(--bar-height) - var(--spacing-6));
 	}
 
-	.page > :global(.tabs) {
+	.page > :global(.tabs:has([data-action-bar])) {
 		flex: 1;
 		grid-template-rows: auto 1fr;
 	}

@@ -72,7 +72,7 @@
 
 <nav
 	bind:this={nav}
-	style:top={top === undefined ? undefined : `${top}px`}
+	style:--start={top === undefined ? undefined : `${top}px`}
 	class="index"
 	aria-label={m.glossary.letters}
 >
@@ -93,12 +93,19 @@
 <style>
 	.index {
 		position: fixed;
-		top: var(--bar-height);
+		top: var(--start, var(--bar-height));
 		right: 0;
 		bottom: 0;
 		z-index: 1;
 		display: flex;
 		align-items: flex-start;
+	}
+
+	@media (min-width: 768px) {
+		.index {
+			top: var(--bar-height);
+			align-items: center;
+		}
 	}
 
 	ol {

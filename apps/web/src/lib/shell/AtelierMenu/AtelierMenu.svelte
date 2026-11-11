@@ -296,6 +296,10 @@
 		cursor: pointer;
 	}
 
+	.item > :global(svg) {
+		flex: none;
+	}
+
 	.dense {
 		gap: 0;
 	}

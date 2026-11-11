@@ -1,5 +1,6 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { createServer } from 'node:net';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
@@ -1092,9 +1093,24 @@ async function waitForServer(base, attempts = 120) {
 	throw new Error(`The dev server did not answer at ${base}`);
 }
 
-function startDevServer() {
+function isFree(port) {
+	return new Promise((resolve) => {
+		const probe = createServer();
+		probe.once('error', () => resolve(false));
+		probe.listen(port, () => probe.close(() => resolve(true)));
+	});
+}
+
+async function freePort() {
+	for (let port = PORT; port < PORT + 50; port += 1) {
+		if (await isFree(port)) return port;
+	}
+	throw new Error(`No free port from ${PORT} to ${PORT + 49}`);
+}
+
+function startDevServer(port) {
 	const vite = path.join(WEB_DIR, 'node_modules/.bin/vite');
-	const child = spawn(vite, ['dev', '--port', String(PORT), '--strictPort'], {
+	const child = spawn(vite, ['dev', '--port', String(port), '--strictPort'], {
 		cwd: WEB_DIR,
 		env: { ...process.env, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY: 'dummy' },
 		stdio: 'ignore'
@@ -1399,8 +1415,9 @@ async function main() {
 	const names = options.viewport === 'both' ? ['desktop', 'phone'] : [options.viewport];
 	if (names.some((name) => !(name in VIEWPORTS))) throw new Error(USAGE);
 
-	const server = options.url ? null : startDevServer();
-	const base = options.url ?? `http://localhost:${PORT}`;
+	const port = options.url ? null : await freePort();
+	const server = options.url ? null : startDevServer(port);
+	const base = options.url ?? `http://localhost:${port}`;
 	let browser;
 	try {
 		await waitForServer(base);
