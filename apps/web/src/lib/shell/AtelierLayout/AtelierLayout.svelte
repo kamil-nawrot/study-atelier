@@ -135,7 +135,7 @@
 		--docked-panel-width: 48px;
 		--bottom-bar-height: 56px;
 		--bottom-inset: calc(var(--bottom-bar-height) + env(safe-area-inset-bottom));
-		--artwork-max-height: calc(100dvh - var(--bar-height) - var(--bottom-inset));
+		--artwork-max-height: calc(100svh - var(--bar-height) - var(--bottom-inset));
 		display: flex;
 		min-height: 100dvh;
 	}
@@ -153,7 +153,7 @@
 	.bar {
 		position: sticky;
 		top: 0;
-		z-index: 2;
+		z-index: 4;
 		display: flex;
 		box-sizing: content-box;
 		align-items: stretch;
