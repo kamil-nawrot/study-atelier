@@ -373,6 +373,37 @@ alternatives:
     loses:
       - 'A deploy where the previous bundle shows the exhibits in the new order, still as one flat grid.'
 
+  - id: M7
+    name: Keep symbols with ordered meanings and context labels, and mark them on pins
+    status: 'accepted 2026-11-12, ADR-0257; to build in 0.23'
+    kind: schema
+    tables: [symbols, symbol_meanings, symbol_meaning_contexts, artwork_pins]
+    serves: [R26, R27, R28, R29, R30, W23, W24]
+    pull_requests: 2
+    risk: medium
+    risk_because: 'labels point at four kinds of rows (value, era, artwork, glossary person) and must follow their merges and deletes; a pin meaning must belong to the pin symbol'
+    how: >
+      symbols (name unique per owner) hold an ordered list of symbol_meanings (position, text). Each meaning has
+      any number of symbol_meaning_contexts rows, each with exactly one of value_id, era_code, artwork_id,
+      glossary_entry_id or text (a check). artwork_pins gains symbol_id and symbol_meaning_id; the pair
+      (symbol_meaning_id, symbol_id) references symbol_meanings (id, symbol_id), so a meaning of another symbol is
+      refused. save_symbol replaces the meanings and labels of one symbol in a transaction. The atlas reads one RPC
+      with the first meaning, the counts and a cover crop per symbol; the summary of a meaning is counted in the
+      browser from the pins the symbol page already loads.
+    design:
+      - 'Owner checks by composite foreign keys (x_id, owner_id), as in the other tables; RLS on every new table.'
+      - 'A symbol delete cascades its meanings and labels and sets the pin columns to null; a meaning delete sets symbol_meaning_id to null.'
+      - 'A deleted value, artwork or glossary entry deletes its labels (cascade); a merge of values moves the labels to the value that stays, like artwork_values.'
+      - 'Limits: 2000 symbols per owner, 10 meanings per symbol, 10 labels per meaning, a meaning text of 1 to 200 characters, a free label of 1 to 80.'
+      - 'export_atelier and import_atelier carry the three tables and the two pin columns; an older export has none.'
+    cost:
+      - 'migration: three tables, RLS, checks, two pin columns with the composite key, save_symbol, symbol_atlas, limits, export and import'
+      - 'SQL tests: save and reorder, foreign meaning refused on a pin, cascades, merge of values, limits, import of an old and a new export'
+      - 'database.types.ts, screenshot mocks for the new reads'
+    loses:
+      - 'A word can exist twice, as a term and as a symbol.'
+      - 'A label of a deleted value is lost instead of kept as text.'
+
 patterns:
   - { id: R01, today: 10, target: 5, model: none, also: [T1, T2] }
   - { id: R02, today: 2, target: 2, model: none, also: [T13] }
@@ -444,6 +475,11 @@ patterns:
       model: [M5],
       also: []
     }
+  - { id: R26, today: 'new', target: '1 RPC symbol_atlas', model: [M7] }
+  - { id: R27, today: 'new', target: '2 selects with embeds', model: [M7] }
+  - { id: R28, today: 'new', target: '+1 light index beside the term index', model: [M7] }
+  - { id: R29, today: 'new', target: '+1 select by the label column', model: [M7] }
+  - { id: R30, today: 'new', target: '+1 at the session start', model: [M7] }
 
 writes:
   - {
@@ -533,6 +569,13 @@ writes:
   - { id: W20, today: 'new', after: 'one update of deleted_at', model: [M5] }
   - { id: W21, today: 'new', after: 'one update or delete, cascades its rows', model: [M5] }
   - { id: W22, today: 'new', after: 'one update of artwork_images.palette', model: [M5] }
+  - {
+      id: W23,
+      today: 'new',
+      after: 'save_symbol: the symbol, its meanings and labels',
+      model: [M7]
+    }
+  - { id: W24, today: 'new', after: 'one pin update with the two symbol columns', model: [M7] }
 
 decisions:
   - id: D1
