@@ -4,6 +4,7 @@
 	import { Disclosure, IconButton } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
+	import DetailLens from '#lib/pins/components/DetailLens/DetailLens.svelte';
 	import type { TermFragment } from '#lib/glossary/types/term-fragment.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 
@@ -16,7 +17,6 @@
 	let strip = $state<HTMLUListElement>();
 	let atStart = $state(true);
 	let atEnd = $state(true);
-	let failed = $state<ReadonlySet<string>>(new Set());
 
 	function measure(): void {
 		if (!strip) return;
@@ -35,10 +35,6 @@
 
 	function scroll(direction: -1 | 1): void {
 		strip?.scrollBy({ left: direction * strip.clientWidth * 0.8, behavior: 'smooth' });
-	}
-
-	function cropFailed(fragment: TermFragment): void {
-		failed = new Set([...failed, fragment.pinId]);
 	}
 </script>
 
@@ -60,7 +56,6 @@
 			</span>
 			<ul bind:this={strip} onscroll={measure}>
 				{#each fragments as fragment (fragment.pinId)}
-					{@const thumbnail = fragment.thumbnail}
 					<li>
 						<a
 							href="{resolve('/(app)/atelier/[number]', {
@@ -68,24 +63,7 @@
 							})}?pin={encodeURIComponent(fragment.pinId)}"
 							title={fragment.text || undefined}
 						>
-							<span class="lens">
-								{#if fragment.crop && !failed.has(fragment.pinId)}
-									<img alt="" onerror={() => cropFailed(fragment)} src={fragment.crop} />
-								{:else if thumbnail.src}
-									<img
-										style:left="{thumbnail.left}%"
-										style:top="{thumbnail.top}%"
-										style:width="{thumbnail.width}%"
-										style:height="{thumbnail.height}%"
-										class="view"
-										alt=""
-										src={thumbnail.src}
-									/>
-								{/if}
-								<svg class="ring" aria-hidden="true" viewBox="0 0 100 100">
-									<circle cx="50" cy="50" r="49" />
-								</svg>
-							</span>
+							<DetailLens lens={fragment} />
 							<span class="title">{fragment.title}</span>
 							<span class="number">{formatRecordNumber(fragment.number)}</span>
 						</a>
@@ -106,7 +84,7 @@
 
 <style>
 	.strip {
-		--fragment-lens: 128px;
+		--detail-lens: 128px;
 
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
@@ -116,7 +94,7 @@
 
 	.arrow {
 		display: none;
-		padding-top: calc(var(--fragment-lens) / 2 - var(--size-control) / 2);
+		padding-top: calc(var(--detail-lens) / 2 - var(--size-control) / 2);
 	}
 
 	ul {
@@ -130,7 +108,7 @@
 	}
 
 	li {
-		flex: 0 0 var(--fragment-lens);
+		flex: 0 0 var(--detail-lens);
 		scroll-snap-align: start;
 	}
 
@@ -143,45 +121,9 @@
 		text-decoration: none;
 	}
 
-	.lens {
-		position: relative;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		overflow: hidden;
-		width: var(--fragment-lens);
-		height: var(--fragment-lens);
-		background: var(--color-mat-window);
-		clip-path: circle(50%);
-	}
-
-	.ring {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-		fill: none;
-		stroke: var(--color-line);
-		stroke-width: var(--border-width-hairline);
-		vector-effect: non-scaling-stroke;
-	}
-
-	.lens > img {
-		display: block;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.lens > img.view {
-		position: absolute;
-		max-width: none;
-		object-fit: fill;
-	}
-
-	a:hover .ring,
-	a:focus-visible .ring {
-		stroke: var(--color-fg-muted);
+	a:hover,
+	a:focus-visible {
+		--detail-lens-ring: var(--color-fg-muted);
 	}
 
 	.title {
@@ -200,7 +142,7 @@
 
 	@media (min-width: 768px) {
 		.strip {
-			--fragment-lens: 160px;
+			--detail-lens: 160px;
 		}
 
 		.strip.scrolls {

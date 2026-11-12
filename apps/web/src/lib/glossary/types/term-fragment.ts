@@ -1,4 +1,4 @@
-import type { FragmentThumbnail } from './fragment-thumbnail.ts';
+import type { FragmentThumbnail } from '#lib/pins/types/fragment-thumbnail.ts';
 
 export type TermFragment = {
 	pinId: string;

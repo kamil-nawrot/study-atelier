@@ -5,6 +5,7 @@ import { goto } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
 import { GLOSSARY_SEARCH_MIN_ENTRIES } from '#lib/glossary/glossary/glossary.ts';
 import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+import type { AtlasSymbol } from '#lib/symbols/types/atlas-symbol.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import { testEntry, testGlossary } from '#lib/testing/glossary/glossary.ts';
 import GlossaryPage from './+page.svelte';
@@ -26,7 +27,10 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 }));
 
 function renderGlossary(entries: GlossaryEntry[] = testGlossary(), error?: string): void {
-	render(GlossaryPage, { data: { session: testSession(), entries, error }, params: {} });
+	render(GlossaryPage, {
+		data: { session: testSession(), symbols: [], symbolsError: undefined, entries, error },
+		params: {}
+	});
 }
 
 function manyEntries(count: number): GlossaryEntry[] {
@@ -44,6 +48,7 @@ describe('glossary page', () => {
 		vi.clearAllMocks();
 		navigation.state = {};
 		localStorage.clear();
+		sessionStorage.clear();
 		await page.viewport(1280, 800);
 	});
 
@@ -290,7 +295,12 @@ describe('glossary page', () => {
 
 	it('keeps the search and the chosen categories when the learner comes back', async () => {
 		const first = await render(GlossaryPage, {
-			data: { session: testSession(), entries: manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES) },
+			data: {
+				session: testSession(),
+				symbols: [],
+				symbolsError: undefined,
+				entries: manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES)
+			},
 			params: {}
 		});
 		await userEvent.fill(page.getByRole('searchbox', { name: m.glossary.search }), 'Tymp');
@@ -298,7 +308,12 @@ describe('glossary page', () => {
 		first.unmount();
 
 		const second = await render(GlossaryPage, {
-			data: { session: testSession(), entries: manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES) },
+			data: {
+				session: testSession(),
+				symbols: [],
+				symbolsError: undefined,
+				entries: manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES)
+			},
 			params: {}
 		});
 		second.component.snapshot.restore(saved);
@@ -307,7 +322,7 @@ describe('glossary page', () => {
 			.element(page.getByRole('searchbox', { name: m.glossary.search }))
 			.toHaveValue('Tymp');
 		await expect.element(entryLink('Term 1')).not.toBeInTheDocument();
-		expect(saved).toEqual({ query: 'Tymp', chosen: [], scroll: 0 });
+		expect(saved).toEqual({ tab: 'terms', query: 'Tymp', symbolQuery: '', chosen: [], scroll: 0 });
 	});
 
 	it('scrolls back to the saved place after the restored filter moved the page', async () => {
@@ -317,7 +332,7 @@ describe('glossary page', () => {
 			})
 		);
 		const first = await render(GlossaryPage, {
-			data: { session: testSession(), entries },
+			data: { session: testSession(), symbols: [], symbolsError: undefined, entries },
 			params: {}
 		});
 		await page.getByRole('button', { name: `${m.glossary.categoryNames.painting} 40` }).click();
@@ -328,7 +343,7 @@ describe('glossary page', () => {
 		first.unmount();
 
 		const second = await render(GlossaryPage, {
-			data: { session: testSession(), entries },
+			data: { session: testSession(), symbols: [], symbolsError: undefined, entries },
 			params: {}
 		});
 		window.scrollTo({ top: place, behavior: 'instant' });
@@ -337,6 +352,105 @@ describe('glossary page', () => {
 
 		await expect.element(entryLink('Term 00')).not.toBeInTheDocument();
 		await expect.poll(() => window.scrollY).toBe(place);
-		expect(saved).toEqual({ query: '', chosen: ['painting'], scroll: place });
+		expect(saved).toEqual({
+			tab: 'terms',
+			query: '',
+			symbolQuery: '',
+			chosen: ['painting'],
+			scroll: place
+		});
+	});
+
+	describe('symbols tab', () => {
+		const symbols: AtlasSymbol[] = [
+			{
+				id: 'skull',
+				name: 'Czaszka',
+				createdAt: '2026-11-01T10:00:00Z',
+				firstMeaning: 'przemijanie, śmierć',
+				meaningCount: 2,
+				pinCount: 3
+			},
+			{
+				id: 'lily',
+				name: 'Lilia',
+				createdAt: '2026-11-10T10:00:00Z',
+				meaningCount: 0,
+				pinCount: 1
+			}
+		];
+
+		function renderSymbols(shown: AtlasSymbol[] = symbols, symbolsError?: string): void {
+			render(GlossaryPage, {
+				data: { session: testSession(), entries: testGlossary(), symbols: shown, symbolsError },
+				params: {}
+			});
+		}
+
+		async function openSymbols(): Promise<void> {
+			await page.getByRole('tab', { name: m.glossary.tabs.symbols }).click();
+		}
+
+		it('shows the atlas as lenses with the first meaning and the counts', async () => {
+			renderSymbols();
+			await openSymbols();
+
+			const skull = page.getByRole('link', { name: /Czaszka/ });
+			await expect.element(skull).toHaveAttribute('href', '/atelier/glossary/symbols/skull');
+			await expect.element(skull).toHaveTextContent('przemijanie, śmierć');
+			await expect
+				.element(skull)
+				.toHaveTextContent(`${m.symbols.details(3)} · ${m.symbols.meanings(2)}`);
+			await expect.element(page.getByText(m.symbols.count(2))).toBeVisible();
+			await expect
+				.element(page.getByRole('link', { name: m.symbols.add }))
+				.toHaveAttribute('href', '/atelier/glossary/symbols/new');
+		});
+
+		it('finds a symbol by name and sorts by the number of details', async () => {
+			renderSymbols();
+			await openSymbols();
+
+			await page
+				.getByRole('combobox', { name: m.symbols.sortLabel })
+				.selectOptions(m.symbols.sorts.recent);
+			const names = (): string[] =>
+				[...document.querySelectorAll('.grid .name')].map((name) => name.textContent ?? '');
+			expect(names()).toEqual(['Lilia', 'Czaszka']);
+			await page
+				.getByRole('combobox', { name: m.symbols.sortLabel })
+				.selectOptions(m.symbols.sorts.details);
+			expect(names()).toEqual(['Czaszka', 'Lilia']);
+
+			await userEvent.fill(page.getByRole('searchbox', { name: m.symbols.search }), 'lil');
+			await expect.element(page.getByRole('link', { name: /Czaszka/ })).not.toBeInTheDocument();
+			await userEvent.fill(page.getByRole('searchbox', { name: m.symbols.search }), 'róża');
+			await expect.element(page.getByText(m.symbols.noResults('róża'))).toBeVisible();
+		});
+
+		it('invites to add the first symbol to an empty atlas', async () => {
+			renderSymbols([]);
+			await openSymbols();
+
+			await expect.element(page.getByText(m.symbols.emptyTitle)).toBeVisible();
+			await expect
+				.element(page.getByRole('link', { name: m.symbols.addFirst }))
+				.toHaveAttribute('href', '/atelier/glossary/symbols/new');
+		});
+
+		it('says when the atlas did not load', async () => {
+			renderSymbols([], 'Offline.');
+			await openSymbols();
+
+			await expect.element(page.getByText(m.symbols.loadErrorTitle)).toBeVisible();
+			await expect.element(page.getByText('Offline.')).toBeVisible();
+		});
+
+		it('opens on the tab the learner left', async () => {
+			sessionStorage.setItem('study-atelier:glossary-tab', 'symbols');
+			renderSymbols();
+
+			await expect.element(page.getByRole('link', { name: /Czaszka/ })).toBeVisible();
+		});
 	});
 });
