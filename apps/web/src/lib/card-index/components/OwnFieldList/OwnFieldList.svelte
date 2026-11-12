@@ -84,9 +84,9 @@
 		gap: var(--spacing-4);
 		padding: var(--spacing-4) var(--spacing-3);
 		color: var(--color-fg);
-		font-size: var(--font-size-xl);
+		font-size: var(--font-size-lg);
 		font-weight: var(--font-weight-bold);
-		line-height: var(--line-height-xl);
+		line-height: var(--line-height-lg);
 		text-decoration: none;
 	}
 
@@ -117,7 +117,7 @@
 	.detail,
 	.count {
 		color: var(--color-fg-muted);
-		font-size: var(--font-size-md);
+		font-size: var(--font-size-sm);
 		font-weight: var(--font-weight-regular);
 	}
 
