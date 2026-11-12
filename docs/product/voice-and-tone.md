@@ -21,6 +21,7 @@ The app talks to the learner the way a museum curator talks to a visitor: it kno
 - A status line while the app works names the activity ("Wyszukiwanie w Wikidata…", "Zapisywanie…"), and a failure says "Nie udało się…"; the app never speaks of itself in the first person ([ADR-0131](../decisions/0131-call-the-trash-archiwum-and-describe-work-in-progress-impersonally.md)).
 - An artwork is named in a message by its record number written as everywhere else in the app, with `#` and four digits ("Zapisano dzieło #0012."), see the [glossary](glossary.md).
 - Buttons name the action ("Wyślij link"), not a generic "OK".
+- Hints, placeholders and other texts in the app never give examples ("np. …", "na przykład …"); they say what to enter or do. The same goes for proposed texts.
 - A hint may talk to the learner like a person ("Masz obraz w schowku? Po prostu naciśnij Ctrl+V.", "Jeśli wolisz, podaj po prostu adres obrazka"), as long as it stays short and says what to do.
 
 ## Curiosities

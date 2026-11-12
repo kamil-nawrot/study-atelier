@@ -2403,6 +2403,8 @@ export const pl = {
 		country: 'Kraj',
 		countryPlaceholder: 'Zacznij wpisywać nazwę kraju, żeby zobaczyć listę opcji',
 		countryHint: 'Wybierz kraj z listy.',
+		authorCountry: 'Kraj autora',
+		authorCountryHint: 'Wpisz kraj lub krainę.',
 		placeType: 'Typ miejsca',
 		placeTypes: {
 			museum: 'Muzeum',

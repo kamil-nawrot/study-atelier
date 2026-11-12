@@ -25,6 +25,15 @@ describe('authorFormFromDetails', () => {
 			sortName: 'Fidiasz'
 		});
 	});
+
+	it('carries the country into the form and back', () => {
+		const form = authorFormFromDetails({ ...emptyAuthorDetails(), country: 'Sumer' });
+
+		expect(form.country).toBe('Sumer');
+		expect(authorDetailsFromForm(form).country).toBe('Sumer');
+		expect(authorDetailsFromForm({ ...form, country: '  Sumer ' }).country).toBe('Sumer');
+		expect(authorDetailsFromForm({ ...form, country: '  ' }).country).toBeNull();
+	});
 });
 
 describe('validateAuthorForm', () => {

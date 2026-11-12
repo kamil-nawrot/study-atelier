@@ -252,6 +252,27 @@ describe('value page', () => {
 		await expect.element(page.getByText('ok. 480–430 p.n.e.')).toBeVisible();
 	});
 
+	it('shows the country of an author next to the years of life, or alone without years', async () => {
+		renderValue(subjectOf('author-phidias'), {
+			summary: '',
+			notes: '',
+			author: { ...emptyAuthorDetails(), birthYear: -480, deathYear: -430, country: 'Grecja' }
+		});
+
+		await expect.element(page.getByText('480–430 p.n.e.')).toBeVisible();
+		await expect.element(page.getByText('Grecja')).toBeVisible();
+	});
+
+	it('shows only the country of an author without years of life', async () => {
+		renderValue(subjectOf('author-phidias'), {
+			summary: '',
+			notes: '',
+			author: { ...emptyAuthorDetails(), country: 'Grecja' }
+		});
+
+		await expect.element(page.getByText('Grecja')).toBeVisible();
+	});
+
 	it('shows no portrait for an author without one', async () => {
 		renderValue(subjectOf('author-phidias'), {
 			summary: '',

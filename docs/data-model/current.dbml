@@ -153,6 +153,7 @@ Table author_details {
   death_year integer
   years_approximate boolean [not null, default: `false`]
   sort_name text
+  country text
   source_wikidata_id text
   source_image_file text
   source_image_licence text
