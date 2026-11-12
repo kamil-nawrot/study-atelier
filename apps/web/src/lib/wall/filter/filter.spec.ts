@@ -11,6 +11,8 @@ import {
 	favouriteCount,
 	fieldsForTypes,
 	seenCount,
+	toggleWantToSee,
+	wantToSeeCount,
 	isEmptyFilter,
 	matchesFilter,
 	onlyFavourites,
@@ -490,6 +492,41 @@ describe('seen in person', () => {
 
 		expect(params.get('seen')).toBe('1');
 		expect(filterFromParams(params)).toEqual(filter);
+	});
+});
+
+describe('want to see', () => {
+	const planned = [
+		testArtwork(1, 'Mona Lisa', { wantToSee: true, eraCode: 'early_modern' }),
+		testArtwork(2, 'The Kiss', { wantToSee: true, seen: true, eraCode: 'modern' }),
+		testArtwork(3, 'Sunflowers', { eraCode: 'modern' })
+	];
+
+	it('shows only the artworks the learner wants to see', () => {
+		expect(
+			applyFilter(planned, filterWith({ wantToSee: true })).map((artwork) => artwork.title)
+		).toEqual(['Mona Lisa', 'The Kiss']);
+		expect(
+			applyFilter(planned, filterWith({ wantToSee: true, seen: true })).map(
+				(artwork) => artwork.title
+			)
+		).toEqual(['The Kiss']);
+	});
+
+	it('counts them with the other filters', () => {
+		expect(wantToSeeCount(planned, emptyFilter())).toBe(2);
+		expect(wantToSeeCount(planned, filterWith({ eras: ['early_modern'] }))).toBe(1);
+	});
+
+	it('toggles, tags and keeps the choice in the address', () => {
+		const on = toggleWantToSee(emptyFilter());
+		const [tag] = filterTags(on);
+
+		expect(isEmptyFilter(on)).toBe(false);
+		expect(tagLabel(tag)).toBe('Chcę zobaczyć');
+		expect(removeTag(on, tag)).toEqual(emptyFilter());
+		expect(filterToParams(on).get('want-to-see')).toBe('1');
+		expect(filterFromParams(filterToParams(on))).toEqual(on);
 	});
 });
 
