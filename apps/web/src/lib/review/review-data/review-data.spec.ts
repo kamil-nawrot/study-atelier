@@ -225,6 +225,28 @@ describe('review data', () => {
 		);
 	});
 
+	it('saves the option picked in a wrong quiz answer', async () => {
+		rpc.mockResolvedValue({ error: null } as never);
+		await recordReview(card, {
+			mode: 'quiz_author',
+			rating: 1,
+			correct: false,
+			wrongAnswer: 'Édouard Manet'
+		});
+		expect(rpc).toHaveBeenCalledWith(
+			'record_review',
+			expect.objectContaining({
+				answer: {
+					mode: 'quiz_author',
+					rating: 1,
+					correct: false,
+					answer_ms: null,
+					wrong_answer: 'Édouard Manet'
+				}
+			})
+		);
+	});
+
 	it('adds a right answer to the day', async () => {
 		rpc.mockResolvedValue({ error: null } as never);
 		await recordRightAnswer(new Date('2026-10-28T23:00:00.000Z'));

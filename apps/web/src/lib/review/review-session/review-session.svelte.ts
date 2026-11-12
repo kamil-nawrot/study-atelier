@@ -1,6 +1,7 @@
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 import { currentDate, retryLater, startOfDay } from '#lib/review/queue/queue.ts';
 import { shuffleQuiz } from '#lib/review/quiz/quiz.ts';
+import type { Quiz } from '#lib/review/types/quiz.ts';
 import { recordReview, recordRightAnswer } from '#lib/review/review-data/review-data.ts';
 import { outcomes, quizRating } from '#lib/review/scheduler/scheduler.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
@@ -157,7 +158,10 @@ export class ReviewSession {
 			this.chosen = choice;
 			return;
 		}
-		if (await this.#save(item, quizRating(correct), undefined, correct)) this.chosen = choice;
+		const wrongAnswer = pickedWrong(item.quiz, choice);
+		if (await this.#save(item, quizRating(correct), undefined, correct, wrongAnswer)) {
+			this.chosen = choice;
+		}
 	}
 
 	async guess(year: number): Promise<void> {
@@ -224,7 +228,8 @@ export class ReviewSession {
 		item: ReviewItem,
 		rating: ReviewRating,
 		scheduled: ReviewCard | undefined,
-		correct?: boolean
+		correct?: boolean,
+		wrongAnswer?: string
 	): Promise<boolean> {
 		const now = this.#now();
 		const card = scheduled ?? outcomes(item.artwork.id, item.card, now)[rating];
@@ -235,7 +240,8 @@ export class ReviewSession {
 				mode: item.mode,
 				rating,
 				correct,
-				answerMs: now.getTime() - this.#shownAt
+				answerMs: now.getTime() - this.#shownAt,
+				...(wrongAnswer === undefined ? {} : { wrongAnswer })
 			});
 			this.saving = false;
 			if (error) {
@@ -267,4 +273,8 @@ export class ReviewSession {
 		this.ordered = undefined;
 		this.#shownAt = this.#now().getTime();
 	}
+}
+
+function pickedWrong(quiz: Quiz, choice: number): string | undefined {
+	return choice === quiz.answer ? undefined : quiz.options[choice]?.label;
 }

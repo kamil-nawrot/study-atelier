@@ -490,6 +490,7 @@ Table review_log {
   due_before "timestamp with time zone"
   guessed_year integer
   year_miss integer
+  wrong_answer text
 
   indexes {
     (artwork_id, reviewed_at) [name: 'review_log_artwork_id_reviewed_at_idx']
