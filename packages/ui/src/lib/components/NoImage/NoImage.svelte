@@ -3,12 +3,13 @@
 
 	type Props = {
 		label?: string;
+		fill?: boolean;
 	};
 
-	let { label = uiMessages().noImage }: Props = $props();
+	let { label = uiMessages().noImage, fill = false }: Props = $props();
 </script>
 
-<div class="window" aria-label={label} role="img">
+<div class="window" class:fill aria-label={label} role="img">
 	<div class="frame">
 		<svg aria-hidden="true" preserveAspectRatio="none" viewBox="0 0 100 100">
 			<line vector-effect="non-scaling-stroke" x1="0" x2="100" y1="0" y2="100" />
@@ -25,6 +26,11 @@
 		aspect-ratio: 4 / 5;
 		background: var(--color-mat-window);
 		color: var(--color-mat-fg-muted);
+	}
+
+	.fill {
+		height: 100%;
+		aspect-ratio: auto;
 	}
 
 	.frame {

@@ -38,6 +38,7 @@
 	email={data.session.user.email ?? ''}
 	fill={flow.phase === 'session'}
 	heading={flow.phase === 'start'}
+	task={flow.phase === 'session'}
 	title={m.review.title}
 >
 	{#snippet bar()}

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/i18n.ts';
@@ -11,6 +11,10 @@ vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({ loadTermDefinit
 describe('GlossaryNotes', () => {
 	beforeEach(() => {
 		vi.mocked(loadTermDefinition).mockReset().mockImplementation(testTermDefinition);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
 	});
 
 	it('marks a word of the glossary and shows its card on a click', async () => {
@@ -91,13 +95,36 @@ describe('GlossaryNotes', () => {
 		expect(loadTermDefinition).toHaveBeenCalledExactlyOnceWith('a-tympanum');
 	});
 
-	it('shows a placeholder while the definition loads', async () => {
+	it('keeps the card hidden while the definition loads, and shows a placeholder when it is slow', async () => {
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
 		vi.mocked(loadTermDefinition).mockReturnValue(new Promise(() => {}));
 		render(GlossaryNotes, { entries: testGlossary(), value: 'The tympana.' });
 
 		await page.getByRole('button', { name: 'tympana' }).click();
+		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+		vi.advanceTimersByTime(500);
 
 		await expect.element(page.getByRole('dialog')).toHaveTextContent(m.glossary.card.loading);
+	});
+
+	it('shows the card once with its definition when it loads quickly', async () => {
+		let answer: () => void = () => {};
+		vi.mocked(loadTermDefinition).mockImplementation(
+			(id) =>
+				new Promise((done) => {
+					answer = () => void testTermDefinition(id).then(done);
+				})
+		);
+		render(GlossaryNotes, { entries: testGlossary(), value: 'The tympana.' });
+
+		await page.getByRole('button', { name: 'tympana' }).click();
+		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+		answer();
+
+		await expect
+			.element(page.getByRole('dialog'))
+			.toHaveTextContent('Tympanum is a test definition.');
+		expect(page.getByText(m.glossary.card.loading).elements()).toHaveLength(0);
 	});
 
 	it('announces the definition once it has loaded', async () => {

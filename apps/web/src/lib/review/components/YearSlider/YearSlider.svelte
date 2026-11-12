@@ -1,4 +1,7 @@
 <script lang="ts">
+	import Minus from '@lucide/svelte/icons/minus';
+	import Plus from '@lucide/svelte/icons/plus';
+	import { IconButton } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
 		pageStep,
@@ -17,6 +20,44 @@
 	let { bounds, value = $bindable(), disabled = false, oncheck }: Props = $props();
 
 	const TICKS = 9;
+	const HOLD_START = 400;
+	const HOLD_FASTER = 0.8;
+	const HOLD_FASTEST = 40;
+
+	let timer: ReturnType<typeof setTimeout> | undefined;
+
+	function step(by: 1 | -1): void {
+		value = stepYear(value, by, bounds);
+	}
+
+	function hold(by: 1 | -1, event: PointerEvent): void {
+		if (event.button !== 0) return;
+		release();
+		step(by);
+		let delay = HOLD_START;
+		const repeat = (): void => {
+			const before = value;
+			step(by);
+			if (value === before) {
+				release();
+				return;
+			}
+			delay = Math.max(HOLD_FASTEST, delay * HOLD_FASTER);
+			timer = setTimeout(repeat, delay);
+		};
+		timer = setTimeout(repeat, delay);
+	}
+
+	function release(): void {
+		clearTimeout(timer);
+		timer = undefined;
+	}
+
+	function press(by: 1 | -1, event: MouseEvent): void {
+		if (event.detail === 0) step(by);
+	}
+
+	$effect(() => release);
 
 	let text = $derived(m.atelier.year(value, false));
 
@@ -38,7 +79,29 @@
 </script>
 
 <div class="slider">
-	<output class="year" for="year-slider">{text}</output>
+	<div class="pick">
+		<IconButton
+			disabled={disabled || value <= bounds[0]}
+			icon={Minus}
+			label={m.review.year.earlier}
+			onclick={(event) => press(-1, event)}
+			onpointercancel={release}
+			onpointerdown={(event) => hold(-1, event)}
+			onpointerleave={release}
+			onpointerup={release}
+		/>
+		<output class="year" for="year-slider">{text}</output>
+		<IconButton
+			disabled={disabled || value >= bounds[1]}
+			icon={Plus}
+			label={m.review.year.later}
+			onclick={(event) => press(1, event)}
+			onpointercancel={release}
+			onpointerdown={(event) => hold(1, event)}
+			onpointerleave={release}
+			onpointerup={release}
+		/>
+	</div>
 	<input
 		id="year-slider"
 		aria-label={m.review.year.slider}
@@ -67,6 +130,13 @@
 	.slider {
 		display: grid;
 		gap: var(--spacing-1);
+	}
+
+	.pick {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr) auto;
+		align-items: center;
+		gap: var(--spacing-2);
 	}
 
 	.year {

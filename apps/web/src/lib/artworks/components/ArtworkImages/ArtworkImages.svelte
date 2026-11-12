@@ -41,6 +41,7 @@
 		entries?: readonly GlossaryTerm[];
 		pinsError?: string;
 		onmatching?: (matching: boolean) => void;
+		compactEmpty?: boolean;
 	};
 
 	let {
@@ -54,7 +55,8 @@
 		pins = $bindable(),
 		entries = [],
 		pinsError,
-		onmatching
+		onmatching,
+		compactEmpty = false
 	}: Props = $props();
 
 	type MatchStatus = 'idle' | 'searching' | 'matched' | 'none' | 'failed';
@@ -292,6 +294,7 @@
 
 <ImageField
 	{alt}
+	{compactEmpty}
 	filling={selected === 0 && matchStatus === 'searching'}
 	hints={pinImageId === undefined
 		? []

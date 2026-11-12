@@ -1,6 +1,6 @@
 # 0111. Fixed-height first screen of an artwork on a phone
 
-- Status: accepted
+- Status: accepted; the stage height on a phone is partly superseded by [0252](0252-overhaul-the-app-on-a-phone.md)
 - Date: 2026-10-22
 
 ## Context and problem statement

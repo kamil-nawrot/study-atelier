@@ -1,10 +1,14 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import { AddButton } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
+
+	let { filter }: { filter?: Snippet } = $props();
 </script>
 
 <div class="actions">
+	{@render filter?.()}
 	<AddButton href={resolve('/(app)/atelier/timeline/events/new')} label={m.timeline.add} />
 </div>
 

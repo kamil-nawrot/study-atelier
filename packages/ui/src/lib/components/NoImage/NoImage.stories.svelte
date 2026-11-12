@@ -17,3 +17,13 @@
 		</div>
 	{/snippet}
 </Story>
+
+<Story name="Fill" args={{ fill: true }}>
+	{#snippet template(args)}
+		<div
+			style="max-width: 280px; height: 120px; padding: var(--spacing-2); background: var(--color-mat-bg)"
+		>
+			<NoImage {...args} />
+		</div>
+	{/snippet}
+</Story>

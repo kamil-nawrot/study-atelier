@@ -81,7 +81,7 @@ describe('ComparisonStage', () => {
 	it('shows a placeholder for an artwork without an image', async () => {
 		await renderStage({ image: null });
 
-		expect(document.querySelector('img.backdrop')).toBeNull();
+		expect(document.querySelector('[aria-hidden="true"] > img[alt=""]')).toBeNull();
 		await expect.element(page.getByText('Girl with a Pearl Earring')).toBeVisible();
 	});
 

@@ -64,19 +64,12 @@ describe('chronicle page', () => {
 		await expect.element(page.getByText(m.chronicle.count(0, 0))).not.toBeInTheDocument();
 	});
 
-	it('leaves no gap under the lead on a phone when there is no count', async () => {
+	it('starts with the content on a phone, without the lead', async () => {
 		await page.viewport(390, 844);
 		renderChronicle([]);
 
-		const lead = page.getByText(m.chronicle.lead);
-		await expect.element(lead).toBeVisible();
-		const header = lead.element().closest('header') as HTMLElement;
-		const style = getComputedStyle(header);
-		const under = parseFloat(style.paddingBottom) + parseFloat(style.borderBottomWidth);
-		expect(header.getBoundingClientRect().bottom - under).toBeCloseTo(
-			lead.element().getBoundingClientRect().bottom,
-			0
-		);
+		await expect.element(page.getByText(m.chronicle.empty)).toBeVisible();
+		await expect.element(page.getByText(m.chronicle.lead)).not.toBeVisible();
 	});
 
 	it('says when the chronicle could not be loaded', async () => {

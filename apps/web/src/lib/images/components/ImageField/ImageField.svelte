@@ -4,7 +4,15 @@
 	import Search from '@lucide/svelte/icons/search';
 	import Trash from '@lucide/svelte/icons/trash';
 	import { onDestroy, tick, type Snippet } from 'svelte';
-	import { ArtworkImage, Button, Dialog, Icon, NoImage, Primer } from '@study-atelier/ui';
+	import {
+		ArtworkImage,
+		Button,
+		Dialog,
+		Icon,
+		ImageCredit,
+		NoImage,
+		Primer
+	} from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ImageSearchDialog from '#lib/images/components/ImageSearchDialog/ImageSearchDialog.svelte';
 	import OwnImageDialog from '#lib/images/components/OwnImageDialog/OwnImageDialog.svelte';
@@ -36,6 +44,7 @@
 		overlay?: Snippet;
 		removeWarning?: string;
 		filling?: boolean;
+		compactEmpty?: boolean;
 	};
 
 	let {
@@ -52,7 +61,8 @@
 		hints = [],
 		overlay,
 		removeWarning,
-		filling = false
+		filling = false,
+		compactEmpty = false
 	}: Props = $props();
 
 	const id = $props.id();
@@ -106,7 +116,7 @@
 >
 	{@render slots?.()}
 	<figure class="picture">
-		<div class="mat">
+		<div class="mat" class:compact={compactEmpty && !preview}>
 			{#if preview}
 				<div class="frame">
 					<ArtworkImage
@@ -118,18 +128,20 @@
 						width={preview.width}
 					/>
 					{@render overlay?.()}
+					{#if credit}
+						<ImageCredit label={m.artwork.creditLabel} text={credit} tone="mat" />
+					{/if}
 				</div>
 			{:else if filling}
 				<div class="primed" aria-busy="true">
 					<Primer />
 				</div>
 			{:else}
-				<NoImage />
+				<div class="empty">
+					<NoImage fill />
+				</div>
 			{/if}
 		</div>
-		{#if credit}
-			<figcaption class="caption">{credit}</figcaption>
-		{/if}
 		{@render source?.()}
 	</figure>
 
@@ -237,6 +249,7 @@
 
 	.frame {
 		position: relative;
+		isolation: isolate;
 	}
 
 	.primed {
@@ -244,6 +257,18 @@
 		aspect-ratio: 4 / 5;
 		background: var(--color-mat-window);
 		color: var(--color-mat-fg);
+	}
+
+	.empty {
+		aspect-ratio: 4 / 5;
+	}
+
+	@media (max-width: 767.98px) {
+		.compact .primed,
+		.compact .empty {
+			height: 140px;
+			aspect-ratio: auto;
+		}
 	}
 
 	.mat :global(img) {

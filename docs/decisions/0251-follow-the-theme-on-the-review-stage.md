@@ -1,6 +1,6 @@
 # 0251. Follow the theme on the review stage
 
-- Status: accepted
+- Status: accepted; the dark stage of the artwork view is superseded by [0255](0255-follow-the-theme-on-the-artwork-stage-and-frame-capped-images.md)
 - Date: 2026-11-11
 
 ## Context and problem statement

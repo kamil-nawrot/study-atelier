@@ -41,6 +41,11 @@ describe('tileSizes', () => {
 			expect(tileShare(tileSizes(), viewport)).toBe(Math.round(100 / columns));
 		}
 	);
+
+	it('gives a tile half the width of a phone in two columns', () => {
+		expect(tileShare(tileSizes(2), 390)).toBe(50);
+		expect(tileShare(tileSizes(2), 1280)).toBe(Math.round(100 / columnCount(true, 1280)));
+	});
 });
 
 describe('distribute', () => {

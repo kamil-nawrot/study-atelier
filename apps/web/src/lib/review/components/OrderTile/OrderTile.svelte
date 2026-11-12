@@ -2,7 +2,7 @@
 	import Check from '@lucide/svelte/icons/check';
 	import GripVertical from '@lucide/svelte/icons/grip-vertical';
 	import X from '@lucide/svelte/icons/x';
-	import { ArtworkImage, Icon } from '@study-atelier/ui';
+	import { ArtworkImage, Icon, StageBackdrop } from '@study-atelier/ui';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { OrderPlace } from '#lib/review/order-guess/order-guess.ts';
@@ -13,9 +13,10 @@
 		artwork: WallArtwork;
 		index: number;
 		place?: OrderPlace;
+		number?: number | null;
 	};
 
-	let { artwork, index, place }: Props = $props();
+	let { artwork, index, place, number = index + 1 }: Props = $props();
 
 	let image = $derived(artwork.image);
 	let alt = $derived(place ? describeArtwork(artwork) : m.review.order.imageAlt);
@@ -32,6 +33,7 @@
 <span class="tile" class:right={place?.right} class:wrong={place && !place.right}>
 	<span class="window">
 		{#if image?.src}
+			<StageBackdrop src={image.src} />
 			<ArtworkImage
 				{alt}
 				height={image.height}
@@ -44,13 +46,13 @@
 		{:else}
 			<ArtworkImage {alt} unavailable />
 		{/if}
-		<span class="badge" aria-hidden="true">
+		<span class="badge" class:empty={number === null && !place} aria-hidden="true">
 			{#if place?.right}
 				<Icon icon={Check} size="sm" />
 			{:else if place}
 				<Icon icon={X} size="sm" />
-			{:else}
-				{index + 1}
+			{:else if number !== null}
+				{number}
 			{/if}
 		</span>
 	</span>
@@ -91,17 +93,27 @@
 	.window {
 		position: relative;
 		display: grid;
-		justify-items: center;
+		place-items: center;
 		width: 100%;
+		height: 100%;
+		overflow: hidden;
 	}
 
-	.window :global(img) {
+	.window :global(.artwork-image) {
+		position: relative;
+	}
+
+	.window :global(.artwork-image img) {
 		display: block;
 		width: auto;
 		max-width: 100%;
 		height: auto;
 		max-height: 18dvh;
 		background: var(--color-mat-window);
+	}
+
+	.badge.empty {
+		display: none;
 	}
 
 	.badge {
@@ -148,7 +160,7 @@
 			cursor: grab;
 		}
 
-		.window :global(img) {
+		.window :global(.artwork-image img) {
 			max-height: calc(100cqh - var(--spacing-24) - var(--spacing-16));
 		}
 

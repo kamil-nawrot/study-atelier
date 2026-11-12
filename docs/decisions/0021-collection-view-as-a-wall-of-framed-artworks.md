@@ -1,6 +1,6 @@
 # 0021. Show the atelier as a wall of framed artworks
 
-- Status: accepted
+- Status: accepted; the phone menu in the top bar is superseded by [0252](0252-overhaul-the-app-on-a-phone.md)
 - Date: 2026-10-11
 
 ## Context and problem statement

@@ -59,6 +59,7 @@ export const pl = {
 		saving: 'Zapisywanie…',
 		delete: 'Usuń',
 		deleting: 'Usuwanie…',
+		moreActions: 'Więcej działań',
 		replace: 'Zastąp',
 		merge: 'Połącz',
 		cancel: 'Anuluj',
@@ -95,6 +96,7 @@ export const pl = {
 		captchaFailed: 'Nie udało się potwierdzić, że to Ty, a nie automat. Spróbuj jeszcze raz.'
 	},
 	artwork: {
+		creditLabel: 'Źródło obrazu',
 		credit: 'Wikimedia Commons, domena publiczna',
 		photoCredit: (photographer: string, license: string): string =>
 			`Wikimedia Commons, zdjęcie: ${photographer}, ${license}`,
@@ -200,6 +202,7 @@ export const pl = {
 	},
 	menu: {
 		label: 'Menu',
+		bar: 'Nawigacja',
 		open: 'Otwórz menu',
 		close: 'Zamknij menu',
 		expand: 'Rozwiń menu',
@@ -222,6 +225,14 @@ export const pl = {
 		lightTheme: 'Jasny motyw',
 		darkTheme: 'Ciemny motyw',
 		signOut: 'Wyloguj się'
+	},
+	addSheet: {
+		title: 'Dodaj',
+		close: 'Zamknij',
+		artwork: 'Dzieło',
+		term: 'Pojęcie',
+		visit: 'Wizyta',
+		event: 'Wydarzenie'
 	},
 	settings: {
 		title: 'Ustawienia',
@@ -250,8 +261,9 @@ export const pl = {
 			careerShownHint:
 				'Po wyłączeniu ani postęp, ani eksponaty nie będą widoczne w atelier, ale nadal będą zliczane, więc w każdej chwili możesz je ponownie włączyć.',
 			nameTooLong: (max: number): string => `Imię może mieć najwyżej ${max} znaków.`,
-			save: 'Zapisz profil',
-			saved: 'Zapisano profil.',
+			nameSaved: 'Zapisano imię.',
+			photoSaved: 'Zapisano zdjęcie.',
+			photoRemoved: 'Usunięto zdjęcie.',
 			errorTitle: 'Nie udało się zapisać profilu',
 			failed: 'Nie udało się zapisać profilu. Spróbuj jeszcze raz.',
 			avatarQuotaFull:
@@ -331,8 +343,6 @@ export const pl = {
 			fetchDefinition: 'Automatycznie uzupełniaj definicję hasła ze Słowniczka z Wikipedii',
 			fetchForms: 'Automatycznie podpowiadaj odmianę wyrazu z Wikisłownika dla hasła ze Słowniczka',
 			fetchEvent: 'Automatycznie uzupełniaj opis i daty wydarzenia z Wikipedii',
-			save: 'Zapisz ustawienia',
-			saved: 'Zapisano ustawienia.',
 			errorTitle: 'Nie udało się zapisać ustawień'
 		},
 		data: {
@@ -483,6 +493,9 @@ export const pl = {
 			buttonWithCount: (count: number): string => `Filtry (${count})`,
 			viewButton: 'Widok',
 			viewTitle: 'Widok',
+			layout: 'Układ ściany na telefonie',
+			layoutOne: 'Jedna kolumna',
+			layoutTwo: 'Dwie kolumny',
 			closePanel: 'Zwiń filtry',
 			activeLabel: 'Aktywne filtry',
 			clear: 'Wyczyść filtry',
@@ -791,6 +804,7 @@ export const pl = {
 			noteTag: 'Pytanie dodatkowe z notatek',
 			noteQuestion: 'Jakiego pojęcia brakuje w Twojej notatce?',
 			noteSource: 'Z notatki do dzieła',
+			showArtwork: 'Pokaż dzieło',
 			definitionQuestion: 'Jakie pojęcie opisuje ta definicja?',
 			maskedTerm: 'ukryte pojęcie',
 			definitionRetry: 'Wrócimy do niej za chwilę.',
@@ -827,6 +841,8 @@ export const pl = {
 				contemporary: 'współczesności'
 			},
 			slider: 'Rok powstania dzieła',
+			earlier: 'Rok wcześniej',
+			later: 'Rok później',
 			check: 'Sprawdź rok',
 			results: {
 				3: 'Świetne wyczucie.',
@@ -849,6 +865,8 @@ export const pl = {
 			tag: 'Ułóż chronologicznie',
 			question: 'W jakiej kolejności powstały te dzieła?',
 			hint: 'Przeciągaj obrazy tak, aby ułożyć je w kolejności od najstarszego do najnowszego',
+			hintTap:
+				'Zaznacz dzieła po kolei, od najstarszego do najnowszego. Ponowne kliknięcie wycofa zaznaczenie.',
 			keyboardHint:
 				'Z klawiatury: wybierz obraz Tabem, chwyć Spacją, przesuń strzałkami i puść Spacją.',
 			oldest: 'Najstarsze',
@@ -2401,6 +2419,9 @@ export const pl = {
 			`${count} ${plural(count, { one: 'wystawa', few: 'wystawy', many: 'wystaw' })}`,
 		add: 'Dodaj wystawę',
 		adding: 'Dodawanie…',
+		search: 'Szukaj wystawy',
+		noResults: (query: string): string =>
+			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu.`,
 		newTitle: 'Nowa wystawa',
 		nameLabel: 'Tytuł wystawy',
 		nameRequired: 'Wpisz tytuł wystawy.',

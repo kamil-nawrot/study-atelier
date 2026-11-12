@@ -1,7 +1,6 @@
 <script lang="ts">
-	import Menu from '@lucide/svelte/icons/menu';
 	import type { Snippet } from 'svelte';
-	import { Icon, ProgressLine, Toast } from '@study-atelier/ui';
+	import { ProgressLine, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { navigating, page, updated } from '$app/state';
@@ -13,9 +12,11 @@
 	import AtelierDrawer from '#lib/shell/AtelierDrawer/AtelierDrawer.svelte';
 	import AnnouncementBanner from '#lib/shell/AnnouncementBanner/AnnouncementBanner.svelte';
 	import AtelierRail from '#lib/shell/AtelierRail/AtelierRail.svelte';
-	import NewMark from '#lib/career/components/NewMark/NewMark.svelte';
+	import AddSheet from '#lib/shell/AddSheet/AddSheet.svelte';
+	import BottomBar from '#lib/shell/BottomBar/BottomBar.svelte';
 	import { career } from '#lib/career/career-state/career-state.svelte.ts';
 	import NewVersionNotice from '#lib/shell/NewVersionNotice/NewVersionNotice.svelte';
+	import { watchFieldFocus } from '#lib/shell/field-into-view/field-into-view.ts';
 
 	type Props = {
 		title: string;
@@ -28,6 +29,7 @@
 		children: Snippet;
 		confirmLeave?: () => Promise<boolean>;
 		fill?: boolean;
+		task?: boolean;
 		barHeight?: number;
 	};
 
@@ -42,6 +44,7 @@
 		children,
 		confirmLeave,
 		fill = false,
+		task = false,
 		barHeight = $bindable(0)
 	}: Props = $props();
 
@@ -50,7 +53,10 @@
 	});
 
 	let signingOut = $state(false);
+
+	$effect(() => watchFieldFocus());
 	let drawer: ReturnType<typeof AtelierDrawer>;
+	let addSheet: ReturnType<typeof AddSheet>;
 	let feedbackOpen = $state(false);
 	let feedbackUsed = $state(false);
 	let toast = $state<Toast>();
@@ -79,26 +85,11 @@
 	<title>{m.app.pageTitle(title)}</title>
 </svelte:head>
 
-<div style:--bar-height="{barHeight}px" class="atelier" class:fill>
+<div style:--bar-height="{barHeight}px" class="atelier" class:fill class:task>
 	<AtelierRail {email} onfeedback={openFeedback} onsignout={submitSignOut} {signingOut} />
 
 	<div class="main">
 		<header class="bar" bind:offsetHeight={barHeight}>
-			<button
-				class="burger"
-				aria-haspopup="dialog"
-				aria-label={m.menu.open}
-				onclick={() => drawer.open()}
-				type="button"
-			>
-				<Icon icon={Menu} />
-				{#if page.data.careerShown !== false}
-					<NewMark
-						flash={career.tierFlash + career.rankFlash}
-						shown={career.hasNewTiers || career.hasNewRank}
-					/>
-				{/if}
-			</button>
 			{@render back?.()}
 			{#if heading}
 				<h1 class="heading">{title}</h1>
@@ -117,6 +108,11 @@
 			{@render panel?.()}
 		</div>
 	</div>
+
+	{#if !task}
+		<BottomBar onadd={() => addSheet.open()} onmenu={() => drawer.open()} />
+	{/if}
+	<AddSheet bind:this={addSheet} />
 
 	<AtelierDrawer
 		bind:this={drawer}
@@ -140,7 +136,9 @@
 		--page-inline: var(--spacing-4);
 		--filter-panel-width: 380px;
 		--docked-panel-width: 48px;
-		--artwork-max-height: calc(100dvh - var(--bar-height));
+		--bottom-bar-height: 56px;
+		--bottom-inset: calc(var(--bottom-bar-height) + env(safe-area-inset-bottom));
+		--artwork-max-height: calc(100svh - var(--bar-height) - var(--bottom-inset));
 		display: flex;
 		min-height: 100dvh;
 	}
@@ -158,13 +156,14 @@
 	.bar {
 		position: sticky;
 		top: 0;
-		z-index: 2;
+		z-index: 4;
 		display: flex;
 		box-sizing: content-box;
 		align-items: stretch;
 		gap: var(--spacing-2);
 		height: var(--size-control);
 		padding: var(--spacing-3) var(--page-inline);
+		padding-top: calc(var(--spacing-3) + env(safe-area-inset-top));
 		border-bottom: var(--border-width-hairline) solid var(--color-tag);
 		background: var(--color-bg);
 	}
@@ -177,18 +176,36 @@
 		text-overflow: ellipsis;
 	}
 
-	.burger {
-		position: relative;
-		display: flex;
-		flex: none;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--spacing-3);
-		padding: var(--spacing-2);
-		border: none;
-		background: transparent;
-		color: var(--color-fg);
-		cursor: pointer;
+	@media (max-width: 767.98px) {
+		.bar :global(:is(.button, .icon-button)),
+		.bar :global(:is(.button, .icon-button):is(:disabled, [aria-disabled='true'])) {
+			position: relative;
+			border-color: transparent;
+			background: transparent;
+		}
+
+		.bar :global(.button.primary) {
+			color: var(--color-fg);
+		}
+
+		.bar :global([data-on='true'])::after {
+			position: absolute;
+			top: var(--spacing-2);
+			right: var(--spacing-2);
+			width: var(--spacing-2);
+			height: var(--spacing-2);
+			background: var(--color-highlight);
+			content: '';
+		}
+	}
+
+	.atelier.task,
+	.atelier:has(:global([data-action-bar])) {
+		--bottom-inset: 0px;
+	}
+
+	.atelier:has(:global([data-action-bar])) :global(.bottom-bar) {
+		display: none;
 	}
 
 	.body {
@@ -201,12 +218,12 @@
 		flex: 1;
 		min-width: 0;
 		gap: var(--spacing-6);
-		padding: var(--spacing-6) var(--wall-inline) var(--spacing-12);
+		padding: var(--spacing-6) var(--wall-inline) calc(var(--spacing-12) + var(--bottom-inset));
 	}
 
 	.fill .content {
 		gap: 0;
-		padding: 0;
+		padding: 0 0 var(--bottom-inset);
 	}
 
 	.content:has(:global([data-action-bar])) {
@@ -232,16 +249,14 @@
 	@media (min-width: 768px) {
 		.atelier {
 			--page-inline: var(--spacing-6);
+			--bottom-inset: 0px;
 			--artwork-max-height: 100000px;
-		}
-
-		.burger {
-			display: none;
 		}
 
 		.bar {
 			gap: var(--spacing-3);
 			padding: var(--spacing-4) var(--page-inline);
+			padding-top: calc(var(--spacing-4) + env(safe-area-inset-top));
 		}
 
 		.content {

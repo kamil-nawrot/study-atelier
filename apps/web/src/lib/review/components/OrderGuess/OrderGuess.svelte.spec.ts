@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
@@ -37,6 +37,10 @@ function tile(place: number): ReturnType<typeof page.getByRole> {
 }
 
 describe('OrderGuess', () => {
+	beforeEach(async () => {
+		await page.viewport(1280, 800);
+	});
+
 	it('orders the images from the keyboard, says each step and checks the new order', async () => {
 		const { oncheck } = renderGuess();
 
@@ -106,5 +110,58 @@ describe('OrderGuess', () => {
 	it('says when no artwork is in its place', async () => {
 		renderGuess([starry, arnolfini, venus, nefertiti]);
 		await expect.element(page.getByText(m.review.order.none)).toBeInTheDocument();
+	});
+});
+
+describe('OrderGuess on a phone', () => {
+	beforeEach(async () => {
+		await page.viewport(390, 844);
+	});
+
+	it('checks the order once every artwork is tapped, and a second tap takes one back', async () => {
+		const { oncheck } = renderGuess();
+		const check = page.getByRole('button', { name: m.review.order.check });
+
+		await expect.element(page.getByText(m.review.order.hintTap)).toBeInTheDocument();
+		await expect.element(page.getByText(m.review.order.keyboardHint)).not.toBeInTheDocument();
+		await expect.element(check).toBeDisabled();
+
+		const image = (n: number): ReturnType<typeof page.getByRole> =>
+			page.getByRole('button', { name: m.review.quiz.imageAlt(n) });
+		await image(2).click();
+		await expect.element(tile(1)).toHaveAttribute('aria-pressed', 'true');
+		await image(1).click();
+		await expect.element(tile(2)).toBeInTheDocument();
+		await tile(2).click();
+		await expect.element(tile(2)).not.toBeInTheDocument();
+
+		await image(4).click();
+		await image(1).click();
+		await image(3).click();
+		await expect.element(check).toBeEnabled();
+		await check.click();
+
+		expect(oncheck).toHaveBeenCalledWith([venus, nefertiti, arnolfini, starry]);
+	});
+
+	it('shows the answer on the tapped tiles', async () => {
+		renderGuess([venus, nefertiti, starry, arnolfini]);
+
+		await expect.element(page.getByText(m.review.order.shouldBe(4))).toBeInTheDocument();
+		await expect.element(page.getByRole('button', { name: /Venus of Willendorf/ })).toBeDisabled();
+	});
+
+	it('drops the tapped order when the screen turns wide, so the board checks what it shows', async () => {
+		const { oncheck } = renderGuess();
+		await page.getByRole('button', { name: m.review.quiz.imageAlt(2) }).click();
+		await page.getByRole('button', { name: m.review.quiz.imageAlt(4) }).click();
+		await page.getByRole('button', { name: m.review.quiz.imageAlt(1) }).click();
+		await page.getByRole('button', { name: m.review.quiz.imageAlt(3) }).click();
+
+		await page.viewport(1280, 800);
+		await page.viewport(390, 844);
+
+		await expect.element(page.getByRole('button', { name: m.review.order.check })).toBeDisabled();
+		expect(oncheck).not.toHaveBeenCalled();
 	});
 });

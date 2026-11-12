@@ -2,6 +2,7 @@
 	import type { LucideIcon } from '@lucide/svelte';
 	import { tick, type Snippet } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
+	import { screenBand } from '../../drop-placement/drop-placement.ts';
 	import Button from '../Button/Button.svelte';
 	import StageButton from '../StageButton/StageButton.svelte';
 	import Tooltip from '../Tooltip/Tooltip.svelte';
@@ -49,7 +50,7 @@
 
 	async function place(): Promise<void> {
 		flipped = false;
-		if (placement !== 'auto' || !open) return;
+		if (placement === 'top' || !open) return;
 		await tick();
 		flipped = open && panel !== undefined && lacksRoomBelow(panel);
 	}
@@ -57,8 +58,10 @@
 	function lacksRoomBelow(element: HTMLElement): boolean {
 		const below = element.getBoundingClientRect();
 		const anchor = (element.offsetParent ?? root)?.getBoundingClientRect();
-		if (!anchor || below.bottom <= window.innerHeight) return false;
-		return anchor.top - (below.top - anchor.bottom) - below.height >= 0;
+		if (!anchor) return false;
+		const band = screenBand(element.offsetParent ?? element, anchor);
+		if (below.bottom <= band.bottom) return false;
+		return anchor.top - (below.top - anchor.bottom) - below.height >= band.top;
 	}
 
 	export function close(): void {

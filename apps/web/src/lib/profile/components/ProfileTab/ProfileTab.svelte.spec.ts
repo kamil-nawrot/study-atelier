@@ -43,8 +43,8 @@ function nameField(): ReturnType<typeof page.getByLabelText> {
 	return page.getByLabelText(m.settings.profile.name);
 }
 
-function save(): ReturnType<typeof page.getByRole> {
-	return page.getByRole('button', { name: m.settings.profile.save });
+function saveName(): ReturnType<typeof page.getByRole> {
+	return page.getByRole('button', { name: m.common.save });
 }
 
 async function choosePhoto(): Promise<void> {
@@ -68,15 +68,15 @@ describe('ProfileTab', () => {
 		expect(page.getByText(TEST_EMAIL).elements()).toHaveLength(0);
 	});
 
-	it('shows the photo actions as text buttons', async () => {
+	it('has no bar of actions and offers to save the name only once it changes', async () => {
 		renderTab(named);
 
-		await expect
-			.element(page.getByRole('button', { name: m.settings.profile.changePhoto }))
-			.toHaveTextContent(m.settings.profile.changePhoto);
-		await expect
-			.element(page.getByRole('button', { name: m.settings.profile.removePhoto }))
-			.toHaveTextContent(m.settings.profile.removePhoto);
+		await expect.element(nameField()).toBeVisible();
+		expect(page.getByRole('button', { name: m.common.cancel }).elements()).toHaveLength(0);
+		expect(saveName().elements()).toHaveLength(0);
+		await nameField().fill('Ania');
+
+		await expect.element(saveName()).toBeVisible();
 	});
 
 	it('shows the saved name and offers to add a photo when there is none', async () => {
@@ -102,80 +102,137 @@ describe('ProfileTab', () => {
 			.toBeVisible();
 	});
 
-	it('saves the form of the ranks the learner chose', async () => {
+	it('saves the form of the ranks as soon as it is chosen, without a message', async () => {
 		vi.mocked(saveProfile).mockResolvedValue({
 			profile: { ...empty, rankForm: 'feminine', careerShown: true }
 		});
 		renderTab();
 
 		await page.getByLabelText(m.settings.profile.rankForm).selectOptions('feminine');
-		await save().click();
 
-		expect(saveProfile).toHaveBeenCalledWith(
-			{ name: '', avatar: { kind: 'keep' }, rankForm: 'feminine', careerShown: true },
-			expect.anything()
+		await vi.waitFor(() =>
+			expect(saveProfile).toHaveBeenCalledWith(
+				{ name: '', avatar: { kind: 'keep' }, rankForm: 'feminine', careerShown: true },
+				expect.anything()
+			)
+		);
+		await vi.waitFor(() =>
+			expect(onsaved).toHaveBeenCalledWith({ ...empty, rankForm: 'feminine' }, undefined)
 		);
 	});
 
-	it('disables the form of the ranks while the rank and the display case are hidden', async () => {
+	it('saves the switch of the rank and the display case at once and disables the form of the ranks', async () => {
 		vi.mocked(saveProfile).mockResolvedValue({ profile: { ...empty, careerShown: false } });
 		renderTab();
 
 		const rankForm = page.getByLabelText(m.settings.profile.rankForm);
 		await expect.element(rankForm).toBeEnabled();
 		await page.getByText(m.settings.profile.careerShown).click();
-		await expect.element(rankForm).toBeDisabled();
-		await expect.element(page.getByText(m.settings.profile.careerShownHint)).toBeVisible();
-		await save().click();
 
-		expect(saveProfile).toHaveBeenCalledWith(
-			{ name: '', avatar: { kind: 'keep' }, rankForm: 'masculine', careerShown: false },
+		await expect.element(rankForm).toBeDisabled();
+		await vi.waitFor(() =>
+			expect(saveProfile).toHaveBeenCalledWith(
+				{ name: '', avatar: { kind: 'keep' }, rankForm: 'masculine', careerShown: false },
+				expect.anything()
+			)
+		);
+	});
+
+	it('sends the display case switched back while its first save is still running', async () => {
+		let finish: () => void = () => {};
+		vi.mocked(saveProfile)
+			.mockImplementationOnce(
+				() =>
+					new Promise((done) => {
+						finish = () => done({ profile: { ...empty, careerShown: false } });
+					})
+			)
+			.mockResolvedValueOnce({ profile: { ...empty, careerShown: true } });
+		renderTab();
+
+		await page.getByText(m.settings.profile.careerShown).click();
+		await page.getByText(m.settings.profile.careerShown).click();
+		finish();
+
+		await vi.waitFor(() => expect(saveProfile).toHaveBeenCalledTimes(2));
+		expect(saveProfile).toHaveBeenLastCalledWith(
+			expect.objectContaining({ careerShown: true }),
 			expect.anything()
 		);
 	});
 
-	it('saves the name and tells the page', async () => {
+	it('keeps a name being typed out of the save of a switch', async () => {
+		vi.mocked(saveProfile).mockResolvedValue({ profile: { ...named, careerShown: false } });
+		renderTab(named);
+
+		await nameField().fill('Ania');
+		await page.getByText(m.settings.profile.careerShown).click();
+
+		await vi.waitFor(() =>
+			expect(saveProfile).toHaveBeenCalledWith(
+				{ name: 'Anna', avatar: { kind: 'keep' }, rankForm: 'masculine', careerShown: false },
+				expect.anything()
+			)
+		);
+		await expect.element(nameField()).toHaveValue('Ania');
+	});
+
+	it('saves the name from its button and tells the page', async () => {
 		vi.mocked(saveProfile).mockResolvedValue({ profile: { ...empty, displayName: 'Ania' } });
 		renderTab();
 
 		await nameField().fill('Ania');
-		await save().click();
+		await saveName().click();
 
+		await vi.waitFor(() =>
+			expect(onsaved).toHaveBeenCalledWith(
+				{ ...empty, displayName: 'Ania' },
+				m.settings.profile.nameSaved
+			)
+		);
 		expect(saveProfile).toHaveBeenCalledWith(
 			{ name: 'Ania', avatar: { kind: 'keep' }, rankForm: 'masculine', careerShown: true },
 			expect.objectContaining({ displayName: null })
 		);
-		expect(onsaved).toHaveBeenCalledWith(
-			{ ...empty, displayName: 'Ania' },
-			m.settings.profile.saved
-		);
+		await expect.element(saveName()).not.toBeInTheDocument();
+	});
+
+	it('saves the name with Enter', async () => {
+		vi.mocked(saveProfile).mockResolvedValue({ profile: { ...empty, displayName: 'Ania' } });
+		renderTab();
+
+		await nameField().fill('Ania');
+		await userEvent.type(nameField(), '{Enter}');
+
+		await vi.waitFor(() => expect(saveProfile).toHaveBeenCalledTimes(1));
 	});
 
 	it('refuses a name that is too long without calling the server', async () => {
 		renderTab();
 
 		await nameField().fill('x'.repeat(61));
-		await save().click();
+		await saveName().click();
 
 		await expect.element(page.getByText(m.settings.profile.nameTooLong(60))).toBeVisible();
 		expect(saveProfile).not.toHaveBeenCalled();
 	});
 
-	it('saves a chosen photo cropped by the browser', async () => {
+	it('saves a chosen photo cropped by the browser at once', async () => {
 		const image = new Blob(['jpeg'], { type: 'image/jpeg' });
 		vi.mocked(cropAvatar).mockResolvedValue({ image });
 		vi.mocked(saveProfile).mockResolvedValue({ profile: named });
 		renderTab();
 
 		await choosePhoto();
-		await expect
-			.element(page.getByRole('button', { name: m.settings.profile.changePhoto }))
-			.toBeVisible();
-		await save().click();
 
-		expect(saveProfile).toHaveBeenCalledWith(
-			{ name: '', avatar: { kind: 'replace', image }, rankForm: 'masculine', careerShown: true },
-			expect.anything()
+		await vi.waitFor(() =>
+			expect(saveProfile).toHaveBeenCalledWith(
+				{ name: '', avatar: { kind: 'replace', image }, rankForm: 'masculine', careerShown: true },
+				expect.anything()
+			)
+		);
+		await vi.waitFor(() =>
+			expect(onsaved).toHaveBeenCalledWith(named, m.settings.profile.photoSaved)
 		);
 	});
 
@@ -189,53 +246,59 @@ describe('ProfileTab', () => {
 		await expect
 			.element(page.getByRole('button', { name: m.settings.profile.addPhoto }))
 			.toBeVisible();
+		expect(saveProfile).not.toHaveBeenCalled();
 	});
 
-	it('removes the saved photo only when the profile is saved', async () => {
+	it('removes the saved photo at once', async () => {
 		vi.mocked(saveProfile).mockResolvedValue({ profile: { ...named, avatarPath: null } });
 		renderTab(named);
 
 		await page.getByRole('button', { name: m.settings.profile.removePhoto }).click();
-		expect(saveProfile).not.toHaveBeenCalled();
+
+		await vi.waitFor(() =>
+			expect(saveProfile).toHaveBeenCalledWith(
+				{ name: 'Anna', avatar: { kind: 'remove' }, rankForm: 'masculine', careerShown: true },
+				expect.anything()
+			)
+		);
+		await vi.waitFor(() =>
+			expect(onsaved).toHaveBeenCalledWith(
+				{ ...named, avatarPath: null },
+				m.settings.profile.photoRemoved
+			)
+		);
 		await expect
 			.element(page.getByRole('button', { name: m.settings.profile.addPhoto }))
 			.toBeVisible();
-		await save().click();
-
-		expect(saveProfile).toHaveBeenCalledWith(
-			{ name: 'Anna', avatar: { kind: 'remove' }, rankForm: 'masculine', careerShown: true },
-			expect.anything()
-		);
 	});
 
-	it('brings back the saved values on cancel', async () => {
-		renderTab(named);
-
-		await nameField().fill('Changed');
-		await page.getByRole('button', { name: m.settings.profile.removePhoto }).click();
-		await page.getByRole('button', { name: m.common.cancel }).click();
-
-		await expect.element(nameField()).toHaveValue('Anna');
-		await expect
-			.element(page.getByRole('button', { name: m.settings.profile.changePhoto }))
-			.toBeVisible();
-	});
-
-	it('shows a failed save in an alert and keeps what was typed', async () => {
+	it('shows a failed save in an alert and turns the switch back', async () => {
 		vi.mocked(saveProfile).mockResolvedValue({ error: m.settings.profile.failed });
 		renderTab();
 
-		await nameField().fill('Ania');
-		await save().click();
+		await page.getByText(m.settings.profile.careerShown).click();
 
 		await expect
 			.element(page.getByRole('alert').filter({ hasText: m.settings.profile.errorTitle }))
 			.toHaveTextContent(m.settings.profile.failed);
-		await expect.element(nameField()).toHaveValue('Ania');
+		await expect
+			.element(page.getByRole('switch', { name: m.settings.profile.careerShown }))
+			.toBeChecked();
 		expect(onsaved).not.toHaveBeenCalled();
 	});
 
-	it('asks before discarding changes and leaves without asking when nothing changed', async () => {
+	it('keeps a typed name after a failed save', async () => {
+		vi.mocked(saveProfile).mockResolvedValue({ error: m.settings.profile.failed });
+		renderTab();
+
+		await nameField().fill('Ania');
+		await saveName().click();
+
+		await expect.element(page.getByRole('alert')).toHaveTextContent(m.settings.profile.failed);
+		await expect.element(nameField()).toHaveValue('Ania');
+	});
+
+	it('asks before leaving an unsaved name and leaves without asking when nothing changed', async () => {
 		renderTab();
 		const guard = vi.mocked(beforeNavigate).mock.calls[0][0];
 		const navigation = {

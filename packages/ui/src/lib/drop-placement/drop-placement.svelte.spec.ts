@@ -74,6 +74,25 @@ describe('placeDrop', () => {
 		expect(list.getBoundingClientRect().bottom).toBe(400);
 	});
 
+	it('opens a list upwards above the bottom bar of the app', async () => {
+		await page.viewport(800, 600);
+		const list = field({ top: 400, list: 200 });
+		const nav = document.createElement('nav');
+		nav.setAttribute('data-bottom-bar', '');
+		Object.assign(nav.style, {
+			position: 'fixed',
+			bottom: '0',
+			left: '0',
+			right: '0',
+			height: '80px'
+		});
+		stage.append(nav);
+
+		placeDrop(list);
+
+		expect(list.hasAttribute(DROP_UP)).toBe(true);
+	});
+
 	it('opens a list upwards when its field already reaches under the action bar', async () => {
 		await page.viewport(800, 600);
 		const list = field({ top: 500, list: 200, bar: 80 });

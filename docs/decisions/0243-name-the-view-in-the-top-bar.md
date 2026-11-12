@@ -1,6 +1,6 @@
 # 0243. Name the view in the top bar
 
-- Status: accepted
+- Status: accepted; the lead on a phone is superseded by [0252](0252-overhaul-the-app-on-a-phone.md)
 - Date: 2026-11-10
 
 ## Context and problem statement

@@ -216,25 +216,7 @@
 
 <Form error={formState.error} errorTitle={m.artworkForm.errorTitle} onsubmit={submit}>
 	<div class="columns" onfocusin={wantSuggestions}>
-		<ArtworkImages
-			alt={imageAlt}
-			autoMatch={!artwork}
-			entries={suggestions.glossary}
-			onmatching={(matching) => (imageMatching = matching)}
-			{pinsError}
-			query={{
-				kind: 'artwork',
-				title: form.title,
-				authors: form.authorUnknown ? [] : form.values.author
-			}}
-			searchReady={imageSearchReady}
-			texts={imageTexts}
-			bind:image={form.image}
-			bind:images={form.images}
-			bind:pins={pinList}
-		/>
-
-		<div class="fields">
+		<div class="fields head">
 			<TextField
 				id={titleId}
 				autocomplete="off"
@@ -259,7 +241,28 @@
 					bind:checked={form.authorUnknown}
 				/>
 			</div>
+		</div>
 
+		<ArtworkImages
+			alt={imageAlt}
+			autoMatch={!artwork}
+			compactEmpty
+			entries={suggestions.glossary}
+			onmatching={(matching) => (imageMatching = matching)}
+			{pinsError}
+			query={{
+				kind: 'artwork',
+				title: form.title,
+				authors: form.authorUnknown ? [] : form.values.author
+			}}
+			searchReady={imageSearchReady}
+			texts={imageTexts}
+			bind:image={form.image}
+			bind:images={form.images}
+			bind:pins={pinList}
+		/>
+
+		<div class="fields">
 			<YearGroup
 				columns={form.spanMode}
 				labelFor={form.spanMode ? undefined : yearToId}
@@ -294,7 +297,7 @@
 				clearable
 				columns={4}
 				label={m.artworkForm.type}
-				narrowColumns={2}
+				narrowColumns={4}
 				onchange={chooseType}
 				options={typeTiles}
 				value={form.typeCode || null}
@@ -382,8 +385,24 @@
 
 	@media (min-width: 768px) {
 		.columns {
+			grid-template-areas:
+				'images head'
+				'images fields';
+			grid-template-rows: auto 1fr;
 			grid-template-columns: minmax(220px, 1fr) minmax(0, 1.25fr);
-			gap: var(--spacing-12);
+			gap: var(--spacing-6) var(--spacing-12);
+		}
+
+		.columns > :global(:not(.fields)) {
+			grid-area: images;
+		}
+
+		.head {
+			grid-area: head;
+		}
+
+		.fields:not(.head) {
+			grid-area: fields;
 		}
 
 		.fields {

@@ -16,7 +16,7 @@
 		lanesForEra
 	} from '#lib/timeline/event-lanes/event-lanes.ts';
 	import { NARROW_WIDTH, orientationFor, verticalLength } from '#lib/timeline/stage/stage.ts';
-	import type { ArtworkLane } from '#lib/timeline/types/artwork-lane.ts';
+	import { AxisRoom } from '#lib/timeline/axis-room/axis-room.svelte.ts';
 	import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 	import type { TimelineFilter } from '#lib/timeline/types/timeline-filter.ts';
 	import type { TimelinePlace } from '#lib/timeline/types/timeline-place.ts';
@@ -35,10 +35,10 @@
 	import FilterTags from '#lib/wall/components/FilterTags/FilterTags.svelte';
 	import {
 		applyTimelineFilter,
+		artworkLanes as lanesForArtworks,
 		artworksIn,
 		emptyTimelineFilter,
 		forOtherEra,
-		inLane,
 		isEmptyTimelineFilter,
 		laneColour,
 		lanesOf,
@@ -101,6 +101,7 @@
 	let deleting = $state<TimelineEvent>();
 	let anchor = $state<HTMLElement>();
 	let stageBox = $state<HTMLElement>();
+	const axisRoom = new AxisRoom();
 	const wide = new MediaQuery('min-width: 768px');
 
 	let allEras = $derived(eras(undefined, entriesSpan([...artworks, ...events])));
@@ -109,22 +110,18 @@
 	let collection = $derived(applyTimelineFilter(artworks, filter));
 	let filtering = $derived(!isEmptyTimelineFilter(filter));
 	let tags = $derived(timelineTags(filter));
-	let artworkLanes = $derived<ArtworkLane[]>(
-		filter.lanes.map((lane, laneAt) => ({
-			key: `${lane.field}:${lane.value}`,
-			name: lane.value,
-			colour: laneColour(laneAt),
-			artworks: collection.filter((artwork) => inLane(artwork, lane))
-		}))
-	);
+	let artworkLanes = $derived(lanesForArtworks(filter, collection));
 	let orientation = $derived(orientationFor(width));
 	let eraEvents = $derived(eventsIn(events, era));
+	let laidLabelWidth = $derived(orientation === 'vertical' ? () => 0 : labelWidth);
 	let lanes = $derived(
 		lanesForEra(
 			eraEvents,
 			era,
-			orientation === 'vertical' ? verticalLength(viewportHeight) : width,
-			labelWidth,
+			orientation === 'vertical'
+				? verticalLength(viewportHeight, wide.current ? 0 : axisRoom.room)
+				: width,
+			laidLabelWidth,
 			width < NARROW_WIDTH ? EVENT_LANES_NARROW : EVENT_LANES
 		)
 	);
@@ -224,7 +221,7 @@
 <div class="timeline">
 	<EraStrip current={code} eras={allEras} onselect={openEra} />
 
-	<p class="era-name" aria-live="polite">{eraTitle(code)}</p>
+	<p class="era-name" class:visually-hidden={!wide.current} aria-live="polite">{eraTitle(code)}</p>
 
 	<TimelineControls
 		{code}
@@ -251,9 +248,10 @@
 		<p class="caption">{m.timeline.noEvents}</p>
 	{/if}
 
-	<div bind:this={stageBox} bind:clientWidth={width}>
+	<div bind:this={stageBox} {@attach axisRoom.attach()} bind:clientWidth={width}>
 		<TimelineStage
 			artworkLanes={orientation === 'horizontal' ? artworkLanes.length : 0}
+			axisRoom={wide.current ? 0 : axisRoom.room}
 			{era}
 			eventLanes={showEvents && (orientation === 'horizontal' || eraEvents.length > 0) ? lanes : 0}
 			onbackground={() => (selected = null)}
@@ -262,6 +260,7 @@
 			onsettle={() => camera.settle()}
 			onstep={(direction, anchor) => camera.moveStep(direction, anchor)}
 			{orientation}
+			readingNames={orientation === 'vertical' ? now.map((event) => event.name) : []}
 			{tint}
 			view={camera.view}
 			{viewportHeight}
@@ -272,7 +271,7 @@
 						{era}
 						events={eraEvents}
 						{geometry}
-						{labelWidth}
+						labelWidth={laidLabelWidth}
 						{lanes}
 						layoutSpan={camera.target.span}
 						{nameCut}

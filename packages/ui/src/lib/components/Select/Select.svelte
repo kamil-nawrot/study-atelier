@@ -16,6 +16,7 @@
 		icon?: LucideIcon;
 		compact?: boolean;
 		hideLabel?: boolean;
+		iconOnPhone?: boolean;
 	};
 
 	let {
@@ -28,6 +29,7 @@
 		icon,
 		compact = false,
 		hideLabel = false,
+		iconOnPhone = false,
 		id,
 		...rest
 	}: Props = $props();
@@ -38,7 +40,7 @@
 	const message = $derived(error ?? hint);
 </script>
 
-<div class="field" class:compact>
+<div class="field" class:compact class:icon-on-phone={iconOnPhone && !!icon}>
 	<label class:visually-hidden={hideLabel} for={selectId}>{label}</label>
 	<div class="control" class:invalid={!!error} class:with-icon={!!icon}>
 		{#if icon}
@@ -154,6 +156,27 @@
 
 	.with-icon select {
 		padding-left: var(--spacing-12);
+	}
+
+	@media (max-width: 767.98px) {
+		.icon-on-phone .control {
+			width: var(--size-control);
+		}
+
+		.icon-on-phone select {
+			padding: 0;
+			color: transparent;
+		}
+
+		.icon-on-phone .glyph {
+			right: 0;
+			padding: 0;
+			color: var(--color-fg);
+		}
+
+		.icon-on-phone .chevron {
+			display: none;
+		}
 	}
 
 	@media (min-width: 768px) {

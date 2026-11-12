@@ -25,8 +25,10 @@
 		onstep: (direction: 1 | -1, anchor?: number) => void;
 		onsettle?: () => void;
 		viewportHeight?: number;
+		axisRoom?: number;
 		events?: Snippet<[StageGeometry]>;
 		artworks?: Snippet<[StageGeometry]>;
+		readingNames?: readonly string[];
 	};
 
 	let {
@@ -42,15 +44,17 @@
 		onstep,
 		onsettle,
 		viewportHeight = 0,
+		axisRoom = 0,
 		events,
-		artworks
+		artworks,
+		readingNames = []
 	}: Props = $props();
 
 	let width = $state(0);
 
 	let vertical = $derived(orientation === 'vertical');
 	let geometry = $derived(
-		stageGeometry(view, width, eventLanes, orientation, viewportHeight, artworkLanes)
+		stageGeometry(view, width, eventLanes, orientation, viewportHeight, artworkLanes, axisRoom)
 	);
 	let size = $derived(stageSize(geometry));
 	let length = $derived(geometry.length);
@@ -141,7 +145,7 @@
 		></div>
 	{/if}
 
-	<ReadingLine {era} {onkeypan} {onstep} {orientation} {view} />
+	<ReadingLine {era} names={readingNames} {onkeypan} {onstep} {orientation} {view} />
 </div>
 
 <style>

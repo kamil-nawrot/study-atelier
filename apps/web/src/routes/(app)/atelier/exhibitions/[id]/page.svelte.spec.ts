@@ -124,6 +124,19 @@ describe('exhibition page', () => {
 			.toBeInTheDocument();
 	});
 
+	it('asks before moving the exhibition to Archiwum from the menu on a phone', async () => {
+		await page.viewport(390, 844);
+		renderExhibition();
+
+		await page.getByRole('button', { name: m.common.moreActions }).click();
+		await page.getByRole('button', { name: m.exhibitions.view.delete }).click();
+
+		await expect
+			.element(page.getByRole('heading', { name: m.exhibitions.deleteConfirm.title('Light') }))
+			.toBeInTheDocument();
+		await page.viewport(1280, 800);
+	});
+
 	it('learns which artworks of the document have notes, not only those loaded with it', async () => {
 		renderExhibition({
 			exhibition: { ...exhibition, document: doc(textBlock('Soft'), artwork('artwork-9')) }

@@ -29,6 +29,7 @@
 			aria-expanded={wide ? panelOpen : undefined}
 			aria-haspopup={wide ? undefined : 'dialog'}
 			aria-label={label}
+			data-on={filtering ? 'true' : undefined}
 			onclick={() => (wide ? (panelOpen = !panelOpen) : ondialog())}
 			variant={filtering ? 'primary' : 'secondary'}
 		>

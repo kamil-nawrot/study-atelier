@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { MediaQuery } from 'svelte/reactivity';
 	import { Icon } from '@study-atelier/ui';
 	import { eraIcon, eraTitle } from '#lib/catalogue/eras/eras.ts';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
@@ -13,12 +14,22 @@
 
 	let { eras, current, onselect }: Props = $props();
 
+	const phone = new MediaQuery('max-width: 767.98px');
+
 	const NAME_ROOM = 9;
 	const ICON_ROOM = 40;
 
 	let width = $state(0);
 
-	let size = $derived(eras.length > 0 ? width / eras.length : 0);
+	const CURRENT_SHARE = 3.4;
+
+	let size = $derived(
+		eras.length === 0
+			? 0
+			: phone.current
+				? width / (eras.length - 1 + CURRENT_SHARE)
+				: width / eras.length
+	);
 
 	function showsName(code: EraCode): boolean {
 		return size >= ICON_ROOM + eraTitle(code).length * NAME_ROOM;
@@ -41,7 +52,7 @@
 			type="button"
 		>
 			<Icon icon={eraIcon(era.code)} size="sm" />
-			{#if showsName(era.code)}
+			{#if showsName(era.code) || (phone.current && era.code === current)}
 				<span class="name" aria-hidden="true">{eraTitle(era.code)}</span>
 			{/if}
 		</button>
@@ -82,5 +93,20 @@
 	.segment.current {
 		background: var(--color-fg-muted);
 		color: var(--color-on-fg);
+	}
+
+	@media (max-width: 767.98px) {
+		.strip {
+			display: flex;
+		}
+
+		.segment {
+			flex: 1;
+		}
+
+		.segment.current {
+			flex: 3.4;
+			font-size: var(--font-size-sm);
+		}
 	}
 </style>

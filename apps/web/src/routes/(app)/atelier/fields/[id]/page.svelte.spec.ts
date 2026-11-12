@@ -22,6 +22,7 @@ describe('own field page', () => {
 	});
 
 	it('opens the field form and the delete question from the bar', async () => {
+		await page.viewport(1280, 800);
 		const fields = testOwnFields();
 		render(FieldPage, {
 			data: { session: testSession(), field: fields[1], fields },

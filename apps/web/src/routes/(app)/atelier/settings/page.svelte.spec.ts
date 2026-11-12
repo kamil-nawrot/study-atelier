@@ -73,6 +73,7 @@ function renderSettings(error?: string, search = '', pendingEmail?: string): voi
 describe('settings page', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
+		vi.mocked(savePreferences).mockImplementation(async (_part, draft) => ({ preferences: draft }));
 		await page.viewport(1280, 800);
 	});
 
@@ -144,38 +145,64 @@ describe('settings page', () => {
 		});
 	});
 
-	it('refreshes the menu and confirms after the profile is saved', async () => {
+	it('refreshes the menu and confirms after the name is saved', async () => {
 		vi.mocked(saveProfile).mockResolvedValue({ profile: { ...profile, displayName: 'Ania' } });
 		renderSettings();
 
 		await page.getByLabelText(m.settings.profile.name).fill('Ania');
-		await page.getByRole('button', { name: m.settings.profile.save }).click();
+		await page.getByRole('button', { name: m.common.save }).click();
 
+		await expect.element(page.getByText(m.settings.profile.nameSaved)).toBeVisible();
 		expect(invalidate).toHaveBeenCalledWith(PROFILE_DEPENDENCY);
-		await expect.element(page.getByText(m.settings.profile.saved)).toBeVisible();
 	});
 
-	it('saves the review preferences and refreshes the menu counter', async () => {
-		vi.mocked(savePreferences).mockResolvedValue({
-			preferences: { ...defaultPreferences, reviewSessionSize: 30 }
-		});
+	it('has no save bar and leaves the bottom bar of a phone in place', async () => {
+		await page.viewport(390, 844);
+		renderSettings(undefined, '?tab=review');
+
+		await expect.element(page.getByRole('tab', { name: m.settings.tabs.review })).toBeVisible();
+		expect(document.querySelector('[data-action-bar]')).toBeNull();
+		expect(page.getByRole('button', { name: m.common.cancel }).elements()).toHaveLength(0);
+	});
+
+	it('saves each review preference as soon as it changes, quietly, and refreshes the menu counter', async () => {
 		renderSettings(undefined, '?tab=review');
 
 		await page.getByRole('button', { name: '30' }).click();
+		await vi.waitFor(() =>
+			expect(savePreferences).toHaveBeenLastCalledWith(
+				'review',
+				expect.objectContaining({ reviewSessionSize: 30 })
+			)
+		);
 		await page.getByRole('switch', { name: m.settings.preferences.timeQuestions }).click();
 		await page.getByRole('switch', { name: m.settings.preferences.noteQuestions }).click();
-		await page.getByRole('button', { name: m.settings.preferences.save }).click();
 
-		expect(savePreferences).toHaveBeenCalledWith(
-			'review',
-			expect.objectContaining({
-				reviewSessionSize: 30,
-				reviewTimeQuestions: true,
-				reviewNoteQuestions: true
-			})
+		await vi.waitFor(() =>
+			expect(savePreferences).toHaveBeenLastCalledWith(
+				'review',
+				expect.objectContaining({
+					reviewSessionSize: 30,
+					reviewTimeQuestions: true,
+					reviewNoteQuestions: true
+				})
+			)
 		);
 		expect(invalidate).toHaveBeenCalledWith(PREFERENCES_DEPENDENCY);
-		await expect.element(page.getByText(m.settings.preferences.saved)).toBeVisible();
+	});
+
+	it('turns a preference back and says so when its save fails', async () => {
+		vi.mocked(savePreferences).mockResolvedValue({ error: m.settings.profile.failed });
+		renderSettings(undefined, '?tab=view');
+
+		await page.getByRole('switch', { name: m.settings.preferences.showPins }).click();
+
+		await expect
+			.element(page.getByRole('alert').filter({ hasText: m.settings.preferences.errorTitle }))
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('switch', { name: m.settings.preferences.showPins }))
+			.not.toBeChecked();
 	});
 
 	it('groups the review preferences and disables the count while the glossary questions are off', async () => {
@@ -195,11 +222,12 @@ describe('settings page', () => {
 		await expect.element(counts.getByRole('button', { name: '2' })).toBeEnabled();
 		await page.getByRole('switch', { name: m.settings.preferences.glossaryOn }).click();
 		await expect.element(counts.getByRole('button', { name: '2' })).toBeDisabled();
-		await page.getByRole('button', { name: m.settings.preferences.save }).click();
 
-		expect(savePreferences).toHaveBeenCalledWith(
-			'review',
-			expect.objectContaining({ reviewGlossaryOn: false })
+		await vi.waitFor(() =>
+			expect(savePreferences).toHaveBeenCalledWith(
+				'review',
+				expect.objectContaining({ reviewGlossaryOn: false })
+			)
 		);
 	});
 
@@ -218,6 +246,31 @@ describe('settings page', () => {
 		await expect.element(page.getByText(m.settings.preferences.kindsHint)).not.toHaveClass(/error/);
 	});
 
+	it('sends a preference turned back while its first save is still running', async () => {
+		let finish: () => void = () => {};
+		vi.mocked(savePreferences).mockImplementationOnce(
+			(_part, draft) =>
+				new Promise((done) => {
+					finish = () => done({ preferences: draft });
+				})
+		);
+		renderSettings(undefined, '?tab=view');
+		const pins = page.getByRole('switch', { name: m.settings.preferences.showPins });
+
+		await pins.click();
+		await pins.click();
+		finish();
+
+		await vi.waitFor(() =>
+			expect(savePreferences).toHaveBeenLastCalledWith(
+				'view',
+				expect.objectContaining({ viewShowPins: false })
+			)
+		);
+		expect(savePreferences).toHaveBeenCalledTimes(2);
+		await expect.element(pins).not.toBeChecked();
+	});
+
 	it('saves the artwork view preferences', async () => {
 		vi.mocked(savePreferences).mockResolvedValue({
 			preferences: { ...defaultPreferences, viewShowPins: true }
@@ -225,11 +278,12 @@ describe('settings page', () => {
 		renderSettings(undefined, '?tab=view');
 
 		await page.getByRole('switch', { name: m.settings.preferences.showPins }).click();
-		await page.getByRole('button', { name: m.settings.preferences.save }).click();
 
-		expect(savePreferences).toHaveBeenCalledWith(
-			'view',
-			expect.objectContaining({ viewShowPins: true })
+		await vi.waitFor(() =>
+			expect(savePreferences).toHaveBeenCalledWith(
+				'view',
+				expect.objectContaining({ viewShowPins: true })
+			)
 		);
 	});
 
@@ -254,13 +308,14 @@ describe('settings page', () => {
 		renderSettings(undefined, '?tab=sources');
 
 		await page.getByRole('switch', { name: m.settings.preferences.fetchForms }).click();
-		await page.getByRole('button', { name: m.settings.preferences.save }).click();
 
-		expect(savePreferences).toHaveBeenCalledWith(
-			'sources',
-			expect.objectContaining({ fetchForms: false, fetchImage: true })
+		await vi.waitFor(() =>
+			expect(savePreferences).toHaveBeenCalledWith(
+				'sources',
+				expect.objectContaining({ fetchForms: false, fetchImage: true })
+			)
 		);
-		expect(invalidate).toHaveBeenCalledWith(PREFERENCES_DEPENDENCY);
+		await vi.waitFor(() => expect(invalidate).toHaveBeenCalledWith(PREFERENCES_DEPENDENCY));
 	});
 
 	it('shows a load error instead of the tabs', async () => {

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import MoreActions from '#lib/shared/navigation/MoreActions/MoreActions.svelte';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
@@ -98,15 +99,19 @@
 			>
 				{m.common.edit}
 			</Button>
-			<Button
-				aria-label={m.common.delete}
-				compact
-				icon={Trash}
-				onclick={askToDelete}
-				variant="danger"
+			<MoreActions
+				actions={[{ label: m.common.delete, icon: Trash, onclick: askToDelete, danger: true }]}
 			>
-				{m.common.delete}
-			</Button>
+				<Button
+					aria-label={m.common.delete}
+					compact
+					icon={Trash}
+					onclick={askToDelete}
+					variant="danger"
+				>
+					{m.common.delete}
+				</Button>
+			</MoreActions>
 		{/if}
 	{/snippet}
 

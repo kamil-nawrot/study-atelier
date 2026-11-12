@@ -570,6 +570,40 @@ describe('timeline page', () => {
 		await expect.element(stage()).toHaveAttribute('aria-valuenow', '1665');
 	});
 
+	it('names the events of the reading line beside it on a phone, and none along the band', async () => {
+		await page.viewport(390, 844);
+		renderTimeline([testArtwork(1, 'Straż nocna', { yearTo: 1642, date: '1642' })], undefined, [
+			testEvent('thirty', 'Wojna trzydziestoletnia', 1618, 1648),
+			testEvent('america', 'Odkrycie Ameryki', null, 1492)
+		]);
+
+		const band = page.getByRole('button', { name: 'Wojna trzydziestoletnia, 1618–1648' });
+		await expect.element(band).toBeInTheDocument();
+		expect(band.element().textContent?.trim()).toBe('');
+		await expect.element(page.getByText('Wojna trzydziestoletnia', { exact: true })).toBeVisible();
+		await expect
+			.element(page.getByText('Odkrycie Ameryki', { exact: true }))
+			.not.toBeInTheDocument();
+	});
+
+	it('names the current era in its tile of the strip on a phone instead of above the scale', async () => {
+		await page.viewport(390, 844);
+		localStorage.setItem(ERA_KEY, 'early_modern');
+		renderTimeline();
+
+		const strip = page.getByRole('navigation', { name: m.timeline.strip });
+		const current = strip.getByRole('button', { name: 'Nowożytność' });
+		await expect.element(current).toHaveTextContent('Nowożytność');
+		const widths = strip
+			.getByRole('button')
+			.elements()
+			.map((segment) => segment.getBoundingClientRect().width);
+		expect(current.element().getBoundingClientRect().width).toBe(Math.max(...widths));
+		await expect
+			.element(page.getByRole('button', { name: m.timeline.next('Nowoczesność') }))
+			.not.toBeInTheDocument();
+	});
+
 	it('runs time from left to right on a larger screen', async () => {
 		renderTimeline();
 

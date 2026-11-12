@@ -29,11 +29,14 @@ export { default as PanelHeader } from './components/PanelHeader/PanelHeader.sve
 export { default as Notes } from './components/Notes/Notes.svelte';
 export { default as PageScrollbar } from './components/PageScrollbar/PageScrollbar.svelte';
 export { default as NotesEditor } from './components/NotesEditor/NotesEditor.svelte';
+export { default as ImageCredit } from './components/ImageCredit/ImageCredit.svelte';
 export { default as Popover } from './components/Popover/Popover.svelte';
 export { default as PopoverCard } from './components/PopoverCard/PopoverCard.svelte';
 export { default as Primer } from './components/Primer/Primer.svelte';
 export { default as FillingLines } from './components/FillingLines/FillingLines.svelte';
 export { default as PopupButton } from './components/PopupButton/PopupButton.svelte';
+export { default as CappedPicture } from './components/CappedPicture/CappedPicture.svelte';
+export { default as StageBackdrop } from './components/StageBackdrop/StageBackdrop.svelte';
 export { default as StageButton } from './components/StageButton/StageButton.svelte';
 export { default as ProgressLine } from './components/ProgressLine/ProgressLine.svelte';
 export { default as SearchField } from './components/SearchField/SearchField.svelte';
@@ -60,7 +63,7 @@ export {
 	scrollForDrag,
 	thumbGeometry
 } from './overlay-scrollbar/overlay-scrollbar.ts';
-export { PopoverState } from './popover-state/popover-state.svelte';
+export { PopoverState, popoverHold } from './popover-state/popover-state.svelte';
 export type { ArtworkTileImage } from './types/artwork-tile-image';
 export type { ChoiceTile } from './types/choice-tile';
 export type { SearchSelectOption } from './types/search-select-option';

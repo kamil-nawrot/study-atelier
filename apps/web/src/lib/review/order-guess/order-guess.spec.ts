@@ -7,7 +7,8 @@ import {
 	orderBounds,
 	orderItems,
 	orderPlaces,
-	placedRight
+	placedRight,
+	tapped
 } from './order-guess.ts';
 
 const oldest = testArtwork(1, 'Oldest', { yearTo: 1420 });
@@ -78,5 +79,15 @@ describe('orderItems', () => {
 				artworks
 			)
 		).toEqual([{ mode: 'order', artworks: [newest, oldest, newer, older] }]);
+	});
+});
+
+describe('tapped', () => {
+	it('numbers the artworks in the order they are tapped', () => {
+		expect(tapped(tapped([], 'b'), 'd')).toEqual(['b', 'd']);
+	});
+
+	it('takes the number off a tapped artwork and moves the later ones down', () => {
+		expect(tapped(['a', 'b', 'c', 'd'], 'b')).toEqual(['a', 'c', 'd']);
 	});
 });

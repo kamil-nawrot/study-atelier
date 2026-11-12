@@ -1,7 +1,14 @@
 <script lang="ts">
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
 	import { untrack } from 'svelte';
-	import { ArtworkImage, Button, Icon, NoImage } from '@study-atelier/ui';
+	import {
+		ArtworkImage,
+		Button,
+		Icon,
+		ImageCredit,
+		NoImage,
+		StageBackdrop
+	} from '@study-atelier/ui';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
@@ -149,7 +156,6 @@
 <figure
 	style:--image-ratio={ratio}
 	class="stage"
-	class:dimmed={image !== undefined}
 	class:flipping={flipLinks !== undefined}
 	class:sized={ratio !== undefined}
 	class:with-gallery={image !== undefined && gallery.length > 1}
@@ -159,7 +165,7 @@
 		<FlipLinks links={flipLinks} />
 	{/if}
 	{#if image}
-		<img class="backdrop" alt="" aria-hidden="true" src={image.src} />
+		<StageBackdrop src={image.src} />
 		<div class="mat">
 			<div class="frame" bind:clientWidth={frameWidth}>
 				<button
@@ -195,7 +201,7 @@
 			</div>
 		</div>
 		{#if credit}
-			<figcaption class="caption">{credit}</figcaption>
+			<ImageCredit label={m.artwork.creditLabel} text={credit} />
 		{/if}
 		<StageActions
 			{loupeActive}
@@ -253,6 +259,9 @@
 <style>
 	.stage {
 		--size-gallery-thumb: 56px;
+		--color-stage-bg: var(--color-bg);
+		--color-stage-fg: var(--color-fg);
+		--color-stage-fg-muted: var(--color-fg-muted);
 
 		position: relative;
 		display: grid;
@@ -265,24 +274,7 @@
 		color: var(--color-stage-fg-muted);
 	}
 
-	.dimmed::after {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background: var(--color-scrim);
-	}
-
-	.backdrop {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		filter: blur(32px);
-		scale: 1.2;
-	}
-
-	.stage > :not(.backdrop) {
+	.stage > * {
 		position: relative;
 		z-index: 1;
 	}
@@ -330,16 +322,9 @@
 		padding-bottom: calc(var(--size-gallery-thumb) + 2 * var(--spacing-6));
 	}
 
-	.stage .caption {
-		color: var(--color-stage-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-	}
-
 	@media (max-width: 767.98px) {
 		.stage {
-			--caption-height: calc(2 * var(--font-size-xs) * var(--line-height-xs) + var(--spacing-3));
-			--image-max-height: calc(100cqh - 2 * var(--spacing-2) - var(--caption-height));
+			--image-max-height: calc(100cqh - 2 * var(--spacing-2));
 
 			container-type: size;
 			height: calc(

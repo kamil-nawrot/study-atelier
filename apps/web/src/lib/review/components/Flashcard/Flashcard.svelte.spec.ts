@@ -6,6 +6,7 @@ import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testGlossary } from '#lib/testing/glossary/glossary.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import Flashcard from './Flashcard.svelte';
+import { expectImageCredit } from '#lib/testing/image-credit/image-credit.ts';
 
 const item: ReviewItem = {
 	artwork: testArtwork(31, 'Girl with a Pearl Earring', {
@@ -68,6 +69,7 @@ describe('Flashcard', () => {
 	});
 
 	it('shows the answer, the note, the credit and when each rating brings the artwork back', async () => {
+		await page.viewport(1280, 800);
 		renderCard(true);
 
 		await expect
@@ -77,7 +79,6 @@ describe('Flashcard', () => {
 		await expect.element(page.getByText('Johannes Vermeer')).toBeVisible();
 		await expect.element(page.getByText('Mauritshuis')).toBeVisible();
 		await expect.element(page.getByText('A study of a face in a turban.')).toBeVisible();
-		await expect.element(page.getByText('Wikimedia Commons')).toBeVisible();
 		await expect
 			.element(page.getByRole('img', { name: 'Girl with a Pearl Earring, Johannes Vermeer' }))
 			.toBeInTheDocument();
@@ -90,6 +91,8 @@ describe('Flashcard', () => {
 		await expect
 			.element(page.getByRole('button', { name: m.review.ratings[3], exact: true }))
 			.toBeVisible();
+
+		await expectImageCredit('Wikimedia Commons');
 	});
 
 	it('marks glossary terms in the note and opens their card without a way out of the session', async () => {

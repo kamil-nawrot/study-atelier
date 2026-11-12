@@ -43,7 +43,9 @@
 
 <style>
 	.public {
-		--public-header-height: calc(var(--size-control) + 2 * var(--spacing-3));
+		--public-header-height: calc(
+			var(--size-control) + 2 * var(--spacing-3) + env(safe-area-inset-top)
+		);
 	}
 
 	.bar {
@@ -57,6 +59,7 @@
 		gap: var(--spacing-4);
 		height: var(--public-header-height);
 		padding: var(--spacing-3) var(--spacing-4);
+		padding-top: calc(var(--spacing-3) + env(safe-area-inset-top));
 		border-bottom: var(--border-width-hairline) solid var(--color-tag);
 		background: var(--color-bg);
 	}

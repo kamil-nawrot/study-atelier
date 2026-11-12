@@ -135,4 +135,35 @@ describe('LetterIndex', () => {
 			.element(page.getByRole('button', { name: 'A' }))
 			.toHaveAttribute('aria-current', 'true');
 	});
+
+	it('follows a finger sliding along the letters and jumps to the last one when it lifts', async () => {
+		await page.viewport(390, 844);
+		list = sections('A', 'B', 'C');
+		render(LetterIndex, { letters: ['A', 'B', 'C'] });
+		const a = page.getByRole('button', { name: 'A', exact: true });
+		const c = page.getByRole('button', { name: 'C', exact: true });
+		await expect.element(a).toBeVisible();
+
+		const touch = (type: string, target: Element): void => {
+			const box = target.getBoundingClientRect();
+			target.dispatchEvent(
+				new PointerEvent(type, {
+					bubbles: true,
+					pointerType: 'touch',
+					clientX: box.left + box.width / 2,
+					clientY: box.top + box.height / 2
+				})
+			);
+		};
+		touch('pointerdown', a.element());
+		touch('pointermove', c.element());
+
+		await expect.element(c).toHaveAttribute('aria-current', 'true');
+		await expect.element(page.getByText('C', { exact: true }).last()).toBeVisible();
+		expect(window.scrollY).toBe(0);
+
+		touch('pointerup', c.element());
+		await expect.poll(() => window.scrollY).toBeGreaterThan(0);
+		await expect.poll(() => document.querySelectorAll('.bubble').length).toBe(0);
+	});
 });

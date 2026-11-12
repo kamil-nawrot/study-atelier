@@ -103,7 +103,7 @@
 <AtelierLayout email={data.session.user.email ?? ''} heading title={m.timeline.title}>
 	{#snippet bar()}
 		{#if !data.error}
-			<TimelineTools />
+			<TimelineTools filter={wide.current || data.empty ? undefined : filterButton} />
 		{/if}
 	{/snippet}
 
@@ -126,7 +126,7 @@
 	{/snippet}
 
 	<PageHeader
-		actions={data.error || data.empty ? undefined : filterButton}
+		actions={data.error || data.empty || !wide.current ? undefined : filterButton}
 		lead={m.timeline.lead}
 	/>
 

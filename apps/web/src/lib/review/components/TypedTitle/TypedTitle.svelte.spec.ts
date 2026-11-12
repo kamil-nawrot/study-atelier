@@ -42,6 +42,16 @@ describe('TypedTitle', () => {
 		expect(card.onanswer).toHaveBeenCalledWith(['rembrandt']);
 	});
 
+	it('shrinks the artwork to a strip while the learner types', async () => {
+		renderCard();
+		const stage = page.getByRole('figure');
+
+		await expect.element(stage).not.toHaveClass('collapsed');
+		await page.getByRole('combobox', { name: m.review.quiz.typedLabel }).click();
+
+		await expect.element(stage).toHaveClass('collapsed');
+	});
+
 	it('names the artwork after a wrong answer and says it comes back', async () => {
 		const card = renderCard(['rembrandt']);
 

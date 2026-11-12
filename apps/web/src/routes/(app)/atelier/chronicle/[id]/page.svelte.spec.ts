@@ -74,6 +74,17 @@ describe('visit page', () => {
 		});
 	});
 
+	it('deletes the visit from the menu of more actions on a phone', async () => {
+		await page.viewport(390, 844);
+		renderVisit(testVisit());
+
+		await page.getByRole('button', { name: m.common.moreActions }).click();
+		await page.getByRole('button', { name: m.common.delete }).click();
+
+		await expect.element(page.getByRole('alertdialog')).toBeVisible();
+		await page.viewport(1280, 800);
+	});
+
 	it('shows a confirmation from the form', async () => {
 		navigation.state = { chronicleMessage: 'Zapisano.' };
 		renderVisit(testVisit());

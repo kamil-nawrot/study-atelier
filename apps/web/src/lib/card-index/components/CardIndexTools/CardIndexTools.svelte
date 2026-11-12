@@ -31,6 +31,7 @@
 			compact
 			hideLabel
 			icon={ArrowUpDown}
+			iconOnPhone
 			label={m.cardIndex.sortLabel}
 			{options}
 			bind:value={() => sort, (value) => (sort = value as CardIndexSort)}
@@ -50,10 +51,17 @@
 	}
 
 	.actions {
-		display: grid;
-		grid-auto-columns: minmax(0, 1fr);
-		grid-auto-flow: column;
-		gap: var(--spacing-3);
+		display: flex;
+		gap: var(--spacing-2);
+	}
+
+	@media (max-width: 767.98px) {
+		.tools {
+			grid-auto-flow: column;
+			grid-template-columns: minmax(0, 1fr);
+			grid-auto-columns: auto;
+			gap: var(--spacing-2);
+		}
 	}
 
 	@media (min-width: 768px) {

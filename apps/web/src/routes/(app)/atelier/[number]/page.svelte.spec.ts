@@ -17,6 +17,7 @@ import { testVisit, VISIT_ID } from '#lib/testing/chronicle/chronicle.ts';
 import type { Pin } from '#lib/pins/types/pin.ts';
 import { testEntry } from '#lib/testing/glossary/glossary.ts';
 import ArtworkPage from './+page.svelte';
+import { expectImageCredit } from '#lib/testing/image-credit/image-credit.ts';
 
 const navigation = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier/42'),
@@ -305,7 +306,7 @@ describe('artwork page', () => {
 			})
 		});
 
-		await expect.element(page.getByText(m.artwork.credit)).toBeVisible();
+		await expectImageCredit(m.artwork.credit);
 	});
 
 	it('opens the image full screen and closes it', async () => {
@@ -432,11 +433,13 @@ describe('artwork page', () => {
 			const next = arrow(m.artworkView.next).element().getBoundingClientRect();
 			const image = document.querySelector('.stage .mat')!.getBoundingClientRect();
 			const type = page.getByText(m.artworkForm.type, { exact: true }).element();
+			const fold =
+				document.querySelector('.bottom-bar')?.getBoundingClientRect().top ?? window.innerHeight;
 			screens.push({
 				stage: stage.height,
 				arrow: next.top,
 				fitsStage: image.bottom <= stage.bottom,
-				typeBelowFold: Math.round(type.getBoundingClientRect().top) >= window.innerHeight
+				typeBelowFold: Math.round(type.getBoundingClientRect().top) >= Math.round(fold)
 			});
 			await view.unmount();
 		}
@@ -591,6 +594,25 @@ describe('artwork page', () => {
 
 		expect(moveToTrash).toHaveBeenCalledWith('artwork-42');
 		expect(goto).toHaveBeenCalledWith('/atelier', { refreshAll: true, state: { trashed: 42 } });
+	});
+
+	it('keeps Edytuj in the bar and gathers Porównaj and Usuń under one button on a phone', async () => {
+		await page.viewport(390, 844);
+		renderPage();
+
+		await expect
+			.element(page.getByRole('banner').getByRole('link', { name: m.common.edit }))
+			.toBeVisible();
+		await page.getByRole('button', { name: m.common.moreActions }).click();
+		await expect
+			.element(page.getByRole('link', { name: m.compare.label }))
+			.toHaveAttribute('href', expect.stringContaining('/atelier/compare'));
+		await page.getByRole('button', { name: m.common.delete }).click();
+
+		await expect
+			.element(page.getByRole('alertdialog', { name: m.trash.moveTitle('#0042') }))
+			.toBeVisible();
+		await page.viewport(1280, 800);
 	});
 
 	it('keeps the artwork when the learner cancels', async () => {

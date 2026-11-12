@@ -28,6 +28,16 @@ describe('NoImage', () => {
 		expect(box.height / box.width).toBeCloseTo(1.25, 1);
 	});
 
+	it('fills the height of its container with fill', async () => {
+		const { container } = await render(NoImage, { label: 'Artwork without a photo', fill: true });
+		container.style.width = '300px';
+		container.style.height = '120px';
+
+		const window = page.getByRole('img', { name: 'Artwork without a photo' }).element();
+
+		expect(window.getBoundingClientRect().height).toBe(120);
+	});
+
 	it('draws both diagonals of the frame', async () => {
 		const { container } = await render(NoImage);
 

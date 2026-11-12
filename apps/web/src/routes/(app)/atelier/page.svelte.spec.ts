@@ -229,13 +229,13 @@ describe('atelier page', () => {
 			await page.viewport(390, 800);
 		});
 
-		it('shortens the add button to "Dodaj" and keeps its full name', async () => {
+		it('leaves adding to the bottom bar, without an add button among its tools', async () => {
 			renderAtelier();
 
-			const add = page.getByRole('link', { name: m.atelier.add, exact: true });
-			await expect.element(add).toHaveAttribute('href', '/atelier/new');
-			await expect.element(page.getByText(m.common.add, { exact: true })).toBeVisible();
-			await expect.element(page.getByText(m.atelier.add, { exact: true })).not.toBeVisible();
+			await expect.element(page.getByRole('searchbox', { name: m.atelier.search })).toBeVisible();
+			await expect
+				.element(page.getByRole('link', { name: m.atelier.add, exact: true }))
+				.not.toBeInTheDocument();
 		});
 
 		it('shortens the placeholder of the search and keeps its full name', async () => {
@@ -804,10 +804,10 @@ describe('atelier page', () => {
 				await expect
 					.element(page.getByRole('dialog', { name: m.atelier.filters.viewTitle }))
 					.not.toBeInTheDocument();
-				expect(titlesOnTheWall(styled)).toEqual([
-					'Water Lilies',
+				expect(titlesOnTheWall(styled).toSorted()).toEqual([
 					'Impression, Sunrise',
-					'The Thinker'
+					'The Thinker',
+					'Water Lilies'
 				]);
 			});
 		});

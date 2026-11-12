@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { tick, type Snippet } from 'svelte';
-	import type { PopoverState } from '../../popover-state/popover-state.svelte';
+	import { screenBand } from '../../drop-placement/drop-placement.ts';
+	import { providePopoverHold, type PopoverState } from '../../popover-state/popover-state.svelte';
 
 	type Props = {
 		id: string;
@@ -22,6 +23,8 @@
 		children
 	}: Props = $props();
 
+	providePopoverHold(() => popover.hold());
+
 	let card: HTMLDivElement | undefined = $state();
 	let top = $state(0);
 	let left = $state(0);
@@ -33,15 +36,16 @@
 		const anchorBox = anchor.getBoundingClientRect();
 		const box = card.getBoundingClientRect();
 		const margin = parseFloat(getComputedStyle(card).getPropertyValue('--popover-margin')) || 0;
-		const { clientWidth: width, clientHeight: height } = document.documentElement;
+		const { clientWidth: width } = document.documentElement;
+		const band = screenBand(anchor, anchorBox);
 		const bounds = boundary?.getBoundingClientRect();
 		const from = Math.max(margin, bounds ? bounds.left + margin : 0);
 		const to = Math.min(width - margin, bounds ? bounds.right - margin : width);
 		const start = Math.max(anchorBox.left, from);
 		const below = anchorBox.bottom + margin;
-		const fitsBelow = below + box.height <= height - margin;
+		const fitsBelow = below + box.height <= band.bottom - margin;
 		const fitsRight = start + box.width <= to;
-		top = fitsBelow ? below : Math.max(margin, anchorBox.top - margin - box.height);
+		top = fitsBelow ? below : Math.max(band.top + margin, anchorBox.top - margin - box.height);
 		const inBounds = Math.max(
 			from,
 			Math.min(fitsRight ? start : Math.min(anchorBox.right, to) - box.width, to - box.width)
@@ -55,7 +59,7 @@
 	});
 
 	$effect(() => {
-		if (popover.open && popover.anchor) void place();
+		if (popover.open && popover.anchor && popover.ready) void place();
 	});
 
 	$effect(() => {
@@ -85,7 +89,7 @@
 	class="card"
 	class:interactive
 	aria-labelledby={interactive ? labelledby : undefined}
-	hidden={!popover.open || concealed}
+	hidden={!popover.open || !popover.ready || concealed}
 	onfocusout={(event) => popover.blur(event)}
 	onpointerenter={(event) => popover.cardPointerEnter(event)}
 	onpointerleave={(event) => popover.pointerLeave(event)}

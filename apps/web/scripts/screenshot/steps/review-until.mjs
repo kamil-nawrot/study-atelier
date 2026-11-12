@@ -8,6 +8,11 @@ export async function answerTitle(page) {
 	await page.getByRole('button', { name: 'Sprawdź tytuł' }).click();
 }
 
+export async function tapAll(page) {
+	const tiles = page.getByRole('button', { name: /^Obraz \d$/ });
+	while ((await tiles.count()) > 0) await tiles.first().click();
+}
+
 export async function reachQuestion(page, heading) {
 	await page.getByRole('button', { name: 'Zacznij powtórkę' }).click();
 	const question = page.getByRole('heading', { name: heading });
@@ -16,6 +21,7 @@ export async function reachQuestion(page, heading) {
 		if (await question.isVisible()) return;
 		const check = page.getByRole('button', { name: /^Sprawdź (rok|kolejność)$/ });
 		if (await check.isVisible()) {
+			await tapAll(page);
 			await check.click();
 			await page.getByRole('button', { name: 'Następne' }).click();
 			continue;
