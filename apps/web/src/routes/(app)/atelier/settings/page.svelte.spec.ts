@@ -246,6 +246,31 @@ describe('settings page', () => {
 		await expect.element(page.getByText(m.settings.preferences.kindsHint)).not.toHaveClass(/error/);
 	});
 
+	it('sends a preference turned back while its first save is still running', async () => {
+		let finish: () => void = () => {};
+		vi.mocked(savePreferences).mockImplementationOnce(
+			(_part, draft) =>
+				new Promise((done) => {
+					finish = () => done({ preferences: draft });
+				})
+		);
+		renderSettings(undefined, '?tab=view');
+		const pins = page.getByRole('switch', { name: m.settings.preferences.showPins });
+
+		await pins.click();
+		await pins.click();
+		finish();
+
+		await vi.waitFor(() =>
+			expect(savePreferences).toHaveBeenLastCalledWith(
+				'view',
+				expect.objectContaining({ viewShowPins: false })
+			)
+		);
+		expect(savePreferences).toHaveBeenCalledTimes(2);
+		await expect.element(pins).not.toBeChecked();
+	});
+
 	it('saves the artwork view preferences', async () => {
 		vi.mocked(savePreferences).mockResolvedValue({
 			preferences: { ...defaultPreferences, viewShowPins: true }

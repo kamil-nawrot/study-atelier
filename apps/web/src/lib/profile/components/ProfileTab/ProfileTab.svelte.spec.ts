@@ -138,6 +138,29 @@ describe('ProfileTab', () => {
 		);
 	});
 
+	it('sends the display case switched back while its first save is still running', async () => {
+		let finish: () => void = () => {};
+		vi.mocked(saveProfile)
+			.mockImplementationOnce(
+				() =>
+					new Promise((done) => {
+						finish = () => done({ profile: { ...empty, careerShown: false } });
+					})
+			)
+			.mockResolvedValueOnce({ profile: { ...empty, careerShown: true } });
+		renderTab();
+
+		await page.getByText(m.settings.profile.careerShown).click();
+		await page.getByText(m.settings.profile.careerShown).click();
+		finish();
+
+		await vi.waitFor(() => expect(saveProfile).toHaveBeenCalledTimes(2));
+		expect(saveProfile).toHaveBeenLastCalledWith(
+			expect.objectContaining({ careerShown: true }),
+			expect.anything()
+		);
+	});
+
 	it('keeps a name being typed out of the save of a switch', async () => {
 		vi.mocked(saveProfile).mockResolvedValue({ profile: { ...named, careerShown: false } });
 		renderTab(named);

@@ -24,32 +24,41 @@
 		part: PreferencesPart;
 		preferences: Preferences;
 		onsaved: (preferences: Preferences) => void | Promise<void>;
+		onsending?: (preferences: Preferences) => void;
 	};
 
-	let { part, preferences, onsaved }: Props = $props();
+	let { part, preferences, onsaved, onsending }: Props = $props();
 
 	const formId = $props.id();
 	const kindsHintId = `${formId}-kinds`;
 
 	let saved = untrack(() => preferences);
+	let sent = saved;
 	let draft = $state<Preferences>(untrack(() => ({ ...preferences })));
 	let kindsError = $derived(part === 'review' && !hasArtworkQuiz(draft.reviewQuizKinds));
 
-	const queue = new SaveQueue<Preferences>(async (value) => {
-		const result = await savePreferences(part, value);
-		if (result.error !== undefined) {
-			draft = { ...saved };
-			return result.error;
-		}
-		saved = result.preferences;
-		await onsaved(result.preferences);
-		return undefined;
-	});
+	const queue = new SaveQueue<Preferences>(
+		async (value) => {
+			const result = await savePreferences(part, value);
+			if (result.error !== undefined) {
+				sent = saved;
+				draft = { ...saved };
+				onsending?.(saved);
+				return result.error;
+			}
+			saved = result.preferences;
+			await onsaved(result.preferences);
+			return undefined;
+		},
+		{ latestOnly: true, failed: m.common.network }
+	);
 
 	$effect(() => {
 		const current = $state.snapshot(draft) as Preferences;
 		untrack(() => {
-			if (kindsError || !preferencesChanged(part, current, saved)) return;
+			if (kindsError || !preferencesChanged(part, current, sent)) return;
+			sent = current;
+			onsending?.(current);
 			queue.push(current);
 		});
 	});
