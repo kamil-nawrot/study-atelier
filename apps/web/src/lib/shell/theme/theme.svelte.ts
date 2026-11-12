@@ -7,7 +7,9 @@ export const THEME_SLOT = '<!--theme-->';
 
 const THEME_KEY = 'study-atelier:theme';
 
-export const themeScript = `<script>try{if(localStorage.getItem(${JSON.stringify(THEME_KEY)})==='light')document.documentElement.dataset.theme='light'}catch{}</script>`;
+export const THEME_COLORS: Record<Theme, string> = { dark: '#1C1A18', light: '#E2DFD7' };
+
+export const themeScript = `<script>try{if(localStorage.getItem(${JSON.stringify(THEME_KEY)})==='light'){document.documentElement.dataset.theme='light';document.querySelector('meta[name="theme-color"]')?.setAttribute('content',${JSON.stringify(THEME_COLORS.light)})}}catch{}</script>`;
 
 export function isTheme(value: unknown): value is Theme {
 	return value === 'dark' || value === 'light';
@@ -37,5 +39,6 @@ export function setTheme(theme: Theme): void {
 	current = theme;
 	if (theme === DEFAULT_THEME) delete document.documentElement.dataset.theme;
 	else document.documentElement.dataset.theme = theme;
+	document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLORS[theme]);
 	rememberTheme(theme);
 }
