@@ -214,6 +214,8 @@ begin
 
   assert (select count(*) from public.artwork_relations) = 2,
     'the relations of the artworks do not come back';
+  assert (select bool_and(from_id < to_id) from public.artwork_relations where kind = 'related'),
+    'a symmetric relation does not keep the order of its new ids';
   assert (select target.title from public.artwork_relations as relation
       join public.artworks as source on source.id = relation.from_id
       join public.artworks as target on target.id = relation.to_id

@@ -368,6 +368,17 @@ begin
         continue;
       end if;
     end if;
+    if table_name in ('artwork_relations', 'author_relations') then
+      rows := (select jsonb_agg(
+          case
+            when relation.value ->> 'kind' in ('version', 'related', 'collaboration', 'family')
+              and (relation.value ->> 'from_id')::uuid > (relation.value ->> 'to_id')::uuid
+            then relation.value
+              || jsonb_build_object('from_id', relation.value -> 'to_id', 'to_id', relation.value -> 'from_id')
+            else relation.value
+          end)
+        from jsonb_array_elements(rows) as relation);
+    end if;
     if table_name = any (kept_tables) then
       execute format('select exists (select 1 from public.%I where owner_id = $1)', table_name)
         into kept using importer;
