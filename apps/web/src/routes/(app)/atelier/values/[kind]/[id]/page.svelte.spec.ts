@@ -313,7 +313,7 @@ describe('value page', () => {
 		renderValue(subjectOf('location-athens'), {
 			summary: '',
 			notes: '',
-			location: { country: 'Grecja', placeType: 'on_site' }
+			location: { countryCode: 'GR', placeType: 'on_site' }
 		});
 
 		await expect
