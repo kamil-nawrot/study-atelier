@@ -149,6 +149,49 @@ describe('saveArtwork', () => {
 		});
 	});
 
+	it('sends the relations of the form with the end the artwork stands on', async () => {
+		const painting = { id: 'painting', number: 2, title: 'Painting' };
+		const copy = { id: 'copy', number: 3, title: 'Copy' };
+		await saveArtwork(
+			input({
+				relations: [
+					{ type: 'studyFrom', artwork: painting },
+					{ type: 'copyTo', artwork: copy },
+					{ type: 'related', artwork: copy }
+				]
+			})
+		);
+
+		expect(supabase.rpc).toHaveBeenLastCalledWith(
+			'save_artwork',
+			expect.objectContaining({
+				relations: [
+					{ kind: 'study', side: 'from', artwork_id: 'painting' },
+					{ kind: 'copy', side: 'to', artwork_id: 'copy' },
+					{ kind: 'related', side: 'from', artwork_id: 'copy' }
+				]
+			})
+		);
+	});
+
+	it('does not save a relation without its kind or its artwork', async () => {
+		const painting = { id: 'painting', number: 2, title: 'Painting' };
+
+		await expect(
+			saveArtwork(input({ relations: [{ type: null, artwork: painting }] }))
+		).resolves.toEqual({
+			saved: false,
+			fieldErrors: { relations: m.artworkRelations.typeRequired }
+		});
+		await expect(
+			saveArtwork(input({ relations: [{ type: 'studyFrom', artwork: null }] }))
+		).resolves.toEqual({
+			saved: false,
+			fieldErrors: { relations: m.artworkRelations.artworkRequired }
+		});
+		expect(supabase.rpc).not.toHaveBeenCalled();
+	});
+
 	it('stores a year span as signed years and a span of one year as a single year', async () => {
 		await saveArtwork(
 			input({ yearFrom: 50, fromBeforeCommonEra: true, yearTo: 20, yearApproximate: true })
@@ -573,9 +616,50 @@ describe('loadArtwork', () => {
 				notes: 'Seen in class.',
 				image: null,
 				images: [],
-				own: {}
+				own: {},
+				relations: []
 			}
 		});
+	});
+
+	it('reads the relations from both ends and leaves out an artwork in the trash', async () => {
+		const other = (
+			id: string,
+			number: number,
+			title: string,
+			deletedAt: string | null = null
+		): Record<string, unknown> => ({
+			id,
+			record_number: number,
+			title,
+			deleted_at: deletedAt
+		});
+		query.maybeSingle.mockResolvedValue({
+			data: row({
+				outgoing_relations: [
+					{ kind: 'study', artwork: other('painting', 2, 'Painting') },
+					{ kind: 'version', artwork: other('replica', 3, 'Replica') }
+				],
+				incoming_relations: [
+					{ kind: 'copy', artwork: other('copy', 4, 'Copy') },
+					{ kind: 'related', artwork: other('neighbour', 5, 'Neighbour') },
+					{ kind: 'part', artwork: other('trashed', 6, 'Trashed', '2026-11-01T10:00:00Z') }
+				]
+			}),
+			error: null
+		});
+
+		const { artwork } = await loadArtwork(7);
+
+		expect(artwork?.relations).toEqual([
+			{ type: 'studyFrom', artwork: { id: 'painting', number: 2, title: 'Painting' } },
+			{ type: 'version', artwork: { id: 'replica', number: 3, title: 'Replica' } },
+			{ type: 'copyTo', artwork: { id: 'copy', number: 4, title: 'Copy' } },
+			{ type: 'related', artwork: { id: 'neighbour', number: 5, title: 'Neighbour' } }
+		]);
+		expect(query.select).toHaveBeenCalledWith(
+			expect.stringContaining('artwork_relations!artwork_relations_to_id_owner_id_fkey')
+		);
 	});
 
 	it('reads own lists from the values and own texts and ticks from the field entries', async () => {

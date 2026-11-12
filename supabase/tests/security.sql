@@ -268,6 +268,13 @@ insert into public.style_details (value_id, summary)
 insert into public.location_details (value_id, place_type)
   select id, 'museum' from public.category_values where name = 'Visited museum';
 insert into public.feedback (kind, title) values ('idea', 'Owner A idea');
+select public.save_artwork('{"title": "Owner A study", "author_unknown": true}', '{}', null, null, null,
+  jsonb_build_array(jsonb_build_object('kind', 'study', 'side', 'from', 'artwork_id',
+    (select id from public.artworks where title = 'Owner A work'))));
+insert into public.author_relations (from_id, to_id, kind)
+  select pupil.id, teacher.id, 'pupil'
+    from public.category_values as pupil, public.category_values as teacher
+    where pupil.name = 'Sculptor' and teacher.name = 'Painter';
 
 reset role;
 
@@ -305,7 +312,7 @@ declare
   table_name text;
   writable_column text;
 begin
-  select id into a_artwork from public.artworks where owner_id = a;
+  select id into a_artwork from public.artworks where owner_id = a and title = 'Owner A work';
   select id into a_image from public.artwork_images where owner_id = a limit 1;
   select id into a_value from public.category_values where owner_id = a and category_code = 'period';
   select id into a_unlinked from public.category_values where owner_id = a and name = 'Unlinked';
@@ -344,6 +351,8 @@ begin
   assert (select count(*) from public.artwork_values) = 0, 'B reads artwork values of A';
   assert (select count(*) from public.artwork_images) = 0, 'B reads artwork images of A';
   assert (select count(*) from public.artwork_pins) = 0, 'B reads pins of A';
+  assert (select count(*) from public.artwork_relations) = 0, 'B reads relations of artworks of A';
+  assert (select count(*) from public.author_relations) = 0, 'B reads relations of authors of A';
   assert (select count(*) from public.period_eras) = 0, 'B reads period eras of A';
   assert (select count(*) from public.style_periods) = 0, 'B reads style periods of A';
   assert (select count(*) from public.period_details) = 0, 'B reads period details of A';

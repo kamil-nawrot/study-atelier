@@ -86,6 +86,13 @@ begin
       '{"mode": "flashcard", "rating": 3}');
     perform public.record_free_answers('2026-10-29T00:00:00Z', 20);
     perform public.unlock_exhibits('UTC');
+    perform public.save_artwork('{"title": "Study", "author_unknown": true}', '{}', null, null, null,
+      jsonb_build_array(jsonb_build_object('kind', 'study', 'side', 'from', 'artwork_id', artwork)));
+    insert into public.category_values (category_code, name) values ('author', 'Pupil');
+    insert into public.author_relations (from_id, to_id, kind)
+      select pupil.id, teacher.id, 'pupil'
+        from public.category_values as pupil, public.category_values as teacher
+        where pupil.name = 'Pupil' and teacher.name = 'Painter';
   end loop;
 end;
 $$;

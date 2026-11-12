@@ -2385,6 +2385,30 @@ export const pl = {
 		allEvents: (count: number): string => `Pokaż wszystkie (${count})`,
 		otherEvents: 'Inne wydarzenia w tym czasie'
 	},
+	artworkRelations: {
+		title: 'Powiązania',
+		types: {
+			studyFrom: 'Studium lub projekt do',
+			studyTo: 'Ma studium lub projekt',
+			copyFrom: 'Kopia lub reprodukcja',
+			copyTo: 'Ma kopię lub reprodukcję',
+			version: 'Inna wersja',
+			partFrom: 'Część',
+			partTo: 'Składa się z',
+			referenceFrom: 'Nawiązuje do',
+			referenceTo: 'Jest punktem odniesienia dla',
+			related: 'Powiązane z'
+		},
+		add: 'Dodaj powiązanie',
+		type: 'Rodzaj powiązania',
+		choose: 'Wybierz rodzaj',
+		search: 'Szukaj dzieła',
+		remove: (title: string): string => `Usuń powiązanie z „${title}”`,
+		removeEmpty: 'Usuń powiązanie',
+		typeRequired: 'Wybierz, jak te dzieła są powiązane.',
+		artworkRequired: 'Wybierz dzieło albo usuń ten wiersz.',
+		noMatch: 'Nie ma takiego dzieła w Twoim atelier.'
+	},
 	valuePage: {
 		back: 'Kartoteka',
 		deleteBlocked: (demonstrative: string, count: string, other: string): string =>

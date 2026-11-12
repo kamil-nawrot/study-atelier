@@ -26,6 +26,8 @@ export const IMPORT_TABLES = [
 	'material_details',
 	'location_details',
 	'era_details',
+	'artwork_relations',
+	'author_relations',
 	'artwork_field_entries',
 	'symbol_meaning_contexts',
 	'timeline_events',

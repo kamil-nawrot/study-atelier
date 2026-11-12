@@ -117,6 +117,9 @@ jobs:
       - name: Check the symbols
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/symbols.sql
 
+      - name: Check the relations of artworks and authors
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/artwork-relations.sql
+
       - name: Stop local Supabase
         if: always()
         run: supabase stop --no-backup

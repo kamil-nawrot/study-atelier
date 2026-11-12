@@ -305,6 +305,34 @@ export const TRASHED = [
 	})
 ];
 
+const RELATIONS = [
+	{ from: 1, to: 9, kind: 'reference' },
+	{ from: 10, to: 1, kind: 'study' },
+	{ from: 7, to: 1, kind: 'reference' },
+	{ from: 8, to: 1, kind: 'reference' },
+	{ from: 11, to: 1, kind: 'study' }
+];
+
+function relatedRow(number) {
+	const row = [...ARTWORKS, ...TRASHED].find((candidate) => candidate.record_number === number);
+	return {
+		id: row.id,
+		record_number: row.record_number,
+		title: row.title,
+		deleted_at: row.deleted_at
+	};
+}
+
+for (const row of [...ARTWORKS, ...TRASHED]) {
+	const number = row.record_number;
+	row.outgoing_relations = RELATIONS.filter((relation) => relation.from === number).map(
+		(relation) => ({ kind: relation.kind, artwork: relatedRow(relation.to) })
+	);
+	row.incoming_relations = RELATIONS.filter((relation) => relation.to === number).map(
+		(relation) => ({ kind: relation.kind, artwork: relatedRow(relation.from) })
+	);
+}
+
 export function valueId(category, name) {
 	return `${category}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 }
