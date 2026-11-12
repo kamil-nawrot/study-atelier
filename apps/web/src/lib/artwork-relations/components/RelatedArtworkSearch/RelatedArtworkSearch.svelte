@@ -8,13 +8,14 @@
 	type Props = {
 		id?: string;
 		excluded: ReadonlySet<string>;
+		invalid?: boolean;
 		onpick: (artwork: RelatedArtwork) => void;
 	};
 
 	const SEARCH_DELAY_MS = 250;
 	const SHOWN = 8;
 
-	let { id, excluded, onpick }: Props = $props();
+	let { id, excluded, invalid = false, onpick }: Props = $props();
 
 	let query = $state('');
 	let found = $state<ArtworkRelationMatch[]>();
@@ -52,6 +53,7 @@
 <div class="search">
 	<SearchField
 		{id}
+		aria-invalid={invalid ? true : undefined}
 		compact
 		label={m.artworkRelations.search}
 		placeholder={m.artworkRelations.search}

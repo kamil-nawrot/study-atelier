@@ -79,6 +79,9 @@ describe('ArtworkRelationsField', () => {
 		);
 
 		await expect.element(page.getByText(m.artworkRelations.artworkRequired)).toBeVisible();
+		await expect
+			.element(page.getByRole('searchbox', { name: m.artworkRelations.search }))
+			.toHaveAttribute('aria-invalid', 'true');
 		await userEvent.click(
 			page.getByRole('button', { name: m.artworkRelations.removeEmpty, exact: true })
 		);

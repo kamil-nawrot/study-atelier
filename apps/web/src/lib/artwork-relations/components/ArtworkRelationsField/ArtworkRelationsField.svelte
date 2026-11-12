@@ -55,7 +55,7 @@
 
 {#snippet addButton()}
 	<div class="add">
-		<TextButton onclick={add}>
+		<TextButton inline onclick={add}>
 			<Icon icon={Plus} size="sm" />
 			{m.artworkRelations.add}
 		</TextButton>
@@ -72,6 +72,7 @@
 				<li class="row">
 					<Select
 						id="{fieldId}-{row.key}-type"
+						aria-invalid={error && row.type === '' ? true : undefined}
 						compact
 						hideLabel
 						label={m.artworkRelations.type}
@@ -83,7 +84,11 @@
 					{#if row.artwork}
 						<cite class="artwork-title">{row.artwork.title}</cite>
 					{:else}
-						<RelatedArtworkSearch {excluded} onpick={(artwork) => pick(row, artwork)} />
+						<RelatedArtworkSearch
+							{excluded}
+							invalid={!!error}
+							onpick={(artwork) => pick(row, artwork)}
+						/>
 					{/if}
 					<IconButton
 						id="{fieldId}-{row.key}-remove"
@@ -110,7 +115,6 @@
 
 	.add :global(.text-button) {
 		display: inline-flex;
-		padding-inline: 0;
 		align-items: center;
 		gap: var(--spacing-1);
 	}
