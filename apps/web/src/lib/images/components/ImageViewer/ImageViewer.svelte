@@ -2,8 +2,10 @@
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import X from '@lucide/svelte/icons/x';
+	import { MediaQuery } from 'svelte/reactivity';
 	import { ArtworkImage, Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { PinchZoom } from '#lib/images/pinch-zoom/pinch-zoom.svelte.ts';
 
 	type Props = {
 		image?: { src?: string; srcset?: string; width?: number; height?: number };
@@ -22,8 +24,21 @@
 		event.preventDefault();
 	}
 
+	const touch = new MediaQuery('pointer: coarse');
+	const zoom = new PinchZoom();
+
 	let viewer: HTMLDialogElement;
+	let zoomed: HTMLElement | undefined = $state();
 	let used = $state(false);
+
+	$effect(() => {
+		void image?.src;
+		zoom.reset();
+	});
+
+	function swiped(direction: 'previous' | 'next'): void {
+		if (count > 1) onstep?.(direction === 'next' ? 1 : -1);
+	}
 
 	export function open(): void {
 		used = true;
@@ -31,17 +46,31 @@
 	}
 </script>
 
-<dialog bind:this={viewer} class="viewer" aria-label={alt} onkeydown={stepOnArrow}>
+<dialog
+	bind:this={viewer}
+	class="viewer"
+	class:touch={touch.current}
+	{@attach touch.current && zoom.attach(() => zoomed, swiped)}
+	aria-label={alt}
+	onclose={() => zoom.reset()}
+	onkeydown={stepOnArrow}
+>
 	{#if used && image?.src}
-		<ArtworkImage
-			{alt}
-			height={image.height}
-			sizes="100vw"
-			src={image.src}
-			srcset={image.srcset}
-			surface="stage"
-			width={image.width}
-		/>
+		<div
+			bind:this={zoomed}
+			style:transform="translate({zoom.view.x}px, {zoom.view.y}px) scale({zoom.view.scale})"
+			class="zoom"
+		>
+			<ArtworkImage
+				{alt}
+				height={image.height}
+				sizes="100vw"
+				src={image.src}
+				srcset={image.srcset}
+				surface="stage"
+				width={image.width}
+			/>
+		</div>
 	{/if}
 	{#if count > 1}
 		<button
@@ -86,6 +115,15 @@
 	.viewer[open] {
 		display: grid;
 		place-items: center;
+		overflow: hidden;
+	}
+
+	.viewer.touch {
+		touch-action: none;
+	}
+
+	.zoom {
+		transform-origin: center;
 	}
 
 	.viewer :global(img) {
