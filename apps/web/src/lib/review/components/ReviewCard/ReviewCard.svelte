@@ -1,15 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import {
-		ArtworkImage,
-		ImageCredit,
-		NoImage,
-		overlayScrollbar,
-		StageBackdrop
-	} from '@study-atelier/ui';
+	import { overlayScrollbar } from '@study-atelier/ui';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-	import ImageViewer from '#lib/images/components/ImageViewer/ImageViewer.svelte';
-	import { m } from '#lib/i18n/i18n.ts';
+	import ReviewArtwork from '#lib/review/components/ReviewArtwork/ReviewArtwork.svelte';
 
 	type Props = {
 		artwork?: WallArtwork;
@@ -17,6 +10,8 @@
 		alt: string;
 		credit?: string;
 		compact?: boolean;
+		questionFirst?: boolean;
+		collapsed?: boolean;
 		labelledby: string;
 		stage?: Snippet;
 		body: Snippet;
@@ -30,62 +25,24 @@
 		alt,
 		credit,
 		compact = false,
+		questionFirst = false,
+		collapsed = false,
 		labelledby,
 		stage,
 		body,
 		actions,
 		overlay
 	}: Props = $props();
-
-	let viewer = $state<ReturnType<typeof ImageViewer>>();
 </script>
 
-<div class="card" class:compact>
-	{#if stage}
-		<div class="stage">
+<div class="card" class:compact class:question-first={questionFirst}>
+	<div class="stage" class:collapsed={collapsed && !stage}>
+		{#if stage}
 			{@render stage()}
-		</div>
-	{:else}
-		<figure class="stage">
-			{#if image?.src}
-				<StageBackdrop src={image.src} />
-				<button
-					class="open"
-					aria-label={m.artworkView.openImage}
-					onclick={() => viewer?.open()}
-					type="button"
-				>
-					<span class="mat">
-						<span class="frame">
-							<ArtworkImage
-								{alt}
-								height={image.height}
-								loading="eager"
-								sizes="(min-width: 768px) 60vw, 100vw"
-								src={image.src}
-								srcset={image.srcset}
-								width={image.width}
-							/>
-							{@render overlay?.()}
-						</span>
-					</span>
-				</button>
-			{:else if artwork?.imageUnavailable}
-				<span class="mat">
-					<ArtworkImage {alt} unavailable />
-				</span>
-			{:else}
-				<span class="mat">
-					<span class="window">
-						<NoImage />
-					</span>
-				</span>
-			{/if}
-			{#if credit}
-				<ImageCredit label={m.artwork.creditLabel} text={credit} />
-			{/if}
-		</figure>
-	{/if}
+		{:else}
+			<ReviewArtwork {alt} {artwork} {collapsed} {compact} {credit} {image} {overlay} />
+		{/if}
+	</div>
 
 	<section class="panel" aria-labelledby={labelledby}>
 		<div class="body" {@attach overlayScrollbar()}>
@@ -98,10 +55,6 @@
 		{/if}
 	</section>
 </div>
-
-{#if image?.src}
-	<ImageViewer bind:this={viewer} {alt} {image} />
-{/if}
 
 <style>
 	.card {
@@ -124,51 +77,10 @@
 		color: var(--color-stage-fg-muted);
 	}
 
-	.stage > * {
-		position: relative;
-		z-index: 1;
-	}
-
-	.open {
-		display: block;
-		max-width: 100%;
-		padding: 0;
-		border: none;
-		background: none;
-		cursor: var(--cursor-zoom-in);
-	}
-
-	.mat {
-		display: block;
-		max-width: 100%;
-		padding: var(--spacing-2);
-		background: var(--color-mat-bg);
-	}
-
-	.frame {
-		position: relative;
-		display: block;
-	}
-
-	.mat :global(img) {
-		display: block;
-		width: auto;
-		max-width: 100%;
-		height: auto;
-		max-height: 50dvh;
-		background: var(--color-mat-window);
-	}
-
 	@media (max-width: 767.98px) {
-		.compact .mat :global(img) {
-			max-height: 35dvh;
+		.compact .stage {
+			padding: var(--spacing-4);
 		}
-	}
-
-	.window {
-		display: grid;
-		width: min(320px, calc(100vw - 2 * var(--spacing-6)));
-		aspect-ratio: 4 / 5;
 	}
 
 	.panel {
@@ -186,11 +98,40 @@
 	.actions {
 		position: sticky;
 		bottom: 0;
+		z-index: 2;
 		display: grid;
 		gap: var(--spacing-3);
 		padding: var(--spacing-4);
 		border-top: var(--border-width-hairline) solid var(--color-tag);
 		background: var(--color-bg);
+	}
+
+	@media (max-width: 767.98px) {
+		.card {
+			grid-template-rows: auto 1fr;
+			min-height: var(--artwork-max-height, 100svh);
+		}
+
+		.question-first {
+			grid-template-rows: auto auto 1fr;
+		}
+
+		.question-first .panel {
+			display: contents;
+		}
+
+		.question-first .body {
+			order: -1;
+			padding-bottom: 0;
+		}
+
+		.question-first .actions {
+			align-self: end;
+		}
+
+		.collapsed {
+			padding: var(--spacing-2) var(--spacing-4);
+		}
 	}
 
 	@media (min-width: 768px) {
@@ -204,20 +145,6 @@
 		.stage {
 			container-type: size;
 			padding: var(--spacing-6);
-		}
-
-		.mat {
-			padding: var(--spacing-4) var(--spacing-4) var(--spacing-6);
-		}
-
-		.mat :global(img) {
-			max-width: calc(100cqw - 2 * var(--spacing-4));
-			max-height: calc(100cqh - var(--spacing-12) - var(--spacing-8));
-		}
-
-		.window {
-			width: auto;
-			height: calc(100cqh - var(--spacing-24) - var(--spacing-12));
 		}
 
 		.panel {

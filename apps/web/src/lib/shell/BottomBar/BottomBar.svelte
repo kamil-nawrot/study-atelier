@@ -29,7 +29,7 @@
 	const careerShown = $derived(page.data.careerShown !== false);
 </script>
 
-<nav class="bottom-bar" aria-label={m.menu.bar}>
+<nav class="bottom-bar" aria-label={m.menu.bar} data-bottom-bar>
 	<a class="item" aria-current={inAtelier ? 'page' : undefined} href={atelierPath}>
 		<Icon icon={ImagesIcon} />
 		<span class="label">{m.menu.atelier}</span>

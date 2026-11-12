@@ -134,6 +134,7 @@
 	image={pin ? artworkImageSource(pin.image, STAGE_WIDTH) : artwork.image}
 	labelledby="quiz-heading"
 	overlay={pin ? pinMark : undefined}
+	questionFirst={item.mode === 'quiz_image'}
 	stage={item.mode === 'quiz_image' ? tiles : undefined}
 >
 	{#snippet body()}

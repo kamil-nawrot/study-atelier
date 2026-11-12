@@ -804,6 +804,7 @@ export const pl = {
 			noteTag: 'Pytanie dodatkowe z notatek',
 			noteQuestion: 'Jakiego pojęcia brakuje w Twojej notatce?',
 			noteSource: 'Z notatki do dzieła',
+			showArtwork: 'Pokaż dzieło',
 			definitionQuestion: 'Jakie pojęcie opisuje ta definicja?',
 			maskedTerm: 'ukryte pojęcie',
 			definitionRetry: 'Wrócimy do niej za chwilę.',

@@ -144,6 +144,30 @@
 		min-width: 0;
 	}
 
+	@media (max-width: 767.98px) {
+		.options {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		.option {
+			align-items: flex-start;
+			height: 100%;
+			padding: var(--spacing-2) var(--spacing-3);
+		}
+
+		.option:not(.right, .wrong) .key {
+			display: none;
+		}
+
+		.label {
+			display: -webkit-box;
+			overflow: hidden;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 3;
+			line-clamp: 3;
+		}
+	}
+
 	.reason {
 		display: flex;
 		flex: none;

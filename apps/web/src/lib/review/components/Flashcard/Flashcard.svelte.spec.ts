@@ -69,6 +69,7 @@ describe('Flashcard', () => {
 	});
 
 	it('shows the answer, the note, the credit and when each rating brings the artwork back', async () => {
+		await page.viewport(1280, 800);
 		renderCard(true);
 
 		await expect

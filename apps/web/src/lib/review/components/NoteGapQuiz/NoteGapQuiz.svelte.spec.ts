@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
@@ -41,6 +41,10 @@ function renderQuiz(chosen?: number): {
 }
 
 describe('NoteGapQuiz', () => {
+	beforeEach(async () => {
+		await page.viewport(390, 844);
+	});
+
 	it('shows the passage with a gap, its artwork and four terms', async () => {
 		const quiz = renderQuiz();
 
@@ -63,5 +67,21 @@ describe('NoteGapQuiz', () => {
 		await expect.element(page.getByText(m.review.quiz.definitionRetry)).toBeVisible();
 		await page.getByRole('button', { name: m.review.quiz.next }).click();
 		expect(quiz.onnext).toHaveBeenCalledOnce();
+	});
+});
+
+describe('NoteGapQuiz on a computer', () => {
+	beforeEach(async () => {
+		await page.viewport(1280, 800);
+	});
+
+	it('shows the passage in the panel next to the artwork, without the turning card', async () => {
+		renderQuiz();
+
+		await expect.element(page.getByRole('img', { name: m.review.quiz.maskedTerm })).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.review.quiz.showArtwork }))
+			.not.toBeInTheDocument();
+		await expect.element(page.getByRole('img', { name: 'Portal królewski' })).toBeVisible();
 	});
 });

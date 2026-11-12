@@ -1,10 +1,12 @@
 <script lang="ts">
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
+	import { MediaQuery } from 'svelte/reactivity';
 	import { Button, Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { quizKey } from '#lib/review/keys/keys.ts';
 	import type { NoteGapItem } from '#lib/review/types/note-gap-item.ts';
 	import type { ReviewDetails } from '#lib/review/types/review-details.ts';
+	import NoteGapCard from '#lib/review/components/NoteGapCard/NoteGapCard.svelte';
 	import QuizOptions from '#lib/review/components/QuizOptions/QuizOptions.svelte';
 	import ReviewCard from '#lib/review/components/ReviewCard/ReviewCard.svelte';
 
@@ -17,6 +19,8 @@
 	};
 
 	let { item, details, chosen, onanswer, onnext }: Props = $props();
+
+	const phone = new MediaQuery('max-width: 767.98px');
 
 	let heading = $state<HTMLElement>();
 	let nextButton = $state<HTMLElement>();
@@ -37,6 +41,30 @@
 </script>
 
 <svelte:window onkeydown={keydown} />
+
+{#snippet note()}
+	<blockquote class="note">
+		<p>
+			{#each item.segments as segment, index (index)}
+				{#if !segment.masked}
+					{segment.text}
+				{:else if answered}
+					<mark class="term">{segment.text}</mark>
+				{:else}
+					<span class="gap" aria-label={m.review.quiz.maskedTerm} role="img"></span>
+				{/if}
+			{/each}
+		</p>
+		<p class="caption">
+			{m.review.quiz.noteSource}
+			<cite class="artwork-title">{item.artwork.title}</cite>
+		</p>
+	</blockquote>
+{/snippet}
+
+{#snippet card()}
+	<NoteGapCard {answered} artwork={item.artwork} {note} />
+{/snippet}
 
 {#snippet next()}
 	<div bind:this={nextButton}>
@@ -61,28 +89,15 @@
 	credit={details?.credit}
 	image={item.artwork.image}
 	labelledby="quiz-heading"
+	stage={phone.current ? card : undefined}
 >
 	{#snippet body()}
 		<div class="intro">
 			<p class="overline">{m.review.quiz.noteTag}</p>
 			<h1 bind:this={heading} id="quiz-heading" tabindex="-1">{m.review.quiz.noteQuestion}</h1>
-			<blockquote class="note">
-				<p>
-					{#each item.segments as segment, index (index)}
-						{#if !segment.masked}
-							{segment.text}
-						{:else if answered}
-							<mark class="term">{segment.text}</mark>
-						{:else}
-							<span class="gap" aria-label={m.review.quiz.maskedTerm} role="img"></span>
-						{/if}
-					{/each}
-				</p>
-				<p class="caption">
-					{m.review.quiz.noteSource}
-					<cite class="artwork-title">{item.artwork.title}</cite>
-				</p>
-			</blockquote>
+			{#if !phone.current}
+				{@render note()}
+			{/if}
 		</div>
 		<QuizOptions {chosen} {onanswer} {quiz} saving={false} />
 		<div class="feedback" role="status">
