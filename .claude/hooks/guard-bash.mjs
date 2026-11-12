@@ -119,6 +119,20 @@ function isDirectory(file) {
 	}
 }
 
+function isFile(file) {
+	try {
+		return statSync(file).isFile();
+	} catch {
+		return false;
+	}
+}
+
+function namesOneFile(arg, directory) {
+	const literal = arg.startsWith(':(literal)') ? arg.slice(':(literal)'.length) : arg;
+	if (literal.startsWith(':')) return false;
+	return isFile(path.resolve(directory, literal));
+}
+
 function checkAdd(args, directory) {
 	for (const arg of args) {
 		if (arg === '--') continue;
@@ -129,7 +143,7 @@ function checkAdd(args, directory) {
 		if (arg === '.' || arg.endsWith('/') || isDirectory(path.resolve(directory, arg))) {
 			return `git add ${arg} stages a whole folder, the owner's untracked files in it too (for example supabase/snippets/). Stage each file by its path.`;
 		}
-		if (GLOB.test(arg) || arg.startsWith(':')) {
+		if ((GLOB.test(arg) || arg.startsWith(':')) && !namesOneFile(arg, directory)) {
 			return `git add ${arg} stages by a pattern. Stage each file by its path.`;
 		}
 	}

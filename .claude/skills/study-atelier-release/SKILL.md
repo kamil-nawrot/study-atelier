@@ -78,7 +78,7 @@ The release has two halves, each ending with a hand-off to the owner.
    🤖 Generated with [Claude Code](https://claude.com/claude-code)
    ```
 
-8. **Wait for CI** with `pnpm wait-ci <n>` (it also stops on a conflict). Report to the owner in Polish: the PR link, what the changelog says in three to five bullets, the migrations, and "zmerguj **merge commitem**". Stop.
+8. **Wait for CI** with `pnpm wait-ci <n>` (it also stops on a conflict). A failure in a spec known to fail at random (it has an open issue) is rerun once with `gh run rerun <run> --failed`, and the case is added to that issue; any other failure is reported to the owner. Report to the owner in Polish: the PR link, what the changelog says in three to five bullets, the migrations, and "zmerguj **merge commitem**". Stop.
 
 ## Part 2: finish ("zmergowałem, dokończ wydanie")
 
