@@ -407,9 +407,9 @@ reads:
     frequency: view
     today:
       {
-        requests: 0,
+        requests: 1,
         whole: [],
-        note: 'new in 0.23 (ADR-0257); target one RPC returning name, first meaning, counts and cover crop path'
+        note: 'ATL-677: one RPC symbol_atlas returning name, created_at, first meaning, counts and the cover pin with its crop path; pins of artworks in the trash are left out; crops signed in one batch'
       }
 
   - id: R27
@@ -425,9 +425,9 @@ reads:
     frequency: view
     today:
       {
-        requests: 0,
+        requests: 3,
         whole: [],
-        note: 'new in 0.23; target 2 selects with embeds, crops signed in one batch'
+        note: 'ATL-677: the symbol with meanings and labels in one select with embeds, its pins with the image in one select, the artworks of those pins through the wall loader (tile columns, era, styles, authors) in one select; crops signed in one batch'
       }
 
   - id: R28

@@ -375,7 +375,7 @@ alternatives:
 
   - id: M7
     name: Keep symbols with ordered meanings and context labels, and mark them on pins
-    status: 'accepted 2026-11-12, ADR-0257; to build in 0.23'
+    status: 'accepted 2026-11-12, ADR-0257; schema, atlas and symbol page built in ATL-677, pins, value pages and review in ATL-678'
     kind: schema
     tables: [symbols, symbol_meanings, symbol_meaning_contexts, artwork_pins]
     serves: [R26, R27, R28, R29, R30, W23, W24]
@@ -476,7 +476,7 @@ patterns:
       also: []
     }
   - { id: R26, today: 'new', target: '1 RPC symbol_atlas', model: [M7] }
-  - { id: R27, today: 'new', target: '2 selects with embeds', model: [M7] }
+  - { id: R27, today: 'new', target: '3 selects with embeds', model: [M7] }
   - { id: R28, today: 'new', target: '+1 light index beside the term index', model: [M7] }
   - { id: R29, today: 'new', target: '+1 select by the label column', model: [M7] }
   - { id: R30, today: 'new', target: '+1 at the session start', model: [M7] }

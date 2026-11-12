@@ -85,10 +85,13 @@ Table artwork_pins {
   created_at "timestamp with time zone" [not null, default: `now()`]
   view_width "double precision"
   crop_path text
+  symbol_id uuid
+  symbol_meaning_id uuid
 
   indexes {
     glossary_entry_id [name: 'artwork_pins_glossary_entry_id_idx', note: 'where (glossary_entry_id IS NOT NULL)']
     image_id [name: 'artwork_pins_image_id_idx']
+    symbol_id [name: 'artwork_pins_symbol_id_idx', note: 'where (symbol_id IS NOT NULL)']
   }
   Note: 'RLS on'
 }
@@ -510,6 +513,56 @@ Table style_periods {
   Note: 'RLS on'
 }
 
+Table symbol_meaning_contexts {
+  id uuid [pk, default: `gen_random_uuid()`]
+  owner_id uuid [not null, default: `auth.uid()`]
+  meaning_id uuid [not null]
+  position smallint [not null]
+  value_id uuid
+  era_code text
+  artwork_id uuid
+  glossary_entry_id uuid
+  text text
+
+  indexes {
+    (meaning_id, position) [unique]
+    artwork_id [name: 'symbol_meaning_contexts_artwork_id_idx', note: 'where (artwork_id IS NOT NULL)']
+    era_code [name: 'symbol_meaning_contexts_era_code_idx', note: 'where (era_code IS NOT NULL)']
+    glossary_entry_id [name: 'symbol_meaning_contexts_glossary_entry_id_idx', note: 'where (glossary_entry_id IS NOT NULL)']
+    value_id [name: 'symbol_meaning_contexts_value_id_idx', note: 'where (value_id IS NOT NULL)']
+  }
+  Note: 'RLS on'
+}
+
+Table symbol_meanings {
+  id uuid [pk, default: `gen_random_uuid()`]
+  owner_id uuid [not null, default: `auth.uid()`]
+  symbol_id uuid [not null]
+  position smallint [not null]
+  text text [not null]
+
+  indexes {
+    (id, owner_id) [unique]
+    (id, symbol_id) [unique]
+    (symbol_id, position) [unique]
+  }
+  Note: 'RLS on'
+}
+
+Table symbols {
+  id uuid [pk, default: `gen_random_uuid()`]
+  owner_id uuid [not null, default: `auth.uid()`]
+  name text [not null]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+  updated_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    (id, owner_id) [unique]
+    (owner_id, `lower(name)`) [name: 'symbols_name_key', unique]
+  }
+  Note: 'RLS on'
+}
+
 Table timeline_events {
   id uuid [pk, default: `gen_random_uuid()`]
   owner_id uuid [not null, default: `auth.uid()`]
@@ -570,6 +623,8 @@ Ref artwork_images_artwork_id_owner_id_fkey: artwork_images.(artwork_id, owner_i
 Ref artwork_pins_glossary_entry_id_owner_id_fkey: artwork_pins.(glossary_entry_id, owner_id) > glossary_entries.(id, owner_id) [delete: set null]
 Ref artwork_pins_image_id_owner_id_fkey: artwork_pins.(image_id, owner_id) > artwork_images.(id, owner_id) [delete: cascade]
 Ref artwork_pins_owner_id_fkey: artwork_pins.owner_id > auth.users.id [delete: cascade]
+Ref artwork_pins_symbol_id_owner_id_fkey: artwork_pins.(symbol_id, owner_id) > symbols.(id, owner_id) [delete: set null]
+Ref artwork_pins_symbol_meaning_id_symbol_id_fkey: artwork_pins.(symbol_meaning_id, symbol_id) > symbol_meanings.(id, symbol_id) [delete: set null]
 Ref artwork_values_artwork_id_owner_id_fkey: artwork_values.(artwork_id, owner_id) > artworks.(id, owner_id) [delete: cascade]
 Ref artwork_values_value_id_owner_id_fkey: artwork_values.(value_id, owner_id) > category_values.(id, owner_id) [delete: cascade]
 Ref artworks_era_code_fkey: artworks.era_code > eras.code
@@ -605,6 +660,15 @@ Ref review_log_artwork_id_owner_id_fkey: review_log.(artwork_id, owner_id) > art
 Ref style_details_value_id_owner_id_category_code_fkey: style_details.(value_id, owner_id, category_code) > category_values.(id, owner_id, category_code) [delete: cascade]
 Ref style_periods_period_id_owner_id_fkey: style_periods.(period_id, owner_id) > category_values.(id, owner_id) [delete: cascade]
 Ref style_periods_style_id_owner_id_fkey: style_periods.(style_id, owner_id) > category_values.(id, owner_id) [delete: cascade]
+Ref symbol_meaning_contexts_artwork_id_owner_id_fkey: symbol_meaning_contexts.(artwork_id, owner_id) > artworks.(id, owner_id) [delete: cascade]
+Ref symbol_meaning_contexts_era_code_fkey: symbol_meaning_contexts.era_code > eras.code
+Ref symbol_meaning_contexts_glossary_entry_id_owner_id_fkey: symbol_meaning_contexts.(glossary_entry_id, owner_id) > glossary_entries.(id, owner_id) [delete: cascade]
+Ref symbol_meaning_contexts_meaning_id_owner_id_fkey: symbol_meaning_contexts.(meaning_id, owner_id) > symbol_meanings.(id, owner_id) [delete: cascade]
+Ref symbol_meaning_contexts_owner_id_fkey: symbol_meaning_contexts.owner_id > auth.users.id [delete: cascade]
+Ref symbol_meaning_contexts_value_id_owner_id_fkey: symbol_meaning_contexts.(value_id, owner_id) > category_values.(id, owner_id) [delete: cascade]
+Ref symbol_meanings_owner_id_fkey: symbol_meanings.owner_id > auth.users.id [delete: cascade]
+Ref symbol_meanings_symbol_id_owner_id_fkey: symbol_meanings.(symbol_id, owner_id) > symbols.(id, owner_id) [delete: cascade]
+Ref symbols_owner_id_fkey: symbols.owner_id > auth.users.id [delete: cascade]
 Ref timeline_events_owner_id_fkey: timeline_events.owner_id > auth.users.id [delete: cascade]
 Ref visit_artworks_artwork_id_owner_id_fkey: visit_artworks.(artwork_id, owner_id) > artworks.(id, owner_id) [delete: cascade]
 Ref visit_artworks_owner_id_fkey: visit_artworks.owner_id > auth.users.id [delete: cascade]
