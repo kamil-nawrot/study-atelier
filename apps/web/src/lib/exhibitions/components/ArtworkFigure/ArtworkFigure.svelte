@@ -3,6 +3,7 @@
 	import { MediaQuery } from 'svelte/reactivity';
 	import { CappedPicture, NoImage } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
+	import ImageOpener from '#lib/images/components/ImageOpener/ImageOpener.svelte';
 	import PaletteBand from '#lib/images/components/PaletteBand/PaletteBand.svelte';
 	import { PaletteLoader } from '#lib/images/palette-loader/palette-loader.svelte.ts';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
@@ -38,6 +39,8 @@
 
 	let flipped = $state(false);
 	let capped = $state(false);
+
+	const opens = $derived(!editable && !paletteOnly && artwork?.image?.src !== undefined);
 	const phone = new MediaQuery('max-width: 767.98px');
 	const byline = $derived(
 		artwork ? [artwork.authors.join(', '), artwork.date].filter(Boolean).join(', ') : ''
@@ -112,6 +115,9 @@
 				<div class="placeholder">
 					<NoImage />
 				</div>
+			{/if}
+			{#if opens && !flipped && artwork?.image}
+				<ImageOpener alt={artwork.title} image={artwork.image} />
 			{/if}
 			{#if canFlip && flipped}
 				<div
