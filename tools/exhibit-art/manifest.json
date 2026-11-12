@@ -34,6 +34,7 @@
     "boncompagni_academy": "cort-workshop",
     "laurel_skull": "valck-vanitas-whole",
     "pilgrim_shell": "callot-pilgrims",
+    "vault_cobweb": "weiditz-web",
     "van_eyck_easel": "galle-master-pupils-centre-right"
   },
   "variants": [
@@ -1409,6 +1410,49 @@
         0.21,
         0.6455,
         0.589
+      ]
+    },
+    {
+      "exhibit": "vault_cobweb",
+      "status": "chosen",
+      "commons_file": "Gewelf met spinnenweb, RP-P-1874-11-72-1.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous after Hans Weiditz, Vault with a cobweb, woodcut for Cicero, Officia M.T.C., published by Heinrich Steiner, 1514–1531, Rijksmuseum RP-P-1874-11-72-1",
+      "variant": "weiditz-web",
+      "crop": [
+        0.13,
+        0.12,
+        0.927,
+        0.718
+      ]
+    },
+    {
+      "exhibit": "vault_cobweb",
+      "status": "alternative",
+      "commons_file": "Gewelf met spinnenweb, RP-P-1874-11-72-1.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous after Hans Weiditz, Vault with a cobweb, woodcut for Cicero, Officia M.T.C., published by Heinrich Steiner, 1514–1531, Rijksmuseum RP-P-1874-11-72-1",
+      "variant": "weiditz-web-whole",
+      "crop": [
+        0.125,
+        0.042,
+        0.932,
+        0.795
+      ],
+      "pad": true
+    },
+    {
+      "exhibit": "vault_cobweb",
+      "status": "alternative",
+      "commons_file": "Gewelf met spinnenweb, RP-P-1874-11-72-1.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous after Hans Weiditz, Vault with a cobweb, woodcut for Cicero, Officia M.T.C., published by Heinrich Steiner, 1514–1531, Rijksmuseum RP-P-1874-11-72-1",
+      "variant": "weiditz-web-close",
+      "crop": [
+        0.2083,
+        0.1805,
+        0.7917,
+        0.618
       ]
     },
     {
