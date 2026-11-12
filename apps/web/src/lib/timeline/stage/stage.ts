@@ -18,6 +18,7 @@ const LANE_VERTICAL = 18;
 const VERTICAL_SHARE = 0.66;
 const VERTICAL_MIN = 440;
 const VERTICAL_MAX = 820;
+const VERTICAL_FIT_MIN = 280;
 
 type Box = {
 	along: number;
@@ -30,7 +31,8 @@ export function orientationFor(width: number): Orientation {
 	return width > 0 && width < NARROW_WIDTH ? 'vertical' : 'horizontal';
 }
 
-export function verticalLength(viewportHeight: number): number {
+export function verticalLength(viewportHeight: number, room = 0): number {
+	if (room > 0) return Math.round(Math.min(Math.max(room, VERTICAL_FIT_MIN), VERTICAL_MAX));
 	return Math.round(
 		Math.min(Math.max(viewportHeight * VERTICAL_SHARE, VERTICAL_MIN), VERTICAL_MAX)
 	);
@@ -42,10 +44,11 @@ export function stageGeometry(
 	eventLanes: number,
 	orientation: Orientation = 'horizontal',
 	viewportHeight = 0,
-	artworkLanes = 0
+	artworkLanes = 0,
+	room = 0
 ): StageGeometry {
 	if (orientation === 'vertical') {
-		const length = verticalLength(viewportHeight);
+		const length = verticalLength(viewportHeight, room);
 		const eventsFrom = AXIS_WIDTH + ZONE_GAP;
 		const eventsSize = eventLanes * LANE_VERTICAL;
 		const artworksFrom = eventsFrom + eventsSize + (eventLanes > 0 ? 2 * ZONE_GAP : 0);

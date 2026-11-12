@@ -3,6 +3,7 @@ import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import {
 	MAX_LANES,
 	applyTimelineFilter,
+	artworkLanes,
 	artworksIn,
 	emptyTimelineFilter,
 	forOtherEra,
@@ -75,6 +76,19 @@ describe('timeline filter', () => {
 		const filter = toggleLane(toggleLane(emptyTimelineFilter(), baroque), tenebrism);
 		expect(lanesOf(nightWatch, filter)).toEqual([0, 1]);
 		expect(lanesOf(teresa, filter)).toEqual([0]);
+	});
+
+	it('lays out one coloured lane of artworks for every chosen period or style', () => {
+		const filter = toggleLane(toggleLane(emptyTimelineFilter(), baroque), tenebrism);
+		const lanes = artworkLanes(filter, artworks);
+
+		expect(lanes.map((lane) => lane.key)).toEqual([
+			`${baroque.field}:${baroque.value}`,
+			`${tenebrism.field}:${tenebrism.value}`
+		]);
+		expect(lanes[0].artworks).toContain(teresa);
+		expect(lanes[1].artworks).not.toContain(teresa);
+		expect(lanes[0].colour).not.toBe(lanes[1].colour);
 	});
 
 	it('removes a chosen lane on a second toggle', () => {
