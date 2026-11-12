@@ -104,15 +104,17 @@ Every exported component has a row here; a pull request that adds a component ad
 
 ### Artworks and brand
 
-| Component      | Purpose                                                                                                                                                                                                                     |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ArtworkTile`  | An artwork on the wall: image or placeholder, title, authors, date, record number, era mark and heart; `compact` for two columns on a phone: the title in two lines at most, the authors and the date on lines of their own |
-| `ArtworkImage` | Artwork image with `srcset`, loading primer and a message when it fails                                                                                                                                                     |
-| `Meter`        | Thin bar that fills with the share of a maximum, read by screen readers as a meter with its label                                                                                                                           |
-| `NoImage`      | Placeholder for an artwork without an image: the catalogue cross at 4:5, or filling its container                                                                                                                           |
-| `Frame`        | Passe-partout frame for artworks: `list` or `view` size                                                                                                                                                                     |
-| `Logo`         | The mark with the wordmark                                                                                                                                                                                                  |
-| `LogoMark`     | The passe-partout mark alone, with content for its window                                                                                                                                                                   |
+| Component       | Purpose                                                                                                                                                                                                                     |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ArtworkTile`   | An artwork on the wall: image or placeholder, title, authors, date, record number, era mark and heart; `compact` for two columns on a phone: the title in two lines at most, the authors and the date on lines of their own |
+| `ArtworkImage`  | Artwork image with `srcset`, loading primer and a message when it fails                                                                                                                                                     |
+| `CappedPicture` | An image capped at `--picture-max-height`; when the cap makes it narrower than its frame, it stands on a `StageBackdrop` in an 8 px passe-partout                                                                           |
+| `StageBackdrop` | The blurred copy of an image under a stage, veiled by `--color-stage-bg`                                                                                                                                                    |
+| `Meter`         | Thin bar that fills with the share of a maximum, read by screen readers as a meter with its label                                                                                                                           |
+| `NoImage`       | Placeholder for an artwork without an image: the catalogue cross at 4:5, or filling its container                                                                                                                           |
+| `Frame`         | Passe-partout frame for artworks: `list` or `view` size                                                                                                                                                                     |
+| `Logo`          | The mark with the wordmark                                                                                                                                                                                                  |
+| `LogoMark`      | The passe-partout mark alone, with content for its window                                                                                                                                                                   |
 
 ## Commands
 

@@ -1,7 +1,14 @@
 <script lang="ts">
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
 	import { untrack } from 'svelte';
-	import { ArtworkImage, Button, Icon, ImageCredit, NoImage } from '@study-atelier/ui';
+	import {
+		ArtworkImage,
+		Button,
+		Icon,
+		ImageCredit,
+		NoImage,
+		StageBackdrop
+	} from '@study-atelier/ui';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
@@ -149,7 +156,6 @@
 <figure
 	style:--image-ratio={ratio}
 	class="stage"
-	class:dimmed={image !== undefined}
 	class:flipping={flipLinks !== undefined}
 	class:sized={ratio !== undefined}
 	class:with-gallery={image !== undefined && gallery.length > 1}
@@ -159,7 +165,7 @@
 		<FlipLinks links={flipLinks} />
 	{/if}
 	{#if image}
-		<img class="backdrop" alt="" aria-hidden="true" src={image.src} />
+		<StageBackdrop src={image.src} />
 		<div class="mat">
 			<div class="frame" bind:clientWidth={frameWidth}>
 				<button
@@ -253,6 +259,9 @@
 <style>
 	.stage {
 		--size-gallery-thumb: 56px;
+		--color-stage-bg: var(--color-bg);
+		--color-stage-fg: var(--color-fg);
+		--color-stage-fg-muted: var(--color-fg-muted);
 
 		position: relative;
 		display: grid;
@@ -265,24 +274,7 @@
 		color: var(--color-stage-fg-muted);
 	}
 
-	.dimmed::after {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background: var(--color-scrim);
-	}
-
-	.backdrop {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		filter: blur(32px);
-		scale: 1.2;
-	}
-
-	.stage > :not(.backdrop) {
+	.stage > * {
 		position: relative;
 		z-index: 1;
 	}
