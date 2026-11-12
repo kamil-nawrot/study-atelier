@@ -1407,6 +1407,7 @@ export type Database = {
           owner_id: string;
           rating: number;
           reviewed_at: string;
+          wrong_answer: string | null;
           year_miss: number | null;
         };
         ComputedFields: never;
@@ -1422,6 +1423,7 @@ export type Database = {
           owner_id?: string;
           rating: number;
           reviewed_at?: string;
+          wrong_answer?: string | null;
           year_miss?: number | null;
         };
         Update: {
@@ -1436,6 +1438,7 @@ export type Database = {
           owner_id?: string;
           rating?: number;
           reviewed_at?: string;
+          wrong_answer?: string | null;
           year_miss?: number | null;
         };
         Relationships: [
