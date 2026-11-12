@@ -47,7 +47,7 @@
 		</Button>
 	</EmptyState>
 {:else}
-	<div class="tools">
+	<div class="atlas">
 		<ListTools
 			{options}
 			searchLabel={m.symbols.search}
@@ -67,22 +67,22 @@
 				</Button>
 			{/snippet}
 		</ListTools>
+		{#if shown.length === 0}
+			<p class="lead">{m.symbols.noResults(query.trim())}</p>
+		{:else}
+			<ul class="grid">
+				{#each shown as symbol (symbol.id)}
+					<li><SymbolTile {symbol} /></li>
+				{/each}
+			</ul>
+		{/if}
 	</div>
-
-	{#if shown.length === 0}
-		<p class="lead">{m.symbols.noResults(query.trim())}</p>
-	{:else}
-		<ul class="grid">
-			{#each shown as symbol (symbol.id)}
-				<li><SymbolTile {symbol} /></li>
-			{/each}
-		</ul>
-	{/if}
 {/if}
 
 <style>
-	.tools {
-		margin-bottom: var(--spacing-6);
+	.atlas {
+		display: grid;
+		gap: var(--spacing-6);
 	}
 
 	.grid {
