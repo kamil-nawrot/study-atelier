@@ -458,8 +458,8 @@ export type Database = {
       };
       catalogue_museums: {
         Row: {
+          alias: string | null;
           country_code: string;
-          english_name: string | null;
           latitude: number;
           longitude: number;
           name: string;
@@ -467,16 +467,16 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          alias?: string | null;
           country_code: string;
-          english_name?: string | null;
           latitude: number;
           longitude: number;
           name: string;
           wikidata_id: string;
         };
         Update: {
+          alias?: string | null;
           country_code?: string;
-          english_name?: string | null;
           latitude?: number;
           longitude?: number;
           name?: string;

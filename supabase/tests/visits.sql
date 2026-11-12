@@ -57,8 +57,8 @@ begin
     'save_visit keeps artworks when the visit is saved with none';
 
   perform public.save_visit(
-    '{"visited_on": "2026-01-01", "date_precision": "year"}', 'Abteiberg Museum', '{}');
-  select id into starter from public.category_values where category_code = 'location' and name = 'Abteiberg Museum';
+    '{"visited_on": "2026-01-01", "date_precision": "year"}', 'Museum Abteiberg', '{}');
+  select id into starter from public.category_values where category_code = 'location' and name = 'Museum Abteiberg';
   assert starter is not null, 'save_visit does not add a new place';
   assert (select catalogue_wikidata_id from public.location_details where value_id = starter) = 'Q206346',
     'a new place from the museum list gets no details';

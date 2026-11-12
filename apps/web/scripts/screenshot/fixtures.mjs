@@ -409,17 +409,17 @@ export const VALUE_DETAILS = {
 };
 
 export const CATALOGUE_MUSEUMS = [
-	{ name: 'Luwr', english_name: 'Louvre Museum', country_code: 'FR' },
-	{ name: 'Prado', english_name: 'Museo del Prado', country_code: 'ES' },
-	{ name: 'Galeria Uffizi', english_name: 'Uffizi Gallery', country_code: 'IT' },
-	{ name: 'Muzeum Brytyjskie', english_name: 'British Museum', country_code: 'GB' },
-	{ name: 'Rijksmuseum', english_name: null, country_code: 'NL' },
+	{ name: 'Luwr', alias: 'Louvre Museum', country_code: 'FR' },
+	{ name: 'Prado', alias: 'Museo del Prado', country_code: 'ES' },
+	{ name: 'Galeria Uffizi', alias: 'Uffizi Gallery', country_code: 'IT' },
+	{ name: 'Muzeum Brytyjskie', alias: 'British Museum', country_code: 'GB' },
+	{ name: 'Rijksmuseum', alias: null, country_code: 'NL' },
 	{
 		name: 'Muzeum Narodowe w Warszawie',
-		english_name: 'National Museum in Warsaw',
+		alias: 'National Museum in Warsaw',
 		country_code: 'PL'
 	},
-	{ name: 'Pradla Museum', english_name: null, country_code: 'PL' }
+	{ name: 'Pradla Museum', alias: null, country_code: 'PL' }
 ];
 
 export const ARTWORK_SEARCH = [
