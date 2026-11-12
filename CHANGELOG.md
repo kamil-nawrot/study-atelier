@@ -2,6 +2,45 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.22.0] - 2026-11-12
+
+The atelier is comfortable on a phone: a bottom bar to move around, views that fit the screen, reviews made for the thumb, images to zoom with two fingers, and an app to install on the home screen.
+
+### Added
+
+- On a phone a bottom bar with "Atelier", "Słowniczek", "Dodaj", "Powtórki" and "Menu" replaces the side menu. "Dodaj" opens a sheet with Dzieło, Pojęcie, Wizyta and Wydarzenie, the tile of the current module highlighted, and "Menu" opens the rest of the app in a sheet.
+- The app installs on the home screen of a phone as "Atelier", opens at the wall without the address bar, and the colour of the system bar follows the theme chosen in Ustawienia.
+- The full-screen image of an artwork, a review card or an exhibition zooms with two fingers, pans with one, and a double tap zooms in or back out; a swipe moves to the next image only while it is not zoomed. In an exhibition being read, a tap on an artwork's image opens it full screen.
+- "Układ ściany na telefonie" in "Widok" shows the wall in one or two columns.
+- The list of exhibitions has a search by title.
+- The guessed year of a review moves by one with "Rok wcześniej" and "Rok później", faster while held, also on a computer.
+
+### Changed
+
+- Top bar on a phone: the actions are quiet icons, a gold square marks filters in use, and the rarer actions (Porównaj, Usuń) of the artwork, entry, exhibition, value, visit and event views moved to "Więcej działań".
+- Views on a phone drop their leads and counts (the wall keeps its count), the tabs of Kartoteka and Ustawienia are unboxed and scroll, the glossary list is tighter, and the names of the card index share the size of the periods.
+- The wall and exhibitions on a phone: an image is never taller than the screen, and a very tall one stands whole in a thin passe-partout over its blurred copy.
+- Reviews on a phone:
+  - Quiz answers stand in a 2×2 grid without the key numbers, so all four fit above "Następne".
+  - "Gdzie jest…?" and the order question put the question above the images.
+  - The order is set by tapping the artworks from the oldest ("Zaznacz dzieła po kolei, od najstarszego do najnowszego. Ponowne kliknięcie wycofa zaznaczenie."), and the tiles fill the room left by an image with its blurred copy.
+  - The image shrinks to a strip while a title is typed.
+  - A gap in a note is one card with "Pokaż dzieło" to turn it to the artwork.
+  - "Odkryj kartę", the ratings and "Następne" stay at the bottom of the screen.
+- The artwork form starts with the title on a phone, and a focused field moves above the keyboard in every form.
+- Kalendarium on a phone: more room for the axis, which fits the screen whole, and a scale bar in one line with the levels next to the chosen one.
+- Ustawienia save every change at once, without a save bar.
+- The source of an image moved from a line under it into a © icon in its corner.
+- Cards of glossary terms and pins open only once their content is ready, and stay above the bottom bar so their links can be tapped.
+- Internal: library components for the bottom bar, sheets, the "Więcej działań" menu, capped pictures and stage backdrops, a web manifest, and a code review of the version with its fixes.
+
+### Fixed
+
+- On a phone the bottom bar no longer jumps or leaves a black strip while the page scrolls, the image of an artwork no longer grows while scrolling, the new-version notice and toasts stand above the bar, tooltips no longer stay after a tap, and the letter index of Słowniczek jumps when the finger is lifted.
+- Switching the wall between one and two columns, or searching it, no longer makes the columns overlap and the page scroll sideways.
+- A setting turned back while its first save was still running is saved again instead of being lost.
+- On an iPhone the save bar of a form clears the home indicator.
+
 ## [0.21.4] - 2026-11-11
 
 The backup made before a release migrates the production database no longer depends on the Ubuntu package servers.
@@ -939,3 +978,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.21.2]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.2
 [0.21.3]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.3
 [0.21.4]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.4
+[0.22.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.22.0
