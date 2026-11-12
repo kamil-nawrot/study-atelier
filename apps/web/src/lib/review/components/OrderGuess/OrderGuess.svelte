@@ -93,7 +93,7 @@
 	</div>
 {/snippet}
 
-<ReviewCard {actions} alt="" compact labelledby="quiz-heading" stage={board}>
+<ReviewCard {actions} alt="" compact labelledby="quiz-heading" questionFirst stage={board}>
 	{#snippet body()}
 		<div class="intro">
 			<p class="overline">{m.review.order.tag}</p>

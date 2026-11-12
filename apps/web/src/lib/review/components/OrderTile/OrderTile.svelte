@@ -2,7 +2,7 @@
 	import Check from '@lucide/svelte/icons/check';
 	import GripVertical from '@lucide/svelte/icons/grip-vertical';
 	import X from '@lucide/svelte/icons/x';
-	import { ArtworkImage, Icon } from '@study-atelier/ui';
+	import { ArtworkImage, Icon, StageBackdrop } from '@study-atelier/ui';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { OrderPlace } from '#lib/review/order-guess/order-guess.ts';
@@ -33,6 +33,7 @@
 <span class="tile" class:right={place?.right} class:wrong={place && !place.right}>
 	<span class="window">
 		{#if image?.src}
+			<StageBackdrop src={image.src} />
 			<ArtworkImage
 				{alt}
 				height={image.height}
@@ -92,11 +93,17 @@
 	.window {
 		position: relative;
 		display: grid;
-		justify-items: center;
+		place-items: center;
 		width: 100%;
+		height: 100%;
+		overflow: hidden;
 	}
 
-	.window :global(img) {
+	.window :global(.artwork-image) {
+		position: relative;
+	}
+
+	.window :global(.artwork-image img) {
 		display: block;
 		width: auto;
 		max-width: 100%;
@@ -153,7 +160,7 @@
 			cursor: grab;
 		}
 
-		.window :global(img) {
+		.window :global(.artwork-image img) {
 			max-height: calc(100cqh - var(--spacing-24) - var(--spacing-16));
 		}
 

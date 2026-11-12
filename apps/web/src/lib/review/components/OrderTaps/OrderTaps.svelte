@@ -89,4 +89,8 @@
 	.tap :global([data-grip]) {
 		display: none;
 	}
+
+	.tap :global(.window img) {
+		max-height: 15svh;
+	}
 </style>
