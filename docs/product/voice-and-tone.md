@@ -54,6 +54,7 @@ Each tier of an exhibit in "Ekspozycja" reveals one curiosity on the exhibit's t
 | Ogród Clifforta               | how collections are described and ordered: names, labels, catalogues and classification systems ([ADR-0202](../decisions/0202-show-described-values-as-cliffords-garden.md))            |
 | Kryształowy Pałac             | how exhibitions are made: world's fairs, selection, hanging and curators                                                                                                                |
 | Akademia Boncompagniego       | how the arts were told apart and ranked: the contest of painting and sculpture, academies, fine and applied arts, printmaking and photography admitted among the arts                   |
+| Czaszka zwycięzcy             | how symbols were read: vanitas, emblem books, Ripa's _Iconologia_, hieroglyphs taken for symbols and iconology ([ADR-0262](../decisions/0262-show-symbols-as-the-victor-s-skull.md))    |
 | Hidden exhibits               | one story about the work itself                                                                                                                                                         |
 
 ## Examples
