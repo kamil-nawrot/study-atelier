@@ -495,6 +495,24 @@ reads:
     frequency: view
     today: { requests: 0, whole: [], note: 'new in 0.23 (ADR-0259); part of value_page_content' }
 
+  - id: R33
+    name: Map
+    route: /atelier/map
+    shows: 'every city with artworks at places with a point, as a circle with a count, gold when seen; a city panel with its places and thumbnails; the places without a point for "Uzupełnij położenie"'
+    needs:
+      - 'places: all location values with their point (value id, name, latitude, longitude, place type, country)'
+      - 'visit_artworks: artwork ids seen in person (as for the wall filter "Widziane na żywo")'
+      - 'artworks: tile columns, want_to_see and their place, from the cached collection of the wall'
+      - 'cities: derived in the browser from the bundled Natural Earth populated places, never read'
+    scope: all
+    frequency: view
+    today:
+      {
+        requests: 0,
+        whole: [],
+        note: 'new in 0.23 (ADR-0260); target 1 request for the places with their details, the rest from the wall cache'
+      }
+
 writes:
   - id: W01
     name: Save artwork
@@ -659,6 +677,20 @@ writes:
     side_effects: ['"Powiązania" band of both authors']
     frequency: 'write, with the author form (save_value_details replaces the full list); merge_category_values moves them'
 
+  - id: W27
+    name: Mark an artwork to see
+    changes: [artworks.want_to_see]
+    side_effects: ['wall filter "Chcę zobaczyć"', 'map filter "Chcę zobaczyć"']
+    frequency: write
+    note: 'one update of the column, like the favourite heart'
+
+  - id: W28
+    name: Set the position of a place
+    changes: [location_details.latitude, location_details.longitude, location_details.wikidata_id]
+    side_effects: [map, the count of places without a point]
+    frequency: 'write, from the place page or the fill-in mode of the map; save_visit copies the point of a starter museum'
+    note: 'save_visit also clears want_to_see of the artworks of the visit (ADR-0260)'
+
 relations:
   # Every relation the app shows, whether stored or computed today.
   - { from: artwork, to: value, kind: has_value, stored: artwork_values }
@@ -666,6 +698,12 @@ relations:
   - { from: style, to: period, kind: in_period, stored: style_periods }
   - { from: visit, to: place, kind: at_place, stored: visits.place_id }
   - { from: visit, to: artwork, kind: saw, stored: visit_artworks }
+  - {
+      from: place,
+      to: city,
+      kind: lies_in,
+      stored: 'no, nearest Natural Earth town to location_details point'
+    }
   - {
       from: exhibition,
       to: artwork,
