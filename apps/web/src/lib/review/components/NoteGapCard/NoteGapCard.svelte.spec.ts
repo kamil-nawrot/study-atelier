@@ -1,9 +1,11 @@
 import { createRawSnippet } from 'svelte';
 import { describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
+import '@study-atelier/ui/styles.css';
 import { render } from 'vitest-browser-svelte';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { m } from '#lib/i18n/i18n.ts';
+import { expectImageCredit } from '#lib/testing/image-credit/image-credit.ts';
 import NoteGapCard from './NoteGapCard.svelte';
 
 const note = createRawSnippet(() => ({ render: () => '<p>W tympanonie Chrystus.</p>' }));
@@ -32,5 +34,20 @@ describe('NoteGapCard', () => {
 		props.answered = true;
 
 		await expect.element(page.getByText('W tympanonie Chrystus.')).toBeVisible();
+	});
+	it('names the source of the image on the turned card', async () => {
+		render(NoteGapCard, {
+			artwork: {
+				...artwork,
+				image: { src: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=', width: 1, height: 1 }
+			},
+			answered: false,
+			credit: 'Wikimedia Commons',
+			note
+		});
+
+		await page.getByRole('button', { name: m.review.quiz.showArtwork }).click();
+
+		await expectImageCredit('Wikimedia Commons');
 	});
 });

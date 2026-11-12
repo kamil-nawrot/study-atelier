@@ -63,7 +63,7 @@
 {/snippet}
 
 {#snippet card()}
-	<NoteGapCard {answered} artwork={item.artwork} {note} />
+	<NoteGapCard {answered} artwork={item.artwork} credit={details?.credit} {note} />
 {/snippet}
 
 {#snippet next()}

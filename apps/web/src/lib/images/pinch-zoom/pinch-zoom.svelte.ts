@@ -75,7 +75,9 @@ export class PinchZoom {
 			const touching = (): Point[] => Object.values(pointers);
 			let start: { view: View; points: Point[] } | undefined;
 			let lastTap: { at: Point; time: number } | undefined;
+			let firsts: Record<number, Point> = {};
 			let moved = false;
+			let several = false;
 
 			const centre = (): Point => {
 				const box = frame.getBoundingClientRect();
@@ -97,8 +99,16 @@ export class PinchZoom {
 
 			const down = (event: PointerEvent): void => {
 				if (event.pointerType !== 'touch') return;
-				pointers[event.pointerId] = { x: event.clientX, y: event.clientY };
-				if (touching().length === 1) moved = false;
+				if (event.target instanceof Element && event.target.closest('button')) return;
+				const point = { x: event.clientX, y: event.clientY };
+				if (touching().length === 0) {
+					firsts = {};
+					moved = false;
+					several = false;
+				}
+				pointers[event.pointerId] = point;
+				firsts[event.pointerId] = point;
+				if (touching().length > 1) several = true;
 				begin();
 			};
 			const move = (event: PointerEvent): void => {
@@ -106,7 +116,9 @@ export class PinchZoom {
 				pointers[event.pointerId] = { x: event.clientX, y: event.clientY };
 				const now = touching();
 				const first = start.points[0];
-				if (Math.hypot(now[0].x - first.x, now[0].y - first.y) > TAP_DISTANCE) moved = true;
+				const origin = firsts[event.pointerId];
+				if (origin && Math.hypot(event.clientX - origin.x, event.clientY - origin.y) > TAP_DISTANCE)
+					moved = true;
 				if (now.length >= 2 && start.points.length >= 2) {
 					this.view = fit(
 						pinched(start.view, [start.points[0], start.points[1]], [now[0], now[1]], centre())
@@ -119,25 +131,27 @@ export class PinchZoom {
 					});
 				}
 			};
+			const tap = (point: Point, time: number): void => {
+				const near =
+					lastTap && Math.hypot(point.x - lastTap.at.x, point.y - lastTap.at.y) <= 2 * TAP_DISTANCE;
+				if (lastTap && near && time - lastTap.time < DOUBLE_TAP_MS) {
+					this.view = fit(tapped(this.view, point, centre()));
+					lastTap = undefined;
+				} else {
+					lastTap = { at: point, time };
+				}
+			};
 			const up = (event: PointerEvent): void => {
 				const point = pointers[event.pointerId];
 				if (!point || !start) return;
-				const single = touching().length === 1 && start.points.length === 1;
+				const single = !several && touching().length === 1 && start.points.length === 1;
 				const first = start.points[0];
 				delete pointers[event.pointerId];
 				if (single && !this.zoomed && moved) {
 					const direction = swipeDirection(point.x - first.x, point.y - first.y);
 					if (direction) onswipe(direction);
 				}
-				if (single && !moved) {
-					const time = event.timeStamp;
-					if (lastTap && time - lastTap.time < DOUBLE_TAP_MS) {
-						this.view = fit(tapped(this.view, point, centre()));
-						lastTap = undefined;
-					} else {
-						lastTap = { at: point, time };
-					}
-				}
+				if (single && !moved) tap(point, event.timeStamp);
 				if (touching().length > 0) begin();
 				else start = undefined;
 			};

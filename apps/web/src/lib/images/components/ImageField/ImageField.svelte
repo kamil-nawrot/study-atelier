@@ -249,6 +249,7 @@
 
 	.frame {
 		position: relative;
+		isolation: isolate;
 	}
 
 	.primed {
