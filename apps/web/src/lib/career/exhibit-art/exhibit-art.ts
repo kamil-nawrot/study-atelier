@@ -62,6 +62,11 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		licence: 'CC0',
 		commonsFile: 'De Bibliotheek in 1610, Objectnr PV PV14002.15.jpg'
 	},
+	laurel_skull: {
+		credit: 'Autor nieznany, wyd. Gerard Valck, „Martwa natura vanitas”, 1662–1726',
+		licence: 'CC0',
+		commonsFile: 'Vanitas stilleven, RP-P-OB-17.493.jpg'
+	},
 	own_eye: {
 		credit: 'Camera obscura, plansza z „Encyklopedii” Diderota i d’Alemberta, tło uzupełnione',
 		licence: 'domena publiczna',

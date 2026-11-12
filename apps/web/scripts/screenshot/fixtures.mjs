@@ -1459,6 +1459,13 @@ export const EXHIBITS = [
 		thresholds: [1, 10, 25, 50, 100, 250, 500]
 	},
 	{
+		exhibit: 'laurel_skull',
+		room: 'scriptorium',
+		hidden: false,
+		value: 6,
+		thresholds: [1, 5, 10, 25, 50, 100]
+	},
+	{
 		exhibit: 'timeline',
 		room: 'scriptorium',
 		hidden: false,

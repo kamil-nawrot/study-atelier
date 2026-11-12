@@ -1678,6 +1678,14 @@ export const pl = {
 				'Groteska, rodzaj ornamentu, wzięła nazwę od włoskiego „grottesco”. Jej wzory podpatrzono w starożytnych dekoracjach odkrytych pod koniec XV wieku w podziemnych salach, czyli grotach, Złotego Domu Nerona w Rzymie. Pod kierunkiem Rafaela ozdobiono nią potem loggie Pałacu Watykańskiego.',
 				'Secesję Włosi nazywali między innymi „Stile Liberty”, od londyńskiego domu towarowego Liberty & Co. Niemcy mówili „Jugendstil”, od monachijskiego pisma „Die Jugend”.'
 			],
+			laurel_skull: [
+				'„Homo bulla”, czyli „człowiek jest bańką”, to starożytne powiedzenie, które w XVI wieku przywrócił Erazm z Rotterdamu w zbiorze przysłów „Adagia”. Bańka jest krucha i piękna tylko przez chwilę, zanim pęknie, dlatego malarze przedstawiali dzieci puszczające bańki, by mówić o kruchości ludzkiego życia.',
+				'Pierwszą drukowaną książką uznaną za księgę symboli był „Emblematum liber” Andrei Alciata, wydany w Augsburgu 28 lutego 1531 roku. Miał 104 emblematy, z czego 97 z drzeworytami, które zamówił humanista Conrad Peutinger. Sam Alciato najpewniej nie miał z tym wydaniem nic wspólnego.',
+				'„Iconologia” Cesarego Ripy, podręcznik symboli dla artystów, opisuje Malarstwo jako kobietę o rozwichrzonych czarnych włosach, z ustami przewiązanymi chustą, bo malarstwo jest nieme, i z maską na złotym łańcuchu. Artemisia Gentileschi namalowała się jako ta alegoria, pomijając knebel. Jej koledzy mężczyźni nie mogli tak utożsamić się z kobiecą personifikacją Malarstwa.',
+				'W XVII wieku jezuitę Athanasiusa Kirchera, jednego z pierwszych badaczy starożytnego Egiptu, uważano za tego, który odczytał hieroglify. W 1650 roku wydał w Rzymie przekład napisów z obelisku, który do dziś stoi na Fontannie Czterech Rzek Berniniego. Przekład był błędny, a hieroglify odczytano naprawdę dopiero 150 lat później.',
+				'Grecki autor Horapollon z Aleksandrii objaśniał w V wieku znaczenia hieroglifów, a według jego dzieła czytano je potem jak szyfr-rebus dla wtajemniczonych, który nie zapisuje mowy. Dopiero w 1822 roku Jean-François Champollion pokazał na imionach Ptolemeusza i Kleopatry, że Egipcjanie zapisywali obce imiona znakami oddającymi dźwięki.',
+				'Niemiecki historyk sztuki Erwin Panofsky w 1934 roku wyemigrował na stałe do Stanów Zjednoczonych. W książce „Studies in Iconology” z 1939 roku oddzielił ikonologię od ikonografii, czyli odczytywania tematów dzieł przez symbole znane z literatury i innych dzieł sztuki.'
+			],
 			own_eye: [
 				'Camera lucida, przyrząd optyczny opatentowany w 1807 roku przez Williama Hyde’a Wollastona, pozwalała rysownikowi widzieć jednocześnie widok i kartkę. Widok nakładał się na papier, więc wystarczyło go obrysować.',
 				'Canaletto długo uchodził za malarza, który rysował Wenecję w plenerze z camera obscura. Badanie jego dopracowanych rysunków w podczerwieni wskazuje jednak, że powstawały w pracowni na podstawie szkiców z natury.',
@@ -1940,6 +1948,12 @@ export const pl = {
 				about:
 					'Rycina z 1610 roku pokazuje bibliotekę uniwersytetu w Lejdzie, w której księgi przykuwano łańcuchami do pulpitów.',
 				count: counter('pojęć w Słowniczku')
+			},
+			laurel_skull: {
+				name: 'Czaszka zwycięzcy',
+				about:
+					'Na mezzotincie wydanej przez Gerarda Valcka czaszka w laurowym wieńcu leży na nutach obok zgaszonej świecy, a wiersz pod nią przypomina, że przed Śmiercią ustąpi każdy zwycięzca.',
+				count: counter('symboli wskazanych na dziełach')
 			},
 			own_eye: {
 				name: 'Camera obscura z Encyklopedii',

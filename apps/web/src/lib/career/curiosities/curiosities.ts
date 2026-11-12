@@ -90,6 +90,14 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 		'https://collections.vam.ac.uk/item/O112433/detail-of-the-decoration-of-print-ottaviani-giovanni/',
 		'https://www.vam.ac.uk/articles/art-nouveau-an-international-style'
 	],
+	laurel_skull: [
+		'https://collections.vam.ac.uk/item/O127482/children-blowing-bubbles-oil-painting-unknown/',
+		'https://www.emblems.arts.gla.ac.uk/alciato/books.php?id=A31a',
+		'https://www.rct.uk/collection/exhibitions/the-art-of-italy-in-the-royal-collection/the-queens-gallery-buckingham/self-portrait-as-the-allegory-of-painting-la-pittura',
+		'https://digitalcommons.lmu.edu/mobydick-asc-galleryexhibit/20/',
+		'https://essentiels.bnf.fr/fr/article/1fa13963-21a8-4e08-950a-05f6515b7d34-1822-champollion-perce-secret-hieroglyphes',
+		'https://arthistorians.info/panofskye/'
+	],
 	own_eye: [
 		'https://collections.whipplemuseum.cam.ac.uk/objects/12563/',
 		'https://theartsdesk.com/visual-arts/canaletto-art-venice-queens-gallery-preview',
