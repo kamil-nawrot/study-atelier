@@ -145,4 +145,59 @@ describe('PinchZoom', () => {
 		expect(zoom.view).toEqual(AT_REST);
 		detach();
 	});
+	it('does not count the end of a pinch as a tap', () => {
+		const { zoom, detach } = setUp();
+
+		touch('pointerdown', 1, 150, 400, 0);
+		touch('pointerdown', 2, 250, 400, 10);
+		touch('pointermove', 2, 350, 400, 50);
+		touch('pointerup', 2, 350, 400, 100);
+		touch('pointerup', 1, 150, 400, 120);
+		const pinched = zoom.view;
+		touch('pointerdown', 3, 150, 400, 200);
+		touch('pointerup', 3, 150, 400, 250);
+
+		expect(zoom.view).toEqual(pinched);
+		detach();
+	});
+
+	it('does not swipe with the finger left after pinching back to the whole image', () => {
+		const { onswipe, detach } = setUp();
+
+		touch('pointerdown', 1, 150, 400);
+		touch('pointerdown', 2, 250, 400);
+		touch('pointermove', 2, 350, 400);
+		touch('pointermove', 2, 250, 400);
+		touch('pointerup', 2, 250, 400);
+		touch('pointermove', 1, 20, 400);
+		touch('pointerup', 1, 20, 400);
+
+		expect(onswipe).not.toHaveBeenCalled();
+		detach();
+	});
+
+	it('leaves taps on the buttons of the viewer out of the double tap', () => {
+		const { zoom, detach } = setUp();
+		const button = document.createElement('button');
+		frame.appendChild(button);
+		const tapButton = (type: string, id: number, timeStamp: number): void => {
+			const event = new PointerEvent(type, {
+				pointerId: id,
+				pointerType: 'touch',
+				clientX: 200,
+				clientY: 400,
+				bubbles: true
+			});
+			Object.defineProperty(event, 'timeStamp', { value: timeStamp });
+			button.dispatchEvent(event);
+		};
+
+		tapButton('pointerdown', 1, 0);
+		tapButton('pointerup', 1, 50);
+		touch('pointerdown', 2, 200, 400, 150);
+		touch('pointerup', 2, 200, 400, 200);
+
+		expect(zoom.view).toEqual(AT_REST);
+		detach();
+	});
 });

@@ -2,17 +2,18 @@
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import StickyNote from '@lucide/svelte/icons/sticky-note';
 	import type { Snippet } from 'svelte';
-	import { ArtworkImage, Icon, NoImage, StageBackdrop } from '@study-atelier/ui';
+	import { ArtworkImage, Icon, ImageCredit, NoImage, StageBackdrop } from '@study-atelier/ui';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 
 	type Props = {
 		artwork: WallArtwork;
 		answered: boolean;
+		credit?: string;
 		note: Snippet;
 	};
 
-	let { artwork, answered, note }: Props = $props();
+	let { artwork, answered, credit, note }: Props = $props();
 
 	let flipped = $state(false);
 
@@ -36,6 +37,9 @@
 					srcset={artwork.image.srcset}
 					width={artwork.image.width}
 				/>
+				{#if credit}
+					<ImageCredit label={m.artwork.creditLabel} text={credit} tone="mat" />
+				{/if}
 			{:else if artwork.imageUnavailable}
 				<ArtworkImage alt={artwork.title} unavailable />
 			{:else}
