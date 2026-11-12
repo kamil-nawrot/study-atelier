@@ -319,6 +319,7 @@ export type Database = {
           title: string;
           type_code: string | null;
           updated_at: string;
+          want_to_see: boolean;
           year_approximate: boolean;
           year_from: number | null;
           year_to: number | null;
@@ -337,6 +338,7 @@ export type Database = {
           title: string;
           type_code?: string | null;
           updated_at?: string;
+          want_to_see?: boolean;
           year_approximate?: boolean;
           year_from?: number | null;
           year_to?: number | null;
@@ -354,6 +356,7 @@ export type Database = {
           title?: string;
           type_code?: string | null;
           updated_at?: string;
+          want_to_see?: boolean;
           year_approximate?: boolean;
           year_from?: number | null;
           year_to?: number | null;
@@ -457,6 +460,8 @@ export type Database = {
         Row: {
           country_code: string;
           english_name: string | null;
+          latitude: number;
+          longitude: number;
           name: string;
           wikidata_id: string;
         };
@@ -464,12 +469,16 @@ export type Database = {
         Insert: {
           country_code: string;
           english_name?: string | null;
+          latitude: number;
+          longitude: number;
           name: string;
           wikidata_id: string;
         };
         Update: {
           country_code?: string;
           english_name?: string | null;
+          latitude?: number;
+          longitude?: number;
           name?: string;
           wikidata_id?: string;
         };
@@ -862,35 +871,44 @@ export type Database = {
           catalogue_wikidata_id: string | null;
           category_code: string;
           country_code: string | null;
+          latitude: number | null;
+          longitude: number | null;
           notes: string | null;
           owner_id: string;
           place_type: string | null;
           summary: string | null;
           updated_at: string;
           value_id: string;
+          wikidata_id: string | null;
         };
         ComputedFields: never;
         Insert: {
           catalogue_wikidata_id?: string | null;
           category_code?: string;
           country_code?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
           notes?: string | null;
           owner_id?: string;
           place_type?: string | null;
           summary?: string | null;
           updated_at?: string;
           value_id: string;
+          wikidata_id?: string | null;
         };
         Update: {
           catalogue_wikidata_id?: string | null;
           category_code?: string;
           country_code?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
           notes?: string | null;
           owner_id?: string;
           place_type?: string | null;
           summary?: string | null;
           updated_at?: string;
           value_id?: string;
+          wikidata_id?: string | null;
         };
         Relationships: [
           {

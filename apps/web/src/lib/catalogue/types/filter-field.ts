@@ -9,4 +9,5 @@ export type FilterField =
 	| 'locations'
 	| 'missing'
 	| 'favourites'
-	| 'seen';
+	| 'seen'
+	| 'wantToSee';

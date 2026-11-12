@@ -688,8 +688,8 @@ writes:
     name: Set the position of a place
     changes: [location_details.latitude, location_details.longitude, location_details.wikidata_id]
     side_effects: [map, the count of places without a point]
-    frequency: 'write, from the place page or the fill-in mode of the map; save_visit copies the point of a starter museum'
-    note: 'save_visit also clears want_to_see of the artworks of the visit (ADR-0260)'
+    frequency: 'write, from the place page or the fill-in mode of the map; a new place from the starter list takes its point by a trigger'
+    note: 'a trigger on visit_artworks clears want_to_see of the artworks a visit holds (ADR-0260)'
 
 relations:
   # Every relation the app shows, whether stored or computed today.

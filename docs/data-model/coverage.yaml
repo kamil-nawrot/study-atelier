@@ -435,7 +435,7 @@ alternatives:
 
   - id: M9
     name: Give a place a point, a starter museum its point and an artwork a want-to-see mark
-    status: 'accepted 2026-11-12, ADR-0260; to build in 0.23'
+    status: 'accepted 2026-11-12, ADR-0260; schema built in 0.23 (ATL-684), the map in ATL-685'
     kind: schema
     tables: [location_details, catalogue_museums, artworks]
     serves: [R33, W27, W28]
@@ -444,8 +444,10 @@ alternatives:
     risk_because: 'nullable columns on existing tables and one boolean; the city is derived in the browser, so no stored name can go stale'
     how: >
       location_details gains latitude, longitude and wikidata_id, catalogue_museums gains latitude and longitude
-      (filled by the migration from Wikidata, Newgrounds deleted), artworks gains want_to_see. save_visit copies the
-      point and id of a starter museum with its country and type, and clears want_to_see of the visit's artworks.
+      (filled by the migration from Wikidata, Newgrounds deleted), artworks gains want_to_see. A trigger before an
+      insert into location_details copies the point and id of the starter museum it names (save_artwork and
+      save_visit), and a trigger after an insert into visit_artworks clears want_to_see of the artwork, except
+      during an import.
       The map reads the places with their details once and takes the artworks from the cached wall collection.
     design:
       - 'A check keeps latitude and longitude both set or both null and in range; another keeps wikidata_id a Q-id.'
