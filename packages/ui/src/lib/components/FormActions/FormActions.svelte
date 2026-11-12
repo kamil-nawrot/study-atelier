@@ -22,7 +22,7 @@
 		flex-wrap: wrap;
 		gap: var(--spacing-2) var(--spacing-3);
 		margin-top: auto;
-		padding: var(--spacing-3) 0;
+		padding: var(--spacing-3) 0 calc(var(--spacing-3) + env(safe-area-inset-bottom));
 	}
 
 	.actions::before {

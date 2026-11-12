@@ -21,7 +21,15 @@
 
 	let width = $state(0);
 
-	let size = $derived(eras.length > 0 ? width / eras.length : 0);
+	const CURRENT_SHARE = 3.4;
+
+	let size = $derived(
+		eras.length === 0
+			? 0
+			: phone.current
+				? width / (eras.length - 1 + CURRENT_SHARE)
+				: width / eras.length
+	);
 
 	function showsName(code: EraCode): boolean {
 		return size >= ICON_ROOM + eraTitle(code).length * NAME_ROOM;

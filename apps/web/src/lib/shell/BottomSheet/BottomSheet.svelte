@@ -24,9 +24,19 @@
 		if (sheet.open) sheet.close();
 	}
 
+	function outside(event: MouseEvent): boolean {
+		const box = sheet.getBoundingClientRect();
+		return (
+			event.clientX < box.left ||
+			event.clientX > box.right ||
+			event.clientY < box.top ||
+			event.clientY > box.bottom
+		);
+	}
+
 	function closeOnLink(event: MouseEvent): void {
 		const target = event.target as Element;
-		if (target === sheet || target.closest('a')) sheet.close();
+		if ((target === sheet && outside(event)) || target.closest('a')) sheet.close();
 	}
 </script>
 

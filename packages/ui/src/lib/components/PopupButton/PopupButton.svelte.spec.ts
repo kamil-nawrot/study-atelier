@@ -200,6 +200,24 @@ describe('PopupButton', () => {
 		bar.remove();
 	});
 
+	it('turns a panel placed below above the button when the screen ends under it', async () => {
+		const host = document.createElement('div');
+		host.style.cssText = 'position: fixed; left: 0; bottom: 0;';
+		document.body.append(host);
+		render(PopupButton, {
+			target: host,
+			props: { label: 'Grouping: era', trigger, children: panel }
+		});
+
+		await button().click();
+
+		const dialog = document.querySelector('[role="dialog"]') as Element;
+		await expect
+			.poll(() => dialog.getBoundingClientRect().bottom)
+			.toBeLessThanOrEqual(button().element().getBoundingClientRect().top);
+		host.remove();
+	});
+
 	it('keeps its panel under the button when there is room below', async () => {
 		render(PopupButton, { label: 'Grouping: era', trigger, children: panel, placement: 'auto' });
 

@@ -43,10 +43,18 @@ export function bringToTop(field: HTMLElement, smooth: boolean): void {
 
 export function watchFieldFocus(): () => void {
 	let pending: (() => void) | undefined;
+	let tracking = false;
 
 	const makeRoom = (): void => {
 		const room = keyboardHeight();
 		document.body.style.paddingBottom = room > 0 ? `${room}px` : '';
+	};
+
+	const track = (on: boolean): void => {
+		if (on === tracking) return;
+		tracking = on;
+		if (on) window.visualViewport?.addEventListener('resize', makeRoom);
+		else window.visualViewport?.removeEventListener('resize', makeRoom);
 	};
 
 	const focusin = (event: FocusEvent): void => {
@@ -60,6 +68,7 @@ export function watchFieldFocus(): () => void {
 			pending?.();
 			if (document.activeElement !== target) return;
 			makeRoom();
+			track(true);
 			bringToTop(field, !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 		};
 		const timer = setTimeout(show, KEYBOARD_WAIT);
@@ -74,6 +83,7 @@ export function watchFieldFocus(): () => void {
 	const focusout = (event: FocusEvent): void => {
 		if (typedField(event.relatedTarget)) return;
 		pending?.();
+		track(false);
 		document.body.style.paddingBottom = '';
 	};
 
@@ -81,6 +91,7 @@ export function watchFieldFocus(): () => void {
 	document.addEventListener('focusout', focusout);
 	return () => {
 		pending?.();
+		track(false);
 		document.body.style.paddingBottom = '';
 		document.removeEventListener('focusin', focusin);
 		document.removeEventListener('focusout', focusout);
