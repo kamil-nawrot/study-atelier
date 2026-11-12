@@ -39,9 +39,11 @@
 			<button
 				class="tap"
 				class:picked={number !== null}
-				aria-label={number === null
-					? m.review.order.imageAlt
-					: m.review.order.place(number, artworks.length)}
+				aria-label={answered
+					? undefined
+					: number === null
+						? m.review.quiz.imageAlt(index + 1)
+						: m.review.order.place(number, artworks.length)}
 				aria-pressed={!answered && number !== null}
 				disabled={answered}
 				onclick={() => tap(artwork)}

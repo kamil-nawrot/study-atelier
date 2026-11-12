@@ -9,7 +9,7 @@ export async function answerTitle(page) {
 }
 
 export async function tapAll(page) {
-	const tiles = page.getByRole('button', { name: 'Dzieło do ułożenia' });
+	const tiles = page.getByRole('button', { name: /^Obraz \d$/ });
 	while ((await tiles.count()) > 0) await tiles.first().click();
 }
 
