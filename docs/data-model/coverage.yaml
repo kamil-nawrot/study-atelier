@@ -433,6 +433,33 @@ alternatives:
     loses:
       - 'One relation per pair of records.'
 
+  - id: M9
+    name: Give a place a point, a starter museum its point and an artwork a want-to-see mark
+    status: 'accepted 2026-11-12, ADR-0260; to build in 0.23'
+    kind: schema
+    tables: [location_details, catalogue_museums, artworks]
+    serves: [R33, W27, W28]
+    pull_requests: 3
+    risk: low
+    risk_because: 'nullable columns on existing tables and one boolean; the city is derived in the browser, so no stored name can go stale'
+    how: >
+      location_details gains latitude, longitude and wikidata_id, catalogue_museums gains latitude and longitude
+      (filled by the migration from Wikidata, Newgrounds deleted), artworks gains want_to_see. save_visit copies the
+      point and id of a starter museum with its country and type, and clears want_to_see of the visit's artworks.
+      The map reads the places with their details once and takes the artworks from the cached wall collection.
+    design:
+      - 'A check keeps latitude and longitude both set or both null and in range; another keeps wikidata_id a Q-id.'
+      - 'No index: the map reads every place of the owner, which owner_id already serves.'
+      - "merge_category_values keeps the point of the kept place, or takes the merged one's when it has none."
+      - 'export_atelier and import_atelier carry the new columns; an older export has none.'
+      - 'Existing places get their point from a one-off reviewed SQL file run after the release, not from the migration.'
+    cost:
+      - 'migration: columns and checks, catalogue points, save_visit, merge_category_values, export and import'
+      - 'SQL tests: save_visit copying the point and clearing the mark, merge of places, import of an old and a new export'
+      - 'database.types.ts, screenshot mocks for the map'
+    loses:
+      - 'A place named after a whole city has the point of the city.'
+
 patterns:
   - { id: R01, today: 10, target: 5, model: none, also: [T1, T2] }
   - { id: R02, today: 2, target: 2, model: none, also: [T13] }
@@ -511,6 +538,12 @@ patterns:
   - { id: R30, today: 'new', target: '+1 at the session start', model: [M7] }
   - { id: R31, today: 'new', target: 'read with the artwork, no request of its own', model: [M8] }
   - { id: R32, today: 'new', target: 'part of value_page_content', model: [M8] }
+  - {
+      id: R33,
+      today: 'new',
+      target: '1 select of the places with their details, artworks from the wall cache',
+      model: [M9]
+    }
 
 writes:
   - {
@@ -619,6 +652,8 @@ writes:
       after: 'save_value_details replaces the relations of the author',
       model: [M8]
     }
+  - { id: W27, today: 'new', after: 'one artwork update of want_to_see', model: [M9] }
+  - { id: W28, today: 'new', after: 'one location_details upsert of the point and id', model: [M9] }
 
 decisions:
   - id: D1
