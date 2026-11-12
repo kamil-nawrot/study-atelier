@@ -31,7 +31,8 @@
     "amateur_magnifier": "daumier-amateur-figure",
     "crystal_palace": "burton-transept",
     "lenoir_chapel": "introduction-left",
-    "boncompagni_academy": "cort-workshop"
+    "boncompagni_academy": "cort-workshop",
+    "laurel_skull": "valck-vanitas-whole"
   },
   "variants": [
     {
@@ -1322,6 +1323,48 @@
         0.33,
         0.98,
         0.973
+      ]
+    },
+    {
+      "exhibit": "laurel_skull",
+      "status": "chosen",
+      "commons_file": "Vanitas stilleven, RP-P-OB-17.493.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous, published by Gerard Valck, Vanitas still life, mezzotint, 1662–1726, Rijksmuseum RP-P-OB-17.493",
+      "variant": "valck-vanitas-whole",
+      "crop": [
+        0.042,
+        0.019,
+        0.958,
+        0.901
+      ]
+    },
+    {
+      "exhibit": "laurel_skull",
+      "status": "alternative",
+      "commons_file": "Vanitas stilleven, RP-P-OB-17.493.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous, published by Gerard Valck, Vanitas still life, mezzotint, 1662–1726, Rijksmuseum RP-P-OB-17.493",
+      "variant": "valck-vanitas-skull-candle",
+      "crop": [
+        0.271,
+        0.185,
+        0.9375,
+        0.826
+      ]
+    },
+    {
+      "exhibit": "laurel_skull",
+      "status": "alternative",
+      "commons_file": "Vanitas stilleven, RP-P-OB-17.493.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous, published by Gerard Valck, Vanitas still life, mezzotint, 1662–1726, Rijksmuseum RP-P-OB-17.493",
+      "variant": "valck-vanitas-skull-bubbles",
+      "crop": [
+        0.104,
+        0.077,
+        0.792,
+        0.738
       ]
     }
   ]
