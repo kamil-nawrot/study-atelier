@@ -689,7 +689,7 @@ writes:
     changes: [location_details.latitude, location_details.longitude, location_details.wikidata_id]
     side_effects: [map, the count of places without a point]
     frequency: 'write, from the place page or the fill-in mode of the map; a new place from the starter list takes its point by a trigger'
-    note: 'a trigger on visit_artworks clears want_to_see of the artworks a visit holds (ADR-0260)'
+    note: 'set_place_point(place, latitude, longitude, wikidata_id) upserts the point; a trigger on visit_artworks clears want_to_see of the artworks a visit holds (ADR-0260)'
 
 relations:
   # Every relation the app shows, whether stored or computed today.

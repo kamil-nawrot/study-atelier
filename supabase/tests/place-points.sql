@@ -40,8 +40,18 @@ begin
   assert not exists (select 1 from public.location_details where value_id = rome),
     'a place outside the catalogue gets details';
 
-  insert into public.location_details (value_id, latitude, longitude, wikidata_id)
-    values (rome, 41.89306, 12.48278, 'Q220');
+  perform public.set_place_point(rome, 41.89306, 12.48278, 'Q220');
+  assert (select wikidata_id from public.location_details where value_id = rome) = 'Q220',
+    'a place without details does not get a point';
+  perform public.set_place_point(rome, 41.9, 12.5);
+  assert (select wikidata_id from public.location_details where value_id = rome) is null,
+    'a point set by a click keeps the Wikidata id of the previous one';
+  perform public.set_place_point(painting, 1, 1);
+  assert not exists (select 1 from public.location_details where value_id = painting),
+    'an artwork gets a point';
+  perform public.set_place_point(rome, null, null);
+  assert (select latitude from public.location_details where value_id = rome) is null,
+    'the point of a place cannot be removed';
   update public.location_details set latitude = 41.9, longitude = 12.5 where value_id = rome;
   assert (select latitude from public.location_details where value_id = rome) = 41.9,
     'the learner cannot change the point of a place';
