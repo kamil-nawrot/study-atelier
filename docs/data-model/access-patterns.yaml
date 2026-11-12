@@ -394,6 +394,80 @@ reads:
         note: 'new in 0.21; folded into the artwork page RPC where possible'
       }
 
+  - id: R26
+    name: Symbol atlas
+    route: /atelier/glossary (tab "Symbole")
+    shows: every symbol as a lens with one detail, its name, its first meaning and the counts of details and meanings; search by name, sort by name, date added or detail count
+    needs:
+      - 'symbols: all, with name and created_at'
+      - 'meanings: the first of each, text only'
+      - 'counts: pins and meanings per symbol, aggregated in the database'
+      - 'cover: one pin crop per symbol; crops signed in one batch'
+    scope: all
+    frequency: view
+    today:
+      {
+        requests: 0,
+        whole: [],
+        note: 'new in 0.23 (ADR-0257); target one RPC returning name, first meaning, counts and cover crop path'
+      }
+
+  - id: R27
+    name: Symbol page
+    route: /atelier/glossary/symbols/[id]
+    shows: one symbol, its meanings in order with context labels and a summary counted from the pinned artworks, the pin lenses grouped by meaning, the pins without a meaning, every lens on an axis of years
+    needs:
+      - 'symbol: one'
+      - 'meanings: of the symbol, ordered, with labels resolved to names (value, era, artwork title, person)'
+      - 'pins: of the symbol, with meaning, loupe view, crop path, image and the artwork tile columns plus era, styles and authors'
+      - 'summary per meaning: counted in the browser from the loaded pins'
+    scope: one
+    frequency: view
+    today:
+      {
+        requests: 0,
+        whole: [],
+        note: 'new in 0.23; target 2 selects with embeds, crops signed in one batch'
+      }
+
+  - id: R28
+    name: Symbol picker in the pin dialog
+    route: /atelier/[number], /atelier/[number]/edit (pin dialog)
+    shows: symbol names to choose from, then the meanings of the chosen symbol when it has two or more
+    needs:
+      - 'symbol index: all, id and name (light)'
+      - 'meanings: of the chosen symbol, on choice (point read by symbol id)'
+    scope: all
+    frequency: view
+    today: { requests: 0, whole: [], note: 'new in 0.23; loads with the term index of R03' }
+
+  - id: R29
+    name: Symbols of a value, attributes of a person
+    route: /atelier/values/[kind]/[id], /atelier/glossary/[id]
+    shows: the symbols whose meanings carry this value, era or glossary person as a label, with the meaning text
+    needs:
+      - 'context labels: by value id, era code or glossary entry id, embedding the meaning text and the symbol name'
+    scope: few
+    frequency: view
+    today:
+      { requests: 0, whole: [], note: 'new in 0.23; target 1 select filtered by the label column' }
+
+  - id: R30
+    name: Symbol extra questions in the review
+    route: /atelier/review
+    shows: 1 to 3 extra questions with a pin crop asking for the symbol, its meaning here or the person it belongs to
+    needs:
+      - 'pins with a symbol and a crop: few, random, with symbol name, meaning text and person label'
+      - 'other answers: other symbol names, meaning texts and glossary persons'
+    scope: few
+    frequency: view
+    today:
+      {
+        requests: 0,
+        whole: [],
+        note: 'new in 0.23 (ADR-0257, like ADR-0153); target 1 request at the session start'
+      }
+
 writes:
   - id: W01
     name: Save artwork
@@ -525,6 +599,27 @@ writes:
     side_effects: [palette in exhibitions and the artwork view]
     frequency: 'write, on saving an image, or once on the first show of an older image'
 
+  - id: W23
+    name: Save or delete a symbol with its meanings and labels
+    changes: [symbols, symbol_meanings, symbol_meaning_contexts]
+    side_effects:
+      [
+        atlas,
+        symbol page,
+        value pages and person pages that list it,
+        pin picker,
+        review extra questions
+      ]
+    frequency: write
+    note: 'one RPC replaces the meanings and labels in order; deleting a symbol clears it from its pins'
+
+  - id: W24
+    name: Save a pin with a symbol
+    changes: [artwork_pins.symbol_id, artwork_pins.symbol_meaning_id]
+    side_effects: [symbol page, atlas counts and cover, review extra questions]
+    frequency: write
+    note: 'extends saving a pin; the meaning must belong to the symbol'
+
 relations:
   # Every relation the app shows, whether stored or computed today.
   - { from: artwork, to: value, kind: has_value, stored: artwork_values }
@@ -540,6 +635,14 @@ relations:
     }
   - { from: exhibition block, to: image, kind: shows_image, stored: 'no, imageId in the document' }
   - { from: pin, to: term, kind: pinned_term, stored: artwork_pins.glossary_entry_id }
+  - { from: pin, to: symbol, kind: shows_symbol, stored: artwork_pins.symbol_id }
+  - { from: pin, to: meaning, kind: means_here, stored: artwork_pins.symbol_meaning_id }
+  - {
+      from: meaning,
+      to: 'value, era, artwork, person',
+      kind: labelled_by,
+      stored: symbol_meaning_contexts
+    }
   - { from: note, to: artwork, kind: links_to, stored: 'no, Markdown text ](/atelier/n)' }
   - {
       from: note,
