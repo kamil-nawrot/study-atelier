@@ -1,6 +1,6 @@
 # 0160. Gamify learning as a museum career
 
-- Status: accepted
+- Status: accepted; the points for adding are extended to symbols by [0266](0266-give-points-for-adding-a-symbol.md)
 - Date: 2026-10-29
 
 ## Context and problem statement
