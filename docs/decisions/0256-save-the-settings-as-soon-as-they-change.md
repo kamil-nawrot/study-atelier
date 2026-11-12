@@ -25,7 +25,7 @@ Chosen option: "quietly", by the owner.
 - A switch or a choice saves without a message. Saving the photo ends with "Zapisano zdjęcie.", removing it with "Usunięto zdjęcie.".
 - The name has its own "Zapisz" next to the field, shown only while the name differs from the saved one; Enter saves it too, and it ends with "Zapisano imię.". A switch saved meanwhile keeps the saved name, so a name being typed is never saved by the way. Leaving with an unsaved name still asks "Odrzucić zmiany?".
 - A failed save turns the changed values back to the saved ones and drops the changes waiting behind it, with the error in an `Alert` at the top of the tab.
-- The tabs keep their card (`SettingsCard`) without the bar, and on a phone Ustawienia shows the bottom bar; the back arrow stays.
+- The tabs stand in the tab panel like "Konto", with the error of a failed save above them (`SettingsCard`), and on a phone Ustawienia shows the bottom bar; the back arrow stays.
 
 ### Consequences
 
