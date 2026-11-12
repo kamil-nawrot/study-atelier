@@ -9,6 +9,7 @@ import {
 	rmSync
 } from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { nodeEnv } from '../node-env/node-env.mjs';
 
 const PACKAGES = [
@@ -19,7 +20,34 @@ const LINTED = /\.(ts|js|mjs|cjs|svelte)$/;
 const STYLED = /\.(css|svelte)$/;
 const TESTED = /^src\/.*\.(ts|js|svelte)$/;
 const SPEC = /\.(spec|test)\.(ts|js)$/;
+const OWNERS_UNTRACKED = /^(design|supabase\/snippets)\//;
+const ROOT_CONFIG =
+	/^(package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|\.nvmrc|eslint\.config\.[cm]?js|stylelint\.config\.[cm]?js|tsconfig[^/]*\.json|lint\/.*)$/;
 const ISSUE_BRANCH = /^(feature|bugfix)\/atl-(\d+)-/;
+
+export function splitNul(text) {
+	return text.split('\0').filter(Boolean);
+}
+
+export function isOwnersUntracked(file) {
+	return OWNERS_UNTRACKED.test(file);
+}
+
+export function touchesRootConfig(files) {
+	return files.some((file) => ROOT_CONFIG.test(file));
+}
+
+export function summary(results, files, all) {
+	if (results.length === 0) {
+		return all
+			? 'No checks ran.'
+			: `No check applies to these ${files.length} changed files, so nothing was linted or type-checked. Run pnpm verify --all before pushing if the change can affect code.`;
+	}
+	const failed = results.filter((result) => !result.passed);
+	return failed.length === 0
+		? `All ${results.length} checks passed.`
+		: `${failed.length} of ${results.length} checks failed.`;
+}
 
 const root = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
 const args = process.argv.slice(2);
@@ -32,8 +60,8 @@ function git(...gitArgs) {
 	return execFileSync('git', gitArgs, { cwd: root, encoding: 'utf8' }).trim();
 }
 
-function lines(text) {
-	return text.split('\n').filter(Boolean);
+function gitList(...gitArgs) {
+	return splitNul(execFileSync('git', gitArgs, { cwd: root, encoding: 'utf8' }));
 }
 
 function baseRef() {
@@ -51,10 +79,16 @@ function baseRef() {
 
 function changedFiles(base) {
 	const files = new Set([
-		...lines(git('diff', '--name-only', '--diff-filter=d', base)),
-		...lines(git('ls-files', '--others', '--exclude-standard'))
+		...gitList('diff', '--name-only', '-z', '--diff-filter=d', base),
+		...gitList('ls-files', '--others', '--exclude-standard', '-z').filter(
+			(file) => !isOwnersUntracked(file)
+		)
 	]);
 	return [...files].filter((file) => existsSync(path.join(root, file))).sort();
+}
+
+function deletedFiles(base) {
+	return gitList('diff', '--name-only', '-z', '--diff-filter=D', base);
 }
 
 function inPackage(files, dir) {
@@ -72,7 +106,7 @@ function specsBeside(dir, files) {
 	);
 }
 
-function changedSteps(files) {
+function changedSteps(files, deleted, rootConfig) {
 	const steps = [];
 	if (files.length > 0) {
 		steps.push({
@@ -83,7 +117,7 @@ function changedSteps(files) {
 	}
 	for (const pkg of PACKAGES) {
 		const own = inPackage(files, pkg.dir);
-		if (own.length === 0) continue;
+		if (own.length === 0 && inPackage(deleted, pkg.dir).length === 0 && !rootConfig) continue;
 		const label = (name) => `${name} (${pkg.dir})`;
 		const linted = own.filter((file) => LINTED.test(file));
 		const styled = own.filter((file) => file.startsWith('src/') && STYLED.test(file));
@@ -109,6 +143,9 @@ function changedSteps(files) {
 			});
 		}
 		steps.push(...packageChecks(pkg, label));
+		if (rootConfig && own.length === 0) {
+			steps.push({ name: label('Lint'), cwd: pkg.dir, cmd: 'pnpm', args: ['lint'] });
+		}
 		if (tested.length > 0) {
 			steps.push({
 				name: label(related ? 'Vitest, related specs' : 'Vitest, specs beside the changes'),
@@ -237,31 +274,35 @@ function tail(file, count) {
 	return readFileSync(file, 'utf8').trimEnd().split('\n').slice(-count).join('\n');
 }
 
-const branch = git('rev-parse', '--abbrev-ref', 'HEAD');
-const base = all ? null : baseRef();
-const files = all ? [] : changedFiles(base);
-const steps = [...(all ? allSteps() : changedSteps(files)), ...repositorySteps(files, branch)];
-const { env, note } = nodeEnv(root);
+function main() {
+	const branch = git('rev-parse', '--abbrev-ref', 'HEAD');
+	const base = all ? null : baseRef();
+	const files = all ? [] : changedFiles(base);
+	const deleted = all ? [] : deletedFiles(base);
+	const rootConfig = touchesRootConfig([...files, ...deleted]);
+	const steps = [
+		...(all ? allSteps() : changedSteps(files, deleted, rootConfig)),
+		...repositorySteps([...files, ...deleted], branch)
+	];
+	const { env, note } = nodeEnv(root);
 
-rmSync(logDir, { recursive: true, force: true });
-mkdirSync(logDir, { recursive: true });
+	rmSync(logDir, { recursive: true, force: true });
+	mkdirSync(logDir, { recursive: true });
 
-console.log(
-	all
-		? `Verifying everything on ${branch}, ${note}`
-		: `Verifying ${files.length} changed files on ${branch} against ${base.slice(0, 8)}, ${note}`
-);
-const results = steps.map((step, index) => run(step, index, env));
-const failed = results.filter((result) => !result.passed);
-
-if (failed.length === 0) {
-	console.log(`\nAll ${results.length} checks passed.`);
-} else {
+	console.log(
+		all
+			? `Verifying everything on ${branch}, ${note}`
+			: `Verifying ${files.length} changed and ${deleted.length} deleted files on ${branch} against ${base.slice(0, 8)}, ${note}`
+	);
+	const results = steps.map((step, index) => run(step, index, env));
+	const failed = results.filter((result) => !result.passed);
 	for (const result of failed) {
 		console.log(
 			`\n✗ ${result.name} exited with ${result.status}. Log: ${path.relative(root, result.log)}\n${tail(result.log, 25)}`
 		);
 	}
-	console.log(`\n${failed.length} of ${results.length} checks failed.`);
-	process.exitCode = 1;
+	console.log(`\n${summary(results, files, all)}`);
+	if (failed.length > 0) process.exitCode = 1;
 }
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main();

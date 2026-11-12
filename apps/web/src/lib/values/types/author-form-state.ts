@@ -9,4 +9,5 @@ export type AuthorFormState = {
 	yearsApproximate: boolean;
 	sortByOther: boolean;
 	sortName: string;
+	country: string;
 };

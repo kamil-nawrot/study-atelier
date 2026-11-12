@@ -379,6 +379,7 @@ export type Database = {
         Row: {
           birth_year: number | null;
           category_code: string;
+          country: string | null;
           death_year: number | null;
           image_height: number | null;
           image_width: number | null;
@@ -401,6 +402,7 @@ export type Database = {
         Insert: {
           birth_year?: number | null;
           category_code?: string;
+          country?: string | null;
           death_year?: number | null;
           image_height?: number | null;
           image_width?: number | null;
@@ -422,6 +424,7 @@ export type Database = {
         Update: {
           birth_year?: number | null;
           category_code?: string;
+          country?: string | null;
           death_year?: number | null;
           image_height?: number | null;
           image_width?: number | null;

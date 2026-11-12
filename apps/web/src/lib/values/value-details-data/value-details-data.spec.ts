@@ -145,6 +145,7 @@ describe('author details', () => {
 			death_year: 1519,
 			years_approximate: false,
 			sort_name: 'Vinci, Leonardo da',
+			country: 'Italia',
 			own_image_path: 'owner/portrait.jpg',
 			image_width: 400,
 			image_height: 500
@@ -164,7 +165,8 @@ describe('author details', () => {
 			birthYear: 1452,
 			deathYear: 1519,
 			yearsApproximate: false,
-			sortName: 'Vinci, Leonardo da'
+			sortName: 'Vinci, Leonardo da',
+			country: 'Italia'
 		});
 	});
 
@@ -206,6 +208,7 @@ describe('author details', () => {
 			details: expect.objectContaining({
 				birth_year: 1452,
 				death_year: null,
+				country: null,
 				own_image_path: 'owner/new.jpg',
 				source_image_file: null,
 				image_width: 4

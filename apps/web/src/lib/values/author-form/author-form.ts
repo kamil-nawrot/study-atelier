@@ -6,8 +6,17 @@ import type { AuthorDetails } from '#lib/values/types/author-details.ts';
 import type { AuthorFieldErrors } from '#lib/values/types/author-field-errors.ts';
 import type { AuthorFormState } from '#lib/values/types/author-form-state.ts';
 
+export const AUTHOR_COUNTRY_MAX_LENGTH = 60;
+
 export function emptyAuthorDetails(): AuthorDetails {
-	return { image: null, birthYear: null, deathYear: null, yearsApproximate: false, sortName: null };
+	return {
+		image: null,
+		birthYear: null,
+		deathYear: null,
+		yearsApproximate: false,
+		sortName: null,
+		country: null
+	};
 }
 
 export function authorFormFromDetails(details: AuthorDetails): AuthorFormState {
@@ -19,7 +28,8 @@ export function authorFormFromDetails(details: AuthorDetails): AuthorFormState {
 		deathBeforeCommonEra: details.deathYear !== null && details.deathYear < 0,
 		yearsApproximate: details.yearsApproximate,
 		sortByOther: details.sortName !== null,
-		sortName: details.sortName ?? ''
+		sortName: details.sortName ?? '',
+		country: details.country ?? ''
 	};
 }
 
@@ -47,6 +57,7 @@ export function authorDetailsFromForm(form: AuthorFormState): AuthorDetails {
 		birthYear,
 		deathYear,
 		yearsApproximate: form.yearsApproximate && (birthYear !== null || deathYear !== null),
-		sortName: form.sortByOther && sortName !== '' ? sortName : null
+		sortName: form.sortByOther && sortName !== '' ? sortName : null,
+		country: form.country.trim() === '' ? null : form.country.trim()
 	};
 }

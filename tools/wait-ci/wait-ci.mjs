@@ -1,21 +1,55 @@
 import { execFileSync, spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 
-const USAGE = 'Usage: pnpm wait-ci <pull request number> [--check <name>]... [--timeout <minutes>]';
+const USAGE =
+	'Usage: pnpm wait-ci <pull request number> [--check <extra job name>]... [--timeout <minutes>]';
 const INTERVAL_MS = 30_000;
 const FAILED = new Set(['fail', 'cancel']);
 
 export function defaultChecks(files) {
-	if (files.length > 0 && files.every((file) => file.endsWith('.md'))) return ['Markdown'];
-	const checks = ['Web app'];
+	const isMarkdown = (file) => file.endsWith('.md');
+	const checks = ['Conventions'];
+	if (
+		files.some(
+			(file) => isMarkdown(file) || file === 'package.json' || file === 'prettier.config.js'
+		)
+	) {
+		checks.push('Markdown');
+	}
+	const appCode = files.some(
+		(file) =>
+			!file.startsWith('docs/') && (!isMarkdown(file) || /^apps\/web\/src\/.*\.md$/.test(file))
+	);
+	if (appCode) checks.push('Web app');
 	if (files.some((file) => file.startsWith('packages/ui/'))) checks.push('UI library');
-	if (files.some((file) => file.startsWith('supabase/')))
+	if (
+		files.some(
+			(file) =>
+				file.startsWith('supabase/') || file === 'apps/web/src/lib/shared/data/database.types.ts'
+		)
+	) {
 		checks.push('Migrations on local Supabase');
+	}
+	if (
+		files.some((file) =>
+			['apps/web/', 'packages/ui/', 'supabase/'].some((prefix) => file.startsWith(prefix))
+		) ||
+		files.includes('pnpm-lock.yaml')
+	) {
+		checks.push('End-to-end');
+	}
 	return checks;
 }
 
 export function summarise(checks, names) {
-	const states = names.map((name) => {
+	const failedElsewhere = [
+		...new Set(
+			checks
+				.filter((check) => FAILED.has(check.bucket) && !names.includes(check.name))
+				.map((check) => check.name)
+		)
+	];
+	const states = [...names, ...failedElsewhere].map((name) => {
 		const buckets = checks.filter((check) => check.name === name).map((check) => check.bucket);
 		if (buckets.some((bucket) => FAILED.has(bucket))) return { name, state: 'fail' };
 		if (buckets.length === 0 || buckets.includes('pending')) return { name, state: 'pending' };
@@ -28,6 +62,32 @@ export function summarise(checks, names) {
 			? 'pending'
 			: 'pass';
 	return { overall, states };
+}
+
+export function parseArgs(args) {
+	const checks = [];
+	let minutes = 40;
+	let pr = null;
+	for (let index = 0; index < args.length; index += 1) {
+		const arg = args[index];
+		if (arg === '--check') {
+			const name = args[(index += 1)];
+			if (!name || name.startsWith('--')) throw new Error(USAGE);
+			checks.push(name);
+		} else if (arg === '--timeout') {
+			const value = args[(index += 1)];
+			minutes = Number(value);
+			if (!/^\d+(\.\d+)?$/.test(value ?? '') || !(minutes > 0)) {
+				throw new Error(`--timeout takes a number of minutes, for example 40. ${USAGE}`);
+			}
+		} else if (/^\d+$/.test(arg) && pr === null) {
+			pr = arg;
+		} else {
+			throw new Error(`Unknown argument "${arg}". ${USAGE}`);
+		}
+	}
+	if (pr === null) throw new Error(USAGE);
+	return { pr, checks, minutes };
 }
 
 function gh(args) {
@@ -47,18 +107,10 @@ function localHead(branch) {
 	return execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 }
 
-function option(args, name) {
-	return args.flatMap((arg, index) => (arg === name ? [args[index + 1]] : []));
-}
-
 async function main() {
-	const args = process.argv.slice(2);
-	const pr = args.find((arg) => /^\d+$/.test(arg));
-	if (!pr) throw new Error(USAGE);
-	const minutes = Number(option(args, '--timeout')[0] ?? 40);
+	const { pr, checks: named, minutes } = parseArgs(process.argv.slice(2));
 	const view = gh(['pr', 'view', pr, '--json', 'files,headRefName']);
-	const named = option(args, '--check');
-	const names = named.length > 0 ? named : defaultChecks(view.files.map((file) => file.path));
+	const names = [...new Set([...defaultChecks(view.files.map((file) => file.path)), ...named])];
 	console.log(`Waiting for ${names.join(', ')} on pull request #${pr}`);
 
 	const deadline = Date.now() + minutes * 60_000;

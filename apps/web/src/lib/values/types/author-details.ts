@@ -6,4 +6,5 @@ export type AuthorDetails = {
 	deathYear: number | null;
 	yearsApproximate: boolean;
 	sortName: string | null;
+	country: string | null;
 };

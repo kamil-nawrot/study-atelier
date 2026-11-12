@@ -11,6 +11,8 @@ const root = mkdtempSync(path.join(tmpdir(), 'guard-bash-'));
 mkdirSync(path.join(root, 'supabase', 'snippets'), { recursive: true });
 mkdirSync(path.join(root, 'apps', 'web'), { recursive: true });
 writeFileSync(path.join(root, 'supabase', 'config.toml'), '');
+mkdirSync(path.join(root, 'apps', 'web', '[number]'), { recursive: true });
+writeFileSync(path.join(root, 'apps', 'web', '[number]', 'page.spec.ts'), '');
 
 function blocked(command, cwd = root) {
 	return findViolation(command, cwd) !== null;
@@ -36,6 +38,18 @@ test('allows staging files by their paths', () => {
 	assert.ok(!blocked('cd supabase && git add config.toml'));
 });
 
+test('stages a file whose path has pattern characters, but not a pattern', () => {
+	assert.ok(!blocked('git add "apps/web/[number]/page.spec.ts"'));
+	assert.ok(!blocked('git add -- "apps/web/[number]/page.spec.ts"'));
+	assert.ok(!blocked('git add ":(literal)apps/web/[number]/page.spec.ts"'));
+	assert.ok(!blocked('cd apps/web && git add "[number]/page.spec.ts"'));
+	assert.ok(blocked('git add "apps/web/[number]/*.ts"'));
+	assert.ok(blocked('git add "apps/web/[number]"'));
+	assert.ok(blocked('git add "apps/web/[number]/missing.ts"'));
+	assert.ok(blocked('git add ":(glob)apps/**/page.spec.ts"'));
+	assert.ok(blocked('git add ":!apps/web/[number]/page.spec.ts"'));
+});
+
 test('blocks a force push, a rebase and a pull with rebase', () => {
 	assert.ok(blocked('git push --force'));
 	assert.ok(blocked('git push --force-with-lease origin feature/atl-1-x'));
@@ -49,11 +63,58 @@ test('blocks a force push, a rebase and a pull with rebase', () => {
 	assert.ok(!blocked('git pull'));
 });
 
+test('blocks every spelling of a staging of everything', () => {
+	assert.ok(blocked('git add -vA'));
+	assert.ok(blocked('git add -Av'));
+	assert.ok(blocked('git add --al'));
+	assert.ok(blocked('git add --no-ignore-rem'));
+	assert.ok(!blocked('git add -v supabase/config.toml'));
+	assert.ok(!blocked('git add --verbose supabase/config.toml'));
+});
+
+test('blocks deleting a remote branch, mirroring and cleaning untracked files', () => {
+	assert.ok(blocked('git push origin :develop'));
+	assert.ok(blocked('git push origin --delete feature/atl-1-x'));
+	assert.ok(blocked('git push origin -d feature/atl-1-x'));
+	assert.ok(blocked('git push --mirror'));
+	assert.ok(blocked('git clean -fdx'));
+	assert.ok(blocked('git clean -f'));
+	assert.ok(!blocked('git clean -n'));
+	assert.ok(!blocked('git clean --dry-run -d'));
+	assert.ok(!blocked('git push origin HEAD:feature/atl-1-x'));
+});
+
+test('lets a rebase be left, and a pull without a rebase through', () => {
+	assert.ok(!blocked('git rebase --abort'));
+	assert.ok(!blocked('git rebase --quit'));
+	assert.ok(blocked('git rebase --continue'));
+	assert.ok(!blocked('git pull --rebase=false'));
+	assert.ok(blocked('git pull --rebase=true'));
+	assert.ok(blocked('git pull --rebase=merges'));
+});
+
+test('sees through bash -c and sudo', () => {
+	assert.ok(blocked('bash -c "git add ."'));
+	assert.ok(blocked("sh -lc 'git push --force'"));
+	assert.ok(blocked('sudo git add -A'));
+	assert.ok(blocked('sudo -u root git rebase develop'));
+	assert.ok(blocked('env FOO=1 pnpm db:reset'));
+	assert.ok(blocked('bash -c "bash -c \'git clean -fdx\'"'));
+	assert.ok(!blocked('bash -c "git status"'));
+	assert.ok(!blocked('sudo ls'));
+});
+
 test('blocks a reset of the local database', () => {
 	assert.ok(blocked('supabase db reset'));
 	assert.ok(blocked('npx supabase db reset --local'));
 	assert.ok(blocked('pnpm db:reset'));
 	assert.ok(blocked('pnpm run db:reset'));
+	assert.ok(blocked('pnpm exec supabase db reset'));
+	assert.ok(blocked('pnpm supabase db reset --local'));
+	assert.ok(blocked('pnpm dlx supabase db reset'));
+	assert.ok(blocked('supabase stop --no-backup'));
+	assert.ok(blocked('pnpm exec supabase stop --no-backup'));
+	assert.ok(!blocked('supabase stop'));
 	assert.ok(!blocked('supabase migrations up'));
 	assert.ok(!blocked('pnpm db:status'));
 });
