@@ -2538,6 +2538,12 @@ export const pl = {
 		add: 'Dodaj wystawę',
 		adding: 'Dodawanie…',
 		search: 'Szukaj wystawy',
+		sortLabel: 'Sortuj',
+		sorts: {
+			changed: 'Ostatnio zmienione',
+			name: 'Alfabetycznie',
+			count: 'Najwięcej dzieł'
+		},
 		noResults: (query: string): string =>
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu.`,
 		newTitle: 'Nowa wystawa',

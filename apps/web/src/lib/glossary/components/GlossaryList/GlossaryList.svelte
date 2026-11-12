@@ -12,7 +12,7 @@
 	import {
 		countByCategory,
 		filterEntries,
-		GLOSSARY_SEARCH_MIN_ENTRIES,
+		GLOSSARY_INDEX_MIN_ENTRIES,
 		groupByLetter
 	} from '#lib/glossary/glossary/glossary.ts';
 	import {
@@ -45,7 +45,7 @@
 	let recent = $derived(sort === 'recent');
 	let groups = $derived(recent ? [] : groupByLetter(matching));
 	let newest = $derived(recent ? newestFirst(matching) : []);
-	let indexed = $derived(entries.length >= GLOSSARY_SEARCH_MIN_ENTRIES && groups.length > 1);
+	let indexed = $derived(entries.length >= GLOSSARY_INDEX_MIN_ENTRIES && groups.length > 1);
 
 	function toggle(category: GlossaryCategory): void {
 		chosen = chosen.includes(category)
@@ -69,8 +69,8 @@
 {:else}
 	<div class="filter">
 		<ListTools
-			options={entries.length > 1 ? sorts : []}
-			searchLabel={entries.length >= GLOSSARY_SEARCH_MIN_ENTRIES ? m.glossary.search : undefined}
+			options={sorts}
+			searchLabel={m.glossary.search}
 			sortLabel={m.glossary.sortLabel}
 			bind:query
 			bind:sort={() => sort, choose}
@@ -144,8 +144,7 @@
 	.filter {
 		display: grid;
 		gap: var(--spacing-4);
-		padding-bottom: var(--spacing-6);
-		border-bottom: var(--border-width-hairline) solid var(--color-line);
+		margin-bottom: var(--spacing-6);
 	}
 
 	.categories {
@@ -191,7 +190,6 @@
 	@media (max-width: 767.98px) {
 		.filter {
 			gap: var(--spacing-3);
-			padding-bottom: var(--spacing-4);
 		}
 
 		.categories {
