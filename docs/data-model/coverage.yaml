@@ -446,8 +446,8 @@ alternatives:
       location_details gains latitude, longitude and wikidata_id, catalogue_museums gains latitude and longitude
       (filled by the migration from Wikidata, Newgrounds deleted), artworks gains want_to_see. A trigger before an
       insert into location_details copies the point and id of the starter museum it names (save_artwork and
-      save_visit), and a trigger after an insert into visit_artworks clears want_to_see of the artwork, except
-      during an import.
+      save_visit), and a trigger after an insert into visit_artworks clears want_to_see of the artwork and records
+      a wish_seen point event worth no points (for the hidden exhibit of ATL-688), except during an import.
       The map reads the places with their details once and takes the artworks from the cached wall collection.
     design:
       - 'A check keeps latitude and longitude both set or both null and in range; another keeps wikidata_id a Q-id.'

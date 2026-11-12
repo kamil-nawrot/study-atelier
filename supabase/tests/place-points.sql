@@ -76,6 +76,12 @@ begin
     'a visit does not clear the want-to-see mark';
   assert (select want_to_see from public.artworks where id = sculpture),
     'a visit clears the mark of an artwork it does not hold';
+  assert (select count(*) from public.point_events where kind = 'wish_seen' and item_id = painting) = 1,
+    'a cleared mark leaves no wish_seen event';
+  assert not exists (select 1 from public.point_events where kind = 'wish_seen' and item_id = sculpture),
+    'an artwork still wanted has a wish_seen event';
+  assert public.learner_points() = (select count(*) * 2 from public.point_events where kind <> 'wish_seen'),
+    'a wish_seen event gives points';
 
   update public.artworks set want_to_see = true where id = painting;
   perform public.save_visit('{"visited_on": "2026-10-13", "date_precision": "day"}', 'Luwr', array[painting], visit);

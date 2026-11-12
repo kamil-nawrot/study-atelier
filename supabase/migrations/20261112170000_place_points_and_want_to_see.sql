@@ -781,6 +781,34 @@ alter table public.artworks
 
 grant update (want_to_see) on public.artworks to authenticated;
 
+alter table public.point_events
+  drop constraint point_events_kind_check,
+  add constraint point_events_kind_check check (kind in (
+    'plan_day', 'settled', 'artwork_added', 'definition_added', 'event_added', 'visit_added', 'easter_egg',
+    'right_answers', 'symbol_added', 'wish_seen'
+  ));
+
+create or replace function public.learner_points()
+returns integer
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select coalesce(round(sum(
+    case event.kind
+      when 'plan_day' then
+        10 * event.plan_share * (1 + 0.05 * least(greatest(event.streak_days - 1, 0), 10))
+      when 'settled' then 20
+      when 'easter_egg' then 50
+      when 'right_answers' then event.answers
+      when 'wish_seen' then 0
+      else 2
+    end
+  )), 0)::integer
+    from public.point_events as event;
+$$;
+
 create function private.clear_want_to_see()
 returns trigger
 language plpgsql
@@ -788,10 +816,14 @@ security definer
 set search_path = ''
 as $$
 begin
-  if coalesce(current_setting('study_atelier.importing', true), '') <> 'on' then
-    update public.artworks as artwork
-      set want_to_see = false
-      where artwork.id = new.artwork_id and artwork.owner_id = new.owner_id and artwork.want_to_see;
+  if coalesce(current_setting('study_atelier.importing', true), '') = 'on' then
+    return null;
+  end if;
+  update public.artworks as artwork
+    set want_to_see = false
+    where artwork.id = new.artwork_id and artwork.owner_id = new.owner_id and artwork.want_to_see;
+  if found then
+    perform private.add_point_event(new.owner_id, 'wish_seen', new.artwork_id, now());
   end if;
   return null;
 end;
