@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
-	import { AddButton, Alert, PageHeader, Tabs, Toast } from '@study-atelier/ui';
+	import { Alert, PageHeader, Tabs, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -64,18 +64,6 @@
 </script>
 
 <AtelierLayout email={data.session.user.email ?? ''} heading title={m.glossary.title}>
-	{#snippet bar()}
-		{#if !data.error}
-			<div class="actions">
-				{#if symbols}
-					<AddButton href={resolve('/(app)/atelier/glossary/symbols/new')} label={m.symbols.add} />
-				{:else}
-					<AddButton href={resolve('/(app)/atelier/glossary/new')} label={m.glossary.add} />
-				{/if}
-			</div>
-		{/if}
-	{/snippet}
-
 	<PageHeader lead={m.glossary.lead}>
 		{#snippet aside()}
 			{#if symbols && atlas.length > 0}
@@ -92,27 +80,13 @@
 		</Alert>
 	{:else}
 		<Tabs label={m.glossary.tabsLabel} {tabs} bind:value={tab}>
-			<div class="tab">
-				{#if symbols}
-					<SymbolAtlas error={data.symbolsError} symbols={atlas} bind:query={symbolQuery} />
-				{:else}
-					<GlossaryList entries={data.entries} bind:chosen bind:query />
-				{/if}
-			</div>
+			{#if symbols}
+				<SymbolAtlas error={data.symbolsError} symbols={atlas} bind:query={symbolQuery} />
+			{:else}
+				<GlossaryList entries={data.entries} bind:chosen bind:query />
+			{/if}
 		</Tabs>
 	{/if}
 </AtelierLayout>
 
 <Toast bind:this={toast} />
-
-<style>
-	.actions {
-		display: flex;
-		gap: inherit;
-		margin-inline-start: auto;
-	}
-
-	.tab {
-		padding-top: var(--spacing-4);
-	}
-</style>

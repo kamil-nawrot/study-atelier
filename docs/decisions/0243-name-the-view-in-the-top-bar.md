@@ -1,6 +1,6 @@
 # 0243. Name the view in the top bar
 
-- Status: accepted; the lead on a phone is superseded by [0252](0252-overhaul-the-app-on-a-phone.md)
+- Status: accepted; the lead on a phone is superseded by [0252](0252-overhaul-the-app-on-a-phone.md); the add action of the glossary is superseded by [0268](0268-add-from-the-tabs-of-the-glossary-like-the-card-index.md)
 - Date: 2026-11-10
 
 ## Context and problem statement
