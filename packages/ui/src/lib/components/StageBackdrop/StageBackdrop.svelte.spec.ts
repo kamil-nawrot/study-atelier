@@ -4,8 +4,10 @@ import '../../styles/index.css';
 import StageBackdrop from './StageBackdrop.svelte';
 
 describe('StageBackdrop', () => {
-	it('lays the image under the stage, hidden from assistive technology', () => {
-		const { container } = render(StageBackdrop, { src: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=' });
+	it('lays the image under the stage, hidden from assistive technology', async () => {
+		const { container } = await render(StageBackdrop, {
+			src: 'data:image/gif;base64,R0lGODlhAQABAAAAACw='
+		});
 
 		const backdrop = container.querySelector('[aria-hidden="true"]');
 		expect(backdrop?.querySelector('img')?.getAttribute('alt')).toBe('');

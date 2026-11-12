@@ -254,7 +254,8 @@
 		line-height: var(--line-height-md);
 	}
 
-	.mat.flipped > :not(.back, .flip) {
+	.mat.flipped > :not(.back, .flip),
+	.mat.flipped > :global(.capped-picture) {
 		visibility: hidden;
 	}
 

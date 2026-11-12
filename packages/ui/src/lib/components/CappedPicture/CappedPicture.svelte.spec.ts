@@ -5,7 +5,8 @@ import '../../styles/index.css';
 import CappedPicture from './CappedPicture.svelte';
 
 const image = createRawSnippet(() => ({
-	render: () => '<img alt="Tall work" width="20" height="100" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" />'
+	render: () =>
+		'<img alt="Tall work" width="20" height="100" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" />'
 }));
 
 function renderPicture(ratio: number, maxHeight?: string): HTMLElement {
@@ -32,14 +33,18 @@ describe('CappedPicture', () => {
 	it('leaves an image that fits as it is', async () => {
 		const host = renderPicture(1, '600px');
 
-		await expect.poll(() => host.querySelector('img[alt="Tall work"]')?.getBoundingClientRect().width).toBe(320);
+		await expect
+			.poll(() => host.querySelector('img[alt="Tall work"]')?.getBoundingClientRect().width)
+			.toBe(320);
 		expect(host.querySelector('.capped')).toBeNull();
 	});
 
 	it('never caps without a maximum height', async () => {
 		const host = renderPicture(0.2);
 
-		await expect.poll(() => host.querySelector('img[alt="Tall work"]')?.getBoundingClientRect().width).toBe(320);
+		await expect
+			.poll(() => host.querySelector('img[alt="Tall work"]')?.getBoundingClientRect().width)
+			.toBe(320);
 		expect(host.querySelector('.capped')).toBeNull();
 	});
 });

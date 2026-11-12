@@ -720,7 +720,12 @@ export const EXHIBITIONS = [
 	exhibition(2, 'Portrety kobiet', [textBlock('Notatki w przygotowaniu.')], [9]),
 	exhibition(3, '', [], []),
 	exhibition(5, 'Martwa natura w Niderlandach', [textBlock('Szkic wystawy.')], [7]),
-	exhibition(6, 'Barok rzymski', [textBlock('Szkic wystawy.'), artworkBlock(26, 'Wysoki zwój.')], [3, 26])
+	exhibition(
+		6,
+		'Barok rzymski',
+		[textBlock('Szkic wystawy.'), artworkBlock(26, 'Wysoki zwój.')],
+		[3, 26]
+	)
 ];
 
 export const ARCHIVED_EXHIBITIONS = [
