@@ -1777,6 +1777,9 @@ export const pl = {
 				'Vincent van Gogh zebrał razem z bratem Theo setki japońskich drzeworytów. W 1887 roku skopiował z jednego z nich kwitnący sad śliwowy Hiroshigego, ale czarny i szary pień drzewa zamienił na czerwony i niebieski, a pomarańczowe ramki z japońskimi znakami dodał tylko dla ozdoby.',
 				'Jan Brueghel starszy i Peter Paul Rubens przyjaźnili się i malowali razem na jednym obrazie: Brueghel pejzaże i dworskie sceny, Rubens postacie. Tak powstał cykl „Pięć zmysłów” w Prado, jedna z ich najbardziej udanych współprac: w dworskie sceny Brueghla Rubens wstawił alegorie zmysłów.'
 			],
+			van_eyck_easel: [
+				'Rycina pokazuje wyidealizowaną pracownię Jana van Eycka, któremu Stradanus za Giorgiem Vasarim przypisał wynalezienie farby olejnej. To nieprawda: Vasari nazwał van Eycka człowiekiem, który „lubował się w alchemii”, i liczył, że taki wynalazek sprowadzi sztukę niderlandzką do poziomu rzemiosła.'
+			],
 			hortus_cliffortianus: [
 				'Muzeum Ennigaldi, córki babilońskiego króla Nabonida i arcykapłanki boga księżyca, powstało w Ur około 530 roku p.n.e. i uchodzi za najstarsze na świecie. W 1925 roku Leonard Woolley rozpoznał je po etykietach: przy każdym przedmiocie leżał gliniany cylinder z napisami w czterech językach, objaśniającymi przedmiot i jego historię.',
 				'Portret matki Jamesa Whistlera, amerykańskiego malarza dzielącego karierę między Londyn i Paryż, ma podwójny tytuł: „Aranżacja w szarości i czerni nr 1” i „Portret matki artysty”. Wkrótce potem Whistler dawał swoim obrazom już tylko muzyczne podtytuły, bo ważniejsza była dla niego harmonia niż temat.',
@@ -2031,6 +2034,13 @@ export const pl = {
 				about:
 					'Na drzeworycie według Hansa Weiditza do niemieckiego wydania Cycerona pajęczyna rozpięta pod sklepieniem łowi muchy i większe owady.',
 				count: counter('powiązań między dziełami i autorami')
+			},
+			van_eyck_easel: {
+				name: 'Sztaluga van Eycka',
+				about:
+					'Na miedziorycie z warsztatu Philipsa Galle’a według Stradanusa Jan van Eyck maluje farbą olejną świętego Jerzego, a uczniowie wokół ucierają farby i ćwiczą rysunek.',
+				hint: 'Każdy mistrz był kiedyś czyimś uczniem.',
+				awarded: 'Za mistrza, jego ucznia i ucznia jego ucznia w atelier.'
 			},
 			hortus_cliffortianus: {
 				name: 'Ogród Clifforta',

@@ -181,6 +181,7 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 		'https://www.vangoghmuseum.nl/assets/b023267d-2d87-43a6-88bf-956d4213f2cc?c=52f4bba580232396dbe6bf84801c5783b3e42cd25daff1bd91fef735c9d7bc52',
 		'https://www.museodelprado.es/en/the-collection/art-work/the-sense-of-smell/adff981e-a317-4152-9e04-05ada13be226'
 	],
+	van_eyck_easel: ['https://www.mpiwg-berlin.mpg.de/news/features/features-feature22'],
 	hortus_cliffortianus: [
 		'https://news.artnet.com/art-world/art-bites-first-museum-labels-2467975',
 		'https://www.musee-orsay.fr/en/artworks/arrangement-en-gris-et-noir-ndeg1-974',

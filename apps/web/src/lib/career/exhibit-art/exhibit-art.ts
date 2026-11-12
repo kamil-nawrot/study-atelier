@@ -152,6 +152,12 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		licence: 'CC0',
 		commonsFile: 'Gewelf met spinnenweb, RP-P-1874-11-72-1.jpg'
 	},
+	van_eyck_easel: {
+		credit: 'Warsztat Philipsa Galle’a według Jana van der Straeta, „Color olivi”, około 1589–1593',
+		licence: 'CC0',
+		commonsFile:
+			'Schilderen met olieverf Color olivi (titel op object) Nieuwe uitvindingen en ontdekkingen (serietitel) Nova Reperta (serietitel), RP-P-1904-1038.jpg'
+	},
 	hortus_cliffortianus: {
 		credit: 'Jan Wandelaar, frontyspis „Hortus Cliffortianus” Karola Linneusza, 1738',
 		licence: 'domena publiczna',
