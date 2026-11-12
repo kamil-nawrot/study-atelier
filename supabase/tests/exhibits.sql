@@ -44,13 +44,13 @@ begin
     'reading_room:night_watch', 'reading_room:marathon', 'reading_room:amateur_magnifier',
     'scriptorium:glossary', 'scriptorium:laurel_skull', 'scriptorium:timeline', 'scriptorium:hortus_cliffortianus', 'scriptorium:figure_alphabet',
     'map_room:chronicle', 'map_room:grand_tour', 'map_room:seen_live', 'map_room:trevi_fountain',
-    'map_room:seven_league_boots', 'pavilion:crystal_palace', 'pavilion:lenoir_chapel', 'crypt:mouth_of_truth',
+    'map_room:seven_league_boots', 'map_room:pilgrim_shell', 'pavilion:crystal_palace', 'pavilion:lenoir_chapel', 'crypt:mouth_of_truth',
     'crypt:candle_moths'
-  ], 'the exhibits are not the agreed thirty-three in their rooms and order';
+  ], 'the exhibits are not the agreed thirty-four in their rooms and order';
   assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC') where hidden) = array[
     'amateur_magnifier', 'back_from_storage', 'candle_moths', 'figure_alphabet', 'lenoir_chapel', 'marathon',
-    'mouth_of_truth', 'night_watch', 'pinacotheca', 'seven_league_boots', 'trevi_fountain'
-  ], 'the hidden exhibits are not the agreed eleven';
+    'mouth_of_truth', 'night_watch', 'pilgrim_shell', 'pinacotheca', 'seven_league_boots', 'trevi_fountain'
+  ], 'the hidden exhibits are not the agreed twelve';
   assert (select value from public.unlock_exhibits('UTC') where exhibit = 'early_modern') = 5,
     'an era exhibit does not count the artworks of its era';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'modern') = array[1]::smallint[],
@@ -740,6 +740,41 @@ begin
     'the victor''s skull counts a symbol whose pin is gone';
   assert (select count(*) from public.exhibit_tiers where exhibit = 'laurel_skull') = 1,
     'the victor''s skull takes back a reached tier';
+end;
+$$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000016', 'owner-m@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000016", "role": "authenticated"}', true);
+
+do $$
+declare
+  wished uuid;
+  unplanned uuid;
+begin
+  wished := (select id from public.save_artwork(
+    jsonb_build_object('title', 'Wished', 'author_unknown', true), '{"author": [], "location": []}'));
+  unplanned := (select id from public.save_artwork(
+    jsonb_build_object('title', 'Unplanned', 'author_unknown', true), '{"author": [], "location": []}'));
+
+  perform public.save_visit('{"visited_on": "2026-10-12", "date_precision": "day"}', 'Luwr', array[unplanned]);
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'pilgrim_shell') = 0,
+    'an artwork seen without the mark finds the pilgrim''s shell';
+
+  update public.artworks set want_to_see = true where id = wished;
+  perform public.save_visit('{"visited_on": "2026-10-13", "date_precision": "day"}', 'Luwr', array[wished]);
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'pilgrim_shell') = 1,
+    'an artwork seen after the mark does not find the pilgrim''s shell';
+  assert exists (select 1 from public.point_events where kind = 'easter_egg' and code = 'pilgrim_shell'),
+    'the hidden pilgrim''s shell gives no bonus';
+
+  update public.artworks set deleted_at = now() where id = wished;
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'pilgrim_shell') = 1,
+    'the pilgrim''s shell forgets an artwork moved to the trash';
 end;
 $$;
 

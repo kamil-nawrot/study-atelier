@@ -1782,6 +1782,9 @@ export const pl = {
 			seven_league_boots: [
 				'W baśni Charles’a Perraulta buty olbrzyma były zaczarowane: rosły i malały, dopasowując się do nóg tego, kto je włożył. Według jednego z dwóch zakończeń Tomcio został w nich królewskim gońcem i jeszcze tego samego wieczoru przyniósł królowi wieści od armii oddalonej o dwieście mil.'
 			],
+			pilgrim_shell: [
+				'Pielgrzymi kupowali w sanktuarium w Composteli prawdziwe muszle przegrzebków i przypinali je do toreb. Gdy chętnych przybyło więcej, niż było muszli, zaczęto sprzedawać metalowe odznaki, a w XIII wieku w Composteli pracowało 100 wytwórców z licencją. Nikt nie wie na pewno, dlaczego muszla stała się znakiem świętego Jakuba.'
+			],
 			crystal_palace: [
 				'Na Wielką Wystawę w 1851 roku 5000 robotników w pięć miesięcy zbudowało w londyńskim Hyde Parku szklany Kryształowy Pałac. Gmach był tak duży, że w środku znalazły się drzewa parku. 14 000 wystawców pokazało w nim 100 000 przedmiotów z całego świata, które obejrzało sześć milionów ludzi.',
 				'Udział w paryskim Salonie, wystawie z jury, decydował o karierze artysty. Gdy artyści zarzucili jury, że odrzuca dzieła niezgodne z akademickim wzorem, cesarz Napoleon III zorganizował w 1863 roku pierwszy Salon Odrzuconych dla prac, których jury nie przyjęło. Pokazano tam wiele dzieł artystów, których później łączono z impresjonizmem.',
@@ -2033,6 +2036,13 @@ export const pl = {
 					'Na drzeworycie według Gustave’a Doré z 1862 roku Tomcio Paluch ściąga śpiącemu olbrzymowi siedmiomilowe buty.',
 				hint: 'Olbrzymowi wystarczy jeden krok, sprytnemu – jeden dzień.',
 				awarded: 'Za trzy muzea odwiedzone jednego dnia.'
+			},
+			pilgrim_shell: {
+				name: 'Muszla pielgrzyma',
+				about:
+					'Na kopii akwaforty Jacques’a Callota dwoje pielgrzymów w kapeluszach z muszlą świętego Jakuba stoi w środku rymowanego przewodnika z Paryża do Santiago de Compostela.',
+				hint: 'Marzenie, które ma adres, łatwiej spełnić.',
+				awarded: 'Za dzieło zobaczone na żywo po tym, jak trafiło na listę do zobaczenia.'
 			},
 			figure_alphabet: {
 				name: 'Alfabet Mistrza E.S.',

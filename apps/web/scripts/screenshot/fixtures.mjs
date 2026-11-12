@@ -1503,6 +1503,7 @@ export const EXHIBITS = [
 	},
 	{ exhibit: 'trevi_fountain', room: 'map_room', hidden: true, value: 2, thresholds: [2] },
 	{ exhibit: 'seven_league_boots', room: 'map_room', hidden: true, value: 1, thresholds: [3] },
+	{ exhibit: 'pilgrim_shell', room: 'map_room', hidden: true, value: 0, thresholds: [1] },
 	{
 		exhibit: 'crystal_palace',
 		room: 'pavilion',
