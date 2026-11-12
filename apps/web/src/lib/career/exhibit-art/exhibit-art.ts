@@ -164,7 +164,8 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		commonsFile: 'Le Petit Poucet (136548020).jpg'
 	},
 	pilgrim_shell: {
-		credit: 'Według Jacques’a Callota, wyd. Jean Lenfant, „Przewodnik drogami z Paryża do Świętego Jakuba w Galicji”, 1623–1699',
+		credit:
+			'Według Jacques’a Callota, wyd. Jean Lenfant, „Przewodnik drogami z Paryża do Świętego Jakuba w Galicji”, 1623–1699',
 		licence: 'CC0',
 		commonsFile:
 			'Twee pelgrims en een routebeschrijving naar Santiago de Compostela La guide des chemins de Paris a Saint Iacques en Galice disposee en abregé pour la comodité des pelerins (titel op object), RP-P-OB-20.935.jpg'
