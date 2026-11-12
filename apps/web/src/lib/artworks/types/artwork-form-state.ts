@@ -1,3 +1,4 @@
+import type { ArtworkRelationRow } from '#lib/artwork-relations/types/artwork-relation-row.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
 import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
@@ -23,4 +24,5 @@ export type ArtworkFormState = {
 	images: (ArtworkImageInput | null)[];
 	own?: OwnEntries;
 	ownQueries: Record<string, string>;
+	relations: ArtworkRelationRow[];
 };

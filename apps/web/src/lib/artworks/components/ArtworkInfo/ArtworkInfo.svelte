@@ -23,6 +23,7 @@
 	import { formatDate, signedYear } from '#lib/catalogue/years/years.ts';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
+	import ArtworkRelations from '#lib/artwork-relations/components/ArtworkRelations/ArtworkRelations.svelte';
 	import VisitsDisclosure from '#lib/chronicle/components/VisitsDisclosure/VisitsDisclosure.svelte';
 	import ArtworkExhibitions from '#lib/exhibitions/components/ArtworkExhibitions/ArtworkExhibitions.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -227,6 +228,8 @@
 			</dd>
 		{/each}
 	</dl>
+
+	<ArtworkRelations relations={artwork.relations ?? []} />
 
 	<VisitsDisclosure title={m.chronicle.artworkVisits} {visits} />
 
