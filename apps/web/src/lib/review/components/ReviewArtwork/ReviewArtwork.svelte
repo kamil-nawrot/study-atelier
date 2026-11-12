@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { ArtworkImage, NoImage } from '@study-atelier/ui';
+	import { ArtworkImage, ImageCredit, NoImage } from '@study-atelier/ui';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import ImageViewer from '#lib/images/components/ImageViewer/ImageViewer.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -63,8 +63,10 @@
 			</span>
 		</span>
 	{/if}
-	<figcaption class="caption">{credit}</figcaption>
 </figure>
+{#if credit}
+	<ImageCredit label={m.artwork.creditLabel} text={credit} />
+{/if}
 
 {#if image?.src}
 	<ImageViewer bind:this={viewer} {alt} {image} />
@@ -136,20 +138,9 @@
 		aspect-ratio: 4 / 5;
 	}
 
-	.caption {
-		min-height: 1lh;
-		color: var(--color-stage-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-	}
-
 	@media (max-width: 767.98px) {
 		.compact .mat :global(img) {
 			max-height: 30svh;
-		}
-
-		.caption {
-			min-height: 2lh;
 		}
 
 		.collapsed .mat {
@@ -158,10 +149,6 @@
 
 		.compact.collapsed .mat :global(img) {
 			max-height: var(--spacing-24);
-		}
-
-		.collapsed .caption {
-			display: none;
 		}
 	}
 

@@ -96,6 +96,7 @@ export const pl = {
 		captchaFailed: 'Nie udało się potwierdzić, że to Ty, a nie automat. Spróbuj jeszcze raz.'
 	},
 	artwork: {
+		creditLabel: 'Źródło obrazu',
 		credit: 'Wikimedia Commons, domena publiczna',
 		photoCredit: (photographer: string, license: string): string =>
 			`Wikimedia Commons, zdjęcie: ${photographer}, ${license}`,
@@ -2419,6 +2420,9 @@ export const pl = {
 			`${count} ${plural(count, { one: 'wystawa', few: 'wystawy', many: 'wystaw' })}`,
 		add: 'Dodaj wystawę',
 		adding: 'Dodawanie…',
+		search: 'Szukaj wystawy',
+		noResults: (query: string): string =>
+			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu.`,
 		newTitle: 'Nowa wystawa',
 		nameLabel: 'Tytuł wystawy',
 		nameRequired: 'Wpisz tytuł wystawy.',

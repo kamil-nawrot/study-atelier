@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { tick, type Snippet } from 'svelte';
-	import type { PopoverState } from '../../popover-state/popover-state.svelte';
+	import { providePopoverHold, type PopoverState } from '../../popover-state/popover-state.svelte';
 
 	type Props = {
 		id: string;
@@ -21,6 +21,8 @@
 		concealed = false,
 		children
 	}: Props = $props();
+
+	providePopoverHold(() => popover.hold());
 
 	let card: HTMLDivElement | undefined = $state();
 	let top = $state(0);
@@ -55,7 +57,7 @@
 	});
 
 	$effect(() => {
-		if (popover.open && popover.anchor) void place();
+		if (popover.open && popover.anchor && popover.ready) void place();
 	});
 
 	$effect(() => {
@@ -85,7 +87,7 @@
 	class="card"
 	class:interactive
 	aria-labelledby={interactive ? labelledby : undefined}
-	hidden={!popover.open || concealed}
+	hidden={!popover.open || !popover.ready || concealed}
 	onfocusout={(event) => popover.blur(event)}
 	onpointerenter={(event) => popover.cardPointerEnter(event)}
 	onpointerleave={(event) => popover.pointerLeave(event)}

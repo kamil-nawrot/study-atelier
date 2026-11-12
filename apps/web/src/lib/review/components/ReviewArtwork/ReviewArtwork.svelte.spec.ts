@@ -3,6 +3,7 @@ import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { m } from '#lib/i18n/i18n.ts';
+import { expectImageCredit } from '#lib/testing/image-credit/image-credit.ts';
 import ReviewArtwork from './ReviewArtwork.svelte';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: {} }));
@@ -13,7 +14,7 @@ describe('ReviewArtwork', () => {
 	it('shows the image with its credit and opens it in full', async () => {
 		render(ReviewArtwork, { alt: 'Dzieło', image, credit: 'Wikimedia Commons' });
 
-		await expect.element(page.getByText('Wikimedia Commons')).toBeInTheDocument();
+		await expectImageCredit('Wikimedia Commons');
 		await expect
 			.element(page.getByRole('button', { name: m.artworkView.openImage }))
 			.toBeInTheDocument();

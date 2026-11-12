@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import type { ExhibitionSummary } from '#lib/exhibitions/types/exhibition-summary.ts';
 import ExhibitionList from './ExhibitionList.svelte';
@@ -21,5 +22,41 @@ describe('ExhibitionList', () => {
 		expect(titles.map((item) => item.textContent?.includes('Light'))).toEqual([true, false]);
 		expect(document.querySelectorAll('img')).toHaveLength(1);
 		await expect.element(page.getByRole('link', { name: /Shadow/ })).toBeInTheDocument();
+	});
+
+	it('offers no search below five exhibitions', async () => {
+		render(ExhibitionList, {
+			exhibitions: ['a', 'b', 'c', 'd'].map((id) => summary(id, `Show ${id}`)),
+			covers: new Map()
+		});
+
+		await expect.element(page.getByRole('link', { name: /Show a/ })).toBeInTheDocument();
+		expect(page.getByRole('searchbox').elements()).toHaveLength(0);
+	});
+
+	it('filters five or more exhibitions by a fragment of the title', async () => {
+		render(ExhibitionList, {
+			exhibitions: [
+				summary('a', 'Światło u Caravaggia'),
+				...['b', 'c', 'd', 'e'].map((id) => summary(id, `Martwa natura ${id}`))
+			],
+			covers: new Map()
+		});
+
+		await page.getByRole('searchbox', { name: m.exhibitions.search }).fill('swiatlo');
+
+		expect(page.getByRole('listitem').elements()).toHaveLength(1);
+		await expect.element(page.getByRole('link', { name: /Caravaggia/ })).toBeInTheDocument();
+	});
+
+	it('says so when no title matches', async () => {
+		render(ExhibitionList, {
+			exhibitions: ['a', 'b', 'c', 'd', 'e'].map((id) => summary(id, `Show ${id}`)),
+			covers: new Map(),
+			query: 'pejzaż'
+		});
+
+		await expect.element(page.getByText(m.exhibitions.noResults('pejzaż'))).toBeInTheDocument();
+		expect(page.getByRole('listitem').elements()).toHaveLength(0);
 	});
 });

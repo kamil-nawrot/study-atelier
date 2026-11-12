@@ -136,4 +136,43 @@ describe('PopoverState', () => {
 
 		expect(state.open).toBe(true);
 	});
+
+	it('is ready while nothing holds it', () => {
+		expect(new PopoverState().ready).toBe(true);
+	});
+
+	it('waits for every hold to be released', () => {
+		const state = new PopoverState();
+		const first = state.hold();
+		const second = state.hold();
+
+		first();
+		first();
+		expect(state.ready).toBe(false);
+		second();
+
+		expect(state.ready).toBe(true);
+	});
+
+	it('gives up waiting after half a second, so a slow card shows its loading state', () => {
+		const state = new PopoverState();
+		state.hold();
+
+		vi.advanceTimersByTime(499);
+		expect(state.ready).toBe(false);
+		vi.advanceTimersByTime(1);
+
+		expect(state.ready).toBe(true);
+	});
+
+	it('waits again for the next hold after a slow one was released', () => {
+		const state = new PopoverState();
+		const slow = state.hold();
+		vi.advanceTimersByTime(500);
+		slow();
+
+		state.hold();
+
+		expect(state.ready).toBe(false);
+	});
 });

@@ -4,7 +4,15 @@
 	import Search from '@lucide/svelte/icons/search';
 	import Trash from '@lucide/svelte/icons/trash';
 	import { onDestroy, tick, type Snippet } from 'svelte';
-	import { ArtworkImage, Button, Dialog, Icon, NoImage, Primer } from '@study-atelier/ui';
+	import {
+		ArtworkImage,
+		Button,
+		Dialog,
+		Icon,
+		ImageCredit,
+		NoImage,
+		Primer
+	} from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ImageSearchDialog from '#lib/images/components/ImageSearchDialog/ImageSearchDialog.svelte';
 	import OwnImageDialog from '#lib/images/components/OwnImageDialog/OwnImageDialog.svelte';
@@ -120,6 +128,9 @@
 						width={preview.width}
 					/>
 					{@render overlay?.()}
+					{#if credit}
+						<ImageCredit label={m.artwork.creditLabel} text={credit} tone="mat" />
+					{/if}
 				</div>
 			{:else if filling}
 				<div class="primed" aria-busy="true">
@@ -131,9 +142,6 @@
 				</div>
 			{/if}
 		</div>
-		{#if credit}
-			<figcaption class="caption">{credit}</figcaption>
-		{/if}
 		{@render source?.()}
 	</figure>
 
