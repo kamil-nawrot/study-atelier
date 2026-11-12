@@ -249,6 +249,7 @@
 {#snippet pinCard(pin: PinRecord)}
 	<PinCard
 		entry={glossary?.find((entry) => entry.id === pin.glossaryEntryId)}
+		symbol={symbols?.find((symbol) => symbol.id === pin.symbolId)}
 		image={current}
 		{pin}
 		shownWidth={frameWidth}
