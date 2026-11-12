@@ -17,6 +17,7 @@
 	import { PREFERENCES_DEPENDENCY } from '#lib/profile/preferences-data/preferences-data.ts';
 	import { PROFILE_DEPENDENCY } from '#lib/profile/profile-data/profile-data.ts';
 	import { SETTINGS_TABS, settingsTabOf } from '#lib/profile/settings-tab/settings-tab.ts';
+	import type { Preferences } from '#lib/profile/types/preferences.ts';
 	import type { Profile } from '#lib/profile/types/profile.ts';
 	import type { PageProps } from './$types';
 
@@ -28,6 +29,7 @@
 
 	let toast: Toast;
 	let profileTab = $state<ProfileTab>();
+	let sending = $state.raw<Preferences>();
 
 	let email = $derived(data.session.user.email ?? '');
 	let tab = $derived(settingsTabOf(page.url.searchParams.get('tab')));
@@ -110,8 +112,9 @@
 						{#key tab}
 							<PreferencesTab
 								onsaved={preferencesSaved}
+								onsending={(next) => (sending = next)}
 								part={tab}
-								preferences={data.preferences}
+								preferences={sending ?? data.preferences}
 							/>
 						{/key}
 					{/if}

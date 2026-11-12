@@ -43,6 +43,10 @@
 	let avatar = $state.raw<AvatarChange>({ kind: 'keep' });
 	let rankForm = $state<string>(untrack(() => profile.rankForm));
 	let careerShown = $state(untrack(() => profile.careerShown));
+	let sentToggles = untrack(() => ({
+		rankForm: profile.rankForm,
+		careerShown: profile.careerShown
+	}));
 	let previewUrl = $state<string>();
 	let nameError = $state<string>();
 	let photoError = $state<string>();
@@ -55,23 +59,27 @@
 		(current, reference) => normalizedName(current) !== normalizedName(reference)
 	);
 
-	const queue = new SaveQueue<Change>(async ({ draft, message }) => {
-		const result = await saveProfile(
-			{ ...profileDraftOf(saved), rankForm: rankFormOf(rankForm), careerShown, ...draft },
-			saved
-		);
-		if (result.error !== undefined) {
-			rankForm = saved.rankForm;
-			careerShown = saved.careerShown;
-			setAvatar({ kind: 'keep' });
-			return result.error;
-		}
-		saved = result.profile;
-		if (draft.name !== undefined) name = profileDraftOf(result.profile).name;
-		if (draft.avatar) setAvatar({ kind: 'keep' });
-		await onsaved(result.profile, message);
-		return undefined;
-	});
+	const queue = new SaveQueue<Change>(
+		async ({ draft, message }) => {
+			const result = await saveProfile(
+				{ ...profileDraftOf(saved), rankForm: rankFormOf(rankForm), careerShown, ...draft },
+				saved
+			);
+			if (result.error !== undefined) {
+				rankForm = saved.rankForm;
+				careerShown = saved.careerShown;
+				sentToggles = { rankForm: saved.rankForm, careerShown: saved.careerShown };
+				setAvatar({ kind: 'keep' });
+				return result.error;
+			}
+			saved = result.profile;
+			if (draft.name !== undefined) name = profileDraftOf(result.profile).name;
+			if (draft.avatar) setAvatar({ kind: 'keep' });
+			await onsaved(result.profile, message);
+			return undefined;
+		},
+		{ failed: m.common.network }
+	);
 
 	let hasAvatar = $derived(showsAvatar(saved, avatar));
 	let initial = $derived(avatarInitial({ displayName: name, avatarPath: null }, email));
@@ -80,7 +88,9 @@
 	$effect(() => {
 		const draft = { rankForm: rankFormOf(rankForm), careerShown };
 		untrack(() => {
-			if (draft.rankForm === saved.rankForm && draft.careerShown === saved.careerShown) return;
+			if (draft.rankForm === sentToggles.rankForm && draft.careerShown === sentToggles.careerShown)
+				return;
+			sentToggles = draft;
 			queue.push({ draft });
 		});
 	});

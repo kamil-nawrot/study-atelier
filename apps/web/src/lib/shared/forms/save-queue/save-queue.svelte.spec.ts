@@ -54,4 +54,38 @@ describe('SaveQueue', () => {
 
 		await vi.waitFor(() => expect(queue.error).toBe(''));
 	});
+
+	it('saves only the latest of the values that waited when asked to', async () => {
+		const first = deferred();
+		const saved: string[] = [];
+		const queue = new SaveQueue(
+			async (value: string) => {
+				saved.push(value);
+				return value === 'a' ? first.promise : undefined;
+			},
+			{ latestOnly: true }
+		);
+
+		queue.push('a');
+		queue.push('b');
+		queue.push('c');
+		first.resolve();
+
+		await vi.waitFor(() => expect(queue.busy).toBe(false));
+		expect(saved).toEqual(['a', 'c']);
+	});
+
+	it('gives the failure message and frees itself when a save throws', async () => {
+		const queue = new SaveQueue(
+			async () => {
+				throw new Error('offline');
+			},
+			{ failed: 'Brak sieci.' }
+		);
+
+		queue.push('a');
+
+		await vi.waitFor(() => expect(queue.busy).toBe(false));
+		expect(queue.error).toBe('Brak sieci.');
+	});
 });
