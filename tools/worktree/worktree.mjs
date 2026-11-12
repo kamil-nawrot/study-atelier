@@ -1,6 +1,7 @@
 import { execFileSync, spawnSync } from 'node:child_process';
 import { copyFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { nodeEnv } from '../node-env/node-env.mjs';
 
 const USAGE = `Usage:
@@ -24,14 +25,29 @@ function worktrees() {
 		}));
 }
 
-function folderFor(main, branch) {
+export function folderFor(main, branch, taken = []) {
+	const slug = (text) =>
+		text
+			.replace(/[^a-z0-9]+/gi, '-')
+			.replace(/^-|-$/g, '')
+			.toLowerCase();
 	const issue = /atl-\d+/.exec(branch);
-	const name = issue ? issue[0] : branch.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
-	return path.join(path.dirname(main), `${path.basename(main)}-${name}`);
+	const prefix = `${path.dirname(main)}${path.sep}${path.basename(main)}-`;
+	const short = path.join(
+		path.dirname(main),
+		`${path.basename(main)}-${issue ? issue[0] : slug(branch)}`
+	);
+	const owner = taken.find((entry) => entry.dir === short);
+	if (!issue || !owner || owner.branch === branch) return short;
+	return `${prefix}${slug(branch.replace(/^(feature|bugfix)\//, ''))}`;
+}
+
+export function mergedBranchIsSafeToDelete(tip, mergedHeads, isAncestor) {
+	return mergedHeads.some((head) => head === tip || isAncestor(tip, head));
 }
 
 function add(main, branch, from) {
-	const dir = folderFor(main, branch);
+	const dir = folderFor(main, branch, worktrees());
 	if (existsSync(dir)) throw new Error(`${dir} already exists`);
 	git('fetch', '--quiet', 'origin');
 	if (succeeds('git', ['rev-parse', '--verify', '--quiet', `refs/heads/${branch}`])) {
@@ -74,32 +90,45 @@ function remove(main, branch) {
 		throw new Error("The main checkout is the owner's and is never removed");
 	git('worktree', 'remove', worktree.dir);
 	console.log(`Removed ${worktree.dir}`);
-	const merged = execFileSync(
-		'gh',
-		['pr', 'list', '--head', branch, '--state', 'merged', '--json', 'number', '--jq', 'length'],
-		{ encoding: 'utf8' }
-	).trim();
-	if (merged !== '0') {
+	const tip = git('rev-parse', `refs/heads/${branch}`);
+	const merged = JSON.parse(
+		execFileSync(
+			'gh',
+			['pr', 'list', '--head', branch, '--state', 'merged', '--json', 'headRefOid'],
+			{ encoding: 'utf8' }
+		)
+	).map((pr) => pr.headRefOid);
+	const isAncestor = (commit, head) =>
+		succeeds('git', ['cat-file', '-e', `${head}^{commit}`]) &&
+		succeeds('git', ['merge-base', '--is-ancestor', commit, head]);
+	if (mergedBranchIsSafeToDelete(tip, merged, isAncestor)) {
 		git('branch', '-D', branch);
 		console.log(`Deleted the merged branch ${branch}`);
+	} else if (merged.length > 0) {
+		console.log(
+			`Kept the branch ${branch}: it has commits that the merged pull request does not contain`
+		);
 	} else {
 		console.log(`Kept the branch ${branch}: no merged pull request`);
 	}
 }
 
-const args = process.argv.slice(2);
-const fromIndex = args.indexOf('--from');
-const from = fromIndex === -1 ? 'origin/develop' : args[fromIndex + 1];
-const positional = args.filter(
-	(arg, index) => !arg.startsWith('--') && (fromIndex === -1 || index !== fromIndex + 1)
-);
-const main = worktrees()[0].dir;
-
-try {
-	if (positional[0] === 'remove' && positional[1]) remove(main, positional[1]);
-	else if (positional.length === 1 && positional[0] !== 'remove') add(main, positional[0], from);
-	else throw new Error(USAGE);
-} catch (error) {
-	console.error(error.message);
-	process.exitCode = 1;
+function run() {
+	const args = process.argv.slice(2);
+	const fromIndex = args.indexOf('--from');
+	const from = fromIndex === -1 ? 'origin/develop' : args[fromIndex + 1];
+	const positional = args.filter(
+		(arg, index) => !arg.startsWith('--') && (fromIndex === -1 || index !== fromIndex + 1)
+	);
+	const main = worktrees()[0].dir;
+	try {
+		if (positional[0] === 'remove' && positional[1]) remove(main, positional[1]);
+		else if (positional.length === 1 && positional[0] !== 'remove') add(main, positional[0], from);
+		else throw new Error(USAGE);
+	} catch (error) {
+		console.error(error.message);
+		process.exitCode = 1;
+	}
 }
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) run();
