@@ -4,7 +4,7 @@
 	import Trash from '@lucide/svelte/icons/trash';
 	import { Button, Icon, Select, Switch, TextField } from '@study-atelier/ui';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
-	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
+	import { SaveQueue } from '#lib/shared/forms/save-queue/save-queue.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { OWN_IMAGE_ACCEPT } from '#lib/images/bucket/bucket.ts';
@@ -12,7 +12,7 @@
 	import {
 		DISPLAY_NAME_MAX_LENGTH,
 		avatarInitial,
-		profileDraftChanged,
+		normalizedName,
 		profileDraftOf,
 		rankFormOf,
 		showsAvatar,
@@ -23,22 +23,22 @@
 	import type { Profile } from '#lib/profile/types/profile.ts';
 	import type { ProfileDraft } from '#lib/profile/types/profile-draft.ts';
 	import Avatar from '#lib/profile/components/Avatar/Avatar.svelte';
-	import SettingsForm from '#lib/profile/components/SettingsForm/SettingsForm.svelte';
+	import SettingsCard from '#lib/profile/components/SettingsCard/SettingsCard.svelte';
 
 	type Props = {
 		profile: Profile;
 		email: string;
-		barHeight?: number;
-		onsaved: (profile: Profile, message: string) => void | Promise<void>;
+		onsaved: (profile: Profile, message?: string) => void | Promise<void>;
 	};
 
-	let { profile, email, barHeight = $bindable(0), onsaved }: Props = $props();
+	type Change = { draft: Partial<ProfileDraft>; message?: string };
+
+	let { profile, email, onsaved }: Props = $props();
 
 	const formId = $props.id();
 	const hintId = `${formId}-hint`;
 
-	const formState = new FormState<Profile>(untrack(() => profile));
-
+	let saved = $state.raw(untrack(() => profile));
 	let name = $state(untrack(() => profileDraftOf(profile).name));
 	let avatar = $state.raw<AvatarChange>({ kind: 'keep' });
 	let rankForm = $state<string>(untrack(() => profile.rankForm));
@@ -49,14 +49,41 @@
 	let cropping = $state(false);
 	let fileInput = $state<HTMLInputElement>();
 
-	const changes = new UnsavedChanges<ProfileDraft>(
-		() => ({ name, avatar, rankForm: rankFormOf(rankForm), careerShown }),
-		() => profileDraftOf(formState.saved),
-		profileDraftChanged
+	const changes = new UnsavedChanges<string>(
+		() => name,
+		() => profileDraftOf(saved).name,
+		(current, reference) => normalizedName(current) !== normalizedName(reference)
 	);
 
-	let hasAvatar = $derived(showsAvatar(formState.saved, avatar));
+	const queue = new SaveQueue<Change>(async ({ draft, message }) => {
+		const result = await saveProfile(
+			{ ...profileDraftOf(saved), rankForm: rankFormOf(rankForm), careerShown, ...draft },
+			saved
+		);
+		if (result.error !== undefined) {
+			rankForm = saved.rankForm;
+			careerShown = saved.careerShown;
+			setAvatar({ kind: 'keep' });
+			return result.error;
+		}
+		saved = result.profile;
+		if (draft.name !== undefined) name = profileDraftOf(result.profile).name;
+		if (draft.avatar) setAvatar({ kind: 'keep' });
+		await onsaved(result.profile, message);
+		return undefined;
+	});
+
+	let hasAvatar = $derived(showsAvatar(saved, avatar));
 	let initial = $derived(avatarInitial({ displayName: name, avatarPath: null }, email));
+	let nameChanged = $derived(normalizedName(name) !== normalizedName(profileDraftOf(saved).name));
+
+	$effect(() => {
+		const draft = { rankForm: rankFormOf(rankForm), careerShown };
+		untrack(() => {
+			if (draft.rankForm === saved.rankForm && draft.careerShown === saved.careerShown) return;
+			queue.push({ draft });
+		});
+	});
 
 	function setAvatar(next: AvatarChange): void {
 		if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -76,36 +103,22 @@
 			photoError = result.error;
 			return;
 		}
-		setAvatar({ kind: 'replace', image: result.image });
+		const next: AvatarChange = { kind: 'replace', image: result.image };
+		setAvatar(next);
+		queue.push({ draft: { avatar: next }, message: m.settings.profile.photoSaved });
 	}
 
-	function cancel(): void {
-		setAvatar({ kind: 'keep' });
-		name = profileDraftOf(formState.saved).name;
-		rankForm = formState.saved.rankForm;
-		careerShown = formState.saved.careerShown;
-		nameError = undefined;
-		photoError = undefined;
-		formState.error = '';
+	function removePhoto(): void {
+		const next: AvatarChange = { kind: 'remove' };
+		setAvatar(next);
+		queue.push({ draft: { avatar: next }, message: m.settings.profile.photoRemoved });
 	}
 
-	function submit(): Promise<void> {
-		return formState.run(async () => {
-			nameError = validateDisplayName(name);
-			if (nameError) return;
-			const result = await saveProfile(
-				{ name, avatar, rankForm: rankFormOf(rankForm), careerShown },
-				formState.saved
-			);
-			if (result.error !== undefined) {
-				formState.error = result.error;
-				return;
-			}
-			formState.saved = result.profile;
-			name = profileDraftOf(result.profile).name;
-			setAvatar({ kind: 'keep' });
-			await onsaved(result.profile, m.settings.profile.saved);
-		});
+	function saveName(event: SubmitEvent): void {
+		event.preventDefault();
+		nameError = validateDisplayName(name);
+		if (nameError || !nameChanged) return;
+		queue.push({ draft: { name }, message: m.settings.profile.nameSaved });
 	}
 
 	export function confirmLeave(): Promise<boolean> {
@@ -117,31 +130,19 @@
 	});
 </script>
 
-<SettingsForm
-	busy={formState.busy}
-	error={formState.error}
-	errorTitle={m.settings.profile.errorTitle}
-	oncancel={cancel}
-	onsubmit={submit}
-	saveLabel={m.settings.profile.save}
-	bind:barHeight
->
+<SettingsCard error={queue.error} errorTitle={m.settings.profile.errorTitle}>
 	<div class="fields">
 		<div class="photo">
 			<div class="mat">
-				<Avatar {initial} large path={hasAvatar ? formState.saved.avatarPath : null} {previewUrl} />
+				<Avatar {initial} large path={hasAvatar ? saved.avatarPath : null} {previewUrl} />
 			</div>
 			<div class="buttons">
-				<Button disabled={formState.busy || cropping} onclick={() => fileInput?.click()}>
+				<Button disabled={queue.busy || cropping} onclick={() => fileInput?.click()}>
 					<Icon icon={ImageUp} size="sm" />
 					{hasAvatar ? m.settings.profile.changePhoto : m.settings.profile.addPhoto}
 				</Button>
 				{#if hasAvatar}
-					<Button
-						disabled={formState.busy}
-						onclick={() => setAvatar({ kind: 'remove' })}
-						variant="danger"
-					>
+					<Button disabled={queue.busy} onclick={removePhoto} variant="danger">
 						<Icon icon={Trash} size="sm" />
 						{m.settings.profile.removePhoto}
 					</Button>
@@ -160,13 +161,20 @@
 			/>
 		</div>
 		<div class="inputs">
-			<TextField
-				autocomplete="given-name"
-				error={nameError}
-				label={m.settings.profile.name}
-				maxlength={DISPLAY_NAME_MAX_LENGTH * 2}
-				bind:value={name}
-			/>
+			<form class="name" onsubmit={saveName}>
+				<TextField
+					autocomplete="given-name"
+					error={nameError}
+					label={m.settings.profile.name}
+					maxlength={DISPLAY_NAME_MAX_LENGTH * 2}
+					bind:value={name}
+				/>
+				{#if nameChanged}
+					<Button disabled={queue.busy} type="submit">
+						{queue.busy ? m.common.saving : m.common.save}
+					</Button>
+				{/if}
+			</form>
 			<div class="described">
 				<Switch
 					aria-describedby="{formId}-career-hint"
@@ -186,7 +194,7 @@
 			/>
 		</div>
 	</div>
-</SettingsForm>
+</SettingsCard>
 
 <DiscardDialog {changes} description={m.common.discardDescription} />
 
@@ -198,6 +206,13 @@
 		width: 100%;
 		min-width: 0;
 		max-width: var(--size-content-default);
+	}
+
+	.name {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: end;
+		gap: var(--spacing-2);
 	}
 
 	.inputs {

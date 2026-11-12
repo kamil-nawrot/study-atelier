@@ -261,8 +261,9 @@ export const pl = {
 			careerShownHint:
 				'Po wyłączeniu ani postęp, ani eksponaty nie będą widoczne w atelier, ale nadal będą zliczane, więc w każdej chwili możesz je ponownie włączyć.',
 			nameTooLong: (max: number): string => `Imię może mieć najwyżej ${max} znaków.`,
-			save: 'Zapisz profil',
-			saved: 'Zapisano profil.',
+			nameSaved: 'Zapisano imię.',
+			photoSaved: 'Zapisano zdjęcie.',
+			photoRemoved: 'Usunięto zdjęcie.',
 			errorTitle: 'Nie udało się zapisać profilu',
 			failed: 'Nie udało się zapisać profilu. Spróbuj jeszcze raz.',
 			avatarQuotaFull:
@@ -342,8 +343,6 @@ export const pl = {
 			fetchDefinition: 'Automatycznie uzupełniaj definicję hasła ze Słowniczka z Wikipedii',
 			fetchForms: 'Automatycznie podpowiadaj odmianę wyrazu z Wikisłownika dla hasła ze Słowniczka',
 			fetchEvent: 'Automatycznie uzupełniaj opis i daty wydarzenia z Wikipedii',
-			save: 'Zapisz ustawienia',
-			saved: 'Zapisano ustawienia.',
 			errorTitle: 'Nie udało się zapisać ustawień'
 		},
 		data: {
