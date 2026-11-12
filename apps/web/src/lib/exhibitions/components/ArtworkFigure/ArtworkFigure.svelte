@@ -1,6 +1,7 @@
 <script lang="ts">
 	import StickyNote from '@lucide/svelte/icons/sticky-note';
-	import { NoImage } from '@study-atelier/ui';
+	import { MediaQuery } from 'svelte/reactivity';
+	import { CappedPicture, NoImage } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import PaletteBand from '#lib/images/components/PaletteBand/PaletteBand.svelte';
 	import { PaletteLoader } from '#lib/images/palette-loader/palette-loader.svelte.ts';
@@ -36,6 +37,8 @@
 	const canFlip = $derived(flippable && !paletteOnly && lookup.hasNote(artworkId));
 
 	let flipped = $state(false);
+	let capped = $state(false);
+	const phone = new MediaQuery('max-width: 767.98px');
 	const byline = $derived(
 		artwork ? [artwork.authors.join(', '), artwork.date].filter(Boolean).join(', ') : ''
 	);
@@ -70,7 +73,12 @@
 
 <figure class="figure">
 	<div style:--ratio={ratio} class="top">
-		<div class="mat" class:bare={paletteOnly && (showsPalette || unreadable)} class:flipped>
+		<div
+			class="mat"
+			class:bare={paletteOnly && (showsPalette || unreadable)}
+			class:flipped
+			class:staged={capped && phone.current}
+		>
 			{#if paletteOnly && (showsPalette || unreadable)}
 				<div class="swatches" data-palette-only="">
 					{#if unreadable}
@@ -80,16 +88,26 @@
 					{/if}
 				</div>
 			{:else if artwork?.image?.src}
-				<img
-					alt=""
-					draggable="false"
-					height={artwork.image.height}
-					onerror={() => artwork && lookup.imageFailed(artwork)}
-					sizes="(min-width: 768px) 1280px, 100vw"
-					src={artwork.image.src}
-					srcset={artwork.image.srcset}
-					width={artwork.image.width}
-				/>
+				{@const image = artwork.image}
+				{#snippet picture()}
+					<img
+						alt=""
+						draggable="false"
+						height={image.height}
+						onerror={() => artwork && lookup.imageFailed(artwork)}
+						sizes="(min-width: 768px) 1280px, 100vw"
+						src={image.src}
+						srcset={image.srcset}
+						width={image.width}
+					/>
+				{/snippet}
+				{#if phone.current}
+					<CappedPicture backdrop={image.src} {ratio} bind:capped>
+						{@render picture()}
+					</CappedPicture>
+				{:else}
+					{@render picture()}
+				{/if}
 			{:else}
 				<div class="placeholder">
 					<NoImage />
@@ -186,7 +204,12 @@
 		max-width: 100%;
 	}
 
-	.mat.bare {
+	.mat:has(> :global(.capped-picture)) {
+		width: 100%;
+	}
+
+	.mat.bare,
+	.mat.staged {
 		width: 100%;
 		padding: 0;
 		background: none;
@@ -231,7 +254,8 @@
 		line-height: var(--line-height-md);
 	}
 
-	.mat.flipped > :not(.back, .flip) {
+	.mat.flipped > :not(.back, .flip),
+	.mat.flipped > :global(.capped-picture) {
 		visibility: hidden;
 	}
 
@@ -281,5 +305,11 @@
 	.flip:focus-visible,
 	.flip[aria-pressed='true'] {
 		opacity: 1;
+	}
+
+	@media (max-width: 767.98px) {
+		.top {
+			--picture-max-height: calc(var(--image-max-height) + 2 * var(--spacing-2));
+		}
 	}
 </style>

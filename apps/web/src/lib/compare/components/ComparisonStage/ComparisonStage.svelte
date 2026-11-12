@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ArtworkImage, MetaLine, NoImage, TextButton } from '@study-atelier/ui';
+	import { ArtworkImage, MetaLine, NoImage, StageBackdrop, TextButton } from '@study-atelier/ui';
 	import { MediaQuery } from 'svelte/reactivity';
 	import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
 	import { formatDate, signedYear } from '#lib/catalogue/years/years.ts';
@@ -53,9 +53,9 @@
 	});
 </script>
 
-<figure class="stage" class:dimmed={image !== undefined}>
+<figure class="stage">
 	{#if image}
-		<img class="backdrop" alt="" aria-hidden="true" src={image.src} />
+		<StageBackdrop src={image.src} />
 		<div class="mat">
 			<div class="frame" bind:clientWidth={frameWidth}>
 				<ArtworkImage
@@ -110,24 +110,7 @@
 		color: var(--color-stage-fg-muted);
 	}
 
-	.dimmed::after {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background: var(--color-scrim);
-	}
-
-	.backdrop {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		filter: blur(32px);
-		scale: 1.2;
-	}
-
-	.stage > :not(.backdrop) {
+	.stage > * {
 		position: relative;
 		z-index: 1;
 	}

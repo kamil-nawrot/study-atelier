@@ -2,10 +2,9 @@
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import StickyNote from '@lucide/svelte/icons/sticky-note';
 	import type { Snippet } from 'svelte';
-	import { ArtworkImage, Icon, NoImage } from '@study-atelier/ui';
+	import { ArtworkImage, Icon, NoImage, StageBackdrop } from '@study-atelier/ui';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
-	import ImageBackdrop from '#lib/review/components/ImageBackdrop/ImageBackdrop.svelte';
 
 	type Props = {
 		artwork: WallArtwork;
@@ -27,7 +26,7 @@
 	{#if flipped}
 		<div class="artwork">
 			{#if artwork.image?.src}
-				<ImageBackdrop src={artwork.image.src} />
+				<StageBackdrop src={artwork.image.src} />
 				<ArtworkImage
 					alt={artwork.title}
 					height={artwork.image.height}
@@ -88,7 +87,7 @@
 		position: relative;
 	}
 
-	.artwork :global(img) {
+	.artwork :global(.artwork-image img) {
 		display: block;
 		width: auto;
 		max-width: 100%;

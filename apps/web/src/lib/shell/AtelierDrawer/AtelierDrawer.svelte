@@ -26,7 +26,9 @@
 
 <BottomSheet bind:this={sheet} closeLabel={m.menu.close} label={m.menu.label}>
 	{#snippet top()}
-		<Logo label={m.app.name} size="sm" />
+		<span class="brand">
+			<Logo label={m.app.name} size="sm" />
+		</span>
 	{/snippet}
 	<nav aria-label={m.menu.label}>
 		<AtelierMenu barItems={false} {email} {onfeedback} {onsignout} {signingOut} />
@@ -34,6 +36,11 @@
 </BottomSheet>
 
 <style>
+	.brand {
+		display: flex;
+		padding-inline-start: var(--spacing-4);
+	}
+
 	nav {
 		display: flex;
 		flex-direction: column;

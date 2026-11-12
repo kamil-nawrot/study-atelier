@@ -35,6 +35,8 @@ export { default as PopoverCard } from './components/PopoverCard/PopoverCard.sve
 export { default as Primer } from './components/Primer/Primer.svelte';
 export { default as FillingLines } from './components/FillingLines/FillingLines.svelte';
 export { default as PopupButton } from './components/PopupButton/PopupButton.svelte';
+export { default as CappedPicture } from './components/CappedPicture/CappedPicture.svelte';
+export { default as StageBackdrop } from './components/StageBackdrop/StageBackdrop.svelte';
 export { default as StageButton } from './components/StageButton/StageButton.svelte';
 export { default as ProgressLine } from './components/ProgressLine/ProgressLine.svelte';
 export { default as SearchField } from './components/SearchField/SearchField.svelte';

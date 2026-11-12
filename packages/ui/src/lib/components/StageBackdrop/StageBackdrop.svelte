@@ -6,32 +6,31 @@
 	let { src }: Props = $props();
 </script>
 
-<span class="backdrop" aria-hidden="true" data-backdrop>
+<span class="stage-backdrop" aria-hidden="true">
 	<img alt="" {src} />
 </span>
 
 <style>
-	.backdrop {
+	.stage-backdrop {
 		position: absolute;
 		inset: 0;
+		z-index: 0;
 		overflow: hidden;
+		pointer-events: none;
 	}
 
-	.backdrop::after {
+	.stage-backdrop::after {
 		content: '';
 		position: absolute;
 		inset: 0;
-		background: var(--color-scrim);
+		background: color-mix(in srgb, var(--color-stage-bg) 70%, transparent);
 	}
 
-	.backdrop img {
-		display: block;
+	img {
 		width: 100%;
-		max-width: none;
 		height: 100%;
-		max-height: none;
 		object-fit: cover;
-		filter: blur(16px);
+		filter: blur(32px);
 		scale: 1.2;
 	}
 </style>
