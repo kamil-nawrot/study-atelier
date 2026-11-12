@@ -34,7 +34,8 @@
     "boncompagni_academy": "cort-workshop",
     "laurel_skull": "valck-vanitas-whole",
     "pilgrim_shell": "callot-pilgrims",
-    "vault_cobweb": "weiditz-web"
+    "vault_cobweb": "weiditz-web",
+    "van_eyck_easel": "galle-master-pupils-centre-right"
   },
   "variants": [
     {
@@ -1452,6 +1453,62 @@
         0.1805,
         0.7917,
         0.618
+      ]
+    },
+    {
+      "exhibit": "van_eyck_easel",
+      "status": "alternative",
+      "commons_file": "Schilderen met olieverf Color olivi (titel op object) Nieuwe uitvindingen en ontdekkingen (serietitel) Nova Reperta (serietitel), RP-P-1904-1038.jpg",
+      "licence": "CC0",
+      "credit": "Workshop of Philips Galle after Stradanus, Color olivi, Nova Reperta, about 1590, Rijksmuseum RP-P-1904-1038",
+      "variant": "galle-master-pupils-left",
+      "crop": [
+        0.13,
+        0.0,
+        0.6925,
+        1.0
+      ]
+    },
+    {
+      "exhibit": "van_eyck_easel",
+      "status": "alternative",
+      "commons_file": "Schilderen met olieverf Color olivi (titel op object) Nieuwe uitvindingen en ontdekkingen (serietitel) Nova Reperta (serietitel), RP-P-1904-1038.jpg",
+      "licence": "CC0",
+      "credit": "Workshop of Philips Galle after Stradanus, Color olivi, Nova Reperta, about 1590, Rijksmuseum RP-P-1904-1038",
+      "variant": "galle-master-pupils-right",
+      "crop": [
+        0.4896,
+        0.121,
+        0.9479,
+        0.934
+      ]
+    },
+    {
+      "exhibit": "van_eyck_easel",
+      "status": "alternative",
+      "commons_file": "Schilderen met olieverf Color olivi (titel op object) Nieuwe uitvindingen en ontdekkingen (serietitel) Nova Reperta (serietitel), RP-P-1904-1038.jpg",
+      "licence": "CC0",
+      "credit": "Workshop of Philips Galle after Stradanus, Color olivi, Nova Reperta, about 1590, Rijksmuseum RP-P-1904-1038",
+      "variant": "galle-master-pupils-centre",
+      "crop": [
+        0.31,
+        0.08,
+        0.8,
+        0.95
+      ]
+    },
+    {
+      "exhibit": "van_eyck_easel",
+      "status": "chosen",
+      "commons_file": "Schilderen met olieverf Color olivi (titel op object) Nieuwe uitvindingen en ontdekkingen (serietitel) Nova Reperta (serietitel), RP-P-1904-1038.jpg",
+      "licence": "CC0",
+      "credit": "Workshop of Philips Galle after Stradanus, Color olivi, Nova Reperta, about 1590, Rijksmuseum RP-P-1904-1038",
+      "variant": "galle-master-pupils-centre-right",
+      "crop": [
+        0.36,
+        0.08,
+        0.85,
+        0.95
       ]
     }
   ]
