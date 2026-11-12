@@ -404,6 +404,35 @@ alternatives:
       - 'A word can exist twice, as a term and as a symbol.'
       - 'A label of a deleted value is lost instead of kept as text.'
 
+  - id: M8
+    name: Keep typed relations between artworks and between authors in two tables
+    status: 'accepted 2026-11-12, ADR-0259; to build in 0.23'
+    kind: schema
+    tables: [artwork_relations, author_relations]
+    serves: [R31, R32, W25, W26]
+    pull_requests: 2
+    risk: low
+    risk_because: 'two small link tables like visit_artworks; the only subtle parts are the order of a symmetric pair and the merge of authors'
+    how: >
+      artwork_relations and author_relations hold (owner_id, from_id, to_id, kind). Both ids reference the records
+      of the same owner with composite foreign keys (artworks (id, owner_id); category_values (id, owner_id,
+      category_code) with the code fixed to author), deleted with them. kind is checked against the fixed list; a
+      symmetric kind is stored with from_id < to_id. save_artwork and save_value_details take the full list of
+      relations of the record and replace them in the same transaction. The artwork page reads the relations of
+      both directions with the artwork; value_page_content returns those of an author.
+    design:
+      - 'Primary key (from_id, to_id) for the forward read, an index on to_id for the reverse one, a unique index on (least, greatest) so a pair has one relation; a check refuses a relation to itself.'
+      - 'RLS on both tables, by owner_id, as in the other tables.'
+      - 'merge_category_values moves the author relations to the kept author and drops duplicates and a relation to itself.'
+      - 'A trashed artwork keeps its relations; the reads leave it out until it is restored.'
+      - 'export_atelier and import_atelier carry both tables; an older export has none.'
+    cost:
+      - 'migration: two tables, RLS, checks, save_artwork, save_value_details, value_page_content, merge_category_values, export and import'
+      - 'SQL tests: both directions, symmetric order, one relation per pair, cascades, merge of authors, import of an old and a new export'
+      - 'database.types.ts, screenshot mocks for the new reads'
+    loses:
+      - 'One relation per pair of records.'
+
 patterns:
   - { id: R01, today: 10, target: 5, model: none, also: [T1, T2] }
   - { id: R02, today: 2, target: 2, model: none, also: [T13] }
@@ -480,6 +509,8 @@ patterns:
   - { id: R28, today: 'new', target: '+1 light index beside the term index', model: [M7] }
   - { id: R29, today: 'new', target: '+1 select by the label column', model: [M7] }
   - { id: R30, today: 'new', target: '+1 at the session start', model: [M7] }
+  - { id: R31, today: 'new', target: 'read with the artwork, no request of its own', model: [M8] }
+  - { id: R32, today: 'new', target: 'part of value_page_content', model: [M8] }
 
 writes:
   - {
@@ -576,6 +607,18 @@ writes:
       model: [M7]
     }
   - { id: W24, today: 'new', after: 'one pin update with the two symbol columns', model: [M7] }
+  - {
+      id: W25,
+      today: 'new',
+      after: 'save_artwork replaces the relations of the artwork',
+      model: [M8]
+    }
+  - {
+      id: W26,
+      today: 'new',
+      after: 'save_value_details replaces the relations of the author',
+      model: [M8]
+    }
 
 decisions:
   - id: D1

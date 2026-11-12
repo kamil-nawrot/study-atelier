@@ -110,7 +110,7 @@ Table artwork_relations {
     to_id [name: 'artwork_relations_to_id_idx']
     owner_id [name: 'artwork_relations_owner_id_idx']
   }
-  Note: 'RLS on. ADR-0259; check from_id <> to_id, and from_id < to_id for version and related'
+  Note: 'RLS on; M8; check from_id <> to_id, and from_id < to_id for version and related'
 }
 
 Table artwork_types {
@@ -205,7 +205,7 @@ Table author_relations {
     to_id [name: 'author_relations_to_id_idx']
     owner_id [name: 'author_relations_owner_id_idx']
   }
-  Note: 'RLS on. ADR-0259; check from_id <> to_id, and from_id < to_id for collaboration, family and related; category_code is fixed to author'
+  Note: 'RLS on; M8; check from_id <> to_id, and from_id < to_id for collaboration, family and related; category_code is fixed to author'
 }
 
 Table catalogue_museums {

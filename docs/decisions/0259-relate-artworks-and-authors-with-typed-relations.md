@@ -78,4 +78,4 @@ A pendant (two works made as a pair) is a `part` of the pair; a building replaci
 
 ## More information
 
-Design issue [ATL-458](https://linear.app/kamil-nawrot/issue/ATL-458); requirements R-250 to R-254; access patterns R31, R32, W25 and W26 of the [data model](../data-model/access-patterns.yaml). Mockups `atl-458/miejsce-a-zwiezle-both.png`, `atl-458/autor-band-both.png` and `atl-458/formularz2-*.png`, texts `atl-458/teksty.md` in the project files.
+Design issue [ATL-458](https://linear.app/kamil-nawrot/issue/ATL-458); requirements R-250 to R-254; access patterns R31, R32, W25 and W26 and model change M8 of the [data model](../data-model/coverage.yaml). Mockups `atl-458/miejsce-a-zwiezle-both.png`, `atl-458/autor-band-both.png` and `atl-458/formularz2-*.png`, texts `atl-458/teksty.md` in the project files.
