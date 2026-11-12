@@ -147,6 +147,11 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		licence: 'CC0',
 		page: 'https://www.metmuseum.org/art/collection/search/369581'
 	},
+	vault_cobweb: {
+		credit: 'Według Hansa Weiditza, wyd. Heinrich Steiner, „Sklepienie z pajęczyną”, 1514–1531',
+		licence: 'CC0',
+		commonsFile: 'Gewelf met spinnenweb, RP-P-1874-11-72-1.jpg'
+	},
 	hortus_cliffortianus: {
 		credit: 'Jan Wandelaar, frontyspis „Hortus Cliffortianus” Karola Linneusza, 1738',
 		licence: 'domena publiczna',
