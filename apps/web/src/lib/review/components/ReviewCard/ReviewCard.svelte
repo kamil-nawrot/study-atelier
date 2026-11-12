@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { ArtworkImage, NoImage, overlayScrollbar } from '@study-atelier/ui';
+	import { ArtworkImage, ImageCredit, NoImage, overlayScrollbar } from '@study-atelier/ui';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import ImageViewer from '#lib/images/components/ImageViewer/ImageViewer.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -75,7 +75,9 @@
 					</span>
 				</span>
 			{/if}
-			<figcaption class="caption">{credit}</figcaption>
+			{#if credit}
+				<ImageCredit label={m.artwork.creditLabel} text={credit} />
+			{/if}
 		</figure>
 	{/if}
 
@@ -178,19 +180,6 @@
 		display: grid;
 		width: min(320px, calc(100vw - 2 * var(--spacing-6)));
 		aspect-ratio: 4 / 5;
-	}
-
-	.caption {
-		min-height: 1lh;
-		color: var(--color-stage-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-	}
-
-	@media (max-width: 767.98px) {
-		.caption {
-			min-height: 2lh;
-		}
 	}
 
 	.panel {

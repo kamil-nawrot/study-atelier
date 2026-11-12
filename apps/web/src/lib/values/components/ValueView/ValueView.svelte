@@ -1,5 +1,12 @@
 <script lang="ts">
-	import { ArtworkImage, Icon, MetaLine, type NoteLinks, Section } from '@study-atelier/ui';
+	import {
+		ArtworkImage,
+		Icon,
+		ImageCredit,
+		MetaLine,
+		type NoteLinks,
+		Section
+	} from '@study-atelier/ui';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -82,10 +89,10 @@
 					srcset={portrait.srcset}
 					width={portrait.width}
 				/>
+				{#if credit}
+					<ImageCredit label={m.artwork.creditLabel} text={credit} tone="mat" />
+				{/if}
 			</div>
-			{#if credit}
-				<figcaption class="caption">{credit}</figcaption>
-			{/if}
 		</figure>
 	{/if}
 	<div class="text">
@@ -192,6 +199,7 @@
 	}
 
 	.mat {
+		position: relative;
 		padding: var(--spacing-2);
 		background: var(--color-mat-bg);
 	}

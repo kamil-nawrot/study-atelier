@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
 	import { untrack } from 'svelte';
-	import { ArtworkImage, Button, Icon, NoImage } from '@study-atelier/ui';
+	import { ArtworkImage, Button, Icon, ImageCredit, NoImage } from '@study-atelier/ui';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
@@ -195,7 +195,7 @@
 			</div>
 		</div>
 		{#if credit}
-			<figcaption class="caption">{credit}</figcaption>
+			<ImageCredit label={m.artwork.creditLabel} text={credit} />
 		{/if}
 		<StageActions
 			{loupeActive}
@@ -330,16 +330,9 @@
 		padding-bottom: calc(var(--size-gallery-thumb) + 2 * var(--spacing-6));
 	}
 
-	.stage .caption {
-		color: var(--color-stage-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-	}
-
 	@media (max-width: 767.98px) {
 		.stage {
-			--caption-height: calc(2 * var(--font-size-xs) * var(--line-height-xs) + var(--spacing-3));
-			--image-max-height: calc(100cqh - 2 * var(--spacing-2) - var(--caption-height));
+			--image-max-height: calc(100cqh - 2 * var(--spacing-2));
 
 			container-type: size;
 			height: calc(
