@@ -153,6 +153,7 @@ Table artworks {
   era_code text
   year_from integer
   favourite boolean [not null, default: `false`]
+  want_to_see boolean [not null, default: `false`, note: 'M9; cleared by save_visit']
 
   indexes {
     (id, owner_id) [unique]
@@ -213,6 +214,8 @@ Table catalogue_museums {
   name text [not null]
   english_name text
   country_code text [not null]
+  latitude "double precision" [not null, note: 'M9']
+  longitude "double precision" [not null, note: 'M9']
 
   indexes {
     `lower(name)` [name: 'catalogue_museums_name_key', unique]
@@ -371,6 +374,9 @@ Table location_details {
   place_type text
   updated_at "timestamp with time zone" [not null, default: `now()`]
   catalogue_wikidata_id text
+  latitude "double precision" [note: 'M9; -90 to 90, set together with longitude']
+  longitude "double precision" [note: 'M9; -180 to 180']
+  wikidata_id text [note: 'M9; Q-id of the place itself, ^Q[0-9]+$']
 
   indexes {
     owner_id [name: 'location_details_owner_idx', note: 'M4']
