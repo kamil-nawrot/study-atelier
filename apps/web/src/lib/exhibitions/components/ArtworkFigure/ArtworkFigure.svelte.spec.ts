@@ -52,13 +52,26 @@ describe('ArtworkFigure', () => {
 		expect(document.querySelector('a')).toBeNull();
 	});
 
-	it('does not link the title while editing', async () => {
+	it('does not link the title nor open the image while editing', async () => {
 		const lookup = new ArtworkLookup();
 		lookup.add([testArtwork(7, 'Judith')]);
 		render(ArtworkFigure, { lookup, artworkId: 'artwork-7', editable: true });
 
 		expect(document.querySelector('a')).toBeNull();
 		await expect.element(page.getByText('Judith')).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: m.artworkView.openImage }))
+			.not.toBeInTheDocument();
+	});
+
+	it('opens the image full screen on a tap while reading', async () => {
+		const lookup = new ArtworkLookup();
+		lookup.add([testArtwork(7, 'Judith')]);
+		render(ArtworkFigure, { lookup, artworkId: 'artwork-7' });
+
+		await page.getByRole('button', { name: m.artworkView.openImage }).click();
+
+		await expect.element(page.getByRole('dialog', { name: 'Judith' })).toBeVisible();
 	});
 
 	it('turns an artwork with notes over to its note in the same frame and back', async () => {
