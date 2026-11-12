@@ -31,6 +31,14 @@
 
 	const phone = new MediaQuery('max-width: 767.98px');
 
+	$effect(() => {
+		void phone.current;
+		untrack(() => {
+			placement = item.artworks;
+			tappedOrder = undefined;
+		});
+	});
+
 	let answered = $derived(ordered !== undefined);
 	let shown = $derived(ordered ?? placement);
 	let right = $derived(ordered ? placedRight(ordered) : 0);

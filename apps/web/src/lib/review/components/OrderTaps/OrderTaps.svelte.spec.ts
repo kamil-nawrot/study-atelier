@@ -12,14 +12,12 @@ describe('OrderTaps', () => {
 	it('numbers the tapped artworks and reports the order once all are tapped', async () => {
 		const onchange = vi.fn();
 		render(OrderTaps, { artworks: [newer, older], onchange });
-		const unpicked = page.getByRole('button', { name: m.review.order.imageAlt });
-
-		await unpicked.nth(1).click();
+		await page.getByRole('button', { name: m.review.quiz.imageAlt(2) }).click();
 		expect(onchange).toHaveBeenLastCalledWith(undefined);
 		await expect
 			.element(page.getByRole('button', { name: m.review.order.place(1, 2) }))
 			.toHaveAttribute('aria-pressed', 'true');
-		await unpicked.first().click();
+		await page.getByRole('button', { name: m.review.quiz.imageAlt(1) }).click();
 
 		expect(onchange).toHaveBeenLastCalledWith([older, newer]);
 	});
@@ -28,8 +26,6 @@ describe('OrderTaps', () => {
 		render(OrderTaps, { artworks: [newer, older], answered: true, onchange: vi.fn() });
 
 		await expect.element(page.getByText(m.review.order.shouldBe(2))).toBeInTheDocument();
-		await expect
-			.element(page.getByRole('button', { name: m.review.order.place(1, 2) }))
-			.toBeDisabled();
+		await expect.element(page.getByRole('button', { name: /Older/ })).toBeDisabled();
 	});
 });

@@ -36,7 +36,12 @@
 		step(by);
 		let delay = HOLD_START;
 		const repeat = (): void => {
+			const before = value;
 			step(by);
+			if (value === before) {
+				release();
+				return;
+			}
 			delay = Math.max(HOLD_FASTEST, delay * HOLD_FASTER);
 			timer = setTimeout(repeat, delay);
 		};

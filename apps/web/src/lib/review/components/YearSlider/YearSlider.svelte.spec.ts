@@ -85,6 +85,23 @@ describe('YearSlider', () => {
 		}
 	});
 
+	it('stops repeating at the end of the era even without the button being let go', async () => {
+		render(YearSlider, { bounds: [1492, 1789], value: 1787, oncheck: vi.fn() });
+		const later = page.getByRole('button', { name: m.review.year.later });
+		await expect.element(later).toBeVisible();
+
+		vi.useFakeTimers();
+		try {
+			later.element().dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0 }));
+			vi.advanceTimersByTime(3000);
+			await tick();
+
+			expect(vi.getTimerCount()).toBe(0);
+		} finally {
+			vi.useRealTimers();
+		}
+	});
+
 	it('disables the button that would leave the era', async () => {
 		render(YearSlider, { bounds: [1492, 1789], value: 1789, oncheck: vi.fn() });
 

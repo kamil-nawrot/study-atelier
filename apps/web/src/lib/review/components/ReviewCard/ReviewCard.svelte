@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { MediaQuery } from 'svelte/reactivity';
 	import { overlayScrollbar } from '@study-atelier/ui';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import ReviewArtwork from '#lib/review/components/ReviewArtwork/ReviewArtwork.svelte';
@@ -33,9 +34,11 @@
 		actions,
 		overlay
 	}: Props = $props();
+
+	const phone = new MediaQuery('max-width: 767.98px');
 </script>
 
-<div class="card" class:compact class:question-first={questionFirst}>
+{#snippet scene()}
 	<div class="stage" class:collapsed={collapsed && !stage}>
 		{#if stage}
 			{@render stage()}
@@ -43,18 +46,37 @@
 			<ReviewArtwork {alt} {artwork} {collapsed} {compact} {credit} {image} {overlay} />
 		{/if}
 	</div>
+{/snippet}
 
-	<section class="panel" aria-labelledby={labelledby}>
-		<div class="body" {@attach overlayScrollbar()}>
-			{@render body()}
+{#snippet bar()}
+	{#if actions}
+		<div class="actions">
+			{@render actions()}
 		</div>
-		{#if actions}
-			<div class="actions">
-				{@render actions()}
+	{/if}
+{/snippet}
+
+{#if questionFirst && phone.current}
+	<div class="card question-first" class:compact>
+		<section class="panel" aria-labelledby={labelledby}>
+			<div class="body">
+				{@render body()}
 			</div>
-		{/if}
-	</section>
-</div>
+			{@render scene()}
+			{@render bar()}
+		</section>
+	</div>
+{:else}
+	<div class="card" class:compact>
+		{@render scene()}
+		<section class="panel" aria-labelledby={labelledby}>
+			<div class="body" {@attach overlayScrollbar()}>
+				{@render body()}
+			</div>
+			{@render bar()}
+		</section>
+	</div>
+{/if}
 
 <style>
 	.card {
@@ -113,15 +135,14 @@
 		}
 
 		.question-first {
-			grid-template-rows: auto auto 1fr;
+			grid-template-rows: 1fr;
 		}
 
 		.question-first .panel {
-			display: contents;
+			grid-template-rows: auto auto 1fr;
 		}
 
 		.question-first .body {
-			order: -1;
 			padding-bottom: 0;
 		}
 

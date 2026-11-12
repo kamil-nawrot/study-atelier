@@ -126,17 +126,18 @@ describe('OrderGuess on a phone', () => {
 		await expect.element(page.getByText(m.review.order.keyboardHint)).not.toBeInTheDocument();
 		await expect.element(check).toBeDisabled();
 
-		const tiles = page.getByRole('button', { name: m.review.order.imageAlt });
-		await tiles.nth(1).click();
+		const image = (n: number): ReturnType<typeof page.getByRole> =>
+			page.getByRole('button', { name: m.review.quiz.imageAlt(n) });
+		await image(2).click();
 		await expect.element(tile(1)).toHaveAttribute('aria-pressed', 'true');
-		await tiles.nth(0).click();
+		await image(1).click();
 		await expect.element(tile(2)).toBeInTheDocument();
 		await tile(2).click();
 		await expect.element(tile(2)).not.toBeInTheDocument();
 
-		await tiles.nth(2).click();
-		await tiles.nth(0).click();
-		await tiles.nth(0).click();
+		await image(4).click();
+		await image(1).click();
+		await image(3).click();
 		await expect.element(check).toBeEnabled();
 		await check.click();
 
@@ -147,8 +148,20 @@ describe('OrderGuess on a phone', () => {
 		renderGuess([venus, nefertiti, starry, arnolfini]);
 
 		await expect.element(page.getByText(m.review.order.shouldBe(4))).toBeInTheDocument();
-		await expect
-			.element(page.getByRole('button', { name: m.review.order.place(1, 4) }))
-			.toBeDisabled();
+		await expect.element(page.getByRole('button', { name: /Venus of Willendorf/ })).toBeDisabled();
+	});
+
+	it('drops the tapped order when the screen turns wide, so the board checks what it shows', async () => {
+		const { oncheck } = renderGuess();
+		await page.getByRole('button', { name: m.review.quiz.imageAlt(2) }).click();
+		await page.getByRole('button', { name: m.review.quiz.imageAlt(4) }).click();
+		await page.getByRole('button', { name: m.review.quiz.imageAlt(1) }).click();
+		await page.getByRole('button', { name: m.review.quiz.imageAlt(3) }).click();
+
+		await page.viewport(1280, 800);
+		await page.viewport(390, 844);
+
+		await expect.element(page.getByRole('button', { name: m.review.order.check })).toBeDisabled();
+		expect(oncheck).not.toHaveBeenCalled();
 	});
 });
