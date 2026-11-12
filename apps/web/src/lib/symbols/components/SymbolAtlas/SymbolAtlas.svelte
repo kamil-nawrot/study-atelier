@@ -82,8 +82,7 @@
 
 <style>
 	.tools {
-		padding-bottom: var(--spacing-4);
-		border-bottom: var(--border-width-hairline) solid var(--color-line);
+		margin-bottom: var(--spacing-6);
 	}
 
 	.grid {
@@ -92,22 +91,17 @@
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: var(--spacing-12) var(--spacing-6);
-		padding: var(--spacing-8) 0 0;
+		padding: 0;
 		list-style: none;
 	}
 
 	@media (min-width: 768px) {
-		.tools {
-			padding-bottom: var(--spacing-6);
-		}
-
 		.grid {
 			--detail-lens: 200px;
 
 			grid-template-columns: repeat(4, minmax(0, 1fr));
 			gap: var(--spacing-16);
 			max-width: var(--size-content-wide);
-			padding-top: var(--spacing-12);
 		}
 	}
 </style>
