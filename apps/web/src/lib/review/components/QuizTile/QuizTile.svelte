@@ -190,6 +190,12 @@
 		line-height: var(--line-height-xs);
 	}
 
+	@media (max-width: 767.98px) {
+		.tile:not(.right, .wrong) .badge {
+			display: none;
+		}
+	}
+
 	.tile.right {
 		border-color: var(--color-success);
 	}

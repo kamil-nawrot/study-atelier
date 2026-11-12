@@ -27,12 +27,18 @@
 	let heading = $state<HTMLElement>();
 	let nextButton = $state<HTMLElement>();
 	let selected = $state<TitleSuggestion>();
+	let typing = $state(false);
 
 	let artwork = $derived(item.artwork);
 	let answered = $derived(typed !== undefined);
 	let correct = $derived(typed?.includes(artwork.id) ?? false);
 	let alt = $derived(answered ? describeArtwork(artwork) : m.review.flashcard.imageAlt);
 	let byline = $derived(authorsOf(artwork));
+
+	$effect(() => {
+		void artwork.id;
+		typing = false;
+	});
 
 	$effect(() => {
 		void artwork.id;
@@ -80,6 +86,7 @@
 	actions={next}
 	{alt}
 	{artwork}
+	collapsed={typing && !answered}
 	compact
 	credit={answered ? details?.credit : undefined}
 	image={artwork.image}
@@ -90,12 +97,14 @@
 			<h1 bind:this={heading} id="quiz-heading" tabindex="-1">{m.review.quiz.typedQuestion}</h1>
 			<p class="lead">{m.review.quiz.typedHint}</p>
 		</div>
-		<TitleCombobox
-			{artworks}
-			oncheck={check}
-			verdict={answered ? (correct ? 'right' : 'wrong') : undefined}
-			bind:selected
-		/>
+		<div onfocusin={() => (typing = true)}>
+			<TitleCombobox
+				{artworks}
+				oncheck={check}
+				verdict={answered ? (correct ? 'right' : 'wrong') : undefined}
+				bind:selected
+			/>
+		</div>
 		<div class="feedback" role="status">
 			{#if answered}
 				<p class="verdict">

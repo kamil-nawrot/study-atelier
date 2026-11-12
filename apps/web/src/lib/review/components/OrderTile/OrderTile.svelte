@@ -6,6 +6,7 @@
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { OrderPlace } from '#lib/review/order-guess/order-guess.ts';
+	import ImageBackdrop from '#lib/review/components/ImageBackdrop/ImageBackdrop.svelte';
 	import { describeArtwork } from '#lib/review/overview/overview.ts';
 	import { yearsOf } from '#lib/review/year-guess/year-guess.ts';
 
@@ -33,6 +34,7 @@
 <span class="tile" class:right={place?.right} class:wrong={place && !place.right}>
 	<span class="window">
 		{#if image?.src}
+			<ImageBackdrop src={image.src} />
 			<ArtworkImage
 				{alt}
 				height={image.height}
@@ -92,8 +94,14 @@
 	.window {
 		position: relative;
 		display: grid;
-		justify-items: center;
+		place-items: center;
 		width: 100%;
+		height: 100%;
+		overflow: hidden;
+	}
+
+	.window :global(.artwork-image) {
+		position: relative;
 	}
 
 	.window :global(img) {
