@@ -105,7 +105,8 @@ declare
     'duplicate_candidates', 'used_category_values', 'learner_points', 'unlock_exhibits', 'record_free_answers',
     'career_standing', 'note_link_mentions', 'note_link_labels', 'note_link_suggestions', 'atelier_empty',
     'collection_statistics', 'record_right_answer', 'note_gap_artwork', 'artwork_field_type_impact',
-    'mastered_artworks', 'save_exhibition', 'record_night_light', 'record_long_look', 'save_symbol', 'symbol_atlas'
+    'mastered_artworks', 'save_exhibition', 'record_night_light', 'record_long_look', 'save_symbol', 'symbol_atlas',
+    'set_place_point'
   ];
   table_name text;
   routine record;
@@ -556,6 +557,7 @@ begin
     'select public.save_symbol(''Mine'', ''[]'', %L)', a_symbol)),
     'B renames a symbol of A through save_symbol';
   assert (select count(*) from public.symbol_atlas()) = 0, 'B sees the symbol atlas of A';
+  perform public.set_place_point(a_place, 48.86, 2.34, 'Q19675');
   assert security_test.denied(format(
     'insert into public.exhibitions (owner_id, title) values (%L, ''Forged'')', a)),
     'B inserts an exhibition owned by A';
@@ -809,6 +811,10 @@ begin
   assert not exists (select 1 from public.location_details as details
       join public.category_values as value on value.id = details.value_id where value.name = 'Cellar'),
     'a place missing from the catalogue gets details';
+  assert not exists (select 1 from public.location_details as details
+      join public.category_values as value on value.id = details.value_id
+      where value.name = 'Visited museum' and details.latitude is not null),
+    'B sets the point of a place of A through set_place_point';
   assert (select count(*) from public.catalogue_museums) > 100, 'A does not read the museum catalogue';
   assert security_test.denied('insert into public.announcements (body) values (''Forged'')'),
     'A adds an announcement';
@@ -979,6 +985,8 @@ begin
   assert security_test.denied('select public.record_free_answers(now(), 1)'), 'anon executes record_free_answers';
   assert security_test.denied('select public.record_night_light(''UTC'')'), 'anon executes record_night_light';
   assert security_test.denied('select public.record_long_look()'), 'anon executes record_long_look';
+  assert security_test.denied(format('select public.set_place_point(%L, 0, 0)', gen_random_uuid())),
+    'anon executes set_place_point';
   assert security_test.denied('select public.record_right_answer(now())'), 'anon executes record_right_answer';
   assert security_test.denied('select public.save_era_details(''antiquity'', ''{}'')'),
     'anon executes save_era_details';

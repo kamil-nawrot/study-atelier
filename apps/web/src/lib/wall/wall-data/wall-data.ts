@@ -54,6 +54,7 @@ type ArtworkRow = {
 	type_code: ArtworkTypeCode | null;
 	artwork_images: MainImageRow[];
 	favourite: boolean;
+	want_to_see?: boolean;
 	deleted_at: string | null;
 	artwork_values: ArtworkValueRow[];
 	artwork_field_entries?: FieldEntryRow[];
@@ -71,6 +72,7 @@ export const ARTWORK_COLUMNS = [
 	'type_code',
 	'artwork_images(source_image_file, own_image_path, own_image_url, image_width, image_height)',
 	'favourite',
+	'want_to_see',
 	'deleted_at',
 	'artwork_values(position, category_values(category_code, name, author_details(sort_name)))',
 	'artwork_field_entries(field_id, text_value)',
@@ -124,6 +126,7 @@ export function wallArtwork(row: ArtworkRow): WallArtwork {
 		hasImage: main !== undefined,
 		favourite: row.favourite,
 		...(row.visit_artworks?.length ? { seen: true } : {}),
+		...(row.want_to_see ? { wantToSee: true } : {}),
 		own: ownEntriesOf(row.artwork_values, row.artwork_field_entries),
 		image,
 		...(pendingImage ? { pendingImage } : {}),

@@ -6,4 +6,5 @@ export type ArtworkRecord = Omit<ArtworkInput, 'relations'> & {
 	number: number;
 	favourite: boolean;
 	relations?: ArtworkRelation[];
+	wantToSee?: boolean;
 };

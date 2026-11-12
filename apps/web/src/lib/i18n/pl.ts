@@ -519,6 +519,7 @@ export const pl = {
 				missing: 'Do uzupełnienia',
 				favourites: 'Ulubione',
 				seen: 'Widziane na żywo',
+				wantToSee: 'Chcę zobaczyć',
 				ticked: 'Zaznaczone'
 			},
 			ownField: 'Własne pole',
@@ -533,7 +534,8 @@ export const pl = {
 				locations: 'Miejsce',
 				missing: 'Do uzupełnienia',
 				favourites: 'Ulubione',
-				seen: 'Widziane na żywo'
+				seen: 'Widziane na żywo',
+				wantToSee: 'Chcę zobaczyć'
 			},
 			tag: (field: string, value: string): string => `${field} ${value}`,
 			unknownAuthor: 'Autor nieznany',
@@ -713,6 +715,12 @@ export const pl = {
 		added: 'Dodano do ulubionych.',
 		removed: 'Usunięto z ulubionych.',
 		failed: 'Nie udało się zapisać zmiany. Spróbuj jeszcze raz.'
+	},
+	wantToSee: {
+		add: 'Chcę zobaczyć na żywo',
+		remove: 'Usuń z „Chcę zobaczyć”',
+		added: 'Dodano do dzieł, które chcesz zobaczyć.',
+		removed: 'Usunięto z dzieł, które chcesz zobaczyć.'
 	},
 	review: {
 		title: 'Powtórki',
