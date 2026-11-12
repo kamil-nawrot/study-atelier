@@ -16,6 +16,8 @@ erDiagram
   CONTEXT_LABEL }o--o| ARTWORK : "names"
   CONTEXT_LABEL }o--o| TERM : "names a person"
   ARTWORK }o--o{ VALUE : "has"
+  ARTWORK }o--o{ ARTWORK : "relates to (typed)"
+  VALUE }o--o{ VALUE : "author relates to author (typed)"
   ARTWORK }o--o| ERA : "belongs to"
   VALUE }o--o{ ERA : "period in era"
   VALUE }o--o{ VALUE : "style in period"
@@ -77,6 +79,8 @@ Each relation of [access-patterns.yaml](access-patterns.yaml) `relations`, with 
 | pin explained by term          | `artwork_pins.glossary_entry_id`                           | glossary entry (R10)                      |
 | pin shows symbol, with meaning | `artwork_pins.symbol_id`, `artwork_pins.symbol_meaning_id` | symbol page (R27), atlas (R26)            |
 | meaning labelled by subject    | `symbol_meaning_contexts`                                  | value page and person page (R29)          |
+| artwork relates to artwork     | `artwork_relations`                                        | artwork page and form (R31)               |
+| author relates to author       | `author_relations`                                         | author page and form (R32)                |
 | exhibition shows artwork       | `exhibition_artworks`                                      | "Na wystawach" (R25), list cover (R22)    |
 | note links to subject          | only as Markdown text `](/atelier/…)`                      | "Wspomniane w" on R03, R07, R13           |
 | note mentions term             | nowhere; matched in the browser                            | "Pojawia się w notatkach" on R10          |
@@ -88,5 +92,6 @@ The last two rows are the only relations that are not stored. Today the views th
 - A note stays plain Markdown the learner can read in an export.
 - A term matches on its name, synonyms and explicit word forms, case-insensitively, between non-letter characters, in notes, in other terms' definitions and on review flashcards.
 - A link survives a rename of its target; a merge of two values points it at the value that stays.
+- A typed relation is one row read from both ends; a merge of two authors moves it to the author that stays ([ADR-0259](../decisions/0259-relate-artworks-and-authors-with-typed-relations.md)).
 - An artwork in the trash keeps its links and mentions and gets them back on restore.
 - Every older export imports.

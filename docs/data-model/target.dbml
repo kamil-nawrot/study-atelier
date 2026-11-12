@@ -97,6 +97,22 @@ Table artwork_pins {
   Note: 'RLS on'
 }
 
+Table artwork_relations {
+  owner_id uuid [not null, default: `auth.uid()`]
+  from_id uuid [not null]
+  to_id uuid [not null]
+  kind text [not null, note: 'study, copy, version, part, reference, related']
+  created_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    (from_id, to_id) [pk]
+    (`least(from_id, to_id)`, `greatest(from_id, to_id)`) [name: 'artwork_relations_pair_key', unique]
+    to_id [name: 'artwork_relations_to_id_idx']
+    owner_id [name: 'artwork_relations_owner_id_idx']
+  }
+  Note: 'RLS on. ADR-0259; check from_id <> to_id, and from_id < to_id for version and related'
+}
+
 Table artwork_types {
   code text [pk]
   position smallint [not null]
@@ -173,6 +189,23 @@ Table author_details {
     owner_id [name: 'author_details_owner_idx', note: 'M4']
   }
   Note: 'RLS on'
+}
+
+Table author_relations {
+  owner_id uuid [not null, default: `auth.uid()`]
+  from_id uuid [not null]
+  to_id uuid [not null]
+  category_code text [not null, default: `'author'::text`]
+  kind text [not null, note: 'pupil, influence, collaboration, family, related']
+  created_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    (from_id, to_id) [pk]
+    (`least(from_id, to_id)`, `greatest(from_id, to_id)`) [name: 'author_relations_pair_key', unique]
+    to_id [name: 'author_relations_to_id_idx']
+    owner_id [name: 'author_relations_owner_id_idx']
+  }
+  Note: 'RLS on. ADR-0259; check from_id <> to_id, and from_id < to_id for collaboration, family and related; category_code is fixed to author'
 }
 
 Table catalogue_museums {
@@ -565,6 +598,10 @@ Ref artwork_images_artwork_id_owner_id_fkey: artwork_images.(artwork_id, owner_i
 Ref artwork_pins_glossary_entry_id_owner_id_fkey: artwork_pins.(glossary_entry_id, owner_id) > glossary_entries.(id, owner_id) [delete: set null]
 Ref artwork_pins_image_id_owner_id_fkey: artwork_pins.(image_id, owner_id) > artwork_images.(id, owner_id) [delete: cascade]
 Ref artwork_pins_owner_id_fkey: artwork_pins.owner_id > auth.users.id [delete: cascade]
+Ref artwork_relations_from_id_owner_id_fkey: artwork_relations.(from_id, owner_id) > artworks.(id, owner_id) [delete: cascade]
+Ref artwork_relations_to_id_owner_id_fkey: artwork_relations.(to_id, owner_id) > artworks.(id, owner_id) [delete: cascade]
+Ref author_relations_from_id_owner_id_category_code_fkey: author_relations.(from_id, owner_id, category_code) > category_values.(id, owner_id, category_code) [delete: cascade]
+Ref author_relations_to_id_owner_id_category_code_fkey: author_relations.(to_id, owner_id, category_code) > category_values.(id, owner_id, category_code) [delete: cascade]
 Ref artwork_values_artwork_id_owner_id_fkey: artwork_values.(artwork_id, owner_id) > artworks.(id, owner_id) [delete: cascade]
 Ref artwork_values_value_id_owner_id_fkey: artwork_values.(value_id, owner_id) > category_values.(id, owner_id) [delete: cascade]
 Ref artworks_era_code_fkey: artworks.era_code > eras.code
