@@ -1,11 +1,15 @@
 <script lang="ts">
-	import { SearchField } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ExhibitionPoster from '#lib/exhibitions/components/ExhibitionPoster/ExhibitionPoster.svelte';
+	import { matchingExhibitions } from '#lib/exhibitions/exhibition-search/exhibition-search.ts';
 	import {
-		EXHIBITION_SEARCH_MIN_COUNT,
-		matchingExhibitions
-	} from '#lib/exhibitions/exhibition-search/exhibition-search.ts';
+		EXHIBITION_SORTS,
+		rememberedExhibitionSort,
+		rememberExhibitionSort,
+		sortExhibitions,
+		type ExhibitionSort
+	} from '#lib/exhibitions/exhibition-sort/exhibition-sort.ts';
+	import ListTools from '#lib/shared/lists/ListTools/ListTools.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import type { ExhibitionSummary } from '#lib/exhibitions/types/exhibition-summary.ts';
 
@@ -18,21 +22,29 @@
 
 	let { exhibitions, covers, query = $bindable(''), onimagefailed }: Props = $props();
 
-	let searchable = $derived(exhibitions.length >= EXHIBITION_SEARCH_MIN_COUNT);
-	let shown = $derived(searchable ? matchingExhibitions(exhibitions, query) : exhibitions);
+	let sort = $state<ExhibitionSort>(rememberedExhibitionSort());
+
+	const options = EXHIBITION_SORTS.map((value) => ({ value, label: m.exhibitions.sorts[value] }));
+
+	let shown = $derived(sortExhibitions(matchingExhibitions(exhibitions, query), sort));
+
+	function choose(value: string): void {
+		sort = EXHIBITION_SORTS.find((known) => known === value) ?? 'changed';
+		rememberExhibitionSort(sort);
+	}
 </script>
 
 <div class="exhibitions">
-	{#if searchable}
-		<div class="search">
-			<SearchField
-				compact
-				label={m.exhibitions.search}
-				placeholder={m.exhibitions.search}
-				bind:value={query}
-			/>
-		</div>
-	{/if}
+	<div class="filter">
+		<ListTools
+			narrow
+			{options}
+			searchLabel={m.exhibitions.search}
+			sortLabel={m.exhibitions.sortLabel}
+			bind:query
+			bind:sort={() => sort, choose}
+		/>
+	</div>
 
 	{#if shown.length === 0}
 		<p class="lead">{m.exhibitions.noResults(query.trim())}</p>
@@ -57,8 +69,9 @@
 		gap: var(--spacing-6);
 	}
 
-	.search {
-		max-width: var(--size-content-default);
+	.filter {
+		padding-bottom: var(--spacing-6);
+		border-bottom: var(--border-width-hairline) solid var(--color-line);
 	}
 
 	ul {
@@ -68,6 +81,12 @@
 		margin: 0;
 		padding: 0;
 		list-style: none;
+	}
+
+	@media (max-width: 767.98px) {
+		.filter {
+			padding-bottom: var(--spacing-4);
+		}
 	}
 
 	@media (min-width: 768px) {

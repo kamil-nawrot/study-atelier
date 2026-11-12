@@ -1,4 +1,4 @@
-# 0269. Count symbols pinned on artworks outside the trash for the victor's skull
+# 0270. Count symbols pinned on artworks outside the trash for the victor's skull
 
 - Status: accepted
 - Date: 2026-11-12

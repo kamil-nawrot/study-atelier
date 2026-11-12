@@ -46,7 +46,7 @@ begin
     'map_room:chronicle', 'map_room:grand_tour', 'map_room:seen_live', 'map_room:trevi_fountain',
     'map_room:seven_league_boots', 'pavilion:crystal_palace', 'pavilion:lenoir_chapel', 'crypt:mouth_of_truth',
     'crypt:candle_moths'
-  ], 'the exhibits are not the agreed thirty-two in their rooms and order';
+  ], 'the exhibits are not the agreed thirty-three in their rooms and order';
   assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC') where hidden) = array[
     'amateur_magnifier', 'back_from_storage', 'candle_moths', 'figure_alphabet', 'lenoir_chapel', 'marathon',
     'mouth_of_truth', 'night_watch', 'pinacotheca', 'seven_league_boots', 'trevi_fountain'

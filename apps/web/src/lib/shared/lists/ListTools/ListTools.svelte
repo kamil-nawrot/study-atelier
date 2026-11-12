@@ -12,6 +12,7 @@
 		options?: Option[];
 		sort?: string;
 		actions?: Snippet;
+		narrow?: boolean;
 	};
 
 	let {
@@ -20,11 +21,12 @@
 		sortLabel,
 		options = [],
 		sort = $bindable(''),
-		actions
+		actions,
+		narrow = false
 	}: Props = $props();
 </script>
 
-<div class="tools" class:searchable={searchLabel}>
+<div class="tools" class:narrow class:searchable={searchLabel}>
 	{#if searchLabel}
 		<SearchField compact label={searchLabel} placeholder={searchLabel} bind:value={query} />
 	{/if}
@@ -59,6 +61,13 @@
 	.searchable {
 		grid-template-columns: minmax(0, 1fr);
 		justify-content: stretch;
+	}
+
+	@media (min-width: 768px) {
+		.searchable.narrow {
+			grid-template-columns: minmax(0, var(--size-content-default));
+			justify-content: start;
+		}
 	}
 
 	.actions {
