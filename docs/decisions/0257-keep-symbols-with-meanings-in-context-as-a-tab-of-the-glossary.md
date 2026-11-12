@@ -1,6 +1,6 @@
 # 0257. Keep symbols with meanings in context as a tab of the glossary
 
-- Status: accepted
+- Status: accepted; the add button of the top bar is superseded by [0268](0268-add-from-the-tabs-of-the-glossary-like-the-card-index.md)
 - Date: 2026-11-12
 
 ## Context and problem statement
