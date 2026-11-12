@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import { m } from '#lib/i18n/i18n.ts';
 import { testDetail } from '#lib/testing/symbols/symbols.ts';
 import SymbolDetails from './SymbolDetails.svelte';
 
@@ -19,5 +20,18 @@ describe('SymbolDetails', () => {
 
 		await expect.element(page.getByRole('link', { name: /Saint Jerome Writing/ })).toBeVisible();
 		expect(document.querySelector('.lens')).toBeNull();
+	});
+
+	it('keeps many details in one row that scrolls instead of wrapping', async () => {
+		await page.viewport(1280, 800);
+		render(SymbolDetails, {
+			details: Array.from({ length: 12 }, (_, index) => testDetail(`pin-${index}`))
+		});
+
+		await expect
+			.element(page.getByRole('button', { name: m.symbols.view.detailsForward }))
+			.toBeEnabled();
+		const tops = new Set([...document.querySelectorAll('li')].map((item) => item.offsetTop));
+		expect(tops.size).toBe(1);
 	});
 });

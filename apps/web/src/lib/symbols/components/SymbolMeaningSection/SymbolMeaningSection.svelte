@@ -18,21 +18,25 @@
 		<span class="number">{number}</span>
 		<span class="text">{section.meaning.text}</span>
 	</h2>
-	<div class="about">
-		<ContextTags contexts={section.meaning.contexts} />
-		{#if section.summary}
-			<p class="summary">{section.summary}</p>
+	<div class="body">
+		<div class="about">
+			<ContextTags contexts={section.meaning.contexts} />
+			{#if section.summary}
+				<p class="summary">{section.summary}</p>
+			{/if}
+		</div>
+		{#if section.details.length > 0}
+			<SymbolDetails details={section.details} />
+		{:else if pinsShown}
+			<p class="empty">{m.symbols.view.noDetails}</p>
 		{/if}
 	</div>
-	{#if section.details.length > 0}
-		<SymbolDetails details={section.details} />
-	{:else if pinsShown}
-		<p class="empty">{m.symbols.view.noDetails}</p>
-	{/if}
 </section>
 
 <style>
 	.meaning {
+		--meaning-number: var(--spacing-8);
+
 		display: grid;
 		gap: var(--spacing-4);
 		padding: var(--spacing-8) 0;
@@ -40,30 +44,35 @@
 	}
 
 	h2 {
-		display: flex;
+		display: grid;
+		grid-template-columns: var(--meaning-number) minmax(0, 1fr);
 		align-items: baseline;
 		gap: var(--spacing-3);
+		font-family: var(--font-family-title), Georgia, serif;
+		font-size: var(--font-size-2xl);
 		font-weight: var(--font-weight-regular);
+		line-height: var(--line-height-2xl);
 	}
 
 	.number {
-		min-width: var(--spacing-6);
 		color: var(--color-fg-muted);
-		font-size: var(--font-size-sm);
-		line-height: var(--line-height-sm);
+		font-variant-numeric: tabular-nums;
 	}
 
 	.text {
-		font-family: var(--font-family-title), Georgia, serif;
-		font-size: var(--font-size-2xl);
 		font-style: italic;
-		line-height: var(--line-height-2xl);
+	}
+
+	.body {
+		display: grid;
+		gap: var(--spacing-4);
+		min-width: 0;
+		padding-inline-start: calc(var(--meaning-number) + var(--spacing-3));
 	}
 
 	.about {
 		display: grid;
 		gap: var(--spacing-2);
-		padding-inline-start: calc(var(--spacing-6) + var(--spacing-3));
 	}
 
 	.summary,
@@ -74,7 +83,11 @@
 	}
 
 	@media (max-width: 767.98px) {
-		.text {
+		.meaning {
+			--meaning-number: var(--spacing-6);
+		}
+
+		h2 {
 			font-size: var(--font-size-xl);
 			line-height: var(--line-height-xl);
 		}

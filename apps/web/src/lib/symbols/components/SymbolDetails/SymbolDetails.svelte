@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { m } from '#lib/i18n/i18n.ts';
 	import DetailLens from '#lib/pins/components/DetailLens/DetailLens.svelte';
+	import LensStrip from '#lib/pins/components/LensStrip/LensStrip.svelte';
 	import type { SymbolDetail } from '#lib/symbols/types/symbol-detail.ts';
 
 	type Props = {
@@ -10,40 +12,33 @@
 	let { details }: Props = $props();
 </script>
 
-<ul class="details">
-	{#each details as detail (detail.pinId)}
-		<li class:plain={!detail.lens}>
-			<a
-				href="{resolve('/(app)/atelier/[number]', {
-					number: String(detail.number)
-				})}?pin={encodeURIComponent(detail.pinId)}"
-			>
-				{#if detail.lens}
-					<DetailLens lens={detail.lens} />
-				{/if}
-				<span class="title">{detail.title}</span>
-				<span class="byline">{detail.byline}</span>
-			</a>
-		</li>
-	{/each}
-</ul>
+<div class="details">
+	<LensStrip
+		backLabel={m.symbols.view.detailsBack}
+		count={details.length}
+		forwardLabel={m.symbols.view.detailsForward}
+	>
+		{#each details as detail (detail.pinId)}
+			<li class:plain={!detail.lens}>
+				<a
+					href="{resolve('/(app)/atelier/[number]', {
+						number: String(detail.number)
+					})}?pin={encodeURIComponent(detail.pinId)}"
+				>
+					{#if detail.lens}
+						<DetailLens lens={detail.lens} />
+					{/if}
+					<span class="title">{detail.title}</span>
+					<span class="byline">{detail.byline}</span>
+				</a>
+			</li>
+		{/each}
+	</LensStrip>
+</div>
 
 <style>
 	.details {
 		--detail-lens: 128px;
-
-		display: flex;
-		gap: var(--spacing-6);
-		overflow-x: auto;
-		padding: 0 0 var(--spacing-2);
-		list-style: none;
-		scroll-snap-type: x proximity;
-		scrollbar-width: thin;
-	}
-
-	li {
-		flex: 0 0 var(--detail-lens);
-		scroll-snap-align: start;
 	}
 
 	li.plain {

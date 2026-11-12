@@ -1,10 +1,9 @@
 <script lang="ts">
-	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
-	import ChevronRight from '@lucide/svelte/icons/chevron-right';
-	import { Disclosure, IconButton } from '@study-atelier/ui';
+	import { Disclosure } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import DetailLens from '#lib/pins/components/DetailLens/DetailLens.svelte';
+	import LensStrip from '#lib/pins/components/LensStrip/LensStrip.svelte';
 	import type { TermFragment } from '#lib/glossary/types/term-fragment.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 
@@ -13,29 +12,6 @@
 	};
 
 	let { fragments }: Props = $props();
-
-	let strip = $state<HTMLUListElement>();
-	let atStart = $state(true);
-	let atEnd = $state(true);
-
-	function measure(): void {
-		if (!strip) return;
-		atStart = strip.scrollLeft <= 1;
-		atEnd = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 1;
-	}
-
-	$effect(() => {
-		if (!strip) return;
-		void fragments.length;
-		measure();
-		const observer = new ResizeObserver(measure);
-		observer.observe(strip);
-		return () => observer.disconnect();
-	});
-
-	function scroll(direction: -1 | 1): void {
-		strip?.scrollBy({ left: direction * strip.clientWidth * 0.8, behavior: 'smooth' });
-	}
 </script>
 
 <section aria-labelledby="glossary-fragments">
@@ -45,16 +21,12 @@
 		room
 		title={m.glossary.view.fragments}
 	>
-		<div class="strip" class:scrolls={!atStart || !atEnd}>
-			<span class="arrow">
-				<IconButton
-					disabled={atStart}
-					icon={ChevronLeft}
-					label={m.glossary.view.fragmentsBack}
-					onclick={() => scroll(-1)}
-				/>
-			</span>
-			<ul bind:this={strip} onscroll={measure}>
+		<div class="fragments">
+			<LensStrip
+				backLabel={m.glossary.view.fragmentsBack}
+				count={fragments.length}
+				forwardLabel={m.glossary.view.fragmentsForward}
+			>
 				{#each fragments as fragment (fragment.pinId)}
 					<li>
 						<a
@@ -69,47 +41,14 @@
 						</a>
 					</li>
 				{/each}
-			</ul>
-			<span class="arrow">
-				<IconButton
-					disabled={atEnd}
-					icon={ChevronRight}
-					label={m.glossary.view.fragmentsForward}
-					onclick={() => scroll(1)}
-				/>
-			</span>
+			</LensStrip>
 		</div>
 	</Disclosure>
 </section>
 
 <style>
-	.strip {
+	.fragments {
 		--detail-lens: 128px;
-
-		display: grid;
-		grid-template-columns: minmax(0, 1fr);
-		align-items: start;
-		gap: var(--spacing-4);
-	}
-
-	.arrow {
-		display: none;
-		padding-top: calc(var(--detail-lens) / 2 - var(--size-control) / 2);
-	}
-
-	ul {
-		display: flex;
-		gap: var(--spacing-6);
-		overflow-x: auto;
-		padding: 0 0 var(--spacing-2);
-		list-style: none;
-		scroll-snap-type: x proximity;
-		scrollbar-width: thin;
-	}
-
-	li {
-		flex: 0 0 var(--detail-lens);
-		scroll-snap-align: start;
 	}
 
 	a {
@@ -141,16 +80,8 @@
 	}
 
 	@media (min-width: 768px) {
-		.strip {
+		.fragments {
 			--detail-lens: 160px;
-		}
-
-		.strip.scrolls {
-			grid-template-columns: auto minmax(0, 1fr) auto;
-		}
-
-		.strip.scrolls .arrow {
-			display: block;
 		}
 	}
 </style>

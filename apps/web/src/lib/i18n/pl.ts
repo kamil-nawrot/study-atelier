@@ -1517,6 +1517,8 @@ export const pl = {
 			general: 'znaczenie ogólne',
 			summary: (text: string): string => `Na Twoich dziełach: ${text}`,
 			noDetails: 'Żaden detal nie ma jeszcze tego znaczenia.',
+			detailsBack: 'Przewiń detale wstecz',
+			detailsForward: 'Przewiń detale dalej',
 			withoutMeaning: 'Bez wskazanego znaczenia',
 			axis: 'Przez wieki',
 			axisLabel: 'Detale tego symbolu na osi lat powstania dzieł',
