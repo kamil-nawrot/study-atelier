@@ -112,8 +112,12 @@
 					<EraOutsideNote {artworks} code={subject.code} />
 				</p>
 			{/if}
-			{#if lifeYears}
-				<p>{lifeYears}</p>
+			{#if author && (lifeYears || author.countryCode)}
+				<p class="author-line">
+					<MetaLine
+						parts={[lifeYears || null, author.countryCode ? countryName(author.countryCode) : null]}
+					/>
+				</p>
 			{/if}
 			{#if place.some((part) => part !== null)}
 				<p class="place">

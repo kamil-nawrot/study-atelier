@@ -615,6 +615,24 @@ describe('edit value page', () => {
 				.toHaveValue('Fidiasz');
 		});
 
+		it('picks the country of the author and saves it', async () => {
+			const loaded = { summary: '', notes: '', author: emptyAuthorDetails() };
+			renderEdit(subjectOf('author-phidias'), loaded);
+
+			const country = page.getByRole('combobox', { name: m.valueForm.authorCountry });
+			await expect.element(country).toHaveAccessibleDescription(m.valueForm.authorCountryHint);
+			await country.click();
+			await userEvent.type(country, 'grec');
+			await userEvent.keyboard('{Enter}');
+			await saveButton().click();
+
+			expect(saveValueDetails).toHaveBeenCalledWith(
+				subjectOf('author-phidias'),
+				{ summary: '', notes: '', author: { ...emptyAuthorDetails(), countryCode: 'GR' } },
+				loaded
+			);
+		});
+
 		it('rejects a death before the birth and saves nothing', async () => {
 			renderEdit(subjectOf('author-phidias'));
 
@@ -647,7 +665,8 @@ describe('edit value page', () => {
 						birthYear: -480,
 						deathYear: null,
 						yearsApproximate: false,
-						sortName: 'Fidiasz'
+						sortName: 'Fidiasz',
+						countryCode: null
 					}
 				},
 				loaded

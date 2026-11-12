@@ -255,6 +255,13 @@
 
 				{#if form.author}
 					<AuthorLifeFields errors={errors.current.author ?? {}} bind:author={form.author} />
+					<SearchSelect
+						hint={m.valueForm.authorCountryHint}
+						label={m.valueForm.authorCountry}
+						options={countries}
+						placeholder={m.valueForm.countryPlaceholder}
+						bind:value={form.author.countryCode}
+					/>
 				{/if}
 
 				{#if record?.category === 'period'}
