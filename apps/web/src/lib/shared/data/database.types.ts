@@ -252,22 +252,6 @@ export type Database = {
           },
         ];
       };
-      artwork_types: {
-        Row: {
-          code: string;
-          position: number;
-        };
-        ComputedFields: never;
-        Insert: {
-          code: string;
-          position: number;
-        };
-        Update: {
-          code?: string;
-          position?: number;
-        };
-        Relationships: [];
-      };
       artwork_relations: {
         Row: {
           created_at: string;
@@ -307,6 +291,22 @@ export type Database = {
             referencedColumns: ["id", "owner_id"];
           },
         ];
+      };
+      artwork_types: {
+        Row: {
+          code: string;
+          position: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          code: string;
+          position: number;
+        };
+        Update: {
+          code?: string;
+          position?: number;
+        };
+        Relationships: [];
       };
       artwork_values: {
         Row: {
