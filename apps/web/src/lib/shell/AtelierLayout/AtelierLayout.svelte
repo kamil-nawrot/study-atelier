@@ -16,6 +16,7 @@
 	import BottomBar from '#lib/shell/BottomBar/BottomBar.svelte';
 	import { career } from '#lib/career/career-state/career-state.svelte.ts';
 	import NewVersionNotice from '#lib/shell/NewVersionNotice/NewVersionNotice.svelte';
+	import { watchFieldFocus } from '#lib/shell/field-into-view/field-into-view.ts';
 
 	type Props = {
 		title: string;
@@ -52,6 +53,8 @@
 	});
 
 	let signingOut = $state(false);
+
+	$effect(() => watchFieldFocus());
 	let drawer: ReturnType<typeof AtelierDrawer>;
 	let addSheet: ReturnType<typeof AddSheet>;
 	let feedbackOpen = $state(false);
