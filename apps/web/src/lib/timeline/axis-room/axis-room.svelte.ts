@@ -20,6 +20,7 @@ export class AxisRoom {
 			measure();
 			const observer = new ResizeObserver(measure);
 			if (element.parentElement) observer.observe(element.parentElement);
+			observer.observe(document.body);
 			window.addEventListener('resize', measure);
 			return () => {
 				observer.disconnect();

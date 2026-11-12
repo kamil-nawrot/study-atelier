@@ -95,6 +95,26 @@ describe('watchFieldFocus', () => {
 		keyboard.mockRestore();
 	});
 
+	it('takes the room back once the keyboard closes while the field keeps the focus', async () => {
+		await page.viewport(390, 700);
+		form('<div class="field"><textarea></textarea></div>');
+		let height = 400;
+		const keyboard = vi
+			.spyOn(window.visualViewport as VisualViewport, 'height', 'get')
+			.mockImplementation(() => height);
+		const stop = watchFieldFocus();
+
+		stage.querySelector('textarea')?.focus();
+		vi.advanceTimersByTime(KEYBOARD_WAIT);
+		expect(document.body.style.paddingBottom).toBe('300px');
+		height = 700;
+		window.visualViewport?.dispatchEvent(new Event('resize'));
+
+		expect(document.body.style.paddingBottom).toBe('');
+		stop();
+		keyboard.mockRestore();
+	});
+
 	it('leaves the page alone on a larger screen', async () => {
 		await page.viewport(1280, 800);
 		form('<div class="field"><textarea></textarea></div>');

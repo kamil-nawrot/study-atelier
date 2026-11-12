@@ -50,7 +50,7 @@
 
 	async function place(): Promise<void> {
 		flipped = false;
-		if (placement !== 'auto' || !open) return;
+		if (placement === 'top' || !open) return;
 		await tick();
 		flipped = open && panel !== undefined && lacksRoomBelow(panel);
 	}

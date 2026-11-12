@@ -31,6 +31,27 @@ describe('BottomSheet', () => {
 		await expect.element(dialog).not.toBeInTheDocument();
 	});
 
+	it('stays open after a tap on its own padding and closes after a tap above it', async () => {
+		await page.viewport(390, 844);
+		const sheet = await renderSheet();
+		sheet.open();
+		const dialog = page.getByRole('dialog', { name: 'Sheet' });
+		await expect.element(dialog).toBeVisible();
+		const box = dialog.element().getBoundingClientRect();
+		const click = (y: number): void => {
+			dialog
+				.element()
+				.dispatchEvent(
+					new MouseEvent('click', { bubbles: true, clientX: box.left + 2, clientY: y })
+				);
+		};
+
+		click(box.bottom - 2);
+		await expect.element(dialog).toBeVisible();
+		click(box.top - 20);
+		await expect.element(dialog).not.toBeInTheDocument();
+	});
+
 	it('closes when a link in it is picked', async () => {
 		const sheet = await renderSheet();
 		sheet.open();
