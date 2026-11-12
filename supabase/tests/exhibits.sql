@@ -36,7 +36,8 @@ begin
   assert (select array_agg(room || ':' || exhibit order by position)
       from public.unlock_exhibits('UTC') with ordinality as listed (exhibit, room, hidden, value, thresholds, position))
     = array[
-    'main_hall:collection', 'main_hall:vasari_lives', 'main_hall:boncompagni_academy', 'main_hall:own_eye',
+    'main_hall:collection', 'main_hall:vasari_lives', 'main_hall:boncompagni_academy', 'main_hall:vault_cobweb',
+    'main_hall:own_eye',
     'main_hall:pinacotheca',
     'era_enfilade:eras', 'era_enfilade:prehistory', 'era_enfilade:antiquity', 'era_enfilade:middle_ages',
     'era_enfilade:early_modern', 'era_enfilade:modern', 'era_enfilade:contemporary',
@@ -46,7 +47,7 @@ begin
     'map_room:chronicle', 'map_room:grand_tour', 'map_room:seen_live', 'map_room:trevi_fountain',
     'map_room:seven_league_boots', 'map_room:pilgrim_shell', 'pavilion:crystal_palace', 'pavilion:lenoir_chapel', 'crypt:mouth_of_truth',
     'crypt:candle_moths'
-  ], 'the exhibits are not the agreed thirty-four in their rooms and order';
+  ], 'the exhibits are not the agreed thirty-five in their rooms and order';
   assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC') where hidden) = array[
     'amateur_magnifier', 'back_from_storage', 'candle_moths', 'figure_alphabet', 'lenoir_chapel', 'marathon',
     'mouth_of_truth', 'night_watch', 'pilgrim_shell', 'pinacotheca', 'seven_league_boots', 'trevi_fountain'
@@ -775,6 +776,47 @@ begin
   update public.artworks set deleted_at = now() where id = wished;
   assert (select value from public.unlock_exhibits('UTC') where exhibit = 'pilgrim_shell') = 1,
     'the pilgrim''s shell forgets an artwork moved to the trash';
+end;
+$$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000017', 'owner-n@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000017", "role": "authenticated"}', true);
+
+do $$
+declare
+  sketch uuid;
+  painting uuid;
+  copy uuid;
+  master uuid;
+  pupil uuid;
+begin
+  sketch := (select id from public.save_artwork(
+    jsonb_build_object('title', 'Sketch', 'author_unknown', false), '{"author": ["Master"], "location": []}'));
+  painting := (select id from public.save_artwork(
+    jsonb_build_object('title', 'Painting', 'author_unknown', false), '{"author": ["Pupil"], "location": []}'));
+  copy := (select id from public.save_artwork(
+    jsonb_build_object('title', 'Copy', 'author_unknown', true), '{"author": [], "location": []}'));
+  select id into master from public.category_values where category_code = 'author' and name = 'Master';
+  select id into pupil from public.category_values where category_code = 'author' and name = 'Pupil';
+
+  insert into public.artwork_relations (from_id, to_id, kind) values
+    (sketch, painting, 'study'), (copy, painting, 'copy');
+  insert into public.author_relations (from_id, to_id, kind) values (pupil, master, 'pupil');
+  update public.artworks set deleted_at = now() where id = copy;
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'vault_cobweb') = 2,
+    'Arachne''s web leaves out an author relation or counts a relation of an artwork in the trash';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'vault_cobweb') = array[1]::smallint[],
+    'two relations do not reach the first tier of Arachne''s web';
+
+  update public.artworks set deleted_at = null where id = copy;
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'vault_cobweb') = 3,
+    'Arachne''s web does not count the relation of an artwork back from the trash';
 end;
 $$;
 

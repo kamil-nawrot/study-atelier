@@ -1768,6 +1768,15 @@ export const pl = {
 				'Po Wielkiej Wystawie w 1851 roku za 5000 funtów rządowej dotacji kupiono wybór wystawionych przedmiotów. Stały się zaczątkiem otwartego w 1852 roku Muzeum Wyrobów, które miało uczyć projektantów, producentów i publiczność sztuki i wzornictwa. W 1899 roku dostało nazwę Muzeum Wiktorii i Alberta.',
 				'W 1852 roku V&A jako jedno z pierwszych muzeów zaczęło kupować do zbiorów fotografie, a w 1858 urządziło swoją pierwszą wystawę fotografii. Dziś ma około 800 000 zdjęć, jedną z najważniejszych kolekcji na świecie.'
 			],
+			vault_cobweb: [
+				'„Chrzest Chrystusa” z Uffizi powstał około 1470–1475 roku w pracowni Andrei del Verrocchia. Według Giorgia Vasariego pomagał mu młody uczeń, Leonardo, który anioła po lewej namalował tak zręcznie, że zdenerwował starszego mistrza. Dziś badacze przypisują Leonardowi także pejzaż, złote światło i postać Chrystusa.',
+				'Peter Paul Rubens dostawał o wiele za dużo zamówień, by wykonać je sam, więc zbudował dużą pracownię dla uczniów i pomocników. Jego warsztat wytworzył oszałamiającą liczbę dzieł: w latach 30. XVII wieku sam król Hiszpanii Filip IV zamówił u niego ponad 80 obrazów.',
+				'W 1634 roku Rembrandt namalował dla świeżo poślubionych Martena Soolmansa i Oopjen Coppit parę portretów, jedyne pendanty w tak monumentalnym formacie w swoim dorobku. W 2016 roku Holandia i Francja kupiły je wspólnie, a muzea umówiły się, że obrazy zawsze będą pokazywane razem, na zmianę w Rijksmuseum i w Luwrze.',
+				'Luwr jest ostatnim muzeum, które ma biuro kopistów; działa ono od otwarcia muzeum w 1793 roku. Kopiowanie dzieł innych było szkołą wielu mistrzów, od Matisse’a po Picassa.',
+				'Leonardo namalował „Madonnę w grocie” dwa razy: pierwsza wersja jest w Luwrze, druga w National Gallery. Nie wiadomo na pewno dlaczego. Być może sprzedał pierwszy obraz komuś innemu, gdy mediolańskie bractwo, które go zamówiło, nie chciało dopłacić za droższe materiały.',
+				'Vincent van Gogh zebrał razem z bratem Theo setki japońskich drzeworytów. W 1887 roku skopiował z jednego z nich kwitnący sad śliwowy Hiroshigego, ale czarny i szary pień drzewa zamienił na czerwony i niebieski, a pomarańczowe ramki z japońskimi znakami dodał tylko dla ozdoby.',
+				'Jan Brueghel starszy i Peter Paul Rubens przyjaźnili się i malowali razem na jednym obrazie: Brueghel pejzaże i dworskie sceny, Rubens postacie. Tak powstał cykl „Pięć zmysłów” w Prado, jedna z ich najbardziej udanych współprac: w dworskie sceny Brueghla Rubens wstawił alegorie zmysłów.'
+			],
 			hortus_cliffortianus: [
 				'Muzeum Ennigaldi, córki babilońskiego króla Nabonida i arcykapłanki boga księżyca, powstało w Ur około 530 roku p.n.e. i uchodzi za najstarsze na świecie. W 1925 roku Leonard Woolley rozpoznał je po etykietach: przy każdym przedmiocie leżał gliniany cylinder z napisami w czterech językach, objaśniającymi przedmiot i jego historię.',
 				'Portret matki Jamesa Whistlera, amerykańskiego malarza dzielącego karierę między Londyn i Paryż, ma podwójny tytuł: „Aranżacja w szarości i czerni nr 1” i „Portret matki artysty”. Wkrótce potem Whistler dawał swoim obrazom już tylko muzyczne podtytuły, bo ważniejsza była dla niego harmonia niż temat.',
@@ -2016,6 +2025,12 @@ export const pl = {
 				about:
 					'Cornelis Cort wyrył w 1578 roku w Rzymie pracownię, w której obok siebie pracują rzeźbiarze, malarze, rysownicy, architekci i rytownicy.',
 				count: counter('typów dzieł w atelier')
+			},
+			vault_cobweb: {
+				name: 'Sieć Arachne',
+				about:
+					'Na drzeworycie według Hansa Weiditza do niemieckiego wydania Cycerona pajęczyna rozpięta pod sklepieniem łowi muchy i większe owady.',
+				count: counter('powiązań między dziełami i autorami')
 			},
 			hortus_cliffortianus: {
 				name: 'Ogród Clifforta',

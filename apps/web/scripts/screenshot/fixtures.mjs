@@ -1376,6 +1376,13 @@ export const EXHIBITS = [
 		thresholds: [2, 3, 4, 5, 6, 7]
 	},
 	{
+		exhibit: 'vault_cobweb',
+		room: 'main_hall',
+		hidden: false,
+		value: 12,
+		thresholds: [1, 5, 10, 25, 50, 100, 250]
+	},
+	{
 		exhibit: 'own_eye',
 		room: 'main_hall',
 		hidden: false,

@@ -172,6 +172,15 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 		'https://www.vam.ac.uk/articles/building-the-museum',
 		'https://www.vam.ac.uk/collections/photographs'
 	],
+	vault_cobweb: [
+		'https://www.uffizi.it/en/artworks/verrocchio-leonardo-baptism-of-christ',
+		'https://www.nationalgallery.org.uk/artists/peter-paul-rubens',
+		'https://www.rijksmuseum.nl/en/press/press-releases/rembrandts-marten-and-oopjen-naar-het-louvre',
+		'https://www.louvre.fr/expositions-et-evenements/expositions/copistes',
+		'https://www.nationalgallery.org.uk/paintings/leonardo-da-vinci-the-virgin-of-the-rocks',
+		'https://www.vangoghmuseum.nl/assets/b023267d-2d87-43a6-88bf-956d4213f2cc?c=52f4bba580232396dbe6bf84801c5783b3e42cd25daff1bd91fef735c9d7bc52',
+		'https://www.museodelprado.es/en/the-collection/art-work/the-sense-of-smell/adff981e-a317-4152-9e04-05ada13be226'
+	],
 	hortus_cliffortianus: [
 		'https://news.artnet.com/art-world/art-bites-first-museum-labels-2467975',
 		'https://www.musee-orsay.fr/en/artworks/arrangement-en-gris-et-noir-ndeg1-974',
