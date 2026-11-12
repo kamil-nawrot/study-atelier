@@ -80,6 +80,16 @@ describe('Loupe', () => {
 		await vi.waitFor(() => expect(level()).toBe('4×'));
 	});
 
+	it('keeps a source no wider than shown at 1.5, whatever the wheel does', async () => {
+		const { layer } = renderLoupe(400);
+		point(layer, 100, 150);
+
+		await vi.waitFor(() => expect(level()).toBe('1,5×'));
+		wheel(layer, -100);
+		wheel(layer, -100);
+		await vi.waitFor(() => expect(level()).toBe('1,5×'));
+	});
+
 	it('hides the lens when the cursor leaves the image', async () => {
 		const { layer } = renderLoupe();
 		point(layer, 100, 150);

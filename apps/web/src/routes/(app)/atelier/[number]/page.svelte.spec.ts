@@ -860,6 +860,20 @@ describe('artwork page', () => {
 	});
 
 	describe('loupe', () => {
+		function pointAtLoupeCentre(): HTMLElement {
+			const layer = document.querySelector('.loupe') as HTMLElement;
+			const rect = layer.getBoundingClientRect();
+			layer.dispatchEvent(
+				new PointerEvent('pointermove', {
+					pointerType: 'mouse',
+					clientX: rect.left + rect.width / 2,
+					clientY: rect.top + rect.height / 2,
+					bubbles: true
+				})
+			);
+			return layer;
+		}
+
 		function loupeButton(): ReturnType<typeof page.getByRole> {
 			return page.getByRole('button', { name: m.loupe.label });
 		}
@@ -901,34 +915,30 @@ describe('artwork page', () => {
 			await expect.element(loupeButton()).toHaveAttribute('aria-pressed', 'true');
 		});
 
-		it('opens a new pin with the view of the loupe on a click', async () => {
+		it.each([4000, 40])(
+			'opens a pin with the view of the loupe on a %i px wide image',
+			async (width) => {
+				renderPage({
+					artwork: artwork({
+						image: { kind: 'url', url: IMAGE, width, height: width * 1.25, id: 'image-1' }
+					}),
+					pins: []
+				});
+
+				await loupeButton().click();
+				const layer = pointAtLoupeCentre();
+				layer.click();
+
+				const dialog = page.getByRole('dialog');
+				await expect.element(dialog).toHaveTextContent(m.pins.newTitle);
+				await expect.element(dialog).toHaveTextContent(/Widok lupy \(\d+(,\d)?×\)/);
+			}
+		);
+
+		it('dims the loupe and says why for an image whose size is unknown', async () => {
 			renderPage({
-				artwork: artwork({
-					image: { kind: 'url', url: IMAGE, width: 4000, height: 5000, id: 'image-1' }
-				}),
-				pins: []
+				artwork: artwork({ image: { kind: 'url', url: IMAGE, width: null, height: null } })
 			});
-
-			await loupeButton().click();
-			const layer = document.querySelector('.loupe') as HTMLElement;
-			const rect = layer.getBoundingClientRect();
-			layer.dispatchEvent(
-				new PointerEvent('pointermove', {
-					pointerType: 'mouse',
-					clientX: rect.left + rect.width / 2,
-					clientY: rect.top + rect.height / 2,
-					bubbles: true
-				})
-			);
-			layer.click();
-
-			const dialog = page.getByRole('dialog');
-			await expect.element(dialog).toHaveTextContent(m.pins.newTitle);
-			await expect.element(dialog).toHaveTextContent(/Widok lupy \(\d+(,\d)?×\)/);
-		});
-
-		it('dims the loupe and says why for an image that is not larger than shown', async () => {
-			renderPage();
 
 			await expect.element(loupeButton()).toHaveAttribute('aria-disabled', 'true');
 			await expect.element(page.getByRole('tooltip')).toHaveTextContent(m.loupe.unavailable);
