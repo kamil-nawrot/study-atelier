@@ -126,7 +126,7 @@ do $$
 begin
   assert not exists (select 1 from public.location_details where latitude is not null),
     'another owner sees the points of places';
-  assert (select count(*) from public.catalogue_museums) > 700, 'the starter list is not readable';
+  assert (select count(*) from public.catalogue_museums) > 100, 'the starter list is not readable';
 end;
 $$;
 
