@@ -17,7 +17,6 @@
 	import { PREFERENCES_DEPENDENCY } from '#lib/profile/preferences-data/preferences-data.ts';
 	import { PROFILE_DEPENDENCY } from '#lib/profile/profile-data/profile-data.ts';
 	import { SETTINGS_TABS, settingsTabOf } from '#lib/profile/settings-tab/settings-tab.ts';
-	import type { Preferences } from '#lib/profile/types/preferences.ts';
 	import type { Profile } from '#lib/profile/types/profile.ts';
 	import type { PageProps } from './$types';
 
@@ -29,8 +28,6 @@
 
 	let toast: Toast;
 	let profileTab = $state<ProfileTab>();
-	let preferencesTab = $state<PreferencesTab>();
-	let barHeight = $state(0);
 
 	let email = $derived(data.session.user.email ?? '');
 	let tab = $derived(settingsTabOf(page.url.searchParams.get('tab')));
@@ -52,9 +49,8 @@
 		void goto(target, { replace: true, reset: false });
 	}
 
-	async function preferencesSaved(_preferences: Preferences, message: string): Promise<void> {
+	async function preferencesSaved(): Promise<void> {
 		await invalidate(PREFERENCES_DEPENDENCY);
-		toast.show(message);
 	}
 
 	async function dataImported(message: string): Promise<void> {
@@ -62,18 +58,17 @@
 		toast.show(message);
 	}
 
-	async function profileSaved(_profile: Profile, message: string): Promise<void> {
+	async function profileSaved(_profile: Profile, message?: string): Promise<void> {
 		await invalidate(PROFILE_DEPENDENCY);
-		toast.show(message);
+		if (message) toast.show(message);
 	}
 </script>
 
 <AtelierLayout
 	confirmLeave={() =>
-		(tab === 'profile' ? profileTab : preferencesTab)?.confirmLeave() ?? Promise.resolve(true)}
+		(tab === 'profile' ? profileTab?.confirmLeave() : undefined) ?? Promise.resolve(true)}
 	{email}
 	heading
-	task
 	title={m.settings.title}
 >
 	{#snippet back()}
@@ -96,7 +91,6 @@
 							{email}
 							onsaved={profileSaved}
 							profile={data.profile}
-							bind:barHeight
 						/>
 					{:else if tab === 'account'}
 						<AccountTab
@@ -115,11 +109,9 @@
 					{:else}
 						{#key tab}
 							<PreferencesTab
-								bind:this={preferencesTab}
 								onsaved={preferencesSaved}
 								part={tab}
 								preferences={data.preferences}
-								bind:barHeight
 							/>
 						{/key}
 					{/if}
@@ -129,32 +121,18 @@
 	</div>
 </AtelierLayout>
 
-<Toast bind:this={toast} offset={tab === 'account' || tab === 'data' ? 0 : barHeight} />
+<Toast bind:this={toast} />
 
 <style>
 	.page {
 		display: flex;
 		flex-direction: column;
 		gap: var(--spacing-6);
-		min-height: calc(100dvh - var(--bar-height) - var(--spacing-6));
-	}
-
-	.page > :global(.tabs:has([data-action-bar])) {
-		flex: 1;
-		grid-template-rows: auto 1fr;
 	}
 
 	.panel {
 		container-type: inline-size;
 		display: flex;
 		flex-direction: column;
-		box-sizing: border-box;
-		min-height: 100%;
-	}
-
-	@media (min-width: 768px) {
-		.page {
-			min-height: calc(100dvh - var(--bar-height) - var(--spacing-8));
-		}
 	}
 </style>

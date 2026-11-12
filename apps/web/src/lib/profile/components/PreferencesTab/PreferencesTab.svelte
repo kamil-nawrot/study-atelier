@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import { Checkbox, Switch, ToggleTag } from '@study-atelier/ui';
-	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
-	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
-	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
+	import { SaveQueue } from '#lib/shared/forms/save-queue/save-queue.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
 		GLOSSARY_QUESTION_CHOICES,
@@ -20,68 +18,48 @@
 	import type { Preferences } from '#lib/profile/types/preferences.ts';
 	import type { PreferencesPart } from '#lib/profile/types/preferences-part.ts';
 	import SettingsSection from '#lib/profile/components/SettingsSection/SettingsSection.svelte';
-	import SettingsForm from '#lib/profile/components/SettingsForm/SettingsForm.svelte';
+	import SettingsCard from '#lib/profile/components/SettingsCard/SettingsCard.svelte';
 
 	type Props = {
 		part: PreferencesPart;
 		preferences: Preferences;
-		barHeight?: number;
-		onsaved: (preferences: Preferences, message: string) => void | Promise<void>;
+		onsaved: (preferences: Preferences) => void | Promise<void>;
 	};
 
-	let { part, preferences, barHeight = $bindable(0), onsaved }: Props = $props();
+	let { part, preferences, onsaved }: Props = $props();
 
 	const formId = $props.id();
 	const kindsHintId = `${formId}-kinds`;
 
-	const formState = new FormState<Preferences>(untrack(() => preferences));
-
+	let saved = untrack(() => preferences);
 	let draft = $state<Preferences>(untrack(() => ({ ...preferences })));
 	let kindsError = $derived(part === 'review' && !hasArtworkQuiz(draft.reviewQuizKinds));
 
-	const changes = new UnsavedChanges<Preferences>(
-		() => draft,
-		() => formState.saved,
-		(current, reference) => preferencesChanged(part, current, reference)
-	);
+	const queue = new SaveQueue<Preferences>(async (value) => {
+		const result = await savePreferences(part, value);
+		if (result.error !== undefined) {
+			draft = { ...saved };
+			return result.error;
+		}
+		saved = result.preferences;
+		await onsaved(result.preferences);
+		return undefined;
+	});
 
-	function cancel(): void {
-		draft = { ...formState.saved };
-		formState.error = '';
-	}
+	$effect(() => {
+		const current = $state.snapshot(draft) as Preferences;
+		untrack(() => {
+			if (kindsError || !preferencesChanged(part, current, saved)) return;
+			queue.push(current);
+		});
+	});
 
 	function setKind(kind: (typeof QUIZ_KINDS)[number], on: boolean): void {
 		draft.reviewQuizKinds = toggledKind(draft.reviewQuizKinds, kind, on);
 	}
-
-	function submit(): Promise<void> {
-		return formState.run(async () => {
-			if (kindsError) return;
-			const result = await savePreferences(part, draft);
-			if (result.error !== undefined) {
-				formState.error = result.error;
-				return;
-			}
-			formState.saved = result.preferences;
-			draft = { ...result.preferences };
-			await onsaved(result.preferences, m.settings.preferences.saved);
-		});
-	}
-
-	export function confirmLeave(): Promise<boolean> {
-		return changes.confirmLeave();
-	}
 </script>
 
-<SettingsForm
-	busy={formState.busy}
-	error={formState.error}
-	errorTitle={m.settings.preferences.errorTitle}
-	oncancel={cancel}
-	onsubmit={submit}
-	saveLabel={m.settings.preferences.save}
-	bind:barHeight
->
+<SettingsCard error={queue.error} errorTitle={m.settings.preferences.errorTitle}>
 	<div class="fields">
 		{#if part === 'review'}
 			<SettingsSection title={m.settings.preferences.sessionTitle}>
@@ -212,9 +190,7 @@
 			</div>
 		{/if}
 	</div>
-</SettingsForm>
-
-<DiscardDialog {changes} description={m.common.discardDescription} />
+</SettingsCard>
 
 <style>
 	.fields {

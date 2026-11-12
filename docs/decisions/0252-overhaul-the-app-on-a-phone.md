@@ -1,6 +1,6 @@
 # 0252. Overhaul the app on a phone
 
-- Status: accepted
+- Status: accepted; the settings view as a task is superseded by [0256](0256-save-the-settings-as-soon-as-they-change.md)
 - Date: 2026-11-11
 
 ## Context and problem statement
