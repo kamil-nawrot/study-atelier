@@ -24,7 +24,7 @@ An author has a portrait and years of life ([ADR-0056](0056-author-portrait-year
 
 Chosen by the owner: the column `author_details.country`, free text of 1 to 60 characters without surrounding spaces, filled through `save_value_details` like the other author columns.
 
-- **Form**: "Kraj autora", a `TextField` after the years of life, with the hint "Wpisz kraj lub krainę, np. Sumer, Florencja, Włochy."; an empty field stores nothing.
+- **Form**: "Kraj autora", a `TextField` after the years of life, with the hint "Wpisz kraj lub krainę."; an empty field stores nothing.
 - **Page**: the country follows the years of life under the name, separated by "·", or stands alone when there are no years.
 - **Page content**: an author with only a country counts as a page with content.
 - **Not decided**: the meaning of the country (birthplace, nationality or place of work) is the learner's; filtering or grouping authors by country would need a list or normalised names and is a later idea.
