@@ -1896,6 +1896,15 @@ export type Database = {
         Args: { era_codes: string[]; move_to?: string; target_period: string };
         Returns: number;
       };
+      set_place_point: {
+        Args: {
+          latitude: number;
+          longitude: number;
+          place: string;
+          wikidata_id?: string;
+        };
+        Returns: undefined;
+      };
       set_style_periods: {
         Args: { period_ids: string[]; target_style: string };
         Returns: undefined;

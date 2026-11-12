@@ -12,6 +12,30 @@ alter table public.location_details
 grant insert (latitude, longitude, wikidata_id) on public.location_details to authenticated;
 grant update (latitude, longitude, wikidata_id) on public.location_details to authenticated;
 
+create function public.set_place_point(
+  place uuid,
+  latitude double precision,
+  longitude double precision,
+  wikidata_id text default null
+)
+returns void
+language sql
+security invoker
+set search_path = ''
+as $$
+  insert into public.location_details (value_id, latitude, longitude, wikidata_id)
+    select value.id, set_place_point.latitude, set_place_point.longitude, set_place_point.wikidata_id
+      from public.category_values as value
+      where value.id = place and value.category_code = 'location'
+  on conflict (value_id) do update
+    set latitude = excluded.latitude,
+      longitude = excluded.longitude,
+      wikidata_id = excluded.wikidata_id;
+$$;
+
+revoke all on function public.set_place_point(uuid, double precision, double precision, text) from public, anon;
+grant execute on function public.set_place_point(uuid, double precision, double precision, text) to authenticated;
+
 alter table public.catalogue_museums
   add column latitude double precision,
   add column longitude double precision;
