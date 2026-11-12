@@ -292,8 +292,12 @@ describe('own images on the add artwork page', () => {
 		await fillRequired();
 		await page.getByRole('button', { name: m.artworkForm.addImage }).click();
 		await page.getByRole('button', { name: m.artworkForm.addImage }).click();
+		await expect
+			.element(page.getByRole('button', { name: m.artworkForm.imageSlot(3, 3) }))
+			.toBeVisible();
 
 		await page.getByRole('button', { name: m.artworkForm.saveAndNext }).click();
+		await waitForSave();
 
 		await expect
 			.element(page.getByRole('button', { name: m.artworkForm.imageSlot(1, 1) }))
