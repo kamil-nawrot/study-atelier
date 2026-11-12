@@ -9,6 +9,7 @@ export type Preferences = {
 	reviewFree: boolean;
 	reviewGlossaryOn: boolean;
 	reviewGlossaryQuestions: number;
+	reviewSymbolQuestions: number;
 	reviewNoteQuestions: boolean;
 	reviewTimeQuestions: boolean;
 	viewShowPins: boolean;

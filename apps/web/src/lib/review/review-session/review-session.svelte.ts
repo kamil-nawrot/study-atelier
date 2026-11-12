@@ -3,6 +3,9 @@ import { currentDate, retryLater, startOfDay } from '#lib/review/queue/queue.ts'
 import { shuffleQuiz } from '#lib/review/quiz/quiz.ts';
 import { recordReview, recordRightAnswer } from '#lib/review/review-data/review-data.ts';
 import { outcomes, quizRating } from '#lib/review/scheduler/scheduler.ts';
+import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
+import type { NoteGapItem } from '#lib/review/types/note-gap-item.ts';
+import type { SymbolItem } from '#lib/review/types/symbol-item.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { ReviewRating } from '#lib/review/types/review-rating.ts';
@@ -11,10 +14,15 @@ import { boundsOf, yearOutcome, yearsOf } from '#lib/review/year-guess/year-gues
 import { ORDER_SIZE, placedRight } from '#lib/review/order-guess/order-guess.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
-const EXTRA_MODES = new Set(['quiz_definition', 'note_gap', 'year', 'order']);
+const EXTRA_MODES = new Set(['quiz_definition', 'quiz_symbol', 'note_gap', 'year', 'order']);
 
 function artworkItem(step: SessionStep | undefined): step is ReviewItem {
 	return step !== undefined && !EXTRA_MODES.has(step.mode);
+}
+
+function extraKey(item: DefinitionItem | SymbolItem | NoteGapItem): string {
+	if (item.mode === 'quiz_symbol') return item.key;
+	return item.mode === 'note_gap' ? `${item.artwork.id}:${item.term.id}` : item.term.id;
 }
 
 type ReviewAnswerLog = {
@@ -41,7 +49,9 @@ export class ReviewSession {
 	yearAnswers = $state<YearAnswerLog[]>([]);
 	ordered = $state<WallArtwork[]>();
 	orderAnswers = $state<boolean[]>([]);
-	extraAnswers = $state<{ mode: 'quiz_definition' | 'note_gap'; right: boolean }[]>([]);
+	extraAnswers = $state<{ mode: 'quiz_definition' | 'quiz_symbol' | 'note_gap'; right: boolean }[]>(
+		[]
+	);
 	readonly cards: Map<string, ReviewCard>;
 	readonly startedAt: number;
 	readonly free: boolean;
@@ -97,7 +107,10 @@ export class ReviewSession {
 		};
 	}
 
-	extraScore(mode: 'quiz_definition' | 'note_gap'): { asked: number; right: number } {
+	extraScore(mode: 'quiz_definition' | 'quiz_symbol' | 'note_gap'): {
+		asked: number;
+		right: number;
+	} {
 		const answers = this.extraAnswers.filter((answer) => answer.mode === mode);
 		return { asked: answers.length, right: answers.filter((answer) => answer.right).length };
 	}
@@ -142,8 +155,12 @@ export class ReviewSession {
 			return;
 		}
 		const correct = choice === item.quiz.answer;
-		if (item.mode === 'quiz_definition' || item.mode === 'note_gap') {
-			const key = item.mode === 'note_gap' ? `${item.artwork.id}:${item.term.id}` : item.term.id;
+		if (
+			item.mode === 'quiz_definition' ||
+			item.mode === 'quiz_symbol' ||
+			item.mode === 'note_gap'
+		) {
+			const key = extraKey(item);
 			if (!this.#asked.has(key)) {
 				this.#asked.add(key);
 				this.extraAnswers.push({ mode: item.mode, right: correct });

@@ -17,7 +17,7 @@ export function preload(artwork: WallArtwork, sizes = '(min-width: 768px) 60vw, 
 
 export function preloadSteps(steps: SessionStep[]): void {
 	for (const step of steps) {
-		if (step.mode === 'quiz_definition') continue;
+		if (step.mode === 'quiz_definition' || step.mode === 'quiz_symbol') continue;
 		if (step.mode === 'order') {
 			for (const artwork of step.artworks) preload(artwork, QUIZ_TILE_SIZES);
 			continue;

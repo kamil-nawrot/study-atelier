@@ -440,6 +440,7 @@ Table profiles {
   legal_version text
   legal_accepted_at "timestamp with time zone"
   review_glossary_questions smallint [not null, default: `1`]
+  review_symbol_questions smallint [not null, default: `1`]
   rank_form text [not null, default: `'masculine'::text`]
   career_shown boolean [not null, default: `true`]
   rank_seen smallint [not null, default: `0`]

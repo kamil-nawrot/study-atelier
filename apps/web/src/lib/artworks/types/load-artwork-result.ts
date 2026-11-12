@@ -1,5 +1,6 @@
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import type { NoteLinks } from '@study-atelier/ui';
+import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 import type { Pin } from '#lib/pins/types/pin.ts';
 import type { Preferences } from '#lib/profile/types/preferences.ts';
 import type { Mention } from '#lib/notes/types/mention.ts';
@@ -16,6 +17,7 @@ export type LoadArtworkResult = {
 	pinsError?: string;
 	noteLinks?: NoteLinks;
 	glossary?: GlossaryTerm[];
+	symbols?: SymbolOption[];
 	mentions?: Mention[];
 	visits?: Visit[];
 	exhibitions?: ExhibitionSummary[];

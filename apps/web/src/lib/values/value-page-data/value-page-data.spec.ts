@@ -4,6 +4,7 @@ import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testCardIndex } from '#lib/testing/card-index/card-index.ts';
 import { loadArtworksOfValue } from '#lib/wall/wall-data/wall-data.ts';
 import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.ts';
+import { loadSymbolUses } from '#lib/symbols/symbol-uses-data/symbol-uses-data.ts';
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
 import {
 	loadNoteLinkLabels,
@@ -30,6 +31,9 @@ vi.mock('#lib/chronicle/chronicle-data/chronicle-data.ts', () => ({ loadPlaceVis
 vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({
 	loadTermIndex: vi.fn(async () => ({ terms: [] }))
 }));
+vi.mock('#lib/symbols/symbol-uses-data/symbol-uses-data.ts', () => ({
+	loadSymbolUses: vi.fn()
+}));
 vi.mock('#lib/notes/mentions-data/mentions-data.ts', () => ({ loadMentions: vi.fn() }));
 vi.mock('#lib/notes/note-link-data/note-link-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/notes/note-link-data/note-link-data.ts')>()),
@@ -52,6 +56,7 @@ describe('loadValuePage', () => {
 		vi.mocked(loadArtworksOfValue).mockResolvedValue({ artworks });
 		vi.mocked(loadEditorNoteLinks).mockResolvedValue({ suggest: vi.fn(), resolve: vi.fn() });
 		vi.mocked(loadMentions).mockResolvedValue([]);
+		vi.mocked(loadSymbolUses).mockResolvedValue({ uses: [] });
 		vi.mocked(loadValueDetails).mockResolvedValue({
 			details: { summary: 'Plain capitals.', notes: '' }
 		});
@@ -150,6 +155,20 @@ describe('loadValuePage', () => {
 		const result = await loadValuePage('style', 'style-doric', false);
 
 		expect(result.noteLinks).toBe(noteLinks);
+	});
+
+	it('lists the symbols whose meanings carry the value, only on the page with artworks', async () => {
+		const uses = [{ symbolId: 'keys', name: 'Keys', meaning: 'Power of the Church' }];
+		vi.mocked(loadSymbolUses).mockResolvedValue({ uses });
+
+		await expect(loadValuePage('style', 'style-doric', true)).resolves.toMatchObject({
+			symbolUses: uses
+		});
+		expect(loadSymbolUses).toHaveBeenCalledWith({ valueId: 'style-doric' });
+
+		vi.mocked(loadSymbolUses).mockClear();
+		await loadValuePage('style', 'style-doric', false);
+		expect(loadSymbolUses).not.toHaveBeenCalled();
 	});
 
 	it('says an unknown kind or value does not exist', async () => {

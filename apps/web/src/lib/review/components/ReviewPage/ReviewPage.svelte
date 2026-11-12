@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Alert } from '@study-atelier/ui';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
+	import SymbolQuiz from '#lib/review/components/SymbolQuiz/SymbolQuiz.svelte';
 	import DefinitionQuiz from '#lib/review/components/DefinitionQuiz/DefinitionQuiz.svelte';
 	import NoteGapQuiz from '#lib/review/components/NoteGapQuiz/NoteGapQuiz.svelte';
 	import Flashcard from '#lib/review/components/Flashcard/Flashcard.svelte';
@@ -35,7 +36,9 @@
 			? current.artworks[0].id
 			: current.mode === 'quiz_definition'
 				? current.term.id
-				: current.artwork.id}
+				: current.mode === 'quiz_symbol'
+					? current.key
+					: current.artwork.id}
 	{#key `${session.position}:${id}`}
 		{#if current.mode === 'order'}
 			<OrderGuess
@@ -46,6 +49,13 @@
 			/>
 		{:else if current.mode === 'quiz_definition'}
 			<DefinitionQuiz
+				chosen={session.chosen}
+				item={current}
+				onanswer={(choice) => flow.answer(choice)}
+				onnext={() => flow.proceed()}
+			/>
+		{:else if current.mode === 'quiz_symbol'}
+			<SymbolQuiz
 				chosen={session.chosen}
 				item={current}
 				onanswer={(choice) => flow.answer(choice)}

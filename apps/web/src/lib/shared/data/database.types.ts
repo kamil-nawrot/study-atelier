@@ -1168,6 +1168,7 @@ export type Database = {
           review_note_questions: boolean;
           review_quiz_kinds: string[];
           review_session_size: number;
+          review_symbol_questions: number;
           review_time_questions: boolean;
           updated_at: string;
           view_loupe_on: boolean;
@@ -1199,6 +1200,7 @@ export type Database = {
           review_note_questions?: boolean;
           review_quiz_kinds?: string[];
           review_session_size?: number;
+          review_symbol_questions?: number;
           review_time_questions?: boolean;
           updated_at?: string;
           view_loupe_on?: boolean;
@@ -1229,6 +1231,7 @@ export type Database = {
           review_note_questions?: boolean;
           review_quiz_kinds?: string[];
           review_session_size?: number;
+          review_symbol_questions?: number;
           review_time_questions?: boolean;
           updated_at?: string;
           view_loupe_on?: boolean;

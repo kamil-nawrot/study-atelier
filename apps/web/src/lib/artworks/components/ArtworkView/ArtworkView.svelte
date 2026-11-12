@@ -12,6 +12,7 @@
 	import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 	import type { ValueSummaries } from '#lib/card-index/types/value-summaries.ts';
 	import { emptyValueSummaries } from '#lib/card-index/value-summaries/value-summaries.ts';
+	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import type { Mention } from '#lib/notes/types/mention.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -26,6 +27,7 @@
 		editHref: string;
 		noteLinks?: NoteLinks;
 		glossary?: GlossaryTerm[];
+		symbols?: SymbolOption[];
 		pins?: PinRecord[];
 		focusPin?: string;
 		mentions?: Mention[];
@@ -46,6 +48,7 @@
 		flipLinks,
 		noteLinks,
 		glossary,
+		symbols,
 		pins = [],
 		focusPin,
 		mentions = [],
@@ -78,6 +81,7 @@
 		{onflip}
 		{pins}
 		{showPinsOnOpen}
+		{symbols}
 	/>
 
 	<div class="side">

@@ -25,6 +25,7 @@ export class FakeFormSuggestions {
 	valueLinks = suggested.valueLinks ?? emptyValueLinks();
 	placeStarter = suggested.placeStarter ?? emptyPlaceStarter();
 	glossary: GlossaryTerm[];
+	symbols = [];
 	noteLinks = undefined;
 
 	constructor({ glossary }: { glossary?: GlossaryTerm[] } = {}) {
