@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Plus from '@lucide/svelte/icons/plus';
 	import ScrollText from '@lucide/svelte/icons/scroll-text';
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { Alert, Button, EmptyState, Icon, PageHeader, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
@@ -14,7 +14,7 @@
 	import { createExhibition } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
-	import type { PageProps } from './$types';
+	import type { PageProps, Snapshot } from './$types';
 
 	let { data }: PageProps = $props();
 
@@ -25,7 +25,16 @@
 	let adding = $state(false);
 	let naming = $state(false);
 	let addError = $state<string>();
+	let query = $state('');
 	let covers = $derived(new Map(images.apply(data.covers).map((artwork) => [artwork.id, artwork])));
+
+	export const snapshot: Snapshot<{ query: string; scroll: number }> = {
+		capture: () => ({ query, scroll: window.scrollY }),
+		restore: (value) => {
+			query = value.query;
+			void tick().then(() => window.scrollTo({ top: value.scroll, behavior: 'instant' }));
+		}
+	};
 
 	$effect(() => {
 		for (const cover of data.covers) images.request(cover);
@@ -84,6 +93,7 @@
 				{covers}
 				exhibitions={data.exhibitions}
 				onimagefailed={(artwork) => images.failed(artwork)}
+				bind:query
 			/>
 		{/if}
 	{/if}
