@@ -212,11 +212,16 @@ export async function loadAtelier(): Promise<AtelierResult> {
 }
 
 type WallFilter =
-	{ eraCode: string } | { valueId: string } | { termId: string } | { visitId: string };
+	| { eraCode: string }
+	| { valueId: string }
+	| { termId: string }
+	| { symbolId: string }
+	| { visitId: string };
 
 const FILTER_EMBEDS: Record<string, string> = {
 	valueId: 'valued:artwork_values!inner(value_id)',
 	termId: 'pinned:artwork_images!inner(artwork_pins!inner(glossary_entry_id))',
+	symbolId: 'symbolised:artwork_images!inner(artwork_pins!inner(symbol_id))',
 	visitId: 'seen:visit_artworks!inner(visit_id)'
 };
 
@@ -224,6 +229,7 @@ const FILTER_COLUMNS: Record<string, string> = {
 	eraCode: 'era_code',
 	valueId: 'valued.value_id',
 	termId: 'pinned.artwork_pins.glossary_entry_id',
+	symbolId: 'symbolised.artwork_pins.symbol_id',
 	visitId: 'seen.visit_id'
 };
 
@@ -261,6 +267,10 @@ export function loadArtworksOfValue(
 
 export function loadArtworksOfTerm(termId: string): Promise<AtelierResult> {
 	return loadWall({ termId });
+}
+
+export function loadArtworksOfSymbol(symbolId: string): Promise<AtelierResult> {
+	return loadWall({ symbolId });
 }
 
 export function loadArtworksOfVisit(visitId: string): Promise<AtelierResult> {

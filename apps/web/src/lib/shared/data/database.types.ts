@@ -185,6 +185,8 @@ export type Database = {
           id: string;
           image_id: string;
           owner_id: string;
+          symbol_id: string | null;
+          symbol_meaning_id: string | null;
           text: string | null;
           view_width: number | null;
           x: number;
@@ -198,6 +200,8 @@ export type Database = {
           id?: string;
           image_id: string;
           owner_id?: string;
+          symbol_id?: string | null;
+          symbol_meaning_id?: string | null;
           text?: string | null;
           view_width?: number | null;
           x: number;
@@ -210,6 +214,8 @@ export type Database = {
           id?: string;
           image_id?: string;
           owner_id?: string;
+          symbol_id?: string | null;
+          symbol_meaning_id?: string | null;
           text?: string | null;
           view_width?: number | null;
           x?: number;
@@ -229,6 +235,20 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "artwork_images";
             referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "artwork_pins_symbol_id_owner_id_fkey";
+            columns: ["symbol_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "symbols";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "artwork_pins_symbol_meaning_id_symbol_id_fkey";
+            columns: ["symbol_meaning_id", "symbol_id"];
+            isOneToOne: false;
+            referencedRelation: "symbol_meanings";
+            referencedColumns: ["id", "symbol_id"];
           },
         ];
       };
@@ -1397,6 +1417,137 @@ export type Database = {
           },
         ];
       };
+      symbol_meaning_contexts: {
+        Row: {
+          artwork_id: string | null;
+          era_code: string | null;
+          glossary_entry_id: string | null;
+          id: string;
+          meaning_id: string;
+          owner_id: string;
+          position: number;
+          text: string | null;
+          value_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          artwork_id?: string | null;
+          era_code?: string | null;
+          glossary_entry_id?: string | null;
+          id?: string;
+          meaning_id: string;
+          owner_id?: string;
+          position: number;
+          text?: string | null;
+          value_id?: string | null;
+        };
+        Update: {
+          artwork_id?: string | null;
+          era_code?: string | null;
+          glossary_entry_id?: string | null;
+          id?: string;
+          meaning_id?: string;
+          owner_id?: string;
+          position?: number;
+          text?: string | null;
+          value_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "symbol_meaning_contexts_artwork_id_owner_id_fkey";
+            columns: ["artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "symbol_meaning_contexts_era_code_fkey";
+            columns: ["era_code"];
+            isOneToOne: false;
+            referencedRelation: "eras";
+            referencedColumns: ["code"];
+          },
+          {
+            foreignKeyName: "symbol_meaning_contexts_glossary_entry_id_owner_id_fkey";
+            columns: ["glossary_entry_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "glossary_entries";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "symbol_meaning_contexts_meaning_id_owner_id_fkey";
+            columns: ["meaning_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "symbol_meanings";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "symbol_meaning_contexts_value_id_owner_id_fkey";
+            columns: ["value_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
+      symbol_meanings: {
+        Row: {
+          id: string;
+          owner_id: string;
+          position: number;
+          symbol_id: string;
+          text: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          id?: string;
+          owner_id?: string;
+          position: number;
+          symbol_id: string;
+          text: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          position?: number;
+          symbol_id?: string;
+          text?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "symbol_meanings_symbol_id_owner_id_fkey";
+            columns: ["symbol_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "symbols";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
+      symbols: {
+        Row: {
+          created_at: string;
+          id: string;
+          name: string;
+          owner_id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id?: string;
+          name: string;
+          owner_id?: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          name?: string;
+          owner_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       timeline_events: {
         Row: {
           created_at: string;
@@ -1705,6 +1856,10 @@ export type Database = {
         };
         Returns: number;
       };
+      save_symbol: {
+        Args: { new_meanings: Json; new_name: string; symbol_id?: string };
+        Returns: string;
+      };
       save_value_details: {
         Args: { details: Json; target_value: string };
         Returns: undefined;
@@ -1741,6 +1896,18 @@ export type Database = {
           artwork_count: number;
           period_id: string;
           style_id: string;
+        }[];
+      };
+      symbol_atlas: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          cover: Json;
+          created_at: string;
+          first_meaning: string;
+          id: string;
+          meaning_count: number;
+          name: string;
+          pin_count: number;
         }[];
       };
       term_mentions: {

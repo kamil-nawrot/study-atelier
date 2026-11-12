@@ -384,6 +384,7 @@ export const pl = {
 				artworks: 'dzieł',
 				category_values: 'wartości w Kartotece',
 				glossary_entries: 'pojęć w Słowniczku',
+				symbols: 'symboli w atlasie symboli',
 				timeline_events: 'wydarzeń w Kalendarium',
 				visits: 'wizyt w Kronice',
 				exhibitions: 'wystaw',
@@ -1059,6 +1060,8 @@ export const pl = {
 			`W Kartotece zmieści się ${limit} wartości. Usuń te, których nie ma przy żadnym dziele, żeby dodać nowe.`,
 		glossaryEntries: (limit: number): string =>
 			`W Słowniczku zmieści się ${limit} pojęć. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		symbols: (limit: number): string =>
+			`W atlasie symboli zmieści się ${limit} symboli. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
 		timelineEvents: (limit: number): string =>
 			`W Kalendarium zmieści się ${limit} wydarzeń. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
 		visits: (limit: number): string =>
@@ -1352,7 +1355,12 @@ export const pl = {
 		title: 'Słowniczek',
 		count: (count: number): string =>
 			`${count} ${plural(count, { one: 'pojęcie', few: 'pojęcia', many: 'pojęć' })}`,
-		lead: 'Pojęcia i postaci, które chcesz zapamiętać. Ich definicje pojawią się w Twoich notatkach.',
+		lead: 'Postaci ważne dla sztuki, pojęcia które warto znać by lepiej ją rozumieć, a także Twój własny atlas symboli powracających w wielu różnych dziełach i epokach.',
+		tabsLabel: 'Słowniczek',
+		tabs: {
+			terms: 'Pojęcia',
+			symbols: 'Symbole'
+		},
 		back: 'Słowniczek',
 		add: 'Dodaj pojęcie',
 		emptyTitle: 'Słowniczek jest jeszcze pusty',
@@ -1470,6 +1478,82 @@ export const pl = {
 		errors: {
 			notFound: 'Nie ma takiego pojęcia w słowniczku. Może zostało usunięte.',
 			invalid: 'Nie udało się zapisać pojęcia. Sprawdź nazwę i definicję.'
+		}
+	},
+	symbols: {
+		count: (count: number): string =>
+			`${count} ${plural(count, { one: 'symbol', few: 'symbole', many: 'symboli' })}`,
+		add: 'Dodaj symbol',
+		emptyTitle: 'Atlas symboli jest jeszcze pusty',
+		empty:
+			'Gdy zauważysz motyw, który wraca na wielu dziełach, zapisz go tutaj razem z jego znaczeniami. Potem wskaż go w pinezce na dziele, a jego detale zbiorą się na stronie symbolu.',
+		addFirst: 'Dodaj pierwszy symbol',
+		search: 'Szukaj symbolu',
+		noResults: (query: string): string =>
+			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment.`,
+		sortLabel: 'Sortuj',
+		sorts: {
+			name: 'Alfabetycznie',
+			recent: 'Ostatnio dodane',
+			details: 'Najwięcej detali'
+		},
+		details: (count: number): string =>
+			`${count} ${plural(count, { one: 'detal', few: 'detale', many: 'detali' })}`,
+		meanings: (count: number): string =>
+			`${count} ${plural(count, { one: 'znaczenie', few: 'znaczenia', many: 'znaczeń' })}`,
+		loadErrorTitle: 'Nie udało się wczytać atlasu symboli',
+		contextKinds: {
+			author: 'autor',
+			period: 'okres',
+			style: 'styl',
+			material: 'materiał',
+			location: 'miejsce',
+			era: 'epoka',
+			artwork: 'dzieło',
+			person: 'postać'
+		},
+		view: {
+			overline: 'Symbol',
+			general: 'znaczenie ogólne',
+			summary: (text: string): string => `Na Twoich dziełach: ${text}`,
+			noDetails: 'Żaden detal nie ma jeszcze tego znaczenia.',
+			detailsBack: 'Przewiń detale wstecz',
+			detailsForward: 'Przewiń detale dalej',
+			withoutMeaning: 'Bez wskazanego znaczenia',
+			axis: 'Przez wieki',
+			axisLabel: 'Detale tego symbolu na osi lat powstania dzieł',
+			notFoundTitle: 'Nie ma takiego symbolu',
+			notFound: 'Nie ma takiego symbolu w atlasie. Może został usunięty.',
+			loadErrorTitle: 'Nie udało się wczytać tego symbolu',
+			saved: (name: string): string => `Zapisano „${name}”.`,
+			deleted: (name: string): string => `Usunięto „${name}”.`
+		},
+		deleteConfirm: {
+			title: (name: string): string => `Usunąć „${name}” z atlasu symboli?`,
+			description:
+				'Pinezki na dziełach zostaną, ale nie będą już wskazywać tego symbolu. Tej akcji nie będzie można cofnąć.'
+		},
+		form: {
+			newTitle: 'Nowy symbol',
+			editTitle: 'Edycja symbolu',
+			nameTaken: (name: string): string => `Masz już w atlasie symbol „${name}”.`,
+			meaningsLabel: 'Znaczenia',
+			meaningHeading: (number: number): string => `Znaczenie ${number}`,
+			meaning: 'Co oznacza?',
+			meaningRequired: 'Wpisz, co oznacza ten symbol, albo usuń to znaczenie.',
+			meaningTooLong: (max: number): string => `Znaczenie może mieć najwyżej ${max} znaków.`,
+			context: 'W jakim kontekście?',
+			contextHint:
+				'Wybierz wartość z Kartoteki, postać ze Słowniczka, lub wpisz własny opis. Puste pole będzie traktowane jako znaczenie ogólne.',
+			addMeaning: 'Dodaj znaczenie',
+			removeMeaning: (number: number): string => `Usuń znaczenie ${number}`,
+			moveUp: (number: number): string => `Przesuń znaczenie ${number} wyżej`,
+			moveDown: (number: number): string => `Przesuń znaczenie ${number} niżej`,
+			errorTitle: 'Nie udało się zapisać symbolu'
+		},
+		errors: {
+			notFound: 'Nie ma takiego symbolu w atlasie. Może został usunięty.',
+			invalid: 'Nie udało się zapisać symbolu. Sprawdź nazwę i znaczenia.'
 		}
 	},
 	career: {

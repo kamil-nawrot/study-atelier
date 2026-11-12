@@ -1184,9 +1184,122 @@ function pin(artworkNumber, number, x, y, glossaryNumber, text, viewWidth = null
 		text,
 		view_width: viewWidth,
 		crop_path: cropPath,
+		symbol_id: null,
+		symbol_meaning_id: null,
 		created_at: '2026-10-22T10:00:00Z'
 	};
 }
+
+const symbolId = (number) => `00000000-0000-4000-b000-${String(number).padStart(12, '0')}`;
+const meaningId = (symbol, position) =>
+	`00000000-0000-4000-b100-${String(symbol * 10 + position).padStart(12, '0')}`;
+
+function symbolContext(position, target) {
+	const empty = {
+		value_id: null,
+		era_code: null,
+		artwork_id: null,
+		glossary_entry_id: null,
+		text: null,
+		category_values: null,
+		artworks: null,
+		glossary_entries: null
+	};
+	if (target.value) {
+		const [category, name] = target.value;
+		return {
+			...empty,
+			position,
+			value_id: valueId(category, name),
+			category_values: { category_code: category, name }
+		};
+	}
+	if (target.era) return { ...empty, position, era_code: target.era };
+	if (target.artwork) {
+		const row = ARTWORKS.find((candidate) => candidate.record_number === target.artwork);
+		return {
+			...empty,
+			position,
+			artwork_id: row.id,
+			artworks: { record_number: row.record_number, title: row.title }
+		};
+	}
+	if (target.person) {
+		const entry = GLOSSARY_ENTRIES.find((candidate) => candidate.name === target.person);
+		return {
+			...empty,
+			position,
+			glossary_entry_id: entry.id,
+			glossary_entries: { name: entry.name }
+		};
+	}
+	return { ...empty, position, text: target.text };
+}
+
+function symbol(number, name, createdAt, meanings) {
+	return {
+		id: symbolId(number),
+		name,
+		created_at: createdAt,
+		symbol_meanings: meanings.map(([text, contexts], position) => ({
+			id: meaningId(number, position),
+			position,
+			text,
+			symbol_meaning_contexts: contexts.map((target, index) => symbolContext(index, target))
+		}))
+	};
+}
+
+export const SYMBOLS = [
+	symbol(1, 'Czaszka', '2026-11-02T10:00:00Z', [
+		['przemijanie, śmierć', []],
+		['pokuta i życie pustelnicze', [{ text: 'św. Hieronim' }, { era: 'early_modern' }]]
+	]),
+	symbol(2, 'Lilia', '2026-11-05T10:00:00Z', [
+		['czystość, niewinność', [{ text: 'Zwiastowanie' }]],
+		['monarchia francuska', [{ text: 'heraldyka' }, { value: ['author', 'Maurice de Sully'] }]]
+	]),
+	symbol(3, 'Perła', '2026-11-08T10:00:00Z', [
+		['próżność i bogactwo', [{ value: ['author', 'Johannes Vermeer'] }]],
+		['czystość', []],
+		['wiedza ukryta jak perła w muszli', [{ artwork: 9 }]]
+	]),
+	symbol(4, 'Gwiazda', '2026-11-10T10:00:00Z', [['przewodnictwo, nadzieja', []]]),
+	symbol(5, 'Złoto', '2026-11-11T10:00:00Z', [
+		['sacrum, światło boskie', [{ era: 'middle_ages' }]],
+		['bogactwo i luksus', [{ era: 'modern' }]]
+	])
+];
+
+function symbolPin(artworkNumber, number, x, y, symbolNumber, meaningPosition) {
+	return {
+		...pin(
+			artworkNumber,
+			number,
+			x,
+			y,
+			null,
+			null,
+			0.16,
+			`${USER.id}/pin-${number}-crop-0a1b2c3d.jpg`
+		),
+		symbol_id: symbolId(symbolNumber),
+		symbol_meaning_id: meaningPosition === null ? null : meaningId(symbolNumber, meaningPosition),
+		created_at: `2026-11-${String(number - 10).padStart(2, '0')}T10:00:00Z`
+	};
+}
+
+export const SYMBOL_PINS = [
+	symbolPin(1, 20, 0.5, 0.3, 1, 0),
+	symbolPin(9, 21, 0.4, 0.6, 1, 0),
+	symbolPin(3, 22, 0.55, 0.45, 1, 1),
+	symbolPin(9, 23, 0.7, 0.4, 2, 0),
+	symbolPin(6, 24, 0.5, 0.5, 2, 1),
+	symbolPin(3, 25, 0.48, 0.62, 3, 0),
+	symbolPin(1, 26, 0.3, 0.7, 3, null),
+	symbolPin(7, 27, 0.5, 0.4, 5, 1),
+	symbolPin(6, 28, 0.35, 0.25, 5, 0)
+];
 
 export const ARTWORK_PINS = [
 	pin(6, 1, 0.62, 0.34, 2, 'Półkolista część chóru, widoczna od wschodu.'),
@@ -1204,7 +1317,8 @@ export const ARTWORK_PINS = [
 			0.2,
 			index === 2 ? null : `${USER.id}/pin-${5 + index}-crop-0a1b2c3d.jpg`
 		)
-	)
+	),
+	...SYMBOL_PINS
 ];
 
 export const EXHIBITS = [

@@ -22,6 +22,7 @@ import {
 	EXHIBITIONS,
 	ARCHIVED_EXHIBITIONS,
 	STYLE_PERIOD_USAGE,
+	SYMBOLS,
 	VALUE_DETAILS,
 	VALUE_USAGE,
 	valueId,
@@ -157,6 +158,16 @@ function filteredRows(url) {
 	if (params.get('notes') === 'neq.') rows = rows.filter((row) => row.notes);
 	const era = params.get('era_code');
 	if (era?.startsWith('eq.')) rows = rows.filter((row) => row.era_code === era.slice(3));
+	const symbol = params.get('symbolised.artwork_pins.symbol_id');
+	if (symbol?.startsWith('eq.')) {
+		rows = rows.filter((row) =>
+			ARTWORK_PINS.some(
+				(pin) =>
+					pin.symbol_id === symbol.slice(3) &&
+					row.artwork_images.some((image) => image.id === pin.image_id)
+			)
+		);
+	}
 	const term = params.get('pinned.artwork_pins.glossary_entry_id');
 	if (term?.startsWith('eq.')) {
 		rows = rows.filter((row) =>
@@ -515,9 +526,64 @@ function noteLinkLabels(args) {
 	});
 }
 
+function pinWithImage(row) {
+	const artwork = ARTWORKS.find((candidate) =>
+		candidate.artwork_images.some((image) => image.id === row.image_id)
+	);
+	const image = artwork.artwork_images.find((candidate) => candidate.id === row.image_id);
+	return { ...row, artwork_images: { ...image, artwork_id: artwork.id } };
+}
+
+function symbolAtlas() {
+	const live = ARTWORK_PINS.filter((row) => row.symbol_id);
+	return SYMBOLS.map((symbol) => {
+		const pins = live.filter((row) => row.symbol_id === symbol.id);
+		const cover = [...pins]
+			.filter((row) => row.view_width !== null)
+			.sort((a, b) => b.created_at.localeCompare(a.created_at))
+			.map(pinWithImage)[0];
+		return {
+			id: symbol.id,
+			name: symbol.name,
+			created_at: symbol.created_at,
+			first_meaning: symbol.symbol_meanings[0]?.text ?? null,
+			meaning_count: symbol.symbol_meanings.length,
+			pin_count: pins.length,
+			cover: cover
+				? {
+						...cover.artwork_images,
+						pin_id: cover.id,
+						image_id: cover.image_id,
+						artwork_id: cover.artwork_images.artwork_id,
+						x: cover.x,
+						y: cover.y,
+						view_width: cover.view_width,
+						crop_path: cover.crop_path
+					}
+				: null
+		};
+	});
+}
+
+function symbolsRoute(route, request, url) {
+	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
+	const id = url.searchParams.get('id');
+	const found = SYMBOLS.find((row) => `eq.${row.id}` === id);
+	const wantsObject = (request.headers().accept ?? '').includes('vnd.pgrst.object');
+	if (wantsObject) return json(route, found ?? null);
+	return json(route, id ? (found ? [found] : []) : SYMBOLS);
+}
+
 function pinsRoute(route, request, url) {
 	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
 	if (request.method() !== 'GET') return json(route, [ARTWORK_PINS[0]], 201);
+	const symbol = url.searchParams.get('symbol_id');
+	if (symbol) {
+		return json(
+			route,
+			ARTWORK_PINS.filter((row) => `eq.${row.symbol_id}` === symbol).map(pinWithImage)
+		);
+	}
 	const entry = url.searchParams.get('glossary_entry_id');
 	if (entry) {
 		return json(
@@ -882,6 +948,9 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/artwork_pins') return pinsRoute(route, request, url);
 		if (url.pathname === '/rest/v1/profiles') return profileRoute(route, request);
 		if (url.pathname === '/rest/v1/glossary_entries') return glossaryRoute(route, request, url);
+		if (url.pathname === '/rest/v1/rpc/symbol_atlas') return json(route, symbolAtlas());
+		if (url.pathname === '/rest/v1/rpc/save_symbol') return json(route, SYMBOLS[0].id);
+		if (url.pathname === '/rest/v1/symbols') return symbolsRoute(route, request, url);
 		if (url.pathname === '/rest/v1/rpc/mastered_artworks') {
 			return json(
 				route,

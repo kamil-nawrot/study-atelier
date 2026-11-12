@@ -73,6 +73,13 @@ begin
     'an account holds more than 2000 glossary entries';
 
   assert limits_test.failure(
+    'insert into public.symbols (name) select ''Symbol '' || n from generate_series(1, 2000) as n'
+  ) is null, 'an account cannot hold 2000 symbols';
+  assert limits_test.failure('insert into public.symbols (name) values (''One too many'')')
+      = '53400 symbols',
+    'an account holds more than 2000 symbols';
+
+  assert limits_test.failure(
     'insert into public.timeline_events (name, year_to) select ''Event '' || n, 1500 from generate_series(1, 2000) as n'
   ) is null, 'an account cannot hold 2000 timeline events';
   assert limits_test.failure('insert into public.timeline_events (name, year_to) values (''One too many'', 1500)')
