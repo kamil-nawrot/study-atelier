@@ -61,6 +61,7 @@ reads:
       - 'term definition: one, on hover (R04)'
       - 'mentions: notes linking to this artwork'
       - 'own field definitions: all'
+      - 'relations: of the artwork, both directions (R31)'
       - 'artwork count: one head request, only to dim "Porównaj" when the atelier holds a single artwork'
     scope: one
     frequency: view, flip
@@ -125,6 +126,7 @@ reads:
       - 'mentions: notes linking to the value'
       - 'note link labels'
       - 'term index'
+      - 'relations: of the author, both directions (R32)'
     scope: one
     frequency: view
     today: { requests: '9 cold / 8 warm', whole: [artworks, card index, glossary_entries] }
@@ -468,6 +470,31 @@ reads:
         note: 'new in 0.23 (ADR-0257, like ADR-0153); target 1 request at the session start'
       }
 
+  - id: R31
+    name: Relations of an artwork
+    route: /atelier/[number] (part of R03) and its edit form
+    shows: '"Powiązania": the related artworks outside the trash, grouped by the name of the type seen from this artwork'
+    needs:
+      - 'artwork_relations: few, by from_id or to_id, joined to the other artwork (id, record_number, title, authors and year for the search row)'
+    scope: few
+    frequency: view, flip
+    today:
+      {
+        requests: 0,
+        whole: [],
+        note: 'new in 0.23 (ADR-0259); read with the artwork, not as a request of its own'
+      }
+
+  - id: R32
+    name: Relations of an author
+    route: /atelier/values/author/[id] (part of R07) and its edit form
+    shows: 'a block of the "Powiązania" band: the related authors, grouped by the name of the type seen from this author'
+    needs:
+      - 'author_relations: few, by from_id or to_id, joined to the name of the other author'
+    scope: few
+    frequency: view
+    today: { requests: 0, whole: [], note: 'new in 0.23 (ADR-0259); part of value_page_content' }
+
 writes:
   - id: W01
     name: Save artwork
@@ -620,6 +647,18 @@ writes:
     frequency: write
     note: 'extends saving a pin; the meaning must belong to the symbol'
 
+  - id: W25
+    name: Save the relations of an artwork
+    changes: [artwork_relations]
+    side_effects: ['"Powiązania" of both artworks']
+    frequency: 'write, with the artwork form (save_artwork replaces the full list)'
+
+  - id: W26
+    name: Save the relations of an author
+    changes: [author_relations]
+    side_effects: ['"Powiązania" band of both authors']
+    frequency: 'write, with the author form (save_value_details replaces the full list); merge_category_values moves them'
+
 relations:
   # Every relation the app shows, whether stored or computed today.
   - { from: artwork, to: value, kind: has_value, stored: artwork_values }
@@ -634,6 +673,8 @@ relations:
       stored: 'exhibition_artworks, written by save_exhibition from the document'
     }
   - { from: exhibition block, to: image, kind: shows_image, stored: 'no, imageId in the document' }
+  - { from: artwork, to: artwork, kind: 'typed relation (ADR-0259)', stored: artwork_relations }
+  - { from: author, to: author, kind: 'typed relation (ADR-0259)', stored: author_relations }
   - { from: pin, to: term, kind: pinned_term, stored: artwork_pins.glossary_entry_id }
   - { from: pin, to: symbol, kind: shows_symbol, stored: artwork_pins.symbol_id }
   - { from: pin, to: meaning, kind: means_here, stored: artwork_pins.symbol_meaning_id }
