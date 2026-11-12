@@ -4,9 +4,10 @@ export const DROP_UP = 'data-drop-up';
 export const DROP_OVER = 'data-drop-over';
 
 const MIN_ROOM = 120;
+const BOTTOM_BARS = '[data-action-bar], [data-bottom-bar]';
 const SCROLLING = /(auto|scroll|hidden|clip)/;
 
-type Band = { top: number; bottom: number };
+export type Band = { top: number; bottom: number };
 
 function scrollBox(element: Element): Element | null {
 	for (let node = element.parentElement; node; node = node.parentElement) {
@@ -17,7 +18,12 @@ function scrollBox(element: Element): Element | null {
 	return null;
 }
 
-function visibleBand(list: HTMLElement, anchor: Element, field: DOMRect): Band {
+export function screenBand(
+	anchor: Element,
+	field: DOMRect,
+	scrolling = false,
+	styled: Element = anchor
+): Band {
 	const visible = window.visualViewport;
 	const band: Band = visible
 		? {
@@ -27,19 +33,19 @@ function visibleBand(list: HTMLElement, anchor: Element, field: DOMRect): Band {
 		: { top: 0, bottom: window.innerHeight };
 	const dialog = anchor.closest('dialog');
 	if (!dialog) {
-		const bar = parseFloat(getComputedStyle(list).getPropertyValue('--bar-height')) || 0;
+		const bar = parseFloat(getComputedStyle(styled).getPropertyValue('--bar-height')) || 0;
 		band.top = Math.max(band.top, bar);
 	}
-	const box = scrollBox(anchor);
+	const box = scrolling ? scrollBox(anchor) : null;
 	if (box) {
 		const rect = box.getBoundingClientRect();
 		band.top = Math.max(band.top, rect.top);
 		band.bottom = Math.min(band.bottom, rect.bottom);
 	}
-	for (const bar of document.querySelectorAll<HTMLElement>('[data-action-bar]')) {
+	for (const bar of document.querySelectorAll<HTMLElement>(BOTTOM_BARS)) {
 		if (dialog ? !dialog.contains(bar) : bar.closest('dialog')) continue;
-		const top = bar.getBoundingClientRect().top;
-		if (top > field.top && top < band.bottom) band.bottom = top;
+		const rect = bar.getBoundingClientRect();
+		if (rect.height > 0 && rect.top > field.top && rect.top < band.bottom) band.bottom = rect.top;
 	}
 	return band;
 }
@@ -57,7 +63,7 @@ export function placeDrop(list: HTMLElement): void {
 	const anchor = parent.getBoundingClientRect();
 	const own = list.getBoundingClientRect();
 	const gap = own.top - anchor.bottom;
-	const band = visibleBand(list, parent, anchor);
+	const band = screenBand(parent, anchor, true, list);
 	const below = band.bottom - anchor.bottom - gap;
 	if (own.height <= below) return;
 	const above = anchor.top - band.top - gap;
