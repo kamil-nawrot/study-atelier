@@ -36,6 +36,7 @@ import {
 	answerNothingFromWikidata
 } from '#lib/testing/add-artwork/add-artwork.ts';
 import AddArtworkPage from './+page.svelte';
+import { expectImageCredit } from '#lib/testing/image-credit/image-credit.ts';
 
 vi.mock('#lib/artworks/form-suggestions/form-suggestions.svelte.ts', async () => ({
 	FormSuggestions: (await import('#lib/testing/form-suggestions/form-suggestions.ts'))
@@ -111,7 +112,7 @@ describe('own images on the add artwork page', () => {
 		const image = page.getByRole('img', { name: 'The Milkmaid, Johannes Vermeer' });
 		await expect.element(image).toHaveAttribute('width', '30');
 		await expect.element(image).toHaveAttribute('height', '20');
-		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).toBeVisible();
+		await expectImageCredit(m.artworkForm.ownImageCredit);
 		await expect
 			.element(page.getByRole('dialog', { name: m.artworkForm.ownImageTitle }))
 			.not.toBeInTheDocument();
@@ -245,9 +246,7 @@ describe('own images on the add artwork page', () => {
 		await urlField().fill(' https://example.com/milkmaid.jpg ');
 		await userEvent.keyboard('{Enter}');
 
-		await expect
-			.element(page.getByText(m.artworkForm.ownImageUrlCredit('example.com')))
-			.toBeVisible();
+		await expectImageCredit(m.artworkForm.ownImageUrlCredit('example.com'));
 		await expect.element(urlField()).not.toBeInTheDocument();
 		expect(saveArtworkCalls()).toHaveLength(0);
 
@@ -534,9 +533,7 @@ describe('image search on the add artwork page', () => {
 		await expect
 			.element(page.getByRole('img', { name: 'The Milkmaid, Johannes Vermeer' }))
 			.toBeVisible();
-		await expect
-			.element(page.getByText(m.artwork.photoCredit('Jane Doe', 'CC BY-SA 4.0')))
-			.toBeVisible();
+		await expectImageCredit(m.artwork.photoCredit('Jane Doe', 'CC BY-SA 4.0'));
 		await expect
 			.element(page.getByRole('button', { name: m.artworkForm.chooseOtherImage }))
 			.toBeEnabled();
@@ -655,7 +652,7 @@ describe('pasting an own image on the add artwork page', () => {
 
 		const event = paste(document.body, { file: await imageFile(40, 30) });
 
-		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).toBeVisible();
+		await expectImageCredit(m.artworkForm.ownImageCredit);
 		expect(event.defaultPrevented).toBe(true);
 		await expect
 			.element(page.getByRole('button', { name: m.artworkForm.changeOwnImage }))
@@ -696,9 +693,7 @@ describe('pasting an own image on the add artwork page', () => {
 
 		paste(document.body, { text: 'https://example.com/milkmaid.jpg' });
 
-		await expect
-			.element(page.getByText(m.artworkForm.ownImageUrlCredit('example.com')))
-			.toBeVisible();
+		await expectImageCredit(m.artworkForm.ownImageUrlCredit('example.com'));
 	});
 
 	it('rejects a pasted image over the limit that cannot be made smaller', async () => {
@@ -720,9 +715,7 @@ describe('pasting an own image on the add artwork page', () => {
 		await openOwnImage();
 		await urlField().fill('https://example.com/milkmaid.jpg');
 		await userEvent.keyboard('{Enter}');
-		await expect
-			.element(page.getByText(m.artworkForm.ownImageUrlCredit('example.com')))
-			.toBeVisible();
+		await expectImageCredit(m.artworkForm.ownImageUrlCredit('example.com'));
 
 		paste(document.body, { file: await imageFile(40, 30) });
 
@@ -732,9 +725,7 @@ describe('pasting an own image on the add artwork page', () => {
 		await dialog.getByRole('button', { name: m.artworkForm.keepImage }).click();
 
 		await expect.element(dialog).not.toBeInTheDocument();
-		await expect
-			.element(page.getByText(m.artworkForm.ownImageUrlCredit('example.com')))
-			.toBeVisible();
+		await expectImageCredit(m.artworkForm.ownImageUrlCredit('example.com'));
 	});
 
 	it('replaces the current image after the learner agrees', async () => {
@@ -743,9 +734,7 @@ describe('pasting an own image on the add artwork page', () => {
 		await openOwnImage();
 		await urlField().fill('https://example.com/milkmaid.jpg');
 		await userEvent.keyboard('{Enter}');
-		await expect
-			.element(page.getByText(m.artworkForm.ownImageUrlCredit('example.com')))
-			.toBeVisible();
+		await expectImageCredit(m.artworkForm.ownImageUrlCredit('example.com'));
 		vi.unstubAllGlobals();
 
 		paste(document.body, { file: await imageFile(40, 30) });
@@ -754,7 +743,7 @@ describe('pasting an own image on the add artwork page', () => {
 			.getByRole('button', { name: m.common.replace })
 			.click();
 
-		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).toBeVisible();
+		await expectImageCredit(m.artworkForm.ownImageCredit);
 		await expect
 			.element(page.getByText(m.artworkForm.ownImageUrlCredit('example.com')))
 			.not.toBeInTheDocument();
@@ -763,7 +752,7 @@ describe('pasting an own image on the add artwork page', () => {
 	it('does not ask when the pasted image is rejected', async () => {
 		renderPage();
 		await chooseFile(await imageFile(40, 30));
-		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).toBeVisible();
+		await expectImageCredit(m.artworkForm.ownImageCredit);
 
 		paste(document.body, { file: new File(['x'], 'photo.heic', { type: 'image/heic' }) });
 
@@ -780,7 +769,7 @@ describe('pasting an own image on the add artwork page', () => {
 
 		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
 		await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
-		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).toBeVisible();
+		await expectImageCredit(m.artworkForm.ownImageCredit);
 	});
 
 	it('reads the clipboard from the button and uses the image', async () => {
@@ -792,7 +781,7 @@ describe('pasting an own image on the add artwork page', () => {
 		await page.getByRole('button', { name: m.artworkForm.pasteFromClipboard }).click();
 
 		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).toBeVisible();
+		await expectImageCredit(m.artworkForm.ownImageCredit);
 	});
 
 	it('says when the clipboard holds no image', async () => {

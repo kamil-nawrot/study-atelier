@@ -6,9 +6,10 @@
 	type Props = {
 		children: Snippet;
 		content: Snippet;
+		label?: string;
 	};
 
-	let { children, content }: Props = $props();
+	let { children, content, label }: Props = $props();
 
 	const id = $props.id();
 	const cardId = `${id}-card`;
@@ -24,6 +25,7 @@
 		aria-controls={cardId}
 		aria-describedby={popover.open ? cardId : undefined}
 		aria-expanded={popover.open}
+		aria-label={label}
 		onblur={() => popover.blur()}
 		onclick={() => trigger && popover.toggle(trigger)}
 		onfocus={() => trigger && popover.focus(trigger)}

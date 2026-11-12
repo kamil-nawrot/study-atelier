@@ -18,6 +18,7 @@ import {
 import { testSession } from '#lib/testing/auth/auth.ts';
 import EditArtworkPage from './+page.svelte';
 import { eraYearsText } from '#lib/catalogue/eras/eras.ts';
+import { expectImageCredit } from '#lib/testing/image-credit/image-credit.ts';
 
 vi.mock('#lib/artworks/form-suggestions/form-suggestions.svelte.ts', async () => ({
 	FormSuggestions: (await import('#lib/testing/form-suggestions/form-suggestions.ts'))
@@ -255,7 +256,7 @@ describe('edit artwork page', () => {
 		await expect
 			.element(page.getByRole('img', { name: 'The Milkmaid, Johannes Vermeer' }))
 			.toHaveAttribute('src', 'data:image/gif;base64,R0lGODlhAQABAAAAACw=');
-		await expect.element(page.getByText(m.artworkForm.ownImageCredit)).toBeVisible();
+		await expectImageCredit(m.artworkForm.ownImageCredit);
 	});
 
 	it('keeps the id of the main image when its photo is replaced from an address', async () => {
