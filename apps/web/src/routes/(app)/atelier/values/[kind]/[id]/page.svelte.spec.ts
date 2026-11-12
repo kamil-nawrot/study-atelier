@@ -256,7 +256,7 @@ describe('value page', () => {
 		renderValue(subjectOf('author-phidias'), {
 			summary: '',
 			notes: '',
-			author: { ...emptyAuthorDetails(), birthYear: -480, deathYear: -430, countryCode: 'GR' }
+			author: { ...emptyAuthorDetails(), birthYear: -480, deathYear: -430, country: 'Grecja' }
 		});
 
 		await expect.element(page.getByText('480–430 p.n.e.')).toBeVisible();
@@ -267,7 +267,7 @@ describe('value page', () => {
 		renderValue(subjectOf('author-phidias'), {
 			summary: '',
 			notes: '',
-			author: { ...emptyAuthorDetails(), countryCode: 'GR' }
+			author: { ...emptyAuthorDetails(), country: 'Grecja' }
 		});
 
 		await expect.element(page.getByText('Grecja')).toBeVisible();
@@ -313,7 +313,7 @@ describe('value page', () => {
 		renderValue(subjectOf('location-athens'), {
 			summary: '',
 			notes: '',
-			location: { countryCode: 'GR', placeType: 'on_site' }
+			location: { country: 'Grecja', placeType: 'on_site' }
 		});
 
 		await expect

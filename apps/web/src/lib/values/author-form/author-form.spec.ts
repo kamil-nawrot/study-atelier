@@ -27,11 +27,12 @@ describe('authorFormFromDetails', () => {
 	});
 
 	it('carries the country into the form and back', () => {
-		const form = authorFormFromDetails({ ...emptyAuthorDetails(), countryCode: 'GR' });
+		const form = authorFormFromDetails({ ...emptyAuthorDetails(), country: 'Sumer' });
 
-		expect(form.countryCode).toBe('GR');
-		expect(authorDetailsFromForm(form).countryCode).toBe('GR');
-		expect(authorDetailsFromForm({ ...form, countryCode: null }).countryCode).toBeNull();
+		expect(form.country).toBe('Sumer');
+		expect(authorDetailsFromForm(form).country).toBe('Sumer');
+		expect(authorDetailsFromForm({ ...form, country: '  Sumer ' }).country).toBe('Sumer');
+		expect(authorDetailsFromForm({ ...form, country: '  ' }).country).toBeNull();
 	});
 });
 

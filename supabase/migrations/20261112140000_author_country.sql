@@ -1,8 +1,9 @@
 alter table public.author_details
-  add column country_code text check (country_code ~ '^[A-Z]{2}$');
+  add column country text
+    check (country <> '' and country = btrim(country) and char_length(country) <= 60);
 
-grant insert (country_code) on public.author_details to authenticated;
-grant update (country_code) on public.author_details to authenticated;
+grant insert (country) on public.author_details to authenticated;
+grant update (country) on public.author_details to authenticated;
 
 create or replace function public.save_value_details(target_value uuid, details jsonb)
 returns void
@@ -52,14 +53,14 @@ begin
   elsif kind = 'author' then
     author := jsonb_populate_record(null::public.author_details, details);
     insert into public.author_details as saved (
-      value_id, summary, notes, birth_year, death_year, years_approximate, sort_name, country_code,
+      value_id, summary, notes, birth_year, death_year, years_approximate, sort_name, country,
       source_wikidata_id, source_image_file, source_image_licence, source_image_licence_url,
       source_image_attribution, own_image_path, own_image_url, image_width, image_height
     )
       values (
         target_value, new_summary, new_notes, author.birth_year, author.death_year,
         coalesce(author.years_approximate, false), nullif(btrim(author.sort_name), ''),
-        author.country_code,
+        author.country,
         author.source_wikidata_id, author.source_image_file, author.source_image_licence,
         author.source_image_licence_url, author.source_image_attribution, author.own_image_path,
         author.own_image_url, author.image_width, author.image_height
@@ -74,9 +75,9 @@ begin
           else saved.years_approximate
         end,
         sort_name = case when details ? 'sort_name' then excluded.sort_name else saved.sort_name end,
-        country_code = case
-          when details ? 'country_code' then excluded.country_code
-          else saved.country_code
+        country = case
+          when details ? 'country' then excluded.country
+          else saved.country
         end,
         source_wikidata_id = case
           when details ? 'source_wikidata_id' then excluded.source_wikidata_id
@@ -148,7 +149,7 @@ as $$
       union all
       select details.summary is not null or details.notes is not null
           or details.birth_year is not null or details.death_year is not null
-          or details.sort_name is not null or details.country_code is not null
+          or details.sort_name is not null or details.country is not null
           or details.source_image_file is not null
           or details.own_image_path is not null or details.own_image_url is not null,
           details.own_image_path

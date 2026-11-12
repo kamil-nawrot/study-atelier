@@ -145,7 +145,7 @@ describe('author details', () => {
 			death_year: 1519,
 			years_approximate: false,
 			sort_name: 'Vinci, Leonardo da',
-			country_code: 'IT',
+			country: 'Italia',
 			own_image_path: 'owner/portrait.jpg',
 			image_width: 400,
 			image_height: 500
@@ -166,16 +166,8 @@ describe('author details', () => {
 			deathYear: 1519,
 			yearsApproximate: false,
 			sortName: 'Vinci, Leonardo da',
-			countryCode: 'IT'
+			country: 'Italia'
 		});
-	});
-
-	it('ignores a stored country that is not in the list', async () => {
-		detailsTable({ summary: null, notes: null, country_code: 'ZZ' });
-
-		const { details } = await loadValueDetails(author);
-
-		expect(details.author?.countryCode).toBeNull();
 	});
 
 	it('gives an author without a row empty details', async () => {
@@ -216,7 +208,7 @@ describe('author details', () => {
 			details: expect.objectContaining({
 				birth_year: 1452,
 				death_year: null,
-				country_code: null,
+				country: null,
 				own_image_path: 'owner/new.jpg',
 				source_image_file: null,
 				image_width: 4

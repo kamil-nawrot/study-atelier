@@ -2404,7 +2404,7 @@ export const pl = {
 		countryPlaceholder: 'Zacznij wpisywać nazwę kraju, żeby zobaczyć listę opcji',
 		countryHint: 'Wybierz kraj z listy.',
 		authorCountry: 'Kraj autora',
-		authorCountryHint: 'Wybierz kraj, z którym kojarzy się autor.',
+		authorCountryHint: 'Wpisz kraj lub krainę, np. Sumer, Florencja, Włochy.',
 		placeType: 'Typ miejsca',
 		placeTypes: {
 			museum: 'Muzeum',

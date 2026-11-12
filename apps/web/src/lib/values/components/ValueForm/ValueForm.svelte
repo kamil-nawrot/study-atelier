@@ -17,7 +17,10 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import { loadValuePageContent } from '#lib/card-index/card-index-data/card-index-data.ts';
 	import { planEraMove, planNameChange } from '#lib/card-index/card-index/card-index.ts';
-	import { validateAuthorForm } from '#lib/values/author-form/author-form.ts';
+	import {
+		AUTHOR_COUNTRY_MAX_LENGTH,
+		validateAuthorForm
+	} from '#lib/values/author-form/author-form.ts';
 	import { VALUE_NAME_MAX_LENGTH } from '#lib/card-index/category-values/category-values.ts';
 	import { countryOptions } from '#lib/catalogue/countries/countries.ts';
 	import { eraName } from '#lib/catalogue/eras/eras.ts';
@@ -255,12 +258,12 @@
 
 				{#if form.author}
 					<AuthorLifeFields errors={errors.current.author ?? {}} bind:author={form.author} />
-					<SearchSelect
+					<TextField
+						autocomplete="off"
 						hint={m.valueForm.authorCountryHint}
 						label={m.valueForm.authorCountry}
-						options={countries}
-						placeholder={m.valueForm.countryPlaceholder}
-						bind:value={form.author.countryCode}
+						maxlength={AUTHOR_COUNTRY_MAX_LENGTH}
+						bind:value={form.author.country}
 					/>
 				{/if}
 

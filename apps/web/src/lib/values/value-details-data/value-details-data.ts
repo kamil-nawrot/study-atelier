@@ -36,7 +36,7 @@ type AuthorRow = ImageRow & {
 	death_year: number | null;
 	years_approximate: boolean;
 	sort_name: string | null;
-	country_code: string | null;
+	country: string | null;
 };
 
 type LocationRow = { country_code: string | null; place_type: string | null };
@@ -53,7 +53,7 @@ const AUTHOR_COLUMNS = [
 	'death_year',
 	'years_approximate',
 	'sort_name',
-	'country_code',
+	'country',
 	...IMAGE_COLUMNS
 ].join(', ');
 
@@ -113,7 +113,7 @@ async function authorOf(row: DetailsRow | null): Promise<AuthorDetails> {
 		deathYear: row.death_year ?? null,
 		yearsApproximate: row.years_approximate ?? false,
 		sortName: row.sort_name ?? null,
-		countryCode: isCountryCode(row.country_code) ? row.country_code : null
+		country: row.country ?? null
 	};
 }
 
@@ -140,7 +140,7 @@ function authorColumns(author: AuthorDetails, image: ReturnType<typeof imageColu
 		death_year: author.deathYear,
 		years_approximate: author.yearsApproximate,
 		sort_name: author.sortName,
-		country_code: author.countryCode,
+		country: author.country,
 		...image
 	};
 }

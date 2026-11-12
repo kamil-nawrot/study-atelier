@@ -15,7 +15,7 @@ function author(sortName = ''): AuthorFormState {
 		yearsApproximate: false,
 		sortByOther: sortName !== '',
 		sortName,
-		countryCode: null
+		country: ''
 	};
 }
 
