@@ -239,7 +239,8 @@ const STUDY_SET = [
 		[4, 3]
 	],
 	[24, 'Water Lilies', 'Claude Monet', 1906, 'Impressionism', 'Impressionism', [1, 1]],
-	[25, 'The Dance Class', 'Edgar Degas', 1874, 'Impressionism', 'Impressionism', [6, 7]]
+	[25, 'The Dance Class', 'Edgar Degas', 1874, 'Impressionism', 'Impressionism', [6, 7]],
+	[26, 'Bamboo in the Wind', 'Wu Zhen', 1350, 'Yuan', 'Literati', [1, 5]]
 ];
 
 for (const [number, title, author, year, period, style, [width, height]] of STUDY_SET) {
@@ -719,7 +720,7 @@ export const EXHIBITIONS = [
 	exhibition(2, 'Portrety kobiet', [textBlock('Notatki w przygotowaniu.')], [9]),
 	exhibition(3, '', [], []),
 	exhibition(5, 'Martwa natura w Niderlandach', [textBlock('Szkic wystawy.')], [7]),
-	exhibition(6, 'Barok rzymski', [textBlock('Szkic wystawy.')], [3])
+	exhibition(6, 'Barok rzymski', [textBlock('Szkic wystawy.'), artworkBlock(26, 'Wysoki zwój.')], [3, 26])
 ];
 
 export const ARCHIVED_EXHIBITIONS = [

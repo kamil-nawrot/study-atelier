@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { ArtworkImage, NoImage, overlayScrollbar } from '@study-atelier/ui';
+	import { ArtworkImage, NoImage, overlayScrollbar, StageBackdrop } from '@study-atelier/ui';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import ImageViewer from '#lib/images/components/ImageViewer/ImageViewer.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -40,9 +40,9 @@
 			{@render stage()}
 		</div>
 	{:else}
-		<figure class="stage" class:dimmed={image?.src !== undefined}>
+		<figure class="stage">
 			{#if image?.src}
-				<img class="backdrop" alt="" aria-hidden="true" src={image.src} />
+				<StageBackdrop src={image.src} />
 				<button
 					class="open"
 					aria-label={m.artworkView.openImage}
@@ -116,24 +116,7 @@
 		color: var(--color-stage-fg-muted);
 	}
 
-	.dimmed::after {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background: color-mix(in srgb, var(--color-stage-bg) 70%, transparent);
-	}
-
-	.backdrop {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		filter: blur(32px);
-		scale: 1.2;
-	}
-
-	.stage > :not(.backdrop) {
+	.stage > * {
 		position: relative;
 		z-index: 1;
 	}

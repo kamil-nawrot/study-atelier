@@ -4,6 +4,7 @@
 	import type { LucideIcon } from '@lucide/svelte';
 	import { uiMessages } from '../../messages/messages';
 	import ArtworkImage from '../ArtworkImage/ArtworkImage.svelte';
+	import CappedPicture from '../CappedPicture/CappedPicture.svelte';
 	import Icon from '../Icon/Icon.svelte';
 	import MetaLine from '../MetaLine/MetaLine.svelte';
 	import NoImage from '../NoImage/NoImage.svelte';
@@ -57,18 +58,20 @@
 <div class="tile" class:compact class:with-heart={onfavourite}>
 	<a class="link" {href}>
 		<figure>
-			<div style:--artwork-ratio={image ? image.width / image.height : undefined} class="window">
+			<div class="window">
 				{#if image}
-					<ArtworkImage
-						alt="{title}, {authorText}"
-						height={image.height}
-						loading="lazy"
-						onfailed={onimagefailed}
-						sizes={image.sizes}
-						src={image.src}
-						srcset={image.srcset}
-						width={image.width}
-					/>
+					<CappedPicture backdrop={image.src} ratio={image.width / image.height}>
+						<ArtworkImage
+							alt="{title}, {authorText}"
+							height={image.height}
+							loading="lazy"
+							onfailed={onimagefailed}
+							sizes={image.sizes}
+							src={image.src}
+							srcset={image.srcset}
+							width={image.width}
+						/>
+					</CappedPicture>
 				{:else if imageUnavailable}
 					<ArtworkImage
 						alt="{title}, {authorText}"
@@ -131,14 +134,12 @@
 	}
 
 	.window {
+		--picture-max-height: var(--artwork-max-height);
+
 		position: relative;
 	}
 
 	.window :global(img) {
-		display: block;
-		width: min(100%, calc(var(--artwork-max-height, 100000px) * var(--artwork-ratio, 1)));
-		height: auto;
-		margin-inline: auto;
 		background: var(--color-mat-window);
 	}
 
