@@ -5,7 +5,7 @@ import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts'
 import type { GlossaryDraft } from '#lib/glossary/types/glossary-draft.ts';
 import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 
-export const GLOSSARY_SEARCH_MIN_ENTRIES = 20;
+export const GLOSSARY_INDEX_MIN_ENTRIES = 20;
 export const DEFINITION_MAX_LENGTH = 4000;
 export const NAME_MAX_LENGTH = 120;
 export const FORMS_MAX_COUNT = 50;
