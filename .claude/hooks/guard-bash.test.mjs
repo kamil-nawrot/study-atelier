@@ -11,6 +11,8 @@ const root = mkdtempSync(path.join(tmpdir(), 'guard-bash-'));
 mkdirSync(path.join(root, 'supabase', 'snippets'), { recursive: true });
 mkdirSync(path.join(root, 'apps', 'web'), { recursive: true });
 writeFileSync(path.join(root, 'supabase', 'config.toml'), '');
+mkdirSync(path.join(root, 'apps', 'web', '[number]'), { recursive: true });
+writeFileSync(path.join(root, 'apps', 'web', '[number]', 'page.spec.ts'), '');
 
 function blocked(command, cwd = root) {
 	return findViolation(command, cwd) !== null;
@@ -34,6 +36,18 @@ test('allows staging files by their paths', () => {
 	assert.ok(!blocked('git add -- supabase/config.toml new-file.ts'));
 	assert.ok(!blocked('git add -u'));
 	assert.ok(!blocked('cd supabase && git add config.toml'));
+});
+
+test('stages a file whose path has pattern characters, but not a pattern', () => {
+	assert.ok(!blocked('git add "apps/web/[number]/page.spec.ts"'));
+	assert.ok(!blocked('git add -- "apps/web/[number]/page.spec.ts"'));
+	assert.ok(!blocked('git add ":(literal)apps/web/[number]/page.spec.ts"'));
+	assert.ok(!blocked('cd apps/web && git add "[number]/page.spec.ts"'));
+	assert.ok(blocked('git add "apps/web/[number]/*.ts"'));
+	assert.ok(blocked('git add "apps/web/[number]"'));
+	assert.ok(blocked('git add "apps/web/[number]/missing.ts"'));
+	assert.ok(blocked('git add ":(glob)apps/**/page.spec.ts"'));
+	assert.ok(blocked('git add ":!apps/web/[number]/page.spec.ts"'));
 });
 
 test('blocks a force push, a rebase and a pull with rebase', () => {
