@@ -52,6 +52,12 @@ begin
     values (first_artwork, 1, 'Q1', 'Girl.jpg') returning id into image;
   insert into public.glossary_entries (name, category, definition) values ('Tenebrism', 'painting', 'Dark') returning id into term;
   insert into public.artwork_pins (image_id, x, y, glossary_entry_id) values (image, 0.25, 0.5, term);
+  perform public.save_symbol('Pearl', jsonb_build_array(
+    jsonb_build_object('text', 'purity', 'contexts', jsonb_build_array(jsonb_build_object('value_id', vermeer),
+      jsonb_build_object('text', 'Dutch genre'))),
+    jsonb_build_object('text', 'vanity')));
+  insert into public.artwork_pins (image_id, x, y, symbol_id, symbol_meaning_id)
+    select image, 0.5, 0.5, meaning.symbol_id, meaning.id from public.symbol_meanings as meaning where meaning.position = 1;
   insert into public.timeline_events (name, year_to) values ('War', 1648);
   perform public.save_visit('{"visited_on": "2026-10-12", "date_precision": "day", "notes": "Seen"}', 'Louvre',
     array[first_artwork, third_artwork]);
@@ -84,10 +90,10 @@ do $$
 declare
   owner constant uuid := '00000000-0000-0000-0000-00000000000a';
   tables constant text[] := array[
-    'artworks', 'artwork_images', 'glossary_entries', 'artwork_pins', 'artwork_fields',
+    'artworks', 'artwork_images', 'glossary_entries', 'symbols', 'symbol_meanings', 'artwork_pins', 'artwork_fields',
     'category_values', 'artwork_values', 'period_eras', 'style_periods', 'author_details',
     'period_details', 'style_details', 'material_details', 'location_details', 'era_details',
-    'artwork_field_entries', 'timeline_events', 'visits', 'visit_artworks', 'exhibitions', 'review_cards', 'review_log'
+    'artwork_field_entries', 'symbol_meaning_contexts', 'timeline_events', 'visits', 'visit_artworks', 'exhibitions', 'review_cards', 'review_log'
   ];
   table_name text;
   rows jsonb;
@@ -155,7 +161,7 @@ begin
     and (select count(*) from public.author_details) = 1
     and (select count(*) from public.artwork_values) = 3
     and (select count(*) from public.artwork_images) = 1
-    and (select count(*) from public.artwork_pins) = 1
+    and (select count(*) from public.artwork_pins) = 2
     and (select count(*) from public.glossary_entries) = 1
     and (select count(*) from public.timeline_events) = 1
     and (select count(*) from public.review_cards) = 2
@@ -187,6 +193,17 @@ begin
   assert (select count(*) from public.artwork_pins as pin
       join public.glossary_entries as entry on entry.id = pin.glossary_entry_id) = 1,
     'a pin does not follow the new glossary entry';
+
+  assert (select array_agg(meaning.text order by meaning.position) from public.symbol_meanings as meaning
+      join public.symbols as symbol on symbol.id = meaning.symbol_id where symbol.name = 'Pearl') = '{purity,vanity}',
+    'the meanings of a symbol do not keep their order';
+  assert (select array_agg(coalesce(value.name, label.text) order by label.position)
+      from public.symbol_meaning_contexts as label
+      left join public.category_values as value on value.id = label.value_id) = '{Vermeer,"Dutch genre"}',
+    'a context label does not follow the new value';
+  assert (select meaning.text from public.artwork_pins as pin
+      join public.symbol_meanings as meaning on meaning.id = pin.symbol_meaning_id) = 'vanity',
+    'a pin does not follow the new symbol and meaning';
 
   select * into saved from public.save_artwork('{"title": "New", "author_unknown": true}', '{}', null, null);
   assert saved.record_number = 4, 'the next record number does not follow the imported ones';

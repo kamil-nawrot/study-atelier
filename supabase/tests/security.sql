@@ -105,7 +105,7 @@ declare
     'duplicate_candidates', 'used_category_values', 'learner_points', 'unlock_exhibits', 'record_free_answers',
     'career_standing', 'note_link_mentions', 'note_link_labels', 'note_link_suggestions', 'atelier_empty',
     'collection_statistics', 'record_right_answer', 'note_gap_artwork', 'artwork_field_type_impact',
-    'mastered_artworks', 'save_exhibition', 'record_night_light', 'record_long_look'
+    'mastered_artworks', 'save_exhibition', 'record_night_light', 'record_long_look', 'save_symbol', 'symbol_atlas'
   ];
   table_name text;
   routine record;
@@ -254,6 +254,10 @@ select public.save_exhibition(
     'type', 'artwork', 'attrs', jsonb_build_object('artworkId', (select id from public.artworks)))))
 );
 
+select public.save_symbol('Skull', jsonb_build_array(jsonb_build_object('text', 'transience', 'contexts',
+  jsonb_build_array(jsonb_build_object('era_code', 'early_modern')))));
+update public.artwork_pins set symbol_id = (select id from public.symbols);
+
 insert into public.category_values (category_code, name) values ('material', 'Oil on canvas'), ('author', 'Sculptor');
 insert into public.material_details (value_id, summary)
   select id, 'Material summary' from public.category_values where name = 'Oil on canvas';
@@ -296,6 +300,7 @@ declare
   a_visit uuid;
   a_exhibition uuid;
   a_style uuid;
+  a_symbol uuid;
   c constant uuid := '00000000-0000-0000-0000-00000000000c';
   table_name text;
   writable_column text;
@@ -311,6 +316,7 @@ begin
   select id into a_visit from public.visits where owner_id = a;
   select id into a_exhibition from public.exhibitions where owner_id = a;
   select id into a_style from public.category_values where owner_id = a and name = 'Tenebrism';
+  select id into a_symbol from public.symbols where owner_id = a;
   assert a_visit is not null, 'the visit of owner A was not created';
   assert a_exhibition is not null, 'the exhibition of owner A was not created';
   assert a_artwork is not null and a_value is not null, 'fixture for owner A was not created';
@@ -537,6 +543,10 @@ begin
   assert security_test.denied(format(
     'select public.save_exhibition(%L, ''Mine'', ''{"type": "doc", "content": []}'')', a_exhibition)),
     'B creates an exhibition over one of A through save_exhibition';
+  assert security_test.denied(format(
+    'select public.save_symbol(''Mine'', ''[]'', %L)', a_symbol)),
+    'B renames a symbol of A through save_symbol';
+  assert (select count(*) from public.symbol_atlas()) = 0, 'B sees the symbol atlas of A';
   assert security_test.denied(format(
     'insert into public.exhibitions (owner_id, title) values (%L, ''Forged'')', a)),
     'B inserts an exhibition owned by A';

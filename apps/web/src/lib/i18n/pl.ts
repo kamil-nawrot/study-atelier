@@ -384,6 +384,7 @@ export const pl = {
 				artworks: 'dzieł',
 				category_values: 'wartości w Kartotece',
 				glossary_entries: 'pojęć w Słowniczku',
+				symbols: 'symboli w atlasie symboli',
 				timeline_events: 'wydarzeń w Kalendarium',
 				visits: 'wizyt w Kronice',
 				exhibitions: 'wystaw',
@@ -1059,6 +1060,8 @@ export const pl = {
 			`W Kartotece zmieści się ${limit} wartości. Usuń te, których nie ma przy żadnym dziele, żeby dodać nowe.`,
 		glossaryEntries: (limit: number): string =>
 			`W Słowniczku zmieści się ${limit} pojęć. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		symbols: (limit: number): string =>
+			`W atlasie symboli zmieści się ${limit} symboli. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
 		timelineEvents: (limit: number): string =>
 			`W Kalendarium zmieści się ${limit} wydarzeń. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
 		visits: (limit: number): string =>

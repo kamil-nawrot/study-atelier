@@ -114,6 +114,9 @@ jobs:
       - name: Check the palette of an image
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/image-palette.sql
 
+      - name: Check the symbols
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/symbols.sql
+
       - name: Stop local Supabase
         if: always()
         run: supabase stop --no-backup
