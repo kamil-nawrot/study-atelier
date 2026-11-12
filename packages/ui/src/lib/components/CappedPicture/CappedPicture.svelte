@@ -55,9 +55,12 @@
 
 	.capped .picture {
 		box-sizing: border-box;
-		width: calc(
-			(var(--picture-max-height) - 2 * var(--spacing-2)) * var(--picture-ratio) + 2 *
-				var(--spacing-2)
+		width: min(
+			100%,
+			calc(
+				(var(--picture-max-height) - 2 * var(--spacing-2)) * var(--picture-ratio) + 2 *
+					var(--spacing-2)
+			)
 		);
 		padding: var(--spacing-2);
 		background: var(--color-mat-bg);

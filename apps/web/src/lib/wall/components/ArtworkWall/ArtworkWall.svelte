@@ -147,6 +147,7 @@
 	.column {
 		display: grid;
 		flex: 1;
+		grid-template-columns: minmax(0, 1fr);
 		gap: var(--spacing-6);
 		min-width: 0;
 		list-style: none;
