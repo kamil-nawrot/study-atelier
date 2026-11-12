@@ -1382,6 +1382,7 @@ export const EXHIBITS = [
 		value: 12,
 		thresholds: [1, 5, 10, 25, 50, 100, 250]
 	},
+	{ exhibit: 'van_eyck_easel', room: 'main_hall', hidden: true, value: 0, thresholds: [1] },
 	{
 		exhibit: 'own_eye',
 		room: 'main_hall',
