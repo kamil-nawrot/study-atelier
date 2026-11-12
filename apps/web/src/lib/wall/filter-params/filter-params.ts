@@ -18,7 +18,8 @@ const PARAMS: Record<FilterField, string> = {
 	locations: 'location',
 	missing: 'missing',
 	favourites: 'favourites',
-	seen: 'seen'
+	seen: 'seen',
+	wantToSee: 'want-to-see'
 };
 
 type Params = Pick<URLSearchParams, 'get' | 'getAll' | 'has' | 'keys'>;
@@ -78,6 +79,7 @@ export function filterFromParams(params: Params): CollectionFilter {
 		...emptyFilter(),
 		favourites: params.get(PARAMS.favourites) === FLAG_ON,
 		seen: params.get(PARAMS.seen) === FLAG_ON,
+		wantToSee: params.get(PARAMS.wantToSee) === FLAG_ON,
 		eras: uniqueValues(params, PARAMS.eras).filter(isEraCode),
 		types: uniqueValues(params, PARAMS.types).filter((value): value is ArtworkTypeCode =>
 			ARTWORK_TYPE_CODES.includes(value as ArtworkTypeCode)

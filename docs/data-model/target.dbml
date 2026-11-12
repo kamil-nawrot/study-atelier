@@ -153,7 +153,7 @@ Table artworks {
   era_code text
   year_from integer
   favourite boolean [not null, default: `false`]
-  want_to_see boolean [not null, default: `false`, note: 'M9; cleared by save_visit']
+  want_to_see boolean [not null, default: `false`, note: 'M9; cleared when a visit holds the artwork']
 
   indexes {
     (id, owner_id) [unique]

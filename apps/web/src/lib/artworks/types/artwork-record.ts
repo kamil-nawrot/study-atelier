@@ -4,4 +4,5 @@ export type ArtworkRecord = ArtworkInput & {
 	id: string;
 	number: number;
 	favourite: boolean;
+	wantToSee?: boolean;
 };

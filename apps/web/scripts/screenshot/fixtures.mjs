@@ -105,6 +105,7 @@ function artwork(number, title, authors, year, era, extra = {}) {
 		type_code: 'painting',
 		notes: null,
 		favourite: false,
+		want_to_see: false,
 		deleted_at: null,
 		artwork_values: authors.map((name, position) => ({
 			position,
@@ -297,6 +298,9 @@ export const REVIEW_CARDS = [
 
 for (const number of [1, 3, 4, 7])
 	ARTWORKS.find((row) => row.record_number === number).favourite = true;
+
+for (const number of [2, 5])
+	ARTWORKS.find((row) => row.record_number === number).want_to_see = true;
 
 export const TRASHED = [
 	artwork(11, 'Discarded sketch', ['Learner Example'], 2020, 'contemporary', {

@@ -19,6 +19,7 @@ export const UNKNOWN_AUTHOR = '';
 export const FILTER_FIELDS: readonly FilterField[] = [
 	'favourites',
 	'seen',
+	'wantToSee',
 	'eras',
 	'types',
 	'years',
@@ -34,6 +35,7 @@ export function emptyFilter(): CollectionFilter {
 	return {
 		favourites: false,
 		seen: false,
+		wantToSee: false,
 		eras: [],
 		types: [],
 		yearFrom: null,
@@ -64,7 +66,7 @@ export function hasYears(filter: CollectionFilter): boolean {
 }
 
 export function isFlagField(field: string): field is FlagField {
-	return field === 'favourites' || field === 'seen';
+	return field === 'favourites' || field === 'seen' || field === 'wantToSee';
 }
 
 function hasChoice(filter: CollectionFilter, field: FilterField): boolean {
@@ -126,6 +128,7 @@ export function chosenValues(filter: CollectionFilter, field: FilterValueField):
 function fieldMatches(artwork: WallArtwork, filter: CollectionFilter, field: FilterField): boolean {
 	if (field === 'favourites') return artwork.favourite;
 	if (field === 'seen') return artwork.seen === true;
+	if (field === 'wantToSee') return artwork.wantToSee === true;
 	if (field === 'years') {
 		if (artwork.yearTo === null) return false;
 		if (filter.yearFrom !== null && artwork.yearTo < filter.yearFrom) return false;
@@ -284,6 +287,16 @@ export function seenCount(artworks: WallArtwork[], filter: CollectionFilter): nu
 
 export function toggleSeen(filter: CollectionFilter): CollectionFilter {
 	return { ...filter, seen: !filter.seen };
+}
+
+export function wantToSeeCount(artworks: WallArtwork[], filter: CollectionFilter): number {
+	return artworks.filter(
+		(artwork) => artwork.wantToSee && matchesFilter(artwork, filter, 'wantToSee')
+	).length;
+}
+
+export function toggleWantToSee(filter: CollectionFilter): CollectionFilter {
+	return { ...filter, wantToSee: !filter.wantToSee };
 }
 
 export function onlyFavourites(filter: CollectionFilter): boolean {
