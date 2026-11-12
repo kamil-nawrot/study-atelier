@@ -14,6 +14,7 @@ import type { FilterTag } from '#lib/catalogue/types/filter-tag.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { overlaps, spanOfYears } from '#lib/timeline/time/time.ts';
 import type { TimeSpan } from '#lib/timeline/types/time-span.ts';
+import type { ArtworkLane } from '#lib/timeline/types/artwork-lane.ts';
 import type { Lane } from '#lib/timeline/types/lane.ts';
 import type { LaneField } from '#lib/timeline/types/lane-field.ts';
 import type { TimelineFilter } from '#lib/timeline/types/timeline-filter.ts';
@@ -170,4 +171,16 @@ export function forOtherEra(filter: TimelineFilter): TimelineFilter {
 
 export function laneColour(index: number): string {
 	return `var(--color-lane-${index + 1})`;
+}
+
+export function artworkLanes(
+	filter: TimelineFilter,
+	artworks: readonly WallArtwork[]
+): ArtworkLane[] {
+	return filter.lanes.map((lane, laneAt) => ({
+		key: `${lane.field}:${lane.value}`,
+		name: lane.value,
+		colour: laneColour(laneAt),
+		artworks: artworks.filter((artwork) => inLane(artwork, lane))
+	}));
 }

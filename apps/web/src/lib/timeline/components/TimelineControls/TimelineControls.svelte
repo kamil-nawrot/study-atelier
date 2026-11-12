@@ -3,6 +3,7 @@
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
 	import Minus from '@lucide/svelte/icons/minus';
 	import Plus from '@lucide/svelte/icons/plus';
+	import { MediaQuery } from 'svelte/reactivity';
 	import { Icon, ToggleTag } from '@study-atelier/ui';
 	import { ERA_CODES, eraTitle } from '#lib/catalogue/eras/eras.ts';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
@@ -20,6 +21,10 @@
 
 	let { code, step, steps, onera, onstep, onmove }: Props = $props();
 
+	const phone = new MediaQuery('max-width: 767.98px');
+
+	let at = $derived(steps.indexOf(step));
+	let shown = $derived(phone.current ? steps.slice(Math.max(0, at - 1), at + 2) : steps);
 	let index = $derived(ERA_CODES.indexOf(code));
 	let previous = $derived(index > 0 ? ERA_CODES[index - 1] : undefined);
 	let next = $derived(index < ERA_CODES.length - 1 ? ERA_CODES[index + 1] : undefined);
@@ -43,13 +48,13 @@
 		<button
 			class="quiet zoom"
 			aria-label={m.timeline.zoomOut}
-			disabled={steps.indexOf(step) <= 0}
+			disabled={at <= 0}
 			onclick={() => onmove(-1)}
 			type="button"
 		>
 			<Icon icon={Minus} size="sm" />
 		</button>
-		{#each steps as key (key)}
+		{#each shown as key (key)}
 			<ToggleTag bind:pressed={() => key === step, (pressed) => pressed && onstep(key)}>
 				{m.timeline.steps[key]}
 			</ToggleTag>
@@ -57,7 +62,7 @@
 		<button
 			class="quiet zoom"
 			aria-label={m.timeline.zoomIn}
-			disabled={steps.indexOf(step) >= steps.length - 1}
+			disabled={at >= steps.length - 1}
 			onclick={() => onmove(1)}
 			type="button"
 		>
@@ -110,6 +115,10 @@
 
 		.move {
 			display: none;
+		}
+
+		.steps {
+			flex-wrap: nowrap;
 		}
 	}
 

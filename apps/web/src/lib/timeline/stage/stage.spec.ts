@@ -45,6 +45,12 @@ describe('stage geometry', () => {
 		expect(verticalLength(2000)).toBe(820);
 	});
 
+	it('fills the room left on a phone screen, within its limits', () => {
+		expect(verticalLength(844, 500)).toBe(500);
+		expect(verticalLength(844, 100)).toBe(280);
+		expect(verticalLength(844, 2000)).toBe(820);
+	});
+
 	it('places a box along and across the time axis', () => {
 		expect(boxStyle(stageGeometry(view, 1200, 1), { along: 10, across: 20, alongSize: 30 })).toBe(
 			'left: 10px; top: 20px; width: 30px'
