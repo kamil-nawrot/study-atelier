@@ -8,6 +8,7 @@ import type { QuizMode } from '#lib/review/types/quiz-mode.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { ReviewPin } from '#lib/review/types/review-pin.ts';
 import Quiz from './Quiz.svelte';
+import { expectImageCredit } from '#lib/testing/image-credit/image-credit.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: {} }));
 
@@ -171,7 +172,7 @@ describe('Quiz', () => {
 			.element(page.getByRole('status'))
 			.toHaveTextContent(`${m.review.quiz.right} ${answer.title}. Johannes Vermeer, ok. 1665.`);
 		await expect.element(page.getByRole('status')).not.toHaveTextContent(m.review.quiz.retry);
-		await expect.element(page.getByText('Wikimedia Commons')).toBeVisible();
+		await expectImageCredit('Wikimedia Commons');
 	});
 
 	it('marks why a wrong title was close with an icon that explains itself on hover', async () => {
@@ -257,8 +258,6 @@ describe('Quiz', () => {
 			.element(page.getByRole('status'))
 			.toHaveTextContent(`${m.review.quiz.wrong} Apse.`);
 		await expect.element(page.getByRole('status')).toHaveTextContent(answer.title);
-		await expect
-			.element(page.getByText(m.artworkForm.ownImageUrlCredit('images.example.test')))
-			.toBeVisible();
+		await expectImageCredit(m.artworkForm.ownImageUrlCredit('images.example.test'));
 	});
 });

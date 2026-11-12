@@ -17,6 +17,7 @@ import { testVisit, VISIT_ID } from '#lib/testing/chronicle/chronicle.ts';
 import type { Pin } from '#lib/pins/types/pin.ts';
 import { testEntry } from '#lib/testing/glossary/glossary.ts';
 import ArtworkPage from './+page.svelte';
+import { expectImageCredit } from '#lib/testing/image-credit/image-credit.ts';
 
 const navigation = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier/42'),
@@ -305,7 +306,7 @@ describe('artwork page', () => {
 			})
 		});
 
-		await expect.element(page.getByText(m.artwork.credit)).toBeVisible();
+		await expectImageCredit(m.artwork.credit);
 	});
 
 	it('opens the image full screen and closes it', async () => {

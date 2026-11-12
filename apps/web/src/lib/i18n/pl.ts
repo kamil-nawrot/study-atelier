@@ -96,6 +96,7 @@ export const pl = {
 		captchaFailed: 'Nie udało się potwierdzić, że to Ty, a nie automat. Spróbuj jeszcze raz.'
 	},
 	artwork: {
+		creditLabel: 'Źródło obrazu',
 		credit: 'Wikimedia Commons, domena publiczna',
 		photoCredit: (photographer: string, license: string): string =>
 			`Wikimedia Commons, zdjęcie: ${photographer}, ${license}`,
