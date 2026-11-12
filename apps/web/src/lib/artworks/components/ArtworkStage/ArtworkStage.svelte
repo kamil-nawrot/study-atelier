@@ -27,7 +27,6 @@
 	import Loupe from '#lib/images/components/Loupe/Loupe.svelte';
 	import PaletteBand from '#lib/images/components/PaletteBand/PaletteBand.svelte';
 	import { PaletteLoader } from '#lib/images/palette-loader/palette-loader.svelte.ts';
-	import { LOUPE_MIN_RATIO } from '#lib/images/loupe/loupe.ts';
 	import PinCard from '#lib/pins/components/PinCard/PinCard.svelte';
 	import PinDialog from '#lib/pins/components/PinDialog/PinDialog.svelte';
 	import PinMarkers from '#lib/pins/components/PinMarkers/PinMarkers.svelte';
@@ -80,9 +79,7 @@
 	let frameWidth = $state(0);
 	let loupeOn = $state(false);
 	let large = $derived(artworkLargeSource(current));
-	let loupeReady = $derived(
-		large !== undefined && frameWidth > 0 && large.width >= LOUPE_MIN_RATIO * frameWidth
-	);
+	let loupeReady = $derived(large !== undefined && frameWidth > 0);
 	let loupeActive = $derived(loupeOn && loupeReady && mouse.current);
 
 	let showPins = $state(false);

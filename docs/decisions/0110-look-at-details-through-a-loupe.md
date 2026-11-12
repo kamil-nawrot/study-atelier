@@ -1,6 +1,6 @@
 # 0110. Look at the details of an artwork through a loupe
 
-- Status: accepted; the place of the button "Lupa" and of the caption for an image that is too small is superseded by [0113](0113-switch-the-loupe-on-from-the-corner-of-the-stage.md); the original file as the large image is superseded by [0115](0115-cap-the-loupe-image-and-thumbnail-linked-wikimedia-images.md)
+- Status: accepted; the place of the button "Lupa" and of the caption for an image that is too small is superseded by [0113](0113-switch-the-loupe-on-from-the-corner-of-the-stage.md); the original file as the large image is superseded by [0115](0115-cap-the-loupe-image-and-thumbnail-linked-wikimedia-images.md); the loupe of the artwork view only for an image 1.5 times wider than shown is superseded by [0261](0261-offer-the-loupe-on-every-image-of-the-artwork-view.md)
 - Date: 2026-10-22
 
 ## Context and problem statement
