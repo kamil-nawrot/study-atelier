@@ -252,6 +252,46 @@ export type Database = {
           },
         ];
       };
+      artwork_relations: {
+        Row: {
+          created_at: string;
+          from_id: string;
+          kind: string;
+          owner_id: string;
+          to_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          from_id: string;
+          kind: string;
+          owner_id?: string;
+          to_id: string;
+        };
+        Update: {
+          created_at?: string;
+          from_id?: string;
+          kind?: string;
+          owner_id?: string;
+          to_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "artwork_relations_from_id_owner_id_fkey";
+            columns: ["from_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "artwork_relations_to_id_owner_id_fkey";
+            columns: ["to_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
       artwork_types: {
         Row: {
           code: string;
@@ -456,10 +496,53 @@ export type Database = {
           },
         ];
       };
+      author_relations: {
+        Row: {
+          category_code: string;
+          created_at: string;
+          from_id: string;
+          kind: string;
+          owner_id: string;
+          to_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          category_code?: string;
+          created_at?: string;
+          from_id: string;
+          kind: string;
+          owner_id?: string;
+          to_id: string;
+        };
+        Update: {
+          category_code?: string;
+          created_at?: string;
+          from_id?: string;
+          kind?: string;
+          owner_id?: string;
+          to_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "author_relations_from_id_owner_id_category_code_fkey";
+            columns: ["from_id", "owner_id", "category_code"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id", "category_code"];
+          },
+          {
+            foreignKeyName: "author_relations_to_id_owner_id_category_code_fkey";
+            columns: ["to_id", "owner_id", "category_code"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id", "category_code"];
+          },
+        ];
+      };
       catalogue_museums: {
         Row: {
+          alias: string | null;
           country_code: string;
-          english_name: string | null;
           latitude: number;
           longitude: number;
           name: string;
@@ -467,16 +550,16 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          alias?: string | null;
           country_code: string;
-          english_name?: string | null;
           latitude: number;
           longitude: number;
           name: string;
           wikidata_id: string;
         };
         Update: {
+          alias?: string | null;
           country_code?: string;
-          english_name?: string | null;
           latitude?: number;
           longitude?: number;
           name?: string;
@@ -1854,6 +1937,7 @@ export type Database = {
           existing_id?: string;
           field_entries?: Json;
           images?: Json;
+          relations?: Json;
           values_by_category: Json;
         };
         Returns: {

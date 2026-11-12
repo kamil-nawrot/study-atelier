@@ -14,6 +14,8 @@ export const EXPORT_TABLES: readonly ExportTable[] = [
 	{ table: 'material_details', order: ['value_id'] },
 	{ table: 'location_details', order: ['value_id'] },
 	{ table: 'era_details', order: ['era_code'] },
+	{ table: 'artwork_relations', order: ['from_id', 'to_id'] },
+	{ table: 'author_relations', order: ['from_id', 'to_id'] },
 	{ table: 'artwork_fields', order: ['id'] },
 	{ table: 'categories', order: ['code'], ownedOnly: true },
 	{ table: 'artwork_field_entries', order: ['artwork_id', 'field_id'] },

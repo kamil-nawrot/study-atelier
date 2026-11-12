@@ -46,6 +46,7 @@
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import ArtworkEraFields from '#lib/artworks/components/ArtworkEraFields/ArtworkEraFields.svelte';
 	import ArtworkImages from '#lib/artworks/components/ArtworkImages/ArtworkImages.svelte';
+	import ArtworkRelationsField from '#lib/artwork-relations/components/ArtworkRelationsField/ArtworkRelationsField.svelte';
 	import ArtworkOwnFields from '#lib/artworks/components/ArtworkOwnFields/ArtworkOwnFields.svelte';
 	import type { Pin } from '#lib/pins/types/pin.ts';
 	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
@@ -325,6 +326,12 @@
 					bind:form
 				/>
 			{/if}
+
+			<ArtworkRelationsField
+				artworkId={artwork?.id}
+				error={fieldErrors.current.relations}
+				bind:rows={form.relations}
+			/>
 
 			<NotesEditor
 				hint={m.artworkForm.notesLinkHint}

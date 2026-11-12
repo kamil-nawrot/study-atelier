@@ -174,7 +174,7 @@ Table author_details {
 Table catalogue_museums {
   wikidata_id text [pk]
   name text [not null]
-  english_name text
+  alias text
   country_code text [not null]
   latitude "double precision" [not null]
   longitude "double precision" [not null]

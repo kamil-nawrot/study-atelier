@@ -474,7 +474,8 @@ describe('add artwork page', () => {
 			artwork: expect.anything(),
 			values_by_category: expect.objectContaining({ location: ['Luwr'] }),
 			existing_id: undefined,
-			images: []
+			images: [],
+			relations: []
 		});
 	});
 
@@ -573,7 +574,8 @@ describe('add artwork page', () => {
 				location: []
 			},
 			existing_id: undefined,
-			images: []
+			images: [],
+			relations: []
 		});
 	});
 

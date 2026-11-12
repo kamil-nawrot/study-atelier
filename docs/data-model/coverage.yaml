@@ -406,7 +406,7 @@ alternatives:
 
   - id: M8
     name: Keep typed relations between artworks and between authors in two tables
-    status: 'accepted 2026-11-12, ADR-0259; to build in 0.23'
+    status: 'accepted 2026-11-12, ADR-0259; both tables and the artwork relations built in ATL-681, the author relations in ATL-682'
     kind: schema
     tables: [artwork_relations, author_relations]
     serves: [R31, R32, W25, W26]
