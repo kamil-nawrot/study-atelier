@@ -112,7 +112,7 @@ describe('glossary page', () => {
 			.toBeGreaterThan(search.bottom);
 	});
 
-	it('shows the title, the lead and the add button as the one primary action', async () => {
+	it('shows the title, the lead and the add button in the tab', async () => {
 		renderGlossary();
 
 		await expect
@@ -120,8 +120,11 @@ describe('glossary page', () => {
 			.toHaveTextContent(m.glossary.title);
 		await expect.element(page.getByText(m.glossary.lead)).toBeVisible();
 		await expect
-			.element(page.getByRole('link', { name: m.glossary.add }))
+			.element(page.getByRole('tabpanel').getByRole('link', { name: m.glossary.add }))
 			.toHaveAttribute('href', '/atelier/glossary/new');
+		await expect
+			.element(page.getByRole('banner').getByRole('link', { name: m.glossary.add }))
+			.not.toBeInTheDocument();
 	});
 
 	it('counts every entry next to the title, whatever the filter shows', async () => {
@@ -403,8 +406,11 @@ describe('glossary page', () => {
 				.toHaveTextContent(`${m.symbols.details(3)} · ${m.symbols.meanings(2)}`);
 			await expect.element(page.getByText(m.symbols.count(2))).toBeVisible();
 			await expect
-				.element(page.getByRole('link', { name: m.symbols.add }))
+				.element(page.getByRole('tabpanel').getByRole('link', { name: m.symbols.add }))
 				.toHaveAttribute('href', '/atelier/glossary/symbols/new');
+			await expect
+				.element(page.getByRole('link', { name: m.glossary.add }))
+				.not.toBeInTheDocument();
 		});
 
 		it('finds a symbol by name and sorts by the number of details', async () => {
