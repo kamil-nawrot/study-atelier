@@ -31,7 +31,8 @@
     "amateur_magnifier": "daumier-amateur-figure",
     "crystal_palace": "burton-transept",
     "lenoir_chapel": "introduction-left",
-    "boncompagni_academy": "cort-workshop"
+    "boncompagni_academy": "cort-workshop",
+    "pilgrim_shell": "callot-pilgrims"
   },
   "variants": [
     {
@@ -1322,6 +1323,48 @@
         0.33,
         0.98,
         0.973
+      ]
+    },
+    {
+      "exhibit": "pilgrim_shell",
+      "status": "chosen",
+      "commons_file": "Twee pelgrims en een routebeschrijving naar Santiago de Compostela La guide des chemins de Paris a Saint Iacques en Galice disposee en abregé pour la comodité des pelerins (titel op object), RP-P-OB-20.935.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous after Jacques Callot, Two pilgrims and a route to Santiago de Compostela, published by Lenfant, Paris, 1623–1699, Rijksmuseum RP-P-OB-20.935",
+      "variant": "callot-pilgrims",
+      "crop": [
+        0.279,
+        0.2,
+        0.724,
+        0.789
+      ]
+    },
+    {
+      "exhibit": "pilgrim_shell",
+      "status": "alternative",
+      "commons_file": "Twee pelgrims en een routebeschrijving naar Santiago de Compostela La guide des chemins de Paris a Saint Iacques en Galice disposee en abregé pour la comodité des pelerins (titel op object), RP-P-OB-20.935.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous after Jacques Callot, Two pilgrims and a route to Santiago de Compostela, published by Lenfant, Paris, 1623–1699, Rijksmuseum RP-P-OB-20.935",
+      "variant": "callot-pilgrims-verse",
+      "crop": [
+        0.2417,
+        0.1262,
+        0.7583,
+        0.8097
+      ]
+    },
+    {
+      "exhibit": "pilgrim_shell",
+      "status": "alternative",
+      "commons_file": "Twee pelgrims en een routebeschrijving naar Santiago de Compostela La guide des chemins de Paris a Saint Iacques en Galice disposee en abregé pour la comodité des pelerins (titel op object), RP-P-OB-20.935.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous after Jacques Callot, Two pilgrims and a route to Santiago de Compostela, published by Lenfant, Paris, 1623–1699, Rijksmuseum RP-P-OB-20.935",
+      "variant": "callot-pilgrims-hats",
+      "crop": [
+        0.359,
+        0.21,
+        0.6455,
+        0.589
       ]
     }
   ]
