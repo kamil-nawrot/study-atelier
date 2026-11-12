@@ -455,21 +455,21 @@ export type Database = {
       };
       catalogue_museums: {
         Row: {
+          alias: string | null;
           country_code: string;
-          english_name: string | null;
           name: string;
           wikidata_id: string;
         };
         ComputedFields: never;
         Insert: {
+          alias?: string | null;
           country_code: string;
-          english_name?: string | null;
           name: string;
           wikidata_id: string;
         };
         Update: {
+          alias?: string | null;
           country_code?: string;
-          english_name?: string | null;
           name?: string;
           wikidata_id?: string;
         };
