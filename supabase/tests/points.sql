@@ -6,7 +6,8 @@ insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000a', 'owner-a@example.test'),
   ('00000000-0000-0000-0000-00000000000b', 'owner-b@example.test'),
   ('00000000-0000-0000-0000-00000000000c', 'owner-c@example.test'),
-  ('00000000-0000-0000-0000-00000000000d', 'owner-d@example.test');
+  ('00000000-0000-0000-0000-00000000000d', 'owner-d@example.test'),
+  ('00000000-0000-0000-0000-00000000000e', 'owner-e@example.test');
 
 set local role authenticated;
 select set_config('request.jwt.claims',
@@ -154,6 +155,54 @@ begin
     date_trunc('day', now()) + interval '1 day', 'UTC');
   assert (select streak_days from public.point_events where kind = 'plan_day') = 42,
     'the streak is counted again on a later answer of the same day';
+end;
+$$;
+
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-00000000000e", "role": "authenticated"}', true);
+
+do $$
+declare
+  skull uuid;
+begin
+  skull := public.save_symbol('Skull', jsonb_build_array(
+    jsonb_build_object('text', 'transience', 'contexts', '[]'::jsonb)));
+  assert (select count(*) from public.point_events where kind = 'symbol_added' and item_id = skull) = 1,
+    'adding a symbol records no event';
+  assert public.learner_points() = 2, 'a symbol is not worth 2 points';
+
+  perform public.save_symbol('Skull', jsonb_build_array(
+    jsonb_build_object('text', 'transience', 'contexts', '[]'::jsonb),
+    jsonb_build_object('text', 'penance', 'contexts', '[]'::jsonb)), skull);
+  assert (select count(*) from public.point_events where kind = 'symbol_added') = 1,
+    'editing a symbol records another event';
+
+  perform public.save_symbol('Lily', jsonb_build_array(
+    jsonb_build_object('text', 'purity', 'contexts', '[]'::jsonb)));
+end;
+$$;
+
+reset role;
+
+delete from public.point_events where owner_id = '00000000-0000-0000-0000-00000000000e';
+select private.fill_point_events('00000000-0000-0000-0000-00000000000e');
+
+do $$
+begin
+  assert (select count(*) from public.point_events
+    where owner_id = '00000000-0000-0000-0000-00000000000e' and kind = 'symbol_added') = 2,
+    'filling the points of an account skips its symbols';
+end;
+$$;
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-00000000000e", "role": "authenticated"}', true);
+
+do $$
+begin
+  delete from public.symbols where name = 'Skull';
+  assert public.learner_points() = 4, 'deleting a symbol takes its points back';
 end;
 $$;
 
