@@ -47,7 +47,7 @@
 		</Button>
 	</EmptyState>
 {:else}
-	<div class="tools">
+	<div class="atlas">
 		<ListTools
 			{options}
 			searchLabel={m.symbols.search}
@@ -67,23 +67,22 @@
 				</Button>
 			{/snippet}
 		</ListTools>
+		{#if shown.length === 0}
+			<p class="lead">{m.symbols.noResults(query.trim())}</p>
+		{:else}
+			<ul class="grid">
+				{#each shown as symbol (symbol.id)}
+					<li><SymbolTile {symbol} /></li>
+				{/each}
+			</ul>
+		{/if}
 	</div>
-
-	{#if shown.length === 0}
-		<p class="lead">{m.symbols.noResults(query.trim())}</p>
-	{:else}
-		<ul class="grid">
-			{#each shown as symbol (symbol.id)}
-				<li><SymbolTile {symbol} /></li>
-			{/each}
-		</ul>
-	{/if}
 {/if}
 
 <style>
-	.tools {
-		padding-bottom: var(--spacing-4);
-		border-bottom: var(--border-width-hairline) solid var(--color-line);
+	.atlas {
+		display: grid;
+		gap: var(--spacing-6);
 	}
 
 	.grid {
@@ -92,22 +91,17 @@
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: var(--spacing-12) var(--spacing-6);
-		padding: var(--spacing-8) 0 0;
+		padding: 0;
 		list-style: none;
 	}
 
 	@media (min-width: 768px) {
-		.tools {
-			padding-bottom: var(--spacing-6);
-		}
-
 		.grid {
 			--detail-lens: 200px;
 
 			grid-template-columns: repeat(4, minmax(0, 1fr));
 			gap: var(--spacing-16);
 			max-width: var(--size-content-wide);
-			padding-top: var(--spacing-12);
 		}
 	}
 </style>
