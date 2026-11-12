@@ -42,7 +42,7 @@ begin
     'era_enfilade:early_modern', 'era_enfilade:modern', 'era_enfilade:contemporary',
     'reading_room:memory', 'reading_room:bullseye', 'reading_room:regular', 'reading_room:back_from_storage',
     'reading_room:night_watch', 'reading_room:marathon', 'reading_room:amateur_magnifier',
-    'scriptorium:glossary', 'scriptorium:timeline', 'scriptorium:hortus_cliffortianus', 'scriptorium:figure_alphabet',
+    'scriptorium:glossary', 'scriptorium:laurel_skull', 'scriptorium:timeline', 'scriptorium:hortus_cliffortianus', 'scriptorium:figure_alphabet',
     'map_room:chronicle', 'map_room:grand_tour', 'map_room:seen_live', 'map_room:trevi_fountain',
     'map_room:seven_league_boots', 'pavilion:crystal_palace', 'pavilion:lenoir_chapel', 'crypt:mouth_of_truth',
     'crypt:candle_moths'
@@ -688,6 +688,58 @@ begin
 
   assert (select value from public.unlock_exhibits('UTC') where exhibit = 'trevi_fountain') = 2,
     'the Trevi fountain counts "maj 2026" and "1 maja 2026" as one visit';
+end;
+$$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000015', 'owner-l@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000015", "role": "authenticated"}', true);
+
+do $$
+declare
+  shown uuid;
+  trashed uuid;
+  skull uuid;
+  lily uuid;
+  dog uuid;
+begin
+  perform public.save_artwork(
+    jsonb_build_object('title', 'Shown', 'author_unknown', true),
+    '{}', null, '[{"source_wikidata_id": "Q201", "source_image_file": "Shown.jpg"}]');
+  perform public.save_artwork(
+    jsonb_build_object('title', 'Thrown away', 'author_unknown', true),
+    '{}', null, '[{"source_wikidata_id": "Q202", "source_image_file": "Thrown.jpg"}]');
+  select image.id into shown from public.artwork_images as image
+    join public.artworks as artwork on artwork.id = image.artwork_id where artwork.title = 'Shown';
+  select image.id into trashed from public.artwork_images as image
+    join public.artworks as artwork on artwork.id = image.artwork_id where artwork.title = 'Thrown away';
+  skull := public.save_symbol('Skull', '[{"text": "transience", "contexts": []}]');
+  lily := public.save_symbol('Lily', '[{"text": "purity", "contexts": []}]');
+  dog := public.save_symbol('Dog', '[{"text": "fidelity", "contexts": []}]');
+  perform public.save_symbol('Unpinned', '[{"text": "nothing", "contexts": []}]');
+
+  insert into public.artwork_pins (image_id, x, y, symbol_id) values
+    (shown, 0.2, 0.2, skull), (shown, 0.4, 0.4, skull), (shown, 0.6, 0.6, lily), (trashed, 0.5, 0.5, dog);
+  update public.artworks set deleted_at = now() where title = 'Thrown away';
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'laurel_skull') = 2,
+    'the victor''s skull counts a symbol twice, a symbol without a pin or a pin on an artwork in the trash';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'laurel_skull') = array[1]::smallint[],
+    'two symbols on artworks do not reach the first tier of the victor''s skull';
+
+  update public.artworks set deleted_at = null where title = 'Thrown away';
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'laurel_skull') = 3,
+    'the victor''s skull does not count the symbol of an artwork back from the trash';
+
+  delete from public.artwork_pins where symbol_id = lily;
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'laurel_skull') = 2,
+    'the victor''s skull counts a symbol whose pin is gone';
+  assert (select count(*) from public.exhibit_tiers where exhibit = 'laurel_skull') = 1,
+    'the victor''s skull takes back a reached tier';
 end;
 $$;
 
