@@ -2476,6 +2476,28 @@ export const pl = {
 		artworkRequired: 'Wybierz dzieło albo usuń ten wiersz.',
 		noMatch: 'Nie ma takiego dzieła w Twoim atelier.'
 	},
+	authorRelations: {
+		title: 'Powiązania',
+		band: 'Inni artyści',
+		types: {
+			pupilFrom: 'Nauczyciel',
+			pupilTo: 'Uczeń',
+			influenceFrom: 'Pod wpływem',
+			influenceTo: 'Wpływ na',
+			collaboration: 'Współpraca',
+			family: 'Rodzina',
+			related: 'Powiązani z'
+		},
+		add: 'Dodaj powiązanie',
+		type: 'Rodzaj powiązania',
+		choose: 'Wybierz rodzaj',
+		search: 'Szukaj autora',
+		remove: (name: string): string => `Usuń powiązanie z „${name}”`,
+		removeEmpty: 'Usuń powiązanie',
+		typeRequired: 'Wybierz, jak ci artyści są powiązani.',
+		authorRequired: 'Wybierz autora albo usuń ten wiersz.',
+		noMatch: 'Nie ma takiego autora w Twoim atelier.'
+	},
 	valuePage: {
 		back: 'Kartoteka',
 		deleteBlocked: (demonstrative: string, count: string, other: string): string =>

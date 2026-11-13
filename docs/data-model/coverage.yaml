@@ -406,7 +406,7 @@ alternatives:
 
   - id: M8
     name: Keep typed relations between artworks and between authors in two tables
-    status: 'accepted 2026-11-12, ADR-0259; both tables and the artwork relations built in ATL-681, the author relations in ATL-682'
+    status: 'done in 0.23, ATL-681 and ATL-682, ADR-0259'
     kind: schema
     tables: [artwork_relations, author_relations]
     serves: [R31, R32, W25, W26]
@@ -539,7 +539,12 @@ patterns:
   - { id: R29, today: 'new', target: '+1 select by the label column', model: [M7] }
   - { id: R30, today: 'new', target: '+1 at the session start', model: [M7] }
   - { id: R31, today: 'new', target: 'read with the artwork, no request of its own', model: [M8] }
-  - { id: R32, today: 'new', target: 'part of value_page_content', model: [M8] }
+  - {
+      id: R32,
+      today: 'new',
+      target: '+1 select of author_relations, parallel to the author details',
+      model: [M8]
+    }
   - {
       id: R33,
       today: 'new',

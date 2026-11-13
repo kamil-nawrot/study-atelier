@@ -497,7 +497,12 @@ reads:
       - 'author_relations: few, by from_id or to_id, joined to the name of the other author'
     scope: few
     frequency: view
-    today: { requests: 0, whole: [], note: 'new in 0.23 (ADR-0259); part of value_page_content' }
+    today:
+      {
+        requests: 0,
+        whole: [],
+        note: 'new in 0.23 (ADR-0259); one select of author_relations with the names of both ends, in parallel with the author details'
+      }
 
   - id: R33
     name: Map

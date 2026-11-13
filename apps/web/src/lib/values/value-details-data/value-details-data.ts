@@ -3,6 +3,9 @@ import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import { cacheKeys, forgetCached, type CacheKey } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyAuthorDetails } from '#lib/values/author-form/author-form.ts';
+import { authorRelationPayload } from '#lib/author-relations/author-relation-types/author-relation-types.ts';
+import { loadAuthorRelations } from '#lib/author-relations/author-relations-data/author-relations-data.ts';
+import type { AuthorRelation } from '#lib/author-relations/types/author-relation.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import {
 	IMAGE_COLUMNS,
@@ -105,15 +108,19 @@ function detailsQuery(subject: ValueSubject): DetailsQuery {
 	}
 }
 
-async function authorOf(row: DetailsRow | null): Promise<AuthorDetails> {
-	if (!row) return emptyAuthorDetails();
+async function authorOf(
+	row: DetailsRow | null,
+	relations: AuthorRelation[]
+): Promise<AuthorDetails> {
+	if (!row) return { ...emptyAuthorDetails(), relations };
 	return {
 		image: await withPreview(imageOf(row as AuthorRow)),
 		birthYear: row.birth_year ?? null,
 		deathYear: row.death_year ?? null,
 		yearsApproximate: row.years_approximate ?? false,
 		sortName: row.sort_name ?? null,
-		country: row.country ?? null
+		country: row.country ?? null,
+		relations
 	};
 }
 
@@ -126,10 +133,14 @@ function locationOf(row: DetailsRow | null): LocationDetails {
 }
 
 export async function loadValueDetails(subject: ValueSubject): Promise<ValueDetailsResult> {
-	const { data, error } = await detailsQuery(subject);
+	const [{ data, error }, related] = await Promise.all([
+		detailsQuery(subject),
+		subject.kind === 'author' ? loadAuthorRelations(subject.record.id) : undefined
+	]);
 	if (error) return { details: emptyValueDetails(), error: collectionErrorMessage(error) };
+	if (related?.error) return { details: emptyValueDetails(), error: related.error };
 	const details: ValueDetails = { summary: data?.summary ?? '', notes: data?.notes ?? '' };
-	if (subject.kind === 'author') details.author = await authorOf(data);
+	if (subject.kind === 'author') details.author = await authorOf(data, related?.relations ?? []);
 	if (subject.kind === 'location') details.location = locationOf(data);
 	return { details };
 }
@@ -141,6 +152,7 @@ function authorColumns(author: AuthorDetails, image: ReturnType<typeof imageColu
 		years_approximate: author.yearsApproximate,
 		sort_name: author.sortName,
 		country: author.country,
+		relations: authorRelationPayload(author.relations),
 		...image
 	};
 }

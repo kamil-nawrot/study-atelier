@@ -135,7 +135,8 @@ export async function loadValuePage(
 					kind: subject.kind,
 					artworks: artworksOfValue(own.artworks, subject),
 					index: cardIndex.index,
-					bounds: subjectBounds(subject, details)
+					bounds: subjectBounds(subject, details),
+					authors: details.author?.relations
 				}),
 				loadSymbolUses(
 					subject.kind === 'era' ? { eraCode: subject.code } : { valueId: subjectId(subject) }

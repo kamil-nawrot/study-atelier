@@ -1,1 +1,1 @@
-export type AuthorFieldErrors = Partial<Record<'birthYear' | 'deathYear', string>>;
+export type AuthorFieldErrors = Partial<Record<'birthYear' | 'deathYear' | 'relations', string>>;
