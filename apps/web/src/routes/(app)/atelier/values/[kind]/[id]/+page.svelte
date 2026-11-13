@@ -12,6 +12,7 @@
 	import ArtworksSection from '#lib/wall/components/ArtworksSection/ArtworksSection.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import ValueView from '#lib/values/components/ValueView/ValueView.svelte';
+	import SymbolUses from '#lib/symbols/components/SymbolUses/SymbolUses.svelte';
 	import RelationsBand from '#lib/relations/components/RelationsBand/RelationsBand.svelte';
 	import {
 		artworksOfValue,
@@ -164,6 +165,8 @@
 			{#if data.relations}
 				<RelationsBand relations={data.relations} />
 			{/if}
+
+			<SymbolUses title={m.valuePage.kinds[subject.kind].symbols} uses={data.symbolUses ?? []} />
 
 			<ArtworksSection
 				{artworks}

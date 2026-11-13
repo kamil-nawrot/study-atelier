@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
+	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { page } from '$app/state';
 	import { movePin } from '#lib/pins/pin-data/pin-data.ts';
@@ -16,11 +17,12 @@
 		imageId: string;
 		pins: Pin[];
 		entries: readonly GlossaryTerm[];
+		symbols?: readonly SymbolOption[];
 		image?: ArtworkImageInput | null;
 		onfailure: (message?: string) => void;
 	};
 
-	let { imageId, pins = $bindable(), entries, image, onfailure }: Props = $props();
+	let { imageId, pins = $bindable(), entries, symbols = [], image, onfailure }: Props = $props();
 
 	let shownWidth = $state(0);
 
@@ -102,6 +104,7 @@
 	pin={dialogPin}
 	shownWidth={shownWidth || undefined}
 	spot={draftSpot ?? { x: 0.5, y: 0.5 }}
+	{symbols}
 	bind:open={dialogOpen}
 />
 

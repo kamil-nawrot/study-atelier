@@ -134,6 +134,8 @@ describe('pin data', () => {
 			x: 0.25,
 			y: 0.5,
 			glossary_entry_id: 'term-1',
+			symbol_id: null,
+			symbol_meaning_id: null,
 			text: null,
 			view_width: null
 		});
@@ -144,6 +146,8 @@ describe('pin data', () => {
 			x: 0,
 			y: 1,
 			glossary_entry_id: null,
+			symbol_id: null,
+			symbol_meaning_id: null,
 			text: 'A lily',
 			view_width: null
 		});
@@ -161,6 +165,8 @@ describe('pin data', () => {
 			x: 0.5,
 			y: 0.4,
 			glossary_entry_id: null,
+			symbol_id: null,
+			symbol_meaning_id: null,
 			text: null,
 			view_width: 0.1
 		});
@@ -214,6 +220,8 @@ describe('pin data', () => {
 			x: 0.3,
 			y: 0.4,
 			glossary_entry_id: 'term-1',
+			symbol_id: null,
+			symbol_meaning_id: null,
 			text: 'Lily',
 			view_width: null
 		});
@@ -303,5 +311,47 @@ describe('pin data', () => {
 			fragments: [],
 			error: m.common.network
 		});
+	});
+});
+
+describe('pins with a symbol', () => {
+	it('keeps the symbol and its meaning, and drops the meaning without a symbol', async () => {
+		query.single.mockResolvedValue({
+			data: { ...row, symbol_id: 'symbol-1', symbol_meaning_id: 'meaning-1' },
+			error: null
+		});
+
+		const created = await createPin('image-1', {
+			x: 0.25,
+			y: 0.5,
+			glossaryEntryId: null,
+			symbolId: 'symbol-1',
+			symbolMeaningId: 'meaning-1',
+			text: ''
+		});
+		await createPin('image-1', {
+			x: 0.25,
+			y: 0.5,
+			glossaryEntryId: 'term-1',
+			symbolId: null,
+			symbolMeaningId: 'meaning-1',
+			text: ''
+		});
+
+		expect(created.pin).toMatchObject({ symbolId: 'symbol-1', symbolMeaningId: 'meaning-1' });
+		expect(query.insert).toHaveBeenNthCalledWith(
+			1,
+			expect.objectContaining({ symbol_id: 'symbol-1', symbol_meaning_id: 'meaning-1' })
+		);
+		expect(query.insert).toHaveBeenNthCalledWith(
+			2,
+			expect.objectContaining({ symbol_id: null, symbol_meaning_id: null })
+		);
+	});
+
+	it('accepts a pin that has only a symbol', () => {
+		expect(
+			pinDraftError({ x: 0, y: 0, glossaryEntryId: null, symbolId: 'symbol-1', text: '' })
+		).toBeUndefined();
 	});
 });

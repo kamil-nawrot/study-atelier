@@ -257,6 +257,7 @@
 				authors: form.authorUnknown ? [] : form.values.author
 			}}
 			searchReady={imageSearchReady}
+			symbols={suggestions.symbols}
 			texts={imageTexts}
 			bind:image={form.image}
 			bind:images={form.images}

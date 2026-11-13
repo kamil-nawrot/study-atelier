@@ -41,6 +41,12 @@ vi.mock('#lib/review/review-data/review-data.ts', () => ({
 	recordReview: vi.fn(),
 	withPinPreviews: async (items: unknown) => items
 }));
+vi.mock('#lib/symbols/symbol-questions-data/symbol-questions-data.ts', () => ({
+	loadSymbolQuestionPins: vi.fn().mockResolvedValue({ pins: [] })
+}));
+vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({
+	loadSymbolOptions: vi.fn().mockResolvedValue({ symbols: [] })
+}));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));

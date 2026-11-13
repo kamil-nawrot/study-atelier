@@ -32,6 +32,14 @@ describe('PinCard', () => {
 		await expect.element(page.getByText('Rose window is a test definition.')).toBeVisible();
 	});
 
+	it('links the symbol of the pin to its page', async () => {
+		render(PinCard, { pin: { ...PIN, symbolId: 'keys' }, symbol: { id: 'keys', name: 'Keys' } });
+
+		await expect
+			.element(page.getByRole('link', { name: 'Keys' }))
+			.toHaveAttribute('href', '/atelier/glossary/symbols/keys');
+	});
+
 	it('shows only the text of a pin without a term', async () => {
 		render(PinCard, { pin: PIN });
 

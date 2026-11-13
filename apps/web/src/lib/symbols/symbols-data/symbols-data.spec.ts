@@ -6,6 +6,7 @@ import {
 	deleteSymbol,
 	loadSymbol,
 	loadSymbolAtlas,
+	loadSymbolOptions,
 	loadSymbolPins,
 	saveSymbol,
 	searchArtworkContexts
@@ -279,5 +280,55 @@ describe('symbols data', () => {
 
 		query.abortSignal.mockResolvedValue({ data: null, error: { message: 'x' } });
 		await expect(searchArtworkContexts('amba', new AbortController().signal)).resolves.toEqual([]);
+	});
+
+	it('lists the symbols with their meanings in order for the pin dialog', async () => {
+		chain({
+			data: [
+				{
+					id: 'keys',
+					name: 'Keys',
+					symbol_meanings: [
+						{ id: 'm2', position: 1, text: 'Heaven' },
+						{ id: 'm1', position: 0, text: 'Power of the Church' }
+					]
+				}
+			],
+			error: null
+		});
+		query.order.mockReset().mockResolvedValue({
+			data: [
+				{
+					id: 'keys',
+					name: 'Keys',
+					symbol_meanings: [
+						{ id: 'm2', position: 1, text: 'Heaven' },
+						{ id: 'm1', position: 0, text: 'Power of the Church' }
+					]
+				}
+			],
+			error: null
+		});
+
+		await expect(loadSymbolOptions()).resolves.toEqual({
+			symbols: [
+				{
+					id: 'keys',
+					name: 'Keys',
+					meanings: [
+						{ id: 'm1', text: 'Power of the Church' },
+						{ id: 'm2', text: 'Heaven' }
+					]
+				}
+			]
+		});
+	});
+
+	it('says so when the symbol options cannot be loaded', async () => {
+		query.order
+			.mockReset()
+			.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } });
+
+		await expect(loadSymbolOptions()).resolves.toEqual({ symbols: [], error: m.common.network });
 	});
 });

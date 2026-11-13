@@ -63,6 +63,8 @@ describe('PinDialog', () => {
 			x: 0.25,
 			y: 0.75,
 			glossaryEntryId: null,
+			symbolId: null,
+			symbolMeaningId: null,
 			text: 'A detail'
 		});
 		await vi.waitFor(() => expect(onsaved).toHaveBeenCalledWith(SAVED));
@@ -75,7 +77,7 @@ describe('PinDialog', () => {
 
 		await expect
 			.element(page.getByRole('alert'))
-			.toHaveTextContent('Wybierz pojęcie albo wpisz opis.');
+			.toHaveTextContent('Wybierz pojęcie lub symbol albo wpisz opis.');
 		expect(createPin).not.toHaveBeenCalled();
 	});
 
@@ -90,6 +92,8 @@ describe('PinDialog', () => {
 			x: 0.25,
 			y: 0.75,
 			glossaryEntryId: null,
+			symbolId: null,
+			symbolMeaningId: null,
 			text: 'Changed'
 		});
 		await vi.waitFor(() => expect(onsaved).toHaveBeenCalled());
@@ -139,6 +143,8 @@ describe('PinDialog', () => {
 			x: 0.25,
 			y: 0.75,
 			glossaryEntryId: null,
+			symbolId: null,
+			symbolMeaningId: null,
 			text: '',
 			viewWidth: 0.1
 		});
@@ -160,7 +166,46 @@ describe('PinDialog', () => {
 			x: 0.25,
 			y: 0.75,
 			glossaryEntryId: null,
+			symbolId: null,
+			symbolMeaningId: null,
 			text: 'A detail'
 		});
+	});
+
+	it('saves the symbol and the meaning picked for it', async () => {
+		vi.mocked(createPin).mockResolvedValue({ pin: SAVED });
+		open({
+			symbols: [
+				{
+					id: 'symbol-1',
+					name: 'Keys',
+					meanings: [
+						{ id: 'meaning-1', text: 'Power of the Church' },
+						{ id: 'meaning-2', text: 'Heaven' }
+					]
+				}
+			]
+		});
+
+		await userEvent.click(page.getByRole('combobox', { name: 'Symbol' }));
+		await page.getByRole('option', { name: 'Keys' }).click();
+		await page.getByLabelText('Znaczenie na tym dziele').selectOptions('meaning-2');
+		await page.getByRole('button', { name: 'Zapisz' }).click();
+
+		expect(createPin).toHaveBeenCalledWith(
+			'image-1',
+			expect.objectContaining({ symbolId: 'symbol-1', symbolMeaningId: 'meaning-2' })
+		);
+	});
+
+	it('offers no meaning for a symbol with a single one', async () => {
+		open({
+			symbols: [{ id: 'symbol-1', name: 'Keys', meanings: [{ id: 'meaning-1', text: 'Heaven' }] }]
+		});
+
+		await userEvent.click(page.getByRole('combobox', { name: 'Symbol' }));
+		await page.getByRole('option', { name: 'Keys' }).click();
+
+		expect(page.getByLabelText('Znaczenie na tym dziele').elements()).toHaveLength(0);
 	});
 });

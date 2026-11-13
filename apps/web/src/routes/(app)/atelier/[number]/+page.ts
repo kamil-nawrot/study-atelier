@@ -11,6 +11,7 @@ import { loadNoteLinkLabels, mentionsLinks } from '#lib/notes/note-link-data/not
 import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
+import { loadSymbolOptions } from '#lib/symbols/symbols-data/symbols-data.ts';
 import { loadArtworkPins } from '#lib/pins/pin-data/pin-data.ts';
 import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
 import type { PageLoad } from './$types';
@@ -26,6 +27,7 @@ export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadA
 		layout,
 		loadedPins,
 		loadedGlossary,
+		loadedSymbols,
 		seen,
 		atelierCount
 	] = await Promise.all([
@@ -49,6 +51,7 @@ export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadA
 		untrack(() => parent()),
 		loadArtworkPins(number),
 		loadTermIndex(),
+		loadSymbolOptions(),
 		loadArtworkVisits(number),
 		countArtworks()
 	]);
@@ -66,6 +69,7 @@ export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadA
 		exhibitionCovers: shown.covers,
 		summaries,
 		glossary,
+		symbols: result.artwork ? loadedSymbols.symbols : undefined,
 		pins,
 		pinsError,
 		ownFields,
