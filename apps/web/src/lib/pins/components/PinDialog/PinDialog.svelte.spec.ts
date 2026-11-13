@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import { m } from '#lib/i18n/i18n.ts';
 import { testEntry } from '#lib/testing/glossary/glossary.ts';
 import { createPin, deletePin, updatePin } from '#lib/pins/pin-data/pin-data.ts';
 import type { Pin } from '#lib/pins/types/pin.ts';
@@ -56,7 +57,7 @@ describe('PinDialog', () => {
 		vi.mocked(createPin).mockResolvedValue({ pin: SAVED });
 		const { onsaved } = open();
 
-		await userEvent.fill(page.getByLabelText('Opis (opcjonalnie)'), 'A detail');
+		await userEvent.fill(page.getByLabelText('Opis'), 'A detail');
 		await page.getByRole('button', { name: 'Zapisz' }).click();
 
 		expect(createPin).toHaveBeenCalledWith('image-1', {
@@ -85,7 +86,7 @@ describe('PinDialog', () => {
 		vi.mocked(updatePin).mockResolvedValue({ pin: { ...SAVED, text: 'Changed' } });
 		const { onsaved } = open({ pin: SAVED });
 
-		await userEvent.fill(page.getByLabelText('Opis (opcjonalnie)'), 'Changed');
+		await userEvent.fill(page.getByLabelText('Opis'), 'Changed');
 		await page.getByRole('button', { name: 'Zapisz' }).click();
 
 		expect(updatePin).toHaveBeenCalledWith('pin-1', {
@@ -103,7 +104,7 @@ describe('PinDialog', () => {
 		vi.mocked(createPin).mockResolvedValue({ error: 'Nie udało się połączyć z serwerem.' });
 		const { onsaved } = open();
 
-		await userEvent.fill(page.getByLabelText('Opis (opcjonalnie)'), 'A detail');
+		await userEvent.fill(page.getByLabelText('Opis'), 'A detail');
 		await page.getByRole('button', { name: 'Zapisz' }).click();
 
 		await expect
@@ -207,5 +208,33 @@ describe('PinDialog', () => {
 		await page.getByRole('option', { name: 'Keys' }).click();
 
 		expect(page.getByLabelText('Znaczenie na tym dziele').elements()).toHaveLength(0);
+	});
+
+	it('creates a symbol from the symbol field and points the pin at it', async () => {
+		vi.mocked(createPin).mockResolvedValue({ pin: SAVED });
+		const oncreatesymbol = vi
+			.fn()
+			.mockResolvedValue({ symbol: { id: 'symbol-new', name: 'Anchor', meanings: [] } });
+		open({ oncreatesymbol, symbols: [] });
+
+		await userEvent.fill(page.getByRole('combobox', { name: 'Symbol' }), 'Anchor');
+		await page.getByRole('option', { name: m.symbols.pin.create('Anchor') }).click();
+		await page.getByRole('button', { name: 'Zapisz' }).click();
+
+		expect(oncreatesymbol).toHaveBeenCalledWith('Anchor');
+		expect(createPin).toHaveBeenCalledWith(
+			'image-1',
+			expect.objectContaining({ symbolId: 'symbol-new' })
+		);
+	});
+
+	it('shows why a symbol could not be created', async () => {
+		const oncreatesymbol = vi.fn().mockResolvedValue({ error: 'Offline.' });
+		open({ oncreatesymbol, symbols: [] });
+
+		await userEvent.fill(page.getByRole('combobox', { name: 'Symbol' }), 'Anchor');
+		await page.getByRole('option', { name: m.symbols.pin.create('Anchor') }).click();
+
+		await expect.element(page.getByText('Offline.')).toBeVisible();
 	});
 });

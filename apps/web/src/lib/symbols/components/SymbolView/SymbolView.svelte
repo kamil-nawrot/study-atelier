@@ -1,7 +1,21 @@
 <script lang="ts">
-	import { Alert } from '@study-atelier/ui';
+	import { Alert, TextButton, Toast } from '@study-atelier/ui';
+	import Plus from '@lucide/svelte/icons/plus';
+	import { invalidateAll } from '$app/navigation';
 	import { m } from '#lib/i18n/i18n.ts';
-	import { setSymbolCover } from '#lib/symbols/symbols-data/symbols-data.ts';
+	import { loadSymbolForm } from '#lib/symbols/symbol-page-data/symbol-page-data.ts';
+	import {
+		canAddMeaning,
+		withMeaning,
+		withMovedMeaning,
+		withoutMeaning
+	} from '#lib/symbols/meaning-edits/meaning-edits.ts';
+	import { saveSymbol, setSymbolCover } from '#lib/symbols/symbols-data/symbols-data.ts';
+	import MeaningDeleteDialog from '#lib/symbols/components/MeaningDeleteDialog/MeaningDeleteDialog.svelte';
+	import MeaningDialog from '#lib/symbols/components/MeaningDialog/MeaningDialog.svelte';
+	import type { SymbolContext } from '#lib/symbols/types/symbol-context.ts';
+	import type { SymbolDraft } from '#lib/symbols/types/symbol-draft.ts';
+	import type { SymbolMeaning } from '#lib/symbols/types/symbol-meaning.ts';
 	import SymbolDetails from '#lib/symbols/components/SymbolDetails/SymbolDetails.svelte';
 	import SymbolMeaningSection from '#lib/symbols/components/SymbolMeaningSection/SymbolMeaningSection.svelte';
 	import SymbolTimeline from '#lib/symbols/components/SymbolTimeline/SymbolTimeline.svelte';
@@ -15,15 +29,71 @@
 
 	let { symbol, page }: Props = $props();
 
+	let toast: Toast;
 	let chosen = $state<{ pinId: string | null }>();
 	let coverError = $state<string>();
 	const coverPinId = $derived(chosen ? (chosen.pinId ?? undefined) : symbol.coverPinId);
+
+	let dialogOpen = $state(false);
+	let removeOpen = $state(false);
+	let editing = $state<SymbolMeaning>();
+	let candidates = $state<readonly SymbolContext[]>([]);
+	let dialogError = $state<string>();
+	let busy = $state(false);
+
+	async function openDialog(meaning?: SymbolMeaning): Promise<void> {
+		editing = meaning;
+		dialogError = undefined;
+		dialogOpen = true;
+		if (candidates.length === 0) candidates = (await loadSymbolForm()).candidates;
+	}
+
+	async function store(draft: SymbolDraft, message?: string): Promise<boolean> {
+		busy = true;
+		const result = await saveSymbol(draft, symbol.id);
+		busy = false;
+		if (result.nameTaken || result.error || !result.id) {
+			dialogError = result.error ?? m.common.unexpectedError;
+			return false;
+		}
+		await invalidateAll();
+		if (message) toast.show(message);
+		return true;
+	}
+
+	async function saveMeaning(meaning: { text: string; contexts: SymbolContext[] }): Promise<void> {
+		if (await store(withMeaning(symbol, meaning, editing?.id), m.symbols.meaningDialog.saved)) {
+			dialogOpen = false;
+		}
+	}
+
+	async function removeMeaning(): Promise<void> {
+		if (!editing) return;
+		if (await store(withoutMeaning(symbol, editing.id), m.symbols.meaningDialog.removed)) {
+			removeOpen = false;
+			dialogOpen = false;
+		}
+	}
+
+	async function moveMeaning(id: string, step: -1 | 1): Promise<void> {
+		await store(withMovedMeaning(symbol, id, step));
+		if (dialogError) coverError = dialogError;
+	}
+
+	function askRemove(meaning: SymbolMeaning): void {
+		editing = meaning;
+		dialogError = undefined;
+		removeOpen = true;
+	}
 
 	async function setCover(pinId: string | null): Promise<void> {
 		coverError = undefined;
 		const { error } = await setSymbolCover(symbol.id, pinId);
 		if (error) coverError = error;
-		else chosen = { pinId };
+		else {
+			chosen = { pinId };
+			toast.show(m.symbols.view.mainDetailSaved);
+		}
 	}
 </script>
 
@@ -43,12 +113,30 @@
 {#each page.sections as section, index (section.meaning.id)}
 	<SymbolMeaningSection
 		{coverPinId}
+		first={index === 0}
+		last={index === page.sections.length - 1}
 		number={index + 1}
+		onedit={() => openDialog(section.meaning)}
+		onmove={(step) => moveMeaning(section.meaning.id, step)}
+		onremove={() => askRemove(section.meaning)}
 		onsetcover={setCover}
 		pinsShown={!page.detailsError}
 		{section}
 	/>
 {/each}
+
+{#if page.sections.length === 0 && !page.detailsError}
+	<p class="empty">{m.symbols.meaningDialog.noMeanings}</p>
+{/if}
+
+{#if canAddMeaning(symbol)}
+	<div class="add">
+		<TextButton inline onclick={() => openDialog()}>
+			<Plus size="14" />
+			{m.symbols.meaningDialog.add}
+		</TextButton>
+	</div>
+{/if}
 
 {#if page.withoutMeaning.length > 0}
 	<section class="rest" aria-labelledby="without-meaning">
@@ -58,6 +146,25 @@
 {/if}
 
 <SymbolTimeline details={page.details} />
+
+<MeaningDialog
+	{busy}
+	{candidates}
+	error={removeOpen ? undefined : dialogError}
+	meaning={editing}
+	onremove={editing ? () => askRemove(editing as SymbolMeaning) : undefined}
+	onsave={saveMeaning}
+	bind:open={dialogOpen}
+/>
+
+<MeaningDeleteDialog
+	{busy}
+	error={removeOpen ? dialogError : undefined}
+	onconfirm={removeMeaning}
+	bind:open={removeOpen}
+/>
+
+<Toast bind:this={toast} />
 
 <style>
 	.head {
@@ -80,6 +187,16 @@
 		font-style: italic;
 		font-weight: var(--font-weight-regular);
 		line-height: var(--line-height-3xl);
+	}
+
+	.empty {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
+	}
+
+	.add {
+		display: flex;
+		padding: var(--spacing-4) 0;
 	}
 
 	.rest {

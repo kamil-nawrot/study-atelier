@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Star from '@lucide/svelte/icons/star';
-	import { Icon, TextButton } from '@study-atelier/ui';
+	import { Icon } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
 	import DetailLens from '#lib/pins/components/DetailLens/DetailLens.svelte';
@@ -36,15 +36,19 @@
 					<span class="byline">{detail.byline}</span>
 				</a>
 				{#if onsetcover && detail.lens}
-					{#if detail.pinId === coverPinId}
-						<TextButton inline onclick={() => onsetcover(null)}>
-							<span class="star"><Icon icon={Star} size="sm" /></span>{m.symbols.view.mainDetail}
-						</TextButton>
-					{:else}
-						<TextButton inline onclick={() => onsetcover(detail.pinId)}>
-							<span class="star"><Icon icon={Star} size="sm" /></span>{m.symbols.view.setMainDetail}
-						</TextButton>
-					{/if}
+					{@const main = detail.pinId === coverPinId}
+					<button
+						class="star"
+						class:main
+						aria-label={main ? m.symbols.view.mainDetail : m.symbols.view.setMainDetail}
+						aria-pressed={main}
+						onclick={() => {
+							if (!main) onsetcover(detail.pinId);
+						}}
+						type="button"
+					>
+						<Icon icon={Star} size="sm" />
+					</button>
 				{/if}
 			</li>
 		{/each}
@@ -57,6 +61,7 @@
 	}
 
 	li {
+		position: relative;
 		display: grid;
 		justify-items: center;
 		align-content: start;
@@ -64,7 +69,34 @@
 	}
 
 	.star {
+		position: absolute;
+		top: calc(var(--detail-lens) - var(--spacing-8));
+		left: 50%;
 		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: var(--spacing-8);
+		height: var(--spacing-8);
+		padding: 0;
+		border: var(--border-width-hairline) solid var(--color-line);
+		background: var(--color-bg);
+		color: var(--color-fg-muted);
+		cursor: pointer;
+		transform: translateX(-50%);
+	}
+
+	.star:hover,
+	.star:focus-visible,
+	.star.main {
+		color: var(--color-fg);
+	}
+
+	.star.main {
+		cursor: default;
+	}
+
+	.star.main :global(svg) {
+		fill: var(--color-fg);
 	}
 
 	li.plain {

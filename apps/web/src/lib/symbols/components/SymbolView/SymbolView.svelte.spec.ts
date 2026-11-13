@@ -5,12 +5,26 @@ import { m } from '#lib/i18n/i18n.ts';
 import { testSymbol, testSymbolPage } from '#lib/testing/symbols/symbols.ts';
 import SymbolView from './SymbolView.svelte';
 
-const { setSymbolCover } = vi.hoisted(() => ({ setSymbolCover: vi.fn() }));
+const { setSymbolCover, saveSymbol, invalidateAll, loadSymbolForm } = vi.hoisted(() => ({
+	setSymbolCover: vi.fn(),
+	saveSymbol: vi.fn(),
+	invalidateAll: vi.fn(),
+	loadSymbolForm: vi.fn()
+}));
 
-vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({ setSymbolCover }));
+vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({
+	setSymbolCover,
+	saveSymbol,
+	searchArtworkContexts: vi.fn().mockResolvedValue([])
+}));
+vi.mock('$app/navigation', () => ({ invalidateAll }));
+vi.mock('#lib/symbols/symbol-page-data/symbol-page-data.ts', () => ({ loadSymbolForm }));
 
 beforeEach(() => {
 	setSymbolCover.mockReset().mockResolvedValue({});
+	saveSymbol.mockReset().mockResolvedValue({ id: 'skull' });
+	invalidateAll.mockReset().mockResolvedValue(undefined);
+	loadSymbolForm.mockReset().mockResolvedValue({ candidates: [] });
 });
 
 describe('SymbolView', () => {
@@ -18,7 +32,7 @@ describe('SymbolView', () => {
 		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
 
 		await expect.element(page.getByRole('heading', { level: 1, name: 'Skull' })).toBeVisible();
-		await expect.element(page.getByText(m.symbols.view.overline)).toBeVisible();
+		await expect.element(page.getByText(m.symbols.view.overline, { exact: true })).toBeVisible();
 		await expect.element(page.getByRole('heading', { name: '1 transience, death' })).toBeVisible();
 		await expect.element(page.getByRole('heading', { name: '2 penance' })).toBeVisible();
 		await expect
@@ -39,14 +53,15 @@ describe('SymbolView', () => {
 			.not.toBeInTheDocument();
 	});
 
-	it('marks a detail as the main one and takes the mark off again', async () => {
+	it('marks a detail as the main one with a toast and leaves the mark alone on a second click', async () => {
 		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
 
 		await page.getByRole('button', { name: m.symbols.view.setMainDetail }).first().click();
 
 		expect(setSymbolCover).toHaveBeenCalledWith('skull', expect.any(String));
+		await expect.element(page.getByText(m.symbols.view.mainDetailSaved)).toBeVisible();
 		await page.getByRole('button', { name: m.symbols.view.mainDetail }).click();
-		expect(setSymbolCover).toHaveBeenLastCalledWith('skull', null);
+		expect(setSymbolCover).toHaveBeenCalledTimes(1);
 	});
 
 	it('says when the main detail could not be saved', async () => {
@@ -59,5 +74,102 @@ describe('SymbolView', () => {
 		await expect
 			.element(page.getByRole('button', { name: m.symbols.view.mainDetail }))
 			.not.toBeInTheDocument();
+	});
+
+	it('adds a meaning from a dialog and says it was saved', async () => {
+		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
+
+		await page.getByRole('button', { name: m.symbols.meaningDialog.add }).click();
+		await page.getByRole('textbox', { name: m.symbols.form.meaning }).fill('danger');
+		await page.getByRole('button', { name: m.common.save }).click();
+
+		expect(saveSymbol).toHaveBeenCalledWith(
+			{
+				name: 'Skull',
+				meanings: [
+					expect.objectContaining({ id: 'transience' }),
+					expect.objectContaining({ id: 'penance' }),
+					expect.objectContaining({ text: 'danger', contexts: [] })
+				]
+			},
+			'skull'
+		);
+		expect(invalidateAll).toHaveBeenCalled();
+		await expect.element(page.getByText(m.symbols.meaningDialog.saved)).toBeVisible();
+	});
+
+	it('asks for the text of a new meaning', async () => {
+		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
+
+		await page.getByRole('button', { name: m.symbols.meaningDialog.add }).click();
+		await page.getByRole('button', { name: m.common.save }).click();
+
+		await expect.element(page.getByText(m.symbols.form.meaningRequired)).toBeVisible();
+		expect(saveSymbol).not.toHaveBeenCalled();
+	});
+
+	it('edits a meaning from its menu', async () => {
+		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
+
+		await page.getByRole('button', { name: m.symbols.meaningDialog.actions }).nth(1).click();
+		await page.getByRole('button', { name: m.symbols.meaningDialog.edit }).click();
+		const field = page.getByRole('textbox', { name: m.symbols.form.meaning });
+		await expect.element(field).toHaveValue('penance');
+		await field.fill('repentance');
+		await page.getByRole('button', { name: m.common.save }).click();
+
+		expect(saveSymbol).toHaveBeenCalledWith(
+			expect.objectContaining({
+				meanings: [
+					expect.objectContaining({ id: 'transience' }),
+					expect.objectContaining({ id: 'penance', text: 'repentance' })
+				]
+			}),
+			'skull'
+		);
+	});
+
+	it('moves a meaning up from its menu', async () => {
+		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
+
+		await page.getByRole('button', { name: m.symbols.meaningDialog.actions }).nth(1).click();
+		await page.getByRole('button', { name: m.symbols.meaningDialog.moveUp }).click();
+
+		expect(saveSymbol).toHaveBeenCalledWith(
+			expect.objectContaining({
+				meanings: [
+					expect.objectContaining({ id: 'penance' }),
+					expect.objectContaining({ id: 'transience' })
+				]
+			}),
+			'skull'
+		);
+	});
+
+	it('removes a meaning after a confirmation', async () => {
+		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
+
+		await page.getByRole('button', { name: m.symbols.meaningDialog.actions }).first().click();
+		await page.getByRole('button', { name: m.symbols.meaningDialog.remove }).click();
+		await expect.element(page.getByText(m.symbols.meaningDialog.removeTitle)).toBeVisible();
+		await page.getByRole('button', { name: m.common.delete }).click();
+
+		expect(saveSymbol).toHaveBeenCalledWith(
+			expect.objectContaining({ meanings: [expect.objectContaining({ id: 'penance' })] }),
+			'skull'
+		);
+		await expect.element(page.getByText(m.symbols.meaningDialog.removed)).toBeVisible();
+	});
+
+	it('says why a meaning could not be saved and keeps the dialog open', async () => {
+		saveSymbol.mockResolvedValue({ error: 'Offline.' });
+		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
+
+		await page.getByRole('button', { name: m.symbols.meaningDialog.add }).click();
+		await page.getByRole('textbox', { name: m.symbols.form.meaning }).fill('danger');
+		await page.getByRole('button', { name: m.common.save }).click();
+
+		await expect.element(page.getByText('Offline.')).toBeVisible();
+		expect(invalidateAll).not.toHaveBeenCalled();
 	});
 });

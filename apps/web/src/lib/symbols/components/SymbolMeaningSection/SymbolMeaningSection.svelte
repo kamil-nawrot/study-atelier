@@ -1,4 +1,10 @@
 <script lang="ts">
+	import ArrowDown from '@lucide/svelte/icons/arrow-down';
+	import ArrowUp from '@lucide/svelte/icons/arrow-up';
+	import Ellipsis from '@lucide/svelte/icons/ellipsis';
+	import Pencil from '@lucide/svelte/icons/pencil';
+	import Trash from '@lucide/svelte/icons/trash-2';
+	import { Icon, PopupButton } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ContextTags from '#lib/symbols/components/ContextTags/ContextTags.svelte';
 	import SymbolDetails from '#lib/symbols/components/SymbolDetails/SymbolDetails.svelte';
@@ -10,16 +16,78 @@
 		pinsShown: boolean;
 		coverPinId?: string;
 		onsetcover?: (pinId: string | null) => void;
+		first?: boolean;
+		last?: boolean;
+		onedit?: () => void;
+		onremove?: () => void;
+		onmove?: (step: -1 | 1) => void;
 	};
 
-	let { section, number, pinsShown, coverPinId, onsetcover }: Props = $props();
+	let {
+		section,
+		number,
+		pinsShown,
+		coverPinId,
+		onsetcover,
+		first = false,
+		last = false,
+		onedit,
+		onremove,
+		onmove
+	}: Props = $props();
+
+	let popup: ReturnType<typeof PopupButton> | undefined = $state();
+
+	function run(action: () => void): void {
+		popup?.close();
+		action();
+	}
 </script>
 
 <section class="meaning" aria-labelledby="meaning-{section.meaning.id}">
-	<h2 id="meaning-{section.meaning.id}">
-		<span class="number">{number}</span>
-		<span class="text">{section.meaning.text}</span>
-	</h2>
+	<div class="head">
+		<h2 id="meaning-{section.meaning.id}">
+			<span class="number">{number}</span>
+			<span class="text">{section.meaning.text}</span>
+		</h2>
+		{#if onedit && onremove && onmove}
+			<PopupButton bind:this={popup} align="end" bare label={m.symbols.meaningDialog.actions}>
+				{#snippet trigger()}
+					<span class="more"><Icon icon={Ellipsis} /></span>
+				{/snippet}
+				<ul class="actions">
+					<li>
+						<button class="action" onclick={() => run(onedit)} type="button">
+							<Icon icon={Pencil} size="sm" />
+							{m.symbols.meaningDialog.edit}
+						</button>
+					</li>
+					{#if !first}
+						<li>
+							<button class="action" onclick={() => run(() => onmove(-1))} type="button">
+								<Icon icon={ArrowUp} size="sm" />
+								{m.symbols.meaningDialog.moveUp}
+							</button>
+						</li>
+					{/if}
+					{#if !last}
+						<li>
+							<button class="action" onclick={() => run(() => onmove(1))} type="button">
+								<Icon icon={ArrowDown} size="sm" />
+								{m.symbols.meaningDialog.moveDown}
+							</button>
+						</li>
+					{/if}
+					<li>
+						<button class="action danger" onclick={() => run(onremove)} type="button">
+							<Icon icon={Trash} size="sm" />
+							{m.symbols.meaningDialog.remove}
+						</button>
+					</li>
+				</ul>
+			</PopupButton>
+		{/if}
+	</div>
 	<div class="body">
 		<div class="about">
 			<ContextTags contexts={section.meaning.contexts} />
@@ -42,7 +110,53 @@
 		border-top: var(--border-width-hairline) solid var(--color-line);
 	}
 
+	.head {
+		position: relative;
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--spacing-3);
+	}
+
+	.more {
+		display: flex;
+		padding: var(--spacing-2);
+		color: var(--color-fg-muted);
+	}
+
+	.more:hover {
+		color: var(--color-fg);
+	}
+
+	.actions {
+		display: grid;
+		min-width: calc(5 * var(--size-control));
+		margin: 0;
+		list-style: none;
+	}
+
+	.action {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-3);
+		width: 100%;
+		min-height: var(--size-control);
+		padding: var(--spacing-3) var(--spacing-2);
+		border: none;
+		background: none;
+		color: var(--color-fg);
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.action.danger {
+		color: var(--color-danger);
+	}
+
 	h2 {
+		flex: 1;
+		min-width: 0;
 		display: grid;
 		grid-template-columns: var(--meaning-number) minmax(0, 1fr);
 		align-items: baseline;

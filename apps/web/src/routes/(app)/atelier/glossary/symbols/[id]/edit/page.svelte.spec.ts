@@ -25,16 +25,13 @@ describe('edit symbol page', () => {
 		await page.viewport(1280, 800);
 	});
 
-	it('fills the form with the saved meanings and leads back to the symbol', async () => {
+	it('fills the form with the saved name and leads back to the symbol', async () => {
 		render(EditSymbolPage, {
 			data: { session: testSession(), symbol: testSymbol, candidates: [] },
 			params: { id: 'skull' }
 		});
 
 		await expect.element(page.getByLabelText(m.common.name)).toHaveValue('Skull');
-		await expect
-			.element(page.getByRole('textbox', { name: m.symbols.form.meaning }).first())
-			.toHaveValue('transience, death');
 		await expect
 			.element(page.getByRole('link', { name: m.common.cancel }))
 			.toHaveAttribute('href', '/atelier/glossary/symbols/skull');

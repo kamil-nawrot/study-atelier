@@ -3,6 +3,7 @@ import { ownImageUrls } from '#lib/images/own-image-data/own-image-data.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
+	createSymbolOption,
 	deleteSymbol,
 	loadSymbol,
 	loadSymbolAtlas,
@@ -257,6 +258,31 @@ describe('symbols data', () => {
 
 		await expect(deleteSymbol(SKULL)).resolves.toEqual({});
 		expect(query.delete).toHaveBeenCalled();
+	});
+
+	it('creates a symbol with a name only for the pin dialog', async () => {
+		vi.mocked(supabase.rpc).mockResolvedValue({ data: 'new-id', error: null } as never);
+
+		await expect(createSymbolOption(' Keys ')).resolves.toEqual({
+			symbol: { id: 'new-id', name: 'Keys', meanings: [] }
+		});
+		expect(supabase.rpc).toHaveBeenLastCalledWith('save_symbol', {
+			new_name: 'Keys',
+			new_meanings: []
+		});
+	});
+
+	it('says when a symbol of that name exists or could not be created', async () => {
+		vi.mocked(supabase.rpc).mockResolvedValue({ data: null, error: { code: '23505' } } as never);
+		await expect(createSymbolOption('Keys')).resolves.toEqual({
+			error: m.symbols.form.nameTaken('Keys')
+		});
+
+		vi.mocked(supabase.rpc).mockResolvedValue({
+			data: null,
+			error: { message: 'Failed to fetch' }
+		} as never);
+		await expect(createSymbolOption('Keys')).resolves.toEqual({ error: m.common.network });
 	});
 
 	it('sets and clears the main detail of a symbol', async () => {

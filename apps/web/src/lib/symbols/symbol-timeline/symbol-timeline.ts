@@ -4,7 +4,7 @@ export type PlacedDetail = { detail: SymbolDetail; left: number };
 
 export type SymbolTimeline = {
 	ticks: { year: number; left: number }[];
-	breaks: number[];
+	segments: { from: number; to: number }[];
 	placed: PlacedDetail[];
 };
 
@@ -12,7 +12,7 @@ type Cluster = { from: number; to: number; years: number[] };
 
 const CENTURY = 100;
 const GAP = 500;
-const BREAK_WIDTH = 200;
+const BREAK_WIDTH = 300;
 const MAX_TICKS = 12;
 const TICK_STEPS = [CENTURY, 500, 1000, 5000, 10000, 50000, 100000];
 
@@ -48,7 +48,7 @@ export function symbolTimeline(details: readonly SymbolDetail[]): SymbolTimeline
 		parts.reduce((sum, cluster) => sum + (cluster.to - cluster.from), 0) +
 		BREAK_WIDTH * (parts.length - 1);
 	const ticks: SymbolTimeline['ticks'] = [];
-	const breaks: number[] = [];
+	const segments: SymbolTimeline['segments'] = [];
 	const lefts = new Map<number, number>();
 	let offset = 0;
 	for (const [index, cluster] of parts.entries()) {
@@ -58,15 +58,13 @@ export function symbolTimeline(details: readonly SymbolDetail[]): SymbolTimeline
 			ticks.push({ year, left: unit(year) });
 		if (cluster.to % step !== 0) ticks.push({ year: cluster.to, left: unit(cluster.to) });
 		for (const year of cluster.years) lefts.set(year, unit(year));
+		segments.push({ from: unit(cluster.from), to: unit(cluster.to) });
 		offset += cluster.to - cluster.from;
-		if (index < parts.length - 1) {
-			breaks.push((100 * (offset + BREAK_WIDTH / 2)) / total);
-			offset += BREAK_WIDTH;
-		}
+		if (index < parts.length - 1) offset += BREAK_WIDTH;
 	}
 	return {
 		ticks,
-		breaks,
+		segments,
 		placed: [...dated]
 			.sort((a, b) => a.year - b.year)
 			.map((detail) => ({ detail, left: lefts.get(detail.year) ?? 0 }))

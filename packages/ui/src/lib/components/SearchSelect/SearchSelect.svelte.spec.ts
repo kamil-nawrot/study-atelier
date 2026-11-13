@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { defaultUiMessages } from '../../messages/messages';
@@ -84,6 +84,34 @@ describe('SearchSelect', () => {
 });
 
 describe('searchKey', () => {
+	it('offers to create an option from a name that is not on the list', async () => {
+		const onselect = vi.fn();
+		render(SearchSelect, {
+			label: 'Kraj',
+			options,
+			create: { label: (name: string) => `Dodaj ${name}`, onselect }
+		});
+
+		await userEvent.fill(field(), 'Hiszpania');
+		await page.getByRole('option', { name: 'Dodaj Hiszpania' }).click();
+
+		expect(onselect).toHaveBeenCalledWith('Hiszpania');
+		await expect.element(field()).toHaveValue('');
+	});
+
+	it('does not offer to create a name that is already on the list', async () => {
+		render(SearchSelect, {
+			label: 'Kraj',
+			options,
+			create: { label: (name: string) => `Dodaj ${name}`, onselect: vi.fn() }
+		});
+
+		await userEvent.fill(field(), 'polska');
+
+		await expect.element(page.getByRole('option', { name: 'Polska' })).toBeVisible();
+		await expect.element(page.getByRole('option', { name: /^Dodaj/ })).not.toBeInTheDocument();
+	});
+
 	it('ignores case and Polish diacritics', () => {
 		expect(searchKey(' Łódź ')).toBe('lodz');
 		expect(searchKey('Włochy')).toBe(searchKey('wlochy'));

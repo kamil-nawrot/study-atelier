@@ -24,8 +24,13 @@
 						<span class="year">{tick.year}</span>
 					</li>
 				{/each}
-				{#each timeline.breaks as left (left)}
-					<li style:left="{left}%" class="break" aria-hidden="true"></li>
+				{#each timeline.segments as segment (segment.from)}
+					<li
+						style:left="{segment.from}%"
+						style:width="{segment.to - segment.from}%"
+						class="segment"
+						aria-hidden="true"
+					></li>
 				{/each}
 				{#each timeline.placed as { detail, left } (detail.pinId)}
 					<li style:left="{left}%" class="placed">
@@ -75,7 +80,6 @@
 		position: relative;
 		min-width: var(--size-content-narrow);
 		height: calc(var(--detail-lens) + var(--spacing-8));
-		border-bottom: var(--border-width-hairline) solid var(--color-line);
 		list-style: none;
 	}
 
@@ -86,11 +90,10 @@
 		border-left: var(--border-width-hairline) solid var(--color-line);
 	}
 
-	.break {
+	.segment {
 		position: absolute;
-		top: 0;
 		bottom: 0;
-		border-left: var(--border-width-hairline) dashed var(--color-line);
+		border-bottom: var(--border-width-hairline) solid var(--color-line);
 	}
 
 	.year {
