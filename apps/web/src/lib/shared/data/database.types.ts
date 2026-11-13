@@ -953,6 +953,7 @@ export type Database = {
         Row: {
           catalogue_wikidata_id: string | null;
           category_code: string;
+          city_id: string | null;
           country_code: string | null;
           latitude: number | null;
           longitude: number | null;
@@ -968,6 +969,7 @@ export type Database = {
         Insert: {
           catalogue_wikidata_id?: string | null;
           category_code?: string;
+          city_id?: string | null;
           country_code?: string | null;
           latitude?: number | null;
           longitude?: number | null;
@@ -982,6 +984,7 @@ export type Database = {
         Update: {
           catalogue_wikidata_id?: string | null;
           category_code?: string;
+          city_id?: string | null;
           country_code?: string | null;
           latitude?: number | null;
           longitude?: number | null;
@@ -1000,6 +1003,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "catalogue_museums";
             referencedColumns: ["wikidata_id"];
+          },
+          {
+            foreignKeyName: "location_details_city_fkey";
+            columns: ["city_id", "owner_id", "category_code"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id", "category_code"];
           },
           {
             foreignKeyName: "location_details_value_id_owner_id_category_code_fkey";
@@ -1864,6 +1874,16 @@ export type Database = {
           record_number: number;
           title: string;
         }[];
+      };
+      ensure_city_place: {
+        Args: {
+          city_name: string;
+          country_code?: string;
+          latitude?: number;
+          longitude?: number;
+          wikidata_id?: string;
+        };
+        Returns: string;
       };
       import_atelier: { Args: { payload: Json }; Returns: Json };
       keep_alive: { Args: Record<PropertyKey, never>; Returns: string };

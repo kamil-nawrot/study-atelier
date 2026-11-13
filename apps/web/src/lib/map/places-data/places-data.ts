@@ -46,7 +46,9 @@ export function mapPlaceOf(row: PlaceRow): MapPlace {
 export async function loadMapPlaces(): Promise<{ places: MapPlace[]; error?: string }> {
 	const { data, error } = await supabase
 		.from('category_values')
-		.select('id, name, location_details(place_type, country_code, latitude, longitude)')
+		.select(
+			'id, name, location_details!location_details_value_id_owner_id_category_code_fkey(place_type, country_code, latitude, longitude)'
+		)
 		.eq('category_code', 'location')
 		.order('name');
 	if (error) return { places: [], error: loadErrorMessage(error) };

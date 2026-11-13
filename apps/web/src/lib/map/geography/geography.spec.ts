@@ -7,6 +7,42 @@ describe('townsOf', () => {
 			{ name: 'Paryż', countryCode: 'FR', longitude: 2.35, latitude: 48.857 }
 		]);
 	});
+
+	it('reads the Wikidata id, the region and the other names of a town', () => {
+		expect(
+			townsOf([
+				[11.573, 48.132, 'Monachium', 'DE', 'Q1726', 'Bayern', 'Munich'],
+				[8.675, 50.1, 'Frankfurt', 'DE', 'Q1794', 'Hessen'],
+				[-0.119, 51.502, 'Londyn', 'GB', '', 'Westminster', '', 'London']
+			])
+		).toEqual([
+			{
+				name: 'Monachium',
+				countryCode: 'DE',
+				longitude: 11.573,
+				latitude: 48.132,
+				wikidataId: 'Q1726',
+				region: 'Bayern',
+				otherNames: ['Munich']
+			},
+			{
+				name: 'Frankfurt',
+				countryCode: 'DE',
+				longitude: 8.675,
+				latitude: 50.1,
+				wikidataId: 'Q1794',
+				region: 'Hessen'
+			},
+			{
+				name: 'Londyn',
+				countryCode: 'GB',
+				longitude: -0.119,
+				latitude: 51.502,
+				region: 'Westminster',
+				otherNames: ['London']
+			}
+		]);
+	});
 });
 
 describe('geographyOf', () => {

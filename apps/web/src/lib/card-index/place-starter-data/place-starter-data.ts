@@ -34,7 +34,9 @@ export async function loadPlaceStarter(): Promise<PlaceStarter> {
 		fetchAll<PlaceRow>((from, to) =>
 			supabase
 				.from('location_details')
-				.select('country_code, category_values(name)')
+				.select(
+					'country_code, category_values!location_details_value_id_owner_id_category_code_fkey(name)'
+				)
 				.not('country_code', 'is', null)
 				.order('value_id')
 				.range(from, to)

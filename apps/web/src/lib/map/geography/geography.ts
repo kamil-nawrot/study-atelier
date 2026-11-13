@@ -7,7 +7,7 @@ import type { Town } from '#lib/map/types/town.ts';
 
 type World = Topology<{ countries: GeometryCollection; land: GeometryCollection }>;
 
-type TownRow = [number, number, string, string];
+type TownRow = [number, number, string, string, string?, string?, string?, string?];
 
 let loading: Promise<Geography> | undefined;
 let loadingTowns: Promise<Town[]> | undefined;
@@ -19,12 +19,18 @@ async function json<T>(path: string): Promise<T> {
 }
 
 export function townsOf(rows: TownRow[]): Town[] {
-	return rows.map(([longitude, latitude, name, countryCode]) => ({
-		name,
-		countryCode,
-		longitude,
-		latitude
-	}));
+	return rows.map(([longitude, latitude, name, countryCode, wikidataId, region, ...names]) => {
+		const otherNames = names.filter((other): other is string => Boolean(other));
+		return {
+			name,
+			countryCode,
+			longitude,
+			latitude,
+			...(wikidataId ? { wikidataId } : {}),
+			...(region ? { region } : {}),
+			...(otherNames.length > 0 ? { otherNames } : {})
+		};
+	});
 }
 
 export function geographyOf(world: World, rows: TownRow[]): Geography {

@@ -36,7 +36,7 @@ type ValueRow = {
 };
 
 const VALUE_COLUMNS =
-	'category_values(category_code, name, period_details(summary), style_details(summary), material_details(summary), author_details(summary, birth_year, death_year, years_approximate), location_details(summary, country_code)), artworks!inner(record_number)';
+	'category_values(category_code, name, period_details(summary), style_details(summary), material_details(summary), author_details(summary, birth_year, death_year, years_approximate), location_details!location_details_value_id_owner_id_category_code_fkey(summary, country_code)), artworks!inner(record_number)';
 
 function valueSummary(row: ValueRow): [string, ValueSummary] | null {
 	const value = row.category_values;
