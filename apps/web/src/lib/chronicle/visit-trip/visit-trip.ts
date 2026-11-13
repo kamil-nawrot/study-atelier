@@ -1,0 +1,75 @@
+import { valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
+import { m } from '#lib/i18n/i18n.ts';
+import { townKey, tripPlaceOf } from '#lib/chronicle/trip-artworks/trip-artworks.ts';
+import { tripDateName } from '#lib/chronicle/trip-date/trip-date.ts';
+import { dateFromParts, isVisitDate } from '#lib/chronicle/visit-date/visit-date.ts';
+import { placeOf } from '#lib/chronicle/visit-form/visit-form.ts';
+import type { SuggestionSource } from '#lib/chronicle/types/suggestion-source.ts';
+import type { VisitFormState } from '#lib/chronicle/types/visit-form-state.ts';
+import type { SelectOption } from '@study-atelier/ui';
+import type { TripPlace } from '#lib/chronicle/types/trip-place.ts';
+import type { Visit } from '#lib/chronicle/types/visit.ts';
+import type { VisitDate } from '#lib/chronicle/types/visit-date.ts';
+import type { Town } from '#lib/map/types/town.ts';
+
+function lastDay(date: VisitDate): string {
+	const [year, month] = date.on.split('-').map(Number);
+	if (date.precision === 'year') return `${year}-12-31`;
+	if (date.precision === 'day') return date.on;
+	const day = new Date(Date.UTC(year, month, 0)).getUTCDate();
+	return `${date.on.slice(0, 8)}${String(day).padStart(2, '0')}`;
+}
+
+export function tripsCovering(trips: readonly Visit[], date: VisitDate): Visit[] {
+	const [from, to] = [date.on, lastDay(date)];
+	return trips.filter((trip) => {
+		const end = trip.endsOn ?? lastDay(trip.date);
+		return trip.date.on <= to && end >= from;
+	});
+}
+
+export function sameCityTrip(
+	trips: readonly Visit[],
+	place: string,
+	places: readonly TripPlace[],
+	towns: readonly Town[]
+): Visit | undefined {
+	const key = valueKey(place);
+	if (key === '') return undefined;
+	const visited = tripPlaceOf(places, place);
+	const town = visited ? townKey(visited, towns) : null;
+	return trips.find((trip) => {
+		if (valueKey(trip.place) === key) return true;
+		const city = tripPlaceOf(places, trip.place);
+		return town !== null && city !== undefined && townKey(city, towns) === town;
+	});
+}
+
+export function tripOptions(trips: readonly Visit[]): SelectOption[] {
+	return [
+		{ value: '', label: m.chronicle.form.noTrip },
+		...trips.map((trip) => ({ value: trip.id, label: `${trip.place}, ${tripDateName(trip)}` }))
+	];
+}
+
+export type TripLink = {
+	trips: Visit[];
+	tripId: string;
+};
+
+export function linkedTrip(
+	form: VisitFormState,
+	trips: readonly Visit[],
+	source: Pick<SuggestionSource, 'tripPlaces' | 'towns'>,
+	chosen: boolean
+): TripLink {
+	const date = dateFromParts(form);
+	if (form.kind !== 'visit' || !isVisitDate(date)) return { trips: [], tripId: '' };
+	const covering = tripsCovering(trips, date);
+	if (chosen) {
+		const kept = covering.some((trip) => trip.id === form.tripId);
+		return { trips: covering, tripId: kept ? form.tripId : '' };
+	}
+	const match = sameCityTrip(covering, placeOf(form), source.tripPlaces, source.towns);
+	return { trips: covering, tripId: match?.id ?? '' };
+}

@@ -5,6 +5,7 @@ import {
 	deleteVisit,
 	loadArtworkVisits,
 	loadPlaceVisits,
+	loadTrips,
 	loadTripVisits,
 	loadVisit,
 	loadVisits,
@@ -57,6 +58,7 @@ const draft: VisitDraft = {
 	place: ' Musée d’Orsay ',
 	date: { on: '2026-10-01', precision: 'month' },
 	endsOn: null,
+	tripId: null,
 	notes: '  ',
 	artworkIds: ['a1']
 };
@@ -145,6 +147,24 @@ describe('loadPlaceVisits', () => {
 	});
 });
 
+describe('loadTrips', () => {
+	it('asks only for trips, newest first', async () => {
+		const query = chain({ data: [row({ kind: 'trip', ends_on: '2026-10-14' })], error: null });
+
+		const result = await loadTrips();
+
+		expect(query.eq).toHaveBeenCalledWith('kind', 'trip');
+		expect(query.order).toHaveBeenCalledWith('visited_on', { ascending: false });
+		expect(result.visits.map((trip) => trip.endsOn)).toEqual(['2026-10-14']);
+	});
+
+	it('says when the trips cannot be loaded', async () => {
+		chain({ data: null, error: { message: 'TypeError: Failed to fetch' } });
+
+		expect(await loadTrips()).toEqual({ visits: [], error: m.common.network });
+	});
+});
+
 describe('loadTripVisits', () => {
 	it('asks for the visits of a trip in the order of the days', async () => {
 		const query = chain({ data: [row({ trip_id: 'trip-1' })], error: null });
@@ -197,6 +217,7 @@ describe('saveVisit', () => {
 				visited_on: '2026-10-01',
 				date_precision: 'month',
 				ends_on: null,
+				trip_id: null,
 				notes: null
 			},
 			place: 'Musée d’Orsay',

@@ -137,6 +137,7 @@ describe('visitFormOf', () => {
 			endDay: '',
 			endMonth: '',
 			endYear: '',
+			tripId: '',
 			notes: 'Lilie.',
 			chosen: ['artwork-1', 'artwork-4'],
 			extra: ['artwork-4']
@@ -252,6 +253,7 @@ describe('draftOfVisitForm', () => {
 			place: 'Luwr',
 			date: { on: '2026-01-01', precision: 'year' },
 			endsOn: null,
+			tripId: null,
 			notes: '',
 			artworkIds: ['artwork-3', 'artwork-9']
 		});

@@ -86,6 +86,7 @@
 		places={data.places}
 		towns={data.towns}
 		tripPlaces={data.tripPlaces}
+		trips={data.trips}
 		visit={data.visit}
 	/>
 {/if}
