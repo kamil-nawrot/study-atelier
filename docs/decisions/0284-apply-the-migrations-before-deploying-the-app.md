@@ -27,7 +27,7 @@ Chosen by the owner: migrate, then deploy (ATL-722). The deployed build is the o
 
 - Good: when the migrations fail, nothing is deployed and the previous build keeps running on the untouched schema.
 - Good: the new build starts on the schema it needs.
-- Bad: while the migrations run, and until the deploy finishes, the previous build runs against the new schema. When a release renames or drops something the previous build uses (ATL-721), it fails there until the new build is live and the tab reloads.
+- Bad: while the migrations run, and until the deploy finishes, the previous build runs against the new schema. When a release renames or drops something the previous build uses ([ADR-0283](0283-rename-or-drop-database-objects-in-one-release.md)), it fails there until the new build is live and the tab reloads.
 - Bad: a release takes one job longer (install and upload, about a minute).
 
 ## More information
