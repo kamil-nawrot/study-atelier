@@ -19,44 +19,51 @@
 	}
 </script>
 
-<PopupButton bind:this={popup} align="end" {bare} {label}>
-	{#snippet trigger()}
-		<span class="trigger" class:bare><Icon icon={Ellipsis} /></span>
-	{/snippet}
-	<ul class="actions">
-		{#each actions as action (action.label)}
-			<li>
-				{#if action.reason}
-					<span class="action" aria-disabled="true">
-						<Icon icon={action.icon} size="sm" />
-						<span class="text">
-							{action.label}
-							<span class="reason">{action.reason}</span>
+<span class="anchor">
+	<PopupButton bind:this={popup} align="end" {bare} {label}>
+		{#snippet trigger()}
+			<span class="trigger" class:bare><Icon icon={Ellipsis} /></span>
+		{/snippet}
+		<ul class="actions">
+			{#each actions as action (action.label)}
+				<li>
+					{#if action.reason}
+						<span class="action" aria-disabled="true">
+							<Icon icon={action.icon} size="sm" />
+							<span class="text">
+								{action.label}
+								<span class="reason">{action.reason}</span>
+							</span>
 						</span>
-					</span>
-				{:else if action.href}
-					{@const href = action.href}
-					<a class="action" class:danger={action.danger} {href}>
-						<Icon icon={action.icon} size="sm" />
-						<span class="text">{action.label}</span>
-					</a>
-				{:else}
-					<button
-						class="action"
-						class:danger={action.danger}
-						onclick={() => run(action)}
-						type="button"
-					>
-						<Icon icon={action.icon} size="sm" />
-						<span class="text">{action.label}</span>
-					</button>
-				{/if}
-			</li>
-		{/each}
-	</ul>
-</PopupButton>
+					{:else if action.href}
+						{@const href = action.href}
+						<a class="action" class:danger={action.danger} {href}>
+							<Icon icon={action.icon} size="sm" />
+							<span class="text">{action.label}</span>
+						</a>
+					{:else}
+						<button
+							class="action"
+							class:danger={action.danger}
+							onclick={() => run(action)}
+							type="button"
+						>
+							<Icon icon={action.icon} size="sm" />
+							<span class="text">{action.label}</span>
+						</button>
+					{/if}
+				</li>
+			{/each}
+		</ul>
+	</PopupButton>
+</span>
 
 <style>
+	.anchor {
+		position: relative;
+		display: inline-flex;
+	}
+
 	.trigger {
 		display: inline-flex;
 	}
