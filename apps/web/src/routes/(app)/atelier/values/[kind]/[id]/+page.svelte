@@ -1,17 +1,16 @@
 <script lang="ts">
-	import MoreActions from '#lib/shared/navigation/MoreActions/MoreActions.svelte';
 	import Pencil from '@lucide/svelte/icons/pencil';
-	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
-	import { Alert, Button, Dialog, LoadFailure, Toast, Tooltip } from '@study-atelier/ui';
+	import { Button, LoadFailure, Toast } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { deleteValue } from '#lib/card-index/card-index-data/card-index-data.ts';
-	import { canDelete } from '#lib/card-index/card-index/card-index.ts';
+	import { wallTexts } from '#lib/values/value-page-view/value-page-view.ts';
 	import ArtworksSection from '#lib/wall/components/ArtworksSection/ArtworksSection.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import ValueView from '#lib/values/components/ValueView/ValueView.svelte';
+	import CityPlaces from '#lib/values/components/CityPlaces/CityPlaces.svelte';
+	import ValueDeleteAction from '#lib/values/components/ValueDeleteAction/ValueDeleteAction.svelte';
 	import SymbolUses from '#lib/symbols/components/SymbolUses/SymbolUses.svelte';
 	import RelationsBand from '#lib/relations/components/RelationsBand/RelationsBand.svelte';
 	import {
@@ -32,9 +31,6 @@
 	const cardIndexPath = resolve('/(app)/atelier/values');
 
 	let toast: Toast;
-	let deleteOpen = $state(false);
-	let deleting = $state(false);
-	let deleteError = $state<string>();
 	const images = new WallImages();
 
 	let subject = $derived(data.subject);
@@ -46,10 +42,14 @@
 				: m.valuePage.loadErrorTitle
 	);
 	let editHref = $derived(subject ? valueEditPath(subject.kind, subjectId(subject)) : undefined);
-	let artworks = $derived(subject ? images.apply(artworksOfValue(data.artworks, subject)) : []);
+	let cityPlaces = $derived(data.cityPlaces ?? []);
+	let names = $derived(cityPlaces.map((place) => place.name));
+	let artworks = $derived(
+		subject ? images.apply(artworksOfValue(data.artworks, subject, names)) : []
+	);
 	let parents = $derived(subject ? valueParents(data.index, subject) : []);
 	let record = $derived(subject && subject.kind !== 'era' ? subject.record : undefined);
-	let kind = $derived(record ? m.cardIndex.kinds[record.category] : undefined);
+	let texts = $derived(subject && wallTexts(subject, data.cityPlaces !== undefined));
 
 	$effect.pre(() => {
 		void data.artworks;
@@ -62,28 +62,6 @@
 		toast.show(message);
 		void goto(subjectPath(subject), { state: {}, shallow: true, replace: true });
 	});
-
-	function askToDelete(): void {
-		deleteError = undefined;
-		deleteOpen = true;
-	}
-
-	async function remove(): Promise<void> {
-		if (!record || deleting) return;
-		deleting = true;
-		deleteError = undefined;
-		const result = await deleteValue(record);
-		deleting = false;
-		if (result.error) {
-			deleteError = result.error;
-			return;
-		}
-		deleteOpen = false;
-		await goto(cardIndexPath, {
-			refreshAll: true,
-			state: { valueMessage: m.cardIndex.deleted(record.name) }
-		});
-	}
 </script>
 
 <AtelierLayout email={data.session.user.email ?? ''} {title}>
@@ -94,61 +72,12 @@
 				{m.common.edit}
 			</Button>
 		{/if}
-		{#if record && kind}
-			<MoreActions
-				actions={[
-					canDelete(record)
-						? { label: m.common.delete, icon: Trash, onclick: askToDelete, danger: true }
-						: {
-								label: m.common.delete,
-								icon: Trash,
-								reason: m.valuePage.deleteBlocked(
-									kind.demonstrative,
-									m.atelier.count(record.count),
-									kind.other
-								)
-							}
-				]}
-			>
-				{#if canDelete(record)}
-					<Button
-						aria-label={m.common.delete}
-						compact
-						icon={Trash}
-						onclick={askToDelete}
-						variant="danger"
-					>
-						{m.common.delete}
-					</Button>
-				{:else}
-					<Tooltip
-						align="end"
-						placement="bottom"
-						text={m.valuePage.deleteBlocked(
-							kind.demonstrative,
-							m.atelier.count(record.count),
-							kind.other
-						)}
-					>
-						{#snippet children(describedby)}
-							<Button
-								aria-describedby={describedby}
-								aria-disabled="true"
-								aria-label={m.common.delete}
-								compact
-								icon={Trash}
-								variant="danger"
-							>
-								{m.common.delete}
-							</Button>
-						{/snippet}
-					</Tooltip>
-				{/if}
-			</MoreActions>
+		{#if record}
+			<ValueDeleteAction places={cityPlaces} {record} />
 		{/if}
 	{/snippet}
 
-	{#if subject && editHref}
+	{#if subject && editHref && texts}
 		<div class="page">
 			<ValueView
 				{artworks}
@@ -162,18 +91,17 @@
 				visits={data.visits}
 			/>
 
+			{#if cityPlaces.length > 0}
+				<CityPlaces places={cityPlaces} />
+			{/if}
+
 			{#if data.relations}
 				<RelationsBand relations={data.relations} />
 			{/if}
 
 			<SymbolUses title={m.valuePage.kinds[subject.kind].symbols} uses={data.symbolUses ?? []} />
 
-			<ArtworksSection
-				{artworks}
-				empty={m.valuePage.kinds[subject.kind].noArtworks}
-				{images}
-				title={m.valuePage.kinds[subject.kind].artworks}
-			/>
+			<ArtworksSection {artworks} empty={texts.noArtworks} {images} title={texts.artworks} />
 		</div>
 	{:else}
 		<LoadFailure
@@ -187,31 +115,6 @@
 </AtelierLayout>
 
 <Toast bind:this={toast} />
-
-{#snippet deleteErrorAlert()}
-	<Alert tone="danger">
-		{deleteError}
-	</Alert>
-{/snippet}
-
-{#if record && kind}
-	<Dialog
-		children={deleteError ? deleteErrorAlert : undefined}
-		description={m.cardIndex.deleteConfirm.description}
-		size="small"
-		title={m.cardIndex.deleteConfirm.title(kind.accusative, record.name)}
-		bind:open={deleteOpen}
-	>
-		{#snippet footer()}
-			<Button onclick={() => (deleteOpen = false)}>
-				{m.common.back}
-			</Button>
-			<Button disabled={deleting} onclick={remove} variant="primary">
-				{deleting ? m.common.deleting : m.common.delete}
-			</Button>
-		{/snippet}
-	</Dialog>
-{/if}
 
 <style>
 	.page {

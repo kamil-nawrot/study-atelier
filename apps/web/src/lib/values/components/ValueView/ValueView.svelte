@@ -162,7 +162,11 @@
 		/>
 
 		{#if empty}
-			<p class="empty">{m.valuePage.kinds[subject.kind].noNotes}</p>
+			<p class="empty">
+				{details.location?.placeType === 'city'
+					? m.valuePage.city.noNotes
+					: m.valuePage.kinds[subject.kind].noNotes}
+			</p>
 		{:else}
 			{#if details.summary}
 				<Section>

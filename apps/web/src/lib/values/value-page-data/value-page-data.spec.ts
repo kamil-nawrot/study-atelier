@@ -11,7 +11,7 @@ import {
 	loadEditorNoteLinks
 } from '#lib/notes/note-link-data/note-link-data.ts';
 import { loadValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
-import { loadPlaceVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
+import { loadPlacesVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
 import { loadRelations } from '#lib/relations/relations-data/relations-data.ts';
 import { loadValuePage } from './value-page-data.ts';
@@ -27,7 +27,7 @@ vi.mock('#lib/relations/relations-data/relations-data.ts', () => ({
 		total: 0
 	}))
 }));
-vi.mock('#lib/chronicle/chronicle-data/chronicle-data.ts', () => ({ loadPlaceVisits: vi.fn() }));
+vi.mock('#lib/chronicle/chronicle-data/chronicle-data.ts', () => ({ loadPlacesVisits: vi.fn() }));
 vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({
 	loadTermIndex: vi.fn(async () => ({ terms: [] }))
 }));
@@ -77,25 +77,52 @@ describe('loadValuePage', () => {
 
 	it('loads the visits to a place on its page only', async () => {
 		const visits = [testVisit()];
-		vi.mocked(loadPlaceVisits).mockResolvedValue({ visits });
+		vi.mocked(loadPlacesVisits).mockResolvedValue({ visits });
 
 		const place = await loadValuePage('location', 'location-athens', true);
 		const form = await loadValuePage('location', 'location-athens', false);
 		const style = await loadValuePage('style', 'style-doric', true);
 
-		expect(loadPlaceVisits).toHaveBeenCalledExactlyOnceWith('location-athens');
+		expect(loadPlacesVisits).toHaveBeenCalledExactlyOnceWith(['location-athens']);
 		expect(place.visits).toEqual(visits);
 		expect(form.visits).toBeUndefined();
 		expect(style.visits).toBeUndefined();
 	});
 
 	it('shows the place without its visits when they cannot be loaded', async () => {
-		vi.mocked(loadPlaceVisits).mockResolvedValue({ visits: [], error: 'Brak sieci.' });
+		vi.mocked(loadPlacesVisits).mockResolvedValue({ visits: [], error: 'Brak sieci.' });
 
 		const result = await loadValuePage('location', 'location-athens', true);
 
 		expect(result.error).toBeUndefined();
 		expect(result.visits).toBeUndefined();
+	});
+
+	it('gathers the artworks, visits and places of a city through its places', async () => {
+		const index = testCardIndex();
+		const athens = index.values.find((value) => value.id === 'location-athens');
+		if (!athens) throw new Error('no Athens');
+		athens.placeType = 'city';
+		index.values.push({
+			id: 'location-acropolis',
+			category: 'location',
+			name: 'Akropol',
+			count: 2,
+			placeType: 'on_site',
+			cityId: 'location-athens'
+		});
+		vi.mocked(loadCardIndex).mockResolvedValue({ index, ownValues: [] });
+		vi.mocked(loadPlacesVisits).mockResolvedValue({ visits: [] });
+
+		const result = await loadValuePage('location', 'location-athens', true);
+
+		expect(loadArtworksOfValue).toHaveBeenCalledWith({
+			valueIds: ['location-athens', 'location-acropolis']
+		});
+		expect(loadPlacesVisits).toHaveBeenCalledWith(['location-athens', 'location-acropolis']);
+		expect(result.cityPlaces).toEqual([
+			{ id: 'location-acropolis', name: 'Akropol', count: 2, placeType: 'on_site' }
+		]);
 	});
 
 	it('filters the artworks of an era by its code', async () => {

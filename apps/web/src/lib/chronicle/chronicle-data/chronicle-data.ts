@@ -125,6 +125,21 @@ export async function loadPlaceVisits(placeId: string): Promise<VisitsResult> {
 	return { visits: rows.map(visitOf) };
 }
 
+export async function loadPlacesVisits(placeIds: string[]): Promise<VisitsResult> {
+	const { rows, error } = await fetchAll<VisitRow>((from, to) =>
+		supabase
+			.from('visits')
+			.select(VISIT_COLUMNS)
+			.in('place_id', placeIds)
+			.order('visited_on', { ascending: false })
+			.order('created_at', { ascending: false })
+			.order('id', { ascending: false })
+			.range(from, to)
+	);
+	if (error) return { visits: [], error: chronicleErrorMessage(error) };
+	return { visits: rows.map(visitOf) };
+}
+
 export async function loadTripVisits(tripId: string): Promise<VisitsResult> {
 	const { rows, error } = await fetchAll<VisitRow>((from, to) =>
 		supabase

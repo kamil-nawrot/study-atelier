@@ -21,7 +21,7 @@ const TAB_SORTS: Record<string, CardIndexSort[]> = {
 	timeline: ['name', 'count'],
 	material: ['name', 'count'],
 	author: ['name', 'count', 'life'],
-	location: ['name', 'count', 'country'],
+	location: ['name', 'count'],
 	events: ['name', 'date'],
 	own: ['name', 'count']
 };

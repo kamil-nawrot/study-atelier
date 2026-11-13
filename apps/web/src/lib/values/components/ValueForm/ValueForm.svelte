@@ -127,7 +127,7 @@
 	let moveText = $derived(record ? moveDescription(record, eraMove) : '');
 	let mergeText = $derived(
 		record && mergeTarget && kind
-			? mergeDescription(record, mergeTarget, kind.genitive, mergedHasContent)
+			? mergeDescription(record, mergeTarget, kind.genitive, mergedHasContent, index)
 			: ''
 	);
 

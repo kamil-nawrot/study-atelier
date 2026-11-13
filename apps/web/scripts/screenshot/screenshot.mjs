@@ -189,11 +189,15 @@ function filteredRows(url) {
 		);
 	}
 	const value = params.get('valued.value_id');
-	if (value?.startsWith('eq.')) {
+	const wanted = value?.startsWith('eq.')
+		? [value.slice(3)]
+		: value?.startsWith('in.(')
+			? value.slice(4, -1).split(',')
+			: null;
+	if (wanted) {
 		rows = rows.filter((row) =>
-			row.artwork_values.some(
-				({ category_values: linked }) =>
-					valueId(linked.category_code, linked.name) === value.slice(3)
+			row.artwork_values.some(({ category_values: linked }) =>
+				wanted.includes(valueId(linked.category_code, linked.name))
 			)
 		);
 	}
@@ -665,6 +669,7 @@ function visitsRoute(route, request, url) {
 		(row) =>
 			(!id?.startsWith('eq.') || row.id === id.slice(3)) &&
 			(!placeId?.startsWith('eq.') || row.place_id === placeId.slice(3)) &&
+			(!placeId?.startsWith('in.(') || placeId.slice(4, -1).split(',').includes(row.place_id)) &&
 			(!tripId?.startsWith('eq.') || row.trip_id === tripId.slice(3)) &&
 			(!kind?.startsWith('eq.') || row.kind === kind.slice(3)) &&
 			(!artworkId || row.visit_artworks.some((seen) => seen.artwork_id === artworkId))
