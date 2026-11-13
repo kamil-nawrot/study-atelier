@@ -1,5 +1,6 @@
 export type ValueOption = {
-	kind: 'similar' | 'existing' | 'starter' | 'new';
+	kind: 'found' | 'similar' | 'existing' | 'starter' | 'new';
+	id?: string;
 	name: string;
 	note?: string;
 };

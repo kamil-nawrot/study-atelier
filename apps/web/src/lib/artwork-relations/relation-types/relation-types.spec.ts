@@ -65,13 +65,14 @@ describe('groupRelations', () => {
 });
 
 describe('relationError', () => {
-	it('asks first for the artwork, then for the kind', () => {
+	it('asks first for the artwork, then for the kind, and skips an untouched row', () => {
 		expect(relationError([])).toBeUndefined();
 		expect(relationError([{ type: 'studyFrom', artwork: sketch }])).toBeUndefined();
+		expect(relationError([{ type: null, artwork: null }])).toBeUndefined();
 		expect(
 			relationError([
 				{ type: null, artwork: sketch },
-				{ type: null, artwork: null }
+				{ type: 'related', artwork: null }
 			])
 		).toBe(m.artworkRelations.artworkRequired);
 		expect(relationError([{ type: null, artwork: sketch }])).toBe(m.artworkRelations.typeRequired);

@@ -83,9 +83,10 @@ describe('rows', () => {
 		]);
 	});
 
-	it('asks first for the author, then for the type of an unfinished row', () => {
+	it('asks first for the author, then for the type, and skips an untouched row', () => {
 		expect(authorRelationError([])).toBeUndefined();
-		expect(authorRelationError([emptyAuthorRelationRow('new')])).toBe(
+		expect(authorRelationError([emptyAuthorRelationRow('new')])).toBeUndefined();
+		expect(authorRelationError([{ key: 'f', type: 'family', author: null }])).toBe(
 			m.authorRelations.authorRequired
 		);
 		expect(authorRelationError([{ key: 'r', type: '', author: raphael }])).toBe(

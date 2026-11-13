@@ -59,8 +59,9 @@ export function groupRelations(relations: readonly ArtworkRelation[]): ArtworkRe
 }
 
 export function relationError(entries: readonly ArtworkRelationEntry[]): string | undefined {
-	if (entries.some((entry) => entry.artwork === null)) return m.artworkRelations.artworkRequired;
-	if (entries.some((entry) => entry.type === null)) return m.artworkRelations.typeRequired;
+	const started = entries.filter((entry) => entry.type !== null || entry.artwork !== null);
+	if (started.some((entry) => entry.artwork === null)) return m.artworkRelations.artworkRequired;
+	if (started.some((entry) => entry.type === null)) return m.artworkRelations.typeRequired;
 	return undefined;
 }
 

@@ -74,8 +74,9 @@ export function emptyAuthorRelationRow(key: string = crypto.randomUUID()): Autho
 }
 
 export function authorRelationError(rows: readonly AuthorRelationRow[]): string | undefined {
-	if (rows.some((row) => row.author === null)) return m.authorRelations.authorRequired;
-	if (rows.some((row) => row.type === '')) return m.authorRelations.typeRequired;
+	const started = rows.filter((row) => row.type !== '' || row.author !== null);
+	if (started.some((row) => row.author === null)) return m.authorRelations.authorRequired;
+	if (started.some((row) => row.type === '')) return m.authorRelations.typeRequired;
 	return undefined;
 }
 

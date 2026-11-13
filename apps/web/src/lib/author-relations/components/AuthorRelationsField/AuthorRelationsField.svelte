@@ -46,12 +46,6 @@
 	function choose(row: AuthorRelationRow, value: string): void {
 		row.type = isAuthorRelationType(value) ? value : '';
 	}
-
-	async function pick(row: AuthorRelationRow, author: RelatedAuthor): Promise<void> {
-		row.author = author;
-		await tick();
-		document.getElementById(`${fieldId}-${row.key}-remove`)?.focus();
-	}
 </script>
 
 {#snippet addButton()}
@@ -73,32 +67,30 @@
 				<li class="row">
 					<Select
 						id="{fieldId}-{row.key}-type"
-						aria-invalid={error && row.type === '' ? true : undefined}
+						aria-invalid={error && row.type === '' && row.author ? true : undefined}
 						compact
 						hideLabel
 						label={m.authorRelations.type}
 						onchange={(event) => choose(row, event.currentTarget.value)}
 						{options}
 						placeholder={m.authorRelations.choose}
+						placeholderUntilChosen
 						value={row.type}
 					/>
-					{#if row.author}
-						<span class="name">{row.author.name}</span>
-					{:else}
-						<RelatedAuthorSearch
-							{authors}
-							{excluded}
-							invalid={!!error}
-							onpick={(author) => pick(row, author)}
-						/>
-					{/if}
+					<RelatedAuthorSearch
+						{authors}
+						{excluded}
+						invalid={!!error && row.author === null && row.type !== ''}
+						bind:author={row.author}
+					/>
 					<IconButton
-						id="{fieldId}-{row.key}-remove"
 						icon={X}
 						label={row.author
 							? m.authorRelations.remove(row.author.name)
 							: m.authorRelations.removeEmpty}
 						onclick={() => remove(row.key)}
+						tone="danger"
+						variant="plain"
 					/>
 				</li>
 			{/each}
@@ -150,12 +142,6 @@
 		grid-template-columns: 17rem minmax(0, 1fr) auto;
 		gap: var(--spacing-3);
 		align-items: start;
-	}
-
-	.row > .name {
-		align-self: center;
-		min-width: 0;
-		overflow-wrap: anywhere;
 	}
 
 	@media (max-width: 767.98px) {
