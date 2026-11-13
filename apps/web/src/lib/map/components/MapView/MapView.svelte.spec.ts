@@ -61,7 +61,7 @@ describe('MapView', () => {
 		await expect.element(page.getByRole('heading', { name: 'Paryż' })).not.toBeInTheDocument();
 	});
 
-	it('narrows the cities to a filter and says when it holds nothing', async () => {
+	it('narrows the cities to a filter and shows none when it holds nothing', async () => {
 		render(MapView, { places, artworks, images });
 
 		await page.getByRole('button', { name: /Widziane na żywo/ }).click();
@@ -69,7 +69,7 @@ describe('MapView', () => {
 		await expect.element(page.getByRole('button', { name: /^Paryż/ })).toBeVisible();
 
 		await page.getByRole('button', { name: /Chcę zobaczyć/ }).click();
-		await expect.element(page.getByText(m.map.emptyWantToSee)).toBeVisible();
+		await expect.element(page.getByRole('button', { name: /^Paryż/ })).not.toBeInTheDocument();
 		await page.getByRole('button', { name: /Chcę zobaczyć/ }).click();
 		await expect
 			.element(page.getByRole('button', { name: /Chcę zobaczyć/ }))

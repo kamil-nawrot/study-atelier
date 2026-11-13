@@ -34,13 +34,6 @@
 	);
 
 	let placed = $derived(view.places.some((place) => place.point));
-	let emptyFilter = $derived(
-		view.filter === 'wantToSee'
-			? m.map.emptyWantToSee
-			: view.filter === 'seen'
-				? m.map.emptySeen
-				: undefined
-	);
 
 	onMount(() => {
 		void view.load();
@@ -89,9 +82,6 @@
 		{/if}
 		<div class="split">
 			<div class="stage">
-				{#if !view.filling && view.cities.length === 0 && emptyFilter}
-					<p class="note">{emptyFilter}</p>
-				{/if}
 				{#if view.geography}
 					<WorldMap
 						cities={view.cities}
@@ -181,10 +171,6 @@
 		gap: var(--spacing-3);
 		min-width: 0;
 		min-height: 0;
-	}
-
-	.note {
-		color: var(--color-fg-muted);
 	}
 
 	aside {
