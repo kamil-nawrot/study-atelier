@@ -250,11 +250,11 @@
 		entries={glossary ?? []}
 		image={current}
 		{imageId}
+		oncreatesymbol={createSymbol}
 		ondeleted={() => {}}
 		onsaved={pinSaved}
 		shownWidth={frameWidth}
 		spot={newPin}
-		oncreatesymbol={createSymbol}
 		symbols={allSymbols}
 		view={newPin.viewWidth}
 		bind:open={newPinOpen}

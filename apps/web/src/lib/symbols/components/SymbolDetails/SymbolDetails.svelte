@@ -68,10 +68,6 @@
 		gap: var(--spacing-2);
 	}
 
-	li {
-		position: relative;
-	}
-
 	.star {
 		position: absolute;
 		top: calc(var(--detail-lens) - var(--spacing-8));
@@ -100,7 +96,7 @@
 	}
 
 	.star.main :global(svg) {
-		fill: currentcolor;
+		fill: var(--color-fg);
 	}
 
 	li.plain {
