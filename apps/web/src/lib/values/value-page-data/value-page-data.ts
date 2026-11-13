@@ -15,6 +15,8 @@ import { emptyValueDetails } from '#lib/values/value-details/value-details.ts';
 import { loadValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
 import { eraYears } from '#lib/catalogue/eras/eras.ts';
 import { loadRelations } from '#lib/relations/relations-data/relations-data.ts';
+import { loadSymbolUses } from '#lib/symbols/symbol-uses-data/symbol-uses-data.ts';
+import type { SymbolUse } from '#lib/symbols/types/symbol-use.ts';
 import type { Relations } from '#lib/relations/types/relations.ts';
 import type { YearSpan } from '#lib/relations/types/year-span.ts';
 import {
@@ -44,6 +46,7 @@ type ValuePageResult = {
 	mentions?: Mention[];
 	visits?: Visit[];
 	relations?: Relations;
+	symbolUses?: SymbolUse[];
 	notFound?: boolean;
 	error?: string;
 };
@@ -103,6 +106,26 @@ async function withNoteExtras(
 	return { ...loaded, noteLinks, glossary };
 }
 
+function loadRelatedExtras(
+	subject: ValueSubject,
+	details: ValueDetails,
+	artworks: WallArtwork[],
+	index: CardIndexData
+): Promise<[Relations, Awaited<ReturnType<typeof loadSymbolUses>>]> {
+	return Promise.all([
+		loadRelations({
+			kind: subject.kind,
+			artworks: artworksOfValue(artworks, subject),
+			index,
+			bounds: subjectBounds(subject, details),
+			authors: details.author?.relations
+		}),
+		loadSymbolUses(
+			subject.kind === 'era' ? { eraCode: subject.code } : { valueId: subjectId(subject) }
+		)
+	]);
+}
+
 export async function loadValuePage(
 	kind: string,
 	id: string,
@@ -126,15 +149,9 @@ export async function loadValuePage(
 	const loadError = error ?? ('error' in own ? own.error : undefined);
 	if (loadError) return failed(loadError);
 
-	const relations = withArtworks
-		? await loadRelations({
-				kind: subject.kind,
-				artworks: artworksOfValue(own.artworks, subject),
-				index: cardIndex.index,
-				bounds: subjectBounds(subject, details),
-				authors: details.author?.relations
-			})
-		: undefined;
+	const [relations, uses] = withArtworks
+		? await loadRelatedExtras(subject, details, own.artworks, cardIndex.index)
+		: [undefined, undefined];
 
 	return {
 		subject,
@@ -145,7 +162,8 @@ export async function loadValuePage(
 		glossary: glossary?.terms,
 		mentions: extras.mentions,
 		visits: extras.visits,
-		relations
+		relations,
+		symbolUses: uses?.error ? undefined : uses?.uses
 	};
 }
 

@@ -5,6 +5,7 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
 		GLOSSARY_QUESTION_CHOICES,
+		SYMBOL_QUESTION_CHOICES,
 		NEW_PER_DAY_CHOICES,
 		preferencesChanged,
 		QUIZ_KINDS,
@@ -168,6 +169,23 @@
 									</ToggleTag>
 								{/each}
 							</div>
+						</div>
+					</div>
+					<div class="group" aria-labelledby="{formId}-symbols" role="group">
+						<span id="{formId}-symbols" class="label">
+							{m.settings.preferences.symbolQuestions}
+						</span>
+						<div class="tags">
+							{#each SYMBOL_QUESTION_CHOICES as option (option)}
+								<ToggleTag
+									bind:pressed={
+										() => draft.reviewSymbolQuestions === option,
+										(pressed) => pressed && (draft.reviewSymbolQuestions = option)
+									}
+								>
+									{option}
+								</ToggleTag>
+							{/each}
 						</div>
 					</div>
 					<Switch

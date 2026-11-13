@@ -21,6 +21,9 @@ vi.mock('#lib/card-index/place-starter-data/place-starter-data.ts', () => ({
 	loadPlaceStarter: vi.fn()
 }));
 vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({ loadTermIndex: vi.fn() }));
+vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({
+	loadSymbolOptions: vi.fn().mockResolvedValue({ symbols: [] })
+}));
 vi.mock('#lib/notes/note-link-data/note-link-data.ts', () => ({ loadEditorNoteLinks: vi.fn() }));
 
 const links = { minQueryLength: 1 } as unknown as NoteLinks;

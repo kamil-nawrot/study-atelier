@@ -35,6 +35,7 @@ import {
 	withPinPreviews
 } from '#lib/review/review-data/review-data.ts';
 import { preloadSteps, withItemImages } from '#lib/review/review-images/review-images.ts';
+import { loadSymbolSteps } from '#lib/review/symbol-steps/symbol-steps.ts';
 import { drawNoteGap } from '#lib/review/note-gap/note-gap.ts';
 import { reviewedSince, streakWithToday } from '#lib/review/streak-week/streak-week.ts';
 import { ResolvedImages } from '#lib/review/resolved-images/resolved-images.svelte.ts';
@@ -202,15 +203,13 @@ export class ReviewFlow {
 
 	async #prepareSession(): Promise<string | undefined> {
 		const free = this.freeOpen;
-		const dayStart = startOfDay(currentDate());
 		const { reviewTimeQuestions, reviewNoteQuestions } = this.#data().preferences;
-		const round = free ? this.freeRound : undefined;
 		const loaded = await loadSession(
-			dayStart,
+			startOfDay(currentDate()),
 			this.activeForm,
 			this.activeScope,
 			reviewTimeQuestions,
-			round
+			free ? this.freeRound : undefined
 		);
 		const items = await withPinPreviews(sessionItems(loaded.rows, this.artworksById, this.cards));
 		if (loaded.error || items.length === 0) return loaded.error;
@@ -229,11 +228,12 @@ export class ReviewFlow {
 			glossary
 		);
 		const gapArtworks = gaps.map((gap) => gap.artwork);
-		const [, , found, defined] = await Promise.all([
+		const [, , found, defined, symbolSteps] = await Promise.all([
 			shownImages,
 			this.images.resolve(gapArtworks),
 			loadReviewDetails([...artworks, ...gapArtworks].map((artwork) => artwork.id)),
-			definedRead
+			definedRead,
+			loadSymbolSteps(this.#data().preferences.reviewSymbolQuestions, glossary)
 		]);
 		if (found.error) return found.error;
 		this.details = found.details;
@@ -244,6 +244,7 @@ export class ReviewFlow {
 				items.map((item) => withItemImages(item, this.images.withImage)),
 				[
 					...definitionItems(withDefinitionsOf(drawn, defined.definitions), glossary),
+					...symbolSteps,
 					...gaps.map((gap) => ({ ...gap, artwork: this.images.withImage(gap.artwork) })),
 					...times.map((step) => withTimeImages(step, this.images.withImage))
 				]

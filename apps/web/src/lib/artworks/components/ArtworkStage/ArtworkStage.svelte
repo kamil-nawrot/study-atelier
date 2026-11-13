@@ -34,6 +34,7 @@
 	import { refreshCareerOnFullImage } from '#lib/pins/full-image/full-image.ts';
 	import { pinsOfImage } from '#lib/pins/pin-layout/pin-layout.ts';
 	import type { Pin as PinRecord } from '#lib/pins/types/pin.ts';
+	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 	import { swipe } from '#lib/wall/flip/flip.ts';
 	import type { FlipDirection } from '#lib/wall/types/flip-direction.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -42,6 +43,7 @@
 		artwork: ArtworkRecord;
 		editHref: string;
 		glossary?: GlossaryTerm[];
+		symbols?: SymbolOption[];
 		pins: PinRecord[];
 		focusPin?: string;
 		showPinsOnOpen: boolean;
@@ -54,6 +56,7 @@
 		artwork,
 		editHref,
 		glossary,
+		symbols,
 		pins,
 		focusPin,
 		showPinsOnOpen,
@@ -238,6 +241,7 @@
 		onsaved={pinSaved}
 		shownWidth={frameWidth}
 		spot={newPin}
+		symbols={symbols ?? []}
 		view={newPin.viewWidth}
 		bind:open={newPinOpen}
 	/>
@@ -248,6 +252,7 @@
 		image={current}
 		{pin}
 		shownWidth={frameWidth}
+		symbol={symbols?.find((symbol) => symbol.id === pin.symbolId)}
 	/>
 {/snippet}
 

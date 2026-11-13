@@ -437,11 +437,15 @@ reads:
     route: /atelier/[number], /atelier/[number]/edit (pin dialog)
     shows: symbol names to choose from, then the meanings of the chosen symbol when it has two or more
     needs:
-      - 'symbol index: all, id and name (light)'
-      - 'meanings: of the chosen symbol, on choice (point read by symbol id)'
+      - 'symbol index: all, id and name, with the meaning ids and texts embedded (a few per symbol)'
     scope: all
     frequency: view
-    today: { requests: 0, whole: [], note: 'new in 0.23; loads with the term index of R03' }
+    today:
+      {
+        requests: 0,
+        whole: [],
+        note: 'ATL-678: one select with the meanings embedded, loaded beside the term index of R03'
+      }
 
   - id: R29
     name: Symbols of a value, attributes of a person

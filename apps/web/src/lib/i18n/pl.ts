@@ -330,6 +330,7 @@ export const pl = {
 			extraTitle: 'Pytania dodatkowe',
 			glossaryOn: 'Pytania ze Słowniczka',
 			glossaryQuestions: 'Liczba pytań w sesji',
+			symbolQuestions: 'Ile pytań o symbole dołączać do sesji?',
 			noteQuestions: 'Luka w Twoich notatkach',
 			timeQuestions: 'Rok powstania i kolejność dzieł',
 			viewHint:
@@ -810,6 +811,12 @@ export const pl = {
 			typedEmpty: 'Żadne dzieło w atelier nie ma takiego tytułu.',
 			typedCheck: 'Sprawdź tytuł',
 			definitionTag: 'Pytanie dodatkowe ze Słowniczka',
+			symbolTag: 'Pytanie dodatkowe z atlasu symboli',
+			symbolQuestions: {
+				symbol: 'Co przedstawia ten detal?',
+				meaning: 'Jakie znaczenie ma tu ten symbol?',
+				attribute: 'Do kogo należy ten atrybut?'
+			},
 			noteTag: 'Pytanie dodatkowe z notatek',
 			noteQuestion: 'Jakiego pojęcia brakuje w Twojej notatce?',
 			noteSource: 'Z notatki do dzieła',
@@ -1347,12 +1354,14 @@ export const pl = {
 		title: 'Pinezka',
 		term: 'Pojęcie ze Słowniczka (opcjonalnie)',
 		termPlaceholder: 'Szukaj pojęcia',
+		symbol: 'Symbol',
+		symbolMeaning: 'Znaczenie na tym dziele',
 		text: 'Opis (opcjonalnie)',
 		loadFailed: 'Nie udało się wczytać pinezek.',
 		errorTitle: 'Nie udało się zapisać pinezki',
 		deleteErrorTitle: 'Nie udało się usunąć pinezki',
 		errors: {
-			empty: 'Wybierz pojęcie albo wpisz opis.',
+			empty: 'Wybierz pojęcie lub symbol albo wpisz opis.',
 			tooLong: (limit: number): string => `Opis może mieć najwyżej ${limit} znaków.`,
 			tooMany: (limit: number): string => `Na jednym obrazie zmieści się ${limit} pinezek.`,
 			notFound: 'Nie znaleziono tej pinezki. Odśwież stronę i spróbuj jeszcze raz.'
@@ -1520,6 +1529,7 @@ export const pl = {
 			artwork: 'dzieło',
 			person: 'postać'
 		},
+		attributes: 'Atrybuty postaci',
 		view: {
 			overline: 'Symbol',
 			general: 'znaczenie ogólne',
@@ -2565,31 +2575,37 @@ export const pl = {
 		saved: 'Zapisano zmiany.',
 		kinds: {
 			era: {
+				symbols: 'Symbole tej epoki',
 				artworks: 'Dzieła z tej epoki',
 				noNotes: 'Nie masz jeszcze notatek o tej epoce.',
 				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tej epoki.'
 			},
 			period: {
+				symbols: 'Symbole tego okresu',
 				artworks: 'Dzieła z tego okresu',
 				noNotes: 'Nie masz jeszcze notatek o tym okresie.',
 				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tego okresu.'
 			},
 			style: {
+				symbols: 'Symbole tego stylu',
 				artworks: 'Dzieła w tym stylu',
 				noNotes: 'Nie masz jeszcze notatek o tym stylu.',
 				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła w tym stylu.'
 			},
 			material: {
+				symbols: 'Symbole tego materiału',
 				artworks: 'Dzieła z tego materiału',
 				noNotes: 'Nie masz jeszcze notatek o tym materiale.',
 				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tego materiału.'
 			},
 			author: {
+				symbols: 'Symbole tego autora',
 				artworks: 'Dzieła tego autora',
 				noNotes: 'Nie masz jeszcze notatek o tym autorze.',
 				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła tego autora.'
 			},
 			location: {
+				symbols: 'Symbole tego miejsca',
 				artworks: 'Dzieła z tego miejsca',
 				noNotes: 'Nie masz jeszcze notatek o tym miejscu.',
 				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tego miejsca.'

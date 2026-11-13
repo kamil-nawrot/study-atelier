@@ -1,5 +1,13 @@
 <script lang="ts">
-	import { Alert, Button, Dialog, SearchSelect, TextArea, TextButton } from '@study-atelier/ui';
+	import {
+		Alert,
+		Button,
+		Dialog,
+		SearchSelect,
+		Select,
+		TextArea,
+		TextButton
+	} from '@study-atelier/ui';
 	import { loupeLevel } from '#lib/images/loupe/loupe.ts';
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
@@ -7,6 +15,7 @@
 	import type { Fraction } from '#lib/pins/types/fraction.ts';
 	import { createPin, deletePin, pinDraftError, updatePin } from '#lib/pins/pin-data/pin-data.ts';
 	import type { Pin } from '#lib/pins/types/pin.ts';
+	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 	import { MAX_PIN_TEXT } from '#lib/pins/pin-limits/pin-limits.ts';
 	import PinView from '#lib/pins/components/PinView/PinView.svelte';
 
@@ -16,6 +25,7 @@
 		pin?: Pin;
 		spot: Fraction;
 		entries: readonly GlossaryTerm[];
+		symbols?: readonly SymbolOption[];
 		image?: ArtworkImageInput | null;
 		view?: number;
 		shownWidth?: number;
@@ -29,6 +39,7 @@
 		pin,
 		spot,
 		entries,
+		symbols = [],
 		image,
 		view,
 		shownWidth,
@@ -37,6 +48,8 @@
 	}: Props = $props();
 
 	let entryId = $state<string | null>(null);
+	let symbolId = $state<string | null>(null);
+	let meaningId = $state('');
 	let text = $state('');
 	let viewWidth = $state<number>();
 	let failure = $state<string>();
@@ -49,9 +62,19 @@
 			.sort((first, second) => first.label.localeCompare(second.label, 'pl'))
 	);
 
+	let symbolOptions = $derived(symbols.map((symbol) => ({ value: symbol.id, label: symbol.name })));
+	let meanings = $derived(symbols.find((symbol) => symbol.id === symbolId)?.meanings ?? []);
+	let meaningOptions = $derived(meanings.map(({ id, text }) => ({ value: id, label: text })));
+
+	$effect(() => {
+		if (!meanings.some((meaning) => meaning.id === meaningId)) meaningId = '';
+	});
+
 	$effect(() => {
 		if (!open) return;
 		entryId = pin?.glossaryEntryId ?? null;
+		symbolId = pin?.symbolId ?? null;
+		meaningId = pin?.symbolMeaningId ?? '';
 		text = pin?.text ?? '';
 		viewWidth = pin ? pin.viewWidth : view;
 		failure = undefined;
@@ -64,6 +87,8 @@
 			x: pin?.x ?? spot.x,
 			y: pin?.y ?? spot.y,
 			glossaryEntryId: entryId,
+			symbolId,
+			symbolMeaningId: meaningId || null,
 			text,
 			...(viewWidth !== undefined ? { viewWidth } : {})
 		};
@@ -121,6 +146,22 @@
 			placeholder={m.pins.termPlaceholder}
 			bind:value={entryId}
 		/>
+		{#if symbols.length > 0}
+			<SearchSelect
+				label={m.pins.symbol}
+				options={symbolOptions}
+				placeholder={m.symbols.search}
+				bind:value={symbolId}
+			/>
+			{#if meanings.length >= 2}
+				<Select
+					label={m.pins.symbolMeaning}
+					options={meaningOptions}
+					placeholder={m.symbols.view.withoutMeaning}
+					bind:value={meaningId}
+				/>
+			{/if}
+		{/if}
 		<TextArea counter label={m.pins.text} maxlength={MAX_PIN_TEXT} rows={4} bind:value={text} />
 	</div>
 	{#snippet footer()}

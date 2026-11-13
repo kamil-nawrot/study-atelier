@@ -189,6 +189,7 @@
 			pins={data.pins}
 			showPinsOnOpen={data.preferences?.viewShowPins}
 			summaries={data.summaries}
+			symbols={data.symbols}
 			visits={data.visits}
 		/>
 	{:else}

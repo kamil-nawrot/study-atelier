@@ -16,6 +16,7 @@ import type { AtlasSymbol } from '#lib/symbols/types/atlas-symbol.ts';
 import type { SymbolContext } from '#lib/symbols/types/symbol-context.ts';
 import type { SymbolDraft } from '#lib/symbols/types/symbol-draft.ts';
 import type { SymbolEntry } from '#lib/symbols/types/symbol-entry.ts';
+import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 import type { SymbolPin } from '#lib/symbols/types/symbol-pin.ts';
 
 type AtlasResult = { symbols: AtlasSymbol[]; error?: string };
@@ -113,6 +114,29 @@ function entryOf(row: SymbolRow): SymbolEntry {
 					.sort((a, b) => a.position - b.position)
 					.map(contextOf)
 			}))
+	};
+}
+
+type OptionRow = {
+	id: string;
+	name: string;
+	symbol_meanings: { id: string; position: number; text: string }[];
+};
+
+export async function loadSymbolOptions(): Promise<{ symbols: SymbolOption[]; error?: string }> {
+	const { data, error } = await supabase
+		.from('symbols')
+		.select('id, name, symbol_meanings(id, position, text)')
+		.order('name');
+	if (error) return { symbols: [], error: await failureMessage(error, symbolErrorMessage) };
+	return {
+		symbols: (data as unknown as OptionRow[]).map((row) => ({
+			id: row.id,
+			name: row.name,
+			meanings: [...row.symbol_meanings]
+				.sort((a, b) => a.position - b.position)
+				.map(({ id, text }) => ({ id, text }))
+		}))
 	};
 }
 
