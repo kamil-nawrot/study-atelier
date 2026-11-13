@@ -492,9 +492,9 @@ alternatives:
 
   - id: M11
     name: Give a place its city
-    status: 'designed in 0.23 (ATL-711); schema, rules, export and import, and the catalogue built in ATL-730'
+    status: 'designed in 0.23 (ATL-711); schema, rules, export and import, and the catalogue built in ATL-730; the city of a starter museum and the place form in ATL-731'
     kind: schema
-    tables: [location_details]
+    tables: [location_details, catalogue_museums]
     serves: [R08, R33, R35, W03, W32]
     pull_requests: 2
     risk: medium
@@ -504,7 +504,10 @@ alternatives:
       is set to null only when the account goes; a trigger keeps it pointing at a place of the type city and never
       on a city, and copies the city's country to the place. A check keeps city_id apart from a point.
       ensure_city_place finds or creates the city place of a catalogue town or a typed name, and save_value_details
-      takes its city_id. The tab "Miejsca", the city page, the
+      takes its city_id. catalogue_museums keeps the nearest catalogue town of every museum (city_name, its
+      Wikidata id, country and point, computed from the bundled towns), and the trigger that copies a starter
+      museum into a new place gives it that city through the same finding or creating of the city place, except
+      during an import. The tab "Miejsca", the city page, the
       map and the trip form read the stored city instead of the nearest town.
     design:
       - 'A city place keeps the Wikidata id of its catalogue town in wikidata_id; no new column for the catalogue.'

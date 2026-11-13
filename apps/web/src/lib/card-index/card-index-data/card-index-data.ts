@@ -73,6 +73,7 @@ type CardIndexRow = {
 		birth_year?: number;
 		country_code?: string;
 		place_type?: string;
+		city_id?: string;
 	})[];
 	period_eras: PeriodEraRow[];
 	style_periods: StylePeriodRow[];
@@ -90,7 +91,8 @@ function recordOf(row: CardIndexRow['values'][number]): CardIndexRecord[] {
 			...(row.sort_name ? { sortName: row.sort_name } : {}),
 			...(row.birth_year === undefined ? {} : { birthYear: row.birth_year }),
 			...(row.country_code ? { countryCode: row.country_code } : {}),
-			...(isPlaceType(row.place_type) ? { placeType: row.place_type } : {})
+			...(isPlaceType(row.place_type) ? { placeType: row.place_type } : {}),
+			...(row.city_id ? { cityId: row.city_id } : {})
 		}
 	];
 }

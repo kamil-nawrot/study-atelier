@@ -1225,7 +1225,9 @@ export const pl = {
 			changed: 'Coś zmieniło się w międzyczasie. Odśwież stronę i spróbuj jeszcze raz.',
 			cityMerge: 'To miasto ma swoje miejsca. Możesz je połączyć tylko z innym miastem.',
 			cityType:
-				'To miasto ma swoje miejsca, więc musi zostać miastem. Najpierw zmień miasto tych miejsc.'
+				'To miasto ma swoje miejsca, więc musi zostać miastem. Najpierw zmień miasto tych miejsc.',
+			cityName:
+				'Masz już miejsce o tej nazwie, ale innego typu. Zmień jego typ na „Miasto” albo wybierz inne miasto.'
 		}
 	},
 	ownFields: {
@@ -2749,6 +2751,10 @@ export const pl = {
 		country: 'Kraj',
 		countryPlaceholder: 'Zacznij wpisywać nazwę kraju, żeby zobaczyć listę opcji',
 		countryHint: 'Wybierz kraj z listy.',
+		city: 'Miasto',
+		cityPlaceholder: 'Zacznij wpisywać nazwę miasta, żeby zobaczyć listę opcji',
+		cityHint: 'Wybierz miasto z listy albo dodaj nowe.',
+		cityOnMap: (city: string): string => `Na mapie w mieście ${city}.`,
 		authorCountry: 'Kraj autora',
 		authorCountryHint: 'Wpisz kraj lub krainę.',
 		placeType: 'Typ miejsca',

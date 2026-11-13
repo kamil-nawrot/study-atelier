@@ -31,9 +31,13 @@ begin
   select id into painting from public.save_artwork(
     '{"title": "Mona Lisa", "author_unknown": true}', '{"location": ["Luwr"]}', null, '[]');
   select id into louvre from public.category_values where name = 'Luwr';
-  assert (select (latitude, longitude, wikidata_id) from public.location_details where value_id = louvre)
-    = (48.86111::double precision, 2.33583::double precision, 'Q19675'::text),
-    'a starter museum does not give its point to a new place';
+  assert (
+    select (details.latitude, details.wikidata_id, city.name)
+      from public.location_details as details
+      join public.category_values as city on city.id = details.city_id
+      where details.value_id = louvre
+  ) = (null::double precision, 'Q19675'::text, 'Paryż'::text),
+    'a starter museum does not give a new place its Wikidata id and its city';
 
   select museum.alias, museum.wikidata_id, museum.latitude into aliased
     from public.catalogue_museums as museum
@@ -48,12 +52,12 @@ begin
     jsonb_build_object('title', 'Alias', 'author_unknown', true),
     jsonb_build_object('location', jsonb_build_array(aliased.alias)), null, '[]');
   assert (
-    select (details.catalogue_wikidata_id, details.latitude, details.place_type)
+    select (details.catalogue_wikidata_id, details.latitude is not null or details.city_id is not null, details.place_type)
       from public.location_details as details
       join public.category_values as place on place.id = details.value_id
       where place.name = aliased.alias
-  ) = (aliased.wikidata_id, aliased.latitude, 'museum'::text),
-    'a place named by the alias of a starter museum does not get its point';
+  ) = (aliased.wikidata_id, true, 'museum'::text),
+    'a place named by the alias of a starter museum does not get its city or point';
 
   select id into sculpture from public.save_artwork(
     '{"title": "Pieta", "author_unknown": true}', '{"location": ["Rzym"]}', null, '[]');

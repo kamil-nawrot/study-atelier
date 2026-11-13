@@ -2,7 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { createValue, saveValue } from '#lib/card-index/card-index-data/card-index-data.ts';
 import { setPlacePoint } from '#lib/map/places-data/places-data.ts';
-import { saveValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
+import {
+	ensureCityPlace,
+	saveValueDetails
+} from '#lib/values/value-details-data/value-details-data.ts';
 import type { ValueFormFields } from '#lib/values/types/value-form-fields.ts';
 import { saveValueForm } from './value-form-save.ts';
 
@@ -12,6 +15,7 @@ vi.mock('#lib/card-index/card-index-data/card-index-data.ts', () => ({
 }));
 vi.mock('#lib/map/places-data/places-data.ts', () => ({ setPlacePoint: vi.fn() }));
 vi.mock('#lib/values/value-details-data/value-details-data.ts', () => ({
+	ensureCityPlace: vi.fn(),
 	saveValueDetails: vi.fn()
 }));
 
@@ -173,5 +177,57 @@ describe('saveValueForm', () => {
 		});
 
 		expect(setPlacePoint).not.toHaveBeenCalled();
+	});
+
+	it('creates the chosen city first, saves it with the place and sets no point', async () => {
+		vi.mocked(ensureCityPlace).mockResolvedValue({ id: 'city-paris' });
+		const subject = {
+			kind: 'location' as const,
+			record: { id: 'place-1', category: 'location' as const, name: 'Luwr', count: 1 }
+		};
+		const saved = { countryCode: null, placeType: null, point: { latitude: 1, longitude: 1 } };
+		const city = { name: 'Paryż', countryCode: 'FR', wikidataId: 'Q90' };
+
+		await saveValueForm({
+			subject,
+			form: fields({
+				name: 'Luwr',
+				location: { countryCode: 'FR', placeType: 'museum', point: null, city }
+			}),
+			saved: fields({ name: 'Luwr', location: saved }),
+			details: { summary: '', notes: '' },
+			name: 'Luwr',
+			linksChanged: false
+		});
+
+		expect(ensureCityPlace).toHaveBeenCalledWith(city);
+		expect(vi.mocked(saveValueDetails).mock.calls[0][1].location?.city).toEqual({
+			...city,
+			id: 'city-paris'
+		});
+		expect(setPlacePoint).not.toHaveBeenCalled();
+	});
+
+	it('stops with the error when the city cannot be created', async () => {
+		vi.mocked(ensureCityPlace).mockResolvedValue({ error: 'Brak sieci.' });
+		const subject = {
+			kind: 'location' as const,
+			record: { id: 'place-1', category: 'location' as const, name: 'Luwr', count: 1 }
+		};
+
+		const result = await saveValueForm({
+			subject,
+			form: fields({
+				name: 'Luwr',
+				location: { countryCode: null, placeType: 'museum', city: { name: 'Tum' } }
+			}),
+			saved: fields({ name: 'Luwr', location: { countryCode: null, placeType: 'museum' } }),
+			details: { summary: '', notes: '' },
+			name: 'Luwr',
+			linksChanged: false
+		});
+
+		expect(result).toEqual({ error: 'Brak sieci.' });
+		expect(saveValueDetails).not.toHaveBeenCalled();
 	});
 });

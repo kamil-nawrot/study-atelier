@@ -3,25 +3,29 @@
 	import { PlaceSearch } from '#lib/map/place-search/place-search.svelte.ts';
 	import type { PlaceChoice } from '#lib/map/types/place-choice.ts';
 	import type { WikidataPlace } from '#lib/images/types/wikidata-place.ts';
+	import type { Town } from '#lib/map/types/town.ts';
 
 	type Props = {
 		name: string;
 		choice: PlaceChoice | null;
+		towns?: readonly Town[];
 		onchoose: (choice: PlaceChoice) => void;
 	};
 
-	let { name, choice, onchoose }: Props = $props();
+	let { name, choice, towns, onchoose }: Props = $props();
 
 	const search = new PlaceSearch();
 
 	$effect(() => {
-		void search.search(name);
+		void search.search(name, towns);
 	});
 
 	function choose(place: WikidataPlace): void {
 		onchoose({
 			point: { latitude: place.latitude, longitude: place.longitude },
-			wikidataId: place.wikidataId
+			wikidataId: place.wikidataId,
+			suggested: true,
+			...(place.countryCode ? { countryCode: place.countryCode } : {})
 		});
 	}
 </script>

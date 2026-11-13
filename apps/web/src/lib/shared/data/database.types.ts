@@ -542,6 +542,11 @@ export type Database = {
       catalogue_museums: {
         Row: {
           alias: string | null;
+          city_country_code: string | null;
+          city_latitude: number | null;
+          city_longitude: number | null;
+          city_name: string | null;
+          city_wikidata_id: string | null;
           country_code: string;
           latitude: number;
           longitude: number;
@@ -551,6 +556,11 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           alias?: string | null;
+          city_country_code?: string | null;
+          city_latitude?: number | null;
+          city_longitude?: number | null;
+          city_name?: string | null;
+          city_wikidata_id?: string | null;
           country_code: string;
           latitude: number;
           longitude: number;
@@ -559,6 +569,11 @@ export type Database = {
         };
         Update: {
           alias?: string | null;
+          city_country_code?: string | null;
+          city_latitude?: number | null;
+          city_longitude?: number | null;
+          city_name?: string | null;
+          city_wikidata_id?: string | null;
           country_code?: string;
           latitude?: number;
           longitude?: number;

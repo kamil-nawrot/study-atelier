@@ -1,10 +1,8 @@
 <script lang="ts">
 	import { Alert } from '@study-atelier/ui';
-	import { countryName, isCountryCode } from '#lib/catalogue/countries/countries.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import WorldMap from '#lib/map/components/WorldMap/WorldMap.svelte';
 	import { loadGeography } from '#lib/map/geography/geography.ts';
-	import { nearestTown } from '#lib/map/towns/towns.ts';
 	import type { Geography } from '#lib/map/types/geography.ts';
 	import type { PlacePoint } from '#lib/map/types/place-point.ts';
 
@@ -16,15 +14,6 @@
 
 	let geography = $state<Geography>();
 	let failed = $state(false);
-
-	let town = $derived(point && geography ? nearestTown(point, geography.towns) : null);
-	let townLine = $derived(
-		town
-			? [town.name, isCountryCode(town.countryCode) ? countryName(town.countryCode) : null]
-					.filter(Boolean)
-					.join(', ')
-			: ''
-	);
 
 	$effect(() => {
 		if (!point || geography || failed) return;
@@ -47,9 +36,6 @@
 		<div class="frame">
 			<WorldMap fit={[point]} {geography} marker={point} wholeWorld />
 		</div>
-		{#if townLine}
-			<p class="caption">{townLine}</p>
-		{/if}
 	{/if}
 </section>
 
@@ -60,14 +46,8 @@
 		gap: var(--spacing-3);
 	}
 
-	.empty,
-	.caption {
+	.empty {
 		color: var(--color-fg-muted);
-	}
-
-	.caption {
-		font-size: var(--font-size-sm);
-		line-height: var(--line-height-sm);
 	}
 
 	.frame {

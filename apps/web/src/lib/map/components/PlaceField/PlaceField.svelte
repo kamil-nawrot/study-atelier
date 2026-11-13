@@ -5,7 +5,9 @@
 	import PlaceSuggestions from '#lib/map/components/PlaceSuggestions/PlaceSuggestions.svelte';
 	import WorldMap from '#lib/map/components/WorldMap/WorldMap.svelte';
 	import { loadGeography } from '#lib/map/geography/geography.ts';
+	import { nearestTown } from '#lib/map/towns/towns.ts';
 	import type { Geography } from '#lib/map/types/geography.ts';
+	import type { Town } from '#lib/map/types/town.ts';
 	import type { PlaceChoice } from '#lib/map/types/place-choice.ts';
 	import type { PlacePoint } from '#lib/map/types/place-point.ts';
 
@@ -13,9 +15,19 @@
 		name: string;
 		point: PlacePoint | null;
 		wikidataId?: string | null;
+		city?: boolean;
+		oncountry?: (code: string) => void;
+		ontown?: (town: Town) => void;
 	};
 
-	let { name, point = $bindable(), wikidataId = $bindable(null) }: Props = $props();
+	let {
+		name,
+		point = $bindable(),
+		wikidataId = $bindable(null),
+		city = false,
+		oncountry,
+		ontown
+	}: Props = $props();
 
 	let geography = $state<Geography>();
 	let failed = $state(false);
@@ -34,6 +46,13 @@
 	});
 
 	function choose(next: PlaceChoice): void {
+		const town =
+			next.suggested && ontown && geography ? nearestTown(next.point, geography.towns) : null;
+		if (town && ontown) {
+			ontown(town);
+			return;
+		}
+		if (next.countryCode) oncountry?.(next.countryCode);
 		point = next.point;
 		wikidataId = next.wikidataId;
 		if (next.wikidataId) focus = next.point;
@@ -63,7 +82,11 @@
 			{/if}
 		</div>
 		<div class="side">
-			<PlaceSuggestions name={searched} {choice} onchoose={choose} />
+			{#if !city}
+				<PlaceSuggestions name={searched} {choice} onchoose={choose} />
+			{:else if geography}
+				<PlaceSuggestions name={searched} {choice} onchoose={choose} towns={geography.towns} />
+			{/if}
 			{#if point}
 				<div>
 					<TextButton onclick={remove}>
