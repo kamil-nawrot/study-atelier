@@ -169,7 +169,7 @@ The Security and Performance Advisors in the dashboard of each project are run b
 
 ## Releasing
 
-A merge to `main` applies pending migrations to the production database and deploys the production build. Review the new files in `supabase/migrations` before merging the release.
+A merge to `main` applies pending migrations to the production database and then deploys the production build; when the migrations fail, nothing is deployed ([ADR-0284](../decisions/0284-apply-the-migrations-before-deploying-the-app.md)). Review the new files in `supabase/migrations` before merging the release.
 
 ## Testing reviews on the develop database
 
