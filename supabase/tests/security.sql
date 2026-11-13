@@ -106,7 +106,7 @@ declare
     'career_standing', 'note_link_mentions', 'note_link_labels', 'note_link_suggestions', 'atelier_empty',
     'collection_statistics', 'record_right_answer', 'note_gap_artwork', 'artwork_field_type_impact',
     'mastered_artworks', 'save_exhibition', 'record_night_light', 'record_long_look', 'save_symbol', 'symbol_atlas',
-    'set_place_point', 'set_symbol_cover'
+    'set_place_point', 'set_symbol_cover', 'ensure_city_place'
   ];
   table_name text;
   routine record;
@@ -989,6 +989,7 @@ begin
   assert security_test.denied('select public.record_long_look()'), 'anon executes record_long_look';
   assert security_test.denied(format('select public.set_place_point(%L, 0, 0)', gen_random_uuid())),
     'anon executes set_place_point';
+  assert security_test.denied('select public.ensure_city_place(''Paryż'')'), 'anon executes ensure_city_place';
   assert security_test.denied('select public.record_right_answer(now())'), 'anon executes record_right_answer';
   assert security_test.denied('select public.save_era_details(''antiquity'', ''{}'')'),
     'anon executes save_era_details';

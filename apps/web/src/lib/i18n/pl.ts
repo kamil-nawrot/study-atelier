@@ -1221,7 +1221,10 @@ export const pl = {
 		deleted: (name: string): string => `Usunięto „${name}”.`,
 		errors: {
 			notFound: 'Nie ma już takiej wartości. Odśwież stronę.',
-			changed: 'Coś zmieniło się w międzyczasie. Odśwież stronę i spróbuj jeszcze raz.'
+			changed: 'Coś zmieniło się w międzyczasie. Odśwież stronę i spróbuj jeszcze raz.',
+			cityMerge: 'To miasto ma swoje miejsca. Możesz je połączyć tylko z innym miastem.',
+			cityType:
+				'To miasto ma swoje miejsca, więc musi zostać miastem. Najpierw zmień miasto tych miejsc.'
 		}
 	},
 	ownFields: {

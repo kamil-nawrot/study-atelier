@@ -46,7 +46,7 @@ type VisitRow = {
 };
 
 const ENTRY_COLUMNS =
-	'id, kind, visited_on, ends_on, trip_id, date_precision, notes, category_values(name, location_details(place_type, country_code))';
+	'id, kind, visited_on, ends_on, trip_id, date_precision, notes, category_values(name, location_details!location_details_value_id_owner_id_category_code_fkey(place_type, country_code))';
 
 const VISIT_COLUMNS = `${ENTRY_COLUMNS}, visit_artworks(artwork_id)`;
 

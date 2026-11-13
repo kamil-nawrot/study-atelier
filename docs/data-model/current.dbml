@@ -369,6 +369,11 @@ Table location_details {
   latitude "double precision"
   longitude "double precision"
   wikidata_id text
+  city_id uuid
+
+  indexes {
+    city_id [name: 'location_details_city_id_idx']
+  }
   Note: 'RLS on'
 }
 
@@ -658,6 +663,7 @@ Ref exhibits_room_code_fkey: exhibits.room_code > exhibit_rooms.code
 Ref feedback_owner_id_fkey: feedback.owner_id > auth.users.id [delete: cascade]
 Ref free_review_days_owner_id_fkey: free_review_days.owner_id > auth.users.id [delete: cascade]
 Ref glossary_entries_owner_id_fkey: glossary_entries.owner_id > auth.users.id [delete: cascade]
+Ref location_details_city_fkey: location_details.(city_id, owner_id, category_code) > category_values.(id, owner_id, category_code) [delete: set null (city_id)]
 Ref location_details_catalogue_wikidata_id_fkey: location_details.catalogue_wikidata_id > catalogue_museums.wikidata_id [delete: set null]
 Ref location_details_value_id_owner_id_category_code_fkey: location_details.(value_id, owner_id, category_code) > category_values.(id, owner_id, category_code) [delete: cascade]
 Ref material_details_value_id_owner_id_category_code_fkey: material_details.(value_id, owner_id, category_code) > category_values.(id, owner_id, category_code) [delete: cascade]

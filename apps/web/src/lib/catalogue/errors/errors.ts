@@ -6,6 +6,8 @@ export const collectionErrorMessage = errorMessages({}, m.collectionErrors.netwo
 export const cardIndexErrorMessage = errorMessages(
 	{
 		P0002: m.cardIndex.errors.notFound,
+		SC001: m.cardIndex.errors.cityMerge,
+		SC002: m.cardIndex.errors.cityType,
 		'23001': m.cardIndex.errors.changed,
 		'23505': m.cardIndex.errors.changed,
 		'23514': m.cardIndex.errors.changed

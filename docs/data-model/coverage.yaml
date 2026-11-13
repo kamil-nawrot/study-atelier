@@ -492,7 +492,7 @@ alternatives:
 
   - id: M11
     name: Give a place its city
-    status: 'designed in 0.23 (ATL-711), built after ATL-709'
+    status: 'designed in 0.23 (ATL-711); schema, rules, export and import, and the catalogue built in ATL-730'
     kind: schema
     tables: [location_details]
     serves: [R08, R33, R35, W03, W32]
@@ -501,16 +501,18 @@ alternatives:
     risk_because: 'a reference between two rows of one kind, kept honest by a check and a trigger, and merge, delete, export and import each gain a rule; existing places are not changed by the migration'
     how: >
       location_details gains city_id, a reference (city_id, owner_id, category_code) to category_values that
-      restricts deleting a city with places; a trigger keeps it pointing at a place of the type city and never on
-      a city. A check keeps city_id apart from a point and from country_code. save_value_details takes the city or
-      a catalogue town and creates the city place in the same transaction. The tab "Miejsca", the city page, the
+      is set to null only when the account goes; a trigger keeps it pointing at a place of the type city and never
+      on a city, and copies the city's country to the place. A check keeps city_id apart from a point.
+      ensure_city_place finds or creates the city place of a catalogue town or a typed name, and save_value_details
+      takes its city_id. The tab "Miejsca", the city page, the
       map and the trip form read the stored city instead of the nearest town.
     design:
       - 'A city place keeps the Wikidata id of its catalogue town in wikidata_id; no new column for the catalogue.'
       - 'The catalogue is the bundled Natural Earth file, extended with the Wikidata id, the region and the original and English names; no table.'
       - "merge_category_values moves the places of a merged city, refuses a city with places into another type, and lets the kept place keep its city or position or take the other's."
-      - 'value_usage counts the places of a city, so a city with places is used; changing the type of such a city is refused.'
-      - 'export_atelier and import_atelier carry city_id; the import sets cities after every place exists; an older export has none.'
+      - 'delete_unused_value refuses a city with places; changing the type of such a city is refused.'
+      - "The country of a place with a city is a copy of the city's country kept by triggers, so every reader of location_details.country_code (exhibits, statistics, the chronicle) works unchanged."
+      - 'The export reads location_details with city_id; import_atelier sets the cities after every place exists; an older export has none.'
       - 'Existing places get their cities from a one-off reviewed SQL file after the release (a follow-up issue of ATL-711), not from the migration.'
     cost:
       - 'migration: column, reference, index, check, trigger, save_value_details, merge_category_values, value_usage, export and import'

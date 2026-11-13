@@ -3,4 +3,7 @@ export type Town = {
 	countryCode: string;
 	longitude: number;
 	latitude: number;
+	wikidataId?: string;
+	region?: string;
+	otherNames?: string[];
 };
