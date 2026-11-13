@@ -1,6 +1,6 @@
 # 0139. Ask the learner to reload after a new release
 
-- Status: accepted
+- Status: accepted; the expand-and-contract migrations are superseded by [0283](0283-rename-or-drop-database-objects-in-one-release.md)
 - Date: 2026-10-26
 
 ## Context and problem statement
