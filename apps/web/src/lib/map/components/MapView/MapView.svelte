@@ -1,7 +1,14 @@
 <script lang="ts">
 	import MapIcon from '@lucide/svelte/icons/map';
 	import { onMount, untrack } from 'svelte';
-	import { Alert, Button, EmptyState, PageHeader, ToggleTag } from '@study-atelier/ui';
+	import {
+		Alert,
+		Button,
+		EmptyState,
+		PageHeader,
+		ToggleTag,
+		overlayScrollbar
+	} from '@study-atelier/ui';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import CityPanel from '#lib/map/components/CityPanel/CityPanel.svelte';
@@ -90,7 +97,7 @@
 				{/if}
 			</div>
 			{#if view.filling}
-				<aside>
+				<aside {@attach overlayScrollbar()}>
 					<FillPanel
 						choice={view.choice}
 						current={view.current}
@@ -104,7 +111,7 @@
 					/>
 				</aside>
 			{:else if view.selected}
-				<aside>
+				<aside {@attach overlayScrollbar()}>
 					<CityPanel
 						city={view.selected}
 						filter={view.filter}

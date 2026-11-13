@@ -1,6 +1,6 @@
 # 0260. Show places on a drawn map and mark artworks to see
 
-- Status: accepted
+- Status: accepted; the city name under every circle is superseded by [0276](0276-group-close-cities-on-the-map-and-name-only-those-that-fit.md)
 - Date: 2026-11-12
 
 ## Context and problem statement

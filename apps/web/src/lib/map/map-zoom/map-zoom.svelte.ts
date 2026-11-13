@@ -1,5 +1,5 @@
 export const MIN_ZOOM = 1;
-export const MAX_ZOOM = 16;
+export const MAX_ZOOM = 64;
 export const ZOOM_STEP = 1.6;
 
 export class MapZoom {

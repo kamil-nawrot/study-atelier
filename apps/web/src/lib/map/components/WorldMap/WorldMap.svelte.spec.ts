@@ -82,4 +82,56 @@ describe('WorldMap', () => {
 		expect(point.longitude).toBeLessThan(paris.point.longitude);
 		expect(document.querySelector('.marker')).not.toBeNull();
 	});
+
+	it('zooms with the wheel over a city', async () => {
+		await page.viewport(1000, 800);
+		render(WorldMap, {
+			geography: testGeography(),
+			fit: [paris.point, florence.point],
+			cities: [paris, florence]
+		});
+		const florenceButton = page
+			.getByRole('button', { name: /^Florencja/ })
+			.element() as HTMLElement;
+		const parisButton = page.getByRole('button', { name: /^Paryż/ }).element() as HTMLElement;
+		const before = florenceButton.style.left;
+
+		parisButton.dispatchEvent(
+			new WheelEvent('wheel', { deltaY: -200, bubbles: true, cancelable: true })
+		);
+
+		await expect.poll(() => florenceButton.style.left).not.toBe(before);
+	});
+
+	it('groups close cities and zooms in on a group until they split', async () => {
+		await page.viewport(1000, 800);
+		const onselect = vi.fn();
+		const rome: MapCity = {
+			...florence,
+			key: 'IT:Rzym',
+			name: 'Rzym',
+			point: { latitude: 41.893, longitude: 12.483 },
+			count: 5
+		};
+		const vatican: MapCity = {
+			...florence,
+			key: 'VA:Watykan',
+			name: 'Watykan',
+			point: { latitude: 41.903, longitude: 12.453 },
+			count: 2
+		};
+		render(WorldMap, {
+			geography: testGeography(),
+			fit: [paris.point, rome.point],
+			cities: [paris, rome, vatican],
+			onselect
+		});
+
+		await page.getByRole('button', { name: m.map.group(['Rzym', 'Watykan'], 7) }).click();
+
+		expect(onselect).not.toHaveBeenCalled();
+		await expect.element(page.getByRole('button', { name: /^Rzym/ })).toBeInTheDocument();
+		await page.getByRole('button', { name: /^Watykan/ }).click();
+		expect(onselect).toHaveBeenCalledWith(vatican);
+	});
 });
