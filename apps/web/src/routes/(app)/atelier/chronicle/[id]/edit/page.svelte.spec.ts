@@ -23,7 +23,14 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 describe('visit edit page', () => {
 	it('opens the visit as it was saved', async () => {
 		render(FormPage, {
-			data: { session: testSession(), visit: testVisit(), artworks: [], places: [] },
+			data: {
+				session: testSession(),
+				visit: testVisit(),
+				artworks: [],
+				places: [],
+				tripPlaces: [],
+				towns: []
+			},
 			params: { id: testVisit().id }
 		});
 
@@ -35,7 +42,14 @@ describe('visit edit page', () => {
 
 	it('leads back to the visit it edits', async () => {
 		render(FormPage, {
-			data: { session: testSession(), visit: testVisit(), artworks: [], places: [] },
+			data: {
+				session: testSession(),
+				visit: testVisit(),
+				artworks: [],
+				places: [],
+				tripPlaces: [],
+				towns: []
+			},
 			params: { id: testVisit().id }
 		});
 
@@ -46,7 +60,14 @@ describe('visit edit page', () => {
 
 	it('says that the visit does not exist', async () => {
 		render(FormPage, {
-			data: { session: testSession(), notFound: true, artworks: [], places: [] },
+			data: {
+				session: testSession(),
+				notFound: true,
+				artworks: [],
+				places: [],
+				tripPlaces: [],
+				towns: []
+			},
 			params: { id: 'unknown' }
 		});
 

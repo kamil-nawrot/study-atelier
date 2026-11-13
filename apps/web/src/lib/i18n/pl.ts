@@ -2328,13 +2328,17 @@ export const pl = {
 	chronicle: {
 		title: 'Kronika',
 		lead: 'Dziennik Twoich wizyt w muzeach i innych spotkań ze sztuką. Możesz tutaj zapisać, gdzie i kiedy udało Ci się zobaczyć dzieła z Twojej kolekcji na żywo.',
-		count: (visits: number, seen: number): string =>
-			`${visitCount(visits)} · ${workCount(seen)} na żywo`,
-		add: 'Dodaj wizytę',
+		count: (visits: number, trips: number, seen: number): string =>
+			[
+				visitCount(visits),
+				...(trips > 0 ? [tripCount(trips)] : []),
+				`${workCount(seen)} na żywo`
+			].join(' · '),
+		add: 'Dodaj wpis',
 		emptyTitle: 'Kronika jest jeszcze pusta',
 		empty:
-			'Zapisuj tu swoje wizyty w muzeach, galeriach i innych miejscach, gdzie spotykasz się ze sztuką. Przy każdej wizycie możesz zaznaczyć dzieła, które udało Ci się zobaczyć na żywo, i dodać notatkę z wrażeniami.',
-		addFirst: 'Dodaj pierwszą wizytę',
+			'Zapisuj tu swoje wizyty w muzeach, galeriach i zabytkach oraz podróże, podczas których zwiedzasz całe miasto. Przy każdym wpisie możesz zaznaczyć dzieła, które udało Ci się zobaczyć na żywo, i dodać notatkę z wrażeniami.',
+		addFirst: 'Dodaj pierwszy wpis',
 		loadErrorTitle: 'Nie udało się wczytać kroniki',
 		back: 'Kronika',
 		seen: (count: number): string => `${workCount(count)} na żywo`,
@@ -2357,10 +2361,13 @@ export const pl = {
 			description: 'Zniknie wizyta i jej notatka. Dzieła zostaną w kolekcji.'
 		},
 		form: {
-			newTitle: 'Nowa wizyta',
+			newTitle: 'Nowy wpis w kronice',
+			kind: 'Rodzaj wpisu',
+			visitTile: 'Pojedyncza wizyta w muzeum, galerii lub zabytku',
+			tripTile: 'Pobyt w mieście połączony ze zwiedzaniem',
 			editTitle: 'Edycja wizyty',
 			place: 'Miejsce',
-			placeHint: 'Muzeum, galeria albo kościół. Dzieła, które tam są, zaznaczymy od razu.',
+			placeHint: 'Muzeum, galeria albo kościół. Dzieła, które tam są, będą od razu zaznaczone.',
 			placeRequired: 'Wybierz, gdzie była wizyta.',
 			date: 'Data',
 			dateHint: 'Wystarczy sam rok, jeśli dokładniej nie pamiętasz.',
@@ -2373,13 +2380,13 @@ export const pl = {
 			dayInvalid: 'Taki dzień nie istnieje w tym miesiącu.',
 			notesPlaceholder: 'Jak było? Co Cię zaskoczyło? Co warto zapamiętać?',
 			artworks: 'Dzieła',
-			ticked: 'Zaznaczyliśmy wszystko z tego miejsca. Odznacz to, czego tym razem nie było.',
+			ticked: 'Dzieła z tego miejsca są już zaznaczone. Odznacz to, czego tym razem nie było.',
 			search: 'Udało się zobaczyć coś jeszcze? Szukaj w całej kolekcji',
 			noMatch: 'W kolekcji nie ma takiego dzieła.',
 			addArtwork: (title: string): string => `Dodaj „${title}”`,
 			fromPlace: 'Z tego miejsca',
 			fromElsewhere: 'Z innych miejsc',
-			noPlace: 'Wybierz miejsce, a pokażemy jego dzieła.',
+			noPlace: 'Po wybraniu miejsca pojawią się tu jego dzieła.',
 			placeEmpty:
 				'W kolekcji nie ma jeszcze dzieł z tego miejsca. Te zobaczone dodasz przez wyszukiwarkę.',
 			errorTitle: 'Nie udało się zapisać wizyty',
@@ -2389,6 +2396,44 @@ export const pl = {
 		errors: {
 			notFound: 'Nie ma takiej wizyty w kronice. Może została usunięta.',
 			invalid: 'Nie udało się zapisać wizyty. Sprawdź miejsce, datę i dzieła.'
+		},
+		trip: {
+			kind: 'Podróż',
+			overline: (days: number): string =>
+				`Podróż · ${days} ${plural(days, { one: 'dzień', few: 'dni', many: 'dni' })}`,
+			overlineApproximate: (date: string): string => `Podróż · ${date}`,
+			visits: (count: number): string => visitCount(count),
+			saved: (place: string, dates: string): string => `Zapisano podróż: ${place}, ${dates}.`,
+			view: {
+				visitsTitle: 'Wizyty w czasie podróży',
+				seenTitle: 'Widziane na żywo podczas zwiedzania',
+				noArtworks: 'Do tej podróży nie ma jeszcze dzieł. Kliknij „Edytuj”, żeby je zaznaczyć.',
+				deleted: (dates: string): string => `Usunięto podróż z ${dates}.`
+			},
+			deleteConfirm: {
+				title: (dates: string): string => `Usunąć podróż z ${dates}?`,
+				description:
+					'Zniknie podróż i jej notatka. Wizyty z jej czasu zostaną w kronice, a dzieła w kolekcji.'
+			},
+			form: {
+				editTitle: 'Edycja podróży',
+				place: 'Miasto podróży',
+				placeHint:
+					'Podróż dotyczy jednego miasta. Jego dzieła i dzieła z zabytków w nim będą od razu zaznaczone.',
+				placeRequired: 'Wpisz miasto podróży.',
+				notCity:
+					'Podróż może dotyczyć tylko miasta. Zmień rodzaj tego miejsca w Kartotece albo wybierz inne.',
+				start: 'Przyjazd',
+				startHint: 'Wystarczy miesiąc albo rok, jeśli dokładniej nie pamiętasz.',
+				end: 'Wyjazd',
+				endHint: 'Zostaw puste, jeśli podróż trwała jeden dzień.',
+				endBeforeStart: 'Podróż nie może się skończyć, zanim się zaczęła.',
+				endApproximate: 'Bez dokładnych dni podróż ma jedną datę: miesiąc albo rok.',
+				ticked:
+					'Dzieła z miasta i jego zabytków są już zaznaczone. Odznacz to, czego tym razem nie było.',
+				noPlace: 'Po wybraniu miasta pojawią się tu jego dzieła.',
+				errorTitle: 'Nie udało się zapisać podróży'
+			}
 		}
 	},
 	timeline: {
@@ -2683,7 +2728,8 @@ export const pl = {
 			museum: 'Muzeum',
 			gallery: 'Galeria',
 			private_collection: 'Kolekcja prywatna',
-			on_site: 'Na miejscu'
+			on_site: 'Na miejscu',
+			city: 'Miasto'
 		}
 	},
 	exhibitions: {
@@ -2897,6 +2943,10 @@ function pointCount(count: number): string {
 
 function exhibitionCount(count: number): string {
 	return `Na ${count} ${plural(count, { one: 'wystawie', few: 'wystawach', many: 'wystawach' })}`;
+}
+
+function tripCount(count: number): string {
+	return `${count} ${plural(count, { one: 'podróż', few: 'podróże', many: 'podróży' })}`;
 }
 
 function visitCount(count: number): string {

@@ -656,6 +656,7 @@ function visitsRoute(route, request, url) {
 	if (request.method() === 'DELETE') return route.fulfill({ status: 204, headers: corsHeaders() });
 	const id = url.searchParams.get('id');
 	const placeId = url.searchParams.get('place_id');
+	const tripId = url.searchParams.get('trip_id');
 	const number = url.searchParams.get('visit_artworks.artworks.record_number');
 	const artworkId = number?.startsWith('eq.')
 		? `00000000-0000-4000-8000-${number.slice(3).padStart(12, '0')}`
@@ -664,6 +665,7 @@ function visitsRoute(route, request, url) {
 		(row) =>
 			(!id?.startsWith('eq.') || row.id === id.slice(3)) &&
 			(!placeId?.startsWith('eq.') || row.place_id === placeId.slice(3)) &&
+			(!tripId?.startsWith('eq.') || row.trip_id === tripId.slice(3)) &&
 			(!artworkId || row.visit_artworks.some((seen) => seen.artwork_id === artworkId))
 	);
 	if (!wantsObject) return json(route, rows);

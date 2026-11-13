@@ -484,7 +484,7 @@ alternatives:
       - 'export_atelier and import_atelier carry kind, ends_on and trip_id; an older export imports as visits.'
       - 'Existing city places get the type from a one-off reviewed SQL file run after the release, not from the migration.'
     cost:
-      - 'migration 20261113030000: columns, checks, trigger, place type, save_visit, the boots exhibit, export and import'
+      - 'migration 20261113050000: columns, checks, trigger, place type, save_visit, the boots exhibit, export and import'
       - 'SQL tests: a trip at a city and at another place, end before start, a visit linked and unlinked, deleting a trip, import of an old and a new export, the boots exhibit ignoring trips'
       - 'database.types.ts, screenshot mocks for a trip'
     loses:

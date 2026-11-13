@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { ticketDate } from '#lib/chronicle/visit-date/visit-date.ts';
+	import { tripTicketDate } from '#lib/chronicle/trip-date/trip-date.ts';
 	import TicketStub from '#lib/chronicle/components/TicketStub/TicketStub.svelte';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
 
@@ -13,10 +13,14 @@
 
 	let text = $derived(stub ?? visit.place);
 
-	let date = $derived(ticketDate(visit.date));
+	let date = $derived(tripTicketDate(visit));
 </script>
 
-<a class="ticket" href={resolve('/(app)/atelier/chronicle/[id]', { id: visit.id })}>
+<a
+	class="ticket"
+	class:trip={visit.endsOn !== null}
+	href={resolve('/(app)/atelier/chronicle/[id]', { id: visit.id })}
+>
 	<span class="date">
 		<span class="day" aria-hidden="true">{date.main}</span>
 		{#if date.sub}
@@ -37,6 +41,15 @@
 		grid-template-columns: var(--spacing-16) minmax(0, 1fr);
 		color: var(--color-fg);
 		text-decoration: none;
+	}
+
+	.trip {
+		grid-template-columns: minmax(var(--spacing-16), max-content) minmax(0, 1fr);
+	}
+
+	.trip .day {
+		font-size: var(--font-size-lg);
+		white-space: nowrap;
 	}
 
 	.date {

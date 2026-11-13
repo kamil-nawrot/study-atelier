@@ -22,7 +22,7 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 describe('new visit page', () => {
 	it('names the form and leads back to the chronicle', async () => {
 		render(FormPage, {
-			data: { session: testSession(), artworks: [], places: [] },
+			data: { session: testSession(), artworks: [], places: [], tripPlaces: [], towns: [] },
 			params: {}
 		});
 

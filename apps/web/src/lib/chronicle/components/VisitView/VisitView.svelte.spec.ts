@@ -3,7 +3,7 @@ import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
-import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
+import { testTrip, testVisit } from '#lib/testing/chronicle/chronicle.ts';
 import VisitView from './VisitView.svelte';
 
 describe('VisitView', () => {
@@ -31,5 +31,23 @@ describe('VisitView', () => {
 
 		await expect.element(page.getByText(m.chronicle.view.noArtworks)).toBeInTheDocument();
 		await expect.element(page.getByLabelText(m.common.notes)).not.toBeInTheDocument();
+	});
+
+	it('lists the visits of a trip and names its own wall', async () => {
+		render(VisitView, {
+			visit: testTrip(),
+			artworks: [],
+			tripVisits: [testVisit({ id: 'louvre', place: 'Louvre', tripId: 'trip' })]
+		});
+
+		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent('Paris');
+		await expect.element(page.getByText(m.chronicle.trip.overline(5))).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('heading', { name: m.chronicle.trip.view.visitsTitle }))
+			.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('link', { name: /Louvre/ }))
+			.toHaveAttribute('href', '/atelier/chronicle/louvre');
+		await expect.element(page.getByText(m.chronicle.trip.view.noArtworks)).toBeInTheDocument();
 	});
 });

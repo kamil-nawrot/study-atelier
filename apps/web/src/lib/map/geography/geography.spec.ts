@@ -93,3 +93,28 @@ describe('loadGeography', () => {
 		expect(fetch).toHaveBeenCalledTimes(4);
 	});
 });
+
+describe('loadTowns', () => {
+	afterEach(() => {
+		vi.unstubAllGlobals();
+		vi.resetModules();
+	});
+
+	it('loads only the towns once and tries again after a failure', async () => {
+		const fetch = vi.fn().mockResolvedValue(new Response('', { status: 500 }));
+		vi.stubGlobal('fetch', fetch);
+		const { loadTowns } = await import('./geography.ts');
+
+		await expect(loadTowns()).rejects.toThrow();
+		fetch.mockResolvedValue(new Response(JSON.stringify([[2.35, 48.857, 'Paryż', 'FR']])));
+
+		const towns = await loadTowns();
+		await loadTowns();
+
+		expect(towns).toEqual([
+			{ name: 'Paryż', countryCode: 'FR', longitude: 2.35, latitude: 48.857 }
+		]);
+		expect(fetch).toHaveBeenCalledTimes(2);
+		expect(fetch.mock.calls.every(([url]) => String(url).endsWith('towns.json'))).toBe(true);
+	});
+});

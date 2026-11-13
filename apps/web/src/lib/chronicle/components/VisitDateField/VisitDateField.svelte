@@ -8,17 +8,26 @@
 		day: string;
 		month: string;
 		year: string;
-		errors: VisitFormErrors;
+		errors: Pick<VisitFormErrors, 'day' | 'month' | 'year'>;
+		legend?: string;
+		hint?: string;
 	};
 
-	let { day = $bindable(), month = $bindable(), year = $bindable(), errors }: Props = $props();
+	let {
+		day = $bindable(),
+		month = $bindable(),
+		year = $bindable(),
+		errors,
+		legend = m.chronicle.form.date,
+		hint = m.chronicle.form.dateHint
+	}: Props = $props();
 
 	const hintId = $props.id();
 	const months = monthNames().map((name, index) => ({ value: String(index + 1), label: name }));
 </script>
 
 <fieldset class="date" aria-describedby={hintId}>
-	<legend>{m.chronicle.form.date}</legend>
+	<legend>{legend}</legend>
 	<div class="parts">
 		<TextField
 			autocomplete="off"
@@ -49,7 +58,7 @@
 			bind:value={year}
 		/>
 	</div>
-	<FieldMessage id={hintId} hint={m.chronicle.form.dateHint} />
+	<FieldMessage id={hintId} {hint} />
 </fieldset>
 
 <style>

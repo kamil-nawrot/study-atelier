@@ -1,6 +1,7 @@
-import type { Visit } from './visit.ts';
+import type { VisitEntry } from './visit-entry.ts';
 
 export type VisitYear = {
 	year: number;
-	visits: Visit[];
+	entries: VisitEntry[];
+	count: number;
 };

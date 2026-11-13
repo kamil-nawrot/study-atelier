@@ -23,6 +23,19 @@
 	let opened = $derived(openYear(years));
 </script>
 
+{#snippet ticket(visit: Visit, visitCount: number)}
+	{@const seen = seenArtworks(visit, artworks)}
+	<VisitTicket
+		backdrop={seen.find((artwork) => artwork.hasImage)}
+		count={seen.length}
+		linked
+		{onimagefailed}
+		{onnearscreen}
+		{visit}
+		{visitCount}
+	/>
+{/snippet}
+
 {#if visits.length === 0}
 	<EmptyState icon={Footprints} text={m.chronicle.empty} title={m.chronicle.emptyTitle}>
 		<Button href={resolve('/(app)/atelier/chronicle/new')}>
@@ -34,24 +47,25 @@
 	<div class="years">
 		{#each years as group (group.year)}
 			<Disclosure
-				count={group.visits.length}
+				count={group.count}
 				lazy
 				open={group.year === opened}
 				room
 				title={String(group.year)}
 			>
 				<ol class="visits">
-					{#each group.visits as visit (visit.id)}
-						{@const seen = seenArtworks(visit, artworks)}
-						<li>
-							<VisitTicket
-								backdrop={seen.find((artwork) => artwork.hasImage)}
-								count={seen.length}
-								linked
-								{onimagefailed}
-								{onnearscreen}
-								{visit}
-							/>
+					{#each group.entries as entry (entry.visit.id)}
+						<li class="entry">
+							{@render ticket(entry.visit, entry.visits.length)}
+							{#if entry.visits.length > 0}
+								<div class="indent">
+									<ol class="nested">
+										{#each entry.visits as visit (visit.id)}
+											<li>{@render ticket(visit, 0)}</li>
+										{/each}
+									</ol>
+								</div>
+							{/if}
 						</li>
 					{/each}
 				</ol>
@@ -75,5 +89,32 @@
 		display: grid;
 		gap: var(--spacing-4);
 		list-style: none;
+	}
+
+	.entry {
+		display: grid;
+		gap: var(--spacing-3);
+	}
+
+	.indent {
+		padding-inline-start: var(--spacing-3);
+	}
+
+	.nested {
+		display: grid;
+		gap: var(--spacing-3);
+		padding-inline-start: var(--spacing-3);
+		border-inline-start: var(--border-width-hairline) solid var(--color-line);
+		list-style: none;
+	}
+
+	@media (min-width: 768px) {
+		.indent {
+			padding-inline-start: var(--spacing-8);
+		}
+
+		.nested {
+			padding-inline-start: var(--spacing-6);
+		}
 	}
 </style>

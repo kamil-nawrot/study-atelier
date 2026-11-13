@@ -2,7 +2,6 @@
 	import { MetaLine, SearchField } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
-		placeArtworks,
 		placeOf,
 		searchArtworks,
 		toggled,
@@ -15,12 +14,20 @@
 	type Props = {
 		form: VisitFormState;
 		artworks: WallArtwork[];
+		suggested: WallArtwork[];
 		isNew: boolean;
 		onnearscreen?: (artwork: WallArtwork) => void;
 		onimagefailed?: (artwork: WallArtwork) => void;
 	};
 
-	let { form = $bindable(), artworks, isNew, onnearscreen, onimagefailed }: Props = $props();
+	let {
+		form = $bindable(),
+		artworks,
+		suggested,
+		isNew,
+		onnearscreen,
+		onimagefailed
+	}: Props = $props();
 
 	const fieldId = $props.id();
 
@@ -28,7 +35,8 @@
 
 	let place = $derived(placeOf(form));
 	let byId = $derived(new Map(artworks.map((artwork) => [artwork.id, artwork])));
-	let atPlace = $derived(placeArtworks(artworks, place));
+	let atPlace = $derived(suggested);
+	let texts = $derived(form.kind === 'trip' ? m.chronicle.trip.form : m.chronicle.form);
 	let extra = $derived(form.extra.flatMap((id) => byId.get(id) ?? []));
 	let shown = $derived(new Set([...atPlace, ...extra].map((artwork) => artwork.id)));
 	let results = $derived(searchArtworks(artworks, query, shown));
@@ -79,14 +87,14 @@
 	</div>
 
 	{#if place === ''}
-		<p class="caption">{m.chronicle.form.noPlace}</p>
+		<p class="caption">{texts.noPlace}</p>
 	{:else if atPlace.length === 0}
 		<p class="caption">{m.chronicle.form.placeEmpty}</p>
 	{:else}
 		<div class="group" aria-labelledby="{fieldId}-place" role="group">
 			<p id="{fieldId}-place" class="overline">{m.chronicle.form.fromPlace}</p>
 			{#if isNew}
-				<p class="caption">{m.chronicle.form.ticked}</p>
+				<p class="caption">{texts.ticked}</p>
 			{/if}
 			<div class="grid">
 				{#each atPlace as artwork (artwork.id)}
