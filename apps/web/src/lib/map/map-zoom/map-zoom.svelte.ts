@@ -3,12 +3,13 @@ export const MAX_ZOOM = 64;
 export const ZOOM_STEP = 1.6;
 
 export class MapZoom {
+	max = $state(MAX_ZOOM);
 	scale = $state(1);
 	x = $state(0);
 	y = $state(0);
 
 	zoomAt(centreX: number, centreY: number, factor: number): void {
-		const scale = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, this.scale * factor));
+		const scale = Math.min(this.max, Math.max(MIN_ZOOM, this.scale * factor));
 		const applied = scale / this.scale;
 		this.x = centreX - (centreX - this.x) * applied;
 		this.y = centreY - (centreY - this.y) * applied;

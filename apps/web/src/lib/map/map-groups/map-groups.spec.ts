@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { MapCity } from '#lib/map/types/map-city.ts';
-import { type CitySpot, groupCities, labelledCities, splitFactor } from './map-groups.ts';
+import {
+	type CitySpot,
+	groupCities,
+	labelledCities,
+	splitFactor,
+	splitScale
+} from './map-groups.ts';
 
 function city(key: string, count: number, seen = 0): MapCity {
 	return {
@@ -55,6 +61,19 @@ describe('splitFactor', () => {
 		const [group] = groupCities(spots, radius);
 
 		expect(splitFactor(group, spots, radius)).toBeCloseTo(((15 + 12 + 4) / 3) * 1.2);
+	});
+});
+
+describe('splitScale', () => {
+	it('zooms far enough for every pair of cities to stand apart, skipping cities on one point', () => {
+		const spots: CitySpot[] = [
+			{ city: rome, x: 100, y: 100 },
+			{ city: vatican, x: 101, y: 100 },
+			{ city: paris, x: 300, y: 100 },
+			{ city: city('Paryż 2', 3), x: 300, y: 100 }
+		];
+
+		expect(splitScale(spots, radius)).toBeCloseTo((15 + 12 + 4) * 1.2);
 	});
 });
 

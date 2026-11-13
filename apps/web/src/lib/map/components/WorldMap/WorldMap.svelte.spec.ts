@@ -103,7 +103,7 @@ describe('WorldMap', () => {
 		await expect.poll(() => florenceButton.style.left).not.toBe(before);
 	});
 
-	it('groups close cities and zooms in on a group until they split', async () => {
+	it('groups close cities and zooms in on a group until they split, however wide the map', async () => {
 		await page.viewport(1000, 800);
 		const onselect = vi.fn();
 		const rome: MapCity = {
@@ -120,10 +120,17 @@ describe('WorldMap', () => {
 			point: { latitude: 41.903, longitude: 12.453 },
 			count: 2
 		};
+		const tokyo: MapCity = {
+			...florence,
+			key: 'JP:Tokio',
+			name: 'Tokio',
+			point: { latitude: 35.68, longitude: 139.69 },
+			count: 1
+		};
 		render(WorldMap, {
 			geography: testGeography(),
-			fit: [paris.point, rome.point],
-			cities: [paris, rome, vatican],
+			fit: [paris.point, rome.point, tokyo.point],
+			cities: [paris, rome, vatican, tokyo],
 			onselect
 		});
 

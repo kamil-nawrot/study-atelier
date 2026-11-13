@@ -11,7 +11,8 @@
 		type CitySpot,
 		groupCities,
 		labelledCities,
-		splitFactor
+		splitFactor,
+		splitScale
 	} from '#lib/map/map-groups/map-groups.ts';
 	import { MapPointer } from '#lib/map/map-pointer/map-pointer.ts';
 	import { MapZoom, MAX_ZOOM, ZOOM_STEP } from '#lib/map/map-zoom/map-zoom.svelte.ts';
@@ -72,6 +73,16 @@
 		})
 	);
 	let groups = $derived(groupCities(spots, radius));
+	let mapSpots = $derived(
+		cities.flatMap((city): CitySpot[] => {
+			const spot = projection([city.point.longitude, city.point.latitude]);
+			return spot ? [{ city, x: spot[0], y: spot[1] }] : [];
+		})
+	);
+
+	$effect(() => {
+		zoom.max = Math.max(MAX_ZOOM, splitScale(mapSpots, radius));
+	});
 	let labelled = $derived(labelledCities(groups, labelSize, selected));
 
 	$effect(() => {
@@ -119,7 +130,7 @@
 
 	function open(group: CityGroup): void {
 		const largest = group.cities[0];
-		if (group.cities.length === 1 || zoom.scale >= MAX_ZOOM) {
+		if (group.cities.length === 1 || zoom.scale >= zoom.max) {
 			onselect?.(largest);
 			return;
 		}

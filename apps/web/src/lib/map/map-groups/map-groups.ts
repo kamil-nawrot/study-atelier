@@ -65,21 +65,28 @@ export function groupCities(
 	return groups;
 }
 
+export function splitScale(spots: readonly CitySpot[], radius: (count: number) => number): number {
+	let factor = 1;
+	for (const [index, first] of spots.entries()) {
+		for (const second of spots.slice(index + 1)) {
+			const distance = Math.hypot(first.x - second.x, first.y - second.y);
+			if (distance === 0) continue;
+			const needed = radius(first.city.count) + radius(second.city.count) + CITY_GAP;
+			factor = Math.max(factor, needed / distance);
+		}
+	}
+	return factor * SPLIT_MARGIN;
+}
+
 export function splitFactor(
 	group: CityGroup,
 	spots: readonly CitySpot[],
 	radius: (count: number) => number
 ): number {
-	const members = spots.filter((spot) => group.cities.includes(spot.city));
-	let factor = 1;
-	for (const [index, first] of members.entries()) {
-		for (const second of members.slice(index + 1)) {
-			const distance = Math.hypot(first.x - second.x, first.y - second.y);
-			const needed = radius(first.city.count) + radius(second.city.count) + CITY_GAP;
-			factor = Math.max(factor, distance > 0 ? needed / distance : Infinity);
-		}
-	}
-	return factor * SPLIT_MARGIN;
+	return splitScale(
+		spots.filter((spot) => group.cities.includes(spot.city)),
+		radius
+	);
 }
 
 function labelBox(group: CityGroup, size: LabelSize): Box {

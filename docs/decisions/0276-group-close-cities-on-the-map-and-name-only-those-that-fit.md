@@ -1,6 +1,6 @@
 # 0276. Group close cities on the map and name only those that fit
 
-- Status: accepted
+- Status: accepted; the fixed closest view of 64× is superseded by [0278](0278-let-the-closest-view-of-the-map-grow-until-every-group-splits.md)
 - Date: 2026-11-13
 
 ## Context and problem statement
