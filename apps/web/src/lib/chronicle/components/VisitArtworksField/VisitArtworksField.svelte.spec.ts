@@ -74,7 +74,7 @@ describe('VisitArtworksField', () => {
 	});
 
 	it('speaks of the city of a trip', async () => {
-		const { rerender } = render(VisitArtworksField, {
+		const { rerender } = await render(VisitArtworksField, {
 			form: form({ kind: 'trip' }),
 			artworks,
 			suggested: [],

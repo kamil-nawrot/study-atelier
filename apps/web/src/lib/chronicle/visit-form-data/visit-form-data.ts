@@ -12,17 +12,18 @@ import type { VisitResult } from '#lib/chronicle/types/visit-result.ts';
 
 export async function loadVisitForm(id?: string): Promise<VisitFormData> {
 	const visit = id ? loadVisit(id) : Promise.resolve<VisitResult>({});
-	const [result, noteLinks, atelier, visitPlaces, placeStarter, mapPlaces, towns] = await Promise.all([
-		visit,
-		visit.then((loaded) =>
-			loadEditorNoteLinks(id && mentionsLinks(loaded.visit?.notes) ? { visitId: id } : undefined)
-		),
-		loadAtelier(),
-		loadVisitPlaces(),
-		loadPlaceStarter(),
-		loadMapPlaces(),
-		loadTowns().catch((): Town[] => [])
-	]);
+	const [result, noteLinks, atelier, visitPlaces, placeStarter, mapPlaces, towns] =
+		await Promise.all([
+			visit,
+			visit.then((loaded) =>
+				loadEditorNoteLinks(id && mentionsLinks(loaded.visit?.notes) ? { visitId: id } : undefined)
+			),
+			loadAtelier(),
+			loadVisitPlaces(),
+			loadPlaceStarter(),
+			loadMapPlaces(),
+			loadTowns().catch((): Town[] => [])
+		]);
 	const places = new Set([
 		...visitPlaces.places,
 		...atelier.artworks.flatMap((artwork) => artwork.location ?? [])

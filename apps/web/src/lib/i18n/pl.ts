@@ -2329,9 +2329,11 @@ export const pl = {
 		title: 'Kronika',
 		lead: 'Dziennik Twoich wizyt w muzeach i innych spotkań ze sztuką. Możesz tutaj zapisać, gdzie i kiedy udało Ci się zobaczyć dzieła z Twojej kolekcji na żywo.',
 		count: (visits: number, trips: number, seen: number): string =>
-			[visitCount(visits), ...(trips > 0 ? [tripCount(trips)] : []), `${workCount(seen)} na żywo`].join(
-				' · '
-			),
+			[
+				visitCount(visits),
+				...(trips > 0 ? [tripCount(trips)] : []),
+				`${workCount(seen)} na żywo`
+			].join(' · '),
 		add: 'Dodaj wpis',
 		emptyTitle: 'Kronika jest jeszcze pusta',
 		empty:
@@ -2427,7 +2429,8 @@ export const pl = {
 				endHint: 'Zostaw puste, jeśli podróż trwała jeden dzień.',
 				endBeforeStart: 'Podróż nie może się skończyć, zanim się zaczęła.',
 				endApproximate: 'Bez dokładnych dni podróż ma jedną datę: miesiąc albo rok.',
-				ticked: 'Dzieła z miasta i jego zabytków są już zaznaczone. Odznacz to, czego tym razem nie było.',
+				ticked:
+					'Dzieła z miasta i jego zabytków są już zaznaczone. Odznacz to, czego tym razem nie było.',
 				noPlace: 'Po wybraniu miasta pojawią się tu jego dzieła.',
 				errorTitle: 'Nie udało się zapisać podróży'
 			}

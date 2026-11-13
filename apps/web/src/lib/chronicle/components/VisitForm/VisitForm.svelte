@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { SuggestionSource } from '#lib/chronicle/types/suggestion-source.ts';
 	import { untrack } from 'svelte';
 	import Building2 from '@lucide/svelte/icons/building-2';
 	import Ticket from '@lucide/svelte/icons/ticket';
@@ -73,7 +74,7 @@
 	const existing = untrack(() => visit);
 	const known = untrack(() => new Set(artworks.map((artwork) => artwork.id)));
 	const kept = existing?.artworkIds.filter((id) => !known.has(id)) ?? [];
-	const source = () => ({ artworks, tripPlaces, towns });
+	const source = (): SuggestionSource => ({ artworks, tripPlaces, towns });
 	const initial = (): VisitFormState => {
 		if (!existing) return emptyVisitForm();
 		const start = emptyVisitForm(existing.kind);
@@ -89,7 +90,12 @@
 
 	const kinds = [
 		{ value: 'visit', label: m.chronicle.kind, note: m.chronicle.form.visitTile, icon: Ticket },
-		{ value: 'trip', label: m.chronicle.trip.kind, note: m.chronicle.form.tripTile, icon: Building2 }
+		{
+			value: 'trip',
+			label: m.chronicle.trip.kind,
+			note: m.chronicle.form.tripTile,
+			icon: Building2
+		}
 	];
 
 	let form = $state<VisitFormState>(initial());
@@ -165,6 +171,7 @@
 				{#if !existing}
 					<ChoiceTiles
 						label={m.chronicle.form.kind}
+						narrowColumns={1}
 						onchange={chooseKind}
 						options={kinds}
 						value={form.kind}

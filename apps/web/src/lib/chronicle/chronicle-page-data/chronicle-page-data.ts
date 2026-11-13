@@ -1,4 +1,8 @@
-import { loadTripVisits, loadVisit, loadVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
+import {
+	loadTripVisits,
+	loadVisit,
+	loadVisits
+} from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { loadNoteLinkLabels, mentionsLinks } from '#lib/notes/note-link-data/note-link-data.ts';
 import { loadArtworksOfVisit, loadAtelier } from '#lib/wall/wall-data/wall-data.ts';

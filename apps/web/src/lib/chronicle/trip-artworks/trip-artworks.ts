@@ -28,7 +28,8 @@ export function tripPlaceNames(
 	const town = place ? townKey(place, towns) : null;
 	if (!town) return names;
 	for (const site of places) {
-		if (site.placeType === 'on_site' && townKey(site, towns) === town) names.add(valueKey(site.name));
+		if (site.placeType === 'on_site' && townKey(site, towns) === town)
+			names.add(valueKey(site.name));
 	}
 	return names;
 }

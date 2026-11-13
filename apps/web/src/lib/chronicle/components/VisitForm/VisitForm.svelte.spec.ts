@@ -78,8 +78,10 @@ describe('VisitForm', () => {
 
 		await vi.waitFor(() => expect(onsaved).toHaveBeenCalled());
 		const draft = {
+			kind: 'visit',
 			place: 'Orsay',
 			date: { on: '2026-10-01', precision: 'month' },
+			endsOn: null,
 			notes: '',
 			artworkIds: [lilies.id]
 		};

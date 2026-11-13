@@ -49,11 +49,13 @@ export function loadGeography(): Promise<Geography> {
 }
 
 export function loadTowns(): Promise<Town[]> {
-	loadingTowns ??= (loading ? loading.then((geography) => geography.towns) : json<TownRow[]>(asset('map/towns.json')).then(townsOf)).catch(
-		(error: unknown) => {
-			loadingTowns = undefined;
-			throw error;
-		}
-	);
+	loadingTowns ??= (
+		loading
+			? loading.then((geography) => geography.towns)
+			: json<TownRow[]>(asset('map/towns.json')).then(townsOf)
+	).catch((error: unknown) => {
+		loadingTowns = undefined;
+		throw error;
+	});
 	return loadingTowns;
 }

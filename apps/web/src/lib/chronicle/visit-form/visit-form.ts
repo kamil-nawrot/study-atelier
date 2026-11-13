@@ -2,28 +2,18 @@ import { valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts
 import { m } from '#lib/i18n/i18n.ts';
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import { dateFromParts, dateParts, isVisitDate } from '#lib/chronicle/visit-date/visit-date.ts';
-import {
-	isTripEnd,
-	tripEndFromParts,
-	tripEndParts
-} from '#lib/chronicle/trip-date/trip-date.ts';
+import { isTripEnd, tripEndFromParts, tripEndParts } from '#lib/chronicle/trip-date/trip-date.ts';
 import { tripArtworks, tripPlaceOf } from '#lib/chronicle/trip-artworks/trip-artworks.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { TripPlace } from '#lib/chronicle/types/trip-place.ts';
 import type { VisitKind } from '#lib/chronicle/types/visit-kind.ts';
-import type { Town } from '#lib/map/types/town.ts';
 import type { Visit } from '#lib/chronicle/types/visit.ts';
 import type { VisitDraft } from '#lib/chronicle/types/visit-draft.ts';
 import type { VisitFormErrors } from '#lib/chronicle/types/visit-form-errors.ts';
 import type { VisitFormState } from '#lib/chronicle/types/visit-form-state.ts';
+import type { SuggestionSource } from '#lib/chronicle/types/suggestion-source.ts';
 
 export const SEARCH_RESULTS = 8;
-
-export type SuggestionSource = {
-	artworks: readonly WallArtwork[];
-	tripPlaces: readonly TripPlace[];
-	towns: readonly Town[];
-};
 
 export function placeOf(form: VisitFormState): string {
 	return form.place[0]?.trim() ?? '';
@@ -137,7 +127,11 @@ function placeError(form: VisitFormState, tripPlaces: readonly TripPlace[]): str
 function endErrors(form: VisitFormState): VisitFormErrors {
 	const start = dateFromParts(form);
 	if (form.kind !== 'trip' || !isVisitDate(start)) return {};
-	const end = tripEndFromParts(start, { day: form.endDay, month: form.endMonth, year: form.endYear });
+	const end = tripEndFromParts(start, {
+		day: form.endDay,
+		month: form.endMonth,
+		year: form.endYear
+	});
 	if (end === 'endApproximate') return { endDay: m.chronicle.trip.form.endApproximate };
 	if (end === 'endBeforeStart') return { endDay: m.chronicle.trip.form.endBeforeStart };
 	if (end === 'yearInvalid') return { endYear: m.chronicle.form.yearInvalid };

@@ -51,7 +51,7 @@ describe('chronicle page', () => {
 		await expect
 			.element(page.getByRole('banner').getByRole('heading', { level: 1 }))
 			.toHaveTextContent(m.chronicle.title);
-		await expect.element(page.getByText(m.chronicle.count(2, 1))).toBeInTheDocument();
+		await expect.element(page.getByText(m.chronicle.count(2, 0, 1))).toBeInTheDocument();
 		await expect
 			.element(page.getByRole('link', { name: m.chronicle.add }))
 			.toHaveAttribute('href', '/atelier/chronicle/new');
@@ -61,7 +61,7 @@ describe('chronicle page', () => {
 		renderChronicle([]);
 
 		await expect.element(page.getByText(m.chronicle.empty)).toBeInTheDocument();
-		await expect.element(page.getByText(m.chronicle.count(0, 0))).not.toBeInTheDocument();
+		await expect.element(page.getByText(m.chronicle.count(0, 0, 0))).not.toBeInTheDocument();
 	});
 
 	it('starts with the content on a phone, without the lead', async () => {

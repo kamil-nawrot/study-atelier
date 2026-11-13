@@ -46,8 +46,8 @@
 	{#if tripVisits.length > 0}
 		<section aria-labelledby="trip-visits">
 			<Disclosure
-				count={tripVisits.length}
 				id="trip-visits"
+				count={tripVisits.length}
 				room
 				title={m.chronicle.trip.view.visitsTitle}
 			>

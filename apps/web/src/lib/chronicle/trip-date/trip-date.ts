@@ -27,7 +27,10 @@ export function tripDays(trip: Dated): number | null {
 	return Math.round((utc(end).getTime() - utc(trip.date.on).getTime()) / DAY_MS) + 1;
 }
 
-export function tripEndFromParts(start: VisitDate, parts: DateParts): string | null | TripEndProblem {
+export function tripEndFromParts(
+	start: VisitDate,
+	parts: DateParts
+): string | null | TripEndProblem {
 	const [day, month, year] = [parts.day.trim(), parts.month.trim(), parts.year.trim()];
 	if (day === '' && month === '' && year === '') return null;
 	if (start.precision !== 'day' || day === '') return 'endApproximate';

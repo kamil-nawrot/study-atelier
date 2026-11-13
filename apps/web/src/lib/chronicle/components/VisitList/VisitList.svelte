@@ -55,14 +55,16 @@
 			>
 				<ol class="visits">
 					{#each group.entries as entry (entry.visit.id)}
-						<li>
+						<li class="entry">
 							{@render ticket(entry.visit, entry.visits.length)}
 							{#if entry.visits.length > 0}
-								<ol class="nested">
-									{#each entry.visits as visit (visit.id)}
-										<li>{@render ticket(visit, 0)}</li>
-									{/each}
-								</ol>
+								<div class="indent">
+									<ol class="nested">
+										{#each entry.visits as visit (visit.id)}
+											<li>{@render ticket(visit, 0)}</li>
+										{/each}
+									</ol>
+								</div>
 							{/if}
 						</li>
 					{/each}
@@ -89,19 +91,29 @@
 		list-style: none;
 	}
 
+	.entry {
+		display: grid;
+		gap: var(--spacing-3);
+	}
+
+	.indent {
+		padding-inline-start: var(--spacing-3);
+	}
+
 	.nested {
 		display: grid;
 		gap: var(--spacing-3);
-		margin-block-start: var(--spacing-3);
-		margin-inline-start: var(--spacing-3);
 		padding-inline-start: var(--spacing-3);
 		border-inline-start: var(--border-width-hairline) solid var(--color-line);
 		list-style: none;
 	}
 
 	@media (min-width: 768px) {
+		.indent {
+			padding-inline-start: var(--spacing-8);
+		}
+
 		.nested {
-			margin-inline-start: var(--spacing-8);
 			padding-inline-start: var(--spacing-6);
 		}
 	}

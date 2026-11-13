@@ -16,7 +16,11 @@
 	let date = $derived(tripTicketDate(visit));
 </script>
 
-<a class="ticket" class:trip={visit.endsOn !== null} href={resolve('/(app)/atelier/chronicle/[id]', { id: visit.id })}>
+<a
+	class="ticket"
+	class:trip={visit.endsOn !== null}
+	href={resolve('/(app)/atelier/chronicle/[id]', { id: visit.id })}
+>
 	<span class="date">
 		<span class="day" aria-hidden="true">{date.main}</span>
 		{#if date.sub}

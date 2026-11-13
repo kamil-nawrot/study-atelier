@@ -1,3 +1,4 @@
+import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
@@ -29,7 +30,7 @@ function form(overrides: Partial<VisitFormState> = {}): VisitFormState {
 	return { ...emptyVisitForm(), ...overrides };
 }
 
-function atPlace(state: VisitFormState) {
+function atPlace(state: VisitFormState): WallArtwork[] {
 	return placeArtworks(artworks, state.place[0] ?? '');
 }
 
@@ -46,7 +47,11 @@ const tripPlaces: TripPlace[] = [
 	{ name: 'Paris', placeType: 'city', point: { latitude: 48.857, longitude: 2.352 } },
 	{ name: 'Notre-Dame', placeType: 'on_site', point: { latitude: 48.853, longitude: 2.35 } },
 	{ name: 'Musée d’Orsay', placeType: 'museum', point: { latitude: 48.86, longitude: 2.326 } },
-	{ name: 'Chartres Cathedral', placeType: 'on_site', point: { latitude: 48.447, longitude: 1.488 } }
+	{
+		name: 'Chartres Cathedral',
+		placeType: 'on_site',
+		point: { latitude: 48.447, longitude: 1.488 }
+	}
 ];
 const towns: Town[] = [
 	{ name: 'Paris', countryCode: 'FR', latitude: 48.857, longitude: 2.352 },
@@ -79,7 +84,10 @@ describe('placeArtworks', () => {
 
 describe('withPlaceArtworks', () => {
 	it('ticks every artwork of a newly chosen place', () => {
-		const next = withPlaceArtworks(form({ place: ['Musée d’Orsay'] }), atPlace(form({ place: ['Musée d’Orsay'] })));
+		const next = withPlaceArtworks(
+			form({ place: ['Musée d’Orsay'] }),
+			atPlace(form({ place: ['Musée d’Orsay'] }))
+		);
 
 		expect(next.chosen).toEqual(['artwork-1', 'artwork-2']);
 	});
@@ -138,7 +146,13 @@ describe('visitFormOf', () => {
 	it('shows the end of a trip', () => {
 		const state = visitFormOf(testTrip(), artworks, []);
 
-		expect(state).toMatchObject({ kind: 'trip', day: '10', endDay: '14', endMonth: '10', endYear: '2026' });
+		expect(state).toMatchObject({
+			kind: 'trip',
+			day: '10',
+			endDay: '14',
+			endMonth: '10',
+			endYear: '2026'
+		});
 	});
 });
 
@@ -196,7 +210,9 @@ describe('validateVisitForm', () => {
 
 	it('asks a trip for a city and refuses a place of another type', () => {
 		const trip = { kind: 'trip' as const, year: '2026' };
-		expect(validateVisitForm(form(trip), tripPlaces).place).toBe(m.chronicle.trip.form.placeRequired);
+		expect(validateVisitForm(form(trip), tripPlaces).place).toBe(
+			m.chronicle.trip.form.placeRequired
+		);
 		expect(validateVisitForm(form({ ...trip, place: ['Notre-Dame'] }), tripPlaces).place).toBe(
 			m.chronicle.trip.form.notCity
 		);

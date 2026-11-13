@@ -241,6 +241,7 @@ export const MAP_PLACES = [
 	mapPlace('MoMA, New York', 'museum', 'US', null),
 	mapPlace('Neues Museum', 'museum', 'DE', [52.52, 13.39778]),
 	mapPlace('Notre-Dame de Paris', 'on_site', 'FR', [48.853, 2.3498]),
+	mapPlace('Paryż', 'city', 'FR', [48.85661, 2.35222]),
 	mapPlace('Uffizi', 'museum', 'IT', [43.76778, 11.25528])
 ];
 
@@ -629,11 +630,24 @@ function glossaryEntry(
 	};
 }
 
-function visit(number, place, placeType, countryCode, visitedOn, precision, notes, numbers) {
+function visit(
+	number,
+	place,
+	placeType,
+	countryCode,
+	visitedOn,
+	precision,
+	notes,
+	numbers,
+	trip = {}
+) {
 	return {
 		id: `00000000-0000-4000-8000-000000000${String(500 + number)}`,
+		kind: trip.kind ?? 'visit',
 		place_id: valueId('location', place),
 		visited_on: visitedOn,
+		ends_on: trip.endsOn ?? null,
+		trip_id: trip.tripId ?? null,
 		date_precision: precision,
 		notes,
 		category_values: {
@@ -655,7 +669,19 @@ export const VISITS = [
 		'2026-10-12',
 		'day',
 		'Tłum przed [#0001 Mona Lisa](/atelier/1), ale warto było podejść bliżej. Skrzydło Richelieu prawie puste, a w salach holenderskich spokój i światło z okien.',
-		[1, 3, 9, 6, 7]
+		[1, 3, 9, 6, 7],
+		{ tripId: '00000000-0000-4000-8000-000000000505' }
+	),
+	visit(
+		5,
+		'Paryż',
+		'city',
+		'FR',
+		'2026-10-10',
+		'day',
+		'Pięć dni spacerów: Marais, wyspy na Sekwanie i wieczory nad rzeką.',
+		[6],
+		{ kind: 'trip', endsOn: '2026-10-14' }
 	),
 	visit(
 		2,
