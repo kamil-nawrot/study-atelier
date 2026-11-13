@@ -56,7 +56,7 @@ describe('PinDialog', () => {
 		vi.mocked(createPin).mockResolvedValue({ pin: SAVED });
 		const { onsaved } = open();
 
-		await userEvent.fill(page.getByLabelText('Opis (opcjonalnie)'), 'A detail');
+		await userEvent.fill(page.getByLabelText('Opis'), 'A detail');
 		await page.getByRole('button', { name: 'Zapisz' }).click();
 
 		expect(createPin).toHaveBeenCalledWith('image-1', {
@@ -85,7 +85,7 @@ describe('PinDialog', () => {
 		vi.mocked(updatePin).mockResolvedValue({ pin: { ...SAVED, text: 'Changed' } });
 		const { onsaved } = open({ pin: SAVED });
 
-		await userEvent.fill(page.getByLabelText('Opis (opcjonalnie)'), 'Changed');
+		await userEvent.fill(page.getByLabelText('Opis'), 'Changed');
 		await page.getByRole('button', { name: 'Zapisz' }).click();
 
 		expect(updatePin).toHaveBeenCalledWith('pin-1', {
@@ -103,7 +103,7 @@ describe('PinDialog', () => {
 		vi.mocked(createPin).mockResolvedValue({ error: 'Nie udało się połączyć z serwerem.' });
 		const { onsaved } = open();
 
-		await userEvent.fill(page.getByLabelText('Opis (opcjonalnie)'), 'A detail');
+		await userEvent.fill(page.getByLabelText('Opis'), 'A detail');
 		await page.getByRole('button', { name: 'Zapisz' }).click();
 
 		await expect
