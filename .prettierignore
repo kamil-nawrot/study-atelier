@@ -6,3 +6,9 @@ apps/web/worker-configuration.d.ts
 
 # Written by a script with json.dumps, see tools/exhibit-art/README.md
 tools/exhibit-art/manifest.json
+
+# Written by pnpm
+pnpm-lock.yaml
+
+# Written by apps/web/scripts/map-data/build-map-data.mjs
+apps/web/static/map/

@@ -287,20 +287,32 @@ describe('location details', () => {
 		vi.mocked(supabase.rpc).mockResolvedValue({ error: null } as never);
 	});
 
-	it('reads the country and the type of place', async () => {
-		detailsTable({ summary: null, notes: null, country_code: 'FR', place_type: 'museum' });
+	it('reads the country, the type and the point of the place', async () => {
+		detailsTable({
+			summary: null,
+			notes: null,
+			country_code: 'FR',
+			place_type: 'museum',
+			latitude: 48.86,
+			longitude: 2.34
+		});
 
 		const { details } = await loadValueDetails(location);
 
 		expect(supabase.from).toHaveBeenCalledWith('location_details');
-		expect(details.location).toEqual({ countryCode: 'FR', placeType: 'museum' });
+		expect(details.location).toEqual({
+			countryCode: 'FR',
+			placeType: 'museum',
+			point: { latitude: 48.86, longitude: 2.34 }
+		});
 	});
 
 	it('ignores a country and a type it does not know', async () => {
 		detailsTable({ summary: null, notes: null, country_code: 'ZZ', place_type: 'garden' });
 		expect((await loadValueDetails(location)).details.location).toEqual({
 			countryCode: null,
-			placeType: null
+			placeType: null,
+			point: null
 		});
 	});
 
