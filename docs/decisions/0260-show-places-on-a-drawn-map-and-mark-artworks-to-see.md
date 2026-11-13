@@ -1,6 +1,6 @@
 # 0260. Show places on a drawn map and mark artworks to see
 
-- Status: accepted; the city name under every circle is superseded by [0276](0276-group-close-cities-on-the-map-and-name-only-those-that-fit.md)
+- Status: accepted; the city name under every circle is superseded by [0276](0276-group-close-cities-on-the-map-and-name-only-those-that-fit.md); the city of a place, the rejected bundled list of cities, the caption under the map of a place page, the mode "Uzupełnij położenie" with its line of places missing from the map, the button of the city panel and the one-off file of points are superseded by [0282](0282-give-a-place-its-city-and-group-the-places-of-kartoteka-by-country-and-city.md)
 - Date: 2026-11-12
 
 ## Context and problem statement

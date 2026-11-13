@@ -370,16 +370,18 @@ Table location_details {
   category_code text [not null, default: `'location'::text`]
   summary text
   notes text
-  country_code text
+  country_code text [note: 'M11; null while city_id is set, the country is the city\'s']
   place_type text [note: 'M10 adds city']
   updated_at "timestamp with time zone" [not null, default: `now()`]
   catalogue_wikidata_id text
   latitude "double precision" [note: 'M9; -90 to 90, set together with longitude']
   longitude "double precision" [note: 'M9; -180 to 180']
-  wikidata_id text [note: 'M9; Q-id of the place itself, ^Q[0-9]+$']
+  wikidata_id text [note: 'M9; Q-id of the place itself, ^Q[0-9]+$; for a city place, the Wikidata id of its catalogue town (M11)']
+  city_id uuid [note: 'M11; the place of the type city it lies in; never set together with a point or a country, never on a city; a trigger keeps it pointing at a place of the type city, and the reference restricts deleting a city with places']
 
   indexes {
     owner_id [name: 'location_details_owner_idx', note: 'M4']
+    city_id [name: 'location_details_city_id_idx', note: 'M11']
   }
   Note: 'RLS on'
 }
@@ -631,6 +633,7 @@ Ref feedback_owner_id_fkey: feedback.owner_id > auth.users.id [delete: cascade]
 Ref free_review_days_owner_id_fkey: free_review_days.owner_id > auth.users.id [delete: cascade]
 Ref glossary_entries_owner_id_fkey: glossary_entries.owner_id > auth.users.id [delete: cascade]
 Ref location_details_catalogue_wikidata_id_fkey: location_details.catalogue_wikidata_id > catalogue_museums.wikidata_id [delete: set null]
+Ref location_details_city_id_owner_id_category_code_fkey: location_details.(city_id, owner_id, category_code) > category_values.(id, owner_id, category_code)
 Ref location_details_value_id_owner_id_category_code_fkey: location_details.(value_id, owner_id, category_code) > category_values.(id, owner_id, category_code) [delete: cascade]
 Ref material_details_value_id_owner_id_category_code_fkey: material_details.(value_id, owner_id, category_code) > category_values.(id, owner_id, category_code) [delete: cascade]
 Ref period_details_value_id_owner_id_category_code_fkey: period_details.(value_id, owner_id, category_code) > category_values.(id, owner_id, category_code) [delete: cascade]

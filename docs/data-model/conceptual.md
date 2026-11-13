@@ -24,6 +24,7 @@ erDiagram
   ARTWORK ||--o{ OWN_FIELD_ENTRY : "fills"
   OWN_FIELD ||--o{ OWN_FIELD_ENTRY : "defines"
   VISIT }o--|| VALUE : "at place"
+  VALUE }o--o| VALUE : "place lies in city"
   VISIT }o--o{ ARTWORK : "saw"
   VISIT }o--o| VISIT : "part of trip"
   NOTE }o--|| SUBJECT : "is written about"
