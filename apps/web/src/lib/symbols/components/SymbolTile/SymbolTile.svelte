@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { MetaLine } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
 	import DetailLens from '#lib/pins/components/DetailLens/DetailLens.svelte';
@@ -16,9 +17,10 @@
 <a href={resolve('/(app)/atelier/glossary/symbols/[id]', { id: symbol.id })}>
 	<span class="cover"><DetailLens lens={symbol.cover ?? emptyLens} /></span>
 	<span class="name">{symbol.name}</span>
-	<span class="counts">
-		{m.symbols.details(symbol.pinCount)} · {m.symbols.meanings(symbol.meaningCount)}
-	</span>
+	<MetaLine
+		class="counts"
+		parts={[m.symbols.details(symbol.pinCount), m.symbols.meanings(symbol.meaningCount)]}
+	/>
 </a>
 
 <style>
@@ -36,21 +38,32 @@
 		--detail-lens-ring: var(--color-fg-muted);
 	}
 
+	a:hover .name,
+	a:focus-visible .name {
+		text-decoration: underline;
+	}
+
 	.cover {
 		padding-bottom: var(--spacing-2);
 	}
 
 	.name {
 		font-family: var(--font-family-title), Georgia, serif;
-		font-size: var(--font-size-xl);
+		font-size: var(--font-size-lg);
 		font-style: italic;
-		line-height: var(--line-height-xl);
+		line-height: var(--line-height-lg);
 	}
 
-	.counts {
+	a > :global(.counts) {
 		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
+	}
+
+	@media (min-width: 768px) {
+		.name {
+			font-size: var(--font-size-xl);
+			line-height: var(--line-height-xl);
+		}
 	}
 </style>

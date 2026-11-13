@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Plus from '@lucide/svelte/icons/plus';
 	import Trash from '@lucide/svelte/icons/trash-2';
@@ -23,6 +24,7 @@
 	let toast: Toast;
 	let view: ReturnType<typeof SymbolView> | undefined = $state();
 	let deleteOpen = $state(false);
+	let reordering = $state(false);
 	let symbol = $derived(data.symbol);
 	let title = $derived(
 		symbol
@@ -48,7 +50,19 @@
 	{#snippet bar()}
 		<BackLink fallbackHref={glossaryPath} fallbackName={m.glossary.back} />
 		{#if symbol}
-			{#if canAddMeaning(symbol)}
+			{#if symbol.meanings.length > 1}
+				{@const label = reordering ? m.symbols.view.reorderDone : m.symbols.view.reorder}
+				<Button
+					aria-label={label}
+					compact
+					icon={ArrowUpDown}
+					onclick={() => (reordering = !reordering)}
+					variant={reordering ? 'primary' : 'secondary'}
+				>
+					{label}
+				</Button>
+			{/if}
+			{#if canAddMeaning(symbol) && !reordering}
 				<Button
 					aria-label={m.symbols.meaningDialog.add}
 					compact
@@ -85,7 +99,7 @@
 	{/snippet}
 
 	{#if symbol}
-		<SymbolView bind:this={view} page={data} {symbol} />
+		<SymbolView bind:this={view} page={data} {reordering} {symbol} />
 	{:else}
 		<LoadFailure
 			backHref={glossaryPath}

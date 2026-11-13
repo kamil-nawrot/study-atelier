@@ -45,7 +45,7 @@ describe('SymbolQuiz', () => {
 		await expect
 			.element(page.getByRole('status'))
 			.toHaveTextContent(`${m.review.quiz.wrong} Power of the Church.`);
-		await expect.element(page.getByText(m.review.quiz.definitionRetry)).toBeVisible();
+		await expect.element(page.getByText(m.review.quiz.symbolRetry)).toBeVisible();
 
 		await page.getByRole('button', { name: m.review.quiz.next }).click();
 		expect(onnext).toHaveBeenCalled();

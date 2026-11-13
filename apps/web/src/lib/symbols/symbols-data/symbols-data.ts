@@ -247,14 +247,14 @@ export async function setSymbolCover(
 	return error ? { error: await failureMessage(error, symbolErrorMessage) } : {};
 }
 
-export async function setPinMeaning(
-	pinId: string,
-	meaningId: string | null
+export async function assignMeaning(
+	meaningId: string,
+	pinIds: readonly string[]
 ): Promise<DeleteResult> {
-	const { error } = await supabase
-		.from('artwork_pins')
-		.update({ symbol_meaning_id: meaningId })
-		.eq('id', pinId);
+	const { error } = await supabase.rpc('assign_symbol_meaning', {
+		target_meaning: meaningId,
+		pin_ids: [...pinIds]
+	});
 	return error ? { error: await failureMessage(error, symbolErrorMessage) } : {};
 }
 

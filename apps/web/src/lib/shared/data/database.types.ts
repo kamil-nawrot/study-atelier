@@ -1829,6 +1829,10 @@ export type Database = {
           field_id: string;
         }[];
       };
+      assign_symbol_meaning: {
+        Args: { pin_ids: string[]; target_meaning: string };
+        Returns: undefined;
+      };
       atelier_empty: { Args: Record<PropertyKey, never>; Returns: boolean };
       card_index: { Args: Record<PropertyKey, never>; Returns: Json };
       career_standing: {

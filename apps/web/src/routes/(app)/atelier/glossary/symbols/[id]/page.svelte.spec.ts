@@ -28,7 +28,7 @@ vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({
 	deleteSymbol: vi.fn(),
 	saveSymbol: vi.fn(),
 	searchArtworkContexts: vi.fn(),
-	setPinMeaning: vi.fn(),
+	assignMeaning: vi.fn(),
 	setSymbolCover: vi.fn()
 }));
 vi.mock('#lib/symbols/symbol-page-data/symbol-page-data.ts', () => ({
@@ -65,6 +65,25 @@ describe('symbol page', () => {
 
 		await expect
 			.element(page.getByRole('heading', { name: m.symbols.meaningDialog.newTitle }))
+			.toBeVisible();
+	});
+
+	it('switches the meanings into reordering and back', async () => {
+		renderSymbol();
+
+		await page.getByRole('button', { name: m.symbols.view.reorder }).click();
+
+		await expect
+			.element(
+				page.getByRole('button', { name: m.symbols.meaningDialog.moveDown('transience, death') })
+			)
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.symbols.meaningDialog.add }))
+			.not.toBeInTheDocument();
+		await page.getByRole('button', { name: m.symbols.view.reorderDone }).click();
+		await expect
+			.element(page.getByRole('button', { name: m.symbols.meaningDialog.add }))
 			.toBeVisible();
 	});
 
