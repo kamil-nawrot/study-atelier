@@ -43,4 +43,4 @@ New symbol from a pin:
 
 ## More information
 
-- Follows [ADR-0277](0277-let-the-learner-choose-the-main-detail-of-a-symbol-and-keep-its-contexts-optional.md); issue to be linked when filed.
+- Follows [ADR-0277](0277-let-the-learner-choose-the-main-detail-of-a-symbol-and-keep-its-contexts-optional.md); issue [ATL-708](https://linear.app/kamil-nawrot/issue/ATL-708).
