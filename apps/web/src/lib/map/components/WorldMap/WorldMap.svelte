@@ -3,6 +3,7 @@
 	import Plus from '@lucide/svelte/icons/plus';
 	import { IconButton } from '@study-atelier/ui';
 	import { geoPath } from 'd3-geo';
+	import { untrack } from 'svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { MapPointer } from '#lib/map/map-pointer/map-pointer.ts';
 	import { MapZoom, ZOOM_STEP } from '#lib/map/map-zoom/map-zoom.svelte.ts';
@@ -34,14 +35,20 @@
 	}: Props = $props();
 
 	const PHONE_WIDTH = 520;
+	const KEEP_IN_VIEW = 64;
 
 	let width = $state(0);
 	let height = $state(0);
 	let narrow = $derived(width > 0 && width < PHONE_WIDTH);
 	let fitKey = $derived(fit.map((point) => `${point.latitude},${point.longitude}`).join(';'));
+	let frame = $state<{ key: string; width: number; height: number }>();
 	let projection = $derived.by(() => {
-		void fitKey;
-		return mapProjection(fit, Math.max(width, 1), Math.max(height, 1));
+		const size = frame ?? { width: 1, height: 1 };
+		return mapProjection(
+			untrack(() => fit),
+			size.width,
+			size.height
+		);
 	});
 	let path = $derived(geoPath(projection));
 	let land = $derived(width > 0 && height > 0 ? (path(geography.land) ?? '') : '');
@@ -51,9 +58,33 @@
 	const pointer = new MapPointer(zoom, pick);
 
 	$effect(() => {
+		if (width === 0 || height === 0 || frame?.key === fitKey) return;
+		frame = { key: fitKey, width, height };
+	});
+
+	$effect(() => {
 		void projection;
 		zoom.reset();
 	});
+
+	$effect(() => {
+		const size: [number, number] = [width, height];
+		untrack(() => keepSelectedInView(...size));
+	});
+
+	function shift(at: number, size: number, margin: number): number {
+		if (at < margin) return margin - at;
+		if (at > size - margin) return size - margin - at;
+		return 0;
+	}
+
+	function keepSelectedInView(viewWidth: number, viewHeight: number): void {
+		const city = cities.find((candidate) => candidate.key === selected);
+		const spot = city && viewWidth > 0 && viewHeight > 0 ? place(city.point) : null;
+		if (!spot) return;
+		const margin = Math.min(KEEP_IN_VIEW, viewWidth / 4, viewHeight / 4);
+		zoom.panBy(shift(spot[0], viewWidth, margin), shift(spot[1], viewHeight, margin));
+	}
 
 	function place(point: PlacePoint): [number, number] | null {
 		const projected = projection([point.longitude, point.latitude]);
@@ -152,16 +183,18 @@
 <style>
 	.map {
 		position: relative;
-		max-height: 640px;
+		flex: 1;
+		min-height: 0;
 		overflow: hidden;
-		aspect-ratio: 10 / 9;
 		background: var(--color-bg);
 		border: var(--border-width-hairline) solid var(--color-line);
 		user-select: none;
 	}
 
 	.small {
+		flex: none;
 		max-height: 280px;
+		aspect-ratio: 10 / 9;
 	}
 
 	svg {
@@ -240,7 +273,15 @@
 		color: var(--color-on-fg);
 	}
 
-	.selected .disc,
+	.selected circle {
+		fill: var(--color-highlight);
+		stroke: var(--color-fg);
+	}
+
+	.selected .count {
+		color: var(--color-on-fg);
+	}
+
 	.city:focus-visible .disc {
 		outline: var(--border-width-base) solid var(--color-fg);
 		outline-offset: var(--spacing-1);
@@ -248,10 +289,6 @@
 
 	.city:focus-visible {
 		outline: none;
-	}
-
-	.city:focus-visible .disc {
-		outline-style: dashed;
 	}
 
 	.name {
@@ -280,12 +317,6 @@
 		fill: var(--color-fg);
 		stroke: var(--color-bg);
 		stroke-width: 0.3;
-	}
-
-	@media (min-width: 768px) {
-		.map {
-			aspect-ratio: 16 / 10;
-		}
 	}
 
 	.zoom {

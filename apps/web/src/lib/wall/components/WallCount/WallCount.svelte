@@ -12,33 +12,41 @@
 	let { count }: Props = $props();
 </script>
 
-<Tooltip align="end" placement="bottom" text={m.statistics.title}>
-	{#snippet children(id)}
-		<a
-			class="caption"
-			aria-describedby={id}
-			aria-label={m.statistics.wallLink(count)}
-			href={resolve('/(app)/atelier/statistics')}
-		>
-			{count}
-			<Icon icon={ChartColumn} size="sm" />
-		</a>
-	{/snippet}
-</Tooltip>
-<Tooltip align="end" placement="bottom" text={m.map.wallLink}>
-	{#snippet children(id)}
-		<a
-			class="caption"
-			aria-describedby={id}
-			aria-label={m.map.wallLink}
-			href={resolve('/(app)/atelier/map')}
-		>
-			<Icon icon={MapIcon} size="sm" />
-		</a>
-	{/snippet}
-</Tooltip>
+<span class="links">
+	<Tooltip align="end" placement="bottom" text={m.statistics.title}>
+		{#snippet children(id)}
+			<a
+				class="caption"
+				aria-describedby={id}
+				aria-label={m.statistics.wallLink(count)}
+				href={resolve('/(app)/atelier/statistics')}
+			>
+				{count}
+				<Icon icon={ChartColumn} size="sm" />
+			</a>
+		{/snippet}
+	</Tooltip>
+	<Tooltip align="end" placement="bottom" text={m.map.wallLink}>
+		{#snippet children(id)}
+			<a
+				class="caption"
+				aria-describedby={id}
+				aria-label={m.map.wallLink}
+				href={resolve('/(app)/atelier/map')}
+			>
+				<Icon icon={MapIcon} size="sm" />
+			</a>
+		{/snippet}
+	</Tooltip>
+</span>
 
 <style>
+	.links {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--spacing-4);
+	}
+
 	a {
 		display: inline-flex;
 		align-items: center;
