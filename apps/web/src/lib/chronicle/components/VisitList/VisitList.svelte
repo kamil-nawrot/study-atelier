@@ -26,7 +26,7 @@
 {#snippet ticket(visit: Visit, visitCount: number)}
 	{@const seen = seenArtworks(visit, artworks)}
 	<VisitTicket
-		backdrop={visit.kind === 'trip' ? undefined : seen.find((artwork) => artwork.hasImage)}
+		backdrop={seen.find((artwork) => artwork.hasImage)}
 		count={seen.length}
 		linked
 		{onimagefailed}

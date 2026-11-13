@@ -35,6 +35,7 @@
 
 	let header = $derived(!linked);
 	let trip = $derived(visit.kind === 'trip');
+	let whole = $derived(trip && !header);
 	let date = $derived(tripTicketDate(visit, header));
 	let place = $derived([
 		visit.placeType ? placeTypeName(visit.placeType) : null,
@@ -43,7 +44,7 @@
 	let excerpt = $derived(header ? '' : noteExcerpt(visit.notes));
 </script>
 
-<article class="ticket" class:header class:trip>
+<article class="ticket" class:header class:trip class:whole>
 	<span class="paper" aria-hidden="true"></span>
 	<div class="main">
 		<time class="date" class:year={visit.date.precision === 'year'} datetime={visit.date.on}>
@@ -93,22 +94,26 @@
 			{/if}
 		</div>
 	</div>
-	<TicketStub>
-		{#if header}
-			<p class="count">
-				<span class="number">{count}</span>
-				<span class="caption">{m.chronicle.seenCount(count)}</span>
-			</p>
-		{:else}
-			{#if backdrop}
-				<VisitBackdrop artwork={backdrop} {onimagefailed} {onnearscreen} />
+	{#if !whole}
+		<TicketStub>
+			{#if header}
+				<p class="count">
+					<span class="number">{count}</span>
+					<span class="caption">{m.chronicle.seenCount(count)}</span>
+				</p>
+			{:else}
+				{#if backdrop}
+					<VisitBackdrop artwork={backdrop} {onimagefailed} {onnearscreen} />
+				{/if}
 			{/if}
-		{/if}
-	</TicketStub>
+		</TicketStub>
+	{/if}
 </article>
 
 <style>
 	.ticket {
+		--depth: 14px;
+
 		position: relative;
 		display: grid;
 		isolation: isolate;
@@ -116,7 +121,6 @@
 
 	.paper {
 		--period: 32px;
-		--depth: 14px;
 		--teeth-across: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 14' preserveAspectRatio='none'%3E%3Cpolygon points='0,0 32,0 32,14 16,0 0,14'/%3E%3C/svg%3E");
 		--teeth-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 32' preserveAspectRatio='none'%3E%3Cpolygon points='0,0 14,0 0,16 14,32 0,32'/%3E%3C/svg%3E");
 
@@ -130,12 +134,16 @@
 				no-repeat;
 	}
 
+	.whole {
+		--depth: 0px;
+	}
+
 	.main {
 		display: grid;
 		grid-area: 1 / 1;
 		grid-template-columns: var(--spacing-12) minmax(0, 1fr);
 		gap: var(--spacing-4);
-		padding: var(--spacing-6) var(--spacing-6) calc(var(--spacing-6) + 14px);
+		padding: var(--spacing-6) var(--spacing-6) calc(var(--spacing-6) + var(--depth));
 	}
 
 	.date {
@@ -250,7 +258,8 @@
 		.main {
 			grid-template-columns: var(--spacing-16) minmax(0, 1fr);
 			gap: var(--spacing-6);
-			padding: var(--spacing-8) calc(var(--spacing-8) + 14px) var(--spacing-8) var(--spacing-8);
+			padding: var(--spacing-8) calc(var(--spacing-8) + var(--depth)) var(--spacing-8)
+				var(--spacing-8);
 		}
 
 		.paper {
@@ -262,6 +271,10 @@
 
 		.trip .main {
 			grid-template-columns: minmax(var(--spacing-16), max-content) minmax(0, 1fr);
+		}
+
+		.whole {
+			grid-template-columns: minmax(0, 1fr);
 		}
 
 		.trip .day {
