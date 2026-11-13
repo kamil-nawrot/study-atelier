@@ -4,6 +4,8 @@ import { loadPlaceStarter } from '#lib/card-index/place-starter-data/place-start
 import { emptyPlaceStarter } from '#lib/card-index/place-starter/place-starter.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { loadVisit } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
+import { loadTowns } from '#lib/map/geography/geography.ts';
+import { loadMapPlaces } from '#lib/map/places-data/places-data.ts';
 import { loadEditorNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
 import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
 import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
@@ -21,6 +23,10 @@ vi.mock('#lib/notes/note-link-data/note-link-data.ts', async (importOriginal) =>
 	loadEditorNoteLinks: vi.fn()
 }));
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({ loadAtelier: vi.fn() }));
+vi.mock('#lib/map/geography/geography.ts', () => ({ loadTowns: vi.fn() }));
+vi.mock('#lib/map/places-data/places-data.ts', () => ({ loadMapPlaces: vi.fn() }));
+
+const paris = { name: 'Paryż', countryCode: 'FR', latitude: 48.857, longitude: 2.352 };
 
 beforeEach(() => {
 	vi.clearAllMocks();
@@ -28,9 +34,38 @@ beforeEach(() => {
 	vi.mocked(loadVisitPlaces).mockResolvedValue({ places: ['Orsay'] });
 	vi.mocked(loadPlaceStarter).mockResolvedValue(emptyPlaceStarter());
 	vi.mocked(loadEditorNoteLinks).mockResolvedValue({ suggest: vi.fn(), resolve: vi.fn() });
+	vi.mocked(loadMapPlaces).mockResolvedValue({
+		places: [
+			{
+				id: 'paris',
+				name: 'Paryż',
+				placeType: 'city',
+				countryCode: 'FR',
+				point: { latitude: 48.857, longitude: 2.352 }
+			}
+		]
+	});
+	vi.mocked(loadTowns).mockResolvedValue([paris]);
 });
 
 describe('loadVisitForm', () => {
+	it('gives a trip the places with their points and the towns', async () => {
+		const data = await loadVisitForm();
+
+		expect(data.tripPlaces).toEqual([
+			{ name: 'Paryż', placeType: 'city', point: { latitude: 48.857, longitude: 2.352 } }
+		]);
+		expect(data.towns).toEqual([paris]);
+	});
+
+	it('opens the form without towns when they do not load', async () => {
+		vi.mocked(loadTowns).mockRejectedValue(new Error('offline'));
+
+		const data = await loadVisitForm();
+
+		expect(data.towns).toEqual([]);
+	});
+
 	it('gives an empty form the places, the artworks and no visit', async () => {
 		const data = await loadVisitForm();
 
