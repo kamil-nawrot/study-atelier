@@ -106,6 +106,26 @@ async function withNoteExtras(
 	return { ...loaded, noteLinks, glossary };
 }
 
+function loadRelatedExtras(
+	subject: ValueSubject,
+	details: ValueDetails,
+	artworks: WallArtwork[],
+	index: CardIndexData
+): Promise<[Relations, Awaited<ReturnType<typeof loadSymbolUses>>]> {
+	return Promise.all([
+		loadRelations({
+			kind: subject.kind,
+			artworks: artworksOfValue(artworks, subject),
+			index,
+			bounds: subjectBounds(subject, details),
+			authors: details.author?.relations
+		}),
+		loadSymbolUses(
+			subject.kind === 'era' ? { eraCode: subject.code } : { valueId: subjectId(subject) }
+		)
+	]);
+}
+
 export async function loadValuePage(
 	kind: string,
 	id: string,
@@ -130,18 +150,7 @@ export async function loadValuePage(
 	if (loadError) return failed(loadError);
 
 	const [relations, uses] = withArtworks
-		? await Promise.all([
-				loadRelations({
-					kind: subject.kind,
-					artworks: artworksOfValue(own.artworks, subject),
-					index: cardIndex.index,
-					bounds: subjectBounds(subject, details),
-					authors: details.author?.relations
-				}),
-				loadSymbolUses(
-					subject.kind === 'era' ? { eraCode: subject.code } : { valueId: subjectId(subject) }
-				)
-			])
+		? await loadRelatedExtras(subject, details, own.artworks, cardIndex.index)
 		: [undefined, undefined];
 
 	return {
