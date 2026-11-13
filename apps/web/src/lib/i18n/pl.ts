@@ -2115,7 +2115,7 @@ export const pl = {
 		zoomIn: 'Przybliż',
 		zoomOut: 'Oddal',
 		group: (cities: string[], artworks: number): string =>
-			`${cities.join(', ')}, ${workCount(artworks)}. Przybliż, żeby rozdzielić miasta`,
+			`${cities.join(', ')}, ${workCount(artworks)}. Pokaż miasta osobno`,
 		filtersLabel: 'Które dzieła pokazać',
 		filters: {
 			all: 'Wszystkie',
