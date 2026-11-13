@@ -1,6 +1,6 @@
 # 0276. Group close cities on the map and name only those that fit
 
-- Status: accepted
+- Status: accepted; the zoom on a click on a group and the closest view of 64× are superseded by [0278](0278-fan-out-a-group-of-close-cities-on-the-map.md)
 - Date: 2026-11-13
 
 ## Context and problem statement

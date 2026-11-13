@@ -36,6 +36,26 @@ describe('MapPointer', () => {
 		expect(ontap).not.toHaveBeenCalled();
 	});
 
+	it('reports every move of the map, by a drag or the wheel', () => {
+		const onmove = vi.fn();
+		const gestures = new MapPointer(new MapZoom(), vi.fn(), onmove);
+
+		gestures.down(pointer(1, 110, 70));
+		gestures.move(pointer(1, 110, 70));
+		expect(onmove).not.toHaveBeenCalled();
+		gestures.move(pointer(1, 130, 80));
+		gestures.up(pointer(1, 130, 80));
+		gestures.wheel({
+			clientX: 50,
+			clientY: 50,
+			deltaY: -100,
+			currentTarget: target,
+			preventDefault: vi.fn()
+		} as unknown as WheelEvent);
+
+		expect(onmove).toHaveBeenCalledTimes(2);
+	});
+
 	it('zooms with two fingers apart and with the wheel', () => {
 		const zoom = new MapZoom();
 		const gestures = new MapPointer(zoom, vi.fn());

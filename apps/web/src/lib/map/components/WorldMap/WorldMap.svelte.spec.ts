@@ -103,7 +103,7 @@ describe('WorldMap', () => {
 		await expect.poll(() => florenceButton.style.left).not.toBe(before);
 	});
 
-	it('groups close cities and zooms in on a group until they split', async () => {
+	it('groups close cities and fans them out on a click, however wide the map', async () => {
 		await page.viewport(1000, 800);
 		const onselect = vi.fn();
 		const rome: MapCity = {
@@ -120,18 +120,32 @@ describe('WorldMap', () => {
 			point: { latitude: 41.903, longitude: 12.453 },
 			count: 2
 		};
+		const tokyo: MapCity = {
+			...florence,
+			key: 'JP:Tokio',
+			name: 'Tokio',
+			point: { latitude: 35.68, longitude: 139.69 },
+			count: 1
+		};
 		render(WorldMap, {
 			geography: testGeography(),
-			fit: [paris.point, rome.point],
-			cities: [paris, rome, vatican],
+			fit: [paris.point, rome.point, tokyo.point],
+			cities: [paris, rome, vatican, tokyo],
 			onselect
 		});
 
-		await page.getByRole('button', { name: m.map.group(['Rzym', 'Watykan'], 7) }).click();
+		const group = page.getByRole('button', { name: m.map.group(['Rzym', 'Watykan'], 7) });
+		const tokyoButton = page.getByRole('button', { name: /^Tokio/ }).element() as HTMLElement;
+		const before = tokyoButton.style.left;
+		await group.click();
 
 		expect(onselect).not.toHaveBeenCalled();
+		expect(tokyoButton.style.left).toBe(before);
 		await expect.element(page.getByRole('button', { name: /^Rzym/ })).toBeInTheDocument();
 		await page.getByRole('button', { name: /^Watykan/ }).click();
 		expect(onselect).toHaveBeenCalledWith(vatican);
+
+		await page.getByRole('button', { name: m.map.zoomIn }).click();
+		await expect.element(page.getByRole('button', { name: /^Watykan/ })).not.toBeInTheDocument();
 	});
 });
