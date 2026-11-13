@@ -5,19 +5,15 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import DetailLens from '#lib/pins/components/DetailLens/DetailLens.svelte';
 	import LensStrip from '#lib/pins/components/LensStrip/LensStrip.svelte';
-	import DetailMeaningMenu from '#lib/symbols/components/DetailMeaningMenu/DetailMeaningMenu.svelte';
 	import type { SymbolDetail } from '#lib/symbols/types/symbol-detail.ts';
-	import type { SymbolMeaning } from '#lib/symbols/types/symbol-meaning.ts';
 
 	type Props = {
 		details: readonly SymbolDetail[];
 		coverPinId?: string;
 		onsetcover?: (pinId: string | null) => void;
-		meanings?: readonly SymbolMeaning[];
-		onsetmeaning?: (pinId: string, meaningId: string | null) => void;
 	};
 
-	let { details, coverPinId, onsetcover, meanings, onsetmeaning }: Props = $props();
+	let { details, coverPinId, onsetcover }: Props = $props();
 </script>
 
 <div class="details">
@@ -39,15 +35,6 @@
 					<span class="title">{detail.title}</span>
 					<span class="byline">{detail.byline}</span>
 				</a>
-				{#if meanings && onsetmeaning}
-					<span class="menu" class:plain={!detail.lens}>
-						<DetailMeaningMenu
-							current={detail.meaningId}
-							{meanings}
-							onchoose={(meaningId) => onsetmeaning(detail.pinId, meaningId)}
-						/>
-					</span>
-				{/if}
 				{#if onsetcover && detail.lens}
 					{@const main = detail.pinId === coverPinId}
 					<span class="cut">
@@ -81,16 +68,6 @@
 		justify-items: center;
 		align-content: start;
 		gap: var(--spacing-2);
-	}
-
-	.menu {
-		position: absolute;
-		top: calc(-1 * var(--spacing-2));
-		right: calc(50% - var(--detail-lens) / 2 - var(--spacing-2));
-	}
-
-	.menu.plain {
-		right: 0;
 	}
 
 	.cut {

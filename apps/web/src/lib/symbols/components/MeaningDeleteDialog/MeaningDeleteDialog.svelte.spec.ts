@@ -7,9 +7,15 @@ import MeaningDeleteDialog from './MeaningDeleteDialog.svelte';
 describe('MeaningDeleteDialog', () => {
 	it('explains what happens to the pins and confirms', async () => {
 		const onconfirm = vi.fn();
-		render(MeaningDeleteDialog, { open: true, onconfirm });
+		render(MeaningDeleteDialog, {
+			open: true,
+			meaning: { id: 'penance', text: 'penance', contexts: [] },
+			onconfirm
+		});
 
-		await expect.element(page.getByText(m.symbols.meaningDialog.removeTitle)).toBeVisible();
+		await expect
+			.element(page.getByText(m.symbols.meaningDialog.removeTitle('penance')))
+			.toBeVisible();
 		await expect.element(page.getByText(m.symbols.meaningDialog.removeDescription)).toBeVisible();
 		await page.getByRole('button', { name: m.common.delete }).click();
 

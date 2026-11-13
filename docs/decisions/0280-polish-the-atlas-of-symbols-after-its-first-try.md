@@ -1,6 +1,6 @@
 # 0280. Polish the atlas of symbols after its first try
 
-- Status: accepted
+- Status: accepted; the "⋯" on a lens is superseded by [0281](0281-assign-details-to-a-meaning-and-align-the-symbol-page-with-the-app.md)
 - Date: 2026-11-13
 
 ## Context and problem statement

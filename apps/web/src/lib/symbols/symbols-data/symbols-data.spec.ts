@@ -11,7 +11,7 @@ import {
 	loadSymbolPins,
 	saveSymbol,
 	searchArtworkContexts,
-	setPinMeaning,
+	assignMeaning,
 	setSymbolCover
 } from './symbols-data.ts';
 
@@ -253,16 +253,27 @@ describe('symbols data', () => {
 		});
 	});
 
-	it('moves a pin to another meaning or to none', async () => {
+	it('assigns ticked pins to a meaning and drops the unticked ones', async () => {
 		chain({ error: null });
-		query.eq.mockResolvedValue({ error: null });
+		const inFilter = vi.fn().mockResolvedValue({ error: null });
+		query.update.mockReturnValue({ in: inFilter });
 
-		await expect(setPinMeaning('pin-1', 'm2')).resolves.toEqual({});
+		await expect(assignMeaning('m2', ['pin-1'], ['pin-2'])).resolves.toEqual({});
 		expect(supabase.from).toHaveBeenCalledWith('artwork_pins');
-		expect(query.update).toHaveBeenLastCalledWith({ symbol_meaning_id: 'm2' });
-		expect(query.eq).toHaveBeenLastCalledWith('id', 'pin-1');
-		await setPinMeaning('pin-1', null);
-		expect(query.update).toHaveBeenLastCalledWith({ symbol_meaning_id: null });
+		expect(query.update).toHaveBeenNthCalledWith(1, { symbol_meaning_id: 'm2' });
+		expect(inFilter).toHaveBeenNthCalledWith(1, 'id', ['pin-1']);
+		expect(query.update).toHaveBeenNthCalledWith(2, { symbol_meaning_id: null });
+		expect(inFilter).toHaveBeenNthCalledWith(2, 'id', ['pin-2']);
+	});
+
+	it('skips an empty side and reports a failure', async () => {
+		chain({ error: null });
+		const inFilter = vi.fn().mockResolvedValue({ error: { message: 'Failed to fetch' } });
+		query.update.mockReturnValue({ in: inFilter });
+
+		await expect(assignMeaning('m2', [], ['pin-2'])).resolves.toEqual({ error: m.common.network });
+		expect(query.update).toHaveBeenCalledTimes(1);
+		expect(query.update).toHaveBeenCalledWith({ symbol_meaning_id: null });
 	});
 
 	it('deletes a symbol', async () => {

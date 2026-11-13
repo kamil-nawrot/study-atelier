@@ -5,10 +5,10 @@ import { m } from '#lib/i18n/i18n.ts';
 import { testSymbol, testSymbolPage } from '#lib/testing/symbols/symbols.ts';
 import SymbolView from './SymbolView.svelte';
 
-const { setSymbolCover, setPinMeaning, saveSymbol, invalidateAll, loadSymbolForm } = vi.hoisted(
+const { setSymbolCover, assignMeaning, saveSymbol, invalidateAll, loadSymbolForm } = vi.hoisted(
 	() => ({
 		setSymbolCover: vi.fn(),
-		setPinMeaning: vi.fn(),
+		assignMeaning: vi.fn(),
 		saveSymbol: vi.fn(),
 		invalidateAll: vi.fn(),
 		loadSymbolForm: vi.fn()
@@ -17,7 +17,7 @@ const { setSymbolCover, setPinMeaning, saveSymbol, invalidateAll, loadSymbolForm
 
 vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({
 	setSymbolCover,
-	setPinMeaning,
+	assignMeaning,
 	saveSymbol,
 	searchArtworkContexts: vi.fn().mockResolvedValue([])
 }));
@@ -26,7 +26,7 @@ vi.mock('#lib/symbols/symbol-page-data/symbol-page-data.ts', () => ({ loadSymbol
 
 beforeEach(() => {
 	setSymbolCover.mockReset().mockResolvedValue({});
-	setPinMeaning.mockReset().mockResolvedValue({});
+	assignMeaning.mockReset().mockResolvedValue({});
 	saveSymbol.mockReset().mockResolvedValue({ id: 'skull' });
 	invalidateAll.mockReset().mockResolvedValue(undefined);
 	loadSymbolForm.mockReset().mockResolvedValue({ candidates: [] });
@@ -55,15 +55,19 @@ describe('SymbolView', () => {
 		await expect.element(page.getByText('A reminder of death.')).toBeVisible();
 	});
 
-	it('moves a detail to another meaning from its menu with a toast', async () => {
+	it('assigns details to a meaning from its menu with a toast', async () => {
 		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
 
-		await page.getByRole('button', { name: m.symbols.view.changeMeaning }).first().click();
-		await page.getByRole('button', { name: '1 transience, death' }).click();
+		await page
+			.getByRole('button', { name: m.symbols.meaningDialog.actions('transience, death') })
+			.click();
+		await page.getByRole('button', { name: m.symbols.meaningDialog.assign }).click();
+		await page.getByRole('dialog').getByText('Saint Jerome Writing').click();
+		await page.getByRole('button', { name: m.common.save }).click();
 
-		expect(setPinMeaning).toHaveBeenCalledWith('pin-1', 'transience');
+		expect(assignMeaning).toHaveBeenCalledWith('transience', ['pin-1'], []);
 		expect(invalidateAll).toHaveBeenCalled();
-		await expect.element(page.getByText(m.symbols.view.meaningChanged)).toBeVisible();
+		await expect.element(page.getByText(m.symbols.meaningDialog.assigned)).toBeVisible();
 	});
 
 	it('warns when the details did not load', async () => {
@@ -137,7 +141,7 @@ describe('SymbolView', () => {
 	it('edits a meaning from its menu', async () => {
 		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
 
-		await page.getByRole('button', { name: m.symbols.meaningDialog.actions }).nth(1).click();
+		await page.getByRole('button', { name: m.symbols.meaningDialog.actions('penance') }).click();
 		await page.getByRole('button', { name: m.symbols.meaningDialog.edit }).click();
 		const field = page.getByRole('textbox', { name: m.symbols.form.meaning });
 		await expect.element(field).toHaveValue('penance');
@@ -155,11 +159,10 @@ describe('SymbolView', () => {
 		);
 	});
 
-	it('moves a meaning up from its menu', async () => {
-		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
+	it('moves a meaning up while reordering', async () => {
+		render(SymbolView, { symbol: testSymbol, page: testSymbolPage(), reordering: true });
 
-		await page.getByRole('button', { name: m.symbols.meaningDialog.actions }).nth(1).click();
-		await page.getByRole('button', { name: m.symbols.meaningDialog.moveUp }).click();
+		await page.getByRole('button', { name: m.symbols.meaningDialog.moveUp('penance') }).click();
 
 		expect(saveSymbol).toHaveBeenCalledWith(
 			expect.objectContaining({
@@ -175,9 +178,13 @@ describe('SymbolView', () => {
 	it('removes a meaning after a confirmation', async () => {
 		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
 
-		await page.getByRole('button', { name: m.symbols.meaningDialog.actions }).first().click();
+		await page
+			.getByRole('button', { name: m.symbols.meaningDialog.actions('transience, death') })
+			.click();
 		await page.getByRole('button', { name: m.symbols.meaningDialog.remove }).click();
-		await expect.element(page.getByText(m.symbols.meaningDialog.removeTitle)).toBeVisible();
+		await expect
+			.element(page.getByText(m.symbols.meaningDialog.removeTitle('transience, death')))
+			.toBeVisible();
 		await page.getByRole('button', { name: m.common.delete }).click();
 
 		expect(saveSymbol).toHaveBeenCalledWith(

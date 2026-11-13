@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Tag } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import type { ResolvedPathname } from '$app/types';
 	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
@@ -28,25 +29,37 @@
 	}
 </script>
 
-<ul class="tags">
-	{#each contexts as context (contextKey(context))}
-		{@const href = hrefOf(context)}
-		{@const kind = contextKindName(context)}
-		<li>
-			{#if href}
-				<a class="tag" {href}>
-					{context.name}{#if kind}<span class="kind">{` · ${kind}`}</span>{/if}
-				</a>
-			{:else}
-				<span class="tag">{context.name}</span>
-			{/if}
-		</li>
-	{:else}
-		<li class="general">{m.symbols.view.general}</li>
-	{/each}
-</ul>
+{#snippet label(context: SymbolContext)}
+	{@const kind = contextKindName(context)}
+	{context.name}{#if kind}<span class="kind">{` · ${kind}`}</span>{/if}
+{/snippet}
+
+{#if contexts.length > 0}
+	<div class="contexts">
+		<p class="overline">{m.symbols.view.context}</p>
+		<ul class="tags">
+			{#each contexts as context (contextKey(context))}
+				{@const href = hrefOf(context)}
+				<li>
+					{#if href}
+						<a {href}><Tag>{@render label(context)}</Tag></a>
+					{:else}
+						<Tag>{@render label(context)}</Tag>
+					{/if}
+				</li>
+			{/each}
+		</ul>
+	</div>
+{:else}
+	<p class="overline">{m.symbols.view.general}</p>
+{/if}
 
 <style>
+	.contexts {
+		display: grid;
+		gap: var(--spacing-2);
+	}
+
 	.tags {
 		display: flex;
 		flex-wrap: wrap;
@@ -54,30 +67,17 @@
 		list-style: none;
 	}
 
-	.tag {
-		display: inline-block;
-		padding: 0 var(--spacing-2);
-		background: var(--color-tag);
-		color: var(--color-fg);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-sm);
+	a {
+		color: inherit;
 		text-decoration: none;
 	}
 
-	a.tag:hover,
-	a.tag:focus-visible {
+	a:hover,
+	a:focus-visible {
 		text-decoration: underline;
 	}
 
 	.kind {
 		color: var(--color-fg-muted);
-	}
-
-	.general {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-sm);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
 	}
 </style>

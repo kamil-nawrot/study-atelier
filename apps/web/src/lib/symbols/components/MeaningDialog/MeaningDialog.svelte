@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Alert, Button, Dialog, TextButton } from '@study-atelier/ui';
+	import { Alert, Button, Dialog } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import MeaningInputs from '#lib/symbols/components/MeaningInputs/MeaningInputs.svelte';
 	import type { SymbolContext } from '#lib/symbols/types/symbol-context.ts';
@@ -65,7 +65,7 @@
 	</div>
 	{#snippet footer()}
 		{#if onremove}
-			<TextButton danger onclick={onremove}>{m.symbols.meaningDialog.remove}</TextButton>
+			<Button onclick={onremove} variant="danger">{m.symbols.meaningDialog.remove}</Button>
 		{/if}
 		<Button onclick={() => (open = false)}>{m.common.cancel}</Button>
 		<Button disabled={busy} onclick={save} variant="primary">

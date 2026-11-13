@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Alert, Toast } from '@study-atelier/ui';
+	import KeyRound from '@lucide/svelte/icons/key-round';
+	import { Alert, Disclosure, Icon, Toast } from '@study-atelier/ui';
 	import { invalidateAll } from '$app/navigation';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { loadSymbolForm } from '#lib/symbols/symbol-page-data/symbol-page-data.ts';
@@ -9,11 +10,12 @@
 		withoutMeaning
 	} from '#lib/symbols/meaning-edits/meaning-edits.ts';
 	import {
+		assignMeaning,
 		saveSymbol,
-		setPinMeaning,
 		setSymbolCover
 	} from '#lib/symbols/symbols-data/symbols-data.ts';
 	import MeaningDeleteDialog from '#lib/symbols/components/MeaningDeleteDialog/MeaningDeleteDialog.svelte';
+	import MeaningDetailsDialog from '#lib/symbols/components/MeaningDetailsDialog/MeaningDetailsDialog.svelte';
 	import MeaningDialog from '#lib/symbols/components/MeaningDialog/MeaningDialog.svelte';
 	import type { SymbolContext } from '#lib/symbols/types/symbol-context.ts';
 	import type { SymbolDraft } from '#lib/symbols/types/symbol-draft.ts';
@@ -27,17 +29,19 @@
 	type Props = {
 		symbol: SymbolEntry;
 		page: SymbolPageResult;
+		reordering?: boolean;
 	};
 
-	let { symbol, page }: Props = $props();
+	let { symbol, page, reordering = false }: Props = $props();
 
 	let toast: Toast;
 	let chosen = $state<{ pinId: string | null }>();
-	let coverError = $state<string>();
+	let pageError = $state<string>();
 	const coverPinId = $derived(chosen ? (chosen.pinId ?? undefined) : symbol.coverPinId);
 
 	let dialogOpen = $state(false);
 	let removeOpen = $state(false);
+	let assignOpen = $state(false);
 	let editing = $state<SymbolMeaning>();
 	let candidates = $state<readonly SymbolContext[]>([]);
 	let dialogError = $state<string>();
@@ -82,8 +86,8 @@
 	}
 
 	async function moveMeaning(id: string, step: -1 | 1): Promise<void> {
-		await store(withMovedMeaning(symbol, id, step));
-		if (dialogError) coverError = dialogError;
+		pageError = undefined;
+		if (!(await store(withMovedMeaning(symbol, id, step)))) pageError = dialogError;
 	}
 
 	function askRemove(meaning: SymbolMeaning): void {
@@ -92,20 +96,30 @@
 		removeOpen = true;
 	}
 
-	async function setMeaning(pinId: string, meaningId: string | null): Promise<void> {
-		coverError = undefined;
-		const { error } = await setPinMeaning(pinId, meaningId);
-		if (error) coverError = error;
-		else {
-			await invalidateAll();
-			toast.show(m.symbols.view.meaningChanged);
+	function openAssign(meaning: SymbolMeaning): void {
+		editing = meaning;
+		dialogError = undefined;
+		assignOpen = true;
+	}
+
+	async function saveAssigned(added: string[], dropped: string[]): Promise<void> {
+		if (!editing) return;
+		busy = true;
+		const { error } = await assignMeaning(editing.id, added, dropped);
+		busy = false;
+		if (error) {
+			dialogError = error;
+			return;
 		}
+		await invalidateAll();
+		assignOpen = false;
+		toast.show(m.symbols.meaningDialog.assigned);
 	}
 
 	async function setCover(pinId: string | null): Promise<void> {
-		coverError = undefined;
+		pageError = undefined;
 		const { error } = await setSymbolCover(symbol.id, pinId);
-		if (error) coverError = error;
+		if (error) pageError = error;
 		else {
 			chosen = { pinId };
 			toast.show(m.symbols.view.mainDetailSaved);
@@ -113,57 +127,68 @@
 	}
 </script>
 
-<header class="head">
-	<span class="overline">{m.symbols.view.overline}</span>
-	<h1>{symbol.name}</h1>
-	{#if symbol.description}
-		<p class="description">{symbol.description}</p>
+<div class="view">
+	<article>
+		<header>
+			<p class="kind overline">
+				<Icon icon={KeyRound} size="sm" />
+				{m.symbols.view.overline}
+			</p>
+			<h1>{symbol.name}</h1>
+		</header>
+
+		{#if symbol.description}
+			<blockquote>
+				<p class="description">{symbol.description}</p>
+			</blockquote>
+		{/if}
+	</article>
+
+	{#if page.detailsError}
+		<Alert tone="danger">{page.detailsError}</Alert>
 	{/if}
-</header>
 
-{#if page.detailsError}
-	<Alert tone="danger">{page.detailsError}</Alert>
-{/if}
+	{#if pageError}
+		<Alert tone="danger">{pageError}</Alert>
+	{/if}
 
-{#if coverError}
-	<Alert tone="danger">{coverError}</Alert>
-{/if}
-
-{#each page.sections as section, index (section.meaning.id)}
-	<SymbolMeaningSection
-		{coverPinId}
-		first={index === 0}
-		last={index === page.sections.length - 1}
-		meanings={symbol.meanings}
-		number={index + 1}
-		onedit={() => openDialog(section.meaning)}
-		onmove={(step) => moveMeaning(section.meaning.id, step)}
-		onremove={() => askRemove(section.meaning)}
-		onsetcover={setCover}
-		onsetmeaning={setMeaning}
-		pinsShown={!page.detailsError}
-		{section}
-	/>
-{/each}
-
-{#if page.sections.length === 0 && !page.detailsError}
-	<p class="empty">{m.symbols.meaningDialog.noMeanings}</p>
-{/if}
-
-{#if page.withoutMeaning.length > 0}
-	<section class="rest" aria-labelledby="without-meaning">
-		<h2 id="without-meaning">{m.symbols.view.withoutMeaning}</h2>
-		<SymbolDetails
+	{#each page.sections as section, index (section.meaning.id)}
+		<SymbolMeaningSection
 			{coverPinId}
-			details={page.withoutMeaning}
-			meanings={symbol.meanings}
+			first={index === 0}
+			last={index === page.sections.length - 1}
+			moving={busy}
+			number={index + 1}
+			onassign={() => openAssign(section.meaning)}
+			onedit={() => openDialog(section.meaning)}
+			onmove={(step) => moveMeaning(section.meaning.id, step)}
+			onremove={() => askRemove(section.meaning)}
 			onsetcover={setCover}
-			onsetmeaning={setMeaning}
+			pinsShown={!page.detailsError}
+			{reordering}
+			{section}
 		/>
-	</section>
-{/if}
+	{/each}
 
-<SymbolTimeline details={page.details} />
+	{#if page.sections.length === 0 && !page.detailsError}
+		<p class="empty">{m.symbols.meaningDialog.noMeanings}</p>
+	{/if}
+
+	{#if page.withoutMeaning.length > 0}
+		<section aria-labelledby="without-meaning">
+			<Disclosure
+				id="without-meaning"
+				count={page.withoutMeaning.length}
+				room
+				title={m.symbols.view.withoutMeaning}
+			>
+				<SymbolDetails {coverPinId} details={page.withoutMeaning} onsetcover={setCover} />
+			</Disclosure>
+		</section>
+	{/if}
+
+	<SymbolTimeline details={page.details} />
+</div>
 
 <MeaningDialog
 	{busy}
@@ -178,25 +203,39 @@
 <MeaningDeleteDialog
 	{busy}
 	error={removeOpen ? dialogError : undefined}
+	meaning={editing}
 	onconfirm={removeMeaning}
 	bind:open={removeOpen}
+/>
+
+<MeaningDetailsDialog
+	{busy}
+	details={page.details}
+	error={assignOpen ? dialogError : undefined}
+	meaning={editing}
+	meanings={symbol.meanings}
+	onsave={saveAssigned}
+	bind:open={assignOpen}
 />
 
 <Toast bind:this={toast} />
 
 <style>
-	.head {
+	article,
+	header {
 		display: grid;
-		gap: var(--spacing-1);
-		padding-bottom: var(--spacing-8);
+		gap: var(--spacing-2);
 	}
 
-	.overline {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
+	article {
+		gap: var(--spacing-8);
+		max-width: var(--size-content-default);
+	}
+
+	.kind {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
 	}
 
 	h1 {
@@ -207,37 +246,27 @@
 		line-height: var(--line-height-3xl);
 	}
 
-	.empty {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-sm);
+	blockquote {
+		margin: 0;
+		padding-left: var(--spacing-4);
+		border-left: var(--border-width-button) solid var(--color-fg-muted);
 	}
 
 	.description {
-		max-width: var(--size-content-default);
-		color: var(--color-fg-muted);
+		font-family: var(--font-family-title), Georgia, serif;
+		font-size: var(--font-size-xl);
+		font-style: italic;
+		line-height: var(--line-height-xl);
 		white-space: pre-line;
 	}
 
-	.rest {
+	.view {
 		display: grid;
-		gap: var(--spacing-4);
-		padding: var(--spacing-8) 0;
-		border-top: var(--border-width-hairline) solid var(--color-line);
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--spacing-8);
 	}
 
-	h2 {
+	.empty {
 		color: var(--color-fg-muted);
-		font-size: var(--font-size-sm);
-		font-weight: var(--font-weight-regular);
-		line-height: var(--line-height-sm);
-		letter-spacing: var(--letter-spacing-wide);
-		text-transform: uppercase;
-	}
-
-	@media (max-width: 767.98px) {
-		h1 {
-			font-size: var(--font-size-2xl);
-			line-height: var(--line-height-2xl);
-		}
 	}
 </style>
