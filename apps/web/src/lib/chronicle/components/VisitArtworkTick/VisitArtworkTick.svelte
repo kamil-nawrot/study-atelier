@@ -29,7 +29,7 @@
 	}
 </script>
 
-<TickTile {checked} ontoggle={() => ontoggle(artwork)} {@attach watchScreen}>
+<TickTile {@attach watchScreen} {checked} ontoggle={() => ontoggle(artwork)}>
 	{#snippet picture()}
 		{#if artwork.hasImage}
 			<ArtworkImage
