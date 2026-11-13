@@ -70,6 +70,7 @@
 			</span>
 		{:else if onedit && onassign && onremove}
 			<ActionMenu
+				bare
 				actions={[
 					{ label: m.symbols.meaningDialog.edit, icon: Pencil, onclick: onedit },
 					{ label: m.symbols.meaningDialog.assign, icon: ListChecks, onclick: onassign },

@@ -6,9 +6,10 @@
 	type Props = {
 		label: string;
 		actions: readonly MoreAction[];
+		bare?: boolean;
 	};
 
-	let { label, actions }: Props = $props();
+	let { label, actions, bare = false }: Props = $props();
 
 	let popup: ReturnType<typeof PopupButton> | undefined = $state();
 
@@ -18,9 +19,9 @@
 	}
 </script>
 
-<PopupButton bind:this={popup} align="end" {label}>
+<PopupButton bind:this={popup} align="end" {bare} {label}>
 	{#snippet trigger()}
-		<Icon icon={Ellipsis} />
+		<span class="trigger" class:bare><Icon icon={Ellipsis} /></span>
 	{/snippet}
 	<ul class="actions">
 		{#each actions as action (action.label)}
@@ -56,6 +57,22 @@
 </PopupButton>
 
 <style>
+	.trigger {
+		display: inline-flex;
+	}
+
+	.trigger.bare {
+		align-items: center;
+		justify-content: center;
+		min-width: var(--size-control);
+		min-height: var(--size-control);
+		color: var(--color-fg-muted);
+	}
+
+	.trigger.bare:hover {
+		color: var(--color-fg);
+	}
+
 	.actions {
 		display: grid;
 		min-width: calc(5 * var(--size-control));
